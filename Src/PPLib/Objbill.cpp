@@ -5686,7 +5686,7 @@ int SLAPI PPObjBill::ReleaseSerialFromUniqSuffix(SString & rSerial) const
 			const size_t nd = (size_t)(nd_c - '0');
 			const size_t sfx_len = nd + fmt_len - 1;
 			const size_t sn_len = rSerial.Len();
-			if(sn_len > sfx_len && memcmp(((const char *)rSerial)+sn_len-sfx_len, Cfg.UniqSerialSfx, fmt_len-1) == 0) {
+			if(sn_len > sfx_len && memcmp(rSerial.cptr()+sn_len-sfx_len, Cfg.UniqSerialSfx, fmt_len-1) == 0) {
 				rSerial.Trim(sn_len-sfx_len);
 				ok = 1;
 			}

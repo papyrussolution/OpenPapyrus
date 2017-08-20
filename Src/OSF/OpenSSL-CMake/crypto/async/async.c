@@ -92,7 +92,7 @@ static ASYNC_JOB * async_get_pool_job(void)
 {
 	ASYNC_JOB * job;
 	async_pool * pool = (async_pool*)CRYPTO_THREAD_get_local(&poolkey);
-	if(pool == NULL) {
+	if(!pool) {
 		/*
 		 * Pool has not been initialised, so init with the defaults, i.e.
 		 * no max size and no pre-created jobs
@@ -301,7 +301,7 @@ int ASYNC_init_thread(size_t max_size, size_t init_size)
 		return 0;
 	}
 	pool = (async_pool *)OPENSSL_zalloc(sizeof *pool);
-	if(pool == NULL) {
+	if(!pool) {
 		ASYNCerr(ASYNC_F_ASYNC_INIT_THREAD, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

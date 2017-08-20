@@ -2606,7 +2606,7 @@ int FASTCALL valuePush(xmlXPathParserContext * pCtxt, xmlXPathObject * value)
 			}
 			else {
 				xmlXPathObjectPtr * tmp = (xmlXPathObjectPtr*)SAlloc::R(pCtxt->valueTab, 2 * pCtxt->valueMax * sizeof(pCtxt->valueTab[0]));
-				if(tmp == NULL) {
+				if(!tmp) {
 					xmlXPathErrMemory(NULL, "pushing value");
 					pCtxt->error = XPATH_MEMORY_ERROR;
 					return 0;
@@ -5780,7 +5780,7 @@ static uint xmlXPathNodeValHash(xmlNodePtr node)
 		return 0;
 	if(node->type == XML_DOCUMENT_NODE) {
 		tmp = xmlDocGetRootElement((xmlDocPtr)node);
-		if(tmp == NULL)
+		if(!tmp)
 			node = node->children;
 		else
 			node = tmp;
@@ -5860,7 +5860,7 @@ static uint xmlXPathNodeValHash(xmlNodePtr node)
 
 		do {
 			tmp = tmp->parent;
-			if(tmp == NULL)
+			if(!tmp)
 				break;
 			if(tmp == node) {
 				tmp = NULL;
@@ -12221,7 +12221,7 @@ error:
 				ctxt->context->node = (xmlNode *)oldlocset->locTab[i]->user;
 				ctxt->context->contextSize = oldlocset->locNr;
 				ctxt->context->proximityPosition = i + 1;
-				if(tmp == NULL) {
+				if(!tmp) {
 					tmp = xmlXPathCacheNewNodeSet(ctxt->context,
 					    ctxt->context->node);
 				}
@@ -12338,7 +12338,7 @@ error:
 				ctxt->context->node = oldset->nodeTab[i];
 				if((oldset->nodeTab[i]->type != XML_NAMESPACE_DECL) && oldset->nodeTab[i]->doc)
 					ctxt->context->doc = oldset->nodeTab[i]->doc;
-				if(tmp == NULL) {
+				if(!tmp) {
 					tmp = xmlXPathCacheNewNodeSet(ctxt->context, ctxt->context->node);
 				}
 				else {
@@ -12973,7 +12973,7 @@ error:
 					    ctxt->context->node = oldset->nodeTab[i];
 					    if((oldset->nodeTab[i]->type != XML_NAMESPACE_DECL) && oldset->nodeTab[i]->doc)
 						    ctxt->context->doc = oldset->nodeTab[i]->doc;
-					    if(tmp == NULL) {
+					    if(!tmp) {
 						    tmp = xmlXPathCacheNewNodeSet(ctxt->context, ctxt->context->node);
 					    }
 					    else {

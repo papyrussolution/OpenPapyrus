@@ -88,7 +88,7 @@ int SLAPI PPViewDBDiv::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(P_TempTbl = CreateTempFile());
 	{
@@ -151,7 +151,7 @@ int SLAPI PPViewDBDiv::InitIteration()
 {
 	int    ok = 1;
 	TempDBDivTbl::Key0 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->selectAll();
 	MEMSZERO(k);

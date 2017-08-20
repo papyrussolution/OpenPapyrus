@@ -201,11 +201,11 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 					p_price_fld = &p_tbl->Amount;
 				else
 					p_price_fld = &p_tbl->Price;
-				PPGetWord(PPWORD_SUM, 0, title = 0);
+				PPGetWord(PPWORD_SUM, 0, title.Z());
 				P_Ct->AddAggrField(*p_price_fld, Crosstab::afSum, title, MKSFMTD(8, 2, NMBF_NOZERO));
 				total_list.Add(p_tbl->Qtty);
 				total_list.Add(*p_price_fld);
-				P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, title = 0));
+				P_Ct->AddTotalRow(total_list, 0, PPGetWord(PPWORD_TOTAL, 0, title.Z()));
 				THROW(P_Ct->Create(1));
 				ok = 1;
 			}
@@ -239,7 +239,7 @@ int SLAPI PPViewGoodsMov2::InitIteration(IterOrder ord)
 	int    ok = 1;
 	TempGoodsMov2Tbl::Key1 k1, k1_;
 	MEMSZERO(k1);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1, 10));
 	P_IterQuery->selectAll();
 	k1_ = k1;

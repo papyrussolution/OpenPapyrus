@@ -515,7 +515,7 @@ int __db_truncate_overflow(DBC * dbc, db_pgno_t pgno, PAGE ** ppg, DB_COMPACT * 
 			break;
 	}
 err:
-	if(page && (t_ret = __memp_fput( dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput( dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
@@ -571,7 +571,7 @@ int __db_truncate_root(DBC * dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, ui
 		LSN_NOT_LOGGED(LSN(ppg));
 	*pgnop = newpgno;
 err:
-	if(page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

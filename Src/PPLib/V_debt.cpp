@@ -587,7 +587,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	ZDELETE(P_Ct);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_IterBillList);
 	ZDELETE(P_DebtDimAgentList); // @v9.1.4
@@ -709,7 +709,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 					if(bblk.IterPath == ProcessBlock::ipArticle)
 						PPWaitPercent(bblk.Cntr.Increment(), bblk.IterMsgPrefix);
 				}
-				ZDELETE(bblk.P_Q);
+				BExtQuery::ZDelete(&bblk.P_Q);
 				if(by_obj_subst && Filt.Flags & DebtTrnovrFilt::fExtended) {
 					ReckonOpArList roa_list;
 					PPIDArray tmp_op_list;
@@ -747,7 +747,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 									ufp_factor += 1.0;
 								}
 							}
-							ZDELETE(bblk.P_Q);
+							BExtQuery::ZDelete(&bblk.P_Q);
 						}
 					}
 				}
@@ -906,7 +906,7 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 
 PPViewDebtTrnovr::ProcessBlock::~ProcessBlock()
 {
-	ZDELETE(P_Q);
+	BExtQuery::ZDelete(&P_Q);
 }
 
 PPViewDebtTrnovr::ProcessBlock & PPViewDebtTrnovr::ProcessBlock::ResetIter()
@@ -1248,7 +1248,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & 
 
 int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 {
-	ZDELETE(rBlk.P_Q);
+	BExtQuery::ZDelete(&rBlk.P_Q);
 	rBlk.ExtBillList.clear();
 
 	int    ok = -1;
@@ -1354,7 +1354,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 	}
 	CATCH
 		ok = 0;
-		ZDELETE(rBlk.P_Q);
+		BExtQuery::ZDelete(&rBlk.P_Q);
 	ENDCATCH
 	return ok;
 }
@@ -1408,7 +1408,7 @@ int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 		idx = 3;
 	else if(order == OrdByStop)
 		idx = 5;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_IterBillList);
 	IterBillCounter = 0;
 	if(Filt.Flags & DebtTrnovrFilt::fPrintExt)
@@ -4211,7 +4211,7 @@ int SLAPI PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> ((DebtorStatFilt *)pBaseFilt) : 0;
 }
 
-int SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)
+void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)
 {
 	SString temp_buf, ar_name;
 	GetArticleName(pItem->ArID, ar_name);
@@ -4224,33 +4224,24 @@ int SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * p
 	else
 		temp_buf.CatChar('Z');
 	temp_buf.Space();
-	if(order == DebtorStatFilt::ordByArName) {
+	if(order == DebtorStatFilt::ordByArName)
 		temp_buf.Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByDelayMean) {
+	else if(order == DebtorStatFilt::ordByDelayMean)
 		temp_buf.Cat(pItem->DelayMean, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByDelaySd) {
+	else if(order == DebtorStatFilt::ordByDelaySd)
 		temp_buf.Cat(pItem->DelaySd, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByDelayGammaTest) {
+	else if(order == DebtorStatFilt::ordByDelayGammaTest)
 		temp_buf.Cat(pItem->DelayTestGamma, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByPaymPeriod) {
+	else if(order == DebtorStatFilt::ordByPaymPeriod)
 		temp_buf.CatLongZ(pItem->PaymPeriod, 6).Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByPaymDensity) {
+	else if(order == DebtorStatFilt::ordByPaymDensity)
 		temp_buf.Cat(pItem->PaymDensity, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	}
-	else if(order == DebtorStatFilt::ordByRating) {
+	else if(order == DebtorStatFilt::ordByRating)
 		temp_buf.Cat(pItem->Rating).Cat(ar_name);
-	}
-	else {
+	else
 		temp_buf.Cat(ar_name);
-	}
 	pRec->ID = pItem->ArID;
 	temp_buf.CopyTo(pRec->Name, sizeof(pRec->Name));
-	return 1;
 }
 
 int SLAPI PPViewDebtorStat::UpdateTempTable()
@@ -4266,7 +4257,7 @@ int SLAPI PPViewDebtorStat::UpdateTempTable()
 		THROW_DB(deleteFrom(p_o, 0, *(DBQ *)0));
 		for(InitIteration(0); NextIteration(&item) > 0;) {
 			TempOrderTbl::Rec temp_rec;
-			THROW(MakeTempRec(Filt.Order, &item, &temp_rec));
+			MakeTempRec(Filt.Order, &item, &temp_rec);
 			THROW_DB(bei.insert(&temp_rec));
 		}
 		THROW_DB(bei.flash());
@@ -4286,7 +4277,7 @@ int SLAPI PPViewDebtorStat::Init_(const PPBaseFilt * pBaseFilt)
 	PPLicData ld;
 	THROW_PP(DS.CheckExtFlag(ECF_OPENSOURCE) || (PPGetLicData(&ld) > 0 && ld.ExtFunc & PPLicData::effDebtorStat), PPERR_NOLIC_DEBTORSTAT);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	Tbl.GetLastDate(Filt.AccSheetID, &LastDate);
 	if(Filt.Order) {
@@ -4303,7 +4294,7 @@ int SLAPI PPViewDebtorStat::InitIteration(long ord)
 	BExtQuery * q = 0;
 	DBQ  * dbq = 0;
 	Counter.Init(0UL);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		TempOrderTbl::Key1 ord_k1;
 		THROW_MEM(q = new BExtQuery(P_TempTbl, 1));

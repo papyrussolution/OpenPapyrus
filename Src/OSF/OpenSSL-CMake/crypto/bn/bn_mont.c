@@ -45,7 +45,7 @@ int BN_mod_mul_montgomery(BIGNUM * r, const BIGNUM * a, const BIGNUM * b,
 
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	bn_check_top(tmp);

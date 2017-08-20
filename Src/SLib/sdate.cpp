@@ -881,7 +881,7 @@ int SLAPI setcurdatetime(LDATETIME dtm)
 {
 	SYSTEMTIME st;
 	if(SetLocalTime(&dtm.Get(st))) {
-		SendMessage(HWND_TOPMOST, WM_TIMECHANGE, 0, 0);
+		::SendMessage(HWND_TOPMOST, WM_TIMECHANGE, 0, 0);
 		return 1;
 	}
 	else

@@ -84,7 +84,7 @@ int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pFilt)
 int SLAPI PPViewSpecSeries::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pFilt));
 	CATCHZOK
 	return ok;
@@ -268,7 +268,7 @@ void SpecSerDlg::SetupCtrls()
 
 	getCtrlData(CTLSEL_SPCSER_MANUF, &(id = 0));
 	if(id) {
-		GetObjectName(PPOBJ_PERSON, id, (name = 0));
+		GetObjectName(PPOBJ_PERSON, id, name.Z());
 		setCtrlString(CTL_SPCSER_MANUFNAME, name);
 	}
 	disableCtrl(CTL_SPCSER_MANUFNAME, (id != 0));
@@ -533,15 +533,15 @@ int SLAPI PPViewSpecSeries::ExportUhtt()
 		pack.LabID = item.LabID;
 		pack.SetSerial(item.Serial);
 		pack.Barcode = item.Barcode;
-		SpecSeriesCore::GetExField(&item, SPCSNEXSTR_GOODSNAME, (temp_buf = 0));
+		SpecSeriesCore::GetExField(&item, SPCSNEXSTR_GOODSNAME, temp_buf.Z());
 		pack.SetGoodsName(temp_buf);
-		SpecSeriesCore::GetExField(&item, SPCSNEXSTR_MANUFNAME, (temp_buf = 0));
+		SpecSeriesCore::GetExField(&item, SPCSNEXSTR_MANUFNAME, temp_buf.Z());
 		pack.SetManufName(temp_buf);
 		{
 			int d = 0, m = 0, y = 0;
 			item.InfoDate.decode(&d, &m, &y);
 			if(d && m && y)
-				(pack.InfoDate = 0).Cat(y).Cat("-").Cat(m).Cat("-").Cat(d);
+				pack.InfoDate.Z().Cat(y).Cat("-").Cat(m).Cat("-").Cat(d);
 		}
 		pack.InfoKind = item.InfoKind;
 		pack.SetInfoIdent(item.InfoIdent);
@@ -549,7 +549,7 @@ int SLAPI PPViewSpecSeries::ExportUhtt()
 			int d = 0, m = 0, y = 0;
 			item.AllowDate.decode(&d, &m, &y);
 			if(d && m && y)
-				(pack.AllowDate = 0).Cat(y).Cat("-").Cat(m).Cat("-").Cat(d);
+				pack.AllowDate.Z().Cat(y).Cat("-").Cat(m).Cat("-").Cat(d);
 		}
 		pack.SetAllowNumber(item.AllowNumber);
 		pack.SetLetterType(item.LetterType);

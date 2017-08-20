@@ -405,6 +405,7 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	if(pLotRec) {
 		LotID = pLotRec->ID; // @v8.1.1
 		LocID = pLotRec->LocID;
+		Expiry = pLotRec->Expiry; // @v9.7.11
 		UnitsPerPack = pLotRec->UnitPerPack;
 		Cost  = pLotRec->Cost;
 		Price = pLotRec->Price;
@@ -412,6 +413,7 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	else {
 		LotID = 0;
 		LocID = 0;
+		Expiry = ZERODATE; // @v9.7.11
 		UnitsPerPack = 0.0;
 		Cost = 0.0;
 		Price = 0.0;
@@ -549,6 +551,10 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 		yes = 0;
 	else if(DiffParam & _diffPack && a->UnitsPerPack != v->UnitsPerPack)
 		yes = 0;
+	// @v9.7.11 {
+	else if(DiffParam & _diffExpiry && a->Expiry != v->Expiry) 
+		yes = 0;
+	// } @v9.7.11 
 	else if(DiffParam & _diffSerial && strcmp(a->Serial, v->Serial) != 0)
 		yes = 0;
 	else if(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0)
@@ -684,7 +690,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			}
 		}
 	}
-	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial) || DiffByTag()) {
+	if(DiffParam & (_diffPrice|_diffCost|_diffPack|_diffLoc|_diffSerial|_diffExpiry) || DiffByTag()) { // @v9.7.11 _diffExpiry
 		// @v8.1.0 if(Flags & fDiffBySerial) {
 		if(DiffParam & _diffSerial) { // @v8.1.0
 			PPObjBill * p_bobj = BillObj;

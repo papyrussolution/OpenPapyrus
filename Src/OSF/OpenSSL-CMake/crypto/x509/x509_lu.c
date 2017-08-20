@@ -271,7 +271,7 @@ int X509_STORE_CTX_get_by_subject(X509_STORE_CTX * vs, X509_LOOKUP_TYPE type,
 				break;
 			}
 		}
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 	}
 

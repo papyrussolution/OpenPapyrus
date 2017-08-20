@@ -55,7 +55,7 @@
 #include "cairo-xlib-surface-private.h"
 #include "cairo-compositor-private.h"
 //#include "cairo-clip-private.h"
-#include "cairo-damage-private.h"
+//#include "cairo-damage-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"

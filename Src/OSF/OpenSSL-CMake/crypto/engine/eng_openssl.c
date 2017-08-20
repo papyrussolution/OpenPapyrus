@@ -14,13 +14,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 //#include <openssl/rand.h>
 //#include <openssl/rsa.h>
 //#include <openssl/dsa.h>
 #include <openssl/dh.h>
 #include <openssl/hmac.h>
-#include <openssl/x509v3.h>
+//#include <openssl/x509v3.h>
 /*
  * This testing gunk is implemented (and explained) lower down. It also
  * assumes the application explicitly calls "ENGINE_load_openssl()" because

@@ -113,7 +113,7 @@ UCL_PUBLIC(ucl_uint32) ucl_adler32(ucl_uint32 adler, const ucl_bytep buf, ucl_ui
 	ucl_uint32 s1 = adler&0xffff;
 	ucl_uint32 s2 = (adler>>16)&0xffff;
 	int k;
-	if(buf == NULL)
+	if(!buf)
 		return 1;
 	while(len > 0) {
 		k = len < UCL_NMAX ? (int)len : UCL_NMAX;

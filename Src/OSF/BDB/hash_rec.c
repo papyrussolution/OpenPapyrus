@@ -791,23 +791,23 @@ int __ham_metagroup_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 		pagep->lsn = *lsnp;
 	}
 	else if(cmp_n == 0 && DB_UNDO(op)) {
-		/* If this record allocated the pages give them back. */
+		// If this record allocated the pages give them back
 		if(argp->newalloc) {
-			if(pagep != NULL && (ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_VERY_LOW)) != 0)
+			if((ret = __memp_fput(mpf, ip, pagep, DB_PRIORITY_VERY_LOW)) != 0)
 				goto out;
 			pagep = NULL;
 			if((ret = __memp_ftruncate(mpf, NULL, ip, argp->pgno, 0)) != 0)
 				goto out;
 		}
 		else {
-			/*
-			 * Otherwise just roll the page back to its previous state.
-			 */
+			//
+			// Otherwise just roll the page back to its previous state.
+			// 
 			REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 			pagep->lsn = argp->pagelsn;
 		}
 	}
-	if(pagep != NULL && (ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0)
 		goto out;
 	/*
 	 * If a earlier aborted allocation used one of our pages it may
@@ -1414,7 +1414,7 @@ int __ham_metagroup_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops o
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		pagep->lsn = argp->pagelsn;
 	}
-	if(pagep && (ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0)
 		goto out;
 do_meta:
 	// Now we have to update the meta-data page

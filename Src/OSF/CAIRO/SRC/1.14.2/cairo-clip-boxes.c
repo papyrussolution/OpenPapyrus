@@ -90,14 +90,14 @@ static cairo_bool_t _cairo_clip_contains_rectangle_box(const cairo_clip_t * clip
 	return FALSE;
 }
 
-cairo_bool_t _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
+cairo_bool_t FASTCALL _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box)
 {
 	CairoIRect rect;
 	_cairo_box_round_to_rectangle(box, &rect);
 	return _cairo_clip_contains_rectangle_box(clip, &rect, box);
 }
 
-cairo_bool_t _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const CairoIRect * rect)
+cairo_bool_t FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const CairoIRect * rect)
 {
 	cairo_box_t box;
 	box.p1.x = _cairo_fixed_from_int(rect->x);
@@ -159,14 +159,22 @@ static cairo_clip_t * _cairo_clip_intersect_rectangle_box(cairo_clip_t * clip, c
 		cairo_box_t * b = &clip->boxes[j];
 		if(j != i)
 			*b = clip->boxes[i];
-		if(box->p1.x > b->p1.x)
-			b->p1.x = box->p1.x, changed = TRUE;
-		if(box->p2.x < b->p2.x)
-			b->p2.x = box->p2.x, changed = TRUE;
-		if(box->p1.y > b->p1.y)
-			b->p1.y = box->p1.y, changed = TRUE;
-		if(box->p2.y < b->p2.y)
-			b->p2.y = box->p2.y, changed = TRUE;
+		if(box->p1.x > b->p1.x) {
+			b->p1.x = box->p1.x;
+			changed = TRUE;
+		}
+		if(box->p2.x < b->p2.x) {
+			b->p2.x = box->p2.x;
+			changed = TRUE;
+		}
+		if(box->p1.y > b->p1.y) {
+			b->p1.y = box->p1.y;
+			changed = TRUE;
+		}
+		if(box->p2.y < b->p2.y) {
+			b->p2.y = box->p2.y;
+			changed = TRUE;
+		}
 		j += b->p2.x > b->p1.x && b->p2.y > b->p1.y;
 	}
 	clip->num_boxes = j;

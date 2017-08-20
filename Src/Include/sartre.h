@@ -715,7 +715,8 @@ public:
 	~SrDatabase();
 
 	enum {
-		oReadOnly = 0x0001
+		oReadOnly         = 0x0001, // База данных открывается в режиме READ-ONLY
+		oWriteStatOnClose = 0x0002  // При закрытии базы данных сохранять статистику  
 	};
 
 	int    Open(const char * pDbPath, long flags);

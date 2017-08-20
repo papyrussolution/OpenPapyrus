@@ -752,7 +752,7 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 	Filt.DuePeriod.Actualize(ZERODATE);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_BPOX);
 	// @v8.4.4 {
 	{
@@ -1668,7 +1668,7 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 	char   key[MAXKEYLEN];
 	int    idx = 0, use_ord_tbl = 0;
 	_IterC = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	switch(ord) {
 		case OrdByDefault:    idx = 1; break;
 		case OrdByID:         idx = 0; break;
@@ -1696,7 +1696,7 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 	memzero(key, sizeof(key));
 	P_IterQuery->initIteration(0, key, spFirst);
 	CATCH
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -3115,7 +3115,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(Data.OpID).CatChar('-').Cat(Data.Action);
-			(val = 0).Cat(flags);
+			val.Z().Cat(flags);
 			reg_key.PutString(param, val);
 		}
 		void   restoreFlags()
@@ -4701,9 +4701,9 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						for(uint i = 0, f_exit = 0; !f_exit && ss.get(&i, temp_buf);) {
 							uint j = 0;
 							StringSet ss1(',', temp_buf);
-							ss1.get(&j, (temp_buf = 0));
-							ss1.get(&j, (temp_buf = 0));
-							ss1.get(&j, (temp_buf = 0));
+							ss1.get(&j, temp_buf.Z());
+							ss1.get(&j, temp_buf.Z());
+							ss1.get(&j, temp_buf.Z());
 							if(temp_buf.CmpNC(doc_type) == 0) {
 								b_e.Flags |= PPBillImpExpBaseProcessBlock::fEdiImpExp;
 								f_exit = 1;
@@ -4785,7 +4785,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 											int    sess_id = 0;
 											Sdr_ImpExpHeader hdr;
 											PPVersionInfo vers_info;
-											vers_info.GetProductName(temp_buf = 0);
+											vers_info.GetProductName(temp_buf.Z());
 											temp_buf.CopyTo(hdr.SrcSystemName, sizeof(hdr.SrcSystemName));
 											vers_info.GetVersionText(hdr.SrcSystemVer, sizeof(hdr.SrcSystemVer));
 											b_e.BillParam.ImpExpParamDll.Login.CopyTo(hdr.EdiLogin, sizeof(hdr.EdiLogin));
@@ -4967,7 +4967,7 @@ int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rL
 			}
 			else {
 				PPLoadText(PPTXT_BILLNOTBANKING, str_fmt);
-				(str_dt = 0).Cat(item.Dt);
+				str_dt.Z().Cat(item.Dt);
 				msg.Printf(str_fmt, item.Code, str_dt.cptr());
 				rLogger.Log(msg);
 			}
@@ -8634,7 +8634,7 @@ int PPALDD_UhttBill::InitData(PPFilt & rFilt, long rsrv)
 		{
 			S_GUID   guid;
 			p_bobj->GetGuid(r_blk.Pack.Rec.ID, &guid);
-			guid.ToStr(S_GUID::fmtIDL, (temp_buf = 0));
+			guid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
 			STRNSCPY(H.GUID, temp_buf);
 		}
 		H.Flags = 0;

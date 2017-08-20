@@ -277,7 +277,7 @@ static int __db_subdb_rename(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const 
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTDESTROY, ret, name);
 	DB_TEST_RECOVERY_LABEL
 err:
-	if(meta != NULL && (t_ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(mdbp != NULL && (t_ret = __db_close(mdbp, txn, (LF_ISSET(DB_NOSYNC) || txn != NULL) ? DB_NOSYNC : 0)) != 0 && ret == 0)
 		ret = t_ret;

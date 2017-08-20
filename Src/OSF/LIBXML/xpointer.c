@@ -1634,7 +1634,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		 */
 		tmp = xmlXPtrNewLocationSetNodeSet(obj->nodesetval);
 		xmlXPathFreeObject(obj);
-		if(tmp == NULL)
+		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			obj = tmp;
 	}
@@ -1726,7 +1726,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		 */
 		tmp = xmlXPtrNewLocationSetNodeSet(obj->nodesetval);
 		xmlXPathFreeObject(obj);
-		if(tmp == NULL)
+		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			obj = tmp;
 	}
@@ -1740,7 +1740,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		int i;
 		for(i = 0; i < oldset->locNr; i++) {
 			tmp = oldset->locTab[i];
-			if(tmp == NULL)
+			if(!tmp)
 				continue;
 			point = NULL;
 			switch(tmp->type) {
@@ -1867,7 +1867,7 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		 */
 		tmp = xmlXPtrNewLocationSetNodeSet(set->nodesetval);
 		xmlXPathFreeObject(set);
-		if(tmp == NULL)
+		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}
@@ -2009,7 +2009,7 @@ static void xmlXPtrRangeInsideFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		 */
 		xmlXPathObjectPtr tmp = xmlXPtrNewLocationSetNodeSet(set->nodesetval);
 		xmlXPathFreeObject(set);
-		if(tmp == NULL)
+		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}
@@ -2585,7 +2585,7 @@ static void xmlXPtrStringRangeFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		 */
 		xmlXPathObjectPtr tmp = xmlXPtrNewLocationSetNodeSet(set->nodesetval);
 		xmlXPathFreeObject(set);
-		if(tmp == NULL)
+		if(!tmp)
 			XP_ERROR(XPATH_MEMORY_ERROR)
 			set = tmp;
 	}

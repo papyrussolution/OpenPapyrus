@@ -606,17 +606,17 @@ int ActiveUserListDlg::setupList()
 			PPSyncItem * p_item = &SyncAry.at(i);
 			ss.clear(1);
 			ss.add(p_item->Name, 0);
-			ss.add((buf = 0).Cat(p_item->ID), 0);
-			ss.add((buf = 0).Cat(p_item->ObjID), 0);
-			ss.add(p_item->MchnID.ToStr(buf = 0), 0);
+			ss.add(buf.Z().Cat(p_item->ID), 0);
+			ss.add(buf.Z().Cat(p_item->ObjID), 0);
+			ss.add(p_item->MchnID.ToStr(buf.Z()), 0);
 			if(Options & ACTIVEUSERLIST_SHOWMACHINE){
 				InetAddr addr;
 				GetFirstHostByMACAddr(&p_item->MchnID, &addr);
 				addr.ToStr(InetAddr::fmtHost, host);
 			}
 			ss.add((const char*)host, 0);
-			GetDtm(p_item->UserID, p_item->ID, &login_dtm, work_dtm_buf = 0);
-			ss.add((buf = 0).Cat(login_dtm), 0);
+			GetDtm(p_item->UserID, p_item->ID, &login_dtm, work_dtm_buf.Z());
+			ss.add(buf.Z().Cat(login_dtm), 0);
 			ss.add(work_dtm_buf, 0);
 			p_list->addItem(i, ss.getBuf());
 			if(SyncAry.lsearch(p_item, &pos, PTR_CMPFUNC(PPSyncItem)) <= 0)

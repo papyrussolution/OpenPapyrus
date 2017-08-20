@@ -433,7 +433,7 @@ MessageTypeSymbols MsgSymbols[] = {
 int GetMsgTypeBySymb(const char * pSymb, int & rType)
 {
 	for(size_t i = 0; i < SIZEOFARRAY(MsgSymbols); i++) {
-		if(stricmp(MsgSymbols[i].P_Symb, pSymb) == 0) {
+		if(_stricmp(MsgSymbols[i].P_Symb, pSymb) == 0) {
 			rType = MsgSymbols[i].Type;
 			return 1;
 		}
@@ -536,8 +536,8 @@ int ImportExportCls::Relationships()
 	_ns1__RelationshipsResponse resp;
 	EDIWebServiceSoapProxy proxy(SOAP_XML_INDENT);
 	gSoapClientInit(&proxy, 0, 0);
-	FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
-	param.Name = (char *)(const char *)login;
+	FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+	param.Name = (char *)login.cptr(); // @badcast
 	//param.Name = Header.EdiLogin;			// ИД пользователя
 	param.Password = Header.EdiPassword;	// Пароль
 	param.Timeout = 5000;					// Таймаут на выполнение вызова метода (мс)
@@ -634,11 +634,11 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	// @vmiller для проверки {
 	/*if(file.IsValid()) {
 		for(int rel_pos = 0; rel_pos < RlnCfgList.getCount(); rel_pos++) {
-			(file_str = 0).Cat("Partner ILN = ").Cat(RlnCfgList.at(rel_pos).SuppGLN).CR();
+			file_str.Z().Cat("Partner ILN = ").Cat(RlnCfgList.at(rel_pos).SuppGLN).CR();
 			file.WriteLine(file_str);
-			(file_str = 0).Cat("Direction = ").Cat(RlnCfgList.at(rel_pos).Direction).CR();
+			file_str.Z().Cat("Direction = ").Cat(RlnCfgList.at(rel_pos).Direction).CR();
 			file.WriteLine(file_str);
-			(file_str = 0).Cat("DocType = ").Cat(RlnCfgList.at(rel_pos).DocType).CR();
+			file_str.Z().Cat("DocType = ").Cat(RlnCfgList.at(rel_pos).DocType).CR();
 			file.WriteLine(file_str);
 		}
 	}*/
@@ -683,7 +683,7 @@ public:
 	~ExportCls();
 	void   CreateFileName(uint num)
 	{
-		(ExpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+		ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 	}
 	int    OrderHeader();
 	int    RecadvHeader();
@@ -1172,7 +1172,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7008); // Описание
 					{
 						SString str1;
-						(str1 = 0).Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
+						str1.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
 						str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
 						xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Наименование товара
 					}
@@ -1399,7 +1399,7 @@ int ExportCls::SendDoc()
 	}
 	if(pos < RlnCfgList.getCount()) {
 		const StRlnConfig & r_item = RlnCfgList.at(pos);
-		FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 		param.Name = (char *)(const char *)login;
 		//param.Name = Header.EdiLogin;			// ИД пользователя
 		param.Password = Header.EdiPassword;	// Пароль
@@ -1412,7 +1412,7 @@ int ExportCls::SendDoc()
 		param.ControlNumber = (char *)Bill.Code; // Контрольный номер документа (просто номер документа)
 		buf = new char[(size_t)file_size + 1];
 		memzero(buf, (size_t)file_size + 1);
-		file.ReadLine(str = 0); // Пропускаем первую строку <?xml version="1.0" encoding="UTF-8" ?>
+		file.ReadLine(str.Z()); // Пропускаем первую строку <?xml version="1.0" encoding="UTF-8" ?>
 		file.Seek((long)str.Len());
 		file.ReadV(buf, (size_t)file_size + 1);
 		param.DocumentContent = buf; // Содержание документа
@@ -1482,9 +1482,9 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ExportCls->Id = 1;
 		*pId = P_ExportCls->Id; // ИД сеанса экспорта
 		//
@@ -1722,7 +1722,7 @@ public:
 	}
 	void   CreateFileName(uint num)
 	{
-		(ImpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+		ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 	}
 	int    ReceiveDoc(uint messageType);
 	int    ListMessageBox(uint messageType);
@@ -1778,9 +1778,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		log_path.Copy(&P_ImportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "import_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ImportCls->Id = 1;
 		*pId = P_ImportCls->Id; // ИД сеанса импорта
 		//
@@ -2003,7 +2003,7 @@ int ImportCls::ReceiveDoc(uint messageType)
 			}
 			if(pos_ > 0 && pos_ <= rcl_c) {
 				const StRlnConfig & r_item = RlnCfgList.at(pos_-1);
-				FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
+				FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 				param.Name = (char *)(const char *)login;
 				//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 				param.Password = Header.EdiPassword;	// Пароль
@@ -2068,8 +2068,8 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 	gSoapClientInit(&proxy, 0, 0);
 	rErrTrackIdList = 0;
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
-		FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
-		param.Name = (char *)(const char *)login;
+		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		param.Name = (char *)login.cptr(); // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
 		param.TrackingId = (char *)(const char *)TrackIds.at(pos).Txt; // ИД документа в системе
@@ -2133,8 +2133,8 @@ int ImportCls::ListMessageBox(uint messageType)
 	for(pos = 0; pos < RlnCfgList.getCount(); pos ++) {
 		const StRlnConfig & r_item = RlnCfgList.at(pos);
 		if(r_item.Direction.CmpNC(ELEMENT_CODE_DIRECTION_IN) == 0 && r_item.EdiDocType == messageType) {
-			FormatLoginToLogin(Header.EdiLogin, login = 0); // ИД пользователя
-			param.Name = (char *)(const char *)login;
+			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+			param.Name = (char *)login.cptr(); // @badcast
 			//param.Name = Header.EdiLogin;			// ИД пользователя
 			param.Password = Header.EdiPassword;	// Пароль пользователя
 			param.PartnerIln = (char *)(const char *)r_item.SuppGLN;           // ИД партнера, от которого был получен документ
@@ -2146,14 +2146,14 @@ int ImportCls::ListMessageBox(uint messageType)
 			param.DocumentStatus = "N";	// Статус выбираемых документов (подтверждений, статусов) (только новые) (N - только новые, A - все)
 			param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (число взято из описания методов web-сервиса)
 			if((Header.PeriodLow != ZERODATE) && (Header.PeriodUpp != ZERODATE)) {
-				(low = 0).Cat(Header.PeriodLow.year());
+				low.Z().Cat(Header.PeriodLow.year());
 				if(fmt.Z().Cat(Header.PeriodLow.month()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				low.CatChar('-').Cat(fmt);
 				if(fmt.Z().Cat(Header.PeriodLow.day()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				low.CatChar('-').Cat(fmt);
-				(upp = 0).Cat(Header.PeriodUpp.year());
+				upp.Z().Cat(Header.PeriodUpp.year());
 				if(fmt.Z().Cat(Header.PeriodUpp.month()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				upp.CatChar('-').Cat(fmt);
@@ -2725,7 +2725,7 @@ EXPORT int FinishImpExp()
 		}
 	}
 	if(P_ImportCls) {
-		THROW(P_ImportCls->SetNewStatus(err_track_id_list = 0));
+		THROW(P_ImportCls->SetNewStatus(err_track_id_list.Z()));
 		if(!P_ImportCls->IncomMessagesCounter) {
 			SysLogMessage(LOG_NOINCOMDOC);
 			LogMessage(LOG_NOINCOMDOC);

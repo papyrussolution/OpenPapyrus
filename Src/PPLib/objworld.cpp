@@ -1782,7 +1782,7 @@ int SLAPI PPObjWorld::Convert()
 				}
 			}
 			cntry_list.Sort();
-			ZDELETE(p_q);
+			BExtQuery::ZDelete(&p_q);
 			{
 				RegionTbl::Key0 reg_k0;
 				MEMSZERO(reg_k0);
@@ -1803,7 +1803,7 @@ int SLAPI PPObjWorld::Convert()
 				}
 			}
 			reg_list.Sort();
-			ZDELETE(p_q);
+			BExtQuery::ZDelete(&p_q);
 			{
 				CityTbl::Key0 city_k0;
 				MEMSZERO(city_k0);
@@ -1841,7 +1841,7 @@ int SLAPI PPObjWorld::Convert()
 		ok = 1;
 	}
 	CATCHZOK
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	delete p_tbl;
 	return ok;
 }
@@ -1852,7 +1852,7 @@ class GeoCityImportBlock {
 public:
 	GeoCityImportBlock()
 	{
-		StrPool.add("$", 0); // zero index - is empty string
+		StrPool.add("$"); // zero index - is empty string
 	}
 	int AddString(const char * pStr, uint * pPos)
 	{

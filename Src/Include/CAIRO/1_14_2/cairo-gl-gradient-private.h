@@ -44,7 +44,7 @@
 #define GL_GLEXT_PROTOTYPES
 
 #include "cairo-cache-private.h"
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-reference-count-private.h"
 //#include "cairo-pattern-private.h"
 #include "cairo-types-private.h"

@@ -500,7 +500,7 @@ err1:
 		ret = t_ret;
 	/* Discard the caller's page reference. */
 err:
-	if(h != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	PERFMON4(dbp->env, alloc, free, dbp->fname, dbp->dname, pgno, ret);
 	/*
@@ -799,7 +799,7 @@ done:
 	}
 err:
 	__os_free(env, list);
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, (PAGE *)meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, (PAGE *)meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;

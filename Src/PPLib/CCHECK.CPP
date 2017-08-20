@@ -688,16 +688,16 @@ SLAPI CCheckPacket::~CCheckPacket()
 
 void SLAPI CCheckPacket::Init()
 {
-	UpdFlags = 0; // @v7.0.0
+	UpdFlags = 0;
 	PctDis   = 0;
 	Discount = 0.0;
 	_Cash    = 0.0;
 	_OrdPrepay  = 0.0;
 	MEMSZERO(Ext);
 	MEMSZERO(Rec);
-	UhttScHash = 0; // @v7.4.10
-	Items_.clear();             // @v7.6.6 freeAll()-->clear()
-	ExtList.clear(); // @v7.1.4 // @v7.6.6 freeAll()-->clear()
+	UhttScHash = 0;
+	Items_.clear();
+	ExtList.clear();
 	LnTextList.Clear();
 	ZDELETE(P_DlvrAddr);
 	CcAl.clear(); // @v8.0.0

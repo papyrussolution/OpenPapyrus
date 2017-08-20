@@ -9,9 +9,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/asn1t.h>
-#include <openssl/pem.h>
-#include <openssl/x509v3.h>
-#include <openssl/cms.h>
+//#include <openssl/pem.h>
+//#include <openssl/x509v3.h>
+//#include <openssl/cms.h>
 //#include <openssl/rand.h>
 #include <openssl/aes.h>
 #include "cms_lcl.h"
@@ -154,7 +154,7 @@ static int kek_unwrap_key(uchar * out, size_t * outlen,
 		return 0;
 	}
 	tmp = (uchar*)OPENSSL_malloc(inlen);
-	if(tmp == NULL)
+	if(!tmp)
 		return 0;
 	/* setup IV by decrypting last two blocks */
 	if(!EVP_DecryptUpdate(ctx, tmp + inlen - 2 * blocklen, &outl,

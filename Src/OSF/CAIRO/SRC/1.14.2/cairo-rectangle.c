@@ -93,7 +93,7 @@ void _cairo_boxes_get_extents(const cairo_box_t * boxes, int num_boxes, cairo_bo
  * _cairo_rectangle_fixed_round.
  */
 
-void _cairo_box_round_to_rectangle(const cairo_box_t * box, CairoIRect * rectangle)
+void FASTCALL _cairo_box_round_to_rectangle(const cairo_box_t * box, CairoIRect * rectangle)
 {
 	rectangle->x = _cairo_fixed_integer_floor(box->p1.x);
 	rectangle->y = _cairo_fixed_integer_floor(box->p1.y);
@@ -101,7 +101,7 @@ void _cairo_box_round_to_rectangle(const cairo_box_t * box, CairoIRect * rectang
 	rectangle->height = _cairo_fixed_integer_ceil(box->p2.y) - rectangle->y;
 }
 
-cairo_bool_t _cairo_rectangle_intersect(CairoIRect * dst, const CairoIRect * src)
+cairo_bool_t FASTCALL _cairo_rectangle_intersect(CairoIRect * dst, const CairoIRect * src)
 {
 	int x1 = MAX(dst->x, src->x);
 	int y1 = MAX(dst->y, src->y);
@@ -124,21 +124,18 @@ cairo_bool_t _cairo_rectangle_intersect(CairoIRect * dst, const CairoIRect * src
 		return TRUE;
 	}
 }
-
-/* Extends the dst rectangle to also contain src.
- * If one of the rectangles is empty, the result is undefined
- */
+// 
+// Extends the dst rectangle to also contain src.
+// If one of the rectangles is empty, the result is undefined
+// 
 void _cairo_rectangle_union(CairoIRect * dst, const CairoIRect * src)
 {
-	int x1, y1, x2, y2;
-	x1 = MIN(dst->x, src->x);
-	y1 = MIN(dst->y, src->y);
-	/* Beware the unsigned promotion, fortunately we have bits to spare
-	 * as (CAIRO_RECT_INT_MAX - CAIRO_RECT_INT_MIN) < UINT_MAX
-	 */
-	x2 = MAX(dst->x + (int)dst->width,  src->x + (int)src->width);
-	y2 = MAX(dst->y + (int)dst->height, src->y + (int)src->height);
-
+	int x1 = MIN(dst->x, src->x);
+	int y1 = MIN(dst->y, src->y);
+	// Beware the unsigned promotion, fortunately we have bits to spare
+	// as (CAIRO_RECT_INT_MAX - CAIRO_RECT_INT_MIN) < UINT_MAX
+	int x2 = MAX(dst->x + (int)dst->width,  src->x + (int)src->width);
+	int y2 = MAX(dst->y + (int)dst->height, src->y + (int)src->height);
 	dst->x = x1;
 	dst->y = y1;
 	dst->width  = x2 - x1;
@@ -187,7 +184,7 @@ cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_l
 			return FALSE;
 	}
 	else {
-		/* Fully vertical line -- check that X is in bounds */
+		// Fully vertical line -- check that X is in bounds 
 		if(P1x < B1x || P1x > B2x)
 			return FALSE;
 	}
@@ -205,23 +202,20 @@ cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_l
 			return FALSE;
 	}
 	else {
-		/* Fully horizontal line -- check Y */
+		// Fully horizontal line -- check Y 
 		if(P1y < B1y || P1y > B2y)
 			return FALSE;
 	}
-	/* If we had a horizontal or vertical line, then it's already been checked */
+	// If we had a horizontal or vertical line, then it's already been checked 
 	if(P1x == P2x || P1y == P2y)
 		return TRUE;
-	/* Check overlap.  Note that t1 < t2 and t3 < t4 here. */
+	// Check overlap.  Note that t1 < t2 and t3 < t4 here. 
 	t1y = _cairo_int32x32_64_mul(t1, ylen);
 	t2y = _cairo_int32x32_64_mul(t2, ylen);
 	t3x = _cairo_int32x32_64_mul(t3, xlen);
 	t4x = _cairo_int32x32_64_mul(t4, xlen);
-
-	if(_cairo_int64_lt(t1y, t4x) &&
-	    _cairo_int64_lt(t3x, t2y))
+	if(_cairo_int64_lt(t1y, t4x) && _cairo_int64_lt(t3x, t2y))
 		return TRUE;
-
 	return FALSE;
 }
 
@@ -230,13 +224,11 @@ static cairo_status_t _cairo_box_add_spline_point(void * closure, const cairo_po
 	_cairo_box_add_point((cairo_box_t *)closure, point);
 	return CAIRO_STATUS_SUCCESS;
 }
-
-/* assumes a has been previously added */
-void _cairo_box_add_curve_to(cairo_box_t * extents,
-    const cairo_point_t * a,
-    const cairo_point_t * b,
-    const cairo_point_t * c,
-    const cairo_point_t * d)
+//
+// assumes a has been previously added 
+//
+void _cairo_box_add_curve_to(cairo_box_t * extents, const cairo_point_t * a,
+    const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d)
 {
 	_cairo_box_add_point(extents, d);
 	if(!_cairo_box_contains_point(extents, b) || !_cairo_box_contains_point(extents, c)) {

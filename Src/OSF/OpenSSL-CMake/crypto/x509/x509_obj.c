@@ -35,7 +35,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 #ifdef CHARSET_EBCDIC
 	uchar ebcdic_buf[1024];
 #endif
-	if(buf == NULL) {
+	if(!buf) {
 		if((b = BUF_MEM_new()) == NULL)
 			goto err;
 		if(!BUF_MEM_grow(b, 200))

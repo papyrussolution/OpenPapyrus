@@ -650,7 +650,7 @@ err1:
 	}
 	if(0) {
 err:
-		if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
+		if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
 			return ret == 0 ? t_ret : ret;
 	}
 	return (isbad == 1 && ret == 0) ? DB_VERIFY_BAD : ret;
@@ -1433,9 +1433,9 @@ err:
 		ret = t_ret;
 	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
 		ret = t_ret;
-	if(currpg != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, currpg, dbp->priority)) != 0)
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, currpg, dbp->priority)) != 0)
 		ret = t_ret;
 	if((t_ret = __db_close(mdbp, NULL, 0)) != 0)
 		ret = t_ret;
@@ -1977,7 +1977,7 @@ static int __db_salvage_all(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*ca
 			t_ret = __db_salvage_subdbpg(dbp, vdp, h, handle, callback, flags);
 		if(t_ret != 0 && ret == 0)
 			ret = t_ret;
-		if(h != NULL) {
+		if(h) {
 			if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0 && ret == 0)
 				ret = t_ret;
 			h = NULL;
@@ -1986,11 +1986,11 @@ static int __db_salvage_all(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*ca
 	if(t_ret != DB_NOTFOUND && ret == 0)
 		ret = t_ret;
 err:
-	if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
+	if(pgsc && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret ==0)
+	if(pgset && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret ==0)
 		ret = t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

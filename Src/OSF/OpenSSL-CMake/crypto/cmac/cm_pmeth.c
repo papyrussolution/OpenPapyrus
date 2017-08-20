@@ -9,8 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/evp.h>
+//#include <openssl/x509v3.h>
+//#include <openssl/evp.h>
 #include <openssl/cmac.h>
 #include <internal/evp_int.h>
 

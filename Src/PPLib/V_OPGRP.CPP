@@ -76,7 +76,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	TempOpGrpngTbl * p_tbl = 0;
 	OpGroupingFilt prev_filt = Filt;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_ViewTrfrAnlz);
 	ZDELETE(P_ViewBill);
 	Filt.Period.Actualize(ZERODATE);

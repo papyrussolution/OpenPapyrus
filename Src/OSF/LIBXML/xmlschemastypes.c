@@ -3591,7 +3591,7 @@ static xmlSchemaValPtr _xmlSchemaDateAdd(xmlSchemaValPtr dt, xmlSchemaValPtr dur
 
 	/* make a copy so we don't alter the original value */
 	tmp = xmlSchemaDupVal(dt);
-	if(tmp == NULL) {
+	if(!tmp) {
 		xmlSchemaFreeValue(ret);
 		return NULL;
 	}
@@ -5530,7 +5530,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if((dec.frac == 0) || (dec.frac == dec.total))
 				    bufsize++;
 			    buf = (char*)SAlloc::M(bufsize);
-			    if(buf == NULL)
+			    if(!buf)
 				    return -1;
 			    offs = buf;
 			    if(dec.sign)

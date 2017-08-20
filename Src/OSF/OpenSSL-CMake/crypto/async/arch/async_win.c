@@ -24,9 +24,9 @@ int ASYNC_is_capable(void)
 void async_local_cleanup(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx != NULL) {
+	if(ctx) {
 		async_fibre * fibre = &ctx->dispatcher;
-		if(fibre != NULL && fibre->fibre != NULL && fibre->converted) {
+		if(fibre && fibre->fibre && fibre->converted) {
 			ConvertFiberToThread();
 			fibre->fibre = NULL;
 		}
@@ -42,10 +42,8 @@ int async_fibre_init_dispatcher(async_fibre * fibre)
 		if(fibre->fibre == NULL)
 			return 0;
 	}
-	else {
+	else
 		fibre->converted = 1;
-	}
-
 	return 1;
 }
 

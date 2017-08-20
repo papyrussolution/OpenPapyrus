@@ -25,7 +25,7 @@ SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words
 	SeqID = 0;
 	new BDbTable(BDbTable::Config("words.db->gramm_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_gramm_id", 0));
+		THROW(P_Db->CreateSequence("seq_gramm_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH
@@ -166,7 +166,7 @@ SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->w
 	SeqID = 0;
 	new BDbTable(BDbTable::Config("words.db->word_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_word_id", 0));
+		THROW(P_Db->CreateSequence("seq_word_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH
@@ -283,7 +283,7 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("w
 	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx01", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx01, this));
 	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx02", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx02, this));
 	if(P_Db)
-		THROW_DB(SeqID = P_Db->CreateSequence("seq_wordassoc_id", 0));
+		THROW_DB(P_Db->CreateSequence("seq_wordassoc_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH
@@ -417,7 +417,7 @@ SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db-
 	SeqID = 0;
 	new BDbTable(BDbTable::Config("words.db->ngram_idx01", BDbTable::idxtypBTree, 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_ngram_id", 0));
+		THROW(P_Db->CreateSequence("seq_ngram_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH
@@ -556,7 +556,7 @@ SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("conce
 	SeqID = 0;
 	new BDbTable(BDbTable::Config("concept.db->concept_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_concept_id", 0));
+		THROW(P_Db->CreateSequence("seq_concept_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH
@@ -1337,7 +1337,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
 	//
-	Flags |= (flags & oReadOnly); // @v9.7.11
+	Flags |= (flags & (oReadOnly|oWriteStatOnClose)); // @v9.7.11
 	//
 	Close();
 	{
@@ -1346,9 +1346,15 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 			PPGetPath(PPPATH_SARTREDB, db_path);
 		}
 		THROW_PP(db_path.NotEmpty() && pathValid(db_path, 1), PPERR_SARTREDBUNDEF);
-		THROW_S(P_Db = new BDbDatabase(db_path, &cfg, BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/), SLERR_NOMEM);
-		THROW(!!*P_Db);
-
+		{
+			long   db_options = BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/;
+			if(Flags & oReadOnly)
+				db_options |= BDbDatabase::oReadOnly;
+			if(Flags & oWriteStatOnClose)
+				db_options |= BDbDatabase::oWriteStatOnClose;
+			THROW_S(P_Db = new BDbDatabase(db_path, &cfg, db_options), SLERR_NOMEM);
+			THROW(!!*P_Db);
+		}
 		THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
 		THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
 		THROW_S(P_WaT = new SrWordAssocTbl(P_Db), SLERR_NOMEM);

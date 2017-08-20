@@ -287,7 +287,7 @@ int PPDrvSession::Helper_ProcessCommand(const char * pCmd, const char * pInputDa
 		}
 	}
 	if(err) {
-		(output = 0).Cat(r_tla.LastErr);
+		output.Z().Cat(r_tla.LastErr);
 	}
 	if((output.Len()+1) > outSize) {
 		SETIFZ(err, 2);

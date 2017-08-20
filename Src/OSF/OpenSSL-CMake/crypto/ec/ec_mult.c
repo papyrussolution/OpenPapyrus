@@ -598,9 +598,7 @@ int ec_wNAF_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 			goto err;
 		}
 	}
-
-	if((tmp_point = EC_POINT_new(group)) == NULL
-	    || (base = EC_POINT_new(group)) == NULL) {
+	if((tmp_point = EC_POINT_new(group)) == NULL || (base = EC_POINT_new(group)) == NULL) {
 		ECerr(EC_F_EC_WNAF_PRECOMPUTE_MULT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -611,13 +609,10 @@ int ec_wNAF_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 	/* do the precomputation */
 	for(i = 0; i < numblocks; i++) {
 		size_t j;
-
 		if(!EC_POINT_dbl(group, tmp_point, base, ctx))
 			goto err;
-
 		if(!EC_POINT_copy(*var++, base))
 			goto err;
-
 		for(j = 1; j < pre_points_per_block; j++, var++) {
 			/*
 			 * calculate odd multiples of the current base point

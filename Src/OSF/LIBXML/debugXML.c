@@ -685,7 +685,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 		if(!ctxt->check) {
 			xmlCtxtDumpSpaces(ctxt);
 			(temp_buf = "node is NULL").CR();
-			fprintf(ctxt->output, (const char *)temp_buf);
+			fprintf(ctxt->output, temp_buf.cptr());
 		}
 	}
 	else {
@@ -694,7 +694,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 			case XML_ELEMENT_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					fprintf(ctxt->output, (const char *)(temp_buf = "ELEMENT").Space());
+					fprintf(ctxt->output, (temp_buf = "ELEMENT").Space().cptr());
 					if(node->ns && node->ns->prefix) {
 						xmlCtxtDumpString(ctxt, node->ns->prefix);
 						fprintf(ctxt->output, ":");
@@ -722,32 +722,32 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 						else if(xmlDictOwns(ctxt->dict, node->content) == 1)
 							temp_buf.Space().Cat("interned");
 					}
-					fprintf(ctxt->output, (const char *)temp_buf.CR());
+					fprintf(ctxt->output, temp_buf.CR().cptr());
 				}
 				break;
 			case XML_CDATA_SECTION_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					fprintf(ctxt->output, (const char *)(temp_buf = "CDATA_SECTION").CR());
+					fprintf(ctxt->output, (temp_buf = "CDATA_SECTION").CR().cptr());
 				}
 				break;
 			case XML_ENTITY_REF_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					fprintf(ctxt->output, (const char *)(temp_buf = "ENTITY_REF").CatParStr((const char *)node->name).CR());
+					fprintf(ctxt->output, (temp_buf = "ENTITY_REF").CatParStr((const char *)node->name).CR().cptr());
 				}
 				break;
 			case XML_ENTITY_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
-					fprintf(ctxt->output, (const char *)(temp_buf = "ENTITY").CR());
+					fprintf(ctxt->output, (temp_buf = "ENTITY").CR().cptr());
 				}
 				break;
 			case XML_PI_NODE:
 				if(!ctxt->check) {
 					xmlCtxtDumpSpaces(ctxt);
 					(temp_buf = "PI").Space().Cat((const char *)node->name).CR();
-					fprintf(ctxt->output, (const char *)temp_buf);
+					fprintf(ctxt->output, temp_buf.cptr());
 				}
 				break;
 			case XML_COMMENT_NODE:

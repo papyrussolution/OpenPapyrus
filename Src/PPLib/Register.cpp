@@ -858,17 +858,17 @@ int SLAPI RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pRe
 			if(pFilt->SerPattern.NotEmpty()) {
 				k.k3.RegTypeID = pFilt->RegTypeID;
 				pFilt->SerPattern.CopyTo(k.k3.Serial, sizeof(k.k3.Serial));
-				dbq = & (*dbq && this->Serial == (const char *)pFilt->SerPattern);
+				dbq = & (*dbq && this->Serial == pFilt->SerPattern.cptr());
 				if(pFilt->NmbPattern.NotEmpty()) {
 					pFilt->NmbPattern.CopyTo(k.k3.Num, sizeof(k.k3.Num));
-					dbq = & (*dbq && this->Num == (const char *)pFilt->NmbPattern);
+					dbq = & (*dbq && this->Num == pFilt->NmbPattern.cptr());
 				}
 			}
 			else {
 				k.k4.RegTypeID = pFilt->RegTypeID;
 				if(pFilt->NmbPattern.NotEmpty()) {
 					pFilt->NmbPattern.CopyTo(k.k4.Num, sizeof(k.k4.Num));
-					dbq = & (*dbq && this->Num == (const char *)pFilt->NmbPattern);
+					dbq = & (*dbq && this->Num == pFilt->NmbPattern.cptr());
 				}
 			}
 			sp = spGe;

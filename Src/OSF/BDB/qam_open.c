@@ -81,7 +81,7 @@ int __qam_open(DB*dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, db_
 	t->q_meta = base_pgno;
 	t->q_root = base_pgno+1;
 err:
-	if(qmeta != NULL && (t_ret = __memp_fput(mpf, ip, qmeta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, qmeta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;

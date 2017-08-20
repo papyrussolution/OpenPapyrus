@@ -724,6 +724,11 @@ size_t SLAPI SString::Len() const
 }
 */
 
+size_t SLAPI SString::Len() const 
+{ 
+	return L ? (L-1) : 0; 
+}
+
 size_t SLAPI SString::BufSize() const
 {
 	return Size;
@@ -3589,6 +3594,11 @@ SLAPI SStringU::~SStringU()
 		ZFREE(P_Buf);
 }
 
+size_t SLAPI SStringU::Len() const 
+{ 
+	return L ? (L-1) : 0; 
+}
+
 wchar_t FASTCALL SStringU::C(size_t n) const
 {
 	return (n < Len()) ? P_Buf[n] : 0;
@@ -4424,7 +4434,7 @@ int SPathStruc::Merge(const SPathStruc * pPattern, long patternFlags, SString & 
 	return Copy(pPattern, patternFlags).Merge(rBuf);
 }
 
-int SPathStruc::Merge(SString & rBuf) const
+int FASTCALL SPathStruc::Merge(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Flags & fUNC)

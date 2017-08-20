@@ -469,7 +469,7 @@ int SLAPI PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc,
 	return ok;
 }
 
-TempLocTransfTbl::Rec & SLAPI PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec)
+void SLAPI PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec)
 {
 	rTempRec.Op = rRec.Op;
 	rTempRec.LocID = rRec.LocID;
@@ -484,7 +484,6 @@ TempLocTransfTbl::Rec & SLAPI PPViewLocTransf::MakeTempRec(const LocTransfTbl::R
 	rTempRec.Tm = rRec.Tm;
 	rTempRec.UserID = rRec.UserID;
 	rTempRec.Flags = rRec.Flags;
-	return rTempRec;
 }
 
 int SLAPI PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
@@ -637,7 +636,7 @@ int SLAPI PPViewLocTransf::InitIteration()
 		LocTransfTbl::Key5 k5;
 	} k, k_;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		idx = 2;
 		sp = spFirst;

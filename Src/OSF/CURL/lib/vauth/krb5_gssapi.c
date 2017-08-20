@@ -28,7 +28,7 @@
 #if defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
 //#include <curl/curl.h>
 #include "vauth/vauth.h"
-#include "curl_sasl.h"
+//#include "curl_sasl.h"
 //#include "urldata.h"
 //#include "curl_base64.h"
 #include "curl_gssapi.h"

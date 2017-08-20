@@ -83,8 +83,8 @@
 #endif
 
 //#include <openssl/engine.h>
-#include <openssl/pem.h>
-#include <openssl/x509v3.h>
+//#include <openssl/pem.h>
+//#include <openssl/x509v3.h>
 #include "e_capi_err.h"
 #include "e_capi_err.c"
 

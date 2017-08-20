@@ -1279,19 +1279,19 @@ SLAPI PPSession::~PPSession()
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
-uint64 SLAPI PPSession::GetProfileTime()
+/*uint64 SLAPI PPSession::GetProfileTime()
 {
 	return GetTLA().Prf.GetAbsTimeMicroseconds();
+}*/
+
+void SLAPI PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo)
+{
+	GPrf.Start(pFileName, lineNo, pAddedInfo);
 }
 
-int SLAPI PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo)
+void SLAPI PPSession::GProfileFinish(const char * pFileName, long lineNo)
 {
-	return GPrf.Start(pFileName, lineNo, pAddedInfo);
-}
-
-int SLAPI PPSession::GProfileFinish(const char * pFileName, long lineNo)
-{
-	return GPrf.Finish(pFileName, lineNo);
+	GPrf.Finish(pFileName, lineNo);
 }
 
 #ifndef NDEBUG // {
@@ -3026,7 +3026,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 													PPSetErrorDB();
 													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 													PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-													ZDELETE(p_q);
+													BExtQuery::ZDelete(&p_q);
 												}
 											}
 										}
@@ -3207,7 +3207,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 				}
 				assert(p_ev_list && p_addendum_ev_list && p_comm_dirty_cache_ev_list);
 			}
-			const uint64 tm_start = GetProfileTime();
+			const uint64 tm_start = SLS.GetProfileTime();
 			const LDATETIME cur = getcurdatetime_();
 			LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
 
@@ -3297,7 +3297,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 					}
 				}
 			}
-			uint64 tm_finish = GetProfileTime();
+			uint64 tm_finish = SLS.GetProfileTime();
 			{
 				SString msg_buf;
 				(msg_buf = "Cache was updated").CatDiv(':', 2).CatEq("events", (long)ev_count).Space().

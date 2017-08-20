@@ -1,6 +1,6 @@
 // OBJPERSN.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -337,12 +337,12 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	PPID   ID;                // Const=PPCFG_MAIN
 	PPID   Prop;              // Const=PPPRP_PERSONCFG
 	long   Flags;
-	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД
-		// равен sizeof(PPPersonConfig) + ExtStrSize
+	uint16 ExtStrSize;        // Р Р°Р·РјРµСЂ "С…РІРѕСЃС‚Р°" РїРѕРґ СЃС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ. РћР±С‰РёР№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё, С…СЂР°РЅРёРјРѕР№ РІ Р‘Р”
+		// СЂР°РІРµРЅ sizeof(PPPersonConfig) + ExtStrSize
 	uint16 StrPosTopFolder;   // [config] PersonFolder
-	PPID   TradeLicRegTypeID; // Тип регистрационного документа, используемого для торговой лицензии предприятия //
-	PPID   RegStaffCalID;     // Регулярный штатный календарь
-	long   StaffCalQuant;     // Квант времени в сек. для временной диаграммы анализа штатных календарей.
+	PPID   TradeLicRegTypeID; // РўРёРї СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ РґР»СЏ С‚РѕСЂРіРѕРІРѕР№ Р»РёС†РµРЅР·РёРё РїСЂРµРґРїСЂРёСЏС‚РёСЏ //
+	PPID   RegStaffCalID;     // Р РµРіСѓР»СЏСЂРЅС‹Р№ С€С‚Р°С‚РЅС‹Р№ РєР°Р»РµРЅРґР°СЂСЊ
+	long   StaffCalQuant;     // РљРІР°РЅС‚ РІСЂРµРјРµРЅРё РІ СЃРµРє. РґР»СЏ РІСЂРµРјРµРЅРЅРѕР№ РґРёР°РіСЂР°РјРјС‹ Р°РЅР°Р»РёР·Р° С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№.
 	SVerT  Ver;               // @v7.9.7
 	long   SendSmsSamePersonTimeout; // @v8.0.6
 	char   Reserve[40];
@@ -371,10 +371,10 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			if(pCfg->TopFolder.NotEmpty())
 				ext_size = pCfg->TopFolder.Len()+1;
 			if(pCfg->NewClientDetectionList.getCount()) {// @vmiller
-				ext_size += sizeof(PPPersonConfig::NewClientDetectionItem) * pCfg->NewClientDetectionList.getCount(); // @vmiller переделать
+				ext_size += sizeof(PPPersonConfig::NewClientDetectionItem) * pCfg->NewClientDetectionList.getCount(); // @vmiller РїРµСЂРµРґРµР»Р°С‚СЊ
 			}
 			if(ext_size)
-				ext_size++; // Нулевая позиция - исключительная //
+				ext_size++; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ - РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅР°СЏ //
 			sz += ext_size;
 			p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
 			memzero(p_cfg, sz);
@@ -463,7 +463,7 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->TradeLicRegTypeID = 0;
 		pCfg->TopFolder = 0;
 		//
-		// Для совместимости со старыми версиями извлекаем некоторые значения из pp.ini
+		// Р”Р»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃРѕ СЃС‚Р°СЂС‹РјРё РІРµСЂСЃРёСЏРјРё РёР·РІР»РµРєР°РµРј РЅРµРєРѕС‚РѕСЂС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РёР· pp.ini
 		//
 		PPIniFile ini_file;
 		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_TRADELIC, symb)) {
@@ -491,7 +491,7 @@ public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
 		// @v9.2.5 SString list_title;
-		// @v9.2.5 list_title = "10,L,;50,L,Наименование";
+		// @v9.2.5 list_title = "10,L,;50,L,РќР°РёРјРµРЅРѕРІР°РЅРёРµ";
 		if(P_Box) {
 			// @v9.2.5 P_Box->SetupColumns(list_title.ToOem());
 			if(P_Box->def)
@@ -637,7 +637,7 @@ public:
 	NewPersMarksDialog() : PPListDialog(DLG_NEWCLNT, CTL_LBXSEL_LIST)
 	{
 		// @v9.2.5 SString list_title;
-		// @v9.2.5 list_title = "30,L,Тип транзакции;50,L,Вид транзакции";
+		// @v9.2.5 list_title = "30,L,РўРёРї С‚СЂР°РЅР·Р°РєС†РёРё;50,L,Р’РёРґ С‚СЂР°РЅР·Р°РєС†РёРё";
 		if(P_Box) {
 			// @v9.2.5 P_Box->SetupColumns(list_title.ToOem());
 			if(P_Box->def)
@@ -738,8 +738,8 @@ int NewPersMarksDialog::Edit(PPPersonConfig::NewClientDetectionItem * pItem, SSt
 {
 	int    ok = -1;
 	int    item_found = 0;
-	// Через Search не сделать, потому что если в массиве и будут записи с одинаковыми ID, то
-	// поиск все равно будет возвращать только самую первую найденную запись
+	// Р§РµСЂРµР· Search РЅРµ СЃРґРµР»Р°С‚СЊ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РµСЃР»Рё РІ РјР°СЃСЃРёРІРµ Рё Р±СѓРґСѓС‚ Р·Р°РїРёСЃРё СЃ РѕРґРёРЅР°РєРѕРІС‹РјРё ID, С‚Рѕ
+	// РїРѕРёСЃРє РІСЃРµ СЂР°РІРЅРѕ Р±СѓРґРµС‚ РІРѕР·РІСЂР°С‰Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃР°РјСѓСЋ РїРµСЂРІСѓСЋ РЅР°Р№РґРµРЅРЅСѓСЋ Р·Р°РїРёСЃСЊ
 	for(uint i = 0; (i < Data.getCount()) && !item_found; i++) {
 		if((Data.at(i).Oi.Id == pItem->Oi.Id) && ((Data.at(i).Oi.Obj == pItem->Oi.Obj)))
 			item_found = 1;
@@ -1123,11 +1123,11 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 		lbx_extra.KindID = kind_id;
 	}
 	if(lbx_extra.KindID) {
-		const int method_8912 = 0; // Новый метод в 3 с лишним раза медленнее. Потому пока его отключает.
-			// Однако после перевода PersonKind в ObjAssoc придется к нему вернуться.
+		const int method_8912 = 0; // РќРѕРІС‹Р№ РјРµС‚РѕРґ РІ 3 СЃ Р»РёС€РЅРёРј СЂР°Р·Р° РјРµРґР»РµРЅРЅРµРµ. РџРѕС‚РѕРјСѓ РїРѕРєР° РµРіРѕ РѕС‚РєР»СЋС‡Р°РµС‚.
+			// РћРґРЅР°РєРѕ РїРѕСЃР»Рµ РїРµСЂРµРІРѕРґР° PersonKind РІ ObjAssoc РїСЂРёРґРµС‚СЃСЏ Рє РЅРµРјСѓ РІРµСЂРЅСѓС‚СЊСЃСЏ.
 		SString text;
 		PPID   code_reg_type_id = 0;
-		/* @v8.9.12 Поддержку префиксов регистров в списках снимаем
+		/* @v8.9.12 РџРѕРґРґРµСЂР¶РєСѓ РїСЂРµС„РёРєСЃРѕРІ СЂРµРіРёСЃС‚СЂРѕРІ РІ СЃРїРёСЃРєР°С… СЃРЅРёРјР°РµРј
 		if(DS.CheckExtFlag(ECF_CODEPREFIXEDLIST)) {
 			PPObjPersonKind pk_obj;
 			PPPersonKind pk_rec;
@@ -1221,7 +1221,7 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 	return p_def;
 }
 
-#if 1 // @v7.8.12 { Операция вставки записи в StrAssocArray неприемлемо долгая - необходима оптимизация //
+#if 1 // @v7.8.12 { РћРїРµСЂР°С†РёСЏ РІСЃС‚Р°РІРєРё Р·Р°РїРёСЃРё РІ StrAssocArray РЅРµРїСЂРёРµРјР»РµРјРѕ РґРѕР»РіР°СЏ - РЅРµРѕР±С…РѕРґРёРјР° РѕРїС‚РёРјРёР·Р°С†РёСЏ //
 
 ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr)
 {
@@ -1317,7 +1317,7 @@ int SLAPI PPObjPerson::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * p
 					if(reg_list.GetRegister(PPREGT_COUNTRYCODE, 0, &reg_rec) > 0) {
 						(pBlk->Code = reg_rec.Num).Strip();
 						// @v9.7.8 {
-						// Россия = 643
+						// Р РѕСЃСЃРёСЏ = 643
 						pBlk->IsNative = 1;
 						if(pBlk->Code.NotEmpty() && DS.GetConstTLA().MainOrgCountryCode != pBlk->Code)
 							pBlk->IsNative = 0;
@@ -1397,12 +1397,19 @@ int SLAPI BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) c
 	if((temp_buf = Acct).NotEmptyS())
 		buf.CatDiv('N', 1).Cat(temp_buf);
 	if(InitFlags & BADIF_INITALLBR) {
-		if(InitFlags & BADIF_INITBNAME && (temp_buf = Bnk.Name).NotEmptyS())
-			buf.CatDiv('ў', 1).Cat(temp_buf);
-		if(InitFlags & BADIF_INITBIC && (temp_buf = Bnk.BIC).NotEmptyS())
-			buf.Space().Cat("Ѓ€Љ").Space().Cat(temp_buf);
-		if(InitFlags & BADIF_INITCACC && (temp_buf = Bnk.CorrAcc).NotEmptyS())
-			buf.Space().Cat("Љ/б").Space().Cat(temp_buf);
+		SString w_buf;
+		if(InitFlags & BADIF_INITBNAME && (temp_buf = Bnk.Name).NotEmptyS()) {
+			PPLoadString("prep_in", w_buf);
+			buf.Space().Cat(w_buf).Space().Cat(temp_buf);
+		}
+		if(InitFlags & BADIF_INITBIC && (temp_buf = Bnk.BIC).NotEmptyS()) {
+			PPLoadString("bic", w_buf);
+			buf.Space().Cat(w_buf).Space().Cat(temp_buf);
+		}
+		if(InitFlags & BADIF_INITCACC && (temp_buf = Bnk.CorrAcc).NotEmptyS()) {
+			PPLoadString("correspondentaccount_s", w_buf);
+			buf.Space().Cat(w_buf).Space().Cat(temp_buf);
+		}
 	}
 	buf.CopyTo(pBuf, bufLen);
 	return 1;
@@ -2106,7 +2113,7 @@ int SLAPI PPObjPerson::ReplyLocationReplace(PPID dest, PPID src)
 		PPID   psn_id = P_Tbl->data.ID;
 		if(P_Tbl->data.MainLoc == dest) {
 			//
-			// Нельзя заменять юридический адрес персоналии
+			// РќРµР»СЊР·СЏ Р·Р°РјРµРЅСЏС‚СЊ СЋСЂРёРґРёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ РїРµСЂСЃРѕРЅР°Р»РёРё
 			//
 			PersonTbl::Rec psn_rec;
 			if(Search(psn_id, &psn_rec) <= 0)
@@ -2115,7 +2122,7 @@ int SLAPI PPObjPerson::ReplyLocationReplace(PPID dest, PPID src)
 		}
 		if(P_Tbl->data.RLoc == dest) {
 			//
-			// Нельзя заменять фактический адрес персоналии
+			// РќРµР»СЊР·СЏ Р·Р°РјРµРЅСЏС‚СЊ С„Р°РєС‚РёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ РїРµСЂСЃРѕРЅР°Р»РёРё
 			//
 			PersonTbl::Rec psn_rec;
 			if(Search(psn_id, &psn_rec) <= 0)
@@ -2359,7 +2366,7 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 		}
 		*/
 		for(i = 0; i < p_pack->GetRelList().getCount(); i++) {
-			// @privacy_violation Здесь обходится приватность PPPerson::RelList
+			// @privacy_violation Р—РґРµСЃСЊ РѕР±С…РѕРґРёС‚СЃСЏ РїСЂРёРІР°С‚РЅРѕСЃС‚СЊ PPPerson::RelList
 			LAssoc & r_assoc = p_pack->GetRelList().at(i);
 			THROW(ProcessObjRefInArray(PPOBJ_PERSON, &r_assoc.Key, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_PERSONRELTYPE, &r_assoc.Val, ary, replace));
@@ -2377,7 +2384,7 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 	return ok;
 }
 //
-// Объединение персоналий
+// РћР±СЉРµРґРёРЅРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёР№
 //
 class ReplPrsnDialog : public TDialog {
 public:
@@ -2843,8 +2850,8 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	int    ok = 1, ta = 0;
 	int    no_changes = 0;
 	//
-	// Признак наличия в БД адресов, имеющих не верного владельца.
-	// В случае ошибки необходимо попытаться установить правильного владельца у 'тих адресов.
+	// РџСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ РІ Р‘Р” Р°РґСЂРµСЃРѕРІ, РёРјРµСЋС‰РёС… РЅРµ РІРµСЂРЅРѕРіРѕ РІР»Р°РґРµР»СЊС†Р°.
+	// Р’ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕРїС‹С‚Р°С‚СЊСЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІР»Р°РґРµР»СЊС†Р° Сѓ 'С‚РёС… Р°РґСЂРµСЃРѕРІ.
 	//
 	int    is_in_db_mism_owner_loc = 0;
 	//
@@ -2865,8 +2872,8 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	THROW(PPStartTransaction(&ta, use_ta));
 	if(*pID && !CheckRights(PPR_MOD, 0) && p_sc_obj) {
 		//
-		// Специальный случай: нет прав доступа на изменение персоналии, но есть право на создание (изменение) карты,
-		// прикрепленной к пакету персоналии.
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµС‚ РїСЂР°РІ РґРѕСЃС‚СѓРїР° РЅР° РёР·РјРµРЅРµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё, РЅРѕ РµСЃС‚СЊ РїСЂР°РІРѕ РЅР° СЃРѕР·РґР°РЅРёРµ (РёР·РјРµРЅРµРЅРёРµ) РєР°СЂС‚С‹,
+		// РїСЂРёРєСЂРµРїР»РµРЅРЅРѕР№ Рє РїР°РєРµС‚Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё.
 		//
 		THROW(Helper_PutSCard(*pID, pPack, p_sc_obj));
 	}
@@ -2895,8 +2902,8 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				if(no_changes) {
 					ok = -1;
 					//
-					// Необходимо обработать специальный случай: проверка и, если необходимо, установка
-					// идентификатора владельца адресов доставки.
+					// РќРµРѕР±С…РѕРґРёРјРѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РїСЂРѕРІРµСЂРєР° Рё, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ, СѓСЃС‚Р°РЅРѕРІРєР°
+					// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РІР»Р°РґРµР»СЊС†Р° Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё.
 					//
 					for(i = 0; pPack->EnumDlvrLoc(&i, &loc_pack) > 0;) {
 						if(loc_pack.OwnerID != id) {
@@ -2919,7 +2926,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(UpdateAddress(&pPack->Rec.MainLoc, &pPack->Loc));
 					THROW(UpdateAddress(&pPack->Rec.RLoc, &pPack->RLoc));
 					//
-					// Обновление списка адресов доставки {
+					// РћР±РЅРѕРІР»РµРЅРёРµ СЃРїРёСЃРєР° Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё {
 					//
 					THROW(GetDlvrLocList(id, &dlvr_loc_list));
 					{
@@ -2930,7 +2937,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 							int    found = 0;
 							if(loc_id && LocObj.GetPacket(loc_id, &loc_pack) > 0) {
 								{
-									// @todo Добавить в PPPersonPacket функцию GetDlvrLocByID()
+									// @todo Р”РѕР±Р°РІРёС‚СЊ РІ PPPersonPacket С„СѓРЅРєС†РёСЋ GetDlvrLocByID()
 									PPLocationPacket loc_pack2;
 									for(uint j = 0; !found && pPack->EnumDlvrLoc(&j, &loc_pack2) > 0;)
 										if(loc_pack2.ID == loc_id)
@@ -2954,10 +2961,10 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 										}
 										if(!is_there_another_link) {
 											//
-											// Если нет других персоналий, ссылающихся на удаляемый адрес, то...
+											// Р•СЃР»Рё РЅРµС‚ РґСЂСѓРіРёС… РїРµСЂСЃРѕРЅР°Р»РёР№, СЃСЃС‹Р»Р°СЋС‰РёС…СЃСЏ РЅР° СѓРґР°Р»СЏРµРјС‹Р№ Р°РґСЂРµСЃ, С‚Рѕ...
 											//
-											// Прежде чем удалить адрес необходимо убедиться, что не существует документов,
-											// которые на него ссылаются.
+											// РџСЂРµР¶РґРµ С‡РµРј СѓРґР°Р»РёС‚СЊ Р°РґСЂРµСЃ РЅРµРѕР±С…РѕРґРёРјРѕ СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РґРѕРєСѓРјРµРЅС‚РѕРІ,
+											// РєРѕС‚РѕСЂС‹Рµ РЅР° РЅРµРіРѕ СЃСЃС‹Р»Р°СЋС‚СЃСЏ.
 											//
 											if(!bill_dlvr_addr_list_inited) {
 												BillObj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
@@ -3065,7 +3072,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(LocObj.PutRecord(&P_Tbl->data.RLoc, 0, 0));
 			}
 			//
-			// Удаляем список адресов доставки {
+			// РЈРґР°Р»СЏРµРј СЃРїРёСЃРѕРє Р°РґСЂРµСЃРѕРІ РґРѕСЃС‚Р°РІРєРё {
 			//
 			THROW(GetDlvrLocList(id, &dlvr_loc_list));
 			for(i = 0; i < dlvr_loc_list.getCount(); i++) {
@@ -3106,15 +3113,15 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 			PPRollbackWork(&ta);
 			if(do_recover_loc_owners) {
 				//
-				// Специальная процедура, корректирующая владельцев адресов персоналии в случае сбоя.
-				// Необходимость такой процедуры обусловлена возможным несоответствием владельца адреса
-				// при акцепте персоналии из другого раздела. В таких случаях сначала акцептируется локация,
-				// а потом - персоналия, владеющая локацией. У локации при этом устанавливается идент владельца,
-				// соответствующий разделу-отправителю.
-				// Если персоналия принялась правильно, то владелец корректируется (см. код выше), в противном
-				// случае у локации может остаться неверный владелец.
+				// РЎРїРµС†РёР°Р»СЊРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР°, РєРѕСЂСЂРµРєС‚РёСЂСѓСЋС‰Р°СЏ РІР»Р°РґРµР»СЊС†РµРІ Р°РґСЂРµСЃРѕРІ РїРµСЂСЃРѕРЅР°Р»РёРё РІ СЃР»СѓС‡Р°Рµ СЃР±РѕСЏ.
+				// РќРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ С‚Р°РєРѕР№ РїСЂРѕС†РµРґСѓСЂС‹ РѕР±СѓСЃР»РѕРІР»РµРЅР° РІРѕР·РјРѕР¶РЅС‹Рј РЅРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµРј РІР»Р°РґРµР»СЊС†Р° Р°РґСЂРµСЃР°
+				// РїСЂРё Р°РєС†РµРїС‚Рµ РїРµСЂСЃРѕРЅР°Р»РёРё РёР· РґСЂСѓРіРѕРіРѕ СЂР°Р·РґРµР»Р°. Р’ С‚Р°РєРёС… СЃР»СѓС‡Р°СЏС… СЃРЅР°С‡Р°Р»Р° Р°РєС†РµРїС‚РёСЂСѓРµС‚СЃСЏ Р»РѕРєР°С†РёСЏ,
+				// Р° РїРѕС‚РѕРј - РїРµСЂСЃРѕРЅР°Р»РёСЏ, РІР»Р°РґРµСЋС‰Р°СЏ Р»РѕРєР°С†РёРµР№. РЈ Р»РѕРєР°С†РёРё РїСЂРё СЌС‚РѕРј СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РёРґРµРЅС‚ РІР»Р°РґРµР»СЊС†Р°,
+				// СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ СЂР°Р·РґРµР»Сѓ-РѕС‚РїСЂР°РІРёС‚РµР»СЋ.
+				// Р•СЃР»Рё РїРµСЂСЃРѕРЅР°Р»РёСЏ РїСЂРёРЅСЏР»Р°СЃСЊ РїСЂР°РІРёР»СЊРЅРѕ, С‚Рѕ РІР»Р°РґРµР»РµС† РєРѕСЂСЂРµРєС‚РёСЂСѓРµС‚СЃСЏ (СЃРј. РєРѕРґ РІС‹С€Рµ), РІ РїСЂРѕС‚РёРІРЅРѕРј
+				// СЃР»СѓС‡Р°Рµ Сѓ Р»РѕРєР°С†РёРё РјРѕР¶РµС‚ РѕСЃС‚Р°С‚СЊСЃСЏ РЅРµРІРµСЂРЅС‹Р№ РІР»Р°РґРµР»РµС†.
 				//
-				// Естественно, в следующем блоке обработка ошибок отключена.
+				// Р•СЃС‚РµСЃС‚РІРµРЅРЅРѕ, РІ СЃР»РµРґСѓСЋС‰РµРј Р±Р»РѕРєРµ РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє РѕС‚РєР»СЋС‡РµРЅР°.
 				//
 				PPTransaction tra(use_ta);
 				if(!!tra) {
@@ -3253,7 +3260,7 @@ int SLAPI PPObjPerson::Subst(PPID srcID, PPID dlvrLocID, SubstParam * pParam, lo
 			if(temp_id)
 				src_id = temp_id;
 			else
-				dest_id = src_id; // Результат - ИД статьи с флагом, укаызвающим на это
+				dest_id = src_id; // Р РµР·СѓР»СЊС‚Р°С‚ - РР” СЃС‚Р°С‚СЊРё СЃ С„Р»Р°РіРѕРј, СѓРєР°С‹Р·РІР°СЋС‰РёРј РЅР° СЌС‚Рѕ
 		}
 	}
 	if(dest_id == 0) {
@@ -3648,7 +3655,7 @@ private:
 	PPID   CashiersPsnKindID;
 	PPID   DupID;             //
 	int    IsCashier;
-	PPIDArray PrevKindList;   // Список видов, которым принадлежала персоанлия до редактирования //
+	PPIDArray PrevKindList;   // РЎРїРёСЃРѕРє РІРёРґРѕРІ, РєРѕС‚РѕСЂС‹Рј РїСЂРёРЅР°РґР»РµР¶Р°Р»Р° РїРµСЂСЃРѕР°РЅР»РёСЏ РґРѕ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ //
 };
 //
 //
@@ -4459,7 +4466,7 @@ IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
 			Selection = id;
 			if(IsInState(sfModal)) {
 				endModal(cmOK);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else
@@ -4651,7 +4658,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 				if(PsnObj.CheckDuplicateName(name, &dup_id) == 2) {
 					DupID = dup_id;
 					endModal(cmOK);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 			}
 		}
@@ -4697,7 +4704,7 @@ int MainOrg2Dialog::setDTS()
 	memzero(buf, sizeof(buf));
 	{
 		//
-		// Не менять порядок просмотра всех расчетных счетов (должен быть от последнего к первому)
+		// РќРµ РјРµРЅСЏС‚СЊ РїРѕСЂСЏРґРѕРє РїСЂРѕСЃРјРѕС‚СЂР° РІСЃРµС… СЂР°СЃС‡РµС‚РЅС‹С… СЃС‡РµС‚РѕРІ (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚ РїРѕСЃР»РµРґРЅРµРіРѕ Рє РїРµСЂРІРѕРјСѓ)
 		//
 		{
 			int   ba_done = 0;
@@ -4796,7 +4803,7 @@ int MainOrg2Dialog::getDTS()
 	getCtrlData(CTLSEL_MAINORG2_CITY, &P_Pack->Loc.CityID);
 	getCtrlString(sel = CTL_MAINORG2_ADDRESS, temp_buf);
 	//
-	// Либо адрес должен быть пустым либо должен быть указан город
+	// Р›РёР±Рѕ Р°РґСЂРµСЃ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј Р»РёР±Рѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ РіРѕСЂРѕРґ
 	//
 	THROW_PP(!temp_buf.NotEmptyS() || P_Pack->Loc.CityID, PPERR_CITYNEEDED);
 	LocationCore::SetExField(&P_Pack->Loc, LOCEXSTR_SHORTADDR, temp_buf);
@@ -4810,7 +4817,7 @@ int MainOrg2Dialog::getDTS()
 	sel = CTL_MAINORG2_ACC;
 	THROW_PP(!bnk_id || *strip(buf), PPERR_ACCNEEDED);
 	{
-		// Не менять порядок просмотра всех расчетных счетов (должен быть от последнего к первому)
+		// РќРµ РјРµРЅСЏС‚СЊ РїРѕСЂСЏРґРѕРє РїСЂРѕСЃРјРѕС‚СЂР° РІСЃРµС… СЂР°СЃС‡РµС‚РЅС‹С… СЃС‡РµС‚РѕРІ (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚ РїРѕСЃР»РµРґРЅРµРіРѕ Рє РїРµСЂРІРѕРјСѓ)
 		int   ba_done = 0;
 		i = P_Pack->Regs.getCount();
 		if(i) do {
@@ -5597,7 +5604,7 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 			k1.ObjType = PPOBJ_PERSON;
 			k1.Prop = PSNPRP_ELINK;
 			//
-			// Сначала получим список персоналий, имеющих записи электронных адресов...
+			// РЎРЅР°С‡Р°Р»Р° РїРѕР»СѓС‡РёРј СЃРїРёСЃРѕРє РїРµСЂСЃРѕРЅР°Р»РёР№, РёРјРµСЋС‰РёС… Р·Р°РїРёСЃРё СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ...
 			//
 			if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
 				if(p_ref->Prop.data.Val2)
@@ -5672,14 +5679,14 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 		k1.ObjType = PPOBJ_PERSON;
 		k1.Prop = PSNPRP_ELINK;
 		//
-		// Сначала получим список персоналий, имеющих записи электронных адресов...
+		// РЎРЅР°С‡Р°Р»Р° РїРѕР»СѓС‡РёРј СЃРїРёСЃРѕРє РїРµСЂСЃРѕРЅР°Р»РёР№, РёРјРµСЋС‰РёС… Р·Р°РїРёСЃРё СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ...
 		//
 		if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK)
 			do {
 				psn_id_list.addUnique(p_ref->Prop.data.ObjID);
 			} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
 		//
-		// ...а уже потом по этому списку проиндексируем телефоны.
+		// ...Р° СѓР¶Рµ РїРѕС‚РѕРј РїРѕ СЌС‚РѕРјСѓ СЃРїРёСЃРєСѓ РїСЂРѕРёРЅРґРµРєСЃРёСЂСѓРµРј С‚РµР»РµС„РѕРЅС‹.
 		//
 		for(uint j = 0; j < psn_id_list.getCount(); j++) {
 			PPObjID objid;
@@ -6193,10 +6200,10 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 						const PPID op_id = t->data.OpID;
 						if(ar_op_list.SearchPair(ar_id, op_id, 0)) {
 							if(t->data.Dt < _period.low) {
-								yes = 0; // Не новый клиент
+								yes = 0; // РќРµ РЅРѕРІС‹Р№ РєР»РёРµРЅС‚
 							}
 							else {
-								yes = 1; // Новый клиент
+								yes = 1; // РќРѕРІС‹Р№ РєР»РёРµРЅС‚
 							}
 							break;
 						}
@@ -6216,10 +6223,10 @@ int SLAPI PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange
 				if(t->search(3, &k3, spGe) && t->data.PersonID == psnID && t->data.Dt <= _period.upp) do {
 					if(PsnOpList.bsearch(t->data.OpID)) {
 						if(t->data.Dt < _period.low) {
-							yes = 0; // Не новый клиент
+							yes = 0; // РќРµ РЅРѕРІС‹Р№ РєР»РёРµРЅС‚
 						}
 						else {
-							yes = 1; // Новый клиент
+							yes = 1; // РќРѕРІС‹Р№ РєР»РёРµРЅС‚
 						}
 						break;
 					}
@@ -6637,7 +6644,7 @@ struct UhttPersonBlock {
 	PPObjLocation LObj;
 	PPObjELinkKind ElObj;
 	PPPersonPacket Pack;
-	uint   LocPos;  // Итератор локаций. 0 - MainLoc, 1 - RLob, 2.. - DlvrLoc
+	uint   LocPos;  // РС‚РµСЂР°С‚РѕСЂ Р»РѕРєР°С†РёР№. 0 - MainLoc, 1 - RLob, 2.. - DlvrLoc
 	uint   PhPos;
 	uint   EmlPos;
 	uint   UrlPos;
@@ -7013,7 +7020,6 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		PersonTbl::Rec psn_rec;
 		PPObjPerson psnobj;
 		PersonReq   req, bnk_req;
-		long   sCURRACC = 0x00912F90L; // "ђ/‘"
 		SString temp_buf;
 
 		GetMainOrgID(&H.ID);
@@ -7022,11 +7028,14 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		GetMainOrgName(temp_buf).CopyTo(H.MainOrgName, sizeof(H.MainOrgName));
 		H.ShortOrgName[0] = 0;
 		psnobj.GetPersonReq(H.ID, &req);
-		H.MainAddrID = req.AddrID;                     // @v7.6.2
-		H.MainRAddrID = NZOR(req.RAddrID, req.AddrID); // @v7.6.2
+		H.MainAddrID = req.AddrID;
+		H.MainRAddrID = NZOR(req.RAddrID, req.AddrID);
 		STRNSCPY(H.MainOrgExtName, req.ExtName);
 		STRNSCPY(H.MainOrgMemo,    req.Memo);
-		req.BnkAcct.Format((char*)&sCURRACC, H.MainOrgBankAcc, sizeof(H.MainOrgBankAcc));
+		{
+			PPLoadString("checkingaccount_s", temp_buf);
+			req.BnkAcct.Format(temp_buf, H.MainOrgBankAcc, sizeof(H.MainOrgBankAcc));
+		}
 		STRNSCPY(H.MainOrgBnkName, req.BnkAcct.Bnk.ExtName[0] ? req.BnkAcct.Bnk.ExtName : req.BnkAcct.Bnk.Name);
 		STRNSCPY(H.MainOrgBnkAccN, req.BnkAcct.Acct);
 		H.CurDate = getcurdate_();

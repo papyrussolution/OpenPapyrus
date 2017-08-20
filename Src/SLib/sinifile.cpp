@@ -648,16 +648,16 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 int SLAPI SIniFile::AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
 {
 	SString val = pVal;
-	if(((const char *)val) == 0)
-		val.Space() = 0;
+	if(val.cptr() == 0)
+		val.Space().Z();
 	return SetParam(pSect, pParam, val, BIN(overwrite));
 }
 
 int SLAPI SIniFile::RemoveParam(const char * pSect, const char * pParam)
 {
 	SString param = pParam;
-	if(((const char *)param) == 0)
-		param.Space() = 0;
+	if(param.cptr() == 0)
+		param.Space().Z();
 	return SetParam(pSect, pParam, 0, 1);
 }
 

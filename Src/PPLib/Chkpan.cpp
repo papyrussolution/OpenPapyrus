@@ -2376,7 +2376,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 						break;
 					}
 			}
-			THROW(Helper_InitCcPacket(&epb.Pack, ((mode == accmRegular) ? &epb.ExtPack : 0), pPl, 0));
+			THROW(Helper_InitCcPacket(&epb.Pack, ((mode == accmRegular && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0)); // @v9.7.11 !altPosNodeID
 			if(mode == accmRegular && P_CM_EXT) {
 				epb.Pack._Cash = MONEYTOLDBL(epb.Pack.Rec.Amount);
 				// @v9.6.11 epb.IsExtPack = BIN(epb.ExtPack.GetCount());
@@ -3153,13 +3153,13 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					// @v9.7.10 AltRegisterID = 0;
 					ExtCashNodeID = 0;
 				}
-				// @v9.7.10 { 
+				// @v9.7.10 {
 				if(AltRegisterID) {
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
 					if(temp_buf.CmpNC("yes") != 0)
 						AltRegisterID = 0;
 				}
-				// } @v9.7.10 
+				// } @v9.7.10
 				ScaleID         = scn.ScaleID;
 				// @v8.6.12 перенесено в CPosProcessor Scf             = scn.Scf;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;

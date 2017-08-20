@@ -80,7 +80,7 @@ int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	};
 	for(uint i = 0; i < SIZEOFARRAY(int_items); i++) {
 		PPGetSubStr(params, int_items[i].ID, fld_name);
-		pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(int_items[i].Val), 1);
+		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(int_items[i].Val), 1);
 	}
 	CATCHZOK
 	return ok;
@@ -275,7 +275,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
 			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
-				list.Get(i, sect = 0);
+				list.Get(i, sect.Z());
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -285,7 +285,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 		#endif
 		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_QUOTIMPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, sect = 0);
+				list.Get(id, sect.Z());
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;
@@ -581,7 +581,7 @@ int PPGoodsImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		};
 		for(uint i = 0; i < SIZEOFARRAY(int_items); i++) {
 			PPGetSubStr(params, int_items[i].ID, fld_name);
-			pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(int_items[i].Val), 1);
+			pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(int_items[i].Val), 1);
 		}
 	// @v8.4.2 }
 	CATCHZOK
@@ -819,7 +819,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		// ¬ режиме тестировани€ - начало {
 		#if SLTEST_RUNNING
 			for(int i = 1; i < (int)list.getCount(); i++) {
-				list.Get(i, sect = 0);
+				list.Get(i, sect.Z());
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -836,7 +836,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			id = dlg->getCtrlLong(CTLSEL_IEGOODS_CFG);
 			if(id) {
-				list.Get(id, sect = 0);
+				list.Get(id, sect.Z());
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				loc_id = dlg->getCtrlLong(CTLSEL_IEGOODS_LOC);
@@ -852,7 +852,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		/* @v9.5.10
 		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_GOODSIMPCFG : PPTXT_TITLE_GOODSEXPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, sect = 0);
+				list.Get(id, sect.Z());
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;
@@ -1480,7 +1480,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 								first_unit_abbr = unit_abbr;
 							if(temp_buf.CmpNC(unit_abbr) == 0) {
 								unit_id = Units.at(i).BaseId;
-								(TempBuf = 0).Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Cat(first_unit_abbr);
+								TempBuf.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Cat(first_unit_abbr);
 								normalize_val = 0;
 								lex_next = 0;
 								next_buf = 0;
@@ -1495,7 +1495,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 						}
 					}
 					if(normalize_val)
-						(TempBuf = 0).Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+						TempBuf.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 				}
 			}
 			else if(lex == reDiv) {
@@ -2159,7 +2159,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			Param.Direction = 1;
 			THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, 2));
 			for(uint i = 1; i < list.getCount(); i++) {
-				list.Get(i, temp_buf2 = 0);
+				list.Get(i, temp_buf2.Z());
 				if(strstr(temp_buf2, pCfgName)) {
 					Param.ProcessName(1, temp_buf2);
 					Param.ReadIni(&ini_file, temp_buf2, 0);
@@ -2360,7 +2360,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								dyn_rec.GetFieldByPos(j, &dyn_fld);
 								if(dyn_fld.Formula.NotEmptyS()) {
 									scan.Set(dyn_fld.Formula, 0);
-									if(scan.GetIdent(temp_buf2 = 0)) {
+									if(scan.GetIdent(temp_buf2.Z())) {
 										if(temp_buf2.CmpNC("tag") == 0) {
 											scan.Skip();
 											if(scan[0] == '.') {
@@ -2538,7 +2538,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										PPID   temp_nm_goods_id = 0;
 										long   uc = 1;
 										do {
-											(suffix = 0).Space().CatChar('#').Cat(++uc);
+											suffix.Z().Space().CatChar('#').Cat(++uc);
 											temp_buf2 = goods_name;
 											size_t sum_len = temp_buf2.Len() + suffix.Len();
 											if(sum_len > max_nm_len)
@@ -2608,7 +2608,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 												PPID   temp_nm_goods_id = 0;
 												long   uc = 1;
 												do {
-													(suffix = 0).Space().CatChar('#').Cat(++uc);
+													suffix.Z().Space().CatChar('#').Cat(++uc);
 													(temp_buf2 = pack2.Rec.Name).Strip();
 													size_t sum_len = temp_buf2.Len() + suffix.Len();
 													if(sum_len > max_nm_len)

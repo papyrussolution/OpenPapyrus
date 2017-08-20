@@ -383,7 +383,7 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 		idx = 3;
 	else if(order == OrdByDlvrAddr)
 		idx = 4;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TmpTbl, idx));
 	P_IterQuery->selectAll();
 	memzero(k, sizeof(k));

@@ -314,7 +314,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						p_ctl = new TCalcInputLine(calc_inputline_id, calc_button_id, r, type, format);
 					else
 						p_ctl = new TInputLine(r, type, format);
-					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					break;
 				case TV_BUTTON:
 					{
@@ -327,7 +327,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						options = rez->getUINT();
 						help_ctx = rez->getUINT();
 						uint bmp_id = rez->getUINT();
-						dlg->InsertCtl(new TButton(r, buf, cmd, options, bmp_id), id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+						dlg->InsertCtl(new TButton(r, buf, cmd, options, bmp_id), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 						if(flags & ldfDL600_Cvt && cmd_symb.NotEmptyS())
 							dlg->SetCtlSymb(cmd+100000, cmd_symb);
 					}
@@ -345,7 +345,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 							fseek(rez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 							p_cluster->addItem(-1, rez->getString(buf));
 						}
-						dlg->InsertCtl(p_cluster, id, (flags & ldfDL600_Cvt) ? (const char *)symb : 0);
+						dlg->InsertCtl(p_cluster, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
 					break;
 				case TV_LISTBOX:

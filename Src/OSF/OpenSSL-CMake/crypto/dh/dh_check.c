@@ -27,7 +27,7 @@ int DH_check_params(const DH * dh, int * ret)
 		goto err;
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	if(!BN_is_odd(dh->p))

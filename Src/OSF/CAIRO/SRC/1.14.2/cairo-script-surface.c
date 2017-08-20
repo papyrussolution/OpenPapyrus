@@ -68,7 +68,7 @@
 #include "cairo-script-private.h"
 //#include "cairo-analysis-surface-private.h"
 #include "cairo-default-context-private.h"
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 //#include "cairo-list-inline.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-output-stream-private.h"

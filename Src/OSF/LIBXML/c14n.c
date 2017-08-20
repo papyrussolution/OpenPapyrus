@@ -266,13 +266,13 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, 
 	else if(cur->nsMax == cur->nsCurEnd) {
 		int tmpSize = 2 * cur->nsMax;
 		void * tmp = SAlloc::R(cur->nsTab, tmpSize * sizeof(xmlNsPtr));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
 		cur->nsTab = (xmlNsPtr*)tmp;
 		tmp = SAlloc::R(cur->nodeTab, tmpSize * sizeof(xmlNode *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
@@ -1773,7 +1773,7 @@ int xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes, int mode, xmlChar *
 	 * create memory buffer with UTF8 (default) encoding
 	 */
 	buf = xmlAllocOutputBuffer(NULL);
-	if(buf == NULL) {
+	if(!buf) {
 		xmlC14NErrMemory("creating output buffer");
 		return -1;
 	}
@@ -1839,7 +1839,7 @@ int xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
 	 * save the content to a temp buffer, use default UTF8 encoding.
 	 */
 	buf = xmlOutputBufferCreateFilename(filename, NULL, compression);
-	if(buf == NULL) {
+	if(!buf) {
 		xmlC14NErrInternal("creating temporary filename");
 		return -1;
 	}

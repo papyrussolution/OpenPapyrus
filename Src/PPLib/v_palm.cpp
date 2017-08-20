@@ -164,7 +164,7 @@ int SLAPI PPViewPalm::Init_(const PPBaseFilt * pFilt)
 	PPStyloPalm rec;
 	PPStyloPalmPacket palm_pack;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(P_TempTbl = CreateTempFile <TempPalmTbl> ());
 	{
@@ -223,7 +223,7 @@ int SLAPI PPViewPalm::InitIteration()
 {
 	int    ok = 1;
 	TempPalmTbl::Key0 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->select(P_TempTbl->ID, 0);
 	MEMSZERO(k);

@@ -465,7 +465,7 @@ lzo_uint32 lzo_adler32(lzo_uint32 adler, const lzo_byte*buf, lzo_uint len)
 	lzo_uint32 s1 = adler&0xffff;
 	lzo_uint32 s2 = (adler>>16)&0xffff;
 	int k;
-	if(buf == NULL)
+	if(!buf)
 		return 1;
 	while(len > 0) {
 		k = len < LZO_NMAX ? (int)len : LZO_NMAX;

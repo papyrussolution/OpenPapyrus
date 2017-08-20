@@ -1566,7 +1566,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempCargoFile, TempGoodsCargo);
 
-int SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Rec * pOrdRec)
+void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Rec * pOrdRec)
 {
 	if(pOrdRec) {
 		const size_t max_prefix_len = 48;
@@ -1616,7 +1616,6 @@ int SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTb
 			buf = pGoodsRec->Name;
 		buf.CopyTo(pOrdRec->Name, sizeof(pOrdRec->Name));
 	}
-	return 1;
 }
 
 int SLAPI PPViewGoods::UpdateTempTable(PPID goodsID, PPViewBrowser * pBrw)
@@ -1708,7 +1707,7 @@ int SLAPI PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	RemoveTempAltGroup();
 	ZDELETE(P_Iter);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Setup();
@@ -1728,7 +1727,7 @@ int SLAPI PPViewGoods::InitIteration(int aOrder)
 
 	Counter.Init();
 	ZDELETE(P_Iter);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 
 	BrcIdx = 0;
 	BarcodeAry.freeAll();
@@ -1944,7 +1943,7 @@ int SLAPI PPViewGoods::RemoveAll()
 			SetClusterData(CTL_REMOVEALL_FLAGS, Data.Flags);
 			SetupExtCombo();
 			if(Data.Action == GoodsMoveParam::aChgMinStock) {
-				(Data.Rule = 0).Cat(Data.RValue);
+				Data.Rule.Z().Cat(Data.RValue);
 			}
 			else
 				setCtrlString(CTL_REMOVEALL_RULE, Data.Rule);
@@ -3437,7 +3436,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 						if(uhtt_goods_id) {
 							if(goods_rec.Flags & GF_HASIMAGES) {
 								lf.Load(goods_id, 0L);
-								lf.At(0, img_path = 0);
+								lf.At(0, img_path.Z());
 								if(img_path.NotEmptyS()) {
 									if(uc.SetObjImage("GOODS", uhtt_goods_id, img_path)) {
 										// PPTXT_LOG_UHTT_GOODSSETIMG "Для товара @goods экспортировано изображение"
@@ -4723,7 +4722,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
 				case OTTYP_GUID:
-					p_item->GetStr(temp_buf = 0);
+					p_item->GetStr(temp_buf.Z());
 					temp_buf.CopyTo(I_TagList.StrVal, sizeof(I_TagList.StrVal));
 					break;
 				case OTTYP_NUMBER:
@@ -4735,7 +4734,7 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 					break;
 				case OTTYP_ENUM:
 					p_item->GetInt(&I_TagList.IntVal);
-					p_item->GetStr(temp_buf = 0);
+					p_item->GetStr(temp_buf.Z());
 					temp_buf.CopyTo(I_TagList.StrVal, sizeof(I_TagList.StrVal));
 					break;
 				case OTTYP_DATE:
@@ -4857,7 +4856,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			if(glob_acc_id && sstreqi_ascii(I_TagList.TagSymb, "OuterGroup")) {
 				ObjTagItem pgg_tag;
 				if(PPRef->Ot.GetTag(PPOBJ_GLOBALUSERACC, glob_acc_id, PPTAG_GUA_PGGTAG, &pgg_tag) > 0) {
-					if(pgg_tag.GetStr(temp_buf = 0) > 0) {
+					if(pgg_tag.GetStr(temp_buf.Z()) > 0) {
 						PPID   pgg_tag_id = 0;
 						if(r_blk.TagObj.FetchBySymb(temp_buf, &pgg_tag_id) > 0) {
 							r_blk.PrivateGoodsGroupTagID = pgg_tag_id;

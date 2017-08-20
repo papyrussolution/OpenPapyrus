@@ -264,7 +264,7 @@ void SymbHashTable::Clear()
 {
 	HashTableBase::Clear();
 	NamePool.clear();
-	NamePool.add("$", 0);
+	NamePool.add("$");
 }
 
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
@@ -326,11 +326,10 @@ int SymbHashTable::NextIteration(Iter * pI, uint * pVal, uint * pPos, SString * 
 	return 0;
 }
 
-int SymbHashTable::ResetAssoc()
+void SymbHashTable::ResetAssoc()
 {
 	Assoc.clear();
 	Flags &= ~fUseAssoc;
-	return 1;
 }
 
 int SymbHashTable::BuildAssoc()
@@ -563,8 +562,8 @@ int FASTCALL GuidHashTable::InitIteration(Iter * pI) const
 
 int GuidHashTable::NextIteration(Iter * pI, uint * pVal, S_GUID & rUuid) const
 {
-	if(pI && P_Tab)
-		while(pI->P < Size)
+	if(pI && P_Tab) {
+		while(pI->P < Size) {
 			if(pI->E < P_Tab[pI->P].Count) {
 				if(pI->E == 0) {
 					ASSIGN_PTR(pVal, P_Tab[pI->P].Val.Val);
@@ -588,6 +587,8 @@ int GuidHashTable::NextIteration(Iter * pI, uint * pVal, S_GUID & rUuid) const
 				pI->P++;
 				pI->E = 0;
 			}
+		}
+	}
 	return 0;
 }
 

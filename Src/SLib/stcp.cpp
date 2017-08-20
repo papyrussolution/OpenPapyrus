@@ -1860,7 +1860,7 @@ int ScURL::HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFie
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
 	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, (const char *)flds_buf)));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, flds_buf.cptr())));
 	THROW(SetupCbWrite(pReplyStream));
 	THROW(Execute());
 	CATCHZOK
@@ -1906,7 +1906,7 @@ int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttp
 				}
 				else
 					fld_buf.CatChar(':');
-				p_chunk = curl_slist_append(p_chunk, (const char *)fld_buf);
+				p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
                 flds_count++;
             }
 		}

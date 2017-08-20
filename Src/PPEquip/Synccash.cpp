@@ -533,7 +533,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
-					(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
 					msg_buf.Printf(fmt_buf, added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
@@ -561,7 +561,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			}
 			// »ÌÙÓÏ‡ˆËˇ Ó ÒÍË‰ÍÂ
 			THROW(PrintDiscountInfo(pPack, flags));
-			(buf = 0).CatCharN('=', CheckStrLen);
+			buf.Z().CatCharN('=', CheckStrLen);
 			Arr_In.Clear();
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
@@ -700,9 +700,9 @@ int	SLAPI SCS_SYNCCASH::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		SString prn_str, temp_str;
 		SCardCore scc;
 		Arr_In.Clear();
-		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = 0).CatCharN('-', CheckStrLen)));
+		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		(temp_str = 0).Cat(amt + dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
 		prn_str = "—”ÃÃ¿ ¡≈« — »ƒ »"; // @cstr #0
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		Arr_In.Clear();
@@ -720,7 +720,7 @@ int	SLAPI SCS_SYNCCASH::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			}
 		}
-		(temp_str = 0).Cat(dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(dscnt, SFMT_MONEY);
 		(prn_str = "— »ƒ ¿").Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		Arr_In.Clear();
@@ -970,22 +970,22 @@ int SLAPI SCS_SYNCCASH::PrintCheckCopy(CCheckPacket * pPack, const char * pForma
 			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			if(qtty != 1.0) {
-				(temp_str = 0).Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
+				temp_str.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
 				Arr_In.Clear();
-				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
 				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 			}
-			(temp_str = 0).CatEq(0, qtty * price, SFMT_MONEY);
+			temp_str.Z().CatEq(0, qtty * price, SFMT_MONEY);
 			Arr_In.Clear();
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN(' ', CheckStrLen - temp_str.Len()).Cat(temp_str)));
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
 
 		THROW(PrintDiscountInfo(pPack, flags));
 		Arr_In.Clear();
-		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (prn_str = 0).CatCharN('=', CheckStrLen)));
+		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		(temp_str = 0).CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
+		temp_str.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		prn_str = "»“Œ√"; // @cstr #12
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		Arr_In.Clear();
@@ -1030,7 +1030,7 @@ int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJou
 			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 0));
 		if(cur_journal != useJournalRibbon)
 			THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 1));
-		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (buf = 0).CatCharN(' ', CheckStrLen)));
+		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf.Z().CatCharN(' ', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 	}
 	CATCHZOK

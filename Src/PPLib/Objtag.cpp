@@ -2918,7 +2918,7 @@ int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 
 ObjTagCache::ObjTagCache()
 {
-	Ss.add("$", 0); // zero index - is empty string
+	Ss.add("$"); // zero index - is empty string
 	size_t init_size = 1024*1024;
 	uint   init_items_count = init_size / sizeof(Entry);
 	AdvCookie = 0;

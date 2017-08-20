@@ -150,7 +150,7 @@ DBQuery * SLAPI PPViewSuprWare::CreateBrowserQuery(uint * pBrwId, SString * pSub
 
 int SLAPI PPViewSuprWare::Init_(const PPBaseFilt * pFilt)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	return Helper_InitBaseFilt(pFilt);
 }
 //
@@ -160,7 +160,7 @@ int SLAPI PPViewSuprWare::InitIteration()
 {
 	Goods2Tbl * _t = SwObj.P_Tbl;
 	DBQ * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(_t, 1);
 	dbq = &(_t->Kind == PPGDSK_SUPRWARE);
 	dbq = ppcheckfiltid(dbq, _t->GoodsTypeID, Filt.SuprWareType);

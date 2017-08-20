@@ -597,7 +597,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 	 * reserialize it
 	 */
 	buf = xmlOutputBufferCreateFile(out, 0);
-	if(buf == NULL) {
+	if(!buf) {
 		xmlFreeDoc(doc);
 		return -1;
 	}
@@ -774,7 +774,7 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 		return 0;
 	}
 	buf = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
-	if(buf == NULL) {
+	if(!buf) {
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
@@ -1898,7 +1898,7 @@ static const xmlChar * xmlParseSGMLCatalogPubid(const xmlChar * cur, xmlChar ** 
 		stop = ' ';
 	}
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
-	if(buf == NULL) {
+	if(!buf) {
 		xmlCatalogErrMemory("allocating public ID");
 		return 0;
 	}
@@ -1910,7 +1910,7 @@ static const xmlChar * xmlParseSGMLCatalogPubid(const xmlChar * cur, xmlChar ** 
 		if(len + 1 >= size) {
 			size *= 2;
 			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlCatalogErrMemory("allocating public ID");
 				SAlloc::F(buf);
 				return 0;

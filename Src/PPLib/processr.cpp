@@ -511,14 +511,15 @@ int SLAPI PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, Processor
 int SLAPI PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;
+	ProcessorTbl * p_t = P_Tbl;
 	ProcessorTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.Kind = PPPRCK_PROCESSOR;
-	BExtQuery q(P_Tbl, 0, 1);
-	q.selectAll().where(P_Tbl->Kind == (long)PPPRCK_PROCESSOR && P_Tbl->LinkObjType == objType && P_Tbl->LinkObjID == objID);
+	BExtQuery q(p_t, 0, 1);
+	q.selectAll().where(p_t->Kind == (long)PPPRCK_PROCESSOR && p_t->LinkObjType == objType && p_t->LinkObjID == objID);
 	for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
-		ASSIGN_PTR(pID, P_Tbl->data.ID);
-		ASSIGN_PTR(pRec, P_Tbl->data);
+		ASSIGN_PTR(pID, p_t->data.ID);
+		ASSIGN_PTR(pRec, p_t->data);
 		ok = 1;
 	}
 	return ok;
@@ -527,30 +528,31 @@ int SLAPI PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, 
 int SLAPI PPObjProcessor::GetChildIDList(PPID prcID, int recur, PPIDArray * pList)
 {
 	int    ok = -1;
+	ProcessorTbl * p_t = P_Tbl;
 	ProcessorTbl::Key1 k1;
 	if(recur) {
 		MEMSZERO(k1);
 		k1.Kind = PPPRCK_GROUP;
 		k1.ParentID = prcID;
-		BExtQuery q(P_Tbl, 1);
-		q.select(P_Tbl->ID, 0L).where(P_Tbl->Kind == (long)PPPRCK_GROUP && P_Tbl->ParentID == prcID);
+		BExtQuery q(p_t, 1);
+		q.select(p_t->ID, 0L).where(p_t->Kind == (long)PPPRCK_GROUP && p_t->ParentID == prcID);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
-				THROW_SL(pList->addUnique(P_Tbl->data.ID));
-			THROW(GetChildIDList(P_Tbl->data.ID, 1, pList)); // @recursion
+				THROW_SL(pList->addUnique(p_t->data.ID));
+			THROW(GetChildIDList(p_t->data.ID, 1, pList)); // @recursion
 		}
 	}
 	{
 		MEMSZERO(k1);
 		k1.Kind = PPPRCK_PROCESSOR;
 		k1.ParentID = prcID;
-		BExtQuery q(P_Tbl, 1);
-		q.select(P_Tbl->ID, 0L).where(P_Tbl->Kind == (long)PPPRCK_PROCESSOR && P_Tbl->ParentID == prcID);
+		BExtQuery q(p_t, 1);
+		q.select(p_t->ID, 0L).where(p_t->Kind == (long)PPPRCK_PROCESSOR && p_t->ParentID == prcID);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 			ok = 1;
 			if(pList)
-				THROW_SL(pList->addUnique(P_Tbl->data.ID));
+				THROW_SL(pList->addUnique(p_t->data.ID));
 		}
 	}
 	CATCHZOK
@@ -562,6 +564,7 @@ int SLAPI PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 	rList.clear();
 	int    ok = -1;
 	if(guaID) {
+		Reference * p_ref = PPRef;
 		SBuffer buffer;
 		SSerializeContext sctx;
 		PPProcessorPacket::ExtBlock ext;
@@ -569,17 +572,17 @@ int SLAPI PPObjProcessor::GetListByOwnerGuaID(PPID guaID, PPIDArray & rList)
 		MEMSZERO(k1);
 		k1.ObjType = Obj;
 		k1.Prop = PRCPRP_EXT2;
-		if(PPRef->Prop.search(1, &k1, spGt) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2) do {
-			const PPID prc_id = PPRef->Prop.data.ObjID;
+		if(p_ref->Prop.search(1, &k1, spGt) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2) do {
+			const PPID prc_id = p_ref->Prop.data.ObjID;
 			buffer.Clear();
-			if(PPRef->GetPropSBuffer_Current(buffer) > 0) {
+			if(p_ref->GetPropSBuffer_Current(buffer) > 0) {
 				ext.destroy();
 				if(ext.Serialize(-1, buffer, &sctx) && ext.GetOwnerGuaID() == guaID) {
 					rList.add(prc_id);
 					ok = 1;
 				}
 			}
-		} while(PPRef->Prop.search(1, &k1, spNext) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2);
+		} while(p_ref->Prop.search(1, &k1, spNext) && k1.ObjType == Obj && k1.Prop == PRCPRP_EXT2);
 	}
 	return ok;
 }
@@ -736,8 +739,7 @@ int SLAPI PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 {
 	int    ok = -1;
 	ProcessorTbl::Rec prc_rec, parent_rec;
-	if(pSwitchPrcList)
-		pSwitchPrcList->freeAll();
+	CALLPTRMEMB(pSwitchPrcList, freeAll());
 	if(Fetch(prcID, &prc_rec) > 0 && Fetch(prc_rec.ParentID, &parent_rec) > 0)
 		if(parent_rec.Flags & PRCF_CANSWITCHPAN) {
 			ok = 1;
@@ -750,21 +752,22 @@ int SLAPI PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 
 int SLAPI PPObjProcessor::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {
+	ProcessorTbl * p_t = P_Tbl;
 	if(objType == PPOBJ_PROCESSOR) {
 		ProcessorTbl::Key1 k;
 		MEMSZERO(k);
 		k.Kind = PPPRCK_GROUP;
 		k.ParentID = objID;
-		if(P_Tbl->search(1, &k, spGe) && k.Kind == PPPRCK_GROUP && k.ParentID == objID) {
-			ASSIGN_PTR(pID, P_Tbl->data.ID);
+		if(p_t->search(1, &k, spGe) && k.Kind == PPPRCK_GROUP && k.ParentID == objID) {
+			ASSIGN_PTR(pID, p_t->data.ID);
 			return 1;
 		}
 		else {
 			MEMSZERO(k);
 			k.Kind = PPPRCK_PROCESSOR;
 			k.ParentID = objID;
-			if(P_Tbl->search(1, &k, spGe) && k.Kind == PPPRCK_PROCESSOR && k.ParentID == objID) {
-				ASSIGN_PTR(pID, P_Tbl->data.ID);
+			if(p_t->search(1, &k, spGe) && k.Kind == PPPRCK_PROCESSOR && k.ParentID == objID) {
+				ASSIGN_PTR(pID, p_t->data.ID);
 				return 1;
 			}
 		}
@@ -772,25 +775,24 @@ int SLAPI PPObjProcessor::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	else {
 		DBQ * dbq = 0;
 		if(objType == PPOBJ_UNIT)
-			dbq = & (P_Tbl->TimeUnitID == objID);
+			dbq = & (p_t->TimeUnitID == objID);
 		else if(objType == PPOBJ_LOCATION)
-			dbq = & (P_Tbl->LocID == objID);
+			dbq = & (p_t->LocID == objID);
 		else if(objType == PPOBJ_OPRKIND)
-			dbq = & (P_Tbl->WrOffOpID == objID);
+			dbq = & (p_t->WrOffOpID == objID);
 		else if(objType == PPOBJ_ARTICLE)
-			dbq = & (P_Tbl->WrOffArID == objID);
+			dbq = & (p_t->WrOffArID == objID);
 		else if(objType == PPOBJ_BCODEPRINTER)
-			dbq = & (P_Tbl->PrinterID == objID);
+			dbq = & (p_t->PrinterID == objID);
 		else
-			dbq = & (P_Tbl->LinkObjType == objType && P_Tbl->LinkObjID == objID);
+			dbq = & (p_t->LinkObjType == objType && p_t->LinkObjID == objID);
 		{
 			ProcessorTbl::Key0 k0;
-			BExtQuery q(P_Tbl, 0);
-			q.select(P_Tbl->ID, 0L).where(*dbq);
+			BExtQuery q(p_t, 0);
+			q.select(p_t->ID, 0L).where(*dbq);
 			k0.ID = 0;
 			if(q.fetchFirst(&k0, spGt) > 0) {
-				if(pID)
-					*pID = P_Tbl->data.ID;
+				ASSIGN_PTR(pID, p_t->data.ID);
 				return 1;
 			}
 		}
@@ -1075,7 +1077,6 @@ int SLAPI PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 		if(SearchAnyRef(_obj, _id, &prc_id) > 0)
 			ok = RetRefsExistsErr(Obj, prc_id);
 	}
-	// @v7.9.3 {
 	else if(msg == DBMSG_PERSONACQUIREKIND) {
 		const PPID person_id = _id;
 		const PPID kind_id = (long)extraPtr;
@@ -1120,7 +1121,6 @@ int SLAPI PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 		if(SearchByLinkObj(PPOBJ_PERSON, person_id, &prc_id, 0) > 0)
 			return RetRefsExistsErr(Obj, prc_id);
 	}
-	// } @v7.9.3
 	CATCHZOK
 	return ok;
 }
@@ -1770,20 +1770,21 @@ StrAssocArray * SLAPI PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentI
 	const  long  kind = (outer_parent_id & PRCEXDF_GROUP) ? PPPRCK_GROUP : PPPRCK_PROCESSOR;
 	int    idx = parent_id ? 1 : 2;
 	StrAssocArray * p_list = new StrAssocArray;
+	ProcessorTbl * p_t = P_Tbl;
 	DBQ  * dbq = 0;
-	BExtQuery q(P_Tbl, idx);
+	BExtQuery q(p_t, idx);
 
 	THROW_MEM(p_list);
-	dbq = &(*dbq && P_Tbl->Kind == kind);
-	dbq = ppcheckfiltid(dbq, P_Tbl->ParentID, parent_id);
-	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, P_Tbl->Flags, 0L).where(*dbq);
+	dbq = &(*dbq && p_t->Kind == kind);
+	dbq = ppcheckfiltid(dbq, p_t->ParentID, parent_id);
+	q.select(p_t->ID, p_t->ParentID, p_t->Name, p_t->Flags, 0L).where(*dbq);
 	MEMSZERO(k);
 	k.k1.Kind = kind;
 	if(parent_id)
 		k.k1.ParentID = parent_id;
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 		ProcessorTbl::Rec rec;
-		P_Tbl->copyBufTo(&rec);
+		p_t->copyBufTo(&rec);
 		if(!(rec.Flags & PRCF_PASSIVE)) {
 			//THROW_SL(p_list->Add(rec.ID, rec.Name));
 			THROW(AddListItem(p_list, &rec, 0));
@@ -1967,7 +1968,7 @@ int SLAPI PPViewProcessor::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int SLAPI PPViewProcessor::Init_(const PPBaseFilt * pFilt)
 {
 	Counter.Init();
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	return BIN(Helper_InitBaseFilt(pFilt));
 }
 
@@ -1980,7 +1981,7 @@ int SLAPI PPViewProcessor::InitIteration()
 	} k, k_;
 	DBQ *  dbq = 0;
 	ProcessorTbl * t = PrcObj.P_Tbl;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.ParentID)
 		idx = 1;
 	else

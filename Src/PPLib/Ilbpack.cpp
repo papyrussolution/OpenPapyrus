@@ -1,5 +1,6 @@
 // ILBPACK.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -26,7 +27,7 @@ int SLAPI ILTI::HasDeficit() const
 	return BIN(fabs(Rest) >= BillCore::GetQttyEpsilon());
 }
 
-int SLAPI ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double price)
+void SLAPI ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double price)
 {
 	GoodsID = goodsID;
 	if(sign > 0)
@@ -35,10 +36,9 @@ int SLAPI ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double p
 		SetQtty(qtty, 0.0, PPTFR_MINUS);
 	Cost = cost;
 	Price = price;
-	return 1;
 }
 
-int SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
+void SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
 {
 	if(flags & PPTFR_PLUS)
 		qtty = fabs(qtty);
@@ -46,7 +46,6 @@ int SLAPI ILTI::SetQtty(double qtty, double wtQtty, long flags)
 		qtty = -fabs(qtty);
 	Quantity = Rest = qtty;
 	Flags |= flags;
-	return 1;
 }
 
 void FASTCALL ILTI::Init(const PPTransferItem * pTi)
@@ -56,7 +55,7 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 		BillID      = 0;
 		GoodsID     = pTi->GoodsID;
 		//
-		// При необходимости поля LotSyncID и LotMirrID должны инициализироваться после вызова ILTI::Init
+		// РџСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РїРѕР»СЏ LotSyncID Рё LotMirrID РґРѕР»Р¶РЅС‹ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊСЃСЏ РїРѕСЃР»Рµ РІС‹Р·РѕРІР° ILTI::Init
 		//
 		LotSyncID   = 0;
 		LotMirrID   = 0;
@@ -74,7 +73,7 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 		}
 		CurPrice   = pTi->CurPrice;
 		if(pTi->Flags & PPTFR_ORDER) {
-			QuotPrice = pTi->Price; // @v9.2.9 Для заказа в QuotPrice кладем базовую цену дабы на принимающей стороне вычленить скидку
+			QuotPrice = pTi->Price; // @v9.2.9 Р”Р»СЏ Р·Р°РєР°Р·Р° РІ QuotPrice РєР»Р°РґРµРј Р±Р°Р·РѕРІСѓСЋ С†РµРЅСѓ РґР°Р±С‹ РЅР° РїСЂРёРЅРёРјР°СЋС‰РµР№ СЃС‚РѕСЂРѕРЅРµ РІС‹С‡Р»РµРЅРёС‚СЊ СЃРєРёРґРєСѓ
 		}
 		else
 			QuotPrice  = pTi->QuotPrice;
@@ -186,6 +185,7 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 	const  int   by_serial = isempty(strip(pSerial)) ? 0 : 1;
 	const  LDATE dt = pPack->Rec.Dt;
 	const  PPID  loc_id = pPack->Rec.LocID;
+	int    do_optimize_lots = /*BIN(flags & CILTIF_OPTMZLOTS)*/0; // @v9.7.11 Р—Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° РѕРїС‚РёРјРёР·Р°С†РёСЏ Р»РѕС‚РѕРІ - РёР·-Р·Р° РЅРµРµ РЅР°СЂСѓС€Р°РµС‚СЃСЏ Р±Р°Р»Р°РЅСЃРёСЂРѕРІРєР° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїРѕРґСЃС‚Р°РЅРѕРІРѕРє
 	{
 		LotArray lot_list;
 		SArray cgla(sizeof(CmpGenLots));
@@ -226,7 +226,7 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 		for(i = 0; i < cgla.getCount(); i++)
 			lots.addUnique(((CmpGenLots*)cgla.at(i))->lotID);
 	}
-	if(flags & CILTIF_OPTMZLOTS)
+	if(do_optimize_lots)
 		THROW(OrderLots(pPack, &lots, ilti->GoodsID, ilti->Cost, ilti->Price, qtty));
 	for(i = 0; qtty < 0.0 && i < lots.getCount(); i++) {
 		PPID   lot_id = lots.at(i);
@@ -242,7 +242,7 @@ int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack,
 					double rest = 0.0;
 					THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 					if(rest > 0.0) {
-						double rq  = qtty * ratio;
+						double rq  = MAX(qtty, -max_qtty) * ratio; // @v9.7.11 qtty-->MAX(qtty, -max_qtty)
 						double q   = (rest < -rq) ? rest : -rq;
 						PPTransferItem ti;
 						THROW(SetupTI(&ti, pPack, goods_id, lot_id));
@@ -303,9 +303,9 @@ int SLAPI PPObjBill::AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, d
 
 static SString & _MakeNSyncMsg(const ILTI * pIlti, SString & rMsgBuf, const char * pReason)
 {
-	// PPTXT_SYNCLOT_ROWNSYNC       "Строка преобразована без синхронизации. Причина:"
+	// PPTXT_SYNCLOT_ROWNSYNC       "РЎС‚СЂРѕРєР° РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅР° Р±РµР· СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё. РџСЂРёС‡РёРЅР°:"
 	SString fmt_buf;
-	(rMsgBuf = 0).Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
+	rMsgBuf.Z().Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
 		CatDiv(',', 2).Cat(pIlti->GoodsID);
 	PPLoadText(PPTXT_SYNCLOT_ROWNSYNC, fmt_buf);
 	fmt_buf.Space();
@@ -319,9 +319,9 @@ static SString & _MakeNSyncMsg(const ILTI * pIlti, SString & rMsgBuf, const char
 
 static SString & _MakeNAvlLotMsg(const ILTI * pIlti, SString & rMsgBuf)
 {
-	// PPTXT_SYNCLOT_LOTNAVL        "Среди доступных лотов не найдено синхронизированного"
+	// PPTXT_SYNCLOT_LOTNAVL        "РЎСЂРµРґРё РґРѕСЃС‚СѓРїРЅС‹С… Р»РѕС‚РѕРІ РЅРµ РЅР°Р№РґРµРЅРѕ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРіРѕ"
 	SString fmt_buf;
-	(rMsgBuf = 0).Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
+	rMsgBuf.Z().Tab().Cat(pIlti->RByBill).CatDiv(',', 2).Cat(pIlti->LotSyncID).CatDiv(',', 2).Cat(pIlti->LotMirrID).
 		CatDiv(',', 2).Cat(pIlti->GoodsID);
 	rMsgBuf.CatDiv(':', 1).Cat(PPLoadTextS(PPTXT_SYNCLOT_LOTNAVL, fmt_buf));
 	return rMsgBuf;
@@ -624,7 +624,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 	const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
-	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
+	int    full_sync = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃС„РѕСЂРјРёСЂРѕРІР°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РґРѕРєСѓРјРµРЅС‚Р° РїРѕР»РЅРѕСЃС‚СЊСЋ РёРґРµРЅС‚РёС‡РЅР° ilti
 	uint   i = 0;
 	IntArray rows;
 	StringSet * p_excl_serial = 0;
@@ -667,8 +667,8 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 	else {
 		PPID   sync_lot_id = (flags & CILTIF_USESYNCLOT && ilti->LotSyncID) ? ilti->LotSyncID : 0;
 		//
-		// Подготовительные операции для выравнивания цены при межскладском приходе
-		// по последнему лоту на складе-получателе
+		// РџРѕРґРіРѕС‚РѕРІРёС‚РµР»СЊРЅС‹Рµ РѕРїРµСЂР°С†РёРё РґР»СЏ РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ С†РµРЅС‹ РїСЂРё РјРµР¶СЃРєР»Р°РґСЃРєРѕРј РїСЂРёС…РѕРґРµ
+		// РїРѕ РїРѕСЃР»РµРґРЅРµРјСѓ Р»РѕС‚Сѓ РЅР° СЃРєР»Р°РґРµ-РїРѕР»СѓС‡Р°С‚РµР»Рµ
 		//
 		double adj_intr_price_val = 0.0;
 		AdjustIntrPrice(pPack, ilti->GoodsID, &adj_intr_price_val);
@@ -703,7 +703,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 				THROW(pPack->InsertRow(&ti, &temp_rows));
 				pPack->SnL.AddNumber(&temp_rows, serial);
 				if(flags & CILTIF_SYNC && rows.getCount() == 1) {
-					/* @todo строки таких документов пока не будем считать полностью синхронизированными. Надо доделать синхронизацию лотов заказов.
+					/* @todo СЃС‚СЂРѕРєРё С‚Р°РєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕРєР° РЅРµ Р±СѓРґРµРј СЃС‡РёС‚Р°С‚СЊ РїРѕР»РЅРѕСЃС‚СЊСЋ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅС‹РјРё. РќР°РґРѕ РґРѕРґРµР»Р°С‚СЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ Р»РѕС‚РѕРІ Р·Р°РєР°Р·РѕРІ.
 					ti.RByBill = ilti->RByBill;
 					full_sync = 1;
 					*/
@@ -787,14 +787,14 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 					}
 				}
 				else if(sync_lot_pos > 0) {
-					lots.swap(sync_lot_pos, 0); // Перемещаем искомый лот в начало списка дабы использовать его по-возможности в первую очередь.
+					lots.swap(sync_lot_pos, 0); // РџРµСЂРµРјРµС‰Р°РµРј РёСЃРєРѕРјС‹Р№ Р»РѕС‚ РІ РЅР°С‡Р°Р»Рѕ СЃРїРёСЃРєР° РґР°Р±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ РїРѕ-РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РІ РїРµСЂРІСѓСЋ РѕС‡РµСЂРµРґСЊ.
 				}
 			}
 			const double _qtty_epsilon = BillCore::GetQttyEpsilon();
 			for(pass = 0; pass < 2; pass++) {
 				//
-				// Цикл прогоняем в два прохода для того, чтобы сначала использовать лоты строго по серийному номеру,
-				// а затем, если можно, без учета серийного номера
+				// Р¦РёРєР» РїСЂРѕРіРѕРЅСЏРµРј РІ РґРІР° РїСЂРѕС…РѕРґР° РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СЃРЅР°С‡Р°Р»Р° РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р»РѕС‚С‹ СЃС‚СЂРѕРіРѕ РїРѕ СЃРµСЂРёР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ,
+				// Р° Р·Р°С‚РµРј, РµСЃР»Рё РјРѕР¶РЅРѕ, Р±РµР· СѓС‡РµС‚Р° СЃРµСЂРёР№РЅРѕРіРѕ РЅРѕРјРµСЂР°
 				//
 				for(i = 0; qtty < (-_qtty_epsilon) && i < lots.getCount(); i++) { // @v9.3.9 (qtty < 0)-->(qtty < (-_qtty_epsilon))
 					PPID   lot_id = lots.get(i);
@@ -903,7 +903,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 								const UlongArray * p_item = enum_list.at(_optimal_zero_delta_pos-1);
 								THROW(_aa.SetupTi(p_item, pPack));
 							}
-							/* (если применить - будет хуже) else if(_best_from_bad_pos > 0) {
+							/* (РµСЃР»Рё РїСЂРёРјРµРЅРёС‚СЊ - Р±СѓРґРµС‚ С…СѓР¶Рµ) else if(_best_from_bad_pos > 0) {
 								const UlongArray * p_item = enum_list.at(_best_from_bad_pos-1);
 								THROW(_aa.SetupTi(p_item, pPack));
 							}*/
@@ -990,14 +990,14 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 			}
 			else {
 				//
-				// Если необходимо оприходовать некоторое количество товара без образования лота (возвраты, например),
-				// то перебираем все последние лоты и заносим в них столько товара, чтобы остаток не превысил первоначальное количество.
+				// Р•СЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РѕРїСЂРёС…РѕРґРѕРІР°С‚СЊ РЅРµРєРѕС‚РѕСЂРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° Р±РµР· РѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р»РѕС‚Р° (РІРѕР·РІСЂР°С‚С‹, РЅР°РїСЂРёРјРµСЂ),
+				// С‚Рѕ РїРµСЂРµР±РёСЂР°РµРј РІСЃРµ РїРѕСЃР»РµРґРЅРёРµ Р»РѕС‚С‹ Рё Р·Р°РЅРѕСЃРёРј РІ РЅРёС… СЃС‚РѕР»СЊРєРѕ С‚РѕРІР°СЂР°, С‡С‚РѕР±С‹ РѕСЃС‚Р°С‚РѕРє РЅРµ РїСЂРµРІС‹СЃРёР» РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ.
 				//
 				const long f1 = (ilti->Flags & PPTFR_PRICEWOTAXES);
 				// @v8.0.3 {
 				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lotr) > 0) {
 					//
-					// Синхронизированный лот пытаемся использовать в первую очередь
+					// РЎРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅС‹Р№ Р»РѕС‚ РїС‹С‚Р°РµРјСЃСЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ РїРµСЂРІСѓСЋ РѕС‡РµСЂРµРґСЊ
 					//
 					const long f2 = (lotr.Flags & LOTF_PRICEWOTAXES);
 					if((f1 && f2) || (!f1 && !f2)) {
@@ -1068,8 +1068,8 @@ SLAPI ComplItem::ComplItem()
 //
 struct GRII {
 	PPID   SrcID;
-	double Qtty;   // Количество товара SrcID, которое может быть израсходовано для компенсации
-	double Ratio;  // Отношение, в котором следует использовать товар SrcID для компенсации
+	double Qtty;   // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° SrcID, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·СЂР°СЃС…РѕРґРѕРІР°РЅРѕ РґР»СЏ РєРѕРјРїРµРЅСЃР°С†РёРё
+	double Ratio;  // РћС‚РЅРѕС€РµРЅРёРµ, РІ РєРѕС‚РѕСЂРѕРј СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕРІР°СЂ SrcID РґР»СЏ РєРѕРјРїРµРЅСЃР°С†РёРё
 };
 
 SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII))
@@ -1280,8 +1280,8 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	LocObj = PPObjLocation::WarehouseToObj(Rec.LocID);
 	if(op_type_id == PPOPT_ACCTURN) {
 		//
-		// Список Amounts не должен содержать никаких сумм, кроме фиксированных
-		// и ручных (см. ниже) (если не установлен флаг ILBPF_LOADAMTNOTLOTS)
+		// РЎРїРёСЃРѕРє Amounts РЅРµ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРёРєР°РєРёС… СЃСѓРјРј, РєСЂРѕРјРµ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С…
+		// Рё СЂСѓС‡РЅС‹С… (СЃРј. РЅРёР¶Рµ) (РµСЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі ILBPF_LOADAMTNOTLOTS)
 		//
 		if(!(Rec.Flags & BILLF_FIXEDAMOUNTS) && free_amt)
 			Amounts.freeAll();
@@ -1294,8 +1294,8 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	}
 	else if(free_amt) {
 		//
-		// Список Amounts не должен содержать никаких сумм, кроме фиксированных
-		// и ручных (см. ниже) (если не установлен флаг ILBPF_LOADAMTNOTLOTS)
+		// РЎРїРёСЃРѕРє Amounts РЅРµ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРёРєР°РєРёС… СЃСѓРјРј, РєСЂРѕРјРµ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С…
+		// Рё СЂСѓС‡РЅС‹С… (СЃРј. РЅРёР¶Рµ) (РµСЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі ILBPF_LOADAMTNOTLOTS)
 		//
 		Amounts.freeAll();
 		//
@@ -1329,8 +1329,8 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					ti.SetupSign(cvt_to_opid);
 					if(op_type_id == PPOPT_GOODSRECEIPT && cvt_op_typeid == PPOPT_GOODSEXPEND) {
 						//
-						// Если приход преобразуется в расход, то цену реализации конвертированного
-						// документа приравниваем цене поступления оригинального документа //
+						// Р•СЃР»Рё РїСЂРёС…РѕРґ РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ РІ СЂР°СЃС…РѕРґ, С‚Рѕ С†РµРЅСѓ СЂРµР°Р»РёР·Р°С†РёРё РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ
+						// РґРѕРєСѓРјРµРЅС‚Р° РїСЂРёСЂР°РІРЅРёРІР°РµРј С†РµРЅРµ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° //
 						//
 						ti.Price = ti.Cost;
 						ti.Discount = 0.0;
@@ -1343,7 +1343,7 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					}
 					// } @v9.0.8
 					//
-					// В данном случае требуется корректно установить флаги, так как поменялся знак операции
+					// Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ С‚СЂРµР±СѓРµС‚СЃСЏ РєРѕСЂСЂРµРєС‚РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„Р»Р°РіРё, С‚Р°Рє РєР°Рє РїРѕРјРµРЅСЏР»СЃСЏ Р·РЅР°Рє РѕРїРµСЂР°С†РёРё
 					//
 					if((op_type_id == PPOPT_GOODSRECEIPT && cvt_op_typeid == PPOPT_GOODSEXPEND) || (op_type_id == PPOPT_GOODSEXPEND && cvt_op_typeid == PPOPT_GOODSRECEIPT))
 						ti.Init(&Rec, 0, 1);
@@ -1370,7 +1370,7 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			}
 			THROW(r);
 			//
-			// Загружаем идентификаторы документов заказов, которые "закрываются" данным документом
+			// Р—Р°РіСЂСѓР¶Р°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РґРѕРєСѓРјРµРЅС‚РѕРІ Р·Р°РєР°Р·РѕРІ, РєРѕС‚РѕСЂС‹Рµ "Р·Р°РєСЂС‹РІР°СЋС‚СЃСЏ" РґР°РЅРЅС‹Рј РґРѕРєСѓРјРµРЅС‚РѕРј
 			//
 			if(!cvt_to_opid)
 				p_bobj->P_Tbl->GetListOfOrdersByLading(billID, &OrderBillList);
@@ -1474,17 +1474,17 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	else if(pCtx->P_ThisDbDivPack && rPack.Rec.OpID) {
 		//
 		// @v8.5.11
-		// При изменении синхронизированного документа существует следующая проблема:
-		// если документ был ранее принят как межскладской приход, посредством конвертации внутренней передачи,
-		// то пришедшая настоящая внутренняя передача должна обратно отконвертировать документ.
+		// РџСЂРё РёР·РјРµРЅРµРЅРёРё СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° СЃСѓС‰РµСЃС‚РІСѓРµС‚ СЃР»РµРґСѓСЋС‰Р°СЏ РїСЂРѕР±Р»РµРјР°:
+		// РµСЃР»Рё РґРѕРєСѓРјРµРЅС‚ Р±С‹Р» СЂР°РЅРµРµ РїСЂРёРЅСЏС‚ РєР°Рє РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ, РїРѕСЃСЂРµРґСЃС‚РІРѕРј РєРѕРЅРІРµСЂС‚Р°С†РёРё РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё,
+		// С‚Рѕ РїСЂРёС€РµРґС€Р°СЏ РЅР°СЃС‚РѕСЏС‰Р°СЏ РІРЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° РґРѕР»Р¶РЅР° РѕР±СЂР°С‚РЅРѕ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РґРѕРєСѓРјРµРЅС‚.
 		//
-		// Просто, через колено, меняем вид операции. На тестах работает, но возможны нюансы.
+		// РџСЂРѕСЃС‚Рѕ, С‡РµСЂРµР· РєРѕР»РµРЅРѕ, РјРµРЅСЏРµРј РІРёРґ РѕРїРµСЂР°С†РёРё. РќР° С‚РµСЃС‚Р°С… СЂР°Р±РѕС‚Р°РµС‚, РЅРѕ РІРѕР·РјРѕР¶РЅС‹ РЅСЋР°РЅСЃС‹.
 		//
 		if(rPack.Rec.OpID == pCtx->P_ThisDbDivPack->Rec.IntrRcptOpr && IsIntrOp(Rec.OpID) == INTREXPND) {
 			rPack.Rec.OpID = Rec.OpID;
 		}
 		else {
-			// Обратное преобразование не допускаем ни при каких обстоятельствах
+			// РћР±СЂР°С‚РЅРѕРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РЅРµ РґРѕРїСѓСЃРєР°РµРј РЅРё РїСЂРё РєР°РєРёС… РѕР±СЃС‚РѕСЏС‚РµР»СЊСЃС‚РІР°С…
 			THROW_PP(IsIntrOp(rPack.Rec.OpID) != INTREXPND || Rec.OpID != pCtx->P_ThisDbDivPack->Rec.IntrRcptOpr, PPERR_CANTACCEPTBILLMOD_INTREXP);
 		}
 	}
@@ -1510,7 +1510,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	rPack.BTagL = BTagL;
 	rPack.Ext = Ext;
 	op_type_id = GetOpType(rPack.Rec.OpID);
-	rPack.Amounts.Put(&Amounts, 0, 1); // Теперь суммы (ручные) конвертируем для всех типов операций
+	rPack.Amounts.Put(&Amounts, 0, 1); // РўРµРїРµСЂСЊ СЃСѓРјРјС‹ (СЂСѓС‡РЅС‹Рµ) РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РґР»СЏ РІСЃРµС… С‚РёРїРѕРІ РѕРїРµСЂР°С†РёР№
 	PPObjBill::MakeCodeString(&rPack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_descr_buf); // @v8.4.10
 	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 		if(op_type_id == PPOPT_PAYMENT || CheckOpFlags(rPack.Rec.OpID, OPKF_EXTACCTURN)) {
@@ -1549,7 +1549,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				long   oprno = 0;
 				InventoryTbl::Rec i_rec = InvList.at(i);
 				i_rec.BillID = id;
-				i_rec.Flags &= ~INVENTF_WRITEDOFF; // Признак списания в разделе-отправителе в получателе должен убираться.
+				i_rec.Flags &= ~INVENTF_WRITEDOFF; // РџСЂРёР·РЅР°Рє СЃРїРёСЃР°РЅРёСЏ РІ СЂР°Р·РґРµР»Рµ-РѕС‚РїСЂР°РІРёС‚РµР»Рµ РІ РїРѕР»СѓС‡Р°С‚РµР»Рµ РґРѕР»Р¶РµРЅ СѓР±РёСЂР°С‚СЊСЃСЏ.
 				THROW(r_line_tbl.Set(id, &oprno, &i_rec, 0));
 			}
 			THROW(p_bobj->P_Tbl->Edit(&id, &rPack, 0));
@@ -1571,8 +1571,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			rPack.Rec.Flags2 |= BILLF2_FULLSYNC;
 			// @v8.4.10 {
 			{
-				// @log PPTXT_SYNCLOT_TRYBILL        "Попытка приема документа [%s] с синхронизацией по лотам"
-                msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_TRYBILL, fmt_buf), (const char *)bill_descr_buf);
+				// @log PPTXT_SYNCLOT_TRYBILL        "РџРѕРїС‹С‚РєР° РїСЂРёРµРјР° РґРѕРєСѓРјРµРЅС‚Р° [%s] СЃ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРµР№ РїРѕ Р»РѕС‚Р°Рј"
+                msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_TRYBILL, fmt_buf), bill_descr_buf.cptr());
                 PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 			}
 			// } @v8.4.10
@@ -1582,8 +1582,8 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 		}
 		if(_update) {
 			//
-			// Удаляем из модифицируемого документа строки, не имеющие соответствия в this
-			// и (или) не имеющие признака PPTFR_LOTSYNC.
+			// РЈРґР°Р»СЏРµРј РёР· РјРѕРґРёС„РёС†РёСЂСѓРµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° СЃС‚СЂРѕРєРё, РЅРµ РёРјРµСЋС‰РёРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РІ this
+			// Рё (РёР»Рё) РЅРµ РёРјРµСЋС‰РёРµ РїСЂРёР·РЅР°РєР° PPTFR_LOTSYNC.
 			//
 			i = rPack.GetTCount();
 			if(i) do {
@@ -1592,7 +1592,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 				if(!(r_ti.Flags & PPTFR_LOTSYNC)) {
 					// @v8.4.10 {
 					{
-						// @log PPTXT_SYNCLOT_UPDROWNSYNCRMV "Строка изменяемого документа [%s] не синхронизирована и должна быть заменена"
+						// @log PPTXT_SYNCLOT_UPDROWNSYNCRMV "РЎС‚СЂРѕРєР° РёР·РјРµРЅСЏРµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° [%s] РЅРµ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅР° Рё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р·Р°РјРµРЅРµРЅР°"
                         (temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(r_ti.RByBill).CatDiv('-', 0).Cat(r_ti.LotID);
                         msg_buf.Printf(PPLoadTextS(PPTXT_SYNCLOT_UPDROWNSYNCRMV, fmt_buf), temp_buf.cptr());
                         PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1612,7 +1612,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 			SnL.GetNumber(i-1, &org_serial);
 			const ObjTagList * p_org_lot_tag_list = LTagL.Get(i-1);
 			//
-			// Трансформируем идентификаторы лотов из чужого раздела в соответствующие нашему разделу
+			// РўСЂР°РЅСЃС„РѕСЂРјРёСЂСѓРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Р»РѕС‚РѕРІ РёР· С‡СѓР¶РѕРіРѕ СЂР°Р·РґРµР»Р° РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ РЅР°С€РµРјСѓ СЂР°Р·РґРµР»Сѓ
 			//
 			const PPID preserve_frgn_lot_id = p_ilti->LotSyncID;
 			const PPID preserve_frgn_lot_mirr_id = p_ilti->LotMirrID;
@@ -1627,7 +1627,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 						if(!(p_ilti->Flags & PPTFR_RECEIPT)) {
 							// @v8.4.10 {
 							{
-								// @log PPTXT_SYNCLOT_NSYNCMAIN      "Не удалось разрешить синхронизацию лота [%s]"
+								// @log PPTXT_SYNCLOT_NSYNCMAIN      "РќРµ СѓРґР°Р»РѕСЃСЊ СЂР°Р·СЂРµС€РёС‚СЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ Р»РѕС‚Р° [%s]"
 								GetGoodsName(p_ilti->GoodsID, goods_name);
 								(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).
 									CatDiv('-', 0).Cat(preserve_frgn_lot_id).CatDiv('-', 0).Cat(goods_name);
@@ -1644,7 +1644,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					if(rl < 0 || !sync_primary_lot_mirr_id) {
 						// @v8.4.10 {
 						{
-							// @log PPTXT_SYNCLOT_NSYNCMIRR      "Не удалось разрешить синхронизацию зеркального лота [%s]"
+							// @log PPTXT_SYNCLOT_NSYNCMIRR      "РќРµ СѓРґР°Р»РѕСЃСЊ СЂР°Р·СЂРµС€РёС‚СЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ Р·РµСЂРєР°Р»СЊРЅРѕРіРѕ Р»РѕС‚Р° [%s]"
 							GetGoodsName(p_ilti->GoodsID, goods_name);
 							(temp_buf = bill_descr_buf).CatDiv(';', 2).Cat(p_ilti->RByBill).CatDiv('-', 0).Cat(preserve_frgn_lot_mirr_id).
 								CatDiv('-', 0).Cat(goods_name);
@@ -1667,7 +1667,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					uint   tipos = 0;
 					if(rPack.SearchTI(p_ilti->RByBill, &tipos)) {
 						PPTransferItem & r_ti = rPack.TI(tipos);
-						r_ti.SrcIltiPos = i; // @v8.5.7 Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = i; // @v8.5.7 РЎРѕС…СЂР°РЅРёРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РЅРѕРјРµСЂР° СЃС‚СЂРѕРєРё РІ this СЃРѕ СЃС‚СЂРѕРєР°РјРё РІ rPack
 						if(r_ti.Flags & PPTFR_LOTSYNC) {
 							//
 							long   slfl = 0;
@@ -1721,7 +1721,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 					for(j = 0; j < rows.getCount(); j++) {
 						int    rj = rows.at(j);
 						PPTransferItem & r_ti = rPack.TI(rj);
-						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
+						r_ti.SrcIltiPos = i; // РЎРѕС…СЂР°РЅРёРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РЅРѕРјРµСЂР° СЃС‚СЂРѕРєРё РІ this СЃРѕ СЃС‚СЂРѕРєР°РјРё РІ rPack
 						/* @debug
 						{
 							msg_buf.Z().CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos);
@@ -1991,7 +1991,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0; c++) {
 		if(!c) {
 			pCtx->OutReceivingMsg(PPLoadTextS(PPTXT_BTP_TOTAL, fmt_buf));
-			PPLoadText(PPTXT_BDR_LINE, fmt_buf = 0); // загруженное значение fmt_buf далее будет использоваться в итерациях
+			PPLoadText(PPTXT_BDR_LINE, fmt_buf.Z()); // Р·Р°РіСЂСѓР¶РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ fmt_buf РґР°Р»РµРµ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РІ РёС‚РµСЂР°С†РёСЏС…
 		}
 		double deficit = Tbl->data.Req - Tbl->data.Rest;
 		if(deficit > 0.0 && fmt_buf.NotEmpty()) {
@@ -2162,10 +2162,10 @@ int SLAPI BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAdditio
 	}
 	THROW(BObj->__TurnPacket(&pack, 0, 1, 1));
 	//
-	// Восстановление активного склада, в принципе, должно осуществляться //
-	// после блока CATCH-ENDCATCH, однако, функция SetLocation затирает
-	// информацию о последней ошибке Btrieve. По-тому пришлось вынести
-	// вызов этой функции наверх.
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р°РєС‚РёРІРЅРѕРіРѕ СЃРєР»Р°РґР°, РІ РїСЂРёРЅС†РёРїРµ, РґРѕР»Р¶РЅРѕ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊСЃСЏ //
+	// РїРѕСЃР»Рµ Р±Р»РѕРєР° CATCH-ENDCATCH, РѕРґРЅР°РєРѕ, С„СѓРЅРєС†РёСЏ SetLocation Р·Р°С‚РёСЂР°РµС‚
+	// РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕСЃР»РµРґРЅРµР№ РѕС€РёР±РєРµ Btrieve. РџРѕ-С‚РѕРјСѓ РїСЂРёС€Р»РѕСЃСЊ РІС‹РЅРµСЃС‚Рё
+	// РІС‹Р·РѕРІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РЅР°РІРµСЂС….
 	//
 	DS.SetLocation(save_loc);
 	CATCHZOK
@@ -2317,8 +2317,8 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 									if(sync_tbl.searchForUpdate(1, &k1, spEq) > 0) {
 										sync_tbl.data.ObjID = 0;
 										sync_tbl.updateRec(); // @sfu
-										(new_goods_name = 0).Space();
-										(buf2 = 0).Space();
+										new_goods_name.Z().Space();
+										buf2.Z().Space();
 										buf.Printf(msg.cptr(), new_goods_name.cptr(), new_id, buf2.cptr(), 0);
 										pCtx->OutReceivingMsg(buf);
 									}
@@ -2370,7 +2370,7 @@ int SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket
 		SETIFZ(pCtx->P_Btd, new BillTransmDeficit);
 		SString msg_buf, fmt_buf, bill_code, clb_number;
 		PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_code);
-		msg_buf.Printf(PPLoadTextS(PPTXT_BTP_HEADER, fmt_buf), (const char *)bill_code, org_amt, new_amt);
+		msg_buf.Printf(PPLoadTextS(PPTXT_BTP_HEADER, fmt_buf), bill_code.cptr(), org_amt, new_amt);
 		pCtx->OutReceivingMsg(msg_buf);
 		PPID   ilb_id = pIlBp->Rec.ID;
 		if(!pCtx->P_Btd->LookedBills.lsearch(ilb_id)) {
@@ -2463,8 +2463,8 @@ int SLAPI PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket 
 				if(r_ti.Flags & PPTFR_RECEIPT) {
 					if(rIBp.IlbFlags & ILBillPacket::ilbfConvertedIntrExp) {
 						//
-						// Для преобразованной в межскладской приход внутренней передачи
-						// используем синхронизацию r_ilti.LotMirrID
+						// Р”Р»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅРѕР№ РІ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё
+						// РёСЃРїРѕР»СЊР·СѓРµРј СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЋ r_ilti.LotMirrID
 						//
 						if(r_ilti.LotMirrID) {
 							frgn_objid.Set(PPOBJ_LOT, r_ilti.LotMirrID);
@@ -2486,8 +2486,8 @@ int SLAPI PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket 
 				}
 				else if(r_ti.Flags & PPTFR_UNITEINTR) {
 					//
-					// Для полностью принятой внутренней передачи товара необходимо синхронизировать
-					// лот зеркальной записи (по r_ilti.LotMirrID)
+					// Р”Р»СЏ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРёРЅСЏС‚РѕР№ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё С‚РѕРІР°СЂР° РЅРµРѕР±С…РѕРґРёРјРѕ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°С‚СЊ
+					// Р»РѕС‚ Р·РµСЂРєР°Р»СЊРЅРѕР№ Р·Р°РїРёСЃРё (РїРѕ r_ilti.LotMirrID)
 					//
 					TransferTbl::Rec mirr_rec;
 					if(trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, &mirr_rec) > 0 && mirr_rec.Flags & PPTFR_RECEIPT) {
@@ -2518,9 +2518,9 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 
 	int    ok = 1, r;
 	const PPConfig & r_cfg = LConfig;
-	PPID   err_id   = 0; // ИД документа, вызвавшего ошибку
-	int    err_code = 0; // Код ошибки
-	SString err_bill_code; // Номер документа, вызвавшего ошибку
+	PPID   err_id   = 0; // РР” РґРѕРєСѓРјРµРЅС‚Р°, РІС‹Р·РІР°РІС€РµРіРѕ РѕС€РёР±РєСѓ
+	int    err_code = 0; // РљРѕРґ РѕС€РёР±РєРё
+	SString err_bill_code; // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°, РІС‹Р·РІР°РІС€РµРіРѕ РѕС€РёР±РєСѓ
 	SString msg_buf, fmt_buf;
 	uint   i;
 	PPTransferItem * p_ti;
@@ -2542,7 +2542,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					if(p_pack->Rec.LinkBillID && Search(p_pack->Rec.LinkBillID) <= 0) {
 						SString bill_code;
 						PPObjBill::MakeCodeString(&p_pack->Rec, 0, bill_code);
-						pCtx->OutReceivingMsg(msg_buf.Printf(PPLoadTextS(PPTXT_BTP_NOLINKBILL, fmt_buf), (const char *)bill_code));
+						pCtx->OutReceivingMsg(msg_buf.Printf(PPLoadTextS(PPTXT_BTP_NOLINKBILL, fmt_buf), bill_code.cptr()));
 						skip = 1;
 					}
 				}
@@ -2556,9 +2556,9 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					THROW(p_pack->ConvertToBillPacket(bp, &warn, pCtx, 1));
 					bp.ProcessFlags |= PPBillPacket::pfForeignSync; // @v8.0.3
 					//
-					// Функция ConvertToBillPacket могла инициализировать статус документа
-					// в значение для нового документа (из конфигурации). Это - не верно.
-					// Необходимо чтобы документ имел тот же статус, что и в разделе-отправителе.
+					// Р¤СѓРЅРєС†РёСЏ ConvertToBillPacket РјРѕРіР»Р° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ СЃС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р°
+					// РІ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РЅРѕРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (РёР· РєРѕРЅС„РёРіСѓСЂР°С†РёРё). Р­С‚Рѕ - РЅРµ РІРµСЂРЅРѕ.
+					// РќРµРѕР±С…РѕРґРёРјРѕ С‡С‚РѕР±С‹ РґРѕРєСѓРјРµРЅС‚ РёРјРµР» С‚РѕС‚ Р¶Рµ СЃС‚Р°С‚СѓСЃ, С‡С‚Рѕ Рё РІ СЂР°Р·РґРµР»Рµ-РѕС‚РїСЂР°РІРёС‚РµР»Рµ.
 					//
 					if(p_pack->Rec.StatusID)
 						bp.Rec.StatusID = p_pack->Rec.StatusID;
@@ -2626,7 +2626,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 			}
 			else {
 				//
-				// Изменение документа
+				// РР·РјРµРЅРµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°
 				//
 				PPTransaction tra(1);
 				THROW(tra);
@@ -2648,8 +2648,8 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 						const PPID op_id = bp.Rec.OpID;
 						bp.Rec.ID = *pID;
 						//
-						// Для draft-документов необходимо сохранить оригинальное значение
-						// признака списания документа.
+						// Р”Р»СЏ draft-РґРѕРєСѓРјРµРЅС‚РѕРІ РЅРµРѕР±С…РѕРґРёРјРѕ СЃРѕС…СЂР°РЅРёС‚СЊ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+						// РїСЂРёР·РЅР°РєР° СЃРїРёСЃР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°.
 						//
 						if(IsDraftOp(op_id) && Search(*pID, &bill_rec) > 0) {
 							err_code = PPTXT_ERRACCEPTBILL_INCOMPATOP;
@@ -2658,9 +2658,9 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							SETFLAG(bp.Rec.Flags, BILLF_WRITEDOFF, org_wroff_tag);
 						}
 						//
-						// Для долговых и зачетных документов пересчитываем сумму долга, так как
-						// в базе-приемнике оплаты (зачеты) по документу могут быть не такими,
-						// как в базе-отправителе
+						// Р”Р»СЏ РґРѕР»РіРѕРІС‹С… Рё Р·Р°С‡РµС‚РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј СЃСѓРјРјСѓ РґРѕР»РіР°, С‚Р°Рє РєР°Рє
+						// РІ Р±Р°Р·Рµ-РїСЂРёРµРјРЅРёРєРµ РѕРїР»Р°С‚С‹ (Р·Р°С‡РµС‚С‹) РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµ С‚Р°РєРёРјРё,
+						// РєР°Рє РІ Р±Р°Р·Рµ-РѕС‚РїСЂР°РІРёС‚РµР»Рµ
 						//
 						if(CheckOpFlags(op_id, OPKF_NEEDPAYMENT) || CheckOpFlags(op_id, OPKF_RECKON)) {
 							double paym = 0.0;
@@ -2677,7 +2677,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					}
 				}
 				//
-				// Частичная модификация товарных документов
+				// Р§Р°СЃС‚РёС‡РЅР°СЏ РјРѕРґРёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 				//
 				else if(oneof6(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
 					// @v8.0.3 PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, @v8.5.4 PPOPT_CORRECTION
@@ -2721,7 +2721,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							do_update_withoutlots = 0;
 						}
 						else {
-							pCtx->OutReceivingMsg(msg_buf.Printf(PPLoadTextS(PPTXT_NACCEPTBILLMOD_NFS, fmt_buf), (const char *)err_bill_code));
+							pCtx->OutReceivingMsg(msg_buf.Printf(PPLoadTextS(PPTXT_NACCEPTBILLMOD_NFS, fmt_buf), err_bill_code.cptr()));
 						}
 					}
 					// } @v8.0.3
@@ -2739,7 +2739,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 							to_update_rec = 1;
 						}
 						//
-						// Тонкий момент: флаг BILLF_SHIPPED меняется только в одну сторону: снимать нелья - только устанавливать
+						// РўРѕРЅРєРёР№ РјРѕРјРµРЅС‚: С„Р»Р°Рі BILLF_SHIPPED РјРµРЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ РѕРґРЅСѓ СЃС‚РѕСЂРѕРЅСѓ: СЃРЅРёРјР°С‚СЊ РЅРµР»СЊСЏ - С‚РѕР»СЊРєРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ
 						//
 						if(!(bp.Rec.Flags & BILLF_SHIPPED) && p_pack->Rec.Flags & BILLF_SHIPPED) {
 							bp.Rec.Flags |= BILLF_SHIPPED;
@@ -2794,7 +2794,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 			SBuffer buffer;
 			{
 				ILTI * p_ilti;
-				PPTransaction tra(-1); // @v7.9.11 use_ta 1-->-1 (автоматическое определение необходимости транзакции по состоянию DbSession)
+				PPTransaction tra(-1); // @v7.9.11 use_ta 1-->-1 (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РѕРїСЂРµРґРµР»РµРЅРёРµ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё С‚СЂР°РЅР·Р°РєС†РёРё РїРѕ СЃРѕСЃС‚РѕСЏРЅРёСЋ DbSession)
 				THROW(tra);
 				for(uint i = 0; p_pack->Lots.enumItems(&i, (void**)&p_ilti);) {
 					PPCommSyncID commid;
@@ -2895,7 +2895,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 				ilti->GoodsID = (ilti->GoodsID < 0) ? -goods_id : goods_id;
 			{
 				//
-				// Идентификаторы лотов не должны замещаться поскольку этим занимается функция PPObjBill::Write
+				// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Р»РѕС‚РѕРІ РЅРµ РґРѕР»Р¶РЅС‹ Р·Р°РјРµС‰Р°С‚СЊСЃСЏ РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚РёРј Р·Р°РЅРёРјР°РµС‚СЃСЏ С„СѓРЅРєС†РёСЏ PPObjBill::Write
 				//
 				PPID   lot_id = ilti->LotSyncID;
 				PPID   mirr_lot_id = ilti->LotMirrID;
@@ -2926,8 +2926,8 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 						}
 						else {
 							msg_buf = 0;
-							GetGoodsName(goods_id, goods_name = 0);
-							msg_buf.Printf(PPLoadTextS(PPTXT_DUPRCPTINVGOODS, fmt_buf), foreign_id, goods_id, (const char *)goods_name);
+							GetGoodsName(goods_id, goods_name.Z());
+							msg_buf.Printf(PPLoadTextS(PPTXT_DUPRCPTINVGOODS, fmt_buf), foreign_id, goods_id, goods_name.cptr());
 							pCtx->OutReceivingMsg(msg_buf);
 							if(pCtx->Cfg.Flags & DBDXF_SKIPINCOMPLBILL) {
 								pCtx->OutputString(PPTXT_BTP_NOTTURNED, 0);
@@ -3018,7 +3018,7 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 			}
 			else if(op_type_id == PPOPT_PAYMENT) {
 				//
-				// Зачетные оплаты не передаем
+				// Р—Р°С‡РµС‚РЅС‹Рµ РѕРїР»Р°С‚С‹ РЅРµ РїРµСЂРµРґР°РµРј
 				//
 				PPID   paym_pool_owner_id = 0;
 				if(IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &paym_pool_owner_id) > 0) {
@@ -3055,10 +3055,10 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 				}
 				if(ok > 0) {
 					//
-					// Не следует передавать межскладской приход (образованый в результате передачи межскладского
-					// расхода) тому разделу, который одновременно отвечает и за локацию-поставщика и за
-					// локацию-получателя. Пускай раздел, с которого была сделана передача, сам
-					// переносит этот межсклад в такой раздел.
+					// РќРµ СЃР»РµРґСѓРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РјРµР¶СЃРєР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ (РѕР±СЂР°Р·РѕРІР°РЅС‹Р№ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїРµСЂРµРґР°С‡Рё РјРµР¶СЃРєР»Р°РґСЃРєРѕРіРѕ
+					// СЂР°СЃС…РѕРґР°) С‚РѕРјСѓ СЂР°Р·РґРµР»Сѓ, РєРѕС‚РѕСЂС‹Р№ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РѕС‚РІРµС‡Р°РµС‚ Рё Р·Р° Р»РѕРєР°С†РёСЋ-РїРѕСЃС‚Р°РІС‰РёРєР° Рё Р·Р°
+					// Р»РѕРєР°С†РёСЋ-РїРѕР»СѓС‡Р°С‚РµР»СЏ. РџСѓСЃРєР°Р№ СЂР°Р·РґРµР», СЃ РєРѕС‚РѕСЂРѕРіРѕ Р±С‹Р»Р° СЃРґРµР»Р°РЅР° РїРµСЂРµРґР°С‡Р°, СЃР°Рј
+					// РїРµСЂРµРЅРѕСЃРёС‚ СЌС‚РѕС‚ РјРµР¶СЃРєР»Р°Рґ РІ С‚Р°РєРѕР№ СЂР°Р·РґРµР».
 					//
 					if(IsIntrOp(op_id) == INTRRCPT && CConfig.IntrReceiptOp == op_id)
 						if(rDestDbDivPack.ResponsibleForLoc(PPObjLocation::ObjToWarehouse(bill_rec.Object), 0)) {
@@ -3066,8 +3066,8 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 							ok = -1;
 						}
 					//
-					// Не следует передавать документы списания инвентаризации, поскольку инвентаризация //
-					// сама передается как документ и подлежит списанию в другом разделе
+					// РќРµ СЃР»РµРґСѓРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РґРѕРєСѓРјРµРЅС‚С‹ СЃРїРёСЃР°РЅРёСЏ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё, РїРѕСЃРєРѕР»СЊРєСѓ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
+					// СЃР°РјР° РїРµСЂРµРґР°РµС‚СЃСЏ РєР°Рє РґРѕРєСѓРјРµРЅС‚ Рё РїРѕРґР»РµР¶РёС‚ СЃРїРёСЃР°РЅРёСЋ РІ РґСЂСѓРіРѕРј СЂР°Р·РґРµР»Рµ
 					//
 					if(bill_rec.LinkBillID && !(pCtx->Cfg.Flags & DBDXF_SENDINVWROFFBILLS) &&
 						Search(bill_rec.LinkBillID, &link_rec) > 0 && GetOpType(link_rec.OpID) == PPOPT_INVENTORY) {
@@ -3075,9 +3075,9 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 						ok = -1;
 					}
 					//
-					// Не следует передавать документы списания кассовых сессий если должны
-					// передаваться сами кассовые сессии (за исключением случая, когда в разделе-
-					// приемнике установлен флаг DBDIVF_RCVCSESSANDWROFFBILLS (@v4.6.4)).
+					// РќРµ СЃР»РµРґСѓРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РґРѕРєСѓРјРµРЅС‚С‹ СЃРїРёСЃР°РЅРёСЏ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№ РµСЃР»Рё РґРѕР»Р¶РЅС‹
+					// РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ СЃР°РјРё РєР°СЃСЃРѕРІС‹Рµ СЃРµСЃСЃРёРё (Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµРј СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° РІ СЂР°Р·РґРµР»Рµ-
+					// РїСЂРёРµРјРЅРёРєРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі DBDIVF_RCVCSESSANDWROFFBILLS (@v4.6.4)).
 					//
 					PPID   sess_id = 0;
 					if(pCtx->Cfg.Flags & DBDXF_SENDCSESSION && !(rDestDbDivPack.Rec.Flags & DBDIVF_RCVCSESSANDWROFFBILLS) &&
@@ -3092,7 +3092,7 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 	if(ok < 0 && msg_id && pCtx) {
 		SString fmt_buf, msg_buf, bill_buf;
 		PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_buf);
-		pCtx->Output(msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), (const char *)bill_buf));
+		pCtx->Output(msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), bill_buf.cptr()));
 	}
 	CATCHZOK
 	return ok;

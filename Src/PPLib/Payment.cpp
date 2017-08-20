@@ -1659,6 +1659,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 			if(op_list.getCount()) {
 				const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT); // @v8.5.8
 				PROFILE_START
+				BillCore * p_t = P_Tbl;
 				PPObjDebtDim dd_obj;
 				PPBillExt ext;
 				LAssocArray debt_dim_agent_list;
@@ -1671,14 +1672,14 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 				k.Object = clientID;
 				k.Dt     = period.low;
 				k.BillNo = 0;
-				BExtQuery q(P_Tbl, 3, 256);
+				BExtQuery q(p_t, 3, 256);
 				if(use_omt_paymamt) {
-					q.select(P_Tbl->ID, P_Tbl->Dt, P_Tbl->Flags, P_Tbl->Amount, P_Tbl->OpID, P_Tbl->PaymAmount, 0L).
-						where(P_Tbl->Object == clientID && daterange(P_Tbl->Dt,  &period) /* (такое ограничение не работает) && tbl->PaymAmount < tbl->Amount*/);
+					q.select(p_t->ID, p_t->Dt, p_t->Flags, p_t->Amount, p_t->OpID, p_t->PaymAmount, 0L).
+						where(p_t->Object == clientID && daterange(p_t->Dt,  &period) /* (такое ограничение не работает) && tbl->PaymAmount < tbl->Amount*/);
 					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-						if(op_list.bsearch(P_Tbl->data.OpID)) {
+						if(op_list.bsearch(p_t->data.OpID)) {
 							BillTbl::Rec rec;
-							P_Tbl->copyBufTo(&rec);
+							p_t->copyBufTo(&rec);
 							a += BR2(rec.Amount);
 							t = rec.PaymAmount;
 							p += t;
@@ -1686,7 +1687,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 							if(debt > 1.0) {
 								LDATE  mature_date = ZERODATE;
 								int    _delay = diffdate(curdate, rec.Dt);
-								if(P_Tbl->GetLastPayDate(rec.ID, &mature_date) <= 0)
+								if(p_t->GetLastPayDate(rec.ID, &mature_date) <= 0)
 									mature_date = rec.Dt;
 								int    _exp = diffdate(curdate, mature_date);
 								SETMAX(max_delay, _delay);
@@ -1709,8 +1710,8 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 				}
 				else {
 					const int use_conveyor = 1;
-					q.select(P_Tbl->ID, P_Tbl->Dt, P_Tbl->Flags, P_Tbl->Amount, P_Tbl->OpID, 0L).
-						where(P_Tbl->Object == clientID && daterange(P_Tbl->Dt,  &period));
+					q.select(p_t->ID, p_t->Dt, p_t->Flags, p_t->Amount, p_t->OpID, 0L).
+						where(p_t->Object == clientID && daterange(p_t->Dt,  &period));
 					if(use_conveyor) {
 						struct _BI {
 							PPID   ID;
@@ -1721,27 +1722,27 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 						};
 						SArray bi_list(sizeof(_BI));
 						for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-							if(op_list.bsearch(P_Tbl->data.OpID)) {
+							if(op_list.bsearch(p_t->data.OpID)) {
 								_BI bi_item;
 								MEMSZERO(bi_item);
-								bi_item.ID = P_Tbl->data.ID;
-								bi_item.Dt = P_Tbl->data.Dt;
-								bi_item.OpID = P_Tbl->data.OpID;
-								bi_item.Flags = P_Tbl->data.Flags;
-								bi_item.Amount = P_Tbl->data.Amount;
+								bi_item.ID = p_t->data.ID;
+								bi_item.Dt = p_t->data.Dt;
+								bi_item.OpID = p_t->data.OpID;
+								bi_item.Flags = p_t->data.Flags;
+								bi_item.Amount = p_t->data.Amount;
 								THROW_SL(bi_list.insert(&bi_item));
 							}
 						}
 						for(uint j = 0; j < bi_list.getCount(); j++) {
 							const _BI & r_bi_item = *(const _BI *)bi_list.at(j);
 							a += BR2(r_bi_item.Amount);
-							THROW(P_Tbl->GetAmount(r_bi_item.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
+							THROW(p_t->GetAmount(r_bi_item.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
 							p += t;
 							double debt = BR2(r_bi_item.Amount) - t;
 							if(debt > 1.0) {
 								LDATE  mature_date = ZERODATE;
 								int    _delay = diffdate(curdate, r_bi_item.Dt);
-								if(P_Tbl->GetLastPayDate(r_bi_item.ID, &mature_date) <= 0)
+								if(p_t->GetLastPayDate(r_bi_item.ID, &mature_date) <= 0)
 									mature_date = r_bi_item.Dt;
 								int    _exp = diffdate(curdate, mature_date);
 								SETMAX(max_delay, _delay);
@@ -1763,17 +1764,17 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 					}
 					else {
 						for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
-							if(op_list.bsearch(P_Tbl->data.OpID)) {
+							if(op_list.bsearch(p_t->data.OpID)) {
 								BillTbl::Rec rec;
-								P_Tbl->copyBufTo(&rec);
+								p_t->copyBufTo(&rec);
 								a += BR2(rec.Amount);
-								THROW(P_Tbl->GetAmount(rec.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
+								THROW(p_t->GetAmount(rec.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
 								p += t;
 								double debt = BR2(rec.Amount) - t;
 								if(debt > 1.0) {
 									LDATE  mature_date = ZERODATE;
 									int    _delay = diffdate(curdate, rec.Dt);
-									if(P_Tbl->GetLastPayDate(rec.ID, &mature_date) <= 0)
+									if(p_t->GetLastPayDate(rec.ID, &mature_date) <= 0)
 										mature_date = rec.Dt;
 									int    _exp = diffdate(curdate, mature_date);
 									SETMAX(max_delay, _delay);
@@ -1836,7 +1837,7 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 		BillTbl::Rec bill_rec;
 		if(Search(rBillList.get(i), &bill_rec) > 0 && bill_rec.Object && CheckOpFlags(bill_rec.OpID, OPKF_NEEDPAYMENT)) {
 			double paym = 0.0;
-			BillObj->P_Tbl->CalcPayment(bill_rec.ID, 1, 0, bill_rec.CurID, &paym);
+			P_Tbl->CalcPayment(bill_rec.ID, 1, 0, bill_rec.CurID, &paym);
 			if(paym < bill_rec.Amount) {
 				CBO_BillEntry entry;
 				MEMSZERO(entry);

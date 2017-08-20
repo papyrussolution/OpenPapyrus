@@ -47,9 +47,8 @@
 #if !CAIRO_HAS_XLIB_XCB_FUNCTIONS
 
 #include "cairo-xlib-private.h"
-
 #include "cairo-compositor-private.h"
-#include "cairo-damage-private.h"
+//#include "cairo-damage-private.h"
 #include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"

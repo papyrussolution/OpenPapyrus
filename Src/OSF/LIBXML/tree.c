@@ -1124,7 +1124,7 @@ xmlNodePtr xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, in
 	if(!value)
 		return 0;
 	buf = xmlBufCreateSize(0);
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	xmlBufSetAllocationScheme(buf, XML_BUFFER_ALLOC_HYBRID);
 	q = cur;
@@ -1312,7 +1312,7 @@ xmlNodePtr xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 	if(!value)
 		return 0;
 	buf = xmlBufCreateSize(0);
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	xmlBufSetAllocationScheme(buf, XML_BUFFER_ALLOC_HYBRID);
 	q = cur;
@@ -4133,7 +4133,7 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 		return 0;
 	}
 	buf = (xmlChar*)SAlloc::M(buf_len * sizeof(xmlChar));
-	if(buf == NULL) {
+	if(!buf) {
 		xmlTreeErrMemory("getting node path");
 		SAlloc::F(buffer);
 		return 0;
@@ -4857,7 +4857,7 @@ int xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur)
 
 			    do {
 				    tmp = tmp->parent;
-				    if(tmp == NULL)
+				    if(!tmp)
 					    break;
 				    if(tmp == cur) {
 					    tmp = NULL;
@@ -4961,7 +4961,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		    xmlChar * ret;
 
 		    buf = xmlBufCreateSize(64);
-		    if(buf == NULL)
+		    if(!buf)
 			    return 0;
 		    xmlBufGetNodeContent(buf, cur);
 		    ret = xmlBufDetach(buf);
@@ -4983,7 +4983,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		    if(ent == NULL)
 			    return 0;
 		    buf = xmlBufCreate();
-		    if(buf == NULL)
+		    if(!buf)
 			    return 0;
 		    xmlBufGetNodeContent(buf, cur);
 		    ret = xmlBufDetach(buf);
@@ -5004,7 +5004,7 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		case XML_HTML_DOCUMENT_NODE: {
 		    xmlChar * ret;
 		    xmlBuf * buf = xmlBufCreate();
-		    if(buf == NULL)
+		    if(!buf)
 			    return 0;
 		    xmlBufGetNodeContent(buf, (xmlNode *)cur);
 		    ret = xmlBufDetach(buf);
@@ -6459,7 +6459,7 @@ xmlBufferPtr xmlBufferCreateStatic(void * mem, size_t size)
  */
 void xmlBufferSetAllocationScheme(xmlBufferPtr buf, xmlBufferAllocationScheme scheme)
 {
-	if(buf == NULL) {
+	if(!buf) {
 #ifdef DEBUG_BUFFER
 		xmlGenericError(0, "xmlBufferSetAllocationScheme: buf == NULL\n");
 #endif
@@ -6519,7 +6519,7 @@ void xmlBufferEmpty(xmlBufferPtr buf)
  */
 int xmlBufferShrink(xmlBufferPtr buf, uint len)
 {
-	if(buf == NULL)
+	if(!buf)
 		return -1;
 	if(len == 0)
 		return 0;
@@ -6568,7 +6568,7 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
 {
 	int size;
 	xmlChar * newbuf;
-	if(buf == NULL)
+	if(!buf)
         return -1;
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
         return 0;
@@ -6619,7 +6619,7 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
 int xmlBufferDump(FILE * file, xmlBufferPtr buf) 
 {
 	int ret;
-	if(buf == NULL) {
+	if(!buf) {
 #ifdef DEBUG_BUFFER
 		xmlGenericError(0, "xmlBufferDump: buf == NULL\n");
 #endif
@@ -6676,7 +6676,7 @@ int xmlBufferResize(xmlBufferPtr buf, uint size)
 	uint newSize;
 	xmlChar* rebuf = NULL;
 	size_t start_buf;
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
         return 0;
@@ -6829,7 +6829,7 @@ int xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len)
 int xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len)
 {
 	uint needSize;
-	if(buf == NULL)
+	if(!buf)
 		return -1;
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
 		return -1;

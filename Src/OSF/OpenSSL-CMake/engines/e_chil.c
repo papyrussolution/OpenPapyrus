@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 #include "internal/dso.h"
 #include <internal/evp_int.h> // @sobolev
 //#include <openssl/engine.h>

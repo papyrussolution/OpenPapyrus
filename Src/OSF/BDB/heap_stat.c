@@ -76,13 +76,12 @@ int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 		}
 	}
 	*(DB_HEAP_STAT **)spp = sp;
-
-err:    /* Discard metadata page. */
+err: // Discard metadata page
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0 && sp != NULL) {
+	if(ret && sp) {
 		__os_ufree(env, sp);
 		*(DB_BTREE_STAT **)spp = NULL;
 	}

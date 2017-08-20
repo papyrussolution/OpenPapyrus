@@ -907,7 +907,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	TodoObj.LinkTaskID = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
 		PPWait(1);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	UndefPriorList  = (Filt.GetPriorList(&PriorList) > 0) ? 0 : 1;
 	UndefStatusList = (Filt.GetStatusList(&StatusList) > 0) ? 0 : 1;
 
@@ -1220,7 +1220,7 @@ int SLAPI PPViewPrjTask::InitIteration()
 {
 	int    ok = 1;
 	int    idx = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.TabType == PrjTaskFilt::crstNone) {
 		if(P_TempOrd) {
 			TempOrderTbl::Key1 k, k_;

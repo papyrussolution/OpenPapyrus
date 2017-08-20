@@ -9,6 +9,15 @@
 #define EG_sign 0x4745U
 #define UC_sign 0x4355U
 
+//static
+void FASTCALL BExtQuery::ZDelete(BExtQuery ** ppQ)
+{
+	if(ppQ && *ppQ) {
+		delete *ppQ;
+		*ppQ = 0;
+	}
+}
+
 void SLAPI BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 {
 	P_Tbl    = pTbl;

@@ -40,25 +40,24 @@
  */
 
 #ifndef HEADER_SSL_H
-# define HEADER_SSL_H
+#define HEADER_SSL_H
 
-# include <openssl/e_os2.h>
-# include <openssl/opensslconf.h>
-# include <openssl/comp.h>
-# include <openssl/bio.h>
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  include <openssl/x509.h>
-#  include <openssl/crypto.h>
-#  include <openssl/lhash.h>
-#  include <openssl/buffer.h>
-# endif
-# include <openssl/pem.h>
-# include <openssl/hmac.h>
-# include <openssl/async.h>
-
-# include <openssl/safestack.h>
-# include <openssl/symhacks.h>
-# include <openssl/ct.h>
+#include <openssl/e_os2.h>
+#include <openssl/opensslconf.h>
+#include <openssl/comp.h>
+#include <openssl/bio.h>
+#if OPENSSL_API_COMPAT < 0x10100000L
+	#include <openssl/x509.h>
+	#include <openssl/crypto.h>
+	#include <openssl/lhash.h>
+	#include <openssl/buffer.h>
+#endif
+#include <openssl/pem.h>
+#include <openssl/hmac.h>
+#include <openssl/async.h>
+#include <openssl/safestack.h>
+#include <openssl/symhacks.h>
+#include <openssl/ct.h>
 
 #ifdef  __cplusplus
 extern "C" {

@@ -1113,7 +1113,7 @@ static void xmlRegAtomAddRange(xmlRegParserCtxtPtr ctxt, xmlRegAtomPtr atom,
 	else if(atom->nbRanges >= atom->maxRanges) {
 		atom->maxRanges *= 2;
 		xmlRegRangePtr * tmp = (xmlRegRangePtr*)SAlloc::R(atom->ranges, atom->maxRanges * sizeof(xmlRegRangePtr));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "adding ranges");
 			atom->maxRanges /= 2;
 			return;
@@ -1142,7 +1142,7 @@ static int xmlRegGetCounter(xmlRegParserCtxtPtr ctxt)
 		xmlRegCounter * tmp;
 		ctxt->maxCounters *= 2;
 		tmp = (xmlRegCounter*)SAlloc::R(ctxt->counters, ctxt->maxCounters * sizeof(xmlRegCounter));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "allocating counter");
 			ctxt->maxCounters /= 2;
 			return -1;
@@ -1173,7 +1173,7 @@ static int xmlRegAtomPush(xmlRegParserCtxtPtr ctxt, xmlRegAtomPtr atom)
 		xmlRegAtomPtr * tmp;
 		ctxt->maxAtoms *= 2;
 		tmp = (xmlRegAtomPtr*)SAlloc::R(ctxt->atoms, ctxt->maxAtoms * sizeof(xmlRegAtomPtr));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "allocating counter");
 			ctxt->maxAtoms /= 2;
 			return -1;
@@ -1199,7 +1199,7 @@ static void xmlRegStateAddTransTo(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr targe
 	else if(target->nbTransTo >= target->maxTransTo) {
 		target->maxTransTo *= 2;
 		int * tmp = (int*)SAlloc::R(target->transTo, target->maxTransTo * sizeof(int));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "adding transition");
 			target->maxTransTo /= 2;
 			return;
@@ -1249,7 +1249,7 @@ static void xmlRegStateAddTrans(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
 	else if(state->nbTrans >= state->maxTrans) {
 		state->maxTrans *= 2;
 		xmlRegTrans * tmp = (xmlRegTrans*)SAlloc::R(state->trans, state->maxTrans * sizeof(xmlRegTrans));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "adding transition");
 			state->maxTrans /= 2;
 			return;
@@ -1294,7 +1294,7 @@ static int xmlRegStatePush(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state)
 	else if(ctxt->nbStates >= ctxt->maxStates) {
 		ctxt->maxStates *= 2;
 		xmlRegStatePtr * tmp = (xmlRegStatePtr*)SAlloc::R(ctxt->states, ctxt->maxStates * sizeof(xmlRegStatePtr));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(ctxt, "adding state");
 			ctxt->maxStates /= 2;
 			return -1;
@@ -2871,7 +2871,7 @@ static void xmlFARegExecSave(xmlRegExecCtxtPtr exec) {
 		exec->maxRollbacks *= 2;
 		tmp = (xmlRegExecRollback*)SAlloc::R(exec->rollbacks,
 		    exec->maxRollbacks * sizeof(xmlRegExecRollback));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(NULL, "saving regexp");
 			exec->maxRollbacks /= 2;
 			return;
@@ -3354,7 +3354,7 @@ static void xmlFARegExecSaveInputString(xmlRegExecCtxtPtr exec, const xmlChar * 
 		xmlRegInputTokenPtr tmp;
 		exec->inputStackMax *= 2;
 		tmp = (xmlRegInputTokenPtr)SAlloc::R(exec->inputStack, exec->inputStackMax * sizeof(xmlRegInputToken));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRegexpErrMemory(NULL, "pushing input string");
 			exec->inputStackMax /= 2;
 			return;
@@ -6750,7 +6750,7 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 		    printf("deriv or: => or(derivs)\n");
 #endif
 		    tmp = xmlExpStringDeriveInt(ctxt, exp->exp_left, str);
-		    if(tmp == NULL) {
+		    if(!tmp) {
 			    return 0;
 		    }
 		    ret = xmlExpStringDeriveInt(ctxt, exp->exp_right, str);
@@ -6902,9 +6902,8 @@ static int xmlExpDivide(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub
 
 	for(i = 1; i <= exp->c_max; i++) {
 		sub->ref++;
-		tmp = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT,
-		    sub, NULL, NULL, i, i);
-		if(tmp == NULL) {
+		tmp = xmlExpHashGetEntry(ctxt, XML_EXP_COUNT, sub, NULL, NULL, i, i);
+		if(!tmp) {
 			return -1;
 		}
 		if(!xmlExpCheckCard(tmp, exp)) {
@@ -6955,7 +6954,6 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 	xmlExpNodePtr ret, tmp, tmp2, tmp3;
 	const xmlChar ** tab;
 	int len, i;
-
 	/*
 	 * In case of equality and if the expression can only consume a finite
 	 * amount, then the derivation is empty
@@ -6981,7 +6979,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		printf("Seq(sub) -> decompose\n");
 #endif
 		tmp = xmlExpExpDeriveInt(ctxt, exp, sub->exp_left);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 		if(tmp == forbiddenExp)
 			return tmp;
@@ -6996,7 +6994,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		tmp = xmlExpExpDeriveInt(ctxt, exp, sub->exp_left);
 		if(tmp == forbiddenExp)
 			return tmp;
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 		ret = xmlExpExpDeriveInt(ctxt, exp, sub->exp_right);
 		if((ret == NULL) || (ret == forbiddenExp)) {
@@ -7111,7 +7109,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    exp->exp_right->ref++;
 				    tmp = xmlExpHashGetEntry(ctxt, XML_EXP_SEQ, ret,
 				    exp->exp_right, NULL, 0, 0);
-				    if(tmp == NULL)
+				    if(!tmp)
 					    return 0;
 
 				    sub->exp_left->ref++;
@@ -7137,7 +7135,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		    if(!ret)
 			    return 0;
 		    tmp = xmlExpExpDeriveInt(ctxt, exp->exp_right, sub);
-		    if(tmp == NULL) {
+		    if(!tmp) {
 			    xmlExpFree(ctxt, ret);
 			    return 0;
 		    }
@@ -7150,7 +7148,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			     * Try to see if the loop is completely subsumed
 			     */
 			    tmp = xmlExpExpDeriveInt(ctxt, exp->exp_left, sub->exp_left);
-			    if(tmp == NULL)
+			    if(!tmp)
 				    return 0;
 			    if(tmp == forbiddenExp) {
 				    int mult;
@@ -7292,7 +7290,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    return ret;
 		    }
 		    tmp = xmlExpExpDeriveInt(ctxt, exp->exp_left, sub);
-		    if(tmp == NULL)
+		    if(!tmp)
 			    return 0;
 		    if(tmp == forbiddenExp) {
 #ifdef DEBUG_DERIV
@@ -7474,7 +7472,7 @@ int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 	printf("Result derivation :\n");
 	PRINT_EXP(tmp);
 #endif
-	if(tmp == NULL)
+	if(!tmp)
 		return -1;
 	if(tmp == forbiddenExp)
 		return 0;

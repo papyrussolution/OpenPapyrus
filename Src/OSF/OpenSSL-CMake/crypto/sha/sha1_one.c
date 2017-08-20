@@ -10,17 +10,18 @@
 #pragma hdrstop
 #include <openssl/sha.h>
 
-uchar *SHA1(const uchar *d, size_t n, uchar *md)
+uchar * SHA1(const uchar * d, size_t n, uchar * md)
 {
-    SHA_CTX c;
-    static uchar m[SHA_DIGEST_LENGTH];
-
-    if (md == NULL)
-        md = m;
-    if (!SHA1_Init(&c))
-        return NULL;
-    SHA1_Update(&c, d, n);
-    SHA1_Final(md, &c);
-    OPENSSL_cleanse(&c, sizeof(c));
-    return (md);
+	SHA_CTX c;
+	static uchar m[SHA_DIGEST_LENGTH];
+	SETIFZ(md, m);
+	if(!SHA1_Init(&c))
+		return NULL;
+	else {
+		SHA1_Update(&c, d, n);
+		SHA1_Final(md, &c);
+		OPENSSL_cleanse(&c, sizeof(c));
+		return (md);
+	}
 }
+

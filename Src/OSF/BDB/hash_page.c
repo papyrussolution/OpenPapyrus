@@ -1104,9 +1104,9 @@ int __ham_del_pair(DBC * dbc, int flags, PAGE * ppg)
 		ret = __db_free(dbc, p, 0);
 		if(ppg == NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, p_pagep, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
-		if(n_pagep != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, n_pagep, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, n_pagep, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			return ret;
 		if((ret = __hamc_delpg(dbc, chg_pgno, hcp->pgno, hcp->indx, op, &order)) != 0)
 			return ret;
@@ -1738,7 +1738,7 @@ next_page:
 	}
 	if(from_pgno != PGNO_INVALID)
 		goto next_page;
-	if(prev_pagep && (ret = __memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority)) != 0)
+	if((ret = __memp_fput(mpf, dbc->thread_info, prev_pagep, dbc->priority)) != 0)
 		goto err;
 	ret = __memp_fput(mpf, dbc->thread_info, to_pagep, dbc->priority);
 	return ret;
@@ -2360,7 +2360,7 @@ int __ham_next_cpage(DBC * dbc, db_pgno_t pgno)
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
 	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
-	if(hcp->page != NULL && (ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0)
+	if((ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0)
 		return ret;
 	hcp->stream_start_pgno = PGNO_INVALID;
 	hcp->page = NULL;

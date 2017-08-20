@@ -3899,7 +3899,7 @@ int SPaintToolBox::CopyToolFrom(const SPaintToolBox & rS, int toolIdent)
 	if(rS.GetSymb(toolIdent, symb) && (p_new_obj = GetObjBySymb(symb, p_src_obj->GetType())) != 0)
 		new_ident = p_new_obj->GetId();
 	else {
-		THROW(new_ident = CreateDynIdent(symb.NotEmpty() ? (const char *)symb : 0));
+		THROW(new_ident = CreateDynIdent(symb.NotEmpty() ? symb.cptr() : 0));
 		THROW(p_new_obj = CreateObj(new_ident));
 		THROW(p_new_obj->Copy(*p_src_obj, SPaintObj::cfLeaveId));
 	}

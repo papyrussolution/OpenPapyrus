@@ -89,7 +89,7 @@ int SLAPI PPViewObjLikeness::InitIteration()
 {
 	int    ok  = 1;
 	Counter.Init();
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	{
 		ObjLikenessTbl::Key0 k0, k0_;
 		THROW_MEM(P_IterQuery = new BExtQuery(&Tbl, 0));

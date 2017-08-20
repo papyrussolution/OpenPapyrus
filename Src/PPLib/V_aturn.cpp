@@ -356,7 +356,7 @@ int SLAPI PPViewAccturn::Init_(const PPBaseFilt * pFilt)
 		deleteFrom(P_TmpBillTbl, 0, P_TmpBillTbl->PrmrID > 0L);
 	ZDELETE(P_TmpBillTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TmpAGTbl);
 	IterBillPos = 0;
 	IterRByBill = 0;
@@ -387,7 +387,7 @@ int SLAPI PPViewAccturn::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID) {
 		AccTurnTbl::Key0 k0;
 		MEMSZERO(k0);
@@ -427,7 +427,7 @@ int SLAPI PPViewAccturn::InitIteration()
 	}
 	CATCH
 		ok = 0;
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	ENDCATCH
 	return ok;
 }

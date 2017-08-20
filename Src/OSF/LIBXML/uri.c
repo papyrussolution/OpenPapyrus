@@ -1154,7 +1154,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 		if(uri->query_raw != NULL) {
 			if(len + 1 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
-				if(temp == NULL) goto mem_error;
+				if(temp == NULL) 
+					goto mem_error;
 				ret = temp;
 			}
 			ret[len++] = '?';
@@ -1162,7 +1163,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			while(*p != 0) {
 				if(len + 1 >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
-					if(temp == NULL) goto mem_error;
+					if(temp == NULL) 
+						goto mem_error;
 					ret = temp;
 				}
 				ret[len++] = *p++;
@@ -1379,7 +1381,6 @@ done_cd:
 	 */
 	while(1) {
 		char * tmp;
-
 		/* At the beginning of each iteration of this loop, "cur" points to
 		 * the first character of the segment we want to examine.
 		 */
@@ -1528,7 +1529,6 @@ char * xmlURIUnescapeString(const char * str, int len, char * target)
 	}
 	return ret;
 }
-
 /**
  * xmlURIEscapeStr:
  * @str:  string to escape
@@ -1799,18 +1799,15 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	if(res == NULL)
 		goto done;
 	if(!ref->scheme && !ref->path && (!ref->authority && !ref->server)) {
-		if(bas->scheme)
-			res->scheme = sstrdup(bas->scheme);
+		res->scheme = sstrdup(bas->scheme);
 		if(bas->authority)
 			res->authority = sstrdup(bas->authority);
 		else if(bas->server) {
 			res->server = sstrdup(bas->server);
-			if(bas->user)
-				res->user = sstrdup(bas->user);
+			res->user = sstrdup(bas->user);
 			res->port = bas->port;
 		}
-		if(bas->path)
-			res->path = sstrdup(bas->path);
+		res->path = sstrdup(bas->path);
 		if(ref->query_raw)
 			res->query_raw = sstrdup(ref->query_raw);
 		else if(ref->query)
@@ -1819,8 +1816,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 			res->query_raw = sstrdup(bas->query_raw);
 		else if(bas->query)
 			res->query = sstrdup(bas->query);
-		if(ref->fragment)
-			res->fragment = sstrdup(ref->fragment);
+		res->fragment = sstrdup(ref->fragment);
 		goto step_7;
 	}
 	/*
@@ -1833,14 +1829,12 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		val = xmlSaveUri(ref);
 		goto done;
 	}
-	if(bas->scheme)
-		res->scheme = sstrdup(bas->scheme);
+	res->scheme = sstrdup(bas->scheme);
 	if(ref->query_raw)
 		res->query_raw = sstrdup(ref->query_raw);
 	else if(ref->query)
 		res->query = sstrdup(ref->query);
-	if(ref->fragment)
-		res->fragment = sstrdup(ref->fragment);
+	res->fragment = sstrdup(ref->fragment);
 	/*
 	 * 4) If the authority component is defined, then the reference is a
 	 *    network-path and we skip to step 7.  Otherwise, the reference
@@ -1853,23 +1847,19 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 			res->authority = sstrdup(ref->authority);
 		else {
 			res->server = sstrdup(ref->server);
-			if(ref->user)
-				res->user = sstrdup(ref->user);
+			res->user = sstrdup(ref->user);
 			res->port = ref->port;
 		}
-		if(ref->path)
-			res->path = sstrdup(ref->path);
+		res->path = sstrdup(ref->path);
 		goto step_7;
 	}
 	if(bas->authority)
 		res->authority = sstrdup(bas->authority);
 	else if(bas->server) {
 		res->server = sstrdup(bas->server);
-		if(bas->user)
-			res->user = sstrdup(bas->user);
+		res->user = sstrdup(bas->user);
 		res->port = bas->port;
 	}
-
 	/*
 	 * 5) If the path component begins with a slash character ("/"), then
 	 *    the reference is an absolute-path and we skip to step 7.
@@ -1878,7 +1868,6 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		res->path = sstrdup(ref->path);
 		goto step_7;
 	}
-
 	/*
 	 * 6) If this step is reached, then we are resolving a relative-path
 	 *    reference.  The relative path needs to be merged with the base
@@ -1905,7 +1894,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	out = 0;
 	if(bas->path) {
 		while(bas->path[cur] != 0) {
-			while((bas->path[cur] != 0) && (bas->path[cur] != '/'))
+			while(bas->path[cur] && bas->path[cur] != '/')
 				cur++;
 			if(bas->path[cur] == 0)
 				break;
@@ -1995,15 +1984,13 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	xmlURIPtr bas = NULL;
 	xmlChar * bptr, * uptr, * vptr;
 	int remove_path = 0;
-
 	if((URI == NULL) || (*URI == 0))
 		return NULL;
-
 	/*
 	 * First parse URI into a standard form
 	 */
 	ref = xmlCreateURI();
-	if(ref == NULL)
+	if(!ref)
 		return NULL;
 	/* If URI not already in "relative" form */
 	if(URI[0] != '.') {
@@ -2017,7 +2004,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	/*
 	 * Next parse base into the same standard form
 	 */
-	if((base == NULL) || (*base == 0)) {
+	if(!base || (*base == 0)) {
 		val = sstrdup(URI);
 		goto done;
 	}
@@ -2052,7 +2039,6 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		ref->path = (char*)"/";
 		remove_path = 1;
 	}
-
 	/*
 	 * At this point (at last!) we can compare the two paths
 	 *
@@ -2090,12 +2076,10 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			bptr++;
 		while((bptr[pos] == ref->path[pos]) && (bptr[pos] != 0))
 			pos++;
-
 		if(bptr[pos] == ref->path[pos]) {
 			val = sstrdup(BAD_CAST "");
 			goto done; /* (I can't imagine why anyone would do this) */
 		}
-
 		/*
 		 * In URI, "back up" to the last '/' encountered.  This will be the
 		 * beginning of the "unique" suffix of URI
@@ -2116,7 +2100,6 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			ix++;
 			uptr = (xmlChar*)&ref->path[ix];
 		}
-
 		/*
 		 * In base, count the number of '/' from the differing point
 		 */
@@ -2128,10 +2111,8 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		}
 		len = sstrlen(uptr) + 1;
 	}
-
 	if(nbslash == 0) {
-		if(uptr != NULL)
-			/* exception characters from xmlSaveUri */
+		if(uptr) // exception characters from xmlSaveUri 
 			val = xmlURIEscapeStr(uptr, BAD_CAST "/;&=+$,");
 		goto done;
 	}
@@ -2172,13 +2153,11 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	else {
 		vptr[len - 1] = 0;
 	}
-
 	/* escape the freshly-built path */
 	vptr = val;
 	/* exception characters from xmlSaveUri */
 	val = xmlURIEscapeStr(vptr, BAD_CAST "/;&=+$,");
 	SAlloc::F(vptr);
-
 done:
 	/*
 	 * Free the working variables
@@ -2201,11 +2180,7 @@ done:
  * by the returned string. If there is insufficient memory available, or the
  * argument is NULL, the function returns NULL.
  */
-#define IS_WINDOWS_PATH(p)					\
-	((p != NULL) &&						\
-	    (((p[0] >= 'a') && (p[0] <= 'z')) ||		   \
-		    ((p[0] >= 'A') && (p[0] <= 'Z'))) &&		  \
-	    (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
+#define IS_WINDOWS_PATH(p) ((p) && (((p[0] >= 'a') && (p[0] <= 'z')) || ((p[0] >= 'A') && (p[0] <= 'Z'))) && (p[1] == ':') && ((p[2] == '/') || (p[2] == '\\')))
 xmlChar * xmlCanonicPath(const xmlChar * path)
 {
 /*
@@ -2220,10 +2195,8 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	xmlURIPtr uri;
 	xmlChar * ret;
 	const xmlChar * absuri;
-
 	if(path == NULL)
 		return 0;
-
 #if defined(_WIN32)
 	/*
 	 * We must not change the backslashes to slashes if the the path
@@ -2235,28 +2208,25 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	if((path[0] == '\\') && (path[1] == '\\') && (path[2] == '?') && (path[3] == '\\') )
 		return sstrdup((const xmlChar*)path);
 #endif
-
-	/* sanitize filename starting with // so it can be used as URI */
+	// sanitize filename starting with // so it can be used as URI 
 	if((path[0] == '/') && (path[1] == '/') && (path[2] != '/'))
 		path++;
-
 	if((uri = xmlParseURI((const char*)path)) != NULL) {
 		xmlFreeURI(uri);
 		return sstrdup(path);
 	}
 	/* Check if this is an "absolute uri" */
 	absuri = xmlStrstr(path, BAD_CAST "://");
-	if(absuri != NULL) {
-		int l, j;
+	if(absuri) {
+		int j;
 		uchar c;
 		xmlChar * escURI;
-
 		/*
 		 * this looks like an URI where some parts have not been
 		 * escaped leading to a parsing problem.  Check that the first
 		 * part matches a protocol.
 		 */
-		l = absuri - path;
+		int l = absuri - path;
 		/* Bypass if first part (part before the '://') is > 20 chars */
 		if((l <= 0) || (l > 20))
 			goto path_processing;

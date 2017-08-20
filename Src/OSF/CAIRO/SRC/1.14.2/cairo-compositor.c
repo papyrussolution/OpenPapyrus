@@ -38,7 +38,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-compositor-private.h"
-#include "cairo-damage-private.h"
+//#include "cairo-damage-private.h"
 
 cairo_int_status_t _cairo_compositor_paint(const cairo_compositor_t * compositor,
     cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)

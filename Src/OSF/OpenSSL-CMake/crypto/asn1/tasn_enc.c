@@ -47,7 +47,7 @@ static int asn1_item_flags_i2d(ASN1_VALUE * val, uchar ** out, const ASN1_ITEM *
 		if(len <= 0)
 			return len;
 		buf = (uchar*)OPENSSL_malloc(len);
-		if(buf == NULL)
+		if(!buf)
 			return -1;
 		p = buf;
 		ASN1_item_ex_i2d(&val, &p, it, -1, flags);

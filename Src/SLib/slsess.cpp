@@ -46,7 +46,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 //
-SLAPI SlThreadLocalArea::SlThreadLocalArea()
+SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1)
 {
 	Id = 0;
 	LastErr = 0;
@@ -595,6 +595,11 @@ void * FASTCALL SlSession::GetGlobalObject(uint idx)
 int64 SLAPI SlSession::GetSequenceValue()
 	{ return SeqValue.Incr(); }
 
+uint64 SLAPI SlSession::GetProfileTime()
+{
+	return GetTLA().Prf.GetAbsTimeMicroseconds();
+}
+
 long SLAPI SlSession::GetGlobalSymbolId(const char * pSymb, long ident)
 {
 	long   _i = 0;
@@ -879,7 +884,7 @@ SlSession SLS; // @global
 //
 //
 //
-uint32 FASTCALL RSHash(const void * pData, uint len); // @prototype
+uint32 FASTCALL RSHash(const void * pData, size_t len); // @prototype
 
 void __LinkFile_HASHFUNC()
 {

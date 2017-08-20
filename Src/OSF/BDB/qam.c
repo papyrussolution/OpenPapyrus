@@ -259,7 +259,7 @@ recheck:
 		meta->first_recno = new_first;
 	QAM_WAKEUP(dbc, ret);
 done:
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -314,8 +314,7 @@ again:
 	 * number.  We always want to call this even if we ultimately end
 	 * up aborting, because we are allocating a record number, regardless.
 	 */
-	if(dbc->dbp->db_append_recno != NULL &&
-	   (t_ret = dbc->dbp->db_append_recno(dbc->dbp, data, recno)) != 0 && ret == 0)
+	if(dbc->dbp->db_append_recno && (t_ret = dbc->dbp->db_append_recno(dbc->dbp, data, recno)) != 0 && ret == 0)
 		ret = t_ret;
 	/*
 	 * Capture errors from either the lock couple or the call to
@@ -343,24 +342,18 @@ again:
 	cp->lock = lock;
 	cp->lock_mode = DB_LOCK_WRITE;
 	LOCK_INIT(lock);
-
-	/* Put the item on the page and log it. */
-	ret = __qam_pitem(dbc, page,
-		QAM_RECNO_INDEX(dbp, pg, recno), recno, data);
-	if((t_ret = __qam_fput(dbc,
-		    pg, page, dbc->priority)) != 0 && ret == 0)
+	// Put the item on the page and log it
+	ret = __qam_pitem(dbc, page, QAM_RECNO_INDEX(dbp, pg, recno), recno, data);
+	if((t_ret = __qam_fput(dbc, pg, page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Return the record number to the user. */
+	// Return the record number to the user
 	if(ret == 0 && key != NULL)
-		ret = __db_retcopy(dbp->env, key,
-			&recno, sizeof(recno), &dbc->rkey->data, &dbc->rkey->ulen);
-	/* Position the cursor on this record. */
+		ret = __db_retcopy(dbp->env, key, &recno, sizeof(recno), &dbc->rkey->data, &dbc->rkey->ulen);
+	// Position the cursor on this record. 
 	cp->recno = recno;
-
-	/* See if we are leaving the extent. */
+	// See if we are leaving the extent.
 	qp = (QUEUE *)dbp->q_internal;
-	if(qp->page_ext != 0 &&
-	   (recno%(qp->page_ext*qp->rec_page) == 0 || recno == UINT32_MAX)) {
+	if(qp->page_ext != 0 && (recno%(qp->page_ext*qp->rec_page) == 0 || recno == UINT32_MAX)) {
 		if((ret = __memp_fget(mpf, &metapg, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 			goto err;
 		if(!QAM_AFTER_CURRENT(meta, recno))
@@ -369,8 +362,8 @@ again:
 	}
 	QAM_WAKEUP(dbc, ret);
 err:
-	/* Release the meta page. */
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	// Release the meta page
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
@@ -449,7 +442,7 @@ static int __qamc_del(DBC * dbc, uint32 flags)
 			ret = __qam_consume(dbc, meta, RECNO_OOB);
 	}
 err:
-	if(meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(cp->page != NULL && (t_ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;

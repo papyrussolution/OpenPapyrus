@@ -155,8 +155,8 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			t_i.rect        = rc_item;
 			t_i.hinst       = TProgram::GetInst();
 			t_i.lpszText    = temp_title_buf;
-			SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-			SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+			::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+			::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 		}
 		if(Hwnd)
 			ShowWindow(Hwnd, SW_SHOW);
@@ -196,8 +196,8 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = temp_title_buf;
-					SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
-					SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
+					::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 				}
 				_upd = 1;
 				break;
@@ -216,7 +216,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
-					SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
 				}
 			}
 		}
@@ -247,7 +247,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 				t_i.rect        = rc_item;
 				t_i.hinst       = TProgram::GetInst();
 				t_i.lpszText    = 0;
-				SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i);
+				::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i);
 				count--;
 				break;
 			}
@@ -268,7 +268,7 @@ void ShortcutsWindow::DelItem(void * ptr)
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
 					t_i.lpszText    = 0;
-					SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
+					::SendMessage(HwndTT, (UINT)TTM_NEWTOOLRECT, 0, (LPARAM)(LPTOOLINFO)&t_i);
 				}
 			}
 		}

@@ -3056,7 +3056,7 @@ const xmlChar * xmlTextReaderConstBaseUri(xmlTextReaderPtr reader)
 	if(!reader || !reader->node)
 		return 0;
 	tmp = xmlNodeGetBase(NULL, reader->node);
-	if(tmp == NULL)
+	if(!tmp)
 		return 0;
 	ret = CONSTSTR(tmp);
 	SAlloc::F(tmp);
@@ -3510,7 +3510,7 @@ int xmlTextReaderPreservePattern(xmlTextReaderPtr reader, const xmlChar * patter
 			if(reader->patternNr >= reader->patternMax) {
 				reader->patternMax *= 2;
 				xmlPatternPtr * tmp = (xmlPatternPtr*)SAlloc::R(reader->patternTab, reader->patternMax * sizeof(reader->patternTab[0]));
-				if(tmp == NULL) {
+				if(!tmp) {
 					xmlGenericError(0, "xmlRealloc failed !\n");
 					reader->patternMax /= 2;
 					return -1;
@@ -4504,7 +4504,7 @@ else {
 			xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 			xmlCtxtReset(reader->ctxt);
 			buf = xmlAllocParserInputBuffer(enc);
-			if(buf == NULL) 
+			if(!buf) 
 				return -1;
 			inputStream = xmlNewInputStream(reader->ctxt);
 			if(inputStream == NULL) {

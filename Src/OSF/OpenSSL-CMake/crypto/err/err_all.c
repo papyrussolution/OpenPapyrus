@@ -20,7 +20,7 @@
 //#include <openssl/dsa.h>
 //#include <openssl/evp.h>
 //#include <openssl/objects.h>
-#include <openssl/pem2.h>
+//#include <openssl/pem2.h>
 //#include <openssl/x509.h>
 //#include <openssl/x509v3.h>
 //#include <openssl/conf.h>
@@ -35,7 +35,7 @@
 	#include <openssl/fips.h>
 #endif
 #include <openssl/ts.h>
-#include <openssl/cms.h>
+//#include <openssl/cms.h>
 #include <openssl/ct.h>
 #include <openssl/async.h>
 #include <openssl/kdf.h>

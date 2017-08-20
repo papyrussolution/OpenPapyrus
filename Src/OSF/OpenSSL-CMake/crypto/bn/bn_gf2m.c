@@ -24,13 +24,11 @@
 #ifndef OPENSSL_NO_EC2M
 
 /*
- * Maximum number of iterations before BN_GF2m_mod_solve_quad_arr should
- * fail.
+ * Maximum number of iterations before BN_GF2m_mod_solve_quad_arr should fail.
  */
 # define MAX_ITERATIONS 50
 
-static const BN_ULONG SQR_tb[16] = { 0, 1, 4, 5, 16, 17, 20, 21,
-				     64, 65, 68, 69, 80, 81, 84, 85};
+static const BN_ULONG SQR_tb[16] = { 0, 1, 4, 5, 16, 17, 20, 21, 64, 65, 68, 69, 80, 81, 84, 85};
 
 /* Platform-specific macros to accelerate squaring. */
 # if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
@@ -61,17 +59,13 @@ static const BN_ULONG SQR_tb[16] = { 0, 1, 4, 5, 16, 17, 20, 21,
  * the variables have the right amount of space allocated.
  */
 #  ifdef THIRTY_TWO_BIT
-static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
-    const BN_ULONG b)
+static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
 	register BN_ULONG h, l, s;
 	BN_ULONG tab[8], top2b = a >> 30;
-	register BN_ULONG a1, a2, a4;
-
-	a1 = a & (0x3FFFFFFF);
-	a2 = a1 << 1;
-	a4 = a2 << 1;
-
+	register BN_ULONG a1 = a & (0x3FFFFFFF);
+	register BN_ULONG a2 = a1 << 1;
+	register BN_ULONG a4 = a2 << 1;
 	tab[0] = 0;
 	tab[1] = a1;
 	tab[2] = a2;
@@ -131,18 +125,14 @@ static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
 
 #  endif
 #  if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
-static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
-    const BN_ULONG b)
+static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a, const BN_ULONG b)
 {
 	register BN_ULONG h, l, s;
 	BN_ULONG tab[16], top3b = a >> 61;
-	register BN_ULONG a1, a2, a4, a8;
-
-	a1 = a & (0x1FFFFFFFFFFFFFFFULL);
-	a2 = a1 << 1;
-	a4 = a2 << 1;
-	a8 = a4 << 1;
-
+	register BN_ULONG a1 = a & (0x1FFFFFFFFFFFFFFFULL);
+	register BN_ULONG a2 = a1 << 1;
+	register BN_ULONG a4 = a2 << 1;
+	register BN_ULONG a8 = a4 << 1;
 	tab[0] = 0;
 	tab[1] = a1;
 	tab[2] = a2;
@@ -234,8 +224,7 @@ static void bn_GF2m_mul_1x1(BN_ULONG * r1, BN_ULONG * r0, const BN_ULONG a,
  * result is a polynomial r with degree < 4 * BN_BITS2 - 1 The caller MUST
  * ensure that the variables have the right amount of space allocated.
  */
-static void bn_GF2m_mul_2x2(BN_ULONG * r, const BN_ULONG a1, const BN_ULONG a0,
-    const BN_ULONG b1, const BN_ULONG b0)
+static void bn_GF2m_mul_2x2(BN_ULONG * r, const BN_ULONG a1, const BN_ULONG a0, const BN_ULONG b1, const BN_ULONG b0)
 {
 	BN_ULONG m1, m0;
 	/* r[3] = h1, r[2] = h0; r[1] = l1; r[0] = l0 */
@@ -248,8 +237,7 @@ static void bn_GF2m_mul_2x2(BN_ULONG * r, const BN_ULONG a1, const BN_ULONG a0,
 }
 
 # else
-void bn_GF2m_mul_2x2(BN_ULONG * r, BN_ULONG a1, BN_ULONG a0, BN_ULONG b1,
-    BN_ULONG b0);
+void bn_GF2m_mul_2x2(BN_ULONG * r, BN_ULONG a1, BN_ULONG a0, BN_ULONG b1, BN_ULONG b0);
 # endif
 
 /*
@@ -260,7 +248,6 @@ int BN_GF2m_add(BIGNUM * r, const BIGNUM * a, const BIGNUM * b)
 {
 	int i;
 	const BIGNUM * at, * bt;
-
 	bn_check_top(a);
 	bn_check_top(b);
 
@@ -1084,7 +1071,7 @@ int BN_GF2m_mod_solve_quad_arr(BIGNUM * r, const BIGNUM * a_, const int p[],
 		rho = BN_CTX_get(ctx);
 		w2 = BN_CTX_get(ctx);
 		tmp = BN_CTX_get(ctx);
-		if(tmp == NULL)
+		if(!tmp)
 			goto err;
 		do {
 			if(!BN_rand(rho, p[0], BN_RAND_TOP_ONE, BN_RAND_BOTTOM_ANY))
@@ -1113,7 +1100,6 @@ int BN_GF2m_mod_solve_quad_arr(BIGNUM * r, const BIGNUM * a_, const int p[],
 			goto err;
 		}
 	}
-
 	if(!BN_GF2m_mod_sqr_arr(w, z, p, ctx))
 		goto err;
 	if(!BN_GF2m_add(w, z, w))
@@ -1122,13 +1108,10 @@ int BN_GF2m_mod_solve_quad_arr(BIGNUM * r, const BIGNUM * a_, const int p[],
 		BNerr(BN_F_BN_GF2M_MOD_SOLVE_QUAD_ARR, BN_R_NO_SOLUTION);
 		goto err;
 	}
-
 	if(!BN_copy(r, z))
 		goto err;
 	bn_check_top(r);
-
 	ret = 1;
-
 err:
 	BN_CTX_end(ctx);
 	return ret;
@@ -1140,8 +1123,7 @@ err:
  * implementation; this wrapper function is only provided for convenience;
  * for best performance, use the BN_GF2m_mod_solve_quad_arr function.
  */
-int BN_GF2m_mod_solve_quad(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
-    BN_CTX * ctx)
+int BN_GF2m_mod_solve_quad(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, BN_CTX * ctx)
 {
 	int ret = 0;
 	const int max = BN_num_bits(p) + 1;
@@ -1173,10 +1155,8 @@ int BN_GF2m_poly2arr(const BIGNUM * a, int p[], int max)
 {
 	int i, j, k = 0;
 	BN_ULONG mask;
-
 	if(BN_is_zero(a))
 		return 0;
-
 	for(i = a->top - 1; i >= 0; i--) {
 		if(!a->d[i])
 			/* skip word if a->d[i] == 0 */
@@ -1207,7 +1187,6 @@ int BN_GF2m_poly2arr(const BIGNUM * a, int p[], int max)
 int BN_GF2m_arr2poly(const int p[], BIGNUM * a)
 {
 	int i;
-
 	bn_check_top(a);
 	BN_zero(a);
 	for(i = 0; p[i] != -1; i++) {
@@ -1215,7 +1194,6 @@ int BN_GF2m_arr2poly(const int p[], BIGNUM * a)
 			return 0;
 	}
 	bn_check_top(a);
-
 	return 1;
 }
 

@@ -158,7 +158,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1, use_ta = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	PPWait(1);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	{
 		struct _E {
 			PPID   LocID;
@@ -422,7 +422,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewPriceAnlz::InitIteration()
 {
 	TempPriceAnlzTbl::Key0 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	MEMSZERO(k);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0);
 	P_IterQuery->selectAll();

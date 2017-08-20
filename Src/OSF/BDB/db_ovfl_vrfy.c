@@ -319,8 +319,8 @@ int __db_safe_goff(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, DBT * dbt, void 
 		dbt->size = bytesgot;
 		dbt->data = *(void **)buf;
 	}
-	/* If we broke out on error, don't leave pages pinned. */
-	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
+	// If we broke out on error, don't leave pages pinned
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

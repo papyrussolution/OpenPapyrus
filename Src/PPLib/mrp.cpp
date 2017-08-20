@@ -1,5 +1,6 @@
 // MRP.CPP
 // Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -495,7 +496,7 @@ int SLAPI MrpTabCore::SetRest(PPID id, PPID destID, const GoodsRestVal * pVal, d
 				line_rec.DestRest = rest;
 				line_rec.DestDfct = (dfct > 0.0) ? dfct : 0.0;
 			}
-			else { // pVal==0 ==> destID - нелимитируемый ресурс
+			else { // pVal==0 ==> destID - РЅРµР»РёРјРёС‚РёСЂСѓРµРјС‹Р№ СЂРµСЃСѓСЂСЃ
 				line_rec.Flags |= MRPLF_UNLIM;
 				line_rec.DestRest = 0.0;
 				line_rec.DestDfct = 0.0;
@@ -523,7 +524,7 @@ int SLAPI MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const Goods
 		THROW(tra);
 		if(SearchLine(id, destID, MRPSRCV_TOTAL, &line_rec) > 0) {
 			//
-			// Выясняем сколько замещающего товара уже использовано (subst_used_qtty) этой MRP-таблицей
+			// Р’С‹СЏСЃРЅСЏРµРј СЃРєРѕР»СЊРєРѕ Р·Р°РјРµС‰Р°СЋС‰РµРіРѕ С‚РѕРІР°СЂР° СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ (subst_used_qtty) СЌС‚РѕР№ MRP-С‚Р°Р±Р»РёС†РµР№
 			//
 			if(SearchLine(id, srcID, MRPSRCV_TOTAL, &subst_rec) > 0) {
 				subst_used_qtty = subst_rec.DestReqQtty;
@@ -531,7 +532,7 @@ int SLAPI MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const Goods
 			}
 			const  double rest = pVal->Rest - subst_used_qtty;
 			//
-			// Если есть, что тратить, то запускаем процесс
+			// Р•СЃР»Рё РµСЃС‚СЊ, С‡С‚Рѕ С‚СЂР°С‚РёС‚СЊ, С‚Рѕ Р·Р°РїСѓСЃРєР°РµРј РїСЂРѕС†РµСЃСЃ
 			//
 			if(rest > 0.0) {
 				if(SearchLine(id, destID, srcID, &line_rec2) > 0 && !(line_rec2.Flags & MRPLF_SUBST)) {
@@ -557,7 +558,7 @@ int SLAPI MrpTabCore::SetSubstRest(PPID id, PPID destID, PPID srcID, const Goods
 					line_rec.Cost  = (line_rec.Cost  * dr_sq + pVal->Cost  * usage) / (dr_sq + dest_usage);
 					line_rec.Price = (line_rec.Price * dr_sq + pVal->Price * usage) / (dr_sq + dest_usage);
 					//
-					// Возвращаем указатель на запись line_rec и меняем ее
+					// Р’РѕР·РІСЂР°С‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРёСЃСЊ line_rec Рё РјРµРЅСЏРµРј РµРµ
 					//
 					THROW(SearchLineByID(line_rec.ID, 0) > 0);
 					THROW_DB(Lines.updateRecBuf(&line_rec));
@@ -798,8 +799,8 @@ void SLAPI MrpTabPacket::GetCommonParam(PPIDArray * pLocList, DateRange * pPerio
 	CALLPTRMEMB(pPeriod, Set(MAXDATE, ZERODATE));
 	for(uint i = 0; enumItems(&i, (void **)&p_item);) {
 		//
-		// Определяем общие параметры списка листьев:
-		//   список складов, минимальная и максимальная даты
+		// РћРїСЂРµРґРµР»СЏРµРј РѕР±С‰РёРµ РїР°СЂР°РјРµС‚СЂС‹ СЃРїРёСЃРєР° Р»РёСЃС‚СЊРµРІ:
+		//   СЃРїРёСЃРѕРє СЃРєР»Р°РґРѕРІ, РјРёРЅРёРјР°Р»СЊРЅР°СЏ Рё РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР°С‚С‹
 		//
 		if(pLocList)
 			if(p_item->LocID)
@@ -1221,7 +1222,7 @@ int SLAPI PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * 
 			}
 			if(r == 2) {
 				//
-				// Если обнаружился дефицит и позиция goods_id является терминальной
+				// Р•СЃР»Рё РѕР±РЅР°СЂСѓР¶РёР»СЃСЏ РґРµС„РёС†РёС‚ Рё РїРѕР·РёС†РёСЏ goods_id СЏРІР»СЏРµС‚СЃСЏ С‚РµСЂРјРёРЅР°Р»СЊРЅРѕР№
 				//
 				RAssocArray alt_goods_list;
 				THROW(goods_obj.GetSubstList(goods_id, 0, alt_goods_list));
@@ -1315,19 +1316,19 @@ int SLAPI MrpTabPacket::ProcessReq(const MrpTabLeaf * pLeaf, const MrpReqItem & 
 		}
 	}
 	//
-	// Рассчитываем требуемое количество сверх остатка с учетом всех зарегистрированных
-	// до сих пор требований
+	// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј С‚СЂРµР±СѓРµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРІРµСЂС… РѕСЃС‚Р°С‚РєР° СЃ СѓС‡РµС‚РѕРј РІСЃРµС… Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹С…
+	// РґРѕ СЃРёС… РїРѕСЂ С‚СЂРµР±РѕРІР°РЅРёР№
 	//
-	// Для независимых требований (dep == 0) rReq.Req эквивалентно row.DestReq.
-	// По-этому, для этого случая расчет дополнительного количества несколько иной.
+	// Р”Р»СЏ РЅРµР·Р°РІРёСЃРёРјС‹С… С‚СЂРµР±РѕРІР°РЅРёР№ (dep == 0) rReq.Req СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕ row.DestReq.
+	// РџРѕ-СЌС‚РѕРјСѓ, РґР»СЏ СЌС‚РѕРіРѕ СЃР»СѓС‡Р°СЏ СЂР°СЃС‡РµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° РЅРµСЃРєРѕР»СЊРєРѕ РёРЅРѕР№.
 	//
 	if(dep)
 		ext_req = (row.DestReq > rest) ? rReq.Req : (row.DestReq + rReq.Req) - rest;
 	else if(rReq.Req > rest)
 		ext_req = rReq.Req - rest;
 	//
-	// Учитываем все запрошенное количество и остаток (если не учтен)
-	// Для независимого требования (dep == 0) не следует увеличивать количество (оно уже учтено)
+	// РЈС‡РёС‚С‹РІР°РµРј РІСЃРµ Р·Р°РїСЂРѕС€РµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Рё РѕСЃС‚Р°С‚РѕРє (РµСЃР»Рё РЅРµ СѓС‡С‚РµРЅ)
+	// Р”Р»СЏ РЅРµР·Р°РІРёСЃРёРјРѕРіРѕ С‚СЂРµР±РѕРІР°РЅРёСЏ (dep == 0) РЅРµ СЃР»РµРґСѓРµС‚ СѓРІРµР»РёС‡РёРІР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ (РѕРЅРѕ СѓР¶Рµ СѓС‡С‚РµРЅРѕ)
 	//
 	THROW(AddLine__(pLeaf->TabID, rReq.GoodsID, MRPSRCV_TOTAL, dep ? rReq.Req : 0, rest_takenin ? 0 : rest, /*price*/0, 0));
 	if(!rest_takenin)
@@ -1345,7 +1346,7 @@ int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf *
 	double ext_req = 0.0;
 	THROW(pPack->ProcessReq(pLeaf, rReq, &ext_req, dep, cflags));
 	//
-	// Если требуемое количество меньше или равно нулю, то структуру не разворачиваем (дефицита нет)
+	// Р•СЃР»Рё С‚СЂРµР±СѓРµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РјРµРЅСЊС€Рµ РёР»Рё СЂР°РІРЅРѕ РЅСѓР»СЋ, С‚Рѕ СЃС‚СЂСѓРєС‚СѓСЂСѓ РЅРµ СЂР°Р·РІРѕСЂР°С‡РёРІР°РµРј (РґРµС„РёС†РёС‚Р° РЅРµС‚)
 	//
 	if(ext_req > 0.0) {
 		PPObjGoods goods_obj;
@@ -1382,9 +1383,9 @@ int SLAPI PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf *
 	else if(pPack->IsTerminal(pLeaf->TabID, goods_id) == 0)
 		terminal = 0;
 	//
-	// Добавляем строку требования, дифференцированного по признаку Зависимое/Независимое
-	// Здесь в качестве требуемого количества используем rReq.Req (не req.Req) ибо это -
-	// внешнее затребованное количество без поправки на остаток
+	// Р”РѕР±Р°РІР»СЏРµРј СЃС‚СЂРѕРєСѓ С‚СЂРµР±РѕРІР°РЅРёСЏ, РґРёС„С„РµСЂРµРЅС†РёСЂРѕРІР°РЅРЅРѕРіРѕ РїРѕ РїСЂРёР·РЅР°РєСѓ Р—Р°РІРёСЃРёРјРѕРµ/РќРµР·Р°РІРёСЃРёРјРѕРµ
+	// Р—РґРµСЃСЊ РІ РєР°С‡РµСЃС‚РІРµ С‚СЂРµР±СѓРµРјРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° РёСЃРїРѕР»СЊР·СѓРµРј rReq.Req (РЅРµ req.Req) РёР±Рѕ СЌС‚Рѕ -
+	// РІРЅРµС€РЅРµРµ Р·Р°С‚СЂРµР±РѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РµР· РїРѕРїСЂР°РІРєРё РЅР° РѕСЃС‚Р°С‚РѕРє
 	THROW(pPack->AddLine__(pLeaf->TabID, goods_id, dep ? MRPSRCV_DEP : MRPSRCV_INDEP, rReq.Req, 0, 0, terminal ? MRPLF_TERMINAL : 0));
 	THROW(pPack->SetTerminal(pLeaf->TabID, goods_id, terminal));
 	CATCHZOK
@@ -1429,12 +1430,12 @@ int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_t
 			uint   i, j;
 			PPIDArray loc_list;
 			MrpTabLeaf * p_item;
-			pTree->Sort(); // Сортируем листья пакета в порядке {TabID, Dt, LocID}
+			pTree->Sort(); // РЎРѕСЂС‚РёСЂСѓРµРј Р»РёСЃС‚СЊСЏ РїР°РєРµС‚Р° РІ РїРѕСЂСЏРґРєРµ {TabID, Dt, LocID}
 			DateRange bounds;
 			pTree->GetCommonParam(&loc_list, &bounds);
 			base_leaf.Dt = bounds.upp;
 			//
-			// Учет остатков по позициям с независимым спросом
+			// РЈС‡РµС‚ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ РїРѕР·РёС†РёСЏРј СЃ РЅРµР·Р°РІРёСЃРёРјС‹Рј СЃРїСЂРѕСЃРѕРј
 			//
 			{
 				const uint lc_ = loc_list.getCount();
@@ -1453,7 +1454,7 @@ int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_t
 			THROW(pTree->Flash(P_Tbl, 0));
 			{
 				//
-				// Инициализируем остатки по каждому складу в порядке увеличения даты
+				// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РѕСЃС‚Р°С‚РєРё РїРѕ РєР°Р¶РґРѕРјСѓ СЃРєР»Р°РґСѓ РІ РїРѕСЂСЏРґРєРµ СѓРІРµР»РёС‡РµРЅРёСЏ РґР°С‚С‹
 				//
 				// @v8.4.8 {
 				PPLoadText(PPTXT_MRPTABRESTINIT, msg_buf);
@@ -1477,7 +1478,7 @@ int SLAPI PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_t
 			base_leaf.LocID = base_rec.LocID;
 			base_leaf.Dt    = base_rec.Dt;
 			//
-			// Учет остатков по позициям с независимым спросом
+			// РЈС‡РµС‚ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ РїРѕР·РёС†РёСЏРј СЃ РЅРµР·Р°РІРёСЃРёРјС‹Рј СЃРїСЂРѕСЃРѕРј
 			//
 			THROW(ExpandReq(pTree, &base_leaf, cflags));
 			THROW(pTree->Flash(P_Tbl, 0));
@@ -1526,8 +1527,8 @@ int SLAPI PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID
 			THROW(Search(leaf.TabID, &rec) > 0);
 			if(rec.LocID == 0 && !rec.Dt) {
 				//
-				// Если в единственном листе списка не инициализированы склад и дата,
-				// то инициализируем их и оставляем лист единственным
+				// Р•СЃР»Рё РІ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРј Р»РёСЃС‚Рµ СЃРїРёСЃРєР° РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹ СЃРєР»Р°Рґ Рё РґР°С‚Р°,
+				// С‚Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёС… Рё РѕСЃС‚Р°РІР»СЏРµРј Р»РёСЃС‚ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Рј
 				//
 				rec.LocID = locID;
 				rec.Dt = dt;
@@ -1538,9 +1539,9 @@ int SLAPI PPObjMrpTab::GetTabID(MrpTabPacket * pTree, PPID locID, LDATE dt, PPID
 			}
 			else {
 				//
-				// Если в единственном листе списка склад и дата инициализированы,
-				// то создаем корневой лист и прикрепляем к нему новый с требуемыми
-				// значениями склада и даты, а также тот, который был до этого единственным.
+				// Р•СЃР»Рё РІ РµРґРёРЅСЃС‚РІРµРЅРЅРѕРј Р»РёСЃС‚Рµ СЃРїРёСЃРєР° СЃРєР»Р°Рґ Рё РґР°С‚Р° РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹,
+				// С‚Рѕ СЃРѕР·РґР°РµРј РєРѕСЂРЅРµРІРѕР№ Р»РёСЃС‚ Рё РїСЂРёРєСЂРµРїР»СЏРµРј Рє РЅРµРјСѓ РЅРѕРІС‹Р№ СЃ С‚СЂРµР±СѓРµРјС‹РјРё
+				// Р·РЅР°С‡РµРЅРёСЏРјРё СЃРєР»Р°РґР° Рё РґР°С‚С‹, Р° С‚Р°РєР¶Рµ С‚РѕС‚, РєРѕС‚РѕСЂС‹Р№ Р±С‹Р» РґРѕ СЌС‚РѕРіРѕ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Рј.
 				//
 				uint   i;
 				PPID   base_id = 0;
@@ -1703,7 +1704,7 @@ int SLAPI PPObjMrpTab::DoMaintain(LDATE toDt)
 {
 	int    ok = 1;
 	long   total = 0;
-    SString msg;
+	SString msg;
 	IterCounter counter;
 	MrpTabTbl::Key2 k;
 	k.Dt = toDt;

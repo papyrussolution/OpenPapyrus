@@ -1485,7 +1485,7 @@ int SLAPI PPViewBizScoreVal::InitIteration()
 	int    ok = 1;
 	int    idx = 0;
 	BizScoreTbl::Key0 k0, k0_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	THROW_MEM(P_IterQuery = new BExtQuery(&Tbl, idx));
 	P_IterQuery->selectAll();

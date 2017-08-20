@@ -168,7 +168,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 				SetSelection(&sel);
 			}
 			CallFunc(SCI_SEARCHANCHOR, 0, 0);
-			int    result = CallFunc(_func, sci_srch_flags, (int)(const char *)pattern);
+			int    result = CallFunc(_func, sci_srch_flags, (int)pattern.cptr());
 			if(result >= 0) {
 				ok = 1;
 				int selend = CallFunc(SCI_GETSELECTIONEND, 0, 0);
@@ -554,7 +554,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 												}
 											}
 											if(text_to_show.Len())
-												p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, (int)(const char *)text_to_show);
+												p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, (int)text_to_show.cptr());
 										}
 									}
 								}
@@ -767,7 +767,7 @@ SCodepage STextBrowser::SelectEncoding(SCodepage initCp) const
 		SCodepage cp;
 		SString cp_name;
 		for(uint i = 0; i < SCodepageIdent::GetRegisteredCodepageCount(); i++) {
-			if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name = 0)) {
+			if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name.Z())) {
 				p_lw->listBox()->addItem(cp, cp_name);
 			}
 		}
@@ -812,17 +812,17 @@ int STextBrowser::InsertWorkbookLink()
 			if(link.Type == link.ltImage) {
 				(text = "#IMAGE").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)(const char *)text);
+				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 			}
 			else if(link.Type == link.ltRef) {
 				(text = "#REF").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)(const char *)text);
+				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 			}
 			else if(link.Type == link.ltLink) {
 				(text = "#LINK").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)(const char *)text);
+				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 			}
 			else if(link.Type == link.ltAnnot) {
 				if(link.AddendumID && wb_obj.Fetch(link.AddendumID, &addendum_rec) > 0) {
@@ -834,7 +834,7 @@ int STextBrowser::InsertWorkbookLink()
 					(text = "#ANNOT").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 				}
 				text.Transf(CTRANSF_INNER_TO_UTF8);
-				CallFunc(SCI_INSERTTEXT, -1, (int)(const char *)text);
+				CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
 			}
 		}
 	}
@@ -1138,16 +1138,16 @@ int STextBrowser::BraceHtmlTag()
 				GetSelection(sel_range);
 				if(sel_range.low >= 0 && sel_range.upp >= 0) {
 					if(tag == "*") { // comment
-						(text = 0).Cat("-->");
-						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)(const char *)text);
-						(text = 0).Cat("<!--");
-						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)(const char *)text);
+						text.Z().Cat("-->");
+						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)text.cptr());
+						text.Z().Cat("<!--");
+						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)text.cptr());
 					}
 					else {
-						(text = 0).CatChar('<').CatChar('/').Cat(tag).CatChar('>');
-						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)(const char *)text);
-						(text = 0).CatChar('<').Cat(tag).CatChar('>');
-						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)(const char *)text);
+						text.Z().CatChar('<').CatChar('/').Cat(tag).CatChar('>');
+						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)text.cptr());
+						text.Z().CatChar('<').Cat(tag).CatChar('>');
+						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)text.cptr());
 					}
 					ok = 1;
 				}

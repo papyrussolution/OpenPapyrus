@@ -6164,7 +6164,7 @@ int32 DL6ICLS_PPObjBill::GetOriginalLot(int32 lotID, int32 * pOrgLotID, SPpyO_Lo
 	return ok;
 }
 
-BExtQuery & SLAPI MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT)
+static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT)
 {
 	return rQ.select(rT.ID, rT.BillID, rT.Dt, rT.OprNo, rT.GoodsID, rT.LocID, rT.SupplID,
 		rT.InTaxGrpID, rT.Flags, rT.UnitPerPack, rT.PrevLotID, rT.Cost, rT.Price,
@@ -6182,7 +6182,7 @@ struct LotQueryBlock {
 	}
 	~LotQueryBlock()
 	{
-		ZDELETE(P_Q);
+		BExtQuery::ZDelete(&P_Q);
 	}
 
 	int   Idx;

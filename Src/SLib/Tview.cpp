@@ -162,23 +162,23 @@ void TCommandSet::enableCmd(const TCommandSet & tc, int is_enable)
 {
 	int    i = 0;
 	if(is_enable)
-		for(; i < sizeof(cmds) / sizeof(cmds[0]); i++)
+		for(; i < SIZEOFARRAY(cmds); i++)
 			cmds[i] |= tc.cmds[i];
 	else
-		for(; i < sizeof(cmds) / sizeof(cmds[0]); i++)
+		for(; i < SIZEOFARRAY(cmds); i++)
 			cmds[i] &= ~(tc.cmds[i]);
 }
 
 TCommandSet & TCommandSet::operator &= (const TCommandSet & tc)
 {
-	for(int i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
+	for(int i = 0; i < SIZEOFARRAY(cmds); i++)
 		cmds[i] &= tc.cmds[i];
 	return *this;
 }
 
 TCommandSet & TCommandSet::operator |= (const TCommandSet & tc)
 {
-	for(int i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
+	for(int i = 0; i < SIZEOFARRAY(cmds); i++)
 		cmds[i] |= tc.cmds[i];
 	return *this;
 }
@@ -198,7 +198,7 @@ TCommandSet operator | (const TCommandSet& tc1, const TCommandSet& tc2)
 
 int TCommandSet::IsEmpty() const
 {
-	for(int i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
+	for(int i = 0; i < SIZEOFARRAY(cmds); i++)
 		if(cmds[i])
 			return 0;
 	return 1;
@@ -321,7 +321,7 @@ int TView::EvBarrier::operator !() const
 void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(Sf & sfMsgToParent)
-		SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
+		::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
 	else
 		handleWindowsMessage(uMsg, wParam, lParam);
 }

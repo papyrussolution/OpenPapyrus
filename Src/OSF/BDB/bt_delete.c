@@ -408,11 +408,11 @@ stop:
 		}
 		if((t_ret = __TLPUT(dbc, p_lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(parent && (t_ret = __memp_fput(mpf, dbc->thread_info, parent, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, parent, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		if((t_ret = __TLPUT(dbc, c_lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(child && (t_ret = __memp_fput(mpf, dbc->thread_info, child, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, child, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	return ret;

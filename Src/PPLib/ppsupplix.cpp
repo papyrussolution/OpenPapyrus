@@ -156,7 +156,7 @@ private:
 	int    SLAPI GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode);
 	int    SLAPI GetConsigLocInfo(BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode);
 	int    SLAPI GetInfoFromMemo(const char * pMemo, LDATE * pParentDt, SString & rParentCode, int simple = 0);
-	int    SLAPI GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
+	void   SLAPI GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial);
 	int    SLAPI IsKegUnit(PPID goodsId);
 	const char * SLAPI GetEaText() const;
 	int    SLAPI GetSerial(PPID lotID, PPID goodsID, SString & rSerial);
@@ -196,7 +196,7 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 	int    ok = -1;
     rSerial = 0;
 	ObjTagItem tag;
-    if(0/*PPRef->Ot.GetTag(PPOBJ_LOT, lotID, PPTAG_LOT_MANUFTIME, &tag) > 0*/) {
+    if(PPRef->Ot.GetTag(PPOBJ_LOT, lotID, PPTAG_LOT_MANUFTIME, &tag) > 0) { // @v9.7.11
 		SString temp_buf;
 		int32  arcode_pack;
 		GObj.P_Tbl->GetArCode(P.SupplID, goodsID, temp_buf, &arcode_pack);
@@ -206,10 +206,10 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 		rSerial.Cat(create_dtm.d, DATF_DMY|DATF_NODIV).Cat(temp_buf);
 		ok = 1;
     }
-	else {
+	/*@v9.7.11 else {
 		P_BObj->GetSerialNumberByLot(lotID, rSerial, 1);
 		ok = 2;
-	}
+	}*/
 	return ok;
 }
 
@@ -737,7 +737,7 @@ IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 	return r;
 }
 
-int SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
+void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
 {
 	//
 	// @v8.6.10 Извлечение срока годности скорректировано так, чтобы приоритет был у даты, установленной у порожденного лота против оригинального
@@ -757,17 +757,16 @@ int SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, PPTransferItem * pTi
 		}
 		SETIFZ(expiry, org_lot.Expiry);
 		// @v9.7.9 P_BObj->GetSerialNumberByLot(org_lot.ID, serial, 1);
-		GetSerial(org_lot.ID, org_lot.GoodsID, serial); // @v9.7.9 
+		GetSerial(org_lot.ID, org_lot.GoodsID, serial); // @v9.7.9
 	}
 	else {
 		// @v9.7.9 P_BObj->GetSerialNumberByLot(lotID, serial, 1);
-		GetSerial(lot.ID, lot.GoodsID, serial); // @v9.7.9 
+		GetSerial(lot.ID, lot.GoodsID, serial); // @v9.7.9
 	}
 	// ASSIGN_PTR(pBillDt, lot.Dt);
 	ASSIGN_PTR(pCreateDt, crt_dt);
 	ASSIGN_PTR(pExpiry, expiry);
 	ASSIGN_PTR(pSerial, serial);
-	return 1;
 }
 
 int SLAPI PPSupplExchange_Baltika::ExportRestParties()
@@ -786,16 +785,20 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	GoodsRestFilt filt;
 	SoapExporter soap_e;
 	GoodsRestViewItem item;
-	PPViewGoodsRest v;
+	PPViewGoodsRest gr_view;
 	PPIniFile ini_file(0, 0, 0, 1);
 
 	//se_filt = Filt;
 	//se_filt.MaxFileSizeKB = 0;
 	PPGetFilePath(PPPATH_OUT, "sprestp.xml", path);
 	MEMSZERO(item);
-	filt.GoodsGrpID = /*se_filt*/Ep.GoodsGrpID;
-	filt.Date       = (/*se_filt.Period*/P.ExpPeriod.upp) ? /*se_filt.Period*/P.ExpPeriod.upp : LConfig.OperDate;
+	filt.GoodsGrpID = Ep.GoodsGrpID;
+	filt.Date       = P.ExpPeriod.upp ? P.ExpPeriod.upp : LConfig.OperDate;
+	//
 	filt.DiffParam = GoodsRestParam::_diffSerial;
+	//filt.DiffParam = GoodsRestParam::_diffLotTag; // @v9.7.11
+	//filt.DiffLotTagID = PPTAG_LOT_MANUFTIME; // @v9.7.11
+	//
 	if(P.LocList.IsEmpty()) {
 		THROW(LocObj.GetWarehouseList(&loc_list));
 	}
@@ -805,8 +808,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	for(i = 0; i < spoilage_loc_list.getCount(); i++)
 		loc_list.freeByKey(spoilage_loc_list.at(i), 0);
 	THROW(GetWeakAlcInfo(&weakalc_locid, &weakalc_ggrpid, 0));
-	if(weakalc_locid)
-		loc_list.add(weakalc_locid);
+	loc_list.addnz(weakalc_locid);
 	THROW(GetWeakAlcInfo(&wotarebeer_locid, &wotarebeer_ggrpid, 1));
 	if(wotarebeer_locid) {
 		loc_list.freeByKey(wotarebeer_locid, 0);
@@ -817,7 +819,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		count = 0;
 		filt.LocList.FreeAll();
 		filt.LocList.Add(loc_list.at(i));
-		THROW(v.Init_(&filt));
+		THROW(gr_view.Init_(&filt));
 		file_name = path;
 		if(i > 0) {
 			SPathStruc sp;
@@ -844,14 +846,18 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		}
 		if(loc_list.at(i) != wotarebeer_locid) {
 			TSArray <Sdr_Baltika_RestPartLine> items_list;
-			for(v.InitIteration(); v.NextIteration(&item) > 0;) {
+			for(gr_view.InitIteration(); gr_view.NextIteration(&item) > 0;) {
 				double bc_pack = 1.0;
 				Sdr_Baltika_RestPartLine line_rec;
 				MEMSZERO(line_rec);
-				if(strlen(item.Serial) > 0 && GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
+				if(sstrlen(item.Serial) && GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 					line_rec.Quantity = item.Rest;
 					STRNSCPY(line_rec.UnitId, GetEaText());
-					STRNSCPY(line_rec.PartNumber, item.Serial);
+					{
+						//LDATETIME serial_dtm;
+						//strtodatetime(item.Serial, &serial_dtm, DATF_DMY, TIMF_HMS);
+						STRNSCPY(line_rec.PartNumber, item.Serial);
+					}
 					ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
 					GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, 0);
 					// @v8.9.8 {
@@ -873,7 +879,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 						count++;
 					}
 				}
-				PPWaitPercent(v.GetCounter());
+				PPWaitPercent(gr_view.GetCounter());
 			}
 			if(items_list.getCount()) {
 				for(uint j = 0; j < items_list.getCount(); j++) {
@@ -898,7 +904,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 				PPWaitPercent(j+1, items_count);
 			}
 			if(tare_ggrpid && loc_list.at(i) == wotarebeer_locid) {
-				for(v.InitIteration(); v.NextIteration(&item) > 0;) {
+				for(gr_view.InitIteration(); gr_view.NextIteration(&item) > 0;) {
 					if(item.Serial[0] && GObj.BelongToGroup(item.GoodsID, tare_ggrpid) > 0) {
 						double bc_pack = 1.0;
 						Sdr_Baltika_RestPartLine line_rec;
@@ -922,7 +928,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 							count++;
 						}
 					}
-					PPWaitPercent(v.GetCounter());
+					PPWaitPercent(gr_view.GetCounter());
 				}
 			}
 			if(items_list.getCount()) {

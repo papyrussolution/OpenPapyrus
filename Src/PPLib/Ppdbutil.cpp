@@ -1787,7 +1787,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 	if(use_copy_continouos) {
 		SString fmt_buf, msg_buf;
 		PPLoadText(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf);
-		msg_buf.Printf(fmt_buf, (const char *)rDBSymb);
+		msg_buf.Printf(fmt_buf, rDBSymb.cptr());
 		PPLogMessage(PPFILNAM_BACKUP_LOG, msg_buf, LOGMSGF_TIME);
 	}
 	else
@@ -3034,7 +3034,7 @@ int SLAPI PrcssrTestDb::LogGenRec(DBTable * pTbl)
 {
 	SString msg_buf, msg_rec_buf;
 	pTbl->putRecToString(msg_rec_buf, 1);
-	msg_buf.Printf("Generated rec for '%s': %s", pTbl->tableName, (const char *)msg_rec_buf);
+	msg_buf.Printf("Generated rec for '%s': %s", pTbl->tableName, msg_rec_buf.cptr());
 	return LogMessage(msg_buf);
 }
 

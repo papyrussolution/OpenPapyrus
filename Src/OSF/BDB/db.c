@@ -327,7 +327,7 @@ done:
 	// If we allocated a page: if we're successful, mark the page dirty
 	// and return it to the cache, otherwise, discard/free it.
 	//
-	if(p && (t_ret = __memp_fput(mdbp->mpf, dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mdbp->mpf, dbc->thread_info, p, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	// Discard the cursor(s) and data
 	__os_ufree(env, data.data);

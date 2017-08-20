@@ -116,7 +116,7 @@ int SLAPI PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 		}
 	}
 	CATCH
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		ZDELETE(P_TempTbl);
 		ok = 0;
 	ENDCATCH
@@ -125,7 +125,7 @@ int SLAPI PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewQCert::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	int    ok  = 1;
 	DBQ  * dbq = 0;
@@ -144,7 +144,7 @@ int SLAPI PPViewQCert::InitIteration()
 	P_IterQuery->initIteration(0, MEMSZERO(k), spGe);
 	CATCH
 		ok = 0;
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	ENDCATCH
 	return ok;
 }

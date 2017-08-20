@@ -214,15 +214,12 @@ static int SRP_user_pwd_set_sv_BN(SRP_user_pwd * vinfo, BIGNUM * s, BIGNUM * v)
 static SRP_user_pwd * srp_user_pwd_dup(SRP_user_pwd * src)
 {
 	SRP_user_pwd * ret;
-
 	if(src == NULL)
 		return NULL;
 	if((ret = SRP_user_pwd_new()) == NULL)
 		return NULL;
-
 	SRP_user_pwd_set_gN(ret, src->g, src->N);
-	if(!SRP_user_pwd_set_ids(ret, src->id, src->info)
-	    || !SRP_user_pwd_set_sv_BN(ret, BN_dup(src->s), BN_dup(src->v))) {
+	if(!SRP_user_pwd_set_ids(ret, src->id, src->info) || !SRP_user_pwd_set_sv_BN(ret, BN_dup(src->s), BN_dup(src->v))) {
 		SRP_user_pwd_free(ret);
 		return NULL;
 	}
@@ -234,15 +231,14 @@ SRP_VBASE * SRP_VBASE_new(char * seed_key)
 	SRP_VBASE * vb = (SRP_VBASE*)OPENSSL_malloc(sizeof(*vb));
 	if(vb == NULL)
 		return NULL;
-	if((vb->users_pwd = sk_SRP_user_pwd_new_null()) == NULL
-	    || (vb->gN_cache = sk_SRP_gN_cache_new_null()) == NULL) {
+	if((vb->users_pwd = sk_SRP_user_pwd_new_null()) == NULL || (vb->gN_cache = sk_SRP_gN_cache_new_null()) == NULL) {
 		OPENSSL_free(vb);
 		return NULL;
 	}
 	vb->default_g = NULL;
 	vb->default_N = NULL;
 	vb->seed_key = NULL;
-	if((seed_key != NULL) && (vb->seed_key = OPENSSL_strdup(seed_key)) == NULL) {
+	if(seed_key && (vb->seed_key = OPENSSL_strdup(seed_key)) == NULL) {
 		sk_SRP_user_pwd_free(vb->users_pwd);
 		sk_SRP_gN_cache_free(vb->gN_cache);
 		OPENSSL_free(vb);
@@ -597,38 +593,27 @@ err:
  * The caller is responsible for freeing the allocated *salt and *verifier
  * BIGNUMS.
  */
-int SRP_create_verifier_BN(const char * user, const char * pass, BIGNUM ** salt,
-    BIGNUM ** verifier, const BIGNUM * N,
-    const BIGNUM * g)
+int SRP_create_verifier_BN(const char * user, const char * pass, BIGNUM ** salt, BIGNUM ** verifier, const BIGNUM * N, const BIGNUM * g)
 {
 	int result = 0;
 	BIGNUM * x = NULL;
 	BN_CTX * bn_ctx = BN_CTX_new();
 	uchar tmp2[MAX_LEN];
 	BIGNUM * salttmp = NULL;
-
-	if((user == NULL) ||
-	    (pass == NULL) ||
-	    (salt == NULL) ||
-	    (verifier == NULL) || (N == NULL) || (g == NULL) || (bn_ctx == NULL))
+	if((user == NULL) || (pass == NULL) || (salt == NULL) || (verifier == NULL) || (N == NULL) || (g == NULL) || (bn_ctx == NULL))
 		goto err;
-
 	if(*salt == NULL) {
 		if(RAND_bytes(tmp2, SRP_RANDOM_SALT_LEN) <= 0)
 			goto err;
-
 		salttmp = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, 0);
 	}
 	else {
 		salttmp = *salt;
 	}
-
 	x = SRP_Calc_x(salttmp, user, pass);
-
 	*verifier = BN_new();
 	if(*verifier == NULL)
 		goto err;
-
 	if(!BN_mod_exp(*verifier, g, x, N, bn_ctx)) {
 		BN_clear_free(*verifier);
 		goto err;

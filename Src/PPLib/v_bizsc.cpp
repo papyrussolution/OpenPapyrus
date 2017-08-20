@@ -991,17 +991,14 @@ int SLAPI PPViewBizScTempl::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-int SLAPI PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec)
+void SLAPI PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec)
 {
-	int ok = -1;
 	if(pInRec && pOutRec) {
 		pOutRec->ID = pInRec->ID;
 		STRNSCPY(pOutRec->Name, pInRec->Name);
 		STRNSCPY(pOutRec->Symb, pInRec->Symb);
 		pOutRec->Flags = pInRec->Flags;
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPViewBizScTempl::CheckIDForFilt(PPID id, PPBizScTempl * pRec)
@@ -1014,7 +1011,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempBizScTempl);
 int SLAPI PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	{
@@ -1045,7 +1042,7 @@ int SLAPI PPViewBizScTempl::InitIteration()
 {
 	int ok = 0;
 	DBQ * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0);
 	if(P_IterQuery) {
 		P_IterQuery->selectAll().where(*dbq);
@@ -1221,7 +1218,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 					StringSet ss(SLBColumnDelim);
 					ss.setBuf(p_item->P_Vals, strlen(p_item->P_Vals) + 1);
 					temp_buf = 0;
-					for(uint i = 0, p = 0; ss.get(&p, (temp_buf = 0)) > 0; i++) {
+					for(uint i = 0, p = 0; ss.get(&p, temp_buf.Z()) > 0; i++) {
 						if(i == pBlk->ColumnN - 2) {
 							found = 1;
 							break;
@@ -1318,7 +1315,7 @@ int SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 					if(strlen(p_col->Name))
 						name = p_col->Name;
 					else
-						(name = 0).Cat(i);
+						name.Z().Cat(i);
 					pBrw->insertColumn(-1, name, i + 1, MKSTYPE(S_ZSTRING, 20), ALIGN_RIGHT, BCO_USERPROC);
 				}
 			}

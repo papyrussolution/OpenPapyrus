@@ -103,15 +103,13 @@ int VfdEquip::PrintLine()
 // new {
 int VfdEquip::Connect() 
 {
-	int ok = 1;
+	int    ok = 1;
 	SString control_symbol;
 	THROW(CommPort.InitPort(Port));
-	(control_symbol = 0).CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
+	control_symbol.Z().CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
 	for(size_t index = 0; index < control_symbol.Len(); index++)
 		THROW(CommPort.PutChr(control_symbol.C(index)));
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	return ok;
 }
 // } new

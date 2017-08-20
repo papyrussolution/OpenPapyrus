@@ -763,7 +763,7 @@ int BudgetItemsDialog::setupList()
 		if(P_Obj)
 			P_Obj->FormatDate(rec.BudgetID, 0, rec.Dt, buf);
 		ss.add(buf, 0);
-		(buf = 0).Cat(rec.Amount, SFMT_MONEY);
+		buf.Z().Cat(rec.Amount, SFMT_MONEY);
 		ss.add(buf, 0);
 		buf = rec.Memo;
 		ss.add(buf, 0);
@@ -1041,7 +1041,7 @@ int SLAPI PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString 
 			StringSet ss(";");
 			SString idx_str, name_str;
 			ss.setBuf(str, str.Len() + 1);
-			for(uint i = 0; ok < 0 && ss.get(&i, (str = 0)) > 0;) {
+			for(uint i = 0; ok < 0 && ss.get(&i, str.Z()) > 0;) {
 				str.Divide(',', idx_str, name_str);
 				if(idx_str.ToLong() == dt.v)
 					rText = name_str;
@@ -1187,7 +1187,7 @@ int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
+void SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 {
 	if(Filt.Kind == BudgetFilt::kBudget) {
 		PPBudget * p_rec = (PPBudget*)pRec;
@@ -1227,7 +1227,6 @@ int SLAPI PPViewBudget::MakeTempRec(void * pRec, void * pTempRec)
 			ASSIGN_PTR((TempBudgItemTbl::Rec*)pTempRec, temp_rec);
 		}
 	}
-	return 1;
 }
 
 int SLAPI PPViewBudget::CheckForFilt(void * pRec)
@@ -1357,7 +1356,7 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 {
 	int ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempBudgTbl);
 	ZDELETE(P_TempBudgItemTbl);
 	if(Filt.Kind == BudgetFilt::kBudget) {
@@ -1465,7 +1464,7 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 int SLAPI PPViewBudget::InitIteration()
 {
 	DBQ * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.Kind == BudgetFilt::kBudget)
 		P_IterQuery = new BExtQuery(P_TempBudgTbl, 0);
 	else if(Filt.Kind == BudgetFilt::kBudgetItems)

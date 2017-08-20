@@ -58,19 +58,14 @@ typedef struct _cairo_tee_surface {
 slim_hidden_proto(cairo_tee_surface_create);
 slim_hidden_proto(cairo_tee_surface_add);
 
-static cairo_surface_t * _cairo_tee_surface_create_similar(void * abstract_surface,
-    cairo_content_t content,
-    int width,
-    int height)
+static cairo_surface_t * _cairo_tee_surface_create_similar(void * abstract_surface, cairo_content_t content, int width, int height)
 {
 	cairo_tee_surface_t * other = abstract_surface;
 	cairo_surface_t * similar;
 	cairo_surface_t * surface;
 	cairo_surface_wrapper_t * slaves;
 	int n, num_slaves;
-
-	similar = _cairo_surface_wrapper_create_similar(&other->master,
-	    content, width, height);
+	similar = _cairo_surface_wrapper_create_similar(&other->master, content, width, height);
 	surface = cairo_tee_surface_create(similar);
 	cairo_surface_destroy(similar);
 	if(unlikely(surface->status))

@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/rand.h>
 //#include <openssl/x509.h>
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 #include <openssl/pkcs12.h>
 #include "internal/asn1_int.h"
 #include <openssl/des.h>
@@ -553,7 +553,7 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 	}
 
 	buf = (uchar*)OPENSSL_malloc(PEM_BUFSIZE * 8);
-	if(buf == NULL) {
+	if(!buf) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}

@@ -634,7 +634,7 @@ drop_lock:
 					pg = root_pgno;
 					saved_level = MAXBTREELEVEL;
 				}
-				if(h != NULL && (ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
+				if((ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
 					goto err;
 				h = NULL;
 				if(was_next) {
@@ -657,7 +657,7 @@ skip_lock:
 		if((ret = __memp_fget(mpf, &pg, dbc->thread_info, dbc->txn, get_mode, &h)) != 0)
 			goto err;
 		// Release the parent. 
-		if(parent_h && (ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
+		if((ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0)
 			goto err;
 		parent_h = NULL;
 	}
@@ -739,9 +739,9 @@ done:
 	return 0;
 err:
 	SETIFZ(ret, t_ret);
-	if(h && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(parent_h && (t_ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, parent_h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	// Keep any not-found page locked for serializability. 
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)

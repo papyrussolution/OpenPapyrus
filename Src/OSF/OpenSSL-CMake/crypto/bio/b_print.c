@@ -44,16 +44,11 @@
 # define LLONG long
 #endif
 
-static int fmtstr(char **, char **, size_t *, size_t *,
-    const char *, int, int, int);
-static int fmtint(char **, char **, size_t *, size_t *,
-    LLONG, int, int, int, int);
-static int fmtfp(char **, char **, size_t *, size_t *,
-    LDOUBLE, int, int, int, int);
+static int fmtstr(char **, char **, size_t *, size_t *, const char *, int, int, int);
+static int fmtint(char **, char **, size_t *, size_t *, LLONG, int, int, int, int);
+static int fmtfp(char **, char **, size_t *, size_t *, LDOUBLE, int, int, int, int);
 static int doapr_outch(char **, char **, size_t *, size_t *, int);
-static int _dopr(char ** sbuffer, char ** buffer,
-    size_t * maxlen, size_t * retlen, int * truncated,
-    const char * format, va_list args);
+static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retlen, int * truncated, const char * format, va_list args);
 
 /* format read states */
 #define DP_S_DEFAULT    0
@@ -98,26 +93,19 @@ static int _dopr(char ** sbuffer, char ** buffer,
 
 static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retlen, int * truncated, const char * format, va_list args)
 {
-	char ch;
 	LLONG value;
 	LDOUBLE fvalue;
 	char * strvalue;
-	int min;
-	int max;
-	int state;
-	int flags;
-	int cflags;
-	size_t currlen;
-
-	state = DP_S_DEFAULT;
-	flags = currlen = cflags = min = 0;
-	max = -1;
-	ch = *format++;
-
+	int min = 0;
+	int max = -1;
+	int flags = 0;
+	int cflags = 0;
+	size_t currlen = 0;
+	int state = DP_S_DEFAULT;
+	char ch = *format++;
 	while(state != DP_S_DONE) {
 		if(ch == '\0' || (buffer == NULL && currlen >= *maxlen))
 			state = DP_S_DONE;
-
 		switch(state) {
 			case DP_S_DEFAULT:
 			    if(ch == '%')
@@ -377,8 +365,7 @@ static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	int padlen;
 	size_t strln;
 	int cnt = 0;
-	if(value == 0)
-		value = "<NULL>";
+	SETIFZ(value, "<NULL>");
 	strln = OPENSSL_strnlen(value, max < 0 ? SIZE_MAX : (size_t)max);
 	padlen = min - strln;
 	if(min < 0 || padlen < 0)
@@ -417,9 +404,7 @@ static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	return 1;
 }
 
-static int fmtint(char ** sbuffer,
-    char ** buffer,
-    size_t * currlen,
+static int fmtint(char ** sbuffer, char ** buffer, size_t * currlen,
     size_t * maxlen, LLONG value, int base, int min, int max, int flags)
 {
 	int signvalue = 0;
@@ -430,9 +415,7 @@ static int fmtint(char ** sbuffer,
 	int spadlen = 0;
 	int zpadlen = 0;
 	int caps = 0;
-
-	if(max < 0)
-		max = 0;
+	SETMAX(max, 0);
 	uvalue = value;
 	if(!(flags & DP_F_UNSIGNED)) {
 		if(value < 0) {
@@ -453,8 +436,7 @@ static int fmtint(char ** sbuffer,
 	if(flags & DP_F_UP)
 		caps = 1;
 	do {
-		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")
-		    [uvalue % (unsigned)base];
+		convert[place++] = (caps ? "0123456789ABCDEF" : "0123456789abcdef")[uvalue % (unsigned)base];
 		uvalue = (uvalue / (unsigned)base);
 	} while(uvalue && (place < (int)sizeof(convert)));
 	if(place == sizeof(convert))
@@ -462,10 +444,8 @@ static int fmtint(char ** sbuffer,
 	convert[place] = 0;
 	zpadlen = max - place;
 	spadlen = min - OSSL_MAX(max, place) - (signvalue ? 1 : 0) - strlen(prefix);
-	if(zpadlen < 0)
-		zpadlen = 0;
-	if(spadlen < 0)
-		spadlen = 0;
+	SETMAX(zpadlen, 0);
+	SETMAX(spadlen, 0);
 	if(flags & DP_F_ZERO) {
 		zpadlen = OSSL_MAX(zpadlen, spadlen);
 		spadlen = 0;
@@ -538,10 +518,7 @@ static long roundv(LDOUBLE value)
 	return intpart;
 }
 
-static int fmtfp(char ** sbuffer,
-    char ** buffer,
-    size_t * currlen,
-    size_t * maxlen, LDOUBLE fvalue, int min, int max, int flags, int style)
+static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, LDOUBLE fvalue, int min, int max, int flags, int style)
 {
 	int signvalue = 0;
 	LDOUBLE ufvalue;

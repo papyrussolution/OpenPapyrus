@@ -1,5 +1,6 @@
 // LISTWIN.CPP
 // Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -147,13 +148,13 @@ IMPL_HANDLE_EVENT(ListWindow)
 			const  uint ctl_id = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 			HWND   h_ctl_wnd = ::GetDlgItem(H(), ctl_id);
 			if(PrepareSearchLetter) {
-				SendMessage(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
+				::SendMessage(h_ctl_wnd, WM_CHAR, PrepareSearchLetter, 0);
 				PrepareSearchLetter = 0;
 			}
 			LDATETIME lost_focus_start_tm;
 			lost_focus_start_tm.SetZero();
 			do {
-				GetMessage(&msg, 0, 0, 0);
+				::GetMessage(&msg, 0, 0, 0);
 				HWND h_focus_wnd = GetFocus();
 				if(H() != h_focus_wnd && h_ctl_wnd != h_focus_wnd) {
 					if(!lost_focus_start_tm)
@@ -169,9 +170,9 @@ IMPL_HANDLE_EVENT(ListWindow)
 						break;
 					}
 				}
-				if(!IsDialogMessage(H(), &msg)) {
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
+				if(!::IsDialogMessage(H(), &msg)) {
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
 				}
 				if(EndModalCmd && APPL->TestWindowForEndModal(this) && !valid(EndModalCmd))
 					EndModalCmd = 0;
@@ -287,7 +288,7 @@ int ListWindow::MoveWindow(HWND linkHwnd, long right)
 		link_rect.bottom = link_rect.top;
 	}
 	GetWindowRect(H(), &list_rect);
-	long   item_height = isTreeList() ? TreeView_GetItemHeight(h_list) : SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
+	long   item_height = isTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	(def) ? ((def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;
@@ -493,11 +494,10 @@ int WordSelector::Activate()
 	return ok;
 }
 
-int WordSelector::ActivateInput()
+void WordSelector::ActivateInput()
 {
 	IsActive = 0;
 	SetFocus(GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl));
-	return 1;
 }
 
 int WordSelector::Refresh(const char * pText)
@@ -603,7 +603,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 				HWND h_input = P_Blk ? P_Blk->H_InputDlg : 0;
 				if(h_input) {
 					if(EndModalCmd == cmOK) {
-						PostMessage(h_input, WM_COMMAND, IDCANCEL, 0);
+						::PostMessage(h_input, WM_COMMAND, IDCANCEL, 0);
 					}
 					else {
 						SetForegroundWindow(h_input);
@@ -651,7 +651,7 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 		{
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 				FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
-				pDrawItem->ItemAction = 0; // Мы перерисовали фон
+				pDrawItem->ItemAction = 0; // РњС‹ РїРµСЂРµСЂРёСЃРѕРІР°Р»Рё С„РѕРЅ
 			}
 			else if(pDrawItem->ItemID != 0xffffffff) {
 				// h_fnt_def = (HFONT)SelectObject(h_dc, (HFONT)Ptb.Get(font));
@@ -680,7 +680,7 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 			SetBkColor(h_dc, clr_prev);
 	}
 	else
-		pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
+		pDrawItem->ItemAction = 0; // РЎРїРёСЃРѕРє РЅРµ Р°РєС‚РёРІРµРЅ - СЃС‚СЂРѕРєСѓ РЅРµ СЂРёСЃСѓРµРј
 }
 
 int FASTCALL WordSelector::setDef(ListBoxDef * pDef)

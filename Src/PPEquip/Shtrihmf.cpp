@@ -153,7 +153,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				//
 				{
 					temp_buf.Z().CatChar('%');
-					// (buf = 0).CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+					// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 					temp_buf.Cat(card_rec.Code).Semicol();            // #1 Номер карты
 					temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
 					temp_buf.Cat(psn_name).Semicol();                 // #3 Текст для чека
@@ -281,7 +281,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 			goods_list.add(gds_info.ID);
 		}
 		else {
-			(f_str = 0).CatChar('#').Cat(gds_info.ID).Semicol();          // #1 - ИД товара
+			f_str.Z().CatChar('#').Cat(gds_info.ID).Semicol();          // #1 - ИД товара
 			if((bclen = strlen(gds_info.BarCode)) != 0) {
 				gds_info.AdjustBarcode(check_dig);
 				const int wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
@@ -311,7 +311,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	//
 	/* @v6.3.x Структура весового штрихкода будет настраиваться на кассе
 	if((goods_cfg.Flags & GCF_ENABLEWP) && strlen(goods_cfg.WghtPrefix)) {
-		(f_str = 0).CatChar('(').Cat(goods_cfg.WghtPrefix).Semicol();       // #1 - Префикс весового штрихкода
+		f_str.Z().CatChar('(').Cat(goods_cfg.WghtPrefix).Semicol();       // #1 - Префикс весового штрихкода
 		f_str.Cat(1L).Semicol();                                            // #2 - Сначала код товара затем вес вес товара (1)
 		f_str.Cat(5L).Semicol();                                            // #3 - Число знаков под код (5)
 		f_str.Cat(0.001).Semicol();                                         // #4 - Коэффициент веса (0.001)
@@ -389,7 +389,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					//
 					{
 						temp_buf.Z().CatChar('%');
-						// (buf = 0).CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(info.Rec.Code)).Cat(info.Rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+						// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(info.Rec.Code)).Cat(info.Rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						temp_buf.Cat(info.Rec.Code).Semicol();            // #1 Номер карты
 						temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
 						temp_buf.Cat(psn_name).Semicol();                 // #3 Текст для чека

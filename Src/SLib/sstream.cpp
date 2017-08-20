@@ -1,11 +1,15 @@
 // SSTREAM.CPP
-// Copyright (c) A.Sobolev 2002, 2007, 2009, 2010, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2007, 2009, 2010, 2015, 2016, 2017
 //
 // Writing/Reading some objects to/from FILE
+//
+// @v9.7.11 Методы этого модуля элиминированы (фактически, перенесены как static в dl200.cpp поскольку только там и используются).
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+
+#if 0 // @v9.7.11  { 
 
 int SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream)
 {
@@ -98,3 +102,5 @@ int SLAPI ReadPStrFromFile(SString & rStr, FILE * pStream)
 	CATCHZOK
 	return ok;
 }
+
+#endif // } 0 @v9.7.11 

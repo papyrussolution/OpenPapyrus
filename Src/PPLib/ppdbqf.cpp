@@ -1545,12 +1545,11 @@ int SLAPI PPDbqFuncPool::Register()
 }
 
 // static
-int SLAPI PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
+void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);
 	rDbe.push((DBFunc)funcId);
-	return 1;
 }
 
 //static

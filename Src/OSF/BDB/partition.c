@@ -376,8 +376,8 @@ static int __partition_chk_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uin
 	}
 	else
 		ret = __partition_setup_keys(dbc, part, meta, flags);
-err:    /* Put the metadata page back. */
-	if(meta && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+err: // Put the metadata page back
+	if((t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;

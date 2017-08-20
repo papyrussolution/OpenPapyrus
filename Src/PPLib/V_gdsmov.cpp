@@ -405,7 +405,7 @@ int SLAPI PPViewGoodsMov::InitIteration(IterOrder ord)
 	IterIdx   = 0;
 	IterGrpName = 0;
 	ZDELETE(P_GGIter);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 
 	if(P_TempTbl) {
 		RECORDNUMBER num_recs = 0;

@@ -725,7 +725,7 @@ static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
 
 	if(!cur) return;
 	buf = ctxt->buf;
-	if(buf == NULL) return;
+	if(!buf) return;
 	if(ctxt->format == 2)
 		xmlOutputBufferWriteWSNonSig(ctxt, 2);
 	else
@@ -1493,7 +1493,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 			}
 			tmp = tmp->next;
 		}
-		if(tmp == NULL)
+		if(!tmp)
 			addmeta = 1;
 	}
 	if((cur->type == XML_ELEMENT_NODE) && (cur->children == NULL)) {
@@ -2110,7 +2110,7 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, i
 		xmlGenericError(0, "xmlNodeDump : node == NULL\n");
 #endif
 	}
-	else if(buf == NULL) {
+	else if(!buf) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNodeDump : buf == NULL\n");
 #endif
@@ -2389,7 +2389,7 @@ int xmlDocFormatDump(FILE * f, xmlDocPtr cur, int format)
 		}
 	}
 	buf = xmlOutputBufferCreateFile(f, handler);
-	if(buf == NULL)
+	if(!buf)
 		return -1;
 	MEMSZERO(ctxt);
 	ctxt.doc = cur;
@@ -2433,7 +2433,7 @@ int xmlSaveFileTo(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding)
 {
 	xmlSaveCtxt ctxt;
 	int ret;
-	if(buf == NULL) return -1;
+	if(!buf) return -1;
 	if(!cur) {
 		xmlOutputBufferClose(buf);
 		return -1;

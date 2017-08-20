@@ -20,12 +20,12 @@
 	#include <sys/types.h>
 #endif
 #include "internal/o_dir.h"
-#include <openssl/lhash.h>
-#include <openssl/bio.h>
-#include <openssl/pem.h>
+//#include <openssl/lhash.h>
+//#include <openssl/bio.h>
+//#include <openssl/pem.h>
 #include <openssl/x509v3.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
+//#include <openssl/dh.h>
+//#include <openssl/bn.h>
 //#include <openssl/crypto.h>
 //#include "ssl_locl.h"
 #include "internal/thread_once.h"

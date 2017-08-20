@@ -235,7 +235,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen, const char * sr
 			srclen = strlen(src);
 
 		tmp = OPENSSL_memdup(src, srclen);
-		if(tmp == NULL)
+		if(!tmp)
 			return 0;
 	}
 	else {

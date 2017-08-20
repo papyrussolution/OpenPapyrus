@@ -595,7 +595,7 @@ int SLAPI SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 	{
 		size_t p = 0;
 		if(reply_buf.StrChr(' ', &p)) {
-			msg_size = atol(((const char *)reply_buf)+p);
+			msg_size = atol(reply_buf.cptr()+p);
 		}
 	}
 	CATCH

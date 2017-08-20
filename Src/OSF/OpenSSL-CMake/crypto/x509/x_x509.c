@@ -189,7 +189,7 @@ int i2d_X509_AUX(X509 * a, uchar ** pp)
 
 	/* Allocate requisite combined storage */
 	*pp = tmp = (uchar*)OPENSSL_malloc(length);
-	if(tmp == NULL)
+	if(!tmp)
 		return -1;  /* Push error onto error stack? */
 
 	/* Encode, but keep *pp at the originally malloced pointer */

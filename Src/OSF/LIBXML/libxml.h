@@ -125,13 +125,13 @@ extern "C" {
 #endif
 
 //#include "buf.h"
-xmlBufPtr xmlBufCreate(void);
-xmlBufPtr xmlBufCreateSize(size_t size);
-xmlBufPtr xmlBufCreateStatic(void * mem, size_t size);
+xmlBuf * xmlBufCreate();
+xmlBuf * FASTCALL xmlBufCreateSize(size_t size);
+xmlBuf * FASTCALL xmlBufCreateStatic(void * mem, size_t size);
 int xmlBufSetAllocationScheme(xmlBufPtr buf, xmlBufferAllocationScheme scheme);
 int xmlBufGetAllocationScheme(xmlBufPtr buf);
-void xmlBufFree(xmlBuf * buf);
-void xmlBufEmpty(xmlBuf * buf);
+void FASTCALL xmlBufFree(xmlBuf * buf);
+void FASTCALL xmlBufEmpty(xmlBuf * buf);
 // size_t xmlBufShrink(xmlBufPtr buf, size_t len); 
 int FASTCALL xmlBufGrow(xmlBuf * buf, int len);
 int FASTCALL xmlBufInflate(xmlBuf * buf, size_t len);
@@ -151,7 +151,7 @@ int FASTCALL xmlBufAddLen(xmlBuf * buf, size_t len);
 int FASTCALL xmlBufErase(xmlBuf * buf, size_t len);
 // const xmlChar * xmlBufContent(const xmlBuf *buf); 
 // const xmlChar * xmlBufEnd(xmlBufPtr buf); 
-xmlChar * xmlBufDetach(xmlBufPtr buf);
+xmlChar * FASTCALL xmlBufDetach(xmlBuf * pBuf);
 size_t xmlBufDump(FILE * file, xmlBufPtr buf);
 xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer);
 xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf);

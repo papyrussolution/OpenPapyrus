@@ -216,6 +216,8 @@ void bio_sock_cleanup_int(void);
 #include <openssl/md5.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <openssl/cms.h>
+#include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 #include <openssl/ec.h>

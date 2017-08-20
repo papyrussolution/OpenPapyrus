@@ -215,7 +215,7 @@ start:
 		HEAP_SETSPACE(dbp, rpage, cp->pgno-region_pgno-1, spacebits);
 	}
 err:
-	if(rpage != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	rpage = NULL;
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
@@ -1355,7 +1355,7 @@ static int __heapc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 		HEAP_SETSPACE(dbp, rpage, cp->pgno-region_pgno-1, space);
 	}
 err:
-	if(rpage != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(F_ISSET(data, DB_DBT_PARTIAL))
 		__os_free(dbp->env, new_data.data);
@@ -1631,7 +1631,7 @@ check:
 	}
 	h->curpgindx = data_pgno-region_pgno-1;
 err:
-	if(rpage != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -1705,9 +1705,9 @@ int __heap_append(DBC * dbc, DBT * key, DBT * data)
 		HEAP_SETSPACE(dbp, rpage, cp->pgno-region_pgno-1, space);
 	}
 err:
-	if(rpage != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(cp->page != NULL) {
+	if(cp->page) {
 		DISCARD(dbc, cp->page, cp->lock, 1, t_ret);
 		SETIFZ(ret, t_ret);
 	}
@@ -1871,9 +1871,9 @@ static int __heapc_split(DBC * dbc, DBT * key, DBT * data, int is_first)
 	cp->indx = indx;
 
 err:
-	if(rpage != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(cp->page != NULL) {
+	if(cp->page) {
 		DISCARD(dbc, cp->page, cp->lock, 1, t_ret);
 		SETIFZ(ret, t_ret);
 	}

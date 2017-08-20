@@ -586,7 +586,7 @@ int SLAPI PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 			pTotal->Discount += MONEYTOLDBL(CC.data.Discount);
 		}
 	}
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	p_q = new BExtQuery(&GL, 0);
 	p_q->selectAll().where(GL.SessID == sessID);
 	for(p_q->initIteration(0, &k, spGe); p_q->nextIteration() > 0;) {
@@ -2034,7 +2034,7 @@ int SLAPI AsyncCashSCardsIterator::Init(PPSCardSerPacket * pScsPack)
 	MEMSZERO(k2);
 	k2.SeriesID = ScsPack.Rec.ID;
 	k2_ = k2;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(SCObj.P_Tbl, 2));
 	P_IterQuery->selectAll().where(SCObj.P_Tbl->SeriesID == ScsPack.Rec.ID);
 	Counter.Init(P_IterQuery->countIterations(0, &k2_, spGe)); // @v8.1.0 // @v8.5.4 spFirst-->spGe
@@ -2117,7 +2117,7 @@ int SLAPI AsyncCashiersIterator::Init(PPID cashNodeID)
 {
 	int    ok = -1;
 	PPID   psn_kind_id = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Iterated.freeAll();
 	Unworked.freeAll();
 	ProsessUnworkedPos = 0;

@@ -144,3 +144,129 @@ void foo()
 }
 
 #endif // } 0
+//
+//
+//
+long SLAPI MsecClock()
+{
+#ifdef __WIN32__
+	return clock();
+#else
+	return (10000L * clock() / 182L);
+#endif
+}
+
+FILETIME QuadWordToFileTime(__int64 src)
+{
+	FILETIME ft;
+	ft.dwLowDateTime  = (long)(src & 0x00000000FFFFFFFF);
+	ft.dwHighDateTime = (long)(Int64ShrlMod32(src, 32) & 0x00000000FFFFFFFF);
+	return ft;
+}
+
+#define FILE_TIME_TO_QWORD(ft) (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime)
+
+//static
+__int64 SLAPI SProfile::NSec100Clock()
+{
+	FILETIME ct_tm, end_tm, k_tm, user_tm;
+	GetThreadTimes(GetCurrentThread(), &ct_tm, &end_tm, &k_tm, &user_tm);
+	return (FILE_TIME_TO_QWORD(user_tm) + FILE_TIME_TO_QWORD(k_tm));
+}
+//
+// Returns the time in us since the last call to reset or since the Clock was created.
+//
+// @return The requested time in microseconds.  Assuming 64-bit
+// integers are available, the return value is valid for 2^63
+// clock cycles (over 104 years w/ clock frequency 2.8 GHz).
+//
+uint64 SLAPI SProfile::Helper_GetAbsTimeMicroseconds()
+{
+	//
+	// Compute the number of elapsed clock cycles since the clock was created/reset.
+	// Using 64-bit signed ints, this is valid for 2^63 clock cycles (over 104 years w/ clock
+	// frequency 2.8 GHz).
+	//
+	LARGE_INTEGER current_time;
+	QueryPerformanceCounter(&current_time);
+	const  uint32 tick_count = ::GetTickCount();
+	uint64 clock_cycles = current_time.QuadPart - Gtb.StartHrc;
+	//
+	// Compute the total elapsed seconds.  This is valid for 2^63
+	// clock cycles (over 104 years w/ clock frequency 2.8 GHz).
+	//
+	uint64 sec = (clock_cycles / ClockFrequency);
+	//
+	// Check for unexpected leaps in the Win32 performance counter.
+	// (This is caused by unexpected data across the PCI to ISA
+	// bridge, aka south bridge.  See Microsoft KB274323.)  Avoid
+	// the problem with GetTickCount() wrapping to zero after 47
+	// days (because it uses 32-bit unsigned ints to represent
+	// milliseconds).
+	//
+	int64  msec1 = (sec * 1000 + (clock_cycles - sec * ClockFrequency) * 1000 / ClockFrequency);
+	SETMIN(Gtb.StartTick, tick_count);
+	int64  msec2 = (int64)(tick_count - Gtb.StartTick);
+	int64  msec_diff = msec1 - msec2;
+	if(msec_diff > -100 && msec_diff < 100) {
+		// Adjust the starting time forwards.
+		uint64 adjustment = MIN(msec_diff * ClockFrequency / 1000, clock_cycles - Gtb.PrevHrc);
+		Gtb.StartHrc += adjustment;
+		clock_cycles -= adjustment;
+		// Update the measured seconds with the adjustments.
+		sec = clock_cycles / ClockFrequency;
+	}
+	//
+	// Compute the milliseconds part. This is always valid since it will never be greater than 1000000.
+	//
+	uint64 usec = (clock_cycles - sec * ClockFrequency) * 1000000 / ClockFrequency;
+	//
+	// Store the current elapsed clock cycles for adjustments next time.
+	//
+	Gtb.PrevHrc = clock_cycles;
+	//
+	// The return value here is valid for 2^63 clock cycles (over 104 years w/ clock frequency 2.8 GHz).
+	//
+	return (sec * 1000000 + usec);
+}
+
+uint64 SLAPI SProfile::GetAbsTimeMicroseconds()
+{
+	uint64 result = 0;
+	if(SingleThreaded)
+		result = Helper_GetAbsTimeMicroseconds();
+	else {
+		ENTER_CRITICAL_SECTION
+		result = Helper_GetAbsTimeMicroseconds();
+		LEAVE_CRITICAL_SECTION
+	}
+	return result;
+}
+
+SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded))
+{
+	StartClock = 0;
+	EndClock = 0;
+	LARGE_INTEGER cf;
+	QueryPerformanceFrequency(&cf);
+	ClockFrequency = cf.QuadPart;
+	QueryPerformanceCounter(&cf);
+
+	Gtb.PrevHrc   = 0;
+	Gtb.StartHrc  = (int64)cf.QuadPart;
+	Gtb.StartTick = GetTickCount();
+}
+
+SLAPI SProfile::~SProfile()
+{
+}
+
+SLAPI SProfile::Measure::Measure()
+{
+	Start = SLS.GetProfileTime();
+}
+
+uint64 SLAPI SProfile::Measure::Get()
+{
+	return (SLS.GetProfileTime() - Start);
+}

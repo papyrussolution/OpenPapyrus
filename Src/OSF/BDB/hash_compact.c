@@ -102,13 +102,13 @@ int __ham_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, DB_COMP
 				break;
 no_opd:
 			if(check_trunc && HPAGE_PTYPE(H_PAIRDATA(dbp, hcp->page, hcp->indx)) == H_OFFPAGE) {
-				/* This is an overflow chain. */
+				// This is an overflow chain
 				if((ret = __ham_truncate_overflow(dbc, (PAGE *)hcp->page, H_DATAINDEX(hcp->indx), c_data, &pgs_done)) != 0)
 					break;
 			}
-			/* Check for an overflow key. */
+			// Check for an overflow key
 			if(check_trunc && HPAGE_PTYPE(H_PAIRKEY(dbp, hcp->page, hcp->indx)) == H_OFFPAGE) {
-				/* This is an overflow chain. */
+				// This is an overflow chain. 
 				if((ret = __ham_truncate_overflow(dbc, (PAGE *)hcp->page, H_KEYINDEX(hcp->indx), c_data, &pgs_done)) != 0)
 					break;
 			}
@@ -116,7 +116,7 @@ no_opd:
 			ret = __ham_item_next(dbc, DB_LOCK_WRITE, &pgno);
 		}
 err:
-		if(hcp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		if(ret == DB_NOTFOUND)
 			ret = 0;
@@ -261,7 +261,7 @@ static int __ham_copy_data(DBC * dbc, PAGE * pg, DB_COMPACT * c_data, int * pgs_
 			c_data->compact_pages_free++;
 			COMPACT_TRUNCATE(c_data);
 		}
-		if(ncp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, ncp->page, dbc->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, dbc->thread_info, ncp->page, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		ncp->page = NULL;
 		ncp->pgno = PGNO_INVALID;
@@ -374,7 +374,7 @@ int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT *
 				COMPACT_TRUNCATE(c_data);
 				oldpage = NULL;
 			}
-			if(oldpage && (ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0)
+			if((ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0)
 				goto err;
 			ret = 0;
 			oldpage = NULL;
@@ -385,7 +385,7 @@ int __ham_compact_hash(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_COMPACT *
 	if(ret == 0 && F_ISSET(dbp, DB_AM_SUBDB) && PGNO(hcp->hdr) > c_data->compact_truncate)
 		ret = __db_move_metadata(dbc, (DBMETA **)&hcp->hdr, c_data);
 err:
-	if(oldpage && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info, oldpage, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;

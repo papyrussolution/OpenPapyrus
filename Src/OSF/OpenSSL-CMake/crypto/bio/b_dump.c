@@ -18,8 +18,7 @@
 #define DUMP_WIDTH      16
 #define DUMP_WIDTH_LESS_INDENT(i) (DUMP_WIDTH-((i-(i>6 ? 6 : i)+3)/4))
 
-int BIO_dump_cb(int (* cb)(const void * data, size_t len, void * u),
-    void * u, const char * s, int len)
+int BIO_dump_cb(int (* cb)(const void * data, size_t len, void * u), void * u, const char * s, int len)
 {
 	return BIO_dump_indent_cb(cb, u, s, len, 0);
 }
@@ -133,28 +132,22 @@ int BIO_dump_indent(BIO * bp, const char * s, int len, int indent)
 	return BIO_dump_indent_cb(write_bio, bp, s, len, indent);
 }
 
-int BIO_hex_string(BIO * out, int indent, int width, uchar * data,
-    int datalen)
+int BIO_hex_string(BIO * out, int indent, int width, uchar * data, int datalen)
 {
 	int i, j = 0;
-
-	if(datalen < 1)
-		return 1;
-
-	for(i = 0; i < datalen - 1; i++) {
+	if(datalen > 0) {
+		for(i = 0; i < datalen - 1; i++) {
+			if(i && !j)
+				BIO_printf(out, "%*s", indent, "");
+			BIO_printf(out, "%02X:", data[i]);
+			j = (j + 1) % width;
+			if(!j)
+				BIO_printf(out, "\n");
+		}
 		if(i && !j)
 			BIO_printf(out, "%*s", indent, "");
-
-		BIO_printf(out, "%02X:", data[i]);
-
-		j = (j + 1) % width;
-		if(!j)
-			BIO_printf(out, "\n");
+		BIO_printf(out, "%02X", data[datalen - 1]);
 	}
-
-	if(i && !j)
-		BIO_printf(out, "%*s", indent, "");
-	BIO_printf(out, "%02X", data[datalen - 1]);
 	return 1;
 }
 

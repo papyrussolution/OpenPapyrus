@@ -1203,13 +1203,12 @@ int SLAPI PPOsm::OpenDatabase(const char * pDbPath)
 {
 	int    ok = 1;
 	ZDELETE(P_SrDb);
-	if(!isempty(pDbPath)) {
-		P_SrDb = new SrDatabase;
-		if(!P_SrDb->Open(pDbPath, 0)) { // @todo Режим открытия
-			ZDELETE(P_SrDb);
-			ok = 0;
-		}
-	}
+	THROW_MEM(P_SrDb = new SrDatabase);
+	THROW(P_SrDb->Open(pDbPath, SrDatabase::oWriteStatOnClose));
+	CATCH
+		ZDELETE(P_SrDb);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -1536,7 +1535,7 @@ int SLAPI PPViewGeoTracking::InitIteration()
 	DBQ  * dbq = 0;
 	GeoTrackTbl::Key0 k0, k0_;
 	MEMSZERO(k0);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(&T, 0));
 	P_IterQuery->selectAll();
 	if(Filt.Oi.Obj) {

@@ -34,7 +34,7 @@ int SLAPI PPViewOprKind::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	CATCHZOK
 	return ok;

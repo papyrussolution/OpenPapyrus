@@ -49,7 +49,7 @@ EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputD
 		for(uint i = 0; set_pairs.get(&i, params) > 0;) {
 			params.Divide('=', s_param, param_val);
 			if(s_param.CmpNC("DLLPATH") == 0)
-				(P_PosiflexDisp->UsbDllPath = 0).Cat(param_val).Cat("USBPD.DLL");
+				P_PosiflexDisp->UsbDllPath.Z().Cat(param_val).Cat("USBPD.DLL");
 		}
 	}
 	else if(sstreqi_ascii(pCmd, "RELEASE"))
@@ -162,7 +162,7 @@ int SLAPI PosiflexEquip::ConvertStrToTyssoCodePage(SString & rStr)
 			else
 				str.CatChar(c);
 		}
-		(rStr = 0).Cat(str);
+		rStr.Z().Cat(str);
 		ok = 1;
 	}
 	return ok;
@@ -174,7 +174,7 @@ int PosiflexEquip::Connect()
 	int    ok = 1;
 	SString control_symbol;
 	THROW(CommPort.InitPort(Port));
-	(control_symbol = 0).CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
+	control_symbol.Z().CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
 	for(size_t index = 0; index < control_symbol.Len(); index++)
 		THROW(CommPort.PutChr(control_symbol.C(index)));
 	CATCH
@@ -195,7 +195,7 @@ int PosiflexEquip::UsbConnect()
 	THROWERR(Writeu = (long(*)(const char *, long))P_Lib->GetProcAddr("WritePD"), CUSTDISP_USBLIB);
 	THROWERR(Stateu = (long(*)())P_Lib->GetProcAddr("PdState"), CUSTDISP_USBLIB);
 	THROW(Openu() == 0);
-	(control_symbol = 0).CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
+	control_symbol.Z().CatChar(0x1B).CatChar(0x74).CatChar(6); // Установим кодовую таблицу CP866
 	THROWERR(Writeu(control_symbol, (long)control_symbol.Len()) == 0, CUSTDISP_PRINTTOPORT);
 	CATCH
 		Openu = 0;
@@ -220,10 +220,10 @@ int PosiflexEquip::UsbPrintLine()
 	int ok = 0;
 	SString control_symbol;
 	if(VerTab == VERT_UPP || VerTab == VERT_DOWN) {
-		/*(control_symbol = 0).CatChar(0x0b);
+		/*control_symbol.Z().CatChar(0x0b);
 		THROWERR(Writeu(control_symbol, control_symbol.Len()), CUSTDISP_PRINTTOPORT);*/
 		if(VerTab == VERT_DOWN) {
-			(control_symbol = 0).CatChar(0x0a);
+			control_symbol.Z().CatChar(0x0a);
 			THROWERR(Writeu(control_symbol, (long)control_symbol.Len()) == 0, CUSTDISP_PRINTTOPORT);
 		}
 	}
@@ -244,6 +244,6 @@ int PosiflexEquip::UsbPrintLine()
 int PosiflexEquip::UsbClearDisplay()
 {
 	SString control_symbol;
-	(control_symbol = 0).CatChar(0x0c);
+	control_symbol.Z().CatChar(0x0c);
 	return (Writeu(control_symbol, (long)control_symbol.Len()) == 0) ? 1 : 0;
 }

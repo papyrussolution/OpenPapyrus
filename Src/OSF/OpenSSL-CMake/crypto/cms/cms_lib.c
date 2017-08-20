@@ -9,11 +9,11 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/asn1t.h>
-#include <openssl/x509v3.h>
-#include <openssl/pem.h>
+//#include <openssl/x509v3.h>
+//#include <openssl/pem.h>
 //#include <openssl/bio.h>
 //#include <openssl/asn1.h>
-#include <openssl/cms.h>
+//#include <openssl/cms.h>
 #include "cms_lcl.h"
 
 IMPLEMENT_ASN1_FUNCTIONS(CMS_ContentInfo)
@@ -26,9 +26,8 @@ const ASN1_OBJECT *CMS_get0_type(const CMS_ContentInfo *cms)
 
 CMS_ContentInfo * cms_Data_create(void)
 {
-	CMS_ContentInfo * cms;
-	cms = CMS_ContentInfo_new();
-	if(cms != NULL) {
+	CMS_ContentInfo * cms = CMS_ContentInfo_new();
+	if(cms) {
 		cms->contentType = OBJ_nid2obj(NID_pkcs7_data);
 		/* Never detached */
 		CMS_set_detached(cms, 0);

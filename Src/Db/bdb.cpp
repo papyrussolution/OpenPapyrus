@@ -223,7 +223,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 	P_SeqT = 0;
 	P_SCtx = new SSerializeContext;
 	HomePathPos = 0;
-	StrPool.add("$", 0); // zero index - is empty string
+	StrPool.add("$"); // zero index - is empty string
 	temp_buf = pHomeDir;
 	if(temp_buf.NotEmptyS())
 		StrPool.add(temp_buf, &HomePathPos);
@@ -245,6 +245,12 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 #ifdef _MT
 		opf |= DB_THREAD;
 #endif
+		// @v9.7.11 {
+		if(options & oReadOnly)
+			State |= stReadOnly;
+		if(options & oWriteStatOnClose)
+			State |= stWriteStatOnClose;
+		// } @v9.7.11
 		r = E->open(E, pHomeDir, opf, /* Open flags */0);
 	}
 	{
@@ -309,8 +315,8 @@ int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const cha
 			case DB_NOTFOUND:          DBS.SetError(BE_KEYNFOUND); break;
 			case DB_BUFFER_SMALL:      DBS.SetError(BE_UBUFLEN); break;
 			case DB_REP_LEASE_EXPIRED: DBS.SetError(BE_DBD_REPLEASEEXPIRED); break;
-			case DB_KEYEXIST:          
-				DBS.SetError(BE_DUP, pDb ? pDb->dname : pAddedMsg); 
+			case DB_KEYEXIST:
+				DBS.SetError(BE_DUP, pDb ? pDb->dname : pAddedMsg);
 				break;
 			/* @todo
 			//#define DB_BUFFER_SMALL         (-30999) // User memory too small for return.
@@ -446,7 +452,7 @@ int BDbDatabase::CommitWork()
 int BDbDatabase::TransactionCheckPoint()
 {
 	int    ok = 1;
-	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/), 0, 0));  
+	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/), 0, 0));
 	CATCHZOK
 	return ok;
 }
@@ -500,13 +506,13 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 		// @v9.7.11 {
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
-		// } @v9.7.11 
+		// } @v9.7.11
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, pFileName));
 	// @v9.7.11 {
 	if(pTbl) {
-		SETFLAG(pTbl->State, BDbTable::stReadOnly, (flags & BDbTable::ofReadOnly)); 
+		SETFLAG(pTbl->State, BDbTable::stReadOnly, (flags & BDbTable::ofReadOnly));
 	}
 	// } @v9.7.11
 	CATCH
@@ -574,7 +580,7 @@ int BDbDatabase::CreateDataFile(const char * pFileName, int createMode, BDbTable
 int BDbDatabase::Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
 	int    ok = 1;
-	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, 0); // @todo Учесть режим открытия
+	pTbl->H = (DB *)Helper_Open(pFileName, pTbl, (State & stReadOnly || openMode == omReadOnly) ? BDbTable::ofReadOnly : 0);
 	if(pTbl->H) {
 		CheckInTxnTable(pTbl);
 		pTbl->State |= BDbTable::stOpened;
@@ -589,12 +595,43 @@ int BDbDatabase::Implement_Open(BDbTable * pTbl, const char * pFileName, int ope
 int BDbDatabase::Implement_Close(BDbTable * pTbl)
 {
 	int    ok = 1;
+	if(State & stWriteStatOnClose) {
+		WriteStat(pTbl);
+	}
 	if(Helper_Close(pTbl->H)) {
 		pTbl->H = 0;
 		pTbl->State &= ~BDbTable::stOpened;
 	}
 	else {
 		ok = 0;
+	}
+	return ok;
+}
+
+int BDbDatabase::WriteStat(const BDbTable * pTbl)
+{
+	int    ok = 1;
+	if(pTbl) {
+		SString path;
+		StrPool.get(HomePathPos, path);
+		if(path.NotEmptyS()) {
+			SString line_buf;
+			path.SetLastSlash().Cat("stat.log");
+			line_buf.Cat(pTbl->Cfg.Name).CatDiv(':', 2).
+				CatEq("KeyCount", pTbl->Stat.SzKey.Count).Semicol().
+				CatEq("KeyTotal", pTbl->Stat.SzKey.Total).Semicol().
+				CatEq("RecCount", pTbl->Stat.SzRec.Count).Semicol().
+				CatEq("RecTotal", pTbl->Stat.SzRec.Total).Semicol().
+				CatEq("GetCount", pTbl->Stat.CtGet.Count).Semicol().
+				CatEq("GetTmTotal", pTbl->Stat.CtGet.TmTotal).Semicol().
+				CatEq("InsCount", pTbl->Stat.CtIns.Count).Semicol().
+				CatEq("InsTmTotal", pTbl->Stat.CtIns.TmTotal).Semicol().
+				CatEq("UpdCount", pTbl->Stat.CtUpd.Count).Semicol().
+				CatEq("UpdTmTotal", pTbl->Stat.CtUpd.TmTotal).Semicol().
+				CatEq("RmvCount", pTbl->Stat.CtRmv.Count).Semicol().
+				CatEq("RmvTmTotal", pTbl->Stat.CtRmv.TmTotal).Semicol();
+			SLS.LogMessage(path, line_buf);
+		}
 	}
 	return ok;
 }
@@ -621,54 +658,61 @@ uint FASTCALL BDbDatabase::SearchSequence(const char * pSeqName) const
 	return pos_plus_one;
 }
 
-long BDbDatabase::CreateSequence(const char * pName, int64 initVal)
+int BDbDatabase::CreateSequence(const char * pName, int64 initVal, long * pSeqID)
 {
+	int    ok = -1;
 	long   h = 0;
-	if(!P_SeqT) {
-		SString file_name;
-		(file_name = "system.db").Cat("->").Cat("sequence");
-		BDbTable::Config cfg(file_name, BDbTable::idxtypHash, 0, 0, 0);
-		THROW_D(P_SeqT = new BDbTable(cfg, this), BE_NOMEM);
-		THROW(P_SeqT->GetState(BDbTable::stOpened));
-	}
-	{
-		uint   pos_plus_one = SearchSequence(pName);
-		if(pos_plus_one) {
-			h = SeqList.at(pos_plus_one-1).Id;
+	if(!(State & stReadOnly)) { // В режиме READ-ONLY Sequence не создаем (return -1)
+		if(!P_SeqT) {
+			SString file_name;
+			(file_name = "system.db").Cat("->").Cat("sequence");
+			BDbTable::Config cfg(file_name, BDbTable::idxtypHash, 0, 0, 0);
+			THROW_D(P_SeqT = new BDbTable(cfg, this), BE_NOMEM);
+			THROW(P_SeqT->GetState(BDbTable::stOpened));
 		}
-		else {
-			DB_SEQUENCE * p_seq = 0;
-			BDbTable::Buffer key;
-			THROW(ProcessError(db_sequence_create(&p_seq, P_SeqT->H, 0), P_SeqT->H, pName));
-			SETIFZ(initVal, 1);
-			THROW(ProcessError(p_seq->initial_value(p_seq, initVal), 0, 0));
-			key = pName;
-			{
-				int    opf = DB_CREATE;
+		{
+			uint   pos_plus_one = SearchSequence(pName);
+			if(pos_plus_one) {
+				h = SeqList.at(pos_plus_one-1).Id;
+			}
+			else {
+				DB_SEQUENCE * p_seq = 0;
+				BDbTable::Buffer key;
+				THROW(ProcessError(db_sequence_create(&p_seq, P_SeqT->H, 0), P_SeqT->H, pName));
+				SETIFZ(initVal, 1);
+				THROW(ProcessError(p_seq->initial_value(p_seq, initVal), 0, 0));
+				key = pName;
+				{
+					int    opf = DB_CREATE;
 #ifdef _MT
-				opf |= DB_THREAD;
+					opf |= DB_THREAD;
 #endif
-				THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf), 0, 0));
-			}
-			{
-				Seq seq_item;
-				seq_item.Id = 1;
-				seq_item.H = p_seq;
-				StrPool.add(pName, &seq_item.NamePos);
-				for(uint i = 0; i < SeqList.getCount(); i++) {
-					const long item_id = SeqList.at(i).Id;
-					if(item_id >= seq_item.Id)
-						seq_item.Id = item_id+1;
+					THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf), 0, 0));
 				}
-				SeqList.insert(&seq_item);
-				h = seq_item.Id;
+				{
+					Seq seq_item;
+					seq_item.Id = 1;
+					seq_item.H = p_seq;
+					StrPool.add(pName, &seq_item.NamePos);
+					for(uint i = 0; i < SeqList.getCount(); i++) {
+						const long item_id = SeqList.at(i).Id;
+						if(item_id >= seq_item.Id)
+							seq_item.Id = item_id+1;
+					}
+					SeqList.insert(&seq_item);
+					h = seq_item.Id;
+				}
 			}
 		}
+		if(h)
+			ok = 1;
 	}
 	CATCH
+		ok = 0;
 		h = 0;
 	ENDCATCH
-	return h;
+	ASSIGN_PTR(pSeqID, h);
+	return ok;
 }
 
 int FASTCALL BDbDatabase::Helper_CloseSequence(uint pos)
@@ -1032,6 +1076,45 @@ int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable:
 //
 //
 //
+BDbTable::Statistics::Statistics()
+{
+}
+
+BDbTable::Statistics::ISz::ISz()
+{
+	Count = 0;
+	Total = 0;
+	Min = UINT_MAX;
+	Max = 0;
+}
+			
+void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
+{
+    Count++;
+    size_t _s = rB.GetSize();
+    Total += _s;
+    SETMIN(Min, _s);
+    SETMAX(Max, _s);
+}
+
+BDbTable::Statistics::ICt::ICt()
+{
+	Count = 0;
+	TmTotal = 0;
+	TmMin = ULLONG_MAX;
+	TmMax = 0;
+}
+
+void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
+{
+	Count++;
+	TmTotal += t;
+	SETMIN(TmMin, t);
+	SETMAX(TmMax, t);
+}
+//
+//
+//
 #if 0 // { Этот вариант функции работает как-то не стабильно.
 
 //static
@@ -1351,13 +1434,17 @@ static uint32 FASTCALL _GetBDBSearchFlags(int sp)
 
 int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 {
+	SProfile::Measure pm;
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
 	int    r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
 	if(!r && BtrError == BE_UBUFLEN) {
 		int    r2 = 0;
 		r2 = rData.Realloc();
-		if(r2 > 0)
+		if(r2 > 0) {
 			r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
+			if(r > 0)
+				Stat.CtGet.Put(pm.Get());
+		}
 	}
 	return r;
 }
@@ -1387,6 +1474,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 			uint32 flags = 0;
 			THROW_D(p_idx_tbl, BE_INVKEY);
 			{
+				SProfile::Measure pm;
 				DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
 				int r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags), p_idx_tbl->H, 0);
 				if(!r && BtrError == BE_UBUFLEN) {
@@ -1397,6 +1485,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 						r = BDbDatabase::ProcessError(p_idx_tbl->H->pget(p_idx_tbl->H, p_txn, rKey, pkey, rData, flags), p_idx_tbl->H, 0);
 				}
 				THROW(r);
+				Stat.CtGet.Put(pm.Get());
 			}
 			rKey = pkey;
 		}
@@ -1407,8 +1496,18 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 
 int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 {
+	SProfile::Measure pm;
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-	return BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
+	int    ok = BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
+	if(ok > 0) {
+		Stat.SzKey.Put(rKey);
+		Stat.SzRec.Put(rData);
+		if(flags & DB_NOOVERWRITE)
+			Stat.CtIns.Put(pm.Get());
+		else
+			Stat.CtUpd.Put(pm.Get());
+	}
+	return ok;
 }
 
 int BDbTable::InsertRec(Buffer & rKey, Buffer & rData)
@@ -1424,9 +1523,11 @@ int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData)
 int BDbTable::DeleteRec(Buffer & rKey)
 {
 	int    ok = 1;
+	SProfile::Measure pm;
 	DB_TXN * p_txn = P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
 	//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);
 	THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/), H, 0));
+	Stat.CtRmv.Put(pm.Get());
 	CATCHZOK
 	return ok;
 }
@@ -1484,27 +1585,31 @@ int BDbCursor::Search(BDbTable::Buffer & rKey, BDbTable::Buffer & rData, int sp)
 	THROW(R_Tbl.IsConsistent());
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
 	THROW(flags);
-	if(Idx == 0) {
-		ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
-		if(!ok && BtrError == BE_UBUFLEN) {
-			int    r2 = rData.Realloc();
-			if(r2 > 0)
-				ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
+	{
+		SProfile::Measure pm;
+		if(Idx == 0) {
+			ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
+			if(!ok && BtrError == BE_UBUFLEN) {
+				int    r2 = rData.Realloc();
+				if(r2 > 0)
+					ok = BDbDatabase::ProcessError(C->get(C, rKey, rData, flags), (DB *)R_Tbl, 0);
+			}
 		}
-	}
-	else {
-		BDbTable::Buffer pkey;
-		pkey.Alloc(256);
-		ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
-		if(!ok && BtrError == BE_UBUFLEN) {
-			int r1 = 0, r2 = 0;
-			THROW(r1 = pkey.Realloc());
-			THROW(r2 = rData.Realloc());
-			if(r1 > 0 || r2 > 0)
-				ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
+		else {
+			BDbTable::Buffer pkey;
+			pkey.Alloc(256);
+			ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
+			if(!ok && BtrError == BE_UBUFLEN) {
+				int r1 = 0, r2 = 0;
+				THROW(r1 = pkey.Realloc());
+				THROW(r2 = rData.Realloc());
+				if(r1 > 0 || r2 > 0)
+					ok = BDbDatabase::ProcessError(C->pget(C, rKey, pkey, rData, flags), (DB *)R_Tbl, 0);
+			}
+			THROW(ok);
+			rKey = pkey;
 		}
-		THROW(ok);
-		rKey = pkey;
+        R_Tbl.Stat.CtGet.Put(pm.Get());
 	}
 	CATCHZOK
 	return ok;
@@ -1515,7 +1620,13 @@ int BDbCursor::Insert(BDbTable::Buffer & rKey, BDbTable::Buffer & rData, int cur
 	int    ok = 1;
 	THROW(R_Tbl.IsConsistent());
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
-	THROW(BDbDatabase::ProcessError(C->put(C, rKey, rData, current ? DB_CURRENT : DB_KEYLAST), (DB *)R_Tbl, 0));
+	{
+		SProfile::Measure pm;
+		THROW(BDbDatabase::ProcessError(C->put(C, rKey, rData, current ? DB_CURRENT : DB_KEYLAST), (DB *)R_Tbl, 0));
+		R_Tbl.Stat.SzKey.Put(rKey);
+		R_Tbl.Stat.SzRec.Put(rData);
+		R_Tbl.Stat.CtIns.Put(pm.Get());
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1525,7 +1636,11 @@ int BDbCursor::Delete()
 	int    ok = 1;
 	THROW(R_Tbl.IsConsistent());
 	THROW_D(C, BE_BDB_INVALID_CURSOR);
-	THROW(BDbDatabase::ProcessError(C->del(C, 0), (DB *)R_Tbl, 0));
+	{
+		SProfile::Measure pm;
+		THROW(BDbDatabase::ProcessError(C->del(C, 0), (DB *)R_Tbl, 0));
+		R_Tbl.Stat.CtRmv.Put(pm.Get());
+	}
 	CATCHZOK
 	return ok;
 }

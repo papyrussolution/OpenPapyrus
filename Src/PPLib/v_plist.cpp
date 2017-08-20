@@ -758,7 +758,7 @@ int SLAPI PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
 	// } @v9.3.4
 	if(!Filt.GoodsIDList.GetCount()) {
 		THROW(Tbl.Search(Filt.PListID) > 0);
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		ZDELETE(P_GGIter);
 		ZDELETE(P_TempTbl);
 		ReadPriceListConfig(&Cfg);
@@ -841,10 +841,10 @@ int SLAPI PPViewPriceList::InitIteration(IterOrder ord)
 			IterIdx = 2;
 		else
 			IterIdx = 2;
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		InitIterQuery(0);
 		if(IterIdx == 2) {
-			ZDELETE(P_IterQuery);
+			BExtQuery::ZDelete(&P_IterQuery);
 			PPID   init_grp_id = 0;
 			IterGrpName_ = 0;
 			if(Filt.Flags & PLISTF_EXCLGGRP || Filt.GrpIDList.IsExists() || PPObjGoodsGroup::IsAlt(Filt.GoodsGrpID) > 0)
@@ -2272,27 +2272,27 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 	} Not included for present*/
 	WriteHelper(p_xml_file, "Description"  , 0, &need_comma);
 	fprintf(p_xml_file, ")>\n");
-	fprintf(p_xml_file, (const char *)XmlDeclElement("GoodsID", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("GroupID", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("GoodsName", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Barcode", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("UnitName", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("UnitsPerPack", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Price", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Price2", temp_buf));
+	fprintf(p_xml_file, XmlDeclElement("GoodsID", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("GroupID", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("GoodsName", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("Barcode", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("UnitName", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("UnitsPerPack", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("Price", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("Price2", temp_buf).cptr());
 	/* Not included for present {
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Price3", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Rest", temp_buf));
+	fprintf(p_xml_file, XmlDeclElement("Price3", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("Rest", temp_buf).cptr());
 	} Not included for present*/
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Description", temp_buf));
+	fprintf(p_xml_file, XmlDeclElement("Description", temp_buf).cptr());
 
 	need_comma = 0;
 	fprintf(p_xml_file, "<!ELEMENT Group (");
 	WriteHelper(p_xml_file, "ID"   , 0, &need_comma);
 	WriteHelper(p_xml_file, "Name" , 0, &need_comma);
 	fprintf(p_xml_file, ")>\n");
-	fprintf(p_xml_file, (const char *)XmlDeclElement("ID", temp_buf));
-	fprintf(p_xml_file, (const char *)XmlDeclElement("Name", temp_buf));
+	fprintf(p_xml_file, XmlDeclElement("ID", temp_buf).cptr());
+	fprintf(p_xml_file, XmlDeclElement("Name", temp_buf).cptr());
 
 	fprintf(p_xml_file, "]>\n");
 	XmlWriteTag(p_xml_file, "AlbData", 1, 1);

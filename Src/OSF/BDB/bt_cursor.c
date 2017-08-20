@@ -723,8 +723,7 @@ err:    /*
 		SETIFZ(ret, __bam_adjust(dbc, -1));
 		__bam_stkrel(dbc, 0);
 	}
-	else
-	if(cp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
+	else if((t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	cp->page = NULL;
 	/*

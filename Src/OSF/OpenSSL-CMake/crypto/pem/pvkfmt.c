@@ -13,7 +13,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 //#include <openssl/rand.h>
 //#include <openssl/bn.h>
 #if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DSA)
@@ -218,7 +218,7 @@ static EVP_PKEY * do_b2i_bio(BIO * in, int ispub)
 		return NULL;
 	}
 	buf = (uchar*)OPENSSL_malloc(length);
-	if(buf == NULL) {
+	if(!buf) {
 		PEMerr(PEM_F_DO_B2I_BIO, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -748,7 +748,7 @@ EVP_PKEY * b2i_PVK_bio(BIO * in, pem_password_cb * cb, void * u)
 		return 0;
 	buflen = (int)keylen + saltlen;
 	buf = (uchar*)OPENSSL_malloc(buflen);
-	if(buf == NULL) {
+	if(!buf) {
 		PEMerr(PEM_F_B2I_PVK_BIO, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

@@ -283,40 +283,24 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(cairo_win32_surface_t * dst,
 			double next_user_x = glyphs[i+1].x;
 			double next_user_y = glyphs[i+1].y;
 			int next_logical_x, next_logical_y;
-
-			cairo_matrix_transform_point(&device_to_logical,
-			    &next_user_x, &next_user_y);
-
+			cairo_matrix_transform_point(&device_to_logical, &next_user_x, &next_user_y);
 			next_logical_x = _cairo_lround(next_user_x);
 			next_logical_y = _cairo_lround(next_user_y);
-
 			dxy_buf[j] = _cairo_lround(next_logical_x - logical_x);
 			dxy_buf[j+1] = _cairo_lround(next_logical_y - logical_y);
-
 			logical_x = next_logical_x;
 			logical_y = next_logical_y;
 		}
 	}
-
 	if(glyph_indexing)
 		glyph_index_option = ETO_GLYPH_INDEX;
 	else
 		glyph_index_option = 0;
-
-	win_result = ExtTextOutW(dst->dc,
-	    start_x,
-	    start_y,
-	    glyph_index_option | ETO_PDY,
-	    NULL,
-	    (LPCWSTR)glyph_buf,
-	    num_glyphs,
-	    dxy_buf);
+	win_result = ExtTextOutW(dst->dc, start_x, start_y, glyph_index_option | ETO_PDY, NULL, (LPCWSTR)glyph_buf, num_glyphs, dxy_buf);
 	if(!win_result) {
 		_cairo_win32_print_gdi_error("_cairo_win32_surface_show_glyphs(ExtTextOutW failed)");
 	}
-
 	RestoreDC(dst->dc, -1);
-
 	if(glyph_buf != glyph_buf_stack) {
 		SAlloc::F(glyph_buf);
 		SAlloc::F(dxy_buf);

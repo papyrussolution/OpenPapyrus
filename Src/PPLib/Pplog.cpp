@@ -1069,13 +1069,13 @@ LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTi
 	r.top    = (parent.bottom / 3) * 2 + parent.top;
 	r.bottom = parent.bottom / 3;
 	SendMessage(APPL->H_LogWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
-	APPL->H_LogWnd = HW = CreateWindowEx(WS_EX_TOOLWINDOW, "LISTBOX", temp_buf,
+	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("LISTBOX"), temp_buf,
 		WS_CHILD|WS_CLIPSIBLINGS|WS_VSCROLL|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
 		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), 0);
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
 	PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
 	hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	::SendMessage(H(), WM_SETFONT, (long)hf, 0);
+	::SendMessage(H(), WM_SETFONT, (WPARAM)hf, 0);
 	::ShowWindow(H(), SW_SHOW);
 	::UpdateWindow(H());
 	::PostMessage(H(), WM_SIZE, 0, 0);
@@ -1099,7 +1099,7 @@ void LogListWindow::Refresh(long item)
 {
 	SString buf;
 	for(int i = 0; i < def->getRecsCount(); i++)
-		::SendMessage(H(), LB_ADDSTRING, 0, (long)(const char *)GetString(i, buf));
+		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i, buf).cptr());
 	::SendMessage(H(), LB_SETCARETINDEX, item-1, 0);
 	::UpdateWindow(H());
 }
@@ -1109,7 +1109,7 @@ void LogListWindow::Append()
 	SString buf;
 	int    i = def->getRecsCount();
 	if(i)
-		::SendMessage(H(), LB_ADDSTRING, 0, (long)(const char *)GetString(i-1, buf));
+		::SendMessage(H(), LB_ADDSTRING, 0, (LPARAM)GetString(i-1, buf).cptr());
 	::SendMessage(H(), LB_SETCARETINDEX, i-1, 0);
 	::UpdateWindow(H());
 }

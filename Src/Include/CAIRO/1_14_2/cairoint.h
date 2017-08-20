@@ -83,6 +83,7 @@
 #include "cairo-surface-backend-private.h"
 #include "cairo-image-surface-private.h"
 #include "cairo-scaled-font-private.h"
+#include "cairo-damage-private.h"
 
 #if CAIRO_HAS_PDF_SURFACE || CAIRO_HAS_PS_SURFACE || CAIRO_HAS_SCRIPT_SURFACE || CAIRO_HAS_XML_SURFACE
 	#define CAIRO_HAS_DEFLATE_STREAM 1
@@ -140,14 +141,11 @@ CAIRO_BEGIN_DECLS
 #define COMPILE_TIME_ASSERT1(condition, line)   typedef int compile_time_assertion_at_line_ ## line ## _failed [(condition) ? 1 : -1]
 #define COMPILE_TIME_ASSERT0(condition, line)   COMPILE_TIME_ASSERT1 (condition, line)
 #define COMPILE_TIME_ASSERT(condition)          COMPILE_TIME_ASSERT0 (condition, __LINE__)
-
 #define CAIRO_ALPHA_IS_CLEAR(alpha) ((alpha) <= ((double)0x00ff / (double)0xffff))
 #define CAIRO_ALPHA_SHORT_IS_CLEAR(alpha) ((alpha) <= 0x00ff)
-
 #define CAIRO_ALPHA_IS_OPAQUE(alpha) ((alpha) >= ((double)0xff00 / (double)0xffff))
 #define CAIRO_ALPHA_SHORT_IS_OPAQUE(alpha) ((alpha) >= 0xff00)
 #define CAIRO_ALPHA_IS_ZERO(alpha) ((alpha) <= 0.0)
-
 #define CAIRO_COLOR_IS_CLEAR(color) CAIRO_ALPHA_SHORT_IS_CLEAR((color)->alpha_short)
 #define CAIRO_COLOR_IS_OPAQUE(color) CAIRO_ALPHA_SHORT_IS_OPAQUE((color)->alpha_short)
 
@@ -169,8 +167,7 @@ static inline int cairo_const _cairo_popcount(uint32_t mask)
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
 #else
-	register int y;
-	y = (mask >> 1) &033333333333;
+	register int y = (mask >> 1) &033333333333;
 	y = mask - y - ((y >>1) & 033333333333);
 	return (((y + (y >> 3)) & 030707070707) % 077);
 #endif
@@ -218,10 +215,9 @@ static inline uint32_t cairo_const be32_to_cpu(uint32_t v)
 }
 
 #endif
-
-/* Unaligned big endian access
- */
-
+// 
+// Unaligned big endian access
+// 
 static inline uint16_t get_unaligned_be16(const uchar * p)
 {
 	return p[0] << 8 | p[1];
@@ -263,7 +259,7 @@ cairo_private void _cairo_box_from_doubles(cairo_box_t * box, double * x1, doubl
 cairo_private void _cairo_box_to_doubles(const cairo_box_t * box, double * x1, double * y1, double * x2, double * y2);
 
 cairo_private void _cairo_box_from_rectangle(cairo_box_t * box, const CairoIRect * rectangle);
-cairo_private void _cairo_box_round_to_rectangle(const cairo_box_t * box, CairoIRect * rectangle);
+cairo_private void FASTCALL _cairo_box_round_to_rectangle(const cairo_box_t * box, CairoIRect * rectangle);
 cairo_private void _cairo_box_add_curve_to(cairo_box_t * extents, const cairo_point_t * a,
     const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d);
 cairo_private void _cairo_boxes_get_extents(const cairo_box_t * boxes, int num_boxes, cairo_box_t * extents);
@@ -275,7 +271,7 @@ static inline void _cairo_unbounded_rectangle_init(CairoIRect * rect)
 	*rect = _cairo_unbounded_rectangle;
 }
 
-cairo_private_no_warn cairo_bool_t _cairo_rectangle_intersect(CairoIRect * dst, const CairoIRect * src);
+cairo_private_no_warn cairo_bool_t FASTCALL _cairo_rectangle_intersect(CairoIRect * dst, const CairoIRect * src);
 
 static inline cairo_bool_t _cairo_rectangle_intersects(const CairoIRect * dst, const CairoIRect * src)
 {
@@ -294,12 +290,7 @@ cairo_private void _cairo_rectangle_int_from_double(CairoIRect * recti, const ca
 // 
 cairo_private void _cairo_rectangle_union(CairoIRect * dst, const CairoIRect * src);
 cairo_private cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line) cairo_pure;
-
-cairo_private cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a,
-    const cairo_point_t * b,
-    const cairo_point_t * c,
-    const cairo_point_t * d,
-    const cairo_box_t * box) cairo_pure;
+cairo_private cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box) cairo_pure;
 
 typedef struct {
 	const cairo_user_data_key_t * key;
@@ -325,7 +316,7 @@ cairo_private ulong _cairo_hash_bytes(ulong hash, const void * bytes, uint lengt
 #define _cairo_scaled_glyph_set_index(g, i)  ((g)->hash_entry.hash = (i))
 
 struct _cairo_font_face {
-	/* hash_entry must be first */
+	// hash_entry must be first 
 	cairo_hash_entry_t hash_entry;
 	cairo_status_t status;
 	cairo_reference_count_t ref_count;
@@ -376,13 +367,12 @@ typedef struct _cairo_scaled_font_subset {
 	cairo_scaled_font_t * scaled_font;
 	uint font_id;
 	uint subset_id;
-	/* Index of glyphs array is subset_glyph_index.
-	 * Value of glyphs array is scaled_font_glyph_index.
-	 */
+	// Index of glyphs array is subset_glyph_index.
+	// Value of glyphs array is scaled_font_glyph_index.
 	ulong * glyphs;
-	char          ** utf8;
-	char          ** glyph_names;
-	int           * to_latin_char;
+	char ** utf8;
+	char ** glyph_names;
+	int   * to_latin_char;
 	ulong * latin_to_subset_glyph_index;
 	uint num_glyphs;
 	cairo_bool_t is_composite;
@@ -393,23 +383,15 @@ typedef struct _cairo_scaled_font_subset {
 struct _cairo_scaled_font_backend {
 	cairo_font_type_t type;
 	void (* fini)(void * scaled_font);
-	cairo_warn cairo_int_status_t (* scaled_glyph_init)(void * scaled_font,
-	    cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_info_t info);
+	cairo_warn cairo_int_status_t (* scaled_glyph_init)(void * scaled_font, cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_info_t info);
 
 	/* A backend only needs to implement this or ucs4_to_index(), not
 	 * both. This allows the backend to do something more sophisticated
 	 * then just converting characters one by one.
 	 */
 	cairo_warn cairo_int_status_t (* text_to_glyphs)(void * scaled_font,
-	    double x,
-	    double y,
-	    const char                 * utf8,
-	    int utf8_len,
-	    cairo_glyph_t             ** glyphs,
-	    int                        * num_glyphs,
-	    cairo_text_cluster_t      ** clusters,
-	    int                        * num_clusters,
-	    cairo_text_cluster_flags_t * cluster_flags);
+	    double x, double y, const char * utf8, int utf8_len, cairo_glyph_t ** glyphs, int * num_glyphs,
+	    cairo_text_cluster_t ** clusters, int * num_clusters, cairo_text_cluster_flags_t * cluster_flags);
 	ulong (* ucs4_to_index)(void * scaled_font, uint32_t ucs4);
 
 	/* Read data from a sfnt font table.
@@ -564,19 +546,21 @@ typedef struct _cairo_stroke_face {
 
 /* cairo.c */
 
-static inline double cairo_const _cairo_restrict_value(double value, double min, double max)
+/* replaced-with MINMAX() static inline double cairo_const _cairo_restrict_value(double value, double min, double max)
 {
-	if(value < min)
-		return min;
-	else if(value > max)
-		return max;
-	else
-		return value;
-}
-
-/* C99 round() rounds to the nearest integral value with halfway cases rounded
- * away from 0. _cairo_round rounds halfway cases toward positive infinity.
- * This matches the rounding behaviour of _cairo_lround. */
+	return (value < min) ? min : ((value > max) ? max : value);
+	//if(value < min)
+	//	return min;
+	//else if(value > max)
+	//	return max;
+	//else
+	//	return value;
+}*/
+// 
+// C99 round() rounds to the nearest integral value with halfway cases rounded
+// away from 0. _cairo_round rounds halfway cases toward positive infinity.
+// This matches the rounding behaviour of _cairo_lround. 
+// 
 static inline double cairo_const _cairo_round(double r)
 {
 	return floor(r + 0.5);
@@ -655,14 +639,9 @@ cairo_private cairo_status_t _cairo_hull_compute(cairo_pen_vertex_t * vertices, 
 cairo_private uchar * _cairo_lzw_compress(uchar * data, ulong * size_in_out);
 
 /* cairo-misc.c */
-cairo_private cairo_status_t _cairo_validate_text_clusters(const char                  * utf8,
-    int utf8_len,
-    const cairo_glyph_t         * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t  * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t cluster_flags);
-
+cairo_private cairo_status_t _cairo_validate_text_clusters(const char * utf8, int utf8_len,
+    const cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters,
+    int num_clusters, cairo_text_cluster_flags_t cluster_flags);
 cairo_private cairo_status_t _cairo_intern_string(const char ** str_inout, int len);
 cairo_private void _cairo_intern_string_reset_static_data(void);
 cairo_private const char * cairo_get_locale_decimal_point(void);
@@ -679,18 +658,11 @@ cairo_private cairo_status_t _cairo_path_fixed_rel_move_to(cairo_path_fixed_t * 
 cairo_private cairo_status_t _cairo_path_fixed_line_to(cairo_path_fixed_t * path, cairo_fixed_t x, cairo_fixed_t y);
 cairo_private cairo_status_t _cairo_path_fixed_rel_line_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy);
 cairo_private cairo_status_t _cairo_path_fixed_curve_to(cairo_path_fixed_t  * path,
-    cairo_fixed_t x0, cairo_fixed_t y0,
-    cairo_fixed_t x1, cairo_fixed_t y1,
-    cairo_fixed_t x2, cairo_fixed_t y2);
+    cairo_fixed_t x0, cairo_fixed_t y0, cairo_fixed_t x1, cairo_fixed_t y1, cairo_fixed_t x2, cairo_fixed_t y2);
 cairo_private cairo_status_t _cairo_path_fixed_rel_curve_to(cairo_path_fixed_t * path,
-    cairo_fixed_t dx0, cairo_fixed_t dy0,
-    cairo_fixed_t dx1, cairo_fixed_t dy1,
-    cairo_fixed_t dx2, cairo_fixed_t dy2);
+    cairo_fixed_t dx0, cairo_fixed_t dy0, cairo_fixed_t dx1, cairo_fixed_t dy1, cairo_fixed_t dx2, cairo_fixed_t dy2);
 cairo_private cairo_status_t _cairo_path_fixed_close_path(cairo_path_fixed_t * path);
-cairo_private cairo_bool_t _cairo_path_fixed_get_current_point(cairo_path_fixed_t * path,
-    cairo_fixed_t      * x,
-    cairo_fixed_t      * y);
-
+cairo_private cairo_bool_t _cairo_path_fixed_get_current_point(cairo_path_fixed_t * path, cairo_fixed_t * x, cairo_fixed_t * y);
 typedef cairo_status_t (cairo_path_fixed_move_to_func_t)(void * closure, const cairo_point_t * point);
 typedef cairo_status_t (cairo_path_fixed_line_to_func_t)(void * closure, const cairo_point_t * point);
 typedef cairo_status_t (cairo_path_fixed_curve_to_func_t)(void * closure, const cairo_point_t * p0,
@@ -1311,6 +1283,7 @@ CAIRO_END_DECLS
 #include "cairo-freelist-private.h"
 #include "cairo-combsort-inline.h"
 #include "cairo-traps-private.h"
+#include "cairo-device-private.h"
 
 #if HAVE_VALGRIND
 	#include <memcheck.h>

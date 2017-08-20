@@ -12,7 +12,7 @@
 //#include <openssl/asn1.h>
 #include "dsa_locl.h"
 //#include <openssl/bn.h>
-#include <openssl/cms.h>
+//#include <openssl/cms.h>
 #include "internal/asn1_int.h"
 #include <internal/evp_int.h>
 
@@ -25,18 +25,14 @@ static int dsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 	const ASN1_STRING * pstr;
 	X509_ALGOR * palg;
 	ASN1_INTEGER * public_key = NULL;
-
 	DSA * dsa = NULL;
-
 	if(!X509_PUBKEY_get0_param(NULL, &p, &pklen, &palg, pubkey))
 		return 0;
 	X509_ALGOR_get0(NULL, &ptype, &pval, palg);
-
 	if(ptype == V_ASN1_SEQUENCE) {
 		pstr = (const ASN1_STRING*)pval;
 		pm = pstr->data;
 		pmlen = pstr->length;
-
 		if((dsa = d2i_DSAparams(NULL, &pm, pmlen)) == NULL) {
 			DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_DECODE_ERROR);
 			goto err;
@@ -52,21 +48,17 @@ static int dsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
 		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_PARAMETER_ENCODING_ERROR);
 		goto err;
 	}
-
 	if((public_key = d2i_ASN1_INTEGER(NULL, &p, pklen)) == NULL) {
 		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_DECODE_ERROR);
 		goto err;
 	}
-
 	if((dsa->pub_key = ASN1_INTEGER_to_BN(public_key, NULL)) == NULL) {
 		DSAerr(DSA_F_DSA_PUB_DECODE, DSA_R_BN_DECODE_ERROR);
 		goto err;
 	}
-
 	ASN1_INTEGER_free(public_key);
 	EVP_PKEY_assign_DSA(pkey, dsa);
 	return 1;
-
 err:
 	ASN1_INTEGER_free(public_key);
 	DSA_free(dsa);
@@ -75,14 +67,12 @@ err:
 
 static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 {
-	DSA * dsa;
 	int ptype;
 	uchar * penc = NULL;
 	int penclen;
 	ASN1_STRING * str = NULL;
 	ASN1_INTEGER * pubint = NULL;
-
-	dsa = pkey->pkey.dsa;
+	DSA * dsa = pkey->pkey.dsa;
 	if(pkey->save_parameters && dsa->p && dsa->q && dsa->g) {
 		str = ASN1_STRING_new();
 		if(str == NULL) {
@@ -98,33 +88,24 @@ static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	}
 	else
 		ptype = V_ASN1_UNDEF;
-
 	pubint = BN_to_ASN1_INTEGER(dsa->pub_key, 0);
-
 	if(pubint == NULL) {
 		DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	penclen = i2d_ASN1_INTEGER(pubint, &penc);
 	ASN1_INTEGER_free(pubint);
-
 	if(penclen <= 0) {
 		DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
-	if(X509_PUBKEY_set0_param(pk, OBJ_nid2obj(EVP_PKEY_DSA),
-		    ptype, str, penc, penclen))
+	if(X509_PUBKEY_set0_param(pk, OBJ_nid2obj(EVP_PKEY_DSA), ptype, str, penc, penclen))
 		return 1;
-
 err:
 	OPENSSL_free(penc);
 	ASN1_STRING_free(str);
-
 	return 0;
 }
-
 /*
  * In PKCS#8 DSA: you just get a private key integer and parameters in the
  * AlgorithmIdentifier the pubkey must be recalculated.
@@ -140,20 +121,15 @@ static int dsa_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 	const X509_ALGOR * palg;
 	ASN1_INTEGER * privkey = NULL;
 	BN_CTX * ctx = NULL;
-
 	DSA * dsa = NULL;
-
 	int ret = 0;
-
 	if(!PKCS8_pkey_get0(NULL, &p, &pklen, &palg, p8))
 		return 0;
 	X509_ALGOR_get0(NULL, &ptype, &pval, palg);
-
 	if((privkey = d2i_ASN1_INTEGER(NULL, &p, pklen)) == NULL)
 		goto decerr;
 	if(privkey->type == V_ASN1_NEG_INTEGER || ptype != V_ASN1_SEQUENCE)
 		goto decerr;
-
 	pstr = (const ASN1_STRING*)pval;
 	pm = pstr->data;
 	pmlen = pstr->length;
@@ -179,12 +155,9 @@ static int dsa_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 		DSAerr(DSA_F_DSA_PRIV_DECODE, DSA_R_BN_ERROR);
 		goto dsaerr;
 	}
-
 	EVP_PKEY_assign_DSA(pkey, dsa);
-
 	ret = 1;
 	goto done;
-
 decerr:
 	DSAerr(DSA_F_DSA_PRIV_DECODE, DSA_R_DECODE_ERROR);
 dsaerr:
@@ -201,45 +174,33 @@ static int dsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 	ASN1_INTEGER * prkey = NULL;
 	uchar * dp = NULL;
 	int dplen;
-
 	if(!pkey->pkey.dsa || !pkey->pkey.dsa->priv_key) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, DSA_R_MISSING_PARAMETERS);
 		goto err;
 	}
-
 	params = ASN1_STRING_new();
-
 	if(params == NULL) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	params->length = i2d_DSAparams(pkey->pkey.dsa, &params->data);
 	if(params->length <= 0) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	params->type = V_ASN1_SEQUENCE;
-
 	/* Get private key into integer */
 	prkey = BN_to_ASN1_INTEGER(pkey->pkey.dsa->priv_key, 0);
-
 	if(!prkey) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, DSA_R_BN_ERROR);
 		goto err;
 	}
-
 	dplen = i2d_ASN1_INTEGER(prkey, &dp);
-
 	ASN1_STRING_clear_free(prkey);
 	prkey = NULL;
-
-	if(!PKCS8_pkey_set0(p8, OBJ_nid2obj(NID_dsa), 0,
-		    V_ASN1_SEQUENCE, params, dp, dplen))
+	if(!PKCS8_pkey_set0(p8, OBJ_nid2obj(NID_dsa), 0, V_ASN1_SEQUENCE, params, dp, dplen))
 		goto err;
-
 	return 1;
-
 err:
 	OPENSSL_free(dp);
 	ASN1_STRING_free(params);

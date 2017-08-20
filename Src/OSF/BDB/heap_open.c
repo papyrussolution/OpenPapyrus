@@ -17,7 +17,7 @@
 // @v9.5.5 #include "dbinc/heap.h"
 // @v9.5.5 #include "dbinc/log.h"
 
-static void __heap_init_meta __P((DB*, HEAPMETA*, db_pgno_t, DB_LSN *));
+static void __heap_init_meta(DB*, HEAPMETA*, db_pgno_t, DB_LSN *);
 
 /*
  * __heap_open --
@@ -141,7 +141,7 @@ int __heap_read_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t meta
 		DB_ASSERT(dbp->env, IS_RECOVERING(dbp->env) || F_ISSET(dbp, DB_AM_RECOVER));
 	}
 err:    /* Put the metadata page back. */
-	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
@@ -290,7 +290,7 @@ int __heap_create_region(DBC * dbc, db_pgno_t pgno)
 	if(HEAP_REGION_NUM(dbp, pgno) > meta->nregions)
 		meta->nregions = HEAP_REGION_NUM(dbp, pgno);
 done:
-	if(region != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, region, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, region, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	if((t_ret = __TLPUT(dbc, meta_lock)) != 0 && ret == 0)

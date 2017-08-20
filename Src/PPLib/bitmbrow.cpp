@@ -194,7 +194,7 @@ class BillGoodsBrwItemArray : public SArray {
 public:
 	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem))
 	{
-		CodeList.add("$", 0); // zero pos is invalid
+		CodeList.add("$"); // zero pos is invalid
 		HasUpp = 0;
 	}
 	int    SetRest(long itemPos, double val)
@@ -790,7 +790,8 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			show_barcode_or_serial |= 0x01;
 		}
 		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
-			PPGetWord(PPWORD_SERIAL, 0, temp_buf);
+			// @v9.7.11 PPGetWord(PPWORD_SERIAL, 0, temp_buf);
+			PPLoadString("serial", temp_buf); // @v9.7.11
 			insertColumn(_brw_pos++, temp_buf, /*16*/28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 			show_barcode_or_serial |= 0x02;
 		}
@@ -1716,7 +1717,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 			// @v9.5.9 new_ti.TFlags |= PPTransferItem::tfForceNew;
 		}
 		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
-		// } @v9.4.3 
+		// } @v9.4.3
 		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
 			new_ti.Cost = R5(rr.Cost);
 			new_ti.Discount = R5(rr.Price) - ((price != 0.0) ? price : new_ti.NetPrice());

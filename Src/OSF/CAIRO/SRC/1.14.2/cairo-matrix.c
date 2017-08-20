@@ -68,7 +68,7 @@
  * cairo_set_matrix().
  **/
 static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar);
-static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix);
+static void FASTCALL _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix);
 /**
  * cairo_matrix_init_identity:
  * @matrix: a #cairo_matrix_t
@@ -386,7 +386,7 @@ void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const 
  *
  * Since: 1.0
  **/
-void cairo_matrix_transform_distance(const cairo_matrix_t * matrix, double * dx, double * dy)
+void FASTCALL cairo_matrix_transform_distance(const cairo_matrix_t * matrix, double * dx, double * dy)
 {
 	double new_x = (matrix->xx * *dx + matrix->xy * *dy);
 	double new_y = (matrix->yx * *dx + matrix->yy * *dy);
@@ -406,7 +406,7 @@ slim_hidden_def(cairo_matrix_transform_distance);
  *
  * Since: 1.0
  **/
-void cairo_matrix_transform_point(const cairo_matrix_t * matrix, double * x, double * y)
+void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double * x, double * y)
 {
 	cairo_matrix_transform_distance(matrix, x, y);
 	*x += matrix->x0;
@@ -422,9 +422,8 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 	double quad_x[4], quad_y[4];
 	double min_x, max_x;
 	double min_y, max_y;
-
 	if(matrix->xy == 0. && matrix->yx == 0.) {
-		/* non-rotation/skew matrix, just map the two extreme points */
+		// non-rotation/skew matrix, just map the two extreme points 
 		if(matrix->xx != 1.) {
 			quad_x[0] = *x1 * matrix->xx;
 			quad_x[1] = *x2 * matrix->xx;
@@ -441,7 +440,6 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 			*x1 += matrix->x0;
 			*x2 += matrix->x0;
 		}
-
 		if(matrix->yy != 1.) {
 			quad_y[0] = *y1 * matrix->yy;
 			quad_y[1] = *y2 * matrix->yy;
@@ -458,14 +456,10 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 			*y1 += matrix->y0;
 			*y2 += matrix->y0;
 		}
-
-		if(is_tight)
-			*is_tight = TRUE;
-
+		ASSIGN_PTR(is_tight, TRUE);
 		return;
 	}
-
-	/* general matrix */
+	// general matrix 
 	quad_x[0] = *x1;
 	quad_y[0] = *y1;
 	cairo_matrix_transform_point(matrix, &quad_x[0], &quad_y[0]);
@@ -490,18 +484,15 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 			min_x = quad_x[i];
 		if(quad_x[i] > max_x)
 			max_x = quad_x[i];
-
 		if(quad_y[i] < min_y)
 			min_y = quad_y[i];
 		if(quad_y[i] > max_y)
 			max_y = quad_y[i];
 	}
-
 	*x1 = min_x;
 	*y1 = min_y;
 	*x2 = max_x;
 	*y2 = max_y;
-
 	if(is_tight) {
 		/* it's tight if and only if the four corner points form an axis-aligned
 		   rectangle.
@@ -510,20 +501,14 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 		   We could use a tolerance here but for now we'll fall back to FALSE in the case
 		   of floating point error.
 		 */
-		*is_tight =
-		    (quad_x[1] == quad_x[0] && quad_y[1] == quad_y[3] &&
-		    quad_x[2] == quad_x[3] && quad_y[2] == quad_y[0]) ||
-		    (quad_x[1] == quad_x[3] && quad_y[1] == quad_y[0] &&
-		    quad_x[2] == quad_x[0] && quad_y[2] == quad_y[3]);
+		*is_tight = (quad_x[1] == quad_x[0] && quad_y[1] == quad_y[3] && quad_x[2] == quad_x[3] && quad_y[2] == quad_y[0]) ||
+		    (quad_x[1] == quad_x[3] && quad_y[1] == quad_y[0] && quad_x[2] == quad_x[0] && quad_y[2] == quad_y[3]);
 	}
 }
 
-cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix,
-    cairo_box_t          * bbox,
-    cairo_bool_t * is_tight)
+cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
 {
 	double x1, y1, x2, y2;
-
 	_cairo_box_to_doubles(bbox, &x1, &y1, &x2, &y2);
 	_cairo_matrix_transform_bounding_box(matrix, &x1, &y1, &x2, &y2, is_tight);
 	_cairo_box_from_doubles(bbox, &x1, &y1, &x2, &y2);
@@ -545,19 +530,12 @@ static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar
    homogeneous result should actually be ad-bc instead. But, since this
    adjoint is only used in the computation of the inverse, which
    divides by det (A)=ad-bc anyway, everything works out in the end. */
-static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix)
+static void FASTCALL _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix)
 {
 	/* adj (A) = transpose (C:cofactor (A,i,j)) */
 	double a, b, c, d, tx, ty;
-	_cairo_matrix_get_affine(matrix,
-	    &a,  &b,
-	    &c,  &d,
-	    &tx, &ty);
-
-	cairo_matrix_init(matrix,
-	    d, -b,
-	    -c, a,
-	    c*ty - d*tx, b*tx - a*ty);
+	_cairo_matrix_get_affine(matrix, &a,  &b, &c,  &d, &tx, &ty);
+	cairo_matrix_init(matrix, d, -b, -c, a, c*ty - d*tx, b*tx - a*ty);
 }
 
 /**
@@ -575,38 +553,43 @@ static void _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_matrix_invert(cairo_matrix_t * matrix)
+cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix)
 {
-	double det;
-	/* Simple scaling|translation matrices are quite common... */
+	// Simple scaling|translation matrices are quite common... 
 	if(matrix->xy == 0. && matrix->yx == 0.) {
 		matrix->x0 = -matrix->x0;
 		matrix->y0 = -matrix->y0;
 		if(matrix->xx != 1.) {
 			if(matrix->xx == 0.)
 				return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-			matrix->xx = 1. / matrix->xx;
-			matrix->x0 *= matrix->xx;
+			else {
+				matrix->xx = 1. / matrix->xx;
+				matrix->x0 *= matrix->xx;
+			}
 		}
-
 		if(matrix->yy != 1.) {
 			if(matrix->yy == 0.)
 				return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-
-			matrix->yy = 1. / matrix->yy;
-			matrix->y0 *= matrix->yy;
+			else {
+				matrix->yy = 1. / matrix->yy;
+				matrix->y0 *= matrix->yy;
+			}
 		}
 		return CAIRO_STATUS_SUCCESS;
 	}
-	/* inv (A) = 1/det (A) * adj (A) */
-	det = _cairo_matrix_compute_determinant(matrix);
-	if(!ISFINITE(det))
-		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-	if(det == 0)
-		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
-	_cairo_matrix_compute_adjoint(matrix);
-	_cairo_matrix_scalar_multiply(matrix, 1 / det);
-	return CAIRO_STATUS_SUCCESS;
+	else {
+		// inv (A) = 1/det (A) * adj (A) 
+		double det = _cairo_matrix_compute_determinant(matrix);
+		if(!ISFINITE(det))
+			return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
+		else if(det == 0)
+			return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
+		else {
+			_cairo_matrix_compute_adjoint(matrix);
+			_cairo_matrix_scalar_multiply(matrix, 1 / det);
+			return CAIRO_STATUS_SUCCESS;
+		}
+	}
 }
 
 slim_hidden_def(cairo_matrix_invert);

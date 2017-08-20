@@ -41,7 +41,7 @@
 
 typedef struct _radeon_bo {
 	cairo_drm_bo_t base;
-	void * virtual;
+	void * P_Virtual; // @sobolev virtual-->P_Virtual
 	cairo_bool_t in_batch;
 	uint32_t read_domains;
 	uint32_t write_domain;

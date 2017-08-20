@@ -10,11 +10,10 @@
 #pragma hdrstop
 //#include <openssl/lhash.h>
 //#include <openssl/x509.h>
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 #include "x509_lcl.h"
 
-static int by_file_ctrl(X509_LOOKUP * ctx, int cmd, const char * argc,
-    long argl, char ** ret);
+static int by_file_ctrl(X509_LOOKUP * ctx, int cmd, const char * argc, long argl, char ** ret);
 static X509_LOOKUP_METHOD x509_file_lookup = {
 	"Load file into cache",
 	NULL,                   /* new */

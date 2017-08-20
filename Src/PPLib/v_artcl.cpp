@@ -300,7 +300,7 @@ int SLAPI PPViewArticle::InitIteration()
 		ArticleTbl::Key3 k3;
 	} k, temp_k;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.Order == PPViewArticle::ordByName)
 		CurIterOrd = 2;
 	else if(Filt.Order == PPViewArticle::ordByArticle)

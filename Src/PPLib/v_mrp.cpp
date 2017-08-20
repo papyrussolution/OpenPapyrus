@@ -1,5 +1,6 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -114,7 +115,7 @@ int SLAPI PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewMrpTab::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 
 	int    ok = 1;
@@ -162,7 +163,7 @@ int SLAPI PPViewMrpTab::InitIteration()
 	P_IterQuery->initIteration(0, &k, spGe);
 	CATCH
 		ok = 0;
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	ENDCATCH
 	return ok;
 }
@@ -190,7 +191,7 @@ int SLAPI PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 {
 	PPID   id = pHdr ? *(PPID *)pHdr : 0;
 	//
-	// По умолчанию двойной щелчок мыши и Enter генерируют команду PPVCMD_EDITITEM
+	// РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґРІРѕР№РЅРѕР№ С‰РµР»С‡РѕРє РјС‹С€Рё Рё Enter РіРµРЅРµСЂРёСЂСѓСЋС‚ РєРѕРјР°РЅРґСѓ PPVCMD_EDITITEM
 	//
 	if(ppvCmd == PPVCMD_EDITITEM)
 		ppvCmd = PPVCMD_DETAIL;
@@ -389,7 +390,7 @@ int SLAPI PPViewMrpLine::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempOrd);
 	Counter.Init();
 	CATCHZOK
@@ -440,7 +441,7 @@ int SLAPI PPViewMrpLine::InitIteration()
 		MrpLineTbl::Key1 k1;
 		MrpLineTbl::Key2 k2;
 	} k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	DBQ * dbq = 0;
 	MrpLineTbl * t = &MrpObj.P_Tbl->Lines;
 	MEMSZERO(k);
@@ -550,17 +551,17 @@ int SLAPI PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		flt.TabID = Filt.TabID;
 		if(Filt.DestGoodsID) {
 			if(MrpObj.P_Tbl->IsTerminalGoods(Filt.TabID, item.SrcID) > 0)
-				flt.SrcGoodsID = item.SrcID;  // Покажем позиции, от которых зависит спрос на item.SrcID
+				flt.SrcGoodsID = item.SrcID;  // РџРѕРєР°Р¶РµРј РїРѕР·РёС†РёРё, РѕС‚ РєРѕС‚РѕСЂС‹С… Р·Р°РІРёСЃРёС‚ СЃРїСЂРѕСЃ РЅР° item.SrcID
 			else
-				flt.DestGoodsID = item.SrcID; // Покажем позиции, спрос на которые зависит от item.DestID
+				flt.DestGoodsID = item.SrcID; // РџРѕРєР°Р¶РµРј РїРѕР·РёС†РёРё, СЃРїСЂРѕСЃ РЅР° РєРѕС‚РѕСЂС‹Рµ Р·Р°РІРёСЃРёС‚ РѕС‚ item.DestID
 		}
 		else if(item.SrcID == MRPSRCV_DEP)
-			flt.SrcGoodsID = item.DestID;     // Покажем позиции, от которых зависит спрос на item.DestID
+			flt.SrcGoodsID = item.DestID;     // РџРѕРєР°Р¶РµРј РїРѕР·РёС†РёРё, РѕС‚ РєРѕС‚РѕСЂС‹С… Р·Р°РІРёСЃРёС‚ СЃРїСЂРѕСЃ РЅР° item.DestID
 		else {
 			if(MrpObj.P_Tbl->IsTerminalGoods(Filt.TabID, item.DestID) > 0)
-				flt.SrcGoodsID = item.DestID;  // Покажем позиции, от которых зависит спрос на item.SrcID
+				flt.SrcGoodsID = item.DestID;  // РџРѕРєР°Р¶РµРј РїРѕР·РёС†РёРё, РѕС‚ РєРѕС‚РѕСЂС‹С… Р·Р°РІРёСЃРёС‚ СЃРїСЂРѕСЃ РЅР° item.SrcID
 			else
-				flt.DestGoodsID = item.DestID; // Покажем позиции, спрос на которые зависит от item.DestID
+				flt.DestGoodsID = item.DestID; // РџРѕРєР°Р¶РµРј РїРѕР·РёС†РёРё, СЃРїСЂРѕСЃ РЅР° РєРѕС‚РѕСЂС‹Рµ Р·Р°РІРёСЃРёС‚ РѕС‚ item.DestID
 		}
 		ViewMrpLine(&flt, 0);
 	}
@@ -733,7 +734,7 @@ DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		}
 	}
 	dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, (Filt.Flags & MrpLineFilt::fShowTerminalOnly) ? 1 : 0);
-	dbq = ppcheckflag(dbq, t->Flags, MRPLF_SUBST, (Filt.Flags & MrpLineFilt::fShowSubst) ? 1 : 0); // @v4.8.6
+	dbq = ppcheckflag(dbq, t->Flags, MRPLF_SUBST, (Filt.Flags & MrpLineFilt::fShowSubst) ? 1 : 0);
 	if(Filt.Flags & MrpLineFilt::fShowSubst) {
 		dbq = &(*dbq && gt->ID == t->SrcID);
 		if(ot) {
@@ -767,15 +768,15 @@ DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		*pSubTitle = 0;
 		if(Filt.Flags & MrpLineFilt::fShowSubst) {
 			PPGetSubStr(PPTXT_ST_MRPLINE, 2, temp_buf);
-			pSubTitle->Printf(temp_buf, (const char *)GetGoodsName(Filt.DestGoodsID, goods_name));
+			pSubTitle->Printf(temp_buf, GetGoodsName(Filt.DestGoodsID, goods_name).cptr());
 		}
 		else if(Filt.DestGoodsID) {
 			PPGetSubStr(PPTXT_ST_MRPLINE, 0, temp_buf);
-			pSubTitle->Printf(temp_buf, (const char *)GetGoodsName(Filt.DestGoodsID, goods_name));
+			pSubTitle->Printf(temp_buf, GetGoodsName(Filt.DestGoodsID, goods_name).cptr());
 		}
 		else if(Filt.SrcGoodsID) {
 			PPGetSubStr(PPTXT_ST_MRPLINE, 1, temp_buf);
-			pSubTitle->Printf(temp_buf, (const char *)GetGoodsName(Filt.SrcGoodsID, goods_name));
+			pSubTitle->Printf(temp_buf, GetGoodsName(Filt.SrcGoodsID, goods_name).cptr());
 		}
 		else if(Filt.TabID)
 			GetObjectName(PPOBJ_MRPTAB, Filt.TabID, *pSubTitle);
@@ -867,8 +868,8 @@ int PPALDD_MrpLines::InitData(PPFilt & rFilt, long rsrv)
 	INIT_PPVIEW_ALDD_DATA_U(MrpLine, rsrv);
 	H.TabID  = p_filt->TabID;
 	H.FltRowKind = (int16)p_filt->SrcGoodsID;
-	H.FltShowDfctOnly = (p_filt->Flags & MrpLineFilt::fShowDeficitOnly) ? 1 : 0;
-	H.FltShowTermOnly = (p_filt->Flags & MrpLineFilt::fShowTerminalOnly) ? 1 : 0;
+	H.FltShowDfctOnly = BIN(p_filt->Flags & MrpLineFilt::fShowDeficitOnly);
+	H.FltShowTermOnly = BIN(p_filt->Flags & MrpLineFilt::fShowTerminalOnly);
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

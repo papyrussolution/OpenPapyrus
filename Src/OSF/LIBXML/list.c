@@ -28,8 +28,8 @@ struct _xmlLink {
 };
 
 struct _xmlList {
-	xmlLinkPtr sentinel;
-	void (* linkDeallocator)(xmlLinkPtr);
+	xmlLink * sentinel;
+	void (* linkDeallocator)(xmlLink *);
 	int (* linkCompare)(const void *, const void*);
 };
 
@@ -46,7 +46,7 @@ struct _xmlList {
  *
  * Unlink and deallocate @lk from list @l
  */
-static void xmlLinkDeallocator(xmlListPtr l, xmlLinkPtr lk)
+static void FASTCALL xmlLinkDeallocator(xmlListPtr l, xmlLinkPtr lk)
 {
 	(lk->prev)->next = lk->next;
 	(lk->next)->prev = lk->prev;
@@ -82,11 +82,11 @@ static int xmlLinkCompare(const void * data0, const void * data1)
  *
  * Returns the link containing the data or NULL
  */
-static xmlLinkPtr xmlListLowerSearch(xmlListPtr l, void * data)
+static xmlLink * FASTCALL xmlListLowerSearch(xmlList * pList, void * data)
 {
 	xmlLink * lk = 0;
-	if(l) {
-		for(lk = l->sentinel->next; lk != l->sentinel && l->linkCompare(lk->data, data) <0; lk = lk->next) 
+	if(pList) {
+		for(lk = pList->sentinel->next; lk != pList->sentinel && pList->linkCompare(lk->data, data) <0; lk = lk->next) 
 			;
 	}
 	return lk;
@@ -100,15 +100,15 @@ static xmlLinkPtr xmlListLowerSearch(xmlListPtr l, void * data)
  *
  * Returns the link containing the data or NULL
  */
-static xmlLinkPtr xmlListHigherSearch(xmlListPtr l, void * data)
+static xmlLink * FASTCALL xmlListHigherSearch(xmlList * pList, void * data)
 {
-	xmlLink * lk;
-	if(l == NULL)
-		return 0;
-	for(lk = l->sentinel->prev; lk != l->sentinel && l->linkCompare(lk->data, data) >0; lk = lk->prev);
+	xmlLink * lk = 0;
+	if(pList) {
+		for(lk = pList->sentinel->prev; lk != pList->sentinel && pList->linkCompare(lk->data, data) >0; lk = lk->prev)
+			;
+	}
 	return lk;
 }
-
 /**
  * xmlListSearch:
  * @l:  a list
@@ -118,21 +118,19 @@ static xmlLinkPtr xmlListHigherSearch(xmlListPtr l, void * data)
  *
  * Returns the link containing the data or NULL
  */
-static xmlLinkPtr xmlListLinkSearch(xmlListPtr l, void * data)
+static xmlLink * FASTCALL xmlListLinkSearch(xmlList * pList, void * data)
 {
 	xmlLink * lk;
-	if(l == NULL)
+	if(pList == NULL)
 		return 0;
-	lk = xmlListLowerSearch(l, data);
-	if(lk == l->sentinel)
-		return NULL;
 	else {
-		if(l->linkCompare(lk->data, data) ==0)
-			return lk;
-		return NULL;
+		lk = xmlListLowerSearch(pList, data);
+		if(lk == pList->sentinel)
+			return NULL;
+		else
+			return (pList->linkCompare(lk->data, data) == 0) ? lk : NULL;
 	}
 }
-
 /**
  * xmlListLinkReverseSearch:
  * @l:  a list
@@ -204,16 +202,15 @@ xmlListPtr xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare comp
  *
  * Returns the value associated to @data or NULL in case of error
  */
-void * xmlListSearch(xmlListPtr l, void * data)
+void * xmlListSearch(xmlList * pList, void * data)
 {
-	if(l) {
-		xmlLinkPtr lk = xmlListLinkSearch(l, data);
+	if(pList) {
+		xmlLinkPtr lk = xmlListLinkSearch(pList, data);
 		if(lk)
 			return (lk->data);
 	}
 	return 0;
 }
-
 /**
  * xmlListReverseSearch:
  * @l:  a list
@@ -223,16 +220,15 @@ void * xmlListSearch(xmlListPtr l, void * data)
  *
  * Returns the value associated to @data or NULL in case of error
  */
-void * xmlListReverseSearch(xmlListPtr l, void * data)
+void * xmlListReverseSearch(xmlListPtr pList, void * data)
 {
-	if(l) {
-		xmlLinkPtr lk = xmlListLinkReverseSearch(l, data);
+	if(pList) {
+		xmlLinkPtr lk = xmlListLinkReverseSearch(pList, data);
 		if(lk)
 			return (lk->data);
 	}
 	return 0;
 }
-
 /**
  * xmlListInsert:
  * @l:  a list
@@ -242,12 +238,12 @@ void * xmlListReverseSearch(xmlListPtr l, void * data)
  *
  * Returns 0 in case of success, 1 in case of failure
  */
-int xmlListInsert(xmlListPtr l, void * data)
+int xmlListInsert(xmlList * pList, void * data)
 {
-	if(l == NULL)
+	if(pList == NULL)
 		return 1;
 	else {
-		xmlLinkPtr lkPlace = xmlListLowerSearch(l, data);
+		xmlLinkPtr lkPlace = xmlListLowerSearch(pList, data);
 		/* Add the new link */
 		xmlLinkPtr lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 		if(lkNew == NULL) {
@@ -265,7 +261,6 @@ int xmlListInsert(xmlListPtr l, void * data)
 		}
 	}
 }
-
 /**
  * xmlListAppend:
  * @l:  a list
@@ -275,12 +270,12 @@ int xmlListInsert(xmlListPtr l, void * data)
  *
  * Returns 0 in case of success, 1 in case of failure
  */
-int xmlListAppend(xmlListPtr l, void * data)
+int xmlListAppend(xmlListPtr pList, void * data)
 {
 	xmlLinkPtr lkPlace, lkNew;
-	if(l == NULL)
+	if(pList == NULL)
 		return 1;
-	lkPlace = xmlListHigherSearch(l, data);
+	lkPlace = xmlListHigherSearch(pList, data);
 	/* Add the new link */
 	lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 	if(lkNew == NULL) {
@@ -300,12 +295,12 @@ int xmlListAppend(xmlListPtr l, void * data)
  *
  * Deletes the list and its associated data
  */
-void xmlListDelete(xmlListPtr l)
+void xmlListDelete(xmlListPtr pList)
 {
-	if(l) {
-		xmlListClear(l);
-		SAlloc::F(l->sentinel);
-		SAlloc::F(l);
+	if(pList) {
+		xmlListClear(pList);
+		SAlloc::F(pList->sentinel);
+		SAlloc::F(pList);
 	}
 }
 
@@ -318,13 +313,13 @@ void xmlListDelete(xmlListPtr l)
  *
  * Returns 1 if a deallocation occured, or 0 if not found
  */
-int xmlListRemoveFirst(xmlListPtr l, void * data)
+int xmlListRemoveFirst(xmlListPtr pList, void * data)
 {
-	if(l) {
-		/*Find the first instance of this data */
-		xmlLinkPtr lk = xmlListLinkSearch(l, data);
+	if(pList) {
+		// Find the first instance of this data 
+		xmlLinkPtr lk = xmlListLinkSearch(pList, data);
 		if(lk) {
-			xmlLinkDeallocator(l, lk);
+			xmlLinkDeallocator(pList, lk);
 			return 1;
 		}
 	}
@@ -376,13 +371,13 @@ int xmlListRemoveAll(xmlListPtr l, void * data)
  *
  * Remove the all data in the list
  */
-void xmlListClear(xmlListPtr l)
+void xmlListClear(xmlListPtr pList)
 {
-	if(l) {
-		xmlLinkPtr lk = l->sentinel->next;
-		while(lk != l->sentinel) {
+	if(pList) {
+		xmlLinkPtr lk = pList->sentinel->next;
+		while(lk != pList->sentinel) {
 			xmlLinkPtr next = lk->next;
-			xmlLinkDeallocator(l, lk);
+			xmlLinkDeallocator(pList, lk);
 			lk = next;
 		}
 	}

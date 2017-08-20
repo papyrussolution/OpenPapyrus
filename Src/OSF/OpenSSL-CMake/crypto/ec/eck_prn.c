@@ -244,7 +244,7 @@ static int print_bin(BIO * fp, const char * name, const uchar * buf,
 	size_t i;
 	char str[128];
 
-	if(buf == NULL)
+	if(!buf)
 		return 1;
 	if(off > 0) {
 		if(off > 128)

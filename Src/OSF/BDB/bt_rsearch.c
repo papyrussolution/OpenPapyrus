@@ -334,7 +334,7 @@ lock_next:
 	/* NOTREACHED */
 
 err:
-	if(h && (t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	BT_STK_POP(cp);
 	__bam_stkrel(dbc, 0);

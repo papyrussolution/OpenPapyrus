@@ -122,7 +122,7 @@ size_t HMAC_size(const HMAC_CTX * ctx)
 HMAC_CTX * HMAC_CTX_new(void)
 {
 	HMAC_CTX * ctx = (HMAC_CTX*)OPENSSL_zalloc(sizeof(HMAC_CTX));
-	if(ctx != NULL) {
+	if(ctx) {
 		if(!HMAC_CTX_reset(ctx)) {
 			HMAC_CTX_free(ctx);
 			return NULL;
@@ -143,7 +143,7 @@ static void hmac_ctx_cleanup(HMAC_CTX * ctx)
 
 void HMAC_CTX_free(HMAC_CTX * ctx)
 {
-	if(ctx != NULL) {
+	if(ctx) {
 		hmac_ctx_cleanup(ctx);
 		EVP_MD_CTX_free(ctx->i_ctx);
 		EVP_MD_CTX_free(ctx->o_ctx);
@@ -155,17 +155,11 @@ void HMAC_CTX_free(HMAC_CTX * ctx)
 int HMAC_CTX_reset(HMAC_CTX * ctx)
 {
 	hmac_ctx_cleanup(ctx);
-	if(ctx->i_ctx == NULL)
-		ctx->i_ctx = EVP_MD_CTX_new();
-	if(ctx->i_ctx == NULL)
+	if(!SETIFZ(ctx->i_ctx, EVP_MD_CTX_new()))
 		goto err;
-	if(ctx->o_ctx == NULL)
-		ctx->o_ctx = EVP_MD_CTX_new();
-	if(ctx->o_ctx == NULL)
+	if(!SETIFZ(ctx->o_ctx, EVP_MD_CTX_new()))
 		goto err;
-	if(ctx->md_ctx == NULL)
-		ctx->md_ctx = EVP_MD_CTX_new();
-	if(ctx->md_ctx == NULL)
+	if(!SETIFZ(ctx->md_ctx, EVP_MD_CTX_new()))
 		goto err;
 	ctx->md = NULL;
 	return 1;

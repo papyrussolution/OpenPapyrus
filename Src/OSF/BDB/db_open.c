@@ -544,8 +544,8 @@ int __db_reopen(DBC * arg_dbc)
 	if(ret == DB_PAGE_NOTFOUND || TYPE(old_page) == P_INVALID) {
 		if((ret = __LPUT(dbc, old_lock)) != 0)
 			goto err;
-		/* Drop the latch too. */
-		if(old_page && (ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0)
+		// Drop the latch too
+		if((ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0)
 			goto err;
 		old_page = NULL;
 	}
@@ -573,9 +573,9 @@ done:
 	else
 		bt->revision = dbp->mpf->mfp->revision;
 err:
-	if(old_page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info, old_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(new_page && (t_ret = __memp_fput(dbp->mpf, dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info, new_page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(mdbp && (t_ret = __db_close(mdbp, dbc->txn, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;

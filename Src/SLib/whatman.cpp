@@ -18,7 +18,7 @@ public:
 	WhatmanObjectRegTable::WhatmanObjectRegTable() : SArray(sizeof(Entry))
 	{
 		LastIndex = 0;
-		Pool.add("$", 0); // zero index - is empty string
+		Pool.add("$"); // zero index - is empty string
 	}
 	int    Add(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory);
 	int    Get(uint pos, Item & rItem) const;

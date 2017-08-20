@@ -2320,21 +2320,21 @@ void DumpColorMap(ColorMapObject * Object, FILE * fp)
 ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMapObject * ColorIn2, GifPixelType ColorTransIn2[])
 {
 	int i, j, CrntSlot, RoundUpTo, NewGifBitSize;
-	ColorMapObject * ColorUnion;
+	ColorMapObject * p_color_union;
 	/*
 	 * We don't worry about duplicates within either color map; if
 	 * the caller wants to resolve those, he can perform unions
 	 * with an empty color map.
 	 */
 	/* Allocate table which will hold the result for sure. */
-	ColorUnion = GifMakeMapObject(MAX(ColorIn1->ColorCount, ColorIn2->ColorCount) * 2, 0);
-	if(ColorUnion == NULL)
+	p_color_union = GifMakeMapObject(MAX(ColorIn1->ColorCount, ColorIn2->ColorCount) * 2, 0);
+	if(p_color_union == NULL)
 		return NULL;
 	/*
 	 * Copy ColorIn1 to ColorUnion.
 	 */
 	for(i = 0; i < ColorIn1->ColorCount; i++)
-		ColorUnion->Colors[i] = ColorIn1->Colors[i];
+		p_color_union->Colors[i] = ColorIn1->Colors[i];
 	CrntSlot = ColorIn1->ColorCount;
 	/*
 	 * Potentially obnoxious hack:
@@ -2355,18 +2355,18 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 			ColorTransIn2[i] = j; // color exists in Color1 
 		else {
 			// Color is new - copy it to a new slot: 
-			ColorUnion->Colors[CrntSlot] = ColorIn2->Colors[i];
+			p_color_union->Colors[CrntSlot] = ColorIn2->Colors[i];
 			ColorTransIn2[i] = CrntSlot++;
 		}
 	}
 	if(CrntSlot > 256) {
-		GifFreeMapObject(ColorUnion);
+		GifFreeMapObject(p_color_union);
 		return ((ColorMapObject*)NULL);
 	}
 	NewGifBitSize = GifBitSize(CrntSlot);
 	RoundUpTo = (1 << NewGifBitSize);
-	if(RoundUpTo != ColorUnion->ColorCount) {
-		register SColorRGB * Map = ColorUnion->Colors;
+	if(RoundUpTo != p_color_union->ColorCount) {
+		register SColorRGB * Map = p_color_union->Colors;
 		// 
 		// Zero out slots up to next power of 2.
 		// We know these slots exist because of the way ColorUnion's
@@ -2376,22 +2376,22 @@ ColorMapObject * GifUnionColorMap(const ColorMapObject * ColorIn1, const ColorMa
 			Map[j].Set(0);
 		}
 		// perhaps we can shrink the map? 
-		if(RoundUpTo < ColorUnion->ColorCount)
-			ColorUnion->Colors = (SColorRGB *)SAlloc::R(Map, sizeof(SColorRGB) * RoundUpTo);
+		if(RoundUpTo < p_color_union->ColorCount)
+			p_color_union->Colors = (SColorRGB *)SAlloc::R(Map, sizeof(SColorRGB) * RoundUpTo);
 	}
-	ColorUnion->ColorCount = RoundUpTo;
-	ColorUnion->BitsPerPixel = NewGifBitSize;
-	return (ColorUnion);
+	p_color_union->ColorCount = RoundUpTo;
+	p_color_union->BitsPerPixel = NewGifBitSize;
+	return (p_color_union);
 }
 // 
 // Apply a given color translation to the raster bits of an image
 // 
-void GifApplyTranslation(GifSavedImage * Image, GifPixelType Translation[])
+void GifApplyTranslation(GifSavedImage * pImage, GifPixelType Translation[])
 {
 	register int i;
-	register int RasterSize = Image->ImageDesc.Height * Image->ImageDesc.Width;
+	register int RasterSize = pImage->ImageDesc.Height * pImage->ImageDesc.Width;
 	for(i = 0; i < RasterSize; i++)
-		Image->RasterBits[i] = Translation[Image->RasterBits[i]];
+		pImage->RasterBits[i] = Translation[pImage->RasterBits[i]];
 }
 // 
 // Extension record functions
@@ -2433,12 +2433,12 @@ void GifFreeExtensions(int * ExtensionBlockCount, ExtensionBlock ** ExtensionBlo
 // 
 // Frees the last image in the GifFile->SavedImages array
 // 
-void FreeLastSavedImage(GifFileType * GifFile)
+void FreeLastSavedImage(GifFileType * pGifFile)
 {
-	if(GifFile && GifFile->SavedImages) {
+	if(pGifFile && pGifFile->SavedImages) {
 		// Remove one GifSavedImage from the GifFile 
-		GifFile->ImageCount--;
-		GifSavedImage * sp = &GifFile->SavedImages[GifFile->ImageCount];
+		pGifFile->ImageCount--;
+		GifSavedImage * sp = &pGifFile->SavedImages[pGifFile->ImageCount];
 		// Deallocate its Colormap 
 		if(sp->ImageDesc.ColorMap) {
 			GifFreeMapObject(sp->ImageDesc.ColorMap);
@@ -2457,46 +2457,46 @@ void FreeLastSavedImage(GifFileType * GifFile)
 // 
 // Append an image block to the SavedImages array
 // 
-GifSavedImage * GifMakeSavedImage(GifFileType * GifFile, const GifSavedImage * CopyFrom)
+GifSavedImage * GifMakeSavedImage(GifFileType * pGifFile, const GifSavedImage * pCopyFrom)
 {
 	GifSavedImage * sp = 0;
-	if(GifFile->SavedImages == NULL)
-		GifFile->SavedImages = (GifSavedImage*)SAlloc::M(sizeof(GifSavedImage));
+	if(pGifFile->SavedImages == NULL)
+		pGifFile->SavedImages = (GifSavedImage*)SAlloc::M(sizeof(GifSavedImage));
 	else
-		GifFile->SavedImages = (GifSavedImage*)SAlloc::R(GifFile->SavedImages, sizeof(GifSavedImage) * (GifFile->ImageCount + 1));
-	if(GifFile->SavedImages) {
-		sp = &GifFile->SavedImages[GifFile->ImageCount++];
+		pGifFile->SavedImages = (GifSavedImage*)SAlloc::R(pGifFile->SavedImages, sizeof(GifSavedImage) * (pGifFile->ImageCount + 1));
+	if(pGifFile->SavedImages) {
+		sp = &pGifFile->SavedImages[pGifFile->ImageCount++];
 		memzero((char*)sp, sizeof(GifSavedImage));
-		if(CopyFrom) {
-			memcpy((char*)sp, CopyFrom, sizeof(GifSavedImage));
+		if(pCopyFrom) {
+			memcpy((char*)sp, pCopyFrom, sizeof(GifSavedImage));
 			/*
 			 * Make our own allocated copies of the heap fields in the
 			 * copied record.  This guards against potential aliasing problems.
 			 */
 			// first, the local color map 
 			if(sp->ImageDesc.ColorMap) {
-				sp->ImageDesc.ColorMap = GifMakeMapObject(CopyFrom->ImageDesc.ColorMap->ColorCount, CopyFrom->ImageDesc.ColorMap->Colors);
+				sp->ImageDesc.ColorMap = GifMakeMapObject(pCopyFrom->ImageDesc.ColorMap->ColorCount, pCopyFrom->ImageDesc.ColorMap->Colors);
 				if(!sp->ImageDesc.ColorMap) {
-					FreeLastSavedImage(GifFile);
+					FreeLastSavedImage(pGifFile);
 					return 0;
 				}
 			}
 			// next, the raster 
-			sp->RasterBits = (uint8*)SAlloc::M(sizeof(GifPixelType) * CopyFrom->ImageDesc.Height * CopyFrom->ImageDesc.Width);
+			sp->RasterBits = (uint8*)SAlloc::M(sizeof(GifPixelType) * pCopyFrom->ImageDesc.Height * pCopyFrom->ImageDesc.Width);
 			if(!sp->RasterBits) {
-				FreeLastSavedImage(GifFile);
+				FreeLastSavedImage(pGifFile);
 				return 0;
 			}
 			else {
-				memcpy(sp->RasterBits, CopyFrom->RasterBits, sizeof(GifPixelType) * CopyFrom->ImageDesc.Height * CopyFrom->ImageDesc.Width);
+				memcpy(sp->RasterBits, pCopyFrom->RasterBits, sizeof(GifPixelType) * pCopyFrom->ImageDesc.Height * pCopyFrom->ImageDesc.Width);
 				// finally, the extension blocks 
 				if(sp->ExtensionBlocks) {
-					sp->ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock) * CopyFrom->ExtensionBlockCount);
+					sp->ExtensionBlocks = (ExtensionBlock*)SAlloc::M(sizeof(ExtensionBlock) * pCopyFrom->ExtensionBlockCount);
 					if(sp->ExtensionBlocks == NULL) {
-						FreeLastSavedImage(GifFile);
+						FreeLastSavedImage(pGifFile);
 						return 0;
 					}
-					memcpy(sp->ExtensionBlocks, CopyFrom->ExtensionBlocks, sizeof(ExtensionBlock) * CopyFrom->ExtensionBlockCount);
+					memcpy(sp->ExtensionBlocks, pCopyFrom->ExtensionBlocks, sizeof(ExtensionBlock) * pCopyFrom->ExtensionBlockCount);
 				}
 			}
 		}
@@ -2504,11 +2504,11 @@ GifSavedImage * GifMakeSavedImage(GifFileType * GifFile, const GifSavedImage * C
 	return sp;
 }
 
-void GifFreeSavedImages(GifFileType * GifFile)
+void GifFreeSavedImages(GifFileType * pGifFile)
 {
 	GifSavedImage * sp;
-	if(GifFile && GifFile->SavedImages) {
-		for(sp = GifFile->SavedImages; sp < GifFile->SavedImages + GifFile->ImageCount; sp++) {
+	if(pGifFile && pGifFile->SavedImages) {
+		for(sp = pGifFile->SavedImages; sp < pGifFile->SavedImages + pGifFile->ImageCount; sp++) {
 			if(sp->ImageDesc.ColorMap) {
 				GifFreeMapObject(sp->ImageDesc.ColorMap);
 				sp->ImageDesc.ColorMap = NULL;
@@ -2516,8 +2516,7 @@ void GifFreeSavedImages(GifFileType * GifFile)
 			SAlloc::F((char*)sp->RasterBits);
 			GifFreeExtensions(&sp->ExtensionBlockCount, &sp->ExtensionBlocks);
 		}
-		SAlloc::F((char*)GifFile->SavedImages);
-		GifFile->SavedImages = NULL;
+		ZFREE(pGifFile->SavedImages);
 	}
 }
 // 
@@ -2556,19 +2555,19 @@ static int SortCmpRtn(const void * Entry1, const void * Entry2)
 // The biggest cube in one dimension is subdivide unless it has only one entry.
 // Returns GIF_ERROR if failed, otherwise GIF_OK.
 // 
-static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, uint * NewColorMapSize) 
+static int SubdivColorMap(NewColorMapType * pNewColorSubdiv, uint ColorMapSize, uint * pNewColorMapSize) 
 {
 	int MaxSize;
 	uint i, j, Index = 0, NumEntries, MinColor, MaxColor;
 	long Sum, Count;
 	QuantizedColorType * QuantizedColor, ** SortArray;
-	while(ColorMapSize > *NewColorMapSize) {
+	while(ColorMapSize > *pNewColorMapSize) {
 		/* Find candidate for subdivision: */
 		MaxSize = -1;
-		for(i = 0; i < *NewColorMapSize; i++) {
+		for(i = 0; i < *pNewColorMapSize; i++) {
 			for(j = 0; j < 3; j++) {
-				if((((int)NewColorSubdiv[i].RGBWidth[j]) > MaxSize) && (NewColorSubdiv[i].NumEntries > 1)) {
-					MaxSize = NewColorSubdiv[i].RGBWidth[j];
+				if((((int)pNewColorSubdiv[i].RGBWidth[j]) > MaxSize) && (pNewColorSubdiv[i].NumEntries > 1)) {
+					MaxSize = pNewColorSubdiv[i].RGBWidth[j];
 					Index = i;
 					SortRGBAxis = j;
 				}
@@ -2581,20 +2580,20 @@ static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, u
 
 		/* Sort all elements in that entry along the given axis and split at
 		 * the median.  */
-		SortArray = (QuantizedColorType**)SAlloc::M(sizeof(QuantizedColorType *) * NewColorSubdiv[Index].NumEntries);
+		SortArray = (QuantizedColorType**)SAlloc::M(sizeof(QuantizedColorType *) * pNewColorSubdiv[Index].NumEntries);
 		if(SortArray == NULL)
 			return GIF_ERROR;
-		for(j = 0, QuantizedColor = NewColorSubdiv[Index].QuantizedColors; j < NewColorSubdiv[Index].NumEntries && QuantizedColor; j++, QuantizedColor = QuantizedColor->Pnext)
+		for(j = 0, QuantizedColor = pNewColorSubdiv[Index].QuantizedColors; j < pNewColorSubdiv[Index].NumEntries && QuantizedColor; j++, QuantizedColor = QuantizedColor->Pnext)
 			SortArray[j] = QuantizedColor;
-		qsort(SortArray, NewColorSubdiv[Index].NumEntries, sizeof(QuantizedColorType *), SortCmpRtn);
-		/* Relink the sorted list into one: */
-		for(j = 0; j < NewColorSubdiv[Index].NumEntries - 1; j++)
+		qsort(SortArray, pNewColorSubdiv[Index].NumEntries, sizeof(QuantizedColorType *), SortCmpRtn);
+		// Relink the sorted list into one: 
+		for(j = 0; j < pNewColorSubdiv[Index].NumEntries - 1; j++)
 			SortArray[j]->Pnext = SortArray[j + 1];
-		SortArray[NewColorSubdiv[Index].NumEntries - 1]->Pnext = NULL;
-		NewColorSubdiv[Index].QuantizedColors = QuantizedColor = SortArray[0];
+		SortArray[pNewColorSubdiv[Index].NumEntries - 1]->Pnext = NULL;
+		pNewColorSubdiv[Index].QuantizedColors = QuantizedColor = SortArray[0];
 		SAlloc::F((char*)SortArray);
-		/* Now simply add the Counts until we have half of the Count: */
-		Sum = NewColorSubdiv[Index].Count / 2 - QuantizedColor->Count;
+		// Now simply add the Counts until we have half of the Count: 
+		Sum = pNewColorSubdiv[Index].Count / 2 - QuantizedColor->Count;
 		NumEntries = 1;
 		Count = QuantizedColor->Count;
 		while(QuantizedColor->Pnext && (Sum -= QuantizedColor->Pnext->Count) >= 0 && QuantizedColor->Pnext->Pnext) {
@@ -2614,22 +2613,20 @@ static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, u
 		MinColor <<= (8 - BITS_PER_PRIM_COLOR);
 
 		/* Partition right here: */
-		NewColorSubdiv[*NewColorMapSize].QuantizedColors = QuantizedColor->Pnext;
+		pNewColorSubdiv[*pNewColorMapSize].QuantizedColors = QuantizedColor->Pnext;
 		QuantizedColor->Pnext = NULL;
-		NewColorSubdiv[*NewColorMapSize].Count = Count;
-		NewColorSubdiv[Index].Count -= Count;
-		NewColorSubdiv[*NewColorMapSize].NumEntries = NewColorSubdiv[Index].NumEntries - NumEntries;
-		NewColorSubdiv[Index].NumEntries = NumEntries;
+		pNewColorSubdiv[*pNewColorMapSize].Count = Count;
+		pNewColorSubdiv[Index].Count -= Count;
+		pNewColorSubdiv[*pNewColorMapSize].NumEntries = pNewColorSubdiv[Index].NumEntries - NumEntries;
+		pNewColorSubdiv[Index].NumEntries = NumEntries;
 		for(j = 0; j < 3; j++) {
-			NewColorSubdiv[*NewColorMapSize].RGBMin[j] = NewColorSubdiv[Index].RGBMin[j];
-			NewColorSubdiv[*NewColorMapSize].RGBWidth[j] = NewColorSubdiv[Index].RGBWidth[j];
+			pNewColorSubdiv[*pNewColorMapSize].RGBMin[j] = pNewColorSubdiv[Index].RGBMin[j];
+			pNewColorSubdiv[*pNewColorMapSize].RGBWidth[j] = pNewColorSubdiv[Index].RGBWidth[j];
 		}
-		NewColorSubdiv[*NewColorMapSize].RGBWidth[SortRGBAxis] =
-		    NewColorSubdiv[*NewColorMapSize].RGBMin[SortRGBAxis] +
-		    NewColorSubdiv[*NewColorMapSize].RGBWidth[SortRGBAxis] - MinColor;
-		NewColorSubdiv[*NewColorMapSize].RGBMin[SortRGBAxis] = MinColor;
-		NewColorSubdiv[Index].RGBWidth[SortRGBAxis] = MaxColor - NewColorSubdiv[Index].RGBMin[SortRGBAxis];
-		(*NewColorMapSize)++;
+		pNewColorSubdiv[*pNewColorMapSize].RGBWidth[SortRGBAxis] = pNewColorSubdiv[*pNewColorMapSize].RGBMin[SortRGBAxis] + pNewColorSubdiv[*pNewColorMapSize].RGBWidth[SortRGBAxis] - MinColor;
+		pNewColorSubdiv[*pNewColorMapSize].RGBMin[SortRGBAxis] = MinColor;
+		pNewColorSubdiv[Index].RGBWidth[SortRGBAxis] = MaxColor - pNewColorSubdiv[Index].RGBMin[SortRGBAxis];
+		(*pNewColorMapSize)++;
 	}
 	return GIF_OK;
 }
@@ -2644,7 +2641,7 @@ static int SubdivColorMap(NewColorMapType * NewColorSubdiv, uint ColorMapSize, u
 // This function returns GIF_OK if successful, GIF_ERROR otherwise.
 // 
 int GifQuantizeBuffer(uint Width, uint Height,
-    int * ColorMapSize, GifByteType * RedInput, GifByteType * GreenInput, GifByteType * BlueInput,
+    int * pColorMapSize, GifByteType * RedInput, GifByteType * GreenInput, GifByteType * BlueInput,
     GifByteType * OutputBuffer, SColorRGB * OutputColorMap) 
 {
 	uint Index, NumOfEntries;
@@ -2697,13 +2694,13 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	NewColorSubdiv[0].NumEntries = NumOfEntries; /* Different sampled colors */
 	NewColorSubdiv[0].Count = ((long)Width) * Height; /* Pixels */
 	NewColorMapSize = 1;
-	if(SubdivColorMap(NewColorSubdiv, *ColorMapSize, (uint *)&NewColorMapSize) != GIF_OK) {
+	if(SubdivColorMap(NewColorSubdiv, *pColorMapSize, (uint *)&NewColorMapSize) != GIF_OK) {
 		SAlloc::F((char*)ColorArrayEntries);
 		return GIF_ERROR;
 	}
-	if(NewColorMapSize < *ColorMapSize) {
+	if(NewColorMapSize < *pColorMapSize) {
 		// And clear rest of color map: 
-		for(i = NewColorMapSize; i < *ColorMapSize; i++)
+		for(i = NewColorMapSize; i < *pColorMapSize; i++)
 			OutputColorMap[i].Set(0);
 	}
 	/* Average the colors in each entry to be the color to be used in the
@@ -2744,6 +2741,6 @@ int GifQuantizeBuffer(uint Width, uint Height,
 	fprintf(stderr, "Quantization L(0) errors: Red = %d, Green = %d, Blue = %d.\n", MaxRGBError[0], MaxRGBError[1], MaxRGBError[2]);
 #endif /* DEBUG */
 	SAlloc::F((char*)ColorArrayEntries);
-	*ColorMapSize = NewColorMapSize;
+	*pColorMapSize = NewColorMapSize;
 	return GIF_OK;
 }

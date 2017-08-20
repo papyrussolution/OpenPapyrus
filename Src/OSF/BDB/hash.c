@@ -204,7 +204,7 @@ static int __hamc_close(DBC*dbc, db_pgno_t root_pgno, int * rmroot)
 	}
 out:    if(ret != 0)
 		F_SET(dbc, DBC_ERROR);
-	if(hcp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(gotmeta != 0 && (t_ret = __ham_release_meta(dbc)) != 0 && ret == 0)
 		ret = t_ret;

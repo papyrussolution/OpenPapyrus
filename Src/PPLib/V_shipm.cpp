@@ -240,7 +240,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Counter.Init();
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(Tbl);
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
 	GbList.clear();
@@ -354,7 +354,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewShipmAnalyze::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init(Tbl);
 	if(Tbl) {
 		P_IterQuery = new BExtQuery(Tbl, 1);

@@ -263,22 +263,21 @@ static int __bam_root(DBC*dbc, EPG * cp)
 	ret = __bam_ca_split(dbc, cp->page->pgno, lp->pgno, rp->pgno, split, 1);
 	/* Success or error: release pages and locks. */
 err:
-	if(cp->page != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	cp->page = NULL;
-	/*
-	 * We are done.  Put or downgrade all our locks and release
-	 * the pages.
-	 */
+	//
+	// We are done.  Put or downgrade all our locks and release the pages.
+	//
 	if((t_ret = __TLPUT(dbc, llock)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, rlock)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, cp->lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(lp != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, lp, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, lp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, rp, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, dbc->thread_info, rp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

@@ -219,7 +219,7 @@ int SLAPI PPViewCheckOpJrnl::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
 	CATCHZOK
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	return ok;
 }
 
@@ -230,7 +230,7 @@ int SLAPI PPViewCheckOpJrnl::InitIteration()
 	CheckOpJrnlTbl::Key0 k0, ks;
 
 	MEMSZERO(k0);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	{
 		P_IterQuery = new BExtQuery(P_Tbl, 0);
 		P_IterQuery->selectAll();

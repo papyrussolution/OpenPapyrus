@@ -1,6 +1,6 @@
 // CPTRANSF.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -110,6 +110,7 @@ int SLAPI CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDA
 
 int SLAPI CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTi, CpTrfrExt * pExt)
 {
+	int    ok = 1;
 	CpTransfTbl::Key0 k;
 	k.BillID = billID;
 	k.RByBill = *pRByBill;
@@ -137,9 +138,10 @@ int SLAPI CpTransfCore::EnumItems(PPID billID, int * pRByBill, PPTransferItem * 
 		if(pExt) {
 			CpTransfCore::GetExt(data, pExt);
 		}
-		return 1;
 	}
-	return PPDbSearchError();
+	else
+		ok = PPDbSearchError();
+	return ok;
 }
 
 int SLAPI CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta)
@@ -309,9 +311,9 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 			pPack->SetFreight(&freight);
 		}
 	}
-#if 0 // @v9.0.0 { Ôóíêöèîíàë ýòîãî áëîêà îáñëóæèâàåòñÿ âûçîâîì pPack->SetupObject(pPack->Rec.Object, sob) âûøå
+#if 0 // @v9.0.0 { Ð¤ÑƒÐ½ÐºÑ†Ð¸Ð¾Ð½Ð°Ð» ÑÑ‚Ð¾Ð³Ð¾ Ð±Ð»Ð¾ÐºÐ° Ð¾Ð±ÑÐ»ÑƒÐ¶Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð²Ñ‹Ð·Ð¾Ð²Ð¾Ð¼ pPack->SetupObject(pPack->Rec.Object, sob) Ð²Ñ‹ÑˆÐµ
 	//
-	// Óñòàíàâëèâàåì çíà÷åíèÿ, ñîãëàñíî êëèåíòñêèì ñîãëàøåíèÿì
+	// Ð£ÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ, ÑÐ¾Ð³Ð»Ð°ÑÐ½Ð¾ ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¸Ð¼ ÑÐ¾Ð³Ð»Ð°ÑˆÐµÐ½Ð¸ÑÐ¼
 	//
 	{
 		PPObjAccSheet acs_obj;
@@ -414,8 +416,8 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 	pack.Rec.Dt = pPugl->Dt;
 	pack.Rec.LocID = pPugl->LocID;
 	//
-	// Åñëè äîêóìåíò ñîçäàåòñÿ äëÿ êîìïëåêòàöèè òîëüêî îäíîãî íàèìåíîâàíèÿ òîâàðà,
-	// òî âíîñèì ýòî íàèìåíîâàíèå â ïðèìå÷àíèå ê äîêóìåíòó
+	// Ð•ÑÐ»Ð¸ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ ÑÐ¾Ð·Ð´Ð°ÐµÑ‚ÑÑ Ð´Ð»Ñ ÐºÐ¾Ð¼Ð¿Ð»ÐµÐºÑ‚Ð°Ñ†Ð¸Ð¸ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ð½Ð°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ñ Ñ‚Ð¾Ð²Ð°Ñ€Ð°,
+	// Ñ‚Ð¾ Ð²Ð½Ð¾ÑÐ¸Ð¼ ÑÑ‚Ð¾ Ð½Ð°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð² Ð¿Ñ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ Ðº Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
 	//
 	if(pPugl->getCount() == 1) {
 		SString memo_buf;
@@ -427,7 +429,8 @@ int SLAPI PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl,
 		PPGoodsStruc gs;
 		PPGoodsStruc::Ident gs_ident(pugi.GoodsID, GSF_COMPL, GSF_PARTITIAL, pack.Rec.Dt);
 		uint   acpos = 0;
-		if(LoadGoodsStruc(&gs_ident, &gs) > 0) {
+		const  int lgs_r = LoadGoodsStruc(&gs_ident, &gs);
+		if(lgs_r > 0) {
 			int    r = 0;
 			pPugl->atFree(--i);
 
@@ -480,10 +483,10 @@ SLAPI PPObjBill::WrOffDraftBlock::WrOffDraftBlock(const PPDraftOpEx * pWrOffPara
 int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
-	// Ñïèñàíèå äðàôò-äîêóìåíòà â äîêóìåíò ìîäèôèêàöèè.
-	// Åñëè çàäàíà îïåðàöèÿ êîìïåíñàöèè äåôèöèòà ïîñðåäñòâîì ìîäèôèêàöèè,
-	// òî ïðåäïðèíèìàåì ïîïûòêó ñôîðìèðîâàòü êîìïëåêòàöèþ, ñïîñîáíóþ ïîêðûòü
-	// äåôèöèò, ïîñëå ÷åãî âíîâü ïûòàåìñÿ ñïèñàòü äîêóìåíò.
+	// Ð¡Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð² Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ð¸.
+	// Ð•ÑÐ»Ð¸ Ð·Ð°Ð´Ð°Ð½Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ñ ÐºÐ¾Ð¼Ð¿ÐµÐ½ÑÐ°Ñ†Ð¸Ð¸ Ð´ÐµÑ„Ð¸Ñ†Ð¸Ñ‚Ð° Ð¿Ð¾ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð¾Ð¼ Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ð¸,
+	// Ñ‚Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ñ€Ð¸Ð½Ð¸Ð¼Ð°ÐµÐ¼ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÑƒ ÑÑ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÐºÐ¾Ð¼Ð¿Ð»ÐµÐºÑ‚Ð°Ñ†Ð¸ÑŽ, ÑÐ¿Ð¾ÑÐ¾Ð±Ð½ÑƒÑŽ Ð¿Ð¾ÐºÑ€Ñ‹Ñ‚ÑŒ
+	// Ð´ÐµÑ„Ð¸Ñ†Ð¸Ñ‚, Ð¿Ð¾ÑÐ»Ðµ Ñ‡ÐµÐ³Ð¾ Ð²Ð½Ð¾Ð²ÑŒ Ð¿Ñ‹Ñ‚Ð°ÐµÐ¼ÑÑ ÑÐ¿Ð¸ÑÐ°Ñ‚ÑŒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
 	//
 	int    ok = -1, r;
 	int    incomplete = 0;
@@ -523,17 +526,17 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_t
 	CATCHZOK
 	if(incomplete)
 		ok *= 1000;
-	delete p_pack; // Ðàçðóøàåòñÿ, åñëè íå áûë âñòàâëåí â rBlk.ResultList
+	delete p_pack; // Ð Ð°Ð·Ñ€ÑƒÑˆÐ°ÐµÑ‚ÑÑ, ÐµÑÐ»Ð¸ Ð½Ðµ Ð±Ñ‹Ð» Ð²ÑÑ‚Ð°Ð²Ð»ÐµÐ½ Ð² rBlk.ResultList
 	return ok;
 }
 
 int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
-	// Ñïèñàíèå äðàôò-äîêóìåíòà â ðàñõîäíûé äîêóìåíò.
-	// Åñëè çàäàíà îïåðàöèÿ êîìïåíñàöèè äåôèöèòà ïîñðåäñòâîì ìîäèôèêàöèè,
-	// òî ïðåäïðèíèìàåì ïîïûòêó ñôîðìèðîâàòü êîìïëåêòàöèþ, ñïîñîáíóþ ïîêðûòü
-	// äåôèöèò, ïîñëå ÷åãî âíîâü ïûòàåìñÿ ñïèñàòü äîêóìåíò.
+	// Ð¡Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð² Ñ€Ð°ÑÑ…Ð¾Ð´Ð½Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
+	// Ð•ÑÐ»Ð¸ Ð·Ð°Ð´Ð°Ð½Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ñ ÐºÐ¾Ð¼Ð¿ÐµÐ½ÑÐ°Ñ†Ð¸Ð¸ Ð´ÐµÑ„Ð¸Ñ†Ð¸Ñ‚Ð° Ð¿Ð¾ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð¾Ð¼ Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ð¸,
+	// Ñ‚Ð¾ Ð¿Ñ€ÐµÐ´Ð¿Ñ€Ð¸Ð½Ð¸Ð¼Ð°ÐµÐ¼ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÑƒ ÑÑ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÐºÐ¾Ð¼Ð¿Ð»ÐµÐºÑ‚Ð°Ñ†Ð¸ÑŽ, ÑÐ¿Ð¾ÑÐ¾Ð±Ð½ÑƒÑŽ Ð¿Ð¾ÐºÑ€Ñ‹Ñ‚ÑŒ
+	// Ð´ÐµÑ„Ð¸Ñ†Ð¸Ñ‚, Ð¿Ð¾ÑÐ»Ðµ Ñ‡ÐµÐ³Ð¾ Ð²Ð½Ð¾Ð²ÑŒ Ð¿Ñ‹Ñ‚Ð°ÐµÐ¼ÑÑ ÑÐ¿Ð¸ÑÐ°Ñ‚ÑŒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
 	//
 	int    ok = -1, r;
 	int    incomplete = 0;
@@ -585,9 +588,9 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				break;
 		} while(try_again == 1);
 		//
-		// Åñëè óñòàíîâëåí ôëàã, äîïóñêàþùèé äîñïèñàíèå ÷àñòè÷íîé ñòðóêòóðû, òî
-		// äîáàâëÿåì â ðåçóëüòèðóþùèé äîêóìåíò ýëåìåíòû ÷àñòè÷íûõ ñòðóêòóð, àññîöèèðîâàííûõ
-		// ñ ïåðâîíà÷àëüíî äîáàâëåííûìè òîâàðàìè.
+		// Ð•ÑÐ»Ð¸ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ Ñ„Ð»Ð°Ð³, Ð´Ð¾Ð¿ÑƒÑÐºÐ°ÑŽÑ‰Ð¸Ð¹ Ð´Ð¾ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ñ‡Ð°ÑÑ‚Ð¸Ñ‡Ð½Ð¾Ð¹ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹, Ñ‚Ð¾
+		// Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð² Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñ‹ Ñ‡Ð°ÑÑ‚Ð¸Ñ‡Ð½Ñ‹Ñ… ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€, Ð°ÑÑÐ¾Ñ†Ð¸Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ…
+		// Ñ Ð¿ÐµÑ€Ð²Ð¾Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð½Ñ‹Ð¼Ð¸ Ñ‚Ð¾Ð²Ð°Ñ€Ð°Ð¼Ð¸.
 		//
 		if(rBlk.P_WrOffParam->Flags & DROXF_USEPARTSTRUC) {
 			PPComplBlock compl_list;
@@ -613,7 +616,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 	CATCHZOK
 	if(incomplete)
 		ok *= 1000;
-	delete p_pack; // Ðàçðóøàåòñÿ, åñëè íå áûë âñòàâëåí â rBlk.ResultList
+	delete p_pack; // Ð Ð°Ð·Ñ€ÑƒÑˆÐ°ÐµÑ‚ÑÑ, ÐµÑÐ»Ð¸ Ð½Ðµ Ð±Ñ‹Ð» Ð²ÑÑ‚Ð°Ð²Ð»ÐµÐ½ Ð² rBlk.ResultList
 	return ok;
 }
 
@@ -621,9 +624,9 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 int SLAPI PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
-	// Ñïèñàíèå äðàôò-äîêóìåíòà â áóõãàëòåðñêèé äîêóìåíò.
-	// Î÷åíü ïðîñòàÿ ïðîöåäóðà: ôîðìèðóåì áóõ äîêóìåíò, íîìèíàëüíàÿ ñóììà ðàâíà íîìèíàëüíîé ñóììå äðàôò-äîêóìåíòà.
-	// Âñå ñóììû èç äðàô-äîêóìåíòà êîïèðóåì â ðåçóëüòèðóþùèé è ôèêñèðóåì ýòè ñóììû.
+	// Ð¡Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð² Ð±ÑƒÑ…Ð³Ð°Ð»Ñ‚ÐµÑ€ÑÐºÐ¸Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
+	// ÐžÑ‡ÐµÐ½ÑŒ Ð¿Ñ€Ð¾ÑÑ‚Ð°Ñ Ð¿Ñ€Ð¾Ñ†ÐµÐ´ÑƒÑ€Ð°: Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€ÑƒÐµÐ¼ Ð±ÑƒÑ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, Ð½Ð¾Ð¼Ð¸Ð½Ð°Ð»ÑŒÐ½Ð°Ñ ÑÑƒÐ¼Ð¼Ð° Ñ€Ð°Ð²Ð½Ð° Ð½Ð¾Ð¼Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð¹ ÑÑƒÐ¼Ð¼Ðµ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°.
+	// Ð’ÑÐµ ÑÑƒÐ¼Ð¼Ñ‹ Ð¸Ð· Ð´Ñ€Ð°Ñ„-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° ÐºÐ¾Ð¿Ð¸Ñ€ÑƒÐµÐ¼ Ð² Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð¸ Ñ„Ð¸ÐºÑÐ¸Ñ€ÑƒÐµÐ¼ ÑÑ‚Ð¸ ÑÑƒÐ¼Ð¼Ñ‹.
 	//
 	int    ok = -1;
 	const  PPID src_bill_id = rBlk.SrcDraftPack.Rec.ID;
@@ -641,17 +644,17 @@ int SLAPI PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 		ok = 1;
 	}
 	CATCHZOK
-	delete p_pack; // Ðàçðóøàåòñÿ, åñëè íå áûë âñòàâëåí â rBlk.ResultList
+	delete p_pack; // Ð Ð°Ð·Ñ€ÑƒÑˆÐ°ÐµÑ‚ÑÑ, ÐµÑÐ»Ð¸ Ð½Ðµ Ð±Ñ‹Ð» Ð²ÑÑ‚Ð°Ð²Ð»ÐµÐ½ Ð² rBlk.ResultList
 	return ok;
 }
 
 int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 {
 	//
-	// Ñïèñàíèå ðàñõîäíîãî äðàôò-äîêóìåíòà â ïðèõîäíûé äðàôò-äîêóìåíò.
-	// Ôóíêöèÿ î÷åíü ñïåöèôè÷åñêàÿ: åñëè òîâàðíàÿ ïîçèöèÿ ìîæåò áûòü ðàçëîæåíà íà êîìïîíåíòû (ïî ñòðóêòóðå,
-	// òî â ðåçóëüòèðóþùèé äîêóìåíò âñòàâëÿþòñÿ òåðìèíàëüíûå êîìïîíåíòû ñ ôèíàëüíîé áàëàíñèðîâêîé öåí äëÿ ïîëó÷åíèÿ
-	// ñóìì äîêóìåíòà ñïèñàíèÿ ýêâèâàëåíòíûõ ñïèñûâàåìîìó äîêóìåíòó.
+	// Ð¡Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ñ€Ð°ÑÑ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð² Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð½Ñ‹Ð¹ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚.
+	// Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ Ð¾Ñ‡ÐµÐ½ÑŒ ÑÐ¿ÐµÑ†Ð¸Ñ„Ð¸Ñ‡ÐµÑÐºÐ°Ñ: ÐµÑÐ»Ð¸ Ñ‚Ð¾Ð²Ð°Ñ€Ð½Ð°Ñ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ñ€Ð°Ð·Ð»Ð¾Ð¶ÐµÐ½Ð° Ð½Ð° ÐºÐ¾Ð¼Ð¿Ð¾Ð½ÐµÐ½Ñ‚Ñ‹ (Ð¿Ð¾ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ðµ,
+	// Ñ‚Ð¾ Ð² Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð²ÑÑ‚Ð°Ð²Ð»ÑÑŽÑ‚ÑÑ Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ ÐºÐ¾Ð¼Ð¿Ð¾Ð½ÐµÐ½Ñ‚Ñ‹ Ñ Ñ„Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ð±Ð°Ð»Ð°Ð½ÑÐ¸Ñ€Ð¾Ð²ÐºÐ¾Ð¹ Ñ†ÐµÐ½ Ð´Ð»Ñ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ
+	// ÑÑƒÐ¼Ð¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ ÑÐºÐ²Ð¸Ð²Ð°Ð»ÐµÐ½Ñ‚Ð½Ñ‹Ñ… ÑÐ¿Ð¸ÑÑ‹Ð²Ð°ÐµÐ¼Ð¾Ð¼Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ.
 	//
 	int    ok = -1;
 	const  PPID src_bill_id = rBlk.SrcDraftPack.Rec.ID;
@@ -767,7 +770,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use
 	*/
 	//ok = 1;
 	CATCHZOK
-	delete p_pack; // Ðàçðóøàåòñÿ, åñëè íå áûë âñòàâëåí â rBlk.ResultList
+	delete p_pack; // Ð Ð°Ð·Ñ€ÑƒÑˆÐ°ÐµÑ‚ÑÑ, ÐµÑÐ»Ð¸ Ð½Ðµ Ð±Ñ‹Ð» Ð²ÑÑ‚Ð°Ð²Ð»ÐµÐ½ Ð² rBlk.ResultList
 	return ok;
 }
 
@@ -821,7 +824,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 							const uint lp = rows.at(0);
 							p_pack->SnL.GetNumber(lp, &serial_buf);
 							if(serial_buf.Empty()) {
-								// @todo Ñëåäóåò ôîðìèðîâàòü íîâóþ ñåðèþ ïî êàêîìó-ëèáî øàáëîíó
+								// @todo Ð¡Ð»ÐµÐ´ÑƒÐµÑ‚ Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð½Ð¾Ð²ÑƒÑŽ ÑÐµÑ€Ð¸ÑŽ Ð¿Ð¾ ÐºÐ°ÐºÐ¾Ð¼Ñƒ-Ð»Ð¸Ð±Ð¾ ÑˆÐ°Ð±Ð»Ð¾Ð½Ñƒ
 								(serial_buf = src_serial).CatChar('-').Cat("???");
 								p_pack->SnL.AddNumber(lp, serial_buf);
 							}
@@ -930,8 +933,8 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 		THROW(tra);
 		THROW(ExtractPacket(billID, &blk.SrcDraftPack) > 0); // @v8.5.8
 		if(blk.P_WrOffParam->WrOffOpID == 0) {
-			// Åñëè îïåðàöèÿ ñïèñàíèÿ íå îïðåäåëåíà, òî, åñòåñòâåííî, íèêàêèõ äîêóìåíòîâ
-			// ôîðìèðîâàòü íå òðåáóåòñÿ. Âñå, ÷òî ìû äîëæíû ñäåëàòü - ïîìåòèòü äîêóìåíò êàê ñïèñàííûé
+			// Ð•ÑÐ»Ð¸ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð½Ðµ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð°, Ñ‚Ð¾, ÐµÑÑ‚ÐµÑÑ‚Ð²ÐµÐ½Ð½Ð¾, Ð½Ð¸ÐºÐ°ÐºÐ¸Ñ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²
+			// Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð½Ðµ Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ÑÑ. Ð’ÑÐµ, Ñ‡Ñ‚Ð¾ Ð¼Ñ‹ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ - Ð¿Ð¾Ð¼ÐµÑ‚Ð¸Ñ‚ÑŒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ ÐºÐ°Ðº ÑÐ¿Ð¸ÑÐ°Ð½Ð½Ñ‹Ð¹
 			processed = 1;
 		}
 		else {
@@ -1168,9 +1171,9 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 				else {
 					//
 					// @v6.9.0..6.9.8
-					// Åñëè íåò äîêóìåíòà ñïèñàíèÿ (p_pack->Rec.OpID == 0), òî íåîáõîäèìî
-					// "â ðó÷íóþ" óñòàíîâèòü ïðèçíàê òîãî, ÷òî draft ñïèñàí.
-					// Â ïðîòèâíîì ñëó÷àå ýòî ñäåëàåò ôóíêöèÿ PPObjBill::TurnPacket
+					// Ð•ÑÐ»Ð¸ Ð½ÐµÑ‚ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ (p_pack->Rec.OpID == 0), Ñ‚Ð¾ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾
+					// "Ð² Ñ€ÑƒÑ‡Ð½ÑƒÑŽ" ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸Ð·Ð½Ð°Ðº Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾ draft ÑÐ¿Ð¸ÑÐ°Ð½.
+					// Ð’ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÑ‚Ð¾ ÑÐ´ÐµÐ»Ð°ÐµÑ‚ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ PPObjBill::TurnPacket
 					//
 					THROW(P_Tbl->SetRecFlag(billID, BILLF_WRITEDOFF, 1, 0));
 				}

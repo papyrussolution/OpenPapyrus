@@ -50,11 +50,11 @@ void LoadAllLogs(LogsArray *pLogsBuff)
 			LogFileEntry e;
 			MEMSZERO(e);
 			StringSet ss1(',', buff);
-			ss1.get(&j, (buff = 0));
+			ss1.get(&j, buff.Z());
 			e.ID = buff.ToLong();
-			ss1.get(&j, (buff = 0));
+			ss1.get(&j, buff.Z());
 			buff.CopyTo(e.LogName, sizeof(e.LogName));
-			ss1.get(&j, (buff = 0));
+			ss1.get(&j, buff.Z());
 			buff.CopyTo(e.FileName, sizeof(e.FileName));
 			pLogsBuff->insert(&e);
 		}
@@ -201,7 +201,7 @@ int SLAPI PPViewLogsMonitor::InitIteration()
 	DBQ  * dbq = 0;
 	TempLogFileMonTbl::Key0 k, ks;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TmpTbl) {
 		P_IterQuery = new BExtQuery(P_TmpTbl, 0);
 		P_IterQuery->selectAll();

@@ -581,7 +581,7 @@ int SLAPI PPViewStaffPost::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewStaffPost::InitIteration(int order)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1, idx = 0;
 	DBQ * dbq = 0;
 	BExtQuery * q = 0;
@@ -628,7 +628,7 @@ int SLAPI PPViewStaffPost::InitIteration(int order)
 	}
 	P_IterQuery = q;
 	CATCH
-		ZDELETE(q);
+		BExtQuery::ZDelete(&q);
 		ok = 0;
 	ENDCATCH
 	return ok;

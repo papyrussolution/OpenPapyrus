@@ -975,7 +975,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewTSessAnlz::InitIteration()
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		TempTSessRepTbl::Key3 k3, k3_;
 		MEMSZERO(k3);

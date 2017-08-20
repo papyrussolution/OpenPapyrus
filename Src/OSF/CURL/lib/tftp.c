@@ -297,7 +297,7 @@ static CURLcode tftp_parse_option_ack(tftp_state_data_t * state,
 		const char * option, * value;
 
 		tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &value);
-		if(tmp == NULL) {
+		if(!tmp) {
 			failf(data, "Malformed ACK packet, rejecting");
 			return CURLE_TFTP_ILLEGAL;
 		}

@@ -1,5 +1,5 @@
 // SXML.H
-// Copyright (c) A.Sobolev 2015
+// Copyright (c) A.Sobolev 2015, 2016, 2017
 //
 #ifndef __SXML_H
 #define __SXML_H

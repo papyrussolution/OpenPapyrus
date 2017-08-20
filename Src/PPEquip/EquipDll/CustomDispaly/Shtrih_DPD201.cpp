@@ -119,7 +119,7 @@ int SLAPI ShtrhDpdEquip::ConvertStrTo850CodePage(SString & rStr)
 			else
 				str.CatChar(c);
 		}
-		(rStr = 0).Cat(str);
+		rStr.Z().Cat(str);
 		ok = 1;
 	}
 	return ok;

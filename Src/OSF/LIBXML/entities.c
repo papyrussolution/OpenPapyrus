@@ -466,7 +466,7 @@ xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 		size_t new_size = buffer_size * 2;				    \
 		if(new_size < buffer_size) goto mem_error;			   \
 		tmp = (xmlChar*)SAlloc::R(buffer, new_size);			  \
-		if(tmp == NULL) goto mem_error;					   \
+		if(!tmp) goto mem_error;					   \
 		buffer = tmp;							    \
 		buffer_size = new_size;						    \
 }

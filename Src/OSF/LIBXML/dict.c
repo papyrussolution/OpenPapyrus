@@ -218,7 +218,7 @@ static const xmlChar * xmlDictAddString(xmlDictPtr dict, const xmlChar * name, u
 	fprintf(stderr, "-");
 #endif
 	pool = dict->strings;
-	while(pool != NULL) {
+	while(pool) {
 		if((pool->end - pool->free) > (int)namelen)
 			goto found_pool;
 		if(pool->size > size) size = pool->size;
@@ -228,7 +228,7 @@ static const xmlChar * xmlDictAddString(xmlDictPtr dict, const xmlChar * name, u
 	/*
 	 * Not found, need to allocate
 	 */
-	if(pool == NULL) {
+	if(!pool) {
 		if((dict->limit > 0) && (limit > dict->limit)) {
 			return 0;
 		}
@@ -239,7 +239,7 @@ static const xmlChar * xmlDictAddString(xmlDictPtr dict, const xmlChar * name, u
 		if(size < 4 * namelen)
 			size = 4 * namelen;  /* just in case ! */
 		pool = (xmlDictStrings *)SAlloc::M(sizeof(xmlDictStrings) + size);
-		if(pool == NULL)
+		if(!pool)
 			return 0;
 		pool->size = size;
 		pool->nbStrings = 0;
@@ -259,7 +259,6 @@ found_pool:
 	pool->nbStrings++;
 	return ret;
 }
-
 /*
  * xmlDictAddQString:
  * @dict: the dictionnary
@@ -294,7 +293,7 @@ static const xmlChar * xmlDictAddQString(xmlDictPtr dict, const xmlChar * prefix
 	/*
 	 * Not found, need to allocate
 	 */
-	if(pool == NULL) {
+	if(!pool) {
 		if((dict->limit > 0) && (limit > dict->limit)) {
 			return 0;
 		}
@@ -305,7 +304,7 @@ static const xmlChar * xmlDictAddQString(xmlDictPtr dict, const xmlChar * prefix
 		if(size < 4 * (namelen + plen + 1))
 			size = 4 * (namelen + plen + 1);  /* just in case ! */
 		pool = (xmlDictStrings *)SAlloc::M(sizeof(xmlDictStrings) + size);
-		if(pool == NULL)
+		if(!pool)
 			return 0;
 		pool->size = size;
 		pool->nbStrings = 0;

@@ -319,7 +319,7 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
 	ZDELETE(P_TmpTbl);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	List.Clear();
 	ExcludeOwnerList.Set(0); // @v8.4.2
 	Counter.Init();
@@ -490,7 +490,7 @@ int SLAPI PPViewSCard::CreateTempTable()
 		THROW(CreateOrderTable(Filt.Order, &P_TempOrd));
 	}
 	CATCH
-		ZDELETE(q);
+		BExtQuery::ZDelete(&q);
 		ZDELETE(P_TmpTbl);
 		ZDELETE(P_TempOrd);
 		ok = 0;
@@ -609,7 +609,7 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 			{
 				PPELinkArray ela;
 				PsnObj.P_Tbl->GetELinks(psn_rec.ID, &ela);
-				ela.GetPhones(3, result_buf = 0);
+				ela.GetPhones(3, result_buf.Z());
 				result_buf.CopyTo(pDestRec->Phone, sizeof(pDestRec->Phone));
 			}
 			addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
@@ -784,7 +784,7 @@ int SLAPI PPViewSCard::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempOrd) {
 		TempOrderTbl::Key1 k;
 		MEMSZERO(k);
@@ -3075,7 +3075,7 @@ int PPALDD_SCard::InitData(PPFilt & rFilt, long rsrv)
 			H.Debit = p_ext->ScRec.InTrnovr;
 			H.Credit = p_ext->ScRec.Turnover;
 			H.Rest = p_ext->ScRec.Rest;
-			PPObjSCard::CalcSCardHash(p_ext->ScRec.Code, temp_buf = 0).CopyTo(H.Hash, sizeof(H.Hash));
+			PPObjSCard::CalcSCardHash(p_ext->ScRec.Code, temp_buf.Z()).CopyTo(H.Hash, sizeof(H.Hash));
 			const long _flags = p_ext->ScRec.Flags;
 			H.Flags = _flags;
 			H.fClosed    = BIN(_flags & SCRDF_CLOSED);

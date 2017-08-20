@@ -80,7 +80,7 @@ int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, BExtInsert * pBe
 					if(GSObj.Fetch(struc.Rec.ParentID, &hdr_rec) > 0)
 						struc_name = hdr_rec.Name;
 					else
-						ideqvalstr(struc.Rec.ParentID, struc_name = 0);
+						ideqvalstr(struc.Rec.ParentID, struc_name.Z());
 				}
 				else
 					struc_name = struc.Rec.Name;
@@ -93,9 +93,9 @@ int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, BExtInsert * pBe
 				PPLoadString("structure", word); // @v9.2.1
 				GetGoodsName(goodsID, buf).Space().CatChar('(').Cat(word).CatChar(':').Cat(struc_name).CatChar(')');
 				buf.CopyTo(temp_rec.GoodsName, sizeof(temp_rec.GoodsName));
-				struc.GetTypeString((buf = 0));
+				struc.GetTypeString(buf.Z());
 				buf.CopyTo(temp_rec.Type, sizeof(temp_rec.Type));
-				r_i.GetEstimationString((buf = 0), MKSFMTD(0, 3, ALIGN_RIGHT));
+				r_i.GetEstimationString(buf.Z(), MKSFMTD(0, 3, ALIGN_RIGHT));
 				buf.CopyTo(temp_rec.Qtty, sizeof(temp_rec.Qtty));
 				STRNSCPY(temp_rec.ItemName, GetGoodsName(temp_rec.ItemID, buf));
 				if(pBei) {
@@ -173,7 +173,7 @@ int SLAPI PPViewGoodsStruc::InitIteration()
 	int    ok = 1;
 	int    idx = 0;
 	TempGoodsStrucTbl::Key1 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	MEMSZERO(k);
 	P_IterQuery = new BExtQuery(P_TempTbl, 1);
 	P_IterQuery->selectAll();

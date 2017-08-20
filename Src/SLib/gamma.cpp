@@ -17,7 +17,7 @@ int gamma_inc_Q_e(const double a, const double x, SMathResult * result);
 //
 //
 //
-static int cheb_eval_e(const ChebSeries * cs, double x, SMathResult * pResult)
+static void cheb_eval_e(const ChebSeries * cs, double x, SMathResult * pResult)
 {
 	double d  = 0.0;
 	double dd = 0.0;
@@ -37,7 +37,6 @@ static int cheb_eval_e(const ChebSeries * cs, double x, SMathResult * pResult)
 	}
 	pResult->V = d;
 	pResult->E = SMathConst::Epsilon * e + fabs(cs->c[cs->order]);
-	return 1;
 }
 //
 // digamma for x both positive and negative; we do both
@@ -125,7 +124,7 @@ int fpsi(double x, SMathResult * pResult)
 		}
 		else { /* x = 1 + v */
 			const double v = x - 1.0;
-			ok = cheb_eval_e(&psi_cs, 2.0*v-1.0, pResult);
+			cheb_eval_e(&psi_cs, 2.0*v-1.0, pResult);
 		}
 	}
 	return ok;
@@ -1233,7 +1232,7 @@ int erfc_e(double x, SMathResult * result)
 	series for gammastar(x)
 	double-precision for x > 10.0
 */
-static int gammastar_ser(double x, SMathResult * result)
+static void gammastar_ser(double x, SMathResult * result)
 {
 	/*
 		Use the Stirling series for the correction to Log(Gamma(x)),
@@ -1252,7 +1251,6 @@ static int gammastar_ser(double x, SMathResult * result)
 	const double ser = c0 + y*(c1 + y*(c2 + y*(c3 + y*(c4 + y*(c5 + y*(c6 + y*c7))))));
 	result->V = exp(ser/x);
 	result->E = 2.0 * SMathConst::Epsilon * result->V * MAX(1.0, ser/x);
-	return 1;
 }
 /*
 	gamma(x) for x >= 1/2
@@ -1371,7 +1369,7 @@ static int gamma_xgthalf(double x, SMathResult * result)
 		double q = (p * e) * p;
 		double pre = SMathConst::Sqrt2 * SMathConst::SqrtPi * q / sqrt(x);
 		SMathResult gstar;
-		ok = gammastar_ser(x, &gstar);
+		gammastar_ser(x, &gstar);
 		result->V = pre * gstar.V;
 		result->E = (x + 2.5) * SMathConst::Epsilon * result->V;
 	}
@@ -1475,7 +1473,7 @@ int gammastar(double x, SMathResult * result)
 		};
 		static ChebSeries gstar_a_cs = { gstar_a_data, 29, -1, 1, 17 };
 		const double t = 4.0/3.0*(x-0.5) - 1.0;
-		ok = cheb_eval_e(&gstar_a_cs, t, result);
+		cheb_eval_e(&gstar_a_cs, t, result);
 	}
 	else if(x < 10.0) {
 		/*
@@ -1522,7 +1520,7 @@ int gammastar(double x, SMathResult * result)
 		result->SetErr(c.E/(x*x), 2.0);
 	}
 	else if(x < 1.0/SMathConst::Root4Epsilon) {
-		ok = gammastar_ser(x, result);
+		gammastar_ser(x, result);
 	}
 	else if(x < 1.0/SMathConst::Epsilon) {
 		/*

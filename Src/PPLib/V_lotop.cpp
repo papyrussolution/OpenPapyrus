@@ -32,7 +32,7 @@ int SLAPI PPViewLotOp::InitIteration()
 	DateRange period;
 	TransferTbl::Key2 k;
 	Transfer * p_tt = P_BObj->trfr;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(p_tt, 2));
 	P_IterQuery->selectAll();
 	period.SetZero();

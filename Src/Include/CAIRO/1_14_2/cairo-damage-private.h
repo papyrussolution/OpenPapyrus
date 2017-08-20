@@ -37,7 +37,6 @@
 #define CAIRO_DAMAGE_PRIVATE_H
 
 #include "cairo-types-private.h"
-
 #include <pixman.h>
 
 CAIRO_BEGIN_DECLS
@@ -46,24 +45,20 @@ struct _cairo_damage {
 	cairo_status_t status;
 	cairo_region_t * region;
 	int dirty, remain;
-
 	struct _cairo_damage_chunk {
 		struct _cairo_damage_chunk * next;
 		cairo_box_t * base;
 		int count;
 		int size;
 	} chunks, * tail;
-
 	cairo_box_t boxes[32];
 };
 
 cairo_private cairo_damage_t * _cairo_damage_create(void);
 cairo_private cairo_damage_t * _cairo_damage_create_in_error(cairo_status_t status);
 cairo_private cairo_damage_t * _cairo_damage_add_box(cairo_damage_t * damage, const cairo_box_t * box);
-cairo_private cairo_damage_t * _cairo_damage_add_rectangle(cairo_damage_t * damage,
-    const CairoIRect * rect);
-cairo_private cairo_damage_t * _cairo_damage_add_region(cairo_damage_t * damage,
-    const cairo_region_t * region);
+cairo_private cairo_damage_t * _cairo_damage_add_rectangle(cairo_damage_t * damage, const CairoIRect * rect);
+cairo_private cairo_damage_t * _cairo_damage_add_region(cairo_damage_t * damage, const cairo_region_t * region);
 cairo_private cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage);
 cairo_private void _cairo_damage_destroy(cairo_damage_t * damage);
 

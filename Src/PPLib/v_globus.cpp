@@ -1,5 +1,5 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016
+// Copyright (c) A.Starodub 2012, 2016, 2017
 //
 // PPViewGlobalUserAcc
 //
@@ -33,14 +33,13 @@ int SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserAcc * pRec, TempG
 {
 	int    ok = -1;
 	if(pRec && pTempRec) {
-		SString buf, buf1, buf2;
-		pTempRec->ID       = pRec->ID;
+		pTempRec->ID = pRec->ID;
 		STRNSCPY(pTempRec->Name, pRec->Name);
 		pTempRec->PersonID = pRec->PersonID;
 		{
-			SString buf;
-			pRec->LocalDbUuid.ToStr(0, buf);
-			buf.CopyTo(pTempRec->Guid, sizeof(pTempRec->Guid));
+			SString temp_buf;
+			pRec->LocalDbUuid.ToStr(0, temp_buf);
+			temp_buf.CopyTo(pTempRec->Guid, sizeof(pTempRec->Guid));
 		}
 		pTempRec->Flags    = pRec->Flags;
 		ok = 1;
@@ -61,7 +60,7 @@ int SLAPI PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(P_TempTbl = CreateTempFile());
 	{
@@ -121,7 +120,7 @@ int SLAPI PPViewGlobalUserAcc::InitIteration()
 {
 	int    ok = 1;
 	TempGlobUserAccTbl::Key0 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->selectAll();
 	MEMSZERO(k);

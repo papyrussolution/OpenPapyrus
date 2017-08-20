@@ -55,9 +55,9 @@ typedef int (*xmlListWalker)(const void * data, const void * user);
 XMLPUBFUN xmlListPtr XMLCALL xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare);
 XMLPUBFUN void XMLCALL xmlListDelete(xmlListPtr l);
 /* Basic Operators */
-XMLPUBFUN void * XMLCALL xmlListSearch(xmlListPtr l, void * data);
+XMLPUBFUN void * XMLCALL xmlListSearch(xmlList * pList, void * data);
 XMLPUBFUN void * XMLCALL xmlListReverseSearch(xmlListPtr l, void * data);
-XMLPUBFUN int XMLCALL xmlListInsert(xmlListPtr l, void * data);
+XMLPUBFUN int XMLCALL xmlListInsert(xmlList * pList, void * data);
 XMLPUBFUN int XMLCALL xmlListAppend(xmlListPtr l, void * data);
 XMLPUBFUN int XMLCALL xmlListRemoveFirst(xmlListPtr l, void * data);
 XMLPUBFUN int XMLCALL xmlListRemoveLast(xmlListPtr l, void * data);

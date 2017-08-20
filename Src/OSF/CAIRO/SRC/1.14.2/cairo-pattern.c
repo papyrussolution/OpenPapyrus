@@ -588,10 +588,10 @@ slim_hidden_def(cairo_pattern_create_rgb);
 cairo_pattern_t * cairo_pattern_create_rgba(double red, double green, double blue, double alpha)
 {
 	cairo_color_t color;
-	red   = _cairo_restrict_value(red,   0.0, 1.0);
-	green = _cairo_restrict_value(green, 0.0, 1.0);
-	blue  = _cairo_restrict_value(blue,  0.0, 1.0);
-	alpha = _cairo_restrict_value(alpha, 0.0, 1.0);
+	red   = MINMAX(red,   0.0, 1.0);
+	green = MINMAX(green, 0.0, 1.0);
+	blue  = MINMAX(blue,  0.0, 1.0);
+	alpha = MINMAX(alpha, 0.0, 1.0);
 	_cairo_color_init_rgba(&color, red, green, blue, alpha);
 	CAIRO_MUTEX_INITIALIZE();
 	return _cairo_pattern_create_solid(&color);
@@ -1566,10 +1566,10 @@ void cairo_mesh_pattern_set_corner_color_rgba(cairo_pattern_t * pattern,
 		_cairo_pattern_set_error(pattern, CAIRO_STATUS_INVALID_MESH_CONSTRUCTION);
 		return;
 	}
-	red    = _cairo_restrict_value(red,    0.0, 1.0);
-	green  = _cairo_restrict_value(green,  0.0, 1.0);
-	blue   = _cairo_restrict_value(blue,   0.0, 1.0);
-	alpha  = _cairo_restrict_value(alpha,  0.0, 1.0);
+	red    = MINMAX(red,    0.0, 1.0);
+	green  = MINMAX(green,  0.0, 1.0);
+	blue   = MINMAX(blue,   0.0, 1.0);
+	alpha  = MINMAX(alpha,  0.0, 1.0);
 	_cairo_mesh_pattern_set_corner_color(mesh, corner_num, red, green, blue, alpha);
 }
 
@@ -1673,18 +1673,19 @@ void cairo_pattern_add_color_stop_rgb(cairo_pattern_t * pattern,
  **/
 void cairo_pattern_add_color_stop_rgba(cairo_pattern_t * pattern, double offset, double red, double green, double blue, double alpha)
 {
-	if(pattern->status)
-		return;
-	if(!oneof2(pattern->type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL)) {
-		_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
-		return;
+	if(pattern->status == 0) {
+		if(!oneof2(pattern->type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL)) {
+			_cairo_pattern_set_error(pattern, CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
+		}
+		else {
+			offset = MINMAX(offset, 0.0, 1.0);
+			red    = MINMAX(red,    0.0, 1.0);
+			green  = MINMAX(green,  0.0, 1.0);
+			blue   = MINMAX(blue,   0.0, 1.0);
+			alpha  = MINMAX(alpha,  0.0, 1.0);
+			_cairo_pattern_add_color_stop((cairo_gradient_pattern_t*)pattern, offset, red, green, blue, alpha);
+		}
 	}
-	offset = _cairo_restrict_value(offset, 0.0, 1.0);
-	red    = _cairo_restrict_value(red,    0.0, 1.0);
-	green  = _cairo_restrict_value(green,  0.0, 1.0);
-	blue   = _cairo_restrict_value(blue,   0.0, 1.0);
-	alpha  = _cairo_restrict_value(alpha,  0.0, 1.0);
-	_cairo_pattern_add_color_stop((cairo_gradient_pattern_t*)pattern, offset, red, green, blue, alpha);
 }
 
 slim_hidden_def(cairo_pattern_add_color_stop_rgba);

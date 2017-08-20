@@ -429,7 +429,7 @@ int SLAPI PPViewStaffCal::InitIteration(int ord)
 		TempStaffCalTbl::Key2 k2;
 	} k, k_;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		if(ord == ordByDate)
 			idx = 1;

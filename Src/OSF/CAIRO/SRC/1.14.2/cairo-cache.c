@@ -80,11 +80,8 @@ static cairo_bool_t _cairo_cache_entry_is_non_zero(const void * entry)
  * used to establish a window during which no automatic removal of
  * entries will occur.
  **/
-cairo_status_t _cairo_cache_init(cairo_cache_t * cache,
-    cairo_cache_keys_equal_func_t keys_equal,
-    cairo_cache_predicate_func_t predicate,
-    cairo_destroy_func_t entry_destroy,
-    ulong max_size)
+cairo_status_t _cairo_cache_init(cairo_cache_t * cache, cairo_cache_keys_equal_func_t keys_equal,
+    cairo_cache_predicate_func_t predicate, cairo_destroy_func_t entry_destroy, ulong max_size)
 {
 	cache->hash_table = _cairo_hash_table_create(keys_equal);
 	if(unlikely(cache->hash_table == NULL))
@@ -137,7 +134,6 @@ void _cairo_cache_fini(cairo_cache_t * cache)
 void _cairo_cache_freeze(cairo_cache_t * cache)
 {
 	assert(cache->freeze_count >= 0);
-
 	cache->freeze_count++;
 }
 
@@ -270,7 +266,7 @@ void _cairo_cache_foreach(cairo_cache_t * cache, cairo_cache_callback_func_t cac
 
 ulong _cairo_hash_string(const char * c)
 {
-	/* This is the djb2 hash. */
+	// This is the djb2 hash.
 	ulong hash = _CAIRO_HASH_INIT_VALUE;
 	while(c && *c)
 		hash = ((hash << 5) + hash) + *c++;

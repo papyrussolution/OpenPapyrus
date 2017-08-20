@@ -397,7 +397,7 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 			if(Delim[0]) {
 				temp_buf.CopyFromN(P_Buf+p, len);
 				if(fcmp) {
-					if(fcmp((const char *)temp_buf, pPattern, 0) == 0)
+					if(fcmp(temp_buf.cptr(), pPattern, 0) == 0)
 						ok = 1;
 				}
 				else if(temp_buf.Cmp(pPattern, 0) == 0)
@@ -560,7 +560,7 @@ size_t SLAPI StringSet::getSize() const
 //
 SLAPI SStrGroup::SStrGroup()
 {
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 size_t SLAPI SStrGroup::GetPoolDataLen() const
@@ -587,13 +587,13 @@ SStrGroup & FASTCALL SStrGroup::CopyS(const SStrGroup & rS)
 void SLAPI SStrGroup::ClearS()
 {
 	Pool.clear(1);
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 void SLAPI SStrGroup::DestroyS()
 {
 	Pool.clear(0);
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 int SLAPI SStrGroup::AddS(const char * pStr, uint * pPos)

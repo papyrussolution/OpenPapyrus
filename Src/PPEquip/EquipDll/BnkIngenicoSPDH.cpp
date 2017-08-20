@@ -297,7 +297,7 @@ int Init(const char * pLibName)
 	THROW(P_BnkIngVtb);
 	path_struct.Split(pLibName);
 	path_struct.Dir.ReplaceStr("DLL\\", "INI\\", 1);
-	(P_BnkIngVtb->IniPath = 0).Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat("cashreg.ini");
+	P_BnkIngVtb->IniPath.Z().Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat("cashreg.ini");
 
 	{
 		size_t pos = 0;
@@ -313,7 +313,7 @@ int Init(const char * pLibName)
 			}
 		}
 		path_struct.Dir.ReplaceStr("INI\\", "\\", 1);
-		(P_BnkIngVtb->OutPath = 0).Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat(/*"cheq.out"*/r_str);
+		P_BnkIngVtb->OutPath.Z().Cat(path_struct.Drv).CatChar(':').Cat(path_struct.Dir).Cat(/*"cheq.out"*/r_str);
 	}
 
 	CATCH
@@ -375,11 +375,11 @@ int BnkIngVTB::Connect()
 	Transaction.operType = OPER_TESTCONNECT;
 	result = ProcessOw(&Transaction);
 
-	(r_str = 0).Cat(P_BnkIngVtb->Transaction.responseCode);
-	(r_str = 0).Cat(P_BnkIngVtb->Transaction.text_message);
-	(r_str = 0).Cat(P_BnkIngVtb->Transaction.rrn);
-	(r_str = 0).Cat(P_BnkIngVtb->Transaction.authCode);
-	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
+	r_str.Z().Cat(P_BnkIngVtb->Transaction.responseCode);
+	r_str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
+	r_str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
+	r_str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
+	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 	
 	THROWERR_ADD(result == 0, INGVTB_TRANSERR);
 	CATCH
@@ -415,7 +415,7 @@ int BnkIngVTB::Pay()
 	str.Z().Cat(P_BnkIngVtb->Transaction.amount);
 	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
-	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
+	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
 	CATCH
@@ -441,7 +441,7 @@ int BnkIngVTB::Refund()
 	str.Z().Cat(P_BnkIngVtb->Transaction.amount);
 	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
-	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
+	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
 	CATCH
@@ -466,7 +466,7 @@ int BnkIngVTB::GetSessReport(char * pZCheck, size_t bufSize)
 	str.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 	str.Z().Cat(P_BnkIngVtb->Transaction.rrn);
 	str.Z().Cat(P_BnkIngVtb->Transaction.authCode);
-	(TransErrStr = 0).Cat(P_BnkIngVtb->Transaction.text_message);
+	TransErrStr.Z().Cat(P_BnkIngVtb->Transaction.text_message);
 
 	THROWERR(result == 0, INGVTB_TRANSERR);
 	THROWERR(file.IsValid(), INGVTB_CHECKFILENOTFOUND);
@@ -495,11 +495,11 @@ int BnkIngVTB::GetLastErrorText(char * pBuf, size_t bufSize)
 	int  ok = 0, exit = 0;
 	SString msg;
 	if(LastError == INGVTB_TRANSERR)
-		(msg = 0).Cat(TransErrStr);
+		msg.Z().Cat(TransErrStr);
 	else {
 		for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 			if(LastError == ErrMsg[i].Id) {
-				(msg = 0).Cat(ErrMsg[i].P_Msg);
+				msg.Z().Cat(ErrMsg[i].P_Msg);
 				break;
 			}
 		}
@@ -522,7 +522,7 @@ int BnkIngVTB::GetLastErrorText(char * pBuf, size_t bufSize)
 		}
 	}
 	if(msg.Len() + 1 > bufSize) {
-		(LastStr = 0).Cat(msg);
+		LastStr.Z().Cat(msg);
 		ok = 2;
 	}
 	else {
@@ -538,7 +538,7 @@ int GetLastErrorText(char * pBuf, size_t bufSize)
 	SString msg;
 	for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(LastError == ErrMsg[i].Id) {
-			(msg = 0).Cat(ErrMsg[i].P_Msg);
+			msg.Z().Cat(ErrMsg[i].P_Msg);
 			break;
 		}
 	}

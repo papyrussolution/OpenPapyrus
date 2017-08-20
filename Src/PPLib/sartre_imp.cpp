@@ -2130,7 +2130,7 @@ private:
 	TSArray <InnerEntry> L;
 };
 
-int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
+int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
 {
 	int    ok = 1;
 	const  uint max_items_per_tx = 256;
@@ -2153,12 +2153,12 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 		CONCEPTID gender_cid = 0;
 		CONCEPTID gender_fem_cid = 0;
 		CONCEPTID gender_mas_cid = 0;
-		SrDatabase db;
-		THROW(db.Open(0, 0));
-		THROW(db.ResolveConcept(p_parent_concept, &parent_cid));
-		THROW(db.ResolveConcept("gender", &gender_cid));
-		THROW(db.ResolveConcept("gender_mas", &gender_mas_cid));
-		THROW(db.ResolveConcept("gender_fem", &gender_fem_cid));
+		//SrDatabase db;
+		//THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
+		THROW(rDb.ResolveConcept(p_parent_concept, &parent_cid));
+		THROW(rDb.ResolveConcept("gender", &gender_cid));
+		THROW(rDb.ResolveConcept("gender_mas", &gender_mas_cid));
+		THROW(rDb.ResolveConcept("gender_fem", &gender_fem_cid));
 		assert(parent_cid);
 		assert(gender_cid);
 		assert(gender_mas_cid);
@@ -2213,7 +2213,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 					SStringU this_name_u;
 					SStringU next_name_u;
 					int    coupled_gender = 0;
-					THROW_MEM(p_ta = new BDbTransaction(db, 1));
+					THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
 					THROW_DB(*p_ta);
 					for(uint i = 0; i < list.GetCount(); i++) {
 						if(list.GetItem(i, entry)) {
@@ -2223,7 +2223,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 							entry.Name.Tokenize(" ", name_ss);
 							for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
 								LEXID  word_id = 0;
-								THROW(db.ResolveWord(temp_buf, &word_id));
+								THROW(rDb.ResolveWord(temp_buf, &word_id));
 								temp_buf.Transf(CTRANSF_UTF8_TO_OUTER); // @debug
 								assert(word_id);
 								ngram.add(word_id);
@@ -2237,19 +2237,19 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 										wf.SetTag(SRWG_PROPERNAME, properNameType);
 									if(entry.Gender)
 										wf.SetTag(SRWG_GENDER, entry.Gender);
-									THROW(db.SetSimpleWordFlexiaModel(ngram.get(0), wf));
+									THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(0), wf));
 								}
 								else if(ngram.getCount() > 1) {
 									for(uint j = 0; j < ngram.getCount(); j++) {
 										SrWordForm wf;
 										wf.SetTag(SRWG_LANGUAGE, lang_id);
-										THROW(db.SetSimpleWordFlexiaModel(ngram.get(j), wf));
+										THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(j), wf));
 									}
 								}
 							}
-							THROW(db.ResolveNGram(ngram, &ngram_id));
+							THROW(rDb.ResolveNGram(ngram, &ngram_id));
 							if(ngram_id) {
-								CONCEPTID prop_subclass = db.GetReservedConcept(db.rcSubclass);
+								CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
 								SrCPropDeclList pdl;
 
 								CONCEPTID cid = 0;
@@ -2258,11 +2258,11 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 								SrCPropList cpl;
 								SrCProp cp, cp_gender;
 								THROW(prop_subclass);
-								if(db.GetNgConceptList(ngram_id, db.ngclAnonymOnly, _clist) > 0) {
+								if(rDb.GetNgConceptList(ngram_id, rDb.ngclAnonymOnly, _clist) > 0) {
 									assert(_clist.getCount());
 									for(uint cidx = 0; !cid && cidx < _clist.getCount(); cidx++) {
 										CONCEPTID _c = _clist.get(cidx);
-										if(db.GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
+										if(rDb.GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
 											CONCEPTID _val = 0;
 											if(cp.Get(_val) && _val == parent_cid) {
 												if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
@@ -2278,10 +2278,10 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 												else {
 													cid = _c;
 													if(entry.Gender == SRGENDER_MASCULINE) {
-														THROW(db.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
+														THROW(rDb.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
 													}
 													else if(entry.Gender == SRGENDER_FEMININE) {
-														THROW(db.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
+														THROW(rDb.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
 													}
 												}
 											}
@@ -2289,14 +2289,14 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 									}
 								}
 								if(!cid) {
-									THROW(db.CreateAnonymConcept(&cid));
-									THROW(db.P_CNgT->Set(cid, ngram_id));
-									THROW(db.SetConceptProp(cid, prop_subclass, 0, parent_cid));
+									THROW(rDb.CreateAnonymConcept(&cid));
+									THROW(rDb.P_CNgT->Set(cid, ngram_id));
+									THROW(rDb.SetConceptProp(cid, prop_subclass, 0, parent_cid));
 									if(entry.Gender == SRGENDER_MASCULINE) {
-										THROW(db.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
+										THROW(rDb.SetConceptProp(cid, gender_cid, 0, gender_mas_cid));
 									}
 									else if(entry.Gender == SRGENDER_FEMININE) {
-										THROW(db.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
+										THROW(rDb.SetConceptProp(cid, gender_cid, 0, gender_fem_cid));
 									}
 								}
 							}
@@ -2307,7 +2307,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 										THROW_DB(p_ta->Commit());
 										ZDELETE(p_ta);
 									}
-									THROW_MEM(p_ta = new BDbTransaction(db, 1));
+									THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
 									THROW_DB(*p_ta);
 									items_per_tx = 0;
 								}
@@ -2322,7 +2322,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 						THROW_DB(p_ta->Commit());
 						ZDELETE(p_ta);
 					}
-					THROW_DB(db.P_Db->TransactionCheckPoint());
+					THROW_DB(rDb.P_Db->TransactionCheckPoint());
 				}
 			}
 		}
@@ -2331,6 +2331,186 @@ int SLAPI PrcssrSartre::ImportHumanNames(const char * pSrcFileName, const char *
 	delete p_ta;
 	return ok;
 }
+#if 0 // {
+//
+// Descr: Функция одноразового использования для формирования файлов 
+//   country-intl.csv currency-intl.csv locale-intl.csv language-intl.csv
+//   содержащих наименования государств, валют, локалей и языков на очень многих языках. 
+//   Формируется из репозитория https://github.com/umpirsky/country-list.git
+//   в котором добрый человек сложил все необходимые для этого данные.
+//
+int SLAPI PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
+{
+	int    ok = 1;
+    SString result_file_name;
+    SString temp_buf;
+    SString line_buf;
+    (result_file_name = pBaseSrcPath).SetLastSlash().Cat("all.csv");
+    SFile f_out(result_file_name, SFile::mWrite);
+	line_buf.Z().Cat("lang;id;value").CR();
+	f_out.WriteLine(line_buf);
+    {
+    	PPWait(1);
+    	SString lang_code;
+		SString code_buf, text_buf;
+    	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
+    	SDirEntry sde;
+		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
+            if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("country.csv");
+                if(fileExists(temp_buf)) {
+					PPWaitMsg(temp_buf);
+                    SFile f_in(temp_buf, SFile::mRead);
+                    if(f_in.IsValid()) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+                            if(line_count) { // Первая строка - заголовок полей
+								temp_buf.Chomp().Strip();
+								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
+									code_buf.Strip().StripQuotes().Strip();
+									text_buf.Strip().StripQuotes().Strip();
+									line_buf.Z().Cat(sde.FileName).Semicol().Cat(code_buf).Semicol().Cat(text_buf);
+									f_out.WriteLine(line_buf.CR());
+								}
+                            }
+						}
+                    }
+                }
+            }
+		}
+    }
+    PPWait(0);
+	return ok;
+}
+
+int SLAPI PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
+{
+	int    ok = 1;
+    SString result_file_name;
+    SString temp_buf;
+    SString line_buf;
+    (result_file_name = pBaseSrcPath).SetLastSlash().Cat("all.csv");
+    SFile f_out(result_file_name, SFile::mWrite);
+	line_buf.Z().Cat("lang;id;value").CR();
+	f_out.WriteLine(line_buf);
+    {
+    	PPWait(1);
+    	SString lang_code;
+		SString code_buf, text_buf;
+    	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
+    	SDirEntry sde;
+		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
+            if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("currency.csv");  
+                if(fileExists(temp_buf)) {
+					PPWaitMsg(temp_buf);
+                    SFile f_in(temp_buf, SFile::mRead);
+                    if(f_in.IsValid()) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+                            if(line_count) { // Первая строка - заголовок полей
+								temp_buf.Chomp().Strip();
+								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
+									code_buf.Strip().StripQuotes().Strip();
+									text_buf.Strip().StripQuotes().Strip();
+									line_buf.Z().Cat(sde.FileName).Semicol().Cat(code_buf).Semicol().Cat(text_buf);
+									f_out.WriteLine(line_buf.CR());
+								}
+                            }
+						}
+                    }
+                }
+            }
+		}
+    }
+    PPWait(0);
+	return ok;
+}
+
+int SLAPI PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
+{
+	int    ok = 1;
+    SString result_file_name;
+    SString temp_buf;
+    SString line_buf;
+    (result_file_name = pBaseSrcPath).SetLastSlash().Cat("all.csv");
+    SFile f_out(result_file_name, SFile::mWrite);
+	line_buf.Z().Cat("lang;id;value").CR();
+	f_out.WriteLine(line_buf);
+    {
+    	PPWait(1);
+    	SString lang_code;
+		SString code_buf, text_buf;
+    	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
+    	SDirEntry sde;
+		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
+            if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("locales.csv");  
+                if(fileExists(temp_buf)) {
+					PPWaitMsg(temp_buf);
+                    SFile f_in(temp_buf, SFile::mRead);
+                    if(f_in.IsValid()) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+                            if(line_count) { // Первая строка - заголовок полей
+								temp_buf.Chomp().Strip();
+								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
+									code_buf.Strip().StripQuotes().Strip();
+									text_buf.Strip().StripQuotes().Strip();
+									line_buf.Z().Cat(sde.FileName).Semicol().Cat(code_buf).Semicol().Cat(text_buf);
+									f_out.WriteLine(line_buf.CR());
+								}
+                            }
+						}
+                    }
+                }
+            }
+		}
+    }
+    PPWait(0);
+	return ok;
+}
+
+int SLAPI PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
+{
+	int    ok = 1;
+    SString result_file_name;
+    SString temp_buf;
+    SString line_buf;
+    (result_file_name = pBaseSrcPath).SetLastSlash().Cat("all.csv");
+    SFile f_out(result_file_name, SFile::mWrite);
+	line_buf.Z().Cat("lang;id;value").CR();
+	f_out.WriteLine(line_buf);
+    {
+    	PPWait(1);
+    	SString lang_code;
+		SString code_buf, text_buf;
+    	(temp_buf = pBaseSrcPath).SetLastSlash().Cat("*.*");
+    	SDirEntry sde;
+		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
+            if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("language.csv");  
+                if(fileExists(temp_buf)) {
+					PPWaitMsg(temp_buf);
+                    SFile f_in(temp_buf, SFile::mRead);
+                    if(f_in.IsValid()) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+                            if(line_count) { // Первая строка - заголовок полей
+								temp_buf.Chomp().Strip();
+								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
+									code_buf.Strip().StripQuotes().Strip();
+									text_buf.Strip().StripQuotes().Strip();
+									line_buf.Z().Cat(sde.FileName).Semicol().Cat(code_buf).Semicol().Cat(text_buf);
+									f_out.WriteLine(line_buf.CR());
+								}
+                            }
+						}
+                    }
+                }
+            }
+		}
+    }
+    PPWait(0);
+	return ok;
+}
+#endif // } 0
 
 int SLAPI PrcssrSartre::Run()
 {
@@ -2352,7 +2532,7 @@ int SLAPI PrcssrSartre::Run()
 		}*/
 		if(P.Flags & P.fImportFlexia) {
 			SrDatabase db;
-			THROW(db.Open(/*sartre_db_path*/0, 0)); // @todo Режим открытия
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
 			{
 				SrImportParam impp;
 				impp.InputKind = impp.inpFlexiaModel;
@@ -2382,7 +2562,7 @@ int SLAPI PrcssrSartre::Run()
 		}
 		if(P.Flags & P.fImportConcepts) {
 			SrDatabase db;
-			THROW(db.Open(/*sartre_db_path*/0, 0)); // @todo Режим открытия
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
 			{
 				SrConceptParser parser(db);
 				(src_file_name = P.SrcPath).SetLastSlash().Cat("concept.txt");
@@ -2395,13 +2575,22 @@ int SLAPI PrcssrSartre::Run()
 			}
 		}
 		if(P.Flags & P.fImportHumNames) {
-			if(!ImportHumanNames("name-firstname-ru.csv", "ru", SRPROPN_PERSONNAME, 0)) {
+			//
+			// Одноразовый вызов для формирования файла country-intl.csv содержащего наименования государств на многих языках.
+			// PreprocessCountryNames("D:/DEV/Resource/Data/Geo/REPO-GIT/country-list/data");
+			// PreprocessCurrencyNames("D:/DEV/Resource/Data/Geo/REPO-GIT/currency-list/data");
+			// PreprocessLocaleNames("D:/DEV/Resource/Data/Geo/REPO-GIT/locale-list/data");
+			// PreprocessLanguageNames("D:/DEV/Resource/Data/Geo/REPO-GIT/language-list/data");
+			//
+			SrDatabase db;
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose));
+			if(!ImportHumanNames(db, "name-firstname-ru.csv", "ru", SRPROPN_PERSONNAME, 0)) {
 				logger.LogLastError();
 			}
-			if(!ImportHumanNames("name-surname-ru.csv", "ru", SRPROPN_FAMILYNAME, 1)) {
+			if(!ImportHumanNames(db, "name-surname-ru.csv", "ru", SRPROPN_FAMILYNAME, 1)) {
 				logger.LogLastError();
 			}
-			if(!ImportHumanNames("name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0)) {
+			if(!ImportHumanNames(db, "name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0)) {
 				logger.LogLastError();
 			}
 		}
@@ -2722,7 +2911,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			(in_file_name = pPath).SetLastSlash().Cat("featureCodes_en.txt");
 			SFile inf(in_file_name, SFile::mRead);
 			THROW(inf.IsValid());
-			outf.WriteLine((out_buf = 0).CR().CatChar('{').CR());
+			outf.WriteLine(out_buf.Z().CR().CatChar('{').CR());
 			while(inf.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				ss.setBuf(line_buf);
@@ -2736,10 +2925,10 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					}
 				}
 				entry.Code.ReplaceChar('.', '_');
-				(out_buf = 0).Tab().CatChar(':').Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
+				out_buf.Z().Tab().CatChar(':').Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
 				outf.WriteLine(out_buf);
 			}
-			outf.WriteLine((out_buf = 0).CatChar('}').CatChar(':').Cat("geoloctype").CR());
+			outf.WriteLine(out_buf.Z().CatChar('}').CatChar(':').Cat("geoloctype").CR());
 		}
 		{
 			LongArray ling_list;
@@ -2752,7 +2941,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					SFile inf(in_file_name, SFile::mRead);
 					THROW(inf.IsValid());
 
-					(out_buf = 0).CR().CatBrackStr(temp_buf).CatChar('{').CR();
+					out_buf.Z().CR().CatBrackStr(temp_buf).CatChar('{').CR();
 					outf.WriteLine(out_buf);
 
 					while(inf.ReadLine(line_buf)) {
@@ -2768,10 +2957,10 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 							}
 						}
 						entry.Code.ReplaceChar('.', '_');
-						(out_buf = 0).Tab().Cat(entry.Text).Cat("=:").Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
+						out_buf.Z().Tab().Cat(entry.Text).Cat("=:").Cat("geoloct").CatChar('_').Cat(entry.Code).CR();
 						outf.WriteLine(out_buf);
 					}
-					(out_buf = 0).CatChar('}').CR();
+					out_buf.Z().CatChar('}').CR();
 					outf.WriteLine(out_buf);
 				}
 			}
@@ -2783,7 +2972,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 		(in_file_name = pPath).SetLastSlash().Cat("allCountries.txt");
 		SFile inf(in_file_name, SFile::mRead);
 		THROW(inf.IsValid());
-		outf.WriteLine((out_buf = 0).CR());
+		outf.WriteLine(out_buf.Z().CR());
 		while(inf.ReadLine(line_buf)) {
 			//
 			// #0  geonameid         : integer id of record in geonames database
@@ -2820,7 +3009,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					case 8: temp_buf.Strip().Utf8ToLower().CopyTo(entry.CountryCode, sizeof(entry.CountryCode)); break;
 				}
 			}
-			_CatSartrEntityPrefix("geoloc", out_buf = 0).Cat(entry.ID);
+			_CatSartrEntityPrefix("geoloc", out_buf.Z()).Cat(entry.ID);
 			out_buf.CatChar(':').Cat("geoloc");
 			out_buf.CatChar('(');
 				if(entry.FeatureClass[0] && entry.FeatureCode[0]) {
@@ -2873,7 +3062,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 				GeoNameAlt entry;
 				TSArray <GeoNameAlt> temp_list;
 				inf.Seek(0);
-				outf.WriteLine((out_buf = 0).CR());
+				outf.WriteLine(out_buf.Z().CR());
 				while(inf.ReadLine(line_buf)) {
 					rec_no++;
 					line_buf.Chomp().Strip();
@@ -2906,7 +3095,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 									if(lc == slangEN) {
 										was_en = 1;
 									}
-									(out_buf = 0).CatChar('[').Cat(r_entry.LinguaCode).CatChar(']').Cat(r_entry.Text).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
+									out_buf.Z().CatChar('[').Cat(r_entry.LinguaCode).CatChar(']').Cat(r_entry.Text).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
 									outf.WriteLine(out_buf);
 								}
 							}
@@ -2919,7 +3108,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 								const GeoNameAlt & r_entry = temp_list.at(i);
 								if(r_entry.LinguaCode[0] == 0) {
 									temp_buf = r_entry.Text;
-									(temp_ubuf = 0).CopyFromUtf8Strict(temp_buf, temp_buf.Len());
+									temp_ubuf.Z().CopyFromUtf8Strict(temp_buf, temp_buf.Len());
 									dest_ubuf = 0;
 									int    is_ascii = 1;
 									for(uint j = 0; is_ascii && j < temp_ubuf.Len(); j++) {
@@ -2939,7 +3128,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 									}
 									if(is_ascii) {
 										dest_ubuf.CopyToUtf8(temp_buf = 0, 1);
-										(out_buf = 0).CatBrackStr("en").Cat(temp_buf).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
+										out_buf.Z().CatBrackStr("en").Cat(temp_buf).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
 										outf.WriteLine(out_buf);
 									}
 								}
@@ -3100,7 +3289,7 @@ int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & r
 	return 1;
 }
 
-void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::GetTextItemWithAdvance(uint & rTIdx) 
+void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::GetTextItemWithAdvance(uint & rTIdx)
 {
 	while(R_T.Get(rTIdx, TItemBuf) && TItemBuf.Token == STokenizer::tokDelim && (TItemBuf.Text == " " || TItemBuf.Text == "\n"))
 		rTIdx++;
@@ -3330,7 +3519,7 @@ void FASTCALL SrSyntaxRuleSet::ScanSkip(SStrScan & rScan)
 	LineNo += line_count;
 }
 
-int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan) 
+int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan)
 {
 	int    k = 0;
 	ScanSkip(rScan);
@@ -3669,7 +3858,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					ok = __ResolveExprRule(rB, 0); // @recursion
 					//
 					// Мы не будем (пока) учитывать в списке успешных разборов внутрении вызовы вложенных выражений.
-					// То есть, мы при успешном сопоставлении очищаем список rB.MatchList (при неуспешном он будет 
+					// То есть, мы при успешном сопоставлении очищаем список rB.MatchList (при неуспешном он будет
 					// секвестирован в конце функции).
 					//
 					if(ok > 0) {

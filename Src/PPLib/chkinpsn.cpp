@@ -302,7 +302,7 @@ SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSArray <PPCheckInPersonIte
 	Kind = 0;
 	PrmrID = 0;
 	LastAnonymN = 0;
-	MemoPool.add("$", 0); // zero index - is empty string
+	MemoPool.add("$"); // zero index - is empty string
 }
 
 PPCheckInPersonArray & FASTCALL PPCheckInPersonArray::Copy(const PPCheckInPersonArray & rS)
@@ -343,7 +343,7 @@ PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Clear()
 	LastAnonymN = 0;
 	SArray::clear();
 	MemoPool.clear(1);
-	MemoPool.add("$", 0); // zero index - is empty string
+	MemoPool.add("$"); // zero index - is empty string
 	return *this;
 }
 
@@ -448,7 +448,7 @@ void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 	PrmrID = prmrID;
 	SString temp_buf;
 	StringSet temp_memo_pool(SLBColumnDelim);
-	temp_memo_pool.add("$", 0); // zero index - is empty string
+	temp_memo_pool.add("$"); // zero index - is empty string
 	for(uint i = 0; i < getCount(); i++) {
 		PPCheckInPersonItem & r_item = at(i);
 		r_item.Kind = kind;

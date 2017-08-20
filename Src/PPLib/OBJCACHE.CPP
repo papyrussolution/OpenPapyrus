@@ -105,7 +105,7 @@ SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags)
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
 	MEMSZERO(StatData);
 	Flags = flags;
-	Ss.add("$", 0); // zero index - is empty string
+	Ss.add("$"); // zero index - is empty string
 	LastPackNamesClock = 0;
 }
 
@@ -163,12 +163,12 @@ int SLAPI ObjCache::PackNames()
 	if(ss_len > (1024*1024)) {
 		double p = ((double)UnusedNameSpace * 100) / (double)ss_len;
 		if(p > UNUSED_NAME_SPACE_THRESOULD) {
-			const uint64 pt = DS.GetProfileTime();
+			const uint64 pt = SLS.GetProfileTime();
 			if(!LastPackNamesClock || (pt - LastPackNamesClock) > 1000000000i64) { // 1sec (чистое процессорное время) @v8.1.5 // @v9.0.8 60-->1
 				PPUserFuncProfiler ufp(PPUPRF_PACKCACHETEXT); // @v8.1.4
 				SString temp_buf;
 				StringSet tempss;
-				tempss.add("$", 0); // zero index - is empty string
+				tempss.add("$"); // zero index - is empty string
 				const uint c = GetCount();
 				for(uint i = 0; i < c; i++) {
 					ObjCacheEntry * p_entry = SearchByPos(i, 0);
@@ -185,7 +185,7 @@ int SLAPI ObjCache::PackNames()
 				ufp.SetFactor(0, (double)c); // @v8.1.4
 				ufp.Commit();                // @v8.1.4
 				ok = 1;
-				LastPackNamesClock = DS.GetProfileTime();
+				LastPackNamesClock = SLS.GetProfileTime();
 			}
 		}
 	}

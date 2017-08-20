@@ -589,7 +589,7 @@ int PPAbstractDevice::RunCmd(const char * pCmd, StrAssocArray & rOut)
 		(s_cmd = pCmd).Strip();
 		size_t p = 0;
 		if(s_cmd.StrChr(' ', &p)) {
-			(input = ((const char *)s_cmd) + p + 1).Strip();
+			(input = s_cmd.cptr() + p + 1).Strip();
 			s_cmd.Trim(p);
 		}
 	}

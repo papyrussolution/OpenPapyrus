@@ -23,20 +23,15 @@
  ***************************************************************************/
 
 #if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
-/* ftp can use this as well */
-CURLcode Curl_proxyCONNECT(struct connectdata *conn,
-                           int tunnelsocket,
-                           const char *hostname, int remote_port,
-                           bool blocking);
 
-/* Default proxy timeout in milliseconds */
-#define PROXY_TIMEOUT (3600*1000)
-
-CURLcode Curl_proxy_connect(struct connectdata *conn, int sockindex);
-
+	#define PROXY_TIMEOUT (3600*1000) // Default proxy timeout in milliseconds  
+ 
+	// ftp can use this as well 
+	CURLcode Curl_proxyCONNECT(struct connectdata *conn, int tunnelsocket, const char *hostname, int remote_port, bool blocking);
+	CURLcode Curl_proxy_connect(struct connectdata *conn, int sockindex);
 #else
-#define Curl_proxyCONNECT(x,y,z,w,v) CURLE_NOT_BUILT_IN
-#define Curl_proxy_connect(x,y) CURLE_OK
+	#define Curl_proxyCONNECT(x,y,z,w,v) CURLE_NOT_BUILT_IN
+	#define Curl_proxy_connect(x,y) CURLE_OK
 #endif
 
 #endif /* HEADER_CURL_HTTP_PROXY_H */

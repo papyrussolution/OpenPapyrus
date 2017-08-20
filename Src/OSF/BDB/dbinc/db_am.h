@@ -130,12 +130,12 @@ struct __db_foreign_info {
 		} else							\
 			goto cont;					\
 	}
+
 #define REC_DIRTY(mpf, ip, priority, pagep) \
 	if((ret = __memp_dirty(mpf, pagep, ip, NULL, priority, DB_MPOOL_EDIT)) != 0) { \
 		ret = __db_pgerr(file_dbp, PGNO(*(pagep)), ret); \
 		goto out; \
 	}
-
 /*
  * Standard debugging macro for all recovery functions.
  */

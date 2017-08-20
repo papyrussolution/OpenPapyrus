@@ -1436,7 +1436,7 @@ bad_prev:
 	 * itself, which must sort lower than all entries on its child;
 	 * ri will be the key to its right, which must sort greater.
 	 */
-	if(h == NULL && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
+	if(!h && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 		goto err;
 	for(i = 0; i < pip->entries; i += O_INDX) {
 		li = GET_BINTERNAL(dbp, h, i);
@@ -1497,7 +1497,7 @@ done:
 		 * isbad == 0, though, it's now safe to do so, as we've
 		 * traversed any child overflow pages.  Do it.
 		 */
-		if(h == NULL && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
+		if(!h && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 			goto err;
 		if((ret = __bam_vrfy_itemorder(dbp, vdp, vdp->thread_info, h, pgno, 0, 1, 0, flags)) != 0)
 			goto err;
@@ -1514,7 +1514,7 @@ done:
 	 * must have children).
 	 */
 	if(isbad == 0 && ret == 0) {
-		if(h == NULL && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
+		if(!h && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 			goto err;
 		if(NUM_ENT(h) == 0 && ISINTERNAL(h)) {
 			isbad = 1;
@@ -1528,7 +1528,7 @@ done:
 	 * appropriate--we have a default sort function--verify this.
 	 */
 	if(isbad == 0 && ret == 0 && !LF_ISSET(DB_NOORDERCHK) && pip->type != P_IRECNO && pip->type != P_LRECNO) {
-		if(h == NULL && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
+		if(!h && (ret = __memp_fget(mpf, &pgno, vdp->thread_info, NULL, 0, &h)) != 0)
 			goto err;
 		/*
 		 * __bam_vrfy_treeorder needs to know what comparison function
@@ -1587,7 +1587,7 @@ err:
 		vdp->prev_pgno = prev_pgno;
 		vdp->leaf_type = leaf_type;
 	}
-	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
@@ -2154,7 +2154,7 @@ int __bam_meta2pgset(DB * dbp, VRFY_DBINFO * vdp, BTMETA * btmeta, uint32 flags,
 	 */
 traverse:
 	while(IS_VALID_PGNO(current) && current != PGNO_INVALID) {
-		if(h == NULL && (ret = __memp_fget(mpf, &current, vdp->thread_info, NULL, 0, &h)) != 0) {
+		if(!h && (ret = __memp_fget(mpf, &current, vdp->thread_info, NULL, 0, &h)) != 0) {
 			err_ret = ret;
 			break;
 		}

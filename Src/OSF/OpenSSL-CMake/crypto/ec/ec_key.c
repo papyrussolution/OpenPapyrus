@@ -562,7 +562,7 @@ size_t ec_key_simple_priv2oct(const EC_KEY * eckey,
 	buf_len = (EC_GROUP_order_bits(eckey->group) + 7) / 8;
 	if(eckey->priv_key == NULL)
 		return 0;
-	if(buf == NULL)
+	if(!buf)
 		return buf_len;
 	else if(len < buf_len)
 		return 0;
@@ -612,7 +612,7 @@ size_t EC_KEY_priv2buf(const EC_KEY * eckey, uchar ** pbuf)
 	if(len == 0)
 		return 0;
 	buf = (uchar*)OPENSSL_malloc(len);
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	len = EC_KEY_priv2oct(eckey, buf, len);
 	if(len == 0) {

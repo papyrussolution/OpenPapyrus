@@ -320,7 +320,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 		ok = 0;
 		ZDELETE(P_NamesTbl);
 	ENDCATCH
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(p_bei);
 	ZDELETE(p_avg_ev_prcssr);
 	if(ok == 0)
@@ -339,7 +339,7 @@ int SLAPI PPViewSysJournal::InitIteration()
 		TempSysJournalTbl::Key1 tk1;
 	} k, ks;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_SubstTbl) {
 		P_IterQuery = new BExtQuery(P_SubstTbl, 1);
 		P_IterQuery->selectAll();
@@ -438,11 +438,11 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DBE    dbe_avg_tm;
 	DBQ  * dbq = 0;
 	TempSysJournalTbl * p_t = 0;
-	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? (const char *)P_TmpTbl->fileName : (const char *)0);
+	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->fileName.cptr() : (const char *)0);
 	TempDoubleIDTbl * nm  = 0;
 	if(P_SubstTbl) {
 		brw_id = BROWSER_SYSJ_SUBST;
-		THROW_MEM(p_t = new TempSysJournalTbl((const char *)P_SubstTbl->fileName));
+		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->fileName.cptr()));
 		THROW(CheckTblPtr(p_t));
 
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, p_t->Count);
@@ -1137,7 +1137,7 @@ int SLAPI PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 		ok = 0;
 		ZDELETE(P_NamesTbl);
 	ENDCATCH
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(p_bei);
 	if(ok == 0)
 		ZDELETE(P_TmpTbl);
@@ -1154,7 +1154,7 @@ int SLAPI PPViewGtaJournal::InitIteration()
 		GtaJournalTbl::Key3 k3;
 	} k, ks;
 	MEMSZERO(k);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TmpTbl) {
 		P_IterQuery = new BExtQuery(P_TmpTbl, 0);
 		P_IterQuery->selectAll();
@@ -1220,7 +1220,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBE    dbe_objtitle;
 	DBE    dbe_action;
 	DBQ  * dbq = 0;
-	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? (const char *)P_TmpTbl->fileName : (const char *)0);
+	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->fileName.cptr() : (const char *)0);
 	TempDoubleIDTbl * nm  = 0;
 
 	THROW(CheckTblPtr(t));

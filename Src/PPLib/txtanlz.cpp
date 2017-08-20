@@ -1357,7 +1357,7 @@ LongArray * PPTextAnalyzer::Replacer::SearchCortege(uint cortegeId) const
 {
 	LongArray * p_list = 0;
 	uint   pos = 0;
-	if(CrtgList.getFlag() & arySorted) {
+	if(CrtgList.getFlags() & arySorted) {
 		if(CrtgList.bsearch(&cortegeId, &pos, CMPF_LONG)) {
 			p_list = &CrtgList.at(pos)->SrcListIdxList;
 		}
@@ -3985,7 +3985,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	{
 		if(result_str.C(0) == '{') {
 			json_t * p_next = 0;
-			THROW(json_parse_document(&p_json_doc, (const char *)result_str) == JSON_OK);
+			THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
 			for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 				p_next = p_cur->P_Next;
 				switch(p_cur->Type) {
@@ -4019,7 +4019,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 	/* @v9.6.9
 	{
 		json_t * p_next = 0;
-		THROW(json_parse_document(&p_json_doc, (const char *)result_str) == JSON_OK);
+		THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
 		for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 			p_next = p_cur->next;
 			switch(p_cur->type) {
@@ -4092,13 +4092,13 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	http_header.Add("Authorization", temp_buf.Z().Cat("Bearer").Space().Cat(Token));
 	http_header.Add("Content-Type", "text/xml");
 	{
-		const uint64 at_start = DS.GetProfileTime();
+		const uint64 at_start = SLS.GetProfileTime();
 		ScURL  curl;
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
 		THROW(curl.HttpGet(url, ScURL::mfDontVerifySslPeer, &http_header, &wr_stream));
 		{
-			const uint64 at_end = DS.GetProfileTime();
+			const uint64 at_end = SLS.GetProfileTime();
 			SBuffer * p_result_buf = (SBuffer *)wr_stream;
 			const size_t avl_size = p_result_buf ? p_result_buf->GetAvailableSize() : 0;
 			THROW(avl_size);

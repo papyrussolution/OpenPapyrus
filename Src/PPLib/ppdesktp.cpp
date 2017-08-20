@@ -129,7 +129,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 PPDesktopAssocCmdPool::PPDesktopAssocCmdPool()
 {
 	DesktopID = -1;
-	P.add("$", 0); // zero index - is empty string
+	P.add("$"); // zero index - is empty string
 }
 
 PPDesktopAssocCmdPool::~PPDesktopAssocCmdPool()
@@ -141,7 +141,7 @@ void PPDesktopAssocCmdPool::Init(PPID desktopId)
 	DesktopID = desktopId;
 	L.clear();
 	P.clear(1);
-	P.add("$", 0); // zero index - is empty string
+	P.add("$"); // zero index - is empty string
 }
 
 void PPDesktopAssocCmdPool::SetDesktopID(PPID id)
@@ -163,7 +163,7 @@ int PPDesktopAssocCmdPool::Pack()
 {
 	int    ok = 1;
 	StringSet np;
-	np.add("$", 0);
+	np.add("$");
 	SString temp_buf;
 	for(uint i = 0; i < L.getCount(); i++) {
 		Item & r_item = L.at(i);
@@ -812,7 +812,7 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 		if(rIcon.ToLong())
 			h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(rIcon.ToLong()));
 		else
-			h_icon = (HICON)::LoadImage(0, (const char *)rIcon, IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE); // @unicodeproblem
+			h_icon = (HICON)::LoadImage(0, rIcon.cptr(), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE); // @unicodeproblem
 		SETIFZ(h_icon, LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(ICON_DEFAULT)));
 		if(h_icon) {
 			SString text;
@@ -2012,7 +2012,7 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 			param_buf = rCpItem.CmdParam;
 			param_buf.ReplaceStr("@input", input_buf, 0).Strip();
 			PPCommandDescr cmd_descr;
-			ok = cmd_descr.DoCommandSimple(rCpItem.CmdID, 0, (param_buf.NotEmpty() ? (const char *)param_buf : 0), 0);
+			ok = cmd_descr.DoCommandSimple(rCpItem.CmdID, 0, (param_buf.NotEmpty() ? param_buf.cptr() : 0), 0);
 		}
 	}
 	return ok;
@@ -2138,7 +2138,7 @@ int PPDesktop::ProcessRawInput(long rawInputHandle)
 								}
 							}
 						}
-						const char * p_dvc_serial = dvc_serial.NotEmpty() ? (const char *)dvc_serial : 0;
+						const char * p_dvc_serial = dvc_serial.NotEmpty() ? dvc_serial.cptr() : 0;
 						InputArray * p_inp = Rib.AddKeyDownCommand(_k, p_dvc_serial);
 						if(p_inp) {
 							PPDesktopAssocCmd cp_item;

@@ -3585,7 +3585,7 @@ file:
 // Используется также как временная таблица при просмотре
 // излишков по кассовым сессиям (PPViewCSessExc)
 //
-table TempGoodsRest { // Size=236
+table TempGoodsRest {
 	autolong ID__;
 	long   GoodsID;
 	long   GoodsGrp;        // Если таблица используется для отображения излишков
@@ -3617,6 +3617,7 @@ table TempGoodsRest { // Size=236
 	double QttyWithDeficit; // Остаток с учетом дефицита
 	double DraftRcpt;       // @v5.4.2  Будущие поступления товара
 	long   SubstAsscCount;  // Количество товаров ассоциированных с данным идентификатором подстановки
+	date   Expiry;          // @v9.7.11 Дата истечения срока годности
 	date   LastSellDate;    // @v8.7.3 Дата последней продажи
 	int16  IsPredictTrust;  // Признак того, что значение Predict удовлетворяет критерию надежности.
 	// @v8.7.3 int16  IsInMatrix;      // @v6.1.7

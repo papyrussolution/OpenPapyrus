@@ -642,7 +642,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
 	}
 	else if(ctxt->nbIncludes + 2 >= ctxt->maxIncludes) {
 		xmlNodePtr * tmp = (xmlNodePtr*)SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", 0);
 			return;
 		}
@@ -703,7 +703,7 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 	}
 	else if(ctxt->nbNamespaces + 2 >= ctxt->maxNamespaces) {
 		const xmlChar ** tmp = (const xmlChar**)SAlloc::R((xmlChar**)ctxt->namespaces, ctxt->maxNamespaces * 4 * sizeof(const xmlChar *));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlSchematronPErrMemory(NULL, "allocating parser namespaces", 0);
 			return;
 		}

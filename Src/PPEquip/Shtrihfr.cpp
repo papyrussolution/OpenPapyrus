@@ -554,9 +554,9 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
 		SString prn_str, temp_str;
 		SCardCore scc;
-		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('-', CheckStrLen)));
+		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
-		(temp_str = 0).Cat(amt + dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
 		// @v9.7.1 prn_str = "—”ÃÃ¿ ¡≈« — »ƒ »"; // @cstr #0
 		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
@@ -580,7 +580,7 @@ int	SLAPI SCS_SHTRIHFRF::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 				THROW(ExecFRPrintOper(PrintString));
 			}
 		}
-		(temp_str = 0).Cat(dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(dscnt, SFMT_MONEY);
 		// @v9.7.1 (prn_str = "— »ƒ ¿"); // @cstr #3
 		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v9.7.1
 		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
@@ -831,7 +831,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
-					(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
 					msg_buf.Printf(fmt_buf, added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
@@ -1196,7 +1196,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double mul
 	THROW(SetFR(Summ2, 0L));
 	THROW(SetFR(Summ3, 0L));
 	THROW(SetFR(Tax1,  0L));
-	THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
+	THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('=', CheckStrLen)));
 	THROW(ExecFRPrintOper(CloseCheck));
 	Flags &= ~sfOpenCheck;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
@@ -1360,15 +1360,15 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(CCheckPacket * pPack, const char * pForm
 			THROW(ExecFRPrintOper(PrintString));
 			if(qtty != 1.0) {
 				temp_buf.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatDiv('X', 1).Cat(price, SFMT_MONEY);
-				THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
+				THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 				THROW(ExecFRPrintOper(PrintString));
 			}
 			temp_buf.Z().CatEq(0, qtty * price, SFMT_MONEY);
-			THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
+			THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN(' ', CheckStrLen - temp_buf.Len()).Cat(temp_buf)));
 			THROW(ExecFRPrintOper(PrintString));
 		}
 		THROW(PrintDiscountInfo(pPack, flags));
-		THROW(SetFR(StringForPrinting, (prn_str = 0).CatCharN('=', CheckStrLen)));
+		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
 		// @v9.7.1 prn_str = "»“Œ√"; // @cstr #12

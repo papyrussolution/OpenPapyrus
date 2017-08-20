@@ -1485,7 +1485,7 @@ int SLAPI PPViewAccAnlz::InitIteration()
 {
 	int    ok = 1;
 	char   k[MAXKEYLEN];
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.Flags & AccAnlzFilt::fTotalOnly)
 		ok = -1;
 	else {

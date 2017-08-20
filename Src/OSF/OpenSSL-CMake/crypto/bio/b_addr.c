@@ -22,20 +22,13 @@
 static const char * ossl_hstrerror(int herr)
 {
 	switch(herr) {
-		case -1:
-		    return strerror(errno);
-		case 0:
-		    return "No error";
-		case HOST_NOT_FOUND:
-		    return "Host not found";
-		case NO_DATA:    /* NO_ADDRESS is a synonym */
-		    return "No data";
-		case NO_RECOVERY:
-		    return "Non recoverable error";
-		case TRY_AGAIN:
-		    return "Try again";
-		default:
-		    break;
+		case -1: return strerror(errno);
+		case 0: return "No error";
+		case HOST_NOT_FOUND: return "Host not found";
+		case NO_DATA: return "No data"; // NO_ADDRESS is a synonym 
+		case NO_RECOVERY: return "Non recoverable error";
+		case TRY_AGAIN: return "Try again";
+		default: break;
 	}
 	return "unknown error";
 }

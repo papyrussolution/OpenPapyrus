@@ -511,8 +511,7 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 		}
 		src = compositor->pattern_to_surface(dst, source, FALSE, &extents->bounded, &extents->source_sample_area, &src_x, &src_y);
 		if(likely(src->status == CAIRO_STATUS_SUCCESS)) {
-			status = compositor->composite_boxes(dst, op, src, mask, src_x, src_y,
-			    mask_x, mask_y, 0, 0, boxes, &extents->bounded);
+			status = compositor->composite_boxes(dst, op, src, mask, src_x, src_y, mask_x, mask_y, 0, 0, boxes, &extents->bounded);
 			cairo_surface_destroy(src);
 		}
 		else
@@ -627,7 +626,7 @@ static cairo_int_status_t clip_and_composite_boxes(const cairo_spans_compositor_
 		return fixup_unbounded_boxes(compositor, extents, boxes);
 	}
 	/* Can we reduce drawing through a clip-mask to simply drawing the clip? */
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t polygon;
 		CairoFillRule fill_rule;
 		cairo_antialias_t antialias;

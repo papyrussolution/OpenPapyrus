@@ -438,7 +438,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNodePtr node)
 	}
 	else if(states->maxstates <= states->nbstates) {
 		xmlStepState * tmp = (xmlStepState *)SAlloc::R(states->states, 2 * states->maxstates * sizeof(xmlStepState));
-		if(tmp == NULL)
+		if(!tmp)
 			return -1;
 		states->states = tmp;
 		states->maxstates *= 2;

@@ -16,7 +16,7 @@ STestDataArray::Item::Item()
 
 STestDataArray::STestDataArray()
 {
-	HexPool.add("$", 0); // zero index - is empty string
+	HexPool.add("$"); // zero index - is empty string
 }
 
 const STestDataArray::Item & STestDataArray::Get(uint idx) const

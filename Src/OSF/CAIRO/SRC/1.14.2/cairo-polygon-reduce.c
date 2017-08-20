@@ -908,49 +908,34 @@ static cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_event_queue_t * event
 {
 	cairo_bo_event_t * event = event_queue->pqueue.elements[PQ_FIRST_ENTRY];
 	cairo_bo_event_t * cmp = *event_queue->start_events;
-	if(event == NULL ||
-	    (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
+	if(event == NULL || (cmp != NULL && cairo_bo_event_compare(cmp, event) < 0)) {
 		event = cmp;
 		event_queue->start_events++;
 	}
 	else {
 		_pqueue_pop(&event_queue->pqueue);
 	}
-
 	return event;
 }
 
-CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort,
-    cairo_bo_event_t *,
-    cairo_bo_event_compare)
+CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort, cairo_bo_event_t *, cairo_bo_event_compare)
 
-static void _cairo_bo_event_queue_init(cairo_bo_event_queue_t       * event_queue,
-    cairo_bo_event_t            ** start_events,
-    int num_events)
+static void _cairo_bo_event_queue_init(cairo_bo_event_queue_t * event_queue, cairo_bo_event_t ** start_events, int num_events)
 {
 	_cairo_bo_event_queue_sort(start_events, num_events);
 	start_events[num_events] = NULL;
-
 	event_queue->start_events = start_events;
-
-	_cairo_freepool_init(&event_queue->pool,
-	    sizeof(cairo_bo_queue_event_t));
+	_cairo_freepool_init(&event_queue->pool, sizeof(cairo_bo_queue_event_t));
 	_pqueue_init(&event_queue->pqueue);
 	event_queue->pqueue.elements[PQ_FIRST_ENTRY] = NULL;
 }
 
-static cairo_status_t _cairo_bo_event_queue_insert_stop(cairo_bo_event_queue_t       * event_queue,
-    cairo_bo_edge_t              * edge)
+static cairo_status_t _cairo_bo_event_queue_insert_stop(cairo_bo_event_queue_t * event_queue, cairo_bo_edge_t * edge)
 {
 	cairo_bo_point32_t point;
-
 	point.y = edge->edge.bottom;
-	point.x = _line_compute_intersection_x_for_y(&edge->edge.line,
-	    point.y);
-	return _cairo_bo_event_queue_insert(event_queue,
-	    CAIRO_BO_EVENT_TYPE_STOP,
-	    edge, NULL,
-	    &point);
+	point.x = _line_compute_intersection_x_for_y(&edge->edge.line, point.y);
+	return _cairo_bo_event_queue_insert(event_queue, CAIRO_BO_EVENT_TYPE_STOP, edge, NULL, &point);
 }
 
 static void _cairo_bo_event_queue_fini(cairo_bo_event_queue_t * event_queue)

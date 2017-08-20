@@ -298,10 +298,10 @@ next:   /*
 
 retry:
 	pg = NULL;
-	if(npg != NULL && (ret = __memp_fput(dbmp, dbc->thread_info, npg, dbc->priority)) != 0)
+	if(npg && (ret = __memp_fput(dbmp, dbc->thread_info, npg, dbc->priority)) != 0)
 		goto err;
 	npg = NULL;
-	if(ndbc != NULL) {
+	if(ndbc) {
 		ncp = (BTREE_CURSOR *)ndbc->internal;
 		if(clear_root == 1) {
 			ncp->sp->page = NULL;
@@ -311,7 +311,7 @@ retry:
 			goto err;
 	}
 	clear_root = 0;
-	/* Case 1 -- page is empty. */
+	// Case 1 -- page is empty
 	if(nentry == 0) {
 		CTRACE(dbc, "Empty", "", start, 0);
 		sflag = (next_p == 1) ? CS_NEXT_WRITE : CS_DEL;
@@ -322,12 +322,12 @@ retry:
 			goto err;
 		}
 		pg = cp->csp->page;
-		/* Check to see if the page is still empty. */
+		// Check to see if the page is still empty
 		if(NUM_ENT(pg) != 0)
 			npgno = PGNO(pg);
 		else {
 			npgno = NEXT_PGNO(pg);
-			/* If this is now the root, we are very done. */
+			// If this is now the root, we are very done
 			if(PGNO(pg) == BAM_ROOT_PGNO(dbc))
 				isdone = 1;
 			else {
@@ -369,7 +369,6 @@ retry:
 			goto err;
 		DB_ASSERT(env, ndbc != NULL);
 		ncp = (BTREE_CURSOR *)ndbc->internal;
-
 		ncp->recno = cp->recno;
 		cp->recno = next_recno;
 		if((ret = __bam_csearch(dbc, start, CS_NEXT_BOTH, 0)) != 0) {
@@ -817,13 +816,13 @@ err:
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pg != NULL && (t_ret = __memp_fput(dbmp, dbc->thread_info, pg, dbc->priority) != 0) && ret == 0)
+	if(pg && (t_ret = __memp_fput(dbmp, dbc->thread_info, pg, dbc->priority) != 0) && ret == 0)
 		ret = t_ret;
-	if(npg != NULL && (t_ret = __memp_fput(dbmp, dbc->thread_info, npg, dbc->priority) != 0) && ret == 0)
+	if(npg && (t_ret = __memp_fput(dbmp, dbc->thread_info, npg, dbc->priority) != 0) && ret == 0)
 		ret = t_ret;
 out:
 	*donep = isdone;
-	/* For OPD trees return if we did anything in the span variable. */
+	// For OPD trees return if we did anything in the span variable
 	if(F_ISSET(dbc, DBC_OPD))
 		*spanp = pgs_done;
 	return ret;
@@ -2182,9 +2181,9 @@ err:
 		if((t_ret = __LPUT(dbc, root_lock)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	if(meta && (t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(root && (t_ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(dbc && (t_ret = __bam_stkrel(dbc, sflag)) != 0 && ret == 0)
 		ret = t_ret;

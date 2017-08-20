@@ -1273,10 +1273,11 @@ int GSDialog::setupList()
 			sub.CatChar('%');
 		else if(p_item->Flags & GSIF_PHUVAL) {
 			PPUnit u_rec;
+			sub.Space();
 			if(GObj.FetchUnit(goods_rec.PhUnitID, &u_rec) > 0)
-				sub.Space().Cat(u_rec.Name);
+				sub.Cat(u_rec.Name);
 			else
-				sub.Space().CatChar('?');
+				sub.CatChar('?');
 		}
 		ss.add(sub);
 		t_qtty  += sub.ToReal();
@@ -1392,7 +1393,7 @@ GSItemDialog::GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc
 	AddClusterAssoc(CTL_GSITEM_FLAGS, 1, GSIF_AUTOTSWROFF);
 	AddClusterAssoc(CTL_GSITEM_FLAGS, 2, GSIF_MAINITEM);
 	AddClusterAssoc(CTL_GSITEM_FLAGS, 3, GSIF_SUBPARTSTR);
-	AddClusterAssoc(CTL_GSITEM_FLAGS, 4, GSIF_IDENTICAL);  // @v7.4.10
+	AddClusterAssoc(CTL_GSITEM_FLAGS, 4, GSIF_IDENTICAL);
 	AddClusterAssoc(CTL_GSITEM_FLAGS, 5, GSIF_QUERYEXPLOT);  // @v9.0.4
 	SetClusterData(CTL_GSITEM_FLAGS, P_Data->Flags);
 	setupPrice();
@@ -1418,8 +1419,7 @@ IMPL_HANDLE_EVENT(GSItemDialog)
 	else if(event.isClusterClk(CTL_GSITEM_GROUPONLY)) {
 		SETFLAG(P_Data->Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
 		GoodsCtrlGroup * p_grp = (GoodsCtrlGroup *)getGroup(GRP_GOODS);
-		if(p_grp)
-			p_grp->setFlag(this, GoodsCtrlGroup::disableEmptyGoods, BIN(!(P_Data->Flags & GSIF_GOODSGROUP)));
+		CALLPTRMEMB(p_grp, setFlag(this, GoodsCtrlGroup::disableEmptyGoods, BIN(!(P_Data->Flags & GSIF_GOODSGROUP))));
 	}
 	else if(event.isCmd(cmGSItemLots)) {
 		GoodsCtrlGroup::Rec rec;

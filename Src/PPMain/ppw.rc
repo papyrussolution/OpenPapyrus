@@ -14100,33 +14100,34 @@ BEGIN
     LTEXT           "@goodsrestfilt_brand",4007,200,130,195,8
     EDITTEXT        CTL_GOODSREST_BRAND,200,141,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_GOODSREST_BRAND,400,141,13,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "@goodsrestfilt_calcmethod",CTL_GOODSREST_METHOD,10,41,76,64,WS_GROUP
-    CONTROL         "@goodsrestfilt_calcmethod_avg",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,50,65,10
+    GROUPBOX        "@goodsrestfilt_calcmethod",CTL_GOODSREST_METHOD,10,41,76,54,WS_GROUP
+    CONTROL         "@goodsrestfilt_calcmethod_avg",5304,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,55,65,10
     CONTROL         "@goodsrestfilt_calcmethod_firstlot",9400,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,65,65,10
-    CONTROL         "@goodsrestfilt_calcmethod_lastlot",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,81,65,10
-    GROUPBOX        "@goodsrestfilt_diffparam",CTL_GOODSREST_SPLIT,90,41,104,64,WS_GROUP
+    CONTROL         "@goodsrestfilt_calcmethod_lastlot",13496,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,75,65,10
+    GROUPBOX        "@goodsrestfilt_diffparam",CTL_GOODSREST_SPLIT,90,41,105,74,WS_GROUP
     CONTROL         "@goodsrestfilt_diff_cost",5306,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,50,95,10
     CONTROL         "@goodsrestfilt_diff_price",9402,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,60,95,10
     CONTROL         "@goodsrestfilt_diff_pack",13498,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,70,90,10
-    CONTROL         "@goodsrestfilt_diff_serial",17594,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,80,94,10
-    CONTROL         "@goodsrestfilt_diff_lottag",21690,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,90,95,10
-    EDITTEXT        CTL_GOODSREST_LOTTAG,10,115,170,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@goodsrestfilt_difflottag",4010,10,105,165,8
-    PUSHBUTTON      "",CTLSEL_GOODSREST_LOTTAG,180,115,12,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "",CTL_GOODSREST_FLAGS,10,130,185,150,WS_GROUP
-    CONTROL         "@goodsrestfilt_fnullrest",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,140,165,10
-    CONTROL         "@goodsrestfilt_fnullrestsonly",9401,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,151,165,10
-    CONTROL         "@goodsrestfilt_fnozeroorderonly",13497,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,161,165,10
-    CONTROL         "@goodsrestfilt_fcalcorder",17593,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,170,165,10
-    CONTROL         "@goodsrestfilt_fbarcode",21689,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,180,165,10
-    CONTROL         "@goodsrestfilt_fcwovat",25785,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,191,165,10
-    CONTROL         "@goodsrestfilt_fcalccvat",29881,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,201,165,10
-    CONTROL         "@goodsrestfilt_funderminstock",33977,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,210,165,10
-    CONTROL         "@goodsrestfilt_fdisplaywopacks",38073,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,220,165,10
-    CONTROL         "@goodsrestfilt_fshowminstock",42169,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,231,165,10
-    CONTROL         "@goodsrestfilt_fshowdraftreceipt",46265,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,241,174,10
-    CONTROL         "@goodsrestfilt_fusegoodsmatrix",50361,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,250,165,10
-    CONTROL         "@goodsrestfilt_fshowgoodsmatrixbelongs",54457,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,260,165,10
+    CONTROL         "@goodsrestfilt_diff_expiry",17594,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,80,95,10
+    CONTROL         "@goodsrestfilt_diff_serial",21690,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,90,94,10
+    CONTROL         "@goodsrestfilt_diff_lottag",25786,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,95,100,95,10
+    EDITTEXT        CTL_GOODSREST_LOTTAG,10,130,170,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@goodsrestfilt_difflottag",4010,10,120,165,8
+    PUSHBUTTON      "",CTLSEL_GOODSREST_LOTTAG,180,130,12,13,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "",CTL_GOODSREST_FLAGS,10,145,185,155,WS_GROUP
+    CONTROL         "@goodsrestfilt_fnullrest",5305,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,155,165,10
+    CONTROL         "@goodsrestfilt_fnullrestsonly",9401,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,166,165,10
+    CONTROL         "@goodsrestfilt_fnozeroorderonly",13497,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,176,165,10
+    CONTROL         "@goodsrestfilt_fcalcorder",17593,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,185,165,10
+    CONTROL         "@goodsrestfilt_fbarcode",21689,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,195,165,10
+    CONTROL         "@goodsrestfilt_fcwovat",25785,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,206,165,10
+    CONTROL         "@goodsrestfilt_fcalccvat",29881,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,216,165,10
+    CONTROL         "@goodsrestfilt_funderminstock",33977,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,225,165,10
+    CONTROL         "@goodsrestfilt_fdisplaywopacks",38073,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,235,165,10
+    CONTROL         "@goodsrestfilt_fshowminstock",42169,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,246,165,10
+    CONTROL         "@goodsrestfilt_fshowdraftreceipt",46265,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,256,174,10
+    CONTROL         "@goodsrestfilt_fusegoodsmatrix",50361,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,265,165,10
+    CONTROL         "@goodsrestfilt_fshowgoodsmatrixbelongs",54457,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,275,165,10
     LTEXT           "@goodsrestfilt_draftrcptperiod",4011,200,255,155,8
     EDITTEXT        CTL_GOODSREST_DRAFTPRD,200,265,135,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLCAL_GOODSREST_DRAFTPRD,335,265,13,13,BS_BITMAP | NOT WS_TABSTOP

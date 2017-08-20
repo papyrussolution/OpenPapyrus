@@ -25,14 +25,14 @@
 #include "curl_setup.h"
 
 #if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
-
-/* this is for ntlm header input */
-CURLcode Curl_input_ntlm(struct connectdata *conn, bool proxy,
-                         const char *header);
-
-/* this is for creating ntlm header output */
+//
+// this is for ntlm header input 
+//
+CURLcode Curl_input_ntlm(struct connectdata *conn, bool proxy, const char *header);
+//
+// this is for creating ntlm header output 
+//
 CURLcode Curl_output_ntlm(struct connectdata *conn, bool proxy);
-
 void Curl_http_ntlm_cleanup(struct connectdata *conn);
 
 #endif /* !CURL_DISABLE_HTTP && USE_NTLM */

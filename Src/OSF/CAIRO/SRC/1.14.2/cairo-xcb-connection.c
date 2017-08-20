@@ -563,21 +563,16 @@ static void _device_destroy(void * device)
 	_cairo_xcb_connection_shm_mem_pools_fini(connection);
 #endif
 	_cairo_freepool_fini(&connection->shm_info_freelist);
-
 	_cairo_freepool_fini(&connection->xid_pool);
-
 	CAIRO_MUTEX_FINI(connection->shm_mutex);
 	CAIRO_MUTEX_FINI(connection->screens_mutex);
-
 	SAlloc::F(connection->subpixel_orders);
 	SAlloc::F(connection);
 }
 
 static const cairo_device_backend_t _cairo_xcb_device_backend = {
 	CAIRO_DEVICE_TYPE_XCB,
-
 	NULL, NULL, /* lock, unlock */
-
 	_device_flush,
 	_device_finish,
 	_device_destroy,
@@ -588,7 +583,6 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 	cairo_xcb_connection_t * connection;
 	const xcb_query_extension_reply_t * ext;
 	cairo_status_t status;
-
 	CAIRO_MUTEX_INITIALIZE();
 
 	CAIRO_MUTEX_LOCK(_cairo_xcb_connections_mutex);
@@ -638,19 +632,12 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 		connection = NULL;
 		goto unlock;
 	}
-
 	cairo_list_init(&connection->free_xids);
-	_cairo_freepool_init(&connection->xid_pool,
-	    sizeof(cairo_xcb_xid_t));
-
+	_cairo_freepool_init(&connection->xid_pool, sizeof(cairo_xcb_xid_t));
 	cairo_list_init(&connection->shm_pools);
 	cairo_list_init(&connection->shm_pending);
-	_cairo_freepool_init(&connection->shm_info_freelist,
-	    sizeof(cairo_xcb_shm_info_t));
-
-	connection->maximum_request_length =
-	    xcb_get_maximum_request_length(xcb_connection);
-
+	_cairo_freepool_init(&connection->shm_info_freelist, sizeof(cairo_xcb_shm_info_t));
+	connection->maximum_request_length = xcb_get_maximum_request_length(xcb_connection);
 	CAIRO_MUTEX_INIT(connection->shm_mutex);
 	CAIRO_MUTEX_INIT(connection->screens_mutex);
 

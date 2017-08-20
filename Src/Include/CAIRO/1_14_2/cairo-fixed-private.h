@@ -249,7 +249,7 @@ static inline cairo_fixed_16_16_t _cairo_fixed_16_16_from_double(double d)
 static inline int _cairo_fixed_16_16_floor(cairo_fixed_16_16_t f)
 {
 	if(f >= 0)
-		return f >> 16;
+		return (f >> 16);
 	else
 		return -((-f - 1) >> 16) - 1;
 }
@@ -303,16 +303,17 @@ static inline cairo_fixed_t _cairo_edge_compute_intersection_y_for_x(const cairo
 //
 static inline cairo_fixed_t _cairo_edge_compute_intersection_x_for_y(const cairo_point_t * p1, const cairo_point_t * p2, cairo_fixed_t y)
 {
-	cairo_fixed_t x, dy;
 	if(y == p1->y)
 		return p1->x;
-	if(y == p2->y)
+	else if(y == p2->y)
 		return p2->x;
-	x = p1->x;
-	dy = p2->y - p1->y;
-	if(dy != 0)
-		x += _cairo_fixed_mul_div_floor(y - p1->y, p2->x - p1->x, dy);
-	return x;
+	else {
+		cairo_fixed_t x = p1->x;
+		cairo_fixed_t dy = p2->y - p1->y;
+		if(dy != 0)
+			x += _cairo_fixed_mul_div_floor(y - p1->y, p2->x - p1->x, dy);
+		return x;
+	}
 }
 // 
 // Intersect two segments based on the algorithm described at

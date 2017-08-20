@@ -90,27 +90,25 @@ typedef struct _sweep_line {
 #if DEBUG_TRAPS
 static void FASTCALL dump_traps(cairo_traps_t * traps, const char * filename)
 {
-	FILE * file;
-	int n;
-	if(getenv("CAIRO_DEBUG_TRAPS") == NULL)
-		return;
-	file = fopen(filename, "a");
-	if(file != NULL) {
-		for(n = 0; n < traps->num_traps; n++) {
-			fprintf(file, "%d %d L:(%d, %d), (%d, %d) R:(%d, %d), (%d, %d)\n",
-			    traps->traps[n].top,
-			    traps->traps[n].bottom,
-			    traps->traps[n].left.p1.x,
-			    traps->traps[n].left.p1.y,
-			    traps->traps[n].left.p2.x,
-			    traps->traps[n].left.p2.y,
-			    traps->traps[n].right.p1.x,
-			    traps->traps[n].right.p1.y,
-			    traps->traps[n].right.p2.x,
-			    traps->traps[n].right.p2.y);
+	if(getenv("CAIRO_DEBUG_TRAPS")) {
+		FILE * file = fopen(filename, "a");
+		if(file) {
+			for(int n = 0; n < traps->num_traps; n++) {
+				fprintf(file, "%d %d L:(%d, %d), (%d, %d) R:(%d, %d), (%d, %d)\n",
+					traps->traps[n].top,
+					traps->traps[n].bottom,
+					traps->traps[n].left.p1.x,
+					traps->traps[n].left.p1.y,
+					traps->traps[n].left.p2.x,
+					traps->traps[n].left.p2.y,
+					traps->traps[n].right.p1.x,
+					traps->traps[n].right.p1.y,
+					traps->traps[n].right.p2.x,
+					traps->traps[n].right.p2.y);
+			}
+			fprintf(file, "\n");
+			fclose(file);
 		}
-		fprintf(file, "\n");
-		fclose(file);
 	}
 }
 
@@ -243,7 +241,7 @@ static void edge_end_box(sweep_line_t * sweep_line, edge_t * left, int32_t bot)
 static /*inline*/ void edge_start_or_continue_box(sweep_line_t * sweep_line, edge_t * left, edge_t * right, int top)
 {
 	if(left->right != right) {
-		if(left->right != NULL) {
+		if(left->right) {
 			if(left->right->x == right->x) {
 				// continuation on right, so just swap edges 
 				left->right = right;
@@ -291,7 +289,7 @@ static edge_t * FASTCALL merge_sorted_edges(edge_t * head_a, edge_t * head_b)
 	}
 	do {
 		x = head_b->x;
-		while(head_a != NULL && head_a->x <= x) {
+		while(head_a && head_a->x <= x) {
 			prev = head_a;
 			head_a = head_a->next;
 		}
@@ -301,11 +299,10 @@ static edge_t * FASTCALL merge_sorted_edges(edge_t * head_a, edge_t * head_b)
 			return head;
 start_with_b:
 		x = head_a->x;
-		while(head_b != NULL && head_b->x <= x) {
+		while(head_b && head_b->x <= x) {
 			prev = head_b;
 			head_b = head_b->next;
 		}
-
 		head_a->prev = prev;
 		prev->next = head_a;
 		if(head_b == NULL)
@@ -332,9 +329,9 @@ start_with_b:
  */
 static edge_t * sort_edges(edge_t  * list, uint level, edge_t ** head_out)
 {
-	edge_t * head_other, * remaining;
+	edge_t * remaining;
 	uint i;
-	head_other = list->next;
+	edge_t * head_other = list->next;
 	if(head_other == NULL) {
 		*head_out = list;
 		return NULL;
@@ -410,14 +407,14 @@ static inline void FASTCALL active_edges_to_traps(sweep_line_t * sweep)
 						right = right->next;
 					}
 					if(winding == 0) {
-						if(left->right != NULL)
+						if(left->right)
 							edge_end_box(sweep, left, top);
 						pos = right;
 						continue;
 					}
 					do {
 						// End all subsumed traps 
-						if(unlikely(right->right != NULL))
+						if(unlikely(right->right))
 							edge_end_box(sweep, right, top);
 						// Greedily search for the closing edge, so that we generate
 						// the * maximal span width with the minimal number of boxes.
@@ -436,7 +433,7 @@ static inline void FASTCALL active_edges_to_traps(sweep_line_t * sweep)
 					int count = 0;
 					do {
 						// End all subsumed traps 
-						if(unlikely(right->right != NULL))
+						if(unlikely(right->right))
 							edge_end_box(sweep, right, top);
 						// skip co-linear edges 
 						if(++count & 1 && right->x != right->next->x)
@@ -454,7 +451,7 @@ static inline void FASTCALL active_edges_to_traps(sweep_line_t * sweep)
 
 static /*inline*/ void FASTCALL sweep_line_delete_edge(sweep_line_t * sweep, edge_t * edge)
 {
-	if(edge->right != NULL) {
+	if(edge->right) {
 		edge_t * next = edge->next;
 		if(next->x == edge->x) {
 			next->top = edge->top;
@@ -509,7 +506,7 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t 
 	do {
 		if(rectangle->top != sweep_line.current_y) {
 			rectangle_t * stop = rectangle_peek_stop(&sweep_line);
-			while(stop != NULL && stop->bottom < rectangle->top) {
+			while(stop && stop->bottom < rectangle->top) {
 				if(stop->bottom != sweep_line.current_y) {
 					if(update) {
 						active_edges_to_traps(&sweep_line);

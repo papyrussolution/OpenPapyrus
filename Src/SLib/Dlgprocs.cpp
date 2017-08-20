@@ -429,7 +429,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 				CALLPTRMEMB(p_dlg, HandleKeyboardEvent(LOWORD(wParam)));
 			}
-			SendMessage(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
+			::SendMessage(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
 			return -2;
 		case WM_KEYUP:
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
@@ -617,7 +617,7 @@ BOOL CALLBACK PropertySheetDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 					if(n != 0 && n != -1) // open new child dialog
 						PostMessage(hwndDlg, WM_NOTIFY_MAIN_DIALOG, t->pages[n].command, (long)t->pages[0].dialog);
 					if(n == 0 && t->lastCommand == cmCancel)
-						SendMessage(GetParent(hwndDlg), PSM_PRESSBUTTON, PSBTN_APPLYNOW, 0);
+						::SendMessage(GetParent(hwndDlg), PSM_PRESSBUTTON, PSBTN_APPLYNOW, 0);
 					t->P_Current = n;
 					TView::SetWindowProp(hwndDlg, DWL_MSGRESULT, 0L);
 					return TRUE;
@@ -628,7 +628,7 @@ BOOL CALLBACK PropertySheetDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 				case PSN_QUERYCANCEL:
 					t->lastCommand = cmCancel;
 					if(t->P_Current)
-						SendMessage(GetParent(hwndDlg), PSM_SETCURSEL, 0, 0);
+						::SendMessage(GetParent(hwndDlg), PSM_SETCURSEL, 0, 0);
 					return FALSE;
 			}
 		default:

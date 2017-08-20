@@ -754,9 +754,9 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 		lvi.iItem = 0;
 		ListView_SetItem(H_List, &lvi);
 		HBITMAP h_up = LoadBitmap(0, MAKEINTRESOURCE(OBM_UPARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, (long)h_up);
+		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_UP), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_up);
 		HBITMAP h_dn = LoadBitmap(0, MAKEINTRESOURCE(OBM_DNARROWD));
-		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, (long)h_dn);
+		SendMessage(GetDlgItem(hWnd, CTL_CUSTOMIZETOOLBAR_DOWN), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_dn);
 		//PrevListViewProc = (WNDPROC)SetWindowLong(H_List, GWLP_WNDPROC, (long)ListViewProc);
 		PrevListViewProc = (WNDPROC)TView::SetWindowProp(H_List, GWLP_WNDPROC, ListViewProc);
 		//SetWindowLong(H_List, GWLP_USERDATA, (long)this);

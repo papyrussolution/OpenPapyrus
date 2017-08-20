@@ -1517,7 +1517,7 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 		//
 		pBlk->GetAttr(DbLoginBlock::attrDbSymb, attr);
 		if(attr.Len())
-			THROW(OhAttrSet(Svr, OCI_ATTR_INTERNAL_NAME, (void *)(const char *)attr, attr.Len()));
+			THROW(OhAttrSet(Svr, OCI_ATTR_INTERNAL_NAME, (void *)attr.cptr(), attr.Len())); // @badcast
 	}
 	Sess = OhAlloc(OCI_HTYPE_SESSION);
 	//
@@ -1709,11 +1709,7 @@ int SLAPI SOraDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat
 
 int SLAPI SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword)
 {
-	/* @v9.4.12 if(pFileName)
-		pTbl->fileName = pFileName;
-	else
-		pTbl->fileName = pTbl->tableName; */
-	pTbl->fileName = NZOR(pFileName, pTbl->tableName); // @v9.4.12
+	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
 	pTbl->FixRecSize = pTbl->fields.getRecSize();
 	return 1;

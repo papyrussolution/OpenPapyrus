@@ -1361,7 +1361,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filenam
 		xmlGenericError(0, "new input from file: %s\n", filename);
 	if(ctxt) {
 		xmlParserInputBufferPtr buf = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
-		if(buf == NULL) {
+		if(!buf) {
 			SString msg_buf = "failed to load external entity";
 			if(filename)
 				msg_buf.Space().CatQStr(filename);

@@ -32,7 +32,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-mutex-private.h"
+//#include "cairo-mutex-private.h"
 
 #define CAIRO_MUTEX_DECLARE(mutex) cairo_mutex_t mutex = CAIRO_MUTEX_NIL_INITIALIZER;
 #include "cairo-mutex-list-private.h"

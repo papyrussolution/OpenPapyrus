@@ -1054,7 +1054,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 			case cmaDesktop:
 				if(APPL->H_Desktop && !IsInState(sfModal)) {
 					TWindow * p_desk = (TWindow*)TView::GetWindowUserData(APPL->H_Desktop);
-					SendMessage(APPL->H_MainWnd, WM_COMMAND, (WPARAM)(long)p_desk, 0);
+					::SendMessage(APPL->H_MainWnd, WM_COMMAND, (WPARAM)p_desk, 0);
 				}
 				break;
 			case cmSetFont:
@@ -1065,7 +1065,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 						HDC    dc = GetDC(H());
 						Font = p_sfe->FontHandle ? (HFONT)p_sfe->FontHandle : GetStockObject(DEFAULT_GUI_FONT);
 						::DeleteObject(SelectObject(dc, Font));
-						GetTextMetrics(dc, &tm);
+						::GetTextMetrics(dc, &tm);
 						ChrSz.Set(tm.tmAveCharWidth, tm.tmHeight + tm.tmExternalLeading);
 						YCell = ChrSz.y + 2;
 						CalcRight();

@@ -56,8 +56,6 @@ enum SqlServerType {
 	sqlstFB,          // FireBird
 	sqlstPg           // PostgreSQL
 };
-
-extern const uint32 SLobSignature[4];
 //
 // Descr: класс, представляющий поля типа BLOB или CLOB в таблицах баз данных.
 //   Главная проблема, которую призвана решить этот класс - совместимость между
@@ -2112,6 +2110,19 @@ public:
 	virtual int SLAPI RollbackWork() = 0;
 
 	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat) = 0;
+	//
+	// Descr: Реализует механизм открытия таблицы базы данных с именем pFileName.
+	// ARG(pTbl      IN): Указатель на экземпляр открываемой таблицы
+	// ARG(pFileName IN): Текстовое имя таблицы. Правила именования таблиц сильно варьируются в зависимости
+	//   от провайдера базы данных.
+	// ARG(openMode  IN): Параметр режима открытия таблицы. omXXX (see above). В общем случае затруднительно
+	//   гарантировать, что все провайдеры DB реализуют заданный режим. Должно документироваться для каждого
+	//   конкретного порожденного класса.
+	// ARG(pPassword IN): Пароль на случай, если таблица зашифрована.
+	// Returns:
+	//   >0 - таблица открыта успешно
+	//    0 - ошибка
+	//
 	virtual int SLAPI Implement_Open(DBTable * pTbl, const char * pFileName, int openMode, char * pPassword) = 0;
 	virtual int SLAPI Implement_Close(DBTable * pTbl) = 0;
 	virtual int SLAPI Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf) = 0;
@@ -2618,19 +2629,56 @@ private:
 			H = 0;
 			T = 0;
 		}
-		int    Valid() const { return (T != 0); }
-		int    operator !() const { return (T == 0); }
-		void   Clear() { H = 0; T = 0; }
+		int    Valid() const
+		{
+			return (T != 0);
+		}
+		int    operator !() const
+		{
+			return (T == 0);
+		}
+		void   Clear()
+		{
+			H = 0;
+			T = 0;
+		}
 		operator uint32 () const;
-		operator void * () const { return H; }
-		operator OCIEnv * () const { return Env; }
-		operator OCIError * () const { return Err; }
-		operator OCIServer * () const { return Svr; }
-		operator OCISvcCtx * () const { return Srvc; }
-		operator OCISession * () const { return Sess; }
-		operator OCIStmt * () const { return Stmt; }
-		operator OCIBind * () const { return Bind; }
-		operator OCITrans * () const { return Trans; }
+		operator void * () const
+		{
+			return H;
+		}
+		operator OCIEnv * () const
+		{
+			return Env;
+		}
+		operator OCIError * () const
+		{
+			return Err;
+		}
+		operator OCIServer * () const
+		{
+			return Svr;
+		}
+		operator OCISvcCtx * () const
+		{
+			return Srvc;
+		}
+		operator OCISession * () const
+		{
+			return Sess;
+		}
+		operator OCIStmt * () const
+		{
+			return Stmt;
+		}
+		operator OCIBind * () const
+		{
+			return Bind;
+		}
+		operator OCITrans * () const
+		{
+			return Trans;
+		}
 		union {
 			void      * H;     // Сам манипулятор
 			OCIEnv    * Env;   // OCI_HTYPE_ENV
@@ -3491,7 +3539,7 @@ public:
 	// Returns:
 	//   1
 	//
-	int    SLAPI setDestroyTablesMode(int set);
+	void   SLAPI setDestroyTablesMode(int set);
 	//
 	// Descr: Определяет режим извлечения записей запросом.
 	//   Если set != 0, то записи будут извлекаться для изменения.
@@ -3501,7 +3549,7 @@ public:
 	// Returns:
 	//   1
 	//
-	int    SLAPI setSearchForUpdateMode(int set);
+	void   SLAPI setSearchForUpdateMode(int set);
 
 	DBQuery & SLAPIV from(DBTable *,...);
 	DBQuery & SLAPIV groupBy(DBField,...);
@@ -3756,6 +3804,11 @@ private:
 class BExtQuery {
 public:
 	//
+	// Descr: Удаляет экземпляр *ppQ с обнулением.
+	// Note: Реализована для замещения частых вызовов ZDELETE(q)
+	//
+	static void FASTCALL ZDelete(BExtQuery ** ppQ);
+	//
 	// ARG(aBufSize IN): Количество записей, которое должно обрабатываться буфером.
 	//
 	SLAPI  BExtQuery(DBTable * pTbl, int idx, uint aBufSize /*= 32*/);
@@ -3891,6 +3944,7 @@ struct __db_sequence; typedef struct __db_sequence DB_SEQUENCE;
 class BDbTable {
 public:
 	friend class BDbDatabase;
+	friend class BDbCursor;
 
 	//
 	// Descr: Типы индексов, используемые при создании таблиц
@@ -4061,6 +4115,34 @@ public:
 		BDbTable * P_MainT; // @notowned
 	};
 
+	struct Statistics {
+		Statistics();
+		struct ISz {
+			ISz();
+			void   FASTCALL Put(const BDbTable::Buffer & rB);
+
+			uint64 Count;
+			uint64 Total;
+			uint32 Min;
+			uint32 Max;
+		};
+		struct ICt {
+			ICt();
+			void   FASTCALL Put(uint64 t);
+
+			uint64 Count;
+			uint64 TmTotal;
+			uint64 TmMin;
+			uint64 TmMax;
+		};
+		ICt    CtIns;
+		ICt    CtUpd;
+		ICt    CtRmv;
+		ICt    CtGet;
+		ISz    SzKey;
+		ISz    SzRec;
+	};
+
 	BDbTable(const Config & rCfg, BDbDatabase * pDb);
 	BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdxHandle, BDbTable * pMainTbl);
 	~BDbTable();
@@ -4119,6 +4201,7 @@ protected:
 	long   State;  // BDbTable::stXXX Флаги состояния //
 	DB   * H;      // Table handler
 	Config Cfg;
+	Statistics Stat;
 	BDbDatabase * P_Db;
 	BDbTable * P_MainT;              // @#{(State & stIndex) || !P_MainT} Для индексной таблицы - основная таблица.
 	SecondaryIndex * P_IdxHandle;    // @#{(State & stIndex) || !P_IdxHandle}
@@ -4150,12 +4233,16 @@ public:
 	//   Поле состояния возвращается функцией GetState()
 	//
 	enum {
-		stError    = 0x0001,
-		stLoggedIn = 0x0002
+		stError            = 0x0001,
+		stLoggedIn         = 0x0002,
+		stReadOnly         = 0x0004, // @v9.7.11 Экземпляр базы данных создан в режиме READ-ONLY
+		stWriteStatOnClose = 0x0008  // @v9.7.11 При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
 	};
 	enum {
-		oRecover       = 0x00000001,
-		oPrivate       = 0x00000002 // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
+		oRecover          = 0x00000001,
+		oPrivate          = 0x00000002, // @v9.6.4 окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
+		oReadOnly         = 0x00000004, // @v9.7.11 База данных открывается в режиме READ-ONLY
+		oWriteStatOnClose = 0x00000008  // @v9.7.11 При закрытии базы сохранять статистику по таблицам
 	};
 	struct Config {
 		Config();
@@ -4202,6 +4289,7 @@ public:
 	int    CreateDataFile(const char * pFileName, int createMode, BDbTable::Config * pCfg);
 	int    Implement_Open(BDbTable * pTbl, const char * pFileName, int openMode, char * pPassword);
 	int    Implement_Close(BDbTable * pTbl);
+	int    WriteStat(const BDbTable * pTbl);
 	int    RemoveUnusedLogs();
 	int    FASTCALL CheckInTxnTable(BDbTable * pTbl);
 
@@ -4212,7 +4300,7 @@ public:
 
 	int    LockDetect();
 
-	long   CreateSequence(const char * pName, int64 initVal);
+	int    CreateSequence(const char * pName, int64 initVal, long * pSeqID);
 	int    CloseSequence(long seqId);
 	int    GetSequence(long seqId, int64 * pVal);
 
@@ -4222,7 +4310,7 @@ private:
 	int    Helper_SetConfig(const char * pHomeDir, Config & rCfg);
 	//
 	// Descr: Вспомогательная функция, реализующая открытие таблицы базы данных.
-	// ARG(pFileName IN): Имя таблицы 
+	// ARG(pFileName IN): Имя таблицы
 	// ARG(pTbl      IN): Предварительно созданный экземпляр таблицы
 	// ARG(flags     IN): Флаги открытия таблицы (BDbTable::ofXXX)
 	// Returns:
@@ -4242,7 +4330,7 @@ private:
 		SCollection TblList;
 	};
 
-	long   State;
+	long   State; // BDbDatabase::stXXX
 	DB_ENV * E;
 	Txn    T;
 	BDbTable * P_SeqT;

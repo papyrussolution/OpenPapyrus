@@ -66,7 +66,7 @@ static hm_fragment * dtls1_hm_fragment_new(unsigned long frag_len,
 
 	if(frag_len) {
 		buf = (uchar *)OPENSSL_malloc(frag_len);
-		if(buf == NULL) {
+		if(!buf) {
 			OPENSSL_free(frag);
 			return NULL;
 		}

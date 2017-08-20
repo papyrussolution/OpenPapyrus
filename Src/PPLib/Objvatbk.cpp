@@ -1210,7 +1210,7 @@ int SLAPI PPViewVatBook::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		Counter.Init();
 		MEMSZERO(Total);
 		if(Filt.Kind == PPVTB_BUY)
@@ -1276,7 +1276,7 @@ int SLAPI PPViewVatBook::InitIteration()
 	VATBookTbl * p_t = VBObj.P_Tbl;
 	DBQ * dbq = 0;
 
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	MEMSZERO(InnerItem);
 	ZDELETE(P_ClbList);
 	ClbListIterPos = 0;

@@ -845,27 +845,25 @@ trunc:
 		if(data)
 			memcpy((uint8 *)pagep+HOFFSET(pagep), argp->data.data, argp->data.size);
 	}
-	if(pagep && (ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
 	pagep = NULL;
 #ifdef HAVE_FTRUNCATE
-	/*
-	 * If we are keeping an in memory free list remove this
-	 * element from the list.
-	 */
+	//
+	// If we are keeping an in memory free list remove this element from the list.
+	//
 	if(op == DB_TXN_ABORT && argp->pgno != argp->last_pgno) {
 		db_pgno_t * lp;
 		uint32 nelem, pos;
 		if((ret = __memp_get_freelist(mpf, &nelem, &lp)) != 0)
 			goto out;
-		if(lp != NULL) {
+		if(lp) {
 			pos = 0;
 			if(!is_meta) {
 				__db_freelist_pos(argp->pgno, lp, nelem, &pos);
-				/*
-				 * If we aborted after logging but before
-				 * updating the free list don't do anything.
-				 */
+				//
+				// If we aborted after logging but before updating the free list don't do anything.
+				//
 				if(argp->pgno != lp[pos]) {
 					DB_ASSERT(env, argp->meta_pgno == lp[pos]);
 					goto done;
@@ -876,7 +874,7 @@ trunc:
 				goto done;
 			if(pos < nelem)
 				memmove(&lp[pos], &lp[pos+1], ((nelem-pos)-1)*sizeof(*lp));
-			/* Shrink the list */
+			// Shrink the list
 			if((ret = __memp_extend_freelist(mpf, nelem-1, &lp)) != 0)
 				goto out;
 		}
@@ -888,10 +886,8 @@ done:
 	meta = NULL;
 	ret = 0;
 out:
-	if(pagep)
-		__memp_fput(mpf, ip,  pagep, file_dbp->priority);
-	if(meta)
-		__memp_fput(mpf, ip,  meta, file_dbp->priority);
+	__memp_fput(mpf, ip,  pagep, file_dbp->priority);
+	__memp_fput(mpf, ip,  meta, file_dbp->priority);
 	return ret;
 }
 /*
@@ -1549,7 +1545,7 @@ no_rollback:
 		__db_errx(env, DB_STR("0643", "Cannot replicate prepared transactions from master running release 4.2 "));
 		ret = __env_panic(env, EINVAL);
 	}
-	if(pagep && (ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
 	pagep = NULL;
 	if((ret = __memp_fput(mpf, ip, meta, file_dbp->priority)) != 0)
@@ -1559,10 +1555,8 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep)
-		__memp_fput(mpf, ip, pagep, file_dbp->priority);
-	if(meta)
-		__memp_fput(mpf, ip, meta, file_dbp->priority);
+	__memp_fput(mpf, ip, pagep, file_dbp->priority);
+	__memp_fput(mpf, ip, meta, file_dbp->priority);
 	REC_CLOSE;
 }
 /*
@@ -1639,7 +1633,6 @@ check_meta:
 	__ua_memcpy(&copy_lsn, &LSN(argp->header.data), sizeof(DB_LSN));
 	cmp_n = IS_ZERO_LSN(LSN(pagep)) ? 0 : LOG_COMPARE(lsnp, &LSN(pagep));
 	cmp_p = LOG_COMPARE(&LSN(pagep), &copy_lsn);
-
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &copy_lsn);
 	if(DB_REDO(op) && (cmp_p == 0 || (IS_ZERO_LSN(copy_lsn) && LOG_COMPARE(&LSN(pagep), &argp->meta_lsn) <= 0))) {
 		/* Need to redo the deallocation. */
@@ -1648,24 +1641,22 @@ check_meta:
 		pagep->lsn = *lsnp;
 	}
 	else if(cmp_n == 0 && DB_UNDO(op)) {
-		/* Need to reallocate the page. */
+		// Need to reallocate the page
 		REC_DIRTY(mpf, ip, file_dbp->priority, &pagep);
 		memcpy(pagep, argp->header.data, argp->header.size);
 		if(data)
 			memcpy((uint8 *)pagep+HOFFSET(pagep), argp->data.data, argp->data.size);
 	}
-	if(pagep && (ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0)
 		goto out;
 	pagep = NULL;
-	if(meta && (ret = __memp_fput(mpf, ip, meta, file_dbp->priority)) != 0)
+	if((ret = __memp_fput(mpf, ip, meta, file_dbp->priority)) != 0)
 		goto out;
 	meta = NULL;
 	ret = 0;
 out:
-	if(pagep)
-		__memp_fput(mpf, ip, pagep, file_dbp->priority);
-	if(meta)
-		__memp_fput(mpf, ip, meta, file_dbp->priority);
+	__memp_fput(mpf, ip, pagep, file_dbp->priority);
+	__memp_fput(mpf, ip, meta, file_dbp->priority);
 	return ret;
 }
 /*

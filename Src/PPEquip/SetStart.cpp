@@ -167,7 +167,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				if(temp_buf.ToLong() > 0)
 					gc_alc_code = temp_buf;
 				else
-					(gc_alc_code = 0).Cat(gc_alc_id);
+					gc_alc_code.Z().Cat(gc_alc_id);
 			}
 		}
 	}
@@ -181,7 +181,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	SFile::ZClose(&p_file);
 	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
 	f_str = "##@@&&";
-	THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+	THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	THROW_PP(fprintf(p_file, p_format, p_load_symb) > 0, PPERR_EXPFILEWRITEFAULT);
 	{
 		qk_obj.GetRetailQuotList(ZERODATETIME, &retail_quot_list, 0);
@@ -328,11 +328,11 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	}
 	if(updOnly || (Flags & PPACSF_LOADRESTWOSALES)) {
 		f_str = (Flags & PPACSF_LOADRESTWOSALES) ? "$$$REPLACEQUANTITYWITHOUTSALE" : "$$$REPLACEQUANTITY";
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	else {
 		f_str = "$$$REPLACEQUANTITY";
-		THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+		THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 	}
 	{
 		//long   iter_flags = updOnly ? ACGIF_UPDATEDONLY : 0;
@@ -364,7 +364,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Cat((long)grp_info.Level).Semicol();    // #18 - Номер уровня иерархического списка
 					f_str.CatCharN(';', 4);                       // #19-#22 - Не используем
 					f_str.Semicol();                              // #23 - Налоговую группу не грузим
-					THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					grp_n_level_ary.Add(grp_info.ID, grp_info.Level, 0);
 				}
 			}
@@ -388,7 +388,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						PPID   dscnt_scheme_id = 0;
 						if(prev_goods_id) {
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-							THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+							THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 						}
 						// @v8.2.0 {
 						if(gc_alc_id && gc_alc_code.NotEmpty() && gds_info.GdsClsID == gc_alc_id) {
@@ -505,7 +505,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			}
 			if(prev_goods_id) {
 				f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
-				THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+				THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			}
 			//
 			// @v7.4.12 {
@@ -514,7 +514,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 			if(rmv_goods_list.getCount()) {
 				fputs((f_str = "$$$DELETEWARESBYWARECODE").CR(), p_file);
 				for(i = 0; i < rmv_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(rmv_goods_list.get(i));  // #1 - ИД товара
+					f_str.Z().Cat(rmv_goods_list.get(i));  // #1 - ИД товара
 					fputs(f_str.CR(), p_file);
 				}
 			}
@@ -527,7 +527,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				alc_goods_list.sortAndUndup();
 				fputs((f_str = "$$$ADDCLASSIFIERLINKS").CR(), p_file);
 				for(i = 0; i < alc_goods_list.getCount(); i++) {
-					(f_str = 0).Cat(gc_alc_code).Semicol().Cat(1L).Semicol().Cat(alc_goods_list.get(i)).CR();
+					f_str.Z().Cat(gc_alc_code).Semicol().Cat(1L).Semicol().Cat(alc_goods_list.get(i)).CR();
 					fputs(f_str, p_file);
 				}
 			}
@@ -627,10 +627,10 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				for(i = 0; i < retail_quot_list.getCount(); i++) {
 					const PPID qk_id = retail_quot_list.get(i);
 					if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-						(f_str = 0).Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
+						f_str.Z().Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
 						f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
-						THROW_PP(fprintf(p_file, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
+						THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 				}
 				if(!updOnly) {
@@ -722,7 +722,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Semicol();                                      // #42
 					f_str.Semicol();                                      // #43
 					f_str.Semicol();                                      // #44
-					THROW_PP(fprintf(p_file, p_format, (const char *)f_str.Transf(CTRANSF_INNER_TO_OUTER)) > 0, PPERR_EXPFILEWRITEFAULT);
+					THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
 #endif // } @v9.4.1
@@ -800,7 +800,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fExt, file_name);
 				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 			}
-			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt = 0);
+			MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
 			// path_rpt = PathRpt;
 			for(double j = 0; j < timeouts_c; j++) {
 				if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
@@ -846,11 +846,11 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
 					PPMailMsg msg;
-					PPMakeTempFileName(0, "msg", 0, temp_fname = 0);
+					PPMakeTempFileName(0, "msg", 0, temp_fname.Z());
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 					{
-						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt = 0);
+						MakeTempFileName(dir_in, "front", "txt", 0, path_rpt.Z());
 						THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
 						(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
 						rename(temp_fname, path_rpt);
@@ -1238,7 +1238,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 				ss.get(&pos, buf);          // #18 пропускаем
 				ss.get(&pos, barcode);          // #19 barcode
 				ss.get(&pos, buf);          // #20 пропускаем
-				ss.get(&pos, buf = 0);      // #21 Номер отдела
+				ss.get(&pos, buf.Z());      // #21 Номер отдела
 				div = buf.ToLong();
 				// } @v8.8.6
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
@@ -1255,7 +1255,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 							if(UseAltImport) {
 								goods_ident_txt.Divide('|', arcode, goods_name);
 								if(!goods_name.NotEmptyS())
-									(goods_name = 0).CatEq("ID", goods_id);
+									goods_name.Z().CatEq("ID", goods_id);
 								else
 									goods_name.Transf(CTRANSF_OUTER_TO_INNER);
 								if(goods_obj.P_Tbl->SearchByArCode(0, arcode, 0, &goods_rec) > 0)
@@ -1466,7 +1466,7 @@ int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 					buf = "$$$TRANSACTIONSBYDATETIMERANGE";
 					query_file.WriteLine(buf.CR());
 					decodedate(&d, &m, &y, &first_date);
-					(buf = 0).Printf(date_mask, d, m, y).Semicol();
+					buf.Z().Printf(date_mask, d, m, y).Semicol();
 					decodedate(&d, &m, &y, &last_date);
 					buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR();
 					query_file.WriteLine(buf);
@@ -1511,7 +1511,7 @@ int SLAPI ACS_SETSTART::ImportSession(int)
 	SString path;
 	THROW(CreateTables());
 	ss.setBuf(ImportedFiles, ImportedFiles.Len() + 1);
-	for(uint i = 0; ss.get(&i, path = 0);) {
+	for(uint i = 0; ss.get(&i, path.Z());) {
 		ZRepList.freeAll();
 		if(fileExists(path)) {
 			THROW(GetZRepList(path, &ZRepList));

@@ -1,5 +1,5 @@
 // TDDO.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -745,7 +745,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 									*p_str = arg_buf;
 								}
 								else {
-									stfromstr(te.T.Typ, S.GetPtr(arg_sp), 0, (const char *)arg_buf);
+									stfromstr(te.T.Typ, S.GetPtr(arg_sp), 0, arg_buf.cptr());
 								}
 							}
 							if(func.ImplID) {
@@ -860,7 +860,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 					this_sect = 0;
 			}
 			else if(this_sect) {
-				rOut.Write((const char *)temp_buf, temp_buf.Len());
+				rOut.Write(temp_buf.cptr(), temp_buf.Len());
 			}
 		}
 	}
@@ -996,13 +996,13 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 								result.S.ReplaceSpecSymb(SFileFormat::Html);
 							else if(!!rBlk.Ep.OutputFormat)
 								result.S.ReplaceSpecSymb(rBlk.Ep.OutputFormat);
-							rOut.Write((const char *)result.S, result.S.Len());
+							rOut.Write(result.S.cptr(), result.S.Len());
 						}
 						break;
 					case tIterCount:
 						if(!skip) {
-							(result.S = 0).Cat(iter_count);
-							rOut.Write((const char *)result.S, result.S.Len());
+							result.S.Z().Cat(iter_count);
+							rOut.Write(result.S.cptr(), result.S.Len());
 						}
 						break;
 					case tVarArgN:
@@ -1012,7 +1012,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 								result.S.ReplaceSpecSymb(SFileFormat::Html);
 							else if(!!rBlk.Ep.OutputFormat)
 								result.S.ReplaceSpecSymb(rBlk.Ep.OutputFormat);
-							rOut.Write((const char *)result.S, result.S.Len());
+							rOut.Write(result.S.cptr(), result.S.Len());
 						}
 						break;
 					case tExpr:
@@ -1024,7 +1024,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 									result.S.ReplaceSpecSymb(SFileFormat::Html);
 								else if(!!rBlk.Ep.OutputFormat)
 									result.S.ReplaceSpecSymb(rBlk.Ep.OutputFormat);
-								rOut.Write((const char *)result.S, result.S.Len());
+								rOut.Write(result.S.cptr(), result.S.Len());
 							}
 						}
 						break;
@@ -1079,7 +1079,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 					case tString:
 						PPLoadString(meta.Text, result.S);
 						result.S.Transf(CTRANSF_INNER_TO_OUTER);
-						rOut.Write((const char *)result.S, result.S.Len());
+						rOut.Write(result.S.cptr(), result.S.Len());
 						break;
 					case tText:
 						ExtractText(meta.Param, meta.Text, 0 /* languageId */, rOut);
@@ -1105,7 +1105,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 	} while(1);
 	if(if_stack.getPointer() != 0) {
 		temp_buf = "Error: Unfinished IF";
-		rOut.Write((const char *)temp_buf, temp_buf.Len());
+		rOut.Write(temp_buf.cptr(), temp_buf.Len());
 	}
 	CATCHZOK
 	return ok;

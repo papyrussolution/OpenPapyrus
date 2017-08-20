@@ -870,8 +870,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 		}
 		int    setDTS(const PPSmsAccPacket * pData)
 		{
-			if(pData)
-				Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_SMSACC_NAME, Data.Rec.Name);
 			setCtrlData(CTL_SMSACC_SYMB, Data.Rec.Symb);
 			setCtrlLong(CTL_SMSACC_ID, Data.Rec.ID);
@@ -885,7 +884,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 				SString temp_buf;
 				Data.GetPassword(temp_buf);
 				setCtrlString(CTL_SMSACC_PASSW, temp_buf);
-				IdeaRandMem((char *)(const char *)temp_buf, temp_buf.Len());
+				temp_buf.Obfuscate();
 			}
 			AddClusterAssoc(CTL_SMSACC_FLAGS, 0, PPSmsAccount::smacfUseUHTT);
 			AddClusterAssoc(CTL_SMSACC_FLAGS, 1, PPSmsAccount::smacfSpliLongMsg);
@@ -909,7 +908,7 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 			{
 				getCtrlString(CTL_SMSACC_PASSW, temp_buf);
 				Data.SetPassword(temp_buf);
-				IdeaRandMem((char *)(const char *)temp_buf, temp_buf.Len());
+				temp_buf.Obfuscate();
 			}
 			sel = 0;
 			THROW(Data.Verify(Data.vfEditingOnly));

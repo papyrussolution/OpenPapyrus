@@ -645,7 +645,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 	InitPathP = 0;
 	InitNameP = 0;
 	Pool.clear(1);
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 	List.clear();
 	if(pPath) {
 		SString temp_buf;

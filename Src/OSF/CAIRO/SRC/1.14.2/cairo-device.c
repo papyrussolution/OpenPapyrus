@@ -34,7 +34,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 
 /**
  * SECTION:cairo-device

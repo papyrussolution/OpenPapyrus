@@ -95,14 +95,14 @@ int SLAPI PPViewUserProfile::Init_(const PPBaseFilt * pFilt)
 	Counter.Init();
 	THROW(Helper_InitBaseFilt(pFilt));
 	CATCHZOK
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	return ok;
 }
 
 int SLAPI PPViewUserProfile::InitIteration()
 {
 	int    ok = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	/*
 	CATCHZOK
 	*/

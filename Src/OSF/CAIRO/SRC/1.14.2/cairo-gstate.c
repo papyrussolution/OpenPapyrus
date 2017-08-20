@@ -592,12 +592,12 @@ cairo_status_t _cairo_gstate_set_matrix(cairo_gstate_t * gstate, const cairo_mat
 
 void _cairo_gstate_identity_matrix(cairo_gstate_t * gstate)
 {
-	if(_cairo_matrix_is_identity(&gstate->ctm))
-		return;
-	_cairo_gstate_unset_scaled_font(gstate);
-	cairo_matrix_init_identity(&gstate->ctm);
-	cairo_matrix_init_identity(&gstate->ctm_inverse);
-	gstate->is_identity = _cairo_matrix_is_identity(&gstate->target->device_transform);
+	if(!_cairo_matrix_is_identity(&gstate->ctm)) {
+		_cairo_gstate_unset_scaled_font(gstate);
+		cairo_matrix_init_identity(&gstate->ctm);
+		cairo_matrix_init_identity(&gstate->ctm_inverse);
+		gstate->is_identity = _cairo_matrix_is_identity(&gstate->target->device_transform);
+	}
 }
 
 void _cairo_gstate_user_to_device(cairo_gstate_t * gstate, double * x, double * y)
@@ -739,32 +739,28 @@ static void _cairo_gstate_copy_transformed_mask(cairo_gstate_t * gstate, cairo_p
 
 static cairo_operator_t FASTCALL _reduce_op(cairo_gstate_t * gstate)
 {
-	const cairo_pattern_t * pattern;
 	cairo_operator_t op = gstate->op;
-	if(op != CAIRO_OPERATOR_SOURCE)
-		return op;
-	pattern = gstate->source;
-	if(pattern->type == CAIRO_PATTERN_TYPE_SOLID) {
-		const cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)pattern;
-		if(solid->color.alpha_short <= 0x00ff) {
-			op = CAIRO_OPERATOR_CLEAR;
-		}
-		else if((gstate->target->content & CAIRO_CONTENT_ALPHA) == 0) {
-			if((solid->color.red_short | solid->color.green_short | solid->color.blue_short) <= 0x00ff) {
+	if(op == CAIRO_OPERATOR_SOURCE) {
+		const cairo_pattern_t * pattern = gstate->source;
+		if(pattern->type == CAIRO_PATTERN_TYPE_SOLID) {
+			const cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)pattern;
+			if(solid->color.alpha_short <= 0x00ff)
 				op = CAIRO_OPERATOR_CLEAR;
+			else if((gstate->target->content & CAIRO_CONTENT_ALPHA) == 0) {
+				if((solid->color.red_short | solid->color.green_short | solid->color.blue_short) <= 0x00ff)
+					op = CAIRO_OPERATOR_CLEAR;
 			}
 		}
-	}
-	else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
-		const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t*)pattern;
-		if(surface->surface->is_clear && surface->surface->content & CAIRO_CONTENT_ALPHA) {
-			op = CAIRO_OPERATOR_CLEAR;
+		else if(pattern->type == CAIRO_PATTERN_TYPE_SURFACE) {
+			const cairo_surface_pattern_t * surface = (cairo_surface_pattern_t*)pattern;
+			if(surface->surface->is_clear && surface->surface->content & CAIRO_CONTENT_ALPHA)
+				op = CAIRO_OPERATOR_CLEAR;
 		}
-	}
-	else {
-		const cairo_gradient_pattern_t * gradient = (cairo_gradient_pattern_t*)pattern;
-		if(gradient->n_stops == 0)
-			op = CAIRO_OPERATOR_CLEAR;
+		else {
+			const cairo_gradient_pattern_t * gradient = (cairo_gradient_pattern_t*)pattern;
+			if(gradient->n_stops == 0)
+				op = CAIRO_OPERATOR_CLEAR;
+		}
 	}
 	return op;
 }
@@ -819,8 +815,7 @@ cairo_status_t _cairo_gstate_mask(cairo_gstate_t  * gstate, cairo_pattern_t * ma
 	assert(gstate->opacity == 1.0);
 	if(_cairo_pattern_is_opaque(mask, NULL))
 		return _cairo_gstate_paint(gstate);
-	if(_cairo_pattern_is_clear(mask) &&
-	    _cairo_operator_bounded_by_mask(gstate->op)) {
+	if(_cairo_pattern_is_clear(mask) && _cairo_operator_bounded_by_mask(gstate->op)) {
 		return CAIRO_STATUS_SUCCESS;
 	}
 	op = _reduce_op(gstate);
@@ -832,8 +827,7 @@ cairo_status_t _cairo_gstate_mask(cairo_gstate_t  * gstate, cairo_pattern_t * ma
 		source = &source_pattern.base;
 	}
 	_cairo_gstate_copy_transformed_mask(gstate, &mask_pattern.base, mask);
-	if(source->type == CAIRO_PATTERN_TYPE_SOLID && mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID &&
-	    _cairo_operator_bounded_by_source(op)) {
+	if(source->type == CAIRO_PATTERN_TYPE_SOLID && mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID && _cairo_operator_bounded_by_source(op)) {
 		const cairo_solid_pattern_t * solid = (cairo_solid_pattern_t*)source;
 		cairo_color_t combined;
 		if(mask_pattern.base.has_component_alpha) {
@@ -981,15 +975,15 @@ cairo_bool_t _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y)
 	if(clip == NULL)
 		return TRUE;
 	_cairo_gstate_user_to_backend(gstate, &x, &y);
-	if(x <  clip->extents.x || x >= clip->extents.x + clip->extents.width ||
-	    y <  clip->extents.y || y >= clip->extents.y + clip->extents.height) {
+	if(x < clip->extents.x || x >= clip->extents.x + clip->extents.width || y <  clip->extents.y || y >= clip->extents.y + clip->extents.height) {
 		return FALSE;
 	}
 	if(clip->num_boxes) {
 		int fx = _cairo_fixed_from_double(x);
 		int fy = _cairo_fixed_from_double(y);
 		for(i = 0; i < clip->num_boxes; i++) {
-			if(fx >= clip->boxes[i].p1.x && fx <= clip->boxes[i].p2.x && fy >= clip->boxes[i].p1.y && fy <= clip->boxes[i].p2.y)
+			const cairo_box_t * p_box = &clip->boxes[i];
+			if(fx >= p_box->p1.x && fx <= p_box->p2.x && fy >= p_box->p1.y && fy <= p_box->p2.y)
 				break;
 		}
 		if(i == clip->num_boxes)

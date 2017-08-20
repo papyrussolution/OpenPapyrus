@@ -32,10 +32,7 @@ int SLAPI TSessionFilt::CheckIdle(long flags) const
 
 int SLAPI TSessionFilt::CheckStatus(int status) const
 {
-	if(StatusFlags)
-		return (StatusFlags & (1 << status)) ? 1 : 0;
-	else
-		return 1;
+	return BIN(!StatusFlags || (StatusFlags & (1 << status)));
 }
 
 int SLAPI TSessionFilt::GetStatusList(PPIDArray * pList) const
@@ -232,7 +229,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec)
+void SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec)
 {
 	memzero(pDestRec, sizeof(*pDestRec));
 	pDestRec->ID = pSrcRec->ID;
@@ -266,15 +263,11 @@ int SLAPI PPViewTSession::MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrde
 		temp_buf.Cat(st_buf).Cat(fin_buf);
 	}
 	temp_buf.CopyTo(pDestRec->Name, sizeof(pDestRec->Name));
-	return 1;
 }
 
-int SLAPI PPViewTSession::IsTempTblNeeded()
+int SLAPI PPViewTSession::IsTempTblNeeded() const
 {
-	if(Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1)
-		return 1;
-	else
-		return 0;
+	return BIN(Filt.Order || (Filt.StPeriod.low && Filt.StTime) || (Filt.FnPeriod.upp && Filt.FnTime) || Filt.ArID || PrcList.GetCount() > 1);
 }
 
 int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
@@ -285,7 +278,7 @@ int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 		PPObjProcessor prc_obj;
 		PPIDArray prc_list, local_prc_list;
 		ZDELETE(P_TempTbl);
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		State = 0;
 		PrcList.Set(0);
 		Filt.StPeriod.Actualize(ZERODATE);
@@ -437,7 +430,7 @@ int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewTSession::InitIteration(int order)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	Ib.Init(order);
 
@@ -505,7 +498,7 @@ int SLAPI PPViewTSession::InitIteration(int order)
 	}
 	CATCH
 		ok = 0;
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	ENDCATCH
 	return ok;
 }
@@ -1378,7 +1371,7 @@ int SLAPI PPViewTSessLine::Init(const TSessLineFilt * pFilt)
 	int    ok = 1;
 	TSessLineTbl * p_temp_tbl = 0;
 	Filt = *pFilt;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	Counter.Init();
 	{
@@ -1446,7 +1439,7 @@ int SLAPI PPViewTSessLine::CreateIterQuery()
 		}
 	}
 	else {
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		PPID   sess_id = 0, goods_id = 0;
 		if(SessListIter < 0) {
 			if(GoodsListIter >= 0)
@@ -1486,7 +1479,7 @@ int SLAPI PPViewTSessLine::CreateIterQuery()
 int SLAPI PPViewTSessLine::InitIteration()
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	GoodsListIter = Filt.GoodsID ? 0 : -1;
 	SessListIter  = Filt.TSesList.IsExists() ? 0 : -1;
 	return 1;

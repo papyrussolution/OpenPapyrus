@@ -237,7 +237,7 @@ ulong SLAPI CRC32::Calc(ulong crc, const uint8 * buf, size_t len)
 	#define DO4(buf)  DO2(buf); DO2(buf);
 	#define DO8(buf)  DO4(buf); DO4(buf);
 
-	if(buf == NULL)
+	if(!buf)
 		return 0L;
 	if(P_Tab == NULL)
 		MakeTab();

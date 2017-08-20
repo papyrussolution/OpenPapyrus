@@ -1184,7 +1184,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 								if(!PutPacket(&goods_id, &pack, 0)) {
 									PPGetLastErrorMessage(1, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
+									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, err_msg_buf.cptr());
 									logger.Log(msg_buf);
 								}
 							}
@@ -1333,7 +1333,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 								if(!ok_2) {
 									PPGetLastErrorMessage(1, err_msg_buf);
 									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, (const char *)err_msg_buf);
+									msg_buf.Printf(fmt_buf, PPOBJ_GOODS, pack.Rec.Name, err_msg_buf.cptr());
 									logger.Log(msg_buf);
 								}
 							}
@@ -1845,7 +1845,7 @@ int SLAPI ImportSpecSeries()
 				}
 				THROW(r);
 				THROW(tra.Commit());
-				PPMessage(mfInfo|mfOK, PPINF_RCVCURRSCOUNT, (wait_msg = 0).Cat(accepted_count));
+				PPMessage(mfInfo|mfOK, PPINF_RCVCURRSCOUNT, wait_msg.Z().Cat(accepted_count));
 			}
 		}
 	}
@@ -2342,7 +2342,7 @@ int SLAPI ImportBanks()
 									LocationCore::GetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr);
 									if(addr.Empty() || addr.CmpNC(city) == 0) {
 										THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
-										LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr = 0);
+										LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr.Z());
 										name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 										if(corracc.NotEmpty()) {
 											if(!pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1)) {
@@ -2764,7 +2764,7 @@ int SLAPI PrcssrImportKLADR::Import()
 							do_process = 1;
 						else {
 							KLADRCODE kc;
-							kc.FromStr(code_buf, (temp_buf = 0));
+							kc.FromStr(code_buf, temp_buf.Z());
 							if(kc.Cit == 0)
 								do_process = 1;
 							else
@@ -2936,23 +2936,23 @@ int PPPersonImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			switch(r_item.Id) {
 				case IMPEXPPARAM_PERSON_DEFKINDID:
 					if(DefKindID)
-						pFile->AppendParam(pSect, r_item.P_Txt, (param_val = 0).Cat(DefKindID), 1);
+						pFile->AppendParam(pSect, r_item.P_Txt, param_val.Z().Cat(DefKindID), 1);
 					break;
 				case IMPEXPPARAM_PERSON_DEFCATEGORYID:
 					if(DefKindID)
-						pFile->AppendParam(pSect, r_item.P_Txt, (param_val = 0).Cat(DefCategoryID), 1);
+						pFile->AppendParam(pSect, r_item.P_Txt, param_val.Z().Cat(DefCategoryID), 1);
 					break;
 				case IMPEXPPARAM_PERSON_DEFCITYID:
 					if(DefCityID)
-						pFile->AppendParam(pSect, r_item.P_Txt, (param_val = 0).Cat(DefCityID), 1);
+						pFile->AppendParam(pSect, r_item.P_Txt, param_val.Z().Cat(DefCityID), 1);
 					break;
 				case IMPEXPPARAM_PERSON_SRCHREGTYPEID:
 					if(SrchRegTypeID)
-						pFile->AppendParam(pSect, r_item.P_Txt, (param_val = 0).Cat(SrchRegTypeID), 1);
+						pFile->AppendParam(pSect, r_item.P_Txt, param_val.Z().Cat(SrchRegTypeID), 1);
 					break;
 				case IMPEXPPARAM_PERSON_FLAGS:
 					if(Flags)
-						pFile->AppendParam(pSect, r_item.P_Txt, (param_val = 0).Cat(Flags), 1);
+						pFile->AppendParam(pSect, r_item.P_Txt, param_val.Z().Cat(Flags), 1);
 					break;
 			}
 		}
@@ -3263,7 +3263,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPers
 	SStrScan scan(pText);
 	do {
 		scan.Skip();
-		if(scan.GetEMail(temp_buf = 0)) {
+		if(scan.GetEMail(temp_buf.Z())) {
 			if(!pPack->ELA.SearchByText(temp_buf, 0))
 				pPack->ELA.AddItem(PPELK_EMAIL, temp_buf);
 			scan.Skip();
@@ -3280,7 +3280,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexEMailText(const char * pText, PPPers
 
 static uint FASTCALL MakeTextHash(const SString & rText)
 {
-	return BobJencHash((const char *)rText, rText.Len());
+	return BobJencHash(rText.cptr(), rText.Len());
 }
 
 int SLAPI PrcssrPersonImport::Run()
@@ -3851,7 +3851,7 @@ int SLAPI ImportSR25()
 			const  long   sr25_id = _item.Id;
 			if(sr25_id) {
 				PPID   sw_id = 0;
-				(brc_str = 0).Cat(sr25_id);
+				brc_str.Z().Cat(sr25_id);
 				if(sw_obj.SearchByBarcode(brc_str, &bc_rec) > 0) {
 					sw_id = bc_rec.GoodsID;
 					THROW(sw_obj.Get(sw_id, &sw_pack) > 0);
@@ -3877,7 +3877,7 @@ int SLAPI ImportSR25()
 			const  PPComps & r_nutr_item = nutr_arr.at(i);
 			const  long sr25_id = r_nutr_item.CompID;
 			PPID   sw_id = 0;
-			(brc_str = 0).Cat(sr25_id);
+			brc_str.Z().Cat(sr25_id);
 			if(sw_obj.SearchByBarcode(brc_str, &bc_rec) > 0) {
 				sw_id = bc_rec.GoodsID;
 				THROW(sw_obj.Get(sw_id, &sw_pack) > 0);
@@ -3915,11 +3915,11 @@ int SLAPI ImportSR25()
 			// здесь как штрихкоды. Так что теперь по этим штрихкодам надо найти ИД товаров и компонентов в Papyrus
 			// Ищем соответствие в массиве ассоциаций goods_ids_assoc и nutrs_ids_assoc
 			//
-			(brc_str = 0).Cat(sw_item.GoodsID);
+			brc_str.Z().Cat(sw_item.GoodsID);
 			PPID   sw_id = 0;
 			PPID   sw_comp_id = 0;
 			if(goods_ids_assoc.BSearch(sw_item.GoodsID, &sw_id, 0)) {
-				(brc_str = 0).Cat(sw_item.CompID);
+				brc_str.Z().Cat(sw_item.CompID);
 				uint   key_pos = 0;
 				if(nutrs_ids_assoc.BSearch(sw_item.CompID, &sw_comp_id, &key_pos)) {
 					//
@@ -4846,7 +4846,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 								hse_code.HseNum = p_data->HOUSENUM;
 								hse_code.BldNum = p_data->BUILDNUM;
 								hse_code.StrNum = p_data->STRUCNUM;
-								hse_code.Encode(line_buf = 0);
+								hse_code.Encode(line_buf.Z());
 								THROW(ProcessString(0, &rec.NumTRef, line_buf, utext));
 								//
 								//THROW(ProcessString(p_data->OKATO, &rec.OkatoTRef, line_buf, utext));
@@ -5441,7 +5441,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					if(RestoredStat.NodeCount > 0)
 						PPWaitPercent((ulong)(((double)Stat.NodeCount / (double)RestoredStat.NodeCount) * 100.0), "Node");
 					else
-						PPWaitMsg((Pb.TempBuf = 0).Cat("Node").Space().Cat(Stat.NodeCount));
+						PPWaitMsg(Pb.TempBuf.Z().Cat("Node").Space().Cat(Stat.NodeCount));
 				PPOsm::Node new_node;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_node.ID = TempCaSet.ID;
@@ -5470,7 +5470,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					if(RestoredStat.WayCount > 0)
 						PPWaitPercent((ulong)(((double)Stat.WayCount / (double)RestoredStat.WayCount) * 100.0), "Way");
 					else
-						PPWaitMsg((Pb.TempBuf = 0).Cat("Way").Space().Cat(Stat.WayCount));
+						PPWaitMsg(Pb.TempBuf.Z().Cat("Way").Space().Cat(Stat.WayCount));
 				PPOsm::Way new_way;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_way.ID = TempCaSet.ID;
@@ -5503,7 +5503,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					if(RestoredStat.RelationCount > 0)
 						PPWaitPercent((ulong)(((double)Stat.RelationCount / (double)RestoredStat.RelationCount) * 100.0), "Relation");
 					else
-						PPWaitMsg((Pb.TempBuf = 0).Cat("Relation").Space().Cat(Stat.RelationCount));
+						PPWaitMsg(Pb.TempBuf.Z().Cat("Relation").Space().Cat(Stat.RelationCount));
 				PPOsm::Relation new_rel;
 				ReadCommonAttrSet(ppAttrList, TempCaSet);
 				new_rel.ID = TempCaSet.ID;
@@ -5553,7 +5553,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 					}
 				}
 				if(P_TagOutF || P_TagNodeOutF || P_TagWayOutF || P_TagRelOutF) {
-					(Pb.LineBuf = 0).Cat(Pb.TagKeyBuf).Tab().Cat(Pb.TagValBuf).CR();
+					Pb.LineBuf.Z().Cat(Pb.TagKeyBuf).Tab().Cat(Pb.TagValBuf).CR();
 					CALLPTRMEMB(P_TagOutF, WriteLine(Pb.LineBuf));
 					if(parent_tok == PPHS_NODE) {
 						CALLPTRMEMB(P_TagNodeOutF, WriteLine(Pb.LineBuf));
@@ -6357,7 +6357,7 @@ int SLAPI PrcssrOsm::Run()
 	SString out_file_name;
 	SString temp_buf;
 	SPathStruc ps;
-	const  char * p_db_path = "/PAPYRUS/PPY/BIN/SARTRDB";
+	const  char * p_db_path = 0; // "/PAPYRUS/PPY/BIN/SARTRDB";
 	/*
 	{
 		//

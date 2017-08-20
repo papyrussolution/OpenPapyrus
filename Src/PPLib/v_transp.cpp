@@ -119,8 +119,7 @@ void TransportFilterDlg::SetupCtrls()
 
 int TransportFilterDlg::setDTS(const TransportFilt * pData)
 {
-	if(pData)
-		Data = *pData;
+	RVALUEPTR(Data, pData);
 	PPID   owner_kind_id = NZOR(Cfg.OwnerKindID, PPPRK_SHIPOWNER);
 	PPID   captain_kind_id = NZOR(Cfg.CaptainKindID, PPPRK_CAPTAIN);
 	setCtrlString(CTL_FLTTRANSP_CODE,      Data.Code);
@@ -139,7 +138,7 @@ int TransportFilterDlg::setDTS(const TransportFilt * pData)
 
 int TransportFilterDlg::getDTS(TransportFilt * pData)
 {
-	int ok = 1;
+	int    ok = 1;
 	getCtrlString(CTL_FLTTRANSP_CODE,        Data.Code);
 	getCtrlString(CTL_FLTTRANSP_TRAILCODE,   Data.TrailCode);
 	getCtrlData(CTLSEL_FLTTRANSP_MODEL,   &Data.ModelID);
@@ -200,7 +199,7 @@ DBQuery * SLAPI PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSu
 
 // PP_CREATE_TEMP_FILE_PROC(CreateTempTransportFile, TempTransport);
 
-int SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec)
+void SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec)
 {
 	if(pTempRec && pTranspRec) {
 		memzero(pTempRec, sizeof(*pTempRec));
@@ -216,7 +215,6 @@ int SLAPI PPViewTransport::MakeTempRec(const PPTransport * pTranspRec, TempTrans
 		STRNSCPY(pTempRec->Code,      pTranspRec->Code);
 		STRNSCPY(pTempRec->TrailCode, pTranspRec->TrailerCode);
 	}
-	return 1;
 }
 
 int SLAPI PPViewTransport::UpdateTempTable(PPID transpID, PPViewBrowser * pBrw)
@@ -288,7 +286,7 @@ int SLAPI PPViewTransport::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	LongArray * p_list = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
 	if(IsTempTblNeeded()) {
@@ -324,7 +322,7 @@ int SLAPI PPViewTransport::InitIteration(int aOrder)
 {
 	int    ok  = 1;
 	Counter.Init();
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		TempTransportTbl::Key1 k1;
 		Counter.Init(P_TempTbl);

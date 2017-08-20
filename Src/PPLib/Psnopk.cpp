@@ -41,7 +41,7 @@ struct VerbObjAssoc {
 //
 SLAPI PoClauseArray_::PoClauseArray_()
 {
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 PoClauseArray_ & FASTCALL PoClauseArray_::operator = (const PoClauseArray_ & rS)
@@ -71,7 +71,7 @@ PoClauseArray_ & SLAPI PoClauseArray_::Clear()
 {
 	L.clear();
 	Pool.clear(1);
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 	return *this;
 }
 

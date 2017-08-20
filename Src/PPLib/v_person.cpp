@@ -28,7 +28,7 @@ int SLAPI ViewPersonInfoBySCard(const char * pCode)
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(scard_rec.Code);
 			PPLoadString("rest", word);
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(scard_rec.Rest);
-			// @v9.0.2 PPGetWord(PPWORD_NAME, 0, (word = 0));
+			// @v9.0.2 PPGetWord(PPWORD_NAME, 0, word.Z());
 			PPLoadString("name", word); // @v9.0.2
 			buf.CR().Cat(word).CatDiv(':', 2).Space().Cat(psn_rec.Name);
 			if(scard_rec.Expiry) {
@@ -101,7 +101,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	LocationTbl::Rec loc_rec;
 	PPNewContragentDetectionBlock ncd_blk;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempPsn);
 	ZDELETE(P_Ct);
 	NewCliList.Clear();
@@ -185,7 +185,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 								THROW_DB(P_TempPsn->insertRecBuf(&vi));
 							}
 						}
-						PPWaitMsg(ideqvalstr(loc_rec.ID, msg_buf = 0)); // @v9.4.5
+						PPWaitMsg(ideqvalstr(loc_rec.ID, msg_buf.Z())); // @v9.4.5
 					}
 					PROFILE_END
 				}
@@ -406,7 +406,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewPerson::GetTabTitle(long tabID, SString & rBuf) const
 {
-	return GetObjectName(PPOBJ_TAG, tabID, (rBuf = 0));
+	return GetObjectName(PPOBJ_TAG, tabID, rBuf.Z());
 }
 
 int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
@@ -499,7 +499,7 @@ int SLAPI PPViewPerson::OpenClientDir(PPID PersonId)
 			if(GetWindowsDirectory((LPTSTR)full_path_to_expl, sizeof(full_path_to_expl))) {
 				setLastSlash(full_path_to_expl);
 				strcat(full_path_to_expl, "explorer.exe");
-				spawnl(_P_NOWAIT, full_path_to_expl, (const char *)cl_dir_name, (const char *)cl_dir_name, 0);
+				spawnl(_P_NOWAIT, full_path_to_expl, cl_dir_name.cptr(), cl_dir_name.cptr(), 0);
 				ok = 1;
 			}
 			//HKEY expl_key;
@@ -729,7 +729,7 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 					StringSet ss(';', temp_buf);
 					if(ss.get(&(i = 0), temp_buf) > 0)
 						rec.WorkFax = temp_buf;
-					if(ss.get(&i, (temp_buf = 0)) > 0)
+					if(ss.get(&i, temp_buf.Z()) > 0)
 						rec.HomeFax = temp_buf;
 				}
 				pack.ELA.GetPhones(10, temp_buf, ELNKRT_EMAIL);
@@ -750,7 +750,7 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 
 				MEMSZERO(city_rec);
 				loc = pack.RLoc;
-				LocationCore::GetExField(&pack.RLoc, LOCEXSTR_FULLADDR, (temp_buf = 0));
+				LocationCore::GetExField(&pack.RLoc, LOCEXSTR_FULLADDR, temp_buf.Z());
 				if(!temp_buf.Len())
 					LocationCore::GetExField(&pack.RLoc, LOCEXSTR_SHORTADDR, temp_buf);
 				if(!temp_buf.Len()) {
@@ -784,7 +784,7 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 					(buf = city_rec.Name).ReplaceChar(';', ' ');
 					temp_buf.Cat(buf);
 				}
-				(buf = 0).CatCharN(';', 2).Cat(temp_buf);
+				buf.Z().CatCharN(';', 2).Cat(temp_buf);
 				temp_buf = buf;
 				rec.WorkAddr = temp_buf;
 			}
@@ -1054,7 +1054,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 					long   tab_id = DefaultTagID;
 					buf = 0;
 					const  ObjTagItem * p_item = tags.GetItemByPos(i);
-					ObjTag.GetCurrTagVal(p_item, (buf = 0));
+					ObjTag.GetCurrTagVal(p_item, buf.Z());
 					tab_id = p_item->TagID;
 					k0.ID    = id;
 					k0.TabID = tab_id;
@@ -1264,7 +1264,7 @@ int SLAPI PPViewPerson::InitPersonIteration()
 int SLAPI PPViewPerson::InitIteration()
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempPsn) {
 		THROW(InitPersonAttribIteration());
 	}
@@ -2422,7 +2422,7 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLo
 	}
 	else if(pLogger) {
 		SString msg;
-		PPLoadError(PPERR_MAILACCOUNTSNF, (msg = 0), 0);
+		PPLoadError(PPERR_MAILACCOUNTSNF, msg.Z(), 0);
 		pLogger->Log(msg);
 	}
 	CATCHZOKPPERR
@@ -2856,7 +2856,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 	guid.ToStr(S_GUID::fmtIDL, temp_buf);
 	temp_buf.CopyTo(rec.DbUUID, sizeof(rec.DbUUID));
 
-	p_dict->GetDbSymb(temp_buf = 0);
+	p_dict->GetDbSymb(temp_buf.Z());
 	temp_buf.CopyTo(rec.DbSymb, sizeof(rec.DbSymb));
 
 	rec.AgentID = psnId;
@@ -2900,12 +2900,12 @@ int SLAPI PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rP
 			if(what > 0)
 				elink_list.GetPhones(1, phone = 0, ELNKRT_EMAIL);
 			else {
-				elink_list.GetItem(PPELK_MOBILE, phone = 0);
+				elink_list.GetItem(PPELK_MOBILE, phone.Z());
 				if(phone.Empty())
-					elink_list.GetItem(PPELK_WORKPHONE, phone = 0);
+					elink_list.GetItem(PPELK_WORKPHONE, phone.Z());
 			}
  			if(phone.NotEmpty()) {
- 				(buf = 0).Cat(item.ID);
+ 				buf.Z().Cat(item.ID);
  				rPsnList.Add(i, buf);
 				rPhoneList.Add((what > 0) ? item.ID : i, phone);
  				i++;

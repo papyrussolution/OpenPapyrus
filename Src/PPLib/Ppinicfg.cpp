@@ -247,7 +247,7 @@ SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable:
 	new BDbTable(BDbTable::Config("ppconfig.db->cobj_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
 	new BDbTable(BDbTable::Config("ppconfig.db->cobj_idx02", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx02, this);
 	if(P_Db)
-		THROW(SeqID = P_Db->CreateSequence("seq_cobj_id", 0));
+		THROW(P_Db->CreateSequence("seq_cobj_id", 0, &SeqID));
 	CATCH
 		Close();
 	ENDCATCH

@@ -1705,7 +1705,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 		return -1;
 	}
 	buf = inputStream->buf;
-	if(buf == NULL) {
+	if(!buf) {
 		xmlFreeInputStream(inputStream);
 		xmlFreeParserCtxt(pctxt);
 		SAlloc::F(URL);

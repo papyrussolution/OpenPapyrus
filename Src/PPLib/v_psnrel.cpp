@@ -198,7 +198,7 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 		ok = 0;
 	ENDCATCH
 	ZDELETE(p_psnv);
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	return ok;
 }
 
@@ -337,7 +337,7 @@ int SLAPI PPViewPersonRel::InitIteration()
 	int    ok = 1;
 	int    idx = 0;
 	TempOrderTbl::Key1 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	MEMSZERO(k);
 	P_IterQuery = new BExtQuery(P_TempOrd, 1);
 	P_IterQuery->selectAll();

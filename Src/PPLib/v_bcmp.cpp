@@ -218,7 +218,7 @@ int SLAPI PPViewGoodsBillCmp::InitIteration()
 {
 	int    ok = 1;
 	char   k[MAXKEYLEN], k_[MAXKEYLEN];
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	Counter.Init();
 

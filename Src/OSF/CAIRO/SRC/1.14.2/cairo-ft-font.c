@@ -166,16 +166,12 @@ struct _cairo_ft_unscaled_font {
 	cairo_bool_t have_shape; /* true if the current scale has a non-scale component*/
 	cairo_matrix_t current_shape;
 	FT_Matrix Current_Shape;
-
 	cairo_mutex_t mutex;
 	int lock_count;
-
 	cairo_ft_font_face_t * faces;   /* Linked list of faces for this font */
 };
 
-static int _cairo_ft_unscaled_font_keys_equal(const void * key_a,
-    const void * key_b);
-
+static int _cairo_ft_unscaled_font_keys_equal(const void * key_a, const void * key_b);
 static void _cairo_ft_unscaled_font_fini(cairo_ft_unscaled_font_t * unscaled);
 
 typedef struct _cairo_ft_options {
@@ -307,22 +303,15 @@ static void _cairo_ft_unscaled_font_map_pluck_entry(void * entry, void * closure
 static void _cairo_ft_unscaled_font_map_destroy(void)
 {
 	cairo_ft_unscaled_font_map_t * font_map;
-
 	CAIRO_MUTEX_LOCK(_cairo_ft_unscaled_font_map_mutex);
 	font_map = cairo_ft_unscaled_font_map;
 	cairo_ft_unscaled_font_map = NULL;
 	CAIRO_MUTEX_UNLOCK(_cairo_ft_unscaled_font_map_mutex);
-
-	if(font_map != NULL) {
-		_cairo_hash_table_foreach(font_map->hash_table,
-		    _cairo_ft_unscaled_font_map_pluck_entry,
-		    font_map);
+	if(font_map) {
+		_cairo_hash_table_foreach(font_map->hash_table, _cairo_ft_unscaled_font_map_pluck_entry, font_map);
 		assert(font_map->num_open_faces == 0);
-
 		FT_Done_FreeType(font_map->ft_library);
-
 		_cairo_hash_table_destroy(font_map->hash_table);
-
 		SAlloc::F(font_map);
 	}
 }
@@ -330,14 +319,12 @@ static void _cairo_ft_unscaled_font_map_destroy(void)
 static cairo_ft_unscaled_font_map_t * _cairo_ft_unscaled_font_map_lock(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_ft_unscaled_font_map_mutex);
-
 	if(unlikely(cairo_ft_unscaled_font_map == NULL)) {
 		if(unlikely(_cairo_ft_unscaled_font_map_create())) {
 			CAIRO_MUTEX_UNLOCK(_cairo_ft_unscaled_font_map_mutex);
 			return NULL;
 		}
 	}
-
 	return cairo_ft_unscaled_font_map;
 }
 
@@ -347,23 +334,17 @@ static void _cairo_ft_unscaled_font_map_unlock(void)
 }
 
 static void _cairo_ft_unscaled_font_init_key(cairo_ft_unscaled_font_t * key,
-    cairo_bool_t from_face,
-    char                     * filename,
-    int id,
-    FT_Face face)
+    cairo_bool_t from_face, char * filename, int id, FT_Face face)
 {
 	ulong hash;
-
 	key->from_face = from_face;
 	key->filename = filename;
 	key->id = id;
 	key->face = face;
-
 	hash = _cairo_hash_string(filename);
 	/* the constants are just arbitrary primes */
 	hash += ((ulong)id) * 1607;
 	hash += ((ulong)face) * 2137;
-
 	key->base.hash_entry.hash = hash;
 }
 
@@ -1451,14 +1432,10 @@ static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t         * shape,
 	x[1] = orig_width; y[1] = 0;
 	x[2] = orig_width; y[2] = orig_height;
 	x[3] = 0;          y[3] = orig_height;
-
 	for(i = 0; i < 4; i++)
-		cairo_matrix_transform_point(&original_to_transformed,
-		    &x[i], &y[i]);
-
+		cairo_matrix_transform_point(&original_to_transformed, &x[i], &y[i]);
 	x_min = floor(x[0]);   y_min = floor(y[0]);
 	x_max =  ceil(x[0]);   y_max =  ceil(y[0]);
-
 	for(i = 1; i < 4; i++) {
 		if(x[i] < x_min)
 			x_min = floor(x[i]);
@@ -1498,25 +1475,16 @@ static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t         * shape,
 	 */
 	_cairo_pattern_init_for_surface(&pattern, &(*surface)->base);
 	cairo_pattern_set_matrix(&pattern.base, &transformed_to_original);
-
-	status = _cairo_surface_paint(image,
-	    CAIRO_OPERATOR_SOURCE,
-	    &pattern.base,
-	    NULL);
-
+	status = _cairo_surface_paint(image, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 	_cairo_pattern_fini(&pattern.base);
-
 	if(unlikely(status)) {
 		cairo_surface_destroy(image);
 		return status;
 	}
-
 	/* Now update the cache entry for the new bitmap, recomputing
 	 * the origin based on the final transform.
 	 */
-	cairo_matrix_transform_point(&original_to_transformed,
-	    &origin_x, &origin_y);
-
+	cairo_matrix_transform_point(&original_to_transformed, &origin_x, &origin_y);
 	old_image = (*surface);
 	(*surface) = (cairo_image_surface_t*)image;
 	cairo_surface_destroy(&old_image->base);

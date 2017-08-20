@@ -218,7 +218,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_Ct);
 	MEMSZERO(Total);
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
@@ -326,7 +326,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewPaymPlan::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1;
 	if(!P_TempTbl)
 		ok = PPSetError(PPERR_PPVIEWNOTINITED);

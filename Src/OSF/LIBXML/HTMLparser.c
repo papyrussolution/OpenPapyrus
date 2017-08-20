@@ -1656,7 +1656,7 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 #define growBuffer(buffer) {						\
 		buffer ## _size *= 2;						      \
 		xmlChar * tmp = (xmlChar*)SAlloc::R(buffer, buffer ## _size * sizeof(xmlChar)); \
-		if(tmp == NULL) {					   \
+		if(!tmp) {					   \
 			htmlErrMemory(ctxt, "growing buffer\n");			\
 			SAlloc::F(buffer);						\
 			return NULL;							 \
@@ -2848,7 +2848,7 @@ static void htmlParsePI(htmlParserCtxtPtr ctxt)
 				return;
 			}
 			buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
-			if(buf == NULL) {
+			if(!buf) {
 				htmlErrMemory(ctxt, 0);
 				ctxt->instate = state;
 				return;
@@ -2864,7 +2864,7 @@ static void htmlParsePI(htmlParserCtxtPtr ctxt)
 					xmlChar * tmp;
 					size *= 2;
 					tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
-					if(tmp == NULL) {
+					if(!tmp) {
 						htmlErrMemory(ctxt, 0);
 						SAlloc::F(buf);
 						ctxt->instate = state;
@@ -2936,7 +2936,7 @@ static void htmlParseComment(htmlParserCtxtPtr ctxt) {
 	SHRINK;
 	SKIP(4);
 	buf = (xmlChar*)SAlloc::M(size * sizeof(xmlChar));
-	if(buf == NULL) {
+	if(!buf) {
 		htmlErrMemory(ctxt, "buffer allocation failed\n");
 		ctxt->instate = state;
 		return;
@@ -2955,7 +2955,7 @@ static void htmlParseComment(htmlParserCtxtPtr ctxt) {
 
 			size *= 2;
 			tmp = (xmlChar*)SAlloc::R(buf, size * sizeof(xmlChar));
-			if(tmp == NULL) {
+			if(!tmp) {
 				SAlloc::F(buf);
 				htmlErrMemory(ctxt, "growing buffer failed\n");
 				ctxt->instate = state;
@@ -4410,7 +4410,7 @@ htmlParserCtxtPtr htmlCreateMemoryParserCtxt(const char * buffer, int size)
 	if(!ctxt)
 		return NULL;
 	buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(buf == NULL)
+	if(!buf)
 		return NULL;
 	input = xmlNewInputStream(ctxt);
 	if(input == NULL) {

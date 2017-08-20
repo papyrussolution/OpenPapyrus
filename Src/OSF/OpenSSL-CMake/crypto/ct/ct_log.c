@@ -159,7 +159,7 @@ static int ctlog_store_load_log(const char * log_name, int log_name_len, void * 
 		return 1;
 
 	tmp = OPENSSL_strndup(log_name, log_name_len);
-	if(tmp == NULL)
+	if(!tmp)
 		goto mem_err;
 
 	ret = ctlog_new_from_conf(&ct_log, load_ctx->conf, tmp);

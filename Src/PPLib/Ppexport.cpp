@@ -1,5 +1,5 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017
 // @codepage windows-1251
 // Импорт/Экспорт данных
 //
@@ -262,7 +262,7 @@ SLAPI PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTab
 //virtual
 DBTable * PPDbTableXmlExporter_Transfer::Init()
 {
-	ZDELETE(P_Q);
+	BExtQuery::ZDelete(&P_Q);
 	if(P_T) {
 		TransferTbl::Key1 k1, k1_;
 		MEMSZERO(k1);
@@ -275,7 +275,7 @@ DBTable * PPDbTableXmlExporter_Transfer::Init()
 	}
 	CATCH
 		P_T = 0;
-		ZDELETE(P_Q);
+		BExtQuery::ZDelete(&P_Q);
 	ENDCATCH
 	return P_T;
 }
@@ -302,7 +302,7 @@ SLAPI PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExp
 //virtual
 DBTable * PPDbTableXmlExporter_Bill::Init()
 {
-	ZDELETE(P_Q);
+	BExtQuery::ZDelete(&P_Q);
 	if(P_T) {
 		BillTbl::Key1 k1, k1_;
 		MEMSZERO(k1);
@@ -315,7 +315,7 @@ DBTable * PPDbTableXmlExporter_Bill::Init()
 	}
 	CATCH
 		P_T = 0;
-		ZDELETE(P_Q);
+		BExtQuery::ZDelete(&P_Q);
 	ENDCATCH
 	return P_T;
 }

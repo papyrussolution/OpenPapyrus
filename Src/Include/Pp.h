@@ -590,7 +590,7 @@ public:
 	int    SLAPI Update(uint pos, PPID newId, int ignoreZero = 1);
 	int    SLAPI Remove(PPID, int bsearch = 0);
 	PPID   SLAPI GetSingle() const;
-	PPID   SLAPI Get(uint pos) const;
+	PPID   FASTCALL Get(uint pos) const;
 	uint   SLAPI IncPointer(); // @>>P_List->incPointer
 	//
 	// Descr: Очищает список и вставляет в него единственный элемент id.
@@ -600,12 +600,12 @@ public:
 	uint   SLAPI GetCount() const;
 	int    SLAPI Sort();
 	int    SLAPI Search(PPID id, uint * pPos, int bsearch = 0) const;
-	int    SLAPI FreeAll();
-	int    SLAPI CopyTo(PPIDArray * pAry) const;
+	void   SLAPI FreeAll();
+	int    FASTCALL CopyTo(PPIDArray * pAry) const;
 	int    SLAPI Intersect(const ObjIdListFilt * pList, int binary = 0); // -> LongArray::intersect
 
-	int    SLAPI Write(SBuffer & rBuf) const;
-	int    SLAPI Read(SBuffer & rBuf);
+	int    FASTCALL Write(SBuffer & rBuf) const;
+	int    FASTCALL Read(SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
 	PPIDArray * P_List;
@@ -1160,7 +1160,7 @@ public:
 	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
 
 	static int SLAPI Register();
-	static int SLAPI InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static int SLAPI InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static int SLAPI InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
@@ -1247,16 +1247,16 @@ struct PPUserProfileFuncEntry {
 	uint32 AccumLimit;
 };
 
-class Profile : public SArray {
+class Profile : public SProfile, public SArray {
 public:
 	SLAPI  Profile(int singleThreaded = 0);
 	SLAPI ~Profile();
 	int    SLAPI Output(uint fileId, const char * pDescription);
-	int    SLAPI Start(const char * pFileName, long lineNum, const char * pAddedInfo = 0); // @cs
-	int    SLAPI Finish(const char * pFileName, long lineNum); // @cs
+	void   SLAPI Start(const char * pFileName, long lineNum, const char * pAddedInfo = 0); // @cs
+	void   SLAPI Finish(const char * pFileName, long lineNum); // @cs
 	int    SLAPI Start(uint logFileId, const char * pName, const char * pAddedInfo = 0);  // @cs
 	int    SLAPI Finish(uint logFileId, const char * pName, const char * pAddedInfo = 0); // @cs
-	uint64 SLAPI GetAbsTimeMicroseconds(); // @cs
+	//uint64 SLAPI GetAbsTimeMicroseconds(); // @cs
 
 	int    SLAPI InitUserProfile(const char * pUserName);
 	int    SLAPI SetUserProfileFactor(uint handle, uint factorN, double value);
@@ -1282,24 +1282,10 @@ private:
 	void * FASTCALL Search(const char * pFileName, long lineNum) const;
 	int    SLAPI Insert(ProfileEntry *, uint * p);
 	int    SLAPI AddEntry(const char * pFileName, long lineNum, int iterOp, const char * pAddedInfo = 0);
-	uint64 SLAPI Helper_GetAbsTimeMicroseconds();
-	int    SLAPI Helper_Start(const char * pFileName, long lineNum, const char * pAddedInfo);
-	int    SLAPI Helper_Finish(const char * pFileName, long lineNum);
-
-	const  int SingleThreaded;
-	int64  StartClock; // время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
-	int64  EndClock;   // время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
-	uint64 ClockFrequency; // result of QueryPerformanceFrequency()
+	void   SLAPI Helper_Start(const char * pFileName, long lineNum, const char * pAddedInfo);
+	void   SLAPI Helper_Finish(const char * pFileName, long lineNum);
 	//
-	// Descr: Специализированный блок переменных, используемых только функцией Helper_GetAbsTimeMicroseconds
-	//
-	struct GetTimeBlock {
-		uint64 StartHrc;       // start of QueryPerformanceCounter()
-		uint64 PrevHrc;        //
-		uint32 StartTick;      // start of GetTickCount()
-	};
-	//
-	// Descr: Блок, хранящий постоянные для потока данные, ради 'кономии времени на вывод в журналы.
+	// Descr: Блок, хранящий постоянные для потока данные, ради экономии времени на вывод в журналы.
 	//
 	struct UserProfileStaticBlock {
 		S_GUID SessUuid;
@@ -1333,7 +1319,6 @@ private:
 		uint64    StartClock;
 		LDATETIME StartDtm;
 	};
-	GetTimeBlock Gtb;
 	SMtLock Lck;
 };
 
@@ -6672,17 +6657,17 @@ public:
 	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
 	// Note: использует локальный для потока объект PPThreadLocalArea::Prf
 	//
-	uint64 SLAPI GetProfileTime();
+	// @v9.7.11 (moved to SlSession) uint64 SLAPI GetProfileTime();
 	//
 	// Descr: Фиксирует начало профилирования участка кода файла pFileName строки lineNo.
 	// Note: использует глобальный объект PPSession::GPrf
 	//
-	int    SLAPI GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo = 0);
+	void   SLAPI GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo = 0);
 	//
 	// Descr: Фиксирует завершение профилирования участка кода файла pFileName строки lineNo.
 	// Note: испольует глобальный объект PPSession::GPrf
 	//
-	int    SLAPI GProfileFinish(const char * pFileName, long lineNo);
+	void   SLAPI GProfileFinish(const char * pFileName, long lineNo);
 	//
 	// Descr: Структура регистрации сессии в системном реестре
 	//
@@ -9244,7 +9229,7 @@ int SLAPI IsUnlimWoLot(const TransferTbl::Rec & rRec);
 struct ILTI { // @persistent(DBX) @size=80
 	SLAPI  ILTI(const PPTransferItem * = 0);
 	void   FASTCALL Init(const PPTransferItem * pTi);
-	int    SLAPI Setup(PPID goodsID, int sign, double qtty, double cost, double price);
+	void   SLAPI Setup(PPID goodsID, int sign, double qtty, double cost, double price);
 	//
 	// Descr: Устанавливает поля Qtty и Rest в значение qtty с поправкой на флаги.
 	// ARG(qtty   IN): Количество товара (в торговый единицах) устанавливаемое в поля//
@@ -9256,10 +9241,8 @@ struct ILTI { // @persistent(DBX) @size=80
 	// ARG(flags  IN): Установленные в этом параметре флаги добавляются в поле Flags
 	//   (this->Flags |= flags). Кроме того, эти флаги используются для установки знака
 	//   полей Qtty и Rest (see ARG(qtty))
-	// Returns:
-	//   1
 	//
-	int    SLAPI SetQtty(double qtty, double wtQtty = 0.0, long flags = 0);
+	void   SLAPI SetQtty(double qtty, double wtQtty = 0.0, long flags = 0);
 	int    SLAPI HasDeficit() const;
 
 	PPID   BillID;      // ->Bill.ID   Ссылка на заголок документа
@@ -11174,7 +11157,8 @@ struct GoodsRestVal {
 	double Cost;
 	double Price;
 	PPID   LocID;
-	PPID   LotID; // @v8.1.1
+	PPID   LotID;  // @v8.1.1
+	LDATE  Expiry; // @v9.7.11
 	double Deficit;
 	double DraftRcpt;
 	char   Serial[24];
@@ -11214,14 +11198,15 @@ public:
 		fZeroAgent    = 0x00010000  // @v7.5.11 Только с нулевым агентом поставщика
 	};
 	enum {
-		_diffNone   = 0,
-		_diffCost   = 0x0001,
-		_diffPrice  = 0x0002,
-		_diffPack   = 0x0004,
-		_diffSerial = 0x0008,
-		_diffLoc    = 0x0010,
-		_diffLotTag = 0x0020,
-		_diffLotID  = 0x0040
+		_diffNone     = 0,
+		_diffCost     = 0x0001,
+		_diffPrice    = 0x0002,
+		_diffPack     = 0x0004,
+		_diffSerial   = 0x0008,
+		_diffLoc      = 0x0010,
+		_diffLotTag   = 0x0020,
+		_diffLotID    = 0x0040,
+		_diffExpiry   = 0x0080  // @v9.7.11
 	};
 	uint   CalcMethod;
 	uint   Flags_;
@@ -23922,7 +23907,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Print(const void *);
 	int    SLAPI IsTempTblNeeded() const;
-	int    SLAPI MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec);
+	void   SLAPI MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec);
 	int    SLAPI UpdateTempRec(PPID id);
 	int    SLAPI TempRecToViewItem(TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem);
 	int    SLAPI EditItemDialog(SalaryTbl::Rec * pRec);
@@ -27456,7 +27441,7 @@ private:
 	int    SLAPI CreateTempTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	PPViewGoods::IterOrder SLAPI GetIterOrder() const;
 	int    SLAPI IsTempTblNeeded(); // not const function
-	int    SLAPI MakeTempRec(const Goods2Tbl::Rec *, TempOrderTbl::Rec *);
+	void   SLAPI MakeTempRec(const Goods2Tbl::Rec *, TempOrderTbl::Rec *);
 	int    SLAPI InitGroupNamesList();
 	int    SLAPI RemoveTempAltGroup();
 	int    SLAPI NextInnerIteration(int initList, GoodsViewItem *);
@@ -30582,7 +30567,7 @@ private:
 	int    SLAPI ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta);
 	int    SLAPI UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc, int use_ta);
 	int    SLAPI Dispose();
-	TempLocTransfTbl::Rec & SLAPI MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec);
+	void   SLAPI MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec);
 
 	static int DynCheckCellParent;
 
@@ -33075,8 +33060,8 @@ private:
 	virtual int   SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
-	int    SLAPI IsTempTblNeeded();
-	int    SLAPI MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
+	int    SLAPI IsTempTblNeeded() const;
+	void   SLAPI MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
 	int    SLAPI WriteOff(PPID sessID);
 	int    SLAPI Recover();
 	int    SLAPI PrintList(const void * pHdr);
@@ -36121,6 +36106,7 @@ struct GoodsRestViewItem { // @transient
 	double DraftRcpt;      //
 	long   SubstAsscCount; //
 	LDATE  LastSellDate;   // @v8.7.3
+	LDATE  Expiry;         // @v9.7.11
 };
 //
 // Структура, передаваемая объекту PPALDD_GoodsRestTotal для печати
@@ -36235,6 +36221,7 @@ public:
 		uint32 Counter;
 		uint   SerialP;       // @v8.1.0 Позиция серийного номера в пуле строк
 		uint   LotTagP;       // @v9.7.11 Позиция строки тега лота в пуле строк
+		LDATE  Expiry;        // @v9.7.11 Дата истечения срока годности (из лота)
 		DBRowId  DBPos;
 	};
 private:
@@ -36293,10 +36280,11 @@ private:
 	int    SLAPI InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList);
 	int    SLAPI Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec & rRec);
 	int    SLAPI MakeLotQuery(LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId);
-	BExtQuery & SLAPI MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT) const;
 	int    SLAPI SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SArray & rList);
 	int    SLAPI UpdateGoods(PPID goodsID);
 	int    SLAPI SetContractPrices();
+
+	static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT);
 
 	GoodsRestFilt  Filt;
 	OpGroupingFilt * P_OpGrpngFilt; // Фильтр для просмотра отчета "Группировка операций"
@@ -37428,7 +37416,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI UpdateTempTable();
-	int    SLAPI MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec);
+	void   SLAPI MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec);
 	int    SLAPI MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorStatViewItem * pItem);
 	int    SLAPI ViewGraph(PPViewBrowser *);
 
@@ -41669,7 +41657,7 @@ private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 
-	int    SLAPI MakeTempRec(const ReportViewItem *, TempReportTbl::Rec *);
+	void   SLAPI MakeTempRec(const ReportViewItem *, TempReportTbl::Rec *);
 	int    SLAPI CheckForFilt(const ReportViewItem *);
 	int    SLAPI EditItem(PPID * pID);
 	int    SLAPI DelItem(PPID);
@@ -41921,7 +41909,7 @@ private:
 
 	int    SLAPI GetEditIds(const void * pRow, Hdr * pHdr, long col);
 	int    SLAPI UpdateTempTable(PPIDArray & rIdList);
-	int    SLAPI MakeTempRec(void * pRec, void * pTempRec);
+	void   SLAPI MakeTempRec(void * pRec, void * pTempRec);
 	int    SLAPI CheckForFilt(void * pRec);
 
 	PPID               UpdateID;
@@ -41958,9 +41946,9 @@ private:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 
-	int SLAPI UpdateTempTable(PPID id);
-	int SLAPI MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec);
-	int SLAPI CheckIDForFilt(PPID id, PPBizScTempl * pRec);
+	int    SLAPI UpdateTempTable(PPID id);
+	void   SLAPI MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec);
+	int    SLAPI CheckIDForFilt(PPID id, PPBizScTempl * pRec);
 
 	BizScTemplFilt      Filt;
 	PPObjBizScTempl     Obj;
@@ -42260,7 +42248,7 @@ private:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	int    SLAPI IsTempTblNeeded();
 	int    SLAPI CheckForFilt(TransportFilt * pFilt, PPID transpID, PPTransport * pRec);
-	int    SLAPI MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec);
+	void   SLAPI MakeTempRec(const PPTransport * pTranspRec, TempTransportTbl::Rec * pTempRec);
 	int    SLAPI UpdateTempTable(PPID transpID, PPViewBrowser * pBrw);
 	int    SLAPI ViewTotal();
 	int    SLAPI DeleteItem(PPID id);
@@ -46113,10 +46101,14 @@ public:
 
 	//int    SLAPI ResolveSyntaxRules(SrSyntaxRuleSet & rSet, SrDatabase & rDb);
 private:
-	int    SLAPI ImportHumanNames(const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
+	int    SLAPI ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing);
 	int    SLAPI TestSearchWords();
 	int    SLAPI TestConcept();
 	int    SLAPI TestSyntax();
+	int    SLAPI PreprocessCountryNames(const char * pBaseSrcPath);
+	int    SLAPI PreprocessCurrencyNames(const char * pBaseSrcPath);
+	int    SLAPI PreprocessLocaleNames(const char * pBaseSrcPath);
+	int    SLAPI PreprocessLanguageNames(const char * pBaseSrcPath);
 
 	PrcssrSartreFilt P;
 };

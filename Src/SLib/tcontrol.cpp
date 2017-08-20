@@ -220,7 +220,7 @@ int TButton::SetBitmap(uint bmpID)
 {
 	int    ok = LoadBitmap(bmpID);
 	if(ok)
-		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, (long)HBmp);
+		::SendMessage(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)HBmp);
 	return ok;
 }
 
@@ -1024,13 +1024,12 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			return 0;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			if(wParam >= VK_F1 && wParam <= VK_F12 || wParam==VK_ESCAPE ||
-				(wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
-				SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
+			if(wParam >= VK_F1 && wParam <= VK_F12 || wParam==VK_ESCAPE || (wParam == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
+				::SendMessage(GetParent(hWnd), WM_VKEYTOITEM, MAKELPARAM((WORD)wParam, 0), (LPARAM)hWnd);
 				return 0;
 			}
 			else if(wParam != VK_ESCAPE && wParam != VK_RETURN)
-				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
+				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (LPARAM)hWnd);
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
@@ -1546,7 +1545,7 @@ int ComboBox::setupListWindow(int noUpdateSize)
 		GetWindowRect(getHandle(), &list_rect);
 		link_rect.right = list_rect.right;
 		GetWindowRect(h_box, &list_rect);
-		int    h = P_Def ? ((P_Def->ViewHight + 1) * SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0)) : (list_rect.bottom - list_rect.top);
+		int    h = P_Def ? ((P_Def->ViewHight + 1) * ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0)) : (list_rect.bottom - list_rect.top);
 		int    screen_y = GetSystemMetrics(SM_CYFULLSCREEN);
 		int    top = ((link_rect.bottom + h) < screen_y) ? link_rect.bottom : screen_y-h;
 		MoveWindow(h_box, link_rect.left, top, (link_rect.right - link_rect.left), h, 1);
@@ -1652,7 +1651,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); // @v9.1.11
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
-					SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, (long)h_bm);
+					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_bm);
 				}
 				SetWindowLong(hcb, GWL_STYLE, TView::GetWindowStyle(hcb) & ~WS_TABSTOP);
 				if(P_ILink) {
@@ -1893,12 +1892,12 @@ int ComboBox::removeItem(long pos)
 	return r;
 }
 
-int ComboBox::freeAll()
+void ComboBox::freeAll()
 {
-	int    r = -1;
-	if(P_Def && (r = P_Def->freeAll()) > 0)
+	if(P_Def) {
+		P_Def->freeAll();
 		setRange(P_Def->getRecsCount());
-	return r;
+	}
 }
 
 TInputLine * ComboBox::link() const
@@ -2116,7 +2115,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 		ti.hinst = SLS.GetHInst();
 		ti.uId = ++Counter;
 		if(rItem.Text.NotEmpty()) {
-			ti.lpszText = (LPSTR)(const char *)rItem.Text;
+			ti.lpszText = (LPSTR)rItem.Text.cptr(); // @badcast
 		}
 		if(rItem.R.IsEmpty() && rItem.H) {
 			GetClientRect(rItem.H, &ti.rect);

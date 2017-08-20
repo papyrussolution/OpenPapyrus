@@ -214,7 +214,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNodePtr 
 
 		tmp = (xmlValidState*)SAlloc::R(ctxt->vstateTab,
 		    2 * ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return -1;
 		}
@@ -315,7 +315,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContentPtr cont,
 
 		tmp = (xmlValidState*)SAlloc::R(ctxt->vstateTab,
 		    2 * ctxt->vstateMax * sizeof(ctxt->vstateTab[0]));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlVErrMemory(ctxt, "malloc failed");
 			return -1;
 		}
@@ -371,7 +371,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNodePtr value)
 		xmlNodePtr * tmp;
 		tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab,
 		    ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return 0;
 		}
@@ -851,7 +851,7 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 		const xmlChar * tmp;
 
 		tmp = xmlSplitQName3(name, &l);
-		if(tmp == NULL) {
+		if(!tmp) {
 			if(!dict)
 				ret->name = sstrdup(name);
 			else
@@ -923,7 +923,7 @@ xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPt
 		cur = cur->c2;
 		while(cur) {
 			tmp = (xmlElementContentPtr)SAlloc::M(sizeof(xmlElementContent));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlVErrMemory(NULL, "malloc failed");
 				return ret;
 			}
@@ -4844,7 +4844,7 @@ fail:
 				     * what's required
 				     */
 				    tmp = (xmlNode *)SAlloc::M(sizeof(xmlNode));
-				    if(tmp == NULL) {
+				    if(!tmp) {
 					    xmlVErrMemory(ctxt, "malloc failed");
 					    xmlFreeNodeList(repl);
 					    ret = -1;

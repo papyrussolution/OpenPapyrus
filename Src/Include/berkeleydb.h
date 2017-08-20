@@ -1426,28 +1426,30 @@ struct __cq_jq {
 // Database handle
 //
 struct __db {
-	/*******************************************************
-	* Public: owned by the application.
-	*******************************************************/
-	uint32 pgsize;               /* Database logical page size. */
-	DB_CACHE_PRIORITY priority;     /* Database priority in cache. */
-	/* Callbacks. */
+	// 
+	// Public: owned by the application.
+	// 
+	uint32 pgsize;              // Database logical page size.
+	DB_CACHE_PRIORITY priority; // Database priority in cache.
+	// 
+	// Callbacks. 
+	// 
 	int (*db_append_recno)(DB*, DBT*, db_recno_t);
 	void (*db_feedback)(DB*, int, int);
 	int (*dup_compare)(DB*, const DBT*, const DBT *);
 	void * app_private;             /* Application-private handle. */
-	/*******************************************************
-	* Private: owned by DB.
-	*******************************************************/
+	// 
+	// Private: owned by DB.
+	// 
 	DB_ENV * dbenv;                 /* Backing public environment. */
 	ENV * env;                      /* Backing private environment. */
 	DBTYPE type;                    /* DB access method type. */
 	DB_MPOOLFILE * mpf;              /* Backing buffer pool. */
 	db_mutex_t mutex;               /* Synchronization for free threading */
 	char * fname, * dname;            /* File/database passed to DB->open. */
-	const char * dirname;            /* Directory of DB file. */
+	const  char * dirname;            /* Directory of DB file. */
 	uint32 open_flags;           /* Flags passed to DB->open. */
-	uint8 fileid[DB_FILE_ID_LEN]; /* File's unique ID for locking. */
+	uint8  fileid[DB_FILE_ID_LEN]; /* File's unique ID for locking. */
 	uint32 adj_fileid;           /* File's unique ID for curs. adj. */
  #define DB_LOGFILEID_INVALID    -1
 	FNAME * log_filename;            /* File's naming info for logging. */
@@ -1459,25 +1461,22 @@ struct __db {
 	DB_LOCK handle_lock;            /* Lock held on this handle. */
 	__time64_t timestamp;               /* Handle timestamp for replication. */
 	uint32 fid_gen;              /* Rep generation number for fids. */
-	/*
-	 * Returned data memory for DB->get() and friends.
-	 */
+	// 
+	// Returned data memory for DB->get() and friends.
+	// 
 	DBT my_rskey;                   /* Secondary key. */
 	DBT my_rkey;                    /* [Primary] key. */
 	DBT my_rdata;                   /* Data. */
-	/*
-	 * !!!
-	 * Some applications use DB but implement their own locking outside of
-	 * DB.  If they're using fcntl(2) locking on the underlying database
-	 * file, and we open and close a file descriptor for that file, we will
-	 * discard their locks.  The DB_FCNTL_LOCKING flag to DB->open is an
-	 * undocumented interface to support this usage which leaves any file
-	 * descriptors we open until DB->close.  This will only work with the
-	 * DB->open interface and simple caches, e.g., creating a transaction
-	 * thread may open/close file descriptors this flag doesn't protect.
-	 * Locking with fcntl(2) on a file that you don't own is a very, very
-	 * unsafe thing to do.  'Nuff said.
-	 */
+	// 
+	// !!!
+	// Some applications use DB but implement their own locking outside of DB.  
+	// If they're using fcntl(2) locking on the underlying database file, and we open and close 
+	// a file descriptor for that file, we will discard their locks.  The DB_FCNTL_LOCKING flag to DB->open is an
+	// undocumented interface to support this usage which leaves any file descriptors we open until DB->close.  
+	// This will only work with the DB->open interface and simple caches, e.g., creating a transaction thread may 
+	// open/close file descriptors this flag doesn't protect. Locking with fcntl(2) on a file that you don't own is 
+	// a very, very unsafe thing to do.  'Nuff said.
+	// 
 	DB_FH * saved_open_fhp;         /* Saved file handle. */
 	/*
 	 * Linked list of DBP's, linked from the ENV, used to keep track
@@ -1533,19 +1532,12 @@ struct __db {
 		struct __db ** le_prev;
 	} s_links;
 	uint32 s_refcnt;
-
-	/* Secondary callback and free functions -- set in the secondary. */
+	// Secondary callback and free functions -- set in the secondary. 
 	int     (*s_callback)__P((DB*, const DBT*, const DBT*, DBT *));
-
-	/* Reference to primary -- set in the secondary. */
-	DB * s_primary;
-
+	DB * s_primary; // Reference to primary -- set in the secondary
  #define DB_ASSOC_IMMUTABLE_KEY    0x00000001 /* Secondary key is immutable. */
  #define DB_ASSOC_CREATE    0x00000002 /* Secondary db populated on open. */
-
-	/* Flags passed to associate -- set in the secondary. */
-	uint32 s_assoc_flags;
-
+	uint32 s_assoc_flags; // Flags passed to associate -- set in the secondary. 
 	/*
 	 * Foreign key support.
 	 *
@@ -1558,7 +1550,6 @@ struct __db {
 	struct {
 		struct __db_foreign_info * lh_first;
 	} f_primaries;
-
 	/*
 	 * !!!
 	 * Explicit representations of structures from queue.h.
@@ -1572,14 +1563,11 @@ struct __db {
 		struct __db * tqe_next;
 		struct __db ** tqe_prev;
 	} felink;
-
-	/* Reference to foreign -- set in the secondary. */
-	DB * s_foreign;
-
-	/* API-private structure: used by DB 1.85, C++, Java, Perl and Tcl */
-	void * api_internal;
-
-	/* Subsystem-private structure. */
+	DB * s_foreign; // Reference to foreign -- set in the secondary. 
+	void * api_internal; // API-private structure: used by DB 1.85, C++, Java, Perl and Tcl 
+	//
+	// Subsystem-private structure. 
+	//
 	void * bt_internal;             /* Btree/Recno access method. */
 	void * h_internal;              /* Hash access method. */
 	void * heap_internal;           /* Heap access method. */
@@ -1753,7 +1741,6 @@ struct __db {
 	uint32 orig_flags;              /* Flags at  open, for refresh */
 	uint32 flags;
 };
-
 /*
  * Macros for bulk operations.  These are only intended for the C API.
  * For C++, use DbMultiple*Iterator or DbMultiple*Builder.

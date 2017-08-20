@@ -712,6 +712,8 @@
 #include "select.h"
 #include "url.h"
 #include "progress.h"
+#include "pingpong.h"
+#include "curl_sasl.h"
 #include "multiif.h"
 #include "socks.h"
 #include "sockaddr.h"

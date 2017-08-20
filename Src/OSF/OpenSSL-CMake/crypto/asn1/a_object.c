@@ -117,7 +117,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 					OPENSSL_free(tmp);
 				tmpsize = blsize + 32;
 				tmp = (char*)OPENSSL_malloc(tmpsize);
-				if(tmp == NULL)
+				if(!tmp)
 					goto err;
 			}
 			while(blsize--) {

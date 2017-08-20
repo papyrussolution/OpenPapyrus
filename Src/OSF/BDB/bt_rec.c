@@ -261,17 +261,16 @@ check_next:
 	}
 done:   *lsnp = argp->prev_lsn;
 	ret = 0;
-
-out:    /* Free any pages that are left. */
-	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
+out: // Free any pages that are left.
+	if((t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Free any allocated space. */
+	// Free any allocated space
 	__os_free(env, _lp);
 	__os_free(env, _rp);
 	__os_free(env, sp);
@@ -520,16 +519,16 @@ check_next:     /*
 done:   
 	*lsnp = argp->prev_lsn;
 	ret = 0;
-out:    /* Free any pages that are left. */
-	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
+out: // Free any pages that are left
+	if((t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Free any allocated space. */
+	// Free any allocated space
 	__os_free(env, _lp);
 	__os_free(env, _rp);
 	__os_free(env, sp);
@@ -764,19 +763,19 @@ lrundo:
 			}
 		}
 	}
-done:   *lsnp = argp->prev_lsn;
+done:   
+	*lsnp = argp->prev_lsn;
 	ret = 0;
-
-out:    /* Free any pages that weren't dirtied. */
-	if(pp && (t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
+out: // Free any pages that weren't dirtied
+	if((t_ret = __memp_fput(mpf, ip, pp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(lp && (t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, lp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(np && (t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, np, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(rp && (t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, rp, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Free any allocated space. */
+	// Free any allocated space
 	__os_free(env, _lp);
 	__os_free(env, _rp);
 	__os_free(env, sp);
@@ -906,13 +905,12 @@ int __bam_adj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	DB * file_dbp;
 	DBC * dbc;
 	DB_MPOOLFILE * mpf;
-	PAGE * pagep;
 	int cmp_n, cmp_p, ret;
 	DB_THREAD_INFO * ip = ((DB_TXNHEAD *)info)->thread_info;
-	pagep = NULL;
+	PAGE * pagep = NULL;
 	REC_PRINT(__bam_adj_print);
 	REC_INTRO(__bam_adj_read, ip, 1);
-	/* Get the page; if it never existed and we're undoing, we're done. */
+	// Get the page; if it never existed and we're undoing, we're done. 
 	if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, 0, &pagep)) != 0) {
 		if(ret != DB_PAGE_NOTFOUND) {
 			ret = __db_pgerr(file_dbp, argp->pgno, ret);
@@ -925,14 +923,14 @@ int __bam_adj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 	cmp_p = LOG_COMPARE(&LSN(pagep), &argp->lsn);
 	CHECK_LSN(env, op, cmp_p, &LSN(pagep), &argp->lsn);
 	if(cmp_p == 0 && DB_REDO(op)) {
-		/* Need to redo update described. */
+		// Need to redo update described. 
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		if((ret = __bam_adjindx(dbc, pagep, argp->indx, argp->indx_copy, argp->is_insert)) != 0)
 			goto out;
 		LSN(pagep) = *lsnp;
 	}
 	else if(cmp_n == 0 && DB_UNDO(op)) {
-		/* Need to undo update described. */
+		// Need to undo update described. 
 		REC_DIRTY(mpf, ip, dbc->priority, &pagep);
 		if((ret = __bam_adjindx(dbc, pagep, argp->indx, argp->indx_copy, !argp->is_insert)) != 0)
 			goto out;
@@ -945,8 +943,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep)
-		__memp_fput(mpf, ip, pagep, dbc->priority);
+	__memp_fput(mpf, ip, pagep, dbc->priority);
 	REC_CLOSE;
 }
 /*

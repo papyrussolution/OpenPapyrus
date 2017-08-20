@@ -379,7 +379,7 @@ void GetErrorMsg(SString & rMsg)
 	}
 	if((ErrorCode == IEERR_FTP) || (ErrorCode == IEERR_IMPFILENOTFOUND) || (ErrorCode == IEERR_INVMESSAGEYTYPE) || (ErrorCode  == IEERR_NOCFGFORGLN))
 		str.Cat(StrError);
-	(rMsg = 0).CopyFrom(str);
+	rMsg.Z().CopyFrom(str);
 }
 
 // @vmiller
@@ -670,7 +670,7 @@ ExportCls::~ExportCls()
 
 void ExportCls::CreateFileName(uint num)
 {
-	(ExpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 //
@@ -1104,7 +1104,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7008); // Описание
 							{
 								SString str1;
-								(str1 = 0).Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
+								str1.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
 								str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
 								xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Наименование товара
 							}
@@ -1406,9 +1406,9 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ExportCls->Id = 1;
 		*pId = P_ExportCls->Id; // ИД сеанса экспорта
 		P_ExportCls->Inited = 1;
@@ -1641,7 +1641,7 @@ ImportCls::~ImportCls()
 
 void ImportCls::CreateFileName(uint num)
 {
-	(ImpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 //
@@ -2317,9 +2317,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		log_path.Copy(&P_ImportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "import_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ImportCls->Id = 1;
 		*pId = P_ImportCls->Id; // ИД сеанса импорта
 		P_ImportCls->Inited = 1;

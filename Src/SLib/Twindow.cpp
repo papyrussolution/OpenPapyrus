@@ -96,7 +96,7 @@ int TMenuPopup::Execute(HWND hWnd, long flags)
 TWindow::LocalMenuPool::LocalMenuPool(TWindow * pWin) : List(sizeof(TWindow::LocalMenuPool::Item))
 {
 	P_Win = pWin;
-	StrPool.add("$", 0); // zero index - is empty string
+	StrPool.add("$"); // zero index - is empty string
 }
 
 int TWindow::LocalMenuPool::AddItem(uint ctrlId, uint buttonId, long keyCode, const char * pText)

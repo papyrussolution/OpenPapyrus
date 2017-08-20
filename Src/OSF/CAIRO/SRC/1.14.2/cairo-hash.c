@@ -108,12 +108,9 @@ static const ulong hash_table_sizes[] = {
 
 struct _cairo_hash_table {
 	cairo_hash_keys_equal_func_t keys_equal;
-
 	cairo_hash_entry_t * cache[32];
-
 	const ulong * table_size;
 	cairo_hash_entry_t ** entries;
-
 	ulong live_entries;
 	ulong free_entries;
 	ulong iterating; /* Iterating, no insert, no resize */
@@ -136,7 +133,6 @@ static cairo_bool_t _cairo_hash_table_uid_keys_equal(const void * key_a, const v
 {
 	return TRUE;
 }
-
 /**
  * _cairo_hash_table_create:
  * @keys_equal: a function to return %TRUE if two keys are equal
@@ -163,24 +159,24 @@ cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
 	}
-	if(keys_equal == NULL)
-		hash_table->keys_equal = _cairo_hash_table_uid_keys_equal;
-	else
-		hash_table->keys_equal = keys_equal;
-	memzero(&hash_table->cache, sizeof(hash_table->cache));
-	hash_table->table_size = &hash_table_sizes[0];
-	hash_table->entries = (cairo_hash_entry_t **)SAlloc::C(*hash_table->table_size, sizeof(cairo_hash_entry_t *));
-	if(unlikely(hash_table->entries == NULL)) {
-		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		SAlloc::F(hash_table);
-		return NULL;
+	else {
+		hash_table->keys_equal = keys_equal ? keys_equal : _cairo_hash_table_uid_keys_equal;
+		memzero(&hash_table->cache, sizeof(hash_table->cache));
+		hash_table->table_size = &hash_table_sizes[0];
+		hash_table->entries = (cairo_hash_entry_t **)SAlloc::C(*hash_table->table_size, sizeof(cairo_hash_entry_t *));
+		if(unlikely(hash_table->entries == NULL)) {
+			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
+			SAlloc::F(hash_table);
+			return NULL;
+		}
+		else {
+			hash_table->live_entries = 0;
+			hash_table->free_entries = *hash_table->table_size;
+			hash_table->iterating = 0;
+			return hash_table;
+		}
 	}
-	hash_table->live_entries = 0;
-	hash_table->free_entries = *hash_table->table_size;
-	hash_table->iterating = 0;
-	return hash_table;
 }
-
 /**
  * _cairo_hash_table_destroy:
  * @hash_table: an empty hash table to destroy
@@ -198,42 +194,34 @@ cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_
  * _cairo_hash_table_destroy is called. It is a fatal error otherwise,
  * and this function will halt.
  **/
-void _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
+void FASTCALL _cairo_hash_table_destroy(cairo_hash_table_t * hash_table)
 {
-	/* The hash table must be empty. Otherwise, halt. */
+	// The hash table must be empty. Otherwise, halt. 
 	assert(hash_table->live_entries == 0);
-	/* No iterators can be running. Otherwise, halt. */
+	// No iterators can be running. Otherwise, halt. 
 	assert(hash_table->iterating == 0);
-
 	SAlloc::F(hash_table->entries);
 	SAlloc::F(hash_table);
 }
 
-static cairo_hash_entry_t ** _cairo_hash_table_lookup_unique_key(cairo_hash_table_t * hash_table,
-    cairo_hash_entry_t * key)
+static cairo_hash_entry_t ** FASTCALL _cairo_hash_table_lookup_unique_key(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
 {
-	ulong table_size, i, idx, step;
-	cairo_hash_entry_t ** entry;
-
-	table_size = *hash_table->table_size;
-	idx = key->hash % table_size;
-
-	entry = &hash_table->entries[idx];
+	ulong i, step;
+	ulong table_size = *hash_table->table_size;
+	ulong idx = key->hash % table_size;
+	cairo_hash_entry_t ** entry = &hash_table->entries[idx];
 	if(!ENTRY_IS_LIVE(*entry))
 		return entry;
-
 	i = 1;
 	step = 1 + key->hash % (table_size - 2);
 	do {
 		idx += step;
 		if(idx >= table_size)
 			idx -= table_size;
-
 		entry = &hash_table->entries[idx];
 		if(!ENTRY_IS_LIVE(*entry))
 			return entry;
 	} while(++i < table_size);
-
 	ASSERT_NOT_REACHED;
 	return NULL;
 }
@@ -252,53 +240,45 @@ static cairo_hash_entry_t ** _cairo_hash_table_lookup_unique_key(cairo_hash_tabl
  **/
 static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 {
-	cairo_hash_table_t tmp;
-	ulong new_size, i;
-
-	/* Keep between 12.5% and 50% entries in the hash table alive and
-	 * at least 25% free. */
+	ulong i;
+	// Keep between 12.5% and 50% entries in the hash table alive and at least 25% free. 
 	ulong live_high = *hash_table->table_size >> 1;
 	ulong live_low = live_high >> 2;
 	ulong free_low = live_high >> 1;
-
-	tmp = *hash_table;
-
+	cairo_hash_table_t tmp = *hash_table;
 	if(hash_table->live_entries > live_high) {
 		tmp.table_size = hash_table->table_size + 1;
-		/* This code is being abused if we can't make a table big enough. */
-		assert(tmp.table_size - hash_table_sizes <
-		    SIZEOFARRAY(hash_table_sizes));
+		// This code is being abused if we can't make a table big enough. 
+		assert(tmp.table_size - hash_table_sizes < SIZEOFARRAY(hash_table_sizes));
 	}
 	else if(hash_table->live_entries < live_low) {
-		/* Can't shrink if we're at the smallest size */
+		// Can't shrink if we're at the smallest size 
 		if(hash_table->table_size == &hash_table_sizes[0])
 			tmp.table_size = hash_table->table_size;
 		else
 			tmp.table_size = hash_table->table_size - 1;
 	}
-
-	if(tmp.table_size == hash_table->table_size &&
-	    hash_table->free_entries > free_low) {
-		/* The number of live entries is within the desired bounds
-		 * (we're not going to resize the table) and we have enough
-		 * free entries. Do nothing. */
+	if(tmp.table_size == hash_table->table_size && hash_table->free_entries > free_low) {
+		// The number of live entries is within the desired bounds
+		// (we're not going to resize the table) and we have enough free entries. Do nothing. 
 		return CAIRO_STATUS_SUCCESS;
 	}
-	new_size = *tmp.table_size;
-	tmp.entries = (cairo_hash_entry_t **)SAlloc::C(new_size, sizeof(cairo_hash_entry_t*));
-	if(unlikely(tmp.entries == NULL))
-		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-	for(i = 0; i < *hash_table->table_size; ++i) {
-		if(ENTRY_IS_LIVE(hash_table->entries[i])) {
-			*_cairo_hash_table_lookup_unique_key(&tmp, hash_table->entries[i])
-				= hash_table->entries[i];
+	else {
+		ulong new_size = *tmp.table_size;
+		tmp.entries = (cairo_hash_entry_t **)SAlloc::C(new_size, sizeof(cairo_hash_entry_t*));
+		if(unlikely(tmp.entries == NULL))
+			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
+		for(i = 0; i < *hash_table->table_size; ++i) {
+			if(ENTRY_IS_LIVE(hash_table->entries[i])) {
+				*_cairo_hash_table_lookup_unique_key(&tmp, hash_table->entries[i]) = hash_table->entries[i];
+			}
 		}
+		SAlloc::F(hash_table->entries);
+		hash_table->entries = tmp.entries;
+		hash_table->table_size = tmp.table_size;
+		hash_table->free_entries = new_size - hash_table->live_entries;
+		return CAIRO_STATUS_SUCCESS;
 	}
-	SAlloc::F(hash_table->entries);
-	hash_table->entries = tmp.entries;
-	hash_table->table_size = tmp.table_size;
-	hash_table->free_entries = new_size - hash_table->live_entries;
-	return CAIRO_STATUS_SUCCESS;
 }
 
 /**
@@ -312,7 +292,7 @@ static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
  *
  * Return value: the matching entry, of %NULL if no match was found.
  **/
-void * _cairo_hash_table_lookup(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
+void * FASTCALL _cairo_hash_table_lookup(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
 {
 	ulong table_size, i, idx, step;
 	ulong hash = key->hash;
@@ -368,35 +348,28 @@ insert_cache:
  * that match the given predicate. In particular, if predicate is
  * %NULL, a %NULL return value indicates that the table is empty.
  **/
-void * _cairo_hash_table_random_entry(cairo_hash_table_t         * hash_table,
-    cairo_hash_predicate_func_t predicate)
+void * _cairo_hash_table_random_entry(cairo_hash_table_t * hash_table, cairo_hash_predicate_func_t predicate)
 {
 	cairo_hash_entry_t * entry;
 	ulong hash;
 	ulong table_size, i, idx, step;
-
 	assert(predicate != NULL);
-
 	table_size = *hash_table->table_size;
 	hash = rand();
 	idx = hash % table_size;
-
 	entry = hash_table->entries[idx];
 	if(ENTRY_IS_LIVE(entry) && predicate(entry))
 		return entry;
-
 	i = 1;
 	step = 1 + hash % (table_size - 2);
 	do {
 		idx += step;
 		if(idx >= table_size)
 			idx -= table_size;
-
 		entry = hash_table->entries[idx];
 		if(ENTRY_IS_LIVE(entry) && predicate(entry))
 			return entry;
 	} while(++i < table_size);
-
 	return NULL;
 }
 
@@ -420,60 +393,45 @@ void * _cairo_hash_table_random_entry(cairo_hash_table_t         * hash_table,
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available.
  **/
-cairo_status_t _cairo_hash_table_insert(cairo_hash_table_t * hash_table,
-    cairo_hash_entry_t * key_and_value)
+cairo_status_t FASTCALL _cairo_hash_table_insert(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key_and_value)
 {
 	cairo_hash_entry_t ** entry;
 	cairo_status_t status;
-
-	/* Insert is illegal while an iterator is running. */
+	// Insert is illegal while an iterator is running. 
 	assert(hash_table->iterating == 0);
-
 	status = _cairo_hash_table_manage(hash_table);
 	if(unlikely(status))
 		return status;
-
 	entry = _cairo_hash_table_lookup_unique_key(hash_table, key_and_value);
-
 	if(ENTRY_IS_FREE(*entry))
 		hash_table->free_entries--;
-
 	*entry = key_and_value;
 	hash_table->cache[key_and_value->hash & 31] = key_and_value;
 	hash_table->live_entries++;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_hash_entry_t ** _cairo_hash_table_lookup_exact_key(cairo_hash_table_t * hash_table,
-    cairo_hash_entry_t * key)
+static cairo_hash_entry_t ** _cairo_hash_table_lookup_exact_key(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
 {
-	ulong table_size, i, idx, step;
-	cairo_hash_entry_t ** entry;
-
-	table_size = *hash_table->table_size;
-	idx = key->hash % table_size;
-
-	entry = &hash_table->entries[idx];
+	ulong i, step;
+	ulong table_size = *hash_table->table_size;
+	ulong idx = key->hash % table_size;
+	cairo_hash_entry_t ** entry = &hash_table->entries[idx];
 	if(*entry == key)
 		return entry;
-
 	i = 1;
 	step = 1 + key->hash % (table_size - 2);
 	do {
 		idx += step;
 		if(idx >= table_size)
 			idx -= table_size;
-
 		entry = &hash_table->entries[idx];
 		if(*entry == key)
 			return entry;
 	} while(++i < table_size);
-
 	ASSERT_NOT_REACHED;
 	return NULL;
 }
-
 /**
  * _cairo_hash_table_remove:
  * @hash_table: a hash table
@@ -484,8 +442,7 @@ static cairo_hash_entry_t ** _cairo_hash_table_lookup_exact_key(cairo_hash_table
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if out of memory.
  **/
-void _cairo_hash_table_remove(cairo_hash_table_t * hash_table,
-    cairo_hash_entry_t * key)
+void _cairo_hash_table_remove(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
 {
 	*_cairo_hash_table_lookup_exact_key(hash_table, key) = DEAD_ENTRY;
 	hash_table->live_entries--;
@@ -518,14 +475,11 @@ void _cairo_hash_table_remove(cairo_hash_table_t * hash_table,
  * be destroyed by code executed from @hash_callback. The relevant
  * functions will halt in these cases.
  **/
-void _cairo_hash_table_foreach(cairo_hash_table_t         * hash_table,
-    cairo_hash_callback_func_t hash_callback,
-    void * closure)
+void _cairo_hash_table_foreach(cairo_hash_table_t * hash_table, cairo_hash_callback_func_t hash_callback, void * closure)
 {
 	ulong i;
 	cairo_hash_entry_t * entry;
-
-	/* Mark the table for iteration */
+	// Mark the table for iteration 
 	++hash_table->iterating;
 	for(i = 0; i < *hash_table->table_size; i++) {
 		entry = hash_table->entries[i];

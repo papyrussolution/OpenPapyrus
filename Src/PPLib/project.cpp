@@ -597,7 +597,7 @@ int SLAPI PPViewProject::InitIteration()
 	DBQ  * dbq = 0;
 	ProjectTbl::Key3 k3, k3_;
 	ProjectTbl * t = PrjObj.P_Tbl;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 
 	THROW_MEM(P_IterQuery = new BExtQuery(t, idx, 256));
@@ -2298,7 +2298,7 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, LostPrjTPersonItem * pItem)
 		ok = 1;
 	}
 	CATCHZOK
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	delete p_dlg;
 	return ok;
 }
@@ -2354,7 +2354,7 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 		ok = 1;
 	}
 	CATCHZOK
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	return ok;
 }
 
@@ -2389,7 +2389,7 @@ int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 			THROW_SL(list.insert(&item));
 		}
 	}
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	PPWait(0);
 	if(list.getCount()) {
 		THROW(CheckDialogPtr(&(p_dlg = new RestoreLostPrjTPersonDlg())));
@@ -2412,7 +2412,7 @@ int SLAPI PPObjPrjTask::RecoverAbsencePerson()
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
-	ZDELETE(p_q);
+	BExtQuery::ZDelete(&p_q);
 	PPWait(0);
 	return ok;
 }

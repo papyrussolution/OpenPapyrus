@@ -270,7 +270,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			if(op_rec.Symb[0])
 				param_val = op_rec.Symb;
 			else {
-				(param_val = 0).Cat(ImpOpID);
+				param_val.Z().Cat(ImpOpID);
 			}
 		}
 		else
@@ -278,15 +278,15 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		pFile->AppendParam(pSect, fld_name, param_val, 1);
 
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE1, fld_name);
-		pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(Object1SrchCode), 1);
+		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Object1SrchCode), 1);
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE2, fld_name);
-		pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(Object2SrchCode), 1);
+		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Object2SrchCode), 1);
 	}
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
-	pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(Flags), 1);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
 	// @v9.7.8 {
 	PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name);
-	pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(PredefFormat), 1);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(PredefFormat), 1);
 	// } @v9.7.8
 	CATCHZOK
 	return ok;
@@ -1692,7 +1692,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 						dyn_rec.GetFieldByPos(j, &dyn_fld);
 						if(dyn_fld.Formula.NotEmptyS()) {
 							scan.Set(dyn_fld.Formula, 0);
-							if(scan.GetIdent((temp_buf = 0))) {
+							if(scan.GetIdent(temp_buf.Z())) {
 								if(temp_buf.CmpNC("lottag") == 0) {
 									scan.Skip();
 									if(scan[0] == '.') {
@@ -2098,7 +2098,7 @@ int SLAPI PPBillImporter::ReadData()
 	else if(h_r_eq_f == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0 && !imp_rows_only) {
 		// @v8.6.4 const  int imp_rows_only = BIN(BillParam.Flags & PPBillImpExpParam::fImpRowsOnly);
 		THROW(BillParam.PreprocessImportFileSpec((path = BillParam.FileName).Transf(CTRANSF_INNER_TO_OUTER), file_list));
-		for(uint fi = 0; file_list.Enum(&fi, 0, &(filename = 0));) {
+		for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
 			uint   p = 0;
 			long   count = 0;
 			long   row_rec_count = 0;
@@ -2143,7 +2143,7 @@ int SLAPI PPBillImporter::ReadData()
 		SString bid;
 		BillsRows.freeAll(); // @v8.7.1
 		THROW(BillParam.PreprocessImportFileSpec((path = BillParam.FileName).Transf(CTRANSF_INNER_TO_OUTER), file_list));
-		for(uint fi = 0; file_list.Enum(&fi, 0, &(filename = 0));) {
+		for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
 			StrAssocArray fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			if(imp_rows_only) {
@@ -2176,14 +2176,14 @@ int SLAPI PPBillImporter::ReadData()
 							last_ident = bill_ident;
 						}
 						if(bill_ident.Empty()) {
-							(bill_ident = 0).CatLongZ(cc_, 6);
+							bill_ident.Z().CatLongZ(cc_, 6);
 						}
 						bill_ident.CopyTo(r_row.BillID, sizeof(r_row.BillID));
 						//
 						if(bill_code.Empty()) {
-							(bill_code = 0).Cat(fn_for_hash).Cat(bill.Date, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
+							bill_code.Z().Cat(fn_for_hash).Cat(bill.Date, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 							const uint32 _h = BobJencHash(bill_code, bill_code.Len());
-							(bill_code = 0).Cat("H-").Cat(_h).CatChar('-').CatLongZ(cc_, 6);
+							bill_code.Z().Cat("H-").Cat(_h).CatChar('-').CatLongZ(cc_, 6);
 						}
 						bill_code.CopyTo(r_row.BillCode, sizeof(r_row.BillCode));
 						if(new_bill) {
@@ -2438,7 +2438,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 												if(r_row.ManufKPP[0]) {
 													for(uint k = 0; !manuf_id && k < psn_list.getCount(); k++) {
 														const PPID psn_id = psn_list.get(k);
-														if(PsnObj.GetRegNumber(psn_id, PPREGT_KPP, ZERODATE, temp_buf = 0) > 0 && temp_buf.CmpNC(r_row.ManufKPP) == 0)
+														if(PsnObj.GetRegNumber(psn_id, PPREGT_KPP, ZERODATE, temp_buf.Z()) > 0 && temp_buf.CmpNC(r_row.ManufKPP) == 0)
 															manuf_id = psn_id;
 													}
 												}
@@ -3355,19 +3355,19 @@ private:
 			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNER);
 			if(p_list) {
 				p_list->getCurID(&CurPosInList);
-				p_list->getCurString(SignerName = 0);
+				p_list->getCurString(SignerName.Z());
 			}
 		}
 		else if(event.isCtlEvent(CTL_SIGNBILL_SIGNFILE) && event.isCmd(cmLBItemFocused)) {
 			SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNFILE);
 			if(p_list) {
-				p_list->getCurString(SignFileName = 0);
+				p_list->getCurString(SignFileName.Z());
 				SPathStruc spath, sign_spath;
 				spath.Split(FileName);
 				sign_spath.Split(SignFileName);
 				spath.Nam = sign_spath.Nam;
 				spath.Ext = sign_spath.Ext;
-				spath.Merge(SignFileName = 0);
+				spath.Merge(SignFileName.Z());
 			}
 		}
 		else if(event.isCmd(cmSignBill)) {
@@ -3411,7 +3411,7 @@ int SignBillDialog::DrawList()
 			THROW(Eds.GetSignerNamesInStore(names_arr));
 			if(p_list) {
 				for(uint i = 0; i < names_arr.getCount(); i++) {
-					names_arr.Get(i, signer_name = 0);
+					names_arr.Get(i, signer_name.Z());
 					THROW_SL(p_list->addItem(i, signer_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
@@ -3424,7 +3424,7 @@ int SignBillDialog::DrawList()
 			THROW(Eds.GetSignFilesForDoc(FileName, files_arr));
 			if(p_list) {
 				for(uint i = 0; i < files_arr.getCount(); i++) {
-					files_arr.Get(i, file_name = 0);
+					files_arr.Get(i, file_name.Z());
 					THROW_SL(p_list->addItem(i, file_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
@@ -3699,7 +3699,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							PsnObj.GetAddress(manuf_id, address);
 							loc_addr_st.Recognize(address.Transf(CTRANSF_INNER_TO_OUTER));
 							if(world_rec.ZIP[0] == 0)
-								if(loc_addr_st.Get(PPLocAddrStruc::tZip, temp_buf = 0))
+								if(loc_addr_st.Get(PPLocAddrStruc::tZip, temp_buf.Z()))
 									temp_buf.CopyTo(world_rec.ZIP, sizeof(world_rec.ZIP));
 							STRNSCPY(brow.ManufIndex, world_rec.ZIP);
 							brow.ManufRegionCode = BillParam.ImpExpParamDll.ManufRegionCode; // Вытаскиваем из ini-файла
@@ -3707,16 +3707,16 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 								if(loc_addr_st.Get(PPLocAddrStruc::tLocalArea, temp_buf))
 									temp_buf.CopyTo(brow.ManufDistrict, sizeof(brow.ManufDistrict));
 							if(city_name.Empty()) {
-								if(loc_addr_st.Get(PPLocAddrStruc::tCity, temp_buf = 0))
+								if(loc_addr_st.Get(PPLocAddrStruc::tCity, temp_buf.Z()))
 									temp_buf.CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
 							}
 							else
 								city_name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
-							if(loc_addr_st.Get(PPLocAddrStruc::tStreet, temp_buf = 0))
+							if(loc_addr_st.Get(PPLocAddrStruc::tStreet, temp_buf.Z()))
 								temp_buf.CopyTo(brow.ManufStreet, sizeof(brow.ManufStreet));
-							if(loc_addr_st.Get(PPLocAddrStruc::tHouse, temp_buf = 0))
+							if(loc_addr_st.Get(PPLocAddrStruc::tHouse, temp_buf.Z()))
 								brow.ManufHouse = temp_buf.ToLong();
-							if(loc_addr_st.Get(PPLocAddrStruc::tCorp, temp_buf = 0))
+							if(loc_addr_st.Get(PPLocAddrStruc::tCorp, temp_buf.Z()))
 								brow.ManufHousing = temp_buf.ToLong();
 							//
 							// Смотрим инфу о лицензии

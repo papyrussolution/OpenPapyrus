@@ -627,22 +627,21 @@ void cairo_pdf_surface_set_size(cairo_surface_t * surface, double width_in_point
 {
 	cairo_pdf_surface_t * pdf_surface = NULL; /* hide compiler warning */
 	cairo_status_t status;
-	if(!_extract_pdf_surface(surface, &pdf_surface))
-		return;
-	_cairo_pdf_surface_set_size_internal(pdf_surface, width_in_points, height_in_points);
-	status = _cairo_paginated_surface_set_size(pdf_surface->paginated_surface, (int)width_in_points, (int)height_in_points);
-	if(status)
-		status = _cairo_surface_set_error(surface, status);
+	if(_extract_pdf_surface(surface, &pdf_surface)) {
+		_cairo_pdf_surface_set_size_internal(pdf_surface, width_in_points, height_in_points);
+		status = _cairo_paginated_surface_set_size(pdf_surface->paginated_surface, (int)width_in_points, (int)height_in_points);
+		if(status)
+			status = _cairo_surface_set_error(surface, status);
+	}
 }
 
 static void _cairo_pdf_surface_clear(cairo_pdf_surface_t * surface)
 {
-	int i, size;
+	int i;
 	cairo_pdf_pattern_t * pattern;
 	cairo_pdf_source_surface_t * src_surface;
 	cairo_pdf_smask_group_t * group;
-
-	size = _cairo_array_num_elements(&surface->page_patterns);
+	int size = _cairo_array_num_elements(&surface->page_patterns);
 	for(i = 0; i < size; i++) {
 		pattern = (cairo_pdf_pattern_t*)_cairo_array_index(&surface->page_patterns, i);
 		cairo_pattern_destroy(pattern->pattern);
@@ -667,11 +666,8 @@ static void _cairo_pdf_surface_clear(cairo_pdf_surface_t * surface)
 
 static void _cairo_pdf_group_resources_init(cairo_pdf_group_resources_t * res)
 {
-	int i;
-
-	for(i = 0; i < CAIRO_NUM_OPERATORS; i++)
+	for(int i = 0; i < CAIRO_NUM_OPERATORS; i++)
 		res->operators[i] = FALSE;
-
 	_cairo_array_init(&res->alphas, sizeof(double));
 	_cairo_array_init(&res->smasks, sizeof(cairo_pdf_resource_t));
 	_cairo_array_init(&res->patterns, sizeof(cairo_pdf_resource_t));
@@ -692,11 +688,8 @@ static void _cairo_pdf_group_resources_fini(cairo_pdf_group_resources_t * res)
 
 static void _cairo_pdf_group_resources_clear(cairo_pdf_group_resources_t * res)
 {
-	int i;
-
-	for(i = 0; i < CAIRO_NUM_OPERATORS; i++)
+	for(int i = 0; i < CAIRO_NUM_OPERATORS; i++)
 		res->operators[i] = FALSE;
-
 	_cairo_array_truncate(&res->alphas, 0);
 	_cairo_array_truncate(&res->smasks, 0);
 	_cairo_array_truncate(&res->patterns, 0);
@@ -705,24 +698,19 @@ static void _cairo_pdf_group_resources_clear(cairo_pdf_group_resources_t * res)
 	_cairo_array_truncate(&res->fonts, 0);
 }
 
-static void _cairo_pdf_surface_add_operator(cairo_pdf_surface_t * surface,
-    cairo_operator_t op)
+static void _cairo_pdf_surface_add_operator(cairo_pdf_surface_t * surface, cairo_operator_t op)
 {
 	cairo_pdf_group_resources_t * res = &surface->resources;
-
 	res->operators[op] = TRUE;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_add_alpha(cairo_pdf_surface_t * surface,
-    double alpha,
-    int                 * index)
+static cairo_int_status_t _cairo_pdf_surface_add_alpha(cairo_pdf_surface_t * surface, double alpha, int * index)
 {
-	int num_alphas, i;
+	int i;
 	double other;
 	cairo_int_status_t status;
 	cairo_pdf_group_resources_t * res = &surface->resources;
-
-	num_alphas = _cairo_array_num_elements(&res->alphas);
+	int num_alphas = _cairo_array_num_elements(&res->alphas);
 	for(i = 0; i < num_alphas; i++) {
 		_cairo_array_copy_element(&res->alphas, i, &other);
 		if(alpha == other) {
@@ -730,24 +718,19 @@ static cairo_int_status_t _cairo_pdf_surface_add_alpha(cairo_pdf_surface_t * sur
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
 	status = _cairo_array_append(&res->alphas, &alpha);
 	if(unlikely(status))
 		return status;
-
 	*index = _cairo_array_num_elements(&res->alphas) - 1;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_add_smask(cairo_pdf_surface_t  * surface,
-    cairo_pdf_resource_t smask)
+static cairo_int_status_t _cairo_pdf_surface_add_smask(cairo_pdf_surface_t  * surface, cairo_pdf_resource_t smask)
 {
 	return _cairo_array_append(&(surface->resources.smasks), &smask);
 }
 
-static cairo_int_status_t _cairo_pdf_surface_add_pattern(cairo_pdf_surface_t  * surface,
-    cairo_pdf_resource_t pattern)
+static cairo_int_status_t _cairo_pdf_surface_add_pattern(cairo_pdf_surface_t  * surface, cairo_pdf_resource_t pattern)
 {
 	return _cairo_array_append(&(surface->resources.patterns), &pattern);
 }
@@ -766,53 +749,41 @@ static cairo_int_status_t _cairo_pdf_surface_add_font(uint font_id, uint subset_
 {
 	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)closure;
 	cairo_pdf_font_t font;
-	int num_fonts, i;
+	int i;
 	cairo_int_status_t status;
 	cairo_pdf_group_resources_t * res = &surface->resources;
-
-	num_fonts = _cairo_array_num_elements(&res->fonts);
+	int num_fonts = _cairo_array_num_elements(&res->fonts);
 	for(i = 0; i < num_fonts; i++) {
 		_cairo_array_copy_element(&res->fonts, i, &font);
-		if(font.font_id == font_id &&
-		    font.subset_id == subset_id)
+		if(font.font_id == font_id && font.subset_id == subset_id)
 			return CAIRO_STATUS_SUCCESS;
 	}
-
 	num_fonts = _cairo_array_num_elements(&surface->fonts);
 	for(i = 0; i < num_fonts; i++) {
 		_cairo_array_copy_element(&surface->fonts, i, &font);
-		if(font.font_id == font_id &&
-		    font.subset_id == subset_id)
+		if(font.font_id == font_id && font.subset_id == subset_id)
 			return _cairo_array_append(&res->fonts, &font);
 	}
-
 	font.font_id = font_id;
 	font.subset_id = subset_id;
 	font.subset_resource = _cairo_pdf_surface_new_object(surface);
 	if(font.subset_resource.id == 0)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	status = _cairo_array_append(&surface->fonts, &font);
 	if(unlikely(status))
 		return status;
-
 	return _cairo_array_append(&res->fonts, &font);
 }
 
-static cairo_pdf_resource_t _cairo_pdf_surface_get_font_resource(cairo_pdf_surface_t * surface,
-    uint font_id,
-    uint subset_id)
+static cairo_pdf_resource_t _cairo_pdf_surface_get_font_resource(cairo_pdf_surface_t * surface, uint font_id, uint subset_id)
 {
 	cairo_pdf_font_t font;
-	int num_fonts, i;
-
-	num_fonts = _cairo_array_num_elements(&surface->fonts);
-	for(i = 0; i < num_fonts; i++) {
+	const int num_fonts = _cairo_array_num_elements(&surface->fonts);
+	for(int i = 0; i < num_fonts; i++) {
 		_cairo_array_copy_element(&surface->fonts, i, &font);
 		if(font.font_id == font_id && font.subset_id == subset_id)
 			return font.subset_resource;
 	}
-
 	font.subset_resource.id = 0;
 	return font.subset_resource;
 }
@@ -947,7 +918,6 @@ static cairo_pdf_smask_group_t * _cairo_pdf_surface_create_smask_group(cairo_pdf
 		group->extents.height = (int)surface->height;
 	}
 	group->extents = *extents;
-
 	return group;
 }
 
@@ -1859,19 +1829,15 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	_cairo_array_fini(&surface->alpha_linear_functions);
 	_cairo_array_fini(&surface->page_patterns);
 	_cairo_array_fini(&surface->page_surfaces);
-	_cairo_hash_table_foreach(surface->all_surfaces,
-	    _cairo_pdf_source_surface_entry_pluck,
-	    surface->all_surfaces);
+	_cairo_hash_table_foreach(surface->all_surfaces, _cairo_pdf_source_surface_entry_pluck, surface->all_surfaces);
 	_cairo_hash_table_destroy(surface->all_surfaces);
 	_cairo_array_fini(&surface->smask_groups);
 	_cairo_array_fini(&surface->fonts);
 	_cairo_array_fini(&surface->knockout_group);
-
 	if(surface->font_subsets) {
 		_cairo_scaled_font_subsets_destroy(surface->font_subsets);
 		surface->font_subsets = NULL;
 	}
-
 	size = _cairo_array_num_elements(&surface->jbig2_global);
 	for(i = 0; i < size; i++) {
 		global = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
@@ -1880,22 +1846,17 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 			return _cairo_error(CAIRO_STATUS_JBIG2_GLOBAL_MISSING);
 	}
 	_cairo_array_fini(&surface->jbig2_global);
-
 	_cairo_array_truncate(&surface->page_surfaces, 0);
-
 	_cairo_surface_clipper_reset(&surface->clipper);
-
 	return status;
 }
 
 static cairo_int_status_t _cairo_pdf_surface_start_page(void * abstract_surface)
 {
 	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)abstract_surface;
-
-	/* Document header */
+	// Document header 
 	if(!surface->header_emitted) {
 		const char * version;
-
 		switch(surface->pdf_version) {
 			case CAIRO_PDF_VERSION_1_4:
 			    version = "1.4";
@@ -1905,26 +1866,19 @@ static cairo_int_status_t _cairo_pdf_surface_start_page(void * abstract_surface)
 			    version = "1.5";
 			    break;
 		}
-
-		_cairo_output_stream_printf(surface->output,
-		    "%%PDF-%s\n", version);
-		_cairo_output_stream_printf(surface->output,
-		    "%%%c%c%c%c\n", 181, 237, 174, 251);
+		_cairo_output_stream_printf(surface->output, "%%PDF-%s\n", version);
+		_cairo_output_stream_printf(surface->output, "%%%c%c%c%c\n", 181, 237, 174, 251);
 		surface->header_emitted = TRUE;
 	}
-
 	_cairo_pdf_group_resources_clear(&surface->resources);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract_surface,
-    cairo_bool_t has_fallbacks)
+static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract_surface, cairo_bool_t has_fallbacks)
 {
 	cairo_int_status_t status;
 	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)abstract_surface;
 	cairo_box_double_t bbox;
-
 	surface->has_fallback_images = has_fallbacks;
 	bbox.p1.x = 0;
 	bbox.p1.y = 0;
@@ -1933,7 +1887,6 @@ static cairo_int_status_t _cairo_pdf_surface_has_fallback_images(void * abstract
 	status = _cairo_pdf_surface_open_content_stream(surface, &bbox, NULL, has_fallbacks, has_fallbacks);
 	if(unlikely(status))
 		return status;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

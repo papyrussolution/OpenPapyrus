@@ -1808,7 +1808,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewCCheck::InitIteration(int order)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 
 	SETFLAG(State, stIterLines, (order & CCheckFilt::ordIterLines) && !(Filt.Flags & CCheckFilt::fCheckLines));
 	order &= ~CCheckFilt::ordIterLines;
@@ -1902,7 +1902,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 	}
 	CATCH
 		ok = 0;
-		ZDELETE(p_q);
+		BExtQuery::ZDelete(&p_q);
 	ENDCATCH
 	return ok;
 }

@@ -1943,7 +1943,7 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 			}
 		}
 		if(!skip_rsrv_test) {
-			GetGoodsName(labs(Item.GoodsID), msg_buf = 0);
+			GetGoodsName(labs(Item.GoodsID), msg_buf.Z());
 			THROW_PP_S((TotalRest - OrdReserved) >= 0, PPERR_ORDRESERVEEXHAUSTED, msg_buf.CatDiv(':', 1).Cat(OrdReserved, NMBF_NOTRAILZ));
 		}
 	}
@@ -2047,11 +2047,11 @@ int TrfrItemDialog::CheckPrice()
 		RealRange range;
 		if(GetPriceRestrictions(&range) > 0) {
 			if(range.low > 0.0) {
-				(msg = 0).Cat(range.low, SFMT_MONEY);
+				msg.Z().Cat(range.low, SFMT_MONEY);
 				THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
 			}
 			if(range.upp > 0.0) {
-				(msg = 0).Cat(range.upp, SFMT_MONEY);
+				msg.Z().Cat(range.upp, SFMT_MONEY);
 				THROW_PP_S(Item.NetPrice() <= range.upp, PPERR_PRICERESTRUPP, msg);
 			}
 		}
@@ -2237,12 +2237,12 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			if(getCtrlData(CTL_LOT_NOVAT, &v))
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
-			getCtrlString(CTL_LOT_CLB, clb_number = 0);
+			getCtrlString(CTL_LOT_CLB, clb_number.Z());
 			THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
 			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
 		}
-		getCtrlString(CTL_LOT_SERIAL, clb_number = 0);
-		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number); // @v7.3.0
+		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
+		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
 		THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
 		// @v9.3.6 {
 		if(IsSourceSerialUsed()) {
@@ -2275,9 +2275,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
-		getCtrlString(CTL_LOT_SERIAL, clb_number = 0);
+		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number = 0) > 0)
+		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0)
 			THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
 	}
 	getManuf(); // @v8.4.11
@@ -2450,7 +2450,7 @@ int TrfrItemDialog::setupLot()
 		setCtrlLong(CTLSEL_LOT_SUPPL, Item.Suppl);
 		THROW(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &Rest, 0));
 		if((Item.Flags & PPTFR_RECEIPT) || OpTypeID == PPOPT_DRAFTRECEIPT) {
-			getCtrlString(CTL_LOT_CLB, (temp_buf = 0));
+			getCtrlString(CTL_LOT_CLB, temp_buf.Z());
 			if(!temp_buf.NotEmptyS() && P_BObj->GetClbNumberByLot(Item.LotID, 0, temp_buf) > 0)
 				setCtrlString(CTL_LOT_CLB, temp_buf);
 		}

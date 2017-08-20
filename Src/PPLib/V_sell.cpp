@@ -126,7 +126,7 @@ int SLAPI PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewPredictSales::InitIteration(int aOrder)
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	CurIterOrd = aOrder;
 	if(P_TempTbl) {
 		TempPredictSalesTbl::Key0 tk0, tk0_;

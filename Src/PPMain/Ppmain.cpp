@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
 			if(argc > 1) {
 				cmd_buf = argv[1];
 				SrvCmd cmd_id = (SrvCmd)TranslateCmd(0, cmd_buf);
-				printf("Cmd arg = %s\n", (const char *)cmd_buf); // @debug
+				printf("Cmd arg = %s\n", cmd_buf.cptr()); // @debug
 				switch(cmd_id) {
 					case srvcmdInstall:
 						if(argc > 2)
@@ -144,7 +144,7 @@ int main(int argc, char ** argv)
 						else {
 							// @err,hr
 							PPGetMessage(mfError, PPERR_SLIB, 0, 1, line_buf);
-							printf("Error: Service does not started (%s)\n", (const char *)line_buf);
+							printf("Error: Service does not started (%s)\n", line_buf.cptr());
 							OutPressAnyKey();
 							ret = -2;
 						}

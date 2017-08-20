@@ -204,27 +204,21 @@ static cairo_always_inline void * _cairo_atomic_intptr_to_voidptr(cairo_atomic_i
 	return (void*)x;
 }
 
-static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x,
-    cairo_atomic_int_t oldv,
-    cairo_atomic_int_t newv)
+static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
 {
 	cairo_atomic_int_t curr;
-
 	do {
 		curr = _cairo_atomic_int_get(x);
 	} while(curr == oldv && !_cairo_atomic_int_cmpxchg(x, oldv, newv));
-
 	return curr;
 }
 
 static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_fallback(void ** x, void * oldv, void * newv)
 {
 	void * curr;
-
 	do {
 		curr = _cairo_atomic_ptr_get(x);
 	} while(curr == oldv && !_cairo_atomic_ptr_cmpxchg(x, oldv, newv));
-
 	return curr;
 }
 

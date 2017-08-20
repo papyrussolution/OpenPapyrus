@@ -197,7 +197,7 @@ static CURLcode read_data(struct connectdata * conn,
 		len = ntohl(len);
 		tmp = Curl_saferealloc(buf->data, len);
 	}
-	if(tmp == NULL)
+	if(!tmp)
 		return CURLE_OUT_OF_MEMORY;
 
 	buf->data = tmp;

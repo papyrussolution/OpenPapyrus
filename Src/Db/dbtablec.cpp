@@ -109,8 +109,8 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 //
 //
 //
-//
-const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 };
+// extern const uint32 SLobSignature[4];
+static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v9.7.11 static
 
 int SLob::IsStructured() const
 {

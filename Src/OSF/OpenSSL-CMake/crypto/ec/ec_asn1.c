@@ -524,7 +524,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 
 	/* set the order */
 	tmp = EC_GROUP_get0_order(group);
-	if(tmp == NULL) {
+	if(!tmp) {
 		ECerr(EC_F_EC_GROUP_GET_ECPARAMETERS, ERR_R_EC_LIB);
 		goto err;
 	}
@@ -911,7 +911,7 @@ int i2d_ECPKParameters(const EC_GROUP * a, uchar ** out)
 {
 	int ret = 0;
 	ECPKPARAMETERS * tmp = EC_GROUP_get_ecpkparameters(a, 0);
-	if(tmp == NULL) {
+	if(!tmp) {
 		ECerr(EC_F_I2D_ECPKPARAMETERS, EC_R_GROUP2PKPARAMETERS_FAILURE);
 		return 0;
 	}

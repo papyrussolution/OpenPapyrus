@@ -1328,9 +1328,9 @@ INT_PTR CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_LBUTTONDBLCLK:
 			if(dc->IsDayBar(LOWORD(lParam), HIWORD(lParam)))
-  				SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDOK, 0), (long)hWnd);
+  				::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDOK, 0), (LPARAM)hWnd);
 			else
-				SendMessage(hWnd, WM_LBUTTONDOWN, wParam, lParam);
+				::SendMessage(hWnd, WM_LBUTTONDOWN, wParam, lParam);
 			break;
 		case WM_RBUTTONDOWN: dc->OnRButtonDown(hWnd); break;
 		case WM_MOUSEMOVE:   dc->OnMouseMove(hWnd, wParam, lParam); break;
@@ -1520,7 +1520,7 @@ void SLAPI SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 			SETIFZ(hbm_calendar,  APPL->LoadBitmap(IDB_CALENDAR));
 			LEAVE_CRITICAL_SECTION
 		}
-		SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (long)(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
+		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)(oneof3(T, 1, 2, 3) ? hbm_daterange : hbm_calendar));
 	}
 }
 

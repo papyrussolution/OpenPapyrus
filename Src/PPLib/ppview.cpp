@@ -1102,7 +1102,7 @@ int SLAPI PPBaseFilt::IsEmpty() const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
-	int    r = (p_filt && IsEqual(p_filt, 0)) ? 1 : 0;
+	int    r = BIN(p_filt && IsEqual(p_filt, 0));
 	ZDELETE(p_filt);
 	return r;
 }

@@ -1114,7 +1114,7 @@ SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket)
 SLAPI PPViewGoodsBasket::~PPViewGoodsBasket()
 {
 	ZDELETE(P_OrdTbl);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	DBRemoveTempFiles();
 }
 
@@ -1144,7 +1144,7 @@ int SLAPI PPViewGoodsBasket::InitIteration()
 	PPObjGoods g_obj;
 	MEMSZERO(k);
 	Counter.Init(P_GBPacket->Lots.getCount());
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_OrdTbl) {
 		THROW_MEM(P_IterQuery = new BExtQuery(P_OrdTbl, 1, 64));
 		P_IterQuery->selectAll();

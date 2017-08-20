@@ -465,13 +465,13 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
 
 PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SArray(sizeof(Item_))
 {
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 {
 	Pool.clear(1);
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 	SArray::clear();
 	return *this;
 }

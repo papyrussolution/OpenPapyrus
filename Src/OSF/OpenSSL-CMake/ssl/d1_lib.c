@@ -945,7 +945,7 @@ int dtls1_heartbeat(SSL * s)
 	 */
 	size = HEARTBEAT_SIZE(payload, padding);
 	buf = OPENSSL_malloc(size);
-	if(buf == NULL) {
+	if(!buf) {
 		SSLerr(SSL_F_DTLS1_HEARTBEAT, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}

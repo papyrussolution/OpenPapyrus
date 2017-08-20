@@ -183,7 +183,6 @@ static int copy_issuer(X509V3_CTX * ctx, GENERAL_NAMES * gens)
 	GENERAL_NAME * gen;
 	X509_EXTENSION * ext;
 	int i;
-
 	if(ctx && (ctx->flags == CTX_TEST))
 		return 1;
 	if(!ctx || !ctx->issuer_cert) {
@@ -193,12 +192,10 @@ static int copy_issuer(X509V3_CTX * ctx, GENERAL_NAMES * gens)
 	i = X509_get_ext_by_NID(ctx->issuer_cert, NID_subject_alt_name, -1);
 	if(i < 0)
 		return 1;
-	if((ext = X509_get_ext(ctx->issuer_cert, i)) == NULL
-	    || (ialt = (GENERAL_NAMES*)X509V3_EXT_d2i(ext)) == NULL) {
+	if((ext = X509_get_ext(ctx->issuer_cert, i)) == NULL || (ialt = (GENERAL_NAMES*)X509V3_EXT_d2i(ext)) == NULL) {
 		X509V3err(X509V3_F_COPY_ISSUER, X509V3_R_ISSUER_DECODE_ERROR);
 		goto err;
 	}
-
 	for(i = 0; i < sk_GENERAL_NAME_num(ialt); i++) {
 		gen = sk_GENERAL_NAME_value(ialt, i);
 		if(!sk_GENERAL_NAME_push(gens, gen)) {
@@ -207,21 +204,16 @@ static int copy_issuer(X509V3_CTX * ctx, GENERAL_NAMES * gens)
 		}
 	}
 	sk_GENERAL_NAME_free(ialt);
-
 	return 1;
-
 err:
 	return 0;
 }
 
-static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * nval)
+static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval)
 {
 	GENERAL_NAMES * gens = NULL;
 	CONF_VALUE * cnf;
 	int i;
-
 	if((gens = sk_GENERAL_NAME_new_null()) == NULL) {
 		X509V3err(X509V3_F_V2I_SUBJECT_ALT, ERR_R_MALLOC_FAILURE);
 		return NULL;

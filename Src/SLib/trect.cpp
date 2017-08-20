@@ -1037,8 +1037,8 @@ FPoint SLAPI FPoint::SetZero()
 }
 
 
-int SLAPI FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
-int SLAPI FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
+int FASTCALL FPoint::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
+int FASTCALL FPoint::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
 
 FPoint SLAPI FPoint::Scale(float factor)
 {

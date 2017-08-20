@@ -399,7 +399,7 @@ int SLAPI PPViewCSess::InitIteration(long ord)
 {
 	int    ok = 1, r;
 	Counter.Init();
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	{
 		TempOrderTbl * p_temp_ord = 0;
 		THROW(r = CreateOrderTable(ord, &p_temp_ord));
@@ -1297,36 +1297,37 @@ int SLAPI PPObjDraftCreateRule::GetPacket(PPID id, PPDfCreateRulePacket * pPack)
 
 int SLAPI PPObjDraftCreateRule::PutPacket(PPID * pID, PPDfCreateRulePacket * pPack, int use_ta)
 {
-	int    ok = -1, del = 0, ta = 0;
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(pPack) {
-		pPack->Rec.Tag = PPOBJ_DFCREATERULE;
-		pPack->Rec.ID  = 0;
-	}
-	if(pID && *pID) {
+	int    ok = -1, del = 0;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
 		if(pPack) {
-			pPack->Rec.ID = *pID;
-			THROW(PPRef->UpdateItem(PPOBJ_DFCREATERULE, *pID, &pPack->Rec, 1, 0));
+			pPack->Rec.Tag = PPOBJ_DFCREATERULE;
+			pPack->Rec.ID  = 0;
 		}
-		else {
-			THROW(PPRef->RemoveItem(PPOBJ_DFCREATERULE, *pID, 0));
-			del = 1;
+		if(pID && *pID) {
+			if(pPack) {
+				pPack->Rec.ID = *pID;
+				THROW(ref->UpdateItem(PPOBJ_DFCREATERULE, *pID, &pPack->Rec, 1, 0));
+			}
+			else {
+				THROW(ref->RemoveItem(PPOBJ_DFCREATERULE, *pID, 0));
+				del = 1;
+			}
 		}
+		else if(pPack) {
+			THROW(ref->AddItem(PPOBJ_DFCREATERULE, pID, &pPack->Rec, 0));
+		}
+		if(pID && *pID) {
+			SString cash_nn;
+			if(!del)
+				pPack->GetCashNN(&cash_nn);
+			THROW(ref->PutPropVlrString(PPOBJ_DFCREATERULE, *pID, DFCRRULPRP_CASHNN, del ? 0 : cash_nn.cptr()));
+		}
+		THROW(tra.Commit());
 	}
-	else if(pPack) {
-		THROW(PPRef->AddItem(PPOBJ_DFCREATERULE, pID, &pPack->Rec, 0));
-	}
-	if(pID && *pID) {
-		SString cash_nn;
-		if(!del)
-			pPack->GetCashNN(&cash_nn);
-		THROW(PPRef->PutPropVlrString(PPOBJ_DFCREATERULE, *pID, DFCRRULPRP_CASHNN, del ? 0 : (const char *)cash_nn));
-	}
-	THROW(PPCommitWork(&ta));
 	ok = 1;
-	CATCH
-		ok = (PPRollbackWork(&ta), 0);
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 // } AHTOXA
@@ -1549,7 +1550,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code);
 				b_pack.Ext.InvoiceDate = bill_dt;
 				PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
-				(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
+				memo_buf.Z().CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
 				memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
 				for(uint p = 0; goods.enumItems(&p, (void**)&p_e) > 0;) {
 					int    new_doc_by_loc = 0;
@@ -1646,7 +1647,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						STRNSCPY(b_pack.Ext.InvoiceCode, b_pack.Rec.Code);
 						b_pack.Ext.InvoiceDate = bill_dt;
 						PPObjCSession::MakeCodeString(&csess_rec, csess_buf);
-						(memo_buf = 0).CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
+						memo_buf.Z().CatChar('@').Cat("auto").CatDiv('-', 1).Cat(rule.Rec.Name).CatDiv('-', 1).Cat(csess_buf);
 						memo_buf.CopyTo(b_pack.Rec.Memo, sizeof(b_pack.Rec.Memo));
 						pos = 0;
 						sum = 0;
@@ -1761,7 +1762,7 @@ int SLAPI PPViewCSess::GetBillList(PPID sessID, ObjIdListFilt & rList)
 			THROW(BillObj->P_Tbl->GetPoolMembersList(PPASS_CSESSBILLPOOL, item.ID, &bill_list));
 			THROW(rList.Add(&bill_list));
 		}
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	}
 	CATCHZOK
 	return ok;
@@ -2460,7 +2461,7 @@ int SLAPI PPViewCSessExc::InitIteration()
 {
 	int    ok = 1;
 	char   k[MAXKEYLEN];
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 0, 16));
 	P_IterQuery->selectAll();

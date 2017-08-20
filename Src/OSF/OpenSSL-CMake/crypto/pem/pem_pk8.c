@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/x509.h>
 #include <openssl/pkcs12.h>
-#include <openssl/pem.h>
+//#include <openssl/pem.h>
 
 static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder,
     int nid, const EVP_CIPHER * enc,

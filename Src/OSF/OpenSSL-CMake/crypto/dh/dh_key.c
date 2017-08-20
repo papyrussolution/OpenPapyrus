@@ -161,7 +161,7 @@ static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 		goto err;
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);
-	if(tmp == NULL)
+	if(!tmp)
 		goto err;
 
 	if(dh->priv_key == NULL) {

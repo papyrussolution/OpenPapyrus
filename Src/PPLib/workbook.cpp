@@ -383,30 +383,31 @@ int SLAPI PPObjWorkbook::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_WORKBOOK) {
+			WorkbookCore * p_t = P_Tbl;
 			WorkbookTbl::Key4 k4;
 			MEMSZERO(k4);
 			k4.ParentID = _id;
-			if(P_Tbl->search(4, &k4, spGe) && P_Tbl->data.ParentID == _id) {
-				ok = RetRefsExistsErr(PPOBJ_WORKBOOK, P_Tbl->data.ID);
+			if(p_t->search(4, &k4, spGe) && p_t->data.ParentID == _id) {
+				ok = RetRefsExistsErr(PPOBJ_WORKBOOK, p_t->data.ID);
 			}
 			if(ok) {
 				WorkbookTbl::Key0 k0;
 				MEMSZERO(k0);
-				BExtQuery q(P_Tbl, 0);
-				q.select(P_Tbl->ID, P_Tbl->LinkID, 0).where(P_Tbl->LinkID == _id);
+				BExtQuery q(p_t, 0);
+				q.select(p_t->ID, p_t->LinkID, 0).where(p_t->LinkID == _id);
 				q.initIteration(0, &k0, spFirst);
 				if(q.nextIteration() > 0) {
-					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, P_Tbl->data.ID);
+					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, p_t->data.ID);
 				}
 			}
 			if(ok) {
 				WorkbookTbl::Key0 k0;
 				MEMSZERO(k0);
-				BExtQuery q(P_Tbl, 0);
-				q.select(P_Tbl->ID, P_Tbl->CssID, 0).where(P_Tbl->CssID == _id);
+				BExtQuery q(p_t, 0);
+				q.select(p_t->ID, p_t->CssID, 0).where(p_t->CssID == _id);
 				q.initIteration(0, &k0, spFirst);
 				if(q.nextIteration() > 0) {
-					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, P_Tbl->data.ID);
+					ok = RetRefsExistsErr(PPOBJ_WORKBOOK, p_t->data.ID);
 				}
 			}
 		}

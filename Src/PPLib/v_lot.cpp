@@ -1069,7 +1069,7 @@ int SLAPI PPViewLot::ViewBillInfo(PPID billID)
 
 int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_PplBlkBeg);
 	ZDELETE(P_PplBlkEnd);
@@ -1579,12 +1579,12 @@ int SLAPI PPViewLot::Debug()
 	PPWait(1);
 	PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_LOTPRICEROUNDTEST_BEG, LOGMSGF_TIME|LOGMSGF_USER);
 	for(InitIteration(); NextIteration(&item) > 0;) {
-		(buf = 0).CR().Cat(item.Cost, MKSFMTD(0, 20, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 20, 0));
+		buf.Z().CR().Cat(item.Cost, MKSFMTD(0, 20, 0)).Space().CatCharN('-', 2).Space().Cat(item.Price, MKSFMTD(0, 20, 0));
 		PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		for(int i = 2; i <= 6; i++) {
 			double c = round(item.Cost, i);
 			double p = round(item.Price, i);
-			(buf = 0).Cat(i).CatDiv(':', 2).Cat(c, MKSFMTD(0, 20, 0)).
+			buf.Z().Cat(i).CatDiv(':', 2).Cat(c, MKSFMTD(0, 20, 0)).
 				Space().CatCharN('-', 2).Space().Cat(p, MKSFMTD(0, 20, 0));
 			PPLogMessage(PPFILNAM_DEBUG_LOG, buf, 0);
 		}
@@ -1809,7 +1809,7 @@ int SLAPI PPViewLot::InitIteration(IterOrder order)
 {
 	int    ok = 1, no_recs = 0;
 	DBQ  * dbq = 0;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	if(order == OrdByGoodsName && !P_TempTbl) {
 		THROW(CreateTempTable());
@@ -1947,7 +1947,7 @@ int SLAPI PPViewLot::InitIteration(IterOrder order)
 		if(P_IterQuery == 0)
 			delete dbq;
 		else
-			ZDELETE(P_IterQuery);
+			BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -2219,7 +2219,7 @@ int SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 			const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 			if(p_q) {
 				uint fld_no = P_TempTbl ? 14 : 12;
-				pBrw->InsColumnWord(-1, PPWORD_SERIAL, fld_no, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPRIGHT);
+				pBrw->InsColumn(-1, "@serial", fld_no, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPRIGHT);
 				ok = 1;
 			}
 		}
@@ -2992,11 +2992,11 @@ int PPLotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	THROW(PPImpExpParam::WriteIni(pFile, pSect));
 	if(Flags) {
 		PPGetSubStr(params, PPLOTPAR_FLAGS, fld_name);
-		pFile->AppendParam(pSect, fld_name, (params = 0).Cat(Flags), 1);
+		pFile->AppendParam(pSect, fld_name, params.Z().Cat(Flags), 1);
 	}
 	if(UhttGoodsCodeArID) {
 		PPGetSubStr(params, PPLOTPAR_UHTTGOODSCODEAR, fld_name);
-		pFile->AppendParam(pSect, fld_name, (params = 0).Cat(UhttGoodsCodeArID), 1);
+		pFile->AppendParam(pSect, fld_name, params.Z().Cat(UhttGoodsCodeArID), 1);
 	}
 	CATCHZOK
 	return ok;
@@ -3231,7 +3231,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 									int d = 0, std = 0;
 									int r = GObj.DiagBarcode(org_code, &d, &std, &adj_code);
 									if(r < 0 && oneof4(d, PPObjGoods::cdd_UpcaWoCheckDig, PPObjGoods::cdd_Ean13WoCheckDig, PPObjGoods::cdd_Ean8WoCheckDig, PPObjGoods::cdd_UpceWoCheckDig)) {
-										if(UhttCli.GetGoodsArCode(adj_code, inn, temp_buf = 0) && temp_buf.NotEmptyS()) {
+										if(UhttCli.GetGoodsArCode(adj_code, inn, temp_buf.Z()) && temp_buf.NotEmptyS()) {
 											temp_buf.CopyTo(sdr_lot.UhttArCode, sizeof(sdr_lot.UhttArCode));
 											break;
 										}
@@ -3274,7 +3274,7 @@ int SLAPI EditLotExtCode(LotExtCodeTbl::Rec & rRec, char firstChar)
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}
 	GetGoodsName(lot_rec.GoodsID, temp_buf);
-	(info_buf = 0).CatEq("LotID", lot_rec.ID).Space().Cat(lot_rec.Dt, DATF_DMY|DATF_CENTURY).CR().Cat(temp_buf);
+	info_buf.Z().CatEq("LotID", lot_rec.ID).Space().Cat(lot_rec.Dt, DATF_DMY|DATF_CENTURY).CR().Cat(temp_buf);
 	dlg->setStaticText(CTL_LOTEXTCODE_INFO, info_buf);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(sel = CTL_LOTEXTCODE_CODE, temp_buf);
@@ -3329,7 +3329,7 @@ int SLAPI PPViewLotExtCode::InitIteration()
 {
 	int    ok = 1;
 	LotExtCodeTbl::Key0 k0, k0_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	MEMSZERO(k0);
 	k0.LotID = Filt.LotID;

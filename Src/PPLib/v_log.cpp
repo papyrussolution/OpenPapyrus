@@ -67,10 +67,10 @@ int LogsDialog::setupList()
 		CreateVerHistLog(r_e.ID - 1);
 		f.Open(buf, SFile::mRead);
 		f.CalcSize(&fsize);
-		(buf = 0).Cat((double)fsize / 1024, MKSFMTD(10, 1, 0));
+		buf.Z().Cat((double)fsize / 1024, MKSFMTD(10, 1, 0));
 		ss.add(buf, 0);
 		f.GetDateTime(0, 0, &dtm);
-		(buf = 0).Cat(dtm);
+		buf.Z().Cat(dtm);
 		ss.add(buf, 0);
 		if(!addStringToList(LogsAry.at(i).ID, ss.getBuf()))
 			ok = 0;

@@ -859,9 +859,9 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			PPLogMessage(_LogFileName, msg_buf, logmsg_flags);
 			//
 			{
-				const uint64 tm_start = DS.GetProfileTime();
+				const uint64 tm_start = SLS.GetProfileTime();
 				ok = pMngr->DoJob(p_job->Descr.CmdID, &p_job->Param);
-				const uint64 tm_finish = DS.GetProfileTime();
+				const uint64 tm_finish = SLS.GetProfileTime();
 				msg_buf.Printf(PPLoadTextS(PPTXT_JOBFINISHED, fmt_buf), p_job->Descr.Text.cptr(), p_job->Name.cptr(),
 					p_job->DbSymb.cptr(), (int64)(tm_finish-tm_start));
 				PPLogMessage(_LogFileName, msg_buf, logmsg_flags);
@@ -4197,7 +4197,7 @@ void SLAPI PPServerSession::Run()
 						switch(cmd.StartReading(&s)) {
 							case 2: // “екстова€ команда
 								{
-									const uint64 tm_start = DS.GetProfileTime();
+									const uint64 tm_start = SLS.GetProfileTime();
 									log_buf = 0;
 									{
 										//
@@ -4238,7 +4238,7 @@ void SLAPI PPServerSession::Run()
 										// } @v8.3.4
 										cmdret = ProcessCommand(&cmd, reply);
 										if(log_level) {
-											const uint64 tm_finish = DS.GetProfileTime();
+											const uint64 tm_finish = SLS.GetProfileTime();
 											log_buf.Z().Cat("CMD").CatDiv(':', 2);
 											if(log_level == 2) { // LOGIN вносим в журнал без парол€ //
 												PPGetExtStrData(1, cmd.Params, fmt_buf);
@@ -5176,11 +5176,11 @@ SLTEST_R(PapyrusTcpClient)
 		}
 		else {
 			addr.ToStr(InetAddr::fmtHost | InetAddr::fmtPort, srv_addr_line);
-			SetInfo(temp_buf.Printf("Unable connect to %s", (const char *)srv_addr_line), 0);
+			SetInfo(temp_buf.Printf("Unable connect to %s", srv_addr_line.cptr()), 0);
 		}
 	}
 	else
-		SetInfo(temp_buf.Printf("Error setting address %s:%d\n", (const char *)srv_addr_line, port), 0);
+		SetInfo(temp_buf.Printf("Error setting address %s:%d\n", srv_addr_line.cptr(), port), 0);
 	return ok;
 }
 
@@ -5257,21 +5257,21 @@ SLTEST_R(PapyrusRestoreSess)
 						}
 					}
 					else {
-						SetInfo(temp_buf.Printf("Invalid user name or password db_symb=%s\n", (const char *)db_symb), 0);
+						SetInfo(temp_buf.Printf("Invalid user name or password db_symb=%s\n", db_symb.cptr()), 0);
 						ok = 0;
 					}
 				}
 			}
 			else {
 				addr.ToStr(InetAddr::fmtHost | InetAddr::fmtPort, srv_addr_line);
-				SetInfo(temp_buf.Printf("Unable connect to %s\n", (const char *)srv_addr_line), 0);
+				SetInfo(temp_buf.Printf("Unable connect to %s\n", srv_addr_line.cptr()), 0);
 				ok = 0;
 			}
 			so.BreakSocket();
 		}
 	}
 	else {
-		SetInfo(temp_buf.Printf("Error setting address %s:%d\n", (const char *)srv_addr_line, port), 0);
+		SetInfo(temp_buf.Printf("Error setting address %s:%d\n", srv_addr_line.cptr(), port), 0);
 		ok = 0;
 	}
 	if(ok > 0 && sess_list.getCount()) {

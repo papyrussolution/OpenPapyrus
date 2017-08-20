@@ -388,7 +388,7 @@ int SLAPI PPViewSalary::IsTempTblNeeded() const
 	return BIN(Filt.StaffID || Filt.OrgID || Filt.DivID || Filt.PersonID || (Filt.Flags & SalaryFilt::fCrosstab));
 }
 
-int SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec)
+void SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, TempSalaryTbl::Rec * pTempRec)
 {
 	memzero(pTempRec, sizeof(*pTempRec));
 	#define FLD(f) pTempRec->f = pRec->f
@@ -421,7 +421,6 @@ int SLAPI PPViewSalary::MakeTempRec(int order, const SalaryTbl::Rec * pRec, Temp
 			}
 		}
 	}
-	return 1;
 }
 
 int SLAPI PPViewSalary::TempRecToViewItem(TempSalaryTbl::Rec * pTempRec, SalaryViewItem * pItem)
@@ -591,7 +590,7 @@ int SLAPI PPViewSalary::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewSalary::InitIteration(int order)
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1, idx = 0;
 	DBQ  * dbq = 0;
 	BExtQuery * q = 0;
@@ -648,7 +647,7 @@ int SLAPI PPViewSalary::InitIteration(int order)
 	}
 	P_IterQuery = q;
 	CATCH
-		ZDELETE(q);
+		BExtQuery::ZDelete(&q);
 		ok = 0;
 	ENDCATCH
 	return ok;

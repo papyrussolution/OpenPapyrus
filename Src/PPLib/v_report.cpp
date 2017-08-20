@@ -430,8 +430,8 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 {
 	int    ok = 1;
 	uint   pos = 0;
-	StdReportList.Get(getCtrlLong(CTLSEL_REPORTFLT_STDNAME), (Data.StdName = 0));
-	StrucList.Get(getCtrlLong(CTLSEL_REPORTFLT_STRUC), (Data.StrucName = 0));
+	StdReportList.Get(getCtrlLong(CTLSEL_REPORTFLT_STDNAME), Data.StdName.Z());
+	StrucList.Get(getCtrlLong(CTLSEL_REPORTFLT_STRUC), Data.StrucName.Z());
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
 	GetClusterData(CTL_REPORTFLT_TYPE,  &Data.Type);
 	GetClusterData(CTL_REPORTFLT_ORDER, &Data.Order);
@@ -455,7 +455,7 @@ int SLAPI PPViewReport::InitIteration()
 		TempReportTbl::Key3 k3;
 	} _k, __k;
 
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(P_TempTbl);
 	Counter.Init();
 	if(Filt.Order == ReportFilt::ordByStruc) {
@@ -541,8 +541,8 @@ int SLAPI PPViewReport::SendMail(long id)
 			setCtrlString(CTL_RPTMAIL_DB,        Data.DB);
 			setCtrlString(CTL_RPTMAIL_RPT,       Data.RptPath);
 			setCtrlString(CTL_RPTMAIL_DATASTRUC, Data.Struc);
-			setCtrlString(CTL_RPTMAIL_DATE,      (buf = 0).Cat(Data.Dtm.d));
-			setCtrlString(CTL_RPTMAIL_TIME,      (buf = 0).Cat(Data.Dtm.t));
+			setCtrlString(CTL_RPTMAIL_DATE,      buf.Z().Cat(Data.Dtm.d));
+			setCtrlString(CTL_RPTMAIL_TIME,      buf.Z().Cat(Data.Dtm.t));
 			disableCtrls(1, CTL_RPTMAIL_ORG, CTL_RPTMAIL_LIC, CTL_RPTMAIL_USER, CTL_RPTMAIL_DB, CTL_RPTMAIL_RPT, CTL_RPTMAIL_DATASTRUC, CTL_RPTMAIL_DATE, CTL_RPTMAIL_TIME, 0L);
 			return 1;
 		}
@@ -635,14 +635,10 @@ int SLAPI PPViewReport::CheckForFilt(const ReportViewItem * pItem)
 	return 1;
 }
 
-int SLAPI PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec * pTempRec)
+void SLAPI PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl::Rec * pTempRec)
 {
-	int ok = 0;
-	if(pItem && pTempRec) {
+	if(pItem && pTempRec)
 		*pTempRec = *((TempReportTbl::Rec*)pItem);
-		ok = 1;
-	}
-	return ok;
 }
 
 int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
@@ -759,7 +755,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 		p_file = new PPIniFile(filename);
 	}
 	THROW(p_file->GetSections(&sections));
-	for(i = 0, id = 0; sections.get(&i, sect = 0) > 0; id++) {
+	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
 			int    icp = 0;
 			p_file->GetIntParam(sect, CodepageParam, &icp);
@@ -859,7 +855,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	}
 
 	THROW(p_file->GetSections(&sections));
-	for(i = 0, id = 0; sections.get(&i, sect = 0) > 0; id++) {
+	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
 			p_file->GetIntParam(sect, CodepageParam, &codepage);
 			LocalRptCodepage = (LocalRptCodepage == 0) ? 866 : LocalRptCodepage;
@@ -983,7 +979,7 @@ int ReportDlg::getDTS(ReportViewItem * pData)
 	RptList.Get(_id, buf);
 	buf.CopyTo(Data.StdName, sizeof(Data.StdName));
 	THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STRUCNAME), PPERR_INVRPTSTRUCNAME);
-	StrucList.Get(_id, buf = 0);
+	StrucList.Get(_id, buf.Z());
 	buf.CopyTo(Data.StrucName, sizeof(Data.StrucName));
 	getCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 	if(Data.Type == ReportFilt::rpttLocal) {
@@ -1042,7 +1038,8 @@ int SLAPI PPViewReport::EditItem(long * pID)
 			val.Transf(CTRANSF_INNER_TO_OUTER);
 		P_RptFile->RemoveParam(prev_item.StdName, prev_item.Path);
 		P_RptFile->AppendParam(item.StdName, item.Path, val, 1);
-		if(CheckForFilt(&item) > 0 && MakeTempRec(&item, &temp_rec) > 0) {
+		if(CheckForFilt(&item) > 0) {
+			MakeTempRec(&item, &temp_rec);
 			if(id) {
 				THROW_DB(UpdateByID(P_TempTbl, 0, id, &temp_rec, 0));
 			}

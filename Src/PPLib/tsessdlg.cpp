@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -304,7 +304,7 @@ int PrcFreeListDialog::setupList()
 	for(uint i = 0; i < FreeList.getCount(); i++) {
 		PrcBusy & entry = *(PrcBusy *)FreeList.at(i);
 		ss.clear();
-		ss.add(entry.ToStr(sub = 0), 0);
+		ss.add(entry.ToStr(sub.Z()), 0);
 		long   dur = entry.GetDuration();
 		sub = 0;
 		if(dur >= 0) {
@@ -745,7 +745,7 @@ private:
 			}
 			ss.clear();
 			ss.add(item.Range);
-			ss.add(GetGoodsName(item.GoodsID, temp_buf = 0));
+			ss.add(GetGoodsName(item.GoodsID, temp_buf.Z()));
 			ss.add(item.Descr);
 			THROW(addStringToList(i+1, ss.getBuf()));
 		}

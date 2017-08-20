@@ -1822,18 +1822,13 @@ const char * SSL_get_cipher_list(const SSL * s, int n)
  * preference */
 STACK_OF(SSL_CIPHER) *SSL_CTX_get_ciphers(const SSL_CTX *ctx)
 {
-	if(ctx != NULL)
-		return ctx->cipher_list;
-	return NULL;
+	return ctx ? ctx->cipher_list : 0;
 }
 
 /** specify the ciphers to be used by default by the SSL_CTX */
 int SSL_CTX_set_cipher_list(SSL_CTX * ctx, const char * str)
 {
-	STACK_OF(SSL_CIPHER) *sk;
-
-	sk = ssl_create_cipher_list(ctx->method, &ctx->cipher_list,
-	    &ctx->cipher_list_by_id, str, ctx->cert);
+	STACK_OF(SSL_CIPHER) * sk = ssl_create_cipher_list(ctx->method, &ctx->cipher_list, &ctx->cipher_list_by_id, str, ctx->cert);
 	/*
 	 * ssl_create_cipher_list may return an empty stack if it was unable to
 	 * find a cipher matching the given rule string (for example if the rule
@@ -1853,10 +1848,7 @@ int SSL_CTX_set_cipher_list(SSL_CTX * ctx, const char * str)
 /** specify the ciphers to be used by the SSL */
 int SSL_set_cipher_list(SSL * s, const char * str)
 {
-	STACK_OF(SSL_CIPHER) *sk;
-
-	sk = ssl_create_cipher_list(s->ctx->method, &s->cipher_list,
-	    &s->cipher_list_by_id, str, s->cert);
+	STACK_OF(SSL_CIPHER) * sk = ssl_create_cipher_list(s->ctx->method, &s->cipher_list, &s->cipher_list_by_id, str, s->cert);
 	/* see comment in SSL_CTX_set_cipher_list */
 	if(sk == NULL)
 		return 0;
@@ -1873,19 +1865,14 @@ char * SSL_get_shared_ciphers(const SSL * s, char * buf, int len)
 	STACK_OF(SSL_CIPHER) *sk;
 	const SSL_CIPHER * c;
 	int i;
-
 	if((s->session == NULL) || (s->session->ciphers == NULL) || (len < 2))
 		return NULL;
-
 	p = buf;
 	sk = s->session->ciphers;
-
 	if(sk_SSL_CIPHER_num(sk) == 0)
 		return NULL;
-
 	for(i = 0; i < sk_SSL_CIPHER_num(sk); i++) {
 		int n;
-
 		c = sk_SSL_CIPHER_value(sk, i);
 		n = strlen(c->name);
 		if(n + 1 > len) {
@@ -1911,18 +1898,12 @@ const char * SSL_get_servername(const SSL * s, const int type)
 {
 	if(type != TLSEXT_NAMETYPE_host_name)
 		return NULL;
-
-	return s->session && !s->tlsext_hostname ?
-	       s->session->tlsext_hostname : s->tlsext_hostname;
+	return s->session && !s->tlsext_hostname ? s->session->tlsext_hostname : s->tlsext_hostname;
 }
 
 int SSL_get_servername_type(const SSL * s)
 {
-	if(s->session
-	    && (!s->tlsext_hostname ? s->session->
-		    tlsext_hostname : s->tlsext_hostname))
-		return TLSEXT_NAMETYPE_host_name;
-	return -1;
+	return (s->session && (!s->tlsext_hostname ? s->session->tlsext_hostname : s->tlsext_hostname)) ? TLSEXT_NAMETYPE_host_name : -1;
 }
 
 /*
@@ -1956,8 +1937,7 @@ int SSL_select_next_proto(uchar ** out, uchar * outlen, const uchar * server, ui
 	 */
 	for(i = 0; i < server_len; ) {
 		for(j = 0; j < client_len; ) {
-			if(server[i] == client[j] &&
-			    memcmp(&server[i + 1], &client[j + 1], server[i]) == 0) {
+			if(server[i] == client[j] && memcmp(&server[i + 1], &client[j + 1], server[i]) == 0) {
 				/* We found a match */
 				result = &server[i];
 				status = OPENSSL_NPN_NEGOTIATED;

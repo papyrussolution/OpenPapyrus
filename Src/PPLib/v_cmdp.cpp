@@ -277,7 +277,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 				p_item = (PPCommandItem*)&new_cmdfolder;
 		}
 		else {
-			(new_sep.Name = 0).CatCharN('-', 40);
+			new_sep.Name.Z().CatCharN('-', 40);
 			new_sep.Kind = PPCommandItem::kSeparator;
 			p_item = &new_sep;
 		}
@@ -766,7 +766,7 @@ int EditMenusDlg::LoadCfg(long id)
 				GetClusterData(CTL_MENULIST_FLAGS, &flags);
 				p_desk->Flags = (uint16)flags;
 				getGroupData(GRP_BKGND, &color_rec);
-				(p_desk->Icon = 0).Cat(color_rec.C);
+				p_desk->Icon.Z().Cat(color_rec.C);
 				getGroupData(GRP_IMG, &rec);
 				p_desk->SetLogo(rec.Path);
 			}
@@ -1042,7 +1042,7 @@ int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * 
 		for(ulong pos = 0; P_SlRez->enumResources(0x04, &locm_id, &pos) > 0;) {
 			long _id = (long)locm_id + DEFAULT_MENUS_OFFS;
 			if(ary.Get(_id, buf) <= 0)
-				ary.Add(_id, (buf = 0).Cat(_id - DEFAULT_MENUS_OFFS));
+				ary.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
 		}
 	}
 	{

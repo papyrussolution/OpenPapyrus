@@ -127,7 +127,7 @@ void _cairo_xlib_display_fini_shm(cairo_xlib_display_t * display) {
 
 #else
 
-#include "cairo-damage-private.h"
+//#include "cairo-damage-private.h"
 #include "cairo-default-context-private.h"
 #include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
@@ -544,7 +544,7 @@ static cairo_xlib_shm_t * _cairo_xlib_shm_pool_create(cairo_xlib_display_t * dis
 	Status success;
 
 	pool = SAlloc::M(sizeof(cairo_xlib_shm_t));
-	if(pool == NULL)
+	if(!pool)
 		return NULL;
 
 	bytes = 1 << maxbits;
@@ -612,9 +612,9 @@ static cairo_xlib_shm_info_t * _cairo_xlib_shm_info_create(cairo_xlib_display_t 
 
 	if(pool == NULL && will_sync)
 		pool = _cairo_xlib_shm_info_find(display, size, &mem, &last_request);
-	if(pool == NULL)
+	if(!pool)
 		pool = _cairo_xlib_shm_pool_create(display, size, &mem);
-	if(pool == NULL)
+	if(!pool)
 		return NULL;
 
 	assert(mem != NULL);

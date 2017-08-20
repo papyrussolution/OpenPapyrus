@@ -37,7 +37,7 @@
 #define CAIRO_DRM_PRIVATE_H
 
 #include "cairo-drm.h"
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-reference-count-private.h"
 //#include "cairo-surface-private.h"
 #include <sys/types.h> /* dev_t */

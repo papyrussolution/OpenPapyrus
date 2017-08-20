@@ -211,7 +211,7 @@ private:
 				dsbl_sec_subst = 0;
 			}
 			else {
-				setLabelText(CTL_INVDIFFLT_SUBSTG, label_buf = 0);
+				setLabelText(CTL_INVDIFFLT_SUBSTG, label_buf.Z());
 				dsbl_sec_subst = 1;
 			}
 		}
@@ -534,10 +534,10 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 												temp_rec.SumStockPrice = inv_rec.StockRest * inv_rec.StockPrice;
 												temp_rec.SumWrOffPrice = diff * inv_rec.WrOffPrice;
 												if(!!Filt.Sgb) {
-													P_BObj->GetSubstText(final_goods_id, &Bsp, name_buf = 0);
+													P_BObj->GetSubstText(final_goods_id, &Bsp, name_buf.Z());
 												}
 												else {
-													GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, name_buf = 0);
+													GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, name_buf.Z());
 												}
 												name_buf.CopyTo(temp_rec.Name, sizeof(temp_rec.Name));
 												THROW(P_TempSubstTbl->insertRecBuf(&temp_rec));
@@ -589,7 +589,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewInventory::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_GgIter);
 	ZDELETE(P_GIter);
 	IterByGoods.clear();
@@ -632,7 +632,7 @@ int SLAPI PPViewInventory::InitIteration()
 		P_IterQuery->initIteration(0, &k, spGt);
 	}
 	CATCH
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;
 	ENDCATCH
 	return ok;

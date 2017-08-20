@@ -269,7 +269,7 @@ int __bam_read_root(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, db_pgno_t base_
 	t->bt_lpgno = PGNO_INVALID;
 err:
 	/* Put the metadata page back. */
-	if(meta && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
@@ -430,9 +430,9 @@ err:
 	if(buf)
 		__os_free(env, buf);
 	else {
-		if(meta && (t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
-		if(root && (t_ret = __memp_fput(mpf, ip, root, dbp->priority)) != 0 && ret == 0)
+		if((t_ret = __memp_fput(mpf, ip, root, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	return ret;

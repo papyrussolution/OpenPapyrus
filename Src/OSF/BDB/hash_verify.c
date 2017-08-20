@@ -386,7 +386,7 @@ int __ham_vrfy_structure(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, uint3
 err:
 	if((t_ret = __memp_fput(mpf, vdp->thread_info, m, dbp->priority)) != 0)
 		return t_ret;
-	if(h != NULL && (t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
+	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
 		return t_ret;
 	return (isbad == 1 && ret == 0) ? DB_VERIFY_BAD : ret;
 }

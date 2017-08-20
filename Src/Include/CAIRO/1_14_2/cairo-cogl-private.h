@@ -32,7 +32,7 @@
 #ifndef CAIRO_COGL_PRIVATE_H
 #define CAIRO_COGL_PRIVATE_H
 
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-cache-private.h"
 #include "cairo-backend-private.h"
 #include "cairo-default-context-private.h"

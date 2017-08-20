@@ -271,7 +271,7 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				//SetWindowLong(hWnd, GWLP_USERDATA, (LONG)p_view);
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
-				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0L);
+				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0);
 				p_view->SetupScroll();
 				p_view->invalidateAll(1);
 				PostMessage(hWnd, WM_PAINT, 0, 0);

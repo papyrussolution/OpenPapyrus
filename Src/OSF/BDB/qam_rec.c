@@ -85,20 +85,16 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	QMETA * meta;
 	db_pgno_t metapg;
 	int ret;
-
 	COMPQUIET(meta, 0);
-
 	ip = ((DB_TXNHEAD *)info)->thread_info;
 	REC_PRINT(__qam_incfirst_print);
 	REC_INTRO(__qam_incfirst_read, ip, 0);
-
 	metapg = ((QUEUE *)file_dbp->q_internal)->q_meta;
-	/* Allocate our own cursor without DB_RECOVER as we need a locker. */
+	// Allocate our own cursor without DB_RECOVER as we need a locker. 
 	if((ret = __db_cursor_int(file_dbp, ip, NULL, DB_QUEUE, PGNO_INVALID, 0, NULL, &dbc)) != 0)
 		goto out;
 	F_SET(dbc, DBC_RECOVER);
-	if((ret = __memp_fget(mpf, &metapg, ip, NULL,
-		    0, &meta)) != 0) {
+	if((ret = __memp_fget(mpf, &metapg, ip, NULL, 0, &meta)) != 0) {
 		if(DB_REDO(op)) {
 			if((ret = __memp_fget(mpf, &metapg, ip, NULL, DB_MPOOL_CREATE, &meta)) != 0)
 				goto out;
@@ -121,7 +117,7 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 			meta->first_recno = argp->recno;
 		}
 		trunc_lsn = ((DB_TXNHEAD *)info)->trunc_lsn;
-		/* if we are truncating, update the LSN */
+		// if we are truncating, update the LSN 
 		if(!IS_ZERO_LSN(trunc_lsn) && LOG_COMPARE(&LSN(meta), &trunc_lsn) > 0) {
 			REC_DIRTY(mpf, ip, dbc->priority, &meta);
 			LSN(meta) = trunc_lsn;
@@ -462,7 +458,7 @@ done:
 err:
 	if(pagep != NULL && (t_ret = __qam_fput(dbc, argp->pgno, pagep, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 out:
 	REC_CLOSE;

@@ -485,7 +485,7 @@ int SLAPI PPViewDvcLoadingStat::InitIteration()
 	int    ok = 1;
 	DvcLoadingStatTbl * p_t = &DlsT;
 	DvcLoadingStatTbl::Key1 k1, k1_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 
 	THROW_MEM(P_IterQuery = new BExtQuery(p_t, 1));

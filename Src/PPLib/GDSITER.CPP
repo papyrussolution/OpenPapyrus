@@ -366,7 +366,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	ZDELETE(P_List);
 	ZDELETE(P_MtxList);
 	ZDELETE(P_ActualHash);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	SfClsID = 0;
 	ExtList.clear();
 	ZDELETE(P_UhttsPack);

@@ -983,7 +983,7 @@ private:
 				dsbl_sec_subst = 0;
 			}
 			else {
-				setLabelText(CTL_BILLFLT_SUBSTGDS, label_buf = 0);
+				setLabelText(CTL_BILLFLT_SUBSTGDS, label_buf.Z());
 				dsbl_sec_subst = 1;
 			}
 		}
@@ -1230,7 +1230,7 @@ int SLAPI PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 	Counter.Init();
 	Total.Init();
 	State &= ~(sTotalInited | sFiltAltGrp | sFiltExclFolder | sReval);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Bsp.Init(Filt.Sgb);
 	if(!Filt.Sgb) {
 		if(Filt.Sgg != sggNone)
@@ -1328,7 +1328,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 	IterGrpName = 0;
 	ZDELETE(P_GGIter);
 	ZDELETE(P_TempOrd);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	Counter.Init(P_TempTbl);
 	THROW(CreateOrderTable(ord, &P_TempOrd));
@@ -2183,7 +2183,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			if(P_BObj->ExtractPacket(Filt.BillList.Get().at(i), &pack) > 0) {
 				if(!use_ext_list || ext_bill_list.bsearch(pack.Rec.ID)) {
 					const double part = (GetOpType(pack.Rec.OpID, &op_rec) == PPOPT_GOODSRETURN) ? -1.0 : 1.0;
-					PPWaitMsg((wait_msg = 0).Cat(pack.Rec.Dt).Space().Cat(pack.Rec.Code));
+					PPWaitMsg(wait_msg.Z().Cat(pack.Rec.Dt).Space().Cat(pack.Rec.Code));
 					THROW(PPCheckUserBreak());
 					THROW(PutBillToTempTable(&pack, part, 0, p_suppl_bill_list));
 					pUfpFactors[0] += (1.0 + (double)pack.GetTCount()); // @v8.1.12

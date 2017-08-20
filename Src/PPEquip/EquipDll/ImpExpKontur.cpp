@@ -595,7 +595,7 @@ public:
 	}
 	void   CreateFileName(uint num)
 	{
-		(ExpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+		ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 	}
 	int    OrderHeader();
 	int    DocPartiesAndCurrency();
@@ -1028,7 +1028,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				SXml::WNode n_c516(P_XmlWriter, "C516");
 				n_c516.PutInner("E5025", "79"); // Квалификатор суммы товарной позиции (идентификатор суммы товарной позиции с НДС)
 				double sum = pBRow->Cost * pBRow->Quantity;
-				n_c516.PutInner("E5004", (str = 0).Printf("%.2f", sum)); // Сумма (Число знаков после запятой - не больше 2)
+				n_c516.PutInner("E5004", str.Z().Printf("%.2f", sum)); // Сумма (Число знаков после запятой - не больше 2)
 			}
 		}
 		{
@@ -1040,7 +1040,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				{
 					double sum = (pBRow->Cost / (pBRow->VatRate + 100) * 100) * pBRow->Quantity;
 					BillSumWithoutVat += sum;
-					n_c516.PutInner("E5004", (str = 0).Printf("%.2f", sum)); // Сумма (Число знаков после запятой - не больше 2)
+					n_c516.PutInner("E5004", str.Z().Printf("%.2f", sum)); // Сумма (Число знаков после запятой - не больше 2)
 				}
 			}
 		}
@@ -1053,7 +1053,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					SXml::WNode n_c509(P_XmlWriter, "C509");
 					n_c509.PutInner("E5125", "AAE"); // Квалификатор цены (Цена без сборов и надбавок, но с налогом)
 					const double cost = pBRow->Cost;
-					n_c509.PutInner("E5118", (str = 0).Printf("%.2f", cost)); // Цена (Число знаков после запятой - не больше 2)
+					n_c509.PutInner("E5118", str.Z().Printf("%.2f", cost)); // Цена (Число знаков после запятой - не больше 2)
 				}
 			}
 		}
@@ -1066,7 +1066,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 					SXml::WNode n_c509(P_XmlWriter, "C509");
 					n_c509.PutInner("E5125", "AAA"); // Квалификатор цены (Чистая цена без налогов)
 					const double cost = pBRow->Cost / (pBRow->VatRate + 100) * 100;
-					n_c509.PutInner("E5118", (str = 0).Printf("%.2f", cost)); // Цена (Число знаков после запятой - не больше 2)
+					n_c509.PutInner("E5118", str.Z().Printf("%.2f", cost)); // Цена (Число знаков после запятой - не больше 2)
 				}
 			}
 		}
@@ -1156,7 +1156,7 @@ int ExportCls::EndDoc()
 				SegNum++;
 				SXml::WNode n_c516(P_XmlWriter, "C516");
 				n_c516.PutInner("E5025", "128"); // Квалификатор суммы (Сумма документа с НДС)
-				n_c516.PutInner("E5004", (str = 0).Printf("%.2f", Bill.Amount)); // Сумма (Число знаков после запятой - не больше 2)
+				n_c516.PutInner("E5004", str.Z().Printf("%.2f", Bill.Amount)); // Сумма (Число знаков после запятой - не больше 2)
 			}
 		}
 		{
@@ -1165,7 +1165,7 @@ int ExportCls::EndDoc()
 				SegNum++;
 				SXml::WNode n_c516(P_XmlWriter, "C516");
 				n_c516.PutInner("E5025", "98"); // Квалификатор суммы (Сумма документа без НДС)
-				n_c516.PutInner("E5004", (str = 0).Printf("%.2f", BillSumWithoutVat)); // Сумма (Число знаков после запятой - не больше 2)
+				n_c516.PutInner("E5004", str.Z().Printf("%.2f", BillSumWithoutVat)); // Сумма (Число знаков после запятой - не больше 2)
 			}
 		}
 		{
@@ -1265,9 +1265,9 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName = 0);
+		log_path.Merge(LogName.Z());
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName = 0);
+		log_path.Merge(SysLogName.Z());
 		P_ExportCls->Id = 1;
 		*pId = P_ExportCls->Id; // ИД сеанса экспорта
 		P_ExportCls->Inited = 1;
@@ -1275,7 +1275,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	THROWERR(P_ExportCls, IEERR_IMPEXPCLSNOTINTD);
 	CATCH
 		SysLogMessage(SYSLOG_INITEXPORT);
-		GetErrorMsg(temp_buf = 0);
+		GetErrorMsg(temp_buf.Z());
 		SysLogMessage(temp_buf);
 		LogMessage(temp_buf);
 		ok = 0;
@@ -2492,9 +2492,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				ps.Copy(&inp_ps, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fNam|SPathStruc::fExt);
 				ps.Nam = "import_log";
 				ps.Ext = "txt";
-				ps.Merge(LogName = 0);
+				ps.Merge(LogName.Z());
 				ps.Nam = "system_log";
-				ps.Merge(SysLogName = 0);
+				ps.Merge(SysLogName.Z());
 			}
 			{
 				ps.Nam = 0;
@@ -2512,7 +2512,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORT);
-		GetErrorMsg(temp_buf = 0);
+		GetErrorMsg(temp_buf.Z());
 		SysLogMessage(temp_buf);
 		LogMessage(temp_buf);
 		ok = 0;

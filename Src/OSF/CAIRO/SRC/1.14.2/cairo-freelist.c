@@ -34,9 +34,8 @@ void _cairo_freelist_fini(cairo_freelist_t * freelist)
 {
 	cairo_freelist_node_t * node = freelist->first_free_node;
 	while(node) {
-		cairo_freelist_node_t * next;
 		VG(VALGRIND_MAKE_MEM_DEFINED(node, sizeof(node->next)));
-		next = node->next;
+		cairo_freelist_node_t * next = node->next;
 		SAlloc::F(node);
 		node = next;
 	}
@@ -56,15 +55,16 @@ void FASTCALL _cairo_freepool_reset(cairo_freepool_t * freepool)
 
 void * FASTCALL _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool)
 {
-	uint8_t * ptr;
 	cairo_freelist_pool_t * pool = freepool->pools;
 	if(unlikely(freepool->nodesize > pool->rem))
 		return _cairo_freepool_alloc_from_new_pool(freepool);
-	ptr = pool->data;
-	pool->data += freepool->nodesize;
-	pool->rem -= freepool->nodesize;
-	VG(VALGRIND_MAKE_MEM_UNDEFINED(ptr, freepool->nodesize));
-	return ptr;
+	else {
+		uint8_t * ptr = pool->data;
+		pool->data += freepool->nodesize;
+		pool->rem -= freepool->nodesize;
+		VG(VALGRIND_MAKE_MEM_UNDEFINED(ptr, freepool->nodesize));
+		return ptr;
+	}
 }
 
 void * FASTCALL _cairo_freepool_alloc(cairo_freepool_t * freepool)

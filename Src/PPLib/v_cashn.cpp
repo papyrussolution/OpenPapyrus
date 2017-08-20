@@ -136,7 +136,7 @@ int SLAPI PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempTbl);
 	THROW(P_TempTbl = CreateTempFile <TempCashNodeTbl> ());
 	{
@@ -196,7 +196,7 @@ int SLAPI PPViewCashNode::InitIteration()
 {
 	int    ok = 1;
 	TempCashNodeTbl::Key0 k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 128);
 	P_IterQuery->selectAll();
 	MEMSZERO(k);

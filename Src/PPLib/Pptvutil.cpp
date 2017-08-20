@@ -5931,7 +5931,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 			SETIFZ(hbm_clock, APPL->LoadBitmap(IDB_CLOCK));
 			LEAVE_CRITICAL_SECTION
 		}
-		SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (long)hbm_clock);
+		::SendMessage(hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbm_clock);
 	}
 }
 //

@@ -419,7 +419,7 @@ static int __rep_get_fileinfo(ENV*env, const char * file, const char * subdb, __
 	if(ret != 0)
 		goto err;
 err:
-	if(pagep && (t_ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;

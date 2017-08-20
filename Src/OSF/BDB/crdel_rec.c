@@ -86,7 +86,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(pagep != NULL && (t_ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, pagep, file_dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	REC_CLOSE;
 }

@@ -38,7 +38,7 @@
 
 #include "cairo-win32.h"
 //#include "cairoint.h"
-#include "cairo-device-private.h"
+//#include "cairo-device-private.h"
 #include "cairo-surface-clipper-private.h"
 //#include "cairo-surface-private.h"
 

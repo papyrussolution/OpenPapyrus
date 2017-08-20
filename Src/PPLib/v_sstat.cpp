@@ -560,7 +560,7 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewSStat::InitIteration()
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempOrd) {
 		TempOrderTbl::Key1 k;
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1, 64));
@@ -581,7 +581,7 @@ int SLAPI PPViewSStat::InitIteration()
 	else
 		ok = 0;
 	CATCH
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;
 	ENDCATCH
 	return ok;

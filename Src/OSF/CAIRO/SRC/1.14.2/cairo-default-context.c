@@ -207,15 +207,17 @@ static cairo_status_t _cairo_default_context_set_source(void * abstract_cr, cair
 
 static cairo_bool_t _current_source_matches_solid(const cairo_pattern_t * pattern, double red, double green, double blue, double alpha)
 {
-	cairo_color_t color;
 	if(pattern->type != CAIRO_PATTERN_TYPE_SOLID)
 		return FALSE;
-	red   = _cairo_restrict_value(red,   0.0, 1.0);
-	green = _cairo_restrict_value(green, 0.0, 1.0);
-	blue  = _cairo_restrict_value(blue,  0.0, 1.0);
-	alpha = _cairo_restrict_value(alpha, 0.0, 1.0);
-	_cairo_color_init_rgba(&color, red, green, blue, alpha);
-	return _cairo_color_equal(&color, &((cairo_solid_pattern_t*)pattern)->color);
+	else {
+		cairo_color_t color;
+		red   = MINMAX(red,   0.0, 1.0);
+		green = MINMAX(green, 0.0, 1.0);
+		blue  = MINMAX(blue,  0.0, 1.0);
+		alpha = MINMAX(alpha, 0.0, 1.0);
+		_cairo_color_init_rgba(&color, red, green, blue, alpha);
+		return _cairo_color_equal(&color, &((cairo_solid_pattern_t*)pattern)->color);
+	}
 }
 
 static cairo_status_t _cairo_default_context_set_source_rgba(void * abstract_cr, double red, double green, double blue, double alpha)

@@ -32,8 +32,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-atomic-private.h"
-#include "cairo-mutex-private.h"
+//#include "cairo-atomic-private.h"
+//#include "cairo-mutex-private.h"
 
 #ifdef HAS_ATOMIC_OPS
 COMPILE_TIME_ASSERT(sizeof(void*) == sizeof(int) || sizeof(void*) == sizeof(long) || sizeof(void*) == sizeof(long long));

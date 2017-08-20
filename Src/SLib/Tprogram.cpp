@@ -92,14 +92,14 @@ int TStatusWin::Update()
 			//
 			::SendMessage(hw, SB_SETICON, i, (LPARAM)h_icon);
 			::DestroyIcon(h_icon); // @2
-			::SendMessage(hw, SB_SETTIPTEXT, i, (LPARAM)(LPCTSTR)temp_buf);
+			::SendMessage(hw, SB_SETTIPTEXT, i, (LPARAM)temp_buf.cptr());
 		}
 		else {
 			COLORREF color = Items.at(i).Color;
 			if(color || Items.at(i).TextColor)
-				::SendMessage(hw, SB_SETTEXT, (WPARAM)(SBT_OWNERDRAW|i), (LPARAM)(long)&Items.at(i));
+				::SendMessage(hw, SB_SETTEXT, (WPARAM)(SBT_OWNERDRAW|i), (LPARAM)&Items.at(i));
 			else
-				::SendMessage(hw, SB_SETTEXT, i, (long)(const char *)temp_buf);
+				::SendMessage(hw, SB_SETTEXT, i, (LPARAM)temp_buf.cptr());
 		}
 	}
 	::ReleaseDC(hw, hdc);
@@ -1275,11 +1275,11 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						TButton * p_btn  = new TButton(TRect(10, 10, 10, 10), 0, cmCancel, 0, CLOSEBTN_BITMAPID);
 						p_btn->Parent = hWnd;
 						p_dlg->Insert_(&p_btn->SetId(SPEC_TITLEWND_ID + 1));
-						btn_hwnd = CreateWindow(_T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
+						btn_hwnd = ::CreateWindow(_T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
-							SendMessage(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, (long)h_bm);
+							::SendMessage(btn_hwnd, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_bm);
 						}
 						TView::SetWindowProp(btn_hwnd, GWL_STYLE, TView::GetWindowStyle(btn_hwnd) & ~WS_TABSTOP);
 						TView::SetWindowProp(btn_hwnd, GWL_ID, SPEC_TITLEWND_ID + 1);

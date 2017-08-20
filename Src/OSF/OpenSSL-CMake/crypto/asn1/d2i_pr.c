@@ -40,7 +40,7 @@ EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp, long lengt
 				goto err;
 			tmp = EVP_PKCS82PKEY(p8);
 			PKCS8_PRIV_KEY_INFO_free(p8);
-			if(tmp == NULL)
+			if(!tmp)
 				goto err;
 			EVP_PKEY_free(ret);
 			ret = tmp;

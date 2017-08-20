@@ -11,7 +11,7 @@ DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg))
 	TypID = 0;
 	Flags = 0;
 	ImplID = 0;
-	ArgNamList.add("$", 0); // zero index - undefined name
+	ArgNamList.add("$"); // zero index - undefined name
 }
 
 int DlFunc::IsEqual(const DlFunc & rPat) const
@@ -146,7 +146,7 @@ DlFuncPool::DlFuncPool() : Items(sizeof(F)), ArgList(sizeof(Arg))
 {
 	Arg    empty;
 	ArgList.insert(MEMSZERO(empty)); // нулевой индекс - инвалидный
-	NamePool.add("$", 0);
+	NamePool.add("$");
 }
 
 int DlFuncPool::Write(SBuffer & rBuf) const

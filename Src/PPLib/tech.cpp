@@ -1542,7 +1542,7 @@ int SLAPI PPViewTech::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt) > 0);
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	CATCHZOK
 	return ok;
@@ -1550,7 +1550,7 @@ int SLAPI PPViewTech::Init_(const PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewTech::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 
 	int    ok = 1, idx = 0;

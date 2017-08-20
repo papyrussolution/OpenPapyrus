@@ -2277,10 +2277,10 @@ cairo_public void cairo_matrix_init_rotate(cairo_matrix_t * matrix, double radia
 cairo_public void cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty);
 cairo_public void cairo_matrix_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void cairo_matrix_rotate(cairo_matrix_t * matrix, double radians);
-cairo_public cairo_status_t cairo_matrix_invert(cairo_matrix_t * matrix);
+cairo_public cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix);
 cairo_public void cairo_matrix_multiply(cairo_matrix_t * result, const cairo_matrix_t * a, const cairo_matrix_t * b);
-cairo_public void cairo_matrix_transform_distance(const cairo_matrix_t * matrix, double * dx, double * dy);
-cairo_public void cairo_matrix_transform_point(const cairo_matrix_t * matrix, double * x, double * y);
+cairo_public void FASTCALL cairo_matrix_transform_distance(const cairo_matrix_t * matrix, double * dx, double * dy);
+cairo_public void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double * x, double * y);
 
 /* Region functions */
 

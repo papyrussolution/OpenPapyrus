@@ -1712,9 +1712,9 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 #endif
 	}
 	else {
-		const uint64 profile_start = DS.GetProfileTime();
+		const uint64 profile_start = SLS.GetProfileTime();
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-		const uint64 profile_end = DS.GetProfileTime();
+		const uint64 profile_end = SLS.GetProfileTime();
 		{
 			msg_buf.Z().CatEq("Report", pReportName);
 			if(!isempty(pPrinter))

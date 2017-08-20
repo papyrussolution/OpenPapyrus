@@ -433,7 +433,7 @@ PPID SLAPI ObjIdListFilt::GetSingle() const
 	return P_List ? P_List->getSingle() : 0;
 }
 
-PPID SLAPI ObjIdListFilt::Get(uint pos) const
+PPID FASTCALL ObjIdListFilt::Get(uint pos) const
 {
 	return (P_List && pos >= 0 && pos < P_List->getCount()) ? P_List->at(pos) : 0;
 }
@@ -449,7 +449,7 @@ uint SLAPI ObjIdListFilt::IncPointer()
 	return P_List ? P_List->incPointer() : 0;
 }
 
-int SLAPI ObjIdListFilt::CopyTo(PPIDArray * pList) const
+int FASTCALL ObjIdListFilt::CopyTo(PPIDArray * pList) const
 {
 	if(pList)
 		if(P_List)
@@ -509,9 +509,9 @@ int SLAPI ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 	return (Search(id, &p, binary) > 0) ? P_List->atFree(p) : -1;
 }
 
-int SLAPI ObjIdListFilt::FreeAll()
+void SLAPI ObjIdListFilt::FreeAll()
 {
-	return P_List ? (P_List->freeAll(), 1) : 0;
+	CALLPTRMEMB(P_List, freeAll());
 }
 
 int SLAPI ObjIdListFilt::Sort()
@@ -543,7 +543,7 @@ int SLAPI ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*
 	return 1;
 }
 
-int SLAPI ObjIdListFilt::Write(SBuffer & rBuf) const
+int FASTCALL ObjIdListFilt::Write(SBuffer & rBuf) const
 {
 	int    ok = 1;
 	long   is_exists = IsExists();
@@ -554,7 +554,7 @@ int SLAPI ObjIdListFilt::Write(SBuffer & rBuf) const
 	return ok;
 }
 
-int SLAPI ObjIdListFilt::Read(SBuffer & rBuf)
+int FASTCALL ObjIdListFilt::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
 	long   is_exists = 0;

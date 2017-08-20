@@ -903,7 +903,7 @@ static void _intern_string_pluck(void * entry, void * closure)
 void _cairo_intern_string_reset_static_data(void)
 {
 	CAIRO_MUTEX_LOCK(_cairo_intern_string_mutex);
-	if(_cairo_intern_string_ht != NULL) {
+	if(_cairo_intern_string_ht) {
 		_cairo_hash_table_foreach(_cairo_intern_string_ht, _intern_string_pluck, _cairo_intern_string_ht);
 		_cairo_hash_table_destroy(_cairo_intern_string_ht);
 		_cairo_intern_string_ht = NULL;

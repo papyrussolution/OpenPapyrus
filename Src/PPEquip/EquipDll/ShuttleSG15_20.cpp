@@ -199,34 +199,34 @@ int PriceChecker::FillStIniParam()
 	char ret_buf[BUF_SIZE];
 	GetModuleFileName(NULL, fname, MAX_PATH);
 	ps.Split(fname);
-	(ps.Nam = 0).Cat("PP");
-	(ps.Ext = 0).Cat("ini");
+	ps.Nam.Z().Cat("PP");
+	ps.Ext.Z().Cat("ini");
 	ps.Merge(temp_buf);
 
-	if(GetPrivateProfileString("ShuttleSG1520", "Port", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0)
+	if(GetPrivateProfileString("ShuttleSG1520", "Port", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
 		IniParam.Port = atoi(ret_buf);
-	if(GetPrivateProfileString("ShuttleSG1520", "HideWindow", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0)
+	if(GetPrivateProfileString("ShuttleSG1520", "HideWindow", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
 		IniParam.HideWindow = atoi(ret_buf);
-	if(GetPrivateProfileString("ShuttleSG1520", "DbSymb", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0)
+	if(GetPrivateProfileString("ShuttleSG1520", "DbSymb", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
 		IniParam.DataBaseName = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "UserName", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0)
+	if(GetPrivateProfileString("ShuttleSG1520", "UserName", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
 		IniParam.UserName = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "Password", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0)
+	if(GetPrivateProfileString("ShuttleSG1520", "Password", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0)
 		IniParam.Password = ret_buf;
-	if(GetPrivateProfileString("ShuttleSG1520", "Storage", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0) {
+	if(GetPrivateProfileString("ShuttleSG1520", "Storage", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0) {
 		SString left, right;
 		size_t i = 0;
 		storage_str = ret_buf;
 		while(storage_str.Divide(';', left, right) && left.NotEmpty()) {
 			IniParam.ArrStorage.Add(i++, left);
-			(storage_str = 0).Cat(right);
+			storage_str.Z().Cat(right);
 		}
 	}
-	if(GetPrivateProfileString("ShuttleSG1520", "sg15string", NULL, ret_buf, BUF_SIZE, (const char *)temp_buf) > 0) {
+	if(GetPrivateProfileString("ShuttleSG1520", "sg15string", NULL, ret_buf, BUF_SIZE, temp_buf.cptr()) > 0) {
 		IniParam.SG15Format = ret_buf;
 		ExpandAll(IniParam.SG15Format);
 	}
-	if(GetPrivateProfileString("ShuttleSG1520", "sg20string", NULL, ret_buf , BUF_SIZE, (const char *)temp_buf) > 0) {
+	if(GetPrivateProfileString("ShuttleSG1520", "sg20string", NULL, ret_buf , BUF_SIZE, temp_buf.cptr()) > 0) {
 		IniParam.SG20Format = ret_buf;
 		ExpandAll(IniParam.SG20Format);
 	}
@@ -255,7 +255,7 @@ int PriceChecker::InitLogFile()
 	ps.Merge(temp_buf);
 	ps.ReplaceExt(temp_buf, "log", 1);
 	//ps.ReplaceExt(temp_buf.Z().Cat(fname), "log", 1);
-	(FileLogName = 0).Cat(temp_buf);
+	FileLogName.Z().Cat(temp_buf);
 	//LogFile.Open(/*temp_buf*/FileLogName, SFile::mAppend | SFile::mWrite);
 	return 1;
 }
@@ -295,9 +295,9 @@ int PriceChecker::ConcoleMessage(const char * pMsg, ...)
 
 int PriceChecker::CreateGoodInfoMessage(StGoodInfo & goodInfo, SString & rMsg)
 {
-	(rMsg = 0).Cat(goodInfo.Name).Space();
+	rMsg.Z().Cat(goodInfo.Name).Space();
 	if(goodInfo.Qtty > 0) {
-		(goodInfo.Info = 0).Cat(WEIGHT).Space().Cat(goodInfo.Qtty).Space().Cat(KG);
+		goodInfo.Info.Z().Cat(WEIGHT).Space().Cat(goodInfo.Qtty).Space().Cat(KG);
 		rMsg.Cat(goodInfo.Info);
 		// Цена за вес товара
 		goodInfo.Price = goodInfo.Price * goodInfo.Qtty; // @vmiller
@@ -423,7 +423,7 @@ int PriceChecker::GetFirstTag(const char * pInputStr, TagType & rTag)
 	bool NoTag = false, endtag_found = false;
 	SString opentag, closetag;
 	SString input_str;
-	(input_str = 0).Cat(pInputStr);
+	input_str.Z().Cat(pInputStr);
 	size_t pos = 0, start = 0, end = 0, datastart = 0, dataend = 0;
 
 	// Ищем стартовый тег
@@ -525,7 +525,7 @@ int PriceChecker::ExpandHex(SString & rStr)
 				val = valstr.ToLong();
 				if(val < 256) {
 					// Помещаем значение в строку
-					(valstr = 0).CatChar(val);
+					valstr.Z().CatChar(val);
 					rStr.Excise(start, end - start + 1);
 					rStr.Insert(start, valstr);
 				}
@@ -550,7 +550,7 @@ int PriceChecker::FormatPrice(SString & rPrice)
 	rPrice.Divide('.', l_str, r_str);
 	while(r_str.Len() < 2)
 		r_str.CatChar('0');
-	(rPrice = 0).Cat(l_str).Dot().Cat(r_str);
+	rPrice.Z().Cat(l_str).Dot().Cat(r_str);
 	return 1;
 }
 
@@ -577,13 +577,13 @@ int PriceChecker::FormatAnswer(StGoodInfo * pInfo, SString & rFormatedInfo, int 
 	else {
 		format_str.ReplaceStr("{name}", pInfo->Name, 1);
 		format_str.ReplaceStr("{info}", pInfo->Info, 1);
-		(price_str = 0).Cat(pInfo->Price);
+		price_str.Z().Cat(pInfo->Price);
 		FormatPrice(price_str);
 		format_str.ReplaceStr("{price}", price_str, 1);
 	}
 
 	GetOption("id", id);
-	(rFormatedInfo = 0).Cat("<data").Space();
+	rFormatedInfo.Z().Cat("<data").Space();
 	if(id.NotEmpty())
 		rFormatedInfo.Cat("id=").Cat(id);
 	rFormatedInfo.CatChar('>').Cat(format_str).Cat("</data>");
@@ -603,7 +603,7 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 	GetFirstTag(pRequest, Tag);
 	if(Tag.Name.CmpNC("request") == 0) {
 		LogMessage(ISREQUEST, (const char*)Tag.Data, "");
-		//(Tag.Data = 0).Cat("210000000008"); // @vmiller
+		//Tag.Data.Z().Cat("210000000008"); // @vmiller
 		if(GetGoodsByCode(Tag.Data, &goods_rec, &qtty) > 0) {
 			rGoodInfo.Name.CopyFromOleStr(goods_rec.Name);
 			// @vmiller {
@@ -623,7 +623,7 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 			if(GetGoodsPrice(goods_rec.ID, &price) > 0) {
 				rGoodInfo.Price = price;
 				/*SString price_str;
-				(price_str = 0).Cat(price);
+				price_str.Z().Cat(price);
 				FormatPrice(price_str);
 				ConcoleMessage((const char*)rGoodInfo.Name, (const char *)price_str, RUB, "");
 				LogMessage((const char*)rGoodInfo.Name, (const char *)price_str, RUB, "");*/
@@ -633,12 +633,12 @@ int PriceChecker::GetGoodInfo(const char * pRequest, StGoodInfo & rGoodInfo)
 				LogMessage((const char*)rGoodInfo.Name, "");
 			}*/
 			CreateGoodInfoMessage(rGoodInfo, msg);
-			ConcoleMessage((const char *)msg, "");
-			LogMessage((const char *)msg, "");
+			ConcoleMessage(msg.cptr(), "");
+			LogMessage(msg.cptr(), "");
 		}
 		else {
 			ConcoleMessage(GOODNOTFOUND, "");
-			LogMessage(GOODNOTFOUND, (const char *)Tag.Data, "");
+			LogMessage(GOODNOTFOUND, Tag.Data.cptr(), "");
 			ok = -1;
 		}
 	}
@@ -662,8 +662,8 @@ int PriceChecker::Connect(const char * pAddr)
 		if(!Socket.Connect(ServerAddr)) {
 			SString port_str;
 			port_str.Cat(IniParam.Port);
-			ConcoleMessage(CONNECTIONERR, pAddr, (const char *)port_str, "");
-			LogMessage(CONNECTIONERR, pAddr, (const char *)port_str, "");
+			ConcoleMessage(CONNECTIONERR, pAddr, port_str.cptr(), "");
+			LogMessage(CONNECTIONERR, pAddr, port_str.cptr(), "");
 			ok = 0;
 		}
 	}
@@ -733,7 +733,7 @@ int main()
 	}
 	while(cmd.CmpNC("quit") != 0) {
 		cmd = 0;
-		if(price_chkr.GetRequest(cmd = 0) > 0) {
+		if(price_chkr.GetRequest(cmd.Z()) > 0) {
 		//cmd.Cat("<request id=10.10.10.11:1030 type=sg15>2100000000141</request>");
 			if(price_chkr.GetGoodInfo(cmd, info) != 0)
 				price_chkr.PutAnswer(info);

@@ -669,7 +669,7 @@ int SLAPI PPViewQuot::InitIteration()
 	int    idx = 1;
 	TempQuotTbl * t = P_TempTbl;
 	TempQuotTbl::Key1 k1; /*k1_*/;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	THROW_MEM(P_IterQuery = new BExtQuery(t, idx));
 	P_IterQuery->select(t->GoodsID, t->LocID, t->ArticleID, t->PeriodIdx,
@@ -721,7 +721,7 @@ public:
 	SLAPI  VQuotCache() : TSArray <VQuotEntry>()
 	{
 		MaxQuotPos = 0;
-		ValPool.add("$", 0); // zero index - is empty string
+		ValPool.add("$"); // zero index - is empty string
 	}
 	int    SLAPI Add(const TempQuotTbl::Rec *, uint quotPos);
 	// @v8.1.1 @unused int    SLAPI PrepareForWriting();

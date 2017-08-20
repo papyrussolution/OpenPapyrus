@@ -5752,9 +5752,9 @@ static int xmlSchemaParseWildcardNs(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr sc
 						break;
 					tmp = tmp->next;
 				}
-				if(tmp == NULL) {
+				if(!tmp) {
 					tmp = xmlSchemaNewWildcardNsConstraint(ctxt);
-					if(tmp == NULL) {
+					if(!tmp) {
 						SAlloc::F(nsItem);
 						return -1;
 					}
@@ -11575,7 +11575,7 @@ static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt,
 	last = NULL;
 	while(cur) {
 		tmp = xmlSchemaNewWildcardNsConstraint(ctxt);
-		if(tmp == NULL)
+		if(!tmp)
 			return -1;
 		tmp->value = cur->value;
 		if(last == NULL)
@@ -11678,7 +11678,7 @@ static int xmlSchemaUnionWildcards(xmlSchemaParserCtxtPtr ctxt, xmlSchemaWildcar
 			}
 			if(!found) {
 				tmp = xmlSchemaNewWildcardNsConstraint(ctxt);
-				if(tmp == NULL)
+				if(!tmp)
 					return -1;
 				tmp->value = cur->value;
 				tmp->next = completeWild->nsSet;

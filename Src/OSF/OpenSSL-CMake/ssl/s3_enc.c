@@ -316,7 +316,7 @@ void ssl3_cleanup_key_block(SSL * s)
 int ssl3_init_finished_mac(SSL * s)
 {
 	BIO * buf = BIO_new(BIO_s_mem());
-	if(buf == NULL) {
+	if(!buf) {
 		SSLerr(SSL_F_SSL3_INIT_FINISHED_MAC, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

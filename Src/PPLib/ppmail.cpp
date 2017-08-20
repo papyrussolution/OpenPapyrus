@@ -809,12 +809,12 @@ int FASTCALL PPMailMsg::IsField(int fldId) const
 const char * FASTCALL PPMailMsg::GetField(int fldId) const
 {
 	switch(fldId) {
-		case fldFrom: return From.NotEmpty() ? (const char *)From : Zero;
-		case fldTo:   return To.NotEmpty() ? (const char *)To : Zero;
-		case fldCc:   return Cc.NotEmpty() ? (const char *)Cc : Zero;
-		case fldSubj: return Subj.NotEmpty() ? (const char *)Subj : Zero;
-		case fldBoundary: return Boundary.NotEmpty() ? (const char *)Boundary : Zero;
-		case fldText: return Text.NotEmpty() ? (const char *)Text : Zero;
+		case fldFrom: return From.NotEmpty() ? From.cptr() : Zero;
+		case fldTo:   return To.NotEmpty() ? To.cptr() : Zero;
+		case fldCc:   return Cc.NotEmpty() ? Cc.cptr() : Zero;
+		case fldSubj: return Subj.NotEmpty() ? Subj.cptr() : Zero;
+		case fldBoundary: return Boundary.NotEmpty() ? Boundary.cptr() : Zero;
+		case fldText: return Text.NotEmpty() ? Text.cptr() : Zero;
 	}
 	return 0;
 }
@@ -1446,7 +1446,7 @@ int SLAPI PPMailPop3::GetMsg(long msgN, PPMailMsg * pMsg, const char * pFileName
 			}
 			line_buf = temp_buf;
 		}
-		fputs((const char *)line_buf, p_out);
+		fputs(line_buf.cptr(), p_out);
 		fputc('\n', p_out);
 	} while(1);
 	CATCHZOK

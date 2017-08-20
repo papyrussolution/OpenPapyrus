@@ -1867,7 +1867,7 @@ private:
 FileFormatRegBase::FileFormatRegBase() : SArray(sizeof(Entry))
 {
 	MaxSignSize = 0;
-	Pool.add("$", 0); // zero index - is empty string
+	Pool.add("$"); // zero index - is empty string
 }
 
 FileFormatRegBase::~FileFormatRegBase()

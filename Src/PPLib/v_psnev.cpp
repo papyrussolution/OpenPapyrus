@@ -151,7 +151,7 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 	TempPersonEventTbl * p_temp_grp_tbl = 0;
 	PersonEventTbl * p_temp_tbl = 0;
 
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pFilt));
 	save_filt = Filt;
 	filt_saved = 1;
@@ -252,7 +252,7 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewPersonEvent::InitIteration()
 {
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	int    ok = 1;
 	int    idx = 0;
 	DBQ  * dbq = 0;

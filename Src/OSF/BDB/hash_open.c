@@ -443,11 +443,11 @@ int __ham_new_subdb(DB * mdbp, DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 		goto err;
 err:
 	/* Now put the master-metadata page back. */
-	if(mmeta != NULL && (t_ret = __memp_fput(mpf, ip, mmeta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, mmeta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, mmlock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(meta != NULL && (t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
+	if((t_ret = __memp_fput(mpf, ip, meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;

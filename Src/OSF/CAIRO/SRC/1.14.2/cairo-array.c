@@ -70,7 +70,7 @@ void FASTCALL _cairo_array_init(cairo_array_t * array, uint element_size)
  **/
 void FASTCALL _cairo_array_fini(cairo_array_t * array)
 {
-	SAlloc::F(array->elements);
+	ZFREE(array->elements);
 }
 
 /**
@@ -327,7 +327,7 @@ void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
 		cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
 		while(num_slots--) {
 			cairo_user_data_slot_t * s = &slots[num_slots];
-			if(s->user_data != NULL && s->destroy != NULL)
+			if(s->user_data && s->destroy)
 				s->destroy(s->user_data);
 		}
 	}
@@ -433,11 +433,10 @@ cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const 
 void _cairo_user_data_array_foreach(cairo_user_data_array_t * array,
     void (* func)(const void * key, void * elt, void * closure), void * closure)
 {
-	int i;
-	int num_slots = array->num_elements;
+	const int num_slots = array->num_elements;
 	cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
-	for(i = 0; i < num_slots; i++) {
-		if(slots[i].user_data != NULL)
+	for(int i = 0; i < num_slots; i++) {
+		if(slots[i].user_data)
 			func(slots[i].key, slots[i].user_data, closure);
 	}
 }

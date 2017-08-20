@@ -1735,8 +1735,8 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
-	ZDELETE(P_IterQuery);
-	ZDELETE(P_IterOrderQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
+	BExtQuery::ZDelete(&P_IterOrderQuery);
 	PrevOuterID = -2;
 	CurOuterID  = -1;
 	CurIterOrd = ord;

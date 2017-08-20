@@ -58,15 +58,13 @@ X509_STORE * TS_VERIFY_CTX_set_store(TS_VERIFY_CTX * ctx, X509_STORE * s)
 	return ctx->store;
 }
 
-STACK_OF(X509) *TS_VERIFY_CTS_set_certs(TS_VERIFY_CTX *ctx,
-    STACK_OF(X509) *certs)
+STACK_OF(X509) *TS_VERIFY_CTS_set_certs(TS_VERIFY_CTX *ctx, STACK_OF(X509) *certs)
 {
 	ctx->certs = certs;
 	return ctx->certs;
 }
 
-uchar * TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX * ctx,
-    uchar * hexstr, long len)
+uchar * TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX * ctx, uchar * hexstr, long len)
 {
 	ctx->imprint = hexstr;
 	ctx->imprint_len = len;
@@ -75,24 +73,17 @@ uchar * TS_VERIFY_CTX_set_imprint(TS_VERIFY_CTX * ctx,
 
 void TS_VERIFY_CTX_cleanup(TS_VERIFY_CTX * ctx)
 {
-	if(!ctx)
-		return;
-
-	X509_STORE_free(ctx->store);
-	sk_X509_pop_free(ctx->certs, X509_free);
-
-	ASN1_OBJECT_free(ctx->policy);
-
-	X509_ALGOR_free(ctx->md_alg);
-	OPENSSL_free(ctx->imprint);
-
-	BIO_free_all(ctx->data);
-
-	ASN1_INTEGER_free(ctx->nonce);
-
-	GENERAL_NAME_free(ctx->tsa_name);
-
-	TS_VERIFY_CTX_init(ctx);
+	if(ctx) {
+		X509_STORE_free(ctx->store);
+		sk_X509_pop_free(ctx->certs, X509_free);
+		ASN1_OBJECT_free(ctx->policy);
+		X509_ALGOR_free(ctx->md_alg);
+		OPENSSL_free(ctx->imprint);
+		BIO_free_all(ctx->data);
+		ASN1_INTEGER_free(ctx->nonce);
+		GENERAL_NAME_free(ctx->tsa_name);
+		TS_VERIFY_CTX_init(ctx);
+	}
 }
 
 TS_VERIFY_CTX * TS_REQ_to_TS_VERIFY_CTX(TS_REQ * req, TS_VERIFY_CTX * ctx)
@@ -103,22 +94,18 @@ TS_VERIFY_CTX * TS_REQ_to_TS_VERIFY_CTX(TS_REQ * req, TS_VERIFY_CTX * ctx)
 	X509_ALGOR * md_alg;
 	ASN1_OCTET_STRING * msg;
 	const ASN1_INTEGER * nonce;
-
 	OPENSSL_assert(req != NULL);
 	if(ret)
 		TS_VERIFY_CTX_cleanup(ret);
 	else if((ret = TS_VERIFY_CTX_new()) == NULL)
 		return NULL;
-
 	ret->flags = TS_VFY_ALL_IMPRINT & ~(TS_VFY_TSA_NAME | TS_VFY_SIGNATURE);
-
 	if((policy = req->policy_id) != NULL) {
 		if((ret->policy = OBJ_dup(policy)) == NULL)
 			goto err;
 	}
 	else
 		ret->flags &= ~TS_VFY_POLICY;
-
 	imprint = req->msg_imprint;
 	md_alg = imprint->hash_algo;
 	if((ret->md_alg = X509_ALGOR_dup(md_alg)) == NULL)

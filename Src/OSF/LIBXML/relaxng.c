@@ -777,7 +777,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGNewDefine(xmlRelaxNGParserCtxtPtr ctxt, xml
 		    ctxt->defMax *
 		    sizeof
 		    (xmlRelaxNGDefinePtr));
-		if(tmp == NULL) {
+		if(!tmp) {
 			xmlRngPErrMemory(ctxt, "allocating define\n");
 			return 0;
 		}
@@ -902,7 +902,7 @@ static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates
 		if(states->nbState >= states->maxState) {
 			int size = states->maxState * 2;
 			xmlRelaxNGValidStatePtr * tmp = (xmlRelaxNGValidStatePtr*)SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidStatePtr));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "adding states\n");
 				return -1;
 			}
@@ -935,7 +935,7 @@ static int xmlRelaxNGAddStates(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStatesPtr 
 		if(states->nbState >= states->maxState) {
 			int size = states->maxState * 2;
 			xmlRelaxNGValidStatePtr * tmp = (xmlRelaxNGValidStatePtr*)SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidStatePtr));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "adding states\n");
 				return -1;
 			}
@@ -975,7 +975,7 @@ static void FASTCALL xmlRelaxNGFreeStates(xmlRelaxNGValidCtxt * ctxt, xmlRelaxNG
 		else if((ctxt) && (ctxt->freeStatesNr >= ctxt->freeStatesMax)) {
 			xmlRelaxNGStatesPtr * tmp;
 			tmp = (xmlRelaxNGStatesPtr*)SAlloc::R(ctxt->freeStates, 2 * ctxt->freeStatesMax * sizeof(xmlRelaxNGStatesPtr));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "storing states\n");
 				SAlloc::F(states->tabState);
 				SAlloc::F(states);
@@ -1066,7 +1066,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 		}
 		else if(ret->maxAttrs < nbAttrs) {
 			xmlAttrPtr * tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, nbAttrs * sizeof(xmlAttrPtr));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				return ret;
 			}
@@ -1143,7 +1143,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 
 			tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, state->maxAttrs *
 			    sizeof(xmlAttrPtr));
-			if(tmp == NULL) {
+			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				ret->nbAttrs = 0;
 				return ret;
@@ -4457,7 +4457,7 @@ static xmlRelaxNGDefinePtr xmlRelaxNGParsePattern(xmlRelaxNGParserCtxtPtr ctxt, 
 						}
 					}
 					tmp = xmlRelaxNGNewDefine(ctxt, node);
-					if(tmp == NULL)
+					if(!tmp)
 						return (def);
 					tmp->type = XML_RELAXNG_TEXT;
 					tmp->next = def->content;
@@ -5739,7 +5739,7 @@ static xmlRelaxNGGrammarPtr xmlRelaxNGParseGrammar(xmlRelaxNGParserCtxtPtr ctxt,
 	ret->parent = ctxt->grammar;
 	if(ctxt->grammar != NULL) {
 		tmp = ctxt->grammar->children;
-		if(tmp == NULL) {
+		if(!tmp) {
 			ctxt->grammar->children = ret;
 		}
 		else {
@@ -5830,7 +5830,7 @@ static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxtPtr ctxt, xmlNo
 		ret->parent = ctxt->grammar;
 		if(ctxt->grammar != NULL) {
 			tmp = ctxt->grammar->children;
-			if(tmp == NULL) {
+			if(!tmp) {
 				ctxt->grammar->children = ret;
 			}
 			else {
@@ -6650,19 +6650,16 @@ void xmlRelaxNGSetParserErrors(xmlRelaxNGParserCtxtPtr ctxt,
  *
  * Returns -1 in case of failure, 0 otherwise.
  */
-int xmlRelaxNGGetParserErrors(xmlRelaxNGParserCtxtPtr ctxt,
-    xmlRelaxNGValidityErrorFunc * err,
-    xmlRelaxNGValidityWarningFunc * warn, void ** ctx)
+int xmlRelaxNGGetParserErrors(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGValidityErrorFunc * err, xmlRelaxNGValidityWarningFunc * warn, void ** ctx)
 {
 	if(!ctxt)
 		return -1;
-	if(err != NULL)
-		*err = ctxt->error;
-	if(warn != NULL)
-		*warn = ctxt->warning;
-	if(ctx != NULL)
-		*ctx = ctxt->userData;
-	return 0;
+	else {
+		ASSIGN_PTR(err, ctxt->error);
+		ASSIGN_PTR(warn, ctxt->warning);
+		ASSIGN_PTR(ctx, ctxt->userData);
+		return 0;
+	}
 }
 
 /**
@@ -6673,9 +6670,7 @@ int xmlRelaxNGGetParserErrors(xmlRelaxNGParserCtxtPtr ctxt,
  *
  * Set the callback functions used to handle errors for a parsing context
  */
-void xmlRelaxNGSetParserStructuredErrors(xmlRelaxNGParserCtxtPtr ctxt,
-    xmlStructuredErrorFunc serror,
-    void * ctx)
+void xmlRelaxNGSetParserStructuredErrors(xmlRelaxNGParserCtxtPtr ctxt, xmlStructuredErrorFunc serror, void * ctx)
 {
 	if(!ctxt)
 		return;
@@ -8295,7 +8290,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt,
 				if(cur->ns != NULL) {
 					tmp = xmlHashLookup2(partitions->triage, cur->name,
 					    cur->ns->href);
-					if(tmp == NULL)
+					if(!tmp)
 						tmp = xmlHashLookup2(partitions->triage,
 						    BAD_CAST "#any",
 						    cur->ns->href);
@@ -8304,13 +8299,13 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt,
 					tmp =
 					    xmlHashLookup2(partitions->triage, cur->name,
 					    NULL);
-				if(tmp == NULL)
+				if(!tmp)
 					tmp =
 					    xmlHashLookup2(partitions->triage, BAD_CAST "#any",
 					    NULL);
 			}
 
-			if(tmp == NULL) {
+			if(!tmp) {
 				i = nbgroups;
 			}
 			else {

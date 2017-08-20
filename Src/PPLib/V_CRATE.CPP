@@ -61,7 +61,7 @@ int SLAPI PPViewCurRate::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		ZDELETE(P_IterQuery);
+		BExtQuery::ZDelete(&P_IterQuery);
 	}
 	else
 		ok = 0;
@@ -76,7 +76,7 @@ int SLAPI PPViewCurRate::InitIteration()
 		CurrencyRateTbl::Key0 k0;
 		CurrencyRateTbl::Key1 k1;
 	} k, k_;
-	ZDELETE(P_IterQuery);
+	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.RateTypeID) {
 		idx = 0;
 		k.k0.RateTypeID = Filt.RateTypeID;

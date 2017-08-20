@@ -68,7 +68,7 @@ struct _cairo_clip {
 
 cairo_private cairo_clip_t * _cairo_clip_create(void);
 cairo_private cairo_clip_path_t * FASTCALL _cairo_clip_path_reference(cairo_clip_path_t * clip_path);
-cairo_private void _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
+cairo_private void FASTCALL _cairo_clip_path_destroy(cairo_clip_path_t * clip_path);
 cairo_private void FASTCALL _cairo_clip_destroy(cairo_clip_t * clip);
 cairo_private extern const cairo_clip_t __cairo_clip_all;
 cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy(const cairo_clip_t * clip);
@@ -95,8 +95,8 @@ cairo_private cairo_region_t * FASTCALL _cairo_clip_get_region(const cairo_clip_
 cairo_private cairo_bool_t FASTCALL _cairo_clip_is_region(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_reduce_to_rectangle(const cairo_clip_t * clip, const CairoIRect * r);
 cairo_private cairo_clip_t * _cairo_clip_reduce_for_composite(const cairo_clip_t * clip, cairo_composite_rectangles_t * extents);
-cairo_private cairo_bool_t _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const CairoIRect * rect);
-cairo_private cairo_bool_t _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box);
+cairo_private cairo_bool_t FASTCALL _cairo_clip_contains_rectangle(const cairo_clip_t * clip, const CairoIRect * rect);
+cairo_private cairo_bool_t FASTCALL _cairo_clip_contains_box(const cairo_clip_t * clip, const cairo_box_t * box);
 cairo_private cairo_bool_t _cairo_clip_contains_extents(const cairo_clip_t * clip, const cairo_composite_rectangles_t * extents);
 cairo_private cairo_rectangle_list_t * _cairo_clip_copy_rectangle_list(cairo_clip_t * clip, cairo_gstate_t * gstate);
 cairo_private cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t status);

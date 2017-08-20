@@ -32,7 +32,7 @@ static int bnrand(int pseudorand, BIGNUM * rnd, int bits, int top, int bottom)
 	mask = 0xff << (bit + 1);
 
 	buf = (uchar*)OPENSSL_malloc(bytes);
-	if(buf == NULL) {
+	if(!buf) {
 		BNerr(BN_F_BNRAND, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

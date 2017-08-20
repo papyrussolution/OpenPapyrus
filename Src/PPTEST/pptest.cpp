@@ -817,7 +817,6 @@ int SLAPI GenerateGoodsBills()
 	GoodsOpAnalyzeFilt goods_flt;
 	GoodsOpAnalyzeViewItem goods_item;
 	PPIDArray goods_list;
-	PPObjBill bobj(0);
 	int count = 0;    //кол-во док-тов в выборке по фильру по товарам
 	// для массива контрагентов
 	PPID acc_sheet_id = 0, acc_sheet2_id = 0; //таблица статей
@@ -971,12 +970,12 @@ int SLAPI GenerateGoodsBills()
 							//знак документа
 							sign = (op_type == PPOPT_GOODSRECEIPT) ? 1 : -1;
 							//добавление товарной строки
-							THROW(ilti.Setup(goods_id, sign, qtty, cost, price));
-							bobj.ConvertILTI(&ilti, &bpack, 0, 0, 0);
+							ilti.Setup(goods_id, sign, qtty, cost, price);
+							BillObj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
 							THROW(bpack.InitAmounts());
 						}
 						//добавление документа
-						THROW(bobj.TurnPacket(&bpack, 0));
+						THROW(BillObj->TurnPacket(&bpack, 0));
 						//logger.Log("Bill was added");
 
 						op_id = 0;
