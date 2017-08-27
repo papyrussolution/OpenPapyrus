@@ -367,29 +367,27 @@ char * X509V3_get_string(X509V3_CTX * ctx, const char * name, const char * secti
 STACK_OF(CONF_VALUE) *X509V3_get_section(X509V3_CTX *ctx, const char * section)
 {
 	if(!ctx->db || !ctx->db_meth || !ctx->db_meth->get_section) {
-		X509V3err(X509V3_F_X509V3_GET_SECTION,
-		    X509V3_R_OPERATION_NOT_DEFINED);
+		X509V3err(X509V3_F_X509V3_GET_SECTION, X509V3_R_OPERATION_NOT_DEFINED);
 		return NULL;
 	}
-	if(ctx->db_meth->get_section)
-		return ctx->db_meth->get_section(ctx->db, section);
-	return NULL;
+	else 
+		return ctx->db_meth->get_section ? ctx->db_meth->get_section(ctx->db, section) : 0;
 }
 
 void X509V3_string_free(X509V3_CTX * ctx, char * str)
 {
-	if(!str)
-		return;
-	if(ctx->db_meth->free_string)
-		ctx->db_meth->free_string(ctx->db, str);
+	if(str) {
+		if(ctx->db_meth->free_string)
+			ctx->db_meth->free_string(ctx->db, str);
+	}
 }
 
 void X509V3_section_free(X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * section)
 {
-	if(!section)
-		return;
-	if(ctx->db_meth->free_section)
-		ctx->db_meth->free_section(ctx->db, section);
+	if(section) {
+		if(ctx->db_meth->free_section)
+			ctx->db_meth->free_section(ctx->db, section);
+	}
 }
 
 static char * nconf_get_string(void * db, const char * section, const char * value)
@@ -415,8 +413,7 @@ void X509V3_set_nconf(X509V3_CTX * ctx, CONF * conf)
 	ctx->db = conf;
 }
 
-void X509V3_set_ctx(X509V3_CTX * ctx, X509 * issuer, X509 * subj, X509_REQ * req,
-    X509_CRL * crl, int flags)
+void X509V3_set_ctx(X509V3_CTX * ctx, X509 * issuer, X509 * subj, X509_REQ * req, X509_CRL * crl, int flags)
 {
 	ctx->issuer_cert = issuer;
 	ctx->subject_cert = subj;
@@ -427,8 +424,7 @@ void X509V3_set_ctx(X509V3_CTX * ctx, X509 * issuer, X509 * subj, X509_REQ * req
 
 /* Old conf compatibility functions */
 
-X509_EXTENSION * X509V3_EXT_conf(LHASH_OF(CONF_VALUE) * conf, X509V3_CTX * ctx,
-    const char * name, const char * value)
+X509_EXTENSION * X509V3_EXT_conf(LHASH_OF(CONF_VALUE) * conf, X509V3_CTX * ctx, const char * name, const char * value)
 {
 	CONF ctmp;
 	CONF_set_nconf(&ctmp, conf);

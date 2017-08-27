@@ -1128,8 +1128,9 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_TTNINFORMBREG,    "TTNInformBReg" },
 	{ PPEDIOP_EGAIS_ACTREJECT,        "ActReject" },
 	{ PPEDIOP_EGAIS_ACTUSING,         "ActUsing" },
-	{ PPEDIOP_EGAIS_ACTINVENTORYPARTIAL,    "ActInventoryPartial" },
-	{ PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, "ActInventoryInformBReg" },
+	{ PPEDIOP_EGAIS_ACTINVENTORYPARTIAL,     "ActInventoryPartial" },
+	{ PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG,  "ActInventoryInformBReg" },
+	{ PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG, "ActInventoryInformF2Reg" }, // @v9.7.12
 	{ PPEDIOP_EGAIS_ACTINVENTORY,     "ActInventory" },
 	{ PPEDIOP_EGAIS_QUERYAP,          "QueryAP" },
 	{ PPEDIOP_EGAIS_QUERYSSP,         "QuerySSP" },
@@ -1203,8 +1204,10 @@ int FASTCALL PPEgaisProcessor::RecognizeDocTypeTag(const char * pTag)
 					doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
 				else if(tag.CmpNC("ReplyAP") == 0)
 					doc_type = PPEDIOP_EGAIS_REPLYAP;
-				else if(tag.CmpNC("INVENTORYREGINFO") == 0)
-					doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
+				else if(tag.CmpNC("INVENTORYREGINFO") == 0) {
+					// @v9.7.12 (version 1) doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
+					doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG; // @v9.7.12 (version 2)
+				}
 				else if(tag.CmpNC("WayBillTicket") == 0)
 					doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
 			}
@@ -3290,16 +3293,18 @@ int SLAPI PPEgaisProcessor::Read_ActInventoryInformBReg(xmlNode * pFirstNode, PP
 						for(xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 							if(SXml::GetContentByName(p_p, "Identity", temp_buf))
 								p_item->P = temp_buf.ToLong();
-							else if(SXml::GetContentByName(p_p, "InformARegId", temp_buf))
-								STRNSCPY(p_item->AIdent, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-							else if(SXml::IsName(p_p, "InformB")) {
+
+							else if(SXml::GetContentByName(p_p, "InformARegId", temp_buf) || SXml::GetContentByName(p_p, "InformF1RegId", temp_buf)) {
+								temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_item->AIdent, sizeof(p_item->AIdent));
+							}
+							else if(SXml::IsName(p_p, "InformB") || SXml::IsName(p_p, "InformF2")) {
 								for(xmlNode * p_b = p_p->children; p_b; p_b = p_b->next) {
-									if(SXml::IsName(p_b, "InformBItem")) {
+									if(SXml::IsName(p_b, "InformBItem") || SXml::IsName(p_b, "InformF2Item")) {
 										InformBItem bitem;
 										for(xmlNode * p_i = p_b->children; p_i; p_i = p_i->next) {
 											if(SXml::GetContentByName(p_i, "Identity", temp_buf))
 												bitem.P = temp_buf.ToLong();
-											else if(SXml::GetContentByName(p_i, "BRegId", temp_buf))
+											else if(SXml::GetContentByName(p_i, "BRegId", temp_buf) || SXml::GetContentByName(p_i, "F2RegId", temp_buf))
 												STRNSCPY(bitem.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 										}
 										THROW_SL(p_item->BItems.insert(&bitem));
@@ -5549,7 +5554,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 							ok = 1;
 						}
 					}
-					else if(doc_type == PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG) {
+					else if(oneof2(doc_type, PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_ActInventoryInformBReg(p_nd->children, p_new_pack));
 						if(rs > 0) {

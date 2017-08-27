@@ -3746,7 +3746,6 @@ static int ssl3_set_req_cert_type(CERT * c, const uchar * p, size_t len)
 int ssl3_shutdown(SSL * s)
 {
 	int ret;
-
 	/*
 	 * Don't do anything much if we have not done the handshake or we don't
 	 * want to send messages :-)

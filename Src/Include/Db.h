@@ -3976,16 +3976,47 @@ public:
 	enum {
 		ofReadOnly = 0x0001 // Только для чтения //
 	};
-	struct Config {
-		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb);
+	class Config {
+	public:
 		void   Clear();
 
-		int    IdxType;    // BDbTable::idxtypXXX
-		long   Flags;      // BDbTable::cfXXX
-		uint32 DataChunk;  //
-		uint32 CacheSize;  // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
-		uint32 PageSize;   // @v9.6.4 Размер страницы данных (bytes). 0 - default
-		SString Name;      // Имя файла
+		int    IdxType;      // BDbTable::idxtypXXX
+		long   Flags;        // BDbTable::cfXXX
+		uint32 DataChunk;    //
+		uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
+		uint32 PageSize;     // @v9.6.4 Размер страницы данных (bytes). 0 - default
+		
+		uint32 HashNElem;    // @v9.7.12 Для хэш-таблиц: ожидаемый размер хэш-таблицы
+		uint32 HashFFactor;  // @v9.7.12 Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
+
+		SString Name;        // Имя файла
+	protected:
+		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb);
+	};
+	//
+	// Descr: Конфигурация таблицы с типом индекса HASH.
+	//
+	struct ConfigHash : public Config {
+		//
+		// Descr: Конструктор конфигурации таблицы с типом индекса HASH.
+		// Note: Экспериментально выяснилось, что аргументы nElem и ffactor улучшения производительности
+		//   не дают, и чаще сильно затормаживают работу (возможно, нужны дополнительные изыскания).
+		//
+		ConfigHash(const char * pName, long flags, uint32 pageSize, uint32 nElem = 0, uint32 ffactor = 0) :
+			Config(pName, idxtypHash, flags, pageSize, 0)
+		{
+			HashNElem = nElem;
+			HashFFactor = ffactor;
+		}
+	};
+	//
+	// Descr: Конфигурация таблицы с типом индекса BTREE.
+	//
+	struct ConfigBTree : public Config {
+		ConfigBTree(const char * pName, long flags, uint32 pageSize) : 
+			Config(pName, idxtypBTree, flags, pageSize, 0)
+		{
+		}
 	};
 	//
 	// Descr: Буфер данных для ключей и записей, вносимых и считываемых из таблиц.

@@ -195,9 +195,7 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
  * an optional function along with a void * argument.
  */
 
-static int traverse_string(const uchar * p, int len, int inform,
-    int (* rfunc)(ulong value, void * in),
-    void * arg)
+static int traverse_string(const uchar * p, int len, int inform, int (* rfunc)(ulong value, void * in), void * arg)
 {
 	ulong value;
 	int ret;
@@ -323,11 +321,9 @@ static int cpy_univ(ulong value, void * arg)
 
 static int cpy_utf8(ulong value, void * arg)
 {
-	uchar ** p;
-	int ret;
-	p = (uchar**)arg;
-	/* We already know there is enough room so pass 0xff as the length */
-	ret = UTF8_putc(*p, 0xff, value);
+	uchar ** p = (uchar**)arg;
+	// We already know there is enough room so pass 0xff as the length 
+	int ret = UTF8_putc(*p, 0xff, value);
 	*p += ret;
 	return 1;
 }

@@ -18,17 +18,14 @@
  */
 int __lock_failchk(ENV * env)
 {
-	DB_ENV * dbenv;
 	DB_LOCKER * lip;
-	DB_LOCKREGION * lrp;
 	DB_LOCKREQ request;
-	DB_LOCKTAB * lt;
 	uint32 i;
 	int ret;
 	char buf[DB_THREADID_STRLEN];
-	dbenv = env->dbenv;
-	lt = env->lk_handle;
-	lrp = (DB_LOCKREGION *)lt->reginfo.primary;
+	DB_ENV * dbenv = env->dbenv;
+	DB_LOCKTAB * lt = env->lk_handle;
+	DB_LOCKREGION * lrp = (DB_LOCKREGION *)lt->reginfo.primary;
 retry:
 	LOCK_LOCKERS(env, lrp);
 	ret = 0;

@@ -632,11 +632,12 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 				DisableClusterItem(CTL_BILLFLT_FLAGS, 1, 1);
 		}
 		v = 0;
-		DisableClusterItem(CTL_BILLFLT_FLAGS, 4, Data.Bbt != bbtGoodsBills);
+		DisableClusterItem(CTL_BILLFLT_FLAGS, 3, Data.Bbt != bbtGoodsBills); // @v9.7.12 @fix 4-->3
 		SETFLAG(v, 0x01, Data.Flags & BillFilt::fSetupNewBill);
 		SETFLAG(v, 0x02, Data.CreatorID == cur_user_id);
 		SETFLAG(v, 0x04, Data.Flags & BillFilt::fShowWoAgent);
 		SETFLAG(v, 0x08, Data.Flags & BillFilt::fDiscountOnly);
+		SETFLAG(v, 0x10, Data.Flags & BillFilt::fCcPrintedOnly); // @v9.7.12
 		setCtrlData(CTL_BILLFLT_FLAGS, &v);
 		setWL(BIN(Data.Flags & BillFilt::fLabelOnly));
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 0, BillFilt::ordByDate);
@@ -691,7 +692,8 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 		Data.CreatorID = 0;
 	SETFLAG(Data.Flags, BillFilt::fShowWoAgent, v & 0x04);
 	SETFLAG(Data.Flags, BillFilt::fLabelOnly, getWL());
-	SETFLAG(Data.Flags, BillFilt::fDiscountOnly, v&0x08);
+	SETFLAG(Data.Flags, BillFilt::fDiscountOnly, v & 0x08);
+	SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v & 0x10); // @v9.7.12
 	sel = CTL_BILLFLT_PERIOD;
 	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, 1));
 	Data.Period = temp_period;
@@ -1088,7 +1090,7 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 	THROW(!(Filt.Flags & BillFilt::fUnshippedOnly) || !(f & BILLF_SHIPPED));
 	THROW(!(Filt.Flags & BillFilt::fShippedOnly)   || (f & BILLF_SHIPPED));
 	THROW(!(Filt.Flags & BillFilt::fDiscountOnly)  || (f & BILLF_TOTALDISCOUNT));
-
+	THROW(!(Filt.Flags & BillFilt::fCcPrintedOnly) || (f & BILLF_CHECK)); // @v9.7.12
 	if(Filt.Ft_STax > 0)
 		{ THROW(f & BILLF_RMVEXCISE); }
 	else if(Filt.Ft_STax < 0)
@@ -2887,6 +2889,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_NEEDPAYMENT,   BIN(Filt.Flags & BillFilt::fPaymNeeded));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_WHITELABEL,    BIN(Filt.Flags & BillFilt::fLabelOnly));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_TOTALDISCOUNT, BIN(Filt.Flags & BillFilt::fDiscountOnly));
+				dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK,         BIN(Filt.Flags & BillFilt::fCcPrintedOnly)); // @v9.7.12
 			}
 			q->where(*dbq);
 			//

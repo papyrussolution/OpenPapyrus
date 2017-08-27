@@ -1,6 +1,5 @@
 // TV.H
 // @codepage UTF-8
-// Win32
 //
 #ifndef __TV_H
 #define __TV_H
@@ -3537,17 +3536,18 @@ public:
 	int    CheckActive() const;
 private:
 	DECL_HANDLE_EVENT;
-	void   DrawListItem(TDrawItemData * pDrawItem);
+	// @v9.7.12 (replaced with DrawListItem2) void   DrawListItem(TDrawItemData * pDrawItem);
+	void   DrawListItem2(TDrawItemData * pDrawItem);
 
 	enum {
 		dummyFirst = 1,
-		brSel,
-		brOdd,
-		brBkgnd,
+		// @v9.7.12 brSel,
+		// @v9.7.12 brOdd,
+		// @v9.7.12 brBkgnd,
 		clrFocus,
 		clrOdd,
 		clrBkgnd,
-		font
+		// @v9.7.12 font
 	};
 
 	int    IsVisible;
@@ -4798,7 +4798,7 @@ public:
 	//
 	// Descr: Обновляет данные, измененные вне диаграммы
 	//
-	int    UpdateData();
+	void   UpdateData();
 	int    Locate(TPoint p, Loc * pLoc) const;
 	int    RestoreParameters(STimeChunkBrowser::Param & rParam);
 private:
@@ -4920,7 +4920,7 @@ private:
 	int    InvalidateResizeArea();
 	uint   GetBottomRowIdx(uint startIdx) const;
 	uint   GetScrollLimitY() const;
-	int    Scroll(int sbType, int sbEvent, int thumbPos);
+	void   Scroll(int sbType, int sbEvent, int thumbPos);
 	//
 	// ARG(mode IN): 1 - start, 0 - end, 2 - continue
 	// Returns:
@@ -4933,7 +4933,7 @@ private:
 	void   SetupScroll();
 	int    GetChunkText(long chunkId, SString & rBuf);
 	void   RegisterMouseTracking();
-	int    FASTCALL GetStartPageDate(LDATE * pDt);
+	void   FASTCALL GetStartPageDate(LDATE * pDt);
 	const  RowState & FASTCALL GetRowState(long id) const;
 	int    SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH * pBrush);
 	int    SaveParameters();

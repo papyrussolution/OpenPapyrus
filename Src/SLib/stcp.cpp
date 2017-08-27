@@ -47,6 +47,24 @@ SLAPI InetAddr::InetAddr()
 	Port = 0;
 }
 
+SLAPI InetAddr::InetAddr(const InetAddr & rS)
+{
+	Copy(rS);
+}
+
+InetAddr & FASTCALL InetAddr::operator = (const InetAddr & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+void FASTCALL InetAddr::Copy(const InetAddr & rS)
+{
+	V4 = rS.V4;
+	HostName = rS.HostName;
+	Port = rS.Port;
+}
+
 InetAddr & SLAPI InetAddr::Clear()
 {
 	V4 = 0;
@@ -855,6 +873,26 @@ InetUrl::InetUrl(const char * pUrl) : InetAddr()
 	Parse(pUrl);
 }
 
+InetUrl::InetUrl(const InetUrl & rS)
+{
+	Copy(rS);
+}
+
+InetUrl & FASTCALL InetUrl::operator = (const InetUrl & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+void FASTCALL InetUrl::Copy(const InetUrl & rS)
+{
+	InetAddr::Copy(rS);
+	Protocol = rS.Protocol;
+	TermList = rS.TermList;
+	Org = rS.Org;
+	State = rS.State;
+}
+
 long InetUrl::GetState() const
 {
 	return State;
@@ -944,55 +982,116 @@ int InetUrl::Parse(const char * pUrl)
 	// Divisors: :, :/, ://, :\, :\\, /, \, ?, #, @
 
 	int    ok = 1;
+	SString _url = pUrl;
 	Clear();
-	if(isempty(pUrl)) {
-		ok = -1;
+	_url.Strip();
+	while(oneof2(_url.C(0), ' ', '\t'))
+		_url.ShiftLeft();
+	if(_url.C(0) == '\"') {
+		_url.ShiftLeft();
+		while(oneof2(_url.C(0), ' ', '\t'))
+			_url.ShiftLeft();
+		uint qp = 0;
+		if(_url.StrChr('\"', &qp))
+			_url.Trim(qp).Strip();
+	}
+	if(_url.NotEmptyS()) {
+		SString temp_buf;
+		int    _done = 0;
+		{
+			//
+			// Сначала разберем специальные случаи, которые не обрабатываются функцией UriParseUri
+			// Note:
+			//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
+			//   вроде \\.\COM1
+			//
+			if(_url[1] == ':' && IsLetterASCII(_url[0])) {
+				// Путь файловой системы
+				Protocol = GetSchemeId("file");
+				TermList.Add(cScheme, "file", 1);
+				TermList.Add(cPath, _url, 1);
+				State &= ~stEmpty;
+				_done = 1;
+			}
+			else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
+				// Путь файловой системы
+				Protocol = GetSchemeId("file");
+				TermList.Add(cScheme, "file", 1);
+				TermList.Add(cPath, _url, 1);
+				State &= ~stEmpty;
+				_done = 1;
+			}
+			else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
+				// Путь файловой системы
+				Protocol = GetSchemeId("file");
+				TermList.Add(cScheme, "file", 1);
+				TermList.Add(cPath, _url, 1);
+				State &= ~stEmpty;
+				_done = 1;
+			}
+			else if(_url.CmpPrefix("file:", 1) == 0 && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
+				// Путь файловой системы, начиная с _url[8]
+				Protocol = GetSchemeId("file");
+				TermList.Add(cScheme, "file", 1);
+				TermList.Add(cPath, _url+8, 1);
+				State &= ~stEmpty;
+				_done = 1;
+			}
+		}
+		if(!_done) {
+			UriParserState state;
+			UriUri uri;
+			state.P_Uri = &uri;
+			if(UriParseUri(&state, pUrl)) {
+				temp_buf.CopyFromN(uri.Scheme.P_First, uri.Scheme.Len());
+				if(temp_buf.NotEmpty()) {
+					Protocol = GetSchemeId(temp_buf);
+					TermList.Add(cScheme, temp_buf, 1);
+				}
+				temp_buf.CopyFromN(uri.UserInfo.P_First, uri.UserInfo.Len());
+				if(temp_buf.NotEmpty()) {
+					SString user_name, pw;
+					temp_buf.Divide(':', user_name, pw);
+					if(user_name.NotEmptyS())
+						TermList.Add(cUserName, user_name, 1);
+					if(pw.NotEmptyS())
+						TermList.Add(cPassword, pw, 1);
+				}
+				temp_buf.CopyFromN(uri.HostText.P_First, uri.HostText.Len());
+				if(temp_buf.NotEmpty())
+					TermList.Add(cHost, temp_buf, 1);
+				temp_buf.CopyFromN(uri.PortText.P_First, uri.PortText.Len());
+				if(temp_buf.NotEmpty())
+					TermList.Add(cPort, temp_buf, 1);
+				//temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
+				{
+					temp_buf.Z();
+					for(UriUri::PathSegment * p_pseg = uri.pathHead; p_pseg; p_pseg = p_pseg->next) {
+						if(temp_buf.NotEmpty())
+							temp_buf.CatChar('/');
+						temp_buf.CatN(p_pseg->text.P_First, p_pseg->text.Len());
+					}
+					if(temp_buf.NotEmpty())
+						TermList.Add(cPath, temp_buf, 1);
+				}
+				temp_buf.CopyFromN(uri.query.P_First, uri.query.Len());
+				if(temp_buf.NotEmpty())
+					TermList.Add(cQuery, temp_buf, 1);
+				temp_buf.CopyFromN(uri.fragment.P_First, uri.fragment.Len());
+				if(temp_buf.NotEmpty())
+					TermList.Add(cRef, temp_buf, 1);
+				State &= ~stEmpty;
+			}
+			else {
+				State |= stError;
+				ok = 0;
+			}
+			uri.Destroy();
+		}
 	}
 	else {
-		UriParserState state;
-		UriUri uri;
-		state.uri = &uri;
-		SString temp_buf;
-		if(UriParseUri(&state, pUrl)) {
-			temp_buf.CopyFromN(uri.scheme.first, (uri.scheme.afterLast-uri.scheme.first));
-			if(temp_buf.NotEmpty()) {
-				Protocol = GetSchemeId(temp_buf);
-				TermList.Add(cScheme, temp_buf, 1);
-			}
-			temp_buf.CopyFromN(uri.userInfo.first, (uri.userInfo.afterLast-uri.userInfo.first));
-			if(temp_buf.NotEmpty()) {
-				SString user_name, pw;
-				temp_buf.Divide(':', user_name, pw);
-				if(user_name.NotEmptyS())
-					TermList.Add(cUserName, user_name, 1);
-				if(pw.NotEmptyS())
-					TermList.Add(cPassword, pw, 1);
-			}
-			temp_buf.CopyFromN(uri.hostText.first, (uri.hostText.afterLast-uri.hostText.first));
-			if(temp_buf.NotEmpty())
-				TermList.Add(cHost, temp_buf, 1);
-			temp_buf.CopyFromN(uri.portText.first, (uri.portText.afterLast-uri.portText.first));
-			if(temp_buf.NotEmpty())
-				TermList.Add(cPort, temp_buf, 1);
-			//temp_buf = uri.pathHead ? uri.pathHead->text.first : 0;
-			if(uri.pathHead)
-				temp_buf.CopyFromN(uri.pathHead->text.first, (uri.pathHead->text.afterLast-uri.pathHead->text.first));
-			else
-				temp_buf = 0;
-			if(temp_buf.NotEmpty())
-				TermList.Add(cPath, temp_buf, 1);
-			temp_buf.CopyFromN(uri.query.first, (uri.query.afterLast-uri.query.first));
-			if(temp_buf.NotEmpty())
-				TermList.Add(cQuery, temp_buf, 1);
-			temp_buf.CopyFromN(uri.fragment.first, (uri.fragment.afterLast-uri.fragment.first));
-			if(temp_buf.NotEmpty())
-				TermList.Add(cRef, temp_buf, 1);
-		}
-		else {
-			State |= stError;
-			ok = 0;
-		}
-		UriFreeUriMembers(&uri);
+		State |= stEmpty;
+		ok = -1;
 	}
 	return ok;
 }
@@ -1681,7 +1780,7 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
 	int    ok = 1;
     SString ctype = pContentType;
     SString cname = pContentName;
-    if(!isempty(pFileName) && fileExists(pFileName)) {
+    if(fileExists(pFileName)) {
 		if(!cname.NotEmptyS()) {
             S_GUID u;
             u.Generate();
@@ -1837,6 +1936,26 @@ int ScURL::HttpPost(const char * pUrl, int mflags, HttpForm & rF, SFile * pReply
 	return ok;
 }
 
+int ScURL::HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * pReplyStream)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
+	{
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, (struct curl_httppost *)rForm.FH)));
+		THROW(SetupCbWrite(pReplyStream));
+		THROW(Execute());
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
 int ScURL::HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream)
 {
 	int    ok = 1;
@@ -1881,6 +2000,50 @@ int ScURL::HttpGet(const char * pUrl, int mflags, SFile * pReplyStream)
 	return ok;
 }
 
+int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream)
+{
+	int    ok = 1;
+	uint   flds_count = 0;
+	struct curl_slist * p_chunk = 0;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
+	{
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		THROW(SetCommonOptions(mflags, 0, 0))
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
+		THROW(SetupCbWrite(pReplyStream));
+		if(pHttpHeaderFields && pHttpHeaderFields->getCount()) {
+			SString fld_buf;
+			for(uint i = 0; i < pHttpHeaderFields->getCount(); i++) {
+				StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
+				temp_buf = item.Key;
+				if(temp_buf.NotEmptyS()) {
+					fld_buf.Z().Cat(temp_buf);
+					temp_buf = item.Val;
+					if(temp_buf.NotEmptyS()) {
+						fld_buf.CatDiv(':', 2);
+						fld_buf.Cat(temp_buf);
+					}
+					else
+						fld_buf.CatChar(':');
+					p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
+					flds_count++;
+				}
+			}
+			if(p_chunk)
+				curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
+		}
+		THROW(Execute());
+	}
+	CATCHZOK
+	curl_slist_free_all(p_chunk);
+	CleanCbRW();
+	return ok;
+}
+
 int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream)
 {
 	int    ok = 1;
@@ -1897,8 +2060,7 @@ int ScURL::HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttp
 			StrStrAssocArray::Item item = pHttpHeaderFields->at(i);
 			temp_buf = item.Key;
             if(temp_buf.NotEmptyS()) {
-				fld_buf = 0;
-				fld_buf.Cat(temp_buf);
+				fld_buf.Z().Cat(temp_buf);
 				temp_buf = item.Val;
 				if(temp_buf.NotEmptyS()) {
 					fld_buf.CatDiv(':', 2);
@@ -2044,7 +2206,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 	return ok;
 }
 
-int ScURL::PrepareURL(InetUrl & rUrl, ScURL::InnerUrlInfo & rInfo)
+int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2064,12 +2226,17 @@ int ScURL::PrepareURL(InetUrl & rUrl, ScURL::InnerUrlInfo & rInfo)
 			if(prot)
 				rUrl.SetComponent(InetUrl::cScheme, InetUrl::GetSchemeMnem(prot));
 		}
-		if(prot == 0) {
-			prot = InetUrl::protFtp;
+		if(prot == 0 && defaultProt != 0) {
+			prot = defaultProt/*InetUrl::protFtp*/;
 			rUrl.SetProtocol(prot);
 			rUrl.SetComponent(InetUrl::cScheme, InetUrl::GetSchemeMnem(prot));
 		}
-		THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp));
+		if(defaultProt == InetUrl::protFtp) {
+			THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp));
+		}
+		if(defaultProt == InetUrl::protHttp) {
+			THROW(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps));
+		}
 	}
 	rUrl.GetComponent(InetUrl::cPath, temp_buf);
 	SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, rInfo.Path);
@@ -2085,7 +2252,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		if(url_info.Path.NotEmptyS()) {
 			url_info.Path.SetLastDSlash();
@@ -2129,7 +2296,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCo
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	THROW(fileExists(pLocalFile));
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		SPathStruc ps;
 		ps.Split(pLocalFile);
@@ -2176,7 +2343,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCo
 	SString local_file_path = pLocalFile;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		SPathStruc ps_local;
 		SPathStruc ps_remote;
@@ -2213,7 +2380,7 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 	SString file_name_to_delete;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		file_name_to_delete = url_info.Path;
 		THROW(file_name_to_delete.NotEmptyS());
@@ -2242,7 +2409,7 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 	SString file_name_to_delete;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		file_name_to_delete = url_info.Path;
 		THROW(file_name_to_delete.NotEmptyS());
@@ -2272,7 +2439,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	CleanCbRW();
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
 	{
 		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
@@ -2309,7 +2476,7 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	CleanCbRW();
-	THROW(PrepareURL(url_local, url_info));
+	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_FTP_CREATE_MISSING_DIRS, 1)));
 	{
@@ -2361,6 +2528,102 @@ int main(int argc, char *argv[])
 //
 //
 //
+SLAPI SUniformFileTransmParam::SUniformFileTransmParam()
+{
+	Flags = 0;
+	Format = SFileFormat::Unkn;
+}
+
+int SUniformFileTransmParam::Run(SCopyFileProgressProc pf, void * extraPtr)
+{
+	Reply.Z();
+
+	int    ok = -1;
+    SString path_src = SrcPath;
+    SString path_dest = DestPath;
+    THROW(path_src.NotEmptyS());
+    THROW(path_dest.NotEmptyS());
+    {
+		SString temp_buf;
+		SString temp_fname;
+		SPathStruc ps;
+		InetUrl url_src(path_src);
+		InetUrl url_dest(path_dest);
+		THROW(!(url_src.GetState() & (InetUrl::stEmpty|InetUrl::stError)));
+		THROW(!(url_dest.GetState() & (InetUrl::stEmpty|InetUrl::stError)));
+        const int prot_src = url_src.GetProtocol();
+        const int prot_dest = url_dest.GetProtocol();
+        THROW(oneof6(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
+			InetUrl::protHttp, InetUrl::protHttps));
+        THROW(oneof6(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
+			InetUrl::protHttp, InetUrl::protHttps));
+		THROW(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile);
+		if(prot_src == InetUrl::protFile) { // Отправка локального файла
+			SString local_path_src;
+			url_src.GetComponent(InetUrl::cPath, local_path_src);
+            THROW(fileExists(local_path_src));
+			if(oneof3(prot_dest, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)) {
+				ScURL curl;
+                if(AccsName.NotEmpty()) {
+                    url_dest.SetComponent(InetUrl::cUserName, AccsName);
+                    url_dest.SetComponent(InetUrl::cPassword, AccsPassword);
+                }
+				THROW(curl.FtpPut(url_dest, 0, local_path_src, 0, 0));
+			}
+			else if(oneof2(prot_dest, InetUrl::protHttp, InetUrl::protHttps)) {
+				ScURL curl;
+				SBuffer ack_buf;
+				SFile wr_stream(ack_buf, SFile::mWrite);
+				ScURL::HttpForm hf;
+				{
+					SFileFormat::GetMime(Format, temp_buf);
+					ps.Split(local_path_src);
+					ps.Drv = 0;
+					ps.Dir = 0;
+					ps.Merge(temp_fname);
+					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
+				}
+				THROW(curl.HttpPost(url_dest, ScURL::mfDontVerifySslPeer, hf, &wr_stream));
+				{
+					SBuffer * p_ret_buf = (SBuffer *)wr_stream;
+					if(p_ret_buf) {
+						size_t ret_size = p_ret_buf->GetAvailableSize();
+						if(ret_size) {
+							Reply.CatN((const char *)p_ret_buf->GetBuf(), ret_size);
+						}
+					}
+				}
+			}
+		}
+		else if(prot_dest == InetUrl::protFile) { // Получение файла в локальный каталог
+			SString local_path_dest;
+			url_dest.GetComponent(InetUrl::cPath, local_path_dest);
+			if(oneof3(prot_src, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)) {
+				ScURL curl;
+                if(AccsName.NotEmpty()) {
+                    url_src.SetComponent(InetUrl::cUserName, AccsName);
+                    url_src.SetComponent(InetUrl::cPassword, AccsPassword);
+                }
+				THROW(curl.FtpGet(url_src, 0, local_path_dest, 0, 0));
+			}
+			else if(oneof2(prot_src, InetUrl::protHttp, InetUrl::protHttps)) {
+				ScURL curl;
+                if(AccsName.NotEmpty()) {
+                    url_src.SetComponent(InetUrl::cUserName, AccsName);
+                    url_src.SetComponent(InetUrl::cPassword, AccsPassword);
+                }
+				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
+				THROW(wr_stream.IsValid());
+				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
+			}
+		}
+    }
+    CATCHZOK
+	return ok;
+}
+//
+//
+//
 #if SLTEST_RUNNING // {
 
 SLTEST_R(ScURL_Ftp)
@@ -2381,6 +2644,32 @@ SLTEST_R(ScURL_Ftp)
 		}
 	}
 	SFileEntryPool pool;
+	{
+		{
+			SUniformFileTransmParam uftp;
+			uftp.DestPath = "http://posttestserver.com/post.php";
+			uftp.SrcPath = MakeInputFilePath("test11.jpg");
+			uftp.Format = SFileFormat::Jpeg;
+			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			temp_buf = uftp.Reply;
+		}
+		{
+			SUniformFileTransmParam uftp;
+			uftp.DestPath = "https://posttestserver.com/post.php";
+			uftp.SrcPath = MakeInputFilePath("test10.jpg");
+			uftp.Format = SFileFormat::Jpeg;
+			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+			temp_buf = uftp.Reply;
+		}
+	}
+	{
+		{
+			SUniformFileTransmParam uftp;
+			uftp.DestPath = MakeOutputFilePath("remote-image.png");
+			uftp.SrcPath = "https://www.nasa.gov/sites/default/files/thumbnails/image/pia21775.png";
+			THROW(SLTEST_CHECK_NZ(uftp.Run(0, 0)));
+		}
+	}
 	{
 		ScURL curl;
 		THROW(SLTEST_CHECK_NZ(curl.FtpList(url, 0, pool)));
@@ -2433,61 +2722,61 @@ SLTEST_R(ScURL_Ftp)
 
 SLTEST_R(Uri)
 {
-	const char * p_url_text[] = {
-		"mailto:user@host?subject=blah",
-		"https://www.yahoo.com/",
-		"file:///C:/DEV/Haskell/lib/HXmlToolbox-3.01/examples/",
-		"http://www.yahoo.com?name=%00%01",
-		"http://www.yahoo.com#bottom",
-		"ftp://www.yahoo.com/hello",
-		"http://www.yahoo.com?name=obi+wan&status=jedi",
-		"http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html",
-		"uhtt.ru",
-		"uhtt.ru:8080",
-		"server:80",
-		"\\\\adv16\\spii\file.xml"
-	};
 	int    ok = 1;
+	SFile f_in(MakeInputFilePath("url-list.txt"), SFile::mRead);
 	SFile f_out(MakeOutputFilePath("url-out.txt"), SFile::mWrite);
 	InetUrl url(0);
 	SString out_buf, temp_buf;
-	for(uint i = 0; i < SIZEOFARRAY(p_url_text); i++) {
-		const char * p_url_str = p_url_text[i];
-		(out_buf = 0).Cat(p_url_str);
-		int    r = url.Parse(p_url_str);
+	SString line_buf;
+	THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
+	THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
+	while(f_in.ReadLine(line_buf)) {
+		line_buf.Chomp().Strip();
+		out_buf = line_buf;
+		int    r = url.Parse(line_buf);
 		if(r > 0) {
 			url.GetComponent(InetUrl::cScheme, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("scheme", temp_buf);
 
 			url.GetComponent(InetUrl::cUserName, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("username", temp_buf);
 
 			url.GetComponent(InetUrl::cPassword, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("password", temp_buf);
 
 			url.GetComponent(InetUrl::cHost, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("host", temp_buf);
 
 			url.GetComponent(InetUrl::cPort, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("port", temp_buf);
 
 			url.GetComponent(InetUrl::cPath, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("path", temp_buf);
 
 			url.GetComponent(InetUrl::cQuery, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("query", temp_buf);
 
 			url.GetComponent(InetUrl::cRef, temp_buf);
-			out_buf.Tab().Cat(temp_buf);
-
+			if(temp_buf.NotEmpty())
+				out_buf.Tab().CatEq("ref", temp_buf);
 			{
 				url.Composite(url.stAll, temp_buf);
-				out_buf.Tab().Cat(temp_buf);
+				out_buf.Tab().CatEq("composition", temp_buf);
 			}
-
 			f_out.WriteLine(out_buf.CR());
 		}
 	}
+	CATCH
+		CurrentStatus = 0;
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

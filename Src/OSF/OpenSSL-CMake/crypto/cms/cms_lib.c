@@ -506,8 +506,7 @@ STACK_OF(X509_CRL) *CMS_get1_crls(CMS_ContentInfo *cms)
 
 int cms_ias_cert_cmp(CMS_IssuerAndSerialNumber * ias, X509 * cert)
 {
-	int ret;
-	ret = X509_NAME_cmp(ias->issuer, X509_get_issuer_name(cert));
+	int ret = X509_NAME_cmp(ias->issuer, X509_get_issuer_name(cert));
 	if(ret)
 		return ret;
 	return ASN1_INTEGER_cmp(ias->serialNumber, X509_get_serialNumber(cert));
@@ -516,16 +515,12 @@ int cms_ias_cert_cmp(CMS_IssuerAndSerialNumber * ias, X509 * cert)
 int cms_keyid_cert_cmp(ASN1_OCTET_STRING * keyid, X509 * cert)
 {
 	const ASN1_OCTET_STRING * cert_keyid = X509_get0_subject_key_id(cert);
-
-	if(cert_keyid == NULL)
-		return -1;
-	return ASN1_OCTET_STRING_cmp(keyid, cert_keyid);
+	return cert_keyid ? ASN1_OCTET_STRING_cmp(keyid, cert_keyid) : -1;
 }
 
 int cms_set1_ias(CMS_IssuerAndSerialNumber ** pias, X509 * cert)
 {
-	CMS_IssuerAndSerialNumber * ias;
-	ias = M_ASN1_new_of(CMS_IssuerAndSerialNumber);
+	CMS_IssuerAndSerialNumber * ias = M_ASN1_new_of(CMS_IssuerAndSerialNumber);
 	if(!ias)
 		goto err;
 	if(!X509_NAME_set(&ias->issuer, X509_get_issuer_name(cert)))
@@ -544,8 +539,7 @@ err:
 int cms_set1_keyid(ASN1_OCTET_STRING ** pkeyid, X509 * cert)
 {
 	ASN1_OCTET_STRING * keyid = NULL;
-	const ASN1_OCTET_STRING * cert_keyid;
-	cert_keyid = X509_get0_subject_key_id(cert);
+	const ASN1_OCTET_STRING * cert_keyid = X509_get0_subject_key_id(cert);
 	if(cert_keyid == NULL) {
 		CMSerr(CMS_F_CMS_SET1_KEYID, CMS_R_CERTIFICATE_HAS_NO_KEYID);
 		return 0;

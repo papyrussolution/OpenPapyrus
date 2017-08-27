@@ -1,5 +1,6 @@
 // V_PAYPLN.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
+// @codepage UTF-8
 // Plan of Payments View
 //
 #include <pp.h>
@@ -62,12 +63,12 @@ struct IterProcParam_ProcessPeriod {
 	DateRange Period;
 	IterCounter * P_Cntr;
 	//
-	// Если P_BillList != 0, то функция перечисляет документы и складывает те,
-	// что подходят под фильтрацию по Period и FiltObjID в этот список.
+	// Р•СЃР»Рё P_BillList != 0, С‚Рѕ С„СѓРЅРєС†РёСЏ РїРµСЂРµС‡РёСЃР»СЏРµС‚ РґРѕРєСѓРјРµРЅС‚С‹ Рё СЃРєР»Р°РґС‹РІР°РµС‚ С‚Рµ,
+	// С‡С‚Рѕ РїРѕРґС…РѕРґСЏС‚ РїРѕРґ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ Period Рё FiltObjID РІ СЌС‚РѕС‚ СЃРїРёСЃРѕРє.
 	//
 	ObjIdListFilt * P_BillList; // @notowned
 	RPairArray    * P_PaymList; // @notowned
-	TSArray <BillPaymItem> BillPaymList; // Список учтенных платежей по документам.
+	TSArray <BillPaymItem> BillPaymList; // РЎРїРёСЃРѕРє СѓС‡С‚РµРЅРЅС‹С… РїР»Р°С‚РµР¶РµР№ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј.
 	PPID   FiltObjID;
 };
 
@@ -344,7 +345,7 @@ int SLAPI PPViewPaymPlan::InitIteration()
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
+void SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
 {
 	if(Filt.Flags & PaymPlanFilt::fDetailByBill) {
 		if(InnerCounter >= InnerCounter.GetTotal()) {
@@ -366,7 +367,6 @@ int SLAPI PPViewPaymPlan::NextInnerIteration(PaymPlanViewItem * pItem)
 			InnerCounter.Increment();
 		}
 	}
-	return 1;
 }
 
 int FASTCALL PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)

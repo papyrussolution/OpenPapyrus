@@ -65,23 +65,21 @@ static int md_free(BIO * a)
 static int md_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	EVP_MD_CTX * ctx;
-	BIO * next;
-	if(!out)
-		return 0;
-	ctx = (EVP_MD_CTX*)BIO_get_data(b);
-	next = BIO_next(b);
-	if(!ctx || (next == NULL))
-		return 0;
-	ret = BIO_read(next, out, outl);
-	if(BIO_get_init(b)) {
-		if(ret > 0) {
-			if(EVP_DigestUpdate(ctx, (uchar*)out, (uint)ret) <= 0)
-				return (-1);
+	if(out) {
+		EVP_MD_CTX * ctx = (EVP_MD_CTX*)BIO_get_data(b);
+		BIO * next = BIO_next(b);
+		if(ctx && next) {
+			ret = BIO_read(next, out, outl);
+			if(BIO_get_init(b)) {
+				if(ret > 0) {
+					if(EVP_DigestUpdate(ctx, (uchar*)out, (uint)ret) <= 0)
+						return (-1);
+				}
+			}
+			BIO_clear_retry_flags(b);
+			BIO_copy_next_retry(b);
 		}
 	}
-	BIO_clear_retry_flags(b);
-	BIO_copy_next_retry(b);
 	return ret;
 }
 
@@ -122,10 +120,7 @@ static long md_ctrl(BIO * b, int cmd, long num, void * ptr)
 	BIO * next = BIO_next(b);
 	switch(cmd) {
 		case BIO_CTRL_RESET:
-		    if(BIO_get_init(b))
-			    ret = EVP_DigestInit_ex(ctx, ctx->digest, 0);
-		    else
-			    ret = 0;
+		    ret = BIO_get_init(b) ? EVP_DigestInit_ex(ctx, ctx->digest, 0) : 0;
 		    if(ret > 0)
 			    ret = BIO_ctrl(next, cmd, num, ptr);
 		    break;
@@ -194,8 +189,8 @@ static int md_gets(BIO * bp, char * buf, int size)
 	EVP_MD_CTX * ctx = (EVP_MD_CTX*)BIO_get_data(bp);
 	if(size < ctx->digest->md_size)
 		return 0;
-	if(EVP_DigestFinal_ex(ctx, (uchar*)buf, &ret) <= 0)
+	else if(EVP_DigestFinal_ex(ctx, (uchar*)buf, &ret) <= 0)
 		return -1;
-	return ((int)ret);
+	else
+		return ((int)ret);
 }
-

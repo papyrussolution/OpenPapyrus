@@ -1,6 +1,6 @@
 // V_DEBT.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-//
+// @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
 #include <pp.h>
@@ -196,6 +196,12 @@ int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 //
 // PPViewDebtTrnovr
 //
+SLAPI PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident)
+{
+	ID = ident;
+	_AvgPaym = 0.0;
+}
+
 SLAPI PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT))
 {
 	P_BObj = BillObj;
@@ -365,8 +371,8 @@ int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID 
 		k.BillNo = 0;
 		{
 			//
-			// Для ускорения проверки отсутствия идентификатора найденного документа в списке pList
-			// переносим идентификаторы из pList во временный список ndup_list и сортируем его.
+			// Р”Р»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РїСЂРѕРІРµСЂРєРё РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РЅР°Р№РґРµРЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РІ СЃРїРёСЃРєРµ pList
+			// РїРµСЂРµРЅРѕСЃРёРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РёР· pList РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ СЃРїРёСЃРѕРє ndup_list Рё СЃРѕСЂС‚РёСЂСѓРµРј РµРіРѕ.
 			//
 			LongArray ndup_list;
 			pList->GetIdList(ndup_list);
@@ -453,9 +459,9 @@ int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID 
 							const LDATE pd = (Filt.ExtExpiryTerm > 0) ? plusdate(p_item->Dt, Filt.ExtExpiryTerm) : NZOR(paydt, p_item->Dt);
 							double _exp_debt = (pd < current_date) ? debt : 0.0;
 							//
-							// Для этого (специального) вида отчета в качестве оплаты учитываем
-							// общую сумму долга за вычетом просроченного долга.
-							// А сумму документа подменяем на полный долг.
+							// Р”Р»СЏ СЌС‚РѕРіРѕ (СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ) РІРёРґР° РѕС‚С‡РµС‚Р° РІ РєР°С‡РµСЃС‚РІРµ РѕРїР»Р°С‚С‹ СѓС‡РёС‚С‹РІР°РµРј
+							// РѕР±С‰СѓСЋ СЃСѓРјРјСѓ РґРѕР»РіР° Р·Р° РІС‹С‡РµС‚РѕРј РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕРіРѕ РґРѕР»РіР°.
+							// Рђ СЃСѓРјРјСѓ РґРѕРєСѓРјРµРЅС‚Р° РїРѕРґРјРµРЅСЏРµРј РЅР° РїРѕР»РЅС‹Р№ РґРѕР»Рі.
 							//
 							item = *p_item;
 							item.Amount = debt;
@@ -605,7 +611,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	Filt.PaymPeriod.Actualize(ZERODATE);
 	Filt.ExpiryPeriod.Actualize(ZERODATE);
 	//
-	// Инициализация параметров цикличности отчета
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ С†РёРєР»РёС‡РЅРѕСЃС‚Рё РѕС‚С‡РµС‚Р°
 	//
 	DaySieve.freeAll();
 	CycleSieve.freeAll();
@@ -873,6 +879,7 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 	PPIDArray full_ar_list;
 	ar_obj.P_Tbl->GetListBySheet(rF.AccSheetID, &full_ar_list, 0);
 	if(rF.CliIDList.getCount()) {
+		PPIDArray temp_list;
 		for(uint i = 0; i < rF.CliIDList.getCount(); i++) {
 			const PPID ar_id = rF.CliIDList.at(i);
 			if(ar_obj.Fetch(ar_id, &ar_rec) > 0 && ar_rec.AccSheetID == rF.AccSheetID) {
@@ -880,7 +887,7 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 					ar_obj.P_Tbl->GetListByGroup(ar_id, &ArList);
 				else if(!(rF.Flags & DebtTrnovrFilt::fSkipPassive) || !ar_rec.Closed) {
 					if(rF.Sgb.S == SubstGrpBill::sgbObject && rF.Sgb.S2.Sgp > sgpFirstRelation) {
-						PPIDArray temp_list;
+						temp_list.clear();
 						ar_obj.GetRelPersonList(ar_id, (rF.Sgb.S2.Sgp - sgpFirstRelation), 1, &temp_list);
 						ArList.addUnique(&temp_list);
 					}
@@ -994,7 +1001,7 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 			if(!!Filt.Sgb) {
 				PPBill _pack;
 				_pack.Rec = rRec;
-				_pack.Rec.Object = arID; // Статья могла быть замещена для зачетного документа
+				_pack.Rec.Object = arID; // РЎС‚Р°С‚СЊСЏ РјРѕРіР»Р° Р±С‹С‚СЊ Р·Р°РјРµС‰РµРЅР° РґР»СЏ Р·Р°С‡РµС‚РЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 				P_BObj->LoadForSubst(&Bsp, &_pack);
 				P_BObj->Subst(&_pack, &ident, oneof2(rBlk.IterPath, ProcessBlock::ipReckonOp, ProcessBlock::ipReckonBillList) ? &RcknBsp : &Bsp);
 			}
@@ -1052,9 +1059,9 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 					const LDATE  pd = (Filt.ExtExpiryTerm > 0) ? plusdate(rBlk.Date, Filt.ExtExpiryTerm) : NZOR(rBlk.PayDate, rBlk.Date);
 					const double _exp_debt = (pd < rBlk.CurrentDate) ? rBlk.Debt : 0.0;
 					//
-					// Для этого (специального) вида отчета в качестве оплаты учитываем
-					// общую сумму долга за вычетом просроченного долга.
-					// А сумму документа подменяем на полный долг.
+					// Р”Р»СЏ СЌС‚РѕРіРѕ (СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ) РІРёРґР° РѕС‚С‡РµС‚Р° РІ РєР°С‡РµСЃС‚РІРµ РѕРїР»Р°С‚С‹ СѓС‡РёС‚С‹РІР°РµРј
+					// РѕР±С‰СѓСЋ СЃСѓРјРјСѓ РґРѕР»РіР° Р·Р° РІС‹С‡РµС‚РѕРј РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕРіРѕ РґРѕР»РіР°.
+					// Рђ СЃСѓРјРјСѓ РґРѕРєСѓРјРµРЅС‚Р° РїРѕРґРјРµРЅСЏРµРј РЅР° РїРѕР»РЅС‹Р№ РґРѕР»Рі.
 					//
 					rBlk.Amount = rBlk.Debt;
 					THROW(rBlk.AddStepItem(tab_id, rBlk.Debt - _exp_debt, 0.0/*expiryDebt*/));
@@ -1076,7 +1083,7 @@ int SLAPI PPViewDebtTrnovr::ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, 
 int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlock & rBlk, PPID * pArID, PPBillExt * pBillExt, double * pPart)
 {
 	//
-	// Проверка документа на соответствие критериям фильтра
+	// РџСЂРѕРІРµСЂРєР° РґРѕРєСѓРјРµРЅС‚Р° РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РєСЂРёС‚РµСЂРёСЏРј С„РёР»СЊС‚СЂР°
 	//
 	int    ok = 1;
 	double __part = 1.0;
@@ -1092,13 +1099,13 @@ int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const Proc
 	}
 	else if(rBlk.IterPath == ProcessBlock::ipOp) {
 		//
-		// При переборе по операциям необходимо проверить принадлежность статьи фильтрующему списку
+		// РџСЂРё РїРµСЂРµР±РѕСЂРµ РїРѕ РѕРїРµСЂР°С†РёСЏРј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРІРµСЂРёС‚СЊ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ СЃС‚Р°С‚СЊРё С„РёР»СЊС‚СЂСѓСЋС‰РµРјСѓ СЃРїРёСЃРєСѓ
 		//
 		THROW(rBlk.ArList.bsearch(ar_id));
 	}
 	else if(rBlk.IterPath == ProcessBlock::ipArticle) {
 		//
-		// При переборе по статьям необходимо проверить принадлежность операции списку оплачиваемых
+		// РџСЂРё РїРµСЂРµР±РѕСЂРµ РїРѕ СЃС‚Р°С‚СЊСЏРј РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРІРµСЂРёС‚СЊ РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚СЊ РѕРїРµСЂР°С†РёРё СЃРїРёСЃРєСѓ РѕРїР»Р°С‡РёРІР°РµРјС‹С…
 		//
 		THROW(PayableOpList.lsearch(rRec.OpID));
 	}
@@ -1181,7 +1188,7 @@ int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const Proc
 int SLAPI PPViewDebtTrnovr::ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk)
 {
 	//
-	// Проверка документа на соответствие критериям фильтра
+	// РџСЂРѕРІРµСЂРєР° РґРѕРєСѓРјРµРЅС‚Р° РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РєСЂРёС‚РµСЂРёСЏРј С„РёР»СЊС‚СЂР°
 	//
 	int    ok = 1;
 	PPID   ar_id = 0;
@@ -1307,7 +1314,7 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 						if(end == MAXDATE || end == ZERODATE)
 							end = getcurdate_();
 					}
-					iter_count += diffdate(end, beg); // Единица не прибавляется из-за особенностей учета итераций (см. ниже)
+					iter_count += diffdate(end, beg); // Р•РґРёРЅРёС†Р° РЅРµ РїСЂРёР±Р°РІР»СЏРµС‚СЃСЏ РёР·-Р·Р° РѕСЃРѕР±РµРЅРЅРѕСЃС‚РµР№ СѓС‡РµС‚Р° РёС‚РµСЂР°С†РёР№ (СЃРј. РЅРёР¶Рµ)
 				}
 			}
 			rBlk.Cntr.Init(iter_count);
@@ -2063,7 +2070,7 @@ int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
 	int    ok = -1;
 	if(pHdr /*&& pHdr->ArID*/) {
 		PPIDArray bill_list;
-		if(0 /*Filt.Sgb.S2.Sgp*/) { // Пока непонятно как быть с детализацией подстановки.
+		if(0 /*Filt.Sgb.S2.Sgp*/) { // РџРѕРєР° РЅРµРїРѕРЅСЏС‚РЅРѕ РєР°Рє Р±С‹С‚СЊ СЃ РґРµС‚Р°Р»РёР·Р°С†РёРµР№ РїРѕРґСЃС‚Р°РЅРѕРІРєРё.
 			DebtTrnovrViewItem item;
 			if(GetItem(pHdr->ArID, pHdr->CurID, pHdr->TabID, &item) > 0) {
 				DebtTrnovrFilt temp_filt = Filt;
@@ -2213,10 +2220,9 @@ int SLAPI PPViewDebtTrnovr::GetTabTitle(long tabID, SString & rBuf) const
 		DateRange period;
 		if(CycleSieve.getPeriod((uint)(tabID-1), &period)) {
 			char temp_buf[256];
-			if(CycleSieve.formatCycle(period.low, temp_buf, sizeof(temp_buf))) {
-				rBuf = temp_buf;
-				ok = 1;
-			}
+			CycleSieve.formatCycle(period.low, temp_buf, sizeof(temp_buf));
+			rBuf = temp_buf;
+			ok = 1;
 		}
 	}
 	return ok;
@@ -2737,6 +2743,17 @@ int SLAPI PPDebtorStatConfig::Edit()
 //
 //
 //
+long SLAPI PPDebtorStat::DebtDimItem::GetPaymPeriod() const
+{
+	return (FirstPaymDate && LastPaymDate) ? diffdate(LastPaymDate, FirstPaymDate) + 1 : 0;
+}
+
+double SLAPI PPDebtorStat::DebtDimItem::CalcPaymDensity() const
+{
+	long   paym_period = GetPaymPeriod();
+	return (paym_period > 0) ? (PaymAmount / paym_period) : 0.0;
+}
+
 SLAPI PPDebtorStat::PPDebtorStat(PPID arID)
 {
 	ArID = arID;
@@ -2753,11 +2770,16 @@ SLAPI PPDebtorStat::PPDebtorStat(PPID arID)
 	DebtCost = 0.0;
 	SigmFactor = 0.0;
 	PaymPeriod = 0;
-	FirstPaymDate = ZERODATE; // Дата первого платежа от контрагента
-	LastPaymDate  = ZERODATE; // Дата последнего платежа от контрагента
-	LimitTerm = 0;      // Срок (в днях), на который рассчитан кредитный лимит
+	FirstPaymDate = ZERODATE; // Р”Р°С‚Р° РїРµСЂРІРѕРіРѕ РїР»Р°С‚РµР¶Р° РѕС‚ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+	LastPaymDate  = ZERODATE; // Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµРіРѕ РїР»Р°С‚РµР¶Р° РѕС‚ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+	LimitTerm = 0;      // РЎСЂРѕРє (РІ РґРЅСЏС…), РЅР° РєРѕС‚РѕСЂС‹Р№ СЂР°СЃСЃС‡РёС‚Р°РЅ РєСЂРµРґРёС‚РЅС‹Р№ Р»РёРјРёС‚
 	Flags = 0;
 	memzero(Rating, sizeof(Rating));
+}
+
+int SLAPI PPDebtorStat::IsAggregate() const
+{
+	return BIN(ArID == 0 || (Flags & (fAgent|fHolding)));
 }
 
 int SLAPI PPDebtorStat::AddPayment(PPID debtDimID, LDATE dt, double amount)
@@ -2912,8 +2934,8 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSAr
 	MEMSZERO(total);
 	PPDebtorStatConfig ds_cfg;
 	PPDebtorStatConfig::Read(&ds_cfg);
-	double sigm_a = ds_cfg.PaymSigmFactor; // Параметр сигмоидальной функции, учитывающей историю платежей дебитора
-	double fin_rate = fdiv100r(ds_cfg.FinRate); // Годовая процентная ставка стоимости денег
+	double sigm_a = ds_cfg.PaymSigmFactor; // РџР°СЂР°РјРµС‚СЂ СЃРёРіРјРѕРёРґР°Р»СЊРЅРѕР№ С„СѓРЅРєС†РёРё, СѓС‡РёС‚С‹РІР°СЋС‰РµР№ РёСЃС‚РѕСЂРёСЋ РїР»Р°С‚РµР¶РµР№ РґРµР±РёС‚РѕСЂР°
+	double fin_rate = fdiv100r(ds_cfg.FinRate); // Р“РѕРґРѕРІР°СЏ РїСЂРѕС†РµРЅС‚РЅР°СЏ СЃС‚Р°РІРєР° СЃС‚РѕРёРјРѕСЃС‚Рё РґРµРЅРµРі
 	double exp_weight = (ds_cfg.ExpiryWeight >= 0.0 && ds_cfg.ExpiryWeight <= 1.0) ? ds_cfg.ExpiryWeight : 0.5;
 	long   simple_duration = 0;
 	DateRange _period = ds_cfg.Period;
@@ -3026,7 +3048,7 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSAr
 							paym_val = 0.0;
 						if(p_item->Limit > 0.0 && p_item->DdList.getCount()) {
 							//
-							// Рассчитывает кредитный лимит по долговым размерностям
+							// Р Р°СЃСЃС‡РёС‚С‹РІР°РµС‚ РєСЂРµРґРёС‚РЅС‹Р№ Р»РёРјРёС‚ РїРѕ РґРѕР»РіРѕРІС‹Рј СЂР°Р·РјРµСЂРЅРѕСЃС‚СЏРј
 							//
 							for(uint j = 0; j < p_item->DdList.getCount(); j++) {
 								PPDebtorStat::DebtDimItem & r_dd_item = p_item->DdList.at(j);
@@ -3073,7 +3095,7 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSAr
 					else
 						p_item->Rating[1] = '?';
 					//
-					// Заполнение исходящей матрицы
+					// Р—Р°РїРѕР»РЅРµРЅРёРµ РёСЃС…РѕРґСЏС‰РµР№ РјР°С‚СЂРёС†С‹
 					//
 					if(pOutMatrix) {
 						RPoint3 p;
@@ -3423,9 +3445,9 @@ int SLAPI PrcssrDebtRate::Init(const Param * pParam)
 int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 {
 	//
-	// Коллекция PPDebtorStatEntrySet будет просто хранить указатели на PPDebtorStat,
-	// но ни в коем случае не станет разрушать объекты по этим указателям
-	// (опции не содержат флага aryEachItem)
+	// РљРѕР»Р»РµРєС†РёСЏ PPDebtorStatEntrySet Р±СѓРґРµС‚ РїСЂРѕСЃС‚Рѕ С…СЂР°РЅРёС‚СЊ СѓРєР°Р·Р°С‚РµР»Рё РЅР° PPDebtorStat,
+	// РЅРѕ РЅРё РІ РєРѕРµРј СЃР»СѓС‡Р°Рµ РЅРµ СЃС‚Р°РЅРµС‚ СЂР°Р·СЂСѓС€Р°С‚СЊ РѕР±СЉРµРєС‚С‹ РїРѕ СЌС‚РёРј СѓРєР°Р·Р°С‚РµР»СЏРј
+	// (РѕРїС†РёРё РЅРµ СЃРѕРґРµСЂР¶Р°С‚ С„Р»Р°РіР° aryEachItem)
 	//
 	class PPDebtorStatEntrySet : public TSCollection <PPDebtorStat> {
 	public:
@@ -3473,7 +3495,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	PPIDArray inc_op_list;
 	PPIDArray paym_id_list;
 	PPIDArray pool_memb_list;
-	LAssocArray rel_list; // Список отношений статья-холдинг
+	LAssocArray rel_list; // РЎРїРёСЃРѕРє РѕС‚РЅРѕС€РµРЅРёР№ СЃС‚Р°С‚СЊСЏ-С…РѕР»РґРёРЅРі
 	PPObjOprKind op_obj;
 	PPObjDebtDim dd_obj;
 	LAssocArray dd_agent_list;
@@ -3482,10 +3504,10 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	PPBillExt bill_ext_rec;
 	PPDebtorStatEntrySet entry_set;
 	//
-	// Собираем статистику по задержкам платежей
+	// РЎРѕР±РёСЂР°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ Р·Р°РґРµСЂР¶РєР°Рј РїР»Р°С‚РµР¶РµР№
 	//
 	op_obj.GetPayableOpList(P.AccSheetID, &op_list);
-	// @v6.0.11 { Пока не задействовано
+	// @v6.0.11 { РџРѕРєР° РЅРµ Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅРѕ
 	DateRange period;
 	period = Cfg.Period;
 	period.Actualize(ZERODATE);
@@ -3504,9 +3526,9 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 					long   expiry = diffdate(last_paym_rec.Dt, NZOR(last_pay_date, bill_rec.Dt));
 					if(delay > 0) {
 						//
-						// Документы с нулевыми задержками платежа не учитываем
-						// поскольку фактически они не являются документами с отложенным
-						// платежом (предоплата, наличный расчет и т.д.)
+						// Р”РѕРєСѓРјРµРЅС‚С‹ СЃ РЅСѓР»РµРІС‹РјРё Р·Р°РґРµСЂР¶РєР°РјРё РїР»Р°С‚РµР¶Р° РЅРµ СѓС‡РёС‚С‹РІР°РµРј
+						// РїРѕСЃРєРѕР»СЊРєСѓ С„Р°РєС‚РёС‡РµСЃРєРё РѕРЅРё РЅРµ СЏРІР»СЏСЋС‚СЃСЏ РґРѕРєСѓРјРµРЅС‚Р°РјРё СЃ РѕС‚Р»РѕР¶РµРЅРЅС‹Рј
+						// РїР»Р°С‚РµР¶РѕРј (РїСЂРµРґРѕРїР»Р°С‚Р°, РЅР°Р»РёС‡РЅС‹Р№ СЂР°СЃС‡РµС‚ Рё С‚.Рґ.)
 						//
 						PPDebtorStat * p_entry = list.Get(bill_rec.Object);
 						entry_set.clear();
@@ -3536,7 +3558,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		}
 	}
 	//
-	// Собираем статистику по платежам
+	// РЎРѕР±РёСЂР°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ РїР»Р°С‚РµР¶Р°Рј
 	//
 	op_obj.GetProfitableOpList(P.AccSheetID, &inc_op_list);
 	for(i = 0; i < inc_op_list.getCount(); i++) {
@@ -3609,7 +3631,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		PPGetFilePath(PPPATH_OUT, "debtorstat.txt", stat_file_name);
 		SFile file(file_name, SFile::mWrite);
 		SFile stat_file(stat_file_name, SFile::mWrite);
-		list.sort(CMPF_LONG); // Сортируем список по идентификатору статьи
+		list.sort(CMPF_LONG); // РЎРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ СЃС‚Р°С‚СЊРё
 		if(stat_file.IsValid()) {
 			line_buf.Z().
 				Cat("ArID").Semicol().
@@ -3662,7 +3684,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 			THROW(ds_tbl.SetList(P.AccSheetID, ZERODATE, list, 0));
 			{
 				//
-				// Сохраняем время последнего сбора статистики
+				// РЎРѕС…СЂР°РЅСЏРµРј РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ СЃР±РѕСЂР° СЃС‚Р°С‚РёСЃС‚РёРєРё
 				//
 				const  long prop_cfg_id = PPPRP_DEBTORSTATCFG;
 				PPDebtorStatConfig cfg;
@@ -3678,7 +3700,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 						PPClientAgreement agt;
 						if(ArObj.GetClientAgreement(p_item->ArID, &agt, 0) > 0) {
 							if(agt.LockPrcBefore && cur_dt <= agt.LockPrcBefore) {
-								; // @log "Для клиента '@article' блокировано автоматическое изменение кредитного лимита (=@real) до @date"
+								; // @log "Р”Р»СЏ РєР»РёРµРЅС‚Р° '@article' Р±Р»РѕРєРёСЂРѕРІР°РЅРѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РёР·РјРµРЅРµРЅРёРµ РєСЂРµРґРёС‚РЅРѕРіРѕ Р»РёРјРёС‚Р° (=@real) РґРѕ @date"
 								CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_DEBTRATE_LIMITLOCK, &line_buf, p_item->ArID, agt.MaxCredit, agt.LockPrcBefore)));
 							}
 							else {
@@ -3752,7 +3774,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 								if(comm_lim_upd || dd_lim_upd) {
 									agt.MaxCredit = p_item->Limit;
 									if((P.Flags & Param::fReportOnly) || ArObj.PutClientAgreement(p_item->ArID, &agt, 0)) {
-										; // @log "Установлен кредитный лимит =@real для клиента '@article' (предыдущий лимит =@real)"
+										; // @log "РЈСЃС‚Р°РЅРѕРІР»РµРЅ РєСЂРµРґРёС‚РЅС‹Р№ Р»РёРјРёС‚ =@real РґР»СЏ РєР»РёРµРЅС‚Р° '@article' (РїСЂРµРґС‹РґСѓС‰РёР№ Р»РёРјРёС‚ =@real)"
 										if(comm_lim_upd && pLogger) {
 											pLogger->Log(PPFormatT(
 												(P.Flags & Param::fReportOnly) ? PPTXT_LOG_DEBTRATE_LIMITSHOULDSET : PPTXT_LOG_DEBTRATE_LIMITSET,
@@ -3760,18 +3782,18 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 										}
 									}
 									else {
-										; // @logerr "Ошибка записи соглашения при установке кредитного лимита =@real для клиента '@article': @lasterr"
+										; // @logerr "РћС€РёР±РєР° Р·Р°РїРёСЃРё СЃРѕРіР»Р°С€РµРЅРёСЏ РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ РєСЂРµРґРёС‚РЅРѕРіРѕ Р»РёРјРёС‚Р° =@real РґР»СЏ РєР»РёРµРЅС‚Р° '@article': @lasterr"
 										CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_DEBTRATE_LIMITERR, &line_buf, agt.MaxCredit, p_item->ArID, PPErrCode)));
 									}
 								}
 								else {
-									; // @log "Кредитный лимит для клиента '@article' не изменился (=@real)"
+									; // @log "РљСЂРµРґРёС‚РЅС‹Р№ Р»РёРјРёС‚ РґР»СЏ РєР»РёРµРЅС‚Р° '@article' РЅРµ РёР·РјРµРЅРёР»СЃСЏ (=@real)"
 									CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_DEBTRATE_LIMITUNCHG, &line_buf, p_item->ArID, agt.MaxCredit)));
 								}
 							}
 						}
 						else {
-							; // @log "Клиент '@article' не имеет клиентского соглашения (рассчитанный лимит =@real)"
+							; // @log "РљР»РёРµРЅС‚ '@article' РЅРµ РёРјРµРµС‚ РєР»РёРµРЅС‚СЃРєРѕРіРѕ СЃРѕРіР»Р°С€РµРЅРёСЏ (СЂР°СЃСЃС‡РёС‚Р°РЅРЅС‹Р№ Р»РёРјРёС‚ =@real)"
 						}
 					}
 				}
@@ -3813,13 +3835,13 @@ int SLAPI PrcssrDebtRate::Run()
 			ArticleTbl::Rec ar_rec;
 			PPIDArray ar_list;
 			PPIDArray op_list;
-			PPIDArray debt_dim_list; // Полный список идентификаторов долговых размерностей
-			LAssocArray dim_set_stop_list; // Список признаков STOP, ассоциированных с идентификаторами долговых размерностей
+			PPIDArray debt_dim_list; // РџРѕР»РЅС‹Р№ СЃРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РґРѕР»РіРѕРІС‹С… СЂР°Р·РјРµСЂРЅРѕСЃС‚РµР№
+			LAssocArray dim_set_stop_list; // РЎРїРёСЃРѕРє РїСЂРёР·РЅР°РєРѕРІ STOP, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹С… СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё РґРѕР»РіРѕРІС‹С… СЂР°Р·РјРµСЂРЅРѕСЃС‚РµР№
 			PPObjOprKind op_obj;
 			SString fmt_buf, msg_buf;
 			PPObjBill::DebtBlock blk;
-			SArray set_stop_list(sizeof(StopItem));       // Список статей, которым следует выставить STOP
-			SArray reset_stop_list(sizeof(StopItem));     // Список статей, с которых следует снять STOP
+			SArray set_stop_list(sizeof(StopItem));       // РЎРїРёСЃРѕРє СЃС‚Р°С‚РµР№, РєРѕС‚РѕСЂС‹Рј СЃР»РµРґСѓРµС‚ РІС‹СЃС‚Р°РІРёС‚СЊ STOP
+			SArray reset_stop_list(sizeof(StopItem));     // РЎРїРёСЃРѕРє СЃС‚Р°С‚РµР№, СЃ РєРѕС‚РѕСЂС‹С… СЃР»РµРґСѓРµС‚ СЃРЅСЏС‚СЊ STOP
 			{
 				PPObjDebtDim dd_obj;
 				PPDebtDim dd_rec;
@@ -3851,7 +3873,7 @@ int SLAPI PrcssrDebtRate::Run()
 								PayableBillList list(&amt_list, &paym_list);
 								THROW(BillObj->GetReceivableBillList(ar_id, 0, &list));
 								rckn = amt_list.Get(0, 0) - paym_list.Get(0, 0);
-								if(rckn < blk.Debt) { // Если сумма незачтенных оплат больше или равна долгу, то считаем долг закрытым
+								if(rckn < blk.Debt) { // Р•СЃР»Рё СЃСѓРјРјР° РЅРµР·Р°С‡С‚РµРЅРЅС‹С… РѕРїР»Р°С‚ Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅР° РґРѕР»РіСѓ, С‚Рѕ СЃС‡РёС‚Р°РµРј РґРѕР»Рі Р·Р°РєСЂС‹С‚С‹Рј
 									if(blk.MaxExpiry > P.Gandicap) {
 										PPFormatT(PPTXT_LOG_DEBTRATE_DEBTEXCEEDMAXTERM, &msg_buf, ar_id, blk.MaxExpiry, P.Gandicap);
 										logger.Log(msg_buf);
@@ -3912,8 +3934,8 @@ int SLAPI PrcssrDebtRate::Run()
 			}
 			{
 				//
-				// Транзакционная часть процесса вынесена в отдельный блок
-				// дабы не "забивать" СУБД обширным чтением в рамках транзакции.
+				// РўСЂР°РЅР·Р°РєС†РёРѕРЅРЅР°СЏ С‡Р°СЃС‚СЊ РїСЂРѕС†РµСЃСЃР° РІС‹РЅРµСЃРµРЅР° РІ РѕС‚РґРµР»СЊРЅС‹Р№ Р±Р»РѕРє
+				// РґР°Р±С‹ РЅРµ "Р·Р°Р±РёРІР°С‚СЊ" РЎРЈР‘Р” РѕР±С€РёСЂРЅС‹Рј С‡С‚РµРЅРёРµРј РІ СЂР°РјРєР°С… С‚СЂР°РЅР·Р°РєС†РёРё.
 				//
 				PPArticlePacket pack;
 				StopItem * p_si;
@@ -3970,29 +3992,29 @@ int SLAPI PrcssrDebtRate::Run()
 								const int _ds = BIN(set_stop_list.bsearch(&p2, &dset_pos, PTR_CMPFUNC(_2long)));
 								const int _dx = BIN(p_dl);
 								/*
-									Матрица перехода для частного STOP'а
-									COMM   (_cs) - рассчитанное значение общего STOP'а
-									DIM    (_ds) - рассчитанное значение частного STOP'а
-									DIMEXT (_dx) - признак наличия размерности в соглашении
-									DIMEFF       - эффективное (устанавливаемое) значение частного STOP'а
+									РњР°С‚СЂРёС†Р° РїРµСЂРµС…РѕРґР° РґР»СЏ С‡Р°СЃС‚РЅРѕРіРѕ STOP'Р°
+									COMM   (_cs) - СЂР°СЃСЃС‡РёС‚Р°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РѕР±С‰РµРіРѕ STOP'Р°
+									DIM    (_ds) - СЂР°СЃСЃС‡РёС‚Р°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С‡Р°СЃС‚РЅРѕРіРѕ STOP'Р°
+									DIMEXT (_dx) - РїСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё РІ СЃРѕРіР»Р°С€РµРЅРёРё
+									DIMEFF       - СЌС„С„РµРєС‚РёРІРЅРѕРµ (СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРјРѕРµ) Р·РЅР°С‡РµРЅРёРµ С‡Р°СЃС‚РЅРѕРіРѕ STOP'Р°
 									---------------------------------------
 									_cs    _ds     _dx | DIMEFF
-										0    0       0 |      x    // Ничего не делать
-										0    0       1 |      0    // Следует отключить частный STOP в соглашении
-										0    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
-										0    1       1 |      1    // Следует включить частный STOP в соглашении
-										1    0       0 |     ?1+   // Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать размерность с признаком STOP, в противном случае - ничего не делать
-										1    0       1 |     ?1    // Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
-										1    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
-										1    1       1 |      1    // Следует включить частный STOP в соглашении
+										0    0       0 |      x    // РќРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ
+										0    0       1 |      0    // РЎР»РµРґСѓРµС‚ РѕС‚РєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
+										0    1       0 |      .    // РќРµРІРѕР·РјРѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµР»СЊР·СЏ РІС‹С‡РёСЃР»РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РЅРµ РёРјРµСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё
+										0    1       1 |      1    // РЎР»РµРґСѓРµС‚ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
+										1    0       0 |     ?1+   // Р•СЃР»Рё fCreateLimitDebtDim && fProjCommStopToDebtDim, С‚Рѕ СЃР»РµРґСѓРµС‚ СЃРѕР·РґР°С‚СЊ СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ СЃ РїСЂРёР·РЅР°РєРѕРј STOP, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ - РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ
+										1    0       1 |     ?1    // Р•СЃР»Рё fProjCommStopToDebtDim, С‚Рѕ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
+										1    1       0 |      .    // РќРµРІРѕР·РјРѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµР»СЊР·СЏ РІС‹С‡РёСЃР»РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РЅРµ РёРјРµСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё
+										1    1       1 |      1    // РЎР»РµРґСѓРµС‚ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
 								*/
 								if(_cs == 0) {
 									if(_ds == 0) {
 										if(_dx == 0) {
-											; // Ничего не делать
+											; // РќРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ
 										}
 										else {
-											// Следует отключить частный STOP в соглашении
+											// РЎР»РµРґСѓРµС‚ РѕС‚РєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
 											if(p_dl->Flags & p_dl->fStop) {
 												p_dl->Flags &= ~p_dl->fStop;
 												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMRESETSTOP, &msg_buf, ar_id, dd_id));
@@ -4002,10 +4024,10 @@ int SLAPI PrcssrDebtRate::Run()
 									}
 									else {
 										if(_dx == 0) {
-											; // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
+											; // РќРµРІРѕР·РјРѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµР»СЊР·СЏ РІС‹С‡РёСЃР»РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РЅРµ РёРјРµСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё
 										}
 										else {
-											// Следует включить частный STOP в соглашении
+											// РЎР»РµРґСѓРµС‚ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
 											if(!(p_dl->Flags & p_dl->fStop)) {
 												p_dl->Flags |= p_dl->fStop;
 												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
@@ -4017,8 +4039,8 @@ int SLAPI PrcssrDebtRate::Run()
 								else {
 									if(_ds == 0) {
 										if(_dx == 0) {
-											// Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать
-											// размерность с признаком STOP, в противном случае - ничего не делать
+											// Р•СЃР»Рё fCreateLimitDebtDim && fProjCommStopToDebtDim, С‚Рѕ СЃР»РµРґСѓРµС‚ СЃРѕР·РґР°С‚СЊ
+											// СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ СЃ РїСЂРёР·РЅР°РєРѕРј STOP, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ - РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ
 											if(P.Flags & P.fCreateLimitDebtDim && P.Flags & P.fProjCommStopToDebtDim) {
 												PPClientAgreement::DebtLimit new_dl;
 												MEMSZERO(new_dl);
@@ -4030,7 +4052,7 @@ int SLAPI PrcssrDebtRate::Run()
 											}
 										}
 										else {
-											// Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
+											// Р•СЃР»Рё fProjCommStopToDebtDim, С‚Рѕ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
 											if(P.Flags & P.fProjCommStopToDebtDim) {
 												if(!(p_dl->Flags & p_dl->fStop)) {
 													p_dl->Flags |= p_dl->fStop;
@@ -4042,10 +4064,10 @@ int SLAPI PrcssrDebtRate::Run()
 									}
 									else {
 										if(_dx == 0) {
-											; // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
+											; // РќРµРІРѕР·РјРѕР¶РЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµР»СЊР·СЏ РІС‹С‡РёСЃР»РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РЅРµ РёРјРµСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЂР°Р·РјРµСЂРЅРѕСЃС‚Рё
 										}
 										else {
-											// Следует включить частный STOP в соглашении
+											// РЎР»РµРґСѓРµС‚ РІРєР»СЋС‡РёС‚СЊ С‡Р°СЃС‚РЅС‹Р№ STOP РІ СЃРѕРіР»Р°С€РµРЅРёРё
 											if(!(p_dl->Flags & p_dl->fStop)) {
 												p_dl->Flags |= p_dl->fStop;
 												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
@@ -4505,7 +4527,7 @@ int SLAPI PPViewDebtorStat::ViewGraph(PPViewBrowser * pBrw)
 				double m = total.PaymRatingMean;
 				double b = total.PaymRatingBar;
 				PPGpTicsList tics_list(0);
-				//tics_list.Add(m, "Среднее");
+				//tics_list.Add(m, "РЎСЂРµРґРЅРµРµ");
 				tics_list.Add(m - b/2 - b, "D");
 				tics_list.Add(m - b/2, "C");
 				tics_list.Add(m + b/2, "B");
@@ -4525,7 +4547,7 @@ int SLAPI PPViewDebtorStat::ViewGraph(PPViewBrowser * pBrw)
 				double m = total.DelayRatingMean;
 				double b = total.DelayRatingBar;
 				PPGpTicsList tics_list(0);
-				//tics_list.Add(m, "Среднее");
+				//tics_list.Add(m, "РЎСЂРµРґРЅРµРµ");
 				tics_list.Add(m - b/2 - b, "B");
 				tics_list.Add(m - b/2, "C");
 				tics_list.Add(m + b/2, "D");

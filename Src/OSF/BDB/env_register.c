@@ -460,10 +460,9 @@ err:
  */
 int __envreg_xunlock(ENV * env)
 {
-	DB_ENV * dbenv;
 	pid_t pid;
 	int ret;
-	dbenv = env->dbenv;
+	DB_ENV * dbenv = env->dbenv;
 	dbenv->thread_id(dbenv, &pid, 0);
 	if(FLD_ISSET(dbenv->verbose, DB_VERB_REGISTER))
 		__db_msg(env, DB_STR_A("1533", "%lu: recovery completed, unlocking", "%lu"), (ulong)pid);
@@ -516,17 +515,13 @@ int __envreg_isalive(DB_ENV * dbenv, pid_t pid, db_threadid_t tid, uint32 flags)
  */
 static int __envreg_create_active_pid(ENV * env, char * my_pid)
 {
-	DB_ENV * dbenv;
 	char buf[PID_LEN+10];
-	int ret;
-	off_t pos;
 	pid_t pid, * tmparray;
 	size_t tmpsize, nr;
 	uint lcnt;
-
-	dbenv = env->dbenv;
-	pos = 0;
-	ret = 0;
+	DB_ENV * dbenv = env->dbenv;
+	off_t pos = 0;
+	int ret = 0;
 	/*
 	 * Walk through DB_REGISTER file, we grab pid entries that are locked
 	 * as those represent processes that are still alive.   Ignore empty
@@ -535,8 +530,7 @@ static int __envreg_create_active_pid(ENV * env, char * my_pid)
 	if((ret = __os_seek(env, dbenv->registry, 0, 0, 0)) != 0)
 		return ret;
 	for(lcnt = 0;; ++lcnt) {
-		if((ret = __os_read(
-			    env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
+		if((ret = __os_read(env, dbenv->registry, buf, PID_LEN, &nr)) != 0)
 			return ret;
 		/* all done is read nothing, or get a partial record */
 		if(nr == 0 || nr != PID_LEN)

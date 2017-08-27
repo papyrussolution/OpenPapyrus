@@ -432,7 +432,7 @@ uint64 FASTCALL _zip_buffer_left(zip_buffer_t * buffer)
 	return buffer->ok ? (buffer->size - buffer->offset) : 0;
 }
 
-zip_buffer_t * _zip_buffer_new(uint8 * data, size_t size)
+zip_buffer_t * FASTCALL _zip_buffer_new(uint8 * data, size_t size)
 {
 	bool free_data = (data == NULL);
 	zip_buffer_t * buffer;

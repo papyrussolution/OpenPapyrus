@@ -943,7 +943,7 @@ int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint opti
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return ::DrawText((HDC)S.HCtx, pText, -1, &rect, options) ? 1 : 0;
+	return ::DrawText((HDC)S.HCtx, pText, len, &rect, options) ? 1 : 0;
 }
 
 int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)

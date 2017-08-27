@@ -5260,8 +5260,6 @@ enum {
 class SVectorBase {
 public:
 	// @novtbl
-	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
-	SLAPI ~SVectorBase();
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
 	int    SLAPI getEnd() const { return (int)(count-1); }
@@ -5385,6 +5383,8 @@ public:
 	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
 	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
 protected:
+	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
+	SLAPI ~SVectorBase();
 	int    FASTCALL expand(uint numNewRecs);
 	int    SLAPI shrink();
 	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
@@ -5397,6 +5397,83 @@ protected:
 	uint16 flags;   //
 	uint16 delta;   //
 	uint8 * data;   //
+};
+//
+// Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
+//   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
+//
+class SVector : public SVectorBase {
+public:
+	SLAPI  SVector(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
+	SLAPI  SVector(uint itemSize);
+	SLAPI  SVector(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
+	SLAPI  SVector(const SVector & rS);
+	SLAPI ~SVector();
+	SVector & FASTCALL operator = (const SVector &);
+	int    FASTCALL copy(const SVector & src);
+	//
+	// Descr: Побайтно сравнивает массив this с массивом src.
+	//   Если this->getCount() != src.getCount || this->getItemSize() != src.getItemSize(),
+	//   то считает, что объекты не равны. Если эта проверка успешна, то сравнивает
+	//   побайтно все элементы массивов.
+	//
+	int    FASTCALL IsEqual(const SVector & src) const;
+	//
+	// Descr: Удаляет элемент массива по индексу pos. При этом, все последующие элементы
+	//   сдвигаются на одну позицию вниз.
+	// Returns:
+	//   !0 - элемент успешно удален
+	//   0  - ошибка. Единственная возможная причина ошибки: pos >= getCount().
+	//      В этом случае код ошибки SLibError = SLERR_BOUNDS.
+	//
+	int    FASTCALL atFree(uint pos);
+	//
+	// Descr: Удаляет последний элемент массива.
+	//
+	int    SLAPI freeLast();
+	//
+	// Descr: удаляет все элементы массива и освобождает занятую под них память.
+	//
+	void   SLAPI freeAll();
+	//
+	// Descr: удаляет все элементы массива не освобождая при этом память, выделенную под data
+	//
+	void   SLAPI clear();
+	//
+	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
+	// @construction
+	//
+	// double SLAPI calcSumDouble(size_t offs) const;
+	//
+	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
+	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
+	//   Если lowPos == uppPod, то вызов эквивалентен freeItem(lowPos)
+	//   Если lowPos < getCount(), то удаляет все элементы от позиции lowPos до MIN(uppPos, getCount()-1)
+	// Note: Главное назначение функции - ускорить массовое удаление за счет сокращения издержек
+	//   на перемещение участков памяти при серии единичных удалений.
+	//
+	int    SLAPI freeChunk(uint lowPos, uint uppPos);
+	//
+	// Descr: Функция записывает массив в бинарный файл rFile.
+	//   Формат записи следующий:
+	//   uint32 isize
+	//   uint32 count
+	//   uint8  bytes[count * isize]
+	// Note:
+	//   Этой функцией не следует подменять унаследованныю функцию WriteSArrayToFile(const SArray *, FILE *)
+	//   поскольку формат записи этих функций различается.
+	//
+	int    SLAPI Write(SFile & rFile, long) const;
+	//
+	// Descr: Функция считывает массив из бинарного файла rFile. Формат считывания //
+	//   соответствует тому, что определен для функции SArray::Write(SFile &, long).
+	// Note: Если размер записи в файле не соответсвует размеру записи this->isize,
+	//   то функция возвращает ошибку.
+	//   Перед считыванием массив this очищается.
+	//   Этой функцией не следует подменять унаследованныю функцию ReadSArrayFromFile(SArray *, FILE *)
+	//   поскольку формат чтения этих функций различается.
+	//
+	int    SLAPI Read(SFile & rFile, long);
 };
 //
 // SArray
@@ -5459,7 +5536,7 @@ public:
 	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
 	// @construction
 	//
-	double SLAPI calcSumDouble(size_t offs) const;
+	// double SLAPI calcSumDouble(size_t offs) const;
 	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
@@ -5506,7 +5583,7 @@ protected:
 // Streaming functions
 //   { (uint16)strlen(pStr), pStr[] }
 //   if(pStr == 0) then { (uint16)0 }
-// 
+//
 // { (uint16)count; data[count*isize] }
 //
 //int    SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream);
@@ -7644,132 +7721,128 @@ typedef int (*FileFormatSignatureFunc)(FILE * pF, long extraParam);
 //
 // Descr: Определители форматов файлов.
 //
-class SFileFormat {
+class SFileFormat { // @persistent (новые зарезервированные форматы добавлять в конце списка перед FirstUser)
 public:
 	enum {
-		Unkn = 0,
-		Txt,
-		Jpeg,
-		Png,
-		Tiff,
-		Gif,
-		Bmp,
-		Ico,
-		Cur,
-		Svg,
-		Html, // @v8.1.0
-		Xml,  // @v8.1.0
-		Ini,  // @v8.1.0
-		TxtBomUTF8,        // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF16BE,     // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF16LE,     // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF32BE,     // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF32LE,     // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF7,        // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF1,        // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomUTF_EBCDIC,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomSCSU,        // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomBOCU1,       // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		TxtBomGB18030,     // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
-		Latex,             // @v8.8.3 LATEX
-		Pdf,
-		Rtf,
-		Mdb,
-		AccDb, // Access
-		WbXml, // Binary XML
-		Wmf,
-		Eps,
-		Hlp,
-		Ppd,    // PostScript
-		PList,  // Property List
-		Mat,    // Matlab
-		Pdb,
-		WcbffOld, // Windows Compound Binary File Format
+		Unkn             =  0,
+		Txt              =  1,
+		Jpeg             =  2,
+		Png              =  3,
+		Tiff             =  4,
+		Gif              =  5,
+		Bmp              =  6,
+		Ico              =  7,
+		Cur              =  8,
+		Svg              =  9,
+		Html             = 10,  // @v8.1.0
+		Xml              = 11,  // @v8.1.0
+		Ini              = 12,  // @v8.1.0
+		TxtBomUTF8       = 13,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF16BE    = 14,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF16LE    = 15,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF32BE    = 16,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF32LE    = 17,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF7       = 18,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF1       = 19,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomUTF_EBCDIC = 20,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomSCSU       = 21,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomBOCU1      = 22,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		TxtBomGB18030    = 23,  // @v8.6.7 Текстовый файл с сигнатурой типа кодировка (BOM)
+		Latex            = 24,  // @v8.8.3 LATEX
+		Pdf              = 25,
+		Rtf              = 26,
+		Mdb              = 27,
+		AccDb            = 28,  // Access
+		WbXml            = 29,  // Binary XML
+		Wmf              = 30,
+		Eps              = 31,
+		Hlp              = 32,
+		Ppd              = 33,  // PostScript
+		PList            = 34,  // Property List
+		Mat              = 35,  // Matlab
+		Pdb              = 36,
+		WcbffOld         = 37,  // Windows Compound Binary File Format
+		Zip              = 38,  // @v9.0.0 Archive
+		Rar              = 39,  // @v9.0.0 Archive
+		Gz               = 40,  // @v9.0.0 Archive
+		Tar              = 41,  // @v9.0.0 Archive
+		Bz2              = 42,  // @v9.0.0 Archive
+		SevenZ           = 43,  // @v9.0.0 Archive
+		Xz               = 44,  // @v9.0.0 Archive
+		Z                = 45,  // @v9.0.0 Archive
+		Cab              = 46,  // @v9.0.0 Archive
+		Arj              = 47,  // @v9.0.0 Archive
+		Lzh              = 48,  // @v9.0.0 Archive
+		Xar              = 49,  // @v9.0.0 Archive
+		Pmd              = 50,  // @v9.0.0 Archive
+		Deb              = 51,  // @v9.0.0 Archive
+		Rpm              = 52,  // @v9.0.0 Archive
+		Chm              = 53,  // @v9.0.0 Archive
+		Iso              = 54,  // @v9.0.0 Archive
+		Vhd              = 55,  // @v9.0.0 Archive
+		Wim              = 56,  // @v9.0.0 Archive
+		Mdf              = 57,  // @v9.0.0 Archive
+		Nri              = 58,  // @v9.0.0 Archive
+		Swf              = 59,  // @v9.0.0 Archive
+		Mar              = 60,  // @v9.0.0 Archive
+		Mkv              = 61,  // @v9.0.9 Video
+		Avi              = 62,  // @v9.0.9 Video
+		Mp4              = 63,  // @v9.0.9 Video
+		Wmv              = 64,  // @v9.0.9 Video
+		Mpg              = 65,  // @v9.0.9 Video
+		Flv              = 66,  // @v9.0.9 Video
+		Mov              = 67,  // @v9.0.9 Video
+		F4f              = 68,  // @v9.0.9 Video
+		Class            = 69,  // @v9.0.9 binary:class 0:CAFEBABE
+		Exe              = 70,  // @v9.0.9 binary:exe   0:4D5A
+		Dll              = 71,  // @v9.0.9 binary:dll   0:4D5A
+		Pcap             = 72,  // @v9.0.9 binary:pcap  0:D4C3B2A1
+		Pyo              = 73,  // @v9.0.9 binary:pyo   0:03F30D0A
+		So               = 74,  // @v9.0.9 binary:so    0:7F454C46
+		Mo               = 75,  // @v9.0.9 binary:mo    0:DE120495
+		Mui              = 76,  // @v9.0.9 binary:mui   0:50413330
+		Cat              = 77,  // @v9.0.9 binary:cat   0:30 6:2A864886
+		Xsb              = 78,  // @v9.0.9 binary:xsb   0:DA7ABABE
+		Key              = 79,  // @v9.0.9 binary:key   0:4B4C737727
+		Sq3              = 80,  // @v9.0.9 binary:sq3   0:53514C697465
+		Qst              = 81,  // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
+		Crx              = 82,  // @v9.0.9 binary:crx   0:43723234
+		Utx              = 83,  // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
+		Rx3              = 84,  // @v9.0.9 binary:rx3   0:52583362
+		Kdc              = 85,  // @v9.0.9 binary:kdc   0:44494646
+		Xnb              = 86,  // @v9.0.9 binary:xnb   0:584E42
+		Blp              = 87,  // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
+		Big              = 88,  // @v9.0.9 binary:big   0:42494746
+		Mdl              = 89,  // @v9.0.9 binary:mdl   0:49445354
+		Spr              = 90,  // @v9.0.9 binary:spr   0:CDCC8C3F
+		Sfo              = 91,  // @v9.0.9 binary:sfo   0:00505346
+		Mpq              = 92,  // @v9.0.9 binary:mpq   0:4D50511A
+		Nes              = 93,  // @v9.0.9 binary:nes   0:4E45531A
+		Dmp              = 94,  // @v9.0.9 binary:dmp   0:4D444D5093A7
+		Dex              = 95,  // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+		Gim              = 96,  // @v9.0.9 binary:gim   0:4D49472E30302E31505350
+		Amxx             = 97,  // @v9.0.9 binary:amxx  0:58584D41
+		Sln              = 98,  // Visual Studio Solution
+		VCProj           = 99,  // Visual Studio Project
+		Asm              = 100, // Assempbler source file
+		C                = 101, // C source file
+		CPP              = 102, // CPP source file
+		H                = 103, // C header file
+		Perl             = 104, // perl source code
+		Php              = 105, // php source code
+		Java             = 106, // java source code
+		Py               = 107, // Python source code
+		UnixShell        = 108, // Unix Shell script
+		Msi              = 109, // Microsoft Installer package
+		TxtUtf8          = 110, // @v9.3.6 Текст в формате utf8
+		TxtAscii         = 111, // @v9.3.6 Текст в котором только ASCII-символы
+		Log              = 112, // @v9.7.1 Файл журнала (by ext only)
+		Properties       = 113, // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
+		Css              = 114, // @v9.7.1 CSS
+		JavaScript       = 115, // @v9.7.1 JS
+		Json             = 116, // @v9.7.2
 
-		Zip,               // @v9.0.0 Archive
-		Rar,               // @v9.0.0 Archive
-		Gz,                // @v9.0.0 Archive
-		Tar,               // @v9.0.0 Archive
-		Bz2,               // @v9.0.0 Archive
-		SevenZ,            // @v9.0.0 Archive
-		Xz,                // @v9.0.0 Archive
-		Z,                 // @v9.0.0 Archive
-		Cab,               // @v9.0.0 Archive
-		Arj,               // @v9.0.0 Archive
-		Lzh,               // @v9.0.0 Archive
-		Xar,               // @v9.0.0 Archive
-		Pmd,               // @v9.0.0 Archive
-		Deb,               // @v9.0.0 Archive
-		Rpm,               // @v9.0.0 Archive
-		Chm,               // @v9.0.0 Archive
-		Iso,               // @v9.0.0 Archive
-		Vhd,               // @v9.0.0 Archive
-		Wim,               // @v9.0.0 Archive
-		Mdf,               // @v9.0.0 Archive
-		Nri,               // @v9.0.0 Archive
-		Swf,               // @v9.0.0 Archive
-		Mar,               // @v9.0.0 Archive
-
-		Mkv,               // @v9.0.9 Video
-		Avi,               // @v9.0.9 Video
-		Mp4,               // @v9.0.9 Video
-		Wmv,               // @v9.0.9 Video
-		Mpg,               // @v9.0.9 Video
-		Flv,               // @v9.0.9 Video
-		Mov,               // @v9.0.9 Video
-		F4f,               // @v9.0.9 Video
-
-		Class,             // @v9.0.9 binary:class 0:CAFEBABE
-		Exe,               // @v9.0.9 binary:exe   0:4D5A
-		Dll,               // @v9.0.9 binary:dll   0:4D5A
-		Pcap,              // @v9.0.9 binary:pcap  0:D4C3B2A1
-		Pyo,               // @v9.0.9 binary:pyo   0:03F30D0A
-		So,                // @v9.0.9 binary:so    0:7F454C46
-		Mo,                // @v9.0.9 binary:mo    0:DE120495
-		Mui,               // @v9.0.9 binary:mui   0:50413330
-		Cat,               // @v9.0.9 binary:cat   0:30 6:2A864886
-		Xsb,               // @v9.0.9 binary:xsb   0:DA7ABABE
-		Key,               // @v9.0.9 binary:key   0:4B4C737727
-		Sq3,               // @v9.0.9 binary:sq3   0:53514C697465
-		Qst,               // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-		Crx,               // @v9.0.9 binary:crx   0:43723234
-		Utx,               // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
-		Rx3,               // @v9.0.9 binary:rx3   0:52583362
-		Kdc,               // @v9.0.9 binary:kdc   0:44494646
-		Xnb,               // @v9.0.9 binary:xnb   0:584E42
-		Blp,               // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-		Big,               // @v9.0.9 binary:big   0:42494746
-		Mdl,               // @v9.0.9 binary:mdl   0:49445354
-		Spr,               // @v9.0.9 binary:spr   0:CDCC8C3F
-		Sfo,               // @v9.0.9 binary:sfo   0:00505346
-		Mpq,               // @v9.0.9 binary:mpq   0:4D50511A
-		Nes,               // @v9.0.9 binary:nes   0:4E45531A
-		Dmp,               // @v9.0.9 binary:dmp   0:4D444D5093A7
-		Dex,               // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-		Gim,               // @v9.0.9 binary:gim   0:4D49472E30302E31505350
-		Amxx,              // @v9.0.9 binary:amxx  0:58584D41
-
-		Sln,               // Visual Studio Solution
-		VCProj,            // Visual Studio Project
-		Asm,               // Assempbler source file
-		C,                 // C source file
-		CPP,               // CPP source file
-		H,                 // C header file
-		Perl,              // perl source code
-		Php,               // php source code
-		Java,              // java source code
-		Py,                // Python source code
-		UnixShell,         // Unix Shell script
-		Msi,               // Microsoft Installer package
-		TxtUtf8,           // @v9.3.6 Текст в формате utf8
-		TxtAscii,          // @v9.3.6 Текст в котором только ASCII-символы
-		Log,               // @v9.7.1 Файл журнала (by ext only)
-		Properties,        // @v9.7.1 Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
-		Css,               // @v9.7.1 CSS
-		JavaScript,        // @v9.7.1 JS
-		Json,              // @v9.7.2
-
-		FirstUser = 10000
+		FirstUser        = 10000
 	};
 	static int Register(int id, const char * pMime, const char * pExt, const char * pSign);
 	static int Register();
@@ -11715,7 +11788,7 @@ public:
 		SLAPI  Finder(const SGeoGridTab & rTab);
         uint   FASTCALL GetIdxLat(long lat);
         uint   FASTCALL GetIdxLon(long lon);
-        int    SLAPI GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon);
+        void   SLAPI GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon);
         uint32 FASTCALL GetZIdx32(const SGeoPosLL_Int & rC);
         uint64 FASTCALL GetZIdx64(const SGeoPosLL_Int & rC);
 	private:

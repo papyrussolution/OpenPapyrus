@@ -213,7 +213,7 @@ int PPConfigDatabase::CObjHeader::Cmp(const CObjHeader & rS, long flags) const
 	return c;
 }
 
-SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("ppconfig.db->cobj", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj", 0, 0), pDb)
 {
 	SeqID = 0;
 	//
@@ -244,8 +244,8 @@ SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable:
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::Config("ppconfig.db->cobj_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
-	new BDbTable(BDbTable::Config("ppconfig.db->cobj_idx02", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx02, this);
+	new BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj_idx01", 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj_idx02", cfDup, 0), pDb, new Idx02, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_cobj_id", 0, &SeqID));
 	CATCH
@@ -305,7 +305,7 @@ int SLAPI PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec,
 	return ok;
 }
 
-SLAPI PPConfigDatabase::CObjTailTbl::CObjTailTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("ppconfig.db->cobjtail", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SLAPI PPConfigDatabase::CObjTailTbl::CObjTailTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobjtail", 0, 0), pDb)
 {
 }
 

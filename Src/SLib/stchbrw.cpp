@@ -587,18 +587,10 @@ int STimeChunkBrowser::SaveParameters()
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.at(i);
 			switch(item.Id) {
-				case kpPixQuant:
-					temp_buf.CatEq(item.Txt, (long)P.PixQuant).Semicol();
-					break;
-				case kpPixRow:
-					temp_buf.CatEq(item.Txt, (long)P.PixRow).Semicol();
-					break;
-				case kpPixRowMargin:
-					temp_buf.CatEq(item.Txt, (long)P.PixRowMargin).Semicol();
-					break;
-				case kpTextZonePart:
-					temp_buf.CatEq(item.Txt, (long)St.TextZonePart).Semicol();
-					break;
+				case kpPixQuant: temp_buf.CatEq(item.Txt, (long)P.PixQuant).Semicol(); break;
+				case kpPixRow:   temp_buf.CatEq(item.Txt, (long)P.PixRow).Semicol(); break;
+				case kpPixRowMargin: temp_buf.CatEq(item.Txt, (long)P.PixRowMargin).Semicol(); break;
+				case kpTextZonePart: temp_buf.CatEq(item.Txt, (long)St.TextZonePart).Semicol(); break;
 			}
 		}
 		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");
@@ -670,12 +662,11 @@ int FASTCALL STimeChunkBrowser::IsKeepingData(const STimeChunkGrid * pGrid) cons
 	return BIN(P_Data == pGrid);
 }
 
-int STimeChunkBrowser::UpdateData()
+void STimeChunkBrowser::UpdateData()
 {
 	OnUpdateData();
 	invalidateAll(1);
 	::UpdateWindow(H());
-	return 1;
 }
 
 void STimeChunkBrowser::SetupScroll()
@@ -736,10 +727,8 @@ void STimeChunkBrowser::SetupScroll()
 int STimeChunkBrowser::SetParam(const Param * pParam)
 {
 	SString temp_buf;
-	if(pParam)
-		P = *pParam;
-
-	SETIFZ(P.Quant, 12 * 60);
+	RVALUEPTR(P, pParam);
+ 	SETIFZ(P.Quant, 12 * 60);
 	SETIFZ(P.PixQuant,   20);
 	SETIFZ(P.PixRow,     10);
 	St.HdrLevelCount = 0;
@@ -881,7 +870,7 @@ uint STimeChunkBrowser::GetScrollLimitY() const
 	return St.ScrollLimitY;
 }
 
-int STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
+void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 {
 	uint   prev_scr_x = St.ScrollX;
 	uint   prev_scr_y = St.ScrollY;
@@ -1050,16 +1039,14 @@ int STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			invalidateAll(1);
 		UpdateWindow(H());
 	}
-	return 1;
 }
 
-int FASTCALL STimeChunkBrowser::GetStartPageDate(LDATE * pDt)
+void FASTCALL STimeChunkBrowser::GetStartPageDate(LDATE * pDt)
 {
 	Area a2;
 	GetArea(a2);
 	STimeChunk view_time_bounds = GetBoundsTime(a2);
 	ASSIGN_PTR(pDt, view_time_bounds.Start.d);
-	return 1;
 }
 
 int ExecDateCalendar(/*HWND*/uint32 hParent, LDATE * pDt); // @prototype

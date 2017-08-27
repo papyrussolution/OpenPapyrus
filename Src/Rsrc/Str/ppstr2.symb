@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489287
+LastSignatureCode=2147489288
 LastAutoCodeList=1,11015;102,10162;103,10071;110,10000;111,11639;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10247;1002,10000;1003,10000;1004,10000;1005,10000;124,10031
 
 [SignatureList]
@@ -4319,6 +4319,7 @@ billfilt_fshowcreatoronly_=2147487041
 billfilt_fshowdebt=2147487042
 billfilt_fshowwoagent=2147487043
 billfilt_ft_closedorder=2147487051
+billfilt_fccprintedonly=2147489288
 billfilt_ft_declined=2147487044
 billfilt_ft_stax=2147487045
 billfilt_funshippedonly=2147487046

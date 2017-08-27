@@ -845,6 +845,12 @@ SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & 
 	return rBuf;
 }
 
+static SString & FASTCALL _EncodeStr(const char * pStr, SString & rBuf)
+{
+	//SOemToChar
+	return (rBuf = pStr).Transf(CTRANSF_INNER_TO_OUTER);
+}
+
 int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
 {
 	int    ok = -1;
@@ -866,7 +872,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 			PPLoadString(PPMSG_ERROR, PPERR_EXPORTBNKORDER, str_fmt);
 			PPLoadString(PPMSG_ERROR, msg_code, buf);
 			str_dt.Cat(pPack->Rec.Dt);
-			msg.Printf(str_fmt, pPack->Rec.Code, (const char*)str_dt, (const char*)buf);
+			msg.Printf(str_fmt, pPack->Rec.Code, str_dt.cptr(), buf.cptr());
 			pLogger->Log(msg);
 		}
 		RejectedCount++;
@@ -883,10 +889,10 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 		data_buf.ReceiverPersonID = pPack->P_PaymOrder->RcvrID;
 		data_buf.Sequence         = pPack->P_PaymOrder->BnkQueueing;
 		data_buf.VatSum           = pPack->P_PaymOrder->VATSum;
-		SOemToChar(STRNSCPY(data_buf.Code, pPack->Rec.Code));
-		SOemToChar(STRNSCPY(data_buf.Purpose, pPack->Rec.Memo));
-		SOemToChar((buf = pPack->Rec.Memo).Space().Cat(MakeVatText(pPack, temp_buf)).
-			CopyTo(data_buf.PurposePlusVat, sizeof(data_buf.PurposePlusVat)));
+		STRNSCPY(data_buf.Code, _EncodeStr(pPack->Rec.Code, temp_buf));
+		STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->Rec.Memo, temp_buf));
+		(buf = pPack->Rec.Memo).Space().Cat(MakeVatText(pPack, temp_buf)).Transf(CTRANSF_INNER_TO_OUTER).
+			CopyTo(data_buf.PurposePlusVat, sizeof(data_buf.PurposePlusVat));
 		{
 			long   paym_method = 0;
 			StringSet ss(';', P.PaymMethodTransl);
@@ -901,31 +907,31 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 			}
 			data_buf.PaymMethod = (int16)paym_method;
 		}
-		SOemToChar(STRNSCPY(data_buf.PayerName,     payer_req.ExtName[0] ? payer_req.ExtName : payer_req.Name));
-		SOemToChar(STRNSCPY(data_buf.PayerINN,      payer_req.TPID));
-		SOemToChar(STRNSCPY(data_buf.PayerKPP,      payer_req.KPP)); // @v7.4.5
-		SOemToChar(STRNSCPY(data_buf.PayerBankAcc,  payer_ba.Acct));
-		SOemToChar(STRNSCPY(data_buf.PayerBankName, payer_ba.Bnk.ExtName[0] ? payer_ba.Bnk.ExtName : payer_ba.Bnk.Name));
-		SOemToChar(STRNSCPY(data_buf.PayerBankCode, payer_ba.Bnk.BIC));
-		SOemToChar(STRNSCPY(data_buf.PayerBankCorr, payer_ba.Bnk.CorrAcc));
-		SOemToChar(STRNSCPY(data_buf.ReceiverName,     rcvr_req.ExtName[0] ? rcvr_req.ExtName : rcvr_req.Name));
-		SOemToChar(STRNSCPY(data_buf.ReceiverINN,      rcvr_req.TPID));
-		SOemToChar(STRNSCPY(data_buf.ReceiverKPP,      rcvr_req.KPP));  // @v7.4.5
-		SOemToChar(STRNSCPY(data_buf.ReceiverBankAcc,  rcvr_ba.Acct));
-		SOemToChar(STRNSCPY(data_buf.ReceiverBankName, rcvr_ba.Bnk.ExtName[0] ? rcvr_ba.Bnk.ExtName : rcvr_ba.Bnk.Name));
-		SOemToChar(STRNSCPY(data_buf.ReceiverBankCode, rcvr_ba.Bnk.BIC));
-		SOemToChar(STRNSCPY(data_buf.ReceiverBankCorr, rcvr_ba.Bnk.CorrAcc));
+		STRNSCPY(data_buf.PayerName,     _EncodeStr(payer_req.ExtName[0] ? payer_req.ExtName : payer_req.Name, temp_buf));
+		STRNSCPY(data_buf.PayerINN,      _EncodeStr(payer_req.TPID, temp_buf));
+		STRNSCPY(data_buf.PayerKPP,      _EncodeStr(payer_req.KPP, temp_buf));
+		STRNSCPY(data_buf.PayerBankAcc,  _EncodeStr(payer_ba.Acct, temp_buf));
+		STRNSCPY(data_buf.PayerBankName, _EncodeStr(payer_ba.Bnk.ExtName[0] ? payer_ba.Bnk.ExtName : payer_ba.Bnk.Name, temp_buf));
+		STRNSCPY(data_buf.PayerBankCode, _EncodeStr(payer_ba.Bnk.BIC, temp_buf));
+		STRNSCPY(data_buf.PayerBankCorr, _EncodeStr(payer_ba.Bnk.CorrAcc, temp_buf));
+		STRNSCPY(data_buf.ReceiverName,     _EncodeStr(rcvr_req.ExtName[0] ? rcvr_req.ExtName : rcvr_req.Name, temp_buf));
+		STRNSCPY(data_buf.ReceiverINN,      _EncodeStr(rcvr_req.TPID, temp_buf));
+		STRNSCPY(data_buf.ReceiverKPP,      _EncodeStr(rcvr_req.KPP, temp_buf));
+		STRNSCPY(data_buf.ReceiverBankAcc,  _EncodeStr(rcvr_ba.Acct, temp_buf));
+		STRNSCPY(data_buf.ReceiverBankName, _EncodeStr(rcvr_ba.Bnk.ExtName[0] ? rcvr_ba.Bnk.ExtName : rcvr_ba.Bnk.Name, temp_buf));
+		STRNSCPY(data_buf.ReceiverBankCode, _EncodeStr(rcvr_ba.Bnk.BIC, temp_buf));
+		STRNSCPY(data_buf.ReceiverBankCorr, _EncodeStr(rcvr_ba.Bnk.CorrAcc, temp_buf));
 		if(pPack->Rec.Object2) {
 			PersonReq req2;
 			GetArticleName(pPack->Rec.Object2, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(data_buf.Obj2Name, sizeof(data_buf.Obj2Name));
 			if(PsnObj.GetPersonReq(pPack->Rec.Object2, &req2) > 0)
-				SOemToChar(STRNSCPY(data_buf.Obj2INN, req2.TPID));
+				STRNSCPY(data_buf.Obj2INN, _EncodeStr(req2.TPID, temp_buf));
 		}
 		{
 			LocationTbl::Rec loc_rec;
 			if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
-				SOemToChar(STRNSCPY(data_buf.LocSymb, loc_rec.Code));
+				STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
 				// @v9.1.1 {
 				{
 					RegisterTbl::Rec reg_rec;
@@ -938,21 +944,21 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 				// } @v9.1.1
 			}
 		}
-		SOemToChar(STRNSCPY(data_buf.TaxPayerKPP,      payer_req.KPP));
-		SOemToChar(STRNSCPY(data_buf.TaxReceiverKPP,   rcvr_req.KPP));
+		STRNSCPY(data_buf.TaxPayerKPP, _EncodeStr(payer_req.KPP, temp_buf));
+		STRNSCPY(data_buf.TaxReceiverKPP, _EncodeStr(rcvr_req.KPP, temp_buf));
 		buf = 0;
 		if(pPack->P_PaymOrder->PayerStatus)
 			buf.CatLongZ(pPack->P_PaymOrder->PayerStatus, 2);
-		SOemToChar(STRNSCPY(data_buf.TaxPayerStatus, buf));
-		SOemToChar(STRNSCPY(data_buf.TaxClass,       pPack->P_PaymOrder->Txm.TaxClass2));
-		SOemToChar(STRNSCPY(data_buf.OKATO,          pPack->P_PaymOrder->Txm.OKATO));
-		SOemToChar(STRNSCPY(data_buf.TaxReason,      pPack->P_PaymOrder->Txm.Reason));
-		SOemToChar(STRNSCPY(data_buf.TaxPeriod,      pPack->P_PaymOrder->Txm.Period.Format(buf)));
-		SOemToChar(STRNSCPY(data_buf.TaxDocNumber,   pPack->P_PaymOrder->Txm.DocNumber));
-		SOemToChar(STRNSCPY(data_buf.UIN,            pPack->P_PaymOrder->Txm.UIN)); // @v8.0.9
+		STRNSCPY(data_buf.TaxPayerStatus, _EncodeStr(buf, temp_buf));
+		STRNSCPY(data_buf.TaxClass,       _EncodeStr(pPack->P_PaymOrder->Txm.TaxClass2, temp_buf));
+		STRNSCPY(data_buf.OKATO,          _EncodeStr(pPack->P_PaymOrder->Txm.OKATO, temp_buf));
+		STRNSCPY(data_buf.TaxReason,      _EncodeStr(pPack->P_PaymOrder->Txm.Reason, temp_buf));
+		STRNSCPY(data_buf.TaxPeriod,      _EncodeStr(pPack->P_PaymOrder->Txm.Period.Format(buf), temp_buf));
+		STRNSCPY(data_buf.TaxDocNumber,   _EncodeStr(pPack->P_PaymOrder->Txm.DocNumber, temp_buf));
+		STRNSCPY(data_buf.UIN,            _EncodeStr(pPack->P_PaymOrder->Txm.UIN, temp_buf)); // @v8.0.9
 		(buf = 0).Cat(pPack->P_PaymOrder->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
 			CopyTo(data_buf.TaxDocDate, sizeof(data_buf.TaxDocDate));
-		SOemToChar(STRNSCPY(data_buf.TaxPaymType,    pPack->P_PaymOrder->Txm.PaymType));
+		STRNSCPY(data_buf.TaxPaymType,    _EncodeStr(pPack->P_PaymOrder->Txm.PaymType, temp_buf));
 	}
 	{
 		BillTbl::Rec debt_rec;

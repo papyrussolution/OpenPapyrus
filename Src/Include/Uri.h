@@ -24,18 +24,8 @@
 
 #define URI_INT_TO_UNICODE_HELPER(x) URI_ANSI_TO_UNICODE(# x)
 #define URI_INT_TO_UNICODE(x) URI_INT_TO_UNICODE_HELPER(x)
-
-#define URI_VER_ANSI_HELPER(ma, mi, r, s) \
-        URI_INT_TO_ANSI(ma) "." \
-        URI_INT_TO_ANSI(mi) "." \
-        URI_INT_TO_ANSI(r) \
-        s
-
-#define URI_VER_UNICODE_HELPER(ma, mi, r, s) \
-        URI_INT_TO_UNICODE(ma) L"." \
-        URI_INT_TO_UNICODE(mi) L"." \
-        URI_INT_TO_UNICODE(r) \
-        s
+#define URI_VER_ANSI_HELPER(ma, mi, r, s)    URI_INT_TO_ANSI(ma) "." URI_INT_TO_ANSI(mi) "." URI_INT_TO_ANSI(r) s
+#define URI_VER_UNICODE_HELPER(ma, mi, r, s) URI_INT_TO_UNICODE(ma) L"." URI_INT_TO_UNICODE(mi) L"." URI_INT_TO_UNICODE(r) s
 
 /* Full version strings */
 #define URI_VER_ANSI     URI_VER_ANSI_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_ANSI)
@@ -90,76 +80,105 @@ typedef enum UriBreakConversionEnum {
 	URI_BR_TO_MAC = URI_BR_TO_CR, /**< @copydoc UriBreakConversionEnum::URI_BR_TO_CR */
 	URI_BR_DONT_TOUCH /**< Copy line breaks unmodified */
 } UriBreakConversion; /**< @copydoc UriBreakConversionEnum */
-
-/**
- * Specifies which component of a %URI has to be normalized.
- */
-typedef enum UriNormalizationMaskEnum {
-	URI_NORMALIZED = 0, /**< Do not normalize anything */
-	URI_NORMALIZE_SCHEME = 1<<0,   /**< Normalize scheme (fix uppercase letters) */
-	URI_NORMALIZE_USER_INFO = 1<<1,   /**< Normalize user info (fix uppercase percent-encodings) */
-	URI_NORMALIZE_HOST = 1<<2,   /**< Normalize host (fix uppercase letters) */
-	URI_NORMALIZE_PATH = 1<<3,   /**< Normalize path (fix uppercase percent-encodings and redundant dot segments) */
-	URI_NORMALIZE_QUERY = 1<<4,   /**< Normalize query (fix uppercase percent-encodings) */
-	URI_NORMALIZE_FRAGMENT = 1<<5   /**< Normalize fragment (fix uppercase percent-encodings) */
-} UriNormalizationMask; /**< @copydoc UriNormalizationMaskEnum */
-
-int FASTCALL uriIsUnreserved(int code);
 //
 //
 //
-void uriWriteQuadToDoubleByte(const uchar * hexDigits, int digitCount, uchar * output);
-uchar uriGetOctetValue(const uchar * digits, int digitCount);
-//
-//
-//
-struct UriIp4Parser {
-	uchar stackCount;
-	uchar stackOne;
-	uchar stackTwo;
-	uchar stackThree;
-};
-
-void FASTCALL uriPushToStack(UriIp4Parser * parser, uchar digit);
-void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet);
-
 struct UriTextRange {
-	const char * first; /**< Pointer to first character */
-	const char * afterLast; /**< Pointer to character after the last one still in */
-};
+	UriTextRange();
+	void   Clear();
+	UriTextRange & operator = (const UriTextRange & rS);
+	int    Len() const;
+	int    FixPercentEncodingMalloc();
 
-struct UriPathSegment {
-	UriTextRange text; /**< Path segment name */
-	UriPathSegment * next; /**< Pointer to the next path segment in the list, can be NULL if last already */
-	void * reserved; /**< Reserved to the parser */
+	const char * P_First;     // Pointer to first character 
+	const char * P_AfterLast; // Pointer to character after the last one still in 
 };
 
 struct UriHostData {
-	UriIp4 * ip4; /**< IPv4 address */
-	UriIp6 * ip6; /**< IPv6 address */
-	UriTextRange ipFuture; /**< IPvFuture address */
+	UriIp4 * ip4; // IPv4 address 
+	UriIp6 * ip6; // IPv6 address 
+	UriTextRange ipFuture; // IPvFuture address 
 };
 
 struct UriUri {
-	UriTextRange scheme; /**< Scheme (e.g. "http") */
-	UriTextRange userInfo; /**< User info (e.g. "user:pass") */
-	UriTextRange hostText; /**< Host text (set for all hosts, excluding square brackets) */
-	UriHostData hostData; /**< Structured host type specific data */
-	UriTextRange portText; /**< Port (e.g. "80") */
-	UriPathSegment* pathHead;   /**< Head of a linked list of path segments */
-	UriPathSegment* pathTail;   /**< Tail of the list behind pathHead */
-	UriTextRange query; /**< Query without leading "?" */
-	UriTextRange fragment; /**< Query without leading "#" */
-	int absolutePath; /**< Absolute path flag, distincting "a" and "/a" */
-	int owner; /**< Memory owner flag */
-	void * reserved; /**< Reserved to the parser */
+	void   Destroy();
+
+	struct PathSegment {
+		PathSegment(const char * pFirst, const char * pAfterLast)
+		{
+			text.P_First = pFirst;
+			text.P_AfterLast = pAfterLast;
+			next = 0;
+			reserved = 0;
+		}
+		UriTextRange text;     // Path segment name 
+		PathSegment * next;    // Pointer to the next path segment in the list, can be NULL if last already 
+		void * reserved;       // Reserved to the parser 
+	};
+	UriTextRange Scheme;       // Scheme (e.g. "http") 
+	UriTextRange UserInfo;     // User info (e.g. "user:pass") 
+	UriTextRange HostText;     // Host text (set for all hosts, excluding square brackets) 
+	UriHostData  HostData;     // Structured host type specific data 
+	UriTextRange PortText;     // Port (e.g. "80") 
+	PathSegment * pathHead;    // Head of a linked list of path segments 
+	PathSegment * pathTail;    // Tail of the list behind pathHead 
+	UriTextRange query;        // Query without leading "?" 
+	UriTextRange fragment;     // Query without leading "#" 
+	int    IsAbsolutePath;     // Absolute path flag, distincting "a" and "/a" 
+	int    IsOwner;            // Memory owner flag 
+	void * reserved;           // Reserved to the parser 
 };
 
 struct UriParserState {
-	UriUri * uri;   /**< Plug in the %URI structure to be filled while parsing here */
-	int errorCode; /**< Code identifying the occured error */
-	const char * errorPos; /**< Pointer to position in case of a syntax error */
-	void * reserved; /**< Reserved to the parser */
+	UriParserState();
+	void   Clear();
+	void   Reset();
+	int    FASTCALL ParseUriEx(const char * pFirst, const char * pAfterLast);
+	const  char * FASTCALL ParseUriReference(const char * pFirst, const char * pAfterLast);
+	const  char * FASTCALL ParseSegmentNzNcOrScheme2(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseMustBeSegmentNzNc(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseHexZero(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseIPv6address2(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseOwnHost(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseOwnUserInfo(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseOwnPortUserInfo(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseOwnHostUserInfoNz(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseAuthorityTwo(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseAuthority(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePartHelperTwo(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseSegment(const char * first, const char * afterLast);
+	void   FASTCALL StopSyntax(const char * pErrorPos);
+	void   StopMalloc();
+
+	UriUri * P_Uri; // Plug in the %URI structure to be filled while parsing here 
+	int    ErrorCode; // Code identifying the occured error 
+	const  char * P_ErrorPos; // Pointer to position in case of a syntax error 
+	void * P_Reserved; // Reserved to the parser 
+private:
+	const  char * FASTCALL ParseOwnHostUserInfo(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseOwnHost2(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePctSubUnres(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseHierPart(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePathAbsNoLeadSlash(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePathAbsEmpty(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePathRootless(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseIpLit2(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseIpFuture(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePctEncoded(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePort(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseUriTail(const char * pFirst, const char * pAfterLast);
+	const  char * FASTCALL ParseUriTailTwo(const char * first, const char * pAfterLast);
+	const  char * FASTCALL ParseQueryFrag(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseZeroMoreSlashSegs(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseSegmentNz(const char * first, const char * afterLast);
+	const  char * FASTCALL ParsePchar(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseIpFutLoop(const char * first, const char * afterLast);
+	const  char * FASTCALL ParseIpFutStopGo(const char * first, const char * afterLast);
+	int    FASTCALL OnExitOwnPortUserInfo(const char * pFirst);
+	int    FASTCALL OnExitOwnHostUserInfo(const char * first);
+	int    FASTCALL OnExitOwnHost2(const char * first);
+	int    FASTCALL OnExitSegmentNzNcOrScheme2(const char * first);
+	int    FASTCALL PushPathSegment(const char * first, const char *  afterLast);
 };
 
 struct UriQueryList {
@@ -168,9 +187,9 @@ struct UriQueryList {
 	UriQueryList * next; /**< Pointer to the next key/value pair in the list, can be NULL if last already */
 };
 
-int UriParseUriEx(UriParserState * state, const char * first, const char * afterLast);
+//int UriParseUriEx(UriParserState * state, const char * first, const char * afterLast);
 int UriParseUri(UriParserState * state, const char * text);
-void UriFreeUriMembers(UriUri*uri);
+//void UriFreeUriMembers(UriUri*uri);
 char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
 char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks);
 const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
@@ -197,13 +216,6 @@ int UriDissectQueryMalloc(UriQueryList**dest, int * itemCount, const char * firs
 int UriDissectQueryMallocEx(UriQueryList**dest, int * itemCount, const char * first, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion);
 void UriFreeQueryList(UriQueryList*queryList);
 int UriParseIpFourAddress(uchar * octetOutput, const char * first, const char * afterLast);
-//
-// Used to point to from empty path segments.
-// X.first and X.afterLast must be the same non-NULL value then.
-//
-extern const char * const UriSafeToPointTo;
-extern const char * const UriConstPwd;
-extern const char * const UriConstParent;
 
 void UriResetUri(UriUri*uri);
 int UriRemoveDotSegmentsAbsolute(UriUri*uri);

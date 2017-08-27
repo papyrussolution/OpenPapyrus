@@ -1454,7 +1454,7 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 					if(feof(F)) // @v9.7.10 @fix test for EOF added
 						ok = -1;
 					else
-						CALLEXCEPT_S_S(SLERR_READFAULT, Name); 
+						CALLEXCEPT_S_S(SLERR_READFAULT, Name);
 				}
 			}
 		}
@@ -2251,7 +2251,11 @@ int SFileFormat::GetMime(int id, SString & rMime)
 {
 	int    ok = 0;
 	rMime = 0;
-	if(GloBaseIdx) {
+	if(id == Unkn) { // @v9.7.12
+		rMime = "application/octet-stream";
+		ok = -1;
+	}
+	else if(GloBaseIdx) {
 		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
 			ok = p_reg->GetMime(id, rMime);

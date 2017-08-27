@@ -774,6 +774,8 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
 	return p_result;
 }
 
+static const long PepsiMoneyFormat = MKSFMTD(0, 13, NMBF_DECCOMMA|NMBF_NOTRAILZ);
+
 extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & rSess, const char * pUser, const char * pPassw,
 	const TSCollection <iSalesBillPacket> * pItems, uint maxItems)
 {
@@ -861,14 +863,14 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 								ns1__DSET * p_new_amt = arg_itemamt_list.CreateNewItem(0);
 								THROW(p_new_amt);
 								p_new_amt->SET_USCORETYPE = GetDynamicParamString(p_src_amt->SetType, arg_str_pool);
-								p_new_amt->NET_USCOREPR = GetDynamicParamString_(p_src_amt->NetPrice, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->GROSS_USCOREPR = GetDynamicParamString_(p_src_amt->GrossPrice, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->NET_USCORESUM = GetDynamicParamString_(p_src_amt->NetSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->DISCOUNT_USCOREAMOUNT = GetDynamicParamString_(p_src_amt->DiscAmount, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->DISC_USCORENET_USCORESUM = GetDynamicParamString_(p_src_amt->DiscNetSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->VAT_USCORESUM = GetDynamicParamString_(p_src_amt->VatSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->GROSS_USCORESUM = GetDynamicParamString_(p_src_amt->GrossSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-								p_new_amt->DISC_USCOREGR_USCOREAMOUNT = GetDynamicParamString_(p_src_amt->DiscGrossSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
+								p_new_amt->NET_USCOREPR = GetDynamicParamString_(p_src_amt->NetPrice, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->GROSS_USCOREPR = GetDynamicParamString_(p_src_amt->GrossPrice, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->NET_USCORESUM = GetDynamicParamString_(p_src_amt->NetSum, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->DISCOUNT_USCOREAMOUNT = GetDynamicParamString_(p_src_amt->DiscAmount, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->DISC_USCORENET_USCORESUM = GetDynamicParamString_(p_src_amt->DiscNetSum, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->VAT_USCORESUM = GetDynamicParamString_(p_src_amt->VatSum, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->GROSS_USCORESUM = GetDynamicParamString_(p_src_amt->GrossSum, PepsiMoneyFormat, arg_str_pool);
+								p_new_amt->DISC_USCOREGR_USCOREAMOUNT = GetDynamicParamString_(p_src_amt->DiscGrossSum, PepsiMoneyFormat, arg_str_pool);
 							}
 						}
 						{
@@ -897,11 +899,11 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 						ns1__HSET * p_new_amt = arg_billamt_list.CreateNewItem(0);
 						THROW(p_new_amt);
 						p_new_amt->SET_USCORETYPE = GetDynamicParamString(p_src_amt->SetType, arg_str_pool);
-						p_new_amt->NET = GetDynamicParamString_(p_src_amt->NetSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-						p_new_amt->DISC_USCORESUM = GetDynamicParamString_(p_src_amt->DiscNetSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-						p_new_amt->VAT = GetDynamicParamString_(p_src_amt->VatSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-						p_new_amt->GROSS = GetDynamicParamString_(p_src_amt->GrossSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
-						p_new_amt->DISC_USCOREGR_USCORESUM = GetDynamicParamString_(p_src_amt->DiscGrossSum, MKSFMTD(0, 14, NMBF_DECCOMMA|NMBF_NOTRAILZ), arg_str_pool);
+						p_new_amt->NET = GetDynamicParamString_(p_src_amt->NetSum, PepsiMoneyFormat, arg_str_pool);
+						p_new_amt->DISC_USCORESUM = GetDynamicParamString_(p_src_amt->DiscNetSum, PepsiMoneyFormat, arg_str_pool);
+						p_new_amt->VAT = GetDynamicParamString_(p_src_amt->VatSum, PepsiMoneyFormat, arg_str_pool);
+						p_new_amt->GROSS = GetDynamicParamString_(p_src_amt->GrossSum, PepsiMoneyFormat, arg_str_pool);
+						p_new_amt->DISC_USCOREGR_USCORESUM = GetDynamicParamString_(p_src_amt->DiscGrossSum, PepsiMoneyFormat, arg_str_pool);
 					}
 				}
 				{

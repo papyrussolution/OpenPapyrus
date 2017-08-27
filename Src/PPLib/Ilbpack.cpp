@@ -1498,6 +1498,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	rPack.Rec.Flags  |= (Rec.Flags & fmask);
 	rPack.Rec.Flags2 |= (Rec.Flags2 & fmask2); // @v9.0.1
 	rPack.Rec.LastRByBill = Rec.LastRByBill; // @v8.0.3
+	rPack.Rec.DueDate = Rec.DueDate; // @v9.7.12 @fix - тяжелая ошибка: не передавалась дата исполнения при синхронизации
 	rPack.Rec.EdiOp   = Rec.EdiOp; // @v9.0.1
 	rPack.SetFreight(P_Freight);
 	//

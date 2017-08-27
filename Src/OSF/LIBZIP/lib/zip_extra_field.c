@@ -86,7 +86,7 @@ zip_extra_field_t * _zip_ef_delete_by_id(zip_extra_field_t * ef, uint16 id, uint
 	return head;
 }
 
-void _zip_ef_free(zip_extra_field_t * ef)
+void FASTCALL _zip_ef_free(zip_extra_field_t * ef)
 {
 	while(ef) {
 		zip_extra_field_t * ef2 = ef->next;

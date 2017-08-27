@@ -52,21 +52,9 @@ public:
 	static int SLAPI GetNameByAddr(const char * pIP, SString & aHost);
 
 	SLAPI  InetAddr();
-	SLAPI  InetAddr(const InetAddr & rS)
-	{
-		Copy(rS);
-	}
-	InetAddr & FASTCALL operator = (const InetAddr & rS)
-	{
-		Copy(rS);
-		return *this;
-	}
-	void   FASTCALL Copy(const InetAddr & rS)
-	{
-		V4 = rS.V4;
-		HostName = rS.HostName;
-		Port = rS.Port;
-	}
+	SLAPI  InetAddr(const InetAddr & rS);
+	InetAddr & FASTCALL operator = (const InetAddr & rS);
+	void   FASTCALL Copy(const InetAddr & rS);
 	SLAPI  operator ulong() const { return V4; }
 	InetAddr & SLAPI Clear();
 	int    FASTCALL IsEqual(const InetAddr & rS) const;
@@ -74,13 +62,13 @@ public:
 	int    FASTCALL operator != (const InetAddr & rS) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI IsEmpty() const;
-	int    SLAPI GetPort() const 
-	{ 
-		return Port; 
+	int    SLAPI GetPort() const
+	{
+		return Port;
 	}
-	const SString & SLAPI GetHostName() const 
-	{ 
-		return HostName; 
+	const SString & SLAPI GetHostName() const
+	{
+		return HostName;
 	}
 	int    SLAPI Set(ulong addr, int port = 0);
 	int    SLAPI Set(const char * pHostName, int port = 0);
@@ -91,8 +79,8 @@ public:
 	int    SLAPI FromStr(const char *);
 private:
 	uint32 V4;
-	SString HostName;
 	int    Port;
+	SString HostName;
 };
 //
 //
@@ -168,23 +156,9 @@ public:
 		return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
 	}
 	InetUrl(const char * pUrl = 0);
-	InetUrl(const InetUrl & rS)
-	{
-		Copy(rS);
-	}
-	InetUrl & FASTCALL operator = (const InetUrl & rS)
-	{
-		Copy(rS);
-		return *this;
-	}
-	void   FASTCALL Copy(const InetUrl & rS)
-	{
-		InetAddr::Copy(rS);
-		Protocol = rS.Protocol;
-		TermList = rS.TermList;
-		Org = rS.Org;
-		State = rS.State;
-	}
+	InetUrl(const InetUrl & rS);
+	InetUrl & FASTCALL operator = (const InetUrl & rS);
+	void   FASTCALL Copy(const InetUrl & rS);
 	InetUrl & Clear();
 	long   GetState() const;
 	int    Valid() const;
@@ -728,11 +702,13 @@ public:
 		mfTcpKeepAlive      = 0x0002, // Устанавливает опцию CURLOPT_TCP_KEEPALIVE в TRUE
 		mfNoProgerss        = 0x0004  // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
 	};
-	
+
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
     int    HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream);
+	int    HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
+	int    HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, SFile * pReplyStream);
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
 	//
 	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
@@ -761,11 +737,41 @@ private:
 		SString Password;
 		SString Path;
 	};
-	
-	int    PrepareURL(InetUrl & rUrl, InnerUrlInfo & rInfo);
+	//
+	// Descr: Функция осуществляет препроцессинг структуры InetUrl результаты
+	//   которого заносит в специализированный блок InetUrlInfo.
+	//   Исходная структура может быть изменена функцией для корректного использования
+	//   методами cURL.
+	// ARG(rUrl    IN/OUT): Структура для препроцессинга
+	// ARG(defaultProt IN): Если в rUrl нет информации о протоколе, то defaultProt (если не 0)
+	//   будет использован для уточнения.
+	//   Кроме того, если defaultProt == InetUrl::protFtp или InetUrl::protHttp, то
+	//   значение протокола, извлеченного из rUrl проверяется на принадлежность соответствующему
+	//   семейству протоколов (FTP, FTPS, TFTP), (HTTP, HTTPS).
+	// ARG(rInfo   OUT): Блок со специфической информацией об rUrl, используемый
+	//   методами данного класса.
+	//
+	int    PrepareURL(InetUrl & rUrl, int defaultProt, InnerUrlInfo & rInfo);
 
 	SFile  NullWrF; // Файл-заглушка для записи того, что не важно
 	void * H;
+};
+//
+// Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.
+//
+class SUniformFileTransmParam {
+public:
+	SLAPI  SUniformFileTransmParam();
+	int    SLAPI Run(SCopyFileProgressProc pf, void * extraPtr);
+
+	long   Flags;
+	int    Format; // SFileFormat::XXX
+	SString SrcPath;
+	SString DestPath;
+	SString AccsName;
+	SString AccsPassword;
+	//
+	SString Reply;
 };
 //
 //

@@ -214,9 +214,7 @@ static const char * const protocols[] = {
 #endif
 #ifndef CURL_DISABLE_LDAP
   "ldap",
-#if !defined(CURL_DISABLE_LDAPS) && \
-    ((defined(USE_OPENLDAP) && defined(USE_SSL)) || \
-     (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
+#if !defined(CURL_DISABLE_LDAPS) && ((defined(USE_OPENLDAP) && defined(USE_SSL)) || (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
   "ldaps",
 #endif
 #endif
@@ -238,9 +236,7 @@ static const char * const protocols[] = {
 #ifdef USE_LIBSSH2
   "sftp",
 #endif
-#if !defined(CURL_DISABLE_SMB) && defined(USE_NTLM) && \
-   (CURL_SIZEOF_CURL_OFF_T > 4) && \
-   (!defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO))
+#if !defined(CURL_DISABLE_SMB) && defined(USE_NTLM) && (CURL_SIZEOF_CURL_OFF_T > 4) && (!defined(USE_WINDOWS_SSPI) || defined(USE_WIN32_CRYPTO))
   "smb",
 #  ifdef USE_SSL
   "smbs",
@@ -258,7 +254,6 @@ static const char * const protocols[] = {
 #ifndef CURL_DISABLE_TFTP
   "tftp",
 #endif
-
   NULL
 };
 

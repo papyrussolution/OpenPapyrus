@@ -42,17 +42,14 @@ const char * COMP_get_name(const COMP_METHOD * meth)
 
 void COMP_CTX_free(COMP_CTX * ctx)
 {
-	if(!ctx)
-		return;
-
-	if(ctx->meth->finish != NULL)
-		ctx->meth->finish(ctx);
-
-	OPENSSL_free(ctx);
+	if(ctx) {
+		if(ctx->meth->finish)
+			ctx->meth->finish(ctx);
+		OPENSSL_free(ctx);
+	}
 }
 
-int COMP_compress_block(COMP_CTX * ctx, uchar * out, int olen,
-    uchar * in, int ilen)
+int COMP_compress_block(COMP_CTX * ctx, uchar * out, int olen, uchar * in, int ilen)
 {
 	int ret;
 	if(ctx->meth->compress == NULL) {

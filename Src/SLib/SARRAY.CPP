@@ -955,7 +955,7 @@ void SLAPI SArray::freeAll()
 //
 // @construction
 //
-double SLAPI SArray::calcSumDouble(size_t offs) const
+/*double SLAPI SArray::calcSumDouble(size_t offs) const
 {
 	const  int8 * ptr = (const int8 *)data;
 	const  uint c4 = count / 4;
@@ -978,7 +978,7 @@ double SLAPI SArray::calcSumDouble(size_t offs) const
 		sum += *(double *)(((uint8 *)_USERPTR_C(ptr)) + offs); ptr += isize; --j;
 	}
 	return sum;
-}
+}*/
 
 #ifndef _WIN32_WCE // {
 

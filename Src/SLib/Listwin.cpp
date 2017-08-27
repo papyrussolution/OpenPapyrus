@@ -468,9 +468,9 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk)
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
 	Ptb.SetColor(clrBkgnd,  RGB(0xFF, 0xFF, 0x00));
-	Ptb.SetBrush(brSel,    SPaintObj::psSolid, Ptb.GetColor(clrFocus), 0);
-	Ptb.SetBrush(brOdd,    SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
-	Ptb.SetBrush(brBkgnd,  SPaintObj::psSolid, Ptb.GetColor(clrBkgnd), 0);
+	// @v9.7.12 Ptb.SetBrush(brSel,    SPaintObj::psSolid, Ptb.GetColor(clrFocus), 0);
+	// @v9.7.12 Ptb.SetBrush(brOdd,    SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
+	// @v9.7.12 Ptb.SetBrush(brBkgnd,  SPaintObj::psSolid, Ptb.GetColor(clrBkgnd), 0);
 }
 
 int WordSelector::CheckActive() const
@@ -620,7 +620,8 @@ IMPL_HANDLE_EVENT(WordSelector)
 	else {
 		if(TVCOMMAND) {
 			if(TVCMD == cmDrawItem) {
-				DrawListItem((TDrawItemData*)TVINFOPTR);
+				//DrawListItem((TDrawItemData*)TVINFOPTR);
+				DrawListItem2((TDrawItemData*)TVINFOPTR);
 				clearEvent(event);
 			}
 			else if(TVCMD == cmRightClick)
@@ -636,6 +637,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 	}
 }
 
+#if 0 // @v9.7.12 (replaced with DrawListItem2) {
 void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 {
 	if(pDrawItem && pDrawItem->P_View) {
@@ -650,7 +652,7 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 		SString temp_buf;
 		{
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-				FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
+				::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
 				pDrawItem->ItemAction = 0; // Мы перерисовали фон
 			}
 			else if(pDrawItem->ItemID != 0xffffffff) {
@@ -660,12 +662,12 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 				if(pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) {
 					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brSel));
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
-					FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brSel));
+					::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brSel));
 				}
 				else {
 					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brBkgnd));
 					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrBkgnd));
-					FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
+					::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
 				}
 				::DrawText(h_dc, temp_buf.cptr(), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
 			}
@@ -678,6 +680,33 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 			SelectObject(h_dc, h_pen_def);
 		if(clr_prev)
 			SetBkColor(h_dc, clr_prev);
+	}
+	else
+		pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
+}
+#endif // } 0
+
+void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
+{
+	if(pDrawItem && pDrawItem->P_View) {
+		TCanvas2 canv(Ptb, pDrawItem->H_DC);
+		TRect _rc(pDrawItem->ItemRect);
+		if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
+			canv.Rect(_rc, 0, clrBkgnd);
+			pDrawItem->ItemAction = 0; // Мы перерисовали фон
+		}
+		else if(pDrawItem->ItemID != 0xffffffff) {
+			int   _clr_id = (pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) ? clrFocus : clrBkgnd;
+			canv.SetBkColor(Ptb.GetColor(_clr_id));
+			canv.Rect(_rc, 0, _clr_id);
+			{
+				SString temp_buf;
+				SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
+				p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				canv._DrawText(_rc, temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+			}
+		}
 	}
 	else
 		pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем

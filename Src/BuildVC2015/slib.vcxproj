@@ -3656,6 +3656,7 @@
     <ClInclude Include="..\Include\sxml.h" />
     <ClInclude Include="..\Include\tv.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />
+    <ClInclude Include="..\Include\Uri.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

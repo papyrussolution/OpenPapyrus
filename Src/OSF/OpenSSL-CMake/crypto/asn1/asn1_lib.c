@@ -326,18 +326,17 @@ void asn1_string_embed_free(ASN1_STRING * a, int embed)
 
 void ASN1_STRING_free(ASN1_STRING * a)
 {
-	if(!a)
-		return;
-	asn1_string_embed_free(a, a->flags & ASN1_STRING_FLAG_EMBED);
+	if(a)
+		asn1_string_embed_free(a, a->flags & ASN1_STRING_FLAG_EMBED);
 }
 
 void ASN1_STRING_clear_free(ASN1_STRING * a)
 {
-	if(!a)
-		return;
-	if(a->data && !(a->flags & ASN1_STRING_FLAG_NDEF))
-		OPENSSL_cleanse(a->data, a->length);
-	ASN1_STRING_free(a);
+	if(a) {
+		if(a->data && !(a->flags & ASN1_STRING_FLAG_NDEF))
+			OPENSSL_cleanse(a->data, a->length);
+		ASN1_STRING_free(a);
+	}
 }
 
 int ASN1_STRING_cmp(const ASN1_STRING * a, const ASN1_STRING * b)

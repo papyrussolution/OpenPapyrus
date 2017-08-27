@@ -142,13 +142,10 @@ int BN_BLINDING_invert(BIGNUM * n, BN_BLINDING * b, BN_CTX * ctx)
 	return BN_BLINDING_invert_ex(n, NULL, b, ctx);
 }
 
-int BN_BLINDING_invert_ex(BIGNUM * n, const BIGNUM * r, BN_BLINDING * b,
-    BN_CTX * ctx)
+int BN_BLINDING_invert_ex(BIGNUM * n, const BIGNUM * r, BN_BLINDING * b, BN_CTX * ctx)
 {
 	int ret;
-
 	bn_check_top(n);
-
 	if(r != NULL)
 		ret = BN_mod_mul(n, n, r, b->mod, ctx);
 	else {
@@ -158,7 +155,6 @@ int BN_BLINDING_invert_ex(BIGNUM * n, const BIGNUM * r, BN_BLINDING * b,
 		}
 		ret = BN_mod_mul(n, n, b->Ai, b->mod, ctx);
 	}
-
 	bn_check_top(n);
 	return ret;
 }

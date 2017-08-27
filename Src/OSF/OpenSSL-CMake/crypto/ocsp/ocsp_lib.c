@@ -89,54 +89,41 @@ err:
 
 int OCSP_id_issuer_cmp(OCSP_CERTID * a, OCSP_CERTID * b)
 {
-	int ret;
-	ret = OBJ_cmp(a->hashAlgorithm.algorithm, b->hashAlgorithm.algorithm);
+	int ret = OBJ_cmp(a->hashAlgorithm.algorithm, b->hashAlgorithm.algorithm);
 	if(ret)
 		return ret;
 	ret = ASN1_OCTET_STRING_cmp(&a->issuerNameHash, &b->issuerNameHash);
-	if(ret)
-		return ret;
-	return ASN1_OCTET_STRING_cmp(&a->issuerKeyHash, &b->issuerKeyHash);
+	return NZOR(ret, ASN1_OCTET_STRING_cmp(&a->issuerKeyHash, &b->issuerKeyHash));
 }
 
 int OCSP_id_cmp(OCSP_CERTID * a, OCSP_CERTID * b)
 {
-	int ret;
-	ret = OCSP_id_issuer_cmp(a, b);
+	int ret = OCSP_id_issuer_cmp(a, b);
 	if(ret)
 		return ret;
 	return ASN1_INTEGER_cmp(&a->serialNumber, &b->serialNumber);
 }
-
 /*
  * Parse a URL and split it up into host, port and path components and
  * whether it is SSL.
  */
 
-int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath,
-    int * pssl)
+int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath, int * pssl)
 {
 	char * p, * buf;
-
 	char * host, * port;
-
 	*phost = NULL;
 	*pport = NULL;
 	*ppath = NULL;
-
-	/* dup the buffer since we are going to mess with it */
+	// dup the buffer since we are going to mess with it 
 	buf = OPENSSL_strdup(url);
 	if(!buf)
 		goto mem_err;
-
-	/* Check for initial colon */
+	// Check for initial colon 
 	p = strchr(buf, ':');
-
 	if(!p)
 		goto parse_err;
-
 	*(p++) = '\0';
-
 	if(strcmp(buf, "http") == 0) {
 		*pssl = 0;
 		port = "80";
@@ -147,19 +134,13 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 	}
 	else
 		goto parse_err;
-
-	/* Check for double slash */
+	// Check for double slash 
 	if((p[0] != '/') || (p[1] != '/'))
 		goto parse_err;
-
 	p += 2;
-
 	host = p;
-
 	/* Check for trailing part of path */
-
 	p = strchr(p, '/');
-
 	if(!p)
 		*ppath = OPENSSL_strdup("/");
 	else {
@@ -167,10 +148,8 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 		/* Set start of path to 0 so hostname is valid */
 		*p = '\0';
 	}
-
 	if(!*ppath)
 		goto mem_err;
-
 	p = host;
 	if(host[0] == '[') {
 		/* ipv6 literal */
@@ -181,33 +160,24 @@ int OCSP_parse_url(const char * url, char ** phost, char ** pport, char ** ppath
 		*p = '\0';
 		p++;
 	}
-
 	/* Look for optional ':' for port number */
 	if((p = strchr(p, ':'))) {
 		*p = 0;
 		port = p + 1;
 	}
-
 	*pport = OPENSSL_strdup(port);
 	if(!*pport)
 		goto mem_err;
-
 	*phost = OPENSSL_strdup(host);
-
 	if(!*phost)
 		goto mem_err;
-
 	OPENSSL_free(buf);
-
 	return 1;
-
 mem_err:
 	OCSPerr(OCSP_F_OCSP_PARSE_URL, ERR_R_MALLOC_FAILURE);
 	goto err;
-
 parse_err:
 	OCSPerr(OCSP_F_OCSP_PARSE_URL, OCSP_R_ERROR_PARSING_URL);
-
 err:
 	OPENSSL_free(buf);
 	OPENSSL_free(*ppath);

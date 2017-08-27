@@ -381,11 +381,10 @@ uint FASTCALL SGeoGridTab::Finder::GetIdxLon(long c)
 	return idx;
 }
 
-int SLAPI SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
+void SLAPI SGeoGridTab::Finder::GetIdx(const SGeoPosLL_Int & rC, uint & rIdxLat, uint & rIdxLon)
 {
 	rIdxLat = GetIdxLat(rC.GetIntLat());
 	rIdxLon = GetIdxLon(rC.GetIntLon());
-	return 1;
 }
 
 uint32 FASTCALL SGeoGridTab::Finder::GetZIdx32(const SGeoPosLL_Int & rC)

@@ -163,6 +163,9 @@
     <ClInclude Include="..\Include\layout-2d.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Uri.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

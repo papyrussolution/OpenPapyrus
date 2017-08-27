@@ -329,7 +329,6 @@ static int dgram_write(BIO * b, const char * in, int inl)
 	int ret;
 	bio_dgram_data * data = (bio_dgram_data*)b->ptr;
 	clear_socket_error();
-
 	if(data->connected)
 		ret = writesocket(b->num, in, inl);
 	else {
@@ -972,15 +971,12 @@ static int dgram_sctp_free(BIO * a)
 }
 
 #  ifdef SCTP_AUTHENTICATION_EVENT
-void dgram_sctp_handle_auth_free_key_event(BIO * b,
-    union sctp_notification * snp)
+void dgram_sctp_handle_auth_free_key_event(BIO * b, union sctp_notification * snp)
 {
 	int ret;
 	struct sctp_authkey_event * authkeyevent = &snp->sn_auth_event;
-
 	if(authkeyevent->auth_indication == SCTP_AUTH_FREE_KEY) {
 		struct sctp_authkeyid authkeyid;
-
 		/* delete key */
 		authkeyid.scact_keynumber = authkeyevent->auth_keynumber;
 		ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DELETE_KEY,
@@ -998,16 +994,11 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 	union sctp_notification * snp;
 
 	struct msghdr msg;
-
 	struct iovec iov;
-
 	struct cmsghdr * cmsg;
-
 	char cmsgbuf[512];
-
 	if(out) {
 		clear_socket_error();
-
 		do {
 			memzero(&data->rcvinfo, sizeof(data->rcvinfo));
 			iov.iov_base = out;
@@ -1245,24 +1236,16 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 	struct bio_dgram_sctp_sndinfo * sinfo = &(data->sndinfo);
 	struct bio_dgram_sctp_prinfo * pinfo = &(data->prinfo);
 	struct bio_dgram_sctp_sndinfo handshake_sinfo;
-
 	struct iovec iov[1];
-
 	struct msghdr msg;
-
 	struct cmsghdr * cmsg;
-
 #  if defined(SCTP_SNDINFO) && defined(SCTP_PRINFO)
-	char cmsgbuf[CMSG_SPACE(sizeof(struct sctp_sndinfo)) +
-	    CMSG_SPACE(sizeof(struct sctp_prinfo))];
+	char cmsgbuf[CMSG_SPACE(sizeof(struct sctp_sndinfo)) + CMSG_SPACE(sizeof(struct sctp_prinfo))];
 	struct sctp_sndinfo * sndinfo;
-
 	struct sctp_prinfo * prinfo;
-
 #  else
 	char cmsgbuf[CMSG_SPACE(sizeof(struct sctp_sndrcvinfo))];
 	struct sctp_sndrcvinfo * sndrcvinfo;
-
 #  endif
 
 	clear_socket_error();

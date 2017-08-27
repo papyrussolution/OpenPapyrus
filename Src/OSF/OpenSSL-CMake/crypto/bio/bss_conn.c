@@ -313,15 +313,12 @@ static int conn_read(BIO * b, char * out, int outl)
 static int conn_write(BIO * b, const char * in, int inl)
 {
 	int ret;
-	BIO_CONNECT * data;
-
-	data = (BIO_CONNECT*)b->ptr;
+	BIO_CONNECT * data = (BIO_CONNECT*)b->ptr;
 	if(data->state != BIO_CONN_S_OK) {
 		ret = conn_state(b, data);
 		if(ret <= 0)
 			return ret;
 	}
-
 	clear_socket_error();
 	ret = writesocket(b->num, in, inl);
 	BIO_clear_retry_flags(b);
@@ -338,10 +335,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int * ip;
 	const char ** pptr = NULL;
 	long ret = 1;
-	BIO_CONNECT * data;
-
-	data = (BIO_CONNECT*)b->ptr;
-
+	BIO_CONNECT * data = (BIO_CONNECT*)b->ptr;
 	switch(cmd) {
 		case BIO_CTRL_RESET:
 		    ret = 0;

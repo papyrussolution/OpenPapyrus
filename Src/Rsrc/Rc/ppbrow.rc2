@@ -6167,13 +6167,13 @@ cmd PriceList             { "@{cmd_pricelist}"                       ICON_PRICEL
 cmd ViewLots              { "@{cmd_viewlots}"                        ICON_VIEWLOTS         TBBM_LOTS       cmViewLots      view = Lot }
 cmd ViewOrdLots           { "@{cmd_viewordlots}"                     ICON_VIEWORDLOTS      TBBM_ORDLOTS    cmViewOrdLots   }
 cmd TrfrAnalyze           { "@{cmd_trfranalyze}"                     ICON_TRFRANLZ         TBBM_TRFRANLZ   cmTrfrAnalyze   view = TrfrAnlz }
-cmd ShipmAnalyze          { "@{cmd_shipmanalyze}"                    ICON_SHIPMANLZ        none            cmShipmAnalyze  }
+cmd ShipmAnalyze          { "@{cmd_shipmanalyze}"                    ICON_SHIPMANLZ        none            cmShipmAnalyze  view = ShipmAnalyze }
 cmd PriceAnlz             { "@{cmd_priceanlz}"                       ICON_PRICEANLZ        none            cmPriceAnlz     view = PriceAnlz }
 cmd GoodsRest             { "@{cmd_goodsrest}"                       ICON_GOODSREST        TBBM_GOODSREST  cmGoodsRest     view = GoodsRest }
 cmd SellTrnovr            { "@{cmd_selltrnovr}"                      ICON_SELLTRNOVR       none            cmSellTrnovr    view = DebtTrnovr }
 cmd DebtSupplTrnovr       { "@{cmd_debtsuppltrnovr}"                 ICON_DEBTSUPPLTRNOVR  none            cmDebtSupplTrnovr view = DebtTrnovr(1) }
 cmd SupplTrnovr           { "@{cmd_suppltrnovr}"                     ICON_SUPPLTRNOVR      none            cmSupplTrnovr   view = AccAnlz(AAKND_SUPPLTRNOVR) }
-cmd PaymPlan              { "@{cmd_paymplan}"                        ICON_PAYMPLAN         none            cmPaymPlan      }
+cmd PaymPlan              { "@{cmd_paymplan}"                        ICON_PAYMPLAN         none            cmPaymPlan      view = PaymPlan }
 cmd Freight               { "@{cmd_freight}"                         ICON_FREIGHT          none            cmFreight       view = Freight }
 cmd GoodsTurnover         { "@{cmd_goodsturnover}"                   ICON_GOODSTURNOVER    none            cmGoodsTurnover }
 cmd GoodsGrpRlz           { "@{cmd_goodsgrprlztax}"                  ICON_GOODSGRPRLZ      none            cmGoodsGrpRlz   view = GoodsTaxAnalyze }

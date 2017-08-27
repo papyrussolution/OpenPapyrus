@@ -139,14 +139,13 @@ int SLAPI PPCycleArray::concat(const PPCycleArray * pSrc)
 	return ok;
 }
 
-int SLAPI PPCycleArray::getCycleParams(DateRange * pRange, PPCycleFilt * pCycl) const
+void SLAPI PPCycleArray::getCycleParams(DateRange * pRange, PPCycleFilt * pCycl) const
 {
 	ASSIGN_PTR(pRange, Period);
 	if(pCycl) {
 		pCycl->Cycle = Cycle;
 		pCycl->NumCycles = NumCycles;
 	}
-	return 1;
 }
 
 int SLAPI PPCycleArray::getPeriod(uint pos, DateRange * pPeriod) const
@@ -183,7 +182,7 @@ int SLAPI PPCycleArray::searchPeriodByDate(LDATE dt, DateRange * pPeriod) const
 	return searchDate(dt, &pos) ? getPeriod(pos, pPeriod) : -1;
 }
 
-int SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
+void SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 {
 	SString temp_buf;
 	uint   pos = 0;
@@ -196,7 +195,6 @@ int SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 			temp_buf.Cat(pos+1).Cat("-я нед.");
 		else if(Cycle == PRD_MONTH) {
 			if(dt.day() == 1) {
-				//char   month_txt[32];
 				SString month_txt;
 				SGetMonthText(dt.month(), MONF_SHORT, month_txt);
 				temp_buf.Cat(/*getMonthText(dt.month(), MONF_SHORT, month_txt)*/month_txt).Space().Cat(dt.year());
@@ -236,8 +234,8 @@ int SLAPI PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 				temp_buf.Cat(pos+1).Cat("-й год");
 		}
 	}
-	strnzcpy(pBuf, temp_buf.ToOem(), bufLen);
-	return 1;
+	temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
+	strnzcpy(pBuf, temp_buf, bufLen);
 }
 
 int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -357,7 +355,7 @@ int SLAPI ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
 int SLAPI ObjRestrictArray::CheckFlag(PPID objID, long f) const
 {
 	uint   p = 0;
-	return (lsearch(&objID, &p, CMPF_LONG) && at(p).Flags & f) ? 1 : 0;
+	return BIN(lsearch(&objID, &p, CMPF_LONG) && at(p).Flags & f);
 }
 //
 //

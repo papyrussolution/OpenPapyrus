@@ -2309,9 +2309,8 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		const void * p_row = view ? view->getCurItem() : 0;
 		switch(TVCMD) {
 			case cmaInsert:
-				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0) {
+				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)
 					updateView();
-				}
 				break;
 			case cmaDelete:
 				if(P_View->ProcessCommand(PPVCMD_DELETEITEM, p_row, this) > 0)

@@ -1,5 +1,6 @@
 // PROFILE.CPP
 // Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -85,6 +86,18 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 	return 0;
 }
 
+//static 
+uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
+{
+	ASSIGN_PTR(pFuncVer, (uint16)(logFuncId%1000));
+	return (uint16)(logFuncId/1000);
+}
+
+long SLAPI PPUserProfileFuncEntry::GetLoggedFuncId() const
+{
+	return (((long)FuncId)*1000)+((long)FuncVer);
+}
+
 struct ProfileEntry {
 	SLAPI  ProfileEntry();
 	// @nodestructor
@@ -94,10 +107,10 @@ struct ProfileEntry {
 	ulong  LineNum;
 	char * P_FileName;
 	char * P_AddedInfo;
-	int64  NSecs100;        // Время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
-	int64  StartEntryClock; // Время в промежутках по 100 нс начиная с полуночи 01/01/1601 GMT
-	int64  StartEntryMks;   // Отметка начала выполнения кода в мкс
-	int64  Mks;             // Полное время выполнения кода в мкс
+	int64  NSecs100;        // Р’СЂРµРјСЏ РІ РїСЂРѕРјРµР¶СѓС‚РєР°С… РїРѕ 100 РЅСЃ РЅР°С‡РёРЅР°СЏ СЃ РїРѕР»СѓРЅРѕС‡Рё 01/01/1601 GMT
+	int64  StartEntryClock; // Р’СЂРµРјСЏ РІ РїСЂРѕРјРµР¶СѓС‚РєР°С… РїРѕ 100 РЅСЃ РЅР°С‡РёРЅР°СЏ СЃ РїРѕР»СѓРЅРѕС‡Рё 01/01/1601 GMT
+	int64  StartEntryMks;   // РћС‚РјРµС‚РєР° РЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРґР° РІ РјРєСЃ
+	int64  Mks;             // РџРѕР»РЅРѕРµ РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРґР° РІ РјРєСЃ
 	int64  Hits;            // @v7.9.3 long-->int64
 	uint64 Iter;            // @v7.9.3 ulong-->uint64
 };
@@ -190,8 +203,8 @@ int SLAPI Profile::Output(uint fileId, const char * pDescription)
 		PPLogMessage(fileId, temp_buf, /*LOGMSGF_USER|*/LOGMSGF_TIME|LOGMSGF_DIRECTOUTP); // @v9.2.0 LOGMSGF_DIRECTOUTP
 		ProfileEntry * p_pe = 0;
 		for(uint i = 0; enumItems(&i, (void**)&p_pe);) {
-			double msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((double)p_pe->Hits * 10000.0)) : 0; // приведение к миллисекундам
-			double msh_full = p_pe->Hits ? (((double)p_pe->Mks) / ((double)p_pe->Hits * 1000.0)) : 0; // приведение к миллисекундам
+			double msh = p_pe->Hits ? (((double)p_pe->NSecs100) / ((double)p_pe->Hits * 10000.0)) : 0; // РїСЂРёРІРµРґРµРЅРёРµ Рє РјРёР»Р»РёСЃРµРєСѓРЅРґР°Рј
+			double msh_full = p_pe->Hits ? (((double)p_pe->Mks) / ((double)p_pe->Hits * 1000.0)) : 0; // РїСЂРёРІРµРґРµРЅРёРµ Рє РјРёР»Р»РёСЃРµРєСѓРЅРґР°Рј
 			uint32 stub = 0;
 			const  char * p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);
 			const  char * p_file_name  = NZOR(p_pe->P_FileName, (const char *)&stub);
@@ -1133,7 +1146,7 @@ int SLAPI PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset,
 int SLAPI PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec & rRec, const UfpLine & rLine)
 {
 	int ok = 1;
-	/* Не закончено
+	/* РќРµ Р·Р°РєРѕРЅС‡РµРЅРѕ
 	SString avg_ids;
 	UfpLine ufp_line = rLine;
 	UserFuncPrfTbl::Rec rec;
@@ -1383,8 +1396,8 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 								}
 								else {
 									//
-									// Соответствующая START-запись могла быть занесена ранее
-									// (в одном из предыдущих сеансов обновления данных)
+									// РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ START-Р·Р°РїРёСЃСЊ РјРѕРіР»Р° Р±С‹С‚СЊ Р·Р°РЅРµСЃРµРЅР° СЂР°РЅРµРµ
+									// (РІ РѕРґРЅРѕРј РёР· РїСЂРµРґС‹РґСѓС‰РёС… СЃРµР°РЅСЃРѕРІ РѕР±РЅРѕРІР»РµРЅРёСЏ РґР°РЅРЅС‹С…)
 									//
 									entry.Flags = USRPROFF_FINISHED;
 									THROW_SL(finish_list.insert(&entry));
@@ -1431,7 +1444,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 									THROW_DB(bei.insert(&rec));
 								}
 								//
-								// Добавим средние значения //
+								// Р”РѕР±Р°РІРёРј СЃСЂРµРґРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ //
 								//
 								THROW(AddAggrRecs(&bei, data, ufp_line));
 								PPWaitPercent(j+1, flc, msg_buf);

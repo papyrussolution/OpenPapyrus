@@ -630,11 +630,11 @@ public:
 	int    SLAPI init(const DateRange *, PPCycleFilt cycl);
 	int    SLAPI init2(DateRange * pPeriod, PPCycleFilt * pCycl);
 	int    SLAPI concat(const PPCycleArray *);
-	int    SLAPI getCycleParams(DateRange *, PPCycleFilt * pCycl) const;
+	void   SLAPI getCycleParams(DateRange *, PPCycleFilt * pCycl) const;
 	int    SLAPI getPeriod(uint pos, DateRange *) const;
 	int    SLAPI searchDate(LDATE, uint *) const;
 	int    SLAPI searchPeriodByDate(LDATE, DateRange *) const;
-	int    SLAPI formatCycle(LDATE, char *, size_t) const;
+	void   SLAPI formatCycle(LDATE, char *, size_t) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
 	DateRange Period;
@@ -658,12 +658,7 @@ public:
 	//   <0 - this < rS
 	//    0 - this == rS
 	//
-	int    FASTCALL Cmp(const DateIter & rS) const
-	{
-        int    si = 0;
-        CMPCASCADE2(si, this, &rS, dt, oprno);
-        return si;
-	}
+	int    FASTCALL Cmp(const DateIter & rS) const;
 
 	LDATE  end;
 	LDATE  dt;
@@ -1226,15 +1221,9 @@ struct PPUserProfileFile { // @Property
 };
 
 struct PPUserProfileFuncEntry {
-	static uint16 FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
-	{
-		ASSIGN_PTR(pFuncVer, (uint16)(logFuncId%1000));
-		return (uint16)(logFuncId/1000);
-	}
-	long   GetLoggedFuncId() const
-	{
-		return (((long)FuncId)*1000)+((long)FuncVer);
-	}
+	static uint16 FASTCALL FromLoggedFuncId(long logFuncId, uint16 * pFuncVer);
+	long   SLAPI GetLoggedFuncId() const;
+
 	enum {
 		fFinishOnly = 0x0001, // Для функции не формируется стартовая запись (предполагается гарантированное завершение)
 		fAccumulate = 0x0002  // Для функции результаты профилирования накапливаются в аккумуляторе
@@ -34340,43 +34329,40 @@ public:
 	// int    SLAPI Init(int setupValues, long extraParam);
 	void   FASTCALL SetupBrowseBillsType(BrowseBillsType);
 	enum bff_tag {
-		fShowDebt       = 0x00000001, // Показывать долг
-		fDebtOnly       = 0x00000002, // Выводить только неоплаченные документы
+		fShowDebt          = 0x00000001, // Показывать долг
+		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы
 		// if(fOrderOnly) then выводить только не закрытые заказы
-		fPaymNeeded     = 0x00000004, // Выводить документы, требующие оплаты (независимо от операции)
-		fFreightedOnly  = 0x00000008, // Только зафрахтованные документы (BillTbl::Rec.Flags & BILLF_FREIGHT)
-		fCashOnly       = 0x00000010, // Документы розницы через кассовый узел
-		fOrderOnly      = 0x00000020, // Заказы
-		fInvOnly        = 0x00000040, // Инвентаризация //
-		//
-		// Если флаг fAsSelector установлен, то броузер работает как
-		// селектор. При этом, если был выбран какой-то документ,
-		// то поле sel содержит его идентификатор.
-		//
-		fAsSelector     = 0x00000080,
-		fLabelOnly      = 0x00000100, // Показывать только меченые документы
-		fAllCurrencies  = 0x00000200, // Показывать все валюты
-		fAccturnOnly    = 0x00000400, // Только бухгалтерские документы
-		fSetupNewBill   = 0x00000800, // Формировать поля нового док в соответствии с фильтром
-		fDraftOnly      = 0x00001000, // Драфт-документы
+		fPaymNeeded        = 0x00000004, // Выводить документы, требующие оплаты (независимо от операции)
+		fFreightedOnly     = 0x00000008, // Только зафрахтованные документы (BillTbl::Rec.Flags & BILLF_FREIGHT)
+		fCashOnly          = 0x00000010, // Документы розницы через кассовый узел
+		fOrderOnly         = 0x00000020, // Заказы
+		fInvOnly           = 0x00000040, // Инвентаризация //
+		fAsSelector        = 0x00000080, // Если флаг fAsSelector установлен, то броузер работает как
+			// селектор. При этом, если был выбран какой-то документ, то поле sel содержит его идентификатор.
+		fLabelOnly         = 0x00000100, // Показывать только меченые документы
+		fAllCurrencies     = 0x00000200, // Показывать все валюты
+		fAccturnOnly       = 0x00000400, // Только бухгалтерские документы
+		fSetupNewBill      = 0x00000800, // Формировать поля нового док в соответствии с фильтром
+		fDraftOnly         = 0x00001000, // Драфт-документы
 		fDebtsWithPayments = 0x00002000, // Долговые документы с оплатами
-		fPoolOnly       = 0x00004000, // Только пулы документов
-		fShowAck        = 0x00008000, // Показывать с номерами подтверждений
-		fEditPoolByType = 0x00010000, // Изменения пула производить с помощью AssocID
-		fIgnoreRtPeriod = 0x00020000, // @internal Функция PPViewBill::Init не
+		fPoolOnly          = 0x00004000, // Только пулы документов
+		fShowAck           = 0x00008000, // Показывать с номерами подтверждений
+		fEditPoolByType    = 0x00010000, // Изменения пула производить с помощью AssocID
+		fIgnoreRtPeriod    = 0x00020000, // @internal Функция PPViewBill::Init не
 			// должна устанавливать пересечение this->Period с периодом доступа на чтение.
-		fShowWoAgent    = 0x00040000, // Показывать только документы без агента
-		fBillListOnly   = 0x00080000, // Если задан список документов List, то не проверять остальные
+		fShowWoAgent       = 0x00040000, // Показывать только документы без агента
+		fBillListOnly      = 0x00080000, // Если задан список документов List, то не проверять остальные
 			// критерии фильтра. Если List.IsEmpty, то это флаг игнорируется.
-		fWmsOnly        = 0x00100000, // Только документы складских операций
-		fUnshippedOnly  = 0x00200000, // Только не отгруженные документы !(BillTbl::Rec::Flags & BILLF_SHIPPED)
-		fShippedOnly    = 0x00400000, // Только отгруженные документы (BillTbl::Rec::Flags & BILLF_SHIPPED)
-		fDiscountOnly   = 0x00800000, // Только со скидкой на весь документ
-		fDescOrder      = 0x01000000, // @v7.5.5  Сортировка в обратном порядке
+		fWmsOnly           = 0x00100000, // Только документы складских операций
+		fUnshippedOnly     = 0x00200000, // Только не отгруженные документы !(BillTbl::Rec::Flags & BILLF_SHIPPED)
+		fShippedOnly       = 0x00400000, // Только отгруженные документы (BillTbl::Rec::Flags & BILLF_SHIPPED)
+		fDiscountOnly      = 0x00800000, // Только со скидкой на весь документ
+		fDescOrder         = 0x01000000, // Сортировка в обратном порядке
 
-		fAddZeroLoc     = 0x02000000, // @v7.5.8  При построении выборки добавлять нулевую локацию к списку
+		fAddZeroLoc        = 0x02000000, // При построении выборки добавлять нулевую локацию к списку
 			// складов, по которому фильтруется отчет.
-		fExportEDI      = 0x04000000  // @v8.0.5 Специальный флаг, используемый при 'кспорте
+		fExportEDI         = 0x04000000, // @v8.0.5 Специальный флаг, используемый при экспорте
+		fCcPrintedOnly     = 0x08000000  // @v9.7.12 Только документы, по которым отпечатан кассовый чек
 	};
 	enum {
 		fDenyAdd    = 0x0001,
@@ -34420,8 +34406,7 @@ public:
 	PPID   PoolOpID;       // Ид операции пула (ограничивает выбор вида операции)
 	PPID   OpID;           //
 	PPID   CurID;          // Ид валюты
-	PPID   AccSheetID;     // Если из операции нельзя определить таблицу статей,
-	//                то эта таблица может быть взята из поля sheet
+	PPID   AccSheetID;     // Если из операции нельзя определить таблицу статей, то эта таблица может быть взята из этого поля //
 	PPID   ObjectID;       // ->Article.ID
 	PPID   Object2ID;      // ->Article.ID
 	PPID   PayerID;        // ->Article.ID Плательщик
@@ -37070,11 +37055,8 @@ public:
 	LDATE  ExpiryDate;
 private:
 	struct DebtEntry {
-		SLAPI  DebtEntry(PPID ident = 0)
-		{
-			ID = ident;
-			_AvgPaym = 0.0;
-		}
+		SLAPI  DebtEntry(PPID ident = 0);
+
 		PPID   ID;             // @anchor Идентификатор блока. Фактический смысл этого идентификатора
 			// определяется параметром Filt.Sgb (подставновкой по долговому документу)
 		double _AvgPaym;       // Средняя оплата по табуляторам без учета нулевых значений
@@ -37210,10 +37192,7 @@ struct PPDebtorStat {
 	SLAPI  PPDebtorStat(PPID arID);
 	int    SLAPI AddPayment(PPID debtDimID, LDATE dt, double amount);
 	int    SLAPI Finish();
-	int    SLAPI IsAggregate() const
-	{
-		return BIN(ArID == 0 || (Flags & (fAgent|fHolding)));
-	}
+	int    SLAPI IsAggregate() const;
 	//
 	// Descr: Возвращает коэффициент вариации задержки платежа.
 	//   Если мат ожидание нулевое, то возвращает SMathConst::Max
@@ -37246,15 +37225,9 @@ struct PPDebtorStat {
 	// Descr: Элемент статистики, дифференцированный по долговой размерности
 	//
 	struct DebtDimItem {
-		long   GetPaymPeriod() const
-		{
-			return (FirstPaymDate && LastPaymDate) ? diffdate(LastPaymDate, FirstPaymDate) + 1 : 0;
-		}
-		double CalcPaymDensity() const
-		{
-			long   paym_period = GetPaymPeriod();
-			return (paym_period > 0) ? (PaymAmount / paym_period) : 0.0;
-		}
+		long   SLAPI GetPaymPeriod() const;
+		double SLAPI CalcPaymDensity() const;
+
 		PPID   DebtDimID;
 		LDATE  FirstPaymDate;  // Дата первого платежа от контрагента
 		LDATE  LastPaymDate;   // Дата последнего платежа от контрагента
@@ -37484,16 +37457,6 @@ private:
 	PPObjArticle ArObj;
 	Param P;
 	PPDebtorStatConfig Cfg;
-};
-//
-// PLineFilt
-//
-struct PLineFilt {
-	PPID   list;
-	PPID   goodsGrp;
-	PPID   manuf;
-	double pctadd;
-	int    present;
 };
 //
 //
@@ -37960,7 +37923,7 @@ private:
 		PPID   ID;
 		PPID   LocID;
 		PPID   OpID;
-		PPID   Object2ID; // @v7.4.2
+		PPID   Object2ID;
 		PPID   AgentID;
 		long   Flags;
 	};
@@ -38135,8 +38098,7 @@ struct OpGroupingViewItem {
 	LDATE  Dt;
 	PPID   ObjectID;
 	PPID   OpID;
-	char   OpName[48];    // @v6.2.4 [42]-->[48]
-	// @v6.2.4 uint16 Reserve1;      // @alignment
+	char   OpName[48];
 	PPID   GoodsTaxGrpID;
 	PPID   LotTaxGrpID;
 	short  fVatFreeSuppl;
@@ -38544,7 +38506,7 @@ private:
 	ObjIdListFilt NodeList;
 	int    CurrentViewOrder;
 	TempCSessChecksTbl * P_TempTbl;
-	TempOrderTbl * P_TempOrd; // @v6.6.8
+	TempOrderTbl * P_TempOrd;
 	SArray * P_SessAmtAry;
 	PPObjCSession CsObj;
 	CCheckCore CC;
@@ -40332,7 +40294,7 @@ private:
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	virtual int  SLAPI ViewTotal();
-	int    SLAPI NextInnerIteration(PaymPlanViewItem * pItem);
+	void   SLAPI NextInnerIteration(PaymPlanViewItem * pItem);
 	int    SLAPI GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod);
 	int    SLAPI GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col);
 	int    SLAPI ViewArticleInfo(const BrwHdr * pHdr, int what);

@@ -1315,6 +1315,13 @@ int SLAPI DateIter::IsEnd() const
 {
 	return (end && dt > end);
 }
+
+int FASTCALL DateIter::Cmp(const DateIter & rS) const
+{
+    int    si = 0;
+    CMPCASCADE2(si, this, &rS, dt, oprno);
+    return si;
+}
 //
 // IterCounter
 //

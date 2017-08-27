@@ -573,19 +573,17 @@ void __env_panic_set(ENV * env, int on)
  */
 int __env_ref_increment(ENV * env)
 {
-	REGENV * renv;
-	REGINFO * infop;
 	int ret;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	/* If we're creating the primary region, allocate a mutex. */
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
+	// If we're creating the primary region, allocate a mutex. 
 	if(F_ISSET(infop, REGION_CREATE)) {
 		if((ret = __mutex_alloc(env, MTX_ENV_REGION, 0, &renv->mtx_regenv)) != 0)
 			return ret;
 		renv->refcnt = 1;
 	}
 	else {
-		/* Lock the environment, increment the reference, unlock. */
+		// Lock the environment, increment the reference, unlock. 
 		MUTEX_LOCK(env, renv->mtx_regenv);
 		++renv->refcnt;
 		MUTEX_UNLOCK(env, renv->mtx_regenv);

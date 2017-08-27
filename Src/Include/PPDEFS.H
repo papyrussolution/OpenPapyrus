@@ -1375,62 +1375,63 @@
 // Типы EDI-операций
 // @persistent
 //
-#define PPEDIOP_NOP                           0 // Не EDI-операция //
-#define PPEDIOP_ORDER                         1 // Заказ поставщику
-#define PPEDIOP_ORDERRSP                      2 // Подтверждение заказа от поставщика
-#define PPEDIOP_APERAK                        3 // Статус обработки заказа поставщиком
-#define PPEDIOP_DESADV                        4 // Уведомление от отгрузки поставщиком
-#define PPEDIOP_RECADV                        5 // Подтверждение получения товара от поставщика
-#define PPEDIOP_DECLINEORDER                  6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
-#define PPEDIOP_ALCODESADV                    7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
-#define PPEDIOP_SALESORDER                    8 // @v9.2.1 Заказ от покупателя
+#define PPEDIOP_NOP                            0 // Не EDI-операция //
+#define PPEDIOP_ORDER                          1 // Заказ поставщику
+#define PPEDIOP_ORDERRSP                       2 // Подтверждение заказа от поставщика
+#define PPEDIOP_APERAK                         3 // Статус обработки заказа поставщиком
+#define PPEDIOP_DESADV                         4 // Уведомление от отгрузки поставщиком
+#define PPEDIOP_RECADV                         5 // Подтверждение получения товара от поставщика
+#define PPEDIOP_DECLINEORDER                   6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
+#define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
+#define PPEDIOP_SALESORDER                     8 // @v9.2.1 Заказ от покупателя
 //
 // Типы операций обмена с системой ЕГАИС
 //
-#define PPEDIOP_EGAIS_WAYBILL                21
-#define PPEDIOP_EGAIS_TICKET                 22
-#define PPEDIOP_EGAIS_WAYBILLACT             23
-#define PPEDIOP_EGAIS_CONFIRMTICKET          24
-#define PPEDIOP_EGAIS_TTNINFORMBREG          25
-#define PPEDIOP_EGAIS_ACTREJECT              26
-#define PPEDIOP_EGAIS_ACTUSING               27
-#define PPEDIOP_EGAIS_ACTINVENTORY           28
-#define PPEDIOP_EGAIS_ACTINVENTORYPARTIAL    29
-#define PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG 30
-#define PPEDIOP_EGAIS_QUERYAP                31
-#define PPEDIOP_EGAIS_QUERYSSP               32
-#define PPEDIOP_EGAIS_QUERYSP                33
-#define PPEDIOP_EGAIS_QUERYCLIENTS           34
-#define PPEDIOP_EGAIS_QUERYRESTS             35
-#define PPEDIOP_EGAIS_QUERYFORMA             36
-#define PPEDIOP_EGAIS_QUERYFORMB             37
-#define PPEDIOP_EGAIS_REPLYSSP               38
-#define PPEDIOP_EGAIS_REPLYSPIRIT            39
-#define PPEDIOP_EGAIS_REPLYCLIENT            40
-#define PPEDIOP_EGAIS_REPLYAP                41
-#define PPEDIOP_EGAIS_REPLYRESTS             42 // Ответ на запрос остатков
-#define PPEDIOP_EGAIS_REPLYFORMA             43
-#define PPEDIOP_EGAIS_REPLYFORMB             44
-#define PPEDIOP_EGAIS_ACTCHARGEON            45
-#define PPEDIOP_EGAIS_ACTWRITEOFF            46
-#define PPEDIOP_EGAIS_REQUESTREPEALWB        47 // @v9.2.8
-#define PPEDIOP_EGAIS_CONFIRMREPEALWB        48 // @v9.2.8
-#define PPEDIOP_EGAIS_QUERYRESTSSHOP         49 // @v9.2.8
-#define PPEDIOP_EGAIS_REPLYRESTSSHOP         50 // @v9.2.8
-#define PPEDIOP_EGAIS_QUERYBARCODE           51 // @v9.2.8
-#define PPEDIOP_EGAIS_REPLYBARCODE           52 // @v9.2.8
-#define PPEDIOP_EGAIS_TRANSFERTOSHOP         53 // @v9.2.11
-#define PPEDIOP_EGAIS_ACTCHARGEONSHOP        54 // @v9.2.11 // ActChargeOnShop_v2
-#define PPEDIOP_EGAIS_TRANSFERFROMSHOP       55 // @v9.3.10
-#define PPEDIOP_EGAIS_ACTCHARGEON_V2         56 // @v9.3.12
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V2         57 // @v9.3.12
-#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP        58 // @v9.4.0
-#define PPEDIOP_EGAIS_WAYBILL_V2             59 // @v9.5.5
-#define PPEDIOP_EGAIS_TTNINFORMF2REG         60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
-#define PPEDIOP_EGAIS_WAYBILLACT_V2          61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_NOTIFY_WBVER2          62 // @v9.7.2 Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
-#define PPEDIOP_EGAIS_QUERYRESTS_V2          63 // @v9.7.5 Запрос остатков version 2
-#define PPEDIOP_EGAIS_REPLYRESTS_V2          64 // @v9.7.5 Ответ на запрос остатков version 2
+#define PPEDIOP_EGAIS_WAYBILL                 21
+#define PPEDIOP_EGAIS_TICKET                  22
+#define PPEDIOP_EGAIS_WAYBILLACT              23
+#define PPEDIOP_EGAIS_CONFIRMTICKET           24
+#define PPEDIOP_EGAIS_TTNINFORMBREG           25
+#define PPEDIOP_EGAIS_ACTREJECT               26
+#define PPEDIOP_EGAIS_ACTUSING                27
+#define PPEDIOP_EGAIS_ACTINVENTORY            28
+#define PPEDIOP_EGAIS_ACTINVENTORYPARTIAL     29
+#define PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG  30
+#define PPEDIOP_EGAIS_QUERYAP                 31
+#define PPEDIOP_EGAIS_QUERYSSP                32
+#define PPEDIOP_EGAIS_QUERYSP                 33
+#define PPEDIOP_EGAIS_QUERYCLIENTS            34
+#define PPEDIOP_EGAIS_QUERYRESTS              35
+#define PPEDIOP_EGAIS_QUERYFORMA              36
+#define PPEDIOP_EGAIS_QUERYFORMB              37
+#define PPEDIOP_EGAIS_REPLYSSP                38
+#define PPEDIOP_EGAIS_REPLYSPIRIT             39
+#define PPEDIOP_EGAIS_REPLYCLIENT             40
+#define PPEDIOP_EGAIS_REPLYAP                 41
+#define PPEDIOP_EGAIS_REPLYRESTS              42 // Ответ на запрос остатков
+#define PPEDIOP_EGAIS_REPLYFORMA              43
+#define PPEDIOP_EGAIS_REPLYFORMB              44
+#define PPEDIOP_EGAIS_ACTCHARGEON             45
+#define PPEDIOP_EGAIS_ACTWRITEOFF             46
+#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 // @v9.2.8
+#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 // @v9.2.8
+#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 // @v9.2.8
+#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 // @v9.2.8
+#define PPEDIOP_EGAIS_QUERYBARCODE            51 // @v9.2.8
+#define PPEDIOP_EGAIS_REPLYBARCODE            52 // @v9.2.8
+#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 // @v9.2.11
+#define PPEDIOP_EGAIS_ACTCHARGEONSHOP         54 // @v9.2.11 // ActChargeOnShop_v2
+#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 // @v9.3.10
+#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 // @v9.3.12
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 // @v9.3.12
+#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 // @v9.4.0
+#define PPEDIOP_EGAIS_WAYBILL_V2              59 // @v9.5.5
+#define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
+#define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // @v9.7.2 Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
+#define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // @v9.7.5 Запрос остатков version 2
+#define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // @v9.7.5 Ответ на запрос остатков version 2
+#define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // @v9.7.12 version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //

@@ -528,7 +528,9 @@ static int SLAPI PPCriticalWarning(SString & rMsg, uint /*options*/)
 			dlg->setStaticText(CTL_CRITWARN_HEAD, rMsg);
 			if(ExecView(dlg) == cmOK) {
 				dlg->getCtrlString(CTL_CRITWARN_ANSWER, answ);
-				yes = (stricmp1251(answ, "да") !=0) ? cmCancel : cmYes;
+				SString yes_str;
+				PPLoadString("yes", yes_str);
+				yes = (stricmp866(answ, yes_str) != 0) ? cmCancel : cmYes;
 			}
 		}
 		else

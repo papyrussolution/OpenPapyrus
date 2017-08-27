@@ -10,7 +10,7 @@
 //
 //
 //
-SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->gramm", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->gramm", 0, 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -23,7 +23,7 @@ SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words
 	};
 
 	SeqID = 0;
-	new BDbTable(BDbTable::Config("words.db->gramm_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("words.db->gramm_idx01", 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_gramm_id", 0, &SeqID));
 	CATCH
@@ -151,7 +151,7 @@ public:
 	SrWordGrammarTbl(BDbDatabase * pDb);
 };*/
 
-SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->word", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->word", 0, 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -164,7 +164,7 @@ SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->w
 	};
 
 	SeqID = 0;
-	new BDbTable(BDbTable::Config("words.db->word_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("words.db->word_idx01", 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_word_id", 0, &SeqID));
 	CATCH
@@ -249,7 +249,7 @@ int SrWordTbl::Search(LEXID id, SString & rBuf)
 //
 //
 //
-SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->wordassoc", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->wordassoc", 0, 0), pDb)
 {
 	//
 	// Индекс по идентификатору лексемы. Неуникальный.
@@ -280,8 +280,8 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("w
 	};
 
 	SeqID = 0;
-	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx01", BDbTable::idxtypHash, cfDup, 0, 0), pDb, new Idx01, this));
-	THROW_SL(new BDbTable(BDbTable::Config("words.db->wordassoc_idx02", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx02, this));
+	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx01", cfDup, 0), pDb, new Idx01, this));
+	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx02", 0, 0), pDb, new Idx02, this));
 	if(P_Db)
 		THROW_DB(P_Db->CreateSequence("seq_wordassoc_id", 0, &SeqID));
 	CATCH
@@ -400,7 +400,7 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 //
 //
 //
-SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db->ngram", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->ngram", 0, 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -415,7 +415,7 @@ SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("words.db-
 		}
 	};
 	SeqID = 0;
-	new BDbTable(BDbTable::Config("words.db->ngram_idx01", BDbTable::idxtypBTree, 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigBTree("words.db->ngram_idx01", 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_ngram_id", 0, &SeqID));
 	CATCH
@@ -537,7 +537,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSArray <NGID> & rList)
 //
 //
 //
-SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("concept.db->concept", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -554,7 +554,7 @@ SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("conce
 		}
 	};
 	SeqID = 0;
-	new BDbTable(BDbTable::Config("concept.db->concept_idx01", BDbTable::idxtypHash, 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->concept_idx01", 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_concept_id", 0, &SeqID));
 	CATCH
@@ -703,7 +703,7 @@ int FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, 
 }
 
 SrConceptPropTbl::SrConceptPropTbl(/*BDbDatabase * pDb*/SrDatabase & rSr) :
-	BDbTable(BDbTable::Config("concept.db->conceptprop", BDbTable::idxtypHash, 0, 0, 0), rSr.P_Db),
+	BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, 0), rSr.P_Db),
 	R_Sr(rSr)
 {
 	class Idx01 : public SecondaryIndex {
@@ -715,7 +715,7 @@ SrConceptPropTbl::SrConceptPropTbl(/*BDbDatabase * pDb*/SrDatabase & rSr) :
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::Config("concept.db->conceptprop_idx01", BDbTable::idxtypHash, BDbTable::cfDup, 0, 0), rSr.P_Db, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptprop_idx01", BDbTable::cfDup, 0), rSr.P_Db, new Idx01, this);
 }
 
 int SrConceptPropTbl::Search(SrCProp & rRec)
@@ -890,7 +890,7 @@ struct SrConceptNg {
 	NGID   NGID;
 };
 
-SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("concept.db->conceptng", BDbTable::idxtypHash, 0, 0, 0), pDb)
+SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->conceptng", 0, 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -910,8 +910,8 @@ SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("c
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::Config("concept.db->conceptng_idx01", BDbTable::idxtypHash, BDbTable::cfDup, 0, 0), pDb, new Idx01, this);
-	new BDbTable(BDbTable::Config("concept.db->conceptng_idx02", BDbTable::idxtypHash, BDbTable::cfDup, 0, 0), pDb, new Idx02, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx01", BDbTable::cfDup, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx02", BDbTable::cfDup, 0), pDb, new Idx02, this);
 }
 
 int SrConceptNgTbl::Set(CONCEPTID cID, NGID ngID)
@@ -979,9 +979,12 @@ int SrConceptNgTbl::GetNgList(CONCEPTID cID, Int64Array & rNgList)
 	return ok;
 }
 //
+// avg-key-size = 4.094674922
+// avg-rec-size = 42.18095422
+// page-size = 2048
+// ffactor = (2048 - 32) / (4.1 + 42.2 + 8) = 37.12
 //
-//
-SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->node", BDbTable::idxtypHash, 0, 2048, 8*1024), pDb)
+SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->node", 0, 2048, /*400000000*/0, /*37*/0), pDb)
 {
 	/*
 	class Idx01 : public SecondaryIndex {
@@ -1213,7 +1216,7 @@ int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID)
 //
 //
 //
-SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::Config("geomap.db->way", BDbTable::idxtypHash, 0, 2048, 8*1024), pDb)
+SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->way", 0, 2048), pDb)
 {
 }
 
@@ -2320,11 +2323,13 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 				int   sr = dontCheckExist ? -1 : P_GnT->Search(p_node->ID, &ex_cluster, &fault_logical_id);
 				THROW(sr);
 				if(sr > 0) {
+					PROFILE_START
 					{
 						uint   ex_count_logic = 0;
 						uint   ex_count_actual = 0;
 						ex_list.clear();
-						assert(ex_cluster.Get(fault_logical_id, ex_list, 0, 0, &ex_count_logic, &ex_count_actual));
+						const  int ecgr = ex_cluster.Get(fault_logical_id, ex_list, 0, 0, &ex_count_logic, &ex_count_actual);
+						assert(ecgr);
 						for(uint   forward_idx = offs; forward_idx < _count; forward_idx++) {
 							uint64 forward_id = rList.at(forward_idx).ID;
 							uint   fpos = 0;
@@ -2343,6 +2348,7 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 							}
 						}
 					}
+					PROFILE_END
 				}
 				if(sr < 0) {
 					assert(fault_logical_id == 0);
@@ -2355,13 +2361,15 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 						clu_put_param.P_NrWayRefs = &pNodeToWayAsscList->at(next_node_to_way_assc_pos);
 						clu_put_param.NrWayRefsCount = pNodeToWayAsscList->getCount() - next_node_to_way_assc_pos;
 					}
+					PROFILE_START
 					THROW(p_cluster->Put__(clu_put_param, &outer_id, &clu_put_result, 0));
 					THROW(outer_id_list.insert(&outer_id));
+					PROFILE_END
 					actual_count_ = clu_put_result.ActualCount;
 					assert(outer_id_list.getCount() == cluster_list.getCount());
 					next_node_to_way_assc_pos += clu_put_result.NrWayShift;
 					if(pStat) {
-						PPOsm::SetNodeClusterStat(*p_cluster, *pStat);
+						PROFILE(PPOsm::SetNodeClusterStat(*p_cluster, *pStat));
 					}
 					if(0) { // @debug
 						test_list.clear();

@@ -1720,6 +1720,18 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 	}
 	return result;
 }
+
+int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int32 flags, IFileFormat iff, SString & accsName, SString & accsPassw)
+{
+	SUniformFileTransmParam param;
+	param.SrcPath = srcUrl;
+	param.DestPath = destUrl;
+	param.Flags = flags;
+	param.Format = iff;
+	param.AccsName = accsName;
+	param.AccsPassword = accsPassw;
+	return param.Run(0, 0);
+}
 //
 //
 //

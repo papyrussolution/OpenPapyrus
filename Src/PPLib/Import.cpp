@@ -5754,6 +5754,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 						}
 						SrDatabase * p_db = O.GetDb();
 						if(p_db) {
+							PROFILE_START
 							const int dont_check_existance = 1;
 							//LLAssocArray node_to_way_assc_list;
 							Pb.NodeToWayAsscList.clear();
@@ -5762,11 +5763,14 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 								SString _key_buf, _val_buf;
 								int64 first_node_id = (int64)NodeAccum.at(0).ID;
 								int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
+								PROFILE_START
 								if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
 									if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {
 										THROW_SL(Pb.NodeToWayAsscList.insert(&LastNodeToWayAssoc));
 									}
 								}
+								PROFILE_END
+								PROFILE_START
 								while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
 									Pb.LineBuf.Chomp().Strip();
 									if(Pb.LineBuf.Divide('\t', _key_buf, _val_buf) > 0) {
@@ -5780,9 +5784,12 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 										}
 									}
 								}
-
+								PROFILE_END
 							}
+							PROFILE_START
 							THROW(p_db->StoreGeoNodeList(NodeAccum, &Pb.NodeToWayAsscList, dont_check_existance, &Stat.NcList));
+							PROFILE_END
+							PROFILE_END
 						}
 						OutputStat(0);
 						// (При работе с RoadSton'ом - не катит) assert((Stat.GetNcActualCount() + Stat.GetNcProcessedCount()) == Stat.NodeCount);

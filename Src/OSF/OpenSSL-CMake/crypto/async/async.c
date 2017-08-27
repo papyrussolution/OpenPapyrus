@@ -54,9 +54,7 @@ err:
 
 async_ctx * async_get_ctx(void)
 {
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
-		return NULL;
-	return (async_ctx*)CRYPTO_THREAD_get_local(&ctxkey);
+	return OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL) ? (async_ctx*)CRYPTO_THREAD_get_local(&ctxkey) : 0;
 }
 
 static int async_ctx_free(void)
@@ -73,15 +71,15 @@ static ASYNC_JOB * async_job_new(void)
 	ASYNC_JOB * job = (ASYNC_JOB *)OPENSSL_zalloc(sizeof(ASYNC_JOB));
 	if(job == NULL) {
 		ASYNCerr(ASYNC_F_ASYNC_JOB_NEW, ERR_R_MALLOC_FAILURE);
-		return NULL;
 	}
-	job->status = ASYNC_JOB_RUNNING;
+	else
+		job->status = ASYNC_JOB_RUNNING;
 	return job;
 }
 
 static void async_job_free(ASYNC_JOB * job)
 {
-	if(job != NULL) {
+	if(job) {
 		OPENSSL_free(job->funcargs);
 		async_fibre_free(&job->fibrectx);
 		OPENSSL_free(job);

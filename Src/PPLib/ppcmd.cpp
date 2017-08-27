@@ -1144,9 +1144,7 @@ int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 //
 SLAPI PPCommandHandler::PPCommandHandler(const PPCommandDescr * pDescr)
 {
-	if(pDescr)
-		D = *pDescr;
-	else
+	if(!RVALUEPTR(D, pDescr))
 		MEMSZERO(D);
 }
 
@@ -1188,8 +1186,7 @@ int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 			pParam->SetRdOffs(sav_offs);
 	}
 	CATCH
-		if(pParam)
-			pParam->SetRdOffs(sav_offs);
+		CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 		ok = 0;
 	ENDCATCH
 	ZDELETE(p_filt);
@@ -1237,7 +1234,7 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, long cmdID, long extra)
 	{
 		int    ok = -1;
-		if(D.ViewId)
+		if(D.ViewId) {
 			if(D.ViewId == PPVIEW_BILL) {
 				BillFilt::FiltExtraParam p(1, (BrowseBillsType)D.FiltExtId);
 				THROW(PPCheckDatabaseChain());
@@ -1245,6 +1242,7 @@ public:
 			}
 			else
 				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, (void *)D.FiltExtId);
+		}
 		else if(D.MenuCm && APPL) {
 			((PPApp*)APPL)->processCommand((uint)D.MenuCm);
 			ok = 1;
@@ -1490,8 +1488,7 @@ public:
 		else
 			pParam->SetRdOffs(sav_offs);
 		CATCH
-			if(pParam)
-				pParam->SetRdOffs(sav_offs);
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -2650,7 +2647,6 @@ public:
 			ObjTransmitParam trnsm_param;
 			SBuffer param;
 			((PPApp*)APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
-
 			THROW_INVARG(pParam);
 			param = *pParam;
 			if(!param.GetAvailableSize()) {

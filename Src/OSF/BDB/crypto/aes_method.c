@@ -96,14 +96,13 @@ int __aes_close(ENV*env, void * data)
  */
 int __aes_decrypt(ENV*env, void * aes_data, void * iv, uint8 * cipher, size_t cipher_len)
 {
-	AES_CIPHER * aes;
 #ifdef  HAVE_CRYPTO_IPP
 	IppStatus ipp_ret;
 #else
 	cipherInstance c;
 #endif
 	int ret;
-	aes = (AES_CIPHER *)aes_data;
+	AES_CIPHER * aes = (AES_CIPHER *)aes_data;
 	if(iv == NULL || cipher == NULL)
 		return EINVAL;
 	if((cipher_len%DB_AES_CHUNK) != 0)

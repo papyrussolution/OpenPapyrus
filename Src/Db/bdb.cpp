@@ -559,6 +559,14 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	if(pCfg->PageSize) {
 		THROW(ProcessError(p_db->set_pagesize(p_db, pCfg->PageSize), p_db, 0));
 	}
+	if(dbtype == DB_HASH) {
+		if(pCfg->HashFFactor) {
+			THROW(ProcessError(p_db->set_h_ffactor(p_db, pCfg->HashFFactor), p_db, 0)); 
+			if(pCfg->HashNElem) {
+				THROW(ProcessError(p_db->set_h_nelem(p_db, pCfg->HashNElem), p_db, 0)); 
+			}
+		}
+	}
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
 #ifdef _MT
@@ -666,7 +674,7 @@ int BDbDatabase::CreateSequence(const char * pName, int64 initVal, long * pSeqID
 		if(!P_SeqT) {
 			SString file_name;
 			(file_name = "system.db").Cat("->").Cat("sequence");
-			BDbTable::Config cfg(file_name, BDbTable::idxtypHash, 0, 0, 0);
+			BDbTable::ConfigHash cfg(file_name, 0, 0);
 			THROW_D(P_SeqT = new BDbTable(cfg, this), BE_NOMEM);
 			THROW(P_SeqT->GetState(BDbTable::stOpened));
 		}
@@ -1054,6 +1062,8 @@ void BDbTable::Config::Clear()
 	DataChunk = 0;
 	CacheSize = 0;
 	PageSize = 0;
+	HashFFactor = 0;
+	HashNElem = 0;
 	Name = 0;
 }
 //
@@ -1352,6 +1362,10 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 			uint32 _ps = 0;
 			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps), p_db, 0));
 			rCfg.PageSize = _ps;
+		}
+		if(rCfg.IdxType == BDbTable::idxtypHash) {
+			THROW(BDbDatabase::ProcessError(p_db->get_h_ffactor(p_db, &rCfg.HashFFactor), p_db, 0));
+			THROW(BDbDatabase::ProcessError(p_db->get_h_nelem(p_db, &rCfg.HashNElem), p_db, 0));  
 		}
 	}
 	CATCHZOK
@@ -1717,7 +1731,7 @@ SLTEST_R(BerkeleyDB)
 				const  uint  test_ta_count = 20;
 				uint   count = 0;
 				BDbTable::Buffer key_buf, val_buf;
-				BDbTable tbl(BDbTable::Config("city-enru-pair", BDbTable::idxtypHash, 0, /*1024*/0, 0), &bdb);
+				BDbTable tbl(BDbTable::ConfigHash("city-enru-pair", 0, /*1024*/0), &bdb);
 				THROW(SLTEST_CHECK_NZ(tbl));
 				{
 					//

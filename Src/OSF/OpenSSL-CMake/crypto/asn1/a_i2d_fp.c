@@ -65,7 +65,6 @@ int ASN1_item_i2d_fp(const ASN1_ITEM * it, FILE * out, void * x)
 {
 	BIO * b;
 	int ret;
-
 	if((b = BIO_new(BIO_s_file())) == NULL) {
 		ASN1err(ASN1_F_ASN1_ITEM_I2D_FP, ERR_R_BUF_LIB);
 		return 0;

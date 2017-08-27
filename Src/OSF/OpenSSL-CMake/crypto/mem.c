@@ -136,30 +136,31 @@ void * CRYPTO_clear_realloc(void * str, size_t old_len, size_t num, const char *
 
 void CRYPTO_free(void * str, const char * file, int line)
 {
-	if(free_impl != NULL && free_impl != &CRYPTO_free) {
+	if(free_impl && free_impl != &CRYPTO_free) {
 		free_impl(str, file, line);
-		return;
-	}
-#ifndef OPENSSL_NO_CRYPTO_MDEBUG
-	if(call_malloc_debug) {
-		CRYPTO_mem_debug_free(str, 0, file, line);
-		free(str);
-		CRYPTO_mem_debug_free(str, 1, file, line);
 	}
 	else {
-		free(str);
-	}
+#ifndef OPENSSL_NO_CRYPTO_MDEBUG
+		if(call_malloc_debug) {
+			CRYPTO_mem_debug_free(str, 0, file, line);
+			free(str);
+			CRYPTO_mem_debug_free(str, 1, file, line);
+		}
+		else {
+			free(str);
+		}
 #else
-	free(str);
+		free(str);
 #endif
+	}
 }
 
 void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 {
-	if(str == NULL)
-		return;
-	if(num)
-		OPENSSL_cleanse(str, num);
-	CRYPTO_free(str, file, line);
+	if(str) {
+		if(num)
+			OPENSSL_cleanse(str, num);
+		CRYPTO_free(str, file, line);
+	}
 }
 

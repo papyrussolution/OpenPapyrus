@@ -1,5 +1,6 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -111,9 +112,9 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	TempAssetTbl::Rec asset_rec;
 	double qtty = 1.0;
 	double rest = 0.0;
-	double start_cost = 0.0;  // Áàëàíñîâàÿ ñòîèìîñòü ïîñëå ââîäà â ýêñïëóàòàöèþ
-	double deprec_beg = 0.0;  // Àìîðòèçàöèÿ äî îïåðàöèîííîãî ïåðèîäà
-	double deprec_cont = 0.0; // Àìîðòèçàöèÿ â òå÷åíèè îïåðàöèîííîãî ïåðèîäà
+	double start_cost = 0.0;  // Ð‘Ð°Ð»Ð°Ð½ÑÐ¾Ð²Ð°Ñ ÑÑ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ Ð¿Ð¾ÑÐ»Ðµ Ð²Ð²Ð¾Ð´Ð° Ð² ÑÐºÑÐ¿Ð»ÑƒÐ°Ñ‚Ð°Ñ†Ð¸ÑŽ
+	double deprec_beg = 0.0;  // ÐÐ¼Ð¾Ñ€Ñ‚Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð´Ð¾ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð¾Ð³Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð°
+	double deprec_cont = 0.0; // ÐÐ¼Ð¾Ñ€Ñ‚Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð² Ñ‚ÐµÑ‡ÐµÐ½Ð¸Ð¸ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð¾Ð³Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð°
 	LDATE  dt = ZERODATE;
 	LDATE  lot_date = ZERODATE;
 	SString temp_buf;
@@ -386,23 +387,24 @@ int FASTCALL PPViewAsset::NextIteration(AssetViewItem * pItem)
 	do {
 		if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			if(pItem) {
+				const TempAssetTbl::Rec & r_sr = P_TempTbl->data;
 				memzero(pItem, sizeof(AssetViewItem));
-				pItem->LotID   = P_TempTbl->data.LotID;
-				pItem->GoodsID = P_TempTbl->data.GoodsID;
-				STRNSCPY(pItem->GoodsName, P_TempTbl->data.Name);
-				STRNSCPY(pItem->Serial, P_TempTbl->data.Serial);
+				pItem->LotID   = r_sr.LotID;
+				pItem->GoodsID = r_sr.GoodsID;
+				STRNSCPY(pItem->GoodsName, r_sr.Name);
+				STRNSCPY(pItem->Serial, r_sr.Serial);
 				pItem->P_GoodsGrpName = IterGrpName;
-				pItem->Dt         = P_TempTbl->data.Dt;
-				pItem->ExplDt     = P_TempTbl->data.ExplDt;
-				pItem->WrOffTerm  = P_TempTbl->data.WrOffTerm;
-				pItem->Cost       = P_TempTbl->data.Cost;
-				pItem->Price      = P_TempTbl->data.Price;
-				pItem->Deprec     = P_TempTbl->data.Deprec;
-				pItem->Cost2      = P_TempTbl->data.Cost2;
-				pItem->Price2     = P_TempTbl->data.Price2;
-				pItem->Deprec2    = P_TempTbl->data.Deprec2;
-				pItem->DiffCost   = P_TempTbl->data.DiffCost;
-				pItem->DiffDeprec = P_TempTbl->data.DiffDeprec;
+				pItem->Dt         = r_sr.Dt;
+				pItem->ExplDt     = r_sr.ExplDt;
+				pItem->WrOffTerm  = r_sr.WrOffTerm;
+				pItem->Cost       = r_sr.Cost;
+				pItem->Price      = r_sr.Price;
+				pItem->Deprec     = r_sr.Deprec;
+				pItem->Cost2      = r_sr.Cost2;
+				pItem->Price2     = r_sr.Price2;
+				pItem->Deprec2    = r_sr.Deprec2;
+				pItem->DiffCost   = r_sr.DiffCost;
+				pItem->DiffDeprec = r_sr.DiffDeprec;
 			}
 			Counter.Increment();
 			return 1;
@@ -417,22 +419,23 @@ int SLAPI PPViewAsset::GetItem(PPID lotID, AssetViewItem * pItem)
 		TempAssetTbl::Key0 k;
 		k.LotID = lotID;
 		if(P_TempTbl->search(0, &k, spEq)) {
+			const TempAssetTbl::Rec & r_sr = P_TempTbl->data;
 			memzero(pItem, sizeof(AssetViewItem));
-			pItem->LotID = P_TempTbl->data.LotID;
-			pItem->GoodsID = P_TempTbl->data.GoodsID;
-			STRNSCPY(pItem->GoodsName, P_TempTbl->data.Name);
-			STRNSCPY(pItem->Serial, P_TempTbl->data.Serial);
-			pItem->Dt = P_TempTbl->data.Dt;
-			pItem->ExplDt = P_TempTbl->data.ExplDt;
-			pItem->WrOffTerm = P_TempTbl->data.WrOffTerm;
-			pItem->Cost = P_TempTbl->data.Cost;
-			pItem->Price = P_TempTbl->data.Price;
-			pItem->Deprec = P_TempTbl->data.Deprec;
-			pItem->Cost2 = P_TempTbl->data.Cost2;
-			pItem->Price2 = P_TempTbl->data.Price2;
-			pItem->Deprec2 = P_TempTbl->data.Deprec2;
-			pItem->DiffCost = P_TempTbl->data.DiffCost;
-			pItem->DiffDeprec = P_TempTbl->data.DiffDeprec;
+			pItem->LotID = r_sr.LotID;
+			pItem->GoodsID = r_sr.GoodsID;
+			STRNSCPY(pItem->GoodsName, r_sr.Name);
+			STRNSCPY(pItem->Serial, r_sr.Serial);
+			pItem->Dt = r_sr.Dt;
+			pItem->ExplDt = r_sr.ExplDt;
+			pItem->WrOffTerm = r_sr.WrOffTerm;
+			pItem->Cost = r_sr.Cost;
+			pItem->Price = r_sr.Price;
+			pItem->Deprec = r_sr.Deprec;
+			pItem->Cost2 = r_sr.Cost2;
+			pItem->Price2 = r_sr.Price2;
+			pItem->Deprec2 = r_sr.Deprec2;
+			pItem->DiffCost = r_sr.DiffCost;
+			pItem->DiffDeprec = r_sr.DiffDeprec;
 			return 1;
 		}
 	}
@@ -458,12 +461,13 @@ int SLAPI PPViewAsset::ViewTotal()
 		q.selectAll();
 		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
 			total.Count++;
-			total.Cost    += P_TempTbl->data.Cost;
-			total.Price   += P_TempTbl->data.Price;
-			total.Deprec  += P_TempTbl->data.Deprec;
-			total.Cost2   += P_TempTbl->data.Cost2;
-			total.Price2  += P_TempTbl->data.Price2;
-			total.Deprec2 += P_TempTbl->data.Deprec2;
+			const TempAssetTbl::Rec & r_sr = P_TempTbl->data;
+			total.Cost    += r_sr.Cost;
+			total.Price   += r_sr.Price;
+			total.Deprec  += r_sr.Deprec;
+			total.Cost2   += r_sr.Cost2;
+			total.Price2  += r_sr.Price2;
+			total.Deprec2 += r_sr.Deprec2;
 		}
 		dlg = new TDialog(DLG_ASSETTOTAL);
 		if(CheckDialogPtrErr(&dlg)) {

@@ -112,17 +112,20 @@ static int asn1_bio_init(BIO_ASN1_BUF_CTX * ctx, int size)
 
 static int asn1_bio_free(BIO * b)
 {
-	BIO_ASN1_BUF_CTX * ctx;
 	if(b == NULL)
 		return 0;
-	ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
-	if(!ctx)
-		return 0;
-	OPENSSL_free(ctx->buf);
-	OPENSSL_free(ctx);
-	BIO_set_data(b, 0);
-	BIO_set_init(b, 0);
-	return 1;
+	else {
+		BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);
+		if(!ctx)
+			return 0;
+		else {
+			OPENSSL_free(ctx->buf);
+			OPENSSL_free(ctx);
+			BIO_set_data(b, 0);
+			BIO_set_init(b, 0);
+			return 1;
+		}
+	}
 }
 
 static int asn1_bio_write(BIO * b, const char * in, int inl)
@@ -196,49 +199,43 @@ done:
 
 static int asn1_bio_flush_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx, asn1_ps_func * cleanup, asn1_bio_state_t next)
 {
-	int ret;
-	if(ctx->ex_len <= 0)
-		return 1;
-	for(;; ) {
-		ret = BIO_write(BIO_next(b), ctx->ex_buf + ctx->ex_pos, ctx->ex_len);
-		if(ret <= 0)
-			break;
-		ctx->ex_len -= ret;
-		if(ctx->ex_len > 0)
-			ctx->ex_pos += ret;
-		else {
-			if(cleanup)
-				cleanup(b, &ctx->ex_buf, &ctx->ex_len, &ctx->ex_arg);
-			ctx->state = next;
-			ctx->ex_pos = 0;
-			break;
+	int ret = 1;
+	if(ctx->ex_len > 0) {
+		for(;; ) {
+			ret = BIO_write(BIO_next(b), ctx->ex_buf + ctx->ex_pos, ctx->ex_len);
+			if(ret <= 0)
+				break;
+			ctx->ex_len -= ret;
+			if(ctx->ex_len > 0)
+				ctx->ex_pos += ret;
+			else {
+				if(cleanup)
+					cleanup(b, &ctx->ex_buf, &ctx->ex_len, &ctx->ex_arg);
+				ctx->state = next;
+				ctx->ex_pos = 0;
+				break;
+			}
 		}
 	}
 	return ret;
 }
 
-static int asn1_bio_setup_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx,
-    asn1_ps_func * setup,
-    asn1_bio_state_t ex_state,
-    asn1_bio_state_t other_state)
+static int asn1_bio_setup_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx, asn1_ps_func * setup, asn1_bio_state_t ex_state, asn1_bio_state_t other_state)
 {
 	if(setup && !setup(b, &ctx->ex_buf, &ctx->ex_len, &ctx->ex_arg)) {
 		BIO_clear_retry_flags(b);
 		return 0;
 	}
-	if(ctx->ex_len > 0)
-		ctx->state = ex_state;
-	else
-		ctx->state = other_state;
-	return 1;
+	else {
+		ctx->state = (ctx->ex_len > 0) ? ex_state : other_state;
+		return 1;
+	}
 }
 
 static int asn1_bio_read(BIO * b, char * in, int inl)
 {
 	BIO * next = BIO_next(b);
-	if(!next)
-		return 0;
-	return BIO_read(next, in, inl);
+	return next ? BIO_read(next, in, inl) : 0;
 }
 
 static int asn1_bio_puts(BIO * b, const char * str)
@@ -302,10 +299,9 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 		case BIO_CTRL_FLUSH:
 		    if(!next)
 			    return 0;
-		    /* Call post function if possible */
+		    // Call post function if possible 
 		    if(ctx->state == ASN1_STATE_HEADER) {
-			    if(!asn1_bio_setup_ex(b, ctx, ctx->suffix,
-				    ASN1_STATE_POST_COPY, ASN1_STATE_DONE))
+			    if(!asn1_bio_setup_ex(b, ctx, ctx->suffix, ASN1_STATE_POST_COPY, ASN1_STATE_DONE))
 				    return 0;
 		    }
 		    if(ctx->state == ASN1_STATE_POST_COPY) {
@@ -321,9 +317,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 			    return 0;
 		    }
 		default:
-		    if(!next)
-			    return 0;
-		    return BIO_ctrl(next, cmd, arg1, arg2);
+		    return next ? BIO_ctrl(next, cmd, arg1, arg2) : 0;
 	}
 	return ret;
 }
