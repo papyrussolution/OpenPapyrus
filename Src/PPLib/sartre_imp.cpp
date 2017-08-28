@@ -4034,7 +4034,7 @@ int SrSyntaxRuleSet::__ProcessText(SrDatabase & rDb, const char * pResource, con
 					int r = __ResolveExprRule(blk, 0);
 					if(r > 0) {
 						if(p_f_out) {
-							line_buf = 0;
+							line_buf.Z();
 							for(uint i = tidx; i < blk.TextIdx; i++) {
 								t.Get(i, item_);
 								line_buf.Cat(item_.Text);

@@ -2680,8 +2680,10 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				//
 				// Частичная модификация товарных документов
 				//
-				else if(oneof6(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_CORRECTION)) {
+				else if(oneof7(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF,
+					PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSORDER)) {
 					// @v8.0.3 PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, @v8.5.4 PPOPT_CORRECTION
+					// @v9.8.0 PPOPT_GOODSORDER
 					int    to_update = 0;
 					int    to_turn = 0;
 					int    to_update_rec = 0;
@@ -2694,7 +2696,8 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
 					THROW(ExtractPacket(*pID, &bp) > 0);
 					// @v8.0.3 {
-					if(CConfig.Flags2 & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG) {
+					// @v9.8.0 От избыточной осторожности пока для товарных заказов (PPOPT_GOODSORDER) синхронизацию по лотам не включаем
+					if(CConfig.Flags2 & CCFLG2_SYNCLOT && GetConfig().Flags & BCF_ACCEPTGOODSBILLCHG && op_type_id != PPOPT_GOODSORDER) {
 						if(bp.Rec.Flags2 & BILLF2_FULLSYNC) {
 							err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 							THROW(p_pack->ConvertToBillPacket(bp, &warn, pCtx, 0));
@@ -2777,6 +2780,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 									bp.Rec.Flags |= BILLF_SHIPPED;
 								bp.Rec.StatusID = p_pack->Rec.StatusID;
 								bp.Rec.Object2 = p_pack->Rec.Object2;
+								bp.Rec.DueDate = p_pack->Rec.DueDate; // @v9.8.0
 								THROW(P_Tbl->EditRec(pID, &bp.Rec, 0));
 								ok = 102; // @ObjectUpdated
 							}
@@ -2926,7 +2930,7 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 							p_pack->InvList.atFree(i--);
 						}
 						else {
-							msg_buf = 0;
+							msg_buf.Z();
 							GetGoodsName(goods_id, goods_name.Z());
 							msg_buf.Printf(PPLoadTextS(PPTXT_DUPRCPTINVGOODS, fmt_buf), foreign_id, goods_id, goods_name.cptr());
 							pCtx->OutReceivingMsg(msg_buf);

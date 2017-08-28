@@ -743,7 +743,7 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 			if(b_rec.LinkBillID == 0 || P_Tbl->Search(b_rec.LinkBillID) <= 0) {
 				ArticleTbl::Rec ar_rec;
 				MakeCodeString(&b_rec, 0, code);
-				msg_buf = 0;
+				msg_buf.Z();
 				op_name_ary.Get(b_rec.OpID, msg_buf);
 				msg_buf.Space().Cat(code);
 				if(b_rec.Object && ar_obj.Fetch(b_rec.Object, &ar_rec) && ar_rec.Name[0])

@@ -1420,7 +1420,7 @@ private:
 				}
 			}
 			else {
-				PPGetMessage(mfError, PPERR_SCARDISNTCREDIT, scard_rec.Code, 1, msg_buf = 0);
+				PPGetMessage(mfError, PPERR_SCARDISNTCREDIT, scard_rec.Code, 1, msg_buf.Z());
 				scard_no = 0;
 			}
 			setCtrlString(CTL_CTBLORD_SCARD, scard_no);
@@ -1440,18 +1440,18 @@ private:
 					}
 				}
 				else {
-					PPGetMessage(mfError, PPERR_SCARDISNTCREDIT, scard_rec.Code, 1, msg_buf = 0);
+					PPGetMessage(mfError, PPERR_SCARDISNTCREDIT, scard_rec.Code, 1, msg_buf.Z());
 					scard_no = 0;
 				}
 			}
 			else {
-				PPGetLastErrorMessage(1, msg_buf = 0);
-				scard_no = 0;
+				PPGetLastErrorMessage(1, msg_buf.Z());
+				scard_no.Z();
 			}
 		}
 		setStaticText(CTL_CTBLORD_ST_SCREST, msg_buf);
 		disableCtrl(CTL_CTBLORD_PREPAY, !Data.SCardID);
-		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID); // @v6.8.0
+		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID);
 	}
 	CTableOrder::Packet Data;
 	PPObjSCard ScObj;

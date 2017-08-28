@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -11,18 +10,12 @@
 
 static void * ngx_mail_core_create_main_conf(ngx_conf_t * cf);
 static void * ngx_mail_core_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_mail_core_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static char * ngx_mail_core_server(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_core_listen(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_core_protocol(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_mail_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
+static char * ngx_mail_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_core_protocol(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_mail_core_commands[] = {
 	{ ngx_string("server"),

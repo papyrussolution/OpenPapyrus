@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -20,7 +19,6 @@
 typedef struct {
 	u_char                    ** tables;
 	ngx_str_t name;
-
 	unsigned length : 16;
 	unsigned utf8 : 1;
 } ngx_http_charset_t;

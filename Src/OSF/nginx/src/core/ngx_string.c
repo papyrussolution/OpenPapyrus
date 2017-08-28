@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -23,31 +22,47 @@ void ngx_strlow(u_char * dst, u_char * src, size_t n)
 
 u_char * ngx_cpystrn(u_char * dst, u_char * src, size_t n)
 {
-	if(n == 0) {
-		return dst;
-	}
-	while(--n) {
-		*dst = *src;
-		if(*dst == '\0') {
-			return dst;
+	if(n) {
+		while(--n) {
+			*dst = *src;
+			if(*dst == '\0') {
+				return dst;
+			}
+			dst++;
+			src++;
 		}
-		dst++;
-		src++;
+		*dst = '\0';
 	}
-	*dst = '\0';
 	return dst;
 }
 
-u_char * ngx_pstrdup(ngx_pool_t * pool, ngx_str_t * src)
+u_char * ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src)
 {
-	u_char  * dst = (u_char *)ngx_pnalloc(pool, src->len);
-	if(dst == NULL) {
-		return NULL;
-	}
-	ngx_memcpy(dst, src->data, src->len);
+	u_char * dst = (u_char *)ngx_pnalloc(pool, src->len);
+	if(dst)
+		ngx_memcpy(dst, src->data, src->len);
 	return dst;
 }
 
+int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
+{
+	int    ok = 1;
+	if(pSrc && pSrc->Len()) {
+		pDest->data = (u_char *)ngx_pnalloc(pPool, pSrc->Len()+1);
+		if(pDest->data) {
+			pDest->len = pSrc->Len();
+		}
+		else {
+			pDest->len = 0;
+			ok = 0;
+		}
+	}
+	else {
+		pDest->data = 0;
+		pDest->len = 0;
+	}
+	return ok;
+}
 /*
  * supported formats:
  *    %[0][width][x][X]O        nginx_off_t
@@ -193,7 +208,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 				case 'V':
 				    v = va_arg(args, ngx_str_t *);
 
-				    len = ngx_min(((size_t)(last - buf)), v->len);
+				    len = MIN(((size_t)(last - buf)), v->len);
 				    buf = ngx_cpymem(buf, v->data, len);
 				    fmt++;
 
@@ -202,7 +217,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 				case 'v':
 				    vv = va_arg(args, ngx_variable_value_t *);
 
-				    len = ngx_min(((size_t)(last - buf)), vv->len);
+				    len = MIN(((size_t)(last - buf)), vv->len);
 				    buf = ngx_cpymem(buf, vv->data, len);
 				    fmt++;
 
@@ -217,7 +232,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 					    }
 				    }
 				    else {
-					    len = ngx_min(((size_t)(last - buf)), slen);
+					    len = MIN(((size_t)(last - buf)), slen);
 					    buf = ngx_cpymem(buf, p, len);
 				    }
 
@@ -441,7 +456,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 
 static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_char zero, ngx_uint_t hexadecimal, ngx_uint_t width)
 {
-	u_char         * p, temp[NGX_INT64_LEN + 1];
+	u_char * p, temp[NGX_INT64_LEN + 1];
 	/*
 	 * we need temp[NGX_INT64_LEN] only,
 	 * but icc issues the warning
@@ -450,9 +465,7 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 	uint32_t ui32;
 	static u_char hex[] = "0123456789abcdef";
 	static u_char HEX[] = "0123456789ABCDEF";
-
 	p = temp + NGX_INT64_LEN;
-
 	if(hexadecimal == 0) {
 		if(ui64 <= (uint64_t)NGX_MAX_UINT32_VALUE) {
 			/*

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -767,7 +766,7 @@ static ngx_int_t ngx_http_cmp_locations(const ngx_queue_t * one, const ngx_queue
 		return 0;
 	}
 #endif
-	rc = ngx_filename_cmp(first->name.data, second->name.data, ngx_min(first->name.len, second->name.len) + 1);
+	rc = ngx_filename_cmp(first->name.data, second->name.data, MIN(first->name.len, second->name.len) + 1);
 	if(rc == 0 && !first->exact_match && second->exact_match) {
 		/* an exact match must be before the same inclusive one */
 		return 1;

@@ -1,4 +1,3 @@
-
 /*
  * An internal implementation, based on Alexander Peslyak's
  * public domain implementation:

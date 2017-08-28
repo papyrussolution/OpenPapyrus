@@ -165,13 +165,12 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 
 void ngx_os_status(ngx_log_t * log)
 {
-	ngx_osviex_stub_t  * osviex_stub;
 	ngx_log_error(NGX_LOG_NOTICE, log, 0, NGINX_VER_BUILD);
 	if(osviex) {
 		/*
 		 * the MSVC 6.0 SP2 defines wSuiteMask and wProductType as WORD wReserved[2]
 		 */
-		osviex_stub = (ngx_osviex_stub_t*)&osvi.wServicePackMinor;
+		ngx_osviex_stub_t * osviex_stub = (ngx_osviex_stub_t*)&osvi.wServicePackMinor;
 		ngx_log_error(NGX_LOG_INFO, log, 0, "OS: %ud build:%ud, \"%s\", suite:%Xd, type:%ud",
 		    ngx_win32_version, osvi.dwBuildNumber, osvi.szCSDVersion, osviex_stub->wSuiteMask, osviex_stub->wProductType);
 	}
@@ -192,4 +191,3 @@ void ngx_os_status(ngx_log_t * log)
 		}
 	}
 }
-

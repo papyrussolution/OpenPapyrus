@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Unbit S.a.s. 2009-2010
  * Copyright (C) 2008 Manlio Perillo (manlio.perillo@gmail.com)

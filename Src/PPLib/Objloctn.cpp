@@ -867,7 +867,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	{
 		SString line_buf;
 		for(uint i = 0; i < p_list->getCount(); i++) {
-			line_buf = 0;
+			line_buf.Z();
 			StrAssocArray::Item item = p_list->at(i);
 			if(item.ParentId) {
 				uint pos = 0;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -6,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-
 /*
  * The time may be updated by signal handler or by several threads.
  * The time update operations are rare and require to hold the ngx_time_lock.

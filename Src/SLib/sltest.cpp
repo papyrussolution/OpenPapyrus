@@ -739,7 +739,7 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 		SLS.LogMessage(LogFileName, line_buf);
 	}
 	else if(title == 2) {
-		SLS.LogMessage(LogFileName, line_buf = 0);
+		SLS.LogMessage(LogFileName, line_buf.Z());
 		line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS);
 		SLS.LogMessage(LogFileName, line_buf);
 	}

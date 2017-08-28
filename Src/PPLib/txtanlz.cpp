@@ -6042,7 +6042,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 			if(GetByPos(cpidx, &map)) {
 				if(f_out.IsValid()) {
 					if(out_line_no == 0) {
-						line_buf = 0;
+						line_buf.Z();
 						line_buf.Cat("Name").Tab();
 						line_buf.Cat("CpSis").Tab();
 						line_buf.Cat("Code").Tab();
@@ -6059,7 +6059,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 						f_out.WriteLine(line_buf.CR());
 					}
 					//
-					line_buf = 0;
+					line_buf.Z();
 					line_buf.Cat(map.Name).Tab();
 					GetSisCode(map.CpSis, temp_buf);
 					line_buf.Cat(temp_buf).Tab();

@@ -107,12 +107,12 @@ public:
 				line_buf.Cat(temp_buf.CRB());
 				if(line_buf.Len() >= accum_limit) {
 					f_temp.WriteLine(line_buf);
-					line_buf = 0;
+					line_buf.Z();
 				}
 			}
 			if(line_buf.Len()) {
 				f_temp.WriteLine(line_buf);
-				line_buf = 0;
+				line_buf.Z();
 			}
 			LineCount_ = _c;
 		}
@@ -625,7 +625,7 @@ SLTEST_R(FileSort)
 	{
 		LongArray temp_test_list;
 		SFile f_test(test_file_name, SFile::mWrite|SFile::mNoStd);
-		line_buf = 0;
+		line_buf.Z();
 		while(src_file_size < max_src_file_size) {
 			const uint rn = SLS.GetTLA().Rg.GetUniformInt(2000000000UL);
 			temp_test_list.add((long)rn);
@@ -633,7 +633,7 @@ SLTEST_R(FileSort)
 			if(line_buf.Len() > (1024*1024)) {
 				THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
 				src_file_size += line_buf.Len();
-				line_buf = 0;
+				line_buf.Z();
 			}
 			if(temp_test_list.getCount() >= 1024) {
                 THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
@@ -643,7 +643,7 @@ SLTEST_R(FileSort)
 		if(line_buf.NotEmpty()) {
 			THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
 			src_file_size += line_buf.Len();
-			line_buf = 0;
+			line_buf.Z();
 		}
 		THROW(SLTEST_CHECK_NZ(test_list.add(&temp_test_list)));
 		test_list.sort();

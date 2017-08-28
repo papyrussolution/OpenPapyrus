@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -137,109 +136,71 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 	ngx_http_limit_conn_conf_t     * lccf;
 	ngx_http_limit_conn_limit_t    * limits;
 	ngx_http_limit_conn_cleanup_t  * lccln;
-
 	if(r->main->limit_conn_set) {
 		return NGX_DECLINED;
 	}
-
 	lccf = (ngx_http_limit_conn_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_limit_conn_module);
 	limits = (ngx_http_limit_conn_limit_t *)lccf->limits.elts;
-
 	for(i = 0; i < lccf->limits.nelts; i++) {
 		ctx = (ngx_http_limit_conn_ctx_t *)limits[i].shm_zone->data;
-
 		if(ngx_http_complex_value(r, &ctx->key, &key) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		if(key.len == 0) {
 			continue;
 		}
-
 		if(key.len > 255) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "the value of the \"%V\" key "
-			    "is more than 255 bytes: \"%V\"",
-			    &ctx->key.value, &key);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "the value of the \"%V\" key is more than 255 bytes: \"%V\"", &ctx->key.value, &key);
 			continue;
 		}
-
 		r->main->limit_conn_set = 1;
-
 		hash = ngx_crc32_short(key.data, key.len);
-
 		shpool = (ngx_slab_pool_t*)limits[i].shm_zone->shm.addr;
-
 		ngx_shmtx_lock(&shpool->mutex);
-
 		node = ngx_http_limit_conn_lookup(ctx->rbtree, &key, hash);
-
 		if(node == NULL) {
-			n = offsetof(ngx_rbtree_node_t, color)
-			    + offsetof(ngx_http_limit_conn_node_t, data)
-			    + key.len;
-
+			n = offsetof(ngx_rbtree_node_t, color) + offsetof(ngx_http_limit_conn_node_t, data) + key.len;
 			node = (ngx_rbtree_node_t *)ngx_slab_alloc_locked(shpool, n);
-
 			if(node == NULL) {
 				ngx_shmtx_unlock(&shpool->mutex);
 				ngx_http_limit_conn_cleanup_all(r->pool);
 				return lccf->status_code;
 			}
-
 			lc = (ngx_http_limit_conn_node_t*)&node->color;
-
 			node->key = hash;
 			lc->len = (u_char)key.len;
 			lc->conn = 1;
 			ngx_memcpy(lc->data, key.data, key.len);
-
 			ngx_rbtree_insert(ctx->rbtree, node);
 		}
 		else {
 			lc = (ngx_http_limit_conn_node_t*)&node->color;
-
 			if((ngx_uint_t)lc->conn >= limits[i].conn) {
 				ngx_shmtx_unlock(&shpool->mutex);
-
-				ngx_log_error(lccf->log_level, r->connection->log, 0,
-				    "limiting connections by zone \"%V\"",
-				    &limits[i].shm_zone->shm.name);
-
+				ngx_log_error(lccf->log_level, r->connection->log, 0, "limiting connections by zone \"%V\"", &limits[i].shm_zone->shm.name);
 				ngx_http_limit_conn_cleanup_all(r->pool);
 				return lccf->status_code;
 			}
-
 			lc->conn++;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "limit conn: %08Xi %d", node->key, lc->conn);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "limit conn: %08Xi %d", node->key, lc->conn);
 		ngx_shmtx_unlock(&shpool->mutex);
-
-		cln = ngx_pool_cleanup_add(r->pool,
-		    sizeof(ngx_http_limit_conn_cleanup_t));
+		cln = ngx_pool_cleanup_add(r->pool, sizeof(ngx_http_limit_conn_cleanup_t));
 		if(cln == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		cln->handler = ngx_http_limit_conn_cleanup;
 		lccln = (ngx_http_limit_conn_cleanup_t *)cln->data;
-
 		lccln->shm_zone = limits[i].shm_zone;
 		lccln->node = node;
 	}
-
 	return NGX_DECLINED;
 }
 
-static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp,
-    ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
+static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t           ** p;
 	ngx_http_limit_conn_node_t   * lcn, * lcnt;
-
 	for(;; ) {
 		if(node->key < temp->key) {
 			p = &temp->left;
@@ -469,59 +430,39 @@ static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 				    "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			name.len = p - name.data;
-
 			s.data = p + 1;
 			s.len = value[i].data + value[i].len - s.data;
-
 			size = ngx_parse_size(&s);
-
 			if(size == NGX_ERROR) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid zone size \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
 
 			if(size < (ssize_t)(8 * ngx_pagesize)) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "zone \"%V\" is too small", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "zone \"%V\" is too small", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[i]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(name.len == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"%V\" must have \"zone\" parameter",
-		    &cmd->name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"zone\" parameter", &cmd->name);
 		return NGX_CONF_ERROR;
 	}
-
-	shm_zone = ngx_shared_memory_add(cf, &name, size,
-	    &ngx_http_limit_conn_module);
+	shm_zone = ngx_shared_memory_add(cf, &name, size, &ngx_http_limit_conn_module);
 	if(shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(shm_zone->data) {
 		ctx = (ngx_http_limit_conn_ctx_t *)shm_zone->data;
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "%V \"%V\" is already bound to key \"%V\"",
-		    &cmd->name, &name, &ctx->key.value);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V \"%V\" is already bound to key \"%V\"", &cmd->name, &name, &ctx->key.value);
 		return NGX_CONF_ERROR;
 	}
-
 	shm_zone->init = ngx_http_limit_conn_init_zone;
 	shm_zone->data = ctx;
-
 	return NGX_CONF_OK;
 }
 
@@ -538,61 +479,43 @@ static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 	if(shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	limits = (ngx_http_limit_conn_limit_t *)lccf->limits.elts;
-
 	if(limits == NULL) {
-		if(ngx_array_init(&lccf->limits, cf->pool, 1,
-			    sizeof(ngx_http_limit_conn_limit_t))
-		    != NGX_OK) {
+		if(ngx_array_init(&lccf->limits, cf->pool, 1, sizeof(ngx_http_limit_conn_limit_t)) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	for(i = 0; i < lccf->limits.nelts; i++) {
 		if(shm_zone == limits[i].shm_zone) {
 			return "is duplicate";
 		}
 	}
-
 	n = ngx_atoi(value[2].data, value[2].len);
 	if(n <= 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid number of connections \"%V\"", &value[2]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of connections \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(n > 65535) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "connection limit must be less 65536");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "connection limit must be less 65536");
 		return NGX_CONF_ERROR;
 	}
-
 	limit = (ngx_http_limit_conn_limit_t *)ngx_array_push(&lccf->limits);
 	if(limit == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	limit->conn = n;
 	limit->shm_zone = shm_zone;
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_limit_conn_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
-	ngx_http_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-
-	h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers);
+	ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+	ngx_http_handler_pt * h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-
 	*h = ngx_http_limit_conn_handler;
-
 	return NGX_OK;
 }
 

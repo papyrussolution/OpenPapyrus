@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -14,13 +13,10 @@ static void ngx_shmtx_wakeup(ngx_shmtx_t * mtx);
 ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * name)
 {
 	mtx->lock = &addr->lock;
-
 	if(mtx->spin == (ngx_uint_t)-1) {
 		return NGX_OK;
 	}
-
 	mtx->spin = 2048;
-
 #if (NGX_HAVE_POSIX_SEM)
 
 	mtx->wait = &addr->wait;

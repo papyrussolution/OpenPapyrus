@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -14,8 +13,7 @@ typedef struct {
 } ngx_http_chunked_filter_ctx_t;
 
 static ngx_int_t ngx_http_chunked_filter_init(ngx_conf_t * cf);
-static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r,
-    ngx_http_chunked_filter_ctx_t * ctx);
+static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r, ngx_http_chunked_filter_ctx_t * ctx);
 
 static ngx_http_module_t ngx_http_chunked_filter_module_ctx = {
 	NULL,                              /* preconfiguration */

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Maxim Dounin
  */
@@ -148,7 +147,7 @@ static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	/* decode base64 salt to find out true salt */
 	encoded.data = salt + sizeof("{SSHA}") - 1;
 	encoded.len = ngx_strlen(encoded.data);
-	len = ngx_max(ngx_base64_decoded_length(encoded.len), 20);
+	len = MAX(ngx_base64_decoded_length(encoded.len), 20);
 	decoded.data = (u_char*)ngx_pnalloc(pool, len);
 	if(decoded.data == NULL) {
 		return NGX_ERROR;

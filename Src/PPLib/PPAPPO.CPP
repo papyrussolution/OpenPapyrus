@@ -1547,8 +1547,7 @@ int SLAPI PreprocessCmdLine()
 			if(PPObjectTransmit::ReadFileStat(buf, stat)) {
 				int    major, minor, rel;
 				stat.Hdr.SwVer.Get(&major, &minor, &rel);
-
-				msg_buf = 0;
+				msg_buf.Z();
 				msg_buf.Cat("File").CatDiv(':', 2).Cat(buf).CR();
 				//
 				msg_buf.Cat("Packet type").CatDiv(':', 2);

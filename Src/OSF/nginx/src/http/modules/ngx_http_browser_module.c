@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -7,13 +6,11 @@
 #include <ngx_core.h>
 #pragma hdrstop
 #include <ngx_http.h>
-
 /*
  * The module can check browser versions conforming to the following formats:
  * X, X.X, X.X.X, and X.X.X.X.  The maximum values of each format may be
  * 4000, 4000.99, 4000.99.99, and 4000.99.99.99.
  */
-
 #define  NGX_HTTP_MODERN_BROWSER   0
 #define  NGX_HTTP_ANCIENT_BROWSER  1
 

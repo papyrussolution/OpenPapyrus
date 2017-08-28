@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -592,7 +591,7 @@ static ngx_int_t ngx_stream_variable_session_time(ngx_stream_session_t * s,
 
 	ms = (ngx_msec_int_t)
 	    ((tp->sec - s->start_sec) * 1000 + (tp->msec - s->start_msec));
-	ms = ngx_max(ms, 0);
+	ms = MAX(ms, 0);
 
 	v->len = ngx_sprintf(p, "%T.%03M", (time_t)ms / 1000, ms % 1000) - p;
 	v->valid = 1;
@@ -815,7 +814,7 @@ ngx_stream_regex_t * ngx_stream_regex_compile(ngx_conf_t * cf, ngx_regex_compile
 	re->ncaptures = rc->captures;
 	re->name = rc->pattern;
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
-	cmcf->ncaptures = ngx_max(cmcf->ncaptures, re->ncaptures);
+	cmcf->ncaptures = MAX(cmcf->ncaptures, re->ncaptures);
 	n = (ngx_uint_t)rc->named_captures;
 	if(n == 0) {
 		return re;

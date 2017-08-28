@@ -649,7 +649,7 @@ static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r)
 			return NGX_AGAIN;
 		}
 
-		size = (size_t)ngx_min(r->headers_in.content_length_n,
+		size = (size_t)MIN(r->headers_in.content_length_n,
 		    NGX_HTTP_DISCARD_BUFFER_SIZE);
 
 		n = r->connection->recv(r->connection, buffer, size);

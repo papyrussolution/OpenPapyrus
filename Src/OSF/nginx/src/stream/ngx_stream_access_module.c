@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -18,9 +17,7 @@ typedef struct {
 
 typedef struct {
 	struct in6_addr addr;
-
 	struct in6_addr mask;
-
 	ngx_uint_t deny;         /* unsigned  deny:1; */
 } ngx_stream_access_rule6_t;
 

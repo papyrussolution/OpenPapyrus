@@ -15,9 +15,9 @@
 #define NGX_PROCESS_SIGNALLER  2
 #define NGX_PROCESS_WORKER     3
 
-void ngx_master_process_cycle(ngx_cycle_t *cycle);
-void ngx_single_process_cycle(ngx_cycle_t *cycle);
-void ngx_close_handle(HANDLE h);
+int    ngx_master_process_cycle(ngx_cycle_t * cycle, const NgxStartUpOptions & rO);
+int    ngx_single_process_cycle(ngx_cycle_t * cycle);
+void   ngx_close_handle(HANDLE h);
 
 extern ngx_uint_t      ngx_process;
 extern ngx_uint_t      ngx_worker;

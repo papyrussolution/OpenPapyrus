@@ -2006,7 +2006,7 @@ int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSArray <SCardCore::UpdateR
 									}
 								}
 								if(temp_buf.NotEmptyS()) {
-									msg_buf = 0;
+									msg_buf.Z();
 									PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), amount);
 									sms_cli.SendSms(phone_buf, msg_buf, status_buf);
 								}

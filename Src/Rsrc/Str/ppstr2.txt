@@ -2794,6 +2794,7 @@ PPINIPARAM_RESERVEDOBJECTS             "reservedobjects" // [selfbuild]
 PPINIPARAM_WORKBOOKINTERCHANGEUHTT     "workbookinterchangeuhtt"
 PPINIPARAM_SARTREDB                    "sartredb" // [path]
 PPINIPARAM_ALTERNATEREGPASS            "alternateregpass" // [config]
+PPINIPARAM_NGINX                       "nginx" // [server]
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\

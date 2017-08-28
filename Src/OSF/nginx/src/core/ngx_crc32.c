@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -18,7 +17,6 @@
  * the additional code.  For example, ngx_crc32_short() of 16 bytes of data
  * takes half as much CPU clocks than ngx_crc32_long().
  */
-
 static uint32_t ngx_crc32_table16[] = {
 	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
 	0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,

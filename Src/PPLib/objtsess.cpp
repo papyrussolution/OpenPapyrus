@@ -4832,8 +4832,7 @@ int SLAPI PrcssrTSessMaintenance::Run()
 										ci_item.Flags |= PPCheckInPersonItem::fCanceled;
                                         if(ci_list.UpdateItem(i, ci_item, 0)) {
 											ci_list_updated = 1;
-
-											msg_buf = 0;
+											msg_buf.Z();
 											if(do_cancel_reserve == 1)
 												PPLoadText(PPTXT_LOG_TSESCIPCANCEL_CTO, msg_buf);
 											else if(do_cancel_reserve == 2)

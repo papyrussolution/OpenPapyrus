@@ -228,15 +228,15 @@ int SLAPI PPDutySchedPacket::Test(const char * pOutFile) const
 	STimeChunk bounds;
 	bounds.Start.Set(encodedate(1, 2, 2007), ZEROTIME);
 	bounds.Finish.Set(encodedate(1, 1, 2008), ZEROTIME);
-	msg_buf = 0;
-	(add_buf = 0).Cat(bounds.Start).CatCharN('.', 2).Cat(bounds.Finish);
+	msg_buf.Z();
+	add_buf.Z().Cat(bounds.Start).CatCharN('.', 2).Cat(bounds.Finish);
 	msg_buf.CatEq("period", add_buf);
 	PPLogMessage(pOutFile, msg_buf, 0);
 	THROW(InitIteration(&ep, bounds));
 	while(NextIteration(&ep) > 0) {
-		msg_buf = 0;
+		msg_buf.Z();
 		LTIME tm_dur;
-		GetObjectName(Rec.ObjType, ep.ObjID, add_buf = 0);
+		GetObjectName(Rec.ObjType, ep.ObjID, add_buf.Z());
 		tm_dur.settotalsec(ep.Duration);
 		msg_buf.Tab().Cat(ep.Dtm).CatDiv('-', 1).Cat(tm_dur).CatDiv('-', 1).Cat(add_buf);
 		PPLogMessage(pOutFile, msg_buf, 0);

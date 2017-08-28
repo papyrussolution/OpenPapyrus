@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -1980,7 +1979,7 @@ static ngx_int_t ngx_http_variable_request_time(ngx_http_request_t * r,
 
 	ms = (ngx_msec_int_t)
 	    ((tp->sec - r->start_sec) * 1000 + (tp->msec - r->start_msec));
-	ms = ngx_max(ms, 0);
+	ms = MAX(ms, 0);
 
 	v->len = ngx_sprintf(p, "%T.%03M", (time_t)ms / 1000, ms % 1000) - p;
 	v->valid = 1;
@@ -2260,7 +2259,7 @@ ngx_http_regex_t * ngx_http_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t *
 	re->name = rc->pattern;
 
 	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-	cmcf->ncaptures = ngx_max(cmcf->ncaptures, re->ncaptures);
+	cmcf->ncaptures = MAX(cmcf->ncaptures, re->ncaptures);
 
 	n = (ngx_uint_t)rc->named_captures;
 

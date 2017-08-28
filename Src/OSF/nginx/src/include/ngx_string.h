@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -7,12 +6,12 @@
 #ifndef _NGX_STRING_H_INCLUDED_
 #define _NGX_STRING_H_INCLUDED_
 
-#include <ngx_config.h>
-#include <ngx_core.h>
+//#include <ngx_config.h>
+//#include <ngx_core.h>
 
 typedef struct {
 	size_t len;
-	u_char     * data;
+	u_char * data;
 } ngx_str_t;
 
 typedef struct {
@@ -56,7 +55,6 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 	}
 	return NULL;
 }
-
 /*
  * msvc and icc7 compile memset() to the inline "rep stos"
  * while ZeroMemory() and bzero() are the calls.
@@ -83,41 +81,37 @@ void * ngx_memcpy(void * dst, const void * src, size_t n);
 #endif
 
 #if ( __INTEL_COMPILER >= 800 )
-
-/*
- * the simple inline cycle copies the variable length strings up to 16
- * bytes faster than icc8 autodetecting _intel_fast_memcpy()
- */
-
-static ngx_inline u_char * ngx_copy(u_char * dst, u_char * src, size_t len)
-{
-	if(len < 17) {
-		while(len) {
-			*dst++ = *src++;
-			len--;
+	/*
+	 * the simple inline cycle copies the variable length strings up to 16
+	 * bytes faster than icc8 autodetecting _intel_fast_memcpy()
+	 */
+	static ngx_inline u_char * ngx_copy(u_char * dst, u_char * src, size_t len)
+	{
+		if(len < 17) {
+			while(len) {
+				*dst++ = *src++;
+				len--;
+			}
+			return dst;
 		}
-
-		return dst;
+		else {
+			return ngx_cpymem(dst, src, len);
+		}
 	}
-	else {
-		return ngx_cpymem(dst, src, len);
-	}
-}
-
 #else
-
-#define ngx_copy                  ngx_cpymem
-
+	#define ngx_copy                  ngx_cpymem
 #endif
 
 #define ngx_memmove(dst, src, n)   (void)memmove(dst, src, n)
 #define ngx_movemem(dst, src, n)   (((u_char*)memmove(dst, src, n)) + (n))
 
-/* msvc and icc7 compile memcmp() to the inline loop */
+// msvc and icc7 compile memcmp() to the inline loop 
 #define ngx_memcmp(s1, s2, n)  memcmp((const char*)s1, (const char*)s2, n)
 
+int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest);
+
 u_char * ngx_cpystrn(u_char * dst, u_char * src, size_t n);
-u_char * ngx_pstrdup(ngx_pool_t * pool, ngx_str_t * src);
+u_char * ngx_pstrdup(ngx_pool_t * pool, const ngx_str_t * src);
 u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...);
 u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...);
 u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, ...);

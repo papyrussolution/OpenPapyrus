@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Maxim Dounin
  * Copyright (C) Nginx, Inc.

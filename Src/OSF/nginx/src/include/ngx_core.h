@@ -1,16 +1,11 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
-
 #ifndef _NGX_CORE_H_INCLUDED_
 #define _NGX_CORE_H_INCLUDED_
 
-
 #include <ngx_config.h>
-
 
 typedef struct ngx_module_s          ngx_module_t;
 typedef struct ngx_conf_s            ngx_conf_t;
@@ -40,7 +35,6 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #define  NGX_DECLINED   -5
 #define  NGX_ABORT      -6
 
-
 #include <ngx_errno.h>
 #include <ngx_atomic.h>
 #include <ngx_thread.h>
@@ -68,7 +62,7 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #include <ngx_crc32.h>
 #include <ngx_murmurhash.h>
 #if (NGX_PCRE)
-#include <ngx_regex.h>
+	#include <ngx_regex.h>
 #endif
 #include <ngx_radix_tree.h>
 #include <ngx_times.h>
@@ -79,7 +73,7 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #include <ngx_cycle.h>
 #include <ngx_resolver.h>
 #if (NGX_OPENSSL)
-#include <ngx_event_openssl.h>
+	#include <ngx_event_openssl.h>
 #endif
 #include <ngx_process_cycle.h>
 #include <ngx_conf_file.h>
@@ -90,22 +84,20 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #include <ngx_syslog.h>
 #include <ngx_proxy_protocol.h>
 
-
 #define LF     (u_char) '\n'
 #define CR     (u_char) '\r'
 #define CRLF   "\r\n"
 
-
-#define ngx_abs(value)       (((value) >= 0) ? (value) : - (value))
-#define ngx_max(val1, val2)  ((val1 < val2) ? (val2) : (val1))
-#define ngx_min(val1, val2)  ((val1 > val2) ? (val2) : (val1))
+#define ngx_abs(value)       (((value) >= 0) ? (value) : -(value))
+// @soboelv #define ngx_max_Removed(val1, val2)  ((val1 < val2) ? (val2) : (val1))
+// @soboelv #define ngx_min_Removed(val1, val2)  ((val1 > val2) ? (val2) : (val1))
 
 void ngx_cpuinfo(void);
 
 #if (NGX_HAVE_OPENAT)
-#define NGX_DISABLE_SYMLINKS_OFF        0
-#define NGX_DISABLE_SYMLINKS_ON         1
-#define NGX_DISABLE_SYMLINKS_NOTOWNER   2
+	#define NGX_DISABLE_SYMLINKS_OFF        0
+	#define NGX_DISABLE_SYMLINKS_ON         1
+	#define NGX_DISABLE_SYMLINKS_NOTOWNER   2
 #endif
 
 #endif /* _NGX_CORE_H_INCLUDED_ */

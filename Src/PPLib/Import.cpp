@@ -4583,7 +4583,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 				THROW(ReadRecordFromXmlAttrList(ppAttrList));
 				const Sdr_FiasRawAddrObj * p_data = (const Sdr_FiasRawAddrObj *)P_Sdr->GetDataC();
 				assert(p_data);
-				line_buf = 0;
+				line_buf.Z();
 				if(r_state.Phase == phaseCount) {
 					if(P_DebugOutput && P_DebugOutput->IsValid()) {
 						if(RawRecN == 1) {
@@ -4626,7 +4626,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 							line_buf.CR();
 							P_DebugOutput->WriteLine(line_buf);
 						}
-						line_buf = 0;
+						line_buf.Z();
 						line_buf.Cat(p_data->AOID).Semicol();
 						line_buf.Cat(p_data->PREVID).Semicol();
 						line_buf.Cat(p_data->NEXTID).Semicol();
@@ -4761,7 +4761,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 				THROW(ReadRecordFromXmlAttrList(ppAttrList));
 				const Sdr_FiasRawHouseObj * p_data = (const Sdr_FiasRawHouseObj *)P_Sdr->GetDataC();
 				if(p_data) {
-					line_buf = 0;
+					line_buf.Z();
 					if(r_state.Phase == phaseCount) {
 						if(P_DebugOutput && P_DebugOutput->IsValid()) {
 							if(RawRecN == 1) {
@@ -4789,7 +4789,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 								line_buf.CR();
 								P_DebugOutput->WriteLine(line_buf);
 							}
-							line_buf = 0;
+							line_buf.Z();
 							line_buf.Cat(p_data->HOUSENUM).Semicol();
 							line_buf.Cat(p_data->BUILDNUM).Semicol();
 							line_buf.Cat(p_data->STRUCNUM).Semicol();
@@ -5919,7 +5919,7 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 				out_accum_count++;
 				if(out_accum_count >= max_out_accum_count) {
 					P_SizeOutF->WriteLine(line_buf);
-					line_buf = 0;
+					line_buf.Z();
 					out_accum_count = 0;
 				}
 			}

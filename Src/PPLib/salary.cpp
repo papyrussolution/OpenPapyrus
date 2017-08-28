@@ -2121,7 +2121,7 @@ int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int us
 			charge_grp_id = NZOR(CurPostPack.Rec.ChargeGrpID, CurStaffPack.Rec.ChargeGrpID);
 			if(!charge_grp_id) {
 				PersonTbl::Rec psn_rec;
-				msg_buf = 0;
+				msg_buf.Z();
 				if(SlObj.PsnObj.Fetch(CurPostPack.Rec.PersonID, &psn_rec) > 0)
 					msg_buf.Cat(psn_rec.Name);
 				else

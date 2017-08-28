@@ -48,9 +48,9 @@ ngx_pid_t ngx_execute(ngx_cycle_t * cycle, ngx_exec_ctx_t * ctx);
 #define NGX_PROCESS_RESPAWN       -2
 #define NGX_PROCESS_JUST_RESPAWN  -3
 
-extern int ngx_argc;
-extern char ** ngx_argv;
-extern char ** ngx_os_argv;
+//extern int ngx_argc;
+//extern char ** ngx_argv;
+//extern char ** ngx_os_argv;
 extern ngx_int_t ngx_last_process;
 extern ngx_process_t ngx_processes[NGX_MAX_PROCESSES];
 extern ngx_pid_t ngx_pid;

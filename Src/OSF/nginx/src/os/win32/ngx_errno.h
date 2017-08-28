@@ -1,17 +1,12 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
-
 #ifndef _NGX_ERRNO_H_INCLUDED_
 #define _NGX_ERRNO_H_INCLUDED_
 
-
-#include <ngx_config.h>
-#include <ngx_core.h>
-
+//#include <ngx_config.h>
+//#include <ngx_core.h>
 
 typedef DWORD                      ngx_err_t;
 
@@ -63,9 +58,7 @@ typedef DWORD                      ngx_err_t;
 #define NGX_EMFILE                 WSAEMFILE
 #define NGX_ENFILE                 WSAEMFILE
 
-
 u_char *ngx_strerror(ngx_err_t err, u_char *errstr, size_t size);
 ngx_int_t ngx_strerror_init(void);
-
 
 #endif /* _NGX_ERRNO_H_INCLUDED_ */

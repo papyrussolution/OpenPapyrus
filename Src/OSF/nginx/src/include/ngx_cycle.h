@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -22,23 +21,23 @@ typedef struct ngx_shm_zone_s ngx_shm_zone_t;
 typedef ngx_int_t (*ngx_shm_zone_init_pt)(ngx_shm_zone_t * zone, void * data);
 
 struct ngx_shm_zone_s {
-	void                     * data;
+	void * data;
 	ngx_shm_t shm;
 	ngx_shm_zone_init_pt init;
-	void                     * tag;
+	void * tag;
 	ngx_uint_t noreuse;             /* unsigned  noreuse:1; */
 };
 
 struct ngx_cycle_s {
-	void                  **** conf_ctx;
-	ngx_pool_t               * pool;
-	ngx_log_t                * log;
+	void **** conf_ctx;
+	ngx_pool_t * pool;
+	ngx_log_t  * log;
 	ngx_log_t new_log;
 	ngx_uint_t log_use_stderr;             /* unsigned  log_use_stderr:1; */
-	ngx_connection_t        ** files;
-	ngx_connection_t         * free_connections;
+	ngx_connection_t ** files;
+	ngx_connection_t * free_connections;
 	ngx_uint_t free_connection_n;
-	ngx_module_t            ** modules;
+	ngx_module_t ** modules;
 	ngx_uint_t modules_n;
 	ngx_uint_t modules_used;               /* unsigned  modules_used:1; */
 	ngx_queue_t reusable_connections_queue;
@@ -52,10 +51,10 @@ struct ngx_cycle_s {
 	ngx_list_t shared_memory;
 	ngx_uint_t connection_n;
 	ngx_uint_t files_n;
-	ngx_connection_t         * connections;
-	ngx_event_t              * read_events;
-	ngx_event_t              * write_events;
-	ngx_cycle_t              * old_cycle;
+	ngx_connection_t * connections;
+	ngx_event_t * read_events;
+	ngx_event_t * write_events;
+	ngx_cycle_t * old_cycle;
 	ngx_str_t conf_file;
 	ngx_str_t conf_param;
 	ngx_str_t conf_prefix;
@@ -90,10 +89,39 @@ typedef struct {
 
 #define ngx_is_init_cycle(cycle)  (cycle->conf_ctx == NULL)
 
-ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle);
-ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log);
+class NgxStartUpOptions {
+public:
+	NgxStartUpOptions();
+	int    ProcessCmdLine(int argc, const char * argv[]);
+	const  char * GetSignalText() const;
+	enum {
+		fShowHelp  = 0x0001, // ngx_show_help
+		fShowVer   = 0x0002, // ngx_show_version
+		fShowConf  = 0x0004, // ngx_show_configure
+		fTestConf  = 0x0008, // ngx_test_config
+		fDumpConf  = 0x0010, // ngx_dump_config
+		fQuietMode = 0x0020  // ngx_quiet_mode
+	};
+	enum {
+		sigStop = 1, // "stop"
+		sigQuit,     // "quit"
+		sigReOpen,   // "reopen"
+		sigReLoad    // "reload"
+	};
+	long   Flags;
+	int    SigID;       // sigXXX  
+	SString Prefix;     // ngx_prefix
+	SString ConfFile;   // ngx_conf_file
+	SString ConfParams; // ngx_conf_params
+private:
+	int    SetSignalString(const char * pSig);
+};
+
+
+ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & rO);
+ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log, const NgxStartUpOptions & rO);
 void ngx_delete_pidfile(ngx_cycle_t * cycle);
-ngx_int_t ngx_signal_process(ngx_cycle_t * cycle, char * sig);
+//ngx_int_t ngx_signal_process(ngx_cycle_t * cycle, char * sig);
 void ngx_reopen_files(ngx_cycle_t * cycle, ngx_uid_t user);
 char ** ngx_set_environment(ngx_cycle_t * cycle, ngx_uint_t * last);
 ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * cycle, char * const * argv);
@@ -105,8 +133,8 @@ void ngx_set_shutdown_timer(ngx_cycle_t * cycle);
 extern volatile ngx_cycle_t  * ngx_cycle;
 extern ngx_array_t ngx_old_cycles;
 extern ngx_module_t ngx_core_module;
-extern ngx_uint_t ngx_test_config;
-extern ngx_uint_t ngx_dump_config;
-extern ngx_uint_t ngx_quiet_mode;
+extern ngx_uint_t ngx_test_config__;
+extern ngx_uint_t ngx_dump_config__;
+//extern ngx_uint_t ngx_quiet_mode;
 
 #endif /* _NGX_CYCLE_H_INCLUDED_ */

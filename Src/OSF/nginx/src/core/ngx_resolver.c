@@ -1363,14 +1363,14 @@ static void ngx_resolver_resend_handler(ngx_event_t * ev)
 		timer = atimer;
 	}
 	else if(atimer) {
-		timer = ngx_min(timer, atimer);
+		timer = MIN(timer, atimer);
 	}
 
 	if(timer == 0) {
 		timer = stimer;
 	}
 	else if(stimer) {
-		timer = ngx_min(timer, stimer);
+		timer = MIN(timer, stimer);
 	}
 
 #if (NGX_HAVE_INET6)
@@ -1379,7 +1379,7 @@ static void ngx_resolver_resend_handler(ngx_event_t * ev)
 		timer = a6timer;
 	}
 	else if(a6timer) {
-		timer = ngx_min(timer, a6timer);
+		timer = MIN(timer, a6timer);
 	}
 
 #endif
@@ -2004,7 +2004,7 @@ found:
 			ttl = 0;
 		}
 
-		rn->ttl = ngx_min(rn->ttl, (uint32_t)ttl);
+		rn->ttl = MIN(rn->ttl, (uint32_t)ttl);
 
 		i += sizeof(ngx_resolver_an_t);
 
@@ -2506,7 +2506,7 @@ found:
 			ttl = 0;
 		}
 
-		rn->ttl = ngx_min(rn->ttl, (uint32_t)ttl);
+		rn->ttl = MIN(rn->ttl, (uint32_t)ttl);
 
 		i += sizeof(ngx_resolver_an_t);
 
@@ -2801,7 +2801,7 @@ static void ngx_resolver_srv_names_handler(ngx_resolver_ctx_t * cctx)
 	srv->state = cctx->state;
 
 	if(cctx->naddrs) {
-		ctx->valid = ngx_min(ctx->valid, cctx->valid);
+		ctx->valid = MIN(ctx->valid, cctx->valid);
 
 		addrs = (ngx_addr_t *)ngx_resolver_calloc(r, cctx->naddrs * sizeof(ngx_addr_t));
 		if(addrs == NULL) {

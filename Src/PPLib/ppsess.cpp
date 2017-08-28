@@ -1728,7 +1728,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 	}
 	{
 		ENTER_CRITICAL_SECTION
-		getExecPath(BinPath = 0).SetLastSlash();
+		getExecPath(BinPath.Z()).SetLastSlash();
 		LEAVE_CRITICAL_SECTION
 	}
 	RegisterSTAcct();
@@ -2673,7 +2673,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				const ulong cur_process_id = GetCurrentProcessId();
 				const char * p_func_name = "Login";
 				if(!ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
-					PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf = 0);
+					PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf.Z());
 					msg_buf.Space().CatEq("Function", p_func_name);
 					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}

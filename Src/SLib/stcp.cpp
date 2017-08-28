@@ -1475,7 +1475,7 @@ int SHttpClient::TolkToServer(int method, const char * pUrl)
 		//
 		// Посылаем сам запрос
 		//
-		line_buf = 0;
+		line_buf.Z();
 		if(method == reqGet) {
 			line_buf.Cat("GET").Space();
 		}

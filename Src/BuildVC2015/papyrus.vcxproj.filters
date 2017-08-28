@@ -323,6 +323,7 @@
     <ClCompile Include="..\PPLib\sartre_db.cpp" />
     <ClCompile Include="..\PPLib\prc_billautocreate.cpp" />
     <ClCompile Include="..\PPLib\sartre_imp.cpp" />
+    <ClCompile Include="..\PPLib\ppngx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

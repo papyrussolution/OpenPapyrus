@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -14,15 +13,11 @@ typedef struct ngx_listening_s ngx_listening_t;
 
 struct ngx_listening_s {
 	ngx_socket_t fd;
-
 	struct sockaddr    * sockaddr;
-
 	socklen_t socklen;          /* size of sockaddr */
 	size_t addr_text_max_len;
 	ngx_str_t addr_text;
-
 	int type;
-
 	int backlog;
 	int rcvbuf;
 	int sndbuf;
@@ -31,30 +26,22 @@ struct ngx_listening_s {
 	int keepintvl;
 	int keepcnt;
 #endif
-
 	/* handler of accepted connection */
 	ngx_connection_handler_pt handler;
-
 	void               * servers; /* array of ngx_http_in_addr_t, for example */
-
 	ngx_log_t log;
 	ngx_log_t          * logp;
-
 	size_t pool_size;
 	/* should be here because of the AcceptEx() preread */
 	size_t post_accept_buffer_size;
 	/* should be here because of the deferred accept */
 	ngx_msec_t post_accept_timeout;
-
 	ngx_listening_t    * previous;
 	ngx_connection_t   * connection;
-
 	ngx_uint_t worker;
-
 	unsigned open : 1;
 	unsigned remain : 1;
 	unsigned ignore : 1;
-
 	unsigned bound : 1;            /* already bound */
 	unsigned inherited : 1;        /* inherited from previous process */
 	unsigned nonblocking_accept : 1;
@@ -63,14 +50,12 @@ struct ngx_listening_s {
 	unsigned shared : 1;         /* shared between threads or processes */
 	unsigned addr_ntop : 1;
 	unsigned wildcard : 1;
-
 #if (NGX_HAVE_INET6)
 	unsigned ipv6only : 1;
 #endif
 	unsigned reuseport : 1;
 	unsigned add_reuseport : 1;
 	unsigned keepalive : 2;
-
 	unsigned deferred_accept : 1;
 	unsigned delete_deferred : 1;
 	unsigned add_deferred : 1;
@@ -171,17 +156,15 @@ struct ngx_connection_s {
 		c->log->log_level = l->log_level;				     \
 	}
 
-ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockaddr,
-    socklen_t socklen);
+ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockaddr, socklen_t socklen);
 ngx_int_t ngx_clone_listening(ngx_conf_t * cf, ngx_listening_t * ls);
 ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle);
-ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle);
+ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOptions & rO);
 void ngx_configure_listening_sockets(ngx_cycle_t * cycle);
 void ngx_close_listening_sockets(ngx_cycle_t * cycle);
 void ngx_close_connection(ngx_connection_t * c);
 void ngx_close_idle_connections(ngx_cycle_t * cycle);
-ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s,
-    ngx_uint_t port);
+ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx_uint_t port);
 ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c);
 ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text);
 

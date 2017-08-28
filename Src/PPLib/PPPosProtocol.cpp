@@ -2401,9 +2401,9 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	State = 0;
 	Phase = phUnkn;
 
-	TempBuf = 0;
-	TagValue = 0;
-	SrcFileName = 0;
+	TempBuf.Z();
+	TagValue.Z();
+	SrcFileName.Z();
 	TokPath.freeAll();
 	RefPosStack.clear();
 	SrcBlkList.freeAll();

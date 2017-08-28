@@ -6,9 +6,9 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-int  ngx_argc;
-char ** ngx_argv;
-char ** ngx_os_argv;
+//int  ngx_argc;
+//char ** ngx_argv;
+//char ** ngx_os_argv;
 ngx_int_t ngx_last_process;
 ngx_process_t ngx_processes[NGX_MAX_PROCESSES];
 
@@ -130,7 +130,8 @@ ngx_pid_t ngx_execute(ngx_cycle_t * cycle, ngx_exec_ctx_t * ctx)
 	si.cb = sizeof(STARTUPINFO);
 	memzero(&pi, sizeof(PROCESS_INFORMATION));
 	if(CreateProcess(ctx->path, ctx->args, NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &si, &pi) == 0) {
-		ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_errno, "CreateProcess(\"%s\") failed", ngx_argv[0]);
+		SString exe_path = SLS.GetExePath();
+		ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_errno, "CreateProcess(\"%s\") failed", /*ngx_argv[0]*/exe_path.cptr());
 		return 0;
 	}
 	else {

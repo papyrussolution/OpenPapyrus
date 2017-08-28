@@ -6567,8 +6567,8 @@ int SLAPI ExportDialogs(const char * pFileName)
 				for(uint i = 0; i < child_list.getCount(); i++) {
 					if(!seen_pos_list.lsearch((long)i)) {
 						prop_list.Clear();
-						line_buf = 0;
-						label_text = 0;
+						line_buf.Z();
+						label_text.Z();
 						const HWND h = child_list.at(i);
 						int   ctl_id = GetDlgCtrlID(h);
 						if(GetWindowInfo(h, &wi)) {
@@ -6829,7 +6829,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 							}
 							else {
 								line_buf = cls_name;
-								line_buf = 0;
+								line_buf.Z();
 							}
 						}
 					}

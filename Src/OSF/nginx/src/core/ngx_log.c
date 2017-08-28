@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -127,27 +126,21 @@ static const char * debug_levels[] = {
 			log->writer(log, level, errstr, p - errstr);
 			goto next;
 		}
-
 		if(ngx_time() == log->disk_full_time) {
 			/*
 			 * on FreeBSD writing to a full filesystem with enabled softupdates
 			 * may block process for much longer time than writing to non-full
 			 * filesystem, so we skip writing to a log for one second
 			 */
-
 			goto next;
 		}
-
 		n = ngx_write_fd(log->file->fd, errstr, p - errstr);
-
 		if(n == -1 && ngx_errno == NGX_ENOSPC) {
 			log->disk_full_time = ngx_time();
 		}
-
 		if(log->file->fd == ngx_stderr) {
 			wrote_stderr = 1;
 		}
-
 next:
 		log = log->next;
 	}
@@ -234,7 +227,7 @@ u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
 	return buf;
 }
 
-ngx_log_t * ngx_log_init(u_char * prefix)
+ngx_log_t * ngx_log_init(const u_char * prefix)
 {
 	u_char  * p, * name;
 	size_t nlen, plen;
@@ -256,7 +249,6 @@ ngx_log_t * ngx_log_init(u_char * prefix)
 #else
 	if(name[0] != '/') {
 #endif
-
 		if(prefix) {
 			plen = ngx_strlen(prefix);
 		}
@@ -268,46 +260,30 @@ ngx_log_t * ngx_log_init(u_char * prefix)
 			plen = 0;
 #endif
 		}
-
 		if(plen) {
 			name = (u_char *)malloc(plen + nlen + 2);
 			if(name == NULL) {
 				return NULL;
 			}
-
 			p = ngx_cpymem(name, prefix, plen);
-
 			if(!ngx_path_separator(*(p - 1))) {
 				*p++ = '/';
 			}
-
 			ngx_cpystrn(p, (u_char*)NGX_ERROR_LOG_PATH, nlen + 1);
-
 			p = name;
 		}
 	}
-
-	ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND,
-	    NGX_FILE_CREATE_OR_OPEN,
-	    NGX_FILE_DEFAULT_ACCESS);
-
+	ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
 	if(ngx_log_file.fd == NGX_INVALID_FILE) {
-		ngx_log_stderr(ngx_errno,
-		    "[alert] could not open error log file: "
-		    ngx_open_file_n " \"%s\" failed", name);
+		ngx_log_stderr(ngx_errno, "[alert] could not open error log file: " ngx_open_file_n " \"%s\" failed", name);
 #if (NGX_WIN32)
-		ngx_event_log(ngx_errno,
-		    "could not open error log file: "
-		    ngx_open_file_n " \"%s\" failed", name);
+		ngx_event_log(ngx_errno, "could not open error log file: " ngx_open_file_n " \"%s\" failed", name);
 #endif
-
 		ngx_log_file.fd = ngx_stderr;
 	}
-
 	if(p) {
 		ngx_free(p);
 	}
-
 	return &ngx_log;
 }
 

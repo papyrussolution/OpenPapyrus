@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Maxim Dounin
  * Copyright (C) Nginx, Inc.
@@ -14,25 +13,18 @@
 typedef struct {
 	ngx_str_t staple;
 	ngx_msec_t timeout;
-
 	ngx_resolver_t              * resolver;
 	ngx_msec_t resolver_timeout;
-
 	ngx_addr_t                  * addrs;
 	ngx_str_t host;
 	ngx_str_t uri;
 	in_port_t port;
-
 	SSL_CTX                     * ssl_ctx;
-
 	X509                        * cert;
 	X509                        * issuer;
-
 	u_char                      * name;
-
 	time_t valid;
 	time_t refresh;
-
 	unsigned verify : 1;
 	unsigned loading : 1;
 } ngx_ssl_stapling_t;
@@ -42,42 +34,29 @@ typedef struct ngx_ssl_ocsp_ctx_s ngx_ssl_ocsp_ctx_t;
 struct ngx_ssl_ocsp_ctx_s {
 	X509                        * cert;
 	X509                        * issuer;
-
 	u_char                      * name;
-
 	ngx_uint_t naddrs;
-
 	ngx_addr_t                  * addrs;
 	ngx_str_t host;
 	ngx_str_t uri;
 	in_port_t port;
-
 	ngx_resolver_t              * resolver;
 	ngx_msec_t resolver_timeout;
-
 	ngx_msec_t timeout;
-
 	void (* handler)(ngx_ssl_ocsp_ctx_t * ctx);
 	void                        * data;
-
 	ngx_buf_t                   * request;
 	ngx_buf_t                   * response;
 	ngx_peer_connection_t peer;
-
 	ngx_int_t (* process)(ngx_ssl_ocsp_ctx_t * ctx);
-
 	ngx_uint_t state;
-
 	ngx_uint_t code;
 	ngx_uint_t count;
-
 	ngx_uint_t done;
-
 	u_char                      * header_name_start;
 	u_char                      * header_name_end;
 	u_char                      * header_start;
 	u_char                      * header_end;
-
 	ngx_pool_t                  * pool;
 	ngx_log_t                   * log;
 };
@@ -207,30 +186,24 @@ static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl,
 	int len;
 	u_char         * p, * buf;
 	OCSP_RESPONSE  * response;
-
 	if(ngx_conf_full_name(cf->cycle, file, 1) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	bio = BIO_new_file((char*)file->data, "r");
 	if(bio == NULL) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "BIO_new_file(\"%s\") failed", file->data);
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "BIO_new_file(\"%s\") failed", file->data);
 		return NGX_ERROR;
 	}
-
 	response = d2i_OCSP_RESPONSE_bio(bio, NULL);
 	if(response == NULL) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "d2i_OCSP_RESPONSE_bio(\"%s\") failed", file->data);
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "d2i_OCSP_RESPONSE_bio(\"%s\") failed", file->data);
 		BIO_free(bio);
 		return NGX_ERROR;
 	}
 
 	len = i2d_OCSP_RESPONSE(response, NULL);
 	if(len <= 0) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "i2d_OCSP_RESPONSE(\"%s\") failed", file->data);
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "i2d_OCSP_RESPONSE(\"%s\") failed", file->data);
 		goto failed;
 	}
 
@@ -242,8 +215,7 @@ static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl,
 	p = buf;
 	len = i2d_OCSP_RESPONSE(response, &p);
 	if(len <= 0) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "i2d_OCSP_RESPONSE(\"%s\") failed", file->data);
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "i2d_OCSP_RESPONSE(\"%s\") failed", file->data);
 		ngx_free(buf);
 		goto failed;
 	}
@@ -313,21 +285,18 @@ static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl,
 
 	store = SSL_CTX_get_cert_store(ssl->ctx);
 	if(store == NULL) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "SSL_CTX_get_cert_store() failed");
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_get_cert_store() failed");
 		return NGX_ERROR;
 	}
 
 	store_ctx = X509_STORE_CTX_new();
 	if(store_ctx == NULL) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "X509_STORE_CTX_new() failed");
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "X509_STORE_CTX_new() failed");
 		return NGX_ERROR;
 	}
 
 	if(X509_STORE_CTX_init(store_ctx, store, NULL, NULL) == 0) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "X509_STORE_CTX_init() failed");
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "X509_STORE_CTX_init() failed");
 		X509_STORE_CTX_free(store_ctx);
 		return NGX_ERROR;
 	}
@@ -335,8 +304,7 @@ static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl,
 	rc = X509_STORE_CTX_get1_issuer(&issuer, store_ctx, cert);
 
 	if(rc == -1) {
-		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0,
-		    "X509_STORE_CTX_get1_issuer() failed");
+		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "X509_STORE_CTX_get1_issuer() failed");
 		X509_STORE_CTX_free(store_ctx);
 		return NGX_ERROR;
 	}
@@ -471,56 +439,37 @@ static int ngx_ssl_certificate_status_callback(ngx_ssl_conn_t * ssl_conn, void *
 	int rc;
 	X509                * cert;
 	u_char              * p;
-	ngx_connection_t    * c;
 	ngx_ssl_stapling_t  * staple;
-
-	c = (ngx_connection_t*)ngx_ssl_get_connection(ssl_conn);
-
-	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, c->log, 0,
-	    "SSL certificate status callback");
-
+	ngx_connection_t    * c = (ngx_connection_t*)ngx_ssl_get_connection(ssl_conn);
+	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL certificate status callback");
 	rc = SSL_TLSEXT_ERR_NOACK;
-
 	cert = SSL_get_certificate(ssl_conn);
 	staple = (ngx_ssl_stapling_t *)X509_get_ex_data(cert, ngx_ssl_stapling_index);
-
 	if(staple == NULL) {
 		return rc;
 	}
-
-	if(staple->staple.len
-	    && staple->valid >= ngx_time()) {
+	if(staple->staple.len && staple->valid >= ngx_time()) {
 		/* we have to copy ocsp response as OpenSSL will free it by itself */
-
 		p = (u_char *)OPENSSL_malloc(staple->staple.len);
 		if(p == NULL) {
 			ngx_ssl_error(NGX_LOG_ALERT, c->log, 0, "OPENSSL_malloc() failed");
 			return SSL_TLSEXT_ERR_NOACK;
 		}
-
 		ngx_memcpy(p, staple->staple.data, staple->staple.len);
-
 		SSL_set_tlsext_status_ocsp_resp(ssl_conn, p, staple->staple.len);
-
 		rc = SSL_TLSEXT_ERR_OK;
 	}
-
 	ngx_ssl_stapling_update(staple);
-
 	return rc;
 }
 
 static void ngx_ssl_stapling_update(ngx_ssl_stapling_t * staple)
 {
 	ngx_ssl_ocsp_ctx_t  * ctx;
-
-	if(staple->host.len == 0
-	    || staple->loading || staple->refresh >= ngx_time()) {
+	if(staple->host.len == 0 || staple->loading || staple->refresh >= ngx_time()) {
 		return;
 	}
-
 	staple->loading = 1;
-
 	ctx = ngx_ssl_ocsp_start();
 	if(ctx == NULL) {
 		return;
@@ -555,58 +504,41 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 	u_char                *p;
 	int n;
 	size_t len;
-	time_t now, valid;
+	time_t valid;
 	ngx_str_t response;
 	X509_STORE            * store;
 	STACK_OF(X509)        *chain;
-	OCSP_CERTID           * id;
-	OCSP_RESPONSE         * ocsp;
-	OCSP_BASICRESP        * basic;
-	ngx_ssl_stapling_t    * staple;
 	ASN1_GENERALIZEDTIME  * thisupdate, * nextupdate;
-
-	staple = (ngx_ssl_stapling_t *)ctx->data;
-	now = ngx_time();
-	ocsp = NULL;
-	basic = NULL;
-	id = NULL;
-
+	ngx_ssl_stapling_t    * staple = (ngx_ssl_stapling_t *)ctx->data;
+	time_t now = ngx_time();
+	OCSP_RESPONSE * ocsp = NULL;
+	OCSP_BASICRESP * basic = NULL;
+	OCSP_CERTID * id = NULL;
 	if(ctx->code != 200) {
 		goto error;
 	}
-
 	/* check the response */
-
 	len = ctx->response->last - ctx->response->pos;
 	p = ctx->response->pos;
-
 	ocsp = d2i_OCSP_RESPONSE(NULL, &p, len);
 	if(ocsp == NULL) {
-		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0,
-		    "d2i_OCSP_RESPONSE() failed");
+		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "d2i_OCSP_RESPONSE() failed");
 		goto error;
 	}
-
 	n = OCSP_response_status(ocsp);
-
 	if(n != OCSP_RESPONSE_STATUS_SUCCESSFUL) {
-		ngx_log_error(NGX_LOG_ERR, ctx->log, 0,
-		    "OCSP response not successful (%d: %s)",
-		    n, OCSP_response_status_str(n));
+		ngx_log_error(NGX_LOG_ERR, ctx->log, 0, "OCSP response not successful (%d: %s)", n, OCSP_response_status_str(n));
 		goto error;
 	}
-
 	basic = OCSP_response_get1_basic(ocsp);
 	if(basic == NULL) {
-		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0,
-		    "OCSP_response_get1_basic() failed");
+		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_response_get1_basic() failed");
 		goto error;
 	}
 
 	store = SSL_CTX_get_cert_store(staple->ssl_ctx);
 	if(store == NULL) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "SSL_CTX_get_cert_store() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "SSL_CTX_get_cert_store() failed");
 		goto error;
 	}
 
@@ -625,15 +557,13 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 	if(OCSP_basic_verify(basic, chain, store,
 		    staple->verify ? OCSP_TRUSTOTHER : OCSP_NOVERIFY)
 	    != 1) {
-		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0,
-		    "OCSP_basic_verify() failed");
+		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_basic_verify() failed");
 		goto error;
 	}
 
 	id = OCSP_cert_to_id(NULL, ctx->cert, ctx->issuer);
 	if(id == NULL) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "OCSP_cert_to_id() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_cert_to_id() failed");
 		goto error;
 	}
 
@@ -653,8 +583,7 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 	}
 
 	if(OCSP_check_validity(thisupdate, nextupdate, 300, -1) != 1) {
-		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0,
-		    "OCSP_check_validity() failed");
+		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_check_validity() failed");
 		goto error;
 	}
 
@@ -706,7 +635,7 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 	 */
 
 	staple->loading = 0;
-	staple->refresh = ngx_max(ngx_min(valid - 300, now + 3600), now + 300);
+	staple->refresh = MAX(MIN(valid - 300, now + 3600), now + 300);
 
 	ngx_ssl_ocsp_done(ctx);
 	return;
@@ -1141,29 +1070,25 @@ static ngx_int_t ngx_ssl_ocsp_create_request(ngx_ssl_ocsp_ctx_t * ctx)
 
 	ocsp = OCSP_REQUEST_new();
 	if(ocsp == NULL) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "OCSP_REQUEST_new() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_REQUEST_new() failed");
 		return NGX_ERROR;
 	}
 
 	id = OCSP_cert_to_id(NULL, ctx->cert, ctx->issuer);
 	if(id == NULL) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "OCSP_cert_to_id() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_cert_to_id() failed");
 		goto failed;
 	}
 
 	if(OCSP_request_add0_id(ocsp, id) == NULL) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "OCSP_request_add0_id() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_request_add0_id() failed");
 		OCSP_CERTID_free(id);
 		goto failed;
 	}
 
 	len = i2d_OCSP_REQUEST(ocsp, NULL);
 	if(len <= 0) {
-		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0,
-		    "i2d_OCSP_REQUEST() failed");
+		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "i2d_OCSP_REQUEST() failed");
 		goto failed;
 	}
 
@@ -1176,8 +1101,7 @@ static ngx_int_t ngx_ssl_ocsp_create_request(ngx_ssl_ocsp_ctx_t * ctx)
 	p = binary.data;
 	len = i2d_OCSP_REQUEST(ocsp, &p);
 	if(len <= 0) {
-		ngx_ssl_error(NGX_LOG_EMERG, ctx->log, 0,
-		    "i2d_OCSP_REQUEST() failed");
+		ngx_ssl_error(NGX_LOG_EMERG, ctx->log, 0, "i2d_OCSP_REQUEST() failed");
 		goto failed;
 	}
 

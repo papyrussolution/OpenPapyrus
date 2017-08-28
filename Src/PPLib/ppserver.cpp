@@ -4413,6 +4413,7 @@ int SLAPI run_server()
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
 	DS.SetExtFlag(ECF_FULLGOODSCACHE, 1);
 	if(CheckVersion()) {
+		PPIniFile ini_file;
 		{
 			PPJobServer * p_job_srv = new PPJobServer;
 			p_job_srv->Start();
@@ -4448,7 +4449,6 @@ int SLAPI run_server()
 			sib.TxtCmdTerminalCode = -1;
 			{
 				int    ival = 0;
-				PPIniFile ini_file;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port == 0)
 					port = DEFAULT_SERVER_PORT;
 				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SOCKETTIMEOUT, &client_timeout) <= 0 || client_timeout <= 0)
@@ -4480,6 +4480,12 @@ int SLAPI run_server()
 			PPServer server(addr, client_timeout, sib);
 			if(server.Run())
 				PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_PPYSERVERSTOPPED, LOGMSGF_TIME);
+		}
+		{
+			int    ival = 0;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
+				// run nginx server
+			}
 		}
 	}
 	return 1;

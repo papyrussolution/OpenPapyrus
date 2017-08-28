@@ -62,8 +62,8 @@ void PPEgaisProcessor::Ack::Clear()
 	Sign[0] = 0;
 	Id.SetZero();
 	Status = 0;
-	Url = 0;
-	Message = 0;
+	Url.Z();
+	Message.Z();
 }
 
 PPEgaisProcessor::Reply::Reply()
@@ -81,8 +81,8 @@ void PPEgaisProcessor::Ticket::Result::Clear()
 {
     Conclusion = -1;
     Time.SetZero();
-    OpName = 0;
-    Comment = 0;
+    OpName.Z();
+    Comment.Z();
 }
 
 PPEgaisProcessor::Ticket::Ticket()
@@ -96,7 +96,7 @@ void PPEgaisProcessor::Ticket::Clear()
 	DocUUID.SetZero();
 	TranspUUID.SetZero();
 	DocType = 0;
-	RegIdent = 0;
+	RegIdent.Z();
 	R.Clear();
 	OpR.Clear();
 }
@@ -172,11 +172,11 @@ PPEgaisProcessor::InformB::InformB()
 
 void PPEgaisProcessor::InformB::Clear()
 {
-	Id = 0;
-	WBRegId = 0;
-	FixNumber = 0;
+	Id.Z();
+	WBRegId.Z();
+	FixNumber.Z();
 	FixDate = ZERODATE;
-	OuterCode = 0;
+	OuterCode.Z();
 	OuterDate = ZERODATE;
 	ShipperPsnID = 0;
 	ConsigneePsnID = 0;
@@ -7573,20 +7573,14 @@ int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
 		{
 			for(uint i = 0; i < reject_bill_list.getCount(); i++) {
 				const PPID bill_id = reject_bill_list.get(i);
-				PPEgaisProcessor::Packet pack(PPEDIOP_EGAIS_WAYBILLACT);
+				const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILLACT_V2 : PPEDIOP_EGAIS_WAYBILLACT;
+				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
-						const char * p_suffix = 0;
-						if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2) {
-							p_suffix = "WayBillAct_v2";
-							pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V2;
-						}
-						else {
-							p_suffix = "WayBillAct";
-						}
+						const char * p_suffix = (edi_op == PPEDIOP_EGAIS_WAYBILLACT_V2) ? "WayBillAct_v2" : "WayBillAct";
 						const int r = PutQuery(pack, rP.LocID, p_suffix, ack);
 						if(r > 0)
 							ok = 1;
@@ -8779,8 +8773,7 @@ int SLAPI EgaisPersonCore::Export(long fmt, const char * pFileName)
 						Cat("Name").Tab().Cat("FullName").Tab().Cat("AddrDescr").CR();
 					f_out.WriteLine(line_buf);
 				}
-				line_buf = 0;
-				line_buf.Cat(item.ID).Tab().Cat(item.RarIdent).Tab().Cat(item.INN).Tab().Cat(item.KPP).Tab().
+				line_buf.Z().Cat(item.ID).Tab().Cat(item.RarIdent).Tab().Cat(item.INN).Tab().Cat(item.KPP).Tab().
 					Cat(item.UNP).Tab().Cat(item.RNN).Tab().Cat(item.CountryCode).Tab().Cat(item.RegionCode).Tab().
 					CatHex(item.Flags).Tab().Cat(item.Name.Transf(CTRANSF_INNER_TO_OUTER)).Tab().Cat(item.FullName.Transf(CTRANSF_INNER_TO_OUTER)).Tab().Cat(item.AddressDescr.Transf(CTRANSF_INNER_TO_OUTER)).CR();
 				f_out.WriteLine(line_buf);
@@ -9152,8 +9145,7 @@ int SLAPI EgaisProductCore::Export(long fmt, const char * pFileName)
 						Cat("Volume").Tab().Cat("Name").Tab().Cat("FullName").CR();
 					f_out.WriteLine(line_buf);
 				}
-				line_buf = 0;
-				line_buf.Cat(item.ID).Tab().Cat(item.AlcoCode).Tab().Cat(item.ManufRarIdent).Tab().Cat(item.ImporterRarIdent).Tab().
+				line_buf.Z().Cat(item.ID).Tab().Cat(item.AlcoCode).Tab().Cat(item.ManufRarIdent).Tab().Cat(item.ImporterRarIdent).Tab().
 					Cat(item.CategoryCode).Tab().Cat(item.Proof, MKSFMTD(0, 2, 0)).Tab().Cat(item.Volume, MKSFMTD(0, 3, 0)).Tab().
 					Cat(item.Name.Transf(CTRANSF_INNER_TO_OUTER)).Tab().Cat(item.FullName.Transf(CTRANSF_INNER_TO_OUTER)).CR();
 				f_out.WriteLine(line_buf);
@@ -9428,8 +9420,7 @@ int SLAPI EgaisRefACore::Export(long fmt, const char * pFileName)
 					Cat("Volume").Tab().Cat("BottlingDate").CR();
 				f_out.WriteLine(line_buf);
 			}
-			line_buf = 0;
-			line_buf.Cat(item.ID).Tab().Cat(item.RefACode).Tab().Cat(item.AlcCode).Tab().Cat(item.ManufRarIdent).Tab().
+			line_buf.Z().Cat(item.ID).Tab().Cat(item.RefACode).Tab().Cat(item.AlcCode).Tab().Cat(item.ManufRarIdent).Tab().
 				Cat(item.ImporterRarIdent).Tab().Cat(item.CountryCode).Tab().Cat(((double)item.Volume)/100000.0, MKSFMTD(0, 3, 0)).Tab().
 				Cat(item.BottlingDate, DATF_DMY|DATF_CENTURY).CR();
 			f_out.WriteLine(line_buf);

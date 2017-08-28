@@ -2489,7 +2489,7 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 			// Отправляем смс
 			//
 			THROW(ConnectionState == SMPP_BINDED || P_UhttCli); //
-			if(FormatPhone(org_phone, new_phone, msg_buf = 0)) {
+			if(FormatPhone(org_phone, new_phone, msg_buf.Z())) {
 				THROW(SendSms(new_phone, pText, result = 0));
 				msg_buf.Z().Cat(org_phone).Space().Cat(result);
 				CALLPTRMEMB(P_Logger, Log(msg_buf));

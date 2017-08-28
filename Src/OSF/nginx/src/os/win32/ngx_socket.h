@@ -1,28 +1,19 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
-
 #ifndef _NGX_SOCKET_H_INCLUDED_
 #define _NGX_SOCKET_H_INCLUDED_
 
-
-#include <ngx_config.h>
-#include <ngx_core.h>
-
+//#include <ngx_config.h>
+//#include <ngx_core.h>
 
 #define NGX_WRITE_SHUTDOWN SD_SEND
-
 
 typedef SOCKET  ngx_socket_t;
 typedef int     socklen_t;
 
-
-#define ngx_socket(af, type, proto)                                          \
-    WSASocketW(af, type, proto, NULL, 0, WSA_FLAG_OVERLAPPED)
-
+#define ngx_socket(af, type, proto) WSASocketW(af, type, proto, NULL, 0, WSA_FLAG_OVERLAPPED)
 #define ngx_socket_n        "WSASocketW()"
 
 int ngx_nonblocking(ngx_socket_t s);
@@ -36,7 +27,6 @@ int ngx_blocking(ngx_socket_t s);
 
 #define ngx_close_socket    closesocket
 #define ngx_close_socket_n  "closesocket()"
-
 
 #ifndef WSAID_ACCEPTEX
 
@@ -173,9 +163,7 @@ typedef BOOL (PASCAL FAR * LPFN_CONNECTEX) (
 
 #define WSAID_CONNECTEX \
     {0x25a207b9,0xddf3,0x4660,{0x8e,0xe9,0x76,0xe5,0x8c,0x74,0x06,0x3e}}
-
 #endif
-
 
 #ifndef WSAID_DISCONNECTEX
 
@@ -185,12 +173,9 @@ typedef BOOL (PASCAL FAR * LPFN_DISCONNECTEX) (
     IN DWORD  dwFlags,
     IN DWORD  dwReserved
     );
-
 #define WSAID_DISCONNECTEX                                                   \
     {0x7fda2e11,0x8630,0x436f,{0xa0,0x31,0xf5,0x36,0xa6,0xee,0xc1,0x57}}
-
 #endif
-
 
 extern LPFN_ACCEPTEX              ngx_acceptex;
 extern LPFN_GETACCEPTEXSOCKADDRS  ngx_getacceptexsockaddrs;
@@ -198,7 +183,6 @@ extern LPFN_TRANSMITFILE          ngx_transmitfile;
 extern LPFN_TRANSMITPACKETS       ngx_transmitpackets;
 extern LPFN_CONNECTEX             ngx_connectex;
 extern LPFN_DISCONNECTEX          ngx_disconnectex;
-
 
 int ngx_tcp_push(ngx_socket_t s);
 #define ngx_tcp_push_n            "tcp_push()"

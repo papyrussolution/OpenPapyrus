@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Nginx, Inc.
  */
@@ -178,7 +177,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 	p = ctx->buf;
 
 	for(;; ) {
-		n = ngx_min((size_t)(last - pos), size);
+		n = MIN((size_t)(last - pos), size);
 
 		if(dst) {
 			dst = ngx_cpymem(dst, pos, n);

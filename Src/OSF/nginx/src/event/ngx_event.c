@@ -276,11 +276,11 @@ static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle)
 	u_char * shared;
 	size_t size, cl;
 	ngx_shm_t shm;
-	ngx_time_t          * tp;
-	ngx_core_conf_t     * ccf;
+	ngx_time_t * tp;
+	ngx_core_conf_t * ccf;
 	void *** cf = ngx_get_conf(cycle->conf_ctx, ngx_events_module);
 	ngx_event_conf_t * ecf = (ngx_event_conf_t*)(*cf)[ngx_event_core_module.ctx_index];
-	if(!ngx_test_config && ngx_process <= NGX_PROCESS_MASTER) {
+	if(!ngx_test_config__ && ngx_process <= NGX_PROCESS_MASTER) {
 		ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "using the \"%s\" event method", ecf->name);
 	}
 	ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);

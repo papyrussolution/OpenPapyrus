@@ -3680,7 +3680,7 @@ int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
 					if(r)
 						r = add_str.get(&p, line_buf);
 					else
-						line_buf = 0;
+						line_buf.Z();
 					line_no++;
 					if(line_buf.NotEmptyS()) {
 						line_buf.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar('@', 'a').ReplaceStr("\xD\xA", "\n", 0);
@@ -4820,7 +4820,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 						plu.GoodsName = gr_item.GoodsName;
 						plu.GoodsName.ReplaceChar('\t', ' ');
 						goods_obj.GetPacket(plu.GoodsID, &gds_pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
-						line_buf = 0;
+						line_buf.Z();
 						line_buf.Cat(plu.GoodsID).Tab();
 						line_buf.Cat(plu.GoodsNo).Tab();
 						line_buf.Cat(plu.GrpCode).Tab();

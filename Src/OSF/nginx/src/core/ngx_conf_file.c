@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -162,7 +161,7 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 		cf->conf_file->file.log = cf->log;
 		cf->conf_file->line = 1;
 		type = parse_file;
-		if(ngx_dump_config
+		if(ngx_dump_config__
 #if (NGX_DEBUG)
 		    || 1
 #endif

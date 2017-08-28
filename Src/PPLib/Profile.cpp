@@ -367,7 +367,7 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 				//
 				// sessuuid;threadid;dbuuid;ver;dbsymb;username; machinename;macaddr; datetime
 				//
-				line_buf = 0;
+				line_buf.Z();
 				UPSB.SessUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 				line_buf.Cat(temp_buf);
 				line_buf.Semicol().Cat(thread_id);

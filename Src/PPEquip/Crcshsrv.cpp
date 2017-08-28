@@ -3577,7 +3577,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(SArray * pZRepList, const char * pPat
 					if(goods_id == 0 && item.Barcode[0] && goods_obj.SearchByBarcode(item.Barcode, 0, &goods_rec, 1) > 0)
 						goods_id = goods_rec.ID;
 					if(!goods_id) {
-						PPGetMessage(mfError, PPERR_GDSBYBARCODENFOUND, item.GoodsCode, DS.CheckExtFlag(ECF_SYSSERVICE), msg_buf = 0);
+						PPGetMessage(mfError, PPERR_GDSBYBARCODENFOUND, item.GoodsCode, DS.CheckExtFlag(ECF_SYSSERVICE), msg_buf.Z());
 						msg_buf.Space().CatEq("cashno", hdr.CashNum).Comma();
 						msg_buf.CatEq("barcode", item.Barcode).Comma();
 						PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);

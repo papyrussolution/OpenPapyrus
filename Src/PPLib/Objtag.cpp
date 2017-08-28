@@ -1013,7 +1013,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 		p_rez->getString(obj_type_symb = 0, 2);  // ObjType
 		p_rez->getString(data_type_symb = 0, 2); // DataType
 		if(do_make_doc) {
-			line_buf = 0;
+			line_buf.Z();
 			(temp_buf = pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 			line_buf.Tab().CatChar('\\').Cat("item").CatBrackStr(temp_buf).CR();
 			line_buf.CR();

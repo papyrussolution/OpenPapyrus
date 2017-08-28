@@ -1,9 +1,7 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_EVENT_PIPE_H_INCLUDED_
 #define _NGX_EVENT_PIPE_H_INCLUDED_
 
@@ -13,30 +11,23 @@
 
 typedef struct ngx_event_pipe_s ngx_event_pipe_t;
 
-typedef ngx_int_t (*ngx_event_pipe_input_filter_pt)(ngx_event_pipe_t * p,
-    ngx_buf_t * buf);
-typedef ngx_int_t (*ngx_event_pipe_output_filter_pt)(void * data,
-    ngx_chain_t * chain);
+typedef ngx_int_t (*ngx_event_pipe_input_filter_pt)(ngx_event_pipe_t * p, ngx_buf_t * buf);
+typedef ngx_int_t (*ngx_event_pipe_output_filter_pt)(void * data, ngx_chain_t * chain);
 
 struct ngx_event_pipe_s {
 	ngx_connection_t  * upstream;
 	ngx_connection_t  * downstream;
-
 	ngx_chain_t       * free_raw_bufs;
 	ngx_chain_t       * in;
 	ngx_chain_t      ** last_in;
-
 	ngx_chain_t       * writing;
-
 	ngx_chain_t       * out;
 	ngx_chain_t       * free;
 	ngx_chain_t       * busy;
-
 	/*
 	 * the input filter i.e. that moves HTTP/1.1 chunks
 	 * from the raw bufs to an incoming chain
 	 */
-
 	ngx_event_pipe_input_filter_pt input_filter;
 	void                             * input_ctx;
 

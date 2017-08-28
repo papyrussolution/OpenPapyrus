@@ -540,7 +540,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 		if(!noPrefix)
 			(line_buf = ":paragraph").Tab();
 		else
-			line_buf = 0;
+			line_buf.Z();
 		line_buf.Cat(pBlk->Text).CR();
 		WriteText(rF, line_buf);
 	}
@@ -548,7 +548,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 		if(!noPrefix)
 			(line_buf = ":continuation").Tab();
 		else
-			line_buf = 0;
+			line_buf.Z();
 		line_buf.Cat(pBlk->Text).CR();
 		WriteText(rF, line_buf);
 	}
@@ -556,7 +556,7 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 		if(!noPrefix)
 			(line_buf = ":command").Tab();
 		else
-			line_buf = 0;
+			line_buf.Z();
 		line_buf.Cat(pBlk->Text).CR();
 		WriteText(rF, line_buf);
 		if(pBlk->P_ArgBrk) {
@@ -1140,7 +1140,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 							for(i = 0; i < St.OutPartList.getCount(); i++) {
 								const StateBlock::OutPart * p = St.OutPartList.at(i);
 								if(p && p->LinkSs.search(p_first_brc_arg->Text, 0, 0)) {
-									line_buf = 0;
+									line_buf.Z();
 									if(P.Flags & Param::fAttachToWorkbook) {
 										WorkbookTbl::Rec wb_rec;
 										assert(p->WbID);
@@ -2098,12 +2098,11 @@ int PPVer2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 	for(uint i = 0; i < Entries.getCount(); i++) {
 		const VersionEntry * p_entry = Entries.at(i);
 		if(p_entry) {
-            line_buf = 0;
-			line_buf.Cat(p_entry->Dt, DATF_DMY).Space().Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR();
+			line_buf.Z().Cat(p_entry->Dt, DATF_DMY).Space().Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR();
 			f_out.WriteLine(line_buf);
-			line_buf = 0;
+			line_buf.Z();
 			for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
-				line_buf = 0;
+				line_buf.Z();
                 if(p_para->Type == p_para->tRegular) {
                 	line_buf.Tab();
 					if(p_para->Flags & p_para->fExclam)
@@ -2271,7 +2270,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
 						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
-							line_buf = 0;
+							line_buf.Z();
 							if(p_para->Type == p_para->tRegular) {
 								if(p_para->Flags & p_para->fExclam) {
 									MakeHtmlImg(pImgPath, "checker-red-32.png", temp_buf);
@@ -2520,8 +2519,7 @@ int PPVer2HtmlPrcssr::Run()
 			THROW_SL(f_out.IsValid());
 			for(uint i = 0; i < TopicCountList.getCount(); i++) {
 				StrAssocArray::Item item = TopicCountList.at_WithoutParent(i);
-				line_buf = 0;
-				line_buf.Cat(item.Txt).Tab().Cat(item.Id).CR();
+				line_buf.Z().Cat(item.Txt).Tab().Cat(item.Id).CR();
 				f_out.WriteLine(line_buf);
 			}
 		}

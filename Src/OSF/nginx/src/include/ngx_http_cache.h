@@ -1,9 +1,7 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_HTTP_CACHE_H_INCLUDED_
 #define _NGX_HTTP_CACHE_H_INCLUDED_
 

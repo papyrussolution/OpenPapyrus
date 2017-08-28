@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -255,7 +254,7 @@ static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t
 			ms = state[i].response_time;
 		}
 
-		ms = ngx_max(ms, 0);
+		ms = MAX(ms, 0);
 		p = ngx_sprintf(p, "%T.%03M", (time_t)ms / 1000, ms % 1000);
 
 next:

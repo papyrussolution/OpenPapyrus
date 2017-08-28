@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Nginx, Inc.
  * Copyright (C) Valentin V. Bartenev
@@ -1636,7 +1635,7 @@ static u_char * ngx_http_v2_handle_continuation(ngx_http_v2_connection_t * h2c, 
 	len = h2c->state.length;
 
 	if(h2c->state.padding && (size_t)(end - pos) > len) {
-		skip = ngx_min(h2c->state.padding, (end - pos) - len);
+		skip = MIN(h2c->state.padding, (end - pos) - len);
 
 		h2c->state.padding -= skip;
 
