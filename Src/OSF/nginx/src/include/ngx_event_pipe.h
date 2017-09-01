@@ -7,7 +7,7 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 typedef struct ngx_event_pipe_s ngx_event_pipe_t;
 
@@ -17,30 +17,26 @@ typedef ngx_int_t (*ngx_event_pipe_output_filter_pt)(void * data, ngx_chain_t * 
 struct ngx_event_pipe_s {
 	ngx_connection_t  * upstream;
 	ngx_connection_t  * downstream;
-	ngx_chain_t       * free_raw_bufs;
-	ngx_chain_t       * in;
-	ngx_chain_t      ** last_in;
-	ngx_chain_t       * writing;
-	ngx_chain_t       * out;
-	ngx_chain_t       * free;
-	ngx_chain_t       * busy;
+	ngx_chain_t  * free_raw_bufs;
+	ngx_chain_t  * in;
+	ngx_chain_t ** last_in;
+	ngx_chain_t  * writing;
+	ngx_chain_t  * out;
+	ngx_chain_t  * free;
+	ngx_chain_t  * busy;
 	/*
 	 * the input filter i.e. that moves HTTP/1.1 chunks
 	 * from the raw bufs to an incoming chain
 	 */
 	ngx_event_pipe_input_filter_pt input_filter;
-	void                             * input_ctx;
-
+	void * input_ctx;
 	ngx_event_pipe_output_filter_pt output_filter;
-	void                             * output_ctx;
-
+	void * output_ctx;
 #if (NGX_THREADS || NGX_COMPAT)
-	ngx_int_t (* thread_handler)(ngx_thread_task_t * task,
-	    ngx_file_t * file);
-	void                             * thread_ctx;
-	ngx_thread_task_t                * thread_task;
+	ngx_int_t (* thread_handler)(ngx_thread_task_t * task, ngx_file_t * file);
+	void * thread_ctx;
+	ngx_thread_task_t  * thread_task;
 #endif
-
 	unsigned read : 1;
 	unsigned cacheable : 1;
 	unsigned single_buf : 1;
@@ -64,14 +60,14 @@ struct ngx_event_pipe_s {
 	ngx_msec_t read_timeout;
 	ngx_msec_t send_timeout;
 	ssize_t send_lowat;
-	ngx_pool_t        * pool;
-	ngx_log_t         * log;
-	ngx_chain_t       * preread_bufs;
+	ngx_pool_t * pool;
+	ngx_log_t  * log;
+	ngx_chain_t  * preread_bufs;
 	size_t preread_size;
-	ngx_buf_t         * buf_to_file;
+	ngx_buf_t  * buf_to_file;
 	size_t limit_rate;
 	time_t start_sec;
-	ngx_temp_file_t   * temp_file;
+	ngx_temp_file_t * temp_file;
 	/* STUB */ int num;
 };
 

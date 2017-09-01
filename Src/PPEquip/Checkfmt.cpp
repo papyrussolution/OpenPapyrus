@@ -2498,8 +2498,9 @@ SLTEST_R(PPSlipFormatLexer)
 			SetInfo(msg_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 		}
 		ok = 0;
+		CurrentStatus = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(PPSlipFormatOutput)
@@ -2542,8 +2543,11 @@ SLTEST_R(PPSlipFormatOutput)
 		f_out.WriteLine(line_buf);
 		c++;
 	}
-	CATCHZOK
-	return ok;
+	CATCH
+		ok = 0;
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

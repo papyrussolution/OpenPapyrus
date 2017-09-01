@@ -57,7 +57,7 @@ ngx_int_t ngx_os_init(ngx_log_t * log)
 	SOCKET s;
 	WSADATA wsd;
 	ngx_err_t err;
-	ngx_time_t   * tp;
+	ngx_time_t * tp;
 	ngx_uint_t n;
 	SYSTEM_INFO si;
 	/* get Windows version */

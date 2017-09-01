@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #if (NGX_ZLIB)
 #include <zlib.h>
@@ -24,8 +24,8 @@ struct ngx_http_log_op_s {
 
 typedef struct {
 	ngx_str_t name;
-	ngx_array_t                * flushes;
-	ngx_array_t                * ops;   /* array of ngx_http_log_op_t */
+	ngx_array_t  * flushes;
+	ngx_array_t  * ops;   /* array of ngx_http_log_op_t */
 } ngx_http_log_fmt_t;
 
 typedef struct {
@@ -34,33 +34,33 @@ typedef struct {
 } ngx_http_log_main_conf_t;
 
 typedef struct {
-	u_char                     * start;
-	u_char                     * pos;
-	u_char                     * last;
+	u_char * start;
+	u_char * pos;
+	u_char * last;
 
-	ngx_event_t                * event;
+	ngx_event_t  * event;
 	ngx_msec_t flush;
 	ngx_int_t gzip;
 } ngx_http_log_buf_t;
 
 typedef struct {
-	ngx_array_t                * lengths;
-	ngx_array_t                * values;
+	ngx_array_t  * lengths;
+	ngx_array_t  * values;
 } ngx_http_log_script_t;
 
 typedef struct {
-	ngx_open_file_t            * file;
-	ngx_http_log_script_t      * script;
+	ngx_open_file_t  * file;
+	ngx_http_log_script_t * script;
 	time_t disk_full_time;
 	time_t error_log_time;
-	ngx_syslog_peer_t          * syslog_peer;
-	ngx_http_log_fmt_t         * format;
-	ngx_http_complex_value_t   * filter;
+	ngx_syslog_peer_t   * syslog_peer;
+	ngx_http_log_fmt_t  * format;
+	ngx_http_complex_value_t * filter;
 } ngx_http_log_t;
 
 typedef struct {
-	ngx_array_t                * logs;  /* array of ngx_http_log_t */
-	ngx_open_file_cache_t      * open_file_cache;
+	ngx_array_t  * logs;  /* array of ngx_http_log_t */
+	ngx_open_file_cache_t * open_file_cache;
 	time_t open_file_cache_valid;
 	ngx_uint_t open_file_cache_min_uses;
 	ngx_uint_t off;                     /* unsigned  off:1 */
@@ -363,7 +363,7 @@ static ssize_t ngx_http_log_script_write(ngx_http_request_t * r, ngx_http_log_sc
 	ssize_t n;
 	ngx_str_t log, path;
 	ngx_open_file_info_t of;
-	ngx_http_log_loc_conf_t   * llcf;
+	ngx_http_log_loc_conf_t * llcf;
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 	if(!r->root_tested) {
 		/* test root directory existence */
@@ -649,7 +649,7 @@ static u_char * ngx_http_log_msec(ngx_http_request_t * r, u_char * buf, ngx_http
 static u_char * ngx_http_log_request_time(ngx_http_request_t * r, u_char * buf,
     ngx_http_log_op_t * op)
 {
-	ngx_time_t      * tp;
+	ngx_time_t * tp;
 	ngx_msec_int_t ms;
 
 	tp = ngx_timeofday();
@@ -872,27 +872,20 @@ static u_char * ngx_http_log_json_variable(ngx_http_request_t * r, u_char * buf,
 
 static void * ngx_http_log_create_main_conf(ngx_conf_t * cf)
 {
-	ngx_http_log_main_conf_t  * conf;
 	ngx_http_log_fmt_t  * fmt;
-	conf = (ngx_http_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_main_conf_t));
+	ngx_http_log_main_conf_t  * conf = (ngx_http_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_main_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}
-
-	if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_http_log_fmt_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_http_log_fmt_t)) != NGX_OK) {
 		return NULL;
 	}
-
 	fmt = (ngx_http_log_fmt_t *)ngx_array_push(&conf->formats);
 	if(fmt == NULL) {
 		return NULL;
 	}
-
 	ngx_str_set(&fmt->name, "combined");
-
 	fmt->flushes = NULL;
-
 	fmt->ops = ngx_array_create(cf->pool, 16, sizeof(ngx_http_log_op_t));
 	if(fmt->ops == NULL) {
 		return NULL;
@@ -902,12 +895,10 @@ static void * ngx_http_log_create_main_conf(ngx_conf_t * cf)
 
 static void * ngx_http_log_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_log_loc_conf_t  * conf;
-	conf = (ngx_http_log_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_log_loc_conf_t  * conf = (ngx_http_log_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_loc_conf_t));
+	if(conf) {
+		conf->open_file_cache = (ngx_open_file_cache_t *)NGX_CONF_UNSET_PTR;
 	}
-	conf->open_file_cache = (ngx_open_file_cache_t *)NGX_CONF_UNSET_PTR;
 	return conf;
 }
 
@@ -916,8 +907,8 @@ static char * ngx_http_log_merge_loc_conf(ngx_conf_t * cf, void * parent, void *
 	ngx_http_log_loc_conf_t * prev = (ngx_http_log_loc_conf_t *)parent;
 	ngx_http_log_loc_conf_t * conf = (ngx_http_log_loc_conf_t *)child;
 
-	ngx_http_log_t            * log;
-	ngx_http_log_fmt_t        * fmt;
+	ngx_http_log_t  * log;
+	ngx_http_log_fmt_t * fmt;
 	ngx_http_log_main_conf_t  * lmcf;
 
 	if(conf->open_file_cache == NGX_CONF_UNSET_PTR) {
@@ -975,12 +966,12 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ngx_int_t gzip;
 	ngx_uint_t i, n;
 	ngx_msec_t flush;
-	ngx_str_t                         * value, name, s;
-	ngx_http_log_t                    * log;
-	ngx_syslog_peer_t                 * peer;
-	ngx_http_log_buf_t                * buffer;
-	ngx_http_log_fmt_t                * fmt;
-	ngx_http_log_main_conf_t          * lmcf;
+	ngx_str_t  * value, name, s;
+	ngx_http_log_t  * log;
+	ngx_syslog_peer_t * peer;
+	ngx_http_log_buf_t  * buffer;
+	ngx_http_log_fmt_t  * fmt;
+	ngx_http_log_main_conf_t   * lmcf;
 	ngx_http_script_compile_t sc;
 	ngx_http_compile_complex_value_t ccv;
 
@@ -1257,7 +1248,7 @@ process_formats:
 static char * ngx_http_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_log_main_conf_t * lmcf = (ngx_http_log_main_conf_t *)conf;
-	ngx_str_t           * value;
+	ngx_str_t * value;
 	ngx_uint_t i;
 	ngx_http_log_fmt_t  * fmt;
 	value = (ngx_str_t*)cf->args->elts;
@@ -1298,9 +1289,9 @@ static char * ngx_http_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes
 	u_char * data, * p, ch;
 	size_t i, len;
 	ngx_str_t var;
-	ngx_int_t           * flush;
+	ngx_int_t * flush;
 	ngx_uint_t bracket;
-	ngx_http_log_op_t   * op;
+	ngx_http_log_op_t * op;
 	ngx_http_log_var_t  * v;
 	ngx_uint_t json = 0;
 	ngx_str_t * value = (ngx_str_t*)args->elts;
@@ -1418,7 +1409,7 @@ static char * ngx_http_log_open_file_cache(ngx_conf_t * cf, ngx_command_t * cmd,
 {
 	ngx_http_log_loc_conf_t * llcf = (ngx_http_log_loc_conf_t *)conf;
 	time_t inactive, valid;
-	ngx_str_t   * value, s;
+	ngx_str_t * value, s;
 	ngx_int_t max, min_uses;
 	ngx_uint_t i;
 	if(llcf->open_file_cache != NGX_CONF_UNSET_PTR) {
@@ -1490,11 +1481,11 @@ failed:
 
 static ngx_int_t ngx_http_log_init(ngx_conf_t * cf)
 {
-	ngx_str_t                  * value;
+	ngx_str_t  * value;
 	ngx_array_t a;
-	ngx_http_handler_pt        * h;
-	ngx_http_log_fmt_t         * fmt;
-	ngx_http_log_main_conf_t   * lmcf;
+	ngx_http_handler_pt * h;
+	ngx_http_log_fmt_t  * fmt;
+	ngx_http_log_main_conf_t * lmcf;
 	ngx_http_core_main_conf_t  * cmcf;
 	lmcf = (ngx_http_log_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_log_module);
 	if(lmcf->combined_used) {

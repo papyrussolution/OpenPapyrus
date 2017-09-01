@@ -1,5 +1,6 @@
 // SBUFFER.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -165,7 +166,7 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 			WrOffs -= rd_offs;
 		}
 		const size_t new_size = (WrOffs + size);
-		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) ñ öåëüþ óñêîðåíèÿ
+		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) Ñ Ñ†ÐµÐ»ÑŒÑŽ ÑƒÑÐºÐ¾Ñ€ÐµÐ½Ð¸Ñ
 			// @v8.4.2 {
 			void * _ptr = Ptr(WrOffs);
 			switch(size) {
@@ -363,7 +364,7 @@ int FASTCALL SBuffer::Read(SBuffer & v)
 {
 	int    ok = 1;
 	uint32 sz = 0;
-	Read(&sz, sizeof(sz)); // @v5.4.12 Çäåñü íå ïðîâåðÿåòñÿ âîçâðàùàåìîå çíà÷åíèå, èáî ñ÷èòûâàåìûé ðàçìåð ëåãàëüíî ìîæåò áûòü 0
+	Read(&sz, sizeof(sz)); // @v5.4.12 Ð—Ð´ÐµÑÑŒ Ð½Ðµ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÑ‚ÑÑ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ, Ð¸Ð±Ð¾ ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð»ÐµÐ³Ð°Ð»ÑŒÐ½Ð¾ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ 0
 	if(sz) {
 		STempBuffer temp_buf(sz);
 		THROW(temp_buf.IsValid());
@@ -1011,7 +1012,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 		uint8  st_ind_list[512];
 		if(ind_len > SIZEOFARRAY(st_ind_list)) {
 			//
-			// Ñòðàõîâêà îò ñëó÷àÿ, êîãäà êîëè÷åñòâî ïîëåé áîëüøå, ÷åì 512
+			// Ð¡Ñ‚Ñ€Ð°Ñ…Ð¾Ð²ÐºÐ° Ð¾Ñ‚ ÑÐ»ÑƒÑ‡Ð°Ñ, ÐºÐ¾Ð³Ð´Ð° ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¿Ð¾Ð»ÐµÐ¹ Ð±Ð¾Ð»ÑŒÑˆÐµ, Ñ‡ÐµÐ¼ 512
 			//
 			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
 			own_ind_list = 1;
@@ -1036,7 +1037,7 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 {
 	int    ok = 1, r;
 	uint32 dbt_id = 0;
-	uint16 temp_val = -999; // -999 - óìûøëåííûé ìóñîð
+	uint16 temp_val = -999; // -999 - ÑƒÐ¼Ñ‹ÑˆÐ»ÐµÐ½Ð½Ñ‹Ð¹ Ð¼ÑƒÑÐ¾Ñ€
 	uint8 * p_ind_list = 0;
 	int    own_ind_list = 0;
 	BNFieldList inner_fld_list;
@@ -1053,8 +1054,8 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 	}
 	else {
 		//
-		// Åñëè â ñóùåñòâóþùåì ñïèñêå ñòðóêòóð íàøà íå íàéäåíà, òî äàëåå äîëæíî
-		// ñëåäîâàòü îïèñàíèå ñòðóêòóðû.
+		// Ð•ÑÐ»Ð¸ Ð² ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰ÐµÐ¼ ÑÐ¿Ð¸ÑÐºÐµ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€ Ð½Ð°ÑˆÐ° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°, Ñ‚Ð¾ Ð´Ð°Ð»ÐµÐµ Ð´Ð¾Ð»Ð¶Ð½Ð¾
+		// ÑÐ»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÑŒ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹.
 		//
 		THROW(temp_val == 1);
 		THROW(SerializeFieldList(-1, &inner_fld_list, rBuf));
@@ -1066,7 +1067,7 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 		uint8  st_ind_list[512];
 		if(ind_len > SIZEOFARRAY(st_ind_list)) {
 			//
-			// Ñòðàõîâêà îò ñëó÷àÿ, êîãäà êîëè÷åñòâî ïîëåé áîëüøå, ÷åì 512
+			// Ð¡Ñ‚Ñ€Ð°Ñ…Ð¾Ð²ÐºÐ° Ð¾Ñ‚ ÑÐ»ÑƒÑ‡Ð°Ñ, ÐºÐ¾Ð³Ð´Ð° ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¿Ð¾Ð»ÐµÐ¹ Ð±Ð¾Ð»ÑŒÑˆÐµ, Ñ‡ÐµÐ¼ 512
 			//
 			THROW(p_ind_list = (uint8 *)SAlloc::M(ind_len));
 			own_ind_list = 1;
@@ -1079,8 +1080,8 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 			const int is_eq_struc = inner_fld_list.IsEqual(*pFldList);
 			if(!is_eq_struc) {
 				//
-				// Ïðè íå ýêâèâàëåíòíûõ ñòðóêòóðàõ ïðèäåòñÿ èñïîëüçîâàòü âðåìåííûé áóôåð
-				// äëÿ ñ÷èòûâàíèÿ äàííûõ èç ïîòîêà.
+				// ÐŸÑ€Ð¸ Ð½Ðµ ÑÐºÐ²Ð¸Ð²Ð°Ð»ÐµÐ½Ñ‚Ð½Ñ‹Ñ… ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð°Ñ… Ð¿Ñ€Ð¸Ð´ÐµÑ‚ÑÑ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ð¹ Ð±ÑƒÑ„ÐµÑ€
+				// Ð´Ð»Ñ ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ð½Ð¸Ñ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¸Ð· Ð¿Ð¾Ñ‚Ð¾ÐºÐ°.
 				//
 				TempDataBuf.Alloc(8192);
 			}
@@ -1091,8 +1092,8 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 				}
 				else {
 					//
-					// Åñëè ñîõðàíåííàÿ ñòðóêòóðà è òà, â êîòîðóþ ñ÷èòûâàþòñÿ äàííûå íå ýêâèâàëåíòíû,
-					// òî ïðèäåòñÿ ïðåîáðàçîâûâàòü äàííûå, îðèåíòèðóÿñü íà èìåíà ïîëåé.
+					// Ð•ÑÐ»Ð¸ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ð°Ñ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° Ð¸ Ñ‚Ð°, Ð² ÐºÐ¾Ñ‚Ð¾Ñ€ÑƒÑŽ ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÑŽÑ‚ÑÑ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð½Ðµ ÑÐºÐ²Ð¸Ð²Ð°Ð»ÐµÐ½Ñ‚Ð½Ñ‹,
+					// Ñ‚Ð¾ Ð¿Ñ€Ð¸Ð´ÐµÑ‚ÑÑ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ñ‹Ð²Ð°Ñ‚ÑŒ Ð´Ð°Ð½Ð½Ñ‹Ðµ, Ð¾Ñ€Ð¸ÐµÐ½Ñ‚Ð¸Ñ€ÑƒÑÑÑŒ Ð½Ð° Ð¸Ð¼ÐµÐ½Ð° Ð¿Ð¾Ð»ÐµÐ¹.
 					//
 					THROW(Serialize(-1, r_fld.T, TempDataBuf, p_ind_list+i, temp_buf));
 					const BNField & r_dest_fld = pFldList->getField(r_fld.Name, 0);
@@ -1365,3 +1366,156 @@ int    SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMiss
 {
 	return P_SCtx->SerializeBlock(Dir, size, pData, R_Buf, skipMissizedBlock);
 }
+//
+//
+//
+SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags) 
+{
+	Status = 0;
+}
+
+int FASTCALL SBufferPipe::Put(const void * pSrc, size_t srcLen)
+{
+	Lck.Lock();
+	int    ok = SBuffer::Write(pSrc, srcLen);
+	Lck.Unlock();
+	return ok;
+}
+
+size_t SLAPI SBufferPipe::GetAvailableSize()
+{
+	Lck.Lock();
+	size_t s = SBuffer::GetAvailableSize();
+	Lck.Unlock();
+	return s;
+}
+
+size_t FASTCALL SBufferPipe::Get(void * pBuf, size_t bufLen)
+{
+	Lck.Lock();
+	size_t s = SBuffer::Read(pBuf, bufLen);
+	Lck.Unlock();
+	return s;
+}
+
+void SLAPI SBufferPipe::Reset()
+{
+	Lck.Lock();
+	SBuffer::Clear();
+	Status = 0;
+	Lck.Unlock();
+}
+
+long SLAPI SBufferPipe::GetStatus()
+{
+	Lck.Lock();
+	long st = Status;
+	Lck.Unlock();
+	return st;
+}
+
+void SLAPI SBufferPipe::SetStatus(long st, int set)
+{
+	Lck.Lock();
+	SETFLAG(Status, st, set);
+	Lck.Unlock();
+}
+
+#if SLTEST_RUNNING // {
+
+SLTEST_R(SBufferPipe)
+{
+	//
+	// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐµÐ½Ð¾ Ð¾Ñ‚ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð¾Ðº Ð² SBufferPipe - Ð¼Ð¾Ð¼ÐµÐ½Ñ‚Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð¸ÑÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ð¿Ð¾ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ñƒ Ðº Ð¿Ð°Ð¼ÑÑ‚Ð¸
+	//
+	static const char p_eot_string[] = "end of transmission!";
+	int    ok = 1;
+	SFile file;
+	SString in_file_name = MakeInputFilePath("binfile");
+	SString out_file_name = MakeOutputFilePath("bufferpipe-result");
+	SBufferPipe pipe;
+
+	class ThreadReader : public SlThread {
+	public:
+		ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread()
+		{
+			P_Pipe = pPipe;
+			OutFileName = pOutFileName;
+		}
+	private:
+		virtual void Run()
+		{
+			uint64 total_rd = 0;
+			uint64 total_wr = 0;
+			SFile f_out(OutFileName, SFile::mWrite|SFile::mBinary);
+			if(f_out.IsValid()) {
+				uint8  temp_buf[1024];
+				while(1) {
+					size_t actual_size = P_Pipe->Get(temp_buf, sizeof(temp_buf));
+					total_rd += actual_size;
+					if(actual_size) {
+						f_out.Write(temp_buf, actual_size);
+						total_wr += actual_size;
+					}
+					else if(P_Pipe->GetStatus() & SBufferPipe::statusEOT)
+						break;
+				};
+			}
+		}
+		SString OutFileName;
+		SBufferPipe * P_Pipe;
+	};
+	class ThreadWriter : public SlThread {
+	public:
+		ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread()
+		{
+			P_Pipe = pPipe;
+			InFileName = pInFileName;
+		}
+	private:
+		virtual void Run()
+		{
+			uint64 total_rd = 0;
+			uint64 total_wr = 0;
+			SFile f_in(InFileName, SFile::mRead|SFile::mBinary);
+			if(f_in.IsValid()) {
+				uint8  temp_buf[1024];
+				size_t actual_sz = 0;
+				do {
+					size_t sz = SLS.GetTLA().Rg.GetUniformInt(sizeof(temp_buf));
+					assert(sz >= 0 && sz < sizeof(temp_buf));
+					SETIFZ(sz, 1);
+					f_in.Read(temp_buf, sz, &actual_sz);
+					total_rd += actual_sz;
+					if(actual_sz) {
+						P_Pipe->Put(temp_buf, actual_sz);
+						total_wr += actual_sz;
+					}
+				} while(actual_sz);
+				P_Pipe->SetStatus(SBufferPipe::statusEOT, 1);
+			}
+		}
+		SString InFileName;
+		SBufferPipe * P_Pipe;
+	};
+	for(uint i = 0; i < 4; i++) {
+		SFile::Remove(out_file_name);
+		pipe.Reset();
+		//
+		HANDLE objs_to_wait[8];
+		MEMSZERO(objs_to_wait);
+		size_t objs_to_wait_count = 0;
+		ThreadWriter * p_thr_wrr = new ThreadWriter(&pipe, in_file_name);
+		ThreadReader * p_thr_rdr = new ThreadReader(&pipe, out_file_name);
+		p_thr_wrr->Start();
+		objs_to_wait[objs_to_wait_count++] = *p_thr_wrr;
+		p_thr_rdr->Start();
+		objs_to_wait[objs_to_wait_count++] = *p_thr_rdr;
+		WaitForMultipleObjects(objs_to_wait_count, objs_to_wait, TRUE, INFINITE);
+		SLTEST_CHECK_LT(0L, SFile::Compare(in_file_name, out_file_name, 0));
+		pipe.Reset();
+	}
+	return CurrentStatus;
+}
+
+#endif // } SLTEST_RUNNING

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_stream.h>
 
 static void ngx_stream_log_session(ngx_stream_session_t * s);
@@ -18,22 +18,22 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 	u_char text[NGX_SOCKADDR_STRLEN];
 	size_t len;
 	ngx_uint_t i;
-	ngx_time_t                   * tp;
-	ngx_event_t                  * rev;
-	struct sockaddr              * sa;
+	ngx_time_t * tp;
+	ngx_event_t  * rev;
+	struct sockaddr    * sa;
 
-	ngx_stream_port_t            * port;
-	struct sockaddr_in           * sin;
+	ngx_stream_port_t  * port;
+	struct sockaddr_in * sin;
 
-	ngx_stream_in_addr_t         * addr;
-	ngx_stream_session_t         * s;
-	ngx_stream_addr_conf_t       * addr_conf;
+	ngx_stream_in_addr_t  * addr;
+	ngx_stream_session_t  * s;
+	ngx_stream_addr_conf_t  * addr_conf;
 #if (NGX_HAVE_INET6)
-	struct sockaddr_in6          * sin6;
+	struct sockaddr_in6   * sin6;
 
-	ngx_stream_in6_addr_t        * addr6;
+	ngx_stream_in6_addr_t * addr6;
 #endif
-	ngx_stream_core_srv_conf_t   * cscf;
+	ngx_stream_core_srv_conf_t * cscf;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	/* find the server configuration for the address:port */
@@ -142,7 +142,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 
 	s->variables = (ngx_stream_variable_value_t *)ngx_pcalloc(s->connection->pool,
 	    cmcf->variables.nelts
-	    * sizeof(ngx_stream_variable_value_t));
+	  * sizeof(ngx_stream_variable_value_t));
 
 	if(s->variables == NULL) {
 		ngx_stream_close_connection(c);
@@ -183,12 +183,12 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 
 static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 {
-	u_char                      * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
+	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
 	size_t size;
 	ssize_t n;
 	ngx_err_t err;
-	ngx_connection_t            * c;
-	ngx_stream_session_t        * s;
+	ngx_connection_t  * c;
+	ngx_stream_session_t * s;
 	ngx_stream_core_srv_conf_t  * cscf;
 
 	c = (ngx_connection_t*)rev->data;
@@ -250,7 +250,7 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 
 void ngx_stream_session_handler(ngx_event_t * rev)
 {
-	ngx_connection_t      * c;
+	ngx_connection_t * c;
 	ngx_stream_session_t  * s;
 
 	c = (ngx_connection_t*)rev->data;
@@ -274,7 +274,7 @@ void ngx_stream_finalize_session(ngx_stream_session_t * s, ngx_uint_t rc)
 static void ngx_stream_log_session(ngx_stream_session_t * s)
 {
 	ngx_uint_t i, n;
-	ngx_stream_handler_pt        * log_handler;
+	ngx_stream_handler_pt * log_handler;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_get_module_main_conf(s, ngx_stream_core_module);
@@ -318,7 +318,7 @@ static void ngx_stream_close_connection(ngx_connection_t * c)
 
 static u_char * ngx_stream_log_error(ngx_log_t * log, u_char * buf, size_t len)
 {
-	u_char                * p;
+	u_char  * p;
 	ngx_stream_session_t  * s;
 
 	if(log->action) {

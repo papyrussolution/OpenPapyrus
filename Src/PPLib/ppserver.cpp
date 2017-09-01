@@ -1,5 +1,6 @@
 // PPSERVER.CPP
 // Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,9 +8,7 @@
 #include <StyloConduit.h>
 #include <ppds.h>
 //
-
-//
-// Пустая функция, используемая для насильственной линковки данного модуля.
+// РџСѓСЃС‚Р°СЏ С„СѓРЅРєС†РёСЏ, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ РЅР°СЃРёР»СЊСЃС‚РІРµРЅРЅРѕР№ Р»РёРЅРєРѕРІРєРё РґР°РЅРЅРѕРіРѕ РјРѕРґСѓР»СЏ.
 //
 int dummy_ppserver()
 {
@@ -19,7 +18,7 @@ int dummy_ppserver()
 //
 //
 //static
-int PPThread::GetKindText(int kind, SString & rBuf)
+int FASTCALL PPThread::GetKindText(int kind, SString & rBuf)
 {
 	return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf);
 }
@@ -55,7 +54,7 @@ void SLAPI PPThread::Shutdown()
 {
 	DS.Logout();
 	//
-	// @v8.0.6 Изменен порядок вызова. Было: SlThread::Shutdown(); DBS.ReleaseThread(); DS.ReleaseThread();
+	// @v8.0.6 РР·РјРµРЅРµРЅ РїРѕСЂСЏРґРѕРє РІС‹Р·РѕРІР°. Р‘С‹Р»Рѕ: SlThread::Shutdown(); DBS.ReleaseThread(); DS.ReleaseThread();
 	//
 	DS.ReleaseThread();
 	DBS.ReleaseThread();
@@ -68,16 +67,14 @@ void FASTCALL PPThread::SetJobID(PPID jobID)
 		JobID = jobID;
 }
 
-int FASTCALL PPThread::SetText(const char * pTxt)
+void FASTCALL PPThread::SetText(const char * pTxt)
 {
 	Text = pTxt;
-	return 1;
 }
 
-int FASTCALL PPThread::SetMessage(const char * pMsg)
+void FASTCALL PPThread::SetMessage(const char * pMsg)
 {
 	LastMsg_ = pMsg;
-	return 1;
 }
 
 int FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
@@ -132,20 +129,20 @@ public:
 		return 1;
 	}
 	//
-	// Descr: Флаги функции ParseLine()
+	// Descr: Р¤Р»Р°РіРё С„СѓРЅРєС†РёРё ParseLine()
 	//
 	enum {
-		plfLoggedIn = 0x0001 // Вызывающая сессия авторизована в базе данных
+		plfLoggedIn = 0x0001 // Р’С‹Р·С‹РІР°СЋС‰Р°СЏ СЃРµСЃСЃРёСЏ Р°РІС‚РѕСЂРёР·РѕРІР°РЅР° РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 	};
 	int    FASTCALL ParseLine(const SString & rLine, long flags);
 
-	long   SessID;   // Идентификатор сессии, к которой отправлен запрос
+	long   SessID;   // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµСЃСЃРёРё, Рє РєРѕС‚РѕСЂРѕР№ РѕС‚РїСЂР°РІР»РµРЅ Р·Р°РїСЂРѕСЃ
 	SString Params;
 	SelectObjectBlock * P_SoBlk;
 private:
 	int    SLAPI GetWord(const char * pBuf, size_t *);
 	SString Term;
-	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
+	const  SymbHashTable * P_ShT; // РўР°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ, РїРѕР»СѓС‡РµРЅРЅР°СЏ РІС‹Р·РѕРІРѕРј PPGetStringHash(int)
 };
 
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
@@ -241,15 +238,15 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetPersonByArticle
 	};
 	enum {
-		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
-		cmdfNoArg    = 0x0002  // Команда без аргументов
+		cmdfNeedAuth = 0x0001, // РљРѕРјР°РЅРґР° С‚СЂРµР±СѓРµС‚ Р°РІС‚РѕСЂРёР·РѕРІР°РЅРЅРѕРіРѕ СЃРµР°РЅСЃР°
+		cmdfNoArg    = 0x0002  // РљРѕРјР°РЅРґР° Р±РµР· Р°СЂРіСѓРјРµРЅС‚РѕРІ
 	};
 	//
-	// @v9.6.4 Начиная с этого релиза переводим идентификацию команд на новую технику,
-	// использующую хэш-таблицу, определенную в файле определения строк.
-	// Пока реализация не стабилизируется будем параллельно поддерживать поле P_Symb в
-	// нижеследующей структуре (см assert @1).
-	// В дальнейшем от этого рудимента надо будет избавиться.
+	// @v9.6.4 РќР°С‡РёРЅР°СЏ СЃ СЌС‚РѕРіРѕ СЂРµР»РёР·Р° РїРµСЂРµРІРѕРґРёРј РёРґРµРЅС‚РёС„РёРєР°С†РёСЋ РєРѕРјР°РЅРґ РЅР° РЅРѕРІСѓСЋ С‚РµС…РЅРёРєСѓ,
+	// РёСЃРїРѕР»СЊР·СѓСЋС‰СѓСЋ С…СЌС€-С‚Р°Р±Р»РёС†Сѓ, РѕРїСЂРµРґРµР»РµРЅРЅСѓСЋ РІ С„Р°Р№Р»Рµ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃС‚СЂРѕРє.
+	// РџРѕРєР° СЂРµР°Р»РёР·Р°С†РёСЏ РЅРµ СЃС‚Р°Р±РёР»РёР·РёСЂСѓРµС‚СЃСЏ Р±СѓРґРµРј РїР°СЂР°Р»Р»РµР»СЊРЅРѕ РїРѕРґРґРµСЂР¶РёРІР°С‚СЊ РїРѕР»Рµ P_Symb РІ
+	// РЅРёР¶РµСЃР»РµРґСѓСЋС‰РµР№ СЃС‚СЂСѓРєС‚СѓСЂРµ (СЃРј assert @1).
+	// Р’ РґР°Р»СЊРЅРµР№С€РµРј РѕС‚ СЌС‚РѕРіРѕ СЂСѓРґРёРјРµРЅС‚Р° РЅР°РґРѕ Р±СѓРґРµС‚ РёР·Р±Р°РІРёС‚СЊСЃСЏ.
 	//
 	struct CmdSymb {
 		uint   H;
@@ -378,7 +375,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		}
 	}
-	// @v8.7.4 (Не уверен, но похоже эта строка генерирует неприятные побочные эффекты) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
+	// @v8.7.4 (РќРµ СѓРІРµСЂРµРЅ, РЅРѕ РїРѕС…РѕР¶Рµ СЌС‚Р° СЃС‚СЂРѕРєР° РіРµРЅРµСЂРёСЂСѓРµС‚ РЅРµРїСЂРёСЏС‚РЅС‹Рµ РїРѕР±РѕС‡РЅС‹Рµ СЌС„С„РµРєС‚С‹) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
 	// @v9.0.10 THROW_PP(!(cmd_flags & cmdfNeedAuth) || (flags & plfLoggedIn), PPERR_NOTLOGGEDIN); // @v9.0.9
 	switch(tok) {
 		case tNoArg:
@@ -484,7 +481,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				int    fld_n = 0;
 				PPPutExtStrData(++fld_n, Params, Term);
 				if(Term.CmpNC("INLINE") == 0) {
-					// inline код
+					// inline РєРѕРґ
 					(temp_buf = rLine).ShiftLeft(p);
 					PPPutExtStrData(++fld_n, Params, temp_buf);
 				}
@@ -524,7 +521,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tProcessPalmXmlData:
 			if(GetWord(rLine, &p)) {
 				//
-				// Для путей имеющих символ ' ' (пробел)
+				// Р”Р»СЏ РїСѓС‚РµР№ РёРјРµСЋС‰РёС… СЃРёРјРІРѕР» ' ' (РїСЂРѕР±РµР»)
 				//
 				SString path;
 				path = Term;
@@ -549,9 +546,9 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			PPPutExtStrData(1, Params, Term); // cookie
 			break;
 		case tExecViewNF:
-			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NAMEDFILT, rLine); // символ именованного фильтра
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NAMEDFILT, rLine); // СЃРёРјРІРѕР» РёРјРµРЅРѕРІР°РЅРЅРѕРіРѕ С„РёР»СЊС‚СЂР°
 			PPPutExtStrData(1, Params, Term);
-			if(GetWord(rLine, &p)) // [наименование структуры DL600 для экспорта]
+			if(GetWord(rLine, &p)) // [РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ DL600 РґР»СЏ СЌРєСЃРїРѕСЂС‚Р°]
 				PPPutExtStrData(2, Params, Term);
 			break;
 		case tSoBlock:
@@ -564,17 +561,17 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tPreparePalmInData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
 			PPPutExtStrData(1, Params, Term);
-			if(GetWord(rLine, &p)) // UUID устройства
+			if(GetWord(rLine, &p)) // UUID СѓСЃС‚СЂРѕР№СЃС‚РІР°
 				PPPutExtStrData(2, Params, Term);
 			break;
 		case tPreparePalmOutData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
 			PPPutExtStrData(1, Params, Term);
-			if(GetWord(rLine, &p)) { // UUID устройства
+			if(GetWord(rLine, &p)) { // UUID СѓСЃС‚СЂРѕР№СЃС‚РІР°
 				PPPutExtStrData(2, Params, Term);
-				if(GetWord(rLine, &p)) { // Дата последнего обмена
+				if(GetWord(rLine, &p)) { // Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±РјРµРЅР°
 					PPPutExtStrData(3, Params, Term);
-					if(GetWord(rLine, &p)) { // Время последнего обмена
+					if(GetWord(rLine, &p)) { // Р’СЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±РјРµРЅР°
 						PPPutExtStrData(4, Params, Term);
 					}
 				}
@@ -582,33 +579,33 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		case tSetGlobalUser:
 			// SETGLOBALUSER name
-			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_GLOBALUSERNAME, rLine); // Имя глобальной учетной записи
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_GLOBALUSERNAME, rLine); // РРјСЏ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё
 			PPPutExtStrData(1, Params, Term);
 			break;
 		case tExpTariffTA:
 			break;
 		case tSendSMS:
-			if(GetWord(rLine, &p)) { // Номер телефона
+			if(GetWord(rLine, &p)) { // РќРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°
 				PPPutExtStrData(1, Params, Term);
-				if(GetWord(rLine, &p)) { // От кого
+				if(GetWord(rLine, &p)) { // РћС‚ РєРѕРіРѕ
 					PPPutExtStrData(2, Params, Term);
-					if(GetWord(rLine, &p)) // Сообщение (зашифрованное в Mime64)
+					if(GetWord(rLine, &p)) // РЎРѕРѕР±С‰РµРЅРёРµ (Р·Р°С€РёС„СЂРѕРІР°РЅРЅРѕРµ РІ Mime64)
 						PPPutExtStrData(3, Params, Term);
 				}
 			}
 			break;
 		case tGetDisplayInfo:
-			if(GetWord(rLine, &p)) // ид устройства из DisplayList
+			if(GetWord(rLine, &p)) // РёРґ СѓСЃС‚СЂРѕР№СЃС‚РІР° РёР· DisplayList
 				PPPutExtStrData(1, Params, Term);
 			break;
 		case tGetWorkbookContent:
-			if(GetWord(rLine, &p)) // ид контента
+			if(GetWord(rLine, &p)) // РёРґ РєРѕРЅС‚РµРЅС‚Р°
 				PPPutExtStrData(1, Params, Term);
 			break;
 		case tSetWorkbookContent:
 			break;
 		case tGetKeywordSeq:
-			if(GetWord(rLine, &p)) // контекст
+			if(GetWord(rLine, &p)) // РєРѕРЅС‚РµРєСЃС‚
 				PPPutExtStrData(1, Params, Term);
 			break;
 		case tRegisterStylo:
@@ -618,7 +615,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			PPPutExtStrData(2, Params, Term);
 			break;
 		case tQueryNaturalToken:
-			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NATURALTOKEN, rLine); // Необходимый параметр - собственно запрашиваемый токен
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NATURALTOKEN, rLine); // РќРµРѕР±С…РѕРґРёРјС‹Р№ РїР°СЂР°РјРµС‚СЂ - СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р·Р°РїСЂР°С€РёРІР°РµРјС‹Р№ С‚РѕРєРµРЅ
 			PPPutExtStrData(1, Params, Term);
 			{
 				uint   arg_n = 1;
@@ -628,14 +625,14 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			break;
 		case tGetArticleByPerson:
-			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_ARBYPSNID, rLine); // Необходимый параметр - идентификатор персоналии
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_ARBYPSNID, rLine); // РќРµРѕР±С…РѕРґРёРјС‹Р№ РїР°СЂР°РјРµС‚СЂ - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂСЃРѕРЅР°Р»РёРё
 			PPPutExtStrData(1, Params, Term);
 			if(GetWord(rLine, &p)) {
-				PPPutExtStrData(2, Params, Term); // Идентификация таблицы статей
+				PPPutExtStrData(2, Params, Term); // РРґРµРЅС‚РёС„РёРєР°С†РёСЏ С‚Р°Р±Р»РёС†С‹ СЃС‚Р°С‚РµР№
 			}
 			break;
 		case tGetPersonByArticle:
-			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // Необходимый параметр - идентификатор статьи
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // РќРµРѕР±С…РѕРґРёРјС‹Р№ РїР°СЂР°РјРµС‚СЂ - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚Р°С‚СЊРё
 			PPPutExtStrData(1, Params, Term);
 			break;
 		default:
@@ -731,22 +728,22 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 	}
 	if(!inet_acc.ID) {
 		//
-		// определить email аккаунт с помощью charry
+		// РѕРїСЂРµРґРµР»РёС‚СЊ email Р°РєРєР°СѓРЅС‚ СЃ РїРѕРјРѕС‰СЊСЋ charry
 		//
 		PPDeclStrucProcessor ds_prc;
 		PPGetPath(PPPATH_BIN, temp_buf);
 		temp_buf.SetLastSlash().Cat("mailacc.txt");
 		if(ds_prc.InitDataParsing(temp_buf) > 0 && ds_prc.NextDecl(&p_ds, 1)) {
 			inet_acc = ((PPDS_CrrMailAccount*)p_ds)->Data;
-			inet_acc.ID = -1; // Главное, что бы не 0
+			inet_acc.ID = -1; // Р“Р»Р°РІРЅРѕРµ, С‡С‚Рѕ Р±С‹ РЅРµ 0
 		}
 	}
 	if(inet_acc.ID) {
 		PPMailMsg	mail_msg;
 		IterCounter	mail_counter;
-		uint   line_count = 0; // Количество строк считанных из временного файла журналов
+		uint   line_count = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє СЃС‡РёС‚Р°РЅРЅС‹С… РёР· РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° Р¶СѓСЂРЅР°Р»РѕРІ
 		//
-		// сгенерировать текст сообщения //
+		// СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ С‚РµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ //
 		//
 		inet_acc.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
 		mail_msg.SetField(PPMailMsg::fldFrom, temp_buf);
@@ -757,7 +754,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 		mail_msg.SetField(PPMailMsg::fldSubj, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 		if(!isempty(pTmpLogFileName)) {
 			//
-			// тело сообщения взять из временного файла
+			// С‚РµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ РІР·СЏС‚СЊ РёР· РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°
 			//
 			SFile tmp_log_file(pTmpLogFileName, SFile::mRead);
 			while(tmp_log_file.ReadLine(temp_buf)) {
@@ -772,7 +769,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 			Job.GetExtStrData(Job.extssEMailAddrList, subscribed_list_buff);
 			if(!subscribed_list_buff.NotEmptyS()) {
 				//
-				// получить список рассылки из "pp.ini"
+				// РїРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє СЂР°СЃСЃС‹Р»РєРё РёР· "pp.ini"
 				//
 				PPIniFile pp_ini_file;
 				THROW_PP(pp_ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_JOBSRV_NOTIFY, subscribed_list_buff), PPERR_JOBSRV_MAILLISTMISS);
@@ -811,8 +808,8 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 	THROW_INVARG(pMngr && pJob);
 	if(pJob->NextJobID) {
 		//
-		// Тестируем цепочку задач на отсутствие рекурсии
-		// @note: Вероятно, рекурсия в цепочке задач может быть полезным инструментом, но пока запретим ее.
+		// РўРµСЃС‚РёСЂСѓРµРј С†РµРїРѕС‡РєСѓ Р·Р°РґР°С‡ РЅР° РѕС‚СЃСѓС‚СЃС‚РІРёРµ СЂРµРєСѓСЂСЃРёРё
+		// @note: Р’РµСЂРѕСЏС‚РЅРѕ, СЂРµРєСѓСЂСЃРёСЏ РІ С†РµРїРѕС‡РєРµ Р·Р°РґР°С‡ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»РµР·РЅС‹Рј РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРј, РЅРѕ РїРѕРєР° Р·Р°РїСЂРµС‚РёРј РµРµ.
 		//
 		LongArray recur_list;
 		for(PPJob * p_job = pJob; p_job != 0;) {
@@ -913,8 +910,8 @@ private:
 	struct StatItem {
 		long   JobID;
 		LDATETIME LastRunningTime;
-		long   Count;       // Общее количество запусков
-		long   AvgDuration; // Средняя продолжительность (ms)
+		long   Count;       // РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїСѓСЃРєРѕРІ
+		long   AvgDuration; // РЎСЂРµРґРЅСЏСЏ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ (ms)
 	};
 
 	virtual void SLAPI Run();
@@ -1137,7 +1134,7 @@ void SLAPI PPJobServer::Run()
 	DirChangeNotification * p_dcn = Mngr.CreateDcn();
 	LoadStat();
 	//
-	// Запуск задач, у которых установлен признак PPJob::fOnStartUp
+	// Р—Р°РїСѓСЃРє Р·Р°РґР°С‡, Сѓ РєРѕС‚РѕСЂС‹С… СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїСЂРёР·РЅР°Рє PPJob::fOnStartUp
 	//
 	if(on_startup_list.getCount()) {
 		for(uint i = 0; i < on_startup_list.getCount(); i++) {
@@ -1213,7 +1210,7 @@ void SLAPI PPJobServer::Run()
 				} while(cur_plan_pos < plan.getCount() && plan.at(cur_plan_pos).Key == plan.at(cur_plan_pos-1).Key);
 			}
 		}
-		else if(r == WAIT_OBJECT_0 + 1) { // Каталог, содержащий файл пула изменился //
+		else if(r == WAIT_OBJECT_0 + 1) { // РљР°С‚Р°Р»РѕРі, СЃРѕРґРµСЂР¶Р°С‰РёР№ С„Р°Р№Р» РїСѓР»Р° РёР·РјРµРЅРёР»СЃСЏ //
 			if(Mngr.IsPoolChanged()) {
  				Arrange(&pool, &plan, 0, &plandate);
  				cur_plan_pos = 0;
@@ -1247,7 +1244,7 @@ public:
 		cUUID,
 		cCCheck,
 		cCTable,
-		cModif // список модификаторов к выбранному товару. Передается в виде: '(' GoodsID[,Qtty[,Price]];GoodsID ')'
+		cModif // СЃРїРёСЃРѕРє РјРѕРґРёС„РёРєР°С‚РѕСЂРѕРІ Рє РІС‹Р±СЂР°РЅРЅРѕРјСѓ С‚РѕРІР°СЂСѓ. РџРµСЂРµРґР°РµС‚СЃСЏ РІ РІРёРґРµ: '(' GoodsID[,Qtty[,Price]];GoodsID ')'
 			// modif_list := '(' modif_items ')'
 			// modif_items := modif_item | modif_item ';' modif_items
 			// modif_item := integer | integer ',' real | integer ',' real ',' real
@@ -1267,566 +1264,16 @@ public:
 		scRowNum
 	};
 
-	CPosNodeBlock()
-	{
-		P_Prcssr = 0;
-		DeviceUuid.SetZero();
-	}
-	~CPosNodeBlock()
-	{
-		ZDELETE(P_Prcssr);
-	}
-	int Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply)
-	{
-		struct SymbItem {
-			long   ID;
-			const  char * P_Text;
-		};
-		static const SymbItem crit_titles[] = {
-			{ cPosNode, "POSNODE" },
-			{ cAgent,   "AGENT" },
-			{ cGoods,   "GOODS" },
-			{ cMode,    "MODE" },
-			{ cCode,    "CODE" },
-			{ cQueue,   "QUEUE" },
-			{ cUUID,    "UUID"  },
-			{ cModif,   "MODIF" },
-			{ cCCheck,  "CCHECK" },
-			{ cCTable,  "CTABLE" }
-		};
-		static const SymbItem subcrit_titles[] = {
-			{ scID,            "ID"   },
-			{ scCode,          "CODE" },
-			{ scCheck,         "CHECKID" },
-			{ scTableNum,      "CTABLENUM" },
-			{ scLastCheck,     "LASTCHECK" },
-			{ scGuestCount,    "GUESTCOUNT" },
-			{ scSCardCode,     "SCARDCODE" },
-			{ scGoodsId,       "GOODSID" },
-			{ scQtty,          "QTTY" },
-			{ scName,          "NAME" },
-			{ scLast,          "LAST" },
-			{ scRowNum,        "ROWNUM" }
-		};
-		CmdBlk.Clear();
-
-		int    ok = 1;
-		size_t pos = 0;
-		uint   i;
-		SStrScan scan(pParams);
-		SString temp_buf, added_msg, obj, crit, sub_crit;
-		pos = scan.Offs;
-		THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SELECT);
-		pos = scan.Offs;
-		if(scan.Skip().GetIdent(temp_buf)) {
-			SString arg_buf;
-			do {
-				int    criterion = 0;
-				int    sub_criterion = 0;
-				arg_buf = 0;
-				for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
-					if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
-						crit = temp_buf;
-						criterion = crit_titles[i].ID;
-					}
-				}
-				if(criterion == scLast) {
-					//
-					// Одиночные критерии (не требующие параметров):
-					// 'ACTUAL' 'LAST'
-					//
-					sub_criterion = 0;
-					arg_buf = 0;
-				}
-				else {
-					if(scan[0] == '.') {
-						scan.Incr();
-						THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
-						for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
-							if(temp_buf.CmpNC(subcrit_titles[i].P_Text) == 0) {
-								sub_crit = temp_buf;
-								sub_criterion = subcrit_titles[i].ID;
-								(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
-							}
-						}
-					}
-					THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
-					{
-						char   c;
-						int    par_count = 0;
-						do {
-							scan.Incr();
-							c = scan[0];
-							THROW_PP(c, PPERR_CMDSEL_EXP_RIGHTPAR);
-							if(c == ')') {
-								if(par_count)
-									par_count--;
-								else {
-									scan.Incr();
-									break;
-								}
-							}
-							else if(c == '(')
-								par_count++;
-							arg_buf.CatChar(c);
-						} while(c);
-					}
-				}
-				THROW(Parse(cmd, criterion, sub_criterion, arg_buf));
-			} while(scan.Skip().GetIdent(temp_buf));
-		}
-		{
-			long   start = 0;
-			const char * p_iter = "iter";
-			const char * p_head = "head";
-			PPImpExpParam param;
-			//PPGetPath(PPPATH_OUT, out_dir);
-			if(cmd != PPSCMD_POS_INIT) {
-				THROW_PP(P_Prcssr, PPERR_POSNODEPRCNDEF);
-				THROW(OpenSession(0, 0));
-			}
-			switch(cmd) {
-				case PPSCMD_POS_INIT:
-					{
-						const PPID agent_id = CmdBlk.U.CN.AgentID;
-						ArticleTbl::Rec ar_rec;
-						THROW_PP_S(agent_id && ArObj.Search(agent_id, &ar_rec) > 0, PPERR_POSAGENTNFOUND, agent_id);
-						ZDELETE(P_Prcssr);
-						THROW_PP(CConfig.Flags & CCFLG_USECCHECKEXT, PPERR_CPOS_MUSTUSECCHECKEXT);
-						THROW_MEM(P_Prcssr = new CPosProcessor(CmdBlk.U.CN.ID, 0, 0, 0));
-						THROW(OpenSession(CmdBlk.U.CN.ID, &CmdBlk.U.CN.Uuid));
-						THROW(P_Prcssr->SetupAgent(agent_id, 1));
-						P_Prcssr->SetupSessUuid(CmdBlk.U.CN.Uuid);
-						CTblList.freeAll();
-						for(i = 0; i < P_Prcssr->CTblList.getCount(); i++) {
-							Sdr_CPosTable sdr_ctbl;
-							MEMSZERO(sdr_ctbl);
-							sdr_ctbl._id = P_Prcssr->CTblList.at(i);
-							PPLoadString("cafetable", temp_buf);
-							STRNSCPY(sdr_ctbl.Name, temp_buf.Space().Cat(sdr_ctbl._id));
-							CTblList.insert(&sdr_ctbl);
-						}
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_RELEASE:
-					ok = 1;
-					if(P_Prcssr) {
-						if(!P_Prcssr->Backend_Release())
-							ok = 0;
-					}
-					ZDELETE(P_Prcssr);
-					if(ok)
-						rReply.SetAck();
-					else
-						rReply.SetError();
-					break;
-				case PPSCMD_POS_PROCESSBARCODE:
-					{
-						THROW(P_Prcssr->RecognizeCode(CmdBlk.U.PC.Mode, CmdBlk.U.PC.Code, 1));
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_GETCTABLELIST:
-					{
-						P_Prcssr->ExportCTblList(temp_buf);
-                		rReply.WriteString(temp_buf);
-					}
-					ok = 1;
-					break;
-				case PPSCMD_POS_GETCCHECKLIST:
-					{
-						THROW(P_Prcssr->GetAuthAgentID());
-						P_Prcssr->ExportCCheckList(CmdBlk.U.TblId, temp_buf);
-						rReply.WriteString(temp_buf);
-					}
-					ok = 1;
-					break;
-				case PPSCMD_POS_SELECTCCHECK:
-					{
-						THROW(P_Prcssr->GetAuthAgentID());
-						THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId));
-						THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
-						(temp_buf = "Check selected. ID=[").Cat(CmdBlk.U.CheckId).Cat("]");
-						PPLogMessage(PPFILNAM_STYLOWAITER_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);
-					}
-					rReply.SetAck();
-					ok = 1;
-					break;
-				case PPSCMD_POS_SUSPENDCCHECK:
-					{
-						THROW(P_Prcssr->GetAuthAgentID());
-						THROW(P_Prcssr->AcceptCheck(0, 0, 0, CPosProcessor::accmSuspended) > 0);
-						THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
-						PPLogMessage(PPFILNAM_STYLOWAITER_LOG, "Check suspended", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);
-					}
-					rReply.SetAck();
-					ok = 1;
-					break;
-				case PPSCMD_POS_SELECTCTABLE:
-					THROW(P_Prcssr->GetAuthAgentID());
-					THROW(P_Prcssr->SetupCTable(CmdBlk.U.ST.TblId, CmdBlk.U.ST.GuestCount));
-					// P_Prcssr->SetSCard(ST.SCardCode); @todo CCheckPaneDialog->CPosProcessor
-					rReply.SetAck();
-					ok = 1;
-					break;
-				case PPSCMD_POS_ADDCCHECKLINE:
-					{
-						PPID   chk_id = MAXLONG;
-						CPosProcessor::PgsBlock pgsb(fabs(CmdBlk.U.AL.Qtty));
-						THROW(P_Prcssr->GetAuthAgentID());
-						THROW(P_Prcssr->SetupNewRow(CmdBlk.U.AL.GoodsId, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
-						THROW(P_Prcssr->Backend_SetModifList(CmdBlk.ModifList));
-						THROW(P_Prcssr->AcceptRow() > 0);
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_CLEARCCHECK:
-					{
-						PPID   chk_id = MAXLONG;
-						THROW(P_Prcssr->GetAuthAgentID());
-						if(CmdBlk.U.RowNum == -1) {
-							if(P_Prcssr->CheckRights(CPosProcessor::orfEscCheck))
-								P_Prcssr->ClearCheck();
-						}
-						else { // (Права доступа проверяются в Backend_RemoveRow) if(P_Prcssr->CheckRights(CPosProcessor::orfEscChkLine)) {
-							THROW(P_Prcssr->Backend_RemoveRow(CmdBlk.U.RowNum));
-						}
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_CPOSSETCCROWQUEUE:
-					{
-						THROW(P_Prcssr->GetAuthAgentID());
-						THROW(P_Prcssr->Backend_SetRowQueue(CmdBlk.U.LQ.RowNo, CmdBlk.U.LQ.Queue));
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_GETCPOSRIGHTS:
-					break;
-				case PPSCMD_POS_PRINTCCHECK:
-					{
-						PPID   chk_id = MAXLONG;
-						THROW(P_Prcssr->GetAuthAgentID());
-						PEOpenEngine();
-						P_Prcssr->Print(1, 0, 0);
-						PECloseEngine();
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_PRINTCCHECKLOCAL:
-					{
-						PPID   chk_id = MAXLONG;
-						THROW(P_Prcssr->GetAuthAgentID());
-						PEOpenEngine();
-						P_Prcssr->PrintToLocalPrinters(-1);
-						PECloseEngine();
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_GETGOODSPRICE:
-					{
-                		RetailGoodsInfo rgi;
-                		P_Prcssr->GetRgi(CmdBlk.U.GoodsID, 0.0, PPObjGoods::rgifPriceOnly, rgi);
-                		rReply.WriteString(temp_buf.Z().Cat(rgi.Price));
-					}
-					break;
-				case PPSCMD_POS_GETCURRENTSTATE:
-					{
-						P_Prcssr->ExportCurrentState(temp_buf);
-                		rReply.WriteString(temp_buf);
-					}
-					break;
-				case PPSCMD_POS_RESETCURRENTLINE:
-					{
-						THROW(P_Prcssr->GetAuthAgentID());
-						P_Prcssr->ResetCurrentLine();
-						rReply.SetAck();
-						ok = 1;
-					}
-					break;
-				case PPSCMD_POS_GETMODIFLIST:
-					{
-						P_Prcssr->ExportModifList(CmdBlk.U.GoodsID, temp_buf);
-                		rReply.WriteString(temp_buf);
-					}
-					break;
-			}
-		}
-		CATCH
-			rReply.SetError();
-			ok = 0;
-		ENDCATCH
-		return ok;
-	}
+	SLAPI  CPosNodeBlock();
+	SLAPI ~CPosNodeBlock();
+	int    SLAPI Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply);
 private:
-	static Sdr_CPosCheckRow & MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
-	{
-		rRow._id     = idx;
-		rRow.CheckId = ccID;
-		rRow.GoodsId = rCcItem.GoodsID;
-		rRow.Flags   = rCcItem.Flags;
-		rRow.Qtty    = rCcItem.Quantity;
-		rRow.Price   = rCcItem.Price;
-		rRow.Discount = rCcItem.Discount;
-		return rRow;
-	}
-	int Parse(uint cmd, int crit, int subcriterion, const SString & rArg)
-	{
-		int    ok = -1;
-		switch(cmd) {
-			case PPSCMD_POS_INIT:
-				{
-					switch(crit) {
-						case cPosNode:
-							THROW((ok = ResolveCrit_PosNode(subcriterion, rArg, &CmdBlk.U.CN.ID)) > 0);
-							break;
-						case cAgent:
-							{
-								const PPID agent_acs_id = GetAgentAccSheet();
-								THROW(ok = ResolveCrit_ArByPerson(subcriterion, rArg, agent_acs_id, &CmdBlk.U.CN.AgentID));
-							}
-							break;
-						case cUUID:
-							{
-								S_GUID uuid;
-								THROW_SL(uuid.FromStr(rArg));
-								CmdBlk.U.CN.Uuid = uuid;
-							}
-							break;
-					}
-				}
-				break;
-			case PPSCMD_POS_GETCCHECKLIST:
-				if(crit == cCTable) {
-					if(subcriterion == scTableNum)
-						CmdBlk.U.TblId = rArg.ToLong();
-				}
-				break;
-			case PPSCMD_POS_SUSPENDCCHECK:
-				break;
-			case PPSCMD_POS_SELECTCCHECK:
-				if(crit == cCCheck) {
-					if(subcriterion == scID)
-						CmdBlk.U.CheckId = rArg.ToLong();
-				}
-				break;
-			case PPSCMD_POS_SELECTCTABLE:
-				if(crit == cCTable) {
-					switch(subcriterion) {
-						case scTableNum:
-							CmdBlk.U.ST.TblId = rArg.ToLong();
-							break;
-						case scGuestCount:
-							CmdBlk.U.ST.GuestCount = rArg.ToLong();
-							break;
-						case scSCardCode:
-							STRNSCPY(CmdBlk.U.ST.SCardCode, rArg);
-							break;
-					}
-				}
-				break;
-			case PPSCMD_POS_ADDCCHECKLINE:
-				{
-					if(crit == cGoods) {
-						switch(subcriterion) {
-							case scID:
-								CmdBlk.U.AL.GoodsId = rArg.ToLong();
-								break;
-							case scQtty:
-								CmdBlk.U.AL.Qtty = rArg.ToReal();
-								break;
-						}
-					}
-					else if(crit == cModif) {
-                        SString temp_buf, item_buf, fld_buf;
-						StringSet ss(';', rArg);
-						SStrScan scan;
-						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-							SaModifEntry entry;
-							MEMSZERO(entry);
-							scan.Set(temp_buf, 0);
-							THROW_PP_S(scan.GetNumber(fld_buf), PPERR_CPOS_INVMODIFFORMAT, rArg);
-							entry.GoodsID = fld_buf.ToLong();
-							{
-								Goods2Tbl::Rec goods_rec;
-								THROW_PP_S(GObj.Fetch(entry.GoodsID, &goods_rec) > 0, PPERR_CPOS_INVMODIFGOODS, rArg);
-							}
-							scan.Skip().IncrChr(',');
-							if(scan.GetNumber(fld_buf)) {
-								entry.Qtty = fld_buf.ToReal();
-								THROW_PP_S(entry.Qtty > 0.0, PPERR_CPOS_INVMODIFFORMAT, rArg);
-								scan.Skip().IncrChr(',');
-								if(scan.GetNumber(fld_buf)) {
-									entry.Price = fld_buf.ToReal();
-									//THROW_PP_S(entry.Price > 0.0, PPERR_CPOS_INVMODIFFORMAT, rArg);
-								}
-							}
-							CmdBlk.ModifList.insert(&entry);
-						}
-					}
-				}
-				break;
-			case PPSCMD_POS_CLEARCCHECK:
-				if(crit == cCCheck) {
-					if(subcriterion == scRowNum) {
-						if(rArg.Cmp("ALL", 1) == 0)
-							CmdBlk.U.RowNum = -1;
-						else
-							CmdBlk.U.RowNum = rArg.ToLong();
-					}
-				}
-				break;
-			case PPSCMD_POS_CPOSSETCCROWQUEUE:
-				if(crit == cQueue) {
-					CmdBlk.U.LQ.Queue = rArg.ToLong();
-				}
-				else if(crit == cCCheck) {
-					if(subcriterion == scRowNum) {
-						CmdBlk.U.LQ.RowNo = rArg.ToLong();
-					}
-				}
-				break;
-			case PPSCMD_POS_GETGOODSPRICE:
-				CmdBlk.U.GoodsID = rArg.ToLong();
-				break;
-			case PPSCMD_POS_GETMODIFLIST:
-				CmdBlk.U.GoodsID = rArg.ToLong();
-				break;
-			case PPSCMD_POS_PROCESSBARCODE:
-				{
-					if(crit == cMode)
-						CmdBlk.U.PC.Mode = rArg.ToLong();
-					else if(crit == cCode)
-						STRNSCPY(CmdBlk.U.PC.Code, rArg);
-				}
-				break;
-		}
-		CATCHZOK
-		return ok;
-	}
-	int ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID)
-	{
-		PPID   id = 0;
-		switch(subcriterion) {
-			case 0:
-			case scID:
-				id = rArg.ToLong();
-				break;
-			case scCode:
-				{
-					PPObjCashNode cn_obj;
-					if(cn_obj.SearchBySymb(rArg, &id) > 0) {
-						;
-					}
-				}
-				break;
-			default:
-				PPSetError(PPERR_CMDSEL_INVSUBCRITERION);
-				ASSIGN_PTR(pID, 0);
-				return 0;
-		}
-		ASSIGN_PTR(pID, id);
-		return (id ? 1 : -1);
-	}
-	int ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
-	{
-		int    ok = 1;
-		const PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
-		PPID   temp_id = 0;
-		switch(subcriterion) {
-			case 0:
-			case scID:
-				temp_id = rArg.ToLong();
-				break;
-			case scCode:
-				if(acs_id) {
-					PPObjAccSheet acs_obj;
-					PPAccSheet acs_rec;
-					if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
-						PPObjPersonKind pk_obj;
-						PPPersonKind pk_rec;
-						if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
-							PPIDArray list;
-							SString temp_buf = rArg;
-							if(temp_buf.CmpPrefix("SAL", 1) == 0)
-								temp_buf.ShiftLeft(3);
-							if(PsnObj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, temp_buf, list) > 0)
-								temp_id = list.get(0);
-						}
-					}
-					THROW_PP_S(temp_id, PPERR_ARCODENFOUND, rArg);
-				}
-				break;
-			case scName:
-				PsnObj.P_Tbl->SearchByName(rArg, &temp_id, 0);
-				break;
-			default:
-				CALLEXCEPT_PP(PPERR_CMDSEL_INVSUBCRITERION);
-				break;
-		}
-		if(temp_id && acs_id) {
-			PPID   ar_id = 0;
-			ArObj.P_Tbl->PersonToArticle(temp_id, acs_id, &ar_id);
-			temp_id = ar_id;
-		}
-		else
-			temp_id = 0;
-		ok = (temp_id ? 1 : -1);
-		CATCH
-			temp_id = 0;
-			ok = 0;
-		ENDCATCH
-		ASSIGN_PTR(pID, temp_id);
-		return ok;
-	}
-	int SLAPI GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList)
-	{
-		int    ok = 1;
-		CCheckViewItem item;
-		CCheckFilt     f;
-		PPViewCCheck   v;
-		THROW_INVARG(pList);
-		f.Flags = CCheckFilt::fShowSuspended|CCheckFilt::fSuspendedOnly|CCheckFilt::fCTableStatus;
-		f.TableCode = tblId;
-		f.NodeList.Add(P_Prcssr->GetPosNodeID());
-		f.Period.upp = CashNode.CurDate;
-		f.Period.low = plusdate(f.Period.upp, -CashNode.Scf.DaysPeriod);
-		v.Init_(&f);
-		for(v.InitIteration(0); v.NextIteration(&item) > 0;) {
-			if(item.TableCode > 0) {
-				Sdr_CPosCheck sdr_rec;
-				sdr_rec._id        = item.ID;
-				sdr_rec.TableId    = item.TableCode;
-				sdr_rec.GuestCount = item.GuestCount;
-				sdr_rec.Number     = item.Code;
-				sdr_rec.SCardId    = item.SCardID;
-				sdr_rec.Amount     = MONEYTOLDBL(item.Amount);
-				THROW(pList->insert(&sdr_rec));
-			}
-		}
-		CATCHZOK
-		return ok;
-	}
-	int SLAPI OpenSession(PPID cnId, S_GUID * pUuid)
-	{
-		int    ok = 1;
-		LDATE  cur_dt = getcurdate_();
-		THROW(P_Prcssr->OpenSession(&cur_dt, 1));
-		if(cnId != 0)
-			THROW(ObjCashN.Search(cnId, &CashNode) > 0);
-		RVALUEPTR(DeviceUuid, pUuid);
-		CashNode.CurDate = cur_dt;
-		CATCHZOK
-		return ok;
-	}
+	static Sdr_CPosCheckRow & SLAPI MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow);
+	int    SLAPI Parse(uint cmd, int crit, int subcriterion, const SString & rArg);
+	int    SLAPI ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID);
+	int    SLAPI ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID);
+	int    SLAPI GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList);
+	int    SLAPI OpenSession(PPID cnId, S_GUID * pUuid);
 
 	struct CashNodeBlock {
 		PPID   ID;
@@ -1871,7 +1318,7 @@ private:
 			long   RowNum;
 			PPID   GoodsID;
 		} U;
-		SaModif ModifList; // Список модификаторов как приложение к субблоку AL
+		SaModif ModifList; // РЎРїРёСЃРѕРє РјРѕРґРёС„РёРєР°С‚РѕСЂРѕРІ РєР°Рє РїСЂРёР»РѕР¶РµРЅРёРµ Рє СЃСѓР±Р±Р»РѕРєСѓ AL
 	};
 	CommandBlock CmdBlk;
 	TSArray <Sdr_CPosTable> CTblList;
@@ -1885,74 +1332,600 @@ private:
 	S_GUID DeviceUuid;
 };
 
-class PPServerSession : public PPThread {
-public:
-	static int TestingClient(TcpSocket & rSo, StrAssocArray & rStrList);
+SLAPI CPosNodeBlock::CPosNodeBlock()
+{
+	P_Prcssr = 0;
+	DeviceUuid.SetZero();
+}
 
-	struct InitBlock {
-		InitBlock()
-		{
-			THISZERO();
+SLAPI CPosNodeBlock::~CPosNodeBlock()
+{
+	ZDELETE(P_Prcssr);
+}
+
+//static
+Sdr_CPosCheckRow & SLAPI CPosNodeBlock::MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
+{
+	rRow._id     = idx;
+	rRow.CheckId = ccID;
+	rRow.GoodsId = rCcItem.GoodsID;
+	rRow.Flags   = rCcItem.Flags;
+	rRow.Qtty    = rCcItem.Quantity;
+	rRow.Price   = rCcItem.Price;
+	rRow.Discount = rCcItem.Discount;
+	return rRow;
+}
+
+int SLAPI CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SString & rArg)
+{
+	int    ok = -1;
+	switch(cmd) {
+		case PPSCMD_POS_INIT:
+			{
+				switch(crit) {
+					case cPosNode:
+						THROW((ok = ResolveCrit_PosNode(subcriterion, rArg, &CmdBlk.U.CN.ID)) > 0);
+						break;
+					case cAgent:
+						{
+							const PPID agent_acs_id = GetAgentAccSheet();
+							THROW(ok = ResolveCrit_ArByPerson(subcriterion, rArg, agent_acs_id, &CmdBlk.U.CN.AgentID));
+						}
+						break;
+					case cUUID:
+						{
+							S_GUID uuid;
+							THROW_SL(uuid.FromStr(rArg));
+							CmdBlk.U.CN.Uuid = uuid;
+						}
+						break;
+				}
+			}
+			break;
+		case PPSCMD_POS_GETCCHECKLIST:
+			if(crit == cCTable) {
+				if(subcriterion == scTableNum)
+					CmdBlk.U.TblId = rArg.ToLong();
+			}
+			break;
+		case PPSCMD_POS_SUSPENDCCHECK:
+			break;
+		case PPSCMD_POS_SELECTCCHECK:
+			if(crit == cCCheck) {
+				if(subcriterion == scID)
+					CmdBlk.U.CheckId = rArg.ToLong();
+			}
+			break;
+		case PPSCMD_POS_SELECTCTABLE:
+			if(crit == cCTable) {
+				switch(subcriterion) {
+					case scTableNum:
+						CmdBlk.U.ST.TblId = rArg.ToLong();
+						break;
+					case scGuestCount:
+						CmdBlk.U.ST.GuestCount = rArg.ToLong();
+						break;
+					case scSCardCode:
+						STRNSCPY(CmdBlk.U.ST.SCardCode, rArg);
+						break;
+				}
+			}
+			break;
+		case PPSCMD_POS_ADDCCHECKLINE:
+			{
+				if(crit == cGoods) {
+					switch(subcriterion) {
+						case scID:
+							CmdBlk.U.AL.GoodsId = rArg.ToLong();
+							break;
+						case scQtty:
+							CmdBlk.U.AL.Qtty = rArg.ToReal();
+							break;
+					}
+				}
+				else if(crit == cModif) {
+                    SString temp_buf, item_buf, fld_buf;
+					StringSet ss(';', rArg);
+					SStrScan scan;
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						SaModifEntry entry;
+						MEMSZERO(entry);
+						scan.Set(temp_buf, 0);
+						THROW_PP_S(scan.GetNumber(fld_buf), PPERR_CPOS_INVMODIFFORMAT, rArg);
+						entry.GoodsID = fld_buf.ToLong();
+						{
+							Goods2Tbl::Rec goods_rec;
+							THROW_PP_S(GObj.Fetch(entry.GoodsID, &goods_rec) > 0, PPERR_CPOS_INVMODIFGOODS, rArg);
+						}
+						scan.Skip().IncrChr(',');
+						if(scan.GetNumber(fld_buf)) {
+							entry.Qtty = fld_buf.ToReal();
+							THROW_PP_S(entry.Qtty > 0.0, PPERR_CPOS_INVMODIFFORMAT, rArg);
+							scan.Skip().IncrChr(',');
+							if(scan.GetNumber(fld_buf)) {
+								entry.Price = fld_buf.ToReal();
+								//THROW_PP_S(entry.Price > 0.0, PPERR_CPOS_INVMODIFFORMAT, rArg);
+							}
+						}
+						CmdBlk.ModifList.insert(&entry);
+					}
+				}
+			}
+			break;
+		case PPSCMD_POS_CLEARCCHECK:
+			if(crit == cCCheck) {
+				if(subcriterion == scRowNum) {
+					if(rArg.Cmp("ALL", 1) == 0)
+						CmdBlk.U.RowNum = -1;
+					else
+						CmdBlk.U.RowNum = rArg.ToLong();
+				}
+			}
+			break;
+		case PPSCMD_POS_CPOSSETCCROWQUEUE:
+			if(crit == cQueue) {
+				CmdBlk.U.LQ.Queue = rArg.ToLong();
+			}
+			else if(crit == cCCheck) {
+				if(subcriterion == scRowNum) {
+					CmdBlk.U.LQ.RowNo = rArg.ToLong();
+				}
+			}
+			break;
+		case PPSCMD_POS_GETGOODSPRICE:
+			CmdBlk.U.GoodsID = rArg.ToLong();
+			break;
+		case PPSCMD_POS_GETMODIFLIST:
+			CmdBlk.U.GoodsID = rArg.ToLong();
+			break;
+		case PPSCMD_POS_PROCESSBARCODE:
+			{
+				if(crit == cMode)
+					CmdBlk.U.PC.Mode = rArg.ToLong();
+				else if(crit == cCode)
+					STRNSCPY(CmdBlk.U.PC.Code, rArg);
+			}
+			break;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI CPosNodeBlock::ResolveCrit_PosNode(int subcriterion, const SString & rArg, PPID * pID)
+{
+	PPID   id = 0;
+	switch(subcriterion) {
+		case 0:
+		case scID:
+			id = rArg.ToLong();
+			break;
+		case scCode:
+			{
+				PPObjCashNode cn_obj;
+				if(cn_obj.SearchBySymb(rArg, &id) > 0) {
+					;
+				}
+			}
+			break;
+		default:
+			PPSetError(PPERR_CMDSEL_INVSUBCRITERION);
+			ASSIGN_PTR(pID, 0);
+			return 0;
+	}
+	ASSIGN_PTR(pID, id);
+	return (id ? 1 : -1);
+}
+
+int SLAPI CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg, PPID accSheetID, PPID * pID)
+{
+	int    ok = 1;
+	const PPID acs_id = NZOR(accSheetID, GetSupplAccSheet());
+	PPID   temp_id = 0;
+	switch(subcriterion) {
+		case 0:
+		case scID:
+			temp_id = rArg.ToLong();
+			break;
+		case scCode:
+			if(acs_id) {
+				PPObjAccSheet acs_obj;
+				PPAccSheet acs_rec;
+				if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+					PPObjPersonKind pk_obj;
+					PPPersonKind pk_rec;
+					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
+						PPIDArray list;
+						SString temp_buf = rArg;
+						if(temp_buf.CmpPrefix("SAL", 1) == 0)
+							temp_buf.ShiftLeft(3);
+						if(PsnObj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, temp_buf, list) > 0)
+							temp_id = list.get(0);
+					}
+				}
+				THROW_PP_S(temp_id, PPERR_ARCODENFOUND, rArg);
+			}
+			break;
+		case scName:
+			PsnObj.P_Tbl->SearchByName(rArg, &temp_id, 0);
+			break;
+		default:
+			CALLEXCEPT_PP(PPERR_CMDSEL_INVSUBCRITERION);
+			break;
+	}
+	if(temp_id && acs_id) {
+		PPID   ar_id = 0;
+		ArObj.P_Tbl->PersonToArticle(temp_id, acs_id, &ar_id);
+		temp_id = ar_id;
+	}
+	else
+		temp_id = 0;
+	ok = (temp_id ? 1 : -1);
+	CATCH
+		temp_id = 0;
+		ok = 0;
+	ENDCATCH
+	ASSIGN_PTR(pID, temp_id);
+	return ok;
+}
+
+int SLAPI CPosNodeBlock::GetCheckList(long tblId, TSArray <Sdr_CPosCheck> * pList)
+{
+	int    ok = 1;
+	CCheckViewItem item;
+	CCheckFilt     f;
+	PPViewCCheck   v;
+	THROW_INVARG(pList);
+	f.Flags = CCheckFilt::fShowSuspended|CCheckFilt::fSuspendedOnly|CCheckFilt::fCTableStatus;
+	f.TableCode = tblId;
+	f.NodeList.Add(P_Prcssr->GetPosNodeID());
+	f.Period.upp = CashNode.CurDate;
+	f.Period.low = plusdate(f.Period.upp, -CashNode.Scf.DaysPeriod);
+	v.Init_(&f);
+	for(v.InitIteration(0); v.NextIteration(&item) > 0;) {
+		if(item.TableCode > 0) {
+			Sdr_CPosCheck sdr_rec;
+			sdr_rec._id        = item.ID;
+			sdr_rec.TableId    = item.TableCode;
+			sdr_rec.GuestCount = item.GuestCount;
+			sdr_rec.Number     = item.Code;
+			sdr_rec.SCardId    = item.SCardID;
+			sdr_rec.Amount     = MONEYTOLDBL(item.Amount);
+			THROW(pList->insert(&sdr_rec));
 		}
-		enum {
-			fDebugMode = 0x0001
-		};
-		uint   ClosedSockTimeout;
-		uint   SuspTimeout;
-		uint   SleepTimeout;
-		int    TxtCmdTerminalCode;
-		long   Flags;
-	};
+	}
+	CATCHZOK
+	return ok;
+}
 
-	SLAPI  PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr) :
-		PPThread(PPThread::kNetSession, 0, 0),
-		EvSubstSockFinish(Evnt::modeCreate),
-		EvSubstSockStart(Evnt::modeCreate),
-		EvSubstSockReady(Evnt::modeCreate)
-	{
-		SuspendTimeout = rBlk.SuspTimeout; // 3600000;
-		CloseSocketTimeout = rBlk.ClosedSockTimeout; // 60000;
-		SleepTimeout = rBlk.SleepTimeout; // INFINITE;
-		State = 0;
-		if(rBlk.Flags & rBlk.fDebugMode)
-			State |= stDebugMode;
-		Counter = 0;
-		P_TxtCmdTerminal = 0; // @v8.1.1
-		SetupTxtCmdTerm(rBlk.TxtCmdTerminalCode); // @v8.1.1
-		rSock.MoveToS(So);
-		P_CPosBlk = 0;
-		P_SbiiBlk = 0;
-		Addr = rAddr;
+int SLAPI CPosNodeBlock::OpenSession(PPID cnId, S_GUID * pUuid)
+{
+	int    ok = 1;
+	LDATE  cur_dt = getcurdate_();
+	THROW(P_Prcssr->OpenSession(&cur_dt, 1));
+	if(cnId != 0)
+		THROW(ObjCashN.Search(cnId, &CashNode) > 0);
+	RVALUEPTR(DeviceUuid, pUuid);
+	CashNode.CurDate = cur_dt;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rReply)
+{
+	struct SymbItem {
+		long   ID;
+		const  char * P_Text;
+	};
+	static const SymbItem crit_titles[] = {
+		{ cPosNode, "POSNODE" },
+		{ cAgent,   "AGENT" },
+		{ cGoods,   "GOODS" },
+		{ cMode,    "MODE" },
+		{ cCode,    "CODE" },
+		{ cQueue,   "QUEUE" },
+		{ cUUID,    "UUID"  },
+		{ cModif,   "MODIF" },
+		{ cCCheck,  "CCHECK" },
+		{ cCTable,  "CTABLE" }
+	};
+	static const SymbItem subcrit_titles[] = {
+		{ scID,            "ID"   },
+		{ scCode,          "CODE" },
+		{ scCheck,         "CHECKID" },
+		{ scTableNum,      "CTABLENUM" },
+		{ scLastCheck,     "LASTCHECK" },
+		{ scGuestCount,    "GUESTCOUNT" },
+		{ scSCardCode,     "SCARDCODE" },
+		{ scGoodsId,       "GOODSID" },
+		{ scQtty,          "QTTY" },
+		{ scName,          "NAME" },
+		{ scLast,          "LAST" },
+		{ scRowNum,        "ROWNUM" }
+	};
+	CmdBlk.Clear();
+
+	int    ok = 1;
+	size_t pos = 0;
+	uint   i;
+	SStrScan scan(pParams);
+	SString temp_buf, added_msg, obj, crit, sub_crit;
+	pos = scan.Offs;
+	THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SELECT);
+	pos = scan.Offs;
+	if(scan.Skip().GetIdent(temp_buf)) {
+		SString arg_buf;
+		do {
+			int    criterion = 0;
+			int    sub_criterion = 0;
+			arg_buf = 0;
+			for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
+				if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
+					crit = temp_buf;
+					criterion = crit_titles[i].ID;
+				}
+			}
+			if(criterion == scLast) {
+				//
+				// РћРґРёРЅРѕС‡РЅС‹Рµ РєСЂРёС‚РµСЂРёРё (РЅРµ С‚СЂРµР±СѓСЋС‰РёРµ РїР°СЂР°РјРµС‚СЂРѕРІ):
+				// 'ACTUAL' 'LAST'
+				//
+				sub_criterion = 0;
+				arg_buf = 0;
+			}
+			else {
+				if(scan[0] == '.') {
+					scan.Incr();
+					THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
+					for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
+						if(temp_buf.CmpNC(subcrit_titles[i].P_Text) == 0) {
+							sub_crit = temp_buf;
+							sub_criterion = subcrit_titles[i].ID;
+							(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
+						}
+					}
+				}
+				THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
+				{
+					char   c;
+					int    par_count = 0;
+					do {
+						scan.Incr();
+						c = scan[0];
+						THROW_PP(c, PPERR_CMDSEL_EXP_RIGHTPAR);
+						if(c == ')') {
+							if(par_count)
+								par_count--;
+							else {
+								scan.Incr();
+								break;
+							}
+						}
+						else if(c == '(')
+							par_count++;
+						arg_buf.CatChar(c);
+					} while(c);
+				}
+			}
+			THROW(Parse(cmd, criterion, sub_criterion, arg_buf));
+		} while(scan.Skip().GetIdent(temp_buf));
 	}
-	SLAPI ~PPServerSession()
 	{
-		ZDELETE(P_CPosBlk);
-		ZDELETE(P_SbiiBlk);
+		long   start = 0;
+		const char * p_iter = "iter";
+		const char * p_head = "head";
+		PPImpExpParam param;
+		if(cmd != PPSCMD_POS_INIT) {
+			THROW_PP(P_Prcssr, PPERR_POSNODEPRCNDEF);
+			THROW(OpenSession(0, 0));
+		}
+		switch(cmd) {
+			case PPSCMD_POS_INIT:
+				{
+					const PPID agent_id = CmdBlk.U.CN.AgentID;
+					ArticleTbl::Rec ar_rec;
+					THROW_PP_S(agent_id && ArObj.Search(agent_id, &ar_rec) > 0, PPERR_POSAGENTNFOUND, agent_id);
+					ZDELETE(P_Prcssr);
+					THROW_PP(CConfig.Flags & CCFLG_USECCHECKEXT, PPERR_CPOS_MUSTUSECCHECKEXT);
+					THROW_MEM(P_Prcssr = new CPosProcessor(CmdBlk.U.CN.ID, 0, 0, 0));
+					THROW(OpenSession(CmdBlk.U.CN.ID, &CmdBlk.U.CN.Uuid));
+					THROW(P_Prcssr->SetupAgent(agent_id, 1));
+					P_Prcssr->SetupSessUuid(CmdBlk.U.CN.Uuid);
+					CTblList.freeAll();
+					for(i = 0; i < P_Prcssr->CTblList.getCount(); i++) {
+						Sdr_CPosTable sdr_ctbl;
+						MEMSZERO(sdr_ctbl);
+						sdr_ctbl._id = P_Prcssr->CTblList.at(i);
+						PPLoadString("cafetable", temp_buf);
+						STRNSCPY(sdr_ctbl.Name, temp_buf.Space().Cat(sdr_ctbl._id));
+						CTblList.insert(&sdr_ctbl);
+					}
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_RELEASE:
+				ok = 1;
+				if(P_Prcssr) {
+					if(!P_Prcssr->Backend_Release())
+						ok = 0;
+				}
+				ZDELETE(P_Prcssr);
+				if(ok)
+					rReply.SetAck();
+				else
+					rReply.SetError();
+				break;
+			case PPSCMD_POS_PROCESSBARCODE:
+				{
+					THROW(P_Prcssr->RecognizeCode(CmdBlk.U.PC.Mode, CmdBlk.U.PC.Code, 1));
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_GETCTABLELIST:
+				{
+					P_Prcssr->ExportCTblList(temp_buf);
+                	rReply.WriteString(temp_buf);
+				}
+				ok = 1;
+				break;
+			case PPSCMD_POS_GETCCHECKLIST:
+				{
+					THROW(P_Prcssr->GetAuthAgentID());
+					P_Prcssr->ExportCCheckList(CmdBlk.U.TblId, temp_buf);
+					rReply.WriteString(temp_buf);
+				}
+				ok = 1;
+				break;
+			case PPSCMD_POS_SELECTCCHECK:
+				{
+					THROW(P_Prcssr->GetAuthAgentID());
+					THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId));
+					THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
+					(temp_buf = "Check selected. ID=[").Cat(CmdBlk.U.CheckId).Cat("]");
+					PPLogMessage(PPFILNAM_STYLOWAITER_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);
+				}
+				rReply.SetAck();
+				ok = 1;
+				break;
+			case PPSCMD_POS_SUSPENDCCHECK:
+				{
+					THROW(P_Prcssr->GetAuthAgentID());
+					THROW(P_Prcssr->AcceptCheck(0, 0, 0, CPosProcessor::accmSuspended) > 0);
+					THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
+					PPLogMessage(PPFILNAM_STYLOWAITER_LOG, "Check suspended", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);
+				}
+				rReply.SetAck();
+				ok = 1;
+				break;
+			case PPSCMD_POS_SELECTCTABLE:
+				THROW(P_Prcssr->GetAuthAgentID());
+				THROW(P_Prcssr->SetupCTable(CmdBlk.U.ST.TblId, CmdBlk.U.ST.GuestCount));
+				// P_Prcssr->SetSCard(ST.SCardCode); @todo CCheckPaneDialog->CPosProcessor
+				rReply.SetAck();
+				ok = 1;
+				break;
+			case PPSCMD_POS_ADDCCHECKLINE:
+				{
+					PPID   chk_id = MAXLONG;
+					CPosProcessor::PgsBlock pgsb(fabs(CmdBlk.U.AL.Qtty));
+					THROW(P_Prcssr->GetAuthAgentID());
+					THROW(P_Prcssr->SetupNewRow(CmdBlk.U.AL.GoodsId, /*fabs(CmdBlk.U.AL.Qtty), 0, 0*/pgsb) > 0);
+					THROW(P_Prcssr->Backend_SetModifList(CmdBlk.ModifList));
+					THROW(P_Prcssr->AcceptRow() > 0);
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_CLEARCCHECK:
+				{
+					PPID   chk_id = MAXLONG;
+					THROW(P_Prcssr->GetAuthAgentID());
+					if(CmdBlk.U.RowNum == -1) {
+						if(P_Prcssr->CheckRights(CPosProcessor::orfEscCheck))
+							P_Prcssr->ClearCheck();
+					}
+					else { // (РџСЂР°РІР° РґРѕСЃС‚СѓРїР° РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ РІ Backend_RemoveRow) if(P_Prcssr->CheckRights(CPosProcessor::orfEscChkLine)) {
+						THROW(P_Prcssr->Backend_RemoveRow(CmdBlk.U.RowNum));
+					}
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_CPOSSETCCROWQUEUE:
+				{
+					THROW(P_Prcssr->GetAuthAgentID());
+					THROW(P_Prcssr->Backend_SetRowQueue(CmdBlk.U.LQ.RowNo, CmdBlk.U.LQ.Queue));
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_GETCPOSRIGHTS:
+				break;
+			case PPSCMD_POS_PRINTCCHECK:
+				{
+					PPID   chk_id = MAXLONG;
+					THROW(P_Prcssr->GetAuthAgentID());
+					PEOpenEngine();
+					P_Prcssr->Print(1, 0, 0);
+					PECloseEngine();
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_PRINTCCHECKLOCAL:
+				{
+					PPID   chk_id = MAXLONG;
+					THROW(P_Prcssr->GetAuthAgentID());
+					PEOpenEngine();
+					P_Prcssr->PrintToLocalPrinters(-1);
+					PECloseEngine();
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_GETGOODSPRICE:
+				{
+                	RetailGoodsInfo rgi;
+                	P_Prcssr->GetRgi(CmdBlk.U.GoodsID, 0.0, PPObjGoods::rgifPriceOnly, rgi);
+                	rReply.WriteString(temp_buf.Z().Cat(rgi.Price));
+				}
+				break;
+			case PPSCMD_POS_GETCURRENTSTATE:
+				{
+					P_Prcssr->ExportCurrentState(temp_buf);
+                	rReply.WriteString(temp_buf);
+				}
+				break;
+			case PPSCMD_POS_RESETCURRENTLINE:
+				{
+					THROW(P_Prcssr->GetAuthAgentID());
+					P_Prcssr->ResetCurrentLine();
+					rReply.SetAck();
+					ok = 1;
+				}
+				break;
+			case PPSCMD_POS_GETMODIFLIST:
+				{
+					P_Prcssr->ExportModifList(CmdBlk.U.GoodsID, temp_buf);
+                	rReply.WriteString(temp_buf);
+				}
+				break;
+		}
 	}
-	int    FASTCALL SendReply(PPJobSrvReply & rReply);
-	virtual int SLAPI SubstituteSock(TcpSocket & rSo, PPJobSrvReply * pReply);
+	CATCH
+		rReply.SetError();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+#define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
+
+class PPWorkerSession : public PPThread {
+public:
+	SLAPI  PPWorkerSession(int threadKind);
+	virtual SLAPI ~PPWorkerSession();
 	virtual void SLAPI Shutdown();
-private:
+protected:
 	//
-	// Descr: Коды возврата функции ProcessCommand
+	// Descr: РљРѕРґС‹ РІРѕР·РІСЂР°С‚Р° С„СѓРЅРєС†РёРё ProcessCommand
 	//
 	enum CmdRet {
 		cmdretError          = 0,
 		cmdretOK             = 1,
-		cmdretQuit           = 100, // После обработки команды следует завершить сеанс.
-		cmdretResume         = 101, // Команда восстановления сеанса. Необходимо завершить текущий
-			// сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
-		cmdretSuspend        = 102, // Была обработана команда SUSPEND.
-			// Сеанс входит в режим ожидания восстановления (timeout = SuspendTimeout)
-		cmdretStyloBhtIIMode = 103, // Сессия должна войти в режим обмена с устройством StyloBHT II
+		cmdretQuit           = 100, // РџРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё РєРѕРјР°РЅРґС‹ СЃР»РµРґСѓРµС‚ Р·Р°РІРµСЂС€РёС‚СЊ СЃРµР°РЅСЃ.
+		cmdretResume         = 101, // РљРѕРјР°РЅРґР° РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЃРµР°РЅСЃР°. РќРµРѕР±С…РѕРґРёРјРѕ Р·Р°РІРµСЂС€РёС‚СЊ С‚РµРєСѓС‰РёР№ СЃРµР°РЅСЃ Рё РЅРµ РїРѕСЃС‹Р»Р°С‚СЊ РєР»РёРµРЅС‚Сѓ РѕС‚РІРµС‚, РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚Рѕ СЃРґРµР»Р°РµС‚ РІРѕСЃСЃС‚РЅРѕРІР»РµРЅРЅР°СЏ СЃРµСЃСЃРёСЏ.
+		cmdretSuspend        = 102, // Р‘С‹Р»Р° РѕР±СЂР°Р±РѕС‚Р°РЅР° РєРѕРјР°РЅРґР° SUSPEND.  РЎРµР°РЅСЃ РІС…РѕРґРёС‚ РІ СЂРµР¶РёРј РѕР¶РёРґР°РЅРёСЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ (timeout = SuspendTimeout)
+		cmdretStyloBhtIIMode = 103, // РЎРµСЃСЃРёСЏ РґРѕР»Р¶РЅР° РІРѕР№С‚Рё РІ СЂРµР¶РёРј РѕР±РјРµРЅР° СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј StyloBHT II
+		cmdretUnprocessed    = 104  // @v9.8.0 РљРѕРјР°РЅРґР° РЅРµ РѕР±СЂР°Р±РѕС‚Р°РЅР°. Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РјРѕР¶РµС‚ РІРµСЂРЅСѓС‚СЊ СЌС‚РѕС‚ СЂРµР·СѓР»СЊС‚Р°С‚, РїСЂРµРґРїРѕР»Р°РіР°СЏ,
+			// С‡С‚Рѕ РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ РєР»Р°СЃСЃ РёР»Рё РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚Р°РµС‚ РєРѕРјР°РЅРґСѓ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ.
 	};
-	static int TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize);
-	static int TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
-	static int TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
-
-	virtual void SLAPI Run();
-	CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
-	CmdRet SLAPI Testing();
+	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	CmdRet SLAPI Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	int    SLAPI SetupTxtCmdTerm(int code);
+	SString & SLAPI GetTxtCmdTermMnemonic(SString & rBuf) const;
+	void   FASTCALL RealeasFtbEntry(uint pos);
 	enum {
 		tfvStart,
 		tfvNext,
@@ -1960,44 +1933,22 @@ private:
 		tfvCancel
 	};
 	CmdRet SLAPI TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply);
-	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
 	int    SLAPI FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
-	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
-	int    SLAPI SetupTxtCmdTerm(int code);
-	SString & SLAPI GetTxtCmdTermMnemonic(SString & rBuf) const;
-	CmdRet SLAPI Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply);
-
-	uint32 SuspendTimeout;     // Таймаут (ms) ожидания восстановления приостановленной сессии         //
-	uint32 CloseSocketTimeout; // Таймаут (ms) ожидания восстановления сессии после разрыва соединения //
-	uint32 SleepTimeout;       // Таймаут (ms) ожидания хоть какого-то события в активной сессии.
-
-	TcpSocket So;
-	CPosNodeBlock * P_CPosBlk;
-	StyloBhtIIExchanger * P_SbiiBlk;
-	Evnt   EvSubstSockStart;
-	Evnt   EvSubstSockReady;
-	Evnt   EvSubstSockFinish;
 	enum {
 		stLoggedIn  = 0x0001,
-		stDebugMode = 0x0002  // @v8.3.4 Отладочный режим (вывод дополнительных данных в журналы)
+		stDebugMode = 0x0002  // @v8.3.4 РћС‚Р»Р°РґРѕС‡РЅС‹Р№ СЂРµР¶РёРј (РІС‹РІРѕРґ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С… РІ Р¶СѓСЂРЅР°Р»С‹)
 	};
 	long   State;   //
-	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
-		// можно синхронизировать действия с клиентом
-	InetAddr Addr; // @v8.7.4 Адрес инициатора соединения
-	const char * P_TxtCmdTerminal; // @v8.1.1
+	long   Counter; // РЎС‡РµС‚С‡РёРє, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРЅРёРєР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ, СЃ РїРѕРјРѕС‰СЊСЋ РєРѕС‚РѕСЂРѕРіРѕ
+		// РјРѕР¶РЅРѕ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°С‚СЊ РґРµР№СЃС‚РІРёСЏ СЃ РєР»РёРµРЅС‚РѕРј
+	CPosNodeBlock * P_CPosBlk;
 	//
-	// Descr: Управляющая структура для сохранения состояния пересылки файла
+	// Descr: РЈРїСЂР°РІР»СЏСЋС‰Р°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРµСЂРµСЃС‹Р»РєРё С„Р°Р№Р»Р°
 	//
 	struct FTB {
-		FTB()
-		{
-			THISZERO();
-		}
-		~FTB()
-		{
-			delete P_F;
-		}
+		SLAPI  FTB();
+		SLAPI ~FTB();
+
 		enum {
 			kGeneric = 0,
 			kObjImage
@@ -2010,23 +1961,235 @@ private:
 		PPJobSrvProtocol::TransmitFileBlock Tfb;
 		SFile * P_F;
 	};
-	void    RealeasFtbEntry(uint pos)
-	{
-		if(pos < FtbList.getCount()) {
-			FTB * p_ftb = FtbList.at(pos);
-			if(p_ftb) {
-                ZDELETE(p_ftb->P_F);
-                memzero(p_ftb, sizeof(*p_ftb));
+	TSCollection <FTB> FtbList;
+	SString HelloReplyText; // @fastreuse (РєРѕРјР°РЅРґР° HELLO)
+	const char * P_TxtCmdTerminal;
+};
+
+class PPServerSession : public /*PPThread*/PPWorkerSession {
+public:
+	static int TestingClient(TcpSocket & rSo, StrAssocArray & rStrList);
+
+	struct InitBlock {
+		SLAPI  InitBlock();
+		enum {
+			fDebugMode = 0x0001
+		};
+		uint   ClosedSockTimeout;
+		uint   SuspTimeout;
+		uint   SleepTimeout;
+		int    TxtCmdTerminalCode;
+		long   Flags;
+	};
+
+	SLAPI  PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr);
+	SLAPI ~PPServerSession();
+	int    FASTCALL SendReply(PPJobSrvReply & rReply);
+	virtual int SLAPI SubstituteSock(TcpSocket & rSo, PPJobSrvReply * pReply);
+	virtual void SLAPI Shutdown();
+private:
+	static int TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize);
+	static int TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
+	static int TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize);
+
+	virtual void SLAPI Run();
+	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	CmdRet SLAPI Testing();
+	CmdRet SLAPI ReceiveFile(int verb, const char * pParam, PPJobSrvReply & rReply);
+	size_t SLAPI Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF);
+
+	uint32 SuspendTimeout;     // РўР°Р№РјР°СѓС‚ (ms) РѕР¶РёРґР°РЅРёСЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ РїСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ СЃРµСЃСЃРёРё         //
+	uint32 CloseSocketTimeout; // РўР°Р№РјР°СѓС‚ (ms) РѕР¶РёРґР°РЅРёСЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЃРµСЃСЃРёРё РїРѕСЃР»Рµ СЂР°Р·СЂС‹РІР° СЃРѕРµРґРёРЅРµРЅРёСЏ //
+	uint32 SleepTimeout;       // РўР°Р№РјР°СѓС‚ (ms) РѕР¶РёРґР°РЅРёСЏ С…РѕС‚СЊ РєР°РєРѕРіРѕ-С‚Рѕ СЃРѕР±С‹С‚РёСЏ РІ Р°РєС‚РёРІРЅРѕР№ СЃРµСЃСЃРёРё.
+
+	TcpSocket So;
+	StyloBhtIIExchanger * P_SbiiBlk;
+	Evnt   EvSubstSockStart;
+	Evnt   EvSubstSockReady;
+	Evnt   EvSubstSockFinish;
+	InetAddr Addr; // РђРґСЂРµСЃ РёРЅРёС†РёР°С‚РѕСЂР° СЃРѕРµРґРёРЅРµРЅРёСЏ
+};
+
+SLAPI PPWorkerSession::FTB::FTB()
+{
+	THISZERO();
+}
+
+SLAPI PPWorkerSession::FTB::~FTB()
+{
+	delete P_F;
+}
+
+SLAPI PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0)
+{
+	P_CPosBlk = 0;
+	State = 0;
+	Counter = 0;
+	P_TxtCmdTerminal = 0;
+}
+
+SLAPI PPWorkerSession::~PPWorkerSession()
+{
+	ZDELETE(P_CPosBlk);
+}
+
+// virtual
+void SLAPI PPWorkerSession::Shutdown()
+{
+	ZDELETE(P_CPosBlk);
+	FtbList.freeAll();
+	PPThread::Shutdown();
+}
+
+SString & SLAPI PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
+{
+	rBuf.Z();
+	if(P_TxtCmdTerminal == 0) {
+		rBuf = "none";
+	}
+	else {
+		const size_t len = strlen(P_TxtCmdTerminal);
+		if(len == 0) {
+			rBuf.CatHex((uint8)0);
+		}
+		else {
+			for(size_t i = 0; i < len; i++) {
+				rBuf.CatHex((uint8)P_TxtCmdTerminal[i]);
 			}
 		}
 	}
-	TSCollection <FTB> FtbList;
-	SString HelloReplyText; // Чтобы не тратить время на получение версии при каждой команде HELLO
-};
+	return rBuf;
+}
 
-// GETIMAGE GOODS 1235
+int SLAPI PPWorkerSession::SetupTxtCmdTerm(int code)
+{
+	int    ok = 1;
+	switch(code) {
+		case -1: P_TxtCmdTerminal = 0; break;
+		case 0: P_TxtCmdTerminal = 0; break;
+		case 1: P_TxtCmdTerminal = "\xD\xA"; break;
+		case 2: P_TxtCmdTerminal = "\xD\xA\xD\xA"; break;
+		case 3: P_TxtCmdTerminal = "\xD"; break;
+		case 4: P_TxtCmdTerminal = "\xA"; break;
+		case 5: P_TxtCmdTerminal = "\x0"; break;
+		default: ok = 0; break;
+	}
+	return ok;
+}
 
-PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet SLAPI PPWorkerSession::Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply)
+{
+	CmdRet ret = cmdretOK;
+	xmlTextWriter * p_writer = 0;
+	xmlBuffer * p_xml_buf = 0;
+	SString token, temp_buf;
+	PPObjPerson * p_psn_obj = 0;
+	PPGetExtStrData(1, pEv->Params, token);
+	if(token.NotEmptyS()) {
+		uint   i;
+		PPTokenRecognizer tr;
+		PPNaturalTokenArray nta;
+		LAssocArray rel_obj_list;
+		tr.Run(token.ucptr(), nta, 0);
+		if(nta.Has(PPNTOK_EMAIL) > 0.0f) {
+            PPIDArray psn_list;
+            PPIDArray loc_list;
+            THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
+            if(p_psn_obj->SearchEmail(token, 0, &psn_list, &loc_list) > 0) {
+				psn_list.sortAndUndup();
+				loc_list.sortAndUndup();
+				for(i = 0; i < psn_list.getCount(); i++) {
+					rel_obj_list.Add(PPOBJ_PERSON, psn_list.get(i), 0);
+				}
+				for(i = 0; i < loc_list.getCount(); i++) {
+					rel_obj_list.Add(PPOBJ_LOCATION, loc_list.get(i), 0);
+				}
+            }
+		}
+		THROW(p_xml_buf = xmlBufferCreate());
+		THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
+		{
+			SXml::WDoc _doc(p_writer, cpUTF8);
+			{
+				SXml::WNode n_root(p_writer, "NaturalToken");
+				{
+					SXml::WNode(p_writer, "Token", (temp_buf = token).ToUtf8());
+					{
+						SXml::WNode n_probidlist(p_writer, "TokenTypeList");
+						for(i = 0; i < nta.getCount(); i++) {
+							const PPNaturalToken & r_nt = nta.at(i);
+							SXml::WNode n_item(p_writer, "TokenType");
+							{
+								n_item.PutInner("TokenTypeId", temp_buf.Z().Cat(r_nt.ID));
+								PPGetSubStrById(PPTXT_NATURALTOKENID, r_nt.ID, temp_buf.Z());
+								n_item.PutInner("TokenTypeSymb", temp_buf);
+								n_item.PutInner("TokenTypeProb", temp_buf.Z().Cat((double)r_nt.Prob, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
+							}
+						}
+					}
+					if(rel_obj_list.getCount()) {
+						PersonTbl::Rec psn_rec;
+						LocationTbl::Rec loc_rec;
+						THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
+						SXml::WNode n_relobjlist(p_writer, "RelObjList");
+						for(i = 0; i < rel_obj_list.getCount(); i++) {
+							SXml::WNode n_obj(p_writer, "RelObj");
+							const LAssoc item = rel_obj_list.at(i);
+							const PPID obj_type = item.Key;
+							n_obj.PutInner("Obj", temp_buf.Z().Cat(obj_type));
+							n_obj.PutInner("Id", temp_buf.Z().Cat(item.Val));
+							if(obj_type == PPOBJ_PERSON) {
+								if(p_psn_obj->Fetch(item.Val, &psn_rec) > 0) {
+									n_obj.PutInner("Name", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+								}
+							}
+							else if(obj_type == PPOBJ_LOCATION) {
+								if(p_psn_obj->LocObj.Fetch(item.Val, &loc_rec) > 0) {
+									temp_buf = 0;
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+									if(!temp_buf.NotEmptyS())
+										temp_buf = loc_rec.Name;
+									if(!temp_buf.NotEmptyS())
+										LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, temp_buf);
+									if(!temp_buf.NotEmptyS())
+										LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
+									if(temp_buf.NotEmptyS()) {
+										n_obj.PutInner("Name", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			xmlTextWriterFlush(p_writer);
+			temp_buf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
+			temp_buf.ReplaceCR();
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			rReply.SetString(temp_buf);
+		}
+	}
+	CATCH
+		ret = cmdretError;
+	ENDCATCH
+	xmlFreeTextWriter(p_writer);
+	xmlBufferFree(p_xml_buf);
+	delete p_psn_obj;
+    return ret;
+}
+
+void FASTCALL PPWorkerSession::RealeasFtbEntry(uint pos)
+{
+	if(pos < FtbList.getCount()) {
+		FTB * p_ftb = FtbList.at(pos);
+		if(p_ftb) {
+			ZDELETE(p_ftb->P_F);
+			memzero(p_ftb, sizeof(*p_ftb));
+		}
+	}
+}
+
+PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
 {
 	const uint32 DefFileChunkSize = 4 * 1024 * 1024; // 4Mb
 
@@ -2081,8 +2244,8 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 					p_ftb->Cookie = blk.Cookie;
 					p_ftb->Offs = offs;
 					p_ftb->Tfb = blk;
-					p_ftb->P_F = p_f; // Передаем указатель на открытый файл в структуру FTB
-					p_f = 0;   // Освобождать память под p_f уже после этого не следует
+					p_ftb->P_F = p_f; // РџРµСЂРµРґР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕС‚РєСЂС‹С‚С‹Р№ С„Р°Р№Р» РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ FTB
+					p_f = 0;   // РћСЃРІРѕР±РѕР¶РґР°С‚СЊ РїР°РјСЏС‚СЊ РїРѕРґ p_f СѓР¶Рµ РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РЅРµ СЃР»РµРґСѓРµС‚
 					FtbList.insert(p_ftb);
 				}
 				THROW_SL(rReply.Write(&blk, sizeof(blk)));
@@ -2113,7 +2276,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 				if(buf.GetSize()) {
 					THROW_SL(p_ftb->P_F->IsValid());
 					THROW_SL(p_ftb->P_F->Seek64(p_ftb->Offs));
-					// THROW_SL(p_ftb->P_F->ReadV(buf, buf.GetSize())); // надо считать оставшееся кол-во байтов
+					// THROW_SL(p_ftb->P_F->ReadV(buf, buf.GetSize())); // РЅР°РґРѕ СЃС‡РёС‚Р°С‚СЊ РѕСЃС‚Р°РІС€РµРµСЃСЏ РєРѕР»-РІРѕ Р±Р°Р№С‚РѕРІ
 					THROW_SL(p_ftb->P_F->Read(buf, buf.GetSize(), (size_t*)&blk.PartSize));
 					offs = p_ftb->P_F->Tell64();
 				}
@@ -2133,8 +2296,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 		int32  cookie = temp_buf.ToLong();
 		uint   pos = 0;
 		THROW_PP_S(FtbList.lsearch(&cookie, &pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
-		// @v8.7.10 FtbList.atFree(pos);
-		RealeasFtbEntry(pos); // @v8.7.10
+		RealeasFtbEntry(pos);
 		rReply.SetAck();
 	}
 	else if(verb == tfvCancel) {
@@ -2143,7 +2305,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 		uint   ftb_pos = 0;
 		THROW_PP_S(FtbList.lsearch(&cookie, &ftb_pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
 		//
-		// Для принимаемых файлов
+		// Р”Р»СЏ РїСЂРёРЅРёРјР°РµРјС‹С… С„Р°Р№Р»РѕРІ
 		//
 		{
 			SString fname;
@@ -2158,8 +2320,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 				}
 			}
 		}
-		// @v8.7.10 FtbList.atFree(ftb_pos);
-		RealeasFtbEntry(ftb_pos); // @v8.7.10
+		RealeasFtbEntry(ftb_pos);
 		rReply.SetAck();
 	}
 	CATCH
@@ -2169,8 +2330,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::TransmitFile(int verb, const char
 	return ret;
 }
 
-int SLAPI PPServerSession::FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk,
-	const SString & rFilePath, PPJobSrvReply & rReply)
+int SLAPI PPWorkerSession::FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
 	ObjLinkFiles lf;
@@ -2208,6 +2368,829 @@ int SLAPI PPServerSession::FinishReceivingFile(PPJobSrvReply::TransmitFileBlock 
 	rReply.SetAck();
 	CATCHZOK
 	return ok;
+}
+
+PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+{
+	CmdRet ok = cmdretOK;
+	int    disable_err_reply = 0;
+	int    r = 0;
+	SString reply_buf, temp_buf, name, db_symb;
+	THROW(rReply.StartWriting());
+	switch(pEv->GetH().Type) {
+		//
+		// Р­С‚Рё РєРѕРјР°РЅРґС‹ РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РїРѕСЂРѕР¶РґРµРЅРЅС‹РјРё РєР»Р°СЃСЃР°РјРё {
+		//
+		case PPSCMD_SPII:
+		case PPSCMD_GETBIZSCORES:
+		case PPSCMD_STYLOBHT:
+		case PPSCMD_SUSPEND:
+		case PPSCMD_RESUME:
+		case PPSCMD_SETIMAGE:
+		case PPSCMD_PUTFILE:
+		case PPSCMD_PUTNEXTFILEPART:
+		case PPSCMD_TEST:
+		case PPSCMD_GETDISPLAYINFO:
+			ok = cmdretUnprocessed;
+			break;
+		// }
+		case PPSCMD_STYLOBHTII:
+			//
+			// РЎР»РѕР¶РЅС‹Р№ РїСЂРѕС†РµСЃСЃ: РІС‹Р·С‹РІР°СЋС‰Р°СЏ РїСЂРѕС†РµРґСѓСЂР° РїРѕР»СѓС‡РёС‚ cmdretStyloBhtIIMode Рё РїРµСЂРµРІРµРґРµС‚
+			// СЃРµР°РЅСЃ РІ СЂРµР¶РёРј РѕР±РјРµРЅР° СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј StyloBHT II РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ С‡РµРіРѕ СѓРїСЂР°РІР»РµРЅРёРµ
+			// РїРѕРїР°РґРµС‚ РІ StyloBHTExch РїРѕСЃСЂРµРґСЃС‚РІРѕРј РІС‹Р·РѕРІР° PPServerSession::ProcessCommand (see below)
+			//
+			disable_err_reply = 1;
+			PPGetExtStrData(1, pEv->Params, db_symb);
+			PPGetExtStrData(2, pEv->Params, name);
+			PPGetExtStrData(3, pEv->Params, temp_buf);
+			//
+			{
+				SString pwd;
+				Reference::Decrypt(Reference::crymRef2, temp_buf, temp_buf.Len(), pwd);
+				int   lr = DS.Login(db_symb, name, pwd);
+				pwd.Obfuscate();
+				if(!lr) {
+					rReply.SetString(temp_buf.Z().CatChar('0'));
+					ok = cmdretQuit;
+				}
+				else {
+					rReply.SetString(temp_buf.Z().CatChar('1'));
+					ok = cmdretStyloBhtIIMode;
+				}
+			}
+			//
+			// StyloBhtIIExchange СЃР°РјР° РѕС‚РІРµС‚РёС‚ РєР»РёРµРЅС‚Сѓ. РџРѕСЌС‚РѕРјСѓ reply Р·РґРµСЃСЊ РЅРµ С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ.
+			//
+			break;
+		//
+		// }
+		//
+		case PPSCMD_HELLO:
+			{
+				if(HelloReplyText.Empty()) {
+					PPVersionInfo vi = DS.GetVersionInfo();
+					vi.GetProductName(HelloReplyText);
+				}
+				rReply.SetString(HelloReplyText);
+			}
+			break;
+		case PPSCMD_HSH:
+			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
+			break;
+		case PPSCMD_GETLASTERRMSG:
+			PPGetLastErrorMessage(1, temp_buf);
+			rReply.SetString(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+			break;
+		case PPSCMD_SETTXTCMDTERM:
+			{
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				if(temp_buf.IsDigit() || temp_buf == "-1") {
+					long   terminal_code = temp_buf.ToLong();
+					SetupTxtCmdTerm(temp_buf.ToLong());
+				}
+				rReply.SetString(GetTxtCmdTermMnemonic(temp_buf));
+			}
+			break;
+		case PPSCMD_GETKEYWORDSEQ:
+			{
+				PPGetExtStrData(1, pEv->Params, name);
+				if(PPGenerateKeywordSequence(name, temp_buf, 0))
+					rReply.SetString(temp_buf);
+				else
+					rReply.SetError();
+			}
+			break;
+		case PPSCMD_LOGIN:
+			PPGetExtStrData(1, pEv->Params, db_symb);
+			PPGetExtStrData(2, pEv->Params, name);
+			PPGetExtStrData(3, pEv->Params, temp_buf);
+			THROW(DS.Login(db_symb, name, temp_buf) > 0);
+			State |= stLoggedIn;
+			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
+			{
+				(temp_buf = db_symb).CatChar(':').Cat(name);
+				DS.SetThreadNotification(PPSession::stntText, temp_buf);
+			}
+			break;
+		case PPSCMD_LOGOUT:
+			State &= ~stLoggedIn;
+			rReply.SetAck();
+			ok = cmdretQuit;
+			break;
+		case PPSCMD_RESETCACHE:
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPID   obj_type = 0;
+				long   obj_type_ext = 0;
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				THROW(obj_type = GetObjectTypeBySymb(temp_buf, &obj_type_ext));
+				if(obj_type == PPOBJ_GOODS) {
+					PPGetExtStrData(2, pEv->Params, temp_buf);
+					if(temp_buf.CmpNC("NAMEPOOL") == 0) {
+						PPObjGoods goods_obj;
+						goods_obj.P_Tbl->ResetFullList();
+						ok = cmdretOK;
+					}
+					else {
+						CALLEXCEPT_PP(PPERR_RESETCACHE_NOTSUPP);
+					}
+				}
+				else {
+					CALLEXCEPT_PP_S(PPERR_RESETCACHE_OBJ_NOTSUPP, temp_buf);
+				}
+			}
+			break;
+		case PPSCMD_CHECKGLOBALCREDENTIAL:
+			{
+				PPGetExtStrData(1, pEv->Params, name);
+				temp_buf.Space() = 0; // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј РЅРµРЅСѓР»РµРІРѕР№ Р±СѓС„РµСЂ temp_buf.P_Buf
+				PPGetExtStrData(2, pEv->Params, temp_buf);
+				PPObjGlobalUserAcc gua_obj;
+				PPGlobalUserAcc gua_rec;
+				THROW(gua_obj.CheckPassword(name, temp_buf, &gua_rec) > 0);
+				rReply.SetAck();
+			}
+			break;
+		case PPSCMD_SOBLK:
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			THROW_INVARG(pEv->P_SoBlk);
+			THROW(r = pEv->P_SoBlk->Execute(rReply));
+			break;
+		case PPSCMD_POS_INIT:
+			ZDELETEFAST(P_CPosBlk);
+			P_CPosBlk = new CPosNodeBlock();
+			// @nobreak
+		case PPSCMD_POS_RELEASE:
+		case PPSCMD_POS_GETCTABLELIST:
+		case PPSCMD_POS_GETCCHECKLIST:
+		case PPSCMD_POS_GETCCHECKLNCOUNT:
+		case PPSCMD_POS_ADDCCHECKLINE:
+		case PPSCMD_POS_RMVCCHECKLINE:
+		case PPSCMD_POS_CLEARCCHECK:
+		case PPSCMD_POS_RMVCCHECK:
+		case PPSCMD_POS_PRINTCCHECK:
+		case PPSCMD_POS_PRINTCCHECKLOCAL:
+		case PPSCMD_POS_GETCONFIG:
+		case PPSCMD_POS_SETCONFIG:
+		case PPSCMD_POS_GETSTATE:
+		case PPSCMD_POS_SELECTCCHECK:
+		case PPSCMD_POS_SUSPENDCCHECK:
+		case PPSCMD_POS_SELECTCTABLE:
+		case PPSCMD_POS_GETCPOSRIGHTS:
+		case PPSCMD_POS_GETGOODSPRICE:
+		case PPSCMD_POS_GETCURRENTSTATE:
+		case PPSCMD_POS_RESETCURRENTLINE:
+		case PPSCMD_POS_PROCESSBARCODE:
+		case PPSCMD_POS_CPOSSETCCROWQUEUE:
+		case PPSCMD_POS_GETMODIFLIST:
+			{
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				THROW_PP(P_CPosBlk, PPERR_POSNODEPRCNDEF);
+				THROW(r = P_CPosBlk->Execute(pEv->GetH().Type, temp_buf, rReply));
+			}
+			break;
+		case PPSCMD_POS_DECRYPTAUTHDATA:
+			{
+				SString left, right;
+				Sdr_CPosAuth rec;
+				MEMSZERO(rec);
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				temp_buf.Divide(' ', left, right);
+				memcpy(&rec, (const char*)right, sizeof(rec));
+				decrypt(&rec, sizeof(rec));
+				rReply.Write((const char *)&rec, sizeof(rec));
+				rReply.SetDataType(PPJobSrvReply::htFile, 0);
+			}
+			break;
+		case PPSCMD_GETTDDO:
+			{
+				// GETTDDO filename par1 par2 ar "sdgjlsgj  sfjsfjl;"
+				// GETTDDO INLINE ${@(Goods, 35324).Name}
+				Tddo t;
+				StringSet ext_param_list;
+				int    fld_n = 0;
+				//
+				// РџРµСЂРІС‹Р№ Р°СЂРіСѓРјРµРЅС‚ - РёРјСЏ tddo-С„Р°Р№Р»Р° РёР»Рё "INLINE"
+				//
+				PPGetExtStrData(++fld_n, pEv->Params, name);
+				if(name.Cmp("INLINE", 1) == 0) {
+					PPGetExtStrData(++fld_n, pEv->Params, temp_buf);
+				}
+				else {
+					//
+					// Р’СЃРµ РїРѕСЃР»РµРґСѓСЋС‰РёРµ Р°СЂРіСѓРјРµРЅС‚С‹ - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РїСЂРё СЂР°Р·Р±РѕСЂРµ tddo-С„Р°Р№Р»Р°
+					//
+					while(PPGetExtStrData(++fld_n, pEv->Params, temp_buf) > 0) {
+						ext_param_list.add(temp_buf);
+					}
+					THROW(Tddo::LoadFile(name, temp_buf));
+					t.SetInputFileName(name);
+				}
+				DlRtm::ExportParam ep;
+				THROW(t.Process(0 /*data_name*/, temp_buf, /*0, 0*/ep, &ext_param_list, rReply));
+				rReply.SetDataType(PPJobSrvReply::htGenericText, 0);
+			}
+			break;
+		case PPSCMD_EXECVIEWNF:
+			// EXECVIEW named_filt_name [dl600_data_name]
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				SString nf_symb, dl600_name, file_name;
+				PPGetExtStrData(1, pEv->Params, nf_symb);
+				PPGetExtStrData(2, pEv->Params, dl600_name);
+				THROW(PPView::ExecuteNF(nf_symb, dl600_name, file_name));
+				ok = TransmitFile(tfvStart, file_name, rReply);
+			}
+			break;
+		case PPSCMD_SETIMAGEMIME:
+			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				SString content_type, img_mime, file_name, file_ext;
+				PPGetExtStrData(1, pEv->Params, name);
+				long   upd_flags = 0;
+				size_t bin_size = 0;
+				long   obj_type_ext = 0;
+				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
+				PPGetExtStrData(2, pEv->Params, temp_buf);
+				PPID   obj_id = temp_buf.ToLong();
+				ObjLinkFiles lf;
+				PPGetExtStrData(3, pEv->Params, temp_buf);
+				upd_flags = temp_buf.ToLong();
+				PPGetExtStrData(4, pEv->Params, content_type);
+				PPGetExtStrData(5, pEv->Params, img_mime);
+				SFileFormat ff;
+				ff.IdentifyMime(content_type);
+				switch(ff) {
+					case ff.Jpeg: file_ext = "jpg"; break;
+					case ff.Png:  file_ext = "png"; break;
+					case ff.Tiff: file_ext = "tiff"; break;
+					case ff.Gif:  file_ext = "gif"; break;
+					case ff.Bmp:  file_ext = "bmp"; break;
+				}
+				PPMakeTempFileName("objimg", file_ext, 0, file_name);
+				{
+					STempBuffer tbuf(img_mime.Len() * 2);
+					THROW_SL(tbuf.IsValid());
+					THROW_SL(img_mime.DecodeMime64(tbuf, tbuf.GetSize(), &bin_size));
+					{
+						SFile img_file(file_name, SFile::mWrite|SFile::mBinary);
+						THROW_SL(img_file.IsValid());
+						THROW_SL(img_file.Write(tbuf, bin_size));
+					}
+				}
+				if(obj_type == PPOBJ_GOODS) {
+					PPObjGoods goods_obj;
+					Goods2Tbl::Rec goods_rec;
+					THROW(goods_obj.Search(obj_id, &goods_rec) > 0);
+					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
+					THROW(goods_obj.UpdateFlags(obj_id, GF_HASIMAGES, 0, 1));
+				}
+				else if(obj_type == PPOBJ_PERSON) {
+					PPObjPerson psn_obj;
+					PersonTbl::Rec psn_rec;
+					THROW(psn_obj.Search(obj_id, &psn_rec) > 0);
+					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
+					THROW(psn_obj.P_Tbl->UpdateFlags(obj_id, PSNF_HASIMAGES, 0, 1));
+				}
+			}
+			break;
+		case PPSCMD_GETIMAGE:
+			// GETIMAGE goods 52103
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPGetExtStrData(1, pEv->Params, name);
+				long   obj_type_ext = 0;
+				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
+				PPGetExtStrData(2, pEv->Params, temp_buf);
+				PPID   obj_id = temp_buf.ToLong();
+				SString img_path, obj_name;
+				ObjLinkFiles lf;
+				if(obj_type == PPOBJ_GOODS) {
+					PPObjGoods goods_obj;
+					Goods2Tbl::Rec goods_rec;
+					THROW(goods_obj.Fetch(obj_id, &goods_rec) > 0);
+					obj_name = goods_rec.Name;
+					THROW_PP_S(goods_rec.Flags & GF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+				}
+				else if(obj_type == PPOBJ_BRAND) {
+					PPObjBrand brand_obj;
+					PPBrand    brand_rec;
+					THROW(brand_obj.Fetch(obj_id, &brand_rec) > 0);
+					obj_name = brand_rec.Name;
+					THROW_PP_S(brand_rec.Flags & BRNDF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+				}
+				else if(obj_type == PPOBJ_PERSON) {
+					PPObjPerson psn_obj;
+					PersonTbl::Rec psn_rec;
+					THROW(psn_obj.Fetch(obj_id, &psn_rec) > 0);
+					obj_name = psn_rec.Name;
+					THROW_PP_S(psn_rec.Flags & PSNF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+				}
+				else if(obj_type == PPOBJ_TSESSION) {
+					PPObjTSession tses_obj;
+					TSessionTbl::Rec tses_rec;
+					THROW(tses_obj.Search(obj_id, &tses_rec) > 0);
+					tses_obj.MakeName(&tses_rec, obj_name);
+					THROW_PP_S(tses_rec.Flags & TSESF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+				}
+				else {
+					CALLEXCEPT_PP_S(PPERR_JOBSRV_GETIMG_INVOBJTYPE, name);
+				}
+				THROW(lf.GetZeroPositionFile(obj_type, obj_id, img_path));
+				THROW_PP_S(img_path.NotEmptyS(), PPERR_OBJHASNTIMG, obj_name);
+				ok = TransmitFile(tfvStart, img_path, rReply);
+			}
+			break;
+		case PPSCMD_GETFILE:
+			PPGetExtStrData(1, pEv->Params, name);
+			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
+				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
+				ok = TransmitFile(tfvStart, name, rReply);
+			}
+			else {
+				CALLEXCEPT_PP_S(PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
+			}
+			break;
+		case PPSCMD_GETNEXTFILEPART:
+			PPGetExtStrData(1, pEv->Params, name);
+			ok = TransmitFile(tfvNext, name, rReply);
+			break;
+		case PPSCMD_ACKFILE:
+			PPGetExtStrData(1, pEv->Params, name);
+			ok = TransmitFile(tfvFinish, name, rReply);
+			break;
+		case PPSCMD_CANCELFILE:
+			PPGetExtStrData(1, pEv->Params, name);
+			ok = TransmitFile(tfvCancel, name, rReply);
+			break;
+		case PPSCMD_GETSERVERSTAT:
+			{
+				const ThreadID this_thread_id = DS.GetConstTLA().GetThreadID();
+
+				TSCollection <PPThread::Info> list;
+				DS.GetThreadInfoList(0, list);
+				SSerializeContext ctx;
+				int32 c = list.getCount();
+				SBuffer _temp_sbuf;
+
+				ctx.Init(0, getcurdate_());
+				THROW_SL(ctx.Serialize(+1, c, _temp_sbuf));
+				for(int i = 0; i < c; i++) {
+					PPThread::Info * p_item = list.at(i);
+					if(p_item->Id == this_thread_id && p_item->LastMsg.Empty()) {
+						p_item->LastMsg = "GetServerStat";
+					}
+					THROW(p_item->Serialize(+1, _temp_sbuf, &ctx));
+				}
+				THROW_SL(ctx.SerializeState(+1, rReply));
+				THROW_SL(rReply.Write(_temp_sbuf.GetBuf(_temp_sbuf.GetRdOffs()), _temp_sbuf.GetAvailableSize()));
+			}
+			break;
+		case PPSCMD_STOPTHREAD:
+			{
+				PPJobSrvProtocol::StopThreadBlock blk;
+				PPThread::Info tinfo;
+				SSerializeContext ctx;
+				ctx.Init(0, getcurdate_());
+				THROW_SL(blk.Serialize(-1, *pEv, &ctx));
+				DS.GetThreadInfo(blk.TId, tinfo);
+				THROW(DS.StopThread(blk.TId));
+				rReply.SetAck();
+				{
+					SString fmt_buf, msg, kind_buf;
+					PPThread::GetKindText(tinfo.Kind, kind_buf);
+					PPFormatT(PPTXT_SERVERTHREADSTOPPED, &msg, kind_buf.cptr(), tinfo.Text.cptr(), blk.HostName.cptr(), blk.UserName.cptr());
+					PPLogMessage(PPFILNAM_SERVER_LOG, msg, LOGMSGF_TIME);
+				}
+			}
+			break;
+		case PPSCMD_CREATEVIEW:
+			ok = PPView::ExecuteServer(*pEv, rReply) ? cmdretOK : cmdretError;
+			break;
+		case PPSCMD_DESTROYVIEW:
+			ok = PPView::Destroy(*pEv, rReply) ? cmdretOK : cmdretError;
+			break;
+		case PPSCMD_REFRESHVIEW:
+			ok = PPView::Refresh(*pEv, rReply) ? cmdretOK : cmdretError;
+			break;
+		case PPSCMD_SETGLOBALUSER:
+			{
+				PPGetExtStrData(1, pEv->Params, name);
+				PPID   gua_id = name.ToLong();
+				PPThreadLocalArea & r_tla = DS.GetTLA();
+				// @ Muxa {
+				r_tla.GlobAccID = 0;
+				r_tla.GlobAccName = 0;
+				r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
+				if(name == "0" || gua_id == PPGUAID_UHTT_CORE) {
+					r_tla.GlobAccID = gua_id;
+					ok = cmdretOK;
+				}
+				// } @Muxa
+				else {
+					PPObjGlobalUserAcc gua_obj;
+					PPGlobalUserAcc gua_rec;
+					if(gua_id && gua_obj.Fetch(gua_id, &gua_rec) > 0) {
+						r_tla.GlobAccID = gua_rec.ID;
+						r_tla.GlobAccName = gua_rec.Name;
+						ok = cmdretOK;
+					}
+					else if(gua_obj.SearchByName(name, &(gua_id = 0), &gua_rec) > 0) {
+						r_tla.GlobAccID = gua_rec.ID;
+						r_tla.GlobAccName = gua_rec.Name;
+						ok = cmdretOK;
+					}
+					else
+						ok = cmdretError;
+				}
+			}
+			break;
+		case PPSCMD_GETGLOBALUSER:
+			{
+				temp_buf.Cat(DS.GetConstTLA().GlobAccID);
+				rReply.SetString(temp_buf);
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_EXPTARIFFTA:
+			{
+				PPThreadLocalArea & r_tla = DS.GetTLA();
+				if(!(r_tla.State & PPThreadLocalArea::stExpTariffTa)) {
+					r_tla.State |= PPThreadLocalArea::stExpTariffTa;
+					temp_buf.Cat(1);   // on
+				}
+				else {
+					r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
+					temp_buf.Cat(0);   // off
+				}
+				rReply.SetString(temp_buf);
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_PING:
+			{
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				if(temp_buf.NotEmptyS()) {
+					if(temp_buf.CmpNC("TERM") == 0) {
+						PPGetExtStrData(2, pEv->Params, temp_buf);
+						SString terminal;
+						if(temp_buf.NotEmptyS())
+							terminal = temp_buf;
+						else
+							terminal.Z().CRB().CRB();
+						ulong c = SLS.GetTLA().Rg.GetUniformInt(100);
+						temp_buf = 0;
+						for(ulong i = 0; i < c; i++) {
+							temp_buf.Cat((long)SLS.GetTLA().Rg.GetUniformInt(10));
+						}
+						temp_buf.Cat(terminal);
+						rReply.SetString(temp_buf);
+					}
+					else
+						rReply.SetString(temp_buf.CRB());
+				}
+				else
+					rReply.SetString("PONG");
+				break;
+			}
+		case PPSCMD_QUIT:
+			rReply.SetAck();
+			ok = cmdretQuit;
+			break;
+		case PPSCMD_REGISTERSTYLO:
+			{
+				PPID   device_id = 0;
+				PPObjStyloPalm sp_obj;
+				PPObjStyloPalm::RegisterDeviceBlock rdb;
+				SString dev_name, magic_buf;
+				PPGetExtStrData(1, pEv->Params, dev_name);
+				PPGetExtStrData(2, pEv->Params, magic_buf);
+				dev_name.Strip();
+                int    sr = sp_obj.SearchBySymb(dev_name, &device_id, 0);
+                if(sr < 0)
+					sr = sp_obj.SearchByName(dev_name, &device_id, 0);
+				THROW(sr > 0);
+				THROW(sp_obj.RegisterDevice(device_id, &rdb, 1));
+				ok = cmdretOK;
+			}
+            break;
+		case PPSCMD_PREPAREPALMINDATA:
+			{
+				long   start = 0;
+				SString dev_uuid, dev_name, path, dir;
+				PPGetExtStrData(1, pEv->Params, dev_name);
+				PPGetExtStrData(2, pEv->Params, dev_uuid);
+				dev_uuid = dev_name; // @todo
+				PPGetPath(PPPATH_SPII, dir);
+				dir.SetLastSlash().Cat(dev_uuid).SetLastSlash();
+				MakeTempFileName(dir, "tmpsti", "xml", 0, path);
+				/* @РЈРґР°Р»СЏРµС‚СЃСЏ РІ ReceiveFile
+				if(fileExists(path))
+					SFile::Remove(path);
+				*/
+				rReply.SetString(path);
+				{
+					(path = dir).Cat("stylo.log");
+					SyncTable::LogMessage(path, "\nEXCHANGE STARTED");
+					SyncTable::LogMessage(path, "IMPORT");
+				}
+			}
+			break;
+		case PPSCMD_PREPAREPALMOUTDATA:
+			{
+				SString dev_uuid, dev_name, path, temp_path, palm_path, log_path, msg_buf;
+				SString last_dt, last_tm;
+				PPGetExtStrData(1, pEv->Params, dev_name);
+				PPGetExtStrData(2, pEv->Params, dev_uuid);
+				PPGetExtStrData(3, pEv->Params, last_dt);
+				PPGetExtStrData(4, pEv->Params, last_tm);
+				dev_uuid = dev_name; // @todo
+				PPGetPath(PPPATH_SPII, palm_path);
+				{
+					(log_path = palm_path).SetLastSlash().Cat(dev_uuid).SetLastSlash().Cat("stylo.log");
+					SyncTable::LogMessage(log_path, "EXPORT");
+				}
+				path = palm_path;
+				path.SetLastSlash().Cat(dev_uuid).SetLastSlash();
+				(temp_path = path).Cat("temp_in.zip");
+				path.Cat("in.xml");
+				if(fileExists(temp_path))
+					SFile::Remove(temp_path);
+				if(fileExists(path)) {
+					const int wr = SFile::WaitForWriteSharingRelease(path, 60000); // @v8.5.11 // @v8.5.12 30000-->60000
+					// @v9.0.0 THROW_SL(wr);
+					THROW_PP(wr, PPERR_STYLODATALOCKED); // @v9.0.0
+					if(wr > 0) {
+						//PPTXT_WAITFORWRSHRFILENOTIFY "РћР¶РёРґР°РЅРёРµ Р·Р°РІРµСЂС€РµРЅРёСЏ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» '%zstr' РїСЂРѕРґР»РёР»РѕСЃСЊ %int ms"
+						PPFormatT(PPTXT_WAITFORWRSHRFILENOTIFY, &msg_buf, path.cptr(), wr);
+						PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
+					}
+					LDATE dt = ZERODATE;
+					LTIME tm = ZEROTIME;
+					// SCopyFile(path, temp_path, 0, FILE_SHARE_READ, 0);
+					strtodate(last_dt, DATF_DMY, &dt);
+					strtotime(last_tm, TIMF_HMS, &tm);
+					if(PPObjStyloPalm::XmlCmpDtm(dt, tm, path) < 0) {
+						SString traf_log_path;
+						PPGetPath(PPPATH_LOG, traf_log_path);
+						rReply.SetString(temp_path);
+						PKZip(path, temp_path, palm_path);
+						PalmTcpExchange::LogTrafficInfo(temp_path, traf_log_path, dev_name, 1);
+					}
+					else {
+						rReply.SetAck();
+						SyncTable::LogMessage(log_path, "SPII OK: Tables on palm is recently that host");
+					}
+				}
+				else {
+					PPSetErrorSLib();
+					SLS.SetError(SLERR_FILENOTFOUND, path);
+					{
+						PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf.Z());
+						SyncTable::LogMessage(log_path, (msg_buf = "SPII FAIL: ").Cat(temp_buf));
+					}
+					CALLEXCEPT();
+				}
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_PROCESSPALMXMLDATA:
+			{
+				SString temp_path, log_path, dev_name, dev_uuid;
+				PPGetExtStrData(1, pEv->Params, temp_path);
+				PPGetExtStrData(2, pEv->Params, dev_name);
+				PPGetExtStrData(3, pEv->Params, dev_uuid);
+				{
+					dev_uuid = dev_name; // @todo
+					if(dev_uuid.Empty()) {
+						SPathStruc sp;
+						sp.Split(temp_path);
+						sp.Nam = 0;
+						sp.Ext = 0;
+						sp.Merge(log_path);
+					}
+					else {
+						PPGetPath(PPPATH_SPII, log_path);
+                        log_path.SetLastSlash().Cat(dev_uuid);
+					}
+					log_path.SetLastSlash().Cat("stylo.log");
+				}
+				if(fileExists(temp_path) > 0) {
+					long start = 1;
+					SString dir, path;
+					SPathStruc sp;
+					sp.Split(temp_path);
+					sp.Nam = 0;
+					sp.Ext = 0;
+					sp.Merge(dir);
+					path = MakeTempFileName(dir, "out", "xml", &start, path);
+					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
+					{
+						(path = dir).SetLastSlash().Cat("sp_ready");
+						SFile file(path, mWrite);
+						file.Close();
+					}
+					if(dev_name.Empty()) {
+						SString right;
+						StringSet ss("\\");
+						SPathStruc sp;
+
+						sp.Split(temp_path);
+						ss.setBuf(sp.Dir);
+						sp.Dir.RmvLastSlash();
+						sp.Dir.Reverse();
+						sp.Dir.Divide('\\', dev_name, right);
+					}
+					{
+						SString traf_log_path;
+						PPGetPath(PPPATH_LOG, traf_log_path);
+						PalmTcpExchange::LogTrafficInfo(temp_path, traf_log_path, dev_name, 0);
+					}
+					SFile::Remove(temp_path);
+					SyncTable::LogMessage(log_path, "SPII OK: IMPORT");
+				}
+				else {
+					rReply.SetError();
+					SyncTable::LogMessage(log_path, "SPII FAIL: IMPORT");
+				}
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_SENDSMS:
+			{
+				const  PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
+				PPGta  gta_blk;
+				PPObjBill * p_bobj = BillObj;
+				if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
+					gta_blk.GlobalUserID = r_tla_c.GlobAccID;
+					gta_blk.Op = GTAOP_SMSSEND;
+					if(p_bobj) {
+						p_bobj->InitGta(gta_blk);
+						if(gta_blk.Quot != 0.0) {
+							// Р”Р»СЏ СЂР°СЃСЃС‹Р»РєРё SMS РєСЂРµРґРёС‚ РЅРµ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ!
+							THROW_PP((gta_blk.SCardRest/*+ gta_blk.SCardMaxCredit*/) > 0.0, PPERR_GTAOVERDRAFT);
+						}
+					}
+				}
+				{
+					SString result;
+					SString old_phone;
+					SString new_phone;
+					SString err_msg;
+					SString from;
+					SString message;
+					PPLogger logger;
+					PPAlbatrosConfig  albtr_cfg;
+					SmsClient client(&logger);
+
+					PPGetExtStrData(1, pEv->Params, old_phone);
+					PPGetExtStrData(2, pEv->Params, from);
+					PPGetExtStrData(3, pEv->Params, message);
+					// @todo Error message
+					THROW(!old_phone.Empty());
+					THROW(!message.Empty());
+					THROW(!from.Empty());
+					THROW(PPAlbatrosCfgMngr::Get(&albtr_cfg));
+					{
+						size_t bin_size = 0;
+						STempBuffer buf(message.Len() * 2);
+						THROW(buf.IsValid());
+						THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
+						buf[bin_size] = 0;
+						message.Z().Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
+					}
+					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
+					// @v8.5.4 client.SetRecvTimeout(0);
+					if(FormatPhone(old_phone, new_phone, err_msg)) {
+						THROW(client.SendSms(new_phone, message, result.Z()));
+						temp_buf.Z().Cat(new_phone).Space().Cat(result);
+						logger.Log(temp_buf);
+					}
+					client.SmsRelease_();
+					rReply.SetAck();
+					ok = cmdretOK;
+				}
+				if(gta_blk.GlobalUserID) {
+					gta_blk.Count = 1;
+					gta_blk.Duration = ZEROTIME;
+					gta_blk.Dtm = getcurdatetime_();
+					GtaJournalCore * p_gtaj = DS.GetGtaJ();
+					if(p_gtaj)
+						THROW(p_gtaj->CheckInOp(gta_blk, 1));
+				}
+			}
+			break;
+		case PPSCMD_QUERYNATURALTOKEN:
+			ok = Helper_QueryNaturalToken(pEv, rReply);
+			break;
+		case PPSCMD_GETPERSONBYARTICLE:
+			{
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				const PPID ar_id = temp_buf.ToLong();
+				const PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
+				rReply.SetString(temp_buf.Z().Cat(psn_id));
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_GETARTICLEBYPERSON:
+			{
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				const PPID psn_id = temp_buf.ToLong();
+				PPID  ar_id = 0;
+				if(psn_id) {
+					PPID  acs_id = 0;
+					if(PPGetExtStrData(2, pEv->Params, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+						acs_id = temp_buf.ToLong();
+						if(!acs_id) {
+							PPObjAccSheet acs_obj;
+							acs_obj.SearchBySymb(temp_buf, &acs_id, 0);
+						}
+					}
+					{
+						PPObjArticle ar_obj;
+						ar_obj.P_Tbl->PersonToArticle(psn_id, acs_id, &ar_id);
+					}
+				}
+				rReply.SetString(temp_buf.Z().Cat(ar_id));
+				ok = cmdretOK;
+			}
+			break;
+		case PPSCMD_GETWORKBOOKCONTENT:
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				// @v8.3.5 MemLeakTracer mlt;
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				PPID    obj_id = temp_buf.ToLong();
+				SString path;
+				PPObjWorkbook wb_obj;
+				PPWorkbookPacket pack;
+				THROW(wb_obj.GetPacket(obj_id, &pack) > 0);
+				pack.F.GetZeroPositionFile(PPOBJ_WORKBOOK, obj_id, path);
+				THROW_PP_S(path.NotEmptyS(), PPERR_WORKBOOKHASNTCONTENT, pack.Rec.Name);
+				ok = TransmitFile(tfvStart, path, rReply);
+			}
+			break;
+		/*
+		case PPSCMD_GETTSESSPLACESTATUS:
+			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				PPID   qk_id = 0;
+				PPGetExtStrData(1, pEv->Params, temp_buf);
+				PPID   tsess_id = temp_buf.ToLong();
+				PPGetExtStrData(2, pEv->Params, place_code);
+				if(tsess_id) {
+					PPObjTSession::PlaceStatus status;
+					PPObjTSession tsess_obj;
+					int    r = tsess_obj.GetPlaceStatus(tsess_id, place_code, qk_id, 0, status);
+					THROW(r);
+				}
+			}
+			break;
+		*/
+		default:
+			CALLEXCEPT_PP(PPERR_INVSERVERCMD);
+			break;
+	}
+	CATCH
+		if(!disable_err_reply)
+			rReply.SetError();
+		PPErrorZ();
+		ok = cmdretError;
+	ENDCATCH
+	if(ok != cmdretResume)
+		rReply.FinishWriting();
+	return ok;
+}
+//
+//
+//
+SLAPI PPServerSession::InitBlock::InitBlock()
+{
+	THISZERO();
+}
+
+SLAPI PPServerSession::PPServerSession(TcpSocket & rSock, const InitBlock & rBlk, InetAddr & rAddr) :
+	PPWorkerSession(PPThread::kNetSession)/*PPThread(PPThread::kNetSession, 0, 0)*/,
+	EvSubstSockFinish(Evnt::modeCreate),
+	EvSubstSockStart(Evnt::modeCreate),
+	EvSubstSockReady(Evnt::modeCreate)
+{
+	SuspendTimeout = rBlk.SuspTimeout; // 3600000;
+	CloseSocketTimeout = rBlk.ClosedSockTimeout; // 60000;
+	SleepTimeout = rBlk.SleepTimeout; // INFINITE;
+	if(rBlk.Flags & rBlk.fDebugMode)
+		State |= stDebugMode;
+	SetupTxtCmdTerm(rBlk.TxtCmdTerminalCode);
+	rSock.MoveToS(So);
+	P_SbiiBlk = 0;
+	Addr = rAddr;
+}
+
+SLAPI PPServerSession::~PPServerSession()
+{
+	ZDELETE(P_SbiiBlk);
 }
 
 size_t SLAPI PPServerSession::Helper_ReceiveFilePart(PPJobSrvReply::TransmitFileBlock & rBlk, SFile * pF)
@@ -2256,13 +3239,11 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 		if(blk.TransmType == blk.ttObjImage) {
 			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
 			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
 			THROW_PP_S(blk.ObjType = PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
-			// @v9.4.11 PPGetPath(PPPATH_TEMP, temp_buf);
 			PPMakeTempFileName("wbc", file_ext, 0, file_path);
 		}
 		else {
@@ -2291,8 +3272,8 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 					p_ftb->Cookie = blk.Cookie;
 					p_ftb->Offs = rd_offs;
 					p_ftb->Tfb = blk;
-					p_ftb->P_F = p_f; // Передаем указатель на открытый файл в структуру FTB
-					p_f = 0;   // Освобождать память под p_f уже после этого не следует
+					p_ftb->P_F = p_f; // РџРµСЂРµРґР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕС‚РєСЂС‹С‚С‹Р№ С„Р°Р№Р» РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ FTB
+					p_f = 0;   // РћСЃРІРѕР±РѕР¶РґР°С‚СЊ РїР°РјСЏС‚СЊ РїРѕРґ p_f СѓР¶Рµ РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РЅРµ СЃР»РµРґСѓРµС‚
 					FtbList.insert(p_ftb);
 
 					ftb_pos_todel = (long)FtbList.getCount() - 1;
@@ -2315,11 +3296,10 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 			FTB * p_ftb = FtbList.at(ftb_pos);
 			ftb_pos_todel = (long)ftb_pos;
 			THROW_PP_S(p_ftb, PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
-			THROW_PP_S(p_ftb->P_F && p_ftb->P_F->IsValid(), PPERR_JOBSRV_FTCOOKIEFINVAL, p_ftb->Tfb.Name); // @v8.5.10
-			// @v8.7.10 p_f = p_ftb->P_F;
+			THROW_PP_S(p_ftb->P_F && p_ftb->P_F->IsValid(), PPERR_JOBSRV_FTCOOKIEFINVAL, p_ftb->Tfb.Name);
 			{
 				int64  rd_offs = p_ftb->Offs;
-				int64  rd_size = Helper_ReceiveFilePart(blk, p_ftb->P_F); // @v8.7.10 p_f-->p_ftb->P_F
+				int64  rd_size = Helper_ReceiveFilePart(blk, p_ftb->P_F);
 				THROW(rd_size);
 				rd_offs += rd_size;
 				if(rd_offs < blk.Size) {
@@ -2329,15 +3309,13 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 					rReply.WriteString(temp_buf.Z().Cat(cookie));
 				}
 				else {
-					THROW(FinishReceivingFile(blk, p_ftb->P_F->GetName(), rReply)); // @v8.7.10 p_f-->p_ftb->P_F
-					// @v8.7.10 FtbList.atFree(ftb_pos);
-					RealeasFtbEntry(ftb_pos); // @v8.7.10
+					THROW(FinishReceivingFile(blk, p_ftb->P_F->GetName(), rReply));
+					RealeasFtbEntry(ftb_pos);
 				}
 			}
-			// @v8.7.10 p_f = 0;   // Освобождать память под p_f уже после этого не следует
 		}
 	}
-	// ftvCancel обрабатывается функцией PPServerSession::TransmitFile(
+	// ftvCancel РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ PPServerSession::TransmitFile(
 	CATCH
 		rReply.SetError();
 		ret = cmdretError;
@@ -2348,7 +3326,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 	return ret;
 }
 /*
-	Сценарий теста:
+	РЎС†РµРЅР°СЂРёР№ С‚РµСЃС‚Р°:
 
 	Client                         Server
 	------                         ------
@@ -2384,7 +3362,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 	(line_buf = "TESTPAPYRUSSERVER").CRB();
 	THROW(TestSend(rSo, line_buf.cptr(), line_buf.Len(), &actual_size) > 0);
 	//
-	// Принимаем от сервера случайные последовательности байт.
+	// РџСЂРёРЅРёРјР°РµРј РѕС‚ СЃРµСЂРІРµСЂР° СЃР»СѓС‡Р°Р№РЅС‹Рµ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё Р±Р°Р№С‚.
 	//
 	do {
 		THROW(TestRecvBlock(rSo, &clen, sizeof(clen), &actual_size) > 0);
@@ -2513,9 +3491,9 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	uint   max_size = 16*1024;
 	SString msg_buf, line_buf;
 	//
-	// Посылаем клиенту буферы длинами от 1 до max_size байт
-	// со случайным содержимым.
-	// В ответ должны получить CRC32 этих последовательностей.
+	// РџРѕСЃС‹Р»Р°РµРј РєР»РёРµРЅС‚Сѓ Р±СѓС„РµСЂС‹ РґР»РёРЅР°РјРё РѕС‚ 1 РґРѕ max_size Р±Р°Р№С‚
+	// СЃРѕ СЃР»СѓС‡Р°Р№РЅС‹Рј СЃРѕРґРµСЂР¶РёРјС‹Рј.
+	// Р’ РѕС‚РІРµС‚ РґРѕР»Р¶РЅС‹ РїРѕР»СѓС‡РёС‚СЊ CRC32 СЌС‚РёС… РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№.
 	//
 	char * p_buf = (char *)SAlloc::M(max_size+sizeof(ulong));
 	SRandGenerator & r_rg = SLS.GetTLA().Rg;
@@ -2528,7 +3506,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 		}
 		c = i;
 		//
-		// Передаем длину буфера
+		// РџРµСЂРµРґР°РµРј РґР»РёРЅСѓ Р±СѓС„РµСЂР°
 		//
 		THROW(TestSend(So, &c, sizeof(c), &actual_size) > 0);
 		c = crc.Calc(0, (uint8 *)p_buf, i);
@@ -2539,19 +3517,19 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 			PPLogMessage(PPFILNAM_DEBUG_LOG, "Received CRC not equal to sended series", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
 	}
 	//
-	// Посылаем клиенту сигнал о том, что все серии переданы (32-разрядный 0 и строка).
+	// РџРѕСЃС‹Р»Р°РµРј РєР»РёРµРЅС‚Сѓ СЃРёРіРЅР°Р» Рѕ С‚РѕРј, С‡С‚Рѕ РІСЃРµ СЃРµСЂРёРё РїРµСЂРµРґР°РЅС‹ (32-СЂР°Р·СЂСЏРґРЅС‹Р№ 0 Рё СЃС‚СЂРѕРєР°).
 	//
 	THROW(TestSend(So, &(c = 0), sizeof(c), &actual_size) > 0);
 	(msg_buf = P_TestEndOfSeries).CRB();
 	THROW(TestSend(So, msg_buf.cptr(), msg_buf.Len(), &actual_size) > 0);
 	//
-	// Теперь принимаем от клиента количество строк, которые он нам отошлет (2-x байтовое число)
+	// РўРµРїРµСЂСЊ РїСЂРёРЅРёРјР°РµРј РѕС‚ РєР»РёРµРЅС‚Р° РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє, РєРѕС‚РѕСЂС‹Рµ РѕРЅ РЅР°Рј РѕС‚РѕС€Р»РµС‚ (2-x Р±Р°Р№С‚РѕРІРѕРµ С‡РёСЃР»Рѕ)
 	//
 	uint16 num_lines = 0;
 	THROW(TestRecvBlock(So, &num_lines, sizeof(num_lines), &actual_size) > 0);
 	{
 		//
-		// Принимаем строки в общий пул. Каждая строка должна завершаться символом '\n'.
+		// РџСЂРёРЅРёРјР°РµРј СЃС‚СЂРѕРєРё РІ РѕР±С‰РёР№ РїСѓР». РљР°Р¶РґР°СЏ СЃС‚СЂРѕРєР° РґРѕР»Р¶РЅР° Р·Р°РІРµСЂС€Р°С‚СЊСЃСЏ СЃРёРјРІРѕР»РѕРј '\n'.
 		//
 		SBuffer str_pool_buf;
 		int r = 1;
@@ -2580,7 +3558,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
 			}
 			//
-			// Передаем обратно клиенту строки, которые от него получили (дополняем завершающим '\n')
+			// РџРµСЂРµРґР°РµРј РѕР±СЂР°С‚РЅРѕ РєР»РёРµРЅС‚Сѓ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂС‹Рµ РѕС‚ РЅРµРіРѕ РїРѕР»СѓС‡РёР»Рё (РґРѕРїРѕР»РЅСЏРµРј Р·Р°РІРµСЂС€Р°СЋС‰РёРј '\n')
 			//
 			for(uint j = 0; ss.get(&j, line_buf);) {
 				line_buf.CR();
@@ -2596,12 +3574,12 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 }
 /*
 
-Протокол обмена данными при обработке команд:
+РџСЂРѕС‚РѕРєРѕР» РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РєРѕРјР°РЅРґ:
 
 	Command:
 
-		Если первые два байта команды нулевые, то далее следует бинарный пакет команды,
-		в противном случае - команда символьная.
+		Р•СЃР»Рё РїРµСЂРІС‹Рµ РґРІР° Р±Р°Р№С‚Р° РєРѕРјР°РЅРґС‹ РЅСѓР»РµРІС‹Рµ, С‚Рѕ РґР°Р»РµРµ СЃР»РµРґСѓРµС‚ Р±РёРЅР°СЂРЅС‹Р№ РїР°РєРµС‚ РєРѕРјР°РЅРґС‹,
+		РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ - РєРѕРјР°РЅРґР° СЃРёРјРІРѕР»СЊРЅР°СЏ.
 
 	Reply:
 
@@ -2609,1074 +3587,161 @@ PPServerSession::CmdRet SLAPI PPServerSession::Testing()
 	}
 
 */
-
-#define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
-
-SString & SLAPI PPServerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
-{
-	rBuf.Z();
-	if(P_TxtCmdTerminal == 0) {
-		rBuf = "none";
-	}
-	else {
-		const size_t len = strlen(P_TxtCmdTerminal);
-		if(len == 0) {
-			rBuf.CatHex((uint8)0);
-		}
-		else {
-			for(size_t i = 0; i < len; i++) {
-				rBuf.CatHex((uint8)P_TxtCmdTerminal[i]);
-			}
-		}
-	}
-	return rBuf;
-}
-
-int SLAPI PPServerSession::SetupTxtCmdTerm(int code)
-{
-	int    ok = 1;
-	switch(code) {
-		case -1: P_TxtCmdTerminal = 0; break;
-		case 0: P_TxtCmdTerminal = 0; break;
-		case 1: P_TxtCmdTerminal = "\xD\xA"; break;
-		case 2: P_TxtCmdTerminal = "\xD\xA\xD\xA"; break;
-		case 3: P_TxtCmdTerminal = "\xD"; break;
-		case 4: P_TxtCmdTerminal = "\xA"; break;
-		case 5: P_TxtCmdTerminal = "\x0"; break;
-		default: ok = 0; break;
-	}
-	return ok;
-}
-
-PPServerSession::CmdRet SLAPI PPServerSession::Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply)
-{
-	CmdRet ret = cmdretOK;
-	xmlTextWriter * p_writer = 0;
-	xmlBuffer * p_xml_buf = 0;
-	SString token, temp_buf;
-	PPObjPerson * p_psn_obj = 0;
-	PPGetExtStrData(1, pEv->Params, token);
-	if(token.NotEmptyS()) {
-		uint   i;
-		PPTokenRecognizer tr;
-		PPNaturalTokenArray nta;
-		LAssocArray rel_obj_list;
-		tr.Run(token.ucptr(), nta, 0);
-		if(nta.Has(PPNTOK_EMAIL) > 0.0f) {
-            PPIDArray psn_list;
-            PPIDArray loc_list;
-            THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
-            if(p_psn_obj->SearchEmail(token, 0, &psn_list, &loc_list) > 0) {
-				psn_list.sortAndUndup();
-				loc_list.sortAndUndup();
-				for(i = 0; i < psn_list.getCount(); i++) {
-					rel_obj_list.Add(PPOBJ_PERSON, psn_list.get(i), 0);
-				}
-				for(i = 0; i < loc_list.getCount(); i++) {
-					rel_obj_list.Add(PPOBJ_LOCATION, loc_list.get(i), 0);
-				}
-            }
-		}
-		THROW(p_xml_buf = xmlBufferCreate());
-		THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
-		{
-			SXml::WDoc _doc(p_writer, cpUTF8);
-			/*
-			xmlTextWriterStartDTD(writer, (temp_buf = "NaturalToken").ucptr(), 0, 0);
-			XMLWriteSpecSymbEntities(writer);
-			xmlTextWriterEndDTD(writer);
-			*/
-			{
-				SXml::WNode n_root(p_writer, "NaturalToken");
-				{
-					SXml::WNode(p_writer, "Token", (temp_buf = token).ToUtf8());
-					{
-						SXml::WNode n_probidlist(p_writer, "TokenTypeList");
-						for(i = 0; i < nta.getCount(); i++) {
-							const PPNaturalToken & r_nt = nta.at(i);
-							SXml::WNode n_item(p_writer, "TokenType");
-							{
-								n_item.PutInner("TokenTypeId", temp_buf.Z().Cat(r_nt.ID));
-								PPGetSubStrById(PPTXT_NATURALTOKENID, r_nt.ID, temp_buf.Z());
-								n_item.PutInner("TokenTypeSymb", temp_buf);
-								n_item.PutInner("TokenTypeProb", temp_buf.Z().Cat((double)r_nt.Prob, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
-							}
-						}
-					}
-					if(rel_obj_list.getCount()) {
-						PersonTbl::Rec psn_rec;
-						LocationTbl::Rec loc_rec;
-						THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
-						SXml::WNode n_relobjlist(p_writer, "RelObjList");
-						for(i = 0; i < rel_obj_list.getCount(); i++) {
-							SXml::WNode n_obj(p_writer, "RelObj");
-							const LAssoc item = rel_obj_list.at(i);
-							const PPID obj_type = item.Key;
-							n_obj.PutInner("Obj", temp_buf.Z().Cat(obj_type));
-							n_obj.PutInner("Id", temp_buf.Z().Cat(item.Val));
-							if(obj_type == PPOBJ_PERSON) {
-								if(p_psn_obj->Fetch(item.Val, &psn_rec) > 0) {
-									n_obj.PutInner("Name", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-								}
-							}
-							else if(obj_type == PPOBJ_LOCATION) {
-								if(p_psn_obj->LocObj.Fetch(item.Val, &loc_rec) > 0) {
-									temp_buf = 0;
-									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
-									if(!temp_buf.NotEmptyS())
-										temp_buf = loc_rec.Name;
-									if(!temp_buf.NotEmptyS())
-										LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, temp_buf);
-									if(!temp_buf.NotEmptyS())
-										LocationCore::GetExField(&loc_rec, LOCEXSTR_SHORTADDR, temp_buf);
-									if(temp_buf.NotEmptyS()) {
-										n_obj.PutInner("Name", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			xmlTextWriterFlush(p_writer);
-			temp_buf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
-			temp_buf.ReplaceCR();
-			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-			rReply.SetString(temp_buf);
-		}
-	}
-	CATCH
-		ret = cmdretError;
-	ENDCATCH
-	xmlFreeTextWriter(p_writer);
-	xmlBufferFree(p_xml_buf);
-	delete p_psn_obj;
-    return ret;
-}
-
 PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
 {
-	CmdRet ok = cmdretOK;
-	int    disable_err_reply = 0;
-	int    r = 0;
-	SString reply_buf, temp_buf, name, db_symb;
-	THROW(rReply.StartWriting());
-	switch(pEv->GetH().Type) {
-		//
-		// Эти команды обмениваются по собственному протоколу {
-		//
-		case PPSCMD_SPII:
-			{
-				disable_err_reply = 1;
-				SString log_path, path, devl_path, install_path;
-				PPGetPath(PPPATH_SPII, path);
-				PPGetPath(PPPATH_LOG, log_path);
-				PPGetFilePath(PPPATH_BIN, PPFILNAM_TCPALLOWEDDEVICELIST, devl_path);
+	CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
+	if(ok == cmdretUnprocessed) {
+		int    disable_err_reply = 0;
+		int    r = 0;
+		SString reply_buf, temp_buf, name, db_symb;
+		// (StartWriting СѓР¶Рµ Р±С‹Р» РІС‹РїРѕР»РЅРµРЅ РІС‹Р·РѕРІРѕРј PPWorkerSession::ProcessCommand) THROW(rReply.StartWriting());
+		switch(pEv->GetH().Type) {
+			//
+			// Р­С‚Рё РєРѕРјР°РЅРґС‹ РѕР±РјРµРЅРёРІР°СЋС‚СЃСЏ РїРѕ СЃРѕР±СЃС‚РІРµРЅРЅРѕРјСѓ РїСЂРѕС‚РѕРєРѕР»Сѓ {
+			//
+			case PPSCMD_SPII:
 				{
-					PPGetPath(PPPATH_BIN, install_path);
-					install_path.RmvLastSlash();
-					install_path.TrimToDiv(install_path.Len() - 1, "\\").SetLastSlash().Cat("install");
-				}
-				PalmTcpExchange p_e(&So, path, log_path, devl_path, install_path);
-				// Если выполнение обмена закончилось с ошибкой, то все равно обрываем соединение. (обрывается по ok = 100)
-				//
-				//
-				if(SpiiExchange(&p_e, 0, 0))
-					rReply.SetString(temp_buf.Z().Cat(100));
-				else if(!disable_err_reply)
-					rReply.SetError();
-				ok = cmdretQuit;
-			}
-			break;
-		case PPSCMD_GETBIZSCORES:
-			disable_err_reply = 1;
-			//
-			// Login не требуется (GetBizScoresVals сама выполняет DS.Login)
-			//
-			PPGetExtStrData(1, pEv->Params, name);
-			PPGetExtStrData(2, pEv->Params, temp_buf);
-			THROW(GetBizScoresVals(name, temp_buf, &So));
-			ok = cmdretQuit;
-			//
-			// GetBizScoresVals сама ответит клиенту. Поэтому reply здесь не формируется.
-			//
-			break;
-		case PPSCMD_STYLOBHT:
-			disable_err_reply = 1;
-			THROW(StyloBHTExch(&So));
-			ok = cmdretQuit;
-			break;
-		case PPSCMD_STYLOBHTII:
-			disable_err_reply = 1;
-			PPGetExtStrData(1, pEv->Params, db_symb);
-			PPGetExtStrData(2, pEv->Params, name);
-			PPGetExtStrData(3, pEv->Params, temp_buf);
-			//
-			{
-				SString pwd;
-				Reference::Decrypt(Reference::crymRef2, temp_buf, temp_buf.Len(), pwd);
-				int   lr = DS.Login(db_symb, name, pwd);
-				pwd = 0;
-				if(!lr) {
-					rReply.SetString(temp_buf.Z().CatChar('0'));
+					disable_err_reply = 1;
+					SString log_path, path, devl_path, install_path;
+					PPGetPath(PPPATH_SPII, path);
+					PPGetPath(PPPATH_LOG, log_path);
+					PPGetFilePath(PPPATH_BIN, PPFILNAM_TCPALLOWEDDEVICELIST, devl_path);
+					{
+						PPGetPath(PPPATH_BIN, install_path);
+						install_path.RmvLastSlash();
+						install_path.TrimToDiv(install_path.Len() - 1, "\\").SetLastSlash().Cat("install");
+					}
+					PalmTcpExchange p_e(&So, path, log_path, devl_path, install_path);
+					// Р•СЃР»Рё РІС‹РїРѕР»РЅРµРЅРёРµ РѕР±РјРµРЅР° Р·Р°РєРѕРЅС‡РёР»РѕСЃСЊ СЃ РѕС€РёР±РєРѕР№, С‚Рѕ РІСЃРµ СЂР°РІРЅРѕ РѕР±СЂС‹РІР°РµРј СЃРѕРµРґРёРЅРµРЅРёРµ. (РѕР±СЂС‹РІР°РµС‚СЃСЏ РїРѕ ok = 100)
+					//
+					//
+					if(SpiiExchange(&p_e, 0, 0))
+						rReply.SetString(temp_buf.Z().Cat(100));
+					else if(!disable_err_reply)
+						rReply.SetError();
 					ok = cmdretQuit;
 				}
-				else {
-					rReply.SetString(temp_buf.Z().CatChar('1'));
-					/*
-					StyloBhtIIExchanger exch(pSo);
-					buf.Z().Cat((long)1);
-					THROW(pSo->Send(buf.cptr(), buf.Len(), 0));
-					THROW(exch.Run());
-					*/
-					ok = cmdretStyloBhtIIMode;
-				}
-			}
-			//
-			/* @v8.3.6
-			THROW(StyloBhtIIExchange(db_symb, name, temp_buf, &So));
-			ok = cmdretQuit;
-			*/
-			//
-			// StyloBhtIIExchange сама ответит клиенту. Поэтому reply здесь не формируется.
-			//
-			break;
-		//
-		// }
-		//
-		case PPSCMD_HELLO:
-			{
-				if(HelloReplyText.Empty()) {
-					PPVersionInfo vi = DS.GetVersionInfo();
-					vi.GetProductName(HelloReplyText);
-				}
-				rReply.SetString(HelloReplyText);
-			}
-			break;
-		case PPSCMD_HSH:
-			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
-			break;
-		case PPSCMD_GETLASTERRMSG:
-			PPGetLastErrorMessage(1, temp_buf);
-			rReply.SetString(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
-			break;
-		case PPSCMD_SETTXTCMDTERM:
-			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				if(temp_buf.IsDigit() || temp_buf == "-1") {
-					long   terminal_code = temp_buf.ToLong();
-					SetupTxtCmdTerm(temp_buf.ToLong());
-				}
-				rReply.SetString(GetTxtCmdTermMnemonic(temp_buf));
-			}
-			break;
-		case PPSCMD_GETKEYWORDSEQ:
-			{
-				PPGetExtStrData(1, pEv->Params, name);
-				if(PPGenerateKeywordSequence(name, temp_buf, 0))
-					rReply.SetString(temp_buf);
-				else
-					rReply.SetError();
-			}
-			break;
-		case PPSCMD_LOGIN:
-			PPGetExtStrData(1, pEv->Params, db_symb);
-			PPGetExtStrData(2, pEv->Params, name);
-			PPGetExtStrData(3, pEv->Params, temp_buf);
-			THROW(DS.Login(db_symb, name, temp_buf) > 0);
-			State |= stLoggedIn;
-			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
-			{
-				(temp_buf = db_symb).CatChar(':').Cat(name);
-				DS.SetThreadNotification(PPSession::stntText, temp_buf);
-			}
-			break;
-		case PPSCMD_SUSPEND:
-			if(PPGetExtStrData(1, pEv->Params, name) > 0) {
-				long timeout = name.ToLong();
-				if(timeout > 0 && timeout <= 1000000)
-					SuspendTimeout = timeout * 1000;
-			}
-			rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
-			ok = cmdretSuspend;
-			break;
-		case PPSCMD_RESUME:
-			{
-				PPThread::Info thread_info;
-				PPJobSrvReply reply;
-				reply = rReply;
-
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				long id = temp_buf.ToLong();
-				reply.SetAck();
-				reply.FinishWriting();
-				THROW(r = DS.SetThreadSock(id, So, &reply));
-				if(r < 0) {
-					//
-					// Поток, на который мы хотим переключиться занят (не ответил в течении заданного времени).
-					//
-					reply.Clear();
-					reply.SetString("BUSY");
-					ok = cmdretOK;
-				}
-				else {
-					ok = cmdretResume;
-				}
-				rReply = reply;
-			}
-			break;
-		case PPSCMD_LOGOUT:
-			State &= ~stLoggedIn;
-			rReply.SetAck();
-			ok = cmdretQuit;
-			break;
-		case PPSCMD_RESETCACHE:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				PPID   obj_type = 0;
-				long   obj_type_ext = 0;
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				THROW(obj_type = GetObjectTypeBySymb(temp_buf, &obj_type_ext));
-				if(obj_type == PPOBJ_GOODS) {
-					PPGetExtStrData(2, pEv->Params, temp_buf);
-					if(temp_buf.CmpNC("NAMEPOOL") == 0) {
-						PPObjGoods goods_obj;
-						goods_obj.P_Tbl->ResetFullList();
-						ok = cmdretOK;
-					}
-					else {
-						CALLEXCEPT_PP(PPERR_RESETCACHE_NOTSUPP);
-					}
-				}
-				else {
-					CALLEXCEPT_PP_S(PPERR_RESETCACHE_OBJ_NOTSUPP, temp_buf);
-				}
-			}
-			break;
-		case PPSCMD_CHECKGLOBALCREDENTIAL:
-			{
-				PPGetExtStrData(1, pEv->Params, name);
-				temp_buf.Space() = 0; // Гарантируем ненулевой буфер temp_buf.P_Buf
-				PPGetExtStrData(2, pEv->Params, temp_buf);
-				PPObjGlobalUserAcc gua_obj;
-				PPGlobalUserAcc gua_rec;
-				THROW(gua_obj.CheckPassword(name, temp_buf, &gua_rec) > 0);
-				rReply.SetAck();
-			}
-			break;
-		case PPSCMD_SOBLK:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			THROW_INVARG(pEv->P_SoBlk);
-			THROW(r = pEv->P_SoBlk->Execute(rReply));
-			break;
-		case PPSCMD_POS_INIT:
-			if(P_CPosBlk)
-				ZDELETE(P_CPosBlk);
-			P_CPosBlk = new CPosNodeBlock();
-			// @nobreak
-		case PPSCMD_POS_RELEASE:
-		case PPSCMD_POS_GETCTABLELIST:
-		case PPSCMD_POS_GETCCHECKLIST:
-		case PPSCMD_POS_GETCCHECKLNCOUNT:
-		case PPSCMD_POS_ADDCCHECKLINE:
-		case PPSCMD_POS_RMVCCHECKLINE:
-		case PPSCMD_POS_CLEARCCHECK:
-		case PPSCMD_POS_RMVCCHECK:
-		case PPSCMD_POS_PRINTCCHECK:
-		case PPSCMD_POS_PRINTCCHECKLOCAL:
-		case PPSCMD_POS_GETCONFIG:
-		case PPSCMD_POS_SETCONFIG:
-		case PPSCMD_POS_GETSTATE:
-		case PPSCMD_POS_SELECTCCHECK:
-		case PPSCMD_POS_SUSPENDCCHECK:
-		case PPSCMD_POS_SELECTCTABLE:
-		case PPSCMD_POS_GETCPOSRIGHTS:
-		case PPSCMD_POS_GETGOODSPRICE:
-		case PPSCMD_POS_GETCURRENTSTATE:
-		case PPSCMD_POS_RESETCURRENTLINE:
-		case PPSCMD_POS_PROCESSBARCODE:
-		case PPSCMD_POS_CPOSSETCCROWQUEUE:
-		case PPSCMD_POS_GETMODIFLIST:
-			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				THROW_PP(P_CPosBlk, PPERR_POSNODEPRCNDEF);
-				THROW(r = P_CPosBlk->Execute(pEv->GetH().Type, temp_buf, rReply));
-			}
-			break;
-		case PPSCMD_POS_DECRYPTAUTHDATA:
-			{
-				SString left, right;
-				Sdr_CPosAuth rec;
-				MEMSZERO(rec);
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				temp_buf.Divide(' ', left, right);
-				memcpy(&rec, (const char*)right, sizeof(rec));
-				decrypt(&rec, sizeof(rec));
-				rReply.Write((const char *)&rec, sizeof(rec));
-				rReply.SetDataType(PPJobSrvReply::htFile, 0);
-			}
-			break;
-		case PPSCMD_GETTDDO:
-			{
-				// GETTDDO filename par1 par2 ar "sdgjlsgj  sfjsfjl;"
-				// GETTDDO INLINE ${@(Goods, 35324).Name}
-				Tddo t;
-				StringSet ext_param_list;
-				int    fld_n = 0;
-				//
-				// Первый аргумент - имя tddo-файла или "INLINE"
-				//
-				PPGetExtStrData(++fld_n, pEv->Params, name);
-				if(name.Cmp("INLINE", 1) == 0) {
-					PPGetExtStrData(++fld_n, pEv->Params, temp_buf);
-				}
-				else {
-					//
-					// Все последующие аргументы - дополнительные параметры, используемые при разборе tddo-файла
-					//
-					while(PPGetExtStrData(++fld_n, pEv->Params, temp_buf) > 0) {
-						ext_param_list.add(temp_buf);
-					}
-					THROW(Tddo::LoadFile(name, temp_buf));
-					t.SetInputFileName(name);
-				}
-				DlRtm::ExportParam ep;
-				THROW(t.Process(0 /*data_name*/, temp_buf, /*0, 0*/ep, &ext_param_list, rReply));
-				rReply.SetDataType(PPJobSrvReply::htGenericText, 0);
-			}
-			break;
-		case PPSCMD_EXECVIEWNF:
-			// EXECVIEW named_filt_name [dl600_data_name]
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				SString nf_symb, dl600_name, file_name;
-				PPGetExtStrData(1, pEv->Params, nf_symb);
-				PPGetExtStrData(2, pEv->Params, dl600_name);
-				THROW(PPView::ExecuteNF(nf_symb, dl600_name, file_name));
-				ok = TransmitFile(tfvStart, file_name, rReply);
-			}
-			break;
-		case PPSCMD_SETIMAGE:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			THROW(ReceiveFile(tfvStart, temp_buf = 0, rReply));
-			break;
-		case PPSCMD_SETIMAGEMIME:
-			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				SString content_type, img_mime, file_name, file_ext;
-				PPGetExtStrData(1, pEv->Params, name);
-				long   upd_flags = 0;
-				size_t bin_size = 0;
-				long   obj_type_ext = 0;
-				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
-				PPGetExtStrData(2, pEv->Params, temp_buf);
-				PPID   obj_id = temp_buf.ToLong();
-				ObjLinkFiles lf;
-				PPGetExtStrData(3, pEv->Params, temp_buf);
-				upd_flags = temp_buf.ToLong();
-				PPGetExtStrData(4, pEv->Params, content_type);
-				PPGetExtStrData(5, pEv->Params, img_mime);
-				SFileFormat ff;
-				ff.IdentifyMime(content_type);
-				switch(ff) {
-					case ff.Jpeg: file_ext = "jpg"; break;
-					case ff.Png:  file_ext = "png"; break;
-					case ff.Tiff: file_ext = "tiff"; break;
-					case ff.Gif:  file_ext = "gif"; break;
-					case ff.Bmp:  file_ext = "bmp"; break;
-				}
-				PPMakeTempFileName("objimg", file_ext, 0, file_name);
-				{
-					STempBuffer tbuf(img_mime.Len() * 2);
-					THROW_SL(tbuf.IsValid());
-					THROW_SL(img_mime.DecodeMime64(tbuf, tbuf.GetSize(), &bin_size));
-					{
-						SFile img_file(file_name, SFile::mWrite|SFile::mBinary);
-						THROW_SL(img_file.IsValid());
-						THROW_SL(img_file.Write(tbuf, bin_size));
-					}
-				}
-				if(obj_type == PPOBJ_GOODS) {
-					PPObjGoods goods_obj;
-					Goods2Tbl::Rec goods_rec;
-					THROW(goods_obj.Search(obj_id, &goods_rec) > 0);
-					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
-					THROW(goods_obj.UpdateFlags(obj_id, GF_HASIMAGES, 0, 1));
-				}
-				else if(obj_type == PPOBJ_PERSON) {
-					PPObjPerson psn_obj;
-					PersonTbl::Rec psn_rec;
-					THROW(psn_obj.Search(obj_id, &psn_rec) > 0);
-					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
-					THROW(psn_obj.P_Tbl->UpdateFlags(obj_id, PSNF_HASIMAGES, 0, 1));
-				}
-			}
-			break;
-		case PPSCMD_GETIMAGE:
-			// GETIMAGE goods 52103
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				PPGetExtStrData(1, pEv->Params, name);
-				long   obj_type_ext = 0;
-				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
-				PPGetExtStrData(2, pEv->Params, temp_buf);
-				PPID   obj_id = temp_buf.ToLong();
-				SString img_path, obj_name;
-				ObjLinkFiles lf;
-				if(obj_type == PPOBJ_GOODS) {
-					PPObjGoods goods_obj;
-					Goods2Tbl::Rec goods_rec;
-					THROW(goods_obj.Fetch(obj_id, &goods_rec) > 0);
-					obj_name = goods_rec.Name;
-					THROW_PP_S(goods_rec.Flags & GF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
-				}
-				else if(obj_type == PPOBJ_BRAND) {
-					PPObjBrand brand_obj;
-					PPBrand    brand_rec;
-					THROW(brand_obj.Fetch(obj_id, &brand_rec) > 0);
-					obj_name = brand_rec.Name;
-					THROW_PP_S(brand_rec.Flags & BRNDF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
-				}
-				else if(obj_type == PPOBJ_PERSON) {
-					PPObjPerson psn_obj;
-					PersonTbl::Rec psn_rec;
-					THROW(psn_obj.Fetch(obj_id, &psn_rec) > 0);
-					obj_name = psn_rec.Name;
-					THROW_PP_S(psn_rec.Flags & PSNF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
-				}
-				else if(obj_type == PPOBJ_TSESSION) {
-					PPObjTSession tses_obj;
-					TSessionTbl::Rec tses_rec;
-					THROW(tses_obj.Search(obj_id, &tses_rec) > 0);
-					tses_obj.MakeName(&tses_rec, obj_name);
-					THROW_PP_S(tses_rec.Flags & TSESF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
-				}
-				else {
-					CALLEXCEPT_PP_S(PPERR_JOBSRV_GETIMG_INVOBJTYPE, name);
-				}
-				THROW(lf.GetZeroPositionFile(obj_type, obj_id, img_path));
-				THROW_PP_S(img_path.NotEmptyS(), PPERR_OBJHASNTIMG, obj_name);
-				ok = TransmitFile(tfvStart, img_path, rReply);
-			}
-			break;
-		case PPSCMD_GETFILE:
-			PPGetExtStrData(1, pEv->Params, name);
-			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
-				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
-				ok = TransmitFile(tfvStart, name, rReply);
-			}
-			else {
-				CALLEXCEPT_PP_S(PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
-			}
-			break;
-		case PPSCMD_GETNEXTFILEPART:
-			PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvNext, name, rReply);
-			break;
-		case PPSCMD_ACKFILE:
-			PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvFinish, name, rReply);
-			break;
-		case PPSCMD_CANCELFILE:
-			PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvCancel, name, rReply);
-			break;
-		case PPSCMD_PUTFILE:
-			PPGetExtStrData(1, pEv->Params, name);
-			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
-				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
-			else
-				name = 0;
-			ok = ReceiveFile(tfvStart, name, rReply);
-			/*
-			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
-				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
-			ok = ReceiveFile(tfvStart, name, rReply);
-			}
-			else {
-				CALLEXCEPT_PP_S(PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
-			}
-			*/
-			break;
-		case PPSCMD_PUTNEXTFILEPART:
-			// PPGetExtStrData(1, 0, pEv->Params, name);
-			ok = ReceiveFile(tfvNext, name, rReply);
-			break;
-		case PPSCMD_GETSERVERSTAT:
-			{
-				const ThreadID this_thread_id = DS.GetConstTLA().GetThreadID();
-
-				TSCollection <PPThread::Info> list;
-				DS.GetThreadInfoList(0, list);
-				SSerializeContext ctx;
-				int32 c = list.getCount();
-				SBuffer _temp_sbuf;
-
-				ctx.Init(0, getcurdate_());
-				THROW_SL(ctx.Serialize(+1, c, _temp_sbuf));
-				for(int i = 0; i < c; i++) {
-					PPThread::Info * p_item = list.at(i);
-					if(p_item->Id == this_thread_id && p_item->LastMsg.Empty()) {
-						p_item->LastMsg = "GetServerStat";
-					}
-					THROW(p_item->Serialize(+1, _temp_sbuf, &ctx));
-				}
-				THROW_SL(ctx.SerializeState(+1, rReply));
-				THROW_SL(rReply.Write(_temp_sbuf.GetBuf(_temp_sbuf.GetRdOffs()), _temp_sbuf.GetAvailableSize()));
-			}
-			break;
-		case PPSCMD_STOPTHREAD:
-			{
-				PPJobSrvProtocol::StopThreadBlock blk;
-				PPThread::Info tinfo;
-				SSerializeContext ctx;
-				ctx.Init(0, getcurdate_());
-				THROW_SL(blk.Serialize(-1, *pEv, &ctx));
-				DS.GetThreadInfo(blk.TId, tinfo);
-				THROW(DS.StopThread(blk.TId));
-				rReply.SetAck();
-				{
-					SString fmt_buf, msg, kind_buf;
-					PPThread::GetKindText(tinfo.Kind, kind_buf);
-					PPFormatT(PPTXT_SERVERTHREADSTOPPED, &msg, kind_buf.cptr(), tinfo.Text.cptr(), blk.HostName.cptr(), blk.UserName.cptr());
-					PPLogMessage(PPFILNAM_SERVER_LOG, msg, LOGMSGF_TIME);
-				}
-			}
-			break;
-		case PPSCMD_CREATEVIEW:
-			ok = PPView::ExecuteServer(*pEv, rReply) ? cmdretOK : cmdretError;
-			break;
-		case PPSCMD_DESTROYVIEW:
-			ok = PPView::Destroy(*pEv, rReply) ? cmdretOK : cmdretError;
-			break;
-		case PPSCMD_REFRESHVIEW:
-			ok = PPView::Refresh(*pEv, rReply) ? cmdretOK : cmdretError;
-			break;
-		case PPSCMD_SETGLOBALUSER:
-			{
-				PPGetExtStrData(1, pEv->Params, name);
-				PPID   gua_id = name.ToLong();
-				PPThreadLocalArea & r_tla = DS.GetTLA();
-				// @ Muxa {
-				r_tla.GlobAccID = 0;
-				r_tla.GlobAccName = 0;
-				r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
-				if(name == "0" || gua_id == PPGUAID_UHTT_CORE) {
-					r_tla.GlobAccID = gua_id;
-					ok = cmdretOK;
-				}
-				// } @Muxa
-				else {
-					PPObjGlobalUserAcc gua_obj;
-					PPGlobalUserAcc gua_rec;
-					if(gua_id && gua_obj.Fetch(gua_id, &gua_rec) > 0) { // @v8.7.8 Search-->Fetch
-						r_tla.GlobAccID = gua_rec.ID;
-						r_tla.GlobAccName = gua_rec.Name;
-						ok = cmdretOK;
-					}
-					else if(gua_obj.SearchByName(name, &(gua_id = 0), &gua_rec) > 0) {
-						r_tla.GlobAccID = gua_rec.ID;
-						r_tla.GlobAccName = gua_rec.Name;
-						ok = cmdretOK;
-					}
-					else
-						ok = cmdretError;
-				}
-			}
-			break;
-		case PPSCMD_GETGLOBALUSER:
-			{
-				temp_buf.Cat(DS.GetConstTLA().GlobAccID);
-				rReply.SetString(temp_buf);
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_EXPTARIFFTA:
-			{
-				PPThreadLocalArea & r_tla = DS.GetTLA();
-				if(!(r_tla.State & PPThreadLocalArea::stExpTariffTa)) {
-					r_tla.State |= PPThreadLocalArea::stExpTariffTa;
-					temp_buf.Cat(1);   // on
-				}
-				else {
-					r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
-					temp_buf.Cat(0);   // off
-				}
-				rReply.SetString(temp_buf);
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_TEST:
-			ok = Testing();
-			break;
-		case PPSCMD_PING:
-			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				if(temp_buf.NotEmptyS()) {
-					if(temp_buf.CmpNC("TERM") == 0) {
-						PPGetExtStrData(2, pEv->Params, temp_buf);
-						SString terminal;
-						if(temp_buf.NotEmptyS())
-							terminal = temp_buf;
-						else
-							terminal.Z().CRB().CRB();
-						ulong c = SLS.GetTLA().Rg.GetUniformInt(100);
-						temp_buf = 0;
-						for(ulong i = 0; i < c; i++) {
-							temp_buf.Cat((long)SLS.GetTLA().Rg.GetUniformInt(10));
-						}
-						temp_buf.Cat(terminal);
-						rReply.SetString(temp_buf);
-					}
-					else
-						rReply.SetString(temp_buf.CRB());
-				}
-				else
-					rReply.SetString("PONG");
 				break;
-			}
-		case PPSCMD_QUIT:
-			rReply.SetAck();
-			ok = cmdretQuit;
-			break;
-		case PPSCMD_REGISTERSTYLO:
-			{
-				PPID   device_id = 0;
-				PPObjStyloPalm sp_obj;
-				PPObjStyloPalm::RegisterDeviceBlock rdb;
-				SString dev_name, magic_buf;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, magic_buf);
-				dev_name.Strip();
-                int    sr = sp_obj.SearchBySymb(dev_name, &device_id, 0);
-                if(sr < 0)
-					sr = sp_obj.SearchByName(dev_name, &device_id, 0);
-				THROW(sr > 0);
-				THROW(sp_obj.RegisterDevice(device_id, &rdb, 1));
-				ok = cmdretOK;
-			}
-            break;
-		case PPSCMD_PREPAREPALMINDATA:
-			{
-				long   start = 0;
-				SString dev_uuid, dev_name, path, dir;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, dev_uuid);
-				dev_uuid = dev_name; // @todo
-				PPGetPath(PPPATH_SPII, dir);
-				dir.SetLastSlash().Cat(dev_uuid).SetLastSlash();
-				// @v8.5.10 (path = dir).Cat("temp_o.xml");
-				MakeTempFileName(dir, "tmpsti", "xml", 0, path); // @v8.5.10
-				/* @Удаляется в ReceiveFile
-				if(fileExists(path))
-					SFile::Remove(path);
-				*/
-				rReply.SetString(path);
-				{
-					(path = dir).Cat("stylo.log");
-					SyncTable::LogMessage(path, "\nEXCHANGE STARTED");
-					SyncTable::LogMessage(path, "IMPORT");
+			case PPSCMD_GETBIZSCORES:
+				disable_err_reply = 1;
+				//
+				// Login РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ (GetBizScoresVals СЃР°РјР° РІС‹РїРѕР»РЅСЏРµС‚ DS.Login)
+				//
+				PPGetExtStrData(1, pEv->Params, name);
+				PPGetExtStrData(2, pEv->Params, temp_buf);
+				THROW(GetBizScoresVals(name, temp_buf, &So));
+				ok = cmdretQuit;
+				//
+				// GetBizScoresVals СЃР°РјР° РѕС‚РІРµС‚РёС‚ РєР»РёРµРЅС‚Сѓ. РџРѕСЌС‚РѕРјСѓ reply Р·РґРµСЃСЊ РЅРµ С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ.
+				//
+				break;
+			case PPSCMD_STYLOBHT:
+				disable_err_reply = 1;
+				THROW(StyloBHTExch(&So));
+				ok = cmdretQuit;
+				break;
+			//
+			// }
+			//
+			case PPSCMD_SUSPEND:
+				if(PPGetExtStrData(1, pEv->Params, name) > 0) {
+					long timeout = name.ToLong();
+					if(timeout > 0 && timeout <= 1000000)
+						SuspendTimeout = timeout * 1000;
 				}
-			}
-			break;
-		case PPSCMD_PREPAREPALMOUTDATA:
-			{
-				SString dev_uuid, dev_name, path, temp_path, palm_path, log_path, msg_buf;
-				SString last_dt, last_tm;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, dev_uuid);
-				PPGetExtStrData(3, pEv->Params, last_dt);
-				PPGetExtStrData(4, pEv->Params, last_tm);
-				dev_uuid = dev_name; // @todo
-				PPGetPath(PPPATH_SPII, palm_path);
+				rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));
+				ok = cmdretSuspend;
+				break;
+			case PPSCMD_RESUME:
 				{
-					(log_path = palm_path).SetLastSlash().Cat(dev_uuid).SetLastSlash().Cat("stylo.log");
-					SyncTable::LogMessage(log_path, "EXPORT");
-				}
-				path = palm_path;
-				path.SetLastSlash().Cat(dev_uuid).SetLastSlash();
-				(temp_path = path).Cat("temp_in.zip");
-				path.Cat("in.xml");
-				if(fileExists(temp_path))
-					SFile::Remove(temp_path);
-				if(fileExists(path)) {
-					const int wr = SFile::WaitForWriteSharingRelease(path, 60000); // @v8.5.11 // @v8.5.12 30000-->60000
-					// @v9.0.0 THROW_SL(wr);
-					THROW_PP(wr, PPERR_STYLODATALOCKED); // @v9.0.0
-					if(wr > 0) {
-						//PPTXT_WAITFORWRSHRFILENOTIFY "Ожидание завершения записи в файл '%zstr' продлилось %int ms"
-						PPFormatT(PPTXT_WAITFORWRSHRFILENOTIFY, &msg_buf, path.cptr(), wr);
-						PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
-					}
-					LDATE dt = ZERODATE;
-					LTIME tm = ZEROTIME;
-					// SCopyFile(path, temp_path, 0, FILE_SHARE_READ, 0);
-					strtodate(last_dt, DATF_DMY, &dt);
-					strtotime(last_tm, TIMF_HMS, &tm);
-					if(PPObjStyloPalm::XmlCmpDtm(dt, tm, path) < 0) {
-						SString traf_log_path;
-						PPGetPath(PPPATH_LOG, traf_log_path);
-						rReply.SetString(temp_path);
-						PKZip(path, temp_path, palm_path);
-						PalmTcpExchange::LogTrafficInfo(temp_path, traf_log_path, dev_name, 1);
+					PPThread::Info thread_info;
+					PPJobSrvReply reply;
+					reply = rReply;
+
+					PPGetExtStrData(1, pEv->Params, temp_buf);
+					long id = temp_buf.ToLong();
+					reply.SetAck();
+					reply.FinishWriting();
+					THROW(r = DS.SetThreadSock(id, So, &reply));
+					if(r < 0) {
+						//
+						// РџРѕС‚РѕРє, РЅР° РєРѕС‚РѕСЂС‹Р№ РјС‹ С…РѕС‚РёРј РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ Р·Р°РЅСЏС‚ (РЅРµ РѕС‚РІРµС‚РёР» РІ С‚РµС‡РµРЅРёРё Р·Р°РґР°РЅРЅРѕРіРѕ РІСЂРµРјРµРЅРё).
+						//
+						reply.Clear();
+						reply.SetString("BUSY");
+						ok = cmdretOK;
 					}
 					else {
-						rReply.SetAck();
-						SyncTable::LogMessage(log_path, "SPII OK: Tables on palm is recently that host");
+						ok = cmdretResume;
 					}
+					rReply = reply;
 				}
-				else {
-					PPSetErrorSLib();
-					SLS.SetError(SLERR_FILENOTFOUND, path);
-					{
-						PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf.Z());
-						SyncTable::LogMessage(log_path, (msg_buf = "SPII FAIL: ").Cat(temp_buf));
-					}
-					CALLEXCEPT();
-				}
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_PROCESSPALMXMLDATA:
-			{
-				SString temp_path, log_path, dev_name, dev_uuid;
-				PPGetExtStrData(1, pEv->Params, temp_path);
-				PPGetExtStrData(2, pEv->Params, dev_name);
-				PPGetExtStrData(3, pEv->Params, dev_uuid);
+				break;
+			case PPSCMD_SETIMAGE:
+				THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
+				THROW(ReceiveFile(tfvStart, temp_buf = 0, rReply));
+				break;
+			case PPSCMD_PUTFILE:
+				PPGetExtStrData(1, pEv->Params, name);
+				if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
+					name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
+				else
+					name = 0;
+				ok = ReceiveFile(tfvStart, name, rReply);
+				break;
+			case PPSCMD_PUTNEXTFILEPART:
+				ok = ReceiveFile(tfvNext, name, rReply);
+				break;
+			case PPSCMD_TEST:
+				ok = Testing();
+				break;
+			case PPSCMD_GETDISPLAYINFO:
 				{
-					dev_uuid = dev_name; // @todo
-					if(dev_uuid.Empty()) {
-						SPathStruc sp;
-						sp.Split(temp_path);
-						sp.Nam = 0;
-						sp.Ext = 0;
-						sp.Merge(log_path);
-					}
-					else {
-						PPGetPath(PPPATH_SPII, log_path);
-                        log_path.SetLastSlash().Cat(dev_uuid);
-					}
-					log_path.SetLastSlash().Cat("stylo.log");
-				}
-				if(fileExists(temp_path) > 0) {
-					long start = 1;
-					SString dir, path;
-					SPathStruc sp;
-					sp.Split(temp_path);
-					sp.Nam = 0;
-					sp.Ext = 0;
-					sp.Merge(dir);
-					path = MakeTempFileName(dir, "out", "xml", &start, path);
-					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
-					{
-						(path = dir).SetLastSlash().Cat("sp_ready");
-						SFile file(path, mWrite);
-						file.Close();
-					}
-					if(dev_name.Empty()) {
-						SString right;
-						StringSet ss("\\");
-						SPathStruc sp;
-
-						sp.Split(temp_path);
-						ss.setBuf(sp.Dir);
-						sp.Dir.RmvLastSlash();
-						sp.Dir.Reverse();
-						sp.Dir.Divide('\\', dev_name, right);
-					}
-					{
-						SString traf_log_path;
-						PPGetPath(PPPATH_LOG, traf_log_path);
-						PalmTcpExchange::LogTrafficInfo(temp_path, traf_log_path, dev_name, 0);
-					}
-					SFile::Remove(temp_path);
-					SyncTable::LogMessage(log_path, "SPII OK: IMPORT");
-				}
-				else {
-					rReply.SetError();
-					SyncTable::LogMessage(log_path, "SPII FAIL: IMPORT");
-				}
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_SENDSMS:
-			{
-				const  PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
-				PPGta  gta_blk;
-				PPObjBill * p_bobj = BillObj;
-				if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
-					gta_blk.GlobalUserID = r_tla_c.GlobAccID;
-					gta_blk.Op = GTAOP_SMSSEND;
-					if(p_bobj) {
-						p_bobj->InitGta(gta_blk);
-						if(gta_blk.Quot != 0.0) {
-							// Для рассылки SMS кредит не применяется!
-							THROW_PP((gta_blk.SCardRest/*+ gta_blk.SCardMaxCredit*/) > 0.0, PPERR_GTAOVERDRAFT);
-						}
-					}
-				}
-				{
-					SString result;
-					SString old_phone;
-					SString new_phone;
-					SString err_msg;
-					SString from;
-					SString message;
-					PPLogger logger;
-					PPAlbatrosConfig  albtr_cfg;
-					SmsClient client(&logger);
-
-					PPGetExtStrData(1, pEv->Params, old_phone);
-					PPGetExtStrData(2, pEv->Params, from);
-					PPGetExtStrData(3, pEv->Params, message);
-					// @todo Error message
-					THROW(!old_phone.Empty());
-					THROW(!message.Empty());
-					THROW(!from.Empty());
-					THROW(PPAlbatrosCfgMngr::Get(&albtr_cfg));
-					{
-						size_t bin_size = 0;
-						STempBuffer buf(message.Len() * 2);
-						THROW(buf.IsValid());
-						THROW(message.DecodeMime64(buf, buf.GetSize(), &bin_size));
-						buf[bin_size] = 0;
-						message.Z().Cat((const char *)buf).Transf(CTRANSF_UTF8_TO_INNER);
-					}
-					THROW(client.SmsInit_(albtr_cfg.Hdr.SmsAccID, from));
-					// @v8.5.4 client.SetRecvTimeout(0);
-					if(FormatPhone(old_phone, new_phone, err_msg)) {
-						THROW(client.SendSms(new_phone, message, result.Z()));
-						temp_buf.Z().Cat(new_phone).Space().Cat(result);
-						logger.Log(temp_buf);
-					}
-					client.SmsRelease_();
-					rReply.SetAck();
-					ok = cmdretOK;
-				}
-				if(gta_blk.GlobalUserID) {
-					gta_blk.Count = 1;
-					gta_blk.Duration = ZEROTIME;
-					gta_blk.Dtm = getcurdatetime_();
-					GtaJournalCore * p_gtaj = DS.GetGtaJ();
-					if(p_gtaj)
-						THROW(p_gtaj->CheckInOp(gta_blk, 1));
-				}
-			}
-			break;
-		case PPSCMD_GETDISPLAYINFO:
-			{
-				long   id = 0;
-				SString str_id, str_buf;
-				PPGetExtStrData(1, pEv->Params, str_id);
-				if((id = str_id.ToLong()) > 0) {
-					int r = 0;
-					PalmDisplayBlock blk;
-					THROW(PPObjStyloPalm::LockDisplayQueue(id));
-					THROW(r = PPObjStyloPalm::PeekDisplayBlock(id, blk, 0));
-					if(blk.DirectMsg.Len()) {
-						(str_buf = blk.DirectMsg).Transf(CTRANSF_INNER_TO_OUTER);
-						rReply.Write(str_buf.cptr(), str_buf.Len());
-						rReply.SetDataType(PPJobSrvReply::htFile, 0);
-						rReply.FinishWriting();
-						THROW(SendReply(rReply));
-						{
-							size_t rcv_bytes = 0;
-							char recv_buf[256];
-							THROW(So.Recv(recv_buf, sizeof(recv_buf), &rcv_bytes));
-							if(r > 0 && rcv_bytes > 0) {
-								THROW(PPObjStyloPalm::PopDisplayBlock(id, &blk, 0));
-								str_buf = "1";
+					long   id = 0;
+					SString str_id, str_buf;
+					PPGetExtStrData(1, pEv->Params, str_id);
+					if((id = str_id.ToLong()) > 0) {
+						int r = 0;
+						PalmDisplayBlock blk;
+						THROW(PPObjStyloPalm::LockDisplayQueue(id));
+						THROW(r = PPObjStyloPalm::PeekDisplayBlock(id, blk, 0));
+						if(blk.DirectMsg.Len()) {
+							(str_buf = blk.DirectMsg).Transf(CTRANSF_INNER_TO_OUTER);
+							rReply.Write(str_buf.cptr(), str_buf.Len());
+							rReply.SetDataType(PPJobSrvReply::htFile, 0);
+							rReply.FinishWriting();
+							THROW(SendReply(rReply));
+							{
+								size_t rcv_bytes = 0;
+								char recv_buf[256];
+								THROW(So.Recv(recv_buf, sizeof(recv_buf), &rcv_bytes));
+								if(r > 0 && rcv_bytes > 0) {
+									THROW(PPObjStyloPalm::PopDisplayBlock(id, &blk, 0));
+									str_buf = "1";
+								}
 							}
 						}
+						THROW(PPObjStyloPalm::UnlockDisplayQueue(id));
 					}
-					THROW(PPObjStyloPalm::UnlockDisplayQueue(id));
+					rReply.Clear();
+					rReply.SetAck();
+					rReply.SetDataType(PPJobSrvReply::htFile, 0);
+					ok = cmdretQuit;
 				}
-				rReply.Clear();
-				rReply.SetAck();
-				rReply.SetDataType(PPJobSrvReply::htFile, 0);
-				ok = cmdretQuit;
-			}
-			break;
-		case PPSCMD_QUERYNATURALTOKEN:
-			ok = Helper_QueryNaturalToken(pEv, rReply);
-			break;
-		case PPSCMD_GETPERSONBYARTICLE:
-			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				const PPID ar_id = temp_buf.ToLong();
-				const PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
-				rReply.SetString(temp_buf.Z().Cat(psn_id));
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_GETARTICLEBYPERSON:
-			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				const PPID psn_id = temp_buf.ToLong();
-				PPID  ar_id = 0;
-				if(psn_id) {
-					PPID  acs_id = 0;
-					if(PPGetExtStrData(2, pEv->Params, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-						acs_id = temp_buf.ToLong();
-						if(!acs_id) {
-							PPObjAccSheet acs_obj;
-							acs_obj.SearchBySymb(temp_buf, &acs_id, 0);
-						}
-					}
-					{
-						PPObjArticle ar_obj;
-						ar_obj.P_Tbl->PersonToArticle(psn_id, acs_id, &ar_id);
-					}
-				}
-				rReply.SetString(temp_buf.Z().Cat(ar_id));
-				ok = cmdretOK;
-			}
-			break;
-		case PPSCMD_GETWORKBOOKCONTENT:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				// @v8.3.5 MemLeakTracer mlt;
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				PPID    obj_id = temp_buf.ToLong();
-				SString path;
-				PPObjWorkbook wb_obj;
-				PPWorkbookPacket pack;
-				THROW(wb_obj.GetPacket(obj_id, &pack) > 0);
-				pack.F.GetZeroPositionFile(PPOBJ_WORKBOOK, obj_id, path);
-				THROW_PP_S(path.NotEmptyS(), PPERR_WORKBOOKHASNTCONTENT, pack.Rec.Name);
-				ok = TransmitFile(tfvStart, path, rReply);
-			}
-			break;
-		/*
-		case PPSCMD_GETTSESSPLACESTATUS:
-			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-			{
-				PPID   qk_id = 0;
-				PPGetExtStrData(1, pEv->Params, temp_buf);
-				PPID   tsess_id = temp_buf.ToLong();
-				PPGetExtStrData(2, pEv->Params, place_code);
-				if(tsess_id) {
-					PPObjTSession::PlaceStatus status;
-					PPObjTSession tsess_obj;
-					int    r = tsess_obj.GetPlaceStatus(tsess_id, place_code, qk_id, 0, status);
-					THROW(r);
-				}
-			}
-			break;
-		*/
-		default:
-			CALLEXCEPT_PP(PPERR_INVSERVERCMD);
-			break;
-	}
-	CATCH
-		if(!disable_err_reply)
-			rReply.SetError();
-		PPErrorZ();
-		ok = cmdretError;
-	ENDCATCH
-	if(ok != cmdretResume)
-		rReply.FinishWriting();
+				break;
+			default:
+				CALLEXCEPT_PP(PPERR_INVSERVERCMD);
+				break;
+		}
+		CATCH
+			if(!disable_err_reply)
+				rReply.SetError();
+			PPErrorZ();
+			ok = cmdretError;
+		ENDCATCH
+		if(ok != cmdretResume)
+			rReply.FinishWriting();
+	} // Р•СЃР»Рё СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РєР»Р°СЃСЃ РІРµСЂРЅСѓР» С‡С‚Рѕ-С‚Рѕ РѕС‚Р»РёС‡РЅРѕРµ РѕС‚ cmdretUnprocessed, С‚Рѕ - РЅРµРјРµРґР»РµРЅРЅС‹Р№ РІС‹С…РѕРґ СЃ СЌС‚РёРј СЂРµР·СѓР»СЊС‚Р°С‚РѕРј
 	return ok;
 }
 //
@@ -4024,20 +4089,20 @@ int FASTCALL PPServerSession::SendReply(PPJobSrvReply & rReply)
 int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply)
 {
 	//
-	// Note: Функция выполняется вне потока PPServerSession
+	// Note: Р¤СѓРЅРєС†РёСЏ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РІРЅРµ РїРѕС‚РѕРєР° PPServerSession
 	//
 	int    ok = -1;
 	//
-	// Сигнализируем потоку о необходимости переключить сокет
+	// РЎРёРіРЅР°Р»РёР·РёСЂСѓРµРј РїРѕС‚РѕРєСѓ Рѕ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РїРµСЂРµРєР»СЋС‡РёС‚СЊ СЃРѕРєРµС‚
 	//
 	EvSubstSockStart.Signal();
 	//
-	// ждем ответного сигнала от потока
+	// Р¶РґРµРј РѕС‚РІРµС‚РЅРѕРіРѕ СЃРёРіРЅР°Р»Р° РѕС‚ РїРѕС‚РѕРєР°
 	//
 	int    r = EvSubstSockReady.Wait(30000);
 	if(r > 0) {
 		//
-		// Поток готов к переключению сокета
+		// РџРѕС‚РѕРє РіРѕС‚РѕРІ Рє РїРµСЂРµРєР»СЋС‡РµРЅРёСЋ СЃРѕРєРµС‚Р°
 		//
 		if(So.CopyS(rS)) {
 			if(pReply)
@@ -4050,7 +4115,7 @@ int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply
 	}
 	else {
 		//
-		// В течении заданного таймаута поток не ответил на запрос о подмене сокета
+		// Р’ С‚РµС‡РµРЅРёРё Р·Р°РґР°РЅРЅРѕРіРѕ С‚Р°Р№РјР°СѓС‚Р° РїРѕС‚РѕРє РЅРµ РѕС‚РІРµС‚РёР» РЅР° Р·Р°РїСЂРѕСЃ Рѕ РїРѕРґРјРµРЅРµ СЃРѕРєРµС‚Р°
 		//
 		EvSubstSockStart.Reset();
 		ok = -1;
@@ -4061,10 +4126,8 @@ int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply
 // virtual
 void SLAPI PPServerSession::Shutdown()
 {
-	ZDELETE(P_CPosBlk);
-	ZDELETE(P_SbiiBlk); // @v8.3.6
-	FtbList.freeAll(); // @v8.7.10
-	PPThread::Shutdown(); // @v8.0.0
+	ZDELETE(P_SbiiBlk);
+	PPWorkerSession::Shutdown();
 }
 
 void SLAPI PPServerSession::Run()
@@ -4072,12 +4135,12 @@ void SLAPI PPServerSession::Run()
 	#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 
 	enum WaitingMode {
-		wmodActiveSession = 0,            // Активная сессия //
-		wmodActiveSession_TransportError, // Активная сессия с ошибкой приема-передачи. В этом режиме сессия готова восстановить соединение.
-		wmodActiveSession_AfterReconnection, // @construct Активная сессия несопсредственно после восстановления соединения //
-		wmodSuspended,                    // Приостановленная сессия //
-		wmodDisconnected,                 // Сессия с разорванным соединением
-		wmodStyloBhtII                    // Сессия находится в режиме обмена с терминалом StyloBHT II
+		wmodActiveSession = 0,            // РђРєС‚РёРІРЅР°СЏ СЃРµСЃСЃРёСЏ //
+		wmodActiveSession_TransportError, // РђРєС‚РёРІРЅР°СЏ СЃРµСЃСЃРёСЏ СЃ РѕС€РёР±РєРѕР№ РїСЂРёРµРјР°-РїРµСЂРµРґР°С‡Рё. Р’ СЌС‚РѕРј СЂРµР¶РёРјРµ СЃРµСЃСЃРёСЏ РіРѕС‚РѕРІР° РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ.
+		wmodActiveSession_AfterReconnection, // @construct РђРєС‚РёРІРЅР°СЏ СЃРµСЃСЃРёСЏ РЅРµСЃРѕРїСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРѕСЃР»Рµ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЃРѕРµРґРёРЅРµРЅРёСЏ //
+		wmodSuspended,                    // РџСЂРёРѕСЃС‚Р°РЅРѕРІР»РµРЅРЅР°СЏ СЃРµСЃСЃРёСЏ //
+		wmodDisconnected,                 // РЎРµСЃСЃРёСЏ СЃ СЂР°Р·РѕСЂРІР°РЅРЅС‹Рј СЃРѕРµРґРёРЅРµРЅРёРµРј
+		wmodStyloBhtII                    // РЎРµСЃСЃРёСЏ РЅР°С…РѕРґРёС‚СЃСЏ РІ СЂРµР¶РёРјРµ РѕР±РјРµРЅР° СЃ С‚РµСЂРјРёРЅР°Р»РѕРј StyloBHT II
 	};
 	WaitingMode waiting_mode = wmodActiveSession;
 	//
@@ -4107,8 +4170,8 @@ void SLAPI PPServerSession::Run()
 				h_list[h_count++] = sock_event;
 				wait_obj_sock = WAIT_OBJECT_0+h_count-1;
 				//
-				// Пока мы здесь оставим реакцию на восстановление сессии, но
-				// в дальнейшем ее следует убрать.
+				// РџРѕРєР° РјС‹ Р·РґРµСЃСЊ РѕСЃС‚Р°РІРёРј СЂРµР°РєС†РёСЋ РЅР° РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ СЃРµСЃСЃРёРё, РЅРѕ
+				// РІ РґР°Р»СЊРЅРµР№С€РµРј РµРµ СЃР»РµРґСѓРµС‚ СѓР±СЂР°С‚СЊ.
 				//
 				h_list[h_count++] = EvSubstSockStart;
 				wait_obj_substsock = WAIT_OBJECT_0+h_count-1;
@@ -4179,8 +4242,8 @@ void SLAPI PPServerSession::Run()
 					tm_start = getcurdatetime_();
 					if(waiting_mode == wmodActiveSession_TransportError) {
 						//
-						// Перед этим была встречена ошибка сетевого транспорта.
-						// Переключаем снова режим на обычную активную сессию (возможно проблемы исчезли).
+						// РџРµСЂРµРґ СЌС‚РёРј Р±С‹Р»Р° РІСЃС‚СЂРµС‡РµРЅР° РѕС€РёР±РєР° СЃРµС‚РµРІРѕРіРѕ С‚СЂР°РЅСЃРїРѕСЂС‚Р°.
+						// РџРµСЂРµРєР»СЋС‡Р°РµРј СЃРЅРѕРІР° СЂРµР¶РёРј РЅР° РѕР±С‹С‡РЅСѓСЋ Р°РєС‚РёРІРЅСѓСЋ СЃРµСЃСЃРёСЋ (РІРѕР·РјРѕР¶РЅРѕ РїСЂРѕР±Р»РµРјС‹ РёСЃС‡РµР·Р»Рё).
 						//
 						waiting_mode = wmodActiveSession;
 					}
@@ -4195,13 +4258,13 @@ void SLAPI PPServerSession::Run()
 						reply.Clear();
 						CmdRet cmdret = cmdretError;
 						switch(cmd.StartReading(&s)) {
-							case 2: // Текстовая команда
+							case 2: // РўРµРєСЃС‚РѕРІР°СЏ РєРѕРјР°РЅРґР°
 								{
 									const uint64 tm_start = SLS.GetProfileTime();
 									log_buf = 0;
 									{
 										//
-										// Убираем терминальную последовательность из считанной строки
+										// РЈР±РёСЂР°РµРј С‚РµСЂРјРёРЅР°Р»СЊРЅСѓСЋ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РёР· СЃС‡РёС‚Р°РЅРЅРѕР№ СЃС‚СЂРѕРєРё
 										//
 										if(!isempty(P_TxtCmdTerminal)) {
 											size_t tl = 0;
@@ -4240,7 +4303,7 @@ void SLAPI PPServerSession::Run()
 										if(log_level) {
 											const uint64 tm_finish = SLS.GetProfileTime();
 											log_buf.Z().Cat("CMD").CatDiv(':', 2);
-											if(log_level == 2) { // LOGIN вносим в журнал без пароля //
+											if(log_level == 2) { // LOGIN РІРЅРѕСЃРёРј РІ Р¶СѓСЂРЅР°Р» Р±РµР· РїР°СЂРѕР»СЏ //
 												PPGetExtStrData(1, cmd.Params, fmt_buf);
 												log_buf.Cat("LOGIN").Space().Cat(fmt_buf);
 											}
@@ -4264,7 +4327,7 @@ void SLAPI PPServerSession::Run()
 									// } @v8.3.4
 								}
 								break;
-							case 1: // Бинарная команда
+							case 1: // Р‘РёРЅР°СЂРЅР°СЏ РєРѕРјР°РЅРґР°
 								{
 									// @v8.3.4 {
 									if(State & stDebugMode) {
@@ -4329,7 +4392,7 @@ void SLAPI PPServerSession::Run()
 						}
 					}
 					else {
-						; // В suspended-режиме отключение сеанса - нормальное событие.
+						; // Р’ suspended-СЂРµР¶РёРјРµ РѕС‚РєР»СЋС‡РµРЅРёРµ СЃРµР°РЅСЃР° - РЅРѕСЂРјР°Р»СЊРЅРѕРµ СЃРѕР±С‹С‚РёРµ.
 					}
 				}
 			}
@@ -4342,7 +4405,7 @@ void SLAPI PPServerSession::Run()
 			ResetEvent(sock_event);
 		}
 		else if(r == wait_obj_substsock) {
-			EvSubstSockStart.Reset(); // @v8.0.6 Если не сбросить событие, то возникнет бесконечный цикл
+			EvSubstSockStart.Reset(); // @v8.0.6 Р•СЃР»Рё РЅРµ СЃР±СЂРѕСЃРёС‚СЊ СЃРѕР±С‹С‚РёРµ, С‚Рѕ РІРѕР·РЅРёРєРЅРµС‚ Р±РµСЃРєРѕРЅРµС‡РЅС‹Р№ С†РёРєР»
 			EvSubstSockReady.Signal();
 			EvSubstSockFinish.Wait();
 			waiting_mode = wmodActiveSession_AfterReconnection; // @v8.0.8
@@ -4408,6 +4471,8 @@ int SLAPI CheckVersion()
 //
 #define DEFAULT_SERVER_PORT 28015
 
+int SLAPI RunNginxServer(); // @prototype(ppngx.cpp)
+
 int SLAPI run_server()
 {
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
@@ -4418,6 +4483,25 @@ int SLAPI run_server()
 			PPJobServer * p_job_srv = new PPJobServer;
 			p_job_srv->Start();
 		}
+#if defined(_PPSERVER) // {
+		{
+			int    ival = 0;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
+				class NginxServer : public PPThread {
+				public:
+					NginxServer() : PPThread(PPThread::kNgnixServer, "nginx", 0)
+					{
+					}
+					virtual void Run()
+					{
+						RunNginxServer();
+					}
+				};
+				NginxServer * p_ngx_srv = new NginxServer;
+				p_ngx_srv->Start();
+			}
+		}
+#endif // } _PPSERVER
 		{
 			class PPServer : public TcpServer {
 			public:
@@ -4432,7 +4516,7 @@ int SLAPI run_server()
 					PPServerSession * p_sess = new PPServerSession(rSock, Sib, rAddr);
 					p_sess->Start(0/* @v8.5.10 1-->0 */);
 					//
-					// Объект p_sess будет удален функцией p_sess->Start
+					// РћР±СЉРµРєС‚ p_sess Р±СѓРґРµС‚ СѓРґР°Р»РµРЅ С„СѓРЅРєС†РёРµР№ p_sess->Start
 					//
 					return 1;
 				}
@@ -4480,12 +4564,6 @@ int SLAPI run_server()
 			PPServer server(addr, client_timeout, sib);
 			if(server.Run())
 				PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_PPYSERVERSTOPPED, LOGMSGF_TIME);
-		}
-		{
-			int    ival = 0;
-			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
-				// run nginx server
-			}
 		}
 	}
 	return 1;
@@ -4647,7 +4725,7 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	}
 	// } @v8.3.4
 	THROW_SL(So.SendBuf(rCmd, 0));
-	So.SetTimeout(1000 * 3600 * 24); // @v9.1.8 Временно устанавливаем очень большой таймаут так как процесс может выполнятся сервером очень долго
+	So.SetTimeout(1000 * 3600 * 24); // @v9.1.8 Р’СЂРµРјРµРЅРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РѕС‡РµРЅСЊ Р±РѕР»СЊС€РѕР№ С‚Р°Р№РјР°СѓС‚ С‚Р°Рє РєР°Рє РїСЂРѕС†РµСЃСЃ РјРѕР¶РµС‚ РІС‹РїРѕР»РЅСЏС‚СЃСЏ СЃРµСЂРІРµСЂРѕРј РѕС‡РµРЅСЊ РґРѕР»РіРѕ
 	do {
 		size_t actual_size = 0;
 		do_log_error = 1;
@@ -4664,7 +4742,7 @@ int SLAPI PPJobSrvClient::Exec(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 				InformerCallbackProc(TempBuf, P_InformerCallbackParam);
 			}
 			//
-			// Для информеров в журнал отладки ничего не выводим (слишком большой поток мало значащих сообщений)
+			// Р”Р»СЏ РёРЅС„РѕСЂРјРµСЂРѕРІ РІ Р¶СѓСЂРЅР°Р» РѕС‚Р»Р°РґРєРё РЅРёС‡РµРіРѕ РЅРµ РІС‹РІРѕРґРёРј (СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№ РїРѕС‚РѕРє РјР°Р»Рѕ Р·РЅР°С‡Р°С‰РёС… СЃРѕРѕР±С‰РµРЅРёР№)
 			//
 		}
 		else if(State & stDebugMode) {
@@ -5095,7 +5173,7 @@ int SLAPI install_service(int inst, const char * pLoginName, const char * pLogin
 		ok = WinService::Install(SERVICE_NAME, descr, cmd_line, pLoginName, pLoginPassword);
 	}
 	else {
-		WinService::Uninstall("ppws"); // Удаление службы со старым (и неверным) именем
+		WinService::Uninstall("ppws"); // РЈРґР°Р»РµРЅРёРµ СЃР»СѓР¶Р±С‹ СЃРѕ СЃС‚Р°СЂС‹Рј (Рё РЅРµРІРµСЂРЅС‹Рј) РёРјРµРЅРµРј
 		ok = WinService::Uninstall(SERVICE_NAME);
 	}
 	return ok;
@@ -5137,11 +5215,11 @@ SLTEST_R(PapyrusTcpClient)
 	StrAssocArray str_list;
 	/*
 	;
-	; Аргументы:
-	;   0 - имя удаленного компьютера с установленным JobServer'ом
-	;   1 - порт
-	;   2 - Таймаут сокета (в миллисекундах)
-	;   3 - Путь к файлу, содержащему набор строк
+	; РђСЂРіСѓРјРµРЅС‚С‹:
+	;   0 - РёРјСЏ СѓРґР°Р»РµРЅРЅРѕРіРѕ РєРѕРјРїСЊСЋС‚РµСЂР° СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј JobServer'РѕРј
+	;   1 - РїРѕСЂС‚
+	;   2 - РўР°Р№РјР°СѓС‚ СЃРѕРєРµС‚Р° (РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…)
+	;   3 - РџСѓС‚СЊ Рє С„Р°Р№Р»Сѓ, СЃРѕРґРµСЂР¶Р°С‰РµРјСѓ РЅР°Р±РѕСЂ СЃС‚СЂРѕРє
 	;
 	*/
 	if(EnumArg(&arg_no, arg)) {
@@ -5190,7 +5268,7 @@ SLTEST_R(PapyrusTcpClient)
 	return ok;
 }
 
-#if 0 // Реализовать для UhttSoap конфигурацию ServerDebug
+#if 0 // Р РµР°Р»РёР·РѕРІР°С‚СЊ РґР»СЏ UhttSoap РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ ServerDebug
 // @prototype
 int TestUhttSoapClient(const char * pAddress, const char * pLoginName, const char * pPassword);
 
@@ -5216,12 +5294,12 @@ SLTEST_R(PapyrusRestoreSess)
 	LongArray sess_list;
 	/*
 	;
-	; Аргументы:
-	;   0 - имя удаленного компьютера с установленным JobServer'ом
-	;   1 - порт
-	;   2 - символ базы данных
-	;   3 - имя пользователя //
-	;   4 - пароль
+	; РђСЂРіСѓРјРµРЅС‚С‹:
+	;   0 - РёРјСЏ СѓРґР°Р»РµРЅРЅРѕРіРѕ РєРѕРјРїСЊСЋС‚РµСЂР° СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј JobServer'РѕРј
+	;   1 - РїРѕСЂС‚
+	;   2 - СЃРёРјРІРѕР» Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+	;   3 - РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ //
+	;   4 - РїР°СЂРѕР»СЊ
 	*/
 	if(EnumArg(&arg_no, arg)) {
 		srv_addr_line = arg;

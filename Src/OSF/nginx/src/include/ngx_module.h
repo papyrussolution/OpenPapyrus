@@ -1,10 +1,8 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Maxim Dounin
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_MODULE_H_INCLUDED_
 #define _NGX_MODULE_H_INCLUDED_
 
@@ -180,7 +178,7 @@
 struct ngx_module_s {
 	ngx_uint_t ctx_index;
 	ngx_uint_t index;
-	char * name;
+	const char * name;
 	ngx_uint_t spare0;
 	ngx_uint_t spare1;
 	ngx_uint_t version;
@@ -205,11 +203,11 @@ struct ngx_module_s {
 	uintptr_t spare_hook7;
 };
 
-typedef struct {
+struct ngx_core_module_t {
 	ngx_str_t name;
 	void *(*create_conf)(ngx_cycle_t *cycle);
 	char *(*init_conf)(ngx_cycle_t *cycle, void * conf);
-} ngx_core_module_t;
+};
 
 ngx_int_t ngx_preinit_modules(void);
 ngx_int_t ngx_cycle_modules(ngx_cycle_t * cycle);
@@ -219,6 +217,6 @@ ngx_int_t ngx_add_module(ngx_conf_t * cf, ngx_str_t * file, ngx_module_t * modul
 
 extern ngx_module_t * ngx_modules[];
 extern ngx_uint_t ngx_max_module;
-extern char * ngx_module_names[];
+extern const char * ngx_module_names[];
 
 #endif /* _NGX_MODULE_H_INCLUDED_ */

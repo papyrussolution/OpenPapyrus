@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 
 static void ngx_mail_init_session(ngx_connection_t * c);
@@ -21,21 +21,21 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 {
 	size_t len;
 	ngx_uint_t i;
-	ngx_mail_port_t           * port;
-	struct sockaddr           * sa;
+	ngx_mail_port_t * port;
+	struct sockaddr * sa;
 
-	struct sockaddr_in        * sin;
+	struct sockaddr_in * sin;
 
-	ngx_mail_log_ctx_t        * ctx;
-	ngx_mail_in_addr_t        * addr;
-	ngx_mail_session_t        * s;
-	ngx_mail_addr_conf_t      * addr_conf;
+	ngx_mail_log_ctx_t * ctx;
+	ngx_mail_in_addr_t * addr;
+	ngx_mail_session_t * s;
+	ngx_mail_addr_conf_t * addr_conf;
 	ngx_mail_core_srv_conf_t  * cscf;
 	u_char text[NGX_SOCKADDR_STRLEN];
 #if (NGX_HAVE_INET6)
-	struct sockaddr_in6       * sin6;
+	struct sockaddr_in6  * sin6;
 
-	ngx_mail_in6_addr_t       * addr6;
+	ngx_mail_in6_addr_t  * addr6;
 #endif
 
 	/* find the server configuration for the address:port */
@@ -176,8 +176,8 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 
 void ngx_mail_starttls_handler(ngx_event_t * rev)
 {
-	ngx_connection_t     * c;
-	ngx_mail_session_t   * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_ssl_conf_t  * sslcf;
 
 	c = (ngx_connection_t *)rev->data;
@@ -193,7 +193,7 @@ void ngx_mail_starttls_handler(ngx_event_t * rev)
 
 static void ngx_mail_ssl_init_connection(ngx_ssl_t * ssl, ngx_connection_t * c)
 {
-	ngx_mail_session_t        * s;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	if(ngx_ssl_create_connection(ssl, c, 0) != NGX_OK) {
@@ -218,7 +218,7 @@ static void ngx_mail_ssl_init_connection(ngx_ssl_t * ssl, ngx_connection_t * c)
 
 static void ngx_mail_ssl_handshake_handler(ngx_connection_t * c)
 {
-	ngx_mail_session_t        * s;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	if(c->ssl->handshaked) {
@@ -251,8 +251,8 @@ static void ngx_mail_ssl_handshake_handler(ngx_connection_t * c)
 static ngx_int_t ngx_mail_verify_cert(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	long rc;
-	X509                      * cert;
-	ngx_mail_ssl_conf_t       * sslcf;
+	X509  * cert;
+	ngx_mail_ssl_conf_t  * sslcf;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
@@ -314,7 +314,7 @@ static ngx_int_t ngx_mail_verify_cert(ngx_mail_session_t * s, ngx_connection_t *
 
 static void ngx_mail_init_session(ngx_connection_t * c)
 {
-	ngx_mail_session_t        * s;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	s = (ngx_mail_session_t *)c->data;
@@ -372,7 +372,7 @@ ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c)
 
 ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
 {
-	u_char     * p, * last;
+	u_char   * p, * last;
 	ngx_str_t  * arg, plain;
 
 	arg = (ngx_str_t*)s->args.elts;
@@ -491,7 +491,7 @@ ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t 
 ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c,
     char * prefix, size_t len)
 {
-	u_char      * p;
+	u_char * p;
 	ngx_str_t salt;
 	ngx_uint_t n;
 
@@ -517,7 +517,7 @@ ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t *
 
 ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	u_char     * p, * last;
+	u_char   * p, * last;
 	ngx_str_t  * arg;
 
 	arg = (ngx_str_t*)s->args.elts;
@@ -597,8 +597,8 @@ ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c,
 void ngx_mail_send(ngx_event_t * wev)
 {
 	ngx_int_t n;
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	c = (ngx_connection_t *)wev->data;
@@ -790,7 +790,7 @@ void ngx_mail_close_connection(ngx_connection_t * c)
 
 u_char * ngx_mail_log_error(ngx_log_t * log, u_char * buf, size_t len)
 {
-	u_char              * p;
+	u_char    * p;
 	ngx_mail_session_t  * s;
 	ngx_mail_log_ctx_t  * ctx;
 

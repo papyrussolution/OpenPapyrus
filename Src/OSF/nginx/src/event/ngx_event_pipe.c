@@ -5,8 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-#include <ngx_event_pipe.h>
+//#include <ngx_event.h>
+//#include <ngx_event_pipe.h>
 
 static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p);
 static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p);
@@ -79,7 +79,7 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 	nginx_off_t limit;
 	ssize_t n, size;
 	ngx_int_t rc;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_msec_t delay;
 	ngx_chain_t  * chain, * cl, * ln;
 	if(p->upstream_eof || p->upstream_error || p->upstream_done) {
@@ -338,7 +338,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 	size_t bsize;
 	ngx_int_t rc;
 	ngx_uint_t flush, flushed, prev_last_shadow;
-	ngx_chain_t       * out, ** ll, * cl;
+	ngx_chain_t  * out, ** ll, * cl;
 	ngx_connection_t  * downstream = p->downstream;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe write downstream: %d", downstream->write->ready);
 #if (NGX_THREADS)
@@ -493,7 +493,7 @@ flush:
 static ngx_int_t ngx_event_pipe_write_chain_to_temp_file(ngx_event_pipe_t * p)
 {
 	ssize_t size, bsize, n;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_uint_t prev_last_shadow;
 	ngx_chain_t  * cl, * tl, * next, * out, ** ll, ** last_out, ** last_free;
 #if (NGX_THREADS)
@@ -614,9 +614,7 @@ done:
 		*last_out = cl;
 	}
 free:
-	for(last_free = &p->free_raw_bufs;
-	    *last_free != NULL;
-	    last_free = &(*last_free)->next) {
+	for(last_free = &p->free_raw_bufs; *last_free; last_free = &(*last_free)->next) {
 		/* void */
 	}
 	for(cl = out; cl; cl = next) {
@@ -645,7 +643,7 @@ free:
 //
 ngx_int_t ngx_event_pipe_copy_input_filter(ngx_event_pipe_t * p, ngx_buf_t * buf)
 {
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
 	if(buf->pos == buf->last) {
 		return NGX_OK;

@@ -15,13 +15,13 @@ typedef struct {
 typedef struct {
 	ngx_hash_keys_arrays_t keys;
 
-	ngx_array_t                  * values_hash;
+	ngx_array_t  * values_hash;
 #if (NGX_PCRE)
 	ngx_array_t regexes;
 #endif
 
 	ngx_stream_variable_value_t  * default_value;
-	ngx_conf_t                   * cf;
+	ngx_conf_t * cf;
 	unsigned hostnames : 1;
 	unsigned no_cacheable : 1;
 } ngx_stream_map_conf_ctx_t;
@@ -97,7 +97,7 @@ static ngx_int_t ngx_stream_map_variable(ngx_stream_session_t * s, ngx_stream_va
 	ngx_stream_map_ctx_t  * map = (ngx_stream_map_ctx_t*)data;
 
 	ngx_str_t val, str;
-	ngx_stream_complex_value_t   * cv;
+	ngx_stream_complex_value_t * cv;
 	ngx_stream_variable_value_t  * value;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
@@ -155,13 +155,13 @@ static void * ngx_stream_map_create_conf(ngx_conf_t * cf)
 static char * ngx_stream_map_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_map_conf_t  * mcf = (ngx_stream_map_conf_t *)conf;
-	char                                * rv;
-	ngx_str_t                           * value, name;
+	char    * rv;
+	ngx_str_t  * value, name;
 	ngx_conf_t save;
-	ngx_pool_t                          * pool;
+	ngx_pool_t * pool;
 	ngx_hash_init_t hash;
-	ngx_stream_map_ctx_t                * map;
-	ngx_stream_variable_t               * var;
+	ngx_stream_map_ctx_t  * map;
+	ngx_stream_variable_t * var;
 	ngx_stream_map_conf_ctx_t ctx;
 	ngx_stream_compile_complex_value_t ccv;
 
@@ -347,14 +347,14 @@ static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one, con
 
 static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
 {
-	u_char                              * data;
+	u_char  * data;
 	size_t len;
 	ngx_int_t rv;
-	ngx_str_t                           * value, v;
+	ngx_str_t  * value, v;
 	ngx_uint_t i, key;
-	ngx_stream_map_conf_ctx_t           * ctx;
+	ngx_stream_map_conf_ctx_t * ctx;
 	ngx_stream_complex_value_t cv, * cvp;
-	ngx_stream_variable_value_t         * var, ** vp;
+	ngx_stream_variable_value_t  * var, ** vp;
 	ngx_stream_compile_complex_value_t ccv;
 	ctx = (ngx_stream_map_conf_ctx_t *)cf->ctx;
 	value = (ngx_str_t*)cf->args->elts;

@@ -92,14 +92,14 @@ static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s,
 
 static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                                * rv;
+	char    * rv;
 	uint32_t sum, last;
-	ngx_str_t                           * value, name;
+	ngx_str_t  * value, name;
 	ngx_uint_t i;
 	ngx_conf_t save;
-	ngx_stream_variable_t               * var;
-	ngx_stream_split_clients_ctx_t      * ctx;
-	ngx_stream_split_clients_part_t     * part;
+	ngx_stream_variable_t * var;
+	ngx_stream_split_clients_ctx_t * ctx;
+	ngx_stream_split_clients_part_t   * part;
 	ngx_stream_compile_complex_value_t ccv;
 
 	ctx = (ngx_stream_split_clients_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_split_clients_ctx_t));
@@ -180,8 +180,8 @@ static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
 static char * ngx_stream_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
 {
 	ngx_int_t n;
-	ngx_str_t                        * value;
-	ngx_stream_split_clients_ctx_t   * ctx;
+	ngx_str_t * value;
+	ngx_stream_split_clients_ctx_t * ctx;
 	ngx_stream_split_clients_part_t  * part;
 
 	ctx = (ngx_stream_split_clients_ctx_t *)cf->ctx;

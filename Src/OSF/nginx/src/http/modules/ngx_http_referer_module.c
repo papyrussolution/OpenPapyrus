@@ -6,7 +6,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #define NGX_HTTP_REFERER_NO_URI_PART  ((void*)4)
 
@@ -14,8 +14,8 @@ typedef struct {
 	ngx_hash_combined_t hash;
 
 #if (NGX_PCRE)
-	ngx_array_t             * regex;
-	ngx_array_t             * server_name_regex;
+	ngx_array_t   * regex;
+	ngx_array_t   * server_name_regex;
 #endif
 
 	ngx_flag_t no_referer;
@@ -101,11 +101,11 @@ ngx_module_t ngx_http_referer_module = {
 static ngx_int_t ngx_http_referer_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
     uintptr_t data)
 {
-	u_char                    * p, * ref, * last;
+	u_char  * p, * ref, * last;
 	size_t len;
-	ngx_str_t                 * uri;
+	ngx_str_t * uri;
 	ngx_uint_t i, key;
-	ngx_http_referer_conf_t   * rlcf;
+	ngx_http_referer_conf_t * rlcf;
 	u_char buf[256];
 #if (NGX_PCRE)
 	ngx_int_t rc;
@@ -253,8 +253,7 @@ valid:
 
 static void * ngx_http_referer_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_referer_conf_t  * conf;
-	conf = (ngx_http_referer_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_referer_conf_t));
+	ngx_http_referer_conf_t  * conf = (ngx_http_referer_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_referer_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}
@@ -285,7 +284,7 @@ static char * ngx_http_referer_merge_conf(ngx_conf_t * cf, void * parent, void *
 	ngx_http_referer_conf_t * conf = (ngx_http_referer_conf_t *)child;
 	ngx_uint_t n;
 	ngx_hash_init_t hash;
-	ngx_http_server_name_t    * sn;
+	ngx_http_server_name_t  * sn;
 	ngx_http_core_srv_conf_t  * cscf;
 	if(conf->keys == NULL) {
 		conf->hash = prev->hash;
@@ -418,10 +417,10 @@ static char * ngx_http_referer_merge_conf(ngx_conf_t * cf, void * parent, void *
 static char * ngx_http_valid_referers(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_referer_conf_t  * rlcf = (ngx_http_referer_conf_t *)conf;
-	u_char                    * p;
-	ngx_str_t                 * value, uri, name;
+	u_char  * p;
+	ngx_str_t * value, uri, name;
 	ngx_uint_t i;
-	ngx_http_variable_t       * var;
+	ngx_http_variable_t  * var;
 	ngx_str_set(&name, "invalid_referer");
 	var = ngx_http_add_variable(cf, &name, NGX_HTTP_VAR_CHANGEABLE);
 	if(var == NULL) {
@@ -531,7 +530,7 @@ static ngx_int_t ngx_http_add_regex_referer(ngx_conf_t * cf, ngx_http_referer_co
     ngx_str_t * name)
 {
 #if (NGX_PCRE)
-	ngx_regex_elt_t      * re;
+	ngx_regex_elt_t * re;
 	ngx_regex_compile_t rc;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
 

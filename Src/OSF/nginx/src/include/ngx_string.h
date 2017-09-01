@@ -2,7 +2,6 @@
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_STRING_H_INCLUDED_
 #define _NGX_STRING_H_INCLUDED_
 
@@ -25,7 +24,7 @@ typedef struct {
 	unsigned no_cacheable : 1;
 	unsigned not_found : 1;
 	unsigned escape : 1;
-	u_char     * data;
+	u_char   * data;
 } ngx_variable_value_t;
 
 #define ngx_string(str)     { sizeof(str) - 1, (u_char*)str }

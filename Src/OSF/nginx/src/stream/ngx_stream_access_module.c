@@ -32,12 +32,12 @@ typedef struct {
 #endif
 
 typedef struct {
-	ngx_array_t      * rules; /* array of ngx_stream_access_rule_t */
+	ngx_array_t * rules; /* array of ngx_stream_access_rule_t */
 #if (NGX_HAVE_INET6)
-	ngx_array_t      * rules6; /* array of ngx_stream_access_rule6_t */
+	ngx_array_t * rules6; /* array of ngx_stream_access_rule6_t */
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
-	ngx_array_t      * rules_un; /* array of ngx_stream_access_rule_un_t */
+	ngx_array_t * rules_un; /* array of ngx_stream_access_rule_un_t */
 #endif
 } ngx_stream_access_srv_conf_t;
 
@@ -107,12 +107,12 @@ ngx_module_t ngx_stream_access_module = {
 
 static ngx_int_t ngx_stream_access_handler(ngx_stream_session_t * s)
 {
-	struct sockaddr_in            * sin;
+	struct sockaddr_in  * sin;
 	ngx_stream_access_srv_conf_t  * ascf;
 #if (NGX_HAVE_INET6)
-	u_char                        * p;
+	u_char * p;
 	in_addr_t addr;
-	struct sockaddr_in6           * sin6;
+	struct sockaddr_in6 * sin6;
 
 #endif
 	ascf = (ngx_stream_access_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_access_module);
@@ -257,9 +257,9 @@ static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	ngx_stream_access_srv_conf_t * ascf = (ngx_stream_access_srv_conf_t *)conf;
 	ngx_int_t rc;
 	ngx_uint_t all;
-	ngx_str_t                    * value;
+	ngx_str_t  * value;
 	ngx_cidr_t cidr;
-	ngx_stream_access_rule_t     * rule;
+	ngx_stream_access_rule_t   * rule;
 #if (NGX_HAVE_INET6)
 	ngx_stream_access_rule6_t * rule6;
 #endif
@@ -384,7 +384,7 @@ static char * ngx_stream_access_merge_srv_conf(ngx_conf_t * cf, void * parent, v
 
 static ngx_int_t ngx_stream_access_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 	cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
 	h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_ACCESS_PHASE].handlers);

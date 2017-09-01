@@ -728,7 +728,8 @@ struct __db_rep {
 #ifdef DB_WIN32
 	HANDLE		signaler;
 #else
-	int		read_pipe, write_pipe;
+	int		read_pipe;
+	int		write_pipe;
 #endif
 	/* Operational stuff. */
 	REPMGR_SITE * sites; /* Array of known sites. */

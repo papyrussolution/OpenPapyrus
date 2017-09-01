@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 static void ngx_close_posted_connection(ngx_connection_t * c);
 

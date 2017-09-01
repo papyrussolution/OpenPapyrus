@@ -28,8 +28,8 @@ ngx_int_t ngx_stream_upstream_init_round_robin(ngx_conf_t * cf,
 {
 	ngx_url_t u;
 	ngx_uint_t i, j, n, w;
-	ngx_stream_upstream_server_t    * server;
-	ngx_stream_upstream_rr_peer_t   * peer, ** peerp;
+	ngx_stream_upstream_server_t  * server;
+	ngx_stream_upstream_rr_peer_t * peer, ** peerp;
 	ngx_stream_upstream_rr_peers_t  * peers, * backup;
 
 	us->peer.init = ngx_stream_upstream_init_round_robin_peer;
@@ -282,14 +282,14 @@ ngx_int_t ngx_stream_upstream_init_round_robin_peer(ngx_stream_session_t * s,
 ngx_int_t ngx_stream_upstream_create_round_robin_peer(ngx_stream_session_t * s,
     ngx_stream_upstream_resolved_t * ur)
 {
-	u_char                              * p;
+	u_char  * p;
 	size_t len;
 	socklen_t socklen;
 	ngx_uint_t i, n;
-	struct sockaddr                     * sockaddr;
+	struct sockaddr * sockaddr;
 
-	ngx_stream_upstream_rr_peer_t       * peer, ** peerp;
-	ngx_stream_upstream_rr_peers_t      * peers;
+	ngx_stream_upstream_rr_peer_t  * peer, ** peerp;
+	ngx_stream_upstream_rr_peers_t * peers;
 	ngx_stream_upstream_rr_peer_data_t  * rrp;
 
 	rrp = (ngx_stream_upstream_rr_peer_data_t *)s->upstream->peer.data;
@@ -396,7 +396,7 @@ ngx_int_t ngx_stream_upstream_get_round_robin_peer(ngx_peer_connection_t * pc, v
 	ngx_stream_upstream_rr_peer_data_t * rrp = (ngx_stream_upstream_rr_peer_data_t *)data;
 	ngx_int_t rc;
 	ngx_uint_t i, n;
-	ngx_stream_upstream_rr_peer_t   * peer;
+	ngx_stream_upstream_rr_peer_t * peer;
 	ngx_stream_upstream_rr_peers_t  * peers;
 	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get rr peer, try: %ui", pc->tries);
 	pc->connection = NULL;
@@ -626,8 +626,8 @@ static ngx_int_t ngx_stream_upstream_set_round_robin_peer_session(ngx_peer_conne
 {
 	ngx_stream_upstream_rr_peer_data_t  * rrp = (ngx_stream_upstream_rr_peer_data_t *)data;
 	ngx_int_t rc;
-	ngx_ssl_session_t               * ssl_session;
-	ngx_stream_upstream_rr_peer_t   * peer;
+	ngx_ssl_session_t * ssl_session;
+	ngx_stream_upstream_rr_peer_t * peer;
 #if (NGX_STREAM_UPSTREAM_ZONE)
 	int len;
 #if OPENSSL_VERSION_NUMBER >= 0x0090707fL
@@ -687,11 +687,11 @@ static ngx_int_t ngx_stream_upstream_set_round_robin_peer_session(ngx_peer_conne
 static void ngx_stream_upstream_save_round_robin_peer_session(ngx_peer_connection_t * pc, void * data)
 {
 	ngx_stream_upstream_rr_peer_data_t  * rrp = (ngx_stream_upstream_rr_peer_data_t *)data;
-	ngx_ssl_session_t               * old_ssl_session, * ssl_session;
-	ngx_stream_upstream_rr_peer_t   * peer;
+	ngx_ssl_session_t * old_ssl_session, * ssl_session;
+	ngx_stream_upstream_rr_peer_t * peer;
 #if (NGX_STREAM_UPSTREAM_ZONE)
 	int len;
-	u_char                          * p;
+	u_char * p;
 	ngx_stream_upstream_rr_peers_t  * peers;
 	u_char buf[NGX_SSL_MAX_SESSION_SIZE];
 #endif

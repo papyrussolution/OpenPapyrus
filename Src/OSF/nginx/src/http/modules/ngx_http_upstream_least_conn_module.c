@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static ngx_int_t ngx_http_upstream_init_least_conn_peer(ngx_http_request_t * r,
     ngx_http_upstream_srv_conf_t * us);
@@ -90,7 +90,7 @@ static ngx_int_t ngx_http_upstream_get_least_conn_peer(ngx_peer_connection_t * p
 	uintptr_t m;
 	ngx_int_t rc, total;
 	ngx_uint_t i, n, p, many;
-	ngx_http_upstream_rr_peer_t   * peer, * best;
+	ngx_http_upstream_rr_peer_t * peer, * best;
 	ngx_http_upstream_rr_peers_t  * peers;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get least conn peer, try: %ui", pc->tries);
 	if(rrp->peers->single) {

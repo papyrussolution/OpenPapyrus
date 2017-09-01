@@ -1576,12 +1576,10 @@ ERROR_RETURN:
    Returns:         pointer to '}' on success;
                  current ptr on error, with errorcodeptr set non-zero
  */
-
 static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, int * maxp, int * errorcodeptr)
 {
 	int min = 0;
 	int max = -1;
-
 	while(IS_DIGIT(*p)) {
 		min = min * 10 + (int)(*p++ - CHAR_0);
 		if(min > 65535) {
@@ -1589,7 +1587,6 @@ static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, i
 			return p;
 		}
 	}
-
 	if(*p == CHAR_RIGHT_CURLY_BRACKET) max = min; else{
 		if(*(++p) != CHAR_RIGHT_CURLY_BRACKET) {
 			max = 0;
@@ -1606,7 +1603,6 @@ static const pcre_uchar * read_repeat_counts(const pcre_uchar * p, int * minp, i
 			}
 		}
 	}
-
 	*minp = min;
 	*maxp = max;
 	return p;

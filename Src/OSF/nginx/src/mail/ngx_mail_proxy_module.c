@@ -5,8 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-#include <ngx_event_connect.h>
+//#include <ngx_event.h>
+//#include <ngx_event_connect.h>
 #include <ngx_mail.h>
 
 typedef struct {
@@ -101,8 +101,8 @@ static u_char smtp_auth_ok[] = "235 2.0.0 OK" CRLF;
 void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 {
 	ngx_int_t rc;
-	ngx_mail_proxy_ctx_t      * p;
-	ngx_mail_proxy_conf_t     * pcf;
+	ngx_mail_proxy_ctx_t * p;
+	ngx_mail_proxy_conf_t   * pcf;
 	ngx_mail_core_srv_conf_t  * cscf;
 	s->connection->log->action = "connecting to upstream";
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
@@ -165,7 +165,7 @@ void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 
 static void ngx_mail_proxy_block_read(ngx_event_t * rev)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy block read");
@@ -179,11 +179,11 @@ static void ngx_mail_proxy_block_read(ngx_event_t * rev)
 
 static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 {
-	u_char                 * p;
+	u_char * p;
 	ngx_int_t rc;
 	ngx_str_t line;
-	ngx_connection_t       * c;
-	ngx_mail_session_t     * s;
+	ngx_connection_t  * c;
+	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0,
@@ -289,11 +289,11 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 
 static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 {
-	u_char                 * p;
+	u_char * p;
 	ngx_int_t rc;
 	ngx_str_t line;
-	ngx_connection_t       * c;
-	ngx_mail_session_t     * s;
+	ngx_connection_t  * c;
+	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0,
@@ -419,13 +419,13 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 
 static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 {
-	u_char                    * p;
+	u_char  * p;
 	ngx_int_t rc;
 	ngx_str_t line;
-	ngx_buf_t                 * b;
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
-	ngx_mail_proxy_conf_t     * pcf;
+	ngx_buf_t * b;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
+	ngx_mail_proxy_conf_t   * pcf;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0,
@@ -668,7 +668,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 
 static void ngx_mail_proxy_dummy_handler(ngx_event_t * wev)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, wev->log, 0, "mail proxy dummy handler");
@@ -683,9 +683,9 @@ static void ngx_mail_proxy_dummy_handler(ngx_event_t * wev)
 
 static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t state)
 {
-	u_char                 * p, * m;
+	u_char * p, * m;
 	ssize_t n;
-	ngx_buf_t              * b;
+	ngx_buf_t    * b;
 	ngx_mail_proxy_conf_t  * pcf;
 
 	s->connection->log->action = "reading response from upstream";
@@ -831,13 +831,13 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 
 static void ngx_mail_proxy_handler(ngx_event_t * ev)
 {
-	char                   * action, * recv_action, * send_action;
+	char * action, * recv_action, * send_action;
 	size_t size;
 	ssize_t n;
-	ngx_buf_t              * b;
+	ngx_buf_t    * b;
 	ngx_uint_t do_write;
-	ngx_connection_t       * c, * src, * dst;
-	ngx_mail_session_t     * s;
+	ngx_connection_t  * c, * src, * dst;
+	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 
 	c = (ngx_connection_t*)ev->data;

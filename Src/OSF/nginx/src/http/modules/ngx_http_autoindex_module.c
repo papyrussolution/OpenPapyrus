@@ -5,14 +5,14 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #if 0
 
 typedef struct {
-	ngx_buf_t     * buf;
+	ngx_buf_t   * buf;
 	size_t size;
-	ngx_pool_t    * pool;
+	ngx_pool_t  * pool;
 	size_t alloc_size;
 	ngx_chain_t  ** last_out;
 } ngx_http_autoindex_ctx_t;
@@ -138,18 +138,18 @@ ngx_module_t ngx_http_autoindex_module = {
 
 static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 {
-	u_char                         * last, * filename;
+	u_char  * last, * filename;
 	size_t len, allocated, root;
 	ngx_err_t err;
-	ngx_buf_t                      * b;
+	ngx_buf_t  * b;
 	ngx_int_t rc;
 	ngx_str_t path, callback;
 	ngx_dir_t dir;
 	ngx_uint_t level, format;
-	ngx_pool_t                     * pool;
+	ngx_pool_t * pool;
 	ngx_chain_t out;
 	ngx_array_t entries;
-	ngx_http_autoindex_entry_t     * entry;
+	ngx_http_autoindex_entry_t   * entry;
 	ngx_http_autoindex_loc_conf_t  * alcf;
 
 	if(r->uri.data[r->uri.len - 1] != '/') {
@@ -407,15 +407,15 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 
 static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t * entries)
 {
-	u_char                         * last, scale;
+	u_char  * last, scale;
 	nginx_off_t length;
 	size_t len, char_len, escape_html;
 	ngx_tm_t tm;
-	ngx_buf_t                      * b;
+	ngx_buf_t  * b;
 	ngx_int_t size;
 	ngx_uint_t i, utf8;
-	ngx_time_t                     * tp;
-	ngx_http_autoindex_entry_t     * entry;
+	ngx_time_t * tp;
+	ngx_http_autoindex_entry_t   * entry;
 	ngx_http_autoindex_loc_conf_t  * alcf;
 
 	static u_char title[] =
@@ -671,7 +671,7 @@ static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r, ngx_array_t *
     ngx_str_t * callback)
 {
 	size_t len;
-	ngx_buf_t                   * b;
+	ngx_buf_t * b;
 	ngx_uint_t i;
 	ngx_http_autoindex_entry_t  * entry;
 
@@ -772,7 +772,7 @@ static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r, ngx_array_t *
 
 static ngx_int_t ngx_http_autoindex_jsonp_callback(ngx_http_request_t * r, ngx_str_t * callback)
 {
-	u_char      * p, c, ch;
+	u_char * p, c, ch;
 	ngx_uint_t i;
 
 	if(ngx_http_arg(r, (u_char*)"callback", 8, callback) != NGX_OK) {
@@ -813,10 +813,10 @@ static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * 
 {
 	size_t len;
 	ngx_tm_t tm;
-	ngx_buf_t                      * b;
+	ngx_buf_t  * b;
 	ngx_str_t type;
 	ngx_uint_t i;
-	ngx_http_autoindex_entry_t     * entry;
+	ngx_http_autoindex_entry_t   * entry;
 
 	static u_char head[] = "<?xml version=\"1.0\"?>" CRLF "<list>" CRLF;
 	static u_char tail[] = "</list>" CRLF;
@@ -956,27 +956,20 @@ static ngx_buf_t * ngx_http_autoindex_alloc(ngx_http_autoindex_ctx_t * ctx, size
 static ngx_int_t ngx_http_autoindex_error(ngx_http_request_t * r, ngx_dir_t * dir, ngx_str_t * name)
 {
 	if(ngx_close_dir(dir) == NGX_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno,
-		    ngx_close_dir_n " \"%V\" failed", name);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno, ngx_close_dir_n " \"%V\" failed", name);
 	}
-
 	return r->header_sent ? NGX_ERROR : NGX_HTTP_INTERNAL_SERVER_ERROR;
 }
 
 static void * ngx_http_autoindex_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_autoindex_loc_conf_t  * conf;
-
-	conf = (ngx_http_autoindex_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_autoindex_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_autoindex_loc_conf_t  * conf = (ngx_http_autoindex_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_autoindex_loc_conf_t));
+	if(conf) {
+		conf->enable = NGX_CONF_UNSET;
+		conf->format = NGX_CONF_UNSET_UINT;
+		conf->localtime = NGX_CONF_UNSET;
+		conf->exact_size = NGX_CONF_UNSET;
 	}
-
-	conf->enable = NGX_CONF_UNSET;
-	conf->format = NGX_CONF_UNSET_UINT;
-	conf->localtime = NGX_CONF_UNSET;
-	conf->exact_size = NGX_CONF_UNSET;
-
 	return conf;
 }
 
@@ -993,7 +986,7 @@ static char * ngx_http_autoindex_merge_loc_conf(ngx_conf_t * cf, void * parent, 
 
 static ngx_int_t ngx_http_autoindex_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
+	ngx_http_handler_pt * h;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);

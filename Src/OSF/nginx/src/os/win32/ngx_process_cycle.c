@@ -5,8 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-#include <nginx.h>
+//#include <ngx_event.h>
+//#include <nginx.h>
 
 static void ngx_console_init(ngx_cycle_t * cycle);
 static int __stdcall ngx_console_handler(u_long type);
@@ -497,7 +497,7 @@ static ngx_thread_value_t __stdcall ngx_worker_thread(void * data)
 {
 	ngx_int_t n;
 	ngx_cycle_t  * cycle;
-	ngx_time_t   * tp = ngx_timeofday();
+	ngx_time_t * tp = ngx_timeofday();
 	srand((ngx_pid << 16) ^ (unsigned)tp->sec ^ tp->msec);
 	cycle = (ngx_cycle_t*)ngx_cycle;
 	for(n = 0; cycle->modules[n]; n++) {
@@ -627,7 +627,7 @@ static ngx_thread_value_t __stdcall ngx_cache_loader_thread(void * data)
 {
 	ngx_uint_t i;
 	ngx_path_t   ** path;
-	ngx_cycle_t   * cycle;
+	ngx_cycle_t * cycle;
 	ngx_msleep(60000);
 	cycle = (ngx_cycle_t*)ngx_cycle;
 	path = (ngx_path_t **)cycle->paths.elts;

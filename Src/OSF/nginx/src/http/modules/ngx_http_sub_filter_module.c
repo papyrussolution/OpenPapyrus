@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_http_complex_value_t match;
@@ -26,34 +26,34 @@ typedef struct {
 
 typedef struct {
 	ngx_uint_t dynamic;             /* unsigned dynamic:1; */
-	ngx_array_t               * pairs;
-	ngx_http_sub_tables_t     * tables;
+	ngx_array_t * pairs;
+	ngx_http_sub_tables_t   * tables;
 	ngx_hash_t types;
 	ngx_flag_t once;
 	ngx_flag_t last_modified;
-	ngx_array_t               * types_keys;
-	ngx_array_t               * matches;
+	ngx_array_t * types_keys;
+	ngx_array_t * matches;
 } ngx_http_sub_loc_conf_t;
 
 typedef struct {
 	ngx_str_t saved;
 	ngx_str_t looked;
 	ngx_uint_t once;               /* unsigned  once:1 */
-	ngx_buf_t                 * buf;
-	u_char                    * pos;
-	u_char                    * copy_start;
-	u_char                    * copy_end;
-	ngx_chain_t               * in;
-	ngx_chain_t               * out;
-	ngx_chain_t              ** last_out;
-	ngx_chain_t               * busy;
-	ngx_chain_t               * free;
-	ngx_str_t                 * sub;
+	ngx_buf_t * buf;
+	u_char  * pos;
+	u_char  * copy_start;
+	u_char  * copy_end;
+	ngx_chain_t * in;
+	ngx_chain_t * out;
+	ngx_chain_t  ** last_out;
+	ngx_chain_t * busy;
+	ngx_chain_t * free;
+	ngx_str_t * sub;
 	ngx_uint_t applied;
 	ngx_int_t offset;
 	ngx_uint_t index;
-	ngx_http_sub_tables_t     * tables;
-	ngx_array_t               * matches;
+	ngx_http_sub_tables_t   * tables;
+	ngx_array_t * matches;
 } ngx_http_sub_ctx_t;
 
 static ngx_uint_t ngx_http_sub_cmp_index;
@@ -134,11 +134,11 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 static ngx_int_t ngx_http_sub_header_filter(ngx_http_request_t * r)
 {
-	ngx_str_t                * m;
+	ngx_str_t  * m;
 	ngx_uint_t i, j, n;
-	ngx_http_sub_ctx_t       * ctx;
-	ngx_http_sub_pair_t      * pairs;
-	ngx_http_sub_match_t     * matches;
+	ngx_http_sub_ctx_t  * ctx;
+	ngx_http_sub_pair_t * pairs;
+	ngx_http_sub_match_t   * matches;
 	ngx_http_sub_loc_conf_t  * slcf = (ngx_http_sub_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_sub_filter_module);
 	if(slcf->pairs == NULL || r->headers_out.content_length_n == 0 || ngx_http_test_content_type(r, &slcf->types) == NULL) {
 		return ngx_http_next_header_filter(r);
@@ -226,12 +226,12 @@ static ngx_int_t ngx_http_sub_header_filter(ngx_http_request_t * r)
 static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
 	ngx_int_t rc;
-	ngx_buf_t                 * b;
-	ngx_str_t                 * sub;
+	ngx_buf_t * b;
+	ngx_str_t * sub;
 	ngx_uint_t flush, last;
-	ngx_chain_t               * cl;
-	ngx_http_sub_match_t      * match;
-	ngx_http_sub_loc_conf_t   * slcf;
+	ngx_chain_t * cl;
+	ngx_http_sub_match_t * match;
+	ngx_http_sub_loc_conf_t * slcf;
 	ngx_http_sub_ctx_t * ctx = (ngx_http_sub_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_sub_filter_module);
 	if(ctx == NULL) {
 		return ngx_http_next_body_filter(r, in);
@@ -395,7 +395,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 static ngx_int_t ngx_http_sub_output(ngx_http_request_t * r, ngx_http_sub_ctx_t * ctx)
 {
 	ngx_int_t rc;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
 #if 1
 	b = NULL;
@@ -454,7 +454,7 @@ static ngx_int_t ngx_http_sub_parse(ngx_http_request_t * r, ngx_http_sub_ctx_t *
 	ngx_int_t start, next, len, rc;
 	ngx_uint_t shift, i, j;
 	ngx_http_sub_loc_conf_t  * slcf = (ngx_http_sub_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_sub_filter_module);
-	ngx_http_sub_tables_t    * tables = ctx->tables;
+	ngx_http_sub_tables_t  * tables = ctx->tables;
 	ngx_http_sub_match_t * match = (ngx_http_sub_match_t*)ctx->matches->elts;
 	ngx_int_t offset = ctx->offset;
 	ngx_int_t end = ctx->buf->last - ctx->pos;
@@ -646,8 +646,8 @@ static void * ngx_http_sub_create_conf(ngx_conf_t * cf)
 static char * ngx_http_sub_merge_conf(ngx_conf_t * cf, void * parent, void * child)
 {
 	ngx_uint_t i, n;
-	ngx_http_sub_pair_t      * pairs;
-	ngx_http_sub_match_t     * matches;
+	ngx_http_sub_pair_t * pairs;
+	ngx_http_sub_match_t   * matches;
 	ngx_http_sub_loc_conf_t  * prev = (ngx_http_sub_loc_conf_t *)parent;
 	ngx_http_sub_loc_conf_t  * conf = (ngx_http_sub_loc_conf_t *)child;
 

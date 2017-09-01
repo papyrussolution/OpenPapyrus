@@ -9,13 +9,13 @@
 static ngx_int_t ngx_test_full_name(ngx_str_t * name);
 
 static ngx_atomic_t temp_number = 0;
-ngx_atomic_t         * ngx_temp_number = &temp_number;
+ngx_atomic_t  * ngx_temp_number = &temp_number;
 ngx_atomic_int_t ngx_random_number = 123456;
 
 ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * name)
 {
 	size_t len;
-	u_char     * p, * n;
+	u_char   * p, * n;
 	ngx_int_t rc;
 	rc = ngx_test_full_name(name);
 	if(rc == NGX_OK) {
@@ -97,12 +97,12 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
     ngx_uint_t persistent, ngx_uint_t clean, ngx_uint_t access)
 {
 	size_t levels;
-	u_char                   * p;
+	u_char * p;
 	uint32_t n;
 	ngx_err_t err;
 	ngx_str_t name;
 	ngx_uint_t prefix;
-	ngx_pool_cleanup_t       * cln;
+	ngx_pool_cleanup_t  * cln;
 	ngx_pool_cleanup_file_t  * clnf;
 	if(file->name.len) {
 		name = file->name;
@@ -246,7 +246,7 @@ char * ngx_conf_set_path_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char *)conf;
 	ssize_t level;
-	ngx_str_t   * value;
+	ngx_str_t * value;
 	ngx_uint_t i, n;
 	ngx_path_t  * path;
 	ngx_path_t ** slot = (ngx_path_t**)(p + cmd->offset);
@@ -316,8 +316,8 @@ char * ngx_conf_merge_path_value(ngx_conf_t * cf, ngx_path_t ** path, ngx_path_t
 char * ngx_conf_set_access_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * confp = (char *)conf;
-	u_char      * p;
-	ngx_str_t   * value;
+	u_char * p;
+	ngx_str_t * value;
 	ngx_uint_t i, right, shift, user;
 	ngx_uint_t * access = (ngx_uint_t*)(confp + cmd->offset);
 	if(*access != NGX_CONF_UNSET_UINT) {
@@ -379,26 +379,17 @@ ngx_int_t ngx_add_path(ngx_conf_t * cf, ngx_path_t ** slot)
 					if(path->conf_file == NULL) {
 						if(p[i]->conf_file == NULL) {
 							ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-							    "the default path name \"%V\" has "
-							    "the same name as another default path, "
-							    "but the different levels, you need to "
-							    "redefine one of them in http section",
+							    "the default path name \"%V\" has the same name as another default path, but the different levels, you need to redefine one of them in http section",
 							    &p[i]->name);
 							return NGX_ERROR;
 						}
 
 						ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-						    "the path name \"%V\" in %s:%ui has "
-						    "the same name as default path, but "
-						    "the different levels, you need to "
-						    "define default path in http section",
+						    "the path name \"%V\" in %s:%ui has the same name as default path, but the different levels, you need to define default path in http section",
 						    &p[i]->name, p[i]->conf_file, p[i]->line);
 						return NGX_ERROR;
 					}
-
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "the same path name \"%V\" in %s:%ui "
-					    "has the different levels than",
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the same path name \"%V\" in %s:%ui has the different levels than",
 					    &p[i]->name, p[i]->conf_file, p[i]->line);
 					return NGX_ERROR;
 				}
@@ -477,7 +468,7 @@ ngx_int_t ngx_create_paths(ngx_cycle_t * cycle, ngx_uid_t user)
 
 ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_file_t * ext)
 {
-	u_char           * name;
+	u_char * name;
 	ngx_err_t err;
 	ngx_copy_file_t cf;
 
@@ -699,8 +690,8 @@ failed:
 
 ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 {
-	void       * data, * prev;
-	u_char     * p, * name;
+	void  * data, * prev;
+	u_char   * p, * name;
 	size_t len;
 	ngx_int_t rc;
 	ngx_err_t err;

@@ -12,7 +12,7 @@ typedef struct {
 } ngx_stream_return_srv_conf_t;
 
 typedef struct {
-	ngx_chain_t                 * out;
+	ngx_chain_t * out;
 } ngx_stream_return_ctx_t;
 
 static void ngx_stream_return_handler(ngx_stream_session_t * s);
@@ -61,9 +61,9 @@ ngx_module_t ngx_stream_return_module = {
 static void ngx_stream_return_handler(ngx_stream_session_t * s)
 {
 	ngx_str_t text;
-	ngx_buf_t                     * b;
-	ngx_connection_t              * c;
-	ngx_stream_return_ctx_t       * ctx;
+	ngx_buf_t * b;
+	ngx_connection_t    * c;
+	ngx_stream_return_ctx_t  * ctx;
 	ngx_stream_return_srv_conf_t  * rscf;
 
 	c = s->connection;
@@ -120,8 +120,8 @@ static void ngx_stream_return_handler(ngx_stream_session_t * s)
 
 static void ngx_stream_return_write_handler(ngx_event_t * ev)
 {
-	ngx_connection_t         * c;
-	ngx_stream_session_t     * s;
+	ngx_connection_t  * c;
+	ngx_stream_session_t   * s;
 	ngx_stream_return_ctx_t  * ctx;
 
 	c = (ngx_connection_t *)ev->data;
@@ -169,8 +169,8 @@ static void * ngx_stream_return_create_srv_conf(ngx_conf_t * cf)
 static char * ngx_stream_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_return_srv_conf_t * rscf = (ngx_stream_return_srv_conf_t *)conf;
-	ngx_str_t                           * value;
-	ngx_stream_core_srv_conf_t          * cscf;
+	ngx_str_t  * value;
+	ngx_stream_core_srv_conf_t   * cscf;
 	ngx_stream_compile_complex_value_t ccv;
 	if(rscf->text.value.data) {
 		return "is duplicate";

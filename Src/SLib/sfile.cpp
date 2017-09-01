@@ -2660,7 +2660,7 @@ SLTEST_R(SFile)
 		//
 	}
 	CATCHZOK;
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

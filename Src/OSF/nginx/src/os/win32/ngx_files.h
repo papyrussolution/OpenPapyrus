@@ -13,18 +13,17 @@ typedef BY_HANDLE_FILE_INFORMATION ngx_file_info_t;
 typedef uint64_t ngx_file_uniq_t;
 
 typedef struct {
-	u_char                         * name;
+	u_char * name;
 	size_t size;
-	void                           * addr;
+	void * addr;
 	ngx_fd_t fd;
 	HANDLE handle;
-	ngx_log_t                      * log;
+	ngx_log_t * log;
 } ngx_file_mapping_t;
 
 typedef struct {
 	HANDLE dir;
 	WIN32_FIND_DATA finddata;
-
 	unsigned valid_info : 1;
 	unsigned type : 1;
 	unsigned ready : 1;
@@ -33,58 +32,45 @@ typedef struct {
 typedef struct {
 	HANDLE dir;
 	WIN32_FIND_DATA finddata;
-
 	unsigned ready : 1;
 	unsigned test : 1;
 	unsigned no_match : 1;
-
-	u_char                         * pattern;
+	u_char * pattern;
 	ngx_str_t name;
 	size_t last;
-	ngx_log_t                      * log;
+	ngx_log_t * log;
 } ngx_glob_t;
 
 /* INVALID_FILE_ATTRIBUTES is specified but not defined at least in MSVC6SP2 */
 #ifndef INVALID_FILE_ATTRIBUTES
-#define INVALID_FILE_ATTRIBUTES     0xffffffff
+	#define INVALID_FILE_ATTRIBUTES     0xffffffff
 #endif
-
 /* INVALID_SET_FILE_POINTER is not defined at least in MSVC6SP2 */
 #ifndef INVALID_SET_FILE_POINTER
-#define INVALID_SET_FILE_POINTER    0xffffffff
+	#define INVALID_SET_FILE_POINTER    0xffffffff
 #endif
-
 #define NGX_INVALID_FILE            INVALID_HANDLE_VALUE
 #define NGX_FILE_ERROR              0
 
 ngx_fd_t ngx_open_file(u_char * name, u_long mode, u_long create, u_long access);
-#define ngx_open_file_n             "CreateFile()"
 
+#define ngx_open_file_n             "CreateFile()"
 #define NGX_FILE_RDONLY             GENERIC_READ
 #define NGX_FILE_WRONLY             GENERIC_WRITE
 #define NGX_FILE_RDWR               GENERIC_READ|GENERIC_WRITE
 #define NGX_FILE_APPEND             FILE_APPEND_DATA|SYNCHRONIZE
 #define NGX_FILE_NONBLOCK           0
-
 #define NGX_FILE_CREATE_OR_OPEN     OPEN_ALWAYS
 #define NGX_FILE_OPEN               OPEN_EXISTING
 #define NGX_FILE_TRUNCATE           CREATE_ALWAYS
-
 #define NGX_FILE_DEFAULT_ACCESS     0
 #define NGX_FILE_OWNER_ACCESS       0
 
 #define ngx_open_tempfile(name, persistent, access)			     \
-	CreateFile((const char*)name,					       \
-	    GENERIC_READ|GENERIC_WRITE,					  \
-	    FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,		  \
-	    NULL,							  \
-	    CREATE_NEW,							  \
-	    persistent ? 0 :						   \
-	    FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,	      \
-	    NULL);
+	CreateFile((const char*)name, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, \
+	    NULL, CREATE_NEW, persistent ? 0 : FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
 #define ngx_open_tempfile_n         "CreateFile()"
-
 #define ngx_close_file              CloseHandle
 #define ngx_close_file_n            "CloseHandle()"
 
@@ -119,18 +105,13 @@ ngx_int_t ngx_file_info(u_char * filename, ngx_file_info_t * fi);
 #define ngx_link_info(name, fi)     ngx_file_info(name, fi)
 #define ngx_link_info_n             "GetFileAttributesEx()"
 
-#define ngx_is_dir(fi)							     \
-	(((fi)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-#define ngx_is_file(fi)							     \
-	(((fi)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+#define ngx_is_dir(fi)      (((fi)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+#define ngx_is_file(fi)     (((fi)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 #define ngx_is_link(fi)     0
 #define ngx_is_exec(fi)     0
-
 #define ngx_file_access(fi) 0
-
 #define ngx_file_size(fi)           (((nginx_off_t)(fi)->nFileSizeHigh << 32) | (fi)->nFileSizeLow)
 #define ngx_file_fs_size(fi)        ngx_file_size(fi)
-
 #define ngx_file_uniq(fi)   (*(ngx_file_uniq_t*)&(fi)->nFileIndexHigh)
 
 /* 116444736000000000 is commented in src/os/win32/ngx_time.c */

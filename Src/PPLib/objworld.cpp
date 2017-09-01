@@ -2145,8 +2145,11 @@ SLTEST_R(ObjWorld)
 		THROW(SLTEST_CHECK_NZ(w_obj.PutPacket(&city_id1, 0, 0)));
 		THROW(SLTEST_CHECK_NZ(tra.Commit()));
 	}
-	CATCHZOK
-	return ok;
+	CATCH
+		ok = 0;
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

@@ -96,7 +96,7 @@ int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
 
 u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...)
 {
-	u_char   * p;
+	u_char * p;
 	va_list args;
 	va_start(args, fmt);
 	p = ngx_vslprintf(buf, (u_char *)-1, fmt, args);
@@ -106,7 +106,7 @@ u_char * ngx_cdecl ngx_sprintf(u_char * buf, const char * fmt, ...)
 
 u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...)
 {
-	u_char   * p;
+	u_char * p;
 	va_list args;
 	va_start(args, fmt);
 	p = ngx_vslprintf(buf, buf + max, fmt, args);
@@ -116,7 +116,7 @@ u_char * ngx_cdecl ngx_snprintf(u_char * buf, size_t max, const char * fmt, ...)
 
 u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, ...)
 {
-	u_char   * p;
+	u_char * p;
 	va_list args;
 	va_start(args, fmt);
 	p = ngx_vslprintf(buf, last, fmt, args);
@@ -126,7 +126,7 @@ u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, .
 
 u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list args)
 {
-	u_char                * p, zero;
+	u_char  * p, zero;
 	int d;
 	double f;
 	size_t len, slen;
@@ -134,7 +134,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 	uint64_t ui64, frac;
 	ngx_msec_t ms;
 	ngx_uint_t width, sign, hex, max_width, frac_width, scale, n;
-	ngx_str_t             * v;
+	ngx_str_t   * v;
 	ngx_variable_value_t  * vv;
 
 	while(*fmt && buf < last) {
@@ -995,7 +995,7 @@ void ngx_encode_base64url(ngx_str_t * dst, ngx_str_t * src)
 static void ngx_encode_base64_internal(ngx_str_t * dst, ngx_str_t * src, const u_char * basis,
     ngx_uint_t padding)
 {
-	u_char         * d, * s;
+	u_char  * d, * s;
 	size_t len;
 
 	len = src->len;
@@ -1087,7 +1087,7 @@ ngx_int_t ngx_decode_base64url(ngx_str_t * dst, ngx_str_t * src)
 static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, ngx_str_t * src, const u_char * basis)
 {
 	size_t len;
-	u_char         * d, * s;
+	u_char  * d, * s;
 
 	for(len = 0; len < src->len; len++) {
 		if(src->data[len] == '=') {
@@ -1258,7 +1258,7 @@ u_char * ngx_utf8_cpystrn(u_char * dst, u_char * src, size_t n, size_t len)
 uintptr_t ngx_escape_uri(u_char * dst, u_char * src, size_t size, ngx_uint_t type)
 {
 	ngx_uint_t n;
-	uint32_t       * escape;
+	uint32_t  * escape;
 	static u_char hex[] = "0123456789ABCDEF";
 
 	/* " ", "#", "%", "?", %00-%1F, %7F-%FF */
@@ -1664,7 +1664,7 @@ uintptr_t ngx_escape_json(u_char * dst, u_char * src, size_t size)
 
 void ngx_str_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
-	ngx_str_node_t      * n, * t;
+	ngx_str_node_t * n, * t;
 	ngx_rbtree_node_t  ** p;
 	for(;; ) {
 		n = (ngx_str_node_t*)node;

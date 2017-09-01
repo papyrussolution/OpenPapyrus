@@ -78,7 +78,7 @@ static ngx_uint_t ngx_slab_exact_shift;
 
 void ngx_slab_init(ngx_slab_pool_t * pool)
 {
-	u_char           * p;
+	u_char * p;
 	size_t size;
 	ngx_int_t m;
 	ngx_uint_t i, n, pages;

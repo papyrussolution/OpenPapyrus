@@ -9,48 +9,45 @@
 ngx_buf_t * ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 {
 	ngx_buf_t * b = (ngx_buf_t*)ngx_calloc_buf(pool);
-	if(b == NULL) {
-		return NULL;
+	if(b) {
+		b->start = (u_char *)ngx_palloc(pool, size);
+		if(b->start == NULL) {
+			return NULL;
+		}
+		else {
+			/*
+			 * set by ngx_calloc_buf():
+			 *
+			 *     b->file_pos = 0;
+			 *     b->file_last = 0;
+			 *     b->file = NULL;
+			 *     b->shadow = NULL;
+			 *     b->tag = 0;
+			 *     and flags
+			 */
+			b->pos = b->start;
+			b->last = b->start;
+			b->end = b->last + size;
+			b->temporary = 1;
+		}
 	}
-	b->start = (u_char *)ngx_palloc(pool, size);
-	if(b->start == NULL) {
-		return NULL;
-	}
-	/*
-	 * set by ngx_calloc_buf():
-	 *
-	 *     b->file_pos = 0;
-	 *     b->file_last = 0;
-	 *     b->file = NULL;
-	 *     b->shadow = NULL;
-	 *     b->tag = 0;
-	 *     and flags
-	 */
-	b->pos = b->start;
-	b->last = b->start;
-	b->end = b->last + size;
-	b->temporary = 1;
 	return b;
 }
 
 ngx_chain_t * ngx_alloc_chain_link(ngx_pool_t * pool)
 {
 	ngx_chain_t  * cl = pool->chain;
-	if(cl) {
+	if(cl)
 		pool->chain = cl->next;
-		return cl;
-	}
-	cl = (ngx_chain_t *)ngx_palloc(pool, sizeof(ngx_chain_t));
-	if(cl == NULL) {
-		return NULL;
-	}
+	else
+		cl = (ngx_chain_t *)ngx_palloc(pool, sizeof(ngx_chain_t));
 	return cl;
 }
 
 ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs)
 {
 	ngx_int_t i;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_chain_t  * chain, * cl, ** ll;
 	u_char * p = (u_char *)ngx_palloc(pool, bufs->num * bufs->size);
 	if(p == NULL) {
@@ -62,7 +59,6 @@ ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs)
 		if(b == NULL) {
 			return NULL;
 		}
-
 		/*
 		 * set by ngx_calloc_buf():
 		 *
@@ -113,12 +109,12 @@ ngx_int_t ngx_chain_add_copy(ngx_pool_t * pool, ngx_chain_t ** chain, ngx_chain_
 	return NGX_OK;
 }
 
-ngx_chain_t * ngx_chain_get_free_buf(ngx_pool_t * p, ngx_chain_t ** free)
+ngx_chain_t * ngx_chain_get_free_buf(ngx_pool_t * p, ngx_chain_t ** ppFree)
 {
-	ngx_chain_t  * cl;
-	if(*free) {
-		cl = *free;
-		*free = cl->next;
+	ngx_chain_t * cl;
+	if(*ppFree) {
+		cl = *ppFree;
+		*ppFree = cl->next;
 		cl->next = NULL;
 		return cl;
 	}

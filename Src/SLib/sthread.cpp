@@ -717,7 +717,7 @@ SLTEST_R(Evnt)
 			ev_start.Reset();
 		}
 	}
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(ReadWriteLock)

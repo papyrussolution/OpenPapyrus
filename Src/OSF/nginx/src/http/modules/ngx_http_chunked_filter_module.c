@@ -5,11 +5,11 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
-	ngx_chain_t         * free;
-	ngx_chain_t         * busy;
+	ngx_chain_t  * free;
+	ngx_chain_t  * busy;
 } ngx_http_chunked_filter_ctx_t;
 
 static ngx_int_t ngx_http_chunked_filter_init(ngx_conf_t * cf);
@@ -49,7 +49,7 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 static ngx_int_t ngx_http_chunked_header_filter(ngx_http_request_t * r)
 {
-	ngx_http_core_loc_conf_t       * clcf;
+	ngx_http_core_loc_conf_t  * clcf;
 	ngx_http_chunked_filter_ctx_t  * ctx;
 
 	if(r->headers_out.status == NGX_HTTP_NOT_MODIFIED
@@ -89,11 +89,11 @@ static ngx_int_t ngx_http_chunked_header_filter(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	u_char                         * chunk;
+	u_char  * chunk;
 	nginx_off_t size;
 	ngx_int_t rc;
-	ngx_buf_t                      * b;
-	ngx_chain_t                    * out, * cl, * tl, ** ll;
+	ngx_buf_t  * b;
+	ngx_chain_t  * out, * cl, * tl, ** ll;
 	ngx_http_chunked_filter_ctx_t  * ctx;
 
 	if(in == NULL || !r->chunked || r->header_only) {
@@ -212,9 +212,9 @@ static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r,
     ngx_http_chunked_filter_ctx_t * ctx)
 {
 	size_t len;
-	ngx_buf_t        * b;
+	ngx_buf_t * b;
 	ngx_uint_t i;
-	ngx_chain_t      * cl;
+	ngx_chain_t * cl;
 	ngx_list_part_t  * part;
 	ngx_table_elt_t  * header;
 

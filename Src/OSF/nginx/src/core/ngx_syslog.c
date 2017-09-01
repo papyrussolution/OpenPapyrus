@@ -4,7 +4,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 #define NGX_SYSLOG_MAX_STR						      \
 	NGX_MAX_ERROR_STR + sizeof("<255>Jan 01 00:00:00 ") - 1			  \
@@ -57,117 +57,86 @@ char * ngx_syslog_process_conf(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 
 static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 {
-	u_char      * p, * comma, c;
+	u_char * comma, c;
 	size_t len;
-	ngx_str_t   * value;
 	ngx_url_t u;
 	ngx_uint_t i;
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	p = value[1].data + sizeof("syslog:") - 1;
-
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	u_char * p = value[1].data + sizeof("syslog:") - 1;
 	for(;; ) {
 		comma = (u_char*)ngx_strchr(p, ',');
-
-		if(comma != NULL) {
+		if(comma) {
 			len = comma - p;
 			*comma = '\0';
 		}
 		else {
 			len = value[1].data + value[1].len - p;
 		}
-
 		if(ngx_strncmp(p, "server=", 7) == 0) {
 			if(peer->server.sockaddr != NULL) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "duplicate syslog \"server\"");
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate syslog \"server\"");
 				return NGX_CONF_ERROR;
 			}
-
 			memzero(&u, sizeof(ngx_url_t));
-
 			u.url.data = p + 7;
 			u.url.len = len - 7;
 			u.default_port = 514;
-
 			if(ngx_parse_url(cf->pool, &u) != NGX_OK) {
 				if(u.err) {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "%s in syslog server \"%V\"",
-					    u.err, &u.url);
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%s in syslog server \"%V\"", u.err, &u.url);
 				}
-
 				return NGX_CONF_ERROR;
 			}
-
 			peer->server = u.addrs[0];
 		}
 		else if(ngx_strncmp(p, "facility=", 9) == 0) {
 			if(peer->facility != NGX_CONF_UNSET_UINT) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "duplicate syslog \"facility\"");
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate syslog \"facility\"");
 				return NGX_CONF_ERROR;
 			}
-
 			for(i = 0; facilities[i] != NULL; i++) {
 				if(ngx_strcmp(p + 9, facilities[i]) == 0) {
 					peer->facility = i;
 					goto next;
 				}
 			}
-
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "unknown syslog facility \"%s\"", p + 9);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown syslog facility \"%s\"", p + 9);
 			return NGX_CONF_ERROR;
 		}
 		else if(ngx_strncmp(p, "severity=", 9) == 0) {
 			if(peer->severity != NGX_CONF_UNSET_UINT) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "duplicate syslog \"severity\"");
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate syslog \"severity\"");
 				return NGX_CONF_ERROR;
 			}
-
 			for(i = 0; severities[i] != NULL; i++) {
 				if(ngx_strcmp(p + 9, severities[i]) == 0) {
 					peer->severity = i;
 					goto next;
 				}
 			}
-
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "unknown syslog severity \"%s\"", p + 9);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown syslog severity \"%s\"", p + 9);
 			return NGX_CONF_ERROR;
 		}
 		else if(ngx_strncmp(p, "tag=", 4) == 0) {
-			if(peer->tag.data != NULL) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "duplicate syslog \"tag\"");
+			if(peer->tag.data) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate syslog \"tag\"");
 				return NGX_CONF_ERROR;
 			}
-
 			/*
 			 * RFC 3164: the TAG is a string of ABNF alphanumeric characters
 			 * that MUST NOT exceed 32 characters.
 			 */
 			if(len - 4 > 32) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "syslog tag length exceeds 32");
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "syslog tag length exceeds 32");
 				return NGX_CONF_ERROR;
 			}
-
 			for(i = 4; i < len; i++) {
 				c = ngx_tolower(p[i]);
-
 				if(c < '0' || (c > '9' && c < 'a' && c != '_') || c > 'z') {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "syslog \"tag\" only allows "
-					    "alphanumeric characters "
-					    "and underscore");
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "syslog \"tag\" only allows alphanumeric characters and underscore");
 					return NGX_CONF_ERROR;
 				}
 			}
-
 			peer->tag.data = p + 4;
 			peer->tag.len = len - 4;
 		}
@@ -175,20 +144,15 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 			peer->nohostname = 1;
 		}
 		else {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "unknown syslog parameter \"%s\"", p);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown syslog parameter \"%s\"", p);
 			return NGX_CONF_ERROR;
 		}
-
 next:
-
 		if(comma == NULL) {
 			break;
 		}
-
 		p = comma + 1;
 	}
-
 	return NGX_CONF_OK;
 }
 
@@ -207,7 +171,7 @@ u_char * ngx_syslog_add_header(ngx_syslog_peer_t * peer, u_char * buf)
 
 void ngx_syslog_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len)
 {
-	u_char             * p, msg[NGX_SYSLOG_MAX_STR];
+	u_char * p, msg[NGX_SYSLOG_MAX_STR];
 	ngx_uint_t head_len;
 	ngx_syslog_peer_t  * peer = (ngx_syslog_peer_t *)log->wdata;
 	if(peer->busy) {

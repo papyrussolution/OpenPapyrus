@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 #include <ngx_http_v2_module.h>
 
 /* errors */
@@ -136,30 +136,21 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_get_frame(ngx_http_v2_connection_t 
 static ngx_int_t ngx_http_v2_frame_handler(ngx_http_v2_connection_t * h2c,
     ngx_http_v2_out_frame_t * frame);
 
-static ngx_int_t ngx_http_v2_validate_header(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
-static ngx_int_t ngx_http_v2_pseudo_header(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
-static ngx_int_t ngx_http_v2_parse_path(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
-static ngx_int_t ngx_http_v2_parse_method(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
-static ngx_int_t ngx_http_v2_parse_scheme(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
-static ngx_int_t ngx_http_v2_parse_authority(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_validate_header(ngx_http_request_t * r, ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_pseudo_header(ngx_http_request_t * r, ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_parse_path(ngx_http_request_t * r, ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_parse_method(ngx_http_request_t * r, ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_parse_scheme(ngx_http_request_t * r, ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_parse_authority(ngx_http_request_t * r, ngx_http_v2_header_t * header);
 static ngx_int_t ngx_http_v2_construct_request_line(ngx_http_request_t * r);
-static ngx_int_t ngx_http_v2_cookie(ngx_http_request_t * r,
-    ngx_http_v2_header_t * header);
+static ngx_int_t ngx_http_v2_cookie(ngx_http_request_t * r, ngx_http_v2_header_t * header);
 static ngx_int_t ngx_http_v2_construct_cookie_header(ngx_http_request_t * r);
 static void ngx_http_v2_run_request(ngx_http_request_t * r);
-static ngx_int_t ngx_http_v2_process_request_body(ngx_http_request_t * r,
-    u_char * pos, size_t size, ngx_uint_t last);
+static ngx_int_t ngx_http_v2_process_request_body(ngx_http_request_t * r, u_char * pos, size_t size, ngx_uint_t last);
 static ngx_int_t ngx_http_v2_filter_request_body(ngx_http_request_t * r);
 static void ngx_http_v2_read_client_request_body_handler(ngx_http_request_t * r);
 
-static ngx_int_t ngx_http_v2_terminate_stream(ngx_http_v2_connection_t * h2c,
-    ngx_http_v2_stream_t * stream, ngx_uint_t status);
+static ngx_int_t ngx_http_v2_terminate_stream(ngx_http_v2_connection_t * h2c, ngx_http_v2_stream_t * stream, ngx_uint_t status);
 static void ngx_http_v2_close_stream_handler(ngx_event_t * ev);
 static void ngx_http_v2_handle_connection_handler(ngx_event_t * rev);
 static void ngx_http_v2_idle_handler(ngx_event_t * rev);
@@ -192,11 +183,11 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
 
 void ngx_http_v2_init(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_pool_cleanup_t        * cln;
-	ngx_http_connection_t     * hc;
-	ngx_http_v2_srv_conf_t    * h2scf;
-	ngx_http_v2_main_conf_t   * h2mcf;
+	ngx_connection_t   * c;
+	ngx_pool_cleanup_t * cln;
+	ngx_http_connection_t   * hc;
+	ngx_http_v2_srv_conf_t  * h2scf;
+	ngx_http_v2_main_conf_t * h2mcf;
 	ngx_http_v2_connection_t  * h2c;
 
 	c = (ngx_connection_t *)rev->data;
@@ -286,11 +277,11 @@ void ngx_http_v2_init(ngx_event_t * rev)
 
 static void ngx_http_v2_read_handler(ngx_event_t * rev)
 {
-	u_char                    * p, * end;
+	u_char  * p, * end;
 	size_t available;
 	ssize_t n;
-	ngx_connection_t          * c;
-	ngx_http_v2_main_conf_t   * h2mcf;
+	ngx_connection_t   * c;
+	ngx_http_v2_main_conf_t * h2mcf;
 	ngx_http_v2_connection_t  * h2c;
 
 	c = (ngx_connection_t *)rev->data;
@@ -397,7 +388,7 @@ static void ngx_http_v2_read_handler(ngx_event_t * rev)
 static void ngx_http_v2_write_handler(ngx_event_t * wev)
 {
 	ngx_int_t rc;
-	ngx_connection_t          * c;
+	ngx_connection_t   * c;
 	ngx_http_v2_connection_t  * h2c;
 
 	c = (ngx_connection_t *)wev->data;
@@ -443,10 +434,10 @@ static void ngx_http_v2_write_handler(ngx_event_t * wev)
 ngx_int_t ngx_http_v2_send_output_queue(ngx_http_v2_connection_t * h2c)
 {
 	int tcp_nodelay;
-	ngx_chain_t               * cl;
-	ngx_event_t               * wev;
-	ngx_connection_t          * c;
-	ngx_http_v2_out_frame_t   * out, * frame, * fn;
+	ngx_chain_t * cl;
+	ngx_event_t * wev;
+	ngx_connection_t   * c;
+	ngx_http_v2_out_frame_t * out, * frame, * fn;
 	ngx_http_core_loc_conf_t  * clcf;
 
 	c = h2c->connection;
@@ -557,7 +548,7 @@ error:
 static void ngx_http_v2_handle_connection(ngx_http_v2_connection_t * h2c)
 {
 	ngx_int_t rc;
-	ngx_connection_t        * c;
+	ngx_connection_t * c;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	if(h2c->last_out || h2c->processing) {
@@ -726,7 +717,7 @@ static u_char * ngx_http_v2_state_head(ngx_http_v2_connection_t * h2c, u_char * 
 static u_char * ngx_http_v2_state_data(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end)
 {
 	size_t size;
-	ngx_http_v2_node_t    * node;
+	ngx_http_v2_node_t  * node;
 	ngx_http_v2_stream_t  * stream;
 
 	size = h2c->state.length;
@@ -847,14 +838,13 @@ static u_char * ngx_http_v2_state_data(ngx_http_v2_connection_t * h2c, u_char * 
 	return ngx_http_v2_state_read_data(h2c, pos, end);
 }
 
-static u_char * ngx_http_v2_state_read_data(ngx_http_v2_connection_t * h2c, u_char * pos,
-    u_char * end)
+static u_char * ngx_http_v2_state_read_data(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end)
 {
 	size_t size;
-	ngx_buf_t               * buf;
+	ngx_buf_t * buf;
 	ngx_int_t rc;
-	ngx_http_request_t      * r;
-	ngx_http_v2_stream_t    * stream;
+	ngx_http_request_t * r;
+	ngx_http_v2_stream_t  * stream;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	stream = h2c->state.stream;
@@ -933,8 +923,8 @@ static u_char * ngx_http_v2_state_headers(ngx_http_v2_connection_t * h2c, u_char
 	size_t size;
 	ngx_uint_t padded, priority, depend, dependency, excl, weight;
 	ngx_uint_t status;
-	ngx_http_v2_node_t      * node;
-	ngx_http_v2_stream_t    * stream;
+	ngx_http_v2_node_t * node;
+	ngx_http_v2_stream_t  * stream;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	padded = h2c->state.flags & NGX_HTTP_V2_PADDED_FLAG;
@@ -1434,11 +1424,11 @@ static u_char * ngx_http_v2_state_process_header(ngx_http_v2_connection_t * h2c,
 {
 	size_t len;
 	ngx_int_t rc;
-	ngx_table_elt_t            * h;
-	ngx_http_header_t          * hh;
-	ngx_http_request_t         * r;
-	ngx_http_v2_header_t       * header;
-	ngx_http_core_srv_conf_t   * cscf;
+	ngx_table_elt_t  * h;
+	ngx_http_header_t   * hh;
+	ngx_http_request_t  * r;
+	ngx_http_v2_header_t  * header;
+	ngx_http_core_srv_conf_t * cscf;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	static ngx_str_t cookie = ngx_string("cookie");
@@ -1628,7 +1618,7 @@ static u_char * ngx_http_v2_state_header_complete(ngx_http_v2_connection_t * h2c
 static u_char * ngx_http_v2_handle_continuation(ngx_http_v2_connection_t * h2c, u_char * pos,
     u_char * end, ngx_http_v2_handler_pt handler)
 {
-	u_char    * p;
+	u_char  * p;
 	size_t len, skip;
 	uint32_t head;
 
@@ -1778,9 +1768,9 @@ static u_char * ngx_http_v2_state_rst_stream(ngx_http_v2_connection_t * h2c, u_c
     u_char * end)
 {
 	ngx_uint_t status;
-	ngx_event_t           * ev;
-	ngx_connection_t      * fc;
-	ngx_http_v2_node_t    * node;
+	ngx_event_t * ev;
+	ngx_connection_t * fc;
+	ngx_http_v2_node_t  * node;
 	ngx_http_v2_stream_t  * stream;
 
 	if(h2c->state.length != NGX_HTTP_V2_RST_STREAM_SIZE) {
@@ -1970,7 +1960,7 @@ static u_char * ngx_http_v2_state_push_promise(ngx_http_v2_connection_t * h2c, u
 
 static u_char * ngx_http_v2_state_ping(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end)
 {
-	ngx_buf_t                * buf;
+	ngx_buf_t  * buf;
 	ngx_http_v2_out_frame_t  * frame;
 
 	if(h2c->state.length != NGX_HTTP_V2_PING_SIZE) {
@@ -2047,9 +2037,9 @@ static u_char * ngx_http_v2_state_window_update(ngx_http_v2_connection_t * h2c, 
     u_char * end)
 {
 	size_t window;
-	ngx_event_t           * wev;
-	ngx_queue_t           * q;
-	ngx_http_v2_node_t    * node;
+	ngx_event_t * wev;
+	ngx_queue_t * q;
+	ngx_http_v2_node_t  * node;
 	ngx_http_v2_stream_t  * stream;
 
 	if(h2c->state.length != NGX_HTTP_V2_WINDOW_UPDATE_SIZE) {
@@ -2283,8 +2273,8 @@ static u_char * ngx_http_v2_state_save(ngx_http_v2_connection_t * h2c, u_char * 
 static u_char * ngx_http_v2_state_headers_save(ngx_http_v2_connection_t * h2c, u_char * pos,
     u_char * end, ngx_http_v2_handler_pt handler)
 {
-	ngx_event_t               * rev;
-	ngx_http_request_t        * r;
+	ngx_event_t * rev;
+	ngx_http_request_t * r;
 	ngx_http_core_srv_conf_t  * cscf;
 
 	if(h2c->state.stream) {
@@ -2318,7 +2308,7 @@ static u_char * ngx_http_v2_connection_error(ngx_http_v2_connection_t * h2c,
 static ngx_int_t ngx_http_v2_parse_int(ngx_http_v2_connection_t * h2c, u_char ** pos, u_char * end,
     ngx_uint_t prefix)
 {
-	u_char      * start, * p;
+	u_char * start, * p;
 	ngx_uint_t value, octet, shift;
 
 	start = *pos;
@@ -2372,9 +2362,9 @@ static ngx_int_t ngx_http_v2_parse_int(ngx_http_v2_connection_t * h2c, u_char **
 static ngx_int_t ngx_http_v2_send_settings(ngx_http_v2_connection_t * h2c)
 {
 	size_t len;
-	ngx_buf_t                * buf;
-	ngx_chain_t              * cl;
-	ngx_http_v2_srv_conf_t   * h2scf;
+	ngx_buf_t  * buf;
+	ngx_chain_t    * cl;
+	ngx_http_v2_srv_conf_t * h2scf;
 	ngx_http_v2_out_frame_t  * frame;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
@@ -2459,7 +2449,7 @@ static ngx_int_t ngx_http_v2_settings_frame_handler(ngx_http_v2_connection_t * h
 static ngx_int_t ngx_http_v2_send_window_update(ngx_http_v2_connection_t * h2c, ngx_uint_t sid,
     size_t window)
 {
-	ngx_buf_t                * buf;
+	ngx_buf_t  * buf;
 	ngx_http_v2_out_frame_t  * frame;
 
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
@@ -2485,7 +2475,7 @@ static ngx_int_t ngx_http_v2_send_window_update(ngx_http_v2_connection_t * h2c, 
 static ngx_int_t ngx_http_v2_send_rst_stream(ngx_http_v2_connection_t * h2c, ngx_uint_t sid,
     ngx_uint_t status)
 {
-	ngx_buf_t                * buf;
+	ngx_buf_t  * buf;
 	ngx_http_v2_out_frame_t  * frame;
 
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
@@ -2510,7 +2500,7 @@ static ngx_int_t ngx_http_v2_send_rst_stream(ngx_http_v2_connection_t * h2c, ngx
 
 static ngx_int_t ngx_http_v2_send_goaway(ngx_http_v2_connection_t * h2c, ngx_uint_t status)
 {
-	ngx_buf_t                * buf;
+	ngx_buf_t  * buf;
 	ngx_http_v2_out_frame_t  * frame;
 
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
@@ -2537,8 +2527,8 @@ static ngx_int_t ngx_http_v2_send_goaway(ngx_http_v2_connection_t * h2c, ngx_uin
 static ngx_http_v2_out_frame_t * ngx_http_v2_get_frame(ngx_http_v2_connection_t * h2c, size_t length,
     ngx_uint_t type, u_char flags, ngx_uint_t sid)
 {
-	ngx_buf_t                * buf;
-	ngx_pool_t               * pool;
+	ngx_buf_t  * buf;
+	ngx_pool_t * pool;
 	ngx_http_v2_out_frame_t  * frame;
 
 	frame = h2c->free_frames;
@@ -2615,13 +2605,13 @@ static ngx_int_t ngx_http_v2_frame_handler(ngx_http_v2_connection_t * h2c,
 
 static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t * h2c)
 {
-	ngx_log_t                 * log;
-	ngx_event_t               * rev, * wev;
-	ngx_connection_t          * fc;
-	ngx_http_log_ctx_t        * ctx;
-	ngx_http_request_t        * r;
-	ngx_http_v2_stream_t      * stream;
-	ngx_http_v2_srv_conf_t    * h2scf;
+	ngx_log_t * log;
+	ngx_event_t * rev, * wev;
+	ngx_connection_t   * fc;
+	ngx_http_log_ctx_t * ctx;
+	ngx_http_request_t * r;
+	ngx_http_v2_stream_t * stream;
+	ngx_http_v2_srv_conf_t  * h2scf;
 	ngx_http_core_srv_conf_t  * cscf;
 
 	fc = h2c->free_fake_connections;
@@ -2746,7 +2736,7 @@ static ngx_http_v2_node_t * ngx_http_v2_get_node_by_id(ngx_http_v2_connection_t 
     ngx_uint_t alloc)
 {
 	ngx_uint_t index;
-	ngx_http_v2_node_t      * node;
+	ngx_http_v2_node_t * node;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	h2scf = (ngx_http_v2_srv_conf_t *)ngx_http_get_module_srv_conf(h2c->http_connection->conf_ctx,
@@ -2787,8 +2777,8 @@ static ngx_http_v2_node_t * ngx_http_v2_get_node_by_id(ngx_http_v2_connection_t 
 static ngx_http_v2_node_t * ngx_http_v2_get_closed_node(ngx_http_v2_connection_t * h2c)
 {
 	ngx_uint_t weight;
-	ngx_queue_t             * q, * children;
-	ngx_http_v2_node_t      * node, ** next, * n, * parent, * child;
+	ngx_queue_t   * q, * children;
+	ngx_http_v2_node_t * node, ** next, * n, * parent, * child;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	h2scf = (ngx_http_v2_srv_conf_t *)ngx_http_get_module_srv_conf(h2c->http_connection->conf_ctx,
@@ -3123,8 +3113,8 @@ static ngx_int_t ngx_http_v2_parse_scheme(ngx_http_request_t * r, ngx_http_v2_he
 
 static ngx_int_t ngx_http_v2_parse_authority(ngx_http_request_t * r, ngx_http_v2_header_t * header)
 {
-	ngx_table_elt_t            * h;
-	ngx_http_header_t          * hh;
+	ngx_table_elt_t  * h;
+	ngx_http_header_t   * hh;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	static ngx_str_t host = ngx_string("host");
@@ -3205,7 +3195,7 @@ static ngx_int_t ngx_http_v2_construct_request_line(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_v2_cookie(ngx_http_request_t * r, ngx_http_v2_header_t * header)
 {
-	ngx_str_t    * val;
+	ngx_str_t  * val;
 	ngx_array_t  * cookies = r->stream->cookies;
 	if(cookies == NULL) {
 		cookies = ngx_array_create(r->pool, 2, sizeof(ngx_str_t));
@@ -3228,13 +3218,13 @@ static ngx_int_t ngx_http_v2_cookie(ngx_http_request_t * r, ngx_http_v2_header_t
 
 static ngx_int_t ngx_http_v2_construct_cookie_header(ngx_http_request_t * r)
 {
-	u_char                     * buf, * p, * end;
+	u_char * buf, * p, * end;
 	size_t len;
-	ngx_str_t                  * vals;
+	ngx_str_t  * vals;
 	ngx_uint_t i;
-	ngx_array_t                * cookies;
-	ngx_table_elt_t            * h;
-	ngx_http_header_t          * hh;
+	ngx_array_t  * cookies;
+	ngx_table_elt_t  * h;
+	ngx_http_header_t   * hh;
 	ngx_http_core_main_conf_t  * cmcf;
 	static ngx_str_t cookie = ngx_string("cookie");
 	cookies = r->stream->cookies;
@@ -3346,11 +3336,11 @@ ngx_int_t ngx_http_v2_read_request_body(ngx_http_request_t * r)
 {
 	nginx_off_t len;
 	size_t size;
-	ngx_buf_t                 * buf;
+	ngx_buf_t * buf;
 	ngx_int_t rc;
-	ngx_http_v2_stream_t      * stream;
-	ngx_http_v2_srv_conf_t    * h2scf;
-	ngx_http_request_body_t   * rb;
+	ngx_http_v2_stream_t * stream;
+	ngx_http_v2_srv_conf_t  * h2scf;
+	ngx_http_request_body_t * rb;
 	ngx_http_core_loc_conf_t  * clcf;
 	ngx_http_v2_connection_t  * h2c;
 
@@ -3480,10 +3470,10 @@ ngx_int_t ngx_http_v2_read_request_body(ngx_http_request_t * r)
 static ngx_int_t ngx_http_v2_process_request_body(ngx_http_request_t * r, u_char * pos,
     size_t size, ngx_uint_t last)
 {
-	ngx_buf_t                 * buf;
+	ngx_buf_t * buf;
 	ngx_int_t rc;
-	ngx_connection_t          * fc;
-	ngx_http_request_body_t   * rb;
+	ngx_connection_t   * fc;
+	ngx_http_request_body_t * rb;
 	ngx_http_core_loc_conf_t  * clcf;
 
 	fc = r->connection;
@@ -3562,10 +3552,10 @@ static ngx_int_t ngx_http_v2_process_request_body(ngx_http_request_t * r, u_char
 
 static ngx_int_t ngx_http_v2_filter_request_body(ngx_http_request_t * r)
 {
-	ngx_buf_t                 * b, * buf;
+	ngx_buf_t * b, * buf;
 	ngx_int_t rc;
-	ngx_chain_t               * cl;
-	ngx_http_request_body_t   * rb;
+	ngx_chain_t * cl;
+	ngx_http_request_body_t * rb;
 	ngx_http_core_loc_conf_t  * clcf;
 
 	rb = r->request_body;
@@ -3680,10 +3670,10 @@ static void ngx_http_v2_read_client_request_body_handler(ngx_http_request_t * r)
 ngx_int_t ngx_http_v2_read_unbuffered_request_body(ngx_http_request_t * r)
 {
 	size_t window;
-	ngx_buf_t                 * buf;
+	ngx_buf_t * buf;
 	ngx_int_t rc;
-	ngx_connection_t          * fc;
-	ngx_http_v2_stream_t      * stream;
+	ngx_connection_t   * fc;
+	ngx_http_v2_stream_t * stream;
 	ngx_http_v2_connection_t  * h2c;
 	ngx_http_core_loc_conf_t  * clcf;
 
@@ -3769,7 +3759,7 @@ ngx_int_t ngx_http_v2_read_unbuffered_request_body(ngx_http_request_t * r)
 static ngx_int_t ngx_http_v2_terminate_stream(ngx_http_v2_connection_t * h2c,
     ngx_http_v2_stream_t * stream, ngx_uint_t status)
 {
-	ngx_event_t       * rev;
+	ngx_event_t  * rev;
 	ngx_connection_t  * fc;
 
 	if(stream->rst_sent) {
@@ -3795,10 +3785,10 @@ static ngx_int_t ngx_http_v2_terminate_stream(ngx_http_v2_connection_t * h2c,
 
 void ngx_http_v2_close_stream(ngx_http_v2_stream_t * stream, ngx_int_t rc)
 {
-	ngx_pool_t                * pool;
-	ngx_event_t               * ev;
-	ngx_connection_t          * fc;
-	ngx_http_v2_node_t        * node;
+	ngx_pool_t  * pool;
+	ngx_event_t * ev;
+	ngx_connection_t   * fc;
+	ngx_http_v2_node_t * node;
 	ngx_http_v2_connection_t  * h2c;
 
 	h2c = stream->connection;
@@ -3919,7 +3909,7 @@ void ngx_http_v2_close_stream(ngx_http_v2_stream_t * stream, ngx_int_t rc)
 
 static void ngx_http_v2_close_stream_handler(ngx_event_t * ev)
 {
-	ngx_connection_t    * fc;
+	ngx_connection_t  * fc;
 	ngx_http_request_t  * r;
 
 	fc = (ngx_connection_t *)ev->data;
@@ -3942,7 +3932,7 @@ static void ngx_http_v2_close_stream_handler(ngx_event_t * ev)
 
 static void ngx_http_v2_handle_connection_handler(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
+	ngx_connection_t   * c;
 	ngx_http_v2_connection_t  * h2c;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http2 handle connection handler");
 	c = (ngx_connection_t *)rev->data;
@@ -3965,8 +3955,8 @@ static void ngx_http_v2_handle_connection_handler(ngx_event_t * rev)
 
 static void ngx_http_v2_idle_handler(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_http_v2_srv_conf_t    * h2scf;
+	ngx_connection_t   * c;
+	ngx_http_v2_srv_conf_t  * h2scf;
 	ngx_http_v2_connection_t  * h2c;
 	c = (ngx_connection_t *)rev->data;
 	h2c = (ngx_http_v2_connection_t *)c->data;
@@ -4019,11 +4009,11 @@ static void ngx_http_v2_finalize_connection(ngx_http_v2_connection_t * h2c,
     ngx_uint_t status)
 {
 	ngx_uint_t i, size;
-	ngx_event_t             * ev;
-	ngx_connection_t        * c, * fc;
-	ngx_http_request_t      * r;
-	ngx_http_v2_node_t      * node;
-	ngx_http_v2_stream_t    * stream;
+	ngx_event_t   * ev;
+	ngx_connection_t * c, * fc;
+	ngx_http_request_t * r;
+	ngx_http_v2_node_t * node;
+	ngx_http_v2_stream_t  * stream;
 	ngx_http_v2_srv_conf_t  * h2scf;
 
 	c = h2c->connection;
@@ -4096,9 +4086,9 @@ static void ngx_http_v2_finalize_connection(ngx_http_v2_connection_t * h2c,
 static ngx_int_t ngx_http_v2_adjust_windows(ngx_http_v2_connection_t * h2c, ssize_t delta)
 {
 	ngx_uint_t i, size;
-	ngx_event_t             * wev;
-	ngx_http_v2_node_t      * node;
-	ngx_http_v2_stream_t    * stream;
+	ngx_event_t   * wev;
+	ngx_http_v2_node_t * node;
+	ngx_http_v2_stream_t  * stream;
 	ngx_http_v2_srv_conf_t  * h2scf;
 	h2scf = (ngx_http_v2_srv_conf_t *)ngx_http_get_module_srv_conf(h2c->http_connection->conf_ctx,
 	    ngx_http_v2_module);
@@ -4150,7 +4140,7 @@ static ngx_int_t ngx_http_v2_adjust_windows(ngx_http_v2_connection_t * h2c, ssiz
 static void ngx_http_v2_set_dependency(ngx_http_v2_connection_t * h2c,
     ngx_http_v2_node_t * node, ngx_uint_t depend, ngx_uint_t exclusive)
 {
-	ngx_queue_t         * children, * q;
+	ngx_queue_t  * children, * q;
 	ngx_http_v2_node_t  * parent, * child, * next;
 
 	parent = depend ? ngx_http_v2_get_node_by_id(h2c, depend, 0) : NULL;
@@ -4188,7 +4178,7 @@ static void ngx_http_v2_set_dependency(ngx_http_v2_connection_t * h2c,
 				else {
 					parent->rank = node->parent->rank + 1;
 					parent->rel_weight = (node->parent->rel_weight / 256)
-					    * parent->weight;
+					  * parent->weight;
 				}
 
 				if(!exclusive) {
@@ -4228,7 +4218,7 @@ static void ngx_http_v2_set_dependency(ngx_http_v2_connection_t * h2c,
 
 static void ngx_http_v2_node_children_update(ngx_http_v2_node_t * node)
 {
-	ngx_queue_t         * q;
+	ngx_queue_t  * q;
 	ngx_http_v2_node_t  * child;
 	for(q = ngx_queue_head(&node->children); q != ngx_queue_sentinel(&node->children); q = ngx_queue_next(q)) {
 		child = ngx_queue_data(q, ngx_http_v2_node_t, queue);

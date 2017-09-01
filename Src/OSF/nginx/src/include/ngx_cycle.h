@@ -2,7 +2,6 @@
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_CYCLE_H_INCLUDED_
 #define _NGX_CYCLE_H_INCLUDED_
 
@@ -116,7 +115,6 @@ public:
 private:
 	int    SetSignalString(const char * pSig);
 };
-
 
 ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & rO);
 ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log, const NgxStartUpOptions & rO);

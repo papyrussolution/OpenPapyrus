@@ -4750,7 +4750,10 @@ public:
 	//   *this
 	//
 	SBuffer & SLAPI Clear();
-	int    FASTCALL Write(const void *, size_t);
+	//
+	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
+	//
+	int    FASTCALL Write(const void * pSrc, size_t srcLen);
 	//
 	// Descr: Возвращает количество доступных для считывания байт буфера.
 	//
@@ -5257,9 +5260,8 @@ enum {
 //   унаследованный SArray имеет виртуальный метод freeItem(void *).
 //   Другими словами, флаг aryEachItem этим объектом не обслуживается.
 //
-class SVectorBase {
+class SVectorBase { // @novtbl
 public:
-	// @novtbl
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
 	int    SLAPI getEnd() const { return (int)(count-1); }
@@ -5402,7 +5404,7 @@ protected:
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
 //
-class SVector : public SVectorBase {
+class SVector : public SVectorBase { // @novtbl
 public:
 	SLAPI  SVector(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
 	SLAPI  SVector(uint itemSize);
@@ -8859,6 +8861,7 @@ public:
 	virtual double GetReal() = 0;
 	//
 	// Descr: Возвращает не отрицательное целое число МЕНЬШЕ ЧЕМ n.
+	// Returns: [1..n-1]
 	//
 	ulong  FASTCALL GetUniformInt(ulong n);
 	double GetUniformPos();
@@ -8900,6 +8903,9 @@ public:
 	// Descr: Возвращает случайное не отрицательное целое число СТРОГО МЕНЬШЕ чем n.
 	//
 	ulong  FASTCALL GetUniformInt(ulong n);
+	//
+	// Descr: Возвращает не отрицательное целое число.
+	//
 	double GetUniformPos();
 	ulong  GetMin() const;
 	ulong  GetMax() const;
@@ -10533,6 +10539,53 @@ private:
 	int    Dw; // Number of delayed writers
 	Sem    Sr; // Семафор для приостановки читателей
 	Sem    Sw; // Семафор для приостановки писателей
+};
+//
+// Descr: Канал (pipe) позволяющий писать с одного конца и читать с другого.
+//   Допускается не более одного читателя и не более одного писателя одновременно.
+//   Естественно, читать и писать одновременно нельзя. Запрет реализуется простой
+//   блокировкой SMtLock.
+//   В целом, полностью повторяет по внутреннему устройству класс SBuffer с дополнением
+//   в виде блокировки основных примитивов Put и Get.
+// Attention: Предназначен только для взаимодействия внутри одного процесса.
+//   Для межпроцессного взаимодействия не пригоден!.
+//
+class SBufferPipe : private SBuffer {
+public:
+	enum {
+		statusEOT = 0x0001 
+	};
+	SLAPI  SBufferPipe(size_t initSize = 0, long flags = fMovable);
+	//
+	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
+	//
+	int    FASTCALL Put(const void * pSrc, size_t srcLen);
+	//
+	// Descr: Возвращает количество доступных для считывания байт буфера.
+	// Note: Функция non-const в отличии от тезки в базовом классе (из-за блокировки).
+	//
+	size_t SLAPI GetAvailableSize();
+	//
+	// Descr: Считывает в буфер pBuf, начиная со смещения RdOffs, доступное количество
+	//   байт данных, но не более чем bufLen.
+	//   Увеличивает указатель RdOffs на количество байт, скопированных в буфер pBuf.
+	// Returns:
+	//   Количество считанных байт.
+	//
+	size_t FASTCALL Get(void * pBuf, size_t bufLen);
+	//
+	// Descr: Сбрасывает в ноль указатели WrOffs и RdOffs.
+	//   Таким образом, после выполнения этой операции буфер сохраняет
+	//   свой изначальный распределенный размер, но пуст.
+	// Returns:
+	//   *this
+	//
+	void   SLAPI Reset();
+	long   SLAPI GetStatus();
+	void   SLAPI SetStatus(long st, int set);
+private:
+	long   Status;
+	SMtLock Lck;
 };
 //
 // Descr: Пул строк. Главное назначение класса - предоставлять клиентам экземпляры SString

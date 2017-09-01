@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 /*
  * The module can check browser versions conforming to the following formats:
  * X, X.X, X.X.X, and X.X.X.X.  The maximum values of each format may be
@@ -35,8 +35,8 @@ typedef struct {
 } ngx_http_browser_variable_t;
 
 typedef struct {
-	ngx_array_t                * modern_browsers;
-	ngx_array_t                * ancient_browsers;
+	ngx_array_t  * modern_browsers;
+	ngx_array_t  * ancient_browsers;
 	ngx_http_variable_value_t  * modern_browser_value;
 	ngx_http_variable_value_t  * ancient_browser_value;
 
@@ -208,26 +208,18 @@ static ngx_http_browser_variable_t ngx_http_browsers[] = {
 	{ ngx_null_string, NULL, 0 }
 };
 
-static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_uint_t rc;
-	ngx_http_browser_conf_t  * cf;
-
-	cf = (ngx_http_browser_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_browser_module);
-
-	rc = ngx_http_browser(r, cf);
-
+	ngx_http_browser_conf_t  * cf = (ngx_http_browser_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_browser_module);
+	ngx_uint_t rc = ngx_http_browser(r, cf);
 	if(data == NGX_HTTP_MODERN_BROWSER && rc == NGX_HTTP_MODERN_BROWSER) {
 		*v = *cf->modern_browser_value;
 		return NGX_OK;
 	}
-
 	if(data == NGX_HTTP_ANCIENT_BROWSER && rc == NGX_HTTP_ANCIENT_BROWSER) {
 		*v = *cf->ancient_browser_value;
 		return NGX_OK;
 	}
-
 	*v = ngx_http_variable_null_value;
 	return NGX_OK;
 }
@@ -235,70 +227,48 @@ static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_vari
 static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf_t * cf)
 {
 	size_t len;
-	u_char                     * name, * ua, * last, c;
-	ngx_str_t                  * ancient;
+	u_char * name, * ua, * last, c;
+	ngx_str_t  * ancient;
 	ngx_uint_t i, version, ver, scale;
 	ngx_http_modern_browser_t  * modern;
-
 	if(r->headers_in.user_agent == NULL) {
 		if(cf->modern_unlisted_browsers) {
 			return NGX_HTTP_MODERN_BROWSER;
 		}
-
 		return NGX_HTTP_ANCIENT_BROWSER;
 	}
-
 	ua = r->headers_in.user_agent->value.data;
 	len = r->headers_in.user_agent->value.len;
 	last = ua + len;
-
 	if(cf->modern_browsers) {
 		modern = (ngx_http_modern_browser_t *)cf->modern_browsers->elts;
-
 		for(i = 0; i < cf->modern_browsers->nelts; i++) {
 			name = ua + modern[i].skip;
-
 			if(name >= last) {
 				continue;
 			}
-
 			name = (u_char*)ngx_strstr(name, modern[i].name);
-
 			if(name == NULL) {
 				continue;
 			}
-
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "browser: \"%s\"", name);
-
+			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "browser: \"%s\"", name);
 			name += modern[i].add;
-
 			if(name >= last) {
 				continue;
 			}
-
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "version: \"%ui\" \"%s\"", modern[i].version, name);
-
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "version: \"%ui\" \"%s\"", modern[i].version, name);
 			version = 0;
 			ver = 0;
 			scale = 1000000;
-
 			while(name < last) {
 				c = *name++;
-
 				if(c >= '0' && c <= '9') {
 					ver = ver * 10 + (c - '0');
 					continue;
 				}
-
 				if(c == '.') {
 					version += ver * scale;
-
-					ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-					    "version: \"%ui\" \"%ui\"",
-					    modern[i].version, version);
-
+					ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "version: \"%ui\" \"%ui\"", modern[i].version, version);
 					if(version > modern[i].version) {
 						return NGX_HTTP_MODERN_BROWSER;
 					}
@@ -310,90 +280,64 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 
 				break;
 			}
-
 			version += ver * scale;
-
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "version: \"%ui\" \"%ui\"",
-			    modern[i].version, version);
-
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "version: \"%ui\" \"%ui\"", modern[i].version, version);
 			if(version >= modern[i].version) {
 				return NGX_HTTP_MODERN_BROWSER;
 			}
-
 			return NGX_HTTP_ANCIENT_BROWSER;
 		}
-
 		if(!cf->modern_unlisted_browsers) {
 			return NGX_HTTP_ANCIENT_BROWSER;
 		}
 	}
-
 	if(cf->netscape4) {
-		if(len > sizeof("Mozilla/4.72 ") - 1
-		    && ngx_strncmp(ua, "Mozilla/", sizeof("Mozilla/") - 1) == 0
-		    && ua[8] > '0' && ua[8] < '5') {
+		if(len > sizeof("Mozilla/4.72 ") - 1 && ngx_strncmp(ua, "Mozilla/", sizeof("Mozilla/") - 1) == 0 && ua[8] > '0' && ua[8] < '5') {
 			return NGX_HTTP_ANCIENT_BROWSER;
 		}
 	}
-
 	if(cf->ancient_browsers) {
 		ancient = (ngx_str_t*)cf->ancient_browsers->elts;
-
 		for(i = 0; i < cf->ancient_browsers->nelts; i++) {
-			if(len >= ancient[i].len
-			    && ngx_strstr(ua, ancient[i].data) != NULL) {
+			if(len >= ancient[i].len && ngx_strstr(ua, ancient[i].data)) {
 				return NGX_HTTP_ANCIENT_BROWSER;
 			}
 		}
 	}
-
 	if(cf->modern_unlisted_browsers) {
 		return NGX_HTTP_MODERN_BROWSER;
 	}
-
 	return NGX_HTTP_ANCIENT_BROWSER;
 }
 
-static ngx_int_t ngx_http_msie_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_msie_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	if(r->headers_in.msie) {
+	if(r->headers_in.msie)
 		*v = ngx_http_variable_true_value;
-		return NGX_OK;
-	}
-
-	*v = ngx_http_variable_null_value;
+	else
+		*v = ngx_http_variable_null_value;
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_browser_add_variable(ngx_conf_t * cf)
 {
-	ngx_http_browser_variable_t   * var;
-	ngx_http_variable_t           * v;
-
-	for(var = ngx_http_browsers; var->name.len; var++) {
-		v = ngx_http_add_variable(cf, &var->name, NGX_HTTP_VAR_CHANGEABLE);
+	for(ngx_http_browser_variable_t * var = ngx_http_browsers; var->name.len; var++) {
+		ngx_http_variable_t * v = ngx_http_add_variable(cf, &var->name, NGX_HTTP_VAR_CHANGEABLE);
 		if(v == NULL) {
 			return NGX_ERROR;
 		}
-
 		v->get_handler = var->handler;
 		v->data = var->data;
 	}
-
 	return NGX_OK;
 }
 
 static void * ngx_http_browser_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_browser_conf_t  * conf;
-
-	conf = (ngx_http_browser_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_http_browser_conf_t));
+	ngx_http_browser_conf_t  * conf = (ngx_http_browser_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_http_browser_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}
-
 	/*
 	 * set by ngx_pcalloc():
 	 *
@@ -405,7 +349,6 @@ static void * ngx_http_browser_create_conf(ngx_conf_t * cf)
 	 *     conf->modern_unlisted_browsers = 0;
 	 *     conf->netscape4 = 0;
 	 */
-
 	return conf;
 }
 
@@ -413,10 +356,8 @@ static char * ngx_http_browser_merge_conf(ngx_conf_t * cf, void * parent, void *
 {
 	ngx_http_browser_conf_t * prev = (ngx_http_browser_conf_t *)parent;
 	ngx_http_browser_conf_t * conf = (ngx_http_browser_conf_t *)child;
-
 	ngx_uint_t i, n;
 	ngx_http_modern_browser_t  * browsers, * opera;
-
 	/*
 	 * At the merge the skip field is used to store the browser slot,
 	 * it will be used in sorting and then will overwritten
@@ -429,65 +370,39 @@ static char * ngx_http_browser_merge_conf(ngx_conf_t * cf, void * parent, void *
 	}
 	else if(conf->modern_browsers != NULL) {
 		browsers = (ngx_http_modern_browser_t *)conf->modern_browsers->elts;
-
 		for(i = 0; i < conf->modern_browsers->nelts; i++) {
 			if(browsers[i].skip == 0) {
 				goto found;
 			}
 		}
-
 		/*
 		 * Opera may contain MSIE string, so if Opera was not enumerated
 		 * as modern browsers, then add it and set a unreachable version
 		 */
-
 		opera = (ngx_http_modern_browser_t *)ngx_array_push(conf->modern_browsers);
 		if(opera == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		opera->skip = 0;
 		opera->version = 4001000000U;
-
 		browsers = (ngx_http_modern_browser_t *)conf->modern_browsers->elts;
-
 found:
-
-		ngx_qsort(browsers, (size_t)conf->modern_browsers->nelts,
-		    sizeof(ngx_http_modern_browser_t),
-		    ngx_http_modern_browser_sort);
-
+		ngx_qsort(browsers, (size_t)conf->modern_browsers->nelts, sizeof(ngx_http_modern_browser_t), ngx_http_modern_browser_sort);
 		for(i = 0; i < conf->modern_browsers->nelts; i++) {
 			n = browsers[i].skip;
-
 			browsers[i].skip = ngx_http_modern_browser_masks[n].skip;
 			browsers[i].add = ngx_http_modern_browser_masks[n].add;
-			(void)ngx_cpystrn(browsers[i].name,
-			    ngx_http_modern_browser_masks[n].name, 12);
+			(void)ngx_cpystrn(browsers[i].name, ngx_http_modern_browser_masks[n].name, 12);
 		}
 	}
-
 	if(conf->ancient_browsers == NULL && conf->netscape4 == 0) {
 		conf->ancient_browsers = prev->ancient_browsers;
 		conf->netscape4 = prev->netscape4;
 	}
-
-	if(conf->modern_browser_value == NULL) {
-		conf->modern_browser_value = prev->modern_browser_value;
-	}
-
-	if(conf->modern_browser_value == NULL) {
-		conf->modern_browser_value = &ngx_http_variable_true_value;
-	}
-
-	if(conf->ancient_browser_value == NULL) {
-		conf->ancient_browser_value = prev->ancient_browser_value;
-	}
-
-	if(conf->ancient_browser_value == NULL) {
-		conf->ancient_browser_value = &ngx_http_variable_true_value;
-	}
-
+	SETIFZ(conf->modern_browser_value, prev->modern_browser_value);
+	SETIFZ(conf->modern_browser_value, &ngx_http_variable_true_value);
+	SETIFZ(conf->ancient_browser_value, prev->ancient_browser_value);
+	SETIFZ(conf->ancient_browser_value, &ngx_http_variable_true_value);
 	return NGX_CONF_OK;
 }
 
@@ -495,176 +410,128 @@ static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one, const v
 {
 	ngx_http_modern_browser_t * first = (ngx_http_modern_browser_t*)one;
 	ngx_http_modern_browser_t * second = (ngx_http_modern_browser_t*)two;
-
 	return (first->skip - second->skip);
 }
 
 static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
-
 	u_char c;
-	ngx_str_t                       * value;
 	ngx_uint_t i, n, version, ver, scale;
-	ngx_http_modern_browser_t       * browser;
+	ngx_http_modern_browser_t  * browser;
 	ngx_http_modern_browser_mask_t  * mask;
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	if(cf->args->nelts == 2) {
 		if(ngx_strcmp(value[1].data, "unlisted") == 0) {
 			bcf->modern_unlisted_browsers = 1;
 			return NGX_CONF_OK;
 		}
-
 		return NGX_CONF_ERROR;
 	}
-
 	if(bcf->modern_browsers == NULL) {
-		bcf->modern_browsers = ngx_array_create(cf->pool, 5,
-		    sizeof(ngx_http_modern_browser_t));
+		bcf->modern_browsers = ngx_array_create(cf->pool, 5, sizeof(ngx_http_modern_browser_t));
 		if(bcf->modern_browsers == NULL) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	browser = (ngx_http_modern_browser_t *)ngx_array_push(bcf->modern_browsers);
 	if(browser == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	mask = ngx_http_modern_browser_masks;
-
 	for(n = 0; mask[n].browser[0] != '\0'; n++) {
 		if(ngx_strcasecmp(mask[n].browser, value[1].data) == 0) {
 			goto found;
 		}
 	}
-
-	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-	    "unknown browser name \"%V\"", &value[1]);
-
+	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown browser name \"%V\"", &value[1]);
 	return NGX_CONF_ERROR;
-
 found:
-
 	/*
 	 * at this stage the skip field is used to store the browser slot,
 	 * it will be used in sorting in merge stage and then will overwritten
 	 * with a real value
 	 */
-
 	browser->skip = n;
-
 	version = 0;
 	ver = 0;
 	scale = 1000000;
-
 	for(i = 0; i < value[2].len; i++) {
 		c = value[2].data[i];
-
 		if(c >= '0' && c <= '9') {
 			ver = ver * 10 + (c - '0');
 			continue;
 		}
-
 		if(c == '.') {
 			version += ver * scale;
 			ver = 0;
 			scale /= 100;
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid browser version \"%V\"", &value[2]);
-
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid browser version \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	version += ver * scale;
-
 	browser->version = version;
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
-
-	ngx_str_t   * value, * browser;
-	ngx_uint_t i;
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	for(i = 1; i < cf->args->nelts; i++) {
+	ngx_str_t * browser;
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	for(ngx_uint_t i = 1; i < cf->args->nelts; i++) {
 		if(ngx_strcmp(value[i].data, "netscape4") == 0) {
 			bcf->netscape4 = 1;
 			continue;
 		}
-
 		if(bcf->ancient_browsers == NULL) {
-			bcf->ancient_browsers = ngx_array_create(cf->pool, 4,
-			    sizeof(ngx_str_t));
+			bcf->ancient_browsers = ngx_array_create(cf->pool, 4, sizeof(ngx_str_t));
 			if(bcf->ancient_browsers == NULL) {
 				return NGX_CONF_ERROR;
 			}
 		}
-
 		browser = (ngx_str_t*)ngx_array_push(bcf->ancient_browsers);
 		if(browser == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		*browser = value[i];
 	}
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
-
 	ngx_str_t  * value;
-
-	bcf->modern_browser_value = (ngx_http_variable_value_t*)ngx_palloc(cf->pool,
-	    sizeof(ngx_http_variable_value_t));
+	bcf->modern_browser_value = (ngx_http_variable_value_t*)ngx_palloc(cf->pool, sizeof(ngx_http_variable_value_t));
 	if(bcf->modern_browser_value == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	bcf->modern_browser_value->len = value[1].len;
 	bcf->modern_browser_value->valid = 1;
 	bcf->modern_browser_value->no_cacheable = 0;
 	bcf->modern_browser_value->not_found = 0;
 	bcf->modern_browser_value->data = value[1].data;
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_ancient_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
-
 	ngx_str_t  * value;
-
-	bcf->ancient_browser_value = (ngx_http_variable_value_t*)ngx_palloc(cf->pool,
-	    sizeof(ngx_http_variable_value_t));
+	bcf->ancient_browser_value = (ngx_http_variable_value_t*)ngx_palloc(cf->pool, sizeof(ngx_http_variable_value_t));
 	if(bcf->ancient_browser_value == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	bcf->ancient_browser_value->len = value[1].len;
 	bcf->ancient_browser_value->valid = 1;
 	bcf->ancient_browser_value->no_cacheable = 0;
 	bcf->ancient_browser_value->not_found = 0;
 	bcf->ancient_browser_value->data = value[1].data;
-
 	return NGX_CONF_OK;
 }
 

@@ -351,7 +351,7 @@ SLTEST_R(TestMd5)
 	}
 	tab_obj.Clear();
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

@@ -132,7 +132,7 @@ ngx_module_t ngx_stream_core_module = {
 void ngx_stream_core_run_phases(ngx_stream_session_t * s)
 {
 	ngx_int_t rc;
-	ngx_stream_phase_handler_t   * ph;
+	ngx_stream_phase_handler_t * ph;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_get_module_main_conf(s, ngx_stream_core_module);
@@ -192,7 +192,7 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 	size_t size;
 	ssize_t n;
 	ngx_int_t rc;
-	ngx_connection_t            * c;
+	ngx_connection_t  * c;
 	ngx_stream_core_srv_conf_t  * cscf;
 
 	c = s->connection;
@@ -292,7 +292,7 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 ngx_int_t ngx_stream_core_content_phase(ngx_stream_session_t * s,
     ngx_stream_phase_handler_t * ph)
 {
-	ngx_connection_t            * c;
+	ngx_connection_t  * c;
 	ngx_stream_core_srv_conf_t  * cscf;
 
 	c = s->connection;
@@ -437,13 +437,13 @@ static char * ngx_stream_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, vo
 
 static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                         * rv;
-	void                         * mconf;
+	char  * rv;
+	void  * mconf;
 	ngx_uint_t m;
 	ngx_conf_t pcf;
-	ngx_stream_module_t          * module;
-	ngx_stream_conf_ctx_t        * ctx, * stream_ctx;
-	ngx_stream_core_srv_conf_t   * cscf, ** cscfp;
+	ngx_stream_module_t   * module;
+	ngx_stream_conf_ctx_t * ctx, * stream_ctx;
+	ngx_stream_core_srv_conf_t * cscf, ** cscfp;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	ctx = (ngx_stream_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_conf_ctx_t));
@@ -516,10 +516,10 @@ static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void 
 static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_core_srv_conf_t  * cscf = (ngx_stream_core_srv_conf_t *)conf;
-	ngx_str_t                    * value, size;
+	ngx_str_t  * value, size;
 	ngx_url_t u;
 	ngx_uint_t i, backlog;
-	ngx_stream_listen_t          * ls, * als;
+	ngx_stream_listen_t   * ls, * als;
 	ngx_stream_core_main_conf_t  * cmcf;
 	cscf->listen = 1;
 	value = (ngx_str_t*)cf->args->elts;
@@ -685,7 +685,7 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 			}
 			else {
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
-				u_char     * p, * end;
+				u_char   * p, * end;
 				ngx_str_t s;
 
 				end = value[i].data + value[i].len;

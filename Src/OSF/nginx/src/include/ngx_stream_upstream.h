@@ -37,12 +37,12 @@ typedef ngx_int_t (*ngx_stream_upstream_init_peer_pt)(ngx_stream_session_t * s,
 typedef struct {
 	ngx_stream_upstream_init_pt init_upstream;
 	ngx_stream_upstream_init_peer_pt init;
-	void                              * data;
+	void  * data;
 } ngx_stream_upstream_peer_t;
 
 typedef struct {
 	ngx_str_t name;
-	ngx_addr_t                        * addrs;
+	ngx_addr_t * addrs;
 	ngx_uint_t naddrs;
 	ngx_uint_t weight;
 	ngx_uint_t max_conns;
@@ -59,17 +59,17 @@ typedef struct {
 
 struct ngx_stream_upstream_srv_conf_s {
 	ngx_stream_upstream_peer_t peer;
-	void                             ** srv_conf;
-	ngx_array_t                       * servers;
+	void  ** srv_conf;
+	ngx_array_t   * servers;
 	/* ngx_stream_upstream_server_t */
 	ngx_uint_t flags;
 	ngx_str_t host;
-	u_char                            * file_name;
+	u_char   * file_name;
 	ngx_uint_t line;
 	in_port_t port;
 	ngx_uint_t no_port;                      /* unsigned no_port:1 */
 #if (NGX_STREAM_UPSTREAM_ZONE)
-	ngx_shm_zone_t                    * shm_zone;
+	ngx_shm_zone_t  * shm_zone;
 #endif
 };
 
@@ -79,7 +79,7 @@ typedef struct {
 	ngx_msec_t first_byte_time;
 	nginx_off_t bytes_sent;
 	nginx_off_t bytes_received;
-	ngx_str_t                         * peer;
+	ngx_str_t  * peer;
 } ngx_stream_upstream_state_t;
 
 typedef struct {
@@ -88,14 +88,14 @@ typedef struct {
 	ngx_uint_t no_port;                     /* unsigned no_port:1 */
 
 	ngx_uint_t naddrs;
-	ngx_resolver_addr_t               * addrs;
+	ngx_resolver_addr_t * addrs;
 
-	struct sockaddr                   * sockaddr;
+	struct sockaddr * sockaddr;
 
 	socklen_t socklen;
 	ngx_str_t name;
 
-	ngx_resolver_ctx_t                * ctx;
+	ngx_resolver_ctx_t  * ctx;
 } ngx_stream_upstream_resolved_t;
 
 typedef struct {
@@ -104,18 +104,18 @@ typedef struct {
 	ngx_buf_t downstream_buf;
 	ngx_buf_t upstream_buf;
 
-	ngx_chain_t                       * free;
-	ngx_chain_t                       * upstream_out;
-	ngx_chain_t                       * upstream_busy;
-	ngx_chain_t                       * downstream_out;
-	ngx_chain_t                       * downstream_busy;
+	ngx_chain_t   * free;
+	ngx_chain_t   * upstream_out;
+	ngx_chain_t   * upstream_busy;
+	ngx_chain_t   * downstream_out;
+	ngx_chain_t   * downstream_busy;
 	nginx_off_t received;
 	time_t start_sec;
 	ngx_uint_t responses;
 	ngx_str_t ssl_name;
-	ngx_stream_upstream_srv_conf_t    * upstream;
-	ngx_stream_upstream_resolved_t    * resolved;
-	ngx_stream_upstream_state_t       * state;
+	ngx_stream_upstream_srv_conf_t  * upstream;
+	ngx_stream_upstream_resolved_t  * resolved;
+	ngx_stream_upstream_state_t  * state;
 	unsigned connected : 1;
 	unsigned proxy_protocol : 1;
 } ngx_stream_upstream_t;

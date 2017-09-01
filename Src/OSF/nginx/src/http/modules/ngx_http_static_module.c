@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static ngx_int_t ngx_http_static_handler(ngx_http_request_t * r);
 static ngx_int_t ngx_http_static_init(ngx_conf_t * cf);

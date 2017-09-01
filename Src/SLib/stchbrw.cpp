@@ -1028,7 +1028,7 @@ void STimeChunkBrowser::Scroll(int sbType, int sbEvent, int thumbPos)
 			SetScrollInfo(H(), SB_HORZ, &si, TRUE);
 		}
 	}
-	if(St.ScrollX != prev_scr_x || St.ScrollY != prev_scr_y) {
+	/*if(St.ScrollX != prev_scr_x || St.ScrollY != prev_scr_y)*/ { // @v9.8.0
 		GetArea(a2);
 		CalcChunkRect(&a2, RL);
 		if(sbType == SB_HORZ) {

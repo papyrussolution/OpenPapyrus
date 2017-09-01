@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 #include <ngx_mail_pop3_module.h>
 #include <ngx_mail_imap_module.h>
@@ -811,7 +811,7 @@ invalid:
 
 ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_str_t                 * arg;
+	ngx_str_t * arg;
 
 #if (NGX_MAIL_SSL)
 	if(ngx_mail_starttls_only(s, c)) {

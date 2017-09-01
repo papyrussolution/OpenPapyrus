@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 #include <ngx_mail_imap_module.h>
 
@@ -119,9 +119,9 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 {
 	ngx_mail_imap_srv_conf_t * prev = (ngx_mail_imap_srv_conf_t *)parent;
 	ngx_mail_imap_srv_conf_t * conf = (ngx_mail_imap_srv_conf_t *)child;
-	u_char      * p, * auth;
+	u_char * p, * auth;
 	size_t size;
-	ngx_str_t   * c, * d;
+	ngx_str_t * c, * d;
 	ngx_uint_t i, m;
 
 	ngx_conf_merge_size_value(conf->client_buffer_size,

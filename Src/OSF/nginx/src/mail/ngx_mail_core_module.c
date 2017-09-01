@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 
 static void * ngx_mail_core_create_main_conf(ngx_conf_t * cf);
@@ -179,13 +179,13 @@ static char * ngx_mail_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 static char * ngx_mail_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                       * rv;
-	void                       * mconf;
+	char   * rv;
+	void   * mconf;
 	ngx_uint_t m;
 	ngx_conf_t pcf;
-	ngx_mail_module_t          * module;
-	ngx_mail_conf_ctx_t        * ctx, * mail_ctx;
-	ngx_mail_core_srv_conf_t   * cscf, ** cscfp;
+	ngx_mail_module_t   * module;
+	ngx_mail_conf_ctx_t * ctx, * mail_ctx;
+	ngx_mail_core_srv_conf_t * cscf, ** cscfp;
 	ngx_mail_core_main_conf_t  * cmcf;
 	ctx = (ngx_mail_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_mail_conf_ctx_t));
 	if(ctx == NULL) {
@@ -246,11 +246,11 @@ static char * ngx_mail_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 {
 	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t*)conf;
 
-	ngx_str_t                  * value, size;
+	ngx_str_t  * value, size;
 	ngx_url_t u;
 	ngx_uint_t i, m;
-	ngx_mail_listen_t          * ls;
-	ngx_mail_module_t          * module;
+	ngx_mail_listen_t   * ls;
+	ngx_mail_module_t   * module;
 	ngx_mail_core_main_conf_t  * cmcf;
 
 	cscf->listen = 1;
@@ -426,7 +426,7 @@ static char * ngx_mail_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 			}
 			else {
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
-				u_char     * p, * end;
+				u_char   * p, * end;
 				ngx_str_t s;
 
 				end = value[i].data + value[i].len;
@@ -515,7 +515,7 @@ invalid_so_keepalive:
 static char * ngx_mail_core_protocol(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t*)conf;
-	ngx_str_t          * value;
+	ngx_str_t   * value;
 	ngx_uint_t m;
 	ngx_mail_module_t  * module;
 	value = (ngx_str_t*)cf->args->elts;
@@ -569,7 +569,7 @@ char * ngx_mail_capabilities(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
 
-	ngx_str_t    * c, * value;
+	ngx_str_t  * c, * value;
 	ngx_uint_t i;
 	ngx_array_t  * a;
 

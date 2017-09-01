@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 
 static char * ngx_mail_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
@@ -53,15 +53,15 @@ ngx_module_t ngx_mail_module = {
 
 static char * ngx_mail_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                        * rv;
+	char * rv;
 	ngx_uint_t i, m, mi, s;
 	ngx_conf_t pcf;
 	ngx_array_t ports;
-	ngx_mail_listen_t           * listen;
-	ngx_mail_module_t           * module;
-	ngx_mail_conf_ctx_t         * ctx;
+	ngx_mail_listen_t * listen;
+	ngx_mail_module_t * module;
+	ngx_mail_conf_ctx_t  * ctx;
 	ngx_mail_core_srv_conf_t   ** cscfp;
-	ngx_mail_core_main_conf_t   * cmcf;
+	ngx_mail_core_main_conf_t * cmcf;
 	if(*(ngx_mail_conf_ctx_t**)conf) {
 		return "is duplicate";
 	}
@@ -165,7 +165,7 @@ static ngx_int_t ngx_mail_add_ports(ngx_conf_t * cf, ngx_array_t * ports, ngx_ma
 {
 	in_port_t p;
 	ngx_uint_t i;
-	struct sockaddr       * sa;
+	struct sockaddr  * sa;
 	ngx_mail_conf_port_t  * port;
 	ngx_mail_conf_addr_t  * addr;
 	sa = &listen->sockaddr.sockaddr;
@@ -200,9 +200,9 @@ found:
 static char * ngx_mail_optimize_servers(ngx_conf_t * cf, ngx_array_t * ports)
 {
 	ngx_uint_t i, p, last, bind_wildcard;
-	ngx_listening_t           * ls;
-	ngx_mail_port_t           * mport;
-	ngx_mail_conf_addr_t      * addr;
+	ngx_listening_t * ls;
+	ngx_mail_port_t * mport;
+	ngx_mail_conf_addr_t * addr;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_mail_conf_port_t * port = (ngx_mail_conf_port_t*)ports->elts;
 	for(p = 0; p < ports->nelts; p++) {
@@ -280,7 +280,7 @@ static char * ngx_mail_optimize_servers(ngx_conf_t * cf, ngx_array_t * ports)
 
 static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ngx_mail_conf_addr_t * addr)
 {
-	u_char              * p;
+	u_char    * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_mail_in_addr_t  * addrs;
@@ -322,7 +322,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport,
     ngx_mail_conf_addr_t * addr)
 {
-	u_char               * p;
+	u_char * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_mail_in6_addr_t * addrs6;

@@ -78,7 +78,7 @@ ngx_module_t ngx_core_module = {
 //static u_char * ngx_prefix;
 //static u_char * ngx_conf_file;
 //static u_char * ngx_conf_params;
-//static char   * ngx_signal;
+//static char * ngx_signal;
 static char  ** ngx_os_environ;
 
 NgxStartUpOptions::NgxStartUpOptions()
@@ -796,8 +796,8 @@ ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * cycle, char * const * argv)
 	ngx_uint_t i, n;
 	ngx_pid_t pid;
 	ngx_exec_ctx_t ctx;
-	ngx_core_conf_t   * ccf;
-	ngx_listening_t   * ls;
+	ngx_core_conf_t * ccf;
+	ngx_listening_t * ls;
 	memzero(&ctx, sizeof(ngx_exec_ctx_t));
 	ctx.path = argv[0];
 	ctx.name = "new binary process";
@@ -921,7 +921,7 @@ static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 	ngx_memcpy(ngx_cpymem(ccf->oldpid.data, ccf->pid.data, ccf->pid.len), NGX_OLDPID_EXT, sizeof(NGX_OLDPID_EXT));
 #if !(NGX_WIN32)
 	if(ccf->user == (uid_t)NGX_CONF_UNSET_UINT && geteuid() == 0) {
-		struct group   * grp;
+		struct group * grp;
 		struct passwd  * pwd;
 		ngx_set_errno(0);
 		pwd = getpwnam(NGX_USER);
@@ -979,10 +979,10 @@ static char * ngx_set_user(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	return NGX_CONF_OK;
 #else
 	ngx_core_conf_t  * ccf = conf;
-	char             * group;
-	struct passwd    * pwd;
-	struct group     * grp;
-	ngx_str_t        * value;
+	char   * group;
+	struct passwd  * pwd;
+	struct group   * grp;
+	ngx_str_t * value;
 	if(ccf->user != (uid_t)NGX_CONF_UNSET_UINT) {
 		return "is duplicate";
 	}
@@ -1035,7 +1035,7 @@ static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 static char * ngx_set_priority(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t *)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_uint_t n, minus;
 	if(ccf->priority != 0) {
 		return "is duplicate";
@@ -1068,9 +1068,9 @@ static char * ngx_set_cpu_affinity(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 #if (NGX_HAVE_CPU_AFFINITY)
 	ngx_core_conf_t  * ccf = conf;
 	u_char ch, * p;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_uint_t i, n;
-	ngx_cpuset_t     * mask;
+	ngx_cpuset_t   * mask;
 	if(ccf->cpu_affinity) {
 		return "is duplicate";
 	}
@@ -1130,7 +1130,7 @@ ngx_cpuset_t * ngx_get_cpu_affinity(ngx_uint_t n)
 {
 #if (NGX_HAVE_CPU_AFFINITY)
 	ngx_uint_t i, j;
-	ngx_cpuset_t     * mask;
+	ngx_cpuset_t   * mask;
 	ngx_core_conf_t  * ccf;
 	static ngx_cpuset_t result;
 	ccf = (ngx_core_conf_t*)ngx_get_conf(ngx_cycle->conf_ctx, ngx_core_module);
@@ -1164,7 +1164,7 @@ ngx_cpuset_t * ngx_get_cpu_affinity(ngx_uint_t n)
 
 static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)conf;
 	if(ccf->worker_processes != NGX_CONF_UNSET) {
 		return "is duplicate";
@@ -1184,11 +1184,11 @@ static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, voi
 static char * ngx_load_module(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 #if (NGX_HAVE_DLOPEN)
-	void                * handle;
-	char               ** names, ** order;
-	ngx_str_t           * value, file;
+	void  * handle;
+	char   ** names, ** order;
+	ngx_str_t * value, file;
 	ngx_uint_t i;
-	ngx_module_t        * module, ** modules;
+	ngx_module_t * module, ** modules;
 	ngx_pool_cleanup_t  * cln;
 	if(cf->cycle->modules_used) {
 		return "is specified too late";

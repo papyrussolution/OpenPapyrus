@@ -8,11 +8,11 @@
 #include <ngx_stream.h>
 
 typedef struct {
-	ngx_array_t       * from; /* array of ngx_cidr_t */
+	ngx_array_t  * from; /* array of ngx_cidr_t */
 } ngx_stream_realip_srv_conf_t;
 
 typedef struct {
-	struct sockaddr   * sockaddr;
+	struct sockaddr * sockaddr;
 
 	socklen_t socklen;
 	ngx_str_t addr_text;
@@ -84,7 +84,7 @@ static ngx_stream_variable_t ngx_stream_realip_vars[] = {
 static ngx_int_t ngx_stream_realip_handler(ngx_stream_session_t * s)
 {
 	ngx_addr_t addr;
-	ngx_connection_t              * c;
+	ngx_connection_t    * c;
 	ngx_stream_realip_srv_conf_t  * rscf = (ngx_stream_realip_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_realip_module);
 	if(rscf->from == NULL) {
 		return NGX_DECLINED;
@@ -110,9 +110,9 @@ static ngx_int_t ngx_stream_realip_handler(ngx_stream_session_t * s)
 static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t * addr)
 {
 	size_t len;
-	u_char                   * p;
+	u_char * p;
 	u_char text[NGX_SOCKADDR_STRLEN];
-	ngx_connection_t         * c;
+	ngx_connection_t  * c;
 	ngx_stream_realip_ctx_t  * ctx;
 	c = s->connection;
 	ctx = (ngx_stream_realip_ctx_t *)ngx_palloc(c->pool, sizeof(ngx_stream_realip_ctx_t));
@@ -151,11 +151,11 @@ static char * ngx_stream_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void 
 {
 	ngx_stream_realip_srv_conf_t * rscf = (ngx_stream_realip_srv_conf_t *)conf;
 	ngx_int_t rc;
-	ngx_str_t            * value;
+	ngx_str_t  * value;
 	ngx_url_t u;
 	ngx_cidr_t c, * cidr;
 	ngx_uint_t i;
-	struct sockaddr_in   * sin;
+	struct sockaddr_in * sin;
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 
@@ -290,7 +290,7 @@ static ngx_int_t ngx_stream_realip_add_variables(ngx_conf_t * cf)
 
 static ngx_int_t ngx_stream_realip_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
@@ -308,7 +308,7 @@ static ngx_int_t ngx_stream_realip_init(ngx_conf_t * cf)
 static ngx_int_t ngx_stream_realip_remote_addr_variable(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	ngx_str_t                * addr_text;
+	ngx_str_t  * addr_text;
 	ngx_stream_realip_ctx_t  * ctx = (ngx_stream_realip_ctx_t *)ngx_stream_get_module_ctx(s, ngx_stream_realip_module);
 	addr_text = ctx ? &ctx->addr_text : &s->connection->addr_text;
 	v->len = addr_text->len;
@@ -324,7 +324,7 @@ static ngx_int_t ngx_stream_realip_remote_port_variable(ngx_stream_session_t * s
 {
 	ngx_uint_t port;
 	ngx_stream_realip_ctx_t  * ctx = (ngx_stream_realip_ctx_t *)ngx_stream_get_module_ctx(s, ngx_stream_realip_module);
-	struct sockaddr          * sa = ctx ? ctx->sockaddr : s->connection->sockaddr;
+	struct sockaddr   * sa = ctx ? ctx->sockaddr : s->connection->sockaddr;
 	v->len = 0;
 	v->valid = 1;
 	v->no_cacheable = 0;

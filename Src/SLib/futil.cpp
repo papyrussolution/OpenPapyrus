@@ -805,7 +805,7 @@ SLTEST_R(Directory)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // }

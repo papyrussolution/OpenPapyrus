@@ -6,16 +6,16 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_array_t caches;             /* ngx_http_file_cache_t * */
 } ngx_http_scgi_main_conf_t;
 
 typedef struct {
-	ngx_array_t               * flushes;
-	ngx_array_t               * lengths;
-	ngx_array_t               * values;
+	ngx_array_t * flushes;
+	ngx_array_t * lengths;
+	ngx_array_t * values;
 	ngx_uint_t number;
 	ngx_hash_t hash;
 } ngx_http_scgi_params_t;
@@ -27,10 +27,10 @@ typedef struct {
 #if (NGX_HTTP_CACHE)
 	ngx_http_scgi_params_t params_cache;
 #endif
-	ngx_array_t               * params_source;
+	ngx_array_t * params_source;
 
-	ngx_array_t               * scgi_lengths;
-	ngx_array_t               * scgi_values;
+	ngx_array_t * scgi_lengths;
+	ngx_array_t * scgi_values;
 
 #if (NGX_HTTP_CACHE)
 	ngx_http_complex_value_t cache_key;
@@ -453,9 +453,9 @@ static ngx_path_init_t ngx_http_scgi_temp_path = {
 static ngx_int_t ngx_http_scgi_handler(ngx_http_request_t * r)
 {
 	ngx_int_t rc;
-	ngx_http_status_t          * status;
-	ngx_http_upstream_t        * u;
-	ngx_http_scgi_loc_conf_t   * scf;
+	ngx_http_status_t   * status;
+	ngx_http_upstream_t * u;
+	ngx_http_scgi_loc_conf_t * scf;
 #if (NGX_HTTP_CACHE)
 	ngx_http_scgi_main_conf_t  * smcf;
 #endif
@@ -572,7 +572,7 @@ static ngx_int_t ngx_http_scgi_eval(ngx_http_request_t * r, ngx_http_scgi_loc_co
 
 static ngx_int_t ngx_http_scgi_create_key(ngx_http_request_t * r)
 {
-	ngx_str_t                 * key;
+	ngx_str_t * key;
 	ngx_http_scgi_loc_conf_t  * scf;
 
 	key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
@@ -596,16 +596,16 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 	nginx_off_t content_length_n;
 	u_char ch, * key, * val, * lowcase_key;
 	size_t len, key_len, val_len, allocated;
-	ngx_buf_t                    * b;
+	ngx_buf_t  * b;
 	ngx_str_t content_length;
 	ngx_uint_t i, n, hash, skip_empty, header_params;
-	ngx_chain_t                  * cl, * body;
-	ngx_list_part_t              * part;
-	ngx_table_elt_t              * header, ** ignored;
-	ngx_http_scgi_params_t       * params;
+	ngx_chain_t  * cl, * body;
+	ngx_list_part_t    * part;
+	ngx_table_elt_t    * header, ** ignored;
+	ngx_http_scgi_params_t  * params;
 	ngx_http_script_code_pt code;
 	ngx_http_script_engine_t e, le;
-	ngx_http_scgi_loc_conf_t     * scf;
+	ngx_http_scgi_loc_conf_t   * scf;
 	ngx_http_script_len_code_pt lcode;
 	u_char buffer[NGX_OFF_T_LEN];
 
@@ -921,7 +921,7 @@ static ngx_int_t ngx_http_scgi_process_status_line(ngx_http_request_t * r)
 {
 	size_t len;
 	ngx_int_t rc;
-	ngx_http_status_t    * status;
+	ngx_http_status_t  * status;
 	ngx_http_upstream_t  * u;
 
 	status = (ngx_http_status_t *)ngx_http_get_module_ctx(r, ngx_http_scgi_module);
@@ -970,11 +970,11 @@ static ngx_int_t ngx_http_scgi_process_status_line(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_scgi_process_header(ngx_http_request_t * r)
 {
-	ngx_str_t                      * status_line;
+	ngx_str_t  * status_line;
 	ngx_int_t rc, status;
-	ngx_table_elt_t                * h;
-	ngx_http_upstream_t            * u;
-	ngx_http_upstream_header_t     * hh;
+	ngx_table_elt_t  * h;
+	ngx_http_upstream_t  * u;
+	ngx_http_upstream_header_t   * hh;
 	ngx_http_upstream_main_conf_t  * umcf;
 
 	umcf = (ngx_http_upstream_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
@@ -1196,7 +1196,7 @@ static char * ngx_http_scgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void 
 	size_t size;
 	ngx_int_t rc;
 	ngx_hash_init_t hash;
-	ngx_http_core_loc_conf_t     * clcf;
+	ngx_http_core_loc_conf_t   * clcf;
 
 #if (NGX_HTTP_CACHE)
 
@@ -1530,15 +1530,15 @@ static char * ngx_http_scgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void 
 static ngx_int_t ngx_http_scgi_init_params(ngx_conf_t * cf, ngx_http_scgi_loc_conf_t * conf,
     ngx_http_scgi_params_t * params, ngx_keyval_t * default_params)
 {
-	u_char                       * p;
+	u_char   * p;
 	size_t size;
-	uintptr_t                    * code;
+	uintptr_t  * code;
 	ngx_uint_t i, nsrc;
 	ngx_array_t headers_names, params_merged;
-	ngx_keyval_t                 * h;
-	ngx_hash_key_t               * hk;
+	ngx_keyval_t * h;
+	ngx_hash_key_t * hk;
 	ngx_hash_init_t hash;
-	ngx_http_upstream_param_t    * src, * s;
+	ngx_http_upstream_param_t  * src, * s;
 	ngx_http_script_compile_t sc;
 	ngx_http_script_copy_code_t  * copy;
 	if(params->hash.buckets) {
@@ -1719,9 +1719,9 @@ static char * ngx_http_scgi_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
 
 	ngx_url_t u;
-	ngx_str_t                  * value, * url;
+	ngx_str_t  * value, * url;
 	ngx_uint_t n;
-	ngx_http_core_loc_conf_t   * clcf;
+	ngx_http_core_loc_conf_t * clcf;
 	ngx_http_script_compile_t sc;
 
 	if(scf->upstream.upstream || scf->scgi_lengths) {
@@ -1776,7 +1776,7 @@ static char * ngx_http_scgi_store(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 {
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
 
-	ngx_str_t                  * value;
+	ngx_str_t  * value;
 	ngx_http_script_compile_t sc;
 
 	if(scf->upstream.store != NGX_CONF_UNSET) {
@@ -1828,7 +1828,7 @@ static char * ngx_http_scgi_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 {
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
 
-	ngx_str_t                         * value;
+	ngx_str_t  * value;
 	ngx_http_complex_value_t cv;
 	ngx_http_compile_complex_value_t ccv;
 
@@ -1882,7 +1882,7 @@ static char * ngx_http_scgi_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 static char * ngx_http_scgi_cache_key(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_scgi_loc_conf_t * scf = (ngx_http_scgi_loc_conf_t *)conf;
-	ngx_str_t                         * value;
+	ngx_str_t  * value;
 	ngx_http_compile_complex_value_t ccv;
 	value = (ngx_str_t *)cf->args->elts;
 	if(scf->cache_key.value.data) {

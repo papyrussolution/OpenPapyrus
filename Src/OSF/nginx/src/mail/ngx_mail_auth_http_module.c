@@ -5,78 +5,59 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-#include <ngx_event_connect.h>
+//#include <ngx_event.h>
+//#include <ngx_event_connect.h>
 #include <ngx_mail.h>
 
 typedef struct {
-	ngx_addr_t                     * peer;
-
+	ngx_addr_t * peer;
 	ngx_msec_t timeout;
 	ngx_flag_t pass_client_cert;
-
 	ngx_str_t host_header;
 	ngx_str_t uri;
 	ngx_str_t header;
-
-	ngx_array_t                    * headers;
-
-	u_char                         * file;
+	ngx_array_t  * headers;
+	u_char  * file;
 	ngx_uint_t line;
 } ngx_mail_auth_http_conf_t;
 
 typedef struct ngx_mail_auth_http_ctx_s ngx_mail_auth_http_ctx_t;
-
-typedef void (*ngx_mail_auth_http_handler_pt)(ngx_mail_session_t * s,
-    ngx_mail_auth_http_ctx_t * ctx);
+typedef void (*ngx_mail_auth_http_handler_pt)(ngx_mail_session_t * s, ngx_mail_auth_http_ctx_t * ctx);
 
 struct ngx_mail_auth_http_ctx_s {
-	ngx_buf_t                      * request;
-	ngx_buf_t                      * response;
+	ngx_buf_t  * request;
+	ngx_buf_t  * response;
 	ngx_peer_connection_t peer;
-
 	ngx_mail_auth_http_handler_pt handler;
-
 	ngx_uint_t state;
-
-	u_char                         * header_name_start;
-	u_char                         * header_name_end;
-	u_char                         * header_start;
-	u_char                         * header_end;
-
+	u_char  * header_name_start;
+	u_char  * header_name_end;
+	u_char  * header_start;
+	u_char  * header_end;
 	ngx_str_t addr;
 	ngx_str_t port;
 	ngx_str_t err;
 	ngx_str_t errmsg;
 	ngx_str_t errcode;
-
-	time_t                          sleep;
-
-	ngx_pool_t                     * pool;
+	time_t sleep;
+	ngx_pool_t * pool;
 };
 
 static void ngx_mail_auth_http_write_handler(ngx_event_t * wev);
 static void ngx_mail_auth_http_read_handler(ngx_event_t * rev);
-static void ngx_mail_auth_http_ignore_status_line(ngx_mail_session_t * s,
-    ngx_mail_auth_http_ctx_t * ctx);
-static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s,
-    ngx_mail_auth_http_ctx_t * ctx);
+static void ngx_mail_auth_http_ignore_status_line(ngx_mail_session_t * s, ngx_mail_auth_http_ctx_t * ctx);
+static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_auth_http_ctx_t * ctx);
 static void ngx_mail_auth_sleep_handler(ngx_event_t * rev);
-static ngx_int_t ngx_mail_auth_http_parse_header_line(ngx_mail_session_t * s,
-    ngx_mail_auth_http_ctx_t * ctx);
+static ngx_int_t ngx_mail_auth_http_parse_header_line(ngx_mail_session_t * s, ngx_mail_auth_http_ctx_t * ctx);
 static void ngx_mail_auth_http_block_read(ngx_event_t * rev);
 static void ngx_mail_auth_http_dummy_handler(ngx_event_t * ev);
-static ngx_buf_t * ngx_mail_auth_http_create_request(ngx_mail_session_t * s,
-    ngx_pool_t * pool, ngx_mail_auth_http_conf_t * ahcf);
-static ngx_int_t ngx_mail_auth_http_escape(ngx_pool_t * pool, ngx_str_t * text,
-    ngx_str_t * escaped);
+static ngx_buf_t * ngx_mail_auth_http_create_request(ngx_mail_session_t * s, ngx_pool_t * pool, ngx_mail_auth_http_conf_t * ahcf);
+static ngx_int_t ngx_mail_auth_http_escape(ngx_pool_t * pool, ngx_str_t * text, ngx_str_t * escaped);
 
 static void * ngx_mail_auth_http_create_conf(ngx_conf_t * cf);
-static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static char * ngx_mail_auth_http(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_mail_auth_http_header(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_mail_auth_http_header(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_mail_auth_http_commands[] = {
 	{ ngx_string("auth_http"),
@@ -150,8 +131,8 @@ static ngx_str_t ngx_mail_smtp_errcode = ngx_string("535 5.7.0");
 void ngx_mail_auth_http_init(ngx_mail_session_t * s)
 {
 	ngx_int_t rc;
-	ngx_pool_t                 * pool;
-	ngx_mail_auth_http_ctx_t   * ctx;
+	ngx_pool_t * pool;
+	ngx_mail_auth_http_ctx_t * ctx;
 	ngx_mail_auth_http_conf_t  * ahcf;
 
 	s->connection->log->action = "in http auth state";
@@ -222,9 +203,9 @@ void ngx_mail_auth_http_init(ngx_mail_session_t * s)
 static void ngx_mail_auth_http_write_handler(ngx_event_t * wev)
 {
 	ssize_t n, size;
-	ngx_connection_t           * c;
-	ngx_mail_session_t         * s;
-	ngx_mail_auth_http_ctx_t   * ctx;
+	ngx_connection_t * c;
+	ngx_mail_session_t  * s;
+	ngx_mail_auth_http_ctx_t * ctx;
 	ngx_mail_auth_http_conf_t  * ahcf;
 
 	c = (ngx_connection_t*)wev->data;
@@ -284,8 +265,8 @@ static void ngx_mail_auth_http_write_handler(ngx_event_t * wev)
 static void ngx_mail_auth_http_read_handler(ngx_event_t * rev)
 {
 	ssize_t n, size;
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_auth_http_ctx_t  * ctx;
 
 	c = (ngx_connection_t*)rev->data;
@@ -439,7 +420,7 @@ done:
 static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s,
     ngx_mail_auth_http_ctx_t * ctx)
 {
-	u_char      * p;
+	u_char * p;
 	time_t timer;
 	size_t len, size;
 	ngx_int_t rc, port, n;
@@ -816,8 +797,8 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s,
 
 static void ngx_mail_auth_sleep_handler(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail auth sleep handler");
@@ -1049,8 +1030,8 @@ header_done:
 
 static void ngx_mail_auth_http_block_read(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_auth_http_ctx_t  * ctx;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail auth http block read");
 	if(ngx_handle_read_event(rev, 0) != NGX_OK) {
@@ -1073,13 +1054,13 @@ static ngx_buf_t * ngx_mail_auth_http_create_request(ngx_mail_session_t * s, ngx
     ngx_mail_auth_http_conf_t * ahcf)
 {
 	size_t len;
-	ngx_buf_t                 * b;
+	ngx_buf_t * b;
 	ngx_str_t login, passwd;
 #if (NGX_MAIL_SSL)
 	ngx_str_t verify, subject, issuer, serial, fingerprint,
 	    raw_cert, cert;
-	ngx_connection_t          * c;
-	ngx_mail_ssl_conf_t       * sslcf;
+	ngx_connection_t   * c;
+	ngx_mail_ssl_conf_t  * sslcf;
 #endif
 	ngx_mail_core_srv_conf_t  * cscf;
 
@@ -1324,7 +1305,7 @@ static ngx_buf_t * ngx_mail_auth_http_create_request(ngx_mail_session_t * s, ngx
 
 static ngx_int_t ngx_mail_auth_http_escape(ngx_pool_t * pool, ngx_str_t * text, ngx_str_t * escaped)
 {
-	u_char     * p;
+	u_char   * p;
 	uintptr_t n;
 
 	n = ngx_escape_uri(NULL, text->data, text->len, NGX_ESCAPE_MAIL_AUTH);
@@ -1366,7 +1347,7 @@ static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void
 {
 	ngx_mail_auth_http_conf_t * prev = (ngx_mail_auth_http_conf_t *)parent;
 	ngx_mail_auth_http_conf_t * conf = (ngx_mail_auth_http_conf_t *)child;
-	u_char           * p;
+	u_char * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_table_elt_t  * header;
@@ -1467,7 +1448,7 @@ static char * ngx_mail_auth_http(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 static char * ngx_mail_auth_http_header(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_mail_auth_http_conf_t * ahcf = (ngx_mail_auth_http_conf_t *)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_table_elt_t  * header;
 	if(ahcf->headers == NULL) {
 		ahcf->headers = ngx_array_create(cf->pool, 1, sizeof(ngx_table_elt_t));

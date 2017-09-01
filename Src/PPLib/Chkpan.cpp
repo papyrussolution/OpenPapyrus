@@ -9526,9 +9526,18 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 	}
 }
 
-int SLAPI ViewSCardInfo(PPID * pSCardID, int asSelector)
+static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, int asSelector)
 {
 	DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
+}
+
+int SLAPI ViewSCardInfo(PPID * pSCardID, int asSelector)
+{
+	const int preserve_use_large_dialogs_flags = SLS.CheckUiFlag(sluifUseLargeDialogs);
+	SLS.SetUiFlag(sluifUseLargeDialogs, 0);
+	int    ok = Helper_ViewSCardInfo(pSCardID, asSelector);
+	SLS.SetUiFlag(sluifUseLargeDialogs, preserve_use_large_dialogs_flags);
+	return ok;
 }
 
 int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec)

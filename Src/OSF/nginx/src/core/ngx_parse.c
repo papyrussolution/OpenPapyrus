@@ -99,7 +99,7 @@ nginx_off_t ngx_parse_offset(ngx_str_t * line)
 
 ngx_int_t ngx_parse_time(ngx_str_t * line, ngx_uint_t is_sec)
 {
-	u_char      * p, * last;
+	u_char * p, * last;
 	ngx_int_t value, total, scale;
 	ngx_int_t max, cutoff, cutlim;
 	ngx_uint_t valid;

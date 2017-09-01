@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef ngx_int_t (*ngx_ssl_variable_handler_pt)(ngx_connection_t * c,
     ngx_pool_t * pool, ngx_str_t * s);
@@ -328,7 +328,7 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
     void * arg)
 {
 	unsigned int srvlen;
-	unsigned char          * srv;
+	unsigned char   * srv;
 #if (NGX_DEBUG)
 	unsigned int i;
 #endif
@@ -336,7 +336,7 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 	ngx_http_connection_t  * hc;
 #endif
 #if (NGX_HTTP_V2 || NGX_DEBUG)
-	ngx_connection_t       * c;
+	ngx_connection_t  * c;
 
 	c = (ngx_connection_t *)ngx_ssl_get_connection(ssl_conn);
 #endif
@@ -863,10 +863,10 @@ invalid:
 static ngx_int_t ngx_http_ssl_init(ngx_conf_t * cf)
 {
 	ngx_uint_t s;
-	ngx_http_ssl_srv_conf_t     * sscf;
-	ngx_http_core_loc_conf_t    * clcf;
+	ngx_http_ssl_srv_conf_t   * sscf;
+	ngx_http_core_loc_conf_t  * clcf;
 	ngx_http_core_srv_conf_t   ** cscfp;
-	ngx_http_core_main_conf_t   * cmcf;
+	ngx_http_core_main_conf_t * cmcf;
 
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 	cscfp = (ngx_http_core_srv_conf_t **)cmcf->servers.elts;

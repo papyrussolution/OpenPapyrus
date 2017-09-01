@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 #include <ngx_mail_pop3_module.h>
 
@@ -26,7 +26,7 @@ static u_char pop3_invalid_command[] = "-ERR invalid command" CRLF;
 
 void ngx_mail_pop3_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	u_char                    * p;
+	u_char  * p;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_mail_pop3_srv_conf_t  * pscf;
 
@@ -69,7 +69,7 @@ void ngx_mail_pop3_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 
 void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	c = (ngx_connection_t*)rev->data;
@@ -108,7 +108,7 @@ void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
 void ngx_mail_pop3_auth_state(ngx_event_t * rev)
 {
 	ngx_int_t rc;
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	c = (ngx_connection_t*)rev->data;
@@ -369,7 +369,7 @@ static ngx_int_t ngx_mail_pop3_stls(ngx_mail_session_t * s, ngx_connection_t * c
 
 static ngx_int_t ngx_mail_pop3_apop(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_str_t                 * arg;
+	ngx_str_t * arg;
 	ngx_mail_pop3_srv_conf_t  * pscf;
 
 #if (NGX_MAIL_SSL)

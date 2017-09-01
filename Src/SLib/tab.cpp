@@ -599,9 +599,10 @@ SLTEST_R(STab)
 		//THROW(SLTEST_CHECK_NZ(SFile::Compare(copy_file_name, copy_file_name2, 0)));
 	}
 	CATCH
+		CurrentStatus = 0;
 		ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

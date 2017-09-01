@@ -13,12 +13,12 @@ typedef struct {
 typedef struct {
 	size_t left;
 	size_t size;
-	u_char         * pos;
-	u_char         * dst;
+	u_char  * pos;
+	u_char  * dst;
 	u_char buf[4];
 	ngx_str_t host;
-	ngx_log_t      * log;
-	ngx_pool_t     * pool;
+	ngx_log_t * log;
+	ngx_pool_t   * pool;
 	ngx_uint_t state;
 } ngx_stream_ssl_preread_ctx_t;
 
@@ -77,11 +77,11 @@ static ngx_stream_variable_t ngx_stream_ssl_preread_vars[] = {
 
 static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s)
 {
-	u_char                             * last, * p;
+	u_char * last, * p;
 	size_t len;
 	ngx_int_t rc;
-	ngx_connection_t                   * c;
-	ngx_stream_ssl_preread_ctx_t       * ctx;
+	ngx_connection_t * c;
+	ngx_stream_ssl_preread_ctx_t  * ctx;
 	ngx_stream_ssl_preread_srv_conf_t  * sscf;
 	c = s->connection;
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "ssl preread handler");
@@ -389,7 +389,7 @@ static char * ngx_stream_ssl_preread_merge_srv_conf(ngx_conf_t * cf, void * pare
 
 static ngx_int_t ngx_stream_ssl_preread_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
 	h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_PREREAD_PHASE].handlers);

@@ -6,6 +6,23 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
+ngx_int_t ngx_list_init(ngx_list_t * list, ngx_pool_t * pool, ngx_uint_t n, size_t size)
+{
+	list->part.elts = ngx_palloc(pool, n * size);
+	if(list->part.elts == NULL) {
+		return NGX_ERROR;
+	}
+	else {
+		list->part.nelts = 0;
+		list->part.next = NULL;
+		list->last = &list->part;
+		list->size = size;
+		list->nalloc = n;
+		list->pool = pool;
+		return NGX_OK;
+	}
+}
+
 ngx_list_t * ngx_list_create(ngx_pool_t * pool, ngx_uint_t n, size_t size)
 {
 	ngx_list_t  * list = (ngx_list_t *)ngx_palloc(pool, sizeof(ngx_list_t));

@@ -5,50 +5,33 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
-#include <ngx_crypt.h>
+//#include <ngx_http.h>
 
 #define NGX_HTTP_AUTH_BUF_SIZE  2048
 
-typedef struct {
+struct ngx_http_auth_basic_ctx_t {
 	ngx_str_t passwd;
-} ngx_http_auth_basic_ctx_t;
+};
 
-typedef struct {
+struct ngx_http_auth_basic_loc_conf_t {
 	ngx_http_complex_value_t  * realm;
 	ngx_http_complex_value_t user_file;
-} ngx_http_auth_basic_loc_conf_t;
+};
 
 static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r);
-static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r,
-    ngx_http_auth_basic_ctx_t * ctx, ngx_str_t * passwd, ngx_str_t * realm);
-static ngx_int_t ngx_http_auth_basic_set_realm(ngx_http_request_t * r,
-    ngx_str_t * realm);
+static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_http_auth_basic_ctx_t * ctx, ngx_str_t * passwd, ngx_str_t * realm);
+static ngx_int_t ngx_http_auth_basic_set_realm(ngx_http_request_t * r, ngx_str_t * realm);
 static void ngx_http_auth_basic_close(ngx_file_t * file);
 static void * ngx_http_auth_basic_create_loc_conf(ngx_conf_t * cf);
-static char * ngx_http_auth_basic_merge_loc_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_auth_basic_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_auth_basic_init(ngx_conf_t * cf);
-static char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_http_auth_basic_commands[] = {
-	{ ngx_string("auth_basic"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF
-	  |NGX_CONF_TAKE1,
-	  ngx_http_set_complex_value_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_auth_basic_loc_conf_t, realm),
-	  NULL },
-
-	{ ngx_string("auth_basic_user_file"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF
-	  |NGX_CONF_TAKE1,
-	  ngx_http_auth_basic_user_file,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_auth_basic_loc_conf_t, user_file),
-	  NULL },
-
+	{ ngx_string("auth_basic"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_TAKE1,
+	  ngx_http_set_complex_value_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_auth_basic_loc_conf_t, realm), NULL },
+	{ ngx_string("auth_basic_user_file"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_TAKE1,
+	  ngx_http_auth_basic_user_file, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_auth_basic_loc_conf_t, user_file), NULL },
 	ngx_null_command
 };
 
@@ -91,7 +74,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 	ngx_str_t pwd, realm, user_file;
 	ngx_uint_t i, level, login, left, passwd;
 	ngx_file_t file;
-	ngx_http_auth_basic_ctx_t       * ctx;
+	ngx_http_auth_basic_ctx_t  * ctx;
 	ngx_http_auth_basic_loc_conf_t  * alcf;
 	u_char buf[NGX_HTTP_AUTH_BUF_SIZE];
 	enum {
@@ -99,50 +82,34 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 		sw_passwd,
 		sw_skip
 	} state;
-
 	alcf = (ngx_http_auth_basic_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_auth_basic_module);
-
 	if(alcf->realm == NULL || alcf->user_file.value.data == NULL) {
 		return NGX_DECLINED;
 	}
-
 	if(ngx_http_complex_value(r, alcf->realm, &realm) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	if(realm.len == 3 && ngx_strncmp(realm.data, "off", 3) == 0) {
 		return NGX_DECLINED;
 	}
-
 	ctx = (ngx_http_auth_basic_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_auth_basic_module);
-
 	if(ctx) {
-		return ngx_http_auth_basic_crypt_handler(r, ctx, &ctx->passwd,
-		    &realm);
+		return ngx_http_auth_basic_crypt_handler(r, ctx, &ctx->passwd, &realm);
 	}
-
 	rc = ngx_http_auth_basic_user(r);
-
 	if(rc == NGX_DECLINED) {
-		ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
-		    "no user/password was provided for basic authentication");
-
+		ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "no user/password was provided for basic authentication");
 		return ngx_http_auth_basic_set_realm(r, &realm);
 	}
-
 	if(rc == NGX_ERROR) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	if(ngx_http_complex_value(r, &alcf->user_file, &user_file) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	fd = ngx_open_file(user_file.data, NGX_FILE_RDONLY, NGX_FILE_OPEN, 0);
-
 	if(fd == NGX_INVALID_FILE) {
 		err = ngx_errno;
-
 		if(err == NGX_ENOENT) {
 			level = NGX_LOG_ERR;
 			rc = NGX_HTTP_FORBIDDEN;
@@ -151,40 +118,28 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 			level = NGX_LOG_CRIT;
 			rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
-		ngx_log_error(level, r->connection->log, err,
-		    ngx_open_file_n " \"%s\" failed", user_file.data);
-
+		ngx_log_error(level, r->connection->log, err, ngx_open_file_n " \"%s\" failed", user_file.data);
 		return rc;
 	}
-
 	memzero(&file, sizeof(ngx_file_t));
-
 	file.fd = fd;
 	file.name = user_file;
 	file.log = r->connection->log;
-
 	state = sw_login;
 	passwd = 0;
 	login = 0;
 	left = 0;
 	offset = 0;
-
 	for(;; ) {
 		i = left;
-
-		n = ngx_read_file(&file, buf + left, NGX_HTTP_AUTH_BUF_SIZE - left,
-		    offset);
-
+		n = ngx_read_file(&file, buf + left, NGX_HTTP_AUTH_BUF_SIZE - left, offset);
 		if(n == NGX_ERROR) {
 			ngx_http_auth_basic_close(&file);
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		if(n == 0) {
 			break;
 		}
-
 		for(i = left; i < left + n; i++) {
 			switch(state) {
 				case sw_login:
@@ -193,51 +148,37 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 						    state = sw_skip;
 						    break;
 					    }
-
 					    if(buf[i] == LF) {
 						    break;
 					    }
 				    }
-
 				    if(buf[i] != r->headers_in.user.data[login]) {
 					    state = sw_skip;
 					    break;
 				    }
-
 				    if(login == r->headers_in.user.len) {
 					    state = sw_passwd;
 					    passwd = i + 1;
 				    }
-
 				    login++;
-
 				    break;
-
 				case sw_passwd:
 				    if(buf[i] == LF || buf[i] == CR || buf[i] == ':') {
 					    buf[i] = '\0';
-
 					    ngx_http_auth_basic_close(&file);
-
 					    pwd.len = i - passwd;
 					    pwd.data = &buf[passwd];
-
-					    return ngx_http_auth_basic_crypt_handler(r, NULL, &pwd,
-					    &realm);
+					    return ngx_http_auth_basic_crypt_handler(r, NULL, &pwd, &realm);
 				    }
-
 				    break;
-
 				case sw_skip:
 				    if(buf[i] == LF) {
 					    state = sw_login;
 					    login = 0;
 				    }
-
 				    break;
 			}
 		}
-
 		if(state == sw_passwd) {
 			left = left + n - passwd;
 			ngx_memmove(buf, &buf[passwd], left);
@@ -246,84 +187,53 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 		else {
 			left = 0;
 		}
-
 		offset += n;
 	}
-
 	ngx_http_auth_basic_close(&file);
-
 	if(state == sw_passwd) {
 		pwd.len = i - passwd;
 		pwd.data = (u_char *)ngx_pnalloc(r->pool, pwd.len + 1);
 		if(pwd.data == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		ngx_cpystrn(pwd.data, &buf[passwd], pwd.len + 1);
-
 		return ngx_http_auth_basic_crypt_handler(r, NULL, &pwd, &realm);
 	}
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-	    "user \"%V\" was not found in \"%V\"",
-	    &r->headers_in.user, &user_file);
-
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "user \"%V\" was not found in \"%V\"", &r->headers_in.user, &user_file);
 	return ngx_http_auth_basic_set_realm(r, &realm);
 }
 
-static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r,
-    ngx_http_auth_basic_ctx_t * ctx, ngx_str_t * passwd, ngx_str_t * realm)
+static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_http_auth_basic_ctx_t * ctx, ngx_str_t * passwd, ngx_str_t * realm)
 {
-	ngx_int_t rc;
-	u_char     * encrypted;
-
-	rc = ngx_crypt(r->pool, r->headers_in.passwd.data, passwd->data,
-	    &encrypted);
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "rc: %i user: \"%V\" salt: \"%s\"",
-	    rc, &r->headers_in.user, passwd->data);
-
+	u_char * encrypted;
+	ngx_int_t rc = ngx_crypt(r->pool, r->headers_in.passwd.data, passwd->data, &encrypted);
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "rc: %i user: \"%V\" salt: \"%s\"", rc, &r->headers_in.user, passwd->data);
 	if(rc == NGX_OK) {
 		if(ngx_strcmp(encrypted, passwd->data) == 0) {
 			return NGX_OK;
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "encrypted: \"%s\"", encrypted);
-
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "user \"%V\": password mismatch",
-		    &r->headers_in.user);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "encrypted: \"%s\"", encrypted);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "user \"%V\": password mismatch", &r->headers_in.user);
 		return ngx_http_auth_basic_set_realm(r, realm);
 	}
-
 	if(rc == NGX_ERROR) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	/* rc == NGX_AGAIN */
-
 	if(ctx == NULL) {
 		ctx = (ngx_http_auth_basic_ctx_t *)ngx_palloc(r->pool, sizeof(ngx_http_auth_basic_ctx_t));
 		if(ctx == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		ngx_http_set_ctx(r, ctx, ngx_http_auth_basic_module);
-
 		ctx->passwd.len = passwd->len;
 		passwd->len++;
-
 		ctx->passwd.data = ngx_pstrdup(r->pool, passwd);
 		if(ctx->passwd.data == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 	}
-
 	/* TODO: add mutex event */
-
 	return rc;
 }
 
@@ -345,30 +255,23 @@ static ngx_int_t ngx_http_auth_basic_set_realm(ngx_http_request_t * r, ngx_str_t
 	p = ngx_cpymem(basic, "Basic realm=\"", sizeof("Basic realm=\"") - 1);
 	p = ngx_cpymem(p, realm->data, realm->len);
 	*p = '"';
-
 	r->headers_out.www_authenticate->hash = 1;
 	ngx_str_set(&r->headers_out.www_authenticate->key, "WWW-Authenticate");
 	r->headers_out.www_authenticate->value.data = basic;
 	r->headers_out.www_authenticate->value.len = len;
-
 	return NGX_HTTP_UNAUTHORIZED;
 }
 
 static void ngx_http_auth_basic_close(ngx_file_t * file)
 {
 	if(ngx_close_file(file->fd) == NGX_FILE_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, file->log, ngx_errno,
-		    ngx_close_file_n " \"%s\" failed", file->name.data);
+		ngx_log_error(NGX_LOG_ALERT, file->log, ngx_errno, ngx_close_file_n " \"%s\" failed", file->name.data);
 	}
 }
 
 static void * ngx_http_auth_basic_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_auth_basic_loc_conf_t  * conf;
-	conf = (ngx_http_auth_basic_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_auth_basic_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
-	}
+	ngx_http_auth_basic_loc_conf_t * conf = (ngx_http_auth_basic_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_auth_basic_loc_conf_t));
 	return conf;
 }
 
@@ -379,51 +282,38 @@ static char * ngx_http_auth_basic_merge_loc_conf(ngx_conf_t * cf, void * parent,
 	if(conf->realm == NULL) {
 		conf->realm = prev->realm;
 	}
-
 	if(conf->user_file.value.data == NULL) {
 		conf->user_file = prev->user_file;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_auth_basic_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
-	ngx_http_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-
-	h = (ngx_http_handler_pt *)ngx_array_push(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers);
+	ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+	ngx_http_handler_pt * h = (ngx_http_handler_pt *)ngx_array_push(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-
 	*h = ngx_http_auth_basic_handler;
-
 	return NGX_OK;
 }
 
 static char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_auth_basic_loc_conf_t * alcf = (ngx_http_auth_basic_loc_conf_t *)conf;
-	ngx_str_t                         * value;
-	ngx_http_compile_complex_value_t ccv;
 	if(alcf->user_file.value.data) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-	ccv.cf = cf;
-	ccv.value = &value[1];
-	ccv.complex_value = &alcf->user_file;
-	ccv.zero = 1;
-	ccv.conf_prefix = 1;
-
-	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_http_compile_complex_value_t ccv;
+		memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
+		ccv.cf = cf;
+		ccv.value = &value[1];
+		ccv.complex_value = &alcf->user_file;
+		ccv.zero = 1;
+		ccv.conf_prefix = 1;
+		return (ngx_http_compile_complex_value(&ccv) != NGX_OK) ? NGX_CONF_ERROR : NGX_CONF_OK;
 	}
-
-	return NGX_CONF_OK;
 }
-

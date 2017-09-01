@@ -16,7 +16,7 @@ static u_short * ngx_utf8_to_utf16(u_short * utf16, u_char * utf8, size_t * len)
 ngx_fd_t ngx_open_file(u_char * name, u_long mode, u_long create, u_long access)
 {
 	size_t len;
-	u_short    * u;
+	u_short  * u;
 	ngx_fd_t fd;
 	ngx_err_t err;
 	u_short utf16[NGX_UTF16_BUFLEN];
@@ -106,7 +106,7 @@ ssize_t ngx_write_file(ngx_file_t * file, u_char * buf, size_t size, nginx_off_t
 ssize_t ngx_write_chain_to_file(ngx_file_t * file, ngx_chain_t * cl, nginx_off_t offset,
     ngx_pool_t * pool)
 {
-	u_char   * buf, * prev;
+	u_char * buf, * prev;
 	size_t size;
 	ssize_t total, n;
 
@@ -209,7 +209,7 @@ ngx_int_t ngx_file_info(u_char * file, ngx_file_info_t * sb)
 {
 	size_t len;
 	long rc;
-	u_short                    * u;
+	u_short  * u;
 	ngx_err_t err;
 	WIN32_FILE_ATTRIBUTE_DATA fa;
 	u_short utf16[NGX_UTF16_BUFLEN];
@@ -297,57 +297,36 @@ ngx_int_t ngx_create_file_mapping(ngx_file_mapping_t * fm)
 	    (u_long)((nginx_off_t)fm->size & 0xffffffff),
 	    NULL);
 	if(fm->handle == NULL) {
-		ngx_log_error(NGX_LOG_CRIT, fm->log, ngx_errno,
-		    "CreateFileMapping(%s, %uz) failed",
-		    fm->name, fm->size);
+		ngx_log_error(NGX_LOG_CRIT, fm->log, ngx_errno, "CreateFileMapping(%s, %uz) failed", fm->name, fm->size);
 		goto failed;
 	}
-
 	fm->addr = MapViewOfFile(fm->handle, FILE_MAP_WRITE, 0, 0, 0);
-
-	if(fm->addr != NULL) {
+	if(fm->addr) {
 		return NGX_OK;
 	}
-
-	ngx_log_error(NGX_LOG_CRIT, fm->log, ngx_errno,
-	    "MapViewOfFile(%uz) of file mapping \"%s\" failed",
-	    fm->size, fm->name);
-
+	ngx_log_error(NGX_LOG_CRIT, fm->log, ngx_errno, "MapViewOfFile(%uz) of file mapping \"%s\" failed", fm->size, fm->name);
 failed:
-
 	if(fm->handle) {
 		if(CloseHandle(fm->handle) == 0) {
-			ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno,
-			    "CloseHandle() of file mapping \"%s\" failed",
-			    fm->name);
+			ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno, "CloseHandle() of file mapping \"%s\" failed", fm->name);
 		}
 	}
-
 	if(ngx_close_file(fm->fd) == NGX_FILE_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno,
-		    ngx_close_file_n " \"%s\" failed", fm->name);
+		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno, ngx_close_file_n " \"%s\" failed", fm->name);
 	}
-
 	return NGX_ERROR;
 }
 
 void ngx_close_file_mapping(ngx_file_mapping_t * fm)
 {
 	if(UnmapViewOfFile(fm->addr) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno,
-		    "UnmapViewOfFile(%p) of file mapping \"%s\" failed",
-		    fm->addr, &fm->name);
+		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno, "UnmapViewOfFile(%p) of file mapping \"%s\" failed", fm->addr, &fm->name);
 	}
-
 	if(CloseHandle(fm->handle) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno,
-		    "CloseHandle() of file mapping \"%s\" failed",
-		    &fm->name);
+		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno, "CloseHandle() of file mapping \"%s\" failed", &fm->name);
 	}
-
 	if(ngx_close_file(fm->fd) == NGX_FILE_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno,
-		    ngx_close_file_n " \"%s\" failed", fm->name);
+		ngx_log_error(NGX_LOG_ALERT, fm->log, ngx_errno, ngx_close_file_n " \"%s\" failed", fm->name);
 	}
 }
 
@@ -360,18 +339,13 @@ u_char * ngx_realpath(u_char * path, u_char * resolved)
 ngx_int_t ngx_open_dir(ngx_str_t * name, ngx_dir_t * dir)
 {
 	ngx_cpystrn(name->data + name->len, NGX_DIR_MASK, NGX_DIR_MASK_LEN + 1);
-
 	dir->dir = FindFirstFile((const char*)name->data, &dir->finddata);
-
 	name->data[name->len] = '\0';
-
 	if(dir->dir == INVALID_HANDLE_VALUE) {
 		return NGX_ERROR;
 	}
-
 	dir->valid_info = 1;
 	dir->ready = 1;
-
 	return NGX_OK;
 }
 
@@ -381,12 +355,10 @@ ngx_int_t ngx_read_dir(ngx_dir_t * dir)
 		dir->ready = 0;
 		return NGX_OK;
 	}
-
 	if(FindNextFile(dir->dir, &dir->finddata) != 0) {
 		dir->type = 1;
 		return NGX_OK;
 	}
-
 	return NGX_ERROR;
 }
 
@@ -395,50 +367,37 @@ ngx_int_t ngx_close_dir(ngx_dir_t * dir)
 	if(FindClose(dir->dir) == 0) {
 		return NGX_ERROR;
 	}
-
 	return NGX_OK;
 }
 
 ngx_int_t ngx_open_glob(ngx_glob_t * gl)
 {
-	u_char     * p;
+	u_char   * p;
 	size_t len;
 	ngx_err_t err;
-
 	gl->dir = FindFirstFile((const char*)gl->pattern, &gl->finddata);
-
 	if(gl->dir == INVALID_HANDLE_VALUE) {
 		err = ngx_errno;
-
-		if((err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND)
-		    && gl->test) {
+		if((err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) && gl->test) {
 			gl->no_match = 1;
 			return NGX_OK;
 		}
-
 		return NGX_ERROR;
 	}
-
 	for(p = gl->pattern; *p; p++) {
 		if(*p == '/') {
 			gl->last = p + 1 - gl->pattern;
 		}
 	}
-
 	len = ngx_strlen(gl->finddata.cFileName);
 	gl->name.len = gl->last + len;
-
 	gl->name.data = (u_char *)ngx_alloc(gl->name.len + 1, gl->log);
 	if(gl->name.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	ngx_memcpy(gl->name.data, gl->pattern, gl->last);
-	ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName,
-	    len + 1);
-
+	ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
 	gl->ready = 1;
-
 	return NGX_OK;
 }
 
@@ -446,21 +405,16 @@ ngx_int_t ngx_read_glob(ngx_glob_t * gl, ngx_str_t * name)
 {
 	size_t len;
 	ngx_err_t err;
-
 	if(gl->no_match) {
 		return NGX_DONE;
 	}
-
 	if(gl->ready) {
 		*name = gl->name;
-
 		gl->ready = 0;
 		return NGX_OK;
 	}
-
 	ngx_free(gl->name.data);
 	gl->name.data = NULL;
-
 	if(FindNextFile(gl->dir, &gl->finddata) != 0) {
 		len = ngx_strlen(gl->finddata.cFileName);
 		gl->name.len = gl->last + len;
@@ -468,25 +422,16 @@ ngx_int_t ngx_read_glob(ngx_glob_t * gl, ngx_str_t * name)
 		if(gl->name.data == NULL) {
 			return NGX_ERROR;
 		}
-
 		ngx_memcpy(gl->name.data, gl->pattern, gl->last);
-		ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName,
-		    len + 1);
-
+		ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
 		*name = gl->name;
-
 		return NGX_OK;
 	}
-
 	err = ngx_errno;
-
 	if(err == NGX_ENOMOREFILES) {
 		return NGX_DONE;
 	}
-
-	ngx_log_error(NGX_LOG_ALERT, gl->log, err,
-	    "FindNextFile(%s) failed", gl->pattern);
-
+	ngx_log_error(NGX_LOG_ALERT, gl->log, err, "FindNextFile(%s) failed", gl->pattern);
 	return NGX_ERROR;
 }
 
@@ -495,14 +440,11 @@ void ngx_close_glob(ngx_glob_t * gl)
 	if(gl->name.data) {
 		ngx_free(gl->name.data);
 	}
-
 	if(gl->dir == INVALID_HANDLE_VALUE) {
 		return;
 	}
-
 	if(FindClose(gl->dir) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, gl->log, ngx_errno,
-		    "FindClose(%s) failed", gl->pattern);
+		ngx_log_error(NGX_LOG_ALERT, gl->log, ngx_errno, "FindClose(%s) failed", gl->pattern);
 	}
 }
 
@@ -535,24 +477,21 @@ size_t ngx_fs_bsize(u_char * name)
 {
 	u_char root[4];
 	u_long sc, bs, nfree, ncl;
-
 	if(name[2] == ':') {
 		ngx_cpystrn(root, name, 4);
 		name = root;
 	}
-
 	if(GetDiskFreeSpace((const char*)name, &sc, &bs, &nfree, &ncl) == 0) {
 		return 512;
 	}
-
 	return sc * bs;
 }
 
 static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len)
 {
-	u_char     * p, ch;
+	u_char   * p, ch;
 	u_long n;
-	u_short    * lu;
+	u_short  * lu;
 	ngx_err_t err;
 	enum {
 		sw_start = 0,
@@ -574,8 +513,8 @@ static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len
 			case sw_start:
 
 			    /*
-			     * skip till first "/" to allow paths starting with drive and
-			     * relative path, like "c:html/"
+			   * skip till first "/" to allow paths starting with drive and
+			   * relative path, like "c:html/"
 			     */
 
 			    if(ch == '/' || ch == '\\') {
@@ -681,8 +620,8 @@ failed:
 
 static u_short * ngx_utf8_to_utf16(u_short * utf16, u_char * utf8, size_t * len)
 {
-	u_char    * p;
-	u_short   * u, * last;
+	u_char  * p;
+	u_short * u, * last;
 	uint32_t n;
 
 	p = utf8;

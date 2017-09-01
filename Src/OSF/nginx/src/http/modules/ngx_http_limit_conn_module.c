@@ -5,48 +5,43 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_limit_conn_node_t {
 	u_char color;
 	u_char len;
 	u_short conn;
 	u_char data[1];
-} ngx_http_limit_conn_node_t;
+};
 
-typedef struct {
-	ngx_shm_zone_t            * shm_zone;
-	ngx_rbtree_node_t         * node;
-} ngx_http_limit_conn_cleanup_t;
+struct ngx_http_limit_conn_cleanup_t {
+	ngx_shm_zone_t  * shm_zone;
+	ngx_rbtree_node_t  * node;
+};
 
-typedef struct {
+struct ngx_http_limit_conn_ctx_t {
 	ngx_rbtree_t * rbtree;
 	ngx_http_complex_value_t key;
-} ngx_http_limit_conn_ctx_t;
+};
 
-typedef struct {
-	ngx_shm_zone_t            * shm_zone;
+struct ngx_http_limit_conn_limit_t {
+	ngx_shm_zone_t  * shm_zone;
 	ngx_uint_t conn;
-} ngx_http_limit_conn_limit_t;
+};
 
-typedef struct {
+struct ngx_http_limit_conn_conf_t {
 	ngx_array_t limits;
 	ngx_uint_t log_level;
 	ngx_uint_t status_code;
-} ngx_http_limit_conn_conf_t;
+};
 
-static ngx_rbtree_node_t * ngx_http_limit_conn_lookup(ngx_rbtree_t * rbtree,
-    ngx_str_t * key, uint32_t hash);
+static ngx_rbtree_node_t * ngx_http_limit_conn_lookup(ngx_rbtree_t * rbtree, ngx_str_t * key, uint32_t hash);
 static void ngx_http_limit_conn_cleanup(void * data);
 static ngx_inline void ngx_http_limit_conn_cleanup_all(ngx_pool_t * pool);
-
 static void * ngx_http_limit_conn_create_conf(ngx_conf_t * cf);
-static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, void * child);
+static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 static ngx_int_t ngx_http_limit_conn_init(ngx_conf_t * cf);
 
 static ngx_conf_enum_t ngx_http_limit_conn_log_levels[] = {
@@ -128,13 +123,13 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 	uint32_t hash;
 	ngx_str_t key;
 	ngx_uint_t i;
-	ngx_slab_pool_t                * shpool;
-	ngx_rbtree_node_t              * node;
-	ngx_pool_cleanup_t             * cln;
-	ngx_http_limit_conn_ctx_t      * ctx;
-	ngx_http_limit_conn_node_t     * lc;
-	ngx_http_limit_conn_conf_t     * lccf;
-	ngx_http_limit_conn_limit_t    * limits;
+	ngx_slab_pool_t  * shpool;
+	ngx_rbtree_node_t    * node;
+	ngx_pool_cleanup_t   * cln;
+	ngx_http_limit_conn_ctx_t * ctx;
+	ngx_http_limit_conn_node_t   * lc;
+	ngx_http_limit_conn_conf_t   * lccf;
+	ngx_http_limit_conn_limit_t  * limits;
 	ngx_http_limit_conn_cleanup_t  * lccln;
 	if(r->main->limit_conn_set) {
 		return NGX_DECLINED;
@@ -199,8 +194,8 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 
 static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
-	ngx_rbtree_node_t           ** p;
-	ngx_http_limit_conn_node_t   * lcn, * lcnt;
+	ngx_rbtree_node_t  ** p;
+	ngx_http_limit_conn_node_t * lcn, * lcnt;
 	for(;; ) {
 		if(node->key < temp->key) {
 			p = &temp->left;
@@ -211,18 +206,13 @@ static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 		else { /* node->key == temp->key */
 			lcn = (ngx_http_limit_conn_node_t*)&node->color;
 			lcnt = (ngx_http_limit_conn_node_t*)&temp->color;
-
-			p = (ngx_memn2cmp(lcn->data, lcnt->data, lcn->len, lcnt->len) < 0)
-			    ? &temp->left : &temp->right;
+			p = (ngx_memn2cmp(lcn->data, lcnt->data, lcn->len, lcnt->len) < 0) ? &temp->left : &temp->right;
 		}
-
 		if(*p == sentinel) {
 			break;
 		}
-
 		temp = *p;
 	}
-
 	*p = node;
 	node->parent = temp;
 	node->left = sentinel;
@@ -233,77 +223,57 @@ static void ngx_http_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 static ngx_rbtree_node_t * ngx_http_limit_conn_lookup(ngx_rbtree_t * rbtree, ngx_str_t * key, uint32_t hash)
 {
 	ngx_int_t rc;
-	ngx_rbtree_node_t           * node, * sentinel;
 	ngx_http_limit_conn_node_t  * lcn;
-
-	node = rbtree->root;
-	sentinel = rbtree->sentinel;
-
+	ngx_rbtree_node_t * node = rbtree->root;
+	ngx_rbtree_node_t * sentinel = rbtree->sentinel;
 	while(node != sentinel) {
 		if(hash < node->key) {
 			node = node->left;
 			continue;
 		}
-
 		if(hash > node->key) {
 			node = node->right;
 			continue;
 		}
-
 		/* hash == node->key */
-
 		lcn = (ngx_http_limit_conn_node_t*)&node->color;
-
 		rc = ngx_memn2cmp(key->data, lcn->data, key->len, (size_t)lcn->len);
-
 		if(rc == 0) {
 			return node;
 		}
-
 		node = (rc < 0) ? node->left : node->right;
 	}
-
 	return NULL;
 }
 
 static void ngx_http_limit_conn_cleanup(void * data)
 {
 	ngx_http_limit_conn_cleanup_t  * lccln = (ngx_http_limit_conn_cleanup_t *)data;
-	ngx_slab_pool_t             * shpool;
-	ngx_rbtree_node_t           * node;
-	ngx_http_limit_conn_ctx_t   * ctx;
+	ngx_slab_pool_t   * shpool;
+	ngx_rbtree_node_t * node;
+	ngx_http_limit_conn_ctx_t * ctx;
 	ngx_http_limit_conn_node_t  * lc;
 	ctx = (ngx_http_limit_conn_ctx_t *)lccln->shm_zone->data;
 	shpool = (ngx_slab_pool_t*)lccln->shm_zone->shm.addr;
 	node = lccln->node;
 	lc = (ngx_http_limit_conn_node_t*)&node->color;
-
 	ngx_shmtx_lock(&shpool->mutex);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, lccln->shm_zone->shm.log, 0,
-	    "limit conn cleanup: %08Xi %d", node->key, lc->conn);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, lccln->shm_zone->shm.log, 0, "limit conn cleanup: %08Xi %d", node->key, lc->conn);
 	lc->conn--;
-
 	if(lc->conn == 0) {
 		ngx_rbtree_delete(ctx->rbtree, node);
 		ngx_slab_free_locked(shpool, node);
 	}
-
 	ngx_shmtx_unlock(&shpool->mutex);
 }
 
 static ngx_inline void ngx_http_limit_conn_cleanup_all(ngx_pool_t * pool)
 {
-	ngx_pool_cleanup_t  * cln;
-
-	cln = pool->cleanup;
-
+	ngx_pool_cleanup_t  * cln = pool->cleanup;
 	while(cln && cln->handler == ngx_http_limit_conn_cleanup) {
 		ngx_http_limit_conn_cleanup(cln->data);
 		cln = cln->next;
 	}
-
 	pool->cleanup = cln;
 }
 
@@ -311,8 +281,8 @@ static ngx_int_t ngx_http_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void *
 {
 	ngx_http_limit_conn_ctx_t  * octx = (ngx_http_limit_conn_ctx_t *)data;
 	size_t len;
-	ngx_slab_pool_t            * shpool;
-	ngx_rbtree_node_t          * sentinel;
+	ngx_slab_pool_t  * shpool;
+	ngx_rbtree_node_t   * sentinel;
 	ngx_http_limit_conn_ctx_t * ctx = (ngx_http_limit_conn_ctx_t *)shm_zone->data;
 	if(octx) {
 		if(ctx->key.value.len != octx->key.value.len || ngx_strncmp(ctx->key.value.data, octx->key.value.data, ctx->key.value.len) != 0) {
@@ -341,39 +311,28 @@ static ngx_int_t ngx_http_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void *
 	if(sentinel == NULL) {
 		return NGX_ERROR;
 	}
-
-	ngx_rbtree_init(ctx->rbtree, sentinel,
-	    ngx_http_limit_conn_rbtree_insert_value);
-
+	ngx_rbtree_init(ctx->rbtree, sentinel, ngx_http_limit_conn_rbtree_insert_value);
 	len = sizeof(" in limit_conn_zone \"\"") + shm_zone->shm.name.len;
-
 	shpool->log_ctx = (u_char*)ngx_slab_alloc(shpool, len);
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
-
-	ngx_sprintf(shpool->log_ctx, " in limit_conn_zone \"%V\"%Z",
-	    &shm_zone->shm.name);
-
+	ngx_sprintf(shpool->log_ctx, " in limit_conn_zone \"%V\"%Z", &shm_zone->shm.name);
 	return NGX_OK;
 }
 
 static void * ngx_http_limit_conn_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_limit_conn_conf_t  * conf;
-	conf = (ngx_http_limit_conn_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_limit_conn_conf_t * conf = (ngx_http_limit_conn_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_conf_t));
+	if(conf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     conf->limits.elts = NULL;
+		 */
+		conf->log_level = NGX_CONF_UNSET_UINT;
+		conf->status_code = NGX_CONF_UNSET_UINT;
 	}
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     conf->limits.elts = NULL;
-	 */
-
-	conf->log_level = NGX_CONF_UNSET_UINT;
-	conf->status_code = NGX_CONF_UNSET_UINT;
-
 	return conf;
 }
 
@@ -391,43 +350,32 @@ static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, voi
 
 static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	u_char                            * p;
+	u_char   * p;
 	ssize_t size;
-	ngx_str_t                         * value, name, s;
+	ngx_str_t name, s;
 	ngx_uint_t i;
-	ngx_shm_zone_t                    * shm_zone;
-	ngx_http_limit_conn_ctx_t         * ctx;
+	ngx_shm_zone_t * shm_zone;
 	ngx_http_compile_complex_value_t ccv;
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	ctx = (ngx_http_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_ctx_t));
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_http_limit_conn_ctx_t  * ctx = (ngx_http_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_ctx_t));
 	if(ctx == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = &value[1];
 	ccv.complex_value = &ctx->key;
-
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	size = 0;
 	name.len = 0;
-
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-
 			p = (u_char*)ngx_strchr(name.data, ':');
-
 			if(p == NULL) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid zone size \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
 			name.len = p - name.data;
@@ -468,8 +416,8 @@ static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 
 static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_shm_zone_t               * shm_zone;
-	ngx_http_limit_conn_conf_t   * lccf = (ngx_http_limit_conn_conf_t *)conf;
+	ngx_shm_zone_t * shm_zone;
+	ngx_http_limit_conn_conf_t * lccf = (ngx_http_limit_conn_conf_t *)conf;
 	ngx_http_limit_conn_limit_t  * limit, * limits;
 	ngx_str_t  * value;
 	ngx_int_t n;
@@ -515,7 +463,9 @@ static ngx_int_t ngx_http_limit_conn_init(ngx_conf_t * cf)
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-	*h = ngx_http_limit_conn_handler;
-	return NGX_OK;
+	else {
+		*h = ngx_http_limit_conn_handler;
+		return NGX_OK;
+	}
 }
 

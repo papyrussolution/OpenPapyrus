@@ -3550,7 +3550,7 @@ SLTEST_R(PrcssrTestDb)
 	CATCH
 		CurrentStatus = ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(TestDbSerialization)
@@ -3746,7 +3746,7 @@ SLTEST_R(TestDbSerialization)
 	CATCH
 		CurrentStatus = ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

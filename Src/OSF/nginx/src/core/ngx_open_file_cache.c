@@ -5,50 +5,37 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-
+//#include <ngx_event.h>
 /*
  * open file cache caches
  *    open file handles with stat() info;
  *    directories stat() info;
  *    files and directories errors: not found, access denied, etc.
  */
-
 #define NGX_MIN_READ_AHEAD  (128 * 1024)
 
 static void ngx_open_file_cache_cleanup(void * data);
 #if (NGX_HAVE_OPENAT)
-static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const u_char * name,
-    ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log);
-#if (NGX_HAVE_O_PATH)
-static ngx_int_t ngx_file_o_path_info(ngx_fd_t fd, ngx_file_info_t * fi,
-    ngx_log_t * log);
+	static ngx_fd_t ngx_openat_file_owner(ngx_fd_t at_fd, const u_char * name, ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log);
+	#if (NGX_HAVE_O_PATH)
+		static ngx_int_t ngx_file_o_path_info(ngx_fd_t fd, ngx_file_info_t * fi, ngx_log_t * log);
+	#endif
 #endif
-#endif
-static ngx_fd_t ngx_open_file_wrapper(ngx_str_t * name,
-    ngx_open_file_info_t * of, ngx_int_t mode, ngx_int_t create,
-    ngx_int_t access, ngx_log_t * log);
-static ngx_int_t ngx_file_info_wrapper(ngx_str_t * name,
-    ngx_open_file_info_t * of, ngx_file_info_t * fi, ngx_log_t * log);
-static ngx_int_t ngx_open_and_stat_file(ngx_str_t * name,
-    ngx_open_file_info_t * of, ngx_log_t * log);
-static void ngx_open_file_add_event(ngx_open_file_cache_t * cache,
-    ngx_cached_open_file_t * file, ngx_open_file_info_t * of, ngx_log_t * log);
+static ngx_fd_t ngx_open_file_wrapper(ngx_str_t * name, ngx_open_file_info_t * of, ngx_int_t mode, ngx_int_t create, ngx_int_t access, ngx_log_t * log);
+static ngx_int_t ngx_file_info_wrapper(ngx_str_t * name, ngx_open_file_info_t * of, ngx_file_info_t * fi, ngx_log_t * log);
+static ngx_int_t ngx_open_and_stat_file(ngx_str_t * name, ngx_open_file_info_t * of, ngx_log_t * log);
+static void ngx_open_file_add_event(ngx_open_file_cache_t * cache, ngx_cached_open_file_t * file, ngx_open_file_info_t * of, ngx_log_t * log);
 static void ngx_open_file_cleanup(void * data);
-static void ngx_close_cached_file(ngx_open_file_cache_t * cache,
-    ngx_cached_open_file_t * file, ngx_uint_t min_uses, ngx_log_t * log);
+static void ngx_close_cached_file(ngx_open_file_cache_t * cache, ngx_cached_open_file_t * file, ngx_uint_t min_uses, ngx_log_t * log);
 static void ngx_open_file_del_event(ngx_cached_open_file_t * file);
-static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache,
-    ngx_uint_t n, ngx_log_t * log);
-static void ngx_open_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp,
-    ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
-static ngx_cached_open_file_t * ngx_open_file_lookup(ngx_open_file_cache_t * cache, ngx_str_t * name,
-    uint32_t hash);
+static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache, ngx_uint_t n, ngx_log_t * log);
+static void ngx_open_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
+static ngx_cached_open_file_t * ngx_open_file_lookup(ngx_open_file_cache_t * cache, ngx_str_t * name, uint32_t hash);
 static void ngx_open_file_cache_remove(ngx_event_t * ev);
 
 ngx_open_file_cache_t * ngx_open_file_cache_init(ngx_pool_t * pool, ngx_uint_t max, time_t inactive)
 {
-	ngx_pool_cleanup_t     * cln;
+	ngx_pool_cleanup_t   * cln;
 	ngx_open_file_cache_t  * cache = (ngx_open_file_cache_t *)ngx_palloc(pool, sizeof(ngx_open_file_cache_t));
 	if(cache == NULL) {
 		return NULL;
@@ -73,7 +60,7 @@ ngx_open_file_cache_t * ngx_open_file_cache_init(ngx_pool_t * pool, ngx_uint_t m
 static void ngx_open_file_cache_cleanup(void * data)
 {
 	ngx_open_file_cache_t  * cache = (ngx_open_file_cache_t  *)data;
-	ngx_queue_t             * q;
+	ngx_queue_t   * q;
 	ngx_cached_open_file_t  * file;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "open file cache cleanup");
 	for(;; ) {
@@ -120,9 +107,9 @@ ngx_int_t ngx_open_cached_file(ngx_open_file_cache_t * cache, ngx_str_t * name,
 	uint32_t hash;
 	ngx_int_t rc;
 	ngx_file_info_t fi;
-	ngx_pool_cleanup_t             * cln;
-	ngx_cached_open_file_t         * file;
-	ngx_pool_cleanup_file_t        * clnf;
+	ngx_pool_cleanup_t   * cln;
+	ngx_cached_open_file_t  * file;
+	ngx_pool_cleanup_file_t * clnf;
 	ngx_open_file_cache_cleanup_t  * ofcln;
 
 	of->fd = NGX_INVALID_FILE;
@@ -572,7 +559,7 @@ static ngx_fd_t ngx_open_file_wrapper(ngx_str_t * name, ngx_open_file_info_t * o
 
 #else
 
-	u_char           * p, * cp, * end;
+	u_char * p, * cp, * end;
 	ngx_fd_t at_fd;
 	ngx_str_t at_name;
 
@@ -1009,7 +996,7 @@ static void ngx_expire_old_cached_files(ngx_open_file_cache_t * cache, ngx_uint_
     ngx_log_t * log)
 {
 	time_t now;
-	ngx_queue_t             * q;
+	ngx_queue_t   * q;
 	ngx_cached_open_file_t  * file;
 
 	now = ngx_time();
@@ -1057,7 +1044,7 @@ static void ngx_open_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp,
     ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t       ** p;
-	ngx_cached_open_file_t    * file, * file_temp;
+	ngx_cached_open_file_t  * file, * file_temp;
 
 	for(;; ) {
 		if(node->key < temp->key) {
@@ -1092,7 +1079,7 @@ static ngx_cached_open_file_t * ngx_open_file_lookup(ngx_open_file_cache_t * cac
     uint32_t hash)
 {
 	ngx_int_t rc;
-	ngx_rbtree_node_t       * node, * sentinel;
+	ngx_rbtree_node_t  * node, * sentinel;
 	ngx_cached_open_file_t  * file;
 
 	node = cache->rbtree.root;
@@ -1128,7 +1115,7 @@ static ngx_cached_open_file_t * ngx_open_file_lookup(ngx_open_file_cache_t * cac
 static void ngx_open_file_cache_remove(ngx_event_t * ev)
 {
 	ngx_open_file_cache_event_t  * fev = (ngx_open_file_cache_event_t  *)ev->data;
-	ngx_cached_open_file_t       * file = fev->file;
+	ngx_cached_open_file_t  * file = fev->file;
 	ngx_queue_remove(&file->queue);
 	ngx_rbtree_delete(&fev->cache->rbtree, &file->node);
 	fev->cache->current--;

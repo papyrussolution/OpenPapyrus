@@ -70,7 +70,7 @@ void ngx_destroy_pool(ngx_pool_t * pool)
 
 void ngx_reset_pool(ngx_pool_t * pool)
 {
-	ngx_pool_t        * p;
+	ngx_pool_t * p;
 	ngx_pool_large_t  * l;
 	for(l = pool->large; l; l = l->next) {
 		if(l->alloc) {
@@ -108,7 +108,7 @@ void * ngx_pnalloc(ngx_pool_t * pool, size_t size)
 
 static ngx_inline void * ngx_palloc_small(ngx_pool_t * pool, size_t size, ngx_uint_t align)
 {
-	u_char      * m;
+	u_char * m;
 	ngx_pool_t  * p = pool->current;
 	do {
 		m = p->d.last;
@@ -241,7 +241,7 @@ ngx_pool_cleanup_t * ngx_pool_cleanup_add(ngx_pool_t * p, size_t size)
 
 void ngx_pool_run_cleanup_file(ngx_pool_t * p, ngx_fd_t fd)
 {
-	ngx_pool_cleanup_t       * c;
+	ngx_pool_cleanup_t  * c;
 	ngx_pool_cleanup_file_t  * cf;
 	for(c = p->cleanup; c; c = c->next) {
 		if(c->handler == ngx_pool_cleanup_file) {
@@ -285,7 +285,7 @@ void ngx_pool_delete_file(void * data)
 
 static void * ngx_get_cached_block(size_t size)
 {
-	void                     * p;
+	void * p;
 	ngx_cached_block_slot_t  * slot;
 
 	if(ngx_cycle->cache == NULL) {

@@ -2914,7 +2914,7 @@ SLTEST_R(SDraw)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

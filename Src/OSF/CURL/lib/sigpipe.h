@@ -25,52 +25,48 @@
 
 #if defined(HAVE_SIGNAL_H) && defined(HAVE_SIGACTION) && defined(USE_OPENSSL)
 
-struct sigpipe_ignore {
-	struct sigaction old_pipe_act;
-	bool no_signal;
-};
+	struct sigpipe_ignore {
+		struct sigaction old_pipe_act;
+		bool no_signal;
+	};
 
-#define SIGPIPE_VARIABLE(x) struct sigpipe_ignore x
-
-/*
- * sigpipe_ignore() makes sure we ignore SIGPIPE while running libcurl
- * internals, and then sigpipe_restore() will restore the situation when we
- * return from libcurl again.
- */
-static void sigpipe_ignore(struct Curl_easy * data, struct sigpipe_ignore * ig)
-{
-	/* get a local copy of no_signal because the Curl_easy might not be
-	   around when we restore */
-	ig->no_signal = data->set.no_signal;
-	if(!data->set.no_signal) {
-		struct sigaction action;
-		/* first, extract the existing situation */
-		memzero(&ig->old_pipe_act, sizeof(struct sigaction));
-		sigaction(SIGPIPE, NULL, &ig->old_pipe_act);
-		action = ig->old_pipe_act;
-		/* ignore this signal */
-		action.sa_handler = SIG_IGN;
-		sigaction(SIGPIPE, &action, 0);
+	#define SIGPIPE_VARIABLE(x) struct sigpipe_ignore x
+	/*
+	 * sigpipe_ignore() makes sure we ignore SIGPIPE while running libcurl
+	 * internals, and then sigpipe_restore() will restore the situation when we
+	 * return from libcurl again.
+	 */
+	static void sigpipe_ignore(struct Curl_easy * data, struct sigpipe_ignore * ig)
+	{
+		/* get a local copy of no_signal because the Curl_easy might not be
+		   around when we restore */
+		ig->no_signal = data->set.no_signal;
+		if(!data->set.no_signal) {
+			struct sigaction action;
+			/* first, extract the existing situation */
+			memzero(&ig->old_pipe_act, sizeof(struct sigaction));
+			sigaction(SIGPIPE, NULL, &ig->old_pipe_act);
+			action = ig->old_pipe_act;
+			/* ignore this signal */
+			action.sa_handler = SIG_IGN;
+			sigaction(SIGPIPE, &action, 0);
+		}
 	}
-}
-
-/*
- * sigpipe_restore() puts back the outside world's opinion of signal handler
- * and SIGPIPE handling. It MUST only be called after a corresponding
- * sigpipe_ignore() was used.
- */
-static void sigpipe_restore(struct sigpipe_ignore * ig)
-{
-	if(!ig->no_signal)
-		/* restore the outside state */
-		sigaction(SIGPIPE, &ig->old_pipe_act, 0);
-}
-
+	/*
+	 * sigpipe_restore() puts back the outside world's opinion of signal handler
+	 * and SIGPIPE handling. It MUST only be called after a corresponding
+	 * sigpipe_ignore() was used.
+	 */
+	static void sigpipe_restore(struct sigpipe_ignore * ig)
+	{
+		if(!ig->no_signal)
+			sigaction(SIGPIPE, &ig->old_pipe_act, 0); // restore the outside state 
+	}
 #else
-/* for systems without sigaction */
-#define sigpipe_ignore(x, y) Curl_nop_stmt
-#define sigpipe_restore(x)  Curl_nop_stmt
-#define SIGPIPE_VARIABLE(x)
+	// for systems without sigaction 
+	#define sigpipe_ignore(x, y) Curl_nop_stmt
+	#define sigpipe_restore(x)  Curl_nop_stmt
+	#define SIGPIPE_VARIABLE(x)
 #endif
 
 #endif /* HEADER_CURL_SIGPIPE_H */

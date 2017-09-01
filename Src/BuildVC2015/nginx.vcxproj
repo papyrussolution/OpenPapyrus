@@ -833,17 +833,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\nginx\src\include\nginx.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_array.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_config.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_headers.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_buf.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_config.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_conf_file.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_connection.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_crc.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_crc32.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_crypt.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_cycle.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_connect.h" />
@@ -851,25 +846,16 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_pipe.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_posted.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_timer.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_file.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_hash.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_cache.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_config.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_core_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_perl_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_request.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_script.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_ssi_filter_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_ssl_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_upstream.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_upstream_round_robin.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_variables.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_inet.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_iocp_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_list.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_log.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_mail.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_imap_module.h" />
@@ -878,21 +864,12 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_ssl_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_md5.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_murmurhash.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_open_file_cache.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_palloc.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_parse.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_parse_time.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_proxy_protocol.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_queue.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_radix_tree.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_rbtree.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_regex.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_resolver.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_rwlock.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_shmtx.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_slab.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_script.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_ssl_module.h" />
@@ -900,8 +877,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_upstream_round_robin.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_variables.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_string.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_syslog.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_thread_pool.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_times.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_alloc.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_atomic.h" />
@@ -915,7 +890,6 @@
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_socket.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_thread.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_time.h" />
-    <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_user.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_win32_config.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

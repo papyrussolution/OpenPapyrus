@@ -53,9 +53,9 @@ ngx_module_t ngx_stream_upstream_zone_module = {
 static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ssize_t size;
-	ngx_str_t                        * value;
+	ngx_str_t * value;
 	ngx_stream_upstream_main_conf_t  * umcf;
-	ngx_stream_upstream_srv_conf_t   * uscf = (ngx_stream_upstream_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_upstream_module);
+	ngx_stream_upstream_srv_conf_t * uscf = (ngx_stream_upstream_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_upstream_module);
 	umcf = (ngx_stream_upstream_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_upstream_module);
 	value = (ngx_str_t*)cf->args->elts;
 	if(!value[1].len) {
@@ -90,9 +90,9 @@ static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void *
 {
 	size_t len;
 	ngx_uint_t i;
-	ngx_slab_pool_t                  * shpool;
-	ngx_stream_upstream_rr_peers_t   * peers, ** peersp;
-	ngx_stream_upstream_srv_conf_t   * uscf, ** uscfp;
+	ngx_slab_pool_t  * shpool;
+	ngx_stream_upstream_rr_peers_t * peers, ** peersp;
+	ngx_stream_upstream_srv_conf_t * uscf, ** uscfp;
 	ngx_stream_upstream_main_conf_t  * umcf;
 
 	shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
@@ -145,7 +145,7 @@ static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void *
 static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_slab_pool_t * shpool,
     ngx_stream_upstream_srv_conf_t * uscf)
 {
-	ngx_stream_upstream_rr_peer_t   * peer, ** peerp;
+	ngx_stream_upstream_rr_peer_t * peer, ** peerp;
 	ngx_stream_upstream_rr_peers_t  * peers, * backup;
 
 	peers = (ngx_stream_upstream_rr_peers_t *)ngx_slab_alloc(shpool, sizeof(ngx_stream_upstream_rr_peers_t));

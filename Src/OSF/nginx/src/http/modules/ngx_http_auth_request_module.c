@@ -5,40 +5,34 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_auth_request_conf_t {
 	ngx_str_t uri;
-	ngx_array_t              * vars;
-} ngx_http_auth_request_conf_t;
+	ngx_array_t    * vars;
+};
 
-typedef struct {
+struct ngx_http_auth_request_ctx_t {
 	ngx_uint_t done;
 	ngx_uint_t status;
-	ngx_http_request_t       * subrequest;
-} ngx_http_auth_request_ctx_t;
+	ngx_http_request_t  * subrequest;
+};
 
-typedef struct {
+struct ngx_http_auth_request_variable_t {
 	ngx_int_t index;
 	ngx_http_complex_value_t value;
 	ngx_http_set_variable_pt set_handler;
-} ngx_http_auth_request_variable_t;
+};
 
 static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r);
-static ngx_int_t ngx_http_auth_request_done(ngx_http_request_t * r,
-    void * data, ngx_int_t rc);
-static ngx_int_t ngx_http_auth_request_set_variables(ngx_http_request_t * r,
-    ngx_http_auth_request_conf_t * arcf, ngx_http_auth_request_ctx_t * ctx);
-static ngx_int_t ngx_http_auth_request_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_int_t ngx_http_auth_request_done(ngx_http_request_t * r, void * data, ngx_int_t rc);
+static ngx_int_t ngx_http_auth_request_set_variables(ngx_http_request_t * r, ngx_http_auth_request_conf_t * arcf, ngx_http_auth_request_ctx_t * ctx);
+static ngx_int_t ngx_http_auth_request_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static void * ngx_http_auth_request_create_conf(ngx_conf_t * cf);
-static char * ngx_http_auth_request_merge_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_auth_request_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_auth_request_init(ngx_conf_t * cf);
-static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_http_auth_request_commands[] = {
 	{ ngx_string("auth_request"),
@@ -89,10 +83,10 @@ ngx_module_t ngx_http_auth_request_module = {
 
 static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 {
-	ngx_table_elt_t               * h, * ho;
-	ngx_http_request_t            * sr;
-	ngx_http_post_subrequest_t    * ps;
-	ngx_http_auth_request_ctx_t   * ctx;
+	ngx_table_elt_t * h, * ho;
+	ngx_http_request_t  * sr;
+	ngx_http_post_subrequest_t  * ps;
+	ngx_http_auth_request_ctx_t * ctx;
 	ngx_http_auth_request_conf_t  * arcf;
 	arcf = (ngx_http_auth_request_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_auth_request_module);
 	if(arcf->uri.len == 0) {
@@ -100,53 +94,41 @@ static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 	}
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "auth request handler");
 	ctx = (ngx_http_auth_request_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_auth_request_module);
-	if(ctx != NULL) {
+	if(ctx) {
 		if(!ctx->done) {
 			return NGX_AGAIN;
 		}
-
 		/*
 		 * as soon as we are done - explicitly set variables to make
 		 * sure they will be available after internal redirects
 		 */
-
 		if(ngx_http_auth_request_set_variables(r, arcf, ctx) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		/* return appropriate status */
-
 		if(ctx->status == NGX_HTTP_FORBIDDEN) {
 			return ctx->status;
 		}
-
 		if(ctx->status == NGX_HTTP_UNAUTHORIZED) {
 			sr = ctx->subrequest;
-
 			h = sr->headers_out.www_authenticate;
-
 			if(!h && sr->upstream) {
 				h = sr->upstream->headers_in.www_authenticate;
 			}
-
 			if(h) {
 				ho = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
 				if(ho == NULL) {
 					return NGX_ERROR;
 				}
-
 				*ho = *h;
-
 				r->headers_out.www_authenticate = ho;
 			}
-
 			return ctx->status;
 		}
 		if(ctx->status >= NGX_HTTP_OK && ctx->status < NGX_HTTP_SPECIAL_RESPONSE) {
 			return NGX_OK;
 		}
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "auth request unexpected status: %ui", ctx->status);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "auth request unexpected status: %ui", ctx->status);
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	ctx = (ngx_http_auth_request_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_auth_request_ctx_t));
@@ -181,92 +163,71 @@ static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_auth_request_done(ngx_http_request_t * r, void * data, ngx_int_t rc)
 {
-	ngx_http_auth_request_ctx_t   * ctx = (ngx_http_auth_request_ctx_t *)data;
+	ngx_http_auth_request_ctx_t * ctx = (ngx_http_auth_request_ctx_t *)data;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "auth request done s:%ui", r->headers_out.status);
 	ctx->done = 1;
 	ctx->status = r->headers_out.status;
 	return rc;
 }
 
-static ngx_int_t ngx_http_auth_request_set_variables(ngx_http_request_t * r,
-    ngx_http_auth_request_conf_t * arcf, ngx_http_auth_request_ctx_t * ctx)
+static ngx_int_t ngx_http_auth_request_set_variables(ngx_http_request_t * r, ngx_http_auth_request_conf_t * arcf, ngx_http_auth_request_ctx_t * ctx)
 {
 	ngx_str_t val;
-	ngx_http_variable_t               * v;
-	ngx_http_variable_value_t         * vv;
+	ngx_http_variable_t * v;
+	ngx_http_variable_value_t  * vv;
 	ngx_http_auth_request_variable_t  * av, * last;
-	ngx_http_core_main_conf_t         * cmcf;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "auth request set variables");
-
+	ngx_http_core_main_conf_t  * cmcf;
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "auth request set variables");
 	if(arcf->vars == NULL) {
 		return NGX_OK;
 	}
-
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_get_module_main_conf(r, ngx_http_core_module);
 	v = (ngx_http_variable_t*)cmcf->variables.elts;
-
 	av = (ngx_http_auth_request_variable_t *)arcf->vars->elts;
 	last = av + arcf->vars->nelts;
-
 	while(av < last) {
 		/*
 		 * explicitly set new value to make sure it will be available after
 		 * internal redirects
 		 */
-
 		vv = &r->variables[av->index];
-
-		if(ngx_http_complex_value(ctx->subrequest, &av->value, &val)
-		    != NGX_OK) {
+		if(ngx_http_complex_value(ctx->subrequest, &av->value, &val) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		vv->valid = 1;
 		vv->not_found = 0;
 		vv->data = val.data;
 		vv->len = val.len;
-
 		if(av->set_handler) {
 			/*
 			 * set_handler only available in cmcf->variables_keys, so we store
 			 * it explicitly
 			 */
-
 			av->set_handler(r, vv, v[av->index].data);
 		}
-
 		av++;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_auth_request_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_auth_request_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "auth request variable");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "auth request variable");
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
 static void * ngx_http_auth_request_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_auth_request_conf_t  * conf;
-	conf = (ngx_http_auth_request_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_auth_request_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_auth_request_conf_t  * conf = (ngx_http_auth_request_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_auth_request_conf_t));
+	if(conf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     conf->uri = { 0, NULL };
+		 */
+		conf->vars = (ngx_array_t*)NGX_CONF_UNSET_PTR;
 	}
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     conf->uri = { 0, NULL };
-	 */
-	conf->vars = (ngx_array_t*)NGX_CONF_UNSET_PTR;
 	return conf;
 }
 
@@ -276,54 +237,43 @@ static char * ngx_http_auth_request_merge_conf(ngx_conf_t * cf, void * parent, v
 	ngx_http_auth_request_conf_t * conf = (ngx_http_auth_request_conf_t *)child;
 	ngx_conf_merge_str_value(conf->uri, prev->uri, "");
 	ngx_conf_merge_ptr_value(conf->vars, prev->vars, NULL);
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_auth_request_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
-	ngx_http_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-
-	h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers);
+	ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+	ngx_http_handler_pt * h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-
 	*h = ngx_http_auth_request_handler;
-
 	return NGX_OK;
 }
 
 static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_auth_request_conf_t * arcf = (ngx_http_auth_request_conf_t *)conf;
-	ngx_str_t        * value;
-	if(arcf->uri.data != NULL) {
+	if(arcf->uri.data) {
 		return "is duplicate";
 	}
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	if(ngx_strcmp(value[1].data, "off") == 0) {
-		arcf->uri.len = 0;
-		arcf->uri.data = (u_char*)"";
-
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		if(ngx_strcmp(value[1].data, "off") == 0) {
+			arcf->uri.len = 0;
+			arcf->uri.data = (u_char*)"";
+			return NGX_CONF_OK;
+		}
+		arcf->uri = value[1];
 		return NGX_CONF_OK;
 	}
-
-	arcf->uri = value[1];
-
-	return NGX_CONF_OK;
 }
 
 static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_auth_request_conf_t * arcf = (ngx_http_auth_request_conf_t *)conf;
-	ngx_str_t                         * value;
-	ngx_http_variable_t               * v;
+	ngx_str_t * value;
+	ngx_http_variable_t * v;
 	ngx_http_auth_request_variable_t  * av;
 	ngx_http_compile_complex_value_t ccv;
 	value = (ngx_str_t*)cf->args->elts;
@@ -331,50 +281,38 @@ static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, vo
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;
 	}
-
 	value[1].len--;
 	value[1].data++;
-
 	if(arcf->vars == NGX_CONF_UNSET_PTR) {
-		arcf->vars = ngx_array_create(cf->pool, 1,
-		    sizeof(ngx_http_auth_request_variable_t));
+		arcf->vars = ngx_array_create(cf->pool, 1, sizeof(ngx_http_auth_request_variable_t));
 		if(arcf->vars == NULL) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	av = (ngx_http_auth_request_variable_t *)ngx_array_push(arcf->vars);
 	if(av == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	v = ngx_http_add_variable(cf, &value[1], NGX_HTTP_VAR_CHANGEABLE);
 	if(v == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	av->index = ngx_http_get_variable_index(cf, &value[1]);
 	if(av->index == NGX_ERROR) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(v->get_handler == NULL) {
 		v->get_handler = ngx_http_auth_request_variable;
 		v->data = (uintptr_t)av;
 	}
-
 	av->set_handler = v->set_handler;
-
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = &value[2];
 	ccv.complex_value = &av->value;
-
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
 }
 

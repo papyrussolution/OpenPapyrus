@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	u_char color;
@@ -27,15 +27,15 @@ typedef struct {
 
 typedef struct {
 	ngx_http_limit_req_shctx_t  * sh;
-	ngx_slab_pool_t             * shpool;
+	ngx_slab_pool_t   * shpool;
 	/* integer value, 1 corresponds to 0.001 r/s */
 	ngx_uint_t rate;
 	ngx_http_complex_value_t key;
-	ngx_http_limit_req_node_t   * node;
+	ngx_http_limit_req_node_t * node;
 } ngx_http_limit_req_ctx_t;
 
 typedef struct {
-	ngx_shm_zone_t              * shm_zone;
+	ngx_shm_zone_t    * shm_zone;
 	/* integer value, 1 corresponds to 0.001 r/s */
 	ngx_uint_t burst;
 	ngx_uint_t nodelay;               /* unsigned  nodelay:1 */
@@ -145,8 +145,8 @@ static ngx_int_t ngx_http_limit_req_handler(ngx_http_request_t * r)
 	ngx_int_t rc;
 	ngx_uint_t n, excess;
 	ngx_msec_t delay;
-	ngx_http_limit_req_ctx_t    * ctx;
-	ngx_http_limit_req_conf_t   * lrcf;
+	ngx_http_limit_req_ctx_t  * ctx;
+	ngx_http_limit_req_conf_t * lrcf;
 	ngx_http_limit_req_limit_t  * limit, * limits;
 
 	if(r->main->limit_req_set) {
@@ -296,8 +296,8 @@ static void ngx_http_limit_req_delay(ngx_http_request_t * r)
 static void ngx_http_limit_req_rbtree_insert_value(ngx_rbtree_node_t * temp,
     ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
-	ngx_rbtree_node_t          ** p;
-	ngx_http_limit_req_node_t   * lrn, * lrnt;
+	ngx_rbtree_node_t ** p;
+	ngx_http_limit_req_node_t * lrn, * lrnt;
 
 	for(;; ) {
 		if(node->key < temp->key) {
@@ -335,8 +335,8 @@ static ngx_int_t ngx_http_limit_req_lookup(ngx_http_limit_req_limit_t * limit, n
 	ngx_int_t rc, excess;
 	ngx_msec_t now;
 	ngx_msec_int_t ms;
-	ngx_rbtree_node_t          * node, * sentinel;
-	ngx_http_limit_req_ctx_t   * ctx;
+	ngx_rbtree_node_t   * node, * sentinel;
+	ngx_http_limit_req_ctx_t * ctx;
 	ngx_http_limit_req_node_t  * lr;
 
 	now = ngx_current_msec;
@@ -449,7 +449,7 @@ static ngx_msec_t ngx_http_limit_req_account(ngx_http_limit_req_limit_t * limits
 {
 	ngx_msec_t now, delay, max_delay;
 	ngx_msec_int_t ms;
-	ngx_http_limit_req_ctx_t   * ctx;
+	ngx_http_limit_req_ctx_t * ctx;
 	ngx_http_limit_req_node_t  * lr;
 	ngx_int_t excess = *ep;
 	if(excess == 0 || (*limit)->nodelay) {
@@ -494,9 +494,9 @@ static ngx_msec_t ngx_http_limit_req_account(ngx_http_limit_req_limit_t * limits
 static void ngx_http_limit_req_expire(ngx_http_limit_req_ctx_t * ctx, ngx_uint_t n)
 {
 	ngx_int_t excess;
-	ngx_queue_t                * q;
+	ngx_queue_t  * q;
 	ngx_msec_int_t ms;
-	ngx_rbtree_node_t          * node;
+	ngx_rbtree_node_t   * node;
 	ngx_http_limit_req_node_t  * lr;
 	ngx_msec_t now = ngx_current_msec;
 	/*
@@ -578,8 +578,7 @@ static ngx_int_t ngx_http_limit_req_init_zone(ngx_shm_zone_t * shm_zone, void * 
 
 static void * ngx_http_limit_req_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_limit_req_conf_t  * conf;
-	conf = (ngx_http_limit_req_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_req_conf_t));
+	ngx_http_limit_req_conf_t  * conf = (ngx_http_limit_req_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_req_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}

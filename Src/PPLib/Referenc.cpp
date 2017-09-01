@@ -2694,11 +2694,13 @@ SLTEST_R(Reference_EnumItems)
 	if(!pBenchmark) {
 		THROW(SLTEST_CHECK_NZ(item_list1.IsEqual(item_list2)));
 	}
-	CATCHZOK
+	CATCH
+		ok = CurrentStatus = 0;
+	ENDCATCH
 	delete p_rng;
 	if(hdl_enum >= 0)
 		p_tbl->DestroyIter(hdl_enum);
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

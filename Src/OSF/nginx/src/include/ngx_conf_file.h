@@ -2,19 +2,16 @@
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_CONF_FILE_H_INCLUDED_
 #define _NGX_CONF_FILE_H_INCLUDED_
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-
 /*
  *        AAAA  number of arguments
  *      FF      command flags
  *    TT        command type, i.e. HTTP "location" or "server" command
  */
-
 #define NGX_CONF_NOARGS      0x00000001
 #define NGX_CONF_TAKE1       0x00000002
 #define NGX_CONF_TAKE2       0x00000004
@@ -83,140 +80,91 @@ struct ngx_open_file_s {
 	void * data;
 };
 
-typedef struct {
+struct ngx_conf_file_t {
 	ngx_file_t file;
-	ngx_buf_t            * buffer;
-	ngx_buf_t            * dump;
+	ngx_buf_t * buffer;
+	ngx_buf_t * dump;
 	ngx_uint_t line;
-} ngx_conf_file_t;
+};
 
-typedef struct {
+struct ngx_conf_dump_t {
 	ngx_str_t name;
-	ngx_buf_t            * buffer;
-} ngx_conf_dump_t;
+	ngx_buf_t * buffer;
+};
 
-typedef char *(*ngx_conf_handler_pt)(ngx_conf_t * cf,
-    ngx_command_t * dummy, void * conf);
+typedef char *(*ngx_conf_handler_pt)(ngx_conf_t * cf, ngx_command_t * dummy, void * conf);
 
 struct ngx_conf_s {
-	char                 * name;
-	ngx_array_t          * args;
-
-	ngx_cycle_t          * cycle;
-	ngx_pool_t           * pool;
-	ngx_pool_t           * temp_pool;
-	ngx_conf_file_t      * conf_file;
-	ngx_log_t            * log;
-	void                 * ctx;
+	char * name;
+	ngx_array_t * args;
+	ngx_cycle_t * cycle;
+	ngx_pool_t  * pool;
+	ngx_pool_t  * temp_pool;
+	ngx_conf_file_t * conf_file;
+	ngx_log_t * log;
+	void * ctx;
 	ngx_uint_t module_type;
 	ngx_uint_t cmd_type;
 	ngx_conf_handler_pt handler;
-	char                 * handler_conf;
+	char * handler_conf;
 };
 
 typedef char *(*ngx_conf_post_handler_pt)(ngx_conf_t * cf, void * data, void * conf);
 
-typedef struct {
+struct ngx_conf_post_t {
 	ngx_conf_post_handler_pt post_handler;
-} ngx_conf_post_t;
+};
 
-typedef struct {
+struct ngx_conf_deprecated_t {
 	ngx_conf_post_handler_pt post_handler;
 	char * old_name;
 	char * new_name;
-} ngx_conf_deprecated_t;
+};
 
-typedef struct {
+struct ngx_conf_num_bounds_t {
 	ngx_conf_post_handler_pt post_handler;
 	ngx_int_t low;
 	ngx_int_t high;
-} ngx_conf_num_bounds_t;
+};
 
-typedef struct {
+struct ngx_conf_enum_t {
 	ngx_str_t name;
 	ngx_uint_t value;
-} ngx_conf_enum_t;
+};
 
 #define NGX_CONF_BITMASK_SET  1
 
-typedef struct {
+struct ngx_conf_bitmask_t {
 	ngx_str_t name;
 	ngx_uint_t mask;
-} ngx_conf_bitmask_t;
+};
 
 char * ngx_conf_deprecated(ngx_conf_t * cf, void * post, void * data);
 char * ngx_conf_check_num_bounds(ngx_conf_t * cf, void * post, void * data);
 
 #define ngx_get_conf(conf_ctx, module)  conf_ctx[module.index]
 
-#define ngx_conf_init_value(conf, default)				     \
-	if(conf == NGX_CONF_UNSET) {						\
-		conf = default;							     \
-	}
+#define ngx_conf_init_value(conf, _default)      if(conf == NGX_CONF_UNSET) { conf = _default; }
+#define ngx_conf_init_ptr_value(conf, _default)  if(conf == NGX_CONF_UNSET_PTR) { conf = _default; }
+#define ngx_conf_init_uint_value(conf, _default) if(conf == NGX_CONF_UNSET_UINT) { conf = _default; }
+#define ngx_conf_init_size_value(conf, _default) if(conf == NGX_CONF_UNSET_SIZE) { conf = _default; }
+#define ngx_conf_init_msec_value(conf, _default) if(conf == NGX_CONF_UNSET_MSEC) { conf = _default; }
+#define ngx_conf_merge_value(conf, prev, _default) if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
+#define ngx_conf_merge_ptr_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET_PTR) { conf = (prev == NGX_CONF_UNSET_PTR) ? _default : prev; }
+#define ngx_conf_merge_uint_value(conf, prev, _default) if(conf == NGX_CONF_UNSET_UINT) { conf = (prev == NGX_CONF_UNSET_UINT) ? _default : prev; }
+#define ngx_conf_merge_msec_value(conf, prev, _default) if(conf == NGX_CONF_UNSET_MSEC) { conf = (prev == NGX_CONF_UNSET_MSEC) ? _default : prev; }
+#define ngx_conf_merge_sec_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
+#define ngx_conf_merge_size_value(conf, prev, _default) if(conf == NGX_CONF_UNSET_SIZE) { conf = (prev == NGX_CONF_UNSET_SIZE) ? _default : prev; }
+#define ngx_conf_merge_off_value(conf, prev, _default)  if(conf == NGX_CONF_UNSET) { conf = (prev == NGX_CONF_UNSET) ? _default : prev; }
 
-#define ngx_conf_init_ptr_value(conf, default)				     \
-	if(conf == NGX_CONF_UNSET_PTR) {					\
-		conf = default;							     \
-	}
-
-#define ngx_conf_init_uint_value(conf, default)				     \
-	if(conf == NGX_CONF_UNSET_UINT) {					\
-		conf = default;							     \
-	}
-
-#define ngx_conf_init_size_value(conf, default)				     \
-	if(conf == NGX_CONF_UNSET_SIZE) {					\
-		conf = default;							     \
-	}
-
-#define ngx_conf_init_msec_value(conf, default)				     \
-	if(conf == NGX_CONF_UNSET_MSEC) {					\
-		conf = default;							     \
-	}
-
-#define ngx_conf_merge_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET) {						\
-		conf = (prev == NGX_CONF_UNSET) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_ptr_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET_PTR) {					\
-		conf = (prev == NGX_CONF_UNSET_PTR) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_uint_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET_UINT) {					\
-		conf = (prev == NGX_CONF_UNSET_UINT) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_msec_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET_MSEC) {					\
-		conf = (prev == NGX_CONF_UNSET_MSEC) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_sec_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET) {						\
-		conf = (prev == NGX_CONF_UNSET) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_size_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET_SIZE) {					\
-		conf = (prev == NGX_CONF_UNSET_SIZE) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_off_value(conf, prev, default)			     \
-	if(conf == NGX_CONF_UNSET) {						\
-		conf = (prev == NGX_CONF_UNSET) ? default : prev;		     \
-	}
-
-#define ngx_conf_merge_str_value(conf, prev, default)			     \
+#define ngx_conf_merge_str_value(conf, prev, _default)			     \
 	if(conf.data == NULL) {							\
 		if(prev.data) {							    \
 			conf.len = prev.len;						 \
 			conf.data = prev.data;						 \
 		} else {							     \
-			conf.len = sizeof(default) - 1;					 \
-			conf.data = (u_char*)default;				       \
+			conf.len = sizeof(_default) - 1;					 \
+			conf.data = (u_char*)_default;				       \
 		}								     \
 	}
 
@@ -231,10 +179,7 @@ char * ngx_conf_check_num_bounds(ngx_conf_t * cf, void * post, void * data);
 		}								     \
 	}
 
-#define ngx_conf_merge_bitmask_value(conf, prev, default)		     \
-	if(conf == 0) {								\
-		conf = (prev == 0) ? default : prev;				     \
-	}
+#define ngx_conf_merge_bitmask_value(conf, prev, _default) if(conf == 0) { conf = (prev == 0) ? _default : prev; }
 
 char * ngx_conf_param(ngx_conf_t * cf);
 char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename);

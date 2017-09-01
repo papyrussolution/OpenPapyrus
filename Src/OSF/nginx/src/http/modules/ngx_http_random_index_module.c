@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -6,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_flag_t enable;
@@ -63,7 +62,7 @@ ngx_module_t ngx_http_random_index_module = {
 
 static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 {
-	u_char                            * last, * filename;
+	u_char   * last, * filename;
 	size_t len, allocated, root;
 	ngx_err_t err;
 	ngx_int_t rc;
@@ -244,27 +243,22 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 	return ngx_http_internal_redirect(r, &uri, &r->args);
 }
 
-static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r, ngx_dir_t * dir,
-    ngx_str_t * name)
+static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r, ngx_dir_t * dir, ngx_str_t * name)
 {
 	if(ngx_close_dir(dir) == NGX_ERROR) {
 		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno,
 		    ngx_close_dir_n " \"%V\" failed", name);
 	}
-
 	return NGX_HTTP_INTERNAL_SERVER_ERROR;
 }
 
 static void * ngx_http_random_index_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_random_index_loc_conf_t  * conf;
-	conf = (ngx_http_random_index_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_random_index_loc_conf_t));
+	ngx_http_random_index_loc_conf_t  * conf = (ngx_http_random_index_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_random_index_loc_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}
-
 	conf->enable = NGX_CONF_UNSET;
-
 	return conf;
 }
 

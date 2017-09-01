@@ -5,11 +5,11 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
-	ngx_array_t           * lengths;
-	ngx_array_t           * values;
+	ngx_array_t * lengths;
+	ngx_array_t * values;
 	ngx_str_t name;
 
 	unsigned code : 10;
@@ -17,7 +17,7 @@ typedef struct {
 } ngx_http_try_file_t;
 
 typedef struct {
-	ngx_http_try_file_t   * try_files;
+	ngx_http_try_file_t * try_files;
 } ngx_http_try_files_loc_conf_t;
 
 static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r);
@@ -68,14 +68,14 @@ ngx_module_t ngx_http_try_files_module = {
 static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 {
 	size_t len, root, alias, reserve, allocated;
-	u_char                         * p, * name;
+	u_char  * p, * name;
 	ngx_str_t path, args;
 	ngx_uint_t test_dir;
-	ngx_http_try_file_t            * tf;
+	ngx_http_try_file_t  * tf;
 	ngx_open_file_info_t of;
 	ngx_http_script_code_pt code;
 	ngx_http_script_engine_t e;
-	ngx_http_core_loc_conf_t       * clcf;
+	ngx_http_core_loc_conf_t  * clcf;
 	ngx_http_script_len_code_pt lcode;
 	ngx_http_try_files_loc_conf_t  * tlcf;
 	tlcf = (ngx_http_try_files_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_try_files_module);
@@ -266,10 +266,10 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_try_files_loc_conf_t * tlcf = (ngx_http_try_files_loc_conf_t *)conf;
-	ngx_str_t                  * value;
+	ngx_str_t  * value;
 	ngx_int_t code;
 	ngx_uint_t i, n;
-	ngx_http_try_file_t        * tf;
+	ngx_http_try_file_t * tf;
 	ngx_http_script_compile_t sc;
 	if(tlcf->try_files) {
 		return "is duplicate";
@@ -350,7 +350,7 @@ static void * ngx_http_try_files_create_loc_conf(ngx_conf_t * cf)
 
 static ngx_int_t ngx_http_try_files_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
+	ngx_http_handler_pt * h;
 	ngx_http_core_main_conf_t  * cmcf;
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 	h = (ngx_http_handler_pt*)ngx_array_push(&cmcf->phases[NGX_HTTP_PRECONTENT_PHASE].handlers);

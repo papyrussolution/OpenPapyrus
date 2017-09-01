@@ -675,7 +675,7 @@ SLTEST_R(FileSort)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

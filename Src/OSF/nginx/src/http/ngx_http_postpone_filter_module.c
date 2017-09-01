@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
@@ -6,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static ngx_int_t ngx_http_postpone_filter_add(ngx_http_request_t * r,
     ngx_chain_t * in);
@@ -45,7 +44,7 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 static ngx_int_t ngx_http_postpone_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	ngx_connection_t              * c;
+	ngx_connection_t    * c;
 	ngx_http_postponed_request_t  * pr;
 
 	c = r->connection;

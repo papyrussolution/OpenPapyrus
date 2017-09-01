@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_array_t  * mirror;
@@ -75,7 +75,7 @@ ngx_module_t ngx_http_mirror_module = {
 static ngx_int_t ngx_http_mirror_handler(ngx_http_request_t * r)
 {
 	ngx_int_t rc;
-	ngx_http_mirror_ctx_t       * ctx;
+	ngx_http_mirror_ctx_t  * ctx;
 	ngx_http_mirror_loc_conf_t  * mlcf;
 
 	if(r != r->main) {
@@ -130,9 +130,9 @@ static void ngx_http_mirror_body_handler(ngx_http_request_t * r)
 
 static ngx_int_t ngx_http_mirror_handler_internal(ngx_http_request_t * r)
 {
-	ngx_str_t                   * name;
+	ngx_str_t * name;
 	ngx_uint_t i;
-	ngx_http_request_t          * sr;
+	ngx_http_request_t   * sr;
 	ngx_http_mirror_loc_conf_t  * mlcf;
 
 	mlcf = (ngx_http_mirror_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_mirror_module);
@@ -211,7 +211,7 @@ static char * ngx_http_mirror(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 
 static ngx_int_t ngx_http_mirror_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
+	ngx_http_handler_pt * h;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);

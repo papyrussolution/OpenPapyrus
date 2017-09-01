@@ -2210,7 +2210,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								}
 								n_h.PutInnerSkipEmpty("wb:Base", ""); // Основание
 								{
-									temp_buf = 0;
+									temp_buf.Z();
 									if(is_intrexpend) {
 										temp_buf.CatEq(P_IntrExpndNotePrefix, p_bp->Rec.ID);
 									}
@@ -2224,9 +2224,68 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
                         }
                         {
                         	SXml::WNode w_c(_doc, "wb:Content");
+                        	LongArray seen_pos_list;
+                        	SString ref_a;
+                        	SString ref_b;
+                        	SString ref_b_fw;
                         	for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
+								if(!seen_pos_list.lsearch(tidx) && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, r_ti.LotID, 0, 0, agi) > 0) {
+									double qtty = fabs(r_ti.Qtty());
+									double price = 0.0;
+									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
+									if(wb_type == wbtRetFromMe)
+										price = (op_rec.Flags & OPKF_SELLING) ? fabs(r_ti.NetPrice()) : r_ti.Cost;
+									else
+										price = fabs(r_ti.NetPrice());
+									if(agi.UnpackedVolume > 0.0) {
+										const double mult = agi.UnpackedVolume / 10.0;
+										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
+										price = (price / mult);
+										qtty_fmt = MKSFMTD(0, 3, 0); // @v9.7.10
+									}
+									MEMSZERO(lot_rec);
+									P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
+									P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
+									lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
+									THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, ref_a) > 0, PPERR_EGAIS_NOINFAIDINLOT, lot_text);
+									THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, ref_b) > 0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
+									//
+									// Если товар и лот в двух строках совпадают, то придется сливать такие строки.
+									// В равной степени это касается эквивалентности справок Б (ref_b).
+									//
+									for(uint fw_tidx = tidx+1; fw_tidx < p_bp->GetTCount(); fw_tidx++) {
+										const PPTransferItem & r_fw_ti = p_bp->ConstTI(fw_tidx);
+										if(r_fw_ti.GoodsID == r_ti.GoodsID && !seen_pos_list.lsearch(fw_tidx)) {
+											int   do_merge = 0;
+											if(r_fw_ti.LotID == r_ti.LocID) {
+												do_merge = 1;
+											}
+											else if(p_bp->LTagL.GetTagStr(fw_tidx, PPTAG_LOT_FSRARINFB, ref_b_fw) > 0 && ref_b_fw.CmpNC(ref_b) == 0) {
+												do_merge = 1;
+											}
+											if(do_merge) {
+												double fw_qtty = fabs(r_fw_ti.Qtty());
+												double fw_price = 0.0;
+												if(wb_type == wbtRetFromMe)
+													fw_price = (op_rec.Flags & OPKF_SELLING) ? fabs(r_fw_ti.NetPrice()) : r_fw_ti.Cost;
+												else
+													fw_price = fabs(r_fw_ti.NetPrice());
+												if(agi.UnpackedVolume > 0.0) {
+													const double mult = agi.UnpackedVolume / 10.0;
+													fw_qtty = (fw_qtty * mult); // Неупакованная продукция передается в декалитрах
+													fw_price = (fw_price / mult);
+												}
+												double total_qtty = qtty + fw_qtty;
+												double total_price = ((qtty * price) + (fw_qtty * fw_price)) / total_qtty;
+												qtty = total_qtty;
+												price = total_price;
+												seen_pos_list.add(fw_tidx);
+											}
+										}
+									}
+									seen_pos_list.add(tidx);
+									//
 									SXml::WNode w_p(_doc, "wb:Position");
 									w_p.PutInner("wb:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									{
@@ -2237,39 +2296,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									}
 									w_p.PutInnerSkipEmpty("wb:Pack_ID", "");
 									{
-										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
-										double qtty = fabs(r_ti.Qtty());
-										// @v9.5.2 double price = (wb_type == wbtRetFromMe) ? r_ti.Cost : fabs(r_ti.NetPrice());
-										// @v9.5.2 {
-										double price = 0.0;
-										if(wb_type == wbtRetFromMe)
-                                            price = (op_rec.Flags & OPKF_SELLING) ? fabs(r_ti.NetPrice()) : r_ti.Cost;
-										else
-											price = fabs(r_ti.NetPrice());
-										// } @v9.5.2
-										if(agi.UnpackedVolume > 0.0) {
-											const double mult = agi.UnpackedVolume / 10.0;
-											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
-											price = (price / mult);
-											qtty_fmt = MKSFMTD(0, 3, 0); // @v9.7.10
-										}
 										w_p.PutInner("wb:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
 										w_p.PutInner("wb:Price", EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
 									}
 									p_bp->SnL.GetNumber(tidx, &temp_buf);
 									w_p.PutInnerSkipEmpty("wb:Party", EncText(temp_buf));
-									{
-										MEMSZERO(lot_rec);
-										P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
-										P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
-										lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
-										//
-										THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, temp_buf) > 0, PPERR_EGAIS_NOINFAIDINLOT, lot_text);
-										WriteInformCode(_doc, "wb", 'A', temp_buf, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
-										//
-										THROW_PP_S(p_bp->LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, temp_buf) > 0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
-										WriteInformCode(_doc, "wb", 'B', temp_buf, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
-									}
+									WriteInformCode(_doc, "wb", 'A', ref_a, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
+									WriteInformCode(_doc, "wb", 'B', ref_b, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
 								}
                         	}
                         }

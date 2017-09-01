@@ -7,7 +7,7 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #define NGX_HTTP_CACHE_MISS          1
 #define NGX_HTTP_CACHE_BYPASS        2
@@ -82,13 +82,13 @@ struct ngx_http_cache_s {
 	ngx_uint_t valid_msec;
 	ngx_uint_t vary_tag;
 
-	ngx_buf_t                       * buf;
+	ngx_buf_t   * buf;
 
-	ngx_http_file_cache_t           * file_cache;
-	ngx_http_file_cache_node_t      * node;
+	ngx_http_file_cache_t * file_cache;
+	ngx_http_file_cache_node_t * node;
 
 #if (NGX_THREADS || NGX_COMPAT)
-	ngx_thread_task_t               * thread_task;
+	ngx_thread_task_t * thread_task;
 #endif
 
 	ngx_msec_t lock_timeout;
@@ -144,9 +144,9 @@ typedef struct {
 } ngx_http_file_cache_sh_t;
 
 struct ngx_http_file_cache_s {
-	ngx_http_file_cache_sh_t        * sh;
-	ngx_slab_pool_t                 * shpool;
-	ngx_path_t                      * path;
+	ngx_http_file_cache_sh_t * sh;
+	ngx_slab_pool_t * shpool;
+	ngx_path_t  * path;
 	nginx_off_t max_size;
 	size_t bsize;
 	time_t inactive;
@@ -159,7 +159,7 @@ struct ngx_http_file_cache_s {
 	ngx_uint_t manager_files;
 	ngx_msec_t manager_sleep;
 	ngx_msec_t manager_threshold;
-	ngx_shm_zone_t                  * shm_zone;
+	ngx_shm_zone_t  * shm_zone;
 	ngx_uint_t use_temp_path;
 	/* unsigned use_temp_path:1 */
 };

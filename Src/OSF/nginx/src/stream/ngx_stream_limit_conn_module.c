@@ -15,17 +15,17 @@ typedef struct {
 } ngx_stream_limit_conn_node_t;
 
 typedef struct {
-	ngx_shm_zone_t              * shm_zone;
-	ngx_rbtree_node_t           * node;
+	ngx_shm_zone_t    * shm_zone;
+	ngx_rbtree_node_t * node;
 } ngx_stream_limit_conn_cleanup_t;
 
 typedef struct {
-	ngx_rbtree_t                * rbtree;
+	ngx_rbtree_t  * rbtree;
 	ngx_stream_complex_value_t key;
 } ngx_stream_limit_conn_ctx_t;
 
 typedef struct {
-	ngx_shm_zone_t              * shm_zone;
+	ngx_shm_zone_t    * shm_zone;
 	ngx_uint_t conn;
 } ngx_stream_limit_conn_limit_t;
 
@@ -113,13 +113,13 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 	uint32_t hash;
 	ngx_str_t key;
 	ngx_uint_t i;
-	ngx_slab_pool_t                  * shpool;
-	ngx_rbtree_node_t                * node;
-	ngx_pool_cleanup_t               * cln;
-	ngx_stream_limit_conn_ctx_t      * ctx;
-	ngx_stream_limit_conn_node_t     * lc;
-	ngx_stream_limit_conn_conf_t     * lccf;
-	ngx_stream_limit_conn_limit_t    * limits;
+	ngx_slab_pool_t  * shpool;
+	ngx_rbtree_node_t  * node;
+	ngx_pool_cleanup_t * cln;
+	ngx_stream_limit_conn_ctx_t * ctx;
+	ngx_stream_limit_conn_node_t   * lc;
+	ngx_stream_limit_conn_conf_t   * lccf;
+	ngx_stream_limit_conn_limit_t  * limits;
 	ngx_stream_limit_conn_cleanup_t  * lccln;
 	lccf = (ngx_stream_limit_conn_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_limit_conn_module);
 	limits = (ngx_stream_limit_conn_limit_t *)lccf->limits.elts;
@@ -203,8 +203,8 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 static void ngx_stream_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp,
     ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
-	ngx_rbtree_node_t             ** p;
-	ngx_stream_limit_conn_node_t   * lcn, * lcnt;
+	ngx_rbtree_node_t ** p;
+	ngx_stream_limit_conn_node_t * lcn, * lcnt;
 
 	for(;; ) {
 		if(node->key < temp->key) {
@@ -239,7 +239,7 @@ static ngx_rbtree_node_t * ngx_stream_limit_conn_lookup(ngx_rbtree_t * rbtree, n
     uint32_t hash)
 {
 	ngx_int_t rc;
-	ngx_rbtree_node_t             * node, * sentinel;
+	ngx_rbtree_node_t   * node, * sentinel;
 	ngx_stream_limit_conn_node_t  * lcn;
 
 	node = rbtree->root;
@@ -275,9 +275,9 @@ static ngx_rbtree_node_t * ngx_stream_limit_conn_lookup(ngx_rbtree_t * rbtree, n
 static void ngx_stream_limit_conn_cleanup(void * data)
 {
 	ngx_stream_limit_conn_cleanup_t * lccln = (ngx_stream_limit_conn_cleanup_t *)data;
-	ngx_slab_pool_t               * shpool;
-	ngx_rbtree_node_t             * node;
-	ngx_stream_limit_conn_ctx_t   * ctx;
+	ngx_slab_pool_t * shpool;
+	ngx_rbtree_node_t   * node;
+	ngx_stream_limit_conn_ctx_t * ctx;
 	ngx_stream_limit_conn_node_t  * lc;
 	ctx = (ngx_stream_limit_conn_ctx_t *)lccln->shm_zone->data;
 	shpool = (ngx_slab_pool_t*)lccln->shm_zone->shm.addr;
@@ -308,8 +308,8 @@ static ngx_int_t ngx_stream_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void
 {
 	ngx_stream_limit_conn_ctx_t  * octx = (ngx_stream_limit_conn_ctx_t *)data;
 	size_t len;
-	ngx_slab_pool_t              * shpool;
-	ngx_rbtree_node_t            * sentinel;
+	ngx_slab_pool_t    * shpool;
+	ngx_rbtree_node_t  * sentinel;
 	ngx_stream_limit_conn_ctx_t  * ctx = (ngx_stream_limit_conn_ctx_t *)shm_zone->data;
 	if(octx) {
 		if(ctx->key.value.len != octx->key.value.len || ngx_strncmp(ctx->key.value.data, octx->key.value.data, ctx->key.value.len) != 0) {
@@ -380,12 +380,12 @@ static char * ngx_stream_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, v
 
 static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	u_char                              * p;
+	u_char  * p;
 	ssize_t size;
-	ngx_str_t                           * value, name, s;
+	ngx_str_t  * value, name, s;
 	ngx_uint_t i;
-	ngx_shm_zone_t                      * shm_zone;
-	ngx_stream_limit_conn_ctx_t         * ctx;
+	ngx_shm_zone_t  * shm_zone;
+	ngx_stream_limit_conn_ctx_t  * ctx;
 	ngx_stream_compile_complex_value_t ccv;
 	value = (ngx_str_t*)cf->args->elts;
 	ctx = (ngx_stream_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_limit_conn_ctx_t));
@@ -468,11 +468,11 @@ static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, v
 
 static char * ngx_stream_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_shm_zone_t                 * shm_zone;
-	ngx_stream_limit_conn_conf_t   * lccf = (ngx_stream_limit_conn_conf_t *)conf;
+	ngx_shm_zone_t * shm_zone;
+	ngx_stream_limit_conn_conf_t * lccf = (ngx_stream_limit_conn_conf_t *)conf;
 	ngx_stream_limit_conn_limit_t  * limit, * limits;
 
-	ngx_str_t   * value;
+	ngx_str_t * value;
 	ngx_int_t n;
 	ngx_uint_t i;
 
@@ -526,7 +526,7 @@ static char * ngx_stream_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void *
 
 static ngx_int_t ngx_stream_limit_conn_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);

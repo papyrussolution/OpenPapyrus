@@ -5,14 +5,14 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 #define NGX_WSABUFS  8
 
 ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit)
 {
 	int rc;
-	u_char       * prev;
+	u_char  * prev;
 	u_long size, sent, send, prev_send;
 	ngx_err_t err;
 	ngx_array_t vec;
@@ -93,11 +93,11 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit)
 {
 	int rc;
-	u_char           * prev;
+	u_char * prev;
 	u_long size, send, sent;
 	ngx_err_t err;
 	ngx_array_t vec;
-	ngx_chain_t      * cl;
+	ngx_chain_t * cl;
 	LPWSAOVERLAPPED ovlp;
 	LPWSABUF wsabuf;
 	WSABUF wsabufs[NGX_WSABUFS];

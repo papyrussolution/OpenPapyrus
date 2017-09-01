@@ -5,16 +5,16 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_str_t name;
-	ngx_array_t             * lengths;
-	ngx_array_t             * values;
+	ngx_array_t   * lengths;
+	ngx_array_t   * values;
 } ngx_http_index_t;
 
 typedef struct {
-	ngx_array_t             * indices; /* array of ngx_http_index_t */
+	ngx_array_t   * indices; /* array of ngx_http_index_t */
 	size_t max_index_len;
 } ngx_http_index_loc_conf_t;
 
@@ -84,17 +84,17 @@ ngx_module_t ngx_http_index_module = {
 
 static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 {
-	u_char                       * p, * name;
+	u_char   * p, * name;
 	size_t len, root, reserve, allocated;
 	ngx_int_t rc;
 	ngx_str_t path, uri;
 	ngx_uint_t i, dir_tested;
-	ngx_http_index_t             * index;
+	ngx_http_index_t   * index;
 	ngx_open_file_info_t of;
 	ngx_http_script_code_pt code;
 	ngx_http_script_engine_t e;
-	ngx_http_core_loc_conf_t     * clcf;
-	ngx_http_index_loc_conf_t    * ilcf;
+	ngx_http_core_loc_conf_t   * clcf;
+	ngx_http_index_loc_conf_t  * ilcf;
 	ngx_http_script_len_code_pt lcode;
 
 	if(r->uri.data[r->uri.len - 1] != '/') {
@@ -358,13 +358,11 @@ static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_
 
 static void * ngx_http_index_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_index_loc_conf_t  * conf;
-	conf = (ngx_http_index_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_index_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_index_loc_conf_t  * conf = (ngx_http_index_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_index_loc_conf_t));
+	if(conf) {
+		conf->indices = NULL;
+		conf->max_index_len = 0;
 	}
-	conf->indices = NULL;
-	conf->max_index_len = 0;
 	return conf;
 }
 
@@ -405,7 +403,7 @@ static char * ngx_http_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void
 
 static ngx_int_t ngx_http_index_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
+	ngx_http_handler_pt * h;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_http_core_main_conf_t*)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
@@ -425,9 +423,9 @@ static ngx_int_t ngx_http_index_init(ngx_conf_t * cf)
 static char * ngx_http_index_set_index(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_index_loc_conf_t * ilcf = (ngx_http_index_loc_conf_t *)conf;
-	ngx_str_t                  * value;
+	ngx_str_t  * value;
 	ngx_uint_t i, n;
-	ngx_http_index_t           * index;
+	ngx_http_index_t * index;
 	ngx_http_script_compile_t sc;
 	if(ilcf->indices == NULL) {
 		ilcf->indices = ngx_array_create(cf->pool, 2, sizeof(ngx_http_index_t));

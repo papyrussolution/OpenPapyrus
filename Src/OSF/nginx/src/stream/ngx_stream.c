@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_stream.h>
 
 static char * ngx_stream_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
@@ -50,15 +50,15 @@ ngx_module_t ngx_stream_module = {
 
 static char * ngx_stream_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                          * rv;
+	char * rv;
 	ngx_uint_t i, m, mi, s;
 	ngx_conf_t pcf;
 	ngx_array_t ports;
-	ngx_stream_listen_t           * listen;
-	ngx_stream_module_t           * module;
-	ngx_stream_conf_ctx_t         * ctx;
+	ngx_stream_listen_t * listen;
+	ngx_stream_module_t * module;
+	ngx_stream_conf_ctx_t  * ctx;
 	ngx_stream_core_srv_conf_t   ** cscfp;
-	ngx_stream_core_main_conf_t   * cmcf;
+	ngx_stream_core_main_conf_t * cmcf;
 	if(*(ngx_stream_conf_ctx_t**)conf) {
 		return "is duplicate";
 	}
@@ -260,7 +260,7 @@ static ngx_int_t ngx_stream_add_ports(ngx_conf_t * cf, ngx_array_t * ports, ngx_
 {
 	ngx_uint_t i;
 	ngx_stream_conf_addr_t  * addr;
-	struct sockaddr         * sa = &listen->sockaddr.sockaddr;
+	struct sockaddr  * sa = &listen->sockaddr.sockaddr;
 	in_port_t p = ngx_inet_get_port(sa);
 	ngx_stream_conf_port_t  * port = (ngx_stream_conf_port_t *)ports->elts;
 	for(i = 0; i < ports->nelts; i++) {
@@ -296,10 +296,10 @@ found:
 static char * ngx_stream_optimize_servers(ngx_conf_t * cf, ngx_array_t * ports)
 {
 	ngx_uint_t i, p, last, bind_wildcard;
-	ngx_listening_t             * ls;
-	ngx_stream_port_t           * stport;
-	ngx_stream_conf_port_t      * port;
-	ngx_stream_conf_addr_t      * addr;
+	ngx_listening_t   * ls;
+	ngx_stream_port_t * stport;
+	ngx_stream_conf_port_t * port;
+	ngx_stream_conf_addr_t * addr;
 	ngx_stream_core_srv_conf_t  * cscf;
 	port = (ngx_stream_conf_port_t *)ports->elts;
 	for(p = 0; p < ports->nelts; p++) {
@@ -386,7 +386,7 @@ static ngx_int_t ngx_stream_add_addrs(ngx_conf_t * cf, ngx_stream_port_t * stpor
 	u_char * p;
 	size_t len;
 	ngx_uint_t i;
-	struct sockaddr_in    * sin;
+	struct sockaddr_in  * sin;
 	ngx_stream_in_addr_t  * addrs;
 	u_char buf[NGX_SOCKADDR_STRLEN];
 	stport->addrs = ngx_pcalloc(cf->pool, stport->naddrs * sizeof(ngx_stream_in_addr_t));

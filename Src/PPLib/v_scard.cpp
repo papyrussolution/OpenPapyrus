@@ -159,6 +159,41 @@ SCardFilt & FASTCALL SCardFilt::operator = (const SCardFilt & rS)
 	return *this;
 }
 
+PPID SLAPI SCardFilt::GetOwnerPersonKind() const
+{
+	PPID   pk_id = 0;
+	if(ScsList.IsExists()) {
+		PPObjSCardSeries scs_obj;
+		PPSCardSeries scs_rec;
+		for(uint i = 0; i < ScsList.GetCount(); i++) {
+			const PPID scs_id = ScsList.Get(i);
+			if(scs_obj.Fetch(scs_id, &scs_rec) > 0 && scs_rec.PersonKindID) {
+				if(pk_id && scs_rec.PersonKindID != pk_id) { // @ambiguity
+					pk_id = 0;
+					break;
+				}
+				else
+					pk_id = scs_rec.PersonKindID;
+			}
+		}
+	}
+	else if(SeriesID) {
+		PPObjSCardSeries scs_obj;
+		PPSCardSeries scs_rec;
+		if(scs_obj.Fetch(SeriesID, &scs_rec) > 0 && scs_rec.PersonKindID) {
+			pk_id = scs_rec.PersonKindID;
+		}
+	}
+	if(!pk_id) {
+		PPSCardConfig scs_cfg;
+		if(PPObjSCardSeries::FetchConfig(&scs_cfg) > 0 && scs_cfg.PersonKindID)
+			pk_id = scs_cfg.PersonKindID;
+		else
+			pk_id = GetSellPersonKind();
+	}
+	return pk_id;
+}
+
 int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
@@ -330,7 +365,7 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	Filt.TrnovrPeriod.Actualize(ZERODATE);
 	// @v9.6.6 Filt.MinTurnover = R2(Filt.MinTurnover);
 	// @v9.6.6 Filt.MaxTurnover = R2(Filt.MaxTurnover);
-	Filt.TurnoverR.Round(2); // @v9.6.6 
+	Filt.TurnoverR.Round(2); // @v9.6.6
 	if(Filt.EmployerID)
 		SETIFZ(P_StffObj, new PPObjStaffList);
 	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
@@ -994,8 +1029,10 @@ int SCardFiltDialog::getDTS(SCardFilt * pData)
 IMPL_HANDLE_EVENT(SCardFiltDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_SCARDFLT_SERIES))
+	if(event.isCbSelected(CTLSEL_SCARDFLT_SERIES)) {
+		getCtrlData(CTLSEL_SCARDFLT_SERIES, &Data.SeriesID);
 		SetupPerson(getCtrlLong(CTLSEL_SCARDFLT_SERIES));
+	}
 	else if(event.isCbSelected(CTLSEL_SCARDFLT_PERSON))
 		Data.PersonID = getCtrlLong(CTLSEL_SCARDFLT_PERSON);
 	else if(event.isCmd(cmClusterClk) && event.isCtlEvent(CTL_SCARDFLT_WOOWNER))
@@ -1072,12 +1109,14 @@ void SCardFiltDialog::SetupCtrls()
 
 void SCardFiltDialog::SetupPerson(PPID series)
 {
-	PPID   psn_kind_id = 0;
+	PPID   psn_kind_id = Data.GetOwnerPersonKind(); // @v9.8.0
+	/* @v9.8.0
 	PPSCardSerPacket pack;
 	if(series && ObjSCardSer.GetPacket(series, &pack) > 0)
 		psn_kind_id = pack.Rec.PersonKindID;
+	*/
 	SETIFZ(psn_kind_id, PPPRK_CLIENT);
-	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0);
+	SetupPersonCombo(this, CTLSEL_SCARDFLT_PERSON, Data.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, psn_kind_id, 0); // @v9.8.0 -OLW_LOADDEFONOPEN
 }
 
 int SLAPI Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)

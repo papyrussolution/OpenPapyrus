@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	uint32_t percent;
@@ -62,8 +62,7 @@ ngx_module_t ngx_http_split_clients_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t*)data;
 
@@ -97,13 +96,13 @@ static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r,
 
 static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char                                * rv;
+	char    * rv;
 	uint32_t sum, last;
-	ngx_str_t                           * value, name;
+	ngx_str_t  * value, name;
 	ngx_uint_t i;
 	ngx_conf_t save;
-	ngx_http_variable_t                 * var;
-	ngx_http_split_clients_part_t       * part;
+	ngx_http_variable_t * var;
+	ngx_http_split_clients_part_t  * part;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_split_clients_ctx_t));
 	if(ctx == NULL) {
@@ -184,9 +183,9 @@ static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
 static char * ngx_http_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
 {
 	ngx_int_t n;
-	ngx_str_t                      * value;
+	ngx_str_t  * value;
 	ngx_http_split_clients_part_t  * part;
-	ngx_http_split_clients_ctx_t   * ctx = (ngx_http_split_clients_ctx_t *)cf->ctx;
+	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t *)cf->ctx;
 	value = (ngx_str_t*)cf->args->elts;
 	part = (ngx_http_split_clients_part_t*)ngx_array_push(&ctx->parts);
 	if(part == NULL) {

@@ -343,7 +343,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	PPID   TradeLicRegTypeID; // Тип регистрационного документа, используемого для торговой лицензии предприятия //
 	PPID   RegStaffCalID;     // Регулярный штатный календарь
 	long   StaffCalQuant;     // Квант времени в сек. для временной диаграммы анализа штатных календарей.
-	SVerT  Ver;               // @v7.9.7
+	SVerT  Ver;               // Версия системы, создавшей запись
 	long   SendSmsSamePersonTimeout; // @v8.0.6
 	char   Reserve[40];
 	long   Reserve1[2];
@@ -992,7 +992,7 @@ TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON)
 {
 	P_ArObj = new PPObjArticle;
-	P_PrcObj = new PPObjProcessor; // @v7.9.4
+	P_PrcObj = new PPObjProcessor;
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
 	Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -1160,7 +1160,7 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 						THROW_SL(p_array->AddFast(t->data.PersonID, text));
 					}
 					else {
-						THROW_SL(p_array->AddFast(t->data.PersonID, t->data.Name)); // @v7.9.0 Add-->AddFast
+						THROW_SL(p_array->AddFast(t->data.PersonID, t->data.Name));
 					}
 				}
 			}
@@ -1187,7 +1187,7 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 			q.select(P_Tbl->ID, P_Tbl->Name, 0);
 			THROW_MEM(p_array = new StrAssocArray);
 			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-				THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name)); // @v7.9.0 Add-->AddFast
+				THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name));
 			}
 		}
 	}
@@ -1744,29 +1744,11 @@ int SLAPI PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long 
 		}
 	}
 	if(!(flags & smlRegisterOnly)) {
-		// @v7.3.11 {
 		PersonTbl::Rec rec;
 		if(SearchFirstByName(p->Rec.Name, &p->Kinds, p->Rec.ID, &rec) > 0) {
 			ASSIGN_PTR(pID, rec.ID);
 			return 1;
 		}
-		// } @v7.3.11
-		/* @v7.3.11
-		strip(STRNSCPY(pattern, p->Rec.Name));
-		MEMSZERO(k);
-		STRNSCPY(k.Name, pattern);
-		if(P_Tbl->search(1, &k, spEq)) {
-			do {
-				id = P_Tbl->data.ID;
-				if(id != p->Rec.ID)
-					for(uint j = 0; j < p->Kinds.getCount(); j++)
-						if(P_Tbl->IsBelongToKind(id, p->Kinds.at(j))) {
-							ASSIGN_PTR(pID, id);
-							return 1;
-						}
-			} while(P_Tbl->search(1, &k, spNext) && stricmp866(k.Name, pattern) == 0);
-		}
-		*/
 	}
 	return -1;
 }
@@ -1774,7 +1756,6 @@ int SLAPI PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long 
 int SLAPI PPObjPerson::GetPersonReq(PPID id, PersonReq * pPersonReq)
 {
 	PPPersonPacket pack;
-	//BankAccountTbl::Rec bnk_acct_rec;
 	PPBankAccount ba_rec;
 	if(id && GetPacket(id, &pack, PGETPCKF_USEINHERITENCE) > 0) {
 		SString temp_buf;
@@ -1784,8 +1765,8 @@ int SLAPI PPObjPerson::GetPersonReq(PPID id, PersonReq * pPersonReq)
 		else
 			STRNSCPY(pPersonReq->ExtName, pack.Rec.Name);
 		STRNSCPY(pPersonReq->Memo, pack.Rec.Memo);
-		pPersonReq->AddrID = pack.Rec.MainLoc; // @v7.6.2
-		pPersonReq->RAddrID = pack.Rec.RLoc;   // @v7.6.2
+		pPersonReq->AddrID = pack.Rec.MainLoc;
+		pPersonReq->RAddrID = pack.Rec.RLoc;
 		pack.GetAddress(0, temp_buf);  temp_buf.CopyTo(pPersonReq->Addr, sizeof(pPersonReq->Addr));
 		pack.GetRAddress(0, temp_buf); temp_buf.CopyTo(pPersonReq->RAddr, sizeof(pPersonReq->RAddr));
 		pack.GetPhones(3, temp_buf);   temp_buf.CopyTo(pPersonReq->Phone1, sizeof(pPersonReq->Phone1));
@@ -2263,7 +2244,7 @@ int SLAPI PPObjPerson::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransm
 			}
 			if((*pID) == 0) {
 				PPID   same_id = 0;
-				p_pack->Rec.ID = 0; // @v7.3.11
+				p_pack->Rec.ID = 0;
 				if(r_cfg.Flags & PPPersonConfig::fSyncByName && SearchMaxLike(p_pack, &same_id, 0, 0) > 0) {
 					*pID = same_id;
 					is_analog = 1;
@@ -3053,12 +3034,12 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				for(i = 0; i < pPack->Kinds.getCount(); i++) {
 					const PPID kind_id = pPack->Kinds.at(i);
 					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_ARTICLE,   PPOBJ_PERSON, id, (void *)kind_id, 0));
-					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, (void *)kind_id, 0)); // @v7.9.3
+					THROW(SendObjMessage(DBMSG_PERSONACQUIREKIND, PPOBJ_PROCESSOR, PPOBJ_PERSON, id, (void *)kind_id, 0));
 				}
 				THROW(p_ref->Ot.PutList(Obj, pPack->Rec.ID, &pPack->TagL, 0));
 				DS.LogAction(action, Obj, id, 0, 0);
 			}
-			THROW(Helper_PutSCard(id, pPack, p_sc_obj)); // @v7.6.5
+			THROW(Helper_PutSCard(id, pPack, p_sc_obj));
 		}
 		else if(id) { // Remove packet
 			ObjLinkFiles _lf(PPOBJ_PERSON);
@@ -3674,10 +3655,8 @@ public:
 		St = 0;
 		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 		SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
-		// @v7.6.7 {
 		showButton(cmCreateSCard, 0);
 		enableCommand(cmCreateSCard, 0);
-		// } @v7.6.7
 	}
 	int    setDTS(const PPPersonPacket * pData)
 	{
@@ -3698,7 +3677,7 @@ public:
 		setCtrlLong(CTL_PERSON_ID, Data.Rec.ID);
 		setCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		SetupPPObjCombo(this, CTLSEL_PERSON_STATUS, PPOBJ_PRSNSTATUS, Data.Rec.Status, OLW_CANINSERT, 0);
-		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0); // @v7.6.12
+		SetupPPObjCombo(this, CTLSEL_PERSON_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Rec.CatID, OLW_CANINSERT, 0);
 		setCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
 		if(Data.ELA.GetSinglePhone(temp_buf, &i) > 0) {
 			PhonePos = (int)i;
@@ -3756,7 +3735,7 @@ public:
 		SString temp_buf;
 		getCtrlData(CTL_PERSON_NAME, Data.Rec.Name);
 		getCtrlData(CTLSEL_PERSON_STATUS, &Data.Rec.Status);
-		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID); // @v7.6.12
+		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
 		getCtrlData(CTL_PERSON_MEMO, Data.Rec.Memo);
 		getCtrlString(CTL_PERSON_PHONE, temp_buf);
 		if(PhonePos >= 0) {
@@ -3818,7 +3797,7 @@ private:
 						SCardID = 0;
 						DupID = sel_pack.Rec.ID;
 						setDTS(&sel_pack);
-						SetFocus(H()); // @v7.6.5
+						SetFocus(H());
 					}
 				}
 			}
@@ -3880,7 +3859,6 @@ private:
 		else if(event.isCbSelected(CTLSEL_PERSON_SCARDSER)) {
 			SetupSCardSeries(1, 0);
 		}
-		// @v7.6.7 {
 		else if(event.isCmd(cmCreateSCard)) {
 			if(SCardID) {
 				SCardID = 0;
@@ -3891,7 +3869,6 @@ private:
 				enableCommand(cmCreateSCard, 0);
 			}
 		}
-		// } @v7.6.7
 		else if(event.isClusterClk(CTL_PERSON_SCARDAUTO)) {
 			int    sca = BIN(getCtrlUInt16(CTL_PERSON_SCARDAUTO));
 			disableCtrl(CTL_PERSON_SCARD, sca);
@@ -3904,9 +3881,6 @@ private:
 					Name_ = temp_buf;
 					PPID   dup_id = 0;
 					if(PsnObj.CheckDuplicateName(temp_buf, &dup_id) == 2) {
-						// @v7.6.12 DupID = dup_id;
-						// @v7.6.12 endModal(cmOK);
-						// @v7.6.12 {
 						PPPersonPacket sel_pack;
 						if(PsnObj.GetPacket(dup_id, &sel_pack, 0) > 0) {
 							SCardSerID = getCtrlLong(CTLSEL_PERSON_SCARDSER);
@@ -3915,7 +3889,6 @@ private:
 							setDTS(&sel_pack);
 							SetFocus(H());
 						}
-						// } @v7.6.12
 					}
 				}
 			}
@@ -3943,18 +3916,17 @@ private:
 		}
 		Data.SetSCard(0, 0);
 		SCardSerID = getCtrlLong(CTLSEL_PERSON_SCARDSER);
-		SETIFZ(SCardSerID, preserve_sc_pack.Rec.SeriesID); // @v7.8.5
+		SETIFZ(SCardSerID, preserve_sc_pack.Rec.SeriesID);
 		if(SCardSerID) {
 			PPSCardPacket sc_pack;
-			// @v7.8.5 {
 			{
 				#define CPYFLD(f) sc_pack.Rec.f = preserve_sc_pack.Rec.f
 				CPYFLD(MaxCredit);
 				CPYFLD(PeriodTerm);
 				CPYFLD(PeriodCount);
 				CPYFLD(Flags);
+				#undef CPYFLD
 			}
-			// } @v7.8.5
 			GetClusterData(CTL_PERSON_SCARDAUTO, &St);
 			getCtrlString(CTL_PERSON_SCARD, temp_buf);
 			if(temp_buf.NotEmpty()) {
@@ -4036,6 +4008,8 @@ private:
 		showCtrl(CTL_PERSON_SCAG, show);
 		showCtrl(CTLSEL_PERSON_SCAG, show);
 		showCtrl(CTL_PERSON_SCTIME, show);
+		showButton(cmFullSCardDialog, show); // @v9.8.0 @fix
+		enableCommand(cmFullSCardDialog, show); // @v9.8.0 @fix
 	}
 	int    SetupSCardSeries(int fromCtrl, int dontSeekCard)
 	{
@@ -4067,10 +4041,8 @@ private:
 							SCardID = sc_id;
 							setCtrlData(CTL_PERSON_SCARD, sc_rec.Code);
 							disableCtrl(CTL_PERSON_SCARD, 1);
-							// @v7.6.7 {
 							showButton(cmCreateSCard, 1);
 							enableCommand(cmCreateSCard, 1);
-							// } @v7.6.7
 							break;
 						}
 						else
@@ -4083,10 +4055,8 @@ private:
 					setCtrlLong(CTLSEL_PERSON_SCAG, 0);
 				if(!SCardID) {
 					disableCtrl(CTL_PERSON_SCARD, 0);
-					// @v7.6.7 {
 					showButton(cmCreateSCard, 0);
 					enableCommand(cmCreateSCard, 0);
-					// } @v7.6.7
 					enable_auto_create = 1;
 					// @v8.8.0 {
 					if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) {
@@ -4332,7 +4302,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
 			ShortPersonDialog * p_dlg = (ShortPersonDialog *)dlg;
-			p_dlg->enableCommand(cmFullPersonDialog, 1); // @v7.6.3 // @v8.5.5 (cmFullPersonDialog, 0)-->(cmFullPersonDialog, 1)
+			p_dlg->enableCommand(cmFullPersonDialog, 1); // @v8.5.5 (cmFullPersonDialog, 0)-->(cmFullPersonDialog, 1)
 			if(!is_new && !CheckRights(PPR_MOD))
 				p_dlg->enableCommand(cmOK, 0);
 			p_dlg->setDTS(&info);
@@ -4531,10 +4501,8 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					// @v9.2.6 LocationTbl::Rec * p_loc_rec = (TVCMD == cmPersonAddr) ? &Data.Loc : &Data.RLoc;
 					PPLocationPacket * p_loc_pack = (TVCMD == cmPersonAddr) ? &Data.Loc : &Data.RLoc; // @v9.2.6
 					p_loc_pack->Type = LOCTYP_ADDRESS;
-					// @v7.3.8 {
 					if(p_loc_pack->ID == 0)
 						loc_obj.InitCode(p_loc_pack);
-					// } @v7.3.8
 					loc_obj.EditDialog(LOCTYP_ADDRESS, p_loc_pack, 0);
 				}
 				break;
@@ -5725,7 +5693,7 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 //
 //
 //
-class PersonCache : public ObjCacheHash { // @v7.8.5 ObjCache-->ObjCacheHash
+class PersonCache : public ObjCacheHash {
 public:
 	struct PersonData : public ObjCacheEntry {
 		PPID   MainLocID;
@@ -5734,9 +5702,7 @@ public:
 		long   Status;
 		long   Flags;
 	};
-	SLAPI  PersonCache() :
-		// @v7.8.5 ObjCache(PPOBJ_PERSON, sizeof(PersonData))
-		ObjCacheHash(PPOBJ_PERSON, sizeof(PersonData), (1024*1024), 4) // @v7.8.5
+	SLAPI  PersonCache() : ObjCacheHash(PPOBJ_PERSON, sizeof(PersonData), (1024*1024), 4)
 	{
 		Cfg.Init();
 		Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -6680,7 +6646,7 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 	if(r_blk.PObj.GetPacket(rFilt.ID, &r_blk.Pack, 0) > 0) {
 		SString temp_buf;
 		H.ID = r_blk.Pack.Rec.ID;
-		H.PsnID = H.ID; // @v7.1.9
+		H.PsnID = H.ID;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
 		H.CategoryID = r_blk.Pack.Rec.CatID;
@@ -6901,10 +6867,8 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 					r_blk.Pack.Loc.Type = LOCTYP_ADDRESS;
 					r_blk.Pack.Loc.CityID = I_AddrList.CityID;
 					STRNSCPY(r_blk.Pack.Loc.Code, strip(I_AddrList.LocCode));
-					// @v7.3.8 {
 					if(isempty(r_blk.Pack.Loc.Code))
 						r_blk.PObj.LocObj.InitCode(&r_blk.Pack.Loc);
-					// } @v7.3.8
 					STRNSCPY(r_blk.Pack.Loc.Name, strip(I_AddrList.LocName));
 					r_blk.Pack.Loc.Longitude = I_AddrList.Longitude;
 					r_blk.Pack.Loc.Latitude = I_AddrList.Latitude;
@@ -6921,10 +6885,8 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 					loc_pack.Type = LOCTYP_ADDRESS;
 					loc_pack.CityID = I_AddrList.CityID;
 					STRNSCPY(loc_pack.Code, strip(I_AddrList.LocCode));
-					// @v7.3.8 {
 					if(isempty(loc_pack.Code))
 						r_blk.PObj.LocObj.InitCode(&loc_pack);
-					// } @v7.3.8
 					STRNSCPY(loc_pack.Name, strip(I_AddrList.LocName));
 					loc_pack.Longitude = I_AddrList.Longitude;
 					loc_pack.Latitude = I_AddrList.Latitude;

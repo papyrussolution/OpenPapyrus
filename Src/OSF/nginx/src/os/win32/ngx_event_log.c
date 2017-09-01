@@ -15,7 +15,7 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	HANDLE ev;
 	va_list args;
 	u_char text[NGX_MAX_ERROR_STR];
-	const char     * msgarg[9];
+	const char   * msgarg[9];
 	static u_char netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
 	u_char * last = text + NGX_MAX_ERROR_STR;
 	u_char * p = text + GetModuleFileName(NULL, (char*)text, NGX_MAX_ERROR_STR - 50);

@@ -46,6 +46,13 @@
 //        val1^val2 - значения val1 и val2 являются взаимоисключающими
 //        low..upp  - диапазон допустимых значений (включая границы)
 //
+// @novtbl - помечаются структуры и классы, которые не имеют и не должны иметь виртуальных
+//      функций. В том числе не могут быть порождены от классов с виртуальными функциями.
+//      Специальный акцент на этом моменте делается из-за потенциальной опасности обнуления
+//      всей структуры целиком, что повлечет разрушение указателя на таблицу виртуальных функций.
+// @noconstructor - помечаются структуры и классы не имеющие и не могущие иметь конструктора.
+//      Пометка важна в случаях, когда структура может входить в union. В этом случае компилятор
+//      (возможно, не любой) выдает ошибку.
 // @nointeract - признак, означающий, что функция или класс никак не взаимодействуют
 //      с пользователем. В том числе не выдают никаких сообщений или предупреждений
 //      Этот признак следует учитывать, принимая решение о том, следует ли после ошибочного
@@ -83,14 +90,17 @@
 // @sfu-r     - временная пометка для вызовов updateRec и updateRecBuf означающая, что
 //              предварительный вызов search приведен к searchForUpdate
 // @speedcritical - пометка, означающая, что код введен ради ускорения критичной по времени исполнения функции
+// @fastreuse     - помечаются члены классов, используемые лишь для повторного использования результатов
+//                  вычислений или какой-то иной медленной операции.
 // @allocreuse    - помечаются члены классов, используемые как временные буферы
-//                  для предотвращения повторного распределения памяти с целью ускорения испольнения функций.
+//                  для предотвращения повторного распределения памяти с целью ускорения исполнения функций.
+// @ambiguity     - обозначает наличие неоднозначности или проверку на неоднозначность чего-либо (по контексту)
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
 // @todo Конвертация CpTransf с целью уменьшения размера структуры
-// @todo Перенос Account в Reference2
-// @todo Перенос BankAccount в одну из общих таблиц (пока не совсем ясно куда и как)
+//       @done @todo Перенос Account в Reference2
+//       @done @todo Перенос BankAccount в одну из общих таблиц (пока не совсем ясно куда и как)
 // @todo Добавить в стуктуры оплаты по чеку валюту
 //
 //
@@ -1347,7 +1357,7 @@ private:
 
 // @v8.0.3 extern Profile * P_Profiler; // @global
 
-#if SL_PROFILE && !defined(DL600C) // {
+#if /*SL_PROFILE &&*/ !defined(DL600C) // { @v9.8.0 commented(SL_PROFILE)
 	// @v8.0.3 #define PROFILE_INIT // @v8.0.3 delete P_Profiler; P_Profiler = new Profile;
 	#define PROFILE(line) \
 		{DS.GProfileStart(__FILE__, __LINE__); \
@@ -1371,7 +1381,6 @@ private:
 	#define PROFILE_END_THR
 	// @v8.0.3 #define PROFILE_REPORT(description)
 #endif // } SL_PROFILE
-
 //
 // @ModuleDecl(PPSync)
 // Модуль блокировки объектов данных
@@ -4762,12 +4771,7 @@ private:
 // Бух. счет в формате внешнего представления (Nature format)
 //
 struct Acct {
-	void   SLAPI Clear()
-	{
-		ac = 0;
-		sb = 0;
-		ar = 0;
-	}
+	void   SLAPI Clear();
 	Acct & FASTCALL operator = (const AcctRelTbl::Rec &);
 	Acct & FASTCALL operator = (const PPAccount &);
 
@@ -4785,19 +4789,10 @@ int SLAPI IsSuitableAcc(Acct * pAcc, int aco /* ACO_X */, Acct * pPattern);
 // Бух. счет в форме ид-ров баз данных (DB format);
 //
 struct AcctID {
-	void   SLAPI Clear()
-	{
-		ac = 0;
-		ar = 0;
-	}
-	int    FASTCALL operator == (AcctID s) const
-	{
-		return (ac == s.ac && ar == s.ar);
-	}
-	int    FASTCALL operator != (AcctID s) const
-	{
-		return (ac != s.ac || ar != s.ar);
-	}
+	void   SLAPI Clear();
+	int    FASTCALL operator == (AcctID s) const;
+	int    FASTCALL operator != (AcctID s) const;
+
 	PPID   ac;
 	PPID   ar;
 };
@@ -4932,20 +4927,11 @@ public:
 	char   Expr[256];     // Формула для суммы проводки (текст)
 private:
 	struct ATSubstObjects {
-		ATSubstObjects()
-		{
-		}
-		void   destroy()
-		{
-			PrimList.clear();
-			ForeignList.clear();
-		}
+		ATSubstObjects();
+		void   destroy();
 		struct Item {
-			Item()
-			{
-				Aid.Clear();
-				AcsID = 0;
-			}
+			Item();
+
 			AcctID Aid;
 			PPID   AcsID;
 		};
@@ -6367,7 +6353,7 @@ public:
 		int32   Id;            // Thread ID
 		int32   Kind;          // PPThread::kXXX
 		int32   Status;        // Состояние потока PPThread::Info::stXXX
-		PPID    JobID;         // @v7.9.6 Идент задачи (Kind==kJob)
+		PPID    JobID;         // Идент задачи (Kind==kJob)
 		LDATETIME StartMoment; // Время запуска
 		SString Text;          // Текстовое обозначение потока (зависит от Kind)
 		SString LastMsg;       //
@@ -6386,15 +6372,17 @@ public:
 		kEventCollector, // Сборщик событий
 		kLogger,         // @v8.9.12 Поток для вывода сообщений в журналы
 		kDllSession,     // @v9.2.6 Поток созданный в DLL-модуле
-		kPpppProcessor   // @v9.6.7 Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
+		kPpppProcessor,  // @v9.6.7 Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
+		kNgnixServer,    // @v9.8.0 Поток сервера NGINX
+		kWorkerSession   // @v9.8.0 Рабочий поток для исполнения команд (также является базовым для kNetSession)
 	};
 
-	static int GetKindText(int kind, SString & rBuf);
+	static int FASTCALL GetKindText(int kind, SString & rBuf);
 
 	SLAPI  PPThread(int kind, const char * pText, void * pInitData);
 	int    SLAPI GetKind() const;
-	int    FASTCALL SetText(const char * pTxt);
-	int    FASTCALL SetMessage(const char * pMsg);
+	void   FASTCALL SetText(const char * pTxt);
+	void   FASTCALL SetMessage(const char * pMsg);
 	int    FASTCALL GetInfo(PPThread::Info & rInfo) const;
 	int32  SLAPI GetUniqueSessID() const;
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply)
@@ -6403,12 +6391,12 @@ public:
 	}
 protected:
 	virtual void SLAPI Startup();
-	void   FASTCALL SetJobID(PPID jobID); // @v7.9.6
+	void   FASTCALL SetJobID(PPID jobID);
 public: // Метод Shutdown вызывается из функции DllMain
 	virtual void SLAPI Shutdown();
 private:
 	int    Kind;
-	PPID   JobID; // @v7.9.6
+	PPID   JobID;
 	LDATETIME StartMoment;
 	SString Text;
 	SString LastMsg_;
@@ -39716,6 +39704,7 @@ private:
 struct SCardFilt : public PPBaseFilt {
 	SLAPI  SCardFilt();
 	SCardFilt & FASTCALL operator = (const SCardFilt & rS);
+	PPID   SLAPI GetOwnerPersonKind() const;
 
 	enum {
 		fSinceLastPDisUpdating = 0x0001,

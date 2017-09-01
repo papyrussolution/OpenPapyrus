@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	in_addr_t mask;
@@ -32,12 +32,12 @@ typedef struct {
 #endif
 
 typedef struct {
-	ngx_array_t      * rules; /* array of ngx_http_access_rule_t */
+	ngx_array_t * rules; /* array of ngx_http_access_rule_t */
 #if (NGX_HAVE_INET6)
-	ngx_array_t      * rules6; /* array of ngx_http_access_rule6_t */
+	ngx_array_t * rules6; /* array of ngx_http_access_rule6_t */
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
-	ngx_array_t      * rules_un; /* array of ngx_http_access_rule_un_t */
+	ngx_array_t * rules_un; /* array of ngx_http_access_rule_un_t */
 #endif
 } ngx_http_access_loc_conf_t;
 
@@ -111,12 +111,12 @@ ngx_module_t ngx_http_access_module = {
 
 static ngx_int_t ngx_http_access_handler(ngx_http_request_t * r)
 {
-	struct sockaddr_in          * sin;
+	struct sockaddr_in   * sin;
 	ngx_http_access_loc_conf_t  * alcf;
 #if (NGX_HAVE_INET6)
-	u_char                      * p;
+	u_char  * p;
 	in_addr_t addr;
-	struct sockaddr_in6         * sin6;
+	struct sockaddr_in6  * sin6;
 
 #endif
 	alcf = (ngx_http_access_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_access_module);
@@ -264,9 +264,9 @@ static char * ngx_http_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ngx_http_access_loc_conf_t * alcf = (ngx_http_access_loc_conf_t *)conf;
 	ngx_int_t rc;
 	ngx_uint_t all;
-	ngx_str_t                  * value;
+	ngx_str_t  * value;
 	ngx_cidr_t cidr;
-	ngx_http_access_rule_t     * rule;
+	ngx_http_access_rule_t   * rule;
 #if (NGX_HAVE_INET6)
 	ngx_http_access_rule6_t * rule6;
 #endif
@@ -351,21 +351,15 @@ static char * ngx_http_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		if(rule_un == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		rule_un->deny = (value[0].data[0] == 'd') ? 1 : 0;
 	}
 #endif
-
 	return NGX_CONF_OK;
 }
 
 static void * ngx_http_access_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_access_loc_conf_t  * conf;
-	conf = (ngx_http_access_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_access_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
-	}
+	ngx_http_access_loc_conf_t * conf = (ngx_http_access_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_access_loc_conf_t));
 	return conf;
 }
 

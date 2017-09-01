@@ -5,8 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
-#include <ngx_event_connect.h>
+//#include <ngx_event.h>
+//#include <ngx_event_connect.h>
 
 #if (NGX_HAVE_TRANSPARENT_PROXY)
 static ngx_int_t ngx_event_connect_set_transparent(ngx_peer_connection_t * pc,
@@ -141,8 +141,8 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 			if(err == NGX_ECONNREFUSED
 #if (NGX_LINUX)
 			    /*
-			     * Linux returns EAGAIN instead of ECONNREFUSED
-			     * for unix sockets if listen queue is full
+			   * Linux returns EAGAIN instead of ECONNREFUSED
+			   * for unix sockets if listen queue is full
 			     */
 			    || err == NGX_EAGAIN
 #endif

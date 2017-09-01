@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static ngx_uint_t ngx_http_test_if_unmodified(ngx_http_request_t * r);
 static ngx_uint_t ngx_http_test_if_modified(ngx_http_request_t * r);
@@ -44,49 +44,36 @@ ngx_module_t ngx_http_not_modified_filter_module = {
 
 static ngx_http_output_header_filter_pt ngx_http_next_header_filter;
 
-static ngx_int_t ngx_http_not_modified_header_filter(ngx_http_request_t * r)
+static ngx_int_t ngx_http_not_modified_header_filter(ngx_http_request_t * pReq)
 {
-	if(r->headers_out.status != NGX_HTTP_OK
-	    || r != r->main
-	    || r->disable_not_modified) {
-		return ngx_http_next_header_filter(r);
+	if(pReq->headers_out.status != NGX_HTTP_OK || pReq != pReq->main || pReq->disable_not_modified) {
+		return ngx_http_next_header_filter(pReq);
 	}
-
-	if(r->headers_in.if_unmodified_since
-	    && !ngx_http_test_if_unmodified(r)) {
-		return ngx_http_filter_finalize_request(r, NULL,
-		    NGX_HTTP_PRECONDITION_FAILED);
+	else if(pReq->headers_in.if_unmodified_since && !ngx_http_test_if_unmodified(pReq)) {
+		return ngx_http_filter_finalize_request(pReq, NULL, NGX_HTTP_PRECONDITION_FAILED);
 	}
-
-	if(r->headers_in.if_match
-	    && !ngx_http_test_if_match(r, r->headers_in.if_match, 0)) {
-		return ngx_http_filter_finalize_request(r, NULL,
-		    NGX_HTTP_PRECONDITION_FAILED);
+	else if(pReq->headers_in.if_match && !ngx_http_test_if_match(pReq, pReq->headers_in.if_match, 0)) {
+		return ngx_http_filter_finalize_request(pReq, NULL, NGX_HTTP_PRECONDITION_FAILED);
 	}
-
-	if(r->headers_in.if_modified_since || r->headers_in.if_none_match) {
-		if(r->headers_in.if_modified_since
-		    && ngx_http_test_if_modified(r)) {
-			return ngx_http_next_header_filter(r);
+	else {
+		if(pReq->headers_in.if_modified_since || pReq->headers_in.if_none_match) {
+			if(!pReq->headers_in.if_modified_since || !ngx_http_test_if_modified(pReq)) {
+				if(!pReq->headers_in.if_none_match || ngx_http_test_if_match(pReq, pReq->headers_in.if_none_match, 1)) {
+					// not modified 
+					pReq->headers_out.status = NGX_HTTP_NOT_MODIFIED;
+					pReq->headers_out.status_line.len = 0;
+					pReq->headers_out.content_type.len = 0;
+					ngx_http_clear_content_length(pReq);
+					ngx_http_clear_accept_ranges(pReq);
+					if(pReq->headers_out.content_encoding) {
+						pReq->headers_out.content_encoding->hash = 0;
+						pReq->headers_out.content_encoding = NULL;
+					}
+				}
+			}
 		}
-
-		if(r->headers_in.if_none_match
-		    && !ngx_http_test_if_match(r, r->headers_in.if_none_match, 1)) {
-			return ngx_http_next_header_filter(r);
-		}
-		/* not modified */
-		r->headers_out.status = NGX_HTTP_NOT_MODIFIED;
-		r->headers_out.status_line.len = 0;
-		r->headers_out.content_type.len = 0;
-		ngx_http_clear_content_length(r);
-		ngx_http_clear_accept_ranges(r);
-		if(r->headers_out.content_encoding) {
-			r->headers_out.content_encoding->hash = 0;
-			r->headers_out.content_encoding = NULL;
-		}
-		return ngx_http_next_header_filter(r);
+		return ngx_http_next_header_filter(pReq);
 	}
-	return ngx_http_next_header_filter(r);
 }
 
 static ngx_uint_t ngx_http_test_if_unmodified(ngx_http_request_t * r)
@@ -95,10 +82,8 @@ static ngx_uint_t ngx_http_test_if_unmodified(ngx_http_request_t * r)
 	if(r->headers_out.last_modified_time == (time_t)-1) {
 		return 0;
 	}
-	iums = ngx_parse_http_time(r->headers_in.if_unmodified_since->value.data,
-	    r->headers_in.if_unmodified_since->value.len);
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http iums:%T lm:%T", iums, r->headers_out.last_modified_time);
+	iums = ngx_parse_http_time(r->headers_in.if_unmodified_since->value.data, r->headers_in.if_unmodified_since->value.len);
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http iums:%T lm:%T", iums, r->headers_out.last_modified_time);
 	if(iums >= r->headers_out.last_modified_time) {
 		return 1;
 	}
@@ -129,7 +114,7 @@ static ngx_uint_t ngx_http_test_if_modified(ngx_http_request_t * r)
 
 static ngx_uint_t ngx_http_test_if_match(ngx_http_request_t * r, ngx_table_elt_t * header, ngx_uint_t weak)
 {
-	u_char     * start, * end, ch;
+	u_char   * start, * end, ch;
 	ngx_str_t etag;
 	ngx_str_t * list = &header->value;
 	if(list->len == 1 && list->data[0] == '*') {

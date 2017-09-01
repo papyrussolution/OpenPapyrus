@@ -2981,27 +2981,25 @@ void Curl_getoff_all_pipelines(struct Curl_easy * data, struct connectdata * con
 
 static void signalPipeClose(struct curl_llist * pipeline, bool pipe_broke)
 {
-	struct curl_llist_element * curr;
-	if(!pipeline)
-		return;
-	curr = pipeline->head;
-	while(curr) {
-		struct curl_llist_element * next = curr->next;
-		struct Curl_easy * data = (struct Curl_easy*)curr->ptr;
+	if(pipeline) {
+		struct curl_llist_element * curr = pipeline->head;
+		while(curr) {
+			struct curl_llist_element * next = curr->next;
+			struct Curl_easy * data = (struct Curl_easy*)curr->ptr;
 #ifdef DEBUGBUILD /* debug-only code */
-		if(data->magic != CURLEASY_MAGIC_NUMBER) {
-			/* MAJOR BADNESS */
-			infof(data, "signalPipeClose() found BAAD easy handle\n");
-		}
+			if(data->magic != CURLEASY_MAGIC_NUMBER) {
+				/* MAJOR BADNESS */
+				infof(data, "signalPipeClose() found BAAD easy handle\n");
+			}
 #endif
-		if(pipe_broke)
-			data->state.pipe_broke = TRUE;
-		Curl_multi_handlePipeBreak(data);
-		Curl_llist_remove(pipeline, curr, 0);
-		curr = next;
+			if(pipe_broke)
+				data->state.pipe_broke = TRUE;
+			Curl_multi_handlePipeBreak(data);
+			Curl_llist_remove(pipeline, curr, 0);
+			curr = next;
+		}
 	}
 }
-
 /*
  * This function finds the connection in the connection
  * cache that has been unused for the longest time.
@@ -3968,17 +3966,14 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	    (!url_has_scheme && data->set.str[STRING_DEFAULT_PROTOCOL] &&
 		    strcasecompare(data->set.str[STRING_DEFAULT_PROTOCOL], "file"))) {
 		bool path_has_drive = FALSE;
-
 		if(url_has_scheme)
 			rc = sscanf(data->change.url, "%*15[^\n/:]:%[^\n]", path);
 		else
 			rc = sscanf(data->change.url, "%[^\n]", path);
-
 		if(rc != 1) {
 			failf(data, "Bad URL");
 			return CURLE_URL_MALFORMAT;
 		}
-
 		if(url_has_scheme && path[0] == '/' && path[1] == '/') {
 			/* Allow omitted hostname (e.g. file:/<path>).  This is not strictly
 			 * speaking a valid file: URL by RFC 1738, but treating file:/<path> as
@@ -6358,4 +6353,3 @@ uint get_protocol_family(uint protocol)
 	}
 	return family;
 }
-

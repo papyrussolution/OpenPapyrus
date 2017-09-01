@@ -86,7 +86,7 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 	uintptr_t m;
 	ngx_int_t rc, total;
 	ngx_uint_t i, n, p, many;
-	ngx_stream_upstream_rr_peer_t   * peer, * best;
+	ngx_stream_upstream_rr_peer_t * peer, * best;
 	ngx_stream_upstream_rr_peers_t  * peers;
 
 	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0,

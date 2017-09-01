@@ -815,6 +815,12 @@ HWND TView::getHandle() const
 	return GetDlgItem(Parent, Id);
 }
 
+void FASTCALL TView::clearEvent(TEvent & event)
+{
+	event.what = evNothing;
+	event.message.infoPtr = this;
+}
+
 IMPL_HANDLE_EVENT(TView)
 {
 	if(event.isCmd(cmExecute)) {

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static char * ngx_http_flv(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
@@ -53,14 +53,14 @@ ngx_module_t ngx_http_flv_module = {
 
 static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 {
-	u_char                    * last;
+	u_char  * last;
 	nginx_off_t start, len;
 	size_t root;
 	ngx_int_t rc;
 	ngx_uint_t level, i;
 	ngx_str_t path, value;
-	ngx_log_t                 * log;
-	ngx_buf_t                 * b;
+	ngx_log_t * log;
+	ngx_buf_t * b;
 	ngx_chain_t out[2];
 	ngx_open_file_info_t of;
 	ngx_http_core_loc_conf_t  * clcf;

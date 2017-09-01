@@ -8525,7 +8525,7 @@ SLTEST_R(PPBillGuid)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(PPBillFormula)

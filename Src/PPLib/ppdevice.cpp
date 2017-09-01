@@ -1067,8 +1067,11 @@ SLTEST_R(PPAbstractDevice)
 	in.Clear();
 	THROW(dvc.RunCmd__(DVCCMD_RELEASE, in, out));
 
-	CATCHZOK;
-	return ok;
+	CATCH
+		ok = 0;
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

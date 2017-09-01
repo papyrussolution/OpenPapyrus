@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	size_t size;
@@ -90,9 +90,9 @@ static ngx_int_t ngx_http_slice_header_filter(ngx_http_request_t * r)
 {
 	nginx_off_t end;
 	ngx_int_t rc;
-	ngx_table_elt_t                 * h;
-	ngx_http_slice_ctx_t            * ctx;
-	ngx_http_slice_loc_conf_t       * slcf;
+	ngx_table_elt_t * h;
+	ngx_http_slice_ctx_t  * ctx;
+	ngx_http_slice_loc_conf_t  * slcf;
 	ngx_http_slice_content_range_t cr;
 
 	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
@@ -181,7 +181,7 @@ static ngx_int_t ngx_http_slice_header_filter(ngx_http_request_t * r)
 	if(r->headers_out.status == NGX_HTTP_PARTIAL_CONTENT) {
 		if(ctx->start + (nginx_off_t)slcf->size <= r->headers_out.content_offset) {
 			ctx->start = slcf->size
-			    * (r->headers_out.content_offset / slcf->size);
+			  * (r->headers_out.content_offset / slcf->size);
 		}
 
 		ctx->end = r->headers_out.content_offset
@@ -197,8 +197,8 @@ static ngx_int_t ngx_http_slice_header_filter(ngx_http_request_t * r)
 static ngx_int_t ngx_http_slice_body_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
 	ngx_int_t rc;
-	ngx_chain_t                * cl;
-	ngx_http_slice_ctx_t       * ctx;
+	ngx_chain_t  * cl;
+	ngx_http_slice_ctx_t  * ctx;
 	ngx_http_slice_loc_conf_t  * slcf;
 
 	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
@@ -268,7 +268,7 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r,
     ngx_http_slice_content_range_t * cr)
 {
 	nginx_off_t start, end, complete_length, cutoff, cutlim;
-	u_char           * p;
+	u_char * p;
 	ngx_table_elt_t  * h;
 
 	h = r->headers_out.content_range;
@@ -379,8 +379,8 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r,
 static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r,
     ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char                     * p;
-	ngx_http_slice_ctx_t       * ctx;
+	u_char * p;
+	ngx_http_slice_ctx_t  * ctx;
 	ngx_http_slice_loc_conf_t  * slcf;
 
 	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
@@ -430,7 +430,7 @@ static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r,
 static nginx_off_t ngx_http_slice_get_start(ngx_http_request_t * r)
 {
 	nginx_off_t start, cutoff, cutlim;
-	u_char           * p;
+	u_char * p;
 	ngx_table_elt_t  * h;
 
 	if(r->headers_in.if_range) {

@@ -2076,7 +2076,7 @@ TToolTip::ToolItem::ToolItem()
 TToolTip::TToolTip(HWND hParent, uint maxWidthPix)
 {
 	H = 0;
-	Counter = 0;
+	//Counter = 0;
 	MaxWidthPix = maxWidthPix;
 	if(hParent)
 		Create(hParent);
@@ -2090,15 +2090,13 @@ TToolTip::~TToolTip()
 
 int TToolTip::Create(HWND hParent)
 {
-	H = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL,
-		WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		hParent, NULL, SLS.GetHInst(), 0);
+	H = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hParent, NULL, SLS.GetHInst(), 0);
 	if(H) {
-		SetWindowPos(H, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(H, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
 		if(MaxWidthPix)
-			SendMessage(H, TTM_SETMAXTIPWIDTH, 0, MaxWidthPix);
-		SendMessage(H, TTM_SETTIPBKCOLOR, GetColorRef(SClrYellow), 0);
+			::SendMessage(H, TTM_SETMAXTIPWIDTH, 0, MaxWidthPix);
+		::SendMessage(H, TTM_SETTIPBKCOLOR, GetColorRef(SClrYellow), 0);
 	}
 	return BIN(H);
 }
@@ -2107,13 +2105,14 @@ int TToolTip::AddTool(ToolItem & rItem)
 {
 	int    ok = 1;
 	if(H) {
+		const uint _cur_count = GetToolsCount();
 		TOOLINFO ti;
 		MEMSZERO(ti);
 		ti.cbSize = sizeof(TOOLINFO);
 		ti.uFlags = TTF_SUBCLASS;
 		ti.hwnd = rItem.H;
 		ti.hinst = SLS.GetHInst();
-		ti.uId = ++Counter;
+		ti.uId = _cur_count+1; //++Counter;
 		if(rItem.Text.NotEmpty()) {
 			ti.lpszText = (LPSTR)rItem.Text.cptr(); // @badcast
 		}
@@ -2124,7 +2123,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			ti.rect = (RECT)rItem.R;
 		}
 		ti.lParam = rItem.Param;
-		SendMessage(H, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti); // @unicodeproblem
+		::SendMessage(H, TTM_ADDTOOL, 0, (LPARAM)&ti); // @unicodeproblem
 	}
 	else
 		ok = 0;
@@ -2135,20 +2134,22 @@ uint TToolTip::GetToolsCount()
 {
 	uint   c = 0;
 	if(H)
-		c = (uint)SendMessage(H, TTM_GETTOOLCOUNT, 0, 0);
+		c = (uint)::SendMessage(H, TTM_GETTOOLCOUNT, 0, 0);
 	return c;
 }
 
 int TToolTip::GetTool(uint idx, ToolItem & rItem)
 {
+	// @v9.8.0 Сообщение TTM_ENUMTOOLS почему-то не работает (я перепроверил максимум, пробовал явный вызов TTM_ENUMTOOLSW,  
+	// пробовал увеличивать значение, передваемое в TOOLINFO::cbSize - не помогает. Функция всегда возвращает 0
 	int    ok = 0;
 	if(H) {
 		STempBuffer text_buf(2048);
 		TOOLINFO ti;
 		MEMSZERO(ti);
-		ti.cbSize = sizeof(TOOLINFO);
 		ti.lpszText = text_buf;
-		if(SendMessage(H, TTM_ENUMTOOLS, idx, (LPARAM)(LPTOOLINFO)&ti)) { // @unicodeproblem
+		ti.cbSize = sizeof(TOOLINFO);
+		if(::SendMessage(H, TTM_ENUMTOOLS, idx, (LPARAM)&ti)) { // @unicodeproblem
 			rItem.Id = ti.uId;
 			rItem.H = ti.hwnd;
 			rItem.Param = ti.lParam;
@@ -2165,13 +2166,13 @@ int TToolTip::RemoveTool(uint idx)
 	int    ok = 0;
 	if(H) {
 		ToolItem item;
-		if(GetTool(idx, item)) {
+		/*if(GetTool(idx, item))*/ { // @v9.8.0 С WIN-функцией TTM_ENUMTOOLS что-то не так
 			TOOLINFO ti;
 			MEMSZERO(ti);
 			ti.cbSize = sizeof(TOOLINFO);
 			ti.hwnd = item.H;
-			ti.uId = item.Id;
-			SendMessage(H, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+			ti.uId = idx+1; //item.Id;
+			::SendMessage(H, TTM_DELTOOL, 0, (LPARAM)&ti);
 			ok = 1;
 		}
 	}
@@ -2180,12 +2181,25 @@ int TToolTip::RemoveTool(uint idx)
 
 int TToolTip::RemoveAllTools()
 {
+	//
+	// @v9.8.0 Не понятно: не работают сообщения WINDOWS TTM_DELTOOL и TTM_ENUMTOOLS. 
+	// Пришлось очищать все элементы через колено: удалять и создавать окно снова.
+	//
 	int    ok = 0;
 	if(H) {
+		HWND h_parent = GetParent(H);
+		if(h_parent) {
+			::DestroyWindow(H);
+			H = 0;
+			ok = Create(h_parent);
+		}
+		/*
 		uint c = GetToolsCount();
 		for(uint i = 0; i < c; i++) {
 			RemoveTool(i);
 		}
+		uint test_c = GetToolsCount(); // @debug
+		*/
 		ok = 1;
 	}
 	return ok;

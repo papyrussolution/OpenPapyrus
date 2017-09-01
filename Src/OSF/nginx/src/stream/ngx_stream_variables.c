@@ -118,8 +118,8 @@ ngx_stream_variable_t * ngx_stream_add_variable(ngx_conf_t * cf, ngx_str_t * nam
 {
 	ngx_int_t rc;
 	ngx_uint_t i;
-	ngx_hash_key_t               * key;
-	ngx_stream_variable_t        * v;
+	ngx_hash_key_t * key;
+	ngx_stream_variable_t * v;
 	ngx_stream_core_main_conf_t  * cmcf;
 	if(name->len == 0) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"$\"");
@@ -187,7 +187,7 @@ static ngx_stream_variable_t * ngx_stream_add_prefix_variable(ngx_conf_t * cf, n
     ngx_uint_t flags)
 {
 	ngx_uint_t i;
-	ngx_stream_variable_t        * v;
+	ngx_stream_variable_t * v;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
@@ -237,7 +237,7 @@ static ngx_stream_variable_t * ngx_stream_add_prefix_variable(ngx_conf_t * cf, n
 ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 {
 	ngx_uint_t i;
-	ngx_stream_variable_t        * v;
+	ngx_stream_variable_t * v;
 	ngx_stream_core_main_conf_t  * cmcf;
 	if(name->len == 0) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
@@ -288,7 +288,7 @@ ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 
 ngx_stream_variable_value_t * ngx_stream_get_indexed_variable(ngx_stream_session_t * s, ngx_uint_t index)
 {
-	ngx_stream_variable_t        * v;
+	ngx_stream_variable_t * v;
 	ngx_stream_core_main_conf_t  * cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_get_module_main_conf(s, ngx_stream_core_module);
 	if(cmcf->variables.nelts <= index) {
 		ngx_log_error(NGX_LOG_ALERT, s->connection->log, 0, "unknown variable index: %ui", index);
@@ -337,7 +337,7 @@ ngx_stream_variable_value_t * ngx_stream_get_variable(ngx_stream_session_t * s, 
 {
 	size_t len;
 	ngx_uint_t i, n;
-	ngx_stream_variable_t        * v;
+	ngx_stream_variable_t * v;
 	ngx_stream_variable_value_t  * vv;
 	ngx_stream_core_main_conf_t  * cmcf;
 
@@ -404,7 +404,7 @@ ngx_stream_variable_value_t * ngx_stream_get_variable(ngx_stream_session_t * s, 
 static ngx_int_t ngx_stream_variable_binary_remote_addr(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	struct sockaddr_in   * sin;
+	struct sockaddr_in * sin;
 
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
@@ -581,9 +581,9 @@ static ngx_int_t ngx_stream_variable_bytes(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_variable_session_time(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	ngx_time_t      * tp;
+	ngx_time_t * tp;
 	ngx_msec_int_t ms;
-	u_char          * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
+	u_char   * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
@@ -672,7 +672,7 @@ static ngx_int_t ngx_stream_variable_pid(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_variable_msec(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	ngx_time_t  * tp;
-	u_char      * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
+	u_char * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
@@ -732,8 +732,8 @@ static ngx_int_t ngx_stream_variable_protocol(ngx_stream_session_t * s,
 void * ngx_stream_map_find(ngx_stream_session_t * s, ngx_stream_map_t * map,
     ngx_str_t * match)
 {
-	void        * value;
-	u_char      * low;
+	void * value;
+	u_char * low;
 	ngx_uint_t key;
 	size_t len = match->len;
 	if(len) {
@@ -793,12 +793,12 @@ static ngx_int_t ngx_stream_variable_not_found(ngx_stream_session_t * s,
 
 ngx_stream_regex_t * ngx_stream_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t * rc)
 {
-	u_char                       * p;
+	u_char   * p;
 	size_t size;
 	ngx_str_t name;
 	ngx_uint_t i, n;
-	ngx_stream_variable_t        * v;
-	ngx_stream_regex_t           * re;
+	ngx_stream_variable_t * v;
+	ngx_stream_regex_t * re;
 	ngx_stream_regex_variable_t  * rv;
 	ngx_stream_core_main_conf_t  * cmcf;
 	rc->pool = cf->pool;
@@ -943,9 +943,9 @@ ngx_int_t ngx_stream_variables_init_vars(ngx_conf_t * cf)
 {
 	size_t len;
 	ngx_uint_t i, n;
-	ngx_hash_key_t               * key;
+	ngx_hash_key_t * key;
 	ngx_hash_init_t hash;
-	ngx_stream_variable_t        * v, * av, * pv;
+	ngx_stream_variable_t * v, * av, * pv;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	/* set the handlers for the indexed stream variables */

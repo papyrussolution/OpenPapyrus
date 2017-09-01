@@ -244,7 +244,7 @@ SLTEST_R(SWmi)
 	CATCH
 		CurrentStatus = ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

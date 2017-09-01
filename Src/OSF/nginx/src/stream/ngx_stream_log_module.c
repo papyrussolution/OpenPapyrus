@@ -28,8 +28,8 @@ struct ngx_stream_log_op_s {
 
 typedef struct {
 	ngx_str_t name;
-	ngx_array_t                 * flushes;
-	ngx_array_t                 * ops;   /* array of ngx_stream_log_op_t */
+	ngx_array_t * flushes;
+	ngx_array_t * ops;   /* array of ngx_stream_log_op_t */
 } ngx_stream_log_fmt_t;
 
 typedef struct {
@@ -37,33 +37,33 @@ typedef struct {
 } ngx_stream_log_main_conf_t;
 
 typedef struct {
-	u_char                      * start;
-	u_char                      * pos;
-	u_char                      * last;
+	u_char  * start;
+	u_char  * pos;
+	u_char  * last;
 
-	ngx_event_t                 * event;
+	ngx_event_t * event;
 	ngx_msec_t flush;
 	ngx_int_t gzip;
 } ngx_stream_log_buf_t;
 
 typedef struct {
-	ngx_array_t                 * lengths;
-	ngx_array_t                 * values;
+	ngx_array_t * lengths;
+	ngx_array_t * values;
 } ngx_stream_log_script_t;
 
 typedef struct {
-	ngx_open_file_t             * file;
-	ngx_stream_log_script_t     * script;
+	ngx_open_file_t   * file;
+	ngx_stream_log_script_t   * script;
 	time_t disk_full_time;
 	time_t error_log_time;
-	ngx_syslog_peer_t           * syslog_peer;
-	ngx_stream_log_fmt_t        * format;
+	ngx_syslog_peer_t * syslog_peer;
+	ngx_stream_log_fmt_t * format;
 	ngx_stream_complex_value_t  * filter;
 } ngx_stream_log_t;
 
 typedef struct {
-	ngx_array_t                 * logs;  /* array of ngx_stream_log_t */
-	ngx_open_file_cache_t       * open_file_cache;
+	ngx_array_t * logs;  /* array of ngx_stream_log_t */
+	ngx_open_file_cache_t  * open_file_cache;
 	time_t open_file_cache_valid;
 	ngx_uint_t open_file_cache_min_uses;
 	ngx_uint_t off;                      /* unsigned  off:1 */
@@ -170,14 +170,14 @@ ngx_module_t ngx_stream_log_module = {
 
 static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 {
-	u_char                     * line, * p;
+	u_char * line, * p;
 	size_t len, size;
 	ssize_t n;
 	ngx_str_t val;
 	ngx_uint_t i, l;
-	ngx_stream_log_t           * log;
-	ngx_stream_log_op_t        * op;
-	ngx_stream_log_buf_t       * buffer;
+	ngx_stream_log_t * log;
+	ngx_stream_log_op_t * op;
+	ngx_stream_log_buf_t  * buffer;
 	ngx_stream_log_srv_conf_t  * lscf;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
@@ -765,13 +765,13 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	ngx_int_t gzip;
 	ngx_uint_t i, n;
 	ngx_msec_t flush;
-	ngx_str_t                           * value, name, s;
-	ngx_stream_log_t                    * log;
-	ngx_syslog_peer_t                   * peer;
-	ngx_stream_log_buf_t                * buffer;
-	ngx_stream_log_fmt_t                * fmt;
+	ngx_str_t  * value, name, s;
+	ngx_stream_log_t  * log;
+	ngx_syslog_peer_t * peer;
+	ngx_stream_log_buf_t  * buffer;
+	ngx_stream_log_fmt_t  * fmt;
 	ngx_stream_script_compile_t sc;
-	ngx_stream_log_main_conf_t          * lmcf;
+	ngx_stream_log_main_conf_t   * lmcf;
 	ngx_stream_compile_complex_value_t ccv;
 
 	value = (ngx_str_t*)cf->args->elts;
@@ -1044,7 +1044,7 @@ process_formats:
 static char * ngx_stream_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_log_main_conf_t * lmcf = (ngx_stream_log_main_conf_t *)conf;
-	ngx_str_t             * value;
+	ngx_str_t   * value;
 	ngx_uint_t i;
 	ngx_stream_log_fmt_t  * fmt;
 	value = (ngx_str_t*)cf->args->elts;
@@ -1083,12 +1083,12 @@ static char * ngx_stream_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd, vo
 static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes,
     ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s)
 {
-	u_char                * data, * p, ch;
+	u_char  * data, * p, ch;
 	size_t i, len;
-	ngx_str_t             * value, var;
-	ngx_int_t             * flush;
+	ngx_str_t   * value, var;
+	ngx_int_t   * flush;
 	ngx_uint_t bracket, json;
-	ngx_stream_log_op_t   * op;
+	ngx_stream_log_op_t * op;
 
 	json = 0;
 	value = (ngx_str_t*)args->elts;
@@ -1231,7 +1231,7 @@ static char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, ngx_command_t * cm
 {
 	ngx_stream_log_srv_conf_t * lscf = (ngx_stream_log_srv_conf_t *)conf;
 	time_t inactive, valid;
-	ngx_str_t   * value, s;
+	ngx_str_t * value, s;
 	ngx_int_t max, min_uses;
 	ngx_uint_t i;
 	if(lscf->open_file_cache != NGX_CONF_UNSET_PTR) {
@@ -1324,7 +1324,7 @@ failed:
 
 static ngx_int_t ngx_stream_log_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);

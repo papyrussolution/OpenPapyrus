@@ -2717,7 +2717,7 @@ SLTEST_R(ScURL_Ftp)
 		CurrentStatus = 0;
 		ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(Uri)
@@ -2777,7 +2777,7 @@ SLTEST_R(Uri)
 		CurrentStatus = 0;
 		ok = 0;
 	ENDCATCH
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

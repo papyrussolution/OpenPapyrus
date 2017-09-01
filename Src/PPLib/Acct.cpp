@@ -1,5 +1,5 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -68,6 +68,13 @@ void SLAPI RegisterSTAcct()
 //
 // Utils
 //
+void SLAPI Acct::Clear()
+{
+	ac = 0;
+	sb = 0;
+	ar = 0;
+}
+
 static int SLAPI delim(long format)
 {
 	if(format & ACCF_DELDOT)   return '.';
@@ -228,4 +235,22 @@ int SLAPI IsSuitableAcc(Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 	if(aco == ACO_2)
 		return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb) ? 1 : 0;
 	return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb && pAcc->ar == pPattern->ar) ? 1 : 0;
+}
+//
+//
+//
+void SLAPI AcctID::Clear()
+{
+	ac = 0;
+	ar = 0;
+}
+
+int FASTCALL AcctID::operator == (AcctID s) const
+{
+	return (ac == s.ac && ar == s.ar);
+}
+
+int FASTCALL AcctID::operator != (AcctID s) const
+{
+	return (ac != s.ac || ar != s.ar);
 }

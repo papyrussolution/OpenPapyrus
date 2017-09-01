@@ -127,26 +127,22 @@ BOOL PRIV(xclass) (pcre_uint32 c, const pcre_uchar *data, BOOL utf)
 				    break;
 
 				case PT_LAMP:
-				    if((prop->chartype == ucp_Lu || prop->chartype == ucp_Ll ||
-					    prop->chartype == ucp_Lt) == isprop) return !negated;
+				    if((prop->chartype == ucp_Lu || prop->chartype == ucp_Ll || prop->chartype == ucp_Lt) == isprop) return !negated;
 				    break;
-
 				case PT_GC:
 				    if((data[1] == PRIV(ucp_gentype)[prop->chartype]) == isprop)
 					    return !negated;
 				    break;
-
 				case PT_PC:
-				    if((data[1] == prop->chartype) == isprop) return !negated;
+				    if((data[1] == prop->chartype) == isprop) 
+						return !negated;
 				    break;
-
 				case PT_SC:
-				    if((data[1] == prop->script) == isprop) return !negated;
+				    if((data[1] == prop->script) == isprop) 
+						return !negated;
 				    break;
-
 				case PT_ALNUM:
-				    if((PRIV(ucp_gentype)[prop->chartype] == ucp_L ||
-					    PRIV(ucp_gentype)[prop->chartype] == ucp_N) == isprop)
+				    if((PRIV(ucp_gentype)[prop->chartype] == ucp_L || PRIV(ucp_gentype)[prop->chartype] == ucp_N) == isprop)
 					    return !negated;
 				    break;
 

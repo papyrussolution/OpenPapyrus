@@ -5,11 +5,11 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	uint32_t hash;
-	ngx_str_t                          * server;
+	ngx_str_t * server;
 } ngx_http_upstream_chash_point_t;
 
 typedef struct {
@@ -19,7 +19,7 @@ typedef struct {
 
 typedef struct {
 	ngx_http_complex_value_t key;
-	ngx_http_upstream_chash_points_t   * points;
+	ngx_http_upstream_chash_points_t * points;
 } ngx_http_upstream_hash_srv_conf_t;
 
 typedef struct {
@@ -33,25 +33,16 @@ typedef struct {
 	ngx_event_get_peer_pt get_rr_peer;
 } ngx_http_upstream_hash_peer_data_t;
 
-static ngx_int_t ngx_http_upstream_init_hash(ngx_conf_t * cf,
-    ngx_http_upstream_srv_conf_t * us);
-static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us);
-static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc,
-    void * data);
-
-static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf,
-    ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_init_hash(ngx_conf_t * cf, ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc, void * data);
+static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream_srv_conf_t * us);
 static int ngx_libc_cdecl ngx_http_upstream_chash_cmp_points(const void * one, const void * two);
 static ngx_uint_t ngx_http_upstream_find_chash_point(ngx_http_upstream_chash_points_t * points, uint32_t hash);
-static ngx_int_t ngx_http_upstream_init_chash_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us);
-static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc,
-    void * data);
-
+static ngx_int_t ngx_http_upstream_init_chash_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, void * data);
 static void * ngx_http_upstream_hash_create_conf(ngx_conf_t * cf);
-static char * ngx_http_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_http_upstream_hash_commands[] = {
 	{ ngx_string("hash"),
@@ -107,7 +98,7 @@ static ngx_int_t ngx_http_upstream_init_hash(ngx_conf_t * cf, ngx_http_upstream_
 static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r,
     ngx_http_upstream_srv_conf_t * us)
 {
-	ngx_http_upstream_hash_srv_conf_t   * hcf;
+	ngx_http_upstream_hash_srv_conf_t * hcf;
 	ngx_http_upstream_hash_peer_data_t  * hp;
 	hp = (ngx_http_upstream_hash_peer_data_t *)ngx_palloc(r->pool, sizeof(ngx_http_upstream_hash_peer_data_t));
 	if(hp == NULL) {
@@ -254,14 +245,14 @@ next:
 
 static ngx_int_t ngx_http_upstream_init_chash(ngx_conf_t * cf, ngx_http_upstream_srv_conf_t * us)
 {
-	u_char                             * host, * port, c;
+	u_char * host, * port, c;
 	size_t host_len, port_len, size;
 	uint32_t hash, base_hash;
-	ngx_str_t                          * server;
+	ngx_str_t * server;
 	ngx_uint_t npoints, i, j;
-	ngx_http_upstream_rr_peer_t        * peer;
-	ngx_http_upstream_rr_peers_t       * peers;
-	ngx_http_upstream_chash_points_t   * points;
+	ngx_http_upstream_rr_peer_t * peer;
+	ngx_http_upstream_rr_peers_t  * peers;
+	ngx_http_upstream_chash_points_t * points;
 	ngx_http_upstream_hash_srv_conf_t  * hcf;
 	union {
 		uint32_t value;
@@ -427,7 +418,7 @@ static ngx_int_t ngx_http_upstream_init_chash_peer(ngx_http_request_t * r,
     ngx_http_upstream_srv_conf_t * us)
 {
 	uint32_t hash;
-	ngx_http_upstream_hash_srv_conf_t   * hcf;
+	ngx_http_upstream_hash_srv_conf_t * hcf;
 	ngx_http_upstream_hash_peer_data_t  * hp;
 
 	if(ngx_http_upstream_init_hash_peer(r, us) != NGX_OK) {
@@ -455,12 +446,12 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 	ngx_http_upstream_hash_peer_data_t  * hp = (ngx_http_upstream_hash_peer_data_t *)data;
 	time_t now;
 	intptr_t m;
-	ngx_str_t                          * server;
+	ngx_str_t * server;
 	ngx_int_t total;
 	ngx_uint_t i, n, best_i;
-	ngx_http_upstream_rr_peer_t        * peer, * best;
-	ngx_http_upstream_chash_point_t    * point;
-	ngx_http_upstream_chash_points_t   * points;
+	ngx_http_upstream_rr_peer_t * peer, * best;
+	ngx_http_upstream_chash_point_t  * point;
+	ngx_http_upstream_chash_points_t * points;
 	ngx_http_upstream_hash_srv_conf_t  * hcf;
 
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
@@ -584,8 +575,8 @@ static void * ngx_http_upstream_hash_create_conf(ngx_conf_t * cf)
 static char * ngx_http_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_upstream_hash_srv_conf_t  * hcf = (ngx_http_upstream_hash_srv_conf_t *)conf;
-	ngx_str_t                         * value;
-	ngx_http_upstream_srv_conf_t      * uscf;
+	ngx_str_t  * value;
+	ngx_http_upstream_srv_conf_t * uscf;
 	ngx_http_compile_complex_value_t ccv;
 
 	value = (ngx_str_t*)cf->args->elts;

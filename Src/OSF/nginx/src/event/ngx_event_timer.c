@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 ngx_rbtree_t ngx_event_timer_rbtree;
 static ngx_rbtree_node_t ngx_event_timer_sentinel;

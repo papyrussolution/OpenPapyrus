@@ -399,7 +399,7 @@ SLTEST_R(BitArray)
 	}
 	CATCHZOK
 	delete p_rng;
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

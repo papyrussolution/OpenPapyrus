@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	/* the round robin data must be first */
@@ -14,7 +14,7 @@ typedef struct {
 	ngx_uint_t hash;
 
 	u_char addrlen;
-	u_char                            * addr;
+	u_char   * addr;
 
 	u_char tries;
 
@@ -84,9 +84,9 @@ static ngx_int_t ngx_http_upstream_init_ip_hash(ngx_conf_t * cf, ngx_http_upstre
 static ngx_int_t ngx_http_upstream_init_ip_hash_peer(ngx_http_request_t * r,
     ngx_http_upstream_srv_conf_t * us)
 {
-	struct sockaddr_in                     * sin;
+	struct sockaddr_in * sin;
 #if (NGX_HAVE_INET6)
-	struct sockaddr_in6                    * sin6;
+	struct sockaddr_in6  * sin6;
 #endif
 	ngx_http_upstream_ip_hash_peer_data_t * iphp =
 	    (ngx_http_upstream_ip_hash_peer_data_t*)ngx_palloc(r->pool, sizeof(ngx_http_upstream_ip_hash_peer_data_t));

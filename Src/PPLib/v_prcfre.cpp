@@ -1,5 +1,6 @@
 // V_PRCFRE.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -112,7 +113,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 	THROW_DB(deleteFrom(P_TempTbl, 0, P_TempTbl->PrcID == prcID));
 	THROW(TSesObj.P_Tbl->LoadBusyArray(prcID, 0, TSESK_SESSION, &Filt.Period, &busy_list));
 	//
-	// Получаем список периодов рабочего времени
+	// РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє РїРµСЂРёРѕРґРѕРІ СЂР°Р±РѕС‡РµРіРѕ РІСЂРµРјРµРЅРё
 	//
 	if(TSesObj.GetPrc(prcID, &prc_rec, 1, 1) > 0 && prc_rec.LinkObjType == PPOBJ_PERSON && prc_rec.LinkObjID) {
 		PPID   reg_cal_id = SlObj.PsnObj.GetConfig().RegStaffCalID;
@@ -152,7 +153,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 		if(worktime_list.getCount()) {
 			STimeChunkArray temp_list;
 			//
-			// Получаем инверсию списка рабочих периодов человека-процессора.
+			// РџРѕР»СѓС‡Р°РµРј РёРЅРІРµСЂСЃРёСЋ СЃРїРёСЃРєР° СЂР°Р±РѕС‡РёС… РїРµСЂРёРѕРґРѕРІ С‡РµР»РѕРІРµРєР°-РїСЂРѕС†РµСЃСЃРѕСЂР°.
 			//
 			temp_list = worktime_list;
 			temp_list.Sort();
@@ -333,7 +334,7 @@ int SLAPI PPViewPrcBusy::AddSession(PrcBusyViewItem * pItem)
 		pack.Rec.FinTm = pItem->Period.Finish.t;
 	}
 	while(ok < 0 && TSesObj.EditDialog(&pack) > 0) {
-		id = NZOR(pack.Rec.ID, id); // Во время редактирования нулевой идентификатор мог стать действительным
+		id = NZOR(pack.Rec.ID, id); // Р’Рѕ РІСЂРµРјСЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РЅСѓР»РµРІРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РјРѕРі СЃС‚Р°С‚СЊ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Рј
 		if(TSesObj.PutPacket(&id, &pack, 1)) {
 			ProcessPrc(pack.Rec.PrcID, 0);
 			ok = 1;
@@ -505,7 +506,7 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 	int    ok = -1;
 	if(*pID) {
 		//
-		// Редактировать элемент
+		// Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ СЌР»РµРјРµРЅС‚
 		//
 		TSessionTbl::Rec ses_rec;
 		if(TSesObj.Search(*pID, &ses_rec) > 0) {
@@ -523,7 +524,7 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 	}
 	else if(rDtm.d) {
 		//
-		// Создать элемент
+		// РЎРѕР·РґР°С‚СЊ СЌР»РµРјРµРЅС‚
 		//
 		int    r = 0;
 		TSessionPacket pack;
@@ -532,7 +533,7 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 		pack.Rec.StDt = rDtm.d;
 		pack.Rec.StTm = rDtm.t;
 		while(ok < 0 && (r = TSesObj.EditDialog(&pack)) > 0) {
-			*pID = NZOR(pack.Rec.ID, *pID); // Во время редактирования нулевой идентификатор мог стать действительным
+			*pID = NZOR(pack.Rec.ID, *pID); // Р’Рѕ РІСЂРµРјСЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РЅСѓР»РµРІРѕР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РјРѕРі СЃС‚Р°С‚СЊ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Рј
 			if(r == 1) {
 				if(TSesObj.PutPacket(pID, &pack, 1)) {
 					THROW(ProcessPrc(pack.Rec.PrcID, 0));
@@ -547,7 +548,7 @@ int SLAPI PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 	}
 	else {
 		//
-		// Редактировать процессор
+		// Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РїСЂРѕС†РµСЃСЃРѕСЂ
 		//
 		if(rowID) {
 			PPObjProcessor prc_obj;
@@ -805,7 +806,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 	else if(item == iChunk) {
 		if(P_View->TSesObj.Search(id, &ses_rec) > 0) {
 			TechTbl::Rec tec_rec;
-			// @v8.1.8 Отображение статьи теперь имеет приоритет перед товаром
+			// @v8.1.8 РћС‚РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚Р°С‚СЊРё С‚РµРїРµСЂСЊ РёРјРµРµС‚ РїСЂРёРѕСЂРёС‚РµС‚ РїРµСЂРµРґ С‚РѕРІР°СЂРѕРј
 			if(ses_rec.ArID)
 				GetArticleName(ses_rec.ArID, temp_buf);
 			else if(ses_rec.TechID && P_View->TSesObj.GetTech(ses_rec.TechID, &tec_rec, 1) > 0 && tec_rec.GoodsID)
@@ -842,7 +843,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 	}
 	else if(item == iChunkBallon) {
 		if(P_View->TSesObj.Search(id, &ses_rec) > 0) {
-			// процессор, основной товар, время начала и окончания, контрагент, примечание
+			// РїСЂРѕС†РµСЃСЃРѕСЂ, РѕСЃРЅРѕРІРЅРѕР№ С‚РѕРІР°СЂ, РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° Рё РѕРєРѕРЅС‡Р°РЅРёСЏ, РєРѕРЅС‚СЂР°РіРµРЅС‚, РїСЂРёРјРµС‡Р°РЅРёРµ
 			TechTbl::Rec tec_rec;
 			ProcessorTbl::Rec prc_rec;
 			MEMSZERO(prc_rec);
@@ -996,7 +997,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 			if(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0) {
 				if(prc_rec.TcbQuant > 0) {
 					//
-					// В записи процессора квант хранится в 5-секундных единицах
+					// Р’ Р·Р°РїРёСЃРё РїСЂРѕС†РµСЃСЃРѕСЂР° РєРІР°РЅС‚ С…СЂР°РЅРёС‚СЃСЏ РІ 5-СЃРµРєСѓРЅРґРЅС‹С… РµРґРёРЅРёС†Р°С…
 					//
 					if(tcbquant <= 0)
 						tcbquant = (prc_rec.TcbQuant * 5);

@@ -16,9 +16,9 @@ static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, u_char * bu
 static void ngx_log_memory_cleanup(void * data);
 
 typedef struct {
-	u_char        * start;
-	u_char        * end;
-	u_char        * pos;
+	u_char * start;
+	u_char * end;
+	u_char * pos;
 	ngx_atomic_t written;
 } ngx_log_memory_buf_t;
 
@@ -176,7 +176,7 @@ void ngx_cdecl ngx_log_debug_core(ngx_log_t * log, ngx_err_t err, const char * f
 
 void ngx_cdecl ngx_log_abort(ngx_err_t err, const char * fmt, ...)
 {
-	u_char   * p;
+	u_char * p;
 	va_list args;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
 	va_start(args, fmt);
@@ -289,7 +289,7 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 
 ngx_int_t ngx_log_open_default(ngx_cycle_t * cycle)
 {
-	ngx_log_t         * log;
+	ngx_log_t  * log;
 	static ngx_str_t error_log = ngx_string(NGX_ERROR_LOG_PATH);
 	if(ngx_log_get_file_log(&cycle->new_log) != NULL) {
 		return NGX_OK;
@@ -359,7 +359,7 @@ ngx_log_t * ngx_log_get_file_log(ngx_log_t * head)
 static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 {
 	ngx_uint_t i, n, d, found;
-	ngx_str_t   * value;
+	ngx_str_t * value;
 	if(cf->args->nelts == 2) {
 		log->log_level = NGX_LOG_ERR;
 		return NGX_CONF_OK;
@@ -413,8 +413,8 @@ static char * ngx_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 
 char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 {
-	ngx_log_t          * new_log;
-	ngx_str_t          * value, name;
+	ngx_log_t   * new_log;
+	ngx_str_t   * value, name;
 	ngx_syslog_peer_t  * peer;
 	if(*head != NULL && (*head)->log_level == 0) {
 		new_log = *head;
@@ -440,7 +440,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 	else if(ngx_strncmp(value[1].data, "memory:", 7) == 0) {
 #if (NGX_DEBUG)
 		size_t size, needed;
-		ngx_pool_cleanup_t    * cln;
+		ngx_pool_cleanup_t  * cln;
 		ngx_log_memory_buf_t  * buf;
 		value[1].len -= 7;
 		value[1].data += 7;

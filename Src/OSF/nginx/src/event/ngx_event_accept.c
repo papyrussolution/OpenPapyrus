@@ -5,25 +5,25 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle);
 static ngx_int_t ngx_disable_accept_events(ngx_cycle_t * cycle, ngx_uint_t all);
 static void ngx_close_accepted_connection(ngx_connection_t * c);
 #if (NGX_DEBUG)
-static void ngx_debug_accepted_connection(ngx_event_conf_t * ecf, ngx_connection_t * c);
+	static void ngx_debug_accepted_connection(ngx_event_conf_t * ecf, ngx_connection_t * c);
 #endif
 
 void ngx_event_accept(ngx_event_t * ev)
 {
 	socklen_t socklen;
 	ngx_err_t err;
-	ngx_log_t         * log;
+	ngx_log_t  * log;
 	ngx_uint_t level;
 	ngx_socket_t s;
-	ngx_event_t       * rev, * wev;
+	ngx_event_t  * rev, * wev;
 	ngx_sockaddr_t sa;
-	ngx_listening_t   * ls;
+	ngx_listening_t * ls;
 	ngx_connection_t  * c, * lc;
 	ngx_event_conf_t  * ecf;
 #if (NGX_HAVE_ACCEPT4)
@@ -254,13 +254,13 @@ void ngx_event_accept(ngx_event_t * ev)
 void ngx_event_recvmsg(ngx_event_t * ev)
 {
 	ssize_t n;
-	ngx_log_t         * log;
+	ngx_log_t  * log;
 	ngx_err_t err;
-	ngx_event_t       * rev, * wev;
+	ngx_event_t  * rev, * wev;
 	struct iovec iov[1];
 	struct msghdr msg;
 	ngx_sockaddr_t sa;
-	ngx_listening_t   * ls;
+	ngx_listening_t * ls;
 	ngx_event_conf_t  * ecf;
 	ngx_connection_t  * c, * lc;
 	static u_char buffer[65535];
@@ -327,169 +327,115 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 
 		if(n == -1) {
 			err = ngx_socket_errno;
-
 			if(err == NGX_EAGAIN) {
-				ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ev->log, err,
-				    "recvmsg() not ready");
+				ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ev->log, err, "recvmsg() not ready");
 				return;
 			}
-
 			ngx_log_error(NGX_LOG_ALERT, ev->log, err, "recvmsg() failed");
-
 			return;
 		}
-
 #if (NGX_STAT_STUB)
 		(void)ngx_atomic_fetch_add(ngx_stat_accepted, 1);
 #endif
-
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
 		if(msg.msg_flags & (MSG_TRUNC|MSG_CTRUNC)) {
-			ngx_log_error(NGX_LOG_ALERT, ev->log, 0,
-			    "recvmsg() truncated data");
+			ngx_log_error(NGX_LOG_ALERT, ev->log, 0, "recvmsg() truncated data");
 			continue;
 		}
 #endif
-
-		ngx_accept_disabled = ngx_cycle->connection_n / 8
-		    - ngx_cycle->free_connection_n;
-
+		ngx_accept_disabled = ngx_cycle->connection_n / 8 - ngx_cycle->free_connection_n;
 		c = ngx_get_connection(lc->fd, ev->log);
 		if(c == NULL) {
 			return;
 		}
-
 		c->shared = 1;
 		c->type = SOCK_DGRAM;
 		c->socklen = msg.msg_namelen;
-
 #if (NGX_STAT_STUB)
 		(void)ngx_atomic_fetch_add(ngx_stat_active, 1);
 #endif
-
 		c->pool = ngx_create_pool(ls->pool_size, ev->log);
 		if(c->pool == NULL) {
 			ngx_close_accepted_connection(c);
 			return;
 		}
-
 		c->sockaddr = ngx_palloc(c->pool, c->socklen);
 		if(c->sockaddr == NULL) {
 			ngx_close_accepted_connection(c);
 			return;
 		}
-
 		ngx_memcpy(c->sockaddr, msg.msg_name, c->socklen);
-
 		log = ngx_palloc(c->pool, sizeof(ngx_log_t));
 		if(log == NULL) {
 			ngx_close_accepted_connection(c);
 			return;
 		}
-
 		*log = ls->log;
-
 		c->send = ngx_udp_send;
 		c->send_chain = ngx_udp_send_chain;
-
 		c->log = log;
 		c->pool->log = log;
-
 		c->listening = ls;
 		c->local_sockaddr = ls->sockaddr;
 		c->local_socklen = ls->socklen;
-
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
-
 		if(ls->wildcard) {
-			struct cmsghdr   * cmsg;
-
+			struct cmsghdr * cmsg;
 			struct sockaddr  * sockaddr;
-
 			sockaddr = ngx_palloc(c->pool, c->local_socklen);
 			if(sockaddr == NULL) {
 				ngx_close_accepted_connection(c);
 				return;
 			}
-
 			ngx_memcpy(sockaddr, c->local_sockaddr, c->local_socklen);
 			c->local_sockaddr = sockaddr;
-
-			for(cmsg = CMSG_FIRSTHDR(&msg);
-			    cmsg != NULL;
-			    cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+			for(cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 #if (NGX_HAVE_IP_RECVDSTADDR)
-
 				if(cmsg->cmsg_level == IPPROTO_IP
 				    && cmsg->cmsg_type == IP_RECVDSTADDR
 				    && sockaddr->sa_family == AF_INET) {
-					struct in_addr      * addr;
-
+					struct in_addr * addr;
 					struct sockaddr_in  * sin;
-
 					addr = (struct in_addr*)CMSG_DATA(cmsg);
 					sin = (struct sockaddr_in*)sockaddr;
 					sin->sin_addr = *addr;
-
 					break;
 				}
-
 #elif (NGX_HAVE_IP_PKTINFO)
-
-				if(cmsg->cmsg_level == IPPROTO_IP
-				    && cmsg->cmsg_type == IP_PKTINFO
-				    && sockaddr->sa_family == AF_INET) {
-					struct in_pktinfo   * pkt;
-
+				if(cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_PKTINFO && sockaddr->sa_family == AF_INET) {
+					struct in_pktinfo * pkt;
 					struct sockaddr_in  * sin;
-
 					pkt = (struct in_pktinfo*)CMSG_DATA(cmsg);
 					sin = (struct sockaddr_in*)sockaddr;
 					sin->sin_addr = pkt->ipi_addr;
-
 					break;
 				}
 
 #endif
-
 #if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
-
-				if(cmsg->cmsg_level == IPPROTO_IPV6
-				    && cmsg->cmsg_type == IPV6_PKTINFO
-				    && sockaddr->sa_family == AF_INET6) {
-					struct in6_pktinfo   * pkt6;
-
+				if(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO && sockaddr->sa_family == AF_INET6) {
+					struct in6_pktinfo * pkt6;
 					struct sockaddr_in6  * sin6;
-
 					pkt6 = (struct in6_pktinfo*)CMSG_DATA(cmsg);
 					sin6 = (struct sockaddr_in6*)sockaddr;
 					sin6->sin6_addr = pkt6->ipi6_addr;
-
 					break;
 				}
-
 #endif
 			}
 		}
-
 #endif
-
 		c->buffer = ngx_create_temp_buf(c->pool, n);
 		if(c->buffer == NULL) {
 			ngx_close_accepted_connection(c);
 			return;
 		}
-
 		c->buffer->last = ngx_cpymem(c->buffer->last, buffer, n);
-
 		rev = c->read;
 		wev = c->write;
-
 		wev->ready = 1;
-
 		rev->log = log;
 		wev->log = log;
-
 		/*
 		 * TODO: MT: - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
@@ -634,13 +580,12 @@ u_char * ngx_accept_log_error(ngx_log_t * log, u_char * buf, size_t len)
 static void ngx_debug_accepted_connection(ngx_event_conf_t * ecf, ngx_connection_t * c)
 {
 	struct sockaddr_in * sin;
-	ngx_cidr_t * cidr;
 	ngx_uint_t i;
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6 * sin6;
 	ngx_uint_t n;
 #endif
-	cidr = (ngx_cidr_t *)ecf->debug_connection.elts;
+	ngx_cidr_t * cidr = (ngx_cidr_t *)ecf->debug_connection.elts;
 	for(i = 0; i < ecf->debug_connection.nelts; i++) {
 		if(cidr[i].family != (ngx_uint_t)c->sockaddr->sa_family) {
 			goto next;

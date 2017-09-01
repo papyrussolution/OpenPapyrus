@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 static char * ngx_http_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd,
     void * conf);
@@ -56,8 +56,8 @@ ngx_module_t ngx_http_upstream_zone_module = {
 static char * ngx_http_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ssize_t size;
-	ngx_str_t                      * value;
-	ngx_http_upstream_srv_conf_t   * uscf;
+	ngx_str_t  * value;
+	ngx_http_upstream_srv_conf_t * uscf;
 	ngx_http_upstream_main_conf_t  * umcf;
 
 	uscf = (ngx_http_upstream_srv_conf_t *)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
@@ -108,9 +108,9 @@ static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * d
 {
 	size_t len;
 	ngx_uint_t i;
-	ngx_slab_pool_t                * shpool;
-	ngx_http_upstream_rr_peers_t   * peers, ** peersp;
-	ngx_http_upstream_srv_conf_t   * uscf, ** uscfp;
+	ngx_slab_pool_t  * shpool;
+	ngx_http_upstream_rr_peers_t * peers, ** peersp;
+	ngx_http_upstream_srv_conf_t * uscf, ** uscfp;
 	ngx_http_upstream_main_conf_t  * umcf;
 
 	shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
@@ -170,7 +170,7 @@ static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * d
 static ngx_http_upstream_rr_peers_t * ngx_http_upstream_zone_copy_peers(ngx_slab_pool_t * shpool,
     ngx_http_upstream_srv_conf_t * uscf)
 {
-	ngx_http_upstream_rr_peer_t   * peer, ** peerp;
+	ngx_http_upstream_rr_peer_t * peer, ** peerp;
 	ngx_http_upstream_rr_peers_t  * peers, * backup;
 
 	peers = (ngx_http_upstream_rr_peers_t *)ngx_slab_alloc(shpool, sizeof(ngx_http_upstream_rr_peers_t));

@@ -53,7 +53,27 @@ void SLAPI PPAccTurn::SwapDbtCrd()
 	memswap(&DbtID, &CrdID, sizeof(AcctID));
 	Exchange(&DbtSheet, &CrdSheet);
 }
+//
+//
+//
+PPAccTurnTempl::ATSubstObjects::ATSubstObjects()
+{
+}
 
+void PPAccTurnTempl::ATSubstObjects::destroy()
+{
+	PrimList.clear();
+	ForeignList.clear();
+}
+
+PPAccTurnTempl::ATSubstObjects::Item::Item()
+{
+	Aid.Clear();
+	AcsID = 0;
+}
+//
+//
+//
 class PPAccTurnTempl_Before6406 { // size=PROPRECFIXSIZE
 public:
 	PPID   ObjType;       // Const=PPOBJ_OPRKIND
@@ -1105,11 +1125,12 @@ IMPL_HANDLE_EVENT(ATurnTmplDialog)
 				prim = PPDEBIT;
 			}
 		}
-		else
+		else {
 			if(prim == PPDEBIT) {
 				swapPrim();
 				prim = PPCREDIT;
 			}
+		}
 		clearEvent(event);
 	}
 	else if(event.isKeyDown(kbF2) || event.isCmd(cmAturnTmplSelAmtSymb)) {

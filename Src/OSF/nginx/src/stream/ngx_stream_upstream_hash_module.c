@@ -9,7 +9,7 @@
 
 typedef struct {
 	uint32_t hash;
-	ngx_str_t                            * server;
+	ngx_str_t   * server;
 } ngx_stream_upstream_chash_point_t;
 
 typedef struct {
@@ -19,7 +19,7 @@ typedef struct {
 
 typedef struct {
 	ngx_stream_complex_value_t key;
-	ngx_stream_upstream_chash_points_t   * points;
+	ngx_stream_upstream_chash_points_t * points;
 } ngx_stream_upstream_hash_srv_conf_t;
 
 typedef struct {
@@ -105,7 +105,7 @@ static ngx_int_t ngx_stream_upstream_init_hash(ngx_conf_t * cf,
 static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s,
     ngx_stream_upstream_srv_conf_t * us)
 {
-	ngx_stream_upstream_hash_srv_conf_t   * hcf;
+	ngx_stream_upstream_hash_srv_conf_t * hcf;
 	ngx_stream_upstream_hash_peer_data_t  * hp;
 	hp = (ngx_stream_upstream_hash_peer_data_t *)ngx_palloc(s->connection->pool, sizeof(ngx_stream_upstream_hash_peer_data_t));
 	if(hp == NULL) {
@@ -249,14 +249,14 @@ next:
 static ngx_int_t ngx_stream_upstream_init_chash(ngx_conf_t * cf,
     ngx_stream_upstream_srv_conf_t * us)
 {
-	u_char                               * host, * port, c;
+	u_char * host, * port, c;
 	size_t host_len, port_len, size;
 	uint32_t hash, base_hash;
-	ngx_str_t                            * server;
+	ngx_str_t   * server;
 	ngx_uint_t npoints, i, j;
-	ngx_stream_upstream_rr_peer_t        * peer;
-	ngx_stream_upstream_rr_peers_t       * peers;
-	ngx_stream_upstream_chash_points_t   * points;
+	ngx_stream_upstream_rr_peer_t * peer;
+	ngx_stream_upstream_rr_peers_t  * peers;
+	ngx_stream_upstream_chash_points_t * points;
 	ngx_stream_upstream_hash_srv_conf_t  * hcf;
 	union {
 		uint32_t value;
@@ -418,7 +418,7 @@ static ngx_int_t ngx_stream_upstream_init_chash_peer(ngx_stream_session_t * s,
     ngx_stream_upstream_srv_conf_t * us)
 {
 	uint32_t hash;
-	ngx_stream_upstream_hash_srv_conf_t   * hcf;
+	ngx_stream_upstream_hash_srv_conf_t * hcf;
 	ngx_stream_upstream_hash_peer_data_t  * hp;
 	if(ngx_stream_upstream_init_hash_peer(s, us) != NGX_OK) {
 		return NGX_ERROR;
@@ -439,12 +439,12 @@ static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, 
 
 	time_t now;
 	intptr_t m;
-	ngx_str_t                            * server;
+	ngx_str_t   * server;
 	ngx_int_t total;
 	ngx_uint_t i, n, best_i;
-	ngx_stream_upstream_rr_peer_t        * peer, * best;
-	ngx_stream_upstream_chash_point_t    * point;
-	ngx_stream_upstream_chash_points_t   * points;
+	ngx_stream_upstream_rr_peer_t * peer, * best;
+	ngx_stream_upstream_chash_point_t  * point;
+	ngx_stream_upstream_chash_points_t * points;
 	ngx_stream_upstream_hash_srv_conf_t  * hcf;
 
 	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0,
@@ -565,8 +565,8 @@ static void * ngx_stream_upstream_hash_create_conf(ngx_conf_t * cf)
 static char * ngx_stream_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_upstream_hash_srv_conf_t * hcf = (ngx_stream_upstream_hash_srv_conf_t *)conf;
-	ngx_str_t                           * value;
-	ngx_stream_upstream_srv_conf_t      * uscf;
+	ngx_str_t  * value;
+	ngx_stream_upstream_srv_conf_t * uscf;
 	ngx_stream_compile_complex_value_t ccv;
 	value = (ngx_str_t*)cf->args->elts;
 	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));

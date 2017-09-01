@@ -234,16 +234,16 @@ ngx_mail_ssl_create_conf(ngx_conf_t *cf)
     }
 
     /*
-     * set by ngx_pcalloc():
+   * set by ngx_pcalloc():
      *
-     *     scf->protocols = 0;
-     *     scf->dhparam = { 0, NULL };
-     *     scf->ecdh_curve = { 0, NULL };
-     *     scf->client_certificate = { 0, NULL };
-     *     scf->trusted_certificate = { 0, NULL };
-     *     scf->crl = { 0, NULL };
-     *     scf->ciphers = { 0, NULL };
-     *     scf->shm_zone = NULL;
+   *     scf->protocols = 0;
+   *     scf->dhparam = { 0, NULL };
+   *     scf->ecdh_curve = { 0, NULL };
+   *     scf->client_certificate = { 0, NULL };
+   *     scf->trusted_certificate = { 0, NULL };
+   *     scf->crl = { 0, NULL };
+   *     scf->ciphers = { 0, NULL };
+   *     scf->shm_zone = NULL;
      */
 
     scf->enable = NGX_CONF_UNSET;

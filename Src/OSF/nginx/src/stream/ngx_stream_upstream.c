@@ -113,7 +113,7 @@ static ngx_int_t ngx_stream_upstream_add_variables(ngx_conf_t * cf)
 static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char                       * p;
+	u_char   * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_stream_upstream_state_t  * state;
@@ -166,7 +166,7 @@ static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char                       * p;
+	u_char   * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_stream_upstream_state_t  * state;
@@ -211,7 +211,7 @@ static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	u_char                       * p;
+	u_char   * p;
 	size_t len;
 	ngx_uint_t i;
 	ngx_msec_int_t ms;
@@ -274,14 +274,14 @@ next:
 
 static char * ngx_stream_upstream(ngx_conf_t * cf, ngx_command_t * cmd, void * dummy)
 {
-	char                            * rv;
-	void                            * mconf;
-	ngx_str_t                       * value;
+	char   * rv;
+	void   * mconf;
+	ngx_str_t   * value;
 	ngx_url_t u;
 	ngx_uint_t m;
 	ngx_conf_t pcf;
-	ngx_stream_module_t             * module;
-	ngx_stream_conf_ctx_t           * ctx, * stream_ctx;
+	ngx_stream_module_t   * module;
+	ngx_stream_conf_ctx_t * ctx, * stream_ctx;
 	ngx_stream_upstream_srv_conf_t  * uscf;
 
 	memzero(&u, sizeof(ngx_url_t));
@@ -372,7 +372,7 @@ static char * ngx_stream_upstream_server(ngx_conf_t * cf, ngx_command_t * cmd, v
 {
 	ngx_stream_upstream_srv_conf_t  * uscf = (ngx_stream_upstream_srv_conf_t *)conf;
 	time_t fail_timeout;
-	ngx_str_t                     * value, s;
+	ngx_str_t * value, s;
 	ngx_url_t u;
 	ngx_int_t weight, max_conns, max_fails;
 	ngx_uint_t i;
@@ -517,8 +517,8 @@ not_supported:
 ngx_stream_upstream_srv_conf_t * ngx_stream_upstream_add(ngx_conf_t * cf, ngx_url_t * u, ngx_uint_t flags)
 {
 	ngx_uint_t i;
-	ngx_stream_upstream_server_t     * us;
-	ngx_stream_upstream_srv_conf_t   * uscf, ** uscfp;
+	ngx_stream_upstream_server_t   * us;
+	ngx_stream_upstream_srv_conf_t * uscf, ** uscfp;
 	ngx_stream_upstream_main_conf_t  * umcf;
 
 	if(!(flags & NGX_STREAM_UPSTREAM_CREATE)) {

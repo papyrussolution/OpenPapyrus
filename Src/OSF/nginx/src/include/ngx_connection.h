@@ -2,18 +2,17 @@
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_CONNECTION_H_INCLUDED_
 #define _NGX_CONNECTION_H_INCLUDED_
 
 #include <ngx_config.h>
 #include <ngx_core.h>
 
-typedef struct ngx_listening_s ngx_listening_t;
+//typedef struct ngx_listening_s ngx_listening_t;
 
-struct ngx_listening_s {
+struct /*ngx_listening_s*/ngx_listening_t {
 	ngx_socket_t fd;
-	struct sockaddr    * sockaddr;
+	struct sockaddr  * sockaddr;
 	socklen_t socklen;          /* size of sockaddr */
 	size_t addr_text_max_len;
 	ngx_str_t addr_text;
@@ -28,16 +27,16 @@ struct ngx_listening_s {
 #endif
 	/* handler of accepted connection */
 	ngx_connection_handler_pt handler;
-	void               * servers; /* array of ngx_http_in_addr_t, for example */
+	void * servers; /* array of ngx_http_in_addr_t, for example */
 	ngx_log_t log;
-	ngx_log_t          * logp;
+	ngx_log_t   * logp;
 	size_t pool_size;
 	/* should be here because of the AcceptEx() preread */
 	size_t post_accept_buffer_size;
 	/* should be here because of the deferred accept */
 	ngx_msec_t post_accept_timeout;
-	ngx_listening_t    * previous;
-	ngx_connection_t   * connection;
+	ngx_listening_t  * previous;
+	ngx_connection_t * connection;
 	ngx_uint_t worker;
 	unsigned open : 1;
 	unsigned remain : 1;
@@ -60,12 +59,11 @@ struct ngx_listening_s {
 	unsigned delete_deferred : 1;
 	unsigned add_deferred : 1;
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-	char               * accept_filter;
+	char * accept_filter;
 #endif
 #if (NGX_HAVE_SETFIB)
 	int setfib;
 #endif
-
 #if (NGX_HAVE_TCP_FASTOPEN)
 	int fastopen;
 #endif
@@ -96,20 +94,20 @@ typedef enum {
 #define NGX_HTTP_V2_BUFFERED   0x02
 
 struct ngx_connection_s {
-	void               * data;
-	ngx_event_t        * read;
-	ngx_event_t        * write;
+	void * data;
+	ngx_event_t * read;
+	ngx_event_t * write;
 	ngx_socket_t fd;
 	ngx_recv_pt recv;
 	ngx_send_pt send;
 	ngx_recv_chain_pt recv_chain;
 	ngx_send_chain_pt send_chain;
-	ngx_listening_t    * listening;
+	ngx_listening_t  * listening;
 	nginx_off_t sent;
-	ngx_log_t          * log;
-	ngx_pool_t         * pool;
+	ngx_log_t   * log;
+	ngx_pool_t  * pool;
 	int type;
-	struct sockaddr    * sockaddr;
+	struct sockaddr  * sockaddr;
 	socklen_t socklen;
 	ngx_str_t addr_text;
 	ngx_str_t proxy_protocol_addr;
@@ -117,9 +115,9 @@ struct ngx_connection_s {
 #if (NGX_SSL || NGX_COMPAT)
 	ngx_ssl_connection_t  * ssl;
 #endif
-	struct sockaddr    * local_sockaddr;
+	struct sockaddr  * local_sockaddr;
 	socklen_t local_socklen;
-	ngx_buf_t          * buffer;
+	ngx_buf_t   * buffer;
 	ngx_queue_t queue;
 	ngx_atomic_uint_t number;
 	ngx_uint_t requests;
@@ -147,7 +145,6 @@ struct ngx_connection_s {
 };
 
 #define ngx_set_connection_log(c, l)					     \
-									     \
 	c->log->file = l->file;							 \
 	c->log->next = l->next;							 \
 	c->log->writer = l->writer;						 \
@@ -167,10 +164,8 @@ void ngx_close_idle_connections(ngx_cycle_t * cycle);
 ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx_uint_t port);
 ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c);
 ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text);
-
 ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log);
 void ngx_free_connection(ngx_connection_t * c);
-
 void ngx_reusable_connection(ngx_connection_t * c, ngx_uint_t reusable);
 
 #endif /* _NGX_CONNECTION_H_INCLUDED_ */

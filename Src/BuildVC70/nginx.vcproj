@@ -2737,16 +2737,10 @@
 				RelativePath="..\Osf\nginx\src\include\nginx.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_array.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_auto_config.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_auto_headers.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_buf.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_conf_file.h">
@@ -2759,15 +2753,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_core.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_crc.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_crc32.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_crypt.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_cycle.h">
@@ -2791,19 +2776,10 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_event_timer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_file.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_hash.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_cache.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_config.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_core_module.h">
@@ -2812,19 +2788,10 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_http_perl_module.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_request.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_script.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_ssi_filter_module.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_ssl_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_upstream.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_upstream_round_robin.h">
@@ -2836,16 +2803,7 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_http_v2_module.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_variables.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_inet.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_iocp_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_list.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_log.h">
@@ -2872,34 +2830,10 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_module.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_murmurhash.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_open_file_cache.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_palloc.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_parse.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_parse_time.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_proxy_protocol.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_queue.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_radix_tree.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_rbtree.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_regex.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_resolver.h">
@@ -2912,9 +2846,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_shmtx.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_slab.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_stream.h">
@@ -2936,12 +2867,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_string.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_syslog.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_thread_pool.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_times.h">

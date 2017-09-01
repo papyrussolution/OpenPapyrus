@@ -6,8 +6,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
-
+//#include <ngx_http.h>
 #include <zlib.h>
 
 typedef struct {
@@ -16,14 +15,14 @@ typedef struct {
 } ngx_http_gunzip_conf_t;
 
 typedef struct {
-	ngx_chain_t         * in;
-	ngx_chain_t         * free;
-	ngx_chain_t         * busy;
-	ngx_chain_t         * out;
+	ngx_chain_t  * in;
+	ngx_chain_t  * free;
+	ngx_chain_t  * busy;
+	ngx_chain_t  * out;
 	ngx_chain_t        ** last_out;
 
-	ngx_buf_t           * in_buf;
-	ngx_buf_t           * out_buf;
+	ngx_buf_t * in_buf;
+	ngx_buf_t * out_buf;
 	ngx_int_t bufs;
 
 	unsigned started : 1;
@@ -108,23 +107,17 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 {
-	ngx_http_gunzip_ctx_t   * ctx;
-	ngx_http_gunzip_conf_t  * conf;
-	conf = (ngx_http_gunzip_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_gunzip_filter_module);
+	ngx_http_gunzip_ctx_t * ctx;
+	ngx_http_gunzip_conf_t  * conf = (ngx_http_gunzip_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_gunzip_filter_module);
 	/* TODO support multiple content-codings */
 	/* TODO always gunzip - due to configuration or module request */
 	/* TODO ignore content encoding? */
-
-	if(!conf->enable
-	    || r->headers_out.content_encoding == NULL
+	if(!conf->enable || r->headers_out.content_encoding == NULL
 	    || r->headers_out.content_encoding->value.len != 4
-	    || ngx_strncasecmp(r->headers_out.content_encoding->value.data,
-		    (u_char*)"gzip", 4) != 0) {
+	    || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (u_char*)"gzip", 4) != 0) {
 		return ngx_http_next_header_filter(r);
 	}
-
 	r->gzip_vary = 1;
-
 	if(!r->gzip_tested) {
 		if(ngx_http_gzip_ok(r) == NGX_OK) {
 			return ngx_http_next_header_filter(r);
@@ -159,7 +152,7 @@ static ngx_int_t ngx_http_gunzip_body_filter(ngx_http_request_t * r, ngx_chain_t
 {
 	int rc;
 	ngx_uint_t flush;
-	ngx_chain_t            * cl;
+	ngx_chain_t  * cl;
 	ngx_http_gunzip_ctx_t  * ctx;
 	ctx = (ngx_http_gunzip_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_gunzip_filter_module);
 	if(ctx == NULL || ctx->done) {
@@ -378,7 +371,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate(ngx_http_request_t * r,
     ngx_http_gunzip_ctx_t * ctx)
 {
 	int rc;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
 
 	ngx_log_debug6(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -522,7 +515,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r,
     ngx_http_gunzip_ctx_t * ctx)
 {
 	int rc;
-	ngx_buf_t    * b;
+	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,

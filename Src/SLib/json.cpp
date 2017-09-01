@@ -2921,7 +2921,7 @@ SLTEST_R(JSON)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif

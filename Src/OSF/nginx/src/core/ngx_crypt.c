@@ -4,7 +4,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_crypt.h>
 #include <ngx_md5.h>
 #include <ngx_sha1.h>
 
@@ -40,11 +39,11 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 {
 	ngx_int_t n;
 	ngx_uint_t i;
-	u_char            * p, * last, final[16];
-	size_t saltlen, keylen;
+	u_char  * p, * last, final[16];
+	size_t saltlen;
 	ngx_md5_t md5, ctx1;
 	/* Apache's apr1 crypt is Poul-Henning Kamp's md5 crypt with $apr1$ magic */
-	keylen = ngx_strlen(key);
+	size_t keylen = ngx_strlen(key);
 	/* true salt: no magic, max 8 chars, stop at first $ */
 	salt += sizeof("$apr1$") - 1;
 	last = salt + 8;

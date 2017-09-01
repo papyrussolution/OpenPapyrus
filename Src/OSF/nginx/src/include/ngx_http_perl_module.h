@@ -7,23 +7,22 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include <ngx_http.h>
+//#include <ngx_http.h>
 #include <nginx.h>
-
 #include <EXTERN.h>
 #include <perl.h>
 
-typedef ngx_http_request_t   * nginx;
+typedef ngx_http_request_t * nginx;
 
 typedef struct {
 	ngx_str_t filename;
 	ngx_str_t redirect_uri;
 	ngx_str_t redirect_args;
-	SV                       * next;
+	SV   * next;
 	ngx_uint_t done;                  /* unsigned  done:1; */
-	ngx_array_t              * variables; /* array of ngx_http_perl_var_t */
+	ngx_array_t    * variables; /* array of ngx_http_perl_var_t */
 #if (NGX_HTTP_SSI)
-	ngx_http_ssi_ctx_t       * ssi;
+	ngx_http_ssi_ctx_t  * ssi;
 #endif
 } ngx_http_perl_ctx_t;
 

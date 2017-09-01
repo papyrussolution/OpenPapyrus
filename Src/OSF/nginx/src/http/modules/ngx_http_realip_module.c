@@ -6,7 +6,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #define NGX_HTTP_REALIP_XREALIP  0
 #define NGX_HTTP_REALIP_XFWD     1
@@ -14,7 +14,7 @@
 #define NGX_HTTP_REALIP_PROXY    3
 
 typedef struct {
-	ngx_array_t       * from; /* array of ngx_cidr_t */
+	ngx_array_t  * from; /* array of ngx_cidr_t */
 	ngx_uint_t type;
 	ngx_uint_t hash;
 	ngx_str_t header;
@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
 	ngx_connection_t  * connection;
-	struct sockaddr   * sockaddr;
+	struct sockaddr * sockaddr;
 
 	socklen_t socklen;
 	ngx_str_t addr_text;
@@ -114,16 +114,16 @@ static ngx_http_variable_t ngx_http_realip_vars[] = {
 
 static ngx_int_t ngx_http_realip_handler(ngx_http_request_t * r)
 {
-	u_char                      * p;
+	u_char  * p;
 	size_t len;
-	ngx_str_t                   * value;
+	ngx_str_t * value;
 	ngx_uint_t i, hash;
 	ngx_addr_t addr;
-	ngx_array_t                 * xfwd;
-	ngx_list_part_t             * part;
-	ngx_table_elt_t             * header;
-	ngx_connection_t            * c;
-	ngx_http_realip_ctx_t       * ctx;
+	ngx_array_t * xfwd;
+	ngx_list_part_t   * part;
+	ngx_table_elt_t   * header;
+	ngx_connection_t  * c;
+	ngx_http_realip_ctx_t  * ctx;
 	ngx_http_realip_loc_conf_t  * rlcf;
 
 	rlcf = (ngx_http_realip_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_realip_module);
@@ -219,10 +219,10 @@ found:
 static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * addr)
 {
 	size_t len;
-	u_char                 * p;
+	u_char * p;
 	u_char text[NGX_SOCKADDR_STRLEN];
-	ngx_connection_t       * c;
-	ngx_pool_cleanup_t     * cln;
+	ngx_connection_t  * c;
+	ngx_pool_cleanup_t   * cln;
 	ngx_http_realip_ctx_t  * ctx;
 
 	cln = ngx_pool_cleanup_add(r->pool, sizeof(ngx_http_realip_ctx_t));
@@ -276,11 +276,11 @@ static char * ngx_http_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 {
 	ngx_http_realip_loc_conf_t * rlcf = (ngx_http_realip_loc_conf_t *)conf;
 	ngx_int_t rc;
-	ngx_str_t            * value;
+	ngx_str_t  * value;
 	ngx_url_t u;
 	ngx_cidr_t c, * cidr;
 	ngx_uint_t i;
-	struct sockaddr_in   * sin;
+	struct sockaddr_in * sin;
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
 #endif
@@ -453,7 +453,7 @@ static ngx_int_t ngx_http_realip_add_variables(ngx_conf_t * cf)
 
 static ngx_int_t ngx_http_realip_init(ngx_conf_t * cf)
 {
-	ngx_http_handler_pt        * h;
+	ngx_http_handler_pt * h;
 	ngx_http_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
@@ -477,7 +477,7 @@ static ngx_int_t ngx_http_realip_init(ngx_conf_t * cf)
 
 static ngx_http_realip_ctx_t * ngx_http_realip_get_module_ctx(ngx_http_request_t * r)
 {
-	ngx_pool_cleanup_t     * cln;
+	ngx_pool_cleanup_t   * cln;
 	ngx_http_realip_ctx_t  * ctx;
 
 	ctx = (ngx_http_realip_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_realip_module);
@@ -502,7 +502,7 @@ static ngx_http_realip_ctx_t * ngx_http_realip_get_module_ctx(ngx_http_request_t
 static ngx_int_t ngx_http_realip_remote_addr_variable(ngx_http_request_t * r,
     ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_str_t              * addr_text;
+	ngx_str_t    * addr_text;
 	ngx_http_realip_ctx_t  * ctx;
 
 	ctx = ngx_http_realip_get_module_ctx(r);
@@ -522,7 +522,7 @@ static ngx_int_t ngx_http_realip_remote_port_variable(ngx_http_request_t * r,
     ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_uint_t port;
-	struct sockaddr        * sa;
+	struct sockaddr * sa;
 
 	ngx_http_realip_ctx_t  * ctx;
 

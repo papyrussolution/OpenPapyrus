@@ -5,9 +5,9 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
-ngx_os_io_t ngx_io;
+ngx_os_io_t ngx_io; // @global
 
 static void ngx_drain_connections(ngx_cycle_t * cycle);
 
@@ -141,8 +141,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 			    len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
 			    break;
 			default:
-			    ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno,
-			    "the inherited socket #%d has an unsupported protocol family", ls[i].fd);
+			    ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno, "the inherited socket #%d has an unsupported protocol family", ls[i].fd);
 			    ls[i].ignore = 1;
 			    continue;
 		}
@@ -412,7 +411,7 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 {
 	int value;
 	ngx_uint_t i;
-	ngx_listening_t           * ls;
+	ngx_listening_t * ls;
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
 	struct accept_filter_arg af;
 #endif
@@ -495,18 +494,10 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 #if (NGX_HAVE_DEFERRED_ACCEPT)
 #ifdef SO_ACCEPTFILTER
 		if(ls[i].delete_deferred) {
-			if(setsockopt(ls[i].fd, SOL_SOCKET, SO_ACCEPTFILTER, NULL, 0)
-			    == -1) {
-				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno,
-				    "setsockopt(SO_ACCEPTFILTER, NULL) "
-				    "for %V failed, ignored",
-				    &ls[i].addr_text);
-
+			if(setsockopt(ls[i].fd, SOL_SOCKET, SO_ACCEPTFILTER, NULL, 0) == -1) {
+				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "setsockopt(SO_ACCEPTFILTER, NULL) for %V failed, ignored", &ls[i].addr_text);
 				if(ls[i].accept_filter) {
-					ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
-					    "could not change the accept filter "
-					    "to \"%s\" for %V, ignored",
-					    ls[i].accept_filter, &ls[i].addr_text);
+					ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "could not change the accept filter to \"%s\" for %V, ignored", ls[i].accept_filter, &ls[i].addr_text);
 				}
 				continue;
 			}
@@ -624,7 +615,7 @@ void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 {
 	ngx_uint_t instance;
-	ngx_event_t       * rev, * wev;
+	ngx_event_t  * rev, * wev;
 	ngx_connection_t  * c;
 	/* disable warning: Win32 SOCKET is u_int while UNIX socket is int */
 	if(ngx_cycle->files && (ngx_uint_t)s >= ngx_cycle->files_n) {
@@ -677,61 +668,58 @@ void ngx_free_connection(ngx_connection_t * c)
 
 void ngx_close_connection(ngx_connection_t * c)
 {
-	ngx_err_t err;
 	ngx_uint_t log_error, level;
 	ngx_socket_t fd;
-	if(c->fd == (ngx_socket_t)-1) {
+	if(c->fd == (ngx_socket_t)-1)
 		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "connection already closed");
-		return;
-	}
-	if(c->read->timer_set) {
-		ngx_del_timer(c->read);
-	}
-	if(c->write->timer_set) {
-		ngx_del_timer(c->write);
-	}
-	if(!c->shared) {
-		if(ngx_del_conn) {
-			ngx_del_conn(c, NGX_CLOSE_EVENT);
+	else {
+		if(c->read->timer_set) {
+			ngx_del_timer(c->read);
 		}
-		else {
-			if(c->read->active || c->read->disabled) {
-				ngx_del_event(c->read, NGX_READ_EVENT, NGX_CLOSE_EVENT);
-			}
-			if(c->write->active || c->write->disabled) {
-				ngx_del_event(c->write, NGX_WRITE_EVENT, NGX_CLOSE_EVENT);
-			}
+		if(c->write->timer_set) {
+			ngx_del_timer(c->write);
 		}
-	}
-	if(c->read->posted) {
-		ngx_delete_posted_event(c->read);
-	}
-	if(c->write->posted) {
-		ngx_delete_posted_event(c->write);
-	}
-	c->read->closed = 1;
-	c->write->closed = 1;
-	ngx_reusable_connection(c, 0);
-	log_error = c->log_error;
-	ngx_free_connection(c);
-	fd = c->fd;
-	c->fd = (ngx_socket_t)-1;
-	if(c->shared) {
-		return;
-	}
-	if(ngx_close_socket(fd) == -1) {
-		err = ngx_socket_errno;
-		if(err == NGX_ECONNRESET || err == NGX_ENOTCONN) {
-			switch(log_error) {
-				case NGX_ERROR_INFO: level = NGX_LOG_INFO; break;
-				case NGX_ERROR_ERR:  level = NGX_LOG_ERR;  break;
-				default: level = NGX_LOG_CRIT;
+		if(!c->shared) {
+			if(ngx_del_conn) {
+				ngx_del_conn(c, NGX_CLOSE_EVENT);
+			}
+			else {
+				if(c->read->active || c->read->disabled) {
+					ngx_del_event(c->read, NGX_READ_EVENT, NGX_CLOSE_EVENT);
+				}
+				if(c->write->active || c->write->disabled) {
+					ngx_del_event(c->write, NGX_WRITE_EVENT, NGX_CLOSE_EVENT);
+				}
 			}
 		}
-		else {
-			level = NGX_LOG_CRIT;
+		if(c->read->posted) {
+			ngx_delete_posted_event(c->read);
 		}
-		ngx_log_error(level, c->log, err, ngx_close_socket_n " %d failed", fd);
+		if(c->write->posted) {
+			ngx_delete_posted_event(c->write);
+		}
+		c->read->closed = 1;
+		c->write->closed = 1;
+		ngx_reusable_connection(c, 0);
+		log_error = c->log_error;
+		ngx_free_connection(c);
+		fd = c->fd;
+		c->fd = (ngx_socket_t)-1;
+		if(!c->shared) {
+			if(ngx_close_socket(fd) == -1) {
+				ngx_err_t err = ngx_socket_errno;
+				if(err == NGX_ECONNRESET || err == NGX_ENOTCONN) {
+					switch(log_error) {
+						case NGX_ERROR_INFO: level = NGX_LOG_INFO; break;
+						case NGX_ERROR_ERR:  level = NGX_LOG_ERR;  break;
+						default: level = NGX_LOG_CRIT;
+					}
+				}
+				else
+					level = NGX_LOG_CRIT;
+				ngx_log_error(level, c->log, err, ngx_close_socket_n " %d failed", fd);
+			}
+		}
 	}
 }
 
@@ -839,26 +827,24 @@ ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx
 
 ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c)
 {
-	int tcp_nodelay;
-	if(c->tcp_nodelay != NGX_TCP_NODELAY_UNSET) {
-		return NGX_OK;
-	}
-	ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0, "tcp_nodelay");
-	tcp_nodelay = 1;
-	if(setsockopt(c->fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(int)) == -1) {
+	if(c->tcp_nodelay == NGX_TCP_NODELAY_UNSET) {
+		ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0, "tcp_nodelay");
+		int tcp_nodelay = 1;
+		if(setsockopt(c->fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(int)) == -1) {
 #if (NGX_SOLARIS)
-		if(c->log_error == NGX_ERROR_INFO) {
-			/* Solaris returns EINVAL if a socket has been shut down */
-			c->log_error = NGX_ERROR_IGNORE_EINVAL;
+			if(c->log_error == NGX_ERROR_INFO) {
+				/* Solaris returns EINVAL if a socket has been shut down */
+				c->log_error = NGX_ERROR_IGNORE_EINVAL;
+				ngx_connection_error(c, ngx_socket_errno, "setsockopt(TCP_NODELAY) failed");
+				c->log_error = NGX_ERROR_INFO;
+				return NGX_ERROR;
+			}
+#endif
 			ngx_connection_error(c, ngx_socket_errno, "setsockopt(TCP_NODELAY) failed");
-			c->log_error = NGX_ERROR_INFO;
 			return NGX_ERROR;
 		}
-#endif
-		ngx_connection_error(c, ngx_socket_errno, "setsockopt(TCP_NODELAY) failed");
-		return NGX_ERROR;
+		c->tcp_nodelay = NGX_TCP_NODELAY_SET;
 	}
-	c->tcp_nodelay = NGX_TCP_NODELAY_SET;
 	return NGX_OK;
 }
 
@@ -885,8 +871,7 @@ ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text)
 #else
 	    || err == NGX_EPIPE
 #endif
-	    || err == NGX_ENOTCONN || err == NGX_ETIMEDOUT || err == NGX_ECONNREFUSED || err == NGX_ENETDOWN
-	    || err == NGX_ENETUNREACH || err == NGX_EHOSTDOWN || err == NGX_EHOSTUNREACH) {
+	    || oneof7(err, NGX_ENOTCONN, NGX_ETIMEDOUT, NGX_ECONNREFUSED, NGX_ENETDOWN, NGX_ENETUNREACH, NGX_EHOSTDOWN, NGX_EHOSTUNREACH)) {
 		switch(c->log_error) {
 			case NGX_ERROR_IGNORE_EINVAL:
 			case NGX_ERROR_IGNORE_ECONNRESET:

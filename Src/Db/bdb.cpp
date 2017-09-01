@@ -1845,8 +1845,11 @@ SLTEST_R(BerkeleyDB)
 			}
 		}
 	}
-	CATCHZOK
-	return ok;
+	CATCH
+		ok = 0;
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

@@ -78,9 +78,9 @@ static ngx_inline void ngx_regex_malloc_done(void)
 ngx_int_t ngx_regex_compile(ngx_regex_compile_t * rc)
 {
 	int n, erroff;
-	char             * p;
-	pcre             * re;
-	const char       * errstr;
+	char   * p;
+	pcre   * re;
+	const char  * errstr;
 	ngx_regex_elt_t  * elt;
 
 	ngx_regex_malloc_init(rc->pool);
@@ -238,7 +238,7 @@ static void ngx_pcre_free_studies(void * data)
 static ngx_int_t ngx_regex_module_init(ngx_cycle_t * cycle)
 {
 	int opt;
-	const char       * errstr;
+	const char  * errstr;
 	ngx_uint_t i;
 	ngx_list_part_t  * part;
 	ngx_regex_elt_t  * elts;
@@ -247,7 +247,7 @@ static ngx_int_t ngx_regex_module_init(ngx_cycle_t * cycle)
 
 #if (NGX_HAVE_PCRE_JIT)
 	{
-		ngx_regex_conf_t    * rcf;
+		ngx_regex_conf_t  * rcf;
 		ngx_pool_cleanup_t  * cln;
 
 		rcf = (ngx_regex_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_regex_module);
@@ -344,26 +344,18 @@ static char * ngx_regex_pcre_jit(ngx_conf_t * cf, void * post, void * data)
 	if(*fp == 0) {
 		return NGX_CONF_OK;
 	}
-
 #if (NGX_HAVE_PCRE_JIT)
 	{
-		int jit, r;
-
-		jit = 0;
-		r = pcre_config(PCRE_CONFIG_JIT, &jit);
-
+		int jit = 0;
+		int r = pcre_config(PCRE_CONFIG_JIT, &jit);
 		if(r != 0 || jit != 1) {
-			ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-			    "PCRE library does not support JIT");
+			ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "PCRE library does not support JIT");
 			*fp = 0;
 		}
 	}
 #else
-	ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-	    "nginx was built without PCRE JIT support");
+	ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "nginx was built without PCRE JIT support");
 	*fp = 0;
 #endif
-
 	return NGX_CONF_OK;
 }
-

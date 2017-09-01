@@ -7,7 +7,7 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 #define NGX_PEER_KEEPALIVE           1
 #define NGX_PEER_NEXT                2

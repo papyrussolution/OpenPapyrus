@@ -462,8 +462,10 @@ SLTEST_R(CreatePapyrusLic)
 		}
 		SFile::Remove(param.OutFileName);
 	}
-	CATCHZOK
-	return ok;
+	CATCH
+		ok = CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

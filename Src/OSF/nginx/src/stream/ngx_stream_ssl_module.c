@@ -267,9 +267,9 @@ static ngx_str_t ngx_stream_ssl_sess_id_ctx = ngx_string("STREAM");
 static ngx_int_t ngx_stream_ssl_handler(ngx_stream_session_t * s)
 {
 	long rc;
-	X509                   * cert;
+	X509 * cert;
 	ngx_int_t rv;
-	ngx_connection_t       * c;
+	ngx_connection_t  * c;
 	ngx_stream_ssl_conf_t  * sslcf;
 	if(!s->ssl) {
 		return NGX_OK;
@@ -328,8 +328,8 @@ static ngx_int_t ngx_stream_ssl_handler(ngx_stream_session_t * s)
 static ngx_int_t ngx_stream_ssl_init_connection(ngx_ssl_t * ssl, ngx_connection_t * c)
 {
 	ngx_int_t rc;
-	ngx_stream_session_t        * s;
-	ngx_stream_ssl_conf_t       * sslcf;
+	ngx_stream_session_t * s;
+	ngx_stream_ssl_conf_t  * sslcf;
 	ngx_stream_core_srv_conf_t  * cscf;
 
 	s = (ngx_stream_session_t *)c->data;
@@ -647,7 +647,7 @@ static char * ngx_stream_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd,
 {
 	ngx_stream_ssl_conf_t  * scf = (ngx_stream_ssl_conf_t *)conf;
 	size_t len;
-	ngx_str_t   * value, name, size;
+	ngx_str_t * value, name, size;
 	ngx_int_t n;
 	ngx_uint_t i, j;
 	value = (ngx_str_t *)cf->args->elts;
@@ -748,7 +748,7 @@ invalid:
 
 static ngx_int_t ngx_stream_ssl_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt        * h;
+	ngx_stream_handler_pt * h;
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);

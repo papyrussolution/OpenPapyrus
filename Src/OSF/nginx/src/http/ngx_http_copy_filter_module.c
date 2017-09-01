@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct {
 	ngx_bufs_t bufs;
@@ -76,8 +76,8 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 static ngx_int_t ngx_http_copy_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
 	ngx_int_t rc;
-	ngx_output_chain_ctx_t       * ctx;
-	ngx_http_core_loc_conf_t     * clcf;
+	ngx_output_chain_ctx_t  * ctx;
+	ngx_http_core_loc_conf_t   * clcf;
 	ngx_http_copy_filter_conf_t  * conf;
 	ngx_connection_t * c = r->connection;
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http copy filter: \"%V?%V\"", &r->uri, &r->args);
@@ -165,8 +165,8 @@ static void ngx_http_copy_aio_handler(ngx_output_chain_ctx_t * ctx, ngx_file_t *
 
 static void ngx_http_copy_aio_event_handler(ngx_event_t * ev)
 {
-	ngx_event_aio_t     * aio;
-	ngx_connection_t    * c;
+	ngx_event_aio_t   * aio;
+	ngx_connection_t  * c;
 	ngx_http_request_t  * r;
 
 	aio = ev->data;
@@ -192,8 +192,8 @@ static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file)
 {
 	ssize_t n;
 	static u_char buf[1];
-	ngx_event_aio_t         * aio;
-	ngx_http_request_t      * r;
+	ngx_event_aio_t  * aio;
+	ngx_http_request_t * r;
 	ngx_output_chain_ctx_t  * ctx;
 
 	n = ngx_file_aio_read(file->file, buf, 1, file->file_pos, NULL);
@@ -215,7 +215,7 @@ static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file)
 
 static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev)
 {
-	ngx_event_aio_t     * aio;
+	ngx_event_aio_t   * aio;
 	ngx_http_request_t  * r;
 
 	aio = ev->data;
@@ -236,9 +236,9 @@ static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev)
 static ngx_int_t ngx_http_copy_thread_handler(ngx_thread_task_t * task, ngx_file_t * file)
 {
 	ngx_str_t name;
-	ngx_thread_pool_t         * tp;
-	ngx_http_request_t        * r;
-	ngx_output_chain_ctx_t    * ctx;
+	ngx_thread_pool_t  * tp;
+	ngx_http_request_t * r;
+	ngx_output_chain_ctx_t  * ctx;
 	ngx_http_core_loc_conf_t  * clcf;
 
 	r = file->thread_ctx;
@@ -279,7 +279,7 @@ static ngx_int_t ngx_http_copy_thread_handler(ngx_thread_task_t * task, ngx_file
 
 static void ngx_http_copy_thread_event_handler(ngx_event_t * ev)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_http_request_t  * r;
 
 	r = ev->data;

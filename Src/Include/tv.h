@@ -1505,11 +1505,7 @@ public:
 	//
 	void   Show(int doShow);
 	// @v9.6.2 (replaced by Draw_()) void   drawView();
-	void   clearEvent(TEvent & event)
-	{
-		event.what = evNothing;
-		event.message.infoPtr = this;
-	}
+	void   FASTCALL clearEvent(TEvent & event);
 	HWND   getHandle() const;
 	void   select();
 	//
@@ -1663,7 +1659,7 @@ public:
 private:
 	int    Create(HWND hParent);
 	HWND   H;
-	uint   Counter;    // Счетчик для формирования внутренних уникальных идентификаторов подсказок
+	//uint   Counter;    // Счетчик для формирования внутренних уникальных идентификаторов подсказок
 	uint   MaxWidthPix; // Максимальная ширина окна подстказки
 };
 //
@@ -3515,7 +3511,7 @@ protected:
 	ListBoxDef * def;
 	ListWindowSmartListBox * P_Lb; // box;
 	int    PrepareSearchLetter;
-	int    IsLargeListBox;
+	//@v9.8.0 int    IsLargeListBox;
 	uint   TbId;
 };
 

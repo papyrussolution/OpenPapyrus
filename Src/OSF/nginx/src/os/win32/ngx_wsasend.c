@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 {

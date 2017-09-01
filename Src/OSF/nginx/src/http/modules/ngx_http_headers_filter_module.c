@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 typedef struct ngx_http_header_val_s ngx_http_header_val_t;
 
@@ -40,84 +40,44 @@ typedef struct {
 	ngx_http_expires_t expires;
 	time_t expires_time;
 	ngx_http_complex_value_t  * expires_value;
-	ngx_array_t               * headers;
-	ngx_array_t               * trailers;
+	ngx_array_t * headers;
+	ngx_array_t * trailers;
 } ngx_http_headers_conf_t;
 
-static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r,
-    ngx_http_headers_conf_t * conf);
-static ngx_int_t ngx_http_parse_expires(ngx_str_t * value,
-    ngx_http_expires_t * expires, time_t * expires_time, char ** err);
-static ngx_int_t ngx_http_add_cache_control(ngx_http_request_t * r,
-    ngx_http_header_val_t * hv, ngx_str_t * value);
-static ngx_int_t ngx_http_add_header(ngx_http_request_t * r,
-    ngx_http_header_val_t * hv, ngx_str_t * value);
-static ngx_int_t ngx_http_set_last_modified(ngx_http_request_t * r,
-    ngx_http_header_val_t * hv, ngx_str_t * value);
-static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r,
-    ngx_http_header_val_t * hv, ngx_str_t * value);
+static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_conf_t * conf);
+static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, char ** err);
+static ngx_int_t ngx_http_add_cache_control(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
+static ngx_int_t ngx_http_add_header(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
+static ngx_int_t ngx_http_set_last_modified(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
+static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r, ngx_http_header_val_t * hv, ngx_str_t * value);
 
 static void * ngx_http_headers_create_conf(ngx_conf_t * cf);
-static char * ngx_http_headers_merge_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_headers_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_headers_filter_init(ngx_conf_t * cf);
-static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_http_set_header_t ngx_http_set_headers[] = {
 	{ ngx_string("Cache-Control"), 0, ngx_http_add_cache_control },
-
-	{ ngx_string("Last-Modified"),
-	  offsetof(ngx_http_headers_out_t, last_modified),
-	  ngx_http_set_last_modified },
-
-	{ ngx_string("ETag"),
-	  offsetof(ngx_http_headers_out_t, etag),
-	  ngx_http_set_response_header },
-
+	{ ngx_string("Last-Modified"), offsetof(ngx_http_headers_out_t, last_modified), ngx_http_set_last_modified },
+	{ ngx_string("ETag"), offsetof(ngx_http_headers_out_t, etag), ngx_http_set_response_header },
 	{ ngx_null_string, 0, NULL }
 };
 
 static ngx_command_t ngx_http_headers_filter_commands[] = {
-	{ ngx_string("expires"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-	  |NGX_CONF_TAKE12,
-	  ngx_http_headers_expires,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("add_header"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-	  |NGX_CONF_TAKE23,
-	  ngx_http_headers_add,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_headers_conf_t, headers),
-	  NULL },
-
-	{ ngx_string("add_trailer"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-	  |NGX_CONF_TAKE23,
-	  ngx_http_headers_add,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_headers_conf_t, trailers),
-	  NULL },
-
+	{ ngx_string("expires"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE12, ngx_http_headers_expires, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("add_header"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE23, ngx_http_headers_add, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_headers_conf_t, headers), NULL },
+	{ ngx_string("add_trailer"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE23, ngx_http_headers_add, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_headers_conf_t, trailers), NULL },
 	ngx_null_command
 };
 
 static ngx_http_module_t ngx_http_headers_filter_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_headers_filter_init,      /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_headers_create_conf,      /* create location configuration */
 	ngx_http_headers_merge_conf        /* merge location configuration */
 };
@@ -140,110 +100,77 @@ ngx_module_t ngx_http_headers_filter_module = {
 static ngx_http_output_header_filter_pt ngx_http_next_header_filter;
 static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
-static ngx_int_t ngx_http_headers_filter(ngx_http_request_t * r)
+static ngx_int_t ngx_http_headers_filter(ngx_http_request_t * pReq)
 {
-	ngx_str_t value;
-	ngx_uint_t i, safe_status;
-	ngx_http_header_val_t    * h;
-	ngx_http_headers_conf_t  * conf;
-
-	if(r != r->main) {
-		return ngx_http_next_header_filter(r);
-	}
-
-	conf = (ngx_http_headers_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_headers_filter_module);
-
-	if(conf->expires == NGX_HTTP_EXPIRES_OFF
-	    && conf->headers == NULL
-	    && conf->trailers == NULL) {
-		return ngx_http_next_header_filter(r);
-	}
-
-	switch(r->headers_out.status) {
-		case NGX_HTTP_OK:
-		case NGX_HTTP_CREATED:
-		case NGX_HTTP_NO_CONTENT:
-		case NGX_HTTP_PARTIAL_CONTENT:
-		case NGX_HTTP_MOVED_PERMANENTLY:
-		case NGX_HTTP_MOVED_TEMPORARILY:
-		case NGX_HTTP_SEE_OTHER:
-		case NGX_HTTP_NOT_MODIFIED:
-		case NGX_HTTP_TEMPORARY_REDIRECT:
-		case NGX_HTTP_PERMANENT_REDIRECT:
-		    safe_status = 1;
-		    break;
-
-		default:
-		    safe_status = 0;
-		    break;
-	}
-
-	if(conf->expires != NGX_HTTP_EXPIRES_OFF && safe_status) {
-		if(ngx_http_set_expires(r, conf) != NGX_OK) {
-			return NGX_ERROR;
-		}
-	}
-
-	if(conf->headers) {
-		h = (ngx_http_header_val_t *)conf->headers->elts;
-		for(i = 0; i < conf->headers->nelts; i++) {
-			if(!safe_status && !h[i].always) {
-				continue;
+	ngx_int_t result = NGX_OK;
+	if(pReq == pReq->main) {
+		ngx_http_headers_conf_t * conf = (ngx_http_headers_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_headers_filter_module);
+		if(conf->expires != NGX_HTTP_EXPIRES_OFF || conf->headers || conf->trailers) {
+			ngx_uint_t safe_status = 0;
+			switch(pReq->headers_out.status) {
+				case NGX_HTTP_OK:
+				case NGX_HTTP_CREATED:
+				case NGX_HTTP_NO_CONTENT:
+				case NGX_HTTP_PARTIAL_CONTENT:
+				case NGX_HTTP_MOVED_PERMANENTLY:
+				case NGX_HTTP_MOVED_TEMPORARILY:
+				case NGX_HTTP_SEE_OTHER:
+				case NGX_HTTP_NOT_MODIFIED:
+				case NGX_HTTP_TEMPORARY_REDIRECT:
+				case NGX_HTTP_PERMANENT_REDIRECT:
+					safe_status = 1;
+					break;
 			}
-
-			if(ngx_http_complex_value(r, &h[i].value, &value) != NGX_OK) {
-				return NGX_ERROR;
+			if(conf->expires != NGX_HTTP_EXPIRES_OFF && safe_status) {
+				THROW(ngx_http_set_expires(pReq, conf) == NGX_OK);
 			}
-
-			if(h[i].handler(r, &h[i], &value) != NGX_OK) {
-				return NGX_ERROR;
+			if(conf->headers) {
+				ngx_http_header_val_t * h = (ngx_http_header_val_t *)conf->headers->elts;
+				for(ngx_uint_t i = 0; i < conf->headers->nelts; i++) {
+					if(safe_status || h[i].always) {
+						ngx_str_t value;
+						THROW(ngx_http_complex_value(pReq, &h[i].value, &value) == NGX_OK);
+						THROW(h[i].handler(pReq, &h[i], &value) == NGX_OK);
+					}
+				}
+			}
+			if(conf->trailers) {
+				ngx_http_header_val_t * h = (ngx_http_header_val_t *)conf->trailers->elts;
+				for(ngx_uint_t i = 0; i < conf->trailers->nelts; i++) {
+					if(safe_status || h[i].always) {
+						pReq->expect_trailers = 1;
+						break;
+					}
+				}
 			}
 		}
 	}
-
-	if(conf->trailers) {
-		h = (ngx_http_header_val_t *)conf->trailers->elts;
-		for(i = 0; i < conf->trailers->nelts; i++) {
-			if(!safe_status && !h[i].always) {
-				continue;
-			}
-
-			r->expect_trailers = 1;
-			break;
-		}
-	}
-
-	return ngx_http_next_header_filter(r);
+	result = ngx_http_next_header_filter(pReq);
+	CATCH
+		result = NGX_ERROR;
+	ENDCATCH
+	return result;
 }
 
 static ngx_int_t ngx_http_trailers_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
 	ngx_str_t value;
 	ngx_uint_t i, safe_status;
-	ngx_chain_t              * cl;
-	ngx_table_elt_t          * t;
-	ngx_http_header_val_t    * h;
-	ngx_http_headers_conf_t  * conf;
-
-	conf = (ngx_http_headers_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_headers_filter_module);
-
-	if(in == NULL
-	    || conf->trailers == NULL
-	    || !r->expect_trailers
-	    || r->header_only) {
+	ngx_chain_t    * cl;
+	ngx_table_elt_t   * t;
+	ngx_http_header_val_t  * h;
+	ngx_http_headers_conf_t  * conf = (ngx_http_headers_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_headers_filter_module);
+	if(in == NULL || conf->trailers == NULL || !r->expect_trailers || r->header_only) {
 		return ngx_http_next_body_filter(r, in);
 	}
-
 	for(cl = in; cl; cl = cl->next) {
 		if(cl->buf->last_buf) {
 			break;
 		}
 	}
-
 	if(cl == NULL) {
 		return ngx_http_next_body_filter(r, in);
 	}
-
 	switch(r->headers_out.status) {
 		case NGX_HTTP_OK:
 		case NGX_HTTP_CREATED:
@@ -257,149 +184,115 @@ static ngx_int_t ngx_http_trailers_filter(ngx_http_request_t * r, ngx_chain_t * 
 		case NGX_HTTP_PERMANENT_REDIRECT:
 		    safe_status = 1;
 		    break;
-
 		default:
 		    safe_status = 0;
 		    break;
 	}
-
 	h = (ngx_http_header_val_t *)conf->trailers->elts;
 	for(i = 0; i < conf->trailers->nelts; i++) {
 		if(!safe_status && !h[i].always) {
 			continue;
 		}
-
 		if(ngx_http_complex_value(r, &h[i].value, &value) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		if(value.len) {
 			t = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.trailers);
 			if(t == NULL) {
 				return NGX_ERROR;
 			}
-
 			t->key = h[i].key;
 			t->value = value;
 			t->hash = 1;
 		}
 	}
-
 	return ngx_http_next_body_filter(r, in);
 }
 
 static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_conf_t * conf)
 {
-	char                * err;
+	char * err;
 	size_t len;
-	time_t now, expires_time, max_age;
+	time_t now, max_age;
 	ngx_str_t value;
 	ngx_int_t rc;
 	ngx_uint_t i;
-	ngx_table_elt_t     * e, * cc, ** ccp;
-	ngx_http_expires_t expires;
-
-	expires = conf->expires;
-	expires_time = conf->expires_time;
-
+	ngx_table_elt_t   * e, * cc, ** ccp;
+	ngx_http_expires_t expires = conf->expires;
+	time_t expires_time = conf->expires_time;
 	if(conf->expires_value != NULL) {
 		if(ngx_http_complex_value(r, conf->expires_value, &value) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		rc = ngx_http_parse_expires(&value, &expires, &expires_time, &err);
-
 		if(rc != NGX_OK) {
 			return NGX_OK;
 		}
-
 		if(expires == NGX_HTTP_EXPIRES_OFF) {
 			return NGX_OK;
 		}
 	}
-
 	e = r->headers_out.expires;
-
 	if(e == NULL) {
 		e = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
 		if(e == NULL) {
 			return NGX_ERROR;
 		}
-
 		r->headers_out.expires = e;
-
 		e->hash = 1;
 		ngx_str_set(&e->key, "Expires");
 	}
-
 	len = sizeof("Mon, 28 Sep 1970 06:00:00 GMT");
 	e->value.len = len - 1;
-
 	ccp = (ngx_table_elt_t**)r->headers_out.cache_control.elts;
-
 	if(ccp == NULL) {
-		if(ngx_array_init(&r->headers_out.cache_control, r->pool,
-			    1, sizeof(ngx_table_elt_t *))
-		    != NGX_OK) {
+		if(ngx_array_init(&r->headers_out.cache_control, r->pool, 1, sizeof(ngx_table_elt_t *)) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		cc = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
 		if(cc == NULL) {
 			return NGX_ERROR;
 		}
-
 		cc->hash = 1;
 		ngx_str_set(&cc->key, "Cache-Control");
-
 		ccp = (ngx_table_elt_t**)ngx_array_push(&r->headers_out.cache_control);
 		if(ccp == NULL) {
 			return NGX_ERROR;
 		}
-
 		*ccp = cc;
 	}
 	else {
 		for(i = 1; i < r->headers_out.cache_control.nelts; i++) {
 			ccp[i]->hash = 0;
 		}
-
 		cc = ccp[0];
 	}
-
 	if(expires == NGX_HTTP_EXPIRES_EPOCH) {
 		e->value.data = (u_char*)"Thu, 01 Jan 1970 00:00:01 GMT";
 		ngx_str_set(&cc->value, "no-cache");
 		return NGX_OK;
 	}
-
 	if(expires == NGX_HTTP_EXPIRES_MAX) {
 		e->value.data = (u_char*)"Thu, 31 Dec 2037 23:55:55 GMT";
 		/* 10 years */
 		ngx_str_set(&cc->value, "max-age=315360000");
 		return NGX_OK;
 	}
-
 	e->value.data = (u_char*)ngx_pnalloc(r->pool, len);
 	if(e->value.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	if(expires_time == 0 && expires != NGX_HTTP_EXPIRES_DAILY) {
-		ngx_memcpy(e->value.data, ngx_cached_http_time.data,
-		    ngx_cached_http_time.len + 1);
+		ngx_memcpy(e->value.data, ngx_cached_http_time.data, ngx_cached_http_time.len + 1);
 		ngx_str_set(&cc->value, "max-age=0");
 		return NGX_OK;
 	}
-
 	now = ngx_time();
-
 	if(expires == NGX_HTTP_EXPIRES_DAILY) {
 		expires_time = ngx_next_time(expires_time);
 		max_age = expires_time - now;
 	}
-	else if(expires == NGX_HTTP_EXPIRES_ACCESS
-	    || r->headers_out.last_modified_time == -1) {
+	else if(expires == NGX_HTTP_EXPIRES_ACCESS || r->headers_out.last_modified_time == -1) {
 		max_age = expires_time;
 		expires_time += now;
 	}
@@ -407,58 +300,44 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 		expires_time += r->headers_out.last_modified_time;
 		max_age = expires_time - now;
 	}
-
 	ngx_http_time(e->value.data, expires_time);
-
 	if(conf->expires_time < 0 || max_age < 0) {
 		ngx_str_set(&cc->value, "no-cache");
 		return NGX_OK;
 	}
-
-	cc->value.data = (u_char*)ngx_pnalloc(r->pool,
-	    sizeof("max-age=") + NGX_TIME_T_LEN + 1);
+	cc->value.data = (u_char*)ngx_pnalloc(r->pool, sizeof("max-age=") + NGX_TIME_T_LEN + 1);
 	if(cc->value.data == NULL) {
 		return NGX_ERROR;
 	}
-
-	cc->value.len = ngx_sprintf(cc->value.data, "max-age=%T", max_age)
-	    - cc->value.data;
-
+	cc->value.len = ngx_sprintf(cc->value.data, "max-age=%T", max_age) - cc->value.data;
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires,
-    time_t * expires_time, char ** err)
+static ngx_int_t ngx_http_parse_expires(ngx_str_t * value, ngx_http_expires_t * expires, time_t * expires_time, char ** err)
 {
 	ngx_uint_t minus;
-
 	if(*expires != NGX_HTTP_EXPIRES_MODIFIED) {
 		if(value->len == 5 && ngx_strncmp(value->data, "epoch", 5) == 0) {
 			*expires = NGX_HTTP_EXPIRES_EPOCH;
 			return NGX_OK;
 		}
-
 		if(value->len == 3 && ngx_strncmp(value->data, "max", 3) == 0) {
 			*expires = NGX_HTTP_EXPIRES_MAX;
 			return NGX_OK;
 		}
-
 		if(value->len == 3 && ngx_strncmp(value->data, "off", 3) == 0) {
 			*expires = NGX_HTTP_EXPIRES_OFF;
 			return NGX_OK;
 		}
 	}
-
 	if(value->len && value->data[0] == '@') {
 		value->data++;
 		value->len--;
 		minus = 0;
-
 		if(*expires == NGX_HTTP_EXPIRES_MODIFIED) {
 			*err = "daily time cannot be used with \"modified\" parameter";
 			return NGX_ERROR;
 		}
-
 		*expires = NGX_HTTP_EXPIRES_DAILY;
 	}
 	else if(value->len && value->data[0] == '+') {
@@ -602,24 +481,18 @@ static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r, ngx_http_h
 
 static void * ngx_http_headers_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_headers_conf_t  * conf;
-
-	conf = (ngx_http_headers_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_headers_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_http_headers_conf_t  * conf = (ngx_http_headers_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_headers_conf_t));
+	if(conf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     conf->headers = NULL;
+		 *     conf->trailers = NULL;
+		 *     conf->expires_time = 0;
+		 *     conf->expires_value = NULL;
+		 */
+		conf->expires = NGX_HTTP_EXPIRES_UNSET;
 	}
-
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     conf->headers = NULL;
-	 *     conf->trailers = NULL;
-	 *     conf->expires_time = 0;
-	 *     conf->expires_value = NULL;
-	 */
-
-	conf->expires = NGX_HTTP_EXPIRES_UNSET;
-
 	return conf;
 }
 
@@ -658,8 +531,8 @@ static ngx_int_t ngx_http_headers_filter_init(ngx_conf_t * cf)
 static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_headers_conf_t * hcf = (ngx_http_headers_conf_t *)conf;
-	char                              * err;
-	ngx_str_t                         * value;
+	char  * err;
+	ngx_str_t  * value;
 	ngx_int_t rc;
 	ngx_uint_t n;
 	ngx_http_complex_value_t cv;
@@ -677,39 +550,28 @@ static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, voi
 		if(ngx_strcmp(value[1].data, "modified") != 0) {
 			return "invalid value";
 		}
-
 		hcf->expires = NGX_HTTP_EXPIRES_MODIFIED;
-
 		n = 2;
 	}
-
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = &value[n];
 	ccv.complex_value = &cv;
-
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(cv.lengths != NULL) {
 		hcf->expires_value = (ngx_http_complex_value_t*)ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 		if(hcf->expires_value == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		*hcf->expires_value = cv;
-
 		return NGX_CONF_OK;
 	}
-
-	rc = ngx_http_parse_expires(&value[n], &hcf->expires, &hcf->expires_time,
-	    &err);
+	rc = ngx_http_parse_expires(&value[n], &hcf->expires, &hcf->expires_time, &err);
 	if(rc != NGX_OK) {
 		return err;
 	}
-
 	return NGX_CONF_OK;
 }
 
@@ -717,8 +579,8 @@ static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 {
 	ngx_http_headers_conf_t * hcf = (ngx_http_headers_conf_t *)conf;
 	ngx_uint_t i;
-	ngx_http_header_val_t              * hv;
-	ngx_http_set_header_t              * set;
+	ngx_http_header_val_t    * hv;
+	ngx_http_set_header_t    * set;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	ngx_array_t ** headers = (ngx_array_t**)((char*)hcf + cmd->offset);
@@ -728,60 +590,44 @@ static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	hv = (ngx_http_header_val_t *)ngx_array_push(*headers);
 	if(hv == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	hv->key = value[1];
 	hv->handler = NULL;
 	hv->offset = 0;
 	hv->always = 0;
-
 	if(headers == &hcf->headers) {
 		hv->handler = ngx_http_add_header;
-
 		set = ngx_http_set_headers;
 		for(i = 0; set[i].name.len; i++) {
-			if(ngx_strcasecmp(value[1].data, set[i].name.data) != 0) {
-				continue;
+			if(ngx_strcasecmp(value[1].data, set[i].name.data) == 0) {
+				hv->offset = set[i].offset;
+				hv->handler = set[i].handler;
+				break;
 			}
-
-			hv->offset = set[i].offset;
-			hv->handler = set[i].handler;
-
-			break;
 		}
 	}
-
 	if(value[2].len == 0) {
 		memzero(&hv->value, sizeof(ngx_http_complex_value_t));
 	}
 	else {
 		memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 		ccv.cf = cf;
 		ccv.value = &value[2];
 		ccv.complex_value = &hv->value;
-
 		if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	if(cf->args->nelts == 3) {
 		return NGX_CONF_OK;
 	}
-
 	if(ngx_strcmp(value[3].data, "always") != 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[3]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[3]);
 		return NGX_CONF_ERROR;
 	}
-
 	hv->always = 1;
-
 	return NGX_CONF_OK;
 }
-

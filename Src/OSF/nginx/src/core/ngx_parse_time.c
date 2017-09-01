@@ -10,7 +10,7 @@ static ngx_uint_t mday[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 time_t ngx_parse_http_time(u_char * value, size_t len)
 {
-	u_char      * p, * end;
+	u_char * p, * end;
 	ngx_int_t month;
 	ngx_uint_t day, year, hour, min, sec;
 	uint64_t time;
@@ -251,8 +251,8 @@ time_t ngx_parse_http_time(u_char * value, size_t len)
 	    + day - 1
 
 	    /*
-	     * 719527 days were between March 1, 1 BC and March 1, 1970,
-	     * 31 and 28 days were in January and February 1970
+	   * 719527 days were between March 1, 1 BC and March 1, 1970,
+	   * 31 and 28 days were in January and February 1970
 	     */
 
 	    - 719527 + 31 + 28) * 86400 + hour * 3600 + min * 60 + sec;

@@ -43,16 +43,16 @@
 #endif
 
 struct ngx_ssl_s {
-	SSL_CTX                    * ctx;
-	ngx_log_t                  * log;
+	SSL_CTX  * ctx;
+	ngx_log_t  * log;
 	size_t buffer_size;
 };
 
 struct ngx_ssl_connection_s {
-	ngx_ssl_conn_t             * connection;
-	SSL_CTX                    * session_ctx;
+	ngx_ssl_conn_t   * connection;
+	SSL_CTX  * session_ctx;
 	ngx_int_t last;
-	ngx_buf_t                  * buf;
+	ngx_buf_t  * buf;
 	size_t buffer_size;
 	ngx_connection_handler_pt handler;
 	ngx_event_handler_pt saved_read_handler;
@@ -76,13 +76,13 @@ typedef struct ngx_ssl_sess_id_s ngx_ssl_sess_id_t;
 
 struct ngx_ssl_sess_id_s {
 	ngx_rbtree_node_t node;
-	u_char                     * id;
+	u_char * id;
 	size_t len;
-	u_char                     * session;
+	u_char * session;
 	ngx_queue_t queue;
 	time_t expire;
 #if (NGX_PTR_SIZE == 8)
-	void                       * stub;
+	void * stub;
 	u_char sess_id[32];
 #endif
 };
@@ -142,15 +142,10 @@ ngx_int_t ngx_ssl_set_session(ngx_connection_t * c, ngx_ssl_session_t * session)
 #define ngx_ssl_get_connection(ssl_conn) SSL_get_ex_data(ssl_conn, ngx_ssl_connection_index)
 #define ngx_ssl_get_server_conf(ssl_ctx) SSL_CTX_get_ex_data(ssl_ctx, ngx_ssl_server_conf_index)
 
-#define ngx_ssl_verify_error_optional(n)				      \
-	(n == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT				  \
-	    || n == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN			     \
-	    || n == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY		     \
-	    || n == X509_V_ERR_CERT_UNTRUSTED					     \
-	    || n == X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE)
+#define ngx_ssl_verify_error_optional(n) oneof5(n, X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN, \
+	X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY, X509_V_ERR_CERT_UNTRUSTED, X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE)
 
 ngx_int_t ngx_ssl_check_host(ngx_connection_t * c, ngx_str_t * name);
-
 ngx_int_t ngx_ssl_get_protocol(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s);
 ngx_int_t ngx_ssl_get_cipher_name(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s);
 ngx_int_t ngx_ssl_get_ciphers(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s);

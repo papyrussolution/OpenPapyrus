@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 
 #if 0
 #define NGX_SENDFILE_LIMIT  4096
@@ -284,7 +284,7 @@ static ngx_int_t ngx_output_chain_add_copy(ngx_pool_t * pool, ngx_chain_t ** cha
 {
 	ngx_chain_t  * cl, ** ll;
 #if (NGX_SENDFILE_LIMIT)
-	ngx_buf_t    * b, * buf;
+	ngx_buf_t  * b, * buf;
 #endif
 
 	ll = chain;
@@ -394,7 +394,7 @@ static ngx_int_t ngx_output_chain_align_file_buf(ngx_output_chain_ctx_t * ctx, n
 static ngx_int_t ngx_output_chain_get_buf(ngx_output_chain_ctx_t * ctx, nginx_off_t bsize)
 {
 	size_t size;
-	ngx_buf_t   * b, * in;
+	ngx_buf_t * b, * in;
 	ngx_uint_t recycled;
 
 	in = ctx->in->buf;
@@ -464,7 +464,7 @@ static ngx_int_t ngx_output_chain_copy_buf(ngx_output_chain_ctx_t * ctx)
 {
 	nginx_off_t size;
 	ssize_t n;
-	ngx_buf_t   * src, * dst;
+	ngx_buf_t * src, * dst;
 	ngx_uint_t sendfile;
 
 	src = ctx->in->buf;
@@ -614,7 +614,7 @@ ngx_int_t ngx_chain_writer(void * data, ngx_chain_t * in)
 {
 	ngx_chain_writer_ctx_t * ctx = (ngx_chain_writer_ctx_t *)data;
 	nginx_off_t size;
-	ngx_chain_t       * cl, * ln, * chain;
+	ngx_chain_t  * cl, * ln, * chain;
 	ngx_connection_t  * c = ctx->connection;
 	for(size = 0; in; in = in->next) {
 #if 1

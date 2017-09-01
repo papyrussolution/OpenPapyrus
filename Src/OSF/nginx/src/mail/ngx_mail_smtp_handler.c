@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_event.h>
+//#include <ngx_event.h>
 #include <ngx_mail.h>
 #include <ngx_mail_smtp_module.h>
 
@@ -48,7 +48,7 @@ static ngx_str_t smtp_tempunavail = ngx_string("[TEMPUNAVAIL]");
 
 void ngx_mail_smtp_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_resolver_ctx_t        * ctx;
+	ngx_resolver_ctx_t * ctx;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
@@ -88,7 +88,7 @@ void ngx_mail_smtp_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 
 static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	s = (ngx_mail_session_t*)ctx->data;
@@ -137,9 +137,9 @@ static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 
 static void ngx_mail_smtp_resolve_name(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
-	ngx_resolver_ctx_t        * ctx;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
+	ngx_resolver_ctx_t * ctx;
 	ngx_mail_core_srv_conf_t  * cscf;
 
 	c = (ngx_connection_t*)rev->data;
@@ -166,7 +166,7 @@ static void ngx_mail_smtp_resolve_name(ngx_event_t * rev)
 static void ngx_mail_smtp_resolve_name_handler(ngx_resolver_ctx_t * ctx)
 {
 	ngx_uint_t i;
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	s = (ngx_mail_session_t*)ctx->data;
@@ -255,8 +255,8 @@ static void ngx_mail_smtp_greeting(ngx_mail_session_t * s, ngx_connection_t * c)
 
 static void ngx_mail_smtp_invalid_pipelining(ngx_event_t * rev)
 {
-	ngx_connection_t          * c;
-	ngx_mail_session_t        * s;
+	ngx_connection_t   * c;
+	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_mail_smtp_srv_conf_t  * sscf;
 
@@ -309,7 +309,7 @@ static void ngx_mail_smtp_invalid_pipelining(ngx_event_t * rev)
 
 void ngx_mail_smtp_init_protocol(ngx_event_t * rev)
 {
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	c = (ngx_connection_t*)rev->data;
@@ -360,7 +360,7 @@ static ngx_int_t ngx_mail_smtp_create_buffer(ngx_mail_session_t * s, ngx_connect
 void ngx_mail_smtp_auth_state(ngx_event_t * rev)
 {
 	ngx_int_t rc;
-	ngx_connection_t    * c;
+	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
 	c = (ngx_connection_t*)rev->data;
@@ -500,7 +500,7 @@ void ngx_mail_smtp_auth_state(ngx_event_t * rev)
 
 static ngx_int_t ngx_mail_smtp_helo(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_str_t                 * arg;
+	ngx_str_t * arg;
 	ngx_mail_smtp_srv_conf_t  * sscf;
 
 	if(s->args.nelts != 1) {
@@ -634,7 +634,7 @@ static ngx_int_t ngx_mail_smtp_auth(ngx_mail_session_t * s, ngx_connection_t * c
 
 static ngx_int_t ngx_mail_smtp_mail(ngx_mail_session_t * s, ngx_connection_t * c)
 {
-	ngx_str_t                 * arg, cmd;
+	ngx_str_t * arg, cmd;
 	ngx_mail_smtp_srv_conf_t  * sscf;
 
 	sscf = (ngx_mail_smtp_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_smtp_module);

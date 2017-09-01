@@ -81,8 +81,8 @@ char * ngx_conf_param(ngx_conf_t * cf)
 static ngx_int_t ngx_conf_add_dump(ngx_conf_t * cf, ngx_str_t * filename)
 {
 	nginx_off_t size;
-	u_char           * p;
-	ngx_buf_t        * buf;
+	u_char * p;
+	ngx_buf_t * buf;
 	ngx_conf_dump_t  * cd;
 	uint32_t hash = ngx_crc32_long(filename->data, filename->len);
 	ngx_str_node_t * sn = ngx_str_rbtree_lookup(&cf->cycle->config_dump_rbtree, filename, hash);
@@ -355,8 +355,8 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 	size_t len;
 	ssize_t n, size;
 	ngx_uint_t start_line;
-	ngx_str_t   * word;
-	ngx_buf_t   * b, * dump;
+	ngx_str_t * word;
+	ngx_buf_t * b, * dump;
 	ngx_uint_t found = 0;
 	ngx_uint_t need_space = 0;
 	ngx_uint_t last_space = 1;
@@ -583,7 +583,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 
 char * ngx_conf_include(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char        * rv;
+	char * rv;
 	ngx_int_t n;
 	ngx_str_t file, name;
 	ngx_glob_t gl;
@@ -730,7 +730,7 @@ void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t * cf, ngx_err_t e
 char * ngx_conf_set_flag_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_flag_t * fp = (ngx_flag_t *)(p + cmd->offset);
 	if(*fp != NGX_CONF_UNSET) {
@@ -775,8 +775,8 @@ char * ngx_conf_set_str_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t         * value, * s;
-	ngx_conf_post_t   * post;
+	ngx_str_t  * value, * s;
+	ngx_conf_post_t * post;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
 	if(*a == NGX_CONF_UNSET_PTR) {
 		*a = ngx_array_create(cf->pool, 4, sizeof(ngx_str_t));
@@ -800,9 +800,9 @@ char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t         * value;
-	ngx_keyval_t      * kv;
-	ngx_conf_post_t   * post;
+	ngx_str_t  * value;
+	ngx_keyval_t * kv;
+	ngx_conf_post_t * post;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
 	if(*a == NULL) {
 		*a = ngx_array_create(cf->pool, 4, sizeof(ngx_keyval_t));
@@ -827,7 +827,7 @@ char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * con
 char * ngx_conf_set_num_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_int_t * np = (ngx_int_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET) {
@@ -848,7 +848,7 @@ char * ngx_conf_set_num_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_size_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	size_t * sp = (size_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET_SIZE) {
@@ -869,7 +869,7 @@ char * ngx_conf_set_size_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_off_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	nginx_off_t * op = (nginx_off_t*)(p + cmd->offset);
 	if(*op != NGX_CONF_UNSET) {
@@ -890,7 +890,7 @@ char * ngx_conf_set_off_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_msec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_msec_t * msp = (ngx_msec_t*)(p + cmd->offset);
 	if(*msp != NGX_CONF_UNSET_MSEC) {
@@ -911,7 +911,7 @@ char * ngx_conf_set_msec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_sec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	time_t * sp = (time_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET) {
@@ -932,7 +932,7 @@ char * ngx_conf_set_sec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 char * ngx_conf_set_bufs_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char * p = (char*)conf;
-	ngx_str_t   * value;
+	ngx_str_t * value;
 	ngx_bufs_t  * bufs = (ngx_bufs_t*)(p + cmd->offset);
 	if(bufs->num) {
 		return "is duplicate";
@@ -953,7 +953,7 @@ char * ngx_conf_set_enum_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
 	ngx_uint_t i;
-	ngx_str_t        * value;
+	ngx_str_t * value;
 	ngx_conf_enum_t  * e;
 	ngx_uint_t * np = (ngx_uint_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET_UINT) {

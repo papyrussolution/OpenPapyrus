@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_http.h>
+//#include <ngx_http.h>
 
 #define NGX_HTTP_V2_TABLE_SIZE  4096
 
@@ -79,7 +79,7 @@ static ngx_http_v2_header_t ngx_http_v2_static_table[] = {
 
 ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uint_t index, ngx_uint_t name_only)
 {
-	u_char                * p;
+	u_char  * p;
 	size_t rest;
 	ngx_http_v2_header_t  * entry;
 	if(index == 0) {

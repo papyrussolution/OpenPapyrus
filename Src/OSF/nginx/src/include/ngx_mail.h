@@ -1,24 +1,22 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_MAIL_H_INCLUDED_
 #define _NGX_MAIL_H_INCLUDED_
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include <ngx_event.h>
-#include <ngx_event_connect.h>
+//#include <ngx_event.h>
+//#include <ngx_event_connect.h>
 
 #if (NGX_MAIL_SSL)
 #include <ngx_mail_ssl_module.h>
 #endif
 
 typedef struct {
-	void                  ** main_conf;
-	void                  ** srv_conf;
+	void   ** main_conf;
+	void   ** srv_conf;
 } ngx_mail_conf_ctx_t;
 
 typedef struct {
@@ -26,7 +24,7 @@ typedef struct {
 	socklen_t socklen;
 
 	/* server ctx */
-	ngx_mail_conf_ctx_t    * ctx;
+	ngx_mail_conf_ctx_t  * ctx;
 
 	unsigned bind : 1;
 	unsigned wildcard : 1;
@@ -46,7 +44,7 @@ typedef struct {
 } ngx_mail_listen_t;
 
 typedef struct {
-	ngx_mail_conf_ctx_t    * ctx;
+	ngx_mail_conf_ctx_t  * ctx;
 	ngx_str_t addr_text;
 	ngx_uint_t ssl;             /* unsigned   ssl:1; */
 } ngx_mail_addr_conf_t;
@@ -68,7 +66,7 @@ typedef struct {
 
 typedef struct {
 	/* ngx_mail_in_addr_t or ngx_mail_in6_addr_t */
-	void                   * addrs;
+	void * addrs;
 	ngx_uint_t naddrs;
 } ngx_mail_port_t;
 
@@ -94,16 +92,16 @@ typedef struct {
 typedef struct ngx_mail_protocol_s ngx_mail_protocol_t;
 
 typedef struct {
-	ngx_mail_protocol_t    * protocol;
+	ngx_mail_protocol_t  * protocol;
 	ngx_msec_t timeout;
 	ngx_msec_t resolver_timeout;
 	ngx_str_t server_name;
-	u_char                 * file_name;
+	u_char * file_name;
 	ngx_uint_t line;
-	ngx_resolver_t         * resolver;
-	ngx_log_t              * error_log;
+	ngx_resolver_t  * resolver;
+	ngx_log_t    * error_log;
 	/* server ctx */
-	ngx_mail_conf_ctx_t    * ctx;
+	ngx_mail_conf_ctx_t  * ctx;
 	ngx_uint_t listen;           /* unsigned  listen:1; */
 } ngx_mail_core_srv_conf_t;
 
@@ -149,24 +147,24 @@ typedef enum {
 
 typedef struct {
 	ngx_peer_connection_t upstream;
-	ngx_buf_t              * buffer;
+	ngx_buf_t    * buffer;
 } ngx_mail_proxy_ctx_t;
 
 typedef struct {
 	uint32_t signature;                    /* "MAIL" */
 
-	ngx_connection_t       * connection;
+	ngx_connection_t  * connection;
 
 	ngx_str_t out;
-	ngx_buf_t              * buffer;
+	ngx_buf_t    * buffer;
 
-	void                  ** ctx;
-	void                  ** main_conf;
-	void                  ** srv_conf;
+	void   ** ctx;
+	void   ** main_conf;
+	void   ** srv_conf;
 
-	ngx_resolver_ctx_t     * resolver_ctx;
+	ngx_resolver_ctx_t   * resolver_ctx;
 
-	ngx_mail_proxy_ctx_t   * proxy;
+	ngx_mail_proxy_ctx_t * proxy;
 
 	ngx_uint_t mail_state;
 
@@ -189,7 +187,7 @@ typedef struct {
 	ngx_str_t tagged_line;
 	ngx_str_t text;
 
-	ngx_str_t              * addr_text;
+	ngx_str_t    * addr_text;
 	ngx_str_t host;
 	ngx_str_t smtp_helo;
 	ngx_str_t smtp_from;
@@ -205,15 +203,15 @@ typedef struct {
 	/* used to parse POP3/IMAP/SMTP command */
 
 	ngx_uint_t state;
-	u_char                 * cmd_start;
-	u_char                 * arg_start;
-	u_char                 * arg_end;
+	u_char * cmd_start;
+	u_char * arg_start;
+	u_char * arg_end;
 	ngx_uint_t literal_len;
 } ngx_mail_session_t;
 
 typedef struct {
-	ngx_str_t              * client;
-	ngx_mail_session_t     * session;
+	ngx_str_t    * client;
+	ngx_mail_session_t   * session;
 } ngx_mail_log_ctx_t;
 
 #define NGX_POP3_USER          1
@@ -295,7 +293,7 @@ struct ngx_mail_protocol_s {
 };
 
 typedef struct {
-	ngx_mail_protocol_t        * protocol;
+	ngx_mail_protocol_t * protocol;
 
 	void                       *(*create_main_conf)(ngx_conf_t *cf);
 	char                       *(*init_main_conf)(ngx_conf_t *cf, void * conf);

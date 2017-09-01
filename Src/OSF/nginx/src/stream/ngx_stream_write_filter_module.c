@@ -47,8 +47,8 @@ static ngx_int_t ngx_stream_write_filter(ngx_stream_session_t * s, ngx_chain_t *
 {
 	nginx_off_t size;
 	ngx_uint_t last, flush, sync;
-	ngx_chain_t                    * cl, * ln, ** ll, ** out, * chain;
-	ngx_connection_t               * c;
+	ngx_chain_t  * cl, * ln, ** ll, ** out, * chain;
+	ngx_connection_t * c;
 	ngx_stream_write_filter_ctx_t  * ctx = (ngx_stream_write_filter_ctx_t *)ngx_stream_get_module_ctx(s, ngx_stream_write_filter_module);
 	if(ctx == NULL) {
 		ctx = (ngx_stream_write_filter_ctx_t *)ngx_pcalloc(s->connection->pool, sizeof(ngx_stream_write_filter_ctx_t));

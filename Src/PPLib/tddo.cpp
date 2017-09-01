@@ -1183,8 +1183,10 @@ SLTEST_R(Tddo)
 		out_buf.WriteByte('\n');
 	}
 	out_file.Write(out_buf, out_buf.GetAvailableSize());
-	CATCHZOK
-	return ok;
+	CATCH
+		ok = CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

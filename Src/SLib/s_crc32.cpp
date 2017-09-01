@@ -1379,7 +1379,7 @@ SLTEST_R(BDT)
 #endif // } _LOCAL_USE_SSL 
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 SLTEST_R(CalcCheckDigit)
@@ -1407,7 +1407,7 @@ SLTEST_R(CalcCheckDigit)
 		}
 	}
 	CATCHZOK
-	return ok;
+	return CurrentStatus;
 }
 
 #endif // } SLTEST_RUNNING

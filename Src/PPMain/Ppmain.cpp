@@ -1,5 +1,6 @@
 // PPMAIN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -48,19 +49,19 @@ static int TranslateCmd(int cmd, SString & rCmdBuf)
 		{srvcmdStart,     "servicestart"},
 		{srvcmdStop,      "servicestop"},
 		{srvcmdDemon,     "demon"},
-		{srvcmdDemon,     "daemon"}, // @v7.4.1
+		{srvcmdDemon,     "daemon"},
 		{srvcmdRFIDPrcssr, "rfidprcssr"},
 		{srvcmdHelp,      "/?"}
 	};
 	if(cmd) {
-		for(uint i = 0; i < sizeof(SrvCmdList) / sizeof(SrvCmdName); i++)
+		for(uint i = 0; i < SIZEOFARRAY(SrvCmdList); i++)
 			if(cmd == (int)SrvCmdList[i].Cmd) {
 				rCmdBuf = SrvCmdList[i].P_CmdText;
 				return 1;
 			}
 	}
 	else {
-		for(uint i = 0; i < sizeof(SrvCmdList) / sizeof(SrvCmdName); i++)
+		for(uint i = 0; i < SIZEOFARRAY(SrvCmdList); i++)
 			if(rCmdBuf.CmpNC(SrvCmdList[i].P_CmdText) == 0)
 				return (int)SrvCmdList[i].Cmd;
 	}
@@ -99,14 +100,14 @@ static void OutPressAnyKey()
 }
 
 #if SLTEST_RUNNING // {
-int dummy_ppserver(); // Íàñèëüñòâåííàÿ ëèíêîâêà ìîäóëÿ ppserver.cpp â ñëó÷àå ñáîðêè äëÿ àâòîòåñòèðîâàíèÿ //
+int dummy_ppserver(); // ÐÐ°ÑÐ¸Ð»ÑŒÑÑ‚Ð²ÐµÐ½Ð½Ð°Ñ Ð»Ð¸Ð½ÐºÐ¾Ð²ÐºÐ° Ð¼Ð¾Ð´ÑƒÐ»Ñ ppserver.cpp Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ±Ð¾Ñ€ÐºÐ¸ Ð´Ð»Ñ Ð°Ð²Ñ‚Ð¾Ñ‚ÐµÑÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ //
 #endif // } SLTEST_RUNNING
 
 int main(int argc, char ** argv)
 {
 	int    ret = 0;
 #if SLTEST_RUNNING // {
-	dummy_ppserver(); // Íàñèëüñòâåííàÿ ëèíêîâêà ìîäóëÿ ppserver.cpp â ñëó÷àå ñáîðêè äëÿ àâòîòåñòèðîâàíèÿ //
+	dummy_ppserver(); // ÐÐ°ÑÐ¸Ð»ÑŒÑÑ‚Ð²ÐµÐ½Ð½Ð°Ñ Ð»Ð¸Ð½ÐºÐ¾Ð²ÐºÐ° Ð¼Ð¾Ð´ÑƒÐ»Ñ ppserver.cpp Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ±Ð¾Ñ€ÐºÐ¸ Ð´Ð»Ñ Ð°Ð²Ñ‚Ð¾Ñ‚ÐµÑÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ //
 #endif // } SLTEST_RUNNING
 	if(!CheckExeLocking())
 		ret = -1;
@@ -269,7 +270,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			DS.Unregister(); // @v8.2.11
 			// @v9.1.12 {
 			SLS.Stop();
-			// @v9.2.0 SDelay(100); // Çàäåðæêà äëÿ òîãî, ÷òîáû âñå ñëóæåáíûå ïîòîêè óñïåëè çàâåðøèòüñÿ (ýòî - ãðóáûé ïîäõîä).
+			// @v9.2.0 SDelay(100); // Ð—Ð°Ð´ÐµÑ€Ð¶ÐºÐ° Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð²ÑÐµ ÑÐ»ÑƒÐ¶ÐµÐ±Ð½Ñ‹Ðµ Ð¿Ð¾Ñ‚Ð¾ÐºÐ¸ ÑƒÑÐ¿ÐµÐ»Ð¸ Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚ÑŒÑÑ (ÑÑ‚Ð¾ - Ð³Ñ€ÑƒÐ±Ñ‹Ð¹ Ð¿Ð¾Ð´Ñ…Ð¾Ð´).
 			// } @v9.1.12
 		}
 		else

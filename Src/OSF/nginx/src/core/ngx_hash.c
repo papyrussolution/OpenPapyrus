@@ -46,7 +46,7 @@ next:
 
 void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t len)
 {
-	void        * value;
+	void * value;
 	ngx_uint_t i, n, key;
 
 #if 0
@@ -133,7 +133,7 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t le
 
 void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, u_char * name, size_t len)
 {
-	void        * value;
+	void * value;
 	ngx_uint_t i, key;
 
 #if 0
@@ -232,9 +232,9 @@ void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, u_char
 
 ngx_int_t ngx_hash_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names, ngx_uint_t nelts)
 {
-	u_char          * elts;
+	u_char   * elts;
 	size_t len;
-	u_short         * test;
+	u_short  * test;
 	ngx_uint_t i, n, key, size, start, bucket_size;
 	ngx_hash_elt_t  * elt, ** buckets;
 
@@ -442,7 +442,7 @@ ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names
 	size_t len, dot_len;
 	ngx_uint_t i, n, dot;
 	ngx_array_t curr_names, next_names;
-	ngx_hash_key_t       * name, * next_name;
+	ngx_hash_key_t  * name, * next_name;
 	ngx_hash_init_t h;
 	ngx_hash_wildcard_t  * wdc;
 
@@ -640,10 +640,10 @@ ngx_int_t ngx_hash_keys_array_init(ngx_hash_keys_arrays_t * ha, ngx_uint_t type)
 ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * value, ngx_uint_t flags)
 {
 	size_t len;
-	u_char          * p;
-	ngx_str_t       * name;
+	u_char   * p;
+	ngx_str_t  * name;
 	ngx_uint_t i, k, n, skip;
-	ngx_array_t     * keys, * hwc;
+	ngx_array_t   * keys, * hwc;
 	ngx_hash_key_t  * hk;
 	ngx_uint_t last = key->len;
 	if(flags & NGX_HASH_WILDCARD_KEY) {
