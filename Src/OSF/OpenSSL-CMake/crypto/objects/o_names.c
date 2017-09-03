@@ -294,9 +294,8 @@ struct doall_sorted {
 static void do_all_sorted_fn(const OBJ_NAME * name, void * d_)
 {
 	struct doall_sorted * d = (struct doall_sorted*)d_;
-	if(name->type != d->type)
-		return;
-	d->names[d->n++] = name;
+	if(name->type == d->type)
+		d->names[d->n++] = name;
 }
 
 static int do_all_sorted_cmp(const void * n1_, const void * n2_)

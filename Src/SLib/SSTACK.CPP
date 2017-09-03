@@ -141,8 +141,7 @@ int FASTCALL SQueue::push(const void * pItem)
 			return 0;
 	}
 	else {
-		if(!atPut(End % QueueSize, pItem))
-			return 0;
+		atPut(End % QueueSize, pItem);
 	}
 	End++;
 	if((End - Front) > QueueSize)

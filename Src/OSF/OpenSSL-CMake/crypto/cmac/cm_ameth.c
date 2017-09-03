@@ -8,15 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/evp.h>
+//#include <openssl/evp.h>
 #include <openssl/cmac.h>
-#include "internal/asn1_int.h"
-
+//#include "internal/asn1_int.h"
 /*
  * CMAC "ASN1" method. This is just here to indicate the maximum CMAC output
  * length and to free up a CMAC key.
  */
-
 static int cmac_size(const EVP_PKEY *pkey)
 {
     return EVP_MAX_BLOCK_LENGTH;

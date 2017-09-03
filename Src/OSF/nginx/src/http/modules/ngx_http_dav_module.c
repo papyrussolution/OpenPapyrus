@@ -828,7 +828,7 @@ static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path)
 			ngx_http_clear_location(r);
 			return NGX_ERROR;
 		}
-		ngx_memcpy(location, r->uri.data, r->uri.len);
+		memcpy(location, r->uri.data, r->uri.len);
 	}
 	r->headers_out.location->hash = 1;
 	ngx_str_set(&r->headers_out.location->key, "Location");

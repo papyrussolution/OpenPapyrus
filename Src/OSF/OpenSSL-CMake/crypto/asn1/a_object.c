@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/asn1_int.h"
+//#include <internal/asn1_int.h>
 #include "asn1_locl.h"
 
 int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, uchar ** pp)

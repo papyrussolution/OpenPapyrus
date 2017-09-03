@@ -104,14 +104,14 @@ XMLCALL xmlOutputBufferCreateFilenameDefault (xmlOutputBufferCreateFilenameFunc 
  *
  * Signature for the registration callback of a created node
  */
-typedef void (*xmlRegisterNodeFunc) (xmlNodePtr node);
+typedef void (*xmlRegisterNodeFunc)(xmlNode * node);
 /**
  * xmlDeregisterNodeFunc:
  * @node: the current node
  *
  * Signature for the deregistration callback of a discarded node
  */
-typedef void (*xmlDeregisterNodeFunc) (xmlNodePtr node);
+typedef void (*xmlDeregisterNodeFunc)(xmlNode * node);
 
 typedef struct _xmlGlobalState xmlGlobalState;
 typedef xmlGlobalState *xmlGlobalStatePtr;

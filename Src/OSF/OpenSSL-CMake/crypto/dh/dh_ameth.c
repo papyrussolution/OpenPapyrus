@@ -10,12 +10,11 @@
 #pragma hdrstop
 //#include <openssl/x509.h>
 //#include <openssl/asn1.h>
-#include "dh_locl.h"
 //#include <openssl/bn.h>
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include "internal/asn1_int.h"
+//#include <internal/evp_int.h>
 //#include <openssl/cms.h>
-
+#include "dh_locl.h"
 /*
  * i2d/d2i like DH parameter functions which use the appropriate routine for
  * PKCS#3 DH or X9.42 DH.

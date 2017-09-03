@@ -9,8 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/opensslconf.h>
-#include <openssl/sha.h>
-#include <openssl/opensslv.h>
+//#include <openssl/opensslv.h>
+//#include <openssl/sha.h>
 
 int SHA224_Init(SHA256_CTX * c)
 {

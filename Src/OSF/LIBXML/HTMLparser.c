@@ -5764,7 +5764,7 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 	if(ctxt) {
 		xmlParserInputPtr input;
 		xmlInitParser();
-		xmlDictPtr dict = ctxt->dict;
+		xmlDict * dict = ctxt->dict;
 		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
 			xmlFreeInputStream(input);
 		}

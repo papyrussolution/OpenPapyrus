@@ -30,7 +30,6 @@ static ngx_event_module_t ngx_iocp_module_ctx = {
 	&iocp_name,
 	ngx_iocp_create_conf,              /* create configuration */
 	ngx_iocp_init_conf,                /* init configuration */
-
 	{
 		ngx_iocp_add_event,        /* add an event */
 		NULL,                      /* delete an event */
@@ -131,7 +130,7 @@ static void ngx_iocp_done(ngx_cycle_t * cycle)
 
 static ngx_int_t ngx_iocp_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t key)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)ev->data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->data;
 	c->read->active = 1;
 	c->write->active = 1;
 	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "iocp add: fd:%d k:%ui ov:%p", c->fd, key, &ev->ovlp);
@@ -149,13 +148,11 @@ static ngx_int_t ngx_iocp_del_connection(ngx_connection_t * c, ngx_uint_t flags)
 	if(flags & NGX_CLOSE_EVENT) {
 		return NGX_OK;
 	}
-
 	if(CancelIo((HANDLE)c->fd) == 0) {
 		ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno, "CancelIo() failed");
 		return NGX_ERROR;
 	}
 #endif
-
 	return NGX_OK;
 }
 
@@ -204,8 +201,7 @@ static ngx_int_t ngx_iocp_process_events(ngx_cycle_t * cycle, ngx_msec_t timer, 
 	}
 	ev = ovlp->event;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, err, "iocp event:%p", ev);
-	if(err == ERROR_NETNAME_DELETED /* the socket was closed */
-	    || err == ERROR_OPERATION_ABORTED /* the operation was canceled */) {
+	if(err == ERROR_NETNAME_DELETED /* the socket was closed */ || err == ERROR_OPERATION_ABORTED /* the operation was canceled */) {
 		/*
 		 * the WSA_OPERATION_ABORTED completion notification
 		 * for a file descriptor that was closed
@@ -257,4 +253,3 @@ static char * ngx_iocp_init_conf(ngx_cycle_t * cycle, void * conf)
 	ngx_conf_init_value(cf->acceptex_read, 1);
 	return NGX_CONF_OK;
 }
-

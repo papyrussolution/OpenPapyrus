@@ -1369,7 +1369,7 @@ int    SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMiss
 //
 //
 //
-SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags) 
+SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags)
 {
 	Status = 0;
 }
@@ -1445,6 +1445,7 @@ SLTEST_R(SBufferPipe)
 	private:
 		virtual void Run()
 		{
+			assert(SLS.GetConstTLA().Id == GetThreadID());
 			uint64 total_rd = 0;
 			uint64 total_wr = 0;
 			SFile f_out(OutFileName, SFile::mWrite|SFile::mBinary);
@@ -1475,6 +1476,7 @@ SLTEST_R(SBufferPipe)
 	private:
 		virtual void Run()
 		{
+			assert(SLS.GetConstTLA().Id == GetThreadID());
 			uint64 total_rd = 0;
 			uint64 total_wr = 0;
 			SFile f_in(InFileName, SFile::mRead|SFile::mBinary);

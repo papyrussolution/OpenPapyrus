@@ -65,7 +65,7 @@ void ngx_event_accept(ngx_event_t * ev)
 			if(err == NGX_ECONNABORTED) {
 				level = NGX_LOG_ERR;
 			}
-			else if(err == NGX_EMFILE || err == NGX_ENFILE) {
+			else if(oneof2(err, NGX_EMFILE, NGX_ENFILE)) {
 				level = NGX_LOG_CRIT;
 			}
 #if (NGX_HAVE_ACCEPT4)
@@ -86,19 +86,21 @@ void ngx_event_accept(ngx_event_t * ev)
 					continue;
 				}
 			}
-			if(err == NGX_EMFILE || err == NGX_ENFILE) {
+			if(oneof2(err, NGX_EMFILE, NGX_ENFILE)) {
 				if(ngx_disable_accept_events((ngx_cycle_t*)ngx_cycle, 1) != NGX_OK) {
 					return;
 				}
-				if(ngx_use_accept_mutex) {
-					if(ngx_accept_mutex_held) {
-						ngx_shmtx_unlock(&ngx_accept_mutex);
-						ngx_accept_mutex_held = 0;
-					}
-					ngx_accept_disabled = 1;
-				}
 				else {
-					ngx_add_timer(ev, ecf->accept_mutex_delay);
+					if(ngx_use_accept_mutex) {
+						if(ngx_accept_mutex_held) {
+							ngx_shmtx_unlock(&ngx_accept_mutex);
+							ngx_accept_mutex_held = 0;
+						}
+						ngx_accept_disabled = 1;
+					}
+					else {
+						ngx_add_timer(ev, ecf->accept_mutex_delay);
+					}
 				}
 			}
 			return;
@@ -128,7 +130,7 @@ void ngx_event_accept(ngx_event_t * ev)
 			ngx_close_accepted_connection(c);
 			return;
 		}
-		ngx_memcpy(c->sockaddr, &sa, socklen);
+		memcpy(c->sockaddr, &sa, socklen);
 		log = (ngx_log_t*)ngx_palloc(c->pool, sizeof(ngx_log_t));
 		if(log == NULL) {
 			ngx_close_accepted_connection(c);
@@ -147,29 +149,23 @@ void ngx_event_accept(ngx_event_t * ev)
 		else {
 			if(!(ngx_event_flags & NGX_USE_IOCP_EVENT)) {
 				if(ngx_nonblocking(s) == -1) {
-					ngx_log_error(NGX_LOG_ALERT, ev->log, ngx_socket_errno,
-					    ngx_nonblocking_n " failed");
+					ngx_log_error(NGX_LOG_ALERT, ev->log, ngx_socket_errno, ngx_nonblocking_n " failed");
 					ngx_close_accepted_connection(c);
 					return;
 				}
 			}
 		}
-
 		*log = ls->log;
-
 		c->recv = ngx_recv;
 		c->send = ngx_send;
 		c->recv_chain = ngx_recv_chain;
 		c->send_chain = ngx_send_chain;
-
 		c->log = log;
 		c->pool->log = log;
-
 		c->socklen = socklen;
 		c->listening = ls;
 		c->local_sockaddr = ls->sockaddr;
 		c->local_socklen = ls->socklen;
-
 #if (NGX_HAVE_UNIX_DOMAIN)
 		if(c->sockaddr->sa_family == AF_UNIX) {
 			c->tcp_nopush = NGX_TCP_NOPUSH_DISABLED;
@@ -206,17 +202,13 @@ void ngx_event_accept(ngx_event_t * ev)
 #if (NGX_STAT_STUB)
 		(void)ngx_atomic_fetch_add(ngx_stat_handled, 1);
 #endif
-
 		if(ls->addr_ntop) {
 			c->addr_text.data = (u_char*)ngx_pnalloc(c->pool, ls->addr_text_max_len);
 			if(c->addr_text.data == NULL) {
 				ngx_close_accepted_connection(c);
 				return;
 			}
-
-			c->addr_text.len = ngx_sock_ntop(c->sockaddr, c->socklen,
-			    c->addr_text.data,
-			    ls->addr_text_max_len, 0);
+			c->addr_text.len = ngx_sock_ntop(c->sockaddr, c->socklen, c->addr_text.data, ls->addr_text_max_len, 0);
 			if(c->addr_text.len == 0) {
 				ngx_close_accepted_connection(c);
 				return;
@@ -264,19 +256,15 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 	ngx_event_conf_t  * ecf;
 	ngx_connection_t  * c, * lc;
 	static u_char buffer[65535];
-
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
-
-#if (NGX_HAVE_IP_RECVDSTADDR)
-	u_char msg_control[CMSG_SPACE(sizeof(struct in_addr))];
-#elif (NGX_HAVE_IP_PKTINFO)
-	u_char msg_control[CMSG_SPACE(sizeof(struct in_pktinfo))];
-#endif
-
-#if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
-	u_char msg_control6[CMSG_SPACE(sizeof(struct in6_pktinfo))];
-#endif
-
+	#if (NGX_HAVE_IP_RECVDSTADDR)
+		u_char msg_control[CMSG_SPACE(sizeof(struct in_addr))];
+	#elif (NGX_HAVE_IP_PKTINFO)
+		u_char msg_control[CMSG_SPACE(sizeof(struct in_pktinfo))];
+	#endif
+	#if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
+		u_char msg_control6[CMSG_SPACE(sizeof(struct in6_pktinfo))];
+	#endif
 #endif
 	if(ev->timedout) {
 		if(ngx_enable_accept_events((ngx_cycle_t*)ngx_cycle) != NGX_OK) {
@@ -294,17 +282,13 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "recvmsg on %V, ready: %d", &ls->addr_text, ev->available);
 	do {
 		memzero(&msg, sizeof(struct msghdr));
-
 		iov[0].iov_base = (void*)buffer;
 		iov[0].iov_len = sizeof(buffer);
-
 		msg.msg_name = &sa;
 		msg.msg_namelen = sizeof(ngx_sockaddr_t);
 		msg.msg_iov = iov;
 		msg.msg_iovlen = 1;
-
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
-
 		if(ls->wildcard) {
 #if (NGX_HAVE_IP_RECVDSTADDR || NGX_HAVE_IP_PKTINFO)
 			if(ls->sockaddr->sa_family == AF_INET) {
@@ -312,7 +296,6 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 				msg.msg_controllen = sizeof(msg_control);
 			}
 #endif
-
 #if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
 			if(ls->sockaddr->sa_family == AF_INET6) {
 				msg.msg_control = &msg_control6;
@@ -322,9 +305,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 		}
 
 #endif
-
 		n = recvmsg(lc->fd, &msg, 0);
-
 		if(n == -1) {
 			err = ngx_socket_errno;
 			if(err == NGX_EAGAIN) {
@@ -364,7 +345,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 			ngx_close_accepted_connection(c);
 			return;
 		}
-		ngx_memcpy(c->sockaddr, msg.msg_name, c->socklen);
+		memcpy(c->sockaddr, msg.msg_name, c->socklen);
 		log = ngx_palloc(c->pool, sizeof(ngx_log_t));
 		if(log == NULL) {
 			ngx_close_accepted_connection(c);
@@ -387,7 +368,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 				ngx_close_accepted_connection(c);
 				return;
 			}
-			ngx_memcpy(sockaddr, c->local_sockaddr, c->local_socklen);
+			memcpy(sockaddr, c->local_sockaddr, c->local_socklen);
 			c->local_sockaddr = sockaddr;
 			for(cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 #if (NGX_HAVE_IP_RECVDSTADDR)
@@ -513,15 +494,12 @@ ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * cycle)
 
 static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle)
 {
-	ngx_connection_t  * c;
 	ngx_listening_t * ls = (ngx_listening_t*)cycle->listening.elts;
 	for(ngx_uint_t i = 0; i < cycle->listening.nelts; i++) {
-		c = ls[i].connection;
-		if(c == NULL || c->read->active) {
-			continue;
-		}
-		if(ngx_add_event(c->read, NGX_READ_EVENT, 0) == NGX_ERROR) {
-			return NGX_ERROR;
+		ngx_connection_t * c = ls[i].connection;
+		if(c && !c->read->active) {
+			if(ngx_add_event(c->read, NGX_READ_EVENT, 0) == NGX_ERROR)
+				return NGX_ERROR;
 		}
 	}
 	return NGX_OK;
@@ -529,25 +507,21 @@ static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle)
 
 static ngx_int_t ngx_disable_accept_events(ngx_cycle_t * cycle, ngx_uint_t all)
 {
-	ngx_uint_t i;
-	ngx_connection_t  * c;
 	ngx_listening_t * ls = (ngx_listening_t*)cycle->listening.elts;
-	for(i = 0; i < cycle->listening.nelts; i++) {
-		c = ls[i].connection;
-		if(c == NULL || !c->read->active) {
-			continue;
-		}
+	for(ngx_uint_t i = 0; i < cycle->listening.nelts; i++) {
+		ngx_connection_t * c = ls[i].connection;
+		if(c && c->read->active) {
 #if (NGX_HAVE_REUSEPORT)
-		/*
-		 * do not disable accept on worker's own sockets
-		 * when disabling accept events due to accept mutex
-		 */
-		if(ls[i].reuseport && !all) {
-			continue;
-		}
+			// 
+			// do not disable accept on worker's own sockets when disabling accept events due to accept mutex
+			// 
+			if(ls[i].reuseport && !all) {
+				continue;
+			}
 #endif
-		if(ngx_del_event(c->read, NGX_READ_EVENT, NGX_DISABLE_EVENT) == NGX_ERROR) {
-			return NGX_ERROR;
+			if(ngx_del_event(c->read, NGX_READ_EVENT, NGX_DISABLE_EVENT) == NGX_ERROR) {
+				return NGX_ERROR;
+			}
 		}
 	}
 	return NGX_OK;

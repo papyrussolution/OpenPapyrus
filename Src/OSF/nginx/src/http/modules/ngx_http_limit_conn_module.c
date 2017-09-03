@@ -165,7 +165,7 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 			node->key = hash;
 			lc->len = (u_char)key.len;
 			lc->conn = 1;
-			ngx_memcpy(lc->data, key.data, key.len);
+			memcpy(lc->data, key.data, key.len);
 			ngx_rbtree_insert(ctx->rbtree, node);
 		}
 		else {

@@ -308,7 +308,7 @@ static ngx_inline void ngx_rbtree_right_rotate(ngx_rbtree_node_t ** root, ngx_rb
 	node->parent = temp;
 }
 
-ngx_rbtree_node_t * ngx_rbtree_next(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
+const ngx_rbtree_node_t * ngx_rbtree_next(const ngx_rbtree_t * tree, const ngx_rbtree_node_t * node)
 {
 	ngx_rbtree_node_t  * root, * parent;
 	ngx_rbtree_node_t  * sentinel = tree->sentinel;

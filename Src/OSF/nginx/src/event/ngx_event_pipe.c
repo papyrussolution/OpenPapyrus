@@ -653,7 +653,7 @@ ngx_int_t ngx_event_pipe_copy_input_filter(ngx_event_pipe_t * p, ngx_buf_t * buf
 		return NGX_ERROR;
 	}
 	b = cl->buf;
-	ngx_memcpy(b, buf, sizeof(ngx_buf_t));
+	memcpy(b, buf, sizeof(ngx_buf_t));
 	b->shadow = buf;
 	b->tag = p->tag;
 	b->last_shadow = 1;

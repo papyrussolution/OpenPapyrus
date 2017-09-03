@@ -401,7 +401,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 				return NGX_ERROR;
 			}
 			if(len) {
-				ngx_memmove(b->start, start, len);
+				memmove(b->start, start, len);
 			}
 			size = (ssize_t)(file_size - cf->conf_file->file.offset);
 			if(size > b->end - (b->start + len)) {
@@ -730,46 +730,48 @@ void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t * cf, ngx_err_t e
 char * ngx_conf_set_flag_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_flag_t * fp = (ngx_flag_t *)(p + cmd->offset);
 	if(*fp != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	if(ngx_strcasecmp(value[1].data, (u_char*)"on") == 0) {
-		*fp = 1;
-	}
-	else if(ngx_strcasecmp(value[1].data, (u_char*)"off") == 0) {
-		*fp = 0;
-	}
 	else {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%s\" in \"%s\" directive, it must be \"on\" or \"off\"", value[1].data, cmd->name.data);
-		return NGX_CONF_ERROR;
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		if(ngx_strcasecmp(value[1].data, (u_char*)"on") == 0) {
+			*fp = 1;
+		}
+		else if(ngx_strcasecmp(value[1].data, (u_char*)"off") == 0) {
+			*fp = 0;
+		}
+		else {
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%s\" in \"%s\" directive, it must be \"on\" or \"off\"", value[1].data, cmd->name.data);
+			return NGX_CONF_ERROR;
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, fp);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, fp);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_str_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_str_t * field = (ngx_str_t*)(p + cmd->offset);
 	if(field->data) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*field = value[1];
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, field);
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*field = value[1];
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, field);
+		}
+		return NGX_CONF_OK;
 	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
@@ -827,149 +829,154 @@ char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * con
 char * ngx_conf_set_num_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
-	ngx_conf_post_t  * post;
+	ngx_conf_post_t * post;
 	ngx_int_t * np = (ngx_int_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*np = ngx_atoi(value[1].data, value[1].len);
-	if(*np == NGX_ERROR) {
-		return "invalid number";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*np = ngx_atoi(value[1].data, value[1].len);
+		if(*np == NGX_ERROR) {
+			return "invalid number";
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, np);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, np);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_size_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	size_t * sp = (size_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET_SIZE) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*sp = ngx_parse_size(&value[1]);
-	if(*sp == (size_t)NGX_ERROR) {
-		return "invalid value";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*sp = ngx_parse_size(&value[1]);
+		if(*sp == (size_t)NGX_ERROR) {
+			return "invalid value";
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, sp);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, sp);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_off_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	nginx_off_t * op = (nginx_off_t*)(p + cmd->offset);
 	if(*op != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*op = ngx_parse_offset(&value[1]);
-	if(*op == (nginx_off_t)NGX_ERROR) {
-		return "invalid value";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*op = ngx_parse_offset(&value[1]);
+		if(*op == (nginx_off_t)NGX_ERROR) {
+			return "invalid value";
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, op);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, op);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_msec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	ngx_msec_t * msp = (ngx_msec_t*)(p + cmd->offset);
 	if(*msp != NGX_CONF_UNSET_MSEC) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*msp = ngx_parse_time(&value[1], 0);
-	if(*msp == (ngx_msec_t)NGX_ERROR) {
-		return "invalid value";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*msp = ngx_parse_time(&value[1], 0);
+		if(*msp == (ngx_msec_t)NGX_ERROR) {
+			return "invalid value";
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, msp);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, msp);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_sec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_conf_post_t  * post;
 	time_t * sp = (time_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	*sp = ngx_parse_time(&value[1], 1);
-	if(*sp == (time_t)NGX_ERROR) {
-		return "invalid value";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		*sp = ngx_parse_time(&value[1], 1);
+		if(*sp == (time_t)NGX_ERROR) {
+			return "invalid value";
+		}
+		if(cmd->post) {
+			post = (ngx_conf_post_t *)cmd->post;
+			return post->post_handler(cf, post, sp);
+		}
+		return NGX_CONF_OK;
 	}
-	if(cmd->post) {
-		post = (ngx_conf_post_t *)cmd->post;
-		return post->post_handler(cf, post, sp);
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_bufs_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char * p = (char*)conf;
-	ngx_str_t * value;
 	ngx_bufs_t  * bufs = (ngx_bufs_t*)(p + cmd->offset);
 	if(bufs->num) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	bufs->num = ngx_atoi(value[1].data, value[1].len);
-	if(bufs->num == NGX_ERROR || bufs->num == 0) {
-		return "invalid value";
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		bufs->num = ngx_atoi(value[1].data, value[1].len);
+		if(bufs->num == NGX_ERROR || bufs->num == 0) {
+			return "invalid value";
+		}
+		bufs->size = ngx_parse_size(&value[2]);
+		if(bufs->size == (size_t)NGX_ERROR || bufs->size == 0) {
+			return "invalid value";
+		}
+		return NGX_CONF_OK;
 	}
-	bufs->size = ngx_parse_size(&value[2]);
-	if(bufs->size == (size_t)NGX_ERROR || bufs->size == 0) {
-		return "invalid value";
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_set_enum_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_uint_t i;
-	ngx_str_t * value;
-	ngx_conf_enum_t  * e;
 	ngx_uint_t * np = (ngx_uint_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET_UINT) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	e = (ngx_conf_enum_t  *)cmd->post;
-	for(i = 0; e[i].name.len != 0; i++) {
-		if(e[i].name.len != value[1].len || ngx_strcasecmp(e[i].name.data, value[1].data) != 0) {
-			continue;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_conf_enum_t * e = (ngx_conf_enum_t  *)cmd->post;
+		for(ngx_uint_t i = 0; e[i].name.len != 0; i++) {
+			if(e[i].name.len != value[1].len || ngx_strcasecmp(e[i].name.data, value[1].data) != 0) {
+				continue;
+			}
+			*np = e[i].value;
+			return NGX_CONF_OK;
 		}
-		*np = e[i].value;
-		return NGX_CONF_OK;
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%s\"", value[1].data);
+		return NGX_CONF_ERROR;
 	}
-	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%s\"", value[1].data);
-	return NGX_CONF_ERROR;
 }
 
 char * ngx_conf_set_bitmask_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
@@ -1001,12 +1008,10 @@ char * ngx_conf_set_bitmask_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 }
 
 #if 0
-
 char * ngx_conf_unsupported(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	return "unsupported on this platform";
 }
-
 #endif
 
 char * ngx_conf_deprecated(ngx_conf_t * cf, void * post, void * data)

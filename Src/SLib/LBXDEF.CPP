@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -892,12 +892,12 @@ SLAPI DBQListBoxDef::~DBQListBoxDef()
 
 int SLAPI DBQListBoxDef::GetFrameSize()
 {
-	return query->frame->count;
+	return query->P_Frame->count;
 }
 
 int SLAPI DBQListBoxDef::GetFrameState()
 {
-	int    st = query->frame->state;
+	int    st = query->P_Frame->state;
 	return (st == 3) ? -1 : st;
 }
 
@@ -921,7 +921,7 @@ int SLAPI DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 		}
 		assert((int)query->fldCount > c);
 		Type = query->flds[c].type;
-		query->frame->srange = 1000;
+		query->P_Frame->srange = 1000;
 		query->top();
 		return 1;
 	}
@@ -942,8 +942,8 @@ void SLAPI DBQListBoxDef::setViewHight(int h)
 
 void SLAPI DBQListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = query ? (long)query->frame->sdelta : 0;
-	*pScrollPos = query ? (long)query->frame->spos : 0;
+	*pScrollDelta = query ? (long)query->P_Frame->sdelta : 0;
+	*pScrollPos = query ? (long)query->P_Frame->spos : 0;
 }
 
 int SLAPI DBQListBoxDef::valid()
@@ -953,8 +953,8 @@ int SLAPI DBQListBoxDef::valid()
 
 void SLAPI DBQListBoxDef::setupView()
 {
-	TopItem = query ? query->frame->top : 0;
-	CurItem = query ? query->frame->cur : 0;
+	TopItem = query ? query->P_Frame->top : 0;
+	CurItem = query ? query->P_Frame->cur : 0;
 }
 
 int SLAPI DBQListBoxDef::go(long p)
@@ -1004,7 +1004,7 @@ int SLAPI DBQListBoxDef::refresh()
 
 long  SLAPI DBQListBoxDef::getRecsCount()
 {
-	return query ? (query->frame->srange+1) : 0;
+	return query ? (query->P_Frame->srange+1) : 0;
 }
 
 int SLAPI DBQListBoxDef::getIdList(LongArray & rList)
@@ -1022,7 +1022,7 @@ int DBQListBoxDef::TransmitData(int dir, void * pData)
 {
 	int    s = ListBoxDef::TransmitData(dir, pData);
 	if(dir > 0 && s)
-		query->frame->spos = (uint)getRecsCount() / 2;
+		query->P_Frame->spos = (uint)getRecsCount() / 2;
 	return s;
 }
 
@@ -1046,7 +1046,7 @@ int SLAPI DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 	}
 	if(ok) {
 		if((ok = query->search(pPattern, fcmp, f, srchMode, p_srch_extra)) != 0)
-			query->frame->spos = (uint)getRecsCount() / 2;
+			query->P_Frame->spos = (uint)getRecsCount() / 2;
 		setupView();
 	}
 	return ok;

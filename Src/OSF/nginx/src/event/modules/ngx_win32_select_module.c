@@ -85,7 +85,7 @@ static ngx_int_t ngx_select_init(ngx_cycle_t * cycle, ngx_msec_t timer)
 			return NGX_ERROR;
 		}
 		if(_ModulBlk.event_index) {
-			ngx_memcpy(index, _ModulBlk.event_index, sizeof(ngx_event_t *) * _ModulBlk.nevents);
+			memcpy(index, _ModulBlk.event_index, sizeof(ngx_event_t *) * _ModulBlk.nevents);
 			ngx_free(_ModulBlk.event_index);
 		}
 		_ModulBlk.event_index = index;

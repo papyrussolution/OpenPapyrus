@@ -2552,7 +2552,7 @@ static int UriToStringEngine(char * dest, const UriUri*uri, int maxChars, int * 
 				(*charsRequired) += charsToWrite;
 			}
 			/* Not last segment -> append slash */
-			if(walker->next != NULL) {
+			if(walker->next) {
 				if(dest) {
 					if(written+1 <= maxChars) {
 						memcpy(dest+written, _UT("/"), 1*sizeof(char));

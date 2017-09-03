@@ -382,7 +382,7 @@ static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur
  *
  * Returns the number of byte written or -1 in case of error
  */
-int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur) 
+int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur) 
 {
 	xmlBufPtr buffer;
 	size_t ret;
@@ -452,7 +452,7 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDocPtr doc, xmlNodePtr cur, const char
  * Dump an HTML node, recursive behaviour,children are printed too,
  * and formatting returns are added.
  */
-void htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNodePtr cur) 
+void htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNode * cur) 
 {
 	htmlNodeDumpFileFormat(out, doc, cur, NULL, 1);
 }
@@ -545,8 +545,7 @@ void htmlDocDumpMemory(xmlDocPtr cur, xmlChar** mem, int * size)
 *									*
 ************************************************************************/
 
-void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur);
-
+void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur);
 /**
  * htmlDtdDumpOutput:
  * @buf:  the HTML buffer output

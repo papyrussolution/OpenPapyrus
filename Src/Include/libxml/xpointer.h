@@ -46,27 +46,26 @@ struct _xmlLocationSet {
 XMLPUBFUN xmlLocationSetPtr XMLCALL xmlXPtrLocationSetCreate(xmlXPathObjectPtr val);
 XMLPUBFUN void XMLCALL xmlXPtrFreeLocationSet(xmlLocationSetPtr obj);
 XMLPUBFUN xmlLocationSetPtr XMLCALL xmlXPtrLocationSetMerge(xmlLocationSetPtr val1, xmlLocationSetPtr val2);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRange(xmlNodePtr start, int startindex, xmlNodePtr end, int endindex);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end, int endindex);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangePoints(xmlXPathObjectPtr start, xmlXPathObjectPtr end);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodePoint(xmlNodePtr start, xmlXPathObjectPtr end);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangePointNode(xmlXPathObjectPtr start, xmlNodePtr end);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodes(xmlNodePtr start, xmlNodePtr end);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewLocationSetNodes(xmlNodePtr start, xmlNodePtr end);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObjectPtr end);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangePointNode(xmlXPathObjectPtr start, xmlNode * end);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodes(xmlNode * start, xmlNode * end);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodeObject(xmlNodePtr start, xmlXPathObjectPtr end);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewCollapsedRange(xmlNodePtr start);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr end);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrNewCollapsedRange(xmlNode * start);
 XMLPUBFUN void XMLCALL xmlXPtrLocationSetAdd(xmlLocationSetPtr cur, xmlXPathObjectPtr val);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrWrapLocationSet(xmlLocationSetPtr val);
 XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSetPtr cur, xmlXPathObjectPtr val);
 XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSetPtr cur, int val);
-
 /*
  * Functions.
  */
-XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPtrNewContext(xmlDocPtr doc, xmlNodePtr here, xmlNodePtr origin);
+XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPtrNewContext(xmlDocPtr doc, xmlNode * here, xmlNode * origin);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx);
 XMLPUBFUN void XMLCALL xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs);
-XMLPUBFUN xmlNodePtr XMLCALL xmlXPtrBuildNodeList(xmlXPathObjectPtr obj);
+XMLPUBFUN xmlNode * XMLCALL xmlXPtrBuildNodeList(xmlXPathObjectPtr obj);
 XMLPUBFUN void XMLCALL xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr ctxt);
 #ifdef __cplusplus
 }

@@ -98,9 +98,6 @@
     <ClInclude Include="..\include\libxml\debugXML.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\dict.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\DOCBparser.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\tree.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\uri.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\valid.h">

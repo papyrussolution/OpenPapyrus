@@ -8,11 +8,12 @@
 #include <ngx_config.h>
 
 struct /*ngx_event_s*/ngx_event_t;
+struct /*ngx_pool_s*/ngx_pool_t;
 
 typedef struct ngx_module_s          ngx_module_t;
 typedef struct ngx_conf_s            ngx_conf_t;
 typedef struct ngx_cycle_s           ngx_cycle_t;
-typedef struct ngx_pool_s            ngx_pool_t;
+//typedef struct ngx_pool_s            ngx_pool_t;
 typedef struct ngx_chain_s           ngx_chain_t;
 struct ngx_log_s;
 typedef struct ngx_log_s             ngx_log_t;
@@ -99,7 +100,7 @@ struct ngx_pool_data_t {
 	ngx_uint_t failed;
 };
 
-struct ngx_pool_s {
+struct /*ngx_pool_s*/ngx_pool_t {
 	ngx_pool_data_t d;
 	size_t max;
 	ngx_pool_t * current;
@@ -118,9 +119,9 @@ struct ngx_pool_cleanup_file_t {
 ngx_pool_t * ngx_create_pool(size_t size, ngx_log_t * log);
 void   ngx_destroy_pool(ngx_pool_t * pool);
 void   ngx_reset_pool(ngx_pool_t * pool);
-void * ngx_palloc(ngx_pool_t * pool, size_t size);
-void * ngx_pnalloc(ngx_pool_t * pool, size_t size);
-void * ngx_pcalloc(ngx_pool_t * pool, size_t size);
+void * FASTCALL ngx_palloc(ngx_pool_t * pool, size_t size);
+void * FASTCALL ngx_pnalloc(ngx_pool_t * pool, size_t size);
+void * FASTCALL ngx_pcalloc(ngx_pool_t * pool, size_t size);
 void * ngx_pmemalign(ngx_pool_t * pool, size_t size, size_t alignment);
 ngx_int_t ngx_pfree(ngx_pool_t * pool, void * p);
 ngx_pool_cleanup_t * ngx_pool_cleanup_add(ngx_pool_t * p, size_t size);
@@ -134,26 +135,27 @@ typedef void * ngx_buf_tag_t;
 //typedef struct ngx_buf_s ngx_buf_t;
 
 struct /*ngx_buf_s*/ngx_buf_t {
-	u_char   * pos;
-	u_char   * last;
+	u_char   * last;  // Указатель на байт, следующий за последним заполненным данными байтом. last == pos означает, что данных нет.
+		// @sobolev last перемещен на первое место ибо к нему больше всего обращений.
+	u_char   * pos;   
 	nginx_off_t file_pos;
 	nginx_off_t file_last;
-	u_char   * start;    /* start of buffer */
-	u_char   * end;      /* end of buffer */
+	u_char   * start;    // start of buffer 
+	u_char   * end;      // end of buffer 
 	ngx_buf_tag_t tag;
 	ngx_file_t * file;
 	ngx_buf_t  * shadow;
-	unsigned temporary : 1; // the buf's content could be changed 
-	unsigned memory : 1; // the buf's content is in a memory cache or in a read only memory and must not be changed
-	unsigned mmap : 1; // the buf's content is mmap()ed and must not be changed 
-	unsigned recycled : 1;
-	unsigned in_file : 1;
-	unsigned flush : 1;
-	unsigned sync : 1;
-	unsigned last_buf : 1;
+	unsigned temporary     : 1; // the buf's content could be changed 
+	unsigned memory        : 1; // the buf's content is in a memory cache or in a read only memory and must not be changed
+	unsigned mmap          : 1; // the buf's content is mmap()ed and must not be changed 
+	unsigned recycled      : 1;
+	unsigned in_file       : 1;
+	unsigned flush         : 1;
+	unsigned sync          : 1;
+	unsigned last_buf      : 1;
 	unsigned last_in_chain : 1;
-	unsigned last_shadow : 1;
-	unsigned temp_file : 1;
+	unsigned last_shadow   : 1;
+	unsigned temp_file     : 1;
 	/* STUB */ int num;
 };
 

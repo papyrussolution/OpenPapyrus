@@ -186,31 +186,22 @@ ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uin
 
 	r->log = &cf->cycle->new_log;
 	r->log_level = NGX_LOG_ERR;
-
 	if(n) {
-		if(ngx_array_init(&r->connections, cf->pool, n,
-			    sizeof(ngx_resolver_connection_t))
-		    != NGX_OK) {
+		if(ngx_array_init(&r->connections, cf->pool, n, sizeof(ngx_resolver_connection_t)) != NGX_OK) {
 			return NULL;
 		}
 	}
-
 	for(i = 0; i < n; i++) {
 		if(ngx_strncmp(names[i].data, "valid=", 6) == 0) {
 			s.len = names[i].len - 6;
 			s.data = names[i].data + 6;
-
 			r->valid = ngx_parse_time(&s, 1);
-
 			if(r->valid == (time_t)NGX_ERROR) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid parameter: %V", &names[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter: %V", &names[i]);
 				return NULL;
 			}
-
 			continue;
 		}
-
 #if (NGX_HAVE_INET6)
 		if(ngx_strncmp(names[i].data, "ipv6=", 5) == 0) {
 			if(ngx_strcmp(&names[i].data[5], "on") == 0) {
@@ -220,37 +211,26 @@ ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uin
 				r->ipv6 = 0;
 			}
 			else {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid parameter: %V", &names[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter: %V", &names[i]);
 				return NULL;
 			}
-
 			continue;
 		}
 #endif
-
 		memzero(&u, sizeof(ngx_url_t));
-
 		u.url = names[i];
 		u.default_port = 53;
-
 		if(ngx_parse_url(cf->pool, &u) != NGX_OK) {
 			if(u.err) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "%s in resolver \"%V\"",
-				    u.err, &u.url);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%s in resolver \"%V\"", u.err, &u.url);
 			}
-
 			return NULL;
 		}
-
 		rec = (ngx_resolver_connection_t *)ngx_array_push_n(&r->connections, u.naddrs);
 		if(rec == NULL) {
 			return NULL;
 		}
-
 		memzero(rec, u.naddrs * sizeof(ngx_resolver_connection_t));
-
 		for(j = 0; j < u.naddrs; j++) {
 			rec[j].sockaddr = u.addrs[j].sockaddr;
 			rec[j].socklen = u.addrs[j].socklen;
@@ -258,7 +238,6 @@ ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uin
 			rec[j].resolver = r;
 		}
 	}
-
 	return r;
 }
 
@@ -2145,7 +2124,7 @@ found:
 
 #if (NGX_HAVE_INET6)
 			else if(type == NGX_RESOLVE_AAAA) {
-				ngx_memcpy(addr6[j].s6_addr, &buf[i], 16);
+				memcpy(addr6[j].s6_addr, &buf[i], 16);
 
 				if(++j == naddrs) {
 					if(rn->naddrs == (u_short) -1) {
@@ -2746,7 +2725,7 @@ static void ngx_resolver_resolve_srv_names(ngx_resolver_ctx_t * ctx, ngx_resolve
 		}
 
 		srvs[i].name.len = rn->u.srvs[i].name.len;
-		ngx_memcpy(srvs[i].name.data, rn->u.srvs[i].name.data,
+		memcpy(srvs[i].name.data, rn->u.srvs[i].name.data,
 		    srvs[i].name.len);
 
 		cctx = ngx_resolve_start(r, NULL);
@@ -2820,7 +2799,7 @@ static void ngx_resolver_srv_names_handler(ngx_resolver_ctx_t * cctx)
 			addrs[i].sockaddr = &sockaddr[i].sockaddr;
 			addrs[i].socklen = cctx->addrs[i].socklen;
 
-			ngx_memcpy(&sockaddr[i], cctx->addrs[i].sockaddr,
+			memcpy(&sockaddr[i], cctx->addrs[i].sockaddr,
 			    addrs[i].socklen);
 
 			ngx_inet_set_port(addrs[i].sockaddr, srv->port);
@@ -3271,7 +3250,7 @@ static ngx_resolver_node_t * ngx_resolver_lookup_addr6(ngx_resolver_t * r, struc
 
 		rn = ngx_resolver_node(node);
 
-		rc = ngx_memcmp(addr, &rn->addr6, 16);
+		rc = memcmp(addr, &rn->addr6, 16);
 
 		if(rc == 0) {
 			return rn;
@@ -3341,7 +3320,7 @@ static void ngx_resolver_rbtree_insert_addr6_value(ngx_rbtree_node_t * temp,
 			rn = ngx_resolver_node(node);
 			rn_temp = ngx_resolver_node(temp);
 
-			p = (ngx_memcmp(&rn->addr6, &rn_temp->addr6, 16)
+			p = (memcmp(&rn->addr6, &rn_temp->addr6, 16)
 			    < 0) ? &temp->left : &temp->right;
 		}
 
@@ -3451,7 +3430,7 @@ static ngx_int_t ngx_resolver_create_name_query(ngx_resolver_t * r, ngx_resolver
 
 	p = rn->query6;
 
-	ngx_memcpy(p, rn->query, rn->qlen);
+	memcpy(p, rn->query, rn->qlen);
 
 	query = (ngx_resolver_hdr_t*)p;
 
@@ -3836,7 +3815,7 @@ static void * ngx_resolver_dup(ngx_resolver_t * r, void * src, size_t size)
 {
 	void  * dst = ngx_resolver_alloc(r, size);
 	if(dst)
-		ngx_memcpy(dst, src, size);
+		memcpy(dst, src, size);
 	return dst;
 }
 
@@ -3890,7 +3869,7 @@ static ngx_resolver_addr_t * ngx_resolver_export(ngx_resolver_t * r, ngx_resolve
 		do {
 			sin6 = &sockaddr[d].sockaddr_in6;
 			sin6->sin6_family = AF_INET6;
-			ngx_memcpy(sin6->sin6_addr.s6_addr, addr6[j++].s6_addr, 16);
+			memcpy(sin6->sin6_addr.s6_addr, addr6[j++].s6_addr, 16);
 			dst[d].sockaddr = (struct sockaddr*)sin6;
 			dst[d++].socklen = sizeof(struct sockaddr_in6);
 			if(d == n) {

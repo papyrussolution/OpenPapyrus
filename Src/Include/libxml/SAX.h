@@ -53,7 +53,7 @@ XMLPUBFUN void XMLCALL ignorableWhitespace(void *ctx, const xmlChar *ch, int len
 XMLPUBFUN void XMLCALL processingInstruction(void *ctx, const xmlChar *target, const xmlChar *data);
 XMLPUBFUN void XMLCALL globalNamespace(void *ctx, const xmlChar *href, const xmlChar *prefix);
 XMLPUBFUN void XMLCALL setNamespace(void *ctx, const xmlChar *name);
-XMLPUBFUN xmlNsPtr XMLCALL getNamespace(void *ctx);
+XMLPUBFUN xmlNs * XMLCALL getNamespace(void *ctx);
 XMLPUBFUN int XMLCALL checkNamespace(void *ctx, xmlChar *nameSpace);
 XMLPUBFUN void XMLCALL namespaceDecl(void *ctx, const xmlChar *href, const xmlChar *prefix);
 XMLPUBFUN void XMLCALL comment(void *ctx, const xmlChar *value);

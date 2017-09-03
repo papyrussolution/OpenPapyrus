@@ -9,6 +9,8 @@
 #ifndef __XML_LIBXML_H__
 #define __XML_LIBXML_H__
 
+struct xmlDict;
+
 #ifndef NO_LARGEFILE_SOURCE
 	#ifndef _LARGEFILE_SOURCE
 		#define _LARGEFILE_SOURCE
@@ -112,7 +114,7 @@ int xmlNop(void);
 #include <libxml/xmlmemory.h>
 #include <libxml/xmlerror.h>
 #include <libxml/tree.h>
-#include <libxml/uri.h>
+//#include <libxml/uri.h>
 #include <libxml/parser.h>
 #include <libxml/list.h>
 #include <libxml/valid.h>
@@ -123,8 +125,91 @@ int xmlNop(void);
 #ifdef __cplusplus
 extern "C" {
 #endif
+//
+//#include <libxml/dict.h>
+//
+// 
+// The dictionnary.
+// 
+//typedef struct _xmlDict xmlDict;
+//typedef xmlDict * xmlDictPtr;
+// 
+// Initializer
+// 
+XMLPUBFUN int XMLCALL xmlInitializeDict();
+// 
+// Constructor and destructor.
+// 
+XMLPUBFUN xmlDict * XMLCALL xmlDictCreate();
+XMLPUBFUN size_t XMLCALL xmlDictSetLimit(xmlDict * dict, size_t limit);
+XMLPUBFUN size_t XMLCALL xmlDictGetUsage(xmlDict * dict);
+XMLPUBFUN xmlDict * XMLCALL xmlDictCreateSub(xmlDict * sub);
+XMLPUBFUN int XMLCALL xmlDictReference(xmlDict * dict);
+XMLPUBFUN void XMLCALL xmlDictFree(xmlDict * dict);
+// 
+// Lookup of entry in the dictionnary.
+// 
+XMLPUBFUN const xmlChar * XMLCALL xmlDictLookup(xmlDict * dict, const xmlChar *name, int len);
+XMLPUBFUN const xmlChar * XMLCALL xmlDictExists(xmlDict * dict, const xmlChar *name, int len);
+XMLPUBFUN const xmlChar * XMLCALL xmlDictQLookup(xmlDict * dict, const xmlChar *prefix, const xmlChar *name);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
+XMLPUBFUN int XMLCALL xmlDictSize(xmlDict * dict);
+// 
+// Cleanup function
+//
+XMLPUBFUN void XMLCALL xmlDictCleanup  ();
+//
+//#include <libxml/uri.h>
+//
+/**
+ * xmlURI:
+ *
+ * A parsed URI reference. This is a struct containing the various fields
+ * as described in RFC 2396 but separated for further processing.
+ *
+ * Note: query is a deprecated field which is incorrectly unescaped.
+ * query_raw takes precedence over query if the former is set.
+ * See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00127
+ */
+//typedef struct _xmlURI xmlURI;
 
+struct xmlURI {
+	char * scheme;  /* the URI scheme */
+	char * opaque;  /* opaque part */
+	char * authority; /* the authority part */
+	char * server;  /* the server part */
+	char * user;    /* the user part */
+	int port;       /* the port number */
+	char * path;    /* the path string */
+	char * query;   /* the query string (deprecated - use with caution) */
+	char * fragment; /* the fragment identifier */
+	int cleanup;    /* parsing potentially unclean URI */
+	char * query_raw; /* the query string (as it appears in the URI) */
+};
+
+typedef xmlURI * xmlURIPtr;
+// 
+// This function is in tree.h:
+// xmlChar * xmlNodeGetBase(xmlDocPtr doc, xmlNode * cur);
+// 
+XMLPUBFUN xmlURIPtr XMLCALL xmlCreateURI();
+XMLPUBFUN xmlChar * XMLCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
+XMLPUBFUN xmlChar * XMLCALL xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base);
+XMLPUBFUN xmlURIPtr XMLCALL xmlParseURI(const char * str);
+XMLPUBFUN xmlURIPtr XMLCALL xmlParseURIRaw(const char * str, int raw);
+XMLPUBFUN int XMLCALL xmlParseURIReference(xmlURIPtr uri, const char * str);
+XMLPUBFUN xmlChar * XMLCALL xmlSaveUri(xmlURIPtr uri);
+XMLPUBFUN void XMLCALL xmlPrintURI(FILE * stream, xmlURIPtr uri);
+XMLPUBFUN xmlChar * XMLCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
+XMLPUBFUN char * XMLCALL xmlURIUnescapeString(const char * str, int len, char * target);
+XMLPUBFUN int XMLCALL xmlNormalizeURIPath(char * path);
+XMLPUBFUN xmlChar * XMLCALL xmlURIEscape(const xmlChar * str);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeURI(xmlURI * pUri);
+XMLPUBFUN xmlChar* XMLCALL xmlCanonicPath(const xmlChar * path);
+XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
+//
 //#include "buf.h"
+//
 xmlBuf * xmlBufCreate();
 xmlBuf * FASTCALL xmlBufCreateSize(size_t size);
 xmlBuf * FASTCALL xmlBufCreateStatic(void * mem, size_t size);
@@ -159,13 +244,14 @@ int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer);
 int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input);
 size_t xmlBufGetInputBase(xmlBufPtr buf, xmlParserInputPtr input);
 int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, size_t cur);
-
+//
 //#include "enc.h"
+//
 int xmlCharEncFirstLineInt(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in, int len);
 int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len);
 int xmlCharEncInput(xmlParserInputBufferPtr input, int flush);
 int xmlCharEncOutput(xmlOutputBufferPtr output, int init);
-
+//
 #ifdef __cplusplus
 }
 #endif

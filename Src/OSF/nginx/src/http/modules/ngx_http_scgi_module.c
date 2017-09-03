@@ -874,7 +874,7 @@ next:
 				return NGX_ERROR;
 			}
 
-			ngx_memcpy(b, body->buf, sizeof(ngx_buf_t));
+			memcpy(b, body->buf, sizeof(ngx_buf_t));
 
 			cl->next = ngx_alloc_chain_link(r->pool);
 			if(cl->next == NULL) {
@@ -957,7 +957,7 @@ static ngx_int_t ngx_http_scgi_process_status_line(ngx_http_request_t * r)
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(u->headers_in.status_line.data, status->start, len);
+	memcpy(u->headers_in.status_line.data, status->start, len);
 
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
 	    "http scgi status %ui \"%V\"",
@@ -1004,13 +1004,13 @@ static ngx_int_t ngx_http_scgi_process_header(ngx_http_request_t * r)
 			h->value.data = h->key.data + h->key.len + 1;
 			h->lowcase_key = h->key.data + h->key.len + 1 + h->value.len + 1;
 
-			ngx_memcpy(h->key.data, r->header_name_start, h->key.len);
+			memcpy(h->key.data, r->header_name_start, h->key.len);
 			h->key.data[h->key.len] = '\0';
-			ngx_memcpy(h->value.data, r->header_start, h->value.len);
+			memcpy(h->value.data, r->header_start, h->value.len);
 			h->value.data[h->value.len] = '\0';
 
 			if(h->key.len == r->lowcase_index) {
-				ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
+				memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
 			}
 			else {
 				ngx_strlow(h->lowcase_key, h->key.data, h->key.len);

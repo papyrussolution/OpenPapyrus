@@ -226,15 +226,12 @@ static const char * xmlW3CPIs[] = {
 /* DEPR void xmlParserHandleReference(xmlParserCtxt * ctxt); */
 static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str);
 static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtxtPtr oldctxt,
-    xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNodePtr * list);
+    xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list);
 static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding);
 #ifdef LIBXML_LEGACY_ENABLED
-static void xmlAddEntityReference(xmlEntityPtr ent, xmlNodePtr firstNode, xmlNodePtr lastNode);
+static void xmlAddEntityReference(xmlEntityPtr ent, xmlNode * firstNode, xmlNode * lastNode);
 #endif /* LIBXML_LEGACY_ENABLED */
-
-static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt,
-    const xmlChar * string, void * user_data, xmlNodePtr * lst);
-
+static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst);
 static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity);
 
 /************************************************************************
@@ -1551,12 +1548,12 @@ xmlParserInputPtr inputPop(xmlParserCtxt * ctxt)
  *
  * Returns -1 in case of error, the index in the stack otherwise
  */
-int nodePush(xmlParserCtxt * ctxt, xmlNodePtr value)
+int nodePush(xmlParserCtxt * ctxt, xmlNode * value)
 {
 	if(!ctxt)
 		return 0;
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
-		xmlNodePtr * tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
+		xmlNode ** tmp = (xmlNode **)SAlloc::R(ctxt->nodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
 		if(!tmp) {
 			xmlErrMemory(ctxt, 0);
 			return -1;
@@ -1581,9 +1578,9 @@ int nodePush(xmlParserCtxt * ctxt, xmlNodePtr value)
  *
  * Returns the node just removed
  */
-xmlNodePtr nodePop(xmlParserCtxt * ctxt)
+xmlNode * nodePop(xmlParserCtxt * ctxt)
 {
-	xmlNodePtr ret;
+	xmlNode * ret;
 	if(!ctxt)
 		return 0;
 	if(ctxt->nodeNr <= 0)
@@ -2651,11 +2648,10 @@ xmlChar * xmlStringDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int
  *
  * Returns 1 if ignorable 0 otherwise.
  */
-
-static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len,
-    int blank_chars) {
+static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int blank_chars) 
+{
 	int i, ret;
-	xmlNodePtr lastChild;
+	xmlNode * lastChild;
 
 	/*
 	 * Don't spend time trying to differentiate them, the same callback is
@@ -6513,7 +6509,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 	xmlEntity * ent;
 	xmlChar * val;
 	int was_checked;
-	xmlNodePtr list = NULL;
+	xmlNode * list = NULL;
 	xmlParserErrors ret = XML_ERR_OK;
 	if(RAW != '&')
 		return;
@@ -6689,13 +6685,11 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 			xmlFreeNodeList(list);
 			list = NULL;
 		}
-		if(ent->checked == 0)
-			ent->checked = 2;
+		SETIFZ(ent->checked, 2);
 	}
 	else if(ent->checked != 1) {
 		ctxt->nbentities += ent->checked / 2;
 	}
-
 	/*
 	 * Now that the entity content has been gathered
 	 * provide it to the application, this can take different forms based
@@ -6773,7 +6767,9 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 			 * In the first occurrence list contains the replacement.
 			 */
 			if(((list == NULL) && (ent->owner == 0)) || (ctxt->parseMode == XML_PARSE_READER)) {
-				xmlNodePtr nw = NULL, cur, firstChild = NULL;
+				xmlNode * nw = NULL;
+				xmlNode * cur;
+				xmlNode * firstChild = NULL;
 				/*
 				 * We are copying here, make sure there is no abuse
 				 */
@@ -6814,7 +6810,11 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 #endif /* LIBXML_LEGACY_ENABLED */
 			}
 			else if((list == NULL) || (ctxt->inputNr > 0)) {
-				xmlNodePtr nw = NULL, cur, next, last, firstChild = NULL;
+				xmlNode * nw = NULL;
+				xmlNode * cur;
+				xmlNode * next;
+				xmlNode * last;
+				xmlNode * firstChild = NULL;
 				/*
 				 * We are copying here, make sure there is no abuse
 				 */
@@ -9044,7 +9044,7 @@ void xmlParseElement(xmlParserCtxt * ctxt)
 	const xmlChar * URI = NULL;
 	xmlParserNodeInfo node_info;
 	int line, tlen = 0;
-	xmlNodePtr ret;
+	xmlNode * ret;
 	int nsNr = ctxt->nsNr;
 	if(((uint)ctxt->nameNr > xmlParserMaxDepth) && !(ctxt->options & XML_PARSE_HUGE)) {
 		xmlFatalErrMsgInt(ctxt, XML_ERR_INTERNAL_ERROR, "Excessive depth in document: %d use XML_PARSE_HUGE option\n", xmlParserMaxDepth);
@@ -11617,7 +11617,7 @@ xmlDtdPtr xmlSAXParseDTD(xmlSAXHandlerPtr sax, const xmlChar * ExternalID, const
 			ret = ctxt->myDoc->extSubset;
 			ctxt->myDoc->extSubset = NULL;
 			if(ret) {
-				xmlNodePtr tmp;
+				xmlNode * tmp;
 				ret->doc = NULL;
 				tmp = ret->children;
 				while(tmp) {
@@ -11678,11 +11678,11 @@ xmlDtdPtr xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID)
  *    the parser error code otherwise
  */
 
-int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
-    const xmlChar * ID, xmlNodePtr * lst) {
+int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst) 
+{
 	xmlParserCtxt * ctxt;
 	xmlDocPtr newDoc;
-	xmlNodePtr newRoot;
+	xmlNode * newRoot;
 	xmlSAXHandlerPtr oldsax = NULL;
 	int ret = 0;
 	xmlChar start[4];
@@ -11832,7 +11832,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
 	}
 	else {
 		if(lst != NULL) {
-			xmlNodePtr cur;
+			xmlNode * cur;
 
 			/*
 			 * Return the newly created nodeset after unlinking it from
@@ -11876,12 +11876,12 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL,
  *    the parser error code otherwise
  */
 
-static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtxtPtr oldctxt,
-    xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNodePtr * list)
+static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtxtPtr oldctxt, xmlSAXHandlerPtr sax, 
+	void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list)
 {
 	xmlParserCtxt * ctxt;
 	xmlDocPtr newDoc;
-	xmlNodePtr newRoot;
+	xmlNode * newRoot;
 	xmlSAXHandlerPtr oldsax = NULL;
 	xmlParserErrors ret = XML_ERR_OK;
 	xmlChar start[4];
@@ -12006,7 +12006,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
 			 * Return the newly created nodeset after unlinking it from
 			 * they pseudo parent.
 			 */
-			xmlNodePtr cur = newDoc->children->children;
+			xmlNode * cur = newDoc->children->children;
 			*list = cur;
 			while(cur) {
 				cur->parent = NULL;
@@ -12070,8 +12070,7 @@ static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtx
  * Returns 0 if the entity is well formed, -1 in case of args problem and
  *    the parser error code otherwise
  */
-int xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data,
-    int depth, const xmlChar * URL, const xmlChar * ID, xmlNodePtr * lst)
+int xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst)
 {
 	return(xmlParseExternalEntityPrivate(doc, NULL, sax, user_data, depth, URL, ID, lst));
 }
@@ -12096,7 +12095,7 @@ int xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data
  *    the parser error code otherwise
  */
 
-int xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNodePtr * lst)
+int xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst)
 {
 	return xmlParseBalancedChunkMemoryRecover(doc, sax, user_data, depth, string, lst, 0);
 }
@@ -12124,14 +12123,14 @@ int xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user
  * In case recover is set to 1, the nodelist will not be empty even if
  * the parsed chunk is not well balanced.
  */
-static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNodePtr * lst)
+static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst)
 {
 	xmlParserCtxt * ctxt;
 	xmlDocPtr newDoc = NULL;
-	xmlNodePtr newRoot;
+	xmlNode * newRoot;
 	xmlSAXHandlerPtr oldsax = NULL;
-	xmlNodePtr content = NULL;
-	xmlNodePtr last = NULL;
+	xmlNode * content = NULL;
+	xmlNode * last = NULL;
 	int size;
 	xmlParserErrors ret = XML_ERR_OK;
 #ifdef SAX2
@@ -12231,7 +12230,7 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
 		 * Return the newly created nodeset after unlinking it from
 		 * they pseudo parent.
 		 */
-		xmlNodePtr cur = ctxt->myDoc->children->children;
+		xmlNode * cur = ctxt->myDoc->children->children;
 		*lst = cur;
 		while(cur) {
 #ifdef LIBXML_VALID_ENABLED
@@ -12288,12 +12287,13 @@ static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldc
  * Returns XML_ERR_OK if the chunk is well balanced, and the parser
  * error code otherwise
  */
-xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int datalen, int options, xmlNodePtr * lst)
+xmlParserErrors xmlParseInNodeContext(xmlNode * node, const char * data, int datalen, int options, xmlNode ** lst)
 {
 #ifdef SAX2
 	xmlParserCtxt * ctxt;
 	xmlDocPtr doc = NULL;
-	xmlNodePtr fake, cur;
+	xmlNode * fake;
+	xmlNode * cur;
 	int nsnr = 0;
 	xmlParserErrors ret = XML_ERR_OK;
 	/*
@@ -12383,7 +12383,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
 		 */
 		cur = node;
 		while(cur && (cur->type == XML_ELEMENT_NODE)) {
-			xmlNsPtr ns = cur->nsDef;
+			xmlNs * ns = cur->nsDef;
 			const xmlChar * iprefix, * ihref;
 			while(ns != NULL) {
 				if(ctxt->dict) {
@@ -12489,12 +12489,13 @@ xmlParserErrors xmlParseInNodeContext(xmlNodePtr node, const char * data, int da
  * some extent.
  */
 int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
-	void * user_data, int depth, const xmlChar * string, xmlNodePtr * lst, int recover)
+	void * user_data, int depth, const xmlChar * string, xmlNode ** lst, int recover)
 {
 	xmlParserCtxt * ctxt;
 	xmlDocPtr newDoc;
 	xmlSAXHandlerPtr oldsax = NULL;
-	xmlNodePtr content, newRoot;
+	xmlNode * content;
+	xmlNode * newRoot;
 	int size;
 	int ret = 0;
 	if(depth > 40) {
@@ -12594,7 +12595,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax,
 							//
 							// Return the newly created nodeset after unlinking it from they pseudo parent.
 							//
-							xmlNodePtr cur = newDoc->children->children;
+							xmlNode * cur = newDoc->children->children;
 							*lst = cur;
 							while(cur) {
 								xmlSetTreeDoc(cur, doc);
@@ -13287,7 +13288,7 @@ static xmlEntityReferenceFunc xmlEntityRefFunc = NULL;
  *
  * Notify of a reference to an entity of type XML_EXTERNAL_GENERAL_PARSED_ENTITY
  */
-static void xmlAddEntityReference(xmlEntityPtr ent, xmlNodePtr firstNode, xmlNodePtr lastNode)
+static void xmlAddEntityReference(xmlEntityPtr ent, xmlNode * firstNode, xmlNode * lastNode)
 {
 	if(xmlEntityRefFunc != NULL) {
 		(*xmlEntityRefFunc)(ent, firstNode, lastNode);
@@ -13420,8 +13421,7 @@ void xmlCleanupParser()
  * DICT_FREE:
  * @str:  a string
  *
- * Free a string if it is not owned by the "dict" dictionnary in the
- * current scope
+ * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
 #define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
 
@@ -13434,7 +13434,7 @@ void xmlCleanupParser()
 void xmlCtxtReset(xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr input;
-	xmlDictPtr dict;
+	xmlDict * dict;
 	if(ctxt) {
 		dict = ctxt->dict;
 		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
@@ -13499,14 +13499,13 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 		xmlHashFree(ctxt->attsSpecial, 0);
 		ctxt->attsSpecial = NULL;
 #ifdef LIBXML_CATALOG_ENABLED
-		if(ctxt->catalogs != NULL)
+		if(ctxt->catalogs)
 			xmlCatalogFreeLocal(ctxt->catalogs);
 #endif
 		if(ctxt->lastError.code != XML_ERR_OK)
 			xmlResetError(&ctxt->lastError);
 	}
 }
-
 /**
  * xmlCtxtResetPush:
  * @ctxt: an XML parser context
@@ -13564,11 +13563,11 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 #endif
 	}
 	if(encoding) {
-		xmlCharEncodingHandlerPtr hdlr;
+		xmlCharEncodingHandler * hdlr;
 		SAlloc::F((xmlChar*)ctxt->encoding);
 		ctxt->encoding = sstrdup((const xmlChar*)encoding);
 		hdlr = xmlFindCharEncodingHandler(encoding);
-		if(hdlr != NULL) {
+		if(hdlr) {
 			xmlSwitchToEncoding(ctxt, hdlr);
 		}
 		else {

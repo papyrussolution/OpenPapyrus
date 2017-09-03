@@ -416,7 +416,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 						}
 						cl->buf = b;
 					}
-					ngx_memcpy(b, ctx->buf, sizeof(ngx_buf_t));
+					memcpy(b, ctx->buf, sizeof(ngx_buf_t));
 					b->pos = ctx->copy_start;
 					b->last = ctx->copy_end;
 					b->shadow = NULL;
@@ -1247,7 +1247,7 @@ tag_started:
 					    return NGX_ERROR;
 				    }
 
-				    ngx_memcpy(value, ctx->param->value.data,
+				    memcpy(value, ctx->param->value.data,
 				    ctx->param->value.len);
 
 				    ctx->value_buf = ctx->param->value.data;
@@ -1834,7 +1834,7 @@ found:
 					cl->buf = b;
 				}
 
-				ngx_memcpy(b, tl->buf, sizeof(ngx_buf_t));
+				memcpy(b, tl->buf, sizeof(ngx_buf_t));
 
 				b->pos = b->start;
 
@@ -2352,62 +2352,45 @@ static ngx_int_t ngx_http_ssi_endif(ngx_http_request_t * r, ngx_http_ssi_ctx_t *
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_ssi_block(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx,
-    ngx_str_t ** params)
+static ngx_int_t ngx_http_ssi_block(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx, ngx_str_t ** params)
 {
 	ngx_http_ssi_ctx_t  * mctx;
 	ngx_http_ssi_block_t  * bl;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi block");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi block");
 	mctx = (ngx_http_ssi_ctx_t *)ngx_http_get_module_ctx(r->main, ngx_http_ssi_filter_module);
-
 	if(mctx->blocks == NULL) {
-		mctx->blocks = ngx_array_create(r->pool, 4,
-		    sizeof(ngx_http_ssi_block_t));
+		mctx->blocks = ngx_array_create(r->pool, 4, sizeof(ngx_http_ssi_block_t));
 		if(mctx->blocks == NULL) {
 			return NGX_HTTP_SSI_ERROR;
 		}
 	}
-
 	bl = (ngx_http_ssi_block_t *)ngx_array_push(mctx->blocks);
 	if(bl == NULL) {
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	bl->name = *params[NGX_HTTP_SSI_BLOCK_NAME];
 	bl->bufs = NULL;
 	bl->count = 0;
-
 	ctx->output = 0;
 	ctx->block = 1;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_ssi_endblock(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx,
-    ngx_str_t ** params)
+static ngx_int_t ngx_http_ssi_endblock(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx, ngx_str_t ** params)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi endblock");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi endblock");
 	ctx->output = 1;
 	ctx->block = 0;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_ssi_date_gmt_local_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t gmt)
+static ngx_int_t ngx_http_ssi_date_gmt_local_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t gmt)
 {
 	time_t now;
 	ngx_http_ssi_ctx_t  * ctx;
 	ngx_str_t * timefmt;
 	struct tm tm;
-
 	char buf[NGX_HTTP_SSI_DATE_LEN];
-
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
@@ -2419,9 +2402,7 @@ static ngx_int_t ngx_http_ssi_date_gmt_local_variable(ngx_http_request_t * r,
 		if(v->data == NULL) {
 			return NGX_ERROR;
 		}
-
 		v->len = ngx_sprintf(v->data, "%T", now) - v->data;
-
 		return NGX_OK;
 	}
 
@@ -2431,20 +2412,15 @@ static ngx_int_t ngx_http_ssi_date_gmt_local_variable(ngx_http_request_t * r,
 	else {
 		ngx_libc_localtime(now, &tm);
 	}
-
-	v->len = strftime(buf, NGX_HTTP_SSI_DATE_LEN,
-	    (char*)timefmt->data, &tm);
+	v->len = strftime(buf, NGX_HTTP_SSI_DATE_LEN, (char*)timefmt->data, &tm);
 	if(v->len == 0) {
 		return NGX_ERROR;
 	}
-
 	v->data = (u_char *)ngx_pnalloc(r->pool, v->len);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
-	ngx_memcpy(v->data, buf, v->len);
-
+	memcpy(v->data, buf, v->len);
 	return NGX_OK;
 }
 
@@ -2454,23 +2430,17 @@ static ngx_int_t ngx_http_ssi_preconfiguration(ngx_conf_t * cf)
 	ngx_http_variable_t  * var, * v;
 	ngx_http_ssi_command_t  * cmd;
 	ngx_http_ssi_main_conf_t  * smcf;
-
 	for(v = ngx_http_ssi_vars; v->name.len; v++) {
 		var = ngx_http_add_variable(cf, &v->name, v->flags);
 		if(var == NULL) {
 			return NGX_ERROR;
 		}
-
 		var->get_handler = v->get_handler;
 		var->data = v->data;
 	}
-
 	smcf = (ngx_http_ssi_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_ssi_filter_module);
-
 	for(cmd = ngx_http_ssi_commands; cmd->name.len; cmd++) {
-		rc = ngx_hash_add_key(&smcf->commands, &cmd->name, cmd,
-		    NGX_HASH_READONLY_KEY);
-
+		rc = ngx_hash_add_key(&smcf->commands, &cmd->name, cmd, NGX_HASH_READONLY_KEY);
 		if(rc == NGX_OK) {
 			continue;
 		}

@@ -8,20 +8,18 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-
 #ifndef OPENSSL_NO_CHACHA
 //#include <openssl/evp.h>
 //#include <openssl/objects.h>
+//#include <internal/evp_int.h>
+#include <internal/chacha.h>
 #include "evp_locl.h"
-#include "internal/evp_int.h"
-#include "internal/chacha.h"
 
 typedef struct {
 	union {
 		double align; /* this ensures even sizeof(EVP_CHACHA_KEY)%8==0 */
 		uint d[CHACHA_KEY_SIZE / 4];
 	} key;
-
 	uint counter[CHACHA_CTR_SIZE / 4];
 	uchar buf[CHACHA_BLK_SIZE];
 	uint partial_len;

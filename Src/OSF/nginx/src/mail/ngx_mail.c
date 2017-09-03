@@ -308,7 +308,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 			return NGX_ERROR;
 		}
 
-		ngx_memcpy(p, buf, len);
+		memcpy(p, buf, len);
 
 		addrs[i].conf.addr_text.len = len;
 		addrs[i].conf.addr_text.data = p;
@@ -345,7 +345,7 @@ static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport,
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(p, buf, len);
+		memcpy(p, buf, len);
 		addrs6[i].conf.addr_text.len = len;
 		addrs6[i].conf.addr_text.data = p;
 	}

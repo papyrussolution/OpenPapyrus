@@ -1074,7 +1074,7 @@ next:
 				return NGX_ERROR;
 			}
 
-			ngx_memcpy(b, body->buf, sizeof(ngx_buf_t));
+			memcpy(b, body->buf, sizeof(ngx_buf_t));
 
 			cl->next = ngx_alloc_chain_link(r->pool);
 			if(cl->next == NULL) {
@@ -1157,7 +1157,7 @@ static ngx_int_t ngx_http_uwsgi_process_status_line(ngx_http_request_t * r)
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(u->headers_in.status_line.data, status->start, len);
+	memcpy(u->headers_in.status_line.data, status->start, len);
 
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
 	    "http uwsgi status %ui \"%V\"",
@@ -1206,13 +1206,13 @@ static ngx_int_t ngx_http_uwsgi_process_header(ngx_http_request_t * r)
 			h->value.data = h->key.data + h->key.len + 1;
 			h->lowcase_key = h->key.data + h->key.len + 1 + h->value.len + 1;
 
-			ngx_memcpy(h->key.data, r->header_name_start, h->key.len);
+			memcpy(h->key.data, r->header_name_start, h->key.len);
 			h->key.data[h->key.len] = '\0';
-			ngx_memcpy(h->value.data, r->header_start, h->value.len);
+			memcpy(h->value.data, r->header_start, h->value.len);
 			h->value.data[h->value.len] = '\0';
 
 			if(h->key.len == r->lowcase_index) {
-				ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
+				memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
 			}
 			else {
 				ngx_strlow(h->lowcase_key, h->key.data, h->key.len);
@@ -1928,7 +1928,7 @@ next:
 		copy->len = src[i].key.len;
 
 		p = (u_char*)copy + sizeof(ngx_http_script_copy_code_t);
-		ngx_memcpy(p, src[i].key.data, src[i].key.len);
+		memcpy(p, src[i].key.data, src[i].key.len);
 
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
 
@@ -2200,22 +2200,17 @@ static char * ngx_http_uwsgi_cache_key(ngx_conf_t * cf, ngx_command_t * cmd, voi
 static char * ngx_http_uwsgi_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_uwsgi_loc_conf_t * uwcf = (ngx_http_uwsgi_loc_conf_t *)conf;
-
-	ngx_str_t  * value;
-
 	if(uwcf->ssl_passwords != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-
-	value = (ngx_str_t *)cf->args->elts;
-
-	uwcf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
-
-	if(uwcf->ssl_passwords == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		uwcf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
+		if(uwcf->ssl_passwords == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-
-	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_uwsgi_set_ssl(ngx_conf_t * cf, ngx_http_uwsgi_loc_conf_t * uwcf)

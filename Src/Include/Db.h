@@ -3618,33 +3618,6 @@ public:
 		s_tmp_table_needed = 0x0002,
 		s_rec_cut          = 0x0004
 	};
-	uint   syntax;
-	uint   options;
-	uint   status;
-	int    error;
-	DBQ  * w_restrict; // 'Where' restriction
-	DBQ  * h_restrict; // 'Having' restriction
-	uint   tblCount;
-	struct Tbl {
-		Tbl();
-		int    FASTCALL Srch(void * pKey, int sp);
-
-		DBTable * tbl;
-		DBTree tree;
-		KR     key;
-		char * keyBuf;
-		DBRowId Pos;
-		uint   flg;        // DBQTF_XXX
-	} * tbls;
-	uint   fldCount;
-	struct Fld {
-		TYPEID     type;
-		DBDataCell cell;
-	} * flds;
-	uint   ordCount;
-	DBField * order;
-	RECORDSIZE recSize;  // Size of record (bytes)
-	ulong  actCount;     // Number of records actualy fetched by fetch()
 	struct Frame {
 		SLAPI ~Frame();
 		void FASTCALL topByCur(int dir);
@@ -3653,8 +3626,8 @@ public:
 			Top,
 			Bottom
 		};
-		RECORDNUMBER * posBuf; // Position buffer
 		char * buf;   // Data buffer
+		RECORDNUMBER * posBuf; // Position buffer
 		uint   zero;
 		uint   size;  // Size of buffer (records)
 		uint   state;
@@ -3667,7 +3640,36 @@ public:
 		uint   spos;
 		uint   last;
 		uint   count; // Number of records in buffer
-	} * frame;
+	};
+	struct Tbl {
+		Tbl();
+		int    FASTCALL Srch(void * pKey, int sp);
+		DBTable * tbl;
+		DBTree tree;
+		KR     key;
+		char * keyBuf;
+		DBRowId Pos;
+		uint   flg;        // DBQTF_XXX
+	};
+	struct Fld {
+		TYPEID     type;
+		DBDataCell cell;
+	};
+	uint   syntax;
+	uint   options;
+	uint   status;
+	int    error;
+	DBQ  * w_restrict; // 'Where' restriction
+	DBQ  * h_restrict; // 'Having' restriction
+	uint   tblCount;
+	uint   fldCount;
+	uint   ordCount;
+	DBField * order;
+	RECORDSIZE recSize;  // Size of record (bytes)
+	ulong  actCount;     // Number of records actualy fetched by fetch()
+	Tbl  * tbls;
+	Fld  * flds;
+	Frame * P_Frame;
 };
 
 DBE & __stdcall ltoa(DBItem &);

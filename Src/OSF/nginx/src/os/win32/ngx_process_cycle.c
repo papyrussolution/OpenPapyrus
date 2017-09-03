@@ -252,11 +252,10 @@ static ngx_int_t ngx_start_worker_processes(ngx_cycle_t * cycle, ngx_int_t type)
 static void ngx_reopen_worker_processes(ngx_cycle_t * cycle)
 {
 	for(ngx_int_t n = 0; n < ngx_last_process; n++) {
-		if(ngx_processes[n].handle == NULL) {
-			continue;
-		}
-		if(SetEvent(ngx_processes[n].reopen) == 0) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "SetEvent(\"%s\") failed", ngx_processes[n].reopen_event);
+		if(ngx_processes[n].handle) {
+			if(SetEvent(ngx_processes[n].reopen) == 0) {
+				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "SetEvent(\"%s\") failed", ngx_processes[n].reopen_event);
+			}
 		}
 	}
 }
@@ -282,49 +281,47 @@ static void ngx_quit_worker_processes(ngx_cycle_t * cycle, ngx_uint_t old)
 static void ngx_terminate_worker_processes(ngx_cycle_t * cycle)
 {
 	for(ngx_int_t n = 0; n < ngx_last_process; n++) {
-		if(ngx_processes[n].handle == NULL) {
-			continue;
+		if(ngx_processes[n].handle) {
+			if(TerminateProcess(ngx_processes[n].handle, 0) == 0) {
+				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "TerminateProcess(\"%p\") failed", ngx_processes[n].handle);
+			}
+			ngx_processes[n].exiting = 1;
+			ngx_close_handle(ngx_processes[n].reopen);
+			ngx_close_handle(ngx_processes[n].quit);
+			ngx_close_handle(ngx_processes[n].term);
+			ngx_close_handle(ngx_processes[n].handle);
 		}
-		if(TerminateProcess(ngx_processes[n].handle, 0) == 0) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "TerminateProcess(\"%p\") failed", ngx_processes[n].handle);
-		}
-		ngx_processes[n].exiting = 1;
-		ngx_close_handle(ngx_processes[n].reopen);
-		ngx_close_handle(ngx_processes[n].quit);
-		ngx_close_handle(ngx_processes[n].term);
-		ngx_close_handle(ngx_processes[n].handle);
 	}
 }
 
 static ngx_uint_t ngx_reap_worker(ngx_cycle_t * cycle, HANDLE h)
 {
-	u_long code;
 	ngx_int_t n;
 	for(n = 0; n < ngx_last_process; n++) {
-		if(ngx_processes[n].handle != h) {
-			continue;
-		}
-		if(GetExitCodeProcess(h, &code) == 0) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetExitCodeProcess(%P) failed", ngx_processes[n].pid);
-		}
-		ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "%s process %P exited with code %Xl", ngx_processes[n].name, ngx_processes[n].pid, code);
-		ngx_close_handle(ngx_processes[n].reopen);
-		ngx_close_handle(ngx_processes[n].quit);
-		ngx_close_handle(ngx_processes[n].term);
-		ngx_close_handle(h);
-		ngx_processes[n].handle = NULL;
-		ngx_processes[n].term = NULL;
-		ngx_processes[n].quit = NULL;
-		ngx_processes[n].reopen = NULL;
-		if(!ngx_processes[n].exiting && !ngx_terminate && !ngx_quit) {
-			if(ngx_spawn_process(cycle, ngx_processes[n].name, n) == NGX_INVALID_PID) {
-				ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "could not respawn %s", ngx_processes[n].name);
-				if(n == ngx_last_process - 1) {
-					ngx_last_process--;
+		if(ngx_processes[n].handle == h) {
+			u_long code;
+			if(GetExitCodeProcess(h, &code) == 0) {
+				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "GetExitCodeProcess(%P) failed", ngx_processes[n].pid);
+			}
+			ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "%s process %P exited with code %Xl", ngx_processes[n].name, ngx_processes[n].pid, code);
+			ngx_close_handle(ngx_processes[n].reopen);
+			ngx_close_handle(ngx_processes[n].quit);
+			ngx_close_handle(ngx_processes[n].term);
+			ngx_close_handle(h);
+			ngx_processes[n].handle = NULL;
+			ngx_processes[n].term = NULL;
+			ngx_processes[n].quit = NULL;
+			ngx_processes[n].reopen = NULL;
+			if(!ngx_processes[n].exiting && !ngx_terminate && !ngx_quit) {
+				if(ngx_spawn_process(cycle, ngx_processes[n].name, n) == NGX_INVALID_PID) {
+					ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "could not respawn %s", ngx_processes[n].name);
+					if(n == ngx_last_process - 1) {
+						ngx_last_process--;
+					}
 				}
 			}
+			goto found;
 		}
-		goto found;
 	}
 	ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "unknown process handle %p", h);
 found:

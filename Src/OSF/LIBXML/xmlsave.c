@@ -557,11 +557,11 @@ static int FASTCALL xmlSaveClearEncoding(xmlSaveCtxtPtr ctxt)
 }
 
 #ifdef LIBXML_HTML_ENABLED
-static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur);
+static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur);
 #endif
-static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur);
-static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur);
-void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur);
+static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur);
+static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur);
+void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur);
 static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDocPtr cur);
 
 /**
@@ -592,7 +592,7 @@ static void FASTCALL xmlOutputBufferWriteWSNonSig(xmlSaveCtxtPtr ctxt, int extra
  * Should be called in the context of attributes dumps.
  * If @ctxt is supplied, @buf should be its buffer.
  */
-static void xmlNsDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur, xmlSaveCtxtPtr ctxt)
+static void xmlNsDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur, xmlSaveCtxtPtr ctxt)
 {
 	if(cur && buf && (cur->type == XML_LOCAL_NAMESPACE) && cur->href) {
 		if(sstreq(cur->prefix, BAD_CAST "xml") == 0) {
@@ -621,7 +621,7 @@ static void xmlNsDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur, xmlSaveCtxtPtr
  * Dump a local Namespace definition to a save context.
  * Should be called in the context of attribute dumps.
  */
-static void xmlNsDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNsPtr cur)
+static void xmlNsDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNs * cur)
 {
 	xmlNsDumpOutput(ctxt->buf, cur, ctxt);
 }
@@ -634,14 +634,13 @@ static void xmlNsDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNsPtr cur)
  * Dump a list of local namespace definitions to a save context.
  * Should be called in the context of attribute dumps.
  */
-static void FASTCALL xmlNsListDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNsPtr cur)
+static void FASTCALL xmlNsListDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNs * cur)
 {
 	while(cur) {
 		xmlNsDumpOutput(ctxt->buf, cur, ctxt);
 		cur = cur->next;
 	}
 }
-
 /**
  * xmlNsListDumpOutput:
  * @buf:  the XML buffer output
@@ -650,13 +649,13 @@ static void FASTCALL xmlNsListDumpOutputCtxt(xmlSaveCtxtPtr ctxt, xmlNsPtr cur)
  * Dump a list of local Namespace definitions.
  * Should be called in the context of attributes dumps.
  */
-void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNsPtr cur) {
+void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur) 
+{
 	while(cur) {
 		xmlNsDumpOutput(buf, cur, 0);
 		cur = cur->next;
 	}
 }
-
 /**
  * xmlDtdDumpOutput:
  * @buf:  the XML buffer output
@@ -763,7 +762,7 @@ static void xmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
  *
  * Dump an XML node list, recursive behaviour, children are printed too.
  */
-static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
+static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur) {
 	xmlOutputBufferPtr buf;
 
 	if(!cur) return;
@@ -792,7 +791,7 @@ static void xmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
  *
  * Dump an HTML node, recursive behaviour, children are printed too.
  */
-static int htmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
+static int htmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 {
 	const xmlChar * oldenc = NULL;
 	const xmlChar * oldctxtenc = ctxt->encoding;
@@ -845,7 +844,7 @@ static int htmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
  *
  * Dump an XML node, recursive behaviour, children are printed too.
  */
-static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
+static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 {
 	xmlChar * start, * end;
 	if(cur && !oneof2(cur->type, XML_XINCLUDE_START, XML_XINCLUDE_END)) {
@@ -946,7 +945,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNodePtr cur)
 			xmlAttrDumpOutput(ctxt, (xmlAttrPtr)cur);
 		}
 		else if(cur->type == XML_NAMESPACE_DECL) {
-			xmlNsDumpOutputCtxt(ctxt, (xmlNsPtr)cur);
+			xmlNsDumpOutputCtxt(ctxt, (xmlNs *)cur);
 		}
 		else {
 			int format = ctxt->format;
@@ -1303,7 +1302,7 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
  * Note that @format = 1 provide node indenting only if xmlIndentTreeOutput = 1
  * or xmlKeepBlanksDefault(0) was called
  */
-static void xhtmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
+static void xhtmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur) {
 	xmlOutputBufferPtr buf;
 
 	if(!cur) return;
@@ -1334,7 +1333,7 @@ static void xhtmlNodeListDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
  *
  * Dump an XHTML node, recursive behaviour, children are printed too.
  */
-static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
+static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur) {
 	int format, addmeta = 0;
 	xmlNodePtr tmp;
 	xmlChar * start, * end;
@@ -1351,7 +1350,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNodePtr cur) {
 	if(cur->type == XML_XINCLUDE_END)
 		return;
 	if(cur->type == XML_NAMESPACE_DECL) {
-		xmlNsDumpOutputCtxt(ctxt, (xmlNsPtr)cur);
+		xmlNsDumpOutputCtxt(ctxt, (xmlNs *)cur);
 		return;
 	}
 	if(cur->type == XML_DTD_NODE) {
@@ -2148,7 +2147,7 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, i
  *
  * Dump an XML/HTML node, recursive behaviour, children are printed too.
  */
-void xmlElemDump(FILE * f, xmlDocPtr doc, xmlNodePtr cur)
+void xmlElemDump(FILE * f, xmlDocPtr doc, xmlNode * cur)
 {
 	xmlInitParser();
 	if(!cur) {

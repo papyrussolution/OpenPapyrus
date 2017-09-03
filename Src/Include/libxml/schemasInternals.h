@@ -20,7 +20,7 @@
 
 #include <libxml/xmlregexp.h>
 #include <libxml/hash.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,7 +149,7 @@ typedef struct _xmlSchemaAnnot xmlSchemaAnnot;
 typedef xmlSchemaAnnot *xmlSchemaAnnotPtr;
 struct _xmlSchemaAnnot {
     struct _xmlSchemaAnnot *next;
-    xmlNodePtr content;         /* the annotation */
+    xmlNode * content;         /* the annotation */
 };
 
 /**
@@ -260,7 +260,7 @@ struct _xmlSchemaAttribute {
     int occurs; /* Deprecated; not used */
     const xmlChar *defValue; /* The initial value of the value constraint */
     xmlSchemaTypePtr subtypes; /* the type definition */
-    xmlNodePtr node;
+    xmlNode * node;
     const xmlChar *targetNamespace;
     int flags;
     const xmlChar *refPrefix; /* Deprecated; not used */
@@ -308,7 +308,7 @@ struct _xmlSchemaWildcard {
     xmlSchemaTypeType type;        /* The kind of type */
     const xmlChar *id; /* Deprecated; not used */
     xmlSchemaAnnotPtr annot;
-    xmlNodePtr node;
+    xmlNode * node;
     int minOccurs; /* Deprecated; not used */
     int maxOccurs; /* Deprecated; not used */
     int processContents;
@@ -368,7 +368,7 @@ struct _xmlSchemaAttributeGroup {
     xmlSchemaAnnotPtr annot;
 
     xmlSchemaAttributePtr attributes; /* Deprecated; not used */
-    xmlNodePtr node;
+    xmlNode * node;
     int flags;
     xmlSchemaWildcardPtr attributeWildcard;
     const xmlChar *refPrefix; /* Deprecated; not used */
@@ -609,7 +609,7 @@ struct _xmlSchemaType {
     xmlSchemaAnnotPtr annot;
     xmlSchemaTypePtr subtypes;
     xmlSchemaAttributePtr attributes; /* Deprecated; not used */
-    xmlNodePtr node;
+    xmlNode * node;
     int minOccurs; /* Deprecated; not used */
     int maxOccurs; /* Deprecated; not used */
 
@@ -824,7 +824,7 @@ struct _xmlSchemaFacet {
     const xmlChar *value; /* The original value */
     const xmlChar *id; /* Obsolete */
     xmlSchemaAnnotPtr annot;
-    xmlNodePtr node;
+    xmlNode * node;
     int fixed; /* XML_SCHEMAS_FACET_PRESERVE, etc. */
     int whitespace;
     xmlSchemaValPtr val; /* The compiled value */
@@ -926,18 +926,15 @@ struct _xmlSchema {
     xmlDocPtr doc;
     xmlSchemaAnnotPtr annot;
     int flags;
-
     xmlHashTablePtr typeDecl;
     xmlHashTablePtr attrDecl;
     xmlHashTablePtr attrgrpDecl;
     xmlHashTablePtr elemDecl;
     xmlHashTablePtr notaDecl;
-
     xmlHashTablePtr schemasImports;
-
     void *_private;        /* unused by the library for users or bindings */
     xmlHashTablePtr groupDecl;
-    xmlDictPtr      dict;
+    xmlDict * dict;
     void *includes;     /* the includes, this is opaque for now */
     int preserve;        /* whether to free the document */
     int counter; /* used to give ononymous components unique names */

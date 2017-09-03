@@ -11,8 +11,8 @@
 //#include <openssl/rand.h>
 //#include <openssl/x509.h>
 //#include <openssl/pem.h>
+//#include "internal/asn1_int.h"
 #include <openssl/pkcs12.h>
-#include "internal/asn1_int.h"
 #include <openssl/des.h>
 
 #define MIN_LENGTH      4
@@ -215,15 +215,10 @@ int PEM_bytes_read_bio(uchar ** pdata, long * plen, char ** pnm, const char * na
 		goto err;
 	if(!PEM_do_header(&cipher, data, &len, cb, u))
 		goto err;
-
 	*pdata = data;
 	*plen = len;
-
-	if(pnm)
-		*pnm = nm;
-
+	ASSIGN_PTR(pnm, nm);
 	ret = 1;
-
 err:
 	if(!ret || !pnm)
 		OPENSSL_free(nm);

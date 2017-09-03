@@ -11,8 +11,8 @@
 //#include <openssl/asn1t.h>
 //#include <openssl/x509.h>
 //#include <openssl/cms.h>
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include <internal/asn1_int.h>
+//#include <internal/evp_int.h>
 #include "rsa_locl.h"
 
 #ifndef OPENSSL_NO_CMS

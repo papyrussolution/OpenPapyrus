@@ -607,9 +607,7 @@ static ngx_int_t ngx_init_zone_pool(ngx_cycle_t * cycle, ngx_shm_zone_t * zn)
 			return NGX_OK;
 		}
 #endif
-		ngx_log_error(NGX_LOG_EMERG, cycle->log, 0,
-		    "shared zone \"%V\" has no equal addresses: %p vs %p",
-		    &zn->shm.name, sp->addr, sp);
+		ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "shared zone \"%V\" has no equal addresses: %p vs %p", &zn->shm.name, sp->addr, sp);
 		return NGX_ERROR;
 	}
 	sp->end = zn->shm.addr + zn->shm.size;

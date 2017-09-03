@@ -762,7 +762,7 @@ static ngx_chain_t * ngx_http_v2_filter_get_shadow(ngx_http_v2_stream_t * stream
 	ngx_chain_t  * cl = ngx_chain_get_free_buf(stream->request->pool, &stream->free_bufs);
 	if(cl) {
 		ngx_buf_t * chunk = cl->buf;
-		ngx_memcpy(chunk, buf, sizeof(ngx_buf_t));
+		memcpy(chunk, buf, sizeof(ngx_buf_t));
 		chunk->tag = (ngx_buf_tag_t)&ngx_http_v2_filter_get_shadow;
 		chunk->shadow = buf;
 		if(ngx_buf_in_memory(chunk)) {

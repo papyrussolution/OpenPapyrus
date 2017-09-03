@@ -44,28 +44,26 @@ ngx_int_t ngx_array_init(ngx_array_t * array, ngx_pool_t * pool, ngx_uint_t n, s
 
 void * ngx_array_push(ngx_array_t * a)
 {
-	void * elt, * p_new;
-	size_t size;
-	ngx_pool_t  * p;
+	void * elt;
 	if(a->nelts == a->nalloc) {
-		/* the array is full */
-		size = a->size * a->nalloc;
-		p = a->pool;
+		// the array is full 
+		size_t size = a->size * a->nalloc;
+		ngx_pool_t * p = a->pool;
 		if((u_char*)a->elts + size == p->d.last && p->d.last + a->size <= p->d.end) {
-			/*
-			 * the array allocation is the last in the pool
-			 * and there is space for new allocation
-			 */
+			// 
+			// the array allocation is the last in the pool
+			// and there is space for new allocation
+			// 
 			p->d.last += a->size;
 			a->nalloc++;
 		}
 		else {
-			/* allocate a new array */
-			p_new = ngx_palloc(p, 2 * size);
+			// allocate a new array 
+			void * p_new = ngx_palloc(p, 2 * size);
 			if(p_new == NULL) {
 				return NULL;
 			}
-			ngx_memcpy(p_new, a->elts, size);
+			memcpy(p_new, a->elts, size);
 			a->elts = p_new;
 			a->nalloc *= 2;
 		}
@@ -100,7 +98,7 @@ void * ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
 			if(p_new == NULL) {
 				return NULL;
 			}
-			ngx_memcpy(p_new, a->elts, a->nelts * a->size);
+			memcpy(p_new, a->elts, a->nelts * a->size);
 			a->elts = p_new;
 			a->nalloc = nalloc;
 		}

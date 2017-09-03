@@ -11,7 +11,7 @@
 
 #ifndef OPENSSL_NO_RC5
 
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include "evp_locl.h"
 #include <openssl/rc5.h>
 

@@ -176,7 +176,7 @@ void ngx_create_hashed_filename(ngx_path_t * path, u_char * file, size_t len)
 		}
 		len -= level;
 		file[i - 1] = '/';
-		ngx_memcpy(&file[i], &file[len], level);
+		memcpy(&file[i], &file[len], level);
 		i += level + 1;
 	}
 }
@@ -248,41 +248,42 @@ char * ngx_conf_set_path_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	ssize_t level;
 	ngx_str_t * value;
 	ngx_uint_t i, n;
-	ngx_path_t  * path;
 	ngx_path_t ** slot = (ngx_path_t**)(p + cmd->offset);
 	if(*slot) {
 		return "is duplicate";
 	}
-	path = (ngx_path_t *)ngx_pcalloc(cf->pool, sizeof(ngx_path_t));
-	if(path == NULL) {
-		return NGX_CONF_ERROR;
-	}
-	value = (ngx_str_t *)cf->args->elts;
-	path->name = value[1];
-	if(path->name.data[path->name.len - 1] == '/') {
-		path->name.len--;
-	}
-	if(ngx_conf_full_name(cf->cycle, &path->name, 0) != NGX_OK) {
-		return NGX_CONF_ERROR;
-	}
-	path->conf_file = cf->conf_file->file.name.data;
-	path->line = cf->conf_file->line;
-	for(i = 0, n = 2; n < cf->args->nelts; i++, n++) {
-		level = ngx_atoi(value[n].data, value[n].len);
-		if(level == NGX_ERROR || level == 0) {
+	else {
+		ngx_path_t * path = (ngx_path_t *)ngx_pcalloc(cf->pool, sizeof(ngx_path_t));
+		if(path == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		value = (ngx_str_t *)cf->args->elts;
+		path->name = value[1];
+		if(path->name.data[path->name.len - 1] == '/') {
+			path->name.len--;
+		}
+		if(ngx_conf_full_name(cf->cycle, &path->name, 0) != NGX_OK) {
+			return NGX_CONF_ERROR;
+		}
+		path->conf_file = cf->conf_file->file.name.data;
+		path->line = cf->conf_file->line;
+		for(i = 0, n = 2; n < cf->args->nelts; i++, n++) {
+			level = ngx_atoi(value[n].data, value[n].len);
+			if(level == NGX_ERROR || level == 0) {
+				return "invalid value";
+			}
+			path->level[i] = level;
+			path->len += level + 1;
+		}
+		if(path->len > 10 + i) {
 			return "invalid value";
 		}
-		path->level[i] = level;
-		path->len += level + 1;
+		*slot = path;
+		if(ngx_add_path(cf, slot) == NGX_ERROR) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-	if(path->len > 10 + i) {
-		return "invalid value";
-	}
-	*slot = path;
-	if(ngx_add_path(cf, slot) == NGX_ERROR) {
-		return NGX_CONF_ERROR;
-	}
-	return NGX_CONF_OK;
 }
 
 char * ngx_conf_merge_path_value(ngx_conf_t * cf, ngx_path_t ** path, ngx_path_t * prev, ngx_path_init_t * init)
@@ -383,7 +384,6 @@ ngx_int_t ngx_add_path(ngx_conf_t * cf, ngx_path_t ** slot)
 							    &p[i]->name);
 							return NGX_ERROR;
 						}
-
 						ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
 						    "the path name \"%V\" in %s:%ui has the same name as default path, but the different levels, you need to define default path in http section",
 						    &p[i]->name, p[i]->conf_file, p[i]->line);
@@ -448,21 +448,16 @@ ngx_int_t ngx_create_paths(ngx_cycle_t * cycle, ngx_uid_t user)
 					return NGX_ERROR;
 				}
 			}
-
-			if((fi.st_mode & (S_IRUSR|S_IWUSR|S_IXUSR))
-			    != (S_IRUSR|S_IWUSR|S_IXUSR)) {
+			if((fi.st_mode & (S_IRUSR|S_IWUSR|S_IXUSR)) != (S_IRUSR|S_IWUSR|S_IXUSR)) {
 				fi.st_mode |= (S_IRUSR|S_IWUSR|S_IXUSR);
-
 				if(chmod((const char*)path[i]->name.data, fi.st_mode) == -1) {
-					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
-					    "chmod() \"%s\" failed", path[i]->name.data);
+					ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "chmod() \"%s\" failed", path[i]->name.data);
 					return NGX_ERROR;
 				}
 			}
 		}
 #endif
 	}
-
 	return NGX_OK;
 }
 
@@ -471,101 +466,70 @@ ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_fi
 	u_char * name;
 	ngx_err_t err;
 	ngx_copy_file_t cf;
-
 #if !(NGX_WIN32)
-
 	if(ext->access) {
 		if(ngx_change_file_access(src->data, ext->access) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno,
-			    ngx_change_file_access_n " \"%s\" failed", src->data);
+			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_change_file_access_n " \"%s\" failed", src->data);
 			err = 0;
 			goto failed;
 		}
 	}
-
 #endif
-
 	if(ext->time != -1) {
 		if(ngx_set_file_time(src->data, ext->fd, ext->time) != NGX_OK) {
-			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno,
-			    ngx_set_file_time_n " \"%s\" failed", src->data);
+			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_set_file_time_n " \"%s\" failed", src->data);
 			err = 0;
 			goto failed;
 		}
 	}
-
 	if(ngx_rename_file(src->data, to->data) != NGX_FILE_ERROR) {
 		return NGX_OK;
 	}
-
 	err = ngx_errno;
-
 	if(err == NGX_ENOPATH) {
 		if(!ext->create_path) {
 			goto failed;
 		}
-
 		err = ngx_create_full_path(to->data, ngx_dir_access(ext->path_access));
-
 		if(err) {
-			ngx_log_error(NGX_LOG_CRIT, ext->log, err,
-			    ngx_create_dir_n " \"%s\" failed", to->data);
+			ngx_log_error(NGX_LOG_CRIT, ext->log, err, ngx_create_dir_n " \"%s\" failed", to->data);
 			err = 0;
 			goto failed;
 		}
-
 		if(ngx_rename_file(src->data, to->data) != NGX_FILE_ERROR) {
 			return NGX_OK;
 		}
-
 		err = ngx_errno;
 	}
-
 #if (NGX_WIN32)
-
 	if(err == NGX_EEXIST || err == NGX_EEXIST_FILE) {
 		err = ngx_win32_rename_file(src, to, ext->log);
-
 		if(err == 0) {
 			return NGX_OK;
 		}
 	}
-
 #endif
-
 	if(err == NGX_EXDEV) {
 		cf.size = -1;
 		cf.buf_size = 0;
 		cf.access = ext->access;
 		cf.time = ext->time;
 		cf.log = ext->log;
-
 		name = (u_char *)ngx_alloc(to->len + 1 + 10 + 1, ext->log);
 		if(name == NULL) {
 			return NGX_ERROR;
 		}
-
-		(void)ngx_sprintf(name, "%*s.%010uD%Z", to->len, to->data,
-		    (uint32_t)ngx_next_temp_number(0));
-
+		(void)ngx_sprintf(name, "%*s.%010uD%Z", to->len, to->data, (uint32_t)ngx_next_temp_number(0));
 		if(ngx_copy_file(src->data, name, &cf) == NGX_OK) {
 			if(ngx_rename_file(name, to->data) != NGX_FILE_ERROR) {
 				ngx_free(name);
-
 				if(ngx_delete_file(src->data) == NGX_FILE_ERROR) {
-					ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno,
-					    ngx_delete_file_n " \"%s\" failed",
-					    src->data);
+					ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_delete_file_n " \"%s\" failed", src->data);
 					return NGX_ERROR;
 				}
-
 				return NGX_OK;
 			}
-
-			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno,
-			    ngx_rename_file_n " \"%s\" to \"%s\" failed",
-			    name, to->data);
-
+			ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_rename_file_n " \"%s\" to \"%s\" failed", name, to->data);
 			if(ngx_delete_file(name) == NGX_FILE_ERROR) {
 				ngx_log_error(NGX_LOG_CRIT, ext->log, ngx_errno, ngx_delete_file_n " \"%s\" failed", name);
 			}
@@ -752,7 +716,7 @@ ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 		}
 		p = ngx_cpymem(buf.data, tree->data, tree->len);
 		*p++ = '/';
-		ngx_memcpy(p, name, len + 1);
+		memcpy(p, name, len + 1);
 		file.data = buf.data;
 		ngx_log_debug1(NGX_LOG_DEBUG_CORE, ctx->log, 0, "tree path \"%s\"", file.data);
 		if(!dir.valid_info) {

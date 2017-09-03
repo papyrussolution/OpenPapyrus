@@ -1,8 +1,8 @@
 // PPRIGHTS.CPP
 // Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Права доступа
+// РџСЂР°РІР° РґРѕСЃС‚СѓРїР°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -37,18 +37,6 @@ void FASTCALL ObjRights::Destroy(ObjRights * pObj)
     if(pObj)
 		::delete (uint8 *)pObj;
 }
-
-/*
-void * SLAPI ObjRights::operator new(size_t sz, size_t extra)
-{
-	return ::new char[(extra < sz) ? sz : extra];
-}
-
-void SLAPI ObjRights::operator delete(void * ptr, size_t extra)
-{
-    ::delete ptr;
-}
-*/
 //
 //
 //
@@ -1361,7 +1349,7 @@ PPID FastEditRightsDlg::getCurrID()
 {
 	PPID   cur_id = 0;
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_EDITRHTS_GRPUSRLIST);
-	if(p_list)
+	if(p_list && p_list->def)
 		p_list->def->getCurID(&cur_id);
 	return cur_id;
 }
@@ -1598,22 +1586,15 @@ int FastEditRightsDlg::loadChild(uint editWhat)
 	int    ok = -1;
 	TDialog * p_dlg = 0;
 	switch(editWhat) {
-		case cAccessPeriod:
-			p_dlg = new RightsPeriodDialog();
-			break;
-		case cAccessibleOpr:
-			p_dlg = new RtOpListDialog();
-			break;
-		case cAccessibleLoc:
-			p_dlg = new RtLocListDialog();
-			break;
-		case cAccessibleAcc:
-			p_dlg = new RtAccListDialog();
-			break;
+		case cAccessPeriod:  p_dlg = new RightsPeriodDialog(); break;
+		case cAccessibleOpr: p_dlg = new RtOpListDialog(); break;
+		case cAccessibleLoc: p_dlg = new RtLocListDialog(); break;
+		case cAccessibleAcc: p_dlg = new RtAccListDialog(); break;
 		case cConfig:
 			EditCfgOptionsDialog(0, 0, this);
 			setChildPos(CTL_EDITRHTS_GRPUSRLIST);
-			return 1;
+			ok = 1;
+			break;
 		default:
 			{
 				PPObject * p_obj = GetPPObject(editWhat - OBJTYPE_OFFSET, 0);
@@ -1621,12 +1602,15 @@ int FastEditRightsDlg::loadChild(uint editWhat)
 					p_obj->EditRights(0, 0, this);
 					setChildPos(CTL_EDITRHTS_GRPUSRLIST);
 					ZDELETE(p_obj);
-					return 1;
+					ok = 1;
 				}
 			}
+			break;
 	}
-	ok = Embed(p_dlg);
-	setChildPos(CTL_EDITRHTS_GRPUSRLIST);
+	if(ok < 0) {
+		ok = Embed(p_dlg);
+		setChildPos(CTL_EDITRHTS_GRPUSRLIST);
+	}
 	return ok;
 }
 

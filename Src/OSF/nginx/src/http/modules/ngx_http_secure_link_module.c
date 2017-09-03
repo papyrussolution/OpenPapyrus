@@ -160,7 +160,7 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	ngx_md5_update(&md5, val.data, val.len);
 	ngx_md5_final(md5_buf, &md5);
 
-	if(ngx_memcmp(hash_buf, md5_buf, 16) != 0) {
+	if(memcmp(hash_buf, md5_buf, 16) != 0) {
 		goto not_found;
 	}
 

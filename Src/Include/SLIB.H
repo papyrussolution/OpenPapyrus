@@ -5314,7 +5314,7 @@ public:
 	void * SLAPI next();
 	int    FASTCALL enumItems(uint * pIdx, void ** ppItem) const;
 	//
-	int    SLAPI atPut(uint, const void *);
+	void   SLAPI atPut(uint, const void *);
 	int    FASTCALL atInsert(uint, const void *);
 	int    FASTCALL insert(const void * pItem);
 	//
@@ -5348,7 +5348,7 @@ public:
 	//      первый элемент становится последним, последний - первым
 	//      второй элемент становится предпоследним, предпоследний - вторым и т.д.
 	//
-	int    SLAPI reverse(uint pos, uint numItems);
+	void   SLAPI reverse(uint pos, uint numItems);
 	//
 	// Descr: Перемешивает элементы массива случайным образом
 	//
@@ -5388,7 +5388,7 @@ protected:
 	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
 	SLAPI ~SVectorBase();
 	int    FASTCALL expand(uint numNewRecs);
-	int    SLAPI shrink();
+	void   SLAPI shrink();
 	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
 	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
 
@@ -6114,7 +6114,7 @@ public:
 	int    FASTCALL Has(long key) const;
 	double SLAPI Get(long key, int binary = 0) const; // @>>RAssocArray::Search
 	int    SLAPI GetList(LongArray & rList, int unique) const;
-	int    SLAPI Scale(double rate);
+	void   SLAPI Scale(double rate);
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
@@ -6314,6 +6314,16 @@ public:
 	//
 	int    SLAPI SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const;
 	int    SLAPI SearchByText(const char * pTxt, CompFunc fcmp, uint * pPos) const;
+	//
+	// Descr: Извлекает из списка строку с идентификатором id.
+	// ARG(id    IN): идентификатор искомой строки
+	// ARG(rBuf OUT): ссылка на буфер, в который будет скопирована найденная строка.
+	//   Если строка не найдена, то буфер гарантированно обрезается до нулевой длины.
+	// Returns:
+	//   >0 - элемент с идентификатором id найден и соответствующая ему строка не пустая.
+	//   <0 - элемент с идентификатором id найден, но соответствующая ему строка пустая.
+	//    0 - элемент с идентификатором id не найден (rBuf на выходе пуст)
+	//
 	int    SLAPI Get(long id, SString & rBuf) const;
 	//
 	// Descr: Находит максимальное значение идентификатора элемента в массиве.
@@ -6349,7 +6359,31 @@ public:
 	//
 	int    SLAPI Add(long id, const char * pStr, int replaceDup = 1);
 	int    SLAPI Add(long id, long parentId, const char * pStr, int replaceDup = 1);
+	//
+	// Descr: Функция, аналогичная Add(id, pStr, 0/*replaceDup*/).
+	//   Важное отличие - не проверяет наличие идентификатора id в списке. За счет
+	//   этого выполняется значительно быстрее, но может привести к появлению дубликатов.
+	// ARG(id         IN): Идентификатор элемента
+	// ARG(pStr       IN): Строка, соответствующая идентификатору id
+	// Returns:
+	//   1 - функция успешно добавила новый элемент в массив
+	//   0 - ошибка (SLibError)
+	//
 	int    SLAPI AddFast(long id, const char * pStr);
+	//
+	// Descr: Функция, аналогичная Add(id, parentId, pStr, 0/*replaceDup*/).
+	//   Важное отличие - не проверяет наличие идентификатора id в списке. За счет
+	//   этого выполняется значительно быстрее, но может привести к появлению дубликатов.
+	// ARG(id         IN): Идентификатор элемента
+	// ARG(parentId   IN): Идентификатор родительского элемента. Если 0, то считает
+	//   новый элемент относящимся к самому верхнему уровню.
+	//   Функция не проверяет является ли parentId действительным членом списка и не
+	//   делает тестов на цикличность.
+	// ARG(pStr       IN): Строка, соответствующая идентификатору id
+	// Returns:
+	//   1 - функция успешно добавила новый элемент в массив
+	//   0 - ошибка (SLibError)
+	//
 	int    SLAPI AddFast(long id, long parentId, const char * pStr);
 	//
 	// Descr: Изменяет значение идентификатора элемента в позиции pos на newId.
@@ -6377,12 +6411,12 @@ public:
 	//
 	// Descr: Обнуляет все родительские ссылки элементов.
 	//
-	int    SLAPI ClearParents();
+	void   SLAPI ClearParents();
 	int    SLAPI Pack();
 	void   SLAPI SortByID();
 	void   SLAPI SortByText();
 	void   SLAPI SortByLength(int descend = 0);
-	int    SLAPI Reverse();
+	void   SLAPI Reverse();
 	int    SLAPI RemoveRecursion(LongArray * pBadList);
 	//
 	// Descr: Узкоспециализированная функция, извлекающая позицию текстовой строки
@@ -7105,7 +7139,7 @@ class SV_Uint32 {
 public:
 	// @noconstructor
 	// @nodestructor
-	int    Init();
+	void   Init();
 	void   Destroy();
 	int    FASTCALL Copy(const SV_Uint32 &);
 	int    FASTCALL Add(uint32);
@@ -10553,7 +10587,7 @@ private:
 class SBufferPipe : private SBuffer {
 public:
 	enum {
-		statusEOT = 0x0001 
+		statusEOT = 0x0001
 	};
 	SLAPI  SBufferPipe(size_t initSize = 0, long flags = fMovable);
 	//

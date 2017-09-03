@@ -538,11 +538,11 @@ static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, u_char * bu
 		u_char * p = mem->pos + written % (mem->end - mem->pos);
 		size_t avail = mem->end - p;
 		if(avail >= len) {
-			ngx_memcpy(p, buf, len);
+			memcpy(p, buf, len);
 		}
 		else {
-			ngx_memcpy(p, buf, avail);
-			ngx_memcpy(mem->pos, buf + avail, len - avail);
+			memcpy(p, buf, avail);
+			memcpy(mem->pos, buf + avail, len - avail);
 		}
 	}
 }

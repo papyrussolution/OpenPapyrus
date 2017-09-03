@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include "evp_locl.h"
 //#include "internal/bio.h"
 /*

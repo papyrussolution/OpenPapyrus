@@ -8,20 +8,18 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include <internal/asn1_int.h>
+//#include <internal/evp_int.h>
 
 #ifndef NO_ASN1_OLD
 
 int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2,
-    ASN1_BIT_STRING * signature, char * data, EVP_PKEY * pkey,
-    const EVP_MD * type)
+    ASN1_BIT_STRING * signature, char * data, EVP_PKEY * pkey, const EVP_MD * type)
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	uchar * p, * buf_in = NULL, * buf_out = NULL;
 	int i, inl = 0, outl = 0, outll = 0;
 	X509_ALGOR * a;
-
 	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_MALLOC_FAILURE);
 		goto err;

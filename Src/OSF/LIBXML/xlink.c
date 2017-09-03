@@ -134,7 +134,7 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node)
 		else if(sstreq(type, BAD_CAST "extended")) {
 			role = xmlGetNsProp(node, BAD_CAST "role", XLINK_NAMESPACE);
 			if(role != NULL) {
-				xmlNsPtr xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
+				xmlNs * xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
 				if(xlink == NULL) {
 					/* Humm, fallback method */
 					if(sstreq(role, BAD_CAST "xlink:external-linkset"))

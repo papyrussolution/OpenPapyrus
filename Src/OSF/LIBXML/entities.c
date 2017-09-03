@@ -11,13 +11,11 @@
 #pragma hdrstop
 #include <libxml/entities.h>
 #include <libxml/parserInternals.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 #include "save.h"
-
 /*
  * The XML predefined entities.
  */
-
 static xmlEntity xmlEntityLt = {
 	NULL, XML_ENTITY_DECL, BAD_CAST "lt",
 	NULL, NULL, NULL, NULL, NULL, NULL,
@@ -83,7 +81,7 @@ static void xmlEntitiesErr(xmlParserErrors code, const char * msg)
 static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
 {
 	if(entity) {
-		xmlDictPtr dict = entity->doc ? entity->doc->dict : 0;
+		xmlDict * dict = entity->doc ? entity->doc->dict : 0;
 		if(entity->children && (entity->owner == 1) && (entity == (xmlEntityPtr)entity->children->parent))
 			xmlFreeNodeList(entity->children);
 		if(dict) {
@@ -117,8 +115,7 @@ static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
  *
  * internal routine doing the entity node strutures allocations
  */
-static xmlEntityPtr xmlCreateEntity(xmlDictPtr dict, const xmlChar * name, int type,
-    const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
+static xmlEntityPtr xmlCreateEntity(xmlDict * dict, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntityPtr ret = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
 	if(!ret) {
@@ -166,7 +163,7 @@ static xmlEntityPtr xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
 	xmlEntity * ret = 0;
-	xmlDictPtr dict = NULL;
+	xmlDict * dict = NULL;
 	xmlEntitiesTablePtr table = NULL;
 	if(name && dtd) {
 		if(dtd->doc)
@@ -352,7 +349,7 @@ xmlEntityPtr xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const x
 		return xmlAddDocEntity(doc, name, type, ExternalID, SystemID, content);
 	}
 	else {
-		xmlDictPtr dict = doc ? doc->dict : 0;
+		xmlDict * dict = doc ? doc->dict : 0;
 		xmlEntity * ret = xmlCreateEntity(dict, name, type, ExternalID, SystemID, content);
 		if(ret)
 			ret->doc = doc;

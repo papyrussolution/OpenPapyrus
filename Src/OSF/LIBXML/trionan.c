@@ -68,10 +68,8 @@
 /*************************************************************************
  * Definitions
  */
-
 #define TRIO_TRUE (1 == 1)
 #define TRIO_FALSE (0 == 1)
-
 /*
  * We must enable IEEE floating-point on Alpha
  */

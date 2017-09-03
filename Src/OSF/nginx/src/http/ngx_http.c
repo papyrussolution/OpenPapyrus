@@ -699,7 +699,7 @@ static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t
 	node->inclusive = lq->inclusive;
 	node->auto_redirect = (u_char)((lq->exact && lq->exact->auto_redirect) || (lq->inclusive && lq->inclusive->auto_redirect));
 	node->len = (u_char)len;
-	ngx_memcpy(node->name, &lq->name->data[prefix], len);
+	memcpy(node->name, &lq->name->data[prefix], len);
 	ngx_queue_split(locations, q, &tail);
 	if(ngx_queue_empty(locations)) {
 		/*

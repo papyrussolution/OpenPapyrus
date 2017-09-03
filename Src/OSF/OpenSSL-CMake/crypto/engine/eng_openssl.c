@@ -553,8 +553,7 @@ static int ossl_hmac_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	return 1;
 }
 
-static int ossl_hmac_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int ossl_hmac_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(!value) {
 		return 0;

@@ -3315,7 +3315,8 @@ struct Sdr_Goods2 {
 	#define PPFLD_PERSON_BANKNAME                      38
 	#define PPFLD_PERSON_BANKACC                       39
 	#define PPFLD_PERSON_VATFREE                       40
-	#define PPFLD_PERSON_MEMO                          41
+	#define PPFLD_PERSON_DOB                           41
+	#define PPFLD_PERSON_MEMO                          42
 
 struct Sdr_Person {
 	char   Code[20];
@@ -3358,6 +3359,7 @@ struct Sdr_Person {
 	char   BankName[128];
 	char   BankAcc[48];
 	int32  VatFree;
+	LDATE  DOB;
 	char   Memo[128];
 };
 

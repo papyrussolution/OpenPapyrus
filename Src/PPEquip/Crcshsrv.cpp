@@ -2967,10 +2967,10 @@ struct ZRep { // Size = 36
 	long   Status;
 };
 
-static int FindFirstRec(xmlNodePtr pChild, xmlNodePtr * ppCurRec, const char * pTag)
+static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag)
 {
 	int    ok = -1;
-	xmlNodePtr p_rec = pChild;
+	xmlNode * p_rec = pChild;
 	if(pChild)
 		p_rec = pChild;
 	for(; p_rec && ok < 0; p_rec = p_rec->next) {
@@ -3070,13 +3070,13 @@ public:
 	SLAPI ~XmlReader();
 	int    SLAPI Next(Packet *);
 private:
-	int    SLAPI GetGiftCard(xmlNodePtr * pPlugins, SString & rSerial, int isPaym);
+	int    SLAPI GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym);
 
 	int    SubVer;
 	long   ChecksCount;
 	PPIDArray * P_LogNumList;
 	xmlDocPtr  P_Doc;
-	xmlNodePtr P_CurRec;
+	xmlNode * P_CurRec;
 	xmlTextReaderPtr P_Reader;
 };
 
@@ -3098,9 +3098,9 @@ SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subV
 		if(r == 0) {
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
-				xmlNodePtr p_root = xmlDocGetRootElement(P_Doc);
+				xmlNode * p_root = xmlDocGetRootElement(P_Doc);
 				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
-					xmlNodePtr p_rec = P_CurRec;
+					xmlNode * p_rec = P_CurRec;
 					for(ChecksCount = 1; p_rec = p_rec->next;)
 						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
 							ChecksCount++;
@@ -3124,7 +3124,7 @@ SLAPI XmlReader::~XmlReader()
 	}
 }
 
-int SLAPI XmlReader::GetGiftCard(xmlNodePtr * pPlugins, SString & rSerial, int isPaym)
+int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
 {
 	int    ok = -1;
 	int    is_gift_card = 0;
@@ -3133,7 +3133,7 @@ int SLAPI XmlReader::GetGiftCard(xmlNodePtr * pPlugins, SString & rSerial, int i
 	SString val, serial;
 	rSerial = 0;
 	if(pPlugins) {
-		for(xmlNodePtr p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
+		for(xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 			if(sstreqi_ascii((const char*)p_plugins->name, "plugin-property") && p_plugins->properties) {
 				xmlAttrPtr p_fld = p_plugins->properties;
 				is_gift_card = 0;
@@ -3232,9 +3232,9 @@ int SLAPI XmlReader::Next(Packet * pPack)
 	//
 	if(ok > 0) {
 		const char * p_items_attr = "order;goodsCode;barCode;cost;count;amount;nds;ndsSumm;discountValue;departNumber;costWithDiscount";
-		xmlNodePtr p_root  = 0;
-		xmlNodePtr p_items = 0;
-		xmlNodePtr p_fld_ = 0;
+		xmlNode * p_root  = 0;
+		xmlNode * p_items = 0;
+		xmlNode * p_fld_ = 0;
 		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
 			if(sstreqi_ascii((const char*)p_fld_->name, "positions"))
 				p_root = p_fld_;
@@ -3298,7 +3298,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						if(GetGiftCard(&p_items->children, serial, 0) > 0)
 							serial.CopyTo(item.Serial, sizeof(item.Serial));
 						/*
-						for(xmlNodePtr p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
+						for(xmlNode * p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 							if(stricmp((const char*)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
 								xmlAttrPtr p_fld = p_plugins->properties;
 								is_gift_card = 0;
@@ -3335,14 +3335,14 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		//
 		{
 			SString gift_card_code;
-			for(xmlNodePtr p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
+			for(xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char*)p_fld->name, "payments")) {
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
 					MEMSZERO(head);
 					pack.GetHead(&head);
-					for(xmlNodePtr p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
+					for(xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
 						if(p_paym_fld->type == XML_ELEMENT_NODE) { // @v7.9.7
 							int16  banking = -1;
 							int    amount_type = CCAMTTYP_CASH;
@@ -3414,14 +3414,14 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		// Извлекаем скидки
 		//
 		{
-			xmlNodePtr p_fld = P_CurRec->children;
+			xmlNode * p_fld = P_CurRec->children;
 			for(; p_fld != 0; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char*)p_fld->name, "discounts")) {
 					const char * p_items_attr = "positionOrder;amount";
 					Header head;
 					MEMSZERO(head);
 					pack.GetHead(&head);
-					for(xmlNodePtr p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
+					for(xmlNode * p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
 						int16  banking = -1;
 						long   pos = -1;
 						double discount = 0.0;
@@ -3451,13 +3451,13 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			//
 			// извлекаем номер дисконтной карты
 			//
-			xmlNodePtr p_cards_fld = 0;
+			xmlNode * p_cards_fld = 0;
 			p_fld = P_CurRec->children;
 			for(; !p_cards_fld && p_fld; p_fld = p_fld->next)
 				if(sstreqi_ascii((const char*)p_fld->name, "discountCards"))
 					p_cards_fld = p_fld;
 			if(p_cards_fld && p_cards_fld->children) {
-				xmlNodePtr p_dis_fld = 0;
+				xmlNode * p_dis_fld = 0;
 				for(p_fld = p_cards_fld->children; !p_dis_fld && p_fld; p_fld = p_fld->next)
 					if(sstreqi_ascii((const char*)p_fld->name, "discountCard"))
 						p_dis_fld = p_fld;
@@ -4223,7 +4223,7 @@ public:
 private:
 	long   ZRepsCount;
 	xmlDocPtr  P_Doc;
-	xmlNodePtr P_CurRec;
+	xmlNode * P_CurRec;
 	xmlTextReaderPtr P_Reader;
 };
 
@@ -4244,9 +4244,9 @@ SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)
 		if(r == 0) {
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
-				xmlNodePtr p_root = xmlDocGetRootElement(P_Doc);
+				xmlNode * p_root = xmlDocGetRootElement(P_Doc);
 				if(FindFirstRec(p_root, &P_CurRec, p_chr_tag) > 0 && P_CurRec && sstreqi_ascii((const char*)P_CurRec->name, p_chr_tag)) {
-					xmlNodePtr p_rec = P_CurRec;
+					xmlNode * p_rec = P_CurRec;
 					for(ZRepsCount = 1; p_rec = p_rec->next;)
 						if(sstreqi_ascii((const char*)p_rec->name, p_chr_tag))
 							ZRepsCount++;
@@ -4276,7 +4276,7 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 	ZRep item;
 	if(P_CurRec) {
 		SString val;
-		xmlNodePtr p_fld = P_CurRec->children;
+		xmlNode * p_fld = P_CurRec->children;
 		MEMSZERO(item);
 		for(; p_fld; p_fld = p_fld->next) {
 			if(p_fld->children && p_fld->children->content) {

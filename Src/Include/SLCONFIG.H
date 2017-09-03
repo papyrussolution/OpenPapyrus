@@ -28,7 +28,7 @@
 	#ifndef _WIN32_WINNT
 		#ifdef NGINX_SLIB
 			#define _WIN32_WINNT 0x0600 // @v9.7.12
-		#else	
+		#else
 			#define _WIN32_WINNT 0x0501 // @v9.1.12 0x0600-->0x0501
 		#endif
 	#endif

@@ -210,7 +210,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 	int code = -1;
 	int domain;
 	const xmlChar * name = NULL;
-	xmlNodePtr node;
+	xmlNode * node;
 	xmlErrorLevel level;
 	xmlParserInputPtr input = NULL;
 	xmlParserInputPtr cur = NULL;
@@ -404,11 +404,11 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
     const char * str2, const char * str3, int int1, int col, const char * msg, ...)
 {
 	xmlParserCtxtPtr ctxt = NULL;
-	xmlNodePtr node = (xmlNode *)nod;
+	xmlNode * node = (xmlNode *)nod;
 	char * str = NULL;
 	xmlParserInputPtr input = NULL;
 	xmlErrorPtr to = &xmlLastError;
-	xmlNodePtr baseptr = NULL;
+	xmlNode * baseptr = NULL;
 	if(code == XML_ERR_OK)
 		return;
 	if((xmlGetWarningsDefaultValue == 0) && (level == XML_ERR_WARNING))
@@ -489,7 +489,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		 * if so, attempt to print out the href of the XInclude instead
 		 * of the usual "base" (doc->URL) for the node (bug 152623).
 		 */
-		xmlNodePtr prev = baseptr;
+		xmlNode * prev = baseptr;
 		int inclcount = 0;
 		while(prev != NULL) {
 			if(prev->prev == NULL)
@@ -568,7 +568,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
  *
  * Handle an out of memory condition
  */
-void __xmlSimpleError(int domain, int code, xmlNodePtr node, const char * msg, const char * extra)
+void __xmlSimpleError(int domain, int code, xmlNode * node, const char * msg, const char * extra)
 {
 	if(code == XML_ERR_NO_MEMORY) {
 		if(extra)

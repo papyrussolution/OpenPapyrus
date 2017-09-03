@@ -316,7 +316,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <OpenMPSupport>false</OpenMPSupport>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -402,7 +402,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
       <OpenMPSupport>false</OpenMPSupport>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>

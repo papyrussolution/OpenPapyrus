@@ -164,78 +164,57 @@ static char * ngx_stream_map_block(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ngx_stream_variable_t * var;
 	ngx_stream_map_conf_ctx_t ctx;
 	ngx_stream_compile_complex_value_t ccv;
-
 	if(mcf->hash_max_size == NGX_CONF_UNSET_UINT) {
 		mcf->hash_max_size = 2048;
 	}
-
 	if(mcf->hash_bucket_size == NGX_CONF_UNSET_UINT) {
 		mcf->hash_bucket_size = ngx_cacheline_size;
 	}
 	else {
-		mcf->hash_bucket_size = ngx_align(mcf->hash_bucket_size,
-		    ngx_cacheline_size);
+		mcf->hash_bucket_size = ngx_align(mcf->hash_bucket_size, ngx_cacheline_size);
 	}
-
 	map = (ngx_stream_map_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_map_ctx_t));
 	if(map == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = &value[1];
 	ccv.complex_value = &map->value;
-
 	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	name = value[2];
-
 	if(name.data[0] != '$') {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid variable name \"%V\"", &name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-
 	name.len--;
 	name.data++;
-
 	var = ngx_stream_add_variable(cf, &name, NGX_STREAM_VAR_CHANGEABLE);
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	var->get_handler = ngx_stream_map_variable;
 	var->data = (uintptr_t)map;
-
 	pool = ngx_create_pool(NGX_DEFAULT_POOL_SIZE, cf->log);
 	if(pool == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	ctx.keys.pool = cf->pool;
 	ctx.keys.temp_pool = pool;
-
 	if(ngx_hash_keys_array_init(&ctx.keys, NGX_HASH_LARGE) != NGX_OK) {
 		ngx_destroy_pool(pool);
 		return NGX_CONF_ERROR;
 	}
-
 	ctx.values_hash = (ngx_array_t*)ngx_pcalloc(pool, sizeof(ngx_array_t) * ctx.keys.hsize);
 	if(ctx.values_hash == NULL) {
 		ngx_destroy_pool(pool);
 		return NGX_CONF_ERROR;
 	}
-
 #if (NGX_PCRE)
-	if(ngx_array_init(&ctx.regexes, cf->pool, 2,
-		    sizeof(ngx_stream_map_regex_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&ctx.regexes, cf->pool, 2, sizeof(ngx_stream_map_regex_t)) != NGX_OK) {
 		ngx_destroy_pool(pool);
 		return NGX_CONF_ERROR;
 	}
@@ -401,11 +380,9 @@ static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf
 				data = cvp->value.data;
 				len = cvp->value.len;
 			}
-
 			if(value[1].len != len) {
 				continue;
 			}
-
 			if(ngx_strncmp(value[1].data, data, len) == 0) {
 				var = vp[i];
 				goto found;
@@ -413,42 +390,32 @@ static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf
 		}
 	}
 	else {
-		if(ngx_array_init(&ctx->values_hash[key], cf->pool, 4,
-			    sizeof(ngx_stream_variable_value_t *))
-		    != NGX_OK) {
+		if(ngx_array_init(&ctx->values_hash[key], cf->pool, 4, sizeof(ngx_stream_variable_value_t *)) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	var = (ngx_stream_variable_value_t*)ngx_palloc(ctx->keys.pool, sizeof(ngx_stream_variable_value_t));
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	v.len = value[1].len;
 	v.data = ngx_pstrdup(ctx->keys.pool, &value[1]);
 	if(v.data == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-
 	ccv.cf = ctx->cf;
 	ccv.value = &v;
 	ccv.complex_value = &cv;
-
 	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(cv.lengths != NULL) {
 		cvp = (ngx_stream_complex_value_t *)ngx_palloc(ctx->keys.pool, sizeof(ngx_stream_complex_value_t));
 		if(cvp == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		*cvp = cv;
-
 		var->len = 0;
 		var->data = (u_char*)cvp;
 		var->valid = 0;
@@ -468,18 +435,13 @@ static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf
 found:
 	if(ngx_strcmp(value[0].data, "default") == 0) {
 		if(ctx->default_value) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "duplicate default map parameter");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate default map parameter");
 			return NGX_CONF_ERROR;
 		}
-
 		ctx->default_value = var;
-
 		return NGX_CONF_OK;
 	}
-
 #if (NGX_PCRE)
-
 	if(value[0].len && value[0].data[0] == '~') {
 		ngx_regex_compile_t rc;
 		ngx_stream_map_regex_t  * regex;
@@ -499,41 +461,27 @@ found:
 		rc.pattern = value[0];
 		rc.err.len = NGX_MAX_CONF_ERRSTR;
 		rc.err.data = errstr;
-
 		regex->regex = ngx_stream_regex_compile(ctx->cf, &rc);
 		if(regex->regex == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		regex->value = var;
-
 		return NGX_CONF_OK;
 	}
-
 #endif
-
 	if(value[0].len && value[0].data[0] == '\\') {
 		value[0].len--;
 		value[0].data++;
 	}
-
-	rv = ngx_hash_add_key(&ctx->keys, &value[0], var,
-	    (ctx->hostnames) ? NGX_HASH_WILDCARD_KEY : 0);
-
+	rv = ngx_hash_add_key(&ctx->keys, &value[0], var, (ctx->hostnames) ? NGX_HASH_WILDCARD_KEY : 0);
 	if(rv == NGX_OK) {
 		return NGX_CONF_OK;
 	}
-
 	if(rv == NGX_DECLINED) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid hostname or wildcard \"%V\"", &value[0]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid hostname or wildcard \"%V\"", &value[0]);
 	}
-
 	if(rv == NGX_BUSY) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "conflicting parameter \"%V\"", &value[0]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "conflicting parameter \"%V\"", &value[0]);
 	}
-
 	return NGX_CONF_ERROR;
 }
-

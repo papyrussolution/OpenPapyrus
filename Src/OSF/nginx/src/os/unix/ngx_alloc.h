@@ -1,24 +1,18 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
 
-
 #ifndef _NGX_ALLOC_H_INCLUDED_
 #define _NGX_ALLOC_H_INCLUDED_
 
-
 #include <ngx_config.h>
 #include <ngx_core.h>
-
 
 void *ngx_alloc(size_t size, ngx_log_t *log);
 void *ngx_calloc(size_t size, ngx_log_t *log);
 
 #define ngx_free          free
-
-
 /*
  * Linux has memalign() or posix_memalign()
  * Solaris has memalign()
@@ -27,13 +21,9 @@ void *ngx_calloc(size_t size, ngx_log_t *log);
  */
 
 #if (NGX_HAVE_POSIX_MEMALIGN || NGX_HAVE_MEMALIGN)
-
-void *ngx_memalign(size_t alignment, size_t size, ngx_log_t *log);
-
+	void *ngx_memalign(size_t alignment, size_t size, ngx_log_t *log);
 #else
-
-#define ngx_memalign(alignment, size, log)  ngx_alloc(size, log)
-
+	#define ngx_memalign(alignment, size, log)  ngx_alloc(size, log)
 #endif
 
 

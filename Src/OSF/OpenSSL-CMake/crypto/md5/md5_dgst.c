@@ -8,13 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
+//#include <openssl/opensslv.h>
 #include "md5_locl.h"
-#include <openssl/opensslv.h>
-
 /*
  * Implemented from RFC1321 The MD5 Message-Digest Algorithm
  */
-
 #define INIT_DATA_A (ulong)0x67452301L
 #define INIT_DATA_B (ulong)0xefcdab89L
 #define INIT_DATA_C (ulong)0x98badcfeL

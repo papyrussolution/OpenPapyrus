@@ -287,7 +287,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				if(b->pos == NULL) {
 					return NGX_ERROR;
 				}
-				ngx_memcpy(b->pos, ctx->saved.data, ctx->saved.len);
+				memcpy(b->pos, ctx->saved.data, ctx->saved.len);
 				b->last = b->pos + ctx->saved.len;
 				b->memory = 1;
 				*ctx->last_out = cl;
@@ -300,7 +300,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 					return NGX_ERROR;
 				}
 				b = cl->buf;
-				ngx_memcpy(b, ctx->buf, sizeof(ngx_buf_t));
+				memcpy(b, ctx->buf, sizeof(ngx_buf_t));
 				b->pos = ctx->copy_start;
 				b->last = ctx->copy_end;
 				b->shadow = NULL;
@@ -522,7 +522,7 @@ again:
 done:
 	/* send [ - looked.len, start ] to client */
 	ctx->saved.len = ctx->looked.len + MIN(start, 0);
-	ngx_memcpy(ctx->saved.data, ctx->looked.data, ctx->saved.len);
+	memcpy(ctx->saved.data, ctx->looked.data, ctx->saved.len);
 	ctx->copy_start = ctx->pos;
 	ctx->copy_end = ctx->pos + MAX(start, 0);
 	/* save [ next, end ] in looked */

@@ -526,7 +526,7 @@ static ngx_int_t ngx_stream_variable_server_addr(ngx_stream_session_t * s,
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(str.data, addr, str.len);
+	memcpy(str.data, addr, str.len);
 
 	v->len = str.len;
 	v->valid = 1;
@@ -692,7 +692,7 @@ static ngx_int_t ngx_stream_variable_time_iso8601(ngx_stream_session_t * s,
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(p, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len);
+	memcpy(p, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len);
 	v->len = ngx_cached_http_log_iso8601.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
@@ -708,7 +708,7 @@ static ngx_int_t ngx_stream_variable_time_local(ngx_stream_session_t * s,
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
+	memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
 	v->len = ngx_cached_http_log_time.len;
 	v->valid = 1;
 	v->no_cacheable = 0;

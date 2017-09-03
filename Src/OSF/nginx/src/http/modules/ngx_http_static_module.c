@@ -139,7 +139,7 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t * r)
 			*last = '/';
 			if(r->args.len) {
 				*++last = '?';
-				ngx_memcpy(++last, r->args.data, r->args.len);
+				memcpy(++last, r->args.data, r->args.len);
 			}
 		}
 		r->headers_out.location->hash = 1;

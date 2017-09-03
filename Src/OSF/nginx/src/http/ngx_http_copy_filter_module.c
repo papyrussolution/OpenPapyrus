@@ -7,28 +7,24 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_copy_filter_conf_t {
 	ngx_bufs_t bufs;
-} ngx_http_copy_filter_conf_t;
+};
 
 #if (NGX_HAVE_FILE_AIO)
-static void ngx_http_copy_aio_handler(ngx_output_chain_ctx_t * ctx,
-    ngx_file_t * file);
-static void ngx_http_copy_aio_event_handler(ngx_event_t * ev);
-#if (NGX_HAVE_AIO_SENDFILE)
-static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file);
-static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev);
-#endif
+	static void ngx_http_copy_aio_handler(ngx_output_chain_ctx_t * ctx, ngx_file_t * file);
+	static void ngx_http_copy_aio_event_handler(ngx_event_t * ev);
+	#if (NGX_HAVE_AIO_SENDFILE)
+		static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file);
+		static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev);
+	#endif
 #endif
 #if (NGX_THREADS)
-static ngx_int_t ngx_http_copy_thread_handler(ngx_thread_task_t * task,
-    ngx_file_t * file);
-static void ngx_http_copy_thread_event_handler(ngx_event_t * ev);
+	static ngx_int_t ngx_http_copy_thread_handler(ngx_thread_task_t * task, ngx_file_t * file);
+	static void ngx_http_copy_thread_event_handler(ngx_event_t * ev);
 #endif
-
 static void * ngx_http_copy_filter_create_conf(ngx_conf_t * cf);
-static char * ngx_http_copy_filter_merge_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_copy_filter_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_copy_filter_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_http_copy_filter_commands[] = {
@@ -151,13 +147,9 @@ static ngx_int_t ngx_http_copy_filter(ngx_http_request_t * r, ngx_chain_t * in)
 
 static void ngx_http_copy_aio_handler(ngx_output_chain_ctx_t * ctx, ngx_file_t * file)
 {
-	ngx_http_request_t * r;
-
-	r = ctx->filter_ctx;
-
+	ngx_http_request_t * r = ctx->filter_ctx;
 	file->aio->data = r;
 	file->aio->handler = ngx_http_copy_aio_event_handler;
-
 	r->main->blocked++;
 	r->aio = 1;
 	ctx->aio = 1;
@@ -165,24 +157,14 @@ static void ngx_http_copy_aio_handler(ngx_output_chain_ctx_t * ctx, ngx_file_t *
 
 static void ngx_http_copy_aio_event_handler(ngx_event_t * ev)
 {
-	ngx_event_aio_t   * aio;
-	ngx_connection_t  * c;
-	ngx_http_request_t  * r;
-
-	aio = ev->data;
-	r = aio->data;
-	c = r->connection;
-
+	ngx_event_aio_t   * aio = ev->data;
+	ngx_http_request_t  * r = aio->data;
+	ngx_connection_t  * c = r->connection;
 	ngx_http_set_log_request(c->log, r);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-	    "http aio: \"%V?%V\"", &r->uri, &r->args);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http aio: \"%V?%V\"", &r->uri, &r->args);
 	r->main->blocked--;
 	r->aio = 0;
-
 	r->write_event_handler(r);
-
 	ngx_http_run_posted_requests(c);
 }
 
@@ -190,41 +172,30 @@ static void ngx_http_copy_aio_event_handler(ngx_event_t * ev)
 
 static ssize_t ngx_http_copy_aio_sendfile_preload(ngx_buf_t * file)
 {
-	ssize_t n;
 	static u_char buf[1];
 	ngx_event_aio_t  * aio;
 	ngx_http_request_t * r;
 	ngx_output_chain_ctx_t  * ctx;
-
-	n = ngx_file_aio_read(file->file, buf, 1, file->file_pos, NULL);
-
+	ssize_t n = ngx_file_aio_read(file->file, buf, 1, file->file_pos, NULL);
 	if(n == NGX_AGAIN) {
 		aio = file->file->aio;
 		aio->handler = ngx_http_copy_aio_sendfile_event_handler;
-
 		r = aio->data;
 		r->main->blocked++;
 		r->aio = 1;
-
 		ctx = ngx_http_get_module_ctx(r, ngx_http_copy_filter_module);
 		ctx->aio = 1;
 	}
-
 	return n;
 }
 
 static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev)
 {
-	ngx_event_aio_t   * aio;
-	ngx_http_request_t  * r;
-
-	aio = ev->data;
-	r = aio->data;
-
+	ngx_event_aio_t   * aio = ev->data;
+	ngx_http_request_t * r = aio->data;
 	r->main->blocked--;
 	r->aio = 0;
 	ev->complete = 0;
-
 	r->connection->write->handler(r->connection->write);
 }
 
@@ -236,70 +207,46 @@ static void ngx_http_copy_aio_sendfile_event_handler(ngx_event_t * ev)
 static ngx_int_t ngx_http_copy_thread_handler(ngx_thread_task_t * task, ngx_file_t * file)
 {
 	ngx_str_t name;
-	ngx_thread_pool_t  * tp;
-	ngx_http_request_t * r;
 	ngx_output_chain_ctx_t  * ctx;
-	ngx_http_core_loc_conf_t  * clcf;
-
-	r = file->thread_ctx;
-
-	clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-	tp = clcf->thread_pool;
-
+	ngx_http_request_t * r = file->thread_ctx;
+	ngx_http_core_loc_conf_t  * clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
+	ngx_thread_pool_t  * tp = clcf->thread_pool;
 	if(tp == NULL) {
-		if(ngx_http_complex_value(r, clcf->thread_pool_value, &name)
-		    != NGX_OK) {
+		if(ngx_http_complex_value(r, clcf->thread_pool_value, &name) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		tp = ngx_thread_pool_get((ngx_cycle_t*)ngx_cycle, &name);
-
 		if(tp == NULL) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "thread pool \"%V\" not found", &name);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "thread pool \"%V\" not found", &name);
 			return NGX_ERROR;
 		}
 	}
-
 	task->event.data = r;
 	task->event.handler = ngx_http_copy_thread_event_handler;
-
 	if(ngx_thread_task_post(tp, task) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	r->main->blocked++;
 	r->aio = 1;
-
 	ctx = ngx_http_get_module_ctx(r, ngx_http_copy_filter_module);
 	ctx->aio = 1;
-
 	return NGX_OK;
 }
 
 static void ngx_http_copy_thread_event_handler(ngx_event_t * ev)
 {
-	ngx_connection_t  * c;
-	ngx_http_request_t  * r;
-
-	r = ev->data;
-	c = r->connection;
-
+	ngx_http_request_t  * r = ev->data;
+	ngx_connection_t  * c = r->connection;
 	ngx_http_set_log_request(c->log, r);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-	    "http thread: \"%V?%V\"", &r->uri, &r->args);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http thread: \"%V?%V\"", &r->uri, &r->args);
 	r->main->blocked--;
 	r->aio = 0;
-
 	if(r->done) {
 		/*
 		 * trigger connection event handler if the subrequest was
 		 * already finalized; this can happen if the handler is used
 		 * for sendfile() in threads
 		 */
-
 		c->write->handler(c->write);
 	}
 	else {
@@ -312,8 +259,7 @@ static void ngx_http_copy_thread_event_handler(ngx_event_t * ev)
 
 static void * ngx_http_copy_filter_create_conf(ngx_conf_t * cf)
 {
-	ngx_http_copy_filter_conf_t * conf;
-	conf = (ngx_http_copy_filter_conf_t*)ngx_palloc(cf->pool, sizeof(ngx_http_copy_filter_conf_t));
+	ngx_http_copy_filter_conf_t * conf = (ngx_http_copy_filter_conf_t*)ngx_palloc(cf->pool, sizeof(ngx_http_copy_filter_conf_t));
 	if(conf == NULL) {
 		return NULL;
 	}
@@ -333,7 +279,5 @@ static ngx_int_t ngx_http_copy_filter_init(ngx_conf_t * cf)
 {
 	ngx_http_next_body_filter = ngx_http_top_body_filter;
 	ngx_http_top_body_filter = ngx_http_copy_filter;
-
 	return NGX_OK;
 }
-

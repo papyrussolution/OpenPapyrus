@@ -192,7 +192,12 @@ void SLAPI delbit(void * pBuf, size_t len, size_t pos)
 uint8 bitscanforward(uint32 * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
-	return _BitScanForward(pIdx, mask);
+	if(mask)
+		return _BitScanForward(pIdx, mask);
+	else {
+		ASSIGN_PTR(pIdx, 0);
+		return 0;
+	}
 #else
 	uint16 ret_ = 0;
 	uint32 idx = 0;
@@ -217,7 +222,12 @@ lab_done:
 uint8 bitscanreverse(uint32 * pIdx, uint32 mask)
 {
 #if _MSC_VER >= 1600
-	return _BitScanReverse(pIdx, mask);
+	if(mask)
+		return _BitScanReverse(pIdx, mask);
+	else {
+		ASSIGN_PTR(pIdx, 0);
+		return 0;
+	}
 #else
 	uint16 ret_ = 0;
 	uint32 idx = 0;

@@ -517,7 +517,7 @@ static ngx_int_t ngx_mail_smtp_helo(ngx_mail_session_t * s, ngx_connection_t * c
 	if(s->smtp_helo.data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(s->smtp_helo.data, arg[0].data, arg[0].len);
+	memcpy(s->smtp_helo.data, arg[0].data, arg[0].len);
 	ngx_str_null(&s->smtp_from);
 	ngx_str_null(&s->smtp_to);
 	sscf = (ngx_mail_smtp_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_smtp_module);
@@ -670,7 +670,7 @@ static ngx_int_t ngx_mail_smtp_mail(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->smtp_from.data, cmd.data, cmd.len);
+	memcpy(s->smtp_from.data, cmd.data, cmd.len);
 
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
 	    "smtp mail from:\"%V\"", &s->smtp_from);
@@ -707,7 +707,7 @@ static ngx_int_t ngx_mail_smtp_rcpt(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->smtp_to.data, cmd.data, cmd.len);
+	memcpy(s->smtp_to.data, cmd.data, cmd.len);
 
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
 	    "smtp rcpt to:\"%V\"", &s->smtp_to);

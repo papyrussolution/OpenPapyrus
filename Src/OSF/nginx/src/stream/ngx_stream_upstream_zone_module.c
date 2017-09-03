@@ -152,7 +152,7 @@ static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_
 	if(peers == NULL) {
 		return NULL;
 	}
-	ngx_memcpy(peers, uscf->peer.data, sizeof(ngx_stream_upstream_rr_peers_t));
+	memcpy(peers, uscf->peer.data, sizeof(ngx_stream_upstream_rr_peers_t));
 	peers->shpool = shpool;
 	for(peerp = &peers->peer; *peerp; peerp = &peer->next) {
 		/* pool is unlocked */
@@ -160,7 +160,7 @@ static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_
 		if(peer == NULL) {
 			return NULL;
 		}
-		ngx_memcpy(peer, *peerp, sizeof(ngx_stream_upstream_rr_peer_t));
+		memcpy(peer, *peerp, sizeof(ngx_stream_upstream_rr_peer_t));
 		*peerp = peer;
 	}
 	if(peers->next == NULL) {
@@ -170,7 +170,7 @@ static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_
 	if(backup == NULL) {
 		return NULL;
 	}
-	ngx_memcpy(backup, peers->next, sizeof(ngx_stream_upstream_rr_peers_t));
+	memcpy(backup, peers->next, sizeof(ngx_stream_upstream_rr_peers_t));
 	backup->shpool = shpool;
 	for(peerp = &backup->peer; *peerp; peerp = &peer->next) {
 		/* pool is unlocked */
@@ -178,7 +178,7 @@ static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_
 		if(peer == NULL) {
 			return NULL;
 		}
-		ngx_memcpy(peer, *peerp, sizeof(ngx_stream_upstream_rr_peer_t));
+		memcpy(peer, *peerp, sizeof(ngx_stream_upstream_rr_peer_t));
 		*peerp = peer;
 	}
 	peers->next = backup;

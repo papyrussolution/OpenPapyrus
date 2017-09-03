@@ -212,7 +212,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 			return ngx_http_random_index_error(r, &dir, &path);
 		}
 
-		ngx_memcpy(name->data, ngx_de_name(&dir), len);
+		memcpy(name->data, ngx_de_name(&dir), len);
 	}
 
 	if(ngx_close_dir(&dir) == NGX_ERROR) {
@@ -238,7 +238,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 	}
 
 	last = ngx_copy(uri.data, r->uri.data, r->uri.len);
-	ngx_memcpy(last, name[n].data, name[n].len);
+	memcpy(last, name[n].data, name[n].len);
 
 	return ngx_http_internal_redirect(r, &uri, &r->args);
 }

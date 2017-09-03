@@ -138,7 +138,6 @@ struct ngx_connection_s {
 #if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
 	unsigned busy_count : 2;
 #endif
-
 #if (NGX_THREADS || NGX_COMPAT)
 	ngx_thread_task_t  * sendfile_task;
 #endif

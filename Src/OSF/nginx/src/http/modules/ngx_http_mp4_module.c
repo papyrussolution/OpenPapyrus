@@ -1014,7 +1014,7 @@ static ngx_int_t ngx_http_mp4_read_ftyp_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	 * only moov atom content is guaranteed to be in mp4->buffer
 	 * during sending response, so ftyp atom content should be copied
 	 */
-	ngx_memcpy(ftyp_atom + sizeof(ngx_mp4_atom_header_t),
+	memcpy(ftyp_atom + sizeof(ngx_mp4_atom_header_t),
 	    ngx_mp4_atom_data(mp4), (size_t)atom_data_size);
 
 	atom = &mp4->ftyp_atom_buf;

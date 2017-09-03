@@ -63,20 +63,16 @@ static ngx_inline u_char * ngx_strlchr(u_char * p, u_char * last, u_char c)
 #define ngx_memset(buf, c, n)     (void)memset(buf, c, n)
 
 #if (NGX_MEMCPY_LIMIT)
-
-void * ngx_memcpy(void * dst, const void * src, size_t n);
-#define ngx_cpymem(dst, src, n)   (((u_char*)ngx_memcpy(dst, src, n)) + (n))
-
+	void * ngx_memcpy_Removed(void * dst, const void * src, size_t n);
+	#define ngx_cpymem(dst, src, n)   (((u_char*)memcpy(dst, src, n)) + (n))
 #else
-
-/*
- * gcc3, msvc, and icc7 compile memcpy() to the inline "rep movs".
- * gcc3 compiles memcpy(d, s, 4) to the inline "mov"es.
- * icc8 compile memcpy(d, s, 4) to the inline "mov"es or XMM moves.
- */
-#define ngx_memcpy(dst, src, n)   (void)memcpy(dst, src, n)
+// 
+// gcc3, msvc, and icc7 compile memcpy() to the inline "rep movs".
+// gcc3 compiles memcpy(d, s, 4) to the inline "mov"es.
+// icc8 compile memcpy(d, s, 4) to the inline "mov"es or XMM moves.
+// 
+#define ngx_memcpy_Removed(dst, src, n)   (void)memcpy(dst, src, n)
 #define ngx_cpymem(dst, src, n)   (((u_char*)memcpy(dst, src, n)) + (n))
-
 #endif
 
 #if ( __INTEL_COMPILER >= 800 )
@@ -101,11 +97,10 @@ void * ngx_memcpy(void * dst, const void * src, size_t n);
 	#define ngx_copy                  ngx_cpymem
 #endif
 
-#define ngx_memmove(dst, src, n)   (void)memmove(dst, src, n)
+#define ngx_memmove_Removed(dst, src, n)   (void)memmove(dst, src, n)
 #define ngx_movemem(dst, src, n)   (((u_char*)memmove(dst, src, n)) + (n))
-
 // msvc and icc7 compile memcmp() to the inline loop 
-#define ngx_memcmp(s1, s2, n)  memcmp((const char*)s1, (const char*)s2, n)
+#define ngx_memcmp_Removed(s1, s2, n)  memcmp((const char*)s1, (const char*)s2, n)
 
 int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest);
 
@@ -129,7 +124,7 @@ ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2);
 ngx_int_t ngx_dns_strcmp(u_char * s1, u_char * s2);
 ngx_int_t ngx_filename_cmp(u_char * s1, u_char * s2, size_t n);
 ngx_int_t ngx_atoi(u_char * line, size_t n);
-ngx_int_t ngx_atofp(u_char * line, size_t n, size_t point);
+ngx_int_t ngx_atofp(const u_char * line, size_t n, size_t point);
 ssize_t ngx_atosz(u_char * line, size_t n);
 nginx_off_t ngx_atoof(u_char * line, size_t n);
 time_t ngx_atotm(u_char * line, size_t n);

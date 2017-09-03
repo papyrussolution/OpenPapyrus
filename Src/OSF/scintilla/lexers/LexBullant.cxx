@@ -33,19 +33,11 @@ static int classifyWordBullant(Sci_PositionU start, Sci_PositionU end, WordList 
 	else {
 		if(keywords.InList(s)) {
 			chAttr = SCE_C_WORD;
-			if(strcmp(s, "end") == 0)
+			if(sstreq(s, "end"))
 				lev = -1;
-			else if(strcmp(s, "method") == 0 ||
-			    strcmp(s, "case") == 0 ||
-			    strcmp(s, "class") == 0 ||
-			    strcmp(s, "debug") == 0 ||
-			    strcmp(s, "test") == 0 ||
-			    strcmp(s, "if") == 0 ||
-			    strcmp(s, "lock") == 0 ||
-			    strcmp(s, "transaction") == 0 ||
-			    strcmp(s, "trap") == 0 ||
-			    strcmp(s, "until") == 0 ||
-			    strcmp(s, "while") == 0)
+			else if(sstreq(s, "method") || sstreq(s, "case") || sstreq(s, "class") || sstreq(s, "debug") ||
+			    sstreq(s, "test") || sstreq(s, "if") || sstreq(s, "lock") || sstreq(s, "transaction") ||
+			    sstreq(s, "trap") || sstreq(s, "until") || sstreq(s, "while"))
 				lev = 1;
 		}
 	}

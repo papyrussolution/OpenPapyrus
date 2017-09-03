@@ -293,34 +293,28 @@ static void sh_setbit(char * ptr, int list, uchar * table)
 static void sh_add_to_list(char ** list, char * ptr)
 {
 	SH_LIST * temp;
-
 	OPENSSL_assert(WITHIN_FREELIST(list));
 	OPENSSL_assert(WITHIN_ARENA(ptr));
-
 	temp = (SH_LIST*)ptr;
 	temp->next = *(SH_LIST**)list;
 	OPENSSL_assert(temp->next == NULL || WITHIN_ARENA(temp->next));
 	temp->p_next = (SH_LIST**)list;
-
-	if(temp->next != NULL) {
+	if(temp->next) {
 		OPENSSL_assert((char**)temp->next->p_next == list);
 		temp->next->p_next = &(temp->next);
 	}
-
 	*list = ptr;
 }
 
 static void sh_remove_from_list(char * ptr)
 {
-	SH_LIST * temp, * temp2;
-
-	temp = (SH_LIST*)ptr;
-	if(temp->next != NULL)
+	SH_LIST * temp2;
+	SH_LIST * temp = (SH_LIST*)ptr;
+	if(temp->next)
 		temp->next->p_next = temp->p_next;
 	*temp->p_next = temp->next;
 	if(temp->next == NULL)
 		return;
-
 	temp2 = temp->next;
 	OPENSSL_assert(WITHIN_FREELIST(temp2->p_next) || WITHIN_ARENA(temp2->p_next));
 }

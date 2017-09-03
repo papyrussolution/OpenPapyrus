@@ -22,7 +22,7 @@ SLAPI DBQuery::~DBQuery()
 		h_restrict->destroy(0);
 		delete h_restrict;
 	}
-	delete frame;
+	delete P_Frame;
 	if(tbls) {
 		const  int o = BIN(options & destroy_tables);
 		for(i = 0; i < tblCount; i++) {
@@ -777,30 +777,30 @@ int SLAPI DBQuery::fetch(long count, Pchar buf, int dir)
 	return fetch(count, buf, 0, dir);
 }
 
-#define BOQ  (frame->state & Frame::Top)
-#define EOQ  (frame->state & Frame::Bottom)
+#define BOQ  (P_Frame->state & Frame::Top)
+#define EOQ  (P_Frame->state & Frame::Bottom)
 
 long DBQuery::_defaultBufSize  = 64L;
 long DBQuery::_defaultBufDelta =  4L;
 
 inline uint FASTCALL DBQuery::addr(uint p) const
 {
-	return ((frame->zero+p) % frame->size);
+	return ((P_Frame->zero+p) % P_Frame->size);
 }
 
 void * FASTCALL DBQuery::getRecord(uint r)
 {
-	return (r < frame->count) ? (frame->buf + recSize * addr(r)) : 0;
+	return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0;
 }
 
 void * SLAPI DBQuery::getCurrent()
 {
-	return getRecord(frame->cur);
+	return getRecord(P_Frame->cur);
 }
 
 void * SLAPI DBQuery::getBuffer()
 {
-	return frame->buf;
+	return P_Frame->buf;
 }
 
 int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
@@ -808,16 +808,16 @@ int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 	if(bufSize != UNDEF && !allocFrame(bufSize))
 		return 0;
 	if(bufDelta != UNDEF)
-		frame->inc = bufDelta;
+		P_Frame->inc = bufDelta;
 	if(viewHight != UNDEF) {
-		frame->hight = MIN(viewHight, frame->size);
-		if(frame->cur != frame->top || /*frame->top < 0 ||*/ frame->top > frame->count) {
-			if((frame->cur-frame->top) >= frame->hight)
-				frame->top = frame->cur-frame->hight+1;
-			else if(frame->cur < frame->hight)
-				frame->top = 0;
-			else if((frame->count-frame->top) < frame->hight)
-				frame->top = frame->count-frame->hight;
+		P_Frame->hight = MIN(viewHight, P_Frame->size);
+		if(P_Frame->cur != P_Frame->top || /*P_Frame->top < 0 ||*/ P_Frame->top > P_Frame->count) {
+			if((P_Frame->cur-P_Frame->top) >= P_Frame->hight)
+				P_Frame->top = P_Frame->cur-P_Frame->hight+1;
+			else if(P_Frame->cur < P_Frame->hight)
+				P_Frame->top = 0;
+			else if((P_Frame->count-P_Frame->top) < P_Frame->hight)
+				P_Frame->top = P_Frame->count-P_Frame->hight;
 		}
 	}
 	options |= smart_frame;
@@ -827,47 +827,42 @@ int SLAPI DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 
 int SLAPI DBQuery::allocFrame(uint bufSize)
 {
-	if(frame && frame->size == bufSize)
+	if(P_Frame && P_Frame->size == bufSize)
 		return 1;
 	if(bufSize) {
-		if(frame == 0)
-			if((frame = new Frame) != 0) {
-				frame->buf = 0;
-				frame->posBuf = 0;
-				frame->count = 0;
-				frame->zero = 0;
-				frame->cur = 0;
-				frame->top = 0;
+		if(P_Frame == 0) {
+			if((P_Frame = new Frame) != 0) {
+				P_Frame->buf = 0;
+				P_Frame->posBuf = 0;
+				P_Frame->count = 0;
+				P_Frame->zero = 0;
+				P_Frame->cur = 0;
+				P_Frame->top = 0;
 			}
 			else
 				return 0;
-		frame->buf = (char *)SAlloc::R(frame->buf, bufSize * recSize);
-		if(!frame->buf) {
-			delete frame;
+		}
+		P_Frame->buf = (char *)SAlloc::R(P_Frame->buf, bufSize * recSize);
+		if(!P_Frame->buf) {
+			delete P_Frame;
 			return 0;
 		}
-		frame->state = Frame::Undef;
-		frame->size = bufSize;
-		frame->count = MIN(frame->count, bufSize);
+		P_Frame->state = Frame::Undef;
+		P_Frame->size = bufSize;
+		P_Frame->count = MIN(P_Frame->count, bufSize);
 		if(options & save_positions) {
-			frame->posBuf = (ulong *)SAlloc::R(frame->posBuf, frame->size * tblCount * sizeof(RECORDNUMBER));
-			if(!frame->posBuf) {
+			P_Frame->posBuf = (ulong *)SAlloc::R(P_Frame->posBuf, P_Frame->size * tblCount * sizeof(RECORDNUMBER));
+			if(!P_Frame->posBuf) {
 				options &= ~save_positions;
 				return 0;
 			}
 		}
 	}
 	else {
-		if(frame) {
-			if(frame->buf) {
-				SAlloc::F(frame->buf);
-				frame->buf = 0;
-			}
-			if(frame->posBuf) {
-				SAlloc::F(frame->posBuf);
-				frame->posBuf = 0;
-			}
-			frame->size = 0;
+		if(P_Frame) {
+			ZFREE(P_Frame->buf);
+			ZFREE(P_Frame->posBuf);
+			P_Frame->size = 0;
 		}
 		options &= ~smart_frame;
 	}
@@ -876,8 +871,8 @@ int SLAPI DBQuery::allocFrame(uint bufSize)
 
 void SLAPI DBQuery::moveRec(uint rd, uint rs)
 {
-	ulong * pp = frame->posBuf;
-	char * b = frame->buf;
+	ulong * pp = P_Frame->posBuf;
+	char * b = P_Frame->buf;
 	memmove(b + rd * recSize, b + rs * recSize, recSize);
 	if(pp) {
 		uint ps = tblCount*sizeof(RECORDNUMBER);
@@ -897,35 +892,35 @@ void SLAPI DBQuery::moveBuf(uint dest, uint src, uint recs)
 
 void _fastcall DBQuery::frameOnBottom(int undefSDelta)
 {
-	uint c  = frame->count;
+	uint c  = P_Frame->count;
 	if(c) {
-		uint ht = MIN(frame->hight, c);
-		frame->sdelta = undefSDelta ? 0x8000 : (c - ht - frame->top);
-		frame->cur    = c - 1;
-		frame->top    = c - ht;
+		uint ht = MIN(P_Frame->hight, c);
+		P_Frame->sdelta = undefSDelta ? 0x8000 : (c - ht - P_Frame->top);
+		P_Frame->cur    = c - 1;
+		P_Frame->top    = c - ht;
 	}
 	else {
-		frame->sdelta = 0;
-		frame->cur = frame->top = 0;
+		P_Frame->sdelta = 0;
+		P_Frame->cur = P_Frame->top = 0;
 	}
 }
 
 void FASTCALL DBQuery::setCount(uint c)
 {
 	if(c) {
-		if(frame->top >= c)
-			frame->top = c-1;
-		if(frame->cur >= c)
-			frame->cur = c-1;
+		if(P_Frame->top >= c)
+			P_Frame->top = c-1;
+		if(P_Frame->cur >= c)
+			P_Frame->cur = c-1;
 	}
 	else
-		frame->top = frame->cur = 0;
-	frame->count = c;
+		P_Frame->top = P_Frame->cur = 0;
+	P_Frame->count = c;
 }
 
-#define LBUFPTR(p) (frame->buf+addr(p)*recSize)
-#define PBUFPTR(p) (frame->buf+(p)*recSize)
-#define LPOSPTR(p) (frame->posBuf ? (frame->posBuf+addr(p)*tblCount) : 0)
+#define LBUFPTR(p) (P_Frame->buf+addr(p)*recSize)
+#define PBUFPTR(p) (P_Frame->buf+(p)*recSize)
+#define LPOSPTR(p) (P_Frame->posBuf ? (P_Frame->posBuf+addr(p)*tblCount) : 0)
 //
 // Состояния признака DBQuery::Frame::last
 //
@@ -940,32 +935,32 @@ int SLAPI DBQuery::_fetch_next(uint count, uint p, int dir)
 	for(i = 0; i < count; i++)
 		if(!single_fetch(LBUFPTR(p+i), LPOSPTR(p+i), i ? spNext : dir))
 			break;
-	frame->state = (dir == spFirst) ? Frame::Top : Frame::Undef;
+	P_Frame->state = (dir == spFirst) ? Frame::Top : Frame::Undef;
 	if(i < count) {
-		frame->last = _lbottom;
+		P_Frame->last = _lbottom;
 		if(!error)
-			frame->state |= Frame::Bottom;
+			P_Frame->state |= Frame::Bottom;
 	}
 	else
-		frame->last = _lnext;
+		P_Frame->last = _lnext;
 	actCount = i;
 	return !error;
 }
 
 int SLAPI DBQuery::_fetch_prev(uint count, uint p)
 {
-	uint i, s = frame->size;
+	uint i, s = P_Frame->size;
 	for(i = 0; i < count; i++)
 		if(!single_fetch(LBUFPTR(s+p-i), LPOSPTR(s+p-i), spPrev))
 			break;
-	frame->state = Frame::Undef;
+	P_Frame->state = Frame::Undef;
 	if(i < count) {
-		frame->last = _ltop;
+		P_Frame->last = _ltop;
 		if(!error)
-			frame->state |= Frame::Top;
+			P_Frame->state |= Frame::Top;
 	}
 	else
-		frame->last = _lprev;
+		P_Frame->last = _lprev;
 	actCount = i;
 	return !error;
 }
@@ -973,18 +968,18 @@ int SLAPI DBQuery::_fetch_prev(uint count, uint p)
 int SLAPI DBQuery::_fetch_last(uint count, uint p)
 {
 	uint   i;
-	const  uint s = frame->size;
+	const  uint s = P_Frame->size;
 	for(i = 0; i < count; i++)
 		if(!single_fetch(LBUFPTR(s+p-i), LPOSPTR(s+p-i), i ? spPrev : spLast))
 			break;
-	frame->state = Frame::Bottom;
+	P_Frame->state = Frame::Bottom;
 	if(i < count) {
-		frame->last = _ltop;
+		P_Frame->last = _ltop;
 		if(!error)
-			frame->state |= Frame::Top;
+			P_Frame->state |= Frame::Top;
 	}
 	else
-		frame->last = _lprev;
+		P_Frame->last = _lprev;
 	actCount = i;
 	return !error;
 }
@@ -996,10 +991,14 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 	assert(dir == spNext || dir == spPrev);
 	uint   recs, pos;
 	if(dir == spNext) {
-		if(frame->last == _lprev)
-			recs = frame->count-1, pos = 1;
-		else if(frame->last == _ltop)
-			recs = frame->count-1, pos = 1;
+		if(P_Frame->last == _lprev) {
+			recs = P_Frame->count-1;
+			pos = 1;
+		}
+		else if(P_Frame->last == _ltop) {
+			recs = P_Frame->count-1;
+			pos = 1;
+		}
 		else
 			return 1;
 		_fetch_next(recs, pos, spNext);
@@ -1007,15 +1006,19 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 			setCount(actCount);
 	}
 	else { // dir == spPrev
-		if(frame->last == _lnext)
-			recs = frame->count-1, pos = frame->count-2;
-		else if(frame->last == _lbottom)
-			recs = frame->count-1, pos = frame->count-2;
+		if(P_Frame->last == _lnext) {
+			recs = P_Frame->count-1;
+			pos = P_Frame->count-2;
+		}
+		else if(P_Frame->last == _lbottom) {
+			recs = P_Frame->count-1;
+			pos = P_Frame->count-2;
+		}
 		else
 			return 1;
 		_fetch_prev(recs, pos);
 		if(actCount < recs) {
-			frame->zero = addr(frame->count-actCount);
+			P_Frame->zero = addr(P_Frame->count-actCount);
 			setCount(actCount);
 		}
 	}
@@ -1024,20 +1027,20 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 
 int SLAPI DBQuery::refresh()
 {
-	frame->sdelta = 0;
+	P_Frame->sdelta = 0;
 	if(BOQ) {
-		_fetch_next(frame->size, 0, spFirst);
+		_fetch_next(P_Frame->size, 0, spFirst);
 		setCount(actCount);
 	}
 	else if(EOQ) {
-		uint s = frame->size;
+		uint s = P_Frame->size;
 		_fetch_last(s, s-1);
-		frame->zero  = addr(s - actCount);
+		P_Frame->zero  = addr(s - actCount);
 		setCount(actCount);
 	}
-	else if(frame->last == _ltop || frame->last == _lprev) {
+	else if(P_Frame->last == _ltop || P_Frame->last == _lprev) {
 		_fetch_prev(1, 0);
-		_fetch_next(frame->count, 0, spNext);
+		_fetch_next(P_Frame->count, 0, spNext);
 		setCount(actCount);
 	}
 	else {
@@ -1050,14 +1053,14 @@ int SLAPI DBQuery::refresh()
 int SLAPI DBQuery::top()
 {
 	if(BOQ)
-		frame->sdelta = -((long)frame->top);
+		P_Frame->sdelta = -((long)P_Frame->top);
 	else {
-		frame->sdelta = 0x8000;
-		_fetch_next(frame->size, 0, spFirst);
-		frame->count = actCount;
+		P_Frame->sdelta = 0x8000;
+		_fetch_next(P_Frame->size, 0, spFirst);
+		P_Frame->count = actCount;
 	}
-	frame->top = frame->cur = 0;
-	frame->spos = 0;
+	P_Frame->top = P_Frame->cur = 0;
+	P_Frame->spos = 0;
 	return !error;
 }
 
@@ -1065,13 +1068,13 @@ int SLAPI DBQuery::bottom()
 {
 	if(!error) {
 		if(!EOQ) {
-			uint s = frame->size;
+			uint s = P_Frame->size;
 			_fetch_last(s, s-1);
-			frame->zero  = addr(s - actCount);
-			frame->count = actCount;
+			P_Frame->zero  = addr(s - actCount);
+			P_Frame->count = actCount;
 		}
 		frameOnBottom(!EOQ);
-		frame->spos = frame->srange;
+		P_Frame->spos = P_Frame->srange;
 	}
 	return !error;
 }
@@ -1081,71 +1084,71 @@ int FASTCALL DBQuery::step(long delta)
 	if(error)
 		return 0;
 	int  diff;
-	uint ht = frame->hight;
+	uint ht = P_Frame->hight;
 	if(delta == 0)
 		return 1;
-	frame->sdelta = 0;
+	P_Frame->sdelta = 0;
 	uint temp;
-	uint _cur = frame->cur;
-	uint c = frame->count;
-	uint s = frame->size;
+	uint _cur = P_Frame->cur;
+	uint c = P_Frame->count;
+	uint s = P_Frame->size;
 	if(delta > 0) {
 		delta = MIN((ulong)delta, s);
 		diff = (_cur+delta-c);
 		if(diff >= 0) {
 			if(!EOQ) {
 				normalizeFrame(spNext);
-				_fetch_next(diff+1, c = frame->count, spNext);
+				_fetch_next(diff+1, c = P_Frame->count, spNext);
 				if((temp = c + actCount) > s)
-					frame->zero = addr(temp % s);
-				frame->count = MIN(temp, s);
+					P_Frame->zero = addr(temp % s);
+				P_Frame->count = MIN(temp, s);
 			}
 			if(EOQ) {
 				frameOnBottom(0);
-				frame->spos = frame->srange;
+				P_Frame->spos = P_Frame->srange;
 				return error ? 0 : -1;
 			}
 		}
-		frame->cur = MIN(frame->count - 1, frame->cur + delta);
-		if(frame->cur >= (frame->top + ht)) {
-			temp = frame->cur - ht + 1;
-			frame->sdelta = temp - frame->top;
-			frame->top    = temp;
+		P_Frame->cur = MIN(P_Frame->count - 1, P_Frame->cur + delta);
+		if(P_Frame->cur >= (P_Frame->top + ht)) {
+			temp = P_Frame->cur - ht + 1;
+			P_Frame->sdelta = temp - P_Frame->top;
+			P_Frame->top    = temp;
 		}
-		//frame->spos += delta;
-		frame->spos = frame->srange / 2;
+		//P_Frame->spos += delta;
+		P_Frame->spos = P_Frame->srange / 2;
 	}
 	else {
 		delta = MIN((ulong)-delta, ht);
-		if(frame->cur < (ulong)delta) {
+		if(P_Frame->cur < (ulong)delta) {
 			if(!BOQ) {
 				normalizeFrame(spPrev);
-				uint recs = delta - frame->cur;
+				uint recs = delta - P_Frame->cur;
 				_fetch_prev(recs, s-1);
-				frame->zero = addr(s - actCount % s);
-				frame->top = frame->cur = 0;
-				frame->sdelta = -delta;
-				//frame->spos -= delta;
-				frame->spos = frame->srange / 2;
+				P_Frame->zero = addr(s - actCount % s);
+				P_Frame->top = P_Frame->cur = 0;
+				P_Frame->sdelta = -delta;
+				//P_Frame->spos -= delta;
+				P_Frame->spos = P_Frame->srange / 2;
 			}
 			if(BOQ) {
-				if(frame->cur) {
-					frame->sdelta = -(long)frame->top;
-					frame->top = frame->cur = 0;
-					frame->spos = 0;
+				if(P_Frame->cur) {
+					P_Frame->sdelta = -(long)P_Frame->top;
+					P_Frame->top = P_Frame->cur = 0;
+					P_Frame->spos = 0;
 				}
 			}
 			return !error;
 		}
-		frame->cur = frame->cur-delta;
-		if(frame->cur < frame->top) {
-			frame->sdelta = frame->cur - frame->top;
-			frame->top = frame->cur;
+		P_Frame->cur = P_Frame->cur-delta;
+		if(P_Frame->cur < P_Frame->top) {
+			P_Frame->sdelta = P_Frame->cur - P_Frame->top;
+			P_Frame->top = P_Frame->cur;
 		}
-		//frame->spos -= delta;
-		frame->spos = frame->srange / 2;
+		//P_Frame->spos -= delta;
+		P_Frame->spos = P_Frame->srange / 2;
 	}
-	frame->spos = MIN(frame->srange, frame->spos);
+	P_Frame->spos = MIN(P_Frame->srange, P_Frame->spos);
 	return !error;
 }
 
@@ -1176,12 +1179,12 @@ int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint sr
 	int    nxt;
 	int    _eof;
 	if(dir == srchFirst) {
-		frame->zero = 0;
+		P_Frame->zero = 0;
 		top();
 		nxt = spNext;
 	}
 	else if(dir == srchLast) {
-		frame->zero = 0;
+		P_Frame->zero = 0;
 		bottom();
 		nxt = spPrev;
 	}
@@ -1197,22 +1200,22 @@ int SLAPI DBQuery::search(const void * pPattern, CompFunc fcmp, int fld, uint sr
 		ofs += stsize(flds[i].type);
 	do {
 		if((r = searchOnPage(pPattern, &pos, fcmp, ofs, srchMode, nxt, pExtraData)) != 0) {
-			frame->cur = pos;
-			frame->topByCur(spNext);
+			P_Frame->cur = pos;
+			P_Frame->topByCur(spNext);
 		}
-		else if(!(frame->state & _eof) && !error) {
+		else if(!(P_Frame->state & _eof) && !error) {
 			if(nxt == spNext) {
-				frame->cur = frame->count-1;
-				frame->topByCur(spPrev);
+				P_Frame->cur = P_Frame->count-1;
+				P_Frame->topByCur(spPrev);
 			}
 			else {
-				frame->cur = 0;
-				frame->topByCur(spNext);
+				P_Frame->cur = 0;
+				P_Frame->topByCur(spNext);
 			}
-			step((nxt == spNext) ? frame->size : -(long)frame->size);
-			frame->cur = 0;
-			frame->top = 0;
-			frame->spos = frame->srange / 2;
+			step((nxt == spNext) ? P_Frame->size : -(long)P_Frame->size);
+			P_Frame->cur = 0;
+			P_Frame->top = 0;
+			P_Frame->spos = P_Frame->srange / 2;
 		}
 		else
 			break;
@@ -1224,12 +1227,12 @@ int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcm
 	uint ofs, int srchMode, int nxt, void * pExtraData)
 {
 	int  r = 0;
-	uint p = addr(frame->cur);
-	uint count = (frame->count - frame->cur);
-	uint s = MIN(count, frame->size-p);
+	uint p = addr(P_Frame->cur);
+	uint count = (P_Frame->count - P_Frame->cur);
+	uint s = MIN(count, P_Frame->size-p);
 	if(count) {
 		do {
-			SArray ary(frame->buf + p * recSize, recSize, s);
+			SArray ary(P_Frame->buf + p * recSize, recSize, s);
 			uint _p = 0;
 			if(srchMode & srchBinary) {
 				r = ary.imp_bsearch(pPattern, &_p, fcmp, ofs, pExtraData);
@@ -1243,7 +1246,7 @@ int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcm
 			else
 				r = ary.lsearch(pPattern, &_p, fcmp, ofs, pExtraData);
 			if(r)
-				*pPos = (_p + p + frame->size - frame->zero) % frame->size;
+				*pPos = (_p + p + P_Frame->size - P_Frame->zero) % P_Frame->size;
 			else if(s < count)
 				if(p) {
 					p = 0;

@@ -157,7 +157,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 		if(index[i].values == NULL) {
 			/* index[i].name.len includes the terminating '\0' */
 
-			ngx_memcpy(name, index[i].name.data, index[i].name.len);
+			memcpy(name, index[i].name.data, index[i].name.len);
 
 			path.len = (name + index[i].name.len - 1) - path.data;
 		}
@@ -252,7 +252,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 			}
 
 			p = ngx_copy(uri.data, r->uri.data, r->uri.len);
-			ngx_memcpy(p, name, len - 1);
+			memcpy(p, name, len - 1);
 		}
 
 		return ngx_http_internal_redirect(r, &uri, &r->args);
@@ -469,7 +469,7 @@ static char * ngx_http_index_set_index(ngx_conf_t * cf, ngx_command_t * cmd, voi
 				continue;
 			}
 
-			/* include the terminating '\0' to the length to use ngx_memcpy() */
+			/* include the terminating '\0' to the length to use memcpy() */
 			index->name.len++;
 
 			continue;

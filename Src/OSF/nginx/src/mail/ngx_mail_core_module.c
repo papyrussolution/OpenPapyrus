@@ -285,7 +285,7 @@ static char * ngx_mail_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		return NGX_CONF_ERROR;
 	}
 	memzero(ls, sizeof(ngx_mail_listen_t));
-	ngx_memcpy(&ls->sockaddr.sockaddr, &u.sockaddr, u.socklen);
+	memcpy(&ls->sockaddr.sockaddr, &u.sockaddr, u.socklen);
 	ls->socklen = u.socklen;
 	ls->backlog = NGX_LISTEN_BACKLOG;
 	ls->rcvbuf = -1;

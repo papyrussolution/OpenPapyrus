@@ -33,7 +33,6 @@ typedef xmlParserInput htmlParserInput;
 typedef xmlParserInputPtr htmlParserInputPtr;
 typedef xmlDocPtr htmlDocPtr;
 typedef xmlNodePtr htmlNodePtr;
-
 /*
  * Internal description of an HTML element, representing HTML 4.01
  * and XHTML 1.0 (which share the same structure).

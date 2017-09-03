@@ -3285,7 +3285,7 @@ static uint FASTCALL MakeTextHash(const SString & rText)
 
 int SLAPI PrcssrPersonImport::Run()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	long   numrecs = 0;
 	SString log_msg, fmt_buf, temp_buf, temp_buf2, dblgis_code;
 	SString name;
@@ -3302,7 +3302,8 @@ int SLAPI PrcssrPersonImport::Run()
 		long   accepted_count = 0;
 		IterCounter cntr;
 		Sdr_Person rec;
-		THROW(PPStartTransaction(&ta, 1));
+		PPTransaction tra(1);
+		THROW(tra);
 		cntr.Init(numrecs);
 		MEMSZERO(rec);
 		while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
@@ -3374,7 +3375,6 @@ int SLAPI PrcssrPersonImport::Run()
 					if(cat_id)
 						pack.Rec.CatID = cat_id;
 				}
-				// @v8.2.3 {
 				{
 					dblgis_code = 0;
 					if(rec.DblGisCode && rec.MainAddrCityName[0]) {
@@ -3383,13 +3383,10 @@ int SLAPI PrcssrPersonImport::Run()
 						dblgis_code.Cat(city_hash).CatChar('-').Cat(rec.DblGisCode);
 					}
 				}
-				// } @v8.2.3
 				if(IeParam.SrchRegTypeID) {
 					(temp_buf = rec.Code).Strip();
-					// @v8.2.3 {
 					if(temp_buf.Empty())
 						temp_buf = dblgis_code;
-					// } @v8.2.3
 					if(IeParam.Flags & IeParam.fCodeToHex) {
 						PsnObj.AddRegisterToPacket(pack, IeParam.SrchRegTypeID, CodeToHex(temp_buf), 0);
 					}
@@ -3497,23 +3494,28 @@ int SLAPI PrcssrPersonImport::Run()
 						}
 					}
 				}
+				// @v9.8.0 {
+				if(checkdate(rec.DOB, 0)) {
+					const ObjTagItem * p_tag_item = pack.TagL.GetItem(PPTAG_PERSON_DOB);
+					LDATE   ex_dob = ZERODATE; 
+					if(!p_tag_item || !p_tag_item->GetDate(&ex_dob) || !checkdate(ex_dob, 0)) {
+						ObjTagItem new_dob_tag_item;
+						if(new_dob_tag_item.SetDate(PPTAG_PERSON_DOB, rec.DOB) && pack.TagL.PutItem(PPTAG_PERSON_DOB, &new_dob_tag_item)) {
+							do_turn = 1;
+						}
+					}
+				}
+				// } @v9.8.0 
 				{
-					temp_buf = rec.Phone;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
+					if((temp_buf = rec.Phone).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
-					temp_buf = rec.Phone2;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
+					if((temp_buf = rec.Phone2).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_ALTPHONE, temp_buf);
-					// @v8.0.0 {
-					temp_buf = rec.PhoneMobile;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
+					if((temp_buf = rec.PhoneMobile).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_MOBILE, temp_buf);
-					// } @v8.0.0
-					temp_buf = rec.EMail;
-					if(temp_buf.NotEmptyS())
+					if((temp_buf = rec.EMail).NotEmptyS())
 						ProcessComplexEMailText(temp_buf, &pack);
-					temp_buf = rec.HTTP;
-					if(temp_buf.NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
+					if((temp_buf = rec.HTTP).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WWW, temp_buf);
 					if(rec.ComplELink[0])
 						ProcessComplexELinkText(rec.ComplELink, &pack);
@@ -3540,24 +3542,12 @@ int SLAPI PrcssrPersonImport::Run()
 						accno = rec.BankAcc;
 						if(bnk_rec.Name[0] && accno.NotEmptyS()) {
 							PPID   bnk_id = 0;
-							/* @v9.0.4
-							BankAccountTbl::Rec bnkacc_rec;
-							MEMSZERO(bnkacc_rec);
-							THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
-							bnkacc_rec.BankID  = bnk_id;
-							bnkacc_rec.AccType = PPBAC_CURRENT;
-							STRNSCPY(bnkacc_rec.Acct, accno);
-							THROW_SL(pack.BAA.insert(&bnkacc_rec));
-							*/
-							// @v9.0.4 {
 							PPBankAccount ba;
 							THROW(PsnObj.AddBankSimple(&bnk_id, &bnk_rec, 0));
 							ba.BankID = bnk_id;
 							ba.AccType = PPBAC_CURRENT;
 							STRNSCPY(ba.Acct, accno);
 							THROW(pack.Regs.SetBankAccount(&ba, (uint)-1));
-							// } @v9.0.4
-
 						}
 					}
 				}
@@ -3565,8 +3555,8 @@ int SLAPI PrcssrPersonImport::Run()
 					THROW(PsnObj.PutPacket(&psn_id, &pack, 0));
 					accepted_count++;
 					if((accepted_count % 10000) == 0) {
-						THROW(PPCommitWork(&ta));
-						THROW(PPStartTransaction(&ta, 1));
+						THROW(tra.Commit());
+						THROW(tra.Start(1));
 					}
 				}
 			}
@@ -3574,12 +3564,9 @@ int SLAPI PrcssrPersonImport::Run()
 			PPWaitPercent(cntr.Increment());
 		}
 		THROW(r);
-		THROW(PPCommitWork(&ta));
+		THROW(tra.Commit());
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	PPWait(0);
 	return ok;

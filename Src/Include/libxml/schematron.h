@@ -95,14 +95,9 @@ XMLPUBFUN int XMLCALL
 					 xmlSchematronValidityErrorFunc *err,
 					 xmlSchematronValidityWarningFunc *warn,
 					 void **ctx);
-XMLPUBFUN int XMLCALL
-	    xmlSchematronSetValidOptions(xmlSchematronValidCtxtPtr ctxt,
-					 int options);
-XMLPUBFUN int XMLCALL
-	    xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxtPtr ctxt);
-XMLPUBFUN int XMLCALL
-            xmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt,
-			                 xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlSchematronSetValidOptions(xmlSchematronValidCtxtPtr ctxt, int options);
+XMLPUBFUN int XMLCALL xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxtPtr ctxt);
+XMLPUBFUN int XMLCALL xmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt, xmlNode * elem);
  *******/
 
 XMLPUBFUN xmlSchematronValidCtxtPtr XMLCALL xmlSchematronNewValidCtxt	(xmlSchematronPtr schema, int options);

@@ -10,13 +10,11 @@
 #pragma hdrstop
 //#include <openssl/lhash.h>
 //#include <openssl/asn1.h>
-#include "internal/objects.h"
+//#include <internal/objects.h>
 //#include <openssl/bn.h>
-#include "internal/asn1_int.h"
+//#include "internal/asn1_int.h"
 #include "obj_lcl.h"
-
-/* obj_dat.h is generated from objects.h by obj_dat.pl */
-#include "obj_dat.h"
+#include "obj_dat.h" // obj_dat.h is generated from objects.h by obj_dat.pl 
 
 DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, sn);
 DECLARE_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, ln);

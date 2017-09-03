@@ -621,7 +621,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 			    b->pos = b->start;
 		    }
 		    else {
-			    ngx_memcpy(b->start, smtp_auth_ok, sizeof(smtp_auth_ok) - 1);
+			    memcpy(b->start, smtp_auth_ok, sizeof(smtp_auth_ok) - 1);
 			    b->last = b->start + sizeof(smtp_auth_ok) - 1;
 		    }
 

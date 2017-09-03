@@ -63,7 +63,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 			    addr6 = (ngx_stream_in6_addr_t *)port->addrs;
 			    /* the last address is "*" */
 			    for(i = 0; i < port->naddrs - 1; i++) {
-				    if(ngx_memcmp(&addr6[i].addr6, &sin6->sin6_addr, 16) == 0) {
+				    if(memcmp(&addr6[i].addr6, &sin6->sin6_addr, 16) == 0) {
 					    break;
 				    }
 			    }

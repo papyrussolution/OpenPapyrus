@@ -67,8 +67,8 @@ XMLPUBFUN void XMLCALL htmlDocDumpMemory(xmlDocPtr cur, xmlChar ** mem, int * si
 XMLPUBFUN void XMLCALL htmlDocDumpMemoryFormat(xmlDocPtr cur, xmlChar ** mem, int * size, int format);
 XMLPUBFUN int XMLCALL htmlDocDump(FILE * f, xmlDocPtr cur);
 XMLPUBFUN int XMLCALL htmlSaveFile(const char * filename, xmlDocPtr cur);
-XMLPUBFUN int XMLCALL htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur);
-XMLPUBFUN void XMLCALL htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNodePtr cur);
+XMLPUBFUN int XMLCALL htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur);
+XMLPUBFUN void XMLCALL htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNode * cur);
 XMLPUBFUN int XMLCALL htmlNodeDumpFileFormat(FILE * out, xmlDocPtr doc, xmlNodePtr cur, const char * encoding, int format);
 XMLPUBFUN int XMLCALL htmlSaveFileEnc(const char * filename, xmlDocPtr cur, const char * encoding);
 XMLPUBFUN int XMLCALL htmlSaveFileFormat(const char * filename, xmlDocPtr cur, const char * encoding, int format);

@@ -7442,53 +7442,43 @@ record Person {
 	DblGisCode         long            "Код 2GIS";
 	Name               zstring(128)    "@{appellation}";
 	ExtName            zstring(256)    "@{person_extname}";
-
 	KindCode           zstring(20)     "Код вида персоналии";
 	KindName           zstring(48)     "Наименование вида персоналии";
-
 	StatusCode         zstring(20)     "Код юридического статуса";
 	StatusName         zstring(48)     "Наименование юридического статуса";
 	CategoryCode       zstring(20)     "Код категории";
 	CategoryName       zstring(48)     "Наименование категории";
-
 	MainAddrCode       zstring(20)     "Код адреса";
 	MainAddrCityName   zstring(48)     "Город адреса";
 	MainAddrZIP        zstring(20)     "Почтовый индекс адреса";
 	MainAddrText       zstring(256)    "Текст адреса";
-
 	RAddrCode          zstring(20)     "Код фактического адреса";
 	RAddrCityName      zstring(48)     "Город фактического адреса";
 	RAddrZIP           zstring(20)     "Почтовый индекс фактического адреса";
 	RAddrText          zstring(256)    "Текст фактического адреса";
-
 	DlvrAddrCode       zstring(20)     "Код адреса доставки";
 	DlvrAddrCityName   zstring(48)     "Город адреса доставки";
 	DlvrAddrSubCity    zstring(48)     "Населенный пункт, подчиненный городу адреса доставки";
 	DlvrAddrZIP        zstring(20)     "Почтовый индекс адреса доставки";
 	DlvrAddrText       zstring(256)    "Текст адреса доставки";
-
 	DlvrAddrLongitude  double          "GPS-долгота адреса доставки";
 	DlvrAddrLatitude   double          "GPS-широта адреса доставки";
-
 	Phone              zstring(64)     "Основной телефон";
 	Phone2             zstring(64)     "Дополнительный телефон";
 	PhoneMobile        zstring(64)     "Мобильный телефон";
 	EMail              zstring(64)     "@{email}";
 	HTTP               zstring(64)     "WEB-адрес";
 	ComplELink         zstring(256)    "Комплексная строка электронных адресов";
-
 	INN                zstring(48)     "@{inn}";
 	KPP                zstring(48)     "@{kpp}";
 	OKONH              zstring(48)     "ОКОНХ";
 	OKPO               zstring(48)     "ОКПО";
-
 	BIC                zstring(48)     "БИК банка";
 	CorrAcc            zstring(48)     "Коррсчет банка";
 	BankName           zstring(128)    "Наименование банка";
 	BankAcc            zstring(48)     "Номер расчетного счета";
-
 	VatFree            long            "Признак освобождения от НДС";
-
+	DOB                date            "Дата рождения"; // @v9.8.0
 	Memo               zstring(128)    "Примечание";
 }
 

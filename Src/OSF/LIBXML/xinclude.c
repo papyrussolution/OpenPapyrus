@@ -43,8 +43,8 @@ struct _xmlXIncludeRef {
 	xmlChar              * URI; /* the fully resolved resource URL */
 	xmlChar         * fragment; /* the fragment in the URI */
 	xmlDocPtr doc;         /* the parsed document */
-	xmlNodePtr ref;        /* the node making the reference in the source */
-	xmlNodePtr inc;        /* the included copy */
+	xmlNode * ref;        /* the node making the reference in the source */
+	xmlNode * inc;        /* the included copy */
 	int xml;               /* xml or txt */
 	int count;             /* how many refs use that specific doc */
 	xmlXPathObjectPtr xptr; /* the xpointer if needed */
@@ -60,7 +60,7 @@ struct _xmlXIncludeCtxt {
 
 	int txtNr;             /* number of unparsed documents */
 	int txtMax;            /* size of unparsed documents tab */
-	xmlNodePtr        * txtTab; /* array of unparsed text nodes */
+	xmlNode ** txtTab; /* array of unparsed text nodes */
 	xmlURL         * txturlTab; /* array of unparsed text URLs */
 
 	xmlChar *             url; /* the current URL processed */
@@ -76,7 +76,7 @@ struct _xmlXIncludeCtxt {
 	void            * _private; /* application data */
 };
 
-static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr tree);
+static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNode * tree);
 
 /************************************************************************
 *									*
@@ -90,7 +90,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
  *
  * Handle an out of memory condition
  */
-static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, const char * extra)
+static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNode * node, const char * extra)
 {
 	if(ctxt)
 		ctxt->nbErrors++;
@@ -105,7 +105,7 @@ static void xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, const
  *
  * Handle an XInclude error
  */
-static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error, const char * msg, const xmlChar * extra)
+static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNode * node, int error, const char * msg, const xmlChar * extra)
 {
 	if(ctxt)
 		ctxt->nbErrors++;
@@ -121,7 +121,7 @@ static void xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error, 
  *
  * Emit an XInclude warning.
  */
-static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error, const char * msg, const xmlChar * extra)
+static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNode * node, int error, const char * msg, const xmlChar * extra)
 {
 	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_XINCLUDE, error, XML_ERR_WARNING, NULL, 0, (const char*)extra, NULL, NULL, 0, 0, msg, (const char*)extra);
 }
@@ -137,10 +137,9 @@ static void xmlXIncludeWarn(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
  *
  * Returns the value (to be freed) or NULL if not found
  */
-static xmlChar * xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur,
-    const xmlChar * name) {
+static xmlChar * xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNode * cur, const xmlChar * name) 
+{
 	xmlChar * ret;
-
 	ret = xmlGetNsProp(cur, XINCLUDE_NS, name);
 	if(ret)
 		return ret;
@@ -187,7 +186,7 @@ static void xmlXIncludeFreeRef(xmlXIncludeRefPtr ref)
  *
  * Returns the new set
  */
-static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlChar * URI, xmlNodePtr ref) 
+static xmlXIncludeRefPtr xmlXIncludeNewRef(xmlXIncludeCtxtPtr ctxt, const xmlChar * URI, xmlNode * ref) 
 {
 	xmlXIncludeRefPtr ret;
 #ifdef DEBUG_XINCLUDE
@@ -418,7 +417,7 @@ static xmlDocPtr xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
  *
  * Add a new node to process to an XInclude context
  */
-static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur)
+static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 {
 	xmlXIncludeRefPtr ref;
 	xmlURIPtr uri;
@@ -657,7 +656,7 @@ static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
  *
  * Add a new txtument to the list
  */
-static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNodePtr txt, const xmlURL url) {
+static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNode * txt, const xmlURL url) {
 #ifdef DEBUG_XINCLUDE
 	xmlGenericError(0, "Adding text %s\n", url);
 #endif
@@ -702,9 +701,7 @@ static void xmlXIncludeAddTxt(xmlXIncludeCtxtPtr ctxt, xmlNodePtr txt, const xml
 *									*
 ************************************************************************/
 
-static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
-    xmlDocPtr source, xmlNodePtr elem);
-
+static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem);
 /**
  * xmlXIncludeCopyNode:
  * @ctxt:  the XInclude context
@@ -715,12 +712,10 @@ static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
  * Make a copy of the node while preserving the XInclude semantic
  * of the Infoset copy
  */
-static xmlNodePtr xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
-    xmlDocPtr source, xmlNodePtr elem) {
-	xmlNodePtr result = NULL;
-
-	if(!ctxt || (target == NULL) || (source == NULL) ||
-	    (elem == NULL))
+static xmlNode * xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem) 
+{
+	xmlNode * result = NULL;
+	if(!ctxt || (target == NULL) || (source == NULL) || (elem == NULL))
 		return 0;
 	if(elem->type == XML_DTD_NODE)
 		return 0;
@@ -730,7 +725,6 @@ static xmlNodePtr xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
 		result = xmlDocCopyNode(elem, target, 1);
 	return result;
 }
-
 /**
  * xmlXIncludeCopyNodeList:
  * @ctxt:  the XInclude context
@@ -741,12 +735,13 @@ static xmlNodePtr xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
  * Make a copy of the node list while preserving the XInclude semantic
  * of the Infoset copy
  */
-static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
-    xmlDocPtr source, xmlNodePtr elem) {
-	xmlNodePtr cur, res, result = NULL, last = NULL;
-
-	if(!ctxt || (target == NULL) || (source == NULL) ||
-	    (elem == NULL))
+static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlNode * elem) 
+{
+	xmlNode * cur;
+	xmlNode * res;
+	xmlNode * result = NULL;
+	xmlNode * last = NULL;
+	if(!ctxt || (target == NULL) || (source == NULL) || (elem == NULL))
 		return 0;
 	cur = elem;
 	while(cur) {
@@ -773,7 +768,7 @@ static xmlNodePtr xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
  *
  * Returns the @n'th element child of @cur or NULL
  */
-static xmlNodePtr xmlXIncludeGetNthChild(xmlNodePtr cur, int no) {
+static xmlNode * xmlXIncludeGetNthChild(xmlNode * cur, int no) {
 	int i;
 	if(!cur || (cur->type == XML_NAMESPACE_DECL))
 		return 0;
@@ -792,7 +787,7 @@ static xmlNodePtr xmlXIncludeGetNthChild(xmlNodePtr cur, int no) {
 	return cur;
 }
 
-xmlNodePtr xmlXPtrAdvanceNode(xmlNodePtr cur, int * level); /* in xpointer.c */
+xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level); /* in xpointer.c */
 /**
  * xmlXIncludeCopyRange:
  * @ctxt:  the XInclude context
@@ -802,21 +797,24 @@ xmlNodePtr xmlXPtrAdvanceNode(xmlNodePtr cur, int * level); /* in xpointer.c */
  *
  * Build a node list tree copy of the XPointer result.
  *
- * Returns an xmlNodePtr list or NULL.
+ * Returns an xmlNode * list or NULL.
  *         The caller has to free the node tree.
  */
-static xmlNodePtr xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr range)
+static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr range)
 {
 	/* pointers to generated nodes */
-	xmlNodePtr list = NULL, last = NULL, listParent = NULL;
-	xmlNodePtr tmp, tmp2;
+	xmlNode * list = NULL;
+	xmlNode * last = NULL;
+	xmlNode * listParent = NULL;
+	xmlNode * tmp;
+	xmlNode * tmp2;
 	/* pointers to traversal nodes */
-	xmlNodePtr start, cur, end;
+	xmlNode * start;
+	xmlNode * cur;
+	xmlNode * end;
 	int index1, index2;
 	int level = 0, lastLevel = 0, endLevel = 0, endFlag = 0;
-
-	if(!ctxt || (target == NULL) || (source == NULL) ||
-	    (range == NULL))
+	if(!ctxt || (target == NULL) || (source == NULL) || (range == NULL))
 		return 0;
 	if(range->type != XPATH_RANGE)
 		return 0;
@@ -1024,14 +1022,14 @@ static xmlNodePtr xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target
  * Build a node list tree copy of the XPointer result.
  * This will drop Attributes and Namespace declarations.
  *
- * Returns an xmlNodePtr list or NULL.
+ * Returns an xmlNode * list or NULL.
  *         the caller has to free the node tree.
  */
-static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
-    xmlDocPtr source, xmlXPathObjectPtr obj) {
-	xmlNodePtr list = NULL, last = NULL;
+static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr obj) 
+{
+	xmlNode * list = NULL;
+	xmlNode * last = NULL;
 	int i;
-
 	if(source == NULL)
 		source = ctxt->doc;
 	if(!ctxt || (target == NULL) || (source == NULL) ||
@@ -1061,8 +1059,8 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 				    case XML_XINCLUDE_END:
 					break;
 				    case XML_XINCLUDE_START: {
-					xmlNodePtr tmp, cur = set->nodeTab[i];
-
+					xmlNode * tmp;
+					xmlNode * cur = set->nodeTab[i];
 					cur = cur->next;
 					while(cur) {
 						switch(cur->type) {
@@ -1103,13 +1101,10 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 					continue; /* for */
 			    }
 			    if(last == NULL)
-				    list = last = xmlXIncludeCopyNode(ctxt, target, source,
-					    set->nodeTab[i]);
+				    list = last = xmlXIncludeCopyNode(ctxt, target, source, set->nodeTab[i]);
 			    else {
-				    xmlAddNextSibling(last,
-					    xmlXIncludeCopyNode(ctxt, target, source,
-						    set->nodeTab[i]));
-				    if(last->next != NULL)
+				    xmlAddNextSibling(last, xmlXIncludeCopyNode(ctxt, target, source, set->nodeTab[i]));
+				    if(last->next)
 					    last = last->next;
 			    }
 		    }
@@ -1122,14 +1117,11 @@ static xmlNodePtr xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr tar
 			    return 0;
 		    for(i = 0; i < set->locNr; i++) {
 			    if(last == NULL)
-				    list = last = xmlXIncludeCopyXPointer(ctxt, target, source,
-					    set->locTab[i]);
+				    list = last = xmlXIncludeCopyXPointer(ctxt, target, source, set->locTab[i]);
 			    else
-				    xmlAddNextSibling(last,
-					    xmlXIncludeCopyXPointer(ctxt, target, source,
-						    set->locTab[i]));
-			    if(last != NULL) {
-				    while(last->next != NULL)
+				    xmlAddNextSibling(last, xmlXIncludeCopyXPointer(ctxt, target, source, set->locTab[i]));
+			    if(last) {
+				    while(last->next)
 					    last = last->next;
 			    }
 		    }
@@ -1249,7 +1241,7 @@ error:
  */
 static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlDocPtr from) 
 {
-	xmlNodePtr cur;
+	xmlNode * cur;
 	xmlDtdPtr target, source;
 	if(!ctxt)
 		return -1;
@@ -1626,7 +1618,7 @@ loaded:
 static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) 
 {
 	xmlParserInputBufferPtr buf;
-	xmlNodePtr node;
+	xmlNode * node;
 	xmlChar * URL;
 	int i;
 	xmlChar * encoding = NULL;
@@ -1772,7 +1764,7 @@ loaded:
  *
  * Returns 0 in case of success, -1 in case of failure
  */
-static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback, int nr) 
+static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNode * fallback, int nr) 
 {
 	xmlXIncludeCtxtPtr newctxt;
 	int ret = 0;
@@ -1819,7 +1811,7 @@ static int xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback,
  * for further processing.
  *
  */
-static void xmlXIncludePreProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) 
+static void xmlXIncludePreProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * node) 
 {
 	xmlXIncludeAddNode(ctxt, node);
 }
@@ -1835,7 +1827,7 @@ static void xmlXIncludePreProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node)
  */
 static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr) 
 {
-	xmlNodePtr cur;
+	xmlNode * cur;
 	xmlChar * href;
 	xmlChar * parse;
 	xmlChar * base;
@@ -1917,7 +1909,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	 */
 	ctxt->base = oldBase;
 	if(ret < 0) {
-		xmlNodePtr children;
+		xmlNode * children;
 		/*
 		 * Time to try a fallback if availble
 		 */
@@ -1959,7 +1951,10 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
  */
 static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr) 
 {
-	xmlNodePtr cur, end, list, tmp;
+	xmlNode * cur;
+	xmlNode * end;
+	xmlNode * list;
+	xmlNode * tmp;
 	if(!ctxt)
 		return -1;
 	if((nr < 0) || (nr >= ctxt->incNr))
@@ -2039,7 +2034,7 @@ static int xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, int nr)
  *
  * Returns 1 true, 0 otherwise
  */
-static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) 
+static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNode * node) 
 {
 	if(!node)
 		return 0;
@@ -2057,7 +2052,7 @@ static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node)
 			}
 		}
 		if(sstreq(node->name, XINCLUDE_NODE)) {
-			xmlNodePtr child = node->children;
+			xmlNode * child = node->children;
 			int nb_fallback = 0;
 			while(child) {
 				if((child->type == XML_ELEMENT_NODE) && child->ns && ((sstreq(child->ns->href, XINCLUDE_NS)) ||
@@ -2101,9 +2096,9 @@ static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr tree)
+static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNode * tree)
 {
-	xmlNodePtr cur;
+	xmlNode * cur;
 	int ret = 0;
 	int i, start;
 	if(!doc || (tree == NULL) || (tree->type == XML_NAMESPACE_DECL))
@@ -2129,7 +2124,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 			if(xmlXIncludeTestNode(ctxt, cur))
 				xmlXIncludePreProcessNode(ctxt, cur);
 		}
-		else if(cur->next != NULL) {
+		else if(cur->next) {
 			cur = cur->next;
 			if(xmlXIncludeTestNode(ctxt, cur))
 				xmlXIncludePreProcessNode(ctxt, cur);
@@ -2141,7 +2136,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNodeP
 				cur = cur->parent;
 				if(!cur || (cur == tree->parent))
 					break;  /* do */
-				if(cur->next != NULL) {
+				if(cur->next) {
 					cur = cur->next;
 					if(xmlXIncludeTestNode(ctxt, cur))
 						xmlXIncludePreProcessNode(ctxt, cur);
@@ -2209,7 +2204,7 @@ int xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags)
  *    or the number of substitutions done.
  */
 
-int xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void * data)
+int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
 {
 	int ret = 0;
 	if(!tree || tree->type == XML_NAMESPACE_DECL || !tree->doc)
@@ -2245,7 +2240,7 @@ int xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void * data)
  */
 int xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void * data)
 {
-	xmlNodePtr tree;
+	xmlNode * tree;
 	if(!doc)
 		return -1;
 	tree = xmlDocGetRootElement(doc);
@@ -2291,7 +2286,7 @@ int xmlXIncludeProcess(xmlDocPtr doc)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-int xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags)
+int xmlXIncludeProcessTreeFlags(xmlNode * tree, int flags)
 {
 	xmlXIncludeCtxtPtr ctxt;
 	int ret = 0;
@@ -2318,7 +2313,7 @@ int xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-int xmlXIncludeProcessTree(xmlNodePtr tree)
+int xmlXIncludeProcessTree(xmlNode * tree)
 {
 	return(xmlXIncludeProcessTreeFlags(tree, 0));
 }
@@ -2333,7 +2328,7 @@ int xmlXIncludeProcessTree(xmlNodePtr tree)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node)
+int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * node)
 {
 	int ret = 0;
 	if((node == NULL) || (node->type == XML_NAMESPACE_DECL) || (node->doc == NULL) || (ctxt == NULL))

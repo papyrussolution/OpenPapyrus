@@ -11,7 +11,7 @@
 
 #ifndef OPENSSL_NO_DES
 
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include <openssl/des.h>
 
 static int desx_cbc_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,

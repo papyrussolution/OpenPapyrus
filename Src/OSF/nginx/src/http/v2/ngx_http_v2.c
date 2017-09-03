@@ -328,7 +328,7 @@ static void ngx_http_v2_read_handler(ngx_event_t * rev)
 	do {
 		p = h2mcf->recv_buffer;
 
-		ngx_memcpy(p, h2c->state.buffer, NGX_HTTP_V2_STATE_BUFFER_SIZE);
+		memcpy(p, h2c->state.buffer, NGX_HTTP_V2_STATE_BUFFER_SIZE);
 		end = p + h2c->state.buffer_used;
 
 		n = c->recv(c, end, available);
@@ -646,7 +646,7 @@ static u_char * ngx_http_v2_state_preface(ngx_http_v2_connection_t * h2c, u_char
 		return ngx_http_v2_state_save(h2c, pos, end, ngx_http_v2_state_preface);
 	}
 
-	if(ngx_memcmp(pos, preface, sizeof(preface) - 1) != 0) {
+	if(memcmp(pos, preface, sizeof(preface) - 1) != 0) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
 		    "invalid http2 connection preface \"%*s\"",
 		    sizeof(preface) - 1, pos);
@@ -667,7 +667,7 @@ static u_char * ngx_http_v2_state_preface_end(ngx_http_v2_connection_t * h2c, u_
 		    ngx_http_v2_state_preface_end);
 	}
 
-	if(ngx_memcmp(pos, preface, sizeof(preface) - 1) != 0) {
+	if(memcmp(pos, preface, sizeof(preface) - 1) != 0) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
 		    "invalid http2 connection preface \"%*s\"",
 		    sizeof(preface) - 1, pos);
@@ -1530,7 +1530,7 @@ static u_char * ngx_http_v2_state_process_header(ngx_http_v2_connection_t * h2c,
 	}
 
 	if(header->name.len == cookie.len
-	    && ngx_memcmp(header->name.data, cookie.data, cookie.len) == 0) {
+	    && memcmp(header->name.data, cookie.data, cookie.len) == 0) {
 		if(ngx_http_v2_cookie(r, header) != NGX_OK) {
 			return ngx_http_v2_connection_error(h2c,
 			    NGX_HTTP_V2_INTERNAL_ERROR);
@@ -1631,7 +1631,7 @@ static u_char * ngx_http_v2_handle_continuation(ngx_http_v2_connection_t * h2c, 
 
 		p = pos;
 		pos += skip;
-		ngx_memmove(pos, p, len);
+		memmove(pos, p, len);
 	}
 
 	if((size_t)(end - pos) < len + NGX_HTTP_V2_FRAME_HEADER_SIZE) {
@@ -1661,7 +1661,7 @@ static u_char * ngx_http_v2_handle_continuation(ngx_http_v2_connection_t * h2c, 
 	p = pos;
 	pos += NGX_HTTP_V2_FRAME_HEADER_SIZE;
 
-	ngx_memcpy(pos, p, len);
+	memcpy(pos, p, len);
 
 	len = ngx_http_v2_parse_length(head);
 
@@ -2261,7 +2261,7 @@ static u_char * ngx_http_v2_state_save(ngx_http_v2_connection_t * h2c, u_char * 
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 	}
 
-	ngx_memcpy(h2c->state.buffer, pos, NGX_HTTP_V2_STATE_BUFFER_SIZE);
+	memcpy(h2c->state.buffer, pos, NGX_HTTP_V2_STATE_BUFFER_SIZE);
 
 	h2c->state.buffer_used = size;
 	h2c->state.handler = handler;
@@ -2653,7 +2653,7 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 		ctx->current_request = NULL;
 	}
 
-	ngx_memcpy(log, h2c->connection->log, sizeof(ngx_log_t));
+	memcpy(log, h2c->connection->log, sizeof(ngx_log_t));
 
 	log->data = ctx;
 	log->action = "reading client request headers";
@@ -2665,11 +2665,11 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 	rev->handler = ngx_http_v2_close_stream_handler;
 	rev->log = log;
 
-	ngx_memcpy(wev, rev, sizeof(ngx_event_t));
+	memcpy(wev, rev, sizeof(ngx_event_t));
 
 	wev->write = 1;
 
-	ngx_memcpy(fc, h2c->connection, sizeof(ngx_connection_t));
+	memcpy(fc, h2c->connection, sizeof(ngx_connection_t));
 
 	fc->data = h2c->http_connection;
 	fc->read = rev;
@@ -2924,7 +2924,7 @@ static ngx_int_t ngx_http_v2_pseudo_header(ngx_http_request_t * r, ngx_http_v2_h
 
 	switch(header->name.len) {
 		case 4:
-		    if(ngx_memcmp(header->name.data, "path", sizeof("path") - 1)
+		    if(memcmp(header->name.data, "path", sizeof("path") - 1)
 		    == 0) {
 			    return ngx_http_v2_parse_path(r, header);
 		    }
@@ -2932,12 +2932,12 @@ static ngx_int_t ngx_http_v2_pseudo_header(ngx_http_request_t * r, ngx_http_v2_h
 		    break;
 
 		case 6:
-		    if(ngx_memcmp(header->name.data, "method", sizeof("method") - 1)
+		    if(memcmp(header->name.data, "method", sizeof("method") - 1)
 		    == 0) {
 			    return ngx_http_v2_parse_method(r, header);
 		    }
 
-		    if(ngx_memcmp(header->name.data, "scheme", sizeof("scheme") - 1)
+		    if(memcmp(header->name.data, "scheme", sizeof("scheme") - 1)
 		    == 0) {
 			    return ngx_http_v2_parse_scheme(r, header);
 		    }
@@ -2945,7 +2945,7 @@ static ngx_int_t ngx_http_v2_pseudo_header(ngx_http_request_t * r, ngx_http_v2_h
 		    break;
 
 		case 9:
-		    if(ngx_memcmp(header->name.data, "authority", sizeof("authority") - 1)
+		    if(memcmp(header->name.data, "authority", sizeof("authority") - 1)
 		    == 0) {
 			    return ngx_http_v2_parse_authority(r, header);
 		    }
@@ -3185,7 +3185,7 @@ static ngx_int_t ngx_http_v2_construct_request_line(ngx_http_request_t * r)
 
 	p = ngx_cpymem(p, r->unparsed_uri.data, r->unparsed_uri.len);
 
-	ngx_memcpy(p, ending, sizeof(ending));
+	memcpy(p, ending, sizeof(ending));
 
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
 	    "http2 http request line: \"%V\"", &r->request_line);

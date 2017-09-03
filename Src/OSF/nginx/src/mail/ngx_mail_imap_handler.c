@@ -192,7 +192,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 			p = ngx_cpymem(p, s->text.data, s->text.len);
 		}
 		p = ngx_cpymem(p, s->tag.data, s->tag.len);
-		ngx_memcpy(p, s->out.data, s->out.len);
+		memcpy(p, s->out.data, s->out.len);
 		s->out.len = s->text.len + s->tag.len + s->out.len;
 		s->out.data = s->tagged_line.data;
 	}
@@ -230,13 +230,13 @@ static ngx_int_t ngx_mail_imap_login(ngx_mail_session_t * s, ngx_connection_t * 
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(s->login.data, arg[0].data, s->login.len);
+	memcpy(s->login.data, arg[0].data, s->login.len);
 	s->passwd.len = arg[1].len;
 	s->passwd.data = (u_char*)ngx_pnalloc(c->pool, s->passwd.len);
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(s->passwd.data, arg[1].data, s->passwd.len);
+	memcpy(s->passwd.data, arg[1].data, s->passwd.len);
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0, "imap login:\"%V\" passwd:\"%V\"", &s->login, &s->passwd);
 #else

@@ -56,7 +56,7 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 	return ok;
 }
 
-int SLAPI SVectorBase::shrink()
+void SLAPI SVectorBase::shrink()
 {
 	// @v9.1.1 const  uint _delta = delta;
 	const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
@@ -65,15 +65,13 @@ int SLAPI SVectorBase::shrink()
 		Limit = newlimit;
 		data  = (uint8 *)SAlloc::R(data, Limit * isize);
 	}
-	return 1;
 }
 
-int SLAPI SVectorBase::atPut(uint idx, const void * pItem)
+void SLAPI SVectorBase::atPut(uint idx, const void * pItem)
 {
 	assert(idx < count);
 	memmove(data + idx * isize, _INTRPTR(pItem), isize);
 	flags &= ~arySorted;
-	return 1;
 }
 //
 // Descr: Вставляет в середину блока памяти pDest новый блок pSrc.
@@ -278,7 +276,7 @@ int SLAPI SVectorBase::swap(uint p1, uint p2)
 	return ok;
 }
 
-int SLAPI SVectorBase::reverse(uint pos, uint numItems)
+void SLAPI SVectorBase::reverse(uint pos, uint numItems)
 {
 	const  uint last_pos = pos+numItems-1;
 	uint   i = numItems/2;
@@ -287,7 +285,6 @@ int SLAPI SVectorBase::reverse(uint pos, uint numItems)
 			--i;
 			memswap(at(pos+i), at(last_pos-i), isize);
 		} while(i);
-	return 1;
 }
 
 int SLAPI SVectorBase::moveItem(uint pos, int dir, uint * pNewPos)
@@ -1441,7 +1438,7 @@ int SLAPI RAssocArray::GetList(LongArray & rList, int unique) const
 
 #define OPTIMIZE_LOOP
 
-int SLAPI RAssocArray::Scale(double rate)
+void SLAPI RAssocArray::Scale(double rate)
 {
 #ifdef OPTIMIZE_LOOP
 	uint   i = getCount();
@@ -1450,7 +1447,6 @@ int SLAPI RAssocArray::Scale(double rate)
 	for(uint i = 0; i < getCount(); i++)
 		at(i).Val *= rate;
 #endif
-	return 1;
 }
 
 int SLAPI SLAPI RAssocArray::Distribute(double amount, long flags, int prec, RAssocArray & rResult) const
@@ -1742,10 +1738,9 @@ void SLAPI TaggedStringArray::SortByText()
 //
 //
 //
-int SV_Uint32::Init()
+void SV_Uint32::Init()
 {
 	P_Data = 0;
-	return 1;
 }
 
 void SV_Uint32::Destroy()
@@ -2104,16 +2099,24 @@ int SLAPI StrAssocArray::Remove(long id)
 
 StrAssocArray & SLAPI StrAssocArray::Clear()
 {
-	Assoc.freeAll();
-	ParentList.freeAll();
+	//
+	// @v9.8.0 Теперь память, занятая массивами не освобождается (freeAll-->clear)
+	//
+	// @v9.8.0 Assoc.freeAll();
+	// @v9.8.0 ParentList.freeAll();
+	Assoc.clear(); // @v9.8.0 
+	ParentList.clear(); // @v9.8.0 
 	ClearS();
 	return *this;
 }
 
-int SLAPI StrAssocArray::ClearParents()
+void SLAPI StrAssocArray::ClearParents()
 {
-	ParentList.freeAll();
-	return 1;
+	//
+	// @v9.8.0 Теперь память, занятая массивами не освобождается (freeAll-->clear)
+	//
+	// @v9.8.0 ParentList.freeAll();
+	ParentList.clear(); // @v9.8.0
 }
 
 int SLAPI StrAssocArray::Pack()
@@ -2154,8 +2157,7 @@ int SLAPI StrAssocArray::Helper_RemoveRecursion(long parentId, LongArray & rRecu
 		for(uint i = 0; i < c; i++) {
 			long   _id = list.get(i);
 			if(rRecurList.lsearch(_id)) {
-				if(pBadList)
-					pBadList->add(_id);
+				CALLPTRMEMB(pBadList, add(_id));
 				ParentList.Remove(_id, 0);
 				ok = 1;
 			}
@@ -2500,9 +2502,9 @@ void SLAPI StrAssocArray::SortByLength(int descend)
 	Assoc.sort(descend ? PTR_CMPFUNC(StrAssoc_ByLength_Descend) : PTR_CMPFUNC(StrAssoc_ByLength), &Pool);
 }
 
-int SLAPI StrAssocArray::Reverse()
+void SLAPI StrAssocArray::Reverse()
 {
-	return Assoc.reverse(0, Assoc.getCount());
+	Assoc.reverse(0, Assoc.getCount());
 }
 
 int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos) const

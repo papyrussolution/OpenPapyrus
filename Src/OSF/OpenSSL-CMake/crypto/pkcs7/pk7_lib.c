@@ -9,8 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/x509.h>
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include "internal/asn1_int.h"
+//#include <internal/evp_int.h>
 
 long PKCS7_ctrl(PKCS7 * p7, int cmd, long larg, char * parg)
 {

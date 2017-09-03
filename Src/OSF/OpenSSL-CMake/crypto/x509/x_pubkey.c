@@ -10,11 +10,11 @@
 #pragma hdrstop
 //#include <openssl/asn1t.h>
 //#include <openssl/x509.h>
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include "internal/asn1_int.h"
 //#include "internal/x509_int.h"
 //#include <openssl/rsa.h>
 //#include <openssl/dsa.h>
+//#include <internal/evp_int.h>
 
 struct X509_pubkey_st {
 	X509_ALGOR * algor;

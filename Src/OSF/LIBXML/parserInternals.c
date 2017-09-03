@@ -29,7 +29,7 @@
 #endif
 #include <libxml/parserInternals.h>
 #include <libxml/entities.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 #include <libxml/SAX.h>
 #ifdef LIBXML_CATALOG_ENABLED
 	#include <libxml/catalog.h>
@@ -1462,7 +1462,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 
 	/* Allocate the Node stack */
 	if(ctxt->nodeTab == NULL) {
-		ctxt->nodeTab = (xmlNodePtr*)SAlloc::M(10 * sizeof(xmlNode *));
+		ctxt->nodeTab = (xmlNode **)SAlloc::M(10 * sizeof(xmlNode *));
 		ctxt->nodeMax = 10;
 	}
 	if(ctxt->nodeTab == NULL) {
@@ -1695,7 +1695,7 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
  *
  * Returns an xmlParserNodeInfo block pointer or NULL
  */
-const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNodePtr node)
+const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNode * node)
 {
 	unsigned long pos;
 	if(!ctx || (node == NULL))
@@ -1749,7 +1749,7 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  *
  * Returns a long indicating the position of the record
  */
-unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNodePtr node)
+unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * node)
 {
 	unsigned long upper, lower, middle;
 	int found = 0;

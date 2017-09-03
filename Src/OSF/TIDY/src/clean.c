@@ -1019,32 +1019,20 @@ static bool CopyAttrs(TidyDocImpl* doc, Node * node, Node * child)
    If state is "auto", atttibutes are merged as described in CopyAttrs().
    Style and Class attributes are merged using MergeStyles().
  */
-static bool MergeNestedElements(TidyDocImpl* doc,
-    TidyTagId Id, TidyTriState state, Node * node,
-    Node ** ARG_UNUSED(pnode))
+static bool MergeNestedElements(TidyDocImpl* doc, TidyTagId Id, TidyTriState state, Node * node, Node ** ARG_UNUSED(pnode))
 {
 	Node * child;
-
-	if(state == TidyNoState
-	    || !TagIsId(node, Id) )
+	if(state == TidyNoState || !TagIsId(node, Id) )
 		return false;
-
 	child = node->content;
-
-	if(child == NULL
-	    || child->next != NULL
-	    || !TagIsId(child, Id) )
+	if(child == NULL || child->next || !TagIsId(child, Id) )
 		return false;
-
-	if(state == TidyAutoState
-	    && CopyAttrs(doc, node, child) == false)
+	if(state == TidyAutoState && CopyAttrs(doc, node, child) == false)
 		return false;
-
 	MergeStyles(doc, node, child);
 	StripOnlyChild(doc, node);
 	return true;
 }
-
 /*
     Symptom: <ul><li><ul>...</ul></li></ul>
     Action: discard outer list
@@ -1053,32 +1041,22 @@ static bool MergeNestedElements(TidyDocImpl* doc,
 static bool NestedList(TidyDocImpl* doc, Node * node, Node ** pnode)
 {
 	Node * child, * list;
-
 	if(nodeIsUL(node) || nodeIsOL(node) ) {
 		child = node->content;
-
 		if(child == NULL)
 			return false;
-
 		/* check child has false peers */
-
 		if(child->next)
 			return false;
-
 		list = child->content;
-
 		if(!list)
 			return false;
-
 		if(list->tag != node->tag)
 			return false;
-
 		/* check list has false peers */
 		if(list->next)
 			return false;
-
 		*pnode = list; /* Set node to resume iteration */
-
 		/* move inner list node into position of outer node */
 		list->prev = node->prev;
 		list->next = node->next;

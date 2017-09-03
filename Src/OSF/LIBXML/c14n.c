@@ -35,55 +35,36 @@ typedef struct _xmlC14NVisibleNsStack {
 	int nsPrevStart;    /* the begginning of the stack for previous visible node */
 	int nsPrevEnd;      /* the end of the stack for previous visible node */
 	int nsMax;          /* size of the array as allocated */
-	xmlNsPtr    * nsTab; /* array of ns in no particular order */
-	xmlNodePtr  * nodeTab; /* array of nodes in no particular order */
+	xmlNs ** nsTab; // array of ns in no particular order 
+	xmlNode ** nodeTab; // array of nodes in no particular order 
 } xmlC14NVisibleNsStack, * xmlC14NVisibleNsStackPtr;
 
 typedef struct _xmlC14NCtx {
 	/* input parameters */
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlC14NIsVisibleCallback is_visible_callback;
-	void* user_data;
+	void * user_data;
 	int with_comments;
 	xmlOutputBufferPtr buf;
-
-	/* position in the XML document */
-	xmlC14NPosition pos;
+	xmlC14NPosition pos; /* position in the XML document */
 	int parent_is_doc;
 	xmlC14NVisibleNsStackPtr ns_rendered;
-
-	/* C14N mode */
-	xmlC14NMode mode;
-
-	/* exclusive canonicalization */
-	xmlChar ** inclusive_ns_prefixes;
-
-	/* error number */
-	int error;
+	xmlC14NMode mode; /* C14N mode */
+	xmlChar ** inclusive_ns_prefixes; /* exclusive canonicalization */
+	int error; /* error number */
 } xmlC14NCtx, * xmlC14NCtxPtr;
 
 static xmlC14NVisibleNsStackPtr xmlC14NVisibleNsStackCreate();
-static void     xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur);
-static void     xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur,
-    xmlNsPtr ns,
-    xmlNodePtr node);
-static void                     xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur,
-    xmlC14NVisibleNsStackPtr state);
-static void                     xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur,
-    xmlC14NVisibleNsStackPtr state);
-static void                     xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur);
-static int                      xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur,
-    xmlNsPtr ns);
-static int                      xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur,
-    xmlNsPtr ns,
-    xmlC14NCtxPtr ctx);
-
-static int                      xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes,
-    xmlNodePtr node,
-    xmlNodePtr parent);
-
-static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur);
-static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNodePtr cur);
+static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur);
+static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNode * node);
+static void xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
+static void xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
+static void xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur);
+static int  xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns);
+static int  xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlC14NCtxPtr ctx);
+static int  xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr node, xmlNodePtr parent);
+static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur);
+static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur);
 typedef enum {
 	XMLC14N_NORMALIZE_ATTR = 0,
 	XMLC14N_NORMALIZE_COMMENT = 1,
@@ -202,10 +183,10 @@ static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr node, xmlNodeP
 			memcpy(&ns, node, sizeof(ns));
 			/* this is a libxml hack! check xpath.c for details */
 			if(parent && (parent->type == XML_ATTRIBUTE_NODE)) {
-				ns.next = (xmlNsPtr)parent->parent;
+				ns.next = (xmlNs *)parent->parent;
 			}
 			else {
-				ns.next = (xmlNsPtr)parent;
+				ns.next = (xmlNs *)parent;
 			}
 			/*
 			 * If the input is an XPath node-set, then the node-set must explicitly
@@ -234,7 +215,7 @@ static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur)
 	}
 	else {
 		if(cur->nsTab) {
-			memzero(cur->nsTab, cur->nsMax * sizeof(xmlNsPtr));
+			memzero(cur->nsTab, cur->nsMax * sizeof(xmlNs *));
 			SAlloc::F(cur->nsTab);
 		}
 		if(cur->nodeTab) {
@@ -246,31 +227,31 @@ static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur)
 	}
 }
 
-static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlNodePtr node) 
+static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNodePtr node) 
 {
 	if(!cur || ((cur->nsTab == NULL) && cur->nodeTab) || (cur->nsTab && (cur->nodeTab == NULL))) {
 		xmlC14NErrParam("adding namespace to stack");
 		return;
 	}
 	if((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
-		cur->nsTab = (xmlNsPtr*)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
+		cur->nsTab = (xmlNs **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNs *));
 		cur->nodeTab = (xmlNodePtr*)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		if((cur->nsTab == NULL) || (cur->nodeTab == NULL)) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		memzero(cur->nsTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
+		memzero(cur->nsTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNs *));
 		memzero(cur->nodeTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		cur->nsMax = XML_NAMESPACES_DEFAULT;
 	}
 	else if(cur->nsMax == cur->nsCurEnd) {
 		int tmpSize = 2 * cur->nsMax;
-		void * tmp = SAlloc::R(cur->nsTab, tmpSize * sizeof(xmlNsPtr));
+		void * tmp = SAlloc::R(cur->nsTab, tmpSize * sizeof(xmlNs *));
 		if(!tmp) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		cur->nsTab = (xmlNsPtr*)tmp;
+		cur->nsTab = (xmlNs **)tmp;
 		tmp = SAlloc::R(cur->nodeTab, tmpSize * sizeof(xmlNode *));
 		if(!tmp) {
 			xmlC14NErrMemory("adding node to stack");
@@ -339,7 +320,7 @@ static int xmlC14NStrEqual(const xmlChar * str1, const xmlChar * str2)
  *
  * Returns 1 if we already wrote this namespace or 0 otherwise
  */
-static int xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns)
+static int xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns)
 {
 	int has_empty_ns = 0;
 	if(!cur) {
@@ -356,7 +337,7 @@ static int xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns)
 		if(cur->nsTab) {
 			int start = (has_empty_ns) ? 0 : cur->nsPrevStart;
 			for(int i = cur->nsCurEnd - 1; i >= start; --i) {
-				xmlNsPtr ns1 = cur->nsTab[i];
+				xmlNs * ns1 = cur->nsTab[i];
 				if(xmlC14NStrEqual(prefix, ns1 ? ns1->prefix : NULL)) {
 					return xmlC14NStrEqual(href, ns1 ? ns1->href : NULL);
 				}
@@ -366,7 +347,7 @@ static int xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns)
 	return has_empty_ns;
 }
 
-static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlC14NCtxPtr ctx) 
+static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlC14NCtxPtr ctx) 
 {
 	int i;
 	const xmlChar * prefix;
@@ -386,8 +367,7 @@ static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr n
 	if(cur->nsTab) {
 		int start = 0;
 		for(i = cur->nsCurEnd - 1; i >= start; --i) {
-			xmlNsPtr ns1 = cur->nsTab[i];
-
+			xmlNs * ns1 = cur->nsTab[i];
 			if(xmlC14NStrEqual(prefix, ns1 ? ns1->prefix : NULL)) {
 				if(xmlC14NStrEqual(href, ns1 ? ns1->href : NULL)) {
 					return(xmlC14NIsVisible(ctx, ns1, cur->nodeTab[i]));
@@ -412,11 +392,10 @@ static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr n
  */
 
 /* todo: make it a define? */
-static int xmlC14NIsXmlNs(xmlNsPtr ns)
+static int xmlC14NIsXmlNs(xmlNs * ns)
 {
 	return (ns && (sstreq(ns->prefix, "xml")) && (sstreq(ns->href, XML_XML_NAMESPACE)));
 }
-
 /**
  * xmlC14NNsCompare:
  * @ns1:		the pointer to first namespace
@@ -426,7 +405,7 @@ static int xmlC14NIsXmlNs(xmlNsPtr ns)
  *
  * Returns -1 if ns1 < ns2, 0 if ns1 == ns2 or 1 if ns1 > ns2.
  */
-static int xmlC14NNsCompare(xmlNsPtr ns1, xmlNsPtr ns2)
+static int xmlC14NNsCompare(xmlNs * ns1, xmlNs * ns2)
 {
 	if(ns1 == ns2)
 		return 0;
@@ -434,10 +413,8 @@ static int xmlC14NNsCompare(xmlNsPtr ns1, xmlNsPtr ns2)
 		return -1;
 	if(ns2 == NULL)
 		return 1;
-
 	return (xmlStrcmp(ns1->prefix, ns2->prefix));
 }
-
 /**
  * xmlC14NPrintNamespaces:
  * @ns:			the pointer to namespace
@@ -447,7 +424,7 @@ static int xmlC14NNsCompare(xmlNsPtr ns1, xmlNsPtr ns2)
  *
  * Returns 1 on success or 0 on fail.
  */
-static int xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
+static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
 {
 	if((ns == NULL) || (ctx == NULL)) {
 		xmlC14NErrParam("writing namespaces");
@@ -509,16 +486,15 @@ static int xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
 static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 {
 	xmlNodePtr n;
-	xmlNsPtr ns, tmp;
+	xmlNs * ns;
+	xmlNs * tmp;
 	xmlListPtr list;
 	int already_rendered;
 	int has_empty_ns = 0;
-
 	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("processing namespaces axis (c14n)");
 		return -1;
 	}
-
 	/*
 	 * Create a sorted list to store element namespaces
 	 */
@@ -527,12 +503,10 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 		xmlC14NErrInternal("creating namespaces list (c14n)");
 		return -1;
 	}
-
 	/* check all namespaces */
 	for(n = cur; n; n = n->parent) {
 		for(ns = n->nsDef; ns; ns = ns->next) {
 			tmp = xmlSearchNs(cur->doc, cur, ns->prefix);
-
 			if((tmp == ns) && !xmlC14NIsXmlNs(ns) && xmlC14NIsVisible(ctx, ns, cur)) {
 				already_rendered = xmlC14NVisibleNsStackFind(ctx->ns_rendered, ns);
 				if(visible) {
@@ -607,9 +581,9 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
  */
 static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 {
-	xmlNsPtr ns;
+	xmlNs * ns;
 	xmlListPtr list;
-	xmlAttrPtr attr;
+	xmlAttr * attr;
 	int already_rendered;
 	int has_empty_ns = 0;
 	int has_visibly_utilized_empty_ns = 0;
@@ -877,8 +851,8 @@ static xmlAttrPtr xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur,
 static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
 {
 	xmlChar * res = NULL;
-	xmlNodePtr cur;
-	xmlAttrPtr attr;
+	xmlNode * cur;
+	xmlAttr * attr;
 	xmlChar * tmp_str;
 	xmlChar * tmp_str2;
 	int tmp_str_len;
@@ -987,7 +961,7 @@ static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_at
  */
 static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
 {
-	xmlAttrPtr attr;
+	xmlAttr * attr;
 	xmlListPtr list;
 	xmlAttrPtr attrs_to_delete = NULL;
 	/* special processing for 1.1 spec */
@@ -1181,7 +1155,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
  *
  * Returns 0 if the node has no relative namespaces or -1 otherwise.
  */
-static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNodePtr cur)
+static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
 	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("checking for relative namespaces");
@@ -1333,7 +1307,7 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
  *
  * Returns non-negative value on success or negative value on fail
  */
-static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
+static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
 	int ret = 0;
 	int visible;
@@ -1507,7 +1481,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
  *
  * Returns non-negative value on success or negative value on fail
  */
-static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNodePtr cur)
+static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
 	int ret;
 	if(!ctx) {

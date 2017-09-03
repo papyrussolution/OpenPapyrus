@@ -32,11 +32,11 @@ void ngx_md5_update(ngx_md5_t * ctx, const void * data, size_t size)
 		free = 64 - used;
 
 		if(size < free) {
-			ngx_memcpy(&ctx->buffer[used], data, size);
+			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
 
-		ngx_memcpy(&ctx->buffer[used], data, free);
+		memcpy(&ctx->buffer[used], data, free);
 		data = (u_char*)data + free;
 		size -= free;
 		(void)ngx_md5_body(ctx, ctx->buffer, 64);
@@ -47,7 +47,7 @@ void ngx_md5_update(ngx_md5_t * ctx, const void * data, size_t size)
 		size &= 0x3f;
 	}
 
-	ngx_memcpy(ctx->buffer, data, size);
+	memcpy(ctx->buffer, data, size);
 }
 
 void ngx_md5_final(u_char result[16], ngx_md5_t * ctx)

@@ -52,7 +52,7 @@ struct xmlDebugCtxt {
 	int    options;            /* options */
 };
 
-static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNodePtr node);
+static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * node);
 
 /*static void xmlCtxtDumpInitCtxt(xmlDebugCtxt * ctxt)
 {
@@ -85,7 +85,7 @@ static void xmlCtxtDumpCleanCtxt(xmlDebugCtxt * ctxt ATTRIBUTE_UNUSED)
  *         -2 if the namespace is not in scope, and -3 if not on
  *         an ancestor node.
  */
-static int xmlNsCheckScope(xmlNodePtr pNode, xmlNsPtr ns)
+static int xmlNsCheckScope(xmlNode * pNode, xmlNs * ns)
 {
 	if(!pNode || !ns)
 		return -1;
@@ -154,7 +154,7 @@ static void xmlDebugErr3(xmlDebugCtxt * ctxt, int error, const char * msg, const
  *
  * Report if a given namespace is is not in scope.
  */
-static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNodePtr node, xmlNsPtr ns)
+static void xmlCtxtNsCheckScope(xmlDebugCtxt * ctxt, xmlNode * node, xmlNs * ns)
 {
 	int ret = xmlNsCheckScope(node, ns);
 	if(ret == -2) {
@@ -216,9 +216,9 @@ static void xmlCtxtCheckName(xmlDebugCtxt * ctxt, const xmlChar * name)
 	}
 }
 
-static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNodePtr node)
+static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 {
-	xmlDictPtr dict;
+	xmlDict * dict;
 	xmlDocPtr doc = node->doc;
 	if(node->parent == NULL)
 		xmlDebugErr(ctxt, XML_CHECK_NO_PARENT, "Node has no parent\n");
@@ -548,7 +548,7 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntityPtr ent)
 	}
 }
 
-static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNsPtr ns)
+static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNs * ns)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(ns == NULL) {
@@ -574,7 +574,7 @@ static void xmlCtxtDumpNamespace(xmlDebugCtxt * ctxt, xmlNsPtr ns)
 	}
 }
 
-static void xmlCtxtDumpNamespaceList(xmlDebugCtxt * ctxt, xmlNsPtr ns)
+static void xmlCtxtDumpNamespaceList(xmlDebugCtxt * ctxt, xmlNs * ns)
 {
 	while(ns) {
 		xmlCtxtDumpNamespace(ctxt, ns);
@@ -678,7 +678,7 @@ static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
  *
  * Dumps debug information for the element node, it is not recursive
  */
-static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
+static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * node)
 {
 	SString temp_buf;
 	if(!node) {
@@ -795,7 +795,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
 				xmlCtxtDumpEntityDecl(ctxt, (xmlEntityPtr)node);
 				return;
 			case XML_NAMESPACE_DECL:
-				xmlCtxtDumpNamespace(ctxt, (xmlNsPtr)node);
+				xmlCtxtDumpNamespace(ctxt, (xmlNs *)node);
 				return;
 			case XML_XINCLUDE_START:
 				if(!ctxt->check) {
@@ -857,7 +857,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
  *
  * Dumps debug information for the element node, it is recursive
  */
-static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
+static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNode * node)
 {
 	if(!node) {
 		if(!ctxt->check) {
@@ -883,7 +883,7 @@ static void xmlCtxtDumpNode(xmlDebugCtxt * ctxt, xmlNodePtr node)
  *
  * Dumps debug information for the list of element node, it is recursive
  */
-static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNodePtr node)
+static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * node)
 {
 	for(; node; node = node->next)
 		xmlCtxtDumpNode(ctxt, node);
@@ -1156,7 +1156,7 @@ void xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int depth)
  *
  * Dumps debug information for the element node, it is not recursive
  */
-void xmlDebugDumpOneNode(FILE * output, xmlNodePtr node, int depth)
+void xmlDebugDumpOneNode(FILE * output, xmlNode * node, int depth)
 {
 	if(output) {
 		xmlDebugCtxt ctxt(output);
@@ -1173,7 +1173,7 @@ void xmlDebugDumpOneNode(FILE * output, xmlNodePtr node, int depth)
  *
  * Dumps debug information for the element node, it is recursive
  */
-void xmlDebugDumpNode(FILE * output, xmlNodePtr node, int depth)
+void xmlDebugDumpNode(FILE * output, xmlNode * node, int depth)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -1190,7 +1190,7 @@ void xmlDebugDumpNode(FILE * output, xmlNodePtr node, int depth)
  *
  * Dumps debug information for the list of element node, it is recursive
  */
-void xmlDebugDumpNodeList(FILE * output, xmlNodePtr node, int depth)
+void xmlDebugDumpNodeList(FILE * output, xmlNode * node, int depth)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -1282,10 +1282,10 @@ int xmlDebugCheckDocument(FILE * output, xmlDocPtr doc)
  *
  * Returns the number of children of @node.
  */
-int xmlLsCountNode(xmlNodePtr node) 
+int xmlLsCountNode(xmlNode * node) 
 {
 	int ret = 0;
-	xmlNodePtr list = NULL;
+	xmlNode * list = NULL;
 	if(!node)
 		return 0;
 	switch(node->type) {
@@ -1337,7 +1337,7 @@ int xmlLsCountNode(xmlNodePtr node)
  *
  * Dump to @output the type and name of @node.
  */
-void xmlLsOneNode(FILE * output, xmlNodePtr node) 
+void xmlLsOneNode(FILE * output, xmlNode * node) 
 {
 	if(output)  {
 		if(!node) {
@@ -1416,7 +1416,7 @@ void xmlLsOneNode(FILE * output, xmlNodePtr node)
 			case XML_NOTATION_NODE:
 				break;
 			case XML_NAMESPACE_DECL: {
-				xmlNsPtr ns = (xmlNsPtr)node;
+				xmlNs * ns = (xmlNs *)node;
 				if(ns->prefix == NULL)
 					fprintf(output, "default -> %s", (char*)ns->href);
 				else
@@ -1493,7 +1493,7 @@ void xmlShellPrintXPathError(int errorType, const char * arg)
  *
  * Print node to the output FILE
  */
-static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNodePtr node)
+static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * node)
 {
 	if(node) {
 		FILE * fp = ctxt ? ctxt->output : stdout;
@@ -1512,7 +1512,7 @@ static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNodePtr node)
  *
  * Print node to the output FILE
  */
-void xmlShellPrintNode(xmlNodePtr node)
+void xmlShellPrintNode(xmlNode * node)
 {
 	xmlShellPrintNodeCtxt(NULL, node);
 }
@@ -1579,9 +1579,9 @@ void xmlShellPrintXPathResult(xmlXPathObjectPtr list)
  *
  * Returns 0
  */
-int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlNodePtr cur;
+	xmlNode * cur;
 	if(ctxt) {
 		if(!node) {
 			fprintf(ctxt->output, "NULL\n");
@@ -1622,7 +1622,7 @@ int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr n
  *
  * Returns 0
  */
-int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * base;
 	if(!ctxt)
@@ -1655,7 +1655,7 @@ int xmlShellBase(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr n
  *
  * Returns 0
  */
-static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlNodeSetBase(node, (xmlChar*)arg);
 	return 0;
@@ -1677,13 +1677,13 @@ static int xmlShellSetBase(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATT
  *
  * Returns 0 on success and a negative value otherwise.
  */
-static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * prefix;
 	xmlChar * href;
 	xmlChar * nsListDup = sstrdup((xmlChar*)arg);
 	xmlChar * next = nsListDup;
-	while(next != NULL) {
+	while(next) {
 		/* skip spaces */
 		/*while((*next) == ' ') next++;*/
 		if((*next) == '\0') 
@@ -1725,9 +1725,9 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNodePt
  *
  * Returns 0 on success and a negative value otherwise.
  */
-static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr root, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * root, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlNsPtr ns;
+	xmlNs * ns;
 	if((root == NULL) || (root->type != XML_ELEMENT_NODE) || (root->nsDef == NULL) || (ctxt == NULL) || (ctxt->pctxt == NULL))
 		return -1;
 	ns = root->nsDef;
@@ -1755,7 +1755,7 @@ static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRI
  *
  * Returns 0
  */
-static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt)
 		return 0;
@@ -1826,7 +1826,7 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
  *
  * Returns 0
  */
-int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(ctxt) {
 		if(!node) {
@@ -1859,7 +1859,7 @@ int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUS
  *
  * Returns 0
  */
-static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * value, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * value, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(ctxt) {
 		if(!node)
@@ -1897,7 +1897,7 @@ static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * valu
  *
  * Returns 0
  */
-static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlRelaxNGPtr relaxngschemas;
 	xmlRelaxNGValidCtxtPtr vctxt;
@@ -1942,7 +1942,7 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNodePtr
  *
  * Returns 0
  */
-int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt)
 		return 0;
@@ -1987,7 +1987,7 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr no
  *
  * Returns 0 or -1 if loading failed
  */
-int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlDocPtr doc;
 	int html = 0;
@@ -2042,7 +2042,7 @@ int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUT
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!node)
 		return -1;
@@ -2099,7 +2099,7 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node, xmlNod
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	if(!ctxt || (ctxt->doc == NULL))
 		return -1;
@@ -2153,7 +2153,7 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNodePtr node ATTRIBUT
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNodePtr node ATTRIBUTE_UNUSED, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlValidCtxt vctxt;
 	int res = -1;
@@ -2191,9 +2191,9 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNodePtr node ATTRIBUTE
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr tree, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlNodePtr node;
+	xmlNode * node;
 	int indent = 0, i;
 	if(!ctxt)
 		return -1;
@@ -2226,7 +2226,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr tre
 			node = node->children;
 			indent++;
 		}
-		else if((node != tree) && (node->next != NULL)) {
+		else if((node != tree) && node->next) {
 			/* then siblings */
 			node = node->next;
 		}
@@ -2237,7 +2237,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr tre
 					node = node->parent;
 					indent--;
 				}
-				if((node != tree) && (node->next != NULL)) {
+				if((node != tree) && node->next) {
 					node = node->next;
 					break;
 				}
@@ -2274,7 +2274,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNodePtr tre
  *
  * Returns 0 or -1 in case of error
  */
-int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNodePtr node, xmlNodePtr node2 ATTRIBUTE_UNUSED)
+int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * path;
 	if((node == NULL) || (buffer == NULL))
@@ -2529,7 +2529,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 			}
 		}
 		else if(sstreq(command, "setrootns")) {
-			xmlNodePtr root = xmlDocGetRootElement(ctxt->doc);
+			xmlNode * root = xmlDocGetRootElement(ctxt->doc);
 			xmlShellRegisterRootNamespaces(ctxt, NULL, root, 0);
 		}
 		else if(sstreq(command, "xpath")) {

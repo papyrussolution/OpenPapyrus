@@ -25,7 +25,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockad
 	if(sa == NULL) {
 		return NULL;
 	}
-	ngx_memcpy(sa, sockaddr, socklen);
+	memcpy(sa, sockaddr, socklen);
 	ls->sockaddr = sa;
 	ls->socklen = socklen;
 	len = ngx_sock_ntop(sa, socklen, text, NGX_SOCKADDR_STRLEN, 1);
@@ -53,7 +53,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockad
 	if(ls->addr_text.data == NULL) {
 		return NULL;
 	}
-	ngx_memcpy(ls->addr_text.data, text, len);
+	memcpy(ls->addr_text.data, text, len);
 	ls->fd = (ngx_socket_t)-1;
 	ls->type = SOCK_STREAM;
 	ls->backlog = NGX_LISTEN_BACKLOG;
@@ -815,7 +815,7 @@ ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx
 		if(c->local_sockaddr == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(c->local_sockaddr, &sa, len);
+		memcpy(c->local_sockaddr, &sa, len);
 		c->local_socklen = len;
 	}
 	if(s == NULL) {

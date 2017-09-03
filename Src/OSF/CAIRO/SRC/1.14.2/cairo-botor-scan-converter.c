@@ -1423,16 +1423,10 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge,
 
 			ix1 = _cairo_fixed_integer_part(x1);
 			ix2 = _cairo_fixed_integer_part(x2);
-
 			/* Edge is entirely within a column? */
 			if(likely(ix1 == ix2)) {
-				struct cell * cell;
-
-				int frac;
-
-				frac = _cairo_fixed_fractional_part(x1) +
-				    _cairo_fixed_fractional_part(x2);
-				cell = coverage_find(sweep, ix1);
+				int frac = _cairo_fixed_fractional_part(x1) + _cairo_fixed_fractional_part(x2);
+				struct cell * cell = coverage_find(sweep, ix1);
 				cell->covered_height += run->sign * (y2 - y1);
 				cell->uncovered_area += run->sign * (y2 - y1) * frac;
 			}
@@ -1440,25 +1434,20 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge,
 				coverage_render_cells(sweep, x1, x2, y1, y2, run->sign);
 			}
 		}
-
 		run = run->next;
-	} while(run->next != NULL);
+	} while(run->next);
 }
 
 static void coverage_render_vertical_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixed_t y2)
 {
 	struct cell * cell;
-
 	struct run * run;
-
 	int height = 0;
-
 	for(run = edge->runs; run != NULL; run = run->next) {
 		if(run->sign)
 			height += run->sign * (y2 - run->y);
 		y2 = run->y;
 	}
-
 	cell = coverage_find(sweep, _cairo_fixed_integer_part(edge->x.quo));
 	cell->covered_height += height;
 	cell->uncovered_area += 2 * _cairo_fixed_fractional_part(edge->x.quo) * height;

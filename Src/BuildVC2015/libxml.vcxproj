@@ -347,8 +347,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
-      <AssemblerOutput>
-      </AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
@@ -937,7 +936,6 @@
     <ClInclude Include="..\include\libxml\catalog.h" />
     <ClInclude Include="..\include\libxml\chvalid.h" />
     <ClInclude Include="..\include\libxml\debugXML.h" />
-    <ClInclude Include="..\include\libxml\dict.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
     <ClInclude Include="..\include\libxml\entities.h" />
@@ -958,7 +956,6 @@
     <ClInclude Include="..\include\libxml\schematron.h" />
     <ClInclude Include="..\include\libxml\threads.h" />
     <ClInclude Include="..\include\libxml\tree.h" />
-    <ClInclude Include="..\include\libxml\uri.h" />
     <ClInclude Include="..\include\libxml\valid.h" />
     <ClInclude Include="..\include\libxml\xinclude.h" />
     <ClInclude Include="..\include\libxml\xlink.h" />

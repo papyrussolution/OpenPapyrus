@@ -285,9 +285,9 @@ static void xmlFreeCatalogEntry(xmlCatalogEntryPtr ret)
 		// 
 		if(ret->dealloc != 1) {
 			if(xmlDebugCatalogs) {
-				if(ret->name != NULL)
+				if(ret->name)
 					xmlGenericError(0, "Free catalog entry %s\n", ret->name);
-				else if(ret->value != NULL)
+				else if(ret->value)
 					xmlGenericError(0, "Free catalog entry %s\n", ret->value);
 				else
 					xmlGenericError(0, "Free catalog entry\n");
@@ -454,9 +454,9 @@ static void xmlCatalogDumpEntry(xmlCatalogEntryPtr entry, FILE * out)
  * Serializes a Catalog entry, called by xmlDumpXMLCatalog and recursively
  * for group entries
  */
-static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDocPtr doc, xmlNsPtr ns, xmlCatalogEntryPtr cgroup) 
+static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDocPtr doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
 {
-	xmlNodePtr node;
+	xmlNode * node;
 	/*
 	 * add all the catalog entries
 	 */
@@ -484,7 +484,7 @@ static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, 
 				    node = xmlNewDocNode(doc, ns, BAD_CAST "group", 0);
 				    xmlSetProp(node, BAD_CAST "id", cur->name);
 				    if(cur->value != NULL) {
-					    xmlNsPtr xns = xmlSearchNsByHref(doc, node, XML_XML_NAMESPACE);
+					    xmlNs * xns = xmlSearchNsByHref(doc, node, XML_XML_NAMESPACE);
 					    if(xns)
 						    xmlSetNsProp(node, xns, BAD_CAST "base", cur->value);
 				    }
@@ -566,7 +566,7 @@ static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, 
 static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal) 
 {
 	int ret;
-	xmlNsPtr ns;
+	xmlNs * ns;
 	xmlDtdPtr dtd;
 	xmlNodePtr catalog;
 	xmlOutputBufferPtr buf;
@@ -652,8 +652,8 @@ static void xmlCatalogConvertEntry(xmlCatalogEntryPtr entry, xmlCatalogPtr catal
 	if(catal->xml->children == NULL)
 		catal->xml->children = entry;
 	else {
-		xmlCatalogEntryPtr prev = catal->xml->children;
-		while(prev->next != NULL)
+		xmlCatalogEntry * prev = catal->xml->children;
+		while(prev->next)
 			prev = prev->next;
 		prev->next = entry;
 	}
@@ -936,7 +936,7 @@ static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 ************************************************************************/
 
 static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const xmlChar * filename);
-static void xmlParseXMLCatalogNodeList(xmlNodePtr cur, xmlCatalogPrefer prefer,
+static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer,
     xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup);
 static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * pubID,
     const xmlChar * sysID);
@@ -991,7 +991,7 @@ static xmlCatalogEntryType xmlGetXMLCatalogEntryType(const xmlChar * name)
  *
  * Returns the new Catalog entry node or NULL in case of error.
  */
-static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNodePtr cur, xmlCatalogEntryType type,
+static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type,
     const xmlChar * name, const xmlChar * attrName,
     const xmlChar * uriAttrName, xmlCatalogPrefer prefer,
     xmlCatalogEntryPtr cgroup) 
@@ -1052,7 +1052,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNodePtr cur, xmlCatalogEn
  * a Catalog entry from it adding it to its parent. The examination can
  * be recursive.
  */
-static void xmlParseXMLCatalogNode(xmlNodePtr cur, xmlCatalogPrefer prefer,
+static void xmlParseXMLCatalogNode(xmlNode * cur, xmlCatalogPrefer prefer,
     xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup)
 {
 	xmlChar * base = NULL;
@@ -1140,7 +1140,7 @@ static void xmlParseXMLCatalogNode(xmlNodePtr cur, xmlCatalogPrefer prefer,
  * a list of Catalog entry from it adding it to the parent.
  * The examination will recurse to examine node subtrees.
  */
-static void xmlParseXMLCatalogNodeList(xmlNodePtr cur, xmlCatalogPrefer prefer, xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup) 
+static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer, xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup) 
 {
 	while(cur) {
 		if(cur->ns && (cur->ns->href != NULL) && (sstreq(cur->ns->href, XML_CATALOGS_NAMESPACE))) {
@@ -1164,7 +1164,7 @@ static void xmlParseXMLCatalogNodeList(xmlNodePtr cur, xmlCatalogPrefer prefer, 
 static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const xmlChar * filename) 
 {
 	xmlDocPtr doc;
-	xmlNodePtr cur;
+	xmlNode * cur;
 	xmlChar * prop;
 	xmlCatalogEntryPtr parent = NULL;
 	if(filename == NULL)
@@ -2124,9 +2124,8 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 				    }
 				    if(type != SGML_CATA_SYSTEM) {
 					    xmlChar * normid = xmlCatalogNormalizePublic(name);
-					    if(normid != NULL) {
-						    if(name)
-							    SAlloc::F(name);
+					    if(normid) {
+						    SAlloc::F(name);
 						    if(*normid != 0)
 							    name = normid;
 						    else {
@@ -2408,13 +2407,13 @@ static int xmlExpandCatalog(xmlCatalogPtr catal, const char * filename)
 			catal->xml = tmp;
 		}
 		else {
-			while(cur->next != NULL) cur = cur->next;
+			while(cur->next) 
+				cur = cur->next;
 			cur->next = tmp;
 		}
 	}
 	return 0;
 }
-
 /**
  * xmlACatalogResolveSystem:
  * @catal:  a Catalog
@@ -2436,15 +2435,11 @@ xmlChar * xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID)
 			if(ret == XML_CATAL_BREAK)
 				ret = NULL;
 		}
-		else {
-			const xmlChar * sgml = xmlCatalogGetSGMLSystem(catal->sgml, sysID);
-			if(sgml)
-				ret = sstrdup(sgml);
-		}
+		else
+			ret = sstrdup(xmlCatalogGetSGMLSystem(catal->sgml, sysID));
 	}
 	return ret;
 }
-
 /**
  * xmlACatalogResolvePublic:
  * @catal:  a Catalog

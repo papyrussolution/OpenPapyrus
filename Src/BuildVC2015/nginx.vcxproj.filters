@@ -72,12 +72,6 @@
     <ClCompile Include="..\Osf\nginx\src\event\ngx_event_pipe.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\nginx\src\event\ngx_event_posted.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Osf\nginx\src\event\ngx_event_timer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\nginx\src\core\ngx_file.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -537,6 +531,9 @@
     <ClCompile Include="..\OSF\nginx\src\ngx_modules.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\nginx\src\event\ngx_event_timer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\nginx\src\include\nginx.h">
@@ -573,12 +570,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_pipe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_posted.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h">

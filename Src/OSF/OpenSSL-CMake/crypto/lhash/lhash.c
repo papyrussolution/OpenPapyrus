@@ -244,7 +244,7 @@ static void contract(OPENSSL_LHASH * lh)
 	if(n1 == NULL)
 		lh->b[(int)lh->p] = np;
 	else {
-		while(n1->next != NULL)
+		while(n1->next)
 			n1 = n1->next;
 		n1->next = np;
 	}

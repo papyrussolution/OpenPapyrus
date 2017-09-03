@@ -320,27 +320,18 @@ static ngx_int_t ngx_stream_core_preconfiguration(ngx_conf_t * cf)
 
 static void * ngx_stream_core_create_main_conf(ngx_conf_t * cf)
 {
-	ngx_stream_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_stream_core_main_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_stream_core_main_conf_t));
+	ngx_stream_core_main_conf_t  * cmcf = (ngx_stream_core_main_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_stream_core_main_conf_t));
 	if(cmcf == NULL) {
 		return NULL;
 	}
-
-	if(ngx_array_init(&cmcf->servers, cf->pool, 4,
-		    sizeof(ngx_stream_core_srv_conf_t *))
-	    != NGX_OK) {
+	if(ngx_array_init(&cmcf->servers, cf->pool, 4, sizeof(ngx_stream_core_srv_conf_t *)) != NGX_OK) {
 		return NULL;
 	}
-
-	if(ngx_array_init(&cmcf->listen, cf->pool, 4, sizeof(ngx_stream_listen_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&cmcf->listen, cf->pool, 4, sizeof(ngx_stream_listen_t)) != NGX_OK) {
 		return NULL;
 	}
-
 	cmcf->variables_hash_max_size = NGX_CONF_UNSET_UINT;
 	cmcf->variables_hash_bucket_size = NGX_CONF_UNSET_UINT;
-
 	return cmcf;
 }
 
@@ -538,7 +529,7 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		return NGX_CONF_ERROR;
 	}
 	memzero(ls, sizeof(ngx_stream_listen_t));
-	ngx_memcpy(&ls->sockaddr.sockaddr, &u.sockaddr, u.socklen);
+	memcpy(&ls->sockaddr.sockaddr, &u.sockaddr, u.socklen);
 	ls->socklen = u.socklen;
 	ls->backlog = NGX_LISTEN_BACKLOG;
 	ls->rcvbuf = -1;

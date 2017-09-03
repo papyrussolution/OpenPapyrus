@@ -157,7 +157,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    char s[1000];
 				    sc.GetCurrentLowered(s, sizeof(s));
 				    if(keywords0.InList(s)) {
-					    lastWordWasUUID = strcmp(s, "uuid") == 0;
+					    lastWordWasUUID = (sstreq(s, "uuid") != 0);
 					    sc.ChangeState(SCE_ECL_WORD0);
 				    }
 				    else if(keywords1.InList(s)) {

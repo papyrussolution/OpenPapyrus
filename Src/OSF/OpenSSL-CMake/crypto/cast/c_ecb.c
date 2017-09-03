@@ -9,11 +9,10 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/cast.h>
-#include <openssl/opensslv.h>
+//#include <openssl/opensslv.h>
 #include "cast_lcl.h"
 
-void CAST_ecb_encrypt(const uchar * in, uchar * out,
-    const CAST_KEY * ks, int enc)
+void CAST_ecb_encrypt(const uchar * in, uchar * out, const CAST_KEY * ks, int enc)
 {
 	CAST_LONG l, d[2];
 

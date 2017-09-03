@@ -532,7 +532,7 @@ ngx_int_t ngx_parse_addr(ngx_pool_t * pool, ngx_addr_t * addr, u_char * text, si
 #if (NGX_HAVE_INET6)
 		case AF_INET6:
 		    sin6 = (struct sockaddr_in6*)addr->sockaddr;
-		    ngx_memcpy(sin6->sin6_addr.s6_addr, inaddr6.s6_addr, 16);
+		    memcpy(sin6->sin6_addr.s6_addr, inaddr6.s6_addr, 16);
 		    break;
 #endif
 		default: /* AF_INET */
@@ -752,7 +752,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 		if(sin == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(sin, &u->sockaddr, sizeof(struct sockaddr_in));
+		memcpy(sin, &u->sockaddr, sizeof(struct sockaddr_in));
 		u->addrs[0].sockaddr = (struct sockaddr*)sin;
 		u->addrs[0].socklen = sizeof(struct sockaddr_in);
 		p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
@@ -771,7 +771,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 	}
 	u->family = u->addrs[0].sockaddr->sa_family;
 	u->socklen = u->addrs[0].socklen;
-	ngx_memcpy(&u->sockaddr, u->addrs[0].sockaddr, u->addrs[0].socklen);
+	memcpy(&u->sockaddr, u->addrs[0].sockaddr, u->addrs[0].socklen);
 
 	switch(u->family) {
 #if (NGX_HAVE_INET6)
@@ -875,7 +875,7 @@ static ngx_int_t ngx_parse_inet6_url(ngx_pool_t * pool, ngx_url_t * u)
 	if(sin6 == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(sin6, &u->sockaddr, sizeof(struct sockaddr_in6));
+	memcpy(sin6, &u->sockaddr, sizeof(struct sockaddr_in6));
 	u->addrs[0].sockaddr = (struct sockaddr*)sin6;
 	u->addrs[0].socklen = sizeof(struct sockaddr_in6);
 	p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
@@ -963,7 +963,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		if(sin == NULL) {
 			goto failed;
 		}
-		ngx_memcpy(sin, rp->ai_addr, rp->ai_addrlen);
+		memcpy(sin, rp->ai_addr, rp->ai_addrlen);
 		sin->sin_port = port;
 		u->addrs[i].sockaddr = (struct sockaddr*)sin;
 		u->addrs[i].socklen = rp->ai_addrlen;
@@ -985,7 +985,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		if(sin6 == NULL) {
 			goto failed;
 		}
-		ngx_memcpy(sin6, rp->ai_addr, rp->ai_addrlen);
+		memcpy(sin6, rp->ai_addr, rp->ai_addrlen);
 		sin6->sin6_port = port;
 		u->addrs[i].sockaddr = (struct sockaddr*)sin6;
 		u->addrs[i].socklen = rp->ai_addrlen;
@@ -1110,7 +1110,7 @@ ngx_int_t ngx_cmp_sockaddr(struct sockaddr * sa1, socklen_t slen1, struct sockad
 		    if(cmp_port && sin61->sin6_port != sin62->sin6_port) {
 			    return NGX_DECLINED;
 		    }
-		    if(ngx_memcmp(&sin61->sin6_addr, &sin62->sin6_addr, 16) != 0) {
+		    if(memcmp(&sin61->sin6_addr, &sin62->sin6_addr, 16) != 0) {
 			    return NGX_DECLINED;
 		    }
 		    break;
@@ -1128,7 +1128,7 @@ ngx_int_t ngx_cmp_sockaddr(struct sockaddr * sa1, socklen_t slen1, struct sockad
 		    if(len > sizeof(saun1->sun_path)) {
 			    len = sizeof(saun1->sun_path);
 		    }
-		    if(ngx_memcmp(&saun1->sun_path, &saun2->sun_path, len) != 0) {
+		    if(memcmp(&saun1->sun_path, &saun2->sun_path, len) != 0) {
 			    return NGX_DECLINED;
 		    }
 		    break;

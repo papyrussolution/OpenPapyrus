@@ -477,7 +477,7 @@ static ngx_int_t ngx_process_options(ngx_cycle_t * cycle, const NgxStartUpOption
 			if(p == NULL) {
 				return NGX_ERROR;
 			}
-			ngx_memcpy(p, ngx_prefix, len);
+			memcpy(p, ngx_prefix, len);
 			p[len++] = '/';
 		}
 		cycle->conf_prefix.len = len;
@@ -918,7 +918,7 @@ static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 	if(ccf->oldpid.data == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	ngx_memcpy(ngx_cpymem(ccf->oldpid.data, ccf->pid.data, ccf->pid.len), NGX_OLDPID_EXT, sizeof(NGX_OLDPID_EXT));
+	memcpy(ngx_cpymem(ccf->oldpid.data, ccf->pid.data, ccf->pid.len), NGX_OLDPID_EXT, sizeof(NGX_OLDPID_EXT));
 #if !(NGX_WIN32)
 	if(ccf->user == (uid_t)NGX_CONF_UNSET_UINT && geteuid() == 0) {
 		struct group * grp;
@@ -965,7 +965,7 @@ static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 			if(cycle->lock_file.data == NULL) {
 				return NGX_CONF_ERROR;
 			}
-			ngx_memcpy(ngx_cpymem(cycle->lock_file.data, ccf->lock_file.data, ccf->lock_file.len), ".accept", sizeof(".accept"));
+			memcpy(ngx_cpymem(cycle->lock_file.data, ccf->lock_file.data, ccf->lock_file.len), ".accept", sizeof(".accept"));
 		}
 	}
 #endif
@@ -978,36 +978,38 @@ static char * ngx_set_user(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "\"user\" is not supported, ignored");
 	return NGX_CONF_OK;
 #else
-	ngx_core_conf_t  * ccf = conf;
-	char   * group;
+	ngx_core_conf_t * ccf = conf;
+	char * group;
 	struct passwd  * pwd;
 	struct group   * grp;
-	ngx_str_t * value;
 	if(ccf->user != (uid_t)NGX_CONF_UNSET_UINT) {
 		return "is duplicate";
 	}
-	if(geteuid() != 0) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "the \"user\" directive makes sense only if the master process runs with super-user privileges, ignored");
+	else {
+		if(geteuid() != 0) {
+			ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "the \"user\" directive makes sense only if the master process runs with super-user privileges, ignored");
+		}
+		else {
+			ngx_str_t * value = cf->args->elts;
+			ccf->username = (char*)value[1].data;
+			ngx_set_errno(0);
+			pwd = getpwnam((const char*)value[1].data);
+			if(pwd == NULL) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, "getpwnam(\"%s\") failed", value[1].data);
+				return NGX_CONF_ERROR;
+			}
+			ccf->user = pwd->pw_uid;
+			group = (char*)((cf->args->nelts == 2) ? value[1].data : value[2].data);
+			ngx_set_errno(0);
+			grp = getgrnam(group);
+			if(grp == NULL) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, "getgrnam(\"%s\") failed", group);
+				return NGX_CONF_ERROR;
+			}
+			ccf->group = grp->gr_gid;
+		}
 		return NGX_CONF_OK;
 	}
-	value = cf->args->elts;
-	ccf->username = (char*)value[1].data;
-	ngx_set_errno(0);
-	pwd = getpwnam((const char*)value[1].data);
-	if(pwd == NULL) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, "getpwnam(\"%s\") failed", value[1].data);
-		return NGX_CONF_ERROR;
-	}
-	ccf->user = pwd->pw_uid;
-	group = (char*)((cf->args->nelts == 2) ? value[1].data : value[2].data);
-	ngx_set_errno(0);
-	grp = getgrnam(group);
-	if(grp == NULL) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, "getgrnam(\"%s\") failed", group);
-		return NGX_CONF_ERROR;
-	}
-	ccf->group = grp->gr_gid;
-	return NGX_CONF_OK;
 #endif
 }
 
@@ -1020,7 +1022,7 @@ static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 		return NGX_CONF_ERROR;
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 		*var = value[1];
 		for(i = 0; i < value[1].len; i++) {
 			if(value[1].data[i] == '=') {
@@ -1035,32 +1037,33 @@ static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 static char * ngx_set_priority(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t *)conf;
-	ngx_str_t * value;
 	ngx_uint_t n, minus;
 	if(ccf->priority != 0) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	if(value[1].data[0] == '-') {
-		n = 1;
-		minus = 1;
-	}
-	else if(value[1].data[0] == '+') {
-		n = 1;
-		minus = 0;
-	}
 	else {
-		n = 0;
-		minus = 0;
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		if(value[1].data[0] == '-') {
+			n = 1;
+			minus = 1;
+		}
+		else if(value[1].data[0] == '+') {
+			n = 1;
+			minus = 0;
+		}
+		else {
+			n = 0;
+			minus = 0;
+		}
+		ccf->priority = ngx_atoi(&value[1].data[n], value[1].len - n);
+		if(ccf->priority == NGX_ERROR) {
+			return "invalid number";
+		}
+		if(minus) {
+			ccf->priority = -ccf->priority;
+		}
+		return NGX_CONF_OK;
 	}
-	ccf->priority = ngx_atoi(&value[1].data[n], value[1].len - n);
-	if(ccf->priority == NGX_ERROR) {
-		return "invalid number";
-	}
-	if(minus) {
-		ccf->priority = -ccf->priority;
-	}
-	return NGX_CONF_OK;
 }
 
 static char * ngx_set_cpu_affinity(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
@@ -1164,21 +1167,22 @@ ngx_cpuset_t * ngx_get_cpu_affinity(ngx_uint_t n)
 
 static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_str_t * value;
-	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)conf;
+	ngx_core_conf_t * ccf = (ngx_core_conf_t*)conf;
 	if(ccf->worker_processes != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	if(ngx_strcmp(value[1].data, "auto") == 0) {
-		ccf->worker_processes = ngx_ncpu;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		if(ngx_strcmp(value[1].data, "auto") == 0) {
+			ccf->worker_processes = ngx_ncpu;
+			return NGX_CONF_OK;
+		}
+		ccf->worker_processes = ngx_atoi(value[1].data, value[1].len);
+		if(ccf->worker_processes == NGX_ERROR) {
+			return "invalid value";
+		}
 		return NGX_CONF_OK;
 	}
-	ccf->worker_processes = ngx_atoi(value[1].data, value[1].len);
-	if(ccf->worker_processes == NGX_ERROR) {
-		return "invalid value";
-	}
-	return NGX_CONF_OK;
 }
 
 static char * ngx_load_module(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)

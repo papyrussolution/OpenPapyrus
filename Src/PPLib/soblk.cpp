@@ -167,14 +167,14 @@ private:
 		ObjType = 0;
 		ObjTypeExt = 0;
 		OutFormat = 0;
-		OutTemplate = 0;
-		Page = 0;              // @v7.5.12
+		OutTemplate.Z();
+		Page = 0;
 		IdList.clear();
-		TagExistList.clear();  // @v7.7.4
+		TagExistList.clear();
 		SrchCodeList.clear();
 		ZDELETEFAST(P_GoodsF);
 		ZDELETEFAST(P_PsnF);
-		ZDELETEFAST(P_PsnRelF); // @v7.6.1
+		ZDELETEFAST(P_PsnRelF);
 		ZDELETEFAST(P_GgF);
 		ZDELETEFAST(P_BrF);
 		ZDELETEFAST(P_QF);
@@ -186,18 +186,18 @@ private:
 		ZDELETEFAST(P_SCardF);
 		ZDELETEFAST(P_CurRateF);
 		ZDELETEFAST(P_UhttSCardOpF);
-		ZDELETEFAST(P_BillF);   // @v7.5.5
+		ZDELETEFAST(P_BillF);
 		ZDELETEFAST(P_DtGrF);
 		ZDELETEFAST(P_UhttStorF);
 		ZDELETEFAST(P_WorkbookF);
 		ZDELETEFAST(P_SetBlk);
-		ZDELETEFAST(P_TagBlk);     // @v7.7.0
+		ZDELETEFAST(P_TagBlk);
 		ZDELETEFAST(P_TSesF); // @v8.7.0
 		ZDELETEFAST(P_PrcF); // @v8.7.4
-		ZDELETEFAST(P_UuidList);   // @v8.7.5
+		ZDELETEFAST(P_UuidList); // @v8.7.5
 		Separate = 0;
 		ExtFiltFlags = 0;
-		DL600StrucName = 0;
+		DL600StrucName.Z();
 	}
 	int    CheckInCriterion(int criterion, int subcriterion, const SString & rArg);
 	int    ResolveCrit_QuotKind(int subcriterion, const SString & rArg, PPID * pID);
@@ -466,8 +466,8 @@ private:
 	ProcessorFilt * P_PrcF;
 	Quotation2Core * P_Qc;
 	SetBlock * P_SetBlk;
-	TagBlock * P_TagBlk;   // @v7.7.0 Значение тэга объекта (SETOBJECTTAG, INCOBJECTTAG, DECOBJECTTAG, GETOBJECTTAG)
-	PPDistribCCheck * P_DCc;
+	TagBlock * P_TagBlk;   // Значение тэга объекта (SETOBJECTTAG, INCOBJECTTAG, DECOBJECTTAG, GETOBJECTTAG)
+	SelectObjectBlock::DistribCCheck * P_DCc;
 	UuidArray * P_UuidList; // @v8.7.5
 	StrAssocArray ResultList;
 	SString ResultText;
@@ -498,27 +498,27 @@ int FASTCALL SelectObjectBlock::Execute(PPJobSrvReply & rReply)
 // CCHECKLINE ID(221117) GOODS.CODE(4601236) QTTY(1) PRICE(14.10) DISCOUNT(0)
 // CCHECKFINISH ID(221117)
 //
-PPDistribCCheck::Header::Header()
+SelectObjectBlock::DistribCCheck::Header::Header()
 {
 	THISZERO();
 }
 
-PPDistribCCheck::Line::Line()
+SelectObjectBlock::DistribCCheck::Line::Line()
 {
 	THISZERO();
 }
 
-SLAPI PPDistribCCheck::PPDistribCCheck()
+SLAPI SelectObjectBlock::DistribCCheck::DistribCCheck()
 {
 	P_CsObj = 0;
 }
 
-SLAPI PPDistribCCheck::~PPDistribCCheck()
+SLAPI SelectObjectBlock::DistribCCheck::~DistribCCheck()
 {
 	delete P_CsObj;
 }
 
-int SLAPI PPDistribCCheck::Begin(PPID * pID, const Header & rHdr)
+int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 {
 	int    ok = 1;
 	PPID   cc_id = 0;
@@ -615,13 +615,13 @@ int SLAPI PPDistribCCheck::Begin(PPID * pID, const Header & rHdr)
 	return ok;
 }
 
-int SLAPI PPDistribCCheck::AddLine(PPID ccID, const Line & rLn)
+int SLAPI SelectObjectBlock::DistribCCheck::AddLine(PPID ccID, const Line & rLn)
 {
 	int    ok = -1;
 	return ok;
 }
 
-int SLAPI PPDistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
+int SLAPI SelectObjectBlock::DistribCCheck::Finish(PPID ccID, PPID * pNewCcID)
 {
 	int    ok = 1;
 	PPID   cc_id = 0;
@@ -949,8 +949,8 @@ static int SLAPI Helper_ProcessTddo(long dataId, void * pAry, const char * pData
 
 Backend_SelectObjectBlock::LocalGoodsGroupFilt::LocalGoodsGroupFilt()
 {
-	ParentID  = 0;
-	Flags     = 0;
+	ParentID = 0;
+	Flags = 0;
 }
 
 Backend_SelectObjectBlock::LocalBrandFilt::LocalBrandFilt()
@@ -1243,7 +1243,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 			do {
 				int    criterion = 0;
 				int    sub_criterion = 0;
-				arg_buf = 0;
+				arg_buf.Z();
 				for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
 					if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
 						crit = temp_buf;
@@ -1257,7 +1257,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 					// 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
 					//
 					sub_criterion = 0;
-					arg_buf = 0;
+					arg_buf.Z();
 				}
 				else {
 					if(scan[0] == '.') {
@@ -2065,7 +2065,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 	PPID   temp_id = 0;
 	SString temp_buf, o_buf, txt_buf;
 	ResultList.Clear();
-	ResultText = 0;
+	ResultText.Z();
 	const PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
 	const SCodepageIdent _xmlcp((OutFormat == fmtXmlUtf8) ? cpUTF8 : cpANSI);
 	if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
@@ -2165,9 +2165,9 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				if(rights_blk.IsAllow(PPGlobalAccRights::fOperation)) {
 					if(Operator == oCCheckCreate) {
 						PPID   cc_id = 0;
-						PPDistribCCheck::Header hdr;
+						SelectObjectBlock::DistribCCheck::Header hdr;
 						THROW_PP(P_SetBlk, PPERR_EMPTYPPOBJECT);
-						THROW_MEM(SETIFZ(P_DCc, new PPDistribCCheck));
+						THROW_MEM(SETIFZ(P_DCc, new SelectObjectBlock::DistribCCheck));
 						hdr.PosNodeID = P_SetBlk->U.C.PosNodeID;
 						hdr.LocID = P_SetBlk->U.C.LocID;
 						hdr.SCardID = P_SetBlk->U.C.SCardID;
@@ -2177,9 +2177,9 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						rResult.SetString(temp_buf.Z().Cat(cc_id));
 					}
 					else if(Operator == oCCheckAddLine) {
-						PPDistribCCheck::Line ln;
+						SelectObjectBlock::DistribCCheck::Line ln;
 						THROW_PP(P_SetBlk, PPERR_EMPTYPPOBJECT);
-						THROW_MEM(SETIFZ(P_DCc, new PPDistribCCheck));
+						THROW_MEM(SETIFZ(P_DCc, new SelectObjectBlock::DistribCCheck));
 						ln.GoodsID = P_SetBlk->U.C.GoodsID;
 						ln.Qtty = P_SetBlk->U.C.Qtty;
 						ln.Price = P_SetBlk->U.C.Price;
@@ -2190,7 +2190,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					else if(Operator == oCCheckFinish) {
 						PPID   cc_id = 0;
 						THROW_PP(P_SetBlk, PPERR_EMPTYPPOBJECT);
-						THROW_MEM(SETIFZ(P_DCc, new PPDistribCCheck));
+						THROW_MEM(SETIFZ(P_DCc, new SelectObjectBlock::DistribCCheck));
 						THROW(P_DCc->Finish(P_SetBlk->U.C.ID, &cc_id));
 						rResult.SetString(temp_buf.Z().Cat(cc_id));
 					}

@@ -104,7 +104,7 @@ ngx_int_t ngx_crc32_table_init(void)
 		return NGX_ERROR;
 	}
 	p = ngx_align_ptr(p, ngx_cacheline_size);
-	ngx_memcpy(p, ngx_crc32_table16, 16 * sizeof(uint32_t));
+	memcpy(p, ngx_crc32_table16, 16 * sizeof(uint32_t));
 	ngx_crc32_table_short = (uint32_t *)p;
 	return NGX_OK;
 }

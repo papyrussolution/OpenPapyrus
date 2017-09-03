@@ -371,7 +371,7 @@ static char * ngx_stream_geo_block(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 						if(ctx.high.low[i] == NULL) {
 							return NGX_CONF_ERROR;
 						}
-						ngx_memcpy(ctx.high.low[i], a->elts, len);
+						memcpy(ctx.high.low[i], a->elts, len);
 						ctx.high.low[i][a->nelts].value = NULL;
 						ctx.data_size += len + sizeof(void *);
 					}
@@ -577,56 +577,43 @@ invalid:
 
 /* the add procedure is optimized to add a growing up sequence */
 
-static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * ctx,
-    in_addr_t start, in_addr_t end)
+static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * ctx, in_addr_t start, in_addr_t end)
 {
 	in_addr_t n;
 	ngx_uint_t h, i, s, e;
 	ngx_array_t   * a;
 	ngx_stream_geo_range_t  * range;
-
 	for(n = start; n <= end; n = (n + 0x10000) & 0xffff0000) {
 		h = n >> 16;
-
 		if(n == start) {
 			s = n & 0xffff;
 		}
 		else {
 			s = 0;
 		}
-
 		if((n | 0xffff) > end) {
 			e = end & 0xffff;
 		}
 		else {
 			e = 0xffff;
 		}
-
 		a = (ngx_array_t*)ctx->high.low[h];
-
 		if(a == NULL) {
-			a = ngx_array_create(ctx->temp_pool, 64,
-			    sizeof(ngx_stream_geo_range_t));
+			a = ngx_array_create(ctx->temp_pool, 64, sizeof(ngx_stream_geo_range_t));
 			if(a == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			ctx->high.low[h] = (ngx_stream_geo_range_t*)a;
 		}
-
 		i = a->nelts;
 		range = (ngx_stream_geo_range_t*)a->elts;
-
 		while(i) {
 			i--;
-
 			if(e < (ngx_uint_t)range[i].start) {
 				continue;
 			}
-
 			if(s > (ngx_uint_t)range[i].end) {
 				/* add after the range */
-
 				range = (ngx_stream_geo_range_t*)ngx_array_push(a);
 				if(range == NULL) {
 					return NGX_CONF_ERROR;
@@ -634,7 +621,7 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 
 				range = (ngx_stream_geo_range_t*)a->elts;
 
-				ngx_memmove(&range[i + 2], &range[i + 1],
+				memmove(&range[i + 2], &range[i + 1],
 				    (a->nelts - 2 - i) * sizeof(ngx_stream_geo_range_t));
 
 				range[i + 1].start = (u_short)s;
@@ -671,7 +658,7 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 
 				range = (ngx_stream_geo_range_t*)a->elts;
 
-				ngx_memmove(&range[i + 3], &range[i + 1],
+				memmove(&range[i + 3], &range[i + 1],
 				    (a->nelts - 3 - i) * sizeof(ngx_stream_geo_range_t));
 
 				range[i + 2].start = (u_short)(e + 1);
@@ -698,7 +685,7 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 
 				range = (ngx_stream_geo_range_t*)a->elts;
 
-				ngx_memmove(&range[i + 1], &range[i],
+				memmove(&range[i + 1], &range[i],
 				    (a->nelts - 1 - i) * sizeof(ngx_stream_geo_range_t));
 
 				range[i + 1].start = (u_short)(e + 1);
@@ -721,7 +708,7 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 
 				range = (ngx_stream_geo_range_t*)a->elts;
 
-				ngx_memmove(&range[i + 2], &range[i + 1],
+				memmove(&range[i + 2], &range[i + 1],
 				    (a->nelts - 2 - i) * sizeof(ngx_stream_geo_range_t));
 
 				range[i + 1].start = (u_short)s;
@@ -754,7 +741,7 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 
 		range = (ngx_stream_geo_range_t*)a->elts;
 
-		ngx_memmove(&range[1], &range[0],
+		memmove(&range[1], &range[0],
 		    (a->nelts - 1) * sizeof(ngx_stream_geo_range_t));
 
 		range[0].start = (u_short)s;
@@ -809,7 +796,7 @@ static ngx_uint_t ngx_stream_geo_delete_range(ngx_conf_t * cf, ngx_stream_geo_co
 		for(i = 0; i < a->nelts; i++) {
 			if(s == (ngx_uint_t)range[i].start
 			    && e == (ngx_uint_t)range[i].end) {
-				ngx_memmove(&range[i], &range[i + 1],
+				memmove(&range[i], &range[i + 1],
 				    (a->nelts - 1 - i) * sizeof(ngx_stream_geo_range_t));
 
 				a->nelts--;
@@ -889,16 +876,13 @@ static char * ngx_stream_geo_cidr(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * c
 		net = &value[0];
 		del = 0;
 	}
-
 	if(ngx_stream_geo_cidr_value(cf, net, &cidr) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(cidr.family == AF_INET) {
 		cidr.u.in.addr = ntohl(cidr.u.in.addr);
 		cidr.u.in.mask = ntohl(cidr.u.in.mask);
 	}
-
 	if(del) {
 		switch(cidr.family) {
 #if (NGX_HAVE_INET6)
@@ -1142,7 +1126,7 @@ static ngx_int_t ngx_stream_geo_include_binary_base(ngx_conf_t * cf, ngx_stream_
 		goto failed;
 	}
 	header = (ngx_stream_geo_header_t*)base;
-	if(size < 16 || ngx_memcmp(&ngx_stream_geo_header, header, 12) != 0) {
+	if(size < 16 || memcmp(&ngx_stream_geo_header, header, 12) != 0) {
 		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "incompatible binary geo range base \"%s\"", name->data);
 		goto failed;
 	}

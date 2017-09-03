@@ -362,44 +362,35 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	u->peer.type = c->type;
 	u->start_sec = ngx_time();
-
 	c->write->handler = ngx_stream_proxy_downstream_handler;
 	c->read->handler = ngx_stream_proxy_downstream_handler;
-
-	s->upstream_states = ngx_array_create(c->pool, 1,
-	    sizeof(ngx_stream_upstream_state_t));
+	s->upstream_states = ngx_array_create(c->pool, 1, sizeof(ngx_stream_upstream_state_t));
 	if(s->upstream_states == NULL) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	if(c->type == SOCK_STREAM) {
 		p = (u_char*)ngx_pnalloc(c->pool, pscf->buffer_size);
 		if(p == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		u->downstream_buf.start = p;
 		u->downstream_buf.end = p + pscf->buffer_size;
 		u->downstream_buf.pos = p;
 		u->downstream_buf.last = p;
-
 		if(c->read->ready) {
 			ngx_post_event(c->read, &ngx_posted_events);
 		}
 	}
-
 	if(pscf->upstream_value) {
 		if(ngx_stream_proxy_eval(s, pscf) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
 	}
-
 	if(u->resolved == NULL) {
 		uscf = pscf->upstream;
 	}
@@ -419,114 +410,83 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 		}
 
 		if(u->resolved->sockaddr) {
-			if(u->resolved->port == 0
-			    && u->resolved->sockaddr->sa_family != AF_UNIX) {
-				ngx_log_error(NGX_LOG_ERR, c->log, 0,
-				    "no port in upstream \"%V\"", host);
+			if(u->resolved->port == 0 && u->resolved->sockaddr->sa_family != AF_UNIX) {
+				ngx_log_error(NGX_LOG_ERR, c->log, 0, "no port in upstream \"%V\"", host);
 				ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 				return;
 			}
-
-			if(ngx_stream_upstream_create_round_robin_peer(s, u->resolved)
-			    != NGX_OK) {
+			if(ngx_stream_upstream_create_round_robin_peer(s, u->resolved) != NGX_OK) {
 				ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 				return;
 			}
-
 			ngx_stream_proxy_connect(s);
-
 			return;
 		}
-
 		if(u->resolved->port == 0) {
-			ngx_log_error(NGX_LOG_ERR, c->log, 0,
-			    "no port in upstream \"%V\"", host);
+			ngx_log_error(NGX_LOG_ERR, c->log, 0, "no port in upstream \"%V\"", host);
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		temp.name = *host;
-
 		cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
-
 		ctx = ngx_resolve_start(cscf->resolver, &temp);
 		if(ctx == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		if(ctx == NGX_NO_RESOLVER) {
-			ngx_log_error(NGX_LOG_ERR, c->log, 0,
-			    "no resolver defined to resolve %V", host);
+			ngx_log_error(NGX_LOG_ERR, c->log, 0, "no resolver defined to resolve %V", host);
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		ctx->name = *host;
 		ctx->handler = ngx_stream_proxy_resolve_handler;
 		ctx->data = s;
 		ctx->timeout = cscf->resolver_timeout;
-
 		u->resolved->ctx = ctx;
-
 		if(ngx_resolve_name(ctx) != NGX_OK) {
 			u->resolved->ctx = NULL;
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		return;
 	}
-
 found:
-
 	if(uscf == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "no upstream configuration");
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	u->upstream = uscf;
-
 #if (NGX_STREAM_SSL)
 	u->ssl_name = uscf->host;
 #endif
-
 	if(uscf->peer.init(s, uscf) != NGX_OK) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	u->peer.start_time = ngx_current_msec;
-
 	if(pscf->next_upstream_tries
 	    && u->peer.tries > pscf->next_upstream_tries) {
 		u->peer.tries = pscf->next_upstream_tries;
 	}
-
 	ngx_stream_proxy_connect(s);
 }
 
-static ngx_int_t ngx_stream_proxy_eval(ngx_stream_session_t * s,
-    ngx_stream_proxy_srv_conf_t * pscf)
+static ngx_int_t ngx_stream_proxy_eval(ngx_stream_session_t * s, ngx_stream_proxy_srv_conf_t * pscf)
 {
 	ngx_str_t host;
 	ngx_url_t url;
 	ngx_stream_upstream_t  * u;
-
 	if(ngx_stream_complex_value(s, pscf->upstream_value, &host) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	memzero(&url, sizeof(ngx_url_t));
-
 	url.url = host;
 	url.no_resolve = 1;
-
 	if(ngx_parse_url(s->connection->pool, &url) != NGX_OK) {
 		if(url.err) {
-			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-			    "%s in upstream \"%V\"", url.err, &url.url);
+			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "%s in upstream \"%V\"", url.err, &url.url);
 		}
 		return NGX_ERROR;
 	}
@@ -541,11 +501,9 @@ static ngx_int_t ngx_stream_proxy_eval(ngx_stream_session_t * s,
 		u->resolved->name = url.addrs[0].name;
 		u->resolved->naddrs = 1;
 	}
-
 	u->resolved->host = url.host;
 	u->resolved->port = url.port;
 	u->resolved->no_port = url.no_port;
-
 	return NGX_OK;
 }
 
@@ -1748,80 +1706,35 @@ static char * ngx_stream_proxy_merge_srv_conf(ngx_conf_t * cf, void * parent, vo
 {
 	ngx_stream_proxy_srv_conf_t * prev = (ngx_stream_proxy_srv_conf_t *)parent;
 	ngx_stream_proxy_srv_conf_t * conf = (ngx_stream_proxy_srv_conf_t *)child;
-
-	ngx_conf_merge_msec_value(conf->connect_timeout,
-	    prev->connect_timeout, 60000);
-
-	ngx_conf_merge_msec_value(conf->timeout,
-	    prev->timeout, 10 * 60000);
-
-	ngx_conf_merge_msec_value(conf->next_upstream_timeout,
-	    prev->next_upstream_timeout, 0);
-
-	ngx_conf_merge_size_value(conf->buffer_size,
-	    prev->buffer_size, 16384);
-
-	ngx_conf_merge_size_value(conf->upload_rate,
-	    prev->upload_rate, 0);
-
-	ngx_conf_merge_size_value(conf->download_rate,
-	    prev->download_rate, 0);
-
-	ngx_conf_merge_uint_value(conf->responses,
-	    prev->responses, NGX_MAX_INT32_VALUE);
-
-	ngx_conf_merge_uint_value(conf->next_upstream_tries,
-	    prev->next_upstream_tries, 0);
-
+	ngx_conf_merge_msec_value(conf->connect_timeout, prev->connect_timeout, 60000);
+	ngx_conf_merge_msec_value(conf->timeout, prev->timeout, 10 * 60000);
+	ngx_conf_merge_msec_value(conf->next_upstream_timeout, prev->next_upstream_timeout, 0);
+	ngx_conf_merge_size_value(conf->buffer_size, prev->buffer_size, 16384);
+	ngx_conf_merge_size_value(conf->upload_rate, prev->upload_rate, 0);
+	ngx_conf_merge_size_value(conf->download_rate, prev->download_rate, 0);
+	ngx_conf_merge_uint_value(conf->responses, prev->responses, NGX_MAX_INT32_VALUE);
+	ngx_conf_merge_uint_value(conf->next_upstream_tries, prev->next_upstream_tries, 0);
 	ngx_conf_merge_value(conf->next_upstream, prev->next_upstream, 1);
-
 	ngx_conf_merge_value(conf->proxy_protocol, prev->proxy_protocol, 0);
-
 	ngx_conf_merge_ptr_value(conf->local, prev->local, NULL);
-
 #if (NGX_STREAM_SSL)
-
 	ngx_conf_merge_value(conf->ssl_enable, prev->ssl_enable, 0);
-
-	ngx_conf_merge_value(conf->ssl_session_reuse,
-	    prev->ssl_session_reuse, 1);
-
-	ngx_conf_merge_bitmask_value(conf->ssl_protocols, prev->ssl_protocols,
-	    (NGX_CONF_BITMASK_SET|NGX_SSL_TLSv1
-		    |NGX_SSL_TLSv1_1|NGX_SSL_TLSv1_2));
-
+	ngx_conf_merge_value(conf->ssl_session_reuse, prev->ssl_session_reuse, 1);
+	ngx_conf_merge_bitmask_value(conf->ssl_protocols, prev->ssl_protocols, (NGX_CONF_BITMASK_SET|NGX_SSL_TLSv1|NGX_SSL_TLSv1_1|NGX_SSL_TLSv1_2));
 	ngx_conf_merge_str_value(conf->ssl_ciphers, prev->ssl_ciphers, "DEFAULT");
-
-	if(conf->ssl_name == NULL) {
-		conf->ssl_name = prev->ssl_name;
-	}
-
+	SETIFZ(conf->ssl_name, prev->ssl_name);
 	ngx_conf_merge_value(conf->ssl_server_name, prev->ssl_server_name, 0);
-
 	ngx_conf_merge_value(conf->ssl_verify, prev->ssl_verify, 0);
-
-	ngx_conf_merge_uint_value(conf->ssl_verify_depth,
-	    prev->ssl_verify_depth, 1);
-
-	ngx_conf_merge_str_value(conf->ssl_trusted_certificate,
-	    prev->ssl_trusted_certificate, "");
-
+	ngx_conf_merge_uint_value(conf->ssl_verify_depth, prev->ssl_verify_depth, 1);
+	ngx_conf_merge_str_value(conf->ssl_trusted_certificate, prev->ssl_trusted_certificate, "");
 	ngx_conf_merge_str_value(conf->ssl_crl, prev->ssl_crl, "");
-
-	ngx_conf_merge_str_value(conf->ssl_certificate,
-	    prev->ssl_certificate, "");
-
-	ngx_conf_merge_str_value(conf->ssl_certificate_key,
-	    prev->ssl_certificate_key, "");
-
+	ngx_conf_merge_str_value(conf->ssl_certificate, prev->ssl_certificate, "");
+	ngx_conf_merge_str_value(conf->ssl_certificate_key, prev->ssl_certificate_key, "");
 	ngx_conf_merge_ptr_value(conf->ssl_passwords, prev->ssl_passwords, NULL);
-
 	if(conf->ssl_enable && ngx_stream_proxy_set_ssl(cf, conf) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 #endif
-
 	return NGX_CONF_OK;
 }
 
@@ -1829,64 +1742,45 @@ static char * ngx_stream_proxy_merge_srv_conf(ngx_conf_t * cf, void * parent, vo
 
 static ngx_int_t ngx_stream_proxy_set_ssl(ngx_conf_t * cf, ngx_stream_proxy_srv_conf_t * pscf)
 {
-	ngx_pool_cleanup_t  * cln;
+	ngx_pool_cleanup_t * cln;
 	pscf->ssl = (ngx_ssl_t *)ngx_pcalloc(cf->pool, sizeof(ngx_ssl_t));
 	if(pscf->ssl == NULL) {
 		return NGX_ERROR;
 	}
-
 	pscf->ssl->log = cf->log;
-
 	if(ngx_ssl_create(pscf->ssl, pscf->ssl_protocols, NULL) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	cln = ngx_pool_cleanup_add(cf->pool, 0);
 	if(cln == NULL) {
 		return NGX_ERROR;
 	}
-
 	cln->handler = ngx_ssl_cleanup_ctx;
 	cln->data = pscf->ssl;
-
 	if(pscf->ssl_certificate.len) {
 		if(pscf->ssl_certificate_key.len == 0) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-			    "no \"proxy_ssl_certificate_key\" is defined "
-			    "for certificate \"%V\"", &pscf->ssl_certificate);
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"proxy_ssl_certificate_key\" is defined for certificate \"%V\"", &pscf->ssl_certificate);
 			return NGX_ERROR;
 		}
-
-		if(ngx_ssl_certificate(cf, pscf->ssl, &pscf->ssl_certificate,
-			    &pscf->ssl_certificate_key, pscf->ssl_passwords)
-		    != NGX_OK) {
+		if(ngx_ssl_certificate(cf, pscf->ssl, &pscf->ssl_certificate, &pscf->ssl_certificate_key, pscf->ssl_passwords) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
 	if(ngx_ssl_ciphers(cf, pscf->ssl, &pscf->ssl_ciphers, 0) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	if(pscf->ssl_verify) {
 		if(pscf->ssl_trusted_certificate.len == 0) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-			    "no proxy_ssl_trusted_certificate for proxy_ssl_verify");
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no proxy_ssl_trusted_certificate for proxy_ssl_verify");
 			return NGX_ERROR;
 		}
-
-		if(ngx_ssl_trusted_certificate(cf, pscf->ssl,
-			    &pscf->ssl_trusted_certificate,
-			    pscf->ssl_verify_depth)
-		    != NGX_OK) {
+		if(ngx_ssl_trusted_certificate(cf, pscf->ssl, &pscf->ssl_trusted_certificate, pscf->ssl_verify_depth) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		if(ngx_ssl_crl(cf, pscf->ssl, &pscf->ssl_crl) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
 	return NGX_OK;
 }
 
@@ -1895,137 +1789,109 @@ static ngx_int_t ngx_stream_proxy_set_ssl(ngx_conf_t * cf, ngx_stream_proxy_srv_
 static char * ngx_stream_proxy_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_proxy_srv_conf_t * pscf = (ngx_stream_proxy_srv_conf_t *)conf;
-
 	ngx_url_t u;
 	ngx_str_t  * value, * url;
 	ngx_stream_complex_value_t cv;
-	ngx_stream_core_srv_conf_t   * cscf;
 	ngx_stream_compile_complex_value_t ccv;
-
 	if(pscf->upstream || pscf->upstream_value) {
 		return "is duplicate";
 	}
-
-	cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_core_module);
-
-	cscf->handler = ngx_stream_proxy_handler;
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	url = &value[1];
-
-	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-
-	ccv.cf = cf;
-	ccv.value = url;
-	ccv.complex_value = &cv;
-
-	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
-		return NGX_CONF_ERROR;
-	}
-	if(cv.lengths) {
-		pscf->upstream_value = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
-		if(pscf->upstream_value == NULL) {
+	else {
+		ngx_stream_core_srv_conf_t * cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_core_module);
+		cscf->handler = ngx_stream_proxy_handler;
+		value = (ngx_str_t*)cf->args->elts;
+		url = &value[1];
+		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
+		ccv.cf = cf;
+		ccv.value = url;
+		ccv.complex_value = &cv;
+		if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
-		*pscf->upstream_value = cv;
+		if(cv.lengths) {
+			pscf->upstream_value = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
+			if(pscf->upstream_value == NULL) {
+				return NGX_CONF_ERROR;
+			}
+			*pscf->upstream_value = cv;
+			return NGX_CONF_OK;
+		}
+		memzero(&u, sizeof(ngx_url_t));
+		u.url = *url;
+		u.no_resolve = 1;
+		pscf->upstream = ngx_stream_upstream_add(cf, &u, 0);
+		if(pscf->upstream == NULL) {
+			return NGX_CONF_ERROR;
+		}
 		return NGX_CONF_OK;
 	}
-	memzero(&u, sizeof(ngx_url_t));
-	u.url = *url;
-	u.no_resolve = 1;
-	pscf->upstream = ngx_stream_upstream_add(cf, &u, 0);
-	if(pscf->upstream == NULL) {
-		return NGX_CONF_ERROR;
-	}
-
-	return NGX_CONF_OK;
 }
 
 static char * ngx_stream_proxy_bind(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_proxy_srv_conf_t * pscf = (ngx_stream_proxy_srv_conf_t *)conf;
-
 	ngx_int_t rc;
-	ngx_str_t  * value;
 	ngx_stream_complex_value_t cv;
 	ngx_stream_upstream_local_t  * local;
 	ngx_stream_compile_complex_value_t ccv;
-
 	if(pscf->local != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	if(cf->args->nelts == 2 && ngx_strcmp(value[1].data, "off") == 0) {
-		pscf->local = NULL;
-		return NGX_CONF_OK;
-	}
-
-	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-	ccv.cf = cf;
-	ccv.value = &value[1];
-	ccv.complex_value = &cv;
-	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
-		return NGX_CONF_ERROR;
-	}
-	local = (ngx_stream_upstream_local_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_upstream_local_t));
-	if(local == NULL) {
-		return NGX_CONF_ERROR;
-	}
-
-	pscf->local = local;
-
-	if(cv.lengths) {
-		local->value = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
-		if(local->value == NULL) {
-			return NGX_CONF_ERROR;
-		}
-
-		*local->value = cv;
-	}
 	else {
-		local->addr = (ngx_addr_t *)ngx_palloc(cf->pool, sizeof(ngx_addr_t));
-		if(local->addr == NULL) {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		if(cf->args->nelts == 2 && ngx_strcmp(value[1].data, "off") == 0) {
+			pscf->local = NULL;
+			return NGX_CONF_OK;
+		}
+		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
+		ccv.cf = cf;
+		ccv.value = &value[1];
+		ccv.complex_value = &cv;
+		if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
-
-		rc = ngx_parse_addr_port(cf->pool, local->addr, value[1].data,
-		    value[1].len);
-
-		switch(rc) {
-			case NGX_OK:
-			    local->addr->name = value[1];
-			    break;
-
-			case NGX_DECLINED:
-			    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid address \"%V\"", &value[1]);
-			/* fall through */
-
-			default:
-			    return NGX_CONF_ERROR;
+		local = (ngx_stream_upstream_local_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_upstream_local_t));
+		if(local == NULL) {
+			return NGX_CONF_ERROR;
 		}
-	}
-
-	if(cf->args->nelts > 2) {
-		if(ngx_strcmp(value[2].data, "transparent") == 0) {
-#if (NGX_HAVE_TRANSPARENT_PROXY)
-			local->transparent = 1;
-#else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "transparent proxying is not supported "
-			    "on this platform, ignored");
-#endif
+		pscf->local = local;
+		if(cv.lengths) {
+			local->value = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
+			if(local->value == NULL) {
+				return NGX_CONF_ERROR;
+			}
+			*local->value = cv;
 		}
 		else {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid parameter \"%V\"", &value[2]);
-			return NGX_CONF_ERROR;
+			local->addr = (ngx_addr_t *)ngx_palloc(cf->pool, sizeof(ngx_addr_t));
+			if(local->addr == NULL) {
+				return NGX_CONF_ERROR;
+			}
+			rc = ngx_parse_addr_port(cf->pool, local->addr, value[1].data, value[1].len);
+			switch(rc) {
+				case NGX_OK:
+					local->addr->name = value[1];
+					break;
+				case NGX_DECLINED:
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid address \"%V\"", &value[1]);
+				/* fall through */
+				default:
+					return NGX_CONF_ERROR;
+			}
 		}
+		if(cf->args->nelts > 2) {
+			if(ngx_strcmp(value[2].data, "transparent") == 0) {
+#if (NGX_HAVE_TRANSPARENT_PROXY)
+				local->transparent = 1;
+#else
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "transparent proxying is not supported on this platform, ignored");
+#endif
+			}
+			else {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[2]);
+				return NGX_CONF_ERROR;
+			}
+		}
+		return NGX_CONF_OK;
 	}
-
-	return NGX_CONF_OK;
 }
-

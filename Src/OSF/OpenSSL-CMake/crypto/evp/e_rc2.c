@@ -11,7 +11,7 @@
 
 #ifndef OPENSSL_NO_RC2
 
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include <openssl/rc2.h>
 
 static int rc2_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,

@@ -21,14 +21,14 @@ SLAPI DBQBrowserDef::~DBQBrowserDef()
 int SLAPI DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 {
 	uint   prev_view_height = 1;
-	if(query && query->frame)
-		prev_view_height = query->frame->hight;
+	if(query && query->P_Frame)
+		prev_view_height = query->P_Frame->hight;
 	if(options & BRO_OWNER)
 		ZDELETE(query);
 	if(&rQuery) {
 		query = &rQuery;
 		query->setFrame(prev_view_height, aBufSize, 1);
-		query->frame->srange = 1000;
+		query->P_Frame->srange = 1000;
 		query->top();
 	}
 	return 1;
@@ -84,8 +84,8 @@ void SLAPI DBQBrowserDef::setViewHight(int h)
 
 void SLAPI DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = (long)query->frame->sdelta;
-	//*pScrollPos = (long)query->frame->spos;
+	*pScrollDelta = (long)query->P_Frame->sdelta;
+	//*pScrollPos = (long)query->P_Frame->spos;
 	*pScrollPos = 500L;
 }
 
@@ -96,10 +96,10 @@ int SLAPI DBQBrowserDef::valid()
 
 void SLAPI DBQBrowserDef::setupView()
 {
-	topItem = query->frame->top;
-	curItem = query->frame->cur;
-	isBOQ = query->frame->state & DBQuery::Frame::Top;
-	isEOQ = query->frame->state & DBQuery::Frame::Bottom;
+	topItem = query->P_Frame->top;
+	curItem = query->P_Frame->cur;
+	isBOQ = query->P_Frame->state & DBQuery::Frame::Top;
+	isEOQ = query->P_Frame->state & DBQuery::Frame::Bottom;
 }
 
 int FASTCALL DBQBrowserDef::go(long p)
@@ -137,7 +137,7 @@ int SLAPI DBQBrowserDef::refresh()
 
 long  SLAPI DBQBrowserDef::getRecsCount()
 {
-	return query->frame->srange+1;
+	return query->P_Frame->srange+1;
 }
 
 void * FASTCALL DBQBrowserDef::getRow(long r)

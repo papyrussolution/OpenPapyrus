@@ -53,7 +53,7 @@ struct _xmlHashTable {
 	xmlHashEntry * table;
 	int size;
 	int nbElems;
-	xmlDictPtr dict;
+	xmlDict * dict;
 #ifdef HASH_RANDOMIZATION
 	int random_seed;
 #endif
@@ -184,9 +184,9 @@ xmlHashTablePtr xmlHashCreate(int size)
  *
  * Returns the newly created object, or NULL if an error occured.
  */
-xmlHashTablePtr xmlHashCreateDict(int size, xmlDictPtr dict)
+xmlHashTablePtr xmlHashCreateDict(int size, xmlDict * dict)
 {
-	xmlHashTablePtr table = xmlHashCreate(size);
+	xmlHashTable * table = xmlHashCreate(size);
 	if(table) {
 		table->dict = dict;
 		xmlDictReference(dict);
@@ -588,8 +588,7 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 	}
 	else {
 		if(table->dict) {
-			for(insert = &(table->table[key]); insert->next != NULL;
-			    insert = insert->next) {
+			for(insert = &(table->table[key]); insert->next; insert = insert->next) {
 				if((insert->name == name) && (insert->name2 == name2) && (insert->name3 == name3)) {
 					if(f)
 						f(insert->payload, insert->name);
@@ -605,8 +604,7 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 			}
 		}
 		else {
-			for(insert = &(table->table[key]); insert->next != NULL;
-			    insert = insert->next) {
+			for(insert = &(table->table[key]); insert->next; insert = insert->next) {
 				if((sstreq(insert->name, name)) && (sstreq(insert->name2, name2)) && (sstreq(insert->name3, name3))) {
 					if(f)
 						f(insert->payload, insert->name);
@@ -723,7 +721,6 @@ static void stubHashScannerFull(void * payload, void * data, const xmlChar * nam
 	stubData * stubdata = (stubData*)data;
 	stubdata->hashscanner(payload, stubdata->data, (xmlChar*)name);
 }
-
 /**
  * xmlHashScan:
  * @table: the hash table
@@ -739,7 +736,6 @@ void xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void * data)
 	stubdata.hashscanner = f;
 	xmlHashScanFull(table, stubHashScannerFull, &stubdata);
 }
-
 /**
  * xmlHashScanFull:
  * @table: the hash table

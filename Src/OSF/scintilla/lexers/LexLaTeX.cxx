@@ -159,7 +159,7 @@ static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * n
 		i++;
 	}
 	s[i] = '\0';
-	return (strcmp(s, needle) == 0);
+	return (sstreq(s, needle) != 0);
 }
 
 static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler) 
@@ -186,7 +186,7 @@ static bool latexLastWordIsMathEnv(Sci_Position pos, Accessor &styler)
 	if(s[j - 1] == '*') 
 		s[--j] = '\0';
 	for(i = 0; i < static_cast<int>(sizeof(mathEnvs) / sizeof(const char *)); ++i)
-		if(strcmp(s, mathEnvs[i]) == 0) 
+		if(sstreq(s, mathEnvs[i])) 
 			return true;
 	return false;
 }
@@ -533,12 +533,12 @@ void SCI_METHOD LexerLaTeX::Fold(Sci_PositionU startPos, Sci_Position length, in
 				if(!latexIsLetter(buf[j])) break;
 			}
 			buf[j] = '\0';
-			if(strcmp(buf, "begin") == 0) {
+			if(sstreq(buf, "begin")) {
 				if(lev < 0) lev = latexFoldSaveToInt(save);
 				++save.openBegins[save.structLev];
 				needFold = true;
 			}
-			else if(strcmp(buf, "end") == 0) {
+			else if(sstreq(buf, "end")) {
 				while(save.structLev > 0 && save.openBegins[save.structLev] == 0)
 					--save.structLev;
 				if(lev < 0) lev = latexFoldSaveToInt(save);
@@ -546,7 +546,8 @@ void SCI_METHOD LexerLaTeX::Fold(Sci_PositionU startPos, Sci_Position length, in
 			}
 			else {
 				for(j = 0; j < 7; ++j)
-					if(strcmp(buf, structWords[j]) == 0) break;
+					if(sstreq(buf, structWords[j])) 
+						break;
 				if(j >= 7) continue;
 				save.structLev = j;   // level before the command
 				for(j = save.structLev + 1; j < 8; ++j) {

@@ -13,7 +13,7 @@
 //#include <openssl/err.h>
 //#include <openssl/rand.h>
 //#include <openssl/engine.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include "evp_locl.h"
 
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * c)

@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/lhash.h>
-#include "internal/asn1_int.h"
+//#include "internal/asn1_int.h"
 
 ASN1_OBJECT * OBJ_dup(const ASN1_OBJECT * o)
 {

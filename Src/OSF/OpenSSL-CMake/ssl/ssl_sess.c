@@ -1038,9 +1038,8 @@ static void SSL_SESSION_list_remove(SSL_CTX * ctx, SSL_SESSION * s)
 
 static void SSL_SESSION_list_add(SSL_CTX * ctx, SSL_SESSION * s)
 {
-	if((s->next != NULL) && (s->prev != NULL))
+	if(s->next && s->prev)
 		SSL_SESSION_list_remove(ctx, s);
-
 	if(ctx->session_cache_head == NULL) {
 		ctx->session_cache_head = s;
 		ctx->session_cache_tail = s;

@@ -371,7 +371,7 @@ static ngx_int_t ngx_ssl_stapling_responder(ngx_conf_t * cf, ngx_ssl_t * ssl,
 			return NGX_ERROR;
 		}
 
-		ngx_memcpy(responder->data, s, responder->len);
+		memcpy(responder->data, s, responder->len);
 		X509_email_free(aia);
 	}
 
@@ -455,7 +455,7 @@ static int ngx_ssl_certificate_status_callback(ngx_ssl_conn_t * ssl_conn, void *
 			ngx_ssl_error(NGX_LOG_ALERT, c->log, 0, "OPENSSL_malloc() failed");
 			return SSL_TLSEXT_ERR_NOACK;
 		}
-		ngx_memcpy(p, staple->staple.data, staple->staple.len);
+		memcpy(p, staple->staple.data, staple->staple.len);
 		SSL_set_tlsext_status_ocsp_resp(ssl_conn, p, staple->staple.len);
 		rc = SSL_TLSEXT_ERR_OK;
 	}
@@ -616,7 +616,7 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 		goto error;
 	}
 
-	ngx_memcpy(response.data, ctx->response->pos, response.len);
+	memcpy(response.data, ctx->response->pos, response.len);
 
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ctx->log, 0,
 	    "ssl ocsp response, %s, %uz",
@@ -838,7 +838,7 @@ static void ngx_ssl_ocsp_resolve_handler(ngx_resolver_ctx_t * resolve)
 			goto failed;
 		}
 
-		ngx_memcpy(sockaddr, resolve->addrs[i].sockaddr, socklen);
+		memcpy(sockaddr, resolve->addrs[i].sockaddr, socklen);
 		ngx_inet_set_port(sockaddr, ctx->port);
 
 		ctx->addrs[i].sockaddr = sockaddr;

@@ -12,7 +12,7 @@
 #ifndef OPENSSL_NO_RC4
 
 #include <openssl/rc4.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 typedef struct {
     RC4_KEY ks;                 /* working key */

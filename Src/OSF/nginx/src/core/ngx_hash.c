@@ -755,7 +755,7 @@ wildcard:
 		if(name->data == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(name->data, &key->data[1], name->len);
+		memcpy(name->data, &key->data[1], name->len);
 	}
 	if(skip) {
 		/*
@@ -770,7 +770,7 @@ wildcard:
 		n = 0;
 		for(i = last - 1; i; i--) {
 			if(key->data[i] == '.') {
-				ngx_memcpy(&p[n], &key->data[i + 1], len);
+				memcpy(&p[n], &key->data[i + 1], len);
 				n += len;
 				p[n++] = '.';
 				len = 0;
@@ -779,7 +779,7 @@ wildcard:
 			len++;
 		}
 		if(len) {
-			ngx_memcpy(&p[n], &key->data[1], len);
+			memcpy(&p[n], &key->data[1], len);
 			n += len;
 		}
 		p[n] = '\0';
@@ -825,7 +825,7 @@ wildcard:
 	if(name->data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(name->data, key->data + skip, name->len);
+	memcpy(name->data, key->data + skip, name->len);
 	/* add to wildcard hash */
 	hk = (ngx_hash_key_t *)ngx_array_push(hwc);
 	if(hk == NULL) {

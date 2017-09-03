@@ -78,17 +78,14 @@ struct _xmlValidCtxt {
 	void * userData;                /* user specific data block */
 	xmlValidityErrorFunc error;     /* the callback in case of errors */
 	xmlValidityWarningFunc warning; /* the callback in case of warning */
-
 	/* Node analysis stack used when validating within entities */
-	xmlNodePtr node;              /* Current parsed Node */
+	xmlNode * node;              /* Current parsed Node */
 	int nodeNr;                   /* Depth of the parsing stack */
 	int nodeMax;                  /* Max depth of the parsing stack */
-	xmlNodePtr        * nodeTab;  /* array of nodes */
-
+	xmlNode ** nodeTab; // array of nodes 
 	uint finishDtd;       /* finished validating the Dtd ? */
 	xmlDocPtr doc;                /* the document */
 	int valid;                    /* temporary validity check result */
-
 	/* state state used for non-determinist content validation */
 	xmlValidState     * vstate;   /* current state */
 	int vstateNr;                 /* Depth of the validation stack */
@@ -212,13 +209,13 @@ XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttributePtr at
 XMLPUBFUN xmlIDPtr XMLCALL xmlAddID(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * value, xmlAttrPtr attr);
 XMLPUBFUN void XMLCALL xmlFreeIDTable(xmlIDTablePtr table);
 XMLPUBFUN xmlAttrPtr XMLCALL xmlGetID(xmlDocPtr doc, const xmlChar * ID);
-XMLPUBFUN int XMLCALL xmlIsID(xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr);
+XMLPUBFUN int XMLCALL xmlIsID(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr);
 XMLPUBFUN int XMLCALL xmlRemoveID(xmlDocPtr doc, xmlAttrPtr attr);
 
 /* IDREFs */
 XMLPUBFUN xmlRefPtr XMLCALL xmlAddRef(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * value, xmlAttrPtr attr);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeRefTable(xmlRefTable * table);
-XMLPUBFUN int XMLCALL xmlIsRef(xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr);
+XMLPUBFUN int XMLCALL xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr);
 XMLPUBFUN int XMLCALL xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr);
 XMLPUBFUN xmlListPtr XMLCALL xmlGetRefs(xmlDocPtr doc, const xmlChar * ID);
 
@@ -233,18 +230,18 @@ xmlFreeValidCtxt(xmlValidCtxtPtr);
 
 XMLPUBFUN int XMLCALL xmlValidateRoot(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
 XMLPUBFUN int XMLCALL xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlElementPtr elem);
-XMLPUBFUN xmlChar * XMLCALL xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNodePtr elem, const xmlChar * name, const xmlChar * value);
-XMLPUBFUN xmlChar * XMLCALL xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, const xmlChar * name, const xmlChar * value);
+XMLPUBFUN xmlChar * XMLCALL xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNode * elem, const xmlChar * name, const xmlChar * value);
+XMLPUBFUN xmlChar * XMLCALL xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * name, const xmlChar * value);
 XMLPUBFUN int XMLCALL xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlAttributePtr attr);
 XMLPUBFUN int XMLCALL xmlValidateAttributeValue(xmlAttributeType type, const xmlChar * value);
 XMLPUBFUN int XMLCALL xmlValidateNotationDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNotationPtr nota);
 XMLPUBFUN int XMLCALL xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlDtdPtr dtd);
 XMLPUBFUN int XMLCALL xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
 XMLPUBFUN int XMLCALL xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
-XMLPUBFUN int XMLCALL xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem);
-XMLPUBFUN int XMLCALL xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem);
-XMLPUBFUN int XMLCALL xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr, const xmlChar * value);
-XMLPUBFUN int XMLCALL xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, const xmlChar * prefix, xmlNsPtr ns, const xmlChar * value);
+XMLPUBFUN int XMLCALL xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem);
+XMLPUBFUN int XMLCALL xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem);
+XMLPUBFUN int XMLCALL xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr, const xmlChar * value);
+XMLPUBFUN int XMLCALL xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * prefix, xmlNs * ns, const xmlChar * value);
 XMLPUBFUN int XMLCALL xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
 #endif /* LIBXML_VALID_ENABLED */
 
@@ -275,9 +272,9 @@ XMLPUBFUN int XMLCALL xmlValidateNmtokensValue(const xmlChar * value);
  * Validation based on the regexp support
  */
 XMLPUBFUN int XMLCALL xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElementPtr elem);
-XMLPUBFUN int XMLCALL xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, const xmlChar * qname);
+XMLPUBFUN int XMLCALL xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * qname);
 XMLPUBFUN int XMLCALL xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len);
-XMLPUBFUN int XMLCALL xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, const xmlChar * qname);
+XMLPUBFUN int XMLCALL xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * qname);
 #endif /* LIBXML_REGEXP_ENABLED */
 #endif /* LIBXML_VALID_ENABLED */
 #ifdef __cplusplus

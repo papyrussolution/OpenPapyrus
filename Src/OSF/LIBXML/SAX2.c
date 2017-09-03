@@ -492,7 +492,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 		 * for validation purposes we really need to fetch and
 		 * parse the external entity
 		 */
-		xmlNodePtr children;
+		xmlNode * children;
 		ulong  oldnbent = ctxt->nbentities;
 		val = xmlParseCtxtExternalEntity(ctxt, ret->URI, ret->ExternalID, &children);
 		if(val == 0) {
@@ -885,7 +885,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	xmlChar * name;
 	xmlChar * ns;
 	xmlChar * nval;
-	xmlNsPtr namespace__;
+	xmlNs * namespace__;
 	if(ctxt->html) {
 		name = sstrdup(fullname);
 		ns = NULL;
@@ -943,7 +943,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	 * Check whether it's a namespace__ definition
 	 */
 	if((!ctxt->html) && !ns && (name[0] == 'x') && (name[1] == 'm') && (name[2] == 'l') && (name[3] == 'n') && (name[4] == 's') && (name[5] == 0)) {
-		xmlNsPtr nsret;
+		xmlNs * nsret;
 		xmlChar * val;
 		if(!ctxt->replaceEntities) {
 			ctxt->depth++;
@@ -989,7 +989,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		return;
 	}
 	if((!ctxt->html) && ns && (ns[0] == 'x') && (ns[1] == 'm') && (ns[2] == 'l') && (ns[3] == 'n') && (ns[4] == 's') && (ns[5] == 0)) {
-		xmlNsPtr nsret;
+		xmlNs * nsret;
 		xmlChar * val;
 		if(!ctxt->replaceEntities) {
 			ctxt->depth++;
@@ -1065,7 +1065,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	ret = xmlNewNsPropEatName(ctxt->node, namespace__, name, 0);
 	if(ret) {
 		if((ctxt->replaceEntities == 0) && (!ctxt->html)) {
-			xmlNodePtr tmp;
+			xmlNode * tmp;
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
 			tmp = ret->children;
 			while(tmp) {
@@ -1281,9 +1281,9 @@ process_external_subset:
 void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret;
-	xmlNodePtr parent;
-	xmlNsPtr ns;
+	xmlNode * ret;
+	xmlNode * parent;
+	xmlNs * ns;
 	xmlChar * name;
 	xmlChar * prefix;
 	const xmlChar * att;
@@ -1506,9 +1506,9 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
  *
  * Returns the newly allocated string or NULL if not needed or error
  */
-static xmlNodePtr xmlSAX2TextNode(xmlParserCtxt * ctxt, const xmlChar * str, int len)
+static xmlNode * xmlSAX2TextNode(xmlParserCtxt * ctxt, const xmlChar * str, int len)
 {
-	xmlNodePtr ret;
+	xmlNode * ret;
 	const xmlChar * intern = NULL;
 	/*
 	 * Allocate
@@ -1623,7 +1623,7 @@ decode:
 static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, const xmlChar * prefix, const xmlChar * value, const xmlChar * valueend)
 {
 	xmlAttrPtr ret;
-	xmlNsPtr namespace__ = NULL;
+	xmlNs * namespace__ = NULL;
 	xmlChar * dup = NULL;
 	/*
 	 * Note: if prefix == NULL, the attribute is not in the default namespace__
@@ -1649,8 +1649,8 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			ctxt->node->properties = ret;
 		}
 		else {
-			xmlAttrPtr prev = ctxt->node->properties;
-			while(prev->next != NULL) 
+			xmlAttr * prev = ctxt->node->properties;
+			while(prev->next) 
 				prev = prev->next;
 			prev->next = ret;
 			ret->prev = prev;
@@ -1669,7 +1669,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 		}
 	}
 	if((ctxt->replaceEntities == 0) && (!ctxt->html)) {
-		xmlNodePtr tmp;
+		xmlNode * tmp;
 		/*
 		 * We know that if there is an entity reference, then
 		 * the string has been dup'ed and terminates with 0
@@ -1823,25 +1823,19 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
  * It provides the namespace__ informations for the element, as well as
  * the new namespace__ declarations on the element.
  */
-void xmlSAX2StartElementNs(void * ctx,
-    const xmlChar * localname,
-    const xmlChar * prefix,
-    const xmlChar * URI,
-    int nb_namespaces,
-    const xmlChar ** namespaces,
-    int nb_attributes,
-    int nb_defaulted,
-    const xmlChar ** attributes)
+void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI,
+    int nb_namespaces, const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret;
-	xmlNodePtr parent;
-	xmlNsPtr last = NULL, ns;
+	xmlNode * ret;
+	xmlNode * parent;
+	xmlNs * last = NULL;
+	xmlNs * ns;
 	const xmlChar * uri, * pref;
 	xmlChar * lname = NULL;
 	int i, j;
-
-	if(!ctx) return;
+	if(!ctx) 
+		return;
 	parent = ctxt->node;
 	/*
 	 * First check on validity:
@@ -1873,14 +1867,10 @@ void xmlSAX2StartElementNs(void * ctx,
 		ctxt->freeElemsNr--;
 		memzero(ret, sizeof(xmlNode));
 		ret->type = XML_ELEMENT_NODE;
-
 		if(ctxt->dictNames)
 			ret->name = localname;
 		else {
-			if(lname == NULL)
-				ret->name = sstrdup(localname);
-			else
-				ret->name = lname;
+			ret->name = NZOR(lname, sstrdup(localname));
 			if(ret->name == NULL) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElementNs");
 				return;
@@ -1891,13 +1881,11 @@ void xmlSAX2StartElementNs(void * ctx,
 	}
 	else {
 		if(ctxt->dictNames)
-			ret = xmlNewDocNodeEatName(ctxt->myDoc, NULL,
-			    (xmlChar*)localname, 0);
+			ret = xmlNewDocNodeEatName(ctxt->myDoc, NULL, (xmlChar*)localname, 0);
 		else if(lname == NULL)
 			ret = xmlNewDocNode(ctxt->myDoc, NULL, localname, 0);
 		else
-			ret = xmlNewDocNodeEatName(ctxt->myDoc, NULL,
-			    (xmlChar*)lname, 0);
+			ret = xmlNewDocNodeEatName(ctxt->myDoc, NULL, (xmlChar*)lname, 0);
 		if(!ret) {
 			xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElementNs");
 			return;
@@ -1911,7 +1899,6 @@ void xmlSAX2StartElementNs(void * ctx,
 				ret->line = 65535;
 		}
 	}
-
 	if(parent == NULL) {
 		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 	}
@@ -2061,7 +2048,7 @@ void xmlSAX2EndElementNs(void * ctx,
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserNodeInfo node_info;
-	xmlNodePtr cur;
+	xmlNode * cur;
 
 	if(!ctx) return;
 	cur = ctxt->node;
@@ -2093,7 +2080,7 @@ void xmlSAX2EndElementNs(void * ctx,
 void xmlSAX2Reference(void * ctx, const xmlChar * name)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret;
+	xmlNode * ret;
 	if(!ctx)
 		return;
 #ifdef DEBUG_SAX
@@ -2122,7 +2109,7 @@ void xmlSAX2Reference(void * ctx, const xmlChar * name)
 void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr lastChild;
+	xmlNode * lastChild;
 	if(!ctx)
 		return;
 #ifdef DEBUG_SAX
@@ -2258,8 +2245,8 @@ void xmlSAX2IgnorableWhitespace(void * ctx ATTRIBUTE_UNUSED, const xmlChar * ch 
 void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlChar * data)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret;
-	xmlNodePtr parent;
+	xmlNode * ret;
+	xmlNode * parent;
 	if(!ctx)
 		return;
 	parent = ctxt->node;
@@ -2313,8 +2300,8 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 void xmlSAX2Comment(void * ctx, const xmlChar * value)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret;
-	xmlNodePtr parent;
+	xmlNode * ret;
+	xmlNode * parent;
 
 	if(!ctx) return;
 	parent = ctxt->node;
@@ -2369,7 +2356,8 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNodePtr ret, lastChild;
+	xmlNode * ret;
+	xmlNode * lastChild;
 	if(!ctx) return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.pcdata(%.10s, %d)\n", value, len);

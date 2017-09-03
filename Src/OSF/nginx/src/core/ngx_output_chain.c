@@ -313,7 +313,7 @@ static ngx_int_t ngx_output_chain_add_copy(ngx_pool_t * pool, ngx_chain_t ** cha
 				return NGX_ERROR;
 			}
 
-			ngx_memcpy(b, buf, sizeof(ngx_buf_t));
+			memcpy(b, buf, sizeof(ngx_buf_t));
 
 			if(ngx_buf_in_memory(buf)) {
 				buf->pos += (ssize_t)(NGX_SENDFILE_LIMIT - buf->file_pos);
@@ -484,7 +484,7 @@ static ngx_int_t ngx_output_chain_copy_buf(ngx_output_chain_ctx_t * ctx)
 #endif
 
 	if(ngx_buf_in_memory(src)) {
-		ngx_memcpy(dst->pos, src->pos, (size_t)size);
+		memcpy(dst->pos, src->pos, (size_t)size);
 		src->pos += (size_t)size;
 		dst->last += (size_t)size;
 

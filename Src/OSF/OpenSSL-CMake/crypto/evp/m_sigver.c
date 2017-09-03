@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/evp.h>
 //#include <openssl/x509.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 #include "evp_locl.h"
 
 static int do_sigver_init(EVP_MD_CTX * ctx, EVP_PKEY_CTX ** pctx, const EVP_MD * type, ENGINE * e, EVP_PKEY * pkey, int ver)

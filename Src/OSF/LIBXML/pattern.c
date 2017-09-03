@@ -26,7 +26,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 #include <libxml/parserInternals.h>
 #include <libxml/pattern.h>
 
@@ -152,7 +152,7 @@ typedef xmlStepOp * xmlStepOpPtr;
 
 struct _xmlPattern {
 	void * data;    /* the associated template */
-	xmlDictPtr dict;        /* the optional dictionary */
+	xmlDict * dict;        /* the optional dictionary */
 	struct _xmlPattern * next; /* next pattern if | is used */
 	const xmlChar * pattern; /* the pattern */
 	int flags;              /* flags */
@@ -166,9 +166,9 @@ struct xmlPatParserContext {
 	const xmlChar * cur;            /* the current char being parsed */
 	const xmlChar * base;           /* the full expression */
 	int error;                      /* error code */
-	xmlDictPtr dict;                /* the dictionary if any */
+	xmlDict * dict;                /* the dictionary if any */
 	xmlPatternPtr comp;             /* the result */
-	xmlNodePtr elem;                /* the current node if any */
+	xmlNode * elem;                /* the current node if any */
 	const xmlChar ** namespaces;    /* the namespaces definitions */
 	int nb_namespaces;              /* the number of namespaces */
 };
@@ -273,9 +273,9 @@ void xmlFreePatternList(xmlPattern * comp)
  *
  * Returns the newly allocated xmlPatParserContextPtr or NULL in case of error
  */
-static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xmlDictPtr dict, const xmlChar ** namespaces)
+static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xmlDict * dict, const xmlChar ** namespaces)
 {
-	xmlPatParserContextPtr cur;
+	xmlPatParserContext * cur;
 	if(pattern == NULL)
 		return 0;
 	cur = (xmlPatParserContextPtr)SAlloc::M(sizeof(xmlPatParserContext));
@@ -429,7 +429,7 @@ static int xmlReversePattern(xmlPatternPtr comp)
 *									*
 ************************************************************************/
 
-static int xmlPatPushState(xmlStepStates * states, int step, xmlNodePtr node)
+static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * node)
 {
 	if((states->states == NULL) || (states->maxstates <= 0)) {
 		states->maxstates = 4;
@@ -460,7 +460,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNodePtr node)
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-static int xmlPatMatch(xmlPatternPtr comp, xmlNodePtr node)
+static int xmlPatMatch(xmlPatternPtr comp, xmlNode * node)
 {
 	int i;
 	xmlStepOpPtr step;
@@ -507,7 +507,7 @@ restart:
 			    }
 			    continue;
 			case XML_OP_CHILD: {
-			    xmlNodePtr lst;
+			    xmlNode * lst;
 			    if((node->type != XML_ELEMENT_NODE) && (node->type != XML_DOCUMENT_NODE) &&
 #ifdef LIBXML_DOCB_ENABLED
 				    (node->type != XML_DOCB_DOCUMENT_NODE) &&
@@ -2265,7 +2265,7 @@ error:
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-int xmlPatternMatch(xmlPatternPtr comp, xmlNodePtr node)
+int xmlPatternMatch(xmlPatternPtr comp, xmlNode * node)
 {
 	int ret = 0;
 	if((comp == NULL) || (node == NULL))

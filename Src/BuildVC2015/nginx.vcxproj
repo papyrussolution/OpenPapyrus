@@ -40,13 +40,13 @@
     <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC70\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC70\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -289,11 +289,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="..\Osf\nginx\src\event\ngx_event_posted.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
-    </ClCompile>
-    <ClCompile Include="..\Osf\nginx\src\event\ngx_event_timer.c">
+    <ClCompile Include="..\OSF\nginx\src\event\ngx_event_timer.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
@@ -844,8 +840,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_connect.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_openssl.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_pipe.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_posted.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_timer.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_cache.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_core_module.h" />

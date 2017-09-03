@@ -1393,7 +1393,7 @@ found:
 					if(p == NULL) {
 						return NGX_CONF_ERROR;
 					}
-					ngx_memcpy(p, data, len);
+					memcpy(p, data, len);
 					op->data = (uintptr_t)p;
 				}
 			}

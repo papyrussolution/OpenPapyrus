@@ -40,7 +40,7 @@ void ngx_rbtree_insert(ngx_rbtree_t * tree, ngx_rbtree_node_t * node);
 void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node);
 void ngx_rbtree_insert_value(ngx_rbtree_node_t * root, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
 void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t * root, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
-ngx_rbtree_node_t * ngx_rbtree_next(ngx_rbtree_t * tree, ngx_rbtree_node_t * node);
+const ngx_rbtree_node_t * ngx_rbtree_next(const ngx_rbtree_t * tree, const ngx_rbtree_node_t * node);
 
 #define ngx_rbt_red(node)               ((node)->color = 1)
 #define ngx_rbt_black(node)             ((node)->color = 0)

@@ -53,8 +53,7 @@ static void clear_bits(cairo_mempool_t * pool, size_t first, size_t last)
 	size_t first_full = (first + 7) & ~7;
 	size_t past_full = last & ~7;
 	size_t bytes;
-	if(n > first_full)
-		n = first_full;
+	SETMIN(n, first_full);
 	for(i = first; i < n; i++)
 		BITCLEAR(pool, i);
 	if(past_full > first_full) {
@@ -62,8 +61,7 @@ static void clear_bits(cairo_mempool_t * pool, size_t first, size_t last)
 		bytes = bytes >> 3;
 		memzero(pool->map + (first_full >> 3), bytes);
 	}
-	if(past_full < n)
-		past_full = n;
+	SETMAX(past_full, n);
 	for(i = past_full; i < last; i++)
 		BITCLEAR(pool, i);
 }
@@ -80,16 +78,13 @@ static void free_bits(cairo_mempool_t * pool, size_t start, int bits, cairo_bool
 	if(bits > pool->max_free_bits)
 		pool->max_free_bits = bits;
 }
-
-/* Add a chunk to the free list */
-static void free_blocks(cairo_mempool_t * pool,
-    size_t first,
-    size_t last,
-    cairo_bool_t clear)
+//
+// Add a chunk to the free list 
+//
+static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, cairo_bool_t clear)
 {
 	size_t i, len;
 	int bits = 0;
-
 	for(i = first, len = 1; i < last; i += len) {
 		/* To avoid cost quadratic in the number of different
 		 * blocks produced from this chunk of store, we have to
@@ -114,30 +109,22 @@ static void free_blocks(cairo_mempool_t * pool,
 		while(bits < pool->num_sizes - 1) {
 			size_t next_bits = bits + 1;
 			size_t next_len = len << 1;
-
 			if(i + next_bits > last) {
 				/* off end of chunk to be freed */
 				break;
 			}
-
 			if(i & (next_len - 1)) /* block would not be on boundary */
 				break;
-
 			bits = next_bits;
 			len = next_len;
 		}
-
 		do {
-			if(i + len <= last && /* off end of chunk to be freed */
-			    (i & (len - 1)) == 0) /* block would not be on boundary */
+			if(i + len <= last && /* off end of chunk to be freed */ (i & (len - 1)) == 0) /* block would not be on boundary */
 				break;
-
 			bits--; len >>= 1;
 		} while(len);
-
 		if(len == 0)
 			break;
-
 		free_bits(pool, i, bits, clear);
 	}
 }
@@ -165,25 +152,21 @@ static void merge_buddies(cairo_mempool_t * pool, _cairo_mempool::_cairo_membloc
 		block = get_buddy(pool, buddy_offset, bits);
 		if(block == NULL)
 			break;
-
 		cairo_list_del(&block->link);
-
-		/* Merged block starts at buddy */
+		// Merged block starts at buddy 
 		if(buddy_offset < block_offset)
 			block_offset = buddy_offset;
-
 		bits++;
 	}
-
 	block = pool->blocks + block_offset;
 	block->bits = bits;
 	cairo_list_add(&block->link, &pool->free[bits]);
-
 	if(bits > pool->max_free_bits)
 		pool->max_free_bits = bits;
 }
-
-/* attempt to merge all available buddies up to a particular size */
+//
+// attempt to merge all available buddies up to a particular size 
+//
 static int merge_bits(cairo_mempool_t * pool, int max_bits)
 {
 	_cairo_mempool::_cairo_memblock * block, * buddy, * next;
@@ -204,8 +187,9 @@ static int merge_bits(cairo_mempool_t * pool, int max_bits)
 	}
 	return pool->max_free_bits;
 }
-
-/* find store for 1 << bits blocks */
+//
+// find store for 1 << bits blocks 
+//
 static void * buddy_malloc(cairo_mempool_t * pool, int bits)
 {
 	size_t past, offset;
@@ -213,7 +197,7 @@ static void * buddy_malloc(cairo_mempool_t * pool, int bits)
 	int b;
 	if(bits > pool->max_free_bits && bits > merge_bits(pool, bits))
 		return NULL;
-	/* Find a list with blocks big enough on it */
+	// Find a list with blocks big enough on it 
 	block = NULL;
 	for(b = bits; b <= pool->max_free_bits; b++) {
 		if(!cairo_list_is_empty(&pool->free[b])) {
@@ -227,26 +211,23 @@ static void * buddy_malloc(cairo_mempool_t * pool, int bits)
 		if(--pool->max_free_bits == -1)
 			break;
 	}
-	/* Mark end of allocated area */
+	// Mark end of allocated area 
 	offset = block - pool->blocks;
 	past = offset + (1 << bits);
 	BITSET(pool, past - 1);
 	block->bits = bits;
-
-	/* If we used a larger free block than we needed, free the rest */
+	// If we used a larger free block than we needed, free the rest 
 	pool->free_bytes -= 1 << (b + pool->min_bits);
 	free_blocks(pool, past, offset + (1 << b), 0);
-
 	return pool->base + ((block - pool->blocks) << pool->min_bits);
 }
 
 cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t bytes, int min_bits, int num_sizes)
 {
-	ulong tmp;
 	int num_blocks;
 	int i;
-	/* Align the start to an integral chunk */
-	tmp = ((ulong)base) & ((1 << min_bits) - 1);
+	// Align the start to an integral chunk 
+	ulong tmp = ((ulong)base) & ((1 << min_bits) - 1);
 	if(tmp) {
 		tmp = (1 << min_bits) - tmp;
 		base = (char*)base + tmp;
@@ -274,10 +255,8 @@ cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t b
 	}
 	memset(pool->map, -1, (num_blocks + 7) >> 3);
 	clear_bits(pool, 0, num_blocks);
-
-	/* Now add all blocks to the free list */
+	// Now add all blocks to the free list 
 	free_blocks(pool, 0, num_blocks, 1);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

@@ -532,15 +532,15 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 				    char s[100];
 				    lineState &= 0xff00;
 				    sc.GetCurrent(s, sizeof(s));
-				    if(options.portStyling && (strcmp(s, "input") == 0)) {
+				    if(options.portStyling && sstreq(s, "input")) {
 					    lineState = kwInput;
 					    sc.ChangeState(SCE_V_INPUT|activitySet);
 				    }
-				    else if(options.portStyling && (strcmp(s, "output") == 0)) {
+				    else if(options.portStyling && sstreq(s, "output")) {
 					    lineState = kwOutput;
 					    sc.ChangeState(SCE_V_OUTPUT|activitySet);
 				    }
-				    else if(options.portStyling && (strcmp(s, "inout") == 0)) {
+				    else if(options.portStyling && sstreq(s, "inout")) {
 					    lineState = kwInout;
 					    sc.ChangeState(SCE_V_INOUT|activitySet);
 				    }

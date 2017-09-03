@@ -7,7 +7,6 @@
  *
  * Author: Bjorn Reese <bjorn.reese@systematic.dk>
  */
-
 #ifndef __XML_HASH_H__
 #define __XML_HASH_H__
 
@@ -26,7 +25,7 @@ typedef xmlHashTable * xmlHashTablePtr;
 
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,7 +97,7 @@ typedef void (*xmlHashScannerFull)(void *payload, void *data, const xmlChar *nam
  * Constructor and destructor.
  */
 XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCreate(int size);
-XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCreateDict(int size, xmlDictPtr dict);
+XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCreateDict(int size, xmlDict * dict);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f);
 
 /*
@@ -133,8 +132,7 @@ XMLPUBFUN void * XMLCALL xmlHashQLookup3(xmlHashTablePtr table, const xmlChar *n
 XMLPUBFUN xmlHashTablePtr XMLCALL xmlHashCopy(xmlHashTablePtr table, xmlHashCopier f);
 XMLPUBFUN int XMLCALL xmlHashSize(xmlHashTablePtr table);
 XMLPUBFUN void XMLCALL xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void *data);
-XMLPUBFUN void XMLCALL xmlHashScan3(xmlHashTablePtr table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3,
-	xmlHashScanner f, void *data);
+XMLPUBFUN void XMLCALL xmlHashScan3(xmlHashTablePtr table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
 XMLPUBFUN void XMLCALL xmlHashScanFull(xmlHashTablePtr table, xmlHashScannerFull f, void *data);
 XMLPUBFUN void XMLCALL xmlHashScanFull3(xmlHashTablePtr table, const xmlChar *name, const xmlChar *name2,
 	const xmlChar *name3, xmlHashScannerFull f, void *data);

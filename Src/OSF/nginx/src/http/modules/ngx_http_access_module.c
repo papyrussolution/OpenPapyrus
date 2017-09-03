@@ -336,17 +336,14 @@ static char * ngx_http_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		rule6->deny = (value[0].data[0] == 'd') ? 1 : 0;
 	}
 #endif
-
 #if (NGX_HAVE_UNIX_DOMAIN)
 	if(cidr.family == AF_UNIX || all) {
 		if(alcf->rules_un == NULL) {
-			alcf->rules_un = ngx_array_create(cf->pool, 1,
-			    sizeof(ngx_http_access_rule_un_t));
+			alcf->rules_un = ngx_array_create(cf->pool, 1, sizeof(ngx_http_access_rule_un_t));
 			if(alcf->rules_un == NULL) {
 				return NGX_CONF_ERROR;
 			}
 		}
-
 		rule_un = ngx_array_push(alcf->rules_un);
 		if(rule_un == NULL) {
 			return NGX_CONF_ERROR;

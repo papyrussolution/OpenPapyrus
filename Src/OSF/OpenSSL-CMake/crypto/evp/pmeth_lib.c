@@ -10,8 +10,8 @@
 #pragma hdrstop
 //#include <openssl/evp.h>
 //#include <openssl/x509v3.h>
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
+//#include "internal/asn1_int.h"
+//#include <internal/evp_int.h>
 #include "internal/numbers.h"
 
 typedef int sk_cmp_fn_type (const char * const * a, const char * const * b);

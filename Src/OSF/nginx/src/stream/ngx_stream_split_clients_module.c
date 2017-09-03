@@ -98,100 +98,71 @@ static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
 	ngx_uint_t i;
 	ngx_conf_t save;
 	ngx_stream_variable_t * var;
-	ngx_stream_split_clients_ctx_t * ctx;
 	ngx_stream_split_clients_part_t   * part;
 	ngx_stream_compile_complex_value_t ccv;
-
-	ctx = (ngx_stream_split_clients_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_split_clients_ctx_t));
+	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_split_clients_ctx_t));
 	if(ctx == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = &value[1];
 	ccv.complex_value = &ctx->value;
-
 	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	name = value[2];
-
 	if(name.data[0] != '$') {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid variable name \"%V\"", &name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-
 	name.len--;
 	name.data++;
-
 	var = ngx_stream_add_variable(cf, &name, NGX_STREAM_VAR_CHANGEABLE);
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	var->get_handler = ngx_stream_split_clients_variable;
 	var->data = (uintptr_t)ctx;
-
-	if(ngx_array_init(&ctx->parts, cf->pool, 2,
-		    sizeof(ngx_stream_split_clients_part_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&ctx->parts, cf->pool, 2, sizeof(ngx_stream_split_clients_part_t)) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	save = *cf;
 	cf->ctx = ctx;
 	cf->handler = ngx_stream_split_clients;
 	cf->handler_conf = (char *)conf;
-
 	rv = ngx_conf_parse(cf, NULL);
-
 	*cf = save;
-
 	if(rv != NGX_CONF_OK) {
 		return rv;
 	}
-
 	sum = 0;
 	last = 0;
 	part = (ngx_stream_split_clients_part_t *)ctx->parts.elts;
 	for(i = 0; i < ctx->parts.nelts; i++) {
 		sum = part[i].percent ? sum + part[i].percent : 10000;
 		if(sum > 10000) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "percent total is greater than 100%%");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "percent total is greater than 100%%");
 			return NGX_CONF_ERROR;
 		}
-
 		if(part[i].percent) {
 			last += part[i].percent * (uint64_t)0xffffffff / 10000;
 			part[i].percent = last;
 		}
 	}
-
 	return rv;
 }
 
 static char * ngx_stream_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
 {
 	ngx_int_t n;
-	ngx_str_t * value;
-	ngx_stream_split_clients_ctx_t * ctx;
-	ngx_stream_split_clients_part_t  * part;
-
-	ctx = (ngx_stream_split_clients_ctx_t *)cf->ctx;
-	value = (ngx_str_t*)cf->args->elts;
-
-	part = (ngx_stream_split_clients_part_t *)ngx_array_push(&ctx->parts);
+	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t *)cf->ctx;
+	const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_stream_split_clients_part_t  * part = (ngx_stream_split_clients_part_t *)ngx_array_push(&ctx->parts);
 	if(part == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(value[0].len == 1 && value[0].data[0] == '*') {
 		part->percent = 0;
 	}
@@ -199,27 +170,19 @@ static char * ngx_stream_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, v
 		if(value[0].len == 0 || value[0].data[value[0].len - 1] != '%') {
 			goto invalid;
 		}
-
 		n = ngx_atofp(value[0].data, value[0].len - 1, 2);
 		if(n == NGX_ERROR || n == 0) {
 			goto invalid;
 		}
-
 		part->percent = (uint32_t)n;
 	}
-
 	part->value.len = value[1].len;
 	part->value.valid = 1;
 	part->value.no_cacheable = 0;
 	part->value.not_found = 0;
 	part->value.data = value[1].data;
-
 	return NGX_CONF_OK;
-
 invalid:
-
-	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-	    "invalid percent value \"%V\"", &value[0]);
+	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid percent value \"%V\"", &value[0]);
 	return NGX_CONF_ERROR;
 }
-

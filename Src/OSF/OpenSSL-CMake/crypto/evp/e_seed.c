@@ -12,7 +12,7 @@
 NON_EMPTY_TRANSLATION_UNIT
 #else
 #include <openssl/seed.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 static int seed_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
                          const uchar *iv, int enc);

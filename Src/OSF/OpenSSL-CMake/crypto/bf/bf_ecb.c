@@ -8,10 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/blowfish.h>
+//#include <openssl/blowfish.h>
+//#include <openssl/opensslv.h>
 #include "bf_locl.h"
-#include <openssl/opensslv.h>
-
 /*
  * Blowfish as implemented from 'Blowfish: Springer-Verlag paper' (From
  * LECTURE NOTES IN COMPUTER SCIENCE 809, FAST SOFTWARE ENCRYPTION, CAMBRIDGE

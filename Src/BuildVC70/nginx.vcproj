@@ -434,21 +434,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\event\ngx_event_posted.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\event\ngx_event_timer.c">
 				<FileConfiguration
 					Name="Debug|Win32">

@@ -960,7 +960,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 					    cleanup_helpers_head = p->next;
 				    else
 					    p->prev->next = p->next;
-				    if(p->next != NULL)
+				    if(p->next)
 					    p->next->prev = p->prev;
 				    LeaveCriticalSection(&cleanup_helpers_cs);
 				    SAlloc::F(p);

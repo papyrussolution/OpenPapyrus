@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/opensslv.h>
+//#include <openssl/opensslv.h>
 #include <openssl/camellia.h>
 #include "cmll_locl.h"
 

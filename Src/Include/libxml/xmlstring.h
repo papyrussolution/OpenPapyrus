@@ -17,7 +17,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * xmlChar:
  *
@@ -26,14 +25,12 @@ extern "C" {
  * to xmlChar * (possibly making serialization back impossible).
  */
 typedef uchar xmlChar;
-
 /**
  * BAD_CAST:
  *
  * Macro to cast a string to an xmlChar * when one know its safe.
  */
 #define BAD_CAST (xmlChar*)
-
 /*
  * xmlChar handling
  */

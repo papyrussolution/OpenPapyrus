@@ -852,7 +852,7 @@ static void xmlRegFreeParserCtxt(xmlRegParserCtxtPtr ctxt)
 {
 	if(ctxt) {
 		SAlloc::F(ctxt->string);
-		if(ctxt->states != NULL) {
+		if(ctxt->states) {
 			for(int i = 0; i < ctxt->nbStates; i++)
 				xmlRegFreeState(ctxt->states[i]);
 			SAlloc::F(ctxt->states);
@@ -6012,7 +6012,7 @@ int xmlAutomataIsDeterminist(xmlAutomataPtr am)
 ************************************************************************/
 
 struct _xmlExpCtxt {
-	xmlDictPtr dict;
+	xmlDict * dict;
 	xmlExpNodePtr * table;
 	int size;
 	int nbElems;
@@ -6033,7 +6033,7 @@ struct _xmlExpCtxt {
  *
  * Returns the context or NULL in case of error
  */
-xmlExpCtxtPtr xmlExpNewCtxt(int maxNodes, xmlDictPtr dict)
+xmlExpCtxtPtr xmlExpNewCtxt(int maxNodes, xmlDict * dict)
 {
 	xmlExpCtxtPtr ret;
 	int size = 256;

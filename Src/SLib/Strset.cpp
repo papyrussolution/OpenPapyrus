@@ -1,5 +1,6 @@
 // STRSET.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -134,8 +135,8 @@ int FASTCALL StringSet::Read(SBuffer & rBuf)
 int SLAPI StringSet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	//
-	// Note: Ôîðìàò ñåðèàëèçàöèè, ïðèìåíÿåìûé äàííîé ôóíêöèåé äîëæåí â òî÷íîñòè ñîâïàäàòü
-	//   ñ ôîðìàòîì, ïðèìåíÿåìûì ôóíêöèÿìè StringSet::Write è StringSet::Read.
+	// Note: Ð¤Ð¾Ñ€Ð¼Ð°Ñ‚ ÑÐµÑ€Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸, Ð¿Ñ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼Ñ‹Ð¹ Ð´Ð°Ð½Ð½Ð¾Ð¹ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð² Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚Ð¸ ÑÐ¾Ð²Ð¿Ð°Ð´Ð°Ñ‚ÑŒ
+	//   Ñ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ð¾Ð¼, Ð¿Ñ€Ð¸Ð¼ÐµÐ½ÑÐµÐ¼Ñ‹Ð¼ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÑÐ¼Ð¸ StringSet::Write Ð¸ StringSet::Read.
 	//
 	return (dir > 0) ? Write(rBuf) : ((dir < 0) ? Read(rBuf) : -1);
 }
@@ -329,7 +330,7 @@ int FASTCALL StringSet::add(const char * str, uint * pPos)
 	const size_t add_len   = strlen(str);
 	const size_t new_len   = DataLen + add_len + delim_len;
 	uint   p;
-	if(new_len <= Size || Alloc(new_len)) { // @v8.2.9 (new_len <= Size ||) ðàäè óñêîðåíèÿ //
+	if(new_len <= Size || Alloc(new_len)) { // @v8.2.9 (new_len <= Size ||) Ñ€Ð°Ð´Ð¸ ÑƒÑÐºÐ¾Ñ€ÐµÐ½Ð¸Ñ //
 		if(DataLen == 0) {
 			p = 0;
 			memcpy(P_Buf + p, str, add_len+1);
@@ -384,7 +385,7 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 			const char * p_end = (fix_delim_len == 1) ? strchr(c, Delim[0]) : strstr(c, Delim);
 			if(p_end)
 				len = (uint)(p_end - c);
-			else { // Êîíåö áóôåðà äàííûõ (â êîíöå ðàçäåëèòåëÿ íåò)
+			else { // ÐšÐ¾Ð½ÐµÑ† Ð±ÑƒÑ„ÐµÑ€Ð° Ð´Ð°Ð½Ð½Ñ‹Ñ… (Ð² ÐºÐ¾Ð½Ñ†Ðµ Ñ€Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»Ñ Ð½ÐµÑ‚)
 				delim_len = 1;
 				len = strlen(c);
 			}
@@ -415,7 +416,7 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 				p += (len + delim_len);
 		}
 		else
-			break; // Êîíåö áóôåðà äàííûõ - áîëüøå íè÷åãî íåò
+			break; // ÐšÐ¾Ð½ÐµÑ† Ð±ÑƒÑ„ÐµÑ€Ð° Ð´Ð°Ð½Ð½Ñ‹Ñ… - Ð±Ð¾Ð»ÑŒÑˆÐµ Ð½Ð¸Ñ‡ÐµÐ³Ð¾ Ð½ÐµÑ‚
 	}
 	ASSIGN_PTR(pPos, p);
 	ASSIGN_PTR(pNextPos, next_pos);

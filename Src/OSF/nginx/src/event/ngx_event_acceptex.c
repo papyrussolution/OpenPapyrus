@@ -121,8 +121,7 @@ ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 				ngx_close_posted_connection(c);
 				return NGX_ERROR;
 			}
-			if(ngx_acceptex(ls->fd, s, c->buffer->pos, ls->post_accept_buffer_size,
-					ls->socklen + 16, ls->socklen + 16, &rcvd, (LPOVERLAPPED)&rev->ovlp) == 0) {
+			if(ngx_acceptex(ls->fd, s, c->buffer->pos, ls->post_accept_buffer_size, ls->socklen + 16, ls->socklen + 16, &rcvd, (LPOVERLAPPED)&rev->ovlp) == 0) {
 				err = ngx_socket_errno;
 				if(err != WSA_IO_PENDING) {
 					ngx_log_error(NGX_LOG_ALERT, &ls->log, err, "AcceptEx() %V failed", &ls->addr_text);

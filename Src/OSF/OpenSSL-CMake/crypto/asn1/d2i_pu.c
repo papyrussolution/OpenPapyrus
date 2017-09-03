@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 EVP_PKEY * d2i_PublicKey(int type, EVP_PKEY ** a, const uchar ** pp, long length)
 {

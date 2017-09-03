@@ -103,9 +103,7 @@ XMLPUBFUN int XMLCALL
  *
  * Returns 1 if the node should be included
  */
-typedef int (*xmlC14NIsVisibleCallback)	(void* user_data,
-					 xmlNodePtr node,
-					 xmlNodePtr parent);
+typedef int (*xmlC14NIsVisibleCallback)	(void* user_data, xmlNodePtr node, xmlNodePtr parent);
 
 XMLPUBFUN int XMLCALL
 		xmlC14NExecute		(xmlDocPtr doc,

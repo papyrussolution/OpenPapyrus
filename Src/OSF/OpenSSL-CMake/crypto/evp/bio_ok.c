@@ -70,7 +70,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include "internal/bio.h"
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 static int ok_write(BIO * h, const char * buf, int num);
 static int ok_read(BIO * h, char * buf, int size);

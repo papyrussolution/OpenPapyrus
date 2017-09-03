@@ -17,43 +17,28 @@ static ssize_t ngx_http_file_cache_aio_read(ngx_http_request_t * r, ngx_http_cac
 static void ngx_http_cache_aio_event_handler(ngx_event_t * ev);
 #endif
 #if (NGX_THREADS)
-static ngx_int_t ngx_http_cache_thread_handler(ngx_thread_task_t * task,
-    ngx_file_t * file);
-static void ngx_http_cache_thread_event_handler(ngx_event_t * ev);
+	static ngx_int_t ngx_http_cache_thread_handler(ngx_thread_task_t * task, ngx_file_t * file);
+	static void ngx_http_cache_thread_event_handler(ngx_event_t * ev);
 #endif
-static ngx_int_t ngx_http_file_cache_exists(ngx_http_file_cache_t * cache,
-    ngx_http_cache_t * c);
-static ngx_int_t ngx_http_file_cache_name(ngx_http_request_t * r,
-    ngx_path_t * path);
+static ngx_int_t ngx_http_file_cache_exists(ngx_http_file_cache_t * cache, ngx_http_cache_t * c);
+static ngx_int_t ngx_http_file_cache_name(ngx_http_request_t * r, ngx_path_t * path);
 static ngx_http_file_cache_node_t * ngx_http_file_cache_lookup(ngx_http_file_cache_t * cache, u_char * key);
-static void ngx_http_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp,
-    ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
-static void ngx_http_file_cache_vary(ngx_http_request_t * r, u_char * vary,
-    size_t len, u_char * hash);
-static void ngx_http_file_cache_vary_header(ngx_http_request_t * r,
-    ngx_md5_t * md5, ngx_str_t * name);
-static ngx_int_t ngx_http_file_cache_reopen(ngx_http_request_t * r,
-    ngx_http_cache_t * c);
-static ngx_int_t ngx_http_file_cache_update_variant(ngx_http_request_t * r,
-    ngx_http_cache_t * c);
+static void ngx_http_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
+static void ngx_http_file_cache_vary(ngx_http_request_t * r, u_char * vary, size_t len, u_char * hash);
+static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * md5, ngx_str_t * name);
+static ngx_int_t ngx_http_file_cache_reopen(ngx_http_request_t * r, ngx_http_cache_t * c);
+static ngx_int_t ngx_http_file_cache_update_variant(ngx_http_request_t * r, ngx_http_cache_t * c);
 static void ngx_http_file_cache_cleanup(void * data);
 static time_t ngx_http_file_cache_forced_expire(ngx_http_file_cache_t * cache);
 static time_t ngx_http_file_cache_expire(ngx_http_file_cache_t * cache);
-static void ngx_http_file_cache_delete(ngx_http_file_cache_t * cache,
-    ngx_queue_t * q, u_char * name);
+static void ngx_http_file_cache_delete(ngx_http_file_cache_t * cache, ngx_queue_t * q, u_char * name);
 static void ngx_http_file_cache_loader_sleep(ngx_http_file_cache_t * cache);
-static ngx_int_t ngx_http_file_cache_noop(ngx_tree_ctx_t * ctx,
-    ngx_str_t * path);
-static ngx_int_t ngx_http_file_cache_manage_file(ngx_tree_ctx_t * ctx,
-    ngx_str_t * path);
-static ngx_int_t ngx_http_file_cache_manage_directory(ngx_tree_ctx_t * ctx,
-    ngx_str_t * path);
-static ngx_int_t ngx_http_file_cache_add_file(ngx_tree_ctx_t * ctx,
-    ngx_str_t * path);
-static ngx_int_t ngx_http_file_cache_add(ngx_http_file_cache_t * cache,
-    ngx_http_cache_t * c);
-static ngx_int_t ngx_http_file_cache_delete_file(ngx_tree_ctx_t * ctx,
-    ngx_str_t * path);
+static ngx_int_t ngx_http_file_cache_noop(ngx_tree_ctx_t * ctx, ngx_str_t * path);
+static ngx_int_t ngx_http_file_cache_manage_file(ngx_tree_ctx_t * ctx, ngx_str_t * path);
+static ngx_int_t ngx_http_file_cache_manage_directory(ngx_tree_ctx_t * ctx, ngx_str_t * path);
+static ngx_int_t ngx_http_file_cache_add_file(ngx_tree_ctx_t * ctx, ngx_str_t * path);
+static ngx_int_t ngx_http_file_cache_add(ngx_http_file_cache_t * cache, ngx_http_cache_t * c);
+static ngx_int_t ngx_http_file_cache_delete_file(ngx_tree_ctx_t * ctx, ngx_str_t * path);
 static void ngx_http_file_cache_set_watermark(ngx_http_file_cache_t * cache);
 
 ngx_str_t ngx_http_cache_status[] = {
@@ -77,39 +62,28 @@ static ngx_int_t ngx_http_file_cache_init(ngx_shm_zone_t * shm_zone, void * data
 	if(ocache) {
 		if(ngx_strcmp(cache->path->name.data, ocache->path->name.data) != 0) {
 			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0,
-			    "cache \"%V\" uses the \"%V\" cache path "
-			    "while previously it used the \"%V\" cache path",
-			    &shm_zone->shm.name, &cache->path->name,
-			    &ocache->path->name);
+			    "cache \"%V\" uses the \"%V\" cache path while previously it used the \"%V\" cache path",
+			    &shm_zone->shm.name, &cache->path->name, &ocache->path->name);
 
 			return NGX_ERROR;
 		}
 
 		for(n = 0; n < NGX_MAX_PATH_LEVEL; n++) {
 			if(cache->path->level[n] != ocache->path->level[n]) {
-				ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0,
-				    "cache \"%V\" had previously different levels",
-				    &shm_zone->shm.name);
+				ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0, "cache \"%V\" had previously different levels", &shm_zone->shm.name);
 				return NGX_ERROR;
 			}
 		}
-
 		cache->sh = ocache->sh;
-
 		cache->shpool = ocache->shpool;
 		cache->bsize = ocache->bsize;
-
 		cache->max_size /= cache->bsize;
-
 		if(!cache->sh->cold || cache->sh->loading) {
 			cache->path->loader = NULL;
 		}
-
 		return NGX_OK;
 	}
-
 	cache->shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
-
 	if(shm_zone->shm.exists) {
 		cache->sh = (ngx_http_file_cache_sh_t *)cache->shpool->data;
 		cache->bsize = ngx_fs_bsize(cache->path->name.data);
@@ -214,7 +188,7 @@ void ngx_http_file_cache_create_key(ngx_http_request_t * r)
 	ngx_crc32_final(c->crc32);
 	ngx_md5_final(c->key, &md5);
 
-	ngx_memcpy(c->main, c->key, NGX_HTTP_CACHE_KEY_LEN);
+	memcpy(c->main, c->key, NGX_HTTP_CACHE_KEY_LEN);
 }
 
 ngx_int_t ngx_http_file_cache_open(ngx_http_request_t * r)
@@ -458,7 +432,7 @@ static ngx_int_t ngx_http_file_cache_read(ngx_http_request_t * r, ngx_http_cache
 
 	key = (ngx_str_t *)c->keys.elts;
 	for(i = 0; i < c->keys.nelts; i++) {
-		if(ngx_memcmp(p, key[i].data, key[i].len) != 0) {
+		if(memcmp(p, key[i].data, key[i].len) != 0) {
 			ngx_log_error(NGX_LOG_CRIT, r->connection->log, 0,
 			    "cache file \"%s\" has md5 collision",
 			    c->file.name.data);
@@ -485,7 +459,7 @@ static ngx_int_t ngx_http_file_cache_read(ngx_http_request_t * r, ngx_http_cache
 	if(h->vary_len) {
 		ngx_http_file_cache_vary(r, h->vary, h->vary_len, c->variant);
 
-		if(ngx_memcmp(c->variant, h->variant, NGX_HTTP_CACHE_KEY_LEN) != 0) {
+		if(memcmp(c->variant, h->variant, NGX_HTTP_CACHE_KEY_LEN) != 0) {
 			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
 			    "http file cache vary mismatch");
 			return ngx_http_file_cache_reopen(r, c);
@@ -738,8 +712,8 @@ static ngx_int_t ngx_http_file_cache_exists(ngx_http_file_cache_t * cache, ngx_h
 		}
 	}
 	cache->sh->count++;
-	ngx_memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
-	ngx_memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)], NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
+	memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
+	memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)], NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
 	ngx_rbtree_insert(&cache->sh->rbtree, &fcn->node);
 	fcn->uses = 1;
 	fcn->count = 1;
@@ -775,7 +749,7 @@ static ngx_int_t ngx_http_file_cache_name(ngx_http_request_t * r, ngx_path_t * p
 	if(c->file.name.data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(c->file.name.data, path->name.data, path->name.len);
+	memcpy(c->file.name.data, path->name.data, path->name.len);
 	p = c->file.name.data + path->name.len + 1 + path->len;
 	p = ngx_hex_dump(p, c->key, NGX_HTTP_CACHE_KEY_LEN);
 	*p = '\0';
@@ -790,7 +764,7 @@ static ngx_http_file_cache_node_t * ngx_http_file_cache_lookup(ngx_http_file_cac
 	ngx_rbtree_key_t node_key;
 	ngx_rbtree_node_t * node, * sentinel;
 	ngx_http_file_cache_node_t  * fcn;
-	ngx_memcpy((u_char*)&node_key, key, sizeof(ngx_rbtree_key_t));
+	memcpy((u_char*)&node_key, key, sizeof(ngx_rbtree_key_t));
 	node = cache->sh->rbtree.root;
 	sentinel = cache->sh->rbtree.sentinel;
 	while(node != sentinel) {
@@ -804,7 +778,7 @@ static ngx_http_file_cache_node_t * ngx_http_file_cache_lookup(ngx_http_file_cac
 		}
 		/* node_key == node->key */
 		fcn = (ngx_http_file_cache_node_t*)node;
-		rc = ngx_memcmp(&key[sizeof(ngx_rbtree_key_t)], fcn->key, NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
+		rc = memcmp(&key[sizeof(ngx_rbtree_key_t)], fcn->key, NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
 		if(rc == 0) {
 			return fcn;
 		}
@@ -829,7 +803,7 @@ static void ngx_http_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 			cn = (ngx_http_file_cache_node_t*)node;
 			cnt = (ngx_http_file_cache_node_t*)temp;
 
-			p = (ngx_memcmp(cn->key, cnt->key,
+			p = (memcmp(cn->key, cnt->key,
 				    NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t))
 			    < 0)
 			    ? &temp->left : &temp->right;
@@ -1008,7 +982,7 @@ static ngx_int_t ngx_http_file_cache_reopen(ngx_http_request_t * r, ngx_http_cac
 	c->file.name.len = 0;
 	c->body_start = c->buf->end - c->buf->start;
 
-	ngx_memcpy(c->key, c->variant, NGX_HTTP_CACHE_KEY_LEN);
+	memcpy(c->key, c->variant, NGX_HTTP_CACHE_KEY_LEN);
 
 	return ngx_http_file_cache_open(r);
 }
@@ -1042,7 +1016,7 @@ ngx_int_t ngx_http_file_cache_set_header(ngx_http_request_t * r, u_char * buf)
 
 	if(c->etag.len <= NGX_HTTP_CACHE_ETAG_LEN) {
 		h->etag_len = (u_char)c->etag.len;
-		ngx_memcpy(h->etag, c->etag.data, c->etag.len);
+		memcpy(h->etag, c->etag.data, c->etag.len);
 	}
 
 	if(c->vary.len) {
@@ -1052,10 +1026,10 @@ ngx_int_t ngx_http_file_cache_set_header(ngx_http_request_t * r, u_char * buf)
 		}
 
 		h->vary_len = (u_char)c->vary.len;
-		ngx_memcpy(h->vary, c->vary.data, c->vary.len);
+		memcpy(h->vary, c->vary.data, c->vary.len);
 
 		ngx_http_file_cache_vary(r, c->vary.data, c->vary.len, c->variant);
-		ngx_memcpy(h->variant, c->variant, NGX_HTTP_CACHE_KEY_LEN);
+		memcpy(h->variant, c->variant, NGX_HTTP_CACHE_KEY_LEN);
 	}
 
 	if(ngx_http_file_cache_update_variant(r, c) != NGX_OK) {
@@ -1085,7 +1059,7 @@ static ngx_int_t ngx_http_file_cache_update_variant(ngx_http_request_t * r, ngx_
 	}
 
 	if(c->vary.len
-	    && ngx_memcmp(c->variant, c->key, NGX_HTTP_CACHE_KEY_LEN) == 0) {
+	    && memcmp(c->variant, c->key, NGX_HTTP_CACHE_KEY_LEN) == 0) {
 		return NGX_OK;
 	}
 
@@ -1109,7 +1083,7 @@ static ngx_int_t ngx_http_file_cache_update_variant(ngx_http_request_t * r, ngx_
 
 	c->file.name.len = 0;
 
-	ngx_memcpy(c->key, c->main, NGX_HTTP_CACHE_KEY_LEN);
+	memcpy(c->key, c->main, NGX_HTTP_CACHE_KEY_LEN);
 
 	if(ngx_http_file_cache_exists(cache, c) == NGX_ERROR) {
 		return NGX_ERROR;
@@ -1294,7 +1268,7 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 	h.body_start = (u_short)c->body_start;
 	if(c->etag.len <= NGX_HTTP_CACHE_ETAG_LEN) {
 		h.etag_len = (u_char)c->etag.len;
-		ngx_memcpy(h.etag, c->etag.data, c->etag.len);
+		memcpy(h.etag, c->etag.data, c->etag.len);
 	}
 	if(c->vary.len) {
 		if(c->vary.len > NGX_HTTP_CACHE_VARY_LEN) {
@@ -1302,9 +1276,9 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 			c->vary.len = NGX_HTTP_CACHE_VARY_LEN;
 		}
 		h.vary_len = (u_char)c->vary.len;
-		ngx_memcpy(h.vary, c->vary.data, c->vary.len);
+		memcpy(h.vary, c->vary.data, c->vary.len);
 		ngx_http_file_cache_vary(r, c->vary.data, c->vary.len, c->variant);
-		ngx_memcpy(h.variant, c->variant, NGX_HTTP_CACHE_KEY_LEN);
+		memcpy(h.variant, c->variant, NGX_HTTP_CACHE_KEY_LEN);
 	}
 	(void)ngx_write_file(&file, (u_char*)&h, sizeof(ngx_http_file_cache_header_t), 0);
 done:
@@ -1420,7 +1394,7 @@ static time_t ngx_http_file_cache_forced_expire(ngx_http_file_cache_t * cache)
 	if(name == NULL) {
 		return 10;
 	}
-	ngx_memcpy(name, path->name.data, path->name.len);
+	memcpy(name, path->name.data, path->name.len);
 	wait = 10;
 	tries = 20;
 	sentinel = NULL;
@@ -1487,7 +1461,7 @@ static time_t ngx_http_file_cache_expire(ngx_http_file_cache_t * cache)
 	if(name == NULL) {
 		return 10;
 	}
-	ngx_memcpy(name, path->name.data, path->name.len);
+	memcpy(name, path->name.data, path->name.len);
 	now = ngx_time();
 	ngx_shmtx_lock(&cache->shpool->mutex);
 	for(;; ) {
@@ -1832,9 +1806,9 @@ static ngx_int_t ngx_http_file_cache_add(ngx_http_file_cache_t * cache, ngx_http
 
 		cache->sh->count++;
 
-		ngx_memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
+		memcpy((u_char*)&fcn->node.key, c->key, sizeof(ngx_rbtree_key_t));
 
-		ngx_memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)],
+		memcpy(fcn->key, &c->key[sizeof(ngx_rbtree_key_t)],
 		    NGX_HTTP_CACHE_KEY_LEN - sizeof(ngx_rbtree_key_t));
 
 		ngx_rbtree_insert(&cache->sh->rbtree, &fcn->node);
@@ -2224,4 +2198,3 @@ char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, 
 	}
 	return NGX_CONF_OK;
 }
-

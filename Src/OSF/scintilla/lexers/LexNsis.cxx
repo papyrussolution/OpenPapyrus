@@ -95,20 +95,15 @@ static bool NsisNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor
 
 static int NsisCmp(const char * s1, const char * s2, bool bIgnoreCase)
 {
-	if(bIgnoreCase)
-		return CompareCaseInsensitive(s1, s2);
-
-	return strcmp(s1, s2);
+	return bIgnoreCase ? CompareCaseInsensitive(s1, s2) : strcmp(s1, s2);
 }
 
 static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor &styler, bool bElse, bool foldUtilityCmd)
 {
 	int style = styler.StyleAt(end);
-
 	// If the word is too long, it is not what we are looking for
 	if(end - start > 20)
 		return foldlevel;
-
 	if(foldUtilityCmd) {
 		// Check the style at this point, if it is not valid, then return zero
 		if(style != SCE_NSIS_FUNCTIONDEF && style != SCE_NSIS_SECTIONDEF &&

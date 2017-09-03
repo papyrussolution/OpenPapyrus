@@ -37,7 +37,7 @@ ngx_int_t ngx_cycle_modules(ngx_cycle_t * cycle)
 	if(cycle->modules == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(cycle->modules, ngx_modules, ngx_modules_n * sizeof(ngx_module_t *));
+	memcpy(cycle->modules, ngx_modules, ngx_modules_n * sizeof(ngx_module_t *));
 	cycle->modules_n = ngx_modules_n;
 	return NGX_OK;
 }
@@ -154,7 +154,7 @@ ngx_int_t ngx_add_module(ngx_conf_t * cf, ngx_str_t * file, ngx_module_t * pModu
 	}
 	/* put the module before modules[before] */
 	if(before != cf->cycle->modules_n) {
-		ngx_memmove(&cf->cycle->modules[before + 1], &cf->cycle->modules[before], (cf->cycle->modules_n - before) * sizeof(ngx_module_t *));
+		memmove(&cf->cycle->modules[before + 1], &cf->cycle->modules[before], (cf->cycle->modules_n - before) * sizeof(ngx_module_t *));
 	}
 	cf->cycle->modules[before] = pModule;
 	cf->cycle->modules_n++;

@@ -14,9 +14,9 @@
 //#include <openssl/x509v3.h>
 //#include <openssl/err.h>
 //#include <openssl/cms.h>
+//#include "internal/asn1_int.h"
+//#include <internal/evp_int.h>
 #include "cms_lcl.h"
-#include "internal/asn1_int.h"
-#include <internal/evp_int.h>
 
 /* CMS SignedData Utilities */
 

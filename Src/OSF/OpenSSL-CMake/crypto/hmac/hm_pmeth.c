@@ -12,7 +12,7 @@
 //#include <openssl/x509v3.h>
 //#include <openssl/evp.h>
 #include <openssl/hmac.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 /* HMAC pkey context structure */
 
@@ -159,17 +159,16 @@ static int pkey_hmac_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	return 1;
 }
 
-static int pkey_hmac_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_hmac_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
-	if(!value) {
+	if(!value)
 		return 0;
-	}
-	if(strcmp(type, "key") == 0)
+	else if(sstreq(type, "key"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_SET_MAC_KEY, value);
-	if(strcmp(type, "hexkey") == 0)
+	else if(sstreq(type, "hexkey"))
 		return EVP_PKEY_CTX_hex2ctrl(ctx, EVP_PKEY_CTRL_SET_MAC_KEY, value);
-	return -2;
+	else
+		return -2;
 }
 
 const EVP_PKEY_METHOD hmac_pkey_meth = {

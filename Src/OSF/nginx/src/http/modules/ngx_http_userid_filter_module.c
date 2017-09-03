@@ -563,7 +563,7 @@ static char * ngx_http_userid_domain(ngx_conf_t * cf, void * post, void * data)
 		return NGX_CONF_ERROR;
 	}
 	p = ngx_cpymem(p_new, "; domain=", sizeof("; domain=") - 1);
-	ngx_memcpy(p, domain->data, domain->len);
+	memcpy(p, domain->data, domain->len);
 	domain->len += sizeof("; domain=") - 1;
 	domain->data = p_new;
 	return NGX_CONF_OK;
@@ -578,7 +578,7 @@ static char * ngx_http_userid_path(ngx_conf_t * cf, void * post, void * data)
 		return NGX_CONF_ERROR;
 	}
 	p = ngx_cpymem(p_new, "; path=", sizeof("; path=") - 1);
-	ngx_memcpy(p, path->data, path->len);
+	memcpy(p, path->data, path->len);
 	path->len += sizeof("; path=") - 1;
 	path->data = p_new;
 	return NGX_CONF_OK;

@@ -326,7 +326,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    BIO_copy_next_retry(b);
 		    break;
 		case BIO_CTRL_PUSH:
-		    if((next != NULL) && (next != ssl->rbio)) {
+		    if(next && (next != ssl->rbio)) {
 			    /*
 			     * We are going to pass ownership of next to the SSL object...but
 			     * we don't own a reference to pass yet - so up ref

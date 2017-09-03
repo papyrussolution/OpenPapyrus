@@ -425,7 +425,7 @@ static ngx_int_t ngx_http_limit_req_lookup(ngx_http_limit_req_limit_t * limit, n
 	lr->len = (u_short)key->len;
 	lr->excess = 0;
 
-	ngx_memcpy(lr->data, key->data, key->len);
+	memcpy(lr->data, key->data, key->len);
 
 	ngx_rbtree_insert(&ctx->sh->rbtree, node);
 

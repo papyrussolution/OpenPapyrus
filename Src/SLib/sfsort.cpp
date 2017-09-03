@@ -467,6 +467,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 					}
 					virtual void Run()
 					{
+						assert(SLS.GetConstTLA().Id == GetThreadID());
 						B.P_Counter->Incr();
 						if(!B.P_ChunkInfo->Finish(B.SrcFileName, *B.P_Pool)) {
                             *B.P_Result = 0;

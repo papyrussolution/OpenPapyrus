@@ -331,7 +331,7 @@ static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, vo
 	c->pool->log = ngx_cycle->log;
 
 	item->socklen = pc->socklen;
-	ngx_memcpy(&item->sockaddr, pc->sockaddr, pc->socklen);
+	memcpy(&item->sockaddr, pc->sockaddr, pc->socklen);
 
 	if(c->read->ready) {
 		ngx_http_upstream_keepalive_close_handler(c->read);

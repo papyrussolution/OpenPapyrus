@@ -1222,12 +1222,32 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 	RwL.Unlock();
 	return p_ret;
 }
+
+PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int type)
+{
+	PPThread * p_ret = 0;
+	RwL.ReadLock();
+	const uint c = getCount();
+	for(uint i = 0; i < c; i++) {
+		PPThread * p_thread = at(i);
+		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == type && p_thread->IsIdle()) {
+			p_ret = p_thread;
+			break;
+		}
+	}
+	RwL.Unlock();
+	return p_ret;
+}
 //
 //
 //
 SLAPI PPSession::RegSessData::RegSessData()
 {
 	THISZERO();
+}
+
+SLAPI PPSession::LoggerIntermediateBlock::LoggerIntermediateBlock(const PPSession & rS) : CfgMaxFileSize(rS.GetMaxLogFileSize())
+{
 }
 //
 //
@@ -4319,6 +4339,23 @@ int SLAPI PPSession::IsThreadStopped()
 	const PPThread * p_thread = ThreadList.SearchById(GetConstTLA().GetThreadID());
 	ok = BIN(p_thread && p_thread->IsStopping());
 #endif // } _MT
+	return ok;
+}
+
+// @construction
+int SLAPI PPSession::DispatchServerCommand(PPServerCmd * pCmd, const void * pReq, SBufferPipe * pPipe)
+{
+	int    ok = -1;
+
+	ENTER_CRITICAL_SECTION
+	PPThread * p_thread = 0;
+	while(!p_thread) {
+		p_thread = ThreadList.SearchIdle(PPThread::kWorkerSession);
+		if(!p_thread) {
+
+		}
+	};
+	LEAVE_CRITICAL_SECTION
 	return ok;
 }
 

@@ -6,14 +6,12 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #ifndef HEADER_OPENSSLV_H
-# define HEADER_OPENSSLV_H
+#define HEADER_OPENSSLV_H
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
 /*-
  * Numeric release version identifier:
  * MNNFFPPS: major minor fix patch status
@@ -39,13 +37,12 @@ extern "C" {
  * (Prior to 0.9.5a beta1, a different scheme was used: MMNNFFRBB for
  *  major minor fix final patch/beta)
  */
-# define OPENSSL_VERSION_NUMBER  0x1010005fL
-# ifdef OPENSSL_FIPS
-#  define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.0e-fips  16 Feb 2017"
-# else
-#  define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.0e  16 Feb 2017"
-# endif
-
+#define OPENSSL_VERSION_NUMBER  0x1010005fL
+#ifdef OPENSSL_FIPS
+	#define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.0e-fips  16 Feb 2017"
+#else
+	#define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.0e  16 Feb 2017"
+#endif
 /*-
  * The macros below are to be used for shared library (.so, .dll, ...)
  * versioning.  That kind of versioning works a bit differently between
@@ -95,9 +92,8 @@ extern "C" {
  * macro SHLIB_VERSION_HISTORY.  The numbers are separated by colons and
  * should only keep the versions that are binary compatible with the current.
  */
-# define SHLIB_VERSION_HISTORY ""
-# define SHLIB_VERSION_NUMBER "1.1"
-
+#define SHLIB_VERSION_HISTORY ""
+#define SHLIB_VERSION_NUMBER "1.1"
 
 #ifdef  __cplusplus
 }

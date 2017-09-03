@@ -325,7 +325,7 @@ struct _xmlSchemaParticle {
 	xmlSchemaTreeItemPtr children;
 	int minOccurs;
 	int maxOccurs;
-	xmlNodePtr node;
+	xmlNode * node;
 };
 
 typedef struct _xmlSchemaModelGroup xmlSchemaModelGroup;
@@ -335,7 +335,7 @@ struct _xmlSchemaModelGroup {
 	xmlSchemaAnnotPtr annot;
 	xmlSchemaTreeItemPtr next;
 	xmlSchemaTreeItemPtr children;
-	xmlNodePtr node;
+	xmlNode * node;
 };
 
 static xmlSchemaParticlePtr xmlSchemaAddParticle()
@@ -2525,7 +2525,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    goto done;
 		    if(node) {
 			    xmlChar * prefix;
-			    xmlNsPtr ns;
+			    xmlNs * ns;
 
 			    local = xmlSplitQName2(value, &prefix);
 			    ns = xmlSearchNs(node->doc, node, prefix);

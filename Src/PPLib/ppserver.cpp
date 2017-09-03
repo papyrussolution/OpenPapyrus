@@ -108,49 +108,60 @@ int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
-class PPServerCmd : public PPJobSrvCmd {
-public:
-	SLAPI  PPServerCmd() : PPJobSrvCmd()
-	{
-		P_SoBlk = 0;
-		P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
-		Init();
-	}
-	SLAPI ~PPServerCmd()
-	{
-		ZDELETE(P_SoBlk);
-		P_ShT = 0;
-	}
-	int    SLAPI Init()
-	{
-		SessID = 0;
-		Params = 0;
-		ZDELETE(P_SoBlk);
-		return 1;
-	}
-	//
-	// Descr: Флаги функции ParseLine()
-	//
-	enum {
-		plfLoggedIn = 0x0001 // Вызывающая сессия авторизована в базе данных
-	};
-	int    FASTCALL ParseLine(const SString & rLine, long flags);
+SLAPI PPServerCmd::PPServerCmd() : PPJobSrvCmd()
+{
+	P_SoBlk = 0;
+	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
+	Init();
+}
 
-	long   SessID;   // Идентификатор сессии, к которой отправлен запрос
-	SString Params;
-	SelectObjectBlock * P_SoBlk;
-private:
-	int    SLAPI GetWord(const char * pBuf, size_t *);
-	SString Term;
-	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
-};
+SLAPI PPServerCmd::~PPServerCmd()
+{
+	ZDELETE(P_SoBlk);
+	P_ShT = 0;
+}
+
+void SLAPI PPServerCmd::Init()
+{
+	SessID = 0;
+	//Params.Z();
+	ClearParams();
+	ZDELETE(P_SoBlk);
+}
+
+void SLAPI PPServerCmd::ClearParams()
+{
+	ParamL.Clear();
+}
+
+int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
+{
+	int    ok = 1;
+	if(parid > 0) {
+		if(isempty(pVal)) {
+			ParamL.Remove(parid);
+			ok = 4;
+		}
+		else {
+			ok = ParamL.Add(parid, pVal, 1/*replaceDup*/);
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const
+{
+	return ParamL.Get(parid, rVal);
+}
 
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 {
 	int    ok = 1;
 	size_t p = pPos ? *pPos : 0;
-	Term = 0;
-	while(pBuf[p] == ' ' || pBuf[p] == '\t')
+	Term.Z();
+	while(oneof2(pBuf[p], ' ', '\t'))
 		p++;
 	if(pBuf[p]) {
 		int    q = 0;
@@ -361,7 +372,10 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 	uint   i;
 	uint   _u_hs = 0; // @v9.6.4
 	long   cmd_flags = 0;
-	Params = 0;
+	{
+		// @v9.8.0 Params.Z();
+		ClearParams(); // @v9.8.0 
+	}
     THROW(GetWord(rLine, &p));
 	Term.ToLower(); // @v9.6.4
 	CALLPTRMEMB(P_ShT, Search(Term, &_u_hs, 0)); // @v9.6.4
@@ -381,12 +395,13 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tNoArg:
 			break;
 		case tPing:
-			for(i = 1; GetWord(rLine, &p); i++)
-				PPPutExtStrData(i, Params, Term);
+			for(i = 1; GetWord(rLine, &p); i++) {
+				PutParam(i, Term); // PPPutExtStrData(i, Params, Term);
+			}
 			break;
 		case tSetTxtCmdTerm:
 			if(GetWord(rLine, &p)) {
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			}
 			break;
 		case tLogin:
@@ -402,14 +417,14 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PPPutExtStrData(1, Params, db_symb);
-			PPPutExtStrData(2, Params, name);
-			PPPutExtStrData(3, Params, pw);
+			PutParam(1, db_symb); // PPPutExtStrData(1, Params, db_symb);
+			PutParam(2, name); // PPPutExtStrData(2, Params, name);
+			PutParam(3, pw); // PPPutExtStrData(3, Params, pw);
 			break;
 		case tSuspend:
 			if(GetWord(rLine, &p)) {
 				name = Term;
-				PPPutExtStrData(1, Params, name);
+				PutParam(1, name); // PPPutExtStrData(1, Params, name);
 			}
 			break;
 		case tResume:
@@ -419,7 +434,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				name = 0;
 				ok = 0;
 			}
-			PPPutExtStrData(1, Params, name);
+			PutParam(1, name); // PPPutExtStrData(1, Params, name);
 			break;
 		case tResetCache:
 			ok = 0;
@@ -431,8 +446,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 					temp_buf = Term;
 				ok = 1;
 			}
-			PPPutExtStrData(1, Params, name);
-			PPPutExtStrData(2, Params, temp_buf);
+			PutParam(1, name); // PPPutExtStrData(1, Params, name);
+			PutParam(2, temp_buf); // PPPutExtStrData(2, Params, temp_buf);
 			break;
 		case tStyloBHTII:
 			ok = 0;
@@ -446,9 +461,9 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 					}
 				}
 			}
-			PPPutExtStrData(1, Params, db_symb);
-			PPPutExtStrData(2, Params, name);
-			PPPutExtStrData(3, Params, pw);
+			PutParam(1, db_symb); // PPPutExtStrData(1, Params, db_symb);
+			PutParam(2, name); // PPPutExtStrData(2, Params, name);
+			PutParam(3, pw); // PPPutExtStrData(3, Params, pw);
 			break;
 		case tGetBizScores:
 			if(GetWord(rLine, &p)) {
@@ -460,8 +475,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PPPutExtStrData(1, Params, name);
-			PPPutExtStrData(2, Params, pw);
+			PutParam(1, name); // PPPutExtStrData(1, Params, name);
+			PutParam(2, pw); // PPPutExtStrData(2, Params, pw);
 			break;
 		case tCheckGlobalCredential:
 			if(GetWord(rLine, &p)) {
@@ -473,22 +488,22 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			else
 				ok = 0;
-			PPPutExtStrData(1, Params, name);
-			PPPutExtStrData(2, Params, pw);
+			PutParam(1, name); // PPPutExtStrData(1, Params, name);
+			PutParam(2, pw); // PPPutExtStrData(2, Params, pw);
 			break;
 		case tGetTDDO:
 			if(GetWord(rLine, &p)) {
 				int    fld_n = 0;
-				PPPutExtStrData(++fld_n, Params, Term);
+				PutParam(++fld_n, Term); // PPPutExtStrData(++fld_n, Params, Term);
 				if(Term.CmpNC("INLINE") == 0) {
 					// inline код
 					(temp_buf = rLine).ShiftLeft(p);
-					PPPutExtStrData(++fld_n, Params, temp_buf);
+					PutParam(++fld_n, temp_buf); // PPPutExtStrData(++fld_n, Params, temp_buf);
 				}
 				else {
 					//
 					while(GetWord(rLine, &p)) {
-						PPPutExtStrData(++fld_n, Params, Term);
+						PutParam(++fld_n, Term); // PPPutExtStrData(++fld_n, Params, Term);
 					}
 				}
 			}
@@ -497,23 +512,23 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			break;
 		case tGetImage:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJTYPE, rLine);
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJID, rLine);
-			PPPutExtStrData(2, Params, Term);
+			PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 			break;
 		case tSetImageMime:
 			// SETIMAGEMIME goods 52103 updateFlags ContentType ContentMime64
 			{
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJTYPE, rLine); // ObjTypeSymb
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_OBJID, rLine); // ObjID
-				PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_UPDATEFLAGS, rLine); // UpdateFlags
-				PPPutExtStrData(3, Params, Term);
+				PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_CONTENTTYPE, rLine); // ContentType
-				PPPutExtStrData(4, Params, Term);
+				PutParam(4, Term); // PPPutExtStrData(4, Params, Term);
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_CONTENTMIME, rLine); // ContentMime64
-				PPPutExtStrData(5, Params, Term);
+				PutParam(5, Term); // PPPutExtStrData(5, Params, Term);
 			}
 			break;
 		case tGetFile:
@@ -527,11 +542,11 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 				path = Term;
 				while(GetWord(rLine, &p))
 					path.Space().Cat(Term);
-				PPPutExtStrData(1, Params, path);
+				PutParam(1, path); // PPPutExtStrData(1, Params, path);
 				if(GetWord(rLine, &p)) {
-					PPPutExtStrData(2, Params, temp_buf = Term);
+					PutParam(2, temp_buf = Term); // PPPutExtStrData(2, Params, temp_buf = Term);
 					if(GetWord(rLine, &p)) {
-						PPPutExtStrData(3, Params, temp_buf = Term);
+						PutParam(3, temp_buf = Term); // PPPutExtStrData(3, Params, temp_buf = Term);
 					}
 				}
 			}
@@ -543,36 +558,36 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tAckFile:
 		case tCancelFile:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_FILECOOKIE, rLine);
-			PPPutExtStrData(1, Params, Term); // cookie
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term); // cookie
 			break;
 		case tExecViewNF:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NAMEDFILT, rLine); // символ именованного фильтра
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			if(GetWord(rLine, &p)) // [наименование структуры DL600 для экспорта]
-				PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 			break;
 		case tSoBlock:
 			SETIFZ(P_SoBlk, new SelectObjectBlock);
 			ok = P_SoBlk ? P_SoBlk->Parse(rLine) : PPSetErrorNoMem();
 			break;
 		case tCPosProcessorCommand:
-			PPPutExtStrData(1, Params, rLine);
+			PutParam(1, rLine); // PPPutExtStrData(1, Params, rLine);
 			break;
 		case tPreparePalmInData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			if(GetWord(rLine, &p)) // UUID устройства
-				PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 			break;
 		case tPreparePalmOutData:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			if(GetWord(rLine, &p)) { // UUID устройства
-				PPPutExtStrData(2, Params, Term);
+				PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 				if(GetWord(rLine, &p)) { // Дата последнего обмена
-					PPPutExtStrData(3, Params, Term);
+					PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
 					if(GetWord(rLine, &p)) { // Время последнего обмена
-						PPPutExtStrData(4, Params, Term);
+						PutParam(4, Term); // PPPutExtStrData(4, Params, Term);
 					}
 				}
 			}
@@ -580,60 +595,60 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tSetGlobalUser:
 			// SETGLOBALUSER name
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_GLOBALUSERNAME, rLine); // Имя глобальной учетной записи
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			break;
 		case tExpTariffTA:
 			break;
 		case tSendSMS:
 			if(GetWord(rLine, &p)) { // Номер телефона
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 				if(GetWord(rLine, &p)) { // От кого
-					PPPutExtStrData(2, Params, Term);
+					PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 					if(GetWord(rLine, &p)) // Сообщение (зашифрованное в Mime64)
-						PPPutExtStrData(3, Params, Term);
+						PutParam(3, Term); // PPPutExtStrData(3, Params, Term);
 				}
 			}
 			break;
 		case tGetDisplayInfo:
 			if(GetWord(rLine, &p)) // ид устройства из DisplayList
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			break;
 		case tGetWorkbookContent:
 			if(GetWord(rLine, &p)) // ид контента
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			break;
 		case tSetWorkbookContent:
 			break;
 		case tGetKeywordSeq:
 			if(GetWord(rLine, &p)) // контекст
-				PPPutExtStrData(1, Params, Term);
+				PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			break;
 		case tRegisterStylo:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_STYLONAME, rLine); // device name
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_MAGICSYMBOL, rLine); // magic symbol
-			PPPutExtStrData(2, Params, Term);
+			PutParam(2, Term); // PPPutExtStrData(2, Params, Term);
 			break;
 		case tQueryNaturalToken:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_NATURALTOKEN, rLine); // Необходимый параметр - собственно запрашиваемый токен
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			{
 				uint   arg_n = 1;
 				while(GetWord(rLine, &p)) {
-					PPPutExtStrData(++arg_n, Params, Term);
+					PutParam(++arg_n, Term); // PPPutExtStrData(++arg_n, Params, Term);
 				}
 			}
 			break;
 		case tGetArticleByPerson:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_ARBYPSNID, rLine); // Необходимый параметр - идентификатор персоналии
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			if(GetWord(rLine, &p)) {
-				PPPutExtStrData(2, Params, Term); // Идентификация таблицы статей
+				PutParam(2, Term); // PPPutExtStrData(2, Params, Term); // Идентификация таблицы статей
 			}
 			break;
 		case tGetPersonByArticle:
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // Необходимый параметр - идентификатор статьи
-			PPPutExtStrData(1, Params, Term);
+			PutParam(1, Term); // PPPutExtStrData(1, Params, Term);
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -2084,7 +2099,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::Helper_QueryNaturalToken(PPServer
 	xmlBuffer * p_xml_buf = 0;
 	SString token, temp_buf;
 	PPObjPerson * p_psn_obj = 0;
-	PPGetExtStrData(1, pEv->Params, token);
+	pEv->GetParam(1, token); //PPGetExtStrData(1, pEv->Params, token);
 	if(token.NotEmptyS()) {
 		uint   i;
 		PPTokenRecognizer tr;
@@ -2401,9 +2416,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			// попадет в StyloBHTExch посредством вызова PPServerSession::ProcessCommand (see below)
 			//
 			disable_err_reply = 1;
-			PPGetExtStrData(1, pEv->Params, db_symb);
-			PPGetExtStrData(2, pEv->Params, name);
-			PPGetExtStrData(3, pEv->Params, temp_buf);
+			pEv->GetParam(1, db_symb);  // PPGetExtStrData(1, pEv->Params, db_symb);
+			pEv->GetParam(2, name);     // PPGetExtStrData(2, pEv->Params, name);
+			pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
 			//
 			{
 				SString pwd;
@@ -2444,7 +2459,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_SETTXTCMDTERM:
 			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				if(temp_buf.IsDigit() || temp_buf == "-1") {
 					long   terminal_code = temp_buf.ToLong();
 					SetupTxtCmdTerm(temp_buf.ToLong());
@@ -2454,7 +2469,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_GETKEYWORDSEQ:
 			{
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				if(PPGenerateKeywordSequence(name, temp_buf, 0))
 					rReply.SetString(temp_buf);
 				else
@@ -2462,9 +2477,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			}
 			break;
 		case PPSCMD_LOGIN:
-			PPGetExtStrData(1, pEv->Params, db_symb);
-			PPGetExtStrData(2, pEv->Params, name);
-			PPGetExtStrData(3, pEv->Params, temp_buf);
+			pEv->GetParam(1, db_symb); // PPGetExtStrData(1, pEv->Params, db_symb);
+			pEv->GetParam(2, name); // PPGetExtStrData(2, pEv->Params, name);
+			pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
 			THROW(DS.Login(db_symb, name, temp_buf) > 0);
 			State |= stLoggedIn;
 			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
@@ -2483,10 +2498,10 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				PPID   obj_type = 0;
 				long   obj_type_ext = 0;
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				THROW(obj_type = GetObjectTypeBySymb(temp_buf, &obj_type_ext));
 				if(obj_type == PPOBJ_GOODS) {
-					PPGetExtStrData(2, pEv->Params, temp_buf);
+					pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 					if(temp_buf.CmpNC("NAMEPOOL") == 0) {
 						PPObjGoods goods_obj;
 						goods_obj.P_Tbl->ResetFullList();
@@ -2503,9 +2518,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_CHECKGLOBALCREDENTIAL:
 			{
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				temp_buf.Space() = 0; // Гарантируем ненулевой буфер temp_buf.P_Buf
-				PPGetExtStrData(2, pEv->Params, temp_buf);
+				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 				PPObjGlobalUserAcc gua_obj;
 				PPGlobalUserAcc gua_rec;
 				THROW(gua_obj.CheckPassword(name, temp_buf, &gua_rec) > 0);
@@ -2545,7 +2560,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_POS_CPOSSETCCROWQUEUE:
 		case PPSCMD_POS_GETMODIFLIST:
 			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				THROW_PP(P_CPosBlk, PPERR_POSNODEPRCNDEF);
 				THROW(r = P_CPosBlk->Execute(pEv->GetH().Type, temp_buf, rReply));
 			}
@@ -2555,7 +2570,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				SString left, right;
 				Sdr_CPosAuth rec;
 				MEMSZERO(rec);
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
 				memcpy(&rec, (const char*)right, sizeof(rec));
 				decrypt(&rec, sizeof(rec));
@@ -2573,15 +2588,16 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				//
 				// Первый аргумент - имя tddo-файла или "INLINE"
 				//
-				PPGetExtStrData(++fld_n, pEv->Params, name);
+				pEv->GetParam(++fld_n, name); // PPGetExtStrData(++fld_n, pEv->Params, name);
 				if(name.Cmp("INLINE", 1) == 0) {
-					PPGetExtStrData(++fld_n, pEv->Params, temp_buf);
+					pEv->GetParam(++fld_n, temp_buf); // PPGetExtStrData(++fld_n, pEv->Params, temp_buf);
 				}
 				else {
 					//
 					// Все последующие аргументы - дополнительные параметры, используемые при разборе tddo-файла
 					//
-					while(PPGetExtStrData(++fld_n, pEv->Params, temp_buf) > 0) {
+					// while(PPGetExtStrData(++fld_n, pEv->Params, temp_buf) > 0) {
+					while(pEv->GetParam(++fld_n, temp_buf) > 0) { // @v9.8.0
 						ext_param_list.add(temp_buf);
 					}
 					THROW(Tddo::LoadFile(name, temp_buf));
@@ -2597,8 +2613,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				SString nf_symb, dl600_name, file_name;
-				PPGetExtStrData(1, pEv->Params, nf_symb);
-				PPGetExtStrData(2, pEv->Params, dl600_name);
+				pEv->GetParam(1, nf_symb); // PPGetExtStrData(1, pEv->Params, nf_symb);
+				pEv->GetParam(2, dl600_name); // PPGetExtStrData(2, pEv->Params, dl600_name);
 				THROW(PPView::ExecuteNF(nf_symb, dl600_name, file_name));
 				ok = TransmitFile(tfvStart, file_name, rReply);
 			}
@@ -2608,18 +2624,18 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				SString content_type, img_mime, file_name, file_ext;
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				long   upd_flags = 0;
 				size_t bin_size = 0;
 				long   obj_type_ext = 0;
 				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
-				PPGetExtStrData(2, pEv->Params, temp_buf);
+				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 				PPID   obj_id = temp_buf.ToLong();
 				ObjLinkFiles lf;
-				PPGetExtStrData(3, pEv->Params, temp_buf);
+				pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
 				upd_flags = temp_buf.ToLong();
-				PPGetExtStrData(4, pEv->Params, content_type);
-				PPGetExtStrData(5, pEv->Params, img_mime);
+				pEv->GetParam(4, content_type); // PPGetExtStrData(4, pEv->Params, content_type);
+				pEv->GetParam(5, img_mime); // PPGetExtStrData(5, pEv->Params, img_mime);
 				SFileFormat ff;
 				ff.IdentifyMime(content_type);
 				switch(ff) {
@@ -2660,10 +2676,10 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			// GETIMAGE goods 52103
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				long   obj_type_ext = 0;
 				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
-				PPGetExtStrData(2, pEv->Params, temp_buf);
+				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 				PPID   obj_id = temp_buf.ToLong();
 				SString img_path, obj_name;
 				ObjLinkFiles lf;
@@ -2704,7 +2720,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			}
 			break;
 		case PPSCMD_GETFILE:
-			PPGetExtStrData(1, pEv->Params, name);
+			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
 				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
 				ok = TransmitFile(tfvStart, name, rReply);
@@ -2714,15 +2730,15 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			}
 			break;
 		case PPSCMD_GETNEXTFILEPART:
-			PPGetExtStrData(1, pEv->Params, name);
+			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			ok = TransmitFile(tfvNext, name, rReply);
 			break;
 		case PPSCMD_ACKFILE:
-			PPGetExtStrData(1, pEv->Params, name);
+			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			ok = TransmitFile(tfvFinish, name, rReply);
 			break;
 		case PPSCMD_CANCELFILE:
-			PPGetExtStrData(1, pEv->Params, name);
+			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			ok = TransmitFile(tfvCancel, name, rReply);
 			break;
 		case PPSCMD_GETSERVERSTAT:
@@ -2777,7 +2793,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_SETGLOBALUSER:
 			{
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				PPID   gua_id = name.ToLong();
 				PPThreadLocalArea & r_tla = DS.GetTLA();
 				// @ Muxa {
@@ -2831,10 +2847,10 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_PING:
 			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					if(temp_buf.CmpNC("TERM") == 0) {
-						PPGetExtStrData(2, pEv->Params, temp_buf);
+						pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 						SString terminal;
 						if(temp_buf.NotEmptyS())
 							terminal = temp_buf;
@@ -2865,8 +2881,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				PPObjStyloPalm sp_obj;
 				PPObjStyloPalm::RegisterDeviceBlock rdb;
 				SString dev_name, magic_buf;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, magic_buf);
+				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
+				pEv->GetParam(2, magic_buf); // PPGetExtStrData(2, pEv->Params, magic_buf);
 				dev_name.Strip();
                 int    sr = sp_obj.SearchBySymb(dev_name, &device_id, 0);
                 if(sr < 0)
@@ -2880,8 +2896,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				long   start = 0;
 				SString dev_uuid, dev_name, path, dir;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, dev_uuid);
+				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
+				pEv->GetParam(2, dev_uuid); // PPGetExtStrData(2, pEv->Params, dev_uuid);
 				dev_uuid = dev_name; // @todo
 				PPGetPath(PPPATH_SPII, dir);
 				dir.SetLastSlash().Cat(dev_uuid).SetLastSlash();
@@ -2902,10 +2918,10 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				SString dev_uuid, dev_name, path, temp_path, palm_path, log_path, msg_buf;
 				SString last_dt, last_tm;
-				PPGetExtStrData(1, pEv->Params, dev_name);
-				PPGetExtStrData(2, pEv->Params, dev_uuid);
-				PPGetExtStrData(3, pEv->Params, last_dt);
-				PPGetExtStrData(4, pEv->Params, last_tm);
+				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
+				pEv->GetParam(2, dev_uuid); // PPGetExtStrData(2, pEv->Params, dev_uuid);
+				pEv->GetParam(3, last_dt); // PPGetExtStrData(3, pEv->Params, last_dt);
+				pEv->GetParam(4, last_tm); // PPGetExtStrData(4, pEv->Params, last_tm);
 				dev_uuid = dev_name; // @todo
 				PPGetPath(PPPATH_SPII, palm_path);
 				{
@@ -2959,9 +2975,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_PROCESSPALMXMLDATA:
 			{
 				SString temp_path, log_path, dev_name, dev_uuid;
-				PPGetExtStrData(1, pEv->Params, temp_path);
-				PPGetExtStrData(2, pEv->Params, dev_name);
-				PPGetExtStrData(3, pEv->Params, dev_uuid);
+				pEv->GetParam(1, temp_path); // PPGetExtStrData(1, pEv->Params, temp_path);
+				pEv->GetParam(2, dev_name); // PPGetExtStrData(2, pEv->Params, dev_name);
+				pEv->GetParam(3, dev_uuid); // PPGetExtStrData(3, pEv->Params, dev_uuid);
 				{
 					dev_uuid = dev_name; // @todo
 					if(dev_uuid.Empty()) {
@@ -3045,9 +3061,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					PPAlbatrosConfig  albtr_cfg;
 					SmsClient client(&logger);
 
-					PPGetExtStrData(1, pEv->Params, old_phone);
-					PPGetExtStrData(2, pEv->Params, from);
-					PPGetExtStrData(3, pEv->Params, message);
+					pEv->GetParam(1, old_phone); // PPGetExtStrData(1, pEv->Params, old_phone);
+					pEv->GetParam(2, from); // PPGetExtStrData(2, pEv->Params, from);
+					pEv->GetParam(3, message); // PPGetExtStrData(3, pEv->Params, message);
 					// @todo Error message
 					THROW(!old_phone.Empty());
 					THROW(!message.Empty());
@@ -3087,7 +3103,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_GETPERSONBYARTICLE:
 			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				const PPID ar_id = temp_buf.ToLong();
 				const PPID psn_id = ar_id ? ObjectToPerson(ar_id, 0) : 0;
 				rReply.SetString(temp_buf.Z().Cat(psn_id));
@@ -3096,12 +3112,13 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			break;
 		case PPSCMD_GETARTICLEBYPERSON:
 			{
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				const PPID psn_id = temp_buf.ToLong();
 				PPID  ar_id = 0;
 				if(psn_id) {
 					PPID  acs_id = 0;
-					if(PPGetExtStrData(2, pEv->Params, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+					//if(PPGetExtStrData(2, pEv->Params, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+					if(pEv->GetParam(2, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 						acs_id = temp_buf.ToLong();
 						if(!acs_id) {
 							PPObjAccSheet acs_obj;
@@ -3121,7 +3138,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				// @v8.3.5 MemLeakTracer mlt;
-				PPGetExtStrData(1, pEv->Params, temp_buf);
+				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				PPID    obj_id = temp_buf.ToLong();
 				SString path;
 				PPObjWorkbook wb_obj;
@@ -3627,8 +3644,8 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				//
 				// Login не требуется (GetBizScoresVals сама выполняет DS.Login)
 				//
-				PPGetExtStrData(1, pEv->Params, name);
-				PPGetExtStrData(2, pEv->Params, temp_buf);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 				THROW(GetBizScoresVals(name, temp_buf, &So));
 				ok = cmdretQuit;
 				//
@@ -3644,7 +3661,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			// }
 			//
 			case PPSCMD_SUSPEND:
-				if(PPGetExtStrData(1, pEv->Params, name) > 0) {
+				if(pEv->GetParam(1, name) > 0) { //if(PPGetExtStrData(1, pEv->Params, name) > 0) {
 					long timeout = name.ToLong();
 					if(timeout > 0 && timeout <= 1000000)
 						SuspendTimeout = timeout * 1000;
@@ -3657,8 +3674,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 					PPThread::Info thread_info;
 					PPJobSrvReply reply;
 					reply = rReply;
-
-					PPGetExtStrData(1, pEv->Params, temp_buf);
+					pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 					long id = temp_buf.ToLong();
 					reply.SetAck();
 					reply.FinishWriting();
@@ -3682,7 +3698,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				THROW(ReceiveFile(tfvStart, temp_buf = 0, rReply));
 				break;
 			case PPSCMD_PUTFILE:
-				PPGetExtStrData(1, pEv->Params, name);
+				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
 					name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
 				else
@@ -3699,7 +3715,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				{
 					long   id = 0;
 					SString str_id, str_buf;
-					PPGetExtStrData(1, pEv->Params, str_id);
+					pEv->GetParam(1, str_id); // PPGetExtStrData(1, pEv->Params, str_id);
 					if((id = str_id.ToLong()) > 0) {
 						int r = 0;
 						PalmDisplayBlock blk;
@@ -4290,7 +4306,7 @@ void SLAPI PPServerSession::Run()
 											Addr.ToStr(0, log_buf);
 											log_buf.Space().Cat("SERVER REQ").CatDiv(':', 2);
 											if(is_login_cmd) {
-												PPGetExtStrData(1, cmd.Params, fmt_buf);
+												cmd.GetParam(1, fmt_buf); // PPGetExtStrData(1, cmd.Params, fmt_buf);
 												log_buf.Cat("LOGIN").Space().Cat(fmt_buf);
 											}
 											else {
@@ -4304,7 +4320,7 @@ void SLAPI PPServerSession::Run()
 											const uint64 tm_finish = SLS.GetProfileTime();
 											log_buf.Z().Cat("CMD").CatDiv(':', 2);
 											if(log_level == 2) { // LOGIN вносим в журнал без пароля //
-												PPGetExtStrData(1, cmd.Params, fmt_buf);
+												cmd.GetParam(1, fmt_buf); // PPGetExtStrData(1, cmd.Params, fmt_buf);
 												log_buf.Cat("LOGIN").Space().Cat(fmt_buf);
 											}
 											else

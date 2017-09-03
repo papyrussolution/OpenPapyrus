@@ -1174,7 +1174,7 @@ static ngx_int_t ngx_http_variable_server_addr(ngx_http_request_t * r,
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s.data, addr, s.len);
+	memcpy(s.data, addr, s.len);
 
 	v->len = s.len;
 	v->valid = 1;
@@ -1377,7 +1377,7 @@ static ngx_int_t ngx_http_variable_realpath_root(ngx_http_request_t * r,
 	v->no_cacheable = 0;
 	v->not_found = 0;
 
-	ngx_memcpy(v->data, real, len);
+	memcpy(v->data, real, len);
 
 #if !(NGX_HAVE_MAX_PATH)
 	ngx_free(real);
@@ -2003,7 +2003,7 @@ static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(p, ngx_cached_http_log_iso8601.data,
+	memcpy(p, ngx_cached_http_log_iso8601.data,
 	    ngx_cached_http_log_iso8601.len);
 
 	v->len = ngx_cached_http_log_iso8601.len;
@@ -2024,7 +2024,7 @@ static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_v
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
+	memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
 
 	v->len = ngx_cached_http_log_time.len;
 	v->valid = 1;

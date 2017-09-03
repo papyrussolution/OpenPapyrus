@@ -284,7 +284,7 @@ static ngx_int_t ngx_mail_pop3_user(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->login.data, arg[0].data, s->login.len);
+	memcpy(s->login.data, arg[0].data, s->login.len);
 
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
 	    "pop3 login: \"%V\"", &s->login);
@@ -309,7 +309,7 @@ static ngx_int_t ngx_mail_pop3_pass(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->passwd.data, arg[0].data, s->passwd.len);
+	memcpy(s->passwd.data, arg[0].data, s->passwd.len);
 
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
@@ -396,7 +396,7 @@ static ngx_int_t ngx_mail_pop3_apop(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->login.data, arg[0].data, s->login.len);
+	memcpy(s->login.data, arg[0].data, s->login.len);
 
 	s->passwd.len = arg[1].len;
 	s->passwd.data = (u_char*)ngx_pnalloc(c->pool, s->passwd.len);
@@ -404,7 +404,7 @@ static ngx_int_t ngx_mail_pop3_apop(ngx_mail_session_t * s, ngx_connection_t * c
 		return NGX_ERROR;
 	}
 
-	ngx_memcpy(s->passwd.data, arg[1].data, s->passwd.len);
+	memcpy(s->passwd.data, arg[1].data, s->passwd.len);
 
 	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0,
 	    "pop3 apop: \"%V\" \"%V\"", &s->login, &s->passwd);

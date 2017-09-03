@@ -181,7 +181,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 		}
 		if(state == sw_passwd) {
 			left = left + n - passwd;
-			ngx_memmove(buf, &buf[passwd], left);
+			memmove(buf, &buf[passwd], left);
 			passwd = 0;
 		}
 		else {

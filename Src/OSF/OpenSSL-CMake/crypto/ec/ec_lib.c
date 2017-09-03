@@ -14,7 +14,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/opensslv.h>
+//#include <openssl/opensslv.h>
 #include "ec_lcl.h"
 
 /* functions for EC_GROUP objects */

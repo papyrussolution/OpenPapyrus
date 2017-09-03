@@ -351,19 +351,14 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	char method[]     = "AUTHENTICATE";
 	char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
 	char * spn         = NULL;
-
 	/* Decode the challenge message */
 	result = auth_decode_digest_md5_message(chlg64, nonce, sizeof(nonce),
-	    realm, sizeof(realm),
-	    algorithm, sizeof(algorithm),
-	    qop_options, sizeof(qop_options));
+	    realm, sizeof(realm), algorithm, sizeof(algorithm), qop_options, sizeof(qop_options));
 	if(result)
 		return result;
-
-	/* We only support md5 sessions */
-	if(strcmp(algorithm, "md5-sess") != 0)
+	// We only support md5 sessions 
+	if(!sstreq(algorithm, "md5-sess"))
 		return CURLE_BAD_CONTENT_ENCODING;
-
 	/* Get the qop-values from the qop-options */
 	result = auth_digest_get_qop_values(qop_options, &qop_values);
 	if(result)

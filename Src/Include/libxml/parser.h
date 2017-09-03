@@ -14,7 +14,7 @@
 
 //#include <libxml/xmlversion.h>
 #include <libxml/tree.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 #include <libxml/hash.h>
 #include <libxml/valid.h>
 #include <libxml/entities.h>
@@ -196,10 +196,10 @@ struct _xmlParserCtxt {
 	int    inputMax;                 // Max number of input streams
 	xmlParserInputPtr * inputTab; // stack of inputs
 	// Node analysis stack only used for DOM building
-	xmlNodePtr node;              // Current parsed Node
+	xmlNode * node;              // Current parsed Node
 	int    nodeNr;                   // Depth of the parsing stack
 	int    nodeMax;                  // Max depth of the parsing stack
-	xmlNodePtr * nodeTab;         // array of nodes
+	xmlNode ** nodeTab;         // array of nodes
 	int    record_info;              // Whether node info should be kept
 	xmlParserNodeInfoSeq node_seq; // info about each node parsed
 	int    errNo;                    // error code
@@ -242,7 +242,7 @@ struct _xmlParserCtxt {
 	void * catalogs; // document's own catalog
 	int    recovery;                 // run in recovery mode
 	int    progressive;              // is this a progressive parsing
-	xmlDictPtr dict;              // dictionnary for the parser
+	xmlDict * dict;              // dictionnary for the parser
 	const xmlChar ** atts;        // array for the attributes callbacks
 	int    maxatts;                  // the size of the array
 	int    docdict;                  // use strings from dict to build tree
@@ -270,7 +270,7 @@ struct _xmlParserCtxt {
 	//
 	int    dictNames;              // Use dictionary names for the tree
 	int    freeElemsNr;            // number of freed element nodes
-	xmlNodePtr freeElems;       // List of freed element nodes
+	xmlNode * freeElems;       // List of freed element nodes
 	int    freeAttrsNr;            // number of freed attributes nodes
 	xmlAttrPtr freeAttrs;       // List of freed attributes nodes
 	//
@@ -793,14 +793,14 @@ XMLPUBFUN xmlDtdPtr XMLCALL xmlParseDTD(const xmlChar * ExternalID, const xmlCha
 XMLPUBFUN xmlDtdPtr XMLCALL xmlIOParseDTD(xmlSAXHandlerPtr sax, xmlParserInputBufferPtr input, xmlCharEncoding enc);
 #endif /* LIBXML_VALID_ENABLE */
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNodePtr * lst);
+XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst);
 #endif /* LIBXML_SAX1_ENABLED */
-XMLPUBFUN xmlParserErrors XMLCALL xmlParseInNodeContext(xmlNodePtr node, const char * data, int datalen, int options, xmlNodePtr * lst);
+XMLPUBFUN xmlParserErrors XMLCALL xmlParseInNodeContext(xmlNode * node, const char * data, int datalen, int options, xmlNode ** lst);
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNodePtr * lst, int recover);
-XMLPUBFUN int XMLCALL xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNodePtr * lst);
+XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst, int recover);
+XMLPUBFUN int XMLCALL xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
 #endif /* LIBXML_SAX1_ENABLED */
-XMLPUBFUN int XMLCALL xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const xmlChar * ID, xmlNodePtr * lst);
+XMLPUBFUN int XMLCALL xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
 
 /*
  * Parser contexts handling.
@@ -854,10 +854,10 @@ XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewIOInputStream(xmlParserCtxt * ctxt, xm
 /*
  * Node infos.
  */
-XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt, const xmlNodePtr node);
+XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt, const xmlNode * node);
 XMLPUBFUN void XMLCALL xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
 XMLPUBFUN void XMLCALL xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
-XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNodePtr node);
+XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * node);
 XMLPUBFUN void XMLCALL xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info);
 
 /*

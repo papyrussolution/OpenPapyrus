@@ -238,7 +238,7 @@ static void ColouriseTeXDoc(Sci_PositionU startPos,
 						}
 						else if(keywords.InList(key)) {
 							sc.SetState(SCE_TEX_COMMAND);
-							newifDone = autoIf && (strcmp(key, "newif") == 0);
+							newifDone = (autoIf && sstreq(key, "newif"));
 						}
 						else if(autoIf && !newifDone && (key[0] == 'i') && (key[1] == 'f') &&
 						    keywords.InList("if")) {
@@ -340,17 +340,12 @@ static int classifyFoldPointTeXPaired(const char* s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {
-		if(strcmp(s, "begin")==0||strcmp(s, "FoldStart")==0||
-		    strcmp(s, "abstract")==0||strcmp(s, "unprotect")==0||
-		    strcmp(s, "title")==0||strncmp(s, "start", 5)==0||strncmp(s, "Start", 5)==0||
-		    strcmp(s, "documentclass")==0||strncmp(s, "if", 2)==0
-		    )
+		if(sstreq(s, "begin") || sstreq(s, "FoldStart") || sstreq(s, "abstract") || sstreq(s, "unprotect") ||
+		    sstreq(s, "title") || strncmp(s, "start", 5)==0 || strncmp(s, "Start", 5)==0 ||
+		    sstreq(s, "documentclass") || strncmp(s, "if", 2)==0)
 			lev = 1;
-		if(strcmp(s, "end")==0||strcmp(s, "FoldStop")==0||
-		    strcmp(s, "maketitle")==0||strcmp(s, "protect")==0||
-		    strncmp(s, "stop", 4)==0||strncmp(s, "Stop", 4)==0||
-		    strcmp(s, "fi")==0
-		    )
+		if(sstreq(s, "end") || sstreq(s, "FoldStop") || sstreq(s, "maketitle") || sstreq(s, "protect") ||
+		    strncmp(s, "stop", 4) == 0 || strncmp(s, "Stop", 4) == 0 || sstreq(s, "fi"))
 			lev = -1;
 	}
 	return lev;
@@ -360,20 +355,12 @@ static int classifyFoldPointTeXUnpaired(const char* s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {
-		if(strcmp(s, "part")==0||
-		    strcmp(s, "chapter")==0||
-		    strcmp(s, "section")==0||
-		    strcmp(s, "subsection")==0||
-		    strcmp(s, "subsubsection")==0||
-		    strcmp(s, "CJKfamily")==0||
-		    strcmp(s, "appendix")==0||
-		    strcmp(s, "Topic")==0||strcmp(s, "topic")==0||
-		    strcmp(s, "subject")==0||strcmp(s, "subsubject")==0||
-		    strcmp(s, "def")==0||strcmp(s, "gdef")==0||strcmp(s, "edef")==0||
-		    strcmp(s, "xdef")==0||strcmp(s, "framed")==0||
-		    strcmp(s, "frame")==0||
-		    strcmp(s, "foilhead")==0||strcmp(s, "overlays")==0||strcmp(s, "slide")==0
-		    ) {
+		if(sstreq(s, "part") || sstreq(s, "chapter") ||
+		    sstreq(s, "section") || sstreq(s, "subsection") || sstreq(s, "subsubsection") ||
+		    sstreq(s, "CJKfamily") || sstreq(s, "appendix") || sstreq(s, "Topic") || sstreq(s, "topic") ||
+		    sstreq(s, "subject") || sstreq(s, "subsubject") || sstreq(s, "def") || sstreq(s, "gdef") ||
+			sstreq(s, "edef") || sstreq(s, "xdef") || sstreq(s, "framed") || sstreq(s, "frame") ||
+		    sstreq(s, "foilhead") || sstreq(s, "overlays") || sstreq(s, "slide")) {
 			lev = 1;
 		}
 	}

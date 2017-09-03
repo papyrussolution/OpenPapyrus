@@ -200,25 +200,15 @@ static void FoldEiffelDocKeyWords(Sci_PositionU startPos, Sci_Position length, i
 				j++;
 			}
 			s[j] = '\0';
-
-			if(
-			    (strcmp(s, "check") == 0) ||
-			    (strcmp(s, "debug") == 0) ||
-			    (strcmp(s, "deferred") == 0) ||
-			    (strcmp(s, "do") == 0) ||
-			    (strcmp(s, "from") == 0) ||
-			    (strcmp(s, "if") == 0) ||
-			    (strcmp(s, "inspect") == 0) ||
-			    (strcmp(s, "once") == 0)
-			    )
+			if(sstreq(s, "check") || sstreq(s, "debug") || sstreq(s, "deferred") || sstreq(s, "do") || 
+				sstreq(s, "from") || sstreq(s, "if") || sstreq(s, "inspect") || sstreq(s, "once"))
 				levelCurrent++;
-			if(!lastDeferred && (strcmp(s, "class") == 0))
+			if(!lastDeferred && sstreq(s, "class"))
 				levelCurrent++;
-			if(strcmp(s, "end") == 0)
+			if(sstreq(s, "end"))
 				levelCurrent--;
-			lastDeferred = strcmp(s, "deferred") == 0;
+			lastDeferred = (sstreq(s, "deferred") != 0);
 		}
-
 		if(atEOL) {
 			int lev = levelPrev;
 			if(visibleChars == 0)

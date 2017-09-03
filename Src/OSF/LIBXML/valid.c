@@ -96,7 +96,7 @@ static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char 
  *
  * Handle a validation error, provide contextual informations
  */
-static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNodePtr node, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
@@ -130,7 +130,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNodePtr node, xmlParserErro
  *
  * Handle a validation error, provide contextual informations
  */
-static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNodePtr node, xmlParserErrors error, const char * msg, const xmlChar * str1, int int2, const xmlChar * str3)
+static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErrors error, const char * msg, const xmlChar * str1, int int2, const xmlChar * str3)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
@@ -161,7 +161,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNodePtr node, xmlParserEr
  * Handle a validation error, provide contextual information
  */
 static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
-    xmlNodePtr node, xmlParserErrors error,
+    xmlNode * node, xmlParserErrors error,
     const char * msg, const xmlChar * str1,
     const xmlChar * str2, const xmlChar * str3)
 {
@@ -194,11 +194,12 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 
 typedef struct _xmlValidState {
 	xmlElementPtr elemDecl;         /* pointer to the content model */
-	xmlNodePtr node;                /* pointer to the current node */
+	xmlNode * node;                /* pointer to the current node */
 	xmlRegExecCtxtPtr exec;         /* regexp runtime */
 } _xmlValidState;
 
-static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNodePtr node) {
+static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * node) 
+{
 	if((ctxt->vstateMax == 0) || (ctxt->vstateTab == NULL)) {
 		ctxt->vstateMax = 10;
 		ctxt->vstateTab = (xmlValidState*)SAlloc::M(ctxt->vstateMax *
@@ -273,7 +274,7 @@ static int vstateVPop(xmlValidCtxtPtr ctxt) {
 
 typedef struct _xmlValidState {
 	xmlElementContentPtr cont; /* pointer to the content model subtree */
-	xmlNodePtr node;        /* pointer to the current node in the list */
+	xmlNode * node;        /* pointer to the current node in the list */
 	long occurs;            /* bitfield for multiple occurrences */
 	uchar depth;    /* current depth in the overall tree */
 	uchar state;    /* ROLLBACK_XXX */
@@ -293,11 +294,9 @@ typedef struct _xmlValidState {
 #define SET_OCCURRENCE ctxt->vstate->occurs |= (1 << DEPTH)
 #define RESET_OCCURRENCE ctxt->vstate->occurs &= ((1 << DEPTH) - 1)
 
-static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContentPtr cont,
-    xmlNodePtr node, uchar depth, long occurs,
-    uchar state) {
+static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContentPtr cont, xmlNode * node, uchar depth, long occurs, uchar state) 
+{
 	int i = ctxt->vstateNr - 1;
-
 	if(ctxt->vstateNr > MAX_RECURSE) {
 		return -1;
 	}
@@ -354,7 +353,7 @@ static int vstateVPop(xmlValidCtxtPtr ctxt) {
 
 #endif /* LIBXML_REGEXP_ENABLED */
 
-static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNodePtr value)
+static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 {
 	if(ctxt->nodeMax <= 0) {
 		ctxt->nodeMax = 4;
@@ -368,9 +367,8 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNodePtr value)
 		}
 	}
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
-		xmlNodePtr * tmp;
-		tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab,
-		    ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
+		xmlNode ** tmp;
+		tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
 		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return 0;
@@ -383,10 +381,9 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNodePtr value)
 	return (ctxt->nodeNr++);
 }
 
-static xmlNodePtr nodeVPop(xmlValidCtxtPtr ctxt)
+static xmlNode * nodeVPop(xmlValidCtxtPtr ctxt)
 {
-	xmlNodePtr ret;
-
+	xmlNode * ret;
 	if(ctxt->nodeNr <= 0)
 		return 0;
 	ctxt->nodeNr--;
@@ -400,7 +397,7 @@ static xmlNodePtr nodeVPop(xmlValidCtxtPtr ctxt)
 }
 
 #ifdef DEBUG_VALID_ALGO
-static void xmlValidPrintNode(xmlNodePtr cur) {
+static void xmlValidPrintNode(xmlNode * cur) {
 	if(!cur) {
 		xmlGenericError(0, "null");
 		return;
@@ -474,7 +471,7 @@ static void xmlValidPrintNode(xmlNodePtr cur) {
 	}
 }
 
-static void xmlValidPrintNodeList(xmlNodePtr cur) {
+static void xmlValidPrintNodeList(xmlNode * cur) {
 	if(!cur)
 		xmlGenericError(0, "null ");
 	while(cur) {
@@ -483,7 +480,7 @@ static void xmlValidPrintNodeList(xmlNodePtr cur) {
 	}
 }
 
-static void xmlValidDebug(xmlNodePtr cur, xmlElementContentPtr cont) {
+static void xmlValidDebug(xmlNode * cur, xmlElementContentPtr cont) {
 	char expr[5000];
 
 	expr[0] = 0;
@@ -817,8 +814,8 @@ void xmlFreeValidCtxt(xmlValidCtxtPtr cur)
  */
 xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name, xmlElementContentType type) 
 {
-	xmlElementContentPtr ret;
-	xmlDictPtr dict = NULL;
+	xmlElementContent * ret;
+	xmlDict * dict = NULL;
 	if(doc)
 		dict = doc->dict;
 	switch(type) {
@@ -897,7 +894,7 @@ xmlElementContentPtr xmlNewElementContent(const xmlChar * name, xmlElementConten
 xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPtr cur) 
 {
 	xmlElementContentPtr ret = NULL, prev = NULL, tmp;
-	xmlDictPtr dict = NULL;
+	xmlDict * dict = NULL;
 	if(!cur) 
 		return 0;
 	if(doc)
@@ -1291,7 +1288,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	 */
 	table = (xmlElementTablePtr)dtd->elements;
 	if(table == NULL) {
-		xmlDictPtr dict = dtd->doc ? dtd->doc->dict : 0;
+		xmlDict * dict = dtd->doc ? dtd->doc->dict : 0;
 		table = xmlHashCreateDict(0, dict);
 		dtd->elements = (void*)table;
 	}
@@ -1717,7 +1714,7 @@ xmlAttributePtr xmlAddAttributeDecl(xmlValidCtxtPtr ctxt,
 	xmlAttributePtr ret;
 	xmlAttributeTablePtr table;
 	xmlElementPtr elemDef;
-	xmlDictPtr dict = NULL;
+	xmlDict * dict = NULL;
 
 	if(dtd == NULL) {
 		xmlFreeEnumeration(tree);
@@ -2364,7 +2361,7 @@ void xmlFreeIDTable(xmlIDTablePtr table)
  *
  * Returns 0 or 1 depending on the lookup result
  */
-int xmlIsID(xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr)
+int xmlIsID(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr)
 {
 	if((attr == NULL) || (attr->name == NULL))
 		return 0;
@@ -2655,7 +2652,7 @@ void FASTCALL xmlFreeRefTable(xmlRefTable * table)
  *
  * Returns 0 or 1 depending on the lookup result
  */
-int xmlIsRef(xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr) {
+int xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr) {
 	if(attr == NULL)
 		return 0;
 	if(!doc) {
@@ -2810,7 +2807,7 @@ static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, 
 	xmlElementTablePtr table;
 	if(dtd) {
 		if(dtd->elements == NULL) {
-			xmlDictPtr dict = NULL;
+			xmlDict * dict = NULL;
 			if(dtd->doc)
 				dict = dtd->doc->dict;
 			if(!create)
@@ -3533,7 +3530,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const
  */
 
 xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem, const xmlChar * name, const xmlChar * value) 
+    xmlNode * elem, const xmlChar * name, const xmlChar * value) 
 {
 	xmlChar * ret, * dst;
 	const xmlChar * src;
@@ -3617,8 +3614,8 @@ xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr do
  *      the caller must free the returned value.
  */
 
-xmlChar * xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNodePtr elem,
-    const xmlChar * name, const xmlChar * value) {
+xmlChar * xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNode * elem, const xmlChar * name, const xmlChar * value) 
+{
 	xmlChar * ret, * dst;
 	const xmlChar * src;
 	xmlAttributePtr attrDecl = NULL;
@@ -3879,7 +3876,7 @@ int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlElementPtr el
  * returns 1 if valid or 0 otherwise
  */
 
-int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem, xmlAttrPtr attr, const xmlChar * value)
+int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr, const xmlChar * value)
 {
 	xmlAttributePtr attrDecl =  NULL;
 	int val;
@@ -4017,8 +4014,7 @@ int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem
  * returns 1 if valid or 0 otherwise
  */
 
-int xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem, const xmlChar * prefix, xmlNsPtr ns, const xmlChar * value) 
+int xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * prefix, xmlNs * ns, const xmlChar * value) 
 {
 	/* xmlElementPtr elemDecl; */
 	xmlAttributePtr attrDecl =  NULL;
@@ -4181,9 +4177,9 @@ int xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
  *
  * returns the first element to consider for validation of the content model
  */
-
-static xmlNodePtr xmlValidateSkipIgnorable(xmlNodePtr child) {
-	while(child != NULL) {
+static xmlNode * xmlValidateSkipIgnorable(xmlNode * child) 
+{
+	while(child) {
 		switch(child->type) {
 			/* These things are ignored (skipped) during validation.  */
 			case XML_PI_NODE:
@@ -4427,7 +4423,7 @@ analyze:
 		 */
 		if(ret == 0) {
 			switch(CONT->ocur) {
-				xmlNodePtr cur;
+				xmlNode * cur;
 
 				case XML_ELEMENT_CONTENT_ONCE:
 				    cur = ctxt->vstate->node;
@@ -4558,7 +4554,7 @@ analyze:
 		}
 	}
 	if(NODE != NULL) {
-		xmlNodePtr cur;
+		xmlNode * cur;
 
 		cur = ctxt->vstate->node;
 		DEBUG_VALID_MSG("Failed, remaining input, rollback");
@@ -4571,7 +4567,7 @@ analyze:
 		goto cont;
 	}
 	if(ret == 0) {
-		xmlNodePtr cur;
+		xmlNode * cur;
 
 		cur = ctxt->vstate->node;
 		DEBUG_VALID_MSG("Failure, rollback");
@@ -4598,9 +4594,9 @@ analyze:
  * This will dump the list of elements to the buffer
  * Intended just for the debug routine
  */
-static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob) 
+static void xmlSnprintfElements(char * buf, int size, xmlNode * node, int glob) 
 {
-	xmlNodePtr cur;
+	xmlNode * cur;
 	int len;
 	if(!node) 
 		return;
@@ -4631,7 +4627,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob)
 				    return;
 			    }
 			    strcat(buf, (char*)cur->name);
-			    if(cur->next != NULL)
+			    if(cur->next)
 				    strcat(buf, " ");
 			    break;
 			case XML_TEXT_NODE:
@@ -4640,7 +4636,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob)
 			case XML_CDATA_SECTION_NODE:
 			case XML_ENTITY_REF_NODE:
 			    strcat(buf, "CDATA");
-			    if(cur->next != NULL)
+			    if(cur->next)
 				    strcat(buf, " ");
 			    break;
 			case XML_ATTRIBUTE_NODE:
@@ -4654,7 +4650,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob)
 			case XML_NOTATION_NODE:
 			case XML_NAMESPACE_DECL:
 			    strcat(buf, "???");
-			    if(cur->next != NULL)
+			    if(cur->next)
 				    strcat(buf, " ");
 			    break;
 			case XML_ENTITY_NODE:
@@ -4686,13 +4682,15 @@ static void xmlSnprintfElements(char * buf, int size, xmlNodePtr node, int glob)
  * returns 1 if valid or 0 if not and -1 in case of error
  */
 
-static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNodePtr child, xmlElementPtr elemDecl, int warn, xmlNodePtr parent) 
+static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlElementPtr elemDecl, int warn, xmlNode * parent) 
 {
 	int ret = 1;
 #ifndef  LIBXML_REGEXP_ENABLED
-	xmlNodePtr repl = NULL, last = NULL, tmp;
+	xmlNode * repl = NULL;
+	xmlNode * last = NULL;
+	xmlNode * tmp;
 #endif
-	xmlNodePtr cur;
+	xmlNode * cur;
 	xmlElementContentPtr cont;
 	const xmlChar * name;
 
@@ -4966,17 +4964,14 @@ done:
  *
  * returns 1 if valid or 0 otherwise
  */
-static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem) {
+static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem) 
+{
 	int ret = 1;
-	xmlNodePtr cur, child;
-
-	if(!ctxt || (doc == NULL) || (elem == NULL) ||
-	    (elem->type != XML_ELEMENT_NODE))
+	xmlNode * cur;
+	xmlNode * child;
+	if(!ctxt || (doc == NULL) || (elem == NULL) || (elem->type != XML_ELEMENT_NODE))
 		return 0;
-
 	child = elem->children;
-
 	cur = child;
 	while(cur) {
 		switch(cur->type) {
@@ -5089,11 +5084,10 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt,
  *
  * returns the pointer to the declaration or NULL if not found.
  */
-static xmlElementPtr xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem, int * extsubset) {
+static xmlElementPtr xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, int * extsubset) 
+{
 	xmlElementPtr elemDecl = NULL;
 	const xmlChar * prefix = NULL;
-
 	if(!ctxt || (doc == NULL) ||
 	    (elem == NULL) || (elem->name == NULL))
 		return 0;
@@ -5148,12 +5142,11 @@ static xmlElementPtr xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
  *
  * returns 1 if no validation problem was found or 0 otherwise
  */
-int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem, const xmlChar * qname) {
+int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * qname) 
+{
 	int ret = 1;
 	xmlElementPtr eDecl;
 	int extsubset = 0;
-
 	if(!ctxt)
 		return 0;
 /* printf("PushElem %s\n", qname); */
@@ -5291,11 +5284,9 @@ done:
  *
  * returns 1 if no validation problem was found or 0 otherwise
  */
-int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED,
-    xmlNodePtr elem ATTRIBUTE_UNUSED,
-    const xmlChar * qname ATTRIBUTE_UNUSED) {
+int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * elem ATTRIBUTE_UNUSED, const xmlChar * qname ATTRIBUTE_UNUSED) 
+{
 	int ret = 1;
-
 	if(!ctxt)
 		return 0;
 /* printf("PopElem %s\n", qname); */
@@ -5349,13 +5340,12 @@ int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED,
  *
  * returns 1 if valid or 0 otherwise
  */
-
-int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc,
-    xmlNodePtr elem) {
+int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem) 
+{
 	xmlElementPtr elemDecl = NULL;
 	xmlElementContentPtr cont;
 	xmlAttributePtr attr;
-	xmlNodePtr child;
+	xmlNode * child;
 	int ret = 1, tmp;
 	const xmlChar * name;
 	int extsubset = 0;
@@ -5538,7 +5528,7 @@ child_ok:
 		if(attr->def == XML_ATTRIBUTE_REQUIRED) {
 			int qualified = -1;
 			if((attr->prefix == NULL) && (sstreq(attr->name, BAD_CAST "xmlns"))) {
-				xmlNsPtr ns = elem->nsDef;
+				xmlNs * ns = elem->nsDef;
 				while(ns) {
 					if(ns->prefix == NULL)
 						goto found;
@@ -5546,7 +5536,7 @@ child_ok:
 				}
 			}
 			else if(sstreq(attr->prefix, BAD_CAST "xmlns")) {
-				xmlNsPtr ns = elem->nsDef;
+				xmlNs * ns = elem->nsDef;
 				while(ns) {
 					if(sstreq(attr->name, ns->prefix))
 						goto found;
@@ -5659,7 +5649,7 @@ found:
 
 int xmlValidateRoot(xmlValidCtxtPtr ctxt, xmlDocPtr doc) 
 {
-	xmlNodePtr root;
+	xmlNode * root;
 	int ret;
 	if(!doc) 
 		return 0;
@@ -5711,11 +5701,11 @@ name_ok:
  * returns 1 if valid or 0 otherwise
  */
 
-int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem) 
+int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem) 
 {
-	xmlNodePtr child;
-	xmlAttrPtr attr;
-	xmlNsPtr ns;
+	xmlNode * child;
+	xmlAttr * attr;
+	xmlNs * ns;
 	const xmlChar * value;
 	int ret = 1;
 	if(elem == NULL) 
@@ -5765,7 +5755,7 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem)
 static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt,
     const xmlChar * name) {
 	xmlAttrPtr id;
-	xmlAttrPtr attr;
+	xmlAttr * attr;
 
 	if(ref == NULL)
 		return;
@@ -5905,11 +5895,9 @@ int xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDocPtr doc)
 	ctxt->doc = doc;
 	ctxt->valid = 1;
 	xmlHashScan(table, (xmlHashScanner)xmlValidateCheckRefCallback, ctxt);
-
 	ctxt->finishDtd = save;
-	return(ctxt->valid);
+	return ctxt->valid;
 }
-
 /**
  * xmlValidateDtd:
  * @ctxt:  the validation context
@@ -5930,7 +5918,7 @@ int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlDtdPtr dtd)
 {
 	int ret;
 	xmlDtdPtr oldExt, oldInt;
-	xmlNodePtr root;
+	xmlNode * root;
 	if(dtd == NULL) 
 		return 0;
 	if(!doc) 
@@ -6097,7 +6085,7 @@ int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDocPtr doc)
 int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDocPtr doc) 
 {
 	int ret;
-	xmlNodePtr root;
+	xmlNode * root;
 	if(!doc)
 		return 0;
 	if((doc->intSubset == NULL) && (doc->extSubset == NULL)) {

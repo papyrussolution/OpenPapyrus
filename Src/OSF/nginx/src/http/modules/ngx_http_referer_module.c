@@ -585,27 +585,21 @@ static ngx_int_t ngx_http_add_regex_referer(ngx_conf_t * cf, ngx_http_referer_co
 
 #if (NGX_PCRE)
 
-static ngx_int_t ngx_http_add_regex_server_name(ngx_conf_t * cf, ngx_http_referer_conf_t * rlcf,
-    ngx_http_regex_t * regex)
+static ngx_int_t ngx_http_add_regex_server_name(ngx_conf_t * cf, ngx_http_referer_conf_t * rlcf, ngx_http_regex_t * regex)
 {
 	ngx_regex_elt_t  * re;
-
 	if(rlcf->server_name_regex == NGX_CONF_UNSET_PTR) {
-		rlcf->server_name_regex = ngx_array_create(cf->pool, 2,
-		    sizeof(ngx_regex_elt_t));
+		rlcf->server_name_regex = ngx_array_create(cf->pool, 2, sizeof(ngx_regex_elt_t));
 		if(rlcf->server_name_regex == NULL) {
 			return NGX_ERROR;
 		}
 	}
-
 	re = (ngx_regex_elt_t *)ngx_array_push(rlcf->server_name_regex);
 	if(re == NULL) {
 		return NGX_ERROR;
 	}
-
 	re->regex = regex->regex;
 	re->name = regex->name.data;
-
 	return NGX_OK;
 }
 
@@ -613,11 +607,7 @@ static ngx_int_t ngx_http_add_regex_server_name(ngx_conf_t * cf, ngx_http_refere
 
 static int ngx_libc_cdecl ngx_http_cmp_referer_wildcards(const void * one, const void * two)
 {
-	ngx_hash_key_t  * first, * second;
-
-	first = (ngx_hash_key_t*)one;
-	second = (ngx_hash_key_t*)two;
-
+	ngx_hash_key_t * first = (ngx_hash_key_t*)one;
+	ngx_hash_key_t * second = (ngx_hash_key_t*)two;
 	return ngx_dns_strcmp(first->key.data, second->key.data);
 }
-

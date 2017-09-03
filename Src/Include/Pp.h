@@ -301,6 +301,8 @@ class  GoodsRestFilt;
 class  SmsProtocolBuf;
 class  SrGeoNodeTbl;
 class  PPTextAnalyzerWrapper;
+class  SelectObjectBlock;
+class  Backend_SelectObjectBlock;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1741,8 +1743,6 @@ class ObjRights { // @persistent
 public:
 	static ObjRights * SLAPI Create(PPID objType, size_t totalSize);
 	static void FASTCALL Destroy(ObjRights * pObj);
-	//void * SLAPI operator new(size_t sz, size_t extra = 0);
-	//void   SLAPI operator delete(void *, size_t extra);
 	ObjRights(PPID objType = 0);
 
 	PPID   ObjType;
@@ -1790,18 +1790,10 @@ public:
 	short  PwPeriod;      // Продолжительность действия пароля (дней)
 	short  AccessLevel;   // Уровень доступа
 	long   CFlags;        // Общие флаги прав (PPAccessRestriction::cfXXX)
-	PPID   OnlyGoodsGrpID; //
+	PPID   OnlyGoodsGrpID; // Единственная товарная группа, товары которой доступны для анализа
 private:
-	//
-	// В следующих четырех полях, если LDATE::year() == 0x8000 и LoWord(LDATE::v) & 0x8000 != 0, то
-	// LoWord(LDATE::v) & 0x7fff представляет собой знаковое смещение относительно текущей системной даты.
-	//
-	//LDATE  LowRBillDate;  // Дата, до которой R-доступ к документам запрещен
-	//LDATE  UppRBillDate;  // Дата, после которой R-доступ к документам запрещен
-	//LDATE  LowWBillDate;  // Дата, до которой W-доступ к документам запрещен
-	//LDATE  UppWBillDate;  // Дата, после которой W-доступ к документам запрещен
-	DateRange RBillPeriod;
-	DateRange WBillPeriod;
+	DateRange RBillPeriod;  // Период, в течении которого R-доступ к документам разрешен
+	DateRange WBillPeriod;  // Период, в течении которого W-доступ к документам разрешен
 	int    ShowInnerDates; // В GetR(W)BillPeriod подставлять даты так, как они хранятся //
 };
 
@@ -2196,7 +2188,7 @@ private:
 	XmlDbFile   * P_XmlT;
 	SoapDbFile  * P_SoapT;
 	ExcelDbFile * P_XlsT;
-	Sdr_ImpExpHeader * P_HdrData;    // @v7.4.6
+	Sdr_ImpExpHeader * P_HdrData;
 	ExprEvalContext * P_ExprContext; // @notowned
 	ulong  R_RecNo;
 	ulong  W_RecNo;
@@ -5186,6 +5178,10 @@ private:
 	long   Flags;
 };
 //
+//
+//
+
+//
 // Descr: Команды сервера
 //
 #define PPSCMD_HELLO                 10001
@@ -5408,6 +5404,37 @@ public:
 	int    SLAPI StartWriting(int cmdId);
 	int    SLAPI StartWriting(const char * pCmd);
 	int    SLAPI FinishWriting();
+};
+
+class PPServerCmd : public PPJobSrvCmd {
+public:
+	enum {
+		paridDbSymb = 10001,
+		paridUserName,
+		paridPassword
+	};
+	SLAPI  PPServerCmd();
+	SLAPI ~PPServerCmd();
+	void   SLAPI Init();
+	//
+	// Descr: Флаги функции ParseLine()
+	//
+	enum {
+		plfLoggedIn = 0x0001 // Вызывающая сессия авторизована в базе данных
+	};
+	int    FASTCALL ParseLine(const SString & rLine, long flags);
+	int    FASTCALL PutParam(int parid, const char * pVal); // @v9.8.0 
+	int    FASTCALL GetParam(int parid, SString & rVal) const; // @v9.8.0 
+	void   SLAPI ClearParams(); // @v9.8.0
+
+	long   SessID;   // Идентификатор сессии, к которой отправлен запрос
+	// @v9.8.0 SString Params;
+	SelectObjectBlock * P_SoBlk;
+private:
+	int    SLAPI GetWord(const char * pBuf, size_t *);
+	SString Term;
+	StrAssocArray ParamL;
+	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 };
 //
 // Descr: Класс, инкапсулирующий ответ JobServer'а (реплику).
@@ -6498,6 +6525,13 @@ public:
 	// Descr: Возвращает !0 если текущий поток получил требование остановиться.
 	//
 	int    SLAPI IsThreadStopped();
+	//
+	// @construction
+	// Descr: Находит или создает свободный поток типа PPThread::kWorkerSession и передает ему
+	//   команду pCmd вместе с абстрактным представлением внешнего запроса pReq.
+	//   Поток должен ответить на команду через канал pPipe.
+	//
+	int    SLAPI DispatchServerCommand(PPServerCmd * pCmd, const void * pReq, SBufferPipe * pPipe); // @cs
 
 	enum {
 		ldsLock      = 1,
@@ -6677,9 +6711,8 @@ public:
 	//
 	//
 	struct LoggerIntermediateBlock {
-		SLAPI   LoggerIntermediateBlock(const PPSession & rS) : CfgMaxFileSize(rS.GetMaxLogFileSize())
-		{
-		}
+		SLAPI   LoggerIntermediateBlock(const PPSession & rS);
+
 		const   long CfgMaxFileSize;
 		SString MsgBuf;
 		SString TempBuf; // @allocreuse
@@ -6695,7 +6728,6 @@ private:
 	int    SLAPI CheckLicense(MACAddr * pMachineID, int * pIsDemo);
 	int    SLAPI SetupConfigByOps();
 	int    SLAPI GetLocalPath(SString & rBuf);
-	int    SLAPI CreateDbDispatchThread(long dbPathID, const char * pDbSymb);
 	DlContext * SLAPI Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit);
 	int    SLAPI SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue);
 
@@ -6724,7 +6756,7 @@ private:
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
 	DlContext * P_DbCtx;   // Контекст структуры базы данных. Контекст глобальный (не привязан к потокам)
-	PPAlbatrosConfig * P_AlbatrosCfg; // @v7.2.8 Кэшированная конфигурация глобального обмена
+	PPAlbatrosConfig * P_AlbatrosCfg; // Кэшированная конфигурация глобального обмена
 		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig().
 	Profile GPrf;          // @v8.0.3 Глобальный профайлер для всей сессии. Кроме него в каждом потоке
 		// есть собственный профайлер PPThreadLocalArea::Prf
@@ -6749,11 +6781,14 @@ private:
 
 		PPThread * FASTCALL SearchById(ThreadID tId);
 		PPThread * FASTCALL SearchBySessId(int32 sessId);
+		//
+		// Descr: Находит первый попавшийся поток вида kind, имеющий статус SlThread::stIdle.
+		//
+		PPThread * FASTCALL SearchIdle(int kine);
 	private:
 		ReadWriteLock RwL;
 	};
-	ThreadCollection ThreadList; // Список потоков. Конструктор снимает
-		// флаг aryEachItem с этого экземпляра поскольку он не владеет указателями на потоки.
+	ThreadCollection ThreadList; // Список потоков. Конструктор снимает флаг aryEachItem с этого экземпляра поскольку он не владеет указателями на потоки.
 };
 
 extern PPSession DS;
@@ -30773,43 +30808,6 @@ private:
 	PPLogger * P_Logger; // @notowned
 };
 //
-//
-//
-class PPDistribCCheck {
-public:
-	struct Header {
-		Header();
-
-		PPID   PosNodeID;
-		PPID   LocID;
-		LDATETIME Dtm;
-		PPID   SCardID;
-		long   Flags;
-		double Amount;
-		double Discount;
-	};
-	struct Line {
-		Line();
-
-		PPID   GoodsID;
-		double Qtty;
-		double Price;
-		double Discount;
-	};
-	SLAPI  PPDistribCCheck();
-	SLAPI ~PPDistribCCheck();
-	int    SLAPI Begin(PPID * pID, const Header & rHdr);
-	int    SLAPI AddLine(PPID ccID, const Line & rLn);
-	int    SLAPI Finish(PPID ccID, PPID * pNewCcID);
-private:
-	CCheckCore Cc;
-	PPObjCSession * P_CsObj;
-	PPObjCashNode CnObj;
-	PPObjLocation LocObj;
-};
-//
-class Backend_SelectObjectBlock;
-//
 // Descr: Фронтальный класс, обеспечивающий интерфейс к механизму обработки серверных запросов
 //   с унифицированным синтаксисом.
 //
@@ -30829,6 +30827,41 @@ public:
 	// Descr: Выполняет предварительно разобранную функцией Parse команду.
 	//
 	int    FASTCALL Execute(PPJobSrvReply & rReply);
+	//
+	// Descr: Представление кассового чека, используемое серверными командами
+	//
+	class DistribCCheck {
+	public:
+		struct Header {
+			Header();
+
+			PPID   PosNodeID;
+			PPID   LocID;
+			LDATETIME Dtm;
+			PPID   SCardID;
+			long   Flags;
+			double Amount;
+			double Discount;
+		};
+		struct Line {
+			Line();
+
+			PPID   GoodsID;
+			double Qtty;
+			double Price;
+			double Discount;
+		};
+		SLAPI  DistribCCheck();
+		SLAPI ~DistribCCheck();
+		int    SLAPI Begin(PPID * pID, const Header & rHdr);
+		int    SLAPI AddLine(PPID ccID, const Line & rLn);
+		int    SLAPI Finish(PPID ccID, PPID * pNewCcID);
+	private:
+		CCheckCore Cc;
+		PPObjCSession * P_CsObj;
+		PPObjCashNode CnObj;
+		PPObjLocation LocObj;
+	};
 private:
 	Backend_SelectObjectBlock * P_BSob;
 };

@@ -880,7 +880,7 @@ ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase
 			r->headers_out.location->value.data = p;
 			p = ngx_cpymem(p, clcf->name.data, clcf->name.len);
 			*p++ = '?';
-			ngx_memcpy(p, r->args.data, r->args.len);
+			memcpy(p, r->args.data, r->args.len);
 		}
 		ngx_http_finalize_request(r, NGX_HTTP_MOVED_PERMANENTLY);
 		return NGX_OK;
@@ -1546,7 +1546,7 @@ ngx_int_t ngx_http_gzip_ok(ngx_http_request_t * pReq)
 	 *   Safari:  "gzip, deflate"
 	 *   Opera:   "gzip, deflate"
 	 */
-	if(ngx_memcmp(ae->value.data, "gzip,", 5) != 0 && ngx_http_gzip_accept_encoding(&ae->value) != NGX_OK) {
+	if(memcmp(ae->value.data, "gzip,", 5) != 0 && ngx_http_gzip_accept_encoding(&ae->value) != NGX_OK) {
 		return NGX_DECLINED;
 	}
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_core_module);
@@ -2031,7 +2031,7 @@ ngx_int_t ngx_http_set_disable_symlinks(ngx_http_request_t * r, ngx_http_core_lo
 	}
 	if(from.len == 0
 	    || from.len > path->len
-	    || ngx_memcmp(path->data, from.data, from.len) != 0) {
+	    || memcmp(path->data, from.data, from.len) != 0) {
 		return NGX_OK;
 	}
 
@@ -2935,7 +2935,7 @@ static char * ngx_http_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 
 	memzero(&lsopt, sizeof(ngx_http_listen_opt_t));
 
-	ngx_memcpy(&lsopt.sockaddr.sockaddr, &u.sockaddr, u.socklen);
+	memcpy(&lsopt.sockaddr.sockaddr, &u.sockaddr, u.socklen);
 
 	lsopt.socklen = u.socklen;
 	lsopt.backlog = NGX_LISTEN_BACKLOG;
@@ -3814,95 +3814,67 @@ static char * ngx_http_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void 
 static char * ngx_http_gzip_disable(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)conf;
-
 #if (NGX_PCRE)
-
 	ngx_str_t  * value;
 	ngx_uint_t i;
 	ngx_regex_elt_t * re;
 	ngx_regex_compile_t rc;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
-
 	if(clcf->gzip_disable == NGX_CONF_UNSET_PTR) {
-		clcf->gzip_disable = ngx_array_create(cf->pool, 2,
-		    sizeof(ngx_regex_elt_t));
+		clcf->gzip_disable = ngx_array_create(cf->pool, 2, sizeof(ngx_regex_elt_t));
 		if(clcf->gzip_disable == NULL) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	value = (ngx_str_t *)cf->args->elts;
-
 	memzero(&rc, sizeof(ngx_regex_compile_t));
-
 	rc.pool = cf->pool;
 	rc.err.len = NGX_MAX_CONF_ERRSTR;
 	rc.err.data = errstr;
-
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(ngx_strcmp(value[i].data, "msie6") == 0) {
 			clcf->gzip_disable_msie6 = 1;
 			continue;
 		}
-
 #if (NGX_HTTP_DEGRADATION)
-
 		if(ngx_strcmp(value[i].data, "degradation") == 0) {
 			clcf->gzip_disable_degradation = 1;
 			continue;
 		}
-
 #endif
-
 		re = (ngx_regex_elt_t *)ngx_array_push(clcf->gzip_disable);
 		if(re == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		rc.pattern = value[i];
 		rc.options = NGX_REGEX_CASELESS;
-
 		if(ngx_regex_compile(&rc) != NGX_OK) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V", &rc.err);
 			return NGX_CONF_ERROR;
 		}
-
 		re->regex = rc.regex;
 		re->name = value[i].data;
 	}
-
 	return NGX_CONF_OK;
-
 #else
 	ngx_str_t * value;
 	ngx_uint_t i;
-
 	value = cf->args->elts;
-
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(ngx_strcmp(value[i].data, "msie6") == 0) {
 			clcf->gzip_disable_msie6 = 1;
 			continue;
 		}
-
 #if (NGX_HTTP_DEGRADATION)
-
 		if(ngx_strcmp(value[i].data, "degradation") == 0) {
 			clcf->gzip_disable_degradation = 1;
 			continue;
 		}
-
 #endif
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "without PCRE library \"gzip_disable\" supports "
-		    "builtin \"msie6\" and \"degradation\" mask only");
-
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "without PCRE library \"gzip_disable\" supports builtin \"msie6\" and \"degradation\" mask only");
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
-
 #endif
 }
 
@@ -3913,47 +3885,36 @@ static char * ngx_http_gzip_disable(ngx_conf_t * cf, ngx_command_t * cmd, void *
 static char * ngx_http_disable_symlinks(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_core_loc_conf_t * clcf = conf;
-
 	ngx_str_t  * value;
 	ngx_uint_t i;
 	ngx_http_compile_complex_value_t ccv;
-
 	if(clcf->disable_symlinks != NGX_CONF_UNSET_UINT) {
 		return "is duplicate";
 	}
-
 	value = cf->args->elts;
-
 	for(i = 1; i < cf->args->nelts; i++) {
 		if(ngx_strcmp(value[i].data, "off") == 0) {
 			clcf->disable_symlinks = NGX_DISABLE_SYMLINKS_OFF;
 			continue;
 		}
-
 		if(ngx_strcmp(value[i].data, "if_not_owner") == 0) {
 			clcf->disable_symlinks = NGX_DISABLE_SYMLINKS_NOTOWNER;
 			continue;
 		}
-
 		if(ngx_strcmp(value[i].data, "on") == 0) {
 			clcf->disable_symlinks = NGX_DISABLE_SYMLINKS_ON;
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "from=", 5) == 0) {
 			value[i].len -= 5;
 			value[i].data += 5;
-
 			memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 			ccv.cf = cf;
 			ccv.value = &value[i];
-			ccv.complex_value = ngx_palloc(cf->pool,
-			    sizeof(ngx_http_complex_value_t));
+			ccv.complex_value = ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 			if(ccv.complex_value == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}

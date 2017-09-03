@@ -179,7 +179,7 @@ ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * lo
 	if(name == NULL) {
 		return NGX_ENOMEM;
 	}
-	ngx_memcpy(name, to->data, to->len);
+	memcpy(name, to->data, to->len);
 	collision = 0;
 	/* mutex_lock() (per cache or single ?) */
 	for(;; ) {
@@ -395,7 +395,7 @@ ngx_int_t ngx_open_glob(ngx_glob_t * gl)
 	if(gl->name.data == NULL) {
 		return NGX_ERROR;
 	}
-	ngx_memcpy(gl->name.data, gl->pattern, gl->last);
+	memcpy(gl->name.data, gl->pattern, gl->last);
 	ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
 	gl->ready = 1;
 	return NGX_OK;
@@ -422,7 +422,7 @@ ngx_int_t ngx_read_glob(ngx_glob_t * gl, ngx_str_t * name)
 		if(gl->name.data == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(gl->name.data, gl->pattern, gl->last);
+		memcpy(gl->name.data, gl->pattern, gl->last);
 		ngx_cpystrn(gl->name.data + gl->last, (u_char*)gl->finddata.cFileName, len + 1);
 		*name = gl->name;
 		return NGX_OK;
@@ -671,7 +671,7 @@ static u_short * ngx_utf8_to_utf16(u_short * utf16, u_char * utf8, size_t * len)
 		return NULL;
 	}
 
-	ngx_memcpy(u, utf16, *len * 2);
+	memcpy(u, utf16, *len * 2);
 
 	utf16 = u;
 	u += *len;

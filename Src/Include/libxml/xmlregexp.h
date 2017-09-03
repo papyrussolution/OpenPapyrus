@@ -7,7 +7,6 @@
  *
  * Author: Daniel Veillard
  */
-
 #ifndef __XML_REGEXP_H__
 #define __XML_REGEXP_H__
 
@@ -40,7 +39,7 @@ typedef xmlRegExecCtxt *xmlRegExecCtxtPtr;
 }
 #endif
 #include <libxml/tree.h>
-#include <libxml/dict.h>
+//#include <libxml/dict.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,8 +82,8 @@ XMLPUBFUN int XMLCALL xmlRegExecErrInfo(xmlRegExecCtxtPtr exec, const xmlChar **
 typedef struct _xmlExpCtxt xmlExpCtxt;
 typedef xmlExpCtxt *xmlExpCtxtPtr;
 
-XMLPUBFUN void XMLCALL xmlExpFreeCtxt	(xmlExpCtxtPtr ctxt);
-XMLPUBFUN xmlExpCtxtPtr XMLCALL xmlExpNewCtxt	(int maxNodes, xmlDictPtr dict);
+XMLPUBFUN void XMLCALL xmlExpFreeCtxt(xmlExpCtxtPtr ctxt);
+XMLPUBFUN xmlExpCtxtPtr XMLCALL xmlExpNewCtxt(int maxNodes, xmlDict * dict);
 XMLPUBFUN int XMLCALL xmlExpCtxtNbNodes(xmlExpCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt);
 

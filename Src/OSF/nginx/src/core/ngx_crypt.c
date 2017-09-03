@@ -132,7 +132,7 @@ static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt,
 		return NGX_ERROR;
 	}
 	p = ngx_cpymem(*encrypted, "{PLAIN}", sizeof("{PLAIN}") - 1);
-	ngx_memcpy(p, key, len + 1);
+	memcpy(p, key, len + 1);
 	return NGX_OK;
 }
 

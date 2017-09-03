@@ -571,7 +571,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	StRlnConfig * p_rln_cfg = 0;
 	xmlTextReaderPtr p_xml_ptr;
 	xmlParserInputBufferPtr p_input = 0;
-	xmlNodePtr p_node;
+	xmlNode * p_node;
 	RlnCfgList.freeAll();
 	if(pResp) {
 		p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
@@ -2171,11 +2171,11 @@ int ImportCls::ListMessageBox(uint messageType)
 						p_input = xmlParserInputBufferCreateMem(xml_input, xml_input.Len(), XML_CHAR_ENCODING_NONE);
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 						while(xmlTextReaderRead(p_xml_ptr)) {
-							xmlNodePtr p_node = xmlTextReaderCurrentNode(p_xml_ptr);
+							xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
 							if(p_node && p_node->children && sstreqi_ascii((const char *)p_node->name, "document-info")) {
 								//THROWERR(p_info_blk = new MessageInfoBlock, IEERR_NOMEM);
 								PPEdiMessageEntry eme;
-								for(xmlNodePtr p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
+								for(xmlNode * p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
 									if(p_doc_child->children) {
 										cname.Set(p_doc_child->name);
 										if(cname.CmpNC("tracking-id") == 0) { // ИД документа в системе
@@ -2632,7 +2632,7 @@ int ImportCls::ParseAperakResp(const char * pResp)
 	SString str;
 	xmlTextReaderPtr p_xml_ptr;
 	xmlParserInputBufferPtr p_input = 0;
-	xmlNodePtr p_node;
+	xmlNode * p_node;
 	AperakInfo.Clear();
 	if(pResp) {
 		p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);

@@ -9,8 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/idea.h>
+//#include <openssl/opensslv.h>
 #include "idea_lcl.h"
-#include <openssl/opensslv.h>
 
 const char * IDEA_options(void)
 {

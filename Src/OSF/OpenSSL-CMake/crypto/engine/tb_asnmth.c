@@ -10,8 +10,7 @@
 #pragma hdrstop
 //#include "eng_int.h"
 //#include <openssl/evp.h>
-#include "internal/asn1_int.h"
-
+//#include "internal/asn1_int.h"
 /*
  * If this symbol is defined then ENGINE_get_pkey_asn1_meth_engine(), the
  * function that is used by EVP to hook in pkey_asn1_meth code and cache
@@ -48,7 +47,6 @@ int ENGINE_register_pkey_asn1_meths(ENGINE * e)
 void ENGINE_register_all_pkey_asn1_meths(void)
 {
 	ENGINE * e;
-
 	for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e))
 		ENGINE_register_pkey_asn1_meths(e);
 }

@@ -52,15 +52,12 @@ struct _cairo_mempool {
 		int bits;
 		cairo_list_t link;
 	} * blocks;
-
 	cairo_list_t free[32];
 	uchar * map;
-
 	uint num_blocks;
 	int min_bits; /* Minimum block size is 1 << min_bits */
 	int num_sizes;
 	int max_free_bits;
-
 	size_t free_bytes;
 	size_t max_bytes;
 };

@@ -15,15 +15,8 @@ extern ngx_module_t ngx_devpoll_module;
 extern ngx_module_t ngx_epoll_module;
 extern ngx_module_t ngx_select_module;
 
-static char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf);
-static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle);
-static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle);
-static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_connections(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static void * ngx_event_core_create_conf(ngx_cycle_t * cycle);
-static char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf);
+ngx_queue_t ngx_posted_accept_events; // @global Очередь событий, связанный с акцептом соединения
+ngx_queue_t ngx_posted_events; // @global Основная очередь событий (минус ngx_posted_accept_events)
 
 static ngx_uint_t ngx_timer_resolution; // @global
 sig_atomic_t ngx_event_timer_alarm; // @global
@@ -41,23 +34,31 @@ ngx_msec_t ngx_accept_mutex_delay; // @global
 ngx_int_t ngx_accept_disabled; // @global
 
 #if (NGX_STAT_STUB)
-
-static ngx_atomic_t ngx_stat_accepted0;
-ngx_atomic_t * ngx_stat_accepted = &ngx_stat_accepted0;
-static ngx_atomic_t ngx_stat_handled0;
-ngx_atomic_t * ngx_stat_handled = &ngx_stat_handled0;
-static ngx_atomic_t ngx_stat_requests0;
-ngx_atomic_t * ngx_stat_requests = &ngx_stat_requests0;
-static ngx_atomic_t ngx_stat_active0;
-ngx_atomic_t * ngx_stat_active = &ngx_stat_active0;
-static ngx_atomic_t ngx_stat_reading0;
-ngx_atomic_t * ngx_stat_reading = &ngx_stat_reading0;
-static ngx_atomic_t ngx_stat_writing0;
-ngx_atomic_t * ngx_stat_writing = &ngx_stat_writing0;
-static ngx_atomic_t ngx_stat_waiting0;
-ngx_atomic_t * ngx_stat_waiting = &ngx_stat_waiting0;
-
+	static ngx_atomic_t ngx_stat_accepted0;
+	ngx_atomic_t * ngx_stat_accepted = &ngx_stat_accepted0;
+	static ngx_atomic_t ngx_stat_handled0;
+	ngx_atomic_t * ngx_stat_handled = &ngx_stat_handled0;
+	static ngx_atomic_t ngx_stat_requests0;
+	ngx_atomic_t * ngx_stat_requests = &ngx_stat_requests0;
+	static ngx_atomic_t ngx_stat_active0;
+	ngx_atomic_t * ngx_stat_active = &ngx_stat_active0;
+	static ngx_atomic_t ngx_stat_reading0;
+	ngx_atomic_t * ngx_stat_reading = &ngx_stat_reading0;
+	static ngx_atomic_t ngx_stat_writing0;
+	ngx_atomic_t * ngx_stat_writing = &ngx_stat_writing0;
+	static ngx_atomic_t ngx_stat_waiting0;
+	ngx_atomic_t * ngx_stat_waiting = &ngx_stat_waiting0;
 #endif
+
+static char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf);
+static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle);
+static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle);
+static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_event_connections(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static void * ngx_event_core_create_conf(ngx_cycle_t * cycle);
+static char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf);
 
 static ngx_command_t ngx_events_commands[] = {
 	{ ngx_string("events"), NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS, ngx_events_block, 0, 0, NULL },
@@ -115,7 +116,18 @@ ngx_module_t ngx_event_core_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-void ngx_process_events_and_timers(ngx_cycle_t * cycle)
+static void ngx_event_process_posted(ngx_cycle_t * cycle, ngx_queue_t * posted)
+{
+	while(!ngx_queue_empty(posted)) {
+		ngx_queue_t * q = ngx_queue_head(posted);
+		ngx_event_t * ev = ngx_queue_data(q, ngx_event_t, queue);
+		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "posted event %p", ev);
+		ngx_delete_posted_event(ev);
+		ev->handler(ev);
+	}
+}
+
+void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 {
 	ngx_uint_t flags;
 	ngx_msec_t timer, delta;
@@ -127,7 +139,7 @@ void ngx_process_events_and_timers(ngx_cycle_t * cycle)
 		timer = ngx_event_find_timer();
 		flags = NGX_UPDATE_TIME;
 #if (NGX_WIN32)
-		/* handle signals from master in case of network inactivity */
+		// handle signals from master in case of network inactivity 
 		if(timer == NGX_TIMER_INFINITE || timer > 500) {
 			timer = 500;
 		}
@@ -138,10 +150,10 @@ void ngx_process_events_and_timers(ngx_cycle_t * cycle)
 			ngx_accept_disabled--;
 		}
 		else {
-			if(ngx_trylock_accept_mutex(cycle) == NGX_ERROR) {
+			if(ngx_trylock_accept_mutex(pCycle) == NGX_ERROR) {
 				return;
 			}
-			if(ngx_accept_mutex_held) {
+			else if(ngx_accept_mutex_held) {
 				flags |= NGX_POST_EVENTS;
 			}
 			else if(timer == NGX_TIMER_INFINITE || timer > ngx_accept_mutex_delay) {
@@ -151,113 +163,92 @@ void ngx_process_events_and_timers(ngx_cycle_t * cycle)
 	}
 	delta = ngx_current_msec;
 	// @sobolev (void)ngx_process_events(cycle, timer, flags);
-	ngx_event_actions.process_events(cycle, timer, flags); // @sobolev 
+	ngx_event_actions.process_events(pCycle, timer, flags); // @sobolev 
 	delta = ngx_current_msec - delta;
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "timer delta: %M", delta);
-	ngx_event_process_posted(cycle, &ngx_posted_accept_events);
+	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "timer delta: %M", delta);
+	ngx_event_process_posted(pCycle, &ngx_posted_accept_events);
 	if(ngx_accept_mutex_held) {
 		ngx_shmtx_unlock(&ngx_accept_mutex);
 	}
 	if(delta) {
 		ngx_event_expire_timers();
 	}
-	ngx_event_process_posted(cycle, &ngx_posted_events);
+	ngx_event_process_posted(pCycle, &ngx_posted_events);
 }
 
 ngx_int_t ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags)
 {
+	ngx_int_t result = NGX_OK;
 	if(ngx_event_flags & NGX_USE_CLEAR_EVENT) {
-		/* kqueue, epoll */
+		// kqueue, epoll 
 		if(!rev->active && !rev->ready) {
-			if(ngx_add_event(rev, NGX_READ_EVENT, NGX_CLEAR_EVENT) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
+			THROW(ngx_add_event(rev, NGX_READ_EVENT, NGX_CLEAR_EVENT) != NGX_ERROR);
 		}
-		return NGX_OK;
 	}
 	else if(ngx_event_flags & NGX_USE_LEVEL_EVENT) {
-		/* select, poll, /dev/poll */
+		// select, poll, /dev/poll 
 		if(!rev->active && !rev->ready) {
-			if(ngx_add_event(rev, NGX_READ_EVENT, NGX_LEVEL_EVENT) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+			THROW(ngx_add_event(rev, NGX_READ_EVENT, NGX_LEVEL_EVENT) != NGX_ERROR);
 		}
-		if(rev->active && (rev->ready || (flags & NGX_CLOSE_EVENT))) {
-			if(ngx_del_event(rev, NGX_READ_EVENT, NGX_LEVEL_EVENT | flags) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+		else if(rev->active && (rev->ready || (flags & NGX_CLOSE_EVENT))) {
+			THROW(ngx_del_event(rev, NGX_READ_EVENT, NGX_LEVEL_EVENT | flags) != NGX_ERROR);
 		}
 	}
 	else if(ngx_event_flags & NGX_USE_EVENTPORT_EVENT) {
-		/* event ports */
+		// event ports 
 		if(!rev->active && !rev->ready) {
-			if(ngx_add_event(rev, NGX_READ_EVENT, 0) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+			THROW(ngx_add_event(rev, NGX_READ_EVENT, 0) != NGX_ERROR);
 		}
-		if(rev->oneshot && !rev->ready) {
-			if(ngx_del_event(rev, NGX_READ_EVENT, 0) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+		else if(rev->oneshot && !rev->ready) {
+			THROW(ngx_del_event(rev, NGX_READ_EVENT, 0) != NGX_ERROR);
 		}
 	}
-	/* iocp */
-	return NGX_OK;
+	// iocp 
+	CATCH
+		result = NGX_ERROR;
+	ENDCATCH
+	return result;
+	//return NGX_OK;
 }
 
 ngx_int_t ngx_handle_write_event(ngx_event_t * wev, size_t lowat)
 {
+	ngx_int_t result = NGX_OK;
 	if(lowat) {
 		ngx_connection_t * c = (ngx_connection_t*)wev->data;
-		if(ngx_send_lowat(c, lowat) == NGX_ERROR) {
-			return NGX_ERROR;
-		}
+		THROW(ngx_send_lowat(c, lowat) != NGX_ERROR);
 	}
+	//
 	if(ngx_event_flags & NGX_USE_CLEAR_EVENT) {
-		/* kqueue, epoll */
+		// kqueue, epoll 
 		if(!wev->active && !wev->ready) {
-			if(ngx_add_event(wev, NGX_WRITE_EVENT, NGX_CLEAR_EVENT | (lowat ? NGX_LOWAT_EVENT : 0)) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
+			THROW(ngx_add_event(wev, NGX_WRITE_EVENT, NGX_CLEAR_EVENT | (lowat ? NGX_LOWAT_EVENT : 0)) != NGX_ERROR);
 		}
-		return NGX_OK;
 	}
 	else if(ngx_event_flags & NGX_USE_LEVEL_EVENT) {
-		/* select, poll, /dev/poll */
+		// select, poll, /dev/poll 
 		if(!wev->active && !wev->ready) {
-			if(ngx_add_event(wev, NGX_WRITE_EVENT, NGX_LEVEL_EVENT) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+			THROW(ngx_add_event(wev, NGX_WRITE_EVENT, NGX_LEVEL_EVENT) != NGX_ERROR);
 		}
-		if(wev->active && wev->ready) {
-			if(ngx_del_event(wev, NGX_WRITE_EVENT, NGX_LEVEL_EVENT) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+		else if(wev->active && wev->ready) {
+			THROW(ngx_del_event(wev, NGX_WRITE_EVENT, NGX_LEVEL_EVENT) != NGX_ERROR);
 		}
 	}
 	else if(ngx_event_flags & NGX_USE_EVENTPORT_EVENT) {
-		/* event ports */
+		// event ports 
 		if(!wev->active && !wev->ready) {
-			if(ngx_add_event(wev, NGX_WRITE_EVENT, 0) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+			THROW(ngx_add_event(wev, NGX_WRITE_EVENT, 0) != NGX_ERROR);
 		}
-		if(wev->oneshot && wev->ready) {
-			if(ngx_del_event(wev, NGX_WRITE_EVENT, 0) == NGX_ERROR) {
-				return NGX_ERROR;
-			}
-			return NGX_OK;
+		else if(wev->oneshot && wev->ready) {
+			THROW(ngx_del_event(wev, NGX_WRITE_EVENT, 0) != NGX_ERROR);
 		}
 	}
-	/* iocp */
-	return NGX_OK;
+	// iocp 
+	CATCH
+		result = NGX_ERROR;
+	ENDCATCH
+	return result;
+	//return NGX_OK;
 }
 
 static char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf)
@@ -667,13 +658,9 @@ static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	}
 	else {
 		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
-		ngx_event_conf_t * old_ecf;
-		if(cf->cycle->old_cycle->conf_ctx) {
+		ngx_event_conf_t * old_ecf = 0;
+		if(cf->cycle->old_cycle->conf_ctx)
 			old_ecf = (ngx_event_conf_t *)ngx_event_get_conf(cf->cycle->old_cycle->conf_ctx, ngx_event_core_module);
-		}
-		else {
-			old_ecf = NULL;
-		}
 		for(ngx_int_t m = 0; cf->cycle->modules[m]; m++) {
 			if(cf->cycle->modules[m]->type == NGX_EVENT_MODULE) {
 				ngx_event_module_t * module = (ngx_event_module_t*)cf->cycle->modules[m]->ctx;

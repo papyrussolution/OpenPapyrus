@@ -384,7 +384,7 @@ static int classifyWordHTVB(Sci_PositionU start, Sci_PositionU end, WordList &ke
 		GetTextSegment(styler, start, end, s, sizeof(s));
 		if(keywords.InList(s)) {
 			chAttr = SCE_HB_WORD;
-			if(strcmp(s, "rem") == 0)
+			if(sstreq(s, "rem"))
 				chAttr = SCE_HB_COMMENTLINE;
 		}
 	}
@@ -893,10 +893,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				state = SCE_H_DEFAULT;
 			}
 		}
-
 		// Allow falling through to mako handling code if newline is going to end a block
-		if(((ch == '\r' && chNext != '\n') || (ch == '\n')) &&
-		    (!isMako || (0 != strcmp(makoBlockType, "%")))) {
+		if(((ch == '\r' && chNext != '\n') || (ch == '\n')) && (!isMako || (0 != strcmp(makoBlockType, "%")))) {
 		}
 		// Ignore everything in mako comment until the line ends
 		else if(isMako && makoComment) {

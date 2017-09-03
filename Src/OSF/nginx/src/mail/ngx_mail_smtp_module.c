@@ -105,21 +105,15 @@ ngx_module_t ngx_mail_smtp_module = {
 
 static void * ngx_mail_smtp_create_srv_conf(ngx_conf_t * cf)
 {
-	ngx_mail_smtp_srv_conf_t  * sscf;
-
-	sscf = (ngx_mail_smtp_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_smtp_srv_conf_t));
+	ngx_mail_smtp_srv_conf_t  * sscf = (ngx_mail_smtp_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_smtp_srv_conf_t));
 	if(sscf == NULL) {
 		return NULL;
 	}
-
 	sscf->client_buffer_size = NGX_CONF_UNSET_SIZE;
 	sscf->greeting_delay = NGX_CONF_UNSET_MSEC;
-
-	if(ngx_array_init(&sscf->capabilities, cf->pool, 4, sizeof(ngx_str_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&sscf->capabilities, cf->pool, 4, sizeof(ngx_str_t)) != NGX_OK) {
 		return NULL;
 	}
-
 	return sscf;
 }
 
@@ -147,7 +141,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	*p++ = '2'; *p++ = '2'; *p++ = '0'; *p++ = ' ';
 	p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
-	ngx_memcpy(p, " ESMTP ready" CRLF, sizeof(" ESMTP ready" CRLF) - 1);
+	memcpy(p, " ESMTP ready" CRLF, sizeof(" ESMTP ready" CRLF) - 1);
 
 	size = sizeof("250 " CRLF) - 1 + cscf->server_name.len;
 
@@ -246,7 +240,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	p = ngx_cpymem(p, conf->capability.data, conf->capability.len);
 
-	ngx_memcpy(p, "250 STARTTLS" CRLF, sizeof("250 STARTTLS" CRLF) - 1);
+	memcpy(p, "250 STARTTLS" CRLF, sizeof("250 STARTTLS" CRLF) - 1);
 
 	p = conf->starttls_capability.data
 	    + (last - conf->capability.data) + 3;
@@ -265,7 +259,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	p = ngx_cpymem(p, conf->capability.data, auth - conf->capability.data);
 
-	ngx_memcpy(p, "250 STARTTLS" CRLF, sizeof("250 STARTTLS" CRLF) - 1);
+	memcpy(p, "250 STARTTLS" CRLF, sizeof("250 STARTTLS" CRLF) - 1);
 
 	if(last < auth) {
 		p = conf->starttls_only_capability.data

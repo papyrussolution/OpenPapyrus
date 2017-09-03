@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/blowfish.h>
+//#include <openssl/blowfish.h>
 #include "bf_locl.h"
 /*
  * The input and output encrypted as though 64bit cfb mode is being used.

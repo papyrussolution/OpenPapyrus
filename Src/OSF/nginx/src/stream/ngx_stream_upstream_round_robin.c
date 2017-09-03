@@ -339,7 +339,7 @@ ngx_int_t ngx_stream_upstream_create_round_robin_peer(ngx_stream_session_t * s,
 				return NGX_ERROR;
 			}
 
-			ngx_memcpy(sockaddr, ur->addrs[i].sockaddr, socklen);
+			memcpy(sockaddr, ur->addrs[i].sockaddr, socklen);
 			ngx_inet_set_port(sockaddr, ur->port);
 
 			p = (u_char*)ngx_pnalloc(s->connection->pool, NGX_SOCKADDR_STRLEN);
@@ -655,7 +655,7 @@ static ngx_int_t ngx_stream_upstream_set_round_robin_peer_session(ngx_peer_conne
 
 		len = peer->ssl_session_len;
 
-		ngx_memcpy(buf, peer->ssl_session, len);
+		memcpy(buf, peer->ssl_session, len);
 
 		ngx_stream_upstream_rr_peer_unlock(peers, peer);
 		ngx_stream_upstream_rr_peers_unlock(peers);
@@ -747,7 +747,7 @@ static void ngx_stream_upstream_save_round_robin_peer_session(ngx_peer_connectio
 			peer->ssl_session_len = len;
 		}
 
-		ngx_memcpy(peer->ssl_session, buf, len);
+		memcpy(peer->ssl_session, buf, len);
 
 		ngx_stream_upstream_rr_peer_unlock(peers, peer);
 		ngx_stream_upstream_rr_peers_unlock(peers);

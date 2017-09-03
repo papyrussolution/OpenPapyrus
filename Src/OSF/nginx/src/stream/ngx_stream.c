@@ -407,7 +407,7 @@ static ngx_int_t ngx_stream_add_addrs(ngx_conf_t * cf, ngx_stream_port_t * stpor
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(p, buf, len);
+		memcpy(p, buf, len);
 		addrs[i].conf.addr_text.len = len;
 		addrs[i].conf.addr_text.data = p;
 	}
@@ -443,7 +443,7 @@ static ngx_int_t ngx_stream_add_addrs6(ngx_conf_t * cf, ngx_stream_port_t * stpo
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-		ngx_memcpy(p, buf, len);
+		memcpy(p, buf, len);
 		addrs6[i].conf.addr_text.len = len;
 		addrs6[i].conf.addr_text.data = p;
 	}

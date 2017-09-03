@@ -589,9 +589,9 @@ static void ll_append_tail(CIPHER_ORDER ** head, CIPHER_ORDER * curr, CIPHER_ORD
 		return;
 	if(curr == *head)
 		*head = curr->next;
-	if(curr->prev != NULL)
+	if(curr->prev)
 		curr->prev->next = curr->next;
-	if(curr->next != NULL)
+	if(curr->next)
 		curr->next->prev = curr->prev;
 	(*tail)->next = curr;
 	curr->prev = *tail;
@@ -605,7 +605,7 @@ static void ll_append_head(CIPHER_ORDER ** head, CIPHER_ORDER * curr, CIPHER_ORD
 		return;
 	if(curr == *tail)
 		*tail = curr->prev;
-	if(curr->next != NULL)
+	if(curr->next)
 		curr->next->prev = curr->prev;
 	if(curr->prev != NULL)
 		curr->prev->next = curr->next;
@@ -836,9 +836,9 @@ static void ssl_cipher_apply_rule(uint32_t cipher_id, uint32_t alg_mkey,
 			if(tail == curr)
 				tail = curr->prev;
 			curr->active = 0;
-			if(curr->next != NULL)
+			if(curr->next)
 				curr->next->prev = curr->prev;
-			if(curr->prev != NULL)
+			if(curr->prev)
 				curr->prev->next = curr->next;
 			curr->next = NULL;
 			curr->prev = NULL;

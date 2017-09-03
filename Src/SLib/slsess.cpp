@@ -176,7 +176,7 @@ int SLAPI SlSession::Construct()
 		}
 		Id = 1;
 		TlsIdx = -1L;
-		LastThread = 0;
+		LastThread.Assign(0);
 		WsaInitCounter = 0;
 		StopFlag = 0;
 		DragndropObjIdx = 0;
@@ -326,7 +326,8 @@ int SLAPI SlSession::InitThread()
 #else
 	p_tla = &Tla;
 #endif
-	p_tla->Id = LastThread.Incr();
+	// @v9.8.0 p_tla->Id = LastThread.Incr();
+	p_tla->Id = GetCurrentThreadId(); // @v9.8.0
 	return 1;
 }
 

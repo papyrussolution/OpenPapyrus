@@ -97,18 +97,13 @@ ngx_module_t ngx_mail_pop3_module = {
 
 static void * ngx_mail_pop3_create_srv_conf(ngx_conf_t * cf)
 {
-	ngx_mail_pop3_srv_conf_t  * pscf;
-
-	pscf = (ngx_mail_pop3_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_pop3_srv_conf_t));
+	ngx_mail_pop3_srv_conf_t * pscf = (ngx_mail_pop3_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_pop3_srv_conf_t));
 	if(pscf == NULL) {
 		return NULL;
 	}
-
-	if(ngx_array_init(&pscf->capabilities, cf->pool, 4, sizeof(ngx_str_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&pscf->capabilities, cf->pool, 4, sizeof(ngx_str_t)) != NGX_OK) {
 		return NULL;
 	}
-
 	return pscf;
 }
 

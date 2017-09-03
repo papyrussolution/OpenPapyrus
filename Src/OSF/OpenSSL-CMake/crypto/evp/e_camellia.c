@@ -12,12 +12,12 @@
 #ifdef OPENSSL_NO_CAMELLIA
 NON_EMPTY_TRANSLATION_UNIT
 #else
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <string.h>
-#include <assert.h>
+//#include <openssl/evp.h>
+//#include <openssl/err.h>
+//#include <string.h>
+//#include <assert.h>
 #include <openssl/camellia.h>
-#include "internal/evp_int.h"
+//#include <internal/evp_int.h>
 #include "modes_lcl.h"
 
 static int camellia_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);

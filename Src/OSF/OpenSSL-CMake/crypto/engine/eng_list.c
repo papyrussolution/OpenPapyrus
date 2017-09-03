@@ -84,7 +84,7 @@ static int engine_list_add(ENGINE * e)
 	}
 	else {
 		/* We are adding to the tail of an existing list. */
-		if((engine_list_tail == NULL) || (engine_list_tail->next != NULL)) {
+		if((engine_list_tail == NULL) || engine_list_tail->next) {
 			ENGINEerr(ENGINE_F_ENGINE_LIST_ADD, ENGINE_R_INTERNAL_LIST_ERROR);
 			return 0;
 		}

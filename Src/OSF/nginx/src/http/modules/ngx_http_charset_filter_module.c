@@ -515,7 +515,7 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 				n = ngx_utf8_decode(&saved, size);
 				if(n == 0xfffffffe) {
 					/* incomplete UTF-8 symbol */
-					ngx_memcpy(ctx->saved, src, size);
+					memcpy(ctx->saved, src, size);
 					ctx->saved_len = size;
 					b->shadow = buf;
 					return out;
@@ -587,7 +587,7 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 			b->last = buf->last;
 			b->sync = 1;
 			b->shadow = buf;
-			ngx_memcpy(&ctx->saved[ctx->saved_len], src, i);
+			memcpy(&ctx->saved[ctx->saved_len], src, i);
 			ctx->saved_len += i;
 			return out;
 		}
@@ -656,7 +656,7 @@ recode:
 		}
 		if(n == 0xfffffffe) {
 			/* incomplete UTF-8 symbol */
-			ngx_memcpy(ctx->saved, src, len);
+			memcpy(ctx->saved, src, len);
 			ctx->saved_len = len;
 			if(b->pos == dst) {
 				b->sync = 1;

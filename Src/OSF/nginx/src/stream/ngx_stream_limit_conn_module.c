@@ -158,7 +158,7 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 			node->key = hash;
 			lc->len = (u_char)key.len;
 			lc->conn = 1;
-			ngx_memcpy(lc->data, key.data, key.len);
+			memcpy(lc->data, key.data, key.len);
 
 			ngx_rbtree_insert(ctx->rbtree, node);
 		}
@@ -468,76 +468,51 @@ static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, v
 
 static char * ngx_stream_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_shm_zone_t * shm_zone;
 	ngx_stream_limit_conn_conf_t * lccf = (ngx_stream_limit_conn_conf_t *)conf;
 	ngx_stream_limit_conn_limit_t  * limit, * limits;
-
-	ngx_str_t * value;
 	ngx_int_t n;
 	ngx_uint_t i;
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	shm_zone = ngx_shared_memory_add(cf, &value[1], 0,
-	    &ngx_stream_limit_conn_module);
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_shm_zone_t * shm_zone = ngx_shared_memory_add(cf, &value[1], 0, &ngx_stream_limit_conn_module);
 	if(shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	limits = (ngx_stream_limit_conn_limit_t *)lccf->limits.elts;
-
 	if(limits == NULL) {
-		if(ngx_array_init(&lccf->limits, cf->pool, 1,
-			    sizeof(ngx_stream_limit_conn_limit_t))
-		    != NGX_OK) {
+		if(ngx_array_init(&lccf->limits, cf->pool, 1, sizeof(ngx_stream_limit_conn_limit_t)) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	for(i = 0; i < lccf->limits.nelts; i++) {
 		if(shm_zone == limits[i].shm_zone) {
 			return "is duplicate";
 		}
 	}
-
 	n = ngx_atoi(value[2].data, value[2].len);
 	if(n <= 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid number of connections \"%V\"", &value[2]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of connections \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(n > 65535) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "connection limit must be less 65536");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "connection limit must be less 65536");
 		return NGX_CONF_ERROR;
 	}
-
 	limit = (ngx_stream_limit_conn_limit_t *)ngx_array_push(&lccf->limits);
 	if(limit == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	limit->conn = n;
 	limit->shm_zone = shm_zone;
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_stream_limit_conn_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt * h;
-	ngx_stream_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
-
-	h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_PREACCESS_PHASE].handlers);
+	ngx_stream_core_main_conf_t  * cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
+	ngx_stream_handler_pt * h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_PREACCESS_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-
 	*h = ngx_stream_limit_conn_handler;
-
 	return NGX_OK;
 }
-

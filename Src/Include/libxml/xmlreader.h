@@ -181,15 +181,15 @@ XMLPUBFUN const xmlChar * XMLCALL xmlTextReaderConstEncoding(xmlTextReaderPtr re
  */
 XMLPUBFUN int XMLCALL xmlTextReaderSetParserProp(xmlTextReaderPtr reader, int prop, int value);
 XMLPUBFUN int XMLCALL xmlTextReaderGetParserProp(xmlTextReaderPtr reader, int prop);
-XMLPUBFUN xmlNodePtr XMLCALL xmlTextReaderCurrentNode(xmlTextReaderPtr reader);
+XMLPUBFUN xmlNode * XMLCALL xmlTextReaderCurrentNode(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL xmlTextReaderGetParserLineNumber(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL xmlTextReaderGetParserColumnNumber(xmlTextReaderPtr reader);
-XMLPUBFUN xmlNodePtr XMLCALL xmlTextReaderPreserve(xmlTextReaderPtr reader);
+XMLPUBFUN xmlNode * XMLCALL xmlTextReaderPreserve(xmlTextReaderPtr reader);
 #ifdef LIBXML_PATTERN_ENABLED
 XMLPUBFUN int XMLCALL xmlTextReaderPreservePattern(xmlTextReaderPtr reader, const xmlChar * pattern, const xmlChar ** namespaces);
 #endif /* LIBXML_PATTERN_ENABLED */
 XMLPUBFUN xmlDocPtr XMLCALL xmlTextReaderCurrentDoc(xmlTextReaderPtr reader);
-XMLPUBFUN xmlNodePtr XMLCALL xmlTextReaderExpand(xmlTextReaderPtr reader);
+XMLPUBFUN xmlNode * XMLCALL xmlTextReaderExpand(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL xmlTextReaderNext(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL xmlTextReaderNextSibling(xmlTextReaderPtr reader);
 XMLPUBFUN int XMLCALL xmlTextReaderIsValid(xmlTextReaderPtr reader);

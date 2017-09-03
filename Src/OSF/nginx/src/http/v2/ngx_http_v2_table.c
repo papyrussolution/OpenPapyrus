@@ -174,7 +174,7 @@ ngx_int_t ngx_http_v2_add_header(ngx_http_v2_connection_t * h2c, ngx_http_v2_hea
 		h2c->hpack.pos = ngx_cpymem(h2c->hpack.pos, header->name.data, header->name.len);
 	}
 	else {
-		ngx_memcpy(h2c->hpack.pos, header->name.data, avail);
+		memcpy(h2c->hpack.pos, header->name.data, avail);
 		h2c->hpack.pos = ngx_cpymem(h2c->hpack.storage, header->name.data + avail, header->name.len - avail);
 		avail = NGX_HTTP_V2_TABLE_SIZE;
 	}
@@ -185,7 +185,7 @@ ngx_int_t ngx_http_v2_add_header(ngx_http_v2_connection_t * h2c, ngx_http_v2_hea
 		h2c->hpack.pos = ngx_cpymem(h2c->hpack.pos, header->value.data, header->value.len);
 	}
 	else {
-		ngx_memcpy(h2c->hpack.pos, header->value.data, avail);
+		memcpy(h2c->hpack.pos, header->value.data, avail);
 		h2c->hpack.pos = ngx_cpymem(h2c->hpack.storage, header->value.data + avail, header->value.len - avail);
 	}
 	if(h2c->hpack.allocated == h2c->hpack.added - h2c->hpack.deleted) {
@@ -194,8 +194,8 @@ ngx_int_t ngx_http_v2_add_header(ngx_http_v2_connection_t * h2c, ngx_http_v2_hea
 			return NGX_ERROR;
 		}
 		index = h2c->hpack.deleted % h2c->hpack.allocated;
-		ngx_memcpy(entries, &h2c->hpack.entries[index], (h2c->hpack.allocated - index) * sizeof(ngx_http_v2_header_t *));
-		ngx_memcpy(&entries[h2c->hpack.allocated - index], h2c->hpack.entries, index * sizeof(ngx_http_v2_header_t *));
+		memcpy(entries, &h2c->hpack.entries[index], (h2c->hpack.allocated - index) * sizeof(ngx_http_v2_header_t *));
+		memcpy(&entries[h2c->hpack.allocated - index], h2c->hpack.entries, index * sizeof(ngx_http_v2_header_t *));
 		(void)ngx_pfree(h2c->connection->pool, h2c->hpack.entries);
 		h2c->hpack.entries = entries;
 		h2c->hpack.added = h2c->hpack.allocated;

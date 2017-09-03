@@ -688,7 +688,6 @@ struct __db_mpoolfile {
 	uint32 gbytes, bytes; // Maximum file size
 	DBT * pgcookie;                 /* Byte-string passed to pgin/pgout. */
 	int32 priority;               /* Cache priority. */
-
 	void * addr;                    /* Address of mmap'd region. */
 	size_t len;                     /* Length of mmap'd region. */
 	uint32 config_flags;         /* Flags to DB_MPOOLFILE->set_flags. */

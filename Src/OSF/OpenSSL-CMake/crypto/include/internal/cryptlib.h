@@ -6,7 +6,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #ifndef HEADER_CRYPTLIB_H
 #define HEADER_CRYPTLIB_H
 
@@ -222,10 +221,13 @@ void bio_sock_cleanup_int(void);
 #include <openssl/dsa.h>
 #include <openssl/ec.h>
 #include <openssl/cast.h>
+#include <openssl/blowfish.h>
 //#include <internal/cryptlib.h>
 #include <internal/engine.h>
 #include <internal/thread_once.h>
 #include <internal/x509_int.h>
+#include <internal/asn1_int.h>
+#include <internal/evp_int.h>
 
 #ifdef  __cplusplus
 extern "C" {

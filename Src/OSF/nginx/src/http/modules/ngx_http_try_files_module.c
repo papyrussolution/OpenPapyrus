@@ -138,7 +138,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		if(tf->values == NULL) {
 			/* tf->name.len includes the terminating '\0' */
 
-			ngx_memcpy(name, tf->name.data, tf->name.len);
+			memcpy(name, tf->name.data, tf->name.len);
 
 			path.len = (name + tf->name.len - 1) - path.data;
 		}
@@ -158,7 +158,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 
 			if(alias && alias != NGX_MAX_SIZE_T_VALUE
 			    && ngx_strncmp(name, r->uri.data, alias) == 0) {
-				ngx_memmove(name, name + alias, len - alias);
+				memmove(name, name + alias, len - alias);
 				path.len -= alias;
 			}
 		}
@@ -249,7 +249,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 			}
 
 			p = ngx_copy(r->uri.data, name, alias);
-			ngx_memcpy(p, path.data, path.len);
+			memcpy(p, path.data, path.len);
 		}
 
 		ngx_http_set_exten(r);

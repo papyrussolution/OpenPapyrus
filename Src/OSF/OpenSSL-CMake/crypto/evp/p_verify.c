@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/x509.h>
-#include <internal/evp_int.h>
+//#include <internal/evp_int.h>
 
 int EVP_VerifyFinal(EVP_MD_CTX * ctx, const uchar * sigbuf,
     uint siglen, EVP_PKEY * pkey)

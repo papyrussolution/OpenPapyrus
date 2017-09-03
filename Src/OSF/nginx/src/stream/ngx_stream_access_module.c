@@ -266,15 +266,11 @@ static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void 
 #if (NGX_HAVE_UNIX_DOMAIN)
 	ngx_stream_access_rule_un_t  * rule_un;
 #endif
-
 	all = 0;
 	memzero(&cidr, sizeof(ngx_cidr_t));
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	if(value[1].len == 3 && ngx_strcmp(value[1].data, "all") == 0) {
 		all = 1;
-
 #if (NGX_HAVE_UNIX_DOMAIN)
 	}
 	else if(value[1].len == 5 && ngx_strcmp(value[1].data, "unix:") == 0) {
@@ -302,12 +298,10 @@ static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		if(rule == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		rule->mask = cidr.u.in.mask;
 		rule->addr = cidr.u.in.addr;
 		rule->deny = (value[0].data[0] == 'd') ? 1 : 0;
 	}
-
 #if (NGX_HAVE_INET6)
 	if(cidr.family == AF_INET6 || all) {
 		if(ascf->rules6 == NULL) {
@@ -325,35 +319,28 @@ static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		rule6->deny = (value[0].data[0] == 'd') ? 1 : 0;
 	}
 #endif
-
 #if (NGX_HAVE_UNIX_DOMAIN)
 	if(cidr.family == AF_UNIX || all) {
 		if(ascf->rules_un == NULL) {
-			ascf->rules_un = ngx_array_create(cf->pool, 1,
-			    sizeof(ngx_stream_access_rule_un_t));
+			ascf->rules_un = ngx_array_create(cf->pool, 1, sizeof(ngx_stream_access_rule_un_t));
 			if(ascf->rules_un == NULL) {
 				return NGX_CONF_ERROR;
 			}
 		}
-
 		rule_un = ngx_array_push(ascf->rules_un);
 		if(rule_un == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		rule_un->deny = (value[0].data[0] == 'd') ? 1 : 0;
 	}
 #endif
-
 	return NGX_CONF_OK;
 }
 
 static void * ngx_stream_access_create_srv_conf(ngx_conf_t * cf)
 {
-	ngx_stream_access_srv_conf_t  * conf;
-	conf = (ngx_stream_access_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_access_srv_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_stream_access_srv_conf_t  * conf = (ngx_stream_access_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_access_srv_conf_t));
+	if(conf) {
 	}
 	return conf;
 }
@@ -378,21 +365,16 @@ static char * ngx_stream_access_merge_srv_conf(ngx_conf_t * cf, void * parent, v
 		conf->rules_un = prev->rules_un;
 #endif
 	}
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_stream_access_init(ngx_conf_t * cf)
 {
-	ngx_stream_handler_pt * h;
-	ngx_stream_core_main_conf_t  * cmcf;
-	cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
-	h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_ACCESS_PHASE].handlers);
+	ngx_stream_core_main_conf_t  * cmcf = (ngx_stream_core_main_conf_t*)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
+	ngx_stream_handler_pt * h = (ngx_stream_handler_pt *)ngx_array_push(&cmcf->phases[NGX_STREAM_ACCESS_PHASE].handlers);
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
 	*h = ngx_stream_access_handler;
-
 	return NGX_OK;
 }
-
