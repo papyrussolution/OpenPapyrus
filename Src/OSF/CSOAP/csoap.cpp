@@ -1000,8 +1000,9 @@ xmlNodePtr _soap_env_get_body(SoapEnv * env)
 
 char * soap_env_find_urn(SoapEnv * env)
 {
-	xmlNsPtr ns;
-	xmlNodePtr body, node;
+	xmlNs * ns;
+	xmlNode * body;
+	xmlNode * node;
 	if(!(body = soap_env_get_body(env))) {
 		log_verbose1("body is NULL");
 		return 0;
