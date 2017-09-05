@@ -1015,35 +1015,23 @@ static ngx_int_t ngx_http_scgi_process_header(ngx_http_request_t * r)
 			else {
 				ngx_strlow(h->lowcase_key, h->key.data, h->key.len);
 			}
-
-			hh = (ngx_http_upstream_header_t *)ngx_hash_find(&umcf->headers_in_hash, h->hash,
-			    h->lowcase_key, h->key.len);
-
+			hh = (ngx_http_upstream_header_t *)ngx_hash_find(&umcf->headers_in_hash, h->hash, h->lowcase_key, h->key.len);
 			if(hh && hh->handler(r, h, hh->offset) != NGX_OK) {
 				return NGX_ERROR;
 			}
-
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "http scgi header: \"%V: %V\"", &h->key, &h->value);
-
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http scgi header: \"%V: %V\"", &h->key, &h->value);
 			continue;
 		}
 
 		if(rc == NGX_HTTP_PARSE_HEADER_DONE) {
 			/* a whole header has been parsed successfully */
-
-			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "http scgi header done");
-
+			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http scgi header done");
 			u = r->upstream;
-
 			if(u->headers_in.status_n) {
 				goto done;
 			}
-
 			if(u->headers_in.status) {
 				status_line = &u->headers_in.status->value;
-
 				status = ngx_atoi(status_line->data, 3);
 				if(status == NGX_ERROR) {
 					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
@@ -1082,29 +1070,21 @@ done:
 		if(rc == NGX_AGAIN) {
 			return NGX_AGAIN;
 		}
-
 		/* there was error while a header line parsing */
-
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "upstream sent invalid header");
-
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "upstream sent invalid header");
 		return NGX_HTTP_UPSTREAM_INVALID_HEADER;
 	}
 }
 
 static void ngx_http_scgi_abort_request(ngx_http_request_t * r)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "abort http scgi request");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "abort http scgi request");
 	return;
 }
 
 static void ngx_http_scgi_finalize_request(ngx_http_request_t * r, ngx_int_t rc)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "finalize http scgi request");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "finalize http scgi request");
 	return;
 }
 

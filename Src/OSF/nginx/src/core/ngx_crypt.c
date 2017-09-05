@@ -29,9 +29,7 @@ ngx_int_t ngx_crypt(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** en
 	else if(ngx_strncmp(salt, "{SHA}", sizeof("{SHA}") - 1) == 0) {
 		return ngx_crypt_sha(pool, key, salt, encrypted);
 	}
-
 	/* fallback to libc crypt() */
-
 	return ngx_libc_crypt(pool, key, salt, encrypted);
 }
 
@@ -178,27 +176,20 @@ static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u
 	ngx_str_t encoded, decoded;
 	ngx_sha1_t sha1;
 	u_char digest[20];
-
 	/* "{SHA}" base64(SHA1(key)) */
-
 	decoded.len = sizeof(digest);
 	decoded.data = digest;
-
 	ngx_sha1_init(&sha1);
 	ngx_sha1_update(&sha1, key, ngx_strlen(key));
 	ngx_sha1_final(digest, &sha1);
-
 	len = sizeof("{SHA}") - 1 + ngx_base64_encoded_length(decoded.len) + 1;
-
 	*encrypted = (u_char*)ngx_pnalloc(pool, len);
 	if(*encrypted == NULL) {
 		return NGX_ERROR;
 	}
-
 	encoded.data = ngx_cpymem(*encrypted, "{SHA}", sizeof("{SHA}") - 1);
 	ngx_encode_base64(&encoded, &decoded);
 	encoded.data[encoded.len] = '\0';
-
 	return NGX_OK;
 }
 

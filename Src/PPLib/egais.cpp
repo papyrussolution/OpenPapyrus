@@ -2701,6 +2701,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							}
 							// regrading
 							n_h.PutInner("ainp:TypeChargeOn", EncText(temp_buf));
+							// @v9.8.0 {
+							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_COMPLEMENTARY, temp_buf) > 0) {
+								n_h.PutInner("ainp:ActWriteOff", EncText(temp_buf));
+							}
+							// } @v9.8.0
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeTbl));
 						{

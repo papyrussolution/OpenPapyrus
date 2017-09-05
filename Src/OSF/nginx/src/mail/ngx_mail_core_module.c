@@ -79,10 +79,8 @@ static ngx_command_t ngx_mail_core_commands[] = {
 
 static ngx_mail_module_t ngx_mail_core_module_ctx = {
 	NULL,                              /* protocol */
-
 	ngx_mail_core_create_main_conf,    /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	ngx_mail_core_create_srv_conf,     /* create server configuration */
 	ngx_mail_core_merge_srv_conf       /* merge server configuration */
 };
@@ -105,39 +103,33 @@ ngx_module_t ngx_mail_core_module = {
 static void * ngx_mail_core_create_main_conf(ngx_conf_t * cf)
 {
 	ngx_mail_core_main_conf_t  * cmcf = (ngx_mail_core_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_mail_core_main_conf_t));
-	if(cmcf == NULL) {
-		return NULL;
-	}
-	if(ngx_array_init(&cmcf->servers, cf->pool, 4, sizeof(ngx_mail_core_srv_conf_t *)) != NGX_OK) {
-		return NULL;
-	}
-	if(ngx_array_init(&cmcf->listen, cf->pool, 4, sizeof(ngx_mail_listen_t)) != NGX_OK) {
-		return NULL;
+	if(cmcf) {
+		if(ngx_array_init(&cmcf->servers, cf->pool, 4, sizeof(ngx_mail_core_srv_conf_t *)) != NGX_OK) {
+			return NULL;
+		}
+		if(ngx_array_init(&cmcf->listen, cf->pool, 4, sizeof(ngx_mail_listen_t)) != NGX_OK) {
+			return NULL;
+		}
 	}
 	return cmcf;
 }
 
 static void * ngx_mail_core_create_srv_conf(ngx_conf_t * cf)
 {
-	ngx_mail_core_srv_conf_t  * cscf;
-
-	cscf = (ngx_mail_core_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_core_srv_conf_t));
-	if(cscf == NULL) {
-		return NULL;
+	ngx_mail_core_srv_conf_t * cscf = (ngx_mail_core_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_core_srv_conf_t));
+	if(cscf) {
+		/*
+		* set by ngx_pcalloc():
+		*
+		*     cscf->protocol = NULL;
+		*     cscf->error_log = NULL;
+		*/
+		cscf->timeout = NGX_CONF_UNSET_MSEC;
+		cscf->resolver_timeout = NGX_CONF_UNSET_MSEC;
+		cscf->resolver = (ngx_resolver_t *)NGX_CONF_UNSET_PTR;
+		cscf->file_name = cf->conf_file->file.name.data;
+		cscf->line = cf->conf_file->line;
 	}
-
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     cscf->protocol = NULL;
-	 *     cscf->error_log = NULL;
-	 */
-
-	cscf->timeout = NGX_CONF_UNSET_MSEC;
-	cscf->resolver_timeout = NGX_CONF_UNSET_MSEC;
-	cscf->resolver = (ngx_resolver_t *)NGX_CONF_UNSET_PTR;
-	cscf->file_name = cf->conf_file->file.name.data;
-	cscf->line = cf->conf_file->line;
 	return cscf;
 }
 
@@ -145,24 +137,16 @@ static char * ngx_mail_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 {
 	ngx_mail_core_srv_conf_t * prev = (ngx_mail_core_srv_conf_t*)parent;
 	ngx_mail_core_srv_conf_t * conf = (ngx_mail_core_srv_conf_t*)child;
-
 	ngx_conf_merge_msec_value(conf->timeout, prev->timeout, 60000);
-	ngx_conf_merge_msec_value(conf->resolver_timeout, prev->resolver_timeout,
-	    30000);
-
+	ngx_conf_merge_msec_value(conf->resolver_timeout, prev->resolver_timeout, 30000);
 	ngx_conf_merge_str_value(conf->server_name, prev->server_name, "");
-
 	if(conf->server_name.len == 0) {
 		conf->server_name = cf->cycle->hostname;
 	}
-
 	if(conf->protocol == NULL) {
-		ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-		    "unknown mail protocol for server in %s:%ui",
-		    conf->file_name, conf->line);
+		ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "unknown mail protocol for server in %s:%ui", conf->file_name, conf->line);
 		return NGX_CONF_ERROR;
 	}
-
 	if(conf->error_log == NULL) {
 		if(prev->error_log) {
 			conf->error_log = prev->error_log;
@@ -171,9 +155,7 @@ static char * ngx_mail_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 			conf->error_log = &cf->cycle->new_log;
 		}
 	}
-
 	ngx_conf_merge_ptr_value(conf->resolver, prev->resolver, NULL);
-
 	return NGX_CONF_OK;
 }
 

@@ -736,8 +736,7 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 	}
 
 	if(u->proxy_protocol) {
-		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0,
-		    "stream proxy add PROXY protocol header");
+		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy add PROXY protocol header");
 
 		cl = ngx_chain_get_free_buf(c->pool, &u->free);
 		if(cl == NULL) {
@@ -801,8 +800,7 @@ static ngx_int_t ngx_stream_proxy_send_proxy_protocol(ngx_stream_session_t * s)
 
 	c = s->connection;
 
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0,
-	    "stream proxy send PROXY protocol header");
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy send PROXY protocol header");
 
 	p = ngx_proxy_protocol_write(c, buf, buf + NGX_PROXY_PROTOCOL_MAX_HEADER);
 	if(p == NULL) {
@@ -857,125 +855,86 @@ static ngx_int_t ngx_stream_proxy_send_proxy_protocol(ngx_stream_session_t * s)
 	return NGX_OK;
 }
 
-static char * ngx_stream_proxy_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf)
+static char * ngx_stream_proxy_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_proxy_srv_conf_t * pscf = (ngx_stream_proxy_srv_conf_t *)conf;
-
-	ngx_str_t  * value;
-
 	if(pscf->ssl_passwords != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-
-	value = (ngx_str_t *)cf->args->elts;
-
-	pscf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
-
-	if(pscf->ssl_passwords == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		pscf->ssl_passwords = ngx_ssl_read_password_file(cf, &value[1]);
+		if(pscf->ssl_passwords == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-
-	return NGX_CONF_OK;
 }
 
 static void ngx_stream_proxy_ssl_init_connection(ngx_stream_session_t * s)
 {
 	ngx_int_t rc;
-	ngx_connection_t   * pc;
-	ngx_stream_upstream_t * u;
-	ngx_stream_proxy_srv_conf_t  * pscf;
-
-	u = s->upstream;
-
-	pc = u->peer.connection;
-
-	pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
-
-	if(ngx_ssl_create_connection(pscf->ssl, pc, NGX_SSL_BUFFER|NGX_SSL_CLIENT)
-	    != NGX_OK) {
+	ngx_stream_upstream_t * u = s->upstream;
+	ngx_connection_t * pc = u->peer.connection;
+	ngx_stream_proxy_srv_conf_t  * pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
+	if(ngx_ssl_create_connection(pscf->ssl, pc, NGX_SSL_BUFFER|NGX_SSL_CLIENT) != NGX_OK) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	if(pscf->ssl_server_name || pscf->ssl_verify) {
 		if(ngx_stream_proxy_ssl_name(s) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
 	}
-
 	if(pscf->ssl_session_reuse) {
 		if(u->peer.set_session(&u->peer, u->peer.data) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
 	}
-
 	s->connection->log->action = "SSL handshaking to upstream";
-
 	rc = ngx_ssl_handshake(pc);
-
 	if(rc == NGX_AGAIN) {
 		if(!pc->write->timer_set) {
 			ngx_add_timer(pc->write, pscf->connect_timeout);
 		}
-
 		pc->ssl->handler = ngx_stream_proxy_ssl_handshake;
 		return;
 	}
-
 	ngx_stream_proxy_ssl_handshake(pc);
 }
 
 static void ngx_stream_proxy_ssl_handshake(ngx_connection_t * pc)
 {
 	long rc;
-	ngx_stream_session_t  * s;
 	ngx_stream_upstream_t * u;
-	ngx_stream_proxy_srv_conf_t  * pscf;
-
-	s = (ngx_stream_session_t *)pc->data;
-
-	pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
-
+	ngx_stream_session_t  * s = (ngx_stream_session_t *)pc->data;
+	ngx_stream_proxy_srv_conf_t  * pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
 	if(pc->ssl->handshaked) {
 		if(pscf->ssl_verify) {
 			rc = SSL_get_verify_result(pc->ssl->connection);
-
 			if(rc != X509_V_OK) {
-				ngx_log_error(NGX_LOG_ERR, pc->log, 0,
-				    "upstream SSL certificate verify error: (%l:%s)",
-				    rc, X509_verify_cert_error_string(rc));
+				ngx_log_error(NGX_LOG_ERR, pc->log, 0, "upstream SSL certificate verify error: (%l:%s)", rc, X509_verify_cert_error_string(rc));
 				goto failed;
 			}
-
 			u = s->upstream;
-
 			if(ngx_ssl_check_host(pc, &u->ssl_name) != NGX_OK) {
-				ngx_log_error(NGX_LOG_ERR, pc->log, 0,
-				    "upstream SSL certificate does not match \"%V\"",
-				    &u->ssl_name);
+				ngx_log_error(NGX_LOG_ERR, pc->log, 0, "upstream SSL certificate does not match \"%V\"", &u->ssl_name);
 				goto failed;
 			}
 		}
-
 		if(pscf->ssl_session_reuse) {
 			u = s->upstream;
 			u->peer.save_session(&u->peer, u->peer.data);
 		}
-
 		if(pc->write->timer_set) {
 			ngx_del_timer(pc->write);
 		}
-
 		ngx_stream_proxy_init_upstream(s);
-
 		return;
 	}
-
 failed:
-
 	ngx_stream_proxy_next_upstream(s);
 }
 
@@ -983,13 +942,8 @@ static ngx_int_t ngx_stream_proxy_ssl_name(ngx_stream_session_t * s)
 {
 	u_char   * p, * last;
 	ngx_str_t name;
-	ngx_stream_upstream_t * u;
-	ngx_stream_proxy_srv_conf_t  * pscf;
-
-	pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
-
-	u = s->upstream;
-
+	ngx_stream_proxy_srv_conf_t  * pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
+	ngx_stream_upstream_t * u = s->upstream;
 	if(pscf->ssl_name) {
 		if(ngx_stream_complex_value(s, pscf->ssl_name, &name) != NGX_OK) {
 			return NGX_ERROR;
@@ -998,80 +952,54 @@ static ngx_int_t ngx_stream_proxy_ssl_name(ngx_stream_session_t * s)
 	else {
 		name = u->ssl_name;
 	}
-
 	if(name.len == 0) {
 		goto done;
 	}
-
 	/*
 	 * ssl name here may contain port, strip it for compatibility
 	 * with the http module
 	 */
-
 	p = name.data;
 	last = name.data + name.len;
-
 	if(*p == '[') {
 		p = ngx_strlchr(p, last, ']');
-
 		if(p == NULL) {
 			p = name.data;
 		}
 	}
-
 	p = ngx_strlchr(p, last, ':');
-
 	if(p != NULL) {
 		name.len = p - name.data;
 	}
-
 	if(!pscf->ssl_server_name) {
 		goto done;
 	}
-
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
-
 	/* as per RFC 6066, literal IPv4 and IPv6 addresses are not permitted */
-
 	if(name.len == 0 || *name.data == '[') {
 		goto done;
 	}
-
 	if(ngx_inet_addr(name.data, name.len) != INADDR_NONE) {
 		goto done;
 	}
-
 	/*
 	 * SSL_set_tlsext_host_name() needs a null-terminated string,
 	 * hence we explicitly null-terminate name here
 	 */
-
 	p = (u_char*)ngx_pnalloc(s->connection->pool, name.len + 1);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	(void)ngx_cpystrn(p, name.data, name.len + 1);
-
 	name.data = p;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "upstream SSL server name: \"%s\"", name.data);
-
-	if(SSL_set_tlsext_host_name(u->peer.connection->ssl->connection,
-		    (char*)name.data)
-	    == 0) {
-		ngx_ssl_error(NGX_LOG_ERR, s->connection->log, 0,
-		    "SSL_set_tlsext_host_name(\"%s\") failed", name.data);
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "upstream SSL server name: \"%s\"", name.data);
+	if(SSL_set_tlsext_host_name(u->peer.connection->ssl->connection, (char*)name.data) == 0) {
+		ngx_ssl_error(NGX_LOG_ERR, s->connection->log, 0, "SSL_set_tlsext_host_name(\"%s\") failed", name.data);
 		return NGX_ERROR;
 	}
-
 #endif
-
 done:
-
 	u->ssl_name = name;
-
 	return NGX_OK;
 }
 
@@ -1084,67 +1012,42 @@ static void ngx_stream_proxy_downstream_handler(ngx_event_t * ev)
 
 static void ngx_stream_proxy_resolve_handler(ngx_resolver_ctx_t * ctx)
 {
-	ngx_stream_session_t  * s;
-	ngx_stream_upstream_t * u;
 	ngx_stream_proxy_srv_conf_t   * pscf;
-	ngx_stream_upstream_resolved_t  * ur;
-
-	s = (ngx_stream_session_t *)ctx->data;
-
-	u = s->upstream;
-	ur = u->resolved;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "stream upstream resolve");
-
+	ngx_stream_session_t  * s = (ngx_stream_session_t *)ctx->data;
+	ngx_stream_upstream_t * u = s->upstream;
+	ngx_stream_upstream_resolved_t  * ur = u->resolved;
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream upstream resolve");
 	if(ctx->state) {
-		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-		    "%V could not be resolved (%i: %s)",
-		    &ctx->name, ctx->state,
-		    ngx_resolver_strerror(ctx->state));
-
+		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "%V could not be resolved (%i: %s)",
+		    &ctx->name, ctx->state, ngx_resolver_strerror(ctx->state));
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	ur->naddrs = ctx->naddrs;
 	ur->addrs = ctx->addrs;
-
 #if (NGX_DEBUG)
 	{
 		u_char text[NGX_SOCKADDR_STRLEN];
 		ngx_str_t addr;
 		ngx_uint_t i;
-
 		addr.data = text;
-
 		for(i = 0; i < ctx->naddrs; i++) {
-			addr.len = ngx_sock_ntop(ur->addrs[i].sockaddr, ur->addrs[i].socklen,
-			    text, NGX_SOCKADDR_STRLEN, 0);
-
-			ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-			    "name was resolved to %V", &addr);
+			addr.len = ngx_sock_ntop(ur->addrs[i].sockaddr, ur->addrs[i].socklen, text, NGX_SOCKADDR_STRLEN, 0);
+			ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "name was resolved to %V", &addr);
 		}
 	}
 #endif
-
 	if(ngx_stream_upstream_create_round_robin_peer(s, ur) != NGX_OK) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	ngx_resolve_name_done(ctx);
 	ur->ctx = NULL;
-
 	u->peer.start_time = ngx_current_msec;
-
 	pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
-
-	if(pscf->next_upstream_tries
-	    && u->peer.tries > pscf->next_upstream_tries) {
+	if(pscf->next_upstream_tries && u->peer.tries > pscf->next_upstream_tries) {
 		u->peer.tries = pscf->next_upstream_tries;
 	}
-
 	ngx_stream_proxy_connect(s);
 }
 
@@ -1155,37 +1058,26 @@ static void ngx_stream_proxy_upstream_handler(ngx_event_t * ev)
 
 static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t from_upstream)
 {
-	ngx_connection_t   * c, * pc;
-	ngx_stream_session_t  * s;
-	ngx_stream_upstream_t * u;
+	ngx_connection_t * pc;
 	ngx_stream_proxy_srv_conf_t  * pscf;
-
-	c = (ngx_connection_t*)ev->data;
-	s = (ngx_stream_session_t *)c->data;
-	u = s->upstream;
-
+	ngx_connection_t * c = (ngx_connection_t*)ev->data;
+	ngx_stream_session_t  * s = (ngx_stream_session_t *)c->data;
+	ngx_stream_upstream_t * u = s->upstream;
 	c = s->connection;
 	pc = u->peer.connection;
-
 	pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
-
 	if(ev->timedout) {
 		ev->timedout = 0;
-
 		if(ev->delayed) {
 			ev->delayed = 0;
-
 			if(!ev->ready) {
 				if(ngx_handle_read_event(ev, 0) != NGX_OK) {
-					ngx_stream_proxy_finalize(s,
-					    NGX_STREAM_INTERNAL_SERVER_ERROR);
+					ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 					return;
 				}
-
 				if(u->connected && !c->read->delayed && !pc->read->delayed) {
 					ngx_add_timer(c->write, pscf->timeout);
 				}
-
 				return;
 			}
 		}
@@ -1196,67 +1088,49 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 					 * successfully terminate timed out UDP session
 					 * with unspecified number of responses
 					 */
-
 					pc->read->ready = 0;
 					pc->read->eof = 1;
-
 					ngx_stream_proxy_process(s, 1, 0);
 					return;
 				}
-
 				if(u->received == 0) {
 					ngx_stream_proxy_next_upstream(s);
 					return;
 				}
 			}
-
 			ngx_connection_error(c, NGX_ETIMEDOUT, "connection timed out");
 			ngx_stream_proxy_finalize(s, NGX_STREAM_OK);
 			return;
 		}
 	}
 	else if(ev->delayed) {
-		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0,
-		    "stream connection delayed");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream connection delayed");
 		if(ngx_handle_read_event(ev, 0) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		}
-
 		return;
 	}
-
 	if(from_upstream && !u->connected) {
 		return;
 	}
-
 	ngx_stream_proxy_process(s, from_upstream, ev->write);
 }
 
 static void ngx_stream_proxy_connect_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c;
-	ngx_stream_session_t  * s;
-
-	c = (ngx_connection_t*)ev->data;
-	s = (ngx_stream_session_t *)c->data;
-
+	ngx_connection_t * c = (ngx_connection_t*)ev->data;
+	ngx_stream_session_t  * s = (ngx_stream_session_t *)c->data;
 	if(ev->timedout) {
 		ngx_log_error(NGX_LOG_ERR, c->log, NGX_ETIMEDOUT, "upstream timed out");
 		ngx_stream_proxy_next_upstream(s);
 		return;
 	}
-
 	ngx_del_timer(c->write);
-
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0,
-	    "stream proxy connect upstream");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy connect upstream");
 	if(ngx_stream_proxy_test_connect(c) != NGX_OK) {
 		ngx_stream_proxy_next_upstream(s);
 		return;
 	}
-
 	ngx_stream_proxy_init_upstream(s);
 }
 
@@ -1264,9 +1138,7 @@ static ngx_int_t ngx_stream_proxy_test_connect(ngx_connection_t * c)
 {
 	int err;
 	socklen_t len;
-
 #if (NGX_HAVE_KQUEUE)
-
 	if(ngx_event_flags & NGX_USE_KQUEUE_EVENT) {
 		err = c->write->kq_errno ? c->write->kq_errno : c->read->kq_errno;
 
@@ -1517,16 +1389,11 @@ static void ngx_stream_proxy_next_upstream(ngx_stream_session_t * s)
 	ngx_connection_t   * pc;
 	ngx_stream_upstream_t * u;
 	ngx_stream_proxy_srv_conf_t  * pscf;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "stream proxy next upstream");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream proxy next upstream");
 	u = s->upstream;
 	pc = u->peer.connection;
-
 	if(u->upstream_out || u->upstream_busy || (pc && pc->buffered)) {
-		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-		    "pending buffers on next upstream");
+		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "pending buffers on next upstream");
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}

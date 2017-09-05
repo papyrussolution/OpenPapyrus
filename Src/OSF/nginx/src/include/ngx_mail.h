@@ -152,22 +152,15 @@ typedef struct {
 
 typedef struct {
 	uint32_t signature;                    /* "MAIL" */
-
 	ngx_connection_t  * connection;
-
 	ngx_str_t out;
 	ngx_buf_t    * buffer;
-
 	void   ** ctx;
 	void   ** main_conf;
 	void   ** srv_conf;
-
 	ngx_resolver_ctx_t   * resolver_ctx;
-
 	ngx_mail_proxy_ctx_t * proxy;
-
 	ngx_uint_t mail_state;
-
 	unsigned protocol : 3;
 	unsigned blocked : 1;
 	unsigned quit : 1;
@@ -178,30 +171,22 @@ typedef struct {
 	unsigned esmtp : 1;
 	unsigned auth_method : 3;
 	unsigned auth_wait : 1;
-
 	ngx_str_t login;
 	ngx_str_t passwd;
-
 	ngx_str_t salt;
 	ngx_str_t tag;
 	ngx_str_t tagged_line;
 	ngx_str_t text;
-
 	ngx_str_t    * addr_text;
 	ngx_str_t host;
 	ngx_str_t smtp_helo;
 	ngx_str_t smtp_from;
 	ngx_str_t smtp_to;
-
 	ngx_str_t cmd;
-
 	ngx_uint_t command;
 	ngx_array_t args;
-
 	ngx_uint_t login_attempt;
-
 	/* used to parse POP3/IMAP/SMTP command */
-
 	ngx_uint_t state;
 	u_char * cmd_start;
 	u_char * arg_start;
@@ -271,8 +256,7 @@ typedef struct {
 
 #define NGX_MAIL_PARSE_INVALID_COMMAND  20
 
-typedef void (*ngx_mail_init_session_pt)(ngx_mail_session_t * s,
-    ngx_connection_t * c);
+typedef void (*ngx_mail_init_session_pt)(ngx_mail_session_t * s, ngx_connection_t * c);
 typedef void (*ngx_mail_init_protocol_pt)(ngx_event_t * rev);
 typedef void (*ngx_mail_auth_state_pt)(ngx_event_t * rev);
 typedef ngx_int_t (*ngx_mail_parse_command_pt)(ngx_mail_session_t * s);
@@ -281,12 +265,10 @@ struct ngx_mail_protocol_s {
 	ngx_str_t name;
 	in_port_t port[4];
 	ngx_uint_t type;
-
 	ngx_mail_init_session_pt init_session;
 	ngx_mail_init_protocol_pt init_protocol;
 	ngx_mail_parse_command_pt parse_command;
 	ngx_mail_auth_state_pt auth_state;
-
 	ngx_str_t internal_server_error;
 	ngx_str_t cert_error;
 	ngx_str_t no_cert;
@@ -294,56 +276,37 @@ struct ngx_mail_protocol_s {
 
 typedef struct {
 	ngx_mail_protocol_t * protocol;
-
-	void                       *(*create_main_conf)(ngx_conf_t *cf);
-	char                       *(*init_main_conf)(ngx_conf_t *cf, void * conf);
-
-	void                       *(*create_srv_conf)(ngx_conf_t *cf);
-	char                       *(*merge_srv_conf)(ngx_conf_t *cf, void * prev,
-	    void * conf);
+	void *(*create_main_conf)(ngx_conf_t *cf);
+	char *(*init_main_conf)(ngx_conf_t *cf, void * conf);
+	void *(*create_srv_conf)(ngx_conf_t *cf);
+	char *(*merge_srv_conf)(ngx_conf_t *cf, void * prev, void * conf);
 } ngx_mail_module_t;
 
 #define NGX_MAIL_MODULE         0x4C49414D     /* "MAIL" */
-
 #define NGX_MAIL_MAIN_CONF      0x02000000
 #define NGX_MAIL_SRV_CONF       0x04000000
-
 #define NGX_MAIL_MAIN_CONF_OFFSET  offsetof(ngx_mail_conf_ctx_t, main_conf)
 #define NGX_MAIL_SRV_CONF_OFFSET   offsetof(ngx_mail_conf_ctx_t, srv_conf)
-
 #define ngx_mail_get_module_ctx(s, module)     (s)->ctx[module.ctx_index]
 #define ngx_mail_set_ctx(s, c, module)         s->ctx[module.ctx_index] = c;
 #define ngx_mail_delete_ctx(s, module)         s->ctx[module.ctx_index] = NULL;
-
-#define ngx_mail_get_module_main_conf(s, module)			     \
-	(s)->main_conf[module.ctx_index]
+#define ngx_mail_get_module_main_conf(s, module) (s)->main_conf[module.ctx_index]
 #define ngx_mail_get_module_srv_conf(s, module)  (s)->srv_conf[module.ctx_index]
-
-#define ngx_mail_conf_get_module_main_conf(cf, module)			     \
-	((ngx_mail_conf_ctx_t*)cf->ctx)->main_conf[module.ctx_index]
-#define ngx_mail_conf_get_module_srv_conf(cf, module)			     \
-	((ngx_mail_conf_ctx_t*)cf->ctx)->srv_conf[module.ctx_index]
-
+#define ngx_mail_conf_get_module_main_conf(cf, module) ((ngx_mail_conf_ctx_t*)cf->ctx)->main_conf[module.ctx_index]
+#define ngx_mail_conf_get_module_srv_conf(cf, module)  ((ngx_mail_conf_ctx_t*)cf->ctx)->srv_conf[module.ctx_index]
 #if (NGX_MAIL_SSL)
-void ngx_mail_starttls_handler(ngx_event_t * rev);
-ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c);
+	void ngx_mail_starttls_handler(ngx_event_t * rev);
+	ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c);
 #endif
-
 void ngx_mail_init_connection(ngx_connection_t * c);
 
-ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c,
-    ngx_mail_core_srv_conf_t * cscf);
-ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c,
-    ngx_uint_t n);
-ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s,
-    ngx_connection_t * c, ngx_uint_t n);
-ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s,
-    ngx_connection_t * c);
-ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s,
-    ngx_connection_t * c, char * prefix, size_t len);
+ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_core_srv_conf_t * cscf);
+ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
+ngx_int_t ngx_mail_auth_login_username(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
+ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t * c);
+ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t * c, char * prefix, size_t len);
 ngx_int_t ngx_mail_auth_cram_md5(ngx_mail_session_t * s, ngx_connection_t * c);
-ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c,
-    ngx_uint_t n);
+ngx_int_t ngx_mail_auth_external(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n);
 ngx_int_t ngx_mail_auth_parse(ngx_mail_session_t * s, ngx_connection_t * c);
 
 void ngx_mail_send(ngx_event_t * wev);

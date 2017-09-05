@@ -1,6 +1,6 @@
 // WBROWSE.CPP
 // Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 // WIN32
 //
 #include <slib.h>
@@ -34,40 +34,38 @@ int SLAPI SylkWriter::Open(const char * pFileName)
 		return 1;
 }
 
-int SLAPI SylkWriter::Close()
+void SLAPI SylkWriter::Close()
 {
 	SFile::ZClose(&Stream);
-	Buf = 0;
-	return 1;
+	Buf.Z();
 }
 
-int SLAPI SylkWriter::PutLine(const char * pStr)
+void FASTCALL SylkWriter::PutLine(const char * pStr)
 {
 	if(Stream) {
 		fputs(pStr, Stream);
 		fputc('\n', Stream);
-		return 1;
 	}
-	Buf.Cat(pStr).CR();
-	return 1;
+	else
+		Buf.Cat(pStr).CR();
 }
 
-int SLAPI SylkWriter::PutRec(const char * pTypeStr, const char * pStr)
+void SLAPI SylkWriter::PutRec(const char * pTypeStr, const char * pStr)
 {
 	if(Stream) {
 		fputs(pTypeStr, Stream);
 		fputc(';', Stream);
 	}
 	Buf.Cat(pTypeStr).Semicol();
-	return PutLine(pStr);
+	PutLine(pStr);
 }
 
-int SLAPI SylkWriter::PutRec(int typeChr, const char * pStr)
+void SLAPI SylkWriter::PutRec(int typeChr, const char * pStr)
 {
 	char temp_buf[8];
 	temp_buf[0] = typeChr;
 	temp_buf[1] = 0;
-	return PutRec(temp_buf, pStr);
+	PutRec(temp_buf, pStr);
 }
 
 int SLAPI SylkWriter::PutVal(const char * pStr, int cvtOemToChr)
@@ -101,11 +99,11 @@ int SLAPI SylkWriter::PutVal(double val)
 	return 1;
 }
 
-int SLAPI SylkWriter::PutColumnWidth(int start, int end, int width)
+void SLAPI SylkWriter::PutColumnWidth(int start, int end, int width)
 {
 	char temp_buf[32];
 	sprintf(temp_buf, "W%d %d %d", start, end, width);
-	return PutRec('F', temp_buf);
+	PutRec('F', temp_buf);
 }
 
 int SLAPI SylkWriter::GetBuf(SString * pBuf) const
@@ -113,7 +111,7 @@ int SLAPI SylkWriter::GetBuf(SString * pBuf) const
 	return pBuf ? ((*pBuf = Buf), 1) : 0;
 }
 
-int SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
+void SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
 {
 	char   temp_buf[128];
 	size_t p = 0;
@@ -144,10 +142,10 @@ int SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row)
 		p += strlen(itoa(row, temp_buf+p, 10));
 	}
 	temp_buf[p] = 0;
-	return PutRec('F', temp_buf);
+	PutRec('F', temp_buf);
 }
 
-int SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint fontStyle)
+void SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint fontStyle)
 {
 	char   temp_buf[128];
 	uint   p = 0;
@@ -171,7 +169,7 @@ int SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint f
 			temp_buf[p++] = 'U';
 	}
 	temp_buf[p] = 0;
-	return PutRec('P', temp_buf);
+	PutRec('P', temp_buf);
 }
 //
 //
@@ -525,7 +523,7 @@ int BrowserWindow::RestoreUserSettings()
 	return ok;
 }
 //
-// Если dataKind == 1, то data - (SArray *), 2 - (DBQuery *)
+// Р•СЃР»Рё dataKind == 1, С‚Рѕ data - (SArray *), 2 - (DBQuery *)
 //
 int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOptions/*=0*/)
 {
@@ -734,7 +732,7 @@ void BrowserWindow::init(BrowserDef * pDef)
 	Right  = 0;
 	P_Def  = 0;
 	ChrSz.Set(7, 14);
-	YCell  = 16; // default value (эта величина используется как делитель)
+	YCell  = 16; // default value (СЌС‚Р° РІРµР»РёС‡РёРЅР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєР°Рє РґРµР»РёС‚РµР»СЊ)
 	IsUserSettingsChanged = 0;
 	LastResizeColumnPos = -1;
 	EndModalCmd = 0;
@@ -751,11 +749,10 @@ void BrowserWindow::init(BrowserDef * pDef)
 		invalidateAll(1);
 }
 
-int BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
+void BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
 {
 	F_CellStyle = func;
 	CellStyleFuncExtraPtr = extraPtr;
-	return 1;
 }
 
 void * BrowserWindow::getItemByPos(long pos)
@@ -871,12 +868,12 @@ SLAPI BrowserWindow::~BrowserWindow()
 	CALLPTRMEMB(P_Toolbar, SaveUserSettings(ToolbarID));
 	{
 		//
-		// Перенесено из BrowserWindow::BrowserWndProc WM_DESTROY
+		// РџРµСЂРµРЅРµСЃРµРЅРѕ РёР· BrowserWindow::BrowserWndProc WM_DESTROY
 		//
 		APPL->DelItemFromMenu(this);
 		SaveUserSettings(1);
 		//
-		// Восстановление ширин колонок броузера
+		// Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С€РёСЂРёРЅ РєРѕР»РѕРЅРѕРє Р±СЂРѕСѓР·РµСЂР°
 		//
 		for(uint i = 0; i < P_Def->getCount(); i++)
 			SetColumnWidth(i, (P_Def->at(i).width - 1) / 2);
@@ -923,19 +920,19 @@ int BrowserWindow::CopyToClipboard()
 	uint   cn_count = SelectedColumns.getCount();
 	if(P_Def && cn_count) {
 		uint   i, j;
-		char   buf[512], * p_buf = 0;
     	long   row = 0;
-		HGLOBAL h_glb = 0;
 		LongArray col_types;
 		const char * p_fontface_tnr = "Times New Roman";
 		LAssocArray width_ary;
 		SString val_buf, out_buf;
 		SString dec;
 		SylkWriter sw(0);
-
 		sw.PutRec("ID", "PPapyrus");
-		::GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf)); // @unicodeproblem
-		dec.Cat(buf);
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
 		for(j = 0; j < cn_count; j++) {
 			long cn = SelectedColumns.at(j);
 			if(cn >= 0 && cn < (long)P_Def->getCount())
@@ -946,29 +943,33 @@ int BrowserWindow::CopyToClipboard()
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);
 		sw.PutRec('F', "G");
-		// Выводим название групп столбцов
+		//
+		// Р’С‹РІРѕРґРёРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРї СЃС‚РѕР»Р±С†РѕРІ
+		//
 		for(i = 0; i < P_Def->GetGroupCount(); i++) {
-			uint pos = 0;
-			const BroGroup * p_grp = P_Def->GetGroup(i);
-			STRNSCPY(buf, p_grp->text);
+			uint   pos = 0;
+			const  BroGroup * p_grp = P_Def->GetGroup(i);
+			val_buf = p_grp->text;
 			if(SelectedColumns.lsearch(p_grp->first, &pos) > 0) {
 				sw.PutFormat("FC0L", 1, pos + 1, 1);
 				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-				sw.PutVal(buf, 1);
+				sw.PutVal(val_buf, 1);
 			}
 		}
 		if(P_Def->GetGroupCount())
 			row++;
-		// Выводим название столбцов
+		//
+		// Р’С‹РІРѕРґРёРј РЅР°Р·РІР°РЅРёРµ СЃС‚РѕР»Р±С†РѕРІ
+		//
 		for(i = 0; i < cn_count; i++) {
 			uint col_num = SelectedColumns.at(i);
 			if(col_num < P_Def->getCount()) {
 				const BroColumn & r_c = P_Def->at(col_num);
 				const long type = GETSTYPE(r_c.T);
-				STRNSCPY(buf, r_c.text);
+				val_buf = r_c.text;
 				sw.PutFormat("FC0L", 1, i + 1, row + 1);
-				sw.PutVal(buf, 1);
-				width_ary.Add(col_num, (long)strlen(buf), 0);
+				sw.PutVal(val_buf.cptr(), 1);
+				width_ary.Add(col_num, (long)val_buf.Len(), 0);
 			}
 		}
 		row += 1; // @v9.1.3 +=2 --> +=1
@@ -992,7 +993,7 @@ int BrowserWindow::CopyToClipboard()
 					}
 					else {
 						sw.PutFormat("FG0L", 2, j + 1, row + 1);
-						sw.PutVal((const char*)val_buf, 1);
+						sw.PutVal(val_buf.cptr(), 1);
 					}
 					if(width_ary.BSearch(cn, &len, 0) > 0 && len < (long)val_buf.Len())
 						width_ary.Update(cn, val_buf.Len(), 1);
@@ -1007,12 +1008,14 @@ int BrowserWindow::CopyToClipboard()
 		WMHScroll(SB_VERT, SB_BOTTOM, 0);
 		sw.PutLine("E");
 		sw.GetBuf(&out_buf);
-		h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
-		p_buf = (char*)GlobalLock(h_glb);
-		out_buf.CopyTo(p_buf, out_buf.Len());
-		p_buf[out_buf.Len()] = '\0';
-		GlobalUnlock(h_glb);
-		SetClipboardData(CF_SYLK, h_glb);
+		{
+			HGLOBAL h_glb = h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
+			char * p_buf = (char *)GlobalLock(h_glb);
+			out_buf.CopyTo(p_buf, out_buf.Len());
+			p_buf[out_buf.Len()] = '\0';
+			GlobalUnlock(h_glb);
+			SetClipboardData(CF_SYLK, h_glb);
+		}
 		CloseClipboard();
 		ok = 1;
 	}
@@ -1185,7 +1188,6 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	TEXTMETRIC tm;
 	RECT client;
 	HDC  dc = GetDC(H());
-	// @v7.7.7 {
 	if(DefFont)
 		SelectObject(dc, DefFont);
 	if(Pens.DefPen)
@@ -1193,7 +1195,6 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	if(Brushes.DefBrush)
 		SelectObject(dc, Brushes.DefBrush);
 	ZDeleteWinGdiObject(&Font);
-	// } @v7.7.7
 	Pens.DefPen = (HPEN)GetCurrentObject(dc, OBJ_PEN);
 	DefFont     = (HFONT)GetCurrentObject(dc, OBJ_FONT);
 	Brushes.DefBrush = (HBRUSH)GetCurrentObject(dc, OBJ_BRUSH);
@@ -1310,12 +1311,12 @@ int BrowserWindow::removeColumn(int atPos)
 void BrowserWindow::SetFreeze(uint numFreezeCols)
 {
 	//
-	// По крайней мере один столбец
-	// должен оставаться незамороженным
+	// РџРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ РѕРґРёРЅ СЃС‚РѕР»Р±РµС†
+	// РґРѕР»Р¶РµРЅ РѕСЃС‚Р°РІР°С‚СЊСЃСЏ РЅРµР·Р°РјРѕСЂРѕР¶РµРЅРЅС‹Рј
 	//
 	Freeze = P_Def->getCount() ? MIN(numFreezeCols, P_Def->getCount() - 1) : 0;
 	for(uint i = 0; i < Freeze; i++)
-		if(P_Def->groupOf(i)) { // Замороженные столбцы не должны быть в группе
+		if(P_Def->groupOf(i)) { // Р—Р°РјРѕСЂРѕР¶РµРЅРЅС‹Рµ СЃС‚РѕР»Р±С†С‹ РЅРµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РІ РіСЂСѓРїРїРµ
 			Freeze = i;
 			break;
 		}
@@ -1343,7 +1344,7 @@ int FASTCALL BrowserWindow::GetRowTop(long row) const
 LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus)
 {
 	const BroColumn & c = P_Def->at(hPos);
-#if 1 // @v8.2.0 { GetRowHeightMult и GetRowTop элиминированы ради быстродействия //
+#if 1 // @v8.2.0 { GetRowHeightMult Рё GetRowTop СЌР»РёРјРёРЅРёСЂРѕРІР°РЅС‹ СЂР°РґРё Р±С‹СЃС‚СЂРѕРґРµР№СЃС‚РІРёСЏ //
 	if(P_RowsHeightAry && vPos < (long)P_RowsHeightAry->getCount()) {
 		rect->top    = CapOffs + ((RowHeightInfo*)P_RowsHeightAry->at(vPos))->Top;
 		rect->bottom = rect->top + ChrSz.y + YCell * (((RowHeightInfo*)P_RowsHeightAry->at(vPos))->HeightMult-1);
@@ -1833,7 +1834,7 @@ void BrowserWindow::Paint()
 					dot_line = (!next_selected && selected || next_selected && !selected);
 					if(selected) {
 						SelectObject(ps.hdc, dot_line_pen);
-						// нарисуем последнюю линию броузера пунктиром
+						// РЅР°СЂРёСЃСѓРµРј РїРѕСЃР»РµРґРЅСЋСЋ Р»РёРЅРёСЋ Р±СЂРѕСѓР·РµСЂР° РїСѓРЅРєС‚РёСЂРѕРј
 						for(long left = prev_left; left < r.left; left += dot_line_delta + 2) {
 							MoveToEx(ps.hdc, left, r.bottom, 0);
 							LineTo(ps.hdc, ((left + dot_line_delta < r.left) ? left + dot_line_delta : r.left), r.bottom);
@@ -1842,7 +1843,7 @@ void BrowserWindow::Paint()
 					}
 					else {
 						SelectObject(ps.hdc, Pens.GridHorzPen);
-						// нарисуем последнюю линию броузера
+						// РЅР°СЂРёСЃСѓРµРј РїРѕСЃР»РµРґРЅСЋСЋ Р»РёРЅРёСЋ Р±СЂРѕСѓР·РµСЂР°
 						MoveToEx(ps.hdc, prev_left, r.bottom, 0);
 						LineTo(ps.hdc, r.left, r.bottom);
 						SelectObject(ps.hdc, Pens.GridVertPen);

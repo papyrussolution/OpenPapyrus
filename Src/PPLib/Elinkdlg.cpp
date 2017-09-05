@@ -1,5 +1,5 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -24,7 +24,7 @@ int SLAPI EditELink(PPELink * pLink)
 				if(pLink->KindID == PPELK_EMAIL) {
 					PPTokenRecognizer tr;
 					PPNaturalTokenArray nta;
-					tr.Run((const uchar *)pLink->Addr, nta, 0);
+					tr.Run((const uchar *)pLink->Addr, -1, nta, 0);
 					if(nta.Has(PPNTOK_EMAIL) == 0.0f) {
 						valid_data = PPSetError(PPERR_INVEMAILADDR, pLink->Addr);
 						PPErrorByDialog(dlg, CTL_ELINK_ADDR);
@@ -219,7 +219,7 @@ int ELinkDialog::getDTS(PPELinkArray * pData)
 		if(p_item->KindID == PPELK_EMAIL && p_item->Addr[0]) {
 			PPTokenRecognizer tr;
 			PPNaturalTokenArray nta;
-			tr.Run((const uchar *)p_item->Addr, nta, 0);
+			tr.Run((const uchar *)p_item->Addr, -1, nta, 0);
 			THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
 		}
 	}

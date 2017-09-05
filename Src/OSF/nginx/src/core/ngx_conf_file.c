@@ -585,10 +585,10 @@ char * ngx_conf_include(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char * rv;
 	ngx_int_t n;
-	ngx_str_t file, name;
+	ngx_str_t name;
 	ngx_glob_t gl;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
-	file = value[1];
+	ngx_str_t file = value[1];
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cf->log, 0, "include %s", file.data);
 	if(ngx_conf_full_name(cf->cycle, &file, 1) != NGX_OK) {
 		return NGX_CONF_ERROR;
@@ -666,19 +666,18 @@ ngx_open_file_t * ngx_conf_open_file(ngx_cycle_t * cycle, ngx_str_t * name)
 		}
 	}
 	file = (ngx_open_file_t *)ngx_list_push(&cycle->open_files);
-	if(file == NULL) {
-		return NULL;
+	if(file) {
+		if(name->len) {
+			file->fd = NGX_INVALID_FILE;
+			file->name = full;
+		}
+		else {
+			file->fd = ngx_stderr;
+			file->name = *name;
+		}
+		file->flush = NULL;
+		file->data = NULL;
 	}
-	if(name->len) {
-		file->fd = NGX_INVALID_FILE;
-		file->name = full;
-	}
-	else {
-		file->fd = ngx_stderr;
-		file->name = *name;
-	}
-	file->flush = NULL;
-	file->data = NULL;
 	return file;
 }
 
@@ -716,15 +715,12 @@ void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t * cf, ngx_err_t e
 	if(err) {
 		p = ngx_log_errno(p, last, err);
 	}
-	if(cf->conf_file == NULL) {
+	if(cf->conf_file == NULL)
 		ngx_log_error(level, cf->log, 0, "%*s", p - errstr, errstr);
-		return;
-	}
-	if(cf->conf_file->file.fd == NGX_INVALID_FILE) {
+	else if(cf->conf_file->file.fd == NGX_INVALID_FILE)
 		ngx_log_error(level, cf->log, 0, "%*s in command line", p - errstr, errstr);
-		return;
-	}
-	ngx_log_error(level, cf->log, 0, "%*s in %s:%ui", p - errstr, errstr, cf->conf_file->file.name.data, cf->conf_file->line);
+	else
+		ngx_log_error(level, cf->log, 0, "%*s in %s:%ui", p - errstr, errstr, cf->conf_file->file.name.data, cf->conf_file->line);
 }
 
 char * ngx_conf_set_flag_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)

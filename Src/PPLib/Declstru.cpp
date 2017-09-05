@@ -201,7 +201,7 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 				// @v8.8.11 {
 				PPTokenRecognizer tr;
 				PPNaturalTokenArray nta;
-				tr.Run((const uchar *)Data.DestAddr, nta, 0);
+				tr.Run((const uchar *)Data.DestAddr, -1, nta, 0);
 				THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
 				// } @v8.8.11
 			}

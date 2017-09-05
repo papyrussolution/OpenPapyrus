@@ -268,28 +268,20 @@ static ngx_int_t ngx_http_limit_req_handler(ngx_http_request_t * r)
 static void ngx_http_limit_req_delay(ngx_http_request_t * r)
 {
 	ngx_event_t  * wev;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "limit_req delay");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "limit_req delay");
 	wev = r->connection->write;
-
 	if(wev->delayed) {
 		if(ngx_handle_write_event(wev, 0) != NGX_OK) {
 			ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		}
-
 		return;
 	}
-
 	if(ngx_handle_read_event(r->connection->read, 0) != NGX_OK) {
 		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
 	r->read_event_handler = ngx_http_block_reading;
 	r->write_event_handler = ngx_http_core_run_phases;
-
 	ngx_http_core_run_phases(r);
 }
 

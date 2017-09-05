@@ -762,7 +762,7 @@ ROD_CITYSTATUS PP_RCDATA {
 // { ID, Name }
 //
 ROD_PRSNKIND PP_RCDATA {
-	14,
+	15,
 	1,  "@{mainorg}\0",
 //	2,  "Филиал главной организации\0",
 	3,  "@{personnel}\0",
@@ -777,7 +777,8 @@ ROD_PRSNKIND PP_RCDATA {
 	12, "Неизвестные\0",
 	13, "Владельцы транспортных средств\0",
 	14, "Транспортные брокеры\0",
-	15, "Капитаны (водители)\0"
+	15, "Капитаны (водители)\0",
+	16, "Операторы передачи данных\0"
 };
 //
 // Зарезервированные записи объекта PPOBJ_PRSNSTATUS
@@ -949,7 +950,7 @@ ROD_LOCATION PP_RCDATA {
 // 'A' REGTF_LOCATION    Регистр может быть использован для привязки к локациям
 //
 ROD_REGISTERTYPE PP_RCDATA {
-	15,
+	16,
 	 1, "Паспорт\0",                                "UP\0",
 	 2, "Свидетельство частного предпринимателя\0", "UP\0",
 	 3, "@{inn}\0",                                 "U\0",
@@ -965,6 +966,7 @@ ROD_REGISTERTYPE PP_RCDATA {
 	14, "Символьный код страны\0",                  "L\0"
 	15, "Цифровой код страны\0",                    "L\0"
 	16, "@{bankaccount}\0",                         "LPN\0"
+	17, "Ид оператора передачи данных\0",           "UL\0"
 
 };
 //
@@ -994,7 +996,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	54,
+	56,
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",         "PERSON\0",     "STRING\0"
 	 5, "@{rtag_dob}\0",                      "DOB\0",               "PERSON\0",     "DATE\0"
 	10, "@{rtag_goodsrights}\0",              "GOODSRIGHTS\0",       "GLOBALUSER\0", "STRING\0"
@@ -1050,6 +1052,8 @@ ROD_TAG PP_RCDATA {
 	61, "@{rtag_posnodeuuid}\0",              "POSNODEUUID\0",       "POSNODE\0",    "UUID\0"
 	62, "@{rtag_posnodehostuuid}\0",          "POSNODEHOSTUUID\0",   "POSNODE\0",    "UUID\0"
 	63, "@{rtag_statecontractid}\0",          "STATECONTRACTID\0",   "BILL\0",       "STRING\0"
+	64, "@{rtag_enalogid}\0",                 "ENALOGID\0",          "PERSON\0",     "STRING\0"
+	65, "@{rtag_complementarybill}\0",        "BILLCOMPLEMENTARY\0", "BILL\0",       "STRING\0"
 }
 //
 // Зарезервированные записи объекта PPOBJ_OPCOUNTER

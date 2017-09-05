@@ -4623,10 +4623,12 @@ int fann_save_train_internal(Fann::TrainData * data, const char * filename, uint
 	FILE * file = fopen(filename, "w");
 	if(!file) {
 		fann_error((FannError*)data, SLERR_FANN_CANT_OPEN_TD_W, filename);
-		return -1;
+		retval = -1;
 	}
-	retval = fann_save_train_internal_fd(data, file, filename, save_as_fixed, decimal_point);
-	fclose(file);
+	else {
+		retval = fann_save_train_internal_fd(data, file, filename, save_as_fixed, decimal_point);
+		fclose(file);
+	}
 	return retval;
 }
 //

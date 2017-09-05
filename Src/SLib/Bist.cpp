@@ -470,8 +470,8 @@ SLAPI SLString::SLString(size_t sz)
 
 int SLAPI SLString::comp(const void * i1, const void * i2) const
 {
-	const size_t l1 = *(char *)i1;
-	const size_t l2 = *(char *)i2;
+	const size_t l1 = *(const char *)i1;
+	const size_t l2 = *(const char *)i2;
 	return strncmp(((char *)i1)+1, ((char *)i2)+1, MIN(l1, l2));
 }
 
@@ -479,7 +479,7 @@ int SLAPI SLString::comp(const void * i1, const void * i2) const
 
 char * SLAPI SLString::tostr(const void * d, long fmt, char * buf) const
 {
-	size_t l = *(char *)d;
+	size_t l = *(const char *)d;
 	return strfmt(strnzcpy(buf, ((char *)d)+1, MIN(s, l+1)), fmt, buf);
 }
 

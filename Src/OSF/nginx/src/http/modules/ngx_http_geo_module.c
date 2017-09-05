@@ -301,9 +301,7 @@ static ngx_int_t ngx_http_geo_real_addr(ngx_http_request_t * r, ngx_http_geo_ctx
 	ngx_http_variable_value_t  * v;
 
 	if(ctx->index == -1) {
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "http geo started: %V", &r->connection->addr_text);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo started: %V", &r->connection->addr_text);
 		addr->sockaddr = r->connection->sockaddr;
 		addr->socklen = r->connection->socklen;
 		/* addr->name = r->connection->addr_text; */
@@ -314,19 +312,13 @@ static ngx_int_t ngx_http_geo_real_addr(ngx_http_request_t * r, ngx_http_geo_ctx
 	v = ngx_http_get_flushed_variable(r, ctx->index);
 
 	if(v == NULL || v->not_found) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "http geo not found");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo not found");
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http geo started: %v", v);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo started: %v", v);
 	if(ngx_parse_addr(r->pool, addr, v->data, v->len) == NGX_OK) {
 		return NGX_OK;
 	}
-
 	return NGX_ERROR;
 }
 

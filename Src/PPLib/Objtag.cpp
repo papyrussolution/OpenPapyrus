@@ -2375,7 +2375,7 @@ int SLAPI TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 			{
 				PPTokenRecognizer tr;
 				PPNaturalTokenArray nta;
-				tr.Run(temp_buf.ucptr(), nta, 0);
+				tr.Run(temp_buf.ucptr(), -1, nta, 0);
 				THROW_PP_S(nta.Has(PPNTOK_EGAISWARECODE) > 0.0f, PPERR_INVEGAISWARECODE, temp_buf);
 			}
 		}

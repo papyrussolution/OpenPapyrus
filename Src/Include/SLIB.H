@@ -7464,19 +7464,13 @@ public:
 	// Descr: Структура дополнительных параметров сортировки файла
 	//
 	struct SortParam {
-		SortParam()
-		{
-			MaxChunkSize =(8*1024*1024);
-			MaxChunkCount = 8;
-			MaxThread = 0;
-			ProgressCbProc = 0;
-			ProgressCbExtraPtr = 0;
-		}
-        size_t MaxChunkSize;
-        uint   MaxChunkCount;
-		uint   MaxThread;
-        SFileSortProgressCbProc ProgressCbProc;
-		const void * ProgressCbExtraPtr;
+		SLAPI  SortParam();
+
+        size_t MaxChunkSize;  // @def=(8*1024*1024)
+        uint   MaxChunkCount; // @def=8
+		uint   MaxThread;     // @def=0
+        SFileSortProgressCbProc ProgressCbProc; // @def=0
+		const void * ProgressCbExtraPtr; // @def=0
 	};
 
 	static int SLAPI Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
@@ -11613,15 +11607,15 @@ public:
 	SLAPI  SylkWriter(const char * pFileName = 0);
 	SLAPI ~SylkWriter();
 	int    SLAPI Open(const char * pFileName);
-	int    SLAPI Close();
+	void   SLAPI Close();
 	int    SLAPI PutVal(const char *, int cvtOemToChr);
 	int    SLAPI PutVal(double);
-	int    SLAPI PutColumnWidth(int start, int end, int width);
-	int    SLAPI PutRec(const char * pTypeStr, const char *);
-	int    SLAPI PutRec(int typeChr, const char *);
-	int    SLAPI PutLine(const char *);
-	int    SLAPI PutFont(int symb, const char * pFontName, int size, uint fontStyle);
-	int    SLAPI PutFormat(const char * pBuf, int fontId, int col, int row);
+	void   SLAPI PutColumnWidth(int start, int end, int width);
+	void   SLAPI PutRec(const char * pTypeStr, const char *);
+	void   SLAPI PutRec(int typeChr, const char *);
+	void   FASTCALL PutLine(const char *);
+	void   SLAPI PutFont(int symb, const char * pFontName, int size, uint fontStyle);
+	void   SLAPI PutFormat(const char * pBuf, int fontId, int col, int row);
 	int    SLAPI GetBuf(SString * pBuf) const;
 private:
 	SString Buf;

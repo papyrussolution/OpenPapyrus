@@ -252,10 +252,9 @@ static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 	ngx_regex_compile_t rc;
 	ngx_http_script_code_pt * code;
 	ngx_http_script_compile_t sc;
-	ngx_http_script_regex_code_t * regex;
 	ngx_http_script_regex_end_code_t  * regex_end;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
-	regex = (ngx_http_script_regex_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(ngx_http_script_regex_code_t));
+	ngx_http_script_regex_code_t * regex = (ngx_http_script_regex_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(ngx_http_script_regex_code_t));
 	if(regex == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -308,14 +307,11 @@ static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 			last = 1;
 		}
 		else {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid parameter \"%V\"", &value[3]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[3]);
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	memzero(&sc, sizeof(ngx_http_script_compile_t));
-
 	sc.cf = cf;
 	sc.source = &value[2];
 	sc.lengths = &regex->lengths;
@@ -324,118 +320,87 @@ static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 	sc.main = regex;
 	sc.complete_lengths = 1;
 	sc.compile_args = !regex->redirect;
-
 	if(ngx_http_script_compile(&sc) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	regex = (ngx_http_script_regex_code_t *)sc.main;
-
 	regex->size = sc.size;
 	regex->args = sc.args;
-
 	if(sc.variables == 0 && !sc.dup_capture) {
 		regex->lengths = NULL;
 	}
-
 	regex_end = (ngx_http_script_regex_end_code_t *)ngx_http_script_add_code(lcf->codes,
-	    sizeof(ngx_http_script_regex_end_code_t),
-	    &regex);
+	    sizeof(ngx_http_script_regex_end_code_t), &regex);
 	if(regex_end == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	regex_end->code = ngx_http_script_regex_end_code;
 	regex_end->uri = regex->uri;
 	regex_end->args = regex->args;
 	regex_end->add_args = regex->add_args;
 	regex_end->redirect = regex->redirect;
-
 	if(last) {
 		code = (ngx_http_script_code_pt *)ngx_http_script_add_code(lcf->codes, sizeof(uintptr_t), &regex);
 		if(code == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		*code = NULL;
 	}
-
-	regex->next = (u_char*)lcf->codes->elts + lcf->codes->nelts
-	    - (u_char*)regex;
-
+	regex->next = (u_char*)lcf->codes->elts + lcf->codes->nelts - (u_char*)regex;
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_rewrite_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
-
 	u_char   * p;
 	ngx_str_t  * value, * v;
 	ngx_http_script_return_code_t   * ret;
 	ngx_http_compile_complex_value_t ccv;
-	ret = (ngx_http_script_return_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes,
-	    sizeof(ngx_http_script_return_code_t));
+	ret = (ngx_http_script_return_code_t *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(ngx_http_script_return_code_t));
 	if(ret == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	memzero(ret, sizeof(ngx_http_script_return_code_t));
-
 	ret->code = ngx_http_script_return_code;
-
 	p = value[1].data;
-
 	ret->status = ngx_atoi(p, value[1].len);
-
 	if(ret->status == (uintptr_t)NGX_ERROR) {
-		if(cf->args->nelts == 2
-		    && (ngx_strncmp(p, "http://", sizeof("http://") - 1) == 0
-			    || ngx_strncmp(p, "https://", sizeof("https://") - 1) == 0
-			    || ngx_strncmp(p, "$scheme", sizeof("$scheme") - 1) == 0)) {
+		if(cf->args->nelts == 2 && (ngx_strncmp(p, "http://", sizeof("http://") - 1) == 0 || 
+			ngx_strncmp(p, "https://", sizeof("https://") - 1) == 0 || ngx_strncmp(p, "$scheme", sizeof("$scheme") - 1) == 0)) {
 			ret->status = NGX_HTTP_MOVED_TEMPORARILY;
 			v = &value[1];
 		}
 		else {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid return code \"%V\"", &value[1]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid return code \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
 	}
 	else {
 		if(ret->status > 999) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid return code \"%V\"", &value[1]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid return code \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
-
 		if(cf->args->nelts == 2) {
 			return NGX_CONF_OK;
 		}
-
 		v = &value[2];
 	}
-
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 	ccv.cf = cf;
 	ccv.value = v;
 	ccv.complex_value = &ret->text;
-
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_rewrite_break(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_rewrite_loc_conf_t * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
-	ngx_http_script_code_pt  * code;
-	code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
+	ngx_http_script_code_pt  * code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
 	if(code == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -446,73 +411,57 @@ static char * ngx_http_rewrite_break(ngx_conf_t * cf, ngx_command_t * cmd, void 
 static char * ngx_http_rewrite_if(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
-
 	void  * mconf;
 	char  * rv;
 	u_char   * elts;
 	ngx_uint_t i;
 	ngx_conf_t save;
 	ngx_http_module_t  * module;
-	ngx_http_conf_ctx_t   * ctx, * pctx;
+	ngx_http_conf_ctx_t * pctx;
 	ngx_http_core_loc_conf_t   * clcf, * pclcf;
 	ngx_http_script_if_code_t  * if_code;
 	ngx_http_rewrite_loc_conf_t  * nlcf;
-
-	ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
+	ngx_http_conf_ctx_t * ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
 	if(ctx == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
 	ctx->main_conf = pctx->main_conf;
 	ctx->srv_conf = pctx->srv_conf;
-
 	ctx->loc_conf = (void **)ngx_pcalloc(cf->pool, sizeof(void *) * ngx_http_max_module);
 	if(ctx->loc_conf == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	for(i = 0; cf->cycle->modules[i]; i++) {
 		if(cf->cycle->modules[i]->type != NGX_HTTP_MODULE) {
 			continue;
 		}
-
 		module = (ngx_http_module_t *)cf->cycle->modules[i]->ctx;
-
 		if(module->create_loc_conf) {
 			mconf = module->create_loc_conf(cf);
 			if(mconf == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			ctx->loc_conf[cf->cycle->modules[i]->ctx_index] = mconf;
 		}
 	}
-
 	pclcf = (ngx_http_core_loc_conf_t*)pctx->loc_conf[ngx_http_core_module.ctx_index];
-
 	clcf = (ngx_http_core_loc_conf_t*)ctx->loc_conf[ngx_http_core_module.ctx_index];
 	clcf->loc_conf = ctx->loc_conf;
 	clcf->name = pclcf->name;
 	clcf->noname = 1;
-
 	if(ngx_http_add_location(cf, &pclcf->locations, clcf) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(ngx_http_rewrite_if_condition(cf, lcf) != NGX_CONF_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	if_code = (ngx_http_script_if_code_t *)ngx_array_push_n(lcf->codes, sizeof(ngx_http_script_if_code_t));
 	if(if_code == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	if_code->code = ngx_http_script_if_code;
-
 	elts = (u_char *)lcf->codes->elts;
-
 	/* the inner directives must be compiled to the same code array */
 	nlcf = (ngx_http_rewrite_loc_conf_t *)ctx->loc_conf[ngx_http_rewrite_module.ctx_index];
 	nlcf->codes = lcf->codes;
@@ -526,27 +475,17 @@ static char * ngx_http_rewrite_if(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 		if_code->loc_conf = ctx->loc_conf;
 		cf->cmd_type = NGX_HTTP_LIF_CONF;
 	}
-
 	rv = ngx_conf_parse(cf, NULL);
-
 	*cf = save;
-
 	if(rv != NGX_CONF_OK) {
 		return rv;
 	}
-
 	if(elts != lcf->codes->elts) {
-		if_code = (ngx_http_script_if_code_t*)
-		    ((u_char*)if_code + ((u_char*)lcf->codes->elts - elts));
+		if_code = (ngx_http_script_if_code_t*)((u_char*)if_code + ((u_char*)lcf->codes->elts - elts));
 	}
-
-	if_code->next = (u_char*)lcf->codes->elts + lcf->codes->nelts
-	    - (u_char*)if_code;
-
+	if_code->next = (u_char*)lcf->codes->elts + lcf->codes->nelts - (u_char*)if_code;
 	/* the code array belong to parent block */
-
 	nlcf->codes = NULL;
-
 	return NGX_CONF_OK;
 }
 
@@ -554,20 +493,16 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 {
 	u_char * p;
 	size_t len;
-	ngx_str_t * value;
-	ngx_uint_t cur, last;
+	ngx_uint_t cur;
 	ngx_regex_compile_t rc;
 	ngx_http_script_code_pt  * code;
 	ngx_http_script_file_code_t * fop;
 	ngx_http_script_regex_code_t  * regex;
 	u_char errstr[NGX_MAX_CONF_ERRSTR];
-
-	value = (ngx_str_t*)cf->args->elts;
-	last = cf->args->nelts - 1;
-
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_uint_t last = cf->args->nelts - 1;
 	if(value[1].len < 1 || value[1].data[0] != '(') {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid condition \"%V\"", &value[1]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid condition \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;
 	}
 

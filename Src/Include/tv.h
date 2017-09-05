@@ -4220,13 +4220,13 @@ private:
 #define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
 
 struct SBrowserDataProcBlock {
-	int    SetZero();
-	int    FASTCALL Set(int32 i);
-	int    Set(double i);
-	int    FASTCALL Set(const char * pS);
-	int    FASTCALL Set(const SString & rS);
-	int    FASTCALL Set(LDATE dt);
-	int    FASTCALL Set(LTIME tm);
+	void   SetZero();
+	void   FASTCALL Set(int32 i);
+	void   Set(double i);
+	void   FASTCALL Set(const char * pS);
+	void   FASTCALL Set(const SString & rS);
+	void   FASTCALL Set(LDATE dt);
+	void   FASTCALL Set(LTIME tm);
 
 	void * ExtraPtr;         // IN
 	int    ColumnN;          // IN
@@ -4292,7 +4292,6 @@ public:
 	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	virtual void  SLAPI setViewHight(int);
 	virtual void  SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int   SLAPI initOffset(int);
 	virtual int   SLAPI valid();
 	virtual int   FASTCALL go(long);
 	virtual int   FASTCALL step(long);
@@ -4307,6 +4306,7 @@ public:
 	virtual int   SLAPI search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 
 	BroColumn & FASTCALL at(uint) const;
+	void   SLAPI initOffset(int);
 	int    SLAPI addColumn(const BroColumn *, int = UNDEF);
 	int    SLAPI removeColumn(int);
 	int    SLAPI setColumnTitle(int colN, const char * pText);
@@ -4622,7 +4622,7 @@ public:
 	int    SaveUserSettings(int ifChangedOnly);
 	int    RestoreUserSettings();
 	const  UserInterfaceSettings * GetUIConfig() const;
-	int    SetCellStyleFunc(CellStyleFunc, void * extraPtr);
+	void   SetCellStyleFunc(CellStyleFunc, void * extraPtr);
 	//
 	// Descr: Возвращает цвет некоторой ячейки
 	//
@@ -4935,6 +4935,7 @@ private:
 	int    SaveParameters();
 	int    SetupDate(LDATE dt);
 	const  STimeChunkArray * GetCollapseList_() const;
+	int    CopyToClipboard();
 	enum {
 		dummyFirst = 1,
 		colorHeader,            // Цвет отрисовки заголовка таблицы
@@ -4987,7 +4988,7 @@ private:
 	StrAssocArray ChunkTextCache;
 	LAssocArray ChunkColorCache; // хранит пары {status; brush}
 	LAssocArray ColorBrushList;  // Список кистей, созданных для отрисовки отрезков
-	SRectArray RL;               // Список прямоугольников, соответствующих 'лементам P_Data.
+	SRectArray RL;               // Список прямоугольников, соответствующих элементам P_Data.
 	TToolTip * P_Tt;
 };
 //

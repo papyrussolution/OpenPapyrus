@@ -2814,7 +2814,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbq = & (*dbq && ppidlist(bll->OpID, &OpList));
 			if(LocList_.getCount()) {
 				PPIDArray temp_loc_list = LocList_;
-				if(Filt.Flags & BillFilt::fAddZeroLoc || temp_loc_list.getCount() > 1) // @v7.5.8
+				if(Filt.Flags & BillFilt::fAddZeroLoc || temp_loc_list.getCount() > 1)
 					temp_loc_list.addUnique(0L);
 				dbq = & (*dbq && ppidlist(bll->LocID, &temp_loc_list));
 			}
@@ -3976,7 +3976,7 @@ int SLAPI PPViewBill::AddBillToPool()
 			else
 				op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 					PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND,
-					PPOPT_DRAFTTRANSIT, PPOPT_CORRECTION, 0L); // @v7.8.10 PPOPT_CORRECTION
+					PPOPT_DRAFTTRANSIT, PPOPT_CORRECTION, 0L);
 			if(op_id || BillPrelude(&op_type_list, (is_op_list ? OPKLF_OPLIST : 0), 0, &op_id, &loc_id) > 0) {
 				PPObjBill::AddBlock ab;
 				ab.OpID = op_id;
@@ -4590,6 +4590,7 @@ struct PrvdrDllLink {
 };
 
 int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath); // @prototype
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const char * pPath); // @prototype
 
 int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
@@ -4643,20 +4644,24 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
-				if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice) {
-					// @construction
+				// @construction {
+				if(oneof2(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, PPBillImpExpParam::pfNalogR_REZRUISP)) {
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
 						int    err = 0;
 						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
-							WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
+							if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice)
+								WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
+							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP) 
+								WriteBill_NalogRu2_DP_REZRUISP(pack, b_e.BillParam.FileName);
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}
 					PPWait(0);
 				}
+				// } @construction
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, logger));
@@ -6285,7 +6290,8 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	PPQuotKind qk_rec;
 	double ext_price = 0.0;
 	double upp = 0.0; // Емкость упаковки
-	int    tiamt, price_chng = 1;
+	int    tiamt;
+	int    price_chng = 1;
 	uint   n = (uint)I.nn;
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
 	const  long exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
@@ -6319,14 +6325,12 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 					if(p_rcpt->Search(p_ti->LotID, &rec) > 0) {
 						const int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
 						price_chng = BIN(r <= 0 || rec.Price != prev_rec.Price);
-						// @v7.2.0 {
 						if(!price_chng) {
 							double prev_rest = 0.0;
 							p_bobj->trfr->GetRest(prev_rec.ID, rec.Dt, rec.OprNo, &prev_rest, 0);
 							if(prev_rest <= 0.0)
 								price_chng = 1;
 						}
-						// } @v7.2.0
 					}
 				}
 			}
@@ -6829,7 +6833,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			H.fNeedPayment = BIN(rec.Flags & BILLF_NEEDPAYMENT);
 			H.fPayout      = BIN(rec.Flags & BILLF_PAYOUT);
 			H.fWL          = BIN(rec.Flags & BILLF_WHITELABEL);
-			H.DueDate      = rec.DueDate; // @v7.8.6
+			H.DueDate      = rec.DueDate;
 			H.Amount   = BR2(rec.Amount);
 			amtt_obj.GetTaxAmountIDs(&tai, 1);
 			H.Vat1Rate = fdiv100i(tai.VatRate[0]);
@@ -7183,7 +7187,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 
 	H.fShortMainOrg = CheckOpPrnFlags(p_pack->Rec.OpID, OPKF_PRT_SHRTORG);
 	PPID   main_org_id = 0;
-	p_pack->GetMainOrgID_(&main_org_id); // @v7.0.0 ::GetMainOrgID --> p_pack->GetMainOrgID_
+	p_pack->GetMainOrgID_(&main_org_id);
 	H.Flags = p_pack->Rec.Flags;
 	if(p_pack->Rec.Object) {
 		H.CntragntID  = ObjectToPerson(p_pack->Rec.Object);
@@ -7746,7 +7750,7 @@ int PPALDD_GoodsBillQCert::InitData(PPFilt & rFilt, long rsrv)
 	H.fShortMainOrg = CheckOpPrnFlags(p_pack->Rec.OpID, OPKF_PRT_SHRTORG);
 	PPID   optype = GetOpType(p_pack->Rec.OpID);
 	PPID   main_org_id = 0;
-	p_pack->GetMainOrgID_(&main_org_id); // @v7.0.0 ::GetMainOrgID --> p_pack->GetMainOrgID_
+	p_pack->GetMainOrgID_(&main_org_id);
 	if(oneof2(optype, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND) || (p_pack->Rec.Flags & (BILLF_GEXPEND | BILLF_GMODIF))) {
 		H.ExpendFlag = 1;
 		H.DlvrReq    = main_org_id;

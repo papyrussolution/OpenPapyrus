@@ -613,8 +613,8 @@ void SLAPI PPViewSStat::RecToViewItem(const TempGoodsStatTbl::Rec * pRec, SStatV
 			item.Predict = gr_item.Predict;
 			item.SupplOrder = gr_item.SupplOrder;
 			item.MinStock = gr_item.MinStock;
-			item.IsPredictTrust = gr_item.IsPredictTrust; // @v7.0.0
-			item.CostAvg = gr_item.Cost; // @v7.1.7
+			item.IsPredictTrust = gr_item.IsPredictTrust;
+			item.CostAvg = gr_item.Cost;
 		}
 	}
 	ASSIGN_PTR(pItem, item);

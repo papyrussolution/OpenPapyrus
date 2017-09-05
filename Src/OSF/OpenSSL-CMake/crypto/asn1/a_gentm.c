@@ -156,8 +156,7 @@ int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME * s, const char * str)
 		return 0;
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s,
-    time_t t)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s, time_t t)
 {
 	return ASN1_GENERALIZEDTIME_adj(s, t, 0, 0);
 }
@@ -205,16 +204,12 @@ const char * _asn1_mon[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", 
 
 int ASN1_GENERALIZEDTIME_print(BIO * bp, const ASN1_GENERALIZEDTIME * tm)
 {
-	char * v;
 	int gmt = 0;
-	int i;
 	int y = 0, M = 0, d = 0, h = 0, m = 0, s = 0;
 	char * f = NULL;
 	int f_len = 0;
-
-	i = tm->length;
-	v = (char*)tm->data;
-
+	int i = tm->length;
+	char * v = (char*)tm->data;
 	if(i < 12)
 		goto err;
 	if(v[i - 1] == 'Z')

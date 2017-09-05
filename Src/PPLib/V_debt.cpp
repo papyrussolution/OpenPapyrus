@@ -3059,7 +3059,7 @@ int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSAr
 										r_dd_item.Limit = p_item->LimitTerm * (dens * paym_period) / simple_duration;
 									else
 										r_dd_item.Limit = p_item->LimitTerm * (dens * sigm);
-								r_dd_item.Limit *= limit_factor; // @v7.1.8
+								r_dd_item.Limit *= limit_factor;
 								if(ds_cfg.LimitRoundPrec > 0.0)
 									r_dd_item.Limit = Round(r_dd_item.Limit, fdiv100i(ds_cfg.LimitRoundPrec), ds_cfg.LimitRoundDir);
 							}
@@ -3376,10 +3376,10 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 3, Data.fGatherPaymDelayStat);
 			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 4, Data.fProcessAgents);
 			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 5, Data.fSetupLimit);
-			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 6, Data.fUpdateLimitDebtDim); // @v7.0.4
-			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 7, Data.fCreateLimitDebtDim); // @v7.0.4
-			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 8, Data.fUpdateStopDebtDim);     // @v7.1.2
-			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 9, Data.fProjCommStopToDebtDim); // @v7.1.2
+			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 6, Data.fUpdateLimitDebtDim);
+			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 7, Data.fCreateLimitDebtDim);
+			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 8, Data.fUpdateStopDebtDim);
+			AddClusterAssoc(CTL_DEBTRATE_FLAGS, 9, Data.fProjCommStopToDebtDim);
 			SetClusterData(CTL_DEBTRATE_FLAGS, Data.Flags);
 			return 1;
 		}
@@ -3512,7 +3512,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	period = Cfg.Period;
 	period.Actualize(ZERODATE);
 	// } @v6.0.11
-	dd_obj.FetchAgentList(&dd_agent_list); // @v7.0.4
+	dd_obj.FetchAgentList(&dd_agent_list);
 	for(i = 0; i < op_list.getCount(); i++) {
 		const PPID op_id = op_list.get(i);
 		GetOpName(op_id, op_name);
@@ -3807,7 +3807,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 
 int SLAPI PrcssrDebtRate::Run()
 {
-	int    ok = -1, ta = 0;
+	int    ok = -1;
 	PPLogger logger;
 	PPWait(1);
 	if(P.AccSheetID) {
@@ -3825,7 +3825,7 @@ int SLAPI PrcssrDebtRate::Run()
 		else if(P.AccSheetID == GetSellAccSheet() || (acs_obj.Fetch(P.AccSheetID, &acs_rec) > 0 && acs_rec.Flags & ACSHF_USECLIAGT)) {
 			struct StopItem {
 				PPID   ArID;
-				PPID   DebtDimID; // @v7.1.1
+				PPID   DebtDimID;
 				double Debt;
 				double Rckn;
 				long   MaxExpiry;
@@ -3950,120 +3950,119 @@ int SLAPI PrcssrDebtRate::Run()
 					const StopItem * p_si = (const StopItem *)reset_stop_list.at(i);
 					ar_list.addUnique(p_si->ArID);
 				}
-				THROW(PPStartTransaction(&ta, BIN(!(P.Flags & Param::fReportOnly))));
-				for(i = 0; i < ar_list.getCount(); i++) {
-					const PPID ar_id = ar_list.get(i);
-					LAssoc p;
-					p.Key = ar_id;
-					p.Val = 0;
-					uint   set_pos = 0, reset_pos = 0;
-					const int _set = BIN(set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long)));
-					const int _reset = BIN(reset_stop_list.bsearch(&p, &reset_pos, PTR_CMPFUNC(_2long)));
-					assert((_set + _reset) == 1);
-					if(ArObj.GetPacket(ar_id, &pack) > 0) {
-						int    do_turn_pack = 0;
-						if(_set) {
-							p_si = (StopItem *)set_stop_list.at(set_pos);
-							if(!(pack.Rec.Flags & ARTRF_STOPBILL)) {
-								pack.Rec.Flags |= ARTRF_STOPBILL;
-								PPFormatT(PPTXT_LOG_DEBTRATE_SETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
-								logger.Log(msg_buf);
-								do_turn_pack = 1;
-							}
-						}
-						else {
-							p_si = (StopItem *)reset_stop_list.at(reset_pos);
-							if(pack.Rec.Flags & ARTRF_STOPBILL) {
-								pack.Rec.Flags &= ~ARTRF_STOPBILL;
-								PPFormatT(PPTXT_LOG_DEBTRATE_RESETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
-								logger.Log(msg_buf);
-								do_turn_pack = 1;
-							}
-						}
-						if(update_stop_debtdim && pack.P_CliAgt) {
-							for(uint j = 0; j < debt_dim_list.getCount(); j++) {
-								const  PPID dd_id = debt_dim_list.get(j);
-								PPClientAgreement::DebtLimit * p_dl = pack.P_CliAgt->GetDebtDimEntry(dd_id);
-								uint   dset_pos = 0;
-								LAssoc p2;
-								p2.Key = ar_id;
-								p2.Val = dd_id;
-								const int _cs = _set;
-								const int _ds = BIN(set_stop_list.bsearch(&p2, &dset_pos, PTR_CMPFUNC(_2long)));
-								const int _dx = BIN(p_dl);
-								/*
-									Матрица перехода для частного STOP'а
-									COMM   (_cs) - рассчитанное значение общего STOP'а
-									DIM    (_ds) - рассчитанное значение частного STOP'а
-									DIMEXT (_dx) - признак наличия размерности в соглашении
-									DIMEFF       - эффективное (устанавливаемое) значение частного STOP'а
-									---------------------------------------
-									_cs    _ds     _dx | DIMEFF
-										0    0       0 |      x    // Ничего не делать
-										0    0       1 |      0    // Следует отключить частный STOP в соглашении
-										0    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
-										0    1       1 |      1    // Следует включить частный STOP в соглашении
-										1    0       0 |     ?1+   // Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать размерность с признаком STOP, в противном случае - ничего не делать
-										1    0       1 |     ?1    // Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
-										1    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
-										1    1       1 |      1    // Следует включить частный STOP в соглашении
-								*/
-								if(_cs == 0) {
-									if(_ds == 0) {
-										if(_dx == 0) {
-											; // Ничего не делать
-										}
-										else {
-											// Следует отключить частный STOP в соглашении
-											if(p_dl->Flags & p_dl->fStop) {
-												p_dl->Flags &= ~p_dl->fStop;
-												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMRESETSTOP, &msg_buf, ar_id, dd_id));
-												do_turn_pack = 1;
-											}
-										}
-									}
-									else {
-										if(_dx == 0) {
-											; // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
-										}
-										else {
-											// Следует включить частный STOP в соглашении
-											if(!(p_dl->Flags & p_dl->fStop)) {
-												p_dl->Flags |= p_dl->fStop;
-												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
-												do_turn_pack = 1;
-											}
-										}
-									}
+				{
+					PPTransaction tra(BIN(!(P.Flags & Param::fReportOnly)));
+					THROW(tra);
+					for(i = 0; i < ar_list.getCount(); i++) {
+						const PPID ar_id = ar_list.get(i);
+						LAssoc p;
+						p.Key = ar_id;
+						p.Val = 0;
+						uint   set_pos = 0, reset_pos = 0;
+						const int _set = BIN(set_stop_list.bsearch(&p, &set_pos, PTR_CMPFUNC(_2long)));
+						const int _reset = BIN(reset_stop_list.bsearch(&p, &reset_pos, PTR_CMPFUNC(_2long)));
+						assert((_set + _reset) == 1);
+						if(ArObj.GetPacket(ar_id, &pack) > 0) {
+							int    do_turn_pack = 0;
+							if(_set) {
+								p_si = (StopItem *)set_stop_list.at(set_pos);
+								if(!(pack.Rec.Flags & ARTRF_STOPBILL)) {
+									pack.Rec.Flags |= ARTRF_STOPBILL;
+									PPFormatT(PPTXT_LOG_DEBTRATE_SETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
+									logger.Log(msg_buf);
+									do_turn_pack = 1;
 								}
-								else {
-									if(_ds == 0) {
-										if(_dx == 0) {
-											// Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать
-											// размерность с признаком STOP, в противном случае - ничего не делать
-											if(P.Flags & P.fCreateLimitDebtDim && P.Flags & P.fProjCommStopToDebtDim) {
-												PPClientAgreement::DebtLimit new_dl;
-												MEMSZERO(new_dl);
-												new_dl.DebtDimID = dd_id;
-												new_dl.Flags |= new_dl.fStop;
-												pack.P_CliAgt->DebtLimList.insert(&new_dl);
-												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMCRSTOP, &msg_buf, ar_id, dd_id));
-												do_turn_pack = 1;
+							}
+							else {
+								p_si = (StopItem *)reset_stop_list.at(reset_pos);
+								if(pack.Rec.Flags & ARTRF_STOPBILL) {
+									pack.Rec.Flags &= ~ARTRF_STOPBILL;
+									PPFormatT(PPTXT_LOG_DEBTRATE_RESETSTOP, &msg_buf, ar_id, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
+									logger.Log(msg_buf);
+									do_turn_pack = 1;
+								}
+							}
+							if(update_stop_debtdim && pack.P_CliAgt) {
+								for(uint j = 0; j < debt_dim_list.getCount(); j++) {
+									const  PPID dd_id = debt_dim_list.get(j);
+									PPClientAgreement::DebtLimit * p_dl = pack.P_CliAgt->GetDebtDimEntry(dd_id);
+									uint   dset_pos = 0;
+									LAssoc p2;
+									p2.Key = ar_id;
+									p2.Val = dd_id;
+									const int _cs = _set;
+									const int _ds = BIN(set_stop_list.bsearch(&p2, &dset_pos, PTR_CMPFUNC(_2long)));
+									const int _dx = BIN(p_dl);
+									/*
+										Матрица перехода для частного STOP'а
+										COMM   (_cs) - рассчитанное значение общего STOP'а
+										DIM    (_ds) - рассчитанное значение частного STOP'а
+										DIMEXT (_dx) - признак наличия размерности в соглашении
+										DIMEFF       - эффективное (устанавливаемое) значение частного STOP'а
+										---------------------------------------
+										_cs    _ds     _dx | DIMEFF
+											0    0       0 |      x    // Ничего не делать
+											0    0       1 |      0    // Следует отключить частный STOP в соглашении
+											0    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
+											0    1       1 |      1    // Следует включить частный STOP в соглашении
+											1    0       0 |     ?1+   // Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать размерность с признаком STOP, в противном случае - ничего не делать
+											1    0       1 |     ?1    // Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
+											1    1       0 |      .    // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
+											1    1       1 |      1    // Следует включить частный STOP в соглашении
+									*/
+									if(_cs == 0) {
+										if(_ds == 0) {
+											if(_dx == 0) {
+												; // Ничего не делать
 											}
-										}
-										else {
-											// Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
-											if(P.Flags & P.fProjCommStopToDebtDim) {
-												if(!(p_dl->Flags & p_dl->fStop)) {
-													p_dl->Flags |= p_dl->fStop;
-													logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
+											else {
+												// Следует отключить частный STOP в соглашении
+												if(p_dl->Flags & p_dl->fStop) {
+													p_dl->Flags &= ~p_dl->fStop;
+													logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMRESETSTOP, &msg_buf, ar_id, dd_id));
 													do_turn_pack = 1;
 												}
 											}
 										}
+										else if(_dx == 0) {
+											; // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
+										}
+										else {
+											// Следует включить частный STOP в соглашении
+											if(!(p_dl->Flags & p_dl->fStop)) {
+												p_dl->Flags |= p_dl->fStop;
+												logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
+												do_turn_pack = 1;
+											}
+										}
 									}
 									else {
-										if(_dx == 0) {
+										if(_ds == 0) {
+											if(_dx == 0) {
+												// Если fCreateLimitDebtDim && fProjCommStopToDebtDim, то следует создать
+												// размерность с признаком STOP, в противном случае - ничего не делать
+												if(P.Flags & P.fCreateLimitDebtDim && P.Flags & P.fProjCommStopToDebtDim) {
+													PPClientAgreement::DebtLimit new_dl;
+													MEMSZERO(new_dl);
+													new_dl.DebtDimID = dd_id;
+													new_dl.Flags |= new_dl.fStop;
+													pack.P_CliAgt->DebtLimList.insert(&new_dl);
+													logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMCRSTOP, &msg_buf, ar_id, dd_id));
+													do_turn_pack = 1;
+												}
+											}
+											else {
+												// Если fProjCommStopToDebtDim, то включить частный STOP в соглашении
+												if(P.Flags & P.fProjCommStopToDebtDim) {
+													if(!(p_dl->Flags & p_dl->fStop)) {
+														p_dl->Flags |= p_dl->fStop;
+														logger.Log(PPFormatT(PPTXT_LOG_DEBTRATE_DIMSETSTOP, &msg_buf, ar_id, dd_id));
+														do_turn_pack = 1;
+													}
+												}
+											}
+										}
+										else if(_dx == 0) {
 											; // Невозможный случай: нельзя вычислить частный STOP не имея параметров размерности
 										}
 										else {
@@ -4077,58 +4076,57 @@ int SLAPI PrcssrDebtRate::Run()
 									}
 								}
 							}
-						}
-						if(do_turn_pack && !(P.Flags & Param::fReportOnly)) {
-							PPID   temp_id = ar_id;
-							THROW(ArObj.PutPacket(&temp_id, &pack, 0));
-						}
-					}
-					else
-						logger.LogLastError();
-					PPWaitPercent(i+1, ar_list.getCount());
-				}
-				/* @v7.1.2
-				for(i = 0; set_stop_list.enumItems(&i, (void **)&p_si);) {
-					if(ArObj.GetPacket(p_si->ArID, &pack) > 0) {
-						if(!(pack.Rec.Flags & ARTRF_STOPBILL)) {
-							pack.Rec.Flags |= ARTRF_STOPBILL;
-							PPLoadText(PPTXT_LOG_DEBTRATE_SETSTOP, fmt_buf);
-							PPFormat(fmt_buf, &msg_buf, p_si->ArID, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
-							logger.Log(msg_buf);
-							if(!(P.Flags & Param::fReportOnly)) {
-								PPID   temp_id = p_si->ArID;
+							if(do_turn_pack && !(P.Flags & Param::fReportOnly)) {
+								PPID   temp_id = ar_id;
 								THROW(ArObj.PutPacket(&temp_id, &pack, 0));
 							}
 						}
+						else
+							logger.LogLastError();
+						PPWaitPercent(i+1, ar_list.getCount());
 					}
-					else
-						logger.LogLastError();
-					PPWaitPercent(i, set_stop_list.getCount());
-				}
-				for(i = 0; reset_stop_list.enumItems(&i, (void **)&p_si);) {
-					if(ArObj.GetPacket(p_si->ArID, &pack) > 0) {
-						if(pack.Rec.Flags & ARTRF_STOPBILL) {
-							pack.Rec.Flags &= ~ARTRF_STOPBILL;
-							PPLoadText(PPTXT_LOG_DEBTRATE_RESETSTOP, fmt_buf);
-							PPFormat(fmt_buf, &msg_buf, p_si->ArID, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
-							logger.Log(msg_buf);
-							if(!(P.Flags & Param::fReportOnly)) {
-								PPID   temp_id = p_si->ArID;
-								THROW(ArObj.PutPacket(&temp_id, &pack, 0));
+					/* @v7.1.2
+					for(i = 0; set_stop_list.enumItems(&i, (void **)&p_si);) {
+						if(ArObj.GetPacket(p_si->ArID, &pack) > 0) {
+							if(!(pack.Rec.Flags & ARTRF_STOPBILL)) {
+								pack.Rec.Flags |= ARTRF_STOPBILL;
+								PPLoadText(PPTXT_LOG_DEBTRATE_SETSTOP, fmt_buf);
+								PPFormat(fmt_buf, &msg_buf, p_si->ArID, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
+								logger.Log(msg_buf);
+								if(!(P.Flags & Param::fReportOnly)) {
+									PPID   temp_id = p_si->ArID;
+									THROW(ArObj.PutPacket(&temp_id, &pack, 0));
+								}
 							}
 						}
+						else
+							logger.LogLastError();
+						PPWaitPercent(i, set_stop_list.getCount());
 					}
-					else
-						logger.LogLastError();
-					PPWaitPercent(i, reset_stop_list.getCount());
+					for(i = 0; reset_stop_list.enumItems(&i, (void **)&p_si);) {
+						if(ArObj.GetPacket(p_si->ArID, &pack) > 0) {
+							if(pack.Rec.Flags & ARTRF_STOPBILL) {
+								pack.Rec.Flags &= ~ARTRF_STOPBILL;
+								PPLoadText(PPTXT_LOG_DEBTRATE_RESETSTOP, fmt_buf);
+								PPFormat(fmt_buf, &msg_buf, p_si->ArID, p_si->Debt, p_si->Rckn, p_si->MaxExpiry);
+								logger.Log(msg_buf);
+								if(!(P.Flags & Param::fReportOnly)) {
+									PPID   temp_id = p_si->ArID;
+									THROW(ArObj.PutPacket(&temp_id, &pack, 0));
+								}
+							}
+						}
+						else
+							logger.LogLastError();
+						PPWaitPercent(i, reset_stop_list.getCount());
+					}
+					*/
+					THROW(tra.Commit());
 				}
-				*/
-				THROW(PPCommitWork(&ta));
 			}
 		}
 	}
 	CATCH
-		PPRollbackWork(&ta);
 		logger.LogLastError();
 		ok = PPErrorZ();
 	ENDCATCH

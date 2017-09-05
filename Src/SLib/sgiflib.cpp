@@ -170,64 +170,58 @@ GifFileType * DGifOpenFileName(const char * FileName, int * Error)
 GifFileType * DGifOpenFileHandle(int FileHandle, int * Error)
 {
 	char Buf[GIF_STAMP_LEN + 1];
-	GifFilePrivateType * Private;
+	GifFilePrivateType * p_private = 0;
 	FILE * f = 0;
-	GifFileType * GifFile = (GifFileType*)SAlloc::M(sizeof(GifFileType));
-	if(GifFile == NULL) {
+	GifFileType * p_giffile = (GifFileType *)SAlloc::M(sizeof(GifFileType));
+	if(p_giffile == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		close(FileHandle);
-		return NULL;
+		CALLEXCEPT();
 	}
-	/*@i1@*/ memzero(GifFile, sizeof(GifFileType));
+	/*@i1@*/ memzero(p_giffile, sizeof(GifFileType));
 	/* Belt and suspenders, in case the null pointer isn't zero */
-	GifFile->SavedImages = NULL;
-	GifFile->SColorMap = NULL;
-	Private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
-	if(Private == NULL) {
+	p_giffile->SavedImages = NULL;
+	p_giffile->SColorMap = NULL;
+	p_private = (GifFilePrivateType*)SAlloc::M(sizeof(GifFilePrivateType));
+	if(p_private == NULL) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_ENOUGH_MEM);
-		close(FileHandle);
-		SAlloc::F((char*)GifFile);
-		return NULL;
+		CALLEXCEPT();
 	}
 #ifdef _WIN32
 	_setmode(FileHandle, O_BINARY); /* Make sure it is in binary mode. */
 #endif
 	f = fdopen(FileHandle, "rb"); /* Make it into a stream: */
 	/*@-mustfreeonly@*/
-	GifFile->Private = (void*)Private;
-	Private->FileHandle = FileHandle;
-	Private->File = f;
-	Private->FileState = FILE_STATE_READ;
-	Private->Read = NULL;    /* don't use alternate input method (TVT) */
-	GifFile->UserData = NULL; /* TVT */
+	p_giffile->Private = (void*)p_private;
+	p_private->FileHandle = FileHandle;
+	p_private->File = f;
+	p_private->FileState = FILE_STATE_READ;
+	p_private->Read = NULL;    /* don't use alternate input method (TVT) */
+	p_giffile->UserData = NULL; /* TVT */
+	FileHandle = -1; // @sobolev
 	/*@=mustfreeonly@*/
 	// Let's see if this is a GIF file: 
-	if(READ(GifFile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
+	if(READ(p_giffile, (uint8*)Buf, GIF_STAMP_LEN) != GIF_STAMP_LEN) {
 		ASSIGN_PTR(Error, D_GIF_ERR_READ_FAILED);
-		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
-		return NULL;
+		CALLEXCEPT();
 	}
-	/* Check for GIF prefix at start of file */
+	// Check for GIF prefix at start of file 
 	Buf[GIF_STAMP_LEN] = 0;
 	if(strncmp(GIF_STAMP, Buf, GIF_VERSION_POS) != 0) {
 		ASSIGN_PTR(Error, D_GIF_ERR_NOT_GIF_FILE);
-		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
-		return NULL;
+		CALLEXCEPT();
 	}
-	if(DGifGetScreenDesc(GifFile) == GIF_ERROR) {
-		(void)fclose(f);
-		SAlloc::F((char*)Private);
-		SAlloc::F((char*)GifFile);
-		return NULL;
-	}
-	GifFile->Error = 0;
-	/* What version of GIF? */
-	Private->gif89 = (Buf[GIF_VERSION_POS] == '9');
-	return GifFile;
+	THROW(DGifGetScreenDesc(p_giffile) != GIF_ERROR);
+	p_giffile->Error = 0;
+	// What version of GIF? 
+	p_private->gif89 = (Buf[GIF_VERSION_POS] == '9');
+	CATCH
+		if(FileHandle >= 0)
+			close(FileHandle);
+		SFile::ZClose(&f);
+		SAlloc::F(p_private);
+		ZFREE(p_giffile);
+	ENDCATCH
+	return p_giffile;
 }
 // 
 // GifFileType constructor with user supplied input function (TVT)

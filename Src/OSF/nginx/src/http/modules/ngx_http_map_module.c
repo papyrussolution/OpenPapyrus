@@ -93,35 +93,25 @@ ngx_module_t ngx_http_map_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static ngx_int_t ngx_http_map_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_map_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_http_map_ctx_t  * map = (ngx_http_map_ctx_t*)data;
-
 	ngx_str_t val, str;
 	ngx_http_complex_value_t * cv;
 	ngx_http_variable_value_t  * value;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http map started");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http map started");
 	if(ngx_http_complex_value(r, &map->value, &val) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	if(map->hostnames && val.len > 0 && val.data[val.len - 1] == '.') {
 		val.len--;
 	}
-
 	value = (ngx_http_variable_value_t*)ngx_http_map_find(r, &map->map, &val);
-
 	if(value == NULL) {
 		value = map->default_value;
 	}
-
 	if(!value->valid) {
 		cv = (ngx_http_complex_value_t*)value->data;
-
 		if(ngx_http_complex_value(r, cv, &str) != NGX_OK) {
 			return NGX_ERROR;
 		}

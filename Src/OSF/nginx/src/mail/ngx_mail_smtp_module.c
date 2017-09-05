@@ -142,9 +142,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	*p++ = '2'; *p++ = '2'; *p++ = '0'; *p++ = ' ';
 	p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
 	memcpy(p, " ESMTP ready" CRLF, sizeof(" ESMTP ready" CRLF) - 1);
-
 	size = sizeof("250 " CRLF) - 1 + cscf->server_name.len;
-
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
 	if(p == NULL) {
 		return NGX_CONF_ERROR;

@@ -374,7 +374,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 	long   cmd_flags = 0;
 	{
 		// @v9.8.0 Params.Z();
-		ClearParams(); // @v9.8.0 
+		ClearParams(); // @v9.8.0
 	}
     THROW(GetWord(rLine, &p));
 	Term.ToLower(); // @v9.6.4
@@ -1916,70 +1916,72 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 }
 
 #define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
-
-class PPWorkerSession : public PPThread {
+//
+// Descr: Сессия ориентированная на работу в том же процессе, что и клиентские сессии.
+//   Для обмена данными использует SBufferPipe.
+// Note: Разрабатывается в рамках включения WEB-сервера в состав процесса Papyrus
+//
+class PPWorkingPipeSession : public /*PPThread*/PPWorkerSession {
 public:
-	SLAPI  PPWorkerSession(int threadKind);
-	virtual SLAPI ~PPWorkerSession();
-	virtual void SLAPI Shutdown();
-protected:
-	//
-	// Descr: Коды возврата функции ProcessCommand
-	//
-	enum CmdRet {
-		cmdretError          = 0,
-		cmdretOK             = 1,
-		cmdretQuit           = 100, // После обработки команды следует завершить сеанс.
-		cmdretResume         = 101, // Команда восстановления сеанса. Необходимо завершить текущий сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
-		cmdretSuspend        = 102, // Была обработана команда SUSPEND.  Сеанс входит в режим ожидания восстановления (timeout = SuspendTimeout)
-		cmdretStyloBhtIIMode = 103, // Сессия должна войти в режим обмена с устройством StyloBHT II
-		cmdretUnprocessed    = 104  // @v9.8.0 Команда не обработана. Базовый класс может вернуть этот результат, предполагая,
-			// что порожденный класс или вызывающая функция обработает команду самостоятельно.
-	};
+	SLAPI  PPWorkingPipeSession();
+	SLAPI ~PPWorkingPipeSession();
+	SBufferPipe * SLAPI GetInputPipe();
+private:
+	virtual void SLAPI Run();
 	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
-	CmdRet SLAPI Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply);
-	int    SLAPI SetupTxtCmdTerm(int code);
-	SString & SLAPI GetTxtCmdTermMnemonic(SString & rBuf) const;
-	void   FASTCALL RealeasFtbEntry(uint pos);
-	enum {
-		tfvStart,
-		tfvNext,
-		tfvFinish,
-		tfvCancel
-	};
-	CmdRet SLAPI TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply);
-	int    SLAPI FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
-	enum {
-		stLoggedIn  = 0x0001,
-		stDebugMode = 0x0002  // @v8.3.4 Отладочный режим (вывод дополнительных данных в журналы)
-	};
-	long   State;   //
-	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
-		// можно синхронизировать действия с клиентом
-	CPosNodeBlock * P_CPosBlk;
-	//
-	// Descr: Управляющая структура для сохранения состояния пересылки файла
-	//
-	struct FTB {
-		SLAPI  FTB();
-		SLAPI ~FTB();
 
-		enum {
-			kGeneric = 0,
-			kObjImage
-		};
-		int32  Cookie;
-		int32  Kind;
-		int64  Offs;
-		PPID   ObjType;
-		PPID   ObjID;
-		PPJobSrvProtocol::TransmitFileBlock Tfb;
-		SFile * P_F;
-	};
-	TSCollection <FTB> FtbList;
-	SString HelloReplyText; // @fastreuse (команда HELLO)
-	const char * P_TxtCmdTerminal;
+	SBufferPipe InpPipe; // Собственность потока. Вызывающий поток может получить
+		// указатель на канал вызовом GetInputPipe()
+	SBufferPipe * P_OutPipe; // @notowne Указатель на этот канал поток получает вместе с командой
 };
+
+SLAPI PPWorkingPipeSession::PPWorkingPipeSession() : PPWorkerSession(PPThread::kWorkerSession)
+{
+	P_OutPipe = 0;
+}
+
+SLAPI PPWorkingPipeSession::~PPWorkingPipeSession()
+{
+}
+
+SBufferPipe * SLAPI PPWorkingPipeSession::GetInputPipe()
+{
+	InpPipe.Reset();
+	return &InpPipe;
+}
+
+//virtual
+void SLAPI PPWorkingPipeSession::Run()
+{
+}
+
+//virtual
+PPWorkerSession::CmdRet SLAPI PPWorkingPipeSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
+{
+	CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
+	if(ok == cmdretUnprocessed) {
+		/*
+		int    disable_err_reply = 0;
+		int    r = 0;
+		SString reply_buf, temp_buf, name, db_symb;
+		// (StartWriting уже был выполнен вызовом PPWorkerSession::ProcessCommand) THROW(rReply.StartWriting());
+		switch(pEv->GetH().Type) {
+			default:
+				CALLEXCEPT_PP(PPERR_INVSERVERCMD);
+				break;
+		}
+		CATCH
+			if(!disable_err_reply)
+				rReply.SetError();
+			PPErrorZ();
+			ok = cmdretError;
+		ENDCATCH
+		if(ok != cmdretResume)
+			rReply.FinishWriting();
+		*/
+	} // Если родительский класс вернул что-то отличное от cmdretUnprocessed, то - немедленный выход с этим результатом
+	return ok;
+}
 
 class PPServerSession : public /*PPThread*/PPWorkerSession {
 public:
@@ -2105,7 +2107,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::Helper_QueryNaturalToken(PPServer
 		PPTokenRecognizer tr;
 		PPNaturalTokenArray nta;
 		LAssocArray rel_obj_list;
-		tr.Run(token.ucptr(), nta, 0);
+		tr.Run(token.ucptr(), -1, nta, 0);
 		if(nta.Has(PPNTOK_EMAIL) > 0.0f) {
             PPIDArray psn_list;
             PPIDArray loc_list;
@@ -4270,7 +4272,7 @@ void SLAPI PPServerSession::Run()
 							break;
 						}
 					}
-					else if(cmd.Helper_Recv(So, P_TxtCmdTerminal, 0)) { // @v8.1.1 0-->P_TxtCmdTerminal
+					else if(cmd.Helper_Recv(So, P_TxtCmdTerminal, 0)) {
 						reply.Clear();
 						CmdRet cmdret = cmdretError;
 						switch(cmd.StartReading(&s)) {

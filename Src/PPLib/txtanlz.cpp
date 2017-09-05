@@ -55,11 +55,15 @@ int FASTCALL PPTokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 	russia: 8(999)999-99-99 (8 9999)99-99-99
 */
 
-int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rResultList, PPNaturalTokenStat * pStat)
+int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenArray & rResultList, PPNaturalTokenStat * pStat)
 {
 	int    ok = 1;
+	SString temp_buf;
     PPNaturalTokenStat stat;
-    stat.Len = sstrlen((const char *)pToken);
+    if(len >= 0)
+		stat.Len = (uint32)len;
+	else
+		stat.Len = sstrlen(pToken);
     if(stat.Len) {
 		enum {
 			hDec       = 0x0001,
@@ -72,8 +76,12 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
             h1251      = 0x0080,
             h866       = 0x0100,
             hDecLat    = 0x0200,
-            hHexHyphen = 0x0400,
-            hDecHyphen = 0x0800
+            hHexHyphen = 0x0400, // Только hex && -
+            hDecHyphen = 0x0800, // Только dec && -
+            hHexColon  = 0x1000, // Только hex && :
+            hDecColon  = 0x2000, // Только dec && :
+            hHexDot    = 0x1000, // Только hex && .
+            hDecDot    = 0x2000, // Только dec && .
 		};
 		enum {
 			fUtf8   = 0x0001
@@ -101,15 +109,16 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 		}
 		chr_list.Sort();
 		if(f & fUtf8) {
-			h &= ~(hDec|hHex|hLatLow|hLatUpp|hLat|hDecLat|hAscii|h866|h1251|hHexHyphen|hDecHyphen);
+			h &= ~(hDec|hHex|hLatLow|hLatUpp|hLat|hDecLat|hAscii|h866|h1251|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot);
 		}
 		else {
 			for(i = 0; i < chr_list.getCount(); i++) {
 				const uchar c = (uchar)chr_list.at(i).Key;
-				if(h & hAscii && !(c >= 1 && c <= 127))
+				if(h & hAscii && !(c >= 1 && c <= 127)) {
 					h &= ~hAscii;
+				}
 				else {
-					if(h & hLat && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+					if(h & hLat && !IsLetterASCII(c))
 						h &= ~hLat;
 					else {
 						if(h & hLatLow && !(c >= 'a' && c <= 'z'))
@@ -117,18 +126,26 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 						if(h & hLatUpp && !(c >= 'A' && c <= 'Z'))
 							h &= ~hLatUpp;
 					}
-					if(h & hHex && !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
+					if(h & hHex && !ishex(c))
 						h &= ~hHex;
 					else {
-						if(h & hDec && !(c >= '0' && c <= '9'))
+						if(h & hDec && !isdec(c))
 							h &= ~hDec;
 					}
-					if(h & hDecHyphen && !((c >= '0' && c <= '9') || c == '-'))
+					if(h & hDecHyphen && !(isdec(c) || c == '-'))
 						h &= ~hDecHyphen;
-					if(h & hHexHyphen && !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || c == '-'))
+					if(h & hHexHyphen && !(ishex(c) || c == '-'))
 						h &= ~hHexHyphen;
-					if(h & hDecLat && !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+					if(h & hDecLat && !(isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
 						h &= ~hDecLat;
+					if(h & hDecColon && !(isdec(c) || c == ':'))
+						h &= ~hDecColon;
+					if(h & hHexColon && !(ishex(c) || c == ':'))
+						h &= ~hHexColon;
+					if(h & hDecDot && !(isdec(c) || c == '.'))
+						h &= ~hDecDot;
+					if(h & hHexDot && !(ishex(c) || c == '.'))
+						h &= ~hHexDot;
 				}
 				if(h & h866 && !IsLetter866(c))
 					h &= ~h866;
@@ -136,7 +153,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 					h &= ~h1251;
 			}
 			if(!(h & hAscii)) {
-				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen);
+				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot);
 			}
 			else {
 				if(!(h & hHex))
@@ -222,7 +239,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 					break;
 			}
 		}
-		else if(h & hDecLat) {
+		if(h & hDecLat) {
             if(stat.Len == 68) {
                 rResultList.Add(PPNTOK_EGAISMARKCODE, 1.0f);
             }
@@ -230,7 +247,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 				rResultList.Add(PPNTOK_DIGLAT, 1.0f);
             }
 		}
-		else if(h & hHexHyphen) {
+		if(h & hHexHyphen) {
 			if(stat.Len == 36) {
 				uint   pos = 0;
 				long   val = 0;
@@ -239,16 +256,33 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, PPNaturalTokenArray & rRe
 				}
 			}
 		}
-		else {
-			if(h & hAscii) {
-				uint   pos = 0;
-				long   val = 0;
-                if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
-					size_t _offs = P_ReEMail->start();
-					size_t _len = P_ReEMail->end() - P_ReEMail->start();
-					if(_offs == 0 && _len == stat.Len)
-						rResultList.Add(PPNTOK_EMAIL, 1.0f);
+		if(h & hDecDot) {
+			// 1.1.1.1 255.255.255.255
+			if(stat.Len >= 7 && stat.Len <= 15) {
+				temp_buf.CatN((const char *)pToken, stat.Len);
+				StringSet ss;
+                temp_buf.Tokenize(".", ss);
+                if(ss.getCount() == 4) {
+					int   is_ip4 = 1;
+                    for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
+						long v = temp_buf.ToLong();
+						if(v < 0 || v > 255)
+							is_ip4 = 0;
+                    }
+					if(is_ip4) {
+						rResultList.Add(PPNTOK_IP4, 1.0f);
+					}
                 }
+			}
+		}
+		if(h & hAscii) {
+			uint   pos = 0;
+			long   val = 0;
+			if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
+				size_t _offs = P_ReEMail->start();
+				size_t _len = P_ReEMail->end() - P_ReEMail->start();
+				if(_offs == 0 && _len == stat.Len)
+					rResultList.Add(PPNTOK_EMAIL, 1.0f);
 			}
 		}
     }

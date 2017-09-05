@@ -1999,9 +1999,11 @@ int PPViewBrowser::Export()
 		SString fmt, fmt_rus;
 		SString temp_buf;
 		PPIDArray width_ary;
-		char   buf[1024];
-		::GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf)); // @unicodeproblem
-		dec.Cat(buf);
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
 		THROW_MEM(p_app = new ComExcelApp);
 		THROW(p_app->Init() > 0);
 		THROW(p_wkbook = p_app->AddWkbook());

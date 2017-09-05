@@ -517,15 +517,10 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r,
 	int rc;
 	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "gunzip inflate end");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "gunzip inflate end");
 	rc = inflateEnd(&ctx->zstream);
-
 	if(rc != Z_OK) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-		    "inflateEnd() failed: %d", rc);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, "inflateEnd() failed: %d", rc);
 		return NGX_ERROR;
 	}
 

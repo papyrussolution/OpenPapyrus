@@ -5,16 +5,12 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-
 /*
  * The red-black tree code is based on the algorithm described in
  * the "Introduction to Algorithms" by Cormen, Leiserson and Rivest.
  */
-
-static ngx_inline void ngx_rbtree_left_rotate(ngx_rbtree_node_t ** root,
-    ngx_rbtree_node_t * sentinel, ngx_rbtree_node_t * node);
-static ngx_inline void ngx_rbtree_right_rotate(ngx_rbtree_node_t ** root,
-    ngx_rbtree_node_t * sentinel, ngx_rbtree_node_t * node);
+static ngx_inline void ngx_rbtree_left_rotate(ngx_rbtree_node_t ** root, ngx_rbtree_node_t * sentinel, ngx_rbtree_node_t * node);
+static ngx_inline void ngx_rbtree_right_rotate(ngx_rbtree_node_t ** root, ngx_rbtree_node_t * sentinel, ngx_rbtree_node_t * node);
 
 void ngx_rbtree_insert(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 {
@@ -64,14 +60,12 @@ void ngx_rbtree_insert(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 					node = node->parent;
 					ngx_rbtree_right_rotate(root, sentinel, node);
 				}
-
 				ngx_rbt_black(node->parent);
 				ngx_rbt_red(node->parent->parent);
 				ngx_rbtree_left_rotate(root, sentinel, node->parent->parent);
 			}
 		}
 	}
-
 	ngx_rbt_black(*root);
 }
 
@@ -152,14 +146,12 @@ void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 		return;
 	}
 	red = ngx_rbt_is_red(subst);
-
 	if(subst == subst->parent->left) {
 		subst->parent->left = temp;
 	}
 	else {
 		subst->parent->right = temp;
 	}
-
 	if(subst == node) {
 		temp->parent = subst->parent;
 	}
@@ -197,24 +189,19 @@ void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 	node->right = NULL;
 	node->parent = NULL;
 	node->key = 0;
-
 	if(red) {
 		return;
 	}
-
 	/* a delete fixup */
-
 	while(temp != *root && ngx_rbt_is_black(temp)) {
 		if(temp == temp->parent->left) {
 			w = temp->parent->right;
-
 			if(ngx_rbt_is_red(w)) {
 				ngx_rbt_black(w);
 				ngx_rbt_red(temp->parent);
 				ngx_rbtree_left_rotate(root, sentinel, temp->parent);
 				w = temp->parent->right;
 			}
-
 			if(ngx_rbt_is_black(w->left) && ngx_rbt_is_black(w->right)) {
 				ngx_rbt_red(w);
 				temp = temp->parent;
@@ -226,7 +213,6 @@ void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 					ngx_rbtree_right_rotate(root, sentinel, w);
 					w = temp->parent->right;
 				}
-
 				ngx_rbt_copy_color(w, temp->parent);
 				ngx_rbt_black(temp->parent);
 				ngx_rbt_black(w->right);
@@ -236,14 +222,12 @@ void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 		}
 		else {
 			w = temp->parent->left;
-
 			if(ngx_rbt_is_red(w)) {
 				ngx_rbt_black(w);
 				ngx_rbt_red(temp->parent);
 				ngx_rbtree_right_rotate(root, sentinel, temp->parent);
 				w = temp->parent->left;
 			}
-
 			if(ngx_rbt_is_black(w->left) && ngx_rbt_is_black(w->right)) {
 				ngx_rbt_red(w);
 				temp = temp->parent;
@@ -268,7 +252,7 @@ void ngx_rbtree_delete(ngx_rbtree_t * tree, ngx_rbtree_node_t * node)
 
 static ngx_inline void ngx_rbtree_left_rotate(ngx_rbtree_node_t ** root, ngx_rbtree_node_t * sentinel, ngx_rbtree_node_t * node)
 {
-	ngx_rbtree_node_t  * temp = node->right;
+	ngx_rbtree_node_t * temp = node->right;
 	node->right = temp->left;
 	if(temp->left != sentinel) {
 		temp->left->parent = node;
@@ -315,16 +299,18 @@ const ngx_rbtree_node_t * ngx_rbtree_next(const ngx_rbtree_t * tree, const ngx_r
 	if(node->right != sentinel) {
 		return ngx_rbtree_min(node->right, sentinel);
 	}
-	root = tree->root;
-	for(;; ) {
-		parent = node->parent;
-		if(node == root) {
-			return NULL;
+	else {
+		root = tree->root;
+		for(;; ) {
+			parent = node->parent;
+			if(node == root) {
+				return NULL;
+			}
+			else if(node == parent->left) {
+				return parent;
+			}
+			else
+				node = parent;
 		}
-		if(node == parent->left) {
-			return parent;
-		}
-		node = parent;
 	}
 }
-

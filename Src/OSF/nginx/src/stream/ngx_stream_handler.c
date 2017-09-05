@@ -190,25 +190,17 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 	ngx_connection_t  * c;
 	ngx_stream_session_t * s;
 	ngx_stream_core_srv_conf_t  * cscf;
-
 	c = (ngx_connection_t*)rev->data;
 	s = (ngx_stream_session_t*)c->data;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0,
-	    "stream PROXY protocol handler");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream PROXY protocol handler");
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
 		ngx_stream_finalize_session(s, NGX_STREAM_OK);
 		return;
 	}
-
 	n = recv(c->fd, (char*)buf, sizeof(buf), MSG_PEEK);
-
 	err = ngx_socket_errno;
-
 	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0, "recv(): %z", n);
-
 	if(n == -1) {
 		if(err == NGX_EAGAIN) {
 			rev->ready = 0;

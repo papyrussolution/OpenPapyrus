@@ -13,9 +13,9 @@
 	//#include <ngx_thread_pool.h>
 	//
 	struct ngx_thread_task_s {
-		ngx_thread_task_t   * next;
+		ngx_thread_task_t * next;
 		ngx_uint_t id;
-		void                * ctx;
+		void * ctx;
 		void (* handler)(void * data, ngx_log_t * log);
 		ngx_event_t event;
 	};
@@ -228,16 +228,13 @@ typedef struct {
 
 typedef struct {
 	ngx_http_listen_opt_t opt;
-
 	ngx_hash_t hash;
 	ngx_hash_wildcard_t  * wc_head;
 	ngx_hash_wildcard_t  * wc_tail;
-
 #if (NGX_PCRE)
 	ngx_uint_t nregex;
 	ngx_http_server_name_t  * regex;
 #endif
-
 	/* the default server configuration for this address:port */
 	ngx_http_core_srv_conf_t  * default_server;
 	ngx_array_t servers;             /* array of ngx_http_core_srv_conf_t */
@@ -252,18 +249,14 @@ typedef struct {
 
 struct ngx_http_core_loc_conf_s {
 	ngx_str_t name;          /* location name */
-
 #if (NGX_PCRE)
 	ngx_http_regex_t  * regex;
 #endif
-
 	unsigned noname : 1;  /* "if () {}" block or limit_except */
 	unsigned lmt_excpt : 1;
 	unsigned named : 1;
-
 	unsigned exact_match : 1;
 	unsigned noregex : 1;
-
 	unsigned auto_redirect : 1;
 #if (NGX_HTTP_GZIP)
 	unsigned gzip_disable_msie6 : 2;

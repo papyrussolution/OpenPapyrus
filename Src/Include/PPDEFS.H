@@ -437,6 +437,7 @@
 	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
 	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
+	#define PPPRK_DTO           16L // @v9.8.0 Оператораы передачи данных
 
 #define PPOBJ_PRSNSTATUS     9L  // $ Юридические статусы персоналий
 	#define PPPRS_PRIVATE        1L // Физическое лицо
@@ -756,6 +757,7 @@
 	#define PPREGT_COUNTRYABBR  14 // @v7.1.12 Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
 	#define PPREGT_COUNTRYCODE  15 // @v7.1.12 Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
 	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
+	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
@@ -1215,6 +1217,11 @@
 #define PPTAG_POSNODE_UUID          61L // @v9.6.5  UUID кассового узла
 #define PPTAG_POSNODE_HOSTUUID      62L // @v9.6.5  UUID управляющего кассового узла (для синхронных кассовый узлов Papyrus)
 #define PPTAG_BILL_STATECONTRACTID  63L // @v9.7.5  ИД государственного контракта (для счетов-фактур)
+#define PPTAG_PERSON_ENALOGID       64L // @v9.8.0  ИД участника документооборота (nalog.ru)
+#define PPTAG_BILL_COMPLEMENTARY    65L // @v9.8.0  Формальная текстовая ссылка на комплементарный (парный) документ.
+	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
+	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
+	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //

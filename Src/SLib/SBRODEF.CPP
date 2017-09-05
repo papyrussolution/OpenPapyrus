@@ -6,46 +6,39 @@
 #pragma hdrstop
 #include <db.h>
 //
-int SBrowserDataProcBlock::SetZero()
+void SBrowserDataProcBlock::SetZero()
 {
 	PTR8(P_DestData)[0] = 0;
-	return 1;
 }
 
-int FASTCALL SBrowserDataProcBlock::Set(int32 i)
+void FASTCALL SBrowserDataProcBlock::Set(int32 i)
 {
     *(int32 *)P_DestData = i;
-    return 1;
 }
 
-int SBrowserDataProcBlock::Set(double r)
+void SBrowserDataProcBlock::Set(double r)
 {
     *(double *)P_DestData = r;
-    return 1;
 }
 
-int FASTCALL SBrowserDataProcBlock::Set(const char * pS)
+void FASTCALL SBrowserDataProcBlock::Set(const char * pS)
 {
 	strnzcpy((char *)P_DestData, pS, stsize(TypeID));
-	return 1;
 }
 
-int FASTCALL SBrowserDataProcBlock::Set(const SString & rS)
+void FASTCALL SBrowserDataProcBlock::Set(const SString & rS)
 {
 	rS.CopyTo((char *)P_DestData, stsize(TypeID));
-	return 1;
 }
 
-int FASTCALL SBrowserDataProcBlock::Set(LDATE dt)
+void FASTCALL SBrowserDataProcBlock::Set(LDATE dt)
 {
 	*(LDATE *)P_DestData = dt;
-	return 1;
 }
 
-int FASTCALL SBrowserDataProcBlock::Set(LTIME tm)
+void FASTCALL SBrowserDataProcBlock::Set(LTIME tm)
 {
 	*(LTIME *)P_DestData = tm;
-	return 1;
 }
 //
 //
@@ -101,6 +94,7 @@ BroColumn & FASTCALL BrowserDef::at(uint pos) const
 
 int SLAPI BrowserDef::addColumn(const BroColumn * pCol, int pos)
 {
+	int    ok = 1;
 	if(pos == UNDEF)
 		pos = count;
 	BroColumn col = *pCol; // @attention Передача указателя BroColumn::text //
@@ -121,7 +115,11 @@ int SLAPI BrowserDef::addColumn(const BroColumn * pCol, int pos)
 	}
 	col.width = SFMTLEN(f);
 	col.format = f;
-	return atInsert(pos, &col) ? initOffset(pos) : 0;
+	if(atInsert(pos, &col))
+		initOffset(pos);
+	else
+		ok = 0;
+	return ok;
 }
 
 #pragma warn +rng
@@ -162,7 +160,7 @@ int SLAPI BrowserDef::setColumnTitle(int colN, const char * pText)
 		return 0;
 }
 
-int SLAPI BrowserDef::initOffset(int pos)
+void SLAPI BrowserDef::initOffset(int pos)
 {
 	BroColumn & r_column = at(pos);
 	if(r_column.Offs == UNDEF)
@@ -172,7 +170,6 @@ int SLAPI BrowserDef::initOffset(int pos)
 		}
 		else
 			r_column.Offs = 0;
-	return 1;
 }
 
 int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
@@ -194,12 +191,15 @@ int SLAPI BrowserDef::addGroup(BroGroup * pGroup)
 
 int SLAPI BrowserDef::AddCrosstab(BroCrosstab * pCt)
 {
+	/* @v9.8.0
 	if(P_CtList == 0) {
 		P_CtList = new SArray(sizeof(BroCrosstab));
 		if(!P_CtList)
 			return (SLibError = SLERR_NOMEM, 0);
 	}
 	return P_CtList->insert(pCt);
+	*/
+	return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0; // @v9.8.0
 }
 
 uint  SLAPI BrowserDef::GetCrosstabCount() const

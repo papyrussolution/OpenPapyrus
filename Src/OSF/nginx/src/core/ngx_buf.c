@@ -219,4 +219,3 @@ ngx_chain_t * ngx_chain_update_sent(ngx_chain_t * in, nginx_off_t sent)
 	}
 	return in;
 }
-

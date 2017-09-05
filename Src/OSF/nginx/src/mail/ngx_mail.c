@@ -299,28 +299,21 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 #if (NGX_MAIL_SSL)
 		addrs[i].conf.ssl = addr[i].opt.ssl;
 #endif
-
-		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen,
-		    buf, NGX_SOCKADDR_STRLEN, 1);
-
+		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
 		p = (u_char*)ngx_pnalloc(cf->pool, len);
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-
 		memcpy(p, buf, len);
-
 		addrs[i].conf.addr_text.len = len;
 		addrs[i].conf.addr_text.data = p;
 	}
-
 	return NGX_OK;
 }
 
 #if (NGX_HAVE_INET6)
 
-static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport,
-    ngx_mail_conf_addr_t * addr)
+static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport, ngx_mail_conf_addr_t * addr)
 {
 	u_char * p;
 	size_t len;
@@ -358,23 +351,15 @@ static ngx_int_t ngx_mail_cmp_conf_addrs(const void * one, const void * two)
 {
 	ngx_mail_conf_addr_t  * first = (ngx_mail_conf_addr_t*)one;
 	ngx_mail_conf_addr_t  * second = (ngx_mail_conf_addr_t*)two;
-	if(first->opt.wildcard) {
-		/* a wildcard must be the last resort, shift it to the end */
-		return 1;
-	}
-	if(second->opt.wildcard) {
-		/* a wildcard must be the last resort, shift it to the end */
-		return -1;
-	}
-	if(first->opt.bind && !second->opt.bind) {
-		/* shift explicit bind()ed addresses to the start */
-		return -1;
-	}
-	if(!first->opt.bind && second->opt.bind) {
-		/* shift explicit bind()ed addresses to the start */
-		return 1;
-	}
-	/* do not sort by default */
-	return 0;
+	if(first->opt.wildcard)
+		return 1; // a wildcard must be the last resort, shift it to the end 
+	else if(second->opt.wildcard)
+		return -1; // a wildcard must be the last resort, shift it to the end 
+	else if(first->opt.bind && !second->opt.bind)
+		return -1; // shift explicit bind()ed addresses to the start 
+	else if(!first->opt.bind && second->opt.bind)
+		return 1; // shift explicit bind()ed addresses to the start 
+	else
+		return 0; // do not sort by default 
 }
 

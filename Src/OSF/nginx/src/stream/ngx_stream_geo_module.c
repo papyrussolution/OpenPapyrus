@@ -262,32 +262,23 @@ static ngx_int_t ngx_stream_geo_addr(ngx_stream_session_t * s, ngx_stream_geo_ct
 	ngx_stream_variable_value_t  * v;
 
 	if(ctx->index == -1) {
-		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-		    "stream geo started: %V", &s->connection->addr_text);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream geo started: %V", &s->connection->addr_text);
 		addr->sockaddr = s->connection->sockaddr;
 		addr->socklen = s->connection->socklen;
 		/* addr->name = s->connection->addr_text; */
-
 		return NGX_OK;
 	}
 
 	v = ngx_stream_get_flushed_variable(s, ctx->index);
 
 	if(v == NULL || v->not_found) {
-		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-		    "stream geo not found");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream geo not found");
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "stream geo started: %v", v);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream geo started: %v", v);
 	if(ngx_parse_addr(s->connection->pool, addr, v->data, v->len) == NGX_OK) {
 		return NGX_OK;
 	}
-
 	return NGX_ERROR;
 }
 

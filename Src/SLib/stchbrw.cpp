@@ -2269,6 +2269,76 @@ void STimeChunkBrowser::DrawMoveSpot(TCanvas & rCanv, TPoint p)
 	}
 }
 
+// @construction
+int STimeChunkBrowser::CopyToClipboard()
+{
+	int    ok = 1;
+	if(P.ViewType == P.vHourDay) {
+		const char * p_fontface_tnr = "Times New Roman";
+		long   row = 0;
+		SString temp_buf;
+		SString dow_buf;
+		SylkWriter sw(0);
+		sw.PutRec("ID", "PPapyrus");
+		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+		sw.PutFont('F', p_fontface_tnr, 8,  0);
+		sw.PutRec('F', "G");
+		{
+			row = 1;
+			long   column = 2;
+			for(long quant = 0; ; quant++) {
+				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				if(dt <= St.Bounds.Finish.d) {
+					if(IsQuantVisible(quant)) {
+						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+
+						sw.PutFormat("FC0L", 1, column, row);
+						sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+						sw.PutVal(temp_buf, 1);
+						column++;
+					}
+				}
+				else
+					break;
+			}
+		}
+		{
+			uint   time_quant = 15 * 60; // 15 minuts
+			row = 2;
+			for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
+				long   column = 1;
+				sw.PutFormat("FC0L", 1, column, row);
+				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+				LTIME   tm_start;
+				LTIME   tm_end;
+				tm_start.settotalsec(time_band);
+				tm_end.settotalsec(time_band+time_quant-1);
+				sw.PutVal(temp_buf.Z().Cat(tm_start, TIMF_HM), 1);
+				for(long quant = 0; ; quant++) {
+					const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+					if(dt <= St.Bounds.Finish.d) {
+						if(IsQuantVisible(quant)) {
+							GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+							temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+
+							sw.PutFormat("FC0L", 1, column, row);
+							sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+							sw.PutVal(temp_buf, 1);
+							column++;
+						}
+					}
+					else
+						break;
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 void STimeChunkBrowser::Paint()
 {
 	PAINTSTRUCT ps;
@@ -2313,8 +2383,8 @@ void STimeChunkBrowser::Paint()
 		canv.SetTextColor(Ptb.GetColor(colorBlackText));
 		x = a2.Left.a.x;
 		y = a2.Left.a.y;
-		int    start_hour = view_time_bounds.Start.t.hour();
-		int    end_hour = view_time_bounds.Finish.t.hour();
+		const int start_hour = view_time_bounds.Start.t.hour();
+		const int end_hour = view_time_bounds.Finish.t.hour();
 		for(i = start_hour; i <= (uint)end_hour; i++) {
 			TRect ir(x, y, a2.Right.b.x, y + a2.PixPerHour);
 			if(!hinterlace)

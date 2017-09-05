@@ -241,37 +241,22 @@ static ngx_http_ssi_param_t ngx_http_ssi_no_params[] = {
 };
 
 static ngx_http_ssi_command_t ngx_http_ssi_commands[] = {
-	{ ngx_string("include"), ngx_http_ssi_include,
-	  ngx_http_ssi_include_params, 0, 0, 1 },
-	{ ngx_string("echo"), ngx_http_ssi_echo,
-	  ngx_http_ssi_echo_params, 0, 0, 0 },
-	{ ngx_string("config"), ngx_http_ssi_config,
-	  ngx_http_ssi_config_params, 0, 0, 0 },
+	{ ngx_string("include"), ngx_http_ssi_include, ngx_http_ssi_include_params, 0, 0, 1 },
+	{ ngx_string("echo"), ngx_http_ssi_echo, ngx_http_ssi_echo_params, 0, 0, 0 },
+	{ ngx_string("config"), ngx_http_ssi_config, ngx_http_ssi_config_params, 0, 0, 0 },
 	{ ngx_string("set"), ngx_http_ssi_set, ngx_http_ssi_set_params, 0, 0, 0 },
-
 	{ ngx_string("if"), ngx_http_ssi_if, ngx_http_ssi_if_params, 0, 0, 0 },
-	{ ngx_string("elif"), ngx_http_ssi_if, ngx_http_ssi_if_params,
-	  NGX_HTTP_SSI_COND_IF, 0, 0 },
-	{ ngx_string("else"), ngx_http_ssi_else, ngx_http_ssi_no_params,
-	  NGX_HTTP_SSI_COND_IF, 0, 0 },
-	{ ngx_string("endif"), ngx_http_ssi_endif, ngx_http_ssi_no_params,
-	  NGX_HTTP_SSI_COND_ELSE, 0, 0 },
-
-	{ ngx_string("block"), ngx_http_ssi_block,
-	  ngx_http_ssi_block_params, 0, 0, 0 },
-	{ ngx_string("endblock"), ngx_http_ssi_endblock,
-	  ngx_http_ssi_no_params, 0, 1, 0 },
-
+	{ ngx_string("elif"), ngx_http_ssi_if, ngx_http_ssi_if_params, NGX_HTTP_SSI_COND_IF, 0, 0 },
+	{ ngx_string("else"), ngx_http_ssi_else, ngx_http_ssi_no_params, NGX_HTTP_SSI_COND_IF, 0, 0 },
+	{ ngx_string("endif"), ngx_http_ssi_endif, ngx_http_ssi_no_params, NGX_HTTP_SSI_COND_ELSE, 0, 0 },
+	{ ngx_string("block"), ngx_http_ssi_block, ngx_http_ssi_block_params, 0, 0, 0 },
+	{ ngx_string("endblock"), ngx_http_ssi_endblock, ngx_http_ssi_no_params, 0, 1, 0 },
 	{ ngx_null_string, NULL, NULL, 0, 0, 0 }
 };
 
 static ngx_http_variable_t ngx_http_ssi_vars[] = {
-	{ ngx_string("date_local"), NULL, ngx_http_ssi_date_gmt_local_variable, 0,
-	  NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("date_gmt"), NULL, ngx_http_ssi_date_gmt_local_variable, 1,
-	  NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
+	{ ngx_string("date_local"), NULL, ngx_http_ssi_date_gmt_local_variable, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("date_gmt"), NULL, ngx_http_ssi_date_gmt_local_variable, 1, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 	{ ngx_null_string, NULL, NULL, 0, 0, 0 }
 };
 
@@ -436,8 +421,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 					ctx->last_out = &cl->next;
 				}
 				else {
-					if(ctx->block
-					    && ctx->saved + (ctx->copy_end - ctx->copy_start)) {
+					if(ctx->block && ctx->saved + (ctx->copy_end - ctx->copy_start)) {
 						b = ngx_create_temp_buf(r->pool, ctx->saved + (ctx->copy_end - ctx->copy_start));
 						if(b == NULL) {
 							return NGX_ERROR;
@@ -458,14 +442,11 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 						for(ll = &bl[mctx->blocks->nelts - 1].bufs; *ll; ll = &(*ll)->next) {
 							/* void */
 						}
-
 						*ll = cl;
 					}
-
 					ctx->saved = 0;
 				}
 			}
-
 			if(ctx->state == ssi_start_state) {
 				ctx->copy_start = ctx->pos;
 				ctx->copy_end = ctx->pos;
@@ -474,45 +455,33 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				ctx->copy_start = NULL;
 				ctx->copy_end = NULL;
 			}
-
 			if(rc == NGX_AGAIN) {
 				continue;
 			}
-
 			b = NULL;
-
 			if(rc == NGX_OK) {
 				smcf = (ngx_http_ssi_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_ssi_filter_module);
 				cmd = (ngx_http_ssi_command_t *)ngx_hash_find(&smcf->hash, ctx->key, ctx->command.data, ctx->command.len);
 				if(cmd == NULL) {
 					if(ctx->output) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-						    "invalid SSI command: \"%V\"",
-						    &ctx->command);
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid SSI command: \"%V\"", &ctx->command);
 						goto ssi_error;
 					}
-
 					continue;
 				}
-
 				if(!ctx->output && !cmd->block) {
 					if(ctx->block) {
 						/* reconstruct the SSI command text */
-
 						len = 5 + ctx->command.len + 4;
-
 						param = (ngx_table_elt_t *)ctx->params.elts;
 						for(i = 0; i < ctx->params.nelts; i++) {
 							len += 1 + param[i].key.len + 2
 							    + param[i].value.len + 1;
 						}
-
 						b = ngx_create_temp_buf(r->pool, len);
-
 						if(b == NULL) {
 							return NGX_ERROR;
 						}
-
 						cl = ngx_alloc_chain_link(r->pool);
 						if(cl == NULL) {
 							return NGX_ERROR;
@@ -2339,16 +2308,12 @@ static ngx_int_t ngx_http_ssi_else(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_ssi_endif(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx,
-    ngx_str_t ** params)
+static ngx_int_t ngx_http_ssi_endif(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx, ngx_str_t ** params)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi endif");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi endif");
 	ctx->output = 1;
 	ctx->output_chosen = 0;
 	ctx->conditional = 0;
-
 	return NGX_OK;
 }
 
@@ -2484,21 +2449,20 @@ static char * ngx_http_ssi_init_main_conf(ngx_conf_t * cf, void * conf)
 static void * ngx_http_ssi_create_loc_conf(ngx_conf_t * cf)
 {
 	ngx_http_ssi_loc_conf_t * slcf = (ngx_http_ssi_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_ssi_loc_conf_t));
-	if(slcf == NULL) {
-		return NULL;
+	if(slcf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     conf->types = { NULL };
+		 *     conf->types_keys = NULL;
+		 */
+		slcf->enable = NGX_CONF_UNSET;
+		slcf->silent_errors = NGX_CONF_UNSET;
+		slcf->ignore_recycled_buffers = NGX_CONF_UNSET;
+		slcf->last_modified = NGX_CONF_UNSET;
+		slcf->min_file_chunk = NGX_CONF_UNSET_SIZE;
+		slcf->value_len = NGX_CONF_UNSET_SIZE;
 	}
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     conf->types = { NULL };
-	 *     conf->types_keys = NULL;
-	 */
-	slcf->enable = NGX_CONF_UNSET;
-	slcf->silent_errors = NGX_CONF_UNSET;
-	slcf->ignore_recycled_buffers = NGX_CONF_UNSET;
-	slcf->last_modified = NGX_CONF_UNSET;
-	slcf->min_file_chunk = NGX_CONF_UNSET_SIZE;
-	slcf->value_len = NGX_CONF_UNSET_SIZE;
 	return slcf;
 }
 

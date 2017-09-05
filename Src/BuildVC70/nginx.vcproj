@@ -2755,12 +2755,6 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_event_pipe.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event_posted.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event_timer.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http.h">
 			</File>
 			<File

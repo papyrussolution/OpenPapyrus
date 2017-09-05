@@ -1,9 +1,7 @@
-
 /*
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
-
 #ifndef _NGX_STREAM_UPSTREAM_H_INCLUDED_
 #define _NGX_STREAM_UPSTREAM_H_INCLUDED_
 
@@ -29,10 +27,8 @@ typedef struct {
 
 typedef struct ngx_stream_upstream_srv_conf_s ngx_stream_upstream_srv_conf_t;
 
-typedef ngx_int_t (*ngx_stream_upstream_init_pt)(ngx_conf_t * cf,
-    ngx_stream_upstream_srv_conf_t * us);
-typedef ngx_int_t (*ngx_stream_upstream_init_peer_pt)(ngx_stream_session_t * s,
-    ngx_stream_upstream_srv_conf_t * us);
+typedef ngx_int_t (*ngx_stream_upstream_init_pt)(ngx_conf_t * cf, ngx_stream_upstream_srv_conf_t * us);
+typedef ngx_int_t (*ngx_stream_upstream_init_peer_pt)(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us);
 
 typedef struct {
 	ngx_stream_upstream_init_pt init_upstream;
@@ -49,10 +45,8 @@ typedef struct {
 	ngx_uint_t max_fails;
 	time_t fail_timeout;
 	ngx_msec_t slow_start;
-
 	unsigned down : 1;
 	unsigned backup : 1;
-
 	NGX_COMPAT_BEGIN(4)
 	NGX_COMPAT_END
 } ngx_stream_upstream_server_t;
@@ -86,24 +80,18 @@ typedef struct {
 	ngx_str_t host;
 	in_port_t port;
 	ngx_uint_t no_port;                     /* unsigned no_port:1 */
-
 	ngx_uint_t naddrs;
 	ngx_resolver_addr_t * addrs;
-
 	struct sockaddr * sockaddr;
-
 	socklen_t socklen;
 	ngx_str_t name;
-
 	ngx_resolver_ctx_t  * ctx;
 } ngx_stream_upstream_resolved_t;
 
 typedef struct {
 	ngx_peer_connection_t peer;
-
 	ngx_buf_t downstream_buf;
 	ngx_buf_t upstream_buf;
-
 	ngx_chain_t   * free;
 	ngx_chain_t   * upstream_out;
 	ngx_chain_t   * upstream_busy;
@@ -120,12 +108,9 @@ typedef struct {
 	unsigned proxy_protocol : 1;
 } ngx_stream_upstream_t;
 
-ngx_stream_upstream_srv_conf_t * ngx_stream_upstream_add(ngx_conf_t * cf,
-    ngx_url_t * u, ngx_uint_t flags);
+ngx_stream_upstream_srv_conf_t * ngx_stream_upstream_add(ngx_conf_t * cf, ngx_url_t * u, ngx_uint_t flags);
 
-#define ngx_stream_conf_upstream_srv_conf(uscf, module)			      \
-	uscf->srv_conf[module.ctx_index]
-
+#define ngx_stream_conf_upstream_srv_conf(uscf, module) uscf->srv_conf[module.ctx_index]
 extern ngx_module_t ngx_stream_upstream_module;
 
 #endif /* _NGX_STREAM_UPSTREAM_H_INCLUDED_ */

@@ -15,8 +15,8 @@ typedef ngx_int_t (*ngx_event_pipe_input_filter_pt)(ngx_event_pipe_t * p, ngx_bu
 typedef ngx_int_t (*ngx_event_pipe_output_filter_pt)(void * data, ngx_chain_t * chain);
 
 struct ngx_event_pipe_s {
-	ngx_connection_t  * upstream;
-	ngx_connection_t  * downstream;
+	ngx_connection_t * upstream;
+	ngx_connection_t * downstream;
 	ngx_chain_t  * free_raw_bufs;
 	ngx_chain_t  * in;
 	ngx_chain_t ** last_in;

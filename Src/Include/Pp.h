@@ -114,10 +114,10 @@
 #include <report.h>
 #include <snet.h>
 #include <stylopalm.h>
-#include <stylobhtII.h>
+#include <stylobhtii.h>
 #include <ppedi.h>
 #include <wininet.h>
-#include <..\Rsrc\STR\ppstr2.h> // @v9.0.3 перенесено из конца файла сюда
+#include <..\rsrc\str\ppstr2.h> // @v9.0.3 перенесено из конца файла сюда
 #ifdef _MSC_VER
 	#pragma intrinsic (fabs)
 #else
@@ -303,6 +303,7 @@ class  SrGeoNodeTbl;
 class  PPTextAnalyzerWrapper;
 class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
+class  CPosNodeBlock;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -5423,8 +5424,8 @@ public:
 		plfLoggedIn = 0x0001 // Вызывающая сессия авторизована в базе данных
 	};
 	int    FASTCALL ParseLine(const SString & rLine, long flags);
-	int    FASTCALL PutParam(int parid, const char * pVal); // @v9.8.0 
-	int    FASTCALL GetParam(int parid, SString & rVal) const; // @v9.8.0 
+	int    FASTCALL PutParam(int parid, const char * pVal); // @v9.8.0
+	int    FASTCALL GetParam(int parid, SString & rVal) const; // @v9.8.0
 	void   SLAPI ClearParams(); // @v9.8.0
 
 	long   SessID;   // Идентификатор сессии, к которой отправлен запрос
@@ -6428,6 +6429,70 @@ private:
 	SString Text;
 	SString LastMsg_;
 	int32   UniqueSessID;
+};
+
+class PPWorkerSession : public PPThread {
+public:
+	SLAPI  PPWorkerSession(int threadKind);
+	virtual SLAPI ~PPWorkerSession();
+	virtual void SLAPI Shutdown();
+protected:
+	//
+	// Descr: Коды возврата функции ProcessCommand
+	//
+	enum CmdRet {
+		cmdretError          = 0,
+		cmdretOK             = 1,
+		cmdretQuit           = 100, // После обработки команды следует завершить сеанс.
+		cmdretResume         = 101, // Команда восстановления сеанса. Необходимо завершить текущий сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
+		cmdretSuspend        = 102, // Была обработана команда SUSPEND.  Сеанс входит в режим ожидания восстановления (timeout = SuspendTimeout)
+		cmdretStyloBhtIIMode = 103, // Сессия должна войти в режим обмена с устройством StyloBHT II
+		cmdretUnprocessed    = 104  // @v9.8.0 Команда не обработана. Базовый класс может вернуть этот результат, предполагая,
+			// что порожденный класс или вызывающая функция обработает команду самостоятельно.
+	};
+	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	CmdRet SLAPI Helper_QueryNaturalToken(PPServerCmd * pEv, PPJobSrvReply & rReply);
+	int    SLAPI SetupTxtCmdTerm(int code);
+	SString & SLAPI GetTxtCmdTermMnemonic(SString & rBuf) const;
+	void   FASTCALL RealeasFtbEntry(uint pos);
+	enum {
+		tfvStart,
+		tfvNext,
+		tfvFinish,
+		tfvCancel
+	};
+	CmdRet SLAPI TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply);
+	int    SLAPI FinishReceivingFile(PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
+	enum {
+		stLoggedIn  = 0x0001,
+		stDebugMode = 0x0002  // @v8.3.4 Отладочный режим (вывод дополнительных данных в журналы)
+	};
+	long   State;   //
+	long   Counter; // Счетчик, используемый для получения уникального значения, с помощью которого
+		// можно синхронизировать действия с клиентом
+	CPosNodeBlock * P_CPosBlk;
+	//
+	// Descr: Управляющая структура для сохранения состояния пересылки файла
+	//
+	struct FTB {
+		SLAPI  FTB();
+		SLAPI ~FTB();
+
+		enum {
+			kGeneric = 0,
+			kObjImage
+		};
+		int32  Cookie;
+		int32  Kind;
+		int64  Offs;
+		PPID   ObjType;
+		PPID   ObjID;
+		PPJobSrvProtocol::TransmitFileBlock Tfb;
+		SFile * P_F;
+	};
+	TSCollection <FTB> FtbList;
+	SString HelloReplyText; // @fastreuse (команда HELLO)
+	const char * P_TxtCmdTerminal;
 };
 //
 //
@@ -29073,7 +29138,8 @@ public:
 	//
 	enum { // @persistent
 		pfUndef = 0,
-		pfNalogR_Invoice = 1 //
+		pfNalogR_Invoice  = 1, //
+		pfNalogR_REZRUISP = 2
 	};
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
@@ -45125,6 +45191,9 @@ private:
 #define PPNTOK_EMAIL         13 // Адрес электронной почты
 #define PPNTOK_PHONE         14 // Номер телефона
 #define PPNTOK_IMEI          15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
+#define PPNTOK_IP4           16 // ip4-address xx.xx.xx.xx
+#define PPNTOK_IP6           17 // @todo ip6-address
+#define PPNTOK_MACADDR48     18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
 
 #define PPNTOKSEQ_DEC        1 // 0-9
 #define PPNTOKSEQ_HEX        2 // A-F||a-f
@@ -45157,7 +45226,11 @@ class PPTokenRecognizer : public SRegExpSet {
 public:
 	SLAPI  PPTokenRecognizer();
 	SLAPI ~PPTokenRecognizer();
-	int    SLAPI Run(const uchar * pToken, PPNaturalTokenArray & rResultList, PPNaturalTokenStat * pStat);
+	//
+	// Descr: Функция пытается идентифицировать natural token в строке pToken длиной len.
+	//   Если len < 0, то просматривается sstrlen(pToken) символов
+	//
+	int    SLAPI Run(const uchar * pToken, int len, PPNaturalTokenArray & rResultList, PPNaturalTokenStat * pStat);
 private:
 	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
 };

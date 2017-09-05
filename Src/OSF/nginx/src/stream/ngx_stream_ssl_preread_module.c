@@ -114,14 +114,12 @@ static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s)
 
 	while(last - p >= 5) {
 		if(p[0] != 0x16) {
-			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0,
-			    "ssl preread: not a handshake");
+			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0, "ssl preread: not a handshake");
 			return NGX_DECLINED;
 		}
 
 		if(p[1] != 3) {
-			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0,
-			    "ssl preread: unsupported SSL version");
+			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0, "ssl preread: unsupported SSL version");
 			return NGX_DECLINED;
 		}
 
@@ -201,8 +199,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 
 			case sw_header:
 			    if(p[0] != 1) {
-				    ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0,
-				    "ssl preread: not a client hello");
+				    ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0, "ssl preread: not a client hello");
 				    return NGX_DECLINED;
 			    }
 
@@ -291,8 +288,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 
 			case sw_sni_host_head:
 			    if(p[0] != 0) {
-				    ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0,
-				    "ssl preread: SNI hostname type is not DNS");
+				    ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0, "ssl preread: SNI hostname type is not DNS");
 				    return NGX_DECLINED;
 			    }
 
@@ -316,8 +312,7 @@ static ngx_int_t ngx_stream_ssl_preread_parse_record(ngx_stream_ssl_preread_ctx_
 		}
 
 		if(left < size) {
-			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0,
-			    "ssl preread: failed to parse handshake");
+			ngx_log_debug0(NGX_LOG_DEBUG_STREAM, ctx->log, 0, "ssl preread: failed to parse handshake");
 			return NGX_DECLINED;
 		}
 	}

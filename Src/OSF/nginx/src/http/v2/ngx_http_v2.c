@@ -657,27 +657,17 @@ static u_char * ngx_http_v2_state_preface(ngx_http_v2_connection_t * h2c, u_char
 	return ngx_http_v2_state_preface_end(h2c, pos + sizeof(preface) - 1, end);
 }
 
-static u_char * ngx_http_v2_state_preface_end(ngx_http_v2_connection_t * h2c, u_char * pos,
-    u_char * end)
+static u_char * ngx_http_v2_state_preface_end(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end)
 {
 	static const u_char preface[] = "\r\nSM\r\n\r\n";
-
 	if((size_t)(end - pos) < sizeof(preface) - 1) {
-		return ngx_http_v2_state_save(h2c, pos, end,
-		    ngx_http_v2_state_preface_end);
+		return ngx_http_v2_state_save(h2c, pos, end, ngx_http_v2_state_preface_end);
 	}
-
 	if(memcmp(pos, preface, sizeof(preface) - 1) != 0) {
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "invalid http2 connection preface \"%*s\"",
-		    sizeof(preface) - 1, pos);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "invalid http2 connection preface \"%*s\"", sizeof(preface) - 1, pos);
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_PROTOCOL_ERROR);
 	}
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-	    "http2 preface verified");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2 preface verified");
 	return ngx_http_v2_state_head(h2c, pos + sizeof(preface) - 1, end);
 }
 
@@ -685,32 +675,21 @@ static u_char * ngx_http_v2_state_head(ngx_http_v2_connection_t * h2c, u_char * 
 {
 	uint32_t head;
 	ngx_uint_t type;
-
 	if(end - pos < NGX_HTTP_V2_FRAME_HEADER_SIZE) {
 		return ngx_http_v2_state_save(h2c, pos, end, ngx_http_v2_state_head);
 	}
-
 	head = ngx_http_v2_parse_uint32(pos);
-
 	h2c->state.length = ngx_http_v2_parse_length(head);
 	h2c->state.flags = pos[4];
-
 	h2c->state.sid = ngx_http_v2_parse_sid(&pos[5]);
-
 	pos += NGX_HTTP_V2_FRAME_HEADER_SIZE;
-
 	type = ngx_http_v2_parse_type(head);
-
-	ngx_log_debug4(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-	    "process http2 frame type:%ui f:%Xd l:%uz sid:%ui",
+	ngx_log_debug4(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "process http2 frame type:%ui f:%Xd l:%uz sid:%ui",
 	    type, h2c->state.flags, h2c->state.length, h2c->state.sid);
-
 	if(type >= NGX_HTTP_V2_FRAME_STATES) {
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "http2 frame with unknown type %ui", type);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2 frame with unknown type %ui", type);
 		return ngx_http_v2_state_skip(h2c, pos, end);
 	}
-
 	return ngx_http_v2_frame_states[type](h2c, pos, end);
 }
 
@@ -750,14 +729,10 @@ static u_char * ngx_http_v2_state_data(ngx_http_v2_connection_t * h2c, u_char * 
 
 		h2c->state.length -= 1 + h2c->state.padding;
 	}
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-	    "http2 DATA frame");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2 DATA frame");
 	if(size > h2c->recv_window) {
 		ngx_log_error(NGX_LOG_INFO, h2c->connection->log, 0,
-		    "client violated connection flow control: "
-		    "received DATA frame length %uz, available window %uz",
+		    "client violated connection flow control: received DATA frame length %uz, available window %uz",
 		    size, h2c->recv_window);
 
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_FLOW_CTRL_ERROR);
@@ -779,14 +754,10 @@ static u_char * ngx_http_v2_state_data(ngx_http_v2_connection_t * h2c, u_char * 
 	node = ngx_http_v2_get_node_by_id(h2c, h2c->state.sid, 0);
 
 	if(node == NULL || node->stream == NULL) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "unknown http2 stream");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "unknown http2 stream");
 		return ngx_http_v2_state_skip_padded(h2c, pos, end);
 	}
-
 	stream = node->stream;
-
 	if(size > stream->recv_window) {
 		ngx_log_error(NGX_LOG_INFO, h2c->connection->log, 0,
 		    "client violated flow control for stream %ui: "
@@ -854,14 +825,10 @@ static u_char * ngx_http_v2_state_read_data(ngx_http_v2_connection_t * h2c, u_ch
 	}
 
 	if(stream->skip_data) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "skipping http2 DATA frame");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "skipping http2 DATA frame");
 		return ngx_http_v2_state_skip_padded(h2c, pos, end);
 	}
-
 	size = end - pos;
-
 	if(size >= h2c->state.length) {
 		size = h2c->state.length;
 		stream->in_closed = h2c->state.flags & NGX_HTTP_V2_END_STREAM_FLAG;
@@ -956,8 +923,7 @@ static u_char * ngx_http_v2_state_headers(ngx_http_v2_connection_t * h2c, u_char
 	}
 
 	if(h2c->goaway) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "skipping http2 HEADERS frame");
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "skipping http2 HEADERS frame");
 		return ngx_http_v2_state_skip(h2c, pos, end);
 	}
 
@@ -1804,9 +1770,7 @@ static u_char * ngx_http_v2_state_rst_stream(ngx_http_v2_connection_t * h2c, u_c
 	node = ngx_http_v2_get_node_by_id(h2c, h2c->state.sid, 0);
 
 	if(node == NULL || node->stream == NULL) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-		    "unknown http2 stream");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "unknown http2 stream");
 		return ngx_http_v2_state_complete(h2c, pos, end);
 	}
 
@@ -2103,20 +2067,14 @@ static u_char * ngx_http_v2_state_window_update(ngx_http_v2_connection_t * h2c, 
 		node = ngx_http_v2_get_node_by_id(h2c, h2c->state.sid, 0);
 
 		if(node == NULL || node->stream == NULL) {
-			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-			    "unknown http2 stream");
-
+			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "unknown http2 stream");
 			return ngx_http_v2_state_complete(h2c, pos, end);
 		}
-
 		stream = node->stream;
-
 		if(window > (size_t)(NGX_HTTP_V2_MAX_WINDOW - stream->send_window)) {
 			ngx_log_error(NGX_LOG_INFO, h2c->connection->log, 0,
-			    "client violated flow control for stream %ui: "
-			    "received WINDOW_UPDATE frame "
-			    "with window increment %uz "
-			    "not allowed for window %z",
+			    "client violated flow control for stream %ui: received WINDOW_UPDATE frame "
+			    "with window increment %uz not allowed for window %z",
 			    h2c->state.sid, window, stream->send_window);
 
 			if(ngx_http_v2_terminate_stream(h2c, stream,
@@ -2290,32 +2248,23 @@ static u_char * ngx_http_v2_state_headers_save(ngx_http_v2_connection_t * h2c, u
 	return ngx_http_v2_state_save(h2c, pos, end, handler);
 }
 
-static u_char * ngx_http_v2_connection_error(ngx_http_v2_connection_t * h2c,
-    ngx_uint_t err)
+static u_char * ngx_http_v2_connection_error(ngx_http_v2_connection_t * h2c, ngx_uint_t err)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-	    "http2 state connection error");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2 state connection error");
 	if(err == NGX_HTTP_V2_INTERNAL_ERROR) {
 		ngx_debug_point();
 	}
-
 	ngx_http_v2_finalize_connection(h2c, err);
-
 	return NULL;
 }
 
-static ngx_int_t ngx_http_v2_parse_int(ngx_http_v2_connection_t * h2c, u_char ** pos, u_char * end,
-    ngx_uint_t prefix)
+static ngx_int_t ngx_http_v2_parse_int(ngx_http_v2_connection_t * h2c, u_char ** pos, u_char * end, ngx_uint_t prefix)
 {
 	u_char * start, * p;
 	ngx_uint_t value, octet, shift;
-
 	start = *pos;
 	p = start;
-
 	value = *p++ & prefix;
-
 	if(value != prefix) {
 		if(h2c->state.length == 0) {
 			return NGX_ERROR;
@@ -2366,22 +2315,16 @@ static ngx_int_t ngx_http_v2_send_settings(ngx_http_v2_connection_t * h2c)
 	ngx_chain_t    * cl;
 	ngx_http_v2_srv_conf_t * h2scf;
 	ngx_http_v2_out_frame_t  * frame;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0,
-	    "http2 send SETTINGS frame");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, h2c->connection->log, 0, "http2 send SETTINGS frame");
 	frame = (ngx_http_v2_out_frame_t *)ngx_palloc(h2c->pool, sizeof(ngx_http_v2_out_frame_t));
 	if(frame == NULL) {
 		return NGX_ERROR;
 	}
-
 	cl = ngx_alloc_chain_link(h2c->pool);
 	if(cl == NULL) {
 		return NGX_ERROR;
 	}
-
 	len = NGX_HTTP_V2_SETTINGS_PARAM_SIZE * 3;
-
 	buf = ngx_create_temp_buf(h2c->pool, NGX_HTTP_V2_FRAME_HEADER_SIZE + len);
 	if(buf == NULL) {
 		return NGX_ERROR;
@@ -3640,28 +3583,18 @@ update:
 static void ngx_http_v2_read_client_request_body_handler(ngx_http_request_t * r)
 {
 	ngx_connection_t  * fc;
-
 	fc = r->connection;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, fc->log, 0,
-	    "http2 read client request body handler");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, fc->log, 0, "http2 read client request body handler");
 	if(fc->read->timedout) {
 		ngx_log_error(NGX_LOG_INFO, fc->log, NGX_ETIMEDOUT, "client timed out");
-
 		fc->timedout = 1;
 		r->stream->skip_data = 1;
-
 		ngx_http_finalize_request(r, NGX_HTTP_REQUEST_TIME_OUT);
 		return;
 	}
-
 	if(fc->error) {
-		ngx_log_error(NGX_LOG_INFO, fc->log, 0,
-		    "client prematurely closed stream");
-
+		ngx_log_error(NGX_LOG_INFO, fc->log, 0, "client prematurely closed stream");
 		r->stream->skip_data = 1;
-
 		ngx_http_finalize_request(r, NGX_HTTP_CLIENT_CLOSED_REQUEST);
 		return;
 	}
@@ -4238,4 +4171,3 @@ static void ngx_http_v2_pool_cleanup(void * data)
 		ngx_destroy_pool(h2c->pool);
 	}
 }
-

@@ -460,8 +460,7 @@ static ngx_int_t ngx_http_file_cache_read(ngx_http_request_t * r, ngx_http_cache
 		ngx_http_file_cache_vary(r, h->vary, h->vary_len, c->variant);
 
 		if(memcmp(c->variant, h->variant, NGX_HTTP_CACHE_KEY_LEN) != 0) {
-			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-			    "http file cache vary mismatch");
+			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache vary mismatch");
 			return ngx_http_file_cache_reopen(r, c);
 		}
 	}
@@ -958,10 +957,7 @@ static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * 
 static ngx_int_t ngx_http_file_cache_reopen(ngx_http_request_t * r, ngx_http_cache_t * c)
 {
 	ngx_http_file_cache_t  * cache;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->file.log, 0,
-	    "http file cache reopen");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->file.log, 0, "http file cache reopen");
 	if(c->secondary) {
 		ngx_log_error(NGX_LOG_CRIT, r->connection->log, 0,
 		    "cache file \"%s\" has incorrect vary hash",
@@ -995,14 +991,9 @@ ngx_int_t ngx_http_file_cache_set_header(ngx_http_request_t * r, u_char * buf)
 	ngx_str_t  * key;
 	ngx_uint_t i;
 	ngx_http_cache_t  * c;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http file cache set header");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache set header");
 	c = r->cache;
-
 	memzero(h, sizeof(ngx_http_file_cache_header_t));
-
 	h->version = NGX_HTTP_CACHE_VERSION;
 	h->valid_sec = c->valid_sec;
 	h->updating_sec = c->updating_sec;
@@ -1069,12 +1060,8 @@ static ngx_int_t ngx_http_file_cache_update_variant(ngx_http_request_t * r, ngx_
 	 */
 
 	cache = c->file_cache;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http file cache main key");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache main key");
 	ngx_shmtx_lock(&cache->shpool->mutex);
-
 	c->node->count--;
 	c->node->updating = 0;
 	c->node = NULL;
@@ -1111,22 +1098,13 @@ void ngx_http_file_cache_update(ngx_http_request_t * r, ngx_temp_file_t * tf)
 	if(c->updated) {
 		return;
 	}
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http file cache update");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache update");
 	cache = c->file_cache;
-
 	c->updated = 1;
 	c->updating = 0;
-
 	uniq = 0;
 	fs_size = 0;
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http file cache rename: \"%s\" to \"%s\"",
-	    tf->file.name.data, c->file.name.data);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache rename: \"%s\" to \"%s\"", tf->file.name.data, c->file.name.data);
 	ext.access = NGX_FILE_OWNER_ACCESS;
 	ext.path_access = NGX_FILE_OWNER_ACCESS;
 	ext.time = -1;
@@ -1176,14 +1154,9 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 	ngx_file_info_t fi;
 	ngx_http_cache_t    * c;
 	ngx_http_file_cache_header_t h;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http file cache update header");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache update header");
 	c = r->cache;
-
 	memzero(&file, sizeof(ngx_file_t));
-
 	file.name = c->file.name;
 	file.log = r->connection->log;
 	file.fd = ngx_open_file(file.name.data, NGX_FILE_RDWR, NGX_FILE_OPEN, 0);
