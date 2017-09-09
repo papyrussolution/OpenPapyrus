@@ -119,10 +119,10 @@ retry:
 		if(cp->csp[0].page->pgno == root_pgno) {
 			/* we can overshoot the top of the tree. */
 			level = cp->csp[0].page->level;
-			if(root_pgnop != NULL)
+			if(root_pgnop)
 				*root_pgnop = root_pgno;
 		}
-		else if(root_pgnop != NULL)
+		else if(root_pgnop)
 			*root_pgnop = cp->csp[-1].page->pgno;
 		/*
 		 * Split the page if it still needs it (it's possible another
@@ -170,7 +170,7 @@ no_split:               /* Once we've split the leaf page, we're done. */
 			goto err;
 		}
 	}
-	if(root_pgnop != NULL)
+	if(root_pgnop)
 		*root_pgnop = BAM_ROOT_PGNO(dbc);
 err:
 done:
@@ -416,8 +416,8 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	LSN(lp) = LSN(cp->page);
 	LSN(rp) = LSN(cp->page);
 	LSN(pp->page) = LSN(cp->page);
-	if(tp != NULL) {
-		/* Log record has been written; so safe to update next page. */
+	if(tp) {
+		// Log record has been written; so safe to update next page
 		PREV_PGNO(tp) = PGNO(rp);
 		LSN(tp) = LSN(cp->page);
 	}

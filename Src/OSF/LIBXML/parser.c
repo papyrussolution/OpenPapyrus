@@ -266,7 +266,6 @@ static void xmlErrAttributeDup(xmlParserCtxt * ctxt, const xmlChar * prefix, con
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlFatalErr:
  * @ctxt:  an XML parser context
@@ -282,184 +281,67 @@ static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
 	switch(error) {
-		case XML_ERR_INVALID_HEX_CHARREF:
-		    errmsg = "CharRef: invalid hexadecimal value";
-		    break;
-		case XML_ERR_INVALID_DEC_CHARREF:
-		    errmsg = "CharRef: invalid decimal value";
-		    break;
-		case XML_ERR_INVALID_CHARREF:
-		    errmsg = "CharRef: invalid value";
-		    break;
-		case XML_ERR_INTERNAL_ERROR:
-		    errmsg = "internal error";
-		    break;
-		case XML_ERR_PEREF_AT_EOF:
-		    errmsg = "PEReference at end of document";
-		    break;
-		case XML_ERR_PEREF_IN_PROLOG:
-		    errmsg = "PEReference in prolog";
-		    break;
-		case XML_ERR_PEREF_IN_EPILOG:
-		    errmsg = "PEReference in epilog";
-		    break;
-		case XML_ERR_PEREF_NO_NAME:
-		    errmsg = "PEReference: no name";
-		    break;
-		case XML_ERR_PEREF_SEMICOL_MISSING:
-		    errmsg = "PEReference: expecting ';'";
-		    break;
-		case XML_ERR_ENTITY_LOOP:
-		    errmsg = "Detected an entity reference loop";
-		    break;
-		case XML_ERR_ENTITY_NOT_STARTED:
-		    errmsg = "EntityValue: \" or ' expected";
-		    break;
-		case XML_ERR_ENTITY_PE_INTERNAL:
-		    errmsg = "PEReferences forbidden in internal subset";
-		    break;
-		case XML_ERR_ENTITY_NOT_FINISHED:
-		    errmsg = "EntityValue: \" or ' expected";
-		    break;
-		case XML_ERR_ATTRIBUTE_NOT_STARTED:
-		    errmsg = "AttValue: \" or ' expected";
-		    break;
-		case XML_ERR_LT_IN_ATTRIBUTE:
-		    errmsg = "Unescaped '<' not allowed in attributes values";
-		    break;
-		case XML_ERR_LITERAL_NOT_STARTED:
-		    errmsg = "SystemLiteral \" or ' expected";
-		    break;
-		case XML_ERR_LITERAL_NOT_FINISHED:
-		    errmsg = "Unfinished System or Public ID \" or ' expected";
-		    break;
-		case XML_ERR_MISPLACED_CDATA_END:
-		    errmsg = "Sequence ']]>' not allowed in content";
-		    break;
-		case XML_ERR_URI_REQUIRED:
-		    errmsg = "SYSTEM or PUBLIC, the URI is missing";
-		    break;
-		case XML_ERR_PUBID_REQUIRED:
-		    errmsg = "PUBLIC, the Public Identifier is missing";
-		    break;
-		case XML_ERR_HYPHEN_IN_COMMENT:
-		    errmsg = "Comment must not contain '--' (double-hyphen)";
-		    break;
-		case XML_ERR_PI_NOT_STARTED:
-		    errmsg = "xmlParsePI : no target name";
-		    break;
-		case XML_ERR_RESERVED_XML_NAME:
-		    errmsg = "Invalid PI name";
-		    break;
-		case XML_ERR_NOTATION_NOT_STARTED:
-		    errmsg = "NOTATION: Name expected here";
-		    break;
-		case XML_ERR_NOTATION_NOT_FINISHED:
-		    errmsg = "'>' required to close NOTATION declaration";
-		    break;
-		case XML_ERR_VALUE_REQUIRED:
-		    errmsg = "Entity value required";
-		    break;
-		case XML_ERR_URI_FRAGMENT:
-		    errmsg = "Fragment not allowed";
-		    break;
-		case XML_ERR_ATTLIST_NOT_STARTED:
-		    errmsg = "'(' required to start ATTLIST enumeration";
-		    break;
-		case XML_ERR_NMTOKEN_REQUIRED:
-		    errmsg = "NmToken expected in ATTLIST enumeration";
-		    break;
-		case XML_ERR_ATTLIST_NOT_FINISHED:
-		    errmsg = "')' required to finish ATTLIST enumeration";
-		    break;
-		case XML_ERR_MIXED_NOT_STARTED:
-		    errmsg = "MixedContentDecl : '|' or ')*' expected";
-		    break;
-		case XML_ERR_PCDATA_REQUIRED:
-		    errmsg = "MixedContentDecl : '#PCDATA' expected";
-		    break;
-		case XML_ERR_ELEMCONTENT_NOT_STARTED:
-		    errmsg = "ContentDecl : Name or '(' expected";
-		    break;
-		case XML_ERR_ELEMCONTENT_NOT_FINISHED:
-		    errmsg = "ContentDecl : ',' '|' or ')' expected";
-		    break;
-		case XML_ERR_PEREF_IN_INT_SUBSET:
-		    errmsg = "PEReference: forbidden within markup decl in internal subset";
-		    break;
-		case XML_ERR_GT_REQUIRED:
-		    errmsg = "expected '>'";
-		    break;
-		case XML_ERR_CONDSEC_INVALID:
-		    errmsg = "XML conditional section '[' expected";
-		    break;
-		case XML_ERR_EXT_SUBSET_NOT_FINISHED:
-		    errmsg = "Content error in the external subset";
-		    break;
-		case XML_ERR_CONDSEC_INVALID_KEYWORD:
-		    errmsg = "conditional section INCLUDE or IGNORE keyword expected";
-		    break;
-		case XML_ERR_CONDSEC_NOT_FINISHED:
-		    errmsg = "XML conditional section not closed";
-		    break;
-		case XML_ERR_XMLDECL_NOT_STARTED:
-		    errmsg = "Text declaration '<?xml' required";
-		    break;
-		case XML_ERR_XMLDECL_NOT_FINISHED:
-		    errmsg = "parsing XML declaration: '?>' expected";
-		    break;
-		case XML_ERR_EXT_ENTITY_STANDALONE:
-		    errmsg = "external parsed entities cannot be standalone";
-		    break;
-		case XML_ERR_ENTITYREF_SEMICOL_MISSING:
-		    errmsg = "EntityRef: expecting ';'";
-		    break;
-		case XML_ERR_DOCTYPE_NOT_FINISHED:
-		    errmsg = "DOCTYPE improperly terminated";
-		    break;
-		case XML_ERR_LTSLASH_REQUIRED:
-		    errmsg = "EndTag: '</' not found";
-		    break;
-		case XML_ERR_EQUAL_REQUIRED:
-		    errmsg = "expected '='";
-		    break;
-		case XML_ERR_STRING_NOT_CLOSED:
-		    errmsg = "String not closed expecting \" or '";
-		    break;
-		case XML_ERR_STRING_NOT_STARTED:
-		    errmsg = "String not started expecting ' or \"";
-		    break;
-		case XML_ERR_ENCODING_NAME:
-		    errmsg = "Invalid XML encoding name";
-		    break;
-		case XML_ERR_STANDALONE_VALUE:
-		    errmsg = "standalone accepts only 'yes' or 'no'";
-		    break;
-		case XML_ERR_DOCUMENT_EMPTY:
-		    errmsg = "Document is empty";
-		    break;
-		case XML_ERR_DOCUMENT_END:
-		    errmsg = "Extra content at the end of the document";
-		    break;
-		case XML_ERR_NOT_WELL_BALANCED:
-		    errmsg = "chunk is not well balanced";
-		    break;
-		case XML_ERR_EXTRA_CONTENT:
-		    errmsg = "extra content at the end of well balanced chunk";
-		    break;
-		case XML_ERR_VERSION_MISSING:
-		    errmsg = "Malformed declaration expecting version";
-		    break;
-		case XML_ERR_NAME_TOO_LONG:
-		    errmsg = "Name too long use XML_PARSE_HUGE option";
-		    break;
+		case XML_ERR_INVALID_HEX_CHARREF: errmsg = "CharRef: invalid hexadecimal value"; break;
+		case XML_ERR_INVALID_DEC_CHARREF: errmsg = "CharRef: invalid decimal value"; break;
+		case XML_ERR_INVALID_CHARREF: errmsg = "CharRef: invalid value"; break;
+		case XML_ERR_INTERNAL_ERROR: errmsg = "internal error"; break;
+		case XML_ERR_PEREF_AT_EOF: errmsg = "PEReference at end of document"; break;
+		case XML_ERR_PEREF_IN_PROLOG: errmsg = "PEReference in prolog"; break;
+		case XML_ERR_PEREF_IN_EPILOG: errmsg = "PEReference in epilog"; break;
+		case XML_ERR_PEREF_NO_NAME: errmsg = "PEReference: no name"; break;
+		case XML_ERR_PEREF_SEMICOL_MISSING: errmsg = "PEReference: expecting ';'"; break;
+		case XML_ERR_ENTITY_LOOP: errmsg = "Detected an entity reference loop"; break;
+		case XML_ERR_ENTITY_NOT_STARTED: errmsg = "EntityValue: \" or ' expected"; break;
+		case XML_ERR_ENTITY_PE_INTERNAL: errmsg = "PEReferences forbidden in internal subset"; break;
+		case XML_ERR_ENTITY_NOT_FINISHED: errmsg = "EntityValue: \" or ' expected"; break;
+		case XML_ERR_ATTRIBUTE_NOT_STARTED: errmsg = "AttValue: \" or ' expected"; break;
+		case XML_ERR_LT_IN_ATTRIBUTE: errmsg = "Unescaped '<' not allowed in attributes values"; break;
+		case XML_ERR_LITERAL_NOT_STARTED: errmsg = "SystemLiteral \" or ' expected"; break;
+		case XML_ERR_LITERAL_NOT_FINISHED: errmsg = "Unfinished System or Public ID \" or ' expected"; break;
+		case XML_ERR_MISPLACED_CDATA_END: errmsg = "Sequence ']]>' not allowed in content"; break;
+		case XML_ERR_URI_REQUIRED: errmsg = "SYSTEM or PUBLIC, the URI is missing"; break;
+		case XML_ERR_PUBID_REQUIRED: errmsg = "PUBLIC, the Public Identifier is missing"; break;
+		case XML_ERR_HYPHEN_IN_COMMENT: errmsg = "Comment must not contain '--' (double-hyphen)"; break;
+		case XML_ERR_PI_NOT_STARTED: errmsg = "xmlParsePI : no target name"; break;
+		case XML_ERR_RESERVED_XML_NAME: errmsg = "Invalid PI name"; break;
+		case XML_ERR_NOTATION_NOT_STARTED: errmsg = "NOTATION: Name expected here"; break;
+		case XML_ERR_NOTATION_NOT_FINISHED: errmsg = "'>' required to close NOTATION declaration"; break;
+		case XML_ERR_VALUE_REQUIRED: errmsg = "Entity value required"; break;
+		case XML_ERR_URI_FRAGMENT: errmsg = "Fragment not allowed"; break;
+		case XML_ERR_ATTLIST_NOT_STARTED: errmsg = "'(' required to start ATTLIST enumeration"; break;
+		case XML_ERR_NMTOKEN_REQUIRED: errmsg = "NmToken expected in ATTLIST enumeration"; break;
+		case XML_ERR_ATTLIST_NOT_FINISHED: errmsg = "')' required to finish ATTLIST enumeration"; break;
+		case XML_ERR_MIXED_NOT_STARTED: errmsg = "MixedContentDecl : '|' or ')*' expected"; break;
+		case XML_ERR_PCDATA_REQUIRED: errmsg = "MixedContentDecl : '#PCDATA' expected"; break;
+		case XML_ERR_ELEMCONTENT_NOT_STARTED: errmsg = "ContentDecl : Name or '(' expected"; break;
+		case XML_ERR_ELEMCONTENT_NOT_FINISHED: errmsg = "ContentDecl : ',' '|' or ')' expected"; break;
+		case XML_ERR_PEREF_IN_INT_SUBSET: errmsg = "PEReference: forbidden within markup decl in internal subset"; break;
+		case XML_ERR_GT_REQUIRED: errmsg = "expected '>'"; break;
+		case XML_ERR_CONDSEC_INVALID: errmsg = "XML conditional section '[' expected"; break;
+		case XML_ERR_EXT_SUBSET_NOT_FINISHED: errmsg = "Content error in the external subset"; break;
+		case XML_ERR_CONDSEC_INVALID_KEYWORD: errmsg = "conditional section INCLUDE or IGNORE keyword expected"; break;
+		case XML_ERR_CONDSEC_NOT_FINISHED: errmsg = "XML conditional section not closed"; break;
+		case XML_ERR_XMLDECL_NOT_STARTED: errmsg = "Text declaration '<?xml' required"; break;
+		case XML_ERR_XMLDECL_NOT_FINISHED: errmsg = "parsing XML declaration: '?>' expected"; break;
+		case XML_ERR_EXT_ENTITY_STANDALONE: errmsg = "external parsed entities cannot be standalone"; break;
+		case XML_ERR_ENTITYREF_SEMICOL_MISSING: errmsg = "EntityRef: expecting ';'"; break;
+		case XML_ERR_DOCTYPE_NOT_FINISHED: errmsg = "DOCTYPE improperly terminated"; break;
+		case XML_ERR_LTSLASH_REQUIRED: errmsg = "EndTag: '</' not found"; break;
+		case XML_ERR_EQUAL_REQUIRED: errmsg = "expected '='"; break;
+		case XML_ERR_STRING_NOT_CLOSED: errmsg = "String not closed expecting \" or '"; break;
+		case XML_ERR_STRING_NOT_STARTED: errmsg = "String not started expecting ' or \""; break;
+		case XML_ERR_ENCODING_NAME: errmsg = "Invalid XML encoding name"; break;
+		case XML_ERR_STANDALONE_VALUE: errmsg = "standalone accepts only 'yes' or 'no'"; break;
+		case XML_ERR_DOCUMENT_EMPTY: errmsg = "Document is empty"; break;
+		case XML_ERR_DOCUMENT_END: errmsg = "Extra content at the end of the document"; break;
+		case XML_ERR_NOT_WELL_BALANCED: errmsg = "chunk is not well balanced"; break;
+		case XML_ERR_EXTRA_CONTENT: errmsg = "extra content at the end of well balanced chunk"; break;
+		case XML_ERR_VERSION_MISSING: errmsg = "Malformed declaration expecting version"; break;
+		case XML_ERR_NAME_TOO_LONG: errmsg = "Name too long use XML_PARSE_HUGE option"; break;
 #if 0
-		case:
-		    errmsg = "";
-		    break;
+		case: errmsg = ""; break;
 #endif
-		default:
-		    errmsg = "Unregistered error message";
+		default: errmsg = "Unregistered error message";
 	}
 	if(info == NULL)
 		snprintf(errstr, 128, "%s\n", errmsg);
@@ -485,7 +367,7 @@ static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
  */
 static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
+	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
@@ -496,7 +378,6 @@ static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const ch
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlWarningMsg:
  * @ctxt:  an XML parser context
@@ -526,7 +407,6 @@ static void xmlWarningMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const cha
 		    msg, (const char*)str1, (const char*)str2);
 	}
 }
-
 /**
  * xmlValidityError:
  * @ctxt:  an XML parser context
@@ -1503,7 +1383,7 @@ int FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInputPtr value)
 	else {
 		if(ctxt->inputNr >= ctxt->inputMax) {
 			ctxt->inputMax *= 2;
-			ctxt->inputTab = (xmlParserInputPtr*)SAlloc::R(ctxt->inputTab, ctxt->inputMax * sizeof(ctxt->inputTab[0]));
+			ctxt->inputTab = (xmlParserInput **)SAlloc::R(ctxt->inputTab, ctxt->inputMax * sizeof(ctxt->inputTab[0]));
 			if(ctxt->inputTab == NULL) {
 				xmlErrMemory(ctxt, 0);
 				xmlFreeInputStream(value);
@@ -13525,7 +13405,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 	if(!ctxt)
 		return 1;
-	if((encoding == NULL) && (chunk != NULL) && (size >= 4))
+	if(!encoding && chunk && size >= 4)
 		enc = xmlDetectCharEncoding((const xmlChar*)chunk, size);
 	buf = xmlAllocParserInputBuffer(enc);
 	if(!buf)
@@ -13567,12 +13447,10 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 		SAlloc::F((xmlChar*)ctxt->encoding);
 		ctxt->encoding = sstrdup((const xmlChar*)encoding);
 		hdlr = xmlFindCharEncodingHandler(encoding);
-		if(hdlr) {
+		if(hdlr)
 			xmlSwitchToEncoding(ctxt, hdlr);
-		}
-		else {
+		else
 			xmlFatalErrMsgStr(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "Unsupported encoding %s\n", BAD_CAST encoding);
-		}
 	}
 	else if(enc != XML_CHAR_ENCODING_NONE) {
 		xmlSwitchEncoding(ctxt, enc);
@@ -13739,9 +13617,8 @@ static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const ch
  */
 int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options)
 {
-	return(xmlCtxtUseOptionsInternal(ctxt, options, NULL));
+	return xmlCtxtUseOptionsInternal(ctxt, options, NULL);
 }
-
 /**
  * xmlDoRead:
  * @ctxt:  an XML parser context
@@ -13754,31 +13631,31 @@ int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options)
  *
  * Returns the resulting document tree or NULL
  */
-static xmlDocPtr xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * encoding, int options, int reuse)
+static xmlDoc * xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * encoding, int options, int reuse)
 {
-	xmlDocPtr ret;
-	xmlCtxtUseOptionsInternal(ctxt, options, encoding);
-	if(encoding) {
-		xmlCharEncodingHandlerPtr hdlr = xmlFindCharEncodingHandler(encoding);
-		if(hdlr)
-			xmlSwitchToEncoding(ctxt, hdlr);
-	}
-	if(URL && ctxt->input && ctxt->input->filename == 0)
-		ctxt->input->filename = (char*)sstrdup((const xmlChar*)URL);
-	xmlParseDocument(ctxt);
-	if(ctxt->wellFormed || ctxt->recovery)
-		ret = ctxt->myDoc;
-	else {
-		ret = NULL;
-		xmlFreeDoc(ctxt->myDoc);
-	}
-	ctxt->myDoc = NULL;
-	if(!reuse) {
-		xmlFreeParserCtxt(ctxt);
+	xmlDoc * ret = 0;
+	if(ctxt) {
+		xmlCtxtUseOptionsInternal(ctxt, options, encoding);
+		if(encoding) {
+			xmlCharEncodingHandlerPtr hdlr = xmlFindCharEncodingHandler(encoding);
+			if(hdlr)
+				xmlSwitchToEncoding(ctxt, hdlr);
+		}
+		if(URL && ctxt->input && ctxt->input->filename == 0)
+			ctxt->input->filename = (char *)sstrdup((const xmlChar*)URL);
+		xmlParseDocument(ctxt);
+		if(ctxt->wellFormed || ctxt->recovery)
+			ret = ctxt->myDoc;
+		else {
+			ret = NULL;
+			xmlFreeDoc(ctxt->myDoc);
+		}
+		ctxt->myDoc = NULL;
+		if(!reuse)
+			xmlFreeParserCtxt(ctxt);
 	}
 	return ret;
 }
-
 /**
  * xmlReadDoc:
  * @cur:  a pointer to a zero terminated string
@@ -13792,12 +13669,11 @@ static xmlDocPtr xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * 
  */
 xmlDocPtr xmlReadDoc(const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
-	xmlParserCtxt * ctxt;
 	if(!cur)
 		return 0;
 	xmlInitParser();
-	ctxt = xmlCreateDocParserCtxt(cur);
-	return ctxt ? xmlDoRead(ctxt, URL, encoding, options, 0) : 0;
+	xmlParserCtxt * ctxt = xmlCreateDocParserCtxt(cur);
+	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -13814,7 +13690,7 @@ xmlDocPtr xmlReadFile(const char * filename, const char * encoding, int options)
 {
 	xmlInitParser();
 	xmlParserCtxtPtr ctxt = xmlCreateURLParserCtxt(filename, options);
-	return ctxt ? xmlDoRead(ctxt, NULL, encoding, options, 0) : 0;
+	return xmlDoRead(ctxt, NULL, encoding, options, 0);
 }
 
 /**
@@ -13833,7 +13709,7 @@ xmlDocPtr xmlReadMemory(const char * buffer, int size, const char * URL, const c
 {
 	xmlInitParser();
 	xmlParserCtxt * ctxt = xmlCreateMemoryParserCtxt(buffer, size);
-	return ctxt ? xmlDoRead(ctxt, URL, encoding, options, 0) : 0;
+	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -13873,7 +13749,7 @@ xmlDocPtr xmlReadFd(int fd, const char * URL, const char * encoding, int options
 		return 0;
 	}
 	inputPush(ctxt, stream);
-	return (xmlDoRead(ctxt, URL, encoding, options, 0));
+	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -13916,9 +13792,8 @@ xmlDocPtr xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
 		return 0;
 	}
 	inputPush(ctxt, stream);
-	return (xmlDoRead(ctxt, URL, encoding, options, 0));
+	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
-
 /**
  * xmlCtxtReadDoc:
  * @ctxt:  an XML parser context
@@ -13934,22 +13809,22 @@ xmlDocPtr xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
  */
 xmlDocPtr xmlCtxtReadDoc(xmlParserCtxt * ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputPtr stream;
 	if(cur && ctxt) {
 		xmlInitParser();
 		xmlCtxtReset(ctxt);
-		stream = xmlNewStringInputStream(ctxt, cur);
-		if(stream) {
-			inputPush(ctxt, stream);
-			return xmlDoRead(ctxt, URL, encoding, options, 1);
+		{
+			xmlParserInput * stream = xmlNewStringInputStream(ctxt, cur);
+			if(stream) {
+				inputPush(ctxt, stream);
+				return xmlDoRead(ctxt, URL, encoding, options, 1);
+			}
+			else
+				return 0;
 		}
-		else
-			return 0;
 	}
 	else
 		return 0;
 }
-
 /**
  * xmlCtxtReadFile:
  * @ctxt:  an XML parser context
@@ -14011,7 +13886,7 @@ xmlDocPtr xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size,
 		return 0;
 	}
 	inputPush(ctxt, stream);
-	return (xmlDoRead(ctxt, URL, encoding, options, 1));
+	return xmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 /**
@@ -14049,7 +13924,7 @@ xmlDocPtr xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const ch
 		return 0;
 	}
 	inputPush(ctxt, stream);
-	return (xmlDoRead(ctxt, URL, encoding, options, 1));
+	return xmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 /**
@@ -14090,7 +13965,7 @@ xmlDocPtr xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread,
 		return 0;
 	}
 	inputPush(ctxt, stream);
-	return (xmlDoRead(ctxt, URL, encoding, options, 1));
+	return xmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 #define bottom_parser

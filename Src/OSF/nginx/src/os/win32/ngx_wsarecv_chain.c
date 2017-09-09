@@ -55,7 +55,7 @@ ssize_t ngx_wsarecv_chain(ngx_connection_t * c, ngx_chain_t * chain, nginx_off_t
 	}
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0, "WSARecv: %d:%d", vec.nelts, wsabuf->len);
 	rc = WSARecv(c->fd, (LPWSABUF)vec.elts, vec.nelts, &bytes, &flags, NULL, NULL);
-	rev = c->read;
+	rev = c->P_EvRd;
 	if(rc == -1) {
 		rev->ready = 0;
 		err = ngx_socket_errno;

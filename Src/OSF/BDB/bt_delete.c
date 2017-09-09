@@ -301,7 +301,7 @@ err_inc:
 		++epg;
 err:            
 		for(; epg <= cp->csp; ++epg) {
-			if(epg->page != NULL) {
+			if(epg->page) {
 				__memp_fput(mpf, dbc->thread_info, epg->page, dbc->priority);
 				epg->page = NULL;
 			}

@@ -1374,16 +1374,16 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 		if(options & LOGMSGF_DBINFO) {
 			DbProvider * p_dict = CurDict;
 			if(p_dict)
-				p_dict->GetDbSymb(temp_buf = 0);
+				p_dict->GetDbSymb(temp_buf.Z());
 			else
 				temp_buf = "nologin";
 			item.Prefix.Cat(temp_buf).Tab();
 		}
 		if(options & LOGMSGF_USER) {
-			item.Prefix.Cat(GetCurUserName(temp_buf = 0)).Tab();
+			item.Prefix.Cat(GetCurUserName(temp_buf.Z())).Tab();
 		}
 		if(options & LOGMSGF_COMP) {
-			if(!SGetComputerName(temp_buf = 0))
+			if(!SGetComputerName(temp_buf.Z()))
 				temp_buf = "?COMP?";
 			item.Prefix.Cat(temp_buf).Tab();
 		}

@@ -6592,11 +6592,8 @@ public:
 	int    SLAPI IsThreadStopped();
 	//
 	// @construction
-	// Descr: Находит или создает свободный поток типа PPThread::kWorkerSession и передает ему
-	//   команду pCmd вместе с абстрактным представлением внешнего запроса pReq.
-	//   Поток должен ответить на команду через канал pPipe.
 	//
-	int    SLAPI DispatchServerCommand(PPServerCmd * pCmd, const void * pReq, SBufferPipe * pPipe); // @cs
+	int    SLAPI DispatchNgxRequest(void * pReq); // @cs
 
 	enum {
 		ldsLock      = 1,
@@ -6849,7 +6846,11 @@ private:
 		//
 		// Descr: Находит первый попавшийся поток вида kind, имеющий статус SlThread::stIdle.
 		//
-		PPThread * FASTCALL SearchIdle(int kine);
+		PPThread * FASTCALL SearchIdle(int kind);
+		//
+		// Descr: Возвращает количество потоков вида kind
+		//
+		uint   FASTCALL GetCount(int kind);
 	private:
 		ReadWriteLock RwL;
 	};
@@ -9928,7 +9929,7 @@ private:
 	int    UseIndex;
 	int    AccsCost;       // Если 0, то доступ к ценам поступления запрещен
 	PPID   FiltGrpID;      // Товарная группа, ограничивающая выборку.
-	LongArray Saw;
+	LongArray Seen;        // Список позиций документа, которые уже были обработаны
 	TSArray <IndexItem> Index;
 	RAssocArray SaldoList; // Список товаров, принадлежащих группе FiltGrpID и ассоциированных с величной сальдо по контаргенту.
 	TSArray <LocTransfTbl::Rec> DispList;
@@ -10207,7 +10208,7 @@ public:
 	//   определяемым флагами flags. Если pIter == 0, то используется внутренний
 	//   итератор, который должен быть предварительно инициализирован вызовом InitExtTIter.
 	//
-	int    SLAPI InitExtTIter(long flags, long filtGrpID = 0, TiIter::Order = TiIter::ordDefault);
+	void   SLAPI InitExtTIter(long flags, long filtGrpID = 0, TiIter::Order = TiIter::ordDefault);
 
 	struct TiItemExt {
 		TiItemExt();
@@ -14059,7 +14060,7 @@ template <class T> int SerializeDbTableByFileName(int dir, T ** ppT, SBuffer & r
 		if((*ppT) != 0)
 			temp_buf = (*ppT)->fileName;
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		THROW_SL(pCtx->Serialize(dir, temp_buf, rBuf));
 	}
 	else if(dir < 0) {
@@ -14216,7 +14217,7 @@ protected:
 	//   >0 - фильтр верифицирован и инициализирован
 	//   0  - ошибка
 	//
-	int    SLAPI Helper_InitBaseFilt(const PPBaseFilt *);
+	int    FASTCALL Helper_InitBaseFilt(const PPBaseFilt *);
 	int    SLAPI DefaultCmdProcessor(uint ppvCmd, const void *, PPViewBrowser *);
 	int    SLAPI Helper_Print(uint rptId, int ord = 0);
 	int    SLAPI ChangeFilt(int refreshOnly, PPViewBrowser * pW);
@@ -20567,7 +20568,7 @@ public:
 	int    SLAPI IsNamed() const;
 	int    SLAPI CanExpand() const;
 	int    SLAPI CanReduce() const;
-	int    SLAPI GetTypeString(SString & rBuf);
+	SString & FASTCALL GetTypeString(SString & rBuf) const;
 	int    SLAPI SetKind(int kind);
 	int    SLAPI GetKind() const;
 	//
@@ -20668,7 +20669,7 @@ class GStrucIterator {
 public:
 	SLAPI  GStrucIterator();
 	const  PPGoodsStruc * SLAPI GetStruc() const;
-	int    SLAPI Init(PPGoodsStruc * pStruc, int loadRecurItems);
+	void   SLAPI Init(PPGoodsStruc * pStruc, int loadRecurItems);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GStrucRecurItem * pItem);
 private:
@@ -20746,8 +20747,8 @@ public:
 	struct Gift {
 		Gift();
 		Gift & Init();
-		int    FASTCALL PreservePotential(SaGiftArray::Potential & rS) const;
-		int    FASTCALL RestorePotential(const SaGiftArray::Potential & rS);
+		void   FASTCALL PreservePotential(SaGiftArray::Potential & rS) const;
+		void   FASTCALL RestorePotential(const SaGiftArray::Potential & rS);
 		int    FASTCALL IsEqualForResult(const Gift & rS) const;
 
 		PPID   ID;           // Идентификатор структуры подарка
@@ -22051,7 +22052,6 @@ public:
 	PPLocationPacket & FASTCALL operator = (const LocationTbl::Rec & rS);
 	int    SLAPI IsEmptyAddress() const;
 
-	//LocationTbl::Rec Rec;
 	RegisterArray Regs;
 	ObjTagList TagL;
 };
@@ -22210,6 +22210,10 @@ public:
 	int    SLAPI ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache);
 	int    SLAPI GetRegister(PPID locID, PPID regType, LDATE actualDate, int iheritFromOwner, RegisterTbl::Rec * pRec);
 private:
+	friend class LocationCache;
+
+	void   SLAPI InitInstance(SCtrLite sctr, void * extraPtr);
+	SLAPI  PPObjLocation(SCtrLite);
 	virtual int SLAPI DeleteObj(PPID id);
 	virtual int SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -22236,10 +22240,11 @@ private:
 	};
 	int    SLAPI Helper_GetEaListBySubstring(const char * pSubstr, void * pList, long flags);
 
+	SCtrLite   Sctr;
 	LAssocArray CityCache;
 	int    IsCityCacheInited;
 	PPObjWorld * P_WObj;
-	PPObjRegister RegObj; // @v8.3.6
+	PPObjRegister * P_RegObj; // @v8.3.6
 	LocationFilt * P_CurrFilt; // @v9.6.1
 	SString NameBuf; // Returns by GetNamePtr
 public:
@@ -22631,7 +22636,7 @@ public:
 	// @v9.0.4 int    SLAPI GetCurrBnkAcct(BankAccountTbl::Rec *) const; // @obsolete
 	int    SLAPI GetCurrBnkAcct(PPBankAccount *) const;
 
-	int    SLAPI SetExtName(const char * pName);
+	void   FASTCALL SetExtName(const char * pName);
 	int    SLAPI GetExtName(SString & rBuf) const;
 	int    SLAPI AddRegister(PPID regTypeID, const char * pNumber, int checkUnique = 1);
 	//
@@ -22651,7 +22656,7 @@ public:
 	uint   SLAPI GetDlvrLocCount() const;
 	int    SLAPI AddDlvrLoc(const PPLocationPacket & rAddr);
 	int    SLAPI PutDlvrLoc(uint pos, const PPLocationPacket * pAddr);
-	int    SLAPI ClearDlvrLocList();      // @Muxa  @v7.3.7
+	void   SLAPI ClearDlvrLocList();      // @Muxa  @v7.3.7
 	//
 	// Descr: Замещает адрес доставки locID в пакете на адрес доставки с идентификатором replacementID.
 	// Note: Фукнция проверяет идентификатор replacementID на существование и, кроме того, проверяет
@@ -35548,8 +35553,10 @@ struct PPPredictConfig {   // @persistent @store(PropertyTbl)
 			// страховочный размер запаса товара).
 		fContinueBuilding   = 0x0080, // Процесс построения таблицы был прерван.
 			// При следующем запуске следует продолжить.
-		fMinStockAsMinOrder = 0x0100  // Минимальный остаток по товару трактовать как минимальный заказ.
+		fMinStockAsMinOrder = 0x0100, // Минимальный остаток по товару трактовать как минимальный заказ.
 			// В этом случае формула расчета заказа выглядит так: Order = (Predict > MinStock) ? (Predict-MinStock) : (MinStock-Predict)
+		fRoundManualQtty    = 0x0200  // @v9.8.0 При переносе в документ заказа количество, выставленное руками,
+			// округлять по тому же правилу, что и автоматически рассчитанное.
 	};
 	enum {
 		pckgDontUse = 0,
@@ -40432,7 +40439,7 @@ public:
 
 	uint8  ReserveStart[16]; // @anchor
 	//
-	// Следующие 4 поля могут переопределять соотвествующие параметры конфигурации PPPredictConfig
+	// Следующие 4 поля могут переопределять соответствующие параметры конфигурации PPPredictConfig
 	//
 	long   _CFlags;          // PPPredictConfig::fXXX
 	int16  _Method;          // PredictionMethod (PRMTHD_XXX)
@@ -40462,7 +40469,7 @@ public:
 
 struct SStatViewItem {
 	PPID   GoodsID;
-	char   GoodsName[128]; // @v7.0.0 [64]-->[128]
+	char   GoodsName[128]; //
 	LDATE  Dt;             // Если фильтр определяет группировку по циклам, то дата начала цикла, иначе - 0
 	long   Count;
 	double QttySum;
@@ -40481,9 +40488,9 @@ struct SStatViewItem {
 	double SupplOrder;     // Расчетный заказ (только если Filt.Flags & fSupplOrderForm)
 	double MinStock;       // Минимальный запас (только если Filt.Flags & SStatFilt::fUseInsurStock)
 	double PriceAvg;       // Средняя цена
-	double CostAvg;        // @v7.1.7 Средняя цена поступления позиции
-	int16  IsPredictTrust; // @v7.0.0 Признак надежности прогноза (только для формы заказа поставщику)
-	int16  Reserve;        // @v7.0.0 @alignment
+	double CostAvg;        // Средняя цена поступления позиции
+	int16  IsPredictTrust; // Признак надежности прогноза (только для формы заказа поставщику)
+	int16  Reserve;        // @alignment
 };
 
 struct SStatTotal {
@@ -40494,7 +40501,7 @@ struct SStatTotal {
 	long   OrderCount;     // Суммарное количество строк, предлагаемых к заказу
 	double OrderQtty;      // Суммарное количество торговых единиц, предлагаемых к заказу
 	double OrderAmount;    // Ценовая сумма товаров, предлагаемых к заказу
-	double OrderCost;      // @v7.1.7 Сумма товаров, предлагаемых к заказу с ценах поступления //
+	double OrderCost;      // Сумма товаров, предлагаемых к заказу с ценах поступления //
 	long   UncertCount;    // Количество недостоверных элементов
 };
 
@@ -40551,6 +40558,7 @@ private:
 	int    SLAPI CalcOrder(double prediction, double minStock, const GoodsRestViewItem * pItem, double * pOrder);
 	int    SLAPI AddPurchaseBill();
 	int    SLAPI ViewCreatedBills();
+	double SLAPI PreprocessOrderQuantity(double order, PPID goodsID, double unitPerPack/*const GoodsRestViewItem & rItem*/);
 
 	SStatFilt Filt;
 	TempGoodsStatTbl * P_TempTbl;
@@ -45194,6 +45202,9 @@ private:
 #define PPNTOK_IP4           16 // ip4-address xx.xx.xx.xx
 #define PPNTOK_IP6           17 // @todo ip6-address
 #define PPNTOK_MACADDR48     18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
+#define PPNTOK_DATE          19 // date
+#define PPNTOK_TIME          20 // time
+#define PPNTOK_SOFTWAREVER   21 // 9.9.9
 
 #define PPNTOKSEQ_DEC        1 // 0-9
 #define PPNTOKSEQ_HEX        2 // A-F||a-f

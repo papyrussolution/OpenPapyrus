@@ -289,7 +289,7 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
 		const DbLoginBlock * p_blk = at(i);
 		p_blk->GetAttr(DbLoginBlock::attrID, temp_buf);
 		const long id = (long)(i+1); // temp_buf.ToLong();
-		temp_buf = 0;
+		temp_buf.Z();
 		if(options & loUseFriendlyName)
 			p_blk->GetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
 		if(!temp_buf.NotEmptyS() && options & loUseDbSymb)

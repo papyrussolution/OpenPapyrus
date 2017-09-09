@@ -1893,10 +1893,10 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 		wf.ToStr(temp_buf);
 	}
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	rBuf.CatBrackStr(temp_buf);
 	//
-	temp_buf = 0;
+	temp_buf.Z();
 	if(rWi.WaID) {
 		SrWordAssoc wa;
 		if(P_WaT->Search(rWi.WaID, &wa) > 0)

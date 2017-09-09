@@ -17,41 +17,25 @@
  * The XML predefined entities.
  */
 static xmlEntity xmlEntityLt = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "lt",
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	BAD_CAST "<", BAD_CAST "<", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY,
-	NULL, NULL, NULL, NULL, 0, 1
+	NULL, XML_ENTITY_DECL, BAD_CAST "lt", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "<", BAD_CAST "<", 1,
+	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
 };
 static xmlEntity xmlEntityGt = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "gt",
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	BAD_CAST ">", BAD_CAST ">", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY,
-	NULL, NULL, NULL, NULL, 0, 1
+	NULL, XML_ENTITY_DECL, BAD_CAST "gt", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST ">", BAD_CAST ">", 1,
+	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
 };
 static xmlEntity xmlEntityAmp = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "amp",
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	BAD_CAST "&", BAD_CAST "&", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY,
-	NULL, NULL, NULL, NULL, 0, 1
+	NULL, XML_ENTITY_DECL, BAD_CAST "amp", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "&", BAD_CAST "&", 1,
+	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
 };
 static xmlEntity xmlEntityQuot = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "quot",
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	BAD_CAST "\"", BAD_CAST "\"", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY,
-	NULL, NULL, NULL, NULL, 0, 1
+	NULL, XML_ENTITY_DECL, BAD_CAST "quot", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "\"", BAD_CAST "\"", 1,
+	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
 };
 static xmlEntity xmlEntityApos = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "apos",
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	BAD_CAST "'", BAD_CAST "'", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY,
-	NULL, NULL, NULL, NULL, 0, 1
+	NULL, XML_ENTITY_DECL, BAD_CAST "apos", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "'", BAD_CAST "'", 1,
+	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
 };
-
 /**
  * xmlEntitiesErrMemory:
  * @extra:  extra informations
@@ -434,17 +418,16 @@ xmlEntityPtr xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
 xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 {
 	xmlEntity * cur;
-	xmlEntitiesTablePtr table;
+	xmlEntitiesTable * table;
 	if(doc) {
-		if((doc->intSubset != NULL) && (doc->intSubset->entities != NULL)) {
+		if(doc->intSubset && doc->intSubset->entities) {
 			table = (xmlEntitiesTablePtr)doc->intSubset->entities;
 			cur = xmlGetEntityFromTable(table, name);
 			if(cur)
 				return cur;
 		}
 		if(doc->standalone != 1) {
-			if((doc->extSubset != NULL) &&
-			    (doc->extSubset->entities != NULL)) {
+			if(doc->extSubset && doc->extSubset->entities) {
 				table = (xmlEntitiesTablePtr)doc->extSubset->entities;
 				cur = xmlGetEntityFromTable(table, name);
 				if(cur)
@@ -452,9 +435,8 @@ xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 			}
 		}
 	}
-	return(xmlGetPredefinedEntity(name));
+	return xmlGetPredefinedEntity(name);
 }
-
 /*
  * Macro used to grow the current buffer.
  */
@@ -648,7 +630,6 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 		}
 		else if(IS_BYTE_CHAR(*cur)) {
 			char buf[11], * ptr;
-
 			snprintf(buf, sizeof(buf), "&#%d;", *cur);
 			buf[sizeof(buf) - 1] = 0;
 			ptr = buf;

@@ -1341,7 +1341,7 @@ int ProcessorDialog::EditExt()
 				}
 				ss.clear();
 				ss.add(item.Range);
-				ss.add(GetGoodsName(item.GoodsID, temp_buf = 0));
+				ss.add(GetGoodsName(item.GoodsID, temp_buf.Z()));
 				ss.add(item.Descr);
 				THROW(addStringToList(i+1, ss.getBuf()));
 			}

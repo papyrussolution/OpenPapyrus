@@ -686,17 +686,21 @@ int SLAPI AmountTypeCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	PPAmountType temp_rec;
-	RwL.WriteLock();
-	ok = Helper_Dirty(id);
-	RwL.Unlock();
+	{
+		RwL.WriteLock();
+		ok = Helper_Dirty(id);
+		RwL.Unlock();
+	}
 	//
 	// Функция Get вызывает блокировку чтения. По этому, мы вынуждены разорвать
 	// блокировку записи на две пары {RwL.WriteLock() - RwL.Unlock()}
 	//
 	Get(id, &temp_rec);
-	RwL.WriteLock();
-	InitTaxBlock();
-	RwL.Unlock();
+	{
+		RwL.WriteLock();
+		InitTaxBlock();
+		RwL.Unlock();
+	}
 	return ok;
 }
 

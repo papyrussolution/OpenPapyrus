@@ -283,7 +283,8 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 	while(pool != NULL) {
 		if((pool->end - pool->free) > (int)(namelen + plen + 1))
 			goto found_pool;
-		if(pool->size > size) size = pool->size;
+		if(pool->size > size) 
+			size = pool->size;
 		limit += pool->size;
 		pool = pool->next;
 	}

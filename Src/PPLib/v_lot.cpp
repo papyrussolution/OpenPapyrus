@@ -1,5 +1,6 @@
 // V_LOT.CPP
 // Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -330,9 +331,9 @@ int SLAPI ConvertLandQCertToLotTag()
 				 MEMSZERO(qc_rec);
 				 if(qc_obj.Search(item.QCertID, &qc_rec) > 0 && strlen(qc_rec.Code) > 0 && strlen(qc_rec.Manuf) > 0) {
 					PPIDArray psn_list;
-					if(psn_obj.GetListByRegNumber(PPREGT_TPID, filt.PsnKind, qc_rec.Code, psn_list) > 0 && psn_list.getCount()) // Поиск персоналии по ИНН
+					if(psn_obj.GetListByRegNumber(PPREGT_TPID, filt.PsnKind, qc_rec.Code, psn_list) > 0 && psn_list.getCount()) // РџРѕРёСЃРє РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕ РРќРќ
 						psn_id = psn_list.at(0);
-					else if(psn_obj.P_Tbl->SearchByName(qc_rec.Manuf, &psn_id) <= 0) { // Поиск персоналии по наименованию
+					else if(psn_obj.P_Tbl->SearchByName(qc_rec.Manuf, &psn_id) <= 0) { // РџРѕРёСЃРє РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ
 						SString out_msg;
 						PPPersonPacket psn_pack;
 
@@ -465,9 +466,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmTags)) {
-		if(!Data.P_TagF)
-			Data.P_TagF = new TagFilt();
-		if(!Data.P_TagF)
+		if(!SETIFZ(Data.P_TagF, new TagFilt()))
 			PPError(PPERR_NOMEM);
 		else if(!EditTagFilt(PPOBJ_LOT, Data.P_TagF))
 			PPError();
@@ -565,7 +564,7 @@ int LotFiltDialog::setDTS(const LotFilt * pFilt)
 		AddClusterAssoc(CTL_FLTLOT_FLAGS,  7, LotFilt::fSkipNoOp);
 		AddClusterAssoc(CTL_FLTLOT_FLAGS,  8, LotFilt::fSkipClosedBeforeOp);
 		AddClusterAssoc(CTL_FLTLOT_FLAGS,  9, LotFilt::fCheckOriginLotDate);
-		AddClusterAssoc(CTL_FLTLOT_FLAGS, 10, LotFilt::fRestByPaym); // @v6.5.8
+		AddClusterAssoc(CTL_FLTLOT_FLAGS, 10, LotFilt::fRestByPaym);
 		AddClusterAssoc(CTL_FLTLOT_FLAGS, 11, LotFilt::fLotfPrWoTaxes); // @v8.9.0
 	}
 	SetClusterData(CTL_FLTLOT_FLAGS, Data.Flags);
@@ -888,54 +887,56 @@ int SLAPI PPViewLot::RecoverLots()
 		PPWait(1);
 		PPLoadText(PPTXT_CHECKLOTS, msg_buf);
 		logger.Log(msg_buf);
-		if(param.Flags) {
-			THROW(PPStartTransaction(&ta, 1));
-			THROW(P_BObj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
-			if(param.MinusCompensOpID && Filt.LocID) {
-				THROW(neg_rest_pack.CreateBlank2(param.MinusCompensOpID, getcurdate_(), Filt.LocID, 0));
-			}
-		}
-		for(InitIteration(); NextIteration(&lv_item) > 0;) {
-			PPLotFaultArray ary(lv_item.ID, logger);
-			THROW(r = P_BObj->trfr->CheckLot(lv_item.ID, 0, param.Flags, &ary));
-			if(r < 0) {
-				err_lot_count++;
-				ary.AddMessage();
-				if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
-					THROW(P_BObj->trfr->RecoverLot(lv_item.ID, &ary, param.Flags, 0));
-					modified = 1;
+		{
+			if(param.Flags) {
+				THROW(PPStartTransaction(&ta, 1));
+				THROW(P_BObj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
+				if(param.MinusCompensOpID && Filt.LocID) {
+					THROW(neg_rest_pack.CreateBlank2(param.MinusCompensOpID, getcurdate_(), Filt.LocID, 0));
 				}
 			}
-			{
-				PPLotFault nf;
-				uint   nf_pos = 0;
-				if(neg_rest_pack.Rec.OpID && lv_item.GoodsID > 0 && lv_item.Rest < 0.0 && ary.HasFault(PPLotFault::NegativeRest, &nf, &nf_pos)) {
-					if(ary.getCount() == 1) {
-						PPTransferItem ti(&neg_rest_pack.Rec, TISIGN_UNDEF);
-						THROW(ti.SetupGoods(lv_item.GoodsID, 0));
-						THROW(ti.SetupLot(lv_item.ID, &lv_item, 0));
-						ti.Flags &= ~PPTFR_RECEIPT;
-						ti.Quantity_ = -lv_item.Rest;
-						ti.TFlags |= PPTransferItem::tfForceNoRcpt;
-						THROW(neg_rest_pack.InsertRow(&ti, 0, 0));
+			for(InitIteration(); NextIteration(&lv_item) > 0;) {
+				PPLotFaultArray ary(lv_item.ID, logger);
+				THROW(r = P_BObj->trfr->CheckLot(lv_item.ID, 0, param.Flags, &ary));
+				if(r < 0) {
+					err_lot_count++;
+					ary.AddMessage();
+					if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
+						THROW(P_BObj->trfr->RecoverLot(lv_item.ID, &ary, param.Flags, 0));
+						modified = 1;
 					}
 				}
+				{
+					PPLotFault nf;
+					uint   nf_pos = 0;
+					if(neg_rest_pack.Rec.OpID && lv_item.GoodsID > 0 && lv_item.Rest < 0.0 && ary.HasFault(PPLotFault::NegativeRest, &nf, &nf_pos)) {
+						if(ary.getCount() == 1) {
+							PPTransferItem ti(&neg_rest_pack.Rec, TISIGN_UNDEF);
+							THROW(ti.SetupGoods(lv_item.GoodsID, 0));
+							THROW(ti.SetupLot(lv_item.ID, &lv_item, 0));
+							ti.Flags &= ~PPTFR_RECEIPT;
+							ti.Quantity_ = -lv_item.Rest;
+							ti.TFlags |= PPTransferItem::tfForceNoRcpt;
+							THROW(neg_rest_pack.InsertRow(&ti, 0, 0));
+						}
+					}
+				}
+				goods_list.Add((ulong)labs(lv_item.GoodsID));
+				loc_list.addUnique(lv_item.LocID);
+				PPWaitPercent(GetCounter());
 			}
-			goods_list.Add((ulong)labs(lv_item.GoodsID));
-			loc_list.addUnique(lv_item.LocID);
-			PPWaitPercent(GetCounter());
+			if(neg_rest_pack.GetTCount()) {
+				neg_rest_pack.InitAmounts();
+				THROW(P_BObj->FillTurnList(&neg_rest_pack));
+				THROW(P_BObj->TurnPacket(&neg_rest_pack, 0));
+			}
+			THROW(P_BObj->atobj->P_Tbl->LockingFRR(0, &frrl_tag, 0));
+			THROW(PPCommitWork(&ta));
 		}
-		if(neg_rest_pack.GetTCount()) {
-			neg_rest_pack.InitAmounts();
-			THROW(P_BObj->FillTurnList(&neg_rest_pack));
-			THROW(P_BObj->TurnPacket(&neg_rest_pack, 0));
-		}
-		THROW(P_BObj->atobj->P_Tbl->LockingFRR(0, &frrl_tag, 0));
-		THROW(PPCommitWork(&ta));
 		{
 			//
-			// Функция CorrectCurRest выполняет исправление в отдельной транзакции,
-			// по этому, этот блок вынесен за пределы общей транзакции
+			// Р¤СѓРЅРєС†РёСЏ CorrectCurRest РІС‹РїРѕР»РЅСЏРµС‚ РёСЃРїСЂР°РІР»РµРЅРёРµ РІ РѕС‚РґРµР»СЊРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё,
+			// РїРѕ СЌС‚РѕРјСѓ, СЌС‚РѕС‚ Р±Р»РѕРє РІС‹РЅРµСЃРµРЅ Р·Р° РїСЂРµРґРµР»С‹ РѕР±С‰РµР№ С‚СЂР°РЅР·Р°РєС†РёРё
 			//
 			IterCounter cntr;
 			cntr.Init((long)goods_list.GetCount());
@@ -1095,8 +1096,8 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 	if(Filt.Flags & LotFilt::fOnlySpoilage)
 		P_SpoilTbl = new SpecSeriesCore;
 	//
-	// Инициализируем список складов, по которым следует поднимать выборку.
-	// Учитываются доступные склады в правах доступа.
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє СЃРєР»Р°РґРѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј СЃР»РµРґСѓРµС‚ РїРѕРґРЅРёРјР°С‚СЊ РІС‹Р±РѕСЂРєСѓ.
+	// РЈС‡РёС‚С‹РІР°СЋС‚СЃСЏ РґРѕСЃС‚СѓРїРЅС‹Рµ СЃРєР»Р°РґС‹ РІ РїСЂР°РІР°С… РґРѕСЃС‚СѓРїР°.
 	//
 	LocList.freeAll();
 	if(Filt.LocID == 0) {
@@ -1110,9 +1111,9 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 	}
 	else {
 		//
-		// Если фильтр требует проверки на наличие ГТД у лотов, то инициализируем список
-		// идентификаторов собственного государства так как для лотов, относящихся к товарам,
-		// произведенным в собственном государстве не требуется ГТД.
+		// Р•СЃР»Рё С„РёР»СЊС‚СЂ С‚СЂРµР±СѓРµС‚ РїСЂРѕРІРµСЂРєРё РЅР° РЅР°Р»РёС‡РёРµ Р“РўР” Сѓ Р»РѕС‚РѕРІ, С‚Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє
+		// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РіРѕСЃСѓРґР°СЂСЃС‚РІР° С‚Р°Рє РєР°Рє РґР»СЏ Р»РѕС‚РѕРІ, РѕС‚РЅРѕСЃСЏС‰РёС…СЃСЏ Рє С‚РѕРІР°СЂР°Рј,
+		// РїСЂРѕРёР·РІРµРґРµРЅРЅС‹Рј РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕРј РіРѕСЃСѓРґР°СЂСЃС‚РІРµ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ Р“РўР”.
 		//
 		if(Filt.Flags & LotFilt::fWithoutClb) {
 			SString native_country_name;
@@ -1436,7 +1437,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				break;
             case PPVCMD_CREATESPCREST:
 				{
-					long   selection = 0; // PPEDIOP_EGAIS_ACTCHARGEON - по справкам Б, PPEDIOP_EGAIS_ACTCHARGEONSHOP - торговый зал (регистр 2) по кодам ЕГАИС
+					long   selection = 0; // PPEDIOP_EGAIS_ACTCHARGEON - РїРѕ СЃРїСЂР°РІРєР°Рј Р‘, PPEDIOP_EGAIS_ACTCHARGEONSHOP - С‚РѕСЂРіРѕРІС‹Р№ Р·Р°Р» (СЂРµРіРёСЃС‚СЂ 2) РїРѕ РєРѕРґР°Рј Р•Р“РђРРЎ
 					{
 						TDialog * dlg = new TDialog(DLG_SELEGAISCHRGON);
 						if(CheckDialogPtrErr(&dlg)) {
@@ -1753,9 +1754,9 @@ int SLAPI PPViewLot::CreateTempTable()
 			grp_count = group_goods_list.getCount();
 			if(num_goods && (((1000L * grp_count) / num_goods) < (ulong)grp_calc_threshold)) {
 				//
-				// Если задан одиночный склад и признак закрытого лота, то не следует использовать
-				// внутренние PPViewLot, по скольку при этом выборка идет по отдельному индексу и быстрее будет
-				// отобрать нужные товары из выборки лотов, чем для каждого товара из группы отбирать нужные лоты.
+				// Р•СЃР»Рё Р·Р°РґР°РЅ РѕРґРёРЅРѕС‡РЅС‹Р№ СЃРєР»Р°Рґ Рё РїСЂРёР·РЅР°Рє Р·Р°РєСЂС‹С‚РѕРіРѕ Р»РѕС‚Р°, С‚Рѕ РЅРµ СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+				// РІРЅСѓС‚СЂРµРЅРЅРёРµ PPViewLot, РїРѕ СЃРєРѕР»СЊРєСѓ РїСЂРё СЌС‚РѕРј РІС‹Р±РѕСЂРєР° РёРґРµС‚ РїРѕ РѕС‚РґРµР»СЊРЅРѕРјСѓ РёРЅРґРµРєСЃСѓ Рё Р±С‹СЃС‚СЂРµРµ Р±СѓРґРµС‚
+				// РѕС‚РѕР±СЂР°С‚СЊ РЅСѓР¶РЅС‹Рµ С‚РѕРІР°СЂС‹ РёР· РІС‹Р±РѕСЂРєРё Р»РѕС‚РѕРІ, С‡РµРј РґР»СЏ РєР°Р¶РґРѕРіРѕ С‚РѕРІР°СЂР° РёР· РіСЂСѓРїРїС‹ РѕС‚Р±РёСЂР°С‚СЊ РЅСѓР¶РЅС‹Рµ Р»РѕС‚С‹.
 				//
 				if(!(LocList.getSingle() && Filt.ClosedTag)) {
 					PPViewLot temp_view;
@@ -1870,8 +1871,8 @@ int SLAPI PPViewLot::InitIteration(IterOrder order)
 		if(Filt.Flags & LotFilt::fWithoutExpiry) {
 			//
 			// @v4.6.11
-			// Почему-то конструкция P_Tbl->Expiry < encodedate(1,1,1900) работает
-			// надежнее, чем P_Tbl->Expiry > 0L. Надо бы разобраться.
+			// РџРѕС‡РµРјСѓ-С‚Рѕ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ P_Tbl->Expiry < encodedate(1,1,1900) СЂР°Р±РѕС‚Р°РµС‚
+			// РЅР°РґРµР¶РЅРµРµ, С‡РµРј P_Tbl->Expiry > 0L. РќР°РґРѕ Р±С‹ СЂР°Р·РѕР±СЂР°С‚СЊСЃСЏ.
 			//
 			dbq = & (*dbq && P_Tbl->Expiry < encodedate(1,1,1900));
 		}
@@ -2012,7 +2013,7 @@ int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem
 			if(Filt.Flags & LotFilt::fRestByPaym) {
 				{
 					//
-					// Расчет неоплаченных поставщикам остатков по лотам
+					// Р Р°СЃС‡РµС‚ РЅРµРѕРїР»Р°С‡РµРЅРЅС‹С… РїРѕСЃС‚Р°РІС‰РёРєР°Рј РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
 					//
 					double part;
 					if(low_date && rLotRec.Dt <= low_date) {
@@ -3109,7 +3110,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		SString sect;
-		//В режиме тестирования - начало
+		//Р’ СЂРµР¶РёРјРµ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ - РЅР°С‡Р°Р»Рѕ
 		#if SLTEST_RUNNING
 			for(int i = 1; i < (int)list.getCount(); i++) {
 				list.Get(i, sect);
@@ -3121,7 +3122,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 				}
 			}
 		#endif
-		// конец
+		// РєРѕРЅРµС†
 		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_LOTIMPCFG : PPTXT_TITLE_LOTEXPCFG, &id, 0) > 0) {
 			SString sect;
 			if(id) {

@@ -455,10 +455,11 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 		SlLock.Unlock();
 		SlLock.WriteLock();
 		if(!Inited || DirtyTable.getCount()) {
+			Reference * p_ref = PPRef;
 			Reference2Tbl::Rec rec;
 			if(!Inited) {
 				Clear();
-				for(SEnum en = PPRef->Enum(ObjType, 0); ok && en.Next(&rec) > 0;) {
+				for(SEnum en = p_ref->Enum(ObjType, 0); ok && en.Next(&rec) > 0;) {
 					if(!Add(rec.ObjID, rec.Symb))
 						ok = 0;
 				}
@@ -467,7 +468,7 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 				DirtyTable.sortAndUndup();
 				for(uint i = 0; ok && i < DirtyTable.getCount(); i++) {
 					PPID   id = DirtyTable.get(i);
-					if(PPRef->GetItem(ObjType, id, &rec) > 0) {
+					if(p_ref->GetItem(ObjType, id, &rec) > 0) {
 						if(!Add(id, rec.Symb, 1))
 							ok = 0;
 					}

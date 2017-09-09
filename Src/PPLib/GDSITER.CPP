@@ -1069,7 +1069,7 @@ int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack,
 		}
 		else if(*p == '@') {
 			size_t next = 1;
-			temp_buf = 0;
+			temp_buf.Z();
 			long   sym  = st.Translate(p, &next);
 			switch(sym) {
 				case PPSYM_GRNAME:

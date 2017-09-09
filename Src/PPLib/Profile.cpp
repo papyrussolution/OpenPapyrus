@@ -386,7 +386,7 @@ int SLAPI Profile::InitUserProfile(const char * pUserName)
 					if(GetFirstMACAddr(&addr))
 						addr.ToStr(temp_buf);
 					else
-						temp_buf = 0;
+						temp_buf.Z();
 					line_buf.Semicol().Cat(temp_buf);
 				}
 				line_buf.Semicol().Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);

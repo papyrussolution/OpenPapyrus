@@ -1414,7 +1414,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				if(P_TmpGrpTbl->searchForUpdate(0, &k0, spFirst)) do {
 					TempCCheckGrpTbl::Rec rec;
 					P_TmpGrpTbl->copyBufTo(&rec);
-					temp_buf = 0;
+					temp_buf.Z();
 					switch(Filt.Grp) {
 						case CCheckFilt::gTime:
 							temp_buf.CatLongZ(rec.Tm.hour(), 2).CatCharN('.', 2).CatLongZ(rec.Tm.hour()+1, 2);
@@ -1563,7 +1563,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(rec.CashID)
 								GetPersonName(rec.CashID, temp_buf);
 							else
-								temp_buf = 0;
+								temp_buf.Z();
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
@@ -3479,7 +3479,7 @@ public:
 					ss.add(temp_buf);
 					temp_buf.Z().Cat(r_entry.Amount, SFMT_MONEY);
 					ss.add(temp_buf);
-					temp_buf = 0;
+					temp_buf.Z();
 					if(r_entry.AddedID) {
 						if(ScObj.Fetch(r_entry.AddedID, &sc_rec) > 0)
 							temp_buf = sc_rec.Code;
@@ -3495,7 +3495,7 @@ public:
 		}
 		// @v8.7.9 {
 		{
-			temp_buf = 0;
+			temp_buf.Z();
 			ObjTagItem tag_item;
 			if(PPRef->Ot.GetTag(PPOBJ_CCHECK, Data.Rec.ID, PPTAG_CCHECK_JS_UUID, &tag_item) > 0) {
 				S_GUID sess_uuid;
@@ -4096,21 +4096,21 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 				H.OrderEndTm = pack.Ext.EndOrdDtm.t;
 				H.LinkCheckID = pack.Ext.LinkCheckID;
 				H.DlvrLocID   = pack.Ext.AddrID;
-				temp_buf = 0;
+				temp_buf.Z();
 				if(H.OrderStartDt)
 					temp_buf.Cat(H.OrderStartDt, DATF_DMY);
 				if(H.OrderStartTm)
 					temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderStartTm, TIMF_HM);
 				temp_buf.CopyTo(H.OrderStartTxt, sizeof(H.OrderStartTxt));
 				//
-				temp_buf = 0;
+				temp_buf.Z();
 				if(H.OrderEndDt)
 					temp_buf.Cat(H.OrderEndDt, DATF_DMY);
 				if(H.OrderEndTm)
 					temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderEndTm, TIMF_HM);
 				temp_buf.CopyTo(H.OrderEndTxt, sizeof(H.OrderEndTxt));
 				// @v8.0.11 {
-				temp_buf = 0;
+				temp_buf.Z();
 				if(H.CreationDt)
 					temp_buf.Cat(H.CreationDt, DATF_DMY);
 				if(H.CreationTm)
@@ -4346,21 +4346,21 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 	H.OrderEndDt    = pack.Ext.EndOrdDtm.d;
 	H.OrderEndTm    = pack.Ext.EndOrdDtm.t;
 
-	temp_buf = 0;
+	temp_buf.Z();
 	if(H.OrderStartDt)
 		temp_buf.Cat(H.OrderStartDt, DATF_DMY);
 	if(H.OrderStartTm)
 		temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderStartTm, TIMF_HM);
 	temp_buf.CopyTo(H.OrderStartTxt, sizeof(H.OrderStartTxt));
 	//
-	temp_buf = 0;
+	temp_buf.Z();
 	if(H.OrderEndDt)
 		temp_buf.Cat(H.OrderEndDt, DATF_DMY);
 	if(H.OrderEndTm)
 		temp_buf.CatDivIfNotEmpty(0, 1).Cat(H.OrderEndTm, TIMF_HM);
 	temp_buf.CopyTo(H.OrderEndTxt, sizeof(H.OrderEndTxt));
 	// @v8.1.10 {
-	temp_buf = 0;
+	temp_buf.Z();
 	if(H.CreationDt)
 		temp_buf.Cat(H.CreationDt, DATF_DMY);
 	if(H.CreationTm)

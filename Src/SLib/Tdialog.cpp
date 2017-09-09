@@ -385,7 +385,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						rez->getString(symb, 0);
 						rez->getString(buf);
                 		rez->getString(columns_buf);
-						rez->getString(temp_buf = 0, 0); // image_symbol
+						rez->getString(temp_buf.Z(), 0); // image_symbol
 						if(sstreqi_ascii(columns_buf, "IMAGEVIEW")) {
 							p_ctl = new TImageView(r, temp_buf);
 						}
@@ -654,7 +654,7 @@ IMPL_HANDLE_EVENT(TDialog)
 			}
 		}
 		else
-			::MessageBox(APPL->H_MainWnd, _T("Ошибка создания окна диалога."), "PROJECT PAPYRUS", MB_OK);
+			::MessageBox(APPL->H_MainWnd, _T("Ошибка создания окна диалога."), _T("PROJECT PAPYRUS"), MB_OK);
 		clearEvent(event);
 		event.message.infoLong = retval;
 	}

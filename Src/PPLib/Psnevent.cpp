@@ -2144,10 +2144,10 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 				}
 			}
 			if(!no_param) {
-				temp_buf = 0;
+				temp_buf.Z();
 				THROW(scan.Skip()[0] == '('); // @error
 				{
-					temp_buf = 0;
+					temp_buf.Z();
 					char   c;
 					int    par_count = 0;
 					do {

@@ -188,51 +188,36 @@ static ngx_int_t ngx_http_geo_cidr_variable(ngx_http_request_t * r, ngx_http_var
 		default: /* AF_INET */
 		    sin = (struct sockaddr_in*)addr.sockaddr;
 		    inaddr = ntohl(sin->sin_addr.s_addr);
-
 		    vv = (ngx_http_variable_value_t*)
 		    ngx_radix32tree_find(ctx->u.trees.tree, inaddr);
-
 		    break;
 	}
-
 done:
-
 	*v = *vv;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http geo: %v", v);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo: %v", v);
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_geo_range_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_geo_range_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_http_geo_ctx_t * ctx = (ngx_http_geo_ctx_t*)data;
-
 	in_addr_t inaddr;
 	ngx_addr_t addr;
 	ngx_uint_t n;
 	struct sockaddr_in  * sin;
-
 	ngx_http_geo_range_t  * range;
 #if (NGX_HAVE_INET6)
 	u_char  * p;
 	struct in6_addr  * inaddr6;
-
 #endif
-
 	*v = *ctx->u.high.default_value;
-
 	if(ngx_http_geo_addr(r, ctx, &addr) == NGX_OK) {
 		switch(addr.sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
 			case AF_INET6:
 			    inaddr6 = &((struct sockaddr_in6*)addr.sockaddr)->sin6_addr;
-
 			    if(IN6_IS_ADDR_V4MAPPED(inaddr6)) {
 				    p = inaddr6->s6_addr;
-
 				    inaddr = p[12] << 24;
 				    inaddr += p[13] << 16;
 				    inaddr += p[14] << 8;
@@ -241,10 +226,8 @@ static ngx_int_t ngx_http_geo_range_variable(ngx_http_request_t * r, ngx_http_va
 			    else {
 				    inaddr = INADDR_NONE;
 			    }
-
 			    break;
 #endif
-
 			default: /* AF_INET */
 			    sin = (struct sockaddr_in*)addr.sockaddr;
 			    inaddr = ntohl(sin->sin_addr.s_addr);
@@ -254,63 +237,47 @@ static ngx_int_t ngx_http_geo_range_variable(ngx_http_request_t * r, ngx_http_va
 	else {
 		inaddr = INADDR_NONE;
 	}
-
 	if(ctx->u.high.low) {
 		range = ctx->u.high.low[inaddr >> 16];
-
 		if(range) {
 			n = inaddr & 0xffff;
 			do {
-				if(n >= (ngx_uint_t)range->start
-				    && n <= (ngx_uint_t)range->end) {
+				if(n >= (ngx_uint_t)range->start && n <= (ngx_uint_t)range->end) {
 					*v = *range->value;
 					break;
 				}
 			} while((++range)->value);
 		}
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http geo: %v", v);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo: %v", v);
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_geo_addr(ngx_http_request_t * r, ngx_http_geo_ctx_t * ctx,
-    ngx_addr_t * addr)
+static ngx_int_t ngx_http_geo_addr(ngx_http_request_t * r, ngx_http_geo_ctx_t * ctx, ngx_addr_t * addr)
 {
 	ngx_array_t  * xfwd;
-
 	if(ngx_http_geo_real_addr(r, ctx, addr) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	xfwd = &r->headers_in.x_forwarded_for;
-
 	if(xfwd->nelts > 0 && ctx->proxies != NULL) {
 		(void)ngx_http_get_forwarded_addr(r, addr, xfwd, NULL,
 		    ctx->proxies, ctx->proxy_recursive);
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_geo_real_addr(ngx_http_request_t * r, ngx_http_geo_ctx_t * ctx,
-    ngx_addr_t * addr)
+static ngx_int_t ngx_http_geo_real_addr(ngx_http_request_t * r, ngx_http_geo_ctx_t * ctx, ngx_addr_t * addr)
 {
 	ngx_http_variable_value_t  * v;
-
 	if(ctx->index == -1) {
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo started: %V", &r->connection->addr_text);
 		addr->sockaddr = r->connection->sockaddr;
 		addr->socklen = r->connection->socklen;
 		/* addr->name = r->connection->addr_text; */
-
 		return NGX_OK;
 	}
-
 	v = ngx_http_get_flushed_variable(r, ctx->index);
-
 	if(v == NULL || v->not_found) {
 		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http geo not found");
 		return NGX_ERROR;
@@ -336,102 +303,73 @@ static char * ngx_http_geo_block(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 	ngx_http_geo_conf_ctx_t ctx;
 #if (NGX_HAVE_INET6)
 	static struct in6_addr zero;
-
 #endif
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	geo = (ngx_http_geo_ctx_t *)ngx_palloc(cf->pool, sizeof(ngx_http_geo_ctx_t));
 	if(geo == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	name = value[1];
-
 	if(name.data[0] != '$') {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid variable name \"%V\"", &name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-
 	name.len--;
 	name.data++;
-
 	if(cf->args->nelts == 3) {
 		geo->index = ngx_http_get_variable_index(cf, &name);
 		if(geo->index == NGX_ERROR) {
 			return NGX_CONF_ERROR;
 		}
-
 		name = value[2];
-
 		if(name.data[0] != '$') {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid variable name \"%V\"", &name);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"%V\"", &name);
 			return NGX_CONF_ERROR;
 		}
-
 		name.len--;
 		name.data++;
 	}
 	else {
 		geo->index = -1;
 	}
-
 	var = ngx_http_add_variable(cf, &name, NGX_HTTP_VAR_CHANGEABLE);
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	pool = ngx_create_pool(NGX_DEFAULT_POOL_SIZE, cf->log);
 	if(pool == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(&ctx, sizeof(ngx_http_geo_conf_ctx_t));
-
 	ctx.temp_pool = ngx_create_pool(NGX_DEFAULT_POOL_SIZE, cf->log);
 	if(ctx.temp_pool == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	ngx_rbtree_init(&ctx.rbtree, &ctx.sentinel, ngx_str_rbtree_insert_value);
-
 	ctx.pool = cf->pool;
-	ctx.data_size = sizeof(ngx_http_geo_header_t)
-	    + sizeof(ngx_http_variable_value_t)
-	    + 0x10000 * sizeof(ngx_http_geo_range_t *);
+	ctx.data_size = sizeof(ngx_http_geo_header_t) + sizeof(ngx_http_variable_value_t) + 0x10000 * sizeof(ngx_http_geo_range_t *);
 	ctx.allow_binary_include = 1;
-
 	save = *cf;
 	cf->pool = pool;
 	cf->ctx = &ctx;
 	cf->handler = ngx_http_geo;
 	cf->handler_conf = (char *)conf;
-
 	rv = ngx_conf_parse(cf, NULL);
-
 	*cf = save;
-
 	geo->proxies = ctx.proxies;
 	geo->proxy_recursive = ctx.proxy_recursive;
-
 	if(ctx.ranges) {
 		if(ctx.high.low && !ctx.binary_include) {
 			for(i = 0; i < 0x10000; i++) {
 				a = (ngx_array_t*)ctx.high.low[i];
-
 				if(a == NULL) {
 					continue;
 				}
-
 				if(a->nelts == 0) {
 					ctx.high.low[i] = NULL;
 					continue;
 				}
-
 				len = a->nelts * sizeof(ngx_http_geo_range_t);
-
 				ctx.high.low[i] = (ngx_http_geo_range_t *)ngx_palloc(cf->pool, len + sizeof(void *));
 				if(ctx.high.low[i] == NULL) {
 					return NGX_CONF_ERROR;
@@ -1101,23 +1039,16 @@ static char * ngx_http_geo_include(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * ct
 			    break;
 		}
 	}
-
 	file.len -= 4;
 	file.data[file.len] = '\0';
-
 	ctx->include_name = file;
-
 	if(ctx->outside_entries) {
 		ctx->allow_binary_include = 0;
 	}
-
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, cf->log, 0, "include %s", file.data);
-
 	rv = ngx_conf_parse(cf, &file);
-
 	ctx->includes++;
 	ctx->outside_entries = 0;
-
 	return rv;
 }
 

@@ -86,18 +86,11 @@ typedef struct _TRANSMIT_FILE_BUFFERS {
 
 #endif
 
-typedef BOOL (PASCAL FAR * LPFN_TRANSMITFILE)(
-    IN SOCKET hSocket,
-    IN HANDLE hFile,
-    IN DWORD nNumberOfBytesToWrite,
-    IN DWORD nNumberOfBytesPerSend,
-    IN LPOVERLAPPED lpOverlapped,
-    IN LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,
-    IN DWORD dwReserved
-    );
+typedef BOOL (PASCAL FAR * LPFN_TRANSMITFILE)(IN SOCKET hSocket, IN HANDLE hFile,
+    IN DWORD nNumberOfBytesToWrite, IN DWORD nNumberOfBytesPerSend, IN LPOVERLAPPED lpOverlapped,
+    IN LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers, IN DWORD dwReserved);
 
-#define WSAID_TRANSMITFILE                                                   \
-    {0xb5367df0,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
+#define WSAID_TRANSMITFILE {0xb5367df0,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
 
 #endif
 

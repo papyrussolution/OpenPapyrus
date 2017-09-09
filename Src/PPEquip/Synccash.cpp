@@ -373,8 +373,8 @@ int  SLAPI SCS_SYNCCASH::AnnulateCheck()
 
 static void DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
 {
-	rParamName = 0;
-	rParamVal = 0;
+	rParamName.Z();
+	rParamVal.Z();
 	if(rStr.NotEmpty())
 		rStr.Divide('=', rParamName, rParamVal);
 }

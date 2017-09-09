@@ -181,7 +181,7 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 		PutMembToBuf(STRINGIZING(ordByDate),    STRINGIZING(SortOrder), rBuf);
 	PutMembToBuf(&AmtRange, STRINGIZING(AmtRange), rBuf);
 	{
-		buf = 0;
+		buf.Z();
 #define __BBT(f) case f: buf = #f; break
 		switch(Bbt) {
 			__BBT(bbtUndef);
@@ -903,7 +903,7 @@ int SLAPI PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 		if(caption >= 0)
 			PPGetSubStr(PPTXT_BILLFLTCAPTIONS, caption, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		// @v9.0.6 assert(MemHeapTracer::Check()); // @debug
 		int r = BillFilterDialog(rez_id, p_filt, &d, temp_buf);
 		assert(!d->H() || ::IsWindow(d->H())); // @debug
@@ -2311,7 +2311,7 @@ int SLAPI PPViewBill::EditFilt(BillFilt * pFilt, long extraParam) const
 		if(caption >= 0)
 			PPGetSubStr(PPTXT_BILLFLTCAPTIONS, caption, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		int r = BillFilterDialog(rez_id, pFilt, &d, temp_buf);
 		ZDELETE(d);
 		if(r == cmOK)
@@ -6360,7 +6360,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		PPObjLocation loc_obj;
 		GoodsToObjAssoc gto_assc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1);
 		gto_assc.Load();
-		temp_buf = 0;
+		temp_buf.Z();
 		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
 			for(uint j = 0; temp_buf.Empty() && j < loc_list.getCount(); j++) {
 				// @v8.3.0 if(loc_obj.Fetch(loc_list.get(j), &wp_rec) > 0 && wp_rec.ParentID == p_pack->Rec.LocID) { // @v8.3.0
@@ -8198,7 +8198,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		H.BnkQueueing   = pack->P_PaymOrder->BnkQueueing;
 		H.PayerStatus   = pack->P_PaymOrder->PayerStatus;
 		{
-			temp_buf = 0;
+			temp_buf.Z();
 			if(pack->P_PaymOrder->PayerStatus) {
 				// @v9.7.0 longfmtz(pack->P_PaymOrder->PayerStatus, 2, H.TxtPayerStatus, sizeof(H.TxtPayerStatus));
 				temp_buf.Z().CatLongZ(pack->P_PaymOrder->PayerStatus, 2); // @v9.7.0

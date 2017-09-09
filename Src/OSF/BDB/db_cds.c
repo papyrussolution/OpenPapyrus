@@ -134,7 +134,7 @@ int __cdsgroup_begin(ENV * env, DB_TXN ** txnpp)
 	*txnpp = txn;
 	if(0) {
 err:
-		if(txn != NULL) {
+		if(txn) {
 			__os_free(env, txn->mgrp);
 			__os_free(env, txn);
 		}

@@ -72,50 +72,35 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 	if(r->uri.data[r->uri.len - 1] == '/') {
 		return NGX_DECLINED;
 	}
-
 	rc = ngx_http_discard_request_body(r);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
-
 	last = ngx_http_map_uri_to_path(r, &path, &root, 0);
 	if(last == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	log = r->connection->log;
-
 	path.len = last - path.data;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, log, 0,
-	    "http flv filename: \"%V\"", &path);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, log, 0, "http flv filename: \"%V\"", &path);
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 	memzero(&of, sizeof(ngx_open_file_info_t));
-
 	of.read_ahead = clcf->read_ahead;
 	of.directio = clcf->directio;
 	of.valid = clcf->open_file_cache_valid;
 	of.min_uses = clcf->open_file_cache_min_uses;
 	of.errors = clcf->open_file_cache_errors;
 	of.events = clcf->open_file_cache_events;
-
 	if(ngx_http_set_disable_symlinks(r, clcf, &path, &of) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
-	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool)
-	    != NGX_OK) {
+	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool) != NGX_OK) {
 		switch(of.err) {
 			case 0:
 			    return NGX_HTTP_INTERNAL_SERVER_ERROR;
-
 			case NGX_ENOENT:
 			case NGX_ENOTDIR:
 			case NGX_ENAMETOOLONG:
-
 			    level = NGX_LOG_ERR;
 			    rc = NGX_HTTP_NOT_FOUND;
 			    break;

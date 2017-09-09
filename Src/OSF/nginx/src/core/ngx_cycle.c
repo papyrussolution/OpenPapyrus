@@ -864,12 +864,12 @@ static void ngx_shutdown_timer_handler(ngx_event_t * ev)
 	ngx_cycle_t * cycle = (ngx_cycle_t *)ev->data;
 	ngx_connection_t  * c = cycle->connections;
 	for(ngx_uint_t i = 0; i < cycle->connection_n; i++) {
-		if(c[i].fd == (ngx_socket_t)-1 || c[i].read == NULL || c[i].read->accept || c[i].read->channel || c[i].read->resolver) {
+		if(c[i].fd == (ngx_socket_t)-1 || c[i].P_EvRd == NULL || c[i].P_EvRd->accept || c[i].P_EvRd->channel || c[i].P_EvRd->resolver) {
 			continue;
 		}
 		ngx_log_debug1(NGX_LOG_DEBUG_CORE, ev->log, 0, "*%uA shutdown timeout", c[i].number);
 		c[i].close = 1;
 		c[i].error = 1;
-		c[i].read->handler(c[i].read);
+		c[i].P_EvRd->handler(c[i].P_EvRd);
 	}
 }

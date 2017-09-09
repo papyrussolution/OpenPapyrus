@@ -158,48 +158,34 @@ const xmlChRangeGroup xmlIsIdeographicGroup = {3, 0, xmlIsIdeographic_srng, (xml
  *
  * Returns: true if character valid, false otherwise
  */
-int xmlCharInRange(uint val, const xmlChRangeGroup * rptr)
+int FASTCALL xmlCharInRange(uint val, const xmlChRangeGroup * rptr)
 {
 	if(rptr) {
 		if(val < 0x10000) { // is val in 'short' or 'long'  array?
 			if(rptr->nbShortRange) {
-				int    low = 0;
-				int    high = rptr->nbShortRange - 1;
 				const xmlChSRange * sptr = rptr->shortRange;
-				while(low <= high) {
+				for(int low = 0, high = rptr->nbShortRange - 1; low <= high;) {
 					const int mid = (low + high) / 2;
-					if((ushort)val < sptr[mid].low) {
+					if((ushort)val < sptr[mid].low)
 						high = mid - 1;
-					}
-					else {
-						if((ushort)val > sptr[mid].high) {
-							low = mid + 1;
-						}
-						else {
-							return 1;
-						}
-					}
+					else if((ushort)val > sptr[mid].high)
+						low = mid + 1;
+					else
+						return 1;
 				}
 			}
 		}
 		else {
 			if(rptr->nbLongRange) {
-				int    low = 0;
-				int    high = rptr->nbLongRange - 1;
 				const xmlChLRange * lptr = rptr->longRange;
-				while(low <= high) {
+				for(int low = 0, high = rptr->nbLongRange - 1; low <= high;) {
 					const int mid = (low + high) / 2;
-					if(val < lptr[mid].low) {
+					if(val < lptr[mid].low)
 						high = mid - 1;
-					}
-					else {
-						if(val > lptr[mid].high) {
-							low = mid + 1;
-						}
-						else {
-							return 1;
-						}
-					}
+					else if(val > lptr[mid].high)
+						low = mid + 1;
+					else
+						return 1;
 				}
 			}
 		}
@@ -218,7 +204,7 @@ int xmlCharInRange(uint val, const xmlChRangeGroup * rptr)
  */
 int xmlIsBaseChar(uint ch)
 {
-	return(xmlIsBaseCharQ(ch));
+	return xmlIsBaseCharQ(ch);
 }
 
 /**
@@ -232,7 +218,7 @@ int xmlIsBaseChar(uint ch)
  */
 int xmlIsBlank(uint ch)
 {
-	return(xmlIsBlankQ(ch));
+	return xmlIsBlankQ(ch);
 }
 
 /**

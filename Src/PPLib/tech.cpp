@@ -1034,7 +1034,7 @@ int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta
 		rec.PrcID = (extraData & TECEXDF_MASK);
 	if(pPack) {
 		pPack->Rec = rec;
-		pPack->ExtString = 0;
+		pPack->ExtString.Z();
 	}
 	CATCHZOK
 	return ok;

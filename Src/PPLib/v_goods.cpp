@@ -1585,7 +1585,7 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 			if(GObj.Fetch(pGoodsRec->BrandID, &temp_rec) > 0)
 				temp_buf = temp_rec.Name;
 			else
-				temp_buf = 0;
+				temp_buf.Z();
 			size_t len = temp_buf.Trim(max_prefix_len).Len();
 			if(len == 0)
 				temp_buf.CatCharN('я', max_prefix_len).ToOem();
@@ -1602,7 +1602,7 @@ void SLAPI PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderT
 			if(GObj.Fetch(pGoodsRec->ParentID, &temp_rec) > 0)
 				temp_buf = temp_rec.Name;
 			else
-				temp_buf = 0;
+				temp_buf.Z();
 			size_t len = temp_buf.Trim(max_prefix_len).Len();
 			if(len == 0)
 				temp_buf.CatCharN('я', max_prefix_len).ToOem();
@@ -4433,7 +4433,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 			}
 		}
 		if(!found)
-			temp_buf = 0;
+			temp_buf.Z();
 		_RET_STR = temp_buf;
 	}
 	// } @v9.4.10
@@ -4466,7 +4466,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             ps_dest.Nam = ps_src.Nam;
             /* @v9.1.1
             if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex)
-				ps_dest.Ext = 0;
+				ps_dest.Ext.Z();
 			else
 				ps_dest.Ext = ps_src.Ext;
 			*/
@@ -4479,7 +4479,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             // (в то время как сам файл расширение иметь должен)
             //
             if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex) {
-				ps_dest.Ext = 0;
+				ps_dest.Ext.Z();
 				ps_dest.Merge(dest_file_name);
             }
             // }

@@ -807,7 +807,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 						THROW_PP(data_buf[0] == 0xAA, PPERR_DVC_INVREPLY);
 						THROW_PP(data_buf[1] == (int8)ConnP.DeviceNo, PPERR_DVC_INVREPLY);
 						if(data_buf[2] == 0x01) {
-							temp_buf = 0;
+							temp_buf.Z();
 							CardCodeToString(data_buf+3, temp_buf);
 							rOut.Add(DVCCMDPAR_CARD, temp_buf);
 						}
@@ -870,7 +870,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 					data_buf[data_size++] = 0xAA;
 					data_buf[data_size++] = (uint8)ConnP.DeviceNo;
 					data_buf[data_size++] = 0x03;
-					temp_buf = 0;
+					temp_buf.Z();
 					rIn.Get(DVCCMDPAR_TEXT, temp_buf);
 					// Line 1
 					temp_buf.Wrap(DispLineSize, head_buf, tail_buf);

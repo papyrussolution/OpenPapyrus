@@ -21,17 +21,12 @@ void ngx_event_acceptex(ngx_event_t * rev)
 	}
 	/* SO_UPDATE_ACCEPT_CONTEXT is required for shutdown() to work */
 	if(setsockopt(c->fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&ls->fd, sizeof(ngx_socket_t)) == -1) {
-		ngx_log_error(NGX_LOG_CRIT, c->log, ngx_socket_errno,
-		    "setsockopt(SO_UPDATE_ACCEPT_CONTEXT) failed for %V", &c->addr_text);
+		ngx_log_error(NGX_LOG_CRIT, c->log, ngx_socket_errno, "setsockopt(SO_UPDATE_ACCEPT_CONTEXT) failed for %V", &c->addr_text);
 		/* TODO: close socket */
 		return;
 	}
-	ngx_getacceptexsockaddrs(c->buffer->pos,
-	    ls->post_accept_buffer_size,
-	    ls->socklen + 16,
-	    ls->socklen + 16,
-	    &c->local_sockaddr, &c->local_socklen,
-	    &c->sockaddr, &c->socklen);
+	ngx_getacceptexsockaddrs(c->buffer->pos, ls->post_accept_buffer_size, ls->socklen + 16, ls->socklen + 16,
+	    &c->local_sockaddr, &c->local_socklen, &c->sockaddr, &c->socklen);
 	if(ls->post_accept_buffer_size) {
 		c->buffer->last += rev->available;
 		c->buffer->end = c->buffer->start + ls->post_accept_buffer_size;
@@ -108,8 +103,8 @@ ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 			c->recv_chain = ngx_recv_chain;
 			c->send_chain = ngx_send_chain;
 			c->listening = ls;
-			rev = c->read;
-			wev = c->write;
+			rev = c->P_EvRd;
+			wev = c->P_EvWr;
 			rev->ovlp.event = rev;
 			wev->ovlp.event = wev;
 			rev->handler = ngx_event_acceptex;

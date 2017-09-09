@@ -789,7 +789,7 @@ static void ngx_cleanup_environment(void * data)
 		ngx_free(pp_env);
 }
 
-ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * cycle, char * const * argv)
+ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * pCycle, char * const * argv)
 {
 	char ** env, * var;
 	u_char * p;
@@ -803,18 +803,18 @@ ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * cycle, char * const * argv)
 	ctx.name = "new binary process";
 	ctx.argv = argv;
 	n = 2;
-	env = ngx_set_environment(cycle, &n);
+	env = ngx_set_environment(pCycle, &n);
 	if(env == NULL) {
 		return NGX_INVALID_PID;
 	}
-	var = (char*)ngx_alloc(sizeof(NGINX_VAR) + cycle->listening.nelts * (NGX_INT32_LEN + 1) + 2, cycle->log);
+	var = (char*)ngx_alloc(sizeof(NGINX_VAR) + pCycle->listening.nelts * (NGX_INT32_LEN + 1) + 2, pCycle->log);
 	if(var == NULL) {
 		ngx_free(env);
 		return NGX_INVALID_PID;
 	}
 	p = ngx_cpymem(var, NGINX_VAR "=", sizeof(NGINX_VAR));
-	ls = (ngx_listening_t *)cycle->listening.elts;
-	for(i = 0; i < cycle->listening.nelts; i++) {
+	ls = (ngx_listening_t *)pCycle->listening.elts;
+	for(i = 0; i < pCycle->listening.nelts; i++) {
 		p = ngx_sprintf(p, "%ud;", ls[i].fd);
 	}
 	*p = '\0';
@@ -831,23 +831,23 @@ ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * cycle, char * const * argv)
 #if (NGX_DEBUG)
 	{
 		for(char ** e = env; *e; e++) {
-			ngx_log_debug1(NGX_LOG_DEBUG_CORE, cycle->log, 0, "env: %s", *e);
+			ngx_log_debug1(NGX_LOG_DEBUG_CORE, pCycle->log, 0, "env: %s", *e);
 		}
 	}
 #endif
 	ctx.envp = (char* const*)env;
-	ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
+	ccf = (ngx_core_conf_t*)ngx_get_conf(pCycle->conf_ctx, ngx_core_module);
 	if(ngx_rename_file(ccf->pid.data, ccf->oldpid.data) == NGX_FILE_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_rename_file_n " %s to %s failed before executing new binary process \"%s\"", 
+		ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno, ngx_rename_file_n " %s to %s failed before executing new binary process \"%s\"", 
 			ccf->pid.data, ccf->oldpid.data, argv[0]);
 		ngx_free(env);
 		ngx_free(var);
 		return NGX_INVALID_PID;
 	}
-	pid = ngx_execute(cycle, &ctx);
+	pid = ngx_execute(pCycle, &ctx);
 	if(pid == NGX_INVALID_PID) {
 		if(ngx_rename_file(ccf->oldpid.data, ccf->pid.data) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
+			ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno,
 			    ngx_rename_file_n " %s back to %s failed after an attempt to execute new binary process \"%s\"",
 			    ccf->oldpid.data, ccf->pid.data, argv[0]);
 		}

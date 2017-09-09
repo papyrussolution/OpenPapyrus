@@ -88,30 +88,20 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 	ngx_uint_t i, n, p, many;
 	ngx_stream_upstream_rr_peer_t * peer, * best;
 	ngx_stream_upstream_rr_peers_t  * peers;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-	    "get least conn peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get least conn peer, try: %ui", pc->tries);
 	if(rrp->peers->single) {
 		return ngx_stream_upstream_get_round_robin_peer(pc, rrp);
 	}
-
 	pc->connection = NULL;
-
 	now = ngx_time();
-
 	peers = rrp->peers;
-
 	ngx_stream_upstream_rr_peers_wlock(peers);
-
 	best = NULL;
 	total = 0;
-
 #if (NGX_SUPPRESS_WARN)
 	many = 0;
 	p = 0;
 #endif
-
 	for(peer = peers->peer, i = 0;
 	    peer;
 	    peer = peer->next, i++) {

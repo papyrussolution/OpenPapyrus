@@ -993,7 +993,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
                                 wb_pack.Rec.ParentID = P.ParentPicWbID;
                                 wb_pack.SetLongSymb(wb_symb);
 								{
-									THROW(WbObj.MakeUniqueCode(temp_buf = 0, 0));
+									THROW(WbObj.MakeUniqueCode(temp_buf.Z(), 0));
 									temp_buf.CopyTo(wb_pack.Rec.Symb, sizeof(wb_pack.Rec.Symb));
 								}
                                 THROW(WbObj.PutPacket(&(wb_id = 0), &wb_pack, 0));
@@ -1376,7 +1376,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 			if(!(flags & _thfDisablePara) && (!(flags & _thfSuppressPara) || p_blk->P_Next))
 				Paragraph(&rOut, paragraph);
 			if(flags & _thfFormula) {
-				OutputFormulaItem(p_blk->Text, temp_buf = 0, 0);
+				OutputFormulaItem(p_blk->Text, temp_buf.Z(), 0);
 				WriteText(rOut, temp_buf);
 			}
 			else
@@ -1384,7 +1384,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 		}
 		else if(p_blk->Type == TextBlock::tContinuation) {
 			if(flags & _thfFormula) {
-				OutputFormulaItem(p_blk->Text, temp_buf = 0, 0);
+				OutputFormulaItem(p_blk->Text, temp_buf.Z(), 0);
 				WriteText(rOut, temp_buf);
 			}
 			else
@@ -2098,7 +2098,7 @@ int PPVer2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 	for(uint i = 0; i < Entries.getCount(); i++) {
 		const VersionEntry * p_entry = Entries.at(i);
 		if(p_entry) {
-			line_buf.Z().Cat(p_entry->Dt, DATF_DMY).Space().Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR();
+			line_buf.Z().Cat(p_entry->Dt, DATF_DMY).Space().Cat(p_entry->Ver.ToStr(temp_buf.Z())).CR();
 			f_out.WriteLine(line_buf);
 			line_buf.Z();
 			for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
@@ -2179,7 +2179,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 	else {
 		if(pEntry) {
 			PPLoadText(PPTXT_HTMLPPVERTITLE, wb_name);
-			pEntry->Ver.ToStr(temp_buf = 0);
+			pEntry->Ver.ToStr(temp_buf.Z());
 			wb_name.Space().Cat(temp_buf);
 			wb_pack.Rec.Dt = pEntry->Dt;
 		}
@@ -2255,7 +2255,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 0).CR());
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
-							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Ver.ToStr(temp_buf = 0)).CR());
+							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Ver.ToStr(temp_buf.Z())).CR());
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
 						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
 							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Dt, DATF_DMY|DATF_CENTURY).CR());

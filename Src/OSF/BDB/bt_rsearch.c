@@ -290,7 +290,7 @@ get_prev:
 			 * each node and discard the tree when we find out
 			 * its not needed.
 			 */
-			if(indx != 0 && cp->sp->page != NULL) {
+			if(indx != 0 && cp->sp->page) {
 				BT_STK_POP(cp);
 				if((ret = __bam_stkrel(dbc, STK_NOLOCK)) != 0)
 					goto err;

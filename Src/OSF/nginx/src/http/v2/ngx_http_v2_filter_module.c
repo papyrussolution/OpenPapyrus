@@ -625,8 +625,8 @@ static ngx_chain_t * ngx_http_v2_send_chain(ngx_connection_t * fc, ngx_chain_t *
 	}
 	if(in == NULL) {
 		if(stream->queued) {
-			fc->write->active = 1;
-			fc->write->ready = 0;
+			fc->P_EvWr->active = 1;
+			fc->P_EvWr->ready = 0;
 		}
 		else {
 			fc->buffered &= ~NGX_HTTP_V2_BUFFERED;
@@ -635,8 +635,8 @@ static ngx_chain_t * ngx_http_v2_send_chain(ngx_connection_t * fc, ngx_chain_t *
 	}
 	h2c = stream->connection;
 	if(size && ngx_http_v2_flow_control(h2c, stream) == NGX_DECLINED) {
-		fc->write->active = 1;
-		fc->write->ready = 0;
+		fc->P_EvWr->active = 1;
+		fc->P_EvWr->ready = 0;
 		return in;
 	}
 	if(in->buf->tag == (ngx_buf_tag_t)&ngx_http_v2_filter_get_shadow) {
@@ -751,8 +751,8 @@ static ngx_chain_t * ngx_http_v2_send_chain(ngx_connection_t * fc, ngx_chain_t *
 		return NGX_CHAIN_ERROR;
 	}
 	if(in && ngx_http_v2_flow_control(h2c, stream) == NGX_DECLINED) {
-		fc->write->active = 1;
-		fc->write->ready = 0;
+		fc->P_EvWr->active = 1;
+		fc->P_EvWr->ready = 0;
 	}
 	return in;
 }
@@ -838,8 +838,8 @@ static ngx_inline ngx_int_t ngx_http_v2_filter_send(ngx_connection_t * fc, ngx_h
 		stream->blocked = 0;
 		if(stream->queued) {
 			fc->buffered |= NGX_HTTP_V2_BUFFERED;
-			fc->write->active = 1;
-			fc->write->ready = 0;
+			fc->P_EvWr->active = 1;
+			fc->P_EvWr->ready = 0;
 			return NGX_AGAIN;
 		}
 		else {
@@ -993,7 +993,7 @@ static ngx_inline void ngx_http_v2_handle_stream(ngx_http_v2_connection_t * h2c,
 	if(!fc->error && stream->exhausted) {
 		return;
 	}
-	wev = fc->write;
+	wev = fc->P_EvWr;
 	wev->active = 0;
 	wev->ready = 1;
 	if(!fc->error && wev->delayed) {
@@ -1035,7 +1035,7 @@ static void ngx_http_v2_filter_cleanup(void * data)
 				stream = ngx_queue_data(q, ngx_http_v2_stream_t, queue);
 				stream->waiting = 0;
 				{
-					ngx_event_t * wev = stream->request->connection->write;
+					ngx_event_t * wev = stream->request->connection->P_EvWr;
 					wev->active = 0;
 					wev->ready = 1;
 					if(!wev->delayed) {

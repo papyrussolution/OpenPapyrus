@@ -228,29 +228,22 @@ static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc
 	return NGX_OK;
 
 found:
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "get keepalive peer: using connection %p", c);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get keepalive peer: using connection %p", c);
 	c->idle = 0;
 	c->sent = 0;
 	c->log = pc->log;
-	c->read->log = pc->log;
-	c->write->log = pc->log;
+	c->P_EvRd->log = pc->log;
+	c->P_EvWr->log = pc->log;
 	c->pool->log = pc->log;
-
 	pc->connection = c;
 	pc->cached = 1;
-
 	return NGX_DONE;
 }
 
-static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, void * data,
-    ngx_uint_t state)
+static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, void * data, ngx_uint_t state)
 {
 	ngx_http_upstream_keepalive_peer_data_t  * kp = (ngx_http_upstream_keepalive_peer_data_t *)data;
 	ngx_http_upstream_keepalive_cache_t * item;
-
 	ngx_queue_t   * q;
 	ngx_connection_t   * c;
 	ngx_http_upstream_t  * u;
@@ -265,11 +258,11 @@ static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, vo
 
 	if(state & NGX_PEER_FAILED
 	    || c == NULL
-	    || c->read->eof
-	    || c->read->error
-	    || c->read->timedout
-	    || c->write->error
-	    || c->write->timedout) {
+	    || c->P_EvRd->eof
+	    || c->P_EvRd->error
+	    || c->P_EvRd->timedout
+	    || c->P_EvWr->error
+	    || c->P_EvWr->timedout) {
 		goto invalid;
 	}
 
@@ -285,56 +278,46 @@ static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, vo
 		goto invalid;
 	}
 
-	if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 		goto invalid;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "free keepalive peer: saving connection %p", c);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "free keepalive peer: saving connection %p", c);
 	if(ngx_queue_empty(&kp->conf->free)) {
 		q = ngx_queue_last(&kp->conf->cache);
 		ngx_queue_remove(q);
-
 		item = ngx_queue_data(q, ngx_http_upstream_keepalive_cache_t, queue);
-
 		ngx_http_upstream_keepalive_close(item->connection);
 	}
 	else {
 		q = ngx_queue_head(&kp->conf->free);
 		ngx_queue_remove(q);
-
 		item = ngx_queue_data(q, ngx_http_upstream_keepalive_cache_t, queue);
 	}
-
 	ngx_queue_insert_head(&kp->conf->cache, q);
-
 	item->connection = c;
-
 	pc->connection = NULL;
-
-	if(c->read->timer_set) {
-		ngx_del_timer(c->read);
+	if(c->P_EvRd->timer_set) {
+		ngx_del_timer(c->P_EvRd);
 	}
-	if(c->write->timer_set) {
-		ngx_del_timer(c->write);
+	if(c->P_EvWr->timer_set) {
+		ngx_del_timer(c->P_EvWr);
 	}
 
-	c->write->handler = ngx_http_upstream_keepalive_dummy_handler;
-	c->read->handler = ngx_http_upstream_keepalive_close_handler;
+	c->P_EvWr->handler = ngx_http_upstream_keepalive_dummy_handler;
+	c->P_EvRd->handler = ngx_http_upstream_keepalive_close_handler;
 
 	c->data = item;
 	c->idle = 1;
 	c->log = ngx_cycle->log;
-	c->read->log = ngx_cycle->log;
-	c->write->log = ngx_cycle->log;
+	c->P_EvRd->log = ngx_cycle->log;
+	c->P_EvWr->log = ngx_cycle->log;
 	c->pool->log = ngx_cycle->log;
 
 	item->socklen = pc->socklen;
 	memcpy(&item->sockaddr, pc->sockaddr, pc->socklen);
 
-	if(c->read->ready) {
-		ngx_http_upstream_keepalive_close_handler(c->read);
+	if(c->P_EvRd->ready) {
+		ngx_http_upstream_keepalive_close_handler(c->P_EvRd);
 	}
 
 invalid:
@@ -371,7 +354,7 @@ static void ngx_http_upstream_keepalive_close_handler(ngx_event_t * ev)
 	if(n == -1 && ngx_socket_errno == NGX_EAGAIN) {
 		ev->ready = 0;
 
-		if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			goto close;
 		}
 

@@ -421,14 +421,9 @@ static ssize_t ngx_http_log_script_write(ngx_http_request_t * r, ngx_http_log_sc
 
 	log.data[log.len - 1] = '\0';
 	*name = log.data;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http log \"%s\"", log.data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http log \"%s\"", log.data);
 	llcf = (ngx_http_log_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_log_module);
-
 	memzero(&of, sizeof(ngx_open_file_info_t));
-
 	of.log = 1;
 	of.valid = llcf->open_file_cache_valid;
 	of.min_uses = llcf->open_file_cache_min_uses;
@@ -438,25 +433,17 @@ static ssize_t ngx_http_log_script_write(ngx_http_request_t * r, ngx_http_log_sc
 		/* simulate successful logging */
 		return len;
 	}
-
-	if(ngx_open_cached_file(llcf->open_file_cache, &log, &of, r->pool)
-	    != NGX_OK) {
+	if(ngx_open_cached_file(llcf->open_file_cache, &log, &of, r->pool) != NGX_OK) {
 		if(of.err == 0) {
 			/* simulate successful logging */
 			return len;
 		}
-
-		ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno,
-		    "%s \"%s\" failed", of.failed, log.data);
+		ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno, "%s \"%s\" failed", of.failed, log.data);
 		/* simulate successful logging */
 		return len;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http log #%d", of.fd);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http log #%d", of.fd);
 	n = ngx_write_fd(of.fd, buf, len);
-
 	return n;
 }
 
@@ -966,7 +953,7 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ngx_int_t gzip;
 	ngx_uint_t i, n;
 	ngx_msec_t flush;
-	ngx_str_t  * value, name, s;
+	ngx_str_t name, s;
 	ngx_http_log_t  * log;
 	ngx_syslog_peer_t * peer;
 	ngx_http_log_buf_t  * buffer;
@@ -974,20 +961,15 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ngx_http_log_main_conf_t   * lmcf;
 	ngx_http_script_compile_t sc;
 	ngx_http_compile_complex_value_t ccv;
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		llcf->off = 1;
 		if(cf->args->nelts == 2) {
 			return NGX_CONF_OK;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[2]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(llcf->logs == NULL) {
 		llcf->logs = ngx_array_create(cf->pool, 2, sizeof(ngx_http_log_t));
 		if(llcf->logs == NULL) {
@@ -999,44 +981,33 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	if(log == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(log, sizeof(ngx_http_log_t));
-
 	if(ngx_strncmp(value[1].data, "syslog:", 7) == 0) {
 		peer = (ngx_syslog_peer_t *)ngx_pcalloc(cf->pool, sizeof(ngx_syslog_peer_t));
 		if(peer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		if(ngx_syslog_process_conf(cf, peer) != NGX_CONF_OK) {
 			return NGX_CONF_ERROR;
 		}
-
 		log->syslog_peer = peer;
-
 		goto process_formats;
 	}
-
 	n = ngx_http_script_variables_count(&value[1]);
-
 	if(n == 0) {
 		log->file = ngx_conf_open_file(cf->cycle, &value[1]);
-		if(log->file == NULL) {
+		if(!log->file)
 			return NGX_CONF_ERROR;
-		}
 	}
 	else {
 		if(ngx_conf_full_name(cf->cycle, &value[1], 0) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
-
 		log->script = (ngx_http_log_script_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_script_t));
-		if(log->script == NULL) {
+		if(!log->script) {
 			return NGX_CONF_ERROR;
 		}
-
 		memzero(&sc, sizeof(ngx_http_script_compile_t));
-
 		sc.cf = cf;
 		sc.source = &value[1];
 		sc.lengths = &log->script->lengths;
@@ -1044,7 +1015,6 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		sc.variables = n;
 		sc.complete_lengths = 1;
 		sc.complete_values = 1;
-
 		if(ngx_http_script_compile(&sc) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}

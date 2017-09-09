@@ -1394,6 +1394,7 @@ int SLAPI ObjTagCore::GetObjectList(PPID objType, PPID tagID, UintHashTable & rL
 
 int SLAPI ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
 {
+	int    ok = 1;
 	ObjTagTbl::Key1 k1;
 	MEMSZERO(k1);
 	k1.TagID = tagID;
@@ -1402,9 +1403,10 @@ int SLAPI ObjTagCore::SearchAnyRefToTagID(PPID tagID, PPObjID * pObjID)
 			pObjID->Obj = data.ObjType;
 			pObjID->Id  = data.ObjID;
 		}
-		return 1;
 	}
-	return PPDbSearchError();
+	else
+		ok = PPDbSearchError();
+	return ok;
 }
 
 int SLAPI ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const char * pStr, PPIDArray * pList)

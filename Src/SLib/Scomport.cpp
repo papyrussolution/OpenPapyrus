@@ -137,43 +137,37 @@ SLAPI SCommPort::~SCommPort()
 #endif
 }
 
-int SLAPI SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
+void SLAPI SCommPort::SetReadCyclingParams(int cycleCount, int cycleDelay)
 {
 	ReadCycleCount = cycleCount;
 	ReadCycleDelay = cycleDelay;
-	return 1;
 }
 
-int SLAPI SCommPort::GetParams(CommPortParams * pParams) const
+void FASTCALL SCommPort::GetParams(CommPortParams * pParams) const
 {
 	*pParams = CPP;
-	return 1;
 }
 
-int SLAPI SCommPort::GetTimeouts(CommPortTimeouts * pParam) const
+void FASTCALL SCommPort::GetTimeouts(CommPortTimeouts * pParam) const
 {
 	*pParam = CPT;
-	return 1;
 }
 
-int SLAPI SCommPort::SetParams(const CommPortParams * pParam)
+void FASTCALL SCommPort::SetParams(const CommPortParams * pParam)
 {
 	CPP = *pParam;
-	return 1;
 }
 
-int SLAPI SCommPort::SetTimeouts(const CommPortTimeouts * pParam)
+void FASTCALL SCommPort::SetTimeouts(const CommPortTimeouts * pParam)
 {
 	CPT = *pParam;
-	return 1;
 }
 
 static void __OutLastErr()
 {
 	const  DWORD last_err = GetLastError();
 	LPVOID p_msg_buf;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
+	::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
 	::MessageBox(NULL, (LPCTSTR)p_msg_buf, "Error", MB_OK | MB_ICONINFORMATION);
 	LocalFree(p_msg_buf);

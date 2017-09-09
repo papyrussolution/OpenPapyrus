@@ -1147,7 +1147,7 @@ int PosPaymentBlock::EditDialog2()
 				const CcAmountEntry & r_entry = Data.CcPl.at(i);
 				if(r_entry.Type == CCAMTTYP_CRDCARD) {
 					ss.clear();
-					temp_buf = 0;
+					temp_buf.Z();
 					if(r_entry.AddedID) {
 						SCardTbl::Rec sc_rec;
 						if(ScObj.Search(r_entry.AddedID, &sc_rec) > 0) {
@@ -1171,7 +1171,7 @@ int PosPaymentBlock::EditDialog2()
 					ss.add(temp_buf);
 					temp_buf.Z().Cat(r_entry.Amount);
 					ss.add(temp_buf);
-					temp_buf = 0;
+					temp_buf.Z();
 					temp_buf.Cat(ScRestList.Get(r_entry.AddedID, 0) - r_entry.Amount, SFMT_MONEY);
 					ss.add(temp_buf);
 					THROW(addStringToList(r_entry.AddedID, ss.getBuf()));

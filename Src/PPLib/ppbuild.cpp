@@ -309,7 +309,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 			setCtrlString(CTL_SELFBUILD_VERSION, Data.GetVerLabel(temp_buf));
 			setCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				if(p_config_entry) {
 					StrAssocArray msvs_ver_list;
 					PrcssrBuild::FindMsvs(p_config_entry->PrefMsvsVerMajor, msvs_ver_list, &temp_buf);
@@ -318,13 +318,13 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 				setCtrlString(CTL_SELFBUILD_CMPLRPATH, temp_buf);
 			}
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				if(p_config_entry)
 					temp_buf = p_config_entry->NsisPath;
 				setCtrlString(CTL_SELFBUILD_IMPATH, temp_buf);
 			}
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				if(Data.Flags & Data.fOpenSource)
 					temp_buf = "OPENSOURCE";
 				setStaticText(CTL_SELFBUILD_ST_INFO, temp_buf);
@@ -738,8 +738,8 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 		THROW(fileExists(src_file_name));
 		{
 			ps.Split(src_file_name);
-			ps.Nam = 0;
-			ps.Ext = 0;
+			ps.Nam.Z();
+			ps.Ext.Z();
 			ps.Merge(cur_dir);
 		}
 		cmd_line.Space().Cat("/ob").Space().CatQStr(src_file_name);

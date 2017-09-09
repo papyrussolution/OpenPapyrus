@@ -85,43 +85,32 @@ static ngx_int_t ngx_select_init(ngx_cycle_t * cycle, ngx_msec_t timer)
 			ngx_memcpy(index, event_index, sizeof(ngx_event_t *) * nevents);
 			ngx_free(event_index);
 		}
-
 		event_index = index;
 	}
-
 	ngx_io = ngx_os_io;
-
 	ngx_event_actions = ngx_select_module_ctx.actions;
-
 	ngx_event_flags = NGX_USE_LEVEL_EVENT;
-
 	max_fd = -1;
-
 	return NGX_OK;
 }
 
 static void ngx_select_done(ngx_cycle_t * cycle)
 {
 	ngx_free(event_index);
-
 	event_index = NULL;
 }
 
 static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags)
 {
 	ngx_connection_t  * c;
-
 	c = (ngx_connection_t*)ev->data;
-
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0,
 	    "select add event fd:%d ev:%i", c->fd, event);
-
 	if(ev->index != NGX_INVALID_INDEX) {
 		ngx_log_error(NGX_LOG_ALERT, ev->log, 0,
 		    "select event fd:%d ev:%i is already set", c->fd, event);
 		return NGX_OK;
 	}
-
 	if((event == NGX_READ_EVENT && ev->write)
 	    || (event == NGX_WRITE_EVENT && !ev->write)) {
 		ngx_log_error(NGX_LOG_ALERT, ev->log, 0,
@@ -129,20 +118,16 @@ static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uin
 		    ev->write ? "write" : "read", c->fd, event);
 		return NGX_ERROR;
 	}
-
 	if(event == NGX_READ_EVENT) {
 		FD_SET(c->fd, &master_read_fd_set);
 	}
 	else if(event == NGX_WRITE_EVENT) {
 		FD_SET(c->fd, &master_write_fd_set);
 	}
-
 	if(max_fd != -1 && max_fd < c->fd) {
 		max_fd = c->fd;
 	}
-
 	ev->active = 1;
-
 	event_index[nevents] = ev;
 	ev->index = nevents;
 	nevents++;

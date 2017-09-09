@@ -2021,7 +2021,7 @@ int32 DL6ICLS_PPSession::GetStatusInfo(SPpySessionInfo* pInfo)
 			temp_buf.CopyToOleStr(&pInfo->DbPath);
 		}
 		else {
-			temp_buf = 0;
+			temp_buf.Z();
 			temp_buf.CopyToOleStr(&pInfo->DbName);
 			temp_buf.CopyToOleStr(&pInfo->DbSymb);
 			temp_buf.CopyToOleStr(&pInfo->SysPath);
@@ -10487,12 +10487,12 @@ int32 DL6ICLS_PPFias::SearchAddr(int32 id, SPpyO_FiasAddr* pRec)
 				pRec->ParentID = rec.ParentUuRef;
 				pRec->Level = rec.LevelStatus;
 				//
-				temp_buf = 0;
+				temp_buf.Z();
                 if(p->FT.UrT.Search(rec.IdUuRef, uuid) > 0)
 					uuid.ToStr(S_GUID::fmtIDL, temp_buf);
                 temp_buf.CopyToOleStr(&pRec->AddrUuid);
                 //
-				temp_buf = 0;
+				temp_buf.Z();
                 if(p->FT.UrT.Search(rec.RecUuID, uuid) > 0)
 					uuid.ToStr(S_GUID::fmtIDL, temp_buf);
                 temp_buf.CopyToOleStr(&pRec->RecUuid);
@@ -10536,7 +10536,7 @@ int32 DL6ICLS_PPFias::SearchHouse(int32 id, SPpyO_FiasHouse* pRec)
 				pRec->AddrID = rec.ParentUuRef;
 				//
 				pRec->HouseUuid = 0;
-				temp_buf = 0;
+				temp_buf.Z();
                 if(p->FT.UrT.Search(rec.IdUuRef, uuid) > 0)
 					uuid.ToStr(S_GUID::fmtIDL, temp_buf);
                 temp_buf.CopyToOleStr(&pRec->HouseUuid);
@@ -10580,12 +10580,12 @@ int32 DL6ICLS_PPFias::SearchAddrByGuid(SString & pGuidStr, SPpyO_FiasAddr* pRec)
 					pRec->ParentID = rec.ParentUuRef;
 					pRec->Level = rec.LevelStatus;
 					//
-					temp_buf = 0;
+					temp_buf.Z();
 					if(p->FT.UrT.Search(rec.IdUuRef, uuid) > 0)
 						uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 					temp_buf.CopyToOleStr(&pRec->AddrUuid);
 					//
-					temp_buf = 0;
+					temp_buf.Z();
 					if(p->FT.UrT.Search(rec.RecUuID, uuid) > 0)
 						uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 					temp_buf.CopyToOleStr(&pRec->RecUuid);
@@ -10632,7 +10632,7 @@ int32 DL6ICLS_PPFias::SearchHouseByGuid(SString & pGuidStr, SPpyO_FiasHouse* pRe
 					pRec->AddrID = rec.ParentUuRef;
 					//
 					pRec->HouseUuid = 0;
-					temp_buf = 0;
+					temp_buf.Z();
 					if(p->FT.UrT.Search(rec.IdUuRef, uuid) > 0)
 						uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 					temp_buf.CopyToOleStr(&pRec->HouseUuid);
@@ -10684,7 +10684,7 @@ static void FillCCheckRec(const CCheckPacket * pInner, SPpyO_CCheck * pOuter)
 	pOuter->Discount = MONEYTOLDBL(pInner->Rec.Discount);
 	FLD(SCardID);
 	{
-		temp_buf = 0;
+		temp_buf.Z();
 		if(pInner->Rec.SCardID) {
 			PPObjSCard sc_obj;
 			SCardTbl::Rec sc_rec;

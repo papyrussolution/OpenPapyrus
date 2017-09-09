@@ -946,7 +946,7 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 					rBuf.Printf(b, lot_str.cptr());
 					break;
 				case PPLotFault::OrdOpOnSimpleLot:
-					temp_buf = 0;
+					temp_buf.Z();
 					rBuf.Printf(b, lot_str.cptr(), temp_buf.cptr());
 					break;
 				case PPLotFault::InadqLotWoTaxFlagOn:

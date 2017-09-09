@@ -174,11 +174,11 @@ int __bam_metachk(DB * dbp, const char * name, BTMETA * btm)
 #ifdef HAVE_COMPRESSION
 	if(F_ISSET(&btm->dbmeta, BTM_COMPRESS)) {
 		F_SET(dbp, DB_AM_COMPRESS);
-		if((BTREE *)dbp->bt_internal != NULL && !DB_IS_COMPRESSED(dbp) && (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
+		if((BTREE *)dbp->bt_internal && !DB_IS_COMPRESSED(dbp) && (ret = __bam_set_bt_compress(dbp, NULL, NULL)) != 0)
 			return ret;
 	}
 	else {
-		if((BTREE *)dbp->bt_internal != NULL && DB_IS_COMPRESSED(dbp)) {
+		if((BTREE *)dbp->bt_internal && DB_IS_COMPRESSED(dbp)) {
 			__db_errx(env, DB_STR_A("1016", "%s: compresssion specified to open method but not set in database", "%s"), name);
 			return EINVAL;
 		}
@@ -316,7 +316,7 @@ static void __bam_init_meta(DB * dbp, BTMETA * meta, db_pgno_t pgno, DB_LSN * ls
 		F_SET(&meta->dbmeta, BTM_RENUMBER);
 	if(F_ISSET(dbp, DB_AM_SUBDB))
 		F_SET(&meta->dbmeta, BTM_SUBDB);
-	if(dbp->dup_compare != NULL)
+	if(dbp->dup_compare)
 		F_SET(&meta->dbmeta, BTM_DUPSORT);
 #ifdef HAVE_COMPRESSION
 	if(DB_IS_COMPRESSED(dbp))

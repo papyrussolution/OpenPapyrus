@@ -1173,7 +1173,7 @@ void SLAPI GoodsGrpngArray::InitOpNames()
 	SString temp_buf;
 	for(uint i = 0; enumItems(&i, (void**)&p_entry);) {
 		uint strid = 0;
-		temp_buf = 0;
+		temp_buf.Z();
 		switch(p_entry->OpID) {
 			case -1:                strid = PPTXT_INREST;      break;
 			case 10000:             strid = PPTXT_OUTREST;     break;

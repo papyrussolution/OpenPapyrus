@@ -1,7 +1,6 @@
 // OBJTAG.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
-//
 // Теги объектов
 //
 #include <pp.h>
@@ -1004,14 +1003,14 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 		PPObjectTag temp_rec;
 		PPObjTagPacket pack;
 		PPID   id = p_rez->getUINT();
-		p_rez->getString(temp_buf = 0, 2); // Name
+		p_rez->getString(temp_buf.Z(), 2); // Name
 		PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v9.2.1
 		temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-		p_rez->getString(temp_buf = 0, 2); // Symb
+		p_rez->getString(temp_buf.Z(), 2); // Symb
 		temp_buf.CopyTo(pack.Rec.Symb, sizeof(pack.Rec.Symb));
 		pack.Rec.ID = id;
-		p_rez->getString(obj_type_symb = 0, 2);  // ObjType
-		p_rez->getString(data_type_symb = 0, 2); // DataType
+		p_rez->getString(obj_type_symb.Z(), 2);  // ObjType
+		p_rez->getString(data_type_symb.Z(), 2); // DataType
 		if(do_make_doc) {
 			line_buf.Z();
 			(temp_buf = pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
@@ -1042,7 +1041,7 @@ int SLAPI PPObjTag::MakeReserved(long flags)
 					pack.Rec.TagDataType = OTTYP_NUMBER;
 				else if(data_type_symb.CmpNC("DATE") == 0)
 					pack.Rec.TagDataType = OTTYP_DATE;
-				else if(data_type_symb.CmpNC("TIMESTAMP") == 0) // @v7.5.0
+				else if(data_type_symb.CmpNC("TIMESTAMP") == 0)
 					pack.Rec.TagDataType = OTTYP_TIMESTAMP;
 				else if(data_type_symb.CmpNC("GUID") == 0 || data_type_symb.CmpNC("UUID") == 0)
 					pack.Rec.TagDataType = OTTYP_GUID;

@@ -1223,20 +1223,35 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 	return p_ret;
 }
 
-PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int type)
+PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 {
 	PPThread * p_ret = 0;
 	RwL.ReadLock();
 	const uint c = getCount();
 	for(uint i = 0; i < c; i++) {
 		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == type && p_thread->IsIdle()) {
+		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind && p_thread->IsIdle()) {
 			p_ret = p_thread;
 			break;
 		}
 	}
 	RwL.Unlock();
 	return p_ret;
+}
+
+uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
+{
+	uint   result = 0;
+	RwL.ReadLock();
+	const uint c = getCount();
+	for(uint i = 0; i < c; i++) {
+		PPThread * p_thread = at(i);
+		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind) {
+			result++;
+		}
+	}
+	RwL.Unlock();
+	return result;
 }
 //
 //
@@ -1826,7 +1841,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 				SString path, root_path;
 				PPGetPath(PPPATH_SYSROOT, root_path);
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
 					Helper_SetPath(PPPATH_TEMP, path);
 				}
 				{
@@ -1841,18 +1856,18 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 						SLS.SetLogPath(path);
 				}
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
 					if(!path.NotEmptyS())
 						(path = root_path).SetLastSlash().Cat("PACK");
 					Helper_SetPath(PPPATH_PACK, path);
 				}
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
 					Helper_SetPath(PPPATH_SPII, path);
 				}
 				// @v9.7.8 {
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf = 0) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
 					Helper_SetPath(PPPATH_SARTREDB, path);
 				}
 				// } @v9.7.8
@@ -2781,7 +2796,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						// @v8.5.7 {
 						{
 							SetExtFlag(ECF_TRACESYNCLOT, 0);
-							if(ini_file.GetParam("config", "tracesynclot", temp_buf = 0) > 0) {
+							if(ini_file.GetParam("config", "tracesynclot", temp_buf.Z()) > 0) {
 								long tsl = temp_buf.ToLong();
 								if(tsl > 0)
 									SetExtFlag(ECF_TRACESYNCLOT, 1);
@@ -4342,23 +4357,6 @@ int SLAPI PPSession::IsThreadStopped()
 	return ok;
 }
 
-// @construction
-int SLAPI PPSession::DispatchServerCommand(PPServerCmd * pCmd, const void * pReq, SBufferPipe * pPipe)
-{
-	int    ok = -1;
-
-	ENTER_CRITICAL_SECTION
-	PPThread * p_thread = 0;
-	while(!p_thread) {
-		p_thread = ThreadList.SearchIdle(PPThread::kWorkerSession);
-		if(!p_thread) {
-
-		}
-	};
-	LEAVE_CRITICAL_SECTION
-	return ok;
-}
-
 PPAdviseEvent & FASTCALL PPAdviseEvent::operator = (const SysJournalTbl::Rec & rSjRec)
 {
 	Ident = 0;
@@ -4468,21 +4466,24 @@ int FASTCALL PPAdviseEventQueue::Push(const TSArray <PPAdviseEvent> & rList)
 		ql = getCount();
 		Lck.Unlock();
 	}
-	SLck.Lock();
-	S.LivingTime = (int64)clock() - S.StartClock;
-	S.Push_Count++;
-	if(ql > S.MaxLength)
-		S.MaxLength = ql;
-	SLck.Unlock();
+	{
+		SLck.Lock();
+		S.LivingTime = (int64)clock() - S.StartClock;
+		S.Push_Count++;
+		if(ql > S.MaxLength)
+			S.MaxLength = ql;
+		SLck.Unlock();
+	}
 	return ok;
 }
 
 uint PPAdviseEventQueue::GetCount()
 {
 	uint   c = 0;
-	Lck.ReadLockT(0);
-	c = getCount();
-	Lck.Unlock();
+	if(Lck.ReadLockT(0) > 0) {
+		c = getCount();
+		Lck.Unlock();
+	}
 	return c;
 }
 

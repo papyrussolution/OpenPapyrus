@@ -122,7 +122,8 @@ int SLAPI WinService::Create(const char * pDisplayName, const char * pModuleName
 			DWORD  bytes_needed = buf_sz;
 			int    to_upd = 0;
 			if(QueryServiceConfig(H, &cfg, buf_sz, &bytes_needed)) {
-				SString _path = cfg.lpBinaryPathName, _path2 = path;
+				SString _path = cfg.lpBinaryPathName;
+				SString _path2 = path;
 				if(_path.CmpNC(_path2) != 0)
 					to_upd = 1;
 				else if(p_login && stricmp(p_login, cfg.lpServiceStartName) != 0)

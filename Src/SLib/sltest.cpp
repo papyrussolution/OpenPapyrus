@@ -1,6 +1,6 @@
 // SLTEST.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017
-//
+// @codepage UTF-8
 // Test Suits
 //
 #include <slib.h>
@@ -46,7 +46,7 @@ int SLAPI STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFil
 		if(line_buf.NotEmptyS() && line_buf.C(0) != '#') {
 			if(line_buf.C(0) == '[') {
 				const char * p = line_buf+1;
-				temp_buf = 0;
+				temp_buf.Z();
 				while(*p && *p != ']') {
 					temp_buf.CatChar(*p++);
 				}
@@ -57,7 +57,7 @@ int SLAPI STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFil
 			}
 			else if(my_zone) {
 				int    line_contin = 0;
-				temp_buf = 0;
+				temp_buf.Z();
 				do {
 					if(line_contin) {
 						line_buf.Chomp().Strip();
@@ -803,8 +803,8 @@ int STestSuite::Run(const char * pIniFileName)
 		if(LogFileName.NotEmpty() && !fileExists(LogFileName))
 			ReportTestEntry(1, 0);
 		ReportTestEntry(2, 0);
-		// Распределяем достаточно большой буфер для строки вывода тестов, дабы в дальнейшем
-		// не было увеличения этого буфера (иначе будем видеть искажение результатов замера используемой тестами памяти)
+		// Р Р°СЃРїСЂРµРґРµР»СЏРµРј РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±РѕР»СЊС€РѕР№ Р±СѓС„РµСЂ РґР»СЏ СЃС‚СЂРѕРєРё РІС‹РІРѕРґР° С‚РµСЃС‚РѕРІ, РґР°Р±С‹ РІ РґР°Р»СЊРЅРµР№С€РµРј
+		// РЅРµ Р±С‹Р»Рѕ СѓРІРµР»РёС‡РµРЅРёСЏ СЌС‚РѕРіРѕ Р±СѓС„РµСЂР° (РёРЅР°С‡Рµ Р±СѓРґРµРј РІРёРґРµС‚СЊ РёСЃРєР°Р¶РµРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ Р·Р°РјРµСЂР° РёСЃРїРѕР»СЊР·СѓРµРјРѕР№ С‚РµСЃС‚Р°РјРё РїР°РјСЏС‚Рё)
 		CaseBuffer.CatCharN(' ', 8192);
 		SString temp_buf(8192);
 		for(CurIdx = 0; CurIdx < ((TSCollection <Entry> *)P_List)->getCount(); CurIdx++) {
@@ -827,11 +827,11 @@ int STestSuite::Run(const char * pIniFileName)
 					int64 tmsys_start, tmsys_finish;
 					{
 						uint  c = p_entry->MaxCount;
-						uint  succ = 0, fail = 0; // Счетчики успешных и ошибочных запусков
+						uint  succ = 0, fail = 0; // РЎС‡РµС‚С‡РёРєРё СѓСЃРїРµС€РЅС‹С… Рё РѕС€РёР±РѕС‡РЅС‹С… Р·Р°РїСѓСЃРєРѕРІ
 						tmsys_start = getprofilesystime();
 						tm_start = getprofiletime(thr_id);
 						if(c) do {
-							p_case->SetInfo(0, 1); // Предварительная установка статуса завершения (OK=1)
+							p_case->SetInfo(0, 1); // РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° СЃС‚Р°С‚СѓСЃР° Р·Р°РІРµСЂС€РµРЅРёСЏ (OK=1)
 							if(p_case->Run(0))
 								++succ;
 							else
@@ -845,8 +845,8 @@ int STestSuite::Run(const char * pIniFileName)
 						p_entry->FailCount = fail;
 					}
 					//
-					// Запускаем бенчмарки (если хотя бы один тестовый прогон завершился с ошибкой,
-					// то бенчмарки не запускаем, ибо, нет смысла).
+					// Р—Р°РїСѓСЃРєР°РµРј Р±РµРЅС‡РјР°СЂРєРё (РµСЃР»Рё С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ С‚РµСЃС‚РѕРІС‹Р№ РїСЂРѕРіРѕРЅ Р·Р°РІРµСЂС€РёР»СЃСЏ СЃ РѕС€РёР±РєРѕР№,
+					// С‚Рѕ Р±РµРЅС‡РјР°СЂРєРё РЅРµ Р·Р°РїСѓСЃРєР°РµРј, РёР±Рѕ, РЅРµС‚ СЃРјС‹СЃР»Р°).
 					//
 					if(!p_entry->FailCount) {
 						for(uint bm_p = 0, bmr_i = 0; p_entry->BenchmarkList.get(&bm_p, temp_buf); bmr_i++) {
@@ -867,12 +867,12 @@ int STestSuite::Run(const char * pIniFileName)
 					/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapAfter));
 				}
 			}
-			else { // @v5.7 ANDREW сообщение о том, что функция теста не найдена {
+			else { // @v5.7 ANDREW СЃРѕРѕР±С‰РµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ С„СѓРЅРєС†РёСЏ С‚РµСЃС‚Р° РЅРµ РЅР°Р№РґРµРЅР° {
 				LPVOID msg_buff;
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 				    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
 					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &msg_buff, 0, 0);
-				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), "Error", MB_OK);
+				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), _T("Error"), MB_OK);
 				LocalFree(msg_buff);
 			} // } @v5.7 ANDREW
 			ReportTestEntry(0, p_entry);
@@ -891,15 +891,15 @@ typedef int (*STestMemTransformFunc)(int op, const SBaseBuffer & rSrcBuf, SBaseB
 
 struct TestMemParam {
 	enum {
-		fReversibility = 0x0001 // Тестировать обратимость преобразования //
+		fReversibility = 0x0001 // РўРµСЃС‚РёСЂРѕРІР°С‚СЊ РѕР±СЂР°С‚РёРјРѕСЃС‚СЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ //
 	};
 	TestMemParam();
 
 	long   Flags;
 	size_t MaxInputSize;
-	double DestBufRate;    // Коэффициент размера буфера-приемника относительно размера
-		// буфера-источника. По умолчанию 1.0f.
-		// Отрицательное значение означает фиксированный размер буфера-приемника равный ((size_t)-DestBufRate)
+	double DestBufRate;    // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЂР°Р·РјРµСЂР° Р±СѓС„РµСЂР°-РїСЂРёРµРјРЅРёРєР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЂР°Р·РјРµСЂР°
+		// Р±СѓС„РµСЂР°-РёСЃС‚РѕС‡РЅРёРєР°. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1.0f.
+		// РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РѕР·РЅР°С‡Р°РµС‚ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°-РїСЂРёРµРјРЅРёРєР° СЂР°РІРЅС‹Р№ ((size_t)-DestBufRate)
 	const SBaseBuffer SrcBuf;
 	const SBaseBuffer ExpectedDest;
 };
@@ -951,7 +951,7 @@ public:
 		return 1;
 	}
 private:
-	size_t NomSize;  // Номинальный размер буфера
+	size_t NomSize;  // РќРѕРјРёРЅР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°
 	size_t GapSize;
 	static const uint8 GapData[9];
 };

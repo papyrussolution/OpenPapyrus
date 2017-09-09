@@ -67,7 +67,7 @@
 typedef struct ngx_http_location_tree_node_s ngx_http_location_tree_node_t;
 typedef struct ngx_http_core_loc_conf_s ngx_http_core_loc_conf_t;
 
-typedef struct {
+struct ngx_http_listen_opt_t {
 	ngx_sockaddr_t sockaddr;
 	socklen_t socklen;
 	unsigned set : 1;
@@ -101,7 +101,7 @@ typedef struct {
 	char * accept_filter;
 #endif
 	u_char addr[NGX_SOCKADDR_STRLEN + 1];
-} ngx_http_listen_opt_t;
+};
 //
 // Descr: Фаза обработки HTTP-запроса
 //
@@ -129,23 +129,23 @@ struct ngx_http_phase_handler_s {
 	ngx_uint_t next;
 };
 
-typedef struct {
+struct ngx_http_phase_engine_t {
 	ngx_http_phase_handler_t  * handlers;
 	ngx_uint_t server_rewrite_index;
 	ngx_uint_t location_rewrite_index;
-} ngx_http_phase_engine_t;
+};
 
-typedef struct {
+struct ngx_http_phase_t {
 	ngx_array_t handlers;
-} ngx_http_phase_t;
+};
 
-typedef struct {
-	ngx_array_t servers;                    /* ngx_http_core_srv_conf_t */
+struct ngx_http_core_main_conf_t {
+	ngx_array_t servers; // ngx_http_core_srv_conf_t 
 	ngx_http_phase_engine_t phase_engine;
 	ngx_hash_t headers_in_hash;
 	ngx_hash_t variables_hash;
-	ngx_array_t variables;                    /* ngx_http_variable_t */
-	ngx_array_t prefix_variables;             /* ngx_http_variable_t */
+	ngx_array_t variables; // ngx_http_variable_t 
+	ngx_array_t prefix_variables; // ngx_http_variable_t 
 	ngx_uint_t ncaptures;
 	ngx_uint_t server_names_hash_max_size;
 	ngx_uint_t server_names_hash_bucket_size;
@@ -154,13 +154,11 @@ typedef struct {
 	ngx_hash_keys_arrays_t  * variables_keys;
 	ngx_array_t * ports;
 	ngx_http_phase_t phases[NGX_HTTP_LOG_PHASE + 1];
-} ngx_http_core_main_conf_t;
+};
 
-typedef struct {
-	/* array of the ngx_http_server_name_t, "server_name" directive */
-	ngx_array_t server_names;
-	/* server ctx */
-	ngx_http_conf_ctx_t * ctx;
+struct ngx_http_core_srv_conf_t {
+	ngx_array_t server_names; // array of the ngx_http_server_name_t, "server_name" directive 
+	ngx_http_conf_ctx_t * ctx; // server ctx 
 	ngx_str_t server_name;
 	size_t connection_pool_size;
 	size_t request_pool_size;
@@ -174,24 +172,24 @@ typedef struct {
 #if (NGX_PCRE)
 	unsigned captures : 1;
 #endif
-	ngx_http_core_loc_conf_t  ** named_locations;
-} ngx_http_core_srv_conf_t;
-
-/* list of structures to find core_srv_conf quickly at run time */
-
-typedef struct {
+	ngx_http_core_loc_conf_t ** named_locations;
+};
+//
+// list of structures to find core_srv_conf quickly at run time 
+//
+struct ngx_http_server_name_t {
 #if (NGX_PCRE)
 	ngx_http_regex_t   * regex;
 #endif
-	ngx_http_core_srv_conf_t  * server; /* virtual name server conf */
+	ngx_http_core_srv_conf_t * server; /* virtual name server conf */
 	ngx_str_t name;
-} ngx_http_server_name_t;
+};
 
-typedef struct {
+struct ngx_http_virtual_names_t {
 	ngx_hash_combined_t names;
 	ngx_uint_t nregex;
-	ngx_http_server_name_t  * regex;
-} ngx_http_virtual_names_t;
+	ngx_http_server_name_t * regex;
+};
 
 struct ngx_http_addr_conf_s {
 	/* the default server configuration for this address:port */
@@ -202,31 +200,31 @@ struct ngx_http_addr_conf_s {
 	unsigned proxy_protocol : 1;
 };
 
-typedef struct {
+struct ngx_http_in_addr_t {
 	in_addr_t addr;
 	ngx_http_addr_conf_t conf;
-} ngx_http_in_addr_t;
+};
 
 #if (NGX_HAVE_INET6)
-	typedef struct {
+	struct ngx_http_in6_addr_t {
 		struct in6_addr addr6;
 		ngx_http_addr_conf_t conf;
-	} ngx_http_in6_addr_t;
+	};
 #endif
 
-typedef struct {
+struct ngx_http_port_t {
 	/* ngx_http_in_addr_t or ngx_http_in6_addr_t */
 	void * addrs;
 	ngx_uint_t naddrs;
-} ngx_http_port_t;
+};
 
-typedef struct {
+struct ngx_http_conf_port_t {
 	ngx_int_t family;
 	in_port_t port;
-	ngx_array_t addrs;                /* array of ngx_http_conf_addr_t */
-} ngx_http_conf_port_t;
+	ngx_array_t addrs; // array of ngx_http_conf_addr_t 
+};
 
-typedef struct {
+struct ngx_http_conf_addr_t {
 	ngx_http_listen_opt_t opt;
 	ngx_hash_t hash;
 	ngx_hash_wildcard_t  * wc_head;
@@ -237,18 +235,18 @@ typedef struct {
 #endif
 	/* the default server configuration for this address:port */
 	ngx_http_core_srv_conf_t  * default_server;
-	ngx_array_t servers;             /* array of ngx_http_core_srv_conf_t */
-} ngx_http_conf_addr_t;
+	ngx_array_t servers; // array of ngx_http_core_srv_conf_t 
+};
 
-typedef struct {
+struct ngx_http_err_page_t {
 	ngx_int_t status;
 	ngx_int_t overwrite;
 	ngx_http_complex_value_t value;
 	ngx_str_t args;
-} ngx_http_err_page_t;
+};
 
 struct ngx_http_core_loc_conf_s {
-	ngx_str_t name;          /* location name */
+	ngx_str_t name; // location name 
 #if (NGX_PCRE)
 	ngx_http_regex_t  * regex;
 #endif
@@ -264,15 +262,13 @@ struct ngx_http_core_loc_conf_s {
 #endif
 	ngx_http_location_tree_node_t * static_locations;
 #if (NGX_PCRE)
-	ngx_http_core_loc_conf_t       ** regex_locations;
+	ngx_http_core_loc_conf_t ** regex_locations;
 #endif
-	/* pointer to the modules' loc_conf */
-	void        ** loc_conf;
+	void        ** loc_conf; // pointer to the modules' loc_conf 
 	uint32_t limit_except;
 	void        ** limit_except_loc_conf;
 	ngx_http_handler_pt handler;
-	/* location name length for inclusive location with inherited alias */
-	size_t alias;
+	size_t alias; // location name length for inclusive location with inherited alias 
 	ngx_str_t root;                    /* root, alias */
 	ngx_str_t post_action;
 	ngx_array_t  * root_lengths;
@@ -357,7 +353,7 @@ struct ngx_http_core_loc_conf_s {
 #endif
 };
 
-typedef struct {
+struct ngx_http_location_queue_t {
 	ngx_queue_t queue;
 	ngx_http_core_loc_conf_t * exact;
 	ngx_http_core_loc_conf_t * inclusive;
@@ -365,7 +361,7 @@ typedef struct {
 	u_char * file_name;
 	ngx_uint_t line;
 	ngx_queue_t list;
-} ngx_http_location_queue_t;
+};
 
 struct ngx_http_location_tree_node_s {
 	ngx_http_location_tree_node_t * left;

@@ -8,28 +8,18 @@
 
 void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, u_char * name, size_t len)
 {
-	ngx_uint_t i;
-	ngx_hash_elt_t  * elt;
 #if 0
 	ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, 0, "hf:\"%*s\"", len, name);
 #endif
-	elt = hash->buckets[key % hash->size];
-	if(elt == NULL) {
-		return NULL;
-	}
-	while(elt->value) {
-		if(len != (size_t)elt->len) {
-			goto next;
+	ngx_hash_elt_t * elt = hash->buckets[key % hash->size];
+	if(elt) {
+		// modified by @sobolev (по-байтное сравнение заменено на memcmp)
+		while(elt->value) {
+			if(len == (size_t)elt->len && memcmp(name, elt->name, len) == 0)
+				return elt->value;
+			else
+				elt = (ngx_hash_elt_t*)ngx_align_ptr(&elt->name[0] + elt->len, sizeof(void *));
 		}
-		for(i = 0; i < len; i++) {
-			if(name[i] != elt->name[i]) {
-				goto next;
-			}
-		}
-		return elt->value;
-next:
-		elt = (ngx_hash_elt_t*)ngx_align_ptr(&elt->name[0] + elt->len, sizeof(void *));
-		continue;
 	}
 	return NULL;
 }
@@ -62,13 +52,10 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t le
 	if(value) {
 		/*
 		 * the 2 low bits of value have the special meaning:
-		 *     00 - value is data pointer for both "example.com"
-		 *          and "*.example.com";
+		 *     00 - value is data pointer for both "example.com" and "*.example.com";
 		 *     01 - value is data pointer for "*.example.com" only;
-		 *     10 - value is pointer to wildcard hash allowing
-		 *          both "example.com" and "*.example.com";
-		 *     11 - value is pointer to wildcard hash allowing
-		 *          "*.example.com" only.
+		 *     10 - value is pointer to wildcard hash allowing both "example.com" and "*.example.com";
+		 *     11 - value is pointer to wildcard hash allowing "*.example.com" only.
 		 */
 		if((uintptr_t)value & 2) {
 			if(n == 0) {

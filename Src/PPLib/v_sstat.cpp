@@ -229,6 +229,7 @@ private:
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 0, PPPredictConfig::fZeroPckgUp);
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 1, PPPredictConfig::fUseInsurStock);
 			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 2, PPPredictConfig::fMinStockAsMinOrder);
+			AddClusterAssoc(CTL_SSTATFLT_CFLAGS, 3, PPPredictConfig::fRoundManualQtty); // @v9.8.0
 			SetClusterData(CTL_SSTATFLT_CFLAGS, Data._CFlags);
 
 			SetupCtrls();
@@ -737,6 +738,42 @@ double SLAPI __CalcOrderQuantity(
     return order;
 }
 
+double SLAPI PPViewSStat::PreprocessOrderQuantity(double order, PPID goodsID, double unitPerPack/*const GoodsRestViewItem & rItem*/)
+{
+	if(order > 0.0) {
+		const int use_pckg = Filt.GetPckgUse();
+		const int rnd_pckg = Filt.GetPckgRounding();
+		double pckg = 0.0;
+		GoodsStockExt gse;
+		if(use_pckg == PPPredictConfig::pckgPrefStock) {
+			if(GObj.GetStockExt(goodsID, &gse, 1) > 0 && gse.Package > 0.0)
+				pckg = gse.Package;
+			else if(unitPerPack > 0.0)
+				pckg = unitPerPack;
+		}
+		else if(use_pckg == PPPredictConfig::pckgPrefLot) {
+			if(unitPerPack > 0.0)
+				pckg = unitPerPack;
+			else if(GObj.GetStockExt(goodsID, &gse, 1) > 0 && gse.Package > 0.0)
+				pckg = gse.Package;
+		}
+		if(pckg > 0.0) {
+			double ipart;
+			double fract = R6(modf(R6(order / pckg), &ipart));
+			if(fract) {
+				if(rnd_pckg == PPPredictConfig::pckgRoundUp || (rnd_pckg == PPPredictConfig::pckgRoundNear && fract >= 0.5))
+					ipart += 1.0;
+			}
+			if(ipart == 0.0 && Filt._CFlags & PPPredictConfig::fZeroPckgUp)
+				ipart = 1.0;
+			order = ipart * pckg;
+		}
+	}
+	else
+		order = 0.0;
+	return order;
+}
+
 int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 {
 	int    ok = 1;
@@ -902,46 +939,14 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 				if(can_trust || calc_ord_wo_stat) {
 					order = __CalcOrderQuantity(item.Rest, prediction, min_stock_days, min_stock_qtty,
 						can_trust ? 0 : calc_ord_wo_stat, minstock_as_minorder, use_insur_stock);
-					order = R0(order);
-					if(order > 0.0) {
-						int    use_pckg = Filt.GetPckgUse();
-						int    rnd_pckg = Filt.GetPckgRounding();
-						double pckg = 0.0;
-						GoodsStockExt gse;
-						if(use_pckg == PPPredictConfig::pckgPrefStock) {
-							if(GObj.GetStockExt(item.GoodsID, &gse, 1) > 0 && gse.Package > 0.0)
-								pckg = gse.Package;
-							else if(item.UnitPerPack > 0.0)
-								pckg = item.UnitPerPack;
-						}
-						else if(use_pckg == PPPredictConfig::pckgPrefLot) {
-							if(item.UnitPerPack > 0.0)
-								pckg = item.UnitPerPack;
-							else if(GObj.GetStockExt(item.GoodsID, &gse, 1) > 0 && gse.Package > 0.0)
-								pckg = gse.Package;
-						}
-						if(pckg > 0.0) {
-							double ipart;
-							double fract = R6(modf(R6(order / pckg), &ipart));
-							if(fract) {
-								if(rnd_pckg == PPPredictConfig::pckgRoundUp || (rnd_pckg == PPPredictConfig::pckgRoundNear && fract >= 0.5))
-									ipart += 1.0;
-							}
-							if(ipart == 0.0 && Filt._CFlags & PPPredictConfig::fZeroPckgUp)
-								ipart = 1.0;
-							order = ipart * pckg;
-						}
-					}
-					else
-						order = 0.0;
+					order = PreprocessOrderQuantity(R0(order), item.GoodsID, item.UnitPerPack);
 				}
 				THROW(P_VGr->SetSupplOrderValues(item.GoodsID, item.LocID, prediction, min_stock_qtty, order, can_trust));
 			}
 		}
 		else {
 			//
-			// Обыкновенная таблица анализа статистики (без подстановки товара и без
-			// расчета заказов поставщику)
+			// Обыкновенная таблица анализа статистики (без подстановки товара и без расчета заказов поставщику)
 			//
 			for(g_iter.Init(Filt.GoodsGrpID, 0); g_iter.Next(&goods_rec) > 0; PPWaitPercent(g_iter.GetIterCounter())) {
 				THROW(PPCheckUserBreak());
@@ -1309,12 +1314,18 @@ int SLAPI PPViewSStat::EditOrder(PPID ctID, PPID goodsID)
 		P_VGr->GetTableName(file_name);
 		THROW(CheckTblPtr(p_gr = new TempGoodsRestTbl(file_name)));
 		if(p_gr->search(3, &k, spGe) > 0 && k.GoodsID == goodsID && Filt.LocList.CheckID(k.LocID)) {
-			double qtty = p_gr->data.SupplOrder;
-			if(InputQttyDialog(0, 0, &qtty) > 0) {
-				p_gr->data.SupplOrder = qtty;
-				THROW_DB(p_gr->updateRec());
-				CALLPTRMEMB(P_Ct, SetFixFieldValByCTID(ctID, 2, &qtty));
-				ok = 1;
+			const double preserve_qtty = p_gr->data.SupplOrder;
+			double qtty = preserve_qtty;
+			if(InputQttyDialog(0, 0, &qtty) > 0 && qtty != preserve_qtty) {
+				double __order = qtty;
+				if(Filt._CFlags & PPPredictConfig::fRoundManualQtty)
+					__order = PreprocessOrderQuantity(qtty, goodsID, p_gr->data.UnitPerPack);
+				if(__order != preserve_qtty) {
+					p_gr->data.SupplOrder = __order;
+					THROW_DB(p_gr->updateRec());
+					CALLPTRMEMB(P_Ct, SetFixFieldValByCTID(ctID, 2, &__order));
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -1412,7 +1423,7 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 		if(autoOrder) {
 			SString temp_buf, memo_buf;
 			PPLoadString("autoorder", temp_buf);
-			(memo_buf = 0).CatChar('#').Cat(temp_buf).Space().Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS);
+			memo_buf.Z().CatChar('#').Cat(temp_buf).Space().Cat(getcurdatetime_(), DATF_DMY, TIMF_HMS);
 			STRNSCPY(pPack->Rec.Memo, memo_buf);
 		}
 		// } @v8.6.9
@@ -1432,17 +1443,17 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 					THROW(ti.Init(&pPack->Rec));
 					ti.SetupGoods(goods_id);
 					ti.SetupLot(0, 0, 0);
-					ti.Quantity_   = fabs(ss_item.SupplOrder);
-					ti.Cost        = R5(lot_rec.Cost);
+					ti.Quantity_ = fabs(ss_item.SupplOrder);
+					ti.Cost      = R5(lot_rec.Cost);
 					if(suppl_deal_qk_id && pPack->Rec.Object) {
 						const QuotIdent qic(pPack->Rec.LocID, suppl_deal_qk_id, 0, pPack->Rec.Object);
 						double c = 0.0;
 						if(GObj.GetQuotExt(goods_id, qic, lot_rec.Cost, lot_rec.Price, &c, 1) > 0 && c > 0.0)
 							ti.Cost = R5(c);
 					}
-					ti.Price       = R5(lot_rec.Price);
-					ti.Suppl       = lot_rec.SupplID;
-					ti.QCert       = lot_rec.QCertID;
+					ti.Price = R5(lot_rec.Price);
+					ti.Suppl = lot_rec.SupplID;
+					ti.QCert = lot_rec.QCertID;
 					THROW(pPack->InsertRow(&ti, 0));
 					goods_id_list.add(goods_id);
 					lines_count++;

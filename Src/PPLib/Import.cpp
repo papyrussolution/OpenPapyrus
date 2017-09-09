@@ -1583,7 +1583,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 							else {
 								code = temp_buf.Strip().ToInt64();
 								if(code) {
-									temp_buf = 0;
+									temp_buf.Z();
 									temp_buf.Cat(code);
 									pack.AddRegister(reg_type_id, temp_buf, 0);
 								}
@@ -3215,7 +3215,7 @@ int SLAPI PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPers
 			scan.Skip();
 			scan.IncrChr(':');
 			scan.Skip();
-			temp_buf = 0;
+			temp_buf.Z();
 			while(scan[0] != ';' && scan[0] != ',' && scan[0] != 0) {
 				temp_buf.CatChar(scan[0]);
 				scan.Incr();
@@ -3396,7 +3396,7 @@ int SLAPI PrcssrPersonImport::Run()
 					else {
 						code64 = temp_buf.Strip().ToInt64();
 						if(code64) {
-							temp_buf = 0;
+							temp_buf.Z();
 							temp_buf.Cat(code64);
 							PsnObj.AddRegisterToPacket(pack, IeParam.SrchRegTypeID, temp_buf, 0);
 						}
@@ -3497,7 +3497,7 @@ int SLAPI PrcssrPersonImport::Run()
 				// @v9.8.0 {
 				if(checkdate(rec.DOB, 0)) {
 					const ObjTagItem * p_tag_item = pack.TagL.GetItem(PPTAG_PERSON_DOB);
-					LDATE   ex_dob = ZERODATE; 
+					LDATE   ex_dob = ZERODATE;
 					if(!p_tag_item || !p_tag_item->GetDate(&ex_dob) || !checkdate(ex_dob, 0)) {
 						ObjTagItem new_dob_tag_item;
 						if(new_dob_tag_item.SetDate(PPTAG_PERSON_DOB, rec.DOB) && pack.TagL.PutItem(PPTAG_PERSON_DOB, &new_dob_tag_item)) {
@@ -3505,7 +3505,7 @@ int SLAPI PrcssrPersonImport::Run()
 						}
 					}
 				}
-				// } @v9.8.0 
+				// } @v9.8.0
 				{
 					if((temp_buf = rec.Phone).NotEmptyS() && !pack.ELA.SearchByText(temp_buf, 0))
 						pack.ELA.AddItem(PPELK_WORKPHONE, temp_buf);
@@ -5857,7 +5857,9 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 	SrDatabase * p_db = O.GetDb();
 	if(p_db && P_SizeOutF) {
 		const uint max_out_accum_count = 1000;
+		const uint64 stat_way_count = NZOR(Stat.WayCount, RestoredStat.WayCount);
 		uint  out_accum_count = 0;
+		SString out_file_name;
 		uint64 way_count = 0;
 		SString line_buf;
 		PPOsm::Way way;
@@ -5867,54 +5869,84 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 		BDbTable::Buffer key_buf, data_buf;
 		key_buf.Alloc(32);
 		data_buf.Alloc(8192);
+
+		long   prev_file_no = -1;
+		int    skip_this_file_no = 0;
+		SString preserve_filnam;
+		SPathStruc ps_out_filename;
+		ps_out_filename.Split(P_SizeOutF->GetName());
+		preserve_filnam = ps_out_filename.Nam;
+
 		if(curs.Search(key_buf, data_buf, spFirst)) do {
-			uint64 way_id = 0;
-			{
-				size_t dbsz = 0;
-				const void * p_dbptr = data_buf.GetPtr(&dbsz);
-				way_buf.SetBuffer(p_dbptr, dbsz);
-			}
-			{
-				size_t dbsz = 0;
-				const void * p_dbptr = key_buf.GetPtr(&dbsz);
-				way_id = sexpanduint64(p_dbptr, dbsz);
-			}
-			if(way_buf.Get(way_id, &way)) {
-				p_db->P_GnT->GetWayNodes(way, way_node_list);
-				uint wn_count = way_node_list.getCount();
-				double max_distance = 0.0;
-				if(wn_count > 1) {
-					if(way_node_list.at(0).ID == way_node_list.at(wn_count-1).ID) {
-						//
-						// Для замкнутого контура исключим последнюю точку (равную первой) из расчета расстояний - сэкономим время.
-						//
-						wn_count--;
+			way_count++;
+			const long file_no = (long)(way_count / 1000000);
+            if(file_no != prev_file_no) {
+				(ps_out_filename.Nam = preserve_filnam).CatChar('-').Cat(file_no+1);
+                ps_out_filename.Merge(out_file_name);
+                if(fileExists(out_file_name)) {
+					skip_this_file_no = 1;
+                }
+                else {
+					skip_this_file_no = 0;
+					if(out_accum_count) {
+						P_SizeOutF->WriteLine(line_buf);
+						line_buf.Z();
+						out_accum_count = 0;
 					}
-					for(uint j = 0; j < wn_count; j++) {
-						const PPOsm::Node & r_node = way_node_list.at(j);
-						SGeoPosLL p1(r_node.C.GetLat(), r_node.C.GetLon());
-						for(uint j2 = j+1; j2 < wn_count; j2++) {
-							const PPOsm::Node & r_node2 = way_node_list.at(j2);
-							SGeoPosLL p2(r_node2.C.GetLat(), r_node2.C.GetLon());
-							double distance = 0.0;
-							G.Inverse(p1, p2, &distance, 0, 0, 0, 0, 0, 0);
-							SETMAX(max_distance, distance);
+					P_SizeOutF->Close();
+					THROW_SL(P_SizeOutF->Open(out_file_name, SFile::mWrite));
+                }
+				prev_file_no = file_no;
+            }
+			if(!skip_this_file_no) {
+				uint64 way_id = 0;
+				{
+					size_t dbsz = 0;
+					const void * p_dbptr = data_buf.GetPtr(&dbsz);
+					way_buf.SetBuffer(p_dbptr, dbsz);
+				}
+				{
+					size_t dbsz = 0;
+					const void * p_dbptr = key_buf.GetPtr(&dbsz);
+					way_id = sexpanduint64(p_dbptr, dbsz);
+				}
+				if(way_buf.Get(way_id, &way)) {
+					p_db->P_GnT->GetWayNodes(way, way_node_list);
+					uint wn_count = way_node_list.getCount();
+					double max_distance = 0.0;
+					if(wn_count > 1) {
+						if(way_node_list.at(0).ID == way_node_list.at(wn_count-1).ID) {
+							//
+							// Для замкнутого контура исключим последнюю точку (равную первой) из расчета расстояний - сэкономим время.
+							//
+							wn_count--;
+						}
+						for(uint j = 0; j < wn_count; j++) {
+							const PPOsm::Node & r_node = way_node_list.at(j);
+							SGeoPosLL p1(r_node.C.GetLat(), r_node.C.GetLon());
+							for(uint j2 = j+1; j2 < wn_count; j2++) {
+								const PPOsm::Node & r_node2 = way_node_list.at(j2);
+								SGeoPosLL p2(r_node2.C.GetLat(), r_node2.C.GetLon());
+								double distance = 0.0;
+								G.Inverse(p1, p2, &distance, 0, 0, 0, 0, 0, 0);
+								SETMAX(max_distance, distance);
+							}
 						}
 					}
-				}
-				line_buf./*Cat(p_way->ID).Tab().*/Cat((uint)R0(max_distance)).CR();
-				out_accum_count++;
-				if(out_accum_count >= max_out_accum_count) {
-					P_SizeOutF->WriteLine(line_buf);
-					line_buf.Z();
-					out_accum_count = 0;
+					line_buf./*Cat(p_way->ID).Tab().*/Cat((uint)R0(max_distance)).CR();
+					out_accum_count++;
+					if(out_accum_count >= max_out_accum_count) {
+						P_SizeOutF->WriteLine(line_buf);
+						line_buf.Z();
+						out_accum_count = 0;
+					}
 				}
 			}
-			way_count++;
-			PPWaitPercent((ulong)(((double)way_count / (double)Stat.WayCount) * 100.0), "WaySizes");
+			PPWaitPercent((ulong)(((double)way_count / (double)stat_way_count) * 100.0), "WaySizes");
 		} while(curs.Search(key_buf, data_buf, spNext));
 		P_SizeOutF->WriteLine(line_buf);
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -5929,8 +5961,7 @@ int SLAPI PrcssrOsm::OutputStat(int detail)
 		if(Stat.NcList.getCount()) {
 			for(uint i = 0; i < Stat.NcList.getCount(); i++) {
 				const PPOsm::NodeClusterStatEntry & r_entry = Stat.NcList.at(i);
-				stat_info_buf = 0;
-				stat_info_buf.CatEq("NodeLogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
+				stat_info_buf.Z().CatEq("NodeLogicalCount", r_entry.LogicalCount).CatDiv(';', 2).
 					CatEq("NodeClusterCount", r_entry.ClusterCount).CatDiv(';', 2).
 					CatEq("NodeProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
 					CatEq("NodeActualCount", r_entry.ActualCount).CatDiv(';', 2).
@@ -5941,8 +5972,7 @@ int SLAPI PrcssrOsm::OutputStat(int detail)
 		if(Stat.WayList.getCount()) {
 			for(uint i = 0; i < Stat.WayList.getCount(); i++) {
 				const PPOsm::WayStatEntry & r_entry = Stat.WayList.at(i);
-				stat_info_buf = 0;
-				stat_info_buf.CatEq("WayRefCount", r_entry.RefCount).CatDiv(';', 2).
+				stat_info_buf.Z().CatEq("WayRefCount", r_entry.RefCount).CatDiv(';', 2).
 					CatEq("WayProcessesCount", r_entry.ProcessedCount).CatDiv(';', 2).
 					CatEq("WayCount", r_entry.WayCount).CatDiv(';', 2).
 					CatEq("WaySize", r_entry.Size).CatDiv(';', 2);
@@ -6276,8 +6306,8 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 			SString file_name;
 			SPathStruc ps;
 			ps.Split(pInfo->P_SrcFileName);
-			ps.Drv = 0;
-			ps.Dir = 0;
+			ps.Drv.Z();
+			ps.Dir.Z();
 			ps.Merge(file_name);
 			if(pInfo->Phase == 1) {
 				msg_buf.Printf(p_prcr->FmtMsg_SortSplit, file_name.cptr());
@@ -6459,7 +6489,7 @@ int SLAPI PrcssrOsm::Run()
 				}
 				{
 					SFile f_log(log_file_name, SFile::mWrite);
-					temp_buf = 0;
+					temp_buf.Z();
 					temp_buf.
 						CatEq("NodeCount", Stat.NodeCount).CR().
 						CatEq("NakedNodeCount", Stat.NakedNodeCount).CR().

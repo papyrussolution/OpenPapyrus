@@ -416,9 +416,7 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 			 *
 			 *     (i32 * 0xCCCCCCCD) >> 35
 			 */
-
 			ui32 = (uint32_t)ui64;
-
 			do {
 				*--p = (u_char)(ui32 % 10 + '0');
 			} while(ui32 /= 10);
@@ -441,11 +439,8 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
 			*--p = HEX[(uint32_t)(ui64 & 0xf)];
 		} while(ui64 >>= 4);
 	}
-
 	/* zero or space padding */
-
 	len = (temp + NGX_INT64_LEN) - p;
-
 	while(len++ < width && buf < last) {
 		*buf++ = zero;
 	}
@@ -462,7 +457,7 @@ static u_char * ngx_sprintf_num(u_char * buf, u_char * last, uint64_t ui64, u_ch
  * to avoid libc locale overhead.  Besides, we use the ngx_uint_t's
  * instead of the u_char's, because they are slightly faster.
  */
-ngx_int_t ngx_strcasecmp(u_char * s1, u_char * s2)
+ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2)
 {
 	ngx_uint_t c1, c2;
 	for(;; ) {
@@ -480,7 +475,7 @@ ngx_int_t ngx_strcasecmp(u_char * s1, u_char * s2)
 	}
 }
 
-ngx_int_t ngx_strncasecmp(u_char * s1, u_char * s2, size_t n)
+ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	while(n) {
@@ -500,7 +495,7 @@ ngx_int_t ngx_strncasecmp(u_char * s1, u_char * s2, size_t n)
 	return 0;
 }
 
-u_char * ngx_strnstr(u_char * s1, char * s2, size_t len)
+const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t len)
 {
 	u_char c1, c2;
 	size_t n;
@@ -711,7 +706,7 @@ ngx_int_t ngx_filename_cmp(u_char * s1, u_char * s2, size_t n)
 	return 0;
 }
 
-ngx_int_t ngx_atoi(u_char * line, size_t n)
+ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n)
 {
 	ngx_int_t value, cutoff, cutlim;
 	if(n == 0) {
@@ -967,24 +962,19 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, ngx_str_t * src, co
 {
 	size_t len;
 	u_char  * d, * s;
-
 	for(len = 0; len < src->len; len++) {
 		if(src->data[len] == '=') {
 			break;
 		}
-
 		if(basis[src->data[len]] == 77) {
 			return NGX_ERROR;
 		}
 	}
-
 	if(len % 4 == 1) {
 		return NGX_ERROR;
 	}
-
 	s = src->data;
 	d = dst->data;
-
 	while(len > 3) {
 		*d++ = (u_char)(basis[s[0]] << 2 | basis[s[1]] >> 4);
 		*d++ = (u_char)(basis[s[1]] << 4 | basis[s[2]] >> 2);
@@ -993,20 +983,15 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, ngx_str_t * src, co
 		s += 4;
 		len -= 4;
 	}
-
 	if(len > 1) {
 		*d++ = (u_char)(basis[s[0]] << 2 | basis[s[1]] >> 4);
 	}
-
 	if(len > 2) {
 		*d++ = (u_char)(basis[s[1]] << 4 | basis[s[2]] >> 2);
 	}
-
 	dst->len = d - dst->data;
-
 	return NGX_OK;
 }
-
 /*
  * ngx_utf8_decode() decodes two and more bytes UTF sequences only
  * the return values:
@@ -1015,8 +1000,7 @@ static ngx_int_t ngx_decode_base64_internal(ngx_str_t * dst, ngx_str_t * src, co
  *    0xfffffffe              incomplete sequence
  *    0xffffffff              error
  */
-
-uint32_t ngx_utf8_decode(u_char ** p, size_t n)
+uint32_t FASTCALL ngx_utf8_decode(u_char ** p, size_t n)
 {
 	size_t len;
 	uint32_t i, valid;
@@ -1058,7 +1042,7 @@ uint32_t ngx_utf8_decode(u_char ** p, size_t n)
 	return 0xffffffff;
 }
 
-size_t ngx_utf8_length(u_char * p, size_t n)
+size_t FASTCALL ngx_utf8_length(u_char * p, size_t n)
 {
 	size_t len;
 	u_char * last = p + n;
@@ -1077,33 +1061,33 @@ size_t ngx_utf8_length(u_char * p, size_t n)
 
 u_char * ngx_utf8_cpystrn(u_char * dst, u_char * src, size_t n, size_t len)
 {
-	u_char c, * next;
-	if(n == 0) {
-		return dst;
-	}
-	while(--n) {
-		c = *src;
-		*dst = c;
-		if(c < 0x80) {
-			if(c != '\0') {
-				dst++;
-				src++;
-				len--;
-				continue;
+	if(n) {
+		while(--n) {
+			u_char c = *src;
+			*dst = c;
+			if(c < 0x80) {
+				if(c != '\0') {
+					dst++;
+					src++;
+					len--;
+				}
+				else
+					return dst;
 			}
-			return dst;
+			else {
+				u_char * next = src;
+				if(ngx_utf8_decode(&next, len) > 0x10ffff) {
+					// invalid UTF-8 
+					break;
+				}
+				while(src < next) {
+					*dst++ = *src++;
+					len--;
+				}
+			}
 		}
-		next = src;
-		if(ngx_utf8_decode(&next, len) > 0x10ffff) {
-			/* invalid UTF-8 */
-			break;
-		}
-		while(src < next) {
-			*dst++ = *src++;
-			len--;
-		}
+		*dst = '\0';
 	}
-	*dst = '\0';
 	return dst;
 }
 

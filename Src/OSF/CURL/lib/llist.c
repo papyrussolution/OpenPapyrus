@@ -48,8 +48,7 @@ void Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
  *
  * @unittest: 1300
  */
-int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e,
-    const void * p)
+int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e, const void * p)
 {
 	struct curl_llist_element * ne = (struct curl_llist_element *)SAlloc::M(sizeof(struct curl_llist_element));
 	if(!ne)
@@ -78,24 +77,18 @@ int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element *
 		if(e)
 			e->next = ne;
 	}
-
 	++list->size;
-
 	return 1;
 }
-
 /*
  * @unittest: 1300
  */
-int Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e,
-    void * user)
+int Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e, void * user)
 {
 	if(e == NULL || list->size == 0)
 		return 1;
-
 	if(e == list->head) {
 		list->head = e->next;
-
 		if(list->head == NULL)
 			list->tail = NULL;
 		else
@@ -108,16 +101,12 @@ int Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e,
 		else
 			e->next->prev = e->prev;
 	}
-
 	list->dtor(user, e->ptr);
-
 	e->ptr  = NULL;
 	e->prev = NULL;
 	e->next = NULL;
-
 	SAlloc::F(e);
 	--list->size;
-
 	return 1;
 }
 
@@ -137,17 +126,13 @@ size_t Curl_llist_count(struct curl_llist * list)
 /*
  * @unittest: 1300
  */
-int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e,
-    struct curl_llist * to_list,
-    struct curl_llist_element * to_e)
+int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e, struct curl_llist * to_list, struct curl_llist_element * to_e)
 {
 	/* Remove element from list */
 	if(e == NULL || list->size == 0)
 		return 0;
-
 	if(e == list->head) {
 		list->head = e->next;
-
 		if(list->head == NULL)
 			list->tail = NULL;
 		else
@@ -160,9 +145,7 @@ int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e,
 		else
 			e->next->prev = e->prev;
 	}
-
 	--list->size;
-
 	/* Add element to to_list after to_e */
 	if(to_list->size == 0) {
 		to_list->head = e;
@@ -181,9 +164,6 @@ int Curl_llist_move(struct curl_llist * list, struct curl_llist_element * e,
 		}
 		to_e->next = e;
 	}
-
 	++to_list->size;
-
 	return 1;
 }
-

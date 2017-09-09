@@ -420,54 +420,38 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 	if(r->uri.data[r->uri.len - 1] == '/') {
 		return NGX_DECLINED;
 	}
-
 	rc = ngx_http_discard_request_body(r);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
-
 	last = ngx_http_map_uri_to_path(r, &path, &root, 0);
 	if(last == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	log = r->connection->log;
-
 	path.len = last - path.data;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, log, 0,
-	    "http mp4 filename: \"%V\"", &path);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, log, 0, "http mp4 filename: \"%V\"", &path);
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 	memzero(&of, sizeof(ngx_open_file_info_t));
-
 	of.read_ahead = clcf->read_ahead;
 	of.directio = NGX_MAX_OFF_T_VALUE;
 	of.valid = clcf->open_file_cache_valid;
 	of.min_uses = clcf->open_file_cache_min_uses;
 	of.errors = clcf->open_file_cache_errors;
 	of.events = clcf->open_file_cache_events;
-
 	if(ngx_http_set_disable_symlinks(r, clcf, &path, &of) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
-	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool)
-	    != NGX_OK) {
+	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool) != NGX_OK) {
 		switch(of.err) {
 			case 0:
 			    return NGX_HTTP_INTERNAL_SERVER_ERROR;
-
 			case NGX_ENOENT:
 			case NGX_ENOTDIR:
 			case NGX_ENAMETOOLONG:
-
 			    level = NGX_LOG_ERR;
 			    rc = NGX_HTTP_NOT_FOUND;
 			    break;
-
 			case NGX_EACCES:
 #if (NGX_HAVE_OPENAT)
 			case NGX_EMLINK:
@@ -484,33 +468,25 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 			    rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 			    break;
 		}
-
 		if(rc != NGX_HTTP_NOT_FOUND || clcf->log_not_found) {
-			ngx_log_error(level, log, of.err,
-			    "%s \"%s\" failed", of.failed, path.data);
+			ngx_log_error(level, log, of.err, "%s \"%s\" failed", of.failed, path.data);
 		}
-
 		return rc;
 	}
 
 	if(!of.is_file) {
 		if(ngx_close_file(of.fd) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno,
-			    ngx_close_file_n " \"%s\" failed", path.data);
+			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_close_file_n " \"%s\" failed", path.data);
 		}
-
 		return NGX_DECLINED;
 	}
-
 	r->root_tested = !r->error_page;
 	r->allow_ranges = 1;
-
 	start = -1;
 	length = 0;
 	r->headers_out.content_length_n = of.size;
 	mp4 = NULL;
 	b = NULL;
-
 	if(r->args.len) {
 		if(ngx_http_arg(r, (u_char*)"start", 5, &value) == NGX_OK) {
 			/*
@@ -520,29 +496,24 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 
 			start = ngx_http_mp4_atofp(value.data, value.len, 3);
 		}
-
 		if(ngx_http_arg(r, (u_char*)"end", 3, &value) == NGX_OK) {
 			end = ngx_http_mp4_atofp(value.data, value.len, 3);
-
 			if(end > 0) {
 				if(start < 0) {
 					start = 0;
 				}
-
 				if(end > start) {
 					length = end - start;
 				}
 			}
 		}
 	}
-
 	if(start >= 0) {
 		r->single_range = 1;
 		mp4 = (ngx_http_mp4_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_mp4_file_t));
 		if(mp4 == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		mp4->file.fd = of.fd;
 		mp4->file.name = path;
 		mp4->file.log = r->connection->log;
@@ -550,86 +521,64 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 		mp4->start = (ngx_uint_t)start;
 		mp4->length = length;
 		mp4->request = r;
-
 		switch(ngx_http_mp4_process(mp4)) {
 			case NGX_DECLINED:
 			    if(mp4->buffer) {
 				    ngx_pfree(r->pool, mp4->buffer);
 			    }
-
 			    ngx_pfree(r->pool, mp4);
 			    mp4 = NULL;
-
 			    break;
-
 			case NGX_OK:
 			    r->headers_out.content_length_n = mp4->content_length;
 			    break;
-
 			default: /* NGX_ERROR */
 			    if(mp4->buffer) {
 				    ngx_pfree(r->pool, mp4->buffer);
 			    }
-
 			    ngx_pfree(r->pool, mp4);
-
 			    return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 	}
-
 	log->action = "sending mp4 to client";
-
 	if(clcf->directio <= of.size) {
 		/*
 		 * DIRECTIO is set on transfer only
 		 * to allow kernel to cache "moov" atom
 		 */
-
 		if(ngx_directio_on(of.fd) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno,
-			    ngx_directio_on_n " \"%s\" failed", path.data);
+			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_directio_on_n " \"%s\" failed", path.data);
 		}
-
 		of.is_directio = 1;
-
 		if(mp4) {
 			mp4->file.directio = 1;
 		}
 	}
-
 	r->headers_out.status = NGX_HTTP_OK;
 	r->headers_out.last_modified_time = of.mtime;
-
 	if(ngx_http_set_etag(r) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	if(ngx_http_set_content_type(r) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	if(mp4 == NULL) {
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
 		if(b == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		b->file = (ngx_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_file_t));
 		if(b->file == NULL) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 	}
-
 	rc = ngx_http_send_header(r);
-
 	if(rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
 		return rc;
 	}
-
 	if(mp4) {
 		return ngx_http_output_filter(r, mp4->out);
 	}
-
 	b->file_pos = 0;
 	b->file_last = of.size;
 
@@ -809,23 +758,14 @@ static ngx_int_t ngx_http_mp4_process(ngx_http_mp4_file_t * mp4)
 	ngx_mp4_set_32value(mp4->moov_atom_header, mp4->moov_size);
 	ngx_mp4_set_atom_name(mp4->moov_atom_header, 'm', 'o', 'o', 'v');
 	mp4->content_length += mp4->moov_size;
-
 	*prev = &mp4->mdat_atom;
-
 	if(start_offset > mp4->mdat_data.buf->file_last) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "start time is out mp4 mdat atom in \"%s\"",
-		    mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "start time is out mp4 mdat atom in \"%s\"", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	adjustment = mp4->ftyp_size + mp4->moov_size
-	    + ngx_http_mp4_update_mdat_atom(mp4, start_offset, end_offset)
-	    - start_offset;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mp4 adjustment:%O", adjustment);
-
+	    + ngx_http_mp4_update_mdat_atom(mp4, start_offset, end_offset) - start_offset;
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 adjustment:%O", adjustment);
 	for(i = 0; i < mp4->trak.nelts; i++) {
 		if(trak[i].out[NGX_HTTP_MP4_CO64_DATA].buf) {
 			ngx_http_mp4_adjust_co64_atom(mp4, &trak[i], adjustment);
@@ -834,7 +774,6 @@ static ngx_int_t ngx_http_mp4_process(ngx_http_mp4_file_t * mp4)
 			ngx_http_mp4_adjust_stco_atom(mp4, &trak[i], (int32_t)adjustment);
 		}
 	}
-
 	return NGX_OK;
 }
 
@@ -883,98 +822,67 @@ static ngx_int_t ngx_http_mp4_read_atom(ngx_http_mp4_file_t * mp4,
 				atom_header_size = sizeof(ngx_mp4_atom_header64_t);
 			}
 			else {
-				ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-				    "\"%s\" mp4 atom is too small:%uL",
-				    mp4->file.name.data, atom_size);
+				ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 atom is too small:%uL", mp4->file.name.data, atom_size);
 				return NGX_ERROR;
 			}
 		}
-
 		if(ngx_http_mp4_read(mp4, sizeof(ngx_mp4_atom_header_t)) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		atom_header = mp4->buffer_pos;
 		atom_name = atom_header + sizeof(uint32_t);
-
-		ngx_log_debug4(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 atom: %*s @%O:%uL",
-		    (size_t)4, atom_name, mp4->offset, atom_size);
-
-		if(atom_size > (uint64_t)(NGX_MAX_OFF_T_VALUE - mp4->offset)
-		    || mp4->offset + (nginx_off_t)atom_size > end) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "\"%s\" mp4 atom too large:%uL",
-			    mp4->file.name.data, atom_size);
+		ngx_log_debug4(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 atom: %*s @%O:%uL", (size_t)4, atom_name, mp4->offset, atom_size);
+		if(atom_size > (uint64_t)(NGX_MAX_OFF_T_VALUE - mp4->offset) || mp4->offset + (nginx_off_t)atom_size > end) {
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 atom too large:%uL", mp4->file.name.data, atom_size);
 			return NGX_ERROR;
 		}
-
 		for(n = 0; atom[n].name; n++) {
 			if(ngx_strncmp(atom_name, atom[n].name, 4) == 0) {
 				ngx_mp4_atom_next(mp4, atom_header_size);
-
 				rc = atom[n].handler(mp4, atom_size - atom_header_size);
 				if(rc != NGX_OK) {
 					return rc;
 				}
-
 				goto next;
 			}
 		}
-
 		ngx_mp4_atom_next(mp4, atom_size);
-
 next:
 		continue;
 	}
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_mp4_read(ngx_http_mp4_file_t * mp4, size_t size)
 {
 	ssize_t n;
-
 	if(mp4->buffer_pos + size <= mp4->buffer_end) {
 		return NGX_OK;
 	}
-
 	if(mp4->offset + (nginx_off_t)mp4->buffer_size > mp4->end) {
 		mp4->buffer_size = (size_t)(mp4->end - mp4->offset);
 	}
-
 	if(mp4->buffer_size < size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 file truncated", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 file truncated", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	if(mp4->buffer == NULL) {
 		mp4->buffer = (u_char *)ngx_palloc(mp4->request->pool, mp4->buffer_size);
 		if(mp4->buffer == NULL) {
 			return NGX_ERROR;
 		}
-
 		mp4->buffer_start = mp4->buffer;
 	}
-
-	n = ngx_read_file(&mp4->file, mp4->buffer_start, mp4->buffer_size,
-	    mp4->offset);
-
+	n = ngx_read_file(&mp4->file, mp4->buffer_start, mp4->buffer_size, mp4->offset);
 	if(n == NGX_ERROR) {
 		return NGX_ERROR;
 	}
-
 	if((size_t)n != mp4->buffer_size) {
-		ngx_log_error(NGX_LOG_CRIT, mp4->file.log, 0,
-		    ngx_read_file_n " read only %z of %z from \"%s\"",
-		    n, mp4->buffer_size, mp4->file.name.data);
+		ngx_log_error(NGX_LOG_CRIT, mp4->file.log, 0, ngx_read_file_n " read only %z of %z from \"%s\"", n, mp4->buffer_size, mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	mp4->buffer_pos = mp4->buffer_start;
 	mp4->buffer_end = mp4->buffer_start + mp4->buffer_size;
-
 	return NGX_OK;
 }
 
@@ -1041,18 +949,13 @@ static ngx_int_t ngx_http_mp4_read_moov_atom(ngx_http_mp4_file_t * mp4, uint64_t
 		 */
 		return NGX_DECLINED;
 	}
-
 	conf = (ngx_http_mp4_conf_t *)ngx_http_get_module_loc_conf(mp4->request, ngx_http_mp4_module);
-
 	if(atom_data_size > mp4->buffer_size) {
 		if(atom_data_size > conf->max_buffer_size) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "\"%s\" mp4 moov atom is too large:%uL, "
-			    "you may want to increase mp4_max_buffer_size",
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 moov atom is too large:%uL, you may want to increase mp4_max_buffer_size",
 			    mp4->file.name.data, atom_data_size);
 			return NGX_ERROR;
 		}
-
 		ngx_pfree(mp4->request->pool, mp4->buffer);
 		mp4->buffer = NULL;
 		mp4->buffer_pos = NULL;
@@ -1134,12 +1037,8 @@ static size_t ngx_http_mp4_update_mdat_atom(ngx_http_mp4_file_t * mp4, nginx_off
 	atom_data_size = end_offset - start_offset;
 	mp4->mdat_data.buf->file_pos = start_offset;
 	mp4->mdat_data.buf->file_last = end_offset;
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mdat new offset @%O:%O", start_offset, atom_data_size);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mdat new offset @%O:%O", start_offset, atom_data_size);
 	atom_header = mp4->mdat_atom_header;
-
 	if((uint64_t)atom_data_size
 	    > (uint64_t)0xffffffff - sizeof(ngx_mp4_atom_header_t)) {
 		atom_size = 1;
@@ -1236,66 +1135,42 @@ static ngx_int_t ngx_http_mp4_read_mvhd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	}
 	else {
 		/* version 1: 64-bit duration */
-
 		if(ngx_mp4_atom_data_size(ngx_mp4_mvhd64_atom_t) > atom_data_size) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "\"%s\" mp4 mvhd atom too small",
-			    mp4->file.name.data);
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 mvhd atom too small", mp4->file.name.data);
 			return NGX_ERROR;
 		}
-
 		timescale = ngx_mp4_get_32value(mvhd64_atom->timescale);
 		duration = ngx_mp4_get_64value(mvhd64_atom->duration);
 	}
-
 	mp4->timescale = timescale;
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mvhd timescale:%uD, duration:%uL, time:%.3fs",
-	    timescale, duration, (double)duration / timescale);
-
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mvhd timescale:%uD, duration:%uL, time:%.3fs", timescale, duration, (double)duration / timescale);
 	start_time = (uint64_t)mp4->start * timescale / 1000;
-
 	if(duration < start_time) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 start time exceeds file duration",
-		    mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 start time exceeds file duration", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	duration -= start_time;
-
 	if(mp4->length) {
 		length_time = (uint64_t)mp4->length * timescale / 1000;
-
 		if(duration > length_time) {
 			duration = length_time;
 		}
 	}
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mvhd new duration:%uL, time:%.3fs",
-	    duration, (double)duration / timescale);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mvhd new duration:%uL, time:%.3fs", duration, (double)duration / timescale);
 	atom_size = sizeof(ngx_mp4_atom_header_t) + (size_t)atom_data_size;
 	ngx_mp4_set_32value(mvhd_atom->size, atom_size);
-
 	if(mvhd_atom->version[0] == 0) {
 		ngx_mp4_set_32value(mvhd_atom->duration, duration);
 	}
 	else {
 		ngx_mp4_set_64value(mvhd64_atom->duration, duration);
 	}
-
 	atom = &mp4->mvhd_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_header + atom_size;
-
 	mp4->mvhd_atom.buf = atom;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
@@ -1314,22 +1189,15 @@ static ngx_int_t ngx_http_mp4_read_trak_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	memzero(trak, sizeof(ngx_http_mp4_trak_t));
 	atom_header = ngx_mp4_atom_header(mp4);
 	ngx_mp4_set_atom_name(atom_header, 't', 'r', 'a', 'k');
-
 	atom = &trak->trak_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_header + sizeof(ngx_mp4_atom_header_t);
-
 	trak->out[NGX_HTTP_MP4_TRAK_ATOM].buf = atom;
-
 	atom_end = mp4->buffer_pos + (size_t)atom_data_size;
 	atom_file_end = mp4->offset + atom_data_size;
-
 	rc = ngx_http_mp4_read_atom(mp4, ngx_http_mp4_trak_atoms, atom_data_size);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mp4 trak atom: %i", rc);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 trak atom: %i", rc);
 	if(rc == NGX_DECLINED) {
 		/* skip this trak */
 		memzero(trak, sizeof(ngx_http_mp4_trak_t));
@@ -1338,15 +1206,12 @@ static ngx_int_t ngx_http_mp4_read_trak_atom(ngx_http_mp4_file_t * mp4, uint64_t
 		mp4->offset = atom_file_end;
 		return NGX_OK;
 	}
-
 	return rc;
 }
 
-static void ngx_http_mp4_update_trak_atom(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak)
+static void ngx_http_mp4_update_trak_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak)
 {
 	ngx_buf_t  * atom;
-
 	trak->size += sizeof(ngx_mp4_atom_header_t);
 	atom = &trak->trak_atom_buf;
 	ngx_mp4_set_32value(atom->pos, trak->size);
@@ -1354,10 +1219,7 @@ static void ngx_http_mp4_update_trak_atom(ngx_http_mp4_file_t * mp4,
 
 static ngx_int_t ngx_http_mp4_read_cmov_atom(ngx_http_mp4_file_t * mp4, uint64_t atom_data_size)
 {
-	ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-	    "\"%s\" mp4 compressed moov atom (cmov) is not supported",
-	    mp4->file.name.data);
-
+	ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 compressed moov atom (cmov) is not supported", mp4->file.name.data);
 	return NGX_ERROR;
 }
 
@@ -1419,8 +1281,7 @@ static ngx_int_t ngx_http_mp4_read_tkhd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(tkhd_atom, 't', 'k', 'h', 'd');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_tkhd_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 tkhd atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 tkhd atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
 
@@ -1453,18 +1314,11 @@ static ngx_int_t ngx_http_mp4_read_tkhd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 			duration = length_time;
 		}
 	}
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "tkhd new duration:%uL, time:%.3fs",
-	    duration, (double)duration / mp4->timescale);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "tkhd new duration:%uL, time:%.3fs", duration, (double)duration / mp4->timescale);
 	atom_size = sizeof(ngx_mp4_atom_header_t) + (size_t)atom_data_size;
-
 	trak = ngx_mp4_last_trak(mp4);
 	trak->tkhd_size = atom_size;
-
 	ngx_mp4_set_32value(tkhd_atom->size, atom_size);
-
 	if(tkhd_atom->version[0] == 0) {
 		ngx_mp4_set_32value(tkhd_atom->duration, duration);
 	}
@@ -1545,20 +1399,15 @@ static ngx_int_t ngx_http_mp4_read_mdhd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_http_mp4_trak_t  * trak;
 	ngx_mp4_mdhd_atom_t  * mdhd_atom;
 	ngx_mp4_mdhd64_atom_t  * mdhd64_atom;
-
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 mdhd atom");
-
 	atom_header = ngx_mp4_atom_header(mp4);
 	mdhd_atom = (ngx_mp4_mdhd_atom_t*)atom_header;
 	mdhd64_atom = (ngx_mp4_mdhd64_atom_t*)atom_header;
 	ngx_mp4_set_atom_name(mdhd_atom, 'm', 'd', 'h', 'd');
-
 	if(ngx_mp4_atom_data_size(ngx_mp4_mdhd_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 mdhd atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 mdhd atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	if(mdhd_atom->version[0] == 0) {
 		/* version 0: everything is 32-bit */
 		timescale = ngx_mp4_get_32value(mdhd_atom->timescale);
@@ -1566,65 +1415,44 @@ static ngx_int_t ngx_http_mp4_read_mdhd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	}
 	else {
 		/* version 1: 64-bit duration and 32-bit timescale */
-
 		if(ngx_mp4_atom_data_size(ngx_mp4_mdhd64_atom_t) > atom_data_size) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "\"%s\" mp4 mdhd atom too small",
-			    mp4->file.name.data);
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 mdhd atom too small", mp4->file.name.data);
 			return NGX_ERROR;
 		}
-
 		timescale = ngx_mp4_get_32value(mdhd64_atom->timescale);
 		duration = ngx_mp4_get_64value(mdhd64_atom->duration);
 	}
-
 	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mdhd timescale:%uD, duration:%uL, time:%.3fs", timescale, duration, (double)duration / timescale);
-
 	start_time = (uint64_t)mp4->start * timescale / 1000;
-
 	if(duration <= start_time) {
 		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mdhd duration is less than start time");
 		return NGX_DECLINED;
 	}
-
 	duration -= start_time;
-
 	if(mp4->length) {
 		length_time = (uint64_t)mp4->length * timescale / 1000;
-
 		if(duration > length_time) {
 			duration = length_time;
 		}
 	}
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mdhd new duration:%uL, time:%.3fs",
-	    duration, (double)duration / timescale);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mdhd new duration:%uL, time:%.3fs", duration, (double)duration / timescale);
 	atom_size = sizeof(ngx_mp4_atom_header_t) + (size_t)atom_data_size;
-
 	trak = ngx_mp4_last_trak(mp4);
 	trak->mdhd_size = atom_size;
 	trak->timescale = timescale;
-
 	ngx_mp4_set_32value(mdhd_atom->size, atom_size);
-
 	if(mdhd_atom->version[0] == 0) {
 		ngx_mp4_set_32value(mdhd_atom->duration, duration);
 	}
 	else {
 		ngx_mp4_set_64value(mdhd64_atom->duration, duration);
 	}
-
 	atom = &trak->mdhd_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_header + atom_size;
-
 	trak->out[NGX_HTTP_MP4_MDHD_ATOM].buf = atom;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
@@ -1844,28 +1672,18 @@ static ngx_int_t ngx_http_mp4_read_stsd_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(stsd_atom, 's', 't', 's', 'd');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_stsd_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stsd atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stsd atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "stsd entries:%uD, media:%*s",
-	    ngx_mp4_get_32value(stsd_atom->entries),
-	    (size_t)4, stsd_atom->media_name);
-
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "stsd entries:%uD, media:%*s", ngx_mp4_get_32value(stsd_atom->entries), (size_t)4, stsd_atom->media_name);
 	trak = ngx_mp4_last_trak(mp4);
-
 	atom = &trak->stsd_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_table;
-
 	trak->out[NGX_HTTP_MP4_STSD_ATOM].buf = atom;
 	trak->size += atom_size;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
@@ -1899,26 +1717,17 @@ static ngx_int_t ngx_http_mp4_read_stts_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(stts_atom, 's', 't', 't', 's');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_stts_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stts atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stts atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	entries = ngx_mp4_get_32value(stts_atom->entries);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "mp4 time-to-sample entries:%uD", entries);
-
-	if(ngx_mp4_atom_data_size(ngx_mp4_stts_atom_t)
-	    + entries * sizeof(ngx_mp4_stts_entry_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stts atom too small", mp4->file.name.data);
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 time-to-sample entries:%uD", entries);
+	if(ngx_mp4_atom_data_size(ngx_mp4_stts_atom_t) + entries * sizeof(ngx_mp4_stts_entry_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stts atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_table = atom_header + sizeof(ngx_mp4_stts_atom_t);
 	atom_end = atom_table + entries * sizeof(ngx_mp4_stts_entry_t);
-
 	trak = ngx_mp4_last_trak(mp4);
 	trak->time_to_sample_entries = entries;
 
@@ -1971,103 +1780,71 @@ static ngx_int_t ngx_http_mp4_update_stts_atom(ngx_http_mp4_file_t * mp4,
 	stts_atom = (ngx_mp4_stts_atom_t*)atom->pos;
 	ngx_mp4_set_32value(stts_atom->size, atom_size);
 	ngx_mp4_set_32value(stts_atom->entries, trak->time_to_sample_entries);
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_mp4_crop_stts_data(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak, ngx_uint_t start)
+static ngx_int_t ngx_http_mp4_crop_stts_data(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak, ngx_uint_t start)
 {
 	uint32_t count, duration, rest;
 	uint64_t start_time;
 	ngx_buf_t   * data;
 	ngx_uint_t start_sample, entries, start_sec;
 	ngx_mp4_stts_entry_t  * entry, * end;
-
 	if(start) {
 		start_sec = mp4->start;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stts crop start_time:%ui", start_sec);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stts crop start_time:%ui", start_sec);
 	}
 	else if(mp4->length) {
 		start_sec = mp4->length;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stts crop end_time:%ui", start_sec);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stts crop end_time:%ui", start_sec);
 	}
 	else {
 		return NGX_OK;
 	}
-
 	data = trak->out[NGX_HTTP_MP4_STTS_DATA].buf;
-
 	start_time = (uint64_t)start_sec * trak->timescale / 1000;
-
 	entries = trak->time_to_sample_entries;
 	start_sample = 0;
 	entry = (ngx_mp4_stts_entry_t*)data->pos;
 	end = (ngx_mp4_stts_entry_t*)data->last;
-
 	while(entry < end) {
 		count = ngx_mp4_get_32value(entry->count);
 		duration = ngx_mp4_get_32value(entry->duration);
-
-		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "time:%uL, count:%uD, duration:%uD",
-		    start_time, count, duration);
-
+		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "time:%uL, count:%uD, duration:%uD", start_time, count, duration);
 		if(start_time < (uint64_t)count * duration) {
 			start_sample += (ngx_uint_t)(start_time / duration);
 			rest = (uint32_t)(start_time / duration);
 			goto found;
 		}
-
 		start_sample += count;
 		start_time -= count * duration;
 		entries--;
 		entry++;
 	}
-
 	if(start) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "start time is out mp4 stts samples in \"%s\"",
-		    mp4->file.name.data);
-
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "start time is out mp4 stts samples in \"%s\"", mp4->file.name.data);
 		return NGX_ERROR;
 	}
 	else {
 		trak->end_sample = trak->start_sample + start_sample;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "end_sample:%ui", trak->end_sample);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "end_sample:%ui", trak->end_sample);
 		return NGX_OK;
 	}
-
 found:
-
 	if(start) {
 		ngx_mp4_set_32value(entry->count, count - rest);
 		data->pos = (u_char*)entry;
 		trak->time_to_sample_entries = entries;
 		trak->start_sample = start_sample;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "start_sample:%ui, new count:%uD",
-		    trak->start_sample, count - rest);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "start_sample:%ui, new count:%uD", trak->start_sample, count - rest);
 	}
 	else {
 		ngx_mp4_set_32value(entry->count, rest);
 		data->last = (u_char*)(entry + 1);
 		trak->time_to_sample_entries -= entries - 1;
 		trak->end_sample = trak->start_sample + start_sample;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "end_sample:%ui, new count:%uD",
-		    trak->end_sample, rest);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "end_sample:%ui, new count:%uD", trak->end_sample, rest);
 	}
-
 	return NGX_OK;
 }
 
@@ -2106,25 +1883,18 @@ static ngx_int_t ngx_http_mp4_read_stss_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	atom->pos = atom_header;
 	atom->last = atom_table;
 
-	if(ngx_mp4_atom_data_size(ngx_http_mp4_stss_atom_t)
-	    + entries * sizeof(uint32_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stss atom too small", mp4->file.name.data);
+	if(ngx_mp4_atom_data_size(ngx_http_mp4_stss_atom_t) + entries * sizeof(uint32_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stss atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_end = atom_table + entries * sizeof(uint32_t);
-
 	data = &trak->stss_data_buf;
 	data->temporary = 1;
 	data->pos = atom_table;
 	data->last = atom_end;
-
 	trak->out[NGX_HTTP_MP4_STSS_ATOM].buf = atom;
 	trak->out[NGX_HTTP_MP4_STSS_DATA].buf = data;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
@@ -2187,26 +1957,19 @@ static void ngx_http_mp4_crop_stss_data(ngx_http_mp4_file_t * mp4,
 
 	if(start) {
 		start_sample = trak->start_sample + 1;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stss crop start_sample:%uD", start_sample);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stss crop start_sample:%uD", start_sample);
 	}
 	else if(mp4->length) {
 		start_sample = trak->end_sample + 1;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stss crop end_sample:%uD", start_sample);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stss crop end_sample:%uD", start_sample);
 	}
 	else {
 		return;
 	}
-
 	data = trak->out[NGX_HTTP_MP4_STSS_DATA].buf;
-
 	entries = trak->sync_samples_entries;
 	entry = (uint32_t*)data->pos;
 	end = (uint32_t*)data->last;
-
 	while(entry < end) {
 		sample = ngx_mp4_get_32value(entry);
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sync:%uD", sample);
@@ -2258,50 +2021,35 @@ static ngx_int_t ngx_http_mp4_read_ctts_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(ctts_atom, 'c', 't', 't', 's');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_ctts_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 ctts atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 ctts atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	entries = ngx_mp4_get_32value(ctts_atom->entries);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "composition offset entries:%uD", entries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "composition offset entries:%uD", entries);
 	trak = ngx_mp4_last_trak(mp4);
 	trak->composition_offset_entries = entries;
-
 	atom_table = atom_header + sizeof(ngx_mp4_ctts_atom_t);
-
 	atom = &trak->ctts_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_table;
 
-	if(ngx_mp4_atom_data_size(ngx_mp4_ctts_atom_t)
-	    + entries * sizeof(ngx_mp4_ctts_entry_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 ctts atom too small", mp4->file.name.data);
+	if(ngx_mp4_atom_data_size(ngx_mp4_ctts_atom_t) + entries * sizeof(ngx_mp4_ctts_entry_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 ctts atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_end = atom_table + entries * sizeof(ngx_mp4_ctts_entry_t);
-
 	data = &trak->ctts_data_buf;
 	data->temporary = 1;
 	data->pos = atom_table;
 	data->last = atom_end;
-
 	trak->out[NGX_HTTP_MP4_CTTS_ATOM].buf = atom;
 	trak->out[NGX_HTTP_MP4_CTTS_DATA].buf = data;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
-static void ngx_http_mp4_update_ctts_atom(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak)
+static void ngx_http_mp4_update_ctts_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak)
 {
 	size_t atom_size;
 	ngx_buf_t  * atom, * data;
@@ -2345,57 +2093,39 @@ static void ngx_http_mp4_crop_ctts_data(ngx_http_mp4_file_t * mp4,
 	ngx_buf_t   * data;
 	ngx_uint_t entries;
 	ngx_mp4_ctts_entry_t  * entry, * end;
-
 	/* sync samples starts from 1 */
-
 	if(start) {
 		start_sample = trak->start_sample + 1;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 ctts crop start_sample:%uD", start_sample);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 ctts crop start_sample:%uD", start_sample);
 	}
 	else if(mp4->length) {
 		start_sample = trak->end_sample - trak->start_sample + 1;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 ctts crop end_sample:%uD", start_sample);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 ctts crop end_sample:%uD", start_sample);
 	}
 	else {
 		return;
 	}
-
 	data = trak->out[NGX_HTTP_MP4_CTTS_DATA].buf;
-
 	entries = trak->composition_offset_entries;
 	entry = (ngx_mp4_ctts_entry_t*)data->pos;
 	end = (ngx_mp4_ctts_entry_t*)data->last;
-
 	while(entry < end) {
 		count = ngx_mp4_get_32value(entry->count);
-
-		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "sample:%uD, count:%uD, offset:%uD",
-		    start_sample, count, ngx_mp4_get_32value(entry->offset));
-
+		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sample:%uD, count:%uD, offset:%uD", start_sample, count, ngx_mp4_get_32value(entry->offset));
 		if(start_sample <= count) {
 			rest = start_sample - 1;
 			goto found;
 		}
-
 		start_sample -= count;
 		entries--;
 		entry++;
 	}
-
 	if(start) {
 		data->pos = (u_char*)end;
 		trak->composition_offset_entries = 0;
 	}
-
 	return;
-
 found:
-
 	if(start) {
 		ngx_mp4_set_32value(entry->count, count - rest);
 		data->pos = (u_char*)entry;
@@ -2433,23 +2163,15 @@ static ngx_int_t ngx_http_mp4_read_stsc_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(stsc_atom, 's', 't', 's', 'c');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_stsc_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stsc atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stsc atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	entries = ngx_mp4_get_32value(stsc_atom->entries);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "sample-to-chunk entries:%uD", entries);
-
-	if(ngx_mp4_atom_data_size(ngx_mp4_stsc_atom_t)
-	    + entries * sizeof(ngx_mp4_stsc_entry_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stsc atom too small", mp4->file.name.data);
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sample-to-chunk entries:%uD", entries);
+	if(ngx_mp4_atom_data_size(ngx_mp4_stsc_atom_t) + entries * sizeof(ngx_mp4_stsc_entry_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stsc atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_table = atom_header + sizeof(ngx_mp4_stsc_atom_t);
 	atom_end = atom_table + entries * sizeof(ngx_mp4_stsc_entry_t);
 
@@ -2526,65 +2248,45 @@ static ngx_int_t ngx_http_mp4_crop_stsc_data(ngx_http_mp4_file_t * mp4, ngx_http
 {
 	uint32_t start_sample, chunk, samples, id, next_chunk, n, prev_samples;
 	ngx_buf_t   * data, * buf;
-	ngx_uint_t entries, target_chunk, chunk_samples;
+	ngx_uint_t target_chunk, chunk_samples;
 	ngx_mp4_stsc_entry_t  * entry, * end, * first;
-
-	entries = trak->sample_to_chunk_entries - 1;
-
+	ngx_uint_t entries = trak->sample_to_chunk_entries - 1;
 	if(start) {
 		start_sample = (uint32_t)trak->start_sample;
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stsc crop start_sample:%uD", start_sample);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stsc crop start_sample:%uD", start_sample);
 	}
 	else if(mp4->length) {
 		start_sample = (uint32_t)(trak->end_sample - trak->start_sample);
 		samples = 0;
-
 		data = trak->out[NGX_HTTP_MP4_STSC_START].buf;
-
 		if(data) {
 			entry = (ngx_mp4_stsc_entry_t*)data->pos;
 			samples = ngx_mp4_get_32value(entry->samples);
 			entries--;
-
 			if(samples > start_sample) {
 				samples = start_sample;
 				ngx_mp4_set_32value(entry->samples, samples);
 			}
-
 			start_sample -= samples;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "mp4 stsc crop end_sample:%uD, ext_samples:%uD",
-		    start_sample, samples);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stsc crop end_sample:%uD, ext_samples:%uD", start_sample, samples);
 	}
 	else {
 		return NGX_OK;
 	}
-
 	data = trak->out[NGX_HTTP_MP4_STSC_DATA].buf;
-
 	entry = (ngx_mp4_stsc_entry_t*)data->pos;
 	end = (ngx_mp4_stsc_entry_t*)data->last;
-
 	chunk = ngx_mp4_get_32value(entry->chunk);
 	samples = ngx_mp4_get_32value(entry->samples);
 	id = ngx_mp4_get_32value(entry->id);
 	prev_samples = 0;
 	entry++;
-
 	while(entry < end) {
 		next_chunk = ngx_mp4_get_32value(entry->chunk);
-
-		ngx_log_debug5(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "sample:%uD, chunk:%uD, chunks:%uD, "
-		    "samples:%uD, id:%uD",
+		ngx_log_debug5(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sample:%uD, chunk:%uD, chunks:%uD, samples:%uD, id:%uD",
 		    start_sample, chunk, next_chunk - chunk, samples, id);
-
 		n = (next_chunk - chunk) * samples;
-
 		if(start_sample < n) {
 			goto found;
 		}
@@ -2598,52 +2300,31 @@ static ngx_int_t ngx_http_mp4_crop_stsc_data(ngx_http_mp4_file_t * mp4, ngx_http
 		entries--;
 		entry++;
 	}
-
 	next_chunk = trak->chunks + 1;
-
-	ngx_log_debug4(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "sample:%uD, chunk:%uD, chunks:%uD, samples:%uD",
-	    start_sample, chunk, next_chunk - chunk, samples);
-
+	ngx_log_debug4(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sample:%uD, chunk:%uD, chunks:%uD, samples:%uD", start_sample, chunk, next_chunk - chunk, samples);
 	n = (next_chunk - chunk) * samples;
-
 	if(start_sample > n) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "%s time is out mp4 stsc chunks in \"%s\"",
-		    start ? "start" : "end", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "%s time is out mp4 stsc chunks in \"%s\"", start ? "start" : "end", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 found:
-
 	entries++;
 	entry--;
-
 	if(samples == 0) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "zero number of samples in \"%s\"",
-		    mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "zero number of samples in \"%s\"", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	target_chunk = chunk - 1;
 	target_chunk += start_sample / samples;
 	chunk_samples = start_sample % samples;
-
 	if(start) {
 		data->pos = (u_char*)entry;
-
 		trak->sample_to_chunk_entries = entries;
 		trak->start_chunk = target_chunk;
 		trak->start_chunk_samples = chunk_samples;
-
 		ngx_mp4_set_32value(entry->chunk, trak->start_chunk + 1);
-
 		samples -= chunk_samples;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "start_chunk:%ui, start_chunk_samples:%ui",
-		    trak->start_chunk, trak->start_chunk_samples);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "start_chunk:%ui, start_chunk_samples:%ui", trak->start_chunk, trak->start_chunk_samples);
 	}
 	else {
 		if(start_sample) {
@@ -2664,13 +2345,9 @@ found:
 		else {
 			trak->end_chunk = target_chunk;
 		}
-
 		samples = chunk_samples;
 		next_chunk = chunk + 1;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "end_chunk:%ui, end_chunk_samples:%ui",
-		    trak->end_chunk, trak->end_chunk_samples);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "end_chunk:%ui, end_chunk_samples:%ui", trak->end_chunk, trak->end_chunk_samples);
 	}
 
 	if(chunk_samples && next_chunk - target_chunk == 2) {
@@ -2729,55 +2406,36 @@ static ngx_int_t ngx_http_mp4_read_stsz_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_buf_t  * atom, * data;
 	ngx_mp4_stsz_atom_t  * stsz_atom;
 	ngx_http_mp4_trak_t  * trak;
-
 	/* sample sizes atom */
-
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stsz atom");
-
 	atom_header = ngx_mp4_atom_header(mp4);
 	stsz_atom = (ngx_mp4_stsz_atom_t*)atom_header;
 	ngx_mp4_set_atom_name(stsz_atom, 's', 't', 's', 'z');
-
 	if(ngx_mp4_atom_data_size(ngx_mp4_stsz_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stsz atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stsz atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	size = ngx_mp4_get_32value(stsz_atom->uniform_size);
 	entries = ngx_mp4_get_32value(stsz_atom->entries);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "sample uniform size:%uD, entries:%uD", size, entries);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "sample uniform size:%uD, entries:%uD", size, entries);
 	trak = ngx_mp4_last_trak(mp4);
 	trak->sample_sizes_entries = entries;
-
 	atom_table = atom_header + sizeof(ngx_mp4_stsz_atom_t);
-
 	atom = &trak->stsz_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_table;
-
 	trak->out[NGX_HTTP_MP4_STSZ_ATOM].buf = atom;
-
 	if(size == 0) {
-		if(ngx_mp4_atom_data_size(ngx_mp4_stsz_atom_t)
-		    + entries * sizeof(uint32_t) > atom_data_size) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "\"%s\" mp4 stsz atom too small",
-			    mp4->file.name.data);
+		if(ngx_mp4_atom_data_size(ngx_mp4_stsz_atom_t) + entries * sizeof(uint32_t) > atom_data_size) {
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stsz atom too small", mp4->file.name.data);
 			return NGX_ERROR;
 		}
-
 		atom_end = atom_table + entries * sizeof(uint32_t);
-
 		data = &trak->stsz_data_buf;
 		data->temporary = 1;
 		data->pos = atom_table;
 		data->last = atom_end;
-
 		trak->out[NGX_HTTP_MP4_STSZ_DATA].buf = data;
 	}
 	else {
@@ -2787,20 +2445,16 @@ static ngx_int_t ngx_http_mp4_read_stsz_atom(ngx_http_mp4_file_t * mp4, uint64_t
 		ngx_mp4_set_32value(atom_header, atom_size);
 		trak->size += atom_size;
 	}
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_mp4_update_stsz_atom(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak)
+static ngx_int_t ngx_http_mp4_update_stsz_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak)
 {
 	size_t atom_size;
 	uint32_t   * pos, * end, entries;
 	ngx_buf_t  * atom, * data;
 	ngx_mp4_stsz_atom_t  * stsz_atom;
-
 	/*
 	 * mdia.minf.stbl.stsz updating requires trak->start_sample
 	 * from mdia.minf.stbl.stts which depends on value from mdia.mdhd
@@ -2821,42 +2475,27 @@ static ngx_int_t ngx_http_mp4_update_stsz_atom(ngx_http_mp4_file_t * mp4,
 		for(pos = end - trak->start_chunk_samples; pos < end; pos++) {
 			trak->start_chunk_samples_size += ngx_mp4_get_32value(pos);
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-		    "chunk samples sizes:%uL",
-		    trak->start_chunk_samples_size);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "chunk samples sizes:%uL", trak->start_chunk_samples_size);
 		if(mp4->length) {
 			if(trak->end_sample - trak->start_sample > entries) {
-				ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-				    "end time is out mp4 stsz samples in \"%s\"",
-				    mp4->file.name.data);
+				ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "end time is out mp4 stsz samples in \"%s\"", mp4->file.name.data);
 				return NGX_ERROR;
 			}
-
 			entries = trak->end_sample - trak->start_sample;
 			data->last = data->pos + entries * sizeof(uint32_t);
 			end = (uint32_t*)data->last;
-
 			for(pos = end - trak->end_chunk_samples; pos < end; pos++) {
 				trak->end_chunk_samples_size += ngx_mp4_get_32value(pos);
 			}
-
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-			    "mp4 stsz end_chunk_samples_size:%uL",
-			    trak->end_chunk_samples_size);
+			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 stsz end_chunk_samples_size:%uL", trak->end_chunk_samples_size);
 		}
-
 		atom_size = sizeof(ngx_mp4_stsz_atom_t) + (data->last - data->pos);
 		trak->size += atom_size;
-
 		atom = trak->out[NGX_HTTP_MP4_STSZ_ATOM].buf;
 		stsz_atom = (ngx_mp4_stsz_atom_t*)atom->pos;
-
 		ngx_mp4_set_32value(stsz_atom->size, atom_size);
 		ngx_mp4_set_32value(stsz_atom->entries, entries);
 	}
-
 	return NGX_OK;
 }
 
@@ -2885,28 +2524,19 @@ static ngx_int_t ngx_http_mp4_read_stco_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_mp4_set_atom_name(stco_atom, 's', 't', 'c', 'o');
 
 	if(ngx_mp4_atom_data_size(ngx_mp4_stco_atom_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stco atom too small", mp4->file.name.data);
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stco atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	entries = ngx_mp4_get_32value(stco_atom->entries);
-
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "chunks:%uD", entries);
-
-	if(ngx_mp4_atom_data_size(ngx_mp4_stco_atom_t)
-	    + entries * sizeof(uint32_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 stco atom too small", mp4->file.name.data);
+	if(ngx_mp4_atom_data_size(ngx_mp4_stco_atom_t) + entries * sizeof(uint32_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 stco atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_table = atom_header + sizeof(ngx_mp4_stco_atom_t);
 	atom_end = atom_table + entries * sizeof(uint32_t);
-
 	trak = ngx_mp4_last_trak(mp4);
 	trak->chunks = entries;
-
 	atom = &trak->stco_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
@@ -2952,28 +2582,18 @@ static ngx_int_t ngx_http_mp4_update_stco_atom(ngx_http_mp4_file_t * mp4,
 	trak->start_offset = ngx_mp4_get_32value(data->pos);
 	trak->start_offset += trak->start_chunk_samples_size;
 	ngx_mp4_set_32value(data->pos, trak->start_offset);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "start chunk offset:%O", trak->start_offset);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "start chunk offset:%O", trak->start_offset);
 	if(mp4->length) {
 		if(trak->end_chunk > trak->chunks) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "end time is out mp4 stco chunks in \"%s\"",
-			    mp4->file.name.data);
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "end time is out mp4 stco chunks in \"%s\"", mp4->file.name.data);
 			return NGX_ERROR;
 		}
-
 		entries = trak->end_chunk - trak->start_chunk;
 		data->last = data->pos + entries * sizeof(uint32_t);
-
 		if(entries) {
-			trak->end_offset =
-			    ngx_mp4_get_32value(data->last - sizeof(uint32_t));
+			trak->end_offset = ngx_mp4_get_32value(data->last - sizeof(uint32_t));
 			trak->end_offset += trak->end_chunk_samples_size;
-
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-			    "end chunk offset:%O", trak->end_offset);
+			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "end chunk offset:%O", trak->end_offset);
 		}
 	}
 	else {
@@ -3045,18 +2665,12 @@ static ngx_int_t ngx_http_mp4_read_co64_atom(ngx_http_mp4_file_t * mp4, uint64_t
 		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 co64 atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	entries = ngx_mp4_get_32value(co64_atom->entries);
-
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "chunks:%uD", entries);
-
-	if(ngx_mp4_atom_data_size(ngx_mp4_co64_atom_t)
-	    + entries * sizeof(uint64_t) > atom_data_size) {
-		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-		    "\"%s\" mp4 co64 atom too small", mp4->file.name.data);
+	if(ngx_mp4_atom_data_size(ngx_mp4_co64_atom_t) + entries * sizeof(uint64_t) > atom_data_size) {
+		ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "\"%s\" mp4 co64 atom too small", mp4->file.name.data);
 		return NGX_ERROR;
 	}
-
 	atom_table = atom_header + sizeof(ngx_mp4_co64_atom_t);
 	atom_end = atom_table + entries * sizeof(uint64_t);
 
@@ -3108,35 +2722,24 @@ static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4,
 	trak->start_offset = ngx_mp4_get_64value(data->pos);
 	trak->start_offset += trak->start_chunk_samples_size;
 	ngx_mp4_set_64value(data->pos, trak->start_offset);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-	    "start chunk offset:%O", trak->start_offset);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "start chunk offset:%O", trak->start_offset);
 	if(mp4->length) {
 		if(trak->end_chunk > trak->chunks) {
-			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0,
-			    "end time is out mp4 co64 chunks in \"%s\"",
-			    mp4->file.name.data);
+			ngx_log_error(NGX_LOG_ERR, mp4->file.log, 0, "end time is out mp4 co64 chunks in \"%s\"", mp4->file.name.data);
 			return NGX_ERROR;
 		}
-
 		entries = trak->end_chunk - trak->start_chunk;
 		data->last = data->pos + entries * sizeof(uint64_t);
-
 		if(entries) {
-			trak->end_offset =
-			    ngx_mp4_get_64value(data->last - sizeof(uint64_t));
+			trak->end_offset = ngx_mp4_get_64value(data->last - sizeof(uint64_t));
 			trak->end_offset += trak->end_chunk_samples_size;
-
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0,
-			    "end chunk offset:%O", trak->end_offset);
+			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "end chunk offset:%O", trak->end_offset);
 		}
 	}
 	else {
 		entries = trak->chunks - trak->start_chunk;
 		trak->end_offset = mp4->mdat_data.buf->file_last;
 	}
-
 	if(entries == 0) {
 		trak->start_offset = mp4->end;
 		trak->end_offset = 0;
@@ -3151,8 +2754,7 @@ static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4,
 	return NGX_OK;
 }
 
-static void ngx_http_mp4_adjust_co64_atom(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak, nginx_off_t adjustment)
+static void ngx_http_mp4_adjust_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak, nginx_off_t adjustment)
 {
 	uint64_t offset, * entry, * end;
 	ngx_buf_t  * data;

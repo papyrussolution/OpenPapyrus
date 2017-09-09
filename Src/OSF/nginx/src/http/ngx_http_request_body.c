@@ -163,7 +163,7 @@ ngx_int_t ngx_http_read_unbuffered_request_body(ngx_http_request_t * r)
 		return rc;
 	}
 #endif
-	if(r->connection->read->timedout) {
+	if(r->connection->P_EvRd->timedout) {
 		r->connection->timedout = 1;
 		return NGX_HTTP_REQUEST_TIME_OUT;
 	}
@@ -177,7 +177,7 @@ ngx_int_t ngx_http_read_unbuffered_request_body(ngx_http_request_t * r)
 static void ngx_http_read_client_request_body_handler(ngx_http_request_t * r)
 {
 	ngx_int_t rc;
-	if(r->connection->read->timedout) {
+	if(r->connection->P_EvRd->timedout) {
 		r->connection->timedout = 1;
 		ngx_http_finalize_request(r, NGX_HTTP_REQUEST_TIME_OUT);
 		return;
@@ -220,10 +220,10 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 				}
 				if(rb->busy != NULL) {
 					if(r->request_body_no_buffering) {
-						if(c->read->timer_set) {
-							ngx_del_timer(c->read);
+						if(c->P_EvRd->timer_set) {
+							ngx_del_timer(c->P_EvRd);
 						}
-						if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+						if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 							return NGX_HTTP_INTERNAL_SERVER_ERROR;
 						}
 						return NGX_AGAIN;
@@ -272,7 +272,7 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 		if(rb->rest == 0) {
 			break;
 		}
-		if(!c->read->ready) {
+		if(!c->P_EvRd->ready) {
 			if(r->request_body_no_buffering && rb->buf->pos != rb->buf->last) {
 				/* pass buffer to request body filter chain */
 				out.buf = rb->buf;
@@ -283,15 +283,15 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 				}
 			}
 			clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-			ngx_add_timer(c->read, clcf->client_body_timeout);
-			if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+			ngx_add_timer(c->P_EvRd, clcf->client_body_timeout);
+			if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
 			return NGX_AGAIN;
 		}
 	}
-	if(c->read->timer_set) {
-		ngx_del_timer(c->read);
+	if(c->P_EvRd->timer_set) {
+		ngx_del_timer(c->P_EvRd);
 	}
 	if(!r->request_body_no_buffering) {
 		r->read_event_handler = ngx_http_block_reading;
@@ -394,7 +394,7 @@ ngx_int_t ngx_http_discard_request_body(ngx_http_request_t * r)
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	rev = r->connection->read;
+	rev = r->connection->P_EvRd;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http set discard body");
 
@@ -454,7 +454,7 @@ void ngx_http_discarded_request_body_handler(ngx_http_request_t * r)
 	ngx_http_core_loc_conf_t  * clcf;
 
 	c = r->connection;
-	rev = c->read;
+	rev = c->P_EvRd;
 
 	if(rev->timedout) {
 		c->timedout = 1;
@@ -534,7 +534,7 @@ static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r)
 			return NGX_OK;
 		}
 
-		if(!r->connection->read->ready) {
+		if(!r->connection->P_EvRd->ready) {
 			return NGX_AGAIN;
 		}
 

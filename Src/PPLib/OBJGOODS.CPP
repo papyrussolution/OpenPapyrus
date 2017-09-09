@@ -4789,7 +4789,7 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 				scan.IncrLen(1);
 			}
 			else {
-				for(temp_buf = 0; scan[0]; scan.Incr()) {
+				for(temp_buf.Z(); scan[0]; scan.Incr()) {
 					temp_buf.CatChar(scan[0]);
 				}
 			}

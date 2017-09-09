@@ -235,7 +235,7 @@ void PrcPaneDialog::setupHint()
 			}
 		}
 		if(!r) {
-			temp_buf = 0;
+			temp_buf.Z();
 			setStaticText(CTL_PRCPAN_HINT1 + i, temp_buf);
 			setStaticText(CTL_PRCPAN_HINT1 + i + CTL_PRCPAN_KBHINTBIAS, temp_buf);
 		}

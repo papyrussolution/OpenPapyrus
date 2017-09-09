@@ -154,7 +154,7 @@ int PPDrvReader::Listen(SString & rOutput)
 				}
 			}
 		}
-		temp_buf = 0;
+		temp_buf.Z();
 		if(all_are_hex) {
 			for(i = 0; i < data_size; i++)
 				temp_buf.CatChar(data_buf[i]);

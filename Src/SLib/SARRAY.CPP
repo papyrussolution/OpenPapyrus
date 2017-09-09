@@ -27,6 +27,34 @@ SLAPI SVectorBase::~SVectorBase()
 {
 }
 
+int FASTCALL SVectorBase::CopyS(const SVectorBase & rS)
+{
+	int    ok = 1;
+	if(&rS != 0) {
+		isize = rS.isize;
+		delta = rS.delta;
+		Limit = 0;
+		count = 0;
+		pointer = rS.pointer;
+		flags = rS.flags;
+		if(flags & aryDataOwner) {
+			data = 0;
+			if(expand(rS.count)) {
+				count = rS.count;
+				memcpy(data, rS.data, isize * count);
+			}
+			else
+				ok = 0;
+		}
+		else {
+			Limit = rS.Limit;
+			count = rS.count;
+			data  = rS.data;
+		}
+	}
+	return ok;
+}
+
 static size_t FASTCALL CalcArrayDelta(uint itemSize)
 {
 	const uint min_delta = 8;
@@ -767,26 +795,185 @@ int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, v
 //
 //
 //
-SLAPI SArray::SArray(uint itemSize, uint aDelta, int o) : SVectorBase(itemSize, aDelta, o)
+#if 0 // @construction {
+SLAPI SVector::SVector(uint itemSize, uint aDelta, int o /*= O_ARRAY*/) : SVectorBase(itemSize, aDelta, o)
 {
-	/*isize = itemSize;
-	delta = aDelta;
-	flags = o;
-	data  = 0;
+	assert(!(o & aryEachItem));
+}
+
+SLAPI SVector::SVector(uint itemSize) : SVectorBase(itemSize, 8, O_ARRAY)
+{
+}
+
+SLAPI SVector::SVector(void * pData, uint itemSize, uint aCount, int o) : SVectorBase(itemSize, 1, o)
+{
+	assert(!(o & aryEachItem));
+	count = aCount;
+	Limit = aCount;
+	data = (uint8 *)pData;
+}
+
+SLAPI SVector::SVector(const SVector & rS) : SVectorBase(rS.isize, rS.delta, rS.flags)
+{
+	assert(!(rS.flags & aryEachItem));
+	data = 0;
+	copy(rS);
+}
+
+SLAPI SVector::~SVector()
+{
+	if(flags & aryDataOwner && data) // (&& data) ради ускорения //
+		freeAll();
+}
+
+int FASTCALL SVector::copy(const SVector & rS)
+{
+	assert(!(rS.flags & aryEachItem));
+	freeAll();
+    return SVectorBase::CopyS(rS);
+}
+
+SVector & FASTCALL SVector::operator = (const SVector & rS)
+{
+	copy(rS);
+	return *this;
+}
+
+int FASTCALL SVector::IsEqual(const SVector & rS) const
+{
+	const uint16 tf = (aryPtrContainer|aryEachItem);
+	if(!(flags & tf) && !(rS.flags & tf))
+		if(count == rS.count && isize == rS.isize)
+			return BIN(memcmp(data, rS.data, isize * count) == 0);
+	return 0;
+}
+
+int FASTCALL SVector::atFree(uint idx)
+{
+	if(idx < count) {
+		uint8 * org = data;
+		void * item = org + idx * isize;
+		count--;
+		if(idx < count)
+			memmove(item, PTR8(item) + isize, (count-idx) * isize);
+		shrink();
+		return 1;
+	}
+	else
+		return (SLibError = SLERR_BOUNDS, 0);
+}
+
+int SLAPI SVector::freeLast()
+{
+	return count ? atFree(count-1) : (SLibError = SLERR_BOUNDS, 0);
+}
+
+void SLAPI SVector::freeAll()
+{
+	if(data) {
+		ZFREE(data);
+	}
 	count = 0;
 	pointer = 0;
-	Limit = 0;*/
+	Limit = 0;
+}
+
+void SLAPI SVector::clear()
+{
+	count = pointer = 0;
+}
+
+int SLAPI SVector::freeChunk(uint lowPos, uint uppPos)
+{
+	int    ok = 0;
+	const  uint org_count = count;
+	if(lowPos <= uppPos && lowPos < org_count) {
+		const uint upp_pos = MIN(uppPos, org_count-1);
+		const uint _fc = (upp_pos - lowPos + 1);
+		assert(_fc <= org_count);
+		if(_fc == org_count) {
+			freeAll();
+		}
+		else {
+			uint8 * p_org = data;
+			void * p_low_item = p_org + lowPos * isize;
+			count -= _fc;
+			if(upp_pos < (org_count-1)) {
+				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
+			}
+			shrink();
+		}
+		ok = 1;
+	}
+	else
+		SLibError = SLERR_BOUNDS;
+	return ok;
+}
+
+int SLAPI SVector::Write(SFile & rFile, long) const
+{
+	int    ok = 1;
+	uint   i = 0;
+	uint32 c = count;
+	uint32 item_size = isize;
+	long   beg_pos = -1;
+	THROW(rFile.IsValid());
+	beg_pos = rFile.Tell();
+	THROW(rFile.Write(&item_size, sizeof(item_size)));
+	THROW(rFile.Write(&c, sizeof(c)));
+	for(i = 0; i < c; i++) {
+		THROW(rFile.Write(at(i), item_size));
+	}
+	CATCH
+		if(beg_pos >= 0)
+			rFile.Seek(beg_pos);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int SLAPI SVector::Read(SFile & rFile, long)
+{
+	EXCEPTVAR(SLibError);
+	int    ok = 1;
+	uint32 c = 0;
+	uint32 item_size = 0;
+	long   beg_pos = -1;
+	clear();
+	THROW(rFile.IsValid());
+	beg_pos = rFile.Tell();
+	THROW(rFile.Read(&item_size, sizeof(item_size)));
+	if(item_size != isize) {
+		SString msg_buf;
+		msg_buf.Cat(item_size).Space().Cat("!=").Space().Cat(isize);
+		SLS.SetAddedMsgString(msg_buf);
+		CALLEXCEPTV(SLERR_UNMATCHSTREAMARRAY);
+	}
+	THROW(rFile.Read(&c, sizeof(c)));
+	{
+		STempBuffer temp_buf(item_size);
+		for(uint i = 0; i < c; i++) {
+			THROW(rFile.Read((char *)temp_buf, item_size));
+			THROW(insert(temp_buf));
+		}
+	}
+	CATCH
+		if(beg_pos >= 0)
+			rFile.Seek(beg_pos);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+#endif // } 0 @construction
+//
+//
+//
+SLAPI SArray::SArray(uint itemSize, uint aDelta, int o) : SVectorBase(itemSize, aDelta, o)
+{
 }
 
 SLAPI SArray::SArray(uint itemSize) : SVectorBase(itemSize, 8, O_ARRAY)
 {
-	/*isize = itemSize;
-	delta = 8;
-	flags = O_ARRAY;
-	data  = 0;
-	count = 0;
-	pointer = 0;
-	Limit = 0;*/
 }
 
 SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, int o) : SVectorBase(itemSize, 1, o)
@@ -794,19 +981,12 @@ SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, int o) : SVectorB
 	count = aCount;
 	Limit = aCount;
 	data = (uint8 *)pData;
-	/*isize = itemSize;
-	count = aCount;
-	Limit = aCount;
-	delta = 1;
-	flags = o;
-	data  = (uint8 *)pData;
-	pointer = 0;*/
 }
 
-SLAPI SArray::SArray(const SArray & src) : SVectorBase(src.isize, src.delta, src.flags)
+SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, rS.delta, rS.flags)
 {
 	data = 0;
-	copy(src);
+	copy(rS);
 }
 
 SLAPI SArray::~SArray()
@@ -823,31 +1003,8 @@ SArray & FASTCALL SArray::operator = (const SArray & src)
 
 int FASTCALL SArray::copy(const SArray & src)
 {
-	int    ok = 1;
 	freeAll();
-	if(&src != 0) {
-		isize = src.isize;
-		delta = src.delta;
-		Limit = 0;
-		count = 0;
-		pointer = src.pointer;
-		flags = src.flags;
-		if(flags & aryDataOwner) {
-			data = 0;
-			if(expand(src.count)) {
-				count = src.count;
-				memcpy(data, src.data, isize * count);
-			}
-			else
-				ok = 0;
-		}
-		else {
-			Limit = src.Limit;
-			count = src.count;
-			data  = src.data;
-		}
-	}
-	return ok;
+    return SVectorBase::CopyS(src);
 }
 
 int FASTCALL SArray::IsEqual(const SArray & src) const
@@ -868,7 +1025,6 @@ void FASTCALL SArray::freeItem(void * pItem)
 
 int FASTCALL SArray::atFree(uint idx)
 {
-	// @v7.0.11 assert(idx < count); // @v7.0.10
 	if(idx < count) {
 		uint8 * org = data;
 		void * item = org + idx * isize;
@@ -892,10 +1048,8 @@ int SLAPI SArray::freeChunk(uint lowPos, uint uppPos)
 		const uint upp_pos = MIN(uppPos, org_count-1);
 		const uint _fc = (upp_pos - lowPos + 1);
 		assert(_fc <= org_count);
-		if(_fc == org_count) {
+		if(_fc == org_count)
 			freeAll();
-			ok = 1;
-		}
 		else {
 			uint8 * p_org = data;
 			void * p_low_item = p_org + lowPos * isize;
@@ -910,8 +1064,8 @@ int SLAPI SArray::freeChunk(uint lowPos, uint uppPos)
 				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
 			}
 			shrink();
-			ok = 1;
 		}
+		ok = 1;
 	}
 	else
 		SLibError = SLERR_BOUNDS;
@@ -2104,8 +2258,8 @@ StrAssocArray & SLAPI StrAssocArray::Clear()
 	//
 	// @v9.8.0 Assoc.freeAll();
 	// @v9.8.0 ParentList.freeAll();
-	Assoc.clear(); // @v9.8.0 
-	ParentList.clear(); // @v9.8.0 
+	Assoc.clear(); // @v9.8.0
+	ParentList.clear(); // @v9.8.0
 	ClearS();
 	return *this;
 }
@@ -2730,11 +2884,13 @@ void SLAPI RealArray::Sort()
 //
 // LongArray
 //
-SLAPI LongArray::LongArray() : TSArray <long>()
+SLAPI LongArray::LongArray() :
+	TSArray <long>()
 {
 }
 
-SLAPI LongArray::LongArray(const LongArray & s) : TSArray <long> (s)
+SLAPI LongArray::LongArray(const LongArray & s) :
+	TSArray <long> (s)
 {
 }
 
@@ -2876,16 +3032,25 @@ int SLAPI LongArray::ordInsert(long i, uint * p)
 }
 
 int FASTCALL LongArray::bsearch(long i, uint * p) const
-	{ return SArray::bsearch(&i, p, CMPF_LONG); }
+{
+	return SArray::bsearch(&i, p, CMPF_LONG);
+}
 int FASTCALL LongArray::bsearch(long i) const
-	{ return SArray::bsearch(&i, 0, CMPF_LONG); }
+{
+	return SArray::bsearch(&i, 0, CMPF_LONG);
+}
 //
 // @todo Ускорить функцию, закладываясь на особенности массива LongArray
 //
 int FASTCALL LongArray::lsearch(long k, uint * pIdx) const
-	{ return SArray::lsearch(&k, pIdx, CMPF_LONG); }
+{
+	return SArray::lsearch(&k, pIdx, CMPF_LONG);
+}
+
 int FASTCALL LongArray::lsearch(long k) const
-	{ return SArray::lsearch(&k, 0, CMPF_LONG); }
+{
+	return SArray::lsearch(&k, 0, CMPF_LONG);
+}
 
 int  SLAPI LongArray::isList() const
 {

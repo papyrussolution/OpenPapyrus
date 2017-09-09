@@ -776,13 +776,13 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 				n_item.PutInner("Code", temp_buf.Z().Cat(r_item.Code));
 				n_item.PutInner("Flags", temp_buf.Z().Cat(r_item.Flags));
 				n_item.PutInner("AgentID", temp_buf.Z().Cat(r_item.AgentID));
-				temp_buf = 0;
+				temp_buf.Z();
 				if(r_item.AgentID)
 					GetArticleName(r_item.AgentID, temp_buf);
 				n_item.PutInner("AgentName", temp_buf);
 				n_item.PutInner("SCardID", temp_buf.Z().Cat(r_item.SCardID));
 				{
-					temp_buf = 0;
+					temp_buf.Z();
 					SCardTbl::Rec sc_rec;
 					if(r_item.SCardID && ScObj.Fetch(r_item.SCardID, &sc_rec) > 0)
 						temp_buf = sc_rec.Code;
@@ -4753,14 +4753,14 @@ int SelCheckListDialog::setupList()
 					p_list->def->SetItemColor(r_chk_rec.ID, SClrBlack, SClrYellow);
 				}
 				{
-					temp_buf = 0;
+					temp_buf.Z();
 					if(r_chk_rec.Flags & CCHKF_JUNK)
 						temp_buf.CatDiv('*', 2);
 					ss.add(temp_buf.Cat(r_chk_rec.Code));
 				}
 				ss.add(temp_buf.Z().Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
 				{
-					temp_buf = 0;
+					temp_buf.Z();
 					if(r_chk_rec.TableCode) {
 						temp_buf.Cat(r_chk_rec.TableCode);
 					}
@@ -4783,7 +4783,7 @@ int SelCheckListDialog::setupList()
 				MEMSZERO(ext_chk_rec);
 				P_Srv->GetCc().GetExt(r_chk_rec.ID, &ext_chk_rec);
 				{
-					temp_buf = 0;
+					temp_buf.Z();
 					if(r_chk_rec.TableCode) {
 						temp_buf.Cat(r_chk_rec.TableCode);
 					}
@@ -4793,7 +4793,7 @@ int SelCheckListDialog::setupList()
 					ss.add(temp_buf);
 				}
 				tm_chunk.Init(ext_chk_rec.StartOrdDtm, ext_chk_rec.EndOrdDtm);
-				ss.add(tm_chunk.ToStr(temp_buf = 0, STimeChunk::fmtOmitSec));
+				ss.add(tm_chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec));
 				if(r_chk_rec.SCardID) {
 					SCardTbl::Rec sc_rec;
 					if(P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) { // @v8.4.3 Search-->Fetch
@@ -4806,7 +4806,7 @@ int SelCheckListDialog::setupList()
 				ss.add(scard_psn);
 				{
 					CCheckPacket chk_pack;
-					temp_buf = 0;
+					temp_buf.Z();
 					if(P_Srv->GetCc().LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
 						StringSet ss(SLBColumnDelim);
 						if(chk_pack.GetCount()) {
@@ -5654,7 +5654,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 						ss.add(temp_buf = r_entry.Contact);
 						ss.add(temp_buf = r_entry.Addr);
 						{
-							temp_buf = 0;
+							temp_buf.Z();
 							if(sc_list.getCount()) {
 								PPID   sc_id = sc_list.get(0);
 								SCardTbl::Rec sc_rec;
@@ -7254,7 +7254,7 @@ void CheckPaneDialog::setupHint()
 				setStaticText(CTL_CHKPAN_HINT1 + i, hint);
 			}
 			else {
-				temp_buf = 0;
+				temp_buf.Z();
 				setStaticText(CTL_CHKPAN_HINT1 + i, temp_buf);
 				setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, temp_buf);
 			}
@@ -7266,7 +7266,7 @@ void CheckPaneDialog::setupHint()
 				setStaticText(CTL_CHKPAN_HINT1 + i, hint);
 			}
 			else {
-				temp_buf = 0;
+				temp_buf.Z();
 				setStaticText(CTL_CHKPAN_HINT1 + i, temp_buf);
 				setStaticText(CTL_CHKPAN_HINT1 + i + CTL_CHKPAN_KBHINTBIAS, temp_buf);
 			}
@@ -9202,7 +9202,7 @@ int SCardInfoDialog::setupList()
 			ss.add(person_name);
 			ss.add(card_code);
 			ss.add(ser_name);
-			temp_buf = 0;
+			temp_buf.Z();
 			if(checkdate(expiry, 0))
 				temp_buf.Cat(expiry);
 			ss.add(temp_buf);
@@ -9689,7 +9689,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, int ignoreRights)
 							PgsBlock pgsb(1.0);
 							//double qtty = 1.0;
 							//double price = 0.0;
-							//temp_buf = 0;
+							//temp_buf.Z();
 							//if(PreprocessGoodsSelection(sc_rec.AutoGoodsID, 0, &qtty, temp_buf = 0, &price) > 0)
 								SetupNewRow(sc_rec.AutoGoodsID, /*qtty, price, temp_buf*/pgsb);
 						}
@@ -10614,7 +10614,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
 				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
 				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
-				temp_buf = 0;
+				temp_buf.Z();
 				const long f = P_ChkPack->Rec.Flags;
 				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
 				CatCharByFlag(f, CCHKF_PRINTED,   'P', temp_buf, 0);
@@ -11335,7 +11335,7 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		if(CC.Search(tses_rec.CCheckID_, &cc_rec) > 0)
 			CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		CALLEXCEPT_PP_S(PPERR_TSESSALREADYCCHECKED, temp_buf);
 	}
 	//
@@ -11391,7 +11391,7 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 		if(CC.Search(cip_item.CCheckID, &cc_rec) > 0)
 			CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		CALLEXCEPT_PP_S(PPERR_CHKINPALREADYCCHECKED, temp_buf);
 	}
 	//

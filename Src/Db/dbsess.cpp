@@ -265,11 +265,10 @@ int SLAPI SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 //
 //
 //
-SLAPI DbSession::DbSession()
+SLAPI DbSession::DbSession() : LastThread()
 {
 	Id__ = 1;
 	TlsIdx = -1L;
-	LastThread = 0;
 	_Oe = 0;
 	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
 	InitProtectData();

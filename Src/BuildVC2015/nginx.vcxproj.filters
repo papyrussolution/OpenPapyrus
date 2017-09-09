@@ -551,25 +551,13 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_cycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_connect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_openssl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_pipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h">
@@ -587,9 +575,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_ssi_filter_module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http_ssl_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_upstream_round_robin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -597,12 +582,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_iocp_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_mail.h">
@@ -635,13 +614,7 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_resolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_rwlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_shmtx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream.h">

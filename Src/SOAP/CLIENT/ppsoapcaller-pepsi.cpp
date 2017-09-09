@@ -101,7 +101,7 @@ static char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection 
 	if(checkdate(dval, 0))
 		temp_buf.Cat(dval, fmt);
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	return GetDynamicParamString(temp_buf, rPool);
 }
 
@@ -111,7 +111,7 @@ static char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tf
 	if(checkdate(dtval.d, 0))
 		temp_buf.Cat(dtval, dfmt, tfmt);
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	return GetDynamicParamString(temp_buf, rPool);
 }
 #endif // } 0
@@ -513,7 +513,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientS
 					case iSalesTransferStatus::ifcOrder: temp_buf = "ORDS"; break;
 					case iSalesTransferStatus::ifcInvoice: temp_buf = "DOCL"; break;
 					case iSalesTransferStatus::ifcReceipt: temp_buf = "DOCS"; break;
-					default: temp_buf = 0; break;
+					default: temp_buf.Z(); break;
 				}
 				if(temp_buf.NotEmpty()) {
 					ns1__pTransferStatus * p_new_item = arg_status_list.CreateNewItem(0);
@@ -774,7 +774,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
 	return p_result;
 }
 
-static const long PepsiMoneyFormat = MKSFMTD(0, 13, NMBF_DECCOMMA|NMBF_NOTRAILZ);
+static const long PepsiMoneyFormat = MKSFMTD(0, 13, NMBF_DECCOMMA|NMBF_NOTRAILZ|NMBF_OMITEPS); // @v9.8.0 NMBF_OMITEPS
 
 extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & rSess, const char * pUser, const char * pPassw,
 	const TSCollection <iSalesBillPacket> * pItems, uint maxItems)

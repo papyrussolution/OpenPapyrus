@@ -201,10 +201,10 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 
 	cscf = (ngx_stream_core_srv_conf_t*)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
 
-	if(c->read->timedout) {
+	if(c->P_EvRd->timedout) {
 		rc = NGX_STREAM_OK;
 	}
-	else if(c->read->timer_set) {
+	else if(c->P_EvRd->timer_set) {
 		rc = NGX_AGAIN;
 	}
 	else {
@@ -228,22 +228,22 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 			break;
 		}
 
-		if(c->read->eof) {
+		if(c->P_EvRd->eof) {
 			rc = NGX_STREAM_OK;
 			break;
 		}
 
-		if(!c->read->ready) {
-			if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+		if(!c->P_EvRd->ready) {
+			if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 				rc = NGX_ERROR;
 				break;
 			}
 
-			if(!c->read->timer_set) {
-				ngx_add_timer(c->read, cscf->preread_timeout);
+			if(!c->P_EvRd->timer_set) {
+				ngx_add_timer(c->P_EvRd, cscf->preread_timeout);
 			}
 
-			c->read->handler = ngx_stream_session_handler;
+			c->P_EvRd->handler = ngx_stream_session_handler;
 
 			return NGX_OK;
 		}
@@ -262,8 +262,8 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 		rc = ph->handler(s);
 	}
 
-	if(c->read->timer_set) {
-		ngx_del_timer(c->read);
+	if(c->P_EvRd->timer_set) {
+		ngx_del_timer(c->P_EvRd);
 	}
 
 	if(rc == NGX_OK) {

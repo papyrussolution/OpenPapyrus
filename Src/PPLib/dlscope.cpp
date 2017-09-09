@@ -376,7 +376,7 @@ int SLAPI DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SStrin
 		SString temp_buf;
 		if(c) do {
 			const DlScope * p_parent = ChildList.at(--c);
-			temp_buf = 0;
+			temp_buf.Z();
 			if(p_parent->GetQualif(id, pDiv, inverse, temp_buf)) {
 				if(inverse)
 					rBuf.Cat(temp_buf);

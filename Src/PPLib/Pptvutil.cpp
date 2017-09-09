@@ -120,8 +120,8 @@ void PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarI
 		else {
 			SPathStruc ps;
 			ps.Split(pFileName);
-			ps.Drv = 0;
-			ps.Dir = 0;
+			ps.Drv.Z();
+			ps.Dir.Z();
 			ps.Merge(title_buf);
 		}
 		p_brw->setTitle(title_buf);
@@ -2043,8 +2043,8 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	if((ok = ::GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
 		SPathStruc ps;
 		ps.Split(file_name);
-		ps.Nam = 0;
-		ps.Ext = 0;
+		ps.Nam.Z();
+		ps.Ext.Z();
 		ps.Merge(InitDir);
 		if(Flags & fbcgfSaveLastPath) {
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 0);
@@ -2768,18 +2768,18 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 	AddClusterAssoc(CTL_UICFG_FLAGS, 3, UserInterfaceSettings::fShowBizScoreOnDesktop);
 	AddClusterAssoc(CTL_UICFG_FLAGS, 4, UserInterfaceSettings::fDisableNotFoundWindow);
 	AddClusterAssoc(CTL_UICFG_FLAGS, 5, UserInterfaceSettings::fUpdateReminder);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 6, UserInterfaceSettings::fTcbInterlaced); // @v7.9.3
+	AddClusterAssoc(CTL_UICFG_FLAGS, 6, UserInterfaceSettings::fTcbInterlaced);
 	AddClusterAssoc(CTL_UICFG_FLAGS, 7, UserInterfaceSettings::fDisableBeep);   // @v8.1.6
 	AddClusterAssoc(CTL_UICFG_FLAGS, 8, UserInterfaceSettings::fBasketItemFocusPckg); // @v8.3.7
 	AddClusterAssoc(CTL_UICFG_FLAGS, 9, UserInterfaceSettings::fOldModifSignSelection); // @v8.5.0
 	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 	SetClusterData(CTL_UICFG_FLAGS, UICfg.Flags);
 	{
-		UICfg.TableFont.ToStr(temp_buf = 0, 0);
+		UICfg.TableFont.ToStr(temp_buf.Z(), 0);
 		setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
 	}
 	{
-		UICfg.ListFont.ToStr(temp_buf = 0, 0);
+		UICfg.ListFont.ToStr(temp_buf.Z(), 0);
 		setStaticText(CTL_UICFG_ST_LISTFONT, temp_buf);
 	}
 	setCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb); // @v8.1.11
@@ -3139,7 +3139,7 @@ int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 		if(single_id && LocObj.Fetch(single_id, &loc_rec) > 0)
 			temp_buf = loc_rec.Code;
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		pDlg->setCtrlString(CtlCode, temp_buf);
 	}
 	if(Data.LocList.GetCount() > 1) {
@@ -6531,7 +6531,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 			{
 				HFONT h_f = (HFONT)::SendMessage(dlg->H(), WM_GETFONT, 0, 0);
 				if(h_f) {
-					temp_buf = 0;
+					temp_buf.Z();
 					LOGFONT f;
 					if(::GetObject(h_f, sizeof(f), &f)) {
 						SFontDescr fd(0, 0, 0);
@@ -6755,7 +6755,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 									if(p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) {
 										TButton * p_button = (TButton *)p_view;
 										uint   cmd_id = p_button->GetCommand();
-										temp_buf = 0;
+										temp_buf.Z();
 										if(cmd_id)
 											dlg->GetCtlSymb(cmd_id+100000, temp_buf);
 										else
@@ -6958,9 +6958,9 @@ void OpenEditFileDialog::SetupReservList()
 					PPGetFilePath(fi.PathID, fi.Name, full_path);
 				}
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				ss.add(temp_buf);
-				temp_buf = 0;
+				temp_buf.Z();
 				if(full_path.NotEmpty() && fileExists(full_path)) {
 					LDATETIME dtm;
 					SFile::GetTime(full_path, 0, 0, &dtm);

@@ -235,7 +235,7 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 	}
 	if((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
 		cur->nsTab = (xmlNs **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNs *));
-		cur->nodeTab = (xmlNodePtr*)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
+		cur->nodeTab = (xmlNode **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		if((cur->nsTab == NULL) || (cur->nodeTab == NULL)) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
@@ -302,15 +302,20 @@ static void xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur)
 
 static int xmlC14NStrEqual(const xmlChar * str1, const xmlChar * str2) 
 {
-	if(str1 == str2) return 1;
-	if(str1 == NULL) return((*str2) == '\0');
-	if(str2 == NULL) return((*str1) == '\0');
-	do {
-		if(*str1++ != *str2) return 0;
-	} while(*str2++);
-	return 1;
+	if(str1 == str2) 
+		return 1;
+	else if(str1 == NULL) 
+		return((*str2) == '\0');
+	else if(str2 == NULL) 
+		return((*str1) == '\0');
+	else {
+		do {
+			if(*str1++ != *str2) 
+				return 0;
+		} while(*str2++);
+		return 1;
+	}
 }
-
 /**
  * xmlC14NVisibleNsStackFind:
  * @ctx:		the C14N context

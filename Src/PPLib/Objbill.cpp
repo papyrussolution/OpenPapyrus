@@ -8549,15 +8549,15 @@ SLTEST_R(PPBillFormula)
 	{
 		for(uint i = 0; i < tab.GetCount(); i++) {
 			tab.GetRow(i, row);
-			if(row.Get(0, (temp_buf = 0))) {
+			if(row.Get(0, temp_buf.Z())) {
 				if(temp_buf.CmpNC("Bill") == 0) {
 					PPID  op_id   = 0;
 					LDATE bill_dt = ZERODATE;
-					if(row.Get(1, (temp_buf = 0))) {
+					if(row.Get(1, temp_buf.Z())) {
 						op_id = temp_buf.ToLong();
-						if(row.Get(2, (temp_buf = 0))) {
+						if(row.Get(2, temp_buf.Z())) {
 							strtodate(temp_buf, DATF_DMY, &bill_dt);
-							if(row.Get(3, (temp_buf = 0))) {
+							if(row.Get(3, temp_buf.Z())) {
 								PPID id = 0;
 								BillTbl::Rec bill_rec;
 								MEMSZERO(bill_rec);
@@ -8583,7 +8583,7 @@ SLTEST_R(PPBillFormula)
 				else {
 					SString l_formula;
 					l_formula = temp_buf;
-					if(row.Get(1, (temp_buf = 0))) {
+					if(row.Get(1, temp_buf.Z())) {
 						char * p = newStr(l_formula);
 						if(p)
 							l_formula_list.insert(p);

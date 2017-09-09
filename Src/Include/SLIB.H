@@ -2450,6 +2450,13 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define NMBF_NOTRAILZ  0x0080  // Обрезать незначащие нули после десятичной точки
 #define NMBF_DECCOMMA  0x0100  // @v9.4.3 Десятичный разделитель - запатая ',', иначе - точка '.'
 #define NMBF_EXPLFLOAT 0x0200  // @v9.7.8 Если float-число не имеет знаков после точки, то оставлять в формате 999.0 (актуально только при флаге NMBF_NOTRAILZ)
+#define NMBF_OMITEPS   0x0400  // @v9.8.0 Если за очередной десятичной цифрой следует OMITEPSDITITS или больше '9' либо '0' то
+	// число форматируется с округлением до ближайшей соседней десятичной цифры с заменой последующих на нули.
+	// Например:
+	// 369,9000000000001  --> 369,9000000000000
+	// 4043,1599999999994 --> 4043,1600000000000
+
+#define OMITEPSDIGITS  5
 //
 // Text number format flags
 //
@@ -3888,6 +3895,13 @@ const  char * SLAPI skipws(const char * pStr, size_t * pPos);
 //   Не использовать.
 //
 // @v9.6.5 const  char * FASTCALL onecstr(char c);
+//
+// Descr: Сдвигает все символы строки pStr вправо на n символов и освободившееся 
+//   слева место забивает символами pad.
+// Note: Предполает, что под указатель pStr выделено достаточно места чтобы вместить еще n символов.
+// Returns:
+//   pStr
+//
 char * SLAPI padleft(char  * pStr, char pad, size_t n);
 char * SLAPI padright(char * pStr, char pad, size_t n);
 char * SLAPI alignstr(char * pStr, size_t width, int adj);
@@ -5169,15 +5183,15 @@ class SCommPort {
 public:
 	SLAPI  SCommPort();
 	SLAPI ~SCommPort();
-	int    SLAPI GetParams(CommPortParams *) const;
-	int    SLAPI GetTimeouts(CommPortTimeouts *) const;
-	int    SLAPI SetParams(const CommPortParams *);
-	int    SLAPI SetTimeouts(const CommPortTimeouts *);
+	void   FASTCALL GetParams(CommPortParams *) const;
+	void   FASTCALL GetTimeouts(CommPortTimeouts *) const;
+	void   FASTCALL SetParams(const CommPortParams *);
+	void   FASTCALL SetTimeouts(const CommPortTimeouts *);
 	int    SLAPI InitPort(int portNo /* 0..3 */);
 	int    FASTCALL PutChr(int c);
 	int    SLAPI GetChr();
 	int    FASTCALL GetChr(int * pChr);
-	int    SLAPI SetReadCyclingParams(int cycleCount, int cycleDelay);
+	void   SLAPI SetReadCyclingParams(int cycleCount, int cycleDelay);
 	int    SLAPI GetPortNo() const {return PortNo;}
 protected:
 	CommPortParams   CPP;
@@ -5387,6 +5401,16 @@ public:
 protected:
 	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
 	SLAPI ~SVectorBase();
+	//
+	// Descr: Базовая функция копирования массива.
+	// Note: Как упоминалось, копируются только собственно данные, хранящиеся в массиве.
+	//   Глубокое копирование выполнено быть не может по определению.
+	//   //
+	//   Функция предполагает, что перед ее вызовом была осуществлена
+	//   предварительная очистка this. Сама она этого не далает по то той же причине
+	//   незнания природы хранящихся в ней данных.
+	//
+	int    FASTCALL CopyS(const SVectorBase & rS);
 	int    FASTCALL expand(uint numNewRecs);
 	void   SLAPI shrink();
 	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
@@ -5400,6 +5424,7 @@ protected:
 	uint16 delta;   //
 	uint8 * data;   //
 };
+#if 0 // @construction {
 //
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
@@ -5412,7 +5437,7 @@ public:
 	SLAPI  SVector(const SVector & rS);
 	SLAPI ~SVector();
 	SVector & FASTCALL operator = (const SVector &);
-	int    FASTCALL copy(const SVector & src);
+	int    FASTCALL copy(const SVector & rS);
 	//
 	// Descr: Побайтно сравнивает массив this с массивом src.
 	//   Если this->getCount() != src.getCount || this->getItemSize() != src.getItemSize(),
@@ -5477,6 +5502,14 @@ public:
 	//
 	int    SLAPI Read(SFile & rFile, long);
 };
+
+template <class T> class TSVector : public SVector {
+public:
+	TSVector() : SVector(sizeof(T)) {}
+	TSVector(const TSVector & src) : SVector(src) {}
+	T &    FASTCALL at(uint pos) const { return *(T *)SVector::at(pos); }
+};
+#endif // } 0 @construction
 //
 // SArray
 //
@@ -6277,6 +6310,7 @@ public:
 	SLAPI  StrAssocArray(const StrAssocArray & rS);
 	StrAssocArray & FASTCALL operator = (const StrAssocArray & rS);
 	int    FASTCALL Copy(const StrAssocArray & rS);
+	StrAssocArray & SLAPI Clear();
 	void   FASTCALL SetTextCmpProc(CompFunc fcmp);
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром src.
@@ -6407,7 +6441,6 @@ public:
 	//
 	int    SLAPI Remove(long id);
 	int    SLAPI Swap(uint p1, uint p2);
-	StrAssocArray & SLAPI Clear();
 	//
 	// Descr: Обнуляет все родительские ссылки элементов.
 	//
@@ -7643,7 +7676,7 @@ public:
 	//
 	int    SLAPI Lock(int64 offs, int32 size);
 	//
-	// Descr: Снимает блокировку, установленную перед 'тим функцией Lock(int64, int)
+	// Descr: Снимает блокировку, установленную перед этим функцией Lock(int64, int)
 	//
 	int    SLAPI Unlock(int lckHandle);
 	//
@@ -10210,7 +10243,7 @@ public:
 	//
 	int    SLAPI DeleteValue(HKEY key, const char * pSubKey, const char * pValue);
 	int    SLAPI Open(HKEY, const char * pSubKey, int readOnly, int onlyOpen = 0);
-	int    SLAPI Close();
+	void   SLAPI Close();
 	int    SLAPI GetDWord(const char * pParam, uint32 * pVal);
 	int    SLAPI GetString(const char * pParam, char * pBuf, size_t bufLen);
 	int    SLAPI GetString(const char * pParam, SString & rBuf);
@@ -10296,21 +10329,20 @@ private:
 //
 class ACount { // @#size=4
 public:
-	SLAPI  ACount()	{C = 0;}
+	explicit SLAPI  ACount();
 	//
 	// Descr: Этот конструктор используется тогда, когда
 	//   не следует явно инициализировать переменную в ноль.
 	//
-	SLAPI  ACount(int) {}
-	SLAPI  operator long() const { return C; }
-	long   SLAPI Add(long add) { ::InterlockedExchangeAdd(&C, add); return C; }
-	long   SLAPI Assign(long val) { InterlockedExchange(&C, val); return C; }
-	long   SLAPI Incr() { return ::InterlockedIncrement(&C); }
-	long   SLAPI Decr() { return ::InterlockedDecrement(&C); }
+	explicit SLAPI  ACount(int);
+	SLAPI  operator long() const;
+	long   FASTCALL Add(long add);
+	long   FASTCALL Assign(long val);
+	long   SLAPI Incr();
+	long   SLAPI Decr();
 private:
 	long   C;
 };
-
 /*
 class ACount64 { // @#size=4
 public:
@@ -10547,18 +10579,45 @@ public:
 	SLAPI  ReadWriteLock();
 	SLAPI ~ReadWriteLock();
 	//
-	// Descr: Блокирует объект на чтение с ожиданием в течении timeout миллисекунт.
+	// Descr: Блокирует объект на чтение с ожиданием в течении timeout миллисекунд.
+	// ARG(timeout IN): время ожидания в миллисекундах. Если timeout < 0, то бесконечное ожидание.
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
 	//   0  - ошибка
 	//
 	int    FASTCALL ReadLockT(long timeout);
+	//
+	// Descr: Блокирует объект на запись с ожиданием в течении timeout миллисекунд.
+	// ARG(timeout IN): время ожидания в миллисекундах. Если timeout < 0, то бесконечное ожидание.
+	// Returns:
+	//   >0 - блокировка успешно установлена
+	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
+	//   0  - ошибка
+	//
+	int    FASTCALL WriteLockT(long timeout);
+	//
+	// Descr: Блокирует объект на чтение с бесконечным ожиданием.
+	// Returns:
+	//   >0 - блокировка успешно установлена
+	//   0  - ошибка
+	//
 	int    SLAPI ReadLock();
+	//
+	// Descr: Блокирует объект на запись с бесконечным ожиданием.
+	// Returns:
+	//   >0 - блокировка успешно установлена
+	//   0  - ошибка
+	//
 	int    SLAPI WriteLock();
+	//
+	// Descr: Снимает блокировку. Функция унифицированная и для блокировки на чтение и на запись.
+	//   Функция должна быть вызвана после выполнения работы, следующей за WriteLock(T) или ReadLock(T).
+	//
 	int    SLAPI Unlock();
 private:
 	int    FASTCALL Helper_ReadLock(long timeout);
+	int    FASTCALL Helper_WriteLock(long timeout);
 
 	SCriticalSection::Data Cs;
 	int    ActiveCount; // Текущее число потоков, работающих с ресурсом
@@ -10605,8 +10664,6 @@ public:
 	// Descr: Сбрасывает в ноль указатели WrOffs и RdOffs.
 	//   Таким образом, после выполнения этой операции буфер сохраняет
 	//   свой изначальный распределенный размер, но пуст.
-	// Returns:
-	//   *this
 	//
 	void   SLAPI Reset();
 	long   SLAPI GetStatus();
@@ -10723,7 +10780,7 @@ public:
 	//   Функция устанавливает флаг статуса stStop по которому функции потока
 	//   могут определить, что выставлено требование на остановку.
 	//
-	int    SLAPI Stop();
+	void   SLAPI Stop();
 	//
 	// Descr: Terminate the execution thread brutally
 	//
@@ -10759,6 +10816,9 @@ protected:
 	void   SLAPI Reset(void * pInitData = 0, int withForce = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 	int    SLAPI InitStartupSignal();
 	int    SLAPI SignalStartup();
+
+	void   SLAPI SetIdleState();
+	void   SLAPI ResetIdleState();
 
 	volatile void * P_InitData;
 	Evnt   EvLocalStop; // Событие активируется при вызове SlThread::SetStopState()

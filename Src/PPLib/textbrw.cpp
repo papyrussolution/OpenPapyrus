@@ -262,7 +262,7 @@ STextBrowser::Document & FASTCALL STextBrowser::Document::Reset(int preserveFile
 	State = 0;
 	SciDoc = 0;
 	if(!preserveFileName)
-		FileName = 0;
+		FileName.Z();
 	return *this;
 }
 
@@ -885,7 +885,7 @@ int TidyProcessText(TidyProcessBlock & rBlk)
 	r = tidyRunDiagnostics(tdoc);
 	r = tidyOptSetBool(tdoc, TidyForceOutput, true);
 	r = tidySaveBuffer(tdoc, &output);
-	rBlk.Output = 0;
+	rBlk.Output.Z();
 	while(!tidyBufEndOfInput(&output)) {
 		rBlk.Output.CatChar(tidyBufGetByte(&output));
 	}

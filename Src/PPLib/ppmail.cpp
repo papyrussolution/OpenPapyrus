@@ -761,16 +761,16 @@ int SLAPI PPMailMsg::AttachFile(const char * pFileName)
 
 int SLAPI PPMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
 {
-	rFileName = 0;
-	rFullPath = 0;
+	rFileName.Z();
+	rFullPath.Z();
 	int    ok = 0;
 	uint   pos = pPos ? *pPos : 0;
 	if(pos < AttList.getCount()) {
 		rFullPath = AttList.at(pos);
 		SPathStruc ps;
 		ps.Split(rFullPath);
-		ps.Drv = 0;
-		ps.Dir = 0;
+		ps.Drv.Z();
+		ps.Dir.Z();
 		ps.Merge(rFileName);
 		pos++;
 		ASSIGN_PTR(pPos, pos);
@@ -1439,7 +1439,7 @@ int SLAPI PPMailPop3::GetMsg(long msgN, PPMailMsg * pMsg, const char * pFileName
 			else if(line_buf.Len() == 1)
 				break;   // end while
 		{
-			temp_buf = 0;
+			temp_buf.Z();
 			const size_t len = line_buf.Len();
 			for(size_t i = 0; i < len; i++) {
 				temp_buf.CatChar(_koi8_to_866(line_buf.C(i)));
@@ -1573,7 +1573,7 @@ int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
 	const char * p = temp_buf.StrChr('@', 0);
 	if(p == 0) {
 		S_GUID uuid;
-		temp_buf = 0;
+		temp_buf.Z();
 		if(uuid.Generate())
 			uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		else

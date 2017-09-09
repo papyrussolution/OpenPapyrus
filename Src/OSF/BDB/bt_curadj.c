@@ -152,7 +152,7 @@ static int __bam_ca_di_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t 
 		   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 		 */
 		cp->indx += args->adjust;
-		if(args->my_txn != NULL && args->my_txn != dbc->txn)
+		if(args->my_txn && args->my_txn != dbc->txn)
 			*foundp = 1;
 	}
 	return 0;
@@ -245,7 +245,7 @@ static int __bam_ca_dup_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 	 * converted.
 	 */
 	orig_cp = (BTREE_CURSOR *)dbc->internal;
-	if(orig_cp->opd != NULL)
+	if(orig_cp->opd)
 		return 0;
 	/* Find cursors pointing to this record. */
 	if(orig_cp->pgno != fpgno || orig_cp->indx != fi || MVCC_SKIP_CURADJ(dbc, fpgno))
@@ -257,7 +257,7 @@ static int __bam_ca_dup_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 		MUTEX_LOCK(dbp->env, dbp->mutex);
 		return ret;
 	}
-	if(args->my_txn != NULL && args->my_txn != dbc->txn)
+	if(args->my_txn && args->my_txn != dbc->txn)
 		*foundp = 1;
 	/* We released the mutex to get a cursor, start over. */
 	return DB_LOCK_NOTGRANTED;
@@ -385,7 +385,7 @@ static int __bam_ca_split_func(DBC*dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 			/* [#8032]
 			   DB_ASSERT(env, !STD_LOCKING(dbc) || cp->lock_mode != DB_LOCK_NG);
 			 */
-			if(args->my_txn != NULL && args->my_txn != dbc->txn)
+			if(args->my_txn && args->my_txn != dbc->txn)
 				*foundp = 1;
 			if(cp->indx < split_indx) {
 				if(args->cleft)

@@ -2300,8 +2300,8 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCo
 	{
 		SPathStruc ps;
 		ps.Split(pLocalFile);
-		ps.Drv = 0;
-		ps.Dir = 0;
+		ps.Drv.Z();
+		ps.Dir.Z();
 		ps.Merge(temp_buf);
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
@@ -2578,8 +2578,8 @@ int SUniformFileTransmParam::Run(SCopyFileProgressProc pf, void * extraPtr)
 				{
 					SFileFormat::GetMime(Format, temp_buf);
 					ps.Split(local_path_src);
-					ps.Drv = 0;
-					ps.Dir = 0;
+					ps.Drv.Z();
+					ps.Dir.Z();
 					ps.Merge(temp_fname);
 					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
 				}

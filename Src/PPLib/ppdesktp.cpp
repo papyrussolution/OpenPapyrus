@@ -97,7 +97,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 			}
 		}
 		else if(scan[0] >= 0 && scan[0] <= '9') {
-			temp_buf = 0;
+			temp_buf.Z();
 			while(isalnum(scan[0])) {
 				temp_buf.CatChar(scan[0]);
 				scan.Incr();

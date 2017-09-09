@@ -261,7 +261,7 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(temp_buf);
 				break;
 			case 5:
-				temp_buf = 0;
+				temp_buf.Z();
 				if(p_item->AccSheetID) {
 					PPObjAccSheet acs_obj;
 					PPAccSheet acs_rec;

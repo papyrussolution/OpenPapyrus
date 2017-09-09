@@ -346,7 +346,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 					//static char * InitObjAddInfo(char * pBuf, size_t bufSize)
 					{
 						const PPObjID last_err_obj = DS.GetConstTLA().LastErrObj;
-						GetObjectTitle(last_err_obj.Obj, temp_buf = 0).CatCharN(' ', 2);
+						GetObjectTitle(last_err_obj.Obj, temp_buf.Z()).CatCharN(' ', 2);
 						ideqvalstr(last_err_obj.Id, temp_buf).Space().CatChar('(');
 						GetObjectName(last_err_obj.Obj, last_err_obj.Id, temp_buf, 1);
 						temp_buf.CatChar(')');
@@ -361,7 +361,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 					break;
 				case PPERR_NORIGHTS:
 					if(DS.GetTLA().AddedMsgStrNoRights.Empty()) {
-						GetCurUserName(temp_buf = 0);
+						GetCurUserName(temp_buf.Z());
 						STRNSCPY(fname, temp_buf);
 					}
 					else

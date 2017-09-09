@@ -144,7 +144,7 @@ static int __bam_cs_single_keyonly_next(BTREE_COMPRESS_STREAM * stream, DBT * ke
 {
 	key->data = stream->key->data;
 	key->size = stream->key->size;
-	if(data != NULL) {
+	if(data) {
 		data->data = NULL;
 		data->size = 0;
 	}
@@ -216,7 +216,7 @@ static int __bam_cs_multiple_keyonly_next(BTREE_COMPRESS_STREAM * stream, DBT * 
 		return 0;
 	}
 	else {
-		if(data != NULL) {
+		if(data) {
 			data->data = NULL;
 			data->size = 0;
 		}
@@ -655,7 +655,7 @@ static int __bamc_compress_relocate(DBC * dbc)
 		F_SET(cp_n, C_COMPRESS_DELETED);
 
 	}
-	else if(cp->currentKey != NULL) {
+	else if(cp->currentKey) {
 		/* Find the current entry again */
 		ret = __bamc_compress_get_set(dbc_n, cp->currentKey, cp->currentData, F_ISSET(dbc->dbp, DB_AM_DUPSORT) ? DB_GET_BOTH : DB_SET, 0);
 		if(ret == DB_NOTFOUND) {
@@ -846,10 +846,10 @@ store_current:
 					goto end;
 			}
 		}
-		if(prevDestKey != NULL) {
+		if(prevDestKey) {
 			if((ret = __dbc_iput(dbc, &destkey, &destbuf, DB_KEYLAST)) != 0)
 				goto end;
-			if(countp != NULL)
+			if(countp)
 				*countp += chunk_count;
 			chunk_count = 0;
 			prevDestKey = NULL;
@@ -985,7 +985,7 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 					goto end;
 			}
 		}
-		if(prevDestKey != NULL) {
+		if(prevDestKey) {
 			if((ret = __dbc_iput(dbc, &destkey, &destbuf, DB_KEYLAST)) != 0)
 				goto end;
 			if(countp)
@@ -1152,7 +1152,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 					goto end;
 			}
 		}
-		if(prevDestKey != NULL) {
+		if(prevDestKey) {
 			/*
 			 * Do the DBC->put() with a duplicate cursor, so that
 			 * the main cursor's position isn't changed - we might
@@ -1193,7 +1193,7 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 	int ret = 0;
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	F_CLR(cp, C_COMPRESS_DELETED);
-	if(cp->prevKey != NULL) {
+	if(cp->prevKey) {
 		/* Return the stored previous key */
 		cp->currentKey = cp->prevKey;
 		cp->currentData = cp->prevData;
@@ -2015,7 +2015,7 @@ int __bamc_compress_dup(DBC * orig_dbc, DBC * new_dbc, uint32 flags)
 	DB * dbp = new_dbc->dbp;
 	BTREE_CURSOR * orig = (BTREE_CURSOR *)orig_dbc->internal;
 	BTREE_CURSOR * p_new_cursor = (BTREE_CURSOR *)new_dbc->internal;
-	if(orig->currentKey != NULL && !LF_ISSET(DB_SHALLOW_DUP)) {
+	if(orig->currentKey && !LF_ISSET(DB_SHALLOW_DUP)) {
 		p_new_cursor->currentKey = &p_new_cursor->key1;
 		p_new_cursor->currentData = &p_new_cursor->data1;
 		if((ret = __bam_compress_set_dbt(dbp, p_new_cursor->currentKey, orig->currentKey->data, orig->currentKey->size)) != 0)

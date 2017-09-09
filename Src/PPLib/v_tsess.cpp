@@ -1961,7 +1961,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			else
-				temp_buf = 0;
+				temp_buf.Z();
 			temp_buf.CopyTo(H.PlnTimingText, sizeof(H.PlnTimingText));
 			if(act_timing > 0) {
 				h = act_timing / 3600;
@@ -1970,7 +1970,7 @@ int PPALDD_TSession::InitData(PPFilt & rFilt, long rsrv)
 				temp_buf.Z().CatLongZ(h, 2).CatChar(':').CatLongZ(m, 2).CatChar(':').CatLongZ(s, 2);
 			}
 			else
-				temp_buf = 0;
+				temp_buf.Z();
 			temp_buf.CopyTo(H.ActTimingText, sizeof(H.ActTimingText));
 		}
 		H.Amount = rec.Amount;

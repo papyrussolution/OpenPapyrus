@@ -480,7 +480,7 @@ struct SCardCodeTemplate {
 				}
 			}
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				for(uint i = 0; i < templ.Len(); i++) {
 					const char c = templ.C(i);
 					if(isalnum(c)) {
@@ -490,12 +490,12 @@ struct SCardCodeTemplate {
 					}
 					else if(c == '%') {
 						Prefix = temp_buf;
-						temp_buf = 0;
+						temp_buf.Z();
 						for(++i; isdec(templ.C(i)); i++)
 							temp_buf.CatChar(templ.C(i));
 						RLen = (uint)temp_buf.ToLong();
 						if(templ.C(i) == '[') {
-							temp_buf = 0;
+							temp_buf.Z();
 							for(++i; i < templ.Len() && templ.C(i) != ']'; i++)
 								temp_buf.CatChar(templ.C(i));
 							strtorrng(temp_buf, &low, &upp);

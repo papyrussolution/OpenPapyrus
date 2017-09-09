@@ -480,7 +480,7 @@ int SLAPI SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int sto
 					if(storeAllString)
 						temp_buf = line_buf;
 					else if(line_buf.Divide('=', temp_buf, val) <= 0)
-						temp_buf = 0;
+						temp_buf.Z();
 					if(temp_buf.NotEmptyS()) {
 						if(Flags & fWinCoding)
 							temp_buf.Transf(CTRANSF_OUTER_TO_INNER);

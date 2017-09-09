@@ -2123,7 +2123,7 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 
 	spath.Split(pFileName);
 	spath.Nam.CatChar('*');
-	(spath.Ext = 0).Cat("p7s");
+	spath.Ext.Z().Cat("p7s");
 	spath.Merge(path);
 	WIN32_FIND_DATA found_file;
 	HANDLE hd;

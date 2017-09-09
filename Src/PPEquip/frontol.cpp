@@ -568,7 +568,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Cat(NZOR(r_ent.QuotKindID, 100)).Semicol(); // #1 - код схемы внутренней авт.скидки
 					f_str.Cat(++dscnt_code).Semicol();                // #2 - код скидки
 					// #3 - наименование скидки (код карты) {
-					temp_buf = 0;
+					temp_buf.Z();
 					if(qk_obj.Fetch(r_ent.QuotKindID, &qk_rec) > 0)
 						temp_buf.Cat(qk_rec.Name);
 					else {

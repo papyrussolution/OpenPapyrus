@@ -364,8 +364,8 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 	}
 	u->peer.type = c->type;
 	u->start_sec = ngx_time();
-	c->write->handler = ngx_stream_proxy_downstream_handler;
-	c->read->handler = ngx_stream_proxy_downstream_handler;
+	c->P_EvWr->handler = ngx_stream_proxy_downstream_handler;
+	c->P_EvRd->handler = ngx_stream_proxy_downstream_handler;
 	s->upstream_states = ngx_array_create(c->pool, 1, sizeof(ngx_stream_upstream_state_t));
 	if(s->upstream_states == NULL) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
@@ -381,8 +381,8 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 		u->downstream_buf.end = p + pscf->buffer_size;
 		u->downstream_buf.pos = p;
 		u->downstream_buf.last = p;
-		if(c->read->ready) {
-			ngx_post_event(c->read, &ngx_posted_events);
+		if(c->P_EvRd->ready) {
+			ngx_post_event(c->P_EvRd, &ngx_posted_events);
 		}
 	}
 	if(pscf->upstream_value) {
@@ -613,18 +613,18 @@ static void ngx_stream_proxy_connect(ngx_stream_session_t * s)
 	pc->data = s;
 	pc->log = c->log;
 	pc->pool = c->pool;
-	pc->read->log = c->log;
-	pc->write->log = c->log;
+	pc->P_EvRd->log = c->log;
+	pc->P_EvWr->log = c->log;
 
 	if(rc != NGX_AGAIN) {
 		ngx_stream_proxy_init_upstream(s);
 		return;
 	}
 
-	pc->read->handler = ngx_stream_proxy_connect_handler;
-	pc->write->handler = ngx_stream_proxy_connect_handler;
+	pc->P_EvRd->handler = ngx_stream_proxy_connect_handler;
+	pc->P_EvWr->handler = ngx_stream_proxy_connect_handler;
 
-	ngx_add_timer(pc->write, pscf->connect_timeout);
+	ngx_add_timer(pc->P_EvWr, pscf->connect_timeout);
 }
 
 static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
@@ -771,17 +771,17 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 	}
 
 	if(c->type == SOCK_DGRAM && pscf->responses == 0) {
-		pc->read->ready = 0;
-		pc->read->eof = 1;
+		pc->P_EvRd->ready = 0;
+		pc->P_EvRd->eof = 1;
 	}
 
 	u->connected = 1;
 
-	pc->read->handler = ngx_stream_proxy_upstream_handler;
-	pc->write->handler = ngx_stream_proxy_upstream_handler;
+	pc->P_EvRd->handler = ngx_stream_proxy_upstream_handler;
+	pc->P_EvWr->handler = ngx_stream_proxy_upstream_handler;
 
-	if(pc->read->ready || pc->read->eof) {
-		ngx_post_event(pc->read, &ngx_posted_events);
+	if(pc->P_EvRd->ready || pc->P_EvRd->eof) {
+		ngx_post_event(pc->P_EvRd, &ngx_posted_events);
 	}
 
 	ngx_stream_proxy_process(s, 0, 1);
@@ -817,16 +817,16 @@ static ngx_int_t ngx_stream_proxy_send_proxy_protocol(ngx_stream_session_t * s)
 	n = pc->send(pc, buf, size);
 
 	if(n == NGX_AGAIN) {
-		if(ngx_handle_write_event(pc->write, 0) != NGX_OK) {
+		if(ngx_handle_write_event(pc->P_EvWr, 0) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return NGX_ERROR;
 		}
 
 		pscf = (ngx_stream_proxy_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
 
-		ngx_add_timer(pc->write, pscf->timeout);
+		ngx_add_timer(pc->P_EvWr, pscf->timeout);
 
-		pc->write->handler = ngx_stream_proxy_connect_handler;
+		pc->P_EvWr->handler = ngx_stream_proxy_connect_handler;
 
 		return NGX_AGAIN;
 	}
@@ -896,8 +896,8 @@ static void ngx_stream_proxy_ssl_init_connection(ngx_stream_session_t * s)
 	s->connection->log->action = "SSL handshaking to upstream";
 	rc = ngx_ssl_handshake(pc);
 	if(rc == NGX_AGAIN) {
-		if(!pc->write->timer_set) {
-			ngx_add_timer(pc->write, pscf->connect_timeout);
+		if(!pc->P_EvWr->timer_set) {
+			ngx_add_timer(pc->P_EvWr, pscf->connect_timeout);
 		}
 		pc->ssl->handler = ngx_stream_proxy_ssl_handshake;
 		return;
@@ -928,8 +928,8 @@ static void ngx_stream_proxy_ssl_handshake(ngx_connection_t * pc)
 			u = s->upstream;
 			u->peer.save_session(&u->peer, u->peer.data);
 		}
-		if(pc->write->timer_set) {
-			ngx_del_timer(pc->write);
+		if(pc->P_EvWr->timer_set) {
+			ngx_del_timer(pc->P_EvWr);
 		}
 		ngx_stream_proxy_init_upstream(s);
 		return;
@@ -1075,8 +1075,8 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 					ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 					return;
 				}
-				if(u->connected && !c->read->delayed && !pc->read->delayed) {
-					ngx_add_timer(c->write, pscf->timeout);
+				if(u->connected && !c->P_EvRd->delayed && !pc->P_EvRd->delayed) {
+					ngx_add_timer(c->P_EvWr, pscf->timeout);
 				}
 				return;
 			}
@@ -1088,8 +1088,8 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 					 * successfully terminate timed out UDP session
 					 * with unspecified number of responses
 					 */
-					pc->read->ready = 0;
-					pc->read->eof = 1;
+					pc->P_EvRd->ready = 0;
+					pc->P_EvRd->eof = 1;
 					ngx_stream_proxy_process(s, 1, 0);
 					return;
 				}
@@ -1125,7 +1125,7 @@ static void ngx_stream_proxy_connect_handler(ngx_event_t * ev)
 		ngx_stream_proxy_next_upstream(s);
 		return;
 	}
-	ngx_del_timer(c->write);
+	ngx_del_timer(c->P_EvWr);
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy connect upstream");
 	if(ngx_stream_proxy_test_connect(c) != NGX_OK) {
 		ngx_stream_proxy_next_upstream(s);
@@ -1256,16 +1256,16 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 
 		size = b->end - b->last;
 
-		if(size && src->read->ready && !src->read->delayed
-		    && !src->read->error) {
+		if(size && src->P_EvRd->ready && !src->P_EvRd->delayed
+		    && !src->P_EvRd->error) {
 			if(limit_rate) {
 				limit = (nginx_off_t)limit_rate * (ngx_time() - u->start_sec + 1)
 				    - *received;
 
 				if(limit <= 0) {
-					src->read->delayed = 1;
+					src->P_EvRd->delayed = 1;
 					delay = (ngx_msec_t)(-limit * 1000 / limit_rate + 1);
-					ngx_add_timer(src->read, delay);
+					ngx_add_timer(src->P_EvRd, delay);
 					break;
 				}
 
@@ -1286,7 +1286,7 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 					return;
 				}
 
-				src->read->eof = 1;
+				src->P_EvRd->eof = 1;
 				n = 0;
 			}
 
@@ -1295,8 +1295,8 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 					delay = (ngx_msec_t)(n * 1000 / limit_rate);
 
 					if(delay > 0) {
-						src->read->delayed = 1;
-						ngx_add_timer(src->read, delay);
+						src->P_EvRd->delayed = 1;
+						ngx_add_timer(src->P_EvRd, delay);
 					}
 				}
 
@@ -1308,8 +1308,8 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 				}
 
 				if(c->type == SOCK_DGRAM && ++u->responses == pscf->responses) {
-					src->read->ready = 0;
-					src->read->eof = 1;
+					src->P_EvRd->ready = 0;
+					src->P_EvRd->eof = 1;
 				}
 
 				for(ll = out; *ll; ll = &(*ll)->next) { /* void */
@@ -1329,7 +1329,7 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 				cl->buf->tag = (ngx_buf_tag_t)&ngx_stream_proxy_module;
 
 				cl->buf->temporary = (n ? 1 : 0);
-				cl->buf->last_buf = src->read->eof;
+				cl->buf->last_buf = src->P_EvRd->eof;
 				cl->buf->flush = 1;
 
 				*received += n;
@@ -1343,7 +1343,7 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 		break;
 	}
 
-	if(src->read->eof && dst && (dst->read->eof || !dst->buffered)) {
+	if(src->P_EvRd->eof && dst && (dst->P_EvRd->eof || !dst->buffered)) {
 		handler = c->log->handler;
 		c->log->handler = NULL;
 
@@ -1361,24 +1361,24 @@ static void ngx_stream_proxy_process(ngx_stream_session_t * s, ngx_uint_t from_u
 		return;
 	}
 
-	flags = src->read->eof ? NGX_CLOSE_EVENT : 0;
+	flags = src->P_EvRd->eof ? NGX_CLOSE_EVENT : 0;
 
-	if(!src->shared && ngx_handle_read_event(src->read, flags) != NGX_OK) {
+	if(!src->shared && ngx_handle_read_event(src->P_EvRd, flags) != NGX_OK) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
 
 	if(dst) {
-		if(!dst->shared && ngx_handle_write_event(dst->write, 0) != NGX_OK) {
+		if(!dst->shared && ngx_handle_write_event(dst->P_EvWr, 0) != NGX_OK) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
 
-		if(!c->read->delayed && !pc->read->delayed) {
-			ngx_add_timer(c->write, pscf->timeout);
+		if(!c->P_EvRd->delayed && !pc->P_EvRd->delayed) {
+			ngx_add_timer(c->P_EvWr, pscf->timeout);
 		}
-		else if(c->write->timer_set) {
-			ngx_del_timer(c->write);
+		else if(c->P_EvWr->timer_set) {
+			ngx_del_timer(c->P_EvWr);
 		}
 	}
 }

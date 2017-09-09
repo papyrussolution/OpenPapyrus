@@ -1919,23 +1919,15 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 	ngx_str_t  * var, * value, * enc, text;
 	ngx_chain_t  * cl;
 	ngx_http_variable_value_t  * vv;
-
 	var = params[NGX_HTTP_SSI_ECHO_VAR];
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi echo \"%V\"", var);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi echo \"%V\"", var);
 	key = ngx_hash_strlow(var->data, var->data, var->len);
-
 	value = ngx_http_ssi_get_variable(r, var, key);
-
 	if(value == NULL) {
 		vv = ngx_http_get_variable(r, var, key);
-
 		if(vv == NULL) {
 			return NGX_HTTP_SSI_ERROR;
 		}
-
 		if(!vv->not_found) {
 			text.data = vv->data;
 			text.len = vv->len;
@@ -2137,21 +2129,15 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 		ctx->output = 0;
 		return NGX_OK;
 	}
-
 	expr = params[NGX_HTTP_SSI_IF_EXPR];
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi if expr=\"%V\"", expr);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi if expr=\"%V\"", expr);
 	left.data = expr->data;
 	last = expr->data + expr->len;
-
 	for(p = left.data; p < last; p++) {
 		if(*p >= 'A' && *p <= 'Z') {
 			*p |= 0x20;
 			continue;
 		}
-
 		if((*p >= 'a' && *p <= 'z')
 		    || (*p >= '0' && *p <= '9')
 		    || *p == '$' || *p == '{' || *p == '}' || *p == '_'
@@ -2167,21 +2153,13 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 	while(p < last && *p == ' ') {
 		p++;
 	}
-
 	flags = 0;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "left: \"%V\"", &left);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "left: \"%V\"", &left);
 	rc = ngx_http_ssi_evaluate_string(r, ctx, &left, flags);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "evaluated left: \"%V\"", &left);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "evaluated left: \"%V\"", &left);
 	if(p == last) {
 		if(left.len) {
 			ctx->output = 1;
@@ -2190,9 +2168,7 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 		else {
 			ctx->output = 0;
 		}
-
 		ctx->conditional = NGX_HTTP_SSI_COND_IF;
-
 		return NGX_OK;
 	}
 
@@ -2230,22 +2206,14 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 			p++;
 		}
 	}
-
 	right.len = last - p;
 	right.data = p;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "right: \"%V\"", &right);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "right: \"%V\"", &right);
 	rc = ngx_http_ssi_evaluate_string(r, ctx, &right, flags);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "evaluated right: \"%V\"", &right);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "evaluated right: \"%V\"", &right);
 	if(noregex) {
 		if(left.len != right.len) {
 			rc = -1;
@@ -2256,9 +2224,7 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 	}
 	else {
 		right.data[right.len] = '\0';
-
 		rc = ngx_http_ssi_regex_match(r, &right, &left);
-
 		if(rc == NGX_OK) {
 			rc = 0;
 		}

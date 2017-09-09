@@ -1342,7 +1342,7 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 				dlb.SetAttr(DbLoginBlock::attrUserName, temp_buf);
 				dlg->getCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrPassword, temp_buf);
-				temp_buf = 0;
+				temp_buf.Z();
 			}
 			if(Dbes.RegisterEntry(&F, &dlb) && Dbes.Add(0, &dlb, 1)) {
 				ok = valid_data = 1;
@@ -3011,7 +3011,7 @@ int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 		const char * p_alphabet = "0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔõÖ×ØÙúÛÜİŞß";
 		const size_t ab_len = strlen(p_alphabet);
 		for(i = 0; i < num_words; i++) {
-			temp_buf = 0;
+			temp_buf.Z();
 			size_t word_len = labs(G.GetUniformInt(10))+1;
 			for(uint j = 0; j < word_len; j++) {
 				temp_buf.CatChar(labs(G.GetUniformInt(ab_len)));

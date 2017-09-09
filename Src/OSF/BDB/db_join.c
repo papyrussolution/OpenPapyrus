@@ -146,7 +146,7 @@ int __db_join(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 		goto err;
 	if((ret = __os_calloc(env, nslots, sizeof(uint8), &jc->j_exhausted)) != 0)
 		goto err;
-	for(i = 0; curslist[i] != NULL; i++) {
+	for(i = 0; curslist[i]; i++) {
 		jc->j_curslist[i] = curslist[i];
 		jc->j_workcurs[i] = NULL;
 		jc->j_fdupcurs[i] = NULL;
@@ -188,10 +188,10 @@ int __db_join(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 	MUTEX_UNLOCK(env, primary->mutex);
 	return 0;
 err:
-	if(jc != NULL) {
+	if(jc) {
 		__os_free(env, jc->j_curslist);
-		if(jc->j_workcurs != NULL) {
-			if(jc->j_workcurs[0] != NULL)
+		if(jc->j_workcurs) {
+			if(jc->j_workcurs[0])
 				__dbc_close(jc->j_workcurs[0]);
 			__os_free(env, jc->j_workcurs);
 		}
@@ -368,7 +368,7 @@ retry:
 	 * first time through the upcoming loop.
 	 */
 	for(i = 1; i < jc->j_ncurs; i++) {
-		if(jc->j_fdupcurs[i] != NULL && (ret = __dbc_close(jc->j_fdupcurs[i])) != 0)
+		if(jc->j_fdupcurs[i] && (ret = __dbc_close(jc->j_fdupcurs[i])) != 0)
 			goto err;
 		jc->j_fdupcurs[i] = NULL;
 	}
@@ -409,7 +409,7 @@ retry2:
 			--i;
 			jc->j_exhausted[i] = 1;
 			if(i == 0) {
-				for(j = 1; jc->j_workcurs[j] != NULL; j++) {
+				for(j = 1; jc->j_workcurs[j]; j++) {
 					/*
 					 * We're moving to a new element of
 					 * the first secondary cursor.  If
@@ -460,7 +460,7 @@ retry2:
 			 * reset all of the workcurs[j] where j>i, so that
 			 * we don't miss any duplicate duplicates.
 			 */
-			for(j = i+1; jc->j_workcurs[j] != NULL; j++) {
+			for(j = i+1; jc->j_workcurs[j]; j++) {
 				if((ret = __dbc_close(jc->j_workcurs[j])) != 0)
 					goto err;
 				jc->j_exhausted[j] = 0;
@@ -560,7 +560,7 @@ samekey:        /*
 	if((ret = __db_join_primget(jc->j_primary, dbc->thread_info, jc->j_curslist[0]->txn, jc->j_curslist[0]->locker, key_n,
 		db_manage_data ? &jc->j_rdata : data_arg, opmods)) != 0) {
 		if(ret == DB_NOTFOUND) {
-			if(LF_ISSET(DB_READ_UNCOMMITTED) || (jc->j_curslist[0]->txn != NULL && F_ISSET(jc->j_curslist[0]->txn, TXN_READ_UNCOMMITTED)))
+			if(LF_ISSET(DB_READ_UNCOMMITTED) || (jc->j_curslist[0]->txn && F_ISSET(jc->j_curslist[0]->txn, TXN_READ_UNCOMMITTED)))
 				goto retry;
 			/*
 			 * If ret == DB_NOTFOUND, the primary and secondary
@@ -622,9 +622,9 @@ int __db_join_close(DBC * dbc)
 	 * mucking with.
 	 */
 	for(i = 0; i < jc->j_ncurs; i++) {
-		if(jc->j_workcurs[i] != NULL && (t_ret = __dbc_close(jc->j_workcurs[i])) != 0)
+		if(jc->j_workcurs[i] && (t_ret = __dbc_close(jc->j_workcurs[i])) != 0)
 			ret = t_ret;
-		if(jc->j_fdupcurs[i] != NULL && (t_ret = __dbc_close(jc->j_fdupcurs[i])) != 0)
+		if(jc->j_fdupcurs[i] && (t_ret = __dbc_close(jc->j_fdupcurs[i])) != 0)
 			ret = t_ret;
 	}
 	ENV_LEAVE(env, ip);
@@ -731,9 +731,9 @@ static int __db_join_primget(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_LOC
 	 * if we allow any other flags down in here.
 	 */
 	rmw = LF_ISSET(DB_RMW);
-	if(LF_ISSET(DB_READ_UNCOMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
+	if(LF_ISSET(DB_READ_UNCOMMITTED) || (txn && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
 		F_SET(dbc, DBC_READ_UNCOMMITTED);
-	if(LF_ISSET(DB_READ_COMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_COMMITTED)))
+	if(LF_ISSET(DB_READ_COMMITTED) || (txn && F_ISSET(txn, TXN_READ_COMMITTED)))
 		F_SET(dbc, DBC_READ_COMMITTED);
 	LF_CLR(DB_READ_COMMITTED|DB_READ_UNCOMMITTED|DB_RMW);
 	DB_ASSERT(dbp->env, flags == 0);

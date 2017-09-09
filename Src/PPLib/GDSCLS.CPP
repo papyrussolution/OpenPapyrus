@@ -1175,7 +1175,7 @@ int GdsClsFormListDialog::setupList()
 	for(uint i = 1; i <= P_Data->FormulaList.getCount(); i++) {
 		PPGdsClsFormula form;
 		P_Data->GetFormula(i, &form);
-		temp_buf = 0;
+		temp_buf.Z();
 		if(form.Flags & PPGdsClsFormula::fDefault)
 			temp_buf.CatChar('!');
 		temp_buf.Cat(form.Name);

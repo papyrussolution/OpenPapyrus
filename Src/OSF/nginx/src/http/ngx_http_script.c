@@ -646,12 +646,8 @@ void ngx_http_script_copy_var_code(ngx_http_script_engine_t * e)
 {
 	u_char  * p;
 	ngx_http_variable_value_t * value;
-	ngx_http_script_var_code_t  * code;
-
-	code = (ngx_http_script_var_code_t*)e->ip;
-
+	ngx_http_script_var_code_t  * code = (ngx_http_script_var_code_t*)e->ip;
 	e->ip += sizeof(ngx_http_script_var_code_t);
-
 	if(!e->skip) {
 		if(e->flushed) {
 			value = ngx_http_get_indexed_variable(e->request, code->index);
@@ -659,29 +655,21 @@ void ngx_http_script_copy_var_code(ngx_http_script_engine_t * e)
 		else {
 			value = ngx_http_get_flushed_variable(e->request, code->index);
 		}
-
 		if(value && !value->not_found) {
 			p = e->pos;
 			e->pos = ngx_copy(p, value->data, value->len);
-
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP,
-			    e->request->connection->log, 0,
-			    "http script var: \"%*s\"", e->pos - p, p);
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, e->request->connection->log, 0, "http script var: \"%*s\"", e->pos - p, p);
 		}
 	}
 }
 
 static ngx_int_t ngx_http_script_add_args_code(ngx_http_script_compile_t * sc)
 {
-	uintptr_t * code;
-
-	code = (uintptr_t *)ngx_http_script_add_code(*sc->lengths, sizeof(uintptr_t), NULL);
+	uintptr_t * code = (uintptr_t *)ngx_http_script_add_code(*sc->lengths, sizeof(uintptr_t), NULL);
 	if(code == NULL) {
 		return NGX_ERROR;
 	}
-
 	*code = (uintptr_t)ngx_http_script_mark_args_code;
-
 	code = (uintptr_t *)ngx_http_script_add_code(*sc->values, sizeof(uintptr_t), &sc->main);
 	if(code == NULL) {
 		return NGX_ERROR;
@@ -715,18 +703,11 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 	size_t len;
 	ngx_int_t rc;
 	ngx_uint_t n;
-	ngx_http_request_t  * r;
 	ngx_http_script_engine_t le;
 	ngx_http_script_len_code_pt lcode;
-	ngx_http_script_regex_code_t  * code;
-
-	code = (ngx_http_script_regex_code_t*)e->ip;
-
-	r = e->request;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http script regex: \"%V\"", &code->name);
-
+	ngx_http_script_regex_code_t  * code = (ngx_http_script_regex_code_t*)e->ip;
+	ngx_http_request_t  * r = e->request;
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http script regex: \"%V\"", &code->name);
 	if(code->uri) {
 		e->line = r->uri;
 	}
@@ -735,18 +716,12 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 		e->line.len = e->sp->len;
 		e->line.data = e->sp->data;
 	}
-
 	rc = ngx_http_regex_exec(r, code->regex, &e->line);
-
 	if(rc == NGX_DECLINED) {
 		if(e->log || (r->connection->log->log_level & NGX_LOG_DEBUG_HTTP)) {
-			ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
-			    "\"%V\" does not match \"%V\"",
-			    &code->name, &e->line);
+			ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "\"%V\" does not match \"%V\"", &code->name, &e->line);
 		}
-
 		r->ncaptures = 0;
-
 		if(code->test) {
 			if(code->negative_test) {
 				e->sp->len = 1;
@@ -1073,41 +1048,25 @@ static ngx_int_t ngx_http_script_add_full_name_code(ngx_http_script_compile_t * 
 
 static size_t ngx_http_script_full_name_len_code(ngx_http_script_engine_t * e)
 {
-	ngx_http_script_full_name_code_t  * code;
-
-	code = (ngx_http_script_full_name_code_t*)e->ip;
-
+	ngx_http_script_full_name_code_t  * code = (ngx_http_script_full_name_code_t*)e->ip;
 	e->ip += sizeof(ngx_http_script_full_name_code_t);
-
-	return code->conf_prefix ? ngx_cycle->conf_prefix.len :
-	       ngx_cycle->prefix.len;
+	return code->conf_prefix ? ngx_cycle->conf_prefix.len : ngx_cycle->prefix.len;
 }
 
 static void ngx_http_script_full_name_code(ngx_http_script_engine_t * e)
 {
-	ngx_http_script_full_name_code_t  * code;
-
 	ngx_str_t value, * prefix;
-
-	code = (ngx_http_script_full_name_code_t*)e->ip;
-
+	ngx_http_script_full_name_code_t  * code = (ngx_http_script_full_name_code_t*)e->ip;
 	value.data = e->buf.data;
 	value.len = e->pos - e->buf.data;
-
-	prefix = code->conf_prefix ? (ngx_str_t*)&ngx_cycle->conf_prefix :
-	    (ngx_str_t*)&ngx_cycle->prefix;
-
+	prefix = code->conf_prefix ? (ngx_str_t*)&ngx_cycle->conf_prefix : (ngx_str_t*)&ngx_cycle->prefix;
 	if(ngx_get_full_name(e->request->pool, prefix, &value) != NGX_OK) {
 		e->ip = ngx_http_script_exit;
 		e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		return;
 	}
-
 	e->buf = value;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, e->request->connection->log, 0,
-	    "http script fullname: \"%V\"", &value);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, e->request->connection->log, 0, "http script fullname: \"%V\"", &value);
 	e->ip += sizeof(ngx_http_script_full_name_code_t);
 }
 

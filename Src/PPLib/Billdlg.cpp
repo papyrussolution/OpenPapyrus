@@ -775,8 +775,8 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 	int    ok = 0;
 	Id = 0;
 	Flags = 0;
-	Ext = 0;
-	Path = 0;
+	Ext.Z();
+	Path.Z();
 	Description = 0;
 	if(pPath && strlen(pPath)) {
 		SPathStruc ps;

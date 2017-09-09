@@ -738,20 +738,14 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t * cycle, ngx_msec_t timer,
 	ngx_event_t       * rev, * wev;
 	ngx_queue_t       * queue;
 	ngx_connection_t  * c;
-
 	/* NGX_TIMER_INFINITE == INFTIM */
-
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
 	    "epoll timer: %M", timer);
-
 	events = epoll_wait(ep, event_list, (int)nevents, timer);
-
 	err = (events == -1) ? ngx_errno : 0;
-
 	if(flags & NGX_UPDATE_TIME || ngx_event_timer_alarm) {
 		ngx_time_update();
 	}
-
 	if(err) {
 		if(err == NGX_EINTR) {
 			if(ngx_event_timer_alarm) {
@@ -764,29 +758,22 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t * cycle, ngx_msec_t timer,
 		else {
 			level = NGX_LOG_ALERT;
 		}
-
 		ngx_log_error(level, cycle->log, err, "epoll_wait() failed");
 		return NGX_ERROR;
 	}
-
 	if(events == 0) {
 		if(timer != NGX_TIMER_INFINITE) {
 			return NGX_OK;
 		}
-
 		ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
 		    "epoll_wait() returned no events without timeout");
 		return NGX_ERROR;
 	}
-
 	for(i = 0; i < events; i++) {
 		c = event_list[i].data.ptr;
-
 		instance = (uintptr_t)c & 1;
 		c = (ngx_connection_t*)((uintptr_t)c & (uintptr_t) ~1);
-
 		rev = c->read;
-
 		if(c->fd == -1 || rev->instance != instance) {
 			/*
 			 * the stale event from a file descriptor

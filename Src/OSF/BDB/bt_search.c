@@ -433,7 +433,7 @@ get_next:
 		 * all the record numbers on this page up to the indx point.
 		 */
 next:
-		if(recnop != NULL)
+		if(recnop)
 			for(i = 0; i < indx; ++i)
 				recno += GET_BINTERNAL(dbp, h, i)->nrecs;
 		pg = GET_BINTERNAL(dbp, h, indx)->pgno;
@@ -534,7 +534,7 @@ next:
 				// discard anything we have saved so far. For delete only keep one node until we find a singleton.
 				//
 do_del:
-				if(cp->csp->page != NULL) {
+				if(cp->csp->page) {
 					if(LF_ISSET(SR_NEXT) && indx == NUM_ENT(h)-1)
 						cp->csp++;
 					else if((ret = __bam_stkrel(dbc, STK_NOLOCK)) != 0)
@@ -707,7 +707,7 @@ found:
 		 * be any correction for duplicates, as Btree doesn't support
 		 * duplicates and record numbers in the same tree.
 		 */
-		if(recnop != NULL) {
+		if(recnop) {
 			DB_ASSERT(env, TYPE(h) == P_LBTREE);
 			for(i = 0; i < indx; i += P_INDX)
 				if(!B_DISSET(GET_BKEYDATA(dbp, h, i+O_INDX)->type))

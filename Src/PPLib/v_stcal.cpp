@@ -843,7 +843,7 @@ int PPALDD_StaffCalView::NextIteration(long iterId)
 	if(I.LinkObjType && I.LinkObjID)
 		GetObjectName(I.LinkObjType, I.LinkObjID, temp_buf);
 	temp_buf.CopyTo(I.LinkObjName, sizeof(I.LinkObjName));
-	temp_buf = 0;
+	temp_buf.Z();
 	LDATETIME dtm;
 	dtm.SetZero();
 	long days = dtm.settotalsec(item.Duration);

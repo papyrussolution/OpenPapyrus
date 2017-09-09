@@ -772,7 +772,7 @@ void TrfrItemDialog::SetupSerialWarn()
 		if(P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 1, temp_buf) > 0)
 			PPLoadText(PPTXT_NONUNIQLOTSERIAL, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		setStaticText(CTL_LOT_ST_SERIALWARN, temp_buf);
 	}
 }
@@ -1348,7 +1348,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		if(ItemNo < 0 && lot_id && OpTypeID == PPOPT_DRAFTEXPEND) {
 			int    ret = 0;
 			Item.LotID = lot_id;
-			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf = 0, 0));
+			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
 			if(ret > 0)
 				THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
 		}
@@ -1886,7 +1886,7 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	}
 	// @v9.3.6 {
 	if(IsSourceSerialUsed()) {
-		temp_buf = 0;
+		temp_buf.Z();
 		if(ItemNo >= 0)
 			P_Pack->LTagL.GetTagStr(ItemNo, PPTAG_LOT_SOURCESERIAL, temp_buf);
 		showCtrl(CTL_LOT_SOURCESERIAL, 1);
@@ -2074,7 +2074,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	double ds = TR5(Item.Discount);
 	SString clb_number;
 	SString temp_buf;
-	int    op_subtype = GetOpSubType(OpID);
+	const  int op_subtype = GetOpSubType(OpID);
 	ASSIGN_PTR(pExtraQtty, 0L);
 	if(!(St & stGoodsFixed) || !Item.GoodsID)
 		getCtrlData(sel = CTLSEL_LOT_GOODS, &Item.GoodsID);
@@ -2083,8 +2083,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	sel = CTL_LOT_QUANTITY;
 	setupQuantity(0/*sel*/, 1);
 	THROW(checkQuantityForIntVal());
-	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() ||
-		oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ||
+	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ||
 		Item.Quantity_ > 0.0, PPERR_INVQTTY); // @v9.3.1 P_Pack->Rec.OpID == PPOPK_EDI_STOCK // @v9.4.3 Item.IsCorrectionExp()
 	THROW(r = checkQuantityVal(&extra_qtty));
 	ASSIGN_PTR(pExtraQtty, extra_qtty);
@@ -2491,7 +2490,7 @@ int TrfrItemDialog::setupLot()
 			setCtrlString(CTL_LOT_LOTINFO, temp_buf);
 		}
 	}
-	SetupInheritedSerial(); // @v7.8.2
+	SetupInheritedSerial();
 	setQuotSign();
 	CATCHZOK
 	return ok;
@@ -2708,7 +2707,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(p_item->Dt);
 					break;
 				case 2: // Supplier Name
-					temp_buf = 0;
+					temp_buf.Z();
 					if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 						GetArticleName(p_item->SupplID, temp_buf);
 					pBlk->Set(temp_buf);
@@ -2717,7 +2716,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(p_item->Rest);
 					break;
 				case 4: // Unit Name
-					temp_buf = 0;
+					temp_buf.Z();
 					{
 						PPObjGoods goods_obj;
 						if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
@@ -2748,7 +2747,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					{
 						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf = 0;
+						temp_buf.Z();
 						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARLOTGOODSCODE, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
@@ -2758,7 +2757,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					{
 						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf = 0;
+						temp_buf.Z();
 						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFA, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);
@@ -2768,7 +2767,7 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					{
 						PPObjTag tag_obj;
 						ObjTagItem tag_item;
-						temp_buf = 0;
+						temp_buf.Z();
 						if(tag_obj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFB, &tag_item) > 0)
 							tag_item.GetStr(temp_buf);
 						pBlk->Set(temp_buf);

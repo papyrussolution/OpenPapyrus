@@ -161,7 +161,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 	}
 	*lsnp = argp->prev_lsn;
 out:
-	if(dbp != NULL) {
+	if(dbp) {
 		t_ret = 0;
 		if(do_close || ret != 0)
 			t_ret = __db_close(dbp, NULL, DB_NOSYNC);

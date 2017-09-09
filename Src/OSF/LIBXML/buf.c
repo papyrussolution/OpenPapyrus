@@ -227,7 +227,7 @@ xmlBuf * FASTCALL xmlBufCreateStatic(void * pMem, size_t size)
  *
  * Returns the scheme or -1 in case of error
  */
-int xmlBufGetAllocationScheme(xmlBufPtr buf)
+int FASTCALL xmlBufGetAllocationScheme(xmlBuf * buf)
 {
 	if(!buf) {
 #ifdef DEBUG_BUFFER
@@ -662,7 +662,7 @@ int FASTCALL xmlBufIsEmpty(xmlBuf * buf)
  *
  * Returns  0 in case of problems, 1 otherwise
  */
-int xmlBufResize(xmlBufPtr buf, size_t size)
+int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
 {
 	uint newSize;
 	xmlChar* rebuf = NULL;
@@ -712,12 +712,10 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
 		    newSize = size+10;
 		    break;
 	}
-
 	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
 		start_buf = buf->content - buf->contentIO;
-
 		if(start_buf > newSize) {
-			/* move data back to start */
+			// move data back to start 
 			memmove(buf->contentIO, buf->content, buf->use);
 			buf->content = buf->contentIO;
 			buf->content[buf->use] = 0;
@@ -763,7 +761,6 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
 	UPDATE_COMPAT(buf)
 	return 1;
 }
-
 /**
  * xmlBufAdd:
  * @buf:  the buffer to dump
@@ -776,7 +773,7 @@ int xmlBufResize(xmlBufPtr buf, size_t size)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufAdd(xmlBufPtr buf, const xmlChar * str, int len)
+int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 {
 	uint needSize;
 	if((str == NULL) || (buf == NULL) || (buf->error))
@@ -811,7 +808,6 @@ int xmlBufAdd(xmlBufPtr buf, const xmlChar * str, int len)
 	UPDATE_COMPAT(buf)
 	return 0;
 }
-
 /**
  * xmlBufAddHead:
  * @buf:  the buffer

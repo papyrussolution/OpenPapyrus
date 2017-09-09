@@ -2435,9 +2435,9 @@ void FASTCALL GoodsCache::AssignGoodsStockExtCacheRec(const GoodsCache::StockExt
 	pExt->Brutto = rSrc.Brutto;
 	pExt->PckgDim = rSrc.PckgDim;
 	pExt->Package  = rSrc.Package;
-	pExt->MinShippmQtty = rSrc.MinShippmQtty; // @v7.2.7
+	pExt->MinShippmQtty = rSrc.MinShippmQtty;
 	pExt->ExpiryPeriod = rSrc.ExpiryPeriod;
-	pExt->GseFlags     = rSrc.GseFlags;       // @v7.4.5
+	pExt->GseFlags     = rSrc.GseFlags;
 	pExt->MinStockList = rSrc.MinStockList;
 	pExt->PltList = rSrc.PltList;
 }
@@ -2683,16 +2683,20 @@ int SLAPI GoodsCache::Dirty(PPID id)
 			Gtl.atFree(gtl_pos-1);
 		GtlLock.Unlock();
 	}
-	AgflLock.WriteLock();
-	if(Agfl.lsearch(&id, &pos, CMPF_LONG))
-		Agfl.atFree(pos);
-	AgflLock.Unlock();
+	{
+		AgflLock.WriteLock();
+		if(Agfl.lsearch(&id, &pos, CMPF_LONG))
+			Agfl.atFree(pos);
+		AgflLock.Unlock();
+	}
 	//
 	//
 	//
-	FglLock.WriteLock();
-	FullGoodsList.Dirty(id);
-	FglLock.Unlock();
+	{
+		FglLock.WriteLock();
+		FullGoodsList.Dirty(id);
+		FglLock.Unlock();
+	}
 	return ok;
 }
 
@@ -2700,14 +2704,15 @@ int SLAPI GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	uint   pos = 0;
-	AgflLock.ReadLock();
-	if(Agfl.lsearch(&grpID, &pos, CMPF_LONG)) {
-		if(pFilt)
-			*pFilt = Agfl.at(pos)->Filt;
+	{
+		AgflLock.ReadLock();
+		if(Agfl.lsearch(&grpID, &pos, CMPF_LONG)) {
+			ASSIGN_PTR(pFilt, Agfl.at(pos)->Filt);
+		}
+		else
+			ok = 0;
+		AgflLock.Unlock();
 	}
-	else
-		ok = 0;
-	AgflLock.Unlock();
 	return ok;
 }
 
@@ -3552,7 +3557,7 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 		PPID   max_id = temp_src_list.getLast();
 		if(min_id == max_id) {
 			if(Search(min_id, 0) > 0) {
-				temp_buf = 0;
+				temp_buf.Z();
 				if(data.Kind == PPGDSK_GROUP)
 					temp_buf.CatDiv('@', 2);
 				temp_buf.Cat(data.Name);
@@ -3566,7 +3571,7 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 			q.select(this->ID, this->Kind, this->Name, 0L).where(this->ID >= min_id && this->ID <= max_id);
 			for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;)
 				if(temp_src_list.bsearch(data.ID)) {
-					temp_buf = 0;
+					temp_buf.Z();
 					if(data.Kind == PPGDSK_GROUP)
 						temp_buf.CatDiv('@', 2);
 					temp_buf.Cat(data.Name);

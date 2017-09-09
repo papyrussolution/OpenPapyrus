@@ -442,10 +442,11 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	dlg->setCtrlData(CTL_PREDICTCFG_PMIN, &cfg.MinP);
 	dlg->setCtrlData(CTL_PREDICTCFG_Q, &cfg.Q);
 	dlg->setCtrlData(CTL_PREDICTCFG_DINSTOCK, &cfg.DefInsurStock);
-	// @v6.2.4 dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 0, PPPredictConfig::fAddMinStockToOrder);
+
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 0, PPPredictConfig::fZeroPckgUp);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 1, PPPredictConfig::fUseInsurStock);
 	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 2, PPPredictConfig::fMinStockAsMinOrder);
+	dlg->AddClusterAssoc(CTL_PREDICTCFG_FLAGS, 3, PPPredictConfig::fRoundManualQtty); // @v9.8.0
 	dlg->SetClusterData(CTL_PREDICTCFG_FLAGS, cfg.Flags);
 	dlg->setCtrlData(CTL_PREDICTCFG_DTENDCALC, &cfg.EndCalcDate);
 	if(cfg.Flags & PPPredictConfig::fContinueBuilding) {

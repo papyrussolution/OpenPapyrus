@@ -809,10 +809,9 @@ int SLAPI PPPersonPacket::GetExtName(SString & rBuf) const
 	return rBuf.NotEmptyS() ? 1 : -1;
 }
 
-int SLAPI PPPersonPacket::SetExtName(const char * pName)
+void FASTCALL PPPersonPacket::SetExtName(const char * pName)
 {
 	ExtString = pName;
-	return 1;
 }
 
 int SLAPI PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
@@ -935,10 +934,9 @@ int SLAPI PPPersonPacket::PutDlvrLoc(uint pos, const PPLocationPacket * pItem)
 	return ok;
 }
 
-int SLAPI PPPersonPacket::ClearDlvrLocList()
+void SLAPI PPPersonPacket::ClearDlvrLocList()
 {
 	DlvrLocList.freeAll();
-	return 1;
 }
 
 int SLAPI PPPersonPacket::SetSCard(const PPSCardPacket * pScPack, int autoCreate)

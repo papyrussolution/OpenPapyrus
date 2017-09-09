@@ -1,6 +1,6 @@
 // OBJGS.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,17 +10,17 @@
 struct _GSItem {           // @persistent @store(ObjAssocTbl)
 	PPID   ID;             //
 	PPID   Tag;            // Const=PPASS_GOODSSTRUC
-	PPID   GSID;           // ->Ref(PPOBJ_GOODSSTRUC) ID структуры
-	PPID   ItemGoodsID;    // ->Goods.ID              ID элемента структуры
-	long   Num;            // Внутренний номер (не используется, но инициализируется)
-	double Netto;          // Нетто количество компонента
-	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
+	PPID   GSID;           // ->Ref(PPOBJ_GOODSSTRUC) ID СЃС‚СЂСѓРєС‚СѓСЂС‹
+	PPID   ItemGoodsID;    // ->Goods.ID              ID СЌР»РµРјРµРЅС‚Р° СЃС‚СЂСѓРєС‚СѓСЂС‹
+	long   Num;            // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РЅРѕРјРµСЂ (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ)
+	double Netto;          // РќРµС‚С‚Рѕ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРјРїРѕРЅРµРЅС‚Р°
+	char   Symb[20];       // РЎРёРјРІРѕР» СЌР»РµРјРµРЅС‚Р° СЃС‚СЂСѓРєС‚СѓСЂС‹ (РґР»СЏ СЃСЃС‹Р»РєРё РёР· С„РѕСЂРјСѓР»)
 	char   Reserve1[4];    // @v8.6.5 [8]-->[4]
 	long   PrefInnefGsID;  // @v8.6.5
-	long   Flags;          // Флаги
-	double Median;         // Среднее значение
-	double Width;          // Ширина оценочного интервала
-	double Denom;          // Знаменатель дроби qtty = Median / Denom
+	long   Flags;          // Р¤Р»Р°РіРё
+	double Median;         // РЎСЂРµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ
+	double Width;          // РЁРёСЂРёРЅР° РѕС†РµРЅРѕС‡РЅРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
+	double Denom;          // Р—РЅР°РјРµРЅР°С‚РµР»СЊ РґСЂРѕР±Рё qtty = Median / Denom
 };
 //
 //
@@ -165,7 +165,7 @@ int SLAPI PPGoodsStruc::GetKind() const
 		return kUndef;
 }
 
-int SLAPI PPGoodsStruc::GetTypeString(SString & rBuf)
+SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 {
 	rBuf.Z();
 	if(Rec.ID)
@@ -182,7 +182,7 @@ int SLAPI PPGoodsStruc::GetTypeString(SString & rBuf)
 		rBuf.CatChar('G');
 	if(Rec.ParentID)
 		rBuf.CatChar('F');
-	return 1;
+	return rBuf;
 }
 
 int SLAPI PPGoodsStruc::CanExpand() const
@@ -244,7 +244,7 @@ int SLAPI PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGood
 					// ((Rec.Flags & pIdent->NotFlags) != pIdent->NotFlags)-->!(Rec.Flags & pIdent->NotFlags)
 
 					//
-					// Защита от рекурсивных структур: если в списке уже есть структура с таким ID, то мы - в рекурсии.
+					// Р—Р°С‰РёС‚Р° РѕС‚ СЂРµРєСѓСЂСЃРёРІРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ: РµСЃР»Рё РІ СЃРїРёСЃРєРµ СѓР¶Рµ РµСЃС‚СЊ СЃС‚СЂСѓРєС‚СѓСЂР° СЃ С‚Р°РєРёРј ID, С‚Рѕ РјС‹ - РІ СЂРµРєСѓСЂСЃРёРё.
 					//
 					int    found = 0;
 					for(uint i = 0; !found && i < rList.getCount(); i++) {
@@ -1024,7 +1024,7 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	}
 	setCtrlString(CTL_GSTRUC_GNAME, temp_buf);
 	Data = *pData;
-	temp_buf = 0;
+	temp_buf.Z();
 	if(Data.Rec.Flags & GSF_DYNGEN)
 		PPLoadText(PPTXT_DYNGENGSTRUC, temp_buf);
 	setStaticText(CTL_GSTRUC_INFO, temp_buf);
@@ -1047,8 +1047,8 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 1, GSF_DECOMPL);
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 2, GSF_OUTPWOVAT);
 	AddClusterAssoc(CTL_GSTRUC_FLAGS, 3, GSF_GIFTPOTENTIAL);
-	AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);    // @v7.3.0
-	AddClusterAssoc(CTL_GSTRUC_FLAGS, 5, GSF_POSMODIFIER);   // @v7.2.0
+	AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);
+	AddClusterAssoc(CTL_GSTRUC_FLAGS, 5, GSF_POSMODIFIER);
 	SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 	setupCtrls();
 	setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
@@ -1063,19 +1063,15 @@ int GSDialog::setDTS(const PPGoodsStruc * pData)
 				qk_obj.MakeList(&qk_filt, p_qk_list);
 				PPLoadText(PPTXT_CHEAPESTITEMFREE, temp_buf);
 				p_qk_list->Add(GSGIFTQ_CHEAPESTITEMFREE, temp_buf);
-				// @v7.5.9 {
 				PPLoadText(PPTXT_CHEAPESTITEMBYGIFTQ, temp_buf);
 				p_qk_list->Add(GSGIFTQ_CHEAPESTITEMBYGIFTQ, temp_buf);
-				// } @v7.5.9
-				// @v7.4.10 {
 				PPLoadText(PPTXT_LASTITEMBYGIFTQ, temp_buf);
 				p_qk_list->Add(GSGIFTQ_LASTITEMBYGIFTQ, temp_buf);
-				// } @v7.4.10
 				p_cb->setListWindow(CreateListWindow(p_qk_list, lbtDisposeData|lbtDblClkNotify), Data.Rec.GiftQuotKindID);
 			}
 		}
 	}
-	setCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit); // @v7.0.0
+	setCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
 	updateList(-1);
 	enableCommand(cmGStrucExpandReduce, Data.CanExpand());
 	enableEditRecurStruc();
@@ -1097,8 +1093,8 @@ int GSDialog::getDTS(PPGoodsStruc * pData)
 	STRNSCPY(Data.Rec.Name, buf);
 	getCtrlData(CTLSEL_GSTRUC_VAROBJ, &Data.Rec.VariedPropObjType);
 	//
-	// Если структура переведена в расширенный режим, то забирать данные
-	// надо не из всех контролов
+	// Р•СЃР»Рё СЃС‚СЂСѓРєС‚СѓСЂР° РїРµСЂРµРІРµРґРµРЅР° РІ СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј, С‚Рѕ Р·Р°Р±РёСЂР°С‚СЊ РґР°РЅРЅС‹Рµ
+	// РЅР°РґРѕ РЅРµ РёР· РІСЃРµС… РєРѕРЅС‚СЂРѕР»РѕРІ
 	//
 	if(!(Data.Rec.Flags & GSF_FOLDER)) {
 		long   kind = PPGoodsStruc::kUndef;
@@ -1156,11 +1152,11 @@ void GSDialog::setupCtrls()
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 1, !(Data.Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)));
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 2, !(Data.Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)));
 	DisableClusterItem(CTL_GSTRUC_FLAGS, 3, !(Data.Rec.Flags & GSF_PRESENT));
-	DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_PRESENT));   // @v7.3.0
-	DisableClusterItem(CTL_GSTRUC_FLAGS, 5, !(Data.Rec.Flags & GSF_PARTITIAL)); // @v7.2.0
+	DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_PRESENT));
+	DisableClusterItem(CTL_GSTRUC_FLAGS, 5, !(Data.Rec.Flags & GSF_PARTITIAL));
 	showCtrl(CTL_GSTRUC_GIFTAMTRESTR, (Data.Rec.Flags & GSF_PRESENT));
 	showCtrl(CTLSEL_GSTRUC_GIFTQK,    (Data.Rec.Flags & GSF_PRESENT));
-	showCtrl(CTL_GSTRUC_GIFTLIMIT,    (Data.Rec.Flags & GSF_PRESENT)); // @v7.0.0
+	showCtrl(CTL_GSTRUC_GIFTLIMIT,    (Data.Rec.Flags & GSF_PRESENT));
 	SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 }
 
@@ -1179,7 +1175,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 			if(Data.Expand()) {
 				if(IsInState(sfModal)) {
 					endModal(cmUtil);
-					return; // После endModal не следует обращаться к this
+					return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 				}
 			}
 			else
@@ -1207,7 +1203,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 	else if(event.isKeyDown(KB_CTRLENTER)) {
 		if(IsInState(sfModal)) {
 			endModal(cmOK);
-			return; // После endModal не следует обращаться к this
+			return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 		}
 	}
 	else if(event.isKeyDown(kbF7))
@@ -1221,7 +1217,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 
 void GSDialog::selNamedGS()
 {
-	// Дочерняя структура не может быть именованной
+	// Р”РѕС‡РµСЂРЅСЏСЏ СЃС‚СЂСѓРєС‚СѓСЂР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёРјРµРЅРѕРІР°РЅРЅРѕР№
 	if(!(Data.Rec.Flags & GSF_CHILD) && (Data.IsNamed() || Data.IsEmpty() || CONFIRM(PPCFM_SELNAMEDSTRUC))) {
 		PPID   id = (Data.IsNamed() || Data.IsEmpty()) ? Data.Rec.ID : 0;
 		if(GsObj.SelectorDialog(&id) > 0) {
@@ -1739,7 +1735,7 @@ IMPL_HANDLE_EVENT(GSExtDialog)
 	else if(event.isKeyDown(KB_CTRLENTER)) {
 		if(IsInState(sfModal)) {
 			endModal(cmOK);
-			return; // После endModal не следует обращаться к this
+			return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 		}
 	}
 	else if(event.isKeyDown(kbF7)) {
@@ -1757,7 +1753,7 @@ void GSExtDialog::reduce()
 		if(Data.Reduce()) {
 			if(IsInState(sfModal)) {
 				endModal(cmUtil);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else
@@ -1876,7 +1872,7 @@ StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsI
 	PPIDArray id_list;
 	if(goods_id) {
 		//
-		// Выбираем только структуры, относящиеся к указанному товару
+		// Р’С‹Р±РёСЂР°РµРј С‚РѕР»СЊРєРѕ СЃС‚СЂСѓРєС‚СѓСЂС‹, РѕС‚РЅРѕСЃСЏС‰РёРµСЃСЏ Рє СѓРєР°Р·Р°РЅРЅРѕРјСѓ С‚РѕРІР°СЂСѓ
 		//
 		if(goods_id > 0) {
 			SString temp_buf;
@@ -1905,7 +1901,7 @@ StrAssocArray * SLAPI PPObjGoodsStruc::MakeStrAssocList(void * extraPtr /*goodsI
 	}
 	else {
 		//
-		// Выбираем только именованные структуры
+		// Р’С‹Р±РёСЂР°РµРј С‚РѕР»СЊРєРѕ РёРјРµРЅРѕРІР°РЅРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹
 		//
 		PPGoodsStrucHeader gs_rec;
 		for(SEnum en = ref->Enum(Obj, 0); en.Next(&gs_rec) > 0;)
@@ -2283,7 +2279,7 @@ int SLAPI PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraP
 int SLAPI PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 {
 	int    ok = -1;
-	int    is_hier = 0; // !0 - иерархическая структура
+	int    is_hier = 0; // !0 - РёРµСЂР°СЂС…РёС‡РµСЃРєР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
 	uint   what = 0x00;
 	PPObjGoods goods_obj;
 	{
@@ -2369,13 +2365,12 @@ int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, d
 	return ok;
 }
 
-int SLAPI GStrucIterator::Init(PPGoodsStruc * pStruc, int loadRecurItems)
+void SLAPI GStrucIterator::Init(PPGoodsStruc * pStruc, int loadRecurItems)
 {
 	RVALUEPTR(GStruc, pStruc);
 	LoadRecurItems = loadRecurItems;
 	Items.freeAll();
 	LoadItems(&GStruc, GStruc.GoodsID, 1, 0);
-	return 1;
 }
 
 int SLAPI GStrucIterator::InitIteration()
@@ -2420,12 +2415,12 @@ int SLAPI PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStruc
 				if(strip(pStruct->Rec.Name)[0] != '\0')
 					struc_name = pStruct->Rec.Name;
 				else
-					ideqvalstr(pStruct->Rec.ID, struc_name = 0);
+					ideqvalstr(pStruct->Rec.ID, struc_name.Z());
 				GetGoodsName(p_item->GoodsID, cg_name);
 				if(strip(gstruc.Rec.Name)[0] != '\0')
 					cstruc_name = gstruc.Rec.Name;
 				else
-					ideqvalstr(gstruc.Rec.ID, cstruc_name = 0);
+					ideqvalstr(gstruc.Rec.ID, cstruc_name.Z());
 				buf.Printf(msg.cptr(), g_name.cptr(), struc_name.cptr(), cg_name.cptr(), cstruc_name.cptr());
 				if(pLog)
 					pLog->Log(buf);
@@ -2499,7 +2494,7 @@ SLAPI SaGiftItem::SaGiftItem()
 	OrgStrucID = 0;
 	QuotKindID = 0;
 	Flags = 0;
-	Limit = 0.0f; // @v7.0.0
+	Limit = 0.0f;
 	AmtRestrict = 0.0;
 }
 
@@ -2522,7 +2517,7 @@ int FASTCALL SaGiftItem::Copy(const SaGiftItem * pS)
 		OrgStrucID = pS->OrgStrucID;
 		QuotKindID = pS->QuotKindID;
 		Flags = pS->Flags;
-		Limit = pS->Limit; // @v7.0.0
+		Limit = pS->Limit;
 		GiftList = pS->GiftList;
 		AmtRestrict = pS->AmtRestrict;
 		List.freeAll();
@@ -2535,7 +2530,7 @@ int FASTCALL SaGiftItem::Copy(const SaGiftItem * pS)
 	else {
 		StrucID = 0;
 		OrgStrucID = 0;
-		Limit = 0.0f; // @v7.0.0
+		Limit = 0.0f;
 		AmtRestrict = 0.0;
 		GiftList.freeAll();
 		List.freeAll();
@@ -2560,11 +2555,11 @@ int SLAPI SaGiftItem::IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList,
 			double total_iq = 0.0;
 			if(p_entry->GsiFlags & GSIF_IDENTICAL) {
 				//
-				// В случае GSIF_IDENTICAL нам нужно найти проданный товар, который входит в подарочную группу.
-				// В то же время, количество учитывается только по одному наименованию. Таким образом,
-				// мы ищем максимум по количеству среди проданных товаров, входящих в группу.
+				// Р’ СЃР»СѓС‡Р°Рµ GSIF_IDENTICAL РЅР°Рј РЅСѓР¶РЅРѕ РЅР°Р№С‚Рё РїСЂРѕРґР°РЅРЅС‹Р№ С‚РѕРІР°СЂ, РєРѕС‚РѕСЂС‹Р№ РІС…РѕРґРёС‚ РІ РїРѕРґР°СЂРѕС‡РЅСѓСЋ РіСЂСѓРїРїСѓ.
+				// Р’ С‚Рѕ Р¶Рµ РІСЂРµРјСЏ, РєРѕР»РёС‡РµСЃС‚РІРѕ СѓС‡РёС‚С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕ РѕРґРЅРѕРјСѓ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј,
+				// РјС‹ РёС‰РµРј РјР°РєСЃРёРјСѓРј РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ СЃСЂРµРґРё РїСЂРѕРґР°РЅРЅС‹С… С‚РѕРІР°СЂРѕРІ, РІС…РѕРґСЏС‰РёС… РІ РіСЂСѓРїРїСѓ.
 				//
-				// Не забываем проверить, чтобы товар дважды не учелся в разных подарках (check_list)
+				// РќРµ Р·Р°Р±С‹РІР°РµРј РїСЂРѕРІРµСЂРёС‚СЊ, С‡С‚РѕР±С‹ С‚РѕРІР°СЂ РґРІР°Р¶РґС‹ РЅРµ СѓС‡РµР»СЃСЏ РІ СЂР°Р·РЅС‹С… РїРѕРґР°СЂРєР°С… (check_list)
 				//
 				int    max_iq_idx = -1;
 				for(uint j = 0; j < rSaleList.getCount(); j++) {
@@ -2576,29 +2571,26 @@ int SLAPI SaGiftItem::IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList,
 					}
 				}
 				if(max_iq_idx >= 0) {
-					// @v7.7.11 goods_list.addUnique(rSaleList.at(max_iq_idx).GoodsID);
-					goods_list.Add(rSaleList.at(max_iq_idx).GoodsID, p_entry->MinQtty); // @v7.7.11
+					goods_list.Add(rSaleList.at(max_iq_idx).GoodsID, p_entry->MinQtty);
 					entry_mult = total_iq / p_entry->MinQtty;
 				}
 			}
 			else {
 				//
-				// Нам подойдет любой из товаров, представленных в p_entry->GoodsList и находящийся в rSaleList.
+				// РќР°Рј РїРѕРґРѕР№РґРµС‚ Р»СЋР±РѕР№ РёР· С‚РѕРІР°СЂРѕРІ, РїСЂРµРґСЃС‚Р°РІР»РµРЅРЅС‹С… РІ p_entry->GoodsList Рё РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ rSaleList.
 				//
-				// Не забываем проверить, чтобы товар дважды не учелся в разных подарках (check_list)
+				// РќРµ Р·Р°Р±С‹РІР°РµРј РїСЂРѕРІРµСЂРёС‚СЊ, С‡С‚РѕР±С‹ С‚РѕРІР°СЂ РґРІР°Р¶РґС‹ РЅРµ СѓС‡РµР»СЃСЏ РІ СЂР°Р·РЅС‹С… РїРѕРґР°СЂРєР°С… (check_list)
 				//
 				const uint egc = p_entry->GoodsList.getCount();
 				for(uint j = 0; j < egc; j++) {
 					uint   p = 0;
 					double iq = 0.0;
 					const  PPID sale_goods_id = p_entry->GoodsList.get(j);
-					// @v7.7.11 if(!check_list.lsearch(sale_goods_id) && rSaleList.lsearch(&sale_goods_id, &p, CMPF_LONG)) {
-					if(!check_list.Search(sale_goods_id, 0, 0) && rSaleList.lsearch(&sale_goods_id, &p, CMPF_LONG)) { // @v7.7.11
+					if(!check_list.Search(sale_goods_id, 0, 0) && rSaleList.lsearch(&sale_goods_id, &p, CMPF_LONG)) {
 						const SaSaleItem & r_sa_item = rSaleList.at(p);
 						total_iq += r_sa_item.Qtty;
 						total_amt += (r_sa_item.Qtty * r_sa_item.Price);
-						// @v7.7.11 goods_list.addUnique(sale_goods_id);
-						goods_list.Add(sale_goods_id, p_entry->MinQtty); // @v7.7.11
+						goods_list.Add(sale_goods_id, p_entry->MinQtty);
 					}
 				}
 				entry_mult = total_iq / p_entry->MinQtty;
@@ -2607,25 +2599,18 @@ int SLAPI SaGiftItem::IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList,
 		const uint glc = goods_list.getCount();
 		if(glc && entry_mult > 0.0) {
 			for(uint j = 0; j < glc; j++) {
-				// @v7.7.11 {
 				const RAssoc & r_goods_entry = goods_list.at(j);
 				if(!check_list.Search(r_goods_entry.Key, 0, 0)) {
 					check_list.Add(r_goods_entry.Key, r_goods_entry.Val);
 					if(p_entry->GsiFlags & GSIF_MAINITEM)
 						main_pos_list.addUnique(check_list.getCount()-1);
 				}
-				// } @v7.7.11
-				/* @v7.7.11
-				if(check_list.addUnique(goods_list.get(j)) > 0) {
-					if(p_entry->GsiFlags & GSIF_MAINITEM)
-						main_pos_list.addUnique(check_list.getCount()-1);
-				} */
 			}
 			SETMIN(min_mult, entry_mult);
 		}
 		else {
 			//
-			// Этот элемент списка не продавался, значит и весь подарок не проходит.
+			// Р­С‚РѕС‚ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР° РЅРµ РїСЂРѕРґР°РІР°Р»СЃСЏ, Р·РЅР°С‡РёС‚ Рё РІРµСЃСЊ РїРѕРґР°СЂРѕРє РЅРµ РїСЂРѕС…РѕРґРёС‚.
 			//
 			ok = 0;
 		}
@@ -2755,16 +2740,14 @@ int FASTCALL SaGiftArray::Gift::IsEqualForResult(const Gift & rS) const
 	return eq;
 }
 
-int FASTCALL SaGiftArray::Gift::PreservePotential(SaGiftArray::Potential & rS) const
+void FASTCALL SaGiftArray::Gift::PreservePotential(SaGiftArray::Potential & rS) const
 {
 	rS = Pot;
-	return 1;
 }
 
-int FASTCALL SaGiftArray::Gift::RestorePotential(const SaGiftArray::Potential & rS)
+void FASTCALL SaGiftArray::Gift::RestorePotential(const SaGiftArray::Potential & rS)
 {
 	Pot = rS;
-	return 1;
 }
 
 SaGiftArray::SaGiftArray() : TSCollection <SaGiftItem>()
@@ -2827,8 +2810,8 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 	uint   i;
 	PPID   goods_id = 0;
 	SString msg_buf, fmt_buf;
-	double max_amt_restr = 0.0; // Суммовое ограничение последнего найденного подарка
-	double deficit = SMathConst::Max; // Минимальный дефицит (остаток, на который необходимо добрать товара чтобы получить подарок).
+	double max_amt_restr = 0.0; // РЎСѓРјРјРѕРІРѕРµ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕСЃР»РµРґРЅРµРіРѕ РЅР°Р№РґРµРЅРЅРѕРіРѕ РїРѕРґР°СЂРєР°
+	double deficit = SMathConst::Max; // РњРёРЅРёРјР°Р»СЊРЅС‹Р№ РґРµС„РёС†РёС‚ (РѕСЃС‚Р°С‚РѕРє, РЅР° РєРѕС‚РѕСЂС‹Р№ РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕР±СЂР°С‚СЊ С‚РѕРІР°СЂР° С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РїРѕРґР°СЂРѕРє).
 	PPIDArray struc_list;
 	PPIDArray temp_list;
 	RAssocArray check_list;
@@ -2838,7 +2821,7 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 		if(Index.GetListByVal(sale_goods_id, temp_list) > 0) {
 			THROW_SL(struc_list.addUnique(&temp_list));
 			if(r_ccfg.Flags & CCFLG_DEBUG) {
-				//PPTXT_LOG_GOODSBELONGSGIFT        "Идентифицирована подарочная ассоциация @int --> @int"
+				//PPTXT_LOG_GOODSBELONGSGIFT        "РРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅР° РїРѕРґР°СЂРѕС‡РЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ @int --> @int"
 				PPLoadText(PPTXT_LOG_GOODSBELONGSGIFT, fmt_buf);
 				for(uint n = 0; n < temp_list.getCount(); n++) {
 					PPFormat(fmt_buf, &msg_buf, sale_goods_id, temp_list.get(n));
@@ -2854,12 +2837,12 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 			const  SaGiftItem * p_item = at(p);
 			if((overlap && p_item->Flags & SaGiftItem::fOverlap) || (!overlap && !(p_item->Flags & SaGiftItem::fOverlap))) {
 				double qtty = 0.0;
-				double limit = (p_item->Limit > 0.0f) ? (p_item->Limit - rExGiftList.Get(p_item->StrucID)) : SMathConst::Max; // @v7.0.0
+				double limit = (p_item->Limit > 0.0f) ? (p_item->Limit - rExGiftList.Get(p_item->StrucID)) : SMathConst::Max;
 				if(limit > 0.0) {
-					LongArray main_pos_list; // @v7.0.6
+					LongArray main_pos_list;
 					if(p_item->IsSaleListSuitable(rSaleList, &check_list, &main_pos_list, &qtty)) {
 						int    use = 0;
-						SETMIN(qtty, limit); // @v7.0.0
+						SETMIN(qtty, limit);
 						if(max_amt_restr > 0.0 && p_item->AmtRestrict > 0.0) {
 							if(p_item->AmtRestrict > max_amt_restr)
 								use = 1;
@@ -2867,10 +2850,10 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 						else if(qtty > rGift.Qtty)
 							use = 1;
 						if(use) {
-							rGift.ID = struc_id; // @v7.0.0
+							rGift.ID = struc_id;
 							rGift.Qtty = qtty;
 							rGift.CheckList = check_list;
-							rGift.MainPosList = main_pos_list; // @v7.0.6
+							rGift.MainPosList = main_pos_list;
 							rGift.QuotKindID = p_item->QuotKindID;
 							rGift.List = at(p)->GiftList;
 							max_amt_restr = p_item->AmtRestrict;
@@ -2894,7 +2877,7 @@ int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssoc
 		}
 		else {
 			if(r_ccfg.Flags & CCFLG_DEBUG) {
-				//PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY "Подарочная структура @int не обнаружена в списке SaGiftArray"
+				//PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY "РџРѕРґР°СЂРѕС‡РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° @int РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅР° РІ СЃРїРёСЃРєРµ SaGiftArray"
 				PPFormatT(PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY, &msg_buf, struc_id);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 			}
@@ -2909,7 +2892,7 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	int    ok = -1;
 	uint   i;
 	PPIDArray owner_goods_list, temp_goods_list;
-	PPIDArray antirecur_trace; // След извлечения родительских структур, хранимый во избежании зацикливания //
+	PPIDArray antirecur_trace; // РЎР»РµРґ РёР·РІР»РµС‡РµРЅРёСЏ СЂРѕРґРёС‚РµР»СЊСЃРєРёС… СЃС‚СЂСѓРєС‚СѓСЂ, С…СЂР°РЅРёРјС‹Р№ РІРѕ РёР·Р±РµР¶Р°РЅРёРё Р·Р°С†РёРєР»РёРІР°РЅРёСЏ //
 	SaGiftItem * p_item = 0;
 	SaGiftItem::Entry * p_entry = 0;
 	PPGoodsStrucHeader rec, org_rec;
@@ -2927,10 +2910,10 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 			p_item->StrucID = rec.ID;
 			p_item->OrgStrucID = rec.ID;
 			p_item->QuotKindID = rec.GiftQuotKindID;
-			p_item->Limit      = rec.GiftLimit;        // @v7.0.0
+			p_item->Limit      = rec.GiftLimit;
 			p_item->AmtRestrict = rec.GiftAmtRestrict;
 			SETFLAG(p_item->Flags, SaGiftItem::fCalcPotential, rec.Flags & GSF_GIFTPOTENTIAL);
-			SETFLAG(p_item->Flags, SaGiftItem::fOverlap, rec.Flags & GSF_OVRLAPGIFT); // @v7.3.0
+			SETFLAG(p_item->Flags, SaGiftItem::fOverlap, rec.Flags & GSF_OVRLAPGIFT);
 
 			PPID   parent_id = rec.ParentID;
 			antirecur_trace.clear();
@@ -2939,7 +2922,7 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 				if(Search(parent_id, &org_rec) > 0) {
 					if(antirecur_trace.addUnique(parent_id = org_rec.ParentID) < 0) {
 						//
-						// Цепочка структур зациклилась
+						// Р¦РµРїРѕС‡РєР° СЃС‚СЂСѓРєС‚СѓСЂ Р·Р°С†РёРєР»РёР»Р°СЃСЊ
 						//
 						p_item->OrgStrucID = 0;
 						break;
@@ -2958,12 +2941,10 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 						THROW_MEM(p_entry = new SaGiftItem::Entry);
 						p_entry->OrgGoodsID = gs_item.GoodsID;
 						p_entry->MinQtty = qtty;
-						p_entry->GsiFlags = gs_item.Flags; // @v7.0.6
-						// @v7.3.0 {
+						p_entry->GsiFlags = gs_item.Flags;
 						if(gs_item.Flags & GSIF_GOODSGROUP) {
 							GoodsIterator::GetListByGroup(gs_item.GoodsID, &p_entry->GoodsList);
 						}
-						// } @v7.3.0
 						else if(goods_obj.IsGeneric(gs_item.GoodsID)) {
 							THROW(goods_obj.GetGenericList(gs_item.GoodsID, &p_entry->GoodsList));
 						}
@@ -2983,7 +2964,7 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 				else
 					delete p_item;
 			}
-			else // Мы попали в "тупик" при попытке идентификации оригинальной структуры
+			else // РњС‹ РїРѕРїР°Р»Рё РІ "С‚СѓРїРёРє" РїСЂРё РїРѕРїС‹С‚РєРµ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РѕСЂРёРіРёРЅР°Р»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹
 				delete p_item;
 			p_item = 0;
 		}
@@ -3035,7 +3016,7 @@ public:
 		PPID   VariedPropObjType;
 		DateRange Period;
 		double CommDenom;
-		float  GiftLimit; // @v7.0.0
+		float  GiftLimit;
 		long   Flags;
 		PPID   ParentID;
 	};
@@ -3119,14 +3100,16 @@ void SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 int SLAPI GoodsStrucCache::Dirty(PPID id)
 {
 	int    ok = 1;
-	RwL.WriteLock();
-	ok = Helper_Dirty(id);
-	RwL.Unlock();
+	{
+		RwL.WriteLock();
+		ok = Helper_Dirty(id);
+		RwL.Unlock();
+	}
 	if(P_GiftList) {
 		PPGoodsStrucHeader temp_rec;
 		int    r = Get(id, &temp_rec);
 		if((r > 0 && temp_rec.Flags & GSF_PRESENT) || r < 0) {
-			GetSaGiftList(0, 1); // Функция защищена внутренней критической секцией
+			GetSaGiftList(0, 1); // Р¤СѓРЅРєС†РёСЏ Р·Р°С‰РёС‰РµРЅР° РІРЅСѓС‚СЂРµРЅРЅРµР№ РєСЂРёС‚РёС‡РµСЃРєРѕР№ СЃРµРєС†РёРµР№
 		}
 	}
 	return ok;

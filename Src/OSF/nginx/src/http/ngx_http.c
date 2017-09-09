@@ -831,38 +831,23 @@ static ngx_int_t ngx_http_add_addresses(ngx_conf_t * cf, ngx_http_core_srv_conf_
  * add the server address, the server names and the server core module
  * configurations to the port list
  */
-
-static ngx_int_t ngx_http_add_address(ngx_conf_t * cf, ngx_http_core_srv_conf_t * cscf,
-    ngx_http_conf_port_t * port, ngx_http_listen_opt_t * lsopt)
+static ngx_int_t ngx_http_add_address(ngx_conf_t * cf, ngx_http_core_srv_conf_t * cscf, ngx_http_conf_port_t * port, ngx_http_listen_opt_t * lsopt)
 {
 	ngx_http_conf_addr_t  * addr;
-
 	if(port->addrs.elts == NULL) {
-		if(ngx_array_init(&port->addrs, cf->temp_pool, 4,
-			    sizeof(ngx_http_conf_addr_t))
-		    != NGX_OK) {
+		if(ngx_array_init(&port->addrs, cf->temp_pool, 4, sizeof(ngx_http_conf_addr_t)) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
-#if (NGX_HTTP_V2 && NGX_HTTP_SSL					      \
-	    && !defined TLSEXT_TYPE_application_layer_protocol_negotiation	     \
-	    && !defined TLSEXT_TYPE_next_proto_neg)
-
+#if (NGX_HTTP_V2 && NGX_HTTP_SSL && !defined TLSEXT_TYPE_application_layer_protocol_negotiation && !defined TLSEXT_TYPE_next_proto_neg)
 	if(lsopt->http2 && lsopt->ssl) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "nginx was built with OpenSSL that lacks ALPN "
-		    "and NPN support, HTTP/2 is not enabled for %s",
-		    lsopt->addr);
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "nginx was built with OpenSSL that lacks ALPN and NPN support, HTTP/2 is not enabled for %s", lsopt->addr);
 	}
-
 #endif
-
 	addr = (ngx_http_conf_addr_t *)ngx_array_push(&port->addrs);
 	if(addr == NULL) {
 		return NGX_ERROR;
 	}
-
 	addr->opt = *lsopt;
 	addr->hash.buckets = NULL;
 	addr->hash.size = 0;

@@ -1710,7 +1710,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 							break;
 						case PPOBJ_ARTICLE: GetArticleName(id, temp_buf); break;
 						case PPOBJ_PERSON:  GetPersonName(id, temp_buf); break;
-						default: temp_buf = 0; break;
+						default: temp_buf.Z(); break;
 					}
 					temp_buf.CopyTo(prev_name, sizeof(prev_name));
 				}
@@ -4045,8 +4045,7 @@ public:
 		if(Data.LotManufTagList.getCount() <= 1) {
 			PPID   tag_id = getCtrlLong(CTLSEL_ALCREPCFG_MNFTAG);
 			Data.LotManufTagList.clear();
-			if(tag_id)
-				Data.LotManufTagList.add(tag_id);
+			Data.LotManufTagList.addnz(tag_id);
 		}
 		getCtrlData(CTLSEL_ALCREPCFG_LICREG, &Data.AlcLicRegTypeID);
 		getCtrlData(CTLSEL_ALCREPCFG_KPPREG, &Data.KppRegTypeID);
@@ -4071,8 +4070,7 @@ public:
 		}
 		else if(event.isCmd(cmCCheckFilt)) {
             CCheckFilt cc_filt;
-            if(Data.P_CcFilt)
-				cc_filt = *Data.P_CcFilt;
+			RVALUEPTR(cc_filt, Data.P_CcFilt);
             PPViewCCheck cc_view;
             if(cc_view.EditBaseFilt(&cc_filt) > 0) {
 				if(cc_filt.IsEmpty()) {

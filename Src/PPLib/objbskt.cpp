@@ -1222,7 +1222,7 @@ int SLAPI PPViewGoodsBasket::CreateOrderTable()
 	for(i = 0; P_GBPacket->Lots.enumItems(&i, (void **)&p_item);) {
 		TempOrderTbl::Rec rec;
 		rec.ID = i - 1;
-		temp_buf = 0;
+		temp_buf.Z();
 		if(Order == PPObjGoodsBasket::ordByDefault)
 			temp_buf.CatLongZ(i, 8);
 		else {
@@ -1231,7 +1231,7 @@ int SLAPI PPViewGoodsBasket::CreateOrderTable()
 				goods_name = goods_rec.Name;
 			else {
 				MEMSZERO(goods_rec);
-				ideqvalstr(p_item->GoodsID, goods_name = 0);
+				ideqvalstr(p_item->GoodsID, goods_name.Z());
 			}
 			if(Order == PPObjGoodsBasket::ordByGoods)
 				temp_buf = goods_name;

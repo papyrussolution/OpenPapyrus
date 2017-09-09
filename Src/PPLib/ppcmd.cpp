@@ -1179,8 +1179,7 @@ int SLAPI EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr)
 		THROW(PPView::ReadFiltPtr(*pParam, &p_filt));
 		SETIFZ(p_filt, p_view->CreateFilt(extraPtr));
 		if((ok = p_view->EditBaseFilt(p_filt)) > 0) {
-			pParam->Clear();
-			THROW(p_view->WriteFiltPtr(*pParam, p_filt));
+			THROW(p_view->WriteFiltPtr(pParam->Clear(), p_filt));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -1283,8 +1282,7 @@ public:
 			GetObjectTitle(PPOBJ_PERSON, isd_param.Title);
 			isd_param.InputTitle = isd_param.Title;
 			if(InputStringDialog(&isd_param, name) > 0) {
-				pParam->Clear();
-				THROW(pParam->Write(name));
+				THROW(pParam->Clear().Write(name));
 				if(CheckDialogPtrErr(&(dlg = new PsnSelAnalogDialog(&psn_obj)))) {
 					dlg->setSrchString(name);
 					if(ExecView(dlg) == cmOK)
@@ -1426,15 +1424,13 @@ public:
 			THROW(ReadPrjTaskRec(&rec, *pParam, 0));
 		getcurdatetime(&rec.Dt, &rec.Tm);
 		if(TodoObj.EditDialog(&rec) > 0) {
-			pParam->Clear();
-			THROW(WritePrjTaskRec(&rec, *pParam, 0));
+			THROW(WritePrjTaskRec(&rec, pParam->Clear(), 0));
 			ok = 1;
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
 		CATCH
-			if(pParam)
-				pParam->SetRdOffs(sav_offs);
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -1482,8 +1478,7 @@ public:
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2004,8 +1999,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(PPView::WriteFiltPtr(*pParam, p_filt));
+			THROW(PPView::WriteFiltPtr(pParam->Clear(), p_filt));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2172,8 +2166,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2402,8 +2395,7 @@ public:
 				PPError(PPERR_PRCORGRPNOTDEF);
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2500,8 +2492,7 @@ public:
 			THROW(param.Serialize(-1, *pParam, &ctx));
 		THROW(ok = cto.EditParam(&param));
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(param.Serialize(+1, *pParam, &ctx));
+			THROW(param.Serialize(+1, pParam->Clear(), &ctx));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2563,8 +2554,7 @@ public:
 		else
 			filt.Read(*pParam, 0);
 		if(EditQuotUpdDialog(&filt) > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 			ok = 1;
 		}
 		else
@@ -2627,8 +2617,7 @@ public:
 		if(pParam->GetAvailableSize())
 			trnsm_param.Read(*pParam, 0);
 		if(ObjTransmDialog(DLG_MODTRANSM, &trnsm_param, OBJTRNSMDLGF_SEARCHDTTM) > 0) {
-			pParam->Clear();
-			THROW(trnsm_param.Write(*pParam, 0));
+			THROW(trnsm_param.Write(pParam->Clear(), 0));
 			ok = 1;
 		}
 		else
@@ -2690,8 +2679,7 @@ public:
 		if((r = param.Read(*pParam, 0)) != 0) {
 			ok = EditObjReceiveParam(&param, 1);
 			if(ok > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -2751,7 +2739,7 @@ public:
 				SStrScan scan(srch_str2);
 				while(expr.Find(&scan) > 0) {
 					DateRange period;
-					scan.Get(temp_buf = 0);
+					scan.Get(temp_buf.Z());
 					if(strtoperiod(temp_buf, &period, 0)) {
 						if(checkdate(period.low, 1)) {
 							LDATE dt_ = ZERODATE;
@@ -2772,7 +2760,7 @@ public:
 				scan.Len  = 0;
 				while(expr.Find(&scan) > 0) {
 					int has_digit = 0;
-					scan.Get(temp_buf = 0);
+					scan.Get(temp_buf.Z());
 					for(uint i = 0; !has_digit && i < temp_buf.Len(); i++)
 						if(temp_buf.C(i) > 47 && temp_buf.C(i) < 58)
 							has_digit = 1;
@@ -2782,8 +2770,7 @@ public:
 					scan.Offs = 0;
 					scan.Len  = 0;
 				}
-				pParam->Clear();
-				THROW(pParam->Write(srch_str));
+				THROW(pParam->Clear().Write(srch_str));
 			}
 			else
 				pParam->SetRdOffs(sav_offs);
@@ -2876,8 +2863,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				filt.Init(1, 0);
 			if(Obj.EditInfoKioskPaneFilt(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -2918,8 +2904,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				filt.Init(1, 0);
 			if(prc_uniprice.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -2949,7 +2934,7 @@ IMPLEMENT_CMD_HDL_FACTORY(UNIFYGOODSPRICE);
 //
 //
 //
-int SLAPI WriteParam(SBuffer & rBuf, void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
+int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
 int SLAPI ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
 
 class CMD_HDL_CLS(TESTPREDICTSALESTBL) : public PPCommandHandler {
@@ -2967,8 +2952,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			param.Process |= param.prcsTest;
 			if((ok = prcssr.EditParam(&param)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -3014,8 +2998,7 @@ public:
 			filt.Read(*pParam, 0);
 		}
 		if(r > 0 && gr_view.EditBaseFilt(&filt) > 0) {
-			pParam->Clear();
-			if(filt.Write(*pParam, 0))
+			if(filt.Write(pParam->Clear(), 0))
 				ok = 1;
 		}
 		else
@@ -3061,8 +3044,7 @@ public:
 			THROW(blk.SerializeParam(-1, *pParam, &sctx));
 		}
 		if(blk.Select(1) > 0) {
-			pParam->Clear();
-			THROW(blk.SerializeParam(+1, *pParam, &sctx));
+			THROW(blk.SerializeParam(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else
@@ -3115,8 +3097,7 @@ public:
 			THROW(prcssr.SerializeParam(-1, *pParam, &sctx));
 		}
 		if(prcssr.Select(1) > 0) {
-			pParam->Clear();
-			THROW(blk.SerializeParam(+1, *pParam, &sctx));
+			THROW(blk.SerializeParam(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else
@@ -3164,8 +3145,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -3209,8 +3189,7 @@ public:
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3260,8 +3239,7 @@ public:
 			THROW(tsess_filt.Serialize(-1, *pParam, &sctx));
 		}
 		if(tsess_view.EditBaseFilt(&tsess_filt) > 0) {
-			pParam->Clear();
-			THROW(tsess_filt.Serialize(+1, *pParam, &sctx));
+			THROW(tsess_filt.Serialize(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else
@@ -3307,8 +3285,7 @@ public:
 			if(pParam->GetAvailableSize() != 0)
 				p_filt->Read(*pParam, 0);
 			if(view.EditBaseFilt(p_filt) > 0) {
-				pParam->Clear();
-				THROW(p_filt->Write(*pParam, 0));
+				THROW(p_filt->Write(pParam->Clear(), 0));
 				ok = 1;
 			}
 			else
@@ -3355,8 +3332,7 @@ public:
 			if(pParam->GetAvailableSize() != 0)
 				p_filt->Read(*pParam, 0);
 			if(p_filt->Edit() > 0) {
-				pParam->Clear();
-				THROW(p_filt->Write(*pParam, 0));
+				THROW(p_filt->Write(pParam->Clear(), 0));
 				ok = 1;
 			}
 			else
@@ -3406,8 +3382,7 @@ public:
 			if(pParam->GetAvailableSize() != 0)
 				THROW(filt.Serialize(-1, *pParam, &sctx));
 			if(PPDbTableXmlExportParam_TrfrBill::Edit(&filt) > 0) {
-				pParam->Clear();
-				THROW(filt.Serialize(+1, *pParam, &sctx));
+				THROW(filt.Serialize(+1, pParam->Clear(), &sctx));
 				ok = 1;
 			}
 			else
@@ -3480,8 +3455,7 @@ public:
 			if(pParam->GetAvailableSize() != 0)
 				THROW(filt.Serialize(-1, *pParam, &sctx));
 			if(FiasImporter::EditParam(filt) > 0) {
-				pParam->Clear();
-				THROW(filt.Serialize(+1, *pParam, &sctx));
+				THROW(filt.Serialize(+1, pParam->Clear(), &sctx));
 				ok = 1;
 			}
 			else
@@ -3527,8 +3501,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -3572,8 +3545,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -3613,8 +3585,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -3654,8 +3625,7 @@ public:
 			if(!filt.Read(*pParam, 0))
 				prc.InitParam(&filt);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}

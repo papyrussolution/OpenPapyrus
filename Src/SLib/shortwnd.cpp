@@ -129,7 +129,7 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		int    idx = TabCtrl_GetItemCount(hwnd_tab);
 		int    prev_sel = TabCtrl_GetCurSel(hwnd_tab);
 		char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
-		size_t title_len = (pTitle) ? strlen(pTitle) : 0;
+		size_t title_len = sstrlen(pTitle);
 
 		STRNSCPY(temp_title_buf, pTitle);
 		if(title_len > SHCTSTAB_MAXTEXTLEN) {

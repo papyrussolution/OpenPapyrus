@@ -198,15 +198,11 @@ static ngx_int_t ngx_http_slice_body_filter(ngx_http_request_t * r, ngx_chain_t 
 {
 	ngx_int_t rc;
 	ngx_chain_t  * cl;
-	ngx_http_slice_ctx_t  * ctx;
 	ngx_http_slice_loc_conf_t  * slcf;
-
-	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
-
+	ngx_http_slice_ctx_t  * ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
 	if(ctx == NULL || r != r->main) {
 		return ngx_http_next_body_filter(r, in);
 	}
-
 	for(cl = in; cl; cl = cl->next) {
 		if(cl->buf->last_buf) {
 			cl->buf->last_buf = 0;
@@ -215,144 +211,98 @@ static ngx_int_t ngx_http_slice_body_filter(ngx_http_request_t * r, ngx_chain_t 
 			ctx->last = 1;
 		}
 	}
-
 	rc = ngx_http_next_body_filter(r, in);
-
 	if(rc == NGX_ERROR || !ctx->last) {
 		return rc;
 	}
-
 	if(ctx->sr && !ctx->sr->done) {
 		return rc;
 	}
-
 	if(!ctx->active) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "missing slice response");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "missing slice response");
 		return NGX_ERROR;
 	}
-
 	if(ctx->start >= ctx->end) {
 		ngx_http_set_ctx(r, NULL, ngx_http_slice_filter_module);
 		ngx_http_send_special(r, NGX_HTTP_LAST);
 		return rc;
 	}
-
 	if(r->buffered) {
 		return rc;
 	}
-
-	if(ngx_http_subrequest(r, &r->uri, &r->args, &ctx->sr, NULL,
-		    NGX_HTTP_SUBREQUEST_CLONE)
-	    != NGX_OK) {
+	if(ngx_http_subrequest(r, &r->uri, &r->args, &ctx->sr, NULL, NGX_HTTP_SUBREQUEST_CLONE) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	ngx_http_set_ctx(ctx->sr, ctx, ngx_http_slice_filter_module);
-
 	slcf = (ngx_http_slice_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_slice_filter_module);
-
-	ctx->range.len = ngx_sprintf(ctx->range.data, "bytes=%O-%O", ctx->start,
-	    ctx->start + (nginx_off_t)slcf->size - 1)
-	    - ctx->range.data;
-
+	ctx->range.len = ngx_sprintf(ctx->range.data, "bytes=%O-%O", ctx->start, ctx->start + (nginx_off_t)slcf->size - 1) - ctx->range.data;
 	ctx->active = 0;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http slice subrequest: \"%V\"", &ctx->range);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http slice subrequest: \"%V\"", &ctx->range);
 	return rc;
 }
 
-static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r,
-    ngx_http_slice_content_range_t * cr)
+static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r, ngx_http_slice_content_range_t * cr)
 {
 	nginx_off_t start, end, complete_length, cutoff, cutlim;
 	u_char * p;
-	ngx_table_elt_t  * h;
-
-	h = r->headers_out.content_range;
-
-	if(h == NULL
-	    || h->value.len < 7
-	    || ngx_strncmp(h->value.data, "bytes ", 6) != 0) {
+	ngx_table_elt_t  * h = r->headers_out.content_range;
+	if(h == NULL || h->value.len < 7 || ngx_strncmp(h->value.data, "bytes ", 6) != 0) {
 		return NGX_ERROR;
 	}
-
 	p = h->value.data + 6;
-
 	cutoff = NGX_MAX_OFF_T_VALUE / 10;
 	cutlim = NGX_MAX_OFF_T_VALUE % 10;
-
 	start = 0;
 	end = 0;
 	complete_length = 0;
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p < '0' || *p > '9') {
 		return NGX_ERROR;
 	}
-
 	while(*p >= '0' && *p <= '9') {
 		if(start >= cutoff && (start > cutoff || *p - '0' > cutlim)) {
 			return NGX_ERROR;
 		}
-
 		start = start * 10 + (*p++ - '0');
 	}
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p++ != '-') {
 		return NGX_ERROR;
 	}
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p < '0' || *p > '9') {
 		return NGX_ERROR;
 	}
-
 	while(*p >= '0' && *p <= '9') {
 		if(end >= cutoff && (end > cutoff || *p - '0' > cutlim)) {
 			return NGX_ERROR;
 		}
-
 		end = end * 10 + (*p++ - '0');
 	}
-
 	end++;
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p++ != '/') {
 		return NGX_ERROR;
 	}
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p != '*') {
 		if(*p < '0' || *p > '9') {
 			return NGX_ERROR;
 		}
-
 		while(*p >= '0' && *p <= '9') {
-			if(complete_length >= cutoff
-			    && (complete_length > cutoff || *p - '0' > cutlim)) {
+			if(complete_length >= cutoff && (complete_length > cutoff || *p - '0' > cutlim)) {
 				return NGX_ERROR;
 			}
-
 			complete_length = complete_length * 10 + (*p++ - '0');
 		}
 	}
@@ -360,31 +310,23 @@ static ngx_int_t ngx_http_slice_parse_content_range(ngx_http_request_t * r,
 		complete_length = -1;
 		p++;
 	}
-
 	while(*p == ' ') {
 		p++;
 	}
-
 	if(*p != '\0') {
 		return NGX_ERROR;
 	}
-
 	cr->start = start;
 	cr->end = end;
 	cr->complete_length = complete_length;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p;
-	ngx_http_slice_ctx_t  * ctx;
 	ngx_http_slice_loc_conf_t  * slcf;
-
-	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
-
+	ngx_http_slice_ctx_t  * ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
 	if(ctx == NULL) {
 		if(r != r->main || r->headers_out.status) {
 			v->not_found = 1;

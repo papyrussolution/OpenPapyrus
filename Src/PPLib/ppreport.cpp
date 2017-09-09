@@ -2332,11 +2332,11 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 					SString inner_fn;
                 	SPathStruc ps;
                 	ps.Split(fn);
-                	ps.Drv = 0;
-                	ps.Dir = 0;
+                	ps.Drv.Z();
+                	ps.Dir.Z();
 					const SString nam = ps.Nam;
 					if(p_sel_entry->OutputFormat.CmpNC("html") == 0) {
-						ps.Ext = 0;
+						ps.Ext.Z();
                 		ps.Merge(inner_fn);
 						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
 						SFile::Remove(out_file_name);
@@ -2347,7 +2347,7 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 					}
 					else {
 						if(p_sel_entry->OutputFormat.CmpNC("latex") == 0) {
-							ps.Ext = 0;
+							ps.Ext.Z();
                 			ps.Merge(inner_fn);
 							PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
 							SFile::Remove(out_file_name);

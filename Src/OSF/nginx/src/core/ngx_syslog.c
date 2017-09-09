@@ -216,8 +216,8 @@ static ngx_int_t ngx_syslog_init_peer(ngx_syslog_peer_t * peer)
 {
 	ngx_socket_t fd;
 	ngx_pool_cleanup_t  * cln;
-	peer->conn.read = &ngx_syslog_dummy_event;
-	peer->conn.write = &ngx_syslog_dummy_event;
+	peer->conn.P_EvRd = &ngx_syslog_dummy_event;
+	peer->conn.P_EvWr = &ngx_syslog_dummy_event;
 	ngx_syslog_dummy_event.log = &ngx_syslog_dummy_log;
 	fd = ngx_socket(peer->server.sockaddr->sa_family, SOCK_DGRAM, 0);
 	if(fd == (ngx_socket_t)-1) {
@@ -240,7 +240,7 @@ static ngx_int_t ngx_syslog_init_peer(ngx_syslog_peer_t * peer)
 	cln->handler = ngx_syslog_cleanup;
 	peer->conn.fd = fd;
 	/* UDP sockets are always ready to write */
-	peer->conn.write->ready = 1;
+	peer->conn.P_EvWr->ready = 1;
 	return NGX_OK;
 failed:
 	if(ngx_close_socket(fd) == -1) {

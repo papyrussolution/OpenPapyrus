@@ -146,47 +146,33 @@ static ngx_int_t ngx_stream_upstream_get_hash_peer(ngx_peer_connection_t * pc, v
 	uintptr_t m;
 	ngx_uint_t n, p;
 	ngx_stream_upstream_rr_peer_t  * peer;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-	    "get hash peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get hash peer, try: %ui", pc->tries);
 	ngx_stream_upstream_rr_peers_wlock(hp->rrp.peers);
-
 	if(hp->tries > 20 || hp->rrp.peers->single) {
 		ngx_stream_upstream_rr_peers_unlock(hp->rrp.peers);
 		return hp->get_rr_peer(pc, &hp->rrp);
 	}
-
 	now = ngx_time();
-
 	pc->connection = NULL;
-
 	for(;; ) {
 		/*
 		 * Hash expression is compatible with Cache::Memcached:
 		 * ((crc32([REHASH] KEY) >> 16) & 0x7fff) + PREV_HASH
 		 * with REHASH omitted at the first iteration.
 		 */
-
 		ngx_crc32_init(hash);
-
 		if(hp->rehash > 0) {
 			size = ngx_sprintf(buf, "%ui", hp->rehash) - buf;
 			ngx_crc32_update(&hash, buf, size);
 		}
-
 		ngx_crc32_update(&hash, hp->key.data, hp->key.len);
 		ngx_crc32_final(hash);
-
 		hash = (hash >> 16) & 0x7fff;
-
 		hp->hash += hash;
 		hp->rehash++;
-
 		w = hp->hash % hp->rrp.peers->total_weight;
 		peer = hp->rrp.peers->peer;
 		p = 0;
-
 		while(w >= peer->weight) {
 			w -= peer->weight;
 			peer = peer->next;
@@ -199,17 +185,11 @@ static ngx_int_t ngx_stream_upstream_get_hash_peer(ngx_peer_connection_t * pc, v
 		if(hp->rrp.tried[n] & m) {
 			goto next;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-		    "get hash peer, value:%uD, peer:%ui", hp->hash, p);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get hash peer, value:%uD, peer:%ui", hp->hash, p);
 		if(peer->down) {
 			goto next;
 		}
-
-		if(peer->max_fails
-		    && peer->fails >= peer->max_fails
-		    && now - peer->checked <= peer->fail_timeout) {
+		if(peer->max_fails && peer->fails >= peer->max_fails && now - peer->checked <= peer->fail_timeout) {
 			goto next;
 		}
 
@@ -410,12 +390,10 @@ static ngx_uint_t ngx_stream_upstream_find_chash_point(ngx_stream_upstream_chash
 			return k;
 		}
 	}
-
 	return i;
 }
 
-static ngx_int_t ngx_stream_upstream_init_chash_peer(ngx_stream_session_t * s,
-    ngx_stream_upstream_srv_conf_t * us)
+static ngx_int_t ngx_stream_upstream_init_chash_peer(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us)
 {
 	uint32_t hash;
 	ngx_stream_upstream_hash_srv_conf_t * hcf;
@@ -447,73 +425,47 @@ static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, 
 	ngx_stream_upstream_chash_points_t * points;
 	ngx_stream_upstream_hash_srv_conf_t  * hcf;
 
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-	    "get consistent hash peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get consistent hash peer, try: %ui", pc->tries);
 	ngx_stream_upstream_rr_peers_wlock(hp->rrp.peers);
-
 	pc->connection = NULL;
-
 	now = ngx_time();
 	hcf = hp->conf;
-
 	points = hcf->points;
 	point = &points->point[0];
-
 	for(;; ) {
 		server = point[hp->hash % points->number].server;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-		    "consistent hash peer:%uD, server:\"%V\"",
-		    hp->hash, server);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, pc->log, 0, "consistent hash peer:%uD, server:\"%V\"", hp->hash, server);
 		best = NULL;
 		best_i = 0;
 		total = 0;
-
-		for(peer = hp->rrp.peers->peer, i = 0;
-		    peer;
-		    peer = peer->next, i++) {
+		for(peer = hp->rrp.peers->peer, i = 0; peer; peer = peer->next, i++) {
 			n = i / (8 * sizeof(uintptr_t));
 			m = (uintptr_t)1 << i % (8 * sizeof(uintptr_t));
-
 			if(hp->rrp.tried[n] & m) {
 				continue;
 			}
-
 			if(peer->down) {
 				continue;
 			}
-
-			if(peer->server.len != server->len
-			    || ngx_strncmp(peer->server.data, server->data, server->len)
-			    != 0) {
+			if(peer->server.len != server->len || ngx_strncmp(peer->server.data, server->data, server->len) != 0) {
 				continue;
 			}
-
-			if(peer->max_fails
-			    && peer->fails >= peer->max_fails
-			    && now - peer->checked <= peer->fail_timeout) {
+			if(peer->max_fails && peer->fails >= peer->max_fails && now - peer->checked <= peer->fail_timeout) {
 				continue;
 			}
-
 			if(peer->max_conns && peer->conns >= peer->max_conns) {
 				continue;
 			}
-
 			peer->current_weight += peer->effective_weight;
 			total += peer->effective_weight;
-
 			if(peer->effective_weight < peer->weight) {
 				peer->effective_weight++;
 			}
-
 			if(best == NULL || peer->current_weight > best->current_weight) {
 				best = peer;
 				best_i = i;
 			}
 		}
-
 		if(best) {
 			best->current_weight -= total;
 			break;

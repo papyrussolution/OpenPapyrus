@@ -547,7 +547,7 @@ static void ngx_worker_process_exit(ngx_cycle_t * cycle)
 	if(ngx_exiting) {
 		c = cycle->connections;
 		for(i = 0; i < cycle->connection_n; i++) {
-			if(c[i].fd != (ngx_socket_t)-1 && c[i].read && !c[i].read->accept && !c[i].read->channel && !c[i].read->resolver) {
+			if(c[i].fd != (ngx_socket_t)-1 && c[i].P_EvRd && !c[i].P_EvRd->accept && !c[i].P_EvRd->channel && !c[i].P_EvRd->resolver) {
 				ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "*%uA open socket #%d left in connection %ui", c[i].number, c[i].fd, i);
 			}
 		}

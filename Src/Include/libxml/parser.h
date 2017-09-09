@@ -194,7 +194,7 @@ struct _xmlParserCtxt {
 	// Input stream stack
 	int    inputNr;                  // Number of current input streams
 	int    inputMax;                 // Max number of input streams
-	xmlParserInputPtr * inputTab; // stack of inputs
+	xmlParserInput ** inputTab; // stack of inputs
 	// Node analysis stack only used for DOM building
 	xmlNode * node;              // Current parsed Node
 	int    nodeNr;                   // Depth of the parsing stack

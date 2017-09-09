@@ -490,7 +490,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
                         }
 					}
 				private:
-					void SLAPI Startup()
+					virtual void SLAPI Startup()
 					{
 						SlThread::Startup();
 						SignalStartup();

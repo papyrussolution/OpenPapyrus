@@ -1122,9 +1122,9 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 								SCardTbl::Rec sc_rec;
 								PPLoadString("booking", temp_buf);
 								text.Cat(temp_buf).CR();
-								ord.Chunk.ToStr(temp_buf = 0, STimeChunk::fmtOmitSec);
+								ord.Chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec);
 								text.Cat(temp_buf).CR();
-								temp_buf = 0;
+								temp_buf.Z();
 								if(ord.SCardID && P_Cto->GetSCard(ord.SCardID, &sc_rec) > 0) {
 									text.Cat(sc_rec.Code).Space();
 									if(sc_rec.PersonID) {

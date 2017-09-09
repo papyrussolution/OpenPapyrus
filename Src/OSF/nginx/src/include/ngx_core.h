@@ -14,15 +14,18 @@ typedef struct ngx_module_s          ngx_module_t;
 typedef struct ngx_conf_s            ngx_conf_t;
 typedef struct ngx_cycle_s           ngx_cycle_t;
 //typedef struct ngx_pool_s            ngx_pool_t;
-typedef struct ngx_chain_s           ngx_chain_t;
-struct ngx_log_s;
-typedef struct ngx_log_s             ngx_log_t;
+struct ngx_chain_t;
+//typedef struct ngx_chain_s           ngx_chain_t;
+struct ngx_log_t;
+//typedef struct ngx_log_s             ngx_log_t;
 typedef struct ngx_open_file_s       ngx_open_file_t;
 typedef struct ngx_command_s         ngx_command_t;
-typedef struct ngx_file_s            ngx_file_t;
+struct ngx_file_t;
+//typedef struct ngx_file_s            ngx_file_t;
 //typedef struct ngx_event_s           ngx_event_t;
 typedef struct ngx_event_aio_s       ngx_event_aio_t;
-typedef struct ngx_connection_s      ngx_connection_t;
+//typedef struct ngx_connection_s      ngx_connection_t;
+struct ngx_connection_t;
 typedef struct ngx_thread_task_s     ngx_thread_task_t;
 typedef struct ngx_ssl_s             ngx_ssl_t;
 typedef struct ngx_ssl_connection_s  ngx_ssl_connection_t;
@@ -52,7 +55,151 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #include <ngx_process.h>
 #include <ngx_dlopen.h>
 #include <ngx_user.h>
-#include <ngx_log.h>
+//
+//#include <ngx_log.h>
+//
+#define NGX_LOG_STDERR            0
+#define NGX_LOG_EMERG             1
+#define NGX_LOG_ALERT             2
+#define NGX_LOG_CRIT              3
+#define NGX_LOG_ERR               4
+#define NGX_LOG_WARN              5
+#define NGX_LOG_NOTICE            6
+#define NGX_LOG_INFO              7
+#define NGX_LOG_DEBUG             8
+
+#define NGX_LOG_DEBUG_CORE        0x010
+#define NGX_LOG_DEBUG_ALLOC       0x020
+#define NGX_LOG_DEBUG_MUTEX       0x040
+#define NGX_LOG_DEBUG_EVENT       0x080
+#define NGX_LOG_DEBUG_HTTP        0x100
+#define NGX_LOG_DEBUG_MAIL        0x200
+#define NGX_LOG_DEBUG_STREAM      0x400
+/*
+ * do not forget to update debug_levels[] in src/core/ngx_log.c
+ * after the adding a new debug level
+ */
+#define NGX_LOG_DEBUG_FIRST       NGX_LOG_DEBUG_CORE
+#define NGX_LOG_DEBUG_LAST        NGX_LOG_DEBUG_STREAM
+#define NGX_LOG_DEBUG_CONNECTION  0x80000000
+#define NGX_LOG_DEBUG_ALL         0x7ffffff0
+
+typedef u_char *(*ngx_log_handler_pt)(ngx_log_t * log, u_char * buf, size_t len);
+typedef void (*ngx_log_writer_pt)(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len);
+
+struct ngx_log_t {
+	ngx_uint_t log_level;
+	ngx_open_file_t * file;
+	ngx_atomic_uint_t connection;
+	time_t disk_full_time;
+	ngx_log_handler_pt handler;
+	void * data;
+	ngx_log_writer_pt writer;
+	void * wdata;
+	// 
+	// we declare "action" as "char *" because the actions are usually
+	// the static strings and in the "u_char *" case we have to override their types all the time
+	// 
+	char * action;
+	ngx_log_t * next;
+};
+
+#define NGX_MAX_ERROR_STR   2048
+
+/*********************************/
+
+#if (NGX_HAVE_C99_VARIADIC_MACROS)
+	#define NGX_HAVE_VARIADIC_MACROS  1
+	#define ngx_log_error(level, log, ...) if((log)->log_level >= level) ngx_log_error_core(level, log, __VA_ARGS__)
+	void ngx_log_error_core(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...);
+	#define ngx_log_debug(level, log, ...) if((log)->log_level & level) ngx_log_error_core(NGX_LOG_DEBUG, log, __VA_ARGS__)
+#elif (NGX_HAVE_GCC_VARIADIC_MACROS)
+	#define NGX_HAVE_VARIADIC_MACROS  1
+	#define ngx_log_error(level, log, args ...) if((log)->log_level >= level) ngx_log_error_core(level, log, args)
+	void ngx_log_error_core(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...);
+	#define ngx_log_debug(level, log, args ...) if((log)->log_level & level) ngx_log_error_core(NGX_LOG_DEBUG, log, args)
+#else /* no variadic macros */
+	#define NGX_HAVE_VARIADIC_MACROS  0
+	void ngx_cdecl ngx_log_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...);
+	void ngx_log_error_core(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, va_list args);
+	void ngx_cdecl ngx_log_debug_core(ngx_log_t * log, ngx_err_t err, const char * fmt, ...);
+#endif /* variadic macros */
+
+/*********************************/
+
+#if (NGX_DEBUG)
+
+#if (NGX_HAVE_VARIADIC_MACROS)
+	#define ngx_log_debug0(level, log, err, fmt) ngx_log_debug(level, log, err, fmt)
+	#define ngx_log_debug1(level, log, err, fmt, arg1) ngx_log_debug(level, log, err, fmt, arg1)
+	#define ngx_log_debug2(level, log, err, fmt, arg1, arg2) ngx_log_debug(level, log, err, fmt, arg1, arg2)
+	#define ngx_log_debug3(level, log, err, fmt, arg1, arg2, arg3) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3)
+	#define ngx_log_debug4(level, log, err, fmt, arg1, arg2, arg3, arg4) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3, arg4)
+	#define ngx_log_debug5(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5)
+	#define ngx_log_debug6(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+	#define ngx_log_debug7(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	#define ngx_log_debug8(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) ngx_log_debug(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+#else /* no variadic macros */
+	#define ngx_log_debug0(level, log, err, fmt) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt)
+	#define ngx_log_debug1(level, log, err, fmt, arg1) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt, arg1)
+	#define ngx_log_debug2(level, log, err, fmt, arg1, arg2) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt, arg1, arg2)
+	#define ngx_log_debug3(level, log, err, fmt, arg1, arg2, arg3) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3)
+	#define ngx_log_debug4(level, log, err, fmt, arg1, arg2, arg3, arg4) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3, arg4)
+	#define ngx_log_debug5(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5) if((log)->log_level & level) ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3, arg4, arg5)
+	#define ngx_log_debug6(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6)			   \
+		if((log)->log_level & level)						 \
+			ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+	#define ngx_log_debug7(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7)		   \
+		if((log)->log_level & level)						 \
+			ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	#define ngx_log_debug8(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)	   \
+		if((log)->log_level & level)						 \
+			ngx_log_debug_core(log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+#endif
+#else /* !NGX_DEBUG */
+	#define ngx_log_debug0(level, log, err, fmt)
+	#define ngx_log_debug1(level, log, err, fmt, arg1)
+	#define ngx_log_debug2(level, log, err, fmt, arg1, arg2)
+	#define ngx_log_debug3(level, log, err, fmt, arg1, arg2, arg3)
+	#define ngx_log_debug4(level, log, err, fmt, arg1, arg2, arg3, arg4)
+	#define ngx_log_debug5(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5)
+	#define ngx_log_debug6(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
+	#define ngx_log_debug7(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	#define ngx_log_debug8(level, log, err, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+#endif
+
+/*********************************/
+
+ngx_log_t * ngx_log_init(const u_char * prefix);
+void ngx_cdecl ngx_log_abort(ngx_err_t err, const char * fmt, ...);
+void ngx_cdecl ngx_log_stderr(ngx_err_t err, const char * fmt, ...);
+u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err);
+ngx_int_t ngx_log_open_default(ngx_cycle_t * cycle);
+ngx_int_t ngx_log_redirect_stderr(ngx_cycle_t * cycle);
+ngx_log_t * ngx_log_get_file_log(ngx_log_t * head);
+char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head);
+/*
+ * ngx_write_stderr() cannot be implemented as macro, since
+ * MSVC does not allow to use #ifdef inside macro parameters.
+ *
+ * ngx_write_fd() is used instead of ngx_write_console(), since
+ * CharToOemBuff() inside ngx_write_console() cannot be used with
+ * read only buffer as destination and CharToOemBuff() is not needed
+ * for ngx_write_stderr() anyway.
+ */
+static ngx_inline void ngx_write_stderr(char * text)
+{
+	(void)ngx_write_fd(ngx_stderr, text, ngx_strlen(text));
+}
+
+static ngx_inline void ngx_write_stdout(char * text)
+{
+	(void)ngx_write_fd(ngx_stdout, text, ngx_strlen(text));
+}
+
+extern ngx_module_t ngx_errlog_module;
+extern ngx_uint_t ngx_use_stderr;
+//
 #include <ngx_alloc.h>
 //
 //#include <ngx_parse.h>
@@ -159,8 +306,8 @@ struct /*ngx_buf_s*/ngx_buf_t {
 	/* STUB */ int num;
 };
 
-struct ngx_chain_s {
-	ngx_buf_t   * buf;
+struct ngx_chain_t {
+	ngx_buf_t * buf;
 	ngx_chain_t * next;
 };
 
@@ -227,7 +374,7 @@ ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs);
 #define ngx_alloc_buf(pool)  ngx_palloc(pool, sizeof(ngx_buf_t))
 #define ngx_calloc_buf(pool) ngx_pcalloc(pool, sizeof(ngx_buf_t))
 
-ngx_chain_t * ngx_alloc_chain_link(ngx_pool_t * pool);
+ngx_chain_t * FASTCALL ngx_alloc_chain_link(ngx_pool_t * pool);
 #define ngx_free_chain(pool, cl) cl->next = pool->chain; pool->chain = cl
 
 ngx_int_t ngx_output_chain(ngx_output_chain_ctx_t * ctx, ngx_chain_t * in);
@@ -424,7 +571,7 @@ ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * 
 //
 //#include <ngx_file.h>
 //
-struct ngx_file_s {
+struct /*ngx_file_s*/ngx_file_t {
 	ngx_fd_t fd;
 	ngx_str_t name;
 	ngx_file_info_t info;
@@ -670,8 +817,44 @@ uintptr_t ngx_radix32tree_find(ngx_radix_tree_t * tree, uint32_t key);
 #endif
 //
 #include <ngx_times.h>
-#include <ngx_rwlock.h>
-#include <ngx_shmtx.h>
+//
+//#include <ngx_rwlock.h>
+//
+void ngx_rwlock_wlock(ngx_atomic_t * lock);
+void ngx_rwlock_rlock(ngx_atomic_t * lock);
+void ngx_rwlock_unlock(ngx_atomic_t * lock);
+void ngx_rwlock_downgrade(ngx_atomic_t *lock);
+//
+//#include <ngx_shmtx.h>
+//
+struct ngx_shmtx_sh_t {
+	ngx_atomic_t lock;
+#if (NGX_HAVE_POSIX_SEM)
+	ngx_atomic_t wait;
+#endif
+};
+
+struct ngx_shmtx_t {
+#if (NGX_HAVE_ATOMIC_OPS)
+	ngx_atomic_t  * lock;
+#if (NGX_HAVE_POSIX_SEM)
+	ngx_atomic_t  * wait;
+	ngx_uint_t semaphore;
+	sem_t sem;
+#endif
+#else
+	ngx_fd_t fd;
+	u_char * name;
+#endif
+	ngx_uint_t spin;
+};
+
+ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * name);
+void ngx_shmtx_destroy(ngx_shmtx_t * mtx);
+ngx_uint_t ngx_shmtx_trylock(ngx_shmtx_t * mtx);
+void ngx_shmtx_lock(ngx_shmtx_t * mtx);
+void ngx_shmtx_unlock(ngx_shmtx_t * mtx);
+ngx_uint_t ngx_shmtx_force_unlock(ngx_shmtx_t * mtx, ngx_pid_t pid);
 //
 //#include <ngx_slab.h>
 //
@@ -820,7 +1003,177 @@ void ngx_inet_set_port(struct sockaddr * sa, in_port_t port);
 #include <ngx_module.h>
 #include <ngx_open_file_cache.h>
 #include <ngx_os.h>
-#include <ngx_connection.h>
+//
+//#include <ngx_connection.h>
+//
+//typedef struct ngx_listening_s ngx_listening_t;
+
+struct /*ngx_listening_s*/ngx_listening_t {
+	ngx_socket_t fd;
+	struct sockaddr  * sockaddr;
+	socklen_t socklen;          /* size of sockaddr */
+	size_t addr_text_max_len;
+	ngx_str_t addr_text;
+	int type;
+	int backlog;
+	int rcvbuf;
+	int sndbuf;
+#if (NGX_HAVE_KEEPALIVE_TUNABLE)
+	int keepidle;
+	int keepintvl;
+	int keepcnt;
+#endif
+	ngx_connection_handler_pt handler; // handler of accepted connection 
+	void * servers; // array of ngx_http_in_addr_t, for example 
+	ngx_log_t log;
+	ngx_log_t * logp;
+	size_t pool_size;
+	size_t post_accept_buffer_size; // should be here because of the AcceptEx() preread 
+	ngx_msec_t post_accept_timeout; // should be here because of the deferred accept 
+	ngx_listening_t  * previous;
+	ngx_connection_t * connection;
+	ngx_uint_t worker;
+	unsigned open : 1;
+	unsigned remain : 1;
+	unsigned ignore : 1;
+	unsigned bound : 1;            /* already bound */
+	unsigned inherited : 1;        /* inherited from previous process */
+	unsigned nonblocking_accept : 1;
+	unsigned listen : 1;
+	unsigned nonblocking : 1;
+	unsigned shared : 1;         /* shared between threads or processes */
+	unsigned addr_ntop : 1;
+	unsigned wildcard : 1;
+#if (NGX_HAVE_INET6)
+	unsigned ipv6only : 1;
+#endif
+	unsigned reuseport : 1;
+	unsigned add_reuseport : 1;
+	unsigned keepalive : 2;
+	unsigned deferred_accept : 1;
+	unsigned delete_deferred : 1;
+	unsigned add_deferred : 1;
+#if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
+	char * accept_filter;
+#endif
+#if (NGX_HAVE_SETFIB)
+	int setfib;
+#endif
+#if (NGX_HAVE_TCP_FASTOPEN)
+	int fastopen;
+#endif
+};
+
+typedef enum {
+	NGX_ERROR_ALERT = 0,
+	NGX_ERROR_ERR,
+	NGX_ERROR_INFO,
+	NGX_ERROR_IGNORE_ECONNRESET,
+	NGX_ERROR_IGNORE_EINVAL
+} ngx_connection_log_error_e;
+
+typedef enum {
+	NGX_TCP_NODELAY_UNSET = 0,
+	NGX_TCP_NODELAY_SET,
+	NGX_TCP_NODELAY_DISABLED
+} ngx_connection_tcp_nodelay_e;
+
+typedef enum {
+	NGX_TCP_NOPUSH_UNSET = 0,
+	NGX_TCP_NOPUSH_SET,
+	NGX_TCP_NOPUSH_DISABLED
+} ngx_connection_tcp_nopush_e;
+
+#define NGX_LOWLEVEL_BUFFERED  0x0f
+#define NGX_SSL_BUFFERED       0x01
+#define NGX_HTTP_V2_BUFFERED   0x02
+
+struct /*ngx_connection_s*/ngx_connection_t {
+	void   SetLog(ngx_log_t * pLog)
+	{
+		log->file = pLog->file;
+		log->next = pLog->next;
+		log->writer = pLog->writer;
+		log->wdata = pLog->wdata;
+		if(!(log->log_level & NGX_LOG_DEBUG_CONNECTION)) {
+			log->log_level = pLog->log_level;
+		}
+	}
+	void * data;
+	ngx_event_t * P_EvRd;
+	ngx_event_t * P_EvWr;
+	ngx_socket_t fd;
+	ngx_recv_pt recv;
+	ngx_send_pt send;
+	ngx_recv_chain_pt recv_chain;
+	ngx_send_chain_pt send_chain;
+	ngx_listening_t  * listening;
+	nginx_off_t sent;
+	ngx_log_t   * log;
+	ngx_pool_t  * pool;
+	int type;
+	struct sockaddr  * sockaddr;
+	socklen_t socklen;
+	ngx_str_t addr_text;
+	ngx_str_t proxy_protocol_addr;
+	in_port_t proxy_protocol_port;
+#if (NGX_SSL || NGX_COMPAT)
+	ngx_ssl_connection_t  * ssl;
+#endif
+	struct sockaddr  * local_sockaddr;
+	socklen_t local_socklen;
+	ngx_buf_t * buffer;
+	ngx_queue_t Queue;
+	ngx_atomic_uint_t number;
+	ngx_uint_t requests;
+	unsigned buffered      : 8;
+	unsigned log_error     : 3; // ngx_connection_log_error_e 
+	unsigned tcp_nodelay   : 2; // ngx_connection_tcp_nodelay_e 
+	unsigned tcp_nopush    : 2; // ngx_connection_tcp_nopush_e 
+	unsigned timedout      : 1;
+	unsigned error         : 1;
+	unsigned destroyed     : 1;
+	unsigned idle          : 1;
+	unsigned reusable      : 1;
+	unsigned close         : 1;
+	unsigned shared        : 1;
+	unsigned sendfile      : 1;
+	unsigned sndlowat      : 1;
+	unsigned need_last_buf : 1;
+#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
+	unsigned busy_count    : 2;
+#endif
+#if (NGX_THREADS || NGX_COMPAT)
+	ngx_thread_task_t  * sendfile_task;
+#endif
+};
+
+/* replaced with(ngx_connection_t::SetLog)
+#define ngx_set_connection_log(c, l)					     \
+	c->log->file = l->file;							 \
+	c->log->next = l->next;							 \
+	c->log->writer = l->writer;						 \
+	c->log->wdata = l->wdata;						 \
+	if(!(c->log->log_level & NGX_LOG_DEBUG_CONNECTION)) {			\
+		c->log->log_level = l->log_level;				     \
+	}
+*/
+
+ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockaddr, socklen_t socklen);
+ngx_int_t ngx_clone_listening(ngx_conf_t * cf, ngx_listening_t * ls);
+ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle);
+ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOptions & rO);
+void ngx_configure_listening_sockets(ngx_cycle_t * cycle);
+void ngx_close_listening_sockets(ngx_cycle_t * cycle);
+void ngx_close_connection(ngx_connection_t * c);
+void ngx_close_idle_connections(ngx_cycle_t * cycle);
+ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx_uint_t port);
+ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c);
+ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text);
+ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log);
+void ngx_free_connection(ngx_connection_t * c);
+void ngx_reusable_connection(ngx_connection_t * c, ngx_uint_t reusable);
+//
 #include <ngx_http.h>
 //
 //#include <ngx_syslog.h>

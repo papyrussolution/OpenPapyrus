@@ -240,23 +240,17 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		}
 		else {
 			name = r->uri.data;
-
 			r->uri.len = alias + path.len;
 			r->uri.data = (u_char*)ngx_pnalloc(r->pool, r->uri.len);
 			if(r->uri.data == NULL) {
 				r->uri.len = 0;
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
-
 			p = ngx_copy(r->uri.data, name, alias);
 			memcpy(p, path.data, path.len);
 		}
-
 		ngx_http_set_exten(r);
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "try file uri: \"%V\"", &r->uri);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "try file uri: \"%V\"", &r->uri);
 		return NGX_DECLINED;
 	}
 

@@ -109,7 +109,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 			SLS.GetTLA().TxtDateFmt_ = DATF_DMY|DATF_CENTURY;
 			(temp_buf = p_t->tableName).ToUtf8();
 			SXml::WNode n_tbl(p_writer, temp_buf);
-			DS.GetVersion().ToStr(temp_buf = 0);
+			DS.GetVersion().ToStr(temp_buf.Z());
 			n_tbl.PutAttrib("version", temp_buf);
 			{
 				p_dict->GetDbSymb(temp_buf);

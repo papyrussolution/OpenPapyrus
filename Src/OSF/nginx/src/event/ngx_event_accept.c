@@ -176,8 +176,8 @@ void ngx_event_accept(ngx_event_t * ev)
 #endif
 		}
 #endif
-		rev = c->read;
-		wev = c->write;
+		rev = c->P_EvRd;
+		wev = c->P_EvWr;
 		wev->ready = 1;
 		if(ngx_event_flags & NGX_USE_IOCP_EVENT) {
 			rev->ready = 1;
@@ -497,8 +497,8 @@ static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle)
 	ngx_listening_t * ls = (ngx_listening_t*)cycle->listening.elts;
 	for(ngx_uint_t i = 0; i < cycle->listening.nelts; i++) {
 		ngx_connection_t * c = ls[i].connection;
-		if(c && !c->read->active) {
-			if(ngx_add_event(c->read, NGX_READ_EVENT, 0) == NGX_ERROR)
+		if(c && !c->P_EvRd->active) {
+			if(ngx_add_event(c->P_EvRd, NGX_READ_EVENT, 0) == NGX_ERROR)
 				return NGX_ERROR;
 		}
 	}
@@ -510,7 +510,7 @@ static ngx_int_t ngx_disable_accept_events(ngx_cycle_t * cycle, ngx_uint_t all)
 	ngx_listening_t * ls = (ngx_listening_t*)cycle->listening.elts;
 	for(ngx_uint_t i = 0; i < cycle->listening.nelts; i++) {
 		ngx_connection_t * c = ls[i].connection;
-		if(c && c->read->active) {
+		if(c && c->P_EvRd->active) {
 #if (NGX_HAVE_REUSEPORT)
 			// 
 			// do not disable accept on worker's own sockets when disabling accept events due to accept mutex
@@ -519,7 +519,7 @@ static ngx_int_t ngx_disable_accept_events(ngx_cycle_t * cycle, ngx_uint_t all)
 				continue;
 			}
 #endif
-			if(ngx_del_event(c->read, NGX_READ_EVENT, NGX_DISABLE_EVENT) == NGX_ERROR) {
+			if(ngx_del_event(c->P_EvRd, NGX_READ_EVENT, NGX_DISABLE_EVENT) == NGX_ERROR) {
 				return NGX_ERROR;
 			}
 		}

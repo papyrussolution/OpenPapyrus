@@ -73,7 +73,7 @@ int ELinkListDialog::setupList()
 		if(elkobj.Fetch(elr->KindID, &elkr) > 0)
 			ss.add(elkr.Name);
 		else {
-			ideqvalstr(elr->KindID, sub = 0);
+			ideqvalstr(elr->KindID, sub.Z());
 			ss.add(sub);
 		}
 		ss.add(elr->Addr);

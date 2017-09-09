@@ -343,18 +343,13 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 
 #if (NGX_DEBUG)
 	for(i = 0; i < inlen; i += in[i] + 1) {
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-		    "SSL ALPN supported by client: %*s",
-		    (size_t)in[i], &in[i + 1]);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "SSL ALPN supported by client: %*s", (size_t)in[i], &in[i + 1]);
 	}
 #endif
-
 #if (NGX_HTTP_V2)
 	hc = (ngx_http_connection_t *)c->data;
-
 	if(hc->addr_conf->http2) {
-		srv =
-		    (unsigned char*)NGX_HTTP_V2_ALPN_ADVERTISE NGX_HTTP_NPN_ADVERTISE;
+		srv = (unsigned char*)NGX_HTTP_V2_ALPN_ADVERTISE NGX_HTTP_NPN_ADVERTISE;
 		srvlen = sizeof(NGX_HTTP_V2_ALPN_ADVERTISE NGX_HTTP_NPN_ADVERTISE) - 1;
 	}
 	else
@@ -363,16 +358,10 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn, const unsigned ch
 		srv = (unsigned char*)NGX_HTTP_NPN_ADVERTISE;
 		srvlen = sizeof(NGX_HTTP_NPN_ADVERTISE) - 1;
 	}
-
-	if(SSL_select_next_proto((unsigned char**)out, outlen, srv, srvlen,
-		    in, inlen)
-	    != OPENSSL_NPN_NEGOTIATED) {
+	if(SSL_select_next_proto((unsigned char**)out, outlen, srv, srvlen, in, inlen) != OPENSSL_NPN_NEGOTIATED) {
 		return SSL_TLSEXT_ERR_NOACK;
 	}
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-	    "SSL ALPN selected: %*s", (size_t)*outlen, *out);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "SSL ALPN selected: %*s", (size_t)*outlen, *out);
 	return SSL_TLSEXT_ERR_OK;
 }
 

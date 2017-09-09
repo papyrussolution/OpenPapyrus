@@ -81,7 +81,7 @@ int __db_compact_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, D
 	 * routine should begin its work and expecting that it will return to
 	 * us the last key that it processed.
 	 */
-	if(start != NULL && (ret = __db_retcopy(env, &current, start->data, start->size, &current.data, &current.ulen)) != 0)
+	if(start && (ret = __db_retcopy(env, &current, start->data, start->size, &current.data, &current.ulen)) != 0)
 		return ret;
 	empty_buckets = c_data->compact_empty_buckets;
 	if(IS_DB_AUTO_COMMIT(dbp, txn)) {
@@ -188,7 +188,7 @@ no_free:
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;
 err:
-		if(txn_local && txn != NULL) {
+		if(txn_local && txn) {
 			if(ret == 0 && deadlock == 0)
 				ret = __txn_commit(txn, DB_TXN_NOSYNC);
 			else if((t_ret = __txn_abort(txn)) != 0 && ret == 0)
@@ -197,7 +197,7 @@ err:
 		}
 		DB_ASSERT(env, ip == NULL || ip->dbth_pincount == 0);
 	} while(ret == 0 && !isdone);
-	if(ret == 0 && end != NULL)
+	if(ret == 0 && end)
 		ret = __db_retcopy(env, end, current.data, current.size, &end->data, &end->ulen);
 	__os_free(env, current.data);
 	__os_free(env, save_start.data);
@@ -296,7 +296,7 @@ static int __db_free_freelist(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn)
 err:
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	if(auto_commit && __txn_abort(txn) != 0 && ret == 0)
 		ret = t_ret;
@@ -607,7 +607,7 @@ int __db_find_free(DBC * dbc, uint32 type, uint32 size, db_pgno_t bstart, db_pgn
 	if(dbp->type == DB_HASH) {
 		if((ret = __ham_return_meta(dbc, DB_MPOOL_DIRTY, &meta)) != 0)
 			return ret;
-		if(meta != NULL)
+		if(meta)
 			hash = 1;
 	}
  #endif
@@ -766,14 +766,14 @@ int __db_relink(DBC * dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 	}
 	else
 		LSN_NOT_LOGGED(ret_lsn);
-	if(np != NULL)
+	if(np)
 		np->lsn = ret_lsn;
-	if(pp != NULL)
+	if(pp)
 		pp->lsn = ret_lsn;
 	/*
 	 * Modify and release the two pages.
 	 */
-	if(np != NULL) {
+	if(np) {
 		np->prev_pgno = (new_pgno == PGNO_INVALID) ? pagep->prev_pgno : new_pgno;
 		if(np != otherp)
 			ret = __memp_fput(mpf, dbc->thread_info, np, dbc->priority);
@@ -782,7 +782,7 @@ int __db_relink(DBC * dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 		if(ret != 0)
 			goto err;
 	}
-	if(pp != NULL) {
+	if(pp) {
 		pp->next_pgno = (new_pgno == PGNO_INVALID) ? pagep->next_pgno : new_pgno;
 		if(pp != otherp)
 			ret = __memp_fput(mpf, dbc->thread_info, pp, dbc->priority);
@@ -828,20 +828,19 @@ int __db_move_metadata(DBC * dbc, DBMETA ** metap, DB_COMPACT * c_data)
 	 * swap the old one for the new one.
 	 */
 	if(STD_LOCKING(dbc)) {
-		/*
-		 * If this dbp is still in an opening transaction we need to
-		 * change its lock in the event.
-		 */
-		if(dbp->cur_txn != NULL)
+		//
+		// If this dbp is still in an opening transaction we need to change its lock in the event.
+		//
+		if(dbp->cur_txn)
 			__txn_remlock(dbp->env, dbp->cur_txn, &dbp->handle_lock, DB_LOCK_INVALIDID);
 		handle_lock = dbp->handle_lock;
 		if((ret = __fop_lock_handle(dbp->env, dbp, dbp->cur_locker ? dbp->cur_locker : dbp->locker, dbp->cur_txn ? DB_LOCK_WRITE : DB_LOCK_READ, NULL, 0)) != 0)
 			goto err;
-		/* Move all the other handles to the new lock. */
+		// Move all the other handles to the new lock. 
 		if((ret = __lock_change(dbp->env, &handle_lock, &dbp->handle_lock)) != 0)
 			goto err;
-		/* Reregister the event. */
-		if(dbp->cur_txn != NULL)
+		// Reregister the event. 
+		if(dbp->cur_txn)
 			ret = __txn_lockevent(dbp->env, dbp->cur_txn, dbp, &dbp->handle_lock, dbp->locker);
 	}
 	if(dbp->type == DB_HASH) {

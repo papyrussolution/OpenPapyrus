@@ -303,7 +303,7 @@ int SLAPI PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
 		cfg.Flags &= ~PPLocationConfig::fValid;
 		cfg.DefPalletID = pCfg->DefPalletID;
 		cfg.StoreIdxTagID = pCfg->StoreIdxTagID; // @v8.9.11
-		STRNSCPY(cfg.AddrCodeTempl, pCfg->AddrCodeTempl); // @v7.3.8
+		STRNSCPY(cfg.AddrCodeTempl, pCfg->AddrCodeTempl);
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, &cfg, sizeof(cfg), 0));
 		THROW(tra.Commit());
 	}
@@ -348,7 +348,7 @@ int SLAPI PPObjLocation::EditConfig()
 		dlg->getCtrlData(CTLSEL_LOCCFG_WHCELLCOD, &cfg.WhCellCoding);
 		dlg->GetClusterData(CTL_LOCCFG_DIVCOD, &cfg.WhCodingDiv);
 		dlg->getCtrlData(CTLSEL_LOCCFG_DEFPALTYPE, &cfg.DefPalletID);
-		dlg->getCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl); // @v7.3.8
+		dlg->getCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
 		dlg->getCtrlData(CTLSEL_LOCCFG_STRIDXTAG, &cfg.StoreIdxTagID); // @v8.9.11
 		dlg->GetClusterData(CTL_LOCCFG_FLAGS, &cfg.Flags); // @v8.6.12
 		ok = 1;
@@ -388,27 +388,37 @@ int SLAPI PPObjLocation::SelectWarehouse(PPID /*owner*/, PPID /*level*/)
 	return r;
 }
 
-SLAPI PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
+void SLAPI PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
 {
+	Sctr = sctr;
+
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= /*implStrAssocMakeList;*/ (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	P_CurrFilt = 0;
 	P_WObj = 0;
-	// Extra = extraParam ? extraParam : LOCTYP_WAREHOUSE;
+	P_RegObj = 0;
 	ExtraPtr = extraPtr;
-	if(ExtraPtr) {
-		// @v9.6.1 CurrFilt = *(LocationFilt*)ExtraPtr;
-		P_CurrFilt = new LocationFilt(*(LocationFilt*)ExtraPtr); // @v9.6.1
-	}
-	else {
-		// @v9.6.1 CurrFilt.LocType = LOCTYP_WAREHOUSE;
-	}
+	if(ExtraPtr)
+		P_CurrFilt = new LocationFilt(*(LocationFilt*)ExtraPtr);
 	IsCityCacheInited = 0;
+	if(Sctr != SConstructorLite)
+		P_RegObj = new PPObjRegister;
+}
+
+SLAPI PPObjLocation::PPObjLocation(void * extraPtr) : PPObject(PPOBJ_LOCATION)
+{
+	InitInstance(SConstructorDef, extraPtr);
+}
+
+SLAPI PPObjLocation::PPObjLocation(SCtrLite sctr) : PPObject(PPOBJ_LOCATION)
+{
+	InitInstance(sctr, 0);
 }
 
 SLAPI PPObjLocation::~PPObjLocation()
 {
 	delete P_WObj;
+	delete P_RegObj;
 	delete P_CurrFilt;
 	TLP_CLOSE(P_Tbl);
 }
@@ -595,7 +605,6 @@ int SLAPI PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 	ASSIGN_PTR(pCityID, 0);
 	if(pName) {
 		SETIFZ(P_WObj, new PPObjWorld);
-		//PPObjWorld
 		SArray w_list(sizeof(WorldTbl::Rec));
 		P_WObj->GetListByName(WORLDOBJ_CITY, pName, &w_list);
 		if(w_list.getCount() == 1) {
@@ -639,7 +648,7 @@ const char * SLAPI PPObjLocation::GetNamePtr()
 		LocationCore::GetAddress(r_rec, 0, NameBuf);
 	else if(r_rec.Type == LOCTYP_WAREPLACE) {
 		LocationTbl::Rec par_rec;
-		NameBuf = 0;
+		NameBuf.Z();
 		if(r_rec.ParentID && Fetch(r_rec.ParentID, &par_rec) > 0)
 			NameBuf.Cat(par_rec.Name).CatChar('/');
 		NameBuf.Cat(r_rec.Name);
@@ -1466,7 +1475,7 @@ int LocationExtFieldsDialog::setupList()
 		if(temp_buf.Empty())
 			(temp_buf = "ID=").Cat(item.Id);
 		ss.add(temp_buf, 0);
-		Fields.Get(item.Id, (temp_buf = 0));
+		Fields.Get(item.Id, temp_buf.Z());
 		ss.add(temp_buf, 0);
 		if(!addStringToList(item.Id, ss.getBuf())) {
 			ok = 0;
@@ -1483,7 +1492,7 @@ int LocationExtFieldsDialog::setDTS(const LocationTbl::Rec * pData)
 		MEMSZERO(Data);
 	Fields.Clear();
 	for(int id = 1; id <= MAX_DLVRADDRFLDS; id++) {
-		if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf = 0) > 0)
+		if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf.Z()) > 0)
 			Fields.Add(id + LOCEXSTR_EXTFLDSOFFS, 0, temp_buf);
 	}
 	updateList(-1);
@@ -1792,7 +1801,7 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 		if(Data.Flags & LOCF_MANUALADDR)
 			getCtrlString(CTL_LOCATION_FULLADDR, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		LocationCore::SetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
 		// @v7.6.2 {
 		getCtrlString(CTL_LOCATION_PHONE, temp_buf);
@@ -1936,7 +1945,8 @@ int SLAPI PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 		int    sr = Search(id, pPack);
 		THROW(sr);
 		if(sr > 0) {
-			THROW(RegObj.P_Tbl->GetByLocation(id, &pPack->Regs));
+			THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister));
+			THROW(P_RegObj->P_Tbl->GetByLocation(id, &pPack->Regs));
 			THROW(PPRef->Ot.GetList(Obj, id, &pPack->TagL));
 		}
 		else
@@ -1954,6 +1964,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 	Reference * p_ref = PPRef;
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
+	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1977,7 +1988,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 							THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 						}
 						THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
-						THROW(RegObj.P_Tbl->PutByLocation(*pID, 0, 0));
+						THROW(P_RegObj->P_Tbl->PutByLocation(*pID, 0, 0));
 						THROW(RemoveByID(P_Tbl, *pID, 0));
 						DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 						*pID = 0;
@@ -1993,7 +2004,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 						}
 						THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
 						THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0));
-						THROW(RegObj.P_Tbl->PutByLocation(*pID, &pPack->Regs, 0));
+						THROW(P_RegObj->P_Tbl->PutByLocation(*pID, &pPack->Regs, 0));
 						DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
 					}
 				}
@@ -2008,7 +2019,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 					THROW(P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 				}
 				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0));
-				THROW(RegObj.P_Tbl->PutByLocation(*pID, 0, 0));
+				THROW(P_RegObj->P_Tbl->PutByLocation(*pID, 0, 0));
 				THROW(RemoveByID(P_Tbl, *pID, 0));
 				THROW(RemoveSync(*pID));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
@@ -2024,7 +2035,7 @@ int SLAPI PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use
 				//
 				THROW(P_Tbl->Add(&temp_id, pPack, 0));
 				THROW(p_ref->Ot.PutList(Obj, temp_id, &pPack->TagL, 0));
-				THROW(RegObj.P_Tbl->PutByLocation(temp_id, &pPack->Regs, 0));
+				THROW(P_RegObj->P_Tbl->PutByLocation(temp_id, &pPack->Regs, 0));
 				if(pPack->Type == LOCTYP_WAREHOUSE)
 					THROW(SendObjMessage(DBMSG_WAREHOUSEADDED, PPOBJ_ARTICLE, Obj, temp_id) == DBRPL_OK);
 				DS.LogAction(PPACN_OBJADD, Obj, temp_id, 0, 0);
@@ -2221,7 +2232,8 @@ int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate,
 {
 	int    ok = -1;
 	RegisterArray reg_list;
-	if(RegObj.P_Tbl->GetByLocation(locID, &reg_list) > 0) {
+	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
+	if(P_RegObj->P_Tbl->GetByLocation(locID, &reg_list) > 0) {
 		if(reg_list.GetRegister(regType, actualDate, 0, pRec)) {
 			ok = 1;
 		}
@@ -2235,6 +2247,7 @@ int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate,
 				ok = 2;
         }
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -2430,8 +2443,9 @@ IMPL_DESTROY_OBJ_PACK(PPObjLocation, PPLocationPacket);
 int SLAPI PPObjLocation::SerializePacket(int dir, PPLocationPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
+	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	THROW_SL(P_Tbl->SerializeRecord(dir, pPack, rBuf, pSCtx));
-	THROW_SL(RegObj.P_Tbl->SerializeArrayOfRecords(dir, &pPack->Regs, rBuf, pSCtx));
+	THROW_SL(P_RegObj->P_Tbl->SerializeArrayOfRecords(dir, &pPack->Regs, rBuf, pSCtx));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -2795,11 +2809,10 @@ int SLAPI PPObjLocation::ViewDivision()
 //
 //
 //
-class LocationCache : public ObjCacheHash { // @v7.8.5 ObjCache-->ObjCacheHash
+class LocationCache : public ObjCacheHash {
 public:
 	SLAPI  LocationCache() :
-		// @v7.8.5 ObjCache(PPOBJ_LOCATION, sizeof(LocationData)),
-		ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4), // @v7.8.5
+		ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
 		WhObjList(sizeof(WHObjEntry)),
 		FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR))
 	{
@@ -2900,7 +2913,7 @@ const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 			FealLock.Unlock();
 			FealLock.WriteLock();
 			if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
-				PPObjLocation loc_obj;
+				PPObjLocation loc_obj(SConstructorLite);
 				EAddrTbl::Rec ea_rec;
 				SString phone_buf;
 				if(!FullEaList.Inited) {
@@ -2960,7 +2973,7 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 			else {
 				WHCellEntry * p_entry = new WHCellEntry;
 				if(p_entry) {
-					PPObjLocation loc_obj;
+					PPObjLocation loc_obj(SConstructorLite);
 					loc_obj.ResolveWhCell(locID, p_entry->List, 0, 0);
 					p_entry->LocID = locID;
 					WhCellList.insert(p_entry);
@@ -3001,7 +3014,7 @@ int SLAPI LocationCache::DirtyCellList(PPID locID)
 {
 	WhclLock.WriteLock();
 	{
-		PPObjLocation loc_obj;
+		PPObjLocation loc_obj(SConstructorLite);
 		PPIDArray par_list;
 		loc_obj.GetDirtyCellParentsList(locID, par_list);
 		for(uint i = 0; i < par_list.getCount(); i++) {
@@ -3033,9 +3046,9 @@ int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 
 int SLAPI LocationCache::Dirty(PPID locID)
 {
+	PPObjLocation loc_obj(SConstructorLite);
 	RwL.WriteLock();
 	{
-		PPObjLocation loc_obj;
 		LocationTbl::Rec loc_rec;
 		if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
 			AddWarehouseEntry(&loc_rec);
@@ -3075,12 +3088,12 @@ int SLAPI LocationCache::LoadWarehouseTab()
 	int    ok = 1;
 	RwL.ReadLock();
 	if(!IsWhObjTabInited) {
+		PPObjLocation lobj(SConstructorLite);
 		RwL.Unlock();
 		RwL.WriteLock();
 		if(!IsWhObjTabInited) {
 			long   c = 0;
 			LocationTbl::Rec loc_rec;
-			PPObjLocation lobj;
 			PPObjAccTurn * p_atobj = BillObj->atobj;
 			WhObjList.clear();
 			SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
@@ -3185,7 +3198,7 @@ int SLAPI LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	LocationData * p_cache_rec = (LocationData *)pEntry;
-	PPObjLocation loc_obj;
+	PPObjLocation loc_obj(SConstructorLite);
 	LocationTbl::Rec rec;
 	if(loc_obj.Search(id, &rec) > 0) {
 		p_cache_rec->Access   = BIN(rec.Type != LOCTYP_WAREHOUSE || ObjRts.CheckLocID(rec.ID, 0));
@@ -3470,18 +3483,12 @@ int PPALDD_Location::InitData(PPFilt & rFilt, long rsrv)
 			STRNSCPY(H.Code, rec.Code);
 			LocationCore::GetExField(&rec, LOCEXSTR_ZIP, temp_buf);
 			temp_buf.CopyTo(H.ZIP, sizeof(H.ZIP));
-			// @v7.6.1 {
 			LocationCore::GetExField(&rec, LOCEXSTR_SHORTADDR, temp_buf.Z());
 			temp_buf.CopyTo(H.Text, sizeof(H.Text));
-			// } @v7.6.1
-			// @v7.0.9 {
 			LocationCore::GetExField(&rec, LOCEXSTR_PHONE, temp_buf);
 			temp_buf.CopyTo(H.Phone, sizeof(H.Phone));
-			// } @v7.0.9
-			// @v7.3.3 {
 			LocationCore::GetExField(&rec, LOCEXSTR_CONTACT, temp_buf);
 			temp_buf.CopyTo(H.Contact, sizeof(H.Contact));
-			// } @v7.3.3
 			STRNSCPY(H.Name, rec.Name);
 			LocationCore::GetAddress(rec, 0, temp_buf);
 			temp_buf.CopyTo(H.Addr, sizeof(H.Addr));
@@ -4291,7 +4298,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 		rTok.S = temp_buf;
 	}
 	else {
-		temp_buf = 0;
+		temp_buf.Z();
 		char c = Scan[0];
 		const char * p_div = ",;()[]{}";
 		if(strchr(p_div, c)) {
@@ -4747,7 +4754,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 							break;
 						case AddrTok::tNum_Hyp_Num:
 							//if(last_t == tStreet) {
-								p_tok->S.Divide('-', temp_buf = 0, temp_buf2 = 0);
+								p_tok->S.Divide('-', temp_buf.Z(), temp_buf2.Z());
 								if(temp_buf.NotEmptyS()) {
 									Add(last_t = tHouse, temp_buf);
 									Add(tHouseKind, "дом");
@@ -4761,13 +4768,13 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 							break;
 						case AddrTok::tNum_Hyp_Num_Hyp_Num:
 							//if(last_t == tStreet) {
-								p_tok->S.Divide('-', temp_buf = 0, temp_buf2 = 0);
+								p_tok->S.Divide('-', temp_buf.Z(), temp_buf2.Z());
 								if(temp_buf.NotEmptyS()) {
 									Add(last_t = tHouse, temp_buf);
 									Add(tHouseKind, "дом");
 								}
 								if(temp_buf2.NotEmptyS()) {
-									temp_buf2.Divide('-', temp_buf = 0, temp_buf3 = 0);
+									temp_buf2.Divide('-', temp_buf.Z(), temp_buf3.Z());
 									if(temp_buf.NotEmptyS()) {
 										Add(last_t = tHouseAddendum, temp_buf);
 										Add(tHouseAddendumKind, "корпус");
@@ -4782,7 +4789,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 							break;
 						case AddrTok::tNum_Sl_Num:
 							if(last_t == tStreet) {
-								p_tok->S.Divide('/', temp_buf = 0, temp_buf2 = 0);
+								p_tok->S.Divide('/', temp_buf.Z(), temp_buf2.Z());
 								temp_buf.Strip().CatChar('/').Cat(temp_buf2.Strip());
 								Add(last_t = tHouse, temp_buf);
 								Add(tHouseKind, "дом");
@@ -5054,7 +5061,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 						}
 					}
 					if(FiasStreetID) {
-						temp_buf = 0;
+						temp_buf.Z();
 						if(Get(tHouse, temp_buf2) > 0) {
                             (temp_buf = temp_buf2).ToLower1251();
                             temp_buf.CatChar(':');
@@ -5737,7 +5744,7 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
 				case OTTYP_GUID:
-					p_item->GetStr((temp_buf = 0));
+					p_item->GetStr(temp_buf.Z());
 					STRNSCPY(I_TagList.StrVal, temp_buf);
 					break;
 				case OTTYP_NUMBER:
@@ -6010,7 +6017,7 @@ int SLAPI PPFiasReference::IdentifyHouse(PPID terminalObjID, const char * pHouse
     }
     for(uint i = 0; ok < 0 && i < hse_list.getCount(); i++) {
 		const FiasHouseObjTbl::Rec & r_item = hse_list.at(i);
-		if(GetText(r_item.NumTRef, temp_buf = 0) > 0) {
+		if(GetText(r_item.NumTRef, temp_buf.Z()) > 0) {
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			if(temp_buf == pHouseCode) {
 				hse_id = r_item.IdUuRef;

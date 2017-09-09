@@ -754,8 +754,8 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				{
 					SPathStruc ps;
 					ps.Split(FileName);
-					ps.Drv = 0;
-					ps.Dir = 0;
+					ps.Drv.Z();
+					ps.Dir.Z();
 					ps.Merge(naked_file_name);
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 					ftp_path.SetLastSlash().Cat(naked_file_name);
@@ -969,7 +969,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		else if(DataFormat == dfExcel)
 			temp_buf = "XLS";
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		if(temp_buf.NotEmpty())
 			THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 	}

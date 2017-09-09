@@ -544,7 +544,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 			uint   freeze = rez.getUINT();
 			// @v9.1.1 setTitle(rez.getString(buf, 2), 1);
 			// @v9.1.1 {
-			rez.getString(temp_buf = 0, 2);
+			rez.getString(temp_buf.Z(), 2);
 			SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 			setOrgTitle(temp_buf);
 			// } @v9.1.1
@@ -812,7 +812,7 @@ TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow
 {
 	rBlk.IdBias = IdBiasBrowser;
 	rBlk.ClsName = BrowserWindow::WndClsName;
-	(rBlk.InstanceIdent = 0).Cat(GetResID());
+	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
 
@@ -1471,7 +1471,8 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, i
 		COLORREF old_color = SetTextColor(hdc, isLineCursor ?
 			BrwColorsSchemas[schema_num].LineCursorOverText : BrwColorsSchemas[schema_num].CursorOverText);
 		HFONT  old_font = 0, curs_over_txt_font = 0;
-		char   buf[64];
+		//char   buf[64];
+		TCHAR  buf[64];
 		LOGFONT log_font;
 		TEXTMETRIC metrics;
 		MEMSZERO(log_font);

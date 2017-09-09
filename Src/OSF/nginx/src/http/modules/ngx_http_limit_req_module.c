@@ -252,15 +252,15 @@ static ngx_int_t ngx_http_limit_req_handler(ngx_http_request_t * r)
 	    "delaying request, excess: %ui.%03ui, by zone \"%V\"",
 	    excess / 1000, excess % 1000, &limit->shm_zone->shm.name);
 
-	if(ngx_handle_read_event(r->connection->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(r->connection->P_EvRd, 0) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 
 	r->read_event_handler = ngx_http_test_reading;
 	r->write_event_handler = ngx_http_limit_req_delay;
 
-	r->connection->write->delayed = 1;
-	ngx_add_timer(r->connection->write, delay);
+	r->connection->P_EvWr->delayed = 1;
+	ngx_add_timer(r->connection->P_EvWr, delay);
 
 	return NGX_AGAIN;
 }
@@ -269,14 +269,14 @@ static void ngx_http_limit_req_delay(ngx_http_request_t * r)
 {
 	ngx_event_t  * wev;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "limit_req delay");
-	wev = r->connection->write;
+	wev = r->connection->P_EvWr;
 	if(wev->delayed) {
 		if(ngx_handle_write_event(wev, 0) != NGX_OK) {
 			ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		}
 		return;
 	}
-	if(ngx_handle_read_event(r->connection->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(r->connection->P_EvRd, 0) != NGX_OK) {
 		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return;
 	}

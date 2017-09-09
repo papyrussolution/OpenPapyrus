@@ -1420,7 +1420,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 						else if(inn.Len() > 2)
 							inn.Sub(0, 2, temp_buf);
 						else
-							temp_buf = 0;
+							temp_buf.Z();
 						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
 					}
 					w_a.PutInnerSkipEmpty("oref:area", "");
@@ -1451,7 +1451,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				}
 				LocationCore::GetExField(&__loc_rec, LOCEXSTR_ZIP, temp_buf);
 				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
-					temp_buf = 0;
+					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:Index", EncText(temp_buf));
 				//
 				// ИНН и КПП для России всегда содержать в виде префикса код региона.
@@ -1463,7 +1463,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				else if(inn.Len() > 2)
 					inn.Sub(0, 2, temp_buf);
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:area", "");
 				PsnObj.LocObj.GetCity(__loc_id, 0, &temp_buf, 1);
@@ -1474,21 +1474,21 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:street", EncText(temp_buf));
 				if(P_Las) {
 					P_Las->Get(P_Las->tHouse, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:house", EncText(temp_buf));
 				if(P_Las) {
 					P_Las->Get(P_Las->tHouseAddendum, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:building", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:liter", "");
 				w_a.PutInner("oref:description", EncText(__full_addr_buf));
@@ -2068,7 +2068,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_dt.PutInner("wb:Identity", temp_buf.Z().Cat(p_bp->Rec.ID));
                         {
                         	SXml::WNode n_h(_doc, "wb:Header");
-                        	temp_buf = 0;
+                        	temp_buf.Z();
                         	PPID   consignee_psn_id = 0;
                         	PPID   consignee_loc_id = 0;
                         	PPID   shipper_psn_id = 0;
@@ -2183,25 +2183,25 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								{
 									SXml::WNode n_tr(_doc, "wb:Transport");
 									n_tr.PutInner("wb:TRAN_TYPE", "413"); // Пока не понятно. Во всех примерах только это значение.
-									temp_buf = 0;
+									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->AgentID, temp_buf);
 									n_tr.PutInnerSkipEmpty("wb:TRAN_COMPANY", EncText(temp_buf));
-									temp_buf = 0;
+									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetObjectName(PPOBJ_TRANSPORT, p_bp->P_Freight->ShipID, temp_buf);
 									n_tr.PutInnerSkipEmpty("wb:TRAN_CAR", EncText(temp_buf));
 									n_tr.PutInnerSkipEmpty("wb:TRAN_TRAILER", "");
 									n_tr.PutInnerSkipEmpty("wb:TRAN_CUSTOMER", "");
-									temp_buf = 0;
+									temp_buf.Z();
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->CaptainID, temp_buf);
 									n_tr.PutInnerSkipEmpty("wb:TRAN_DRIVER", EncText(temp_buf));
-									temp_buf = 0;
+									temp_buf.Z();
 									if(p_bp->P_Freight)
                                         GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfLoading, temp_buf);
 									n_tr.PutInnerSkipEmpty("wb:TRAN_LOADPOINT", EncText(temp_buf));
-									temp_buf = 0;
+									temp_buf.Z();
 									if(p_bp->P_Freight)
                                         GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfDischarge, temp_buf);
 									n_tr.PutInnerSkipEmpty("wb:TRAN_UNLOADPOINT", EncText(temp_buf));
@@ -2623,7 +2623,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ainp:Header");
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
-							temp_buf = 0; // @v9.7.5
+							temp_buf.Z(); // @v9.7.5
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_PRODRCVDBEFORE2016, temp_buf); // @v9.6.7
@@ -2694,7 +2694,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_h(_doc, "ainp:Header");
 							n_h.PutInner("ainp:Number", EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner("ainp:ActDate", EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
-							temp_buf = 0;
+							temp_buf.Z();
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.7.5 (temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
 								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf); // @v9.7.5
@@ -3732,7 +3732,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 				pPack->Rec.Status = PPPRS_LEGAL;
 				pPack->Kinds.addUnique(personKindID);
 				AssignManufTypeToPersonPacket(*pPack, roleFlag);
-				temp_buf = 0;
+				temp_buf.Z();
 				if(short_name.NotEmptyS())
 					temp_buf = short_name;
 				else if(full_name.NotEmptyS())
@@ -5718,7 +5718,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 												bip.Code = p_qb->Result;
 												bip.Std = BARCSTD_PDF417;
 												bip.OutputFormat = SFileFormat::Png;
-												temp_buf = 0;
+												temp_buf.Z();
                                                 if(p_qb->Rank.NotEmpty())
 													temp_buf.CatDivIfNotEmpty('-', 0).Cat(p_qb->Rank);
 												if(p_qb->Number.NotEmpty())
@@ -5764,7 +5764,7 @@ int SLAPI PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
 
 int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SString & rTempPath, SString & rFileName)
 {
-	rFileName = 0;
+	rFileName.Z();
 	int    ok = 1;
 	SPathStruc ps;
 	SString temp_buf;
@@ -5773,8 +5773,8 @@ int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SStri
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
 	ps.Split(rFileName);
 	(temp_buf = ps.Nam).CatChar('.').Cat("xml");
-	ps.Nam = 0;
-	ps.Ext = 0;
+	ps.Nam.Z();
+	ps.Ext.Z();
 	ps.Merge(rFileName);
 	THROW_SL(::createDir(rFileName));
 	rFileName.SetLastSlash().Cat(temp_buf);
@@ -6455,7 +6455,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						const InformB * p_inf = (const InformB *)p_pack->P_Data;
 						//
 						// Пытаемся избежать повторного разбора двух и более PPEDIOP_EGAIS_TTNINFORMBREG
-						// относящихся к одному документу (разные версии посылок). Нам нажна только последняя версия.
+						// относящихся к одному документу (разные версии посылок). Нам нужна только последняя версия.
 						//
 						for(uint fwpackidx = packidx+1; fwpackidx < pack_list.getCount(); fwpackidx++) {
 							Packet * p_fw_pack = pack_list.at(fwpackidx);
@@ -7735,7 +7735,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 								StartUpInfo.Space().Cat("multi");
 						}
 						else {
-							if(P_Prc->GetFSRARID(loc_id, temp_buf = 0, 0))
+							if(P_Prc->GetFSRARID(loc_id, temp_buf.Z(), 0))
 								StartUpInfo.Cat(temp_buf);
 							else
 								StartUpInfo.Cat("fasrarid-undef");

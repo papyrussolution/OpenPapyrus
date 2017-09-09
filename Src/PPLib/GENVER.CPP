@@ -202,7 +202,7 @@ int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 			//fprintf(p_out_file, "/*\n\t%s\n\tAutomaticaly generated file\n\tDon't modify !\n*/\n", pOutFileName);
 			//fprintf(p_out_file, "static unsigned char G_PPVerInfo[] = {\n\t");
 			assert((tbuf.GetSize() % 4) == 0);
-			temp_buf = 0;
+			temp_buf.Z();
 			for(size_t i = 0; i < tbuf.GetSize(); i++) {
 				temp_buf.Cat("0x").CatHex(tbuf.ucptr()[i]);
 				//fprintf(p_out_file, "0x%02x, ", p_data_buf[i]);
@@ -290,7 +290,7 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("Comments").CatDiv(',', 2).CatQStr("Система управления предприятием").CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("CompanyName").CatDiv(',', 2).CatQStr("Petroglif").CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("FileDescription").CatDiv(',', 2).CatQStr(ppb.ProductName).CR();
-					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("FileVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf = 0)).CR();
+					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("FileVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf.Z())).CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("InternalName").CatDiv(',', 2).CatQStr("pp").CR();
 					// fprintf(pF, "\t\t\tVALUE \"LegalCopyright\", \"Copyright %c %s %d - %d\"\n", ch, team, start, last);
 					temp_buf.Z().Cat("Copyright").Space().CatChar(169).Space().Cat(ppb.Team).Space().
@@ -298,7 +298,7 @@ static int SLAPI CreateVerRcFile2(const char * pInFileName, const char * pRcFile
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("LegalCopyright").CatDiv(',', 2).CatQStr(temp_buf).CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("OriginalFilename").CatDiv(',', 2).CatQStr("ppw.exe").CR();
 					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("ProductName").CatDiv(',', 2).CatQStr("Papyrus").CR();
-					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("ProductVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf = 0)).CR();
+					line_buf.Tab(3).Cat("VALUE").Space().CatQStr("ProductVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf.Z())).CR();
 				line_buf.Tab(2).Cat("END").CR();
 				line_buf.Tab(2).Cat("BLOCK").Space().CatQStr("VarFileInfo").CR();
 				line_buf.Tab(2).Cat("BEGIN").CR();

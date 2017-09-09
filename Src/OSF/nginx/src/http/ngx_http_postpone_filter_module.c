@@ -71,43 +71,28 @@ static ngx_int_t ngx_http_postpone_filter(ngx_http_request_t * r, ngx_chain_t * 
 		if(in || c->buffered) {
 			return ngx_http_next_body_filter(r->main, in);
 		}
-
 		return NGX_OK;
 	}
-
 	if(in) {
 		ngx_http_postpone_filter_add(r, in);
 	}
-
 	do {
 		pr = r->postponed;
-
 		if(pr->request) {
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-			    "http postpone filter wake \"%V?%V\"",
-			    &pr->request->uri, &pr->request->args);
-
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http postpone filter wake \"%V?%V\"", &pr->request->uri, &pr->request->args);
 			r->postponed = pr->next;
-
 			c->data = pr->request;
-
 			return ngx_http_post_request(pr->request, NULL);
 		}
-
 		if(pr->out == NULL) {
-			ngx_log_error(NGX_LOG_ALERT, c->log, 0,
-			    "http postpone filter NULL output");
+			ngx_log_error(NGX_LOG_ALERT, c->log, 0, "http postpone filter NULL output");
 		}
 		else {
-			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-			    "http postpone filter output \"%V?%V\"",
-			    &r->uri, &r->args);
-
+			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http postpone filter output \"%V?%V\"", &r->uri, &r->args);
 			if(ngx_http_next_body_filter(r->main, pr->out) == NGX_ERROR) {
 				return NGX_ERROR;
 			}
 		}
-
 		r->postponed = pr->next;
 	} while(r->postponed);
 

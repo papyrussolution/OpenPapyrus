@@ -95,46 +95,31 @@ static ngx_int_t ngx_http_chunked_body_filter(ngx_http_request_t * r, ngx_chain_
 	ngx_buf_t  * b;
 	ngx_chain_t  * out, * cl, * tl, ** ll;
 	ngx_http_chunked_filter_ctx_t  * ctx;
-
 	if(in == NULL || !r->chunked || r->header_only) {
 		return ngx_http_next_body_filter(r, in);
 	}
-
 	ctx = (ngx_http_chunked_filter_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_chunked_filter_module);
-
 	out = NULL;
 	ll = &out;
-
 	size = 0;
 	cl = in;
-
 	for(;; ) {
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "http chunk: %O", ngx_buf_size(cl->buf));
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http chunk: %O", ngx_buf_size(cl->buf));
 		size += ngx_buf_size(cl->buf);
-
-		if(cl->buf->flush
-		    || cl->buf->sync
-		    || ngx_buf_in_memory(cl->buf)
-		    || cl->buf->in_file) {
+		if(cl->buf->flush || cl->buf->sync || ngx_buf_in_memory(cl->buf) || cl->buf->in_file) {
 			tl = ngx_alloc_chain_link(r->pool);
 			if(tl == NULL) {
 				return NGX_ERROR;
 			}
-
 			tl->buf = cl->buf;
 			*ll = tl;
 			ll = &tl->next;
 		}
-
 		if(cl->next == NULL) {
 			break;
 		}
-
 		cl = cl->next;
 	}
-
 	if(size) {
 		tl = ngx_chain_get_free_buf(r->pool, &ctx->free);
 		if(tl == NULL) {

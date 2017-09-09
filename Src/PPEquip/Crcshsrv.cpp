@@ -801,7 +801,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			PPGoodsPacket goods_pack;
 
 			PPQuotKind qk_rec;
-			temp_buf = 0;
+			temp_buf.Z();
 			if(CConfig.Flags & CCFLG_DEBUG)
 				LogExportingGoodsItem(&prev_gds_info);
 			//
@@ -4355,8 +4355,8 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
 				SDirec sd;
 
 				sp.Split(PathRpt[filTypZRepXml]);
-				sp.Nam = 0;
-				sp.Ext = 0;
+				sp.Nam.Z();
+				sp.Ext.Z();
 				sp.Merge(data_dir);
 				sp.Split(PathRpt[filTypZRepXml]);
 				sp.Nam.Cat("*");
@@ -4470,8 +4470,8 @@ int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 
 	sp.Split(pPath);
 	ext = sp.Ext;
-	sp.Nam = 0;
-	sp.Ext = 0;
+	sp.Nam.Z();
+	sp.Ext.Z();
 	sp.Merge(backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
 	createDir(backup_dir);
@@ -4542,8 +4542,8 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				SPathStruc sp;
 				SDirEntry sd_entry;
 				sp.Split(PathRpt[filTypChkXml]);
-				sp.Nam = 0;
-				sp.Ext = 0;
+				sp.Nam.Z();
+				sp.Ext.Z();
 				sp.Merge(data_dir);
 				sp.Split(PathRpt[filTypChkXml]);
 				sp.Nam.Cat("*");

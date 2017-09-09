@@ -559,7 +559,7 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
     ini_file.AppendParam("common", "LastAutoGrpCode",   temp_buf.Z().Cat(P_Pb->LastAutoGrpCode), 1);
     ini_file.AppendParam("common", "LastSignatureCode", temp_buf.Z().Cat(P_Pb->LastSignatureCode), 1);
     //
-    temp_buf = 0;
+    temp_buf.Z();
     for(i = 0; i < P_Pb->LastAutoCodeList.getCount(); i++) {
 		const LAssoc & r_item = P_Pb->LastAutoCodeList.at(i);
 		if(i)
@@ -860,7 +860,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
                             temp_buf.Z().Cat("\t//#org").Space().Cat(org_text).CR();
                             f_at.WriteLine(temp_buf);
                             //
-                            temp_buf = 0;
+                            temp_buf.Z();
                             if(item.CodeSymb.NotEmpty() && item.CodeSymb != P_StrSt_EmptyCodeSymb) {
 								temp_buf.Cat(item.CodeSymb);
                             }
@@ -1364,7 +1364,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 				double symb_val = 0.0;
 				if(rScan[0] == '/') {
 					rScan.Incr();
-					temp_buf = 0;
+					temp_buf.Z();
 					while(!rScan.Is('/')) {
 						temp_buf.CatChar(rScan[0]);
 						rScan.Incr();
@@ -1391,7 +1391,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 					is_ident = 1;
 				}
 				else {
-					temp_buf = 0;
+					temp_buf.Z();
 					uint n = 0;
 					int  c = rScan[0];
 					if((c >= 'A' && c <= 'Z') || c == '_') {
@@ -1422,7 +1422,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 				}
 				if(rScan.Skip()[0] == '/') {
 					rScan.Incr();
-					temp_buf = 0;
+					temp_buf.Z();
 					while(!rScan.Is('/')) {
 						temp_buf.CatChar(rScan[0]);
 						rScan.Incr();
@@ -1552,7 +1552,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 					gen.Wr_Comment(temp_buf);
 					gen.Wr_Comment(0);
 				}
-				temp_buf = 0;
+				temp_buf.Z();
 				gen.CatIndent(temp_buf).Cat((symb_buf = item.Txt).Align(max_len, ADJ_LEFT)).Cat(str_buf.Quot('\"', '\"')).CR();
 				gen.WriteLine(temp_buf);
 			}
@@ -1607,7 +1607,7 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);
 			}
-			temp_buf = 0;
+			temp_buf.Z();
 			if(item.Id & 0x80000000)
 				temp_buf.CatChar('0').CatChar('x').CatHex(item.Id);
 			else

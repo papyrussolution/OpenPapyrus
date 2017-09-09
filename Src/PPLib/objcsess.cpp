@@ -1744,9 +1744,9 @@ int CTableTimeChunkGrid::GetText(int item, long id, SString & rBuf)
 			SCardTbl::Rec sc_rec;
 			PPLoadString("booking", temp_buf);
 			rBuf.Cat(temp_buf).CR();
-			ord.Chunk.ToStr(temp_buf = 0, STimeChunk::fmtOmitSec);
+			ord.Chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec);
 			rBuf.Cat(temp_buf).CR();
-			temp_buf = 0;
+			temp_buf.Z();
 			if(ord.SCardID && P_To->GetSCard(ord.SCardID, &sc_rec) > 0) {
 				rBuf.Cat(sc_rec.Code).Space();
 				if(sc_rec.PersonID) {
@@ -2407,7 +2407,7 @@ int SLAPI PrcssrCSessComplexExport::ExportSession(PPID sessID)
 							STRNSCPY(sdr_ccheck.SCardN, sc_rec.Code);
 						}
 						else {
-							ideqvalstr(cc_pack.Rec.SCardID, temp_buf = 0).CopyTo(sdr_ccheck.SCardN, sizeof(sdr_ccheck.SCardN));
+							ideqvalstr(cc_pack.Rec.SCardID, temp_buf.Z()).CopyTo(sdr_ccheck.SCardN, sizeof(sdr_ccheck.SCardN));
 						}
 					}
 					sdr_ccheck.CcFlags = cc_pack.Rec.Flags;
@@ -2471,7 +2471,7 @@ int SLAPI PrcssrCSessComplexExport::ExportSession(PPID sessID)
 										STRNSCPY(sdr_paym.PaymCardN, sc_rec.Code);
 									}
 									else {
-										ideqvalstr(cc_pack.Rec.SCardID, temp_buf = 0).CopyTo(sdr_paym.PaymCardN, sizeof(sdr_paym.PaymCardN));
+										ideqvalstr(cc_pack.Rec.SCardID, temp_buf.Z()).CopyTo(sdr_paym.PaymCardN, sizeof(sdr_paym.PaymCardN));
 									}
 								}
 								if(P_IeCCPaym) {

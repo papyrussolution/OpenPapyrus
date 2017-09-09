@@ -91,26 +91,17 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 #else
 	len = NGX_HTTP_RANDOM_INDEX_PREALLOCATE;
 #endif
-
 	last = ngx_http_map_uri_to_path(r, &path, &root, len);
 	if(last == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	allocated = path.len;
-
 	path.len = last - path.data - 1;
 	path.data[path.len] = '\0';
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http random index: \"%s\"", path.data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http random index: \"%s\"", path.data);
 	if(ngx_open_dir(&path, &dir) == NGX_ERROR) {
 		err = ngx_errno;
-
-		if(err == NGX_ENOENT
-		    || err == NGX_ENOTDIR
-		    || err == NGX_ENAMETOOLONG) {
+		if(err == NGX_ENOENT || err == NGX_ENOTDIR || err == NGX_ENAMETOOLONG) {
 			level = NGX_LOG_ERR;
 			rc = NGX_HTTP_NOT_FOUND;
 		}
@@ -122,13 +113,9 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 			level = NGX_LOG_CRIT;
 			rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
-		ngx_log_error(level, r->connection->log, err,
-		    ngx_open_dir_n " \"%s\" failed", path.data);
-
+		ngx_log_error(level, r->connection->log, err, ngx_open_dir_n " \"%s\" failed", path.data);
 		return rc;
 	}
-
 	if(ngx_array_init(&names, r->pool, 32, sizeof(ngx_str_t)) != NGX_OK) {
 		return ngx_http_random_index_error(r, &dir, &path);
 	}
@@ -150,28 +137,19 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 
 			break;
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "http random index file: \"%s\"", ngx_de_name(&dir));
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http random index file: \"%s\"", ngx_de_name(&dir));
 		if(ngx_de_name(&dir)[0] == '.') {
 			continue;
 		}
-
 		len = ngx_de_namelen(&dir);
-
 		if(dir.type == 0 || ngx_de_is_link(&dir)) {
 			/* 1 byte for '/' and 1 byte for terminating '\0' */
-
 			if(path.len + 1 + len + 1 > allocated) {
-				allocated = path.len + 1 + len + 1
-				    + NGX_HTTP_RANDOM_INDEX_PREALLOCATE;
-
+				allocated = path.len + 1 + len + 1 + NGX_HTTP_RANDOM_INDEX_PREALLOCATE;
 				filename = (u_char*)ngx_pnalloc(r->pool, allocated);
 				if(filename == NULL) {
 					return ngx_http_random_index_error(r, &dir, &path);
 				}
-
 				last = ngx_cpystrn(filename, path.data, path.len + 1);
 				*last++ = '/';
 			}

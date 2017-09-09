@@ -4519,7 +4519,7 @@ PPTXT_EGAIS_QS_CFMTICKET       "Серверу @{brand_egais} отправлен
 PPTXT_EGAIS_QS_CCHECK          "Серверу @{brand_egais} отправлен кассовый чек"
 PPTXT_EGAIS_MARKQTYNEQLOTQTY   "Замечание: количество марок не равно остатку по лоту - передается количество марок (%s)"
 PPTXT_NATURALTOKENID      /!/  "0,UNKNOW;1,NATURALWORD;2,DIGITALCODE;3,EAN13;4,EAN8;5,UPCA;6,UPCE;7,RU_INN;8,EAGAISWARECODE;9,EGAISMARKCODE;\
-	10,LUHN;11,ALPHADIGITALCODE;12,GUID;13,EMAIL;14,PHONE;15,IMEI;16,IP4;17,IP6;18,MACADDR48"
+	10,LUHN;11,ALPHADIGITALCODE;12,GUID;13,EMAIL;14,PHONE;15,IMEI;16,IP4;17,IP6;18,MACADDR48;19,DATE;20,TIME;21,SOFTWAREVERSION"
 
 PPTXT_SUPPLIXTECH         /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES"
 PPTXT_EGAIS_TESTSEDNING        "Тестовый режим отправки. Файл"
@@ -7973,8 +7973,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgpredictsales_fminstockasminorder      "Минимальный остаток трактовать как минимальный заказ"
 @cfgpredictsales_fpreflotpckg             "Предпочтение отдавать емкости упаковки из последнего лота"
 @cfgpredictsales_fprefstockpckg           "Предпочтение отдавать емкости упаковки поставки"
-@cfgpredictsales_froundpckgdn             "@cfgpredictsales_pckgrounddn"
-@cfgpredictsales_froundpckgup             "@cfgpredictsales_pckgroundup"
+@cfgpredictsales_froundpckgdn             "@{cfgpredictsales_pckgrounddn}"
+@cfgpredictsales_froundpckgup             "@{cfgpredictsales_pckgroundup}"
+@cfgpredictsales_froundmanualqtty         "Округлять заказ, введенный вручную"
 @cfgpredictsales_pckgrounding             "Округление рекомендуемого заказа" // generic
 @cfgpredictsales_pckgroundup              "До емкости упаковки вверх"
 @cfgpredictsales_pckgrounddn              "До емкости упаковки вниз"

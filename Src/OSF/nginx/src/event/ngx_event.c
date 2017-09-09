@@ -96,8 +96,8 @@ static ngx_command_t ngx_event_core_commands[] = {
 
 static ngx_event_module_t ngx_event_core_module_ctx = {
 	&event_core_name,
-	ngx_event_core_create_conf,        /* create configuration */
-	ngx_event_core_init_conf,          /* init configuration */
+	ngx_event_core_create_conf, // create configuration 
+	ngx_event_core_init_conf,   // init configuration 
 	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -163,7 +163,7 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 	}
 	delta = ngx_current_msec;
 	// @sobolev (void)ngx_process_events(cycle, timer, flags);
-	ngx_event_actions.process_events(pCycle, timer, flags); // @sobolev 
+	ngx_event_actions.F_ProcessEvents(pCycle, timer, flags); // @sobolev 
 	delta = ngx_current_msec - delta;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "timer delta: %M", delta);
 	ngx_event_process_posted(pCycle, &ngx_posted_accept_events);
@@ -370,10 +370,10 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		ngx_use_accept_mutex = 0;
 	}
 #if (NGX_WIN32)
-	/*
-	 * disable accept mutex on win32 as it may cause deadlock if
-	 * grabbed by a process which can't accept connections
-	 */
+	// 
+	// disable accept mutex on win32 as it may cause deadlock if
+	// grabbed by a process which can't accept connections
+	// 
 	ngx_use_accept_mutex = 0;
 #endif
 	ngx_queue_init(&ngx_posted_accept_events);
@@ -385,7 +385,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		if(cycle->modules[m]->type == NGX_EVENT_MODULE) {
 			if(cycle->modules[m]->ctx_index == ecf->use) {
 				module = (ngx_event_module_t*)cycle->modules[m]->ctx;
-				if(module->actions.init(cycle, ngx_timer_resolution) != NGX_OK) {
+				if(module->actions.F_Init(cycle, ngx_timer_resolution) != NGX_OK) {
 					// fatal 
 					exit(2);
 				}
@@ -457,14 +457,14 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 	do {
 		i--;
 		c[i].data = next;
-		c[i].read = &cycle->read_events[i];
-		c[i].write = &cycle->write_events[i];
+		c[i].P_EvRd = &cycle->read_events[i];
+		c[i].P_EvWr = &cycle->write_events[i];
 		c[i].fd = (ngx_socket_t)-1;
 		next = &c[i];
 	} while(i);
 	cycle->free_connections = next;
 	cycle->free_connection_n = cycle->connection_n;
-	/* for each listening socket */
+	// for each listening socket 
 	ls = (ngx_listening_t*)cycle->listening.elts;
 	for(i = 0; i < cycle->listening.nelts; i++) {
 #if (NGX_HAVE_REUSEPORT)
@@ -480,7 +480,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		c->log = &ls[i].log;
 		c->listening = &ls[i];
 		ls[i].connection = c;
-		rev = c->read;
+		rev = c->P_EvRd;
 		rev->log = c->log;
 		rev->accept = 1;
 #if (NGX_HAVE_DEFERRED_ACCEPT)
@@ -493,7 +493,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 				 * the old cycle read events array
 				 */
 				old = ls[i].previous->connection;
-				if(ngx_del_event(old->read, NGX_READ_EVENT, NGX_CLOSE_EVENT) == NGX_ERROR) {
+				if(ngx_del_event(old->P_EvRd, NGX_READ_EVENT, NGX_CLOSE_EVENT) == NGX_ERROR) {
 					return NGX_ERROR;
 				}
 				old->fd = (ngx_socket_t)-1;

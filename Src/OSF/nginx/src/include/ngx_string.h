@@ -8,24 +8,24 @@
 //#include <ngx_config.h>
 //#include <ngx_core.h>
 
-typedef struct {
+struct ngx_str_t {
 	size_t len;
 	u_char * data;
-} ngx_str_t;
+};
 
-typedef struct {
+struct ngx_keyval_t {
 	ngx_str_t key;
 	ngx_str_t value;
-} ngx_keyval_t;
+};
 
-typedef struct {
+struct ngx_variable_value_t {
 	unsigned len : 28;
 	unsigned valid : 1;
 	unsigned no_cacheable : 1;
 	unsigned not_found : 1;
 	unsigned escape : 1;
-	u_char   * data;
-} ngx_variable_value_t;
+	u_char * data;
+};
 
 #define ngx_string(str)     { sizeof(str) - 1, (u_char*)str }
 #define ngx_null_string     { 0, NULL }
@@ -112,9 +112,9 @@ u_char * ngx_cdecl ngx_slprintf(u_char * buf, u_char * last, const char * fmt, .
 u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list args);
 #define ngx_vsnprintf(buf, max, fmt, args) ngx_vslprintf(buf, buf + (max), fmt, args)
 
-ngx_int_t ngx_strcasecmp(u_char * s1, u_char * s2);
-ngx_int_t ngx_strncasecmp(u_char * s1, u_char * s2, size_t n);
-u_char * ngx_strnstr(u_char * s1, char * s2, size_t n);
+ngx_int_t FASTCALL ngx_strcasecmp(const u_char * s1, const u_char * s2);
+ngx_int_t FASTCALL ngx_strncasecmp(const u_char * s1, const u_char * s2, size_t n);
+const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t n);
 u_char * ngx_strstrn(u_char * s1, char * s2, size_t n);
 u_char * ngx_strcasestrn(u_char * s1, char * s2, size_t n);
 u_char * ngx_strlcasestrn(u_char * s1, u_char * last, u_char * s2, size_t n);
@@ -123,7 +123,7 @@ ngx_int_t ngx_rstrncasecmp(u_char * s1, u_char * s2, size_t n);
 ngx_int_t ngx_memn2cmp(u_char * s1, u_char * s2, size_t n1, size_t n2);
 ngx_int_t ngx_dns_strcmp(u_char * s1, u_char * s2);
 ngx_int_t ngx_filename_cmp(u_char * s1, u_char * s2, size_t n);
-ngx_int_t ngx_atoi(u_char * line, size_t n);
+ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n);
 ngx_int_t ngx_atofp(const u_char * line, size_t n, size_t point);
 ssize_t ngx_atosz(u_char * line, size_t n);
 nginx_off_t ngx_atoof(u_char * line, size_t n);
@@ -140,8 +140,8 @@ void ngx_encode_base64url(ngx_str_t * dst, ngx_str_t * src);
 ngx_int_t ngx_decode_base64(ngx_str_t * dst, ngx_str_t * src);
 ngx_int_t ngx_decode_base64url(ngx_str_t * dst, ngx_str_t * src);
 
-uint32_t ngx_utf8_decode(u_char ** p, size_t n);
-size_t ngx_utf8_length(u_char * p, size_t n);
+uint32_t FASTCALL ngx_utf8_decode(u_char ** p, size_t n);
+size_t FASTCALL ngx_utf8_length(u_char * p, size_t n);
 u_char * ngx_utf8_cpystrn(u_char * dst, u_char * src, size_t n, size_t len);
 
 #define NGX_ESCAPE_URI            0

@@ -53,8 +53,8 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 		if(pInputFileName) {
 			SPathStruc ps;
 			ps.Split(pInputFileName);
-			ps.Nam = 0;
-			ps.Ext = 0;
+			ps.Nam.Z();
+			ps.Ext.Z();
 			ps.Merge(path);
 		}
 		if(path.NotEmptyS()) {
@@ -161,8 +161,8 @@ Tddo::Meta & FASTCALL Tddo::Meta::operator = (const Meta & rS)
 void Tddo::Meta::Clear()
 {
 	Tok = tNone;
-	Text = 0;
-	Param = 0;
+	Text.Z();
+	Param.Z();
 }
 
 Tddo::ProcessBlock::ProcessBlock()
@@ -179,7 +179,7 @@ Tddo::Result::Result()
 
 Tddo::Result & Tddo::Result::Clear()
 {
-	S = 0;
+	S.Z();
 	RefType = 0;
 	RefID = 0;
 	return *this;
@@ -447,7 +447,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 			LineNo++;
 		}
 		if(Scan.GetRe(ReH_If, temp_buf)) {
-			text_buf = 0;
+			text_buf.Z();
 			const char * c = temp_buf;
 			while(*c && *c != '{')
 				c++;
@@ -460,7 +460,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 			rM.Text = text_buf;
 		}
 		else if(Scan.GetRe(ReH_Elif, temp_buf)) {
-			text_buf = 0;
+			text_buf.Z();
 			const char * c = temp_buf;
 			while(*c && *c != '{')
 				c++;
@@ -510,7 +510,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 				PPSetError(PPERR_TDDO_INVMETA, text_buf);
 				ok = 0;
 			}
-			text_buf = 0;
+			text_buf.Z();
 			if(c == '(') {
 				i++;
 				for(; (c = temp_buf.C(i)) != ')' && c != 0; i++)
@@ -536,7 +536,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 		}
 		else if(Scan[0] == '$' && Scan[1] == '{') {
 			Scan.Incr(2);
-			text_buf = 0;
+			text_buf.Z();
 			if(Scan.SearchChar('}')) {
 				Scan.Get(text_buf);
 				Scan.IncrLen(1);
@@ -601,8 +601,8 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 		if(InputFileName.NotEmpty()) {
 			SPathStruc ps;
 			ps.Split(InputFileName);
-			ps.Nam = 0;
-			ps.Ext = 0;
+			ps.Nam.Z();
+			ps.Ext.Z();
 			ps.Merge(rR.S);
 			rR.S.SetLastSlash();
 		}
@@ -837,7 +837,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 		if(langId)
 			GetLinguaCode(langId, temp_buf);
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 		(sect_buf = pTextIdent).Strip();
 		if(temp_buf.NotEmpty()) {
 			defsect_buf = sect_buf;

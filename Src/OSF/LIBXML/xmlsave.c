@@ -2080,7 +2080,6 @@ int xmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, int 
 	}
 	return ret;
 }
-
 /**
  * xmlBufNodeDump:
  * @buf:  the XML buffer output
@@ -2096,7 +2095,6 @@ int xmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, int 
  * Returns the number of bytes written to the buffer, in case of error 0
  *     is returned or @buf stores the error
  */
-
 size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, int format)
 {
 	int    ret = -1;
@@ -2138,7 +2136,6 @@ size_t xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, i
 	}
 	return ret;
 }
-
 /**
  * xmlElemDump:
  * @f:  the FILE * for the output

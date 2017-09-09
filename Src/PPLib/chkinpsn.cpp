@@ -936,7 +936,7 @@ public:
 		SetupPrice();
 		SetupSpin(CTLSPN_CHKINP_CICOUNT, CTL_CHKINP_CICOUNT, 1, (Cfg.Capacity > 0) ? Cfg.Capacity : 10000, Data.CiCount);
 		disableCtrls(status != PPCheckInPersonItem::statusCheckedIn, CTL_CHKINP_CIDT, CTL_CHKINP_CITM, 0);
-		temp_buf = 0;
+		temp_buf.Z();
 		if(Data.CCheckID) {
 			CCheckTbl::Rec cc_rec;
 			if(ScObj.P_CcTbl->Search(Data.CCheckID, &cc_rec) > 0)
@@ -1256,7 +1256,7 @@ int CheckInPersonListDialog::setupList()
 		}
 		else {
 			ss.add(temp_buf.Z().Cat(r_item.RegCount));
-			ss.add(temp_buf = 0);
+			ss.add(temp_buf.Z());
 			ss.add(temp_buf.Z().Cat(r_item.RegDtm, DATF_DMY, TIMF_HM));
 		}
 		if(!addStringToList(i, ss.getBuf()))
@@ -1267,7 +1267,7 @@ int CheckInPersonListDialog::setupList()
 		uint   ci_count = 0;
 		uint   canceled_count = 0;
 		Data.Count(&reg_count, &ci_count, &canceled_count);
-		temp_buf = 0;
+		temp_buf.Z();
 		if(reg_count) {
 			PPLoadString("registered", word_buf);
 			temp_buf.CatEq(word_buf, (ulong)reg_count);

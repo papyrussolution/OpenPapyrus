@@ -828,7 +828,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
-		if(loc_list.at(i) == wotarebeer_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, temp_buf = 0) > 0) {
+		if(loc_list.at(i) == wotarebeer_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, temp_buf.Z()) > 0) {
 			client_code = temp_buf;
 		}
 		else {
@@ -1005,9 +1005,9 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
-		if(loc_list.at(i) == weakalc_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWEAKALCCODE, temp_buf = 0) > 0)
+		if(loc_list.at(i) == weakalc_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWEAKALCCODE, temp_buf.Z()) > 0)
 			client_code = temp_buf;
-		else if(loc_list.at(i) == wotarebeer_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, temp_buf = 0) > 0)
+		else if(loc_list.at(i) == wotarebeer_locid && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAWOTAREBEERCODE, temp_buf.Z()) > 0)
 			client_code = temp_buf;
 		else
 			Ep.GetExtStrData(Ep.extssClientCode, client_code);
@@ -1983,7 +1983,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 														// } @v8.8.0
 														ltoa(person_id, sdr_saldo_ware.CompanyId, 10);
 														//memzero(sdr_saldo_ware.AddressId, sizeof(sdr_saldo_ware.AddressId)); // не указываем, так как передаем тару
-														temp_buf = 0;
+														temp_buf.Z();
 														if(dlvr_loc_id)
 															temp_buf.Cat(dlvr_loc_id);
 														STRNSCPY(sdr_saldo_ware.AddressId, temp_buf); // zstring(24)         " од клиента";
@@ -3642,7 +3642,7 @@ int SLAPI iSalesPepsi::SendStocks()
         uint   _pos = 0;
         int    skip_goods = 1;
 		iSalesStockCountingWhPacket * p_loc_item = 0;
-		if(GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, temp_buf = 0, 0) > 0 && temp_buf.NotEmptyS()) {
+		if(GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, temp_buf.Z(), 0) > 0 && temp_buf.NotEmptyS()) {
 			skip_goods = 0;
 			if(State & stGoodsMappingInited) {
 				const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -3774,7 +3774,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				//const PPTransferItem & r_ti = pack.ConstTI(i);
 				tiiterpos++;
-				if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf = 0, 0) > 0) {
+				if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
 					int   skip_goods = 0;
 					if(State & stGoodsMappingInited) {
 						const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -4194,7 +4194,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 								long   tiiterpos = 0;
 								for(uint tiidx = 0; !is_isales_goods && tiidx < pack.GetTCount(); tiidx++) {
 									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
-									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf = 0, 0) > 0) {
+									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0) {
 										int   skip_goods = 0;
 										if(State & stGoodsMappingInited) {
 											const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -5006,7 +5006,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 								int    is_t_goods = 0;
 								for(uint tiidx = 0; !is_t_goods && tiidx < pack.GetTCount(); tiidx++) {
 									const PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
-									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf = 0, 0) > 0)
+									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0)
 										is_t_goods = 1;
 								}
 								if(!is_t_goods) {
@@ -5038,7 +5038,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 						long   tiiterpos = 0;
 						for(TiIter tiiter(&pack, ETIEF_FORCEUNITEGOODS|ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 							tiiterpos++;
-							if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf = 0, 0) > 0)
+							if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0)
 								ti_pos_list.Add(tiiterpos, temp_buf, 0);
 						}
 					}
@@ -5222,7 +5222,7 @@ int SLAPI SapEfes::LogResultMsgList(const TSCollection <SapEfesLogMsg> * pMsgLis
 		for(uint i = 0; i < pMsgList->getCount(); i++) {
 			SapEfesLogMsg * p_msg = pMsgList->at(i);
 			if(p_msg) {
-				temp_buf = 0;
+				temp_buf.Z();
 				if(p_msg->MsgType == SapEfesLogMsg::tE)
 					temp_buf = "E";
 				else if(p_msg->MsgType == SapEfesLogMsg::tW)

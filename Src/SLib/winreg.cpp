@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -188,20 +188,18 @@ int SLAPI WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int only
 	DWORD  dispos = 0;
 	Close();
 	if(onlyOpen)
-		r = RegOpenKeyEx(key, pSubKey, 0, readOnly ? KEY_READ : (KEY_READ | KEY_WRITE), &Key); // @unicodeproblem
+		r = RegOpenKeyEx(key, pSubKey, 0, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), &Key); // @unicodeproblem
 	else
-		r = RegCreateKeyEx(key, pSubKey, 0, 0, REG_OPTION_NON_VOLATILE,
-			readOnly ? KEY_READ : (KEY_READ | KEY_WRITE), NULL, &Key, &dispos); // @unicodeproblem
+		r = RegCreateKeyEx(key, pSubKey, 0, 0, REG_OPTION_NON_VOLATILE, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), NULL, &Key, &dispos); // @unicodeproblem
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey);
 }
 
-int SLAPI WinRegKey::Close()
+void SLAPI WinRegKey::Close()
 {
 	if(Key) {
 		RegCloseKey(Key);
 		Key = 0;
 	}
-	return 1;
 }
 
 int SLAPI WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
@@ -276,7 +274,7 @@ int SLAPI WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
 	DWORD type = 0;
 	DWORD size = 0;
 	LONG  r = RegQueryValueEx(Key, pParam, 0, &type, 0, &size); // @unicodeproblem
-	if(r == ERROR_SUCCESS || r == ERROR_MORE_DATA) {
+	if(oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA)) {
 		ASSIGN_PTR(pRecSize, size);
 		return 1;
 	}

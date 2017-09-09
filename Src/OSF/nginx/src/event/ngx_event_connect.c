@@ -46,8 +46,7 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 	c->type = type;
 	if(pc->rcvbuf) {
 		if(setsockopt(s, SOL_SOCKET, SO_RCVBUF, (const char*)&pc->rcvbuf, sizeof(int)) == -1) {
-			ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno,
-			    "setsockopt(SO_RCVBUF) failed");
+			ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, "setsockopt(SO_RCVBUF) failed");
 			goto failed;
 		}
 	}
@@ -117,8 +116,8 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 		c->send_chain = ngx_udp_send_chain;
 	}
 	c->log_error = pc->log_error;
-	rev = c->read;
-	wev = c->write;
+	rev = c->P_EvRd;
+	wev = c->P_EvWr;
 	rev->log = pc->log;
 	wev->log = pc->log;
 	pc->connection = c;

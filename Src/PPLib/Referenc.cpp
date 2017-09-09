@@ -1873,7 +1873,7 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 			pCfg->PrepayInvoiceGoodsID = goods_rec.ID;
 		}
 	}
-	// } @v9.7.0 
+	// } @v9.7.0
 	if(pCfg->MainOrgID == 0) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec psn_rec;

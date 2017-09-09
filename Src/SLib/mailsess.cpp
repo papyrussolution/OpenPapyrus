@@ -305,7 +305,7 @@ int SLAPI SMailClient::Connect(InetUrl & rUrl, int timeout)
 							while(isdigit(reply_buf[p])) {
 								p++;
 							}
-							temp_buf = 0;
+							temp_buf.Z();
 							if(p) {
 								if(reply_buf[p] == '-') {
 									is_there_next_line = 1;

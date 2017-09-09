@@ -1582,7 +1582,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && P_TSesObj->PrcObj.GetPacket(tses_rec.PrcID, &prc_pack) > 0) {
 					const uint pdc = prc_pack.Ext.GetPlaceDescriptionCount();
 					if(pdc) {
-						temp_buf = 0;
+						temp_buf.Z();
 						LongArray place_pos_list; // Список позиций мест, добавленных на этой итерации
 						LongArray goods_list;
 						PPCheckInPersonArray cilist; // Список регистраций для сессии. По нему будем идентифицировать занятые места
@@ -1780,7 +1780,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								json_insert_pair_into_object(p_jitem, "FinDate", json_new_string(temp_buf.Z().Cat(tses_rec.FinDt, DATF_DMY|DATF_CENTURY)));
 								json_insert_pair_into_object(p_jitem, "FinTime", json_new_string(temp_buf.Z().Cat(tses_rec.FinTm, TIMF_HMS)));
 								{
-									temp_buf = 0;
+									temp_buf.Z();
 									ObjTagItem tag;
 									// @v8.8.2 if(PPRef->Ot.GetTag(PPOBJ_TSESSION, tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0)
 									if(TagObj.FetchTag(tses_rec.ID, PPTAG_TSESS_DESCR, &tag) > 0) // @v8.8.2
@@ -1788,7 +1788,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 									json_insert_pair_into_object(p_jitem, "Descr", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
 								json_insert_pair_into_object(p_jitem, "Memo", json_new_string((temp_buf = tses_rec.Memo).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
-								temp_buf = 0;
+								temp_buf.Z();
 								if(tses_ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf) > 0) {
 									json_insert_pair_into_object(p_jitem, "Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}

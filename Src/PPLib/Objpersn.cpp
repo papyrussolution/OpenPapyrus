@@ -809,7 +809,7 @@ int NewPersMarksDialog::setupList()
 	for(uint i = 0; ok && i < Data.getCount(); i++) {
 		StringSet ss(SLBColumnDelim);
 		PPObjID item = Data.at(i).Oi;
-		temp_buf = 0;
+		temp_buf.Z();
 		for(uint idx = 0; PPGetSubStr(title_line_buf, idx, title_item_buf) > 0; idx++)
 			if(title_item_buf.Divide(',', title_id_buf, title_txt_buf) > 0 && title_id_buf.ToLong() == item.Obj) {
 				temp_buf = title_txt_buf;
@@ -2745,7 +2745,7 @@ int SLAPI PPObjPerson::GetBankData(PPID id, PPBank * pData)
 		STRNSCPY(pData->BIC, temp_buf);
 		regs.GetRegNumber(PPREGT_BNKCORRACC, temp_buf);
 		STRNSCPY(pData->CorrAcc, temp_buf);
-		LocObj.GetCity(bnk_rec.MainLoc, 0, &(temp_buf = 0), 1); // @v8.7.12 useCache=1
+		LocObj.GetCity(bnk_rec.MainLoc, 0, &temp_buf.Z(), 1); // @v8.7.12 useCache=1
 		STRNSCPY(pData->City, temp_buf);
 		GetExtName(id, temp_buf);
 		STRNSCPY(pData->ExtName, temp_buf);
@@ -3023,7 +3023,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, (pPack->CshrInfo.Flags & CIF_CASHIER) ? &cshr_prop : 0));
 				}
 				//
-				pPack->GetExtName(temp_buf = 0);
+				pPack->GetExtName(temp_buf.Z());
 				THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf));
 				//
 				// @v9.0.4 THROW(BaObj.UpdateList(id, &pPack->BAA, 0));
@@ -3709,7 +3709,7 @@ public:
 								CodeRegPos = (int)(p-1);
 							}
 							else
-								temp_buf = 0;
+								temp_buf.Z();
 						}
 						setCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
 					}
@@ -4087,7 +4087,8 @@ private:
 	void   GetDOB()
 	{
 		LDATE  dob = ZERODATE;
-		if(getCtrlData(CTL_PERSON_DOB, &dob)) {
+		TView * p_ctrl = getCtrlView(CTL_PERSON_DOB);
+		if(p_ctrl && p_ctrl->IsInState(sfVisible) && getCtrlData(CTL_PERSON_DOB, &dob)) {
 			if(checkdate(dob, 0)) {
 				ObjTagItem dob_item;
 				dob_item.Init(PPTAG_PERSON_DOB);
@@ -5750,23 +5751,17 @@ void SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 
 int SLAPI PersonCache::GetConfig(PPPersonConfig * pCfg, int enforce)
 {
-#ifdef _MT
 	CfgLock.ReadLock();
-#endif
 	if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
-#ifdef _MT
 		CfgLock.Unlock();
 		CfgLock.WriteLock();
-#endif
 		if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
 			PPObjPerson::ReadConfig(&Cfg);
 			Cfg.Flags |= PPPersonConfig::fValid;
 		}
 	}
 	ASSIGN_PTR(pCfg, Cfg);
-#ifdef _MT
 	CfgLock.Unlock();
-#endif
 	return 1;
 }
 

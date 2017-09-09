@@ -1691,7 +1691,7 @@ int SLAPI PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pT
 		if(*p == '@') {
 			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
-			temp_buf = 0;
+			temp_buf.Z();
 			switch(sym) {
 				case PPSYM_MODEL:
 					if(pPack->TrModelID)

@@ -100,23 +100,16 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	if(conf->secret.data) {
 		return ngx_http_secure_link_old_variable(r, conf, v, data);
 	}
-
 	if(conf->variable == NULL || conf->md5 == NULL) {
 		goto not_found;
 	}
-
 	if(ngx_http_complex_value(r, conf->variable, &val) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "secure link: \"%V\"", &val);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "secure link: \"%V\"", &val);
 	last = val.data + val.len;
-
 	p = ngx_strlchr(val.data, last, ',');
 	expires = 0;
-
 	if(p) {
 		val.len = p++ - val.data;
 		expires = ngx_atotm(p, last - p);
@@ -152,18 +145,13 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	if(ngx_http_complex_value(r, conf->md5, &val) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "secure link md5: \"%V\"", &val);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "secure link md5: \"%V\"", &val);
 	ngx_md5_init(&md5);
 	ngx_md5_update(&md5, val.data, val.len);
 	ngx_md5_final(md5_buf, &md5);
-
 	if(memcmp(hash_buf, md5_buf, 16) != 0) {
 		goto not_found;
 	}
-
 	v->data = (u_char*)((expires && expires < ngx_time()) ? "0" : "1");
 	v->len = 1;
 	v->valid = 1;

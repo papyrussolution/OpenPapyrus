@@ -2461,7 +2461,7 @@ int SLAPI PPObjTSession::MakeName(const TSessionTbl::Rec * pRec, SString & rName
 		if(PrcObj.Fetch(pRec->PrcID, &prc_rec) > 0)
 			rName = prc_rec.Name;
 		else
-			ideqvalstr(pRec->PrcID, rName = 0);
+			ideqvalstr(pRec->PrcID, rName.Z());
 		rName.CatDiv(':', 1).CatLongZ(pRec->Num, 4).CatDiv(':', 1);
 		if(pRec->Flags & TSESF_PLAN) {
 			DateRange period;
@@ -2471,7 +2471,7 @@ int SLAPI PPObjTSession::MakeName(const TSessionTbl::Rec * pRec, SString & rName
 			rName.Cat(pRec->StDt).Space().Cat(pRec->StTm, TIMF_HM);
 	}
 	else {
-		rName = 0;
+		rName.Z();
 		ok = -1;
 	}
 	return ok;
@@ -4843,7 +4843,7 @@ int SLAPI PrcssrTSessMaintenance::Run()
 												msg_buf.CatDiv('-', 1).Cat(r_ci_item.RegDtm, DATF_DMY, TIMF_HM);
 												if(r_ci_item.PlaceCode[0])
 													msg_buf.CatDiv('-', 1).Cat(r_ci_item.PlaceCode);
-												ci_item.GetPersonName(temp_buf = 0);
+												ci_item.GetPersonName(temp_buf.Z());
 												if(temp_buf.NotEmptyS())
 													msg_buf.CatDiv('-', 1).Cat(temp_buf);
 												msg_buf.CatDiv('-', 1).CatEq("timeout", (do_cancel_reserve == 2) ? lto : cto);
@@ -5055,7 +5055,7 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
 				case OTTYP_GUID:
-					p_item->GetStr((temp_buf = 0));
+					p_item->GetStr(temp_buf.Z());
 					STRNSCPY(I_TagList.StrVal, temp_buf);
 					break;
 				case OTTYP_NUMBER:

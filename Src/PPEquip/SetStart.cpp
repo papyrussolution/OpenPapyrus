@@ -648,7 +648,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.Cat(NZOR(r_ent.QuotKindID, default_scheme_id)).Semicol(); // #1 - код схемы внутренней авт.скидки
 					f_str.Cat(++dscnt_code).Semicol();                    // #2 - код скидки
 					                                                      // #3 - наименование скидки (код карты) {
-					temp_buf = 0;
+					temp_buf.Z();
 					if(qk_obj.Fetch(r_ent.QuotKindID, &qk_rec) > 0)
 						temp_buf.Cat(qk_rec.Name);
 					else {
@@ -1533,8 +1533,8 @@ int SLAPI ACS_SETSTART::FinishImportSession(PPIDArray * pSessList)
 	for(uint i = 0; ss.get(&i, path);) {
 		if(fileExists(path)) {
 			ps.Split(path);
-			ps.Nam = 0;
-			ps.Ext = 0;
+			ps.Nam.Z();
+			ps.Ext.Z();
 			ps.Merge(backup_path);
 			backup_path.SetLastSlash().Cat("backup");
 			if(::createDir(backup_path)) {

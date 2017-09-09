@@ -124,7 +124,7 @@ ngx_int_t ngx_http_write_filter(ngx_http_request_t * r, ngx_chain_t * in)
 	if(!last && !flush && in && size < (nginx_off_t)clcf->postpone_output) {
 		return NGX_OK;
 	}
-	if(c->write->delayed) {
+	if(c->P_EvWr->delayed) {
 		c->buffered |= NGX_HTTP_WRITE_BUFFERED;
 		return NGX_AGAIN;
 	}
@@ -149,9 +149,9 @@ ngx_int_t ngx_http_write_filter(ngx_http_request_t * r, ngx_chain_t * in)
 		}
 		limit = (nginx_off_t)r->limit_rate * (ngx_time() - r->start_sec + 1) - (c->sent - r->limit_rate_after);
 		if(limit <= 0) {
-			c->write->delayed = 1;
+			c->P_EvWr->delayed = 1;
 			delay = (ngx_msec_t)(-limit * 1000 / r->limit_rate + 1);
-			ngx_add_timer(c->write, delay);
+			ngx_add_timer(c->P_EvWr, delay);
 			c->buffered |= NGX_HTTP_WRITE_BUFFERED;
 			return NGX_AGAIN;
 		}
@@ -185,13 +185,13 @@ ngx_int_t ngx_http_write_filter(ngx_http_request_t * r, ngx_chain_t * in)
 		delay = (ngx_msec_t)((nsent - sent) * 1000 / r->limit_rate);
 		if(delay > 0) {
 			limit = 0;
-			c->write->delayed = 1;
-			ngx_add_timer(c->write, delay);
+			c->P_EvWr->delayed = 1;
+			ngx_add_timer(c->P_EvWr, delay);
 		}
 	}
-	if(limit && c->write->ready && c->sent - sent >= limit - (nginx_off_t)(2 * ngx_pagesize)) {
-		c->write->delayed = 1;
-		ngx_add_timer(c->write, 1);
+	if(limit && c->P_EvWr->ready && c->sent - sent >= limit - (nginx_off_t)(2 * ngx_pagesize)) {
+		c->P_EvWr->delayed = 1;
+		ngx_add_timer(c->P_EvWr, 1);
 	}
 	for(cl = r->out; cl && cl != chain; /* void */) {
 		ln = cl;

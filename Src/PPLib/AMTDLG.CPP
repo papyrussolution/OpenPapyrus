@@ -141,7 +141,7 @@ int AmtListDialog::setupListEntry(PPID idx, AmtEntry * pEntry)
 		else if(cur_obj.Fetch(pEntry->CurID, &cur_rec) > 0)
 			sub = amt_rec.Symb;
 		else
-			ideqvalstr(pEntry->CurID, sub = 0);
+			ideqvalstr(pEntry->CurID, sub.Z());
 		ss.add(sub);
 	}
 	ss.add(sub.Z().Cat(pEntry->Amt, SFMT_MONEY));
@@ -284,13 +284,13 @@ int StaffAmtListDialog::setupList()
 		if(at_obj.Search(p_entry->AmtTypeID, &at_rec) > 0)
 			sub = at_rec.Name;
 		else
-			ideqvalstr(p_entry->AmtTypeID, sub = 0);
+			ideqvalstr(p_entry->AmtTypeID, sub.Z());
 		ss.add(sub);
 		if(/*UseCurColumn*/1) {
 			if(cur_obj.Search(p_entry->CurID, &cur_rec) > 0)
 				sub = cur_rec.Symb;
 			else if(p_entry->CurID > 0)
-				ideqvalstr(p_entry->CurID, sub = 0);
+				ideqvalstr(p_entry->CurID, sub.Z());
 			else
 				sub = 0;
 			ss.add(sub);

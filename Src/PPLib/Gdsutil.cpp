@@ -1448,7 +1448,7 @@ int QuotListDialog::setupList()
 		if(qk_obj.Search(qk_id, &qkr) > 0)
 			qk_text = qkr.Name;
 		else
-			ideqvalstr(qk_id, qk_text = 0);
+			ideqvalstr(qk_id, qk_text.Z());
 		{
 			QIdent.QuotKindID = qk_id;
 			GObj.GetQuotExtByList(P_Data, QIdent, LastCost, LastPrice, &price);
@@ -1463,7 +1463,7 @@ int QuotListDialog::setupList()
 					if(!period_list.lsearch(period_idx) || !qtty_list.lsearch(r_q.MinQtty)) {
 						ss.clear();
 						ss.add(qk_text);
-						ss.add(r_q.PutValToStr(temp_buf = 0));
+						ss.add(r_q.PutValToStr(temp_buf.Z()));
 						realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
 						ss.add(num_buf);
 						ss.add(temp_buf.Z().Cat(r_q.Period, 1));
@@ -1479,7 +1479,7 @@ int QuotListDialog::setupList()
 			if(!found) {
 				ss.clear();
 				ss.add(qk_text);
-				ss.add(temp_buf = 0);
+				ss.add(temp_buf.Z());
 				realfmt(price, MKSFMTD(10, 2, NMBF_NOZERO), num_buf);
 				ss.add(num_buf);
 				DateRange empty_period;
@@ -2296,7 +2296,7 @@ void QuotationDialog::updatePage()
 				const PPQuot & r_q = Data.at(i);
 				if(r_q.Kind == Spc.PredictCoeffID && r_q.LocID == SelLocID && !r_q.Period.IsZero()) {
 					ss.add(temp_buf.Z().Cat(r_q.Period, 1));
-					r_q.PutValToStr(temp_buf = 0);
+					r_q.PutValToStr(temp_buf.Z());
 					ss.add(temp_buf);
 					ss.add(temp_buf.Z().Cat(effect_val, MKSFMTD(0, 5, NMBF_NOZERO|NMBF_NOTRAILZ)));
 					p_box->addItem(i+1, ss.getBuf());

@@ -81,7 +81,7 @@ static int __bam_getlte(DBC*, DBT*, DBT *);
 		int __get_page = 0;                                             \
 		ret = 0;                                                        \
 		if(STD_LOCKING(dbc) && __cp->lock_mode != DB_LOCK_WRITE) {     \
-			if(__cp->page != NULL) {                               \
+			if(__cp->page) {                               \
 				(ret) = __memp_fput(__mpf, (dbc)->thread_info, __cp->page, (dbc)->priority); \
 				__cp->page = NULL;                              \
 				__get_page = 1;                                 \
@@ -515,7 +515,7 @@ err_c:
 	 * the information back to our caller, it's their job to do cleanup on
 	 * the primary page.
 	 */
-	if(dbc_opd != NULL) {
+	if(dbc_opd) {
 		if((ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &cp->page)) != 0)
 			goto err;
 		if((ret = __bamc_physdel(dbc)) != 0)
@@ -528,7 +528,7 @@ done:   /*
 	 * Discard the page references and locks, and confirm that the stack
 	 * has been emptied.
 	 */
-	if(dbc_opd != NULL)
+	if(dbc_opd)
 		DISCARD_CUR(dbc_opd, ret);
 	DISCARD_CUR(dbc, ret);
 	/* Downgrade any CDB lock we acquired. */
@@ -839,7 +839,7 @@ static int __bamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 				ret = DB_NOTFOUND;
 				goto err;
 			}
-			if(pgnop != NULL && __bam_isopd(dbc, pgnop)) {
+			if(pgnop && __bam_isopd(dbc, pgnop)) {
 				newopd = 1;
 				break;
 			}
@@ -954,7 +954,7 @@ static int __bamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	 * We may have moved to an off-page duplicate tree.  Return that
 	 * information to our caller.
 	 */
-	if(newopd && pgnop != NULL)
+	if(newopd && pgnop)
 		__bam_isopd(dbc, pgnop);
 err:    /*
 	 * Regardless of whether we were successful or not, if the cursor
@@ -1381,7 +1381,7 @@ int __bam_bulk_duplicates(DBC * dbc, db_pgno_t pgno, uint8 * dbuf, int32 * keyof
 			bk = GET_BKEYDATA(dbp, pg, indx);
 			space -= 2*sizeof(*offp);
 			/* Allocate space for key if needed. */
-			if(first == 0 && keyoff != NULL)
+			if(first == 0 && keyoff)
 				space -= 2*sizeof(*offp);
 			/* Did space underflow? */
 			if(space > *spacep) {
@@ -1403,7 +1403,7 @@ int __bam_bulk_duplicates(DBC * dbc, db_pgno_t pgno, uint8 * dbuf, int32 * keyof
 					space = *spacep+size;
 					break;
 				}
-				if(first == 0 && keyoff != NULL) {
+				if(first == 0 && keyoff) {
 					*offp-- = keyoff[0];
 					*offp-- = keyoff[-1];
 				}
@@ -1430,7 +1430,7 @@ int __bam_bulk_duplicates(DBC * dbc, db_pgno_t pgno, uint8 * dbuf, int32 * keyof
 					space -= size;
 					np += size;
 				}
-				if(first == 0 && keyoff != NULL) {
+				if(first == 0 && keyoff) {
 					*offp-- = keyoff[0];
 					*offp-- = keyoff[-1];
 				}
@@ -1617,7 +1617,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 				goto find_last_dup;
 			if(ret != 0)
 				goto end;
-			if(data != NULL) {
+			if(data) {
 				/* Check if we're still on the correct data */
 				if((ret = __bam_cmp(dbc, data, (PAGE *)ocp->page, ocp->indx, dbp->dup_compare, &exact)) != 0)
 					goto end;
@@ -1637,7 +1637,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 			}
 		}
 	}
-	else if(data != NULL) {
+	else if(data) {
 		/*
 		 * If we got an exact match with on-page duplicates, we need to
 		 * search in them.
@@ -1835,8 +1835,7 @@ split:
 		 * numbering.  In that case, we'll need the true root page
 		 * in order to adjust the record count.
 		 */
-		if((ret = __bamc_search(dbc, F_ISSET(cp, C_RECNUM) ? cp->root : root_pgno, key,
-			    flags == DB_KEYFIRST || dbp->dup_compare != NULL ? DB_KEYFIRST : DB_KEYLAST, &exact)) != 0)
+		if((ret = __bamc_search(dbc, F_ISSET(cp, C_RECNUM) ? cp->root : root_pgno, key, (flags == DB_KEYFIRST || dbp->dup_compare) ? DB_KEYFIRST : DB_KEYLAST, &exact)) != 0)
 			goto err;
 		stack = 1;
 		/*
@@ -1853,28 +1852,27 @@ split:
 			 */
 		}
 		else if(flags == DB_NOOVERWRITE && !IS_CUR_DELETED(dbc)) {
-			if(pgnop != NULL && __bam_isopd(dbc, pgnop))
+			if(pgnop && __bam_isopd(dbc, pgnop))
 				ret = __bam_opd_exists(dbc, *pgnop);
 			else
 				ret = DB_KEYEXIST;
 			if(ret != 0)
 				goto err;
 		}
-		/*
-		 * If duplicates aren't supported, replace the current item.
-		 */
+		// 
+		// If duplicates aren't supported, replace the current item.
+		// 
 		if(!F_ISSET(dbp, DB_AM_DUP)) {
 			iiop = DB_CURRENT;
 			break;
 		}
-		/*
-		 * If we find a matching entry, it may be an off-page duplicate
-		 * tree.  Return the page number to our caller, we need a new
-		 * cursor.
-		 */
-		if(pgnop != NULL && __bam_isopd(dbc, pgnop))
+		// 
+		// If we find a matching entry, it may be an off-page duplicate
+		// tree.  Return the page number to our caller, we need a new cursor.
+		// 
+		if(pgnop && __bam_isopd(dbc, pgnop))
 			goto done;
-		/* If the duplicates aren't sorted, move to the right slot. */
+		// If the duplicates aren't sorted, move to the right slot. 
 		if(dbp->dup_compare == NULL) {
 			if(flags == DB_KEYFIRST)
 				iiop = DB_BEFORE;
@@ -2007,7 +2005,7 @@ done:
 	 * so clear the deleted bit from the off-page duplicate cursor as well.
 	 */
 	F_CLR(cp, C_DELETED);
-	if(cp->opd != NULL) {
+	if(cp->opd) {
 		cp = (BTREE_CURSOR *)cp->opd->internal;
 		F_CLR(cp, C_DELETED);
 	}

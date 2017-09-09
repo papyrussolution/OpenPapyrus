@@ -12013,18 +12013,18 @@ BEGIN
     CONTROL         "@sstatfilt_fuseinsurstock",5319,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_NOTIFY | WS_TABSTOP,310,110,135,13
     LTEXT           "@sstatfilt_definsurstock",4014,300,125,85,20
     EDITTEXT        CTL_SSTATFLT_DEFINSSTOCK,395,125,50,13,ES_AUTOHSCROLL
-    GROUPBOX        "@sortby",CTL_SSTATFLT_SORTORDER,185,155,150,70,WS_GROUP
-    CONTROL         "@sstatfilt_ordbygoodsname",5318,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,170,140,10
-    CONTROL         "@sstatfilt_ordbycount",9414,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,180,140,10
-    CONTROL         "@sstatfilt_ordbyamtavg",13510,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,190,140,10
-    CONTROL         "@sstatfilt_ordbypriceavg",17606,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,200,140,10
+    GROUPBOX        "@sortby",CTL_SSTATFLT_SORTORDER,185,155,190,70,WS_GROUP
+    CONTROL         "@sstatfilt_ordbygoodsname",5318,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,170,180,10
+    CONTROL         "@sstatfilt_ordbycount",9414,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,180,180,10
+    CONTROL         "@sstatfilt_ordbyamtavg",13510,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,190,180,10
+    CONTROL         "@sstatfilt_ordbypriceavg",17606,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,190,200,180,10
     PUSHBUTTON      "@but_addendum",STDCTL_MORE,395,165,70,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,210,230,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,285,230,50,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,260,230,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,325,230,50,13
     CONTROL         "",CTL_SSTATFLT_MTX_IND,"Static",SS_BITMAP,255,20,15,13
 END
 
-DLG_SSTATORDFLTEXT DIALOGEX 67, 0, 462, 170
+DLG_SSTATORDFLTEXT DIALOGEX 67, 0, 463, 187
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@sstatfilt_extention"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -12047,12 +12047,13 @@ BEGIN
     EDITTEXT        CTL_SSTATFLT_P,170,85,35,13,ES_AUTOHSCROLL
     LTEXT           "@sstatfilt__minp",4006,10,100,155,8
     EDITTEXT        CTL_SSTATFLT_PMIN,170,100,35,13,ES_AUTOHSCROLL
-    GROUPBOX        "",CTL_SSTATFLT_CFLAGS,5,120,300,45,WS_GROUP
+    GROUPBOX        "",CTL_SSTATFLT_CFLAGS,5,120,300,60,WS_GROUP
     CONTROL         "@sstatfilt_fzeropckgup",5333,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,130,260,10
     CONTROL         "@sstatfilt_fuseinsurstock",9429,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,140,260,10
     CONTROL         "@sstatfilt_fminstockasminorder",13525,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,150,260,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,330,150,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,405,150,50,13
+    CONTROL         "@cfgpredictsales_froundmanualqtty",17621,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,160,265,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,330,165,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,405,165,50,13
     GROUPBOX        "",IDC_STATIC,5,20,205,100
 END
 
@@ -18573,42 +18574,43 @@ BEGIN
     PUSHBUTTON      "",CTLCAL_PREDICTCFG_DTBEGSELL,255,40,13,13,BS_BITMAP | NOT WS_TABSTOP
     LTEXT           "@cfgpredictsales_endcalcdate",4004,315,30,95,8
     EDITTEXT        CTL_PREDICTCFG_DTENDCALC,315,40,50,13,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_STATIC,5,70,196,130
-    GROUPBOX        "@cfgpredictsales_method",CTL_PREDICTCFG_METHOD,11,80,154,35,WS_GROUP
-    CONTROL         "@cfgpredictsales_prmthd_simpleaverage",5302,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,90,140,10
-    CONTROL         "@cfgpredictsales_prmthd_lslin",9398,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,100,140,10
-    LTEXT           "@cfgpredictsales_trustcriterion",4006,11,120,150,8
-    EDITTEXT        CTL_PREDICTCFG_TRUST,165,120,30,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgpredictsales_p",4007,11,135,150,8
-    EDITTEXT        CTL_PREDICTCFG_P,165,135,30,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgpredictsales_minp",4008,11,150,150,8
-    EDITTEXT        CTL_PREDICTCFG_PMIN,165,150,30,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgpredictsales_q",4009,11,166,150,8
-    EDITTEXT        CTL_PREDICTCFG_Q,165,166,30,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgpredictsales_definsurstock",4010,11,180,150,8
-    EDITTEXT        CTL_PREDICTCFG_DINSTOCK,165,180,30,13,ES_AUTOHSCROLL
-    GROUPBOX        "",CTL_PREDICTCFG_FLAGS,5,200,270,45,WS_GROUP
-    CONTROL         "@cfgpredictsales_fzeropckgup",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,210,257,10
-    CONTROL         "@cfgpredictsales_fuseinsurstock",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,220,152,10
-    CONTROL         "@cfgpredictsales_fminstockasminorder",13499,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,230,222,10
-    LTEXT           "",CTL_PREDICTCFG_ST_CONT,5,250,335,10,0,WS_EX_STATICEDGE
-    GROUPBOX        "@cfgpredictsales_pckgusage",CTL_PREDICTCFG_USEPCKG,205,70,250,45,WS_GROUP
-    CONTROL         "@cfgpredictsales_pckgdontuse",5310,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,80,194,10
-    CONTROL         "@cfgpredictsales_fprefstockpckg",9406,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,90,195,10
-    CONTROL         "@cfgpredictsales_fpreflotpckg",13502,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,100,230,10
-    GROUPBOX        "@cfgpredictsales_pckgrounding",CTL_PREDICTCFG_ROUNDPCKG,205,115,145,45,WS_GROUP
-    CONTROL         "@cfgpredictsales_froundpckgup",5311,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,126,129,10
-    CONTROL         "@cfgpredictsales_froundpckgdn",9407,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,135,129,10
-    CONTROL         "@cfgpredictsales_pckgroundnear",13503,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,145,130,10
-    LTEXT           "@cfgpredictsales_correctkoeff",4013,205,170,152,8
-    EDITTEXT        CTL_PREDICTCFG_CKOEFF,205,180,235,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_PREDICTCFG_CKOEFF,441,180,13,13,BS_BITMAP
-    GROUPBOX        "@cfgpredictsales_fixarcodes",CTL_PREDICTCFG_FIXARCODE,281,200,210,45,WS_GROUP
-    CONTROL         "@sstatfilt_nousearcoderestriction",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,210,190,10
-    CONTROL         "@sstatfilt_fextbyarcode",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,220,200,10
-    CONTROL         "@sstatfilt_frestrictbyarcode",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,230,201,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,380,250,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,435,250,50,13
+    GROUPBOX        "",IDC_STATIC,5,60,196,130
+    GROUPBOX        "@cfgpredictsales_method",CTL_PREDICTCFG_METHOD,11,70,154,35,WS_GROUP
+    CONTROL         "@cfgpredictsales_prmthd_simpleaverage",5302,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,80,140,10
+    CONTROL         "@cfgpredictsales_prmthd_lslin",9398,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,90,140,10
+    LTEXT           "@cfgpredictsales_trustcriterion",4006,11,110,150,8
+    EDITTEXT        CTL_PREDICTCFG_TRUST,165,110,30,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgpredictsales_p",4007,11,125,150,8
+    EDITTEXT        CTL_PREDICTCFG_P,165,125,30,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgpredictsales_minp",4008,11,140,150,8
+    EDITTEXT        CTL_PREDICTCFG_PMIN,165,140,30,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgpredictsales_q",4009,11,156,150,8
+    EDITTEXT        CTL_PREDICTCFG_Q,165,156,30,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgpredictsales_definsurstock",4010,11,170,150,8
+    EDITTEXT        CTL_PREDICTCFG_DINSTOCK,165,170,30,13,ES_AUTOHSCROLL
+    GROUPBOX        "",CTL_PREDICTCFG_FLAGS,5,190,270,60,WS_GROUP
+    CONTROL         "@cfgpredictsales_fzeropckgup",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,200,257,10
+    CONTROL         "@cfgpredictsales_fuseinsurstock",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,210,249,10
+    CONTROL         "@cfgpredictsales_fminstockasminorder",13499,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,11,220,222,10
+    CONTROL         "@cfgpredictsales_froundmanualqtty",17595,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,230,255,10
+    LTEXT           "",CTL_PREDICTCFG_ST_CONT,5,255,335,10,0,WS_EX_STATICEDGE
+    GROUPBOX        "@cfgpredictsales_pckgusage",CTL_PREDICTCFG_USEPCKG,205,60,250,45,WS_GROUP
+    CONTROL         "@cfgpredictsales_pckgdontuse",5310,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,70,194,10
+    CONTROL         "@cfgpredictsales_fprefstockpckg",9406,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,80,195,10
+    CONTROL         "@cfgpredictsales_fpreflotpckg",13502,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,90,230,10
+    GROUPBOX        "@cfgpredictsales_pckgrounding",CTL_PREDICTCFG_ROUNDPCKG,205,105,235,45,WS_GROUP
+    CONTROL         "@cfgpredictsales_froundpckgup",5311,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,116,219,10
+    CONTROL         "@cfgpredictsales_froundpckgdn",9407,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,125,224,10
+    CONTROL         "@cfgpredictsales_pckgroundnear",13503,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,211,135,224,10
+    LTEXT           "@cfgpredictsales_correctkoeff",4013,205,160,152,8
+    EDITTEXT        CTL_PREDICTCFG_CKOEFF,205,170,235,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "",CTLSEL_PREDICTCFG_CKOEFF,441,170,13,13,BS_BITMAP
+    GROUPBOX        "@cfgpredictsales_fixarcodes",CTL_PREDICTCFG_FIXARCODE,281,190,210,45,WS_GROUP
+    CONTROL         "@sstatfilt_nousearcoderestriction",5317,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,200,190,10
+    CONTROL         "@sstatfilt_fextbyarcode",9413,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,210,200,10
+    CONTROL         "@sstatfilt_frestrictbyarcode",13509,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,285,220,201,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,370,255,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,441,255,50,13
 END
 
 DLG_PRCPAN DIALOGEX 0, 0, 349, 281
@@ -29935,8 +29937,8 @@ BEGIN
 
     DLG_SSTATORDFLTEXT, DIALOG
     BEGIN
-        RIGHTMARGIN, 280
-        BOTTOMMARGIN, 161
+        RIGHTMARGIN, 281
+        BOTTOMMARGIN, 178
     END
 
     DLG_SSTATFLT, DIALOG

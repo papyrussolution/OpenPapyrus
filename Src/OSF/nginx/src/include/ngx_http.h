@@ -405,9 +405,9 @@ struct ngx_http_connection_t {
 };
 
 typedef void (*ngx_http_cleanup_pt)(void * data);
-typedef struct ngx_http_cleanup_s ngx_http_cleanup_t;
+//typedef struct ngx_http_cleanup_s ngx_http_cleanup_t;
 
-struct ngx_http_cleanup_s {
+struct /*ngx_http_cleanup_s*/ngx_http_cleanup_t {
 	ngx_http_cleanup_pt handler;
 	void * data;
 	ngx_http_cleanup_t * next;
@@ -804,10 +804,499 @@ void ngx_http_script_nop_code(ngx_http_script_engine_t * e);
 //
 //#include <ngx_http_upstream.h>
 //
-#include <ngx_event.h>
-#include <ngx_event_connect.h>
-#include <ngx_event_pipe.h>
+//
+//#include <ngx_event.h>
+//
+#define NGX_INVALID_INDEX  0xd0d0d0d0
 
+#if (NGX_HAVE_IOCP)
+
+struct ngx_event_ovlp_t {
+	WSAOVERLAPPED ovlp;
+	ngx_event_t * event;
+	int error;
+};
+
+#endif
+
+struct /*ngx_event_s*/ngx_event_t {
+	void  * data;
+	unsigned write : 1;
+	unsigned accept : 1;
+	unsigned instance : 1; // used to detect the stale events in kqueue and epoll 
+	// 
+	// the event was passed or would be passed to a kernel;
+	// in aio mode - operation was posted.
+	// 
+	unsigned active : 1;
+	unsigned disabled : 1;
+	unsigned ready : 1; // the ready event; in aio mode 0 means that no operation can be posted 
+	unsigned oneshot : 1;
+	unsigned complete : 1; // aio operation is complete 
+	unsigned eof : 1;
+	unsigned error : 1;
+	unsigned timedout : 1;
+	unsigned timer_set : 1;
+	unsigned delayed : 1;
+	unsigned deferred_accept : 1;
+	unsigned pending_eof : 1; // the pending eof reported by kqueue, epoll or in aio chain operation 
+	unsigned posted : 1;
+	unsigned closed : 1;
+	// to test on worker exit 
+	unsigned channel : 1;
+	unsigned resolver : 1;
+	unsigned cancelable : 1;
+#if (NGX_HAVE_KQUEUE)
+	unsigned kq_vnode : 1;
+	int kq_errno; // the pending errno reported by kqueue 
+#endif
+	/*
+	 * kqueue only:
+	 *   accept:     number of sockets that wait to be accepted
+	 *   read:       bytes to read when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
+	 *   write:      available space in buffer when event is ready or lowat when event is set with NGX_LOWAT_EVENT flag
+	 * epoll with EPOLLRDHUP:
+	 *   accept:     1 if accept many, 0 otherwise
+	 *   read:       1 if there can be data to read, 0 otherwise
+	 * iocp: TODO
+	 * otherwise:
+	 *   accept:     1 if accept many, 0 otherwise
+	 */
+#if (NGX_HAVE_KQUEUE) || (NGX_HAVE_IOCP)
+	int available;
+#else
+	unsigned available : 1;
+#endif
+	ngx_event_handler_pt handler;
+#if (NGX_HAVE_IOCP)
+	ngx_event_ovlp_t ovlp;
+#endif
+	ngx_uint_t index;
+	ngx_log_t  * log;
+	ngx_rbtree_node_t timer;
+	ngx_queue_t queue; // the posted queue 
+#if 0
+	/* the threads support */
+	/*
+	 * the event thread context, we store it here
+	 * if $(CC) does not understand __thread declaration
+	 * and pthread_getspecific() is too costly
+	 */
+	void  * thr_ctx;
+#if (NGX_EVENT_T_PADDING)
+	uint32_t padding[NGX_EVENT_T_PADDING]; // event should not cross cache line in SMP 
+#endif
+#endif
+};
+
+#if (NGX_HAVE_FILE_AIO)
+
+struct ngx_event_aio_s {
+	void  * data;
+	ngx_event_handler_pt handler;
+	ngx_file_t  * file;
+#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
+	ssize_t (* preload_handler)(ngx_buf_t * file);
+#endif
+	ngx_fd_t fd;
+#if (NGX_HAVE_EVENTFD)
+	int64_t res;
+#endif
+#if !(NGX_HAVE_EVENTFD) || (NGX_TEST_BUILD_EPOLL)
+	ngx_err_t err;
+	size_t nbytes;
+#endif
+	ngx_aiocb_t aiocb;
+	ngx_event_t event;
+};
+
+#endif
+
+struct ngx_event_actions_t {
+	ngx_int_t (* F_Add)(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags); // Is called only by ngx_add_event() macro
+	ngx_int_t (* F_Delete)(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags);
+	ngx_int_t (* enable)(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags);
+	ngx_int_t (* disable)(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags);
+	ngx_int_t (* F_AddConn)(ngx_connection_t * c);
+	ngx_int_t (* F_DelConn)(ngx_connection_t * c, ngx_uint_t flags);
+	ngx_int_t (* F_Notify)(ngx_event_handler_pt handler);
+	ngx_int_t (* F_ProcessEvents)(ngx_cycle_t * cycle, ngx_msec_t timer, ngx_uint_t flags);
+	ngx_int_t (* F_Init)(ngx_cycle_t * cycle, ngx_msec_t timer);
+	void (* F_Done)(ngx_cycle_t * cycle);
+};
+
+extern ngx_event_actions_t ngx_event_actions; // @global
+#if (NGX_HAVE_EPOLLRDHUP)
+	extern ngx_uint_t ngx_use_epoll_rdhup;
+#endif
+#define NGX_USE_LEVEL_EVENT      0x00000001 // The event filter requires to read/write the whole data: select, poll, /dev/poll, kqueue, epoll.
+#define NGX_USE_ONESHOT_EVENT    0x00000002 // The event filter is deleted after a notification without an additional syscall: kqueue, epoll.
+#define NGX_USE_CLEAR_EVENT      0x00000004 // The event filter notifies only the changes and an initial level: kqueue, epoll.
+#define NGX_USE_KQUEUE_EVENT     0x00000008 // The event filter has kqueue features: the eof flag, errno, available data, etc.
+/*
+ * The event filter supports low water mark: kqueue's NOTE_LOWAT.
+ * kqueue in FreeBSD 4.1-4.2 has no NOTE_LOWAT so we need a separate flag.
+ */
+#define NGX_USE_LOWAT_EVENT      0x00000010
+#define NGX_USE_GREEDY_EVENT     0x00000020 // The event filter requires to do i/o operation until EAGAIN: epoll.
+#define NGX_USE_EPOLL_EVENT      0x00000040 // The event filter is epoll
+#define NGX_USE_RTSIG_EVENT      0x00000080 // Obsolete
+#define NGX_USE_AIO_EVENT        0x00000100 // Obsolete
+#define NGX_USE_IOCP_EVENT       0x00000200 // Need to add socket or handle only once: i/o completion port.
+#define NGX_USE_FD_EVENT         0x00000400 // The event filter has no opaque data and requires file descriptors table: poll, /dev/poll.
+/*
+ * The event module handles periodic or absolute timer event by itself:
+ * kqueue in FreeBSD 4.4, NetBSD 2.0, and MacOSX 10.4, Solaris 10's event ports.
+ */
+#define NGX_USE_TIMER_EVENT      0x00000800
+/*
+ * All event filters on file descriptor are deleted after a notification:
+ * Solaris 10's event ports.
+ */
+#define NGX_USE_EVENTPORT_EVENT  0x00001000
+#define NGX_USE_VNODE_EVENT      0x00002000 // The event filter support vnode notifications: kqueue
+/*
+ * The event filter is deleted just before the closing file.
+ * Has no meaning for select and poll.
+ * kqueue, epoll, eventport:         allows to avoid explicit delete,
+ *                                   because filter automatically is deleted
+ *                                   on file close,
+ *
+ * /dev/poll:                        we need to flush POLLREMOVE event
+ *                                   before closing file.
+ */
+#define NGX_CLOSE_EVENT    1
+#define NGX_DISABLE_EVENT  2 // disable temporarily event filter, this may avoid locks in kernel malloc()/free(): kqueue.
+#define NGX_FLUSH_EVENT    4 // event must be passed to kernel right now, do not wait until batch processing.
+//
+// these flags have a meaning only for kqueue 
+//
+#define NGX_LOWAT_EVENT    0
+#define NGX_VNODE_EVENT    0
+
+#if (NGX_HAVE_EPOLL) && !(NGX_HAVE_EPOLLRDHUP)
+	#define EPOLLRDHUP         0
+#endif
+
+#if (NGX_HAVE_KQUEUE)
+#define NGX_READ_EVENT     EVFILT_READ
+#define NGX_WRITE_EVENT    EVFILT_WRITE
+#undef  NGX_VNODE_EVENT
+#define NGX_VNODE_EVENT    EVFILT_VNODE
+/*
+ * NGX_CLOSE_EVENT, NGX_LOWAT_EVENT, and NGX_FLUSH_EVENT are the module flags
+ * and they must not go into a kernel so we need to choose the value
+ * that must not interfere with any existent and future kqueue flags.
+ * kqueue has such values - EV_FLAG1, EV_EOF, and EV_ERROR:
+ * they are reserved and cleared on a kernel entrance.
+ */
+#undef  NGX_CLOSE_EVENT
+#define NGX_CLOSE_EVENT    EV_EOF
+#undef  NGX_LOWAT_EVENT
+#define NGX_LOWAT_EVENT    EV_FLAG1
+#undef  NGX_FLUSH_EVENT
+#define NGX_FLUSH_EVENT    EV_ERROR
+#define NGX_LEVEL_EVENT    0
+#define NGX_ONESHOT_EVENT  EV_ONESHOT
+#define NGX_CLEAR_EVENT    EV_CLEAR
+#undef  NGX_DISABLE_EVENT
+#define NGX_DISABLE_EVENT  EV_DISABLE
+
+#elif (NGX_HAVE_DEVPOLL && !(NGX_TEST_BUILD_DEVPOLL)) || (NGX_HAVE_EVENTPORT && !(NGX_TEST_BUILD_EVENTPORT))
+	#define NGX_READ_EVENT     POLLIN
+	#define NGX_WRITE_EVENT    POLLOUT
+	#define NGX_LEVEL_EVENT    0
+	#define NGX_ONESHOT_EVENT  1
+#elif (NGX_HAVE_EPOLL) && !(NGX_TEST_BUILD_EPOLL)
+	#define NGX_READ_EVENT     (EPOLLIN|EPOLLRDHUP)
+	#define NGX_WRITE_EVENT    EPOLLOUT
+	#define NGX_LEVEL_EVENT    0
+	#define NGX_CLEAR_EVENT    EPOLLET
+	#define NGX_ONESHOT_EVENT  0x70000000
+	#if 0
+		#define NGX_ONESHOT_EVENT  EPOLLONESHOT
+	#endif
+	#if (NGX_HAVE_EPOLLEXCLUSIVE)
+		#define NGX_EXCLUSIVE_EVENT  EPOLLEXCLUSIVE
+	#endif
+#elif (NGX_HAVE_POLL)
+	#define NGX_READ_EVENT     POLLIN
+	#define NGX_WRITE_EVENT    POLLOUT
+	#define NGX_LEVEL_EVENT    0
+	#define NGX_ONESHOT_EVENT  1
+#else /* select */
+	#define NGX_READ_EVENT     0
+	#define NGX_WRITE_EVENT    1
+	#define NGX_LEVEL_EVENT    0
+	#define NGX_ONESHOT_EVENT  1
+#endif /* NGX_HAVE_KQUEUE */
+#if (NGX_HAVE_IOCP)
+	#define NGX_IOCP_ACCEPT      0
+	#define NGX_IOCP_IO          1
+	#define NGX_IOCP_CONNECT     2
+#endif
+#if (NGX_TEST_BUILD_EPOLL)
+	#define NGX_EXCLUSIVE_EVENT  0
+#endif
+#ifndef NGX_CLEAR_EVENT
+	#define NGX_CLEAR_EVENT    0    /* dummy declaration */
+#endif
+// @sobolev #define ngx_process_events   ngx_event_actions.process_events
+#define ngx_done_events      ngx_event_actions.F_Done
+#define ngx_add_event        ngx_event_actions.F_Add
+#define ngx_del_event        ngx_event_actions.F_Delete
+#define ngx_add_conn         ngx_event_actions.F_AddConn
+#define ngx_del_conn         ngx_event_actions.F_DelConn
+#define ngx_notify           ngx_event_actions.F_Notify
+#define ngx_add_timer        ngx_event_add_timer
+#define ngx_del_timer        ngx_event_del_timer
+
+extern ngx_os_io_t ngx_io;
+
+#define ngx_recv             ngx_io.recv
+#define ngx_recv_chain       ngx_io.recv_chain
+#define ngx_udp_recv         ngx_io.udp_recv
+#define ngx_send             ngx_io.send
+#define ngx_send_chain       ngx_io.send_chain
+#define ngx_udp_send         ngx_io.udp_send
+#define ngx_udp_send_chain   ngx_io.udp_send_chain
+
+#define NGX_EVENT_MODULE      0x544E5645  /* "EVNT" */
+#define NGX_EVENT_CONF        0x02000000
+
+struct ngx_event_conf_t {
+	ngx_uint_t connections;
+	ngx_uint_t use;
+	ngx_flag_t multi_accept;
+	ngx_flag_t accept_mutex;
+	ngx_msec_t accept_mutex_delay;
+	u_char  * name;
+#if (NGX_DEBUG)
+	ngx_array_t debug_connection;
+#endif
+};
+
+struct ngx_event_module_t {
+	ngx_str_t * name;
+	void *(*create_conf)(ngx_cycle_t *cycle);
+	char *(*init_conf)(ngx_cycle_t *cycle, void * conf);
+	ngx_event_actions_t actions;
+};
+
+extern ngx_atomic_t * ngx_connection_counter;
+extern ngx_atomic_t * ngx_accept_mutex_ptr;
+extern ngx_shmtx_t ngx_accept_mutex;
+extern ngx_uint_t ngx_use_accept_mutex;
+extern ngx_uint_t ngx_accept_events;
+extern ngx_uint_t ngx_accept_mutex_held;
+extern ngx_msec_t ngx_accept_mutex_delay;
+extern ngx_int_t ngx_accept_disabled;
+
+#if (NGX_STAT_STUB)
+extern ngx_atomic_t  * ngx_stat_accepted;
+extern ngx_atomic_t  * ngx_stat_handled;
+extern ngx_atomic_t  * ngx_stat_requests;
+extern ngx_atomic_t  * ngx_stat_active;
+extern ngx_atomic_t  * ngx_stat_reading;
+extern ngx_atomic_t  * ngx_stat_writing;
+extern ngx_atomic_t  * ngx_stat_waiting;
+#endif
+
+#define NGX_UPDATE_TIME         1
+#define NGX_POST_EVENTS         2
+
+extern sig_atomic_t ngx_event_timer_alarm;
+extern ngx_uint_t ngx_event_flags;
+extern ngx_module_t ngx_events_module;
+extern ngx_module_t ngx_event_core_module;
+
+#define ngx_event_get_conf(conf_ctx, module) (*(ngx_get_conf(conf_ctx, ngx_events_module)))[module.ctx_index];
+
+void ngx_event_accept(ngx_event_t * ev);
+#if !(NGX_WIN32)
+	void ngx_event_recvmsg(ngx_event_t * ev);
+#endif
+ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * cycle);
+u_char * ngx_accept_log_error(ngx_log_t * log, u_char * buf, size_t len);
+
+void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle);
+ngx_int_t ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags);
+ngx_int_t ngx_handle_write_event(ngx_event_t * wev, size_t lowat);
+
+#if (NGX_WIN32)
+	void ngx_event_acceptex(ngx_event_t * ev);
+	ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n);
+	u_char * ngx_acceptex_log_error(ngx_log_t * log, u_char * buf, size_t len);
+#endif
+
+ngx_int_t ngx_send_lowat(ngx_connection_t * c, size_t lowat);
+/* used in ngx_log_debugX() */
+#define ngx_event_ident(p)  ((ngx_connection_t*)(p))->fd
+//
+//#include <ngx_event_timer.h>
+//
+#define NGX_TIMER_INFINITE  (ngx_msec_t)-1
+#define NGX_TIMER_LAZY_DELAY  300
+
+ngx_int_t ngx_event_timer_init(ngx_log_t * log);
+ngx_msec_t ngx_event_find_timer(void);
+void ngx_event_expire_timers(void);
+ngx_int_t ngx_event_no_timers_left(void);
+
+extern ngx_rbtree_t ngx_event_timer_rbtree;
+
+void FASTCALL ngx_event_del_timer(ngx_event_t * ev);
+void FASTCALL ngx_event_add_timer(ngx_event_t * ev, ngx_msec_t timer);
+//
+//#include <ngx_event_posted.h>
+//
+#define ngx_post_event(ev, q)						      \
+	if(!(ev)->posted) {							 \
+		(ev)->posted = 1;						      \
+		ngx_queue_insert_tail(q, &(ev)->queue);				      \
+		ngx_log_debug1(NGX_LOG_DEBUG_CORE, (ev)->log, 0, "post event %p", ev); \
+	} \
+	else  {								  \
+		ngx_log_debug1(NGX_LOG_DEBUG_CORE, (ev)->log, 0, "update posted event %p", ev); \
+	}
+
+#define ngx_delete_posted_event(ev)					      \
+	(ev)->posted = 0;							  \
+	ngx_queue_remove(&(ev)->queue);						  \
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, (ev)->log, 0, "delete posted event %p", ev);
+
+// (moved to ngx_event.c as static) void ngx_event_process_posted(ngx_cycle_t * cycle, ngx_queue_t * posted);
+
+extern ngx_queue_t ngx_posted_accept_events;
+extern ngx_queue_t ngx_posted_events;
+//
+#if (NGX_WIN32)
+	//
+	//#include <ngx_iocp_module.h>
+	//
+	typedef struct {
+		int threads;
+		int post_acceptex;
+		int acceptex_read;
+	} ngx_iocp_conf_t;
+
+	extern ngx_module_t ngx_iocp_module;
+	//
+#endif
+//
+//#include <ngx_event_connect.h>
+//
+#define NGX_PEER_KEEPALIVE           1
+#define NGX_PEER_NEXT                2
+#define NGX_PEER_FAILED              4
+
+//typedef struct ngx_peer_connection_s ngx_peer_connection_t;
+struct ngx_peer_connection_t;
+
+typedef ngx_int_t (*ngx_event_get_peer_pt)(ngx_peer_connection_t * pc, void * data);
+typedef void (*ngx_event_free_peer_pt)(ngx_peer_connection_t * pc, void * data, ngx_uint_t state);
+typedef void (*ngx_event_notify_peer_pt)(ngx_peer_connection_t * pc, void * data, ngx_uint_t type);
+typedef ngx_int_t (*ngx_event_set_peer_session_pt)(ngx_peer_connection_t * pc, void * data);
+typedef void (*ngx_event_save_peer_session_pt)(ngx_peer_connection_t * pc, void * data);
+
+struct ngx_peer_connection_t {
+	ngx_connection_t * connection;
+	struct sockaddr  * sockaddr;
+	socklen_t socklen;
+	ngx_str_t * name;
+	ngx_uint_t tries;
+	ngx_msec_t start_time;
+	ngx_event_get_peer_pt get;
+	ngx_event_free_peer_pt free;
+	ngx_event_notify_peer_pt notify;
+	void * data;
+#if (NGX_SSL || NGX_COMPAT)
+	ngx_event_set_peer_session_pt set_session;
+	ngx_event_save_peer_session_pt save_session;
+#endif
+	ngx_addr_t * local;
+	int type;
+	int rcvbuf;
+	ngx_log_t * log;
+	unsigned cached : 1;
+	unsigned transparent : 1;
+	unsigned log_error : 2; // ngx_connection_log_error_e 
+	NGX_COMPAT_BEGIN(2)
+	NGX_COMPAT_END
+};
+
+ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc);
+ngx_int_t ngx_event_get_peer(ngx_peer_connection_t * pc, void * data);
+//
+//#include <ngx_event_pipe.h>
+//
+//typedef struct ngx_event_pipe_s ngx_event_pipe_t;
+struct /*ngx_event_pipe_s*/ngx_event_pipe_t;
+
+typedef ngx_int_t (*ngx_event_pipe_input_filter_pt)(ngx_event_pipe_t * p, ngx_buf_t * buf);
+typedef ngx_int_t (*ngx_event_pipe_output_filter_pt)(void * data, ngx_chain_t * chain);
+
+struct /*ngx_event_pipe_s*/ngx_event_pipe_t {
+	ngx_connection_t * upstream;
+	ngx_connection_t * downstream;
+	ngx_chain_t  * free_raw_bufs;
+	ngx_chain_t  * in;
+	ngx_chain_t ** last_in;
+	ngx_chain_t  * writing;
+	ngx_chain_t  * out;
+	ngx_chain_t  * free;
+	ngx_chain_t  * busy;
+	/*
+	 * the input filter i.e. that moves HTTP/1.1 chunks
+	 * from the raw bufs to an incoming chain
+	 */
+	ngx_event_pipe_input_filter_pt input_filter;
+	void * input_ctx;
+	ngx_event_pipe_output_filter_pt output_filter;
+	void * output_ctx;
+#if (NGX_THREADS || NGX_COMPAT)
+	ngx_int_t (* thread_handler)(ngx_thread_task_t * task, ngx_file_t * file);
+	void * thread_ctx;
+	ngx_thread_task_t  * thread_task;
+#endif
+	unsigned read : 1;
+	unsigned cacheable : 1;
+	unsigned single_buf : 1;
+	unsigned free_bufs : 1;
+	unsigned upstream_done : 1;
+	unsigned upstream_error : 1;
+	unsigned upstream_eof : 1;
+	unsigned upstream_blocked : 1;
+	unsigned downstream_done : 1;
+	unsigned downstream_error : 1;
+	unsigned cyclic_temp_file : 1;
+	unsigned aio : 1;
+	ngx_int_t allocated;
+	ngx_bufs_t bufs;
+	ngx_buf_tag_t tag;
+	ssize_t busy_size;
+	nginx_off_t read_length;
+	nginx_off_t length;
+	nginx_off_t max_temp_file_size;
+	ssize_t temp_file_write_size;
+	ngx_msec_t read_timeout;
+	ngx_msec_t send_timeout;
+	ssize_t send_lowat;
+	ngx_pool_t * pool;
+	ngx_log_t  * log;
+	ngx_chain_t  * preread_bufs;
+	size_t preread_size;
+	ngx_buf_t  * buf_to_file;
+	size_t limit_rate;
+	time_t start_sec;
+	ngx_temp_file_t * temp_file;
+	/* STUB */ int num;
+};
+
+ngx_int_t ngx_event_pipe(ngx_event_pipe_t * p, ngx_int_t do_write);
+ngx_int_t ngx_event_pipe_copy_input_filter(ngx_event_pipe_t * p, ngx_buf_t * buf);
+ngx_int_t ngx_event_pipe_add_free_buf(ngx_event_pipe_t * p, ngx_buf_t * b);
+//
 #define NGX_HTTP_UPSTREAM_FT_ERROR           0x00000002
 #define NGX_HTTP_UPSTREAM_FT_TIMEOUT         0x00000004
 #define NGX_HTTP_UPSTREAM_FT_INVALID_HEADER  0x00000008
@@ -1133,7 +1622,41 @@ extern ngx_conf_bitmask_t ngx_http_upstream_ignore_headers_masks[];
 	#include <ngx_http_ssi_filter_module.h>
 #endif
 #if (NGX_HTTP_SSL)
-	#include <ngx_http_ssl_module.h>
+	//
+	//#include <ngx_http_ssl_module.h>
+	//
+	struct ngx_http_ssl_srv_conf_t {
+		ngx_flag_t enable;
+		ngx_ssl_t ssl;
+		ngx_flag_t prefer_server_ciphers;
+		ngx_uint_t protocols;
+		ngx_uint_t verify;
+		ngx_uint_t verify_depth;
+		size_t buffer_size;
+		ssize_t builtin_session_cache;
+		time_t session_timeout;
+		ngx_array_t * certificates;
+		ngx_array_t * certificate_keys;
+		ngx_str_t dhparam;
+		ngx_str_t ecdh_curve;
+		ngx_str_t client_certificate;
+		ngx_str_t trusted_certificate;
+		ngx_str_t crl;
+		ngx_str_t ciphers;
+		ngx_array_t * passwords;
+		ngx_shm_zone_t * shm_zone;
+		ngx_flag_t session_tickets;
+		ngx_array_t * session_ticket_keys;
+		ngx_flag_t stapling;
+		ngx_flag_t stapling_verify;
+		ngx_str_t stapling_file;
+		ngx_str_t stapling_responder;
+		u_char * file;
+		ngx_uint_t line;
+	};
+
+	extern ngx_module_t ngx_http_ssl_module;	
+	//
 #endif
 
 struct ngx_http_log_ctx_s {
@@ -1148,13 +1671,13 @@ struct ngx_http_chunked_s {
 	nginx_off_t length;
 };
 
-typedef struct {
+struct ngx_http_status_t {
 	ngx_uint_t http_version;
 	ngx_uint_t code;
 	ngx_uint_t count;
 	u_char * start;
 	u_char * end;
-} ngx_http_status_t;
+};
 
 #define ngx_http_get_module_ctx(r, module)  (r)->ctx[module.ctx_index]
 #define ngx_http_set_ctx(r, c, module)      r->ctx[module.ctx_index] = c;

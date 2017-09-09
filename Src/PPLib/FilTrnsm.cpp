@@ -442,8 +442,8 @@ int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const 
 		SString dest_path, file_name;
 		SPathStruc sp;
 		sp.Split(file_path);
-		sp.Drv = 0;
-		sp.Dir = 0;
+		sp.Drv.Z();
+		sp.Dir.Z();
 		sp.Flags = SPathStruc::fNam|SPathStruc::fExt;
 		sp.Merge(file_name);
 		(dest_path = dest_dir).Cat(file_name);

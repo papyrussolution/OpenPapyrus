@@ -1882,7 +1882,7 @@ int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemTyp
 		WorkbookTbl::Rec rec;
 		for(SEnum en = P_Tbl->Enum(0); en.Next(&rec) > 0;) {
 			if(CheckParent(itemID, rec.ID)) {
-				temp_buf = 0;
+				temp_buf.Z();
 				if((oneof2(itemType, PPWBTYP_PAGE, PPWBTYP_MEDIA) && oneof3(rec.Type, PPWBTYP_SITE, PPWBTYP_PAGE, PPWBTYP_FOLDER)) ||
 					(itemType == PPWBTYP_KEYWORD && rec.Type == PPWBTYP_FOLDER)) {
 					GetItemPath(rec.ID, temp_buf);
@@ -1919,7 +1919,7 @@ int SLAPI PPObjWorkbook::SetupCSSCombo(TDialog * dlg, uint ctlID, int itemType, 
 		StrAssocArray * p_list = new StrAssocArray;
 		WorkbookTbl::Rec rec;
 		for(SEnum en = P_Tbl->Enum(0); en.Next(&rec) > 0;) {
-			temp_buf = 0;
+			temp_buf.Z();
 			if(oneof2(itemType, PPWBTYP_SITE, PPWBTYP_PAGE) && (rec.Type == PPWBTYP_CSS)) {
 				GetItemPath(rec.ID, temp_buf);
 				p_list->Add(rec.ID, temp_buf);
@@ -1947,7 +1947,7 @@ int SLAPI PPObjWorkbook::SetupLinkCombo(TDialog * dlg, uint ctlID, int itemType,
 		WorkbookTbl::Rec rec;
 		//PPWorkbookPacket pack;
 		for(SEnum en = P_Tbl->Enum(0); en.Next(&rec) > 0;) {
-			temp_buf = 0;
+			temp_buf.Z();
 			if((itemType == PPWBTYP_SITE) && (rec.Type == PPWBTYP_PAGE)) {
 				GetItemPath(rec.ID, temp_buf);
 				p_list->Add(rec.ID, temp_buf);

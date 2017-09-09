@@ -2909,8 +2909,8 @@ SLTEST_R(JSON)
 					ps.Split(in_file_name);
 					ps.Nam.CatChar('-').Cat("result");
 					ps.Ext = "xml";
-					ps.Drv = 0;
-					ps.Dir = 0;
+					ps.Drv.Z();
+					ps.Dir.Z();
 					ps.Merge(temp_buf);
 					SString out_file_name = MakeOutputFilePath(temp_buf);
 					SFile f_out(out_file_name, SFile::mWrite);

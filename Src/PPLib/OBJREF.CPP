@@ -1,5 +1,6 @@
 // OBJREF.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -638,7 +639,7 @@ int SLAPI PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 			}
 			else if(IS_DYN_OBJTYPE(Obj) && p_rec->ObjName[0] && SearchByName(p_rec->ObjName, &same_id, 0) > 0) {
 				//
-				// Контекстная синхронизация по имени для динамических объектов
+				// РљРѕРЅС‚РµРєСЃС‚РЅР°СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РїРѕ РёРјРµРЅРё РґР»СЏ РґРёРЅР°РјРёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
 				//
 				*pID = same_id;
 				ok = 1;
@@ -649,10 +650,10 @@ int SLAPI PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 		else {
 			p_rec->ObjID = *pID;
 			//
-			// Не следует модифицировать:
-			//   - описание раздела базы даных
-			//   - структуры штрихкодов
-			//   - счетчики операций
+			// РќРµ СЃР»РµРґСѓРµС‚ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ:
+			//   - РѕРїРёСЃР°РЅРёРµ СЂР°Р·РґРµР»Р° Р±Р°Р·С‹ РґР°РЅС‹С…
+			//   - СЃС‚СЂСѓРєС‚СѓСЂС‹ С€С‚СЂРёС…РєРѕРґРѕРІ
+			//   - СЃС‡РµС‚С‡РёРєРё РѕРїРµСЂР°С†РёР№
 			//
 			if(oneof3(Obj, PPOBJ_DBDIV, PPOBJ_BCODESTRUC, PPOBJ_OPCOUNTER))
 				ok = 1;
@@ -663,7 +664,7 @@ int SLAPI PPObjReference::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 				ok = *pID ? 102 : 101;
 				*pID = ref->data.ObjID;
 			}
-			else if(r < 0) // Ничего не изменилось
+			else if(r < 0) // РќРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ
 				ok = 1;
 			else {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_rec->ObjID, p_rec->ObjName);
@@ -685,7 +686,7 @@ int SLAPI PPObjReference::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 		if(p && p->Data) {
 			PPDynanicObjItem * p_rec = (PPDynanicObjItem *)p->Data;
 			//
-			// Очень необычный случай: при разрешении ссылки может измениться тип объекта
+			// РћС‡РµРЅСЊ РЅРµРѕР±С‹С‡РЅС‹Р№ СЃР»СѓС‡Р°Р№: РїСЂРё СЂР°Р·СЂРµС€РµРЅРёРё СЃСЃС‹Р»РєРё РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ С‚РёРї РѕР±СЉРµРєС‚Р°
 			//
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &Obj, ary, replace));
 			THROW(ProcessObjRefInArray(Obj, &p_rec->ParentID, ary, replace)); // @v8.2.3
@@ -852,13 +853,13 @@ int SLAPI PPObjUnit::UniteMaxLike()
 int SLAPI PPObjUnit::IsPhisical(PPID id)
 {
 	PPUnit rec;
-	return (Fetch(id, &rec) > 0 && rec.Flags & PPUnit::Phisical) ? 1 : 0;
+	return BIN(Fetch(id, &rec) > 0 && rec.Flags & PPUnit::Phisical);
 }
 
 int SLAPI PPObjUnit::IsInteger(PPID id)
 {
 	PPUnit rec;
-	return (Fetch(id, &rec) > 0 && rec.Flags & PPUnit::IntVal) ? 1 : 0;
+	return BIN(Fetch(id, &rec) > 0 && rec.Flags & PPUnit::IntVal);
 }
 
 int SLAPI PPObjUnit::AddSimple(PPID * pID, const char * pName, long flags, int use_ta)
@@ -1032,7 +1033,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	}
 	dlg->setCtrlData(CTL_UNIT_NAME, unit.Name);
 	dlg->setCtrlData(CTL_UNIT_ABBR, unit.Abbr);
-	dlg->setCtrlData(CTL_UNIT_CODE, unit.Code); // @v7.1.12
+	dlg->setCtrlData(CTL_UNIT_CODE, unit.Code);
 	dlg->setCtrlData(CTL_UNIT_ID,   &unit.ID);
 	dlg->disableCtrl(CTL_UNIT_ID, (!PPMaster || unit.ID));
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 0, PPUnit::Trade);
@@ -1921,7 +1922,7 @@ int SLAPI PPObjDynamicObjs::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 					p_rec->ObjID = 0;
 			}
 			//
-			// Контекстная синхронизация по имени
+			// РљРѕРЅС‚РµРєСЃС‚РЅР°СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ РїРѕ РёРјРµРЅРё
 			//
 			else if(p_rec->ObjName[0] && SearchByName(p_rec->ObjName, &same_id, 0) > 0) {
 				*pID = same_id;
@@ -2501,23 +2502,17 @@ public:
 
 int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforce)
 {
-#ifdef _MT
 	CfgLock.ReadLock();
-#endif
 	if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
-#ifdef _MT
 		CfgLock.Unlock();
 		CfgLock.WriteLock();
-#endif
 		if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
 			PPObjGlobalUserAcc::ReadConfig(&Cfg);
 			Cfg.Flags |= PPGlobalUserAccConfig::fValid;
 		}
 	}
 	ASSIGN_PTR(pCfg, Cfg);
-#ifdef _MT
 	CfgLock.Unlock();
-#endif
 	return 1;
 }
 
@@ -2630,7 +2625,7 @@ int SLAPI PPObjSysAction::Search(PPID id, void * pRec)
 		ok = 1;
 	}
 	else
-		ideqvalstr(id, NameBuf = 0);
+		ideqvalstr(id, NameBuf.Z());
 	return ok;
 }
 
@@ -2690,7 +2685,7 @@ int SLAPI PPObjGtaAction::Search(PPID id, void * pRec)
 		ok = 1;
 	}
 	else
-		ideqvalstr(id, NameBuf = 0);
+		ideqvalstr(id, NameBuf.Z());
 	return ok;
 }
 
@@ -3586,7 +3581,7 @@ int SLAPI PPUhttStoreSelDescr::Serialize(int dir, SBuffer & rBuf, SSerializeCont
 {
 	int    ok = 1;
 	if(dir > 0) {
-		Ver = DS.GetVersion(); // Будем уверены в том, что версия при записи окажется актуальной
+		Ver = DS.GetVersion(); // Р‘СѓРґРµРј СѓРІРµСЂРµРЅС‹ РІ С‚РѕРј, С‡С‚Рѕ РІРµСЂСЃРёСЏ РїСЂРё Р·Р°РїРёСЃРё РѕРєР°Р¶РµС‚СЃСЏ Р°РєС‚СѓР°Р»СЊРЅРѕР№
 		THROW(Pack());
 	}
 	THROW_SL(Ver.Serialize(dir, rBuf, pCtx));

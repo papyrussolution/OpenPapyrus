@@ -1148,7 +1148,7 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 			bcc ^= temp_buf[pos];
 		}
 		THROW_PP(bcc == buf[23], PPERR_SCALE_RCV); // Контрольный байт
-		buf.Sub(15,6,temp_buf); // Выделяем байты отвечающие за вес
+		buf.Sub(15, 6, temp_buf); // Выделяем байты отвечающие за вес
 		sc_st.Weight = (uint16)round(temp_buf.ToReal() * 1000.0, 0); // Вес
 		if(sc_st.Weight == 0) {
 			sc_st.Status |= (1<<3); // 1 - нулевой вес
@@ -2052,7 +2052,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			dbf_rec.put(12, R2(pScalePLU->Price));           // PRD_PRCE
 			dbf_rec.put(13, "");                             // PRD_CERT
 
-			for(uint p = 0, j = 0; ss.get(&p, (temp_buf = 0)) > 0 && j < 2; j++)
+			for(uint p = 0, j = 0; ss.get(&p, temp_buf.Z()) > 0 && j < 2; j++)
 				dbf_rec.put(14 + j, (const char*)temp_buf.Transf(CTRANSF_INNER_TO_OUTER));  // PRD_CMP1, PRD_CMP2
 			dbf_rec.put(16, "0");                            // PRD_TARE
 			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
@@ -2079,7 +2079,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 				temp_buf.Z().Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
 			}
 			else
-				temp_buf = 0;
+				temp_buf.Z();
 			line_buf.Cat(temp_buf).Semicol(); // best_before
 			line_buf.CatChar('0').Semicol(); // shelf_life
 			line_buf.Semicol(); // certificate

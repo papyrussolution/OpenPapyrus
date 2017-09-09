@@ -668,7 +668,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	// } @v9.4.7
 	SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
 	{
-		temp_buf = 0;
+		temp_buf.Z();
 		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
 			temp_buf.Cat(Data.Rec.RegisterTime, DATF_DMY|DATF_CENTURY, TIMF_HMS);
 			setCtrlString(CTL_PALM_REGINFO, temp_buf);

@@ -1,6 +1,6 @@
 // BPAKCORE.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage Windows-1251
 // @Kernel
 //
 #include <pp.h>
@@ -134,7 +134,6 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 
 int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 {
-	//PPRentCondition
 	int    ok = -1;
 	uint   i = 0;
 	int    is_there_amount = 0;
@@ -750,74 +749,85 @@ int SLAPI PPLotTagContainer::ProcessObjRefs(PPObjIDArray * ary, int replace)
 //
 SString & SLAPI PPTaxPeriod::Format(SString & rBuf) const
 {
-	char   buf[32];
+	rBuf.Z();
+	//char   buf[32];
 	size_t p = 0;
-	if(P == eEmpty)
-		buf[p] = 0;
-	else {
+	if(P != eEmpty) {
 		switch(P) {
 			case eYear:
 				// ÃÄ
-				buf[p++] = 'ƒ'; buf[p++] = '„'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '0';
+				rBuf.Cat("ÃÄ").Dot().Cat("00");
+				//buf[p++] = 'ƒ'; buf[p++] = '„'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '0';
 				break;
 			case eSemiyear1:
 				// ÏË
-				buf[p++] = ''; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
+				rBuf.Cat("ÏË").Dot().Cat("01");
+				//buf[p++] = ''; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
 				break;
 			case eSemiyear2:
 				// ÏË
-				buf[p++] = ''; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
+				rBuf.Cat("ÏË").Dot().Cat("02");
+				//buf[p++] = ''; buf[p++] = '‹'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
 				break;
 			case eQuart1:
 				// ÊÂ
-				buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
+				rBuf.Cat("ÊÂ").Dot().Cat("01");
+				//buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '1';
 				break;
 			case eQuart2:
 				// ÊÂ
-				buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
+				rBuf.Cat("ÊÂ").Dot().Cat("02");
+				//buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '2';
 				break;
 			case eQuart3:
 				// ÊÂ
-				buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '3';
+				rBuf.Cat("ÊÂ").Dot().Cat("03");
+				//buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '3';
 				break;
 			case eQuart4:
 				// ÊÂ
-				buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '4';
+				rBuf.Cat("ÊÂ").Dot().Cat("04");
+				//buf[p++] = 'Š'; buf[p++] = '‚'; buf[p++] = '.'; buf[p++] = '0'; buf[p++] = '4';
 				break;
 			case eMonth:
 				// ÌÑ
-				buf[p++] = 'Œ'; buf[p++] = '‘'; buf[p++] = '.';
-				buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
+				rBuf.Cat("ÌÑ").Dot().CatLongZ(Month, 2);
+				//buf[p++] = 'Œ'; buf[p++] = '‘'; buf[p++] = '.';
+				//buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
 				break;
 			case eDec1:
 				// Ä1
-				buf[p++] = '„'; buf[p++] = '1'; buf[p++] = '.';
-				buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
+				rBuf.Cat("Ä1").Dot().CatLongZ(Month, 2);
+				//buf[p++] = '„'; buf[p++] = '1'; buf[p++] = '.';
+				//buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
 				break;
 			case eDec2:
 				// Ä2
-				buf[p++] = '„'; buf[p++] = '2'; buf[p++] = '.';
-				buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
+				rBuf.Cat("Ä2").Dot().CatLongZ(Month, 2);
+				//buf[p++] = '„'; buf[p++] = '2'; buf[p++] = '.';
+				//buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
 				break;
 			case eDec3:
 				// Ä3
-				buf[p++] = '„'; buf[p++] = '3'; buf[p++] = '.';
-				buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
+				rBuf.Cat("Ä3").Dot().CatLongZ(Month, 2);
+				//buf[p++] = '„'; buf[p++] = '3'; buf[p++] = '.';
+				//buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
 				break;
 			case eDate:
-				buf[p++] = '0' + (Day / 10); buf[p++] = '0' + (Day % 10); buf[p++] = '.';
-				buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
-				break;
-			default:
-				buf[0] = 0;
+				rBuf.CatLongZ(Day, 2).Dot().CatLongZ(Month, 2);
+				//buf[p++] = '0' + (Day / 10); buf[p++] = '0' + (Day % 10); buf[p++] = '.';
+				//buf[p++] = '0' + (Month / 10); buf[p++] = '0' + (Month % 10);
 				break;
 		}
-		if(p) {
+		if(rBuf.NotEmpty())
+			rBuf.Dot().Cat(Year);
+		/*if(p) {
 			buf[p++] = '.';
 			ltoa(Year, buf+p, 10);
-		}
+		}*/
 	}
-	rBuf = buf;
+	rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	//rBuf = buf;
 	return rBuf;
 }
 
@@ -3678,7 +3688,7 @@ SLAPI TiIter::TiIter(PPBillPacket * pPack, long flags, long filtGrpID, Order o)
 
 int FASTCALL TiIter::IsPassedIdx(int idx) const
 {
-	return BIN(Saw.lsearch(idx));
+	return BIN(Seen.lsearch(idx));
 }
 
 int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
@@ -3886,7 +3896,7 @@ int SLAPI TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, O
 	Flags &= ~ETIEF_LABELQUOTPRICE; // internal flag
 	I = PckgI = PckgItemI = 0;
 	FiltGrpID = filtGrpID;
-	Saw.freeAll();
+	Seen.freeAll();
 	Index.freeAll();
 	SaldoList.freeAll();
 	DispList.freeAll();
@@ -3968,11 +3978,10 @@ static int SLAPI CanMerge(const PPTransferItem * pTI1, const PPTransferItem * pT
 	return yes;
 }
 
-int SLAPI PPBillPacket::InitExtTIter(long f, long filtGrpID, TiIter::Order o)
+void SLAPI PPBillPacket::InitExtTIter(long f, long filtGrpID, TiIter::Order o)
 {
 	delete P_Iter;
 	P_Iter = new TiIter(this, f, filtGrpID, o);
-	return 1;
 }
 
 int SLAPI PPBillPacket::MergeTI(PPTransferItem * pTI, int idx, long flags, LongArray & rSaw, LongArray * pMergePosList)
@@ -4043,7 +4052,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 					if(!p_i->IsPassedIdx(idx)) {
 						*pTI = ConstTI(idx);
 						pTI->RByBill = idx;
-						p_i->Saw.add(idx);
+						p_i->Seen.add(idx);
 						if(pExt) {
 							ClbL.GetNumber(idx, &pExt->Clb);
 							pExt->Pckg = p_pckg->Code;
@@ -4082,7 +4091,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 					ti.RByBill = (temp_idx < SALDOLIST_POS_BIAS) ? _idx : 0;
 					if(rf != 2) { // @v9.2.3
 						if(p_i->Flags & ETIEF_UNITEBYGOODS)
-							MergeTI(&ti, _idx, p_i->Flags, p_i->Saw, (pExt ? &pExt->MergePosList : 0));
+							MergeTI(&ti, _idx, p_i->Flags, p_i->Seen, (pExt ? &pExt->MergePosList : 0));
 						else if(pExt)
 							pExt->MergePosList.add(_idx);
 					}
@@ -4097,7 +4106,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 					else if(ProcessFlags & pfPrintQCertList)
 						ti.QCert = p_p->Ext;
 					else
-						p_i->Saw.add(_idx);
+						p_i->Seen.add(_idx);
 					*pTI = ti;
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0.0;
@@ -4118,11 +4127,11 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 					if(!(p_i->Flags & ETIEF_DONTUNITE)) // @v8.8.8
 						ti.RByBill = _idx;
 					if(p_i->Flags & ETIEF_UNITEBYGOODS)
-						MergeTI(&ti, _idx, p_i->Flags, p_i->Saw, (pExt ? &pExt->MergePosList : 0));
+						MergeTI(&ti, _idx, p_i->Flags, p_i->Seen, (pExt ? &pExt->MergePosList : 0));
 					else if(pExt)
 						pExt->MergePosList.add(_idx);
 					*pTI = ti;
-					p_i->Saw.add(_idx);
+					p_i->Seen.add(_idx);
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0;
 					if(pExt) {

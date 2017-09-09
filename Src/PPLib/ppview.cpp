@@ -171,13 +171,13 @@ int SLAPI PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
 			case PPVIEW_LINKEDBILL:     p_v = new PPViewLinkedBill;     break;
 			case PPVIEW_BALANCE:        p_v = new PPViewBalance;        break;
 			case PPVIEW_DIALOG:         p_v = new PPViewDialog;         break;
-			case PPVIEW_DVCLOADINGSTAT: p_v = new PPViewDvcLoadingStat; break; // @v7.1.11
-			case PPVIEW_SPECSERIES:     p_v = new PPViewSpecSeries;     break; // @v7.2.x Специальные серии
-			case PPVIEW_GTAJOURNAL:     p_v = new PPViewGtaJournal;     break; // @v7.3.9
-			case PPVIEW_GLOBALUSERACC:  p_v = new PPViewGlobalUserAcc;  break; // @v7.5.x
-			case PPVIEW_TECH:           p_v = new PPViewTech;           break; // @v7.5.6
-			case PPVIEW_DBDIV:          p_v = new PPViewDBDiv;          break; // @v7.x.x
-			case PPVIEW_SUPRWARE:       p_v = new PPViewSuprWare;       break; // @vmiller
+			case PPVIEW_DVCLOADINGSTAT: p_v = new PPViewDvcLoadingStat; break;
+			case PPVIEW_SPECSERIES:     p_v = new PPViewSpecSeries;     break;
+			case PPVIEW_GTAJOURNAL:     p_v = new PPViewGtaJournal;     break;
+			case PPVIEW_GLOBALUSERACC:  p_v = new PPViewGlobalUserAcc;  break;
+			case PPVIEW_TECH:           p_v = new PPViewTech;           break;
+			case PPVIEW_DBDIV:          p_v = new PPViewDBDiv;          break;
+			case PPVIEW_SUPRWARE:       p_v = new PPViewSuprWare;       break;
 			// case PPVIEW_DBMONITOR:      p_v = new PPViewDBMonitor;      break; // @v7.x.x
 			case PPVIEW_USERPROFILE:    p_v = new PPViewUserProfile();  break;
 			case PPVIEW_JOB:            p_v = new PPViewJob();          break;
@@ -1173,7 +1173,7 @@ const PPBaseFilt * SLAPI PPView::GetBaseFilt() const
 	return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0);
 }
 
-int SLAPI PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
+int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	if(P_F) {

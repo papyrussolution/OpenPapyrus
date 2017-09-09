@@ -15,9 +15,8 @@ ngx_atomic_int_t ngx_random_number = 123456;
 ngx_int_t ngx_get_full_name(ngx_pool_t * pool, ngx_str_t * prefix, ngx_str_t * name)
 {
 	size_t len;
-	u_char   * p, * n;
-	ngx_int_t rc;
-	rc = ngx_test_full_name(name);
+	u_char * p, * n;
+	ngx_int_t rc = ngx_test_full_name(name);
 	if(rc == NGX_OK) {
 		return rc;
 	}
@@ -150,17 +149,19 @@ ngx_int_t ngx_create_temp_file(ngx_file_t * file, ngx_path_t * path, ngx_pool_t 
 			clnf->log = pool->log;
 			return NGX_OK;
 		}
-		err = ngx_errno;
-		if(err == NGX_EEXIST_FILE) {
-			n = (uint32_t)ngx_next_temp_number(1);
-			continue;
-		}
-		if((path->level[0] == 0) || (err != NGX_ENOPATH)) {
-			ngx_log_error(NGX_LOG_CRIT, file->log, err, ngx_open_tempfile_n " \"%s\" failed", file->name.data);
-			return NGX_ERROR;
-		}
-		if(ngx_create_path(file, path) == NGX_ERROR) {
-			return NGX_ERROR;
+		else {
+			err = ngx_errno;
+			if(err == NGX_EEXIST_FILE) {
+				n = (uint32_t)ngx_next_temp_number(1);
+				continue;
+			}
+			else if((path->level[0] == 0) || (err != NGX_ENOPATH)) {
+				ngx_log_error(NGX_LOG_CRIT, file->log, err, ngx_open_tempfile_n " \"%s\" failed", file->name.data);
+				return NGX_ERROR;
+			}
+			else if(ngx_create_path(file, path) == NGX_ERROR) {
+				return NGX_ERROR;
+			}
 		}
 	}
 }
@@ -206,7 +207,7 @@ ngx_int_t ngx_create_path(ngx_file_t * file, ngx_path_t * path)
 
 ngx_err_t ngx_create_full_path(u_char * dir, ngx_uint_t access)
 {
-	u_char * p, ch;
+	u_char * p;
 	ngx_err_t err = 0;
 #if (NGX_WIN32)
 	p = dir + 3;
@@ -214,23 +215,22 @@ ngx_err_t ngx_create_full_path(u_char * dir, ngx_uint_t access)
 	p = dir + 1;
 #endif
 	for(/* void */; *p; p++) {
-		ch = *p;
-		if(ch != '/') {
-			continue;
-		}
-		*p = '\0';
-		if(ngx_create_dir(dir, access) == NGX_FILE_ERROR) {
-			err = ngx_errno;
-			switch(err) {
-				case NGX_EEXIST:
-				    err = 0;
-				case NGX_EACCES:
-				    break;
-				default:
-				    return err;
+		const u_char ch = *p;
+		if(ch == '/') {
+			*p = '\0';
+			if(ngx_create_dir(dir, access) == NGX_FILE_ERROR) {
+				err = ngx_errno;
+				switch(err) {
+					case NGX_EEXIST:
+						err = 0;
+					case NGX_EACCES:
+						break;
+					default:
+						return err;
+				}
 			}
+			*p = '/';
 		}
-		*p = '/';
 	}
 	return err;
 }

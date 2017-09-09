@@ -126,13 +126,13 @@ void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 		return;
 	}
 
-	ngx_add_timer(p->upstream.connection->read, cscf->timeout);
+	ngx_add_timer(p->upstream.connection->P_EvRd, cscf->timeout);
 
 	p->upstream.connection->data = s;
 	p->upstream.connection->pool = s->connection->pool;
 
-	s->connection->read->handler = ngx_mail_proxy_block_read;
-	p->upstream.connection->write->handler = ngx_mail_proxy_dummy_handler;
+	s->connection->P_EvRd->handler = ngx_mail_proxy_block_read;
+	p->upstream.connection->P_EvWr->handler = ngx_mail_proxy_dummy_handler;
 
 	pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
 
@@ -147,17 +147,17 @@ void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 
 	switch(s->protocol) {
 		case NGX_MAIL_POP3_PROTOCOL:
-		    p->upstream.connection->read->handler = ngx_mail_proxy_pop3_handler;
+		    p->upstream.connection->P_EvRd->handler = ngx_mail_proxy_pop3_handler;
 		    s->mail_state = ngx_pop3_start;
 		    break;
 
 		case NGX_MAIL_IMAP_PROTOCOL:
-		    p->upstream.connection->read->handler = ngx_mail_proxy_imap_handler;
+		    p->upstream.connection->P_EvRd->handler = ngx_mail_proxy_imap_handler;
 		    s->mail_state = ngx_imap_start;
 		    break;
 
 		default: /* NGX_MAIL_SMTP_PROTOCOL */
-		    p->upstream.connection->read->handler = ngx_mail_proxy_smtp_handler;
+		    p->upstream.connection->P_EvRd->handler = ngx_mail_proxy_smtp_handler;
 		    s->mail_state = ngx_smtp_start;
 		    break;
 	}
@@ -240,19 +240,19 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 		    break;
 
 		case ngx_pop3_passwd:
-		    s->connection->read->handler = ngx_mail_proxy_handler;
-		    s->connection->write->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvRd->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvWr->handler = ngx_mail_proxy_handler;
 		    rev->handler = ngx_mail_proxy_handler;
-		    c->write->handler = ngx_mail_proxy_handler;
+		    c->P_EvWr->handler = ngx_mail_proxy_handler;
 
 		    pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
-		    ngx_add_timer(s->connection->read, pcf->timeout);
-		    ngx_del_timer(c->read);
+		    ngx_add_timer(s->connection->P_EvRd, pcf->timeout);
+		    ngx_del_timer(c->P_EvRd);
 
 		    c->log->action = NULL;
 		    ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in");
 
-		    ngx_mail_proxy_handler(s->connection->write);
+		    ngx_mail_proxy_handler(s->connection->P_EvWr);
 
 		    return;
 
@@ -358,19 +358,19 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 		    break;
 
 		case ngx_imap_passwd:
-		    s->connection->read->handler = ngx_mail_proxy_handler;
-		    s->connection->write->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvRd->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvWr->handler = ngx_mail_proxy_handler;
 		    rev->handler = ngx_mail_proxy_handler;
-		    c->write->handler = ngx_mail_proxy_handler;
+		    c->P_EvWr->handler = ngx_mail_proxy_handler;
 
 		    pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
-		    ngx_add_timer(s->connection->read, pcf->timeout);
-		    ngx_del_timer(c->read);
+		    ngx_add_timer(s->connection->P_EvRd, pcf->timeout);
+		    ngx_del_timer(c->P_EvRd);
 
 		    c->log->action = NULL;
 		    ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in");
 
-		    ngx_mail_proxy_handler(s->connection->write);
+		    ngx_mail_proxy_handler(s->connection->P_EvWr);
 
 		    return;
 
@@ -572,23 +572,23 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 			    b->last = b->start + sizeof(smtp_auth_ok) - 1;
 		    }
 
-		    s->connection->read->handler = ngx_mail_proxy_handler;
-		    s->connection->write->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvRd->handler = ngx_mail_proxy_handler;
+		    s->connection->P_EvWr->handler = ngx_mail_proxy_handler;
 		    rev->handler = ngx_mail_proxy_handler;
-		    c->write->handler = ngx_mail_proxy_handler;
+		    c->P_EvWr->handler = ngx_mail_proxy_handler;
 
 		    pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
-		    ngx_add_timer(s->connection->read, pcf->timeout);
-		    ngx_del_timer(c->read);
+		    ngx_add_timer(s->connection->P_EvRd, pcf->timeout);
+		    ngx_del_timer(c->P_EvRd);
 
 		    c->log->action = NULL;
 		    ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in");
 
 		    if(s->buffer->pos == s->buffer->last) {
-			    ngx_mail_proxy_handler(s->connection->write);
+			    ngx_mail_proxy_handler(s->connection->P_EvWr);
 		    }
 		    else {
-			    ngx_mail_proxy_handler(c->write);
+			    ngx_mail_proxy_handler(c->P_EvWr);
 		    }
 
 		    return;
@@ -847,7 +847,7 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 		if(do_write) {
 			size = b->last - b->pos;
 
-			if(size && dst->write->ready) {
+			if(size && dst->P_EvWr->ready) {
 				c->log->action = send_action;
 
 				n = dst->send(dst, b->pos, size);
@@ -870,7 +870,7 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 
 		size = b->end - b->last;
 
-		if(size && src->read->ready) {
+		if(size && src->P_EvRd->ready) {
 			c->log->action = recv_action;
 
 			n = src->recv(src, b->last, size);
@@ -887,7 +887,7 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 			}
 
 			if(n == NGX_ERROR) {
-				src->read->eof = 1;
+				src->P_EvRd->eof = 1;
 			}
 		}
 
@@ -896,11 +896,11 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 
 	c->log->action = "proxying";
 
-	if((s->connection->read->eof && s->buffer->pos == s->buffer->last)
-	    || (s->proxy->upstream.connection->read->eof
+	if((s->connection->P_EvRd->eof && s->buffer->pos == s->buffer->last)
+	    || (s->proxy->upstream.connection->P_EvRd->eof
 		    && s->proxy->buffer->pos == s->proxy->buffer->last)
-	    || (s->connection->read->eof
-		    && s->proxy->upstream.connection->read->eof)) {
+	    || (s->connection->P_EvRd->eof
+		    && s->proxy->upstream.connection->P_EvRd->eof)) {
 		action = c->log->action;
 		c->log->action = NULL;
 		ngx_log_error(NGX_LOG_INFO, c->log, 0, "proxied session done");
@@ -910,74 +910,61 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 		return;
 	}
 
-	if(ngx_handle_write_event(dst->write, 0) != NGX_OK) {
+	if(ngx_handle_write_event(dst->P_EvWr, 0) != NGX_OK) {
 		ngx_mail_proxy_close_session(s);
 		return;
 	}
 
-	if(ngx_handle_read_event(dst->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(dst->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_proxy_close_session(s);
 		return;
 	}
 
-	if(ngx_handle_write_event(src->write, 0) != NGX_OK) {
+	if(ngx_handle_write_event(src->P_EvWr, 0) != NGX_OK) {
 		ngx_mail_proxy_close_session(s);
 		return;
 	}
 
-	if(ngx_handle_read_event(src->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(src->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_proxy_close_session(s);
 		return;
 	}
 
 	if(c == s->connection) {
 		pcf = (ngx_mail_proxy_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_proxy_module);
-		ngx_add_timer(c->read, pcf->timeout);
+		ngx_add_timer(c->P_EvRd, pcf->timeout);
 	}
 }
 
 static void ngx_mail_proxy_upstream_error(ngx_mail_session_t * s)
 {
 	if(s->proxy->upstream.connection) {
-		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0,
-		    "close mail proxy connection: %d",
-		    s->proxy->upstream.connection->fd);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0, "close mail proxy connection: %d", s->proxy->upstream.connection->fd);
 		ngx_close_connection(s->proxy->upstream.connection);
 	}
-
 	if(s->out.len == 0) {
 		ngx_mail_session_internal_server_error(s);
 		return;
 	}
-
 	s->quit = 1;
-	ngx_mail_send(s->connection->write);
+	ngx_mail_send(s->connection->P_EvWr);
 }
 
 static void ngx_mail_proxy_internal_server_error(ngx_mail_session_t * s)
 {
 	if(s->proxy->upstream.connection) {
-		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0,
-		    "close mail proxy connection: %d",
-		    s->proxy->upstream.connection->fd);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0, "close mail proxy connection: %d", s->proxy->upstream.connection->fd);
 		ngx_close_connection(s->proxy->upstream.connection);
 	}
-
 	ngx_mail_session_internal_server_error(s);
 }
 
 static void ngx_mail_proxy_close_session(ngx_mail_session_t * s)
 {
 	if(s->proxy->upstream.connection) {
-		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0,
-		    "close mail proxy connection: %d",
-		    s->proxy->upstream.connection->fd);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_MAIL, s->connection->log, 0, "close mail proxy connection: %d", s->proxy->upstream.connection->fd);
 		ngx_close_connection(s->proxy->upstream.connection);
 	}
-
 	ngx_mail_close_connection(s->connection);
 }
 

@@ -110,7 +110,7 @@ int __crypto_env_close(ENV * env)
 {
 	int    ret = 0;
 	DB_ENV * dbenv = env->dbenv;
-	if(dbenv->passwd != NULL) {
+	if(dbenv->passwd) {
 		memset(dbenv->passwd, 0xff, dbenv->passwd_len-1);
 		__os_free(env, dbenv->passwd);
 		dbenv->passwd = NULL;

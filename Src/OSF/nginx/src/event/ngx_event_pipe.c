@@ -10,10 +10,27 @@
 
 static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p);
 static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p);
-
 static ngx_int_t ngx_event_pipe_write_chain_to_temp_file(ngx_event_pipe_t * p);
-static ngx_inline void ngx_event_pipe_remove_shadow_links(ngx_buf_t * buf);
 static ngx_int_t ngx_event_pipe_drain_chains(ngx_event_pipe_t * p);
+
+static void FASTCALL ngx_event_pipe_remove_shadow_links(ngx_buf_t * buf)
+{
+	ngx_buf_t * b = buf->shadow;
+	if(b) {
+		while(!b->last_shadow) {
+			ngx_buf_t * next = b->shadow;
+			b->temporary = 0;
+			b->recycled = 0;
+			b->shadow = NULL;
+			b = next;
+		}
+		b->temporary = 0;
+		b->recycled = 0;
+		b->last_shadow = 0;
+		b->shadow = NULL;
+		buf->shadow = NULL;
+	}
+}
 
 ngx_int_t ngx_event_pipe(ngx_event_pipe_t * p, ngx_int_t do_write)
 {
@@ -43,7 +60,7 @@ ngx_int_t ngx_event_pipe(ngx_event_pipe_t * p, ngx_int_t do_write)
 		do_write = 1;
 	}
 	if(p->upstream->fd != (ngx_socket_t)-1) {
-		rev = p->upstream->read;
+		rev = p->upstream->P_EvRd;
 		flags = (rev->eof || rev->error) ? NGX_CLOSE_EVENT : 0;
 		if(ngx_handle_read_event(rev, flags) != NGX_OK) {
 			return NGX_ABORT;
@@ -58,7 +75,7 @@ ngx_int_t ngx_event_pipe(ngx_event_pipe_t * p, ngx_int_t do_write)
 		}
 	}
 	if(p->downstream->fd != (ngx_socket_t)-1 && p->downstream->data == p->output_ctx) {
-		wev = p->downstream->write;
+		wev = p->downstream->P_EvWr;
 		if(ngx_handle_write_event(wev, p->send_lowat) != NGX_OK) {
 			return NGX_ABORT;
 		}
@@ -98,12 +115,12 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 		}
 	}
 #endif
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe read upstream: %d", p->upstream->read->ready);
+	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe read upstream: %d", p->upstream->P_EvRd->ready);
 	for(;; ) {
 		if(p->upstream_eof || p->upstream_error || p->upstream_done) {
 			break;
 		}
-		if(p->preread_bufs == NULL && !p->upstream->read->ready) {
+		if(p->preread_bufs == NULL && !p->upstream->P_EvRd->ready) {
 			break;
 		}
 		if(p->preread_bufs) {
@@ -138,14 +155,14 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 			}
 #endif
 			if(p->limit_rate) {
-				if(p->upstream->read->delayed) {
+				if(p->upstream->P_EvRd->delayed) {
 					break;
 				}
 				limit = (nginx_off_t)p->limit_rate * (ngx_time() - p->start_sec + 1) - p->read_length;
 				if(limit <= 0) {
-					p->upstream->read->delayed = 1;
+					p->upstream->P_EvRd->delayed = 1;
 					delay = (ngx_msec_t)(-limit * 1000 / p->limit_rate + 1);
-					ngx_add_timer(p->upstream->read, delay);
+					ngx_add_timer(p->upstream->P_EvRd, delay);
 					break;
 				}
 			}
@@ -177,7 +194,7 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 				chain->buf = b;
 				chain->next = NULL;
 			}
-			else if(!p->cacheable && p->downstream->data == p->output_ctx && p->downstream->write->ready && !p->downstream->write->delayed) {
+			else if(!p->cacheable && p->downstream->data == p->output_ctx && p->downstream->P_EvWr->ready && !p->downstream->P_EvWr->delayed) {
 				/*
 				 * if the bufs are not needed to be saved in a cache and
 				 * a downstream is ready then write the bufs to a downstream
@@ -265,8 +282,8 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 			p->free_raw_bufs = cl;
 		}
 		if(delay > 0) {
-			p->upstream->read->delayed = 1;
-			ngx_add_timer(p->upstream->read, delay);
+			p->upstream->P_EvRd->delayed = 1;
+			ngx_add_timer(p->upstream->P_EvRd, delay);
 			break;
 		}
 	}
@@ -340,7 +357,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 	ngx_uint_t flush, flushed, prev_last_shadow;
 	ngx_chain_t  * out, ** ll, * cl;
 	ngx_connection_t  * downstream = p->downstream;
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe write downstream: %d", downstream->write->ready);
+	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe write downstream: %d", downstream->P_EvWr->ready);
 #if (NGX_THREADS)
 	if(p->writing) {
 		rc = ngx_event_pipe_write_chain_to_temp_file(p);
@@ -391,7 +408,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 			p->downstream_done = 1;
 			break;
 		}
-		if(downstream->data != p->output_ctx || !downstream->write->ready || downstream->write->delayed) {
+		if(downstream->data != p->output_ctx || !downstream->P_EvWr->ready || downstream->P_EvWr->delayed) {
 			break;
 		}
 		/* bsize is the size of the busy recycled bufs */
@@ -672,25 +689,6 @@ ngx_int_t ngx_event_pipe_copy_input_filter(ngx_event_pipe_t * p, ngx_buf_t * buf
 	}
 	p->length -= (b->last - b->pos);
 	return NGX_OK;
-}
-
-static ngx_inline void ngx_event_pipe_remove_shadow_links(ngx_buf_t * buf)
-{
-	ngx_buf_t * b = buf->shadow;
-	if(b) {
-		while(!b->last_shadow) {
-			ngx_buf_t * next = b->shadow;
-			b->temporary = 0;
-			b->recycled = 0;
-			b->shadow = NULL;
-			b = next;
-		}
-		b->temporary = 0;
-		b->recycled = 0;
-		b->last_shadow = 0;
-		b->shadow = NULL;
-		buf->shadow = NULL;
-	}
 }
 
 ngx_int_t ngx_event_pipe_add_free_buf(ngx_event_pipe_t * p, ngx_buf_t * b)

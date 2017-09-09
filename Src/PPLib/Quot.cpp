@@ -29,7 +29,7 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 	temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf);
 
-	temp_buf = 0;
+	temp_buf.Z();
 	if(rQuot.Flags & PPQuot::fPctOnCost)
 		temp_buf.CatChar('C');
 	if(rQuot.Flags & PPQuot::fPctOnPrice)

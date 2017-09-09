@@ -72,10 +72,7 @@ static ngx_str_t err_levels[] = {
 	ngx_string("debug")
 };
 
-static const char * debug_levels[] = {
-	"debug_core", "debug_alloc", "debug_mutex", "debug_event",
-	"debug_http", "debug_mail", "debug_stream"
-};
+static const char * debug_levels[] = { "debug_core", "debug_alloc", "debug_mutex", "debug_event", "debug_http", "debug_mail", "debug_stream" };
 
 #if (NGX_HAVE_VARIADIC_MACROS)
 	void ngx_log_error_core(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...)

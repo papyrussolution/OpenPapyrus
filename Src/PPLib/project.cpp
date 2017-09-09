@@ -2240,7 +2240,7 @@ int RestoreLostPrjTPersonDlg::setupList()
 		const int resolve_employer = BIN(p_item->EmployerID && !p_item->ResolveEmployerID);
 		const int resolve_client   = BIN(p_item->ClientID   && !p_item->ResolveClientID);
 		if(resolve_creator || resolve_employer || resolve_client) {
-			temp_buf = 0;
+			temp_buf.Z();
 			GetText(p_item->CreatorID,  creator_word,  temp_buf, resolve_creator);
 			GetText(p_item->EmployerID, employer_word, temp_buf, resolve_employer);
 			GetText(p_item->ClientID,   client_word,   temp_buf, resolve_client);

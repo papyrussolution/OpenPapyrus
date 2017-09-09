@@ -1109,7 +1109,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			//
 			// Ёкспорт артикула
 			//
-			P_GObj->P_Tbl->GetArCode(Param.SupplID, pPack->Rec.ID, temp_buf = 0, 0);
+			P_GObj->P_Tbl->GetArCode(Param.SupplID, pPack->Rec.ID, temp_buf.Z(), 0);
 			STRNSCPY(sdr_goods.ArCode, temp_buf);
 		}
 		memzero(sdr_goods.WeightPrefix, sizeof(sdr_goods.WeightPrefix));
@@ -2182,8 +2182,8 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 				SString set_path, line_buf;
 				SPathStruc ps;
 				ps.Split(Param.FileName);
-				ps.Nam = 0;
-				ps.Ext = 0;
+				ps.Nam.Z();
+				ps.Ext.Z();
 				ps.Merge(file_name);
 				THROW_SL(isDir(file_name.RmvLastSlash()));
 				(set_path = file_name).SetLastSlash().Cat("__SET__");

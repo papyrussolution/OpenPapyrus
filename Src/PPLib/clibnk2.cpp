@@ -1602,7 +1602,7 @@ int SLAPI GenerateCliBnkImpData()
 			pack.Rec.Amount = p_order->Amount;
 			pack.P_PaymOrder = new PPBankingOrder;
 			*pack.P_PaymOrder = *p_order;
-			temp_buf = 0;
+			temp_buf.Z();
 			PPID   debt_bill_id = 0;
 			if(p_order->LinkBillList.getCount()) {
 				debt_bill_id = p_order->LinkBillList.get(0);

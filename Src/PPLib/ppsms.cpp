@@ -2652,7 +2652,7 @@ int SLAPI PPSmsSender::FormatMessage(const char * pTemplate, SString & rResult, 
 		if(*p == '@') {
 			int    subst_var_success = 0;
 			PPID   org_id = 0;
-			temp_buf = 0;
+			temp_buf.Z();
 			for(int i = FIRSTSUBSTVAR; i < FIRSTSUBSTVAR + NUMSUBSTVARS; i++) {
 				if(PPGetSubStr(sub_str, i, var_buf) && var_buf.CmpL(p+1, 1) == 0) {
 					switch(i) {

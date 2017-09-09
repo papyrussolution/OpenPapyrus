@@ -89,14 +89,11 @@ static ngx_int_t ngx_http_upstream_init_hash(ngx_conf_t * cf, ngx_http_upstream_
 	if(ngx_http_upstream_init_round_robin(cf, us) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	us->peer.init = ngx_http_upstream_init_hash_peer;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us)
+static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us)
 {
 	ngx_http_upstream_hash_srv_conf_t * hcf;
 	ngx_http_upstream_hash_peer_data_t  * hp;
@@ -104,30 +101,21 @@ static ngx_int_t ngx_http_upstream_init_hash_peer(ngx_http_request_t * r,
 	if(hp == NULL) {
 		return NGX_ERROR;
 	}
-
 	r->upstream->peer.data = &hp->rrp;
-
 	if(ngx_http_upstream_init_round_robin_peer(r, us) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	r->upstream->peer.get = ngx_http_upstream_get_hash_peer;
-
 	hcf = (ngx_http_upstream_hash_srv_conf_t*)ngx_http_conf_upstream_srv_conf(us, ngx_http_upstream_hash_module);
-
 	if(ngx_http_complex_value(r, &hcf->key, &hp->key) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "upstream hash key:\"%V\"", &hp->key);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "upstream hash key:\"%V\"", &hp->key);
 	hp->conf = hcf;
 	hp->tries = 0;
 	hp->rehash = 0;
 	hp->hash = 0;
 	hp->get_rr_peer = ngx_http_upstream_get_round_robin_peer;
-
 	return NGX_OK;
 }
 
@@ -142,22 +130,15 @@ static ngx_int_t ngx_http_upstream_get_hash_peer(ngx_peer_connection_t * pc, voi
 	uintptr_t m;
 	ngx_uint_t n, p;
 	ngx_http_upstream_rr_peer_t  * peer;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "get hash peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get hash peer, try: %ui", pc->tries);
 	ngx_http_upstream_rr_peers_wlock(hp->rrp.peers);
-
 	if(hp->tries > 20 || hp->rrp.peers->single) {
 		ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
 		return hp->get_rr_peer(pc, &hp->rrp);
 	}
-
 	now = ngx_time();
-
 	pc->cached = 0;
 	pc->connection = NULL;
-
 	for(;; ) {
 		/*
 		 * Hash expression is compatible with Cache::Memcached:
@@ -453,28 +434,17 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 	ngx_http_upstream_chash_point_t  * point;
 	ngx_http_upstream_chash_points_t * points;
 	ngx_http_upstream_hash_srv_conf_t  * hcf;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "get consistent hash peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get consistent hash peer, try: %ui", pc->tries);
 	ngx_http_upstream_rr_peers_wlock(hp->rrp.peers);
-
 	pc->cached = 0;
 	pc->connection = NULL;
-
 	now = ngx_time();
 	hcf = hp->conf;
-
 	points = hcf->points;
 	point = &points->point[0];
-
 	for(;; ) {
 		server = point[hp->hash % points->number].server;
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-		    "consistent hash peer:%uD, server:\"%V\"",
-		    hp->hash, server);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0, "consistent hash peer:%uD, server:\"%V\"", hp->hash, server);
 		best = NULL;
 		best_i = 0;
 		total = 0;

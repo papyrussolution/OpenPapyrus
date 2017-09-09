@@ -110,7 +110,7 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
         	ps.Split(pDestName);
             if(ps.Nam.Empty()) {
 				ps.Nam = entry_name;
-				ps.Ext = 0;
+				ps.Ext.Z();
 				ps.Merge(temp_buf);
             }
             else
@@ -150,8 +150,8 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 			if(isempty(pName)) {
 				SPathStruc ps;
 				ps.Split(temp_buf);
-				ps.Drv = 0;
-				ps.Dir = 0;
+				ps.Drv.Z();
+				ps.Dir.Z();
 				ps.Merge(temp_buf);
 			}
 			else {
@@ -238,13 +238,13 @@ int SLAPI SArchive::AddEntries(const char * pMask, int flags)
 	SPathStruc ps;
 	//
 	ps.Split(pMask);
-    ps.Nam = 0;
-    ps.Ext = 0;
+    ps.Nam.Z();
+    ps.Ext.Z();
     ps.Merge(root);
     //
     ps.Split(pMask);
-    ps.Drv = 0;
-    ps.Dir = 0;
+    ps.Drv.Z();
+    ps.Dir.Z();
     ps.Merge(mask);
     //
 	return Helper_AddEntries(root, sub, mask, flags);

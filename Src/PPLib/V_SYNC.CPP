@@ -962,7 +962,7 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 				ss.clear(1);
 				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf.Z());
 				ss.add(temp_buf);
-				ss.add(r_entry.CommID.ToStr(0, temp_buf = 0));
+				ss.add(r_entry.CommID.ToStr(0, temp_buf.Z()));
 				ss.add(temp_buf.Z().Cat(r_entry.PrivID));
 				ss.add(temp_buf.Z().Cat(r_entry.ModDtm));
 				addStringToList(i+1, ss.getBuf());

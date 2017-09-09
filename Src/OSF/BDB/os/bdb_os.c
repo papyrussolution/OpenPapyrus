@@ -590,7 +590,7 @@ int __os_tmpdir(ENV * env, uint32 flags)
 		tdir = tdir_buf;
 		if((ret = __os_getenv(env, "TMPDIR", &tdir, sizeof(tdir_buf))) != 0)
 			return ret;
-		if(tdir != NULL && tdir[0] != '\0')
+		if(tdir && tdir[0] != '\0')
 			goto found;
 		/*
 		 * Windows: TEMP, TMP
@@ -598,18 +598,18 @@ int __os_tmpdir(ENV * env, uint32 flags)
 		tdir = tdir_buf;
 		if((ret = __os_getenv(env, "TEMP", &tdir, sizeof(tdir_buf))) != 0)
 			return ret;
-		if(tdir != NULL && tdir[0] != '\0')
+		if(tdir && tdir[0] != '\0')
 			goto found;
 		tdir = tdir_buf;
 		if((ret = __os_getenv(env, "TMP", &tdir, sizeof(tdir_buf))) != 0)
 			return ret;
-		if(tdir != NULL && tdir[0] != '\0')
+		if(tdir && tdir[0] != '\0')
 			goto found;
 		/* Macintosh */
 		tdir = tdir_buf;
 		if((ret = __os_getenv(env, "TempFolder", &tdir, sizeof(tdir_buf))) != 0)
 			return ret;
-		if(tdir != NULL && tdir[0] != '\0')
+		if(tdir && tdir[0] != '\0')
 found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 	}
 #ifdef macintosh

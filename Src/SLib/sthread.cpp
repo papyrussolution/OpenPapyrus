@@ -51,6 +51,44 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 //
 //
 //
+SLAPI ACount::ACount()
+{ 
+	C = 0; 
+}
+
+SLAPI ACount::ACount(int) 
+{
+}
+
+SLAPI ACount::operator long() const 
+{ 
+	return C; 
+}
+
+long FASTCALL ACount::Add(long add) 
+{ 
+	::InterlockedExchangeAdd(&C, add); 
+	return C; 
+}
+
+long FASTCALL ACount::Assign(long val) 
+{ 
+	InterlockedExchange(&C, val); 
+	return C; 
+}
+
+long SLAPI ACount::Incr() 
+{
+	return ::InterlockedIncrement(&C); 
+}
+
+long SLAPI ACount::Decr() 
+{
+	return ::InterlockedDecrement(&C); 
+}
+//
+//
+//
 SLAPI SCriticalSection::Data::Data(int dontDestroy)
 {
 	DontDestroyOnDestruction = dontDestroy;
@@ -336,7 +374,7 @@ SLAPI DirChangeNotification::~DirChangeNotification()
 
 int SLAPI DirChangeNotification::Next()
 {
-	return FindNextChangeNotification(H) ? 1 : 0;
+	return BIN(FindNextChangeNotification(H));
 }
 //
 //
@@ -388,7 +426,7 @@ int SLAPI ReadWriteLock::ReadLock()
 	return Helper_ReadLock(-1);
 }
 
-int SLAPI ReadWriteLock::WriteLock()
+int FASTCALL ReadWriteLock::Helper_WriteLock(long timeout)
 {
 	int    ok = 1;
 	int    busy = 0;
@@ -403,10 +441,23 @@ int SLAPI ReadWriteLock::WriteLock()
 		assert(Dw >= 0);
 		assert(ActiveCount >= -1);
 	}
-	if(busy)
-		Sw.Wait();
-	assert(ActiveCount == -1);
+	if(busy) {
+		ok = Sw.Wait(timeout);
+	}
+	if(ok > 0) {
+		assert(ActiveCount == -1);
+	}
 	return ok;
+}
+
+int FASTCALL ReadWriteLock::WriteLockT(long timeout)
+{
+	return Helper_WriteLock(timeout);
+}
+
+int SLAPI ReadWriteLock::WriteLock()
+{
+	return Helper_WriteLock(-1);
 }
 
 int SLAPI ReadWriteLock::Unlock()
@@ -482,6 +533,16 @@ int SLAPI SlThread::SignalStartup()
 	return P_StartupSignal ? P_StartupSignal->Signal() : 0;
 }
 
+void SLAPI SlThread::SetIdleState()
+{
+	State |= stIdle;
+}
+
+void SLAPI SlThread::ResetIdleState()
+{
+	State &= ~stIdle;
+}
+
 void SLAPI SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 {
 	State  = 0;
@@ -524,13 +585,12 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 	return BIN(State & stRunning);
 }
 
-int SLAPI SlThread::Stop()
+void SLAPI SlThread::Stop()
 {
 	if(State & stRunning) {
 		if(WaitForSingleObject(Handle, StopTimeout) == WAIT_TIMEOUT)
 			Terminate();
 	}
-	return 1;
 }
 //
 // Terminate the execution thread brutally

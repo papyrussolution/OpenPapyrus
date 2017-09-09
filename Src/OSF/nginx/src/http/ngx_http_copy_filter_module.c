@@ -83,27 +83,18 @@ static ngx_int_t ngx_http_copy_filter(ngx_http_request_t * r, ngx_chain_t * in)
 		if(ctx == NULL) {
 			return NGX_ERROR;
 		}
-
 		ngx_http_set_ctx(r, ctx, ngx_http_copy_filter_module);
-
 		conf = (ngx_http_copy_filter_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_copy_filter_module);
 		clcf = (ngx_http_core_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 		ctx->sendfile = c->sendfile;
-		ctx->need_in_memory = r->main_filter_need_in_memory
-		    || r->filter_need_in_memory;
+		ctx->need_in_memory = r->main_filter_need_in_memory || r->filter_need_in_memory;
 		ctx->need_in_temp = r->filter_need_temporary;
-
 		ctx->alignment = clcf->directio_alignment;
-
 		ctx->pool = r->pool;
 		ctx->bufs = conf->bufs;
 		ctx->tag = (ngx_buf_tag_t)&ngx_http_copy_filter_module;
-
-		ctx->output_filter = (ngx_output_chain_filter_pt)
-		    ngx_http_next_body_filter;
+		ctx->output_filter = (ngx_output_chain_filter_pt)ngx_http_next_body_filter;
 		ctx->filter_ctx = r;
-
 #if (NGX_HAVE_FILE_AIO)
 		if(ngx_file_aio && clcf->aio == NGX_HTTP_AIO_ON) {
 			ctx->aio_handler = ngx_http_copy_aio_handler;
@@ -112,34 +103,21 @@ static ngx_int_t ngx_http_copy_filter(ngx_http_request_t * r, ngx_chain_t * in)
 #endif
 		}
 #endif
-
 #if (NGX_THREADS)
 		if(clcf->aio == NGX_HTTP_AIO_THREADS) {
 			ctx->thread_handler = ngx_http_copy_thread_handler;
 		}
 #endif
-
 		if(in && in->buf && ngx_buf_size(in->buf)) {
 			r->request_output = 1;
 		}
 	}
-
 #if (NGX_HAVE_FILE_AIO || NGX_THREADS)
 	ctx->aio = r->aio;
 #endif
-
 	rc = ngx_output_chain(ctx, in);
-
-	if(ctx->in == NULL) {
-		r->buffered &= ~NGX_HTTP_COPY_BUFFERED;
-	}
-	else {
-		r->buffered |= NGX_HTTP_COPY_BUFFERED;
-	}
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0,
-	    "http copy filter: %i \"%V?%V\"", rc, &r->uri, &r->args);
-
+	SETFLAG(r->buffered, NGX_HTTP_COPY_BUFFERED, ctx->in);
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0, "http copy filter: %i \"%V?%V\"", rc, &r->uri, &r->args);
 	return rc;
 }
 
@@ -260,10 +238,9 @@ static void ngx_http_copy_thread_event_handler(ngx_event_t * ev)
 static void * ngx_http_copy_filter_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_copy_filter_conf_t * conf = (ngx_http_copy_filter_conf_t*)ngx_palloc(cf->pool, sizeof(ngx_http_copy_filter_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	if(conf) {
+		conf->bufs.num = 0;
 	}
-	conf->bufs.num = 0;
 	return conf;
 }
 

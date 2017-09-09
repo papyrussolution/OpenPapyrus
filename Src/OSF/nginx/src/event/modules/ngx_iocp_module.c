@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_iocp_module.h>
+//#include <ngx_iocp_module.h>
 
 static ngx_int_t ngx_iocp_init(ngx_cycle_t * cycle, ngx_msec_t timer);
 static ngx_thread_value_t __stdcall ngx_iocp_timer(void * data);
@@ -31,16 +31,16 @@ static ngx_event_module_t ngx_iocp_module_ctx = {
 	ngx_iocp_create_conf,              /* create configuration */
 	ngx_iocp_init_conf,                /* init configuration */
 	{
-		ngx_iocp_add_event,        /* add an event */
-		NULL,                      /* delete an event */
-		NULL,                      /* enable an event */
-		NULL,                      /* disable an event */
-		NULL,                      /* add an connection */
-		ngx_iocp_del_connection,   /* delete an connection */
-		NULL,                      /* trigger a notify */
-		ngx_iocp_process_events,   /* process the events */
-		ngx_iocp_init,             /* init the events */
-		ngx_iocp_done              /* done the events */
+		ngx_iocp_add_event,        // F_Add()           add an event 
+		NULL,                      // F_Delete()        delete an event 
+		NULL,                      // enable()          enable an event 
+		NULL,                      // disable()         disable an event
+		NULL,                      // F_AddConn()       add an connection
+		ngx_iocp_del_connection,   // F_DelConn()       delete an connection 
+		NULL,                      // F_Notify()        trigger a notify 
+		ngx_iocp_process_events,   // F_ProcessEvents() process the events 
+		ngx_iocp_init,             // F_Init()          init the events 
+		ngx_iocp_done              // F_Done()          done the events 
 	}
 };
 
@@ -131,8 +131,8 @@ static void ngx_iocp_done(ngx_cycle_t * cycle)
 static ngx_int_t ngx_iocp_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t key)
 {
 	ngx_connection_t * c = (ngx_connection_t *)ev->data;
-	c->read->active = 1;
-	c->write->active = 1;
+	c->P_EvRd->active = 1;
+	c->P_EvWr->active = 1;
 	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "iocp add: fd:%d k:%ui ov:%p", c->fd, key, &ev->ovlp);
 	if(CreateIoCompletionPort((HANDLE)c->fd, iocp, key, 0) == NULL) {
 		ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno, "CreateIoCompletionPort() failed");

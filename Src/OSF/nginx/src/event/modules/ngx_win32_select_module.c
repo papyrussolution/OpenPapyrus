@@ -41,19 +41,19 @@ static ngx_str_t select_name = ngx_string("select");
 
 static ngx_event_module_t ngx_select_module_ctx = {
 	&select_name,
-	NULL,                              /* create configuration */
-	ngx_select_init_conf,              /* init configuration */
+	NULL,                 // create configuration 
+	ngx_select_init_conf, // init configuration 
 	{
-		ngx_select_add_event,      /* add an event */
-		ngx_select_del_event,      /* delete an event */
-		ngx_select_add_event,      /* enable an event */
-		ngx_select_del_event,      /* disable an event */
-		NULL,                      /* add an connection */
-		NULL,                      /* delete an connection */
-		NULL,                      /* trigger a notify */
-		ngx_select_process_events, /* process the events */
-		ngx_select_init,           /* init the events */
-		ngx_select_done            /* done the events */
+		ngx_select_add_event,      // F_Add()           add an event 
+		ngx_select_del_event,      // F_Delete()        delete an event 
+		ngx_select_add_event,      // enable()          enable an event 
+		ngx_select_del_event,      // disable()         disable an event 
+		NULL,                      // F_AddConn()       add an connection 
+		NULL,                      // F_DelConn()       delete an connection 
+		NULL,                      // F_Notify()        trigger a notify 
+		ngx_select_process_events, // F_ProcessEvents() process the events 
+		ngx_select_init,           // F_Init()          init the events 
+		ngx_select_done            // F_Done()          done the events 
 	}
 };
 
@@ -80,15 +80,15 @@ static ngx_int_t ngx_select_init(ngx_cycle_t * cycle, ngx_msec_t timer)
 		_ModulBlk.nevents = 0;
 	}
 	if(ngx_process >= NGX_PROCESS_WORKER || cycle->old_cycle == NULL || cycle->old_cycle->connection_n < cycle->connection_n) {
-		ngx_event_t ** index = (ngx_event_t **)ngx_alloc(sizeof(ngx_event_t *) * 2 * cycle->connection_n, cycle->log);
-		if(index == NULL) {
+		ngx_event_t ** pp_index = (ngx_event_t **)ngx_alloc(sizeof(ngx_event_t *) * 2 * cycle->connection_n, cycle->log);
+		if(pp_index == NULL) {
 			return NGX_ERROR;
 		}
 		if(_ModulBlk.event_index) {
-			memcpy(index, _ModulBlk.event_index, sizeof(ngx_event_t *) * _ModulBlk.nevents);
+			memcpy(pp_index, _ModulBlk.event_index, sizeof(ngx_event_t *) * _ModulBlk.nevents);
 			ngx_free(_ModulBlk.event_index);
 		}
-		_ModulBlk.event_index = index;
+		_ModulBlk.event_index = pp_index;
 	}
 	ngx_io = ngx_os_io;
 	ngx_event_actions = ngx_select_module_ctx.actions;
@@ -108,30 +108,30 @@ static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uin
 {
 	ngx_connection_t * c = (ngx_connection_t*)ev->data;
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "select add event fd:%d ev:%i", c->fd, event);
-	if(ev->index != NGX_INVALID_INDEX) {
+	if(ev->index != NGX_INVALID_INDEX)
 		ngx_log_error(NGX_LOG_ALERT, ev->log, 0, "select event fd:%d ev:%i is already set", c->fd, event);
-		return NGX_OK;
+	else {
+		if((event == NGX_READ_EVENT && ev->write) || (event == NGX_WRITE_EVENT && !ev->write)) {
+			ngx_log_error(NGX_LOG_ALERT, ev->log, 0, "invalid select %s event fd:%d ev:%i", ev->write ? "write" : "read", c->fd, event);
+			return NGX_ERROR;
+		}
+		if((event == NGX_READ_EVENT && _ModulBlk.max_read >= FD_SETSIZE) || (event == NGX_WRITE_EVENT && _ModulBlk.max_write >= FD_SETSIZE)) {
+			ngx_log_error(NGX_LOG_ERR, ev->log, 0, "maximum number of descriptors supported by select() is %d", FD_SETSIZE);
+			return NGX_ERROR;
+		}
+		if(event == NGX_READ_EVENT) {
+			FD_SET(c->fd, &_ModulBlk.master_read_fd_set);
+			_ModulBlk.max_read++;
+		}
+		else if(event == NGX_WRITE_EVENT) {
+			FD_SET(c->fd, &_ModulBlk.master_write_fd_set);
+			_ModulBlk.max_write++;
+		}
+		ev->active = 1;
+		_ModulBlk.event_index[_ModulBlk.nevents] = ev;
+		ev->index = _ModulBlk.nevents;
+		_ModulBlk.nevents++;
 	}
-	if((event == NGX_READ_EVENT && ev->write) || (event == NGX_WRITE_EVENT && !ev->write)) {
-		ngx_log_error(NGX_LOG_ALERT, ev->log, 0, "invalid select %s event fd:%d ev:%i", ev->write ? "write" : "read", c->fd, event);
-		return NGX_ERROR;
-	}
-	if((event == NGX_READ_EVENT && _ModulBlk.max_read >= FD_SETSIZE) || (event == NGX_WRITE_EVENT && _ModulBlk.max_write >= FD_SETSIZE)) {
-		ngx_log_error(NGX_LOG_ERR, ev->log, 0, "maximum number of descriptors supported by select() is %d", FD_SETSIZE);
-		return NGX_ERROR;
-	}
-	if(event == NGX_READ_EVENT) {
-		FD_SET(c->fd, &_ModulBlk.master_read_fd_set);
-		_ModulBlk.max_read++;
-	}
-	else if(event == NGX_WRITE_EVENT) {
-		FD_SET(c->fd, &_ModulBlk.master_write_fd_set);
-		_ModulBlk.max_write++;
-	}
-	ev->active = 1;
-	_ModulBlk.event_index[_ModulBlk.nevents] = ev;
-	ev->index = _ModulBlk.nevents;
-	_ModulBlk.nevents++;
 	return NGX_OK;
 }
 
@@ -213,11 +213,11 @@ static ngx_int_t ngx_select_process_events(ngx_cycle_t * cycle, ngx_msec_t timer
 		ready = select(0, &_ModulBlk.work_read_fd_set, &_ModulBlk.work_write_fd_set, NULL, tp);
 	}
 	else {
-		/*
-		 * Winsock select() requires that at least one descriptor set must be
-		 * be non-null, and any non-null descriptor set must contain at least
-		 * one handle to a socket.  Otherwise select() returns WSAEINVAL.
-		 */
+		// 
+		// Winsock select() requires that at least one descriptor set must be
+		// be non-null, and any non-null descriptor set must contain at least
+		// one handle to a socket.  Otherwise select() returns WSAEINVAL.
+		// 
 		ngx_msleep(timer);
 		ready = 0;
 	}

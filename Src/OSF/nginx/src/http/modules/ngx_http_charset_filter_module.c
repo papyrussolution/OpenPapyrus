@@ -484,7 +484,9 @@ recode:
 static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_buf_t * buf, ngx_http_charset_ctx_t * ctx)
 {
 	size_t len, size;
-	u_char c, * p, * dst, * saved, ** table;
+	u_char c, * p, * dst;
+	u_char * saved;
+	u_char ** table;
 	uint32_t n;
 	ngx_buf_t  * b;
 	ngx_uint_t i;
@@ -541,22 +543,16 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 			}
 			b = cl->buf;
 			dst = b->pos;
-
 			goto recode;
 		}
-
 		out = ngx_alloc_chain_link(pool);
-		if(out == NULL) {
-			return NULL;
+		if(out) {
+			out->buf = buf;
+			out->next = NULL;
 		}
-
-		out->buf = buf;
-		out->next = NULL;
-
 		return out;
 	}
-
-	/* process incomplete UTF sequence from previous buffer */
+	// process incomplete UTF sequence from previous buffer 
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pool->log, 0, "http charset utf saved: %z", ctx->saved_len);
 	p = src;
 	for(i = ctx->saved_len; i < NGX_UTF_LEN; i++) {
@@ -576,7 +572,7 @@ static ngx_chain_t * ngx_http_charset_recode_from_utf8(ngx_pool_t * pool, ngx_bu
 		}
 	}
 	else if(n == 0xfffffffe) {
-		/* incomplete UTF-8 symbol */
+		// incomplete UTF-8 symbol 
 		if(i < NGX_UTF_LEN) {
 			out = ngx_http_charset_get_buf(pool, ctx);
 			if(out == NULL) {
@@ -955,38 +951,26 @@ static char * ngx_http_charset_map(ngx_conf_t * cf, ngx_command_t * dummy, void 
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[1]);
 				return NGX_CONF_ERROR;
 			}
-
 			*p++ = (u_char)dst;
 		}
-
 		i /= 2;
-
 		ctx->charset->length += i;
 		ctx->characters++;
-
 		p = &table->src2dst[src * NGX_UTF_LEN] + 1;
-
 		n = ngx_utf8_decode(&p, i);
-
 		if(n > 0xffff) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid value \"%V\"", &value[1]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
-
 		pp = (u_char**)&table->dst2src[0];
-
 		dst2src = pp[n >> 8];
-
 		if(dst2src == NULL) {
 			dst2src = (u_char *)ngx_pcalloc(cf->pool, 256);
 			if(dst2src == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			pp[n >> 8] = dst2src;
 		}
-
 		dst2src[n & 0xff] = (u_char)src;
 	}
 	else {

@@ -21,7 +21,7 @@ ssize_t ngx_wsarecv(ngx_connection_t * c, u_char * buf, size_t size)
 	bytes = 0;
 	rc = WSARecv(c->fd, wsabuf, 1, &bytes, &flags, NULL, NULL);
 	ngx_log_debug4(NGX_LOG_DEBUG_EVENT, c->log, 0, "WSARecv: fd:%d rc:%d %ul of %z", c->fd, rc, bytes, size);
-	rev = c->read;
+	rev = c->P_EvRd;
 	if(rc == -1) {
 		rev->ready = 0;
 		err = ngx_socket_errno;
@@ -52,7 +52,7 @@ ssize_t ngx_overlapped_wsarecv(ngx_connection_t * c, u_char * buf, size_t size)
 	ngx_err_t err;
 	ngx_int_t n;
 	LPWSAOVERLAPPED ovlp;
-	ngx_event_t * rev = c->read;
+	ngx_event_t * rev = c->P_EvRd;
 	if(!rev->ready) {
 		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "second wsa post");
 		return NGX_AGAIN;

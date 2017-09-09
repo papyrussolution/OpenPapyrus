@@ -137,7 +137,7 @@ int FASTCALL STab::Row::FromStr(const char * pStr)
 		THROW(pStr[p] == ' ');
 		p++;
 		THROW(isdigit(pStr[p]));
-		temp_buf = 0;
+		temp_buf.Z();
 		for(; isdigit(pStr[p]); p++)
 			temp_buf.CatChar(pStr[p]);
 		PosList.add(temp_buf.ToLong());
@@ -346,7 +346,7 @@ int SLAPI STabFile::LoadTab(const char * pTabName, STab & rTab)
 					THROW(row.Add(temp_buf.ToReal()));
 				}
 				else {
-					temp_buf = 0;
+					temp_buf.Z();
 					int c = scan[0];
 					while(!oneof4(c, ' ', '\t', ';', 0) && !(c == '/' && scan[1] == '/')) {
 						temp_buf.CatChar(c);

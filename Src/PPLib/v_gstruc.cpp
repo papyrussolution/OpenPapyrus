@@ -1,6 +1,7 @@
 // V_GSTRUC.CPP
 // Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
+// Таблица просмотра товарных структур
 //
 #include <pp.h>
 #pragma hdrstop
@@ -93,7 +94,7 @@ int SLAPI PPViewGoodsStruc::AddItem(PPID goodsID, PPID strucID, BExtInsert * pBe
 				PPLoadString("structure", word); // @v9.2.1
 				GetGoodsName(goodsID, buf).Space().CatChar('(').Cat(word).CatChar(':').Cat(struc_name).CatChar(')');
 				buf.CopyTo(temp_rec.GoodsName, sizeof(temp_rec.GoodsName));
-				struc.GetTypeString(buf.Z());
+				struc.GetTypeString(buf);
 				buf.CopyTo(temp_rec.Type, sizeof(temp_rec.Type));
 				r_i.GetEstimationString(buf.Z(), MKSFMTD(0, 3, ALIGN_RIGHT));
 				buf.CopyTo(temp_rec.Qtty, sizeof(temp_rec.Qtty));

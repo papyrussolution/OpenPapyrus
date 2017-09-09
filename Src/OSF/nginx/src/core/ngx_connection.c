@@ -578,17 +578,17 @@ void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 		for(i = 0; i < cycle->listening.nelts; i++) {
 			c = ls[i].connection;
 			if(c) {
-				if(c->read->active) {
+				if(c->P_EvRd->active) {
 					if(ngx_event_flags & NGX_USE_EPOLL_EVENT) {
 						/*
 						 * it seems that Linux-2.6.x OpenVZ sends events
 						 * for closed shared listening sockets unless
 						 * the events was explicitly deleted
 						 */
-						ngx_del_event(c->read, NGX_READ_EVENT, 0);
+						ngx_del_event(c->P_EvRd, NGX_READ_EVENT, 0);
 					}
 					else {
-						ngx_del_event(c->read, NGX_READ_EVENT, NGX_CLOSE_EVENT);
+						ngx_del_event(c->P_EvRd, NGX_READ_EVENT, NGX_CLOSE_EVENT);
 					}
 				}
 				ngx_free_connection(c);
@@ -636,11 +636,11 @@ ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 	if(ngx_cycle->files && ngx_cycle->files[s] == NULL) {
 		ngx_cycle->files[s] = c;
 	}
-	rev = c->read;
-	wev = c->write;
+	rev = c->P_EvRd;
+	wev = c->P_EvWr;
 	memzero(c, sizeof(ngx_connection_t));
-	c->read = rev;
-	c->write = wev;
+	c->P_EvRd = rev;
+	c->P_EvWr = wev;
 	c->fd = s;
 	c->log = log;
 	instance = rev->instance;
@@ -673,33 +673,33 @@ void ngx_close_connection(ngx_connection_t * c)
 	if(c->fd == (ngx_socket_t)-1)
 		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "connection already closed");
 	else {
-		if(c->read->timer_set) {
-			ngx_del_timer(c->read);
+		if(c->P_EvRd->timer_set) {
+			ngx_del_timer(c->P_EvRd);
 		}
-		if(c->write->timer_set) {
-			ngx_del_timer(c->write);
+		if(c->P_EvWr->timer_set) {
+			ngx_del_timer(c->P_EvWr);
 		}
 		if(!c->shared) {
 			if(ngx_del_conn) {
 				ngx_del_conn(c, NGX_CLOSE_EVENT);
 			}
 			else {
-				if(c->read->active || c->read->disabled) {
-					ngx_del_event(c->read, NGX_READ_EVENT, NGX_CLOSE_EVENT);
+				if(c->P_EvRd->active || c->P_EvRd->disabled) {
+					ngx_del_event(c->P_EvRd, NGX_READ_EVENT, NGX_CLOSE_EVENT);
 				}
-				if(c->write->active || c->write->disabled) {
-					ngx_del_event(c->write, NGX_WRITE_EVENT, NGX_CLOSE_EVENT);
+				if(c->P_EvWr->active || c->P_EvWr->disabled) {
+					ngx_del_event(c->P_EvWr, NGX_WRITE_EVENT, NGX_CLOSE_EVENT);
 				}
 			}
 		}
-		if(c->read->posted) {
-			ngx_delete_posted_event(c->read);
+		if(c->P_EvRd->posted) {
+			ngx_delete_posted_event(c->P_EvRd);
 		}
-		if(c->write->posted) {
-			ngx_delete_posted_event(c->write);
+		if(c->P_EvWr->posted) {
+			ngx_delete_posted_event(c->P_EvWr);
 		}
-		c->read->closed = 1;
-		c->write->closed = 1;
+		c->P_EvRd->closed = 1;
+		c->P_EvWr->closed = 1;
 		ngx_reusable_connection(c, 0);
 		log_error = c->log_error;
 		ngx_free_connection(c);
@@ -727,7 +727,7 @@ void ngx_reusable_connection(ngx_connection_t * c, ngx_uint_t reusable)
 {
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0, "reusable connection: %ui", reusable);
 	if(c->reusable) {
-		ngx_queue_remove(&c->queue);
+		ngx_queue_remove(&c->Queue);
 		ngx_cycle->reusable_connections_n--;
 #if (NGX_STAT_STUB)
 		(void)ngx_atomic_fetch_add(ngx_stat_waiting, -1);
@@ -736,7 +736,7 @@ void ngx_reusable_connection(ngx_connection_t * c, ngx_uint_t reusable)
 	c->reusable = reusable;
 	if(reusable) {
 		/* need cast as ngx_cycle is volatile */
-		ngx_queue_insert_head((ngx_queue_t*)&ngx_cycle->reusable_connections_queue, &c->queue);
+		ngx_queue_insert_head((ngx_queue_t*)&ngx_cycle->reusable_connections_queue, &c->Queue);
 		ngx_cycle->reusable_connections_n++;
 
 #if (NGX_STAT_STUB)
@@ -754,10 +754,10 @@ static void ngx_drain_connections(ngx_cycle_t * cycle)
 		}
 		else {
 			ngx_queue_t * q = ngx_queue_last(&cycle->reusable_connections_queue);
-			ngx_connection_t * c = ngx_queue_data(q, ngx_connection_t, queue);
+			ngx_connection_t * c = ngx_queue_data(q, ngx_connection_t, Queue);
 			ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0, "reusing connection");
 			c->close = 1;
-			c->read->handler(c->read);
+			c->P_EvRd->handler(c->P_EvRd);
 		}
 	}
 }
@@ -769,7 +769,7 @@ void ngx_close_idle_connections(ngx_cycle_t * cycle)
 		/* THREAD: lock */
 		if(c[i].fd != (ngx_socket_t)-1 && c[i].idle) {
 			c[i].close = 1;
-			c[i].read->handler(c[i].read);
+			c[i].P_EvRd->handler(c[i].P_EvRd);
 		}
 	}
 }

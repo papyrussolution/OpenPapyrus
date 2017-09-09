@@ -225,18 +225,13 @@ static ngx_int_t ngx_http_dav_delete_handler(ngx_http_request_t * r)
 	ngx_str_t path;
 	ngx_file_info_t fi;
 	ngx_http_dav_loc_conf_t  * dlcf;
-
 	if(r->headers_in.content_length_n > 0) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "DELETE with body is unsupported");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "DELETE with body is unsupported");
 		return NGX_HTTP_UNSUPPORTED_MEDIA_TYPE;
 	}
-
 	dlcf = (ngx_http_dav_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_dav_module);
-
 	if(dlcf->min_delete_depth) {
 		d = 0;
-
 		for(i = 0; i < r->uri.len; /* void */) {
 			if(r->uri.data[i++] == '/') {
 				if(++d >= dlcf->min_delete_depth && i < r->uri.len) {
@@ -244,47 +239,30 @@ static ngx_int_t ngx_http_dav_delete_handler(ngx_http_request_t * r)
 				}
 			}
 		}
-
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "insufficient URI depth:%i to DELETE", d);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "insufficient URI depth:%i to DELETE", d);
 		return NGX_HTTP_CONFLICT;
 	}
-
 ok:
-
 	if(ngx_http_map_uri_to_path(r, &path, &root, 0) == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http delete filename: \"%s\"", path.data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http delete filename: \"%s\"", path.data);
 	if(ngx_link_info(path.data, &fi) == NGX_FILE_ERROR) {
 		err = ngx_errno;
-
 		rc = (err == NGX_ENOTDIR) ? NGX_HTTP_CONFLICT : NGX_HTTP_NOT_FOUND;
-
-		return ngx_http_dav_error(r->connection->log, err,
-		    rc, ngx_link_info_n, path.data);
+		return ngx_http_dav_error(r->connection->log, err, rc, ngx_link_info_n, path.data);
 	}
-
 	if(ngx_is_dir(&fi)) {
 		if(r->uri.data[r->uri.len - 1] != '/') {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, NGX_EISDIR,
-			    "DELETE \"%s\" failed", path.data);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, NGX_EISDIR, "DELETE \"%s\" failed", path.data);
 			return NGX_HTTP_CONFLICT;
 		}
-
 		depth = ngx_http_dav_depth(r, NGX_HTTP_DAV_INFINITY_DEPTH);
-
 		if(depth != NGX_HTTP_DAV_INFINITY_DEPTH) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "\"Depth\" header must be infinity");
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"Depth\" header must be infinity");
 			return NGX_HTTP_BAD_REQUEST;
 		}
-
 		path.len -= 2; /* omit "/\0" */
-
 		dir = 1;
 	}
 	else {
@@ -292,24 +270,17 @@ ok:
 		 * we do not need to test (r->uri.data[r->uri.len - 1] == '/')
 		 * because ngx_link_info("/file/") returned NGX_ENOTDIR above
 		 */
-
 		depth = ngx_http_dav_depth(r, 0);
-
 		if(depth != 0 && depth != NGX_HTTP_DAV_INFINITY_DEPTH) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "\"Depth\" header must be 0 or infinity");
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"Depth\" header must be 0 or infinity");
 			return NGX_HTTP_BAD_REQUEST;
 		}
-
 		dir = 0;
 	}
-
 	rc = ngx_http_dav_delete_path(r, &path, dir);
-
 	if(rc == NGX_OK) {
 		return NGX_HTTP_NO_CONTENT;
 	}
-
 	return rc;
 }
 
@@ -317,7 +288,6 @@ static ngx_int_t ngx_http_dav_delete_path(ngx_http_request_t * r, ngx_str_t * pa
 {
 	char  * failed;
 	ngx_tree_ctx_t tree;
-
 	if(dir) {
 		tree.init_handler = NULL;
 		tree.file_handler = ngx_http_dav_delete_file;
@@ -354,31 +324,21 @@ static ngx_int_t ngx_http_dav_delete_path(ngx_http_request_t * r, ngx_str_t * pa
 
 static ngx_int_t ngx_http_dav_delete_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0,
-	    "http delete dir: \"%s\"", path->data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http delete dir: \"%s\"", path->data);
 	if(ngx_delete_dir(path->data) == NGX_FILE_ERROR) {
 		/* TODO: add to 207 */
-
-		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_dir_n,
-		    path->data);
+		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_dir_n, path->data);
 	}
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_dav_delete_file(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0,
-	    "http delete file: \"%s\"", path->data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http delete file: \"%s\"", path->data);
 	if(ngx_delete_file(path->data) == NGX_FILE_ERROR) {
 		/* TODO: add to 207 */
-
-		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_file_n,
-		    path->data);
+		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_file_n, path->data);
 	}
-
 	return NGX_OK;
 }
 
@@ -392,41 +352,28 @@ static ngx_int_t ngx_http_dav_mkcol_handler(ngx_http_request_t * r, ngx_http_dav
 	u_char  * p;
 	size_t root;
 	ngx_str_t path;
-
 	if(r->headers_in.content_length_n > 0) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "MKCOL with body is unsupported");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "MKCOL with body is unsupported");
 		return NGX_HTTP_UNSUPPORTED_MEDIA_TYPE;
 	}
-
 	if(r->uri.data[r->uri.len - 1] != '/') {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "MKCOL can create a collection only");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "MKCOL can create a collection only");
 		return NGX_HTTP_CONFLICT;
 	}
-
 	p = ngx_http_map_uri_to_path(r, &path, &root, 0);
 	if(p == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	*(p - 1) = '\0';
 	r->uri.len--;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http mkcol path: \"%s\"", path.data);
-
-	if(ngx_create_dir(path.data, ngx_dir_access(dlcf->access))
-	    != NGX_FILE_ERROR) {
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http mkcol path: \"%s\"", path.data);
+	if(ngx_create_dir(path.data, ngx_dir_access(dlcf->access)) != NGX_FILE_ERROR) {
 		if(ngx_http_dav_location(r, path.data) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		return NGX_HTTP_CREATED;
 	}
-
-	return ngx_http_dav_error(r->connection->log, ngx_errno,
-	    NGX_HTTP_CONFLICT, ngx_create_dir_n, path.data);
+	return ngx_http_dav_error(r->connection->log, ngx_errno, NGX_HTTP_CONFLICT, ngx_create_dir_n, path.data);
 }
 
 static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)

@@ -160,7 +160,7 @@ int ExcelDbFile::GetFldNames()
 	SString temp_buf;
 	FldNames.clear();
 	for(int i = 1; i <= max_items; i++) {
-		if(P_Sheet->GetValue(row, col, temp_buf = 0) > 0 && temp_buf.NotEmptyS())
+		if(P_Sheet->GetValue(row, col, temp_buf.Z()) > 0 && temp_buf.NotEmptyS())
 			FldNames.add(temp_buf.ToUpper());
 		else if(is_vert)
 			FldNames.add(temp_buf.Z().CatChar('$').Cat(row));
@@ -171,20 +171,6 @@ int ExcelDbFile::GetFldNames()
 		else
 			col++;
 	}
-	/* @v7.4.9
-	while(!stop) {
-		if(P_Sheet->GetValue(row, col, temp_buf = 0) <= 0 || temp_buf.Len() == 0)
-			stop = 1;
-		else {
-			temp_buf.Strip();
-			FldNames.add(temp_buf.ToUpper());
-		}
-		if(is_vert)
-			row++;
-		else
-			col++;
-	}
-	*/
 	return 1;
 }
 
@@ -203,7 +189,7 @@ int ExcelDbFile::Scan()
 		GetFldNames();
 	if(!FldNames.getCount()) {
 		while(!stop) {
-			temp_buf = 0;
+			temp_buf.Z();
 			if(P_Sheet->GetValue(row, col, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 				max_row = is_vert ? row : 0;
 				max_col = is_vert ? 0 : col;

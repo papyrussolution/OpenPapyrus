@@ -654,28 +654,14 @@ ngx_int_t ngx_chain_writer(void * data, ngx_chain_t * in)
 		*ctx->last = cl;
 		ctx->last = &cl->next;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0,
-	    "chain writer in: %p", ctx->out);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0, "chain writer in: %p", ctx->out);
 	for(cl = ctx->out; cl; cl = cl->next) {
 #if 1
 		if(ngx_buf_size(cl->buf) == 0 && !ngx_buf_special(cl->buf)) {
-			ngx_log_error(NGX_LOG_ALERT, ctx->pool->log, 0,
-			    "zero size buf in chain writer "
-			    "t:%d r:%d f:%d %p %p-%p %p %O-%O",
-			    cl->buf->temporary,
-			    cl->buf->recycled,
-			    cl->buf->in_file,
-			    cl->buf->start,
-			    cl->buf->pos,
-			    cl->buf->last,
-			    cl->buf->file,
-			    cl->buf->file_pos,
-			    cl->buf->file_last);
-
+			ngx_log_error(NGX_LOG_ALERT, ctx->pool->log, 0, "zero size buf in chain writer t:%d r:%d f:%d %p %p-%p %p %O-%O",
+			    cl->buf->temporary, cl->buf->recycled, cl->buf->in_file, cl->buf->start, cl->buf->pos,
+			    cl->buf->last, cl->buf->file, cl->buf->file_pos, cl->buf->file_last);
 			ngx_debug_point();
-
 			continue;
 		}
 #endif
@@ -686,32 +672,22 @@ ngx_int_t ngx_chain_writer(void * data, ngx_chain_t * in)
 	if(size == 0 && !c->buffered) {
 		return NGX_OK;
 	}
-
 	chain = c->send_chain(c, ctx->out, ctx->limit);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0,
-	    "chain writer out: %p", chain);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0, "chain writer out: %p", chain);
 	if(chain == NGX_CHAIN_ERROR) {
 		return NGX_ERROR;
 	}
-
 	for(cl = ctx->out; cl && cl != chain; /* void */) {
 		ln = cl;
 		cl = cl->next;
 		ngx_free_chain(ctx->pool, ln);
 	}
-
 	ctx->out = chain;
-
 	if(ctx->out == NULL) {
 		ctx->last = &ctx->out;
-
 		if(!c->buffered) {
 			return NGX_OK;
 		}
 	}
-
 	return NGX_AGAIN;
 }
-

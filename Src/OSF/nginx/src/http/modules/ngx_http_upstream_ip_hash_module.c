@@ -133,31 +133,21 @@ static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, 
 	uintptr_t m;
 	ngx_uint_t i, n, p, hash;
 	ngx_http_upstream_rr_peer_t  * peer;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-	    "get ip hash peer, try: %ui", pc->tries);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get ip hash peer, try: %ui", pc->tries);
 	/* TODO: cached */
-
 	ngx_http_upstream_rr_peers_wlock(iphp->rrp.peers);
-
 	if(iphp->tries > 20 || iphp->rrp.peers->single) {
 		ngx_http_upstream_rr_peers_unlock(iphp->rrp.peers);
 		return iphp->get_rr_peer(pc, &iphp->rrp);
 	}
-
 	now = ngx_time();
-
 	pc->cached = 0;
 	pc->connection = NULL;
-
 	hash = iphp->hash;
-
 	for(;; ) {
 		for(i = 0; i < (ngx_uint_t)iphp->addrlen; i++) {
 			hash = (hash * 113 + iphp->addr[i]) % 6271;
 		}
-
 		w = hash % iphp->rrp.peers->total_weight;
 		peer = iphp->rrp.peers->peer;
 		p = 0;
@@ -174,28 +164,18 @@ static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, 
 		if(iphp->rrp.tried[n] & m) {
 			goto next;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-		    "get ip hash peer, hash: %ui %04XL", p, (uint64_t)m);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get ip hash peer, hash: %ui %04XL", p, (uint64_t)m);
 		if(peer->down) {
 			goto next;
 		}
-
-		if(peer->max_fails
-		    && peer->fails >= peer->max_fails
-		    && now - peer->checked <= peer->fail_timeout) {
+		if(peer->max_fails && peer->fails >= peer->max_fails && now - peer->checked <= peer->fail_timeout) {
 			goto next;
 		}
-
 		if(peer->max_conns && peer->conns >= peer->max_conns) {
 			goto next;
 		}
-
 		break;
-
 next:
-
 		if(++iphp->tries > 20) {
 			ngx_http_upstream_rr_peers_unlock(iphp->rrp.peers);
 			return iphp->get_rr_peer(pc, &iphp->rrp);

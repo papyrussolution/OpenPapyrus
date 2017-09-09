@@ -1,9 +1,8 @@
 // PPEXPR.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
-//
-// Трансляция формул
+// РўСЂР°РЅСЃР»СЏС†РёСЏ С„РѕСЂРјСѓР»
 //
 #include <pp.h>
 #pragma hdrstop
@@ -311,8 +310,8 @@ int SLAPI BillContext::ResolveFunc(int funcId, FC & rFc)
 			break;
 		case funcAmountByGVat:
 			//
-			// Для этого расчета нельзя воспользоваться общим блоком this->Bt
-			// из-за специального флага BTC_CALCNOMINALGVAT.
+			// Р”Р»СЏ СЌС‚РѕРіРѕ СЂР°СЃС‡РµС‚Р° РЅРµР»СЊР·СЏ РІРѕСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РѕР±С‰РёРј Р±Р»РѕРєРѕРј this->Bt
+			// РёР·-Р·Р° СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ С„Р»Р°РіР° BTC_CALCNOMINALGVAT.
 			//
 			{
 				BillTotalData local_bt;
@@ -537,7 +536,7 @@ int SLAPI PPExprParser::GetSieve()
 		temp_buf.CatChar(Cur);
 	}
 	if(ok) {
-		Next(); // Забрать символ ']' из потока
+		Next(); // Р—Р°Р±СЂР°С‚СЊ СЃРёРјРІРѕР» ']' РёР· РїРѕС‚РѕРєР°
 		SString sub, left, right;
 		StringSet ss(';', temp_buf.Strip());
 		long   id = 0;
@@ -545,7 +544,7 @@ int SLAPI PPExprParser::GetSieve()
 		for(uint pos = 0; ss.get(&pos, sub);) {
 			if(sub.Strip()[0] == '@') {
 				//
-				// Загрузка таблицы из файла
+				// Р—Р°РіСЂСѓР·РєР° С‚Р°Р±Р»РёС†С‹ РёР· С„Р°Р№Р»Р°
 				//
 				sub.ShiftLeft(1);
 				if(sub.Divide(':', left, right) <= 0) {
@@ -722,8 +721,8 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 	int    uminus = 0;
 	THROW(GetToken());
 	//
-	// Цикл для корректной обработки любого количества
-	// подряд идущих плюсов и минусов
+	// Р¦РёРєР» РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё Р»СЋР±РѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР°
+	// РїРѕРґСЂСЏРґ РёРґСѓС‰РёС… РїР»СЋСЃРѕРІ Рё РјРёРЅСѓСЃРѕРІ
 	//
 	while(oneof2(Token, '-', '+')) {
 		if(Token == '-')
@@ -909,7 +908,7 @@ int SLAPI PPExprParser::ReadArgString(SString & rBuf, size_t * pOffs) const
 {
 	int    ok = 1;
 	rBuf.Z();
-	const size_t pos = Pos ? (Pos-1) : Pos; // Pos является указателем на символ, следующий за PPExprParser::Cur
+	const size_t pos = Pos ? (Pos-1) : Pos; // Pos СЏРІР»СЏРµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»РµРј РЅР° СЃРёРјРІРѕР», СЃР»РµРґСѓСЋС‰РёР№ Р·Р° PPExprParser::Cur
 	const char * p = &P_S[pos];
 	while(oneof4(*p, ' ', '\t', '\r', '\n'))
 		p++;
@@ -977,7 +976,7 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 	int    ok = 1;
 	double result = 0.0;
 	//
-	// Сохраняем текущее состояние, критичное к рекурсивному вызову CalcExpr {
+	// РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ, РєСЂРёС‚РёС‡РЅРѕРµ Рє СЂРµРєСѓСЂСЃРёРІРЅРѕРјСѓ РІС‹Р·РѕРІСѓ CalcExpr {
 	//
 	State save_state;
 	save_state = St;
@@ -996,8 +995,8 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 		else {
 			const int tok = Token;
 			//
-			// Операции -, + имеют больший приоритет, чем <>=. Поэтому вызываем
-			// CalcExpr вместо { GetToken(); GetTerm(&add); }
+			// РћРїРµСЂР°С†РёРё -, + РёРјРµСЋС‚ Р±РѕР»СЊС€РёР№ РїСЂРёРѕСЂРёС‚РµС‚, С‡РµРј <>=. РџРѕСЌС‚РѕРјСѓ РІС‹Р·С‹РІР°РµРј
+			// CalcExpr РІРјРµСЃС‚Рѕ { GetToken(); GetTerm(&add); }
 			//
 			THROW(CalcExpr(&add)); // @recursion
 			switch(tok) {
@@ -1014,7 +1013,7 @@ int FASTCALL PPExprParser::CalcExpr(double * pResult)
 		ok = 0;
 		result = 0.0;
 	ENDCATCH
-	St = save_state; // Восстанавливаем текущее состояние
+	St = save_state; // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
 	ASSIGN_PTR(pResult, result);
 	return ok;
 }
@@ -1404,7 +1403,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					uint   gs_pos = 0;
 					BarcodeTbl::Rec bc_rec;
 					//
-					// Сначала выясняем, не является ли ссылка кодом элемента структуры
+					// РЎРЅР°С‡Р°Р»Р° РІС‹СЏСЃРЅСЏРµРј, РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃСЃС‹Р»РєР° РєРѕРґРѕРј СЌР»РµРјРµРЅС‚Р° СЃС‚СЂСѓРєС‚СѓСЂС‹
 					//
 					if(P_Gs->SearchSymb(ref, &gs_pos) > 0) {
 						ref_goods_id = P_Gs->Items.at(gs_pos).GoodsID;
@@ -1417,7 +1416,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						}
 					}
 					//
-					// Ссылка может являться кодом товара
+					// РЎСЃС‹Р»РєР° РјРѕР¶РµС‚ СЏРІР»СЏС‚СЊСЃСЏ РєРѕРґРѕРј С‚РѕРІР°СЂР°
 					//
 					else if(GObj.P_Tbl->SearchBarcode(ref, &bc_rec) > 0) {
 						ref_goods_id = bc_rec.GoodsID;
@@ -1425,14 +1424,14 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					else {
 						SString ref2;
 						//
-						// Возможно, ссылка является кодом группы
+						// Р’РѕР·РјРѕР¶РЅРѕ, СЃСЃС‹Р»РєР° СЏРІР»СЏРµС‚СЃСЏ РєРѕРґРѕРј РіСЂСѓРїРїС‹
 						//
 						ref2.CatChar('@').Cat(ref);
 						if(GObj.P_Tbl->SearchBarcode(ref2, &bc_rec) > 0) {
 							ref_goods_id = bc_rec.GoodsID;
 						}
 						//
-						// Ничего не помогает: ссылка не может быть разрешена
+						// РќРёС‡РµРіРѕ РЅРµ РїРѕРјРѕРіР°РµС‚: СЃСЃС‹Р»РєР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°Р·СЂРµС€РµРЅР°
 						//
 						else {
 							CALLEXCEPT_PP_S(PPERR_INVEXPRREF, ref);
@@ -1522,19 +1521,19 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					if(P_Ti)
 						v = P_Ti->Cost;
 					else
-						r = 0; // cost может быть суммой документа
+						r = 0; // cost РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃСѓРјРјРѕР№ РґРѕРєСѓРјРµРЅС‚Р°
 				}
 				else if(ref.CmpNC("price") == 0) {
 					if(P_Ti)
 						v = P_Ti->Price;
 					else
-						r = 0; // price может быть суммой документа
+						r = 0; // price РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃСѓРјРјРѕР№ РґРѕРєСѓРјРµРЅС‚Р°
 				}
 				else if(ref.CmpNC("discount") == 0) {
 					if(P_Ti)
 						v = P_Ti->Discount;
 					else
-						r = 0; // discount может быть суммой документа
+						r = 0; // discount РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃСѓРјРјРѕР№ РґРѕРєСѓРјРµРЅС‚Р°
 				}
 				else if(ref.CmpNC("QTTY") == 0 || ref.CmpNC("QTY") == 0)
 					v = P_Ti ? P_Ti->Quantity_ : P.Qtty; // @v8.8.6 0.0-->P.Qtty

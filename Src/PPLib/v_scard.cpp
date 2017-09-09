@@ -763,7 +763,7 @@ int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, Te
 		// @v8.4.2 {
 		else if(ord == OrdByExpiry) {
 			GetPersonName(pRec->PersonID, psn_name);
-			temp_buf = 0;
+			temp_buf.Z();
 			if(pRec->Expiry)
 				temp_buf.Cat(pRec->Expiry, DATF_NODIV|DATF_YMD|DATF_CENTURY);
 			else
@@ -2638,7 +2638,7 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 					D.Amount = getCtrlReal(CTL_SCARDOP_AMOUNT);
 					temp_buf.Z().Cat(SrcRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
 					setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
-					temp_buf = 0;
+					temp_buf.Z();
 					if(D.DestSCardID) {
 						temp_buf.Z().Cat(DestRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
 					}

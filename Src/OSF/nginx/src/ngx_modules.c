@@ -127,7 +127,7 @@ const char * ngx_module_names[] = {
     "ngx_event_core_module",
     "ngx_iocp_module",
     "ngx_select_module",
-    "ngx_http_module",
+	"ngx_http_module",
     "ngx_http_core_module",
     "ngx_http_log_module",
     "ngx_http_upstream_module",

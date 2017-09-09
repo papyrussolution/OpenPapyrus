@@ -357,33 +357,21 @@ ngx_int_t ngx_resolve_name(ngx_resolver_ctx_t * ctx)
 	size_t slen;
 	ngx_int_t rc;
 	ngx_str_t name;
-	ngx_resolver_t  * r;
-
-	r = ctx->resolver;
-
+	ngx_resolver_t  * r = ctx->resolver;
 	if(ctx->name.len > 0 && ctx->name.data[ctx->name.len - 1] == '.') {
 		ctx->name.len--;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0,
-	    "resolve: \"%V\"", &ctx->name);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolve: \"%V\"", &ctx->name);
 	if(ctx->quick) {
 		ctx->handler(ctx);
 		return NGX_OK;
 	}
-
 	if(ctx->service.len) {
 		slen = ctx->service.len;
-
-		if(ngx_strlchr(ctx->service.data,
-			    ctx->service.data + ctx->service.len, '.')
-		    == NULL) {
+		if(ngx_strlchr(ctx->service.data, ctx->service.data + ctx->service.len, '.') == NULL) {
 			slen += sizeof("_._tcp") - 1;
 		}
-
 		name.len = slen + 1 + ctx->name.len;
-
 		name.data = (u_char *)ngx_resolver_alloc(r, name.len);
 		if(name.data == NULL) {
 			goto failed;
@@ -434,25 +422,17 @@ failed:
 void ngx_resolve_name_done(ngx_resolver_ctx_t * ctx)
 {
 	ngx_uint_t i;
-	ngx_resolver_t  * r;
 	ngx_resolver_ctx_t * w, ** p;
 	ngx_resolver_node_t  * rn;
-
-	r = ctx->resolver;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0,
-	    "resolve name done: %i", ctx->state);
-
+	ngx_resolver_t  * r = ctx->resolver;
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolve name done: %i", ctx->state);
 	if(ctx->quick) {
 		return;
 	}
-
 	if(ctx->event && ctx->event->timer_set) {
 		ngx_del_timer(ctx->event);
 	}
-
 	/* lock name mutex */
-
 	if(ctx->nsrvs) {
 		for(i = 0; i < ctx->nsrvs; i++) {
 			if(ctx->srvs[i].ctx) {
@@ -1059,19 +1039,13 @@ void ngx_resolve_addr_done(ngx_resolver_ctx_t * ctx)
 		    tree = &r->addr_rbtree;
 		    expire_queue = &r->addr_expire_queue;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0,
-	    "resolve addr done: %i", ctx->state);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolve addr done: %i", ctx->state);
 	if(ctx->event && ctx->event->timer_set) {
 		ngx_del_timer(ctx->event);
 	}
-
 	/* lock addr mutex */
-
 	if(ctx->state == NGX_AGAIN || ctx->state == NGX_RESOLVE_TIMEDOUT) {
 		rn = ctx->node;
-
 		if(rn) {
 			p = &rn->waiting;
 			w = rn->waiting;
@@ -1209,8 +1183,8 @@ static ngx_int_t ngx_resolver_send_udp_query(ngx_resolver_t * r, ngx_resolver_co
 		}
 
 		rec->udp->data = rec;
-		rec->udp->read->handler = ngx_resolver_udp_read;
-		rec->udp->read->resolver = 1;
+		rec->udp->P_EvRd->handler = ngx_resolver_udp_read;
+		rec->udp->P_EvRd->resolver = 1;
 	}
 
 	n = ngx_send(rec->udp, query, qlen);
@@ -1286,11 +1260,11 @@ static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_co
 		}
 
 		rec->tcp->data = rec;
-		rec->tcp->write->handler = ngx_resolver_tcp_write;
-		rec->tcp->read->handler = ngx_resolver_tcp_read;
-		rec->tcp->read->resolver = 1;
+		rec->tcp->P_EvWr->handler = ngx_resolver_tcp_write;
+		rec->tcp->P_EvRd->handler = ngx_resolver_tcp_read;
+		rec->tcp->P_EvRd->resolver = 1;
 
-		ngx_add_timer(rec->tcp->write, (ngx_msec_t)(r->tcp_timeout * 1000));
+		ngx_add_timer(rec->tcp->P_EvWr, (ngx_msec_t)(r->tcp_timeout * 1000));
 	}
 
 	b = rec->write_buf;
@@ -1305,7 +1279,7 @@ static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_co
 	b->last = ngx_cpymem(b->last, query, qlen);
 
 	if(rc == NGX_OK) {
-		ngx_resolver_tcp_write(rec->tcp->write);
+		ngx_resolver_tcp_write(rec->tcp->P_EvWr);
 	}
 
 	return NGX_OK;
@@ -1761,24 +1735,15 @@ static void ngx_resolver_process_a(ngx_resolver_t * r, u_char * buf, size_t n,
 	ngx_resolver_node_t * rn;
 	ngx_resolver_addr_t * addrs;
 	ngx_resolver_connection_t  * rec;
-
-	if(ngx_resolver_copy(r, &name, buf,
-		    buf + sizeof(ngx_resolver_hdr_t), buf + n)
-	    != NGX_OK) {
+	if(ngx_resolver_copy(r, &name, buf, buf + sizeof(ngx_resolver_hdr_t), buf + n) != NGX_OK) {
 		return;
 	}
-
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver qs:%V", &name);
-
 	hash = ngx_crc32_short(name.data, name.len);
-
 	/* lock name mutex */
-
 	rn = ngx_resolver_lookup_name(r, &name, hash);
-
 	if(rn == NULL) {
-		ngx_log_error(r->log_level, r->log, 0,
-		    "unexpected response for %V", &name);
+		ngx_log_error(r->log_level, r->log, 0, "unexpected response for %V", &name);
 		ngx_resolver_free(r, name.data);
 		goto failed;
 	}
@@ -2249,20 +2214,13 @@ found:
 		if(ngx_resolver_copy(r, &name, buf, cname, buf + n) != NGX_OK) {
 			goto failed;
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0,
-		    "resolver cname:\"%V\"", &name);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver cname:\"%V\"", &name);
 		ngx_queue_remove(&rn->queue);
-
 		rn->cnlen = (u_short)name.len;
 		rn->u.cname = name.data;
-
 		rn->valid = ngx_time() + (r->valid ? r->valid : (time_t)rn->ttl);
 		rn->expire = ngx_time() + r->expire;
-
 		ngx_queue_insert_head(&r->name_expire_queue, &rn->queue);
-
 		ngx_resolver_free(r, rn->query);
 		rn->query = NULL;
 #if (NGX_HAVE_INET6)
@@ -2348,16 +2306,11 @@ static void ngx_resolver_process_srv(ngx_resolver_t * r, u_char * buf, size_t n,
 	    != NGX_OK) {
 		return;
 	}
-
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver qs:%V", &name);
-
 	hash = ngx_crc32_short(name.data, name.len);
-
 	rn = ngx_resolver_lookup_srv(r, &name, hash);
-
 	if(rn == NULL || rn->query == NULL) {
-		ngx_log_error(r->log_level, r->log, 0,
-		    "unexpected response for %V", &name);
+		ngx_log_error(r->log_level, r->log, 0, "unexpected response for %V", &name);
 		ngx_resolver_free(r, name.data);
 		goto failed;
 	}
@@ -2618,20 +2571,13 @@ found:
 		if(ngx_resolver_copy(r, &name, buf, cname, buf + n) != NGX_OK) {
 			goto failed;
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0,
-		    "resolver cname:\"%V\"", &name);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver cname:\"%V\"", &name);
 		ngx_queue_remove(&rn->queue);
-
 		rn->cnlen = (u_short)name.len;
 		rn->u.cname = name.data;
-
 		rn->valid = ngx_time() + (r->valid ? r->valid : (time_t)rn->ttl);
 		rn->expire = ngx_time() + r->expire;
-
 		ngx_queue_insert_head(&r->srv_expire_queue, &rn->queue);
-
 		ngx_resolver_free(r, rn->query);
 		rn->query = NULL;
 #if (NGX_HAVE_INET6)
@@ -2840,13 +2786,9 @@ static void ngx_resolver_process_ptr(ngx_resolver_t * r, u_char * buf, size_t n,
 	struct in6_addr addr6;
 
 #endif
-
-	if(ngx_resolver_copy(r, &name, buf,
-		    buf + sizeof(ngx_resolver_hdr_t), buf + n)
-	    != NGX_OK) {
+	if(ngx_resolver_copy(r, &name, buf, buf + sizeof(ngx_resolver_hdr_t), buf + n) != NGX_OK) {
 		return;
 	}
-
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver qs:%V", &name);
 
 	/* AF_INET */
@@ -3046,17 +2988,13 @@ found:
 	}
 
 	/* unlock addr mutex */
-
-	ngx_log_error(r->log_level, r->log, 0,
-	    "no PTR type in DNS response");
+	ngx_log_error(r->log_level, r->log, 0, "no PTR type in DNS response");
 	return;
 
 ptr:
-
 	if(ngx_resolver_copy(r, &name, buf, buf + i, buf + n) != NGX_OK) {
 		goto failed;
 	}
-
 	ngx_log_debug1(NGX_LOG_DEBUG_CORE, r->log, 0, "resolver an:%V", &name);
 
 	if(name.len != (size_t)rn->nlen
@@ -4013,8 +3951,8 @@ static ngx_int_t ngx_udp_connect(ngx_resolver_connection_t * rec)
 		ngx_log_error(NGX_LOG_ALERT, &rec->log, ngx_socket_errno, ngx_nonblocking_n " failed");
 		goto failed;
 	}
-	rev = c->read;
-	wev = c->write;
+	rev = c->P_EvRd;
+	wev = c->P_EvWr;
 	rev->log = &rec->log;
 	wev->log = &rec->log;
 	rec->udp = c;
@@ -4066,8 +4004,8 @@ static ngx_int_t ngx_tcp_connect(ngx_resolver_connection_t * rec)
 		ngx_log_error(NGX_LOG_ALERT, &rec->log, ngx_socket_errno, ngx_nonblocking_n " failed");
 		goto failed;
 	}
-	rev = c->read;
-	wev = c->write;
+	rev = c->P_EvRd;
+	wev = c->P_EvWr;
 	rev->log = &rec->log;
 	wev->log = &rec->log;
 	rec->tcp = c;

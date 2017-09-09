@@ -732,7 +732,7 @@ int BizScTemplDialog::setupList()
 			//
 			// Добавление инфо о ячейке
 			//
-			temp_buf = 0;
+			temp_buf.Z();
 			if(row_id > 0) {
 				PPBizScTemplCell & r_cell = cell_list.at(i);
 				if(r_cell.BizScId) {
@@ -1217,7 +1217,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 					int    found = 0;
 					StringSet ss(SLBColumnDelim);
 					ss.setBuf(p_item->P_Vals, strlen(p_item->P_Vals) + 1);
-					temp_buf = 0;
+					temp_buf.Z();
 					for(uint i = 0, p = 0; ss.get(&p, temp_buf.Z()) > 0; i++) {
 						if(i == pBlk->ColumnN - 2) {
 							found = 1;

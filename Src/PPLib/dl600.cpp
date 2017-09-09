@@ -2538,7 +2538,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 		else
 			styp_buf.Cat("unnamed");
 	else {
-		temp_buf = 0;
+		temp_buf.Z();
 		temp_buf.Cat(GETSTYPE(t.Typ)).CatChar('(').Cat((long)GETSSIZE(t.Typ)).CatChar(')');
 		styp_buf.Cat(temp_buf);
 	}

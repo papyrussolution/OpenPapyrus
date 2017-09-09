@@ -439,7 +439,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		case tResetCache:
 			ok = 0;
 			name = 0;
-			temp_buf = 0;
+			temp_buf.Z();
 			if(GetWord(rLine, &p)) {
 				name = Term;
 				if(GetWord(rLine, &p))
@@ -1313,15 +1313,9 @@ private:
 		char   Code[128];
 	};
 	struct CommandBlock {
-		CommandBlock()
-		{
-			Clear();
-		}
-		void Clear()
-		{
-			MEMSZERO(U);
-			ModifList.clear();
-		}
+		SLAPI  CommandBlock();
+		void   SLAPI Clear();
+
 		union {
 			CashNodeBlock    CN;
 			SelectTableBlock ST;
@@ -1346,6 +1340,17 @@ private:
 	CPosProcessor * P_Prcssr;
 	S_GUID DeviceUuid;
 };
+
+SLAPI CPosNodeBlock::CommandBlock::CommandBlock()
+{
+	Clear();
+}
+
+void SLAPI CPosNodeBlock::CommandBlock::Clear()
+{
+	MEMSZERO(U);
+	ModifList.clear();
+}
 
 SLAPI CPosNodeBlock::CPosNodeBlock()
 {
@@ -1414,15 +1419,9 @@ int SLAPI CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SStri
 		case PPSCMD_POS_SELECTCTABLE:
 			if(crit == cCTable) {
 				switch(subcriterion) {
-					case scTableNum:
-						CmdBlk.U.ST.TblId = rArg.ToLong();
-						break;
-					case scGuestCount:
-						CmdBlk.U.ST.GuestCount = rArg.ToLong();
-						break;
-					case scSCardCode:
-						STRNSCPY(CmdBlk.U.ST.SCardCode, rArg);
-						break;
+					case scTableNum: CmdBlk.U.ST.TblId = rArg.ToLong(); break;
+					case scGuestCount: CmdBlk.U.ST.GuestCount = rArg.ToLong(); break;
+					case scSCardCode: STRNSCPY(CmdBlk.U.ST.SCardCode, rArg); break;
 				}
 			}
 			break;
@@ -1430,12 +1429,8 @@ int SLAPI CPosNodeBlock::Parse(uint cmd, int crit, int subcriterion, const SStri
 			{
 				if(crit == cGoods) {
 					switch(subcriterion) {
-						case scID:
-							CmdBlk.U.AL.GoodsId = rArg.ToLong();
-							break;
-						case scQtty:
-							CmdBlk.U.AL.Qtty = rArg.ToReal();
-							break;
+						case scID: CmdBlk.U.AL.GoodsId = rArg.ToLong(); break;
+						case scQtty: CmdBlk.U.AL.Qtty = rArg.ToReal(); break;
 					}
 				}
 				else if(crit == cModif) {
@@ -1916,72 +1911,6 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 }
 
 #define MAGIC_FILETRANSMIT "$#FILETRANSMITMAGIC#$"
-//
-// Descr: Сессия ориентированная на работу в том же процессе, что и клиентские сессии.
-//   Для обмена данными использует SBufferPipe.
-// Note: Разрабатывается в рамках включения WEB-сервера в состав процесса Papyrus
-//
-class PPWorkingPipeSession : public /*PPThread*/PPWorkerSession {
-public:
-	SLAPI  PPWorkingPipeSession();
-	SLAPI ~PPWorkingPipeSession();
-	SBufferPipe * SLAPI GetInputPipe();
-private:
-	virtual void SLAPI Run();
-	virtual CmdRet SLAPI ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply);
-
-	SBufferPipe InpPipe; // Собственность потока. Вызывающий поток может получить
-		// указатель на канал вызовом GetInputPipe()
-	SBufferPipe * P_OutPipe; // @notowne Указатель на этот канал поток получает вместе с командой
-};
-
-SLAPI PPWorkingPipeSession::PPWorkingPipeSession() : PPWorkerSession(PPThread::kWorkerSession)
-{
-	P_OutPipe = 0;
-}
-
-SLAPI PPWorkingPipeSession::~PPWorkingPipeSession()
-{
-}
-
-SBufferPipe * SLAPI PPWorkingPipeSession::GetInputPipe()
-{
-	InpPipe.Reset();
-	return &InpPipe;
-}
-
-//virtual
-void SLAPI PPWorkingPipeSession::Run()
-{
-}
-
-//virtual
-PPWorkerSession::CmdRet SLAPI PPWorkingPipeSession::ProcessCommand(PPServerCmd * pEv, PPJobSrvReply & rReply)
-{
-	CmdRet ok = PPWorkerSession::ProcessCommand(pEv, rReply);
-	if(ok == cmdretUnprocessed) {
-		/*
-		int    disable_err_reply = 0;
-		int    r = 0;
-		SString reply_buf, temp_buf, name, db_symb;
-		// (StartWriting уже был выполнен вызовом PPWorkerSession::ProcessCommand) THROW(rReply.StartWriting());
-		switch(pEv->GetH().Type) {
-			default:
-				CALLEXCEPT_PP(PPERR_INVSERVERCMD);
-				break;
-		}
-		CATCH
-			if(!disable_err_reply)
-				rReply.SetError();
-			PPErrorZ();
-			ok = cmdretError;
-		ENDCATCH
-		if(ok != cmdretResume)
-			rReply.FinishWriting();
-		*/
-	} // Если родительский класс вернул что-то отличное от cmdretUnprocessed, то - немедленный выход с этим результатом
-	return ok;
-}
 
 class PPServerSession : public /*PPThread*/PPWorkerSession {
 public:
@@ -2162,7 +2091,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::Helper_QueryNaturalToken(PPServer
 							}
 							else if(obj_type == PPOBJ_LOCATION) {
 								if(p_psn_obj->LocObj.Fetch(item.Val, &loc_rec) > 0) {
-									temp_buf = 0;
+									temp_buf.Z();
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
 									if(!temp_buf.NotEmptyS())
 										temp_buf = loc_rec.Name;
@@ -2225,8 +2154,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 			SFileUtil::Stat fs;
 			SFileFormat ff;
 			ps.Split(pParam);
-			ps.Drv = 0;
-			ps.Dir = 0;
+			ps.Drv.Z();
+			ps.Dir.Z();
 			ps.Merge(temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 			THROW(SFileUtil::GetStat(pParam, &fs));
@@ -2859,7 +2788,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 						else
 							terminal.Z().CRB().CRB();
 						ulong c = SLS.GetTLA().Rg.GetUniformInt(100);
-						temp_buf = 0;
+						temp_buf.Z();
 						for(ulong i = 0; i < c; i++) {
 							temp_buf.Cat((long)SLS.GetTLA().Rg.GetUniformInt(10));
 						}
@@ -2985,8 +2914,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					if(dev_uuid.Empty()) {
 						SPathStruc sp;
 						sp.Split(temp_path);
-						sp.Nam = 0;
-						sp.Ext = 0;
+						sp.Nam.Z();
+						sp.Ext.Z();
 						sp.Merge(log_path);
 					}
 					else {
@@ -3000,8 +2929,8 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					SString dir, path;
 					SPathStruc sp;
 					sp.Split(temp_path);
-					sp.Nam = 0;
-					sp.Ext = 0;
+					sp.Nam.Z();
+					sp.Ext.Z();
 					sp.Merge(dir);
 					path = MakeTempFileName(dir, "out", "xml", &start, path);
 					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
@@ -3697,7 +3626,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 				break;
 			case PPSCMD_SETIMAGE:
 				THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);
-				THROW(ReceiveFile(tfvStart, temp_buf = 0, rReply));
+				THROW(ReceiveFile(tfvStart, temp_buf.Z(), rReply));
 				break;
 			case PPSCMD_PUTFILE:
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);

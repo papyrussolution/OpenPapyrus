@@ -488,7 +488,7 @@ int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 	wchar_t buf[256];
 	int    buf_len = sizeof(buf) / sizeof(buf[0]);
 	if(::GetClassName(hWnd, buf, buf_len)) {
-		rBuf.CopyUtf8FromUnicode(buf, strlen(buf), 0);
+		rBuf.CopyUtf8FromUnicode(buf, sstrlen(buf), 0);
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
 	else {
@@ -549,7 +549,7 @@ int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 #ifdef UNICODE
 	SStringU temp_buf_u;
 	temp_buf_u.CopyFromMb(cpANSI, pText, strlen(pText));
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)(wchar_t *)temp_buf_u));
+	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)(const wchar_t *)temp_buf_u));
 #else
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)pText));
 #endif // UNICODE

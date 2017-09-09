@@ -949,11 +949,11 @@ int SLAPI GetLocationName(PPID locID, SString & rBuf)
 			if(!rBuf.NotEmptyS())
 				rBuf = loc_rec.Code;
 			if(!rBuf.NotEmptyS())
-				ideqvalstr(locID, rBuf = 0);
+				ideqvalstr(locID, rBuf.Z());
 			ok = 1;
 		}
 		else
-			ideqvalstr(locID, rBuf = 0);
+			ideqvalstr(locID, rBuf.Z());
 	}
 	else
 		ok = GetObjectName(PPOBJ_LOCATION, locID, rBuf, 0);
@@ -2296,7 +2296,7 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 						break;
 					case tokObjTitle:
 						obj_id = va_arg(pArgList, PPID);
-						buf.Cat(GetObjectTitle(obj_id, temp_buf = 0));
+						buf.Cat(GetObjectTitle(obj_id, temp_buf.Z()));
 						break;
 					// } @v8.2.8
 					case tokPPErr:
@@ -2675,14 +2675,14 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 	ps.Split(pWildcard);
 	for(SDirec dir(pWildcard, 0); dir.Next(&entry) > 0;) {
 		ps.Nam = entry.FileName;
-		ps.Ext = 0;
+		ps.Ext.Z();
 		ps.Merge(0, file_name);
 		SFile file_in(file_name, SFile::mRead);
 		if(file_in.IsValid()) {
 			int    test_ok = 1;
 
-			ps.Nam = 0;
-			ps.Ext = 0;
+			ps.Nam.Z();
+			ps.Ext.Z();
 			ps.Merge(0, temp_file_name);
 			MakeTempFileName(temp_file_name, "U2D", "TMP", 0, temp_file_name);
 
@@ -3669,11 +3669,11 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 				STempBuffer buffer(chunk_size);
 				THROW_SL(buffer.IsValid());
 				ps.Split(pFileName);
-				ps.Drv = 0;
-				ps.Dir = 0;
-				ps.Merge(temp_buf = 0);
+				ps.Drv.Z();
+				ps.Dir.Z();
+				ps.Merge(temp_buf.Z());
 				temp_buf.ToUtf8();
-				THROW(StartTransferData(temp_buf, file_size, chunk_count + (tail_size ? 1 : 0), &transfer_id));
+				THROW(StartTransferData(temp_buf, file_size, chunk_count + BIN(tail_size), &transfer_id));
 				assert(tail_size < chunk_size);
 				//
 				dest_display_name = pKey;

@@ -180,12 +180,8 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 
 			*e.pos = '\0';
 		}
-
-		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "open index \"%V\"", &path);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "open index \"%V\"", &path);
 		memzero(&of, sizeof(ngx_open_file_info_t));
-
 		of.read_ahead = clcf->read_ahead;
 		of.directio = clcf->directio;
 		of.valid = clcf->open_file_cache_valid;
@@ -277,10 +273,7 @@ static ngx_int_t ngx_http_index_test_dir(ngx_http_request_t * r, ngx_http_core_l
 
 	dir.len = last - path;
 	dir.data = path;
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http index check dir: \"%V\"", &dir);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http index check dir: \"%V\"", &dir);
 	memzero(&of, sizeof(ngx_open_file_info_t));
 
 	of.test_dir = 1;

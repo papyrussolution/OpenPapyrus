@@ -8,7 +8,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_stream.h>
-#include <ngx_event_connect.h>
+//#include <ngx_event_connect.h>
 
 #define NGX_STREAM_UPSTREAM_CREATE        0x0001
 #define NGX_STREAM_UPSTREAM_WEIGHT        0x0002
@@ -20,23 +20,23 @@
 
 #define NGX_STREAM_UPSTREAM_NOTIFY_CONNECT     0x1
 
-typedef struct {
+struct ngx_stream_upstream_main_conf_t {
 	ngx_array_t upstreams;
 	/* ngx_stream_upstream_srv_conf_t */
-} ngx_stream_upstream_main_conf_t;
+};
 
 typedef struct ngx_stream_upstream_srv_conf_s ngx_stream_upstream_srv_conf_t;
 
 typedef ngx_int_t (*ngx_stream_upstream_init_pt)(ngx_conf_t * cf, ngx_stream_upstream_srv_conf_t * us);
 typedef ngx_int_t (*ngx_stream_upstream_init_peer_pt)(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us);
 
-typedef struct {
+struct ngx_stream_upstream_peer_t {
 	ngx_stream_upstream_init_pt init_upstream;
 	ngx_stream_upstream_init_peer_pt init;
 	void  * data;
-} ngx_stream_upstream_peer_t;
+};
 
-typedef struct {
+struct ngx_stream_upstream_server_t {
 	ngx_str_t name;
 	ngx_addr_t * addrs;
 	ngx_uint_t naddrs;
@@ -49,7 +49,7 @@ typedef struct {
 	unsigned backup : 1;
 	NGX_COMPAT_BEGIN(4)
 	NGX_COMPAT_END
-} ngx_stream_upstream_server_t;
+};
 
 struct ngx_stream_upstream_srv_conf_s {
 	ngx_stream_upstream_peer_t peer;
@@ -67,16 +67,16 @@ struct ngx_stream_upstream_srv_conf_s {
 #endif
 };
 
-typedef struct {
+struct ngx_stream_upstream_state_t {
 	ngx_msec_t response_time;
 	ngx_msec_t connect_time;
 	ngx_msec_t first_byte_time;
 	nginx_off_t bytes_sent;
 	nginx_off_t bytes_received;
 	ngx_str_t  * peer;
-} ngx_stream_upstream_state_t;
+};
 
-typedef struct {
+struct ngx_stream_upstream_resolved_t {
 	ngx_str_t host;
 	in_port_t port;
 	ngx_uint_t no_port;                     /* unsigned no_port:1 */
@@ -86,9 +86,9 @@ typedef struct {
 	socklen_t socklen;
 	ngx_str_t name;
 	ngx_resolver_ctx_t  * ctx;
-} ngx_stream_upstream_resolved_t;
+};
 
-typedef struct {
+struct ngx_stream_upstream_t {
 	ngx_peer_connection_t peer;
 	ngx_buf_t downstream_buf;
 	ngx_buf_t upstream_buf;
@@ -106,7 +106,7 @@ typedef struct {
 	ngx_stream_upstream_state_t  * state;
 	unsigned connected : 1;
 	unsigned proxy_protocol : 1;
-} ngx_stream_upstream_t;
+};
 
 ngx_stream_upstream_srv_conf_t * ngx_stream_upstream_add(ngx_conf_t * cf, ngx_url_t * u, ngx_uint_t flags);
 

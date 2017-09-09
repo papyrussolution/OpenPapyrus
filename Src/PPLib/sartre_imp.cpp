@@ -20,14 +20,14 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 		SString temp_buf;
 		const char * p = line_buf;
 		//
-		temp_buf = 0;
+		temp_buf.Z();
 		while(*p != ' ' && *p != '\t' && *p != 0)
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
 		//
 		while(oneof2(*p, ' ', '\t'))
 			p++;
-		temp_buf = 0;
+		temp_buf.Z();
 		while(*p != ' ' && *p != '\t' && *p != 0)
 			temp_buf.CatChar(*p++);
 		//
@@ -36,7 +36,7 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 		do {
 			while(oneof3(*p, ' ', '\t', ','))
 				p++;
-			temp_buf = 0;
+			temp_buf.Z();
 			while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
 				temp_buf.CatChar(*p++);
 			if(temp_buf.NotEmpty()) {
@@ -393,7 +393,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		SString temp_buf;
 		const char * p = line_buf;
 		//
-		temp_buf = 0;
+		temp_buf.Z();
 		while(*p != ' ' && *p != '\t' && *p != 0)
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
@@ -450,7 +450,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		else {
 			//
 			while(*p == ' ' || *p == '\t') p++;
-			temp_buf = 0;
+			temp_buf.Z();
 			while(*p != ' ' && *p != '\t' && *p != 0)
 				temp_buf.CatChar(*p++);
 			//
@@ -458,7 +458,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 			int    prev_compr = 0; // Предыдущий токен - сравнительная степень прилагательного SRADJCMP_COMPARATIVE
 			do {
 				while(*p == ' ' || *p == '\t' || *p == ',') p++;
-				temp_buf = 0;
+				temp_buf.Z();
 				while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
 					temp_buf.CatChar(*p++);
 				if(temp_buf.NotEmpty()) {
@@ -3127,7 +3127,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 											is_ascii = 0;
 									}
 									if(is_ascii) {
-										dest_ubuf.CopyToUtf8(temp_buf = 0, 1);
+										dest_ubuf.CopyToUtf8(temp_buf.Z(), 1);
 										out_buf.Z().CatBrackStr("en").Cat(temp_buf).Cat("=:").Cat("geoloc").CatChar('_').Cat(r_entry.ID).CR();
 										outf.WriteLine(out_buf);
 									}

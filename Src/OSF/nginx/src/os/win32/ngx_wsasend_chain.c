@@ -19,7 +19,7 @@ ngx_chain_t * ngx_wsasend_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_of
 	ngx_chain_t  * cl;
 	LPWSABUF wsabuf;
 	WSABUF wsabufs[NGX_WSABUFS];
-	ngx_event_t  * wev = c->write;
+	ngx_event_t  * wev = c->P_EvWr;
 	if(!wev->ready) {
 		return in;
 	}
@@ -101,7 +101,7 @@ ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * i
 	LPWSAOVERLAPPED ovlp;
 	LPWSABUF wsabuf;
 	WSABUF wsabufs[NGX_WSABUFS];
-	ngx_event_t  * wev = c->write;
+	ngx_event_t  * wev = c->P_EvWr;
 	if(!wev->ready) {
 		return in;
 	}
@@ -147,7 +147,7 @@ ngx_chain_t * ngx_overlapped_wsasend_chain(ngx_connection_t * c, ngx_chain_t * i
 			prev = cl->buf->last;
 			send += size;
 		}
-		ovlp = (LPWSAOVERLAPPED)&c->write->ovlp;
+		ovlp = (LPWSAOVERLAPPED)&c->P_EvWr->ovlp;
 		memzero(ovlp, sizeof(WSAOVERLAPPED));
 		rc = WSASend(c->fd, (LPWSABUF)vec.elts, vec.nelts, &sent, 0, ovlp, NULL);
 		wev->complete = 0;

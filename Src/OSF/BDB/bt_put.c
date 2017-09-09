@@ -171,7 +171,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	 * screwing up the duplicate sort order.  We have to do this after
 	 * we build the real record so that we're comparing the real items.
 	 */
-	if(op == DB_CURRENT && dbp->dup_compare != NULL) {
+	if(op == DB_CURRENT && dbp->dup_compare) {
 		if((ret = __bam_cmp(dbc, data, h, indx+(TYPE(h) == P_LBTREE ? O_INDX : 0), dbp->dup_compare, &cmp)) != 0)
 			return ret;
 		if(cmp != 0) {
@@ -676,7 +676,7 @@ int __bam_ritem_nolog(DBC * dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data, u
 		DB_ASSERT(dbp->env, hdr != NULL);
 		memcpy(t, hdr->data, hdr->size);
 		bi = (BINTERNAL *)t;
-		if(data != NULL && data->size != 0)
+		if(data && data->size != 0)
 			memcpy(bi->data, data->data, data->size);
 	}
 	else {

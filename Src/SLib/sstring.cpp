@@ -821,7 +821,7 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 		SString temp_buf;
 		uint   i = 0;
 		do {
-			temp_buf = 0;
+			temp_buf.Z();
 			while(i < len && !strchr(pDelimChrSet, P_Buf[i]))
 				temp_buf.CatChar(P_Buf[i++]);
 			if(temp_buf.NotEmpty()) {
@@ -4397,7 +4397,7 @@ SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 		}
 		else {
 			Flags &= ~fUNC;
-			Drv = 0;
+			Drv.Z();
 		}
 	}
 	if(pS) {
@@ -4410,21 +4410,21 @@ SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 	}
 	else {
 		if(flags & fDir)
-			Dir = 0;
+			Dir.Z();
 		if(flags & fNam)
-			Nam = 0;
+			Nam.Z();
 		if(flags & fExt)
-			Ext = 0;
+			Ext.Z();
 	}
 	return *this;
 }
 
 SPathStruc & SPathStruc::Clear()
 {
-	Drv = 0;
-	Dir = 0;
-	Nam = 0;
-	Ext = 0;
+	Drv.Z();
+	Dir.Z();
+	Nam.Z();
+	Ext.Z();
 	Flags = 0;
 	return *this;
 }
@@ -4466,10 +4466,10 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	// c:\dir\nam.ext
 	//
 	Flags = 0;
-	Drv = 0;
-	Dir = 0;
-	Nam = 0;
-	Ext = 0;
+	Drv.Z();
+	Dir.Z();
+	Nam.Z();
+	Ext.Z();
 	if(pPath) {
 		int    fname_as_dir_part = 0;
 		SString temp_buf = pPath;
@@ -4529,7 +4529,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 			Nam = scan;
 		if(fname_as_dir_part) {
 			Dir.SetLastSlash().Cat(Nam);
-			Nam = 0;
+			Nam.Z();
 		}
 		if(Nam.Len())
 			Flags |= fNam;
@@ -4609,8 +4609,8 @@ int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
 	ps.Split(rPath);
 	if(force || (ps.Drv.Empty() && ps.Dir.Empty())) {
 		if(isempty(pNewPath)) {
-			ps.Drv = 0;
-			ps.Dir = 0;
+			ps.Drv.Z();
+			ps.Dir.Z();
 			ps.Merge(rPath);
 		}
 		else {
@@ -6232,6 +6232,16 @@ SLTEST_R(SString)
 			SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
 			SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
 			SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
+		}
+		{
+			SLTEST_CHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
+			SLTEST_CHECK_EQ(str.Z().Cat(17.1997, MKSFMTD(0, 3, NMBF_DECCOMMA)), "17,200");
+			SLTEST_CHECK_EQ(str.Z().Cat(135.1997, MKSFMTD(0, 0, 0)), "135");
+			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 8, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+			SLTEST_CHECK_EQ(str.Z().Cat(3308.039999999999512506, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+			SLTEST_CHECK_EQ(str.Z().Cat(2572.92*1.0000000001, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "2572.92");
+			SLTEST_CHECK_EQ(str.Z().Cat(369.900000000000102333,  MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "369.9");
 		}
 		{
 			LDATETIME dtm;

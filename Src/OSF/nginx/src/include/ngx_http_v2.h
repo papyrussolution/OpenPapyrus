@@ -157,7 +157,7 @@ struct ngx_http_v2_stream_s {
 };
 
 struct ngx_http_v2_out_frame_s {
-	ngx_http_v2_out_frame_t  * next;
+	ngx_http_v2_out_frame_t * next;
 	ngx_chain_t * first;
 	ngx_chain_t * last;
 	ngx_int_t (* handler)(ngx_http_v2_connection_t * h2c, ngx_http_v2_out_frame_t * frame);
@@ -169,18 +169,18 @@ struct ngx_http_v2_out_frame_s {
 
 static ngx_inline void ngx_http_v2_queue_frame(ngx_http_v2_connection_t * h2c, ngx_http_v2_out_frame_t * frame)
 {
-	ngx_http_v2_out_frame_t  ** out;
-	for(out = &h2c->last_out; *out; out = &(*out)->next) {
-		if((*out)->blocked || (*out)->stream == NULL) {
+	ngx_http_v2_out_frame_t ** pp_out;
+	for(pp_out = &h2c->last_out; *pp_out; pp_out = &(*pp_out)->next) {
+		if((*pp_out)->blocked || (*pp_out)->stream == NULL) {
 			break;
 		}
-		if((*out)->stream->node->rank < frame->stream->node->rank || ((*out)->stream->node->rank == frame->stream->node->rank && 
-			(*out)->stream->node->rel_weight >= frame->stream->node->rel_weight)) {
+		if((*pp_out)->stream->node->rank < frame->stream->node->rank || ((*pp_out)->stream->node->rank == frame->stream->node->rank && 
+			(*pp_out)->stream->node->rel_weight >= frame->stream->node->rel_weight)) {
 			break;
 		}
 	}
-	frame->next = *out;
-	*out = frame;
+	frame->next = *pp_out;
+	*pp_out = frame;
 }
 
 static ngx_inline void ngx_http_v2_queue_blocked_frame(ngx_http_v2_connection_t * h2c, ngx_http_v2_out_frame_t * frame)

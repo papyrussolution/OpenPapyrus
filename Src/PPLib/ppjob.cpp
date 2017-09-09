@@ -13,7 +13,7 @@
 
 #define JOB_FACTORY_PRFX JFF_
 
-int SLAPI WriteParam(SBuffer & rBuf, void * pParam, size_t paramSize);
+int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize);
 int SLAPI ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);
 //
 //
@@ -210,8 +210,7 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 		for(uint i = 0; i < hdr.Count; i++) {
 			PPID   id = 0;
 			PPJob  job;
-			buf.Clear();
-			THROW_SL(p_file->Read(buf));
+			THROW_SL(p_file->Read(buf.Clear()));
 			THROW(job.Read(buf));
 			id = job.ID;
 			THROW(pPool->PutJob(&id, &job));
@@ -655,8 +654,7 @@ public:
 		if((r = param.Read(*pParam, 0)) != 0) {
 			ok = EditObjReceiveParam(&param, 1);
 			if(ok > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -711,7 +709,7 @@ IMPLEMENT_JOB_HDL_FACTORY(MAINTAINPRJTASK);
 //
 //
 //
-int SLAPI WriteParam(SBuffer & rBuf, void * pParam, size_t paramSize)
+int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize)
 {
 	return rBuf.Write(pParam, paramSize) ? 1 : PPSetErrorSLib();
 }
@@ -773,8 +771,7 @@ public:
 		if((r = param.Read(*pParam, 0)) != 0) {
 			ok = EditBackupParam(param.DBSymb, &param.BuScen);
 			if(ok > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -810,8 +807,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = PPObjStyloPalm::EditImpExpData(&param);
 			if(ok > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -846,8 +842,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = PPObjSCardSeries::SelectRule(&param);
 			if(ok > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -890,8 +885,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = ScalePrepDialog(DLG_SCALETRAN, &param.ScaleID, &param.Flags);
 			if(ok > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -938,8 +932,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = AsyncCashnPrepDialog(&param);
 			if(ok > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1000,8 +993,7 @@ public:
 		if((r = param.Read(*pParam, 0)) != 0) {
 			ok = ObjTransmDialog(DLG_MODTRANSM, &param);
 			if(ok > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1038,8 +1030,7 @@ public:
 		if((r = param.Read(*pParam, 0)) != 0) {
 			ok = DBMaintainDialog(&param);
 			if(ok > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1216,8 +1207,7 @@ public:
 		MEMSZERO(param);
 		if((r = param.Read(*pParam, 0)) != 0) {
 			if((ok = EditSessionParam(&param)) > 0) {
-				pParam->Clear();
-				param.Write(*pParam, 0);
+				param.Write(pParam->Clear(), 0);
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1258,8 +1248,7 @@ public:
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			if((ok = prcssr.EditParam(&param)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1298,8 +1287,7 @@ public:
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			param.Process |= param.prcsTest;
 			if((ok = prcssr.EditParam(&param)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1336,8 +1324,7 @@ public:
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			if((ok = param.Edit()) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1370,8 +1357,7 @@ public:
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			if((ok = DeleteTmpFilesDlg(&param)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1406,8 +1392,7 @@ public:
 			SString s_path;
 			s_path.CopyFrom(path);
 			if((ok = InputStringDialog(0, s_path)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, (void*)(const char*)s_path, s_path.Len());
+				WriteParam(pParam->Clear(), s_path.cptr(), s_path.Len()); // @badcast
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1598,8 +1583,7 @@ public:
 		int    r = param.Read(*pParam, 0);
 		if(r) {
 			if(EditLaunchAppParam(&param) > 0) {
-				pParam->Clear();
-				ok = BIN(param.Write(*pParam, 0));
+				ok = BIN(param.Write(pParam->Clear(), 0));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1676,8 +1660,7 @@ public:
 		int    r = param.Read(*pParam, 0);
 		if(r) {
 			if(PPViewCSess::EditCreateDraftParam(&param) > 0) {
-				pParam->Clear();
-				ok = BIN(param.Write(*pParam, 0));
+				ok = BIN(param.Write(pParam->Clear(), 0));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1718,8 +1701,7 @@ public:
 			if(r < 0)
 				prc.InitParam(&param);
 			if(prc.EditParam(&param) > 0) {
-				pParam->Clear();
-				ok = BIN(param.Write(*pParam, 0));
+				ok = BIN(param.Write(pParam->Clear(), 0));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1761,8 +1743,7 @@ public:
 			if(r < 0)
 				prc.InitParam(&param);
 			if(prc.EditParam(&param) > 0) {
-				pParam->Clear();
-				ok = BIN(param.Write(*pParam, 0));
+				ok = BIN(param.Write(pParam->Clear(), 0));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -1801,8 +1782,7 @@ public:
 		const size_t sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(EditSupplExpFilt(&filt, 0) > 0) {
-			pParam->Clear();
-			ok = BIN(filt.Write(*pParam, 0));
+			ok = BIN(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -1818,8 +1798,7 @@ public:
 			else
 				pParam->SetRdOffs(preserve_offs);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -1877,8 +1856,7 @@ public:
 			tr_param.Read(*pParam, 0);
 		}
 		if(r > 0 && ObjTransmDialogExt(DLG_OBJTRANSM, PPVIEW_BILL, &tr_param, &filt) > 0) {
-			pParam->Clear();
-			if((ok = BIN(filt.Write(*pParam, 0))) > 0)
+			if((ok = BIN(filt.Write(pParam->Clear(), 0))) > 0)
 				ok = BIN(tr_param.Write(*pParam, 0) > 0);
 		}
 		else
@@ -2191,8 +2169,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2351,8 +2328,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(param.Write(*pParam, 0));
+			THROW(param.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2403,8 +2379,7 @@ public:
 			p_filt->Read(*pParam, 0);
 		if(view.EditBaseFilt(p_filt) > 0) {
 			ok = 1;
-			pParam->Clear();
-			THROW(p_filt->Write(*pParam, 0));
+			THROW(p_filt->Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -2757,21 +2732,21 @@ RFIDDevPrcssr::RFIDDevPrcssr()
 	CantPlay.CatCharN(' ', DISPLAY_ROW_SIZE - CantPlay.Len());
 	CantPlay.Cat(scard_rest);
 
-	PPLoadText(PPTXT_BEGINPLAY, (temp_buf = 0));
+	PPLoadText(PPTXT_BEGINPLAY, temp_buf.Z());
 	BeginPlay.CatN(temp_buf, DISPLAY_ROW_SIZE);
 	BeginPlay.CatCharN(' ', DISPLAY_ROW_SIZE - BeginPlay.Len());
 	BeginPlay.Cat(scard_rest);
 
-	PPLoadText(PPTXT_GETSCARD, (temp_buf = 0));
+	PPLoadText(PPTXT_GETSCARD, temp_buf.Z());
 	GetCard.CatN(temp_buf, DISPLAY_ROW_SIZE);
 
-	PPLoadText(PPTXT_CARD, (temp_buf = 0));
-	PPGetWord(PPWORD_NOTFOUND, 0, (word = 0));
+	PPLoadText(PPTXT_CARD, temp_buf.Z());
+	PPGetWord(PPWORD_NOTFOUND, 0, word.Z());
 	CardNotFound.CatN(word, DISPLAY_ROW_SIZE);
 	CardNotFound.CatCharN(' ', DISPLAY_ROW_SIZE - CardNotFound.Len());
 	CardNotFound.CatN(temp_buf, DISPLAY_ROW_SIZE);
 
-	PPLoadText(PPTXT_PRICENOTDEF, (temp_buf = 0));
+	PPLoadText(PPTXT_PRICENOTDEF, temp_buf.Z());
 	PriceNotDef.CatN(temp_buf, DISPLAY_ROW_SIZE);
 	PriceNotDef.CatCharN(' ', DISPLAY_ROW_SIZE - PriceNotDef.Len());
 
@@ -3000,8 +2975,7 @@ public:
 			pParam->Read(&dev_list, 0);
 		if(ListToListDialog(&l2_data) > 0) {
 			ok = 1;
-			pParam->Clear();
-			THROW(pParam->Write(&dev_list, 0));
+			THROW(pParam->Clear().Write(&dev_list, 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3065,8 +3039,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-		   	pParam->Clear();
-		   	THROW(param.Write(*pParam, 0));
+		   	THROW(param.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3113,8 +3086,7 @@ public:
 		else
 			filt.Read(*pParam, 0);
 		if(EditQuotUpdDialog(&filt) > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 			ok = 1;
 		}
 		else
@@ -3222,8 +3194,7 @@ public:
 					param.NfSymb = p_nf->Symb;
 					dlg->getCtrlString(CTL_JOB_EXPVIEW_DL6STRUC, param.Dl600_Name);
 					dlg->getCtrlString(CTL_JOB_EXPVIEW_OUT, param.FileName);
-					pParam->Clear();
-					THROW(param.Write(*pParam, 0));
+					THROW(param.Write(pParam->Clear(), 0));
 					ok = 1;
 				}
 			}
@@ -3385,9 +3356,7 @@ public:
 				param.StoresFlags = dlg->getCtrlLong(CTL_JOB_EXPOBJHTM_SFLAGS);
 				param.PersonKindForExport = dlg->getCtrlLong(CTLSEL_JOB_EXPOBJHTM_PK);
 				param.PersonSetSz = dlg->getCtrlLong(CTL_JOB_EXPOBJHTM_PSETS);
-
-				pParam->Clear();
-				THROW(param.Write(*pParam, 0));
+				THROW(param.Write(pParam->Clear(), 0));
 			}
 			else
 				pParam->SetRdOffs(sav_offs);
@@ -3448,8 +3417,7 @@ public:
 			filt.Read(*pParam, 0);
 		}
 		if(r > 0 && gr_view.EditBaseFilt(&filt) > 0) {
-			pParam->Clear();
-			if(filt.Write(*pParam, 0))
+			if(filt.Write(pParam->Clear(), 0))
 				ok = 1;
 		}
 		else
@@ -3494,8 +3462,7 @@ public:
 			THROW(blk.SerializeParam(-1, *pParam, &sctx));
 		}
 		if(blk.Select(1) > 0) {
-			pParam->Clear();
-			THROW(blk.SerializeParam(+1, *pParam, &sctx));
+			THROW(blk.SerializeParam(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else
@@ -3540,8 +3507,7 @@ public:
 			else
 				pParam->SetRdOffs(preserve_offs);
 			if(prc.EditParam(&filt) > 0) {
-				pParam->Clear();
-				if(filt.Write(*pParam, 0)) {
+				if(filt.Write(pParam->Clear(), 0)) {
 					ok = 1;
 				}
 			}
@@ -3588,8 +3554,7 @@ public:
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
 		if(filt.Edit() > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3728,8 +3693,7 @@ public:
 				PPError();
 		}
 		if(ok > 0) {
-			pParam->Clear();
-			THROW(filt.Write(*pParam, 0));
+			THROW(filt.Write(pParam->Clear(), 0));
 		}
 		else
 			pParam->SetRdOffs(sav_offs);
@@ -3786,8 +3750,7 @@ public:
 		if(pParam->GetAvailableSize() != 0)
 			THROW(filt.Serialize(-1, *pParam, &sctx));
 		if(PPDbTableXmlExportParam_TrfrBill::Edit(&filt) > 0) {
-			pParam->Clear();
-			THROW(filt.Serialize(+1, *pParam, &sctx));
+			THROW(filt.Serialize(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else
@@ -3873,8 +3836,7 @@ public:
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			if((ok = prcssr.EditParam(&param)) > 0) {
-				pParam->Clear();
-				WriteParam(*pParam, &param, sizeof(param));
+				WriteParam(pParam->Clear(), &param, sizeof(param));
 			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
@@ -3914,8 +3876,7 @@ public:
 		if(pParam->GetAvailableSize() != 0)
 			THROW(filt.Serialize(-1, *pParam, &sctx));
 		if(prc.EditQueryParam(&filt)) {
-			pParam->Clear();
-			THROW(filt.Serialize(+1, *pParam, &sctx));
+			THROW(filt.Serialize(+1, pParam->Clear(), &sctx));
 			ok = 1;
 		}
 		else

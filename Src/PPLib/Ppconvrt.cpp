@@ -56,7 +56,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 								THROW(Reference::Helper_Decrypt_(Reference::crymRef2, ppb_src.DefPassword, sec_rec.Password, sizeof(sec_rec.Password), temp_buf));
 							}
 							else
-								temp_buf = 0;
+								temp_buf.Z();
 							THROW(Reference::Helper_Encrypt_(Reference::crymRef2, ppb_dest.DefPassword, temp_buf, sec_rec.Password, sizeof(sec_rec.Password)));
 							THROW(Reference::VerifySecur(&sec_rec, 1));
 							THROW(p_ref->UpdateItem(sec_obj_type, sec_id, &sec_rec, 0, 0));

@@ -240,7 +240,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				if(p_item->DivisionID)
 					GetLocationName(p_item->DivisionID, temp_buf);
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				pBlk->Set(temp_buf);
 				break;
 			case 3: // Rank
@@ -253,7 +253,7 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set((int32)p_item->VacancyBusy);
 				break;
 			case 6: // Группа начислений
-				temp_buf = 0;
+				temp_buf.Z();
 				if(p_item->ChargeGrpID) {
 					PPObjSalCharge sc_obj;
 					PPSalChargePacket sc_pack;
@@ -500,7 +500,7 @@ int SLAPI PPViewStaffPost::CreateTempTable(int order)
 	{
 		BExtInsert bei(p_tbl);
 		for(InitIteration(0); NextIteration(&item) > 0;) {
-			temp_buf = 0;
+			temp_buf.Z();
 			TempOrderTbl::Rec ord_rec;
 			PPStaffEntry sl_rec;
 			PersonTbl::Rec psn_rec;

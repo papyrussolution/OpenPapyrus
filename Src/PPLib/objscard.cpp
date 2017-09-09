@@ -1352,13 +1352,13 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			if(prevType == 0)
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_CRDGGRP, PPOBJ_GOODSGROUP, init_grp_id, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				if(txt_id)
 					PPLoadText(txt_id, temp_buf);
 				setLabelText(CTL_SCARDSER_CRDGGRP, temp_buf);
 			}
 			{
-				temp_buf = 0;
+				temp_buf.Z();
 				if(txt2_id)
 					PPLoadText(txt2_id, temp_buf);
 				setLabelText(CTL_SCARDSER_BONCGRP, temp_buf);
@@ -1934,7 +1934,7 @@ int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 						LDATE last_dt = ZERODATE;
 						if(payplan.GetLast(&last_dt, 0, 0) > 0 && last_dt < _cd) {
 							BillTbl::Rec bill_rec;
-							temp_buf = 0;
+							temp_buf.Z();
 							if(t->Search(bill_id, &bill_rec) > 0) {
 								PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddSCard, temp_buf);
 							}

@@ -471,7 +471,7 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 					if(Fetch(parent_id, &cn_rec) > 0)
 						name_buf = cn_rec.Name;
 					else
-						ideqvalstr(parent_id, name_buf = 0);
+						ideqvalstr(parent_id, name_buf.Z());
 					THROW_SL(p_ary->Add(parent_id, 0, name_buf));
 				}
 			}
@@ -1021,7 +1021,7 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 			}
 			else if(f & CASHF_ASYNC) {
 				p_acn = (PPAsyncCashNode *)pCN;
-				temp_buf = 0;
+				temp_buf.Z();
 				PPPutExtStrData(ACN_EXTSTR_FLD_IMPFILES, temp_buf, p_acn->ImpFiles);
 				PPPutExtStrData(ACN_EXTSTR_FLD_EXPPATHS, temp_buf, p_acn->ExpPaths);
 				PPPutExtStrData(ACN_EXTSTR_FLD_LOGNUMS,  temp_buf, p_acn->LogNumList);
@@ -2263,7 +2263,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	}
 	SetupPPObjCombo(dlg, CTLSEL_CASHN_GOODSGRP, PPOBJ_GOODSGROUP, pACN->GoodsGrpID, OLW_CANSELUPLEVEL);
 	{
-		temp_buf = 0;
+		temp_buf.Z();
 		if(pACN->CurRestBillID) {
 			BillTbl::Rec bill_rec;
 			if(BillObj->Search(pACN->CurRestBillID, &bill_rec) > 0)

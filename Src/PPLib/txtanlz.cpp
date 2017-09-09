@@ -55,6 +55,25 @@ int FASTCALL PPTokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 	russia: 8(999)999-99-99 (8 9999)99-99-99
 */
 
+static int FASTCALL _ProbeDate(SString & rText)
+{
+	int    ok = 0;
+	LDATE  probe_dt = strtodate_(rText, DATF_DMY);
+	if(checkdate(probe_dt, 0))
+		ok = 1;
+	else {
+		probe_dt = strtodate_(rText, DATF_MDY);
+		if(checkdate(probe_dt, 0))
+			ok = 1;
+		else {
+			probe_dt = strtodate_(rText, DATF_YMD);
+			if(checkdate(probe_dt, 0))
+				ok = 1;
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenArray & rResultList, PPNaturalTokenStat * pStat)
 {
 	int    ok = 1;
@@ -82,6 +101,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
             hDecColon  = 0x2000, // Только dec && :
             hHexDot    = 0x1000, // Только hex && .
             hDecDot    = 0x2000, // Только dec && .
+            hDecSlash  = 0x4000, // Только dec && /
 		};
 		enum {
 			fUtf8   = 0x0001
@@ -109,7 +129,8 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 		}
 		chr_list.Sort();
 		if(f & fUtf8) {
-			h &= ~(hDec|hHex|hLatLow|hLatUpp|hLat|hDecLat|hAscii|h866|h1251|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot);
+			h &= ~(hDec|hHex|hLatLow|hLatUpp|hLat|hDecLat|hAscii|h866|h1251|hHexHyphen|hDecHyphen|
+				hHexColon|hDecColon|hHexDot|hDecDot|hDecSlash);
 		}
 		else {
 			for(i = 0; i < chr_list.getCount(); i++) {
@@ -146,6 +167,8 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 						h &= ~hDecDot;
 					if(h & hHexDot && !(ishex(c) || c == '.'))
 						h &= ~hHexDot;
+					if(h & hDecSlash && !(isdec(c) || c == '/'))
+						h &= ~hDecSlash;
 				}
 				if(h & h866 && !IsLetter866(c))
 					h &= ~h866;
@@ -153,7 +176,7 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 					h &= ~h1251;
 			}
 			if(!(h & hAscii)) {
-				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot);
+				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot|hDecSlash);
 			}
 			else {
 				if(!(h & hHex))
@@ -165,27 +188,30 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 		if(h & hDec) {
 			uchar last = pToken[stat.Len-1];
 			int   cd = 0;
+			rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
 			switch(stat.Len) {
+				case 6:
+					if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						rResultList.Add(PPNTOK_DATE, 0.5f);
+					}
+					break;
 				case 8:
 					cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
 					if((uchar)cd == (last-'0')) {
                         if(pToken[0] == '0') {
-							rResultList.Add(PPNTOK_UPCE, 1.0f);
+							rResultList.Add(PPNTOK_UPCE, 0.9f);
                         }
                         else {
-                        	rResultList.Add(PPNTOK_EAN8, 1.0f);
+                        	rResultList.Add(PPNTOK_EAN8, 0.9f);
                         }
 					}
-					else {
-						rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
+					if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						rResultList.Add(PPNTOK_DATE, 0.8f);
 					}
 					break;
 				case 10:
 					if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
 						rResultList.Add(PPNTOK_RU_INN, 1.0f);
-					}
-					else {
-						rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
 					}
 					break;
 				case 12:
@@ -202,9 +228,6 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
 							rResultList.Add(PPNTOK_RU_INN, 1.0f);
 						}
-						else {
-							rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
-						}
 					}
 					break;
 				case 13:
@@ -212,17 +235,11 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 					if((uchar)cd == (last-'0')) {
 						rResultList.Add(PPNTOK_EAN13, 1.0f);
 					}
-					else {
-						rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
-					}
 					break;
 				case 15:
 					if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
 						rResultList.Add(PPNTOK_IMEI, 0.9f);
 						rResultList.Add(PPNTOK_DIGITCODE, 0.1f);
-					}
-					else {
-						rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
 					}
 					break;
 				case 19:
@@ -233,9 +250,6 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 					else {
 						rResultList.Add(PPNTOK_EGAISWARECODE, 1.0f);
 					}
-					break;
-				default:
-					rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
 					break;
 			}
 		}
@@ -256,22 +270,66 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 				}
 			}
 		}
+		if(h & (hDecHyphen|hDecSlash|hDecDot)) {
+			// 1-1-1 17-12-2016
+			if(stat.Len >= 5 && stat.Len <= 10) {
+				temp_buf.CatN((const char *)pToken, stat.Len);
+				StringSet ss;
+				const char * p_div = 0;
+				if(h & hDecHyphen)
+					p_div = "-";
+				else if(h & hDecSlash)
+					p_div = "/";
+				else if(h & hDecDot)
+					p_div = ".";
+                temp_buf.Tokenize(p_div, ss);
+                const uint ss_count = ss.getCount();
+                if(ss_count == 3) {
+                    if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+						rResultList.Add(PPNTOK_DATE, 0.8f);
+					}
+                }
+			}
+		}
 		if(h & hDecDot) {
 			// 1.1.1.1 255.255.255.255
 			if(stat.Len >= 7 && stat.Len <= 15) {
 				temp_buf.CatN((const char *)pToken, stat.Len);
 				StringSet ss;
                 temp_buf.Tokenize(".", ss);
-                if(ss.getCount() == 4) {
+                const uint ss_count = ss.getCount();
+                if(ss_count == 4) {
 					int   is_ip4 = 1;
                     for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
-						long v = temp_buf.ToLong();
-						if(v < 0 || v > 255)
+						if(temp_buf.Empty())
 							is_ip4 = 0;
+						else {
+							long v = temp_buf.ToLong();
+							if(v < 0 || v > 255)
+								is_ip4 = 0;
+						}
                     }
 					if(is_ip4) {
-						rResultList.Add(PPNTOK_IP4, 1.0f);
+						float prob = 0.95f;
+						if(strncmp((const char *)pToken, "127.0.0.1", stat.Len) == 0)
+							prob = 1.0f;
+						rResultList.Add(PPNTOK_IP4, prob);
 					}
+                }
+                else if(ss_count == 3) {
+					int   is_ver = 1;
+                    for(uint ssp = 0; is_ver && ss.get(&ssp, temp_buf);) {
+                    	if(temp_buf.Empty())
+							is_ver = 0;
+						else {
+							long v = temp_buf.ToLong();
+							if(v < 0 || v > 100)
+								is_ver = 0;
+						}
+                    }
+                    if(is_ver) {
+						rResultList.Add(PPNTOK_SOFTWAREVER, 0.5f);
+                    }
                 }
 			}
 		}
@@ -510,7 +568,7 @@ PPTextAnalyzer::FindBlock & PPTextAnalyzer::FindBlock::Reset()
 {
 	NextPos = 0;
 	State &= ~(stStop|stTest);
-	TempBuf = 0;
+	TempBuf.Z();
 	clear();
 	return *this;
 }
@@ -605,7 +663,7 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 						}
 					}
 					else if(term == PPTextAnalyzer::Replacer::stCortege) {
-						rExtBuf = 0;
+						rExtBuf.Z();
 						if(rScan.SearchChar('.')) {
 							rScan.Get(rExtBuf);
 							rScan.IncrLen(1); // (1): не забыть пропустить точку '.'
@@ -619,7 +677,7 @@ int SLAPI PPTextAnalyzer::GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SSt
 					}
 					else if(term == PPTextAnalyzer::Replacer::stNumL) {
 						char c = rScan[0];
-						rExtBuf = 0;
+						rExtBuf.Z();
 						if(c >= '0' && c <= '9') {
 							rExtBuf.CatChar(c);
 							rScan.Incr();
@@ -1448,7 +1506,7 @@ int SLAPI PPTextAnalyzer::ParseContext(const PPTextAnalyzer::Replacer & rReplace
 						current_chain.Add(Replacer::stLiteral, item_.Token, item_.TextId);
 					}
 				}
-				temp_buf = 0;
+				temp_buf.Z();
 			}
 			switch(term) {
 				case Replacer::stLPar:
@@ -1557,7 +1615,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 							p_current_chain->List.Add(Replacer::stLiteral, item_.Token, item_.TextId);
 						}
 					}
-					temp_buf = 0;
+					temp_buf.Z();
 				}
 			}
 			switch(term) {
@@ -1730,7 +1788,7 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 			or_list.insert(p_current_chain);
 			p_current_chain = 0;
 		}
-		temp_buf = 0;
+		temp_buf.Z();
 	}
 	else if(p_current_chain) {
 		if(or_list.getCount()) {
@@ -2116,7 +2174,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 											(temp_buf = norm_code).Trim(MIN(5, max_barcode_input_digits));
 										}
 										else {
-											temp_buf = 0;
+											temp_buf.Z();
 										}
 										if(temp_buf.NotEmpty()) {
 											code_list.add(temp_buf);
@@ -2253,7 +2311,7 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 	if(idx_count) {
 		THROW(IndexText(*p_fb, idx_first, idx_first+idx_count-1));
 		if(pDebugFile) {
-			temp_buf = 0;
+			temp_buf.Z();
 			for(j = 0; j < idx_count; j++) {
 				if(Get(idx_first+j, p_fb->Item_))
 					temp_buf.Cat(p_fb->Item_.Text);
@@ -2323,7 +2381,7 @@ int SLAPI PPTextAnalyzer::ProcessString(const PPTextAnalyzer::Replacer & rRpl, c
 		}
 	}
 	CATCH
-		rResult = 0;
+		rResult.Z();
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -3427,7 +3485,7 @@ int SLAPI PPKeywordListGenerator::GenerateByGroup(uint grpPos, const SString * p
 
 int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, RunStat * pStat)
 {
-	rResult = 0;
+	rResult.Z();
 	if(pStat)
 		pStat->LastRunWordCount = 0;
 
@@ -3695,7 +3753,7 @@ int SLAPI PPKeywordListGenerator::ReadData(const char * pFileName)
 			if(line_buf.Chomp().Strip().NotEmptyS()) {
 				if(line_buf[0] == '[') {
 					uint   rb = 1;
-					temp_buf = 0;
+					temp_buf.Z();
 					while(line_buf[rb] != 0 && line_buf[rb] != ']') {
 						temp_buf.CatChar(line_buf[rb++]);
 					}
@@ -3769,7 +3827,7 @@ static PPKeywordListGenerator * _GetGlobalKeywordListGeneratorInstance()
 
 static int GetKeywordListGeneratorInputFileName(SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = 1;
 	ENTER_CRITICAL_SECTION
 		PPKeywordListGenerator * p_gen = _GetGlobalKeywordListGeneratorInstance();
@@ -3783,7 +3841,7 @@ static int GetKeywordListGeneratorInputFileName(SString & rResult)
 
 int PPGenerateKeywordSequence(const char * pContext, SString & rResult, void * pStat)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = 1;
 	if(!isempty(pContext)) {
 		SString context;
@@ -3899,7 +3957,7 @@ int SLAPI Test_KeywordListGenerator()
 			f_out.WriteLine(temp_buf);
 			for(uint i = 0; i < stat.getCount(); i++) {
 				const PPKeywordListGenerator::RunStatEntry & r_entry = stat.at(i);
-				temp_buf = 0;
+				temp_buf.Z();
 				g.GetWord(r_entry.WordP, word_buf.Z());
 				temp_buf.Cat(word_buf).Tab().Cat(r_entry.Count).Tab().Cat((double)r_entry.Count / (double)stat.RunCount, MKSFMTD(0, 6, 0)).
 					Tab().Cat((double)r_entry.Count / (double)stat.WordCount, MKSFMTD(0, 6, 0)).CR();
@@ -3981,13 +4039,13 @@ SLAPI PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 
 int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 {
-	Token = 0;
+	Token.Z();
 	ExpirySec = 0;
 	AuthTime.SetZero();
-	AuthName = 0;
-	AuthSecret = 0;
+	AuthName.Z();
+	AuthSecret.Z();
 	LastStatusCode = 0;
-	LastStatusMessage = 0;
+	LastStatusMessage.Z();
 
 	int    ok = 1;
 	SString temp_buf;
@@ -4088,7 +4146,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSec
 
 int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = -1;
 	xmlDoc * p_doc = 0;
 	xmlNode * p_root = 0;
@@ -4225,7 +4283,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 			SPathStruc::NormalizePath(temp_buf, 0, dest_path);
 			SFileFormat ff;
 			int ffr = 0;
-			file_type_symb = 0;
+			file_type_symb.Z();
 			if(pDetectTypeOutFile) {
 				ffr = ff.Identify(dest_path);
 				if(ffr > 0) {
@@ -4253,7 +4311,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					else
 						zbits = 64;
 
-					temp_buf = 0;
+					temp_buf.Z();
 
 					(item_buf = ps.Ext).Align(10, ADJ_LEFT);
 					temp_buf.Cat(item_buf);
@@ -4265,7 +4323,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					temp_buf.Space().Cat(dest_path);
 					pOutFile->WriteLine(temp_buf.CR());
 
-					temp_buf = 0;
+					temp_buf.Z();
 					for(uint i = 0; i < freq_list.getCount(); i++) {
 						const RAssoc item = freq_list.at(i);
                         uchar c = (uchar)item.Key;
@@ -4714,8 +4772,8 @@ void SLAPI SCodepageMapPool::CpMap::Clear()
 	P_Map = 0;
 	P_Fallback = 0;
 	P_NScript = 0;
-	Name = 0;
-	Code = 0;
+	Name.Z();
+	Code.Z();
 	Version = 0;
 }
 
@@ -6027,7 +6085,7 @@ static int Test_TranslateFile(const char * pSrcFileName, const char * pDestFileN
 	THROW_SL(f_in.IsValid());
 	THROW_SL(f_out.IsValid());
 	while(f_in.ReadLine(line_buf)) {
-		dest_line_buf = 0;
+		dest_line_buf.Z();
 		for(uint i = 0; i < line_buf.Len(); i++) {
 			union {
 				uint8  Inp[4];
@@ -6401,7 +6459,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 					assert(GetByPos(p_tti->SrcCpIdx, &src_map));
 					assert(GetByPos(p_tti->DestCpIdx, &dest_map));
 					if(src_map.Id == 1251) {
-						test_dest_file_name = 0;
+						test_dest_file_name.Z();
 						SPathStruc ps;
 						ps.Split(test_src_1251_file_name);
 						ps.Nam.CatChar('-').Cat(dest_map.Name);
@@ -6422,7 +6480,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt)
 						for(uint j = 0; j < test_tidx_list.getCount(); j++) {
 							const _TestTranslIndexEntry * p_tti2 = test_tidx_list.at(j);
 							if(p_tti2->DestCpIdx == p_tti->SrcCpIdx && p_tti2->ResultFileName.NotEmpty()) {
-								test_dest_file_name = 0;
+								test_dest_file_name.Z();
 								SPathStruc ps;
 								ps.Split(p_tti2->ResultFileName);
 								ps.Nam.CatChar('-').Cat(dest_map.Name);

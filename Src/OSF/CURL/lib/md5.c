@@ -126,15 +126,12 @@ typedef struct {
 
 static void MD5_Init(MD5_CTX * ctx)
 {
-	if(CryptAcquireContext(&ctx->hCryptProv, NULL, NULL,
-		    PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+	if(CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
 		CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash);
 	}
 }
 
-static void MD5_Update(MD5_CTX * ctx,
-    const uchar * input,
-    uint inputLen)
+static void MD5_Update(MD5_CTX * ctx, const uchar * input, uint inputLen)
 {
 	CryptHashData(ctx->hHash, (uchar*)input, inputLen, 0);
 }
@@ -483,15 +480,15 @@ MD5_context * Curl_MD5_init(const MD5_params * md5params)
 {
 	/* Create MD5 context */
 	MD5_context * ctxt = (MD5_context *)SAlloc::M(sizeof *ctxt);
-	if(!ctxt)
-		return ctxt;
-	ctxt->md5_hashctx = SAlloc::M(md5params->md5_ctxtsize);
-	if(!ctxt->md5_hashctx) {
-		SAlloc::F(ctxt);
-		return NULL;
+	if(ctxt) {
+		ctxt->md5_hashctx = SAlloc::M(md5params->md5_ctxtsize);
+		if(!ctxt->md5_hashctx) {
+			SAlloc::F(ctxt);
+			return NULL;
+		}
+		ctxt->md5_hash = md5params;
+		(*md5params->md5_init_func)(ctxt->md5_hashctx);
 	}
-	ctxt->md5_hash = md5params;
-	(*md5params->md5_init_func)(ctxt->md5_hashctx);
 	return ctxt;
 }
 

@@ -741,19 +741,19 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 	int    ok = 1;
 	long   count = 1;
 	SString path, subdir;
-	rDestPath = 0;
+	rDestPath.Z();
 	(path = data->CopyPath).RmvLastSlash();
 	if(::access(path, 0) != 0) {
 		if(!createDir(path))
 			ok = (DBErrCode = SDBERR_SLIB, 0);
 	}
 	if(ok) {
-		long   set_sum = 0;
+		ulong  set_sum = 0;
 		for(int n = 0; n < sizeof(data->Set) && data->Set[n] != 0; n++)
-			set_sum += (long)data->Set[n];
+			set_sum += (ulong)data->Set[n];
 		set_sum %= 10000L;
 		do {
-			(subdir = 0).CatLongZ(set_sum, 4).CatLongZ(count++, 4);
+			subdir.Z().CatLongZ((long)set_sum, 4).CatLongZ(count++, 4);
 			(path = data->CopyPath).SetLastSlash().Cat(subdir);
 		} while(::access(path, 0) == 0);
 		path.SetLastSlash();

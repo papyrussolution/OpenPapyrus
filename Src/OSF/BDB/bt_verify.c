@@ -736,7 +736,7 @@ int __bam_vrfy_itemorder(DB * dbp, VRFY_DBINFO * vdp, DB_THREAD_INFO * ip, PAGE 
 	 * not have a pip, but we also may need to work in contexts where
 	 * NUM_ENT isn't safe.
 	 */
-	if(vdp != NULL) {
+	if(vdp) {
 		if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
 			return ret;
 		nentries = pip->entries;
@@ -757,9 +757,9 @@ int __bam_vrfy_itemorder(DB * dbp, VRFY_DBINFO * vdp, DB_THREAD_INFO * ip, PAGE 
 		func = dupfunc;
 	else {
 		func = __bam_defcmp;
-		if(dbp->bt_internal != NULL) {
+		if(dbp->bt_internal) {
 			bt = (BTREE *)dbp->bt_internal;
-			if(bt->bt_compare != NULL)
+			if(bt->bt_compare)
 				func = bt->bt_compare;
 		}
 	}
@@ -788,7 +788,7 @@ retry:
 	 */
 	inp = P_INP(dbp, h);
 	adj = (TYPE(h) == P_LBTREE) ? P_INDX : O_INDX;
-	for(i = (TYPE(h) == P_IBTREE || dbp->p_internal != NULL) ? adj : 0; i < nentries; i += adj) {
+	for(i = (TYPE(h) == P_IBTREE || dbp->p_internal) ? adj : 0; i < nentries; i += adj) {
 		/*
 		 * Put key i-1, now in p2, into p1, by swapping DBTs and bufs.
 		 */
@@ -886,7 +886,7 @@ overflow:
 			buf2 = p2->data;
 		}
 		/* Compare with the last key. */
-		if(p1->data != NULL && p2->data != NULL) {
+		if(p1->data && p2->data) {
 			cmp = inp[i] == inp[i-adj] ? 0 : func(dbp, p1, p2);
 			/* comparison succeeded */
 			if(cmp > 0) {
@@ -921,7 +921,7 @@ overflow:
 				 * Mark it so we can check during the
 				 * structure check.
 				 */
-				if(pip != NULL)
+				if(pip)
 					F_SET(pip, VRFY_HAS_DUPS);
 				else if(hasdups == 0) {
 					/* See above. */
@@ -989,7 +989,7 @@ overflow:
 		}
 	}
 err:    
-	if(pip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0) && ret == 0)
+	if(pip && ((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0) && ret == 0)
 		ret = t_ret;
 	__os_ufree(env, buf1);
 	__os_ufree(env, buf2);
@@ -1073,9 +1073,9 @@ int __bam_vrfy_structure(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void 
 		break;
 	}
 err:    
-	if(mip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, mip)) != 0) && ret == 0)
+	if(mip && ((t_ret = __db_vrfy_putpageinfo(env, vdp, mip)) != 0) && ret == 0)
 		ret = t_ret;
-	if(rip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, rip)) != 0) && ret == 0)
+	if(rip && ((t_ret = __db_vrfy_putpageinfo(env, vdp, rip)) != 0) && ret == 0)
 		ret = t_ret;
 	return ret;
 }
@@ -1591,7 +1591,7 @@ err:
 		ret = t_ret;
 	if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
-	if(cc != NULL && ((t_ret = __db_vrfy_ccclose(cc)) != 0) && ret == 0)
+	if(cc && ((t_ret = __db_vrfy_ccclose(cc)) != 0) && ret == 0)
 		ret = t_ret;
 	return (ret == 0 && isbad == 1) ? DB_VERIFY_BAD : ret;
 }
@@ -1654,7 +1654,7 @@ static int __bam_vrfy_treeorder(DB * dbp, DB_THREAD_INFO * ip, PAGE * h, BINTERN
 	 * our page and item 0 as to __bam_cmp, we'll sort before our
 	 * parent and falsely report a failure.)
 	 */
-	if(lp != NULL && TYPE(h) != P_IBTREE) {
+	if(lp && TYPE(h) != P_IBTREE) {
 		if((ret = __db_cursor_int(dbp, ip, NULL, DB_BTREE, PGNO_INVALID, 0, DB_LOCK_INVALIDID, &dbc)) != 0)
 			return ret;
 		if(lp->type == B_KEYDATA) {
@@ -1682,7 +1682,7 @@ static int __bam_vrfy_treeorder(DB * dbp, DB_THREAD_INFO * ip, PAGE * h, BINTERN
 		if(ret != 0)
 			return ret;
 	}
-	if(rp != NULL) {
+	if(rp) {
 		if(rp->type == B_KEYDATA) {
 			dbt.data = rp->data;
 			dbt.size = rp->len;
@@ -1828,7 +1828,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 		 * first, unless DB_SA_SKIPFIRSTKEY is set and we're on the
 		 * first entry.
 		 */
-		if(key != NULL && (i != 0 || !LF_ISSET(DB_SA_SKIPFIRSTKEY))) {
+		if(key && (i != 0 || !LF_ISSET(DB_SA_SKIPFIRSTKEY))) {
 #ifdef HAVE_COMPRESSION
 			last_key = unknown_dup_key ? NULL : key;
 #endif
@@ -1886,7 +1886,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 			dbt.data = bk->data;
 			dbt.size = bk->len;
 #ifdef HAVE_COMPRESSION
-			if(DB_IS_COMPRESSED(dbp) && last_key != NULL && (key != NULL || (i%P_INDX == 1))) {
+			if(DB_IS_COMPRESSED(dbp) && last_key && (key || (i%P_INDX == 1))) {
 				/* Decompress the key/data pair  - the key
 				   is in last_key, and the data is in dbt */
 				if((t_ret = __bam_compress_salvage(dbp, vdp, handle, callback, last_key, &dbt)) != 0) {
@@ -1980,7 +1980,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 				}
 			}
 #ifdef HAVE_COMPRESSION
-			if(DB_IS_COMPRESSED(dbp) && last_key && t_ret == 0 && (key != NULL || (i%P_INDX == 1))) {
+			if(DB_IS_COMPRESSED(dbp) && last_key && t_ret == 0 && (key || (i%P_INDX == 1))) {
 				/* Decompress the key/data pair  - the key
 				   is in last_key, and the data is in dbt */
 				if((t_ret = __bam_compress_salvage(dbp, vdp, handle, callback, last_key, &dbt)) != 0) {
@@ -2176,8 +2176,7 @@ traverse:
 		h = NULL;
 	}
 err:
-	if(h != NULL)
-		__memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED);
+	__memp_fput(mpf, vdp->thread_info, h, DB_PRIORITY_UNCHANGED);
 	return ret == 0 ? err_ret : ret;
 }
 /*

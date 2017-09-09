@@ -1271,9 +1271,9 @@ int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 	int    ok = 1;
 	RtlLock.ReadLock();
 	if(!RtlListInited) {
+		PPObjQuotKind qk_obj;
 		RtlLock.Unlock();
 		RtlLock.WriteLock();
-		PPObjQuotKind qk_obj;
 		qk_obj.Helper_GetRtlList(ZERODATETIME, &RtlQkList, &RtlTmQkList, 0);
 		RtlListInited = 1;
 	}

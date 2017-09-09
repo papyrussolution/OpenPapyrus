@@ -70,7 +70,7 @@ int SLAPI XMLWriteSpecSymbEntities(FILE * pStream)
 	if(pStream) {
 		SString temp_buf;
 		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
-			temp_buf = 0;
+			temp_buf.Z();
 			if(SpcSymbTab[i].Amp)
 				temp_buf.CatChar('#').Cat(0x26).Semicol();
 			temp_buf.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();

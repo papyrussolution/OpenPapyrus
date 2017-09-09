@@ -190,7 +190,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 		if(!rec.Duration || rec.Duration >= min_duration) {
 			if(!(Filt.Flags & PrcBusyFilt::fFree))
 				rec.TSessID = entry.TSessID;
-			temp_buf = 0;
+			temp_buf.Z();
 			if(rec.Duration) {
 				int    days = rec.Duration / (24 * 3600);
 				if(days)
@@ -855,7 +855,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 			}
 			STimeChunkAssoc tca;
 			if(GetChunk(id, 0, &tca) > 0) {
-				tca.Chunk.ToStr(temp_buf = 0, STimeChunk::fmtOmitSec);
+				tca.Chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec);
 				rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
 			}
 			{
@@ -873,7 +873,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					}
 				}
 				else
-					temp_buf = 0;
+					temp_buf.Z();
 				if(temp_buf.NotEmptyS()) {
 					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
 
@@ -881,7 +881,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					if(psn_id) {
 						PPELinkArray elnk_list;
 						PersonCore::GetELinks(psn_id, &elnk_list);
-						if(elnk_list.GetSinglePhone(temp_buf = 0, 0) > 0)
+						if(elnk_list.GetSinglePhone(temp_buf.Z(), 0) > 0)
 							rBuf.Space().Cat(temp_buf);
 					}
 				}

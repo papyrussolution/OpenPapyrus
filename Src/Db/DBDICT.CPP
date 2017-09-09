@@ -549,7 +549,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				else {
 					SPathStruc sp;
 					sp.Split(buf);
-					sp.Ext = 0;
+					sp.Ext.Z();
 					sp.Merge(temp_buf);
 					sp.Split(spart);
 					temp_buf.Dot().Cat(sp.Ext);
@@ -615,7 +615,7 @@ int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & r
 	sp.Split(rIn);
 	int    to_save = BIN(sp.Ext.C(0) != '_');
 	ext = sp.Ext;
-	sp.Ext = 0;
+	sp.Ext.Z();
 	if(first)
 		ext = to_save ? "___" : "btr";
 	else {
@@ -661,8 +661,8 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 		if(name.NotEmpty()) {
 			Entry test_entry;
 
-			sp_p.Nam = 0;
-			sp_p.Ext = 0;
+			sp_p.Nam.Z();
+			sp_p.Ext.Z();
 			sp_p.Merge(path);
 			Pool.add(path, &InitPathP);
 			Pool.add(name, &InitNameP);

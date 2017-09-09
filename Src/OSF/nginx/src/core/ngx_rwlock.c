@@ -47,8 +47,7 @@ void ngx_rwlock_rlock(ngx_atomic_t * lock)
 					ngx_cpu_pause();
 				}
 				readers = *lock;
-				if(readers != NGX_RWLOCK_WLOCK
-				    && ngx_atomic_cmp_set(lock, readers, readers + 1)) {
+				if(readers != NGX_RWLOCK_WLOCK && ngx_atomic_cmp_set(lock, readers, readers + 1)) {
 					return;
 				}
 			}
@@ -62,13 +61,14 @@ void ngx_rwlock_unlock(ngx_atomic_t * lock)
 	ngx_atomic_uint_t readers = *lock;
 	if(readers == NGX_RWLOCK_WLOCK) {
 		(void)ngx_atomic_cmp_set(lock, NGX_RWLOCK_WLOCK, 0);
-		return;
 	}
-	for(;; ) {
-		if(ngx_atomic_cmp_set(lock, readers, readers - 1)) {
-			return;
+	else {
+		for(;; ) {
+			if(ngx_atomic_cmp_set(lock, readers, readers - 1)) {
+				return;
+			}
+			readers = *lock;
 		}
-		readers = *lock;
 	}
 }
 

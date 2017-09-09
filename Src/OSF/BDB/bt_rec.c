@@ -86,13 +86,13 @@ redo:
 			if(cmp == 0)
 				p_update = 1;
 		}
-		if(lp != NULL) {
+		if(lp) {
 			cmp = LOG_COMPARE(&LSN(lp), &argp->llsn);
 			CHECK_LSN(env, op, cmp, &LSN(lp), &argp->llsn);
 			if(cmp == 0)
 				l_update = 1;
 		}
-		if(rp != NULL) {
+		if(rp) {
 			cmp = LOG_COMPARE(&LSN(rp), &argp->rlsn);
 			CHECK_LSN(env, op, cmp, &LSN(rp), &argp->rlsn);
 			if(cmp == 0)
@@ -210,7 +210,7 @@ check_next:
 			lp = pp;
 			pp = NULL;
 		}
-		if(lp != NULL) {
+		if(lp) {
 			cmp = LOG_COMPARE(lsnp, &LSN(lp));
 			CHECK_ABORT(env, op, cmp, &LSN(lp), lsnp);
 			if(cmp == 0) {
@@ -225,7 +225,7 @@ check_next:
 		 * Next we can update the parent removing the new index.
 		 * If this has record numbers, then we log this separately.
 		 */
-		if(pp != NULL) {
+		if(pp) {
 			DB_ASSERT(env, !rootsplit);
 			cmp = LOG_COMPARE(lsnp, &LSN(pp));
 			CHECK_ABORT(env, op, cmp, &LSN(pp), lsnp);
@@ -341,20 +341,20 @@ redo:
 		 * If this is a root split, then the root has to exist unless
 		 * we have truncated it due to a future deallocation.
 		 */
-		if(pp != NULL) {
+		if(pp) {
 			plsnp = rootsplit ? &LSN(argp->pg.data) : &argp->plsn;
 			cmp = LOG_COMPARE(&LSN(pp), plsnp);
 			CHECK_LSN(env, op, cmp, &LSN(pp), plsnp);
 			if(cmp == 0)
 				p_update = 1;
 		}
-		if(lp != NULL) {
+		if(lp) {
 			cmp = LOG_COMPARE(&LSN(lp), &argp->llsn);
 			CHECK_LSN(env, op, cmp, &LSN(lp), &argp->llsn);
 			if(cmp == 0)
 				l_update = 1;
 		}
-		if(rp != NULL) {
+		if(rp) {
 			cmp = LOG_COMPARE(&LSN(rp), &argp->rlsn);
 			CHECK_LSN(env, op, cmp, &LSN(rp), &argp->rlsn);
 			if(cmp == 0)
@@ -442,7 +442,7 @@ check_next:     /*
 		 * right child ever existed, root split or not, update its LSN.
 		 * The undo of the page allocation(s) will restore them to the free list.
 		 */
-		if(rootsplit && lp != NULL && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
+		if(rootsplit && lp && LOG_COMPARE(lsnp, &LSN(lp)) == 0) {
 			REC_DIRTY(mpf, ip, file_dbp->priority, &lp);
 			lp->lsn = argp->llsn;
 		}
@@ -467,7 +467,7 @@ check_next:     /*
 			lp = pp;
 			pp = NULL;
 		}
-		if(lp != NULL) {
+		if(lp) {
 			cmp = LOG_COMPARE(lsnp, &LSN(lp));
 			CHECK_ABORT(env, op, cmp, &LSN(lp), lsnp);
 			if(cmp == 0) {
@@ -481,7 +481,7 @@ check_next:     /*
 		/*
 		 * Next we can update the parent removing the new index.
 		 */
-		if(pp != NULL) {
+		if(pp) {
 			DB_ASSERT(env, !rootsplit);
 			cmp = LOG_COMPARE(lsnp, &LSN(pp));
 			CHECK_ABORT(env, op, cmp, &LSN(pp), lsnp);
@@ -600,13 +600,13 @@ redo:
 			p_update = cmp  == 0;
 		}
 do_left:        
-		if(lp != NULL) {
+		if(lp) {
 			cmp = LOG_COMPARE(&LSN(lp), &argp->llsn);
 			CHECK_LSN(env, op, cmp, &LSN(lp), &argp->llsn);
 			if(cmp == 0)
 				l_update = 1;
 		}
-		if(rp != NULL) {
+		if(rp) {
 			cmp = LOG_COMPARE(&LSN(rp), &argp->rlsn);
 			CHECK_LSN(env, op, cmp, &LSN(rp), &argp->rlsn);
 			if(cmp == 0)
@@ -1297,8 +1297,7 @@ done:
 	*lsnp = argp->prev_lsn;
 	ret = 0;
 out:
-	if(meta != NULL)
-		__memp_fput(mpf, ip, meta, file_dbp->priority);
+	__memp_fput(mpf, ip, meta, file_dbp->priority);
 	REC_CLOSE;
 }
 /*
@@ -1418,7 +1417,7 @@ int __bam_rcuradj_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 done:
 	*lsnp = argp->prev_lsn;
 out:
-	if(rdbc != NULL && (t_ret = __dbc_close(rdbc)) != 0 && ret == 0)
+	if(rdbc && (t_ret = __dbc_close(rdbc)) != 0 && ret == 0)
 		ret = t_ret;
 	REC_CLOSE;
 }

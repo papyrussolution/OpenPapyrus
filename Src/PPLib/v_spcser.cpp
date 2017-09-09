@@ -139,7 +139,7 @@ static void SLAPI dbqf_spcsn_textfld_iisi(int option, DBConst * result, DBConst 
 		SpecSeries2Tbl::Rec ss_rec;
 		MEMSZERO(ss_rec);
 		temp_buf.CopyTo(ss_rec.Tail, sizeof(ss_rec.Tail));
-		temp_buf = 0;
+		temp_buf.Z();
 		if(fld_id == SPCSNEXSTR_GOODSNAME && goods_id) {
 			GetGoodsName(goods_id, temp_buf);
 		}

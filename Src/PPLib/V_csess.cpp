@@ -339,7 +339,7 @@ int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 				if(id_list.addUnique(ord_rec.ID) < 0) {
 					temp_buf = "debug";
 				}
-				temp_buf = 0;
+				temp_buf.Z();
 				LDATETIME dtm;
 				dtm.Set(item.Dt, item.Tm);
 				switch(ord) {

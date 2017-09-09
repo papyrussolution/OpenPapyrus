@@ -192,7 +192,7 @@ next:   /*
 		next_recno += NUM_ENT(pg);
 		if(P_FREESPACE(dbp, pg) > factor || (check_trunc && PGNO(pg) > c_data->compact_truncate))
 			break;
-		if(stop != NULL && stop->size > 0) {
+		if(stop && stop->size > 0) {
 			if((ret = __bam_compact_isdone(dbc, stop, pg, &isdone)) != 0)
 				goto err;
 			if(isdone)
@@ -598,7 +598,7 @@ retry:
 			goto next_page;
 		}
 		/* If they have the same parent, just dup the cursor */
-		if(ndbc != NULL && (ret = __dbc_close(ndbc)) != 0)
+		if(ndbc && (ret = __dbc_close(ndbc)) != 0)
 			goto err1;
 		if((ret = __dbc_dup(dbc, &ndbc, DB_POSITION)) != 0)
 			goto err1;
@@ -727,7 +727,7 @@ retry:
 	next_recno = cp->recno;
 
 next_page:
-	if(ndbc != NULL) {
+	if(ndbc) {
 		ncp = (BTREE_CURSOR *)ndbc->internal;
 		if(ncp->sp->page == cp->sp->page) {
 			ncp->sp->page = NULL;
@@ -763,7 +763,7 @@ next_no_release:
 		 */
 		if(do_commit && !F_ISSET(dbc, DBC_OPD) && (atomic_read(&dbp->mpf->mfp->multiversion) != 0 || pgs_done != 0)) {
 deleted:
-			if(ndbc != NULL && ((ret = __bam_stkrel(ndbc, 0)) != 0 || (ret = __dbc_close(ndbc)) != 0))
+			if(ndbc && ((ret = __bam_stkrel(ndbc, 0)) != 0 || (ret = __dbc_close(ndbc)) != 0))
 				goto err;
 			goto out;
 		}
@@ -795,9 +795,9 @@ err:
 	 * a bad tree to a dirty reader.  Wait till the abort to free the locks.
 	 */
 	sflag = STK_CLRDBC;
-	if(dbc->txn != NULL && ret != 0)
+	if(dbc->txn && ret != 0)
 		sflag |= STK_PGONLY;
-	if(ndbc != NULL) {
+	if(ndbc) {
 		ncp = (BTREE_CURSOR *)ndbc->internal;
 		if(npg == ncp->csp->page)
 			npg = NULL;
@@ -844,13 +844,12 @@ static int __bam_merge(DBC * dbc, DBC * ndbc, uint32 factor, DBT * stop, DB_COMP
 	ncp = (BTREE_CURSOR *)ndbc->internal;
 	pg = cp->csp->page;
 	npg = ncp->csp->page;
-
 	nent = NUM_ENT(npg);
-	/* If the page is empty just throw it away. */
+	// If the page is empty just throw it away. 
 	if(nent == 0)
 		goto free_page;
-	/* Find if the stopping point is on this page. */
-	if(stop != NULL && stop->size != 0) {
+	// Find if the stopping point is on this page. 
+	if(stop && stop->size != 0) {
 		if((ret = __bam_compact_isdone(dbc, stop, npg, donep)) != 0)
 			return ret;
 		if(*donep)
@@ -1292,13 +1291,11 @@ static int __bam_merge_internal(DBC * dbc, DBC * ndbc, int level, DB_COMPACT * c
 	uint16 size;
 	uint32 freespace, pfree;
 	int ret;
-
 	COMPQUIET(bip, 0);
 	COMPQUIET(ppgno, PGNO_INVALID);
 	DB_ASSERT(NULL, dbc != NULL);
 	DB_ASSERT(NULL, ndbc != NULL);
 	LOCK_INIT(root_lock);
-
 	/*
 	 * ndbc will contain the the dominating parent of the subtree.
 	 * dbc will have the tree containing the left child.
@@ -1462,7 +1459,7 @@ fits:   memzero(&bi, sizeof(bi));
 		 * we cannot abort and things will be hosed up on error
 		 * anyway.
 		 */
-		if(dbc->txn != NULL && (ret = __bam_lock_tree(ndbc, ncp->csp, nsave_csp, first, NUM_ENT(ncp->csp->page) == 1 ? 1 : 2)) != 0) {
+		if(dbc->txn && (ret = __bam_lock_tree(ndbc, ncp->csp, nsave_csp, first, NUM_ENT(ncp->csp->page) == 1 ? 1 : 2)) != 0) {
 			if(ret != DB_LOCK_NOTGRANTED)
 				goto err;
 			break;
@@ -1471,7 +1468,7 @@ fits:   memzero(&bi, sizeof(bi));
 		if((ret = __db_pitem(dbc, pg, pind, size, &hdr, &data)) != 0)
 			goto err;
 		pind++;
-		if(fip != NULL) {
+		if(fip) {
 			/* reset size to be for the record being deleted. */
 			size = BINTERNAL_SIZE(bip->len);
 			fip = NULL;
@@ -1584,15 +1581,11 @@ static int __bam_compact_dups(DBC * dbc, PAGE ** ppg, uint32 factor, int have_lo
 	DB_MPOOLFILE * dbmp;
 	db_indx_t i;
 	db_pgno_t pgno;
-	int ret;
-
-	ret = 0;
-
+	int ret = 0;
 	DB_ASSERT(NULL, dbc != NULL);
 	dbp = dbc->dbp;
 	dbmp = dbp->mpf;
 	cp = (BTREE_CURSOR *)dbc->internal;
-
 	for(i = 0; i <  NUM_ENT(*ppg); i++) {
 		bo = GET_BOVERFLOW(dbp, *ppg, i);
 		if(B_TYPE(bo->type) == B_KEYDATA)
@@ -1668,12 +1661,11 @@ int __bam_compact_opd(DBC * dbc, db_pgno_t root_pgno, PAGE ** ppg, uint32 factor
 		goto done;
 	if((ret = __dbc_newopd(dbc, root_pgno, NULL, &opd)) != 0)
 		goto err;
-	if(ppg != NULL) {
-		/*
-		 * The caller should have the page at
-		 * least read locked.  Drop the buffer
-		 * and get the write lock.
-		 */
+	if(ppg) {
+		//
+		// The caller should have the page at least read locked.  Drop the buffer
+		// and get the write lock.
+		//
 		pgno = PGNO(*ppg);
 		if((ret = __memp_fput(dbmp, dbc->thread_info, *ppg, dbc->priority)) != 0)
 			goto err;
@@ -1693,7 +1685,7 @@ int __bam_compact_opd(DBC * dbc, db_pgno_t root_pgno, PAGE ** ppg, uint32 factor
 	} while(!isdone);
 	__os_free(env, start.data);
 err:
-	if(opd != NULL && (t_ret = __dbc_close(opd)) != 0 && ret == 0)
+	if(opd && (t_ret = __dbc_close(opd)) != 0 && ret == 0)
 		ret = t_ret;
 done:
 	LOCK_CHECK_ON(dbc->thread_info);

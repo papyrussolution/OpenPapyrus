@@ -81,17 +81,17 @@ int __bam_db_create(DB * dbp)
  */
 int __bam_db_close(DB * dbp)
 {
-	BTREE * t;
-	if((t = (BTREE *)dbp->bt_internal) == NULL)
-		return 0;
-	/* Recno */
-	/* Close any backing source file descriptor. */
-	if(t->re_fp != NULL)
-		fclose(t->re_fp);
-	/* Free any backing source file name. */
-	__os_free(dbp->env, t->re_source);
-	__os_free(dbp->env, t);
-	dbp->bt_internal = NULL;
+	BTREE * t = (BTREE *)dbp->bt_internal;
+	if(t) {
+		// Recno 
+		// Close any backing source file descriptor. 
+		if(t->re_fp)
+			fclose(t->re_fp);
+		// Free any backing source file name
+		__os_free(dbp->env, t->re_source);
+		__os_free(dbp->env, t);
+		dbp->bt_internal = NULL;
+	}
 	return 0;
 }
 /*

@@ -904,7 +904,7 @@ int PiritEquip::SetConnection()
 		case 9: port_params.Cbr = cbr128000; break;
 		case 10: port_params.Cbr = cbr256000; break;
 	}
-	THROW(CommPort.SetParams(&port_params));
+	CommPort.SetParams(&port_params);
 	THROW(CommPort.InitPort(Cfg.Port));
 	// @v9.5.7 delay(200);
 	CommPort.PutChr(ENQ); // Проверка связи с ККМ

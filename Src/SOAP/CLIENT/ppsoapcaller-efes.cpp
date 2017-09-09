@@ -67,7 +67,7 @@ static char * EncodeEfesUnitType(int unitType, TSCollection <InParamString> & rA
 	else if(unitType == spaefesUnitLiter)
 		temp_buf = "L";
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	return GetDynamicParamString(temp_buf.Transf(CTRANSF_INNER_TO_UTF8), rArgStrPool);
 }
 
@@ -385,7 +385,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesSetDeliv
 						case SapEfesBillPacket::tReturn:    temp_buf = "ZRET"; break;
 						case SapEfesBillPacket::tBonus:     temp_buf = "ZDS1"; break;
 						case SapEfesBillPacket::tBonusEfes: temp_buf = "ZDS2"; break;
-						default: temp_buf = 0; break;
+						default: temp_buf.Z(); break;
 					}
 					p_new_item->DocType = GetDynamicParamString(temp_buf.Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					if(p_src_pack->Flags & SapEfesBillPacket::fHasOrderRef)

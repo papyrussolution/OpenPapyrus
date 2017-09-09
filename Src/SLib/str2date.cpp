@@ -51,7 +51,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 		c = zero_buf;
 		ret_flags |= strtodatefZero;
 	}
-	while(*c == ' ' || *c == '\t')
+	while(oneof2(*c, ' ', '\t'))
 		c++;
 	// @v9.7.0 {
 	if(strnicmp(c, "date", 4) == 0) {
@@ -61,7 +61,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 		if(*c == '\'')
 			c++;
 	}
-	// } @v9.7.0 
+	// } @v9.7.0
 	if(*c) {
 		if(*c == '^') {
             c++;
@@ -117,7 +117,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 				// форматами, мы может рассмотреть этот вариант отдельно.
 				// За одно воспользуемся тем, что количество лидирующих цифр уже подсчитано (dig_count == 4)
 				//
-				if(dig_count == 4 && style != DATF_ISO8601) { 
+				if(dig_count == 4 && style != DATF_ISO8601) {
 					if(
 						/*isdec(c[0]) &&
 						isdec(c[1]) &&

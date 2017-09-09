@@ -797,7 +797,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		}
 	}
 	uint   i, pos;
-	temp_buf = 0;
+	temp_buf.Z();
 	if(pckgPos >= 0) {
 		P_Pckg = P_Pack->P_PckgList->GetByIdx(pckgPos);
 		if(P_Pckg) {

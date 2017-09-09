@@ -13,7 +13,7 @@ ssize_t ngx_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 	u_long sent;
 	ngx_err_t err;
 	WSABUF wsabuf;
-	ngx_event_t  * wev = c->write;
+	ngx_event_t  * wev = c->P_EvWr;
 	if(!wev->ready) {
 		return NGX_AGAIN;
 	}
@@ -51,7 +51,7 @@ ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 	ngx_err_t err;
 	LPWSAOVERLAPPED ovlp;
 	WSABUF wsabuf;
-	ngx_event_t * wev = c->write;
+	ngx_event_t * wev = c->P_EvWr;
 	if(!wev->ready) {
 		return NGX_AGAIN;
 	}
@@ -66,7 +66,7 @@ ssize_t ngx_overlapped_wsasend(ngx_connection_t * c, u_char * buf, size_t size)
 		wsabuf.buf = (char*)buf;
 		wsabuf.len = size;
 		sent = 0;
-		ovlp = (LPWSAOVERLAPPED)&c->write->ovlp;
+		ovlp = (LPWSAOVERLAPPED)&c->P_EvWr->ovlp;
 		memzero(ovlp, sizeof(WSAOVERLAPPED));
 		n = WSASend(c->fd, &wsabuf, 1, &sent, 0, ovlp, NULL);
 		ngx_log_debug4(NGX_LOG_DEBUG_EVENT, c->log, 0, "WSASend: fd:%d, %d, %ul of %uz", c->fd, n, sent, size);

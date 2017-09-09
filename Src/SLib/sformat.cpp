@@ -466,9 +466,9 @@ int SLAPI strtotime(const char * pBuf, long fmt, void * v)
 	char * p = strtok(strip(strcpy(b, pBuf)), (char*)&sDIV);
 	*(long *)v = 0L;
 	if(p)
-		do
+		do {
 			((char *)v)[3-i] = atoi(p);
-		while(++i < 4 && (p = strtok(NULL, (char*)&sDIV)) != 0);
+		} while(++i < 4 && (p = strtok(NULL, (char*)&sDIV)) != 0);
 	return 1;
 }
 //
@@ -500,8 +500,8 @@ static int FASTCALL is_zero(const char * c)
 
 static char * SLAPI fmtnumber(const char * ptr, int dec, int sign, long fmt, char * buf)
 {
-	int16  prec = (int16) (signed char) SFMTPRC(fmt);
-	int16  flags = SFMTFLAG(fmt);
+	int16  prec = (int16)(signed char)SFMTPRC(fmt);
+	uint16 flags = SFMTFLAG(fmt);
 	char * b = buf;
 	if(!(flags & NMBF_NOZERO) || !is_zero(ptr)) {
 		if(sign) {
@@ -569,35 +569,76 @@ char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf)
 
 char * SLAPI realfmt(double val, long fmt, char * pBuf)
 {
-	char * s;
 	int    dec, sign;
-	int    prc = (int) (signed char) SFMTPRC(fmt);
+	int    prc = (int)(signed char)SFMTPRC(fmt);
 	if(prc < 0) {
-#ifdef _WIN32_WCE
-		val = pow(10, prc);
-#else
 		val = val * fpow10i(prc);
-#endif
 		prc = 0;
 	}
-	else if(prc > 0)            /*  Papyrus @v3.6.6 */
+	else if(prc > 0) { // Papyrus @v3.6.6
 		val = round(val, prc);
-#ifdef __WIN32__
+	}
 	if(val > -1.e-10 && val < 1.e-10)
-		val = 0;
-	if(!prc && val == 0) {
-		s = fcvt(val, 1, &dec, &sign);
-		dec = 1;
+		val = 0.0;
+	{
+		char   str[256];
+		if(!prc && val == 0.0) {
+			strnzcpy(str, fcvt(val, 1, &dec, &sign), sizeof(str));
+			dec = 1;
+		}
+		else
+			strnzcpy(str, fcvt(val, prc, &dec, &sign), sizeof(str));
+		if(prc > 0 && dec <= 0) {
+			padleft(str, '0', 1 - dec);
+			dec = 1;
+		}
+		SETSFMTPRC(fmt, prc);
+		if(val != 0.0 && SFMTFLAG(fmt) & NMBF_OMITEPS) {
+			const uint _len = strlen(str);
+			uint   c_0 = 0; // количество '0'
+			uint   c_9 = 0; // количество '9'
+			uint   last_n09_pos = 0; // Позиция последней цифры, не являющейся '0' или '9'
+			int    do_carry = 0; // Для варианта "999999999999" нужно будет добавить лидирующую '1' 
+			for(uint i = 0; i < _len; i++) {
+				const char _d = str[i];
+				if(_d == '0') {
+					c_9 = 0;
+					if(++c_0 >= OMITEPSDIGITS) {
+						for(uint j = i+1; j < _len; j++) {
+							str[j] = '0';
+						}
+						break;
+					}
+				}
+				else if(_d == '9') {
+					c_0 = 0;
+					if(++c_9 >= OMITEPSDIGITS) {
+						if(last_n09_pos == 0 && str[0] == '9') {
+							do_carry = 1;
+						}
+						else 
+							str[last_n09_pos] += 1;
+						for(uint j = last_n09_pos+1; j < _len; j++) {
+							str[j] = '0';
+						}
+						break;
+					}
+				}
+				else if(isdec(_d)) {
+					c_0 = 0;
+					c_9 = 0;
+					last_n09_pos = i;
+				}
+				else
+					break; // something went wrong!
+			}
+			if(do_carry) {
+				padleft(str, '1', 1);
+				dec++;
+			}
+		}
+		return fmtnumber(str, dec, sign, fmt, pBuf);
 	}
-	else
-#endif
-		s = fcvt(val, prc, &dec, &sign);
-	if(prc > 0 && dec <= 0) {
-		padleft(s, '0', 1 - dec);
-		dec = 1;
-	}
-	SETSFMTPRC(fmt, prc);
-	return fmtnumber(s, dec, sign, fmt, pBuf);
 }
 
 char * SLAPI intfmt(long val, long fmt, char * pBuf)

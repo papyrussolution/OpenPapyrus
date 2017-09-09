@@ -56,15 +56,15 @@ void ngx_mail_pop3_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 		ngx_str_set(&s->out, pop3_greeting);
 	}
 
-	c->read->handler = ngx_mail_pop3_init_protocol;
+	c->P_EvRd->handler = ngx_mail_pop3_init_protocol;
 
-	ngx_add_timer(c->read, cscf->timeout);
+	ngx_add_timer(c->P_EvRd, cscf->timeout);
 
-	if(ngx_handle_read_event(c->read, 0) != NGX_OK) {
+	if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
 	}
 
-	ngx_mail_send(c->write);
+	ngx_mail_send(c->P_EvWr);
 }
 
 void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
@@ -100,7 +100,7 @@ void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
 	}
 
 	s->mail_state = ngx_pop3_start;
-	c->read->handler = ngx_mail_pop3_auth_state;
+	c->P_EvRd->handler = ngx_mail_pop3_auth_state;
 
 	ngx_mail_pop3_auth_state(rev);
 }
@@ -259,7 +259,7 @@ void ngx_mail_pop3_auth_state(ngx_event_t * rev)
 			    s->arg_start = s->buffer->start;
 		    }
 
-		    ngx_mail_send(c->write);
+		    ngx_mail_send(c->P_EvWr);
 	}
 }
 
@@ -283,60 +283,41 @@ static ngx_int_t ngx_mail_pop3_user(ngx_mail_session_t * s, ngx_connection_t * c
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(s->login.data, arg[0].data, s->login.len);
-
-	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
-	    "pop3 login: \"%V\"", &s->login);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "pop3 login: \"%V\"", &s->login);
 	s->mail_state = ngx_pop3_user;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_mail_pop3_pass(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	ngx_str_t  * arg;
-
 	if(s->args.nelts != 1) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	arg = (ngx_str_t*)s->args.elts;
 	s->passwd.len = arg[0].len;
 	s->passwd.data = (u_char*)ngx_pnalloc(c->pool, s->passwd.len);
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(s->passwd.data, arg[0].data, s->passwd.len);
-
 #if (NGX_DEBUG_MAIL_PASSWD)
-	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
-	    "pop3 passwd: \"%V\"", &s->passwd);
+	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "pop3 passwd: \"%V\"", &s->passwd);
 #endif
-
 	return NGX_DONE;
 }
 
 static ngx_int_t ngx_mail_pop3_capa(ngx_mail_session_t * s, ngx_connection_t * c, ngx_int_t stls)
 {
-	ngx_mail_pop3_srv_conf_t  * pscf;
-
-	pscf = (ngx_mail_pop3_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_pop3_module);
-
+	ngx_mail_pop3_srv_conf_t  * pscf = (ngx_mail_pop3_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_pop3_module);
 #if (NGX_MAIL_SSL)
-
 	if(stls && c->ssl == NULL) {
-		ngx_mail_ssl_conf_t  * sslcf;
-
-		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
-
+		ngx_mail_ssl_conf_t  * sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls == NGX_MAIL_STARTTLS_ON) {
 			s->out = pscf->starttls_capability;
 			return NGX_OK;
 		}
-
 		if(sslcf->starttls == NGX_MAIL_STARTTLS_ONLY) {
 			s->out = pscf->starttls_only_capability;
 			return NGX_OK;
@@ -357,7 +338,7 @@ static ngx_int_t ngx_mail_pop3_stls(ngx_mail_session_t * s, ngx_connection_t * c
 	if(c->ssl == NULL) {
 		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls) {
-			c->read->handler = ngx_mail_starttls_handler;
+			c->P_EvRd->handler = ngx_mail_starttls_handler;
 			return NGX_OK;
 		}
 	}
@@ -470,19 +451,14 @@ static ngx_int_t ngx_mail_pop3_auth(ngx_mail_session_t * s, ngx_connection_t * c
 		    }
 
 		    return NGX_ERROR;
-
 		case NGX_MAIL_AUTH_EXTERNAL:
-
 		    if(!(pscf->auth_methods & NGX_MAIL_AUTH_EXTERNAL_ENABLED)) {
 			    return NGX_MAIL_PARSE_INVALID_COMMAND;
 		    }
-
 		    ngx_str_set(&s->out, pop3_username);
 		    s->mail_state = ngx_pop3_auth_external;
-
 		    return NGX_OK;
 	}
-
 	return rc;
 }
 

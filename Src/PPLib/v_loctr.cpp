@@ -270,10 +270,10 @@ int LocTransfDialog::setDTS(const LocTransfTbl::Rec * pData)
 				bill_qtty = ti.Qtty();
 		}
 		else
-			temp_buf = 0;
+			temp_buf.Z();
 	}
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	setStaticText(CTL_LOCTRANSF_BILLTITLE, temp_buf);
 	setCtrlReal(CTL_LOCTRANSF_BILLQTTY, bill_qtty);
 	showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);

@@ -2497,8 +2497,8 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				ps.Merge(SysLogName.Z());
 			}
 			{
-				ps.Nam = 0;
-				ps.Ext = 0;
+				ps.Nam.Z();
+				ps.Ext.Z();
 				ps.Copy(&inp_ps, SPathStruc::fDrv|SPathStruc::fDir);
 				ps.Merge(P_ImportCls->TempPath);
 				P_ImportCls->TempPath.SetLastSlash().Cat("temp");

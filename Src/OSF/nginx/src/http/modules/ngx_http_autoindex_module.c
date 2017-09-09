@@ -19,25 +19,23 @@ typedef struct {
 
 #endif
 
-typedef struct {
+struct ngx_http_autoindex_entry_t {
 	ngx_str_t name;
 	size_t utf_len;
 	size_t escape;
 	size_t escape_html;
-
 	unsigned dir : 1;
 	unsigned file : 1;
-
 	time_t mtime;
 	nginx_off_t size;
-} ngx_http_autoindex_entry_t;
+};
 
-typedef struct {
+struct ngx_http_autoindex_loc_conf_t {
 	ngx_flag_t enable;
 	ngx_uint_t format;
 	ngx_flag_t localtime;
 	ngx_flag_t exact_size;
-} ngx_http_autoindex_loc_conf_t;
+};
 
 #define NGX_HTTP_AUTOINDEX_HTML         0
 #define NGX_HTTP_AUTOINDEX_JSON         1
@@ -48,24 +46,15 @@ typedef struct {
 
 #define NGX_HTTP_AUTOINDEX_NAME_LEN     50
 
-static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r,
-    ngx_array_t * entries);
-static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r,
-    ngx_array_t * entries, ngx_str_t * callback);
-static ngx_int_t ngx_http_autoindex_jsonp_callback(ngx_http_request_t * r,
-    ngx_str_t * callback);
-static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r,
-    ngx_array_t * entries);
-
-static int ngx_libc_cdecl ngx_http_autoindex_cmp_entries(const void * one,
-    const void * two);
-static ngx_int_t ngx_http_autoindex_error(ngx_http_request_t * r,
-    ngx_dir_t * dir, ngx_str_t * name);
-
+static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t * entries);
+static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r, ngx_array_t * entries, ngx_str_t * callback);
+static ngx_int_t ngx_http_autoindex_jsonp_callback(ngx_http_request_t * r, ngx_str_t * callback);
+static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * entries);
+static int ngx_libc_cdecl ngx_http_autoindex_cmp_entries(const void * one, const void * two);
+static ngx_int_t ngx_http_autoindex_error(ngx_http_request_t * r, ngx_dir_t * dir, ngx_str_t * name);
 static ngx_int_t ngx_http_autoindex_init(ngx_conf_t * cf);
 static void * ngx_http_autoindex_create_loc_conf(ngx_conf_t * cf);
-static char * ngx_http_autoindex_merge_loc_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_autoindex_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_conf_enum_t ngx_http_autoindex_format[] = {
 	{ ngx_string("html"), NGX_HTTP_AUTOINDEX_HTML },
@@ -76,47 +65,24 @@ static ngx_conf_enum_t ngx_http_autoindex_format[] = {
 };
 
 static ngx_command_t ngx_http_autoindex_commands[] = {
-	{ ngx_string("autoindex"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_autoindex_loc_conf_t, enable),
-	  NULL },
-
-	{ ngx_string("autoindex_format"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_enum_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_autoindex_loc_conf_t, format),
-	  &ngx_http_autoindex_format },
-
-	{ ngx_string("autoindex_localtime"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_autoindex_loc_conf_t, localtime),
-	  NULL },
-
-	{ ngx_string("autoindex_exact_size"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_autoindex_loc_conf_t, exact_size),
-	  NULL },
-
+	{ ngx_string("autoindex"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_autoindex_loc_conf_t, enable), NULL },
+	{ ngx_string("autoindex_format"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_enum_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_autoindex_loc_conf_t, format), &ngx_http_autoindex_format },
+	{ ngx_string("autoindex_localtime"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_autoindex_loc_conf_t, localtime), NULL },
+	{ ngx_string("autoindex_exact_size"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_autoindex_loc_conf_t, exact_size), NULL },
 	ngx_null_command
 };
 
 static ngx_http_module_t ngx_http_autoindex_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_autoindex_init,           /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_autoindex_create_loc_conf, /* create location configuration */
 	ngx_http_autoindex_merge_loc_conf  /* merge location configuration */
 };
@@ -151,57 +117,40 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	ngx_array_t entries;
 	ngx_http_autoindex_entry_t   * entry;
 	ngx_http_autoindex_loc_conf_t  * alcf;
-
 	if(r->uri.data[r->uri.len - 1] != '/') {
 		return NGX_DECLINED;
 	}
-
 	if(!(r->method & (NGX_HTTP_GET|NGX_HTTP_HEAD))) {
 		return NGX_DECLINED;
 	}
-
 	alcf = (ngx_http_autoindex_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_autoindex_module);
-
 	if(!alcf->enable) {
 		return NGX_DECLINED;
 	}
-
-	/* NGX_DIR_MASK_LEN is lesser than NGX_HTTP_AUTOINDEX_PREALLOCATE */
-
-	last = ngx_http_map_uri_to_path(r, &path, &root,
-	    NGX_HTTP_AUTOINDEX_PREALLOCATE);
+	// NGX_DIR_MASK_LEN is lesser than NGX_HTTP_AUTOINDEX_PREALLOCATE 
+	last = ngx_http_map_uri_to_path(r, &path, &root, NGX_HTTP_AUTOINDEX_PREALLOCATE);
 	if(last == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	allocated = path.len;
 	path.len = last - path.data;
 	if(path.len > 1) {
 		path.len--;
 	}
 	path.data[path.len] = '\0';
-
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http autoindex: \"%s\"", path.data);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http autoindex: \"%s\"", path.data);
 	format = alcf->format;
-
 	if(format == NGX_HTTP_AUTOINDEX_JSONP) {
 		if(ngx_http_autoindex_jsonp_callback(r, &callback) != NGX_OK) {
 			return NGX_HTTP_BAD_REQUEST;
 		}
-
 		if(callback.len == 0) {
 			format = NGX_HTTP_AUTOINDEX_JSON;
 		}
 	}
-
 	if(ngx_open_dir(&path, &dir) == NGX_ERROR) {
 		err = ngx_errno;
-
-		if(err == NGX_ENOENT
-		    || err == NGX_ENOTDIR
-		    || err == NGX_ENAMETOOLONG) {
+		if(err == NGX_ENOENT || err == NGX_ENOTDIR || err == NGX_ENAMETOOLONG) {
 			level = NGX_LOG_ERR;
 			rc = NGX_HTTP_NOT_FOUND;
 		}
@@ -213,44 +162,30 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 			level = NGX_LOG_CRIT;
 			rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
-		ngx_log_error(level, r->connection->log, err,
-		    ngx_open_dir_n " \"%s\" failed", path.data);
-
+		ngx_log_error(level, r->connection->log, err, ngx_open_dir_n " \"%s\" failed", path.data);
 		return rc;
 	}
-
 #if (NGX_SUPPRESS_WARN)
-
-	/* MSVC thinks 'entries' may be used without having been initialized */
+	// MSVC thinks 'entries' may be used without having been initialized 
 	memzero(&entries, sizeof(ngx_array_t));
-
 #endif
-
-	/* TODO: pool should be temporary pool */
+	// TODO: pool should be temporary pool 
 	pool = r->pool;
-
-	if(ngx_array_init(&entries, pool, 40, sizeof(ngx_http_autoindex_entry_t))
-	    != NGX_OK) {
+	if(ngx_array_init(&entries, pool, 40, sizeof(ngx_http_autoindex_entry_t)) != NGX_OK) {
 		return ngx_http_autoindex_error(r, &dir, &path);
 	}
-
 	r->headers_out.status = NGX_HTTP_OK;
-
 	switch(format) {
 		case NGX_HTTP_AUTOINDEX_JSON:
 		    ngx_str_set(&r->headers_out.content_type, "application/json");
 		    break;
-
 		case NGX_HTTP_AUTOINDEX_JSONP:
 		    ngx_str_set(&r->headers_out.content_type, "application/javascript");
 		    break;
-
 		case NGX_HTTP_AUTOINDEX_XML:
 		    ngx_str_set(&r->headers_out.content_type, "text/xml");
 		    ngx_str_set(&r->headers_out.charset, "utf-8");
 		    break;
-
 		default: /* NGX_HTTP_AUTOINDEX_HTML */
 		    ngx_str_set(&r->headers_out.content_type, "text/html");
 		    break;

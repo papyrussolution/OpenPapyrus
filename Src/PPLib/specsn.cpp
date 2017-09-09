@@ -157,9 +157,9 @@ int PPALDD_UhttSpecSeries::InitData(PPFilt & rFilt, long rsrv)
 		SString temp_buf;
 		H.ID = r_blk.Rec.ID;
 		H.GoodsID = r_blk.Rec.GoodsID;
-		SpecSeriesCore::GetExField(&r_blk.Rec, SPCSNEXSTR_GOODSNAME, (temp_buf = 0));
+		SpecSeriesCore::GetExField(&r_blk.Rec, SPCSNEXSTR_GOODSNAME, temp_buf.Z());
 		STRNSCPY(H.GoodsName, temp_buf);
-		SpecSeriesCore::GetExField(&r_blk.Rec, SPCSNEXSTR_MANUFNAME, (temp_buf = 0));
+		SpecSeriesCore::GetExField(&r_blk.Rec, SPCSNEXSTR_MANUFNAME, temp_buf.Z());
 		STRNSCPY(H.ManufName, temp_buf);
 		H.LabID = r_blk.Rec.LabID;
 		H.ManufID = r_blk.Rec.ManufID;

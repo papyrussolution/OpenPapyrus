@@ -634,7 +634,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					}
 					else if(oneof3(Src, srcCCheck, srcGoodsBill, srcCSession)) {
 						PPID   psn_id = 0;
-						if(GetCurUserPerson(&psn_id, &(temp_buf = 0)) > 0)
+						if(GetCurUserPerson(&psn_id, &temp_buf) > 0)
 							rResult.Cat(temp_buf);
 						else {
 							GetCurUserName(temp_buf);
@@ -1235,7 +1235,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					if(Src == srcCCheck) {
 						if(p_ccp->Rec.Flags & CCHKF_DELIVERY) {
 							if(P_Od) {
-								temp_buf = 0;
+								temp_buf.Z();
 								P_Od->PsnObj.LocObj.GetCity(p_ccp->Ext.AddrID, 0, &temp_buf, 1);
 								rResult.Cat(temp_buf);
 							}

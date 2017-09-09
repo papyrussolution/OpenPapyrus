@@ -1230,7 +1230,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			temp_buf.CopyTo(xml_entity_spec, sizeof(xml_entity_spec));
 			p_xml_entity_spec = xml_entity_spec;
 		}
-		temp_buf = 0;
+		temp_buf.Z();
 	}
 	rOutFileName = 0;
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
@@ -1434,7 +1434,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	char * temp_buf = 0;
+	char * p_temp_buf = 0;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(pAry);
@@ -1444,10 +1444,10 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 		if(filt.ID > 0)
 			THROW(Helper_PutItemToJson(&filt, p_root_ary));
 	}
-	json_tree_to_string(p_root_ary, &temp_buf);
-	rBuf.Z().Cat(temp_buf);
+	json_tree_to_string(p_root_ary, &p_temp_buf);
+	rBuf.Z().Cat(p_temp_buf);
 	CATCHZOK
-	SAlloc::F(temp_buf);
+	SAlloc::F(p_temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }
@@ -1456,16 +1456,16 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
 	PPFilt filt;
-	char * temp_buf = 0;
+	char * p_temp_buf = 0;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(ptr);
 	filt.Ptr = ptr;
 	THROW(Helper_PutItemToJson(&filt, p_root_ary));
-	json_tree_to_string(p_root_ary, &temp_buf);
-	rBuf.Z().Cat(temp_buf);
+	json_tree_to_string(p_root_ary, &p_temp_buf);
+	rBuf.Z().Cat(p_temp_buf);
 	CATCHZOK
-	SAlloc::F(temp_buf);
+	SAlloc::F(p_temp_buf);
 	json_free_value(&p_root_ary);
 	return ok;
 }

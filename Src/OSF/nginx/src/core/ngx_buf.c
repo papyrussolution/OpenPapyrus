@@ -34,7 +34,7 @@ ngx_buf_t * ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 	return b;
 }
 
-ngx_chain_t * ngx_alloc_chain_link(ngx_pool_t * pool)
+ngx_chain_t * FASTCALL ngx_alloc_chain_link(ngx_pool_t * pool)
 {
 	ngx_chain_t  * cl = pool->chain;
 	if(cl)

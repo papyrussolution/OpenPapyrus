@@ -2734,25 +2734,13 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_config.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_connection.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_core.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_cycle.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event_connect.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_event_openssl.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event_pipe.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http.h">
@@ -2770,9 +2758,6 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_http_ssi_filter_module.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http_ssl_module.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_upstream_round_robin.h">
 			</File>
 			<File
@@ -2780,12 +2765,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_v2_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_iocp_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_log.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_mail.h">

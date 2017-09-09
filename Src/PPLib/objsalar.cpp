@@ -1188,7 +1188,7 @@ int StaffCalDialog::setDTS(const PPStaffCalPacket * pData)
 			temp_buf.CatDiv(':', 1).Cat(obj_name);
 	}
 	else
-		temp_buf = 0;
+		temp_buf.Z();
 	setCtrlString(CTL_STAFFCAL_LINKOBJ, temp_buf);
 	//
 	setCtrlData(CTL_STAFFCAL_ID,  &Data.Rec.ID);

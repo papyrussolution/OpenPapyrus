@@ -1303,7 +1303,7 @@ int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 			scan.Skip();
 			if(scan[0] == '.') {
 				scan.Incr();
-				THROW(scan.GetIdent(temp_buf = 0));
+				THROW(scan.GetIdent(temp_buf.Z()));
 				if(temp_buf.CmpNC("amount") == 0) {
 					Sub = subAmount;
 				}
