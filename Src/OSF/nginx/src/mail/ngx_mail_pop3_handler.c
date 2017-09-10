@@ -72,7 +72,7 @@ void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
 	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
-	c = (ngx_connection_t*)rev->data;
+	c = (ngx_connection_t*)rev->P_Data;
 
 	c->log->action = "in auth state";
 
@@ -111,7 +111,7 @@ void ngx_mail_pop3_auth_state(ngx_event_t * rev)
 	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
 
-	c = (ngx_connection_t*)rev->data;
+	c = (ngx_connection_t*)rev->P_Data;
 	s = (ngx_mail_session_t*)c->data;
 
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "pop3 auth state");

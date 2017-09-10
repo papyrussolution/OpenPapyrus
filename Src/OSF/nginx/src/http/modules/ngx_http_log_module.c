@@ -580,7 +580,7 @@ static void ngx_http_log_flush(ngx_open_file_t * file, ngx_log_t * log)
 static void ngx_http_log_flush_handler(ngx_event_t * ev)
 {
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ev->log, 0, "http log buffer flush handler");
-	ngx_http_log_flush((ngx_open_file_t *)ev->data, ev->log);
+	ngx_http_log_flush((ngx_open_file_t *)ev->P_Data, ev->log);
 }
 
 static u_char * ngx_http_log_copy_short(ngx_http_request_t * r, u_char * buf, ngx_http_log_op_t * op)
@@ -935,14 +935,11 @@ static char * ngx_http_log_merge_loc_conf(ngx_conf_t * cf, void * parent, void *
 	if(log->file == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	lmcf = (ngx_http_log_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_log_module);
 	fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
-
 	/* the default "combined" format */
 	log->format = &fmt[0];
 	lmcf->combined_used = 1;
-
 	return NGX_CONF_OK;
 }
 
@@ -1019,12 +1016,9 @@ static char * ngx_http_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 			return NGX_CONF_ERROR;
 		}
 	}
-
 process_formats:
-
 	if(cf->args->nelts >= 3) {
 		name = value[2];
-
 		if(ngx_strcmp(name.data, "combined") == 0) {
 			lmcf->combined_used = 1;
 		}
@@ -1033,7 +1027,6 @@ process_formats:
 		ngx_str_set(&name, "combined");
 		lmcf->combined_used = 1;
 	}
-
 	fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
 		if(fmt[i].name.len == name.len
@@ -1042,140 +1035,94 @@ process_formats:
 			break;
 		}
 	}
-
 	if(log->format == NULL) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "unknown log format \"%V\"", &name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown log format \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-
 	size = 0;
 	flush = 0;
 	gzip = 0;
-
 	for(i = 3; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "buffer=", 7) == 0) {
 			s.len = value[i].len - 7;
 			s.data = value[i].data + 7;
-
 			size = ngx_parse_size(&s);
-
 			if(size == NGX_ERROR || size == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid buffer size \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid buffer size \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "flush=", 6) == 0) {
 			s.len = value[i].len - 6;
 			s.data = value[i].data + 6;
-
 			flush = ngx_parse_time(&s, 0);
-
 			if(flush == (ngx_msec_t)NGX_ERROR || flush == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid flush time \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid flush time \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
-		if(ngx_strncmp(value[i].data, "gzip", 4) == 0
-		    && (value[i].len == 4 || value[i].data[4] == '=')) {
+		if(ngx_strncmp(value[i].data, "gzip", 4) == 0 && (value[i].len == 4 || value[i].data[4] == '=')) {
 #if (NGX_ZLIB)
 			if(size == 0) {
 				size = 64 * 1024;
 			}
-
 			if(value[i].len == 4) {
 				gzip = Z_BEST_SPEED;
 				continue;
 			}
-
 			s.len = value[i].len - 5;
 			s.data = value[i].data + 5;
-
 			gzip = ngx_atoi(s.data, s.len);
-
 			if(gzip < 1 || gzip > 9) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid compression level \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid compression level \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
-
 #else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "nginx was built without zlib support");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "nginx was built without zlib support");
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strncmp(value[i].data, "if=", 3) == 0) {
 			s.len = value[i].len - 3;
 			s.data = value[i].data + 3;
-
 			memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
-
 			ccv.cf = cf;
 			ccv.value = &s;
 			ccv.complex_value = (ngx_http_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 			if(ccv.complex_value == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}
-
 			log->filter = ccv.complex_value;
-
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[i]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(flush && size == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "no buffer is defined for access_log \"%V\"",
-		    &value[1]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "no buffer is defined for access_log \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(size) {
 		if(log->script) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "buffered logs cannot have variables in name");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "buffered logs cannot have variables in name");
 			return NGX_CONF_ERROR;
 		}
-
 		if(log->syslog_peer) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "logs to syslog cannot be buffered");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "logs to syslog cannot be buffered");
 			return NGX_CONF_ERROR;
 		}
-
 		if(log->file->data) {
 			buffer = (ngx_http_log_buf_t *)log->file->data;
-
-			if(buffer->last - buffer->start != size
-			    || buffer->flush != flush
-			    || buffer->gzip != gzip) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "access_log \"%V\" already defined "
-				    "with conflicting parameters",
-				    &value[1]);
+			if(buffer->last - buffer->start != size || buffer->flush != flush || buffer->gzip != gzip) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "access_log \"%V\" already defined with conflicting parameters", &value[1]);
 				return NGX_CONF_ERROR;
 			}
-
 			return NGX_CONF_OK;
 		}
 
@@ -1193,12 +1140,12 @@ process_formats:
 		buffer->last = buffer->start + size;
 
 		if(flush) {
-			buffer->event = (ngx_event_t*)ngx_pcalloc(cf->pool, sizeof(ngx_event_t));
+			buffer->event = (ngx_event_t *)ngx_pcalloc(cf->pool, sizeof(ngx_event_t));
 			if(buffer->event == NULL) {
 				return NGX_CONF_ERROR;
 			}
 
-			buffer->event->data = log->file;
+			buffer->event->P_Data = log->file;
 			buffer->event->handler = ngx_http_log_flush_handler;
 			buffer->event->log = &cf->cycle->new_log;
 			buffer->event->cancelable = 1;

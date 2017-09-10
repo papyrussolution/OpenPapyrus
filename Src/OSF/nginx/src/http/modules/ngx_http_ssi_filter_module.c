@@ -938,7 +938,7 @@ tag_started:
 			case ssi_precommand_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					break;
@@ -966,7 +966,7 @@ tag_started:
 			case ssi_command_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					state = ssi_preparam_state;
@@ -995,7 +995,7 @@ tag_started:
 			case ssi_preparam_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					break;
@@ -1040,7 +1040,7 @@ tag_started:
 			case ssi_param_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					state = ssi_preequal_state;
@@ -1077,7 +1077,7 @@ tag_started:
 			case ssi_preequal_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					break;
@@ -1106,7 +1106,7 @@ tag_started:
 			case ssi_prevalue_state:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					break;
@@ -1228,7 +1228,7 @@ tag_started:
 
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 				    case '\t':
 					state = ssi_preparam_state;

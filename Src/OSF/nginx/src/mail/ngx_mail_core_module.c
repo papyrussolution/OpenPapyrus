@@ -525,49 +525,35 @@ static char * ngx_mail_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void
 static char * ngx_mail_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t*)conf;
-
-	ngx_str_t  * value;
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
 	if(cscf->resolver != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		cscf->resolver = NULL;
 		return NGX_CONF_OK;
 	}
-
 	cscf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
 	if(cscf->resolver == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
 }
 
 char * ngx_mail_capabilities(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-
-	ngx_str_t  * c, * value;
+	ngx_str_t  * c;
 	ngx_uint_t i;
-	ngx_array_t  * a;
-
-	a = (ngx_array_t*)(p + cmd->offset);
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_array_t * a = (ngx_array_t*)(p + cmd->offset);
+	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
 	for(i = 1; i < cf->args->nelts; i++) {
 		c = (ngx_str_t*)ngx_array_push(a);
 		if(c == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		*c = value[i];
 	}
-
 	return NGX_CONF_OK;
 }
 

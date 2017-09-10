@@ -29,7 +29,7 @@ ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * na
 	return NGX_OK;
 }
 
-void ngx_shmtx_destroy(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_destroy(ngx_shmtx_t * mtx)
 {
 #if (NGX_HAVE_POSIX_SEM)
 	if(mtx->semaphore) {
@@ -40,12 +40,12 @@ void ngx_shmtx_destroy(ngx_shmtx_t * mtx)
 #endif
 }
 
-ngx_uint_t ngx_shmtx_trylock(ngx_shmtx_t * mtx)
+ngx_uint_t FASTCALL ngx_shmtx_trylock(ngx_shmtx_t * mtx)
 {
 	return (*mtx->lock == 0 && ngx_atomic_cmp_set(mtx->lock, 0, ngx_pid));
 }
 
-void ngx_shmtx_lock(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_lock(ngx_shmtx_t * mtx)
 {
 	ngx_uint_t i, n;
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "shmtx lock");
@@ -86,7 +86,7 @@ void ngx_shmtx_lock(ngx_shmtx_t * mtx)
 	}
 }
 
-void ngx_shmtx_unlock(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_unlock(ngx_shmtx_t * mtx)
 {
 	if(mtx->spin != (ngx_uint_t)-1) {
 		ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "shmtx unlock");
@@ -96,7 +96,7 @@ void ngx_shmtx_unlock(ngx_shmtx_t * mtx)
 	}
 }
 
-ngx_uint_t ngx_shmtx_force_unlock(ngx_shmtx_t * mtx, ngx_pid_t pid)
+ngx_uint_t FASTCALL ngx_shmtx_force_unlock(ngx_shmtx_t * mtx, ngx_pid_t pid)
 {
 	ngx_log_debug0(NGX_LOG_DEBUG_CORE, ngx_cycle->log, 0, "shmtx forced unlock");
 	if(ngx_atomic_cmp_set(mtx->lock, pid, 0)) {
@@ -153,14 +153,14 @@ ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, u_char * na
 	return NGX_OK;
 }
 
-void ngx_shmtx_destroy(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_destroy(ngx_shmtx_t * mtx)
 {
 	if(ngx_close_file(mtx->fd) == NGX_FILE_ERROR) {
 		ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, ngx_errno, ngx_close_file_n " \"%s\" failed", mtx->name);
 	}
 }
 
-ngx_uint_t ngx_shmtx_trylock(ngx_shmtx_t * mtx)
+ngx_uint_t FASTCALL ngx_shmtx_trylock(ngx_shmtx_t * mtx)
 {
 	ngx_err_t err = ngx_trylock_fd(mtx->fd);
 	if(err == 0) {
@@ -178,21 +178,21 @@ ngx_uint_t ngx_shmtx_trylock(ngx_shmtx_t * mtx)
 	return 0;
 }
 
-void ngx_shmtx_lock(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_lock(ngx_shmtx_t * mtx)
 {
 	ngx_err_t err = ngx_lock_fd(mtx->fd);
 	if(err)
 		ngx_log_abort(err, ngx_lock_fd_n " %s failed", mtx->name);
 }
 
-void ngx_shmtx_unlock(ngx_shmtx_t * mtx)
+void FASTCALL ngx_shmtx_unlock(ngx_shmtx_t * mtx)
 {
 	ngx_err_t err = ngx_unlock_fd(mtx->fd);
 	if(err)
 		ngx_log_abort(err, ngx_unlock_fd_n " %s failed", mtx->name);
 }
 
-ngx_uint_t ngx_shmtx_force_unlock(ngx_shmtx_t * mtx, ngx_pid_t pid)
+ngx_uint_t FASTCALL ngx_shmtx_force_unlock(ngx_shmtx_t * mtx, ngx_pid_t pid)
 {
 	return 0;
 }

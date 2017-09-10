@@ -51,6 +51,7 @@ int SStrDupToNgxStr(ngx_pool_t * pPool, const SString * pSrc, ngx_str_t * pDest)
 		pDest->data = (u_char *)ngx_pnalloc(pPool, pSrc->Len()+1);
 		if(pDest->data) {
 			pDest->len = pSrc->Len();
+			memcpy(pDest->data, pSrc->ucptr(), pSrc->Len()+1);
 		}
 		else {
 			pDest->len = 0;
@@ -352,7 +353,7 @@ u_char * ngx_vslprintf(u_char * buf, u_char * last, const char * fmt, va_list ar
 				    continue;
 				case 'N':
 #if (NGX_WIN32)
-				    *buf++ = CR;
+				    *buf++ = __CR;
 				    if(buf < last) {
 					    *buf++ = LF;
 				    }

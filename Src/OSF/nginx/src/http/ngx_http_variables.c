@@ -810,7 +810,7 @@ static ngx_int_t ngx_http_variable_request_line(ngx_http_request_t * r,
 		}
 
 		for(p = s; p < r->header_in->last; p++) {
-			if(*p == CR || *p == LF) {
+			if(*p == __CR || *p == LF) {
 				break;
 			}
 		}

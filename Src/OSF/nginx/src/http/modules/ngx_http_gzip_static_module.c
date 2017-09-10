@@ -77,7 +77,6 @@ static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 	ngx_uint_t level;
 	ngx_log_t  * log;
 	ngx_buf_t  * b;
-	ngx_chain_t out;
 	ngx_table_elt_t    * h;
 	ngx_open_file_info_t of;
 	ngx_http_core_loc_conf_t   * clcf;
@@ -209,9 +208,12 @@ static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 	b->file->name = path;
 	b->file->log = log;
 	b->file->directio = of.is_directio;
-	out.buf = b;
-	out.next = NULL;
-	return ngx_http_output_filter(r, &out);
+	{
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
+		return ngx_http_output_filter(r, &out);
+	}
 }
 
 static void * ngx_http_gzip_static_create_conf(ngx_conf_t * cf)

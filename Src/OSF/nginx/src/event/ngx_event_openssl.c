@@ -685,7 +685,7 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 				break;
 			}
 			len = last++ - p;
-			if(len && p[len - 1] == CR) {
+			if(len && p[len - 1] == __CR) {
 				len--;
 			}
 
@@ -932,7 +932,7 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 					if(*s == ' ' && *d == ' ') {
 						continue;
 					}
-					if(*s == LF || *s == CR) {
+					if(*s == LF || *s == __CR) {
 						continue;
 					}
 					*++d = *s;
@@ -1007,7 +1007,7 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 
 static void ngx_ssl_handshake_handler(ngx_event_t * ev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)ev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)ev->P_Data;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL handshake handler: %d", ev->write);
 	if(ev->timedout) {
 		c->ssl->handler(c);
@@ -1178,7 +1178,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 
 static void ngx_ssl_write_handler(ngx_event_t * wev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)wev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)wev->P_Data;
 	c->P_EvRd->handler(c->P_EvRd);
 }
 /*
@@ -1347,7 +1347,7 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 
 static void ngx_ssl_read_handler(ngx_event_t * rev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
 	c->P_EvWr->handler(c->P_EvWr);
 }
 
@@ -1428,7 +1428,7 @@ ngx_int_t ngx_ssl_shutdown(ngx_connection_t * c)
 
 static void ngx_ssl_shutdown_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->data;
+	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
 	ngx_connection_handler_pt handler = c->ssl->handler;
 	if(ev->timedout) {
 		c->timedout = 1;
@@ -2941,28 +2941,28 @@ static char * ngx_openssl_engine(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 {
 #ifndef OPENSSL_NO_ENGINE
 	ngx_openssl_conf_t * oscf = (ngx_openssl_conf_t *)conf;
-	ENGINE   * engine;
-	ngx_str_t  * value;
 	if(oscf->engine) {
 		return "is duplicate";
 	}
-	oscf->engine = 1;
-	value = (ngx_str_t*)cf->args->elts;
-	engine = ENGINE_by_id((char*)value[1].data);
-	if(engine == NULL) {
-		ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_by_id(\"%V\") failed", &value[1]);
-		return NGX_CONF_ERROR;
-	}
-	if(ENGINE_set_default(engine, ENGINE_METHOD_ALL) == 0) {
-		ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_set_default(\"%V\", ENGINE_METHOD_ALL) failed", &value[1]);
+	else {
+		oscf->engine = 1;
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ENGINE * engine = ENGINE_by_id((char*)value[1].data);
+		if(engine == NULL) {
+			ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_by_id(\"%V\") failed", &value[1]);
+			return NGX_CONF_ERROR;
+		}
+		if(ENGINE_set_default(engine, ENGINE_METHOD_ALL) == 0) {
+			ngx_ssl_error(NGX_LOG_EMERG, cf->log, 0, "ENGINE_set_default(\"%V\", ENGINE_METHOD_ALL) failed", &value[1]);
+			ENGINE_free(engine);
+			return NGX_CONF_ERROR;
+		}
 		ENGINE_free(engine);
-		return NGX_CONF_ERROR;
-	}
-	ENGINE_free(engine);
-	return NGX_CONF_OK;
+		return NGX_CONF_OK;
 #else
-	return "is not supported";
+		return "is not supported";
 #endif
+	}
 }
 
 static void ngx_openssl_exit(ngx_cycle_t * cycle)

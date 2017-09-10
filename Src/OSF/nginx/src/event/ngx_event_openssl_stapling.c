@@ -789,7 +789,7 @@ static void ngx_ssl_ocsp_connect(ngx_ssl_ocsp_ctx_t * ctx)
 static void ngx_ssl_ocsp_write_handler(ngx_event_t * wev)
 {
 	ssize_t n, size;
-	ngx_connection_t  * c = (ngx_connection_t*)wev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)wev->P_Data;
 	ngx_ssl_ocsp_ctx_t  * ctx = (ngx_ssl_ocsp_ctx_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, wev->log, 0, "ssl ocsp write handler");
 	if(wev->timedout) {
@@ -825,7 +825,7 @@ static void ngx_ssl_ocsp_read_handler(ngx_event_t * rev)
 {
 	ssize_t n, size;
 	ngx_int_t rc;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
 	ngx_ssl_ocsp_ctx_t  * ctx = (ngx_ssl_ocsp_ctx_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, rev->log, 0, "ssl ocsp read handler");
 	if(rev->timedout) {
@@ -943,9 +943,9 @@ static ngx_int_t ngx_ssl_ocsp_create_request(ngx_ssl_ocsp_ctx_t * ctx)
 	p = ngx_cpymem(p, " HTTP/1.0" CRLF, sizeof(" HTTP/1.0" CRLF) - 1);
 	p = ngx_cpymem(p, "Host: ", sizeof("Host: ") - 1);
 	p = ngx_cpymem(p, ctx->host.data, ctx->host.len);
-	*p++ = CR; *p++ = LF;
+	*p++ = __CR; *p++ = LF;
 	/* add "\r\n" at the header end */
-	*p++ = CR; *p++ = LF;
+	*p++ = __CR; *p++ = LF;
 	b->last = p;
 	ctx->request = b;
 	OCSP_REQUEST_free(ocsp);
@@ -1101,7 +1101,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx)
 				    case '.': /* IIS may send 403.1, 403.2, etc */
 					state = sw_status_text;
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -1115,7 +1115,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx)
 			/* any text until end of line */
 			case sw_status_text:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -1209,7 +1209,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 			/* first char */
 			case sw_start:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					ctx->header_end = p;
 					state = sw_header_almost_done;
 					break;
@@ -1247,7 +1247,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 			    if(ch >= '0' && ch <= '9') {
 				    break;
 			    }
-			    if(ch == CR) {
+			    if(ch == __CR) {
 				    ctx->header_name_end = p;
 				    ctx->header_start = p;
 				    ctx->header_end = p;
@@ -1267,7 +1267,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					ctx->header_start = p;
 					ctx->header_end = p;
 					state = sw_almost_done;
@@ -1290,7 +1290,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 					ctx->header_end = p;
 					state = sw_space_after_value;
 					break;
-				    case CR:
+				    case __CR:
 					ctx->header_end = p;
 					state = sw_almost_done;
 					break;
@@ -1305,7 +1305,7 @@ static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:

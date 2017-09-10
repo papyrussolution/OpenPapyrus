@@ -153,7 +153,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	*p++ = '2'; *p++ = '5'; *p++ = '0'; *p++ = ' ';
 	p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
-	*p++ = CR; *p = LF;
+	*p++ = __CR; *p = LF;
 
 	if(conf->capabilities.nelts == 0) {
 		conf->capabilities = prev->capabilities;
@@ -193,13 +193,13 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	*p++ = '2'; *p++ = '5'; *p++ = '0'; *p++ = '-';
 	p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
-	*p++ = CR; *p++ = LF;
+	*p++ = __CR; *p++ = LF;
 
 	for(i = 0; i < conf->capabilities.nelts; i++) {
 		last = p;
 		*p++ = '2'; *p++ = '5'; *p++ = '0'; *p++ = '-';
 		p = ngx_cpymem(p, c[i].data, c[i].len);
-		*p++ = CR; *p++ = LF;
+		*p++ = __CR; *p++ = LF;
 	}
 
 	auth = p;
@@ -220,7 +220,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 			}
 		}
 
-		*p++ = CR; *p = LF;
+		*p++ = __CR; *p = LF;
 	}
 	else {
 		last[3] = ' ';

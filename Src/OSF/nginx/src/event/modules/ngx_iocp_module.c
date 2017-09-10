@@ -130,7 +130,7 @@ static void ngx_iocp_done(ngx_cycle_t * cycle)
 
 static ngx_int_t ngx_iocp_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t key)
 {
-	ngx_connection_t * c = (ngx_connection_t *)ev->data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	c->P_EvRd->active = 1;
 	c->P_EvWr->active = 1;
 	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "iocp add: fd:%d k:%ui ov:%p", c->fd, key, &ev->ovlp);

@@ -40,7 +40,7 @@ void ngx_mail_imap_init_protocol(ngx_event_t * rev)
 {
 	ngx_mail_session_t * s;
 	ngx_mail_imap_srv_conf_t  * iscf;
-	ngx_connection_t   * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t   * c = (ngx_connection_t*)rev->P_Data;
 	c->log->action = "in auth state";
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -72,7 +72,7 @@ void ngx_mail_imap_auth_state(ngx_event_t * rev)
 	ngx_str_t * arg;
 	ngx_int_t rc;
 	ngx_uint_t tag, i;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
 	ngx_mail_session_t  * s = (ngx_mail_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "imap auth state");
 	if(rev->timedout) {

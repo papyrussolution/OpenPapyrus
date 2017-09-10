@@ -27,7 +27,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 		switch(state) {
 			/* POP3 command */
 			case sw_start:
-			    if(ch == ' ' || ch == CR || ch == LF) {
+			    if(ch == ' ' || ch == __CR || ch == LF) {
 				    c = s->buffer->start;
 
 				    if(p - c == 4) {
@@ -73,7 +73,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 					    case ' ':
 						state = sw_spaces_before_argument;
 						break;
-					    case CR:
+					    case __CR:
 						state = sw_almost_done;
 						break;
 					    case LF:
@@ -92,7 +92,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					s->arg_end = p;
 					break;
@@ -125,7 +125,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 
 				    /* fall through */
 
-				    case CR:
+				    case __CR:
 				    case LF:
 					arg = (ngx_str_t*)ngx_array_push(&s->args);
 					if(arg == NULL) {
@@ -139,7 +139,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 						case ' ':
 						    state = sw_spaces_before_argument;
 						    break;
-						case CR:
+						case __CR:
 						    state = sw_almost_done;
 						    break;
 						case LF:
@@ -218,7 +218,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					s->tag.data = s->buffer->start;
 					state = sw_spaces_before_command;
 					break;
-				    case CR:
+				    case __CR:
 					s->state = sw_start;
 					return NGX_MAIL_PARSE_INVALID_COMMAND;
 				    case LF:
@@ -231,7 +231,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					s->state = sw_start;
 					return NGX_MAIL_PARSE_INVALID_COMMAND;
 				    case LF:
@@ -245,7 +245,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    break;
 
 			case sw_command:
-			    if(ch == ' ' || ch == CR || ch == LF) {
+			    if(ch == ' ' || ch == __CR || ch == LF) {
 				    c = s->cmd_start;
 
 				    switch(p - c) {
@@ -340,7 +340,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					    case ' ':
 						state = sw_spaces_before_argument;
 						break;
-					    case CR:
+					    case __CR:
 						state = sw_almost_done;
 						break;
 					    case LF:
@@ -359,7 +359,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					s->arg_end = p;
 					break;
@@ -403,7 +403,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					s->quoted = 0;
 				    /* fall through */
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 					arg = (ngx_str_t*)ngx_array_push(&s->args);
 					if(arg == NULL) {
@@ -418,7 +418,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 						case ' ':
 						    state = sw_spaces_before_argument;
 						    break;
-						case CR:
+						case __CR:
 						    state = sw_almost_done;
 						    break;
 						case LF:
@@ -436,7 +436,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 
 			case sw_backslash:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 				    case LF:
 					goto invalid;
 				    default:
@@ -469,7 +469,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 
 			case sw_start_literal_argument:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					break;
 				    case LF:
 					s->buffer->pos = p + 1;
@@ -510,7 +510,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 						break;
 					}
 					goto invalid;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -581,7 +581,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 			    state = sw_command;
 			/* fall through */
 			case sw_command:
-			    if(ch == ' ' || ch == CR || ch == LF) {
+			    if(ch == ' ' || ch == __CR || ch == LF) {
 				    c = s->cmd_start;
 				    if(p - c == 4) {
 					    c0 = ngx_toupper(c[0]);
@@ -653,7 +653,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 					    case ' ':
 						state = sw_spaces_before_argument;
 						break;
-					    case CR:
+					    case __CR:
 						state = sw_almost_done;
 						break;
 					    case LF:
@@ -675,7 +675,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					s->arg_end = p;
 					break;
@@ -695,7 +695,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 			case sw_argument:
 			    switch(ch) {
 				    case ' ':
-				    case CR:
+				    case __CR:
 				    case LF:
 					arg = (ngx_str_t*)ngx_array_push(&s->args);
 					if(arg == NULL) {
@@ -709,7 +709,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 						case ' ':
 						    state = sw_spaces_before_argument;
 						    break;
-						case CR:
+						case __CR:
 						    state = sw_almost_done;
 						    break;
 						case LF:

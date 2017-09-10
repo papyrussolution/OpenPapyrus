@@ -1322,7 +1322,7 @@ static ngx_int_t ngx_http_proxy_create_request(ngx_http_request_t * r)
 			code((ngx_http_script_engine_t*)&e);
 		}
 		e.ip += sizeof(uintptr_t);
-		*e.pos++ = CR; *e.pos++ = LF;
+		*e.pos++ = __CR; *e.pos++ = LF;
 	}
 	b->last = e.pos;
 	if(plcf->upstream.pass_request_headers) {
@@ -1343,13 +1343,13 @@ static ngx_int_t ngx_http_proxy_create_request(ngx_http_request_t * r)
 			b->last = ngx_copy(b->last, header[i].key.data, header[i].key.len);
 			*b->last++ = ':'; *b->last++ = ' ';
 			b->last = ngx_copy(b->last, header[i].value.data, header[i].value.len);
-			*b->last++ = CR; *b->last++ = LF;
+			*b->last++ = __CR; *b->last++ = LF;
 			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http proxy header: \"%V: %V\"", &header[i].key, &header[i].value);
 		}
 	}
 
 	/* add "\r\n" at the header end */
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 
 	if(plcf->body_values) {
 		e.ip = (u_char *)plcf->body_values->elts;

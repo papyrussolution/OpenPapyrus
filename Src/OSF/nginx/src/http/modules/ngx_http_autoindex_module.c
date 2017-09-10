@@ -113,7 +113,6 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	ngx_dir_t dir;
 	ngx_uint_t level, format;
 	ngx_pool_t * pool;
-	ngx_chain_t out;
 	ngx_array_t entries;
 	ngx_http_autoindex_entry_t   * entry;
 	ngx_http_autoindex_loc_conf_t  * alcf;
@@ -286,9 +285,12 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 		b->last_buf = 1;
 	}
 	b->last_in_chain = 1;
-	out.buf = b;
-	out.next = NULL;
-	return ngx_http_output_filter(r, &out);
+	{
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
+		return ngx_http_output_filter(r, &out);
+	}
 }
 
 static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t * entries)
@@ -474,7 +476,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 				}
 			}
 		}
-		*b->last++ = CR;
+		*b->last++ = __CR;
 		*b->last++ = LF;
 	}
 	b->last = ngx_cpymem(b->last, "</pre><hr>", sizeof("</pre><hr>") - 1);
@@ -632,7 +634,7 @@ static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * 
 		*b->last++ = '<'; *b->last++ = '/';
 		b->last = ngx_cpymem(b->last, type.data, type.len);
 		*b->last++ = '>';
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	b->last = ngx_cpymem(b->last, tail, sizeof(tail) - 1);
 	return b;

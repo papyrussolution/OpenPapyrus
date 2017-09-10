@@ -182,7 +182,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 
 	for(i = 0; i < conf->capabilities.nelts; i++) {
 		p = ngx_cpymem(p, c[i].data, c[i].len);
-		*p++ = CR; *p++ = LF;
+		*p++ = __CR; *p++ = LF;
 	}
 
 	p = ngx_cpymem(p, "SASL", sizeof("SASL") - 1);
@@ -201,9 +201,9 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 
-	*p++ = CR; *p++ = LF;
+	*p++ = __CR; *p++ = LF;
 
-	*p++ = '.'; *p++ = CR; *p = LF;
+	*p++ = '.'; *p++ = __CR; *p = LF;
 
 	size += sizeof("STLS" CRLF) - 1;
 
@@ -219,7 +219,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	    conf->capability.len - (sizeof("." CRLF) - 1));
 
 	p = ngx_cpymem(p, "STLS" CRLF, sizeof("STLS" CRLF) - 1);
-	*p++ = '.'; *p++ = CR; *p = LF;
+	*p++ = '.'; *p++ = __CR; *p = LF;
 
 	size = sizeof("+OK methods supported:" CRLF) - 1
 	    + sizeof("." CRLF) - 1;
@@ -258,11 +258,11 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		if(m & conf->auth_methods) {
 			p = ngx_cpymem(p, ngx_mail_pop3_auth_methods_names[i].data,
 			    ngx_mail_pop3_auth_methods_names[i].len);
-			*p++ = CR; *p++ = LF;
+			*p++ = __CR; *p++ = LF;
 		}
 	}
 
-	*p++ = '.'; *p++ = CR; *p = LF;
+	*p++ = '.'; *p++ = __CR; *p = LF;
 
 	p = (u_char*)ngx_pnalloc(cf->pool, stls_only_size);
 	if(p == NULL) {
@@ -281,11 +281,11 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 
 		p = ngx_cpymem(p, c[i].data, c[i].len);
-		*p++ = CR; *p++ = LF;
+		*p++ = __CR; *p++ = LF;
 	}
 
 	p = ngx_cpymem(p, "STLS" CRLF, sizeof("STLS" CRLF) - 1);
-	*p++ = '.'; *p++ = CR; *p = LF;
+	*p++ = '.'; *p++ = __CR; *p = LF;
 
 	return NGX_CONF_OK;
 }

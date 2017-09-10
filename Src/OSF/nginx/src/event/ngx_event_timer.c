@@ -50,7 +50,7 @@ void ngx_event_expire_timers(void)
 			}
 			else {
 				ngx_event_t * ev = (ngx_event_t*)((char*)node - offsetof(ngx_event_t, timer));
-				ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer del: %d: %M", ngx_event_ident(ev->data), ev->timer.key);
+				ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer del: %d: %M", ngx_event_ident(ev->P_Data), ev->timer.key);
 				ngx_rbtree_delete(&ngx_event_timer_rbtree, &ev->timer);
 #if (NGX_DEBUG)
 				ev->timer.left = NULL;
@@ -82,7 +82,7 @@ ngx_int_t ngx_event_no_timers_left(void)
 
 void FASTCALL ngx_event_del_timer(ngx_event_t * ev)
 {
-	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer del: %d: %M", ngx_event_ident(ev->data), ev->timer.key);
+	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer del: %d: %M", ngx_event_ident(ev->P_Data), ev->timer.key);
 	ngx_rbtree_delete(&ngx_event_timer_rbtree, &ev->timer);
 #if (NGX_DEBUG)
 	ev->timer.left = NULL;
@@ -103,13 +103,13 @@ void FASTCALL ngx_event_add_timer(ngx_event_t * ev, ngx_msec_t timer)
 		// 
 		ngx_msec_int_t diff = (ngx_msec_int_t)(key - ev->timer.key);
 		if(ngx_abs(diff) < NGX_TIMER_LAZY_DELAY) {
-			ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer: %d, old: %M, new: %M", ngx_event_ident(ev->data), ev->timer.key, key);
+			ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer: %d, old: %M, new: %M", ngx_event_ident(ev->P_Data), ev->timer.key, key);
 			return;
 		}
 		ngx_del_timer(ev);
 	}
 	ev->timer.key = key;
-	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer add: %d: %M:%M", ngx_event_ident(ev->data), timer, ev->timer.key);
+	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "event timer add: %d: %M:%M", ngx_event_ident(ev->P_Data), timer, ev->timer.key);
 	ngx_rbtree_insert(&ngx_event_timer_rbtree, &ev->timer);
 	ev->timer_set = 1;
 }

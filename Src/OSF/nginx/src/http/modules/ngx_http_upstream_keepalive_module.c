@@ -343,7 +343,7 @@ static void ngx_http_upstream_keepalive_close_handler(ngx_event_t * ev)
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, ev->log, 0,
 	    "keepalive close handler");
 
-	c = (ngx_connection_t*)ev->data;
+	c = (ngx_connection_t*)ev->P_Data;
 
 	if(c->close) {
 		goto close;

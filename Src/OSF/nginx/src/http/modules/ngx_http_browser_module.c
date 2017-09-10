@@ -44,58 +44,27 @@ typedef struct {
 	unsigned netscape4 : 1;
 } ngx_http_browser_conf_t;
 
-static ngx_int_t ngx_http_msie_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
-static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
-
-static ngx_uint_t ngx_http_browser(ngx_http_request_t * r,
-    ngx_http_browser_conf_t * cf);
-
+static ngx_int_t ngx_http_msie_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf_t * cf);
 static ngx_int_t ngx_http_browser_add_variable(ngx_conf_t * cf);
 static void * ngx_http_browser_create_conf(ngx_conf_t * cf);
-static char * ngx_http_browser_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one,
-    const void * two);
-static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_ancient_browser_value(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_browser_merge_conf(ngx_conf_t * cf, void * parent, void * child);
+static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one, const void * two);
+static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_http_ancient_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_http_browser_commands[] = {
-	{ ngx_string("modern_browser"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE12,
-	  ngx_http_modern_browser,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("ancient_browser"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
-	  ngx_http_ancient_browser,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("modern_browser_value"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_http_modern_browser_value,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("ancient_browser_value"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_http_ancient_browser_value,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("modern_browser"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE12,
+	  ngx_http_modern_browser, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("ancient_browser"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
+	  ngx_http_ancient_browser, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("modern_browser_value"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_http_modern_browser_value, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("ancient_browser_value"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_http_ancient_browser_value, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -130,7 +99,6 @@ ngx_module_t ngx_http_browser_module = {
 
 static ngx_http_modern_browser_mask_t ngx_http_modern_browser_masks[] = {
 	/* Opera must be the first browser to check */
-
 	/*
 	 * "Opera/7.50 (X11; FreeBSD i386; U)  [en]"
 	 * "Mozilla/5.0 (X11; FreeBSD i386; U) Opera 7.50  [en]"
@@ -139,19 +107,9 @@ static ngx_http_modern_browser_mask_t ngx_http_modern_browser_masks[] = {
 	 * "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; en) Opera 8.0"
 	 * "Opera/9.01 (X11; FreeBSD 6 i386; U; en)"
 	 */
-
-	{ "opera",
-	  0,
-	  sizeof("Opera ") - 1,
-	  "Opera"},
-
+	{ "opera", 0, sizeof("Opera ") - 1, "Opera"},
 	/* "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)" */
-
-	{ "msie",
-	  sizeof("Mozilla/4.0 (compatible; ") - 1,
-	  sizeof("MSIE ") - 1,
-	  "MSIE "},
-
+	{ "msie", sizeof("Mozilla/4.0 (compatible; ") - 1, sizeof("MSIE ") - 1, "MSIE "},
 	/*
 	 * "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020610"
 	 * "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.5) Gecko/20031006"
@@ -162,12 +120,7 @@ static ngx_http_modern_browser_mask_t ngx_http_modern_browser_masks[] = {
 	 * "Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.8.0.5) Gecko/20060729
 	 *              Firefox/1.5.0.5"
 	 */
-
-	{ "gecko",
-	  sizeof("Mozilla/5.0 (") - 1,
-	  sizeof("rv:") - 1,
-	  "rv:"},
-
+	{ "gecko", sizeof("Mozilla/5.0 (") - 1, sizeof("rv:") - 1, "rv:"},
 	/*
 	 * "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ru-ru) AppleWebKit/125.2
 	 *              (KHTML, like Gecko) Safari/125.7"
@@ -178,24 +131,14 @@ static ngx_http_modern_browser_mask_t ngx_http_modern_browser_masks[] = {
 	 * "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ru-ru) AppleWebKit/418.8
 	 *              (KHTML, like Gecko) Safari/419.3"
 	 */
-
-	{ "safari",
-	  sizeof("Mozilla/5.0 (") - 1,
-	  sizeof("Safari/") - 1,
-	  "Safari/"},
-
+	{ "safari", sizeof("Mozilla/5.0 (") - 1, sizeof("Safari/") - 1, "Safari/"},
 	/*
 	 * "Mozilla/5.0 (compatible; Konqueror/3.1; Linux)"
 	 * "Mozilla/5.0 (compatible; Konqueror/3.4; Linux) KHTML/3.4.2 (like Gecko)"
 	 * "Mozilla/5.0 (compatible; Konqueror/3.5; FreeBSD) KHTML/3.5.1
 	 *              (like Gecko)"
 	 */
-
-	{ "konqueror",
-	  sizeof("Mozilla/5.0 (compatible; ") - 1,
-	  sizeof("Konqueror/") - 1,
-	  "Konqueror/"},
-
+	{ "konqueror", sizeof("Mozilla/5.0 (compatible; ") - 1, sizeof("Konqueror/") - 1, "Konqueror/"},
 	{ "", 0, 0, "" }
 };
 
@@ -420,7 +363,7 @@ static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void
 	ngx_uint_t i, n, version, ver, scale;
 	ngx_http_modern_browser_t  * browser;
 	ngx_http_modern_browser_mask_t  * mask;
-	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 	if(cf->args->nelts == 2) {
 		if(ngx_strcmp(value[1].data, "unlisted") == 0) {
 			bcf->modern_unlisted_browsers = 1;

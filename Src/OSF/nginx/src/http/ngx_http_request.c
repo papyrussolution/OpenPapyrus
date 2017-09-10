@@ -96,15 +96,10 @@ ngx_http_header_t ngx_http_headers_in[] = {
 void ngx_http_init_connection(ngx_connection_t * c)
 {
 	ngx_uint_t i;
-	ngx_event_t  * rev;
 	struct sockaddr_in * sin;
 	ngx_http_port_t * port;
 	ngx_http_in_addr_t * addr;
 	ngx_http_log_ctx_t * ctx;
-#if (NGX_HAVE_INET6)
-	struct sockaddr_in6 * sin6;
-	ngx_http_in6_addr_t * addr6;
-#endif
 	ngx_http_connection_t * hc = (ngx_http_connection_t *)ngx_pcalloc(c->pool, sizeof(ngx_http_connection_t));
 	THROW(hc);
 	c->data = hc;
@@ -120,15 +115,17 @@ void ngx_http_init_connection(ngx_connection_t * c)
 		switch(c->local_sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
 			case AF_INET6:
-			    sin6 = (struct sockaddr_in6*)c->local_sockaddr;
-			    addr6 = (ngx_http_in6_addr_t *)port->addrs;
-			    /* the last address is "*" */
-			    for(i = 0; i < port->naddrs - 1; i++) {
-				    if(memcmp(&addr6[i].addr6, &sin6->sin6_addr, 16) == 0) {
-					    break;
-				    }
-			    }
-			    hc->addr_conf = &addr6[i].conf;
+				{
+					struct sockaddr_in6 * sin6 = (struct sockaddr_in6*)c->local_sockaddr;
+					ngx_http_in6_addr_t * addr6 = (ngx_http_in6_addr_t *)port->addrs;
+					// the last address is "*" 
+					for(i = 0; i < port->naddrs - 1; i++) {
+						if(memcmp(&addr6[i].addr6, &sin6->sin6_addr, 16) == 0) {
+							break;
+						}
+					}
+					hc->addr_conf = &addr6[i].conf;
+				}
 			    break;
 #endif
 			default: // AF_INET 
@@ -148,8 +145,10 @@ void ngx_http_init_connection(ngx_connection_t * c)
 		switch(c->local_sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
 			case AF_INET6:
-			    addr6 = (ngx_http_in6_addr_t *)port->addrs;
-			    hc->addr_conf = &addr6[0].conf;
+				{
+					ngx_http_in6_addr_t * addr6 = (ngx_http_in6_addr_t *)port->addrs;
+					hc->addr_conf = &addr6[0].conf;
+				}
 			    break;
 #endif
 			default: // AF_INET 
@@ -169,45 +168,47 @@ void ngx_http_init_connection(ngx_connection_t * c)
 	c->log->data = ctx;
 	c->log->action = "waiting for request";
 	c->log_error = NGX_ERROR_INFO;
-	rev = c->P_EvRd;
-	rev->handler = ngx_http_wait_request_handler;
-	c->P_EvWr->handler = ngx_http_empty_handler;
+	{
+		ngx_event_t * rev = c->P_EvRd;
+		rev->handler = ngx_http_wait_request_handler;
+		c->P_EvWr->handler = ngx_http_empty_handler;
 #if (NGX_HTTP_V2)
-	if(hc->addr_conf->http2) {
-		rev->handler = ngx_http_v2_init;
-	}
+		if(hc->addr_conf->http2) {
+			rev->handler = ngx_http_v2_init;
+		}
 #endif
 #if (NGX_HTTP_SSL)
-	{
-		ngx_http_ssl_srv_conf_t  * sscf = (ngx_http_ssl_srv_conf_t *)ngx_http_get_module_srv_conf(hc->conf_ctx, ngx_http_ssl_module);
-		if(sscf->enable || hc->addr_conf->ssl) {
-			c->log->action = "SSL handshaking";
-			if(hc->addr_conf->ssl && sscf->ssl.ctx == NULL) {
-				ngx_log_error(NGX_LOG_ERR, c->log, 0, "no \"ssl_certificate\" is defined in server listening on SSL port");
-				CALLEXCEPT();
+		{
+			ngx_http_ssl_srv_conf_t  * sscf = (ngx_http_ssl_srv_conf_t *)ngx_http_get_module_srv_conf(hc->conf_ctx, ngx_http_ssl_module);
+			if(sscf->enable || hc->addr_conf->ssl) {
+				c->log->action = "SSL handshaking";
+				if(hc->addr_conf->ssl && sscf->ssl.ctx == NULL) {
+					ngx_log_error(NGX_LOG_ERR, c->log, 0, "no \"ssl_certificate\" is defined in server listening on SSL port");
+					CALLEXCEPT();
+				}
+				hc->ssl = 1;
+				rev->handler = ngx_http_ssl_handshake;
 			}
-			hc->ssl = 1;
-			rev->handler = ngx_http_ssl_handshake;
 		}
-	}
 #endif
-	if(hc->addr_conf->proxy_protocol) {
-		hc->proxy_protocol = 1;
-		c->log->action = "reading PROXY protocol";
-	}
-	if(rev->ready) {
-		// the deferred accept(), iocp 
-		if(ngx_use_accept_mutex) {
-			ngx_post_event(rev, &ngx_posted_events);
+		if(hc->addr_conf->proxy_protocol) {
+			hc->proxy_protocol = 1;
+			c->log->action = "reading PROXY protocol";
+		}
+		if(rev->ready) {
+			// the deferred accept(), iocp 
+			if(ngx_use_accept_mutex) {
+				ngx_post_event(rev, &ngx_posted_events);
+			}
+			else {
+				rev->handler(rev);
+			}
 		}
 		else {
-			rev->handler(rev);
+			ngx_add_timer(rev, c->listening->post_accept_timeout);
+			ngx_reusable_connection(c, 1);
+			THROW(ngx_handle_read_event(rev, 0) == NGX_OK);
 		}
-	}
-	else {
-		ngx_add_timer(rev, c->listening->post_accept_timeout);
-		ngx_reusable_connection(c, 1);
-		THROW(ngx_handle_read_event(rev, 0) == NGX_OK);
 	}
 	CATCH
 		ngx_http_close_connection(c);
@@ -218,7 +219,7 @@ static void ngx_http_wait_request_handler(ngx_event_t * rev)
 {
 	u_char * p;
 	ssize_t n;
-	ngx_connection_t * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http wait request handler");
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -375,10 +376,9 @@ static void ngx_http_ssl_handshake(ngx_event_t * rev)
 {
 	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER + 1];
 	ngx_int_t rc;
-	ngx_http_ssl_srv_conf_t * sscf;
 	ngx_http_core_loc_conf_t  * clcf;
-	ngx_connection_t * c = (ngx_connection_t *)rev->data;
-	ngx_http_connection_t   * hc = (ngx_http_connection_t *)c->data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
+	ngx_http_connection_t * hc = (ngx_http_connection_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http check ssl handshake");
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -441,7 +441,7 @@ static void ngx_http_ssl_handshake(ngx_event_t * rev)
 					if(clcf->tcp_nodelay && ngx_tcp_nodelay(c) != NGX_OK)
 						ngx_http_close_connection(c);
 					else {
-						sscf = (ngx_http_ssl_srv_conf_t *)ngx_http_get_module_srv_conf(hc->conf_ctx, ngx_http_ssl_module);
+						ngx_http_ssl_srv_conf_t * sscf = (ngx_http_ssl_srv_conf_t *)ngx_http_get_module_srv_conf(hc->conf_ctx, ngx_http_ssl_module);
 						if(ngx_ssl_create_connection(&sscf->ssl, c, NGX_SSL_BUFFER) != NGX_OK)
 							ngx_http_close_connection(c);
 						else {
@@ -589,7 +589,7 @@ static void ngx_http_process_request_line(ngx_event_t * rev)
 	ssize_t n;
 	ngx_int_t rc, rv;
 	ngx_str_t host;
-	ngx_connection_t  * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_request_t  * r = (ngx_http_request_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http process request line");
 	if(rev->timedout) {
@@ -776,7 +776,7 @@ static void ngx_http_process_request_headers(ngx_event_t * rev)
 	ngx_table_elt_t  * h;
 	ngx_http_header_t   * hh;
 	ngx_http_core_srv_conf_t * cscf;
-	ngx_connection_t * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_request_t * r = (ngx_http_request_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http process request header line");
 	if(rev->timedout) {
@@ -1427,7 +1427,7 @@ static ngx_int_t ngx_http_find_virtual_server(ngx_connection_t * c,
 
 static void ngx_http_request_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t *)ev->data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_http_request_t * r = (ngx_http_request_t *)c->data;
 	ngx_http_set_log_request(c->log, r);
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http run request: \"%V?%V\"", &r->uri, &r->args);
@@ -1782,8 +1782,8 @@ void ngx_http_test_reading(ngx_http_request_t * r)
 	int n;
 	char buf[1];
 	ngx_err_t err;
-	ngx_connection_t  * c = r->connection;
-	ngx_event_t  * rev = c->P_EvRd;
+	ngx_connection_t * c = r->connection;
+	ngx_event_t * rev = c->P_EvRd;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http test reading");
 #if (NGX_HTTP_V2)
 	if(r->stream) {
@@ -2011,7 +2011,7 @@ static void ngx_http_keepalive_handler(ngx_event_t * rev)
 	size_t size;
 	ssize_t n;
 	ngx_buf_t  * b;
-	ngx_connection_t  * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t *)rev->P_Data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http keepalive handler");
 	THROW(!rev->timedout && !c->close);
 #if (NGX_HAVE_KQUEUE)
@@ -2118,7 +2118,7 @@ static void ngx_http_lingering_close_handler(ngx_event_t * rev)
 	ngx_msec_t timer;
 	ngx_http_core_loc_conf_t  * clcf;
 	u_char buffer[NGX_HTTP_LINGERING_BUFFER_SIZE];
-	ngx_connection_t   * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_request_t * r = (ngx_http_request_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http lingering close handler");
 	if(rev->timedout) {
@@ -2179,9 +2179,9 @@ ngx_int_t ngx_http_send_special(ngx_http_request_t * r, ngx_uint_t flags)
 		b->flush = 1;
 	}
 	{
-		ngx_chain_t out;
-		out.buf = b;
-		out.next = NULL;
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
 		return ngx_http_output_filter(r, &out);
 	}
 }
@@ -2189,7 +2189,7 @@ ngx_int_t ngx_http_send_special(ngx_http_request_t * r, ngx_uint_t flags)
 static ngx_int_t ngx_http_post_action(ngx_http_request_t * r)
 {
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-	if(clcf->post_action.data == NULL) {
+	if(!clcf->post_action.data) {
 		return NGX_DECLINED;
 	}
 	if(r->post_action && r->uri_changes == 0) {
@@ -2351,7 +2351,7 @@ static u_char * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_requ
 	buf = p;
 	if(r->request_line.data == NULL && r->request_start) {
 		for(p = r->request_start; p < r->header_in->last; p++) {
-			if(*p == CR || *p == LF) {
+			if(*p == __CR || *p == LF) {
 				break;
 			}
 		}
@@ -2390,4 +2390,27 @@ static u_char * ngx_http_log_error_handler(ngx_http_request_t * r, ngx_http_requ
 		buf = p;
 	}
 	return buf;
+}
+//
+//
+//
+int ngx_http_request_t::SetContentType(SFileFormat fmt, SCodepage cp)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SFileFormat::GetMime(fmt, temp_buf)) {
+		if(cp != cpUndef) {
+			SString cp_buf;
+			SCodepageIdent cpi(cp);
+			if(cpi.ToStr(SCodepageIdent::fmtXML, cp_buf)) {
+				temp_buf.CatDiv(';', 2).CatEq("charset", cp_buf);
+			}
+		}
+		SStrDupToNgxStr(pool, &temp_buf, &headers_out.content_type);
+	}
+	else 
+		ok = 0;
+	//pReq->headers_out.content_type.len = sizeof("text/html; charset=UTF-8") - 1;
+	//pReq->headers_out.content_type.data = (u_char *)"text/html; charset=UTF-8";
+	return ok;
 }

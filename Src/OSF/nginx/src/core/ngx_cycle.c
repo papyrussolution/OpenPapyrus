@@ -532,7 +532,7 @@ old_shm_zone_done:
 		memzero(ngx_old_cycles.elts, n * sizeof(ngx_cycle_t *));
 		ngx_cleaner_event.handler = ngx_clean_old_cycles;
 		ngx_cleaner_event.log = cycle->log;
-		ngx_cleaner_event.data = &dumb;
+		ngx_cleaner_event.P_Data = &dumb;
 		dumb.fd = (ngx_socket_t)-1;
 	}
 	ngx_temp_pool->log = cycle->log;
@@ -852,7 +852,7 @@ void ngx_set_shutdown_timer(ngx_cycle_t * cycle)
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 	if(ccf->shutdown_timeout) {
 		ngx_shutdown_event.handler = ngx_shutdown_timer_handler;
-		ngx_shutdown_event.data = cycle;
+		ngx_shutdown_event.P_Data = cycle;
 		ngx_shutdown_event.log = cycle->log;
 		ngx_shutdown_event.cancelable = 1;
 		ngx_add_timer(&ngx_shutdown_event, ccf->shutdown_timeout);
@@ -861,7 +861,7 @@ void ngx_set_shutdown_timer(ngx_cycle_t * cycle)
 
 static void ngx_shutdown_timer_handler(ngx_event_t * ev)
 {
-	ngx_cycle_t * cycle = (ngx_cycle_t *)ev->data;
+	ngx_cycle_t * cycle = (ngx_cycle_t *)ev->P_Data;
 	ngx_connection_t  * c = cycle->connections;
 	for(ngx_uint_t i = 0; i < cycle->connection_n; i++) {
 		if(c[i].fd == (ngx_socket_t)-1 || c[i].P_EvRd == NULL || c[i].P_EvRd->accept || c[i].P_EvRd->channel || c[i].P_EvRd->resolver) {

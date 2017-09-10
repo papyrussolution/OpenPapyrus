@@ -11,16 +11,11 @@ static ngx_int_t ngx_stream_core_preconfiguration(ngx_conf_t * cf);
 static void * ngx_stream_core_create_main_conf(ngx_conf_t * cf);
 static char * ngx_stream_core_init_main_conf(ngx_conf_t * cf, void * conf);
 static void * ngx_stream_core_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_stream_core_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static char * ngx_stream_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_stream_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
+static char * ngx_stream_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_stream_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_command_t ngx_stream_core_commands[] = {
 	{ ngx_string("variables_hash_max_size"),
@@ -380,23 +375,17 @@ static char * ngx_stream_core_merge_srv_conf(ngx_conf_t * cf, void * parent, voi
 			 * create dummy resolver in stream {} context
 			 * to inherit it in all servers
 			 */
-
 			prev->resolver = ngx_resolver_create(cf, NULL, 0);
 			if(prev->resolver == NULL) {
 				return NGX_CONF_ERROR;
 			}
 		}
-
 		conf->resolver = prev->resolver;
 	}
-
 	if(conf->handler == NULL) {
-		ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-		    "no handler for server in %s:%ui",
-		    conf->file_name, conf->line);
+		ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no handler for server in %s:%ui", conf->file_name, conf->line);
 		return NGX_CONF_ERROR;
 	}
-
 	if(conf->error_log == NULL) {
 		if(prev->error_log) {
 			conf->error_log = prev->error_log;
@@ -481,26 +470,17 @@ static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	if(cscfp == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	*cscfp = cscf;
-
 	/* parse inside server{} */
-
 	pcf = *cf;
 	cf->ctx = ctx;
 	cf->cmd_type = NGX_STREAM_SRV_CONF;
-
 	rv = ngx_conf_parse(cf, NULL);
-
 	*cf = pcf;
-
 	if(rv == NGX_CONF_OK && !cscf->listen) {
-		ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-		    "no \"listen\" is defined for server in %s:%ui",
-		    cscf->file_name, cscf->line);
+		ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"listen\" is defined for server in %s:%ui", cscf->file_name, cscf->line);
 		return NGX_CONF_ERROR;
 	}
-
 	return rv;
 }
 
@@ -537,13 +517,10 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	ls->type = SOCK_STREAM;
 	ls->wildcard = u.wildcard;
 	ls->ctx = (ngx_stream_conf_ctx_t *)cf->ctx;
-
 #if (NGX_HAVE_INET6)
 	ls->ipv6only = 1;
 #endif
-
 	backlog = 0;
-
 	for(i = 2; i < cf->args->nelts; i++) {
 #if !(NGX_WIN32)
 		if(ngx_strcmp(value[i].data, "udp") == 0) {
@@ -551,64 +528,46 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 			continue;
 		}
 #endif
-
 		if(ngx_strcmp(value[i].data, "bind") == 0) {
 			ls->bind = 1;
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "backlog=", 8) == 0) {
 			ls->backlog = ngx_atoi(value[i].data + 8, value[i].len - 8);
 			ls->bind = 1;
-
 			if(ls->backlog == NGX_ERROR || ls->backlog == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid backlog \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid backlog \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			backlog = 1;
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "rcvbuf=", 7) == 0) {
 			size.len = value[i].len - 7;
 			size.data = value[i].data + 7;
-
 			ls->rcvbuf = ngx_parse_size(&size);
 			ls->bind = 1;
-
 			if(ls->rcvbuf == NGX_ERROR) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid rcvbuf \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid rcvbuf \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "sndbuf=", 7) == 0) {
 			size.len = value[i].len - 7;
 			size.data = value[i].data + 7;
-
 			ls->sndbuf = ngx_parse_size(&size);
 			ls->bind = 1;
-
 			if(ls->sndbuf == NGX_ERROR) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid sndbuf \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid sndbuf \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "ipv6only=o", 10) == 0) {
 #if (NGX_HAVE_INET6 && defined IPV6_V6ONLY)
 			size_t len;
 			u_char buf[NGX_SOCKADDR_STRLEN];
-
 			if(ls->sockaddr.sockaddr.sa_family == AF_INET6) {
 				if(ngx_strcmp(&value[i].data[10], "n") == 0) {
 					ls->ipv6only = 1;
@@ -617,56 +576,40 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 					ls->ipv6only = 0;
 				}
 				else {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "invalid ipv6only flags \"%s\"",
-					    &value[i].data[9]);
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid ipv6only flags \"%s\"", &value[i].data[9]);
 					return NGX_CONF_ERROR;
 				}
 
 				ls->bind = 1;
 			}
 			else {
-				len = ngx_sock_ntop(&ls->sockaddr.sockaddr, ls->socklen, buf,
-				    NGX_SOCKADDR_STRLEN, 1);
-
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "ipv6only is not supported "
-				    "on addr \"%*s\", ignored", len, buf);
+				len = ngx_sock_ntop(&ls->sockaddr.sockaddr, ls->socklen, buf, NGX_SOCKADDR_STRLEN, 1);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "ipv6only is not supported on addr \"%*s\", ignored", len, buf);
 			}
-
 			continue;
 #else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "bind ipv6only is not supported "
-			    "on this platform");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "bind ipv6only is not supported on this platform");
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strcmp(value[i].data, "reuseport") == 0) {
 #if (NGX_HAVE_REUSEPORT)
 			ls->reuseport = 1;
 			ls->bind = 1;
 #else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "reuseport is not supported "
-			    "on this platform, ignored");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "reuseport is not supported on this platform, ignored");
 #endif
 			continue;
 		}
-
 		if(ngx_strcmp(value[i].data, "ssl") == 0) {
 #if (NGX_STREAM_SSL)
 			ls->ssl = 1;
 			continue;
 #else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "the \"ssl\" parameter requires "
-			    "ngx_stream_ssl_module");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the \"ssl\" parameter requires ngx_stream_ssl_module");
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strncmp(value[i].data, "so_keepalive=", 13) == 0) {
 			if(ngx_strcmp(&value[i].data[13], "on") == 0) {
 				ls->so_keepalive = 1;
@@ -676,147 +619,108 @@ static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void 
 			}
 			else {
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
-				u_char   * p, * end;
+				u_char * p;
 				ngx_str_t s;
-
-				end = value[i].data + value[i].len;
+				u_char * end = value[i].data + value[i].len;
 				s.data = value[i].data + 13;
-
 				p = ngx_strlchr(s.data, end, ':');
 				if(p == NULL) {
 					p = end;
 				}
-
 				if(p > s.data) {
 					s.len = p - s.data;
-
 					ls->tcp_keepidle = ngx_parse_time(&s, 1);
 					if(ls->tcp_keepidle == (time_t)NGX_ERROR) {
 						goto invalid_so_keepalive;
 					}
 				}
-
 				s.data = (p < end) ? (p + 1) : end;
-
 				p = ngx_strlchr(s.data, end, ':');
 				if(p == NULL) {
 					p = end;
 				}
-
 				if(p > s.data) {
 					s.len = p - s.data;
-
 					ls->tcp_keepintvl = ngx_parse_time(&s, 1);
 					if(ls->tcp_keepintvl == (time_t)NGX_ERROR) {
 						goto invalid_so_keepalive;
 					}
 				}
-
 				s.data = (p < end) ? (p + 1) : end;
-
 				if(s.data < end) {
 					s.len = end - s.data;
-
 					ls->tcp_keepcnt = ngx_atoi(s.data, s.len);
 					if(ls->tcp_keepcnt == NGX_ERROR) {
 						goto invalid_so_keepalive;
 					}
 				}
-
-				if(ls->tcp_keepidle == 0 && ls->tcp_keepintvl == 0
-				    && ls->tcp_keepcnt == 0) {
+				if(ls->tcp_keepidle == 0 && ls->tcp_keepintvl == 0 && ls->tcp_keepcnt == 0) {
 					goto invalid_so_keepalive;
 				}
-
 				ls->so_keepalive = 1;
-
 #else
-
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "the \"so_keepalive\" parameter accepts "
-				    "only \"on\" or \"off\" on this platform");
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the \"so_keepalive\" parameter accepts only \"on\" or \"off\" on this platform");
 				return NGX_CONF_ERROR;
-
 #endif
 			}
-
 			ls->bind = 1;
-
 			continue;
-
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
 invalid_so_keepalive:
-
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid so_keepalive value: \"%s\"",
-			    &value[i].data[13]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid so_keepalive value: \"%s\"", &value[i].data[13]);
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strcmp(value[i].data, "proxy_protocol") == 0) {
 			ls->proxy_protocol = 1;
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "the invalid \"%V\" parameter", &value[i]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the invalid \"%V\" parameter", &value[i]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(ls->type == SOCK_DGRAM) {
 		if(backlog) {
 			return "\"backlog\" parameter is incompatible with \"udp\"";
 		}
-
 #if (NGX_STREAM_SSL)
 		if(ls->ssl) {
 			return "\"ssl\" parameter is incompatible with \"udp\"";
 		}
 #endif
-
 		if(ls->so_keepalive) {
 			return "\"so_keepalive\" parameter is incompatible with \"udp\"";
 		}
-
 		if(ls->proxy_protocol) {
 			return "\"proxy_protocol\" parameter is incompatible with \"udp\"";
 		}
 	}
-
 	als = (ngx_stream_listen_t *)cmcf->listen.elts;
-
 	for(i = 0; i < cmcf->listen.nelts - 1; i++) {
 		if(ls->type != als[i].type) {
 			continue;
 		}
-
-		if(ngx_cmp_sockaddr(&als[i].sockaddr.sockaddr, als[i].socklen,
-			    &ls->sockaddr.sockaddr, ls->socklen, 1)
-		    != NGX_OK) {
+		if(ngx_cmp_sockaddr(&als[i].sockaddr.sockaddr, als[i].socklen, &ls->sockaddr.sockaddr, ls->socklen, 1) != NGX_OK) {
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "duplicate \"%V\" address and port pair", &u.url);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate \"%V\" address and port pair", &u.url);
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_stream_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_core_srv_conf_t  * cscf = (ngx_stream_core_srv_conf_t  *)conf;
-	ngx_str_t  * value;
 	if(cscf->resolver) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	cscf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
-	if(cscf->resolver == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+		cscf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
+		if(cscf->resolver == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-	return NGX_CONF_OK;
 }
 

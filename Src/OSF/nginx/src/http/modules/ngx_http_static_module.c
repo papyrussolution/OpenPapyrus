@@ -48,25 +48,19 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t * r)
 	ngx_uint_t level;
 	ngx_log_t * log;
 	ngx_buf_t * b;
-	ngx_chain_t out;
 	ngx_open_file_info_t of;
 	ngx_http_core_loc_conf_t  * clcf;
-
 	if(!(r->method & (NGX_HTTP_GET|NGX_HTTP_HEAD|NGX_HTTP_POST))) {
 		return NGX_HTTP_NOT_ALLOWED;
 	}
-
 	if(r->uri.data[r->uri.len - 1] == '/') {
 		return NGX_DECLINED;
 	}
-
 	log = r->connection->log;
-
 	/*
 	 * ngx_http_map_uri_to_path() allocates memory for terminating '\0'
 	 * so we do not need to reserve memory for '/' for possible redirect
 	 */
-
 	last = ngx_http_map_uri_to_path(r, &path, &root, 0);
 	if(last == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
@@ -197,9 +191,12 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t * r)
 	b->file->name = path;
 	b->file->log = log;
 	b->file->directio = of.is_directio;
-	out.buf = b;
-	out.next = NULL;
-	return ngx_http_output_filter(r, &out);
+	{
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
+		return ngx_http_output_filter(r, &out);
+	}
 }
 
 static ngx_int_t ngx_http_static_init(ngx_conf_t * cf)

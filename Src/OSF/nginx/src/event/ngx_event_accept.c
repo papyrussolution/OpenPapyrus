@@ -39,7 +39,7 @@ void ngx_event_accept(ngx_event_t * ev)
 	if(!(ngx_event_flags & NGX_USE_KQUEUE_EVENT)) {
 		ev->available = ecf->multi_accept;
 	}
-	lc = (ngx_connection_t*)ev->data;
+	lc = (ngx_connection_t*)ev->P_Data;
 	ls = lc->listening;
 	ev->ready = 0;
 	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "accept on %V, ready: %d", &ls->addr_text, ev->available);
@@ -136,7 +136,7 @@ void ngx_event_accept(ngx_event_t * ev)
 			ngx_close_accepted_connection(c);
 			return;
 		}
-		/* set a blocking mode for iocp and non-blocking mode for others */
+		// set a blocking mode for iocp and non-blocking mode for others 
 		if(ngx_inherited_nonblocking) {
 			if(ngx_event_flags & NGX_USE_IOCP_EVENT) {
 				if(ngx_blocking(s) == -1) {
@@ -467,29 +467,32 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 
 #endif
 
-ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * cycle)
+ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * pCycle)
 {
+	ngx_int_t result = NGX_OK;
 	if(ngx_shmtx_trylock(&ngx_accept_mutex)) {
-		ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "accept mutex locked");
-		if(ngx_accept_mutex_held && ngx_accept_events == 0) {
-			return NGX_OK;
+		ngx_log_debug0(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "accept mutex locked");
+		if(!ngx_accept_mutex_held || ngx_accept_events) {
+			if(ngx_enable_accept_events(pCycle) == NGX_ERROR) {
+				ngx_shmtx_unlock(&ngx_accept_mutex);
+				result = NGX_ERROR;
+			}
+			else {
+				ngx_accept_events = 0;
+				ngx_accept_mutex_held = 1;
+			}
 		}
-		if(ngx_enable_accept_events(cycle) == NGX_ERROR) {
-			ngx_shmtx_unlock(&ngx_accept_mutex);
-			return NGX_ERROR;
-		}
-		ngx_accept_events = 0;
-		ngx_accept_mutex_held = 1;
-		return NGX_OK;
 	}
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "accept mutex lock failed: %ui", ngx_accept_mutex_held);
-	if(ngx_accept_mutex_held) {
-		if(ngx_disable_accept_events(cycle, 0) == NGX_ERROR) {
-			return NGX_ERROR;
+	else {
+		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "accept mutex lock failed: %ui", ngx_accept_mutex_held);
+		if(ngx_accept_mutex_held) {
+			if(ngx_disable_accept_events(pCycle, 0) == NGX_ERROR)
+				result = NGX_ERROR;
+			else
+				ngx_accept_mutex_held = 0;
 		}
-		ngx_accept_mutex_held = 0;
 	}
-	return NGX_OK;
+	return result;
 }
 
 static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle)

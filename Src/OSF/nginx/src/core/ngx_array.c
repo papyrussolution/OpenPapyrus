@@ -42,7 +42,7 @@ ngx_int_t ngx_array_init(ngx_array_t * array, ngx_pool_t * pool, ngx_uint_t n, s
 	return (array->elts == NULL) ? NGX_ERROR : NGX_OK;
 }
 
-void * ngx_array_push(ngx_array_t * a)
+void * FASTCALL ngx_array_push(ngx_array_t * a)
 {
 	void * elt;
 	if(a->nelts == a->nalloc) {
@@ -73,7 +73,7 @@ void * ngx_array_push(ngx_array_t * a)
 	return elt;
 }
 
-void * ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
+void * FASTCALL ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
 {
 	void * elt, * p_new;
 	ngx_uint_t nalloc;
@@ -87,7 +87,6 @@ void * ngx_array_push_n(ngx_array_t * a, ngx_uint_t n)
 			 * the array allocation is the last in the pool
 			 * and there is space for new allocation
 			 */
-
 			p->d.last += size;
 			a->nalloc += n;
 		}

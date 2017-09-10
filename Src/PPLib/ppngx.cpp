@@ -29,10 +29,11 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 {
 	// The hello world string 
 	static u_char ngx_papyrus_test[] = "papyrus test module! Здравствуй, брат!";
-	ngx_chain_t out;
+	
 	// Set the Content-Type header. 
-	pReq->headers_out.content_type.len = sizeof("text/html; charset=UTF-8") - 1;
-	pReq->headers_out.content_type.data = (u_char *)"text/html; charset=UTF-8";
+	pReq->SetContentType(SFileFormat::Html, cpUTF8);
+	//pReq->headers_out.content_type.len = sizeof("text/html; charset=UTF-8") - 1;
+	//pReq->headers_out.content_type.data = (u_char *)"text/html; charset=UTF-8";
 	{
 		//pReq->headers_out.charset.len = sizeof("utf-8") - 1;
 		//pReq->headers_out.charset.data = (u_char *)"utf-8";
@@ -44,20 +45,19 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 		// Allocate a new buffer for sending out the reply. 
 		ngx_buf_t * b = (ngx_buf_t *)ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t));
 		// Insertion in the buffer chain. 
-		out.buf = b;
-		out.next = NULL; // just one buffer 
+		ngx_chain_t out(b, 0/*just one buffer*/);
 		b->pos = ngx_papyrus_test; /* first position in memory of the data */
-		b->last = ngx_papyrus_test + sizeof(ngx_papyrus_test); /* last position in memory of the data */
+		b->last = ngx_papyrus_test + sizeof(ngx_papyrus_test) - 1; /* last position in memory of the data */
 		b->memory = 1; /* content is in read-only memory */
 		b->last_buf = 1; /* there will be no more buffers in the request */
 		// Sending the headers for the reply. 
 		pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
 		// Get the content length of the body. 
-		pReq->headers_out.content_length_n = sizeof(ngx_papyrus_test);
+		pReq->headers_out.content_length_n = sizeof(ngx_papyrus_test) - 1;
 		ngx_http_send_header(pReq); // Send the headers 
+		// Send the body, and return the status code of the output filter chain. 
+		return ngx_http_output_filter(pReq, &out);
 	}
-	// Send the body, and return the status code of the output filter chain. 
-	return ngx_http_output_filter(pReq, &out);
 }
 /**
  * Configuration setup function that installs the content handler.
@@ -121,10 +121,94 @@ ngx_module_s ngx_http_papyrus_test_module = {
 //
 //
 // @construction
+class NgxReqResultQueue : private SQueue { //req_queue(1024)
+public:
+	NgxReqResultQueue() : SQueue(sizeof(NgxReqResult), 1024, aryDataOwner)
+	{
+	}
+	int    FASTCALL Push(const NgxReqResult * pRes)
+	{
+		int    ok = 0;
+		Lck.Lock();
+		ok = SQueue::push(pRes);
+		Lck.Unlock();
+		return ok;
+	}
+	int    FASTCALL Pop(NgxReqResult * pRes)
+	{
+		NgxReqResult * p_res = 0;
+		int    ok = 0;
+		Lck.Lock();
+		p_res = (NgxReqResult *)SQueue::pop();
+		Lck.Unlock();
+		if(p_res) {
+			ASSIGN_PTR(pRes, *p_res);
+			ok = 1;
+		}
+		return ok;
+	}
+private:
+	SMtLock Lck;
+};
+
+static NgxReqResultQueue * P_NgxReqResultQ = 0;
+
+int FASTCALL NgxPushRequestResult(NgxReqResult * pR)
+{
+	int    ok = 0;
+	if(SETIFZ(P_NgxReqResultQ, new NgxReqResultQueue)) {
+		ok = P_NgxReqResultQ->Push(pR);
+	}
+	return ok;
+}
+
+int FASTCALL NgxPopRequestResult(NgxReqResult * pR)
+{
+	int    ok = 0;
+	if(P_NgxReqResultQ) {
+		ok = P_NgxReqResultQ->Pop(pR);
+	}
+	return ok;
+}
 
 static int ProcessNgxHttpRequest(ngx_http_request_t * pReq)
 {
 	int    ok = 1;
+	if(pReq) {
+		SString out_buf;
+		SString temp_buf;
+		char   sb[256];
+
+		PPVersionInfo vi = DS.GetVersionInfo();
+		vi.GetProductName(temp_buf);
+		out_buf.Cat(temp_buf);
+		vi.GetVersionText(sb, sizeof(sb));
+		out_buf.Space().Cat(sb);
+		vi.GetTeam(sb, sizeof(sb));
+		out_buf.Space().Cat(sb);
+		out_buf.CR();
+		out_buf.CatEq("Идентификатор потока", DS.GetConstTLA().GetThreadID());
+		//
+		pReq->SetContentType(SFileFormat::Html, cpUTF8);
+		{
+			ngx_buf_t * b = ngx_create_temp_buf(pReq->pool, out_buf.Len());
+			// Insertion in the buffer chain. 
+			ngx_chain_t out(b, 0/*just one buffer*/);
+			memcpy(b->pos, out_buf.cptr(), out_buf.Len());
+			b->last = b->pos + out_buf.Len();
+			b->last_buf = 1; // there will be no more buffers in the request 
+			// Sending the headers for the reply. 
+			pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
+			// Get the content length of the body. 
+			pReq->headers_out.content_length_n = out_buf.Len();
+			{
+				NgxReqResult result;
+				result.P_Req = pReq;
+				result.Chain.buf = b;
+				result.Chain.next = 0;
+			}
+		}
+	}
 	return ok;
 }
 
@@ -132,7 +216,7 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 {
 	class NgxReqQueue : private SQueue { //req_queue(1024)
 	public:
-		NgxReqQueue() : SQueue(sizeof(ngx_http_request_t), 1024)
+		NgxReqQueue() : SQueue(sizeof(ngx_http_request_t *), 1024, aryDataOwner|aryPtrContainer)
 		{
 		}
 		int    FASTCALL Push(const ngx_http_request_t * pReq)
@@ -143,19 +227,13 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 			Lck.Unlock();
 			return ok;
 		}
-		int    FASTCALL Pop(ngx_http_request_t * pReq)
+		ngx_http_request_t * FASTCALL Pop()
 		{
-			int    ok = 0;
 			ngx_http_request_t * p_req = 0;
 			Lck.Lock();
 			p_req = (ngx_http_request_t *)SQueue::pop();
 			Lck.Unlock();
-			if(p_req) {
-				if(pReq)
-					memcpy(pReq, p_req, sizeof(*pReq));
-				ok = 1;
-			}
-			return ok;
+			return p_req;
 		}
 	private:
 		SMtLock Lck;
@@ -192,7 +270,6 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 		{
 			#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 			//
-			ngx_http_request_t request;
 			SString s, fmt_buf, log_buf, temp_buf;
 			PPJobSrvReply reply(0);
 			PPServerCmd cmd;
@@ -215,12 +292,12 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 				wait_obj_wakeup = WAIT_OBJECT_0+h_count-1;
 				//
 				uint   r = WaitForMultipleObjects(h_count, h_list, 0, timeout);
-				int    pop_r = 0; // Результат 
+				ngx_http_request_t * p_req = 0;
 				if(r == WAIT_TIMEOUT) {
-					pop_r = P_Queue->Pop(&request);
+					p_req = P_Queue->Pop();
 				}
 				else if(r == wait_obj_wakeup) {
-					pop_r = P_Queue->Pop(&request);
+					p_req = P_Queue->Pop();
 				}
 				else if(r == wait_obj_localstop) {
 					// @todo log
@@ -230,10 +307,10 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 					// @todo log
 					break;
 				}
-				if(pop_r) {
-					SetIdleState();
-					ProcessNgxHttpRequest(&request);
+				if(p_req) {
 					ResetIdleState();
+					ProcessNgxHttpRequest(p_req);
+					SetIdleState();
 				}
 			}
 		}

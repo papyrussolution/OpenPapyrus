@@ -176,7 +176,7 @@ static ngx_int_t ngx_http_memcached_create_request(ngx_http_request_t * pReq)
 		}
 		ctx->key.len = b->last - ctx->key.data;
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "http memcached request: \"%V\"", &ctx->key);
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	return NGX_OK;
 }
@@ -203,7 +203,7 @@ static ngx_int_t ngx_http_memcached_process_header(ngx_http_request_t * r)
 	else {
 		line.data = u->buffer.pos;
 		line.len = p - u->buffer.pos;
-		if(line.len == 0 || *(p - 1) != CR) {
+		if(line.len == 0 || *(p - 1) != __CR) {
 			goto no_valid__;
 		}
 		*p = '\0';

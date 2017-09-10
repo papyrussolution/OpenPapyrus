@@ -1271,8 +1271,6 @@ ngx_int_t ngx_http_send_response(ngx_http_request_t * pReq, ngx_uint_t status, n
 {
 	ngx_int_t rc;
 	ngx_str_t val;
-	ngx_buf_t * b;
-	ngx_chain_t out;
 	if(ngx_http_discard_request_body(pReq) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
@@ -1304,22 +1302,27 @@ ngx_int_t ngx_http_send_response(ngx_http_request_t * pReq, ngx_uint_t status, n
 	if(pReq->method == NGX_HTTP_HEAD || (pReq != pReq->main && val.len == 0)) {
 		return ngx_http_send_header(pReq);
 	}
-	b = (ngx_buf_t*)ngx_calloc_buf(pReq->pool);
-	if(b == NULL) {
-		return NGX_HTTP_INTERNAL_SERVER_ERROR;
+	{
+		ngx_buf_t * b = (ngx_buf_t *)ngx_calloc_buf(pReq->pool);
+		if(b == NULL) {
+			return NGX_HTTP_INTERNAL_SERVER_ERROR;
+		}
+		b->pos = val.data;
+		b->last = val.data + val.len;
+		b->memory = val.len ? 1 : 0;
+		b->last_buf = (pReq == pReq->main) ? 1 : 0;
+		b->last_in_chain = 1;
+		{
+			ngx_chain_t out(b, 0);
+			//out.buf = b;
+			//out.next = NULL;
+			rc = ngx_http_send_header(pReq);
+			if(rc == NGX_ERROR || rc > NGX_OK || pReq->header_only) {
+				return rc;
+			}
+			return ngx_http_output_filter(pReq, &out);
+		}
 	}
-	b->pos = val.data;
-	b->last = val.data + val.len;
-	b->memory = val.len ? 1 : 0;
-	b->last_buf = (pReq == pReq->main) ? 1 : 0;
-	b->last_in_chain = 1;
-	out.buf = b;
-	out.next = NULL;
-	rc = ngx_http_send_header(pReq);
-	if(rc == NGX_ERROR || rc > NGX_OK || pReq->header_only) {
-		return rc;
-	}
-	return ngx_http_output_filter(pReq, &out);
 }
 
 ngx_int_t ngx_http_send_header(ngx_http_request_t * r)
@@ -1343,13 +1346,11 @@ ngx_int_t ngx_http_send_header(ngx_http_request_t * r)
 
 ngx_int_t ngx_http_output_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	ngx_int_t rc;
 	ngx_connection_t * c = r->connection;
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http output filter \"%V?%V\"", &r->uri, &r->args);
-	rc = ngx_http_top_body_filter(r, in);
+	ngx_int_t rc = ngx_http_top_body_filter(r, in);
 	if(rc == NGX_ERROR) {
-		// NGX_ERROR may be returned by any filter 
-		c->error = 1;
+		c->error = 1; // NGX_ERROR may be returned by any filter 
 	}
 	return rc;
 }
@@ -3311,40 +3312,27 @@ static char * ngx_http_core_set_aio(ngx_conf_t * cf, ngx_command_t * cmd, void *
 		clcf->aio = NGX_HTTP_AIO_ON;
 		return NGX_CONF_OK;
 #else
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"aio on\" "
-		    "is unsupported on this platform");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"aio on\" is unsupported on this platform");
 		return NGX_CONF_ERROR;
 #endif
 	}
-
 #if (NGX_HAVE_AIO_SENDFILE)
-
 	if(ngx_strcmp(value[1].data, "sendfile") == 0) {
 		clcf->aio = NGX_HTTP_AIO_ON;
-
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "the \"sendfile\" parameter of "
-		    "the \"aio\" directive is deprecated");
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "the \"sendfile\" parameter of the \"aio\" directive is deprecated");
 		return NGX_CONF_OK;
 	}
-
 #endif
-
-	if(ngx_strncmp(value[1].data, "threads", 7) == 0
-	    && (value[1].len == 7 || value[1].data[7] == '=')) {
+	if(ngx_strncmp(value[1].data, "threads", 7) == 0 && (value[1].len == 7 || value[1].data[7] == '=')) {
 #if (NGX_THREADS)
 		ngx_str_t name;
 		ngx_thread_pool_t * tp;
 		ngx_http_complex_value_t cv;
 		ngx_http_compile_complex_value_t ccv;
-
 		clcf->aio = NGX_HTTP_AIO_THREADS;
-
 		if(value[1].len >= 8) {
 			name.len = value[1].len - 8;
 			name.data = value[1].data + 8;
-
 			memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
 			ccv.cf = cf;
 			ccv.value = &name;
@@ -3584,16 +3572,17 @@ static char * ngx_http_core_internal(ngx_conf_t * cf, ngx_command_t * cmd, void 
 static char * ngx_http_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)conf;
-	ngx_str_t  * value;
 	if(clcf->resolver) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t *)cf->args->elts;
-	clcf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
-	if(clcf->resolver == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		clcf->resolver = ngx_resolver_create(cf, &value[1], cf->args->nelts - 1);
+		if(clcf->resolver == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-	return NGX_CONF_OK;
 }
 
 #if (NGX_HTTP_GZIP)
@@ -3737,10 +3726,7 @@ static char * ngx_http_core_lowat_check(ngx_conf_t * cf, void * post, void * dat
 #if (NGX_FREEBSD)
 	ssize_t * np = data;
 	if((u_long) *np >= ngx_freebsd_net_inet_tcp_sendspace) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"send_lowat\" must be less than %d "
-		    "(sysctl net.inet.tcp.sendspace)",
-		    ngx_freebsd_net_inet_tcp_sendspace);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"send_lowat\" must be less than %d (sysctl net.inet.tcp.sendspace)", ngx_freebsd_net_inet_tcp_sendspace);
 		return NGX_CONF_ERROR;
 	}
 #elif !(NGX_HAVE_SO_SNDLOWAT)

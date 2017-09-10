@@ -260,7 +260,7 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t * cf, ngx_int_t last)
 	char * rv;
 	void * conf, ** confp;
 	ngx_uint_t i;
-	ngx_str_t * name = (ngx_str_t*)cf->args->elts;
+	const ngx_str_t * name = (const ngx_str_t *)cf->args->elts;
 	ngx_uint_t found = 0;
 	for(i = 0; cf->cycle->modules[i]; i++) {
 		ngx_command_t * cmd = cf->cycle->modules[i]->commands;
@@ -437,7 +437,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 			continue;
 		}
 		if(need_space) {
-			if(ch == ' ' || ch == '\t' || ch == CR || ch == LF) {
+			if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF) {
 				last_space = 1;
 				need_space = 0;
 				continue;
@@ -458,7 +458,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 			}
 		}
 		if(last_space) {
-			if(ch == ' ' || ch == '\t' || ch == CR || ch == LF) {
+			if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF) {
 				continue;
 			}
 			start = b->pos - 1;
@@ -528,7 +528,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 					found = 1;
 				}
 			}
-			else if(ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == ';' || ch == '{') {
+			else if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF || ch == ';' || ch == '{') {
 				last_space = 1;
 				found = 1;
 			}
@@ -628,16 +628,16 @@ char * ngx_conf_include(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 
 ngx_int_t ngx_conf_full_name(ngx_cycle_t * cycle, ngx_str_t * name, ngx_uint_t conf_prefix)
 {
-	ngx_str_t  * prefix = conf_prefix ? &cycle->conf_prefix : &cycle->prefix;
+	ngx_str_t * prefix = conf_prefix ? &cycle->conf_prefix : &cycle->prefix;
 	return ngx_get_full_name(cycle->pool, prefix, name);
 }
 
-ngx_open_file_t * ngx_conf_open_file(ngx_cycle_t * cycle, ngx_str_t * name)
+ngx_open_file_t * FASTCALL ngx_conf_open_file(ngx_cycle_t * cycle, const ngx_str_t * name)
 {
 	ngx_str_t full;
 	ngx_uint_t i;
-	ngx_list_part_t  * part;
-	ngx_open_file_t  * file;
+	ngx_list_part_t * part;
+	ngx_open_file_t * file;
 #if (NGX_SUPPRESS_WARN)
 	ngx_str_null(&full);
 #endif
@@ -732,7 +732,7 @@ char * ngx_conf_set_flag_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 		if(ngx_strcasecmp(value[1].data, (u_char*)"on") == 0) {
 			*fp = 1;
 		}
@@ -753,27 +753,27 @@ char * ngx_conf_set_flag_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 
 char * ngx_conf_set_str_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char  * p = (char*)conf;
-	ngx_conf_post_t  * post;
+	char  * p = (char *)conf;
 	ngx_str_t * field = (ngx_str_t*)(p + cmd->offset);
 	if(field->data) {
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 		*field = value[1];
 		if(cmd->post) {
-			post = (ngx_conf_post_t *)cmd->post;
+			ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->post;
 			return post->post_handler(cf, post, field);
 		}
-		return NGX_CONF_OK;
+		else
+			return NGX_CONF_OK;
 	}
 }
 
 char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_str_t  * value, * s;
+	ngx_str_t * value, * s;
 	ngx_conf_post_t * post;
 	ngx_array_t ** a = (ngx_array_t**)(p + cmd->offset);
 	if(*a == NGX_CONF_UNSET_PTR) {
@@ -824,45 +824,45 @@ char * ngx_conf_set_keyval_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * con
 
 char * ngx_conf_set_num_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char  * p = (char*)conf;
-	ngx_conf_post_t * post;
+	char * p = (char *)conf;
 	ngx_int_t * np = (ngx_int_t*)(p + cmd->offset);
 	if(*np != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 		*np = ngx_atoi(value[1].data, value[1].len);
 		if(*np == NGX_ERROR) {
 			return "invalid number";
 		}
 		if(cmd->post) {
-			post = (ngx_conf_post_t *)cmd->post;
+			ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->post;
 			return post->post_handler(cf, post, np);
 		}
-		return NGX_CONF_OK;
+		else
+			return NGX_CONF_OK;
 	}
 }
 
 char * ngx_conf_set_size_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	char  * p = (char*)conf;
-	ngx_conf_post_t  * post;
+	char * p = (char*)conf;
 	size_t * sp = (size_t*)(p + cmd->offset);
 	if(*sp != NGX_CONF_UNSET_SIZE) {
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 		*sp = ngx_parse_size(&value[1]);
 		if(*sp == (size_t)NGX_ERROR) {
 			return "invalid value";
 		}
 		if(cmd->post) {
-			post = (ngx_conf_post_t *)cmd->post;
+			ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->post;
 			return post->post_handler(cf, post, sp);
 		}
-		return NGX_CONF_OK;
+		else
+			return NGX_CONF_OK;
 	}
 }
 
@@ -875,7 +875,7 @@ char * ngx_conf_set_off_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 		*op = ngx_parse_offset(&value[1]);
 		if(*op == (nginx_off_t)NGX_ERROR) {
 			return "invalid value";
@@ -884,29 +884,30 @@ char * ngx_conf_set_off_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 			post = (ngx_conf_post_t *)cmd->post;
 			return post->post_handler(cf, post, op);
 		}
-		return NGX_CONF_OK;
+		else
+			return NGX_CONF_OK;
 	}
 }
 
 char * ngx_conf_set_msec_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	char  * p = (char*)conf;
-	ngx_conf_post_t  * post;
 	ngx_msec_t * msp = (ngx_msec_t*)(p + cmd->offset);
 	if(*msp != NGX_CONF_UNSET_MSEC) {
 		return "is duplicate";
 	}
 	else {
-		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 		*msp = ngx_parse_time(&value[1], 0);
 		if(*msp == (ngx_msec_t)NGX_ERROR) {
 			return "invalid value";
 		}
 		if(cmd->post) {
-			post = (ngx_conf_post_t *)cmd->post;
+			ngx_conf_post_t * post = (ngx_conf_post_t *)cmd->post;
 			return post->post_handler(cf, post, msp);
 		}
-		return NGX_CONF_OK;
+		else
+			return NGX_CONF_OK;
 	}
 }
 

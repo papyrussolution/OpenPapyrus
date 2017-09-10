@@ -169,7 +169,7 @@ static void ngx_mail_proxy_block_read(ngx_event_t * rev)
 	ngx_mail_session_t  * s;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy block read");
 	if(ngx_handle_read_event(rev, 0) != NGX_OK) {
-		c = (ngx_connection_t*)rev->data;
+		c = (ngx_connection_t*)rev->P_Data;
 		s = (ngx_mail_session_t *)c->data;
 		ngx_mail_proxy_close_session(s);
 	}
@@ -184,7 +184,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy pop3 auth handler");
-	c = (ngx_connection_t*)rev->data;
+	c = (ngx_connection_t*)rev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "upstream timed out");
@@ -217,7 +217,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 
 		    p = ngx_cpymem(line.data, "USER ", sizeof("USER ") - 1);
 		    p = ngx_cpymem(p, s->login.data, s->login.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    s->mail_state = ngx_pop3_user;
 		    break;
@@ -234,7 +234,7 @@ static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev)
 
 		    p = ngx_cpymem(line.data, "PASS ", sizeof("PASS ") - 1);
 		    p = ngx_cpymem(p, s->passwd.data, s->passwd.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    s->mail_state = ngx_pop3_passwd;
 		    break;
@@ -285,7 +285,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy imap auth handler");
-	c = (ngx_connection_t*)rev->data;
+	c = (ngx_connection_t*)rev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT,
@@ -352,7 +352,7 @@ static void ngx_mail_proxy_imap_handler(ngx_event_t * rev)
 		    }
 
 		    p = ngx_cpymem(line.data, s->passwd.data, s->passwd.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    s->mail_state = ngx_imap_passwd;
 		    break;
@@ -405,7 +405,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 	ngx_mail_proxy_conf_t   * pcf;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, rev->log, 0, "mail proxy smtp auth handler");
-	c = (ngx_connection_t*)rev->data;
+	c = (ngx_connection_t*)rev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "upstream timed out");
@@ -444,7 +444,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    sizeof("HELO ") - 1);
 
 		    p = ngx_cpymem(p, cscf->server_name.data, cscf->server_name.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    if(pcf->xclient) {
 			    s->mail_state = ngx_smtp_helo_xclient;
@@ -494,7 +494,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    p = ngx_cpymem(p, " NAME=", sizeof(" NAME=") - 1);
 		    p = ngx_copy(p, s->host.data, s->host.len);
 
-		    *p++ = CR; *p++ = LF;
+		    *p++ = __CR; *p++ = LF;
 
 		    line.len = p - line.data;
 
@@ -535,7 +535,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    }
 
 		    p = ngx_cpymem(line.data, s->smtp_from.data, s->smtp_from.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    s->mail_state = ngx_smtp_from;
 
@@ -552,7 +552,7 @@ static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev)
 		    }
 
 		    p = ngx_cpymem(line.data, s->smtp_to.data, s->smtp_to.len);
-		    *p++ = CR; *p = LF;
+		    *p++ = __CR; *p = LF;
 
 		    s->mail_state = ngx_smtp_to;
 
@@ -619,7 +619,7 @@ static void ngx_mail_proxy_dummy_handler(ngx_event_t * wev)
 	ngx_mail_session_t  * s;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, wev->log, 0, "mail proxy dummy handler");
 	if(ngx_handle_write_event(wev, 0) != NGX_OK) {
-		c = (ngx_connection_t*)wev->data;
+		c = (ngx_connection_t*)wev->P_Data;
 		s = (ngx_mail_session_t *)c->data;
 		ngx_mail_proxy_close_session(s);
 	}
@@ -653,7 +653,7 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 		return NGX_AGAIN;
 	}
 
-	if(*(b->last - 2) != CR || *(b->last - 1) != LF) {
+	if(*(b->last - 2) != __CR || *(b->last - 1) != LF) {
 		if(b->last == b->end) {
 			*(b->last - 1) = '\0';
 			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
@@ -709,7 +709,7 @@ static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t
 			    m = b->last - (sizeof(CRLF "200" CRLF) - 1);
 
 			    while(m > p) {
-				    if(m[0] == CR && m[1] == LF) {
+				    if(m[0] == __CR && m[1] == LF) {
 					    break;
 				    }
 
@@ -784,7 +784,7 @@ static void ngx_mail_proxy_handler(ngx_event_t * ev)
 	ngx_mail_session_t   * s;
 	ngx_mail_proxy_conf_t  * pcf;
 
-	c = (ngx_connection_t*)ev->data;
+	c = (ngx_connection_t*)ev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 
 	if(ev->timedout) {

@@ -143,7 +143,7 @@ void ngx_http_v2_init(ngx_event_t * rev)
 	ngx_http_v2_srv_conf_t  * h2scf;
 	ngx_http_v2_main_conf_t * h2mcf;
 	ngx_http_v2_connection_t  * h2c;
-	ngx_connection_t   * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_connection_t   * hc = (ngx_http_connection_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "init http2 connection");
 	c->log->action = "processing HTTP/2 connection";
@@ -209,7 +209,7 @@ static void ngx_http_v2_read_handler(ngx_event_t * rev)
 	size_t available;
 	ssize_t n;
 	ngx_http_v2_main_conf_t * h2mcf;
-	ngx_connection_t   * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_v2_connection_t  * h2c = (ngx_http_v2_connection_t *)c->data;
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -283,7 +283,7 @@ static void ngx_http_v2_read_handler(ngx_event_t * rev)
 static void ngx_http_v2_write_handler(ngx_event_t * wev)
 {
 	ngx_int_t rc;
-	ngx_connection_t * c = (ngx_connection_t *)wev->data;
+	ngx_connection_t * c = (ngx_connection_t *)wev->P_Data;
 	ngx_http_v2_connection_t * h2c = (ngx_http_v2_connection_t *)c->data;
 	if(wev->timedout) {
 		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http2 write event timed out");
@@ -1967,13 +1967,15 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_get_frame(ngx_http_v2_connection_t 
 
 static ngx_int_t ngx_http_v2_frame_handler(ngx_http_v2_connection_t * h2c, ngx_http_v2_out_frame_t * frame)
 {
-	ngx_buf_t  * buf = frame->first->buf;
+	ngx_buf_t * buf = frame->first->buf;
 	if(buf->pos != buf->last) {
 		return NGX_AGAIN;
 	}
-	frame->next = h2c->free_frames;
-	h2c->free_frames = frame;
-	return NGX_OK;
+	else {
+		frame->next = h2c->free_frames;
+		h2c->free_frames = frame;
+		return NGX_OK;
+	}
 }
 
 static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t * h2c)
@@ -1998,7 +2000,6 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 		if(fc == NULL) {
 			return NULL;
 		}
-
 		rev = (ngx_event_t *)ngx_palloc(h2c->pool, sizeof(ngx_event_t));
 		if(rev == NULL) {
 			return NULL;
@@ -2011,35 +2012,25 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 		if(log == NULL) {
 			return NULL;
 		}
-
 		ctx = (ngx_http_log_ctx_t *)ngx_palloc(h2c->pool, sizeof(ngx_http_log_ctx_t));
 		if(ctx == NULL) {
 			return NULL;
 		}
-
 		ctx->connection = fc;
 		ctx->request = NULL;
 		ctx->current_request = NULL;
 	}
-
 	memcpy(log, h2c->connection->log, sizeof(ngx_log_t));
-
 	log->data = ctx;
 	log->action = "reading client request headers";
-
 	memzero(rev, sizeof(ngx_event_t));
-
-	rev->data = fc;
+	rev->P_Data = fc;
 	rev->ready = 1;
 	rev->handler = ngx_http_v2_close_stream_handler;
 	rev->log = log;
-
 	memcpy(wev, rev, sizeof(ngx_event_t));
-
 	wev->write = 1;
-
 	memcpy(fc, h2c->connection, sizeof(ngx_connection_t));
-
 	fc->data = h2c->http_connection;
 	fc->P_EvRd = rev;
 	fc->P_EvWr = wev;
@@ -2048,56 +2039,38 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 	fc->buffered = 0;
 	fc->sndlowat = 1;
 	fc->tcp_nodelay = NGX_TCP_NODELAY_DISABLED;
-
 	r = ngx_http_create_request(fc);
 	if(r == NULL) {
 		return NULL;
 	}
-
 	ngx_str_set(&r->http_protocol, "HTTP/2.0");
-
 	r->http_version = NGX_HTTP_VERSION_20;
 	r->valid_location = 1;
-
 	fc->data = r;
 	h2c->connection->requests++;
-
 	cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-
-	r->header_in = ngx_create_temp_buf(r->pool,
-	    cscf->client_header_buffer_size);
+	r->header_in = ngx_create_temp_buf(r->pool, cscf->client_header_buffer_size);
 	if(r->header_in == NULL) {
 		ngx_http_free_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NULL;
 	}
-
-	if(ngx_list_init(&r->headers_in.headers, r->pool, 20,
-		    sizeof(ngx_table_elt_t))
-	    != NGX_OK) {
+	if(ngx_list_init(&r->headers_in.headers, r->pool, 20, sizeof(ngx_table_elt_t)) != NGX_OK) {
 		ngx_http_free_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NULL;
 	}
-
 	r->headers_in.connection_type = NGX_HTTP_CONNECTION_CLOSE;
-
 	stream = (ngx_http_v2_stream_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_v2_stream_t));
 	if(stream == NULL) {
 		ngx_http_free_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NULL;
 	}
-
 	r->stream = stream;
-
 	stream->request = r;
 	stream->connection = h2c;
-
 	h2scf = (ngx_http_v2_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_v2_module);
-
 	stream->send_window = h2c->init_window;
 	stream->recv_window = h2scf->preread_size;
-
 	h2c->processing++;
-
 	return stream;
 }
 
@@ -2211,7 +2184,7 @@ static ngx_int_t ngx_http_v2_validate_header(ngx_http_request_t * r, ngx_http_v2
 		switch(ch) {
 			case '\0':
 			case LF:
-			case CR:
+			case __CR:
 			case ':':
 			    ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client sent invalid header name: \"%V\"", &header->name);
 			    return NGX_ERROR;
@@ -2227,7 +2200,7 @@ static ngx_int_t ngx_http_v2_validate_header(ngx_http_request_t * r, ngx_http_v2
 		switch(ch) {
 			case '\0':
 			case LF:
-			case CR:
+			case __CR:
 			    ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "client sent header \"%V\" with invalid value: \"%V\"",
 					&header->name, &header->value);
 			    return NGX_ERROR;
@@ -2999,7 +2972,7 @@ void ngx_http_v2_close_stream(ngx_http_v2_stream_t * stream, ngx_int_t rc)
 
 static void ngx_http_v2_close_stream_handler(ngx_event_t * ev)
 {
-	ngx_connection_t  * fc = (ngx_connection_t *)ev->data;
+	ngx_connection_t  * fc = (ngx_connection_t *)ev->P_Data;
 	ngx_http_request_t  * r = (ngx_http_request_t *)fc->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, fc->log, 0, "http2 close stream handler");
 	if(ev->timedout) {
@@ -3016,7 +2989,7 @@ static void ngx_http_v2_handle_connection_handler(ngx_event_t * rev)
 	ngx_connection_t   * c;
 	ngx_http_v2_connection_t  * h2c;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http2 handle connection handler");
-	c = (ngx_connection_t *)rev->data;
+	c = (ngx_connection_t *)rev->P_Data;
 	h2c = (ngx_http_v2_connection_t *)c->data;
 	if(c->error) {
 		ngx_http_v2_finalize_connection(h2c, 0);
@@ -3037,7 +3010,7 @@ static void ngx_http_v2_handle_connection_handler(ngx_event_t * rev)
 static void ngx_http_v2_idle_handler(ngx_event_t * rev)
 {
 	ngx_http_v2_srv_conf_t * h2scf;
-	ngx_connection_t * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_http_v2_connection_t  * h2c = (ngx_http_v2_connection_t *)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, c->log, 0, "http2 idle handler");
 	if(rev->timedout || c->close) {

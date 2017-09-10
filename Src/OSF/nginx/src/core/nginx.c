@@ -367,7 +367,7 @@ ngx_int_t ngx_signal_process(ngx_cycle_t * pCycle, const char * pSig)
 	if(n == NGX_ERROR) {
 		return 1;
 	}
-	while(n-- && (buf[n] == CR || buf[n] == LF)) { /* void */
+	while(n-- && (buf[n] == __CR || buf[n] == LF)) { /* void */
 	}
 	pid = ngx_atoi(buf, ++n);
 	if(pid == (ngx_pid_t)NGX_ERROR) {

@@ -11,7 +11,7 @@ static void ngx_close_posted_connection(ngx_connection_t * c);
 
 void ngx_event_acceptex(ngx_event_t * rev)
 {
-	ngx_connection_t * c = (ngx_connection_t *)rev->data;
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
 	ngx_listening_t  * ls = c->listening;
 	c->log->handler = ngx_accept_log_error;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "AcceptEx: %d", c->fd);

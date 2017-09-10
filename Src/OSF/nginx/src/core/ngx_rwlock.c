@@ -11,7 +11,7 @@
 #define NGX_RWLOCK_SPIN   2048
 #define NGX_RWLOCK_WLOCK  ((ngx_atomic_uint_t)-1)
 
-void ngx_rwlock_wlock(ngx_atomic_t * lock)
+void FASTCALL ngx_rwlock_wlock(ngx_atomic_t * lock)
 {
 	ngx_uint_t i, n;
 	for(;; ) {
@@ -32,7 +32,7 @@ void ngx_rwlock_wlock(ngx_atomic_t * lock)
 	}
 }
 
-void ngx_rwlock_rlock(ngx_atomic_t * lock)
+void FASTCALL ngx_rwlock_rlock(ngx_atomic_t * lock)
 {
 	ngx_uint_t i, n;
 	ngx_atomic_uint_t readers;
@@ -56,7 +56,7 @@ void ngx_rwlock_rlock(ngx_atomic_t * lock)
 	}
 }
 
-void ngx_rwlock_unlock(ngx_atomic_t * lock)
+void FASTCALL ngx_rwlock_unlock(ngx_atomic_t * lock)
 {
 	ngx_atomic_uint_t readers = *lock;
 	if(readers == NGX_RWLOCK_WLOCK) {
@@ -72,7 +72,7 @@ void ngx_rwlock_unlock(ngx_atomic_t * lock)
 	}
 }
 
-void ngx_rwlock_downgrade(ngx_atomic_t * lock)
+void FASTCALL ngx_rwlock_downgrade(ngx_atomic_t * lock)
 {
 	if(*lock == NGX_RWLOCK_WLOCK) {
 		*lock = 1;

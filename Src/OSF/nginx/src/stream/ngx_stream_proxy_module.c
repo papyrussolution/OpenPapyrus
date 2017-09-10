@@ -713,77 +713,57 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 		u->upstream_buf.pos = p;
 		u->upstream_buf.last = p;
 	}
-
 	if(c->buffer && c->buffer->pos < c->buffer->last) {
-		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0,
-		    "stream proxy add preread buffer: %uz",
-		    c->buffer->last - c->buffer->pos);
-
+		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy add preread buffer: %uz", c->buffer->last - c->buffer->pos);
 		cl = ngx_chain_get_free_buf(c->pool, &u->free);
 		if(cl == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		*cl->buf = *c->buffer;
-
 		cl->buf->tag = (ngx_buf_tag_t)&ngx_stream_proxy_module;
 		cl->buf->flush = 1;
 		cl->buf->last_buf = (c->type == SOCK_DGRAM);
-
 		cl->next = u->upstream_out;
 		u->upstream_out = cl;
 	}
-
 	if(u->proxy_protocol) {
 		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy add PROXY protocol header");
-
 		cl = ngx_chain_get_free_buf(c->pool, &u->free);
 		if(cl == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		p = (u_char*)ngx_pnalloc(c->pool, NGX_PROXY_PROTOCOL_MAX_HEADER);
 		if(p == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		cl->buf->pos = p;
-
 		p = ngx_proxy_protocol_write(c, p, p + NGX_PROXY_PROTOCOL_MAX_HEADER);
 		if(p == NULL) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
-
 		cl->buf->last = p;
 		cl->buf->temporary = 1;
 		cl->buf->flush = 0;
 		cl->buf->last_buf = 0;
 		cl->buf->tag = (ngx_buf_tag_t)&ngx_stream_proxy_module;
-
 		cl->next = u->upstream_out;
 		u->upstream_out = cl;
-
 		u->proxy_protocol = 0;
 	}
-
 	if(c->type == SOCK_DGRAM && pscf->responses == 0) {
 		pc->P_EvRd->ready = 0;
 		pc->P_EvRd->eof = 1;
 	}
-
 	u->connected = 1;
-
 	pc->P_EvRd->handler = ngx_stream_proxy_upstream_handler;
 	pc->P_EvWr->handler = ngx_stream_proxy_upstream_handler;
-
 	if(pc->P_EvRd->ready || pc->P_EvRd->eof) {
 		ngx_post_event(pc->P_EvRd, &ngx_posted_events);
 	}
-
 	ngx_stream_proxy_process(s, 0, 1);
 }
 
@@ -1060,7 +1040,7 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 {
 	ngx_connection_t * pc;
 	ngx_stream_proxy_srv_conf_t  * pscf;
-	ngx_connection_t * c = (ngx_connection_t*)ev->data;
+	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
 	ngx_stream_session_t  * s = (ngx_stream_session_t *)c->data;
 	ngx_stream_upstream_t * u = s->upstream;
 	c = s->connection;
@@ -1118,7 +1098,7 @@ static void ngx_stream_proxy_process_connection(ngx_event_t * ev, ngx_uint_t fro
 
 static void ngx_stream_proxy_connect_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)ev->data;
+	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
 	ngx_stream_session_t  * s = (ngx_stream_session_t *)c->data;
 	if(ev->timedout) {
 		ngx_log_error(NGX_LOG_ERR, c->log, NGX_ETIMEDOUT, "upstream timed out");

@@ -115,7 +115,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			/* HTTP methods: GET, HEAD, POST */
 			case sw_start:
 			    r->request_start = p;
-			    if(ch == CR || ch == LF) {
+			    if(ch == __CR || ch == LF) {
 				    break;
 			    }
 			    if((ch < 'A' || ch > 'Z') && ch != '_' && ch != '-') {
@@ -369,7 +369,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    switch(ch) {
 				    case ' ':
 						break;
-				    case CR:
+				    case __CR:
 						r->http_minor = 9;
 						state = sw_almost_done;
 						break;
@@ -397,7 +397,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 					r->uri_end = p;
 					state = sw_check_uri_http_09;
 					break;
-				    case CR:
+				    case __CR:
 					r->uri_end = p;
 					r->http_minor = 9;
 					state = sw_almost_done;
@@ -469,7 +469,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 					r->uri_end = p;
 					state = sw_check_uri_http_09;
 					break;
-				    case CR:
+				    case __CR:
 					r->uri_end = p;
 					r->http_minor = 9;
 					state = sw_almost_done;
@@ -509,7 +509,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					r->http_minor = 9;
 					state = sw_almost_done;
 					break;
@@ -540,7 +540,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 					r->uri_end = p;
 					state = sw_http_09;
 					break;
-				    case CR:
+				    case __CR:
 					r->uri_end = p;
 					r->http_minor = 9;
 					state = sw_almost_done;
@@ -562,7 +562,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					r->http_minor = 9;
 					state = sw_almost_done;
 					break;
@@ -667,7 +667,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 
 			/* minor HTTP version or end of request line */
 			case sw_minor_digit:
-			    if(ch == CR) {
+			    if(ch == __CR) {
 				    state = sw_almost_done;
 				    break;
 			    }
@@ -696,7 +696,7 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -783,7 +783,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 			    r->invalid_header = 0;
 
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					r->header_end = p;
 					state = sw_header_almost_done;
 					break;
@@ -855,7 +855,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 				    break;
 			    }
 
-			    if(ch == CR) {
+			    if(ch == __CR) {
 				    r->header_name_end = p;
 				    r->header_start = p;
 				    r->header_end = p;
@@ -892,7 +892,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					r->header_start = p;
 					r->header_end = p;
 					state = sw_almost_done;
@@ -917,7 +917,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 					r->header_end = p;
 					state = sw_space_after_value;
 					break;
-				    case CR:
+				    case __CR:
 					r->header_end = p;
 					state = sw_almost_done;
 					break;
@@ -934,7 +934,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 			    switch(ch) {
 				    case ' ':
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -963,7 +963,7 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b,
 			    switch(ch) {
 				    case LF:
 					goto done;
-				    case CR:
+				    case __CR:
 					break;
 				    default:
 					return NGX_HTTP_PARSE_INVALID_HEADER;
@@ -1642,7 +1642,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 				    case '.': /* IIS may send 403.1, 403.2, etc */
 					state = sw_status_text;
 					break;
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 					break;
 				    case LF:
@@ -1655,7 +1655,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 			/* any text until end of line */
 			case sw_status_text:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_almost_done;
 
 					break;
@@ -1950,7 +1950,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    }
 			    if(ctx->size == 0) {
 				    switch(ch) {
-					    case CR:
+					    case __CR:
 						state = sw_last_chunk_extension_almost_done;
 						break;
 					    case LF:
@@ -1969,7 +1969,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    }
 
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_chunk_extension_almost_done;
 					break;
 				    case LF:
@@ -1986,7 +1986,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    break;
 			case sw_chunk_extension:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_chunk_extension_almost_done;
 					break;
 				    case LF:
@@ -2007,7 +2007,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 
 			case sw_after_data:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_after_data_almost_done;
 					break;
 				    case LF:
@@ -2022,7 +2022,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_last_chunk_extension:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_last_chunk_extension_almost_done;
 					break;
 				    case LF:
@@ -2037,7 +2037,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_trailer:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_trailer_almost_done;
 					break;
 				    case LF:
@@ -2053,7 +2053,7 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_trailer_header:
 			    switch(ch) {
-				    case CR:
+				    case __CR:
 					state = sw_trailer_header_almost_done;
 					break;
 				    case LF:

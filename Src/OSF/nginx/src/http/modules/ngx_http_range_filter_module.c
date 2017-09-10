@@ -795,7 +795,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r,
 	b->last = ngx_cpymem(b->pos, ctx->boundary_header.data,
 	    sizeof(CRLF "--") - 1 + NGX_ATOMIC_T_LEN);
 	*b->last++ = '-'; *b->last++ = '-';
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 
 	hcl = ngx_alloc_chain_link(r->pool);
 	if(hcl == NULL) {

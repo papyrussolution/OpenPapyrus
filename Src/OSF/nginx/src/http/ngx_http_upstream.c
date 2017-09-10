@@ -804,7 +804,7 @@ failed:
 
 static void ngx_http_upstream_handler(ngx_event_t * ev)
 {
-	ngx_connection_t * c = (ngx_connection_t *)ev->data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_http_request_t * r = (ngx_http_request_t *)c->data;
 	ngx_http_upstream_t  * u = r->upstream;
 	c = r->connection;

@@ -144,7 +144,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 			switch(state) {
 				case sw_login:
 				    if(login == 0) {
-					    if(buf[i] == '#' || buf[i] == CR) {
+					    if(buf[i] == '#' || buf[i] == __CR) {
 						    state = sw_skip;
 						    break;
 					    }
@@ -163,7 +163,7 @@ static ngx_int_t ngx_http_auth_basic_handler(ngx_http_request_t * r)
 				    login++;
 				    break;
 				case sw_passwd:
-				    if(buf[i] == LF || buf[i] == CR || buf[i] == ':') {
+				    if(buf[i] == LF || buf[i] == __CR || buf[i] == ':') {
 					    buf[i] = '\0';
 					    ngx_http_auth_basic_close(&file);
 					    pwd.len = i - passwd;

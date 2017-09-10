@@ -92,7 +92,7 @@ u_char * ngx_proxy_protocol_read(ngx_connection_t * c, u_char * buf, u_char * la
 
 skip:
 	for(/* void */; p < last - 1; p++) {
-		if(p[0] == CR && p[1] == LF) {
+		if(p[0] == __CR && p[1] == LF) {
 			return p + 2;
 		}
 	}

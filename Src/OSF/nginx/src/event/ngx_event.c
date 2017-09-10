@@ -29,7 +29,7 @@ ngx_atomic_t * ngx_accept_mutex_ptr; // @global
 ngx_shmtx_t ngx_accept_mutex; // @global
 ngx_uint_t ngx_use_accept_mutex; // @global
 ngx_uint_t ngx_accept_events; // @global
-ngx_uint_t ngx_accept_mutex_held; // @global
+ngx_uint_t ngx_accept_mutex_held; // @global bool
 ngx_msec_t ngx_accept_mutex_delay; // @global
 ngx_int_t ngx_accept_disabled; // @global
 
@@ -176,7 +176,7 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 	ngx_event_process_posted(pCycle, &ngx_posted_events);
 }
 
-ngx_int_t ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags)
+ngx_int_t FASTCALL ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags)
 {
 	ngx_int_t result = NGX_OK;
 	if(ngx_event_flags & NGX_USE_CLEAR_EVENT) {
@@ -211,11 +211,11 @@ ngx_int_t ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags)
 	//return NGX_OK;
 }
 
-ngx_int_t ngx_handle_write_event(ngx_event_t * wev, size_t lowat)
+ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat)
 {
 	ngx_int_t result = NGX_OK;
 	if(lowat) {
-		ngx_connection_t * c = (ngx_connection_t*)wev->data;
+		ngx_connection_t * c = (ngx_connection_t*)wev->P_Data;
 		THROW(ngx_send_lowat(c, lowat) != NGX_ERROR);
 	}
 	//
@@ -488,10 +488,9 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 #endif
 		if(!(ngx_event_flags & NGX_USE_IOCP_EVENT)) {
 			if(ls[i].previous) {
-				/*
-				 * delete the old accept events that were bound to
-				 * the old cycle read events array
-				 */
+				// 
+				// delete the old accept events that were bound to the old cycle read events array
+				// 
 				old = ls[i].previous->connection;
 				if(ngx_del_event(old->P_EvRd, NGX_READ_EVENT, NGX_CLOSE_EVENT) == NGX_ERROR) {
 					return NGX_ERROR;
@@ -501,7 +500,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		}
 #if (NGX_WIN32)
 		if(ngx_event_flags & NGX_USE_IOCP_EVENT) {
-			ngx_iocp_conf_t  * iocpcf;
+			ngx_iocp_conf_t * iocpcf;
 			rev->handler = ngx_event_acceptex;
 			if(ngx_use_accept_mutex) {
 				continue;

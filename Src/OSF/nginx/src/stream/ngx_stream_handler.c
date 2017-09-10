@@ -21,25 +21,18 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 	ngx_time_t * tp;
 	ngx_event_t  * rev;
 	struct sockaddr    * sa;
-
-	ngx_stream_port_t  * port;
 	struct sockaddr_in * sin;
-
 	ngx_stream_in_addr_t  * addr;
 	ngx_stream_session_t  * s;
 	ngx_stream_addr_conf_t  * addr_conf;
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6   * sin6;
-
 	ngx_stream_in6_addr_t * addr6;
 #endif
 	ngx_stream_core_srv_conf_t * cscf;
 	ngx_stream_core_main_conf_t  * cmcf;
-
-	/* find the server configuration for the address:port */
-
-	port = (ngx_stream_port_t *)c->listening->servers;
-
+	// find the server configuration for the address:port 
+	ngx_stream_port_t  * port = (ngx_stream_port_t *)c->listening->servers;
 	if(port->naddrs > 1) {
 		/*
 		 * There are several addresses on this port and one of them
@@ -48,14 +41,11 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 		 *
 		 * AcceptEx() and recvmsg() already gave this address.
 		 */
-
 		if(ngx_connection_local_sockaddr(c, NULL, 0) != NGX_OK) {
 			ngx_stream_close_connection(c);
 			return;
 		}
-
 		sa = c->local_sockaddr;
-
 		switch(sa->sa_family) {
 #if (NGX_HAVE_INET6)
 			case AF_INET6:
@@ -79,9 +69,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 					    break;
 				    }
 			    }
-
 			    addr_conf = &addr[i].conf;
-
 			    break;
 		}
 	}
@@ -110,7 +98,6 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 #if (NGX_STREAM_SSL)
 	s->ssl = addr_conf->ssl;
 #endif
-
 	if(c->buffer) {
 		s->received += c->buffer->last - c->buffer->pos;
 	}
@@ -155,65 +142,66 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 	}
 	if(ngx_use_accept_mutex) {
 		ngx_post_event(rev, &ngx_posted_events);
-		return;
 	}
-	rev->handler(rev);
+	else
+		rev->handler(rev);
 }
 
 static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 {
 	u_char  * p, buf[NGX_PROXY_PROTOCOL_MAX_HEADER];
 	size_t size;
-	ssize_t n;
-	ngx_err_t err;
 	ngx_stream_core_srv_conf_t  * cscf;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
 	ngx_stream_session_t * s = (ngx_stream_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream PROXY protocol handler");
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
 		ngx_stream_finalize_session(s, NGX_STREAM_OK);
-		return;
 	}
-	n = recv(c->fd, (char*)buf, sizeof(buf), MSG_PEEK);
-	err = ngx_socket_errno;
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0, "recv(): %z", n);
-	if(n == -1) {
-		if(err == NGX_EAGAIN) {
-			rev->ready = 0;
-			if(!rev->timer_set) {
-				cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
-				ngx_add_timer(rev, cscf->proxy_protocol_timeout);
+	else {
+		ssize_t n = recv(c->fd, (char*)buf, sizeof(buf), MSG_PEEK);
+		ngx_err_t err = ngx_socket_errno;
+		ngx_log_debug1(NGX_LOG_DEBUG_STREAM, c->log, 0, "recv(): %z", n);
+		if(n == -1) {
+			if(err == NGX_EAGAIN) {
+				rev->ready = 0;
+				if(!rev->timer_set) {
+					cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
+					ngx_add_timer(rev, cscf->proxy_protocol_timeout);
+				}
+				if(ngx_handle_read_event(rev, 0) != NGX_OK) {
+					ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
+				}
 			}
-			if(ngx_handle_read_event(rev, 0) != NGX_OK) {
-				ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
+			else {
+				ngx_connection_error(c, err, "recv() failed");
+				ngx_stream_finalize_session(s, NGX_STREAM_OK);
 			}
-			return;
 		}
-		ngx_connection_error(c, err, "recv() failed");
-		ngx_stream_finalize_session(s, NGX_STREAM_OK);
-		return;
+		else {
+			if(rev->timer_set) {
+				ngx_del_timer(rev);
+			}
+			p = ngx_proxy_protocol_read(c, buf, buf + n);
+			if(p == NULL) {
+				ngx_stream_finalize_session(s, NGX_STREAM_BAD_REQUEST);
+				return;
+			}
+			size = p - buf;
+			if(c->recv(c, buf, size) != (ssize_t)size) {
+				ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
+				return;
+			}
+			c->log->action = "initializing session";
+			ngx_stream_session_handler(rev);
+		}
 	}
-	if(rev->timer_set) {
-		ngx_del_timer(rev);
-	}
-	p = ngx_proxy_protocol_read(c, buf, buf + n);
-	if(p == NULL) {
-		ngx_stream_finalize_session(s, NGX_STREAM_BAD_REQUEST);
-		return;
-	}
-	size = p - buf;
-	if(c->recv(c, buf, size) != (ssize_t)size) {
-		ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
-		return;
-	}
-	c->log->action = "initializing session";
-	ngx_stream_session_handler(rev);
 }
 
 void ngx_stream_session_handler(ngx_event_t * rev)
 {
-	ngx_connection_t * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
 	ngx_stream_session_t  * s = (ngx_stream_session_t*)c->data;
 	ngx_stream_core_run_phases(s);
 }

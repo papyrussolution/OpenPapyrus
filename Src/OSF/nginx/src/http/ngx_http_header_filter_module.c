@@ -143,7 +143,6 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 	ngx_str_t host, * status_line;
 	ngx_buf_t * b;
 	ngx_uint_t status, i, port;
-	ngx_chain_t out;
 	ngx_list_part_t * part;
 	ngx_table_elt_t * header;
 	ngx_connection_t   * c;
@@ -205,9 +204,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 		}
 		else if(status >= NGX_HTTP_BAD_REQUEST && status < NGX_HTTP_LAST_4XX) {
 			/* 4XX */
-			status = status - NGX_HTTP_BAD_REQUEST
-			    + NGX_HTTP_OFF_4XX;
-
+			status = status - NGX_HTTP_BAD_REQUEST + NGX_HTTP_OFF_4XX;
 			status_line = &ngx_http_status_lines[status];
 			len += ngx_http_status_lines[status].len;
 		}
@@ -353,7 +350,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 	else {
 		b->last = ngx_sprintf(b->last, "%03ui ", status);
 	}
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 	if(r->headers_out.server == NULL) {
 		if(clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
 			p = ngx_http_server_full_string;
@@ -372,7 +369,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 	if(r->headers_out.date == NULL) {
 		b->last = ngx_cpymem(b->last, "Date: ", sizeof("Date: ") - 1);
 		b->last = ngx_cpymem(b->last, ngx_cached_http_time.data, ngx_cached_http_time.len);
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	if(r->headers_out.content_type.len) {
 		b->last = ngx_cpymem(b->last, "Content-Type: ", sizeof("Content-Type: ") - 1);
@@ -385,7 +382,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 			r->headers_out.content_type.len = b->last - p;
 			r->headers_out.content_type.data = p;
 		}
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	if(r->headers_out.content_length == NULL && r->headers_out.content_length_n >= 0) {
 		b->last = ngx_sprintf(b->last, "Content-Length: %O" CRLF, r->headers_out.content_length_n);
@@ -393,7 +390,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 	if(r->headers_out.last_modified == NULL && r->headers_out.last_modified_time != -1) {
 		b->last = ngx_cpymem(b->last, "Last-Modified: ", sizeof("Last-Modified: ") - 1);
 		b->last = ngx_http_time(b->last, r->headers_out.last_modified_time);
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	if(host.data) {
 		p = b->last + sizeof("Location: ") - 1;
@@ -413,7 +410,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 		r->headers_out.location->value.len = b->last - p;
 		r->headers_out.location->value.data = p;
 		ngx_str_set(&r->headers_out.location->key, "Location");
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	if(r->chunked) {
 		b->last = ngx_cpymem(b->last, "Transfer-Encoding: chunked" CRLF, sizeof("Transfer-Encoding: chunked" CRLF) - 1);
@@ -452,18 +449,21 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 		b->last = ngx_copy(b->last, header[i].key.data, header[i].key.len);
 		*b->last++ = ':'; *b->last++ = ' ';
 		b->last = ngx_copy(b->last, header[i].value.data, header[i].value.len);
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "%*s", (size_t)(b->last - b->pos), b->pos);
 	/* the end of HTTP header */
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 	r->header_size = b->last - b->pos;
 	if(r->header_only) {
 		b->last_buf = 1;
 	}
-	out.buf = b;
-	out.next = NULL;
-	return ngx_http_write_filter(r, &out);
+	{
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
+		return ngx_http_write_filter(r, &out);
+	}
 }
 
 static ngx_int_t ngx_http_header_filter_init(ngx_conf_t * cf)

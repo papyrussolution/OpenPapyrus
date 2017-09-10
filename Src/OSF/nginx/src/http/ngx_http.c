@@ -393,33 +393,30 @@ failed:
 	return rv;
 }
 
-static char * ngx_http_merge_locations(ngx_conf_t * cf, ngx_queue_t * locations,
-    void ** loc_conf, ngx_http_module_t * module, ngx_uint_t ctx_index)
+static char * ngx_http_merge_locations(ngx_conf_t * cf, ngx_queue_t * locations, void ** loc_conf, ngx_http_module_t * module, ngx_uint_t ctx_index)
 {
-	char   * rv;
-	ngx_queue_t  * q;
-	ngx_http_conf_ctx_t * ctx, saved;
-	ngx_http_core_loc_conf_t * clcf;
-	ngx_http_location_queue_t  * lq;
-	if(locations == NULL) {
-		return NGX_CONF_OK;
-	}
-	ctx = (ngx_http_conf_ctx_t*)cf->ctx;
-	saved = *ctx;
-	for(q = ngx_queue_head(locations); q != ngx_queue_sentinel(locations); q = ngx_queue_next(q)) {
-		lq = (ngx_http_location_queue_t*)q;
-		clcf = lq->exact ? lq->exact : lq->inclusive;
-		ctx->loc_conf = clcf->loc_conf;
-		rv = module->merge_loc_conf(cf, loc_conf[ctx_index], clcf->loc_conf[ctx_index]);
-		if(rv != NGX_CONF_OK) {
-			return rv;
+	if(locations) {
+		ngx_http_conf_ctx_t * ctx = (ngx_http_conf_ctx_t*)cf->ctx;
+		ngx_http_conf_ctx_t saved = *ctx;
+		for(ngx_queue_t * q = ngx_queue_head(locations); q != ngx_queue_sentinel(locations); q = ngx_queue_next(q)) {
+			ngx_http_location_queue_t * lq = (ngx_http_location_queue_t*)q;
+			ngx_http_core_loc_conf_t * clcf = lq->exact ? lq->exact : lq->inclusive;
+			ctx->loc_conf = clcf->loc_conf;
+			{
+				char * rv = module->merge_loc_conf(cf, loc_conf[ctx_index], clcf->loc_conf[ctx_index]);
+				if(rv != NGX_CONF_OK) {
+					return rv;
+				}
+				else {
+					rv = ngx_http_merge_locations(cf, clcf->locations, clcf->loc_conf, module, ctx_index);
+					if(rv != NGX_CONF_OK) {
+						return rv;
+					}
+				}
+			}
 		}
-		rv = ngx_http_merge_locations(cf, clcf->locations, clcf->loc_conf, module, ctx_index);
-		if(rv != NGX_CONF_OK) {
-			return rv;
-		}
+		*ctx = saved;
 	}
-	*ctx = saved;
 	return NGX_CONF_OK;
 }
 
@@ -572,60 +569,38 @@ static ngx_int_t ngx_http_cmp_locations(const ngx_queue_t * one, const ngx_queue
 	ngx_http_location_queue_t  * lq2 = (ngx_http_location_queue_t*)two;
 	ngx_http_core_loc_conf_t * first = lq1->exact ? lq1->exact : lq1->inclusive;
 	ngx_http_core_loc_conf_t * second = lq2->exact ? lq2->exact : lq2->inclusive;
-	if(first->noname && !second->noname) {
-		/* shift no named locations to the end */
-		return 1;
-	}
-	if(!first->noname && second->noname) {
-		/* shift no named locations to the end */
-		return -1;
-	}
-	if(first->noname || second->noname) {
-		/* do not sort no named locations */
-		return 0;
-	}
-	if(first->named && !second->named) {
-		/* shift named locations to the end */
-		return 1;
-	}
-	if(!first->named && second->named) {
-		/* shift named locations to the end */
-		return -1;
-	}
-	if(first->named && second->named) {
+	if(first->noname && !second->noname)
+		return 1; // shift no named locations to the end 
+	if(!first->noname && second->noname)
+		return -1; // shift no named locations to the end 
+	if(first->noname || second->noname)
+		return 0; // do not sort no named locations 
+	if(first->named && !second->named)
+		return 1; // shift named locations to the end 
+	if(!first->named && second->named) 
+		return -1; // shift named locations to the end 
+	if(first->named && second->named)
 		return ngx_strcmp(first->name.data, second->name.data);
-	}
 #if (NGX_PCRE)
-	if(first->regex && !second->regex) {
-		/* shift the regex matches to the end */
-		return 1;
-	}
-	if(!first->regex && second->regex) {
-		/* shift the regex matches to the end */
-		return -1;
-	}
-	if(first->regex || second->regex) {
-		/* do not sort the regex matches */
-		return 0;
-	}
+	if(first->regex && !second->regex)
+		return 1; // shift the regex matches to the end 
+	if(!first->regex && second->regex)
+		return -1; // shift the regex matches to the end 
+	if(first->regex || second->regex)
+		return 0; // do not sort the regex matches 
 #endif
 	rc = ngx_filename_cmp(first->name.data, second->name.data, MIN(first->name.len, second->name.len) + 1);
-	if(rc == 0 && !first->exact_match && second->exact_match) {
-		/* an exact match must be before the same inclusive one */
-		return 1;
-	}
+	if(rc == 0 && !first->exact_match && second->exact_match)
+		return 1; // an exact match must be before the same inclusive one 
 	return rc;
 }
 
 static ngx_int_t ngx_http_join_exact_locations(ngx_conf_t * cf, ngx_queue_t * locations)
 {
-	ngx_queue_t * x;
-	ngx_http_location_queue_t  * lq, * lx;
-	ngx_queue_t * q = ngx_queue_head(locations);
-	while(q != ngx_queue_last(locations)) {
-		x = ngx_queue_next(q);
-		lq = (ngx_http_location_queue_t*)q;
-		lx = (ngx_http_location_queue_t*)x;
+	for(ngx_queue_t * q = ngx_queue_head(locations); q != ngx_queue_last(locations);) {
+		ngx_queue_t * x = ngx_queue_next(q);
+		ngx_http_location_queue_t * lq = (ngx_http_location_queue_t *)q;
+		ngx_http_location_queue_t * lx = (ngx_http_location_queue_t *)x;
 		if(lq->name->len == lx->name->len && ngx_filename_cmp(lq->name->data, lx->name->data, lx->name->len) == 0) {
 			if((lq->exact && lx->exact) || (lq->inclusive && lx->inclusive)) {
 				ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "duplicate location \"%V\" in %s:%ui", lx->name, lx->file_name, lx->line);
@@ -681,52 +656,45 @@ static void ngx_http_create_locations_list(ngx_queue_t * locations, ngx_queue_t 
  */
 static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t * cf, ngx_queue_t * locations, size_t prefix)
 {
-	size_t len;
-	ngx_queue_t  * q, tail;
-	ngx_http_location_queue_t * lq;
-	ngx_http_location_tree_node_t  * node;
-	q = ngx_queue_middle(locations);
-	lq = (ngx_http_location_queue_t*)q;
-	len = lq->name->len - prefix;
-	node = (ngx_http_location_tree_node_t *)ngx_palloc(cf->pool, offsetof(ngx_http_location_tree_node_t, name) + len);
-	if(node == NULL) {
-		return NULL;
-	}
-	node->left = NULL;
-	node->right = NULL;
-	node->tree = NULL;
-	node->exact = lq->exact;
-	node->inclusive = lq->inclusive;
-	node->auto_redirect = (u_char)((lq->exact && lq->exact->auto_redirect) || (lq->inclusive && lq->inclusive->auto_redirect));
-	node->len = (u_char)len;
-	memcpy(node->name, &lq->name->data[prefix], len);
-	ngx_queue_split(locations, q, &tail);
-	if(ngx_queue_empty(locations)) {
-		/*
-		 * ngx_queue_split() insures that if left part is empty,
-		 * then right one is empty too
-		 */
-		goto inclusive;
-	}
-	node->left = ngx_http_create_locations_tree(cf, locations, prefix);
-	if(node->left == NULL) {
-		return NULL;
-	}
-	ngx_queue_remove(q);
-	if(ngx_queue_empty(&tail)) {
-		goto inclusive;
-	}
-	node->right = ngx_http_create_locations_tree(cf, &tail, prefix);
-	if(node->right == NULL) {
-		return NULL;
-	}
+	ngx_queue_t tail;
+	ngx_queue_t * q = ngx_queue_middle(locations);
+	ngx_http_location_queue_t * lq = (ngx_http_location_queue_t *)q;
+	size_t len = lq->name->len - prefix;
+	ngx_http_location_tree_node_t * node = (ngx_http_location_tree_node_t *)ngx_palloc(cf->pool, offsetof(ngx_http_location_tree_node_t, name) + len);
+	if(node) {
+		node->left = NULL;
+		node->right = NULL;
+		node->tree = NULL;
+		node->exact = lq->exact;
+		node->inclusive = lq->inclusive;
+		node->auto_redirect = (u_char)((lq->exact && lq->exact->auto_redirect) || (lq->inclusive && lq->inclusive->auto_redirect));
+		node->len = (u_char)len;
+		memcpy(node->name, &lq->name->data[prefix], len);
+		ngx_queue_split(locations, q, &tail);
+		if(ngx_queue_empty(locations)) {
+			// ngx_queue_split() insures that if left part is empty, then right one is empty too
+			goto inclusive;
+		}
+		node->left = ngx_http_create_locations_tree(cf, locations, prefix);
+		if(node->left == NULL) {
+			return NULL;
+		}
+		ngx_queue_remove(q);
+		if(ngx_queue_empty(&tail)) {
+			goto inclusive;
+		}
+		node->right = ngx_http_create_locations_tree(cf, &tail, prefix);
+		if(node->right == NULL) {
+			return NULL;
+		}
 inclusive:
-	if(ngx_queue_empty(&lq->list)) {
-		return node;
-	}
-	node->tree = ngx_http_create_locations_tree(cf, &lq->list, prefix + len);
-	if(node->tree == NULL) {
-		return NULL;
+		if(ngx_queue_empty(&lq->list)) {
+			return node;
+		}
+		node->tree = ngx_http_create_locations_tree(cf, &lq->list, prefix + len);
+		if(node->tree == NULL) {
+			return NULL;
+		}
 	}
 	return node;
 }
@@ -861,13 +829,12 @@ static ngx_int_t ngx_http_add_address(ngx_conf_t * cf, ngx_http_core_srv_conf_t 
 	addr->servers.elts = NULL;
 	return ngx_http_add_server(cf, cscf, addr);
 }
-
-/* add the server core module configuration to the address:port */
-
+//
+// add the server core module configuration to the address:port 
+//
 static ngx_int_t ngx_http_add_server(ngx_conf_t * cf, ngx_http_core_srv_conf_t * cscf, ngx_http_conf_addr_t * addr)
 {
-	ngx_uint_t i;
-	ngx_http_core_srv_conf_t  ** server;
+	ngx_http_core_srv_conf_t ** server;
 	if(addr->servers.elts == NULL) {
 		if(ngx_array_init(&addr->servers, cf->temp_pool, 4, sizeof(ngx_http_core_srv_conf_t *)) != NGX_OK) {
 			return NGX_ERROR;
@@ -875,7 +842,7 @@ static ngx_int_t ngx_http_add_server(ngx_conf_t * cf, ngx_http_core_srv_conf_t *
 	}
 	else {
 		server = (ngx_http_core_srv_conf_t **)addr->servers.elts;
-		for(i = 0; i < addr->servers.nelts; i++) {
+		for(ngx_uint_t i = 0; i < addr->servers.nelts; i++) {
 			if(server[i] == cscf) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "a duplicate listen %s", addr->opt.addr);
 				return NGX_ERROR;
@@ -1026,32 +993,24 @@ failed:
 
 static ngx_int_t ngx_http_cmp_conf_addrs(const void * one, const void * two)
 {
-	ngx_http_conf_addr_t  * first = (ngx_http_conf_addr_t*)one;
-	ngx_http_conf_addr_t  * second = (ngx_http_conf_addr_t*)two;
-	if(first->opt.wildcard) {
-		/* a wildcard address must be the last resort, shift it to the end */
-		return 1;
-	}
-	if(second->opt.wildcard) {
-		/* a wildcard address must be the last resort, shift it to the end */
-		return -1;
-	}
-	if(first->opt.bind && !second->opt.bind) {
-		/* shift explicit bind()ed addresses to the start */
-		return -1;
-	}
-	if(!first->opt.bind && second->opt.bind) {
-		/* shift explicit bind()ed addresses to the start */
-		return 1;
-	}
-	/* do not sort by default */
-	return 0;
+	const ngx_http_conf_addr_t  * first = (const ngx_http_conf_addr_t *)one;
+	const ngx_http_conf_addr_t  * second = (const ngx_http_conf_addr_t *)two;
+	if(first->opt.wildcard)
+		return 1; // a wildcard address must be the last resort, shift it to the end 
+	else if(second->opt.wildcard)
+		return -1; // a wildcard address must be the last resort, shift it to the end 
+	else if(first->opt.bind && !second->opt.bind)
+		return -1; // shift explicit bind()ed addresses to the start 
+	else if(!first->opt.bind && second->opt.bind)
+		return 1; // shift explicit bind()ed addresses to the start 
+	else 
+		return 0; // a wildcard address must be the last resort, shift it to the end 
 }
 
 static int ngx_libc_cdecl ngx_http_cmp_dns_wildcards(const void * one, const void * two)
 {
-	ngx_hash_key_t  * first = (ngx_hash_key_t*)one;
-	ngx_hash_key_t  * second = (ngx_hash_key_t*)two;
+	const ngx_hash_key_t * first = (const ngx_hash_key_t *)one;
+	const ngx_hash_key_t * second = (const ngx_hash_key_t *)two;
 	return ngx_dns_strcmp(first->key.data, second->key.data);
 }
 
@@ -1261,7 +1220,6 @@ static ngx_int_t ngx_http_add_addrs6(ngx_conf_t * cf, ngx_http_port_t * hport, n
 		vn->regex = addr[i].regex;
 #endif
 	}
-
 	return NGX_OK;
 }
 

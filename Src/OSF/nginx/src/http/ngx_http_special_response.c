@@ -444,7 +444,6 @@ static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 	u_char * p;
 	ngx_int_t rc;
 	ngx_buf_t * b;
-	ngx_chain_t out;
 	size_t len = pReq->headers_out.location->value.len;
 	u_char * location = pReq->headers_out.location->value.data;
 	uintptr_t escape = 2 * ngx_escape_uri(NULL, location, len, NGX_ESCAPE_REFRESH);
@@ -481,7 +480,10 @@ static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 	b->last = ngx_cpymem(p, ngx_http_msie_refresh_tail, sizeof(ngx_http_msie_refresh_tail) - 1);
 	b->last_buf = (pReq == pReq->main) ? 1 : 0;
 	b->last_in_chain = 1;
-	out.buf = b;
-	out.next = NULL;
-	return ngx_http_output_filter(pReq, &out);
+	{
+		ngx_chain_t out(b, 0);
+		//out.buf = b;
+		//out.next = NULL;
+		return ngx_http_output_filter(pReq, &out);
+	}
 }

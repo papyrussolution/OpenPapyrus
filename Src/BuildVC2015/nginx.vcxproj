@@ -832,9 +832,7 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_config.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_headers.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_config.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_conf_file.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_cycle.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_openssl.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_cache.h" />
@@ -853,7 +851,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_open_file_cache.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_rbtree.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_resolver.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_script.h" />

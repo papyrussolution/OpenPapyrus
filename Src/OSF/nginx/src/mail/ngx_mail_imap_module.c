@@ -190,7 +190,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 		}
 	}
 
-	*p++ = CR; *p = LF;
+	*p++ = __CR; *p = LF;
 
 	size += sizeof(" STARTTLS") - 1;
 
@@ -205,7 +205,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	p = ngx_cpymem(p, conf->capability.data,
 	    conf->capability.len - (sizeof(CRLF) - 1));
 	p = ngx_cpymem(p, " STARTTLS", sizeof(" STARTTLS") - 1);
-	*p++ = CR; *p = LF;
+	*p++ = __CR; *p = LF;
 
 	size = (auth - conf->capability.data) + sizeof(CRLF) - 1
 	    + sizeof(" STARTTLS LOGINDISABLED") - 1;
@@ -222,7 +222,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	    auth - conf->capability.data);
 	p = ngx_cpymem(p, " STARTTLS LOGINDISABLED",
 	    sizeof(" STARTTLS LOGINDISABLED") - 1);
-	*p++ = CR; *p = LF;
+	*p++ = __CR; *p = LF;
 
 	return NGX_CONF_OK;
 }

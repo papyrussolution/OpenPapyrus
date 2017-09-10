@@ -1153,7 +1153,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 					u->buffer.pos = u->buffer.last;
 				}
 				for(p = u->buffer.pos - 1; msg < p; p--) {
-					if(*p != LF && *p != CR && *p != '.' && *p != ' ') {
+					if(*p != LF && *p != __CR && *p != '.' && *p != ' ') {
 						break;
 					}
 				}
@@ -1475,7 +1475,7 @@ static ngx_int_t ngx_http_fastcgi_input_filter(ngx_event_pipe_t * p, ngx_buf_t *
 						f->pos = f->last;
 					}
 					for(m = f->pos - 1; msg < m; m--) {
-						if(*m != LF && *m != CR && *m != '.' && *m != ' ') {
+						if(*m != LF && *m != __CR && *m != '.' && *m != ' ') {
 							break;
 						}
 					}
@@ -1566,8 +1566,8 @@ static ngx_int_t ngx_http_fastcgi_non_buffered_filter(void * data, ssize_t bytes
 	ngx_buf_t * b;
 	ngx_chain_t   * cl, ** ll;
 	ngx_http_request_t * r = (ngx_http_request_t *)data;
-	ngx_http_fastcgi_ctx_t  * f = (ngx_http_fastcgi_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_fastcgi_module);
-	ngx_http_upstream_t   * u = r->upstream;
+	ngx_http_fastcgi_ctx_t * f = (ngx_http_fastcgi_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_fastcgi_module);
+	ngx_http_upstream_t * u = r->upstream;
 	ngx_buf_t * buf = &u->buffer;
 	buf->pos = buf->last;
 	buf->last += bytes;
@@ -1634,7 +1634,7 @@ static ngx_int_t ngx_http_fastcgi_non_buffered_filter(void * data, ssize_t bytes
 					f->pos = f->last;
 				}
 				for(m = f->pos - 1; msg < m; m--) {
-					if(*m != LF && *m != CR && *m != '.' && *m != ' ') {
+					if(*m != LF && *m != __CR && *m != '.' && *m != ' ') {
 						break;
 					}
 				}
@@ -1646,7 +1646,7 @@ static ngx_int_t ngx_http_fastcgi_non_buffered_filter(void * data, ssize_t bytes
 			continue;
 		}
 		if(f->type == NGX_HTTP_FASTCGI_END_REQUEST) {
-			if(f->pos + f->length <= f->last) {
+			if((f->pos + f->length) <= f->last) {
 				f->state = ngx_http_fastcgi_st_padding;
 				f->pos += f->length;
 				continue;
@@ -1670,7 +1670,7 @@ static ngx_int_t ngx_http_fastcgi_non_buffered_filter(void * data, ssize_t bytes
 		b->pos = f->pos;
 		b->tag = u->output.tag;
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http fastcgi output buf %p", b->pos);
-		if(f->pos + f->length <= f->last) {
+		if((f->pos + f->length) <= f->last) {
 			f->state = ngx_http_fastcgi_st_padding;
 			f->pos += f->length;
 			b->last = f->pos;

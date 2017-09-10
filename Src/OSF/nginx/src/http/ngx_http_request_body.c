@@ -23,7 +23,6 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 	ssize_t size;
 	ngx_int_t rc;
 	ngx_buf_t * b;
-	ngx_chain_t out;
 	ngx_http_request_body_t * rb;
 	ngx_http_core_loc_conf_t  * clcf;
 	pReq->main->count++;
@@ -66,10 +65,11 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 #endif
 	preread = pReq->header_in->last - pReq->header_in->pos;
 	if(preread) {
-		/* there is the pre-read part of the request body */
+		// there is the pre-read part of the request body 
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "http client request body preread %uz", preread);
-		out.buf = pReq->header_in;
-		out.next = NULL;
+		ngx_chain_t out(pReq->header_in, 0);
+		//out.buf = pReq->header_in;
+		//out.next = NULL;
 		rc = ngx_http_request_body_filter(pReq, &out);
 		if(rc != NGX_OK) {
 			goto done;
@@ -194,7 +194,6 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 	size_t size;
 	ssize_t n;
 	ngx_int_t rc;
-	ngx_chain_t out;
 	ngx_http_core_loc_conf_t  * clcf;
 	ngx_connection_t * c = r->connection;
 	ngx_http_request_body_t * rb = r->request_body;
@@ -203,9 +202,10 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 		for(;; ) {
 			if(rb->buf->last == rb->buf->end) {
 				if(rb->buf->pos != rb->buf->last) {
-					/* pass buffer to request body filter chain */
-					out.buf = rb->buf;
-					out.next = NULL;
+					// pass buffer to request body filter chain 
+					ngx_chain_t out(rb->buf, 0);
+					//out.buf = rb->buf;
+					//out.next = NULL;
 					rc = ngx_http_request_body_filter(r, &out);
 					if(rc != NGX_OK) {
 						return rc;
@@ -253,9 +253,10 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 			rb->buf->last += n;
 			r->request_length += n;
 			if(n == rest) {
-				/* pass buffer to request body filter chain */
-				out.buf = rb->buf;
-				out.next = NULL;
+				// pass buffer to request body filter chain 
+				ngx_chain_t out(rb->buf, 0);
+				//out.buf = rb->buf;
+				//out.next = NULL;
 				rc = ngx_http_request_body_filter(r, &out);
 				if(rc != NGX_OK) {
 					return rc;
@@ -274,9 +275,10 @@ static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r)
 		}
 		if(!c->P_EvRd->ready) {
 			if(r->request_body_no_buffering && rb->buf->pos != rb->buf->last) {
-				/* pass buffer to request body filter chain */
-				out.buf = rb->buf;
-				out.next = NULL;
+				// pass buffer to request body filter chain 
+				ngx_chain_t out(rb->buf, 0);
+				//out.buf = rb->buf;
+				//out.next = NULL;
 				rc = ngx_http_request_body_filter(r, &out);
 				if(rc != NGX_OK) {
 					return rc;

@@ -82,7 +82,7 @@ ssize_t ngx_write_fd(ngx_fd_t fd, void * buf, size_t size);
 
 ssize_t ngx_write_console(ngx_fd_t fd, void * buf, size_t size);
 
-#define ngx_linefeed(p)             *p++ = CR; *p++ = LF;
+#define ngx_linefeed(p)             *p++ = __CR; *p++ = LF;
 #define NGX_LINEFEED_SIZE           2
 #define NGX_LINEFEED                CRLF
 

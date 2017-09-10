@@ -153,22 +153,24 @@ char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, ngx_command_t * cmd, v
 	if(*cv) {
 		return "is duplicate";
 	}
-	*cv = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
-	if(*cv == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		*cv = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
+		if(*cv == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		value = (ngx_str_t*)cf->args->elts;
+		memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
+		ccv.cf = cf;
+		ccv.value = &value[1];
+		ccv.complex_value = *cv;
+		if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-	ccv.cf = cf;
-	ccv.value = &value[1];
-	ccv.complex_value = *cv;
-	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
-		return NGX_CONF_ERROR;
-	}
-	return NGX_CONF_OK;
 }
 
-ngx_uint_t ngx_stream_script_variables_count(ngx_str_t * value)
+ngx_uint_t FASTCALL ngx_stream_script_variables_count(const ngx_str_t * value)
 {
 	ngx_uint_t i, n;
 	for(n = 0, i = 0; i < value->len; i++) {
@@ -193,163 +195,114 @@ ngx_int_t ngx_stream_script_compile(ngx_stream_script_compile_t * sc)
 			if(++i == sc->source->len) {
 				goto invalid_variable;
 			}
-
 			if(sc->source->data[i] >= '1' && sc->source->data[i] <= '9') {
 #if (NGX_PCRE)
-				ngx_uint_t n;
-
-				n = sc->source->data[i] - '0';
-
+				ngx_uint_t n = sc->source->data[i] - '0';
 				if(ngx_stream_script_add_capture_code(sc, n) != NGX_OK) {
 					return NGX_ERROR;
 				}
-
 				i++;
-
 				continue;
 #else
-				ngx_conf_log_error(NGX_LOG_EMERG, sc->cf, 0,
-				    "using variable \"$%c\" requires "
-				    "PCRE library", sc->source->data[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, sc->cf, 0, "using variable \"$%c\" requires PCRE library", sc->source->data[i]);
 				return NGX_ERROR;
 #endif
 			}
-
 			if(sc->source->data[i] == '{') {
 				bracket = 1;
-
 				if(++i == sc->source->len) {
 					goto invalid_variable;
 				}
-
 				name.data = &sc->source->data[i];
 			}
 			else {
 				bracket = 0;
 				name.data = &sc->source->data[i];
 			}
-
 			for(/* void */; i < sc->source->len; i++, name.len++) {
 				ch = sc->source->data[i];
-
 				if(ch == '}' && bracket) {
 					i++;
 					bracket = 0;
 					break;
 				}
-
-				if((ch >= 'A' && ch <= 'Z')
-				    || (ch >= 'a' && ch <= 'z')
-				    || (ch >= '0' && ch <= '9')
-				    || ch == '_') {
+				if((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_') {
 					continue;
 				}
-
 				break;
 			}
-
 			if(bracket) {
-				ngx_conf_log_error(NGX_LOG_EMERG, sc->cf, 0,
-				    "the closing bracket in \"%V\" "
-				    "variable is missing", &name);
+				ngx_conf_log_error(NGX_LOG_EMERG, sc->cf, 0, "the closing bracket in \"%V\" variable is missing", &name);
 				return NGX_ERROR;
 			}
-
 			if(name.len == 0) {
 				goto invalid_variable;
 			}
-
 			sc->variables++;
-
 			if(ngx_stream_script_add_var_code(sc, &name) != NGX_OK) {
 				return NGX_ERROR;
 			}
-
 			continue;
 		}
-
 		name.data = &sc->source->data[i];
-
 		while(i < sc->source->len) {
 			if(sc->source->data[i] == '$') {
 				break;
 			}
-
 			i++;
 			name.len++;
 		}
-
 		sc->size += name.len;
-
-		if(ngx_stream_script_add_copy_code(sc, &name, (i == sc->source->len))
-		    != NGX_OK) {
+		if(ngx_stream_script_add_copy_code(sc, &name, (i == sc->source->len)) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
 	return ngx_stream_script_done(sc);
-
 invalid_variable:
-
 	ngx_conf_log_error(NGX_LOG_EMERG, sc->cf, 0, "invalid variable name");
-
 	return NGX_ERROR;
 }
 
-u_char * ngx_stream_script_run(ngx_stream_session_t * s, ngx_str_t * value,
-    void * code_lengths, size_t len, void * code_values)
+u_char * ngx_stream_script_run(ngx_stream_session_t * s, ngx_str_t * value, void * code_lengths, size_t len, void * code_values)
 {
 	ngx_uint_t i;
 	ngx_stream_script_code_pt code;
 	ngx_stream_script_engine_t e;
-	ngx_stream_core_main_conf_t  * cmcf;
 	ngx_stream_script_len_code_pt lcode;
-
-	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_get_module_main_conf(s, ngx_stream_core_module);
-
+	ngx_stream_core_main_conf_t  * cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_get_module_main_conf(s, ngx_stream_core_module);
 	for(i = 0; i < cmcf->variables.nelts; i++) {
 		if(s->variables[i].no_cacheable) {
 			s->variables[i].valid = 0;
 			s->variables[i].not_found = 0;
 		}
 	}
-
 	memzero(&e, sizeof(ngx_stream_script_engine_t));
-
 	e.ip = (u_char *)code_lengths;
 	e.session = s;
 	e.flushed = 1;
-
 	while(*(uintptr_t*)e.ip) {
 		lcode = *(ngx_stream_script_len_code_pt*)e.ip;
 		len += lcode(&e);
 	}
-
 	value->len = len;
 	value->data = (u_char *)ngx_pnalloc(s->connection->pool, len);
 	if(value->data == NULL) {
 		return NULL;
 	}
-
 	e.ip = (u_char *)code_values;
 	e.pos = value->data;
-
 	while(*(uintptr_t*)e.ip) {
 		code = *(ngx_stream_script_code_pt*)e.ip;
 		code((ngx_stream_script_engine_t*)&e);
 	}
-
 	return e.pos;
 }
 
-void ngx_stream_script_flush_no_cacheable_variables(ngx_stream_session_t * s,
-    ngx_array_t * indices)
+void ngx_stream_script_flush_no_cacheable_variables(ngx_stream_session_t * s, const ngx_array_t * indices)
 {
-	ngx_uint_t n, * index;
-
 	if(indices) {
-		index = (ngx_uint_t *)indices->elts;
-		for(n = 0; n < indices->nelts; n++) {
+		const ngx_uint_t * index = (const ngx_uint_t *)indices->elts;
+		for(ngx_uint_t n = 0; n < indices->nelts; n++) {
 			if(s->variables[index[n]].no_cacheable) {
 				s->variables[index[n]].valid = 0;
 				s->variables[index[n]].not_found = 0;
@@ -389,9 +342,8 @@ static ngx_int_t ngx_stream_script_init_arrays(ngx_stream_script_compile_t * sc)
 
 static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc)
 {
-	ngx_str_t zero;
-	uintptr_t * code;
 	if(sc->zero) {
+		ngx_str_t zero;
 		zero.len = 1;
 		zero.data = (u_char*)"\0";
 		if(ngx_stream_script_add_copy_code(sc, &zero, 0) != NGX_OK) {
@@ -404,14 +356,14 @@ static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc)
 		}
 	}
 	if(sc->complete_lengths) {
-		code = (uintptr_t *)ngx_stream_script_add_code(*sc->lengths, sizeof(uintptr_t), NULL);
+		uintptr_t * code = (uintptr_t *)ngx_stream_script_add_code(*sc->lengths, sizeof(uintptr_t), NULL);
 		if(code == NULL) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 	}
 	if(sc->complete_values) {
-		code = (uintptr_t *)ngx_stream_script_add_code(*sc->values, sizeof(uintptr_t), &sc->main);
+		uintptr_t * code = (uintptr_t *)ngx_stream_script_add_code(*sc->values, sizeof(uintptr_t), &sc->main);
 		if(code == NULL) {
 			return NGX_ERROR;
 		}
@@ -422,17 +374,14 @@ static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc)
 
 void * ngx_stream_script_add_code(ngx_array_t * codes, size_t size, void * code)
 {
-	u_char  * elts, ** p;
-	void  * p_new;
-	elts = (u_char *)codes->elts;
-	p_new = ngx_array_push_n(codes, size);
-	if(p_new == NULL) {
-		return NULL;
-	}
-	if(code) {
-		if(elts != codes->elts) {
-			p = (u_char **)code;
-			*p += (u_char*)codes->elts - elts;
+	u_char * elts = (u_char *)codes->elts;
+	void * p_new = ngx_array_push_n(codes, size);
+	if(p_new) {
+		if(code) {
+			if(elts != codes->elts) {
+				u_char ** p = (u_char **)code;
+				*p += (u_char*)codes->elts - elts;
+			}
 		}
 	}
 	return p_new;

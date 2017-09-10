@@ -218,9 +218,9 @@ static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r, ng
 		return NULL;
 	}
 	b->last = b->pos;
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 	*b->last++ = '0';
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 	part = &r->headers_out.trailers.part;
 	header = (ngx_table_elt_t*)part->elts;
 	for(i = 0; /* void */; i++) {
@@ -239,9 +239,9 @@ static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r, ng
 		b->last = ngx_copy(b->last, header[i].key.data, header[i].key.len);
 		*b->last++ = ':'; *b->last++ = ' ';
 		b->last = ngx_copy(b->last, header[i].value.data, header[i].value.len);
-		*b->last++ = CR; *b->last++ = LF;
+		*b->last++ = __CR; *b->last++ = LF;
 	}
-	*b->last++ = CR; *b->last++ = LF;
+	*b->last++ = __CR; *b->last++ = LF;
 	return cl;
 }
 

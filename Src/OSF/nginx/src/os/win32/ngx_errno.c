@@ -28,7 +28,7 @@ u_char * ngx_strerror(ngx_err_t err, u_char * errstr, size_t size)
 		return ngx_snprintf(errstr, size, "FormatMessage() error:(%d)", GetLastError());
 	}
 	/* remove ".\r\n\0" */
-	while(errstr[len] == '\0' || errstr[len] == CR || errstr[len] == LF || errstr[len] == '.') {
+	while(errstr[len] == '\0' || errstr[len] == __CR || errstr[len] == LF || errstr[len] == '.') {
 		--len;
 	}
 	return &errstr[++len];

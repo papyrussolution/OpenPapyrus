@@ -615,44 +615,45 @@ void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 {
 	ngx_uint_t instance;
-	ngx_event_t  * rev, * wev;
-	ngx_connection_t  * c;
-	/* disable warning: Win32 SOCKET is u_int while UNIX socket is int */
+	ngx_connection_t * c = 0;
+	// disable warning: Win32 SOCKET is u_int while UNIX socket is int 
 	if(ngx_cycle->files && (ngx_uint_t)s >= ngx_cycle->files_n) {
 		ngx_log_error(NGX_LOG_ALERT, log, 0, "the new socket has number %d, but only %ui files are available", s, ngx_cycle->files_n);
-		return NULL;
 	}
-	c = ngx_cycle->free_connections;
-	if(c == NULL) {
-		ngx_drain_connections((ngx_cycle_t*)ngx_cycle);
+	else {
 		c = ngx_cycle->free_connections;
+		if(c == NULL) {
+			ngx_drain_connections((ngx_cycle_t*)ngx_cycle);
+			c = ngx_cycle->free_connections;
+		}
+		if(c == NULL) {
+			ngx_log_error(NGX_LOG_ALERT, log, 0, "%ui worker_connections are not enough", ngx_cycle->connection_n);
+		}
+		else {
+			ngx_cycle->free_connections = (ngx_connection_t *)c->data;
+			ngx_cycle->free_connection_n--;
+			if(ngx_cycle->files && ngx_cycle->files[s] == NULL) {
+				ngx_cycle->files[s] = c;
+			}
+			ngx_event_t * rev = c->P_EvRd;
+			ngx_event_t * wev = c->P_EvWr;
+			memzero(c, sizeof(ngx_connection_t));
+			c->P_EvRd = rev;
+			c->P_EvWr = wev;
+			c->fd = s;
+			c->log = log;
+			instance = rev->instance;
+			memzero(rev, sizeof(ngx_event_t));
+			memzero(wev, sizeof(ngx_event_t));
+			rev->instance = !instance;
+			wev->instance = !instance;
+			rev->index = NGX_INVALID_INDEX;
+			wev->index = NGX_INVALID_INDEX;
+			rev->P_Data = c;
+			wev->P_Data = c;
+			wev->write = 1;
+		}
 	}
-	if(c == NULL) {
-		ngx_log_error(NGX_LOG_ALERT, log, 0, "%ui worker_connections are not enough", ngx_cycle->connection_n);
-		return NULL;
-	}
-	ngx_cycle->free_connections = (ngx_connection_t *)c->data;
-	ngx_cycle->free_connection_n--;
-	if(ngx_cycle->files && ngx_cycle->files[s] == NULL) {
-		ngx_cycle->files[s] = c;
-	}
-	rev = c->P_EvRd;
-	wev = c->P_EvWr;
-	memzero(c, sizeof(ngx_connection_t));
-	c->P_EvRd = rev;
-	c->P_EvWr = wev;
-	c->fd = s;
-	c->log = log;
-	instance = rev->instance;
-	memzero(rev, sizeof(ngx_event_t));
-	memzero(wev, sizeof(ngx_event_t));
-	rev->instance = !instance;
-	wev->instance = !instance;
-	rev->index = NGX_INVALID_INDEX;
-	wev->index = NGX_INVALID_INDEX;
-	rev->data = c;
-	wev->data = c;
-	wev->write = 1;
 	return c;
 }
 

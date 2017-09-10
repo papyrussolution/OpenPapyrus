@@ -545,16 +545,10 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_headers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_conf_file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_cycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_event_openssl.h">
@@ -609,9 +603,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_rbtree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_resolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h">

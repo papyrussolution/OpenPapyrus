@@ -129,47 +129,32 @@ static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 
 static void ngx_mail_smtp_resolve_name(ngx_event_t * rev)
 {
-	ngx_connection_t   * c;
-	ngx_mail_session_t * s;
-	ngx_resolver_ctx_t * ctx;
-	ngx_mail_core_srv_conf_t  * cscf;
-
-	c = (ngx_connection_t*)rev->data;
-	s = (ngx_mail_session_t*)c->data;
-
-	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
-	ctx = ngx_resolve_start(cscf->resolver, NULL);
+	ngx_connection_t   * c = (ngx_connection_t*)rev->P_Data;
+	ngx_mail_session_t * s = (ngx_mail_session_t*)c->data;
+	ngx_mail_core_srv_conf_t * cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
+	ngx_resolver_ctx_t * ctx = ngx_resolve_start(cscf->resolver, NULL);
 	if(ctx == NULL) {
 		ngx_mail_close_connection(c);
-		return;
 	}
-
-	ctx->name = s->host;
-	ctx->handler = ngx_mail_smtp_resolve_name_handler;
-	ctx->data = s;
-	ctx->timeout = cscf->resolver_timeout;
-
-	if(ngx_resolve_name(ctx) != NGX_OK) {
-		ngx_mail_close_connection(c);
+	else {
+		ctx->name = s->host;
+		ctx->handler = ngx_mail_smtp_resolve_name_handler;
+		ctx->data = s;
+		ctx->timeout = cscf->resolver_timeout;
+		if(ngx_resolve_name(ctx) != NGX_OK) {
+			ngx_mail_close_connection(c);
+		}
 	}
 }
 
 static void ngx_mail_smtp_resolve_name_handler(ngx_resolver_ctx_t * ctx)
 {
 	ngx_uint_t i;
-	ngx_connection_t  * c;
-	ngx_mail_session_t  * s;
-
-	s = (ngx_mail_session_t*)ctx->data;
-	c = s->connection;
-
+	ngx_mail_session_t  * s = (ngx_mail_session_t*)ctx->data;
+	ngx_connection_t  * c = s->connection;
 	if(ctx->state) {
-		ngx_log_error(NGX_LOG_ERR, c->log, 0,
-		    "\"%V\" could not be resolved (%i: %s)",
-		    &ctx->name, ctx->state,
-		    ngx_resolver_strerror(ctx->state));
-
+		ngx_log_error(NGX_LOG_ERR, c->log, 0, "\"%V\" could not be resolved (%i: %s)",
+		    &ctx->name, ctx->state, ngx_resolver_strerror(ctx->state));
 		if(ctx->state == NGX_RESOLVE_NXDOMAIN) {
 			s->host = smtp_unavailable;
 		}
@@ -189,20 +174,15 @@ static void ngx_mail_smtp_resolve_name_handler(ngx_resolver_ctx_t * ctx)
 			}
 		}
 #endif
-
 		for(i = 0; i < ctx->naddrs; i++) {
 			if(ngx_cmp_sockaddr(ctx->addrs[i].sockaddr, ctx->addrs[i].socklen, c->sockaddr, c->socklen, 0) == NGX_OK) {
 				goto found;
 			}
 		}
-
 		s->host = smtp_unavailable;
 	}
-
 found:
-
 	ngx_resolve_name_done(ctx);
-
 	ngx_mail_smtp_greeting(s, c);
 }
 
@@ -219,77 +199,56 @@ static void ngx_mail_smtp_greeting(ngx_mail_session_t * s, ngx_connection_t * c)
 	if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
 	}
-
 	if(sscf->greeting_delay) {
 		c->P_EvRd->handler = ngx_mail_smtp_invalid_pipelining;
-		return;
 	}
-
-	c->P_EvRd->handler = ngx_mail_smtp_init_protocol;
-
-	s->out = sscf->greeting;
-
-	ngx_mail_send(c->P_EvWr);
+	else {
+		c->P_EvRd->handler = ngx_mail_smtp_init_protocol;
+		s->out = sscf->greeting;
+		ngx_mail_send(c->P_EvWr);
+	}
 }
 
 static void ngx_mail_smtp_invalid_pipelining(ngx_event_t * rev)
 {
-	ngx_connection_t   * c;
-	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_mail_smtp_srv_conf_t  * sscf;
-
-	c = (ngx_connection_t*)rev->data;
-	s = (ngx_mail_session_t*)c->data;
-
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
+	ngx_mail_session_t * s = (ngx_mail_session_t *)c->data;
 	c->log->action = "in delay pipelining state";
-
 	if(rev->timedout) {
 		ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "delay greeting");
-
 		rev->timedout = 0;
-
 		cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 		c->P_EvRd->handler = ngx_mail_smtp_init_protocol;
-
 		ngx_add_timer(c->P_EvRd, cscf->timeout);
-
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			ngx_mail_close_connection(c);
 			return;
 		}
-
 		sscf = (ngx_mail_smtp_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_smtp_module);
-
 		s->out = sscf->greeting;
 	}
 	else {
 		ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "invalid pipelining");
-
 		if(s->buffer == NULL) {
 			if(ngx_mail_smtp_create_buffer(s, c) != NGX_OK) {
 				return;
 			}
 		}
-
-		if(ngx_mail_smtp_discard_command(s, c,
-			    "client was rejected before greeting: \"%V\"")
-		    != NGX_OK) {
+		if(ngx_mail_smtp_discard_command(s, c, "client was rejected before greeting: \"%V\"") != NGX_OK) {
 			return;
 		}
-
 		ngx_str_set(&s->out, smtp_invalid_pipelining);
 		s->quit = 1;
 	}
-
 	ngx_mail_send(c->P_EvWr);
 }
 
 void ngx_mail_smtp_init_protocol(ngx_event_t * rev)
 {
 	ngx_mail_session_t  * s;
-	ngx_connection_t * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
 	c->log->action = "in auth state";
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
@@ -327,7 +286,7 @@ static ngx_int_t ngx_mail_smtp_create_buffer(ngx_mail_session_t * s, ngx_connect
 void ngx_mail_smtp_auth_state(ngx_event_t * rev)
 {
 	ngx_int_t rc;
-	ngx_connection_t  * c = (ngx_connection_t*)rev->data;
+	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
 	ngx_mail_session_t  * s = (ngx_mail_session_t*)c->data;
 	ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "smtp auth state");
 	if(rev->timedout) {
@@ -681,7 +640,7 @@ static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_conne
 	for(i = 0; i < cmd.len; i++) {
 		ch = cmd.data[i];
 
-		if(ch != CR && ch != LF) {
+		if(ch != __CR && ch != LF) {
 			continue;
 		}
 

@@ -793,7 +793,8 @@ static ngx_chain_t * ngx_http_charset_get_buf(ngx_pool_t * pool, ngx_http_charse
 static ngx_chain_t * ngx_http_charset_get_buffer(ngx_pool_t * pool, ngx_http_charset_ctx_t * ctx, size_t size)
 {
 	ngx_buf_t  * b;
-	ngx_chain_t  * cl, ** ll;
+	ngx_chain_t * cl;
+	ngx_chain_t ** ll;
 	for(ll = &ctx->free_buffers, cl = ctx->free_buffers; cl; ll = &cl->next, cl = cl->next) {
 		b = cl->buf;
 		if((size_t)(b->end - b->start) >= size) {
@@ -806,16 +807,15 @@ static ngx_chain_t * ngx_http_charset_get_buffer(ngx_pool_t * pool, ngx_http_cha
 		}
 	}
 	cl = ngx_alloc_chain_link(pool);
-	if(cl == NULL) {
-		return NULL;
+	if(cl) {
+		cl->buf = ngx_create_temp_buf(pool, size);
+		if(cl->buf == NULL) {
+			return NULL;
+		}
+		cl->next = NULL;
+		cl->buf->temporary = 1;
+		cl->buf->tag = (ngx_buf_tag_t)&ngx_http_charset_filter_module;
 	}
-	cl->buf = ngx_create_temp_buf(pool, size);
-	if(cl->buf == NULL) {
-		return NULL;
-	}
-	cl->next = NULL;
-	cl->buf->temporary = 1;
-	cl->buf->tag = (ngx_buf_tag_t)&ngx_http_charset_filter_module;
 	return cl;
 }
 

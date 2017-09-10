@@ -179,16 +179,11 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 	ngx_stream_log_op_t * op;
 	ngx_stream_log_buf_t  * buffer;
 	ngx_stream_log_srv_conf_t  * lscf;
-
-	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "stream log handler");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream log handler");
 	lscf = (ngx_stream_log_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_log_module);
-
 	if(lscf->off || lscf->logs == NULL) {
 		return NGX_OK;
 	}
-
 	log = (ngx_stream_log_t *)lscf->logs->elts;
 	for(l = 0; l < lscf->logs->nelts; l++) {
 		if(log[l].filter) {
@@ -207,13 +202,9 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 			 * may block process for much longer time than writing to non-full
 			 * filesystem, so we skip writing to a log for one second
 			 */
-
 			continue;
 		}
-
-		ngx_stream_script_flush_no_cacheable_variables(s,
-		    log[l].format->flushes);
-
+		ngx_stream_script_flush_no_cacheable_variables(s, log[l].format->flushes);
 		len = 0;
 		op = (ngx_stream_log_op_t *)log[l].format->ops->elts;
 		for(i = 0; i < log[l].format->ops->nelts; i++) {
@@ -224,91 +215,60 @@ static ngx_int_t ngx_stream_log_handler(ngx_stream_session_t * s)
 				len += op[i].len;
 			}
 		}
-
 		if(log[l].syslog_peer) {
 			/* length of syslog's PRI and HEADER message parts */
-			len += sizeof("<255>Jan 01 00:00:00 ") - 1
-			    + ngx_cycle->hostname.len + 1
-			    + log[l].syslog_peer->tag.len + 2;
-
+			len += sizeof("<255>Jan 01 00:00:00 ") - 1 + ngx_cycle->hostname.len + 1 + log[l].syslog_peer->tag.len + 2;
 			goto alloc_line;
 		}
-
 		len += NGX_LINEFEED_SIZE;
-
 		buffer = (ngx_stream_log_buf_t *)(log[l].file ? log[l].file->data : NULL);
-
 		if(buffer) {
 			if(len > (size_t)(buffer->last - buffer->pos)) {
-				ngx_stream_log_write(s, &log[l], buffer->start,
-				    buffer->pos - buffer->start);
-
+				ngx_stream_log_write(s, &log[l], buffer->start, buffer->pos - buffer->start);
 				buffer->pos = buffer->start;
 			}
-
 			if(len <= (size_t)(buffer->last - buffer->pos)) {
 				p = buffer->pos;
-
 				if(buffer->event && p == buffer->start) {
 					ngx_add_timer(buffer->event, buffer->flush);
 				}
-
 				for(i = 0; i < log[l].format->ops->nelts; i++) {
 					p = op[i].run(s, p, &op[i]);
 				}
-
 				ngx_linefeed(p);
-
 				buffer->pos = p;
-
 				continue;
 			}
-
 			if(buffer->event && buffer->event->timer_set) {
 				ngx_del_timer(buffer->event);
 			}
 		}
-
 alloc_line:
-
 		line = (u_char*)ngx_pnalloc(s->connection->pool, len);
 		if(line == NULL) {
 			return NGX_ERROR;
 		}
-
 		p = line;
-
 		if(log[l].syslog_peer) {
 			p = ngx_syslog_add_header(log[l].syslog_peer, line);
 		}
-
 		for(i = 0; i < log[l].format->ops->nelts; i++) {
 			p = op[i].run(s, p, &op[i]);
 		}
-
 		if(log[l].syslog_peer) {
 			size = p - line;
-
 			n = ngx_syslog_send(log[l].syslog_peer, line, size);
-
 			if(n < 0) {
-				ngx_log_error(NGX_LOG_WARN, s->connection->log, 0,
-				    "send() to syslog failed");
+				ngx_log_error(NGX_LOG_WARN, s->connection->log, 0, "send() to syslog failed");
 			}
 			else if((size_t)n != size) {
-				ngx_log_error(NGX_LOG_WARN, s->connection->log, 0,
-				    "send() to syslog has written only %z of %uz",
-				    n, size);
+				ngx_log_error(NGX_LOG_WARN, s->connection->log, 0, "send() to syslog has written only %z of %uz", n, size);
 			}
-
 			continue;
 		}
-
 		ngx_linefeed(p);
-
 		ngx_stream_log_write(s, &log[l], line, p - line);
 	}
-
 	return NGX_OK;
 }
 
@@ -529,7 +489,7 @@ static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log)
 static void ngx_stream_log_flush_handler(ngx_event_t * ev)
 {
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ev->log, 0, "stream log buffer flush handler");
-	ngx_stream_log_flush((ngx_open_file_t *)ev->data, ev->log);
+	ngx_stream_log_flush((ngx_open_file_t *)ev->P_Data, ev->log);
 }
 
 static u_char * ngx_stream_log_copy_short(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op)
@@ -760,7 +720,7 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	ngx_int_t gzip;
 	ngx_uint_t i, n;
 	ngx_msec_t flush;
-	ngx_str_t  * value, name, s;
+	ngx_str_t  name, s;
 	ngx_stream_log_t  * log;
 	ngx_syslog_peer_t * peer;
 	ngx_stream_log_buf_t  * buffer;
@@ -768,20 +728,15 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	ngx_stream_script_compile_t sc;
 	ngx_stream_log_main_conf_t   * lmcf;
 	ngx_stream_compile_complex_value_t ccv;
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_str_t * value = (ngx_str_t *)cf->args->elts;
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		lscf->off = 1;
 		if(cf->args->nelts == 2) {
 			return NGX_CONF_OK;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[2]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(lscf->logs == NULL) {
 		lscf->logs = ngx_array_create(cf->pool, 2, sizeof(ngx_stream_log_t));
 		if(lscf->logs == NULL) {
@@ -793,26 +748,19 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	if(log == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	memzero(log, sizeof(ngx_stream_log_t));
-
 	if(ngx_strncmp(value[1].data, "syslog:", 7) == 0) {
 		peer = (ngx_syslog_peer_t *)ngx_pcalloc(cf->pool, sizeof(ngx_syslog_peer_t));
 		if(peer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		if(ngx_syslog_process_conf(cf, peer) != NGX_CONF_OK) {
 			return NGX_CONF_ERROR;
 		}
-
 		log->syslog_peer = peer;
-
 		goto process_formats;
 	}
-
 	n = ngx_stream_script_variables_count(&value[1]);
-
 	if(n == 0) {
 		log->file = ngx_conf_open_file(cf->cycle, &value[1]);
 		if(log->file == NULL) {
@@ -823,14 +771,11 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		if(ngx_conf_full_name(cf->cycle, &value[1], 0) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
-
 		log->script = (ngx_stream_log_script_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_script_t));
 		if(log->script == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		memzero(&sc, sizeof(ngx_stream_script_compile_t));
-
 		sc.cf = cf;
 		sc.source = &value[1];
 		sc.lengths = &log->script->lengths;
@@ -838,23 +783,18 @@ static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		sc.variables = n;
 		sc.complete_lengths = 1;
 		sc.complete_values = 1;
-
 		if(ngx_stream_script_compile(&sc) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}
-
 process_formats:
-
 	if(cf->args->nelts >= 3) {
 		name = value[2];
 	}
 	else {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "log format is not specified");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "log format is not specified");
 		return NGX_CONF_ERROR;
 	}
-
 	fmt = (ngx_stream_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
 		if(fmt[i].name.len == name.len
@@ -863,249 +803,175 @@ process_formats:
 			break;
 		}
 	}
-
 	if(log->format == NULL) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "unknown log format \"%V\"", &name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown log format \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-
 	size = 0;
 	flush = 0;
 	gzip = 0;
-
 	for(i = 3; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "buffer=", 7) == 0) {
 			s.len = value[i].len - 7;
 			s.data = value[i].data + 7;
-
 			size = ngx_parse_size(&s);
-
 			if(size == NGX_ERROR || size == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid buffer size \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid buffer size \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "flush=", 6) == 0) {
 			s.len = value[i].len - 6;
 			s.data = value[i].data + 6;
-
 			flush = ngx_parse_time(&s, 0);
-
 			if(flush == (ngx_msec_t)NGX_ERROR || flush == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid flush time \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid flush time \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
-		if(ngx_strncmp(value[i].data, "gzip", 4) == 0
-		    && (value[i].len == 4 || value[i].data[4] == '=')) {
+		if(ngx_strncmp(value[i].data, "gzip", 4) == 0 && (value[i].len == 4 || value[i].data[4] == '=')) {
 #if (NGX_ZLIB)
 			if(size == 0) {
 				size = 64 * 1024;
 			}
-
 			if(value[i].len == 4) {
 				gzip = Z_BEST_SPEED;
 				continue;
 			}
-
 			s.len = value[i].len - 5;
 			s.data = value[i].data + 5;
-
 			gzip = ngx_atoi(s.data, s.len);
-
 			if(gzip < 1 || gzip > 9) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid compression level \"%V\"", &s);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid compression level \"%V\"", &s);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
-
 #else
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "nginx was built without zlib support");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "nginx was built without zlib support");
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strncmp(value[i].data, "if=", 3) == 0) {
 			s.len = value[i].len - 3;
 			s.data = value[i].data + 3;
-
 			memzero(&ccv, sizeof(ngx_stream_compile_complex_value_t));
-
 			ccv.cf = cf;
 			ccv.value = &s;
 			ccv.complex_value = (ngx_stream_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_complex_value_t));
 			if(ccv.complex_value == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}
-
 			log->filter = ccv.complex_value;
-
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[i]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(flush && size == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "no buffer is defined for access_log \"%V\"",
-		    &value[1]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "no buffer is defined for access_log \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(size) {
 		if(log->script) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "buffered logs cannot have variables in name");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "buffered logs cannot have variables in name");
 			return NGX_CONF_ERROR;
 		}
-
 		if(log->syslog_peer) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "logs to syslog cannot be buffered");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "logs to syslog cannot be buffered");
 			return NGX_CONF_ERROR;
 		}
-
 		if(log->file->data) {
 			buffer = (ngx_stream_log_buf_t *)log->file->data;
-
-			if(buffer->last - buffer->start != size
-			    || buffer->flush != flush
-			    || buffer->gzip != gzip) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "access_log \"%V\" already defined "
-				    "with conflicting parameters",
-				    &value[1]);
+			if(buffer->last - buffer->start != size || buffer->flush != flush || buffer->gzip != gzip) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "access_log \"%V\" already defined with conflicting parameters", &value[1]);
 				return NGX_CONF_ERROR;
 			}
-
 			return NGX_CONF_OK;
 		}
-
 		buffer = (ngx_stream_log_buf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_buf_t));
 		if(buffer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		buffer->start = (u_char*)ngx_pnalloc(cf->pool, size);
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		buffer->pos = buffer->start;
 		buffer->last = buffer->start + size;
-
 		if(flush) {
 			buffer->event = (ngx_event_t*)ngx_pcalloc(cf->pool, sizeof(ngx_event_t));
 			if(buffer->event == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
-			buffer->event->data = log->file;
+			buffer->event->P_Data = log->file;
 			buffer->event->handler = ngx_stream_log_flush_handler;
 			buffer->event->log = &cf->cycle->new_log;
 			buffer->event->cancelable = 1;
-
 			buffer->flush = flush;
 		}
-
 		buffer->gzip = gzip;
-
 		log->file->flush = ngx_stream_log_flush;
 		log->file->data = buffer;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_stream_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_log_main_conf_t * lmcf = (ngx_stream_log_main_conf_t *)conf;
-	ngx_str_t   * value;
 	ngx_uint_t i;
-	ngx_stream_log_fmt_t  * fmt;
-	value = (ngx_str_t*)cf->args->elts;
-	fmt = (ngx_stream_log_fmt_t *)lmcf->formats.elts;
+	const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
+	ngx_stream_log_fmt_t * fmt = (ngx_stream_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
-		if(fmt[i].name.len == value[1].len
-		    && ngx_strcmp(fmt[i].name.data, value[1].data) == 0) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "duplicate \"log_format\" name \"%V\"",
-			    &value[1]);
+		if(fmt[i].name.len == value[1].len && ngx_strcmp(fmt[i].name.data, value[1].data) == 0) {
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate \"log_format\" name \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	fmt = (ngx_stream_log_fmt_t *)ngx_array_push(&lmcf->formats);
 	if(fmt == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	fmt->name = value[1];
-
 	fmt->flushes = ngx_array_create(cf->pool, 4, sizeof(ngx_int_t));
 	if(fmt->flushes == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	fmt->ops = ngx_array_create(cf->pool, 16, sizeof(ngx_stream_log_op_t));
 	if(fmt->ops == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
-	return ngx_stream_log_compile_format(cf, fmt->flushes, fmt->ops,
-	    cf->args, 2);
+	return ngx_stream_log_compile_format(cf, fmt->flushes, fmt->ops, cf->args, 2);
 }
 
-static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes,
-    ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s)
+static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes, ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s)
 {
 	u_char  * data, * p, ch;
 	size_t i, len;
-	ngx_str_t   * value, var;
-	ngx_int_t   * flush;
-	ngx_uint_t bracket, json;
+	ngx_str_t var;
+	ngx_int_t * flush;
+	ngx_uint_t bracket;
 	ngx_stream_log_op_t * op;
-
-	json = 0;
-	value = (ngx_str_t*)args->elts;
-
+	ngx_uint_t json = 0;
+	ngx_str_t * value = (ngx_str_t*)args->elts;
 	if(s < args->nelts && ngx_strncmp(value[s].data, "escape=", 7) == 0) {
 		data = value[s].data + 7;
-
 		if(ngx_strcmp(data, "json") == 0) {
 			json = 1;
 		}
 		else if(ngx_strcmp(data, "default") != 0) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "unknown log format escaping \"%s\"", data);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown log format escaping \"%s\"", data);
 			return NGX_CONF_ERROR;
 		}
-
 		s++;
 	}
-
 	for(/* void */; s < args->nelts; s++) {
 		i = 0;
-
 		while(i < value[s].len) {
 			op = (ngx_stream_log_op_t *)ngx_array_push(ops);
 			if(op == NULL) {
@@ -1118,81 +984,58 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				}
 				if(value[s].data[i] == '{') {
 					bracket = 1;
-
 					if(++i == value[s].len) {
 						goto invalid;
 					}
-
 					var.data = &value[s].data[i];
 				}
 				else {
 					bracket = 0;
 					var.data = &value[s].data[i];
 				}
-
 				for(var.len = 0; i < value[s].len; i++, var.len++) {
 					ch = value[s].data[i];
-
 					if(ch == '}' && bracket) {
 						i++;
 						bracket = 0;
 						break;
 					}
-
-					if((ch >= 'A' && ch <= 'Z')
-					    || (ch >= 'a' && ch <= 'z')
-					    || (ch >= '0' && ch <= '9')
-					    || ch == '_') {
+					if((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_') {
 						continue;
 					}
-
 					break;
 				}
-
 				if(bracket) {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "the closing bracket in \"%V\" "
-					    "variable is missing", &var);
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the closing bracket in \"%V\" variable is missing", &var);
 					return NGX_CONF_ERROR;
 				}
-
 				if(var.len == 0) {
 					goto invalid;
 				}
-
 				if(ngx_stream_log_variable_compile(cf, op, &var, json)
 				    != NGX_OK) {
 					return NGX_CONF_ERROR;
 				}
-
 				if(flushes) {
 					flush = (ngx_int_t*)ngx_array_push(flushes);
 					if(flush == NULL) {
 						return NGX_CONF_ERROR;
 					}
-
 					*flush = op->data; /* variable index */
 				}
-
 				continue;
 			}
-
 			i++;
-
 			while(i < value[s].len && value[s].data[i] != '$') {
 				i++;
 			}
-
 			len = &value[s].data[i] - data;
-
 			if(len) {
 				op->len = len;
 				op->getlen = NULL;
-
 				if(len <= sizeof(uintptr_t)) {
 					op->run = ngx_stream_log_copy_short;
 					op->data = 0;
-
 					while(len--) {
 						op->data <<= 8;
 						op->data |= data[len];
@@ -1200,121 +1043,92 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				}
 				else {
 					op->run = ngx_stream_log_copy_long;
-
 					p = (u_char*)ngx_pnalloc(cf->pool, len);
 					if(p == NULL) {
 						return NGX_CONF_ERROR;
 					}
-
 					memcpy(p, data, len);
 					op->data = (uintptr_t)p;
 				}
 			}
 		}
 	}
-
 	return NGX_CONF_OK;
-
 invalid:
-
 	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%s\"", data);
-
 	return NGX_CONF_ERROR;
 }
 
 static char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_stream_log_srv_conf_t * lscf = (ngx_stream_log_srv_conf_t *)conf;
-	time_t inactive, valid;
-	ngx_str_t * value, s;
-	ngx_int_t max, min_uses;
+	ngx_str_t s;
 	ngx_uint_t i;
 	if(lscf->open_file_cache != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	max = 0;
-	inactive = 10;
-	valid = 60;
-	min_uses = 1;
-
-	for(i = 1; i < cf->args->nelts; i++) {
-		if(ngx_strncmp(value[i].data, "max=", 4) == 0) {
-			max = ngx_atoi(value[i].data + 4, value[i].len - 4);
-			if(max == NGX_ERROR) {
-				goto failed;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_int_t max = 0;
+		time_t inactive = 10;
+		time_t valid = 60;
+		ngx_int_t min_uses = 1;
+		for(i = 1; i < cf->args->nelts; i++) {
+			if(ngx_strncmp(value[i].data, "max=", 4) == 0) {
+				max = ngx_atoi(value[i].data + 4, value[i].len - 4);
+				if(max == NGX_ERROR) {
+					goto failed;
+				}
+				continue;
 			}
-
-			continue;
-		}
-
-		if(ngx_strncmp(value[i].data, "inactive=", 9) == 0) {
-			s.len = value[i].len - 9;
-			s.data = value[i].data + 9;
-
-			inactive = ngx_parse_time(&s, 1);
-			if(inactive == (time_t)NGX_ERROR) {
-				goto failed;
+			if(ngx_strncmp(value[i].data, "inactive=", 9) == 0) {
+				s.len = value[i].len - 9;
+				s.data = value[i].data + 9;
+				inactive = ngx_parse_time(&s, 1);
+				if(inactive == (time_t)NGX_ERROR) {
+					goto failed;
+				}
+				continue;
 			}
-
-			continue;
-		}
-
-		if(ngx_strncmp(value[i].data, "min_uses=", 9) == 0) {
-			min_uses = ngx_atoi(value[i].data + 9, value[i].len - 9);
-			if(min_uses == NGX_ERROR) {
-				goto failed;
+			if(ngx_strncmp(value[i].data, "min_uses=", 9) == 0) {
+				min_uses = ngx_atoi(value[i].data + 9, value[i].len - 9);
+				if(min_uses == NGX_ERROR) {
+					goto failed;
+				}
+				continue;
 			}
-
-			continue;
-		}
-
-		if(ngx_strncmp(value[i].data, "valid=", 6) == 0) {
-			s.len = value[i].len - 6;
-			s.data = value[i].data + 6;
-
-			valid = ngx_parse_time(&s, 1);
-			if(valid == (time_t)NGX_ERROR) {
-				goto failed;
+			if(ngx_strncmp(value[i].data, "valid=", 6) == 0) {
+				s.len = value[i].len - 6;
+				s.data = value[i].data + 6;
+				valid = ngx_parse_time(&s, 1);
+				if(valid == (time_t)NGX_ERROR) {
+					goto failed;
+				}
+				continue;
 			}
-
-			continue;
-		}
-
-		if(ngx_strcmp(value[i].data, "off") == 0) {
-			lscf->open_file_cache = NULL;
-
-			continue;
-		}
-
+			if(ngx_strcmp(value[i].data, "off") == 0) {
+				lscf->open_file_cache = NULL;
+				continue;
+			}
 failed:
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid \"open_log_file_cache\" parameter \"%V\"",
-		    &value[i]);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid \"open_log_file_cache\" parameter \"%V\"", &value[i]);
+			return NGX_CONF_ERROR;
+		}
+		if(lscf->open_file_cache == NULL) {
+			return NGX_CONF_OK;
+		}
+		if(max == 0) {
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"open_log_file_cache\" must have \"max\" parameter");
+			return NGX_CONF_ERROR;
+		}
+		lscf->open_file_cache = ngx_open_file_cache_init(cf->pool, max, inactive);
+		if(lscf->open_file_cache) {
+			lscf->open_file_cache_valid = valid;
+			lscf->open_file_cache_min_uses = min_uses;
+			return NGX_CONF_OK;
+		}
 		return NGX_CONF_ERROR;
 	}
-
-	if(lscf->open_file_cache == NULL) {
-		return NGX_CONF_OK;
-	}
-
-	if(max == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"open_log_file_cache\" must have \"max\" parameter");
-		return NGX_CONF_ERROR;
-	}
-
-	lscf->open_file_cache = ngx_open_file_cache_init(cf->pool, max, inactive);
-
-	if(lscf->open_file_cache) {
-		lscf->open_file_cache_valid = valid;
-		lscf->open_file_cache_min_uses = min_uses;
-
-		return NGX_CONF_OK;
-	}
-
-	return NGX_CONF_ERROR;
 }
 
 static ngx_int_t ngx_stream_log_init(ngx_conf_t * cf)

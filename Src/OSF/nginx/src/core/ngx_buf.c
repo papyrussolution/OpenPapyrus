@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-ngx_buf_t * ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
+ngx_buf_t * FASTCALL ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 {
 	ngx_buf_t * b = (ngx_buf_t*)ngx_calloc_buf(pool);
 	if(b) {
@@ -36,7 +36,7 @@ ngx_buf_t * ngx_create_temp_buf(ngx_pool_t * pool, size_t size)
 
 ngx_chain_t * FASTCALL ngx_alloc_chain_link(ngx_pool_t * pool)
 {
-	ngx_chain_t  * cl = pool->chain;
+	ngx_chain_t * cl = pool->chain;
 	if(cl)
 		pool->chain = cl->next;
 	else
@@ -109,7 +109,7 @@ ngx_int_t ngx_chain_add_copy(ngx_pool_t * pool, ngx_chain_t ** chain, ngx_chain_
 	return NGX_OK;
 }
 
-ngx_chain_t * ngx_chain_get_free_buf(ngx_pool_t * p, ngx_chain_t ** ppFree)
+ngx_chain_t * FASTCALL ngx_chain_get_free_buf(ngx_pool_t * p, ngx_chain_t ** ppFree)
 {
 	ngx_chain_t * cl;
 	if(*ppFree) {
@@ -130,36 +130,36 @@ ngx_chain_t * ngx_chain_get_free_buf(ngx_pool_t * p, ngx_chain_t ** ppFree)
 	return cl;
 }
 
-void ngx_chain_update_chains(ngx_pool_t * p, ngx_chain_t ** free, ngx_chain_t ** busy, ngx_chain_t ** out, ngx_buf_tag_t tag)
+void ngx_chain_update_chains(ngx_pool_t * p, ngx_chain_t ** ppFree, ngx_chain_t ** ppBusy, ngx_chain_t ** out, ngx_buf_tag_t tag)
 {
-	ngx_chain_t  * cl;
+	ngx_chain_t * cl;
 	if(*out) {
-		if(*busy == NULL) {
-			*busy = *out;
+		if(*ppBusy == NULL) {
+			*ppBusy = *out;
 		}
 		else {
-			for(cl = *busy; cl->next; cl = cl->next) { /* void */
+			for(cl = *ppBusy; cl->next; cl = cl->next) { /* void */
 			}
 			cl->next = *out;
 		}
 		*out = NULL;
 	}
-
-	while(*busy) {
-		cl = *busy;
+	while(*ppBusy) {
+		cl = *ppBusy;
 		if(ngx_buf_size(cl->buf) != 0) {
 			break;
 		}
-		if(cl->buf->tag != tag) {
-			*busy = cl->next;
+		else if(cl->buf->tag != tag) {
+			*ppBusy = cl->next;
 			ngx_free_chain(p, cl);
-			continue;
 		}
-		cl->buf->pos = cl->buf->start;
-		cl->buf->last = cl->buf->start;
-		*busy = cl->next;
-		cl->next = *free;
-		*free = cl;
+		else {
+			cl->buf->pos = cl->buf->start;
+			cl->buf->last = cl->buf->start;
+			*ppBusy = cl->next;
+			cl->next = *ppFree;
+			*ppFree = cl;
+		}
 	}
 }
 

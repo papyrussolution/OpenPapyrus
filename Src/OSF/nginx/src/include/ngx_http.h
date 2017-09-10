@@ -397,9 +397,9 @@ struct ngx_http_connection_t {
 		ngx_http_regex_t * ssl_servername_regex;
 	#endif
 #endif
-	ngx_chain_t  * busy;
+	ngx_chain_t * busy;
 	ngx_int_t nbusy;
-	ngx_chain_t  * free;
+	ngx_chain_t * free;
 	unsigned ssl : 1;
 	unsigned proxy_protocol : 1;
 };
@@ -439,6 +439,8 @@ typedef ngx_int_t (*ngx_http_handler_pt)(ngx_http_request_t * r);
 typedef void (*ngx_http_event_handler_pt)(ngx_http_request_t * r);
 
 struct /*ngx_http_request_s*/ngx_http_request_t {
+	int    SetContentType(SFileFormat fmt, SCodepage cp);
+
 	uint32_t signature; // "HTTP" 
 	ngx_connection_t * connection;
 	void ** ctx;
@@ -750,7 +752,7 @@ struct ngx_http_script_file_code_t {
 struct ngx_http_script_if_code_t {
 	ngx_http_script_code_pt code;
 	uintptr_t next;
-	void       ** loc_conf;
+	void ** loc_conf;
 };
 
 struct ngx_http_script_complex_value_code_t {
@@ -820,7 +822,7 @@ struct ngx_event_ovlp_t {
 #endif
 
 struct /*ngx_event_s*/ngx_event_t {
-	void  * data;
+	void  * P_Data;
 	unsigned write : 1;
 	unsigned accept : 1;
 	unsigned instance : 1; // used to detect the stale events in kqueue and epoll 
@@ -1120,8 +1122,8 @@ ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t * cycle);
 u_char * ngx_accept_log_error(ngx_log_t * log, u_char * buf, size_t len);
 
 void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle);
-ngx_int_t ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags);
-ngx_int_t ngx_handle_write_event(ngx_event_t * wev, size_t lowat);
+ngx_int_t FASTCALL ngx_handle_read_event(ngx_event_t * rev, ngx_uint_t flags);
+ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat);
 
 #if (NGX_WIN32)
 	void ngx_event_acceptex(ngx_event_t * ev);
@@ -1742,5 +1744,17 @@ extern ngx_str_t ngx_http_html_default_types[];
 extern ngx_http_output_header_filter_pt ngx_http_top_header_filter;
 extern ngx_http_output_body_filter_pt ngx_http_top_body_filter;
 extern ngx_http_request_body_filter_pt ngx_http_top_request_body_filter;
+//
+// Papyrus {
+//
+struct NgxReqResult {
+	ngx_http_request_t * P_Req;
+	ngx_chain_t Chain;
+};
 
+int FASTCALL NgxPushRequestResult(NgxReqResult * pR);
+int FASTCALL NgxPopRequestResult(NgxReqResult * pR);
+//
+// } Papyrus 
+//
 #endif /* _NGX_HTTP_H_INCLUDED_ */

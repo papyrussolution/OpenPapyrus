@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-ngx_pool_t * ngx_create_pool(size_t size, ngx_log_t * log)
+ngx_pool_t * FASTCALL ngx_create_pool(size_t size, ngx_log_t * log)
 {
 	ngx_pool_t * p = (ngx_pool_t *)ngx_memalign(NGX_POOL_ALIGNMENT, size, log);
 	if(p) {
@@ -25,7 +25,7 @@ ngx_pool_t * ngx_create_pool(size_t size, ngx_log_t * log)
 	return p;
 }
 
-void ngx_destroy_pool(ngx_pool_t * pool)
+void FASTCALL ngx_destroy_pool(ngx_pool_t * pool)
 {
 	ngx_pool_t * p, * n;
 	ngx_pool_large_t * l;
@@ -64,7 +64,7 @@ void ngx_destroy_pool(ngx_pool_t * pool)
 	}
 }
 
-void ngx_reset_pool(ngx_pool_t * pool)
+void FASTCALL ngx_reset_pool(ngx_pool_t * pool)
 {
 	for(ngx_pool_large_t * l = pool->large; l; l = l->next) {
 		if(l->alloc) {

@@ -97,7 +97,7 @@ static void ngx_stream_return_handler(ngx_stream_session_t * s)
 static void ngx_stream_return_write_handler(ngx_event_t * ev)
 {
 	ngx_stream_return_ctx_t  * ctx;
-	ngx_connection_t * c = (ngx_connection_t *)ev->data;
+	ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;
 	ngx_stream_session_t * s = (ngx_stream_session_t *)c->data;
 	if(ev->timedout) {
 		ngx_connection_error(c, NGX_ETIMEDOUT, "connection timed out");

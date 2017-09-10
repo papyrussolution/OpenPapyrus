@@ -152,7 +152,7 @@ void ngx_mail_starttls_handler(ngx_event_t * rev)
 	ngx_mail_session_t * s;
 	ngx_mail_ssl_conf_t  * sslcf;
 
-	c = (ngx_connection_t *)rev->data;
+	c = (ngx_connection_t *)rev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 	s->starttls = 1;
 
@@ -454,7 +454,7 @@ ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t *
 
 	s->salt.len += 2;
 	n = len + salt.len;
-	p[n++] = CR; p[n++] = LF;
+	p[n++] = __CR; p[n++] = LF;
 
 	s->out.len = n;
 	s->out.data = p;
@@ -524,7 +524,7 @@ void ngx_mail_send(ngx_event_t * wev)
 	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
 
-	c = (ngx_connection_t *)wev->data;
+	c = (ngx_connection_t *)wev->P_Data;
 	s = (ngx_mail_session_t *)c->data;
 
 	if(wev->timedout) {
