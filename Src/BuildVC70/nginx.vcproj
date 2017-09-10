@@ -2728,16 +2728,10 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_auto_headers.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_conf_file.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_config.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_core.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_cycle.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_event_openssl.h">
@@ -2794,16 +2788,7 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_rbtree.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_resolver.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_rwlock.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_sha1.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_shmtx.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_stream.h">
