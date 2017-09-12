@@ -436,29 +436,30 @@ static char * ngx_http_memcached_merge_loc_conf(ngx_conf_t * cf, void * parent, 
 static char * ngx_http_memcached_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_memcached_loc_conf_t * mlcf = (ngx_http_memcached_loc_conf_t *)conf;
-	ngx_str_t * value;
 	ngx_url_t u;
 	ngx_http_core_loc_conf_t  * clcf;
 	if(mlcf->upstream.upstream) {
 		return "is duplicate";
 	}
-	value = (ngx_str_t*)cf->args->elts;
-	memzero(&u, sizeof(ngx_url_t));
-	u.url = value[1];
-	u.no_resolve = 1;
-	mlcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
-	if(mlcf->upstream.upstream == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		memzero(&u, sizeof(ngx_url_t));
+		u.url = value[1];
+		u.no_resolve = 1;
+		mlcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
+		if(mlcf->upstream.upstream == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		clcf = (ngx_http_core_loc_conf_t*)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+		clcf->F_HttpHandler = ngx_http_memcached_handler;
+		if(clcf->name.data[clcf->name.len - 1] == '/') {
+			clcf->auto_redirect = 1;
+		}
+		mlcf->index = ngx_http_get_variable_index(cf, &ngx_http_memcached_key);
+		if(mlcf->index == NGX_ERROR) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-	clcf = (ngx_http_core_loc_conf_t*)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	clcf->handler = ngx_http_memcached_handler;
-	if(clcf->name.data[clcf->name.len - 1] == '/') {
-		clcf->auto_redirect = 1;
-	}
-	mlcf->index = ngx_http_get_variable_index(cf, &ngx_http_memcached_key);
-	if(mlcf->index == NGX_ERROR) {
-		return NGX_CONF_ERROR;
-	}
-	return NGX_CONF_OK;
 }
 

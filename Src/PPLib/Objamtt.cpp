@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -602,9 +602,12 @@ public:
 	int    SLAPI IsThereDistribCost()
 	{
 		int    yes = 0;
-		RwL.ReadLock();
-		yes = IsThereDistribCostAmounts;
-		RwL.Unlock();
+		{
+			//RwL.ReadLock();
+			SRWLOCKER(RwL, SReadWriteLocker::Read);
+			yes = IsThereDistribCostAmounts;
+			//RwL.Unlock();
+		}
 		return yes;
 	}
 private:
@@ -631,12 +634,15 @@ SLAPI AmountTypeCache::AmountTypeCache() : ObjCache(PPOBJ_AMOUNTTYPE, sizeof(Amo
 {
 	PPObjAmountType amt_obj;
 	PPAmountType temp_rec;
-	LocRwL.WriteLock();
-	IsThereDistribCostAmounts = 0;
-	for(PPID i = 0; amt_obj.EnumItems(&i, &temp_rec) > 0;)
-		Get(i, &temp_rec);
-	InitTaxBlock();
-	LocRwL.Unlock();
+	{
+		//LocRwL.WriteLock();
+		SRWLOCKER(LocRwL, SReadWriteLocker::Write);
+		IsThereDistribCostAmounts = 0;
+		for(PPID i = 0; amt_obj.EnumItems(&i, &temp_rec) > 0;)
+			Get(i, &temp_rec);
+		InitTaxBlock();
+		//LocRwL.Unlock();
+	}
 }
 
 static void SLAPI SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
@@ -687,9 +693,10 @@ int SLAPI AmountTypeCache::Dirty(PPID id)
 	int    ok = 1;
 	PPAmountType temp_rec;
 	{
-		RwL.WriteLock();
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	//
 	// Функция Get вызывает блокировку чтения. По этому, мы вынуждены разорвать
@@ -697,18 +704,22 @@ int SLAPI AmountTypeCache::Dirty(PPID id)
 	//
 	Get(id, &temp_rec);
 	{
-		RwL.WriteLock();
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		InitTaxBlock();
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	return ok;
 }
 
 int SLAPI AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 {
-	RwL.ReadLock();
-	ASSIGN_PTR(pBlk, TaxBlock);
-	RwL.Unlock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		ASSIGN_PTR(pBlk, TaxBlock);
+		//RwL.Unlock();
+	}
 	return 1;
 }
 
@@ -761,33 +772,39 @@ void SLAPI AmountTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 int SLAPI AmountTypeCache::FetchByTax(PPID * pID, PPID tax, double taxRate)
 {
 	int    ok = -1;
-	RwL.ReadLock();
-	const uint c = GetCount();
-	for(uint i = 0; ok < 0 && i < c; i++) {
-		const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
-		if(p_entry->Tax == tax && p_entry->TaxRate == R0i(taxRate * 100L)) {
-			ASSIGN_PTR(pID, p_entry->ID);
-			ok = 1;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = GetCount();
+		for(uint i = 0; ok < 0 && i < c; i++) {
+			const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
+			if(p_entry->Tax == tax && p_entry->TaxRate == R0i(taxRate * 100L)) {
+				ASSIGN_PTR(pID, p_entry->ID);
+				ok = 1;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
 int SLAPI AmountTypeCache::FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID)
 {
 	PPID   in_id = 0, out_id = 0;
-	RwL.ReadLock();
-	const uint c = GetCount();
-	for(uint i = 0; i < c; i++) {
-		const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
-		if(p_entry->RefAmtTypeID == srcAmtID)
-			if(p_entry->Flags & PPAmountType::fInAmount && !in_id)
-				in_id = p_entry->ID;
-			else if(p_entry->Flags & PPAmountType::fOutAmount && !out_id)
-				out_id = p_entry->ID;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = GetCount();
+		for(uint i = 0; i < c; i++) {
+			const AmountTypeData * p_entry = (const AmountTypeData *)SearchByPos(i, 0);
+			if(p_entry->RefAmtTypeID == srcAmtID)
+				if(p_entry->Flags & PPAmountType::fInAmount && !in_id)
+					in_id = p_entry->ID;
+				else if(p_entry->Flags & PPAmountType::fOutAmount && !out_id)
+					out_id = p_entry->ID;
+		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	ASSIGN_PTR(pInAmtID, in_id);
 	ASSIGN_PTR(pOutAmtID, out_id);
 	return (in_id || out_id) ? 1 : -1;

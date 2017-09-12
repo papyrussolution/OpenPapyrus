@@ -171,6 +171,9 @@ int SLAPI PPViewServerStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		else if(ppvCmd == PPVCMD_RESETCACHE) {
 			ResetCache();
 		}
+		else if(ppvCmd == PPVCMD_LOGLOCKSTACK) {
+			LogLockStack();
+		}
 	}
 	return ok;
 }
@@ -185,6 +188,27 @@ int SLAPI PPViewServerStat::ResetCache()
 			PPJobSrvReply reply;
 			SString q;
 			q.Cat("RESETCACHE").Space().Cat("GOODS").Space().Cat("NAMEPOOL");
+			if(p_cli->Exec(q, reply)) {
+				THROW(reply.StartReading(0));
+				THROW(reply.CheckRepError());
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+int SLAPI PPViewServerStat::LogLockStack()
+{
+	int    ok = -1;
+	if(PPMaster) {
+		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		if(p_cli) {
+			PPJobSrvCmd cmd;
+			PPJobSrvReply reply;
+			SString q;
+			q.Cat("LOGLOCKSTACK");
 			if(p_cli->Exec(q, reply)) {
 				THROW(reply.StartReading(0));
 				THROW(reply.CheckRepError());

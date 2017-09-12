@@ -2200,34 +2200,38 @@ int SLAPI SelfTextRefCache::FetchText(const char * pText, PPID * pID)
 		pattern.ToLower1251();
 		uint   hval = 0;
 		uint   hpos = 0;
-		TcRwl.ReadLock();
-		if(TextCache.Search(pattern, &hval, &hpos)) {
-			_id = (long)hval;
-			ok = 1;
-		}
-		else {
-			if(P_T) {
-				TcRwl.Unlock();
-				TcRwl.WriteLock();
-				if(TextCache.Search(pattern, &hval, &hpos)) { // Повторная попытка после получения блокировки
-					_id = (long)hval;
-					ok = 1;
-				}
-				else {
-					SString utf_buf = pattern;
-					SStringU pattern_u;
-					pattern_u.CopyFromUtf8(utf_buf.ToUtf8());
-					ok = P_T->SearchSelfRefText(pattern_u, &_id);
-					if(ok > 0 && _id) {
-						if(!TextCache.Add(pattern, (uint)_id))
-							ok = PPSetErrorSLib();
+		{
+			//TcRwl.ReadLock();
+			SRWLOCKER(TcRwl, SReadWriteLocker::Read);
+			if(TextCache.Search(pattern, &hval, &hpos)) {
+				_id = (long)hval;
+				ok = 1;
+			}
+			else {
+				if(P_T) {
+					//TcRwl.Unlock();
+					//TcRwl.WriteLock();
+					SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+					if(TextCache.Search(pattern, &hval, &hpos)) { // Повторная попытка после получения блокировки
+						_id = (long)hval;
+						ok = 1;
+					}
+					else {
+						SString utf_buf = pattern;
+						SStringU pattern_u;
+						pattern_u.CopyFromUtf8(utf_buf.ToUtf8());
+						ok = P_T->SearchSelfRefText(pattern_u, &_id);
+						if(ok > 0 && _id) {
+							if(!TextCache.Add(pattern, (uint)_id))
+								ok = PPSetErrorSLib();
+						}
 					}
 				}
+				else
+					ok = -2;
 			}
-			else
-				ok = -2;
+			//TcRwl.Unlock();
 		}
-		TcRwl.Unlock();
 	}
 	ASSIGN_PTR(pID, _id);
 	return ok;

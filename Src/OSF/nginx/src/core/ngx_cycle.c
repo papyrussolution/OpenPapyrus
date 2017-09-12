@@ -494,7 +494,7 @@ old_shm_zone_done:
 		}
 #endif
 	}
-	/* close the unnecessary open files */
+	// close the unnecessary open files 
 	part = &old_cycle->open_files.part;
 	file = (ngx_open_file_t *)part->elts;
 	for(i = 0; /* void */; i++) {

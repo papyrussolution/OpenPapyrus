@@ -11418,6 +11418,7 @@ PPHS_WAY                       "way"
 PPHS_WEEKDAY                   "weekday"
 PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
+PPHS_LOGLOCKSTACK              "loglockstack"
 
 #!}
 

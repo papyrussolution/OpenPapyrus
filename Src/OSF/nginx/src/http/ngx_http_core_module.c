@@ -782,7 +782,7 @@ ngx_int_t ngx_http_core_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_han
 	if(rc == NGX_DONE) {
 		return NGX_OK;
 	}
-	/* NGX_OK, NGX_AGAIN, NGX_ERROR, NGX_HTTP_...  */
+	// NGX_OK, NGX_AGAIN, NGX_ERROR, NGX_HTTP_...  
 	ngx_http_finalize_request(r, rc);
 	return NGX_OK;
 }
@@ -793,7 +793,7 @@ ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase
 	size_t len;
 	ngx_int_t rc;
 	ngx_http_core_loc_conf_t  * clcf;
-	r->content_handler = NULL;
+	r->F_HttpContentHandler = 0;
 	r->uri_changed = 0;
 	rc = ngx_http_core_find_location(r);
 	if(rc == NGX_ERROR) {
@@ -941,102 +941,101 @@ ngx_int_t ngx_http_core_post_access_phase(ngx_http_request_t * r, ngx_http_phase
 
 ngx_int_t ngx_http_core_content_phase(ngx_http_request_t * pReq, ngx_http_phase_handler_t * ph)
 {
-	size_t root;
-	ngx_int_t rc;
-	ngx_str_t path;
-	if(pReq->content_handler) {
+	if(pReq->F_HttpContentHandler) {
 		pReq->write_event_handler = ngx_http_request_empty_handler;
-		ngx_http_finalize_request(pReq, pReq->content_handler(pReq));
+		ngx_http_finalize_request(pReq, pReq->F_HttpContentHandler(pReq));
 		return NGX_OK;
-	}
-	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "content phase: %ui", pReq->phase_handler);
-	rc = ph->handler(pReq);
-	if(rc != NGX_DECLINED) {
-		ngx_http_finalize_request(pReq, rc);
-		return NGX_OK;
-	}
-	// rc == NGX_DECLINED 
-	ph++;
-	if(ph->checker) {
-		pReq->phase_handler++;
-		return NGX_AGAIN;
 	}
 	else {
-		// no content handler was found 
-		if(pReq->uri.data[pReq->uri.len - 1] == '/') {
-			if(ngx_http_map_uri_to_path(pReq, &path, &root, 0) != NULL) {
-				ngx_log_error(NGX_LOG_ERR, pReq->connection->log, 0, "directory index of \"%s\" is forbidden", path.data);
-			}
-			ngx_http_finalize_request(pReq, NGX_HTTP_FORBIDDEN);
+		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pReq->connection->log, 0, "content phase: %ui", pReq->phase_handler);
+		ngx_int_t rc = ph->handler(pReq);
+		if(rc != NGX_DECLINED) {
+			ngx_http_finalize_request(pReq, rc);
+			return NGX_OK;
 		}
 		else {
-			ngx_log_error(NGX_LOG_ERR, pReq->connection->log, 0, "no handler found");
-			ngx_http_finalize_request(pReq, NGX_HTTP_NOT_FOUND);
+			// rc == NGX_DECLINED 
+			ph++;
+			if(ph->checker) {
+				pReq->phase_handler++;
+				return NGX_AGAIN;
+			}
+			else {
+				// no content handler was found 
+				if(pReq->uri.data[pReq->uri.len - 1] == '/') {
+					size_t root;
+					ngx_str_t path;
+					if(ngx_http_map_uri_to_path(pReq, &path, &root, 0) != NULL) {
+						ngx_log_error(NGX_LOG_ERR, pReq->connection->log, 0, "directory index of \"%s\" is forbidden", path.data);
+					}
+					ngx_http_finalize_request(pReq, NGX_HTTP_FORBIDDEN);
+				}
+				else {
+					ngx_log_error(NGX_LOG_ERR, pReq->connection->log, 0, "no handler found");
+					ngx_http_finalize_request(pReq, NGX_HTTP_NOT_FOUND);
+				}
+				return NGX_OK;
+			}
 		}
-		return NGX_OK;
 	}
 }
 
-void ngx_http_update_location_config(ngx_http_request_t * r)
+void ngx_http_update_location_config(ngx_http_request_t * pReq)
 {
-	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-	if(r->method & clcf->limit_except) {
-		r->loc_conf = clcf->limit_except_loc_conf;
-		clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
+	ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_core_module);
+	if(pReq->method & clcf->limit_except) {
+		pReq->loc_conf = clcf->limit_except_loc_conf;
+		clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_core_module);
 	}
-	if(r == r->main) {
+	if(pReq == pReq->main) {
 		//ngx_set_connection_log(r->connection, clcf->error_log);
-		r->connection->SetLog(clcf->error_log);
+		pReq->connection->SetLog(clcf->error_log);
 	}
 	if((ngx_io.flags & NGX_IO_SENDFILE) && clcf->sendfile) {
-		r->connection->sendfile = 1;
+		pReq->connection->sendfile = 1;
 	}
 	else {
-		r->connection->sendfile = 0;
+		pReq->connection->sendfile = 0;
 	}
 	if(clcf->client_body_in_file_only) {
-		r->request_body_in_file_only = 1;
-		r->request_body_in_persistent_file = 1;
-		r->request_body_in_clean_file = clcf->client_body_in_file_only == NGX_HTTP_REQUEST_BODY_FILE_CLEAN;
-		r->request_body_file_log_level = NGX_LOG_NOTICE;
+		pReq->request_body_in_file_only = 1;
+		pReq->request_body_in_persistent_file = 1;
+		pReq->request_body_in_clean_file = clcf->client_body_in_file_only == NGX_HTTP_REQUEST_BODY_FILE_CLEAN;
+		pReq->request_body_file_log_level = NGX_LOG_NOTICE;
 	}
 	else {
-		r->request_body_file_log_level = NGX_LOG_WARN;
+		pReq->request_body_file_log_level = NGX_LOG_WARN;
 	}
-	r->request_body_in_single_buf = clcf->client_body_in_single_buffer;
-	if(r->keepalive) {
+	pReq->request_body_in_single_buf = clcf->client_body_in_single_buffer;
+	if(pReq->keepalive) {
 		if(clcf->keepalive_timeout == 0) {
-			r->keepalive = 0;
+			pReq->keepalive = 0;
 		}
-		else if(r->connection->requests >= clcf->keepalive_requests) {
-			r->keepalive = 0;
+		else if(pReq->connection->requests >= clcf->keepalive_requests) {
+			pReq->keepalive = 0;
 		}
-		else if(r->headers_in.msie6 && r->method == NGX_HTTP_POST && (clcf->keepalive_disable & NGX_HTTP_KEEPALIVE_DISABLE_MSIE6)) {
+		else if(pReq->headers_in.msie6 && pReq->method == NGX_HTTP_POST && (clcf->keepalive_disable & NGX_HTTP_KEEPALIVE_DISABLE_MSIE6)) {
 			/*
 			 * MSIE may wait for some time if an response for
 			 * a POST request was sent over a keepalive connection
 			 */
-			r->keepalive = 0;
+			pReq->keepalive = 0;
 		}
-		else if(r->headers_in.safari && (clcf->keepalive_disable & NGX_HTTP_KEEPALIVE_DISABLE_SAFARI)) {
+		else if(pReq->headers_in.safari && (clcf->keepalive_disable & NGX_HTTP_KEEPALIVE_DISABLE_SAFARI)) {
 			/*
 			 * Safari may send a POST request to a closed keepalive
-			 * connection and may stall for some time, see
-			 *     https://bugs.webkit.org/show_bug.cgi?id=5760
+			 * connection and may stall for some time, see https://bugs.webkit.org/show_bug.cgi?id=5760
 			 */
-			r->keepalive = 0;
+			pReq->keepalive = 0;
 		}
 	}
 	if(!clcf->tcp_nopush) {
-		/* disable TCP_NOPUSH/TCP_CORK use */
-		r->connection->tcp_nopush = NGX_TCP_NOPUSH_DISABLED;
+		// disable TCP_NOPUSH/TCP_CORK use 
+		pReq->connection->tcp_nopush = NGX_TCP_NOPUSH_DISABLED;
 	}
-	if(r->limit_rate == 0) {
-		r->limit_rate = clcf->limit_rate;
-	}
-	if(clcf->handler) {
-		r->content_handler = clcf->handler;
-	}
+	SETIFZ(pReq->limit_rate, clcf->limit_rate);
+	if(clcf->F_HttpHandler)
+		pReq->F_HttpContentHandler = clcf->F_HttpHandler;
 }
 /*
  * NGX_OK       - exact or regex match
@@ -1761,13 +1760,11 @@ ngx_int_t ngx_http_subrequest(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t
 		sr->method_name = r->method_name;
 		sr->loc_conf = r->loc_conf;
 		sr->valid_location = r->valid_location;
-		sr->content_handler = r->content_handler;
+		sr->F_HttpContentHandler = r->F_HttpContentHandler;
 		sr->phase_handler = r->phase_handler;
 		sr->write_event_handler = ngx_http_core_run_phases;
-
 		ngx_http_update_location_config(sr);
 	}
-
 	return ngx_http_post_request(sr, NULL);
 }
 
@@ -1808,46 +1805,43 @@ ngx_int_t ngx_http_internal_redirect(ngx_http_request_t * r, ngx_str_t * uri, ng
 
 ngx_int_t ngx_http_named_location(ngx_http_request_t * r, ngx_str_t * name)
 {
-	ngx_http_core_srv_conf_t  * cscf;
-	ngx_http_core_loc_conf_t   ** clcfp;
-	ngx_http_core_main_conf_t * cmcf;
 	r->main->count++;
 	r->uri_changes--;
 	if(r->uri_changes == 0) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite or internal redirection cycle while redirect to named location \"%V\"", name);
 		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
-		return NGX_DONE;
 	}
-
-	if(r->uri.len == 0) {
+	else if(r->uri.len == 0) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "empty URI in redirect to named location \"%V\"", name);
 		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
-		return NGX_DONE;
 	}
-	cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-	if(cscf->named_locations) {
-		for(clcfp = cscf->named_locations; *clcfp; clcfp++) {
-			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "test location: \"%V\"", &(*clcfp)->name);
-			if(name->len != (*clcfp)->name.len || ngx_strncmp(name->data, (*clcfp)->name.data, name->len) != 0) {
-				continue;
+	else {
+		ngx_http_core_srv_conf_t * cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
+		if(cscf->named_locations) {
+			for(ngx_http_core_loc_conf_t ** clcfp = cscf->named_locations; *clcfp; clcfp++) {
+				ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "test location: \"%V\"", &(*clcfp)->name);
+				if(name->len == (*clcfp)->name.len && ngx_strncmp(name->data, (*clcfp)->name.data, name->len) == 0) {
+					ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "using location: %V \"%V?%V\"", name, &r->uri, &r->args);
+					r->internal = 1;
+					r->F_HttpContentHandler = 0;
+					r->uri_changed = 0;
+					r->loc_conf = (*clcfp)->loc_conf;
+					// clear the modules contexts 
+					memzero(r->ctx, sizeof(void *) * ngx_http_max_module);
+					ngx_http_update_location_config(r);
+					{
+						ngx_http_core_main_conf_t * cmcf = (ngx_http_core_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_core_module);
+						r->phase_handler = cmcf->phase_engine.location_rewrite_index;
+						r->write_event_handler = ngx_http_core_run_phases;
+						ngx_http_core_run_phases(r);
+						return NGX_DONE;
+					}
+				}
 			}
-			ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "using location: %V \"%V?%V\"", name, &r->uri, &r->args);
-			r->internal = 1;
-			r->content_handler = NULL;
-			r->uri_changed = 0;
-			r->loc_conf = (*clcfp)->loc_conf;
-			// clear the modules contexts 
-			memzero(r->ctx, sizeof(void *) * ngx_http_max_module);
-			ngx_http_update_location_config(r);
-			cmcf = (ngx_http_core_main_conf_t *)ngx_http_get_module_main_conf(r, ngx_http_core_module);
-			r->phase_handler = cmcf->phase_engine.location_rewrite_index;
-			r->write_event_handler = ngx_http_core_run_phases;
-			ngx_http_core_run_phases(r);
-			return NGX_DONE;
 		}
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "could not find named location \"%V\"", name);
+		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 	}
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "could not find named location \"%V\"", name);
-	ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 	return NGX_DONE;
 }
 

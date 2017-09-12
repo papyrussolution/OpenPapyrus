@@ -2995,49 +2995,57 @@ private:
 
 int SLAPI OpCache::Dirty(PPID opID)
 {
-	RwL.WriteLock();
-	Helper_Dirty(opID);
-	if(P_ReckonOpList && P_ReckonOpList->lsearch(opID)) {
-		State &= ~stReckonListInited;
-		ZDELETE(P_ReckonOpList);
+	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		Helper_Dirty(opID);
+		if(P_ReckonOpList && P_ReckonOpList->lsearch(opID)) {
+			State &= ~stReckonListInited;
+			ZDELETE(P_ReckonOpList);
+		}
+		if(State & stOpSymbListInited) {
+			OpSymbList.Clear();
+			State &= ~stOpSymbListInited;
+		}
+		IoeC.Dirty(opID);
+		//RwL.Unlock();
 	}
-	if(State & stOpSymbListInited) {
-		OpSymbList.Clear();
-		State &= ~stOpSymbListInited;
-	}
-	IoeC.Dirty(opID);
-	RwL.Unlock();
 	return 1;
 }
 
 PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 {
 	PPID   op_id = 0;
-	RwL.ReadLock();
-	if(!(State & stOpSymbListInited)) {
-		RwL.Unlock();
-		RwL.WriteLock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!(State & stOpSymbListInited)) {
-			OpSymbList.Clear();
-			PPOprKind op_rec;
-			for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, Reference::eoIdSymb); en.Next(&op_rec) > 0;) {
-				if(op_rec.Symb[0]) {
-					OpSymbList.Add(op_rec.ID, strip(op_rec.Symb));
+			//RwL.Unlock();
+			//RwL.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(State & stOpSymbListInited)) {
+				OpSymbList.Clear();
+				PPOprKind op_rec;
+				for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, Reference::eoIdSymb); en.Next(&op_rec) > 0;) {
+					if(op_rec.Symb[0]) {
+						OpSymbList.Add(op_rec.ID, strip(op_rec.Symb));
+					}
 				}
+				State |= stOpSymbListInited;
 			}
-			State |= stOpSymbListInited;
+			//RwL.Unlock();
+			//RwL.ReadLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Read);
 		}
-		RwL.Unlock();
-		RwL.ReadLock();
-	}
-	if(State & stOpSymbListInited) {
-		uint pos = 0;
-		if(OpSymbList.SearchByText(pSymb, 1, &pos)) {
-			StrAssocArray::Item item = OpSymbList.at_WithoutParent(pos);
-			op_id = item.Id;
+		if(State & stOpSymbListInited) {
+			uint pos = 0;
+			if(OpSymbList.SearchByText(pSymb, 1, &pos)) {
+				StrAssocArray::Item item = OpSymbList.at_WithoutParent(pos);
+				op_id = item.Id;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return op_id;
 }
 
@@ -3051,15 +3059,17 @@ int SLAPI OpCache::GetReckonOpList(PPIDArray * pList)
 	int    ok = -1;
 	if(pList) {
 		pList->clear();
-		RwL.ReadLock();
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(State & stReckonListInited) {
 			if(P_ReckonOpList)
 				pList->copy(*P_ReckonOpList);
 			ok = 1;
 		}
 		if(ok < 0) {
-			RwL.Unlock();
-			RwL.WriteLock();
+			//RwL.Unlock();
+			//RwL.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			ok = FetchReckonOpList();
 			if(State & stReckonListInited) {
 				if(P_ReckonOpList)
@@ -3067,7 +3077,7 @@ int SLAPI OpCache::GetReckonOpList(PPIDArray * pList)
 				ok = 1;
 			}
 		}
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	return ok;
 }

@@ -5751,17 +5751,21 @@ void SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 
 int SLAPI PersonCache::GetConfig(PPPersonConfig * pCfg, int enforce)
 {
-	CfgLock.ReadLock();
-	if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
-		CfgLock.Unlock();
-		CfgLock.WriteLock();
+	{
+		//CfgLock.ReadLock();
+		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
-			PPObjPerson::ReadConfig(&Cfg);
-			Cfg.Flags |= PPPersonConfig::fValid;
+			//CfgLock.Unlock();
+			//CfgLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
+				PPObjPerson::ReadConfig(&Cfg);
+				Cfg.Flags |= PPPersonConfig::fValid;
+			}
 		}
+		ASSIGN_PTR(pCfg, Cfg);
+		//CfgLock.Unlock();
 	}
-	ASSIGN_PTR(pCfg, Cfg);
-	CfgLock.Unlock();
 	return 1;
 }
 

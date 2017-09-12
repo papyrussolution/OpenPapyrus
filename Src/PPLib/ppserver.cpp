@@ -77,7 +77,7 @@ void FASTCALL PPThread::SetMessage(const char * pMsg)
 	LastMsg_ = pMsg;
 }
 
-int FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
+void FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
 {
 	rInfo.Id = GetThreadID();
 	rInfo.Kind = Kind;
@@ -89,7 +89,17 @@ int FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
 	rInfo.Text = Text;
 	rInfo.LastMsg = LastMsg_;
 	rInfo.UniqueSessID = UniqueSessID;
-	return 1;
+}
+
+void FASTCALL PPThread::LockStackToStr(SString & rBuf) const
+{
+	const SlThreadLocalArea * p_sl_tla = (const SlThreadLocalArea *)SlThread::P_Tla;
+	if(p_sl_tla) {
+		p_sl_tla->LckStk.ToStr(rBuf);
+	}
+	else {
+		rBuf.Cat("TLA inaccessible");
+	}
 }
 
 int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -246,7 +256,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tSetWorkbookContent, // @v8.7.7
 		tQueryNaturalToken, // @v8.8.12
 		tGetArticleByPerson,
-		tGetPersonByArticle
+		tGetPersonByArticle,
+		tLogLockStack // @v9.8.1
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -328,6 +339,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_EXPTARIFFTA              , "EXPTARIFFTA",               tExpTariffTA,             PPSCMD_EXPTARIFFTA,           cmdfNeedAuth },
 		{ PPHS_SENDSMS                  , "SENDSMS",                   tSendSMS,                 PPSCMD_SENDSMS,               cmdfNeedAuth },
 		{ PPHS_RESETCACHE               , "RESETCACHE",                tResetCache,              PPSCMD_RESETCACHE,            cmdfNeedAuth },
+		{ PPHS_LOGLOCKSTACK             , "LOGLOCKSTACK",              tLogLockStack,            PPSCMD_LOGLOCKSTACK,          0            }, // @v9.8.1
 		{ PPHS_CPOSINIT                 , "CPOSINIT",                  tCPosProcessorCommand,    PPSCMD_POS_INIT,              cmdfNeedAuth },
 		{ PPHS_CPOSRELEASE              , "CPOSRELEASE",               tCPosProcessorCommand,    PPSCMD_POS_RELEASE,           cmdfNeedAuth },
 		{ PPHS_CPOSGETCTABLELIST        , "CPOSGETCTABLELIST",         tCPosProcessorCommand,    PPSCMD_POS_GETCTABLELIST,     cmdfNeedAuth },
@@ -448,6 +460,8 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			PutParam(1, name); // PPPutExtStrData(1, Params, name);
 			PutParam(2, temp_buf); // PPPutExtStrData(2, Params, temp_buf);
+			break;
+		case tLogLockStack:
 			break;
 		case tStyloBHTII:
 			ok = 0;
@@ -2423,6 +2437,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			State &= ~stLoggedIn;
 			rReply.SetAck();
 			ok = cmdretQuit;
+			break;
+		case PPSCMD_LOGLOCKSTACK: // @v9.8.1
+			DS.LogLocStk();
 			break;
 		case PPSCMD_RESETCACHE:
 			THROW_PP(State & stLoggedIn, PPERR_NOTLOGGEDIN);

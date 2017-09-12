@@ -3101,9 +3101,10 @@ int SLAPI GoodsStrucCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{
-		RwL.WriteLock();
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	if(P_GiftList) {
 		PPGoodsStrucHeader temp_rec;

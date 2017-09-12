@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -682,43 +682,47 @@ int SLAPI GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
-	BarLock.ReadLock();
-	if(!P_BarList) {
-		BarLock.Unlock();
-		BarLock.WriteLock();
+	{
+		//BarLock.ReadLock();
+		SRWLOCKER(BarLock, SReadWriteLocker::Read);
 		if(!P_BarList) {
-			PPObjGoodsValRestr gvr_obj;
-			PPGoodsValRestrPacket pack;
-			PPGoodsValRestr gvr_rec;
-			ObjRestrictArray gvr_list;
-			for(SEnum en = PPRef->Enum(PPOBJ_GOODSVALRESTR, 0); ok && en.Next(&gvr_rec) > 0;) {
-				if(gvr_obj.ReadBarList(gvr_rec.ID, gvr_list) > 0) {
-					for(uint i = 0; ok && i < gvr_list.getCount(); i++) {
-						SETIFZ(P_BarList, new PPObjGoodsValRestr::GvrArray);
-						if(P_BarList) {
-							const ObjRestrictItem & r_oritem = gvr_list.at(i);
-							PPObjGoodsValRestr::GvrItem new_item;
-							MEMSZERO(new_item);
-							new_item.GvrID = gvr_rec.ID;
-							new_item.ArID = r_oritem.ObjID;
-							new_item.GvrBarOption = r_oritem.Flags;
-							if(P_BarList->insert(&new_item))
-								ok = 1;
+			//BarLock.Unlock();
+			//BarLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!P_BarList) {
+				PPObjGoodsValRestr gvr_obj;
+				PPGoodsValRestrPacket pack;
+				PPGoodsValRestr gvr_rec;
+				ObjRestrictArray gvr_list;
+				for(SEnum en = PPRef->Enum(PPOBJ_GOODSVALRESTR, 0); ok && en.Next(&gvr_rec) > 0;) {
+					if(gvr_obj.ReadBarList(gvr_rec.ID, gvr_list) > 0) {
+						for(uint i = 0; ok && i < gvr_list.getCount(); i++) {
+							SETIFZ(P_BarList, new PPObjGoodsValRestr::GvrArray);
+							if(P_BarList) {
+								const ObjRestrictItem & r_oritem = gvr_list.at(i);
+								PPObjGoodsValRestr::GvrItem new_item;
+								MEMSZERO(new_item);
+								new_item.GvrID = gvr_rec.ID;
+								new_item.ArID = r_oritem.ObjID;
+								new_item.GvrBarOption = r_oritem.Flags;
+								if(P_BarList->insert(&new_item))
+									ok = 1;
+								else
+									ok = PPSetErrorSLib();
+							}
 							else
-								ok = PPSetErrorSLib();
+								ok = PPSetErrorNoMem();
 						}
-						else
-							ok = PPSetErrorNoMem();
 					}
 				}
 			}
 		}
+		if(ok && P_BarList) {
+			rList = *P_BarList;
+			ok = 1;
+		}
+		//BarLock.Unlock();
 	}
-	if(ok && P_BarList) {
-		rList = *P_BarList;
-		ok = 1;
-	}
-	BarLock.Unlock();
 	return ok;
 }
 
@@ -726,9 +730,12 @@ int SLAPI GoodsValRestrCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCache::Dirty(id);
-	BarLock.WriteLock();
-	ZDELETE(P_BarList);
-	BarLock.Unlock();
+	{
+		//BarLock.WriteLock();
+		SRWLOCKER(BarLock, SReadWriteLocker::Write);
+		ZDELETE(P_BarList);
+		//BarLock.Unlock();
+	}
 	return ok;
 }
 

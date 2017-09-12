@@ -2488,9 +2488,7 @@ private:
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPGlobalUserAccConfig Cfg;
-#ifdef _MT
 	ReadWriteLock CfgLock;
-#endif
 public:
 	struct GlobalUserAccData : public ObjCacheEntry {
 		S_GUID LocalDbUuid;
@@ -2502,17 +2500,21 @@ public:
 
 int SLAPI GlobalUserAccCache::GetConfig(PPGlobalUserAccConfig * pCfg, int enforce)
 {
-	CfgLock.ReadLock();
-	if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
-		CfgLock.Unlock();
-		CfgLock.WriteLock();
+	{
+		//CfgLock.ReadLock();
+		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
-			PPObjGlobalUserAcc::ReadConfig(&Cfg);
-			Cfg.Flags |= PPGlobalUserAccConfig::fValid;
+			//CfgLock.Unlock();
+			//CfgLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(Cfg.Flags & PPGlobalUserAccConfig::fValid) || enforce) {
+				PPObjGlobalUserAcc::ReadConfig(&Cfg);
+				Cfg.Flags |= PPGlobalUserAccConfig::fValid;
+			}
 		}
+		ASSIGN_PTR(pCfg, Cfg);
+		//CfgLock.Unlock();
 	}
-	ASSIGN_PTR(pCfg, Cfg);
-	CfgLock.Unlock();
 	return 1;
 }
 

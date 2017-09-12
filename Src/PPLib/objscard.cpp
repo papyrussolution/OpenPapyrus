@@ -4077,17 +4077,21 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 
 int SLAPI SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
 {
-	CfgLock.ReadLock();
-	if(!(Cfg.Flags & PPSCardConfig::fValid) || enforce) {
-		CfgLock.Unlock();
-		CfgLock.WriteLock();
+	{
+		//CfgLock.ReadLock();
+		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPSCardConfig::fValid) || enforce) {
-			PPObjSCard::ReadConfig(&Cfg);
-			Cfg.Flags |= PPSCardConfig::fValid;
+			//CfgLock.Unlock();
+			//CfgLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(Cfg.Flags & PPSCardConfig::fValid) || enforce) {
+				PPObjSCard::ReadConfig(&Cfg);
+				Cfg.Flags |= PPSCardConfig::fValid;
+			}
 		}
+		ASSIGN_PTR(pCfg, Cfg);
+		//CfgLock.Unlock();
 	}
-	ASSIGN_PTR(pCfg, Cfg);
-	CfgLock.Unlock();
 	return 1;
 }
 
@@ -4133,13 +4137,7 @@ public:
 	}
 	virtual int SLAPI Dirty(PPID id); // @sync_w
 	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
-	int    FASTCALL ReleaseFullList(const StrAssocArray * pList)
-	{
-		if(pList && pList == &FullCardList) {
-			FclLock.Unlock();
-		}
-		return 1;
-	}
+	int    FASTCALL ReleaseFullList(const StrAssocArray * pList);
 	int    SLAPI FetchExtText(PPID id, SString & rBuf)
 	{
 		return ExtBlk.Fetch(id, rBuf, 0);
@@ -4256,62 +4254,80 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 	int    err = 0;
 	const StrAssocArray * p_result = 0;
 	if(FullCardList.Use) {
-		FclLock.ReadLock(); // @v8.1.4
-		if(!FullCardList.Inited || FullCardList.DirtyTable.GetCount()) {
-			FclLock.Unlock(); // @v8.1.4
-			FclLock.WriteLock();
+		{
+			//FclLock.ReadLock(); // @v8.1.4
+			SRWLOCKER(FclLock, SReadWriteLocker::Read);
 			if(!FullCardList.Inited || FullCardList.DirtyTable.GetCount()) {
-				PPObjSCard sc_obj;
-				if(!FullCardList.Inited) {
-					SString msg_buf, fmt_buf;
-					uint   _mc = 0;
-					if(CS_SERVER) {
-						PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
-					}
-					SCardCore * p_tbl = sc_obj.P_Tbl;
-					BExtQuery q(p_tbl, 0, 24);
-					q.select(p_tbl->ID, p_tbl->SeriesID, p_tbl->Code, 0L);
-					FullCardList.Clear();
-					SCardTbl::Key0 k0;
-					for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
-						_mc++;
-						if(!FullCardList.AddFast(p_tbl->data.ID, p_tbl->data.Code)) {
-							PPSetErrorSLib();
-							err = 1;
+				//FclLock.Unlock(); // @v8.1.4
+				//FclLock.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+				if(!FullCardList.Inited || FullCardList.DirtyTable.GetCount()) {
+					PPObjSCard sc_obj;
+					if(!FullCardList.Inited) {
+						SString msg_buf, fmt_buf;
+						uint   _mc = 0;
+						if(CS_SERVER) {
+							PPLoadText(PPTXT_GETTINGFULLTEXTLIST, fmt_buf);
 						}
-						else {
-							if(CS_SERVER) {
-								if((_mc % 1000) == 0)
-									PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
-							}
-						}
-					}
-				}
-				else {
-					SCardTbl::Rec sc_rec;
-					for(ulong id = 0; !err && FullCardList.DirtyTable.Enum(&id);) {
-						if(Get((long)id, &sc_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
-							if(!FullCardList.Add(id, sc_rec.Code, 1)) {
+						SCardCore * p_tbl = sc_obj.P_Tbl;
+						BExtQuery q(p_tbl, 0, 24);
+						q.select(p_tbl->ID, p_tbl->SeriesID, p_tbl->Code, 0L);
+						FullCardList.Clear();
+						SCardTbl::Key0 k0;
+						for(q.initIteration(0, &k0, spFirst); !err && q.nextIteration() > 0;) {
+							_mc++;
+							if(!FullCardList.AddFast(p_tbl->data.ID, p_tbl->data.Code)) {
 								PPSetErrorSLib();
 								err = 1;
 							}
+							else {
+								if(CS_SERVER) {
+									if((_mc % 1000) == 0)
+										PPWaitMsg((msg_buf = fmt_buf).Space().Cat(_mc));
+								}
+							}
 						}
 					}
+					else {
+						SCardTbl::Rec sc_rec;
+						for(ulong id = 0; !err && FullCardList.DirtyTable.Enum(&id);) {
+							if(Get((long)id, &sc_rec) > 0) { // Извлекаем наименование из кэша (из самого себя): так быстрее.
+								if(!FullCardList.Add(id, sc_rec.Code, 1)) {
+									PPSetErrorSLib();
+									err = 1;
+								}
+							}
+						}
+					}
+					if(!err) {
+						FullCardList.DirtyTable.Clear();
+						FullCardList.Inited = 1;
+					}
 				}
-				if(!err) {
-					FullCardList.DirtyTable.Clear();
-					FullCardList.Inited = 1;
-				}
+				//FclLock.Unlock();
+				//FclLock.ReadLock(); // @v8.1.3
 			}
-			FclLock.Unlock();
-			FclLock.ReadLock(); // @v8.1.3
 		}
-		if(!err)
+		if(!err) {
+			#if SLTRACELOCKSTACK
+			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
+			#endif		
+			FclLock.ReadLock_();
 			p_result = &FullCardList;
-		else
-			FclLock.Unlock();
+		}
 	}
 	return p_result;
+}
+
+int FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
+{
+	if(pList && pList == &FullCardList) {
+		FclLock.Unlock_();
+		#if SLTRACELOCKSTACK
+		SLS.LockPop();
+		#endif		
+	}
+	return 1;
 }
 
 int SLAPI SCardCache::Dirty(PPID id)
@@ -4320,9 +4336,10 @@ int SLAPI SCardCache::Dirty(PPID id)
 	ObjCacheHash::Dirty(id);
 	ExtBlk.Dirty(id);
 	{
-		FclLock.WriteLock();
+		//FclLock.WriteLock();
+		SRWLOCKER(FclLock, SReadWriteLocker::Write);
 		FullCardList.Dirty(id);
-		FclLock.Unlock();
+		//FclLock.Unlock();
 	}
 	return ok;
 }
@@ -4343,74 +4360,77 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 	uint   lru_pos = 0;
 	LDATETIME lru_time;
 	lru_time.SetFar();
-	UhttLock.ReadLock();
-	for(i = 0; !pos && i < UhttList.getCount(); i++) {
-		const PPObjSCard::UhttEntry & r_entry = UhttList.at(i);
-		if(cmp(r_entry.ActualDtm, lru_time) < 0) {
-			lru_time = r_entry.ActualDtm;
-			lru_pos = (i+1);
-		}
-		if(strcmp(r_entry.Code, pCode) == 0) {
-			pos = (i+1);
-			LDATETIME c = getcurdatetime_();
-			if(diffdatetimesec(c, r_entry.ActualDtm) <= rest_actual_timeout) {
-				ASSIGN_PTR(pEntry, r_entry);
-				ok = 1;
+	{
+		//UhttLock.ReadLock();
+		SRWLOCKER(UhttLock, SReadWriteLocker::Read);
+		for(i = 0; !pos && i < UhttList.getCount(); i++) {
+			const PPObjSCard::UhttEntry & r_entry = UhttList.at(i);
+			if(cmp(r_entry.ActualDtm, lru_time) < 0) {
+				lru_time = r_entry.ActualDtm;
+				lru_pos = (i+1);
 			}
-			else {
-				ok = -2;
-			}
-		}
-	}
-	if(ok < 0) {
-		PPUhttClient uhtt_cli;
-		if(uhtt_cli.Auth()) {
-			UhttLock.Unlock();
-			UhttLock.WriteLock();
-
-			double uhtt_rest = 0.0;
-			if(ok == -2) {
-				assert(pos > 0);
-				PPObjSCard::UhttEntry & r_entry = UhttList.at(pos-1);
-				assert(r_entry.UhttCode[0] && pos > 0);
-				if(uhtt_cli.GetSCardRest(r_entry.UhttCode, 0, uhtt_rest)) {
-					r_entry.Rest = R2(uhtt_rest);
-					r_entry.ActualDtm = getcurdatetime_();
+			if(strcmp(r_entry.Code, pCode) == 0) {
+				pos = (i+1);
+				LDATETIME c = getcurdatetime_();
+				if(diffdatetimesec(c, r_entry.ActualDtm) <= rest_actual_timeout) {
 					ASSIGN_PTR(pEntry, r_entry);
 					ok = 1;
 				}
-				else
-					ok = 0;
+				else {
+					ok = -2;
+				}
 			}
-			else {
-				UhttSCardPacket scp;
-				if(uhtt_cli.GetSCardByNumber(pCode, scp)) {
-					PPObjSCard::UhttEntry entry;
-					MEMSZERO(entry);
-					STRNSCPY(entry.Code, pCode);
-					scp.Code.CopyTo(entry.UhttCode, sizeof(entry.UhttCode));
-					scp.Hash.CopyTo(entry.UhttHash, sizeof(entry.UhttHash));
-					if(uhtt_cli.GetSCardRest(entry.UhttCode, 0, uhtt_rest)) {
-						entry.Rest = R2(uhtt_rest);
-						entry.ActualDtm = getcurdatetime_();
-						if(UhttList.getCount() >= max_entries && lru_pos)
-							UhttList.at(lru_pos) = entry;
-						else
-							UhttList.insert(&entry);
-						ASSIGN_PTR(pEntry, entry);
+		}
+		if(ok < 0) {
+			PPUhttClient uhtt_cli;
+			if(uhtt_cli.Auth()) {
+				//UhttLock.Unlock();
+				//UhttLock.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+				double uhtt_rest = 0.0;
+				if(ok == -2) {
+					assert(pos > 0);
+					PPObjSCard::UhttEntry & r_entry = UhttList.at(pos-1);
+					assert(r_entry.UhttCode[0] && pos > 0);
+					if(uhtt_cli.GetSCardRest(r_entry.UhttCode, 0, uhtt_rest)) {
+						r_entry.Rest = R2(uhtt_rest);
+						r_entry.ActualDtm = getcurdatetime_();
+						ASSIGN_PTR(pEntry, r_entry);
 						ok = 1;
 					}
 					else
 						ok = 0;
 				}
-				else
-					ok = 0;
+				else {
+					UhttSCardPacket scp;
+					if(uhtt_cli.GetSCardByNumber(pCode, scp)) {
+						PPObjSCard::UhttEntry entry;
+						MEMSZERO(entry);
+						STRNSCPY(entry.Code, pCode);
+						scp.Code.CopyTo(entry.UhttCode, sizeof(entry.UhttCode));
+						scp.Hash.CopyTo(entry.UhttHash, sizeof(entry.UhttHash));
+						if(uhtt_cli.GetSCardRest(entry.UhttCode, 0, uhtt_rest)) {
+							entry.Rest = R2(uhtt_rest);
+							entry.ActualDtm = getcurdatetime_();
+							if(UhttList.getCount() >= max_entries && lru_pos)
+								UhttList.at(lru_pos) = entry;
+							else
+								UhttList.insert(&entry);
+							ASSIGN_PTR(pEntry, entry);
+							ok = 1;
+						}
+						else
+							ok = 0;
+					}
+					else
+						ok = 0;
+				}
 			}
+			else
+				ok = 0;
 		}
-		else
-			ok = 0;
+		//UhttLock.Unlock();
 	}
-	UhttLock.Unlock();
 	return ok;
 }
 

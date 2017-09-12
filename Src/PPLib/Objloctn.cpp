@@ -73,14 +73,16 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 		PPID   text_ref_id = 0;
 		uint   pos = 0;
 		if(PPRef->TrT.FetchSelfRefText(pText, &text_ref_id) > 0) {
-			TxlLock.ReadLock();
+			//TxlLock.ReadLock();
+			SRWLOCKER(TxlLock, SReadWriteLocker::Read);
 			if(TextList.lsearch(&text_ref_id, &(pos = 0), CMPF_LONG)) {
 				rList = TextList.at(pos)->AddrList;
 				ok = 1;
 			}
 			else {
-				TxlLock.Unlock();
-				TxlLock.WriteLock();
+				//TxlLock.Unlock();
+				//TxlLock.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				if(TextList.lsearch(&text_ref_id, &(pos = 0), CMPF_LONG)) { // ѕовторна€ попытка после блокировки
 					rList = TextList.at(pos)->AddrList;
 					ok = 1;
@@ -101,7 +103,7 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 					}
 				}
 			}
-			TxlLock.Unlock();
+			//TxlLock.Unlock();
 		}
 	}
 	return ok;
@@ -2895,59 +2897,69 @@ public:
 	};
 };
 
-int LocationCache::ReleaseFullEaList(const StrAssocArray * pList)
-{
-	if(pList && pList == &FullEaList) {
-		FealLock.Unlock();
-	}
-	return 1;
-}
-
 const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 {
 	int    err = 0;
 	const  StrAssocArray * p_result = 0;
 	if(FullEaList.Use) {
-		FealLock.ReadLock();
-		if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
-			FealLock.Unlock();
-			FealLock.WriteLock();
+		{
+			//FealLock.ReadLock();
+			SRWLOCKER(FealLock, SReadWriteLocker::Read);
 			if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
-				PPObjLocation loc_obj(SConstructorLite);
-				EAddrTbl::Rec ea_rec;
-				SString phone_buf;
-				if(!FullEaList.Inited) {
-					if(!loc_obj.P_Tbl->GetFullEaList(FullEaList))
-						err = 1;
-				}
-				else {
-					for(ulong id = 0; !err && FullEaList.DirtyTable.Enum(&id);) {
-						if(loc_obj.P_Tbl->GetEAddr(id, &ea_rec) > 0) {
-							phone_buf = 0;
-							((PPEAddr *)ea_rec.Addr)->GetPhone(phone_buf);
-							if(phone_buf.NotEmpty()) {
-								if(!FullEaList.Add(ea_rec.ID, phone_buf, 1)) {
-									PPSetErrorSLib();
-									err = 1;
+				//FealLock.Unlock();
+				//FealLock.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+				if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
+					PPObjLocation loc_obj(SConstructorLite);
+					EAddrTbl::Rec ea_rec;
+					SString phone_buf;
+					if(!FullEaList.Inited) {
+						if(!loc_obj.P_Tbl->GetFullEaList(FullEaList))
+							err = 1;
+					}
+					else {
+						for(ulong id = 0; !err && FullEaList.DirtyTable.Enum(&id);) {
+							if(loc_obj.P_Tbl->GetEAddr(id, &ea_rec) > 0) {
+								phone_buf = 0;
+								((PPEAddr *)ea_rec.Addr)->GetPhone(phone_buf);
+								if(phone_buf.NotEmpty()) {
+									if(!FullEaList.Add(ea_rec.ID, phone_buf, 1)) {
+										PPSetErrorSLib();
+										err = 1;
+									}
 								}
 							}
 						}
 					}
+					if(!err) {
+						FullEaList.DirtyTable.Clear();
+						FullEaList.Inited = 1;
+					}
 				}
-				if(!err) {
-					FullEaList.DirtyTable.Clear();
-					FullEaList.Inited = 1;
-				}
+				//FealLock.Unlock();
+				//FealLock.ReadLock();
 			}
-			FealLock.Unlock();
-			FealLock.ReadLock();
 		}
-		if(!err)
+		if(!err) {
+			#if SLTRACELOCKSTACK
+			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
+			#endif		
+			FealLock.ReadLock_();
 			p_result = &FullEaList;
-		else
-			FealLock.Unlock();
+		}
 	}
 	return p_result;
+}
+
+int LocationCache::ReleaseFullEaList(const StrAssocArray * pList)
+{
+	if(pList && pList == &FullEaList) {
+		FealLock.Unlock_();
+		#if SLTRACELOCKSTACK
+		SLS.LockPop();
+		#endif		
+	}
+	return 1;
 }
 
 int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
@@ -2955,14 +2967,16 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 	int    ok = 0;
 	uint   pos = 0;
 	if(locID) {
-		WhclLock.ReadLock();
+		//WhclLock.ReadLock();
+		SRWLOCKER(WhclLock, SReadWriteLocker::Read);
 		if(WhCellList.lsearch(&locID, &pos, CMPF_LONG)) {
 			ASSIGN_PTR(pList, WhCellList.at(pos)->List);
 			ok = 1;
 		}
 		else {
-			WhclLock.Unlock();
-			WhclLock.WriteLock();
+			//WhclLock.Unlock();
+			//WhclLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
 			// ѕовторна€ попытка поиска после установки блокировки
 			//
@@ -2982,7 +2996,7 @@ int SLAPI LocationCache::GetCellList(PPID locID, PPIDArray * pList)
 				}
 			}
 		}
-		WhclLock.Unlock();
+		//WhclLock.Unlock();
 	}
 	return ok;
 }
@@ -3012,55 +3026,65 @@ int SLAPI PPObjLocation::GetDirtyCellParentsList(PPID locID, PPIDArray & rDestLi
 
 int SLAPI LocationCache::DirtyCellList(PPID locID)
 {
-	WhclLock.WriteLock();
 	{
-		PPObjLocation loc_obj(SConstructorLite);
-		PPIDArray par_list;
-		loc_obj.GetDirtyCellParentsList(locID, par_list);
-		for(uint i = 0; i < par_list.getCount(); i++) {
-			const PPID _id = par_list.get(i);
-			uint pos = 0;
-			if(WhCellList.lsearch(&_id, &pos, CMPF_LONG))
-				WhCellList.atFree(pos);
+		//WhclLock.WriteLock();
+		SRWLOCKER(WhclLock, SReadWriteLocker::Write);
+		{
+			PPObjLocation loc_obj(SConstructorLite);
+			PPIDArray par_list;
+			loc_obj.GetDirtyCellParentsList(locID, par_list);
+			for(uint i = 0; i < par_list.getCount(); i++) {
+				const PPID _id = par_list.get(i);
+				uint pos = 0;
+				if(WhCellList.lsearch(&_id, &pos, CMPF_LONG))
+					WhCellList.atFree(pos);
+			}
 		}
+		//WhclLock.Unlock();
 	}
-	WhclLock.Unlock();
 	return 1;
 }
 
 int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 {
-	CfgLock.ReadLock();
-	if(!(Cfg.Flags & PPLocationConfig::fValid) || enforce) {
-		CfgLock.Unlock();
-		CfgLock.WriteLock();
+	{
+		//CfgLock.ReadLock();
+		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPLocationConfig::fValid) || enforce) {
-			PPObjLocation::ReadConfig(&Cfg);
-			Cfg.Flags |= PPLocationConfig::fValid;
+			//CfgLock.Unlock();
+			//CfgLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(Cfg.Flags & PPLocationConfig::fValid) || enforce) {
+				PPObjLocation::ReadConfig(&Cfg);
+				Cfg.Flags |= PPLocationConfig::fValid;
+			}
 		}
+		ASSIGN_PTR(pCfg, Cfg);
+		//CfgLock.Unlock();
 	}
-	ASSIGN_PTR(pCfg, Cfg);
-	CfgLock.Unlock();
 	return 1;
 }
 
 int SLAPI LocationCache::Dirty(PPID locID)
 {
 	PPObjLocation loc_obj(SConstructorLite);
-	RwL.WriteLock();
 	{
-		LocationTbl::Rec loc_rec;
-		if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
-			AddWarehouseEntry(&loc_rec);
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		{
+			LocationTbl::Rec loc_rec;
+			if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
+				AddWarehouseEntry(&loc_rec);
+			}
+			else {
+				uint pos = 0;
+				if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
+					WhObjList.atFree(pos);
+			}
+			Helper_Dirty(locID);
 		}
-		else {
-			uint pos = 0;
-			if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
-				WhObjList.atFree(pos);
-		}
-		Helper_Dirty(locID);
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return 1;
 }
 
@@ -3086,26 +3110,30 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
 int SLAPI LocationCache::LoadWarehouseTab()
 {
 	int    ok = 1;
-	RwL.ReadLock();
-	if(!IsWhObjTabInited) {
-		PPObjLocation lobj(SConstructorLite);
-		RwL.Unlock();
-		RwL.WriteLock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!IsWhObjTabInited) {
-			long   c = 0;
-			LocationTbl::Rec loc_rec;
-			PPObjAccTurn * p_atobj = BillObj->atobj;
-			WhObjList.clear();
-			SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
-			while(ok && en.Next(&loc_rec) > 0) {
-				if(!AddWarehouseEntry(&loc_rec))
-					ok = 0;
+			PPObjLocation lobj(SConstructorLite);
+			//RwL.Unlock();
+			//RwL.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!IsWhObjTabInited) {
+				long   c = 0;
+				LocationTbl::Rec loc_rec;
+				PPObjAccTurn * p_atobj = BillObj->atobj;
+				WhObjList.clear();
+				SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
+				while(ok && en.Next(&loc_rec) > 0) {
+					if(!AddWarehouseEntry(&loc_rec))
+						ok = 0;
+				}
+				if(ok)
+					IsWhObjTabInited = 1;
 			}
-			if(ok)
-				IsWhObjTabInited = 1;
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
@@ -3113,9 +3141,12 @@ PPID SLAPI LocationCache::GetSingleWarehouse()
 {
 	PPID   id = 0;
 	LoadWarehouseTab();
-	RwL.ReadLock();
-	id = (WhObjList.getCount() == 1) ? ((WHObjEntry *)WhObjList.at(0))->LocID : 0;
-	RwL.Unlock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		id = (WhObjList.getCount() == 1) ? ((WHObjEntry *)WhObjList.at(0))->LocID : 0;
+		//RwL.Unlock();
+	}
 	return id;
 }
 
@@ -3123,13 +3154,16 @@ uint SLAPI LocationCache::GetWarehouseList(PPIDArray * pList)
 {
 	uint   c = 0;
 	LoadWarehouseTab();
-	RwL.ReadLock();
-	WHObjEntry * p_entry;
-	for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
-		CALLPTRMEMB(pList, add(p_entry->LocID)); // @v8.0.5 addUnique-->add
-		c++;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		WHObjEntry * p_entry;
+		for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
+			CALLPTRMEMB(pList, add(p_entry->LocID)); // @v8.0.5 addUnique-->add
+			c++;
+		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	CALLPTRMEMB(pList, sortAndUndup()); // @v8.0.5
 	return c;
 }
@@ -3138,12 +3172,15 @@ int SLAPI LocationCache::CheckWarehouseFlags(PPID locID, long f)
 {
 	int    ok = 0;
 	LoadWarehouseTab();
-	RwL.ReadLock();
-	WHObjEntry * p_entry;
-	for(uint i = 0; !ok && WhObjList.enumItems(&i, (void **)&p_entry);)
-		if(p_entry->LocID == locID && p_entry->Flags & f)
-			ok = 1;
-	RwL.Unlock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		WHObjEntry * p_entry;
+		for(uint i = 0; !ok && WhObjList.enumItems(&i, (void **)&p_entry);)
+			if(p_entry->LocID == locID && p_entry->Flags & f)
+				ok = 1;
+		//RwL.Unlock();
+	}
 	return ok;
 }
 
@@ -3152,20 +3189,23 @@ PPID SLAPI LocationCache::ObjToWarehouse(PPID arID)
 	PPID   id = 0;
 	if(arID) {
 		LoadWarehouseTab();
-		RwL.ReadLock();
-		WHObjEntry * p_entry;
-		for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);)
-			if(p_entry->ObjID == arID) {
-				if(p_entry->LocID == 0) {
-					PPSetAddedMsgObjName(PPOBJ_ARTICLE, arID);
-					PPSetError(PPERR_INVAR2LOCASSOC);
+		{
+			//RwL.ReadLock();
+			SRWLOCKER(RwL, SReadWriteLocker::Read);
+			WHObjEntry * p_entry;
+			for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);)
+				if(p_entry->ObjID == arID) {
+					if(p_entry->LocID == 0) {
+						PPSetAddedMsgObjName(PPOBJ_ARTICLE, arID);
+						PPSetError(PPERR_INVAR2LOCASSOC);
+					}
+					id = p_entry->LocID;
+					break;
 				}
-				id = p_entry->LocID;
-				break;
-			}
-		if(id == 0)
-			PPSetError(PPERR_LOCNFOUND);
-		RwL.Unlock();
+			if(id == 0)
+				PPSetError(PPERR_LOCNFOUND);
+			//RwL.Unlock();
+		}
 	}
 	return id;
 }
@@ -3175,21 +3215,24 @@ PPID SLAPI LocationCache::WarehouseToObj(PPID locID)
 	PPID   id = 0;
 	if(locID) {
 		LoadWarehouseTab();
-		RwL.ReadLock();
-		WHObjEntry * p_entry;
-		for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
-			if(p_entry->LocID == locID) {
-				if(p_entry->ObjID == 0) {
-					PPSetAddedMsgObjName(PPOBJ_LOCATION, locID);
-					PPErrCode = PPERR_INVLOC2ARASSOC;
+		{
+			WHObjEntry * p_entry;
+			//RwL.ReadLock();
+			SRWLOCKER(RwL, SReadWriteLocker::Read);
+			for(uint i = 0; WhObjList.enumItems(&i, (void **)&p_entry);) {
+				if(p_entry->LocID == locID) {
+					if(p_entry->ObjID == 0) {
+						PPSetAddedMsgObjName(PPOBJ_LOCATION, locID);
+						PPErrCode = PPERR_INVLOC2ARASSOC;
+					}
+					id = p_entry->ObjID;
+					break;
 				}
-				id = p_entry->ObjID;
-				break;
 			}
+			if(id == 0)
+				PPSetError(PPERR_LOCNFOUND);
+			//RwL.Unlock();
 		}
-		if(id == 0)
-			PPErrCode = PPERR_LOCNFOUND;
-		RwL.Unlock();
 	}
 	return id;
 }
@@ -3279,7 +3322,6 @@ int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void 
 	if(substr_len) {
 		const StrAssocArray * p_full_list = GetFullEaList();
 		if(p_full_list) {
-			//SCardTbl::Rec sc_rec;
 			const uint c = p_full_list->getCount();
 			for(uint i = 0; ok && i < c; i++) {
 				StrAssocArray::Item item = p_full_list->at_WithoutParent(i);

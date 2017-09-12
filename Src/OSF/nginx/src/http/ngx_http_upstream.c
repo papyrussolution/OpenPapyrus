@@ -2095,9 +2095,9 @@ static void ngx_http_upstream_send_response(ngx_http_request_t * pReq, ngx_http_
 
 static void ngx_http_upstream_upgrade(ngx_http_request_t * r, ngx_http_upstream_t * u)
 {
-	ngx_connection_t   * c = r->connection;
+	ngx_connection_t * c = r->connection;
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-	/* TODO: prevent upgrade if not requested or not possible */
+	// TODO: prevent upgrade if not requested or not possible 
 	r->keepalive = 0;
 	c->log->action = "proxying upgraded connection";
 	u->read_event_handler = ngx_http_upstream_upgraded_read_upstream;

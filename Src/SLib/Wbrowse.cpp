@@ -1657,7 +1657,6 @@ void BrowserWindow::Paint()
 		r.right  = CliSz.x;
 		r.bottom = hdr_width - 1;
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
-			SString temp_buf;
 			((TStaticText *)P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, sizeof(buf));
 			::DrawText(ps.hdc, buf, strlen(buf), &r, DT_LEFT); // @unicodeproblem

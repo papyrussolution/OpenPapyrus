@@ -1169,7 +1169,7 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	return ok;
 }
 
-int SLAPI CCheckPacket::SetTotalDiscount(double dis, long flags/*int pctdis, int plusDiscount*/)
+int SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
 {
 	uint   i;
 	uint   last_index = 0;
@@ -1188,32 +1188,54 @@ int SLAPI CCheckPacket::SetTotalDiscount(double dis, long flags/*int pctdis, int
 		}
 	}
 	double discount = 0.0;
-	double part_dis = 0.0, part_amount = 0.0;
+	double part_dis = 0.0;
+	double part_amount = 0.0;
 	if(flags & stdfPlus) {
 		discount = (flags & stdfPctDis) ? ((dis * amount) / (100.0 - dis)) : dis;
 		amount += discount;
 	}
 	else
 		discount = (flags & stdfPctDis) ? (dis * fdiv100r(amount)) : dis;
-	for(i = 0; Items_.enumItems(&i, (void**)&p_item);)
-		if(i != last_index) {
-			qtty = fabs(p_item->Quantity);
-			if(qtty > 0.0) { // @v6.3.7
-				p = intmnytodbl(p_item->Price);
-				d = /*@v6.3.4 R2*/(p * (discount - part_dis) / (amount - part_amount));
-				p_item->Dscnt = d;
-				if(flags & stdfPlus)
-					p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
-				part_dis += (d * qtty);
-				part_amount += (p * qtty);
-			}
-		}
-	if(last_index) {
+	/* @v9.8.1 {*/ if(last_index && (dis / max_price) <= 0.01) {
 		p_item = &Items_.at(last_index-1);
-		d = /*R2*/((discount - part_dis) / fabs(p_item->Quantity));
+		d = (discount / fabs(p_item->Quantity));
 		p_item->Dscnt = d;
-		if(flags & stdfPlus)
-			p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
+		if(flags & stdfPlus) {
+			//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
+			p_item->Dscnt = -d;
+		}
+		else 
+			p_item->Dscnt = d;
+	}
+	else /* } @v9.8.1 */ {
+		for(i = 0; Items_.enumItems(&i, (void**)&p_item);)
+			if(i != last_index) {
+				qtty = fabs(p_item->Quantity);
+				if(qtty > 0.0) {
+					p = intmnytodbl(p_item->Price);
+					d = (p * (discount - part_dis) / (amount - part_amount));
+					p_item->Dscnt = d;
+					if(flags & stdfPlus) {
+						//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
+						p_item->Dscnt = -d;
+					}
+					else
+						p_item->Dscnt = d;
+					part_dis += (d * qtty);
+					part_amount += (p * qtty);
+				}
+			}
+		if(last_index) {
+			p_item = &Items_.at(last_index-1);
+			d = ((discount - part_dis) / fabs(p_item->Quantity));
+			p_item->Dscnt = d;
+			if(flags & stdfPlus) {
+				//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
+				p_item->Dscnt = -d;
+			}
+			else
+				p_item->Dscnt = d;
+		}
 	}
 	return 1;
 }
@@ -5065,8 +5087,8 @@ struct __SessItem {
 
 IMPL_CMPFUNC(__SessItem, p1, p2)
 {
-	__SessItem * p_i1 = (__SessItem *)p1;
-	__SessItem * p_i2 = (__SessItem *)p2;
+	const __SessItem * p_i1 = (const __SessItem *)p1;
+	const __SessItem * p_i2 = (const __SessItem *)p2;
 	long   diff_date = 0;
 	long   diff_time = diffdatetime(p_i1->Dtm, p_i2->Dtm, 2, &diff_date);
 	return diff_date ? (int)diff_date : (int)diff_time;
@@ -5359,15 +5381,18 @@ int CCheckCache::GetCTableOrderList(TSArray <CTableStatus> & rList)
 {
 	int    ok = -1;
 	RefreshCTableStatusList(0);
-	CTableStatusRwl.ReadLock();
-	for(uint i = 0; i < CTStList.getCount(); i++) {
-		const CTableStatus & r_st = CTStList.at(i);
-		if(r_st.Status == CTableStatus::sOrder) {
-			rList.insert(&r_st);
-			ok = 1;
+	{
+		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Read);
+		//CTableStatusRwl.ReadLock();
+		for(uint i = 0; i < CTStList.getCount(); i++) {
+			const CTableStatus & r_st = CTStList.at(i);
+			if(r_st.Status == CTableStatus::sOrder) {
+				rList.insert(&r_st);
+				ok = 1;
+			}
 		}
+		//CTableStatusRwl.Unlock();
 	}
-	CTableStatusRwl.Unlock();
 	return ok;
 }
 
@@ -5375,61 +5400,67 @@ int CCheckCache::GetCTableStatus(long tableNo, CTableStatus * pStatus)
 {
 	int    status = CTableStatus::sUnkn;
 	RefreshCTableStatusList(0);
-	CTableStatusRwl.ReadLock();
-	CTableStatus temp_item;
-	temp_item.TableNo = tableNo;
-	for(uint pos = 0; CTStList.lsearch(&tableNo, &pos, CMPF_LONG); pos++) {
-		const CTableStatus & r_st = CTStList.at(pos);
-		temp_item.Displace(r_st);
+	{
+		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Read);
+		//CTableStatusRwl.ReadLock();
+		CTableStatus temp_item;
+		temp_item.TableNo = tableNo;
+		for(uint pos = 0; CTStList.lsearch(&tableNo, &pos, CMPF_LONG); pos++) {
+			const CTableStatus & r_st = CTStList.at(pos);
+			temp_item.Displace(r_st);
+		}
+		if(temp_item.Status != CTableStatus::sUnkn) {
+			ASSIGN_PTR(pStatus, temp_item);
+			status = temp_item.Status;
+		}
+		else {
+			CTableStatus st(0);
+			status = CTableStatus::sFree;
+			st.Status = CTableStatus::sFree;
+			st.TableNo = tableNo;
+			ASSIGN_PTR(pStatus, st);
+		}
+		//CTableStatusRwl.Unlock();
 	}
-	if(temp_item.Status != CTableStatus::sUnkn) {
-		ASSIGN_PTR(pStatus, temp_item);
-		status = temp_item.Status;
-	}
-	else {
-		CTableStatus st(0);
-		status = CTableStatus::sFree;
-		st.Status = CTableStatus::sFree;
-		st.TableNo = tableNo;
-		ASSIGN_PTR(pStatus, st);
-	}
-	CTableStatusRwl.Unlock();
 	return status;
 }
 
 int CCheckCache::RefreshCTableStatusList(int force)
 {
 	int    ok = 1;
-	CTableStatusRwl.WriteLock();
-	LDATETIME cdtm = getcurdatetime_();
-	if(force || CTableStatusTime.d == ZERODATE || diffdatetimesec(cdtm, CTableStatusTime) > CTableStatusRefreshTimeout) {
-		CTableStatusTime = cdtm;
-		CTStList.clear();
-		PPViewCCheck cc_view;
-		CCheckFilt cc_filt;
-		CCheckViewItem cc_item;
-		LDATE start = NZOR(FirstActualDate, plusdate(cdtm.d, -7)); // @v9.0.2 -30-->-7
-		cc_filt.Period.Set(start, ZERODATE);
-		cc_filt.Flags |= CCheckFilt::fCTableStatus;
-		cc_view.Init_(&cc_filt);
-		for(cc_view.InitIteration(0); cc_view.NextIteration(&cc_item) > 0;) {
-			if(!FirstActualDate && cc_item.Flags & CCHKF_ORDER && cc_item.OrderTime.Start.d >= plusdate(cdtm.d, -1)) {
-				FirstActualDate = cc_item.Dt;
+	{
+		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Write);
+		//CTableStatusRwl.WriteLock();
+		LDATETIME cdtm = getcurdatetime_();
+		if(force || CTableStatusTime.d == ZERODATE || diffdatetimesec(cdtm, CTableStatusTime) > CTableStatusRefreshTimeout) {
+			CTableStatusTime = cdtm;
+			CTStList.clear();
+			PPViewCCheck cc_view;
+			CCheckFilt cc_filt;
+			CCheckViewItem cc_item;
+			LDATE start = NZOR(FirstActualDate, plusdate(cdtm.d, -7)); // @v9.0.2 -30-->-7
+			cc_filt.Period.Set(start, ZERODATE);
+			cc_filt.Flags |= CCheckFilt::fCTableStatus;
+			cc_view.Init_(&cc_filt);
+			for(cc_view.InitIteration(0); cc_view.NextIteration(&cc_item) > 0;) {
+				if(!FirstActualDate && cc_item.Flags & CCHKF_ORDER && cc_item.OrderTime.Start.d >= plusdate(cdtm.d, -1)) {
+					FirstActualDate = cc_item.Dt;
+				}
+				const long table_no = cc_item.TableCode;
+				uint   pos = 0;
+				CTableStatus st(&cc_item);
+				/*
+				if(CTStList.lsearch(&table_no, &pos, CMPF_LONG)) {
+					CTStList.at(pos).Displace(st);
+				}
+				else*/
+					CTStList.insert(&st);
 			}
-			const long table_no = cc_item.TableCode;
-			uint   pos = 0;
-			CTableStatus st(&cc_item);
-			/*
-			if(CTStList.lsearch(&table_no, &pos, CMPF_LONG)) {
-				CTStList.at(pos).Displace(st);
-			}
-			else*/
-				CTStList.insert(&st);
 		}
+		else
+			ok = -1;
+		//CTableStatusRwl.Unlock();
 	}
-	else
-		ok = -1;
-	CTableStatusRwl.Unlock();
 	return ok;
 }
 

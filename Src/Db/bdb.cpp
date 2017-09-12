@@ -242,9 +242,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 			opf |= DB_PRIVATE;
 		// } @v9.6.4
 		// @todo Организовать восстановление транзакций (DB_RECOVER) при запуске приложения.
-#ifdef _MT
 		opf |= DB_THREAD;
-#endif
 		// @v9.7.11 {
 		if(options & oReadOnly)
 			State |= stReadOnly;
@@ -500,9 +498,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	}
 	{
 		int    opf = DB_AUTO_COMMIT | DB_MULTIVERSION | DB_READ_UNCOMMITTED;
-#ifdef _MT
 		opf |= DB_THREAD;
-#endif
 		// @v9.7.11 {
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
@@ -569,9 +565,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	}
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
-#ifdef _MT
 		opf |= DB_THREAD;
-#endif
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, 0));
@@ -692,9 +686,7 @@ int BDbDatabase::CreateSequence(const char * pName, int64 initVal, long * pSeqID
 				key = pName;
 				{
 					int    opf = DB_CREATE;
-#ifdef _MT
 					opf |= DB_THREAD;
-#endif
 					THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf), 0, 0));
 				}
 				{

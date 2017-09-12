@@ -2031,13 +2031,13 @@ static char * ngx_http_fastcgi_merge_loc_conf(ngx_conf_t * cf, void * parent, vo
 		return NGX_CONF_ERROR;
 	}
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	if(clcf->noname && conf->upstream.upstream == NULL && conf->fastcgi_lengths == NULL) {
+	if(clcf->noname && !conf->upstream.upstream && !conf->fastcgi_lengths) {
 		conf->upstream.upstream = prev->upstream.upstream;
 		conf->fastcgi_lengths = prev->fastcgi_lengths;
 		conf->fastcgi_values = prev->fastcgi_values;
 	}
-	if(clcf->lmt_excpt && clcf->handler == NULL && (conf->upstream.upstream || conf->fastcgi_lengths)) {
-		clcf->handler = ngx_http_fastcgi_handler;
+	if(clcf->lmt_excpt && !clcf->F_HttpHandler && (conf->upstream.upstream || conf->fastcgi_lengths)) {
+		clcf->F_HttpHandler = ngx_http_fastcgi_handler;
 	}
 #if (NGX_PCRE)
 	if(conf->split_regex == NULL) {
@@ -2329,41 +2329,42 @@ static char * ngx_http_fastcgi_pass(ngx_conf_t * cf, ngx_command_t * cmd, void *
 	ngx_url_t u;
 	ngx_str_t  * value, * url;
 	ngx_uint_t n;
-	ngx_http_core_loc_conf_t * clcf;
 	ngx_http_script_compile_t sc;
 	if(flcf->upstream.upstream || flcf->fastcgi_lengths) {
 		return "is duplicate";
 	}
-	clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	clcf->handler = ngx_http_fastcgi_handler;
-	if(clcf->name.data[clcf->name.len - 1] == '/') {
-		clcf->auto_redirect = 1;
-	}
-	value = (ngx_str_t *)cf->args->elts;
-	url = &value[1];
-	n = ngx_http_script_variables_count(url);
-	if(n) {
-		memzero(&sc, sizeof(ngx_http_script_compile_t));
-		sc.cf = cf;
-		sc.source = url;
-		sc.lengths = &flcf->fastcgi_lengths;
-		sc.values = &flcf->fastcgi_values;
-		sc.variables = n;
-		sc.complete_lengths = 1;
-		sc.complete_values = 1;
-		if(ngx_http_script_compile(&sc) != NGX_OK) {
+	else {
+		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+		clcf->F_HttpHandler = ngx_http_fastcgi_handler;
+		if(clcf->name.data[clcf->name.len - 1] == '/') {
+			clcf->auto_redirect = 1;
+		}
+		value = (ngx_str_t *)cf->args->elts;
+		url = &value[1];
+		n = ngx_http_script_variables_count(url);
+		if(n) {
+			memzero(&sc, sizeof(ngx_http_script_compile_t));
+			sc.cf = cf;
+			sc.source = url;
+			sc.lengths = &flcf->fastcgi_lengths;
+			sc.values = &flcf->fastcgi_values;
+			sc.variables = n;
+			sc.complete_lengths = 1;
+			sc.complete_values = 1;
+			if(ngx_http_script_compile(&sc) != NGX_OK) {
+				return NGX_CONF_ERROR;
+			}
+			return NGX_CONF_OK;
+		}
+		memzero(&u, sizeof(ngx_url_t));
+		u.url = value[1];
+		u.no_resolve = 1;
+		flcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
+		if(flcf->upstream.upstream == NULL) {
 			return NGX_CONF_ERROR;
 		}
 		return NGX_CONF_OK;
 	}
-	memzero(&u, sizeof(ngx_url_t));
-	u.url = value[1];
-	u.no_resolve = 1;
-	flcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
-	if(flcf->upstream.upstream == NULL) {
-		return NGX_CONF_ERROR;
-	}
-	return NGX_CONF_OK;
 }
 
 static char * ngx_http_fastcgi_split_path_info(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)

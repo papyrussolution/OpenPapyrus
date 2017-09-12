@@ -14,17 +14,23 @@
 SLAPI SStack::SStack(uint itemSize, uint aDelta, int o) : SArray(itemSize, aDelta, o)
 {
 	pointer = 0;
+	// @v9.8.1 {
+	if(flags & aryRing && delta) {
+		expand(delta);
+	}
+	// } @v9.8.1 
 }
 
 int FASTCALL SStack::push(const void * pItem)
 {
+	int    ok = 0;
 	if(pointer < count) {
 		if(flags & aryEachItem) {
 			void * p_item = _BDATA + pointer * isize;
 			freeItem(_USERPTR(p_item));
 		}
 		atPut(pointer++, pItem);
-		return 1;
+		ok = 1;
 	}
 	else if(flags & aryRing && Limit && count >= Limit) {
 		//
@@ -38,14 +44,13 @@ int FASTCALL SStack::push(const void * pItem)
 		}
 		atPut(0, pItem);
 		pointer = 1;
-		return 2;
+		ok = 2;
 	}
 	else if(insert(pItem)) {
 		pointer++;
-		return 1;
+		ok = 1;
 	}
-	else
-		return 0;
+	return ok;
 }
 
 void * SLAPI SStack::pop()

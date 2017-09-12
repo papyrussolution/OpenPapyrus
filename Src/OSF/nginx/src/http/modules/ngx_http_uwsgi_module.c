@@ -1519,8 +1519,8 @@ static char * ngx_http_uwsgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void
 		conf->upstream.ssl = prev->upstream.ssl;
 #endif
 	}
-	if(clcf->lmt_excpt && clcf->handler == NULL && (conf->upstream.upstream || conf->uwsgi_lengths)) {
-		clcf->handler = ngx_http_uwsgi_handler;
+	if(clcf->lmt_excpt && !clcf->F_HttpHandler && (conf->upstream.upstream || conf->uwsgi_lengths)) {
+		clcf->F_HttpHandler = ngx_http_uwsgi_handler;
 	}
 	ngx_conf_merge_uint_value(conf->modifier1, prev->modifier1, 0);
 	ngx_conf_merge_uint_value(conf->modifier2, prev->modifier2, 0);
@@ -1756,77 +1756,61 @@ static char * ngx_http_uwsgi_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 	ngx_url_t u;
 	ngx_str_t  * value, * url;
 	ngx_uint_t n;
-	ngx_http_core_loc_conf_t * clcf;
 	ngx_http_script_compile_t sc;
-
 	if(uwcf->upstream.upstream || uwcf->uwsgi_lengths) {
 		return "is duplicate";
 	}
-
-	clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	clcf->handler = ngx_http_uwsgi_handler;
-
-	value = (ngx_str_t *)cf->args->elts;
-
-	url = &value[1];
-
-	n = ngx_http_script_variables_count(url);
-
-	if(n) {
-		memzero(&sc, sizeof(ngx_http_script_compile_t));
-
-		sc.cf = cf;
-		sc.source = url;
-		sc.lengths = &uwcf->uwsgi_lengths;
-		sc.values = &uwcf->uwsgi_values;
-		sc.variables = n;
-		sc.complete_lengths = 1;
-		sc.complete_values = 1;
-
-		if(ngx_http_script_compile(&sc) != NGX_OK) {
+	else {
+		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+		clcf->F_HttpHandler = ngx_http_uwsgi_handler;
+		value = (ngx_str_t *)cf->args->elts;
+		url = &value[1];
+		n = ngx_http_script_variables_count(url);
+		if(n) {
+			memzero(&sc, sizeof(ngx_http_script_compile_t));
+			sc.cf = cf;
+			sc.source = url;
+			sc.lengths = &uwcf->uwsgi_lengths;
+			sc.values = &uwcf->uwsgi_values;
+			sc.variables = n;
+			sc.complete_lengths = 1;
+			sc.complete_values = 1;
+			if(ngx_http_script_compile(&sc) != NGX_OK) {
+				return NGX_CONF_ERROR;
+			}
+	#if (NGX_HTTP_SSL)
+			uwcf->ssl = 1;
+	#endif
+			return NGX_CONF_OK;
+		}
+		if(ngx_strncasecmp(url->data, (u_char*)"uwsgi://", 8) == 0) {
+			add = 8;
+		}
+		else if(ngx_strncasecmp(url->data, (u_char*)"suwsgi://", 9) == 0) {
+	#if (NGX_HTTP_SSL)
+			add = 9;
+			uwcf->ssl = 1;
+	#else
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "suwsgi protocol requires SSL support");
+			return NGX_CONF_ERROR;
+	#endif
+		}
+		else {
+			add = 0;
+		}
+		memzero(&u, sizeof(ngx_url_t));
+		u.url.len = url->len - add;
+		u.url.data = url->data + add;
+		u.no_resolve = 1;
+		uwcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
+		if(uwcf->upstream.upstream == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
-#if (NGX_HTTP_SSL)
-		uwcf->ssl = 1;
-#endif
-
+		if(clcf->name.data[clcf->name.len - 1] == '/') {
+			clcf->auto_redirect = 1;
+		}
 		return NGX_CONF_OK;
 	}
-
-	if(ngx_strncasecmp(url->data, (u_char*)"uwsgi://", 8) == 0) {
-		add = 8;
-	}
-	else if(ngx_strncasecmp(url->data, (u_char*)"suwsgi://", 9) == 0) {
-#if (NGX_HTTP_SSL)
-		add = 9;
-		uwcf->ssl = 1;
-#else
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "suwsgi protocol requires SSL support");
-		return NGX_CONF_ERROR;
-#endif
-	}
-	else {
-		add = 0;
-	}
-
-	memzero(&u, sizeof(ngx_url_t));
-
-	u.url.len = url->len - add;
-	u.url.data = url->data + add;
-	u.no_resolve = 1;
-
-	uwcf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
-	if(uwcf->upstream.upstream == NULL) {
-		return NGX_CONF_ERROR;
-	}
-
-	if(clcf->name.data[clcf->name.len - 1] == '/') {
-		clcf->auto_redirect = 1;
-	}
-
-	return NGX_CONF_OK;
 }
 
 static char * ngx_http_uwsgi_store(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)

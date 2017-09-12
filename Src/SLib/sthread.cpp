@@ -7,6 +7,12 @@
 #pragma hdrstop
 #include <process.h>
 //
+// Контрольный таймаут ожидания для заданных бесконечных таймаутов.
+// Если в течении этого таймаута ожидание на завершилось, то предпринимаются
+// информирующие действия (например, вывод в журнал).
+//
+const long _CheckTimeout = 1 * 60 * 1000; 
+//
 //
 //
 void FASTCALL SDelay(uint msec)
@@ -39,7 +45,19 @@ int SLAPI SWaitableObject::IsValid() const
 
 int FASTCALL SWaitableObject::Wait(long timeout)
 {
-	int    ok = WaitForSingleObject(H, (timeout >= 0) ? timeout : INFINITE);
+	int    ok = 0;
+	if(timeout < 0) {
+		int    r = WaitForSingleObject(H, _CheckTimeout);
+		if(r < 0) {
+			; // @todo 
+			ok = WaitForSingleObject(H, INFINITE);
+		}
+		else
+			ok = r;
+	}
+	else {
+		ok = WaitForSingleObject(H, (timeout >= 0) ? timeout : INFINITE);
+	}
 	if(ok == WAIT_OBJECT_0)
 		ok = 1;
 	else if(ok == WAIT_TIMEOUT)
@@ -52,39 +70,39 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 //
 //
 SLAPI ACount::ACount()
-{ 
-	C = 0; 
+{
+	C = 0;
 }
 
-SLAPI ACount::ACount(int) 
+SLAPI ACount::ACount(int)
 {
 }
 
-SLAPI ACount::operator long() const 
-{ 
-	return C; 
-}
-
-long FASTCALL ACount::Add(long add) 
-{ 
-	::InterlockedExchangeAdd(&C, add); 
-	return C; 
-}
-
-long FASTCALL ACount::Assign(long val) 
-{ 
-	InterlockedExchange(&C, val); 
-	return C; 
-}
-
-long SLAPI ACount::Incr() 
+SLAPI ACount::operator long() const
 {
-	return ::InterlockedIncrement(&C); 
+	return C;
 }
 
-long SLAPI ACount::Decr() 
+long FASTCALL ACount::Add(long add)
 {
-	return ::InterlockedDecrement(&C); 
+	::InterlockedExchangeAdd(&C, add);
+	return C;
+}
+
+long FASTCALL ACount::Assign(long val)
+{
+	InterlockedExchange(&C, val);
+	return C;
+}
+
+long SLAPI ACount::Incr()
+{
+	return ::InterlockedIncrement(&C);
+}
+
+long SLAPI ACount::Decr()
+{
+	return ::InterlockedDecrement(&C);
 }
 //
 //
@@ -416,12 +434,12 @@ int FASTCALL ReadWriteLock::Helper_ReadLock(long timeout)
 	return ok;
 }
 
-int FASTCALL ReadWriteLock::ReadLockT(long timeout)
+int FASTCALL ReadWriteLock::ReadLockT_(long timeout)
 {
 	return Helper_ReadLock(timeout);
 }
 
-int SLAPI ReadWriteLock::ReadLock()
+int SLAPI ReadWriteLock::ReadLock_()
 {
 	return Helper_ReadLock(-1);
 }
@@ -450,17 +468,17 @@ int FASTCALL ReadWriteLock::Helper_WriteLock(long timeout)
 	return ok;
 }
 
-int FASTCALL ReadWriteLock::WriteLockT(long timeout)
+int FASTCALL ReadWriteLock::WriteLockT_(long timeout)
 {
 	return Helper_WriteLock(timeout);
 }
 
-int SLAPI ReadWriteLock::WriteLock()
+int SLAPI ReadWriteLock::WriteLock_()
 {
 	return Helper_WriteLock(-1);
 }
 
-int SLAPI ReadWriteLock::Unlock()
+int SLAPI ReadWriteLock::Unlock_()
 {
 	int    ok = 1;
 	Sem  * p_sem = 0;
@@ -495,6 +513,169 @@ int SLAPI ReadWriteLock::Unlock()
 //
 //
 //
+void FASTCALL SReadWriteLocker::InitInstance(Type t)
+{
+	assert(oneof3(t, Read, Write, None));
+	State = 0;
+	int    r = 0;
+	if(t == Read) {
+		r = R_L.Helper_ReadLock(Timeout);
+		if(r > 0)
+			State |= stRLocked;
+	}
+	else if(t == Write) {
+		r = R_L.Helper_WriteLock(Timeout);
+		if(r > 0)
+			State |= stWLocked;
+	}
+	else if(t == None) {
+		r = 1;
+	}
+	if(r <= 0) {
+		State = stError;
+		if(r < 0)
+			State |= stTimeout;
+	}
+}
+
+SLAPI SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout) : R_L(rL), Timeout(timeout)
+{
+	InitInstance(t);
+}
+
+SLAPI SReadWriteLocker::SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo) : R_L(rL), Timeout(timeout)
+{
+	int    s = 0;
+	if(t != None) {
+		SLS.LockPush(SLockStack::WRLT_to_LSLT(t), pSrcFileName, srcLineNo);
+		s = 1;
+	}
+	InitInstance(t);
+	if(s)
+		State |= stTraced;
+}
+
+int SLAPI SReadWriteLocker::operator !() const
+{
+	return BIN(State & stError);
+}
+
+int SLAPI SReadWriteLocker::GetState() const
+{
+	return State;
+}
+
+SLAPI SReadWriteLocker::~SReadWriteLocker()
+{
+	Unlock();
+}
+
+int SLAPI SReadWriteLocker::Unlock()
+{
+	int    ok = 1;
+	if(State & (stRLocked|stWLocked)) {
+		R_L.Unlock_();
+		State &= ~(stRLocked|stWLocked);
+	}
+	else
+		ok = -1;
+	if(State & stTraced) {
+		SLS.LockPop();
+		State &= ~stTraced;
+	}
+	return ok;
+}
+
+int FASTCALL SReadWriteLocker::Toggle(Type t)
+{
+	return Toggle(t, 0, 0);
+	/*
+	assert(oneof3(t, Read, Write, None));
+	int    ok = 0;
+	if(t == Read) {
+		if(State & stRLocked)
+			ok = 1;
+		else if(State & stWLocked) {
+			Unlock();
+			ok = R_L.Helper_ReadLock(Timeout);
+			if(ok > 0)
+				State = stRLocked;
+		}
+	}
+	else if(t == Write) {
+		if(State & stWLocked)
+			ok = 1;
+		else if(State & stRLocked) {
+			Unlock();
+			ok = R_L.Helper_WriteLock(Timeout);
+			if(ok > 0)
+				State = stWLocked;
+		}
+	}
+	else if(t == None) {
+		Unlock();
+		ok = 1;
+	}
+	if(ok <= 0) {
+		State = stError;
+		if(ok < 0)
+			State |= stTimeout;
+	}
+	return ok;
+	*/
+}
+
+int SLAPI SReadWriteLocker::Toggle(Type t, const char * pSrcFileName, uint srcLineNo)
+{
+	assert(oneof3(t, Read, Write, None));
+	int    ok = 0;
+	int    s = 0;
+	if(t == Read) {
+		if(State & stRLocked)
+			ok = 1;
+		else if(State & stWLocked) {
+			Unlock();
+			if(pSrcFileName) {
+				SLS.LockPush(SLockStack::ltRW_R, pSrcFileName, srcLineNo);
+				s = 1;
+			}
+			ok = R_L.Helper_ReadLock(Timeout);
+			if(ok > 0) 
+				State = stRLocked;
+			if(s)
+				State |= stTraced;
+		}
+	}
+	else if(t == Write) {
+		if(State & stWLocked)
+			ok = 1;
+		else if(State & stRLocked) {
+			Unlock();
+			if(pSrcFileName) {
+				SLS.LockPush(SLockStack::ltRW_W, pSrcFileName, srcLineNo);
+				s = 1;
+			}
+			ok = R_L.Helper_WriteLock(Timeout);
+			if(ok > 0)
+				State = stWLocked;
+			if(s)
+				State |= stTraced;
+		}
+	}
+	else if(t == None) {
+		Unlock();
+		ok = 1;
+	}
+	if(ok <= 0) {
+		State = stError;
+		if(ok < 0)
+			State |= stTimeout;
+	}
+	return ok;
+}
+//
+//
+//
 #define SIGN_SLTHREAD 0x09970199UL
 
 SLAPI SlThread::SlThread(void * pInitData, long stopTimeout)
@@ -502,6 +683,7 @@ SLAPI SlThread::SlThread(void * pInitData, long stopTimeout)
 	Sign = SIGN_SLTHREAD;
 	P_StartupSignal = 0;
 	P_Creation = 0;
+	P_Tla = 0;
 	Reset(pInitData, 1, stopTimeout);
 }
 
@@ -560,13 +742,8 @@ int FASTCALL SlThread::Start(int waitOnStartup)
 {
 	if(!(State & stRunning)) {
 		P_Creation = new Evnt;
-#ifdef _MT
 		uint   tmp_id;
 		Handle = (ThreadHandle)_beginthreadex(0, 0, _Exec, this, 0, &tmp_id);
-#else
-		DWORD  tmp_id;
-		Handle = CreateThread(0, 0, _Exec, this, 0, &tmp_id);
-#endif
 		ID = (ThreadID)tmp_id;
 		SETFLAG(State, stRunning, Handle);
 		// Now the new thread may run
@@ -647,7 +824,7 @@ int SLAPI SlThread::IsStopping() const
 //
 void SLAPI SlThread::Startup()
 {
-	SLS.InitThread();
+	P_Tla = SLS.InitThread();
 }
 //
 // This method is invoked on behalf of the dying thread after Run()
@@ -680,7 +857,79 @@ ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
 	}
 	return 0;
 }
+//
+//
+//
+//static 
+uint FASTCALL SLockStack::WRLT_to_LSLT(SReadWriteLocker::Type wrlt)
+{
+	if(wrlt == SReadWriteLocker::Read)
+		return ltRW_R;
+	else if(wrlt == SReadWriteLocker::Write)
+		return ltRW_W;
+	else if(wrlt == SReadWriteLocker::None)
+		return ltNone;
+	else
+		return 1000; // UNKNOWN
+}
 
+SLAPI SLockStack::SLockStack()
+{
+}
+
+void SLAPI SLockStack::Push(uint lockType, const char * pSrcFileName, uint lineNo)
+{
+	Entry new_entry;
+	MEMSZERO(new_entry);
+	if(!isempty(pSrcFileName)) {
+		// SPathStruc::NormalizePath(pSrcFileName, SPathStruc::npfSlash, TempBuf);
+		//if(TempBuf.NotEmpty()) {
+		new_entry.SrcFileSymbId = SLS.GetGlobalSymbol(pSrcFileName, 0, 0);
+		//}
+	}
+	new_entry.SrcLineNo = lineNo;
+	new_entry.LockType = lockType;
+    new_entry.TimeCount = SLS.GetProfileTime();
+    S.push(new_entry);
+}
+
+void SLAPI SLockStack::Pop()
+{
+	Entry entry;
+	int    r = S.pop(entry);
+	assert(r);
+}
+
+void SLAPI SLockStack::ToStr(SString & rBuf) const
+{
+	SString temp_buf;
+	for(uint i = 0; i < S.getPointer(); i++) {
+		const Entry & r_entry = *(const Entry *)S.at(i);
+		switch(r_entry.LockType) {
+			case ltNone: rBuf.Cat("NONE"); break;
+			case ltCS: rBuf.Cat("CS"); break;
+			case ltRW_R: rBuf.Cat("RW-R"); break;
+			case ltRW_W: rBuf.Cat("RW-W"); break;
+			default: rBuf.Cat("UNKN"); break;
+		}
+		rBuf.Space().Cat(r_entry.TimeCount);
+        if(r_entry.SrcFileSymbId > 0) {
+			if(SLS.GetGlobalSymbol(0, r_entry.SrcFileSymbId, &temp_buf) > 0) {
+				rBuf.Space().Cat(temp_buf);
+			}
+			else {
+				rBuf.Space().CatEq("unkn-file", r_entry.SrcFileSymbId);
+			}
+        }
+        else
+			rBuf.Space().CatEq("unkn-file", r_entry.SrcFileSymbId);
+		if(r_entry.SrcLineNo >= 0) {
+			rBuf.Space().Cat(r_entry.SrcLineNo);
+		}
+		rBuf.CR();
+	}
+}
+//
 #if SLTEST_RUNNING // {
 
 SLTEST_R(Evnt)
@@ -839,7 +1088,7 @@ SLTEST_R(ReadWriteLock)
 		{
 			assert(SLS.GetConstTLA().Id == GetThreadID());
 			*P_Result = 1;
-			int    lck = 0;
+			//int    lck = 0;
 			assert(Id > 0 && Id <= RwlThreadCount);
 			Evnt start_evnt(P_StartEvntName, Evnt::modeOpen);
 			start_evnt.Wait(-1);
@@ -849,14 +1098,21 @@ SLTEST_R(ReadWriteLock)
 				if(writer) {
 					uint j = (rn % RwlPattersPerThread);
 					int64 pattern = RwlDataPatternList[((Id-1) * RwlPattersPerThread)+j];
-					P_Lock->WriteLock(); lck = 1;
-					const uint pos = rn%SIZEOFARRAY(RwlCommonDataList);
-					RwlCommonDataList[pos].Id = Id;
-					RwlCommonDataList[pos].Val = pattern;
-					P_Lock->Unlock(); lck = 0;
+					{
+						//P_Lock->WriteLock(); 
+						SRWLOCKER(*P_Lock, SReadWriteLocker::Write);
+						//lck = 1;
+						const uint pos = rn%SIZEOFARRAY(RwlCommonDataList);
+						RwlCommonDataList[pos].Id = Id;
+						RwlCommonDataList[pos].Val = pattern;
+						//P_Lock->Unlock(); 
+						//lck = 0;
+					}
 				}
 				else {
-					P_Lock->ReadLock(); lck = 1;
+					//P_Lock->ReadLock(); 
+					SRWLOCKER(*P_Lock, SReadWriteLocker::Read);
+					//lck = 1;
 					for(uint j = 0; j < SIZEOFARRAY(RwlCommonDataList); j++) {
 						const RwlEntry & r_entry = RwlCommonDataList[j];
 #ifndef NDEBUG
@@ -887,13 +1143,14 @@ SLTEST_R(ReadWriteLock)
 #endif
 						}
 					}
-					P_Lock->Unlock(); lck = 0;
+					//P_Lock->Unlock(); 
+					//lck = 0;
 				}
 				SDelay(rn%7);
 			}
 			CATCH
-				if(lck)
-					P_Lock->Unlock();
+				//if(lck)
+					//P_Lock->Unlock();
 				*P_Result = 0;
 			ENDCATCH
 		}

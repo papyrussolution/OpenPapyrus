@@ -867,7 +867,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 										// @v9.7.9 {
 										if(!feqeps(fabs(result_amount), fabs(cc_req_amount), 1E-8)) {
 											double fixup_discount = result_discount + (fabs(result_amount) - fabs(cc_req_amount));
-											cp.SetTotalDiscount(fabs(fixup_discount), (fixup_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
+											cp.SetTotalDiscount__(fabs(fixup_discount), (fixup_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
 											cp.CalcAmount(&result_amount, &result_discount);
 											LDBLTOMONEY(result_amount, cp.Rec.Amount);
 											LDBLTOMONEY(result_discount, cp.Rec.Discount);
@@ -4525,7 +4525,8 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 {
 	int    ok = 0;
 	if(rTempID) {
-		CrbLock.ReadLock();
+		//CrbLock.ReadLock();
+		SRWLOCKER(CrbLock, SReadWriteLocker::Read);
 		for(uint i = 0; !ok && i < CrBillList.getCount(); i++) {
 			const CrBillEntry * p_entry = CrBillList.at(i);
 			if(p_entry && p_entry->TempID == rTempID) {
@@ -4533,10 +4534,11 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 				ok = 1;
 			}
 		}
-		CrbLock.Unlock();
+		//CrbLock.Unlock();
 	}
 	else {
-		CrbLock.WriteLock();
+		//CrbLock.WriteLock();
+		SRWLOCKER(CrbLock, SReadWriteLocker::Write);
 		CrBillEntry * p_new_entry = new CrBillEntry;
 		if(p_new_entry) {
 			if(pPack) {
@@ -4548,7 +4550,7 @@ int SLAPI BillCache::GetCrBillEntry(long & rTempID, PPBillPacket * pPack)
 			CrBillList.insert(p_new_entry);
 			ok = 1;
 		}
-		CrbLock.Unlock();
+		//CrbLock.Unlock();
 	}
 	return ok;
 }
@@ -4557,7 +4559,8 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 {
 	int    ok = 0;
 	if(tempID) {
-		CrbLock.WriteLock();
+		//CrbLock.WriteLock();
+		SRWLOCKER(CrbLock, SReadWriteLocker::Write);
 		for(uint i = 0; !ok && i < CrBillList.getCount(); i++) {
 			CrBillEntry * p_entry = CrBillList.at(i);
 			if(p_entry && p_entry->TempID == tempID) {
@@ -4570,7 +4573,7 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 				ok = 1;
 			}
 		}
-		CrbLock.Unlock();
+		//CrbLock.Unlock();
 	}
 	return ok;
 }
@@ -4581,17 +4584,21 @@ int SLAPI BillCache::SetCrBillEntry(long tempID, PPBillPacket * pPack)
 //
 int SLAPI BillCache::GetPrjConfig(PPProjectConfig * pCfg, int enforce)
 {
-	PrjCfgLock.ReadLock();
-	if(!(PrjCfg.Flags & PRJCFGF_VALID) || enforce) {
-		PrjCfgLock.Unlock();
-		PrjCfgLock.WriteLock();
+	{
+		//PrjCfgLock.ReadLock();
+		SRWLOCKER(PrjCfgLock, SReadWriteLocker::Read);
 		if(!(PrjCfg.Flags & PRJCFGF_VALID) || enforce) {
-			PPObjProject::ReadConfig(&PrjCfg);
-			PrjCfg.Flags |= PRJCFGF_VALID;
+			//PrjCfgLock.Unlock();
+			//PrjCfgLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!(PrjCfg.Flags & PRJCFGF_VALID) || enforce) {
+				PPObjProject::ReadConfig(&PrjCfg);
+				PrjCfg.Flags |= PRJCFGF_VALID;
+			}
 		}
+		ASSIGN_PTR(pCfg, PrjCfg);
+		//PrjCfgLock.Unlock();
 	}
-	ASSIGN_PTR(pCfg, PrjCfg);
-	PrjCfgLock.Unlock();
 	return 1;
 }
 
@@ -4678,17 +4685,12 @@ int SLAPI PPObjBill::ResetFullSerialList()
 
 int BillCache::ResetFullSerialList()
 {
-	FslLock.WriteLock();
-	FullSerialList.Inited = 0;
-	FullSerialList.DirtyTable.Clear();
-	FslLock.Unlock();
-	return 1;
-}
-
-int BillCache::ReleaseFullSerialList(const StrAssocArray * pList)
-{
-	if(pList && pList == &FullSerialList) {
-		FslLock.Unlock();
+	{
+		//FslLock.WriteLock();
+		SRWLOCKER(FslLock, SReadWriteLocker::Write);
+		FullSerialList.Inited = 0;
+		FullSerialList.DirtyTable.Clear();
+		//FslLock.Unlock();
 	}
 	return 1;
 }
@@ -4700,7 +4702,8 @@ const StrAssocArray * SLAPI BillCache::GetFullSerialList()
 	if(FullSerialList.Use) {
 		if(!FullSerialList.Inited || FullSerialList.DirtyTable.GetCount()) {
 			Reference * p_ref = PPRef;
-			FslLock.WriteLock();
+			//FslLock.WriteLock();
+			SRWLOCKER(FslLock, SReadWriteLocker::Write);
 			if(!FullSerialList.Inited || FullSerialList.DirtyTable.GetCount()) {
 				if(!FullSerialList.Inited) {
 					PROFILE_START
@@ -4729,14 +4732,28 @@ const StrAssocArray * SLAPI BillCache::GetFullSerialList()
 					FullSerialList.Inited = 1;
 				}
 			}
-			FslLock.Unlock();
+			//FslLock.Unlock();
 		}
 		if(!err) {
-			FslLock.ReadLock();
+			#if SLTRACELOCKSTACK
+			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
+			#endif		
+			FslLock.ReadLock_();
 			p_result = &FullSerialList;
 		}
 	}
 	return p_result;
+}
+
+int BillCache::ReleaseFullSerialList(const StrAssocArray * pList)
+{
+	if(pList && pList == &FullSerialList) {
+		FslLock.Unlock_();
+		#if SLTRACELOCKSTACK
+		SLS.LockPop();
+		#endif		
+	}
+	return 1;
 }
 //
 //

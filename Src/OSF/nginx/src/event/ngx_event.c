@@ -130,7 +130,7 @@ static void ngx_event_process_posted(ngx_cycle_t * cycle, ngx_queue_t * posted)
 void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 {
 	ngx_uint_t flags;
-	ngx_msec_t timer, delta;
+	ngx_msec_t timer;
 	if(ngx_timer_resolution) {
 		timer = NGX_TIMER_INFINITE;
 		flags = 0;
@@ -161,17 +161,56 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 			}
 		}
 	}
-	delta = ngx_current_msec;
-	// @sobolev (void)ngx_process_events(cycle, timer, flags);
-	ngx_event_actions.F_ProcessEvents(pCycle, timer, flags); // @sobolev 
-	delta = ngx_current_msec - delta;
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "timer delta: %M", delta);
-	ngx_event_process_posted(pCycle, &ngx_posted_accept_events);
-	if(ngx_accept_mutex_held) {
-		ngx_shmtx_unlock(&ngx_accept_mutex);
-	}
-	if(delta) {
-		ngx_event_expire_timers();
+	{
+		ngx_msec_t delta = ngx_current_msec;
+		{
+			//
+			// @sobolev {
+			// Предварительная попытка втолкнуть обработчик уже готовых к отправке запросов
+			// в основной цикл.
+			// На текущий момент не до конца понятно как правильно сформировать ngx_event_t перед ngx_post_event.
+			//
+			struct SB {
+				static ngx_event_t & Push_NgxEvent()
+				{
+					ngx_event_t new_ev;
+					MEMSZERO(new_ev);
+					return PushRecycledObject <ngx_event_t, 1024> (new_ev);
+				}
+				static NgxReqResult & Push_NgxReqResult(NgxReqResult & rReqRes)
+				{
+					return PushRecycledObject <NgxReqResult, 1024> (rReqRes);
+				}
+				static void EventHandle(ngx_event_t * pEv)
+				{
+
+					//ngx_http_output_filter(pReq, &out);
+				}
+			};
+			NgxReqResult req_res;
+			while(NgxPopRequestResult(&req_res) > 0) {
+				NgxReqResult & r_req_res = SB::Push_NgxReqResult(req_res);
+				ngx_event_t & r_ev = SB::Push_NgxEvent();
+				MEMSZERO(r_ev);
+				r_ev.P_Data = &r_req_res;
+				r_ev.ready = 1;
+				r_ev.log = pCycle->log;
+				r_ev.handler = SB::EventHandle;
+				ngx_post_event(&r_ev, &ngx_posted_events);
+			}
+			// } @sobolev
+		}
+		// @sobolev (void)ngx_process_events(cycle, timer, flags);
+		ngx_event_actions.F_ProcessEvents(pCycle, timer, flags); // @sobolev 
+		delta = ngx_current_msec - delta;
+		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pCycle->log, 0, "timer delta: %M", delta);
+		ngx_event_process_posted(pCycle, &ngx_posted_accept_events);
+		if(ngx_accept_mutex_held) {
+			ngx_shmtx_unlock(&ngx_accept_mutex);
+		}
+		if(delta) {
+			ngx_event_expire_timers();
+		}
 	}
 	ngx_event_process_posted(pCycle, &ngx_posted_events);
 }

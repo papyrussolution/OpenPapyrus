@@ -267,7 +267,7 @@ struct ngx_http_core_loc_conf_s {
 	void        ** loc_conf; // pointer to the modules' loc_conf 
 	uint32_t limit_except;
 	void        ** limit_except_loc_conf;
-	ngx_http_handler_pt handler;
+	ngx_http_handler_pt F_HttpHandler/*handler*/;
 	size_t alias; // location name length for inclusive location with inherited alias 
 	ngx_str_t root;                    /* root, alias */
 	ngx_str_t post_action;

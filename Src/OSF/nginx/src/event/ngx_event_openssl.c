@@ -1007,7 +1007,7 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 
 static void ngx_ssl_handshake_handler(ngx_event_t * ev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)ev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t*)ev->P_Data;
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL handshake handler: %d", ev->write);
 	if(ev->timedout) {
 		c->ssl->handler(c);
@@ -1178,7 +1178,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 
 static void ngx_ssl_write_handler(ngx_event_t * wev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)wev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t*)wev->P_Data;
 	c->P_EvRd->handler(c->P_EvRd);
 }
 /*
@@ -1347,7 +1347,7 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 
 static void ngx_ssl_read_handler(ngx_event_t * rev)
 {
-	ngx_connection_t  * c = (ngx_connection_t*)rev->P_Data;
+	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
 	c->P_EvWr->handler(c->P_EvWr);
 }
 

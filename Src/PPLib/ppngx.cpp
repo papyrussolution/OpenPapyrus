@@ -41,15 +41,15 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 		//pReq->headers_out.override_charset->len = sizeof("utf-8") - 1;
 		//pReq->headers_out.override_charset->data = (u_char *)"utf-8";
 	}
-	{
+	if(1) {
 		// Allocate a new buffer for sending out the reply. 
 		ngx_buf_t * b = (ngx_buf_t *)ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t));
 		// Insertion in the buffer chain. 
 		ngx_chain_t out(b, 0/*just one buffer*/);
 		b->pos = ngx_papyrus_test; /* first position in memory of the data */
 		b->last = ngx_papyrus_test + sizeof(ngx_papyrus_test) - 1; /* last position in memory of the data */
-		b->memory = 1; /* content is in read-only memory */
-		b->last_buf = 1; /* there will be no more buffers in the request */
+		b->memory = 1; // content is in read-only memory 
+		b->last_buf = 1; // there will be no more buffers in the request 
 		// Sending the headers for the reply. 
 		pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
 		// Get the content length of the body. 
@@ -57,6 +57,10 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 		ngx_http_send_header(pReq); // Send the headers 
 		// Send the body, and return the status code of the output filter chain. 
 		return ngx_http_output_filter(pReq, &out);
+	}
+	else {
+		DS.DispatchNgxRequest(pReq);
+		return NGX_DONE;
 	}
 }
 /**
@@ -71,7 +75,7 @@ static char * ngx_http_papyrus_test(ngx_conf_t * cf, ngx_command_t * cmd, void *
 {
 	// Install the papyrus_test handler. 
 	ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module); // pointer to core location configuration 
-	clcf->handler = ngx_http_papyrus_test_handler;
+	clcf->F_HttpHandler = ngx_http_papyrus_test_handler;
 	return NGX_CONF_OK;
 }
 /**

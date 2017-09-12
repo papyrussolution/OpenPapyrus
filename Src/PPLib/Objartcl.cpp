@@ -2014,13 +2014,15 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 {
 	int    ok = -1;
 	if(supplID) {
-		RwL.ReadLock();
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(IsVatFreeListInited) {
 			ok = VatFreeSupplList.bsearch(supplID) ? 1 : -1;
 		}
 		else {
-			RwL.Unlock();
-			RwL.WriteLock();
+			//RwL.Unlock();
+			//RwL.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!IsVatFreeListInited) {
 				PPObjPerson  psn_obj;
 				PPObjArticle ar_obj;
@@ -2036,7 +2038,7 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 					ok = 0;
 			}
 		}
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -2044,10 +2046,13 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 int SLAPI ArticleCache::Dirty(PPID id)
 {
 	int    ok = 1;
-	RwL.WriteLock();
-	ok = Helper_Dirty(id);
-	// @todo process VatFreeSupplList
-	RwL.Unlock();
+	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		ok = Helper_Dirty(id);
+		// @todo process VatFreeSupplList
+		//RwL.Unlock();
+	}
 	return ok;
 }
 
@@ -2529,43 +2534,50 @@ void SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 int SLAPI DebtDimCache::Dirty(PPID id)
 {
 	int    ok = id ? ObjCache::Dirty(id) : 1;
-	AlLock.WriteLock();
-	ZDELETE(P_AgentList);
-	AlLock.Unlock();
+	{
+		//AlLock.WriteLock();
+		SRWLOCKER(AlLock, SReadWriteLocker::Write);
+		ZDELETE(P_AgentList);
+		//AlLock.Unlock();
+	}
 	return ok;
 }
 
 int DebtDimCache::FetchAgentList(LAssocArray * pAgentList)
 {
 	int    ok = 0;
-	AlLock.ReadLock();
-	if(!P_AgentList) {
-		AlLock.Unlock();
-		AlLock.WriteLock();
+	{
+		//AlLock.ReadLock();
+		SRWLOCKER(AlLock, SReadWriteLocker::Read);
 		if(!P_AgentList) {
-			P_AgentList = new LAssocArray;
-			if(P_AgentList) {
-				PPObjDebtDim dd_obj;
-				PPDebtDim dd_rec;
-				PPDebtDimPacket dd_pack;
-				for(SEnum en = PPRef->Enum(PPOBJ_DEBTDIM, 0); en.Next(&dd_rec) > 0;) {
-					if(dd_obj.GetPacket(dd_rec.ID, &dd_pack) > 0) {
-						for(uint i = 0; i < dd_pack.AgentList.GetCount(); i++)
-							P_AgentList->Add(dd_rec.ID, dd_pack.AgentList.Get(i), 0);
+			//AlLock.Unlock();
+			//AlLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(!P_AgentList) {
+				P_AgentList = new LAssocArray;
+				if(P_AgentList) {
+					PPObjDebtDim dd_obj;
+					PPDebtDim dd_rec;
+					PPDebtDimPacket dd_pack;
+					for(SEnum en = PPRef->Enum(PPOBJ_DEBTDIM, 0); en.Next(&dd_rec) > 0;) {
+						if(dd_obj.GetPacket(dd_rec.ID, &dd_pack) > 0) {
+							for(uint i = 0; i < dd_pack.AgentList.GetCount(); i++)
+								P_AgentList->Add(dd_rec.ID, dd_pack.AgentList.Get(i), 0);
+						}
 					}
+					ASSIGN_PTR(pAgentList, *P_AgentList);
+					ok = 1;
 				}
-				ASSIGN_PTR(pAgentList, *P_AgentList);
-				ok = 1;
+				else
+					PPSetErrorNoMem();
 			}
-			else
-				PPSetErrorNoMem();
 		}
+		if(!ok && P_AgentList) {
+			ASSIGN_PTR(pAgentList, *P_AgentList);
+			ok = 1;
+		}
+		//AlLock.Unlock();
 	}
-	if(!ok && P_AgentList) {
-		ASSIGN_PTR(pAgentList, *P_AgentList);
-		ok = 1;
-	}
-	AlLock.Unlock();
 	return ok;
 }
 

@@ -2575,7 +2575,7 @@ static void ngx_http_mp4_adjust_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp
 static char * ngx_http_mp4(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	clcf->handler = ngx_http_mp4_handler;
+	clcf->F_HttpHandler = ngx_http_mp4_handler;
 	return NGX_CONF_OK;
 }
 

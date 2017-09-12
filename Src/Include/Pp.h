@@ -95,6 +95,7 @@
 // @allocreuse    - помечаются члены классов, используемые как временные буферы
 //                  для предотвращения повторного распределения памяти с целью ускорения исполнения функций.
 // @ambiguity     - обозначает наличие неоднозначности или проверку на неоднозначность чего-либо (по контексту)
+// @redundant     - обозначает избыточный код (иногда как аргументация комментария)
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -5266,6 +5267,7 @@ private:
 #define PPSCMD_QUERYNATURALTOKEN     10108 // @v8.8.12
 #define PPSCMD_GETARTICLEBYPERSON    10109 // @v8.9.0
 #define PPSCMD_GETPERSONBYARTICLE    10110 // @v8.9.0
+#define PPSCMD_LOGLOCKSTACK          10111 // @v9.8.1 Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -6411,7 +6413,8 @@ public:
 	int    SLAPI GetKind() const;
 	void   FASTCALL SetText(const char * pTxt);
 	void   FASTCALL SetMessage(const char * pMsg);
-	int    FASTCALL GetInfo(PPThread::Info & rInfo) const;
+	void   FASTCALL GetInfo(PPThread::Info & rInfo) const;
+	void   FASTCALL LockStackToStr(SString & rBuf) const;
 	int32  SLAPI GetUniqueSessID() const;
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply)
 	{
@@ -6581,6 +6584,7 @@ public:
 	int    SetThreadNotification(int type, const void * pData);
 	int    GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList);
 	int    GetThreadInfo(ThreadID tId, PPThread::Info & rInfo);
+	void   LogLocStk();
 	//
 	// Descr: Останавливает поток с идентификатором tId.
 	// Note: Могут быть остановлены только потоки видов PPThread::kJob, PPThread::kNetSession.
@@ -6839,6 +6843,7 @@ private:
 		uint   GetCount();
 		int    FASTCALL GetInfoList(int type, TSCollection <PPThread::Info> & rList);
 		int    FASTCALL GetInfo(ThreadID tId, PPThread::Info & rInfo);
+		void   FASTCALL LocStkToStr(SString & rBuf);
 		int    FASTCALL StopThread(ThreadID tId);
 
 		PPThread * FASTCALL SearchById(ThreadID tId);
@@ -7936,7 +7941,7 @@ public:
 	};
 	long   GetImplementFlags() const
 	{
-		return ImplementFlags;;
+		return ImplementFlags;
 	}
 
 	PPID   Obj;
@@ -13496,7 +13501,7 @@ public:
 		stdfPctDis      = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
 		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
 	};
-	int    SLAPI SetTotalDiscount(double dis, long flags);
+	int    SLAPI SetTotalDiscount__(double dis, long flags);
 	int    SLAPI CalcAmount(double * pAmt, double * pDscnt) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount
@@ -42262,6 +42267,7 @@ private:
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI StopThread(long tid);
 	int    SLAPI ResetCache();
+	int    SLAPI LogLockStack();
 
 	int    SLAPI FetchStat();
 	SArray Data;

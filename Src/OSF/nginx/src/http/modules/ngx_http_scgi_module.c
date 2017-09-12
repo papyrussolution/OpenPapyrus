@@ -504,22 +504,15 @@ static ngx_int_t ngx_http_scgi_handler(ngx_http_request_t * r)
 	if(u->pipe == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	u->pipe->input_filter = ngx_event_pipe_copy_input_filter;
 	u->pipe->input_ctx = r;
-
-	if(!scf->upstream.request_buffering
-	    && scf->upstream.pass_request_body
-	    && !r->headers_in.chunked) {
+	if(!scf->upstream.request_buffering && scf->upstream.pass_request_body && !r->headers_in.chunked) {
 		r->request_body_no_buffering = 1;
 	}
-
 	rc = ngx_http_read_client_request_body(r, ngx_http_upstream_init);
-
 	if(rc >= NGX_HTTP_SPECIAL_RESPONSE) {
 		return rc;
 	}
-
 	return NGX_DONE;
 }
 
@@ -527,44 +520,31 @@ static ngx_int_t ngx_http_scgi_eval(ngx_http_request_t * r, ngx_http_scgi_loc_co
 {
 	ngx_url_t url;
 	ngx_http_upstream_t  * u;
-
 	memzero(&url, sizeof(ngx_url_t));
-
-	if(ngx_http_script_run(r, &url.url, scf->scgi_lengths->elts, 0,
-		    scf->scgi_values->elts)
-	    == NULL) {
+	if(ngx_http_script_run(r, &url.url, scf->scgi_lengths->elts, 0, scf->scgi_values->elts) == NULL) {
 		return NGX_ERROR;
 	}
-
 	url.no_resolve = 1;
-
 	if(ngx_parse_url(r->pool, &url) != NGX_OK) {
 		if(url.err) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "%s in upstream \"%V\"", url.err, &url.url);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s in upstream \"%V\"", url.err, &url.url);
 		}
-
 		return NGX_ERROR;
 	}
-
 	u = r->upstream;
-
 	u->resolved = (ngx_http_upstream_resolved_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_resolved_t));
 	if(u->resolved == NULL) {
 		return NGX_ERROR;
 	}
-
 	if(url.addrs) {
 		u->resolved->sockaddr = url.addrs[0].sockaddr;
 		u->resolved->socklen = url.addrs[0].socklen;
 		u->resolved->name = url.addrs[0].name;
 		u->resolved->naddrs = 1;
 	}
-
 	u->resolved->host = url.host;
 	u->resolved->port = url.port;
 	u->resolved->no_port = url.no_port;
-
 	return NGX_OK;
 }
 
@@ -572,20 +552,15 @@ static ngx_int_t ngx_http_scgi_eval(ngx_http_request_t * r, ngx_http_scgi_loc_co
 
 static ngx_int_t ngx_http_scgi_create_key(ngx_http_request_t * r)
 {
-	ngx_str_t * key;
 	ngx_http_scgi_loc_conf_t  * scf;
-
-	key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
+	ngx_str_t * key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
 	if(key == NULL) {
 		return NGX_ERROR;
 	}
-
 	scf = (ngx_http_scgi_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_scgi_module);
-
 	if(ngx_http_complex_value(r, &scf->cache_key, key) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	return NGX_OK;
 }
 
@@ -1234,8 +1209,8 @@ static char * ngx_http_scgi_merge_loc_conf(ngx_conf_t * cf, void * parent, void 
 		conf->scgi_lengths = prev->scgi_lengths;
 		conf->scgi_values = prev->scgi_values;
 	}
-	if(clcf->lmt_excpt && clcf->handler == NULL && (conf->upstream.upstream || conf->scgi_lengths)) {
-		clcf->handler = ngx_http_scgi_handler;
+	if(clcf->lmt_excpt && !clcf->F_HttpHandler && (conf->upstream.upstream || conf->scgi_lengths)) {
+		clcf->F_HttpHandler = ngx_http_scgi_handler;
 	}
 	if(conf->params_source == NULL) {
 		conf->params = prev->params;
@@ -1463,55 +1438,42 @@ static char * ngx_http_scgi_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 	ngx_url_t u;
 	ngx_str_t  * value, * url;
 	ngx_uint_t n;
-	ngx_http_core_loc_conf_t * clcf;
 	ngx_http_script_compile_t sc;
-
 	if(scf->upstream.upstream || scf->scgi_lengths) {
 		return "is duplicate";
 	}
-
-	clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
-	clcf->handler = ngx_http_scgi_handler;
-
-	value = (ngx_str_t *)cf->args->elts;
-
-	url = &value[1];
-
-	n = ngx_http_script_variables_count(url);
-
-	if(n) {
-		memzero(&sc, sizeof(ngx_http_script_compile_t));
-
-		sc.cf = cf;
-		sc.source = url;
-		sc.lengths = &scf->scgi_lengths;
-		sc.values = &scf->scgi_values;
-		sc.variables = n;
-		sc.complete_lengths = 1;
-		sc.complete_values = 1;
-
-		if(ngx_http_script_compile(&sc) != NGX_OK) {
+	else {
+		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+		clcf->F_HttpHandler = ngx_http_scgi_handler;
+		value = (ngx_str_t *)cf->args->elts;
+		url = &value[1];
+		n = ngx_http_script_variables_count(url);
+		if(n) {
+			memzero(&sc, sizeof(ngx_http_script_compile_t));
+			sc.cf = cf;
+			sc.source = url;
+			sc.lengths = &scf->scgi_lengths;
+			sc.values = &scf->scgi_values;
+			sc.variables = n;
+			sc.complete_lengths = 1;
+			sc.complete_values = 1;
+			if(ngx_http_script_compile(&sc) != NGX_OK) {
+				return NGX_CONF_ERROR;
+			}
+			return NGX_CONF_OK;
+		}
+		memzero(&u, sizeof(ngx_url_t));
+		u.url = value[1];
+		u.no_resolve = 1;
+		scf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
+		if(scf->upstream.upstream == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
+		if(clcf->name.data[clcf->name.len - 1] == '/') {
+			clcf->auto_redirect = 1;
+		}
 		return NGX_CONF_OK;
 	}
-
-	memzero(&u, sizeof(ngx_url_t));
-
-	u.url = value[1];
-	u.no_resolve = 1;
-
-	scf->upstream.upstream = ngx_http_upstream_add(cf, &u, 0);
-	if(scf->upstream.upstream == NULL) {
-		return NGX_CONF_ERROR;
-	}
-
-	if(clcf->name.data[clcf->name.len - 1] == '/') {
-		clcf->auto_redirect = 1;
-	}
-
-	return NGX_CONF_OK;
 }
 
 static char * ngx_http_scgi_store(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)

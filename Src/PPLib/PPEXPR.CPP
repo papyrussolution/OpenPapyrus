@@ -142,15 +142,18 @@ int SLAPI BillSymbCache::DirtySymb(const char * pSymb)
 {
 	int    ok = 0;
 	SString s;
-	RwL.WriteLock(); // {
-	for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++) {
-		if(stricmp866(s, pSymb) == 0) {
-			Data * p_entry = (Data *)SearchByPos(n, 0);
-			if(p_entry->F)
-				p_entry->F = 0;
+	{
+		//RwL.WriteLock(); // {
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++) {
+			if(stricmp866(s, pSymb) == 0) {
+				Data * p_entry = (Data *)SearchByPos(n, 0);
+				// (@redundant) if(p_entry->F)
+					p_entry->F = 0;
+			}
 		}
+		//RwL.Unlock(); // }
 	}
-	RwL.Unlock(); // }
 	return ok;
 }
 
@@ -162,63 +165,67 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 	SString s, f;
 	PPErrCode = 0;
 	rBuf.Z();
-	RwL.ReadLock();
-	StatData.Count.Incr();
-	ok = Search(pSymb, pID, rBuf);
-	if(ok)
-		StatData.Hits.Incr();
-	else
-		StatData.Misses.Incr();
-	if(!ok) {
-		RwL.Unlock();
-		RwL.WriteLock();
-		PPID   id = 0;
-		PPObjAmountType at_obj;
-		PPObjFormula    f_obj;
-		if((r = at_obj.SearchSymb(&id, pSymb)) > 0) {
-			f = 0;
-			s = pSymb;
-			if(Add(0x0001, id, s.Strip(), f.Strip())) {
-				*pID = id;
-				ok = 1;
-			}
-			else
-				ok = 0;
-		}
-		else if(r && (r = f_obj.SearchByName(pSymb, &id)) > 0) {
-			if(f_obj.Get(id, s, f) > 0) {
-				if(Add(0x0002, id, s.Strip(), f.Strip())) {
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		StatData.Count.Incr();
+		ok = Search(pSymb, pID, rBuf);
+		if(ok)
+			StatData.Hits.Incr();
+		else
+			StatData.Misses.Incr();
+		if(!ok) {
+			//RwL.Unlock();
+			//RwL.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			PPID   id = 0;
+			PPObjAmountType at_obj;
+			PPObjFormula    f_obj;
+			if((r = at_obj.SearchSymb(&id, pSymb)) > 0) {
+				f = 0;
+				s = pSymb;
+				if(Add(0x0001, id, s.Strip(), f.Strip())) {
 					*pID = id;
-					rBuf = f;
-					ok = 2;
+					ok = 1;
 				}
 				else
 					ok = 0;
 			}
-		}
-		else {
-			PPSymbTranslator st;
-			if(!st)
-				ok = 0;
-			else {
-				size_t next_pos = 0;
-				id = st.Translate(pSymb, &next_pos);
-				if(id == PPSYM_ADVLNAMT) {
-					f = 0;
-					s = pSymb;
-					if(Add(0x0008, PPAMT_ADLN_MAIN, s.Strip(), f.Strip())) {
-						*pID = PPAMT_ADLN_MAIN;
-						ok = 3;
+			else if(r && (r = f_obj.SearchByName(pSymb, &id)) > 0) {
+				if(f_obj.Get(id, s, f) > 0) {
+					if(Add(0x0002, id, s.Strip(), f.Strip())) {
+						*pID = id;
+						rBuf = f;
+						ok = 2;
 					}
 					else
 						ok = 0;
-   				}
-				if(!r)
+				}
+			}
+			else {
+				PPSymbTranslator st;
+				if(!st)
 					ok = 0;
+				else {
+					size_t next_pos = 0;
+					id = st.Translate(pSymb, &next_pos);
+					if(id == PPSYM_ADVLNAMT) {
+						f = 0;
+						s = pSymb;
+						if(Add(0x0008, PPAMT_ADLN_MAIN, s.Strip(), f.Strip())) {
+							*pID = PPAMT_ADLN_MAIN;
+							ok = 3;
+						}
+						else
+							ok = 0;
+   					}
+					if(!r)
+						ok = 0;
+				}
 			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	if(!ok && !PPErrCode)
 		PPSetError(PPERR_ILLVAR, pSymb);
 	return ok;

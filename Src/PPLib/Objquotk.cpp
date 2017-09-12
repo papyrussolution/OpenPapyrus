@@ -1252,15 +1252,17 @@ int SLAPI QuotKindCache::Dirty(PPID id)
 	SymbList.Dirty(id);
 	// @v9.0.9 {
 	{
-		RtlLock.ReadLock();
+		//RtlLock.ReadLock();
+		SRWLOCKER(RtlLock, SReadWriteLocker::Read);
 		if(RtlListInited) {
-			RtlLock.Unlock();
-			RtlLock.WriteLock();
+			//RtlLock.Unlock();
+			//RtlLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			RtlQkList.clear();
 			RtlTmQkList.clear();
 			RtlListInited = 0;
 		}
-		RtlLock.Unlock();
+		//RtlLock.Unlock();
 	}
 	// } @v9.0.9
 	return ok;
@@ -1269,17 +1271,21 @@ int SLAPI QuotKindCache::Dirty(PPID id)
 int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 {
 	int    ok = 1;
-	RtlLock.ReadLock();
-	if(!RtlListInited) {
-		PPObjQuotKind qk_obj;
-		RtlLock.Unlock();
-		RtlLock.WriteLock();
-		qk_obj.Helper_GetRtlList(ZERODATETIME, &RtlQkList, &RtlTmQkList, 0);
-		RtlListInited = 1;
+	{
+		//RtlLock.ReadLock();
+		SRWLOCKER(RtlLock, SReadWriteLocker::Read);
+		if(!RtlListInited) {
+			PPObjQuotKind qk_obj;
+			//RtlLock.Unlock();
+			//RtlLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			qk_obj.Helper_GetRtlList(ZERODATETIME, &RtlQkList, &RtlTmQkList, 0);
+			RtlListInited = 1;
+		}
+		rList = RtlQkList;
+		rTmList = RtlTmQkList;
+		//RtlLock.Unlock();
 	}
-	rList = RtlQkList;
-	rTmList = RtlTmQkList;
-	RtlLock.Unlock();
 	return ok;
 }
 
@@ -1333,23 +1339,27 @@ void SLAPI QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 
 int SLAPI QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 {
-	SkLock.ReadLock();
-	if(Sk.Flags & PPObjQuotKind::Special::fInited) {
-		ASSIGN_PTR(pSk, Sk);
-	}
-	else {
-		SkLock.Unlock();
-		SkLock.WriteLock();
+	{
+		//SkLock.ReadLock();
+		SRWLOCKER(SkLock, SReadWriteLocker::Read);
 		if(Sk.Flags & PPObjQuotKind::Special::fInited) {
 			ASSIGN_PTR(pSk, Sk);
 		}
 		else {
-			PPObjQuotKind::GetSpecialKinds(&Sk, 0 /* @! strictrly 0 - without cache */);
-			assert(Sk.Flags & PPObjQuotKind::Special::fInited);
-			ASSIGN_PTR(pSk, Sk);
+			//SkLock.Unlock();
+			//SkLock.WriteLock();
+			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+			if(Sk.Flags & PPObjQuotKind::Special::fInited) {
+				ASSIGN_PTR(pSk, Sk);
+			}
+			else {
+				PPObjQuotKind::GetSpecialKinds(&Sk, 0 /* @! strictrly 0 - without cache */);
+				assert(Sk.Flags & PPObjQuotKind::Special::fInited);
+				ASSIGN_PTR(pSk, Sk);
+			}
 		}
+		//SkLock.Unlock();
 	}
-	SkLock.Unlock();
 	return 1;
 }
 

@@ -353,17 +353,6 @@ public:
 void * operator new(size_t sz);
 void operator delete(void * ptr);
 //
-// Экземпляр SCriticalSection::Data создается с признаком
-// DontDestroyOnDestruction который припятствует "преждевременному"
-// разрушению внутреннего объекта.
-// Это поможет избежать проблемы, когда какой-либо объект, разрушаемый при
-// завершении программы, обращается к критической секции, которая была
-// разрушена раньше (программа в этом случае выдает исключение, что раздражает).
-//
-#define ENTER_CRITICAL_SECTION { static SCriticalSection::Data __csd(1); SCriticalSection __cs(__csd);
-#define LEAVE_CRITICAL_SECTION }
-#define DO_CRITICAL(op) { static SCriticalSection::Data __csd(1); SCriticalSection __cs(__csd); op; }
-//
 // Descr: Перечисление, обеспечивающее типизированное применение "лекого" варианта конструктора
 //   объекта. Применяется в специальных случаях, когда необходимо максимально быстро создать
 //   упрощенный 'кземпляр "тяжелого" объекта.
@@ -3338,7 +3327,7 @@ public:
 	SString & SLAPI ToUtf8();
 	SString & SLAPI Utf8ToChar();
 	SString & SLAPI Utf8ToOem();
-	SString & SLAPI Utf8ToCp(SCodepageIdent cp);
+	SString & FASTCALL Utf8ToCp(SCodepageIdent cp);
 	SString & SLAPI Utf8ToLower();
 	SString & SLAPI Utf8ToUpper();
 
@@ -3896,7 +3885,7 @@ const  char * SLAPI skipws(const char * pStr, size_t * pPos);
 //
 // @v9.6.5 const  char * FASTCALL onecstr(char c);
 //
-// Descr: Сдвигает все символы строки pStr вправо на n символов и освободившееся 
+// Descr: Сдвигает все символы строки pStr вправо на n символов и освободившееся
 //   слева место забивает символами pad.
 // Note: Предполает, что под указатель pStr выделено достаточно места чтобы вместить еще n символов.
 // Returns:
@@ -5800,29 +5789,6 @@ public:
 	int    FASTCALL pop(T & t)  { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
 };
-//
-// Descr: Шаблонная функция, позволяющая реализовать глобальный циклический
-//   стек для обеспечения примитивов, оперирующих простыми объектами, размеры
-//   которых превышают возможности системного стека.
-//   Например, такой стек позволяет реализовать быстрые операции над
-//   точками координат (@see: RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two)).
-// @attention
-//
-//
-template <class T, uint S> T & FASTCALL PushRecycledObject(T & rObj)
-{
-	static TSRingStack <T> * P_Stack; // @global @threadsafe
-	T * p_ret = 0;
-	ENTER_CRITICAL_SECTION
-		if(P_Stack == 0)
-			P_Stack = new TSRingStack <T> (S);
-		if(P_Stack) {
-			P_Stack->push(rObj);
-			p_ret = &P_Stack->peek();
-		}
-	LEAVE_CRITICAL_SECTION
-	return *p_ret;
-}
 //
 //
 //
@@ -7904,6 +7870,7 @@ public:
 		Css              = 114, // @v9.7.1 CSS
 		JavaScript       = 115, // @v9.7.1 JS
 		Json             = 116, // @v9.7.2
+		Pbxproj          = 117, // @v9.8.1 Файл проекта xcode
 
 		FirstUser        = 10000
 	};
@@ -10586,7 +10553,7 @@ public:
 	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
 	//   0  - ошибка
 	//
-	int    FASTCALL ReadLockT(long timeout);
+	int    FASTCALL ReadLockT_(long timeout);
 	//
 	// Descr: Блокирует объект на запись с ожиданием в течении timeout миллисекунд.
 	// ARG(timeout IN): время ожидания в миллисекундах. Если timeout < 0, то бесконечное ожидание.
@@ -10595,27 +10562,28 @@ public:
 	//   <0 - блокировка не установлена из-за превышения ожидания timeout ms
 	//   0  - ошибка
 	//
-	int    FASTCALL WriteLockT(long timeout);
+	int    FASTCALL WriteLockT_(long timeout);
 	//
 	// Descr: Блокирует объект на чтение с бесконечным ожиданием.
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   0  - ошибка
 	//
-	int    SLAPI ReadLock();
+	int    SLAPI ReadLock_();
 	//
 	// Descr: Блокирует объект на запись с бесконечным ожиданием.
 	// Returns:
 	//   >0 - блокировка успешно установлена
 	//   0  - ошибка
 	//
-	int    SLAPI WriteLock();
+	int    SLAPI WriteLock_();
 	//
 	// Descr: Снимает блокировку. Функция унифицированная и для блокировки на чтение и на запись.
 	//   Функция должна быть вызвана после выполнения работы, следующей за WriteLock(T) или ReadLock(T).
 	//
-	int    SLAPI Unlock();
+	int    SLAPI Unlock_();
 private:
+	friend class SReadWriteLocker;
 	int    FASTCALL Helper_ReadLock(long timeout);
 	int    FASTCALL Helper_WriteLock(long timeout);
 
@@ -10627,6 +10595,104 @@ private:
 	Sem    Sr; // Семафор для приостановки читателей
 	Sem    Sw; // Семафор для приостановки писателей
 };
+//
+// Descr: Вспомогательный класс, обеспечивающий удобную автоматизацию управления RW-блокировками.
+//
+class SReadWriteLocker {
+public:
+	//
+	// Descr: Тип блокировки
+	//
+	enum Type {
+		None = 0,  // Без блокировки
+		Read = 1,  // Блокировка на чтение
+		Write = 2  // Блокировка на запись
+	};
+	enum {
+		stError   = 0x0001,
+		stTimeout = 0x0002,
+		stRLocked = 0x0004,
+		stWLocked = 0x0008,
+		stTraced  = 0x0010  // Объект трассируется отладочным стеком (необходим для правильной работы деструктора)
+	};
+	SLAPI  SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout = -1);
+	//
+	// Descr: Специальный вариант конструктора для внесения информации о блокировке
+	//   в отладочный стек.
+	//
+	SLAPI  SReadWriteLocker(ReadWriteLock & rL, Type t, long timeout, const char * pSrcFileName, uint srcLineNo);
+	SLAPI ~SReadWriteLocker();
+	int    SLAPI operator !() const;
+	int    SLAPI GetState() const;
+	int    FASTCALL Toggle(Type t);
+	int    SLAPI Toggle(Type t, const char * pSrcFileName, uint srcLineNo);
+private:
+	void   FASTCALL InitInstance(Type t);
+	int    SLAPI Unlock();
+
+	ReadWriteLock & R_L;
+	const  long Timeout;
+	int    State;
+};
+//
+// Descr: Отладочный класс, ведущий учет активных внутренних блокировок
+//   таких как CRITICAL-SECTION, READ-WRITE etc.
+//   Предназначен для того, чтобы идентифицировать (или доказать отсутствие) взаимных блокировок.
+//
+class SLockStack {
+public:
+	enum {
+		ltNone = 0,
+		ltCS = 1,
+		ltRW_R,
+		ltRW_W
+	};
+	//
+	// Descr: Транслирует тип блокировки SReadWriteLocker::Type в SLockStack::ltXXX
+	//
+	static uint FASTCALL WRLT_to_LSLT(SReadWriteLocker::Type wrlt);
+	SLAPI  SLockStack();
+	void   SLAPI Push(uint lockType, const char * pSrcFileName, uint lineNo);
+	void   SLAPI Pop();
+	void   SLAPI ToStr(SString & rBuf) const;
+private:
+	struct Entry {
+        long   SrcFileSymbId; // Значение, ассоциированное с именем исходного файла, занесенным в SlSession::GlobSymbList
+        uint32 SrcLineNo;
+        uint64 TimeCount;
+        int    LockType;
+	};
+	TSStack <Entry> S;
+	SString TempBuf;
+};
+//
+// Экземпляр SCriticalSection::Data создается с признаком
+// DontDestroyOnDestruction который припятствует "преждевременному"
+// разрушению внутреннего объекта.
+// Это поможет избежать проблемы, когда какой-либо объект, разрушаемый при
+// завершении программы, обращается к критической секции, которая была
+// разрушена раньше (программа в этом случае выдает исключение, что раздражает).
+//
+#if SLTRACELOCKSTACK
+	#define ENTER_CRITICAL_SECTION { static SCriticalSection::Data __csd(1); SLS.LockPush(SLockStack::ltCS, __FILE__, __LINE__); SCriticalSection __cs(__csd);
+	#define LEAVE_CRITICAL_SECTION SLS.LockPop(); }
+	#define DO_CRITICAL(op) { static SCriticalSection::Data __csd(1); SLS.LockPush(SLockStack::ltCS, __FILE__, __LINE__); SCriticalSection __cs(__csd); op; SLS.LockPop(); }
+#else
+	#define ENTER_CRITICAL_SECTION { static SCriticalSection::Data __csd(1); SCriticalSection __cs(__csd);
+	#define LEAVE_CRITICAL_SECTION }
+	#define DO_CRITICAL(op) { static SCriticalSection::Data __csd(1); SCriticalSection __cs(__csd); op; }
+#endif
+
+#define SRWLOCKERVAR__                 _rwl
+#if SLTRACELOCKSTACK
+	#define SRWLOCKER(lck, typ)            SReadWriteLocker SRWLOCKERVAR__((lck), (typ), -1, __FILE__, __LINE__)
+	#define SRWLOCKERTIMEOUT(lck, typ, to) SReadWriteLocker SRWLOCKERVAR__((lck), (typ), (to), __FILE__, __LINE__)
+	#define SRWLOCKER_TOGGLE(typ)          SRWLOCKERVAR__.Toggle((typ), __FILE__, __LINE__)	
+#else
+	#define SRWLOCKER(lck, typ)            SReadWriteLocker SRWLOCKERVAR__((lck), (typ))
+	#define SRWLOCKERTIMEOUT(lck, typ, to) SReadWriteLocker SRWLOCKERVAR__((lck), (typ), (to))
+	#define SRWLOCKER_TOGGLE(typ)          SRWLOCKERVAR__.Toggle((typ))
+#endif
 //
 // Descr: Канал (pipe) позволяющий писать с одного конца и читать с другого.
 //   Допускается не более одного читателя и не более одного писателя одновременно.
@@ -10692,6 +10758,26 @@ private:
 	BitArray BusyList;
 };
 //
+// Descr: Шаблонная функция, позволяющая реализовать глобальный циклический
+//   стек для обеспечения примитивов, оперирующих простыми объектами, размеры
+//   которых превышают возможности системного стека.
+//   Например, такой стек позволяет реализовать быстрые операции над
+//   точками координат (@see: RPoint & FASTCALL operator + (const RPoint & one, const RPoint & two)).
+// @attention
+//
+template <class T, uint S> T & FASTCALL PushRecycledObject(T & rObj)
+{
+	static TSRingStack <T> * P_Stack; // @global @threadsafe
+	T * p_ret = 0;
+	ENTER_CRITICAL_SECTION
+		if(SETIFZ(P_Stack, new TSRingStack <T> (S))) {
+			P_Stack->push(rObj);
+			p_ret = &P_Stack->peek();
+		}
+	LEAVE_CRITICAL_SECTION
+	return *p_ret;
+}
+//
 //
 //
 class SProfile {
@@ -10744,11 +10830,7 @@ template <class T> class TSClassWrapper : public SClassWrapper {
 //
 typedef HANDLE ThreadHandle;
 typedef DWORD  ThreadID;
-#ifdef _MT
-	typedef uint  ThreadProcReturn;
-#else
-	typedef DWORD ThreadProcReturn;
-#endif
+typedef uint   ThreadProcReturn;
 #define THREADPROCCALL __stdcall
 #define SLTHREAD_DEFAULT_STOP_TIMEOUT 30000
 
@@ -10821,6 +10903,7 @@ protected:
 	void   SLAPI ResetIdleState();
 
 	volatile void * P_InitData;
+	const void * P_Tla; // @v9.8.1
 	Evnt   EvLocalStop; // Событие активируется при вызове SlThread::SetStopState()
 		// Этот сигнал означает, что поток должен остановиться.
 private:
@@ -10957,6 +11040,8 @@ public:
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
 	SProfile Prf;            // @v9.7.11 Локальный по отношению к потоку профайлер
+
+	SLockStack LckStk;       // @v9.8.1 Отладочный стэк блокировок
 private:
 	TVRez * P_Rez;
 	HDC    FontDc;          // Искусственный глобальный контекст вывода для манипулирования шрифтами.
@@ -10980,7 +11065,15 @@ public:
 	void   SLAPI SetAppName(const char * pAppName);
 	int    SLAPI InitWSA(); // @>>::WSAStartup
 	int    SLAPI InitSSL();
-	int    SLAPI InitThread();
+	//
+	// Descr: Инициализирует новый поток. Функция должна быть вызвана
+	//   при создании основного потока. Каждый новый поток так же должен вызвать 
+	//   эту функцию.
+	// Returns: Указатель на локальную область данных потока SlThreadLocaArea.
+	// Attention: Ни в коем случае нельзя менять никаких данных по этому указателю
+	//   он может быть использован исключительно для промотра информации в отладочных целях.
+	//
+	const void * SLAPI InitThread();
 	void   SLAPI ReleaseThread();
 	SlThreadLocalArea & SLAPI GetTLA();
 	const  SlThreadLocalArea & SLAPI GetConstTLA() const;
@@ -11041,18 +11134,25 @@ public:
 	//
 	// Descr: Находит или, если нет, то создает ассоциацию глобального символа pSymb с целочисленным
 	//   идентификатором ident.
+	//   Если pSymb == 0 && ident > 0 функция ищет существующий символ по идентификатору ident
+	//     и возвращает его по указателю pRetSymb.
 	//   Если символ pSymb не найден, а ident == 0, то ассоциирует pSymb со значением,
-	//   полученным увеличением внутреннего счетчика.
+	//     полученным увеличением внутреннего счетчика.
 	//   Если символ pSymb не найден, а ident > 0, то ассоциирует pSymb с заданным значением ident.
 	//   Если символ pSymb не найден, а ident < 0, то возвращает (<0).
+	//
 	// Returns:
 	//   >0 - идентификатор, ассоциированный с pSymb
-	//   <0 - если pSymb не найден, а ident < 0
+	//   <0 - если pSymb не найден, а ident < 0. Для случая, когда pSymb == 0 и ident > 0
+	//     это означает, что идентификатор ident в таблице не найден.
 	//   0  - возможен один из следующих случаев:
 	//        -- если pSymb найден, ident > 0, но найденный идентификатор не равен ident
 	//        -- если pSymb не найден и не удалось создать новую ассоциацию {pSymb, ident}
+	// Note: Функция реализована как 2-in-1 (поиск по символу и по идентификатору) ради общей
+	//   критической сессии, замкнутой внутри функции.
+	//   Если бы функций было 2, пришлось бы держать отдельный объект критической сессии.
 	//
-	long   SLAPI GetGlobalSymbolId(const char * pSymb, long ident); // @cs
+	long   SLAPI GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb); // @cs
 	const  S_GUID & GetSessUuid() const
 	{
 		return SessUuid;
@@ -11101,12 +11201,15 @@ public:
 	//
 	void   SLAPI GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
 	void   SLAPI SetExtraProcBlock(const SlExtraProcBlock * pBlk);
+	//
+	void   SLAPI LockPush(int lockType, const char * pSrcFileName, uint srcLineNo);
+	void   SLAPI LockPop();
 private:
 	long   Id;              // @anchor
 	long   TlsIdx;          // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
-	ACount LastThread;      //
+	// @v9.8.1 ACount LastThread;      //
 	int    WsaInitCounter;
 	ACount SslInitCounter;  // @v8.3.5
 	int    StopFlag;
@@ -11137,10 +11240,7 @@ private:
 
 	GlobalObjectArray GlobObjList;
 	SymbHashTable GlobSymbList;
-	ACount LastGlobSymbId;
-#ifndef _MT
-	SlThreadLocalArea Tla;
-#endif
+	// @v9.8.1 (теперь используется SeqValue) ACount LastGlobSymbId;
 };
 
 extern SlSession SLS;

@@ -1082,14 +1082,15 @@
 #define PPVCMD_RMVBILL                      257
 #define PPVCMD_DISPOSE                      258
 #define PPVCMD_RESETCACHE                   259
-#define PPVCMD_VIEWPERSONS                  260
-#define PPVCMD_VIEWACC                      261
-#define PPVCMD_CALCVALUES                   262
-#define PPVCMD_VIEWTEMPLATE                 263
-#define PPVCMD_VIEWCHECK                    264
-#define PPVCMD_IMPORTUHTT                   265
-#define PPVCMD_TRANSACTJ                    266
-#define PPVCMD_UPDATEITEMS                  267
+#define PPVCMD_LOGLOCKSTACK                 260
+#define PPVCMD_VIEWPERSONS                  261
+#define PPVCMD_VIEWACC                      262
+#define PPVCMD_CALCVALUES                   263
+#define PPVCMD_VIEWTEMPLATE                 264
+#define PPVCMD_VIEWCHECK                    265
+#define PPVCMD_IMPORTUHTT                   266
+#define PPVCMD_TRANSACTJ                    267
+#define PPVCMD_UPDATEITEMS                  268
 //
 // PPCMD definitions
 //

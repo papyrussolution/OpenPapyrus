@@ -2936,9 +2936,6 @@ private:
 	int    NWaitLockTryTimeout;  // Таймаут (ms) между попытками заблокировать запись блокировкой без ожидания. Если <= 0, то применяется значение по умолчанию.
 	//
 	SStrCollection DbPathList; // Список баз данных, на которые ссылаются открытые потоки.
-#ifndef _MT
-	DbThreadLocalArea Tla;
-#endif
 };
 //
 // DSN Open Mode { PSQL\CATALOG.H
@@ -3062,13 +3059,8 @@ extern DbSession DBS;
 	extern BtrCallProcID _BtrCallID;
 
 	//int SLAPI BTRCALL(int,char *,char *,int16 *,char *,int,int);
-	#ifdef _MT // {
-		FORCEINLINE int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
-			{ return _BtrCallID(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM, &DBS.GetTLA().ClientID); }
-	#else
-		FORCEINLINE int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
-			{ return _BtrCall(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM); }
-	#endif  // } _MT
+	FORCEINLINE int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
+		{ return _BtrCallID(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM, &DBS.GetTLA().ClientID); }
 #elif defined(_Windows)
 	int SLAPI BTRCALL(int,char far*,char far*,uint16 far*,char far*,int,int);
 #else

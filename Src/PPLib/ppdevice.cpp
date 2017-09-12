@@ -426,7 +426,7 @@ int PPAbstractDevice::IdentifyDevice(int dvcClass, const char * pName)
 		(dll_symb = "PPDRV").CatChar('&').Cat(dvcClass).CatChar('&').Cat(pName);
 		SDynLibrary * p_dll = 0;
 		ENTER_CRITICAL_SECTION
-			long   symbol_id = SLS.GetGlobalSymbolId(dll_symb, -1);
+			long   symbol_id = SLS.GetGlobalSymbol(dll_symb, -1, 0);
 			THROW_SL(symbol_id);
 			if(symbol_id < 0) {
 				TSClassWrapper <SDynLibrary> cls;
@@ -438,7 +438,7 @@ int PPAbstractDevice::IdentifyDevice(int dvcClass, const char * pName)
 						CALLEXCEPT_PP(PPERR_SLIB);
 					}
 					else {
-						long s = SLS.GetGlobalSymbolId(dll_symb, symbol_id);
+						long s = SLS.GetGlobalSymbol(dll_symb, symbol_id, 0);
 						assert(symbol_id == s);
 					}
 				}

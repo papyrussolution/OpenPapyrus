@@ -3139,7 +3139,8 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 	if(objID && tagID) {
 		uint16 tp = 0;
 		uint   pos = 0;
-		RwL.ReadLock();
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		StatData.Count.Incr();
 		if(TagTypeList.lsearch(&tagID, &pos, CMPF_LONG)) {
 			assert(pos < MAXSHORT);
@@ -3151,8 +3152,9 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 		else {
 			ok = Helper_Get(objID, tagID, pItem);
 			if(ok < 0) {
-				RwL.Unlock();
-				RwL.WriteLock();
+				//RwL.Unlock();
+				//RwL.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				//
 				// Пока мы ждали своей очереди на запись
 				// другой поток мог занести нужный нам элемент в кэш.
@@ -3225,7 +3227,7 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 				}
 			}
 		}
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -3233,8 +3235,9 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 int ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 {
 	int    ok = 1;
-	RwL.WriteLock();
 	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		for(uint i = 0; i < TagTypeList.getCount(); i++) {
 			TagTypeEntry & r_te = TagTypeList.at(i);
 			if((!tagID || r_te.TagID == tagID) && r_te.ObjType == objType) {
@@ -3251,8 +3254,8 @@ int ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 				}
 			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 //

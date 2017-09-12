@@ -2334,7 +2334,7 @@ SString & SLAPI SString::Utf8ToOem()
 	return Helper_MbToMb(CP_UTF8, CP_OEMCP);
 }
 
-SString & SLAPI SString::Utf8ToCp(SCodepageIdent cp)
+SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp)
 {
 	return Helper_MbToMb(CP_UTF8, (int)cp);
 }

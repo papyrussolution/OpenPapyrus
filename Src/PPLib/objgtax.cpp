@@ -907,15 +907,18 @@ SLAPI GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
 
 int SLAPI GTaxCache::Dirty(PPID id)
 {
-	RwL.WriteLock();
-	uint   c = P_Ary->getCount();
-	if(c) do {
-		--c;
-		PPID   item_id = ((PPGoodsTaxEntry*)P_Ary->at(c))->TaxGrpID;
-		if((item_id & 0x00ffffffL) == id)
-			P_Ary->atFree(c);
-	} while(c);
-	RwL.Unlock();
+	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		uint   c = P_Ary->getCount();
+		if(c) do {
+			--c;
+			PPID   item_id = ((PPGoodsTaxEntry*)P_Ary->at(c))->TaxGrpID;
+			if((item_id & 0x00ffffffL) == id)
+				P_Ary->atFree(c);
+		} while(c);
+		//RwL.Unlock();
+	}
 	return 1;
 }
 

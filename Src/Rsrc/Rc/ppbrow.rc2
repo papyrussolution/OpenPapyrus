@@ -5794,10 +5794,11 @@ browser SERVERSTAT north(100), 1, 1, "Статистика сервера %s", OWNER|GRID, 0
 	"@appellation",        4, zstring(256), 0,  40, BCO_USERPROC
 	"Последнее сообщение", 5, zstring(512), 0,  60, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		DELETEITEM : kbDel,   TBBM_DELETE,      "Остановить поток\tDelete"
-		RESETCACHE : kbCtrlR, TBBM_NOICON,      "Сбросить кэш\tCtrl-R"
+		DELETEITEM   : kbDel,   TBBM_DELETE,      "Остановить поток\tDelete"
+		RESETCACHE   : kbCtrlR, TBBM_NOICON,      "Сбросить кэш\tCtrl-R"
+		LOGLOCKSTACK : kbCtrlL, TBBM_NOICON,      "Вывод стека блокировок потоков (отладка)\tCtrl-L"
 		separator
-		REFRESH    : kbCtrlV, TBBM_REFRESHVIEW, "@{refresh}\tCtrl-V"
+		REFRESH      : kbCtrlV, TBBM_REFRESHVIEW, "@{refresh}\tCtrl-V"
 	}
 }
 

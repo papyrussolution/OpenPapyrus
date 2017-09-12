@@ -3805,14 +3805,14 @@ static PPKeywordListGenerator * _GetGlobalKeywordListGeneratorInstance()
 {
 	static const char * P_KeywordListGeneratorGlobalSymbol = "PPKEYWORDSEQGENERATOR";
 	PPKeywordListGenerator * p_gen = 0;
-	long   symbol_id = SLS.GetGlobalSymbolId(P_KeywordListGeneratorGlobalSymbol, -1);
+	long   symbol_id = SLS.GetGlobalSymbol(P_KeywordListGeneratorGlobalSymbol, -1, 0);
 	THROW_SL(symbol_id);
 	if(symbol_id < 0) {
 		TSClassWrapper <PPKeywordListGenerator> cls;
 		THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
 		THROW_SL(p_gen = (PPKeywordListGenerator *)SLS.GetGlobalObject(symbol_id));
 		{
-			long s = SLS.GetGlobalSymbolId(P_KeywordListGeneratorGlobalSymbol, symbol_id);
+			long s = SLS.GetGlobalSymbol(P_KeywordListGeneratorGlobalSymbol, symbol_id, 0);
 			assert(symbol_id == s);
 		}
 	}

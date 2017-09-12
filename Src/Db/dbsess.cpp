@@ -272,10 +272,8 @@ SLAPI DbSession::DbSession() : LastThread()
 	_Oe = 0;
 	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
 	InitProtectData();
-#ifdef _MT
 	TlsIdx = TlsAlloc();
 	InitThread();
-#endif
 	RegisterSType(S_ROWID, &SRowId());
 	RegisterSType(S_CLOB,  &SLobType());
 	RegisterSType(S_BLOB,  &SLobType());
@@ -284,10 +282,8 @@ SLAPI DbSession::DbSession() : LastThread()
 SLAPI DbSession::~DbSession()
 {
 	Id__ = -0x01abcdef;
-#ifdef _MT
 	ReleaseThread();
 	TlsFree(TlsIdx);
-#endif
 }
 
 int DbSession::IsConsistent() const
@@ -356,13 +352,8 @@ int SLAPI DbSession::GetTaState()
 
 int SLAPI DbSession::InitThread()
 {
-	DbThreadLocalArea * p_tla = 0;
-#ifdef _MT
-	p_tla = new DbThreadLocalArea;
+	DbThreadLocalArea * p_tla = new DbThreadLocalArea;
 	TlsSetValue(TlsIdx, p_tla);
-#else
-	p_tla = &Tla;
-#endif
 	p_tla->Id = LastThread.Incr();
 	memzero(p_tla->ClientID, 16);
 	*((uint16 *)&p_tla->ClientID + 6) = (uint16)0x5050;
@@ -372,15 +363,11 @@ int SLAPI DbSession::InitThread()
 
 void SLAPI DbSession::ReleaseThread()
 {
-#ifdef _MT
 	DbThreadLocalArea * p_tla = (DbThreadLocalArea *)TlsGetValue(TlsIdx);
 	if(p_tla) {
 		delete p_tla;
 		TlsSetValue(TlsIdx, 0);
 	}
-#else
-	Tla.Init();
-#endif
 }
 //
 // См. примечание к определению функций DB.H

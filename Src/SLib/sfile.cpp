@@ -2476,6 +2476,7 @@ int SFileFormat::Register()
 	Register(JavaScript,       0, "js",  0); // @v9.7.1
 	Register(Json,             0, "json", "T{"); // @v9.7.2
 	Register(Json,             0, "json", "T["); // @v9.7.2
+	Register(Pbxproj,          0, "pbxproj", 0); // @v9.8.1
 
 	return ok;
 }

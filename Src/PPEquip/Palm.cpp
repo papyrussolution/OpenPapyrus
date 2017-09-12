@@ -1398,7 +1398,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 			SPathStruc sp;
 			sp.Split(fname);
 			// @v9.7.10 mask.Printf("*%s*.%s", sp.Nam.cptr(), sp.Ext.cptr());
-			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext); // @v9.7.10 
+			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext); // @v9.7.10
 			if(pFtp)
 				ok = pFtp->SafeGetFileList(pPath, pList, mask.cptr(), pLogger);
 			else {
@@ -4490,7 +4490,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 	SString queue_symb, temp_buf;
 	(queue_symb = "PALMDISPLAYQUEUE").CatChar('&').Cat(dvcID);
 	int    is_new = 0;
-	long   symbol_id = SLS.GetGlobalSymbolId(queue_symb, -1);
+	long   symbol_id = SLS.GetGlobalSymbol(queue_symb, -1, 0);
 	THROW_SL(symbol_id);
 	if(symbol_id < 0) {
 		TSClassWrapper <StyloDisplayQueue> cls;
@@ -4498,7 +4498,7 @@ static StyloDisplayQueue * FASTCALL GetStyloDisplayQueue(PPID dvcID)
 		THROW_SL(p_queue = (StyloDisplayQueue *)SLS.GetGlobalObject(symbol_id));
 		p_queue->DvcID = dvcID;
 		{
-			long s = SLS.GetGlobalSymbolId(queue_symb, symbol_id);
+			long s = SLS.GetGlobalSymbol(queue_symb, symbol_id, 0);
 			assert(symbol_id == s);
 		}
 	}

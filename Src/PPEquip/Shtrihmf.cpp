@@ -898,7 +898,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							check_pack.CalcAmount(&chk_amt, &chk_dis);
 							if(chk_amt != total_amount || total_discount != 0.0) {
 								double new_discount = chk_dis + (fabs(chk_amt) - fabs(total_amount));
-								check_pack.SetTotalDiscount(fabs(new_discount), (new_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
+								check_pack.SetTotalDiscount__(fabs(new_discount), (new_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
 								check_pack.CalcAmount(&chk_amt, &chk_dis);
 							}
 							THROW(SetTempCheckAmounts(chk_id, /*chk_amt*/total_amount, chk_dis));

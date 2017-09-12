@@ -1,5 +1,6 @@
 // SLSESS.CPP
 // Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -9,7 +10,7 @@
 #define HH_INITIALIZE            0x001C  // Initializes the help system.
 #define HH_UNINITIALIZE          0x001D  // Uninitializes the help system.
 // } htmlhelp.h
-#define USE_OPENSSL_STATIC 
+#define USE_OPENSSL_STATIC
 //
 //
 //
@@ -137,7 +138,7 @@ int SLAPI SlThreadLocalArea::RemoveTempFiles()
 	return 1;
 }
 
-SLAPI SlSession::SlSession() : SSys(1), GlobSymbList(256, 0)
+SLAPI SlSession::SlSession() : SSys(1), GlobSymbList(512, 0) // @v9.8.1 256-->512
 {
 	Construct();
 }
@@ -146,17 +147,17 @@ int SLAPI SlSession::Construct()
 {
 	int    ok = -1;
 	//
-	// Так как SlSession инстациируется только как глобальный объект, закладываемся на то,
-	// что Id изначально равен 0.
+	// РўР°Рє РєР°Рє SlSession РёРЅСЃС‚Р°С†РёРёСЂСѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РєР°Рє РіР»РѕР±Р°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚, Р·Р°РєР»Р°РґС‹РІР°РµРјСЃСЏ РЅР° С‚Рѕ,
+	// С‡С‚Рѕ Id РёР·РЅР°С‡Р°Р»СЊРЅРѕ СЂР°РІРµРЅ 0.
 	//
 	if(Id == 0) {
-		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
+		SessUuid.Generate(); // @v8.0.2 Р“РµРЅРµСЂРёСЂСѓРµРј Р°Р±СЃРѕР»СЋС‚РЅРѕ СѓРЅРёРєР°Р»СЊРЅС‹Р№ id СЃРµСЃСЃРёРё.
 		{
 #if (USE_ASMLIB > 0)
 			//
-			// Перед началом исполнения программы сделаем вызовы функций из библиотеки ASMLIB для того,
-			// чтобы они сразу инициализировали внутренние таблицы, зависящие от процессора.
-			// Таким образом, мы избежим риска конфликтов при многопоточном исполнении.
+			// РџРµСЂРµРґ РЅР°С‡Р°Р»РѕРј РёСЃРїРѕР»РЅРµРЅРёСЏ РїСЂРѕРіСЂР°РјРјС‹ СЃРґРµР»Р°РµРј РІС‹Р·РѕРІС‹ С„СѓРЅРєС†РёР№ РёР· Р±РёР±Р»РёРѕС‚РµРєРё ASMLIB РґР»СЏ С‚РѕРіРѕ,
+			// С‡С‚РѕР±С‹ РѕРЅРё СЃСЂР°Р·Сѓ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°Р»Рё РІРЅСѓС‚СЂРµРЅРЅРёРµ С‚Р°Р±Р»РёС†С‹, Р·Р°РІРёСЃСЏС‰РёРµ РѕС‚ РїСЂРѕС†РµСЃСЃРѕСЂР°.
+			// РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РјС‹ РёР·Р±РµР¶РёРј СЂРёСЃРєР° РєРѕРЅС„Р»РёРєС‚РѕРІ РїСЂРё РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅРѕРј РёСЃРїРѕР»РЅРµРЅРёРё.
 			//
 			const  size_t S = 128;
 			char   temp_buf1[S], temp_buf2[S];
@@ -176,7 +177,7 @@ int SLAPI SlSession::Construct()
 		}
 		Id = 1;
 		TlsIdx = -1L;
-		LastThread.Assign(0);
+		// @v9.8.1 LastThread.Assign(0);
 		WsaInitCounter = 0;
 		StopFlag = 0;
 		DragndropObjIdx = 0;
@@ -190,9 +191,7 @@ int SLAPI SlSession::Construct()
 		P_StopEvnt = 0;
 		HelpCookie = 0;
 		UiLanguageId = 0; // @v8.9.10
-#ifdef _MT
 		TlsIdx = TlsAlloc();
-#endif
 		InitThread();
 		ok = 1;
 	}
@@ -205,10 +204,8 @@ SLAPI SlSession::~SlSession()
 		ExtraProcBlk.F_CallHelp(0, HH_UNINITIALIZE, HelpCookie);
 	}
 	ReleaseThread();
-#ifdef _MT
 	TlsFree(TlsIdx);
 	delete P_StopEvnt;
-#endif
 	for(int i = 0; i < WsaInitCounter; i++)
 		WSACleanup();
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -259,9 +256,9 @@ int SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	/*
 	{
 		//
-		// Перед началом исполнения программы сделаем вызовы функций из библиотеки ASMLIB для того,
-		// чтобы они сразу инициализировали внутренние таблицы, зависящие от процессора.
-		// Таким образом, мы избежим риска конфликтов при многопоточном исполнении.
+		// РџРµСЂРµРґ РЅР°С‡Р°Р»РѕРј РёСЃРїРѕР»РЅРµРЅРёСЏ РїСЂРѕРіСЂР°РјРјС‹ СЃРґРµР»Р°РµРј РІС‹Р·РѕРІС‹ С„СѓРЅРєС†РёР№ РёР· Р±РёР±Р»РёРѕС‚РµРєРё ASMLIB РґР»СЏ С‚РѕРіРѕ,
+		// С‡С‚РѕР±С‹ РѕРЅРё СЃСЂР°Р·Сѓ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°Р»Рё РІРЅСѓС‚СЂРµРЅРЅРёРµ С‚Р°Р±Р»РёС†С‹, Р·Р°РІРёСЃСЏС‰РёРµ РѕС‚ РїСЂРѕС†РµСЃСЃРѕСЂР°.
+		// РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РјС‹ РёР·Р±РµР¶РёРј СЂРёСЃРєР° РєРѕРЅС„Р»РёРєС‚РѕРІ РїСЂРё РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅРѕРј РёСЃРїРѕР»РЅРµРЅРёРё.
 		//
 		const  size_t S = 128;
 		char   temp_buf1[S], temp_buf2[S];
@@ -282,12 +279,10 @@ int SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	GetModuleFileName(H_Inst, exe_path, sizeof(exe_path));
 	ExePath = exe_path;
 	AppName = pAppName;
-#ifdef _MT
 	if(AppName.NotEmpty()) {
 		SString n;
 		P_StopEvnt = new Evnt(GetStopEventName(n), Evnt::modeCreate);
 	}
-#endif
 	RegisterBIST();
 	SFileFormat::Register();
 	return 1;
@@ -296,12 +291,10 @@ int SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 void SLAPI SlSession::SetAppName(const char * pAppName)
 {
 	AppName = pAppName;
-#ifdef _MT
 	if(!P_StopEvnt && AppName.NotEmpty()) {
 		SString n;
 		P_StopEvnt = new Evnt(GetStopEventName(n), Evnt::modeCreate);
 	}
-#endif
 }
 
 int SLAPI SlSession::InitWSA()
@@ -310,38 +303,29 @@ int SLAPI SlSession::InitWSA()
 	ENTER_CRITICAL_SECTION
 	WSADATA wsa_data;
 	if(WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
-		ok = (SLibError = SLERR_SOCK_WINSOCK, 0);
+		ok = SetError(SLERR_SOCK_WINSOCK);
 	else
 		WsaInitCounter++;
 	LEAVE_CRITICAL_SECTION
 	return ok;
 }
 
-int SLAPI SlSession::InitThread()
+const void * SLAPI SlSession::InitThread()
 {
-	SlThreadLocalArea * p_tla = 0;
-#ifdef _MT
-	p_tla = new SlThreadLocalArea;
+	SlThreadLocalArea * p_tla = new SlThreadLocalArea;
 	TlsSetValue(TlsIdx, p_tla);
-#else
-	p_tla = &Tla;
-#endif
 	// @v9.8.0 p_tla->Id = LastThread.Incr();
 	p_tla->Id = GetCurrentThreadId(); // @v9.8.0
-	return 1;
+	return (const void *)p_tla;
 }
 
 void SLAPI SlSession::ReleaseThread()
 {
-#ifdef _MT
 	SlThreadLocalArea * p_tla = (SlThreadLocalArea *)TlsGetValue(TlsIdx);
 	if(p_tla) {
 		TlsSetValue(TlsIdx, 0);
 		delete p_tla;
 	}
-#else
-	Tla.Destroy();
-#endif
 }
 
 void * FASTCALL SGetTls(const long idx)
@@ -361,20 +345,12 @@ void * FASTCALL SGetTls(const long idx)
 
 SlThreadLocalArea & SLAPI SlSession::GetTLA()
 {
-#ifdef _MT
 	return *(SlThreadLocalArea *)SGetTls(TlsIdx);
-#else
-	return Tla;
-#endif
 }
 
 const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const
 {
-#ifdef _MT
 	return *(SlThreadLocalArea *)SGetTls(TlsIdx);
-#else
-	return Tla;
-#endif
 }
 
 int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
@@ -383,9 +359,9 @@ int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla) {
 		//
-		// @1 Если глобальный объект SLS разрушается раньше иных глобальных объектов,
-		// которые могут вызвать SlSession::SetError, то при завершении процесса может возникнуть исключение
-		// обращения к нулевому адресу. Во избежании этого проверяем &r_tla на 0.
+		// @1 Р•СЃР»Рё РіР»РѕР±Р°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ SLS СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ СЂР°РЅСЊС€Рµ РёРЅС‹С… РіР»РѕР±Р°Р»СЊРЅС‹С… РѕР±СЉРµРєС‚РѕРІ,
+		// РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РІС‹Р·РІР°С‚СЊ SlSession::SetError, С‚Рѕ РїСЂРё Р·Р°РІРµСЂС€РµРЅРёРё РїСЂРѕС†РµСЃСЃР° РјРѕР¶РµС‚ РІРѕР·РЅРёРєРЅСѓС‚СЊ РёСЃРєР»СЋС‡РµРЅРёРµ
+		// РѕР±СЂР°С‰РµРЅРёСЏ Рє РЅСѓР»РµРІРѕРјСѓ Р°РґСЂРµСЃСѓ. Р’Рѕ РёР·Р±РµР¶Р°РЅРёРё СЌС‚РѕРіРѕ РїСЂРѕРІРµСЂСЏРµРј &r_tla РЅР° 0.
 		//
 		r_tla.LastErr = errCode;
 		r_tla.AddedMsgString = pAddedMsg;
@@ -516,7 +492,7 @@ struct GlobalObjectEntry {
 SlSession::GlobalObjectArray::GlobalObjectArray() : SArray(sizeof(GlobalObjectEntry))
 {
 	//
-	// Дабы не использовать нулевой индекс вставляем фиктивный первый элемент.
+	// Р”Р°Р±С‹ РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅСѓР»РµРІРѕР№ РёРЅРґРµРєСЃ РІСЃС‚Р°РІР»СЏРµРј С„РёРєС‚РёРІРЅС‹Р№ РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚.
 	//
 	TSClassWrapper <int> zero_cls;
 	GlobalObjectEntry zero_entry;
@@ -601,27 +577,40 @@ uint64 SLAPI SlSession::GetProfileTime()
 	return GetTLA().Prf.GetAbsTimeMicroseconds();
 }
 
-long SLAPI SlSession::GetGlobalSymbolId(const char * pSymb, long ident)
+long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb) // @cs
 {
 	long   _i = 0;
-	ENTER_CRITICAL_SECTION
-	uint   val = 0;
-	if(GlobSymbList.Search(pSymb, &val, 0)) {
-		_i = (long)val;
-		assert(ident <= 0 || _i == ident);
-		if(ident > 0 && _i != ident) {
-			_i = 0;
+	// (Р·РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°РєСЂРѕСЃ РёР·-Р·Р° Р·Р°С†РёРєР»РёРІР°РЅРёСЏ РїСЂРё С‚СЂР°СЃСЃРёСЂРѕРІРєРµ Р±Р»РѕРєРёСЂРѕРІРѕРє) ENTER_CRITICAL_SECTION 
+	{ 
+		static SCriticalSection::Data __csd(1); 
+		SCriticalSection __cs(__csd);
+		uint   val = 0;
+		if(pSymb) {
+			if(GlobSymbList.Search(pSymb, &val, 0)) {
+				_i = (long)val;
+				assert(ident <= 0 || _i == ident);
+				if(ident > 0 && _i != ident) {
+					_i = 0;
+				}
+			}
+			else if(ident >= 0) {
+				val = (uint)NZOR(ident, /*LastGlobSymbId*/SeqValue.Incr()); // @v9.8.1 LastGlobSymbId-->SeqValue
+				if(GlobSymbList.Add(pSymb, val, 0)) {
+					_i = (long)val;
+				}
+			}
+			else
+				_i = -1;
+		}
+		else if(ident > 0) {
+			SString temp_buf;
+			SString * p_ret_symb = NZOR(pRetSymb, &temp_buf);
+			if(GlobSymbList.GetByAssoc(ident, *p_ret_symb)) {
+				_i = ident;
+			}
 		}
 	}
-	else if(ident >= 0) {
-		val = (uint)NZOR(ident, LastGlobSymbId.Incr());
-		if(GlobSymbList.Add(pSymb, val, 0)) {
-			_i = (long)val;
-		}
-	}
-	else
-		_i = -1;
-	LEAVE_CRITICAL_SECTION
+	//LEAVE_CRITICAL_SECTION
 	return _i;
 }
 
@@ -802,6 +791,18 @@ void SLAPI SlSession::SetExtraProcBlock(const SlExtraProcBlock * pBlk)
 	ENTER_CRITICAL_SECTION
 	ExtraProcBlk.Set(pBlk);
 	LEAVE_CRITICAL_SECTION
+}
+
+void SLAPI SlSession::LockPush(int lockType, const char * pSrcFileName, uint srcLineNo)
+{
+	SlThreadLocalArea & r_tla = GetTLA();
+	r_tla.LckStk.Push(lockType, pSrcFileName, srcLineNo);
+}
+
+void SLAPI SlSession::LockPop()
+{
+	SlThreadLocalArea & r_tla = GetTLA();
+	r_tla.LckStk.Pop();
 }
 
 #if 0 // @v9.1.2 replaced by SetExtraProcBlock() {

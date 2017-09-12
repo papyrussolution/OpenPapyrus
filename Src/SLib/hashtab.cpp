@@ -402,10 +402,26 @@ int SymbHashTable::GetByAssoc(uint val, SString & rBuf) const
 		if(Assoc.BSearch((long)val, &p, 0))
 			ok = Get((uint)p, rBuf);
 		else
-			ok = (SLibError = SLERR_NOFOUND, 0);
+			ok = SLS.SetError(SLERR_NOFOUND);
 	}
-	else
-		ok = (SLibError = SLERR_HT_NOASSOC, 0);
+	else {
+		// @v9.8.1 ok = (SLibError = SLERR_HT_NOASSOC, 0);
+		// @v9.8.1 {
+		ok = SLS.SetError(SLERR_NOFOUND);
+		Iter it;
+		if(InitIteration(&it)) {
+			uint   _v = 0;
+			uint   pos = 0;
+			SString temp_buf;
+			while(!ok && NextIteration(&it, &_v, &pos, &temp_buf) > 0) {
+                if(_v == val) {
+                    rBuf = temp_buf;
+                    ok = 1;
+                }
+			}
+		}
+		// } @v9.8.1
+	}
 	return ok;
 }
 

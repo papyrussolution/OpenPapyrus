@@ -1335,40 +1335,44 @@ int SLAPI QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWrit
 	int    ok = -1;
 	const  PPIDArray * p_vect = 0;
 	uint   pos = 0;
-	rRwl.ReadLock();
-	if(MtxQkID) {
-		if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
-			ASSIGN_PTR(pResult, Matrix.at(pos)->Vect);
-			ok = 1;
-		}
-		else {
-			rRwl.Unlock();
-			rRwl.WriteLock();
+	{
+		//rRwl.ReadLock();
+		SRWLOCKER(rRwl, SReadWriteLocker::Read);
+		if(MtxQkID) {
 			if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
 				ASSIGN_PTR(pResult, Matrix.at(pos)->Vect);
 				ok = 1;
 			}
 			else {
-				MatrixEntry * p_entry = new MatrixEntry;
-				p_entry->LocID = locID;
-				assert(pProvider && oneof2(qpg, 1, 2));
-				if(pProvider && qpg) {
-					if(qpg == 2) {
-						((Quotation2Core *)pProvider)->GetMatrix(MtxQkID, locID, &p_entry->Vect);
+				//rRwl.Unlock();
+				//rRwl.WriteLock();
+				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+				if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
+					ASSIGN_PTR(pResult, Matrix.at(pos)->Vect);
+					ok = 1;
+				}
+				else {
+					MatrixEntry * p_entry = new MatrixEntry;
+					p_entry->LocID = locID;
+					assert(pProvider && oneof2(qpg, 1, 2));
+					if(pProvider && qpg) {
+						if(qpg == 2) {
+							((Quotation2Core *)pProvider)->GetMatrix(MtxQkID, locID, &p_entry->Vect);
+						}
+						else {
+							((QuotationCore *)pProvider)->GetMatrix(MtxQkID, locID, &p_entry->Vect);
+						}
+						Matrix.insert(p_entry);
+						ASSIGN_PTR(pResult, p_entry->Vect);
+						ok = 2;
 					}
-					else {
-						((QuotationCore *)pProvider)->GetMatrix(MtxQkID, locID, &p_entry->Vect);
-					}
-					Matrix.insert(p_entry);
-					ASSIGN_PTR(pResult, p_entry->Vect);
-					ok = 2;
 				}
 			}
 		}
+		else if(pResult)
+			pResult->clear();
+		//rRwl.Unlock();
 	}
-	else if(pResult)
-		pResult->clear();
-	rRwl.Unlock();
 	return ok;
 }
 
@@ -1749,8 +1753,8 @@ public:
 	int    SLAPI BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID);
 	int    FASTCALL Dirty_(PPID goodsID); // @sync non-virtual
 	int    SLAPI Clear_(); // @sync
-	int    SLAPI Lock()   { return RwL.WriteLock(); }
-	int    SLAPI Unlock() { return RwL.Unlock();    }
+	//int    SLAPI Lock()   { return RwL.WriteLock(); }
+	//int    SLAPI Unlock() { return RwL.Unlock();    }
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
@@ -1910,12 +1914,15 @@ int FASTCALL QuotCache::Dirty_(PPID goodsID)
 {
 	int    ok = -1;
 	uint   pos = 0;
-	Lock();
-	if(Search(goodsID, &pos)) {
-		P_Ary->atFree(pos);
-		ok = 1;
+	{
+		//Lock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		if(Search(goodsID, &pos)) {
+			P_Ary->atFree(pos);
+			ok = 1;
+		}
+		//Unlock();
 	}
-	Unlock();
 	return ok;
 }
 
@@ -1923,10 +1930,13 @@ int SLAPI QuotCache::Clear_()
 {
 	int    ok = -1;
 	uint   pos = 0;
-	Lock();
-	CALLPTRMEMB(P_Ary, freeAll());
-	ok = 1;
-	Unlock();
+	{
+		//Lock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		CALLPTRMEMB(P_Ary, freeAll());
+		ok = 1;
+		//Unlock();
+	}
 	return ok;
 }
 
@@ -1968,32 +1978,36 @@ int SLAPI QuotCache::GetQuotParam(uint id, PPQuot * pQuot) const
 int SLAPI QuotCache::BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID locID)
 {
 	int    ok = -1;
-	RwL.ReadLock();
-	if(MtxQkID) {
-		const  PPIDArray * p_vect = 0;
-		uint   pos = 0;
-		if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
-			ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
-		}
-		else {
-			assert(pTbl);
-			if(pTbl) {
-				RwL.Unlock();
-				RwL.WriteLock();
-				if(Matrix.lsearch(&locID, &(pos = 0), CMPF_LONG)) {
-					ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
-				}
-				else {
-					MatrixEntry * p_entry = new MatrixEntry;
-					p_entry->LocID = locID;
-					pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
-					Matrix.insert(p_entry);
-					ok = p_entry->Vect.bsearch(labs(goodsID));
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		if(MtxQkID) {
+			const  PPIDArray * p_vect = 0;
+			uint   pos = 0;
+			if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
+				ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
+			}
+			else {
+				assert(pTbl);
+				if(pTbl) {
+					//RwL.Unlock();
+					//RwL.WriteLock();
+					SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+					if(Matrix.lsearch(&locID, &(pos = 0), CMPF_LONG)) {
+						ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
+					}
+					else {
+						MatrixEntry * p_entry = new MatrixEntry;
+						p_entry->LocID = locID;
+						pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
+						Matrix.insert(p_entry);
+						ok = p_entry->Vect.bsearch(labs(goodsID));
+					}
 				}
 			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
@@ -2015,12 +2029,15 @@ int SLAPI QuotationCore::FetchList(PPID goodsID, PPQuotArray & rList)
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT);
 	if(p_cache) {
 		rList.GoodsID = goodsID;
-		p_cache->Lock();
-		p_cache->SetTable(this);
-		const PPID qk_arg = 0;
-		ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
-		p_cache->SetTable(0);
-		p_cache->Unlock();
+		{
+			//p_cache->Lock();
+			SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
+			p_cache->SetTable(this);
+			const PPID qk_arg = 0;
+			ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
+			p_cache->SetTable(0);
+			//p_cache->Unlock();
+		}
 	}
 	else
 		ok = -1;
@@ -2095,11 +2112,12 @@ int SLAPI QuotationCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * p
 	int    ok = -1;
 	QuotCache * p_cache = GetDbLocalCachePtr <QuotCache> (PPOBJ_QUOT, 0);
 	if(p_cache) {
-		p_cache->Lock();
+		//p_cache->Lock();
+		SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 		p_cache->SetTable(this);
 		p_cache->Implement_DirtyMatrix(pGoodsList, pMtxLocList, deferred);
 		p_cache->SetTable(0);
-		p_cache->Unlock();
+		//p_cache->Unlock();
 		ok = 1;
 	}
 	return ok;
@@ -3399,8 +3417,8 @@ public:
 	int    SLAPI BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID);
 	int    FASTCALL Dirty_(PPID goodsID); // @sync non-virtual
 	int    SLAPI Clear_(); // @sync
-	int    SLAPI Lock()   { return RwL.WriteLock(); }
-	int    SLAPI Unlock() { return RwL.Unlock();    }
+	//int    SLAPI Lock()   { return RwL.WriteLock(); }
+	//int    SLAPI Unlock() { return RwL.Unlock();    }
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
@@ -3546,12 +3564,15 @@ int FASTCALL Quot2Cache::Dirty_(PPID goodsID)
 {
 	int    ok = -1;
 	uint   pos = 0;
-	Lock();
-	if(Search(goodsID, &pos)) {
-		P_Ary->atFree(pos);
-		ok = 1;
+	{
+		//Lock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		if(Search(goodsID, &pos)) {
+			P_Ary->atFree(pos);
+			ok = 1;
+		}
+		//Unlock();
 	}
-	Unlock();
 	return ok;
 }
 
@@ -3559,10 +3580,13 @@ int SLAPI Quot2Cache::Clear_()
 {
 	int    ok = -1;
 	uint   pos = 0;
-	Lock();
-	CALLPTRMEMB(P_Ary, freeAll());
-	ok = 1;
-	Unlock();
+	{
+		//Lock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		CALLPTRMEMB(P_Ary, freeAll());
+		ok = 1;
+		//Unlock();
+	}
 	return ok;
 }
 
@@ -3604,32 +3628,36 @@ int SLAPI Quot2Cache::GetQuotParam(uint id, PPQuot * pQuot) const
 int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID locID)
 {
 	int    ok = -1;
-	RwL.ReadLock();
-	if(MtxQkID) {
-		const  PPIDArray * p_vect = 0;
-		uint   pos = 0;
-		if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
-			ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
-		}
-		else {
-			assert(pTbl);
-			if(pTbl) {
-				RwL.Unlock();
-				RwL.WriteLock();
-				if(Matrix.lsearch(&locID, &(pos = 0), CMPF_LONG)) {
-					ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
-				}
-				else {
-					MatrixEntry * p_entry = new MatrixEntry;
-					p_entry->LocID = locID;
-					pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
-					Matrix.insert(p_entry);
-					ok = p_entry->Vect.bsearch(labs(goodsID));
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		if(MtxQkID) {
+			const  PPIDArray * p_vect = 0;
+			uint   pos = 0;
+			if(Matrix.lsearch(&locID, &pos, CMPF_LONG)) {
+				ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
+			}
+			else {
+				assert(pTbl);
+				if(pTbl) {
+					//RwL.Unlock();
+					//RwL.WriteLock();
+					SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
+					if(Matrix.lsearch(&locID, &(pos = 0), CMPF_LONG)) {
+						ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
+					}
+					else {
+						MatrixEntry * p_entry = new MatrixEntry;
+						p_entry->LocID = locID;
+						pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
+						Matrix.insert(p_entry);
+						ok = p_entry->Vect.bsearch(labs(goodsID));
+					}
 				}
 			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
@@ -3639,12 +3667,15 @@ int SLAPI Quotation2Core::FetchList(PPID goodsID, PPQuotArray & rList)
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2);
 	if(p_cache) {
 		rList.GoodsID = goodsID;
-		p_cache->Lock();
-		p_cache->SetTable(this);
-		const PPID qk_arg = 0;
-		ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
-		p_cache->SetTable(0);
-		p_cache->Unlock();
+		{
+			//p_cache->Lock();
+			SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
+			p_cache->SetTable(this);
+			const PPID qk_arg = 0;
+			ok = p_cache->Get_(goodsID, qk_arg, 0, &rList);
+			p_cache->SetTable(0);
+			//p_cache->Unlock();
+		}
 	}
 	else
 		ok = -1;
@@ -3690,11 +3721,12 @@ int SLAPI Quotation2Core::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * 
 	int    ok = -1;
 	Quot2Cache * p_cache = GetDbLocalCachePtr <Quot2Cache> (PPOBJ_QUOT2, 0);
 	if(p_cache) {
-		p_cache->Lock();
+		//p_cache->Lock();
+		SRWLOCKER(p_cache->RwL, SReadWriteLocker::Write);
 		p_cache->SetTable(this);
 		p_cache->Implement_DirtyMatrix(pGoodsList, pMtxLocList, deferred);
 		p_cache->SetTable(0);
-		p_cache->Unlock();
+		//p_cache->Unlock();
 		ok = 1;
 	}
 	return ok;

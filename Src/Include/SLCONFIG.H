@@ -69,11 +69,20 @@
 #define SALLOC_STD       0
 #define SALLOC_NEDMALLOC 1
 
-#define SALLOCATOR SALLOC_STD
+#define SALLOCATOR       SALLOC_STD
+//
+// @v9.8.1 Если !0, то ведется отладочная трассировка внутренних блокировок.
+// Актуально только для сервера. 
+//
+#ifdef _PPSERVER
+	#define SLTRACELOCKSTACK 1 
+#else
+	#define SLTRACELOCKSTACK 0 
+#endif
 //
 // Descr: Если следующее определение != 0, то весь проект компилируется с включенными
 //   кодами автоматического тестирования.
 //
-#define SLTEST_RUNNING  0
+#define SLTEST_RUNNING   0
 
 #endif /* __SLCONFIG_H */

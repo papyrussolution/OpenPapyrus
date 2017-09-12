@@ -1098,14 +1098,15 @@ int FASTCALL PPSession::ThreadCollection::Add(const PPThread * pThread)
 {
 	int    ok = 1;
 	if(pThread) {
-		RwL.WriteLock();
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		const uint   c = getCount();
 		for(uint i = 0; ok > 0 && i < c; i++)
 			if(at(i) == pThread)
 				ok = -1;
 		if(ok > 0)
 			ok = insert(pThread) ? 1 : PPSetErrorSLib();
-		RwL.Unlock();
+		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -1113,14 +1114,17 @@ int FASTCALL PPSession::ThreadCollection::Add(const PPThread * pThread)
 int FASTCALL PPSession::ThreadCollection::Remove(ThreadID id)
 {
 	int    ok = -1;
-	RwL.WriteLock();
-	const uint   c = getCount();
-	for(uint i = 0; ok < 0 && i < c; i++) {
-		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->GetThreadID() == id)
-			ok = atFree(i) ? 1 : PPSetErrorSLib();
+	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		const uint   c = getCount();
+		for(uint i = 0; ok < 0 && i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->GetThreadID() == id)
+				ok = atFree(i) ? 1 : PPSetErrorSLib();
+		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
@@ -1143,29 +1147,51 @@ int FASTCALL PPSession::ThreadCollection::SetMessage(ThreadID id, int kind, cons
 uint PPSession::ThreadCollection::GetCount()
 {
 	uint   c = 0;
-	RwL.ReadLock();
-	c = getCount();
-	RwL.Unlock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		c = getCount();
+		//RwL.Unlock();
+	}
 	return c;
 }
 
 int FASTCALL PPSession::ThreadCollection::GetInfoList(int type, TSCollection <PPThread::Info> & rList)
 {
 	int    ok = 1;
-	RwL.ReadLock();
-	const  uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		const PPThread * p = at(i);
-		if(p && p->IsConsistent()) {
-			if(!type || p->GetKind() == type) {
-				PPThread::Info * p_info = rList.CreateNewItem();
-				if(p_info)
-					p->GetInfo(*p_info);
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const  uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			const PPThread * p = at(i);
+			if(p && p->IsConsistent()) {
+				if(!type || p->GetKind() == type) {
+					PPThread::Info * p_info = rList.CreateNewItem();
+					if(p_info)
+						p->GetInfo(*p_info);
+				}
+			}
+		}
+		//RwL.Unlock();
+	}
+	return ok;
+}
+
+void FASTCALL PPSession::ThreadCollection::LocStkToStr(SString & rBuf)
+{
+	rBuf.Z();
+	{
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const  uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			const PPThread * p = at(i);
+			if(p && p->IsConsistent()) {
+				rBuf.CatEq("PPThread", p->GetThreadID()).CatDiv(':', 2).CR();
+				p->LockStackToStr(rBuf);
 			}
 		}
 	}
-	RwL.Unlock();
-	return ok;
 }
 
 int FASTCALL PPSession::ThreadCollection::GetInfo(ThreadID tId, PPThread::Info & rInfo)
@@ -1194,63 +1220,75 @@ int FASTCALL PPSession::ThreadCollection::StopThread(ThreadID tId)
 PPThread * FASTCALL PPSession::ThreadCollection::SearchById(ThreadID tId)
 {
 	PPThread * p_ret = 0;
-	RwL.ReadLock();
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->IsConsistent() && p_thread->GetThreadID() == tId) {
-			p_ret = p_thread;
-			break;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->IsConsistent() && p_thread->GetThreadID() == tId) {
+				p_ret = p_thread;
+				break;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return p_ret;
 }
 
 PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 {
 	PPThread * p_ret = 0;
-	RwL.ReadLock();
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->IsConsistent() && p_thread->GetUniqueSessID() == sessId) {
-			p_ret = p_thread;
-			break;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->IsConsistent() && p_thread->GetUniqueSessID() == sessId) {
+				p_ret = p_thread;
+				break;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return p_ret;
 }
 
 PPThread * FASTCALL PPSession::ThreadCollection::SearchIdle(int kind)
 {
 	PPThread * p_ret = 0;
-	RwL.ReadLock();
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind && p_thread->IsIdle()) {
-			p_ret = p_thread;
-			break;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind && p_thread->IsIdle()) {
+				p_ret = p_thread;
+				break;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return p_ret;
 }
 
 uint FASTCALL PPSession::ThreadCollection::GetCount(int kind)
 {
 	uint   result = 0;
-	RwL.ReadLock();
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		PPThread * p_thread = at(i);
-		if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind) {
-			result++;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			PPThread * p_thread = at(i);
+			if(p_thread && p_thread->IsConsistent() && p_thread->GetKind() == kind) {
+				result++;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return result;
 }
 //
@@ -1296,18 +1334,14 @@ SLAPI PPSession::PPSession()
 	P_DbCtx = 0;
 	P_AlbatrosCfg = 0;
 	MaxLogFileSize = 32768;
-#ifdef _MT
 	TlsIdx = TlsAlloc();
 	InitThread(0);
-#endif
 }
 
 SLAPI PPSession::~PPSession()
 {
-#ifdef _MT
 	ReleaseThread();
 	TlsFree(TlsIdx);
-#endif
 	delete P_ObjIdentBlk;
 	delete P_DbCtx;
 	delete P_AlbatrosCfg;
@@ -1973,6 +2007,13 @@ int PPSession::GetThreadInfoList(int type, TSCollection <PPThread::Info> & rList
 int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo)
 {
 	return ThreadList.GetInfo(tId, rInfo);
+}
+
+void PPSession::LogLocStk()
+{
+	SString out_buf;
+	ThreadList.LocStkToStr(out_buf);
+	PPLogMessage(PPFILNAM_DEBUG_LOG, out_buf, LOGMSGF_TIME);
 }
 
 int SLAPI PPSession::LockingDllServer(int cmd)
@@ -3945,9 +3986,12 @@ SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), 16, O_ARRAY)
 uint PPAdviseList::GetCount()
 {
 	uint   c = 0;
-	RwL.ReadLock();
-	c = getCount();
-	RwL.Unlock();
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		c = getCount();
+		//RwL.Unlock();
+	}
 	return c;
 }
 
@@ -3968,40 +4012,46 @@ int PPAdviseList::CreateList(int kind, ThreadID tId, long dbPathID, PPID objType
 {
 	int    ok = -1;
 	rList.clear();
-	RwL.ReadLock();
-	const uint c = getCount();
-	for(uint i = 0; i < c; i++) {
-		const PPAdviseBlock * p_blk = (PPAdviseBlock *)at(i);
-		if(p_blk->Kind == kind && (!objType || p_blk->ObjType == objType) &&
-			(!p_blk->TId || p_blk->TId == tId) && (!p_blk->DbPathID || p_blk->DbPathID == dbPathID)) {
-			rList.insert(p_blk);
-			ok = 1;
+	{
+		//RwL.ReadLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Read);
+		const uint c = getCount();
+		for(uint i = 0; i < c; i++) {
+			const PPAdviseBlock * p_blk = (PPAdviseBlock *)at(i);
+			if(p_blk->Kind == kind && (!objType || p_blk->ObjType == objType) &&
+				(!p_blk->TId || p_blk->TId == tId) && (!p_blk->DbPathID || p_blk->DbPathID == dbPathID)) {
+				rList.insert(p_blk);
+				ok = 1;
+			}
 		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
 int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 {
 	int    ok = -1;
-	RwL.WriteLock();
-	if(pBlk) {
-		const long cookie = ++LastCookie;
-		PPAdviseBlock blk = *pBlk;
-		blk.Cookie = cookie;
-		ok = insert(&blk) ? 1 : PPSetErrorSLib();
-		if(ok)
-			ASSIGN_PTR(pCookie, cookie);
-	}
-	else if(pCookie) {
-		uint pos = 0;
-		if(lsearch(pCookie, &pos, CMPF_LONG)) {
-			atFree(pos);
-			ok = 1;
+	{
+		//RwL.WriteLock();
+		SRWLOCKER(RwL, SReadWriteLocker::Write);
+		if(pBlk) {
+			const long cookie = ++LastCookie;
+			PPAdviseBlock blk = *pBlk;
+			blk.Cookie = cookie;
+			ok = insert(&blk) ? 1 : PPSetErrorSLib();
+			if(ok)
+				ASSIGN_PTR(pCookie, cookie);
 		}
+		else if(pCookie) {
+			uint pos = 0;
+			if(lsearch(pCookie, &pos, CMPF_LONG)) {
+				atFree(pos);
+				ok = 1;
+			}
+		}
+		//RwL.Unlock();
 	}
-	RwL.Unlock();
 	return ok;
 }
 
@@ -4341,19 +4391,15 @@ PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
 int SLAPI PPSession::StopThread(ThreadID tId)
 {
 	int    ok = -1;
-#ifdef _MT // {
 	ok = ThreadList.StopThread(tId);
-#endif // } _MT
 	return ok;
 }
 
 int SLAPI PPSession::IsThreadStopped()
 {
 	int    ok = 0;
-#ifdef _MT // {
 	const PPThread * p_thread = ThreadList.SearchById(GetConstTLA().GetThreadID());
 	ok = BIN(p_thread && p_thread->IsStopping());
-#endif // } _MT
 	return ok;
 }
 
@@ -4457,14 +4503,15 @@ int FASTCALL PPAdviseEventQueue::Push(const TSArray <PPAdviseEvent> & rList)
 	int    ok = 1;
 	uint   ql = 0;
 	if(rList.getCount()) {
-		Lck.WriteLock();
+		//Lck.WriteLock();
+		SRWLOCKER(Lck, SReadWriteLocker::Write);
 		for(uint i = 0; i < rList.getCount(); i++) {
 			PPAdviseEvent ev = rList.at(i);
 			ev.Ident = ++LastIdent;
 			insert(&ev);
 		}
 		ql = getCount();
-		Lck.Unlock();
+		//Lck.Unlock();
 	}
 	{
 		SLck.Lock();
@@ -4480,9 +4527,10 @@ int FASTCALL PPAdviseEventQueue::Push(const TSArray <PPAdviseEvent> & rList)
 uint PPAdviseEventQueue::GetCount()
 {
 	uint   c = 0;
-	if(Lck.ReadLockT(0) > 0) {
-		c = getCount();
-		Lck.Unlock();
+	{
+		SRWLOCKERTIMEOUT(Lck, SReadWriteLocker::Read, 0);
+		if(!!_rwl)
+			c = getCount();
 	}
 	return c;
 }
@@ -4496,98 +4544,108 @@ int PPAdviseEventQueue::Get(int64 lowIdent, TSArray <PPAdviseEvent> & rList)
 	// Принцип работы очереди в том, чтобы клиентский поток не ждал пока
 	// серверный поток получит очередную порцию данных от источника.
 	//
-	if(Lck.ReadLockT(0) > 0) {
-		rList.clear();
-		const  uint _c = getCount();
-		if(_c && lowIdent <= at(_c-1).Ident) {
-			uint _pos = 0;
-			if(lowIdent >= at(0).Ident) {
-				if(bsearch(&lowIdent, &_pos, PTR_CMPFUNC(int64)))
-					_pos++;
-				else {
-					_pos = _c;
-					if(_pos) do {
-						const int64 _zi = at(--_pos).Ident;
-						assert(_zi > at(_pos).Ident); // Тест на сортированный порядок элементов
-						if(lowIdent >= _zi) {
-							_pos++;
-							break;
-						}
-					} while(_pos);
+	{
+		//if(Lck.ReadLockT(0) > 0) {
+		SRWLOCKERTIMEOUT(Lck, SReadWriteLocker::Read, 0);
+		if(!_rwl) {
+			declined = 1;
+		}
+		else {
+			rList.clear();
+			const  uint _c = getCount();
+			if(_c && lowIdent <= at(_c-1).Ident) {
+				uint _pos = 0;
+				if(lowIdent >= at(0).Ident) {
+					if(bsearch(&lowIdent, &_pos, PTR_CMPFUNC(int64)))
+						_pos++;
+					else {
+						_pos = _c;
+						if(_pos) do {
+							const int64 _zi = at(--_pos).Ident;
+							assert(_zi > at(_pos).Ident); // Тест на сортированный порядок элементов
+							if(lowIdent >= _zi) {
+								_pos++;
+								break;
+							}
+						} while(_pos);
+					}
+				}
+				for(; _pos < _c; _pos++) {
+					rList.insert(&at(_pos));
 				}
 			}
-			for(; _pos < _c; _pos++) {
-				rList.insert(&at(_pos));
-			}
+			//Lck.Unlock();
+			ok = 1;
 		}
-		Lck.Unlock();
-		ok = 1;
 	}
-	else
-		declined = 1;
-	SLck.Lock();
-	S.Get_Count++;
-	if(declined)
-		S.GetDecline_Count++;
-	SLck.Unlock();
+	{
+		SLck.Lock();
+		S.Get_Count++;
+		if(declined)
+			S.GetDecline_Count++;
+		SLck.Unlock();
+	}
 	return ok;
 }
 
 int PPAdviseEventQueue::Purge()
 {
 	int    ok = -1;
-	Lck.WriteLock();
-	const  uint _c = getCount();
-	if(_c > 1024) {
-		int64  marker = 0x0fffffffffffffff;
-		{
-			ClLck.Lock();
-			for(uint i = 0; i < CliList.getCount(); i++) {
-				const Client * p_cli = (const Client *)CliList.at(i);
-				if(p_cli && p_cli->IsConsistent()) {
-					const int64 cm = p_cli->GetMarker();
-					if(cm > 0 && cm < marker)
-						marker = cm;
-				}
-			}
-			ClLck.Unlock();
-		}
-		{
-			const int64 last_ident = at(_c-1).Ident;
-			if(marker >= last_ident) {
-				freeAll();
-				ok = 1;
-			}
-			else if(marker >= at(0).Ident) {
-				uint   _low = 0;
-				uint   _upp = 0;
-				int    skip = 0;
-				uint   _pos = 0;
-				if(bsearch(&marker, &_pos, PTR_CMPFUNC(int64))) {
-					_upp = _pos;
-				}
-				else {
-					for(_pos = 0; _pos < _c; _pos++) {
-						const int64 _zi = at(_pos).Ident;
-						assert(!_pos || _zi > at(_pos-1).Ident); // Тест на сортированный порядок элементов
-						if(_zi > marker) {
-							assert(_pos > 0); // Из-за предшествующих условий _pos не может быть первым (0)
-							if(_pos > 0) // @paranoic
-								_upp = _pos-1;
-							else
-								skip = 1;
-							break;
-						}
+	{
+		//Lck.WriteLock();
+		SRWLOCKER(Lck, SReadWriteLocker::Write);
+		const  uint _c = getCount();
+		if(_c > 1024) {
+			int64  marker = 0x0fffffffffffffff;
+			{
+				ClLck.Lock();
+				for(uint i = 0; i < CliList.getCount(); i++) {
+					const Client * p_cli = (const Client *)CliList.at(i);
+					if(p_cli && p_cli->IsConsistent()) {
+						const int64 cm = p_cli->GetMarker();
+						if(cm > 0 && cm < marker)
+							marker = cm;
 					}
 				}
-				if(!skip && _upp >= _low) {
-					freeChunk(_low, _upp);
+				ClLck.Unlock();
+			}
+			{
+				const int64 last_ident = at(_c-1).Ident;
+				if(marker >= last_ident) {
+					freeAll();
 					ok = 1;
+				}
+				else if(marker >= at(0).Ident) {
+					uint   _low = 0;
+					uint   _upp = 0;
+					int    skip = 0;
+					uint   _pos = 0;
+					if(bsearch(&marker, &_pos, PTR_CMPFUNC(int64))) {
+						_upp = _pos;
+					}
+					else {
+						for(_pos = 0; _pos < _c; _pos++) {
+							const int64 _zi = at(_pos).Ident;
+							assert(!_pos || _zi > at(_pos-1).Ident); // Тест на сортированный порядок элементов
+							if(_zi > marker) {
+								assert(_pos > 0); // Из-за предшествующих условий _pos не может быть первым (0)
+								if(_pos > 0) // @paranoic
+									_upp = _pos-1;
+								else
+									skip = 1;
+								break;
+							}
+						}
+					}
+					if(!skip && _upp >= _low) {
+						freeChunk(_low, _upp);
+						ok = 1;
+					}
 				}
 			}
 		}
+		//Lck.Unlock();
 	}
-	Lck.Unlock();
 	return ok;
 }
 //

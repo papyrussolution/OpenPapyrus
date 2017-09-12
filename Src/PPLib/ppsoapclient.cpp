@@ -14,14 +14,12 @@ BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReser
 				SLS.Init(product_name, (HINSTANCE)hModule);
 			}
 			break;
-#ifdef _MT
 		case DLL_THREAD_ATTACH:
 			SLS.InitThread();
 			break;
 		case DLL_THREAD_DETACH:
 			SLS.ReleaseThread();
 			break;
-#endif
 		case DLL_PROCESS_DETACH:
 			break;
 	}

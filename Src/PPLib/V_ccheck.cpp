@@ -6,14 +6,14 @@
 //
 //
 //
-IMPLEMENT_PPFILT_FACTORY(CCheck); SLAPI CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4) // @v7.9.11 3-->4
+IMPLEMENT_PPFILT_FACTORY(CCheck); SLAPI CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
 {
 	SetFlatChunk(offsetof(CCheckFilt, ReserveStart), offsetof(CCheckFilt, SessIDList)-offsetof(CCheckFilt, ReserveStart));
 	SetBranchSArray(offsetof(CCheckFilt, SessIDList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, NodeList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CorrGoodsList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CtValList));
-	SetBranchObjIdListFilt(offsetof(CCheckFilt, ScsList)); // @v7.9.11
+	SetBranchObjIdListFilt(offsetof(CCheckFilt, ScsList));
 	Init(1, 0);
 }
 
@@ -327,7 +327,7 @@ int CCheckFiltCtDialog::setupList()
 	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
 		ss.clear(1);
 		ss.add(buf);
-		(buf = 0).CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
+		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 		ss.add(buf);
 		ok = addStringToList(j, ss.getBuf());
 	}
@@ -1188,21 +1188,66 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		Filt.AmountQuant = (Filt.Grp == CCheckFilt::gQtty) ? 1.0 : 100.0;
 	uint   i;
 	PPObjSCardSeries * p_serobj = 0;
-	if(Filt.NodeList.GetCount()) {
+	{
 		PPIDArray node_id_list;
-		if(cn_obj.ResolveList(&Filt.NodeList.Get(), node_id_list) > 0) {
-			NodeIdList.Set(&node_id_list);
-			// @v9.7.11 {
-			if(node_id_list.getCount()) {
-				State |= stSkipUnprinted;
-				for(i = 0; State & stSkipUnprinted && i < node_id_list.getCount(); i++) {
-					PPCashNode cn_rec;
-					if(cn_obj.Fetch(node_id_list.get(i), &cn_rec) > 0 && !(cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS))
-						State &= ~stSkipUnprinted;
+		//
+		// Идентифицируем терминальный список кассовых узлов
+		//
+		if(Filt.NodeList.GetCount()) {
+			temp_list.clear();
+			if(cn_obj.ResolveList(&Filt.NodeList.Get(), temp_list) > 0) {
+				node_id_list = temp_list;
+				NodeIdList.Set(&node_id_list);
+			}
+		}
+		{
+			//
+			// Идентифицируем терминальный список кассовых сессий
+			//
+			temp_list.clear();
+			if(Filt.Flags & CCheckFilt::fZeroSess)
+				temp_list.add((long)0);
+			else {
+				for(i = 0; i < Filt.SessIDList.getCount(); i++) {
+					const PPID sess_id = Filt.SessIDList.get (i);
+					THROW(r = CsObj.P_Tbl->GetSubSessList(sess_id, &temp_list));
+					if(r < 0)
+						THROW(temp_list.add(sess_id));
 				}
 			}
-			// } @v9.7.11
+			//
+			// Из каждой кассовой сессии извлекаем ид кассового узла чтобы включить в общий список узлов
+			//
+			if(temp_list.getCount()) {
+				SessIdList.Set(&temp_list);
+				for(uint i = 0; i < temp_list.getCount(); i++) {
+					const PPID sess_id = temp_list.get(i);
+					CSessionTbl::Rec cs_rec;
+					if(CsObj.Search(sess_id, &cs_rec) > 0) {
+                        node_id_list.add(cs_rec.CashNodeID);
+					}
+				}
+			}
 		}
+		// @v9.7.11 {
+		if(node_id_list.getCount()) {
+			//
+			// Теперь, имея исчерпывающий список кассовых узлов можно
+			// определить нужно показывать не отпечатанные чеки или нет.
+			// Note: на самом деле, это не совсем корректно - чеки будут показаны по ПЕРЕСЕЧЕНИЮ
+			//   списка узлов и списка сессий, а здесь решение мы принимаем по ОБЪЕДИНЕНИЮ.
+			//   Пока оставим это противоречие (оно может сказаться в очень редких случаях, но
+			//   не забываем, что здесь есть проблема).
+			//
+			node_id_list.sortAndUndup();
+			State |= stSkipUnprinted;
+			for(i = 0; State & stSkipUnprinted && i < node_id_list.getCount(); i++) {
+				PPCashNode cn_rec;
+				if(cn_obj.Fetch(node_id_list.get(i), &cn_rec) > 0 && !(cn_rec.Flags & CASHF_SKIPUNPRINTEDCHECKS))
+					State &= ~stSkipUnprinted;
+			}
+		}
+		// } @v9.7.11
 	}
 	if(Filt.SCardID)
 		SCardList.Add(Filt.SCardID, 1);
@@ -1246,21 +1291,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		for(uint i = 0; i < r_goods_corr_list.getCount(); i++)
 			GoodsList.Add((uint)r_goods_corr_list.get(i));
 		State |= stUseGoodsList;
-	}
-	{
-		temp_list.clear();
-		if(Filt.Flags & CCheckFilt::fZeroSess)
-			temp_list.add((long)0);
-		else {
-			for(i = 0; i < Filt.SessIDList.getCount(); i++) {
-				PPID sess_id = Filt.SessIDList.get (i);
-				THROW(r = CsObj.P_Tbl->GetSubSessList(sess_id, &temp_list));
-				if(r < 0)
-					THROW(temp_list.add(sess_id));
-			}
-		}
-		if(temp_list.getCount())
-			SessIdList.Set(&temp_list);
 	}
 	if(Filt.Grp) {
 		THROW(P_TmpGrpTbl = CreateTempGrpFile());
