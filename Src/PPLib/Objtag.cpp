@@ -1509,18 +1509,18 @@ int SLAPI PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SStri
 			switch(tag_rec.TagDataType) {
 				case OTTYP_BOOL:
 					if(rNormCrit.OneOf(';', "no;false;0;нет;ложь", 1))
-						(rNormCrit = 0).Cat("0");
+						rNormCrit.Z().Cat("0");
 					else
-						(rNormCrit = 0).Cat("1");
+						rNormCrit.Z().Cat("1");
 					break;
 				case OTTYP_ENUM:
 					{
 						PPID   _id = 0;
 						if(ref->SearchName(tag_rec.TagEnumID, &_id, rNormCrit, 0) > 0) {
-							(rNormCrit = 0).Cat(_id);
+							rNormCrit.Z().Cat(_id);
 						}
 						else {
-							(rNormCrit = 0).Cat(-1234567890); // @v8.3.12 С высокой вероятностью невозможное значение
+							rNormCrit.Z().Cat(-1234567890); // @v8.3.12 С высокой вероятностью невозможное значение
 							ok = -1;
 						}
 					}
@@ -1989,14 +1989,14 @@ public:
 			getCtrlString(CTL_SELTAG_RESTRICT, restrict_buf);
 			if(oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK)) {
 				if(EnumID) {
-					(restrict_buf = 0).Cat(EnumID);
+					restrict_buf.Z().Cat(EnumID);
 				}
 				PPIDArray id_list;
 				TagFilt::GetRestrictionIdList(restrict_buf, &id_list);
 				if(CheckRestrict) {
 					THROW_PP(id_list.getCount(), PPERR_USERINPUT);
 				}
-				//(restrict_buf = 0).Cat(EnumID);
+				//restrict_buf.Z().Cat(EnumID);
 			}
 			else {
 				if(CheckRestrict) {
@@ -2061,7 +2061,7 @@ private:
 			// } @v9.4.9
 			/* @v9.4.9
 			if(ListBoxSelDialog(tag.TagEnumID, &EnumID, extra_ptr) > 0) {
-				(restrict_buf = 0).Cat(EnumID);
+				restrict_buf.Z().Cat(EnumID);
 				SetupRestrict(tag.TagDataType, restrict_buf, tag.TagEnumID);
 			}
 			*/
@@ -2105,11 +2105,11 @@ private:
 				SString type_str, msg;
 				ObjTagItem::GetTypeString(tag.TagDataType, 0, type_str);
 				if(tag.TagDataType == OTTYP_BOOL)
-					(msg = 0).CatChar('[').Cat(type_str).CatDiv('-', 1).CatChar('0').Comma().CatChar('1').CatChar(']');
+					msg.Z().CatChar('[').Cat(type_str).CatDiv('-', 1).CatChar('0').Comma().CatChar('1').CatChar(']');
 				else if(oneof2(tag.TagDataType, OTTYP_NUMBER, OTTYP_DATE))
-					(msg = 0).CatChar('[').Cat(type_str).Space().CatCharN('.', 2).Space().Cat(type_str).CatChar(']');
+					msg.Z().CatChar('[').Cat(type_str).Space().CatCharN('.', 2).Space().Cat(type_str).CatChar(']');
 				else if(oneof3(tag.TagDataType, OTTYP_STRING, OTTYP_ENUM, OTTYP_OBJLINK))
-					(msg = 0).CatBrackStr(type_str);
+					msg.Z().CatBrackStr(type_str);
 				p_text->setText(msg);
 			}
 			enableCommand(cmSelEnum, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) && CheckRestrict);
@@ -2194,7 +2194,7 @@ int TagFiltDialog::setupList()
 			int r = TagFilt::GetRestrictionIdList(restrict, &id_list);
 			if(r == 1) {
 				assert(id_list.getCount() == 1);
-				GetObjectName(tag.TagEnumID, id_list.get(0), restrict = 0);
+				GetObjectName(tag.TagEnumID, id_list.get(0), restrict.Z());
 			}
 		}
 		ss.add(restrict);
@@ -2728,7 +2728,7 @@ int TagValListDialog::setupList()
 		else
 			buf.Cat(p_item->TagID);
 		ss.add(buf);
-		TagObj.GetCurrTagVal(p_item, (buf = 0));
+		TagObj.GetCurrTagVal(p_item, buf.Z());
 		ss.add(buf);
 		if(!addStringToList(p_item->TagID, ss.getBuf()))
 			return 0;

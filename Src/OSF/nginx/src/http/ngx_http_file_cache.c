@@ -294,7 +294,7 @@ static ngx_int_t ngx_http_file_cache_lock(ngx_http_request_t * r, ngx_http_cache
 	c->waiting = 1;
 	if(c->wait_time == 0) {
 		c->wait_time = now + c->lock_timeout;
-		c->wait_event.handler = ngx_http_file_cache_lock_wait_handler;
+		c->wait_event.F_EvHandler = ngx_http_file_cache_lock_wait_handler;
 		c->wait_event.P_Data = r;
 		c->wait_event.log = r->connection->log;
 	}
@@ -1743,7 +1743,7 @@ invalid_levels:
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate zone \"%V\"", &name);
 		return NGX_CONF_ERROR;
 	}
-	cache->shm_zone->init = ngx_http_file_cache_init;
+	cache->shm_zone->F_Init = ngx_http_file_cache_init;
 	cache->shm_zone->data = cache;
 	cache->use_temp_path = use_temp_path;
 	cache->inactive = inactive;

@@ -573,7 +573,7 @@ static int __ham_getindex_unsorted(DBC * dbc, PAGE * p, const DBT * key, int * m
 		    /*
 		     * These are errors because keys are never duplicated.
 		     */
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    default:
 			return __db_pgfmt(dbp->env, PGNO(p));
 		}

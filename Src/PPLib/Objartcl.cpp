@@ -2217,7 +2217,7 @@ int DebtDimDialog::setupList()
 	SString agent_name;
 	for(uint i = 0; i < Data.AgentList.GetCount(); i++) {
 		PPID   agent_id = Data.AgentList.Get(i);
-		GetArticleName(agent_id, agent_name = 0);
+		GetArticleName(agent_id, agent_name.Z());
 		if(!addStringToList(agent_id, agent_name))
 			ok = PPErrorZ();
 	}

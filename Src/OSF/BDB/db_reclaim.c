@@ -91,7 +91,7 @@ int __db_truncate_callback(DBC * dbc, PAGE * p, void * cookie, int * putp)
 			if(!B_DISSET(type) && B_TYPE(type) != B_DUPLICATE)
 				++*countp;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case P_IBTREE:
 	    case P_IRECNO:
 	    case P_INVALID:

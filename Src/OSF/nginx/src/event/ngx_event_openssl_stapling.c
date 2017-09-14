@@ -775,8 +775,8 @@ static void ngx_ssl_ocsp_connect(ngx_ssl_ocsp_ctx_t * ctx)
 	}
 	ctx->peer.connection->data = ctx;
 	ctx->peer.connection->pool = ctx->pool;
-	ctx->peer.connection->P_EvRd->handler = ngx_ssl_ocsp_read_handler;
-	ctx->peer.connection->P_EvWr->handler = ngx_ssl_ocsp_write_handler;
+	ctx->peer.connection->P_EvRd->F_EvHandler = ngx_ssl_ocsp_read_handler;
+	ctx->peer.connection->P_EvWr->F_EvHandler = ngx_ssl_ocsp_write_handler;
 	ctx->process = ngx_ssl_ocsp_process_status_line;
 	ngx_add_timer(ctx->peer.connection->P_EvRd, ctx->timeout);
 	ngx_add_timer(ctx->peer.connection->P_EvWr, ctx->timeout);
@@ -806,7 +806,7 @@ static void ngx_ssl_ocsp_write_handler(ngx_event_t * wev)
 	if(n > 0) {
 		ctx->request->pos += n;
 		if(n == size) {
-			wev->handler = ngx_ssl_ocsp_dummy_handler;
+			wev->F_EvHandler = ngx_ssl_ocsp_dummy_handler;
 			if(wev->timer_set) {
 				ngx_del_timer(wev);
 			}

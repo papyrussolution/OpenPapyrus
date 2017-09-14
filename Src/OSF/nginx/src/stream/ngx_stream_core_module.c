@@ -222,89 +222,64 @@ ngx_int_t ngx_stream_core_preread_phase(ngx_stream_session_t * s,
 			rc = NGX_STREAM_BAD_REQUEST;
 			break;
 		}
-
 		if(c->P_EvRd->eof) {
 			rc = NGX_STREAM_OK;
 			break;
 		}
-
 		if(!c->P_EvRd->ready) {
 			if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 				rc = NGX_ERROR;
 				break;
 			}
-
 			if(!c->P_EvRd->timer_set) {
 				ngx_add_timer(c->P_EvRd, cscf->preread_timeout);
 			}
-
-			c->P_EvRd->handler = ngx_stream_session_handler;
-
+			c->P_EvRd->F_EvHandler = ngx_stream_session_handler;
 			return NGX_OK;
 		}
-
 		n = c->recv(c, c->buffer->last, size);
-
 		if(n == NGX_ERROR) {
 			rc = NGX_STREAM_OK;
 			break;
 		}
-
 		if(n > 0) {
 			c->buffer->last += n;
 		}
-
 		rc = ph->handler(s);
 	}
-
 	if(c->P_EvRd->timer_set) {
 		ngx_del_timer(c->P_EvRd);
 	}
-
 	if(rc == NGX_OK) {
 		s->phase_handler = ph->next;
 		return NGX_AGAIN;
 	}
-
 	if(rc == NGX_DECLINED) {
 		s->phase_handler++;
 		return NGX_AGAIN;
 	}
-
 	if(rc == NGX_DONE) {
 		return NGX_OK;
 	}
-
 	if(rc == NGX_ERROR) {
 		rc = NGX_STREAM_INTERNAL_SERVER_ERROR;
 	}
-
 	ngx_stream_finalize_session(s, rc);
-
 	return NGX_OK;
 }
 
-ngx_int_t ngx_stream_core_content_phase(ngx_stream_session_t * s,
-    ngx_stream_phase_handler_t * ph)
+ngx_int_t ngx_stream_core_content_phase(ngx_stream_session_t * s, ngx_stream_phase_handler_t * ph)
 {
 	ngx_connection_t  * c;
 	ngx_stream_core_srv_conf_t  * cscf;
-
 	c = s->connection;
-
 	c->log->action = NULL;
-
 	cscf = (ngx_stream_core_srv_conf_t*)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
-
-	if(c->type == SOCK_STREAM
-	    && cscf->tcp_nodelay
-	    && ngx_tcp_nodelay(c) != NGX_OK) {
+	if(c->type == SOCK_STREAM && cscf->tcp_nodelay && ngx_tcp_nodelay(c) != NGX_OK) {
 		ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return NGX_OK;
 	}
-
 	cscf->handler(s);
-
 	return NGX_OK;
 }
 

@@ -394,9 +394,9 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 		double  pcnt = round(dscnt * 100.0 / (amt + dscnt), 1);
 		SString prn_str, temp_str;
 		SCardCore scc;
-		THROW(SetProp(Caption, (prn_str = 0).CatCharN('-', CheckStrLen)));
+		THROW(SetProp(Caption, prn_str.Z().CatCharN('-', CheckStrLen)));
 		THROW(ExecOper(PrintString));
-		(temp_str = 0).Cat(amt + dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
 		prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetProp(Caption, prn_str));
@@ -411,7 +411,7 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 				THROW(ExecOper(PrintString));
 			}
 		}
-		(temp_str = 0).Cat(dscnt, SFMT_MONEY);
+		temp_str.Z().Cat(dscnt, SFMT_MONEY);
 		(prn_str = "СКИДКА").Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%'); // @cstr #3
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(SetProp(Caption, prn_str));
@@ -809,7 +809,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				else if(running_total > amt) {
 					SString fmt_buf, msg_buf, added_buf;
 					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
-					(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
 					msg_buf.Printf(fmt_buf, added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
@@ -818,7 +818,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(!is_format) {
 			CCheckLineTbl::Rec ccl;
-			(buf = 0).CatCharN('-', CheckStrLen);
+			buf.Z().CatCharN('-', CheckStrLen);
 			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				GetGoodsName(ccl.GoodsID, buf);
@@ -832,7 +832,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			}
 			// Информация о скидке
 			THROW(PrintDiscountInfo(pPack, flags));
-			(buf = 0).CatCharN('-', CheckStrLen);
+			buf.Z().CatCharN('-', CheckStrLen);
 			THROW(SetProp(Caption, buf.Trim(CheckStrLen)));
 			THROW(ExecOper(PrintString));
 		}

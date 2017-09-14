@@ -758,7 +758,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 		if(!isempty(pTranslateToLang)) {
 			THROW_V(auto_transl_lang = RecognizeLinguaSymb(pTranslateToLang, 0), PPERR_SC2_INVLANGSYMB);
 			GetLinguaCode(auto_transl_lang, temp_buf);
-			(auto_transl_file = 0).Cat("auto").CatChar('-').Cat(org_nam).CatChar('-').Cat(temp_buf);
+			auto_transl_file.Z().Cat("auto").CatChar('-').Cat(org_nam).CatChar('-').Cat(temp_buf);
 			ps.Nam = auto_transl_file;
 			ps.Ext = org_ext;
 			ps.Merge(auto_transl_file);

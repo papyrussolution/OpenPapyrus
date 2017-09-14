@@ -997,7 +997,7 @@ static int __bam_psplit(DBC * dbc, EPG * cp, PAGE * lp, PAGE * rp, db_indx_t * s
 			else
 				nbytes += BOVERFLOW_SIZE;
 			++off;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case P_LDUP:
 		    case P_LRECNO:
 			if(B_TYPE(GET_BKEYDATA(dbp, pp, off)->type) ==
@@ -1112,7 +1112,7 @@ int __bam_copy(DB*dbp, PAGE * pp, PAGE * cp, uint32 nxt, uint32 stop)
 				cinp[off] = cinp[off-P_INDX];
 				continue;
 			}
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case P_LDUP:
 		    case P_LRECNO:
 			if(B_TYPE(GET_BKEYDATA(dbp, pp, nxt)->type) == B_KEYDATA)

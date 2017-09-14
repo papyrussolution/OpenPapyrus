@@ -1260,7 +1260,7 @@ int StaffCalDialog::setupList()
 		}
 		else if(cdt.GetKind() == CALDATE::kCalDate) {
 			dt.v = rrec.DtVal;
-			(sub = 0).CatLongZ(dt.day(), 2).CatChar('/').CatLongZ(dt.month(), 2);
+			sub.Z().CatLongZ(dt.day(), 2).CatChar('/').CatLongZ(dt.month(), 2);
 		}
 		else {
 			dt.v = rrec.DtVal;

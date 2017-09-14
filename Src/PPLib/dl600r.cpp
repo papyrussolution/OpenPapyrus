@@ -802,7 +802,7 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 								//p_value = json_unescape(p_cur->P_Child->P_Text);
 								(temp_buf = p_cur->P_Child->Text).Unescape();
 								THROW(p_buf = rBlk.GetBuffer());
-								THROW(fld.PutFieldDataToBuf(temp_buf, p_buf, fp));
+								fld.PutFieldDataToBuf(temp_buf, p_buf, fp);
 								//ZFREE(p_value);
 							}
 							break;
@@ -963,7 +963,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 					idn = 2;
 			}
 			else if(p_child->Name.Divide('@', left, suffix) > 0) {
-				(left = 0).CatChar('_').Cat(suffix);
+				left.Z().CatChar('_').Cat(suffix);
 				suffix = left;
 				(fname = suffix).Dot().Cat("btr");
 				if(rParam.Flags & ExportParam::fDiff_ID_ByScope) {
@@ -1144,7 +1144,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 					else if(p_child->Name.CmpNC("iter@def") == 0)
 						suffix = "Iter";
 					else if(p_child->Name.Divide('@', left, suffix) > 0) {
-						(left = 0).CatChar('_').Cat(suffix);
+						left.Z().CatChar('_').Cat(suffix);
 						suffix = left;
 					}
 					else
@@ -1153,7 +1153,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 						suffix.CatChar('+');
 					dtd.add(suffix, 0);
 				}
-				(suffix = 0).CatParStr(dtd.getBuf());
+				suffix.Z().CatParStr(dtd.getBuf());
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
@@ -1162,7 +1162,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 				else if(p_child->Name.CmpNC("iter@def") == 0)
 					suffix = "Iter";
 				else if(p_child->Name.Divide('@', left, suffix) > 0) {
-					(left = 0).CatChar('_').Cat(suffix);
+					left.Z().CatChar('_').Cat(suffix);
 					suffix = left;
 				}
 				else
@@ -1184,7 +1184,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 					suffix = "Iter";
 				}
 				else if(p_child->Name.Divide('@', left, suffix) > 0) {
-					(left = 0).CatChar('_').Cat(suffix);
+					left.Z().CatChar('_').Cat(suffix);
 					suffix = left;
 				}
 				else
@@ -1273,7 +1273,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 						suffix.CatChar('+');
 					dtd.add(suffix, 0);
 				}
-				(suffix = 0).CatParStr(dtd.getBuf());
+				suffix.Z().CatParStr(dtd.getBuf());
 				xmlTextWriterWriteDTDElement(p_writer, head_name.ucptr(), suffix.ucptr());
 			}
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {

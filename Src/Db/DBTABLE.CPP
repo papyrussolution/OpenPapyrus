@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <db.h>
@@ -111,7 +111,7 @@ int SLAPI DBTable::Btr_Open(const char * pName, int openMode, char * pPassword)
 	uint16 bl = (uint16)sstrlen(pPassword);
 	index = openMode;
 	if(strchr(pName, ' '))
-		(OpenedFileName = 0).CatQStr(pName);
+		OpenedFileName.Z().CatQStr(pName);
 	else
 		OpenedFileName = pName;
 	char   temp_buf[512];

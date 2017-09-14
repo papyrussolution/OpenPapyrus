@@ -333,13 +333,13 @@ int ExcelDbFile::GoToRecord(ulong recNo, int rel)
 	return ok;
 }
 
-int ExcelDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf)
+void ExcelDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf)
 {
 	SFormatParam fp;
 	fp.FDate = P.DateFormat;
 	fp.FTime = P.TimeFormat;
 	SETFLAG(fp.Flags, SFormatParam::fQuotText, P.Flags & fQuotText);
-	return rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
+	rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
 }
 
 int ExcelDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
@@ -380,7 +380,7 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 					if(col == 0)
 						col = is_vert ? cur_rec : (1 + fld_pos + P.ColumnsCount);
 					THROW(P_Sheet->GetValue(row, col, field_buf));
-					THROW(PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf));
+					PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf);
 				}
 			}
 		}
@@ -391,8 +391,8 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				if(rRec.GetFieldByName(temp_buf, &fld) > 0) {
 					row = (is_vert) ? 1 + fld_pos + P.HdrLinesCount : cur_rec;
 					col = (is_vert) ? cur_rec : 1 + fld_pos + P.ColumnsCount;
-					THROW(P_Sheet->GetValue(row, col, field_buf = 0));
-					THROW(PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf));
+					THROW(P_Sheet->GetValue(row, col, field_buf.Z()));
+					PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf);
 				}
 			}
 		}

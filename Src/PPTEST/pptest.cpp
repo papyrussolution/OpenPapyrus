@@ -1040,13 +1040,13 @@ int TestSStringPerf()
 	SString test_buf;
 	PROFILE_START
 	for(long i = 1; i < 1000000; i++) {
-    	(test_buf = 0).CatLongZ(i, 20);
+    	test_buf.Z().CatLongZ(i, 20);
 		_StringFuncSS(test_buf);
     }
     PROFILE_END
 	PROFILE_START
 	for(long i = 1; i < 1000000; i++) {
-    	(test_buf = 0).CatLongZ(i, 20);
+    	test_buf.Z().CatLongZ(i, 20);
 		_StringFuncC(test_buf);
     }
     PROFILE_END
@@ -1054,7 +1054,7 @@ int TestSStringPerf()
 		SStringPool sp;
 		PROFILE_START
 		for(long i = 1; i < 1000000; i++) {
-    		(test_buf = 0).CatLongZ(i, 20);
+    		test_buf.Z().CatLongZ(i, 20);
 			_StringFuncSP(test_buf, &sp);
 		}
 		PROFILE_END

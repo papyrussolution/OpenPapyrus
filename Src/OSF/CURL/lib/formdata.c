@@ -313,7 +313,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 #else
 			    current_form->flags |= HTTPPOST_PTRNAME; /* fall through */
 #endif
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLFORM_COPYNAME:
 			    if(current_form->name)
 				    return_value = CURL_FORMADD_OPTION_TWICE;

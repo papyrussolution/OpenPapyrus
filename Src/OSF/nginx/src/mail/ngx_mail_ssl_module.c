@@ -12,15 +12,10 @@
 
 static void * ngx_mail_ssl_create_conf(ngx_conf_t * cf);
 static char * ngx_mail_ssl_merge_conf(ngx_conf_t * cf, void * parent, void * child);
-
-static char * ngx_mail_ssl_enable(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_ssl_starttls(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_mail_ssl_enable(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_ssl_starttls(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 
 static ngx_conf_enum_t ngx_mail_starttls_state[] = {
 	{ ngx_string("off"), NGX_MAIL_STARTTLS_OFF },
@@ -48,41 +43,16 @@ static ngx_conf_enum_t ngx_mail_ssl_verify[] = {
 };
 
 static ngx_command_t ngx_mail_ssl_commands[] = {
-	{ ngx_string("ssl"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_mail_ssl_enable,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_ssl_conf_t, enable),
-	  NULL },
-
-	{ ngx_string("starttls"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_mail_ssl_starttls,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_ssl_conf_t, starttls),
-	  ngx_mail_starttls_state },
-
-	{ ngx_string("ssl_certificate"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_array_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_ssl_conf_t, certificates),
-	  NULL },
-
-	{ ngx_string("ssl_certificate_key"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_array_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_ssl_conf_t, certificate_keys),
-	  NULL },
-
-	{ ngx_string("ssl_password_file"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_mail_ssl_password_file,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("ssl"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_mail_ssl_enable, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_ssl_conf_t, enable), NULL },
+	{ ngx_string("starttls"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_mail_ssl_starttls, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_ssl_conf_t, starttls), ngx_mail_starttls_state },
+	{ ngx_string("ssl_certificate"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_array_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_ssl_conf_t, certificates), NULL },
+	{ ngx_string("ssl_certificate_key"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_array_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_ssl_conf_t, certificate_keys), NULL },
+	{ ngx_string("ssl_password_file"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_mail_ssl_password_file, NGX_MAIL_SRV_CONF_OFFSET, 0, NULL },
 	{ ngx_string("ssl_dhparam"),
 	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
 	  ngx_conf_set_str_slot,
@@ -213,39 +183,33 @@ static ngx_str_t ngx_mail_ssl_sess_id_ctx = ngx_string("MAIL");
 
 static void * ngx_mail_ssl_create_conf(ngx_conf_t * cf)
 {
-	ngx_mail_ssl_conf_t  * scf;
-
-	scf = (ngx_mail_ssl_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_ssl_conf_t));
-	if(scf == NULL) {
-		return NULL;
+	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_mail_ssl_conf_t));
+	if(scf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     scf->protocols = 0;
+		 *     scf->dhparam = { 0, NULL };
+		 *     scf->ecdh_curve = { 0, NULL };
+		 *     scf->client_certificate = { 0, NULL };
+		 *     scf->trusted_certificate = { 0, NULL };
+		 *     scf->crl = { 0, NULL };
+		 *     scf->ciphers = { 0, NULL };
+		 *     scf->shm_zone = NULL;
+		 */
+		scf->enable = NGX_CONF_UNSET;
+		scf->starttls = NGX_CONF_UNSET_UINT;
+		scf->certificates = (ngx_array_t*)NGX_CONF_UNSET_PTR;
+		scf->certificate_keys = (ngx_array_t*)NGX_CONF_UNSET_PTR;
+		scf->passwords = (ngx_array_t*)NGX_CONF_UNSET_PTR;
+		scf->prefer_server_ciphers = NGX_CONF_UNSET;
+		scf->verify = NGX_CONF_UNSET_UINT;
+		scf->verify_depth = NGX_CONF_UNSET_UINT;
+		scf->builtin_session_cache = NGX_CONF_UNSET;
+		scf->session_timeout = NGX_CONF_UNSET;
+		scf->session_tickets = NGX_CONF_UNSET;
+		scf->session_ticket_keys = (ngx_array_t*)NGX_CONF_UNSET_PTR;
 	}
-
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     scf->protocols = 0;
-	 *     scf->dhparam = { 0, NULL };
-	 *     scf->ecdh_curve = { 0, NULL };
-	 *     scf->client_certificate = { 0, NULL };
-	 *     scf->trusted_certificate = { 0, NULL };
-	 *     scf->crl = { 0, NULL };
-	 *     scf->ciphers = { 0, NULL };
-	 *     scf->shm_zone = NULL;
-	 */
-
-	scf->enable = NGX_CONF_UNSET;
-	scf->starttls = NGX_CONF_UNSET_UINT;
-	scf->certificates = (ngx_array_t*)NGX_CONF_UNSET_PTR;
-	scf->certificate_keys = (ngx_array_t*)NGX_CONF_UNSET_PTR;
-	scf->passwords = (ngx_array_t*)NGX_CONF_UNSET_PTR;
-	scf->prefer_server_ciphers = NGX_CONF_UNSET;
-	scf->verify = NGX_CONF_UNSET_UINT;
-	scf->verify_depth = NGX_CONF_UNSET_UINT;
-	scf->builtin_session_cache = NGX_CONF_UNSET;
-	scf->session_timeout = NGX_CONF_UNSET;
-	scf->session_tickets = NGX_CONF_UNSET;
-	scf->session_ticket_keys = (ngx_array_t*)NGX_CONF_UNSET_PTR;
-
 	return scf;
 }
 
@@ -377,117 +341,83 @@ static char * ngx_mail_ssl_enable(ngx_conf_t * cf, ngx_command_t * cmd, void * c
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"starttls\" directive conflicts with \"ssl on\"");
 		return NGX_CONF_ERROR;
 	}
-
 	scf->file = cf->conf_file->file.name.data;
 	scf->line = cf->conf_file->line;
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_mail_ssl_starttls(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)conf;
-
-	char  * rv;
-
-	rv = ngx_conf_set_enum_slot(cf, cmd, conf);
-
+	char  * rv = ngx_conf_set_enum_slot(cf, cmd, conf);
 	if(rv != NGX_CONF_OK) {
 		return rv;
 	}
-
 	if(scf->enable == 1 && (ngx_int_t)scf->starttls > NGX_MAIL_STARTTLS_OFF) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"ssl\" directive conflicts with \"starttls\"");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"ssl\" directive conflicts with \"starttls\"");
 		return NGX_CONF_ERROR;
 	}
-
 	scf->file = cf->conf_file->file.name.data;
 	scf->line = cf->conf_file->line;
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_mail_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)conf;
-
-	ngx_str_t  * value;
-
+	ngx_mail_ssl_conf_t * scf = (ngx_mail_ssl_conf_t*)conf;
 	if(scf->passwords != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-
-	value = (ngx_str_t*)cf->args->elts;
-
-	scf->passwords = ngx_ssl_read_password_file(cf, &value[1]);
-
-	if(scf->passwords == NULL) {
-		return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		scf->passwords = ngx_ssl_read_password_file(cf, &value[1]);
+		if(scf->passwords == NULL) {
+			return NGX_CONF_ERROR;
+		}
+		return NGX_CONF_OK;
 	}
-
-	return NGX_CONF_OK;
 }
 
 static char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 	ngx_mail_ssl_conf_t  * scf = (ngx_mail_ssl_conf_t*)conf;
-
 	size_t len;
-	ngx_str_t   * value, name, size;
+	ngx_str_t name, size;
 	ngx_int_t n;
 	ngx_uint_t i, j;
-
-	value = (ngx_str_t*)cf->args->elts;
-
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	for(i = 1; i < cf->args->nelts; i++) {
-		if(ngx_strcmp(value[i].data, "off") == 0) {
+		if(sstreq(value[i].data, "off")) {
 			scf->builtin_session_cache = NGX_SSL_NO_SCACHE;
 			continue;
 		}
-
-		if(ngx_strcmp(value[i].data, "none") == 0) {
+		if(sstreq(value[i].data, "none")) {
 			scf->builtin_session_cache = NGX_SSL_NONE_SCACHE;
 			continue;
 		}
-
-		if(ngx_strcmp(value[i].data, "builtin") == 0) {
+		if(sstreq(value[i].data, "builtin")) {
 			scf->builtin_session_cache = NGX_SSL_DFLT_BUILTIN_SCACHE;
 			continue;
 		}
-
-		if(value[i].len > sizeof("builtin:") - 1
-		    && ngx_strncmp(value[i].data, "builtin:", sizeof("builtin:") - 1)
-		    == 0) {
-			n = ngx_atoi(value[i].data + sizeof("builtin:") - 1,
-			    value[i].len - (sizeof("builtin:") - 1));
-
+		if(value[i].len > sizeof("builtin:") - 1 && ngx_strncmp(value[i].data, "builtin:", sizeof("builtin:") - 1) == 0) {
+			n = ngx_atoi(value[i].data + sizeof("builtin:") - 1, value[i].len - (sizeof("builtin:") - 1));
 			if(n == NGX_ERROR) {
 				goto invalid;
 			}
-
 			scf->builtin_session_cache = n;
-
 			continue;
 		}
-
-		if(value[i].len > sizeof("shared:") - 1
-		    && ngx_strncmp(value[i].data, "shared:", sizeof("shared:") - 1)
-		    == 0) {
+		if(value[i].len > sizeof("shared:") - 1 && ngx_strncmp(value[i].data, "shared:", sizeof("shared:") - 1) == 0) {
 			len = 0;
-
 			for(j = sizeof("shared:") - 1; j < value[i].len; j++) {
 				if(value[i].data[j] == ':') {
 					break;
 				}
-
 				len++;
 			}
-
 			if(len == 0) {
 				goto invalid;
 			}
-
 			name.len = len;
 			name.data = value[i].data + sizeof("shared:") - 1;
 			size.len = value[i].len - j - 1;
@@ -504,7 +434,7 @@ static char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd, v
 			if(scf->shm_zone == NULL) {
 				return NGX_CONF_ERROR;
 			}
-			scf->shm_zone->init = ngx_ssl_session_cache_init;
+			scf->shm_zone->F_Init = ngx_ssl_session_cache_init;
 			continue;
 		}
 		goto invalid;

@@ -210,7 +210,7 @@ int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSu
 							(temp_buf = rSub).SetLastSlash().Cat(de.FileName);
 						}
 						else {
-							(file_name = 0).Cat(de.FileName);
+							file_name.Z().Cat(de.FileName);
 							temp_buf.Z().Cat(de.FileName);
 						}
 						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);

@@ -192,7 +192,7 @@ UhttDate & FASTCALL UhttDate::operator = (const char * pStr)
 
 UhttDate & FASTCALL UhttDate::operator = (LDATE dt)
 {
-	(Date = 0).Cat(dt, DATF_DMY|DATF_CENTURY);
+	Date.Z().Cat(dt, DATF_DMY|DATF_CENTURY);
 	return *this;
 }
 
@@ -215,7 +215,7 @@ UhttTimestamp & FASTCALL UhttTimestamp::operator = (LDATE dt)
 {
 	LDATETIME temp;
 	temp.Set(dt, ZEROTIME);
-	(T = 0).Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
 	return *this;
 }
 
@@ -223,13 +223,13 @@ UhttTimestamp & FASTCALL UhttTimestamp::operator = (LTIME tm)
 {
 	LDATETIME temp;
 	temp.Set(encodedate(1, 1, 1970), tm);
-	(T = 0).Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
 	return *this;
 }
 
 UhttTimestamp & FASTCALL UhttTimestamp::operator = (const LDATETIME & rDtm)
 {
-	(T = 0).Cat(rDtm, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(rDtm, DATF_ISO8601|DATF_CENTURY, 0);
 	return *this;
 }
 
@@ -271,20 +271,20 @@ UhttDateTime & UhttDateTime::Clear()
 
 UhttDateTime & FASTCALL UhttDateTime::operator = (LDATE dt)
 {
-	(Date = 0).Cat(dt, DATF_DMY|DATF_CENTURY);
+	Date.Z().Cat(dt, DATF_DMY|DATF_CENTURY);
 	return *this;
 }
 
 UhttDateTime & FASTCALL UhttDateTime::operator = (LTIME tm)
 {
-	(Time = 0).Cat(tm, TIMF_HMS);
+	Time.Z().Cat(tm, TIMF_HMS);
 	return *this;
 }
 
 UhttDateTime & FASTCALL UhttDateTime::operator = (const LDATETIME & rDtm)
 {
-	(Date = 0).Cat(rDtm.d, DATF_DMY|DATF_CENTURY);
-	(Time = 0).Cat(rDtm.t, TIMF_HMS);
+	Date.Z().Cat(rDtm.d, DATF_DMY|DATF_CENTURY);
+	Time.Z().Cat(rDtm.t, TIMF_HMS);
 	return *this;
 }
 
@@ -323,8 +323,8 @@ UhttDatePeriod & UhttDatePeriod::Clear()
 
 UhttDatePeriod & FASTCALL UhttDatePeriod::operator = (const DateRange & rRng)
 {
-	(Low = 0).Cat(rRng.low, DATF_DMY|DATF_CENTURY);
-	(Upp = 0).Cat(rRng.upp, DATF_DMY|DATF_CENTURY);
+	Low.Z().Cat(rRng.low, DATF_DMY|DATF_CENTURY);
+	Upp.Z().Cat(rRng.upp, DATF_DMY|DATF_CENTURY);
 	return *this;
 }
 //
@@ -737,7 +737,7 @@ UhttBillFilter::UhttBillFilter()
 
 int FASTCALL UhttBillFilter::SetDate(LDATE dt)
 {
-	(Dt = 0).Cat(dt, DATF_DMY|DATF_CENTURY);
+	Dt.Z().Cat(dt, DATF_DMY|DATF_CENTURY);
 	return 1;
 }
 

@@ -9,11 +9,30 @@
 //#include <ngx_http.h>
 
 int NgxStartUp(const NgxStartUpOptions & rO); // prototype
+ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
 
 int SLAPI RunNginxServer()
 {
 	NgxStartUpOptions o;
 	return (NgxStartUp(o) == 0) ? 1 : 0;
+}
+
+int SLAPI RunNginxWorker()
+{
+	class NgxWorkerThread : public PPThread {
+	public:
+		NgxWorkerThread() : PPThread(kNginxWorker, 0, 0)
+		{
+		}
+	private:
+		virtual void Run()
+		{
+			ngx_worker_thread(0);
+		}
+	};
+	NgxWorkerThread * p_thread = new NgxWorkerThread();
+	p_thread->Start();
+	return 1;
 }
 //
 // Test module
@@ -41,7 +60,7 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 		//pReq->headers_out.override_charset->len = sizeof("utf-8") - 1;
 		//pReq->headers_out.override_charset->data = (u_char *)"utf-8";
 	}
-	if(1) {
+	if(0) {
 		// Allocate a new buffer for sending out the reply. 
 		ngx_buf_t * b = (ngx_buf_t *)ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t));
 		// Insertion in the buffer chain. 
@@ -60,7 +79,7 @@ static ngx_int_t ngx_http_papyrus_test_handler(ngx_http_request_t * pReq)
 	}
 	else {
 		DS.DispatchNgxRequest(pReq);
-		return NGX_DONE;
+		return NGX_DELEGATED/*NGX_DONE*/;
 	}
 }
 /**
@@ -189,7 +208,7 @@ static int ProcessNgxHttpRequest(ngx_http_request_t * pReq)
 		vi.GetVersionText(sb, sizeof(sb));
 		out_buf.Space().Cat(sb);
 		vi.GetTeam(sb, sizeof(sb));
-		out_buf.Space().Cat(sb);
+		out_buf.Space().Cat((temp_buf = sb).Transf(CTRANSF_INNER_TO_UTF8));
 		out_buf.CR();
 		out_buf.CatEq("Идентификатор потока", DS.GetConstTLA().GetThreadID());
 		//
@@ -200,6 +219,7 @@ static int ProcessNgxHttpRequest(ngx_http_request_t * pReq)
 			ngx_chain_t out(b, 0/*just one buffer*/);
 			memcpy(b->pos, out_buf.cptr(), out_buf.Len());
 			b->last = b->pos + out_buf.Len();
+			b->memory = 1;
 			b->last_buf = 1; // there will be no more buffers in the request 
 			// Sending the headers for the reply. 
 			pReq->headers_out.status = NGX_HTTP_OK; // 200 status code 
@@ -207,9 +227,11 @@ static int ProcessNgxHttpRequest(ngx_http_request_t * pReq)
 			pReq->headers_out.content_length_n = out_buf.Len();
 			{
 				NgxReqResult result;
+				result.ReplyCode = NGX_DONE;
 				result.P_Req = pReq;
 				result.Chain.buf = b;
 				result.Chain.next = 0;
+				NgxPushRequestResult(&result);
 			}
 		}
 	}
@@ -368,6 +390,7 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq)
 					uint new_thread_count = ThreadList.GetCount(PPThread::kWorkerSession);
 					assert(new_thread_count == thread_count+1);
 					thread_count = new_thread_count;
+					p_thread = p_new_sess;
 				}
 				else {
 					break;

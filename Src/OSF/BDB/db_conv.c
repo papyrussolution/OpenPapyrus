@@ -117,7 +117,7 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 			sum_len = 0;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    default:
 		chksum = P_CHKSUM(dbp, pagep);
 		sum_len = pginfo->db_pagesize;
@@ -244,11 +244,9 @@ int __db_pgout(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 	    case P_HASH_UNSORTED:
 	    /*
 	     * Support pgout of unsorted hash pages - since online
-	     * replication upgrade can cause pages of this type to be
-	     * written out.
-	     *
-	     * FALLTHROUGH
+	     * replication upgrade can cause pages of this type to be written out.
 	     */
+		// @fallthrough
 	    case P_HASHMETA:
 		ret = __ham_pgout(dbp, pg, pp, cookie);
 		break;
@@ -316,7 +314,7 @@ int __db_decrypt_pg(ENV * env, DB * dbp, PAGE * pagep)
 				pg_len = 0;
 				break;
 			}
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    default:
 			iv = P_IV(dbp, pagep);
 			pg_len = dbp->pgsize;

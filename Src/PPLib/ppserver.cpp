@@ -4176,20 +4176,12 @@ void SLAPI PPServerSession::Run()
 			int    msg_id;
 			switch(waiting_mode) {
 				case wmodActiveSession:
-				case wmodActiveSession_AfterReconnection:
-				case wmodStyloBhtII: // @v8.3.6
-					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV;
-					break;
-				case wmodActiveSession_TransportError:
-					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV;
-					break;
-				case wmodSuspended:
-					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_SUSP;
-					break;
-				case wmodDisconnected:
-					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_DSCN;
-					break;
-				default:
+				case wmodActiveSession_AfterReconnection: 
+				case wmodStyloBhtII: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break; // @v8.3.6
+				case wmodActiveSession_TransportError: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break;
+				case wmodSuspended: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_SUSP; break;
+				case wmodDisconnected: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_DSCN; break;
+				default: 
 					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV;
 					assert(INTERNAL_ERR_INVALID_WAITING_MODE);
 					break;
@@ -4324,8 +4316,7 @@ void SLAPI PPServerSession::Run()
 						if(cmdret == cmdretSuspend) {
 							waiting_mode = wmodSuspended;
 							if(1/*CConfig.Flags & CCFLG_DEBUG*/) {
-								PPLoadText(PPTXT_LOG_SRVSESSSUSPENDED, fmt_buf);
-								s.Printf(fmt_buf, GetUniqueSessID(), (long)(SuspendTimeout / 1000));
+								s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSSUSPENDED, fmt_buf), GetUniqueSessID(), (long)(SuspendTimeout / 1000));
 								PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);
 							}
 						}
@@ -4350,8 +4341,7 @@ void SLAPI PPServerSession::Run()
 					if(waiting_mode != wmodSuspended) {
 						waiting_mode = wmodDisconnected;
 						if(/*CConfig.Flags & CCFLG_DEBUG*/1) {
-							PPLoadText(PPTXT_LOG_SRVSESSCONNCLOSED, fmt_buf);
-							s.Printf(fmt_buf, GetUniqueSessID(), (long)(CloseSocketTimeout / 1000));
+							s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSCONNCLOSED, fmt_buf), GetUniqueSessID(), (long)(CloseSocketTimeout / 1000));
 							PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_THREADINFO);
 						}
 					}
@@ -4374,20 +4364,17 @@ void SLAPI PPServerSession::Run()
 			EvSubstSockFinish.Wait();
 			waiting_mode = wmodActiveSession_AfterReconnection; // @v8.0.8
 			if(/*CConfig.Flags & CCFLG_DEBUG*/1) {
-				PPLoadText(PPTXT_LOG_SRVSESSRECONNECT, fmt_buf);
-				s.Printf(fmt_buf, GetUniqueSessID());
+				s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSRECONNECT, fmt_buf), GetUniqueSessID());
 				PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);
 			}
 		}
 		else if(r == wait_obj_localstop) {
-			PPLoadText(PPTXT_LOG_SRVSESSINTRBYLOCALSTOP, fmt_buf);
-			s.Printf(fmt_buf, GetUniqueSessID());
+			s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSINTRBYLOCALSTOP, fmt_buf), GetUniqueSessID());
 			PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_COMP);
 			break;
 		}
 		else if(r == wait_obj_stop) {
-			PPLoadText(PPTXT_LOG_SRVSESSINTRBYSTOPF, fmt_buf);
-			s.Printf(fmt_buf, GetUniqueSessID());
+			s.Printf(PPLoadTextS(PPTXT_LOG_SRVSESSINTRBYSTOPF, fmt_buf), GetUniqueSessID());
 			PPLogMessage(PPFILNAM_SERVER_LOG, s, LOGMSGF_TIME|LOGMSGF_COMP);
 			break;
 		}
@@ -4453,7 +4440,7 @@ int SLAPI run_server()
 			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
 				class NginxServer : public PPThread {
 				public:
-					NginxServer() : PPThread(PPThread::kNgnixServer, "nginx", 0)
+					NginxServer() : PPThread(PPThread::kNginxServer, "nginx", 0)
 					{
 					}
 					virtual void Run()
@@ -4927,17 +4914,11 @@ int SLAPI run_service()
 		{
 			static DWORD check_point = 1;
 			BOOL   result = TRUE;
-			if(dwCurrentState == SERVICE_START_PENDING)
-				ServiceStatus.dwControlsAccepted = 0;
-			else
-				ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+			ServiceStatus.dwControlsAccepted = (dwCurrentState == SERVICE_START_PENDING) ? 0 : (SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN);
 			ServiceStatus.dwCurrentState = dwCurrentState;
 			ServiceStatus.dwWin32ExitCode = dwWin32ExitCode;
 			ServiceStatus.dwWaitHint = dwWaitHint;
-			if(dwCurrentState == SERVICE_RUNNING || dwCurrentState == SERVICE_STOPPED)
-				ServiceStatus.dwCheckPoint = 0;
-			else
-				ServiceStatus.dwCheckPoint = check_point++;
+			ServiceStatus.dwCheckPoint = oneof2(dwCurrentState, SERVICE_RUNNING, SERVICE_STOPPED) ? 0 : check_point++;
 			result = SetServiceStatus(ServiceStatusHandle, &ServiceStatus);
 			if(!result)
 				SLS.LogMessage(0, "SetServiceStatus error");

@@ -1770,9 +1770,9 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 1, LOCF_COMPARABLE);
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 2, LOCF_ADJINTRPRICE);
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 3, LOCF_WHAUTONAME);
-		AddClusterAssoc(CTL_LOCATION_FLAGS, 4, LOCF_WHCODEPREFIX); // @v7.1.11
-		AddClusterAssoc(CTL_LOCATION_FLAGS, 5, LOCF_SEQCOLCODE);   // @v7.1.11
-		AddClusterAssoc(CTL_LOCATION_FLAGS, 6, LOCF_DISPOSEBILLS); // @v7.1.12
+		AddClusterAssoc(CTL_LOCATION_FLAGS, 4, LOCF_WHCODEPREFIX);
+		AddClusterAssoc(CTL_LOCATION_FLAGS, 5, LOCF_SEQCOLCODE);
+		AddClusterAssoc(CTL_LOCATION_FLAGS, 6, LOCF_DISPOSEBILLS);
 		SetClusterData(CTL_LOCATION_FLAGS, Data.Flags);
 	}
 	SetupCtrls();
@@ -1805,7 +1805,6 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 		else
 			temp_buf.Z();
 		LocationCore::SetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
-		// @v7.6.2 {
 		getCtrlString(CTL_LOCATION_PHONE, temp_buf);
 		LocationCore::SetExField(&Data, LOCEXSTR_PHONE, temp_buf);
 		getCtrlString(CTL_LOCATION_CONTACT, temp_buf);
@@ -1814,7 +1813,6 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 		getCtrlString(CTL_LOCATION_EMAIL, temp_buf);
 		LocationCore::SetExField(&Data, LOCEXSTR_EMAIL, temp_buf);
 		// } @v8.3.6
-		// } @v7.6.2
 		THROW(GetGeoCoord());
 	}
 	else if(oneof4(LocTyp, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL, LOCTYP_WHCELLAUTOGEN)) {
@@ -5351,7 +5349,7 @@ int TestAddressRecognition()
 		PPLocAddrStruc las(0, p_fr);
 		SString line_buf, out_buf, temp_buf;
 		while(in_file.ReadLine(line_buf)) {
-			(out_buf = 0).Cat(line_buf).Cat("-->");
+			out_buf.Z().Cat(line_buf).Cat("-->");
 			/*
 			TSCollection <AddrTok> tok_list;
 			las.Recognize(line_buf.Chomp(), tok_list);
@@ -5433,59 +5431,53 @@ private:
 		(text = SrcLine).Transf(CTRANSF_INNER_TO_OUTER);
 		Las.Recognize(text);
 
-		Las.Get(Las.tCountry, text.Z());
+		Las.Get(Las.tCountry, text);
 		setCtrlString(CTL_ADDRSTRUC_COUNTRY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tCity, text.Z());
+		Las.Get(Las.tCity, text);
 		setCtrlString(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tCityKind, text) || OrgLabels.Get(Las.tCityKind, text))
 			setLabelText(CTL_ADDRSTRUC_CITY, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tLocalArea, text.Z());
+		Las.Get(Las.tLocalArea, text);
 		setCtrlString(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tLocalAreaKind, text) || OrgLabels.Get(Las.tLocalAreaKind, text))
 			setLabelText(CTL_ADDRSTRUC_LOCALAREA, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tZip, text.Z());
+		Las.Get(Las.tZip, text);
 		setCtrlString(CTL_ADDRSTRUC_ZIP, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tStreet, text.Z());
+		Las.Get(Las.tStreet, text);
 		setCtrlString(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tStreetKind, text) || OrgLabels.Get(Las.tStreetKind, text))
 			setLabelText(CTL_ADDRSTRUC_STREET, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tHouse, text.Z());
+		Las.Get(Las.tHouse, text);
 		setCtrlString(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tHouseKind, text) || OrgLabels.Get(Las.tHouseKind, text))
 			setLabelText(CTL_ADDRSTRUC_HOUSE, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tHouseAddendum, text.Z());
+		Las.Get(Las.tHouseAddendum, text);
 		setCtrlString(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tHouseAddendumKind, text) || OrgLabels.Get(Las.tHouseAddendumKind, text))
 			setLabelText(CTL_ADDRSTRUC_HOUSEADD, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tApart, text.Z());
+		Las.Get(Las.tApart, text);
 		setCtrlString(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
-		text = 0;
 		if(Las.Get(Las.tApartKind, text) || OrgLabels.Get(Las.tApartKind, text))
 			setLabelText(CTL_ADDRSTRUC_APART, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tFloor, text.Z());
+		Las.Get(Las.tFloor, text);
 		setCtrlString(CTL_ADDRSTRUC_FLOOR, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tPostBox, text.Z());
+		Las.Get(Las.tPostBox, text);
 		setCtrlString(CTL_ADDRSTRUC_POSTBOX, text.Transf(CTRANSF_OUTER_TO_INNER));
 
-		Las.Get(Las.tAddendum, text.Z());
+		Las.Get(Las.tAddendum, text);
 		setCtrlString(CTL_ADDRSTRUC_ADDENDUM, text.Transf(CTRANSF_OUTER_TO_INNER));
 		{
-			text = 0;
-			kind_text = 0;
+			text.Z();
+			kind_text.Z();
 			FiasAddrObjTbl::Rec fias_rec;
 			if(Las.FiasStreetID) {
 				if(Fr.SearchObjByID(Las.FiasStreetID, &fias_rec, 1 /*use_cache*/) > 0) {
@@ -5509,14 +5501,13 @@ private:
 			if(kind_text.NotEmptyS())
 				setLabelText(CTL_ADDRSTRUC_FIASID, kind_text.Transf(CTRANSF_OUTER_TO_INNER));
 			//
-			text = 0;
+			text.Z();
 			if(Las.FiasHouseID) {
                 FiasHouseObjTbl::Rec house_rec;
                 if(Fr.SearchHouseByID(Las.FiasHouseID, &house_rec) > 0) {
 					S_GUID uuid;
-					if(Fr.FT.UrT.Search(house_rec.IdUuRef, uuid) > 0) {
+					if(Fr.FT.UrT.Search(house_rec.IdUuRef, uuid) > 0)
 						uuid.ToStr(S_GUID::fmtIDL, text);
-					}
                 }
 			}
 			setCtrlString(CTL_ADDRSTRUC_FIASHSEID, text);
@@ -6298,12 +6289,12 @@ private:
 					PPIDArray list;
                     int r = P->F.SearchObjByText(temp_buf, PPFiasReference::stfPrefix, 0, list);
 					if(r > 0) {
-                        (Info = 0).Cat(list.getCount()).Space().Cat("objects");
+                        Info.Z().Cat(list.getCount()).Space().Cat("objects");
                     }
                     else if(r < 0)
-						(Info = 0).Cat("Nothing found");
+						Info.Z().Cat("Nothing found");
 					else
-						(Info = 0).Cat("Error");
+						Info.Z().Cat("Error");
 					setCtrlString(CTL_TESTFIAS_INFO, Info);
 				}
 				Input = temp_buf;

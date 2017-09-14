@@ -2997,7 +2997,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					 * entity-body ... The 204 response MUST NOT include a
 					 * message-body, and thus is always terminated by the first
 					 * empty line after the header fields. */
-					/* FALLTHROUGH */
+					// @fallthrough
 					case 304:
 					    /* (quote from RFC2616, section 10.3.5): The 304 response
 					     * MUST NOT contain a message-body, and thus is always

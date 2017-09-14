@@ -31,38 +31,31 @@ enum {
   TRIO_FP_SUBNORMAL,
   TRIO_FP_ZERO
 };
-
 /*
  * Return NaN (Not-a-Number).
  */
-TRIO_PUBLIC double trio_nan TRIO_PROTO((void));
-
+TRIO_PUBLIC double trio_nan(void);
 /*
  * Return positive infinity.
  */
-TRIO_PUBLIC double trio_pinf TRIO_PROTO((void));
-
+TRIO_PUBLIC double trio_pinf(void);
 /*
  * Return negative infinity.
  */
-TRIO_PUBLIC double trio_ninf TRIO_PROTO((void));
-
+TRIO_PUBLIC double trio_ninf(void);
 /*
  * Return negative zero.
  */
-TRIO_PUBLIC double trio_nzero TRIO_PROTO((TRIO_NOARGS));
-
+TRIO_PUBLIC double trio_nzero();
 /*
  * If number is a NaN return non-zero, otherwise return zero.
  */
 TRIO_PUBLIC int trio_isnan TRIO_PROTO((double number));
-
 /*
  * If number is positive infinity return 1, if number is negative
  * infinity return -1, otherwise return 0.
  */
 TRIO_PUBLIC int trio_isinf TRIO_PROTO((double number));
-
 /*
  * If number is finite return non-zero, otherwise return zero.
  */

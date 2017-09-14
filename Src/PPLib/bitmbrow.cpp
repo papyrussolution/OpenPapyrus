@@ -3009,7 +3009,7 @@ void BillItemBrowser::addItemExt(int mode)
 						SString text_buf;
 						for(uint i = 0; i < goods_list.getCount(); i++) {
 							StrAssocArray::Item item = goods_list.at_WithoutParent(i);
-							if(GObj.FetchSingleBarcode(item.Id, text_buf = 0) > 0)
+							if(GObj.FetchSingleBarcode(item.Id, text_buf.Z()) > 0)
 								text_buf.CatCharN(' ', 3).Cat(item.Txt);
 							else
 								text_buf = item.Txt;

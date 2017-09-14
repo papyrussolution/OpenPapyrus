@@ -100,7 +100,7 @@ int __lock_fix_list(ENV * env, DBT * list_dbt, uint32 nlocks)
 	    default:
 		/* Sort so that all locks with same fileid are together. */
 		qsort(list_dbt->data, nlocks, sizeof(DBT), __lock_sort_cmp);
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case 2:
 		nfid = npgno = 0;
 		i = 0;

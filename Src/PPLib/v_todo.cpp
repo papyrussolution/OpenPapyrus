@@ -210,7 +210,7 @@ int SLAPI VCalendar::ReadProp(TodoProperty * pProp, SString & rVal, SString & rA
 				mime64_enc = attrs.GetIdxBySub(str_mime64_enc, ';');
 			}
 			if(mime64_enc >= 0) {
-				(temp_buf2 = 0).DecodeMime64((void*)(const char*)val, val.Len(), 0);
+				temp_buf2.Z().DecodeMime64((void*)(const char*)val, val.Len(), 0);
 				val = temp_buf2;
 			}
 			else

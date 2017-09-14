@@ -536,9 +536,13 @@ static ngx_int_t ngx_process_options(ngx_cycle_t * cycle, const NgxStartUpOption
 		//cycle->conf_param.data = ngx_conf_params;
 		SStrDupToNgxStr(cycle->pool, &rO.ConfParams, &cycle->conf_param);
 	}
+#ifdef NDEBUG
 	if(/*ngx_test_config*/rO.Flags & rO.fTestConf) {
-		cycle->log->log_level = NGX_LOG_INFO;
+		cycle->log->Level = NGX_LOG_INFO;
 	}
+#else
+	cycle->log->Level = NGX_LOG_DEBUG; 
+#endif
 	return NGX_OK;
 }
 

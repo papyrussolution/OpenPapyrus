@@ -107,7 +107,7 @@ ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 			wev = c->P_EvWr;
 			rev->ovlp.event = rev;
 			wev->ovlp.event = wev;
-			rev->handler = ngx_event_acceptex;
+			rev->F_EvHandler = ngx_event_acceptex;
 			rev->ready = 1;
 			wev->ready = 1;
 			rev->log = c->log;

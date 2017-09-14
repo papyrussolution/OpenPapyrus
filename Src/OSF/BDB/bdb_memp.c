@@ -1546,7 +1546,7 @@ reuse:
 		// We found the buffer or we're ready to copy -- we're done. 
 		if(!(makecopy || F_ISSET(bhp, BH_FROZEN)) || alloc_bhp != NULL)
 			break;
-	    // FALLTHROUGH 
+	    // @fallthrough 
 	    case FIRST_MISS:
 		/*
 		 * We didn't find the buffer in our first check.  Figure out

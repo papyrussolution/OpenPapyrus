@@ -970,8 +970,8 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL_get_error: %d", sslerr);
 	if(sslerr == SSL_ERROR_WANT_READ) {
 		c->P_EvRd->ready = 0;
-		c->P_EvRd->handler = ngx_ssl_handshake_handler;
-		c->P_EvWr->handler = ngx_ssl_handshake_handler;
+		c->P_EvRd->F_EvHandler = ngx_ssl_handshake_handler;
+		c->P_EvWr->F_EvHandler = ngx_ssl_handshake_handler;
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			return NGX_ERROR;
 		}
@@ -982,8 +982,8 @@ ngx_int_t ngx_ssl_handshake(ngx_connection_t * c)
 	}
 	if(sslerr == SSL_ERROR_WANT_WRITE) {
 		c->P_EvWr->ready = 0;
-		c->P_EvRd->handler = ngx_ssl_handshake_handler;
-		c->P_EvWr->handler = ngx_ssl_handshake_handler;
+		c->P_EvRd->F_EvHandler = ngx_ssl_handshake_handler;
+		c->P_EvWr->F_EvHandler = ngx_ssl_handshake_handler;
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			return NGX_ERROR;
 		}
@@ -1134,7 +1134,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 	}
 	if(n > 0) {
 		if(c->ssl->saved_write_handler) {
-			c->P_EvWr->handler = c->ssl->saved_write_handler;
+			c->P_EvWr->F_EvHandler = c->ssl->saved_write_handler;
 			c->ssl->saved_write_handler = NULL;
 			c->P_EvWr->ready = 1;
 			if(ngx_handle_write_event(c->P_EvWr, 0) != NGX_OK) {
@@ -1161,8 +1161,8 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 		 * we do not set the timer because there is already the read event timer
 		 */
 		if(c->ssl->saved_write_handler == NULL) {
-			c->ssl->saved_write_handler = c->P_EvWr->handler;
-			c->P_EvWr->handler = ngx_ssl_write_handler;
+			c->ssl->saved_write_handler = c->P_EvWr->F_EvHandler;
+			c->P_EvWr->F_EvHandler = ngx_ssl_write_handler;
 		}
 		return NGX_AGAIN;
 	}
@@ -1179,7 +1179,7 @@ static ngx_int_t ngx_ssl_handle_recv(ngx_connection_t * c, int n)
 static void ngx_ssl_write_handler(ngx_event_t * wev)
 {
 	ngx_connection_t * c = (ngx_connection_t*)wev->P_Data;
-	c->P_EvRd->handler(c->P_EvRd);
+	c->P_EvRd->F_EvHandler(c->P_EvRd);
 }
 /*
  * OpenSSL has no SSL_writev() so we copy several bufs into our 16K buffer
@@ -1304,7 +1304,7 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL_write: %d", n);
 	if(n > 0) {
 		if(c->ssl->saved_read_handler) {
-			c->P_EvRd->handler = c->ssl->saved_read_handler;
+			c->P_EvRd->F_EvHandler = c->ssl->saved_read_handler;
 			c->ssl->saved_read_handler = NULL;
 			c->P_EvRd->ready = 1;
 			if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
@@ -1333,8 +1333,8 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 		 * the write event timer
 		 */
 		if(c->ssl->saved_read_handler == NULL) {
-			c->ssl->saved_read_handler = c->P_EvRd->handler;
-			c->P_EvRd->handler = ngx_ssl_read_handler;
+			c->ssl->saved_read_handler = c->P_EvRd->F_EvHandler;
+			c->P_EvRd->F_EvHandler = ngx_ssl_read_handler;
 		}
 		return NGX_AGAIN;
 	}
@@ -1348,7 +1348,7 @@ ssize_t ngx_ssl_write(ngx_connection_t * c, u_char * data, size_t size)
 static void ngx_ssl_read_handler(ngx_event_t * rev)
 {
 	ngx_connection_t * c = (ngx_connection_t*)rev->P_Data;
-	c->P_EvWr->handler(c->P_EvWr);
+	c->P_EvWr->F_EvHandler(c->P_EvWr);
 }
 
 void ngx_ssl_free_buffer(ngx_connection_t * c)
@@ -1406,8 +1406,8 @@ ngx_int_t ngx_ssl_shutdown(ngx_connection_t * c)
 		return NGX_OK;
 	}
 	if(sslerr == SSL_ERROR_WANT_READ || sslerr == SSL_ERROR_WANT_WRITE) {
-		c->P_EvRd->handler = ngx_ssl_shutdown_handler;
-		c->P_EvWr->handler = ngx_ssl_shutdown_handler;
+		c->P_EvRd->F_EvHandler = ngx_ssl_shutdown_handler;
+		c->P_EvWr->F_EvHandler = ngx_ssl_shutdown_handler;
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			return NGX_ERROR;
 		}

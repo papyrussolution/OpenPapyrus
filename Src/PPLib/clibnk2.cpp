@@ -76,7 +76,7 @@ int PPCliBnkImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	SETFLAG(flags, 0x0001, DefPayerByAmtSign);
 	PPGetSubStr(params, PPCLBNKPAR_FLAGS, fld_name);
-	(params = 0).Cat(flags);
+	params.Z().Cat(flags);
 	pFile->AppendParam(pSect, fld_name, params, 1);
 	CATCHZOK
 	return ok;
@@ -946,7 +946,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 		}
 		STRNSCPY(data_buf.TaxPayerKPP, _EncodeStr(payer_req.KPP, temp_buf));
 		STRNSCPY(data_buf.TaxReceiverKPP, _EncodeStr(rcvr_req.KPP, temp_buf));
-		buf = 0;
+		buf.Z();
 		if(pPack->P_PaymOrder->PayerStatus)
 			buf.CatLongZ(pPack->P_PaymOrder->PayerStatus, 2);
 		STRNSCPY(data_buf.TaxPayerStatus, _EncodeStr(buf, temp_buf));
@@ -956,7 +956,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 		STRNSCPY(data_buf.TaxPeriod,      _EncodeStr(pPack->P_PaymOrder->Txm.Period.Format(buf), temp_buf));
 		STRNSCPY(data_buf.TaxDocNumber,   _EncodeStr(pPack->P_PaymOrder->Txm.DocNumber, temp_buf));
 		STRNSCPY(data_buf.UIN,            _EncodeStr(pPack->P_PaymOrder->Txm.UIN, temp_buf)); // @v8.0.9
-		(buf = 0).Cat(pPack->P_PaymOrder->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
+		buf.Z().Cat(pPack->P_PaymOrder->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
 			CopyTo(data_buf.TaxDocDate, sizeof(data_buf.TaxDocDate));
 		STRNSCPY(data_buf.TaxPaymType,    _EncodeStr(pPack->P_PaymOrder->Txm.PaymType, temp_buf));
 	}

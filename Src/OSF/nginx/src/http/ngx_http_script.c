@@ -718,7 +718,7 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 	}
 	rc = ngx_http_regex_exec(r, code->regex, &e->line);
 	if(rc == NGX_DECLINED) {
-		if(e->log || (r->connection->log->log_level & NGX_LOG_DEBUG_HTTP)) {
+		if(e->log || (r->connection->log->Level & NGX_LOG_DEBUG_HTTP)) {
 			ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "\"%V\" does not match \"%V\"", &code->name, &e->line);
 		}
 		r->ncaptures = 0;
@@ -747,12 +747,9 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 		e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		return;
 	}
-
-	if(e->log || (r->connection->log->log_level & NGX_LOG_DEBUG_HTTP)) {
-		ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
-		    "\"%V\" matches \"%V\"", &code->name, &e->line);
+	if(e->log || (r->connection->log->Level & NGX_LOG_DEBUG_HTTP)) {
+		ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "\"%V\" matches \"%V\"", &code->name, &e->line);
 	}
-
 	if(code->test) {
 		if(code->negative_test) {
 			e->sp->len = 0;
@@ -762,26 +759,20 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 			e->sp->len = 1;
 			e->sp->data = (u_char*)"1";
 		}
-
 		e->sp++;
-
 		e->ip += sizeof(ngx_http_script_regex_code_t);
 		return;
 	}
-
 	if(code->status) {
 		e->status = code->status;
-
 		if(!code->redirect) {
 			e->ip = ngx_http_script_exit;
 			return;
 		}
 	}
-
 	if(code->uri) {
 		r->internal = 1;
 		r->valid_unparsed_uri = 0;
-
 		if(code->break_cycle) {
 			r->valid_location = 0;
 			r->uri_changed = 0;
@@ -790,54 +781,41 @@ void ngx_http_script_regex_start_code(ngx_http_script_engine_t * e)
 			r->uri_changed = 1;
 		}
 	}
-
 	if(code->lengths == NULL) {
 		e->buf.len = code->size;
-
 		if(code->uri) {
 			if(r->ncaptures && (r->quoted_uri || r->plus_in_uri)) {
-				e->buf.len += 2 * ngx_escape_uri(NULL, r->uri.data, r->uri.len,
-				    NGX_ESCAPE_ARGS);
+				e->buf.len += 2 * ngx_escape_uri(NULL, r->uri.data, r->uri.len, NGX_ESCAPE_ARGS);
 			}
 		}
-
 		for(n = 2; n < r->ncaptures; n += 2) {
 			e->buf.len += r->captures[n + 1] - r->captures[n];
 		}
 	}
 	else {
 		memzero(&le, sizeof(ngx_http_script_engine_t));
-
 		le.ip = (u_char *)code->lengths->elts;
 		le.line = e->line;
 		le.request = r;
 		le.quote = code->redirect;
-
 		len = 0;
-
 		while(*(uintptr_t*)le.ip) {
 			lcode = *(ngx_http_script_len_code_pt*)le.ip;
 			len += lcode(&le);
 		}
-
 		e->buf.len = len;
 	}
-
 	if(code->add_args && r->args.len) {
 		e->buf.len += r->args.len + 1;
 	}
-
 	e->buf.data = (u_char *)ngx_pnalloc(r->pool, e->buf.len);
 	if(e->buf.data == NULL) {
 		e->ip = ngx_http_script_exit;
 		e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		return;
 	}
-
 	e->quote = code->redirect;
-
 	e->pos = e->buf.data;
-
 	e->ip += sizeof(ngx_http_script_regex_code_t);
 }
 
@@ -851,86 +829,61 @@ void ngx_http_script_regex_end_code(ngx_http_script_engine_t * e)
 	if(code->redirect) {
 		dst = e->buf.data;
 		src = e->buf.data;
-
-		ngx_unescape_uri(&dst, &src, e->pos - e->buf.data,
-		    NGX_UNESCAPE_REDIRECT);
-
+		ngx_unescape_uri(&dst, &src, e->pos - e->buf.data, NGX_UNESCAPE_REDIRECT);
 		if(src < e->pos) {
 			dst = ngx_movemem(dst, src, e->pos - src);
 		}
-
 		e->pos = dst;
-
 		if(code->add_args && r->args.len) {
 			*e->pos++ = (u_char)(code->args ? '&' : '?');
 			e->pos = ngx_copy(e->pos, r->args.data, r->args.len);
 		}
-
 		e->buf.len = e->pos - e->buf.data;
-
-		if(e->log || (r->connection->log->log_level & NGX_LOG_DEBUG_HTTP)) {
-			ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
-			    "rewritten redirect: \"%V\"", &e->buf);
+		if(e->log || (r->connection->log->Level & NGX_LOG_DEBUG_HTTP)) {
+			ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "rewritten redirect: \"%V\"", &e->buf);
 		}
-
 		ngx_http_clear_location(r);
-
 		r->headers_out.location = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
 		if(r->headers_out.location == NULL) {
 			e->ip = ngx_http_script_exit;
 			e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 			return;
 		}
-
 		r->headers_out.location->hash = 1;
 		ngx_str_set(&r->headers_out.location->key, "Location");
 		r->headers_out.location->value = e->buf;
-
 		e->ip += sizeof(ngx_http_script_regex_end_code_t);
 		return;
 	}
-
 	if(e->args) {
 		e->buf.len = e->args - e->buf.data;
-
 		if(code->add_args && r->args.len) {
 			*e->pos++ = '&';
 			e->pos = ngx_copy(e->pos, r->args.data, r->args.len);
 		}
-
 		r->args.len = e->pos - e->args;
 		r->args.data = e->args;
-
 		e->args = NULL;
 	}
 	else {
 		e->buf.len = e->pos - e->buf.data;
-
 		if(!code->add_args) {
 			r->args.len = 0;
 		}
 	}
-
-	if(e->log || (r->connection->log->log_level & NGX_LOG_DEBUG_HTTP)) {
-		ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0,
-		    "rewritten data: \"%V\", args: \"%V\"",
-		    &e->buf, &r->args);
+	if(e->log || (r->connection->log->Level & NGX_LOG_DEBUG_HTTP)) {
+		ngx_log_error(NGX_LOG_NOTICE, r->connection->log, 0, "rewritten data: \"%V\", args: \"%V\"", &e->buf, &r->args);
 	}
-
 	if(code->uri) {
 		r->uri = e->buf;
-
 		if(r->uri.len == 0) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "the rewritten URI has a zero length");
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "the rewritten URI has a zero length");
 			e->ip = ngx_http_script_exit;
 			e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 			return;
 		}
-
 		ngx_http_set_exten(r);
 	}
-
 	e->ip += sizeof(ngx_http_script_regex_end_code_t);
 }
 
@@ -959,33 +912,20 @@ size_t ngx_http_script_copy_capture_len_code(ngx_http_script_engine_t * e)
 	int  * cap;
 	u_char * p;
 	ngx_uint_t n;
-	ngx_http_request_t * r;
-	ngx_http_script_copy_capture_code_t  * code;
-
-	r = e->request;
-
-	code = (ngx_http_script_copy_capture_code_t*)e->ip;
-
+	ngx_http_request_t * r = e->request;
+	ngx_http_script_copy_capture_code_t * code = (ngx_http_script_copy_capture_code_t*)e->ip;
 	e->ip += sizeof(ngx_http_script_copy_capture_code_t);
-
 	n = code->n;
-
 	if(n < r->ncaptures) {
 		cap = r->captures;
-
-		if((e->is_args || e->quote)
-		    && (e->request->quoted_uri || e->request->plus_in_uri)) {
+		if((e->is_args || e->quote) && (e->request->quoted_uri || e->request->plus_in_uri)) {
 			p = r->captures_data;
-
-			return cap[n + 1] - cap[n]
-			       + 2 * ngx_escape_uri(NULL, &p[cap[n]], cap[n + 1] - cap[n],
-			    NGX_ESCAPE_ARGS);
+			return cap[n + 1] - cap[n] + 2 * ngx_escape_uri(NULL, &p[cap[n]], cap[n + 1] - cap[n], NGX_ESCAPE_ARGS);
 		}
 		else {
 			return cap[n + 1] - cap[n];
 		}
 	}
-
 	return 0;
 }
 
@@ -994,36 +934,22 @@ void ngx_http_script_copy_capture_code(ngx_http_script_engine_t * e)
 	int  * cap;
 	u_char * p, * pos;
 	ngx_uint_t n;
-	ngx_http_request_t * r;
-	ngx_http_script_copy_capture_code_t  * code;
-
-	r = e->request;
-
-	code = (ngx_http_script_copy_capture_code_t*)e->ip;
-
+	ngx_http_request_t * r = e->request;
+	ngx_http_script_copy_capture_code_t  * code = (ngx_http_script_copy_capture_code_t*)e->ip;
 	e->ip += sizeof(ngx_http_script_copy_capture_code_t);
-
 	n = code->n;
-
 	pos = e->pos;
-
 	if(n < r->ncaptures) {
 		cap = r->captures;
 		p = r->captures_data;
-
-		if((e->is_args || e->quote)
-		    && (e->request->quoted_uri || e->request->plus_in_uri)) {
-			e->pos = (u_char*)ngx_escape_uri(pos, &p[cap[n]],
-			    cap[n + 1] - cap[n],
-			    NGX_ESCAPE_ARGS);
+		if((e->is_args || e->quote) && (e->request->quoted_uri || e->request->plus_in_uri)) {
+			e->pos = (u_char*)ngx_escape_uri(pos, &p[cap[n]], cap[n + 1] - cap[n], NGX_ESCAPE_ARGS);
 		}
 		else {
 			e->pos = ngx_copy(pos, &p[cap[n]], cap[n + 1] - cap[n]);
 		}
 	}
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, e->request->connection->log, 0,
-	    "http script capture: \"%*s\"", e->pos - pos, pos);
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, e->request->connection->log, 0, "http script capture: \"%*s\"", e->pos - pos, pos);
 }
 
 #endif
@@ -1072,27 +998,19 @@ static void ngx_http_script_full_name_code(ngx_http_script_engine_t * e)
 
 void ngx_http_script_return_code(ngx_http_script_engine_t * e)
 {
-	ngx_http_script_return_code_t  * code;
-
-	code = (ngx_http_script_return_code_t*)e->ip;
-
-	if(code->status < NGX_HTTP_BAD_REQUEST
-	    || code->text.value.len
-	    || code->text.lengths) {
-		e->status = ngx_http_send_response(e->request, code->status, NULL,
-		    &code->text);
+	ngx_http_script_return_code_t  * code = (ngx_http_script_return_code_t*)e->ip;
+	if(code->status < NGX_HTTP_BAD_REQUEST || code->text.value.len || code->text.lengths) {
+		e->status = ngx_http_send_response(e->request, code->status, NULL, &code->text);
 	}
 	else {
 		e->status = code->status;
 	}
-
 	e->ip = ngx_http_script_exit;
 }
 
 void ngx_http_script_break_code(ngx_http_script_engine_t * e)
 {
 	e->request->uri_changed = 0;
-
 	e->ip = ngx_http_script_exit;
 }
 

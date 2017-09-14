@@ -126,7 +126,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 				goto err;
 			if((ret = __os_write(env, fhp, mbuf, 256, &n)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 7:
 			//
 			// We need the page size to do more.  Rip it out of the meta-data page.
@@ -134,11 +134,11 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			memcpy(&dbp->pgsize, mbuf+20, sizeof(uint32));
 			if((ret = __db_page_pass(dbp, real_name, flags, func_31_list, fhp)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 8:
 			if((ret = __db_set_lastpgno(dbp, real_name, fhp)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 9:
 			break;
 		    default:
@@ -178,7 +178,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			 */
 			if((ret = __ham_30_sizefix(dbp, fhp, real_name, mbuf)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 6:
 			/*
 			 * We need the page size to do more.  Rip it out of
@@ -187,11 +187,11 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			memcpy(&dbp->pgsize, mbuf+20, sizeof(uint32));
 			if((ret = __db_page_pass(dbp, real_name, flags, func_31_list, fhp)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 7:
 			if((ret = __db_set_lastpgno(dbp, real_name, fhp)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 8:
 			/*
 			 * Any upgrade that has proceeded this far has metadata
@@ -249,7 +249,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			/* Do the actual conversion pass. */
 			if((ret = __db_page_pass(dbp, real_name, flags, func_46_list, fhp)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 9:
 			break;
 		    default:
@@ -268,7 +268,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 			 */
 			if((ret = __qam_31_qammeta(dbp, real_name, mbuf)) != 0)
 				return ret;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 2:
 			if((ret = __qam_32_qammeta(dbp, real_name, mbuf)) != 0)
 				return ret;
@@ -276,7 +276,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 				goto err;
 			if((ret = __os_write(env, fhp, mbuf, 256, &n)) != 0)
 				goto err;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case 3:
 		    case 4:
 			break;

@@ -528,11 +528,11 @@ static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 buck
 		pgno = next_pgno;
 	}
 err:
-	if(cc != NULL && ((t_ret = __db_vrfy_ccclose(cc)) != 0) && ret == 0)
+	if(cc && ((t_ret = __db_vrfy_ccclose(cc)) != 0) && ret == 0)
 		ret = t_ret;
-	if(mip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, mip)) != 0) && ret == 0)
+	if(mip && ((t_ret = __db_vrfy_putpageinfo(env, vdp, mip)) != 0) && ret == 0)
 		ret = t_ret;
-	if(pip != NULL && ((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0) && ret == 0)
+	if(pip && ((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0) && ret == 0)
 		ret = t_ret;
 	return (ret == 0 && isbad == 1) ? DB_VERIFY_BAD : ret;
 }
@@ -666,7 +666,7 @@ keydata:
 				if((ret = __db_safe_goff(dbp, vdp, dpgno, &dbt, &buf, &ovfl_bufsz, flags)) != 0) {
 					err_ret = ret;
 					__db_vrfy_prdbt(&unkdbt, 0, " ", handle, callback, 0, 0, vdp);
-					/* fallthrough to end of case */
+					// fallthrough to end of case 
 				}
 				else if((ret = __db_vrfy_prdbt(&dbt, 0, " ", handle, callback, 0, 0, vdp)) != 0)
 					err_ret = ret;

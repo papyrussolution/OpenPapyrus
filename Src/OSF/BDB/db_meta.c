@@ -1032,7 +1032,7 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 			couple[0].mode = DB_LOCK_WWRITE;
 			UMRW_SET(couple[0].timeout);
 			i++;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case LCK_COUPLE:
 do_couple:
 			couple[i].op = has_timeout ? DB_LOCK_GET_TIMEOUT : DB_LOCK_GET;

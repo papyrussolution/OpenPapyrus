@@ -1274,7 +1274,7 @@ static int __ham_chgpg_recover_func(DBC * cp, DBC * my_dbc, uint32 * countp, db_
 		 */
 		if(F_ISSET(lcp, H_DELETED))
 			break;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_HAM_SPLIT:
 		if(lcp->pgno == argp->new_pgno && lcp->indx == argp->new_indx && !MVCC_SKIP_CURADJ(cp, lcp->pgno)) {
 			lcp->indx = argp->old_indx;

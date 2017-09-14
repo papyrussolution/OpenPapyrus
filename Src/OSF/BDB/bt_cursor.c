@@ -1782,7 +1782,7 @@ split:
 	    case DB_CURRENT:
 		if(F_ISSET(cp, C_DELETED))
 			return DB_NOTFOUND;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_AFTER:
 	    case DB_BEFORE:
 		iiop = flags;

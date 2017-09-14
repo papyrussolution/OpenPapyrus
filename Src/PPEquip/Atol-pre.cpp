@@ -388,7 +388,7 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 			THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
 			THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_ADDINNERSCHEMES, f_str));
 			THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
-			(f_str = 0).Cat(ATOL_INNER_SCHEME).Semicol();             // #1 - код схемы внутренней авт.скидки
+			f_str.Z().Cat(ATOL_INNER_SCHEME).Semicol();             // #1 - код схемы внутренней авт.скидки
 			// @v9.0.2 PPGetWord(PPWORD_CARD, 0, temp);
 			PPLoadString("card", temp); // @9.0.2
 			f_str.Cat(temp.Transf(CTRANSF_INNER_TO_OUTER)).CatCharN(';', 2); // #2 - наименование схемы, #3 - не используетс€ //
@@ -410,15 +410,15 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 					s_crd_obj.SetInheritance(&scs_pack, &card_rec);
 					if(card_rec.PDis && !(card_rec.Flags & SCRDF_CLOSED) && !(card_rec.Expiry && card_rec.Expiry < LConfig.OperDate)) {
 						int  i;
-						(f_str = 0).Cat(ATOL_INNER_SCHEME).Semicol(); // #1 - код схемы внутренней авт.скидки
+						f_str.Z().Cat(ATOL_INNER_SCHEME).Semicol(); // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(++dscnt_code).Semicol();      // #2 - код скидки
 						f_str.Cat(card_rec.Code).Semicol();     // #3 - наименование скидки (код карты)
 						f_str.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp)).CatChar(' ');
-						(temp = 0).Cat(fdiv100i(card_rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ));
+						temp.Z().Cat(fdiv100i(card_rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ));
 						f_str.Cat(temp).CatChar('%').Semicol(); // #4 - текст дл€ чека
 						f_str.CatChar('0').Semicol();           // #5 - тип скидки (0 - процентна€)
 						f_str.Cat(temp).Semicol();              // #6 - значение скидки
-						(temp = 0).CatCharN(';', 2).CatChar('0').Semicol();
+						temp.Z().CatCharN(';', 2).CatChar('0').Semicol();
 						// #7 - #24 - не используем
 						for(i = 0; i < 6; i++)
 							f_str.Cat(temp);
@@ -494,11 +494,11 @@ int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
 						if(psn_obj.Search(card_rec.PersonID, &psn_rec) > 0)
 							(buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 						else
-							buf = 0;
+							buf.Z();
 						THROW(ac_intrf.ACPut(2, buf));              // ¬ладелец карты
-						(buf = 0).CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+						buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						THROW(ac_intrf.ACPut(5, buf));              //  од дисконтной карты
-						(buf = 0).Cat(card_rec.Dt, DATF_GERMAN | DATF_CENTURY);
+						buf.Z().Cat(card_rec.Dt, DATF_GERMAN | DATF_CENTURY);
 						THROW(ac_intrf.ACPut(6, buf));              // ƒата выпуска карты
 						THROW(ac_intrf.ACInsert(&card_id));
 						if(last_cat_code != cat_code) {
@@ -506,7 +506,7 @@ int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
 								THROW(ac_intrf.ACCloseTable());
 								THROW(ac_intrf.ACOpenTable(cat_tbl_name));
 								THROW(ac_intrf.ACNewRecord());
-								(buf = 0).Printf(scardcat_fmt_buf, fdiv100i(card_rec.PDis));
+								buf.Z().Printf(scardcat_fmt_buf, fdiv100i(card_rec.PDis));
 								THROW(ac_intrf.ACPut(1, buf));      // Ќаименование категории карты
 								THROW(ac_intrf.ACPut(2, cat_code)); //  од категории карты
 								THROW(ac_intrf.ACInsert(&last_cat_id));
@@ -948,11 +948,11 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					gds_pack.destroy();
 					gds_pack.Rec.Kind = PPGDSK_GOODS;
 					gds_pack.Rec.ParentID = grp_id;
-					(buf = 0).CatEq("ID", goods_id);
+					buf.Z().CatEq("ID", goods_id);
 					buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 					STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
 					MEMSZERO(bc_rec);
-					(buf = 0).CatChar('$').Cat(goods_id);
+					buf.Z().CatChar('$').Cat(goods_id);
 					buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 					bc_rec.Qtty = 1.0;
 					bc_rec.BarcodeType = -1;
@@ -1044,7 +1044,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 			gfile.Open(buf, SFile::mWrite);
 			THROW(gfile.IsValid());
 			for(pos = 0; pos < new_goods.getCount(); pos++) {
-				(buf = 0).Cat(new_goods.at(pos)).CR();
+				buf.Z().Cat(new_goods.at(pos)).CR();
 				gfile.WriteLine(buf);
 			}
 			buf = gfile.GetName();
@@ -1134,7 +1134,7 @@ int SLAPI ACS_ATOL::ImportSession(int)
 				THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_TRANSBYDTTM, buf));
 				query_file.WriteLine(buf.CR());
 				decodedate(&d, &m, &y, &first_date);
-				(buf = 0).Printf(date_mask, d, m, y).Semicol();
+				buf.Z().Printf(date_mask, d, m, y).Semicol();
 				decodedate(&d, &m, &y, &last_date);
 				buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR();
 				query_file.WriteLine(buf);

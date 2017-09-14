@@ -324,13 +324,13 @@ retry:
 		 */
 		if(!F_ISSET(dbc, DBC_OPD))
 			return DB_NOTFOUND;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_NEXT_NODUP:
 	    /*
 	     * Recno databases don't have duplicates, set flags to DB_NEXT
 	     * and keep going.
 	     */
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_NEXT:
 		flags = DB_NEXT;
 		/*
@@ -349,7 +349,7 @@ retry:
 			++cp->recno;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_FIRST:
 		flags = DB_NEXT;
 		cp->recno = 1;
@@ -363,13 +363,13 @@ retry:
 		 */
 		if(!F_ISSET(dbc, DBC_OPD))
 			return DB_NOTFOUND;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_PREV_NODUP:
 	    /*
 	     * Recno databases don't have duplicates, set flags to DB_PREV
 	     * and keep going.
 	     */
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_PREV:
 		flags = DB_PREV;
 		if(cp->recno != RECNO_OOB) {
@@ -380,7 +380,7 @@ retry:
 			--cp->recno;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_LAST:
 		flags = DB_PREV;
 		if(((ret = __ram_update(dbc, DB_MAX_RECORDS, 0)) != 0) && ret != DB_NOTFOUND)
@@ -421,7 +421,7 @@ retry:
 			cp->recno = 1;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_SET:
 	    case DB_SET_RANGE:
 		if((ret = __ram_getno(dbc, key, &cp->recno, 0)) != 0)
@@ -729,7 +729,7 @@ static int __ram_ca_setorder(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 			CD_CLR(cp);
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case CA_IAFTER:
 iafter:
 		if(!adjusted && C_LESSTHAN(cp_arg, cp)) {

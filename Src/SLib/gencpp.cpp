@@ -38,19 +38,19 @@ int Generator_CPP::Wr_Include(const char * pFileName, int quot)
 
 int Generator_CPP::Wr_Define(const char * pMacro, const char * pVal)
 {
-	(TempBuf = 0).CatChar('#').Cat("define").Space().Cat(pMacro).Space().Cat(pVal).CR();
+	TempBuf.Z().CatChar('#').Cat("define").Space().Cat(pMacro).Space().Cat(pVal).CR();
 	return WriteLine(TempBuf);
 }
 
 int Generator_CPP::Wr_IfDef(const char * pSymb, int _ifndef /*=0*/)
 {
-	(TempBuf = 0).CatChar('#').Cat(_ifndef ? "ifndef" : "ifdef").Space().Cat(pSymb).CR();
+	TempBuf.Z().CatChar('#').Cat(_ifndef ? "ifndef" : "ifdef").Space().Cat(pSymb).CR();
 	return WriteLine(TempBuf);
 }
 
 int Generator_CPP::Wr_EndIf(const char * pSymb)
 {
-	(TempBuf = 0).CatChar('#').Cat("endif");
+	TempBuf.Z().CatChar('#').Cat("endif");
 	if(pSymb && pSymb[0])
 		TempBuf.Space().CatCharN('/', 2).Space().Cat(pSymb);
 	TempBuf.CR();

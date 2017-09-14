@@ -788,7 +788,7 @@ int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 											else if(oneof4(sd_entry.GcClsf, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW)) {
 												double val = 0.0;
 												gc_pack.GetExtDim(&goods_ext_rec, sd_entry.GcClsf, &val);
-												(ext_sd_text = 0).Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+												ext_sd_text.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 											}
 										}
 										break;

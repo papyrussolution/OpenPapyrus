@@ -192,31 +192,22 @@ static void ngx_mail_ssl_handshake_handler(ngx_connection_t * c)
 {
 	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
-
 	if(c->ssl->handshaked) {
 		s = (ngx_mail_session_t *)c->data;
-
 		if(ngx_mail_verify_cert(s, c) != NGX_OK) {
 			return;
 		}
-
 		if(s->starttls) {
 			cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
-			c->P_EvRd->handler = cscf->protocol->init_protocol;
-			c->P_EvWr->handler = ngx_mail_send;
-
+			c->P_EvRd->F_EvHandler = cscf->protocol->init_protocol;
+			c->P_EvWr->F_EvHandler = ngx_mail_send;
 			cscf->protocol->init_protocol(c->P_EvRd);
-
 			return;
 		}
-
 		c->P_EvRd->ready = 0;
-
 		ngx_mail_init_session(c);
 		return;
 	}
-
 	ngx_mail_close_connection(c);
 }
 
@@ -226,59 +217,36 @@ static ngx_int_t ngx_mail_verify_cert(ngx_mail_session_t * s, ngx_connection_t *
 	X509  * cert;
 	ngx_mail_ssl_conf_t  * sslcf;
 	ngx_mail_core_srv_conf_t  * cscf;
-
 	sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
-
 	if(!sslcf->verify) {
 		return NGX_OK;
 	}
-
 	rc = SSL_get_verify_result(c->ssl->connection);
-
-	if(rc != X509_V_OK
-	    && (sslcf->verify != 3 || !ngx_ssl_verify_error_optional(rc))) {
-		ngx_log_error(NGX_LOG_INFO, c->log, 0,
-		    "client SSL certificate verify error: (%l:%s)",
-		    rc, X509_verify_cert_error_string(rc));
-
-		ngx_ssl_remove_cached_session(sslcf->ssl.ctx,
-		    (SSL_get0_session(c->ssl->connection)));
-
+	if(rc != X509_V_OK && (sslcf->verify != 3 || !ngx_ssl_verify_error_optional(rc))) {
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client SSL certificate verify error: (%l:%s)", rc, X509_verify_cert_error_string(rc));
+		ngx_ssl_remove_cached_session(sslcf->ssl.ctx, (SSL_get0_session(c->ssl->connection)));
 		cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 		s->out = cscf->protocol->cert_error;
 		s->quit = 1;
-
-		c->P_EvWr->handler = ngx_mail_send;
-
+		c->P_EvWr->F_EvHandler = ngx_mail_send;
 		ngx_mail_send(s->connection->P_EvWr);
 		return NGX_ERROR;
 	}
 
 	if(sslcf->verify == 1) {
 		cert = SSL_get_peer_certificate(c->ssl->connection);
-
 		if(cert == NULL) {
-			ngx_log_error(NGX_LOG_INFO, c->log, 0,
-			    "client sent no required SSL certificate");
-
-			ngx_ssl_remove_cached_session(sslcf->ssl.ctx,
-			    (SSL_get0_session(c->ssl->connection)));
-
+			ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent no required SSL certificate");
+			ngx_ssl_remove_cached_session(sslcf->ssl.ctx, (SSL_get0_session(c->ssl->connection)));
 			cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 			s->out = cscf->protocol->no_cert;
 			s->quit = 1;
-
-			c->P_EvWr->handler = ngx_mail_send;
-
+			c->P_EvWr->F_EvHandler = ngx_mail_send;
 			ngx_mail_send(s->connection->P_EvWr);
 			return NGX_ERROR;
 		}
-
 		X509_free(cert);
 	}
-
 	return NGX_OK;
 }
 
@@ -288,36 +256,25 @@ static void ngx_mail_init_session(ngx_connection_t * c)
 {
 	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
-
 	s = (ngx_mail_session_t *)c->data;
-
 	cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 	s->protocol = cscf->protocol->type;
-
 	s->ctx = (void **)ngx_pcalloc(c->pool, sizeof(void *) * ngx_mail_max_module);
 	if(s->ctx == NULL) {
 		ngx_mail_session_internal_server_error(s);
 		return;
 	}
-
-	c->P_EvWr->handler = ngx_mail_send;
-
+	c->P_EvWr->F_EvHandler = ngx_mail_send;
 	cscf->protocol->init_session(s, c);
 }
 
-ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c,
-    ngx_mail_core_srv_conf_t * cscf)
+ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_core_srv_conf_t * cscf)
 {
 	s->salt.data = (u_char*)ngx_pnalloc(c->pool, sizeof(" <18446744073709551616.@>" CRLF) - 1 + NGX_TIME_T_LEN + cscf->server_name.len);
 	if(s->salt.data == NULL) {
 		return NGX_ERROR;
 	}
-
-	s->salt.len = ngx_sprintf(s->salt.data, "<%ul.%T@%V>" CRLF,
-	    ngx_random(), ngx_time(), &cscf->server_name)
-	    - s->salt.data;
-
+	s->salt.len = ngx_sprintf(s->salt.data, "<%ul.%T@%V>" CRLF, ngx_random(), ngx_time(), &cscf->server_name) - s->salt.data;
 	return NGX_OK;
 }
 
@@ -326,17 +283,13 @@ ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c,
 ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	ngx_mail_ssl_conf_t  * sslcf;
-
 	if(c->ssl) {
 		return 0;
 	}
-
 	sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
-
 	if(sslcf->starttls == NGX_MAIL_STARTTLS_ONLY) {
 		return 1;
 	}
-
 	return 0;
 }
 
@@ -547,40 +500,29 @@ void ngx_mail_send(ngx_event_t * wev)
 	if(n > 0) {
 		s->out.data += n;
 		s->out.len -= n;
-
 		if(s->out.len != 0) {
 			goto again;
 		}
-
 		if(wev->timer_set) {
 			ngx_del_timer(wev);
 		}
-
 		if(s->quit) {
 			ngx_mail_close_connection(c);
 			return;
 		}
-
 		if(s->blocked) {
-			c->P_EvRd->handler(c->P_EvRd);
+			c->P_EvRd->F_EvHandler(c->P_EvRd);
 		}
-
 		return;
 	}
-
 	if(n == NGX_ERROR) {
 		ngx_mail_close_connection(c);
 		return;
 	}
-
 	/* n == NGX_AGAIN */
-
 again:
-
 	cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 	ngx_add_timer(c->P_EvWr, cscf->timeout);
-
 	if(ngx_handle_write_event(c->P_EvWr, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
 		return;
@@ -593,18 +535,14 @@ ngx_int_t ngx_mail_read_command(ngx_mail_session_t * s, ngx_connection_t * c)
 	ngx_int_t rc;
 	ngx_str_t l;
 	ngx_mail_core_srv_conf_t  * cscf;
-
 	n = c->recv(c, s->buffer->last, s->buffer->end - s->buffer->last);
-
 	if(n == NGX_ERROR || n == 0) {
 		ngx_mail_close_connection(c);
 		return NGX_ERROR;
 	}
-
 	if(n > 0) {
 		s->buffer->last += n;
 	}
-
 	if(n == NGX_AGAIN) {
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			ngx_mail_session_internal_server_error(s);

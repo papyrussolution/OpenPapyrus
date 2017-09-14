@@ -461,7 +461,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_for_pattern(cairo_xcb_surface_t * 
 					break;
 			    }
 		    }
-		/* fallthrough */
+		// @fallthrough
 		case CAIRO_PATTERN_TYPE_LINEAR:
 		case CAIRO_PATTERN_TYPE_RADIAL:
 		case CAIRO_PATTERN_TYPE_MESH:

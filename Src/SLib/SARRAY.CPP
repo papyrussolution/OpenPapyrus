@@ -75,7 +75,8 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 		uint   new_limit = ((new_count + (_delta - 1)) / _delta) * _delta;
 		void * ptr = SAlloc::R(data, new_limit * _is);
 		if(ptr) {
-			data  = (uint8 *)ptr;
+			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is); // @v9.8.1
+			data = (uint8 *)ptr;
 			Limit = new_limit;
 		}
 		else
@@ -4022,8 +4023,8 @@ int SLAPI TestSTree()
 			sa_list.Get(id, text_buf = 0);
 			sa_list.GetParent(id, &parent_id_sa);
 
-			f_tree.WriteLine((out_buf = 0).Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());
-			f_sa.WriteLine((out_buf = 0).Cat(id).CatDiv(';', 2).Cat(parent_id_sa).CatDiv(';', 2).Cat(text_buf).CR());
+			f_tree.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());
+			f_sa.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_sa).CatDiv(';', 2).Cat(text_buf).CR());
 		}
 
 	}

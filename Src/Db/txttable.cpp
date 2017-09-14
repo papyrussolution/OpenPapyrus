@@ -14,7 +14,7 @@ TextDbFile::Param::Param(long flags, const char * pFldDiv, const char * pVertRec
 	Flags = flags;
 	FldDiv = pFldDiv;
 	if(FldDiv.Cmp("\\t", 0) == 0 || FldDiv.Cmp("tab", 0) == 0)
-		(FldDiv = 0).Tab();
+		FldDiv.Z().Tab();
 	if(FldDiv.Strip().Empty())
 		FldDiv.Semicol();
 	VertRecTerm = pVertRecTerm;
@@ -101,7 +101,7 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 	if(pParam) {
 		P = *pParam;
 		if(P.FldDiv.Cmp("\\t", 0) == 0 || P.FldDiv.Cmp("tab", 0) == 0)
-			(P.FldDiv = 0).Tab();
+			P.FldDiv.Z().Tab();
 	}
 	EndPos = 0;
 	CurRec = -1;
@@ -293,13 +293,13 @@ int TextDbFile::GoToRecord(ulong recNo, int rel)
 	return ok;
 }
 
-int TextDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf)
+void TextDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf)
 {
 	SFormatParam fp;
 	fp.FDate = P.DateFormat;
 	fp.FTime = P.TimeFormat;
 	SETFLAG(fp.Flags, SFormatParam::fQuotText, P.Flags & fQuotText);
-	return rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
+	rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
 }
 
 int TextDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
@@ -340,13 +340,13 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				if(P.Flags & fFldEqVal) {
 					if(line.Divide('=', fn, fv) > 0) {
 						if(rRec.GetFieldByName(fn, &fld) > 0) {
-							THROW(PutFieldDataToBuf(fld, fv, pDataBuf));
+							PutFieldDataToBuf(fld, fv, pDataBuf);
 						}
 					}
 				}
 				else {
 					if(rRec.GetFieldByPos(fld_pos, &fld) > 0) {
-						THROW(PutFieldDataToBuf(fld, line, pDataBuf));
+						PutFieldDataToBuf(fld, line, pDataBuf);
 					}
 				}
 			}
@@ -374,7 +374,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 							// случаи, когда лидирующие и хвостовые пробелы могут быть полезны
 							// припомнить не смог, в то время как вред от них очевиден.
 						offs += SFMTLEN(fld.OuterFormat);
-						THROW(PutFieldDataToBuf(fld, field_buf, pDataBuf));
+						PutFieldDataToBuf(fld, field_buf, pDataBuf);
 					}
 				}
 			}
@@ -385,11 +385,11 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				for(uint p = 0, fld_pos = 0, fn_pos = 0; ss.get(&p, field_buf) > 0; fld_pos++) {
 					if(P.Flags & fFldNameRec) {
 						if(FldNames.get(&fn_pos, fn) && rRec.GetFieldByName(fn, &fld) > 0) {
-							THROW(PutFieldDataToBuf(fld, field_buf, pDataBuf));
+							PutFieldDataToBuf(fld, field_buf, pDataBuf);
 						}
 					}
 					else if(rRec.GetFieldByPos(fld_pos, &fld) > 0) {
-						THROW(PutFieldDataToBuf(fld, field_buf, pDataBuf));
+						PutFieldDataToBuf(fld, field_buf, pDataBuf);
 					}
 				}
 			}
@@ -449,7 +449,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;
 				else
-					(line = 0).CatEq(fld.Name, field_buf);
+					line.Z().CatEq(fld.Name, field_buf);
 			}
 			else
 				line = field_buf;
@@ -525,7 +525,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;
 				else
-					(line = 0).CatEq(fld.Name, field_buf);
+					line.Z().CatEq(fld.Name, field_buf);
 			}
 			else
 				line = field_buf;

@@ -10687,7 +10687,7 @@ private:
 #if SLTRACELOCKSTACK
 	#define SRWLOCKER(lck, typ)            SReadWriteLocker SRWLOCKERVAR__((lck), (typ), -1, __FILE__, __LINE__)
 	#define SRWLOCKERTIMEOUT(lck, typ, to) SReadWriteLocker SRWLOCKERVAR__((lck), (typ), (to), __FILE__, __LINE__)
-	#define SRWLOCKER_TOGGLE(typ)          SRWLOCKERVAR__.Toggle((typ), __FILE__, __LINE__)	
+	#define SRWLOCKER_TOGGLE(typ)          SRWLOCKERVAR__.Toggle((typ), __FILE__, __LINE__)
 #else
 	#define SRWLOCKER(lck, typ)            SReadWriteLocker SRWLOCKERVAR__((lck), (typ))
 	#define SRWLOCKERTIMEOUT(lck, typ, to) SReadWriteLocker SRWLOCKERVAR__((lck), (typ), (to))
@@ -11067,7 +11067,7 @@ public:
 	int    SLAPI InitSSL();
 	//
 	// Descr: Инициализирует новый поток. Функция должна быть вызвана
-	//   при создании основного потока. Каждый новый поток так же должен вызвать 
+	//   при создании основного потока. Каждый новый поток так же должен вызвать
 	//   эту функцию.
 	// Returns: Указатель на локальную область данных потока SlThreadLocaArea.
 	// Attention: Ни в коем случае нельзя менять никаких данных по этому указателю

@@ -6194,7 +6194,7 @@ int SLAPI PPObjWorkbook_Pre813::GetItemPath(PPID itemID, SString & rPath)
 		for(PPID id = itemID; id && Search(id, &rec) > 0; id = rec.ParentID) {
 			temp_buf = rPath;
 			if(temp_buf.NotEmptyS()) {
-				(rPath = 0).Cat(rec.Name).CatDiv('>', 1).Cat(temp_buf);
+				rPath.Z().Cat(rec.Name).CatDiv('>', 1).Cat(temp_buf);
 			}
 			else {
 				rPath = rec.Name;

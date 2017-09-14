@@ -14,57 +14,56 @@ static void ngx_drain_connections(ngx_cycle_t * cycle);
 ngx_listening_t * ngx_create_listening(ngx_conf_t * cf, struct sockaddr * sockaddr, socklen_t socklen)
 {
 	size_t len;
-	struct sockaddr  * sa;
+	struct sockaddr * sa;
 	u_char text[NGX_SOCKADDR_STRLEN];
-	ngx_listening_t  * ls = (ngx_listening_t *)ngx_array_push(&cf->cycle->listening);
-	if(ls == NULL) {
-		return NULL;
-	}
-	memzero(ls, sizeof(ngx_listening_t));
-	sa = (struct sockaddr *)ngx_palloc(cf->pool, socklen);
-	if(sa == NULL) {
-		return NULL;
-	}
-	memcpy(sa, sockaddr, socklen);
-	ls->sockaddr = sa;
-	ls->socklen = socklen;
-	len = ngx_sock_ntop(sa, socklen, text, NGX_SOCKADDR_STRLEN, 1);
-	ls->addr_text.len = len;
-	switch(ls->sockaddr->sa_family) {
+	ngx_listening_t * ls = (ngx_listening_t *)ngx_array_push(&cf->cycle->listening);
+	if(ls) {
+		memzero(ls, sizeof(ngx_listening_t));
+		sa = (struct sockaddr *)ngx_palloc(cf->pool, socklen);
+		if(sa == NULL) {
+			return NULL;
+		}
+		memcpy(sa, sockaddr, socklen);
+		ls->sockaddr = sa;
+		ls->socklen = socklen;
+		len = ngx_sock_ntop(sa, socklen, text, NGX_SOCKADDR_STRLEN, 1);
+		ls->addr_text.len = len;
+		switch(ls->sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
-		case AF_INET6:
-		    ls->addr_text_max_len = NGX_INET6_ADDRSTRLEN;
-		    break;
+			case AF_INET6:
+				ls->addr_text_max_len = NGX_INET6_ADDRSTRLEN;
+				break;
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
-		case AF_UNIX:
-		    ls->addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
-		    len++;
-		    break;
+			case AF_UNIX:
+				ls->addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
+				len++;
+				break;
 #endif
-		case AF_INET:
-		    ls->addr_text_max_len = NGX_INET_ADDRSTRLEN;
-		    break;
-		default:
-		    ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
-		    break;
-	}
-	ls->addr_text.data = (u_char *)ngx_pnalloc(cf->pool, len);
-	if(ls->addr_text.data == NULL) {
-		return NULL;
-	}
-	memcpy(ls->addr_text.data, text, len);
-	ls->fd = (ngx_socket_t)-1;
-	ls->type = SOCK_STREAM;
-	ls->backlog = NGX_LISTEN_BACKLOG;
-	ls->rcvbuf = -1;
-	ls->sndbuf = -1;
+			case AF_INET:
+				ls->addr_text_max_len = NGX_INET_ADDRSTRLEN;
+				break;
+			default:
+				ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
+				break;
+		}
+		ls->addr_text.data = (u_char *)ngx_pnalloc(cf->pool, len);
+		if(ls->addr_text.data == NULL) {
+			return NULL;
+		}
+		memcpy(ls->addr_text.data, text, len);
+		ls->fd = (ngx_socket_t)-1;
+		ls->type = SOCK_STREAM;
+		ls->backlog = NGX_LISTEN_BACKLOG;
+		ls->rcvbuf = -1;
+		ls->sndbuf = -1;
 #if (NGX_HAVE_SETFIB)
-	ls->setfib = -1;
+		ls->setfib = -1;
 #endif
 #if (NGX_HAVE_TCP_FASTOPEN)
-	ls->fastopen = -1;
+		ls->fastopen = -1;
 #endif
+	}
 	return ls;
 }
 
@@ -568,15 +567,12 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 
 void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 {
-	ngx_uint_t i;
-	ngx_listening_t * ls;
-	ngx_connection_t * c;
 	if(!(ngx_event_flags & NGX_USE_IOCP_EVENT)) {
 		ngx_accept_mutex_held = 0;
 		ngx_use_accept_mutex = 0;
-		ls = (ngx_listening_t *)cycle->listening.elts;
-		for(i = 0; i < cycle->listening.nelts; i++) {
-			c = ls[i].connection;
+		ngx_listening_t * ls = (ngx_listening_t *)cycle->listening.elts;
+		for(ngx_uint_t i = 0; i < cycle->listening.nelts; i++) {
+			ngx_connection_t * c = ls[i].connection;
 			if(c) {
 				if(c->P_EvRd->active) {
 					if(ngx_event_flags & NGX_USE_EPOLL_EVENT) {
@@ -614,7 +610,6 @@ void ngx_close_listening_sockets(ngx_cycle_t * cycle)
 
 ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 {
-	ngx_uint_t instance;
 	ngx_connection_t * c = 0;
 	// disable warning: Win32 SOCKET is u_int while UNIX socket is int 
 	if(ngx_cycle->files && (ngx_uint_t)s >= ngx_cycle->files_n) {
@@ -635,29 +630,33 @@ ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 			if(ngx_cycle->files && ngx_cycle->files[s] == NULL) {
 				ngx_cycle->files[s] = c;
 			}
-			ngx_event_t * rev = c->P_EvRd;
-			ngx_event_t * wev = c->P_EvWr;
-			memzero(c, sizeof(ngx_connection_t));
-			c->P_EvRd = rev;
-			c->P_EvWr = wev;
-			c->fd = s;
-			c->log = log;
-			instance = rev->instance;
-			memzero(rev, sizeof(ngx_event_t));
-			memzero(wev, sizeof(ngx_event_t));
-			rev->instance = !instance;
-			wev->instance = !instance;
-			rev->index = NGX_INVALID_INDEX;
-			wev->index = NGX_INVALID_INDEX;
-			rev->P_Data = c;
-			wev->P_Data = c;
-			wev->write = 1;
+			{
+				ngx_event_t * rev = c->P_EvRd;
+				ngx_event_t * wev = c->P_EvWr;
+				memzero(c, sizeof(ngx_connection_t));
+				c->P_EvRd = rev;
+				c->P_EvWr = wev;
+				c->fd = s;
+				c->log = log;
+				{
+					const ngx_uint_t instance = rev->instance;
+					memzero(rev, sizeof(ngx_event_t));
+					memzero(wev, sizeof(ngx_event_t));
+					rev->instance = !instance;
+					wev->instance = !instance;
+					rev->index = NGX_INVALID_INDEX;
+					wev->index = NGX_INVALID_INDEX;
+					rev->P_Data = c;
+					wev->P_Data = c;
+					wev->write = 1;
+				}
+			}
 		}
 	}
 	return c;
 }
 
-void ngx_free_connection(ngx_connection_t * c)
+void FASTCALL ngx_free_connection(ngx_connection_t * c)
 {
 	c->data = ngx_cycle->free_connections;
 	ngx_cycle->free_connections = c;
@@ -667,7 +666,7 @@ void ngx_free_connection(ngx_connection_t * c)
 	}
 }
 
-void ngx_close_connection(ngx_connection_t * c)
+void FASTCALL ngx_close_connection(ngx_connection_t * c)
 {
 	ngx_uint_t log_error, level;
 	ngx_socket_t fd;
@@ -708,8 +707,8 @@ void ngx_close_connection(ngx_connection_t * c)
 		c->fd = (ngx_socket_t)-1;
 		if(!c->shared) {
 			if(ngx_close_socket(fd) == -1) {
-				ngx_err_t err = ngx_socket_errno;
-				if(err == NGX_ECONNRESET || err == NGX_ENOTCONN) {
+				const ngx_err_t err = ngx_socket_errno;
+				if(oneof2(err, NGX_ECONNRESET, NGX_ENOTCONN)) {
 					switch(log_error) {
 						case NGX_ERROR_INFO: level = NGX_LOG_INFO; break;
 						case NGX_ERROR_ERR:  level = NGX_LOG_ERR;  break;
@@ -758,19 +757,19 @@ static void ngx_drain_connections(ngx_cycle_t * cycle)
 			ngx_connection_t * c = ngx_queue_data(q, ngx_connection_t, Queue);
 			ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0, "reusing connection");
 			c->close = 1;
-			c->P_EvRd->handler(c->P_EvRd);
+			c->P_EvRd->F_EvHandler(c->P_EvRd);
 		}
 	}
 }
 
 void ngx_close_idle_connections(ngx_cycle_t * cycle)
 {
-	ngx_connection_t  * c = cycle->connections;
+	ngx_connection_t * c = cycle->connections;
 	for(ngx_uint_t i = 0; i < cycle->connection_n; i++) {
-		/* THREAD: lock */
+		// THREAD: lock 
 		if(c[i].fd != (ngx_socket_t)-1 && c[i].idle) {
 			c[i].close = 1;
-			c[i].P_EvRd->handler(c[i].P_EvRd);
+			c[i].P_EvRd->F_EvHandler(c[i].P_EvRd);
 		}
 	}
 }
@@ -852,7 +851,7 @@ ngx_int_t ngx_tcp_nodelay(ngx_connection_t * c)
 ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text)
 {
 	ngx_uint_t level;
-	/* Winsock may return NGX_ECONNABORTED instead of NGX_ECONNRESET */
+	// Winsock may return NGX_ECONNABORTED instead of NGX_ECONNRESET 
 	if((err == NGX_ECONNRESET
 #if (NGX_WIN32)
 		    || err == NGX_ECONNABORTED
@@ -860,7 +859,6 @@ ngx_int_t ngx_connection_error(ngx_connection_t * c, ngx_err_t err, char * text)
 		    ) && c->log_error == NGX_ERROR_IGNORE_ECONNRESET) {
 		return 0;
 	}
-
 #if (NGX_SOLARIS)
 	if(err == NGX_EINVAL && c->log_error == NGX_ERROR_IGNORE_EINVAL) {
 		return 0;

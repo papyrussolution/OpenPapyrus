@@ -788,7 +788,7 @@ long SLAPI DiffTime(LTIME t1, LTIME t2, int dim)
 	int    h2, m2, s2, ts2;
 	decodetime(&h1, &m1, &s1, &ts1, &t1);
 	decodetime(&h2, &m2, &s2, &ts2, &t2);
-	long   d = (ts1-ts2) + 1000L * ((s1-s2) + 60L * ((m1-m2) + 60L * (h1-h2)));
+	long   d = ((ts1-ts2) * 10) + 1000L * ((s1-s2) + 60L * ((m1-m2) + 60L * (h1-h2)));
 	if(dim == 1) // Hours
 		return (d / (3600L * 1000L));
 	else if(dim == 2) // Minuts
@@ -2484,6 +2484,21 @@ SLTEST_R(LDATE)
 				SLTEST_CHECK_EQ(mon_buf, txt_mon);
 			}
 		}
+	}
+	{
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0);
+
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000);
+		SLTEST_CHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900);
 	}
 	return CurrentStatus;
 }

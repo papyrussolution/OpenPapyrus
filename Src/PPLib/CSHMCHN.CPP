@@ -879,7 +879,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 			double running_total = 0.0;
 			double cc_amount = 0.0;
 			double fiscal = 0.0, nonfiscal = 0.0;
-			(out_buf = 0).Cat("CCHECK").Space().CatChar('{').CR();
+			out_buf.Z().Cat("CCHECK").Space().CatChar('{').CR();
 			{
 				{
 
@@ -948,7 +948,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					else if(running_total > amt) {
 						SString fmt_buf, msg_buf, added_buf;
 						PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
-						(added_buf = 0).Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+						added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
 						msg_buf.Printf(fmt_buf, added_buf.cptr());
 						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
@@ -1336,7 +1336,7 @@ void CSPanel::ResetButtons()
 			enableCommand(cmSCSXReport,     oper_rights_ary.lsearch(CSESSOPRT_XREP << 16));
 		}
 	}
-	setCtrlString(CTL_CSPANEL_INPUT, input = 0);
+	setCtrlString(CTL_CSPANEL_INPUT, input.Z());
 }
 
 IMPL_HANDLE_EVENT(CSPanel)

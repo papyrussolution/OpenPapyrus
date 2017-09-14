@@ -2439,14 +2439,14 @@ SLTEST_R(PPSlipFormatLexer)
 		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
 		do {
 			THROW(SLTEST_CHECK_NZ(token = fmt.NextToken(f_in, result)));
-			f_out.WriteLine((out_buf = 0).Cat(token).Space().Cat(result).CR());
+			f_out.WriteLine(out_buf.Z().Cat(token).Space().Cat(result).CR());
 		} while(token != PPSlipFormat::tokEOF);
 	}
 	THROW(SLTEST_CHECK_NZ(fmt.Parse(in_file_name, "Form10")));
 	//
 	// Print PPSlipFormat
 	//
-	(result = 0).CR();
+	result.Z().CR();
 #define _CATFLD(f) CatEq(#f, f).CR()
 	result._CATFLD(fmt.Name);
 	result._CATFLD(fmt.Title);
@@ -2482,7 +2482,7 @@ SLTEST_R(PPSlipFormatLexer)
 	{
 		StrAssocArray list;
 		SLTEST_CHECK_NZ(fmt.GetFormList(in_file_name, &list, 0));
-		(result = 0).CR();
+		result.Z().CR();
 		for(uint i = 0; i < list.getCount(); i++) {
 			result.Cat(list.at(i).Txt).CR();
 		}

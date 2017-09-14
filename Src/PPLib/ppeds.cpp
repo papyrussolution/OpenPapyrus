@@ -18,7 +18,7 @@
 //{
 //	SString msg;
 //	DWORD err_code = GetLastError();
-//	(msg = 0).Cat(pErrorMsg).Cat("Код ошибки ").Cat(err_code);
+//	msg.Z().Cat(pErrorMsg).Cat("Код ошибки ").Cat(err_code);
 //	PPSetError(PPERR_EDSERROR, msg.ToOem());
 //}
 
@@ -26,15 +26,15 @@ void PPEds::GetEncryptedFileName(const char * pFileName, SString & rEncryptFileN
 {
 	int count = 0;
 	SString ext;
-	(rEncryptFileName = 0).Cat(pFileName);
+	rEncryptFileName.Z().Cat(pFileName);
 	ext = 0;
 	while(rEncryptFileName.Last() != '.') {
 		count++;
 		rEncryptFileName.TrimRight();
 	}
-	(rEncryptFileName = 0).Cat(pFileName);
+	rEncryptFileName.Z().Cat(pFileName);
 	rEncryptFileName.Sub(rEncryptFileName.Len() - count, count, ext);
-    (rEncryptFileName = 0).CopyFromN(pFileName, strlen(pFileName) - count);
+    rEncryptFileName.Z().CopyFromN(pFileName, strlen(pFileName) - count);
 	if(sameFile)
 		rEncryptFileName.Cat("_1").Dot().Cat(ext);
 	else
@@ -43,7 +43,7 @@ void PPEds::GetEncryptedFileName(const char * pFileName, SString & rEncryptFileN
 
 void PPEds::GetSignFileName(const char * pDocName, SString & rSignFileName)
 {
-	(rSignFileName = 0).Cat(pDocName);
+	rSignFileName.Z().Cat(pDocName);
 	while(rSignFileName.Last() != '.')
 		rSignFileName.TrimRight();
 	rSignFileName.Cat("p7s");
@@ -1193,13 +1193,13 @@ int PPEds::GetSignerNamesInStore(StrAssocArray & rStrArray)
 	THROW_PP(store = CertOpenSystemStore(0, CERTIFICATE_STORE_NAME), PPERR_EDS_OPENCERTSTORE); // @unicodeproblem
 	while(p_cert = CertEnumCertificatesInStore(store, p_cert)) {
 		THROW_PP(CertGetNameString(p_cert, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, NULL, signer_name, MAX_NAME_LEN), PPERR_EDS_GETSIGNERNAMEFAILED); // @unicodeproblem
-		(name = 0).Cat(signer_name);
+		name.Z().Cat(signer_name);
 		rStrArray.Add(i - 1, name, 1);
 		i++;
 	}
 	if(i == 0) {
 		SString msg;
-		(msg = 0).Cat("No certificates was found in store ").Cat(CERTIFICATE_STORE_NAME);
+		msg.Z().Cat("No certificates was found in store ").Cat(CERTIFICATE_STORE_NAME);
 		PPOutputMessage(msg, mfYes | mfLargeBox);
 	}
 	CATCHZOK;
@@ -1777,19 +1777,19 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		{
 			StartByte = 48; // Говорит о том, что данные являются последовательной структурой (SEQUENCE)
 			RequestLen = 0;
-			(Separator1 = 0).CatChar(2).CatChar(1); // Тип данных INTEGER, длина 1
+			Separator1.Z().CatChar(2).CatChar(1); // Тип данных INTEGER, длина 1
 			Version = 1; // Версия запроса V1
-			(Separator2 = 0).CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
-			(Separator3 = 0).CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
-			(Separator4 = 0).CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
+			Separator2.Z().CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
+			Separator3.Z().CatChar(48); // Тип данных SEQUENCE (потом допишется длина данных этого блока)
+			Separator4.Z().CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
 			HashAlgorytm = "";
-			(Separator5 = 0).CatChar(4); // Тип данных OBJECT STRING (потом допишется длина данных этого блока)
+			Separator5.Z().CatChar(4); // Тип данных OBJECT STRING (потом допишется длина данных этого блока)
 			Hash = "";
-			(Separator6 = 0).CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
+			Separator6.Z().CatChar(6); // Тип данных OBJECT IDENTIFIER (потом допишется длина данных этого блока)
 			Policy = "";
-			(Separator7 = 0).CatChar(2); // Тип данных INTEGER (потом допишется длина данных этого блока)
+			Separator7.Z().CatChar(2); // Тип данных INTEGER (потом допишется длина данных этого блока)
 			Nonce = "";
-			(Separator8 = 0).CatChar(1).CatChar(1); // Тип данных BOOLEAN, длина данных 1 бит
+			Separator8.Z().CatChar(1).CatChar(1); // Тип данных BOOLEAN, длина данных 1 бит
 			CertReq = 0;
 		}
 		void CalcLen()
@@ -1933,9 +1933,9 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	hash_str.CopyFromN((char*)hash, hash_size);
 	//THROW_PP(ObjIdfrDerEncode("1.2.643.2.2.38.4", policy_der), PPERR_EDS_DERENCODEFAILED); // политика безопасности // @vmiller comment
 
-	(req_struct.HashAlgorytm = 0).Cat(hashalg_der);
-	(req_struct.Hash = 0).Cat(hash_str);
-	(req_struct.Policy = 0).Cat(policy_der);
+	req_struct.HashAlgorytm.Z().Cat(hashalg_der);
+	req_struct.Hash.Z().Cat(hash_str);
+	req_struct.Policy.Z().Cat(policy_der);
 	// Сгенерируем nonce
 	req_struct.Nonce = 0;
 	for(size_t i = 0; i < 8; i++) {
@@ -1946,7 +1946,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	req_struct.CertReq = 1;
 	req_struct.CalcLen();
 
-	(request = 0).CatChar(req_struct.StartByte).CatChar(req_struct.RequestLen).Cat(req_struct.Separator1).
+	request.Z().CatChar(req_struct.StartByte).CatChar(req_struct.RequestLen).Cat(req_struct.Separator1).
 		CatChar(req_struct.Version).Cat(req_struct.Separator2).Cat(req_struct.Separator3).
 		Cat(req_struct.Separator4).Cat(req_struct.HashAlgorytm).Cat(req_struct.Separator5).
 		Cat(req_struct.Hash);

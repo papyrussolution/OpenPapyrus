@@ -62,7 +62,7 @@ int SLAPI PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * 
 		if(goods_obj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
 			STRNSCPY(entry.GoodsName, goods_rec.Name);
 		}
-		if(goods_obj.P_Tbl->FetchSingleBarcode(lot_rec.GoodsID, serial = 0) > 0)
+		if(goods_obj.P_Tbl->FetchSingleBarcode(lot_rec.GoodsID, serial.Z()) > 0)
 			serial.CopyTo(entry.Barcode, sizeof(entry.Barcode));
 		sr = p_bobj->GetSerialNumberByLot(lot_rec.ID, serial = 0, 1);
 		serial.CopyTo(entry.Serial, sizeof(entry.Serial));
@@ -650,7 +650,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 				if(CheckDialogPtrErr(&p_inner_dlg)) {
 					SString info_buf, temp_buf;
 					PPLoadString("analogs", temp_buf);
-					(info_buf = 0).Cat(goods_rec.Name).CR();
+					info_buf.Z().Cat(goods_rec.Name).CR();
 					info_buf.Cat(temp_buf);
 					if(transit_component_buf.NotEmptyS())
 						info_buf.Space().CatChar('(').Cat(transit_component_buf).CatChar(')');

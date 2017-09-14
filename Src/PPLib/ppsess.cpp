@@ -179,7 +179,7 @@ int SLAPI StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		p_app->AddStatusBarItem((sbuf = r_tla.CurDbDivName).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
 		GetLocationName(LConfig.Location, sbuf);
 		p_app->AddStatusBarItem(sbuf.Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-		(sbuf = 0).Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
+		sbuf.Z().Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
 		p_app->AddStatusBarItem(sbuf, 0, 0, cmViewStatus);
 		if(p_dict && p_dict->GetDbName(db_name) > 0) {
 			p_app->AddStatusBarItem((sbuf = "DB").CatDiv(':', 2).Cat(db_name.Transf(CTRANSF_INNER_TO_OUTER)), 0, 0, cmViewStatus);

@@ -151,7 +151,7 @@ static TRIO_CONST uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 
 /*
  * trio_make_double
  */
-TRIO_PRIVATE double trio_make_double TRIO_ARGS1((values), TRIO_CONST unsigned char * values)
+TRIO_PRIVATE double trio_make_double(TRIO_CONST unsigned char * values)
 {
 	TRIO_VOLATILE double result;
 	int i;
@@ -163,7 +163,7 @@ TRIO_PRIVATE double trio_make_double TRIO_ARGS1((values), TRIO_CONST unsigned ch
 /*
  * trio_is_special_quantity
  */
-TRIO_PRIVATE int trio_is_special_quantity TRIO_ARGS2((number, has_mantissa), double number, int * has_mantissa)
+TRIO_PRIVATE int trio_is_special_quantity(double number, int * has_mantissa)
 {
 	uint i;
 	unsigned char current;
@@ -181,7 +181,7 @@ TRIO_PRIVATE int trio_is_special_quantity TRIO_ARGS2((number, has_mantissa), dou
 /*
  * trio_is_negative
  */
-TRIO_PRIVATE int trio_is_negative TRIO_ARGS1((number), double number)
+TRIO_PRIVATE int trio_is_negative(double number)
 {
 	uint i;
 	int is_negative = TRIO_FALSE;
@@ -198,7 +198,7 @@ TRIO_PRIVATE int trio_is_negative TRIO_ARGS1((number), double number)
 
    @return Floating-point representation of negative zero.
  */
-TRIO_PUBLIC double trio_nzero(TRIO_NOARGS)
+TRIO_PUBLIC double trio_nzero()
 {
 #if defined(USE_IEEE_754)
 	return trio_make_double(ieee_754_negzero_array);
@@ -214,7 +214,7 @@ TRIO_PUBLIC double trio_nzero(TRIO_NOARGS)
 
    @return Floating-point representation of positive infinity.
  */
-TRIO_PUBLIC double trio_pinf(TRIO_NOARGS)
+TRIO_PUBLIC double trio_pinf()
 {
 	/* Cache the result */
 	static double result = 0.0;
@@ -254,7 +254,7 @@ TRIO_PUBLIC double trio_pinf(TRIO_NOARGS)
 
    @return Floating-point value of negative infinity.
  */
-TRIO_PUBLIC double trio_ninf(TRIO_NOARGS)
+TRIO_PUBLIC double trio_ninf()
 {
 	static double result = 0.0;
 	if(result == 0.0) {
@@ -272,7 +272,7 @@ TRIO_PUBLIC double trio_ninf(TRIO_NOARGS)
 
    @return Floating-point representation of NaN.
  */
-TRIO_PUBLIC double trio_nan(TRIO_NOARGS)
+TRIO_PUBLIC double trio_nan()
 {
 	/* Cache the result */
 	static double result = 0.0;
@@ -311,7 +311,7 @@ TRIO_PUBLIC double trio_nan(TRIO_NOARGS)
    @param number An arbitrary floating-point number.
    @return Boolean value indicating whether or not the number is a NaN.
  */
-TRIO_PUBLIC int trio_isnan TRIO_ARGS1((number), double number)
+TRIO_PUBLIC int trio_isnan(double number)
 {
 #if (defined(TRIO_COMPILER_SUPPORTS_C99) && defined(isnan)) || defined(TRIO_COMPILER_SUPPORTS_UNIX95)
 	/*
@@ -366,7 +366,7 @@ TRIO_PUBLIC int trio_isnan TRIO_ARGS1((number), double number)
    @param number An arbitrary floating-point number.
    @return 1 if positive infinity, -1 if negative infinity, 0 otherwise.
  */
-TRIO_PUBLIC int trio_isinf TRIO_ARGS1((number), double number)
+TRIO_PUBLIC int trio_isinf(double number)
 {
 #if defined(TRIO_COMPILER_DECC) && !defined(__linux__)
 	/*
@@ -419,7 +419,7 @@ TRIO_PUBLIC int trio_isinf TRIO_ARGS1((number), double number)
    @param number An arbitrary floating-point number.
    @return Boolean value indicating whether or not the number is a finite.
  */
-TRIO_PUBLIC int trio_isfinite TRIO_ARGS1((number), double number)
+TRIO_PUBLIC int trio_isfinite(double number)
 {
 #if defined(TRIO_COMPILER_SUPPORTS_C99) && defined(isfinite)
 	/*
@@ -448,14 +448,10 @@ TRIO_PUBLIC int trio_isfinite TRIO_ARGS1((number), double number)
 }
 
 #endif
-
 /*
  * The sign of NaN is always false
  */
-TRIO_PUBLIC int
-trio_fpclassify_and_signbit TRIO_ARGS2((number, is_negative),
-    double number,
-    int * is_negative)
+TRIO_PUBLIC int trio_fpclassify_and_signbit(double number, int * is_negative)
 {
 #if defined(fpclassify) && defined(signbit)
 	/*
@@ -596,13 +592,12 @@ trio_fpclassify_and_signbit TRIO_ARGS2((number, is_negative),
    @return Boolean value indicating whether or not the number has the
    sign bit set (i.e. is negative).
  */
-TRIO_PUBLIC int trio_signbit TRIO_ARGS1((number), double number)
+TRIO_PUBLIC int trio_signbit(double number)
 {
 	int is_negative;
 	trio_fpclassify_and_signbit(number, &is_negative);
 	return is_negative;
 }
-
 #if 0
 /* Temporary fix - this routine is not used in libxml */
 /**
@@ -611,7 +606,7 @@ TRIO_PUBLIC int trio_signbit TRIO_ARGS1((number), double number)
    @param number An arbitrary floating-point number.
    @return Enumerable value indicating the class of @p number
  */
-TRIO_PUBLIC int trio_fpclassify TRIO_ARGS1((number), double number)
+TRIO_PUBLIC int trio_fpclassify(double number)
 {
 	int dummy;
 	return trio_fpclassify_and_signbit(number, &dummy);
@@ -632,7 +627,7 @@ TRIO_PUBLIC int trio_fpclassify TRIO_ARGS1((number), double number)
 #if defined(STANDALONE)
 #include <stdio.h>
 
-static TRIO_CONST char * getClassification TRIO_ARGS1((type), int type)
+static TRIO_CONST char * getClassification(int type)
 {
 	switch(type) {
 		case TRIO_FP_INFINITE: return "FP_INFINITE";
@@ -644,13 +639,12 @@ static TRIO_CONST char * getClassification TRIO_ARGS1((type), int type)
 	}
 }
 
-static void print_class TRIO_ARGS2((prefix, number), TRIO_CONST char * prefix, double number)
+static void print_class(TRIO_CONST char * prefix, double number)
 {
-	printf("%-6s: %s %-15s %g\n", prefix, trio_signbit(number) ? "-" : "+",
-	    getClassification(TRIO_FPCLASSIFY(number)), number);
+	printf("%-6s: %s %-15s %g\n", prefix, trio_signbit(number) ? "-" : "+", getClassification(TRIO_FPCLASSIFY(number)), number);
 }
 
-int main(TRIO_NOARGS)
+int main()
 {
 # if defined(TRIO_PLATFORM_UNIX)
 	void (*signal_handler)TRIO_PROTO((int));

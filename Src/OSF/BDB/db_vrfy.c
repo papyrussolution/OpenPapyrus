@@ -1639,7 +1639,7 @@ static int __db_salvage_unknowns(DB * dbp, VRFY_DBINFO * vdp, void * handle, int
 		    case SALVAGE_LRECNODUP:
 			dbt = &unkdbt;
 			tmp_flags = DB_SA_UNKNOWNKEY;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case SALVAGE_IBTREE:
 		    case SALVAGE_LBTREE:
 		    case SALVAGE_LRECNO:
@@ -1945,16 +1945,16 @@ static int __db_salvage_all(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*ca
 	   (t_ret = __db_vrfy_getpageinfo(vdp, 0, &pip)) == 0)
 		if(F_ISSET(pip, VRFY_HAS_SUBDBS))
 			*hassubsp = 1;
-	if(pip != NULL && (t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
+	if(pip && (t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
-	if(h != NULL) {
+	if(h) {
 		if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		h = NULL;
 	}
 	if(ret != 0)
 		return ret;
-	/* Without subdatabases, we can just dump from the meta pgno. */
+	// Without subdatabases, we can just dump from the meta pgno
 	if(*hassubsp == 0)
 		return __db_salvage(dbp, vdp, PGNO_BASE_MD, handle, callback, flags);
 	/*

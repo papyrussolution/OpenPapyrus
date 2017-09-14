@@ -869,7 +869,7 @@ struct /*ngx_event_s*/ngx_event_t {
 #else
 	unsigned available : 1;
 #endif
-	ngx_event_handler_pt handler;
+	ngx_event_handler_pt F_EvHandler/*handler*/;
 #if (NGX_HAVE_IOCP)
 	ngx_event_ovlp_t ovlp;
 #endif
@@ -1712,7 +1712,7 @@ void ngx_http_update_location_config(ngx_http_request_t * r);
 void ngx_http_handler(ngx_http_request_t * r);
 void ngx_http_run_posted_requests(ngx_connection_t * c);
 ngx_int_t ngx_http_post_request(ngx_http_request_t * r, ngx_http_posted_request_t * pr);
-void ngx_http_finalize_request(ngx_http_request_t * r, ngx_int_t rc);
+void FASTCALL ngx_http_finalize_request(ngx_http_request_t * r, ngx_int_t rc);
 void ngx_http_free_request(ngx_http_request_t * r, ngx_int_t rc);
 void ngx_http_empty_handler(ngx_event_t * wev);
 void ngx_http_request_empty_handler(ngx_http_request_t * r);
@@ -1750,6 +1750,8 @@ extern ngx_http_request_body_filter_pt ngx_http_top_request_body_filter;
 struct NgxReqResult {
 	ngx_http_request_t * P_Req;
 	ngx_chain_t Chain;
+	int    ReplyCode; // Код ответа, отсылаемова функции ngx_http_finalize_request 
+		// Если все хорошо, то должно быть NGX_DONE.
 };
 
 int FASTCALL NgxPushRequestResult(NgxReqResult * pR);

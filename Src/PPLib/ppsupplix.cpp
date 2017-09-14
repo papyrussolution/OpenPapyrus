@@ -480,7 +480,7 @@ private:
 			SString field_name, field_type;
 			SdbField fld;
 			// @v9.1.4 buf.Printf("<d name=\"%s\">", pSchemeName);
-			(buf = 0).CatChar('<').Cat("d").Space().CatEqQ("name", pSchemeName).CatChar('>'); // @v9.1.4
+			buf.Z().CatChar('<').Cat("d").Space().CatEqQ("name", pSchemeName).CatChar('>'); // @v9.1.4
 			F.WriteLine(buf);
 			for(uint i = 0; i < pRec->GetCount(); i++) {
 				int    base_type = 0;
@@ -499,7 +499,7 @@ private:
 				else if(base_type == BTS_STRING)
 					field_type = "String";
 				// @v9.1.4 buf.Printf("<f name=\"%s\" type=\"%s\"/>", (const char*)field_name, (const char*)field_type);
-				(buf = 0).CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>"); // @v9.1.4
+				buf.Z().CatChar('<').Cat("f").Space().CatEqQ("name", field_name).Space().CatEqQ("type", field_type).Cat("/>"); // @v9.1.4
 				F.WriteLine(buf);
 			}
 			ok = 1;
@@ -532,7 +532,7 @@ private:
 							line.Cat("T").Cat(tm, TIMF_HMS);
 						}
 					}
-					F.WriteLine((buf = 0).CatTag("f", line));
+					F.WriteLine(buf.Z().CatTag("f", line));
 				}
 				if(endRecord)
 					F.WriteLine("</r>");
@@ -1660,7 +1660,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					Sdr_SupplBillLine line_rec = items_list.at(i);
 					THROW(soap_e.AppendRecT(PPREC_SUPPLBILLLINE, &line_rec, sizeof(line_rec), is_first, 1, 0/*pSchemeName*/));
 					is_first = 0;
-					(log_msg = 0).Cat("code=[").Cat(line_rec.DocumentNumber).Cat("]").Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
+					log_msg.Z().Cat("code=[").Cat(line_rec.DocumentNumber).Cat("]").Space().Space().Space().Cat("order=[").Cat(line_rec.CRMOrderNumber).Cat("]");
 					rLogger.Log(log_msg);
 					if(add_link_op) {
 						add_link_op_str.CopyTo(line_rec.DocumentTypeId, sizeof(line_rec.DocumentTypeId));
@@ -3055,7 +3055,7 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 							iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
 							THROW_SL(p_new_status);
 							p_new_status->Ifc = iSalesTransferStatus::ifcReceipt;
-							(p_new_status->Ident = 0).Cat(p_src_pack->iSalesId);
+							p_new_status->Ident.Z().Cat(p_src_pack->iSalesId);
 						}
 					}
 				}
@@ -3232,7 +3232,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 							iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
 							THROW_SL(p_new_status);
 							p_new_status->Ifc = iSalesTransferStatus::ifcOrder;
-							(p_new_status->Ident = 0).CatChar('O').Cat(src_order_code);
+							p_new_status->Ident.Z().CatChar('O').Cat(src_order_code);
 						}
 					}
 				}
@@ -3874,8 +3874,8 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			// @v9.4.9 (p_new_pack->Memo = pack.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8);
 			p_new_pack->Memo = 0; // @v9.4.9
 			if(outerDocType == 6) { // Приход (подтверждение)
-				(p_new_pack->SellerCode = 0).Cat(psn_id);
-				(p_new_pack->ShipFrom = 0).Cat(psn_id);
+				p_new_pack->SellerCode.Z().Cat(psn_id);
+				p_new_pack->ShipFrom.Z().Cat(psn_id);
 				p_new_pack->PayerCode = own_code;
 				p_new_pack->ShipTo = own_code;
 				p_new_pack->DestLocCode.Cat(pack.Rec.LocID);
@@ -3886,7 +3886,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 13;
-					BillCore::GetCode((p_new_ref->Code = 0).CatChar('O').Cat(p_new_pack->Code));
+					BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					// @v9.6.2 Debug_TestUtfText(p_new_ref->Code, "makebillentry-4", R_Logger); // @v9.5.11
 					p_new_ref->Dtm.SetZero();
@@ -4025,7 +4025,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 						const double qtty = fabs(ti.Quantity_);
 						p_new_item->LineN = tiiterpos; // ti.RByBill;
 						p_new_item->OuterGoodsCode = temp_buf; // ti_pos_item.Txt;
-						(p_new_item->NativeGoodsCode = 0).Cat(ti.GoodsID);
+						p_new_item->NativeGoodsCode.Z().Cat(ti.GoodsID);
 						{
 							p_new_item->Country = 0;
 							/*if(p_goods_entry && p_goods_entry->CountryName.NotEmpty()) {

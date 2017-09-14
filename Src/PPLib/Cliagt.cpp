@@ -606,7 +606,7 @@ int SLAPI SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
     	PPObjectTag tag_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 			if(tag_rec.ID > PPClientAgreement::pdbTagBias && tag_rec.ObjTypeID == PPOBJ_BILL && oneof2(tag_rec.TagDataType, OTTYP_DATE, OTTYP_TIMESTAMP)) {
-				(buf = 0).Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
+				buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
 				ary.Add(tag_rec.ID, 0, buf);
 			}
 		}
@@ -1503,7 +1503,7 @@ private:
 			*/
 			ss.add(sub.Z().Cat(r_entry.OrdPrdDays));
 			ss.add(sub.Z().Cat(r_entry.Fb.DuePrdDays));
-			ss.add(r_entry.Dr.Format(0, sub = 0));
+			ss.add(r_entry.Dr.Format(0, sub.Z()));
 			THROW(addStringToList(i+1, ss.getBuf()));
 		}
 		CATCHZOK

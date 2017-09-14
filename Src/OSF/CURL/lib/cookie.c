@@ -681,7 +681,7 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 				    if(!co->spath)
 					    badcookie = TRUE;
 				    fields++; /* add a field and fall down to secure */
-				/* FALLTHROUGH */
+				// @fallthrough
 				case 3:
 				    co->secure = strcasecompare(ptr, "TRUE") ? TRUE : FALSE;
 				    break;

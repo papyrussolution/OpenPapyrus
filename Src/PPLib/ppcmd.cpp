@@ -563,7 +563,7 @@ int SLAPI PPCommandFolder::AddSeparator(int pos)
 {
 	int    ok = 1;
 	PPCommandItem * p_item = new PPCommandItem(kSeparator);
-	(p_item->Name = 0).CatCharN('-', 40).Transf(CTRANSF_OUTER_TO_INNER);
+	p_item->Name.Z().CatCharN('-', 40).Transf(CTRANSF_OUTER_TO_INNER);
 	if(pos < 0 || pos >= (int)GetCount())
 		List.insert(p_item);
 	else
@@ -1677,7 +1677,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					if(psn_data.Sc.ID) {
 						// @v9.0.2 PPGetWord(PPWORD_CARD, 0, symb);
 						PPLoadString("card", symb); // @v9.0.2
-						(prompt = 0).Cat(symb).CatDiv(':', 2).Cat(psn_data.Sc.Code);
+						prompt.Z().Cat(symb).CatDiv(':', 2).Cat(psn_data.Sc.Code);
 						// @v9.1.3 {
 						{
 							const int scst = PPObjSCard::GetSeriesType(psn_data.Sc.SeriesID);

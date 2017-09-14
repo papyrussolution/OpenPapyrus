@@ -540,8 +540,8 @@ int PPAbstractDevice::Helper_RunCmd(SString & rCmd, SString & rArg, StrAssocArra
 		if(r == 0) {
 			//if(output.IsValid()) {
 			if(RetBuf.IsValid()) {
-				//(s_arr = 0).Cat(output);
-				(s_arr = 0).Cat(RetBuf);
+				//s_arr.Z().Cat(output);
+				s_arr.Z().Cat(RetBuf);
 				THROW(StrToArr(s_arr, rOut));
 			}
 		}
@@ -1008,7 +1008,7 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 		SString answer, new_size;
 		THROW(!Test(Text, answer));
 		if(answer.BufSize() > outSize) {
-			(new_size = 0).Cat(answer.BufSize());
+			new_size.Z().Cat(answer.BufSize());
 			memcpy(pOutputData, new_size, outSize);
 			ok = 2;
 		}
@@ -1035,7 +1035,7 @@ int DvcDriver::Test(SString sentence, SString & answer)
 	else if(sentence.Search("error", 0, 1, &pos))
 		ok = 1;
 	else
-		(answer = 0).Cat(sentence).CatCharN('-',1024);
+		answer.Z().Cat(sentence).CatCharN('-',1024);
 	return ok;
 }
 

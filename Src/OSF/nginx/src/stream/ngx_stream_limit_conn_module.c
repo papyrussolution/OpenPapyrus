@@ -7,45 +7,41 @@
 #pragma hdrstop
 #include <ngx_stream.h>
 
-typedef struct {
+struct ngx_stream_limit_conn_node_t {
 	u_char color;
 	u_char len;
 	u_short conn;
 	u_char data[1];
-} ngx_stream_limit_conn_node_t;
+};
 
-typedef struct {
-	ngx_shm_zone_t    * shm_zone;
+struct ngx_stream_limit_conn_cleanup_t {
+	ngx_shm_zone_t * shm_zone;
 	ngx_rbtree_node_t * node;
-} ngx_stream_limit_conn_cleanup_t;
+};
 
-typedef struct {
-	ngx_rbtree_t  * rbtree;
+struct ngx_stream_limit_conn_ctx_t {
+	ngx_rbtree_t * rbtree;
 	ngx_stream_complex_value_t key;
-} ngx_stream_limit_conn_ctx_t;
+};
 
-typedef struct {
-	ngx_shm_zone_t    * shm_zone;
+struct ngx_stream_limit_conn_limit_t {
+	ngx_shm_zone_t * shm_zone;
 	ngx_uint_t conn;
-} ngx_stream_limit_conn_limit_t;
+};
 
-typedef struct {
+struct ngx_stream_limit_conn_conf_t {
 	ngx_array_t limits;
 	ngx_uint_t log_level;
-} ngx_stream_limit_conn_conf_t;
+};
 
-static ngx_rbtree_node_t * ngx_stream_limit_conn_lookup(ngx_rbtree_t * rbtree,
-    ngx_str_t * key, uint32_t hash);
+static ngx_rbtree_node_t * ngx_stream_limit_conn_lookup(ngx_rbtree_t * rbtree, ngx_str_t * key, uint32_t hash);
 static void ngx_stream_limit_conn_cleanup(void * data);
 static ngx_inline void ngx_stream_limit_conn_cleanup_all(ngx_pool_t * pool);
 
 static void * ngx_stream_limit_conn_create_conf(ngx_conf_t * cf);
-static char * ngx_stream_limit_conn_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_stream_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, void * child);
+static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static char * ngx_stream_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 static ngx_int_t ngx_stream_limit_conn_init(ngx_conf_t * cf);
 
 static ngx_conf_enum_t ngx_stream_limit_conn_log_levels[] = {
@@ -117,12 +113,10 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 	ngx_rbtree_node_t  * node;
 	ngx_pool_cleanup_t * cln;
 	ngx_stream_limit_conn_ctx_t * ctx;
-	ngx_stream_limit_conn_node_t   * lc;
-	ngx_stream_limit_conn_conf_t   * lccf;
-	ngx_stream_limit_conn_limit_t  * limits;
-	ngx_stream_limit_conn_cleanup_t  * lccln;
-	lccf = (ngx_stream_limit_conn_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_limit_conn_module);
-	limits = (ngx_stream_limit_conn_limit_t *)lccf->limits.elts;
+	ngx_stream_limit_conn_node_t * lc;
+	ngx_stream_limit_conn_cleanup_t * lccln;
+	ngx_stream_limit_conn_conf_t * lccf = (ngx_stream_limit_conn_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_limit_conn_module);
+	ngx_stream_limit_conn_limit_t * limits = (ngx_stream_limit_conn_limit_t *)lccf->limits.elts;
 	for(i = 0; i < lccf->limits.nelts; i++) {
 		ctx = (ngx_stream_limit_conn_ctx_t *)limits[i].shm_zone->data;
 		if(ngx_stream_complex_value(s, &ctx->key, &key) != NGX_OK) {
@@ -131,12 +125,8 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 		if(key.len == 0) {
 			continue;
 		}
-
 		if(key.len > 255) {
-			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-			    "the value of the \"%V\" key "
-			    "is more than 255 bytes: \"%V\"",
-			    &ctx->key.value, &key);
+			ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "the value of the \"%V\" key is more than 255 bytes: \"%V\"", &ctx->key.value, &key);
 			continue;
 		}
 		hash = ngx_crc32_short(key.data, key.len);
@@ -146,66 +136,46 @@ static ngx_int_t ngx_stream_limit_conn_handler(ngx_stream_session_t * s)
 		if(node == NULL) {
 			n = offsetof(ngx_rbtree_node_t, color) + offsetof(ngx_stream_limit_conn_node_t, data) + key.len;
 			node = (ngx_rbtree_node_t *)ngx_slab_alloc_locked(shpool, n);
-
 			if(node == NULL) {
 				ngx_shmtx_unlock(&shpool->mutex);
 				ngx_stream_limit_conn_cleanup_all(s->connection->pool);
 				return NGX_STREAM_SERVICE_UNAVAILABLE;
 			}
-
 			lc = (ngx_stream_limit_conn_node_t*)&node->color;
-
 			node->key = hash;
 			lc->len = (u_char)key.len;
 			lc->conn = 1;
 			memcpy(lc->data, key.data, key.len);
-
 			ngx_rbtree_insert(ctx->rbtree, node);
 		}
 		else {
 			lc = (ngx_stream_limit_conn_node_t*)&node->color;
-
 			if((ngx_uint_t)lc->conn >= limits[i].conn) {
 				ngx_shmtx_unlock(&shpool->mutex);
-
-				ngx_log_error(lccf->log_level, s->connection->log, 0,
-				    "limiting connections by zone \"%V\"",
-				    &limits[i].shm_zone->shm.name);
-
+				ngx_log_error(lccf->log_level, s->connection->log, 0, "limiting connections by zone \"%V\"", &limits[i].shm_zone->shm.name);
 				ngx_stream_limit_conn_cleanup_all(s->connection->pool);
 				return NGX_STREAM_SERVICE_UNAVAILABLE;
 			}
-
 			lc->conn++;
 		}
-
-		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-		    "limit conn: %08Xi %d", node->key, lc->conn);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "limit conn: %08Xi %d", node->key, lc->conn);
 		ngx_shmtx_unlock(&shpool->mutex);
-
-		cln = ngx_pool_cleanup_add(s->connection->pool,
-		    sizeof(ngx_stream_limit_conn_cleanup_t));
+		cln = ngx_pool_cleanup_add(s->connection->pool, sizeof(ngx_stream_limit_conn_cleanup_t));
 		if(cln == NULL) {
 			return NGX_ERROR;
 		}
-
 		cln->handler = ngx_stream_limit_conn_cleanup;
 		lccln = (ngx_stream_limit_conn_cleanup_t *)cln->data;
-
 		lccln->shm_zone = limits[i].shm_zone;
 		lccln->node = node;
 	}
-
 	return NGX_DECLINED;
 }
 
-static void ngx_stream_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp,
-    ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
+static void ngx_stream_limit_conn_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
 	ngx_rbtree_node_t ** p;
 	ngx_stream_limit_conn_node_t * lcn, * lcnt;
-
 	for(;; ) {
 		if(node->key < temp->key) {
 			p = &temp->left;
@@ -314,15 +284,11 @@ static ngx_int_t ngx_stream_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void
 	if(octx) {
 		if(ctx->key.value.len != octx->key.value.len || ngx_strncmp(ctx->key.value.data, octx->key.value.data, ctx->key.value.len) != 0) {
 			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0,
-			    "limit_conn_zone \"%V\" uses the \"%V\" key "
-			    "while previously it used the \"%V\" key",
-			    &shm_zone->shm.name, &ctx->key.value,
-			    &octx->key.value);
+			    "limit_conn_zone \"%V\" uses the \"%V\" key while previously it used the \"%V\" key",
+			    &shm_zone->shm.name, &ctx->key.value, &octx->key.value);
 			return NGX_ERROR;
 		}
-
 		ctx->rbtree = octx->rbtree;
-
 		return NGX_OK;
 	}
 	shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
@@ -351,19 +317,15 @@ static ngx_int_t ngx_stream_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void
 
 static void * ngx_stream_limit_conn_create_conf(ngx_conf_t * cf)
 {
-	ngx_stream_limit_conn_conf_t  * conf;
-	conf = (ngx_stream_limit_conn_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_limit_conn_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	ngx_stream_limit_conn_conf_t * conf = (ngx_stream_limit_conn_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_limit_conn_conf_t));
+	if(conf) {
+		/*
+		 * set by ngx_pcalloc():
+		 *
+		 *     conf->limits.elts = NULL;
+		 */
+		conf->log_level = NGX_CONF_UNSET_UINT;
 	}
-	/*
-	 * set by ngx_pcalloc():
-	 *
-	 *     conf->limits.elts = NULL;
-	 */
-
-	conf->log_level = NGX_CONF_UNSET_UINT;
-
 	return conf;
 }
 
@@ -382,13 +344,12 @@ static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, v
 {
 	u_char  * p;
 	ssize_t size;
-	ngx_str_t  * value, name, s;
+	ngx_str_t name, s;
 	ngx_uint_t i;
 	ngx_shm_zone_t  * shm_zone;
-	ngx_stream_limit_conn_ctx_t  * ctx;
 	ngx_stream_compile_complex_value_t ccv;
-	value = (ngx_str_t*)cf->args->elts;
-	ctx = (ngx_stream_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_limit_conn_ctx_t));
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+	ngx_stream_limit_conn_ctx_t * ctx = (ngx_stream_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_limit_conn_ctx_t));
 	if(ctx == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -396,72 +357,50 @@ static char * ngx_stream_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, v
 	ccv.cf = cf;
 	ccv.value = &value[1];
 	ccv.complex_value = &ctx->key;
-
 	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-
 	size = 0;
 	name.len = 0;
-
 	for(i = 2; i < cf->args->nelts; i++) {
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
-
 			p = (u_char*)ngx_strchr(name.data, ':');
-
 			if(p == NULL) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid zone size \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			name.len = p - name.data;
-
 			s.data = p + 1;
 			s.len = value[i].data + value[i].len - s.data;
-
 			size = ngx_parse_size(&s);
-
 			if(size == NGX_ERROR) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid zone size \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			if(size < (ssize_t)(8 * ngx_pagesize)) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "zone \"%V\" is too small", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "zone \"%V\" is too small", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[i]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
 		return NGX_CONF_ERROR;
 	}
-
 	if(name.len == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "\"%V\" must have \"zone\" parameter",
-		    &cmd->name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"zone\" parameter", &cmd->name);
 		return NGX_CONF_ERROR;
 	}
-
-	shm_zone = ngx_shared_memory_add(cf, &name, size,
-	    &ngx_stream_limit_conn_module);
+	shm_zone = ngx_shared_memory_add(cf, &name, size, &ngx_stream_limit_conn_module);
 	if(shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	if(shm_zone->data) {
 		ctx = (ngx_stream_limit_conn_ctx_t *)shm_zone->data;
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V \"%V\" is already bound to key \"%V\"", &cmd->name, &name, &ctx->key.value);
 		return NGX_CONF_ERROR;
 	}
-	shm_zone->init = ngx_stream_limit_conn_init_zone;
+	shm_zone->F_Init = ngx_stream_limit_conn_init_zone;
 	shm_zone->data = ctx;
 	return NGX_CONF_OK;
 }

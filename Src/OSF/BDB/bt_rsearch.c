@@ -155,7 +155,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 				indx = NUM_ENT(h)-2;
 				goto enter;
 			}
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case P_LDUP:
 			if(LF_ISSET(SR_MAX)) {
 				indx = NUM_ENT(h)-1;

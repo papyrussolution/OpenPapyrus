@@ -848,7 +848,7 @@ int SLAPI PPObjBill::UniteInventory(PPID destBillID, PPIDArray * pSrcBillList, I
 	{
 		for(SEnum en = r_inv_tbl.Enum(destBillID); en.Next(&inv_rec) > 0;) {
 			GetGoodsName(inv_rec.GoodsID, goods_name);
-			(added_msg_buf = 0).Cat("Line").CatDiv(':', 0).Cat(inv_rec.OprNo).Space().Cat(goods_name);
+			added_msg_buf.Z().Cat("Line").CatDiv(':', 0).Cat(inv_rec.OprNo).Space().Cat(goods_name);
 			THROW_PP_S(!(inv_rec.Flags & INVENTF_WRITEDOFF), PPERR_UPDWROFFINV, added_msg_buf);
 		}
 	}

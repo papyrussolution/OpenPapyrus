@@ -441,7 +441,7 @@ err2:   /*
 	if(array != NULL)
 		for(; nxt < n; ++nxt)
 			__os_free(env, array[nxt]);
-	/* FALLTHROUGH */
+	// @fallthrough
 err1:
 	if(array) {
 		for(arrayp = array; *arrayp != NULL; ++arrayp)

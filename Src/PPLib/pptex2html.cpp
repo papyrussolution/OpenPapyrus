@@ -768,9 +768,9 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 								(file_name_buf = out_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
 								if(copyFileByName(temp_buf, file_name_buf)) {
 									SPathStruc::GetRelativePath(out_file_name, 0, file_name_buf, 0, line_buf);
-									(temp_buf2 = 0).Cat("pic").CatChar('-').Cat(p_first_brc_arg->Text);
-									(file_name_buf = 0).CatQStr(temp_buf2);
-									(temp_buf2 = 0).CatChar('<').Cat("a").Space().CatEq("name", file_name_buf).CatChar('>');
+									temp_buf2.Z().Cat("pic").CatChar('-').Cat(p_first_brc_arg->Text);
+									file_name_buf.Z().CatQStr(temp_buf2);
+									temp_buf2.Z().CatChar('<').Cat("a").Space().CatEq("name", file_name_buf).CatChar('>');
 									{
 										temp_buf.Z().CatQStr(line_buf);
 										line_buf.Z().Cat(temp_buf2).CatChar('<').Cat("img").Space().CatEq("src", temp_buf);

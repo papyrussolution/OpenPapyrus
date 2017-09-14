@@ -1048,7 +1048,7 @@ int SLAPI EditDueToKeyboardRights()
 				key_pos_ary.Init(&KWKCfg.OperRights[i].KeyPos, 32);
 				for(size_t pos = 0; pos < 32; pos++)
 					if(key_pos_ary.get(pos))
-						key_pos_str.add((key_pos = 0).Cat((long)(pos + 1)));
+						key_pos_str.add(key_pos.Z().Cat((long)(pos + 1)));
 				setCtrlData(CTL_CFGKBDWKEY1 + i, key_pos_str.getBuf());
 			}
 			return 1;
@@ -2091,7 +2091,7 @@ int PPCSessComplexImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) c
 		THROW(PPLoadText(PPTXT_CSESSCPARAMS, params));
 		if(Flags != 0) {
 			PPGetSubStr(params, CSESSCPARAMS_FLAGS, fld_name);
-			pFile->AppendParam(pSect, fld_name, (param_val = 0).Cat(Flags), 1);
+			pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
 		}
 		{
 			struct S {

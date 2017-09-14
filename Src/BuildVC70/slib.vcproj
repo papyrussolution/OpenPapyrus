@@ -3358,6 +3358,9 @@
 				RelativePath="..\Include\Schecks.h">
 			</File>
 			<File
+				RelativePath="..\Include\Slconfig.h">
+			</File>
+			<File
 				RelativePath="..\Include\Slib.h">
 			</File>
 			<File

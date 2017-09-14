@@ -305,7 +305,7 @@ int __dbc_count(DBC*dbc, db_recno_t * recnop)
 				return ret;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_BTREE:
 #ifdef HAVE_COMPRESSION
 		if(DB_IS_COMPRESSED(dbc->dbp))

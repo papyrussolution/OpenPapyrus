@@ -1756,7 +1756,7 @@ int SLAPI PPMailSmtp::SendMsgFromFile(PPMailMsg * pMsg, const char * pFileName, 
 		temp_buf = pMsg->GetField(PPMailMsg::fldTo);
 		StringSet ss(',', temp_buf);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
-			(addr_buf = 0).CatChar('<').Cat(temp_buf.Strip()).CatChar('>');
+			addr_buf.Z().CatChar('<').Cat(temp_buf.Strip()).CatChar('>');
 			THROW(SendCmd(SMTPCMD_RCPT, addr_buf, buf));
 		}
 	}
@@ -1968,10 +1968,10 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 			account.Timeout = account_rec.Timeout;
 			account.SetExtField(MAEXSTR_SENDSERVER, account_rec.SmtpServer);
 			ResolveAuthType(account_rec.AuthType, &account.SmtpAuthType);
-			(buf = 0).Cat((long)account_rec.SmtpPort);
+			buf.Z().Cat((long)account_rec.SmtpPort);
 			account.SetExtField(MAEXSTR_SENDPORT, buf);
 			account.SetExtField(MAEXSTR_RCVSERVER, account_rec.Pop3Server);
-			(buf = 0).Cat((long)account_rec.Pop3Port);
+			buf.Z().Cat((long)account_rec.Pop3Port);
 			account.SetExtField(MAEXSTR_RCVPORT, buf);
 			account.SetExtField(MAEXSTR_RCVNAME, account_rec.RcvName);
 			account.SetPassword(account_rec.RcvPassword);

@@ -1481,13 +1481,13 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 				}
 				else {
 					sid = port;
-					(port = 0).Cat(1521);
+					port.Z().Cat(1521);
 				}
 			}
 			else {
 				sid = host;
 				host = "localhost";
-				(port = 0).Cat(1521);
+				port.Z().Cat(1521);
 			}
 		}
 		tns.CatChar('(').

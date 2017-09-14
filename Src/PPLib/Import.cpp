@@ -4375,7 +4375,7 @@ int FiasImporter::ReadRecordFromXmlAttrList(const char ** ppAttrList)
 			const char * p_text_data = ppAttrList[i+1];
 			if(p_text_data != 0) {
 				if(P_Sdr->GetFieldByName(ppAttrList[i], &fld) > 0) {
-					THROW(fld.PutFieldDataToBuf(p_text_data, p_data_buf, fp));
+					fld.PutFieldDataToBuf(p_text_data, p_data_buf, fp);
 				}
 			}
 		}

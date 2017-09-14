@@ -74,7 +74,7 @@ int PPCFuncPaperRollUsagePart(const StringSet * pParamList, char * pRes, size_t 
 		R = 0.0;
 		ok = 0;
 	ENDCATCH
-    (param = 0).Cat(R, MKSFMTD(0, 8, NMBF_NOTRAILZ));
+    param.Z().Cat(R, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 	strnzcpy(pRes, param, resBufLen);
 	return ok;
 }

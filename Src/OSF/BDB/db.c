@@ -533,7 +533,7 @@ int __env_mpool(DB * dbp, const char * fname, uint32 flags)
 			lsn_off = DB_LSN_OFF_NOTSET;
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    default:
 		return __db_unknown_type(env, "DB->open", dbp->type);
 	}

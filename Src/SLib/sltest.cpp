@@ -136,7 +136,7 @@ int STestCase::_check_mem(const void * pMem, size_t sz, uint8 pattern, const cha
 	SString buf;
 	for(size_t i = 0; i < sz; i++) {
 		if(((uint8 *)pMem)[i] != pattern) {
-			(buf = 0).Cat(pV).CatChar('[').Cat(i).CatChar(']').Cat("!=").Cat(pattern);
+			buf.Z().Cat(pV).CatChar('[').Cat(i).CatChar(']').Cat("!=").Cat(pattern);
 			SetInfo(buf, 0);
 			return 0;
 		}

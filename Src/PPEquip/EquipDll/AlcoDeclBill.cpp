@@ -393,7 +393,7 @@ void ExportCls::CreateFileName(long DocType, const char * pContragName, const ch
 	SString fmt, dir;
 	SFile file;
 	while(!exit_while) {
-		(rFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir);
+		rFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir);
 		if(DocType & fContrag) {
 			// Папка с именем конграгента
 			if(pContragName) {

@@ -69,7 +69,7 @@ int SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, con
 	return 1;
 }
 
-int SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const SFormatParam & rFmt) const
+void SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const SFormatParam & rFmt) const
 {
 	size_t ns = T.GetBinSize();
 	const  TYPEID st = T.GetDbFieldType();
@@ -89,8 +89,7 @@ int SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const
 		fmt = rFmt.FDate;
 	else if(base_type == BTS_TIME)
 		fmt = rFmt.FTime;
-	stfromstr(st, p_fld_data, fmt, *p_text_data); // @v7.1.9 T.Typ-->st
-	return 1;
+	stfromstr(st, p_fld_data, fmt, *p_text_data);
 }
 //
 //Code = NDOC,     C,  25, 0

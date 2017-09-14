@@ -1104,7 +1104,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 			ProcessorTbl::Rec prc_rec;
 			TSessionPacket pack;
 			if(TSesObj.GetPacket(_id, &pack, 0) > 0) {
-				TSesObj.MakeName(&pack.Rec, tsess_text = 0);
+				TSesObj.MakeName(&pack.Rec, tsess_text.Z());
 				if(item.PrcID && TSesObj.GetPrc(item.PrcID, &prc_rec, 0, 0) > 0) {
 					UhttProcessorPacket uhtt_prc_pack;
 					if(prc_rec.Code[0] == 0) {
@@ -1221,7 +1221,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 								logger.Log(PPFormatT(PPTXT_UHTTEXPTSES_EXPORTED, &msg_buf, tsess_text.cptr()));
 								if(uhtt_tses_id && pack.Rec.Flags & TSESF_HASIMAGES) {
 									lf.Load(pack.Rec.ID, 0L);
-									lf.At(0, img_path = 0);
+									lf.At(0, img_path.Z());
 									if(img_path.NotEmptyS()) {
 										if(uhtt_cli.SetObjImage("TSESSION", uhtt_tses_id, img_path)) {
 											logger.Log(PPFormatT(PPTXT_LOG_UHTT_TSESSSETIMG, &msg_buf, tsess_text.cptr()));
@@ -1292,13 +1292,13 @@ int SLAPI PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & 
 		PPELinkArray elink_list;
 		PPID pers_id = ObjectToPerson(item.ArID);
 		if(PersonCore::GetELinks(pers_id, &elink_list) > 0) {
-			(buf = 0).Cat(item.ID);
+			buf.Z().Cat(item.ID);
 			rTSessIdArr.Add(i, buf);
-			elink_list.GetItem(PPELK_MOBILE, phone = 0);
+			elink_list.GetItem(PPELK_MOBILE, phone.Z());
 			if(phone.Empty())
-				elink_list.GetItem(PPELK_WORKPHONE, phone = 0);
+				elink_list.GetItem(PPELK_WORKPHONE, phone.Z());
  			if(phone.NotEmpty()) {
- 				(buf = 0).Cat(pers_id);
+ 				buf.Z().Cat(pers_id);
  				rPhoneList.Add(i, phone);
 				rPsnList.Add(i, buf);
  				i++;

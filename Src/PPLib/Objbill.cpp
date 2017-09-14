@@ -239,19 +239,19 @@ SString & SLAPI PPObjBill::MakeCodeString(const BillTbl::Rec * pRec, int options
 	rBuf.Z();
 	rBuf.Cat(pRec->Dt, DATF_DMY|DATF_CENTURY).CatDiv('-', 1).Cat(BillCore::GetCode(code));
 	if(options == 1 || options & mcsAddOpName) {
-		GetOpName(pRec->OpID, name = 0);
+		GetOpName(pRec->OpID, name.Z());
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddObjName && pRec->Object) {
-		GetArticleName(pRec->Object, name = 0);
+		GetArticleName(pRec->Object, name.Z());
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddLocName) {
-		GetLocationName(pRec->LocID, name = 0);
+		GetLocationName(pRec->LocID, name.Z());
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	if(options & mcsAddSCard && pRec->SCardID) {
-		GetObjectName(PPOBJ_SCARD, pRec->SCardID, name = 0);
+		GetObjectName(PPOBJ_SCARD, pRec->SCardID, name.Z());
 		rBuf.CatDivIfNotEmpty('-', 1).Cat(name);
 	}
 	return rBuf;
@@ -1299,6 +1299,7 @@ SLAPI PPObjBill::AddBlock::AddBlock(const AddBlock * pBlk)
 		RegisterID = pBlk->RegisterID;
 		LinkBillID = pBlk->LinkBillID;
 		ObjectID = pBlk->ObjectID;
+		Object2ID = pBlk->Object2ID; // @v9.8.1
 		Pk = pBlk->Pk;
 		PoolID = pBlk->PoolID;
 		LocID = pBlk->LocID;
@@ -1426,17 +1427,32 @@ int SLAPI PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 			if(blk.PoolID) {
 				pack.SetPoolMembership(blk.Pk, blk.PoolID);
 			}
-			if(pack.Rec.Object == 0 && blk.ObjectID != 0) {
+			{
 				ArticleTbl::Rec ar_rec;
-				if(op_rec.AccSheetID && ArObj.Fetch(blk.ObjectID, &ar_rec) > 0) {
-					if(ar_rec.AccSheetID != op_rec.AccSheetID) {
-						PPID   ar_id = 0;
-						if(GetAlternateArticle(blk.ObjectID, op_rec.AccSheetID, &ar_id) > 0)
-							pack.Rec.Object = ar_id;
+				if(pack.Rec.Object == 0 && blk.ObjectID != 0) {
+					if(op_rec.AccSheetID && ArObj.Fetch(blk.ObjectID, &ar_rec) > 0) {
+						if(ar_rec.AccSheetID == op_rec.AccSheetID)
+							pack.Rec.Object = blk.ObjectID;
+						else {
+							PPID   ar_id = 0;
+							if(GetAlternateArticle(blk.ObjectID, op_rec.AccSheetID, &ar_id) > 0)
+								pack.Rec.Object = ar_id;
+						}
 					}
-					else
-						pack.Rec.Object = blk.ObjectID;
 				}
+				// @v9.8.2 {
+				if(pack.Rec.Object2 == 0 && blk.Object2ID != 0) {
+					if(op_rec.AccSheet2ID && ArObj.Fetch(blk.Object2ID, &ar_rec) > 0) {
+						if(ar_rec.AccSheetID == op_rec.AccSheet2ID)
+							pack.Rec.Object2 = blk.Object2ID;
+						else {
+							PPID   ar_id = 0;
+							if(GetAlternateArticle(blk.Object2ID, op_rec.AccSheet2ID, &ar_id) > 0)
+								pack.Rec.Object2 = ar_id;
+						}
+					}
+				}
+				// } @v9.8.2 
 			}
 			if(blk.FirstItemLotID) {
 				ReceiptTbl::Rec lot_rec;
@@ -5335,7 +5351,7 @@ int SLAPI PPObjBill::Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter 
 						if(rRecurList.lsearch(rec.LotID)) {
 							SString added_msg_buf;
 							//PPERR_LOTERR_RECURINTROP "Обнаружена рекурсивная петля во внутренних перемещениях Transfer: %s"
-							(added_msg_buf = 0).CatEq("LotID", rec.LotID).CatDiv(';', 2).CatEq("Date", rec.Dt).CatDiv(';', 2).CatEq("OprNo", rec.OprNo);
+							added_msg_buf.Z().CatEq("LotID", rec.LotID).CatDiv(';', 2).CatEq("Date", rec.Dt).CatDiv(';', 2).CatEq("OprNo", rec.OprNo);
 							PPSetError(PPERR_LOTERR_RECURINTROP, added_msg_buf);
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 						}
@@ -5613,7 +5629,7 @@ int SLAPI PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 									if(p_tag_item->TagDataType == OTTYP_IMAGE) {
 										ObjTagItem tag_item = *p_tag_item;
 										//
-										(img_tag_addendum = 0).Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
+										img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
 										ObjLinkFiles link_files(PPOBJ_TAG);
 										link_files.Load(tag_item.TagID, img_tag_addendum);
 										link_files.At(0, img_path);
@@ -5859,7 +5875,7 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 							ObjTagItem tag_item = *p_tag_item;
 							//
 							ObjLinkFiles _lf(PPOBJ_TAG);
-							(img_tag_addendum = 0).Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
+							img_tag_addendum.Z().Cat(pPack->Rec.ID).CatChar('-').Cat(r_ti.RByBill);
 							_lf.Load(tag_item.TagID, img_tag_addendum);
 							if(sstrlen(tag_item.Val.PStr)) {
 								fname = tag_item.Val.PStr;
@@ -8260,7 +8276,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 									sym = st.Translate(p, &next);
 								}
 								else {
-									p_tses_obj->MakeName(&tsess_rec, subst_buf = 0);
+									p_tses_obj->MakeName(&tsess_rec, subst_buf.Z());
 									rResult.Cat(subst_buf);
 									sym = 0;
 								}
@@ -8628,9 +8644,9 @@ SLTEST_R(PPBillFormula)
 					PPCalcExpression(p_lformula, &left_amt,  &bpack, bpack.Rec.CurID, 0);
 					PPCalcExpression(p_rformula, &right_amt, &bpack, bpack.Rec.CurID, 0);
 					if(left_amt == right_amt)
-						(out_msg = 0).Printf("OK: left=\"%s\" == right=\"%s\" result=%.2lf, doc_no=%s", p_lformula, p_rformula, right_amt, bpack.Rec.Code).CR();
+						out_msg.Z().Printf("OK: left=\"%s\" == right=\"%s\" result=%.2lf, doc_no=%s", p_lformula, p_rformula, right_amt, bpack.Rec.Code).CR();
 					else
-						(out_msg = 0).Printf("FAIL: left=\"%s\" != right=\"%s\" result_left=%.2lf, result_right=%.2lf, doc_no=%s", p_lformula, p_rformula, left_amt, right_amt, bpack.Rec.Code).CR();
+						out_msg.Z().Printf("FAIL: left=\"%s\" != right=\"%s\" result_left=%.2lf, result_right=%.2lf, doc_no=%s", p_lformula, p_rformula, left_amt, right_amt, bpack.Rec.Code).CR();
 					out_file.WriteLine(out_msg);
 				}
 			}

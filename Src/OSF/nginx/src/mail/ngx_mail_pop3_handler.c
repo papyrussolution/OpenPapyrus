@@ -29,41 +29,31 @@ void ngx_mail_pop3_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 	u_char  * p;
 	ngx_mail_core_srv_conf_t  * cscf;
 	ngx_mail_pop3_srv_conf_t  * pscf;
-
 	pscf = (ngx_mail_pop3_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_pop3_module);
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
-	if(pscf->auth_methods
-	    & (NGX_MAIL_AUTH_APOP_ENABLED|NGX_MAIL_AUTH_CRAM_MD5_ENABLED)) {
+	if(pscf->auth_methods & (NGX_MAIL_AUTH_APOP_ENABLED|NGX_MAIL_AUTH_CRAM_MD5_ENABLED)) {
 		if(ngx_mail_salt(s, c, cscf) != NGX_OK) {
 			ngx_mail_session_internal_server_error(s);
 			return;
 		}
-
 		s->out.data = (u_char*)ngx_pnalloc(c->pool, sizeof(pop3_greeting) + s->salt.len);
 		if(s->out.data == NULL) {
 			ngx_mail_session_internal_server_error(s);
 			return;
 		}
-
 		p = ngx_cpymem(s->out.data, pop3_greeting, sizeof(pop3_greeting) - 3);
 		*p++ = ' ';
 		p = ngx_cpymem(p, s->salt.data, s->salt.len);
-
 		s->out.len = p - s->out.data;
 	}
 	else {
 		ngx_str_set(&s->out, pop3_greeting);
 	}
-
-	c->P_EvRd->handler = ngx_mail_pop3_init_protocol;
-
+	c->P_EvRd->F_EvHandler = ngx_mail_pop3_init_protocol;
 	ngx_add_timer(c->P_EvRd, cscf->timeout);
-
 	if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
 	}
-
 	ngx_mail_send(c->P_EvWr);
 }
 
@@ -71,37 +61,28 @@ void ngx_mail_pop3_init_protocol(ngx_event_t * rev)
 {
 	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
-
 	c = (ngx_connection_t*)rev->P_Data;
-
 	c->log->action = "in auth state";
-
 	if(rev->timedout) {
 		ngx_log_error(NGX_LOG_INFO, c->log, NGX_ETIMEDOUT, "client timed out");
 		c->timedout = 1;
 		ngx_mail_close_connection(c);
 		return;
 	}
-
 	s = (ngx_mail_session_t*)c->data;
-
 	if(s->buffer == NULL) {
-		if(ngx_array_init(&s->args, c->pool, 2, sizeof(ngx_str_t))
-		    == NGX_ERROR) {
+		if(ngx_array_init(&s->args, c->pool, 2, sizeof(ngx_str_t)) == NGX_ERROR) {
 			ngx_mail_session_internal_server_error(s);
 			return;
 		}
-
 		s->buffer = ngx_create_temp_buf(c->pool, 128);
 		if(s->buffer == NULL) {
 			ngx_mail_session_internal_server_error(s);
 			return;
 		}
 	}
-
 	s->mail_state = ngx_pop3_start;
-	c->P_EvRd->handler = ngx_mail_pop3_auth_state;
-
+	c->P_EvRd->F_EvHandler = ngx_mail_pop3_auth_state;
 	ngx_mail_pop3_auth_state(rev);
 }
 
@@ -334,17 +315,14 @@ static ngx_int_t ngx_mail_pop3_stls(ngx_mail_session_t * s, ngx_connection_t * c
 {
 #if (NGX_MAIL_SSL)
 	ngx_mail_ssl_conf_t  * sslcf;
-
 	if(c->ssl == NULL) {
 		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls) {
-			c->P_EvRd->handler = ngx_mail_starttls_handler;
+			c->P_EvRd->F_EvHandler = ngx_mail_starttls_handler;
 			return NGX_OK;
 		}
 	}
-
 #endif
-
 	return NGX_MAIL_PARSE_INVALID_COMMAND;
 }
 
@@ -352,46 +330,33 @@ static ngx_int_t ngx_mail_pop3_apop(ngx_mail_session_t * s, ngx_connection_t * c
 {
 	ngx_str_t * arg;
 	ngx_mail_pop3_srv_conf_t  * pscf;
-
 #if (NGX_MAIL_SSL)
 	if(ngx_mail_starttls_only(s, c)) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
 #endif
-
 	if(s->args.nelts != 2) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	pscf = (ngx_mail_pop3_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_pop3_module);
-
 	if(!(pscf->auth_methods & NGX_MAIL_AUTH_APOP_ENABLED)) {
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 	arg = (ngx_str_t*)s->args.elts;
-
 	s->login.len = arg[0].len;
 	s->login.data = (u_char*)ngx_pnalloc(c->pool, s->login.len);
 	if(s->login.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(s->login.data, arg[0].data, s->login.len);
-
 	s->passwd.len = arg[1].len;
 	s->passwd.data = (u_char*)ngx_pnalloc(c->pool, s->passwd.len);
 	if(s->passwd.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(s->passwd.data, arg[1].data, s->passwd.len);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0,
-	    "pop3 apop: \"%V\" \"%V\"", &s->login, &s->passwd);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0, "pop3 apop: \"%V\" \"%V\"", &s->login, &s->passwd);
 	s->auth_method = NGX_MAIL_AUTH_APOP;
-
 	return NGX_DONE;
 }
 

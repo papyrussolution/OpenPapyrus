@@ -315,7 +315,7 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & 
 #if (NGX_WIN32)
 				shm_zone[i].shm.handle = oshm_zone[n].shm.handle;
 #endif
-				if(shm_zone[i].init(&shm_zone[i], oshm_zone[n].data) != NGX_OK) {
+				if(shm_zone[i].F_Init(&shm_zone[i], oshm_zone[n].data) != NGX_OK) {
 					goto failed;
 				}
 				goto shm_zone_found;
@@ -329,7 +329,7 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t * old_cycle, const NgxStartUpOptions & 
 		if(ngx_init_zone_pool(cycle, &shm_zone[i]) != NGX_OK) {
 			goto failed;
 		}
-		if(shm_zone[i].init(&shm_zone[i], NULL) != NGX_OK) {
+		if(shm_zone[i].F_Init(&shm_zone[i], NULL) != NGX_OK) {
 			goto failed;
 		}
 shm_zone_found:
@@ -530,7 +530,7 @@ old_shm_zone_done:
 			exit(1);
 		}
 		memzero(ngx_old_cycles.elts, n * sizeof(ngx_cycle_t *));
-		ngx_cleaner_event.handler = ngx_clean_old_cycles;
+		ngx_cleaner_event.F_EvHandler = ngx_clean_old_cycles;
 		ngx_cleaner_event.log = cycle->log;
 		ngx_cleaner_event.P_Data = &dumb;
 		dumb.fd = (ngx_socket_t)-1;
@@ -773,25 +773,19 @@ ngx_shm_zone_t * ngx_shared_memory_add(ngx_conf_t * cf, ngx_str_t * name, size_t
 			shm_zone = (ngx_shm_zone_t *)part->elts;
 			i = 0;
 		}
-		if(name->len != shm_zone[i].shm.name.len) {
-			continue;
+		if(name->len == shm_zone[i].shm.name.len && ngx_strncmp(name->data, shm_zone[i].shm.name.data, name->len) == 0) {
+			if(tag != shm_zone[i].tag) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the shared memory zone \"%V\" is already declared for a different use", &shm_zone[i].shm.name);
+				return NULL;
+			}
+			SETIFZ(shm_zone[i].shm.size, size);
+			if(size && size != shm_zone[i].shm.size) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the size %uz of shared memory zone \"%V\" conflicts with already declared size %uz",
+					size, &shm_zone[i].shm.name, shm_zone[i].shm.size);
+				return NULL;
+			}
+			return &shm_zone[i];
 		}
-		if(ngx_strncmp(name->data, shm_zone[i].shm.name.data, name->len) != 0) {
-			continue;
-		}
-		if(tag != shm_zone[i].tag) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the shared memory zone \"%V\" is already declared for a different use", &shm_zone[i].shm.name);
-			return NULL;
-		}
-		if(shm_zone[i].shm.size == 0) {
-			shm_zone[i].shm.size = size;
-		}
-		if(size && size != shm_zone[i].shm.size) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the size %uz of shared memory zone \"%V\" conflicts with already declared size %uz",
-			    size, &shm_zone[i].shm.name, shm_zone[i].shm.size);
-			return NULL;
-		}
-		return &shm_zone[i];
 	}
 	shm_zone = (ngx_shm_zone_t *)ngx_list_push(&cf->cycle->shared_memory);
 	if(shm_zone) {
@@ -800,7 +794,7 @@ ngx_shm_zone_t * ngx_shared_memory_add(ngx_conf_t * cf, ngx_str_t * name, size_t
 		shm_zone->shm.size = size;
 		shm_zone->shm.name = *name;
 		shm_zone->shm.exists = 0;
-		shm_zone->init = NULL;
+		shm_zone->F_Init = NULL;
 		shm_zone->tag = tag;
 		shm_zone->noreuse = 0;
 	}
@@ -851,7 +845,7 @@ void ngx_set_shutdown_timer(ngx_cycle_t * cycle)
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t*)ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 	if(ccf->shutdown_timeout) {
-		ngx_shutdown_event.handler = ngx_shutdown_timer_handler;
+		ngx_shutdown_event.F_EvHandler = ngx_shutdown_timer_handler;
 		ngx_shutdown_event.P_Data = cycle;
 		ngx_shutdown_event.log = cycle->log;
 		ngx_shutdown_event.cancelable = 1;
@@ -870,6 +864,6 @@ static void ngx_shutdown_timer_handler(ngx_event_t * ev)
 		ngx_log_debug1(NGX_LOG_DEBUG_CORE, ev->log, 0, "*%uA shutdown timeout", c[i].number);
 		c[i].close = 1;
 		c[i].error = 1;
-		c[i].P_EvRd->handler(c[i].P_EvRd);
+		c[i].P_EvRd->F_EvHandler(c[i].P_EvRd);
 	}
 }

@@ -558,7 +558,7 @@ TBaseBrowserWindow::IdentBlock & STimeChunkBrowser::GetIdentBlock(TBaseBrowserWi
 {
 	rBlk.IdBias = IdBiasTimeChunkBrowser;
 	rBlk.ClsName = STimeChunkBrowser::WndClsName;
-	(rBlk.InstanceIdent = 0).Cat(GetResID());
+	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
 

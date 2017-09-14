@@ -1711,7 +1711,7 @@ int SLAPI PPViewGeoTracking::Export()
         if(Filt.Oi.Obj && Filt.Oi.Id) {
 			GetObjectName(Filt.Oi.Obj, Filt.Oi.Id, fn_suffix);
         }
-		(out_file_name = 0).Cat("geo-tracking");
+		out_file_name.Z().Cat("geo-tracking");
 		if(fn_suffix.NotEmptyS()) {
 			out_file_name.CatChar('-').Cat(fn_suffix.Transf(CTRANSF_INNER_TO_OUTER));
 		}
@@ -1734,7 +1734,7 @@ int SLAPI PPViewGeoTracking::Export()
 						PPVersionInfo vi = DS.GetVersionInfo();
 						SVerT ver = vi.GetVersion();
 						vi.GetProductName(temp_buf);
-						(out_buf = 0).Cat(temp_buf);
+						out_buf.Z().Cat(temp_buf);
 						out_buf.Space().Cat(ver.ToStr(temp_buf));
 					}
 					n_gpx.PutAttrib("creator", out_buf);
@@ -1764,10 +1764,10 @@ int SLAPI PPViewGeoTracking::Export()
 					assert(p_n_trkseg != 0);
                     {
                     	SXml::WNode n_trkpt(p_writer, "trkpt");
-							n_trkpt.PutAttrib("lat", (out_buf = 0).Cat(item.Latitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
-							n_trkpt.PutAttrib("lon", (out_buf = 0).Cat(item.Longitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
-							n_trkpt.PutInner("ele", (out_buf = 0).Cat((double)item.Altitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
-							(out_buf = 0).Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+							n_trkpt.PutAttrib("lat", out_buf.Z().Cat(item.Latitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
+							n_trkpt.PutAttrib("lon", out_buf.Z().Cat(item.Longitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
+							n_trkpt.PutInner("ele", out_buf.Z().Cat((double)item.Altitude, MKSFMTD(0, 20, NMBF_NOTRAILZ)));
+							out_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
 							n_trkpt.PutInner("time", out_buf);
                     }
 					last_oid = oid;

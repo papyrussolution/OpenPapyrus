@@ -693,7 +693,7 @@ ExportCls::~ExportCls()
 
 void ExportCls::CreateFileName(uint num)
 {
-	(ExpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 //
@@ -1131,7 +1131,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 							xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E7008); // Описание
 							{
 								SString str1;
-								(str1 = 0).Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
+								str1.Z().Cat(pBRow->GoodsName).ToUtf8(); // Провайдер потребовал эту кодировку
 								str.Z().Cat("<![CDATA[").Cat(str1).Cat("]]>"); // Делаем конструкцию <![CDATA[какая-то строка]]>, ибо благодаря этому спец символы воспринимаются системой как обычные
 								xmlTextWriterWriteString(P_XmlWriter, str.ucptr()); // Наименование товара
 							}
@@ -1667,7 +1667,7 @@ ImportCls::~ImportCls()
 
 void ImportCls::CreateFileName(uint num)
 {
-	(ImpFileName = 0).Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
+	ImpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
 
 //

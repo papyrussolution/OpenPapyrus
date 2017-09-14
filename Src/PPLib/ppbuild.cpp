@@ -569,7 +569,7 @@ int	SLAPI PrcssrBuild::Run()
 		P.GetVerLabel(ver_label);
 		char _c = 0;
 		do {
-			(sub_path = 0).CatChar('v').Cat(P.Ver.Major).Cat(P.Ver.Minor).CatLongZ(P.Ver.Revision, 2).CatChar('a' + (P.Ver.Asm + _c) % 26);
+			sub_path.Z().CatChar('v').Cat(P.Ver.Major).Cat(P.Ver.Minor).CatLongZ(P.Ver.Revision, 2).CatChar('a' + (P.Ver.Asm + _c) % 26);
 			if(P.VerSuffix.NotEmpty())
 				sub_path.CatChar('-').Cat(P.VerSuffix);
 			(distrib_path = p_config_entry->DistribPath).SetLastSlash().Cat(sub_path);
@@ -725,7 +725,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 
 		PPGetFilePath(PPPATH_BIN, "dl600c.exe", temp_buf);
 		THROW_SL(fileExists(temp_buf));
-		(cmd_line = 0).CatQStr(temp_buf);
+		cmd_line.Z().CatQStr(temp_buf);
 		if(isempty(pPath)) {
 			PPGetFilePath(PPPATH_DD, "local.dl6", src_file_name);
 		}

@@ -3470,7 +3470,7 @@ int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 		}
 		flt.OpID = op_id;
 		flt.Ft_ClosedOrder = -1;
-		flt.Flags   |= (BillFilt::fAsSelector | BillFilt::fOrderOnly);
+		flt.Flags   |= (BillFilt::fAsSelector|BillFilt::fOrderOnly);
 		if(LastSelID) {
 			BillTbl::Rec last_sel_rec;
 			if(P_BObj->Fetch(LastSelID, &last_sel_rec) > 0) {
@@ -3929,8 +3929,14 @@ int SLAPI PPViewBill::AddBillToPool()
 	SETIFZ(loc_id, r_cfg.Location);
  	const  PPID  save_loc_id = r_cfg.Location;
 	PPID   ar_id = 0;
+	PPID   ar2_id = 0; // @v9.8.1
 	BillTbl::Rec bill_rec;
 	if(Filt.PoolBillID && Filt.AssocID) {
+		//
+		// Здесь мы определяем некоторые параметры создаваемого документа на основании информации о владельце пула.
+		// Эти параметры в этой точке могут не проверяться слишком тщательно поскольку
+		// функции создания документов позаботяться о корректности этих значений самостоятельно.
+		//
 		if(Filt.AssocID == PPASS_TSESSBILLPOOL) {
 			PPObjTSession tses_obj;
 			TSessionTbl::Rec tses_rec;
@@ -3939,6 +3945,7 @@ int SLAPI PPViewBill::AddBillToPool()
 				if(tses_obj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
 					loc_id = prc_rec.LocID;
 				ar_id = tses_rec.ArID;
+				ar2_id = tses_rec.Ar2ID; // @v9.8.1
 			}
 		}
 		else if(P_BObj->Search(Filt.PoolBillID, &bill_rec) > 0)
@@ -3981,6 +3988,7 @@ int SLAPI PPViewBill::AddBillToPool()
 				PPObjBill::AddBlock ab;
 				ab.OpID = op_id;
 				ab.ObjectID = ar_id;
+				ab.Object2ID = ar2_id; // @v9.8.1
 				ab.Pk = PPBillPacket::ObjAssocToPoolKind(Filt.AssocID);
 				ab.PoolID = Filt.PoolBillID;
 				DS.SetLocation(loc_id);
@@ -4654,7 +4662,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
 							if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice)
 								WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP) 
+							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP)
 								WriteBill_NalogRu2_DP_REZRUISP(pack, b_e.BillParam.FileName);
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
@@ -5977,24 +5985,27 @@ int SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 	if(poolType && poolOwnerID) {
 		THROW(PPView::CreateInstance(PPVIEW_BILL, &p_v));
 		THROW(p_flt = p_v->CreateFilt(0));
-		((BillFilt*)p_flt)->AssocID = poolType;
-		((BillFilt*)p_flt)->PoolBillID = poolOwnerID;
-		((BillFilt*)p_flt)->Bbt = bbtUndef;
-		SETFLAG(((BillFilt*)p_flt)->Flags, BillFilt::fEditPoolByType, pool_bytype);
-		if(poolType == PPASS_TSESSBILLPOOL) {
-			PPObjTSession tses_obj;
-			TSessionTbl::Rec tses_rec;
-			if(tses_obj.Search(poolOwnerID, &tses_rec) > 0) {
-				ProcessorTbl::Rec prc_rec;
-				if(tses_obj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0) {
-					if(prc_rec.WrOffOpID && CheckOpFlags(prc_rec.WrOffOpID, OPKF_NEEDPAYMENT)) {
-						SETFLAG(((BillFilt*)p_flt)->Flags, BillFilt::fShowDebt, 1);
+		{
+			BillFilt * p_bfilt = (BillFilt*)p_flt;
+			p_bfilt->AssocID = poolType;
+			p_bfilt->PoolBillID = poolOwnerID;
+			p_bfilt->Bbt = bbtUndef;
+			SETFLAG(p_bfilt->Flags, BillFilt::fEditPoolByType, pool_bytype);
+			if(poolType == PPASS_TSESSBILLPOOL) {
+				PPObjTSession tses_obj;
+				TSessionTbl::Rec tses_rec;
+				if(tses_obj.Search(poolOwnerID, &tses_rec) > 0) {
+					ProcessorTbl::Rec prc_rec;
+					if(tses_obj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0) {
+						if(prc_rec.WrOffOpID && CheckOpFlags(prc_rec.WrOffOpID, OPKF_NEEDPAYMENT)) {
+							SETFLAG(p_bfilt->Flags, BillFilt::fShowDebt, 1);
+						}
 					}
 				}
 			}
+			THROW(p_v->Init_(p_bfilt));
+			THROW(p_v->Browse(0));
 		}
-		THROW(p_v->Init_(p_flt));
-		THROW(p_v->Browse(0));
 	}
 	CATCHZOKPPERR
 	delete p_v;

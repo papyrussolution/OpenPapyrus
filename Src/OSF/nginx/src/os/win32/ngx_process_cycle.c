@@ -19,7 +19,7 @@ static ngx_uint_t ngx_reap_worker(ngx_cycle_t * cycle, HANDLE h);
 static void ngx_master_process_exit(ngx_cycle_t * cycle);
 static int  ngx_worker_process_cycle(ngx_cycle_t * cycle, char * mevn);
 static void ngx_worker_process_exit(ngx_cycle_t * cycle);
-static ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
+/*static*/ ngx_thread_value_t __stdcall ngx_worker_thread(void * data);
 static ngx_thread_value_t __stdcall ngx_cache_manager_thread(void * data);
 static void ngx_cache_manager_process_handler(void);
 static ngx_thread_value_t __stdcall ngx_cache_loader_thread(void * data);
@@ -490,18 +490,17 @@ failed:
 	return result;
 }
 
-static ngx_thread_value_t __stdcall ngx_worker_thread(void * data)
+/*static*/ ngx_thread_value_t __stdcall ngx_worker_thread(void * data)
 {
 	ngx_int_t n;
-	ngx_cycle_t  * cycle;
+	ngx_cycle_t * cycle;
 	ngx_time_t * tp = ngx_timeofday();
 	srand((ngx_pid << 16) ^ (unsigned)tp->sec ^ tp->msec);
-	cycle = (ngx_cycle_t*)ngx_cycle;
+	cycle = (ngx_cycle_t *)ngx_cycle;
 	for(n = 0; cycle->modules[n]; n++) {
 		if(cycle->modules[n]->init_process) {
 			if(cycle->modules[n]->init_process(cycle) == NGX_ERROR) {
-				/* fatal */
-				exit(2);
+				exit(2); // fatal 
 			}
 		}
 	}
@@ -640,20 +639,25 @@ static ngx_thread_value_t __stdcall ngx_cache_loader_thread(void * data)
 	return 0;
 }
 
+int SLAPI RunNginxWorker(); // @prototype
+
 int ngx_single_process_cycle(ngx_cycle_t * cycle)
 {
 	int    result = 0;
-	ngx_tid_t tid;
 	ngx_console_init(cycle);
 	if(ngx_create_signal_events(cycle) != NGX_OK) { // Создает служебные сигналы (STOP etc)
 		result = 2; // fatal 
 	}
-	else if(ngx_create_thread(&tid, ngx_worker_thread, NULL, cycle->log) != 0) { // Рабочий поток
-		result = 2; // fatal 
-	}
 	else {
-		// STUB 
-		WaitForSingleObject(ngx_stop_event, INFINITE);
+		//ngx_tid_t tid;
+		//if(ngx_create_thread(&tid, ngx_worker_thread, NULL, cycle->log) != 0) { // Рабочий поток
+		if(!RunNginxWorker()) {
+			result = 2; // fatal 
+		}
+		else {
+			// STUB 
+			WaitForSingleObject(ngx_stop_event, INFINITE);
+		}
 	}
 	return result;
 }

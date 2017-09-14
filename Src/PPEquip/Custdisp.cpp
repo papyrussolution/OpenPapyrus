@@ -127,7 +127,7 @@ int SLAPI PPCustDisp::SetCurTime()
 		SString time_str, minute;
 		getcurtime(&tm);
 		decodetime(&h, &m, 0, 0, &tm);
-		(minute = 0).Cat(m);
+		minute.Z().Cat(m);
 		if(minute.Len() == 1)
 			minute.PadLeft(1, '0');
 		time_str.CatChar('T').Cat(h).CatChar(':').Cat(minute);
@@ -247,7 +247,7 @@ int SLAPI PPCustDisp::SetChange(double cash, double change)
 	THROW(PutString(TwoPartLine(temp_buf, val_buf, DispStrLen), ALIGN_LEFT, upp));
 	//
 	PPGetSubStr(Words, PPCDY_CHANGE, temp_buf);
-	(val_buf = 0).Cat(fabs(change), MKSFMTD(0, 2, ALIGN_LEFT));
+	val_buf.Z().Cat(fabs(change), MKSFMTD(0, 2, ALIGN_LEFT));
 	THROW(PutString(TwoPartLine(temp_buf, val_buf, DispStrLen), ALIGN_LEFT, down));
 	CATCHZOK
 	return ok;

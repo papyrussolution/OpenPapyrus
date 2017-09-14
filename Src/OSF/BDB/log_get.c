@@ -308,7 +308,7 @@ nextrec:
 				break;
 			}
 			flags = DB_FIRST;
-			// FALLTHROUGH 
+			// @fallthrough 
 	    case DB_FIRST: // First log record. 
 			// Find the first log file. 
 			if((ret = __log_find(dblp, 1, &cnt, &status)) != 0)
@@ -329,7 +329,7 @@ nextrec:
 			switch(status) {
 				case DB_LV_INCOMPLETE:
 					DB_ASSERT(env, lp->lsn.file == cnt);
-					// FALLTHROUGH 
+					// @fallthrough 
 				case DB_LV_NORMAL:
 				case DB_LV_OLD_READABLE:
 					nlsn.file = cnt;
@@ -364,7 +364,7 @@ nextrec:
 				nlsn.Offset_ = logc->prev;
 				break;
 			}
-			// FALLTHROUGH 
+			// @fallthrough 
 	    case DB_LAST: // Last log record
 			if(rlock == L_NONE) {
 				rlock = L_ACQUIRED;
@@ -473,7 +473,7 @@ nohdr:
 				// 
 				if(nlsn.Offset_)
 					goto next_file;
-				// FALLTHROUGH
+				// @fallthrough
 		    case DB_SET:
 		    default:
 				ret = DB_NOTFOUND;
@@ -1231,7 +1231,7 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 				hdrsize = uinttmp;
 				if(has_data == 1)
 					break;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LOGREC_DATA:
 				if(downrev ? LOG_SWAPPED(env) : (dbpp && *dbpp != NULL && F_ISSET(*dbpp, DB_AM_SWAP)))
 					__db_recordswap(op, hdrsize, hdrstart, has_data ? ap+sp->offset : NULL, 1);
@@ -1247,7 +1247,7 @@ int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RE
 				hdrsize = uinttmp;
 				if(has_data == 1)
 					break;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LOGREC_PGDDBT:
 				if(dbpp && *dbpp != NULL && (downrev ? LOG_SWAPPED(env) : F_ISSET(*dbpp, DB_AM_SWAP)) && (ret = __db_pageswap(env, *dbpp, hdrstart,
 					hdrsize, has_data == 0 ? NULL : (DBT *)(ap+sp->offset), 1)) != 0)

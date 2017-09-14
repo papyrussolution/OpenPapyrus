@@ -2453,7 +2453,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 			SString new_cmd_buf;
 			int    to_do = 0;
 			for(uint ssp = 0; ss_cwd.get(&ssp, temp_buf);) {
-				(new_cmd_buf = 0).Cat("CWD").Space().Cat(temp_buf.Strip());
+				new_cmd_buf.Z().Cat("CWD").Space().Cat(temp_buf.Strip());
 				p_chunk = curl_slist_append(p_chunk, new_cmd_buf.cptr());
 				to_do = 1;
 			}

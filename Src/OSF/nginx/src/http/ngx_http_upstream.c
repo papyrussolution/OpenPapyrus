@@ -991,8 +991,8 @@ static void ngx_http_upstream_connect(ngx_http_request_t * r, ngx_http_upstream_
 	// rc == NGX_OK || rc == NGX_AGAIN || rc == NGX_DONE 
 	c = u->peer.connection;
 	c->data = r;
-	c->P_EvWr->handler = ngx_http_upstream_handler;
-	c->P_EvRd->handler = ngx_http_upstream_handler;
+	c->P_EvWr->F_EvHandler = ngx_http_upstream_handler;
+	c->P_EvRd->F_EvHandler = ngx_http_upstream_handler;
 	u->write_event_handler = ngx_http_upstream_send_request_handler;
 	u->read_event_handler = ngx_http_upstream_process_header;
 	c->sendfile &= r->connection->sendfile;
@@ -1127,8 +1127,8 @@ static void ngx_http_upstream_ssl_handshake(ngx_http_request_t * r, ngx_http_ups
 		if(u->conf->ssl_session_reuse) {
 			u->peer.save_session(&u->peer, u->peer.data);
 		}
-		c->P_EvWr->handler = ngx_http_upstream_handler;
-		c->P_EvRd->handler = ngx_http_upstream_handler;
+		c->P_EvWr->F_EvHandler = ngx_http_upstream_handler;
+		c->P_EvRd->F_EvHandler = ngx_http_upstream_handler;
 		ngx_http_upstream_send_request(r, u, 1);
 		return;
 	}

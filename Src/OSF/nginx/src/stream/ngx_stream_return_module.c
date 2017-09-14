@@ -90,7 +90,7 @@ static void ngx_stream_return_handler(ngx_stream_session_t * s)
 	}
 	ctx->out->buf = b;
 	ctx->out->next = NULL;
-	c->P_EvWr->handler = ngx_stream_return_write_handler;
+	c->P_EvWr->F_EvHandler = ngx_stream_return_write_handler;
 	ngx_stream_return_write_handler(c->P_EvWr);
 }
 

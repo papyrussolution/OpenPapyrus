@@ -132,7 +132,7 @@ ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uin
 	ngx_queue_init(&r->addr6_resend_queue);
 	ngx_queue_init(&r->addr6_expire_queue);
 #endif
-	r->event->handler = ngx_resolver_resend_handler;
+	r->event->F_EvHandler = ngx_resolver_resend_handler;
 	r->event->P_Data = r;
 	r->event->log = &cf->cycle->new_log;
 	r->event->cancelable = 1;
@@ -1034,116 +1034,87 @@ static ngx_int_t ngx_resolver_send_query(ngx_resolver_t * r, ngx_resolver_node_t
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_resolver_send_udp_query(ngx_resolver_t * r, ngx_resolver_connection_t  * rec,
-    u_char * query, u_short qlen)
+static ngx_int_t ngx_resolver_send_udp_query(ngx_resolver_t * r, ngx_resolver_connection_t  * rec, u_char * query, u_short qlen)
 {
 	ssize_t n;
-
 	if(rec->udp == NULL) {
 		if(ngx_udp_connect(rec) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		rec->udp->data = rec;
-		rec->udp->P_EvRd->handler = ngx_resolver_udp_read;
+		rec->udp->P_EvRd->F_EvHandler = ngx_resolver_udp_read;
 		rec->udp->P_EvRd->resolver = 1;
 	}
-
 	n = ngx_send(rec->udp, query, qlen);
-
 	if(n == -1) {
 		return NGX_ERROR;
 	}
-
 	if((size_t)n != (size_t)qlen) {
 		ngx_log_error(NGX_LOG_CRIT, &rec->log, 0, "send() incomplete");
 		return NGX_ERROR;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_connection_t * rec,
-    u_char * query, u_short qlen)
+static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_connection_t * rec, u_char * query, u_short qlen)
 {
 	ngx_buf_t  * b;
 	ngx_int_t rc;
-
 	rc = NGX_OK;
-
 	if(rec->tcp == NULL) {
 		b = rec->read_buf;
-
 		if(b == NULL) {
 			b = (ngx_buf_t*)ngx_resolver_calloc(r, sizeof(ngx_buf_t));
 			if(b == NULL) {
 				return NGX_ERROR;
 			}
-
 			b->start = (u_char *)ngx_resolver_alloc(r, NGX_RESOLVER_TCP_RSIZE);
 			if(b->start == NULL) {
 				ngx_resolver_free(r, b);
 				return NGX_ERROR;
 			}
-
 			b->end = b->start + NGX_RESOLVER_TCP_RSIZE;
-
 			rec->read_buf = b;
 		}
-
 		b->pos = b->start;
 		b->last = b->start;
-
 		b = rec->write_buf;
-
 		if(b == NULL) {
 			b = (ngx_buf_t*)ngx_resolver_calloc(r, sizeof(ngx_buf_t));
 			if(b == NULL) {
 				return NGX_ERROR;
 			}
-
 			b->start = (u_char *)ngx_resolver_alloc(r, NGX_RESOLVER_TCP_WSIZE);
 			if(b->start == NULL) {
 				ngx_resolver_free(r, b);
 				return NGX_ERROR;
 			}
-
 			b->end = b->start + NGX_RESOLVER_TCP_WSIZE;
-
 			rec->write_buf = b;
 		}
-
 		b->pos = b->start;
 		b->last = b->start;
-
 		rc = ngx_tcp_connect(rec);
 		if(rc == NGX_ERROR) {
 			return NGX_ERROR;
 		}
-
 		rec->tcp->data = rec;
-		rec->tcp->P_EvWr->handler = ngx_resolver_tcp_write;
-		rec->tcp->P_EvRd->handler = ngx_resolver_tcp_read;
+		rec->tcp->P_EvWr->F_EvHandler = ngx_resolver_tcp_write;
+		rec->tcp->P_EvRd->F_EvHandler = ngx_resolver_tcp_read;
 		rec->tcp->P_EvRd->resolver = 1;
-
 		ngx_add_timer(rec->tcp->P_EvWr, (ngx_msec_t)(r->tcp_timeout * 1000));
 	}
-
 	b = rec->write_buf;
-
 	if(b->end - b->last <  2 + qlen) {
 		ngx_log_error(NGX_LOG_CRIT, &rec->log, 0, "buffer overflow");
 		return NGX_ERROR;
 	}
-
 	*b->last++ = (u_char)(qlen >> 8);
 	*b->last++ = (u_char)qlen;
 	b->last = ngx_cpymem(b->last, query, qlen);
-
 	if(rc == NGX_OK) {
 		ngx_resolver_tcp_write(rec->tcp->P_EvWr);
 	}
-
 	return NGX_OK;
 }
 
@@ -3222,7 +3193,7 @@ static ngx_int_t ngx_resolver_set_timeout(ngx_resolver_t * r, ngx_resolver_ctx_t
 	if(ctx->event == NULL) {
 		return NGX_ERROR;
 	}
-	ctx->event->handler = ngx_resolver_timeout_handler;
+	ctx->event->F_EvHandler = ngx_resolver_timeout_handler;
 	ctx->event->P_Data = ctx;
 	ctx->event->log = r->log;
 	ctx->event->cancelable = ctx->cancelable;

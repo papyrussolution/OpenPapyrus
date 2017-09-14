@@ -380,7 +380,7 @@ int Generator_GnuPlot::Cmd(const char * pLine)
 
 SString & Generator_GnuPlot::Set()
 {
-	return (LineBuf = 0).Cat("set").Space();
+	return LineBuf.Z().Cat("set").Space();
 }
 
 SString & Generator_GnuPlot::SetTics(int axis)
@@ -391,7 +391,7 @@ SString & Generator_GnuPlot::SetTics(int axis)
 
 SString & Generator_GnuPlot::SetStyle()
 {
-	return (LineBuf = 0).Cat("set").Space().Cat("style").Space();
+	return LineBuf.Z().Cat("set").Space().Cat("style").Space();
 }
 
 int Generator_GnuPlot::SetStyleFill(const char * pFillStyle)
@@ -423,7 +423,7 @@ SString & Generator_GnuPlot::Color(COLORREF c)
 
 int Generator_GnuPlot::UnsetTics(int axis)
 {
-	(LineBuf = 0).Cat("unset").Space();
+	LineBuf.Z().Cat("unset").Space();
 	AxisLetter(axis).Cat("tics").CR();
 	return PutLine();
 }
@@ -675,7 +675,7 @@ int Generator_GnuPlot::PutEOR()
 int Generator_GnuPlot::PutEndOfData()
 {
 	/*
-	(LineBuf = 0).CatChar('e').CR();
+	LineBuf.Z().CatChar('e').CR();
 	return PutDataLine();
 	*/
 	DataFile.Close();
@@ -767,7 +767,7 @@ int Generator_GnuPlot::Run()
 	SString file_name, q_file_name, cmd_line;
 	file_name = GetName();
 	(q_file_name = file_name).Quot('\"', '\"');
-	(LineBuf = 0).Cat("pause").Space().Cat(100000).CR();
+	LineBuf.Z().Cat("pause").Space().Cat(100000).CR();
 	PutLine();
 	Close();
 

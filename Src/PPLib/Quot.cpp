@@ -1081,7 +1081,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 								g_filt.P_SjF->ActionIDList = flt.EventList.Get();
 								g_filt.P_SjF->Period.low = moment.d;
 								g_filt.P_SjF->BegTm = moment.t;
-								(ev_msg_buf = 0).Cat(moment, DATF_DMY, TIMF_HMS).Space().CatEq("EvTokID", flt.EvTokID);
+								ev_msg_buf.Z().Cat(moment, DATF_DMY, TIMF_HMS).Space().CatEq("EvTokID", flt.EvTokID);
 							}
 							else
 								ev_msg_buf = "event not found";

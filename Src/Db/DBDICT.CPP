@@ -234,7 +234,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 		uint16 bl = 0;
 		SString file_name;
 		if(strchr(pFileName, ' '))
-			(file_name = 0).CatQStr(pFileName);
+			file_name.Z().CatQStr(pFileName);
 		else
 			file_name = pFileName;
 		char   temp_buf[512];

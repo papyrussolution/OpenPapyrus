@@ -1042,7 +1042,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 		SFile f(pFileName, SFile::mRead);
 		THROW(f.IsValid());
 		f.CalcCRC(0, &crc);
-		(SymbPrefix = 0).Cat(crc).CatChar('-');
+		SymbPrefix.Z().Cat(crc).CatChar('-');
 	}
 	{
 		int    options = XML_PARSE_NOENT;

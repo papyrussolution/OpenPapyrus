@@ -530,7 +530,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(sstreqi_ascii(cmd, "GETCONFIG")) {
 			SetLastItems(0, 0);
-			(str = 0).CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
+			str.Z().CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
 			if(outSize < str.BufSize()){
 				NotEnoughBuf(str);
 				memcpy(pOutputData, str, outSize);
@@ -838,7 +838,7 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 	memzero(str, sizeof(str));
 	for(uint i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(LastError == ErrMsg[i].Id) {
-			(rMsg = 0).Cat(ErrMsg[i].P_Msg);
+			rMsg.Z().Cat(ErrMsg[i].P_Msg);
 			break;
 		}
 	}
@@ -870,7 +870,7 @@ int PiritEquip::NotEnoughBuf(SString & rStr)
 	ErrorCode = PIRIT_NOTENOUGHMEM;
 	LastStr = rStr;
 	const int size = rStr.BufSize();
-	(rStr = 0).Cat(size);
+	rStr.Z().Cat(size);
 	return 1;
 }
 
@@ -1067,7 +1067,7 @@ int PiritEquip::StartWork()
 			THROW(GetWhile(out_data, r_error));
 		}
 		out_data.Divide(FS, date, time);
-		(CashDateTime = 0).Cat("Текущая дата на ККМ: ").Cat(date).Cat(" Текущее время на ККМ: ").Cat(time);
+		CashDateTime.Z().Cat("Текущая дата на ККМ: ").Cat(date).Cat(" Текущее время на ККМ: ").Cat(time);
 		in_data = 0;
 		GetLocalTime(&sys_dt_tm);
 		GetDateTime(sys_dt_tm, datetime, 0);
@@ -1662,7 +1662,7 @@ int PiritEquip::GetStatus(SString & rStatus)
 int PiritEquip::FormatPaym(double paym, SString & rStr)
 {
 	SString b_point, a_point;
-	(rStr = 0).Cat(paym);
+	rStr.Z().Cat(paym);
     rStr.Divide('.', b_point, a_point);
 	if(a_point.Len() > 2)
 		a_point.Trim(2);
@@ -1670,7 +1670,7 @@ int PiritEquip::FormatPaym(double paym, SString & rStr)
 		a_point.Cat("00");
 	else if(a_point.Len() == 1)
 		a_point.CatChar('0');
-	(rStr = 0).Cat(b_point).Dot().Cat(a_point);
+	rStr.Z().Cat(b_point).Dot().Cat(a_point);
 	return 1;
 }
 

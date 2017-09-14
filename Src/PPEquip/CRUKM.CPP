@@ -287,8 +287,8 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 			distrib_path = 1;
 		}
 		else {
-			THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_POSLOAD_BTR, path_goods = 0));
-			THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CREDOPAY_BTR, path_sccrd = 0));
+			THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_POSLOAD_BTR, path_goods.Z()));
+			THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CREDOPAY_BTR, path_sccrd.Z()));
 		}
 		if(fileExists(path_goods))
 			for(int i = 0; i < 10; i++)

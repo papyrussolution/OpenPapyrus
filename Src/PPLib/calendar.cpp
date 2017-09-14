@@ -530,7 +530,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 			DrawSelectedYearRect(hdc, BLACK_BRUSH, i);
 			SetTextColor(hdc, RGB(255, 255, 255));
 		}
-		(s = 0).Cat(i);
+		s.Z().Cat(i);
 		::GetTextExtentPoint32(hdc, s, s.Len(), &ts); // @unicodeproblem
 		::TextOut(hdc, Left + (y_br - y_bl - y_w) / 2 + (i - y_firstyear - 2) * y_w + (y_w - ts.cx) / 2, y_t, s, s.Len()); // @unicodeproblem
 	}

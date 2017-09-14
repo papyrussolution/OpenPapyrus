@@ -2676,7 +2676,7 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 						7000 + x
 						*/
 						_plu = (ushort)pPLU->GoodsNo + (7000 + (1000 * _n));
-						(_plu_text = 0).CatLongZ((long)_plu, ext_plu_len);
+						_plu_text.Z().CatLongZ((long)_plu, ext_plu_len);
 						if(_plu_text.Len() == 4) {
 							strnzcpy(as_entry.AddStrTxt, p_full_buf + _text_buf_offs, max_text - ext_size); // \x15}xxxx
 							as_entry.AddStrTxt[max_text-ext_size] = '\x15';
@@ -2889,8 +2889,8 @@ int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 
 		dbfrS.empty();
 		dbfrS.put(1, Data.LogNum);
-		dbfrS.put(2, (head = 0).Cat(pScalePLU->GoodsID));
-		(head = 0).Cat(GCfg.WghtPrefix).CatLongZ(pScalePLU->Barcode % 100000, 5);
+		dbfrS.put(2, head.Z().Cat(pScalePLU->GoodsID));
+		head.Z().Cat(GCfg.WghtPrefix).CatLongZ(pScalePLU->Barcode % 100000, 5);
 		dbfrS.put(3, head);
 		dbfrS.put(4, GCfg.WghtPrefix);
 		{
@@ -3684,7 +3684,7 @@ int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
 					line_no++;
 					if(line_buf.NotEmptyS()) {
 						line_buf.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar('@', 'a').ReplaceStr("\xD\xA", "\n", 0);
-						(send_buf = 0).Cat("ATST  ").CatChar(delimiter).Cat("S").Cat(log_num).CatChar(delimiter);
+						send_buf.Z().Cat("ATST  ").CatChar(delimiter).Cat("S").Cat(log_num).CatChar(delimiter);
 						send_buf.Cat("WALO0").CatChar(delimiter);
 						send_buf.Cat("ATNU").Cat(AddInfoFieldId).CatChar(delimiter);
 						send_buf.Cat("ATTE").Cat(line_buf).CatChar(delimiter).Cat("BLK ").CatChar(delimiter);
@@ -3698,7 +3698,7 @@ int SLAPI Bizerba::SendPLU(const ScalePLU * pScalePLU)
 					alt_texts.Cat("ALT").Cat(line_no).Cat(msg_num).CatChar(delimiter);
 				}
 			}
-			(send_buf = 0).Cat("PLST  ").CatChar(delimiter).Cat("S").Cat(log_num).CatChar(delimiter);
+			send_buf.Z().Cat("PLST  ").CatChar(delimiter).Cat("S").Cat(log_num).CatChar(delimiter);
 			send_buf.Cat("WALO0").CatChar(delimiter);
 			send_buf.Cat("PNUM").Cat(pScalePLU->GoodsNo).CatChar(delimiter);
 			send_buf.Cat("ABNU").Cat(department).CatChar(delimiter);

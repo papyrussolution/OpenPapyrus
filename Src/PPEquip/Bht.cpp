@@ -380,14 +380,14 @@ int StyloBhtIIOpInfoDlg::setupList()
 	int    ok = 1;
 	SString buf;
 	StringSet ss(';', ErrList);
-	for(uint i = 0; ss.get(&i, buf = 0) > 0;) {
+	for(uint i = 0; ss.get(&i, buf.Z()) > 0;) {
 		long id = 0;
 		uint j = 0;
 		StringSet ss1(',', buf);
-		ss1.get(&j, buf = 0);
+		ss1.get(&j, buf.Z());
 		id = buf.ToLong();
-		ss1.get(&j, buf = 0);
-		THROW(addStringToList(id, (const char*)buf));
+		ss1.get(&j, buf.Z());
+		THROW(addStringToList(id, buf.cptr()));
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2233,7 +2233,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 							sdr_brow.LocID = cell_list.at(j).LocID;
 							sdr_brow.Qtty  = -fabs(cell_list.at(j).Qtty);
 							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
-							(name = 0).Space().Space().Space().Space().Cat(sdr_brow.Name);
+							name.Z().Space().Space().Space().Space().Cat(sdr_brow.Name);
 							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
 							// @v9.4.11 SOemToChar(sdr_brow.Name);
 							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
@@ -2252,7 +2252,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 							sdr_brow.LocID = list.at(j).Key;
 							sdr_brow.Qtty  = list.at(j).Val;
 							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
-							(name = 0).Space().Space().Space().Space().Cat(sdr_brow.Name);
+							name.Z().Space().Space().Space().Space().Cat(sdr_brow.Name);
 							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
 							// @v9.4.11 SOemToChar(sdr_brow.Name);
 							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
@@ -3856,7 +3856,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 							PPLoadString("incoming", temp_buf);
 						else
 							PPLoadString("bailment", temp_buf);
-						PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, buf, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
+						PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, buf, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
 						add_info.Printf(buf, temp_buf.cptr(), sdr_bill.SampleID, s_dt.cptr(), bill_code.cptr());
 						buf.ShiftLeft();
 						pLog->Log(buf);
@@ -3869,7 +3869,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 					// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf);
 					PPLoadString("billno", buf); // @v9.3.10
 					add_info.Cat(buf).CatChar('[').Cat(bill_code).CatChar(']');
-					PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
+					PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
 					buf.ShiftLeft();
 					pLog->Log(buf);
 				}
@@ -3990,10 +3990,10 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								(add_info = buf).CatBrackStr(goods_name).CatDiv(',', 2);
 								PPLoadString("date", buf);
 								add_info.Cat(buf).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
-								// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf = 0);
+								// @v9.3.10 PPGetWord(PPWORD_BILLCODE, 0, buf.Z());
 								PPLoadString("billno", buf); // @v9.3.10
 								add_info.Cat(buf).CatBrackStr(bill_code);
-								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
+								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
 								buf.ShiftLeft();
 								pLog->Log(buf);
 							}

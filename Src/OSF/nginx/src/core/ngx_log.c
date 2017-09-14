@@ -114,9 +114,9 @@ static const char * debug_levels[] = { "debug_core", "debug_alloc", "debug_mutex
 	}
 	ngx_linefeed(p);
 	wrote_stderr = 0;
-	debug_connection = (log->log_level & NGX_LOG_DEBUG_CONNECTION) != 0;
+	debug_connection = (log->Level & NGX_LOG_DEBUG_CONNECTION) != 0;
 	while(log) {
-		if(log->log_level < level && !debug_connection) {
+		if(log->Level < level && !debug_connection) {
 			break;
 		}
 		if(log->writer) {
@@ -154,7 +154,7 @@ next:
 void ngx_cdecl ngx_log_error(ngx_uint_t level, ngx_log_t * log, ngx_err_t err, const char * fmt, ...)
 {
 	va_list args;
-	if(log->log_level >= level) {
+	if(log->Level >= level) {
 		va_start(args, fmt);
 		ngx_log_error_core(level, log, err, fmt, args);
 		va_end(args);
@@ -229,12 +229,11 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 	u_char  * p, * name;
 	size_t nlen, plen;
 	ngx_log.file = &ngx_log_file;
-	ngx_log.log_level = NGX_LOG_NOTICE;
+	ngx_log.Level = NGX_LOG_NOTICE;
 	name = (u_char*)NGX_ERROR_LOG_PATH;
-	/*
-	 * we use ngx_strlen() here since BCC warns about
-	 * condition is always false and unreachable code
-	 */
+	// 
+	// we use ngx_strlen() here since BCC warns about condition is always false and unreachable code
+	// 
 	nlen = ngx_strlen(name);
 	if(nlen == 0) {
 		ngx_log_file.fd = ngx_stderr;
@@ -286,134 +285,110 @@ ngx_log_t * ngx_log_init(const u_char * prefix)
 
 ngx_int_t ngx_log_open_default(ngx_cycle_t * cycle)
 {
-	ngx_log_t  * log;
 	static ngx_str_t error_log = ngx_string(NGX_ERROR_LOG_PATH);
-	if(ngx_log_get_file_log(&cycle->new_log) != NULL) {
-		return NGX_OK;
-	}
-	if(cycle->new_log.log_level != 0) {
-		/* there are some error logs, but no files */
-		log = (ngx_log_t *)ngx_pcalloc(cycle->pool, sizeof(ngx_log_t));
-		if(log == NULL) {
+	if(!ngx_log_get_file_log(&cycle->new_log)) {
+		ngx_log_t * log;
+		if(cycle->new_log.Level) {
+			// there are some error logs, but no files 
+			log = (ngx_log_t *)ngx_pcalloc(cycle->pool, sizeof(ngx_log_t));
+			if(log == NULL) {
+				return NGX_ERROR;
+			}
+		}
+		else {
+			log = &cycle->new_log; // no error logs at all 
+		}
+		log->Level = NGX_LOG_ERR;
+		log->file = ngx_conf_open_file(cycle, &error_log);
+		if(log->file == NULL) {
 			return NGX_ERROR;
 		}
+		if(log != &cycle->new_log) {
+			ngx_log_insert(&cycle->new_log, log);
+		}
 	}
-	else {
-		/* no error logs at all */
-		log = &cycle->new_log;
-	}
-
-	log->log_level = NGX_LOG_ERR;
-
-	log->file = ngx_conf_open_file(cycle, &error_log);
-	if(log->file == NULL) {
-		return NGX_ERROR;
-	}
-
-	if(log != &cycle->new_log) {
-		ngx_log_insert(&cycle->new_log, log);
-	}
-
 	return NGX_OK;
 }
 
 ngx_int_t ngx_log_redirect_stderr(ngx_cycle_t * cycle)
 {
-	ngx_fd_t fd;
-
-	if(cycle->log_use_stderr) {
-		return NGX_OK;
-	}
-
-	/* file log always exists when we are called */
-	fd = ngx_log_get_file_log(cycle->log)->file->fd;
-
-	if(fd != ngx_stderr) {
-		if(ngx_set_stderr(fd) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-			    ngx_set_stderr_n " failed");
-
-			return NGX_ERROR;
+	if(!cycle->log_use_stderr) {
+		// file log always exists when we are called 
+		ngx_fd_t fd = ngx_log_get_file_log(cycle->log)->file->fd;
+		if(fd != ngx_stderr) {
+			if(ngx_set_stderr(fd) == NGX_FILE_ERROR) {
+				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_set_stderr_n " failed");
+				return NGX_ERROR;
+			}
 		}
 	}
-
 	return NGX_OK;
 }
 
 ngx_log_t * ngx_log_get_file_log(ngx_log_t * head)
 {
-	ngx_log_t  * log;
-
-	for(log = head; log; log = log->next) {
-		if(log->file != NULL) {
+	for(ngx_log_t * log = head; log; log = log->next) {
+		if(log->file)
 			return log;
-		}
 	}
-
 	return NULL;
 }
 
 static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 {
 	ngx_uint_t i, n, d, found;
-	ngx_str_t * value;
 	if(cf->args->nelts == 2) {
-		log->log_level = NGX_LOG_ERR;
-		return NGX_CONF_OK;
+		log->Level = NGX_LOG_ERR;
 	}
-	value = (ngx_str_t *)cf->args->elts;
-	for(i = 2; i < cf->args->nelts; i++) {
-		found = 0;
-		for(n = 1; n <= NGX_LOG_DEBUG; n++) {
-			if(ngx_strcmp(value[i].data, err_levels[n].data) == 0) {
-				if(log->log_level != 0) {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "duplicate log level \"%V\"",
-					    &value[i]);
-					return NGX_CONF_ERROR;
+	else {
+		ngx_str_t * value = (ngx_str_t *)cf->args->elts;
+		for(i = 2; i < cf->args->nelts; i++) {
+			found = 0;
+			for(n = 1; n <= NGX_LOG_DEBUG; n++) {
+				if(ngx_strcmp(value[i].data, err_levels[n].data) == 0) {
+					if(log->Level) {
+						ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate log level \"%V\"", &value[i]);
+						return NGX_CONF_ERROR;
+					}
+					log->Level = n;
+					found = 1;
+					break;
 				}
-
-				log->log_level = n;
-				found = 1;
-				break;
+			}
+			for(n = 0, d = NGX_LOG_DEBUG_FIRST; d <= NGX_LOG_DEBUG_LAST; d <<= 1) {
+				if(ngx_strcmp(value[i].data, debug_levels[n++]) == 0) {
+					if(log->Level & ~NGX_LOG_DEBUG_ALL) {
+						ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid log level \"%V\"", &value[i]);
+						return NGX_CONF_ERROR;
+					}
+					log->Level |= d;
+					found = 1;
+					break;
+				}
+			}
+			if(!found) {
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid log level \"%V\"", &value[i]);
+				return NGX_CONF_ERROR;
 			}
 		}
-
-		for(n = 0, d = NGX_LOG_DEBUG_FIRST; d <= NGX_LOG_DEBUG_LAST; d <<= 1) {
-			if(ngx_strcmp(value[i].data, debug_levels[n++]) == 0) {
-				if(log->log_level & ~NGX_LOG_DEBUG_ALL) {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid log level \"%V\"", &value[i]);
-					return NGX_CONF_ERROR;
-				}
-
-				log->log_level |= d;
-				found = 1;
-				break;
-			}
-		}
-		if(!found) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid log level \"%V\"", &value[i]);
-			return NGX_CONF_ERROR;
-		}
-	}
-	if(log->log_level == NGX_LOG_DEBUG) {
-		log->log_level = NGX_LOG_DEBUG_ALL;
+		if(log->Level == NGX_LOG_DEBUG)
+			log->Level = NGX_LOG_DEBUG_ALL;
 	}
 	return NGX_CONF_OK;
 }
 
 static char * ngx_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
-	ngx_log_t  * dummy = &cf->cycle->new_log;
+	ngx_log_t * dummy = &cf->cycle->new_log;
 	return ngx_log_set_log(cf, &dummy);
 }
 
 char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 {
-	ngx_log_t   * new_log;
-	ngx_str_t   * value, name;
+	ngx_log_t * new_log;
+	ngx_str_t * value, name;
 	ngx_syslog_peer_t  * peer;
-	if(*head != NULL && (*head)->log_level == 0) {
+	if(*head && (*head)->Level == 0) {
 		new_log = *head;
 	}
 	else {
@@ -441,11 +416,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 		ngx_log_memory_buf_t  * buf;
 		value[1].len -= 7;
 		value[1].data += 7;
-		needed = sizeof("MEMLOG  :" NGX_LINEFEED)
-		    + cf->conf_file->file.name.len
-		    + NGX_SIZE_T_LEN
-		    + NGX_INT_T_LEN
-		    + NGX_MAX_ERROR_STR;
+		needed = sizeof("MEMLOG  :" NGX_LINEFEED) + cf->conf_file->file.name.len + NGX_SIZE_T_LEN + NGX_INT_T_LEN + NGX_MAX_ERROR_STR;
 		size = ngx_parse_size(&value[1]);
 		if(size == (size_t)NGX_ERROR || size < needed) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid buffer size \"%V\"", &value[1]);
@@ -501,28 +472,29 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 	return NGX_CONF_OK;
 }
 
-static void ngx_log_insert(ngx_log_t * log, ngx_log_t * new_log)
+static void ngx_log_insert(ngx_log_t * pLog, ngx_log_t * pNewLog)
 {
-	if(new_log->log_level > log->log_level) {
-		/*
-		 * list head address is permanent, insert new log after
-		 * head and swap its contents with head
-		 */
-		ngx_log_t tmp = *log;
-		*log = *new_log;
-		*new_log = tmp;
-		log->next = new_log;
-		return;
+	if(pNewLog->Level > pLog->Level) {
+		// 
+		// list head address is permanent, insert new log after head and swap its contents with head
+		// 
+		//ngx_log_t tmp = *pLog;
+		//*pLog = *pNewLog;
+		//*pNewLog = tmp;
+		memswap(pLog, pNewLog, sizeof(*pLog));
+		pLog->next = pNewLog;
 	}
-	while(log->next) {
-		if(new_log->log_level > log->next->log_level) {
-			new_log->next = log->next;
-			log->next = new_log;
-			return;
+	else {
+		while(pLog->next) {
+			if(pNewLog->Level > pLog->next->Level) {
+				pNewLog->next = pLog->next;
+				pLog->next = pNewLog;
+				return;
+			}
+			pLog = pLog->next;
 		}
-		log = log->next;
+		pLog->next = pNewLog;
 	}
-	log->next = new_log;
 }
 
 #if (NGX_DEBUG)

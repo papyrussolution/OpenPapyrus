@@ -1327,7 +1327,7 @@ int GcCalcDialog::calc()
 		ctx.Par3 = par_buf.ToReal();
 		if(PPCalcExpression(form.Formula, &Result, &ctx))
 			ok = 1;
-		(par_buf = 0).Cat(Result, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		par_buf.Z().Cat(Result, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 		setCtrlString(CTL_GDSCLSCALC_VAL, par_buf);
 		IsThereResult = 1;
 	}

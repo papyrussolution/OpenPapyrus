@@ -2333,7 +2333,7 @@ int SLAPI GStrucIterator::LoadItems(PPGoodsStruc * pStruc, PPID parentGoodsID, d
 			double sum = 0.0;
 			PPGoodsStruc inner_struc;
 			ReceiptTbl::Rec lot_rec;
-			(s_qtty = 0).Cat(dest_qtty, fmt);
+			s_qtty.Z().Cat(dest_qtty, fmt);
 			gsr_item.Qtty = dest_qtty;
 			gsr_item.Item.SetEstimationString(s_qtty);
 			if(pStruc->GetEstimationPrice(i-1, &gsr_item.Price, &gsr_item.Sum, &lot_rec) > 0)

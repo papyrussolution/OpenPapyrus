@@ -221,7 +221,7 @@ int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
 		tla.LastErr = errCode;
-		(tla.AddedMsgString = 0).CatN(pAddedMsg, 256);
+		tla.AddedMsgString.Z().CatN(pAddedMsg, 256);
 	}
 	return 0; // @v8.7.0 1-->0
 }
@@ -231,7 +231,7 @@ int FASTCALL PPSetError(int errCode, long val)
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
 		tla.LastErr = errCode;
-		(tla.AddedMsgString = 0).Cat(val);
+		tla.AddedMsgString.Z().Cat(val);
 	}
 	return 0; // @v8.7.0 1-->0
 }

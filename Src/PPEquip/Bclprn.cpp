@@ -703,7 +703,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					d = stpcpy(d, datefmt(&RGI.Expiry, DATF_DMY, temp));
 					break;
 				case bcvsManufDate:
-					(temp_str = 0).Cat(RGI.ManufDtm, DATF_DMY|DATF_NOZERO, TIMF_HM|TIMF_NOZERO);
+					temp_str.Z().Cat(RGI.ManufDtm, DATF_DMY|DATF_NOZERO, TIMF_HM|TIMF_NOZERO);
 					d = stpcpy(d, temp_str);
 					break;
 				case bcvsManuf:

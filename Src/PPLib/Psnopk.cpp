@@ -1185,7 +1185,7 @@ int PsnOpExVDialog::setupList()
 			if(objtag.Fetch(tag_id, &tag) > 0)
 				buf = tag.Name;
 			else
-				(buf = 0).Cat(tag_id);
+				buf.Z().Cat(tag_id);
 			if(!addStringToList(tag_id, buf))
 				return 0;
 		}

@@ -266,7 +266,7 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	msg_counter.Init(msg_list.getCount());
 	for(i = 0; i < msg_list.getCount(); i++) {
 		PPMailMsg msg;
-		MakeTempFileName(temp_path, 0, "msg", 0, temp_fname = 0);
+		MakeTempFileName(temp_path, 0, "msg", 0, temp_fname.Z());
 		msg_counter.Increment();
 		THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
 		if(filtFlags & PPMailMsg::fPpyObject && msg.Flags & PPMailMsg::fPpyObject)
@@ -509,7 +509,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			THROW_PP(driveValid(src), PPERR_NEXISTPATH);
 			removable_drive = IsRemovableDrive(toupper(drive));
 			if(removable_drive > 0) {
-				(file_path = 0).CatChar(drive).CatChar(':').CatChar('\\');
+				file_path.Z().CatChar(drive).CatChar(':').CatChar('\\');
 				PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
 				while(::access(file_path, 0) != 0)
 					THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
@@ -532,7 +532,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 				PPWaitMsg(fb.FileName);
 				STRNSCPY(dest_dir, file_path);
 				::replacePath(dest_dir, dest, 1);
-				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) { // @v7.7.8
+				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 					THROW_SL(copyFileByName(file_path, dest_dir));
 				}
 			}

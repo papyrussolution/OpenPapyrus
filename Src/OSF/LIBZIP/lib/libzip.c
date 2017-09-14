@@ -3945,7 +3945,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    memcpy(data, ctx->buffer, (size_t)ctx->size);
 				    return (int64)ctx->size;
 			    }
-			/* fallthrough */
+			// @fallthrough
 			case Z_OK:
 			    /* all ok */
 			    if(ctx->zstr.avail_out == 0) {
@@ -3987,7 +3987,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    }
 				    continue;
 			    }
-			// fallthrough 
+			// @fallthrough
 			case Z_NEED_DICT:
 			case Z_DATA_ERROR:
 			case Z_STREAM_ERROR:
@@ -4061,7 +4061,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 				    }
 				    continue;
 			    }
-			// fallthrough 
+			// @fallthrough
 			case Z_NEED_DICT:
 			case Z_DATA_ERROR:
 			case Z_STREAM_ERROR:

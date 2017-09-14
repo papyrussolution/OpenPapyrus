@@ -172,9 +172,9 @@ void ngx_mail_auth_http_init(ngx_mail_session_t * s)
 	}
 	ctx->peer.connection->data = s;
 	ctx->peer.connection->pool = s->connection->pool;
-	s->connection->P_EvRd->handler = ngx_mail_auth_http_block_read;
-	ctx->peer.connection->P_EvRd->handler = ngx_mail_auth_http_read_handler;
-	ctx->peer.connection->P_EvWr->handler = ngx_mail_auth_http_write_handler;
+	s->connection->P_EvRd->F_EvHandler = ngx_mail_auth_http_block_read;
+	ctx->peer.connection->P_EvRd->F_EvHandler = ngx_mail_auth_http_read_handler;
+	ctx->peer.connection->P_EvWr->F_EvHandler = ngx_mail_auth_http_write_handler;
 	ctx->handler = ngx_mail_auth_http_ignore_status_line;
 	ngx_add_timer(ctx->peer.connection->P_EvRd, ahcf->timeout);
 	ngx_add_timer(ctx->peer.connection->P_EvWr, ahcf->timeout);
@@ -210,7 +210,7 @@ static void ngx_mail_auth_http_write_handler(ngx_event_t * wev)
 	if(n > 0) {
 		ctx->request->pos += n;
 		if(n == size) {
-			wev->handler = ngx_mail_auth_http_dummy_handler;
+			wev->F_EvHandler = ngx_mail_auth_http_dummy_handler;
 			if(wev->timer_set) {
 				ngx_del_timer(wev);
 			}
@@ -533,7 +533,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 					return;
 				}
 				ngx_add_timer(s->connection->P_EvRd, (ngx_msec_t)(timer * 1000));
-				s->connection->P_EvRd->handler = ngx_mail_auth_sleep_handler;
+				s->connection->P_EvRd->F_EvHandler = ngx_mail_auth_sleep_handler;
 				return;
 			}
 			if(s->auth_wait) {
@@ -544,7 +544,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 					return;
 				}
 				ngx_add_timer(s->connection->P_EvRd, (ngx_msec_t)(timer * 1000));
-				s->connection->P_EvRd->handler = ngx_mail_auth_sleep_handler;
+				s->connection->P_EvRd->F_EvHandler = ngx_mail_auth_sleep_handler;
 				return;
 			}
 			if(ctx->addr.len == 0 || ctx->port.len == 0) {
@@ -626,19 +626,17 @@ static void ngx_mail_auth_sleep_handler(ngx_event_t * rev)
 		}
 		else {
 			ngx_mail_core_srv_conf_t * cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-			rev->handler = cscf->protocol->auth_state;
+			rev->F_EvHandler = cscf->protocol->auth_state;
 			s->mail_state = 0;
 			s->auth_method = NGX_MAIL_AUTH_PLAIN;
 			c->log->action = "in auth state";
 			ngx_mail_send(c->P_EvWr);
 			if(!c->destroyed) {
 				ngx_add_timer(rev, cscf->timeout);
-				if(rev->ready) {
-					rev->handler(rev);
-				}
-				else if(ngx_handle_read_event(rev, 0) != NGX_OK) {
+				if(rev->ready)
+					rev->F_EvHandler(rev);
+				else if(ngx_handle_read_event(rev, 0) != NGX_OK)
 					ngx_mail_close_connection(c);
-				}
 			}
 		}
 	}

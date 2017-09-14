@@ -309,7 +309,7 @@ int WinInetFTP::Init(PPInetConnConfig * pCfg)
 		access_type = INTERNET_OPEN_TYPE_DIRECT;
 	else if(IConnCfg.AccessType == PPINETCONN_PROXY) {
 		access_type = INTERNET_OPEN_TYPE_PROXY;
-		p_proxy_name = (proxy_buf = 0).Cat(IConnCfg.ProxyHost).CatChar(':').Cat(IConnCfg.ProxyPort);
+		p_proxy_name = proxy_buf.Z().Cat(IConnCfg.ProxyHost).CatChar(':').Cat(IConnCfg.ProxyPort);
 	}
 	else
 		access_type = INTERNET_OPEN_TYPE_PRECONFIG;

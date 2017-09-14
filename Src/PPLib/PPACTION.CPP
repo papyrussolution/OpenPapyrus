@@ -58,16 +58,16 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 				}
 				{
 					//SString msg_buf, added_buf, temp_buf;
-					PPGetLastErrorMessage(1, MsgBuf = 0);
-					(AddedBuf = 0).Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).Semicol().Cat(MsgBuf);
-					TempBuf = 0;
+					PPGetLastErrorMessage(1, MsgBuf.Z());
+					AddedBuf.Z().Cat(data.Action).Semicol().Cat(obj).Semicol().Cat(id).Semicol().Cat(extData).Semicol().Cat(MsgBuf);
+					TempBuf.Z();
 					if(rsrv_ok < 0)
 						TempBuf.CatParStr("NR");
 					else if(rsrv_ok > 0)
 						TempBuf.CatParStr("R1");
 					else
 						TempBuf.CatParStr("R0");
-					(MsgBuf = 0).Printf(TempBuf.Space().Cat(FmtBuf), AddedBuf.cptr());
+					MsgBuf.Z().Printf(TempBuf.Space().Cat(FmtBuf), AddedBuf.cptr());
 					PPLogMessage(PPFILNAM_ERR_LOG, MsgBuf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
 			}
@@ -435,7 +435,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPSetError(PPERR_DBENGINE);
 						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
 						PPGetLastErrorMessage(1, msg_buf);
-						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+						added_buf.Z().Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
 						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
 						if(pLogger)
@@ -451,7 +451,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						PPSetError(PPERR_DBENGINE);
 						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
 						PPGetLastErrorMessage(1, msg_buf);
-						(added_buf = 0).Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
+						added_buf.Z().Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
 						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
 						if(pLogger)

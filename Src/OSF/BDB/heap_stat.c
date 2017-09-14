@@ -152,8 +152,8 @@ int __heap_stat_callback(DBC * dbc, PAGE * h, void * cookie, int * putp)
 				sp->heap_nrecs++;
 		}
 		break;
-	    case P_HEAPMETA: /* Fallthrough */
-	    case P_IHEAP: /* Fallthrough */
+	    case P_HEAPMETA: // @fallthrough
+	    case P_IHEAP: // @fallthrough
 	    default:
 		break;
 	}

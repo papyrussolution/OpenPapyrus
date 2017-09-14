@@ -104,7 +104,7 @@ int __bam_ditem(DBC*dbc, PAGE * h, uint32 indx)
 			if(indx > 0 && inp[indx] == inp[indx-P_INDX])
 				return __bam_adjindx(dbc, h, indx, indx-P_INDX, 0);
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case P_LDUP:
 	    case P_LRECNO:
 			bk = GET_BKEYDATA(dbp, h, indx);

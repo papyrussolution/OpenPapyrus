@@ -404,14 +404,14 @@ static int __hamc_get(DBC*dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * 
 			goto prev;
 	    case DB_PREV_NODUP:
 			F_SET(hcp, H_NEXT_NODUP);
-			/* FALLTHROUGH */
+			// @fallthrough
 	    case DB_PREV:
 			if(IS_INITIALIZED(dbc)) {
 prev:
 				ret = __ham_item_prev(dbc, lock_type, pgnop);
 				break;
 			}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_LAST:
 			ret = __ham_item_last(dbc, lock_type, pgnop);
 			break;
@@ -422,14 +422,14 @@ prev:
 			goto next;
 	    case DB_NEXT_NODUP:
 			F_SET(hcp, H_NEXT_NODUP);
-		/* FALLTHROUGH */
+		// @fallthrough
 	    case DB_NEXT:
 			if(IS_INITIALIZED(dbc)) {
 next:
 				ret = __ham_item_next(dbc, lock_type, pgnop);
 				break;
 			}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_FIRST:
 			ret = __ham_item_first(dbc, lock_type, pgnop);
 			break;

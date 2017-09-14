@@ -55,7 +55,7 @@ static int __bam_csearch(DBC * dbc, DBT * start, uint32 sflag, int level)
 		    case CS_READ: sflag = SR_READ; break;
 		    case CS_NEXT: sflag = SR_PARENT|SR_READ; break;
 		    case CS_START: level = LEAFLEVEL;
-				/* FALLTHROUGH */
+				// @fallthrough
 		    case CS_DEL:
 		    case CS_NEXT_WRITE: sflag = SR_STACK; break;
 		    case CS_NEXT_BOTH: sflag = SR_BOTH|SR_NEXT|SR_WRITE; break;

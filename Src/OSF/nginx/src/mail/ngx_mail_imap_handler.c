@@ -28,7 +28,7 @@ void ngx_mail_imap_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 {
 	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 	ngx_str_set(&s->out, imap_greeting);
-	c->P_EvRd->handler = ngx_mail_imap_init_protocol;
+	c->P_EvRd->F_EvHandler = ngx_mail_imap_init_protocol;
 	ngx_add_timer(c->P_EvRd, cscf->timeout);
 	if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
@@ -62,7 +62,7 @@ void ngx_mail_imap_init_protocol(ngx_event_t * rev)
 		}
 	}
 	s->mail_state = ngx_imap_start;
-	c->P_EvRd->handler = ngx_mail_imap_auth_state;
+	c->P_EvRd->F_EvHandler = ngx_mail_imap_auth_state;
 	ngx_mail_imap_auth_state(rev);
 }
 
@@ -323,7 +323,7 @@ static ngx_int_t ngx_mail_imap_starttls(ngx_mail_session_t * s, ngx_connection_t
 	if(c->ssl == NULL) {
 		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls) {
-			c->P_EvRd->handler = ngx_mail_starttls_handler;
+			c->P_EvRd->F_EvHandler = ngx_mail_starttls_handler;
 			return NGX_OK;
 		}
 	}

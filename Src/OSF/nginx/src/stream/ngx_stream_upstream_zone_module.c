@@ -7,30 +7,20 @@
 #pragma hdrstop
 #include <ngx_stream.h>
 
-static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone,
-    void * data);
+static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * data);
 static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_slab_pool_t * shpool, ngx_stream_upstream_srv_conf_t * uscf);
 
 static ngx_command_t ngx_stream_upstream_zone_commands[] = {
-	{ ngx_string("zone"),
-	  NGX_STREAM_UPS_CONF|NGX_CONF_TAKE12,
-	  ngx_stream_upstream_zone,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("zone"), NGX_STREAM_UPS_CONF|NGX_CONF_TAKE12, ngx_stream_upstream_zone, 0, 0, NULL },
 	ngx_null_command
 };
 
 static ngx_stream_module_t ngx_stream_upstream_zone_module_ctx = {
 	NULL,                              /* preconfiguration */
 	NULL,                              /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL                               /* merge server configuration */
 };
@@ -80,7 +70,7 @@ static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	if(uscf->shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	uscf->shm_zone->init = ngx_stream_upstream_init_zone;
+	uscf->shm_zone->F_Init = ngx_stream_upstream_init_zone;
 	uscf->shm_zone->data = umcf;
 	uscf->shm_zone->noreuse = 1;
 	return NGX_CONF_OK;
@@ -90,14 +80,11 @@ static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void *
 {
 	size_t len;
 	ngx_uint_t i;
-	ngx_slab_pool_t  * shpool;
 	ngx_stream_upstream_rr_peers_t * peers, ** peersp;
-	ngx_stream_upstream_srv_conf_t * uscf, ** uscfp;
-	ngx_stream_upstream_main_conf_t  * umcf;
-
-	shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
-	umcf = (ngx_stream_upstream_main_conf_t *)shm_zone->data;
-	uscfp = (ngx_stream_upstream_srv_conf_t **)umcf->upstreams.elts;
+	ngx_stream_upstream_srv_conf_t * uscf;
+	ngx_slab_pool_t * shpool = (ngx_slab_pool_t*)shm_zone->shm.addr;
+	ngx_stream_upstream_main_conf_t  * umcf = (ngx_stream_upstream_main_conf_t *)shm_zone->data;
+	ngx_stream_upstream_srv_conf_t ** uscfp = (ngx_stream_upstream_srv_conf_t **)umcf->upstreams.elts;
 	if(shm_zone->shm.exists) {
 		peers = (ngx_stream_upstream_rr_peers_t *)shpool->data;
 		for(i = 0; i < umcf->upstreams.nelts; i++) {
@@ -115,40 +102,29 @@ static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void *
 	if(shpool->log_ctx == NULL) {
 		return NGX_ERROR;
 	}
-
-	ngx_sprintf(shpool->log_ctx, " in upstream zone \"%V\"%Z",
-	    &shm_zone->shm.name);
-
+	ngx_sprintf(shpool->log_ctx, " in upstream zone \"%V\"%Z", &shm_zone->shm.name);
 	/* copy peers to shared memory */
-
 	peersp = (ngx_stream_upstream_rr_peers_t**)(void*)&shpool->data;
-
 	for(i = 0; i < umcf->upstreams.nelts; i++) {
 		uscf = uscfp[i];
-
 		if(uscf->shm_zone != shm_zone) {
 			continue;
 		}
-
 		peers = ngx_stream_upstream_zone_copy_peers(shpool, uscf);
 		if(peers == NULL) {
 			return NGX_ERROR;
 		}
-
 		*peersp = peers;
 		peersp = &peers->zone_next;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_slab_pool_t * shpool,
-    ngx_stream_upstream_srv_conf_t * uscf)
+static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_slab_pool_t * shpool, ngx_stream_upstream_srv_conf_t * uscf)
 {
 	ngx_stream_upstream_rr_peer_t * peer, ** peerp;
-	ngx_stream_upstream_rr_peers_t  * peers, * backup;
-
-	peers = (ngx_stream_upstream_rr_peers_t *)ngx_slab_alloc(shpool, sizeof(ngx_stream_upstream_rr_peers_t));
+	ngx_stream_upstream_rr_peers_t * backup;
+	ngx_stream_upstream_rr_peers_t * peers = (ngx_stream_upstream_rr_peers_t *)ngx_slab_alloc(shpool, sizeof(ngx_stream_upstream_rr_peers_t));
 	if(peers == NULL) {
 		return NULL;
 	}
@@ -186,4 +162,3 @@ done:
 	uscf->peer.data = peers;
 	return peers;
 }
-

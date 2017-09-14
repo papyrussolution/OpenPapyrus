@@ -7,20 +7,16 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static ngx_int_t ngx_http_postpone_filter_add(ngx_http_request_t * r,
-    ngx_chain_t * in);
+static ngx_int_t ngx_http_postpone_filter_add(ngx_http_request_t * r, ngx_chain_t * in);
 static ngx_int_t ngx_http_postpone_filter_init(ngx_conf_t * cf);
 
 static ngx_http_module_t ngx_http_postpone_filter_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_postpone_filter_init,     /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	NULL,                              /* create location configuration */
 	NULL                               /* merge location configuration */
 };
@@ -44,29 +40,20 @@ static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
 
 static ngx_int_t ngx_http_postpone_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	ngx_connection_t    * c;
-	ngx_http_postponed_request_t  * pr;
-
-	c = r->connection;
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0,
-	    "http postpone filter \"%V?%V\" %p", &r->uri, &r->args, in);
-
+	ngx_http_postponed_request_t * pr;
+	ngx_connection_t * c = r->connection;
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0, "http postpone filter \"%V?%V\" %p", &r->uri, &r->args, in);
 	if(r != c->data) {
 		if(in) {
 			ngx_http_postpone_filter_add(r, in);
 			return NGX_OK;
 		}
-
 #if 0
 		/* TODO: SSI may pass NULL */
-		ngx_log_error(NGX_LOG_ALERT, c->log, 0,
-		    "http postpone filter NULL inactive request");
+		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "http postpone filter NULL inactive request");
 #endif
-
 		return NGX_OK;
 	}
-
 	if(r->postponed == NULL) {
 		if(in || c->buffered) {
 			return ngx_http_next_body_filter(r->main, in);
@@ -95,14 +82,12 @@ static ngx_int_t ngx_http_postpone_filter(ngx_http_request_t * r, ngx_chain_t * 
 		}
 		r->postponed = pr->next;
 	} while(r->postponed);
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_postpone_filter_add(ngx_http_request_t * r, ngx_chain_t * in)
 {
 	ngx_http_postponed_request_t  * pr, ** ppr;
-
 	if(r->postponed) {
 		for(pr = r->postponed; pr->next; pr = pr->next) { /* void */
 		}
@@ -118,19 +103,14 @@ static ngx_int_t ngx_http_postpone_filter_add(ngx_http_request_t * r, ngx_chain_
 	if(pr == NULL) {
 		return NGX_ERROR;
 	}
-
 	*ppr = pr;
-
 	pr->request = NULL;
 	pr->out = NULL;
 	pr->next = NULL;
-
 found:
-
 	if(ngx_chain_add_copy(r->pool, &pr->out, in) == NGX_OK) {
 		return NGX_OK;
 	}
-
 	return NGX_ERROR;
 }
 
@@ -138,7 +118,5 @@ static ngx_int_t ngx_http_postpone_filter_init(ngx_conf_t * cf)
 {
 	ngx_http_next_body_filter = ngx_http_top_body_filter;
 	ngx_http_top_body_filter = ngx_http_postpone_filter;
-
 	return NGX_OK;
 }
-

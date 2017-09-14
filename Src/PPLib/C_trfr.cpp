@@ -2431,7 +2431,7 @@ int SLAPI PrcssrAbsenceAccounts::Run()
 				while(AccObj.SearchNum(pack.Rec.A.Ac, pack.Rec.A.Sb, pack.Rec.CurID, &temp_rec) > 0) {
 					pack.Rec.A.Sb += 100;
 				}
-				(acc_name_buf = 0).Cat(pack.Rec.A.Ac).Dot().Cat(pack.Rec.A.Sb).Space().CatChar('#').Cat(pack.Rec.ID);
+				acc_name_buf.Z().Cat(pack.Rec.A.Ac).Dot().Cat(pack.Rec.A.Sb).Space().CatChar('#').Cat(pack.Rec.ID);
 				acc_name_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 				GetArticleSheetID(acr_rec.ArticleID, &pack.Rec.AccSheetID);
 				THROW(AccObj.PutPacket(&new_acc_id, &pack, 1));

@@ -120,7 +120,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 		switch(list[i].op) {
 		    case DB_LOCK_GET_TIMEOUT:
 			LF_SET(DB_LOCK_SET_TIMEOUT);
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case DB_LOCK_GET:
 			if(IS_RECOVERING(env)) {
 				LOCK_INIT(list[i].lock);
@@ -232,7 +232,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 						break;
 				}
 up_done:
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case DB_LOCK_PUT_READ:
 			    case DB_LOCK_PUT_ALL:
 				break;
@@ -645,7 +645,7 @@ again:
 			STAT_INC_VERB(env, lock, nowait_notgranted, region->stat.st_lock_nowait, (DBT *)obj, sh_locker->id);
 			goto err;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case GRANT:
 		part_id = LOCK_PART(region, ndx);
 		/* Allocate a new lock. */
@@ -716,7 +716,7 @@ upgrade:
 		break;
 	    case UPGRADE:
 		DB_ASSERT(env, lock_mode == DB_LOCK_WAIT);
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case HEAD:
 	    case TAIL:
 	    case SECOND:

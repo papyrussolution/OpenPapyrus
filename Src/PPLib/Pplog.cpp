@@ -1282,7 +1282,7 @@ void PPLogMsgSession::Run()
 						uint32  FalseNonEmptyEvSwitchCount; // Количество срабатываний события PPLogMsgQueue::NonEmptyEv при которых очередь была пуста
 					*/
 					P_Queue->GetStat(S);
-					(diag_msg_buf = 0).CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
+					diag_msg_buf.Z().CatEq("push", S.PushCount).Space().CatEq("output", S.OutputCount).Space().
                         CatEq("max count", S.MaxLenght).Space().CatEq("max size", S.MaxStrPoolSize).Space().
                         CatEq("false switch count", S.FalseNonEmptyEvSwitchCount);
 					DS.SetThreadNotification(PPSession::stntMessage, diag_msg_buf);
@@ -1319,12 +1319,12 @@ int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerInterm
 			int    num_dig = 3;
 			long   counter = 0;
 			rLb.NewFileName = 0;
-			rLb.TempBuf = 0; // Используется для расширения файла
+			rLb.TempBuf.Z(); // Используется для расширения файла
 			do {
 				if(counter >= (((int)fpow10i(num_dig))-1)) {
 					num_dig++;
 				}
-				SPathStruc::ReplaceExt(rLb.NewFileName = rMsgItem.FileName, (rLb.TempBuf = 0).CatLongZ(++counter, num_dig), 1);
+				SPathStruc::ReplaceExt(rLb.NewFileName = rMsgItem.FileName, rLb.TempBuf.Z().CatLongZ(++counter, num_dig), 1);
 			} while(fileExists(rLb.NewFileName));
 			SFile::Rename(rMsgItem.FileName, rLb.NewFileName);
 		}
@@ -1337,7 +1337,7 @@ int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerInterm
 			timeout--;
 		} while(!f && timeout);
 		if(f) {
-			(rLb.TempBuf = 0).Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR().Transf(CTRANSF_INNER_TO_OUTER);
+			rLb.TempBuf.Z().Cat(rMsgItem.Prefix).Cat(rMsgItem.Text).CR().Transf(CTRANSF_INNER_TO_OUTER);
 			fputs(rLb.TempBuf, f);
 			SFile::ZClose(&f);
 			if(rMsgItem.DupFileName.NotEmpty()) {

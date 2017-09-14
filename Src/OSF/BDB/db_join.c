@@ -689,7 +689,7 @@ static int __db_join_getnext(DBC * dbc, DBT * key, DBT * data, uint32 exhausted,
 		 * its buffer--data contains the value we're searching for.
 		 */
 		__os_ufree(dbp->env, ldata.data);
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case 1:
 		ret = __dbc_get(dbc, key, data, opmods|DB_GET_BOTHC);
 		break;

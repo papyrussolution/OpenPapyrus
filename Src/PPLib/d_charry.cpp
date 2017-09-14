@@ -1345,7 +1345,7 @@ int SLAPI PPDS_CrrStaffCalEntry::TransferField(long fldID, Tfd dir, uint * pIter
 				LDATE dt;
 				if(dir == tfdDataToBuf) {
 					dt.v = Data.DtVal;
-					(TempBuf = 0).Cat(dt.day()).CatChar('/').Cat(dt.month());
+					TempBuf.Z().Cat(dt.day()).CatChar('/').Cat(dt.month());
 				}
 				ok = TransferData(TempBuf, dir, rBuf);
 				if(dir == tfdBufToData) {

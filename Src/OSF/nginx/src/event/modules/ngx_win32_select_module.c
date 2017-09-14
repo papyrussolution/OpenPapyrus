@@ -189,7 +189,7 @@ static ngx_int_t ngx_select_process_events(ngx_cycle_t * cycle, ngx_msec_t timer
 	ngx_uint_t i, found;
 	struct timeval tv, * tp;
 #if (NGX_DEBUG)
-	if(cycle->log->log_level & NGX_LOG_DEBUG_ALL) {
+	if(cycle->log->Level & NGX_LOG_DEBUG_ALL) {
 		for(i = 0; i < _ModulBlk.nevents; i++) {
 			ngx_event_t * ev = _ModulBlk.event_index[i];
 			ngx_connection_t * c = (ngx_connection_t *)ev->P_Data;

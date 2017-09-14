@@ -4344,6 +4344,7 @@ public:
 	xmlTextWriter * P_X;
 private:
 	SString EncBuf;
+	SString TokBuf;
 };
 
 Generator_DocNalogRu::File::File(Generator_DocNalogRu & rG, const char * pId, PPID sndPsnID, PPID rcvPsnID, PPID providerPsnID) : N(rG.P_X, "Файл")
@@ -4570,17 +4571,17 @@ int SLAPI Generator_DocNalogRu::WriteParticipant(const char * pHeaderTag, PPID p
 			SXml::WNode n_id(P_X, "ИдСв");
 			if(inn.Len() == 12) { // Физическое лицо
 				SXml::WNode n__(P_X, "СвИП");
+				n__.PutAttrib(GetToken(PPHSC_RU_INNPHS), EncText(inn));
 				WriteFIO(psn_pack.Rec.Name);
-				n__.PutAttrib("ИННФЛ", EncText(inn));
 			}
 			else if(inn.Len() == 10) { // Юридическое лицо
 				SXml::WNode n__(P_X, "СвОрг");
 				if(psn_pack.GetExtName(temp_buf) <= 0)
 					temp_buf = psn_pack.Rec.Name;
 				n__.PutAttrib("НаимОрг", EncText(temp_buf));
-				n__.PutAttrib("ИННЮЛ", EncText(inn));
+				n__.PutAttrib(GetToken(PPHSC_RU_INNJUR), EncText(inn));
 				psn_pack.GetRegNumber(PPREGT_KPP, temp_buf);
-				n__.PutAttribSkipEmpty("КПП", EncText(temp_buf));
+				n__.PutAttribSkipEmpty(GetToken(PPHSC_RU_KPP), EncText(temp_buf));
 			}
 			else { // Вероятно, иностранец. Хотя, может быть просто не вбит ИНН
 
@@ -4605,30 +4606,44 @@ int SLAPI Generator_DocNalogRu::WriteAddress(const PPLocationPacket & rP, int re
 	SString temp_buf;
 	SString addr_text;
 	LocationCore::GetAddress(rP, 0, addr_text);
+	PPLocAddrStruc las;
+	las.Recognize((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_OUTER));
 
-	SXml::WNode n__(P_X, "Адрес");
+	SXml::WNode n__(P_X, GetToken(PPHSC_RU_ADDRESS));
 	if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
 		// Иностранец
-		SXml::WNode n_i(P_X, "АдрИно");
-		n_i.PutAttrib("КодСтр", cb.Code);
-		n_i.PutAttrib("АдрТекст", EncText(addr_text));
+		SXml::WNode n_i(P_X, GetToken(PPHSC_RU_ADDR_OFFSHR));
+		n_i.PutAttrib(GetToken(PPHSC_RU_ADDR_COUNTRYCODE), cb.Code);
+		n_i.PutAttrib(GetToken(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 	}
 	else {
 		// Резидент
-		SXml::WNode n_i(P_X, "АдрРФ");
-		LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
-		n_i.PutAttribSkipEmpty("Индекс", EncText(temp_buf));
+		SXml::WNode n_i(P_X, GetToken(PPHSC_RU_ADDR_RF));
+		{
+			las.Get(PPLocAddrStruc::tZip, temp_buf);
+			if(temp_buf.Empty())
+				LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
+			n_i.PutAttribSkipEmpty(GetToken(PPHSC_RU_INDEX), EncText(temp_buf));
+		}
 		temp_buf.Z().CatLongZ(regionCode, 2);
-		n_i.PutAttrib("КодРегион", temp_buf); // req
+		n_i.PutAttrib(GetToken(PPHSC_RU_REGIONCODE), temp_buf); // req
 		//n_i.PutAttrib("Район", "");
-		if(rP.CityID) {
-			//n_i.PutAttrib("Город", "");
+		if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
+			n_i.PutAttrib(GetToken(PPHSC_RU_CITY), EncText(temp_buf));
 			//n_i.PutAttrib("НаселПункт", "");
 		}
-		//n_i.PutAttrib("Улица", "");
-		//n_i.PutAttrib("Дом", "");
+		else if(las.Get(PPLocAddrStruc::tCity, temp_buf)) {
+			n_i.PutAttrib(GetToken(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+		}
+		if(las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
+			n_i.PutAttrib(GetToken(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+		}
+		if(las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
+			n_i.PutAttrib(GetToken(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+		}
 		//n_i.PutAttrib("Корпус", "");
-		//n_i.PutAttrib("Кварт", "");
+		if(las.Get(PPLocAddrStruc::tApart, temp_buf))
+			n_i.PutAttrib(GetToken(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 	}
 	return ok;
 }
@@ -4668,7 +4683,7 @@ int SLAPI Generator_DocNalogRu::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 				SXml::WNode n_p(P_X, "СвЮЛ");
 				n_p.PutAttrib(GetToken(PPHSC_RU_NAMEOFORG), EncText(temp_buf = psn_pack.Rec.Name));
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNJUR), inn);
-				n_p.PutAttribSkipEmpty("КПП", kpp);
+				n_p.PutAttribSkipEmpty(GetToken(PPHSC_RU_KPP), kpp);
 			}
 		}
 		{
@@ -4695,8 +4710,8 @@ const SString & FASTCALL Generator_DocNalogRu::EncText(const SString & rS)
 
 const SString & FASTCALL Generator_DocNalogRu::GetToken(uint tokId)
 {
-	PPLoadStringS(PPSTR_HASHTOKEN_C, tokId, EncBuf);
-	return EncBuf.Transf(CTRANSF_INNER_TO_OUTER);
+	PPLoadStringS(PPSTR_HASHTOKEN_C, tokId, TokBuf);
+	return TokBuf.Transf(CTRANSF_INNER_TO_OUTER);
 }
 
 //DP_REZRUISP_1_990_01_05_01_01.xsd

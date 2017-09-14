@@ -978,7 +978,7 @@ SLTEST_R(CRegExp)
 				THROW(SLTEST_CHECK_NZ(re.Compile(re_buf)));
 				{
 					const char * p = text_buf;
-					(out_line = 0).Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
+					out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
 					SStrScan scan(text_buf);
 					if(re.Find(&scan)) {
 						out_line.CatDiv(':', 2);

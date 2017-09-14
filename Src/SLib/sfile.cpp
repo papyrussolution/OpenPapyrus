@@ -1055,15 +1055,18 @@ int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout
 	else if(r < 0)
 		ok = 0;
 	else if(timeout > 0) {
-		const  LDATETIME dtm_start = getcurdatetime_();
+		//const  LDATETIME dtm_start = getcurdatetime_();
+		const  long c_start = clock();
 		long   msec = 0;
 		long   days = 0;
 		do {
 			SDelay(100);
 			r = IsOpenedForWrite(pFileName);
-			LDATETIME dtm_cur = getcurdatetime_();
-			msec = diffdatetime(dtm_cur, dtm_start, 4, &(days = 0));
-		} while(r > 0 && (days == 0 && msec < timeout));
+			//LDATETIME dtm_cur = getcurdatetime_();
+			//msec = diffdatetime(dtm_cur, dtm_start, 4, &(days = 0));
+			const long c_cur = clock();
+            msec = (c_cur - c_start);
+		} while(r > 0 && (/*days == 0 &&*/ msec < timeout));
 		ok = (r == 0) ? msec : 0;
 	}
 	return ok;

@@ -343,7 +343,7 @@ static int __db_print_citem(DBC * dbc)
 	    case DB_HASH:  __ham_print_cursor(dbc); break;
 	    case DB_HEAP:  __heap_print_cursor(dbc); break;
 	    case DB_UNKNOWN: DB_ASSERT(env, dbp->type != DB_UNKNOWN);
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_QUEUE:
 	    default: break;
 	}

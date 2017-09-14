@@ -344,7 +344,7 @@ static int SLAPI PPAbout()
 			uint   end_year = 0;
 			vi.GetTeam(c_buf, sizeof(c_buf));
 			vi.GetDevYears(&start_year, &end_year);
-			(text = 0).CatParStr("c").Space().Cat(c_buf).Space().Cat(start_year).CatChar('-').Cat(end_year);
+			text.Z().CatParStr("c").Space().Cat(c_buf).Space().Cat(start_year).CatChar('-').Cat(end_year);
 			dlg->setStaticText(CTL_ABOUT_TEAM, text);
 		}
 		text = is_open ? 0 : lic.RegName;
@@ -1311,7 +1311,7 @@ int SLAPI PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
 		THROW_SL(logf.WriteLine(p_rectitle) > 0);
 		while(f.Read(&rec, sizeof(rec)) > 0) {
 			rec.Ver.Get(&(j = 0), &(m = 0), &(r = 0));
-			(buf = 0).Cat(rec.Dtm).Semicol().Cat(rec.Machine).Semicol().CatDotTriplet(j, m, r).CR();
+			buf.Z().Cat(rec.Dtm).Semicol().Cat(rec.Machine).Semicol().CatDotTriplet(j, m, r).CR();
 			THROW_SL(logf.WriteLine(buf) > 0);
 		}
 		ok = 1;
@@ -1509,7 +1509,7 @@ int PPBackupSystemFiles()
 			SCopyFile(path, dest_path, 0, FILE_SHARE_READ, 0);
 			{
 				f.Open(last_copy_path, SFile::mWrite);
-				(buf = 0).Cat(cur_dt, DATF_DMY);
+				buf.Z().Cat(cur_dt, DATF_DMY);
 				f.WriteLine(buf);
 				ok = 1;
 			}

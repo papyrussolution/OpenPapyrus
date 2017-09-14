@@ -35,9 +35,9 @@ int SLAPI SStatFilt::IsEqualExceptOrder(const SStatFilt * pFilt) const
 
 void SLAPI SStatFilt::SetupCfgOptions(const PPPredictConfig & rCfg)
 {
-	_CFlags = rCfg.Flags & (PPPredictConfig::fRoundPckgUp | PPPredictConfig::fRoundPckgDn |
-		PPPredictConfig::fZeroPckgUp | PPPredictConfig::fPrefStockPckg | PPPredictConfig::fPrefLotPckg |
-		PPPredictConfig::fUseInsurStock | PPPredictConfig::fMinStockAsMinOrder);
+	_CFlags = rCfg.Flags & (PPPredictConfig::fRoundPckgUp|PPPredictConfig::fRoundPckgDn|
+		PPPredictConfig::fZeroPckgUp|PPPredictConfig::fPrefStockPckg|PPPredictConfig::fPrefLotPckg|
+		PPPredictConfig::fUseInsurStock|PPPredictConfig::fMinStockAsMinOrder|PPPredictConfig::fRoundManualQtty);
 	_Method = rCfg.Method;
 	_P = rCfg.P;
 	_MinP = rCfg.MinP;
@@ -57,13 +57,13 @@ int SLAPI SStatFilt::GetPckgRounding() const
 void SLAPI SStatFilt::SetPckgUse(int t)
 {
 	long   v = PPPredictConfig::_SetPckgUse(_CFlags, t);
-	(_CFlags &= ~(PPPredictConfig::fPrefStockPckg | PPPredictConfig::fPrefLotPckg)) |= v;
+	(_CFlags &= ~(PPPredictConfig::fPrefStockPckg|PPPredictConfig::fPrefLotPckg)) |= v;
 }
 
 void SLAPI SStatFilt::SetPckgRounding(int t)
 {
 	long   v = PPPredictConfig::_SetPckgRounding(_CFlags, t);
-	(_CFlags &= ~(PPPredictConfig::fRoundPckgUp | PPPredictConfig::fRoundPckgDn)) |= v;
+	(_CFlags &= ~(PPPredictConfig::fRoundPckgUp|PPPredictConfig::fRoundPckgDn)) |= v;
 }
 //
 //

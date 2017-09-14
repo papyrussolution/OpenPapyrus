@@ -112,7 +112,7 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 		LOGCOPY_TOLSN(env, &prev_lsn, (uint8 *)db->data + sizeof(rectype)+sizeof(txnid));
 		if(txnid != 0 && prev_lsn.file == 0 && (ret = __db_txnlist_add(env, info, txnid, TXN_OK, NULL)) != 0)
 			return ret;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_TXN_POPENFILES:
 		if(oneof4(rectype, DB___dbreg_register, DB___txn_child, DB___txn_ckp, DB___txn_recycle))
 			return (dtab->int_dispatch[rectype])(env, db, lsnp, redo, info);
@@ -161,7 +161,7 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 		    case DB___dbreg_register:
 			make_call = 1;
 
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    default:
 			if(txnid == 0)
 				break;

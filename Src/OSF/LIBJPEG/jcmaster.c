@@ -696,7 +696,7 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 		     */
 		    master->pass_type = output_pass;
 		    master->pass_number++;
-		    /*FALLTHROUGH*/
+		    // @fallthrough
 #endif
 		case output_pass:
 		    /* Do a data-output pass. */

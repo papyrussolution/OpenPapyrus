@@ -437,7 +437,7 @@ GLOBAL(void) jinit_color_converter(j_compress_ptr cinfo)
 					// need quantization scale by factor of 2 after DCT 
 					cinfo->comp_info[1].component_needed = TRUE;
 					cinfo->comp_info[2].component_needed = TRUE;
-					// FALLTHROUGH
+					// @fallthrough
 			    case JCS_BG_YCC:
 					// Pass through for BG_YCC input 
 					cconvert->pub.color_convert = null_convert;

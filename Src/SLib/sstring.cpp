@@ -1928,7 +1928,7 @@ SString & SLAPI SString::RevertHtmlSpecSymb()
 			int   s = 0;
 			if(c == '&') {
 				for(uint j = 0; j < SIZEOFARRAY(HtmlSpcSymbTab); j++) {
-					(ent_buf = 0).CatChar('&').Cat(HtmlSpcSymbTab[j].str).Semicol();
+					ent_buf.Z().CatChar('&').Cat(HtmlSpcSymbTab[j].str).Semicol();
 					if(memcmp(ent_buf, P_Buf+i, ent_buf.Len()) == 0) {
 						temp_buf.CatChar(HtmlSpcSymbTab[j].chr);
 						i += (ent_buf.Len()-1);
@@ -6240,7 +6240,7 @@ SLTEST_R(SString)
 			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 8, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
 			SLTEST_CHECK_EQ(str.Z().Cat(3308.039999999999512506, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
 			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
-			SLTEST_CHECK_EQ(str.Z().Cat(2572.92*1.0000000001, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "2572.92");
+			SLTEST_CHECK_EQ(str.Z().Cat(2572.92*1.00000000001, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "2572.92");
 			SLTEST_CHECK_EQ(str.Z().Cat(369.900000000000102333,  MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "369.9");
 		}
 		{

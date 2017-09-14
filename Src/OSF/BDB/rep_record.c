@@ -710,7 +710,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			__rep_send_message(env, DB_EID_BROADCAST, REP_ALIVE, &rp->lsn, &data_dbt, 0, 0);
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case REP_MASTER_REQ:
 		RECOVERING_SKIP;
 		if(F_ISSET(rep, REP_F_MASTER)) {

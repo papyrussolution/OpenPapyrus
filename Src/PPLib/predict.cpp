@@ -1060,7 +1060,7 @@ int SLAPI PrcssrPrediction::Run()
 						long   pct   = goods_count ? ((100L * goods_processed) / goods_count) : 100L;
 						LTIME  rest_time;
 						rest_time.settotalsec(total - Stat.Time);
-						(rest_time_buf = 0).Cat(rest_time);
+						rest_time_buf.Z().Cat(rest_time);
 						msg_buf.Z().Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
 						msg_buf.Printf(process_fmt_buf, pct, rest_time_buf.cptr());
 						PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
@@ -1112,7 +1112,7 @@ int SLAPI PrcssrPrediction::Run()
 			long   pct   = goods_count ? ((100L * goods_processed) / goods_count) : 100L;
 			LTIME  rest_time;
 			rest_time.settotalsec(total - Stat.Time);
-			(rest_time_buf = 0).Cat(rest_time);
+			rest_time_buf.Z().Cat(rest_time);
 			msg_buf.Z().Cat(pct).CatChar('%').Space().CatParStr(rest_time_buf);
 			msg_buf.Printf(process_fmt_buf, pct, rest_time_buf.cptr());
 			PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

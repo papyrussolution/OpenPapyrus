@@ -149,7 +149,7 @@ int SLAPI PPCheckInPersonItem::GetPersonName(SString & rBuf) const
 		ok = 2;
 	}
 	else
-		ok = ::GetPersonName(PersonID, rBuf = 0);
+		ok = ::GetPersonName(PersonID, rBuf.Z());
 	return ok;
 }
 

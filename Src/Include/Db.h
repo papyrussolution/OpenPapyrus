@@ -146,7 +146,7 @@ public:
 	int    PutToString(int style, SString & rBuf) const;
 	int    ConvertToDbfField(DBFCreateFld *) const;
 	int    GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, const SFormatParam &) const;
-	int    PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const SFormatParam &) const;
+	void   PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const SFormatParam &) const;
 	uint   ID;
 	STypEx T;
 	union {
@@ -478,7 +478,7 @@ private:
 	int    Scan();
 	int    CheckParam(const SdRecord & rRec);
 	int    ParseFieldNameRec(const SString & rLine);
-	int    PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
+	void   PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
 	int    GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf);
 	int    IsTerminalLine(const SString & rLine, uint fldNo) const;
 
@@ -686,7 +686,7 @@ public:
 private:
 	int    Scan();
 	int    CheckParam(const SdRecord & rRec);
-	int    PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
+	void   PutFieldDataToBuf(const SdbField & rFld, const SString & rTextData, void * pRecBuf);
 	int    GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf);
 	int    GetFldNames();
 

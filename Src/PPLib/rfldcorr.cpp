@@ -3260,6 +3260,16 @@ ImpExpDll::~ImpExpDll()
 	}
 }
 
+int ImpExpDll::operator !() const
+{
+	if(OpKind == 1)
+		return !(InitExport && SetExportObj && InitExportIter && NextExportIter && EnumExpReceipt &&
+				FinishImpExp && GetErrorMessage);
+	else
+		return !(InitImport && GetImportObj && InitImportIter && NextImportIter && ReplyImportObjStatus &&
+				FinishImpExp && GetErrorMessage);
+}
+
 int ImpExpDll::InitLibrary(const char * pDllName, uint op)
 {
 	int    ok = 1;

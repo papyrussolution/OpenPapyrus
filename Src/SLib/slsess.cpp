@@ -580,9 +580,9 @@ uint64 SLAPI SlSession::GetProfileTime()
 long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb) // @cs
 {
 	long   _i = 0;
-	// (здесь нельзя использовать макрос из-за зацикливания при трассировке блокировок) ENTER_CRITICAL_SECTION 
-	{ 
-		static SCriticalSection::Data __csd(1); 
+	// (здесь нельзя использовать макрос из-за зацикливания при трассировке блокировок) ENTER_CRITICAL_SECTION
+	{
+		static SCriticalSection::Data __csd(1);
 		SCriticalSection __cs(__csd);
 		uint   val = 0;
 		if(pSymb) {
@@ -745,7 +745,7 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 				counter = 0;
 				SString ext, b = file_name;
 				do {
-					SPathStruc::ReplaceExt(b, (ext = 0).CatLongZ(++counter, 3), 1);
+					SPathStruc::ReplaceExt(b, ext.Z().CatLongZ(++counter, 3), 1);
 				} while(fileExists(b));
 				copyFileByName(file_name, b);
 				SFile::Remove(file_name);
@@ -796,13 +796,15 @@ void SLAPI SlSession::SetExtraProcBlock(const SlExtraProcBlock * pBlk)
 void SLAPI SlSession::LockPush(int lockType, const char * pSrcFileName, uint srcLineNo)
 {
 	SlThreadLocalArea & r_tla = GetTLA();
-	r_tla.LckStk.Push(lockType, pSrcFileName, srcLineNo);
+	if(&r_tla)
+		r_tla.LckStk.Push(lockType, pSrcFileName, srcLineNo);
 }
 
 void SLAPI SlSession::LockPop()
 {
 	SlThreadLocalArea & r_tla = GetTLA();
-	r_tla.LckStk.Pop();
+	if(&r_tla)
+		r_tla.LckStk.Pop();
 }
 
 #if 0 // @v9.1.2 replaced by SetExtraProcBlock() {

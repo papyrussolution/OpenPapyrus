@@ -777,6 +777,9 @@
 				RelativePath="..\include\libxml\tree.h">
 			</File>
 			<File
+				RelativePath="..\Osf\Libxml\triostr.h">
+			</File>
+			<File
 				RelativePath="..\include\libxml\uri.h">
 			</File>
 			<File

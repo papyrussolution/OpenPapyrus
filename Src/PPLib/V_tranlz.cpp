@@ -3139,7 +3139,7 @@ int TrfrAnlzCtDialog::setupList()
 	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
 		ss.clear(1);
 		ss.add(buf);
-		(buf = 0).CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
+		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 		ss.add(buf);
 		ok = addStringToList(j, ss.getBuf());
 	}
@@ -4132,7 +4132,7 @@ int SLAPI PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & r
 	if(code.NotEmptyS()) {
 		long  ncode = code.ToLong();
 		if(ncode > 0 && ncode < 100) {
-			(code = 0).CatLongZ(ncode, 3);
+			code.Z().CatLongZ(ncode, 3);
 		}
 		uint   cnp = 0;
 		if(CategoryNameList.Search(code, &rBuf, &cnp))
@@ -4412,7 +4412,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 					if(gc_pack.Rec.ID || GcObj.Fetch(goods_rec.GdsClsID, &gc_pack) > 0) {
 						double v = 0.0;
 						if(gc_pack.GetExtDim(&goods_ext_rec, Cfg.CategoryClsDim, &v) > 0 && v > 0.0) {
-							(rItem.CategoryCode = 0).Cat((long)v);
+							rItem.CategoryCode.Z().Cat((long)v);
 							rItem.StatusFlags |= GoodsItem::stCategoryCodeByClsDim;
 						}
 					}

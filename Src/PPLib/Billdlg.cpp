@@ -1319,7 +1319,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 	if(selected) {
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTDESCR, isd_param.Title);
-		selected = BIN(InputStringDialog(&isd_param, descr = 0) > 0 && descr.Len());
+		selected = BIN(InputStringDialog(&isd_param, descr.Z()) > 0 && descr.Len());
 	}
 	if(selected) {
 		uint   pos = 0;
@@ -1966,7 +1966,7 @@ void BillDialog::setupByCntragnt()
 					blk.GetDimList(CDebtList);
 				}
 				if(has_matured_debt) {
-					; // PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, (add_msg = 0).Cat(CurrDebt, SFMT_MONEY));
+					; // PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, add_msg.Z().Cat(CurrDebt, SFMT_MONEY));
 				}
 			}
 		}
@@ -2040,13 +2040,13 @@ void BillDialog::ReplyCntragntSelection(int force)
 				}
 			}
 			if(has_matured_debt)
-				PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, (add_msg = 0).Cat(CurrDebt, SFMT_MONEY));
+				PPMessage(mfInfo|mfOK, PPINF_CLIHASMATDEBT, add_msg.Z().Cat(CurrDebt, SFMT_MONEY));
 		}
 		if(Flags & fCheckAgreement && (P_BObj->Cfg.Flags & BCF_WARNAGREEMENT) && client_id) {
 			if(!(sob.State & PPBillPacket::SetupObjectBlock::stHasCliAgreement) || sob.CliAgt.Flags & AGTF_DEFAULT)
 				PPMessage(mfInfo|mfOK, PPINF_ARHASNTAGREEMENT, sob.Name);
 			else if(sob.CliAgt.Expiry < P_Pack->Rec.Dt) {
-				(add_msg = 0).Cat(sob.Name).CatDiv('-', 1).Cat(sob.CliAgt.Expiry, DATF_DMY|DATF_CENTURY);
+				add_msg.Z().Cat(sob.Name).CatDiv('-', 1).Cat(sob.CliAgt.Expiry, DATF_DMY|DATF_CENTURY);
 				PPMessage(mfInfo|mfOK, PPINF_ARHASEXPIREDAGREEMENT, add_msg);
 			}
 		}
@@ -2858,7 +2858,7 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 			dlg->setCtrlString(CTL_BILLINFO_UUID, buf.Strip());
 			dlg->setCtrlReal(CTL_BILLINFO_OMTPAYM, pack.Rec.PaymAmount); // @v8.5.8
 
-			PPGetSubStrById(PPTXT_EDIOP, pack.Rec.EdiOp, buf = 0);
+			PPGetSubStrById(PPTXT_EDIOP, pack.Rec.EdiOp, buf.Z());
 			dlg->setCtrlString(CTL_BILLINFO_EDIOP, buf);
 
 			SetBillFlagsCtrl(dlg, CTL_BILLINFO_FLAGS, pack.Rec.Flags);

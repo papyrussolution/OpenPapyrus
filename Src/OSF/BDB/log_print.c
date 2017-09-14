@@ -141,7 +141,7 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 				hdrname = sp->name;
 				if(has_data == 1)
 					break;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LOGREC_DATA:
 				if(downrev ? LOG_SWAPPED(env) : (dbp != NULL  && F_ISSET(dbp, DB_AM_SWAP)))
 					__db_recordswap(op, hdrsize, hdrstart, (has_data && uinttmp != 0) ? bp : NULL, 1);
@@ -150,7 +150,7 @@ int __log_print_record(ENV * env, DBT * recbuf, DB_LSN * lsnp, char * name, DB_L
 					(uint8 *)hdrstart, hdrsize);
 				if(has_data == 0 || uinttmp == 0)
 					break;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    default:
 				__db_msgadd(env, &msgbuf,  "\t%s: ", sp->name);
 pr_data:
@@ -168,7 +168,7 @@ pr_data:
 				hdrsize = uinttmp;
 				if(has_data == 1)
 					break;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LOGREC_PGDDBT:
 				DB_ASSERT(env, hdrstart != NULL);
 				if(dbp != NULL && (downrev ? LOG_SWAPPED(env) : F_ISSET(dbp, DB_AM_SWAP))) {

@@ -219,7 +219,7 @@ void ngx_event_accept(ngx_event_t * ev)
 			ngx_str_t addr;
 			u_char text[NGX_SOCKADDR_STRLEN];
 			ngx_debug_accepted_connection(ecf, c);
-			if(log->log_level & NGX_LOG_DEBUG_EVENT) {
+			if(log->Level & NGX_LOG_DEBUG_EVENT) {
 				addr.data = text;
 				addr.len = ngx_sock_ntop(c->sockaddr, c->socklen, text, NGX_SOCKADDR_STRLEN, 1);
 				ngx_log_debug3(NGX_LOG_DEBUG_EVENT, log, 0, "*%uA accept: %V fd:%d", c->number, &addr, s);
@@ -589,7 +589,7 @@ static void ngx_debug_accepted_connection(ngx_event_conf_t * ecf, ngx_connection
 			    }
 			    break;
 		}
-		c->log->log_level = NGX_LOG_DEBUG_CONNECTION|NGX_LOG_DEBUG_ALL;
+		c->log->Level = NGX_LOG_DEBUG_CONNECTION|NGX_LOG_DEBUG_ALL;
 		break;
 next:
 		continue;

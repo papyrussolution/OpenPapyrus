@@ -909,7 +909,7 @@ process_formats:
 				return NGX_CONF_ERROR;
 			}
 			buffer->event->P_Data = log->file;
-			buffer->event->handler = ngx_stream_log_flush_handler;
+			buffer->event->F_EvHandler = ngx_stream_log_flush_handler;
 			buffer->event->log = &cf->cycle->new_log;
 			buffer->event->cancelable = 1;
 			buffer->flush = flush;

@@ -4811,7 +4811,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 					if(sbill_rec.LocID == loc_id) {
 						ex_today_bill_id = sbill_rec.ID;
 						PPObjBill::MakeCodeString(&sbill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-						//PPRef->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, edi_ack = 0);
+						//PPRef->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIACK, edi_ack.Z());
 						//PPRef->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf.Z());
 					}
 				}

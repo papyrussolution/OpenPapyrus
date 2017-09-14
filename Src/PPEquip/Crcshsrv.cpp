@@ -874,7 +874,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 				if(gobj.FetchSingleBarcode(prev_gds_info.ParentID, grp_code) > 0 && grp_code.Len())
 					grp_code.ShiftLeftChr('@'); // @v7.5.3
 				else
-					(grp_code = 0).Cat(prev_gds_info.ParentID);
+					grp_code.Z().Cat(prev_gds_info.ParentID);
 				p_writer->StartElement("group", "id", grp_code);
 				GetObjectName(PPOBJ_GOODSGROUP, prev_gds_info.ParentID, temp_buf);
 				p_writer->PutElement("name", temp_buf);
@@ -884,9 +884,9 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					long   parents_count = 0;
 					while(gobj.GetParentID(parent_id, &parent_id) > 0 && parent_id != 0) {
 						if(gobj.FetchSingleBarcode(parent_id, grp_code) > 0 && grp_code.Len())
-							grp_code.ShiftLeftChr('@'); // @7.5.3
+							grp_code.ShiftLeftChr('@');
 						else
-							(grp_code = 0).Cat(parent_id);
+							grp_code.Z().Cat(parent_id);
 						p_writer->StartElement("parent-group");
 						p_writer->AddAttrib("id", grp_code);
 						GetObjectName(PPOBJ_GOODSGROUP, parent_id, temp_buf);
@@ -1108,7 +1108,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPSCardSeries ser_rec;
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
-		PPLoadText(PPTXT_EXPSCARD, iter_msg = 0);
+		PPLoadText(PPTXT_EXPSCARD, iter_msg.Z());
 		PPGetWord(PPWORD_SERIES, 0, series_word);
 
 		scard_quot_ary.freeAll();
@@ -1133,7 +1133,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					ser_name = ser_rec.Name;
 					ser_ident = ser_rec.Symb;
 					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit()) {
-						(ser_ident = 0).CatChar('0');
+						ser_ident.Z().CatChar('0');
 						if(zero_series_has_seen)
 							skip = 1;
 						else
@@ -1163,7 +1163,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					// @v8.9.6 {
 					ser_ident = ser_rec.Symb;
 					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
-						(ser_ident = 0).CatChar('0');
+						ser_ident.Z().CatChar('0');
 					// } @v8.9.6
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
@@ -1215,7 +1215,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					// @v8.9.6 {
 					ser_ident = ser_rec.Symb;
 					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
-						(ser_ident = 0).CatChar('0');
+						ser_ident.Z().CatChar('0');
 					// } @v8.9.6
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						PPWaitPercent(iter.GetCounter(), msg_buf); // @v8.1.0
@@ -4006,7 +4006,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 						gds_pack.destroy();
 						gds_pack.Rec.Kind = PPGDSK_GOODS;
 						if(cs_chkln.Article)
-							(article = 0).CatChar('$').Cat(cs_chkln.Article);
+							article.Z().CatChar('$').Cat(cs_chkln.Article);
 						if(goods_name.NotEmpty())
 							goods_name.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 						else if(barcode.NotEmpty())
@@ -4086,15 +4086,15 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 				param.Excise(pos, 2).Insert(pos, num);
 			}
 			if(param.Search("MM", 0, 1, &(pos = 0))) {
-				(num = 0).CatLongZ(m, 2);
+				num.Z().CatLongZ(m, 2);
 				param.Excise(pos, 2).Insert(pos, num);
 			}
 			if(param.Search("YYYY", 0, 1, &(pos = 0))) {
-				(num = 0).CatLongZ(y, 4);
+				num.Z().CatLongZ(y, 4);
 				param.Excise(pos, 4).Insert(pos, num);
 			}
 			else if(param.Search("YY", 0, 1, &(pos = 0))) {
-				(num = 0).CatLongZ(y % 100, 2);
+				num.Z().CatLongZ(y % 100, 2);
 				param.Excise(pos, 2).Insert(pos, num);
 			}
 			ps.Nam = param;
@@ -4116,7 +4116,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 		if(Options & oSeparateReports) {
 			PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_SEPARATEPATH, sect_name);
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
-				(param = 0).Cat(LogNumList.at(i));
+				param.Z().Cat(LogNumList.at(i));
 				if(ini_file.GetParam(sect_name, param, buf) > 0) {
 					SPathStruc  ps1;
 					ps1.Split(file_name);

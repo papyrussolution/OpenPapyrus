@@ -1567,7 +1567,7 @@ int SLAPI PPObjPerson::GetListByPattern(const SrchAnalogPattern * pPattern, PPID
 	MEMSZERO(k1);
 	for(pq.initIteration(0, &k1, spFirst); pq.nextIteration() > 0;) {
 		if(pPattern->Flags & PPObjPerson::sapfMatchWholeWord) {
-			(tbl_name = 0).Space().Cat(t->data.Name).Space();
+			tbl_name.Z().Space().Cat(t->data.Name).Space();
 		}
 		else
 			tbl_name = t->data.Name;

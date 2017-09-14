@@ -1065,9 +1065,7 @@ process_formats:
 		}
 		if(ngx_strncmp(value[i].data, "gzip", 4) == 0 && (value[i].len == 4 || value[i].data[4] == '=')) {
 #if (NGX_ZLIB)
-			if(size == 0) {
-				size = 64 * 1024;
-			}
+			SETIFZ(size, 64 * 1024);
 			if(value[i].len == 4) {
 				gzip = Z_BEST_SPEED;
 				continue;
@@ -1125,40 +1123,31 @@ process_formats:
 			}
 			return NGX_CONF_OK;
 		}
-
 		buffer = (ngx_http_log_buf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_buf_t));
 		if(buffer == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		buffer->start = (u_char*)ngx_pnalloc(cf->pool, size);
 		if(buffer->start == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		buffer->pos = buffer->start;
 		buffer->last = buffer->start + size;
-
 		if(flush) {
 			buffer->event = (ngx_event_t *)ngx_pcalloc(cf->pool, sizeof(ngx_event_t));
 			if(buffer->event == NULL) {
 				return NGX_CONF_ERROR;
 			}
-
 			buffer->event->P_Data = log->file;
-			buffer->event->handler = ngx_http_log_flush_handler;
+			buffer->event->F_EvHandler = ngx_http_log_flush_handler;
 			buffer->event->log = &cf->cycle->new_log;
 			buffer->event->cancelable = 1;
-
 			buffer->flush = flush;
 		}
-
 		buffer->gzip = gzip;
-
 		log->file->flush = ngx_http_log_flush;
 		log->file->data = buffer;
 	}
-
 	return NGX_CONF_OK;
 }
 

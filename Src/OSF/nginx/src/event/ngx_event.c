@@ -123,7 +123,7 @@ static void ngx_event_process_posted(ngx_cycle_t * cycle, ngx_queue_t * posted)
 		ngx_event_t * ev = ngx_queue_data(q, ngx_event_t, queue);
 		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "posted event %p", ev);
 		ngx_delete_posted_event(ev);
-		ev->handler(ev);
+		ev->F_EvHandler(ev);
 	}
 }
 
@@ -141,7 +141,7 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 #if (NGX_WIN32)
 		// handle signals from master in case of network inactivity 
 		if(timer == NGX_TIMER_INFINITE || timer > 500) {
-			timer = 500;
+			timer = 5/*500*/; // @sobolev «адержка уменьшена ради быстрой обработки цикла обслуживани€ делегированных запросов (see below)
 		}
 #endif
 	}
@@ -170,6 +170,8 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 			// в основной цикл.
 			// Ќа текущий момент не до конца пон€тно как правильно сформировать ngx_event_t перед ngx_post_event.
 			//
+			// @v9.8.1 ¬ первом приближении схема работает!
+			//
 			struct SB {
 				static ngx_event_t & Push_NgxEvent()
 				{
@@ -183,8 +185,13 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 				}
 				static void EventHandle(ngx_event_t * pEv)
 				{
-
-					//ngx_http_output_filter(pReq, &out);
+					NgxReqResult * p_req_res = (NgxReqResult *)pEv->P_Data;
+					if(p_req_res) {
+						ngx_http_send_header(p_req_res->P_Req);
+						ngx_http_output_filter(p_req_res->P_Req, &p_req_res->Chain);
+						ngx_http_finalize_request(p_req_res->P_Req, p_req_res->ReplyCode/*NGX_DONE*/);
+						pEv->P_Data = 0;
+					}
 				}
 			};
 			NgxReqResult req_res;
@@ -195,7 +202,7 @@ void FASTCALL ngx_process_events_and_timers(ngx_cycle_t * pCycle)
 				r_ev.P_Data = &r_req_res;
 				r_ev.ready = 1;
 				r_ev.log = pCycle->log;
-				r_ev.handler = SB::EventHandle;
+				r_ev.F_EvHandler = SB::EventHandle;
 				ngx_post_event(&r_ev, &ngx_posted_events);
 			}
 			// } @sobolev
@@ -307,8 +314,8 @@ static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle)
 	ngx_shm_t shm;
 	ngx_time_t * tp;
 	ngx_core_conf_t * ccf;
-	void *** cf = ngx_get_conf(cycle->conf_ctx, ngx_events_module);
-	ngx_event_conf_t * ecf = (ngx_event_conf_t*)(*cf)[ngx_event_core_module.ctx_index];
+	void *** ppp_cf = ngx_get_conf(cycle->conf_ctx, ngx_events_module);
+	ngx_event_conf_t * ecf = (ngx_event_conf_t*)(*ppp_cf)[ngx_event_core_module.ctx_index];
 	if(!ngx_test_config__ && ngx_process <= NGX_PROCESS_MASTER) {
 		ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "using the \"%s\" event method", ecf->name);
 	}
@@ -425,8 +432,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 			if(cycle->modules[m]->ctx_index == ecf->use) {
 				module = (ngx_event_module_t*)cycle->modules[m]->ctx;
 				if(module->actions.F_Init(cycle, ngx_timer_resolution) != NGX_OK) {
-					// fatal 
-					exit(2);
+					exit(2); // fatal 
 				}
 				break;
 			}
@@ -540,7 +546,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 #if (NGX_WIN32)
 		if(ngx_event_flags & NGX_USE_IOCP_EVENT) {
 			ngx_iocp_conf_t * iocpcf;
-			rev->handler = ngx_event_acceptex;
+			rev->F_EvHandler = ngx_event_acceptex;
 			if(ngx_use_accept_mutex) {
 				continue;
 			}
@@ -554,7 +560,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 			}
 		}
 		else {
-			rev->handler = ngx_event_accept;
+			rev->F_EvHandler = ngx_event_accept;
 			if(ngx_use_accept_mutex) {
 				continue;
 			}
@@ -728,7 +734,7 @@ static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 {
 #if (NGX_DEBUG)
-	ngx_event_conf_t  * ecf = (ngx_event_conf_t *)conf;
+	ngx_event_conf_t * ecf = (ngx_event_conf_t *)conf;
 	ngx_int_t rc;
 	ngx_str_t * value;
 	ngx_url_t u;

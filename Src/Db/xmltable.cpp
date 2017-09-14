@@ -522,7 +522,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 								}
 								if(St.GetParam().Flags & XmlDbFile::Param::fUtf8Codepage)
 									field_buf.Utf8ToChar();
-								THROW(fld.PutFieldDataToBuf(field_buf, pDataBuf, fmt_param));
+								fld.PutFieldDataToBuf(field_buf, pDataBuf, fmt_param);
 								r = 1;
 							}
 							else
@@ -647,7 +647,7 @@ int XmlDbFile::WriteDTDS(const SdRecord & rRec)
 			xmlTextWriterWriteDTDElement(P_Writer, root_tag.ucptr(), buf.ucptr());
 			buf.Printf("(%s)", ss.getBuf());
 			xmlTextWriterWriteDTDElement(P_Writer, rec_tag.ucptr(), buf.ucptr());
-			for(i = 0; ss.get(&i, (buf = 0)) > 0;)
+			for(i = 0; ss.get(&i, buf.Z()) > 0;)
 				WriteField(buf, 0, 1);
 			xmlTextWriterEndDTD(P_Writer);
 		}

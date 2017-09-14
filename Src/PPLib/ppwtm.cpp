@@ -719,7 +719,7 @@ int WhatmanObjectProcessor::HandleCommand(int cmd, void * pExt)
 			p_blk->WtmObjTypeSymb = Symb;
 			p_blk->Val1 = PPOBJ_PROCESSOR;
 			p_blk->Val2 = PrcID;
-			(p_blk->ExtString = 0).Cat(PrcID);
+			p_blk->ExtString.Z().Cat(PrcID);
 		}
 		ok = 1;
 	}
@@ -1089,7 +1089,7 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 			p_blk->WtmObjTypeSymb = Symb;
 			p_blk->Val1 = PPOBJ_CAFETABLE;
 			p_blk->Val2 = TableNo;
-			(p_blk->ExtString = 0).Cat(TableNo);
+			p_blk->ExtString.Z().Cat(TableNo);
 		}
 		ok = 1;
 	}

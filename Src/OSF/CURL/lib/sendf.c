@@ -761,10 +761,10 @@ int Curl_debug(struct Curl_easy * data, curl_infotype type, char * ptr, size_t s
 		const char * w = "Data";
 		switch(type) {
 			case CURLINFO_HEADER_IN: w = "Header";
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLINFO_DATA_IN: t = "from"; break;
 			case CURLINFO_HEADER_OUT: w = "Header";
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLINFO_DATA_OUT: t = "to"; break;
 			default: break;
 		}

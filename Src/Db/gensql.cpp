@@ -220,7 +220,7 @@ int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, int
 		const BNField & r_fld = rTbl.fields[i];
 		if(indent)
 			Tab();
-		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, Temp = 0));
+		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, Temp.Z()));
 		if(i < (c-1))
 			Com();
 		if(indent)
@@ -283,7 +283,7 @@ int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 {
 	int    ok = 1;
 	if(n < rTbl.indexes.getNumKeys())
-		PrefixName((Temp = 0).Cat(rTbl.fileName).Cat("Key").Cat(n), pfxIndex, rBuf, 0);
+		PrefixName(Temp.Z().Cat(rTbl.fileName).Cat("Key").Cat(n), pfxIndex, rBuf, 0);
 	else
 		ok = 0;
 	return ok;
@@ -315,7 +315,7 @@ int Generator_SQL::GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SStri
 	int    ok = 1;
 	rBuf.Z();
 	if(fldN < rTbl.fields.getCount())
-		PrefixName((Temp = 0).Cat(rTbl.fileName).CatChar('_').Cat(rTbl.fields[fldN].Name), pfxSequence, rBuf, 0);
+		PrefixName(Temp.Z().Cat(rTbl.fileName).CatChar('_').Cat(rTbl.fields[fldN].Name), pfxSequence, rBuf, 0);
 	else
 		ok = 0;
 	return ok;

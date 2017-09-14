@@ -1771,7 +1771,7 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 	SString fmt_buf, chk_text, msg_buf;
 	if(LoadPacket(id, 0, &cc_pack) > 0) {
 		double amt = 0.0, dscnt = 0.0;
-		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text = 0);
+		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text.Z());
 		cc_pack.CalcAmount(&amt, &dscnt);
 		double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 		double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
@@ -3780,7 +3780,7 @@ int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
 		for(i = 0; i < rmv_id_list.getCount(); i++) {
 			const PPID rmv_cc_id = rmv_id_list.get(i);
 			THROW_DB(deleteFrom(&Lines, 0, Lines.CheckID == rmv_cc_id));
-			(id_msg = 0).CatEq("ID", rmv_cc_id);
+			id_msg.Z().CatEq("ID", rmv_cc_id);
 			msg_buf.Printf(msg_templ, id_msg.cptr());
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 		}
@@ -4530,7 +4530,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 				int    r2 = p_bobj->Search(bill_id, 0);
 				THROW(r2);
 				if(r2 < 0) {
-					Logger.LogMsgCode(mfError, PPERR_ABSENBILLPOOLMEMB, (bill_code = 0).Cat(bill_id));
+					Logger.LogMsgCode(mfError, PPERR_ABSENBILLPOOLMEMB, bill_code.Z().Cat(bill_id));
 					THROW(p_bobj->P_Tbl->RemoveFromPool(bill_id, PPASS_CSDBILLPOOL, sessID, 0));
 				}
 				else {

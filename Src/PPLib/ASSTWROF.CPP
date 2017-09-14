@@ -315,7 +315,7 @@ int SLAPI PrcssrAssetDeprec::Run()
 							}
 							else {
 								if(P_BObj->GetSerialNumberByLot(lot_rec.ID, serial, 1) <= 0)
-									(serial = 0).CatChar('#').Cat(lot_rec.ID);
+									serial.Z().CatChar('#').Cat(lot_rec.ID);
 								PPLoadText(PPTXT_LOG_ASSTWROF_OUTOFEXPL, fmt_buf);
 								logger.Log(msg_buf.Printf(fmt_buf, goods_rec.Name, serial.cptr()));
 							}

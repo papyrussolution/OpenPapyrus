@@ -1186,7 +1186,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 					if(!P_Queue->updateRecBuf(&ex_rec)) {
 						PPLoadText(PPTXT_LOG_ERRMODSYNCQUEUE, fmt_buf);
 						GetObjectTitle(ex_rec.ObjType, err_msg);
-						(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
+						obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
 						PPGetLastErrorMessage(1, err_msg);
 						Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
 						PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
@@ -1204,7 +1204,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 				if(!P_Queue->insertRecBuf(&idx_rec)) {
 					PPLoadText(PPTXT_LOG_ERRINSSYNCQUEUE, fmt_buf);
 					GetObjectTitle(idx_rec.ObjType, err_msg);
-					(obj_buf = 0).Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
+					obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
 					PPGetLastErrorMessage(1, err_msg);
 					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
 					PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
@@ -1939,7 +1939,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			temp_file_name = file_name;
 			SPathStruc::ReplaceExt(temp_file_name, ext, 1);
 			for(long cnt = 0; fileExists(temp_file_name); cnt++) {
-				(ext = 0).Cat(++cnt);
+				ext.Z().Cat(++cnt);
 				SPathStruc::ReplaceExt(temp_file_name, ext, 1);
 			}
 			CloseOutPacket();
@@ -2073,7 +2073,7 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 	int    ok = 1;
 	SString file_name, fmt_buf, msg_buf;
 	long   counter = 0;
-	PPLoadText(PPTXT_MAKETRNSMFILENAME, fmt_buf); // @v7.9.9
+	PPLoadText(PPTXT_MAKETRNSMFILENAME, fmt_buf);
 	{
 		const PPID db_div_id = LConfig.DBDiv;
 		PPTransaction tra(1);
@@ -2085,7 +2085,7 @@ int SLAPI PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * p
 		// } @v8.0.12
 		do {
 			THROW(DObj.GetCounter(db_div_id, &counter, 0));
-			(file_name = 0).CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPSEXT);
+			file_name.Z().CatLongZ(db_div_id, 4).CatLongZ(counter, 6).Cat(PPSEXT);
 			THROW(PPGetFilePath(PPPATH_OUT, file_name, rFileName));
 			PPWaitMsg(msg_buf.Z().Printf(fmt_buf, rFileName.cptr()));
 		} while(fileExists(rFileName));
@@ -3055,7 +3055,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 			next_pass = 0;
 			SDirEntry fb;
 			for(uint p = 0; fary.Enum(&p, &fb, &file_path);) {
-				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) { // @v7.7.8
+				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 					PPObjectTransmit::Header hdr;
 					if(ot.OpenInPacket(file_path, &hdr) > 0) {
 						if(hdr.DestDBID == LConfig.DBDiv && param.CheckDbDivID(hdr.DBID)) {

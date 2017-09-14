@@ -1167,19 +1167,15 @@ static CURLcode imap_statemach_act(struct connectdata * conn)
 			case IMAP_FETCH_FINAL:
 			    result = imap_state_fetch_final_resp(conn, imapcode, imapc->state);
 			    break;
-
 			case IMAP_APPEND:
 			    result = imap_state_append_resp(conn, imapcode, imapc->state);
 			    break;
-
 			case IMAP_APPEND_FINAL:
 			    result = imap_state_append_final_resp(conn, imapcode, imapc->state);
 			    break;
-
 			case IMAP_SEARCH:
 			    result = imap_state_listsearch_resp(conn, imapcode, imapc->state);
 			    break;
-
 			case IMAP_LOGOUT:
 			/* fallthrough, just stop! */
 			default:
@@ -1188,7 +1184,6 @@ static CURLcode imap_statemach_act(struct connectdata * conn)
 			    break;
 		}
 	} while(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
-
 	return result;
 }
 
@@ -1197,16 +1192,13 @@ static CURLcode imap_multi_statemach(struct connectdata * conn, bool * done)
 {
 	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &conn->proto.imapc;
-
 	if((conn->handler->flags & PROTOPT_SSL) && !imapc->ssldone) {
 		result = Curl_ssl_connect_nonblocking(conn, FIRSTSOCKET, &imapc->ssldone);
 		if(result || !imapc->ssldone)
 			return result;
 	}
-
 	result = Curl_pp_statemach(&imapc->pp, FALSE);
 	*done = (imapc->state == IMAP_STOP) ? TRUE : FALSE;
-
 	return result;
 }
 
@@ -1214,15 +1206,13 @@ static CURLcode imap_block_statemach(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &conn->proto.imapc;
-
 	while(imapc->state != IMAP_STOP && !result)
 		result = Curl_pp_statemach(&imapc->pp, TRUE);
-
 	return result;
 }
-
-/* Allocate and initialize the struct IMAP for the current Curl_easy if
-   required */
+//
+// Allocate and initialize the struct IMAP for the current Curl_easy if required 
+//
 static CURLcode imap_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;

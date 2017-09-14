@@ -1494,7 +1494,7 @@ int PsnEventDialog::setupList()
 		if(objtag.Fetch(p_item->TagID, &tag) > 0)
 			buf = tag.Name;
 		else
-			(buf = 0).Cat(p_item->TagID);
+			buf.Z().Cat(p_item->TagID);
 		ss.add(buf, 0);
 		TagObj.GetCurrTagVal(p_item, (buf = 0));
 		ss.add(buf, 0);

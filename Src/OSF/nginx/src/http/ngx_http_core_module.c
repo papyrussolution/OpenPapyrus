@@ -747,27 +747,27 @@ void ngx_http_core_run_phases(ngx_http_request_t * r)
 
 ngx_int_t ngx_http_core_generic_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph)
 {
-	ngx_int_t rc;
-	/*
-	 * generic phase checker,
-	 * used by the post read and pre-access phases
-	 */
+	// 
+	// generic phase checker,
+	// used by the post read and pre-access phases
+	// 
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "generic phase: %ui", r->phase_handler);
-	rc = ph->handler(r);
+	const ngx_int_t rc = ph->handler(r);
 	if(rc == NGX_OK) {
 		r->phase_handler = ph->next;
 		return NGX_AGAIN;
 	}
-	if(rc == NGX_DECLINED) {
+	else if(rc == NGX_DECLINED) {
 		r->phase_handler++;
 		return NGX_AGAIN;
 	}
-	if(rc == NGX_AGAIN || rc == NGX_DONE) {
+	else if(rc == NGX_AGAIN || rc == NGX_DONE) {
 		return NGX_OK;
 	}
-	/* rc == NGX_ERROR || rc == NGX_HTTP_...  */
-	ngx_http_finalize_request(r, rc);
-	return NGX_OK;
+	else { // rc == NGX_ERROR || rc == NGX_HTTP_... 
+		ngx_http_finalize_request(r, rc);
+		return NGX_OK;
+	}
 }
 
 ngx_int_t ngx_http_core_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph)

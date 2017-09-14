@@ -456,7 +456,7 @@ out:
 				 * we can resolve it later.
 				 */
 				db_rep->limbo_failure = *lsnp;
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case gmdb_secondary:
 				/* Merely refrain from firing event. */
 				RPRINT(env, (env, DB_VERB_REPMGR_MISC, "GMDB perm failure %d at [%lu][%lu]",
@@ -1121,7 +1121,7 @@ int __repmgr_destroy_conn(ENV * env, REPMGR_CONNECTION * conn)
 		    case REPMGR_OWN_MSG:
 			if(conn->input.rep_message == NULL)
 				break;
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case REPMGR_APP_MESSAGE:
 		    case REPMGR_HEARTBEAT:
 		    case REPMGR_REP_MESSAGE:

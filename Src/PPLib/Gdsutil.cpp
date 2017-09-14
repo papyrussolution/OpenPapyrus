@@ -388,7 +388,7 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 			if(P_BCodesList && P_BCodesList->getCount()) {
 				for(uint i = 0; P_BCodesList->enumItems(&i, (void**)&p_rec);) {
 					ss.clear();
-					ss.add((buf = 0).Cat(p_rec->Code));
+					ss.add(buf.Z().Cat(p_rec->Code));
 					GetGoodsName(p_rec->GoodsID, buf);
 					ss.add(buf);
 					THROW(addStringToList(i, ss.getBuf()));
@@ -1934,7 +1934,7 @@ int QuotationDialog::SetupMatrixLocEntry(const StrAssocArray::Item & rItem, Smar
 			GoodsIterator::GetListByFilt(&gf, &goods_list);
 			count = max_count - goods_list.getCount();
 			if(Cls == PPQuot::clsMtx) {
-				(buf = 0).Cat(max_count);
+				buf.Z().Cat(max_count);
 				ss.add(buf);
 			}
 		}

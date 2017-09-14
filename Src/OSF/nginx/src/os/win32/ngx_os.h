@@ -15,7 +15,7 @@ typedef ssize_t (*ngx_recv_chain_pt)(ngx_connection_t * c, ngx_chain_t * in, ngi
 typedef ssize_t (*ngx_send_pt)(ngx_connection_t * c, u_char * buf, size_t size);
 typedef ngx_chain_t *(*ngx_send_chain_pt)(ngx_connection_t * c, ngx_chain_t * in, nginx_off_t limit);
 
-typedef struct {
+struct ngx_os_io_t {
 	ngx_recv_pt recv;
 	ngx_recv_chain_pt recv_chain;
 	ngx_recv_pt udp_recv;
@@ -24,7 +24,7 @@ typedef struct {
 	ngx_send_chain_pt udp_send_chain;
 	ngx_send_chain_pt send_chain;
 	ngx_uint_t flags;
-} ngx_os_io_t;
+};
 
 ngx_int_t ngx_os_init(ngx_log_t * log);
 void ngx_os_status(ngx_log_t * log);

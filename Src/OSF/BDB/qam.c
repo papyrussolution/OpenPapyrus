@@ -180,7 +180,7 @@ static int __qamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	    case DB_OVERWRITE_DUP:
 		if((ret = __qam_getno(dbp, key, &cp->recno)) != 0)
 			return ret;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_CURRENT:
 		break;
 	    default:
@@ -587,7 +587,7 @@ retry:  /* Update the record number. */
 			}
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_FIRST:
 		flags = DB_NEXT;
 		is_first = 1;
@@ -604,7 +604,7 @@ retry:  /* Update the record number. */
 			QAM_DEC_RECNO(cp->recno);
 			break;
 		}
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_LAST:
 		if(meta->first_recno == meta->cur_recno) {
 			ret = DB_NOTFOUND;
@@ -658,7 +658,7 @@ dolock:
 		}
 		else if(with_delete || !is_first)
 			break;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_SET:
 	    case DB_SET_RANGE:
 	    case DB_GET_BOTH:

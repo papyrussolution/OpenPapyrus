@@ -226,8 +226,8 @@ static ngx_int_t ngx_iocp_process_events(ngx_cycle_t * cycle, ngx_msec_t timer, 
 		    ev->ready = 1;
 	}
 	ev->available = bytes;
-	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "iocp event handler: %p", ev->handler);
-	ev->handler(ev);
+	ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "iocp event handler: %p", ev->F_EvHandler);
+	ev->F_EvHandler(ev);
 	return NGX_OK;
 }
 

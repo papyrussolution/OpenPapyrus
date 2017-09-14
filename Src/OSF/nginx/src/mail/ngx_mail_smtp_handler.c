@@ -90,27 +90,18 @@ static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 {
 	ngx_connection_t  * c;
 	ngx_mail_session_t  * s;
-
 	s = (ngx_mail_session_t*)ctx->data;
 	c = s->connection;
-
 	if(ctx->state) {
-		ngx_log_error(NGX_LOG_ERR, c->log, 0,
-		    "%V could not be resolved (%i: %s)",
-		    &c->addr_text, ctx->state,
-		    ngx_resolver_strerror(ctx->state));
-
+		ngx_log_error(NGX_LOG_ERR, c->log, 0, "%V could not be resolved (%i: %s)", &c->addr_text, ctx->state, ngx_resolver_strerror(ctx->state));
 		if(ctx->state == NGX_RESOLVE_NXDOMAIN) {
 			s->host = smtp_unavailable;
 		}
 		else {
 			s->host = smtp_tempunavail;
 		}
-
 		ngx_resolve_addr_done(ctx);
-
 		ngx_mail_smtp_greeting(s, s->connection);
-
 		return;
 	}
 	c->log->action = "in resolving client hostname";
@@ -123,7 +114,7 @@ static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx)
 	s->host.len = ctx->name.len;
 	ngx_resolve_addr_done(ctx);
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "address resolved: %V", &s->host);
-	c->P_EvRd->handler = ngx_mail_smtp_resolve_name;
+	c->P_EvRd->F_EvHandler = ngx_mail_smtp_resolve_name;
 	ngx_post_event(c->P_EvRd, &ngx_posted_events);
 }
 
@@ -200,10 +191,10 @@ static void ngx_mail_smtp_greeting(ngx_mail_session_t * s, ngx_connection_t * c)
 		ngx_mail_close_connection(c);
 	}
 	if(sscf->greeting_delay) {
-		c->P_EvRd->handler = ngx_mail_smtp_invalid_pipelining;
+		c->P_EvRd->F_EvHandler = ngx_mail_smtp_invalid_pipelining;
 	}
 	else {
-		c->P_EvRd->handler = ngx_mail_smtp_init_protocol;
+		c->P_EvRd->F_EvHandler = ngx_mail_smtp_init_protocol;
 		s->out = sscf->greeting;
 		ngx_mail_send(c->P_EvWr);
 	}
@@ -220,7 +211,7 @@ static void ngx_mail_smtp_invalid_pipelining(ngx_event_t * rev)
 		ngx_log_debug0(NGX_LOG_DEBUG_MAIL, c->log, 0, "delay greeting");
 		rev->timedout = 0;
 		cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-		c->P_EvRd->handler = ngx_mail_smtp_init_protocol;
+		c->P_EvRd->F_EvHandler = ngx_mail_smtp_init_protocol;
 		ngx_add_timer(c->P_EvRd, cscf->timeout);
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			ngx_mail_close_connection(c);
@@ -263,7 +254,7 @@ void ngx_mail_smtp_init_protocol(ngx_event_t * rev)
 		}
 	}
 	s->mail_state = ngx_smtp_start;
-	c->P_EvRd->handler = ngx_mail_smtp_auth_state;
+	c->P_EvRd->F_EvHandler = ngx_mail_smtp_auth_state;
 	ngx_mail_smtp_auth_state(rev);
 }
 
@@ -564,7 +555,6 @@ static ngx_int_t ngx_mail_smtp_starttls(ngx_mail_session_t * s, ngx_connection_t
 {
 #if (NGX_MAIL_SSL)
 	ngx_mail_ssl_conf_t  * sslcf;
-
 	if(c->ssl == NULL) {
 		sslcf = (ngx_mail_ssl_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
 		if(sslcf->starttls) {
@@ -572,83 +562,59 @@ static ngx_int_t ngx_mail_smtp_starttls(ngx_mail_session_t * s, ngx_connection_t
 			 * RFC3207 requires us to discard any knowledge
 			 * obtained from client before STARTTLS.
 			 */
-
 			ngx_str_null(&s->smtp_helo);
 			ngx_str_null(&s->smtp_from);
 			ngx_str_null(&s->smtp_to);
-
 			s->buffer->pos = s->buffer->start;
 			s->buffer->last = s->buffer->start;
-
-			c->P_EvRd->handler = ngx_mail_starttls_handler;
+			c->P_EvRd->F_EvHandler = ngx_mail_starttls_handler;
 			return NGX_OK;
 		}
 	}
-
 #endif
-
 	return NGX_MAIL_PARSE_INVALID_COMMAND;
 }
 
-static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c,
-    char * err)
+static ngx_int_t ngx_mail_smtp_discard_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err)
 {
 	ssize_t n;
-
 	n = c->recv(c, s->buffer->last, s->buffer->end - s->buffer->last);
-
 	if(n == NGX_ERROR || n == 0) {
 		ngx_mail_close_connection(c);
 		return NGX_ERROR;
 	}
-
 	if(n > 0) {
 		s->buffer->last += n;
 	}
-
 	if(n == NGX_AGAIN) {
 		if(ngx_handle_read_event(c->P_EvRd, 0) != NGX_OK) {
 			ngx_mail_session_internal_server_error(s);
 			return NGX_ERROR;
 		}
-
 		return NGX_AGAIN;
 	}
-
 	ngx_mail_smtp_log_rejected_command(s, c, err);
-
 	s->buffer->pos = s->buffer->start;
 	s->buffer->last = s->buffer->start;
-
 	return NGX_OK;
 }
 
-static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c,
-    char * err)
+static void ngx_mail_smtp_log_rejected_command(ngx_mail_session_t * s, ngx_connection_t * c, char * err)
 {
-	u_char ch;
-	ngx_str_t cmd;
-	ngx_uint_t i;
-
-	if(c->log->log_level < NGX_LOG_INFO) {
-		return;
-	}
-
-	cmd.len = s->buffer->last - s->buffer->start;
-	cmd.data = s->buffer->start;
-
-	for(i = 0; i < cmd.len; i++) {
-		ch = cmd.data[i];
-
-		if(ch != __CR && ch != LF) {
-			continue;
+	if(c->log->Level >= NGX_LOG_INFO) {
+		ngx_uint_t i;
+		ngx_str_t cmd;
+		cmd.len = s->buffer->last - s->buffer->start;
+		cmd.data = s->buffer->start;
+		for(i = 0; i < cmd.len; i++) {
+			u_char ch = cmd.data[i];
+			if(ch != __CR && ch != LF) {
+				continue;
+			}
+			cmd.data[i] = '_';
 		}
-
-		cmd.data[i] = '_';
+		cmd.len = i;
+		ngx_log_error(NGX_LOG_INFO, c->log, 0, err, &cmd);
 	}
-
-	cmd.len = i;
-
-	ngx_log_error(NGX_LOG_INFO, c->log, 0, err, &cmd);
 }
 

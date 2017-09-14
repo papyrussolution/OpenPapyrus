@@ -545,7 +545,7 @@ static int __bam_vrfy_inp(DB * dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno,
 			 * that's okay during the structure check.
 			 */
 			F_SET(pip, VRFY_HAS_DUPS);
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case B_OVERFLOW:
 			/*
 			 * Overflow entries on internal pages are stored
@@ -607,7 +607,7 @@ static int __bam_vrfy_inp(DB * dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno,
 				EPRINT((env, DB_STR_A("1055", "Page %lu: duplicate page referenced by recno page at item %lu", "%lu %lu"), (ulong)pgno, (ulong)i));
 				break;
 			}
-		    /* FALLTHROUGH */
+		    // @fallthrough
 		    case B_OVERFLOW:
 			bo = (TYPE(h) == P_IBTREE) ?
 			     (BOVERFLOW *)(((BINTERNAL *)bk)->data) :

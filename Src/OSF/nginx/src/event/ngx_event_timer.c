@@ -59,7 +59,7 @@ void ngx_event_expire_timers(void)
 #endif
 				ev->timer_set = 0;
 				ev->timedout = 1;
-				ev->handler(ev);
+				ev->F_EvHandler(ev);
 			}
 		}
 	}

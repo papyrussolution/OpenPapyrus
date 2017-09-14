@@ -632,7 +632,7 @@ static int __db_get_arg(const DB * dbp, DBT * key, DBT * data, uint32 flags)
 	    case DB_GET_BOTH:
 			if((ret = __dbt_usercopy(env, data)) != 0)
 				return ret;
-			// FALLTHROUGH 
+			// @fallthrough 
 	    case 0:
 			if((ret = __dbt_usercopy(env, key)) != 0) {
 				__dbt_userfree(env, key, NULL, data);
@@ -656,7 +656,7 @@ static int __db_get_arg(const DB * dbp, DBT * key, DBT * data, uint32 flags)
 			return __db_ferr(env, "DB->get", 1);
 			if(dbp->type == DB_QUEUE)
 				break;
-		// FALLTHROUGH 
+		// @fallthrough 
 	    default:
 err:
 			return __db_ferr(env, "DB->get", 0);
@@ -1268,7 +1268,7 @@ static int __db_put_arg(DB * dbp, DBT * key, DBT * data, uint32 flags)
 	    case DB_NODUPDATA:
 			if(F_ISSET(dbp, DB_AM_DUPSORT))
 				break;
-			// FALLTHROUGH 
+			// @fallthrough 
 	    default:
 err:
 			return __db_ferr(env, "DB->put", 0);
@@ -1787,12 +1787,12 @@ multi_err:
 	    case DB_GET_BOTHC:
 		if(dbp->type == DB_QUEUE)
 			goto err;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_GET_BOTH:
 	    case DB_GET_BOTH_RANGE:
 		if((ret = __dbt_usercopy(env, data)) != 0)
 			goto err;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_SET:
 	    case DB_SET_RANGE:
 		if((ret = __dbt_usercopy(env, key)) != 0)
@@ -2064,7 +2064,7 @@ static int __dbc_put_arg(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	    case DB_NODUPDATA:
 		if(!F_ISSET(dbp, DB_AM_DUPSORT))
 			goto err;
-	    /* FALLTHROUGH */
+	    // @fallthrough
 	    case DB_KEYFIRST:
 	    case DB_KEYLAST:
 	    case DB_OVERWRITE_DUP:

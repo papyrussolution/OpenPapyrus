@@ -411,9 +411,9 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 	THROW_S_S(oneof4(protocol, InetUrl::protSMTP, InetUrl::protSMTPS, InetUrl::protPOP3, InetUrl::protPOP3S), SLERR_MAIL_INVPROTOCOL,
 		InetUrl::GetSchemeMnem(protocol));
 	if(oneof2(protocol, InetUrl::protPOP3, InetUrl::protPOP3S)) {
-		THROW(WriteLine((cmd_buf = 0).Cat("USER").Space().Cat(pName), &reply_buf));
+		THROW(WriteLine(cmd_buf.Z().Cat("USER").Space().Cat(pName), &reply_buf));
 		THROW(CheckReply(reply_buf));
-		THROW(WriteLine((cmd_buf = 0).Cat("PASS").Space().Cat(pPassword), &reply_buf));
+		THROW(WriteLine(cmd_buf.Z().Cat("PASS").Space().Cat(pPassword), &reply_buf));
 		THROW(CheckReply(reply_buf));
 		State |= stLoggedIn;
 	}

@@ -2998,7 +2998,7 @@ int SLAPI Quotation2Core::RemoveAllForQuotKind(PPID quotKindID, int use_ta)
 		const uint c = rel_list.getCount();
 		for(uint i = 0; i < c; i++) {
 			const PPID rel_id = rel_list.get(i);
-			(wait_msg_buf = 0).Cat(i+1).CatChar('/').Cat(c);
+			wait_msg_buf.Z().Cat(i+1).CatChar('/').Cat(c);
 			THROW(RemoveAllForRel(rel_id, wait_msg_buf, 0));
 			//PPWaitPercent(i+1, c);
 		}

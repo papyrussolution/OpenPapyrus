@@ -550,7 +550,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_BARCODE_CODE)) {
 				getCtrlString(CTL_BARCODE_CODE, code);
 				uint len = (uint)code.Len();
-				setStaticText(CTL_BARCODE_LEN, (code = 0).Cat(len));
+				setStaticText(CTL_BARCODE_LEN, code.Z().Cat(len));
 			}
 			else
 				return;
@@ -1758,7 +1758,7 @@ int GoodsVadDialog::setupList()
 			double qtty = Data.Stock.GetMinStock(item.Id, 0);
 			StringSet ss(SLBColumnDelim);
 			ss.add(item.Txt);
-			ss.add((buf = 0).Cat(qtty, MKSFMTD(0, 3, NMBF_NOZERO|NMBF_NOTRAILZ)));
+			ss.add(buf.Z().Cat(qtty, MKSFMTD(0, 3, NMBF_NOZERO|NMBF_NOTRAILZ)));
 			if(!addStringToList(item.Id, ss.getBuf()))
 				ok = 0;
 		}

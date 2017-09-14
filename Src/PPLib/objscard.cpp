@@ -700,19 +700,19 @@ int SCardRuleDlg::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; Data.enumItems(&i, (void**)&p_item) > 0;) {
 		ss.clear(1);
-		(buf = 0).Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
+		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
 			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("руб").ToOem();
 		ss.add(buf);
 		if(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)
-			(buf = 0).CatChar('$').Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+			buf.Z().CatChar('$').Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 		else if(p_item->Flags & TrnovrRngDis::fDiscountAddValue)
-			(buf = 0).CatChar('+').CatChar('$').Cat(p_item->Value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('%');
+			buf.Z().CatChar('+').CatChar('$').Cat(p_item->Value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('%');
 		else if(p_item->Flags & TrnovrRngDis::fDiscountMultValue)
-			(buf = 0).CatChar('*').CatChar('$').Cat(p_item->Value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('%');
+			buf.Z().CatChar('*').CatChar('$').Cat(p_item->Value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('%');
 		else
-			(buf = 0).Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
+			buf.Z().Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 		ss.add(buf);
-		buf = 0;
+		buf.Z();
 		if(p_item->SeriesID)
 			GetObjectName(PPOBJ_SCARDSERIES, p_item->SeriesID, buf);
 		ss.add(buf);
@@ -1600,6 +1600,12 @@ PPObjSCard::AddParam::AddParam(PPID serID, PPID ownerID)
 	SerID = serID;
 	OwnerID = ownerID;
 	LocID = 0;
+}
+
+SLAPI PPObjSCard::Filt::Filt() : Signature(FiltSignature)
+{
+	SeriesID = 0;
+	OwnerID = 0;
 }
 
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
@@ -4684,7 +4690,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
 			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
-				list.Get(i, sect = 0);
+				list.Get(i, sect.Z());
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -4694,7 +4700,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 		#endif
 		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_SCARDIMPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, sect = 0);
+				list.Get(id, sect.Z());
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;

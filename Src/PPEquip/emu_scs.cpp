@@ -124,7 +124,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			}
 			ClosePrinter(printer);
 			// Если номер com-порта не определен, то по умолчанию будет com1
-			(name = 0).CatCharN('\\', 2).Dot().CatChar('\\').Cat("COM").Cat(port_no+1);
+			name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat("COM").Cat(port_no+1);
 			if(h_port != INVALID_HANDLE_VALUE) {
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
@@ -357,7 +357,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 						p_prn_ls->Param = sl_param;
 						prn_list.insert(p_prn_ls);
 					}
-					(buf = 0).Dot();
+					buf.Z().Dot();
 					sl_param.Init();
 					p_prn_ls = new PrnLineStruc;
 					p_prn_ls->PrnBuf = buf;
@@ -397,7 +397,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 					p_prn_ls->Param = sl_param;
 					prn_list.insert(p_prn_ls);
 				}
-				(buf = 0).Dot();
+				buf.Z().Dot();
 				sl_param.Init();
 				p_prn_ls = new PrnLineStruc;
 				p_prn_ls->PrnBuf = buf;
@@ -434,7 +434,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckCopy(CCheckPacket * pPack, const char * pFormat
 					p_prn_ls->Param = sl_param;
 					prn_list.insert(p_prn_ls);
 				}
-				(buf = 0).Dot();
+				buf.Z().Dot();
 				sl_param.Init();
 				p_prn_ls = new PrnLineStruc;
 				p_prn_ls->PrnBuf = buf;
@@ -469,7 +469,7 @@ int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 				p_prn_ls->Param = sl_param;
 				prn_list.insert(p_prn_ls);
 			}
-			(buf = 0).Dot();
+			buf.Z().Dot();
 			sl_param.Init();
 			p_prn_ls = new PrnLineStruc;
 			p_prn_ls->PrnBuf = buf;
@@ -505,7 +505,7 @@ int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 					p_prn_ls->Param = sl_param;
 					prn_list.insert(p_prn_ls);
 				}
-				(buf = 0).Dot();
+				buf.Z().Dot();
 				sl_param.Init();
 				p_prn_ls = new PrnLineStruc;
 				p_prn_ls->PrnBuf = buf;
@@ -579,7 +579,7 @@ int SLAPI SCS_SYNCSYM::OpenBox()
 		// @v7.8.1 }
 		//
 		GetPort(drawer_port, &port_no);
-		(name = 0).CatCharN('\\', 2).Dot().CatChar('\\').Cat((char *)&s_com).Cat(port_no+1);
+		name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat((char *)&s_com).Cat(port_no+1);
 		if(h_port != INVALID_HANDLE_VALUE) {
 			CloseHandle(h_port);
 			h_port = INVALID_HANDLE_VALUE;
@@ -603,7 +603,7 @@ int SLAPI SCS_SYNCSYM::OpenBox()
 			const char * p = drawer_cmd;
 			while(p[0] && p[1]) {
 				uint8 byte = (hex(p[0]) << 4) | hex(p[1]);
-				THROW(WriteFile(h_port,  (word = 0).CatChar(byte), 1, &sz, 0));
+				THROW(WriteFile(h_port,  word.Z().CatChar(byte), 1, &sz, 0));
 				p += 2;
 			}
 		}

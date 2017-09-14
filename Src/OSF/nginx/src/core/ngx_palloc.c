@@ -37,18 +37,17 @@ void FASTCALL ngx_destroy_pool(ngx_pool_t * pool)
 		}
 	}
 #if (NGX_DEBUG)
-	/*
-	 * we could allocate the pool->log from this pool
-	 * so we cannot use this log while free()ing the pool
-	 */
+	// 
+	// we could allocate the pool->log from this pool
+	// so we cannot use this log while free()ing the pool
+	// 
 	for(l = pool->large; l; l = l->next) {
 		ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, pool->log, 0, "free: %p", l->alloc);
 	}
 	for(p = pool, n = pool->d.next; /* void */; p = n, n = n->d.next) {
 		ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, pool->log, 0, "free: %p, unused: %uz", p, p->d.end - p->d.last);
-		if(n == NULL) {
+		if(!n)
 			break;
-		}
 	}
 #endif
 	for(l = pool->large; l; l = l->next) {
@@ -58,9 +57,8 @@ void FASTCALL ngx_destroy_pool(ngx_pool_t * pool)
 	}
 	for(p = pool, n = pool->d.next; /* void */; p = n, n = n->d.next) {
 		ngx_free(p);
-		if(n == NULL) {
+		if(!n)
 			break;
-		}
 	}
 }
 

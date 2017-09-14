@@ -1966,7 +1966,7 @@ private:
 				PPGenCashNode::PosIdentEntry * p_entry = Data.ApnCorrList.at(i);
 				if(p_entry) {
 					ss.clear();
-					ss.add((buf = 0).Cat(p_entry->N));
+					ss.add(buf.Z().Cat(p_entry->N));
 					ss.add(p_entry->Name);
 					p_entry->Uuid.ToStr(S_GUID::fmtIDL, buf);
 					ss.add(buf);

@@ -680,7 +680,7 @@ static char * ngx_http_limit_req_zone(ngx_conf_t * cf, ngx_command_t * cmd, void
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V \"%V\" is already bound to key \"%V\"", &cmd->name, &name, &ctx->key.value);
 		return NGX_CONF_ERROR;
 	}
-	shm_zone->init = ngx_http_limit_req_init_zone;
+	shm_zone->F_Init = ngx_http_limit_req_init_zone;
 	shm_zone->data = ctx;
 	return NGX_CONF_OK;
 }

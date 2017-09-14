@@ -741,7 +741,7 @@ static void ngx_open_file_add_event(ngx_open_file_cache_t * cache, ngx_cached_op
 	fev->fd = of->fd;
 	fev->file = file;
 	fev->cache = cache;
-	file->event->handler = ngx_open_file_cache_remove;
+	file->event->F_EvHandler = ngx_open_file_cache_remove;
 	file->event->P_Data = fev;
 	/*
 	 * although vnode event may be called while ngx_cycle->poll

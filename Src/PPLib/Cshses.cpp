@@ -311,21 +311,18 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 			LDBLTOMONEY(dscnt, new_rec.Discount);
 			// @v8.1.0 new_rec.AddPaym    = addPaym;
 			// @v8.1.0 new_rec.ExtAmount  = extAmt;
-			// @v7.7.11 {
 			if(ice == 100) {
 				assert(temp_replace_id);
 				flags |= CCHKF_TEMPREPLACE;
 				new_rec.TempReplaceID = temp_replace_id;
 			}
-			// } @v7.7.11
 			new_rec.Flags |= flags;
 			P_TmpCcTbl->copyBufFrom(&new_rec);
 			THROW_DB(P_TmpCcTbl->insertRec(0, pID));
 		}
 		else {
-			(chk_buf = 0).Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT);
-			PPLoadText(PPTXT_DUPTEMPCCHECK, fmt_buf);
-			msg_buf.Printf(fmt_buf, (const char* )chk_buf);
+			chk_buf.Z().Cat(cashID).CatDiv('-', 1).Cat(code).CatDiv('-', 1).Cat(*pDT);
+			msg_buf.Printf(PPLoadTextS(PPTXT_DUPTEMPCCHECK, fmt_buf), chk_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 			ASSIGN_PTR(pID, 0);
 			ok = -2;
@@ -1141,7 +1138,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				if(!oneof2(pSubDir[0], '\\', '/'))
 					sp.Dir.SetLastSlash();
 				sp.Dir.Cat(pSubDir);
-				sp.Merge(path = 0);
+				sp.Merge(path.Z());
 			}
 			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
 				SString ftp_path, file_name;

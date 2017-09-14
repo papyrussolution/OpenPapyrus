@@ -96,6 +96,10 @@
 //                  для предотвращения повторного распределения памяти с целью ускорения исполнения функций.
 // @ambiguity     - обозначает наличие неоднозначности или проверку на неоднозначность чего-либо (по контексту)
 // @redundant     - обозначает избыточный код (иногда как аргументация комментария)
+// @nobreak       - помечаются варианты switch {case} для подтверждения, что отсутствие break - не ошибка.
+// @fallthrough   - то же, что и @nobreak
+// @macrow        - специальная пометка рядом с декларацией функции, означающая, что ее определение обернуто в макрос 
+//                  (для того, чтобы программиста не смущала неспособность слишком "умной" IDE найти это определение) 
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -2288,19 +2292,10 @@ public:
 	typedef int (* FinishImpExpProc) ();
 	typedef int (* GetErrorMessageProc) (char * , uint);
 
-	int operator !() const
-	{
-		if(OpKind == 1)
-			return !(InitExport && SetExportObj && InitExportIter && NextExportIter && EnumExpReceipt &&
-					FinishImpExp && GetErrorMessage);
-		else
-			return !(InitImport && GetImportObj && InitImportIter && NextImportIter && ReplyImportObjStatus &&
-					FinishImpExp && GetErrorMessage);
-	}
-
 	ImpExpDll();
 	~ImpExpDll();
-	const int IsInited()
+	int    operator !() const;
+	const  int IsInited()
 	{
 		return Inited;
 	}
@@ -6403,8 +6398,9 @@ public:
 		kLogger,         // @v8.9.12 Поток для вывода сообщений в журналы
 		kDllSession,     // @v9.2.6 Поток созданный в DLL-модуле
 		kPpppProcessor,  // @v9.6.7 Поток, обеспечивающий обработку входящих данных на стороне автономного кассового узла
-		kNgnixServer,    // @v9.8.0 Поток сервера NGINX
-		kWorkerSession   // @v9.8.0 Рабочий поток для исполнения команд (также является базовым для kNetSession)
+		kNginxServer,    // @v9.8.0 Поток сервера NGINX
+		kWorkerSession,  // @v9.8.0 Рабочий поток для исполнения команд (также является базовым для kNetSession)
+		kNginxWorker     // @v9.8.1 Рабочий поток сервера NGINX (запускается потоком kNginxServer)
 	};
 
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
@@ -8334,7 +8330,6 @@ protected:
 #define LOCF_STANDALONE     0x0200L // @v7.3.3  Автономный адрес. То есть, может быть не привязан ни к какому объекту.
 	// Одновременно, если такой адрес привязан к объекту, то удаление объекта не влечет удаление адреса.
 
-
 struct LocationFilt : public PPBaseFilt {
 	SLAPI  LocationFilt(PPID locType = 0, PPID ownerID = 0, PPID parentID = 0);
 	LocationFilt & FASTCALL operator = (const LocationFilt & rS);
@@ -8379,10 +8374,10 @@ struct LocTypeDescr {
 #define LOCEXSTR_ZIP         1
 #define LOCEXSTR_SHORTADDR   2
 #define LOCEXSTR_FULLADDR    3
-#define LOCEXSTR_PHONE       4   // @v7.0.7 Специальная опция для непривязанных (к персоналиям) адресов
-#define LOCEXSTR_CONTACT     5   // @v7.3.1 Имя контактного лица, ассоциированного с адресом. Необходимость
+#define LOCEXSTR_PHONE       4   // Специальная опция для непривязанных (к персоналиям) адресов
+#define LOCEXSTR_CONTACT     5   // Имя контактного лица, ассоциированного с адресом. Необходимость
 	// в этом теге может быть обусловлена теми же причинами, что и LOCEXSTR_PHONE: адрес не связан с персоналией.
-#define LOCEXSTR_EMAIL       6   // @v7.9.3 Специальная опция для непривязанных (к персоналиям) адресов
+#define LOCEXSTR_EMAIL       6   // Специальная опция для непривязанных (к персоналиям) адресов
 #define LOCEXSTR_EXTFLDSOFFS 100 // смещение для ид дополнительных полей адресов доставки
 
 class LocationCore : public LocationTbl {
@@ -22079,7 +22074,7 @@ public:
 	SLAPI  PPObjLocation(void * extraPtr = 0);
 	SLAPI ~PPObjLocation();
 	virtual int SLAPI Search(PPID id, void * b = 0);
-	virtual int SLAPI Dirty(PPID id);
+	virtual int SLAPI Dirty(PPID id); // @macrow
 	virtual int SLAPI Browse(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
@@ -22104,7 +22099,7 @@ public:
 	};
 	SString & MakeCodeString(const LocationTbl::Rec * pRec, int options, SString & rBuf);
 	int    SLAPI Validate(LocationTbl::Rec * pRec, int /*chkRefs*/);
-	int    SLAPI Fetch(PPID id, LocationTbl::Rec * pRec);
+	int    SLAPI Fetch(PPID id, LocationTbl::Rec * pRec); // @macrow
 	//
 	// Descr: Возвращает !0 если элемент склада id требует автоматического
 	//   назначения имени.
@@ -22792,7 +22787,7 @@ public:
 	//     имеет непредсказуемые значения.
 	//   0  - Ошибка. Содержимое по указателю pRec имеет непредсказуемые значения.
 	//
-	int    SLAPI Fetch(PPID id, PersonTbl::Rec * pRec);
+	int    SLAPI Fetch(PPID id, PersonTbl::Rec * pRec); // @macrow
 	int    SLAPI FetchConfig(PPPersonConfig * pCfg);
 	int    SLAPI DirtyConfig();
 	const PPPersonConfig & SLAPI GetConfig();
@@ -23751,7 +23746,7 @@ public:
 	SLAPI ~PPObjStaffCal();
 
 	int    SLAPI CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const;
-	int    SLAPI Fetch(PPID id, PPStaffCal *);
+	int    SLAPI Fetch(PPID id, PPStaffCal *); // @macrow
 	//
 	// Descr: Ищет дочерний по отношению к parentID календарь, принадлежащий объекту {linkObjType, linkObjID}.
 	// ARG(parentID    IN): родительский календарь
@@ -24717,7 +24712,7 @@ public:
 	// Descr: Проверяет согласуется ли изменяемый пакет персоналии с соотвествующими статьями
 	//
 	int    SLAPI CheckPersonPacket(const PPPersonPacket * pPack);
-	int    SLAPI Fetch(PPID id, ArticleTbl::Rec * pRec);
+	int    SLAPI Fetch(PPID id, ArticleTbl::Rec * pRec); // @macrow
 	int    SLAPI GetPacket(PPID, PPArticlePacket *);
 	int    SLAPI PutPacket(PPID *, PPArticlePacket *, int use_ta);
 	int    SLAPI GetFreeArticle(long * pID, long accSheetID);
@@ -27039,7 +27034,7 @@ public:
 class PPAlbatrosCfgMngr {
 public:
 	static int SLAPI Get(PPAlbatrosConfig * pCfg);
-	static int SLAPI Fetch(PPAlbatrosConfig * pCfg);
+	static int SLAPI Fetch(PPAlbatrosConfig * pCfg); // @macrow
 	static int SLAPI Put(PPAlbatrosConfig * pCfg, int use_ta);
 	static int SLAPI Edit();
 	//
@@ -28338,7 +28333,7 @@ public:
 	//
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//
-	int    SLAPI Fetch(PPID id, PPScale * pRec);
+	int    SLAPI Fetch(PPID id, PPScale * pRec); // @macrow
 	//
 	// Descr: Проверяет, установлен-ли у весов или у группы к которой принадлежат весы признак SCALF_PASSIVE
 	//
@@ -29576,6 +29571,7 @@ public:
 		PPID   RegisterID; // если OpID == 0 и registerID != 0, тогда функция AddAccturn //
 			// предложит пользователю выбрать операцию из тех, которые имеют подтип OPSUBT_REGISTER
 		PPID   ObjectID;
+		PPID   Object2ID; // @v9.8.1
 		PPBillPacket::PoolKind Pk;
 		PPID   PoolID;
 		PPID   LocID;          // @v8.3.0
@@ -31133,7 +31129,7 @@ public:
 	virtual int  SLAPI Search(PPID id, void * b = 0);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
-	virtual int  SLAPI Dirty(PPID id);
+	virtual int  SLAPI Dirty(PPID id); // @macrow
 	//
 	// Descr: Кэшированное извлечение записи CSession. Инициализируются следующие поля записи:
 	//   ID, SuperSessID, CashNodeID, CashNumber, SessNumber, Dt, Tm, Incomplete, Temporary
@@ -31149,7 +31145,7 @@ private:
 	virtual const char * SLAPI GetNamePtr();
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint bufSize, ObjRights *, EmbedDialog * pDlg = 0);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void SLAPI Destroy(PPObjPack * p); // @macrow
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -31379,14 +31375,14 @@ public:
 	virtual int    SLAPI Search(PPID id, void * b);
 	virtual int    SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int    SLAPI Browse(void * extraPtr);
-	int    SLAPI Fetch(PPID id, PPSCardSeries * pRec);
+	int    SLAPI Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    SLAPI GetPacket(PPID id, PPSCardSerPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta);
 
 	int    SLAPI GetCodeRange(PPID serID, SString & rLow, SString & rUpp);
 		// @>>SCardCore::GetCodeRange
 private:
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void SLAPI Destroy(PPObjPack * p); // @macrow
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -31452,11 +31448,8 @@ public:
 	// Descr: Фильтр селектора (MakeStrAssocList)
 	//
 	struct Filt {
-		SLAPI  Filt() : Signature(FiltSignature)
-		{
-			SeriesID = 0;
-			OwnerID = 0;
-		}
+		SLAPI  Filt();
+
 		const  uint32 Signature;
 		PPID   SeriesID;
 		PPID   OwnerID;
@@ -31493,12 +31486,12 @@ public:
 	// Descr: Извлекает запись карты через кэш. Инициируются следующие поля:
 	//   SeriesID, PersonID, Flags, Dt, Expiry, PDis, AutoGoodsID, MaxCredit, UsageTmStart, UsageTmEnd
 	//
-	int    SLAPI Fetch(PPID id, SCardTbl::Rec * pRec);
+	int    SLAPI Fetch(PPID id, SCardTbl::Rec * pRec); // @macrow
 	//
 	// Descr: Извлекает через кэш строку расширения fldId пакета с идентификатором id.
 	//
 	int    SLAPI FetchExtText(PPID id, int fldId, SString & rBuf);
-	int    SLAPI Dirty(PPID id);
+	int    SLAPI Dirty(PPID id); // @macrow
 	//
 	//
 	//

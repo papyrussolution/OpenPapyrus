@@ -291,10 +291,10 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 				case 4:
 				    wc = (wc << 8) | *(const uchar*)from++;
 				    wc = (wc << 8) | *(const uchar*)from++;
-				/* fallthrough */
+				// @fallthrough
 				case 2:
 				    wc = (wc << 8) | *(const uchar*)from++;
-				/* fallthrough */
+				// @fallthrough
 				default: /* case 1: */
 				    wc = (wc << 8) | *(const uchar*)from++;
 			}

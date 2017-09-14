@@ -828,7 +828,7 @@ int xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name)
 						if(count < 0)
 							return -1;
 						sum += count;
-					/* fallthrough */
+					// @fallthrough
 					case XML_TEXTWRITER_NAME:
 						/* Output namespace declarations */
 						count = xmlTextWriterOutputNSDecl(writer);
@@ -966,7 +966,7 @@ int xmlTextWriterEndElement(xmlTextWriter * writer)
 			    return -1;
 		    }
 		    sum += count;
-		/* fallthrough */
+		// @fallthrough
 		case XML_TEXTWRITER_NAME:
 		    /* Output namespace declarations */
 		    count = xmlTextWriterOutputNSDecl(writer);
@@ -1041,7 +1041,7 @@ int xmlTextWriterFullEndElement(xmlTextWriter * writer)
 		    if(count < 0)
 			    return -1;
 		    sum += count;
-		/* fallthrough */
+		// @fallthrough
 		case XML_TEXTWRITER_NAME:
 		    /* Output namespace declarations */
 		    count = xmlTextWriterOutputNSDecl(writer);
@@ -1054,7 +1054,7 @@ int xmlTextWriterFullEndElement(xmlTextWriter * writer)
 		    sum += count;
 		    if(writer->indent)
 			    writer->doindent = 0;
-		/* fallthrough */
+		// @fallthrough
 		case XML_TEXTWRITER_TEXT:
 		    if((writer->indent) && (writer->doindent)) {
 			    count = xmlTextWriterWriteIndent(writer);
@@ -1486,7 +1486,7 @@ int xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar * name)
 		    if(count < 0)
 			    return -1;
 		    sum += count;
-		/* fallthrough */
+		// @fallthrough
 		case XML_TEXTWRITER_NAME:
 		    count = xmlOutputBufferWriteString(writer->out, " ");
 		    if(count < 0)
@@ -1971,7 +1971,7 @@ int xmlTextWriterStartPI(xmlTextWriter * writer, const xmlChar * target)
 				    if(count < 0)
 					    return -1;
 				    sum += count;
-				/* fallthrough */
+				// @fallthrough
 				case XML_TEXTWRITER_NAME:
 				    /* Output namespace declarations */
 				    count = xmlTextWriterOutputNSDecl(writer);
@@ -2191,7 +2191,7 @@ int xmlTextWriterStartCDATA(xmlTextWriter * writer)
 				    if(count < 0)
 					    return -1;
 				    sum += count;
-				/* fallthrough */
+				// @fallthrough
 				case XML_TEXTWRITER_NAME:
 				    /* Output namespace declarations */
 				    count = xmlTextWriterOutputNSDecl(writer);
@@ -2470,7 +2470,7 @@ int xmlTextWriterEndDTD(xmlTextWriter * writer)
 			    if(count < 0)
 				    return -1;
 			    sum += count;
-			/* fallthrough */
+			// @fallthrough
 			case XML_TEXTWRITER_DTD:
 			    count = xmlOutputBufferWriteString(writer->out, ">");
 			    if(writer->indent) {
@@ -2623,7 +2623,7 @@ int xmlTextWriterStartDTDElement(xmlTextWriter * writer, const xmlChar * name)
 				    sum += count;
 			    }
 			    p->state = XML_TEXTWRITER_DTD_TEXT;
-			/* fallthrough */
+			// @fallthrough
 			case XML_TEXTWRITER_DTD_TEXT:
 			case XML_TEXTWRITER_NONE:
 			    break;
@@ -2815,7 +2815,7 @@ int xmlTextWriterStartDTDAttlist(xmlTextWriter * writer, const xmlChar * name)
 				    sum += count;
 			    }
 			    p->state = XML_TEXTWRITER_DTD_TEXT;
-			/* fallthrough */
+			// @fallthrough
 			case XML_TEXTWRITER_DTD_TEXT:
 			case XML_TEXTWRITER_NONE:
 			    break;
@@ -3007,7 +3007,7 @@ int xmlTextWriterStartDTDEntity(xmlTextWriter * writer, int pe, const xmlChar * 
 					    sum += count;
 				    }
 				    p->state = XML_TEXTWRITER_DTD_TEXT;
-				/* fallthrough */
+				// @fallthrough
 				case XML_TEXTWRITER_DTD_TEXT:
 				case XML_TEXTWRITER_NONE:
 				    break;
@@ -3366,7 +3366,7 @@ int xmlTextWriterWriteDTDNotation(xmlTextWriter * writer, const xmlChar * name, 
 				    sum += count;
 			    }
 			    p->state = XML_TEXTWRITER_DTD_TEXT;
-			/* fallthrough */
+			// @fallthrough
 			case XML_TEXTWRITER_DTD_TEXT:
 			    break;
 			default:

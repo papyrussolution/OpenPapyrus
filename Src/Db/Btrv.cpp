@@ -510,12 +510,12 @@ int SLAPI DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) c
 		pStat->Flags = rRec.XfFlags;
 		const char * p = strchr(rRec.XfLoc, ' ');
 		if(p)
-			(pStat->Location = 0).CatN(rRec.XfLoc, p-rRec.XfLoc);
+			pStat->Location.Z().CatN(rRec.XfLoc, p-rRec.XfLoc);
 		else
 			pStat->Location.CopyFromN(rRec.XfLoc, sizeof(rRec.XfLoc));
 		p = strchr(rRec.XfName, ' ');
 		if(p)
-			(pStat->TblName = 0).CatN(rRec.XfName, p-rRec.XfName);
+			pStat->TblName.Z().CatN(rRec.XfName, p-rRec.XfName);
 		else
 			pStat->TblName.CopyFromN(rRec.XfName, sizeof(rRec.XfName));
 		pStat->Location.Strip();

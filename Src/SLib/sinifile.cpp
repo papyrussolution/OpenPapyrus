@@ -554,7 +554,7 @@ int SLAPI SIniFile::GetIntParam(const char * pSect, const char * pParam, int * p
 
 int SLAPI SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
 {
-	return AppendParam(pSect, pParam, (TempBuf = 0).Cat((long)val), overwrite ? 1 : 0);
+	return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), overwrite ? 1 : 0);
 }
 
 int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)

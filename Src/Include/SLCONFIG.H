@@ -75,7 +75,7 @@
 // Актуально только для сервера. 
 //
 #ifdef _PPSERVER
-	#define SLTRACELOCKSTACK 1 
+	#define SLTRACELOCKSTACK 1
 #else
 	#define SLTRACELOCKSTACK 0 
 #endif

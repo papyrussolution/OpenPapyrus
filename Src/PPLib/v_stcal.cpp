@@ -524,7 +524,7 @@ DBQuery * SLAPI PPViewStaffCal::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		p_q->orderBy(p_t->Dt, 0L);
 	if(pSubTitle) {
 		SString temp_buf;
-		(*pSubTitle = 0).Cat(Filt.Period, 1);
+		pSubTitle->Z().Cat(Filt.Period, 1);
 		//StaffCalFilt ObjIdListFilt
 		PPID obj_id = Filt.LinkObjList.GetSingle();
 		if(Filt.LinkObjType && obj_id) {

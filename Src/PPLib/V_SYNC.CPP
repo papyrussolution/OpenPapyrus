@@ -86,12 +86,12 @@ int ObjSyncFiltDialog::setDTS(const ObjSyncFilt * pFilt)
 		SString   buf;
 		StringSet ids_set(',', 0);
 		for(pos = 0; pos < Data.ObjIDList.getCount(); pos++)
-			ids_set.add((buf = 0).Cat(Data.ObjIDList.at(pos)));
+			ids_set.add(buf.Z().Cat(Data.ObjIDList.at(pos)));
 		setCtrlString(CTL_SYNCFILT_OBJIDS, ids_set.getBuf());
 		ids_set.clear();
 		for(pos = 0; pos < Data.CommIDList.getCount(); pos++) {
 			LAssoc  comm_id = Data.CommIDList.at(pos);
-			ids_set.add((buf = 0).Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
+			ids_set.add(buf.Z().Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
 		}
 		setCtrlString(CTL_SYNCFILT_COMMIDS, ids_set.getBuf());
 		ok = 1;

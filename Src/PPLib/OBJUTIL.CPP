@@ -2089,10 +2089,10 @@ int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer
 			SString temp_path;
 			{
 				DBS.GetDbPath(DBS.GetDbPathID(), StoreDir);
-				PPLoadText(PPTXT_LNKFILESDIR, temp_path = 0);
+				PPLoadText(PPTXT_LNKFILESDIR, temp_path.Z());
 				StoreDir.SetLastSlash().Cat(temp_path).SetLastSlash();
 			}
-			PPGetPath(PPPATH_TEMP, temp_path = 0);
+			PPGetPath(PPPATH_TEMP, temp_path.Z());
 			THROW_SL(pSCtx->Serialize(dir, _c, rBuf));
 			for(uint i = 0; i < _c; i++) {
 				int64  fs = 0;
@@ -2241,8 +2241,7 @@ int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
 	SString rec, s1, s2, temp_buf;
 	PPGlobalAccRights::Rec perm_rec;
 	for(SString tail = rStr; tail.NotEmptyS();) {
-		temp_buf = tail;
-		temp_buf.Divide(';', rec = 0, tail = 0);
+		(temp_buf = tail).Divide(';', rec.Z(), tail.Z());
 		if(rec.Divide(':', s1, s2) > 0) {
 			if(s1.Empty())
 				STRNSCPY(perm_rec.Scope, "@def");

@@ -64,7 +64,7 @@ int SoapDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			int r = 0;
 			SString field_buf;
 			if(r > 0) {
-				THROW(fld.PutFieldDataToBuf(field_buf, pDataBuf, fp));
+				fld.PutFieldDataToBuf(field_buf, pDataBuf, fp);
 			}
 		}
 		ok = 1;

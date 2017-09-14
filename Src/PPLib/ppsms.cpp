@@ -254,12 +254,12 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 	THROW_PP((strlen(VALIDITY_PERIOD) < MAX_DATE_LEN) && !((strlen(VALIDITY_PERIOD) > 0) && (strlen(VALIDITY_PERIOD) < MAX_DATE_LEN - 1)), PPERR_SMS_VALIDPERIODERRLEN);
 	THROW_PP((strlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN) && !((strlen(SCHEDULE_DELIVERY_TIME) > 0) && (strlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN - 1)), PPERR_SMS_DELIVTIMEERRLEN);
 	THROW_PP(AddressRange.Len() < MAX_ADDR_RANGE_LEN, PPERR_SMS_ADDRRANGEERRLEN);
-	(Host = 0).Cat(pHost);
+	Host.Z().Cat(pHost);
 	Port = port;
-	(SystemId = 0).Cat(pSystemId);
-	(Login = 0).Cat(pLogin);
-	(Password = 0).Cat(pPassword);
-	(SystemType = 0).Cat(pSystemType);
+	SystemId.Z().Cat(pSystemId);
+	Login.Z().Cat(pLogin);
+	Password.Z().Cat(pPassword);
+	SystemType.Z().Cat(pSystemType);
 	SourceAddressTon = sourceAddressTon;
 	SourceAddressNpi = sourceAddressNpi;
 	DestAddressTon = destAddressTon;
@@ -270,7 +270,7 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 	//	GetMainOrgName(From.Trim(MAX_ADDR_LEN - 1));
 	//}
 	//else
-		(From = 0).Cat(pFrom);
+		From.Z().Cat(pFrom);
 	if(!PPObjSmsAccount::VerifyString(From, 0)) {
 		From = "";
 		THROW_PP(0, PPERR_SMS_FROMMUSTBELATIN);
@@ -617,7 +617,7 @@ void SendSmsDialog::CalcText()
 	setCtrlLong(CTL_SENDSMS_SYMBCOUNT, msg_len);
 	setCtrlLong(CTL_SENDSMS_SMSCOUNT,  sms_count);
 	getDTS(&send_sms);
-	(src_msg = 0).Cat(send_sms.ExtStr.Excise(0, 3));
+	src_msg.Z().Cat(send_sms.ExtStr.Excise(0, 3));
 	PrsnIdArr.Get(0, prsn_id_str);
 	{
 		// @v8.5.4 {
@@ -791,8 +791,8 @@ int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 					//goods_obj.Search(tech_rec.GoodsID, &goods_rec);
 					//(buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 					param_list.add(GetGoodsName(tech_rec.GoodsID, buf).Transf(CTRANSF_INNER_TO_OUTER)); // ${1} Имя товара в сессии (технологии)
-					param_list.add((buf = 0).Cat(tsess_rec.StDt)); // ${2}
-					param_list.add((buf = 0).Cat(tsess_rec.StTm)); // ${3}
+					param_list.add(buf.Z().Cat(tsess_rec.StDt)); // ${2}
+					param_list.add(buf.Z().Cat(tsess_rec.StTm)); // ${3}
 				}
 				{
 					DlRtm::ExportParam ep;
@@ -825,7 +825,7 @@ int SendSmsDialog::SendSmsText()
 	PPLogger logger;
 	SmsClient client(&logger);
 	getDTS(&send_sms);
-	(src_msg = 0).Cat(send_sms.ExtStr.Excise(0, 3));
+	src_msg.Z().Cat(send_sms.ExtStr.Excise(0, 3));
 	if(src_msg.NotEmpty() || AutoSms) {
 		GetSmsCount(src_msg);
 		THROW(client.SmsInit_(AccID, 0));
@@ -1049,7 +1049,7 @@ int GetSmsConfig(PPSmsAccPacket & rPack, StConfig & rConfig)
 		split_long_msg = 1;
 	if(rPack.Rec.Flags & PPSmsAccount::smacfUseUHTT)
 		use_uhtt = 1;
-	(password = 0).Cat(str);
+	password.Z().Cat(str);
 #if 0 // {
 	THROW(rConfig.SetConfig_(host, rPack.Rec.ServerPort, system_id, "", password, system_type, TON_ALPHANUMERIC/*INTERNATIONAL*/,
 		NPI_UNKNOWN/*ISDN*/, TON_INTERNATIONAL, NPI_ISDN, SMSC_DEFAULT, from, split_long_msg));
@@ -1498,7 +1498,7 @@ void SmsClient::AddErrorSubmit(const char * pDestNum, int errCode)
 {
 	SString err_code_text, err_msg;
 	GetSmscErrorText(errCode, err_code_text);
-	(err_msg = 0).Cat(pDestNum).Semicol().Cat(err_code_text);
+	err_msg.Z().Cat(pDestNum).Semicol().Cat(err_code_text);
 	ErrorSubmitArr.Add(AddErrorSubmitNum++, err_msg, 1);
 }
 
@@ -1839,7 +1839,7 @@ int SmsClient::SendGenericNack(int sequenceNumber, int commandStatus)
 void SmsClient::AddStatusCode(const char * pDestNum, int statusCode, const char * pError)
 {
 	SString status_text, status_msg;
-	(status_msg = 0).Cat(pDestNum).Semicol();
+	status_msg.Z().Cat(pDestNum).Semicol();
 	GetStatusText(statusCode, status_text);
 	if(status_text.NotEmpty())
 		status_msg.Cat(status_text);
@@ -2613,7 +2613,7 @@ void SendSmsDialog::FormatText(SString & rSrcMsg, SString & rDestMsg, PPID perso
 			i = 0;
 		}
 	}
-	(rDestMsg = 0).Cat(d);
+	rDestMsg.Z().Cat(d);
 }
 
 #endif // } 0 @obsolete

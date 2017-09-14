@@ -461,9 +461,9 @@ put:
 	}
 	if(0) {
 err:
-		if(h != NULL && (t_ret = __qam_fput(dbc, i, h, dbp->priority)) != 0 && ret == 0)
+		if(h && (t_ret = __qam_fput(dbc, i, h, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
-		if(pip != NULL && (t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
+		if(pip && (t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 err1:

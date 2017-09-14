@@ -128,10 +128,10 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 	s->start_sec = tp->sec;
 	s->start_msec = tp->msec;
 	rev = c->P_EvRd;
-	rev->handler = ngx_stream_session_handler;
+	rev->F_EvHandler = ngx_stream_session_handler;
 	if(addr_conf->proxy_protocol) {
 		c->log->action = "reading PROXY protocol";
-		rev->handler = ngx_stream_proxy_protocol_handler;
+		rev->F_EvHandler = ngx_stream_proxy_protocol_handler;
 		if(!rev->ready) {
 			ngx_add_timer(rev, cscf->proxy_protocol_timeout);
 			if(ngx_handle_read_event(rev, 0) != NGX_OK) {
@@ -144,7 +144,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 		ngx_post_event(rev, &ngx_posted_events);
 	}
 	else
-		rev->handler(rev);
+		rev->F_EvHandler(rev);
 }
 
 static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)

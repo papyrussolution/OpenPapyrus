@@ -90,7 +90,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 	SString subst;
 	if(pWriter) {
 		for(size_t i = 0; i < SIZEOFARRAY(SpcSymbTab); i++) {
-			(subst = 0).CatChar('&');
+			subst.Z().CatChar('&');
 			if(SpcSymbTab[i].Amp)
 				subst.CatChar('#').Cat(0x26).Semicol();
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
@@ -1539,7 +1539,7 @@ int SoapPacket::Write(const char * pUrn, const char * pMethodName, void ** ppXml
 						xmlNode * p_node = xmlNewDocNode(p_doc, 0, spi.Name.ucptr(), spi.Value.ucptr());
 						THROW(p_node);
 						temp_buf.Z().Cat(p_nss_xsi).CatChar(':').Cat("type");
-						(type_buf = 0).Cat(p_nss_xsd).CatChar(':').Cat(spi.TypeName);
+						type_buf.Z().Cat(p_nss_xsd).CatChar(':').Cat(spi.TypeName);
 						xmlNewProp(p_node, temp_buf.ucptr(), type_buf.ucptr());
 						xmlAddChild(p_method_node, p_node);
 					}
