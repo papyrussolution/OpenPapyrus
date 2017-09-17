@@ -17,17 +17,12 @@ struct ngx_http_split_clients_ctx_t {
 	ngx_array_t parts;
 };
 
-static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf);
+static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_split_clients(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_split_clients_commands[] = {
-	{ ngx_string("split_clients"),
-	  NGX_HTTP_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
-	  ngx_conf_split_clients_block,
-	  NGX_HTTP_MAIN_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("split_clients"), NGX_HTTP_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
+	  ngx_conf_split_clients_block, NGX_HTTP_MAIN_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -80,9 +75,9 @@ static ngx_int_t ngx_http_split_clients_variable(ngx_http_request_t * r, ngx_htt
 	return NGX_OK;
 }
 
-static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char    * rv;
+	const char * rv;
 	uint32_t sum, last;
 	ngx_str_t  * value, name;
 	ngx_uint_t i;
@@ -144,7 +139,7 @@ static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
 	return rv;
 }
 
-static char * ngx_http_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
+static const char * ngx_http_split_clients(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
 	ngx_int_t n;
 	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t *)cf->ctx;

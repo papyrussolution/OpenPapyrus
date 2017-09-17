@@ -7,16 +7,16 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_index_t {
 	ngx_str_t name;
 	ngx_array_t   * lengths;
 	ngx_array_t   * values;
-} ngx_http_index_t;
+};
 
-typedef struct {
-	ngx_array_t   * indices; /* array of ngx_http_index_t */
+struct ngx_http_index_loc_conf_t {
+	ngx_array_t * indices; /* array of ngx_http_index_t */
 	size_t max_index_len;
-} ngx_http_index_loc_conf_t;
+};
 
 #define NGX_HTTP_DEFAULT_INDEX   "index.html"
 
@@ -25,7 +25,7 @@ static ngx_int_t ngx_http_index_error(ngx_http_request_t * r, ngx_http_core_loc_
 static ngx_int_t ngx_http_index_init(ngx_conf_t * cf);
 static void * ngx_http_index_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_http_index_set_index(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_index_set_index(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_index_commands[] = {
 	{ ngx_string("index"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
@@ -318,7 +318,7 @@ static ngx_int_t ngx_http_index_init(ngx_conf_t * cf)
 
 /* TODO: warn about duplicate indices */
 
-static char * ngx_http_index_set_index(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_index_set_index(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_index_loc_conf_t * ilcf = (ngx_http_index_loc_conf_t *)conf;
 	ngx_str_t  * value;

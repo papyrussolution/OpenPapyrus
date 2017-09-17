@@ -37,27 +37,20 @@ typedef struct {
 	ngx_uint_t reset;
 } ngx_http_userid_ctx_t;
 
-static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r,
-    ngx_http_userid_conf_t * conf);
-static ngx_int_t ngx_http_userid_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, ngx_str_t * name, uint32_t * uid);
-static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r,
-    ngx_http_userid_ctx_t * ctx, ngx_http_userid_conf_t * conf);
-static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r,
-    ngx_http_userid_ctx_t * ctx, ngx_http_userid_conf_t * conf);
+static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, ngx_http_userid_conf_t * conf);
+static ngx_int_t ngx_http_userid_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, ngx_str_t * name, uint32_t * uid);
+static ngx_int_t ngx_http_userid_set_uid(ngx_http_request_t * r, ngx_http_userid_ctx_t * ctx, ngx_http_userid_conf_t * conf);
+static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r, ngx_http_userid_ctx_t * ctx, ngx_http_userid_conf_t * conf);
 
 static ngx_int_t ngx_http_userid_add_variables(ngx_conf_t * cf);
 static ngx_int_t ngx_http_userid_init(ngx_conf_t * cf);
 static void * ngx_http_userid_create_conf(ngx_conf_t * cf);
-static char * ngx_http_userid_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_http_userid_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static char * ngx_http_userid_domain(ngx_conf_t * cf, void * post, void * data);
 static char * ngx_http_userid_path(ngx_conf_t * cf, void * post, void * data);
-static char * ngx_http_userid_expires(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_http_userid_expires(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static char * ngx_http_userid_p3p(ngx_conf_t * cf, void * post, void * data);
-static char * ngx_http_userid_mark(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_userid_init_worker(ngx_cycle_t * cycle);
 
 static uint32_t start_value;
@@ -82,62 +75,22 @@ static ngx_conf_post_handler_pt ngx_http_userid_path_p = ngx_http_userid_path;
 static ngx_conf_post_handler_pt ngx_http_userid_p3p_p = ngx_http_userid_p3p;
 
 static ngx_command_t ngx_http_userid_commands[] = {
-	{ ngx_string("userid"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_enum_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, enable),
-	  ngx_http_userid_state },
-
-	{ ngx_string("userid_service"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, service),
-	  NULL },
-
-	{ ngx_string("userid_name"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, name),
-	  NULL },
-
-	{ ngx_string("userid_domain"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, domain),
-	  &ngx_http_userid_domain_p },
-
-	{ ngx_string("userid_path"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, path),
-	  &ngx_http_userid_path_p },
-
-	{ ngx_string("userid_expires"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_http_userid_expires,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("userid_p3p"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_userid_conf_t, p3p),
-	  &ngx_http_userid_p3p_p },
-
-	{ ngx_string("userid_mark"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_http_userid_mark,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("userid"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_enum_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, enable), ngx_http_userid_state },
+	{ ngx_string("userid_service"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, service), NULL },
+	{ ngx_string("userid_name"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, name), NULL },
+	{ ngx_string("userid_domain"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, domain), &ngx_http_userid_domain_p },
+	{ ngx_string("userid_path"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, path), &ngx_http_userid_path_p },
+	{ ngx_string("userid_expires"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_http_userid_expires, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("userid_p3p"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_userid_conf_t, p3p), &ngx_http_userid_p3p_p },
+	{ ngx_string("userid_mark"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_http_userid_mark, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -584,7 +537,7 @@ static char * ngx_http_userid_path(ngx_conf_t * cf, void * post, void * data)
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_userid_expires(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_userid_expires(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_userid_conf_t * ucf = (ngx_http_userid_conf_t *)conf;
 	ngx_str_t  * value;
@@ -619,43 +572,32 @@ static char * ngx_http_userid_p3p(ngx_conf_t * cf, void * post, void * data)
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_userid_mark(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_userid_conf_t * ucf = (ngx_http_userid_conf_t *)conf;
 	ngx_str_t  * value;
 	if(ucf->mark != (u_char)'\xFF') {
 		return "is duplicate";
 	}
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	if(ngx_strcmp(value[1].data, "off") == 0) {
 		ucf->mark = '\0';
 		return NGX_CONF_OK;
 	}
-
-	if(value[1].len != 1
-	    || !((value[1].data[0] >= '0' && value[1].data[0] <= '9')
-		    || (value[1].data[0] >= 'A' && value[1].data[0] <= 'Z')
-		    || (value[1].data[0] >= 'a' && value[1].data[0] <= 'z')
-		    || value[1].data[0] == '=')) {
+	if(value[1].len != 1 || !((value[1].data[0] >= '0' && value[1].data[0] <= '9') || 
+		(value[1].data[0] >= 'A' && value[1].data[0] <= 'Z') || (value[1].data[0] >= 'a' && value[1].data[0] <= 'z') || value[1].data[0] == '=')) {
 		return "value must be \"off\" or a single letter, digit or \"=\"";
 	}
-
 	ucf->mark = value[1].data[0];
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_userid_init_worker(ngx_cycle_t * cycle)
 {
 	struct timeval tp;
-
 	ngx_gettimeofday(&tp);
-
 	/* use the most significant usec part that fits to 16 bits */
 	start_value = (((uint32_t)tp.tv_usec / 20) << 16) | ngx_pid;
-
 	return NGX_OK;
 }
 

@@ -7,7 +7,7 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static char * ngx_http_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_init_phases(ngx_conf_t * cf, ngx_http_core_main_conf_t * cmcf);
 static ngx_int_t ngx_http_init_headers_in_hash(ngx_conf_t * cf, ngx_http_core_main_conf_t * cmcf);
 static ngx_int_t ngx_http_init_phase_handlers(ngx_conf_t * cf, ngx_http_core_main_conf_t * cmcf);
@@ -68,7 +68,7 @@ ngx_module_t ngx_http_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static char * ngx_http_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * rv;
 	ngx_uint_t mi, m, s;
@@ -598,7 +598,7 @@ static ngx_int_t ngx_http_join_exact_locations(ngx_conf_t * cf, ngx_queue_t * lo
 	for(ngx_queue_t * q = ngx_queue_head(locations); q != ngx_queue_last(locations);) {
 		ngx_queue_t * x = ngx_queue_next(q);
 		ngx_http_location_queue_t * lq = (ngx_http_location_queue_t *)q;
-		ngx_http_location_queue_t * lx = (ngx_http_location_queue_t *)x;
+		const ngx_http_location_queue_t * lx = (const ngx_http_location_queue_t *)x;
 		if(lq->name->len == lx->name->len && ngx_filename_cmp(lq->name->data, lx->name->data, lx->name->len) == 0) {
 			if((lq->exact && lx->exact) || (lq->inclusive && lx->inclusive)) {
 				ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "duplicate location \"%V\" in %s:%ui", lx->name, lx->file_name, lx->line);
@@ -606,9 +606,9 @@ static ngx_int_t ngx_http_join_exact_locations(ngx_conf_t * cf, ngx_queue_t * lo
 			}
 			lq->inclusive = lx->inclusive;
 			ngx_queue_remove(x);
-			continue;
 		}
-		q = ngx_queue_next(q);
+		else
+			q = ngx_queue_next(q);
 	}
 	return NGX_OK;
 }
@@ -657,7 +657,7 @@ static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t
 	ngx_queue_t tail;
 	ngx_queue_t * q = ngx_queue_middle(locations);
 	ngx_http_location_queue_t * lq = (ngx_http_location_queue_t *)q;
-	size_t len = lq->name->len - prefix;
+	const size_t len = lq->name->len - prefix;
 	ngx_http_location_tree_node_t * node = (ngx_http_location_tree_node_t *)ngx_palloc(cf->pool, offsetof(ngx_http_location_tree_node_t, name) + len);
 	if(node) {
 		node->left = NULL;
@@ -686,12 +686,11 @@ static ngx_http_location_tree_node_t * ngx_http_create_locations_tree(ngx_conf_t
 			return NULL;
 		}
 inclusive:
-		if(ngx_queue_empty(&lq->list)) {
-			return node;
-		}
-		node->tree = ngx_http_create_locations_tree(cf, &lq->list, prefix + len);
-		if(node->tree == NULL) {
-			return NULL;
+		if(!ngx_queue_empty(&lq->list)) {
+			node->tree = ngx_http_create_locations_tree(cf, &lq->list, prefix + len);
+			if(node->tree == NULL) {
+				return NULL;
+			}
 		}
 	}
 	return node;
@@ -1008,9 +1007,7 @@ static int ngx_libc_cdecl ngx_http_cmp_dns_wildcards(const void * one, const voi
 
 static ngx_int_t ngx_http_init_listening(ngx_conf_t * cf, ngx_http_conf_port_t * port)
 {
-	ngx_uint_t i, bind_wildcard;
-	ngx_listening_t * ls;
-	ngx_http_port_t * hport;
+	ngx_int_t result = NGX_OK;
 	ngx_http_conf_addr_t * addr = (ngx_http_conf_addr_t *)port->addrs.elts;
 	ngx_uint_t last = port->addrs.nelts;
 	/*
@@ -1019,107 +1016,97 @@ static ngx_int_t ngx_http_init_listening(ngx_conf_t * cf, ngx_http_conf_port_t *
 	 * have been already sorted: explicit bindings are on the start, then
 	 * implicit bindings go, and wildcard binding is in the end.
 	 */
-	if(addr[last - 1].opt.wildcard) {
-		addr[last - 1].opt.bind = 1;
+	ngx_uint_t bind_wildcard = 0;
+	if(addr[last-1].opt.wildcard) {
+		addr[last-1].opt.bind = 1;
 		bind_wildcard = 1;
 	}
-	else {
-		bind_wildcard = 0;
-	}
-	i = 0;
-	while(i < last) {
+	for(ngx_uint_t i = 0; i < last; ) {
 		if(bind_wildcard && !addr[i].opt.bind) {
 			i++;
-			continue;
 		}
-		ls = ngx_http_add_listening(cf, &addr[i]);
-		if(ls == NULL) {
-			return NGX_ERROR;
-		}
-		hport = (ngx_http_port_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_port_t));
-		if(hport == NULL) {
-			return NGX_ERROR;
-		}
-		ls->servers = hport;
-		hport->naddrs = i + 1;
-		switch(ls->sockaddr->sa_family) {
+		else {
+			ngx_http_port_t * hport;
+			ngx_listening_t * ls = ngx_http_add_listening(cf, &addr[i]);
+			THROW(ls);
+			THROW(hport = (ngx_http_port_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_port_t)));
+			ls->servers = hport;
+			hport->naddrs = i+1;
+			switch(ls->sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
-			case AF_INET6:
-			    if(ngx_http_add_addrs6(cf, hport, addr) != NGX_OK) {
-				    return NGX_ERROR;
-			    }
-			    break;
+				case AF_INET6:
+					THROW(ngx_http_add_addrs6(cf, hport, addr) == NGX_OK);
+					break;
 #endif
-			default: /* AF_INET */
-			    if(ngx_http_add_addrs(cf, hport, addr) != NGX_OK) {
-				    return NGX_ERROR;
-			    }
-			    break;
+				default: // AF_INET 
+					THROW(ngx_http_add_addrs(cf, hport, addr) == NGX_OK);
+					break;
+			}
+			THROW(ngx_clone_listening(cf, ls) == NGX_OK);
+			addr++;
+			last--;
 		}
-		if(ngx_clone_listening(cf, ls) != NGX_OK) {
-			return NGX_ERROR;
-		}
-		addr++;
-		last--;
 	}
-	return NGX_OK;
+	CATCH
+		result = NGX_ERROR;
+	ENDCATCH
+	return result;
 }
 
 static ngx_listening_t * ngx_http_add_listening(ngx_conf_t * cf, ngx_http_conf_addr_t * addr)
 {
-	ngx_http_core_loc_conf_t  * clcf;
-	ngx_http_core_srv_conf_t  * cscf;
 	ngx_listening_t * ls = ngx_create_listening(cf, &addr->opt.sockaddr.sockaddr, addr->opt.socklen);
-	if(ls == NULL) {
-		return NULL;
-	}
-	ls->addr_ntop = 1;
-	ls->handler = ngx_http_init_connection;
-	cscf = addr->default_server;
-	ls->pool_size = cscf->connection_pool_size;
-	ls->post_accept_timeout = cscf->client_header_timeout;
-	clcf = (ngx_http_core_loc_conf_t*)cscf->ctx->loc_conf[ngx_http_core_module.ctx_index];
-	ls->logp = clcf->error_log;
-	ls->log.data = &ls->addr_text;
-	ls->log.handler = ngx_accept_log_error;
+	if(ls) {
+		ngx_http_core_loc_conf_t  * clcf;
+		ngx_http_core_srv_conf_t  * cscf;
+		ls->addr_ntop = 1;
+		ls->handler = ngx_http_init_connection;
+		cscf = addr->default_server;
+		ls->pool_size = cscf->connection_pool_size;
+		ls->post_accept_timeout = cscf->client_header_timeout;
+		clcf = (ngx_http_core_loc_conf_t*)cscf->ctx->loc_conf[ngx_http_core_module.ctx_index];
+		ls->logp = clcf->error_log;
+		ls->log.data = &ls->addr_text;
+		ls->log.handler = ngx_accept_log_error;
 #if (NGX_WIN32)
-	{
-		ngx_iocp_conf_t  * iocpcf = NULL;
-		if(ngx_get_conf(cf->cycle->conf_ctx, ngx_events_module)) {
-			iocpcf = (ngx_iocp_conf_t *)ngx_event_get_conf(cf->cycle->conf_ctx, ngx_iocp_module);
+		{
+			ngx_iocp_conf_t  * iocpcf = NULL;
+			if(ngx_get_conf(cf->cycle->conf_ctx, ngx_events_module)) {
+				iocpcf = (ngx_iocp_conf_t *)ngx_event_get_conf(cf->cycle->conf_ctx, ngx_iocp_module);
+			}
+			if(iocpcf && iocpcf->acceptex_read) {
+				ls->post_accept_buffer_size = cscf->client_header_buffer_size;
+			}
 		}
-		if(iocpcf && iocpcf->acceptex_read) {
-			ls->post_accept_buffer_size = cscf->client_header_buffer_size;
-		}
-	}
 #endif
-	ls->backlog = addr->opt.backlog;
-	ls->rcvbuf = addr->opt.rcvbuf;
-	ls->sndbuf = addr->opt.sndbuf;
-	ls->keepalive = addr->opt.so_keepalive;
+		ls->backlog = addr->opt.backlog;
+		ls->rcvbuf = addr->opt.rcvbuf;
+		ls->sndbuf = addr->opt.sndbuf;
+		ls->keepalive = addr->opt.so_keepalive;
 #if (NGX_HAVE_KEEPALIVE_TUNABLE)
-	ls->keepidle = addr->opt.tcp_keepidle;
-	ls->keepintvl = addr->opt.tcp_keepintvl;
-	ls->keepcnt = addr->opt.tcp_keepcnt;
+		ls->keepidle = addr->opt.tcp_keepidle;
+		ls->keepintvl = addr->opt.tcp_keepintvl;
+		ls->keepcnt = addr->opt.tcp_keepcnt;
 #endif
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined SO_ACCEPTFILTER)
-	ls->accept_filter = addr->opt.accept_filter;
+		ls->accept_filter = addr->opt.accept_filter;
 #endif
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)
-	ls->deferred_accept = addr->opt.deferred_accept;
+		ls->deferred_accept = addr->opt.deferred_accept;
 #endif
 #if (NGX_HAVE_INET6)
-	ls->ipv6only = addr->opt.ipv6only;
+		ls->ipv6only = addr->opt.ipv6only;
 #endif
 #if (NGX_HAVE_SETFIB)
-	ls->setfib = addr->opt.setfib;
+		ls->setfib = addr->opt.setfib;
 #endif
 #if (NGX_HAVE_TCP_FASTOPEN)
-	ls->fastopen = addr->opt.fastopen;
+		ls->fastopen = addr->opt.fastopen;
 #endif
 #if (NGX_HAVE_REUSEPORT)
-	ls->reuseport = addr->opt.reuseport;
+		ls->reuseport = addr->opt.reuseport;
 #endif
+	}
 	return ls;
 }
 
@@ -1217,121 +1204,119 @@ static ngx_int_t ngx_http_add_addrs6(ngx_conf_t * cf, ngx_http_port_t * hport, n
 
 #endif
 
-char * ngx_http_types_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * p = (char *)conf;
-	ngx_str_t * value, * default_type;
+	ngx_str_t * value;
 	ngx_uint_t i, n, hash;
 	ngx_hash_key_t * type;
 	ngx_array_t ** types = (ngx_array_t**)(p + cmd->offset);
-	if(*types == (void*)-1) {
-		return NGX_CONF_OK;
-	}
-	default_type = (ngx_str_t*)cmd->post;
-	if(*types == NULL) {
-		*types = ngx_array_create(cf->temp_pool, 1, sizeof(ngx_hash_key_t));
+	if(*types != (void*)-1) {
+		const ngx_str_t * default_type = (const ngx_str_t *)cmd->P_Post;
 		if(*types == NULL) {
-			return NGX_CONF_ERROR;
+			*types = ngx_array_create(cf->temp_pool, 1, sizeof(ngx_hash_key_t));
+			if(*types == NULL) {
+				return NGX_CONF_ERROR;
+			}
+			if(default_type) {
+				type = (ngx_hash_key_t*)ngx_array_push(*types);
+				if(type == NULL) {
+					return NGX_CONF_ERROR;
+				}
+				type->key = *default_type;
+				type->key_hash = ngx_hash_key(default_type->data, default_type->len);
+				type->value = (void*)4;
+			}
 		}
-		if(default_type) {
+		value = (ngx_str_t*)cf->args->elts;
+		for(i = 1; i < cf->args->nelts; i++) {
+			if(value[i].len == 1 && value[i].data[0] == '*') {
+				*types = (ngx_array_t*)-1;
+				return NGX_CONF_OK;
+			}
+			hash = ngx_hash_strlow(value[i].data, value[i].data, value[i].len);
+			value[i].data[value[i].len] = '\0';
+			type = (ngx_hash_key_t*)(*types)->elts;
+			for(n = 0; n < (*types)->nelts; n++) {
+				if(sstreq(value[i].data, type[n].key.data)) {
+					ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "duplicate MIME type \"%V\"", &value[i]);
+					goto next;
+				}
+			}
 			type = (ngx_hash_key_t*)ngx_array_push(*types);
 			if(type == NULL) {
 				return NGX_CONF_ERROR;
 			}
-			type->key = *default_type;
-			type->key_hash = ngx_hash_key(default_type->data, default_type->len);
+			type->key = value[i];
+			type->key_hash = hash;
 			type->value = (void*)4;
-		}
-	}
-	value = (ngx_str_t*)cf->args->elts;
-	for(i = 1; i < cf->args->nelts; i++) {
-		if(value[i].len == 1 && value[i].data[0] == '*') {
-			*types = (ngx_array_t*)-1;
-			return NGX_CONF_OK;
-		}
-		hash = ngx_hash_strlow(value[i].data, value[i].data, value[i].len);
-		value[i].data[value[i].len] = '\0';
-		type = (ngx_hash_key_t*)(*types)->elts;
-		for(n = 0; n < (*types)->nelts; n++) {
-			if(ngx_strcmp(value[i].data, type[n].key.data) == 0) {
-				ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "duplicate MIME type \"%V\"", &value[i]);
-				goto next;
-			}
-		}
-		type = (ngx_hash_key_t*)ngx_array_push(*types);
-		if(type == NULL) {
-			return NGX_CONF_ERROR;
-		}
-		type->key = value[i];
-		type->key_hash = hash;
-		type->value = (void*)4;
 next:
-		continue;
+			continue;
+		}
 	}
 	return NGX_CONF_OK;
 }
 
-char * ngx_http_merge_types(ngx_conf_t * cf, ngx_array_t ** keys, ngx_hash_t * types_hash,
-    ngx_array_t ** prev_keys, ngx_hash_t * prev_types_hash, ngx_str_t * default_types)
+char * ngx_http_merge_types(ngx_conf_t * cf, ngx_array_t ** keys, ngx_hash_t * types_hash, ngx_array_t ** prev_keys, ngx_hash_t * prev_types_hash, ngx_str_t * default_types)
 {
 	ngx_hash_init_t hash;
 	if(*keys) {
-		if(*keys == (void*)-1) {
-			return NGX_CONF_OK;
-		}
-		hash.hash = types_hash;
-		hash.key = NULL;
-		hash.max_size = 2048;
-		hash.bucket_size = 64;
-		hash.name = "test_types_hash";
-		hash.pool = cf->pool;
-		hash.temp_pool = NULL;
-		if(ngx_hash_init(&hash, (ngx_hash_key_t *)(*keys)->elts, (*keys)->nelts) != NGX_OK) {
-			return NGX_CONF_ERROR;
-		}
-		return NGX_CONF_OK;
-	}
-	if(prev_types_hash->buckets == NULL) {
-		if(*prev_keys == NULL) {
-			if(ngx_http_set_default_types(cf, prev_keys, default_types) != NGX_OK) {
+		if(*keys != (void*)-1) {
+			hash.hash = types_hash;
+			hash.key = NULL;
+			hash.max_size = 2048;
+			hash.bucket_size = 64;
+			hash.name = "test_types_hash";
+			hash.pool = cf->pool;
+			hash.temp_pool = NULL;
+			if(ngx_hash_init(&hash, (ngx_hash_key_t *)(*keys)->elts, (*keys)->nelts) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}
 		}
-		else if(*prev_keys == (void*)-1) {
-			*keys = *prev_keys;
-			return NGX_CONF_OK;
-		}
-		hash.hash = prev_types_hash;
-		hash.key = NULL;
-		hash.max_size = 2048;
-		hash.bucket_size = 64;
-		hash.name = "test_types_hash";
-		hash.pool = cf->pool;
-		hash.temp_pool = NULL;
-		if(ngx_hash_init(&hash, (ngx_hash_key_t *)(*prev_keys)->elts, (*prev_keys)->nelts) != NGX_OK) {
-			return NGX_CONF_ERROR;
-		}
 	}
-	*types_hash = *prev_types_hash;
+	else {
+		if(prev_types_hash->buckets == NULL) {
+			if(*prev_keys == NULL) {
+				if(ngx_http_set_default_types(cf, prev_keys, default_types) != NGX_OK) {
+					return NGX_CONF_ERROR;
+				}
+			}
+			else if(*prev_keys == (void*)-1) {
+				*keys = *prev_keys;
+				return NGX_CONF_OK;
+			}
+			hash.hash = prev_types_hash;
+			hash.key = NULL;
+			hash.max_size = 2048;
+			hash.bucket_size = 64;
+			hash.name = "test_types_hash";
+			hash.pool = cf->pool;
+			hash.temp_pool = NULL;
+			if(ngx_hash_init(&hash, (ngx_hash_key_t *)(*prev_keys)->elts, (*prev_keys)->nelts) != NGX_OK) {
+				return NGX_CONF_ERROR;
+			}
+		}
+		*types_hash = *prev_types_hash;
+	}
 	return NGX_CONF_OK;
 }
 
-ngx_int_t ngx_http_set_default_types(ngx_conf_t * cf, ngx_array_t ** types, ngx_str_t * default_type)
+ngx_int_t ngx_http_set_default_types(ngx_conf_t * pCf, ngx_array_t ** ppTypes, ngx_str_t * pDefaultType)
 {
-	*types = ngx_array_create(cf->temp_pool, 1, sizeof(ngx_hash_key_t));
-	if(*types == NULL) {
+	*ppTypes = ngx_array_create(pCf->temp_pool, 1, sizeof(ngx_hash_key_t));
+	if(*ppTypes == NULL) {
 		return NGX_ERROR;
 	}
 	else {
-		while(default_type->len) {
-			ngx_hash_key_t * type = (ngx_hash_key_t*)ngx_array_push(*types);
-			if(type == NULL) {
+		while(pDefaultType->len) {
+			ngx_hash_key_t * p_type = (ngx_hash_key_t*)ngx_array_push(*ppTypes);
+			if(p_type == NULL) {
 				return NGX_ERROR;
 			}
-			type->key = *default_type;
-			type->key_hash = ngx_hash_key(default_type->data, default_type->len);
-			type->value = (void*)4;
-			default_type++;
+			p_type->key = *pDefaultType;
+			p_type->key_hash = ngx_hash_key(pDefaultType->data, pDefaultType->len);
+			p_type->value = (void*)4;
+			pDefaultType++;
 		}
 		return NGX_OK;
 	}

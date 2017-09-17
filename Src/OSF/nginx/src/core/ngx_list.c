@@ -34,7 +34,7 @@ ngx_list_t * ngx_list_create(ngx_pool_t * pool, ngx_uint_t n, size_t size)
 	return list;
 }
 
-void * ngx_list_push(ngx_list_t * l)
+void * FASTCALL ngx_list_push(ngx_list_t * l)
 {
 	void * elt;
 	ngx_list_part_t * last = l->last;

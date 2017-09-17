@@ -239,32 +239,17 @@ static ngx_int_t ngx_http_mp4_read_co64_atom(ngx_http_mp4_file_t * mp4, uint64_t
 static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak);
 static void ngx_http_mp4_adjust_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak, nginx_off_t adjustment);
 
-static char * ngx_http_mp4(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_mp4(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_http_mp4_create_conf(ngx_conf_t * cf);
 static char * ngx_http_mp4_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_command_t ngx_http_mp4_commands[] = {
-	{ ngx_string("mp4"),
-	  NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
-	  ngx_http_mp4,
-	  0,
-	  0,
-	  NULL },
-
-	{ ngx_string("mp4_buffer_size"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_size_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_mp4_conf_t, buffer_size),
-	  NULL },
-
-	{ ngx_string("mp4_max_buffer_size"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_size_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_mp4_conf_t, max_buffer_size),
-	  NULL },
-
+	{ ngx_string("mp4"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
+	  ngx_http_mp4, 0, 0, NULL },
+	{ ngx_string("mp4_buffer_size"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_size_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_mp4_conf_t, buffer_size), NULL },
+	{ ngx_string("mp4_max_buffer_size"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_size_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_mp4_conf_t, max_buffer_size), NULL },
 	ngx_null_command
 };
 
@@ -427,14 +412,14 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 	mp4 = NULL;
 	b = NULL;
 	if(r->args.len) {
-		if(ngx_http_arg(r, (u_char*)"start", 5, &value) == NGX_OK) {
+		if(ngx_http_arg(r, (const u_char *)"start", 5, &value) == NGX_OK) {
 			/*
 			 * A Flash player may send start value with a lot of digits
 			 * after dot so a custom function is used instead of ngx_atofp().
 			 */
 			start = ngx_http_mp4_atofp(value.data, value.len, 3);
 		}
-		if(ngx_http_arg(r, (u_char*)"end", 3, &value) == NGX_OK) {
+		if(ngx_http_arg(r, (const u_char *)"end", 3, &value) == NGX_OK) {
 			end = ngx_http_mp4_atofp(value.data, value.len, 3);
 			if(end > 0) {
 				if(start < 0) {
@@ -2572,7 +2557,7 @@ static void ngx_http_mp4_adjust_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp
 	}
 }
 
-static char * ngx_http_mp4(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_mp4(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 	clcf->F_HttpHandler = ngx_http_mp4_handler;

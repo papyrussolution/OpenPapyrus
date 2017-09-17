@@ -26,52 +26,23 @@ static uint32_t usual[] = {
 };
 
 #if (NGX_HAVE_LITTLE_ENDIAN && NGX_HAVE_NONALIGNED)
-
-#define ngx_str3_cmp(m, c0, c1, c2, c3) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
-#define ngx_str3Ocmp(m, c0, c1, c2, c3) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
-#define ngx_str4cmp(m, c0, c1, c2, c3)  *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
-#define ngx_str5cmp(m, c0, c1, c2, c3, c4) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && m[4] == c4
-#define ngx_str6cmp(m, c0, c1, c2, c3, c4, c5) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && (((uint32_t*)m)[1] & 0xffff) == ((c5 << 8) | c4)
-#define ngx_str7_cmp(m, c0, c1, c2, c3, c4, c5, c6, c7) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4)
-#define ngx_str8cmp(m, c0, c1, c2, c3, c4, c5, c6, c7)			      \
-	*(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)		\
-	&& ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4)
-
-#define ngx_str9cmp(m, c0, c1, c2, c3, c4, c5, c6, c7, c8)		      \
-	*(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)		\
-	&& ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4)  \
-	&& m[8] == c8
-
+	#define ngx_str3_cmp(m, c0, c1, c2, c3) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
+	#define ngx_str3Ocmp(m, c0, c1, c2, c3) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
+	#define ngx_str4cmp(m, c0, c1, c2, c3)  *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0)
+	#define ngx_str5cmp(m, c0, c1, c2, c3, c4) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && m[4] == c4
+	#define ngx_str6cmp(m, c0, c1, c2, c3, c4, c5) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && (((uint32_t*)m)[1] & 0xffff) == ((c5 << 8) | c4)
+	#define ngx_str7_cmp(m, c0, c1, c2, c3, c4, c5, c6, c7) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4)
+	#define ngx_str8cmp(m, c0, c1, c2, c3, c4, c5, c6, c7)  *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4)
+	#define ngx_str9cmp(m, c0, c1, c2, c3, c4, c5, c6, c7, c8) *(uint32_t*)m == ((c3 << 24) | (c2 << 16) | (c1 << 8) | c0) && ((uint32_t*)m)[1] == ((c7 << 24) | (c6 << 16) | (c5 << 8) | c4) && m[8] == c8
 #else /* !(NGX_HAVE_LITTLE_ENDIAN && NGX_HAVE_NONALIGNED) */
-
-#define ngx_str3_cmp(m, c0, c1, c2, c3)					      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2
-
-#define ngx_str3Ocmp(m, c0, c1, c2, c3)					      \
-	m[0] == c0 && m[2] == c2 && m[3] == c3
-
-#define ngx_str4cmp(m, c0, c1, c2, c3)					      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3
-
-#define ngx_str5cmp(m, c0, c1, c2, c3, c4)				      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4
-
-#define ngx_str6cmp(m, c0, c1, c2, c3, c4, c5)				      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3			  \
-	&& m[4] == c4 && m[5] == c5
-
-#define ngx_str7_cmp(m, c0, c1, c2, c3, c4, c5, c6, c7)			      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3			  \
-	&& m[4] == c4 && m[5] == c5 && m[6] == c6
-
-#define ngx_str8cmp(m, c0, c1, c2, c3, c4, c5, c6, c7)			      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3			  \
-	&& m[4] == c4 && m[5] == c5 && m[6] == c6 && m[7] == c7
-
-#define ngx_str9cmp(m, c0, c1, c2, c3, c4, c5, c6, c7, c8)		      \
-	m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3			  \
-	&& m[4] == c4 && m[5] == c5 && m[6] == c6 && m[7] == c7 && m[8] == c8
-
+	#define ngx_str3_cmp(m, c0, c1, c2, c3) m[0] == c0 && m[1] == c1 && m[2] == c2
+	#define ngx_str3Ocmp(m, c0, c1, c2, c3) m[0] == c0 && m[2] == c2 && m[3] == c3
+	#define ngx_str4cmp(m, c0, c1, c2, c3)  m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3
+	#define ngx_str5cmp(m, c0, c1, c2, c3, c4)     m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4
+	#define ngx_str6cmp(m, c0, c1, c2, c3, c4, c5) m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4 && m[5] == c5
+	#define ngx_str7_cmp(m, c0, c1, c2, c3, c4, c5, c6, c7) m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4 && m[5] == c5 && m[6] == c6
+	#define ngx_str8cmp(m, c0, c1, c2, c3, c4, c5, c6, c7) m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4 && m[5] == c5 && m[6] == c6 && m[7] == c7
+	#define ngx_str9cmp(m, c0, c1, c2, c3, c4, c5, c6, c7, c8) m[0] == c0 && m[1] == c1 && m[2] == c2 && m[3] == c3 && m[4] == c4 && m[5] == c5 && m[6] == c6 && m[7] == c7 && m[8] == c8
 #endif
 
 /* gcc, icc, msvc and others compile these switches as an jump table */
@@ -1852,7 +1823,7 @@ ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * nam
 	return NGX_DECLINED;
 }
 
-ngx_int_t ngx_http_arg(ngx_http_request_t * r, u_char * name, size_t len, ngx_str_t * value)
+ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, ngx_str_t * value)
 {
 	u_char  * p, * last;
 	if(r->args.len == 0) {

@@ -6,32 +6,25 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-typedef struct {
+struct ngx_regex_conf_t {
 	ngx_flag_t pcre_jit;
-} ngx_regex_conf_t;
+};
 
 static void * ngx_libc_cdecl ngx_regex_malloc(size_t size);
 static void ngx_libc_cdecl ngx_regex_free(void * p);
 #if (NGX_HAVE_PCRE_JIT)
-static void ngx_pcre_free_studies(void * data);
+	static void ngx_pcre_free_studies(void * data);
 #endif
 
 static ngx_int_t ngx_regex_module_init(ngx_cycle_t * cycle);
-
 static void * ngx_regex_create_conf(ngx_cycle_t * cycle);
-static char * ngx_regex_init_conf(ngx_cycle_t * cycle, void * conf);
-
+static const char * ngx_regex_init_conf(ngx_cycle_t * cycle, void * conf);
 static char * ngx_regex_pcre_jit(ngx_conf_t * cf, void * post, void * data);
 static ngx_conf_post_t ngx_regex_pcre_jit_post = { ngx_regex_pcre_jit };
 
 static ngx_command_t ngx_regex_commands[] = {
-	{ ngx_string("pcre_jit"),
-	  NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  0,
-	  offsetof(ngx_regex_conf_t, pcre_jit),
-	  &ngx_regex_pcre_jit_post },
-
+	{ ngx_string("pcre_jit"), NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, 0, offsetof(ngx_regex_conf_t, pcre_jit), &ngx_regex_pcre_jit_post },
 	ngx_null_command
 };
 
@@ -331,7 +324,7 @@ static void * ngx_regex_create_conf(ngx_cycle_t * cycle)
 	return rcf;
 }
 
-static char * ngx_regex_init_conf(ngx_cycle_t * cycle, void * conf)
+static const char * ngx_regex_init_conf(ngx_cycle_t * cycle, void * conf)
 {
 	ngx_regex_conf_t * rcf = (ngx_regex_conf_t *)conf;
 	ngx_conf_init_value(rcf->pcre_jit, 0);

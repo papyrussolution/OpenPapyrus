@@ -144,7 +144,7 @@ ngx_int_t ngx_http_compile_complex_value(ngx_http_compile_complex_value_t * ccv)
 	return NGX_OK;
 }
 
-char * ngx_http_set_complex_value_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_http_set_complex_value_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * p = (char *)conf;
 	ngx_str_t * value;
@@ -185,7 +185,7 @@ ngx_int_t ngx_http_test_predicates(ngx_http_request_t * r, ngx_array_t * predica
 	return NGX_OK;
 }
 
-char * ngx_http_set_predicate_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_http_set_predicate_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * p = (char *)conf;
 	ngx_str_t * value;
@@ -1103,22 +1103,15 @@ void ngx_http_script_file_code(ngx_http_script_engine_t * e)
 		e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 		return;
 	}
-
-	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool)
-	    != NGX_OK) {
+	if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool) != NGX_OK) {
 		if(of.err == 0) {
 			e->ip = ngx_http_script_exit;
 			e->status = NGX_HTTP_INTERNAL_SERVER_ERROR;
 			return;
 		}
-
-		if(of.err != NGX_ENOENT
-		    && of.err != NGX_ENOTDIR
-		    && of.err != NGX_ENAMETOOLONG) {
-			ngx_log_error(NGX_LOG_CRIT, r->connection->log, of.err,
-			    "%s \"%s\" failed", of.failed, value->data);
+		if(of.err != NGX_ENOENT && of.err != NGX_ENOTDIR && of.err != NGX_ENAMETOOLONG) {
+			ngx_log_error(NGX_LOG_CRIT, r->connection->log, of.err, "%s \"%s\" failed", of.failed, value->data);
 		}
-
 		switch(code->op) {
 			case ngx_http_script_file_plain:
 			case ngx_http_script_file_dir:

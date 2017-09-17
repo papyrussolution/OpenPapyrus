@@ -320,7 +320,7 @@ ngx_int_t ngx_ptocidr(ngx_str_t * text, ngx_cidr_t * cidr)
 		cidr->family = AF_INET6;
 
 		if(mask == NULL) {
-			ngx_memset(cidr->u.in6.mask.s6_addr, 0xff, 16);
+			memset(cidr->u.in6.mask.s6_addr, 0xff, 16);
 			return NGX_OK;
 		}
 
@@ -570,15 +570,14 @@ ngx_int_t ngx_parse_addr_port(ngx_pool_t * pool, ngx_addr_t * addr, u_char * tex
 
 ngx_int_t ngx_parse_url(ngx_pool_t * pool, ngx_url_t * u)
 {
-	u_char  * p = u->url.data;
+	const u_char * p = u->url.data;
 	size_t len = u->url.len;
-	if(len >= 5 && ngx_strncasecmp(p, (u_char*)"unix:", 5) == 0) {
+	if(len >= 5 && ngx_strncasecmp(p, (u_char *)"unix:", 5) == 0)
 		return ngx_parse_unix_domain_url(pool, u);
-	}
-	if(len && p[0] == '[') {
+	else if(len && p[0] == '[')
 		return ngx_parse_inet6_url(pool, u);
-	}
-	return ngx_parse_inet_url(pool, u);
+	else
+		return ngx_parse_inet_url(pool, u);
 }
 
 static ngx_int_t ngx_parse_unix_domain_url(ngx_pool_t * pool, ngx_url_t * u)
@@ -689,7 +688,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 	else {
 		if(uri == NULL) {
 			if(u->listen) {
-				/* test value as port only */
+				// test value as port only 
 				n = ngx_atoi(host, last - host);
 				if(n != NGX_ERROR) {
 					if(n < 1 || n > 65535) {
@@ -719,65 +718,57 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 	if(u->listen && len == 1 && *host == '*') {
 		sin->sin_addr.s_addr = INADDR_ANY;
 		u->wildcard = 1;
-		return NGX_OK;
 	}
-	sin->sin_addr.s_addr = ngx_inet_addr(host, len);
-	if(sin->sin_addr.s_addr != INADDR_NONE) {
-		if(sin->sin_addr.s_addr == INADDR_ANY) {
-			u->wildcard = 1;
+	else {
+		sin->sin_addr.s_addr = ngx_inet_addr(host, len);
+		if(sin->sin_addr.s_addr != INADDR_NONE) {
+			if(sin->sin_addr.s_addr == INADDR_ANY) {
+				u->wildcard = 1;
+			}
+			u->naddrs = 1;
+			u->addrs = (ngx_addr_t *)ngx_pcalloc(pool, sizeof(ngx_addr_t));
+			if(u->addrs == NULL) {
+				return NGX_ERROR;
+			}
+			sin = (struct sockaddr_in *)ngx_pcalloc(pool, sizeof(struct sockaddr_in));
+			if(sin == NULL) {
+				return NGX_ERROR;
+			}
+			memcpy(sin, &u->sockaddr, sizeof(struct sockaddr_in));
+			u->addrs[0].sockaddr = (struct sockaddr*)sin;
+			u->addrs[0].socklen = sizeof(struct sockaddr_in);
+			p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
+			if(p == NULL) {
+				return NGX_ERROR;
+			}
+			u->addrs[0].name.len = ngx_sprintf(p, "%V:%d", &u->host, u->port) - p;
+			u->addrs[0].name.data = p;
 		}
-		u->naddrs = 1;
-		u->addrs = (ngx_addr_t *)ngx_pcalloc(pool, sizeof(ngx_addr_t));
-		if(u->addrs == NULL) {
-			return NGX_ERROR;
-		}
-		sin = (struct sockaddr_in *)ngx_pcalloc(pool, sizeof(struct sockaddr_in));
-		if(sin == NULL) {
-			return NGX_ERROR;
-		}
-		memcpy(sin, &u->sockaddr, sizeof(struct sockaddr_in));
-		u->addrs[0].sockaddr = (struct sockaddr*)sin;
-		u->addrs[0].socklen = sizeof(struct sockaddr_in);
-		p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
-		if(p == NULL) {
-			return NGX_ERROR;
-		}
-		u->addrs[0].name.len = ngx_sprintf(p, "%V:%d", &u->host, u->port) - p;
-		u->addrs[0].name.data = p;
-		return NGX_OK;
-	}
-	if(u->no_resolve) {
-		return NGX_OK;
-	}
-	if(ngx_inet_resolve_host(pool, u) != NGX_OK) {
-		return NGX_ERROR;
-	}
-	u->family = u->addrs[0].sockaddr->sa_family;
-	u->socklen = u->addrs[0].socklen;
-	memcpy(&u->sockaddr, u->addrs[0].sockaddr, u->addrs[0].socklen);
-
-	switch(u->family) {
+		else if(!u->no_resolve) {
+			if(ngx_inet_resolve_host(pool, u) != NGX_OK) {
+				return NGX_ERROR;
+			}
+			u->family = u->addrs[0].sockaddr->sa_family;
+			u->socklen = u->addrs[0].socklen;
+			memcpy(&u->sockaddr, u->addrs[0].sockaddr, u->addrs[0].socklen);
+			switch(u->family) {
 #if (NGX_HAVE_INET6)
-		case AF_INET6:
-		    sin6 = (struct sockaddr_in6*)&u->sockaddr;
-
-		    if(IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
-			    u->wildcard = 1;
-		    }
-
-		    break;
+				case AF_INET6:
+					sin6 = (struct sockaddr_in6*)&u->sockaddr;
+					if(IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
+						u->wildcard = 1;
+					}
+					break;
 #endif
-
-		default: /* AF_INET */
-		    sin = (struct sockaddr_in*)&u->sockaddr;
-
-		    if(sin->sin_addr.s_addr == INADDR_ANY) {
-			    u->wildcard = 1;
-		    }
-
-		    break;
+				default: /* AF_INET */
+					sin = (struct sockaddr_in*)&u->sockaddr;
+					if(sin->sin_addr.s_addr == INADDR_ANY) {
+						u->wildcard = 1;
+					}
+					break;
+			}
+		}
 	}
-
 	return NGX_OK;
 }
 

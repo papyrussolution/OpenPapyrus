@@ -52,16 +52,11 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	    (char*)name);
 
 	if(shm->handle == NULL) {
-		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-		    "CreateFileMapping(%uz, %s) failed",
-		    shm->size, name);
+		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CreateFileMapping(%uz, %s) failed", shm->size, name);
 		ngx_free(name);
-
 		return NGX_ERROR;
 	}
-
 	ngx_free(name);
-
 	if(ngx_errno == ERROR_ALREADY_EXISTS) {
 		shm->exists = 1;
 	}
@@ -70,11 +65,8 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 		base += ngx_align(size, ngx_allocation_granularity);
 		return NGX_OK;
 	}
-	ngx_log_debug3(NGX_LOG_DEBUG_CORE, shm->log, ngx_errno,
-	    "MapViewOfFileEx(%uz, %p) of file mapping \"%V\" failed, "
-	    "retry without a base address",
+	ngx_log_debug3(NGX_LOG_DEBUG_CORE, shm->log, ngx_errno, "MapViewOfFileEx(%uz, %p) of file mapping \"%V\" failed, retry without a base address",
 	    shm->size, base, &shm->name);
-
 	/*
 	 * Order of shared memory zones may be different in the master process
 	 * and worker processes after reconfiguration.  As a result, the above
@@ -87,52 +79,34 @@ ngx_int_t ngx_shm_alloc(ngx_shm_t * shm)
 	if(shm->addr != NULL) {
 		return NGX_OK;
 	}
-
-	ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-	    "MapViewOfFile(%uz) of file mapping \"%V\" failed",
-	    shm->size, &shm->name);
-
+	ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "MapViewOfFile(%uz) of file mapping \"%V\" failed", shm->size, &shm->name);
 	if(CloseHandle(shm->handle) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-		    "CloseHandle() of file mapping \"%V\" failed",
-		    &shm->name);
+		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CloseHandle() of file mapping \"%V\" failed", &shm->name);
 	}
-
 	return NGX_ERROR;
 }
 
 ngx_int_t ngx_shm_remap(ngx_shm_t * shm, u_char * addr)
 {
 	if(UnmapViewOfFile(shm->addr) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-		    "UnmapViewOfFile(%p) of file mapping \"%V\" failed",
-		    shm->addr, &shm->name);
+		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "UnmapViewOfFile(%p) of file mapping \"%V\" failed", shm->addr, &shm->name);
 		return NGX_ERROR;
 	}
 	shm->addr = (u_char *)MapViewOfFileEx(shm->handle, FILE_MAP_WRITE, 0, 0, 0, addr);
 	if(shm->addr != NULL) {
 		return NGX_OK;
 	}
-
-	ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-	    "MapViewOfFileEx(%uz, %p) of file mapping \"%V\" failed",
-	    shm->size, addr, &shm->name);
-
+	ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "MapViewOfFileEx(%uz, %p) of file mapping \"%V\" failed", shm->size, addr, &shm->name);
 	return NGX_ERROR;
 }
 
 void ngx_shm_free(ngx_shm_t * shm)
 {
 	if(UnmapViewOfFile(shm->addr) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-		    "UnmapViewOfFile(%p) of file mapping \"%V\" failed",
-		    shm->addr, &shm->name);
+		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "UnmapViewOfFile(%p) of file mapping \"%V\" failed", shm->addr, &shm->name);
 	}
-
 	if(CloseHandle(shm->handle) == 0) {
-		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno,
-		    "CloseHandle() of file mapping \"%V\" failed",
-		    &shm->name);
+		ngx_log_error(NGX_LOG_ALERT, shm->log, ngx_errno, "CloseHandle() of file mapping \"%V\" failed", &shm->name);
 	}
 }
 

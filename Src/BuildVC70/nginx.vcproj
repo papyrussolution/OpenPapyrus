@@ -2734,9 +2734,6 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_core.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_event_openssl.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http.h">
 			</File>
 			<File
@@ -2779,37 +2776,7 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_md5.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_open_file_cache.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_rbtree.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_sha1.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream_script.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream_ssl_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream_upstream.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream_upstream_round_robin.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_stream_variables.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_string.h">
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_times.h">

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	ngx_stream_variable_value_t  * value;
@@ -62,8 +62,8 @@ struct ngx_stream_geo_ctx_t {
 };
 
 static ngx_int_t ngx_stream_geo_addr(ngx_stream_session_t * s, ngx_stream_geo_ctx_t * ctx, ngx_addr_t * addr);
-static char * ngx_stream_geo_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_stream_geo(ngx_conf_t * cf, ngx_command_t * dummy, void * conf);
+static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_geo(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf); // F_SetHandler
 static char * ngx_stream_geo_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * ctx, ngx_str_t * value);
 static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * ctx, in_addr_t start, in_addr_t end);
 static ngx_uint_t ngx_stream_geo_delete_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * ctx, in_addr_t start, in_addr_t end);
@@ -77,13 +77,8 @@ static void ngx_stream_geo_create_binary_base(ngx_stream_geo_conf_ctx_t * ctx);
 static u_char * ngx_stream_geo_copy_values(u_char * base, u_char * p, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel);
 
 static ngx_command_t ngx_stream_geo_commands[] = {
-	{ ngx_string("geo"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE12,
-	  ngx_stream_geo_block,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("geo"), NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE12,
+	  ngx_stream_geo_block, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -268,9 +263,7 @@ static ngx_int_t ngx_stream_geo_addr(ngx_stream_session_t * s, ngx_stream_geo_ct
 		/* addr->name = s->connection->addr_text; */
 		return NGX_OK;
 	}
-
 	v = ngx_stream_get_flushed_variable(s, ctx->index);
-
 	if(v == NULL || v->not_found) {
 		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream geo not found");
 		return NGX_ERROR;
@@ -282,7 +275,7 @@ static ngx_int_t ngx_stream_geo_addr(ngx_stream_session_t * s, ngx_stream_geo_ct
 	return NGX_ERROR;
 }
 
-static char * ngx_stream_geo_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_geo_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * rv;
 	size_t len;
@@ -417,7 +410,7 @@ static char * ngx_stream_geo_block(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	return rv;
 }
 
-static char * ngx_stream_geo(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
+static const char * ngx_stream_geo(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
 	char * rv;
 	ngx_str_t * value;

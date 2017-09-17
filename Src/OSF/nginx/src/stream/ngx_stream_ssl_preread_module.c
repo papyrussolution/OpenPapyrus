@@ -4,7 +4,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	ngx_flag_t enabled;

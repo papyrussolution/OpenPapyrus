@@ -271,7 +271,6 @@ void ngx_pool_delete_file(void * data)
 			ngx_log_error(NGX_LOG_CRIT, c->log, err, ngx_delete_file_n " \"%s\" failed", c->name);
 		}
 	}
-
 	if(ngx_close_file(c->fd) == NGX_FILE_ERROR) {
 		ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno, ngx_close_file_n " \"%s\" failed", c->name);
 	}

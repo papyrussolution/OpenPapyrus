@@ -125,16 +125,12 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 
 	for(;; ) {
 		ngx_set_errno(0);
-
 		if(ngx_read_dir(&dir) == NGX_ERROR) {
 			err = ngx_errno;
-
 			if(err != NGX_ENOMOREFILES) {
-				ngx_log_error(NGX_LOG_CRIT, r->connection->log, err,
-				    ngx_read_dir_n " \"%V\" failed", &path);
+				ngx_log_error(NGX_LOG_CRIT, r->connection->log, err, ngx_read_dir_n " \"%V\" failed", &path);
 				return ngx_http_random_index_error(r, &dir, &path);
 			}
-
 			break;
 		}
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http random index file: \"%s\"", ngx_de_name(&dir));
@@ -153,27 +149,19 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 				last = ngx_cpystrn(filename, path.data, path.len + 1);
 				*last++ = '/';
 			}
-
 			ngx_cpystrn(last, ngx_de_name(&dir), len + 1);
-
 			if(ngx_de_info(filename, &dir) == NGX_FILE_ERROR) {
 				err = ngx_errno;
-
 				if(err != NGX_ENOENT) {
-					ngx_log_error(NGX_LOG_CRIT, r->connection->log, err,
-					    ngx_de_info_n " \"%s\" failed", filename);
+					ngx_log_error(NGX_LOG_CRIT, r->connection->log, err, ngx_de_info_n " \"%s\" failed", filename);
 					return ngx_http_random_index_error(r, &dir, &path);
 				}
-
 				if(ngx_de_link_info(filename, &dir) == NGX_FILE_ERROR) {
-					ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno,
-					    ngx_de_link_info_n " \"%s\" failed",
-					    filename);
+					ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno, ngx_de_link_info_n " \"%s\" failed", filename);
 					return ngx_http_random_index_error(r, &dir, &path);
 				}
 			}
 		}
-
 		if(!ngx_de_is_file(&dir)) {
 			continue;
 		}
@@ -192,40 +180,29 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 
 		memcpy(name->data, ngx_de_name(&dir), len);
 	}
-
 	if(ngx_close_dir(&dir) == NGX_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno,
-		    ngx_close_dir_n " \"%V\" failed", &path);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno, ngx_close_dir_n " \"%V\" failed", &path);
 	}
-
 	n = names.nelts;
-
 	if(n == 0) {
 		return NGX_DECLINED;
 	}
-
 	name = (ngx_str_t*)names.elts;
-
 	n = (ngx_uint_t)(((uint64_t)ngx_random() * n) / 0x80000000);
-
 	uri.len = r->uri.len + name[n].len;
-
 	uri.data = (u_char*)ngx_pnalloc(r->pool, uri.len);
 	if(uri.data == NULL) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	last = ngx_copy(uri.data, r->uri.data, r->uri.len);
 	memcpy(last, name[n].data, name[n].len);
-
 	return ngx_http_internal_redirect(r, &uri, &r->args);
 }
 
 static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r, ngx_dir_t * dir, ngx_str_t * name)
 {
 	if(ngx_close_dir(dir) == NGX_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno,
-		    ngx_close_dir_n " \"%V\" failed", name);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, ngx_errno, ngx_close_dir_n " \"%V\" failed", name);
 	}
 	return NGX_HTTP_INTERNAL_SERVER_ERROR;
 }
@@ -233,10 +210,9 @@ static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r, ngx_dir_t *
 static void * ngx_http_random_index_create_loc_conf(ngx_conf_t * cf)
 {
 	ngx_http_random_index_loc_conf_t  * conf = (ngx_http_random_index_loc_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_http_random_index_loc_conf_t));
-	if(conf == NULL) {
-		return NULL;
+	if(conf) {
+		conf->enable = NGX_CONF_UNSET;
 	}
-	conf->enable = NGX_CONF_UNSET;
 	return conf;
 }
 

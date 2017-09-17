@@ -157,9 +157,9 @@ void ngx_http_file_cache_update(ngx_http_request_t * r, ngx_temp_file_t * tf);
 void ngx_http_file_cache_update_header(ngx_http_request_t * r);
 ngx_int_t ngx_http_cache_send(ngx_http_request_t *);
 void ngx_http_file_cache_free(ngx_http_cache_t * c, ngx_temp_file_t * tf);
-time_t ngx_http_file_cache_valid(ngx_array_t * cache_valid, ngx_uint_t status);
-char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+time_t ngx_http_file_cache_valid(ngx_array_t * cache_valid, ngx_uint_t status); 
+const char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 extern ngx_str_t ngx_http_cache_status[];
 

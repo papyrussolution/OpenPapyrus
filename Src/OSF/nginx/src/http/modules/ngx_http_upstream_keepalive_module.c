@@ -29,49 +29,32 @@ typedef struct {
 
 typedef struct {
 	ngx_http_upstream_keepalive_srv_conf_t  * conf;
-
 	ngx_http_upstream_t * upstream;
-
 	void  * data;
-
 	ngx_event_get_peer_pt original_get_peer;
 	ngx_event_free_peer_pt original_free_peer;
-
 #if (NGX_HTTP_SSL)
 	ngx_event_set_peer_session_pt original_set_session;
 	ngx_event_save_peer_session_pt original_save_session;
 #endif
 } ngx_http_upstream_keepalive_peer_data_t;
 
-static ngx_int_t ngx_http_upstream_init_keepalive_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us);
-static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc,
-    void * data);
-static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc,
-    void * data, ngx_uint_t state);
-
+static ngx_int_t ngx_http_upstream_init_keepalive_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_get_keepalive_peer(ngx_peer_connection_t * pc, void * data);
+static void ngx_http_upstream_free_keepalive_peer(ngx_peer_connection_t * pc, void * data, ngx_uint_t state);
 static void ngx_http_upstream_keepalive_dummy_handler(ngx_event_t * ev);
 static void ngx_http_upstream_keepalive_close_handler(ngx_event_t * ev);
 static void ngx_http_upstream_keepalive_close(ngx_connection_t * c);
-
 #if (NGX_HTTP_SSL)
 static ngx_int_t ngx_http_upstream_keepalive_set_session(ngx_peer_connection_t * pc, void * data);
-static void ngx_http_upstream_keepalive_save_session(ngx_peer_connection_t * pc,
-    void * data);
+static void ngx_http_upstream_keepalive_save_session(ngx_peer_connection_t * pc, void * data);
 #endif
-
 static void * ngx_http_upstream_keepalive_create_conf(ngx_conf_t * cf);
-static char * ngx_http_upstream_keepalive(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_http_upstream_keepalive(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_upstream_keepalive_commands[] = {
-	{ ngx_string("keepalive"),
-	  NGX_HTTP_UPS_CONF|NGX_CONF_TAKE1,
-	  ngx_http_upstream_keepalive,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("keepalive"), NGX_HTTP_UPS_CONF|NGX_CONF_TAKE1,
+	  ngx_http_upstream_keepalive, NGX_HTTP_SRV_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -403,35 +386,27 @@ static void * ngx_http_upstream_keepalive_create_conf(ngx_conf_t * cf)
 	return conf;
 }
 
-static char * ngx_http_upstream_keepalive(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_upstream_keepalive(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_http_upstream_srv_conf_t  * uscf;
 	ngx_http_upstream_keepalive_srv_conf_t  * kcf = (ngx_http_upstream_keepalive_srv_conf_t *)conf;
-	ngx_int_t n;
-	ngx_str_t * value;
 	if(kcf->max_cached) {
 		return "is duplicate";
 	}
-	/* read options */
-	value = (ngx_str_t*)cf->args->elts;
-	n = ngx_atoi(value[1].data, value[1].len);
-	if(n == NGX_ERROR || n == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid value \"%V\" in \"%V\" directive",
-		    &value[1], &cmd->name);
-		return NGX_CONF_ERROR;
+	else {
+		// read options 
+		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
+		ngx_int_t n = ngx_atoi(value[1].data, value[1].len);
+		if(n == NGX_ERROR || n == 0) {
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%V\" in \"%V\" directive", &value[1], &cmd->Name);
+			return NGX_CONF_ERROR;
+		}
+		kcf->max_cached = n;
+		{
+			ngx_http_upstream_srv_conf_t * uscf = (ngx_http_upstream_srv_conf_t*)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
+			kcf->original_init_upstream = uscf->peer.init_upstream ? uscf->peer.init_upstream : ngx_http_upstream_init_round_robin;
+			uscf->peer.init_upstream = ngx_http_upstream_init_keepalive;
+			return NGX_CONF_OK;
+		}
 	}
-
-	kcf->max_cached = n;
-
-	uscf = (ngx_http_upstream_srv_conf_t*)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
-
-	kcf->original_init_upstream = uscf->peer.init_upstream
-	    ? uscf->peer.init_upstream
-	    : ngx_http_upstream_init_round_robin;
-
-	uscf->peer.init_upstream = ngx_http_upstream_init_keepalive;
-
-	return NGX_CONF_OK;
 }
 

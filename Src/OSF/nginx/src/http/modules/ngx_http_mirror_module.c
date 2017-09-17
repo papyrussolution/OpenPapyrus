@@ -8,7 +8,7 @@
 //#include <ngx_http.h>
 
 struct ngx_http_mirror_loc_conf_t {
-	ngx_array_t  * mirror;
+	ngx_array_t * mirror;
 	ngx_flag_t request_body;
 };
 
@@ -21,7 +21,7 @@ static void ngx_http_mirror_body_handler(ngx_http_request_t * r);
 static ngx_int_t ngx_http_mirror_handler_internal(ngx_http_request_t * r);
 static void * ngx_http_mirror_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_mirror_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_http_mirror(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_mirror(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_mirror_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_http_mirror_commands[] = {
@@ -137,7 +137,7 @@ static char * ngx_http_mirror_merge_loc_conf(ngx_conf_t * cf, void * parent, voi
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_mirror(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_mirror(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_mirror_loc_conf_t * mlcf = (ngx_http_mirror_loc_conf_t *)conf;
 	ngx_str_t  * s;

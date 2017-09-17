@@ -1989,6 +1989,30 @@ int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 	return 1;
 }
 
+int FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
+{
+	if(pS1 != pS2) {
+        const size_t len = sstrlen(pS1);
+        if(len != sstrlen(pS2))
+			return 0;
+		else if(len) {
+            for(size_t i = 0; i < len; i++) {
+				/*char*/uint c1 = pS1[i];
+				/*char*/uint c2 = pS2[i];
+				if(c1 != c2) {
+					if(c1 >= 'A' && c1 <= 'Z')
+						c1 -= ('A' - 'a');
+					if(c2 >= 'A' && c2 <= 'Z')
+						c2 -= ('A' - 'a');
+					if(c1 != c2)
+						return 0;
+				}
+            }
+		}
+	}
+	return 1;
+}
+
 size_t FASTCALL sisascii(const char * pS, size_t len)
 {
 	int   yes = 1;

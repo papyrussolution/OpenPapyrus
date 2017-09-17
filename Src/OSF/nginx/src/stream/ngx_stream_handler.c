@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 static void ngx_stream_log_session(ngx_stream_session_t * s);
 static void ngx_stream_close_connection(ngx_connection_t * c);

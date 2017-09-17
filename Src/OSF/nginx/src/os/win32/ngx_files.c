@@ -9,7 +9,7 @@
 #define NGX_UTF16_BUFLEN  256
 
 static ngx_int_t ngx_win32_check_filename(u_char * name, u_short * u, size_t len);
-static u_short * ngx_utf8_to_utf16(u_short * utf16, u_char * utf8, size_t * len);
+static u_short * ngx_utf8_to_utf16(u_short * utf16, const u_char * utf8, size_t * len);
 
 /* FILE_FLAG_BACKUP_SEMANTICS allows to obtain a handle to a directory */
 
@@ -117,7 +117,7 @@ ssize_t ngx_read_fd(ngx_fd_t fd, void * buf, size_t size)
 	return -1;
 }
 
-ssize_t ngx_write_fd(ngx_fd_t fd, void * buf, size_t size)
+ssize_t ngx_write_fd(ngx_fd_t fd, const void * buf, size_t size)
 {
 	u_long n;
 	if(WriteFile(fd, buf, size, &n, NULL) != 0) {
@@ -126,7 +126,7 @@ ssize_t ngx_write_fd(ngx_fd_t fd, void * buf, size_t size)
 	return -1;
 }
 
-ssize_t ngx_write_console(ngx_fd_t fd, void * buf, size_t size)
+ssize_t ngx_write_console(ngx_fd_t fd, const void * buf, size_t size)
 {
 	u_long n;
 	(void)CharToOemBuff((LPCSTR)buf, (LPSTR)buf, size);
@@ -527,10 +527,10 @@ failed:
 	return NGX_ERROR;
 }
 
-static u_short * ngx_utf8_to_utf16(u_short * utf16, u_char * utf8, size_t * len)
+static u_short * ngx_utf8_to_utf16(u_short * utf16, const u_char * utf8, size_t * len)
 {
 	uint32_t n;
-	u_char  * p = utf8;
+	const u_char * p = utf8;
 	u_short * u = utf16;
 	u_short * last = utf16 + *len;
 	while(u < last) {

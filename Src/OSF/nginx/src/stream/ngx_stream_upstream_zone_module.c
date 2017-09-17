@@ -5,9 +5,9 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
-static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_upstream_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_stream_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * data);
 static ngx_stream_upstream_rr_peers_t * ngx_stream_upstream_zone_copy_peers(ngx_slab_pool_t * shpool, ngx_stream_upstream_srv_conf_t * uscf);
 
@@ -40,14 +40,12 @@ ngx_module_t ngx_stream_upstream_zone_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static char * ngx_stream_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_upstream_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ssize_t size;
-	ngx_str_t * value;
-	ngx_stream_upstream_main_conf_t  * umcf;
 	ngx_stream_upstream_srv_conf_t * uscf = (ngx_stream_upstream_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_upstream_module);
-	umcf = (ngx_stream_upstream_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_upstream_module);
-	value = (ngx_str_t*)cf->args->elts;
+	ngx_stream_upstream_main_conf_t  * umcf = (ngx_stream_upstream_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_upstream_module);
+	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	if(!value[1].len) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone name \"%V\"", &value[1]);
 		return NGX_CONF_ERROR;

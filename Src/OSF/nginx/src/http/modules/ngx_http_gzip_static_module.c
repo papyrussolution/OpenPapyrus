@@ -11,14 +11,13 @@
 #define NGX_HTTP_GZIP_STATIC_ON      1
 #define NGX_HTTP_GZIP_STATIC_ALWAYS  2
 
-typedef struct {
+struct ngx_http_gzip_static_conf_t {
 	ngx_uint_t enable;
-} ngx_http_gzip_static_conf_t;
+};
 
 static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r);
 static void * ngx_http_gzip_static_create_conf(ngx_conf_t * cf);
-static char * ngx_http_gzip_static_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_http_gzip_static_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_gzip_static_init(ngx_conf_t * cf);
 
 static ngx_conf_enum_t ngx_http_gzip_static[] = {
@@ -29,13 +28,8 @@ static ngx_conf_enum_t ngx_http_gzip_static[] = {
 };
 
 static ngx_command_t ngx_http_gzip_static_commands[] = {
-	{ ngx_string("gzip_static"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_enum_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_gzip_static_conf_t, enable),
-	  &ngx_http_gzip_static },
-
+	{ ngx_string("gzip_static"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_enum_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_gzip_static_conf_t, enable), &ngx_http_gzip_static },
 	ngx_null_command
 };
 

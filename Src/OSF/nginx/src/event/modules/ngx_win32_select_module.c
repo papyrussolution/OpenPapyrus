@@ -12,7 +12,7 @@ static void ngx_select_done(ngx_cycle_t * cycle);
 static ngx_int_t ngx_select_add_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags);
 static ngx_int_t ngx_select_del_event(ngx_event_t * ev, ngx_int_t event, ngx_uint_t flags);
 static ngx_int_t ngx_select_process_events(ngx_cycle_t * cycle, ngx_msec_t timer, ngx_uint_t flags);
-static char * ngx_select_init_conf(ngx_cycle_t * cycle, void * conf);
+static const char * ngx_select_init_conf(ngx_cycle_t * cycle, void * conf);
 
 struct NgxWin32SelectModuleBlock {
 	fd_set master_read_fd_set;
@@ -276,7 +276,7 @@ static ngx_int_t ngx_select_process_events(ngx_cycle_t * cycle, ngx_msec_t timer
 	}
 }
 
-static char * ngx_select_init_conf(ngx_cycle_t * cycle, void * conf)
+static const char * ngx_select_init_conf(ngx_cycle_t * cycle, void * conf)
 {
 	ngx_event_conf_t * ecf = (ngx_event_conf_t*)ngx_event_get_conf(cycle->conf_ctx, ngx_event_core_module);
 	if(ecf->use != ngx_select_module.ctx_index) {

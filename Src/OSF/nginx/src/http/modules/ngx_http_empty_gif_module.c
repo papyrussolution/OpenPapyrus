@@ -7,16 +7,10 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static char * ngx_http_empty_gif(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_empty_gif(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_empty_gif_commands[] = {
-	{ ngx_string("empty_gif"),
-	  NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
-	  ngx_http_empty_gif,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("empty_gif"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, ngx_http_empty_gif, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -112,10 +106,9 @@ static ngx_int_t ngx_http_empty_gif_handler(ngx_http_request_t * r)
 	return ngx_http_send_response(r, NGX_HTTP_OK, &ngx_http_gif_type, &cv);
 }
 
-static char * ngx_http_empty_gif(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_empty_gif(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t*)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 	clcf->F_HttpHandler = ngx_http_empty_gif_handler;
 	return NGX_CONF_OK;
 }
-

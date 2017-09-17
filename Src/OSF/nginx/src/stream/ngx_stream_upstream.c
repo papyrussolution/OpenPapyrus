@@ -5,14 +5,14 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 static ngx_int_t ngx_stream_upstream_add_variables(ngx_conf_t * cf);
 static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data);
-static char * ngx_stream_upstream(ngx_conf_t * cf, ngx_command_t * cmd, void * dummy);
-static char * ngx_stream_upstream_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_upstream(ngx_conf_t * cf, const ngx_command_t * cmd, void * dummy); // F_SetHandler
+static const char * ngx_stream_upstream_server(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_stream_upstream_create_main_conf(ngx_conf_t * cf);
 static char * ngx_stream_upstream_init_main_conf(ngx_conf_t * cf, void * conf);
 
@@ -197,7 +197,7 @@ next:
 	return NGX_OK;
 }
 
-static char * ngx_stream_upstream(ngx_conf_t * cf, ngx_command_t * cmd, void * dummy)
+static const char * ngx_stream_upstream(ngx_conf_t * cf, const ngx_command_t * cmd, void * dummy) // F_SetHandler
 {
 	char   * rv;
 	void   * mconf;
@@ -264,7 +264,7 @@ static char * ngx_stream_upstream(ngx_conf_t * cf, ngx_command_t * cmd, void * d
 	return rv;
 }
 
-static char * ngx_stream_upstream_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_upstream_server(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_upstream_srv_conf_t  * uscf = (ngx_stream_upstream_srv_conf_t *)conf;
 	time_t fail_timeout;
@@ -325,14 +325,14 @@ static char * ngx_stream_upstream_server(ngx_conf_t * cf, ngx_command_t * cmd, v
 			}
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "backup") == 0) {
+		if(sstreq(value[i].data, "backup")) {
 			if(!(uscf->flags & NGX_STREAM_UPSTREAM_BACKUP)) {
 				goto not_supported;
 			}
 			us->backup = 1;
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "down") == 0) {
+		if(sstreq(value[i].data, "down")) {
 			if(!(uscf->flags & NGX_STREAM_UPSTREAM_DOWN)) {
 				goto not_supported;
 			}

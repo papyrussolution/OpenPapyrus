@@ -40,8 +40,8 @@ static void ngx_http_limit_conn_cleanup(void * data);
 static ngx_inline void ngx_http_limit_conn_cleanup_all(ngx_pool_t * pool);
 static void * ngx_http_limit_conn_create_conf(ngx_conf_t * cf);
 static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_limit_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_limit_conn_init(ngx_conf_t * cf);
 
 static ngx_conf_enum_t ngx_http_limit_conn_log_levels[] = {
@@ -57,34 +57,14 @@ static ngx_conf_num_bounds_t ngx_http_limit_conn_status_bounds = {
 };
 
 static ngx_command_t ngx_http_limit_conn_commands[] = {
-	{ ngx_string("limit_conn_zone"),
-	  NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE2,
-	  ngx_http_limit_conn_zone,
-	  0,
-	  0,
-	  NULL },
-
-	{ ngx_string("limit_conn"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
-	  ngx_http_limit_conn,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("limit_conn_log_level"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_enum_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_limit_conn_conf_t, log_level),
-	  &ngx_http_limit_conn_log_levels },
-
-	{ ngx_string("limit_conn_status"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_limit_conn_conf_t, status_code),
-	  &ngx_http_limit_conn_status_bounds },
-
+	{ ngx_string("limit_conn_zone"), NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE2,
+	  ngx_http_limit_conn_zone, 0, 0, NULL },
+	{ ngx_string("limit_conn"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
+	  ngx_http_limit_conn, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("limit_conn_log_level"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_enum_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_limit_conn_conf_t, log_level), &ngx_http_limit_conn_log_levels },
+	{ ngx_string("limit_conn_status"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_limit_conn_conf_t, status_code), &ngx_http_limit_conn_status_bounds },
 	ngx_null_command
 };
 
@@ -286,14 +266,10 @@ static ngx_int_t ngx_http_limit_conn_init_zone(ngx_shm_zone_t * shm_zone, void *
 	ngx_http_limit_conn_ctx_t * ctx = (ngx_http_limit_conn_ctx_t *)shm_zone->data;
 	if(octx) {
 		if(ctx->key.value.len != octx->key.value.len || ngx_strncmp(ctx->key.value.data, octx->key.value.data, ctx->key.value.len) != 0) {
-			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0,
-			    "limit_conn_zone \"%V\" uses the \"%V\" key "
-			    "while previously it used the \"%V\" key",
-			    &shm_zone->shm.name, &ctx->key.value,
-			    &octx->key.value);
+			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0, "limit_conn_zone \"%V\" uses the \"%V\" key while previously it used the \"%V\" key",
+			    &shm_zone->shm.name, &ctx->key.value, &octx->key.value);
 			return NGX_ERROR;
 		}
-
 		ctx->rbtree = octx->rbtree;
 		return NGX_OK;
 	}
@@ -348,7 +324,7 @@ static char * ngx_http_limit_conn_merge_conf(ngx_conf_t * cf, void * parent, voi
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	u_char   * p;
 	ssize_t size;
@@ -397,7 +373,7 @@ static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 		return NGX_CONF_ERROR;
 	}
 	if(name.len == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"zone\" parameter", &cmd->name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"zone\" parameter", &cmd->Name);
 		return NGX_CONF_ERROR;
 	}
 	shm_zone = ngx_shared_memory_add(cf, &name, size, &ngx_http_limit_conn_module);
@@ -406,7 +382,7 @@ static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	}
 	if(shm_zone->data) {
 		ctx = (ngx_http_limit_conn_ctx_t *)shm_zone->data;
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V \"%V\" is already bound to key \"%V\"", &cmd->name, &name, &ctx->key.value);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V \"%V\" is already bound to key \"%V\"", &cmd->Name, &name, &ctx->key.value);
 		return NGX_CONF_ERROR;
 	}
 	shm_zone->F_Init = ngx_http_limit_conn_init_zone;
@@ -414,7 +390,7 @@ static char * ngx_http_limit_conn_zone(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_limit_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_limit_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_shm_zone_t * shm_zone;
 	ngx_http_limit_conn_conf_t * lccf = (ngx_http_limit_conn_conf_t *)conf;

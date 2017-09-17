@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <nginx.h>
+//#include <nginx.h>
 
 ngx_uint_t ngx_win32_version;
 ngx_uint_t ngx_ncpu;

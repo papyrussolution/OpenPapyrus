@@ -7,7 +7,7 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static char * ngx_http_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_upstream_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * data);
 static ngx_http_upstream_rr_peers_t * ngx_http_upstream_zone_copy_peers(ngx_slab_pool_t * shpool, ngx_http_upstream_srv_conf_t * uscf);
 
@@ -42,7 +42,7 @@ ngx_module_t ngx_http_upstream_zone_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static char * ngx_http_upstream_zone(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_upstream_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ssize_t size;
 	ngx_http_upstream_srv_conf_t * uscf = (ngx_http_upstream_srv_conf_t *)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);

@@ -72,7 +72,7 @@ void ngx_cpuinfo(void)
 		return;
 	}
 	ngx_cpuid(1, cpu);
-	if(ngx_strcmp(vendor, "GenuineIntel") == 0) {
+	if(sstreq(vendor, "GenuineIntel")) {
 		switch((cpu[0] & 0xf00) >> 8) {
 			/* Pentium */
 			case 5:
@@ -96,7 +96,7 @@ void ngx_cpuinfo(void)
 			    break;
 		}
 	}
-	else if(ngx_strcmp(vendor, "AuthenticAMD") == 0) {
+	else if(sstreq(vendor, "AuthenticAMD")) {
 		ngx_cacheline_size = 64;
 	}
 }

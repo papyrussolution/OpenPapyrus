@@ -10,32 +10,19 @@
 typedef struct {
 	/* the round robin data must be first */
 	ngx_http_upstream_rr_peer_data_t rrp;
-
 	ngx_uint_t hash;
-
 	u_char addrlen;
 	u_char   * addr;
-
 	u_char tries;
-
 	ngx_event_get_peer_pt get_rr_peer;
 } ngx_http_upstream_ip_hash_peer_data_t;
 
-static ngx_int_t ngx_http_upstream_init_ip_hash_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us);
-static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc,
-    void * data);
-static char * ngx_http_upstream_ip_hash(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static ngx_int_t ngx_http_upstream_init_ip_hash_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, void * data);
+static const char * ngx_http_upstream_ip_hash(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_upstream_ip_hash_commands[] = {
-	{ ngx_string("ip_hash"),
-	  NGX_HTTP_UPS_CONF|NGX_CONF_NOARGS,
-	  ngx_http_upstream_ip_hash,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("ip_hash"), NGX_HTTP_UPS_CONF|NGX_CONF_NOARGS, ngx_http_upstream_ip_hash, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -181,47 +168,29 @@ next:
 			return iphp->get_rr_peer(pc, &iphp->rrp);
 		}
 	}
-
 	iphp->rrp.current = peer;
-
 	pc->sockaddr = peer->sockaddr;
 	pc->socklen = peer->socklen;
 	pc->name = &peer->name;
-
 	peer->conns++;
-
 	if(now - peer->checked > peer->fail_timeout) {
 		peer->checked = now;
 	}
-
 	ngx_http_upstream_rr_peers_unlock(iphp->rrp.peers);
-
 	iphp->rrp.tried[n] |= m;
 	iphp->hash = hash;
-
 	return NGX_OK;
 }
 
-static char * ngx_http_upstream_ip_hash(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_upstream_ip_hash(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_upstream_srv_conf_t  * uscf;
-
 	uscf = (ngx_http_upstream_srv_conf_t*)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
-
 	if(uscf->peer.init_upstream) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "load balancing method redefined");
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "load balancing method redefined");
 	}
-
 	uscf->peer.init_upstream = ngx_http_upstream_init_ip_hash;
-
-	uscf->flags = NGX_HTTP_UPSTREAM_CREATE
-	    |NGX_HTTP_UPSTREAM_WEIGHT
-	    |NGX_HTTP_UPSTREAM_MAX_CONNS
-	    |NGX_HTTP_UPSTREAM_MAX_FAILS
-	    |NGX_HTTP_UPSTREAM_FAIL_TIMEOUT
-	    |NGX_HTTP_UPSTREAM_DOWN;
-
+	uscf->flags = NGX_HTTP_UPSTREAM_CREATE|NGX_HTTP_UPSTREAM_WEIGHT|NGX_HTTP_UPSTREAM_MAX_CONNS|NGX_HTTP_UPSTREAM_MAX_FAILS|NGX_HTTP_UPSTREAM_FAIL_TIMEOUT|NGX_HTTP_UPSTREAM_DOWN;
 	return NGX_CONF_OK;
 }
 

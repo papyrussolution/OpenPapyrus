@@ -8,15 +8,13 @@
 //#include <ngx_http.h>
 
 #if 0
-
-typedef struct {
+struct ngx_http_autoindex_ctx_t {
 	ngx_buf_t   * buf;
 	size_t size;
 	ngx_pool_t  * pool;
 	size_t alloc_size;
 	ngx_chain_t  ** last_out;
-} ngx_http_autoindex_ctx_t;
-
+};
 #endif
 
 struct ngx_http_autoindex_entry_t {
@@ -149,7 +147,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	}
 	if(ngx_open_dir(&path, &dir) == NGX_ERROR) {
 		err = ngx_errno;
-		if(err == NGX_ENOENT || err == NGX_ENOTDIR || err == NGX_ENAMETOOLONG) {
+		if(oneof3(err, NGX_ENOENT, NGX_ENOTDIR, NGX_ENAMETOOLONG)) {
 			level = NGX_LOG_ERR;
 			rc = NGX_HTTP_NOT_FOUND;
 		}
@@ -264,18 +262,10 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 		ngx_qsort(entries.elts, (size_t)entries.nelts, sizeof(ngx_http_autoindex_entry_t), ngx_http_autoindex_cmp_entries);
 	}
 	switch(format) {
-		case NGX_HTTP_AUTOINDEX_JSON:
-		    b = ngx_http_autoindex_json(r, &entries, NULL);
-		    break;
-		case NGX_HTTP_AUTOINDEX_JSONP:
-		    b = ngx_http_autoindex_json(r, &entries, &callback);
-		    break;
-		case NGX_HTTP_AUTOINDEX_XML:
-		    b = ngx_http_autoindex_xml(r, &entries);
-		    break;
-		default: /* NGX_HTTP_AUTOINDEX_HTML */
-		    b = ngx_http_autoindex_html(r, &entries);
-		    break;
+		case NGX_HTTP_AUTOINDEX_JSON: b = ngx_http_autoindex_json(r, &entries, NULL); break;
+		case NGX_HTTP_AUTOINDEX_JSONP: b = ngx_http_autoindex_json(r, &entries, &callback); break;
+		case NGX_HTTP_AUTOINDEX_XML: b = ngx_http_autoindex_xml(r, &entries); break;
+		default: b = ngx_http_autoindex_html(r, &entries); break; // NGX_HTTP_AUTOINDEX_HTML 
 	}
 	if(b == NULL) {
 		return NGX_ERROR;
@@ -420,7 +410,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 			}
 			b->last = ngx_cpymem(b->last, "</a>", sizeof("</a>") - 1);
 			if(NGX_HTTP_AUTOINDEX_NAME_LEN - len > 0) {
-				ngx_memset(b->last, ' ', NGX_HTTP_AUTOINDEX_NAME_LEN - len);
+				memset(b->last, ' ', NGX_HTTP_AUTOINDEX_NAME_LEN - len);
 				b->last += NGX_HTTP_AUTOINDEX_NAME_LEN - len;
 			}
 		}
@@ -444,8 +434,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 				length = entry[i].size;
 				if(length > 1024 * 1024 * 1024 - 1) {
 					size = (ngx_int_t)(length / (1024 * 1024 * 1024));
-					if((length % (1024 * 1024 * 1024))
-					    > (1024 * 1024 * 1024 / 2 - 1)) {
+					if((length % (1024 * 1024 * 1024)) > (1024 * 1024 * 1024 / 2 - 1)) {
 						size++;
 					}
 					scale = 'G';
@@ -642,17 +631,14 @@ static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * 
 
 static int ngx_libc_cdecl ngx_http_autoindex_cmp_entries(const void * one, const void * two)
 {
-	ngx_http_autoindex_entry_t * first = (ngx_http_autoindex_entry_t*)one;
-	ngx_http_autoindex_entry_t * second = (ngx_http_autoindex_entry_t*)two;
-	if(first->dir && !second->dir) {
-		/* move the directories to the start */
-		return -1;
-	}
-	if(!first->dir && second->dir) {
-		/* move the directories to the start */
-		return 1;
-	}
-	return (int)ngx_strcmp(first->name.data, second->name.data);
+	const ngx_http_autoindex_entry_t * first = (const ngx_http_autoindex_entry_t *)one;
+	const ngx_http_autoindex_entry_t * second = (const ngx_http_autoindex_entry_t *)two;
+	if(first->dir && !second->dir)
+		return -1; // move the directories to the start 
+	else if(!first->dir && second->dir)
+		return 1; // move the directories to the start 
+	else 
+		return (int)ngx_strcmp(first->name.data, second->name.data);
 }
 
 #if 0
@@ -705,7 +691,7 @@ static void * ngx_http_autoindex_create_loc_conf(ngx_conf_t * cf)
 
 static char * ngx_http_autoindex_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child)
 {
-	ngx_http_autoindex_loc_conf_t * prev = (ngx_http_autoindex_loc_conf_t *)parent;
+	const ngx_http_autoindex_loc_conf_t * prev = (const ngx_http_autoindex_loc_conf_t *)parent;
 	ngx_http_autoindex_loc_conf_t * conf = (ngx_http_autoindex_loc_conf_t *)child;
 	ngx_conf_merge_value(conf->enable, prev->enable, 0);
 	ngx_conf_merge_uint_value(conf->format, prev->format, NGX_HTTP_AUTOINDEX_HTML);

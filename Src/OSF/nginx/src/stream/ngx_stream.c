@@ -6,9 +6,9 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
-static char * ngx_stream_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_stream_init_phases(ngx_conf_t * cf, ngx_stream_core_main_conf_t * cmcf);
 static ngx_int_t ngx_stream_init_phase_handlers(ngx_conf_t * cf, ngx_stream_core_main_conf_t * cmcf);
 static ngx_int_t ngx_stream_add_ports(ngx_conf_t * cf, ngx_array_t * ports, ngx_stream_listen_t * listen);
@@ -48,7 +48,7 @@ ngx_module_t ngx_stream_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static char * ngx_stream_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * rv;
 	ngx_uint_t i, m, mi, s;

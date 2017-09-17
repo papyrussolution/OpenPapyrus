@@ -61,13 +61,10 @@ static ngx_int_t ngx_http_file_cache_init(ngx_shm_zone_t * shm_zone, void * data
 	ngx_http_file_cache_t  * cache = (ngx_http_file_cache_t *)shm_zone->data;
 	if(ocache) {
 		if(ngx_strcmp(cache->path->name.data, ocache->path->name.data) != 0) {
-			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0,
-			    "cache \"%V\" uses the \"%V\" cache path while previously it used the \"%V\" cache path",
+			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0, "cache \"%V\" uses the \"%V\" cache path while previously it used the \"%V\" cache path",
 			    &shm_zone->shm.name, &cache->path->name, &ocache->path->name);
-
 			return NGX_ERROR;
 		}
-
 		for(n = 0; n < NGX_MAX_PATH_LEVEL; n++) {
 			if(cache->path->level[n] != ocache->path->level[n]) {
 				ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0, "cache \"%V\" had previously different levels", &shm_zone->shm.name);
@@ -388,15 +385,12 @@ static ngx_int_t ngx_http_file_cache_read(ngx_http_request_t * r, ngx_http_cache
 	}
 	if(h->vary_len) {
 		ngx_http_file_cache_vary(r, h->vary, h->vary_len, c->variant);
-
 		if(memcmp(c->variant, h->variant, NGX_HTTP_CACHE_KEY_LEN) != 0) {
 			ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache vary mismatch");
 			return ngx_http_file_cache_reopen(r, c);
 		}
 	}
-
 	c->buf->last += n;
-
 	c->valid_sec = h->valid_sec;
 	c->updating_sec = h->updating_sec;
 	c->error_sec = h->error_sec;
@@ -445,51 +439,34 @@ static ssize_t ngx_http_file_cache_aio_read(ngx_http_request_t * r, ngx_http_cac
 {
 #if (NGX_HAVE_FILE_AIO || NGX_THREADS)
 	ssize_t n;
-	ngx_http_core_loc_conf_t  * clcf;
-
-	clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
+	ngx_http_core_loc_conf_t  * clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 #endif
-
 #if (NGX_HAVE_FILE_AIO)
-
 	if(clcf->aio == NGX_HTTP_AIO_ON && ngx_file_aio) {
 		n = ngx_file_aio_read(&c->file, c->buf->pos, c->body_start, 0, r->pool);
-
 		if(n != NGX_AGAIN) {
 			c->reading = 0;
 			return n;
 		}
-
 		c->reading = 1;
-
 		c->file.aio->data = r;
 		c->file.aio->handler = ngx_http_cache_aio_event_handler;
-
 		r->main->blocked++;
 		r->aio = 1;
-
 		return NGX_AGAIN;
 	}
-
 #endif
-
 #if (NGX_THREADS)
-
 	if(clcf->aio == NGX_HTTP_AIO_THREADS) {
 		c->file.thread_task = c->thread_task;
 		c->file.thread_handler = ngx_http_cache_thread_handler;
 		c->file.thread_ctx = r;
-
 		n = ngx_thread_read(&c->file, c->buf->pos, c->body_start, 0, r->pool);
-
 		c->thread_task = c->file.thread_task;
 		c->reading = (n == NGX_AGAIN);
-
 		return n;
 	}
-
 #endif
-
 	return ngx_read_file(&c->file, c->buf->pos, c->body_start, 0);
 }
 
@@ -533,26 +510,20 @@ static ngx_int_t ngx_http_cache_thread_handler(ngx_thread_task_t * task, ngx_fil
 			return NGX_ERROR;
 		}
 	}
-
 	task->event.data = r;
 	task->event.handler = ngx_http_cache_thread_event_handler;
-
 	if(ngx_thread_task_post(tp, task) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	r->main->blocked++;
 	r->aio = 1;
-
 	return NGX_OK;
 }
 
 static void ngx_http_cache_thread_event_handler(ngx_event_t * ev)
 {
-	ngx_connection_t  * c;
-	ngx_http_request_t  * r;
-	r = ev->data;
-	c = r->connection;
+	ngx_http_request_t  * r = ev->data;
+	ngx_connection_t * c = r->connection;
 	ngx_http_set_log_request(c->log, r);
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http file cache thread: \"%V?%V\"", &r->uri, &r->args);
 	r->main->blocked--;
@@ -969,7 +940,7 @@ void ngx_http_file_cache_update_header(ngx_http_request_t * r)
 	ngx_err_t err;
 	ngx_file_t file;
 	ngx_file_info_t fi;
-	ngx_http_cache_t    * c;
+	ngx_http_cache_t * c;
 	ngx_http_file_cache_header_t h;
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http file cache update header");
 	c = r->cache;
@@ -1481,8 +1452,7 @@ static ngx_int_t ngx_http_file_cache_add(ngx_http_file_cache_t * cache, ngx_http
 	ngx_shmtx_lock(&cache->shpool->mutex);
 	fcn = ngx_http_file_cache_lookup(cache, c->key);
 	if(fcn == NULL) {
-		fcn = (ngx_http_file_cache_node_t *)ngx_slab_calloc_locked(cache->shpool,
-		    sizeof(ngx_http_file_cache_node_t));
+		fcn = (ngx_http_file_cache_node_t *)ngx_slab_calloc_locked(cache->shpool, sizeof(ngx_http_file_cache_node_t));
 		if(fcn == NULL) {
 			ngx_http_file_cache_set_watermark(cache);
 			if(cache->fail_time != ngx_time()) {
@@ -1527,24 +1497,21 @@ static void ngx_http_file_cache_set_watermark(ngx_http_file_cache_t * cache)
 
 time_t ngx_http_file_cache_valid(ngx_array_t * cache_valid, ngx_uint_t status)
 {
-	ngx_uint_t i;
-	ngx_http_cache_valid_t  * valid;
-	if(cache_valid == NULL) {
-		return 0;
-	}
-	valid = (ngx_http_cache_valid_t *)cache_valid->elts;
-	for(i = 0; i < cache_valid->nelts; i++) {
-		if(valid[i].status == 0) {
-			return valid[i].valid;
-		}
-		if(valid[i].status == status) {
-			return valid[i].valid;
+	if(cache_valid) {
+		const ngx_http_cache_valid_t * valid = (ngx_http_cache_valid_t *)cache_valid->elts;
+		for(ngx_uint_t i = 0; i < cache_valid->nelts; i++) {
+			if(valid[i].status == 0) {
+				return valid[i].valid;
+			}
+			if(valid[i].status == status) {
+				return valid[i].valid;
+			}
 		}
 	}
 	return 0;
 }
 
-char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_http_file_cache_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * confp = (char *)conf;
 	nginx_off_t max_size;
@@ -1609,7 +1576,7 @@ invalid_levels:
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid \"levels\" \"%V\"", &value[i]);
 			return NGX_CONF_ERROR;
 		}
-		if(ngx_strncmp(value[i].data, "use_temp_path=", 14) == 0) {
+		else if(ngx_strncmp(value[i].data, "use_temp_path=", 14) == 0) {
 			if(ngx_strcmp(&value[i].data[14], "on") == 0) {
 				use_temp_path = 1;
 			}
@@ -1620,9 +1587,8 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid use_temp_path value \"%V\", it must be \"on\" or \"off\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "keys_zone=", 10) == 0) {
+		else if(ngx_strncmp(value[i].data, "keys_zone=", 10) == 0) {
 			name.data = value[i].data + 10;
 			p = (u_char*)ngx_strchr(name.data, ':');
 			if(p) {
@@ -1638,7 +1604,7 @@ invalid_levels:
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid keys zone size \"%V\"", &value[i]);
 			return NGX_CONF_ERROR;
 		}
-		if(ngx_strncmp(value[i].data, "inactive=", 9) == 0) {
+		else if(ngx_strncmp(value[i].data, "inactive=", 9) == 0) {
 			s.len = value[i].len - 9;
 			s.data = value[i].data + 9;
 			inactive = ngx_parse_time(&s, 1);
@@ -1646,9 +1612,8 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid inactive value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "max_size=", 9) == 0) {
+		else if(ngx_strncmp(value[i].data, "max_size=", 9) == 0) {
 			s.len = value[i].len - 9;
 			s.data = value[i].data + 9;
 			max_size = ngx_parse_offset(&s);
@@ -1656,17 +1621,15 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid max_size value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "loader_files=", 13) == 0) {
+		else if(ngx_strncmp(value[i].data, "loader_files=", 13) == 0) {
 			loader_files = ngx_atoi(value[i].data + 13, value[i].len - 13);
 			if(loader_files == NGX_ERROR) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid loader_files value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "loader_sleep=", 13) == 0) {
+		else if(ngx_strncmp(value[i].data, "loader_sleep=", 13) == 0) {
 			s.len = value[i].len - 13;
 			s.data = value[i].data + 13;
 			loader_sleep = ngx_parse_time(&s, 0);
@@ -1674,9 +1637,8 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid loader_sleep value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "loader_threshold=", 17) == 0) {
+		else if(ngx_strncmp(value[i].data, "loader_threshold=", 17) == 0) {
 			s.len = value[i].len - 17;
 			s.data = value[i].data + 17;
 			loader_threshold = ngx_parse_time(&s, 0);
@@ -1684,17 +1646,15 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid loader_threshold value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "manager_files=", 14) == 0) {
+		else if(ngx_strncmp(value[i].data, "manager_files=", 14) == 0) {
 			manager_files = ngx_atoi(value[i].data + 14, value[i].len - 14);
 			if(manager_files == NGX_ERROR) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid manager_files value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "manager_sleep=", 14) == 0) {
+		else if(ngx_strncmp(value[i].data, "manager_sleep=", 14) == 0) {
 			s.len = value[i].len - 14;
 			s.data = value[i].data + 14;
 			manager_sleep = ngx_parse_time(&s, 0);
@@ -1702,9 +1662,8 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid manager_sleep value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		if(ngx_strncmp(value[i].data, "manager_threshold=", 18) == 0) {
+		else if(ngx_strncmp(value[i].data, "manager_threshold=", 18) == 0) {
 			s.len = value[i].len - 18;
 			s.data = value[i].data + 18;
 			manager_threshold = ngx_parse_time(&s, 0);
@@ -1712,13 +1671,14 @@ invalid_levels:
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid manager_threshold value \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-			continue;
 		}
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
-		return NGX_CONF_ERROR;
+		else {
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[i]);
+			return NGX_CONF_ERROR;
+		}
 	}
 	if(name.len == 0 || size == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"keys_zone\" parameter", &cmd->name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%V\" must have \"keys_zone\" parameter", &cmd->Name);
 		return NGX_CONF_ERROR;
 	}
 	cache->path->manager = ngx_http_file_cache_manager;
@@ -1735,7 +1695,7 @@ invalid_levels:
 	if(ngx_add_path(cf, &cache->path) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	cache->shm_zone = ngx_shared_memory_add(cf, &name, size, cmd->post);
+	cache->shm_zone = ngx_shared_memory_add(cf, &name, size, cmd->P_Post);
 	if(cache->shm_zone == NULL) {
 		return NGX_CONF_ERROR;
 	}
@@ -1757,7 +1717,7 @@ invalid_levels:
 	return NGX_CONF_OK;
 }
 
-char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * p = (char *)conf;
 	time_t valid;

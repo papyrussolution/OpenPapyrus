@@ -30,8 +30,8 @@ struct ngx_http_realip_ctx_t {
 static ngx_int_t ngx_http_realip_handler(ngx_http_request_t * r);
 static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * addr);
 static void ngx_http_realip_cleanup(void * data);
-static char * ngx_http_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_realip(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_realip_from(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_realip(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_http_realip_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_realip_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_realip_add_variables(ngx_conf_t * cf);
@@ -207,7 +207,7 @@ static void ngx_http_realip_cleanup(void * data)
 	c->addr_text = ctx->addr_text;
 }
 
-static char * ngx_http_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_realip_from(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_realip_loc_conf_t * rlcf = (ngx_http_realip_loc_conf_t *)conf;
 	ngx_int_t rc;
@@ -269,7 +269,7 @@ static char * ngx_http_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 			case AF_INET6:
 			    sin6 = (struct sockaddr_in6*)u.addrs[i].sockaddr;
 			    cidr[i].u.in6.addr = sin6->sin6_addr;
-			    ngx_memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
+			    memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
 			    break;
 #endif
 			default: /* AF_INET */
@@ -282,7 +282,7 @@ static char * ngx_http_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_realip(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_realip(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_realip_loc_conf_t * rlcf = (ngx_http_realip_loc_conf_t *)conf;
 	if(rlcf->type != NGX_CONF_UNSET_UINT) {

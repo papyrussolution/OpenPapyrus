@@ -50,15 +50,15 @@ ngx_int_t ngx_accept_disabled; // @global
 	ngx_atomic_t * ngx_stat_waiting = &ngx_stat_waiting0;
 #endif
 
-static char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf);
+static const char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf);
 static ngx_int_t ngx_event_module_init(ngx_cycle_t * cycle);
 static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle);
-static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_connections(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_events_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_event_connections(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_event_use(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_event_debug_connection(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_event_core_create_conf(ngx_cycle_t * cycle);
-static char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf);
+static const char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf);
 
 static ngx_command_t ngx_events_commands[] = {
 	{ ngx_string("events"), NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS, ngx_events_block, 0, 0, NULL },
@@ -297,7 +297,7 @@ ngx_int_t FASTCALL ngx_handle_write_event(ngx_event_t * wev, size_t lowat)
 	//return NGX_OK;
 }
 
-static char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf)
+static const char * ngx_event_init_conf(ngx_cycle_t * cycle, void * conf)
 {
 	if(ngx_get_conf(cycle->conf_ctx, ngx_events_module) == NULL) {
 		ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "no \"events\" section in configuration");
@@ -618,9 +618,9 @@ ngx_int_t ngx_send_lowat(ngx_connection_t * c, size_t lowat)
 	return NGX_OK;
 }
 
-static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_events_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char * rv;
+	const char * rv;
 	void *** ctx;
 	ngx_uint_t i;
 	ngx_conf_t pcf;
@@ -662,8 +662,8 @@ static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 		for(i = 0; cf->cycle->modules[i]; i++) {
 			if(cf->cycle->modules[i]->type == NGX_EVENT_MODULE) {
 				ngx_event_module_t * m = (ngx_event_module_t*)cf->cycle->modules[i]->ctx;
-				if(m->init_conf) {
-					rv = m->init_conf(cf->cycle, (*ctx)[cf->cycle->modules[i]->ctx_index]);
+				if(m->F_InitConf) {
+					rv = m->F_InitConf(cf->cycle, (*ctx)[cf->cycle->modules[i]->ctx_index]);
 					if(rv != NGX_CONF_OK) {
 						return rv;
 					}
@@ -674,7 +674,7 @@ static char * ngx_events_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 	}
 }
 
-static char * ngx_event_connections(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_event_connections(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_event_conf_t * ecf = (ngx_event_conf_t *)conf;
 	if(ecf->connections != NGX_CONF_UNSET_UINT) {
@@ -694,7 +694,7 @@ static char * ngx_event_connections(ngx_conf_t * cf, ngx_command_t * cmd, void *
 	}
 }
 
-static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_event_use(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_event_conf_t  * ecf = (ngx_event_conf_t *)conf;
 	if(ecf->use != NGX_CONF_UNSET_UINT) {
@@ -709,7 +709,7 @@ static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 			if(cf->cycle->modules[m]->type == NGX_EVENT_MODULE) {
 				ngx_event_module_t * module = (ngx_event_module_t*)cf->cycle->modules[m]->ctx;
 				if(module->name->len == value[1].len) {
-					if(ngx_strcmp(module->name->data, value[1].data) == 0) {
+					if(sstreq(module->name->data, value[1].data)) {
 						ecf->use = cf->cycle->modules[m]->ctx_index;
 						ecf->name = module->name->data;
 						if(ngx_process == NGX_PROCESS_SINGLE && old_ecf && old_ecf->use != ecf->use) {
@@ -731,7 +731,7 @@ static char * ngx_event_use(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	}
 }
 
-static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_event_debug_connection(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #if (NGX_DEBUG)
 	ngx_event_conf_t * ecf = (ngx_event_conf_t *)conf;
@@ -746,7 +746,7 @@ static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, v
 #endif
 	value = (ngx_str_t *)cf->args->elts;
 #if (NGX_HAVE_UNIX_DOMAIN)
-	if(ngx_strcmp(value[1].data, "unix:") == 0) {
+	if(sstreq(value[1].data, "unix:")) {
 		cidr = ngx_array_push(&ecf->debug_connection);
 		if(cidr == NULL) {
 			return NGX_CONF_ERROR;
@@ -787,7 +787,7 @@ static char * ngx_event_debug_connection(ngx_conf_t * cf, ngx_command_t * cmd, v
 			case AF_INET6:
 			    sin6 = (struct sockaddr_in6*)u.addrs[i].sockaddr;
 			    cidr[i].u.in6.addr = sin6->sin6_addr;
-			    ngx_memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
+			    memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
 			    break;
 #endif
 			default: /* AF_INET */
@@ -822,7 +822,7 @@ static void * ngx_event_core_create_conf(ngx_cycle_t * cycle)
 	return ecf;
 }
 
-static char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf)
+static const char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf)
 {
 	ngx_event_conf_t  * ecf = (ngx_event_conf_t *)conf;
 #if (NGX_HAVE_EPOLL) && !(NGX_TEST_BUILD_EPOLL)
@@ -856,7 +856,7 @@ static char * ngx_event_core_init_conf(ngx_cycle_t * cycle, void * conf)
 		for(i = 0; cycle->modules[i]; i++) {
 			if(cycle->modules[i]->type == NGX_EVENT_MODULE) {
 				event_module = (ngx_event_module_t*)cycle->modules[i]->ctx;
-				if(ngx_strcmp(event_module->name->data, event_core_name.data) != 0) {
+				if(!sstreq(event_module->name->data, event_core_name.data)) {
 					module = cycle->modules[i];
 					break;
 				}

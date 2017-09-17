@@ -56,38 +56,18 @@ static ngx_int_t ngx_mail_auth_http_escape(ngx_pool_t * pool, ngx_str_t * text, 
 
 static void * ngx_mail_auth_http_create_conf(ngx_conf_t * cf);
 static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_mail_auth_http(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_mail_auth_http_header(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_mail_auth_http(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_mail_auth_http_header(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_mail_auth_http_commands[] = {
-	{ ngx_string("auth_http"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_mail_auth_http,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("auth_http_timeout"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_msec_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_auth_http_conf_t, timeout),
-	  NULL },
-
-	{ ngx_string("auth_http_header"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE2,
-	  ngx_mail_auth_http_header,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("auth_http_pass_client_cert"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_auth_http_conf_t, pass_client_cert),
-	  NULL },
-
+	{ ngx_string("auth_http"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_mail_auth_http, NGX_MAIL_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("auth_http_timeout"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_msec_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_auth_http_conf_t, timeout), NULL },
+	{ ngx_string("auth_http_header"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE2,
+	  ngx_mail_auth_http_header, NGX_MAIL_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("auth_http_pass_client_cert"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_auth_http_conf_t, pass_client_cert), NULL },
 	ngx_null_command
 };
 
@@ -1084,7 +1064,7 @@ static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void
 	return NGX_CONF_OK;
 }
 
-static char * ngx_mail_auth_http(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_mail_auth_http(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_mail_auth_http_conf_t * ahcf = (ngx_mail_auth_http_conf_t *)conf;
 	ngx_url_t u;
@@ -1117,7 +1097,7 @@ static char * ngx_mail_auth_http(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 	return NGX_CONF_OK;
 }
 
-static char * ngx_mail_auth_http_header(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_mail_auth_http_header(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_mail_auth_http_conf_t * ahcf = (ngx_mail_auth_http_conf_t *)conf;
 	ngx_str_t * value;

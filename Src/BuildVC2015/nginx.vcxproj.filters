@@ -63,9 +63,6 @@
     <ClCompile Include="..\Osf\nginx\src\os\win32\ngx_event_log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Osf\nginx\src\event\ngx_event_openssl.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Osf\nginx\src\event\ngx_event_openssl_stapling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -534,6 +531,9 @@
     <ClCompile Include="..\OSF\nginx\src\event\ngx_event_timer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\nginx\src\event\ngx_event_openssl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\nginx\src\include\nginx.h">
@@ -549,9 +549,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_event_openssl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h">
@@ -596,37 +593,7 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_md5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_open_file_cache.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_rbtree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_script.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_ssl_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_upstream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_upstream_round_robin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_stream_variables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_times.h">

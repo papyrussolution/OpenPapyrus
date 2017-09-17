@@ -91,106 +91,70 @@ static ngx_int_t ngx_http_slice_header_filter(ngx_http_request_t * r)
 	nginx_off_t end;
 	ngx_int_t rc;
 	ngx_table_elt_t * h;
-	ngx_http_slice_ctx_t  * ctx;
 	ngx_http_slice_loc_conf_t  * slcf;
 	ngx_http_slice_content_range_t cr;
-
-	ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
+	ngx_http_slice_ctx_t  * ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
 	if(ctx == NULL) {
 		return ngx_http_next_header_filter(r);
 	}
-
 	if(r->headers_out.status != NGX_HTTP_PARTIAL_CONTENT) {
 		if(r == r->main) {
 			ngx_http_set_ctx(r, NULL, ngx_http_slice_filter_module);
 			return ngx_http_next_header_filter(r);
 		}
-
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "unexpected status code %ui in slice response",
-		    r->headers_out.status);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected status code %ui in slice response", r->headers_out.status);
 		return NGX_ERROR;
 	}
-
 	h = r->headers_out.etag;
-
 	if(ctx->etag.len) {
-		if(h == NULL
-		    || h->value.len != ctx->etag.len
-		    || ngx_strncmp(h->value.data, ctx->etag.data, ctx->etag.len)
-		    != 0) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "etag mismatch in slice response");
+		if(h == NULL || h->value.len != ctx->etag.len || ngx_strncmp(h->value.data, ctx->etag.data, ctx->etag.len) != 0) {
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "etag mismatch in slice response");
 			return NGX_ERROR;
 		}
 	}
-
 	if(h) {
 		ctx->etag = h->value;
 	}
-
 	if(ngx_http_slice_parse_content_range(r, &cr) != NGX_OK) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "invalid range in slice response");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid range in slice response");
 		return NGX_ERROR;
 	}
-
 	if(cr.complete_length == -1) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "no complete length in slice response");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "no complete length in slice response");
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http slice response range: %O-%O/%O",
-	    cr.start, cr.end, cr.complete_length);
-
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http slice response range: %O-%O/%O", cr.start, cr.end, cr.complete_length);
 	slcf = (ngx_http_slice_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_slice_filter_module);
-
 	end = MIN(cr.start + (nginx_off_t)slcf->size, cr.complete_length);
-
 	if(cr.start != ctx->start || cr.end != end) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "unexpected range in slice response: %O-%O",
-		    cr.start, cr.end);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected range in slice response: %O-%O", cr.start, cr.end);
 		return NGX_ERROR;
 	}
-
 	ctx->start = end;
 	ctx->active = 1;
-
 	r->headers_out.status = NGX_HTTP_OK;
 	r->headers_out.status_line.len = 0;
 	r->headers_out.content_length_n = cr.complete_length;
 	r->headers_out.content_offset = cr.start;
 	r->headers_out.content_range->hash = 0;
 	r->headers_out.content_range = NULL;
-
 	r->allow_ranges = 1;
 	r->subrequest_ranges = 1;
 	r->single_range = 1;
-
 	rc = ngx_http_next_header_filter(r);
-
 	if(r != r->main) {
 		return rc;
 	}
-
 	r->preserve_body = 1;
-
 	if(r->headers_out.status == NGX_HTTP_PARTIAL_CONTENT) {
 		if(ctx->start + (nginx_off_t)slcf->size <= r->headers_out.content_offset) {
-			ctx->start = slcf->size
-			  * (r->headers_out.content_offset / slcf->size);
+			ctx->start = slcf->size * (r->headers_out.content_offset / slcf->size);
 		}
-
-		ctx->end = r->headers_out.content_offset
-		    + r->headers_out.content_length_n;
+		ctx->end = r->headers_out.content_offset + r->headers_out.content_length_n;
 	}
 	else {
 		ctx->end = cr.complete_length;
 	}
-
 	return rc;
 }
 

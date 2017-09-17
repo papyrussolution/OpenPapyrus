@@ -5,96 +5,41 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 static ngx_int_t ngx_stream_core_preconfiguration(ngx_conf_t * cf);
 static void * ngx_stream_core_create_main_conf(ngx_conf_t * cf);
 static char * ngx_stream_core_init_main_conf(ngx_conf_t * cf, void * conf);
 static void * ngx_stream_core_create_srv_conf(ngx_conf_t * cf);
 static char * ngx_stream_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_stream_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_stream_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_core_error_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_core_server(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_core_resolver(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_core_commands[] = {
-	{ ngx_string("variables_hash_max_size"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  offsetof(ngx_stream_core_main_conf_t, variables_hash_max_size),
-	  NULL },
-
-	{ ngx_string("variables_hash_bucket_size"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  offsetof(ngx_stream_core_main_conf_t, variables_hash_bucket_size),
-	  NULL },
-
-	{ ngx_string("server"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
-	  ngx_stream_core_server,
-	  0,
-	  0,
-	  NULL },
-
-	{ ngx_string("listen"),
-	  NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_stream_core_listen,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("error_log"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_stream_core_error_log,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("resolver"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_stream_core_resolver,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("resolver_timeout"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_msec_slot,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  offsetof(ngx_stream_core_srv_conf_t, resolver_timeout),
-	  NULL },
-
-	{ ngx_string("proxy_protocol_timeout"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_msec_slot,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  offsetof(ngx_stream_core_srv_conf_t, proxy_protocol_timeout),
-	  NULL },
-
-	{ ngx_string("tcp_nodelay"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  offsetof(ngx_stream_core_srv_conf_t, tcp_nodelay),
-	  NULL },
-
-	{ ngx_string("preread_buffer_size"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_size_slot,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  offsetof(ngx_stream_core_srv_conf_t, preread_buffer_size),
-	  NULL },
-
-	{ ngx_string("preread_timeout"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_msec_slot,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  offsetof(ngx_stream_core_srv_conf_t, preread_timeout),
-	  NULL },
-
+	{ ngx_string("variables_hash_max_size"), NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_STREAM_MAIN_CONF_OFFSET, offsetof(ngx_stream_core_main_conf_t, variables_hash_max_size), NULL },
+	{ ngx_string("variables_hash_bucket_size"), NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_STREAM_MAIN_CONF_OFFSET, offsetof(ngx_stream_core_main_conf_t, variables_hash_bucket_size), NULL },
+	{ ngx_string("server"), NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
+	  ngx_stream_core_server, 0, 0, NULL },
+	{ ngx_string("listen"), NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_stream_core_listen, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("error_log"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_stream_core_error_log, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("resolver"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_stream_core_resolver, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("resolver_timeout"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_msec_slot, NGX_STREAM_SRV_CONF_OFFSET, offsetof(ngx_stream_core_srv_conf_t, resolver_timeout), NULL },
+	{ ngx_string("proxy_protocol_timeout"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_msec_slot, NGX_STREAM_SRV_CONF_OFFSET, offsetof(ngx_stream_core_srv_conf_t, proxy_protocol_timeout), NULL },
+	{ ngx_string("tcp_nodelay"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_STREAM_SRV_CONF_OFFSET, offsetof(ngx_stream_core_srv_conf_t, tcp_nodelay), NULL },
+	{ ngx_string("preread_buffer_size"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_size_slot, NGX_STREAM_SRV_CONF_OFFSET, offsetof(ngx_stream_core_srv_conf_t, preread_buffer_size), NULL },
+	{ ngx_string("preread_timeout"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_msec_slot, NGX_STREAM_SRV_CONF_OFFSET, offsetof(ngx_stream_core_srv_conf_t, preread_timeout), NULL },
 	ngx_null_command
 };
 
@@ -369,28 +314,20 @@ static char * ngx_stream_core_merge_srv_conf(ngx_conf_t * cf, void * parent, voi
 			conf->error_log = &cf->cycle->new_log;
 		}
 	}
-
-	ngx_conf_merge_msec_value(conf->proxy_protocol_timeout,
-	    prev->proxy_protocol_timeout, 30000);
-
+	ngx_conf_merge_msec_value(conf->proxy_protocol_timeout, prev->proxy_protocol_timeout, 30000);
 	ngx_conf_merge_value(conf->tcp_nodelay, prev->tcp_nodelay, 1);
-
-	ngx_conf_merge_size_value(conf->preread_buffer_size,
-	    prev->preread_buffer_size, 16384);
-
-	ngx_conf_merge_msec_value(conf->preread_timeout,
-	    prev->preread_timeout, 30000);
-
+	ngx_conf_merge_size_value(conf->preread_buffer_size, prev->preread_buffer_size, 16384);
+	ngx_conf_merge_msec_value(conf->preread_timeout, prev->preread_timeout, 30000);
 	return NGX_CONF_OK;
 }
 
-static char * ngx_stream_core_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_core_error_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_core_srv_conf_t  * cscf = (ngx_stream_core_srv_conf_t *)conf;
 	return ngx_log_set_log(cf, &cscf->error_log);
 }
 
-static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_core_server(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * rv;
 	void  * mconf;
@@ -459,7 +396,7 @@ static char * ngx_stream_core_server(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	return rv;
 }
 
-static char * ngx_stream_core_listen(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_core_srv_conf_t  * cscf = (ngx_stream_core_srv_conf_t *)conf;
 	ngx_str_t  * value, size;
@@ -683,7 +620,7 @@ invalid_so_keepalive:
 	return NGX_CONF_OK;
 }
 
-static char * ngx_stream_core_resolver(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_core_resolver(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_core_srv_conf_t  * cscf = (ngx_stream_core_srv_conf_t  *)conf;
 	if(cscf->resolver) {

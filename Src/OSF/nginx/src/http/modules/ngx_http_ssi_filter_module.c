@@ -523,123 +523,74 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 						    ll = &(*ll)->next) {
 							/* void */
 						}
-
 						*ll = cl;
-
 						b = NULL;
-
 						continue;
 					}
-
 					if(cmd->conditional == 0) {
 						continue;
 					}
 				}
-
-				if(cmd->conditional
-				    && (ctx->conditional == 0
-					    || ctx->conditional > cmd->conditional)) {
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "invalid context of SSI command: \"%V\"",
-					    &ctx->command);
+				if(cmd->conditional && (ctx->conditional == 0 || ctx->conditional > cmd->conditional)) {
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid context of SSI command: \"%V\"", &ctx->command);
 					goto ssi_error;
 				}
-
 				if(ctx->params.nelts > NGX_HTTP_SSI_MAX_PARAMS) {
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "too many SSI command parameters: \"%V\"",
-					    &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "too many SSI command parameters: \"%V\"", &ctx->command);
 					goto ssi_error;
 				}
-
-				memzero(params,
-				    (NGX_HTTP_SSI_MAX_PARAMS + 1) * sizeof(ngx_str_t *));
-
+				memzero(params, (NGX_HTTP_SSI_MAX_PARAMS + 1) * sizeof(ngx_str_t *));
 				param = (ngx_table_elt_t *)ctx->params.elts;
-
 				for(i = 0; i < ctx->params.nelts; i++) {
 					for(prm = cmd->params; prm->name.len; prm++) {
-						if(param[i].key.len != prm->name.len
-						    || ngx_strncmp(param[i].key.data, prm->name.data,
-							    prm->name.len) != 0) {
+						if(param[i].key.len != prm->name.len || ngx_strncmp(param[i].key.data, prm->name.data, prm->name.len) != 0) {
 							continue;
 						}
-
 						if(!prm->multiple) {
 							if(params[prm->index]) {
-								ngx_log_error(NGX_LOG_ERR,
-								    r->connection->log, 0,
-								    "duplicate \"%V\" parameter "
-								    "in \"%V\" SSI command",
-								    &param[i].key, &ctx->command);
-
+								ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "duplicate \"%V\" parameter in \"%V\" SSI command", &param[i].key, &ctx->command);
 								goto ssi_error;
 							}
-
 							params[prm->index] = &param[i].value;
-
 							break;
 						}
-
 						for(index = prm->index; params[index]; index++) {
 							/* void */
 						}
-
 						params[index] = &param[i].value;
-
 						break;
 					}
-
 					if(prm->name.len == 0) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-						    "invalid parameter name: \"%V\" "
-						    "in \"%V\" SSI command",
-						    &param[i].key, &ctx->command);
-
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid parameter name: \"%V\" in \"%V\" SSI command", &param[i].key, &ctx->command);
 						goto ssi_error;
 					}
 				}
-
 				for(prm = cmd->params; prm->name.len; prm++) {
 					if(prm->mandatory && params[prm->index] == 0) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-						    "mandatory \"%V\" parameter is absent "
-						    "in \"%V\" SSI command",
-						    &prm->name, &ctx->command);
-
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "mandatory \"%V\" parameter is absent in \"%V\" SSI command", &prm->name, &ctx->command);
 						goto ssi_error;
 					}
 				}
-
 				if(cmd->flush && ctx->out) {
-					ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-					    "ssi flush");
-
+					ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi flush");
 					if(ngx_http_ssi_output(r, ctx) == NGX_ERROR) {
 						return NGX_ERROR;
 					}
 				}
-
 				rc = cmd->handler(r, ctx, params);
-
 				if(rc == NGX_OK) {
 					continue;
 				}
-
 				if(rc == NGX_DONE || rc == NGX_AGAIN || rc == NGX_ERROR) {
 					ngx_http_ssi_buffered(r, ctx);
 					return rc;
 				}
 			}
-
 			/* rc == NGX_HTTP_SSI_ERROR */
-
 ssi_error:
-
 			if(slcf->silent_errors) {
 				continue;
 			}
-
 			if(ctx->free) {
 				cl = ctx->free;
 				ctx->free = ctx->free->next;
@@ -651,26 +602,20 @@ ssi_error:
 				if(b == NULL) {
 					return NGX_ERROR;
 				}
-
 				cl = ngx_alloc_chain_link(r->pool);
 				if(cl == NULL) {
 					return NGX_ERROR;
 				}
-
 				cl->buf = b;
 			}
-
 			b->memory = 1;
 			b->pos = ctx->errmsg.data;
 			b->last = ctx->errmsg.data + ctx->errmsg.len;
-
 			cl->next = NULL;
 			*ctx->last_out = cl;
 			ctx->last_out = &cl->next;
-
 			continue;
 		}
-
 		if(ctx->buf->last_buf || ngx_buf_in_memory(ctx->buf)) {
 			if(b == NULL) {
 				if(ctx->free) {
@@ -684,25 +629,19 @@ ssi_error:
 					if(b == NULL) {
 						return NGX_ERROR;
 					}
-
 					cl = ngx_alloc_chain_link(r->pool);
 					if(cl == NULL) {
 						return NGX_ERROR;
 					}
-
 					cl->buf = b;
 				}
-
 				b->sync = 1;
-
 				cl->next = NULL;
 				*ctx->last_out = cl;
 				ctx->last_out = &cl->next;
 			}
-
 			b->last_buf = ctx->buf->last_buf;
 			b->shadow = ctx->buf;
-
 			if(slcf->ignore_recycled_buffers == 0) {
 				b->recycled = ctx->buf->recycled;
 			}
@@ -725,24 +664,19 @@ static ngx_int_t ngx_http_ssi_output(ngx_http_request_t * r, ngx_http_ssi_ctx_t 
 	ngx_int_t rc;
 	ngx_buf_t  * b;
 	ngx_chain_t  * cl;
-
 #if 1
 	b = NULL;
 	for(cl = ctx->out; cl; cl = cl->next) {
-		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "ssi out: %p %p", cl->buf, cl->buf->pos);
+		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi out: %p %p", cl->buf, cl->buf->pos);
 		if(cl->buf == b) {
-			ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-			    "the same buf was used in ssi");
+			ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, "the same buf was used in ssi");
 			ngx_debug_point();
 			return NGX_ERROR;
 		}
 		b = cl->buf;
 	}
 #endif
-
 	rc = ngx_http_next_body_filter(r, ctx->out);
-
 	if(ctx->busy == NULL) {
 		ctx->busy = ctx->out;
 	}
@@ -751,10 +685,8 @@ static ngx_int_t ngx_http_ssi_output(ngx_http_request_t * r, ngx_http_ssi_ctx_t 
 		}
 		cl->next = ctx->out;
 	}
-
 	ctx->out = NULL;
 	ctx->last_out = &ctx->out;
-
 	while(ctx->busy) {
 		cl = ctx->busy;
 		b = cl->buf;
@@ -978,14 +910,10 @@ tag_started:
 
 				    default:
 					if(ctx->command.len == NGX_HTTP_SSI_COMMAND_LEN) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "the \"%V%c...\" SSI command is too long",
-					    &ctx->command, ch);
-
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "the \"%V%c...\" SSI command is too long", &ctx->command, ch);
 						state = ssi_error_state;
 						break;
 					}
-
 					ctx->command.data[ctx->command.len++] = ch;
 					ctx->key = ngx_hash(ctx->key, ch);
 			    }
@@ -1054,18 +982,13 @@ tag_started:
 					state = ssi_error_end0_state;
 
 					ctx->param->key.data[ctx->param->key.len++] = ch;
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "invalid \"%V\" parameter in \"%V\" SSI command",
-				    &ctx->param->key, &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid \"%V\" parameter in \"%V\" SSI command", &ctx->param->key, &ctx->command);
 					break;
 
 				    default:
 					if(ctx->param->key.len == NGX_HTTP_SSI_PARAM_LEN) {
 						state = ssi_error_state;
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "too long \"%V%c...\" parameter in "
-					    "\"%V\" SSI command",
-					    &ctx->param->key, ch, &ctx->command);
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "too long \"%V%c...\" parameter in \"%V\" SSI command", &ctx->param->key, ch, &ctx->command);
 						break;
 					}
 
@@ -1093,11 +1016,7 @@ tag_started:
 					else {
 						state = ssi_error_state;
 					}
-
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "unexpected \"%c\" symbol after \"%V\" "
-				    "parameter in \"%V\" SSI command",
-				    ch, &ctx->param->key, &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected \"%c\" symbol after \"%V\" parameter in \"%V\" SSI command", ch, &ctx->param->key, &ctx->command);
 					break;
 			    }
 
@@ -1126,14 +1045,9 @@ tag_started:
 					else {
 						state = ssi_error_state;
 					}
-
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "unexpected \"%c\" symbol before value of "
-				    "\"%V\" parameter in \"%V\" SSI command",
-				    ch, &ctx->param->key, &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected \"%c\" symbol before value of \"%V\" parameter in \"%V\" SSI command", ch, &ctx->param->key, &ctx->command);
 					break;
 			    }
-
 			    break;
 
 			case ssi_double_quoted_value_state:
@@ -1150,11 +1064,8 @@ tag_started:
 
 				    default:
 					if(ctx->param->value.len == ctx->value_len) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "too long \"%V%c...\" value of \"%V\" "
-					    "parameter in \"%V\" SSI command",
-					    &ctx->param->value, ch, &ctx->param->key,
-					    &ctx->command);
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "too long \"%V%c...\" value of \"%V\" parameter in \"%V\" SSI command", 
+							&ctx->param->value, ch, &ctx->param->key, &ctx->command);
 						state = ssi_error_state;
 						break;
 					}
@@ -1178,11 +1089,8 @@ tag_started:
 
 				    default:
 					if(ctx->param->value.len == ctx->value_len) {
-						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-					    "too long \"%V%c...\" value of \"%V\" "
-					    "parameter in \"%V\" SSI command",
-					    &ctx->param->value, ch, &ctx->param->key,
-					    &ctx->command);
+						ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "too long \"%V%c...\" value of \"%V\" parameter in \"%V\" SSI command",
+							&ctx->param->value, ch, &ctx->param->key, &ctx->command);
 						state = ssi_error_state;
 						break;
 					}
@@ -1195,11 +1103,8 @@ tag_started:
 			case ssi_quoted_symbol_state:
 			    state = (ngx_http_ssi_state_e)ctx->saved_state;
 			    if(ctx->param->value.len == ctx->value_len) {
-				    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "too long \"%V%c...\" value of \"%V\" "
-				    "parameter in \"%V\" SSI command",
-				    &ctx->param->value, ch, &ctx->param->key,
-				    &ctx->command);
+				    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "too long \"%V%c...\" value of \"%V\" parameter in \"%V\" SSI command",
+						&ctx->param->value, ch, &ctx->param->key, &ctx->command);
 				    state = ssi_error_state;
 				    break;
 			    }
@@ -1239,11 +1144,8 @@ tag_started:
 					break;
 
 				    default:
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "unexpected \"%c\" symbol after \"%V\" value "
-				    "of \"%V\" parameter in \"%V\" SSI command",
-				    ch, &ctx->param->value, &ctx->param->key,
-				    &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected \"%c\" symbol after \"%V\" value of \"%V\" parameter in \"%V\" SSI command",
+						ch, &ctx->param->value, &ctx->param->key, &ctx->command);
 					state = ssi_error_state;
 					break;
 			    }
@@ -1257,9 +1159,7 @@ tag_started:
 					break;
 
 				    default:
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "unexpected \"%c\" symbol in \"%V\" SSI command",
-				    ch, &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected \"%c\" symbol in \"%V\" SSI command", ch, &ctx->command);
 					state = ssi_error_state;
 					break;
 			    }
@@ -1281,9 +1181,7 @@ tag_started:
 					return NGX_OK;
 
 				    default:
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-				    "unexpected \"%c\" symbol in \"%V\" SSI command",
-				    ch, &ctx->command);
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unexpected \"%c\" symbol in \"%V\" SSI command", ch, &ctx->command);
 					state = ssi_error_state;
 					break;
 			    }
@@ -1600,25 +1498,18 @@ static ngx_int_t ngx_http_ssi_regex_match(ngx_http_request_t * r, ngx_str_t * pa
 	rgc.pool = r->pool;
 	rgc.err.len = NGX_MAX_CONF_ERRSTR;
 	rgc.err.data = errstr;
-
 	if(ngx_regex_compile(&rgc) != NGX_OK) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%V", &rgc.err);
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	n = (rgc.captures + 1) * 3;
-
 	captures = (int *)ngx_palloc(r->pool, n * sizeof(int));
 	if(captures == NULL) {
 		return NGX_ERROR;
 	}
-
 	rc = ngx_regex_exec(rgc.regex, str, captures, n);
-
 	if(rc < NGX_REGEX_NO_MATCHED) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-		    ngx_regex_exec_n " failed: %d on \"%V\" using \"%V\"",
-		    rc, str, pattern);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, ngx_regex_exec_n " failed: %d on \"%V\" using \"%V\"", rc, str, pattern);
 		return NGX_HTTP_SSI_ERROR;
 	}
 
@@ -1661,25 +1552,18 @@ static ngx_int_t ngx_http_ssi_regex_match(ngx_http_request_t * r, ngx_str_t * pa
 				*vv = value;
 				continue;
 			}
-
 			var = (ngx_http_ssi_var_t *)ngx_list_push(ctx->variables);
 			if(var == NULL) {
 				return NGX_ERROR;
 			}
-
 			var->name = name;
 			var->key = key;
 			var->value = value;
 		}
 	}
-
 	return NGX_OK;
-
 #else
-
-	ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-	    "the using of the regex \"%V\" in SSI requires PCRE library",
-	    pattern);
+	ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, "the using of the regex \"%V\" in SSI requires PCRE library", pattern);
 	return NGX_HTTP_SSI_ERROR;
 
 #endif
@@ -1697,39 +1581,28 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 	ngx_http_ssi_ctx_t * mctx;
 	ngx_http_ssi_block_t * bl;
 	ngx_http_post_subrequest_t  * psr;
-
 	uri = params[NGX_HTTP_SSI_INCLUDE_VIRTUAL];
 	file = params[NGX_HTTP_SSI_INCLUDE_FILE];
 	wait = params[NGX_HTTP_SSI_INCLUDE_WAIT];
 	set = params[NGX_HTTP_SSI_INCLUDE_SET];
 	stub = params[NGX_HTTP_SSI_INCLUDE_STUB];
-
 	if(uri && file) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "inclusion may be either virtual=\"%V\" or file=\"%V\"",
-		    uri, file);
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "inclusion may be either virtual=\"%V\" or file=\"%V\"", uri, file);
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	if(uri == NULL && file == NULL) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "no parameter in \"include\" SSI command");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "no parameter in \"include\" SSI command");
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	if(set && stub) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "\"set\" and \"stub\" cannot be used together in \"include\" SSI command");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"set\" and \"stub\" cannot be used together in \"include\" SSI command");
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	if(wait) {
 		if(uri == NULL) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "\"wait\" cannot be used with file=\"%V\"", file);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"wait\" cannot be used with file=\"%V\"", file);
 			return NGX_HTTP_SSI_ERROR;
 		}
-
 		if(wait->len == 2 && ngx_strncasecmp(wait->data, (u_char*)"no", 2) == 0) {
 			wait = NULL;
 		}
@@ -1738,14 +1611,11 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 			return NGX_HTTP_SSI_ERROR;
 		}
 	}
-
 	if(uri == NULL) {
 		uri = file;
 		wait = (ngx_str_t*)-1;
 	}
-
 	rc = ngx_http_ssi_evaluate_string(r, ctx, uri, NGX_HTTP_SSI_ADD_PREFIX);
-
 	if(rc != NGX_OK) {
 		return rc;
 	}
@@ -1769,20 +1639,15 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 		}
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"stub\"=\"%V\" for \"include\" not found", stub);
 		return NGX_HTTP_SSI_ERROR;
-
 found:
-
 		psr = (ngx_http_post_subrequest_t *)ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
 		if(psr == NULL) {
 			return NGX_ERROR;
 		}
-
 		psr->handler = ngx_http_ssi_stub_output;
-
 		if(bl[i].count++) {
 			out = NULL;
 			ll = &out;
-
 			for(tl = bl[i].bufs; tl; tl = tl->next) {
 				if(ctx->free) {
 					cl = ctx->free;
@@ -1856,25 +1721,19 @@ found:
 
 		flags |= NGX_HTTP_SUBREQUEST_IN_MEMORY|NGX_HTTP_SUBREQUEST_WAITED;
 	}
-
 	if(ngx_http_subrequest(r, uri, &args, &sr, psr, flags) != NGX_OK) {
 		return NGX_HTTP_SSI_ERROR;
 	}
-
 	if(wait == NULL && set == NULL) {
 		return NGX_OK;
 	}
-
 	if(ctx->wait == NULL) {
 		ctx->wait = sr;
-
 		return NGX_AGAIN;
 	}
 	else {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "can only wait for one subrequest at a time");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "can only wait for one subrequest at a time");
 	}
-
 	return NGX_OK;
 }
 
@@ -1887,15 +1746,12 @@ static ngx_int_t ngx_http_ssi_stub_output(ngx_http_request_t * r, void * data, n
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi stub output: \"%V?%V\"", &r->uri, &r->args);
 	out = (ngx_chain_t *)data;
 	if(!r->header_sent) {
-		r->headers_out.content_type_len =
-		    r->parent->headers_out.content_type_len;
+		r->headers_out.content_type_len = r->parent->headers_out.content_type_len;
 		r->headers_out.content_type = r->parent->headers_out.content_type;
-
 		if(ngx_http_send_header(r) == NGX_ERROR) {
 			return NGX_ERROR;
 		}
 	}
-
 	return ngx_http_output_filter(r, out);
 }
 
@@ -1964,19 +1820,14 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 			ctx->encoding = NGX_HTTP_SSI_ENTITY_ENCODING;
 		}
 		else {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "unknown encoding \"%V\" in the \"echo\" command",
-			    enc);
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "unknown encoding \"%V\" in the \"echo\" command", enc);
 		}
 	}
-
 	p = value->data;
-
 	switch(ctx->encoding) {
 		case NGX_HTTP_SSI_URL_ENCODING:
 		    len = 2 * ngx_escape_uri(NULL, value->data, value->len,
 		    NGX_ESCAPE_HTML);
-
 		    if(len) {
 			    p = (u_char *)ngx_pnalloc(r->pool, value->len + len);
 			    if(p == NULL) {
@@ -2102,29 +1953,22 @@ static ngx_int_t ngx_http_ssi_set(ngx_http_request_t * r, ngx_http_ssi_ctx_t * c
 	var->name = *name;
 	var->key = key;
 	var->value = *value;
-
-	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "set: \"%V\"=\"%V\"", name, value);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "set: \"%V\"=\"%V\"", name, value);
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx,
-    ngx_str_t ** params)
+static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx, ngx_str_t ** params)
 {
 	u_char  * p, * last;
 	ngx_str_t  * expr, left, right;
 	ngx_int_t rc;
 	ngx_uint_t negative, noregex, flags;
-
 	if(ctx->command.len == 2) {
 		if(ctx->conditional) {
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-			    "the \"if\" command inside the \"if\" command");
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "the \"if\" command inside the \"if\" command");
 			return NGX_HTTP_SSI_ERROR;
 		}
 	}
-
 	if(ctx->output_chosen) {
 		ctx->output = 0;
 		return NGX_OK;
@@ -2243,34 +2087,23 @@ static ngx_int_t ngx_http_ssi_if(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ct
 	else {
 		ctx->output = 0;
 	}
-
 	ctx->conditional = NGX_HTTP_SSI_COND_IF;
-
 	return NGX_OK;
-
 invalid_expression:
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-	    "invalid expression in \"%V\"", expr);
-
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "invalid expression in \"%V\"", expr);
 	return NGX_HTTP_SSI_ERROR;
 }
 
-static ngx_int_t ngx_http_ssi_else(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx,
-    ngx_str_t ** params)
+static ngx_int_t ngx_http_ssi_else(ngx_http_request_t * r, ngx_http_ssi_ctx_t * ctx, ngx_str_t ** params)
 {
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "ssi else");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "ssi else");
 	if(ctx->output_chosen) {
 		ctx->output = 0;
 	}
 	else {
 		ctx->output = 1;
 	}
-
 	ctx->conditional = NGX_HTTP_SSI_COND_ELSE;
-
 	return NGX_OK;
 }
 

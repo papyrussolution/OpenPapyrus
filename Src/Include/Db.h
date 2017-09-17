@@ -2014,6 +2014,7 @@ public:
 		attrPassword        // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
 	};
 	DbLoginBlock();
+	DbLoginBlock(const DbLoginBlock & rS);
 	~DbLoginBlock();
 	DbLoginBlock & FASTCALL operator = (const DbLoginBlock & rS);
 	void   Clear();

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	uint32_t hash;
@@ -33,44 +33,28 @@ typedef struct {
 	ngx_event_get_peer_pt get_rr_peer;
 } ngx_stream_upstream_hash_peer_data_t;
 
-static ngx_int_t ngx_stream_upstream_init_hash(ngx_conf_t * cf,
-    ngx_stream_upstream_srv_conf_t * us);
-static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s,
-    ngx_stream_upstream_srv_conf_t * us);
-static ngx_int_t ngx_stream_upstream_get_hash_peer(ngx_peer_connection_t * pc,
-    void * data);
-
-static ngx_int_t ngx_stream_upstream_init_chash(ngx_conf_t * cf,
-    ngx_stream_upstream_srv_conf_t * us);
+static ngx_int_t ngx_stream_upstream_init_hash(ngx_conf_t * cf, ngx_stream_upstream_srv_conf_t * us);
+static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us);
+static ngx_int_t ngx_stream_upstream_get_hash_peer(ngx_peer_connection_t * pc, void * data);
+static ngx_int_t ngx_stream_upstream_init_chash(ngx_conf_t * cf, ngx_stream_upstream_srv_conf_t * us);
 static int ngx_libc_cdecl ngx_stream_upstream_chash_cmp_points(const void * one, const void * two);
 static ngx_uint_t ngx_stream_upstream_find_chash_point(ngx_stream_upstream_chash_points_t * points, uint32_t hash);
-static ngx_int_t ngx_stream_upstream_init_chash_peer(ngx_stream_session_t * s,
-    ngx_stream_upstream_srv_conf_t * us);
-static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc,
-    void * data);
-
+static ngx_int_t ngx_stream_upstream_init_chash_peer(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us);
+static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, void * data);
 static void * ngx_stream_upstream_hash_create_conf(ngx_conf_t * cf);
-static char * ngx_stream_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_stream_upstream_hash(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_upstream_hash_commands[] = {
-	{ ngx_string("hash"),
-	  NGX_STREAM_UPS_CONF|NGX_CONF_TAKE12,
-	  ngx_stream_upstream_hash,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("hash"), NGX_STREAM_UPS_CONF|NGX_CONF_TAKE12,
+	  ngx_stream_upstream_hash, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
 static ngx_stream_module_t ngx_stream_upstream_hash_module_ctx = {
 	NULL,                              /* preconfiguration */
 	NULL,                              /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	ngx_stream_upstream_hash_create_conf, /* create server configuration */
 	NULL                               /* merge server configuration */
 };
@@ -90,20 +74,16 @@ ngx_module_t ngx_stream_upstream_hash_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static ngx_int_t ngx_stream_upstream_init_hash(ngx_conf_t * cf,
-    ngx_stream_upstream_srv_conf_t * us)
+static ngx_int_t ngx_stream_upstream_init_hash(ngx_conf_t * cf, ngx_stream_upstream_srv_conf_t * us)
 {
 	if(ngx_stream_upstream_init_round_robin(cf, us) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	us->peer.init = ngx_stream_upstream_init_hash_peer;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s,
-    ngx_stream_upstream_srv_conf_t * us)
+static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us)
 {
 	ngx_stream_upstream_hash_srv_conf_t * hcf;
 	ngx_stream_upstream_hash_peer_data_t  * hp;
@@ -117,20 +97,15 @@ static ngx_int_t ngx_stream_upstream_init_hash_peer(ngx_stream_session_t * s,
 	}
 	s->upstream->peer.get = ngx_stream_upstream_get_hash_peer;
 	hcf = (ngx_stream_upstream_hash_srv_conf_t *)ngx_stream_conf_upstream_srv_conf(us, ngx_stream_upstream_hash_module);
-
 	if(ngx_stream_complex_value(s, &hcf->key, &hp->key) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
-	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-	    "upstream hash key:\"%V\"", &hp->key);
-
+	ngx_log_debug1(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "upstream hash key:\"%V\"", &hp->key);
 	hp->conf = hcf;
 	hp->tries = 0;
 	hp->rehash = 0;
 	hp->hash = 0;
 	hp->get_rr_peer = ngx_stream_upstream_get_round_robin_peer;
-
 	return NGX_OK;
 }
 
@@ -325,34 +300,22 @@ done:
 #endif
 		}
 	}
-
-	ngx_qsort(points->point,
-	    points->number,
-	    sizeof(ngx_stream_upstream_chash_point_t),
-	    ngx_stream_upstream_chash_cmp_points);
-
+	ngx_qsort(points->point, points->number, sizeof(ngx_stream_upstream_chash_point_t), ngx_stream_upstream_chash_cmp_points);
 	for(i = 0, j = 1; j < points->number; j++) {
 		if(points->point[i].hash != points->point[j].hash) {
 			points->point[++i] = points->point[j];
 		}
 	}
-
 	points->number = i + 1;
-
-	hcf = (ngx_stream_upstream_hash_srv_conf_t *)ngx_stream_conf_upstream_srv_conf(us,
-	    ngx_stream_upstream_hash_module);
+	hcf = (ngx_stream_upstream_hash_srv_conf_t *)ngx_stream_conf_upstream_srv_conf(us, ngx_stream_upstream_hash_module);
 	hcf->points = points;
-
 	return NGX_OK;
 }
 
 static int ngx_libc_cdecl ngx_stream_upstream_chash_cmp_points(const void * one, const void * two)
 {
-	ngx_stream_upstream_chash_point_t * first =
-	    (ngx_stream_upstream_chash_point_t*)one;
-	ngx_stream_upstream_chash_point_t * second =
-	    (ngx_stream_upstream_chash_point_t*)two;
-
+	const ngx_stream_upstream_chash_point_t * first = (const ngx_stream_upstream_chash_point_t *)one;
+	const ngx_stream_upstream_chash_point_t * second = (const ngx_stream_upstream_chash_point_t *)two;
 	if(first->hash < second->hash) {
 		return -1;
 	}
@@ -364,8 +327,7 @@ static int ngx_libc_cdecl ngx_stream_upstream_chash_cmp_points(const void * one,
 	}
 }
 
-static ngx_uint_t ngx_stream_upstream_find_chash_point(ngx_stream_upstream_chash_points_t * points,
-    uint32_t hash)
+static ngx_uint_t ngx_stream_upstream_find_chash_point(ngx_stream_upstream_chash_points_t * points, uint32_t hash)
 {
 	ngx_uint_t i, j, k;
 	ngx_stream_upstream_chash_point_t  * point;
@@ -505,7 +467,7 @@ static ngx_int_t ngx_stream_upstream_get_chash_peer(ngx_peer_connection_t * pc, 
 
 static void * ngx_stream_upstream_hash_create_conf(ngx_conf_t * cf)
 {
-	ngx_stream_upstream_hash_srv_conf_t  * conf;
+	ngx_stream_upstream_hash_srv_conf_t * conf;
 	conf = (ngx_stream_upstream_hash_srv_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_upstream_hash_srv_conf_t));
 	if(conf == NULL) {
 		return NULL;
@@ -514,7 +476,7 @@ static void * ngx_stream_upstream_hash_create_conf(ngx_conf_t * cf)
 	return conf;
 }
 
-static char * ngx_stream_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_upstream_hash(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_upstream_hash_srv_conf_t * hcf = (ngx_stream_upstream_hash_srv_conf_t *)conf;
 	ngx_str_t  * value;
@@ -530,29 +492,20 @@ static char * ngx_stream_upstream_hash(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	}
 	uscf = (ngx_stream_upstream_srv_conf_t *)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_upstream_module);
 	if(uscf->peer.init_upstream) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "load balancing method redefined");
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "load balancing method redefined");
 	}
-
-	uscf->flags = NGX_STREAM_UPSTREAM_CREATE
-	    |NGX_STREAM_UPSTREAM_WEIGHT
-	    |NGX_STREAM_UPSTREAM_MAX_CONNS
-	    |NGX_STREAM_UPSTREAM_MAX_FAILS
-	    |NGX_STREAM_UPSTREAM_FAIL_TIMEOUT
-	    |NGX_STREAM_UPSTREAM_DOWN;
-
+	uscf->flags = NGX_STREAM_UPSTREAM_CREATE|NGX_STREAM_UPSTREAM_WEIGHT|NGX_STREAM_UPSTREAM_MAX_CONNS|
+		NGX_STREAM_UPSTREAM_MAX_FAILS|NGX_STREAM_UPSTREAM_FAIL_TIMEOUT|NGX_STREAM_UPSTREAM_DOWN;
 	if(cf->args->nelts == 2) {
 		uscf->peer.init_upstream = ngx_stream_upstream_init_hash;
 	}
-	else if(ngx_strcmp(value[2].data, "consistent") == 0) {
+	else if(sstreq(value[2].data, "consistent")) {
 		uscf->peer.init_upstream = ngx_stream_upstream_init_chash;
 	}
 	else {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid parameter \"%V\"", &value[2]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[2]);
 		return NGX_CONF_ERROR;
 	}
-
 	return NGX_CONF_OK;
 }
 

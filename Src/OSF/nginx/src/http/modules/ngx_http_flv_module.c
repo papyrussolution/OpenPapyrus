@@ -7,7 +7,7 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static char * ngx_http_flv(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_flv(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_flv_commands[] = {
 	{ ngx_string("flv"), NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, ngx_http_flv, 0, 0, NULL },
@@ -19,13 +19,10 @@ static u_char ngx_flv_header[] = "FLV\x1\x5\0\0\0\x9\0\0\0\0";
 static ngx_http_module_t ngx_http_flv_module_ctx = {
 	NULL,                      /* preconfiguration */
 	NULL,                      /* postconfiguration */
-
 	NULL,                      /* create main configuration */
 	NULL,                      /* init main configuration */
-
 	NULL,                      /* create server configuration */
 	NULL,                      /* merge server configuration */
-
 	NULL,                      /* create location configuration */
 	NULL                       /* merge location configuration */
 };
@@ -186,10 +183,9 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 	return ngx_http_output_filter(r, &out[i]);
 }
 
-static char * ngx_http_flv(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_flv(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
 	clcf->F_HttpHandler = ngx_http_flv_handler;
 	return NGX_CONF_OK;
 }
-

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	uint32_t percent;
@@ -17,19 +17,12 @@ typedef struct {
 	ngx_array_t parts;
 } ngx_stream_split_clients_ctx_t;
 
-static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_split_clients(ngx_conf_t * cf, ngx_command_t * dummy,
-    void * conf);
+static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_split_clients(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_split_clients_commands[] = {
-	{ ngx_string("split_clients"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
-	  ngx_conf_split_clients_block,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("split_clients"), NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
+	  ngx_conf_split_clients_block, NGX_STREAM_MAIN_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -69,18 +62,14 @@ static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s,
 	ngx_str_t val;
 	ngx_uint_t i;
 	ngx_stream_split_clients_part_t  * part;
-
 	*v = ngx_stream_variable_null_value;
-
 	if(ngx_stream_complex_value(s, &ctx->value, &val) != NGX_OK) {
 		return NGX_OK;
 	}
 	hash = ngx_murmur_hash2(val.data, val.len);
 	part = (ngx_stream_split_clients_part_t *)ctx->parts.elts;
 	for(i = 0; i < ctx->parts.nelts; i++) {
-		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0,
-		    "stream split: %uD %uD", hash, part[i].percent);
-
+		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream split: %uD %uD", hash, part[i].percent);
 		if(hash < part[i].percent || part[i].percent == 0) {
 			*v = part[i].value;
 			return NGX_OK;
@@ -90,9 +79,9 @@ static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s,
 	return NGX_OK;
 }
 
-static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	char    * rv;
+	const char * rv;
 	uint32_t sum, last;
 	ngx_str_t  * value, name;
 	ngx_uint_t i;
@@ -154,7 +143,7 @@ static char * ngx_conf_split_clients_block(ngx_conf_t * cf, ngx_command_t * cmd,
 	return rv;
 }
 
-static char * ngx_stream_split_clients(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
+static const char * ngx_stream_split_clients(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
 	ngx_int_t n;
 	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t *)cf->ctx;

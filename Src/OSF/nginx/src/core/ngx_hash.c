@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, u_char * name, size_t len)
+void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, const u_char * name, size_t len)
 {
 #if 0
 	ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, 0, "hf:\"%*s\"", len, name);
@@ -24,7 +24,7 @@ void * ngx_hash_find(ngx_hash_t * hash, ngx_uint_t key, u_char * name, size_t le
 	return NULL;
 }
 
-void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t len)
+void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, const u_char * name, size_t len)
 {
 	void * value;
 	ngx_uint_t i, n, key;
@@ -33,7 +33,7 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t le
 #endif
 	n = len;
 	while(n) {
-		if(name[n - 1] == '.') {
+		if(name[n-1] == '.') {
 			break;
 		}
 		n--;
@@ -85,7 +85,7 @@ void * ngx_hash_find_wc_head(ngx_hash_wildcard_t * hwc, u_char * name, size_t le
 	return hwc->value;
 }
 
-void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, u_char * name, size_t len)
+void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, const u_char * name, size_t len)
 {
 	void * value;
 	ngx_uint_t i, key;
@@ -129,28 +129,23 @@ void * ngx_hash_find_wc_tail(ngx_hash_wildcard_t * hwc, u_char * name, size_t le
 	return hwc->value;
 }
 
-void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, u_char * name, size_t len)
+void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, const u_char * name, size_t len)
 {
-	void  * value;
 	if(hash->hash.buckets) {
-		value = ngx_hash_find(&hash->hash, key, name, len);
-		if(value) {
+		void * value = ngx_hash_find(&hash->hash, key, name, len);
+		if(value)
 			return value;
+	}
+	if(len) {
+		if(hash->wc_head && hash->wc_head->hash.buckets) {
+			void * value = ngx_hash_find_wc_head(hash->wc_head, name, len);
+			if(value)
+				return value;
 		}
-	}
-	if(len == 0) {
-		return NULL;
-	}
-	if(hash->wc_head && hash->wc_head->hash.buckets) {
-		value = ngx_hash_find_wc_head(hash->wc_head, name, len);
-		if(value) {
-			return value;
-		}
-	}
-	if(hash->wc_tail && hash->wc_tail->hash.buckets) {
-		value = ngx_hash_find_wc_tail(hash->wc_tail, name, len);
-		if(value) {
-			return value;
+		if(hash->wc_tail && hash->wc_tail->hash.buckets) {
+			void * value = ngx_hash_find_wc_tail(hash->wc_tail, name, len);
+			if(value)
+				return value;
 		}
 	}
 	return NULL;
@@ -160,21 +155,19 @@ void * ngx_hash_find_combined(ngx_hash_combined_t * hash, ngx_uint_t key, u_char
 
 ngx_int_t ngx_hash_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names, ngx_uint_t nelts)
 {
-	u_char   * elts;
+	u_char * elts;
 	size_t len;
 	u_short  * test;
 	ngx_uint_t i, n, key, size, start, bucket_size;
 	ngx_hash_elt_t  * elt, ** buckets;
 	if(hinit->max_size == 0) {
-		ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0,
-		    "could not build %s, you should increase %s_max_size: %i",
+		ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0, "could not build %s, you should increase %s_max_size: %i",
 		    hinit->name, hinit->name, hinit->max_size);
 		return NGX_ERROR;
 	}
 	for(n = 0; n < nelts; n++) {
 		if(hinit->bucket_size < NGX_HASH_ELT_SIZE(&names[n]) + sizeof(void *)) {
-			ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0,
-			    "could not build %s, you should increase %s_bucket_size: %i",
+			ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0, "could not build %s, you should increase %s_bucket_size: %i",
 			    hinit->name, hinit->name, hinit->bucket_size);
 			return NGX_ERROR;
 		}
@@ -209,12 +202,8 @@ next:
 		continue;
 	}
 	size = hinit->max_size;
-	ngx_log_error(NGX_LOG_WARN, hinit->pool->log, 0,
-	    "could not build optimal %s, you should increase "
-	    "either %s_max_size: %i or %s_bucket_size: %i; "
-	    "ignoring %s_bucket_size",
-	    hinit->name, hinit->name, hinit->max_size,
-	    hinit->name, hinit->bucket_size, hinit->name);
+	ngx_log_error(NGX_LOG_WARN, hinit->pool->log, 0, "could not build optimal %s, you should increase either %s_max_size: %i or %s_bucket_size: %i; ignoring %s_bucket_size",
+	    hinit->name, hinit->name, hinit->max_size, hinit->name, hinit->bucket_size, hinit->name);
 found:
 	for(i = 0; i < size; i++) {
 		test[i] = sizeof(void *);
@@ -402,7 +391,7 @@ ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names
 	return NGX_OK;
 }
 
-ngx_uint_t ngx_hash_key(u_char * data, size_t len)
+ngx_uint_t ngx_hash_key(const u_char * data, size_t len)
 {
 	ngx_uint_t key = 0;
 	for(ngx_uint_t i = 0; i < len; i++) {
@@ -411,7 +400,7 @@ ngx_uint_t ngx_hash_key(u_char * data, size_t len)
 	return key;
 }
 
-ngx_uint_t ngx_hash_key_lc(u_char * data, size_t len)
+ngx_uint_t ngx_hash_key_lc(const u_char * data, size_t len)
 {
 	ngx_uint_t key = 0;
 	for(ngx_uint_t i = 0; i < len; i++) {
@@ -432,7 +421,7 @@ ngx_uint_t ngx_hash_strlow(u_char * dst, u_char * src, size_t n)
 	return key;
 }
 
-ngx_int_t ngx_hash_keys_array_init(ngx_hash_keys_arrays_t * ha, ngx_uint_t type)
+ngx_int_t FASTCALL ngx_hash_keys_array_init(ngx_hash_keys_arrays_t * ha, ngx_uint_t type)
 {
 	ngx_uint_t asize;
 	if(type == NGX_HASH_SMALL) {

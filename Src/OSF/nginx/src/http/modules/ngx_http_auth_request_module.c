@@ -9,13 +9,13 @@
 
 struct ngx_http_auth_request_conf_t {
 	ngx_str_t uri;
-	ngx_array_t    * vars;
+	ngx_array_t * vars;
 };
 
 struct ngx_http_auth_request_ctx_t {
 	ngx_uint_t done;
 	ngx_uint_t status;
-	ngx_http_request_t  * subrequest;
+	ngx_http_request_t * subrequest;
 };
 
 struct ngx_http_auth_request_variable_t {
@@ -31,23 +31,14 @@ static ngx_int_t ngx_http_auth_request_variable(ngx_http_request_t * r, ngx_http
 static void * ngx_http_auth_request_create_conf(ngx_conf_t * cf);
 static char * ngx_http_auth_request_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_auth_request_init(ngx_conf_t * cf);
-static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_auth_request(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_auth_request_set(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_auth_request_commands[] = {
-	{ ngx_string("auth_request"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_http_auth_request,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("auth_request_set"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
-	  ngx_http_auth_request_set,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
+	{ ngx_string("auth_request"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_http_auth_request, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
+	{ ngx_string("auth_request_set"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
+	  ngx_http_auth_request_set, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
 
 	ngx_null_command
 };
@@ -55,13 +46,10 @@ static ngx_command_t ngx_http_auth_request_commands[] = {
 static ngx_http_module_t ngx_http_auth_request_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_auth_request_init,        /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_auth_request_create_conf, /* create location configuration */
 	ngx_http_auth_request_merge_conf   /* merge location configuration */
 };
@@ -87,8 +75,7 @@ static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 	ngx_http_request_t  * sr;
 	ngx_http_post_subrequest_t  * ps;
 	ngx_http_auth_request_ctx_t * ctx;
-	ngx_http_auth_request_conf_t  * arcf;
-	arcf = (ngx_http_auth_request_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_auth_request_module);
+	ngx_http_auth_request_conf_t * arcf = (ngx_http_auth_request_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_auth_request_module);
 	if(arcf->uri.len == 0) {
 		return NGX_DECLINED;
 	}
@@ -135,15 +122,12 @@ static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 	if(ctx == NULL) {
 		return NGX_ERROR;
 	}
-
 	ps = (ngx_http_post_subrequest_t *)ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
 	if(ps == NULL) {
 		return NGX_ERROR;
 	}
-
 	ps->handler = ngx_http_auth_request_done;
 	ps->data = ctx;
-
 	if(ngx_http_subrequest(r, &arcf->uri, NULL, &sr, ps, NGX_HTTP_SUBREQUEST_WAITED) != NGX_OK) {
 		return NGX_ERROR;
 	}
@@ -251,7 +235,7 @@ static ngx_int_t ngx_http_auth_request_init(ngx_conf_t * cf)
 	return NGX_OK;
 }
 
-static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_auth_request(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_auth_request_conf_t * arcf = (ngx_http_auth_request_conf_t *)conf;
 	if(arcf->uri.data) {
@@ -259,7 +243,7 @@ static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void *
 	}
 	else {
 		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
-		if(ngx_strcmp(value[1].data, "off") == 0) {
+		if(sstreq(value[1].data, "off")) {
 			arcf->uri.len = 0;
 			arcf->uri.data = (u_char*)"";
 			return NGX_CONF_OK;
@@ -269,7 +253,7 @@ static char * ngx_http_auth_request(ngx_conf_t * cf, ngx_command_t * cmd, void *
 	}
 }
 
-static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_auth_request_set(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_auth_request_conf_t * arcf = (ngx_http_auth_request_conf_t *)conf;
 	ngx_str_t * value;
@@ -315,4 +299,3 @@ static char * ngx_http_auth_request_set(ngx_conf_t * cf, ngx_command_t * cmd, vo
 	}
 	return NGX_CONF_OK;
 }
-

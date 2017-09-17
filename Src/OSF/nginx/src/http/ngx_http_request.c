@@ -683,7 +683,7 @@ static void ngx_http_process_request_line(ngx_event_t * rev)
 
 ngx_int_t ngx_http_process_request_uri(ngx_http_request_t * r)
 {
-	ngx_http_core_srv_conf_t  * cscf;
+	ngx_http_core_srv_conf_t * cscf;
 	if(r->args_start) {
 		r->uri.len = r->args_start - 1 - r->uri_start;
 	}
@@ -2396,5 +2396,23 @@ int ngx_http_request_t::SetContentType(SFileFormat fmt, SCodepage cp)
 		ok = 0;
 	//pReq->headers_out.content_type.len = sizeof("text/html; charset=UTF-8") - 1;
 	//pReq->headers_out.content_type.data = (u_char *)"text/html; charset=UTF-8";
+	return ok;
+}
+
+int ngx_http_request_t::GetArg(const char * pName, SString & rValue) const
+{
+	rValue.Z();
+	int    ok = 0;
+	StringSet ss("&");
+	ss.setBuf((const char *)args.data, args.len);
+	SString temp_buf, key, val;
+	for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
+		if(temp_buf.Divide('=', key, val) > 0) {
+			if(key.CmpNC(pName) == 0) {
+				rValue = val;
+				ok = 1;
+			}
+		}
+	}
 	return ok;
 }

@@ -6,14 +6,12 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_http.h>
-#include <nginx.h>
+//#include <nginx.h>
 #include <ngx_http_v2_module.h>
-
 /*
  * This returns precise number of octets for values in range 0..253
  * and estimate number for the rest, but not smaller than required.
  */
-
 #define ngx_http_v2_integer_octets(v)  (1 + (v) / 127)
 #define ngx_http_v2_literal_size(h)    (ngx_http_v2_integer_octets(sizeof(h) - 1) + sizeof(h) - 1)
 #define ngx_http_v2_indexed(i)      (128 + (i))

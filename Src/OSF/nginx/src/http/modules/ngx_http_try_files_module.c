@@ -7,32 +7,26 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_try_file_t {
 	ngx_array_t * lengths;
 	ngx_array_t * values;
 	ngx_str_t name;
-
 	unsigned code : 10;
 	unsigned test_dir : 1;
-} ngx_http_try_file_t;
+};
 
-typedef struct {
+struct ngx_http_try_files_loc_conf_t {
 	ngx_http_try_file_t * try_files;
-} ngx_http_try_files_loc_conf_t;
+};
 
 static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r);
-static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_try_files(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_http_try_files_create_loc_conf(ngx_conf_t * cf);
 static ngx_int_t ngx_http_try_files_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_http_try_files_commands[] = {
-	{ ngx_string("try_files"),
-	  NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_2MORE,
-	  ngx_http_try_files,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("try_files"), NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_2MORE,
+	  ngx_http_try_files, NGX_HTTP_LOC_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -88,17 +82,12 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 	name = NULL;
 	/* suppress MSVC warning */
 	path.data = NULL;
-
 	tf = tlcf->try_files;
-
 	clcf = (ngx_http_core_loc_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 	alias = clcf->alias;
-
 	for(;; ) {
 		if(tf->lengths) {
 			memzero(&e, sizeof(ngx_http_script_engine_t));
-
 			e.ip = (u_char*)tf->lengths->elts;
 			e.request = r;
 
@@ -184,16 +173,12 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 			}
 			else {
 				ngx_http_split_args(r, &path, &args);
-
 				(void)ngx_http_internal_redirect(r, &path, &args);
 			}
-
 			ngx_http_finalize_request(r, NGX_DONE);
 			return NGX_DONE;
 		}
-
 		memzero(&of, sizeof(ngx_open_file_info_t));
-
 		of.read_ahead = clcf->read_ahead;
 		of.directio = clcf->directio;
 		of.valid = clcf->open_file_cache_valid;
@@ -201,34 +186,23 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		of.test_only = 1;
 		of.errors = clcf->open_file_cache_errors;
 		of.events = clcf->open_file_cache_events;
-
 		if(ngx_http_set_disable_symlinks(r, clcf, &path, &of) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
-		if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool)
-		    != NGX_OK) {
+		if(ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool) != NGX_OK) {
 			if(of.err == 0) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
-
-			if(of.err != NGX_ENOENT
-			    && of.err != NGX_ENOTDIR
-			    && of.err != NGX_ENAMETOOLONG) {
-				ngx_log_error(NGX_LOG_CRIT, r->connection->log, of.err,
-				    "%s \"%s\" failed", of.failed, path.data);
+			if(of.err != NGX_ENOENT && of.err != NGX_ENOTDIR && of.err != NGX_ENAMETOOLONG) {
+				ngx_log_error(NGX_LOG_CRIT, r->connection->log, of.err, "%s \"%s\" failed", of.failed, path.data);
 			}
-
 			continue;
 		}
-
 		if(of.is_dir != test_dir) {
 			continue;
 		}
-
 		path.len -= root;
 		path.data += root;
-
 		if(!alias) {
 			r->uri = path;
 		}
@@ -257,7 +231,7 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 	/* not reached */
 }
 
-static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_try_files(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_try_files_loc_conf_t * tlcf = (ngx_http_try_files_loc_conf_t *)conf;
 	ngx_str_t  * value;
@@ -272,27 +246,18 @@ static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 	if(tf == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	tlcf->try_files = tf;
-
 	value = (ngx_str_t*)cf->args->elts;
-
 	for(i = 0; i < cf->args->nelts - 1; i++) {
 		tf[i].name = value[i + 1];
-
-		if(tf[i].name.len > 0
-		    && tf[i].name.data[tf[i].name.len - 1] == '/'
-		    && i + 2 < cf->args->nelts) {
+		if(tf[i].name.len > 0 && tf[i].name.data[tf[i].name.len - 1] == '/' && i + 2 < cf->args->nelts) {
 			tf[i].test_dir = 1;
 			tf[i].name.len--;
 			tf[i].name.data[tf[i].name.len] = '\0';
 		}
-
 		n = ngx_http_script_variables_count(&tf[i].name);
-
 		if(n) {
 			memzero(&sc, sizeof(ngx_http_script_compile_t));
-
 			sc.cf = cf;
 			sc.source = &tf[i].name;
 			sc.lengths = &tf[i].lengths;
@@ -300,7 +265,6 @@ static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 			sc.variables = n;
 			sc.complete_lengths = 1;
 			sc.complete_values = 1;
-
 			if(ngx_http_script_compile(&sc) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}
@@ -310,27 +274,20 @@ static char * ngx_http_try_files(ngx_conf_t * cf, ngx_command_t * cmd, void * co
 			tf[i].name.len++;
 		}
 	}
-
 	if(tf[i - 1].name.data[0] == '=') {
 		code = ngx_atoi(tf[i - 1].name.data + 1, tf[i - 1].name.len - 2);
-
 		if(code == NGX_ERROR || code > 999) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "invalid code \"%*s\"",
-			    tf[i - 1].name.len - 1, tf[i - 1].name.data);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid code \"%*s\"", tf[i - 1].name.len - 1, tf[i - 1].name.data);
 			return NGX_CONF_ERROR;
 		}
-
 		tf[i].code = code;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static void * ngx_http_try_files_create_loc_conf(ngx_conf_t * cf)
 {
-	ngx_http_try_files_loc_conf_t  * tlcf;
-	tlcf = (ngx_http_try_files_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_try_files_loc_conf_t));
+	ngx_http_try_files_loc_conf_t  * tlcf = (ngx_http_try_files_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_try_files_loc_conf_t));
 	if(tlcf == NULL) {
 		return NULL;
 	}
@@ -351,9 +308,6 @@ static ngx_int_t ngx_http_try_files_init(ngx_conf_t * cf)
 	if(h == NULL) {
 		return NGX_ERROR;
 	}
-
 	*h = ngx_http_try_files_handler;
-
 	return NGX_OK;
 }
-

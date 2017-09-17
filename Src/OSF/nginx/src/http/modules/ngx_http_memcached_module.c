@@ -7,17 +7,17 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_memcached_loc_conf_t {
 	ngx_http_upstream_conf_t upstream;
 	ngx_int_t index;
 	ngx_uint_t gzip_flag;
-} ngx_http_memcached_loc_conf_t;
+};
 
-typedef struct {
+struct ngx_http_memcached_ctx_t {
 	size_t rest;
 	ngx_http_request_t * request;
 	ngx_str_t key;
-} ngx_http_memcached_ctx_t;
+};
 
 static ngx_int_t ngx_http_memcached_create_request(ngx_http_request_t * r);
 static ngx_int_t ngx_http_memcached_reinit_request(ngx_http_request_t * r);
@@ -28,7 +28,7 @@ static void ngx_http_memcached_abort_request(ngx_http_request_t * r);
 static void ngx_http_memcached_finalize_request(ngx_http_request_t * r, ngx_int_t rc);
 static void * ngx_http_memcached_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_memcached_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
-static char * ngx_http_memcached_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_memcached_pass(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_conf_bitmask_t ngx_http_memcached_next_upstream_masks[] = {
 	{ ngx_string("error"), NGX_HTTP_UPSTREAM_FT_ERROR },
@@ -433,7 +433,7 @@ static char * ngx_http_memcached_merge_loc_conf(ngx_conf_t * cf, void * parent, 
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_memcached_pass(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_memcached_pass(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_memcached_loc_conf_t * mlcf = (ngx_http_memcached_loc_conf_t *)conf;
 	ngx_url_t u;

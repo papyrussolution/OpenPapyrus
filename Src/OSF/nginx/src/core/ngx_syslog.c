@@ -95,7 +95,7 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 				return NGX_CONF_ERROR;
 			}
 			for(i = 0; facilities[i] != NULL; i++) {
-				if(ngx_strcmp(p + 9, facilities[i]) == 0) {
+				if(sstreq(p + 9, facilities[i])) {
 					peer->facility = i;
 					goto next;
 				}
@@ -109,7 +109,7 @@ static char * ngx_syslog_parse_args(ngx_conf_t * cf, ngx_syslog_peer_t * peer)
 				return NGX_CONF_ERROR;
 			}
 			for(i = 0; severities[i] != NULL; i++) {
-				if(ngx_strcmp(p + 9, severities[i]) == 0) {
+				if(sstreq(p + 9, severities[i])) {
 					peer->severity = i;
 					goto next;
 				}

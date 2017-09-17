@@ -6,11 +6,9 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_http.h>
-#include <nginx.h>
+//#include <nginx.h>
 
-static ngx_http_variable_t * ngx_http_add_prefix_variable(ngx_conf_t * cf,
-    ngx_str_t * name, ngx_uint_t flags);
-
+static ngx_http_variable_t * ngx_http_add_prefix_variable(ngx_conf_t * cf, ngx_str_t * name, ngx_uint_t flags);
 static ngx_int_t ngx_http_variable_request(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 #if 0
 static void ngx_http_variable_request_set(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -18,11 +16,9 @@ static void ngx_http_variable_request_set(ngx_http_request_t * r, ngx_http_varia
 static ngx_int_t ngx_http_variable_request_get_size(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static void ngx_http_variable_request_set_size(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_header(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-
 static ngx_int_t ngx_http_variable_cookies(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_headers(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data, u_char sep);
-
 static ngx_int_t ngx_http_variable_unknown_header_in(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_unknown_header_out(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_unknown_trailer_out(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -62,7 +58,6 @@ static ngx_int_t ngx_http_variable_request_length(ngx_http_request_t * r, ngx_ht
 static ngx_int_t ngx_http_variable_request_time(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_request_id(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_status(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-
 static ngx_int_t ngx_http_variable_sent_content_type(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_sent_content_length(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_sent_location(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -70,17 +65,14 @@ static ngx_int_t ngx_http_variable_sent_last_modified(ngx_http_request_t * r, ng
 static ngx_int_t ngx_http_variable_sent_connection(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_sent_keep_alive(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_sent_transfer_encoding(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-
 static ngx_int_t ngx_http_variable_connection(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_connection_requests(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-
 static ngx_int_t ngx_http_variable_nginx_version(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_hostname(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_pid(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_msec(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-
 /*
  * TODO:
  *     Apache CGI: AUTH_TYPE, PATH_INFO (null), PATH_TRANSLATED
@@ -96,25 +88,15 @@ static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_v
  * ngx_http_variable_unknown_header_in(), but for performance reasons
  * they are handled using dedicated entries
  */
-
 static ngx_http_variable_t ngx_http_core_variables[] = {
-	{ ngx_string("http_host"), NULL, ngx_http_variable_header,
-	  offsetof(ngx_http_request_t, headers_in.host), 0, 0 },
-
-	{ ngx_string("http_user_agent"), NULL, ngx_http_variable_header,
-	  offsetof(ngx_http_request_t, headers_in.user_agent), 0, 0 },
-
-	{ ngx_string("http_referer"), NULL, ngx_http_variable_header,
-	  offsetof(ngx_http_request_t, headers_in.referer), 0, 0 },
-
+	{ ngx_string("http_host"), NULL, ngx_http_variable_header, offsetof(ngx_http_request_t, headers_in.host), 0, 0 },
+	{ ngx_string("http_user_agent"), NULL, ngx_http_variable_header, offsetof(ngx_http_request_t, headers_in.user_agent), 0, 0 },
+	{ ngx_string("http_referer"), NULL, ngx_http_variable_header, offsetof(ngx_http_request_t, headers_in.referer), 0, 0 },
 #if (NGX_HTTP_GZIP)
-	{ngx_string("http_via"), NULL, ngx_http_variable_header,
-	 offsetof(ngx_http_request_t, headers_in.via), 0, 0 },
+	{ ngx_string("http_via"), NULL, ngx_http_variable_header, offsetof(ngx_http_request_t, headers_in.via), 0, 0 },
 #endif
-
 #if (NGX_HTTP_X_FORWARDED_FOR)
-	{ngx_string("http_x_forwarded_for"), NULL, ngx_http_variable_headers,
-	 offsetof(ngx_http_request_t, headers_in.x_forwarded_for), 0, 0 },
+	{ ngx_string("http_x_forwarded_for"), NULL, ngx_http_variable_headers, offsetof(ngx_http_request_t, headers_in.x_forwarded_for), 0, 0 },
 #endif
 	{ ngx_string("http_cookie"), NULL, ngx_http_variable_cookies, offsetof(ngx_http_request_t, headers_in.cookies), 0, 0 },
 	{ ngx_string("content_length"), NULL, ngx_http_variable_content_length, 0, 0, 0 },
@@ -137,152 +119,55 @@ static ngx_http_variable_t ngx_http_core_variables[] = {
 	{ ngx_string("document_root"), NULL, ngx_http_variable_document_root, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 	{ ngx_string("realpath_root"), NULL, ngx_http_variable_realpath_root, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 	{ ngx_string("query_string"), NULL, ngx_http_variable_request, offsetof(ngx_http_request_t, args), NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("args"),
-	  ngx_http_variable_set_args,
-	  ngx_http_variable_request,
-	  offsetof(ngx_http_request_t, args),
-	  NGX_HTTP_VAR_CHANGEABLE|NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("is_args"), NULL, ngx_http_variable_is_args,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("request_filename"), NULL,
-	  ngx_http_variable_request_filename, 0,
-	  NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
+	{ ngx_string("args"), ngx_http_variable_set_args, ngx_http_variable_request, offsetof(ngx_http_request_t, args), NGX_HTTP_VAR_CHANGEABLE|NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("is_args"), NULL, ngx_http_variable_is_args, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("request_filename"), NULL, ngx_http_variable_request_filename, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 	{ ngx_string("server_name"), NULL, ngx_http_variable_server_name, 0, 0, 0 },
-
-	{ ngx_string("request_method"), NULL,
-	  ngx_http_variable_request_method, 0,
-	  NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
+	{ ngx_string("request_method"), NULL, ngx_http_variable_request_method, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 	{ ngx_string("remote_user"), NULL, ngx_http_variable_remote_user, 0, 0, 0 },
-
-	{ ngx_string("bytes_sent"), NULL, ngx_http_variable_bytes_sent,
-	  0, 0, 0 },
-
-	{ ngx_string("body_bytes_sent"), NULL, ngx_http_variable_body_bytes_sent,
-	  0, 0, 0 },
-
-	{ ngx_string("pipe"), NULL, ngx_http_variable_pipe,
-	  0, 0, 0 },
-
-	{ ngx_string("request_completion"), NULL,
-	  ngx_http_variable_request_completion,
-	  0, 0, 0 },
-
-	{ ngx_string("request_body"), NULL,
-	  ngx_http_variable_request_body,
-	  0, 0, 0 },
-
-	{ ngx_string("request_body_file"), NULL,
-	  ngx_http_variable_request_body_file,
-	  0, 0, 0 },
-
-	{ ngx_string("request_length"), NULL, ngx_http_variable_request_length,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("request_time"), NULL, ngx_http_variable_request_time,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("request_id"), NULL,
-	  ngx_http_variable_request_id,
-	  0, 0, 0 },
-
-	{ ngx_string("status"), NULL,
-	  ngx_http_variable_status, 0,
-	  NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("sent_http_content_type"), NULL,
-	  ngx_http_variable_sent_content_type, 0, 0, 0 },
-
-	{ ngx_string("sent_http_content_length"), NULL,
-	  ngx_http_variable_sent_content_length, 0, 0, 0 },
-
-	{ ngx_string("sent_http_location"), NULL,
-	  ngx_http_variable_sent_location, 0, 0, 0 },
-
-	{ ngx_string("sent_http_last_modified"), NULL,
-	  ngx_http_variable_sent_last_modified, 0, 0, 0 },
-
-	{ ngx_string("sent_http_connection"), NULL,
-	  ngx_http_variable_sent_connection, 0, 0, 0 },
-
-	{ ngx_string("sent_http_keep_alive"), NULL,
-	  ngx_http_variable_sent_keep_alive, 0, 0, 0 },
-
-	{ ngx_string("sent_http_transfer_encoding"), NULL,
-	  ngx_http_variable_sent_transfer_encoding, 0, 0, 0 },
-
-	{ ngx_string("sent_http_cache_control"), NULL, ngx_http_variable_headers,
-	  offsetof(ngx_http_request_t, headers_out.cache_control), 0, 0 },
-
-	{ ngx_string("limit_rate"), ngx_http_variable_request_set_size,
-	  ngx_http_variable_request_get_size,
-	  offsetof(ngx_http_request_t, limit_rate),
-	  NGX_HTTP_VAR_CHANGEABLE|NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("connection"), NULL,
-	  ngx_http_variable_connection, 0, 0, 0 },
-
-	{ ngx_string("connection_requests"), NULL,
-	  ngx_http_variable_connection_requests, 0, 0, 0 },
-
-	{ ngx_string("nginx_version"), NULL, ngx_http_variable_nginx_version,
-	  0, 0, 0 },
-
-	{ ngx_string("hostname"), NULL, ngx_http_variable_hostname,
-	  0, 0, 0 },
-
-	{ ngx_string("pid"), NULL, ngx_http_variable_pid,
-	  0, 0, 0 },
-
-	{ ngx_string("msec"), NULL, ngx_http_variable_msec,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("time_iso8601"), NULL, ngx_http_variable_time_iso8601,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("time_local"), NULL, ngx_http_variable_time_local,
-	  0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
+	{ ngx_string("bytes_sent"), NULL, ngx_http_variable_bytes_sent, 0, 0, 0 },
+	{ ngx_string("body_bytes_sent"), NULL, ngx_http_variable_body_bytes_sent, 0, 0, 0 },
+	{ ngx_string("pipe"), NULL, ngx_http_variable_pipe, 0, 0, 0 },
+	{ ngx_string("request_completion"), NULL, ngx_http_variable_request_completion, 0, 0, 0 },
+	{ ngx_string("request_body"), NULL, ngx_http_variable_request_body, 0, 0, 0 },
+	{ ngx_string("request_body_file"), NULL, ngx_http_variable_request_body_file, 0, 0, 0 },
+	{ ngx_string("request_length"), NULL, ngx_http_variable_request_length, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("request_time"), NULL, ngx_http_variable_request_time, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("request_id"), NULL, ngx_http_variable_request_id, 0, 0, 0 },
+	{ ngx_string("status"), NULL, ngx_http_variable_status, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("sent_http_content_type"), NULL, ngx_http_variable_sent_content_type, 0, 0, 0 },
+	{ ngx_string("sent_http_content_length"), NULL, ngx_http_variable_sent_content_length, 0, 0, 0 },
+	{ ngx_string("sent_http_location"), NULL, ngx_http_variable_sent_location, 0, 0, 0 },
+	{ ngx_string("sent_http_last_modified"), NULL, ngx_http_variable_sent_last_modified, 0, 0, 0 },
+	{ ngx_string("sent_http_connection"), NULL, ngx_http_variable_sent_connection, 0, 0, 0 },
+	{ ngx_string("sent_http_keep_alive"), NULL, ngx_http_variable_sent_keep_alive, 0, 0, 0 },
+	{ ngx_string("sent_http_transfer_encoding"), NULL, ngx_http_variable_sent_transfer_encoding, 0, 0, 0 },
+	{ ngx_string("sent_http_cache_control"), NULL, ngx_http_variable_headers, offsetof(ngx_http_request_t, headers_out.cache_control), 0, 0 },
+	{ ngx_string("limit_rate"), ngx_http_variable_request_set_size, ngx_http_variable_request_get_size, offsetof(ngx_http_request_t, limit_rate), NGX_HTTP_VAR_CHANGEABLE|NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("connection"), NULL, ngx_http_variable_connection, 0, 0, 0 },
+	{ ngx_string("connection_requests"), NULL, ngx_http_variable_connection_requests, 0, 0, 0 },
+	{ ngx_string("nginx_version"), NULL, ngx_http_variable_nginx_version, 0, 0, 0 },
+	{ ngx_string("hostname"), NULL, ngx_http_variable_hostname, 0, 0, 0 },
+	{ ngx_string("pid"), NULL, ngx_http_variable_pid, 0, 0, 0 },
+	{ ngx_string("msec"), NULL, ngx_http_variable_msec, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("time_iso8601"), NULL, ngx_http_variable_time_iso8601, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("time_local"), NULL, ngx_http_variable_time_local, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 #if (NGX_HAVE_TCP_INFO)
-	{ngx_string("tcpinfo_rtt"), NULL, ngx_http_variable_tcpinfo,
-	 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("tcpinfo_rttvar"), NULL, ngx_http_variable_tcpinfo,
-	  1, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("tcpinfo_snd_cwnd"), NULL, ngx_http_variable_tcpinfo,
-	  2, NGX_HTTP_VAR_NOCACHEABLE, 0 },
-
-	{ ngx_string("tcpinfo_rcv_space"), NULL, ngx_http_variable_tcpinfo,
-	  3, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("tcpinfo_rtt"), NULL, ngx_http_variable_tcpinfo, 0, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("tcpinfo_rttvar"), NULL, ngx_http_variable_tcpinfo, 1, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("tcpinfo_snd_cwnd"), NULL, ngx_http_variable_tcpinfo, 2, NGX_HTTP_VAR_NOCACHEABLE, 0 },
+	{ ngx_string("tcpinfo_rcv_space"), NULL, ngx_http_variable_tcpinfo, 3, NGX_HTTP_VAR_NOCACHEABLE, 0 },
 #endif
-
-	{ ngx_string("http_"), NULL, ngx_http_variable_unknown_header_in,
-	  0, NGX_HTTP_VAR_PREFIX, 0 },
-
-	{ ngx_string("sent_http_"), NULL, ngx_http_variable_unknown_header_out,
-	  0, NGX_HTTP_VAR_PREFIX, 0 },
-
-	{ ngx_string("sent_trailer_"), NULL, ngx_http_variable_unknown_trailer_out,
-	  0, NGX_HTTP_VAR_PREFIX, 0 },
-
-	{ ngx_string("cookie_"), NULL, ngx_http_variable_cookie,
-	  0, NGX_HTTP_VAR_PREFIX, 0 },
-
-	{ ngx_string("arg_"), NULL, ngx_http_variable_argument,
-	  0, NGX_HTTP_VAR_NOCACHEABLE|NGX_HTTP_VAR_PREFIX, 0 },
-
+	{ ngx_string("http_"), NULL, ngx_http_variable_unknown_header_in, 0, NGX_HTTP_VAR_PREFIX, 0 },
+	{ ngx_string("sent_http_"), NULL, ngx_http_variable_unknown_header_out, 0, NGX_HTTP_VAR_PREFIX, 0 },
+	{ ngx_string("sent_trailer_"), NULL, ngx_http_variable_unknown_trailer_out, 0, NGX_HTTP_VAR_PREFIX, 0 },
+	{ ngx_string("cookie_"), NULL, ngx_http_variable_cookie, 0, NGX_HTTP_VAR_PREFIX, 0 },
+	{ ngx_string("arg_"), NULL, ngx_http_variable_argument, 0, NGX_HTTP_VAR_NOCACHEABLE|NGX_HTTP_VAR_PREFIX, 0 },
 	{ ngx_null_string, NULL, NULL, 0, 0, 0 }
 };
 
-ngx_http_variable_value_t ngx_http_variable_null_value =
-    ngx_http_variable("");
-ngx_http_variable_value_t ngx_http_variable_true_value =
-    ngx_http_variable("1");
+ngx_http_variable_value_t ngx_http_variable_null_value = ngx_http_variable("");
+ngx_http_variable_value_t ngx_http_variable_true_value = ngx_http_variable("1");
 
 static ngx_uint_t ngx_http_variable_depth = 100;
 
@@ -293,70 +178,50 @@ ngx_http_variable_t * ngx_http_add_variable(ngx_conf_t * cf, ngx_str_t * name, n
 	ngx_hash_key_t   * key;
 	ngx_http_variable_t * v;
 	ngx_http_core_main_conf_t  * cmcf;
-
 	if(name->len == 0) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid variable name \"$\"");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid variable name \"$\"");
 		return NULL;
 	}
-
 	if(flags & NGX_HTTP_VAR_PREFIX) {
 		return ngx_http_add_prefix_variable(cf, name, flags);
 	}
-
 	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-
 	key = (ngx_hash_key_t *)cmcf->variables_keys->keys.elts;
 	for(i = 0; i < cmcf->variables_keys->keys.nelts; i++) {
-		if(name->len != key[i].key.len
-		    || ngx_strncasecmp(name->data, key[i].key.data, name->len) != 0) {
+		if(name->len != key[i].key.len || ngx_strncasecmp(name->data, key[i].key.data, name->len) != 0) {
 			continue;
 		}
-
 		v = (ngx_http_variable_t *)key[i].value;
-
 		if(!(v->flags & NGX_HTTP_VAR_CHANGEABLE)) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "the duplicate \"%V\" variable", name);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the duplicate \"%V\" variable", name);
 			return NULL;
 		}
-
 		v->flags &= flags | ~NGX_HTTP_VAR_WEAK;
-
 		return v;
 	}
-
 	v = (ngx_http_variable_t *)ngx_palloc(cf->pool, sizeof(ngx_http_variable_t));
 	if(v == NULL) {
 		return NULL;
 	}
-
 	v->name.len = name->len;
 	v->name.data = (u_char*)ngx_pnalloc(cf->pool, name->len);
 	if(v->name.data == NULL) {
 		return NULL;
 	}
-
 	ngx_strlow(v->name.data, name->data, name->len);
-
 	v->set_handler = NULL;
 	v->get_handler = NULL;
 	v->data = 0;
 	v->flags = flags;
 	v->index = 0;
-
 	rc = ngx_hash_add_key(cmcf->variables_keys, &v->name, v, 0);
-
 	if(rc == NGX_ERROR) {
 		return NULL;
 	}
-
 	if(rc == NGX_BUSY) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "conflicting variable name \"%V\"", name);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "conflicting variable name \"%V\"", name);
 		return NULL;
 	}
-
 	return v;
 }
 
@@ -364,53 +229,39 @@ static ngx_http_variable_t * ngx_http_add_prefix_variable(ngx_conf_t * cf, ngx_s
 {
 	ngx_uint_t i;
 	ngx_http_variable_t * v;
-	ngx_http_core_main_conf_t  * cmcf;
-
-	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
-
+	ngx_http_core_main_conf_t  * cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 	v = (ngx_http_variable_t *)cmcf->prefix_variables.elts;
 	for(i = 0; i < cmcf->prefix_variables.nelts; i++) {
-		if(name->len != v[i].name.len
-		    || ngx_strncasecmp(name->data, v[i].name.data, name->len) != 0) {
+		if(name->len != v[i].name.len || ngx_strncasecmp(name->data, v[i].name.data, name->len) != 0) {
 			continue;
 		}
-
 		v = &v[i];
-
 		if(!(v->flags & NGX_HTTP_VAR_CHANGEABLE)) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "the duplicate \"%V\" variable", name);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "the duplicate \"%V\" variable", name);
 			return NULL;
 		}
-
 		v->flags &= flags | ~NGX_HTTP_VAR_WEAK;
-
 		return v;
 	}
-
 	v = (ngx_http_variable_t *)ngx_array_push(&cmcf->prefix_variables);
 	if(v == NULL) {
 		return NULL;
 	}
-
 	v->name.len = name->len;
 	v->name.data = (u_char*)ngx_pnalloc(cf->pool, name->len);
 	if(v->name.data == NULL) {
 		return NULL;
 	}
-
 	ngx_strlow(v->name.data, name->data, name->len);
-
 	v->set_handler = NULL;
 	v->get_handler = NULL;
 	v->data = 0;
 	v->flags = flags;
 	v->index = 0;
-
 	return v;
 }
 
-ngx_int_t ngx_http_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
+ngx_int_t FASTCALL ngx_http_get_variable_index(ngx_conf_t * cf, const ngx_str_t * name)
 {
 	ngx_uint_t i;
 	ngx_http_variable_t * v;
@@ -634,176 +485,125 @@ static ngx_int_t ngx_http_variable_header(ngx_http_request_t * r, ngx_http_varia
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_cookies(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_cookies(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	return ngx_http_variable_headers_internal(r, v, data, ';');
 }
 
-static ngx_int_t ngx_http_variable_headers(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_headers(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	return ngx_http_variable_headers_internal(r, v, data, ',');
 }
 
-static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data, u_char sep)
+static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data, u_char sep)
 {
 	size_t len;
 	u_char  * p, * end;
 	ngx_uint_t i, n;
-	ngx_array_t  * a;
 	ngx_table_elt_t  ** h;
-
-	a = (ngx_array_t*)((char*)r + data);
-
+	ngx_array_t  * a = (ngx_array_t*)((char*)r + data);
 	n = a->nelts;
 	h = (ngx_table_elt_t **)a->elts;
-
 	len = 0;
-
 	for(i = 0; i < n; i++) {
-		if(h[i]->hash == 0) {
-			continue;
-		}
-
-		len += h[i]->value.len + 2;
+		if(h[i]->hash)
+			len += h[i]->value.len + 2;
 	}
-
 	if(len == 0) {
 		v->not_found = 1;
 		return NGX_OK;
 	}
-
 	len -= 2;
-
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	if(n == 1) {
 		v->len = (*h)->value.len;
 		v->data = (*h)->value.data;
-
 		return NGX_OK;
 	}
-
 	p = (u_char*)ngx_pnalloc(r->pool, len);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	v->len = len;
 	v->data = p;
-
 	end = p + len;
-
 	for(i = 0; /* void */; i++) {
-		if(h[i]->hash == 0) {
-			continue;
+		if(h[i]->hash) {
+			p = ngx_copy(p, h[i]->value.data, h[i]->value.len);
+			if(p == end) {
+				break;
+			}
+			*p++ = sep; *p++ = ' ';
 		}
-
-		p = ngx_copy(p, h[i]->value.data, h[i]->value.len);
-
-		if(p == end) {
-			break;
-		}
-
-		*p++ = sep; *p++ = ' ';
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_unknown_header_in(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_unknown_header_in(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data,
-	    &r->headers_in.headers.part,
-	    sizeof("http_") - 1);
+	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data, &r->headers_in.headers.part, sizeof("http_") - 1);
 }
 
-static ngx_int_t ngx_http_variable_unknown_header_out(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_unknown_header_out(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data,
-	    &r->headers_out.headers.part,
-	    sizeof("sent_http_") - 1);
+	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data, &r->headers_out.headers.part, sizeof("sent_http_") - 1);
 }
 
-static ngx_int_t ngx_http_variable_unknown_trailer_out(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_unknown_trailer_out(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data,
-	    &r->headers_out.trailers.part,
-	    sizeof("sent_trailer_") - 1);
+	return ngx_http_variable_unknown_header(v, (ngx_str_t*)data, &r->headers_out.trailers.part, sizeof("sent_trailer_") - 1);
 }
 
-ngx_int_t ngx_http_variable_unknown_header(ngx_http_variable_value_t * v, ngx_str_t * var,
-    ngx_list_part_t * part, size_t prefix)
+ngx_int_t ngx_http_variable_unknown_header(ngx_http_variable_value_t * v, ngx_str_t * var, ngx_list_part_t * part, size_t prefix)
 {
 	u_char ch;
 	ngx_uint_t i, n;
-	ngx_table_elt_t  * header;
-
-	header = (ngx_table_elt_t *)part->elts;
-
+	ngx_table_elt_t  * header = (ngx_table_elt_t *)part->elts;
 	for(i = 0; /* void */; i++) {
 		if(i >= part->nelts) {
 			if(part->next == NULL) {
 				break;
 			}
-
 			part = part->next;
 			header = (ngx_table_elt_t *)part->elts;
 			i = 0;
 		}
-
 		if(header[i].hash == 0) {
 			continue;
 		}
-
 		for(n = 0; n + prefix < var->len && n < header[i].key.len; n++) {
 			ch = header[i].key.data[n];
-
 			if(ch >= 'A' && ch <= 'Z') {
 				ch |= 0x20;
 			}
 			else if(ch == '-') {
 				ch = '_';
 			}
-
 			if(var->data[n + prefix] != ch) {
 				break;
 			}
 		}
-
 		if(n + prefix == var->len && n == header[i].key.len) {
 			v->len = header[i].value.len;
 			v->valid = 1;
 			v->no_cacheable = 0;
 			v->not_found = 0;
 			v->data = header[i].value.data;
-
 			return NGX_OK;
 		}
 	}
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_request_line(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_request_line(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p, * s;
-
-	s = r->request_line.data;
-
+	u_char  * p;
+	u_char  * s = r->request_line.data;
 	if(s == NULL) {
 		s = r->request_start;
-
 		if(s == NULL) {
 			v->not_found = 1;
 			return NGX_OK;
@@ -853,91 +653,60 @@ static ngx_int_t ngx_http_variable_cookie(ngx_http_request_t * r, ngx_http_varia
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_argument(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_variable_argument(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_str_t * name = (ngx_str_t*)data;
-
-	u_char   * arg;
-	size_t len;
 	ngx_str_t value;
-
-	len = name->len - (sizeof("arg_") - 1);
-	arg = name->data + sizeof("arg_") - 1;
-
+	size_t len = name->len - (sizeof("arg_") - 1);
+	const u_char * arg = name->data + sizeof("arg_") - 1;
 	if(ngx_http_arg(r, arg, len, &value) != NGX_OK) {
 		v->not_found = 1;
-		return NGX_OK;
 	}
-
-	v->data = value.data;
-	v->len = value.len;
-	v->valid = 1;
-	v->no_cacheable = 0;
-	v->not_found = 0;
-
+	else {
+		v->data = value.data;
+		v->len = value.len;
+		v->valid = 1;
+		v->no_cacheable = 0;
+		v->not_found = 0;
+	}
 	return NGX_OK;
 }
 
 #if (NGX_HAVE_TCP_INFO)
 
-static ngx_int_t ngx_http_variable_tcpinfo(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_variable_tcpinfo(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	struct tcp_info ti;
-
 	socklen_t len;
 	uint32_t value;
-
 	len = sizeof(struct tcp_info);
 	if(getsockopt(r->connection->fd, IPPROTO_TCP, TCP_INFO, &ti, &len) == -1) {
 		v->not_found = 1;
 		return NGX_OK;
 	}
-
 	v->data = ngx_pnalloc(r->pool, NGX_INT32_LEN);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
 	switch(data) {
-		case 0:
-		    value = ti.tcpi_rtt;
-		    break;
-
-		case 1:
-		    value = ti.tcpi_rttvar;
-		    break;
-
-		case 2:
-		    value = ti.tcpi_snd_cwnd;
-		    break;
-
-		case 3:
-		    value = ti.tcpi_rcv_space;
-		    break;
-
-		/* suppress warning */
-		default:
-		    value = 0;
-		    break;
+		case 0: value = ti.tcpi_rtt; break;
+		case 1: value = ti.tcpi_rttvar; break;
+		case 2: value = ti.tcpi_snd_cwnd; break;
+		case 3: value = ti.tcpi_rcv_space; break;
+		default: value = 0; break; // suppress warning 
 	}
-
 	v->len = ngx_sprintf(v->data, "%uD", value) - v->data;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	return NGX_OK;
 }
 
 #endif
 
-static ngx_int_t ngx_http_variable_content_length(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_content_length(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p;
-
 	if(r->headers_in.content_length) {
 		v->len = r->headers_in.content_length->value.len;
 		v->data = r->headers_in.content_length->value.data;
@@ -954,7 +723,6 @@ static ngx_int_t ngx_http_variable_content_length(ngx_http_request_t * r,
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-
 		v->len = ngx_sprintf(p, "%O", r->headers_in.content_length_n) - p;
 		v->data = p;
 		v->valid = 1;
@@ -964,245 +732,187 @@ static ngx_int_t ngx_http_variable_content_length(ngx_http_request_t * r,
 	else {
 		v->not_found = 1;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_host(ngx_http_request_t * r, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_variable_host(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_http_core_srv_conf_t  * cscf;
-
 	if(r->headers_in.server.len) {
 		v->len = r->headers_in.server.len;
 		v->data = r->headers_in.server.data;
 	}
 	else {
-		cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-
+		const ngx_http_core_srv_conf_t * cscf = (const ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
 		v->len = cscf->server_name.len;
 		v->data = cscf->server_name.data;
 	}
-
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_binary_remote_addr(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_binary_remote_addr(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	struct sockaddr_in * sin;
-
 #if (NGX_HAVE_INET6)
 	struct sockaddr_in6  * sin6;
-
 #endif
-
 	switch(r->connection->sockaddr->sa_family) {
 #if (NGX_HAVE_INET6)
 		case AF_INET6:
 		    sin6 = (struct sockaddr_in6*)r->connection->sockaddr;
-
 		    v->len = sizeof(struct in6_addr);
 		    v->valid = 1;
 		    v->no_cacheable = 0;
 		    v->not_found = 0;
 		    v->data = sin6->sin6_addr.s6_addr;
-
 		    break;
 #endif
-
 		default: /* AF_INET */
 		    sin = (struct sockaddr_in*)r->connection->sockaddr;
-
 		    v->len = sizeof(in_addr_t);
 		    v->valid = 1;
 		    v->no_cacheable = 0;
 		    v->not_found = 0;
 		    v->data = (u_char*)&sin->sin_addr;
-
 		    break;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_remote_addr(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_remote_addr(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	v->len = r->connection->addr_text.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = r->connection->addr_text.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_remote_port(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_remote_port(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_uint_t port;
-
 	v->len = 0;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	v->data = (u_char*)ngx_pnalloc(r->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
 	port = ngx_inet_get_port(r->connection->sockaddr);
-
 	if(port > 0 && port < 65536) {
 		v->len = ngx_sprintf(v->data, "%ui", port) - v->data;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_proxy_protocol_addr(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_proxy_protocol_addr(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	v->len = r->connection->proxy_protocol_addr.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = r->connection->proxy_protocol_addr.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_proxy_protocol_port(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_proxy_protocol_port(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_uint_t port;
-
 	v->len = 0;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	v->data = (u_char*)ngx_pnalloc(r->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
 	port = r->connection->proxy_protocol_port;
-
 	if(port > 0 && port < 65536) {
 		v->len = ngx_sprintf(v->data, "%ui", port) - v->data;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_server_addr(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_server_addr(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_str_t s;
 	u_char addr[NGX_SOCKADDR_STRLEN];
-
 	s.len = NGX_SOCKADDR_STRLEN;
 	s.data = addr;
-
 	if(ngx_connection_local_sockaddr(r->connection, &s, 0) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	s.data = (u_char*)ngx_pnalloc(r->pool, s.len);
 	if(s.data == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(s.data, addr, s.len);
-
 	v->len = s.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = s.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_server_port(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_server_port(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_uint_t port;
-
 	v->len = 0;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	if(ngx_connection_local_sockaddr(r->connection, NULL, 0) != NGX_OK) {
 		return NGX_ERROR;
 	}
-
 	v->data = (u_char*)ngx_pnalloc(r->pool, sizeof("65535") - 1);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
 	port = ngx_inet_get_port(r->connection->local_sockaddr);
-
 	if(port > 0 && port < 65536) {
 		v->len = ngx_sprintf(v->data, "%ui", port) - v->data;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_scheme(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_scheme(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 #if (NGX_HTTP_SSL)
-
 	if(r->connection->ssl) {
 		v->len = sizeof("https") - 1;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = (u_char*)"https";
-
 		return NGX_OK;
 	}
-
 #endif
-
 	v->len = sizeof("http") - 1;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = (u_char*)"http";
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_https(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 #if (NGX_HTTP_SSL)
-
 	if(r->connection->ssl) {
 		v->len = sizeof("on") - 1;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = (u_char*)"on";
-
 		return NGX_OK;
 	}
-
 #endif
-
 	*v = ngx_http_variable_null_value;
-
 	return NGX_OK;
 }
 
@@ -1217,23 +927,21 @@ static ngx_int_t ngx_http_variable_is_args(ngx_http_request_t * r, ngx_http_vari
 {
 	if(r->args.len == 0) {
 		*v = ngx_http_variable_null_value;
-		return NGX_OK;
 	}
-	v->len = 1;
-	v->valid = 1;
-	v->no_cacheable = 0;
-	v->not_found = 0;
-	v->data = (u_char*)"?";
+	else {
+		v->len = 1;
+		v->valid = 1;
+		v->no_cacheable = 0;
+		v->not_found = 0;
+		v->data = (u_char*)"?";
+	}
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_document_root(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_str_t path;
-	ngx_http_core_loc_conf_t  * clcf;
-
-	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
+	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 	if(clcf->root_lengths == NULL) {
 		v->len = clcf->root.len;
 		v->valid = 1;
@@ -1242,74 +950,53 @@ static ngx_int_t ngx_http_variable_document_root(ngx_http_request_t * r, ngx_htt
 		v->data = clcf->root.data;
 	}
 	else {
-		if(ngx_http_script_run(r, &path, clcf->root_lengths->elts, 0,
-			    clcf->root_values->elts)
-		    == NULL) {
+		if(ngx_http_script_run(r, &path, clcf->root_lengths->elts, 0, clcf->root_values->elts) == NULL) {
 			return NGX_ERROR;
 		}
-
-		if(ngx_get_full_name(r->pool, (ngx_str_t*)&ngx_cycle->prefix, &path)
-		    != NGX_OK) {
+		if(ngx_get_full_name(r->pool, (ngx_str_t*)&ngx_cycle->prefix, &path) != NGX_OK) {
 			return NGX_ERROR;
 		}
-
 		v->len = path.len;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = path.data;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_realpath_root(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_realpath_root(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * real;
 	size_t len;
 	ngx_str_t path;
-	ngx_http_core_loc_conf_t  * clcf;
 #if (NGX_HAVE_MAX_PATH)
 	u_char buffer[NGX_MAX_PATH];
 #endif
-
-	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
+	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 	if(clcf->root_lengths == NULL) {
 		path = clcf->root;
 	}
 	else {
-		if(ngx_http_script_run(r, &path, clcf->root_lengths->elts, 1,
-			    clcf->root_values->elts)
-		    == NULL) {
+		if(ngx_http_script_run(r, &path, clcf->root_lengths->elts, 1, clcf->root_values->elts) == NULL) {
 			return NGX_ERROR;
 		}
-
 		path.data[path.len - 1] = '\0';
-
-		if(ngx_get_full_name(r->pool, (ngx_str_t*)&ngx_cycle->prefix, &path)
-		    != NGX_OK) {
+		if(ngx_get_full_name(r->pool, (ngx_str_t*)&ngx_cycle->prefix, &path) != NGX_OK) {
 			return NGX_ERROR;
 		}
 	}
-
 #if (NGX_HAVE_MAX_PATH)
 	real = buffer;
 #else
 	real = NULL;
 #endif
-
 	real = ngx_realpath(path.data, real);
-
 	if(real == NULL) {
-		ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno,
-		    ngx_realpath_n " \"%s\" failed", path.data);
+		ngx_log_error(NGX_LOG_CRIT, r->connection->log, ngx_errno, ngx_realpath_n " \"%s\" failed", path.data);
 		return NGX_ERROR;
 	}
-
 	len = ngx_strlen(real);
-
 	v->data = (u_char*)ngx_pnalloc(r->pool, len);
 	if(v->data == NULL) {
 #if !(NGX_HAVE_MAX_PATH)
@@ -1317,60 +1004,45 @@ static ngx_int_t ngx_http_variable_realpath_root(ngx_http_request_t * r,
 #endif
 		return NGX_ERROR;
 	}
-
 	v->len = len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	memcpy(v->data, real, len);
-
 #if !(NGX_HAVE_MAX_PATH)
 	ngx_free(real);
 #endif
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_request_filename(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_request_filename(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	size_t root;
 	ngx_str_t path;
-
 	if(ngx_http_map_uri_to_path(r, &path, &root, 0) == NULL) {
 		return NGX_ERROR;
 	}
-
 	/* ngx_http_map_uri_to_path() allocates memory for terminating '\0' */
-
 	v->len = path.len - 1;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = path.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_server_name(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_server_name(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_http_core_srv_conf_t  * cscf;
-
-	cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-
+	ngx_http_core_srv_conf_t  * cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_core_module);
 	v->len = cscf->server_name.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = cscf->server_name.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_request_method(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_request_method(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	if(r->main->method_name.data) {
 		v->len = r->main->method_name.len;
@@ -1382,102 +1054,77 @@ static ngx_int_t ngx_http_variable_request_method(ngx_http_request_t * r,
 	else {
 		v->not_found = 1;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_remote_user(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_remote_user(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_int_t rc;
-
-	rc = ngx_http_auth_basic_user(r);
-
+	ngx_int_t rc = ngx_http_auth_basic_user(r);
 	if(rc == NGX_DECLINED) {
 		v->not_found = 1;
 		return NGX_OK;
 	}
-
 	if(rc == NGX_ERROR) {
 		return NGX_ERROR;
 	}
-
 	v->len = r->headers_in.user.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = r->headers_in.user.data;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_bytes_sent(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_bytes_sent(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-
-	p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
+	u_char  * p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	v->len = ngx_sprintf(p, "%O", r->connection->sent) - p;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_body_bytes_sent(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_body_bytes_sent(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	nginx_off_t sent;
 	u_char  * p;
-
-	sent = r->connection->sent - r->header_size;
-
+	nginx_off_t sent = r->connection->sent - r->header_size;
 	if(sent < 0) {
 		sent = 0;
 	}
-
 	p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	v->len = ngx_sprintf(p, "%O", sent) - p;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_pipe(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_pipe(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	v->data = (u_char*)(r->pipeline ? "p" : ".");
 	v->len = 1;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_status(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_status(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_uint_t status;
-
 	v->data = (u_char*)ngx_pnalloc(r->pool, NGX_INT_T_LEN);
 	if(v->data == NULL) {
 		return NGX_ERROR;
 	}
-
 	if(r->err_status) {
 		status = r->err_status;
 	}
@@ -1490,17 +1137,14 @@ static ngx_int_t ngx_http_variable_status(ngx_http_request_t * r,
 	else {
 		status = 0;
 	}
-
 	v->len = ngx_sprintf(v->data, "%03ui", status) - v->data;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_sent_content_type(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_sent_content_type(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	if(r->headers_out.content_type.len) {
 		v->len = r->headers_out.content_type.len;
@@ -1512,64 +1156,49 @@ static ngx_int_t ngx_http_variable_sent_content_type(ngx_http_request_t * r,
 	else {
 		v->not_found = 1;
 	}
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_sent_content_length(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_sent_content_length(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p;
-
 	if(r->headers_out.content_length) {
 		v->len = r->headers_out.content_length->value.len;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = r->headers_out.content_length->value.data;
-
 		return NGX_OK;
 	}
-
 	if(r->headers_out.content_length_n >= 0) {
 		p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-
 		v->len = ngx_sprintf(p, "%O", r->headers_out.content_length_n) - p;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = p;
-
 		return NGX_OK;
 	}
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_variable_sent_location(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_variable_sent_location(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	ngx_str_t name;
-
 	if(r->headers_out.location) {
 		v->len = r->headers_out.location->value.len;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = r->headers_out.location->value.data;
-
 		return NGX_OK;
 	}
-
 	ngx_str_set(&name, "sent_http_location");
-	return ngx_http_variable_unknown_header(v, &name,
-	    &r->headers_out.headers.part,
-	    sizeof("sent_http_") - 1);
+	return ngx_http_variable_unknown_header(v, &name, &r->headers_out.headers.part, sizeof("sent_http_") - 1);
 }
 
 static ngx_int_t ngx_http_variable_sent_last_modified(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
@@ -1581,27 +1210,21 @@ static ngx_int_t ngx_http_variable_sent_last_modified(ngx_http_request_t * r, ng
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = r->headers_out.last_modified->value.data;
-
 		return NGX_OK;
 	}
-
 	if(r->headers_out.last_modified_time >= 0) {
 		p = (u_char*)ngx_pnalloc(r->pool, sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1);
 		if(p == NULL) {
 			return NGX_ERROR;
 		}
-
 		v->len = ngx_http_time(p, r->headers_out.last_modified_time) - p;
 		v->valid = 1;
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = p;
-
 		return NGX_OK;
 	}
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
@@ -1609,7 +1232,6 @@ static ngx_int_t ngx_http_variable_sent_connection(ngx_http_request_t * r, ngx_h
 {
 	size_t len;
 	char  * p;
-
 	if(r->headers_out.status == NGX_HTTP_SWITCHING_PROTOCOLS) {
 		len = sizeof("upgrade") - 1;
 		p = "upgrade";
@@ -1622,42 +1244,32 @@ static ngx_int_t ngx_http_variable_sent_connection(ngx_http_request_t * r, ngx_h
 		len = sizeof("close") - 1;
 		p = "close";
 	}
-
 	v->len = len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = (u_char*)p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_sent_keep_alive(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-	ngx_http_core_loc_conf_t  * clcf;
-
 	if(r->keepalive) {
-		clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
+		ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 		if(clcf->keepalive_header) {
-			p = (u_char*)ngx_pnalloc(r->pool, sizeof("timeout=") - 1 + NGX_TIME_T_LEN);
+			u_char * p = (u_char*)ngx_pnalloc(r->pool, sizeof("timeout=") - 1 + NGX_TIME_T_LEN);
 			if(p == NULL) {
 				return NGX_ERROR;
 			}
-
 			v->len = ngx_sprintf(p, "timeout=%T", clcf->keepalive_header) - p;
 			v->valid = 1;
 			v->no_cacheable = 0;
 			v->not_found = 0;
 			v->data = p;
-
 			return NGX_OK;
 		}
 	}
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
@@ -1673,7 +1285,6 @@ static ngx_int_t ngx_http_variable_sent_transfer_encoding(ngx_http_request_t * r
 	else {
 		v->not_found = 1;
 	}
-
 	return NGX_OK;
 }
 
@@ -1685,12 +1296,9 @@ static ngx_int_t ngx_http_variable_request_completion(ngx_http_request_t * r, ng
 		v->no_cacheable = 0;
 		v->not_found = 0;
 		v->data = (u_char*)"OK";
-
-		return NGX_OK;
 	}
-
-	*v = ngx_http_variable_null_value;
-
+	else
+		*v = ngx_http_variable_null_value;
 	return NGX_OK;
 }
 
@@ -1700,54 +1308,41 @@ static ngx_int_t ngx_http_variable_request_body(ngx_http_request_t * r, ngx_http
 	size_t len;
 	ngx_buf_t  * buf;
 	ngx_chain_t  * cl;
-
-	if(r->request_body == NULL
-	    || r->request_body->bufs == NULL
-	    || r->request_body->temp_file) {
+	if(r->request_body == NULL || r->request_body->bufs == NULL || r->request_body->temp_file)
 		v->not_found = 1;
-
-		return NGX_OK;
-	}
-
-	cl = r->request_body->bufs;
-	buf = cl->buf;
-
-	if(cl->next == NULL) {
-		v->len = buf->last - buf->pos;
-		v->valid = 1;
-		v->no_cacheable = 0;
-		v->not_found = 0;
-		v->data = buf->pos;
-
-		return NGX_OK;
-	}
-
-	len = buf->last - buf->pos;
-	cl = cl->next;
-
-	for(/* void */; cl; cl = cl->next) {
+	else {
+		cl = r->request_body->bufs;
 		buf = cl->buf;
-		len += buf->last - buf->pos;
+		if(cl->next == NULL) {
+			v->len = buf->last - buf->pos;
+			v->valid = 1;
+			v->no_cacheable = 0;
+			v->not_found = 0;
+			v->data = buf->pos;
+		}
+		else {
+			len = buf->last - buf->pos;
+			cl = cl->next;
+			for(/* void */; cl; cl = cl->next) {
+				buf = cl->buf;
+				len += buf->last - buf->pos;
+			}
+			p = (u_char*)ngx_pnalloc(r->pool, len);
+			if(p == NULL) {
+				return NGX_ERROR;
+			}
+			v->data = p;
+			cl = r->request_body->bufs;
+			for(/* void */; cl; cl = cl->next) {
+				buf = cl->buf;
+				p = ngx_cpymem(p, buf->pos, buf->last - buf->pos);
+			}
+			v->len = len;
+			v->valid = 1;
+			v->no_cacheable = 0;
+			v->not_found = 0;
+		}
 	}
-
-	p = (u_char*)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
-		return NGX_ERROR;
-	}
-
-	v->data = p;
-	cl = r->request_body->bufs;
-
-	for(/* void */; cl; cl = cl->next) {
-		buf = cl->buf;
-		p = ngx_cpymem(p, buf->pos, buf->last - buf->pos);
-	}
-
-	v->len = len;
-	v->valid = 1;
-	v->no_cacheable = 0;
-	v->not_found = 0;
-
 	return NGX_OK;
 }
 
@@ -1755,102 +1350,78 @@ static ngx_int_t ngx_http_variable_request_body_file(ngx_http_request_t * r, ngx
 {
 	if(r->request_body == NULL || r->request_body->temp_file == NULL) {
 		v->not_found = 1;
-
-		return NGX_OK;
 	}
-
-	v->len = r->request_body->temp_file->file.name.len;
-	v->valid = 1;
-	v->no_cacheable = 0;
-	v->not_found = 0;
-	v->data = r->request_body->temp_file->file.name.data;
-
+	else {
+		v->len = r->request_body->temp_file->file.name.len;
+		v->valid = 1;
+		v->no_cacheable = 0;
+		v->not_found = 0;
+		v->data = r->request_body->temp_file->file.name.data;
+	}
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_request_length(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-
-	p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
+	u_char  * p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	v->len = ngx_sprintf(p, "%O", r->request_length) - p;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_request_time(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char   * p;
 	ngx_time_t * tp;
 	ngx_msec_int_t ms;
-
-	p = (u_char*)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
+	u_char * p = (u_char*)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	tp = ngx_timeofday();
-
-	ms = (ngx_msec_int_t)
-	    ((tp->sec - r->start_sec) * 1000 + (tp->msec - r->start_msec));
+	ms = (ngx_msec_int_t)((tp->sec - r->start_sec) * 1000 + (tp->msec - r->start_msec));
 	ms = MAX(ms, 0);
-
 	v->len = ngx_sprintf(p, "%T.%03M", (time_t)ms / 1000, ms % 1000) - p;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_request_id(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * id;
 #if (NGX_OPENSSL)
 	u_char random_bytes[16];
 #endif
-	id = (u_char *)ngx_pnalloc(r->pool, 32);
+	u_char * id = (u_char *)ngx_pnalloc(r->pool, 32);
 	if(id == NULL) {
 		return NGX_ERROR;
 	}
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	v->len = 32;
 	v->data = id;
-
 #if (NGX_OPENSSL)
-
 	if(RAND_bytes(random_bytes, 16) == 1) {
 		ngx_hex_dump(id, random_bytes, 16);
 		return NGX_OK;
 	}
-
 	ngx_ssl_error(NGX_LOG_ERR, r->connection->log, 0, "RAND_bytes() failed");
-
 #endif
-
-	ngx_sprintf(id, "%08xD%08xD%08xD%08xD",
-	    (uint32_t)ngx_random(), (uint32_t)ngx_random(),
-	    (uint32_t)ngx_random(), (uint32_t)ngx_random());
-
+	ngx_sprintf(id, "%08xD%08xD%08xD%08xD", (uint32_t)ngx_random(), (uint32_t)ngx_random(), (uint32_t)ngx_random(), (uint32_t)ngx_random());
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_connection(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-	p = (u_char *)ngx_pnalloc(r->pool, NGX_ATOMIC_T_LEN);
+	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_ATOMIC_T_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
@@ -1859,14 +1430,12 @@ static ngx_int_t ngx_http_variable_connection(ngx_http_request_t * r, ngx_http_v
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_connection_requests(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-	p = (u_char *)ngx_pnalloc(r->pool, NGX_INT_T_LEN);
+	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_INT_T_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
@@ -1875,7 +1444,6 @@ static ngx_int_t ngx_http_variable_connection_requests(ngx_http_request_t * r, n
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
@@ -1886,7 +1454,6 @@ static ngx_int_t ngx_http_variable_nginx_version(ngx_http_request_t * r, ngx_htt
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = (u_char*)NGINX_VERSION;
-
 	return NGX_OK;
 }
 
@@ -1897,87 +1464,67 @@ static ngx_int_t ngx_http_variable_hostname(ngx_http_request_t * r, ngx_http_var
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = ngx_cycle->hostname.data;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_pid(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-
-	p = (u_char *)ngx_pnalloc(r->pool, NGX_INT64_LEN);
+	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_INT64_LEN);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	v->len = ngx_sprintf(p, "%P", ngx_pid) - p;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_msec(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char * p;
-	ngx_time_t  * tp;
-
-	p = (u_char *)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
+	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
-	tp = ngx_timeofday();
-
-	v->len = ngx_sprintf(p, "%T.%03M", tp->sec, tp->msec) - p;
-	v->valid = 1;
-	v->no_cacheable = 0;
-	v->not_found = 0;
-	v->data = p;
-
-	return NGX_OK;
+	else {
+		const ngx_time_t * tp = ngx_timeofday();
+		v->len = ngx_sprintf(p, "%T.%03M", tp->sec, tp->msec) - p;
+		v->valid = 1;
+		v->no_cacheable = 0;
+		v->not_found = 0;
+		v->data = p;
+		return NGX_OK;
+	}
 }
 
 static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-
-	p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_iso8601.len);
+	u_char * p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_iso8601.len);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
-	memcpy(p, ngx_cached_http_log_iso8601.data,
-	    ngx_cached_http_log_iso8601.len);
-
+	memcpy(p, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len);
 	v->len = ngx_cached_http_log_iso8601.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
 static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	u_char  * p;
-
-	p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_time.len);
+	u_char  * p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_time.len);
 	if(p == NULL) {
 		return NGX_ERROR;
 	}
-
 	memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
-
 	v->len = ngx_cached_http_log_time.len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 }
 
@@ -1985,11 +1532,8 @@ void * ngx_http_map_find(ngx_http_request_t * r, ngx_http_map_t * map, ngx_str_t
 {
 	void * value;
 	u_char * low;
-	size_t len;
 	ngx_uint_t key;
-
-	len = match->len;
-
+	const size_t len = match->len;
 	if(len) {
 		low = (u_char *)ngx_pnalloc(r->pool, len);
 		if(low == NULL) {
@@ -1999,42 +1543,27 @@ void * ngx_http_map_find(ngx_http_request_t * r, ngx_http_map_t * map, ngx_str_t
 	else {
 		low = NULL;
 	}
-
 	key = ngx_hash_strlow(low, match->data, len);
-
 	value = ngx_hash_find_combined(&map->hash, key, low, len);
 	if(value) {
 		return value;
 	}
-
 #if (NGX_PCRE)
-
 	if(len && map->nregex) {
-		ngx_int_t n;
-		ngx_uint_t i;
-		ngx_http_map_regex_t  * reg;
-
-		reg = map->regex;
-
-		for(i = 0; i < map->nregex; i++) {
-			n = ngx_http_regex_exec(r, reg[i].regex, match);
-
+		ngx_http_map_regex_t  * reg = map->regex;
+		for(ngx_uint_t i = 0; i < map->nregex; i++) {
+			const ngx_int_t n = ngx_http_regex_exec(r, reg[i].regex, match);
 			if(n == NGX_OK) {
 				return reg[i].value;
 			}
-
 			if(n == NGX_DECLINED) {
 				continue;
 			}
-
 			/* NGX_ERROR */
-
 			return NULL;
 		}
 	}
-
 #endif
-
 	return NULL;
 }
 
@@ -2056,64 +1585,47 @@ ngx_http_regex_t * ngx_http_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t *
 	ngx_http_regex_t * re;
 	ngx_http_regex_variable_t  * rv;
 	ngx_http_core_main_conf_t  * cmcf;
-
 	rc->pool = cf->pool;
-
 	if(ngx_regex_compile(rc) != NGX_OK) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%V", &rc->err);
 		return NULL;
 	}
-
 	re = (ngx_http_regex_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_regex_t));
 	if(re == NULL) {
 		return NULL;
 	}
-
 	re->regex = rc->regex;
 	re->ncaptures = rc->captures;
 	re->name = rc->pattern;
-
 	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 	cmcf->ncaptures = MAX(cmcf->ncaptures, re->ncaptures);
-
 	n = (ngx_uint_t)rc->named_captures;
-
 	if(n == 0) {
 		return re;
 	}
-
 	rv = (ngx_http_regex_variable_t *)ngx_palloc(rc->pool, n * sizeof(ngx_http_regex_variable_t));
 	if(rv == NULL) {
 		return NULL;
 	}
-
 	re->variables = rv;
 	re->nvariables = n;
-
 	size = rc->name_size;
 	p = rc->names;
-
 	for(i = 0; i < n; i++) {
 		rv[i].capture = 2 * ((p[0] << 8) + p[1]);
-
 		name.data = &p[2];
 		name.len = ngx_strlen(name.data);
-
 		v = ngx_http_add_variable(cf, &name, NGX_HTTP_VAR_CHANGEABLE);
 		if(v == NULL) {
 			return NULL;
 		}
-
 		rv[i].index = ngx_http_get_variable_index(cf, &name);
 		if(rv[i].index == NGX_ERROR) {
 			return NULL;
 		}
-
 		v->get_handler = ngx_http_variable_not_found;
-
 		p += size;
 	}
-
 	return re;
 }
 

@@ -55,47 +55,24 @@ static ngx_conf_bitmask_t ngx_http_dav_methods_mask[] = {
 };
 
 static ngx_command_t ngx_http_dav_commands[] = {
-	{ ngx_string("dav_methods"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
-	  ngx_conf_set_bitmask_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_dav_loc_conf_t, methods),
-	  &ngx_http_dav_methods_mask },
-
-	{ ngx_string("create_full_put_path"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_dav_loc_conf_t, create_full_put_path),
-	  NULL },
-
-	{ ngx_string("min_delete_depth"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_dav_loc_conf_t, min_delete_depth),
-	  NULL },
-
-	{ ngx_string("dav_access"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE123,
-	  ngx_conf_set_access_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_dav_loc_conf_t, access),
-	  NULL },
-
+	{ ngx_string("dav_methods"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
+	  ngx_conf_set_bitmask_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_dav_loc_conf_t, methods), &ngx_http_dav_methods_mask },
+	{ ngx_string("create_full_put_path"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_dav_loc_conf_t, create_full_put_path), NULL },
+	{ ngx_string("min_delete_depth"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_dav_loc_conf_t, min_delete_depth), NULL },
+	{ ngx_string("dav_access"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE123,
+	  ngx_conf_set_access_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_dav_loc_conf_t, access), NULL },
 	ngx_null_command
 };
 
 static ngx_http_module_t ngx_http_dav_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_dav_init,                 /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_dav_create_loc_conf,      /* create location configuration */
 	ngx_http_dav_merge_loc_conf        /* merge location configuration */
 };
@@ -391,19 +368,14 @@ static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)
 	ngx_ext_rename_file_t ext;
 	ngx_http_dav_copy_ctx_t copy;
 	ngx_http_dav_loc_conf_t  * dlcf;
-
 	if(r->headers_in.content_length_n > 0) {
 		return NGX_HTTP_UNSUPPORTED_MEDIA_TYPE;
 	}
-
 	dest = r->headers_in.destination;
-
 	if(dest == NULL) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "client sent no \"Destination\" header");
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent no \"Destination\" header");
 		return NGX_HTTP_BAD_REQUEST;
 	}
-
 	p = dest->value.data;
 	/* there is always '\0' even after empty header value */
 	if(p[0] == '/') {
@@ -435,15 +407,12 @@ static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)
 		    &dest->value);
 		return NGX_HTTP_BAD_REQUEST;
 	}
-
 	last = dest->value.data + dest->value.len;
-
 	for(p = host + len; p < last; p++) {
 		if(*p == '/') {
 			goto destination_done;
 		}
 	}
-
 invalid_destination:
 	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent invalid \"Destination\" header: \"%V\"", &dest->value);
 	return NGX_HTTP_BAD_REQUEST;
@@ -455,8 +424,7 @@ destination_done:
 		goto invalid_destination;
 	}
 	if((r->uri.data[r->uri.len - 1] == '/' && *(last - 1) != '/') || (r->uri.data[r->uri.len - 1] != '/' && *(last - 1) == '/')) {
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-		    "both URI \"%V\" and \"Destination\" URI \"%V\" should be either collections or non-collections",
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "both URI \"%V\" and \"Destination\" URI \"%V\" should be either collections or non-collections",
 		    &r->uri, &dest->value);
 		return NGX_HTTP_CONFLICT;
 	}
@@ -555,16 +523,10 @@ overwrite_done:
 				return NGX_HTTP_CREATED;
 			}
 		}
-
-		if(ngx_create_dir(copy.path.data, ngx_file_access(&fi))
-		    == NGX_FILE_ERROR) {
-			return ngx_http_dav_error(r->connection->log, ngx_errno,
-			    NGX_HTTP_NOT_FOUND,
-			    ngx_create_dir_n, copy.path.data);
+		if(ngx_create_dir(copy.path.data, ngx_file_access(&fi)) == NGX_FILE_ERROR) {
+			return ngx_http_dav_error(r->connection->log, ngx_errno, NGX_HTTP_NOT_FOUND, ngx_create_dir_n, copy.path.data);
 		}
-
 		copy.len = path.len;
-
 		tree.init_handler = NULL;
 		tree.file_handler = ngx_http_dav_copy_tree_file;
 		tree.pre_tree_handler = ngx_http_dav_copy_dir;
@@ -573,39 +535,31 @@ overwrite_done:
 		tree.data = &copy;
 		tree.alloc = 0;
 		tree.log = r->connection->log;
-
 		if(ngx_walk_tree(&tree, &path) == NGX_OK) {
 			if(r->method == NGX_HTTP_MOVE) {
 				rc = ngx_http_dav_delete_path(r, &path, 1);
-
 				if(rc != NGX_OK) {
 					return rc;
 				}
 			}
-
 			return NGX_HTTP_CREATED;
 		}
 	}
 	else {
 		if(r->method == NGX_HTTP_MOVE) {
 			dlcf = (ngx_http_dav_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_dav_module);
-
 			ext.access = 0;
 			ext.path_access = dlcf->access;
 			ext.time = -1;
 			ext.create_path = 1;
 			ext.delete_file = 0;
 			ext.log = r->connection->log;
-
 			if(ngx_ext_rename_file(&path, &copy.path, &ext) == NGX_OK) {
 				return NGX_HTTP_NO_CONTENT;
 			}
-
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		dlcf = (ngx_http_dav_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_dav_module);
-
 		cf.size = ngx_file_size(&fi);
 		cf.buf_size = 0;
 		cf.access = dlcf->access;

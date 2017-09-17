@@ -7,20 +7,13 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-static ngx_int_t ngx_http_upstream_init_least_conn_peer(ngx_http_request_t * r,
-    ngx_http_upstream_srv_conf_t * us);
+static ngx_int_t ngx_http_upstream_init_least_conn_peer(ngx_http_request_t * r, ngx_http_upstream_srv_conf_t * us);
 static ngx_int_t ngx_http_upstream_get_least_conn_peer(ngx_peer_connection_t * pc, void * data);
-static char * ngx_http_upstream_least_conn(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_http_upstream_least_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_upstream_least_conn_commands[] = {
-	{ ngx_string("least_conn"),
-	  NGX_HTTP_UPS_CONF|NGX_CONF_NOARGS,
-	  ngx_http_upstream_least_conn,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("least_conn"), NGX_HTTP_UPS_CONF|NGX_CONF_NOARGS,
+	  ngx_http_upstream_least_conn, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -175,84 +168,49 @@ static ngx_int_t ngx_http_upstream_get_least_conn_peer(ngx_peer_connection_t * p
 			}
 		}
 	}
-
 	best->current_weight -= total;
-
 	if(now - best->checked > best->fail_timeout) {
 		best->checked = now;
 	}
-
 	pc->sockaddr = best->sockaddr;
 	pc->socklen = best->socklen;
 	pc->name = &best->name;
-
 	best->conns++;
-
 	rrp->current = best;
-
 	n = p / (8 * sizeof(uintptr_t));
 	m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
-
 	rrp->tried[n] |= m;
-
 	ngx_http_upstream_rr_peers_unlock(peers);
-
 	return NGX_OK;
-
 failed:
-
 	if(peers->next) {
-		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, pc->log, 0,
-		    "get least conn peer, backup servers");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get least conn peer, backup servers");
 		rrp->peers = peers->next;
-
-		n = (rrp->peers->number + (8 * sizeof(uintptr_t) - 1))
-		    / (8 * sizeof(uintptr_t));
-
+		n = (rrp->peers->number + (8 * sizeof(uintptr_t) - 1)) / (8 * sizeof(uintptr_t));
 		for(i = 0; i < n; i++) {
 			rrp->tried[i] = 0;
 		}
-
 		ngx_http_upstream_rr_peers_unlock(peers);
-
 		rc = ngx_http_upstream_get_least_conn_peer(pc, rrp);
-
 		if(rc != NGX_BUSY) {
 			return rc;
 		}
-
 		ngx_http_upstream_rr_peers_wlock(peers);
 	}
-
 	ngx_http_upstream_rr_peers_unlock(peers);
-
 	pc->name = peers->name;
-
 	return NGX_BUSY;
 }
 
-static char * ngx_http_upstream_least_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_upstream_least_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_upstream_srv_conf_t  * uscf;
-
 	uscf = (ngx_http_upstream_srv_conf_t*)ngx_http_conf_get_module_srv_conf(cf, ngx_http_upstream_module);
-
 	if(uscf->peer.init_upstream) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "load balancing method redefined");
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "load balancing method redefined");
 	}
-
 	uscf->peer.init_upstream = ngx_http_upstream_init_least_conn;
-
-	uscf->flags = NGX_HTTP_UPSTREAM_CREATE
-	    |NGX_HTTP_UPSTREAM_WEIGHT
-	    |NGX_HTTP_UPSTREAM_MAX_CONNS
-	    |NGX_HTTP_UPSTREAM_MAX_FAILS
-	    |NGX_HTTP_UPSTREAM_FAIL_TIMEOUT
-	    |NGX_HTTP_UPSTREAM_DOWN
-	    |NGX_HTTP_UPSTREAM_BACKUP;
-
+	uscf->flags = NGX_HTTP_UPSTREAM_CREATE|NGX_HTTP_UPSTREAM_WEIGHT|NGX_HTTP_UPSTREAM_MAX_CONNS|NGX_HTTP_UPSTREAM_MAX_FAILS|NGX_HTTP_UPSTREAM_FAIL_TIMEOUT|NGX_HTTP_UPSTREAM_DOWN|NGX_HTTP_UPSTREAM_BACKUP;
 	return NGX_CONF_OK;
 }
 

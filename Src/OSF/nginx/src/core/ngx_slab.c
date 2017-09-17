@@ -43,9 +43,9 @@
 #define ngx_slab_page_prev(page)   (ngx_slab_page_t*)((page)->prev & ~NGX_SLAB_PAGE_MASK)
 #define ngx_slab_page_addr(pool, page) ((((page) - (pool)->pages) << ngx_pagesize_shift) + (uintptr_t)(pool)->start)
 #if (NGX_DEBUG_MALLOC)
-	#define ngx_slab_junk(p, size)     ngx_memset(p, 0xA5, size)
+	#define ngx_slab_junk(p, size)     memset(p, 0xA5, size)
 #elif (NGX_HAVE_DEBUG_MALLOC)
-	#define ngx_slab_junk(p, size)         if(ngx_debug_malloc) ngx_memset(p, 0xA5, size)
+	#define ngx_slab_junk(p, size)         if(ngx_debug_malloc) memset(p, 0xA5, size)
 #else
 	#define ngx_slab_junk(p, size)
 #endif

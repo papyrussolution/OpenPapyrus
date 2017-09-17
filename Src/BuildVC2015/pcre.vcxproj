@@ -72,7 +72,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\osf\pcre-8.41\build\Debug\pcred.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\pcre-8.41\build;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -116,7 +116,7 @@
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
-      <OutputFile>..\osf\pcre-8.41\build\Release\pcre.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
     </Lib>
     <Midl>
       <AdditionalIncludeDirectories>..\osf\pcre-8.41\build;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

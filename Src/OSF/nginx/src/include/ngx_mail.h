@@ -315,8 +315,7 @@ void ngx_mail_auth(ngx_mail_session_t * s, ngx_connection_t * c);
 void ngx_mail_close_connection(ngx_connection_t * c);
 void ngx_mail_session_internal_server_error(ngx_mail_session_t * s);
 u_char * ngx_mail_log_error(ngx_log_t * log, u_char * buf, size_t len);
-
-char * ngx_mail_capabilities(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+const char * ngx_mail_capabilities(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 /* STUB */
 void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer);

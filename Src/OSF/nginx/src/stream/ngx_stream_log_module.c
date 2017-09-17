@@ -5,19 +5,15 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
-
+//#include <ngx_stream.h>
 #if (NGX_ZLIB)
-#include <zlib.h>
+	#include <zlib.h>
 #endif
 
 typedef struct ngx_stream_log_op_s ngx_stream_log_op_t;
 
-typedef u_char *(*ngx_stream_log_op_run_pt)(ngx_stream_session_t * s,
-    u_char * buf, ngx_stream_log_op_t * op);
-
-typedef size_t (*ngx_stream_log_op_getlen_pt)(ngx_stream_session_t * s,
-    uintptr_t data);
+typedef u_char *(*ngx_stream_log_op_run_pt)(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
+typedef size_t (*ngx_stream_log_op_getlen_pt)(ngx_stream_session_t * s, uintptr_t data);
 
 struct ngx_stream_log_op_s {
 	size_t len;
@@ -75,70 +71,37 @@ typedef struct {
 	ngx_stream_log_op_run_pt run;
 } ngx_stream_log_var_t;
 
-static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log,
-    u_char * buf, size_t len);
-static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s,
-    ngx_stream_log_script_t * script, u_char ** name, u_char * buf, size_t len);
-
+static void ngx_stream_log_write(ngx_stream_session_t * s, ngx_stream_log_t * log, u_char * buf, size_t len);
+static ssize_t ngx_stream_log_script_write(ngx_stream_session_t * s, ngx_stream_log_script_t * script, u_char ** name, u_char * buf, size_t len);
 #if (NGX_ZLIB)
-static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, u_char * buf, size_t len,
-    ngx_int_t level, ngx_log_t * log);
-
-static void * ngx_stream_log_gzip_alloc(void * opaque, u_int items, u_int size);
-static void ngx_stream_log_gzip_free(void * opaque, void * address);
+	static ssize_t ngx_stream_log_gzip(ngx_fd_t fd, u_char * buf, size_t len, ngx_int_t level, ngx_log_t * log);
+	static void * ngx_stream_log_gzip_alloc(void * opaque, u_int items, u_int size);
+	static void ngx_stream_log_gzip_free(void * opaque, void * address);
 #endif
-
 static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log);
 static void ngx_stream_log_flush_handler(ngx_event_t * ev);
-
-static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf,
-    ngx_stream_log_op_t * op, ngx_str_t * value, ngx_uint_t json);
-static size_t ngx_stream_log_variable_getlen(ngx_stream_session_t * s,
-    uintptr_t data);
-static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf,
-    ngx_stream_log_op_t * op);
+static ngx_int_t ngx_stream_log_variable_compile(ngx_conf_t * cf, ngx_stream_log_op_t * op, ngx_str_t * value, ngx_uint_t json);
+static size_t ngx_stream_log_variable_getlen(ngx_stream_session_t * s, uintptr_t data);
+static u_char * ngx_stream_log_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
 static uintptr_t ngx_stream_log_escape(u_char * dst, u_char * src, size_t size);
-static size_t ngx_stream_log_json_variable_getlen(ngx_stream_session_t * s,
-    uintptr_t data);
-static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s,
-    u_char * buf, ngx_stream_log_op_t * op);
-
+static size_t ngx_stream_log_json_variable_getlen(ngx_stream_session_t * s, uintptr_t data);
+static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * buf, ngx_stream_log_op_t * op);
 static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf);
 static void * ngx_stream_log_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_stream_log_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
-static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_log_compile_format(ngx_conf_t * cf,
-    ngx_array_t * flushes, ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s);
-static char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_stream_log_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
+static const char * ngx_stream_log_set_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_log_set_format(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes, ngx_array_t * ops, ngx_array_t * args, ngx_uint_t s);
+static const char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_stream_log_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_stream_log_commands[] = {
-	{ ngx_string("log_format"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_2MORE,
-	  ngx_stream_log_set_format,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("access_log"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_stream_log_set_log,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("open_log_file_cache"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1234,
-	  ngx_stream_log_open_file_cache,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("log_format"), NGX_STREAM_MAIN_CONF|NGX_CONF_2MORE,
+	  ngx_stream_log_set_format, NGX_STREAM_MAIN_CONF_OFFSET, 0, NULL },
+	{ ngx_string("access_log"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_stream_log_set_log, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("open_log_file_cache"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1234,
+	  ngx_stream_log_open_file_cache, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -458,8 +421,7 @@ static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log)
 	}
 #if (NGX_ZLIB)
 	if(buffer->gzip) {
-		n = ngx_stream_log_gzip(file->fd, buffer->start, len, buffer->gzip,
-		    log);
+		n = ngx_stream_log_gzip(file->fd, buffer->start, len, buffer->gzip, log);
 	}
 	else {
 		n = ngx_write_fd(file->fd, buffer->start, len);
@@ -467,20 +429,13 @@ static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log)
 #else
 	n = ngx_write_fd(file->fd, buffer->start, len);
 #endif
-
 	if(n == -1) {
-		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno,
-		    ngx_write_fd_n " to \"%s\" failed",
-		    file->name.data);
+		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_write_fd_n " to \"%s\" failed", file->name.data);
 	}
 	else if((size_t)n != len) {
-		ngx_log_error(NGX_LOG_ALERT, log, 0,
-		    ngx_write_fd_n " to \"%s\" was incomplete: %z of %uz",
-		    file->name.data, n, len);
+		ngx_log_error(NGX_LOG_ALERT, log, 0, ngx_write_fd_n " to \"%s\" was incomplete: %z of %uz", file->name.data, n, len);
 	}
-
 	buffer->pos = buffer->start;
-
 	if(buffer->event && buffer->event->timer_set) {
 		ngx_del_timer(buffer->event);
 	}
@@ -697,23 +652,19 @@ static char * ngx_stream_log_merge_srv_conf(ngx_conf_t * cf, void * parent, void
 		conf->open_file_cache = prev->open_file_cache;
 		conf->open_file_cache_valid = prev->open_file_cache_valid;
 		conf->open_file_cache_min_uses = prev->open_file_cache_min_uses;
-
 		if(conf->open_file_cache == NGX_CONF_UNSET_PTR) {
 			conf->open_file_cache = NULL;
 		}
 	}
-
 	if(conf->logs || conf->off) {
 		return NGX_CONF_OK;
 	}
-
 	conf->logs = prev->logs;
 	conf->off = prev->off;
-
 	return NGX_CONF_OK;
 }
 
-static char * ngx_stream_log_set_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_log_set_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_log_srv_conf_t * lscf = (ngx_stream_log_srv_conf_t *)conf;
 	ssize_t size;
@@ -797,8 +748,7 @@ process_formats:
 	}
 	fmt = (ngx_stream_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
-		if(fmt[i].name.len == name.len
-		    && ngx_strcasecmp(fmt[i].name.data, name.data) == 0) {
+		if(fmt[i].name.len == name.len && sstreqi_ascii(fmt[i].name.data, name.data)) {
 			log->format = &fmt[i];
 			break;
 		}
@@ -921,7 +871,7 @@ process_formats:
 	return NGX_CONF_OK;
 }
 
-static char * ngx_stream_log_set_format(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_log_set_format(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_log_main_conf_t * lmcf = (ngx_stream_log_main_conf_t *)conf;
 	ngx_uint_t i;
@@ -1059,7 +1009,7 @@ invalid:
 	return NGX_CONF_ERROR;
 }
 
-static char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_log_open_file_cache(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_log_srv_conf_t * lscf = (ngx_stream_log_srv_conf_t *)conf;
 	ngx_str_t s;

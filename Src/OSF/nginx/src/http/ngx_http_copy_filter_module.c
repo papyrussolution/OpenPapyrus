@@ -28,26 +28,18 @@ static char * ngx_http_copy_filter_merge_conf(ngx_conf_t * cf, void * parent, vo
 static ngx_int_t ngx_http_copy_filter_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_http_copy_filter_commands[] = {
-	{ ngx_string("output_buffers"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
-	  ngx_conf_set_bufs_slot,
-	  NGX_HTTP_LOC_CONF_OFFSET,
-	  offsetof(ngx_http_copy_filter_conf_t, bufs),
-	  NULL },
-
+	{ ngx_string("output_buffers"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE2,
+	  ngx_conf_set_bufs_slot, NGX_HTTP_LOC_CONF_OFFSET, offsetof(ngx_http_copy_filter_conf_t, bufs), NULL },
 	ngx_null_command
 };
 
 static ngx_http_module_t ngx_http_copy_filter_module_ctx = {
 	NULL,                              /* preconfiguration */
 	ngx_http_copy_filter_init,         /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_copy_filter_create_conf,  /* create location configuration */
 	ngx_http_copy_filter_merge_conf    /* merge location configuration */
 };

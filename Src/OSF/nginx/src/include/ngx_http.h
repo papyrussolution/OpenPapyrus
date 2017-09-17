@@ -5,8 +5,8 @@
 #ifndef _NGX_HTTP_H_INCLUDED_
 #define _NGX_HTTP_H_INCLUDED_
 
-#include <ngx_config.h>
-#include <ngx_core.h>
+//#include <ngx_config.h>
+//#include <ngx_core.h>
 
 struct /*ngx_http_request_s*/ngx_http_request_t;
 
@@ -48,7 +48,7 @@ struct ngx_http_variable_s {
 };
 
 ngx_http_variable_t * ngx_http_add_variable(ngx_conf_t * cf, ngx_str_t * name, ngx_uint_t flags);
-ngx_int_t ngx_http_get_variable_index(ngx_conf_t * cf, ngx_str_t * name);
+ngx_int_t FASTCALL ngx_http_get_variable_index(ngx_conf_t * cf, const ngx_str_t * name);
 ngx_http_variable_value_t * ngx_http_get_indexed_variable(ngx_http_request_t * r, ngx_uint_t index);
 ngx_http_variable_value_t * ngx_http_get_flushed_variable(ngx_http_request_t * r, ngx_uint_t index);
 ngx_http_variable_value_t * ngx_http_get_variable(ngx_http_request_t * r, ngx_str_t * name, ngx_uint_t key);
@@ -105,7 +105,7 @@ struct ngx_http_module_t {
 	void * (*create_srv_conf)(ngx_conf_t *cf);
 	char * (*merge_srv_conf)(ngx_conf_t *cf, void * prev, void * conf);
 	void * (*create_loc_conf)(ngx_conf_t *cf);
-	char * (*merge_loc_conf)(ngx_conf_t *cf, void * prev, void * conf);
+	char * (*merge_loc_conf)(ngx_conf_t * cf, void * prev, void * conf);
 };
 
 #define NGX_HTTP_MODULE           0x50545448   /* "HTTP" */
@@ -130,8 +130,6 @@ struct ngx_http_module_t {
 #define ngx_http_conf_get_module_loc_conf(cf, module)  ((ngx_http_conf_ctx_t*)cf->ctx)->loc_conf[module.ctx_index]
 
 #define ngx_http_cycle_get_module_main_conf(cycle, module) (cycle->conf_ctx[ngx_http_module.index] ? ((ngx_http_conf_ctx_t*)cycle->conf_ctx[ngx_http_module.index])->main_conf[module.ctx_index] : NULL)
-//
-//
 //
 //#include <ngx_http_request.h>
 //
@@ -440,6 +438,7 @@ typedef void (*ngx_http_event_handler_pt)(ngx_http_request_t * r);
 
 struct /*ngx_http_request_s*/ngx_http_request_t {
 	int    SetContentType(SFileFormat fmt, SCodepage cp);
+	int    GetArg(const char * pName, SString & rValue) const;
 
 	uint32_t signature; // "HTTP" 
 	ngx_connection_t * connection;
@@ -770,9 +769,9 @@ struct ngx_http_script_value_code_t {
 void ngx_http_script_flush_complex_value(ngx_http_request_t * r, ngx_http_complex_value_t * val);
 ngx_int_t ngx_http_complex_value(ngx_http_request_t * r, ngx_http_complex_value_t * val, ngx_str_t * value);
 ngx_int_t ngx_http_compile_complex_value(ngx_http_compile_complex_value_t * ccv);
-char * ngx_http_set_complex_value_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+const char * ngx_http_set_complex_value_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+const char * ngx_http_set_predicate_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 ngx_int_t ngx_http_test_predicates(ngx_http_request_t * r, ngx_array_t * predicates);
-char * ngx_http_set_predicate_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
 ngx_uint_t ngx_http_script_variables_count(ngx_str_t * value);
 ngx_int_t ngx_http_script_compile(ngx_http_script_compile_t * sc);
 u_char * ngx_http_script_run(ngx_http_request_t * r, ngx_str_t * value, void * code_lengths, size_t reserved, void * code_values);
@@ -812,13 +811,11 @@ void ngx_http_script_nop_code(ngx_http_script_engine_t * e);
 #define NGX_INVALID_INDEX  0xd0d0d0d0
 
 #if (NGX_HAVE_IOCP)
-
-struct ngx_event_ovlp_t {
-	WSAOVERLAPPED ovlp;
-	ngx_event_t * event;
-	int error;
-};
-
+	struct ngx_event_ovlp_t {
+		WSAOVERLAPPED ovlp;
+		ngx_event_t * event;
+		int error;
+	};
 #endif
 
 struct /*ngx_event_s*/ngx_event_t {
@@ -892,26 +889,24 @@ struct /*ngx_event_s*/ngx_event_t {
 };
 
 #if (NGX_HAVE_FILE_AIO)
-
-struct ngx_event_aio_s {
-	void  * data;
-	ngx_event_handler_pt handler;
-	ngx_file_t  * file;
-#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
-	ssize_t (* preload_handler)(ngx_buf_t * file);
-#endif
-	ngx_fd_t fd;
-#if (NGX_HAVE_EVENTFD)
-	int64_t res;
-#endif
-#if !(NGX_HAVE_EVENTFD) || (NGX_TEST_BUILD_EPOLL)
-	ngx_err_t err;
-	size_t nbytes;
-#endif
-	ngx_aiocb_t aiocb;
-	ngx_event_t event;
-};
-
+	struct ngx_event_aio_s {
+		void  * data;
+		ngx_event_handler_pt handler;
+		ngx_file_t  * file;
+	#if (NGX_HAVE_AIO_SENDFILE || NGX_COMPAT)
+		ssize_t (* preload_handler)(ngx_buf_t * file);
+	#endif
+		ngx_fd_t fd;
+	#if (NGX_HAVE_EVENTFD)
+		int64_t res;
+	#endif
+	#if !(NGX_HAVE_EVENTFD) || (NGX_TEST_BUILD_EPOLL)
+		ngx_err_t err;
+		size_t nbytes;
+	#endif
+		ngx_aiocb_t aiocb;
+		ngx_event_t event;
+	};
 #endif
 
 struct ngx_event_actions_t {
@@ -1080,8 +1075,8 @@ struct ngx_event_conf_t {
 
 struct ngx_event_module_t {
 	ngx_str_t * name;
-	void *(*create_conf)(ngx_cycle_t *cycle);
-	char *(*init_conf)(ngx_cycle_t *cycle, void * conf);
+	void * (* create_conf)(ngx_cycle_t * cycle);
+	const char * (* F_InitConf)(ngx_cycle_t * cycle, void * conf); // init_conf
 	ngx_event_actions_t actions;
 };
 
@@ -1093,15 +1088,14 @@ extern ngx_uint_t ngx_accept_events;
 extern ngx_uint_t ngx_accept_mutex_held;
 extern ngx_msec_t ngx_accept_mutex_delay;
 extern ngx_int_t ngx_accept_disabled;
-
 #if (NGX_STAT_STUB)
-extern ngx_atomic_t  * ngx_stat_accepted;
-extern ngx_atomic_t  * ngx_stat_handled;
-extern ngx_atomic_t  * ngx_stat_requests;
-extern ngx_atomic_t  * ngx_stat_active;
-extern ngx_atomic_t  * ngx_stat_reading;
-extern ngx_atomic_t  * ngx_stat_writing;
-extern ngx_atomic_t  * ngx_stat_waiting;
+	extern ngx_atomic_t  * ngx_stat_accepted;
+	extern ngx_atomic_t  * ngx_stat_handled;
+	extern ngx_atomic_t  * ngx_stat_requests;
+	extern ngx_atomic_t  * ngx_stat_active;
+	extern ngx_atomic_t  * ngx_stat_reading;
+	extern ngx_atomic_t  * ngx_stat_writing;
+	extern ngx_atomic_t  * ngx_stat_waiting;
 #endif
 
 #define NGX_UPDATE_TIME         1
@@ -1602,8 +1596,8 @@ struct ngx_http_upstream_param_t {
 ngx_int_t ngx_http_upstream_create(ngx_http_request_t * r);
 void ngx_http_upstream_init(ngx_http_request_t * r);
 ngx_http_upstream_srv_conf_t * ngx_http_upstream_add(ngx_conf_t * cf, ngx_url_t * u, ngx_uint_t flags);
-char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-char * ngx_http_upstream_param_set_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+const char * ngx_http_upstream_param_set_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 ngx_int_t ngx_http_upstream_hide_headers_hash(ngx_conf_t * cf, ngx_http_upstream_conf_t * conf, ngx_http_upstream_conf_t * prev, ngx_str_t * default_hide_headers, ngx_hash_init_t * hash);
 
 #define ngx_http_conf_upstream_srv_conf(uscf, module) uscf->srv_conf[module.ctx_index]
@@ -1700,7 +1694,7 @@ ngx_int_t ngx_http_parse_unsafe_uri(ngx_http_request_t * r, ngx_str_t * uri, ngx
 ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_uint_t allow_underscores);
 ngx_int_t ngx_http_parse_multi_header_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value);
 ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * name, ngx_str_t * value);
-ngx_int_t ngx_http_arg(ngx_http_request_t * r, u_char * name, size_t len, ngx_str_t * value);
+ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, ngx_str_t * value);
 void ngx_http_split_args(ngx_http_request_t * r, ngx_str_t * uri, ngx_str_t * args);
 ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http_chunked_t * ctx);
 
@@ -1723,7 +1717,7 @@ void ngx_http_request_empty_handler(ngx_http_request_t * r);
 ngx_int_t ngx_http_send_special(ngx_http_request_t * r, ngx_uint_t flags);
 ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * r, ngx_http_client_body_handler_pt post_handler);
 ngx_int_t ngx_http_read_unbuffered_request_body(ngx_http_request_t * r);
-ngx_int_t ngx_http_send_header(ngx_http_request_t * r);
+ngx_int_t FASTCALL ngx_http_send_header(ngx_http_request_t * r);
 ngx_int_t ngx_http_special_response_handler(ngx_http_request_t * r, ngx_int_t error);
 ngx_int_t ngx_http_filter_finalize_request(ngx_http_request_t * r, ngx_module_t * m, ngx_int_t error);
 void ngx_http_clean_header(ngx_http_request_t * r);
@@ -1731,7 +1725,7 @@ ngx_int_t ngx_http_discard_request_body(ngx_http_request_t * r);
 void ngx_http_discarded_request_body_handler(ngx_http_request_t * r);
 void ngx_http_block_reading(ngx_http_request_t * r);
 void ngx_http_test_reading(ngx_http_request_t * r);
-char * ngx_http_types_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+const char * ngx_http_types_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 char * ngx_http_merge_types(ngx_conf_t * cf, ngx_array_t ** keys, ngx_hash_t * types_hash, ngx_array_t ** prev_keys, ngx_hash_t * prev_types_hash, ngx_str_t * default_types);
 ngx_int_t ngx_http_set_default_types(ngx_conf_t * cf, ngx_array_t ** types, ngx_str_t * default_type);
 

@@ -25,7 +25,7 @@ static void ngx_http_auth_basic_close(ngx_file_t * file);
 static void * ngx_http_auth_basic_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_auth_basic_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_auth_basic_init(ngx_conf_t * cf);
-static char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_auth_basic_commands[] = {
 	{ ngx_string("auth_basic"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_TAKE1,
@@ -209,7 +209,7 @@ static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_h
 	ngx_int_t rc = ngx_crypt(r->pool, r->headers_in.passwd.data, passwd->data, &encrypted);
 	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "rc: %i user: \"%V\" salt: \"%s\"", rc, &r->headers_in.user, passwd->data);
 	if(rc == NGX_OK) {
-		if(ngx_strcmp(encrypted, passwd->data) == 0) {
+		if(sstreq(encrypted, passwd->data)) {
 			return NGX_OK;
 		}
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "encrypted: \"%s\"", encrypted);
@@ -277,11 +277,9 @@ static void * ngx_http_auth_basic_create_loc_conf(ngx_conf_t * cf)
 
 static char * ngx_http_auth_basic_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child)
 {
-	ngx_http_auth_basic_loc_conf_t  * prev = (ngx_http_auth_basic_loc_conf_t *)parent;
-	ngx_http_auth_basic_loc_conf_t  * conf = (ngx_http_auth_basic_loc_conf_t *)child;
-	if(conf->realm == NULL) {
-		conf->realm = prev->realm;
-	}
+	const ngx_http_auth_basic_loc_conf_t * prev = (const ngx_http_auth_basic_loc_conf_t *)parent;
+	ngx_http_auth_basic_loc_conf_t * conf = (ngx_http_auth_basic_loc_conf_t *)child;
+	SETIFZ(conf->realm, prev->realm);
 	if(conf->user_file.value.data == NULL) {
 		conf->user_file = prev->user_file;
 	}
@@ -299,7 +297,7 @@ static ngx_int_t ngx_http_auth_basic_init(ngx_conf_t * cf)
 	return NGX_OK;
 }
 
-static char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_auth_basic_user_file(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_auth_basic_loc_conf_t * alcf = (ngx_http_auth_basic_loc_conf_t *)conf;
 	if(alcf->user_file.value.data) {

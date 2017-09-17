@@ -5,21 +5,15 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 static ngx_int_t ngx_stream_upstream_init_least_conn_peer(ngx_stream_session_t * s, ngx_stream_upstream_srv_conf_t * us);
 static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t * pc, void * data);
-static char * ngx_stream_upstream_least_conn(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static const char * ngx_stream_upstream_least_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_upstream_least_conn_commands[] = {
-	{ ngx_string("least_conn"),
-	  NGX_STREAM_UPS_CONF|NGX_CONF_NOARGS,
-	  ngx_stream_upstream_least_conn,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("least_conn"), NGX_STREAM_UPS_CONF|NGX_CONF_NOARGS,
+	  ngx_stream_upstream_least_conn, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -201,76 +195,45 @@ static ngx_int_t ngx_stream_upstream_get_least_conn_peer(ngx_peer_connection_t *
 	if(now - best->checked > best->fail_timeout) {
 		best->checked = now;
 	}
-
 	pc->sockaddr = best->sockaddr;
 	pc->socklen = best->socklen;
 	pc->name = &best->name;
-
 	best->conns++;
-
 	rrp->current = best;
-
 	n = p / (8 * sizeof(uintptr_t));
 	m = (uintptr_t)1 << p % (8 * sizeof(uintptr_t));
-
 	rrp->tried[n] |= m;
-
 	ngx_stream_upstream_rr_peers_unlock(peers);
-
 	return NGX_OK;
-
 failed:
-
 	if(peers->next) {
-		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, pc->log, 0,
-		    "get least conn peer, backup servers");
-
+		ngx_log_debug0(NGX_LOG_DEBUG_STREAM, pc->log, 0, "get least conn peer, backup servers");
 		rrp->peers = peers->next;
-
-		n = (rrp->peers->number + (8 * sizeof(uintptr_t) - 1))
-		    / (8 * sizeof(uintptr_t));
-
+		n = (rrp->peers->number + (8 * sizeof(uintptr_t) - 1)) / (8 * sizeof(uintptr_t));
 		for(i = 0; i < n; i++) {
 			rrp->tried[i] = 0;
 		}
-
 		ngx_stream_upstream_rr_peers_unlock(peers);
-
 		rc = ngx_stream_upstream_get_least_conn_peer(pc, rrp);
-
 		if(rc != NGX_BUSY) {
 			return rc;
 		}
-
 		ngx_stream_upstream_rr_peers_wlock(peers);
 	}
-
 	ngx_stream_upstream_rr_peers_unlock(peers);
-
 	pc->name = peers->name;
-
 	return NGX_BUSY;
 }
 
-static char * ngx_stream_upstream_least_conn(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_upstream_least_conn(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
-	ngx_stream_upstream_srv_conf_t  * uscf = (ngx_stream_upstream_srv_conf_t*)ngx_stream_conf_get_module_srv_conf(cf,
-	    ngx_stream_upstream_module);
+	ngx_stream_upstream_srv_conf_t  * uscf = (ngx_stream_upstream_srv_conf_t*)ngx_stream_conf_get_module_srv_conf(cf, ngx_stream_upstream_module);
 	if(uscf->peer.init_upstream) {
-		ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-		    "load balancing method redefined");
+		ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "load balancing method redefined");
 	}
-
 	uscf->peer.init_upstream = ngx_stream_upstream_init_least_conn;
-
-	uscf->flags = NGX_STREAM_UPSTREAM_CREATE
-	    |NGX_STREAM_UPSTREAM_WEIGHT
-	    |NGX_STREAM_UPSTREAM_MAX_CONNS
-	    |NGX_STREAM_UPSTREAM_MAX_FAILS
-	    |NGX_STREAM_UPSTREAM_FAIL_TIMEOUT
-	    |NGX_STREAM_UPSTREAM_DOWN
-	    |NGX_STREAM_UPSTREAM_BACKUP;
-
+	uscf->flags = NGX_STREAM_UPSTREAM_CREATE|NGX_STREAM_UPSTREAM_WEIGHT|NGX_STREAM_UPSTREAM_MAX_CONNS|NGX_STREAM_UPSTREAM_MAX_FAILS|
+		NGX_STREAM_UPSTREAM_FAIL_TIMEOUT|NGX_STREAM_UPSTREAM_DOWN|NGX_STREAM_UPSTREAM_BACKUP;
 	return NGX_CONF_OK;
 }
 

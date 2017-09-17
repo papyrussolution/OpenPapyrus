@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	ngx_array_t  * from; /* array of ngx_cidr_t */
@@ -19,7 +19,7 @@ typedef struct {
 
 static ngx_int_t ngx_stream_realip_handler(ngx_stream_session_t * s);
 static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t * addr);
-static char * ngx_stream_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_realip_from(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_stream_realip_create_srv_conf(ngx_conf_t * cf);
 static char * ngx_stream_realip_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_stream_realip_add_variables(ngx_conf_t * cf);
@@ -28,13 +28,8 @@ static ngx_int_t ngx_stream_realip_remote_addr_variable(ngx_stream_session_t * s
 static ngx_int_t ngx_stream_realip_remote_port_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data);
 
 static ngx_command_t ngx_stream_realip_commands[] = {
-	{ ngx_string("set_real_ip_from"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_stream_realip_from,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("set_real_ip_from"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_stream_realip_from, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -123,7 +118,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 	return NGX_DECLINED;
 }
 
-static char * ngx_stream_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_realip_from(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_realip_srv_conf_t * rscf = (ngx_stream_realip_srv_conf_t *)conf;
 	ngx_int_t rc;
@@ -142,7 +137,7 @@ static char * ngx_stream_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void 
 		}
 	}
 #if (NGX_HAVE_UNIX_DOMAIN)
-	if(ngx_strcmp(value[1].data, "unix:") == 0) {
+	if(sstreq(value[1].data, "unix:")) {
 		cidr = ngx_array_push(rscf->from);
 		if(cidr == NULL) {
 			return NGX_CONF_ERROR;
@@ -183,7 +178,7 @@ static char * ngx_stream_realip_from(ngx_conf_t * cf, ngx_command_t * cmd, void 
 			case AF_INET6:
 			    sin6 = (struct sockaddr_in6*)u.addrs[i].sockaddr;
 			    cidr[i].u.in6.addr = sin6->sin6_addr;
-			    ngx_memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
+			    memset(cidr[i].u.in6.mask.s6_addr, 0xff, 16);
 			    break;
 #endif
 			default: /* AF_INET */

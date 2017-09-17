@@ -77,10 +77,10 @@ ngx_fd_t ngx_open_file(u_char * name, u_long mode, u_long create, u_long access)
 ssize_t ngx_read_fd(ngx_fd_t fd, void * buf, size_t size);
 #define ngx_read_fd_n               "ReadFile()"
 
-ssize_t ngx_write_fd(ngx_fd_t fd, void * buf, size_t size);
+ssize_t ngx_write_fd(ngx_fd_t fd, const void * buf, size_t size);
 #define ngx_write_fd_n              "WriteFile()"
 
-ssize_t ngx_write_console(ngx_fd_t fd, void * buf, size_t size);
+ssize_t ngx_write_console(ngx_fd_t fd, const void * buf, size_t size);
 
 #define ngx_linefeed(p)             *p++ = __CR; *p++ = LF;
 #define NGX_LINEFEED_SIZE           2

@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	ngx_uint_t hash_max_size;
@@ -33,35 +33,18 @@ typedef struct {
 	ngx_uint_t hostnames;                     /* unsigned  hostnames:1 */
 } ngx_stream_map_ctx_t;
 
-static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one,
-    const void * two);
+static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one, const void * two);
 static void * ngx_stream_map_create_conf(ngx_conf_t * cf);
-static char * ngx_stream_map_block(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf);
+static const char * ngx_stream_map_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_map_commands[] = {
-	{ ngx_string("map"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
-	  ngx_stream_map_block,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("map_hash_max_size"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  offsetof(ngx_stream_map_conf_t, hash_max_size),
-	  NULL },
-
-	{ ngx_string("map_hash_bucket_size"),
-	  NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_num_slot,
-	  NGX_STREAM_MAIN_CONF_OFFSET,
-	  offsetof(ngx_stream_map_conf_t, hash_bucket_size),
-	  NULL },
-
+	{ ngx_string("map"), NGX_STREAM_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE2,
+	  ngx_stream_map_block, NGX_STREAM_MAIN_CONF_OFFSET, 0, NULL },
+	{ ngx_string("map_hash_max_size"), NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_STREAM_MAIN_CONF_OFFSET, offsetof(ngx_stream_map_conf_t, hash_max_size), NULL },
+	{ ngx_string("map_hash_bucket_size"), NGX_STREAM_MAIN_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_num_slot, NGX_STREAM_MAIN_CONF_OFFSET, offsetof(ngx_stream_map_conf_t, hash_bucket_size), NULL },
 	ngx_null_command
 };
 
@@ -152,7 +135,7 @@ static void * ngx_stream_map_create_conf(ngx_conf_t * cf)
 	return mcf;
 }
 
-static char * ngx_stream_map_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_map_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_map_conf_t  * mcf = (ngx_stream_map_conf_t *)conf;
 	char    * rv;
@@ -219,156 +202,109 @@ static char * ngx_stream_map_block(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		return NGX_CONF_ERROR;
 	}
 #endif
-
 	ctx.default_value = NULL;
 	ctx.cf = &save;
 	ctx.hostnames = 0;
 	ctx.no_cacheable = 0;
-
 	save = *cf;
 	cf->pool = pool;
 	cf->ctx = &ctx;
 	cf->handler = ngx_stream_map;
 	cf->handler_conf = (char*)conf;
-
 	rv = ngx_conf_parse(cf, NULL);
-
 	*cf = save;
-
 	if(rv != NGX_CONF_OK) {
 		ngx_destroy_pool(pool);
 		return rv;
 	}
-
 	if(ctx.no_cacheable) {
 		var->flags |= NGX_STREAM_VAR_NOCACHEABLE;
 	}
-
-	map->default_value = ctx.default_value ? ctx.default_value :
-	    &ngx_stream_variable_null_value;
-
+	map->default_value = ctx.default_value ? ctx.default_value : &ngx_stream_variable_null_value;
 	map->hostnames = ctx.hostnames;
-
 	hash.key = ngx_hash_key_lc;
 	hash.max_size = mcf->hash_max_size;
 	hash.bucket_size = mcf->hash_bucket_size;
 	hash.name = "map_hash";
 	hash.pool = cf->pool;
-
 	if(ctx.keys.keys.nelts) {
 		hash.hash = &map->map.hash.hash;
 		hash.temp_pool = NULL;
-
-		if(ngx_hash_init(&hash, (ngx_hash_key_t*)ctx.keys.keys.elts, ctx.keys.keys.nelts)
-		    != NGX_OK) {
+		if(ngx_hash_init(&hash, (ngx_hash_key_t*)ctx.keys.keys.elts, ctx.keys.keys.nelts) != NGX_OK) {
 			ngx_destroy_pool(pool);
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	if(ctx.keys.dns_wc_head.nelts) {
-		ngx_qsort(ctx.keys.dns_wc_head.elts,
-		    (size_t)ctx.keys.dns_wc_head.nelts,
-		    sizeof(ngx_hash_key_t), ngx_stream_map_cmp_dns_wildcards);
-
+		ngx_qsort(ctx.keys.dns_wc_head.elts, (size_t)ctx.keys.dns_wc_head.nelts, sizeof(ngx_hash_key_t), ngx_stream_map_cmp_dns_wildcards);
 		hash.hash = NULL;
 		hash.temp_pool = pool;
-
-		if(ngx_hash_wildcard_init(&hash, (ngx_hash_key_t*)ctx.keys.dns_wc_head.elts, ctx.keys.dns_wc_head.nelts)
-		    != NGX_OK) {
+		if(ngx_hash_wildcard_init(&hash, (ngx_hash_key_t*)ctx.keys.dns_wc_head.elts, ctx.keys.dns_wc_head.nelts) != NGX_OK) {
 			ngx_destroy_pool(pool);
 			return NGX_CONF_ERROR;
 		}
-
 		map->map.hash.wc_head = (ngx_hash_wildcard_t*)hash.hash;
 	}
-
 	if(ctx.keys.dns_wc_tail.nelts) {
-		ngx_qsort(ctx.keys.dns_wc_tail.elts,
-		    (size_t)ctx.keys.dns_wc_tail.nelts,
-		    sizeof(ngx_hash_key_t), ngx_stream_map_cmp_dns_wildcards);
-
+		ngx_qsort(ctx.keys.dns_wc_tail.elts, (size_t)ctx.keys.dns_wc_tail.nelts, sizeof(ngx_hash_key_t), ngx_stream_map_cmp_dns_wildcards);
 		hash.hash = NULL;
 		hash.temp_pool = pool;
-
-		if(ngx_hash_wildcard_init(&hash, (ngx_hash_key_t*)ctx.keys.dns_wc_tail.elts, ctx.keys.dns_wc_tail.nelts)
-		    != NGX_OK) {
+		if(ngx_hash_wildcard_init(&hash, (ngx_hash_key_t*)ctx.keys.dns_wc_tail.elts, ctx.keys.dns_wc_tail.nelts) != NGX_OK) {
 			ngx_destroy_pool(pool);
 			return NGX_CONF_ERROR;
 		}
-
 		map->map.hash.wc_tail = (ngx_hash_wildcard_t*)hash.hash;
 	}
-
 #if (NGX_PCRE)
-
 	if(ctx.regexes.nelts) {
 		map->map.regex = (ngx_stream_map_regex_t *)ctx.regexes.elts;
 		map->map.nregex = ctx.regexes.nelts;
 	}
-
 #endif
-
 	ngx_destroy_pool(pool);
-
 	return rv;
 }
 
 static int ngx_libc_cdecl ngx_stream_map_cmp_dns_wildcards(const void * one, const void * two)
 {
-	ngx_hash_key_t  * first, * second;
-
-	first = (ngx_hash_key_t*)one;
-	second = (ngx_hash_key_t*)two;
-
+	const ngx_hash_key_t * first = (const ngx_hash_key_t *)one;
+	const ngx_hash_key_t * second = (const ngx_hash_key_t *)two;
 	return ngx_dns_strcmp(first->key.data, second->key.data);
 }
 
-static char * ngx_stream_map(ngx_conf_t * cf, ngx_command_t * dummy, void * conf)
+static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy, void * conf) // F_SetHandler
 {
-	u_char  * data;
+	u_char * data;
 	size_t len;
 	ngx_int_t rv;
-	ngx_str_t  * value, v;
+	ngx_str_t v;
 	ngx_uint_t i, key;
-	ngx_stream_map_conf_ctx_t * ctx;
 	ngx_stream_complex_value_t cv, * cvp;
 	ngx_stream_variable_value_t  * var, ** vp;
 	ngx_stream_compile_complex_value_t ccv;
-	ctx = (ngx_stream_map_conf_ctx_t *)cf->ctx;
-	value = (ngx_str_t*)cf->args->elts;
-	if(cf->args->nelts == 1
-	    && ngx_strcmp(value[0].data, "hostnames") == 0) {
+	ngx_stream_map_conf_ctx_t * ctx = (ngx_stream_map_conf_ctx_t *)cf->ctx;
+	ngx_str_t  * value = (ngx_str_t*)cf->args->elts;
+	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "hostnames") == 0) {
 		ctx->hostnames = 1;
 		return NGX_CONF_OK;
 	}
-
-	if(cf->args->nelts == 1
-	    && ngx_strcmp(value[0].data, "volatile") == 0) {
+	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "volatile") == 0) {
 		ctx->no_cacheable = 1;
 		return NGX_CONF_OK;
 	}
-
 	if(cf->args->nelts != 2) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid number of the map parameters");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of the map parameters");
 		return NGX_CONF_ERROR;
 	}
-
 	if(ngx_strcmp(value[0].data, "include") == 0) {
 		return ngx_conf_include(cf, dummy, conf);
 	}
-
 	key = 0;
-
 	for(i = 0; i < value[1].len; i++) {
 		key = ngx_hash(key, value[1].data[i]);
 	}
-
 	key %= ctx->keys.hsize;
-
 	vp = (ngx_stream_variable_value_t**)ctx->values_hash[key].elts;
-
 	if(vp) {
 		for(i = 0; i < ctx->values_hash[key].nelts; i++) {
 			if(vp[i]->valid) {

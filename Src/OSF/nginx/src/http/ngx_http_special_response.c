@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_http.h>
-#include <nginx.h>
+//#include <nginx.h>
 
 static ngx_int_t ngx_http_send_error_page(ngx_http_request_t * r, ngx_http_err_page_t * err_page);
 static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, ngx_uint_t err);

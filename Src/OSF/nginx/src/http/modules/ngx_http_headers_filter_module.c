@@ -54,8 +54,8 @@ static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r, ngx_http_h
 static void * ngx_http_headers_create_conf(ngx_conf_t * cf);
 static char * ngx_http_headers_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_headers_filter_init(ngx_conf_t * cf);
-static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_headers_add(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_http_set_header_t ngx_http_set_headers[] = {
 	{ ngx_string("Cache-Control"), 0, ngx_http_add_cache_control },
@@ -521,14 +521,12 @@ static ngx_int_t ngx_http_headers_filter_init(ngx_conf_t * cf)
 {
 	ngx_http_next_header_filter = ngx_http_top_header_filter;
 	ngx_http_top_header_filter = ngx_http_headers_filter;
-
 	ngx_http_next_body_filter = ngx_http_top_body_filter;
 	ngx_http_top_body_filter = ngx_http_trailers_filter;
-
 	return NGX_OK;
 }
 
-static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_headers_conf_t * hcf = (ngx_http_headers_conf_t *)conf;
 	char  * err;
@@ -575,7 +573,7 @@ static char * ngx_http_headers_expires(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_headers_add(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_headers_conf_t * hcf = (ngx_http_headers_conf_t *)conf;
 	ngx_uint_t i;
@@ -602,7 +600,7 @@ static char * ngx_http_headers_add(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 		hv->handler = ngx_http_add_header;
 		set = ngx_http_set_headers;
 		for(i = 0; set[i].name.len; i++) {
-			if(ngx_strcasecmp(value[1].data, set[i].name.data) == 0) {
+			if(sstreqi_ascii(value[1].data, set[i].name.data)) {
 				hv->offset = set[i].offset;
 				hv->handler = set[i].handler;
 				break;

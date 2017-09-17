@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
-static char * ngx_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_error_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log);
 static void ngx_log_insert(ngx_log_t * log, ngx_log_t * new_log);
 
@@ -15,30 +15,22 @@ static void ngx_log_insert(ngx_log_t * log, ngx_log_t * new_log);
 static void ngx_log_memory_writer(ngx_log_t * log, ngx_uint_t level, u_char * buf, size_t len);
 static void ngx_log_memory_cleanup(void * data);
 
-typedef struct {
+struct ngx_log_memory_buf_t {
 	u_char * start;
 	u_char * end;
 	u_char * pos;
 	ngx_atomic_t written;
-} ngx_log_memory_buf_t;
+};
 
 #endif
 
 static ngx_command_t ngx_errlog_commands[] = {
-	{ ngx_string("error_log"),
-	  NGX_MAIN_CONF|NGX_CONF_1MORE,
-	  ngx_error_log,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("error_log"), NGX_MAIN_CONF|NGX_CONF_1MORE, ngx_error_log, 0, 0, NULL },
 	ngx_null_command
 };
 
 static ngx_core_module_t ngx_errlog_module_ctx = {
-	ngx_string("errlog"),
-	NULL,
-	NULL
+	ngx_string("errlog"), NULL, NULL
 };
 
 ngx_module_t ngx_errlog_module = {
@@ -141,12 +133,11 @@ static const char * debug_levels[] = { "debug_core", "debug_alloc", "debug_mutex
 next:
 		log = log->next;
 	}
-	if(!ngx_use_stderr || level > NGX_LOG_WARN || wrote_stderr) {
-		return;
+	if(ngx_use_stderr && level <= NGX_LOG_WARN && !wrote_stderr) {
+		msg -= (7 + err_levels[level].len + 3);
+		(void)ngx_sprintf(msg, "nginx: [%V] ", &err_levels[level]);
+		(void)ngx_write_console(ngx_stderr, msg, p - msg);
 	}
-	msg -= (7 + err_levels[level].len + 3);
-	(void)ngx_sprintf(msg, "nginx: [%V] ", &err_levels[level]);
-	(void)ngx_write_console(ngx_stderr, msg, p - msg);
 }
 
 #if !(NGX_HAVE_VARIADIC_MACROS)
@@ -205,13 +196,11 @@ u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
 {
 	if(buf > last - 50) {
 		/* leave a space for an error code */
-
 		buf = last - 50;
 		*buf++ = '.';
 		*buf++ = '.';
 		*buf++ = '.';
 	}
-
 #if (NGX_WIN32)
 	buf = ngx_slprintf(buf, last, ((unsigned)err < 0x80000000) ? " (%d: " : " (%Xd: ", err);
 #else
@@ -226,59 +215,58 @@ u_char * ngx_log_errno(u_char * buf, u_char * last, ngx_err_t err)
 
 ngx_log_t * ngx_log_init(const u_char * prefix)
 {
-	u_char  * p, * name;
-	size_t nlen, plen;
+	u_char * p = 0; // Указатель на распределенную память (для финишного удаления)
 	ngx_log.file = &ngx_log_file;
 	ngx_log.Level = NGX_LOG_NOTICE;
-	name = (u_char*)NGX_ERROR_LOG_PATH;
+	u_char * p_name = (u_char *)NGX_ERROR_LOG_PATH;
 	// 
 	// we use ngx_strlen() here since BCC warns about condition is always false and unreachable code
 	// 
-	nlen = ngx_strlen(name);
-	if(nlen == 0) {
+	const size_t nlen = ngx_strlen(p_name);
+	if(nlen == 0)
 		ngx_log_file.fd = ngx_stderr;
-		return &ngx_log;
-	}
-	p = NULL;
+	else {
+		size_t plen;
 #if (NGX_WIN32)
-	if(name[1] != ':') {
+		if(p_name[1] != ':') {
 #else
-	if(name[0] != '/') {
+		if(p_org_name[0] != '/') {
 #endif
-		if(prefix) {
-			plen = ngx_strlen(prefix);
-		}
-		else {
+			if(prefix) {
+				plen = ngx_strlen(prefix);
+			}
+			else {
 #ifdef NGX_PREFIX
-			prefix = (u_char*)NGX_PREFIX;
-			plen = ngx_strlen(prefix);
+				prefix = (u_char*)NGX_PREFIX;
+				plen = ngx_strlen(prefix);
 #else
-			plen = 0;
+				plen = 0;
 #endif
-		}
-		if(plen) {
-			name = (u_char *)malloc(plen + nlen + 2);
-			if(name == NULL) {
-				return NULL;
 			}
-			p = ngx_cpymem(name, prefix, plen);
-			if(!ngx_path_separator(*(p - 1))) {
-				*p++ = '/';
+			if(plen) {
+				p_name = (u_char *)malloc(plen + nlen + 2);
+				if(p_name == NULL) {
+					return NULL;
+				}
+				p = ngx_cpymem(p_name, prefix, plen);
+				if(!ngx_path_separator(*(p - 1))) {
+					*p++ = '/';
+				}
+				ngx_cpystrn(p, (u_char*)NGX_ERROR_LOG_PATH, nlen + 1);
+				p = p_name;
 			}
-			ngx_cpystrn(p, (u_char*)NGX_ERROR_LOG_PATH, nlen + 1);
-			p = name;
 		}
-	}
-	ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
-	if(ngx_log_file.fd == NGX_INVALID_FILE) {
-		ngx_log_stderr(ngx_errno, "[alert] could not open error log file: " ngx_open_file_n " \"%s\" failed", name);
+		ngx_log_file.fd = ngx_open_file(p_name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
+		if(ngx_log_file.fd == NGX_INVALID_FILE) {
+			ngx_log_stderr(ngx_errno, "[alert] could not open error log file: " ngx_open_file_n " \"%s\" failed", p_name);
 #if (NGX_WIN32)
-		ngx_event_log(ngx_errno, "could not open error log file: " ngx_open_file_n " \"%s\" failed", name);
+			ngx_event_log(ngx_errno, "could not open error log file: " ngx_open_file_n " \"%s\" failed", p_name);
 #endif
-		ngx_log_file.fd = ngx_stderr;
-	}
-	if(p) {
-		ngx_free(p);
+			ngx_log_file.fd = ngx_stderr;
+		}
+		if(p) {
+			ngx_free(p);
+		}
 	}
 	return &ngx_log;
 }
@@ -377,7 +365,7 @@ static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 	return NGX_CONF_OK;
 }
 
-static char * ngx_error_log(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_error_log(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_log_t * dummy = &cf->cycle->new_log;
 	return ngx_log_set_log(cf, &dummy);
@@ -432,7 +420,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 		}
 		buf->end = buf->start + size;
 		buf->pos = ngx_slprintf(buf->start, buf->end, "MEMLOG %uz %V:%ui%N", size, &cf->conf_file->file.name, cf->conf_file->line);
-		ngx_memset(buf->pos, ' ', buf->end - buf->pos);
+		memset(buf->pos, ' ', buf->end - buf->pos);
 		cln = ngx_pool_cleanup_add(cf->pool, 0);
 		if(cln == NULL) {
 			return NGX_CONF_ERROR;

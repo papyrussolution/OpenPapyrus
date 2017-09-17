@@ -14,7 +14,7 @@ struct ngx_http_gunzip_conf_t {
 	ngx_bufs_t bufs;
 };
 
-typedef struct ngx_http_gunzip_ctx_t {
+struct ngx_http_gunzip_ctx_t {
 	ngx_chain_t  * in;
 	ngx_chain_t  * free;
 	ngx_chain_t  * busy;
@@ -237,21 +237,15 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_start(ngx_http_request_t * r, ng
 	ctx->zstream.zalloc = ngx_http_gunzip_filter_alloc;
 	ctx->zstream.zfree = ngx_http_gunzip_filter_free;
 	ctx->zstream.opaque = ctx;
-
 	/* windowBits +16 to decode gzip, zlib 1.2.0.4+ */
 	rc = inflateInit2(&ctx->zstream, MAX_WBITS + 16);
-
 	if(rc != Z_OK) {
-		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-		    "inflateInit2() failed: %d", rc);
+		ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, "inflateInit2() failed: %d", rc);
 		return NGX_ERROR;
 	}
-
 	ctx->started = 1;
-
 	ctx->last_out = &ctx->out;
 	ctx->flush = Z_NO_FLUSH;
-
 	return NGX_OK;
 }
 
@@ -285,7 +279,6 @@ static ngx_int_t ngx_http_gunzip_filter_add_data(ngx_http_request_t * r, ngx_htt
 
 static ngx_int_t ngx_http_gunzip_filter_get_buf(ngx_http_request_t * r, ngx_http_gunzip_ctx_t * ctx)
 {
-	ngx_http_gunzip_conf_t  * conf;
 	if(!ctx->zstream.avail_out) {
 		ngx_http_gunzip_conf_t * conf = (ngx_http_gunzip_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_gunzip_filter_module);
 		if(ctx->free) {

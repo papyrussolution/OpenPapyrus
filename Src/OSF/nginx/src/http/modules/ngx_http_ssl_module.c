@@ -20,28 +20,17 @@ static int ngx_http_ssl_alpn_select(ngx_ssl_conn_t * ssl_conn,
     const unsigned char ** out, unsigned char * outlen,
     const unsigned char * in, unsigned int inlen, void * arg);
 #endif
-
 #ifdef TLSEXT_TYPE_next_proto_neg
-static int ngx_http_ssl_npn_advertised(ngx_ssl_conn_t * ssl_conn,
-    const unsigned char ** out, unsigned int * outlen, void * arg);
+	static int ngx_http_ssl_npn_advertised(ngx_ssl_conn_t * ssl_conn, const unsigned char ** out, unsigned int * outlen, void * arg);
 #endif
-
-static ngx_int_t ngx_http_ssl_static_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
-static ngx_int_t ngx_http_ssl_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
-
+static ngx_int_t ngx_http_ssl_static_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_int_t ngx_http_ssl_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_ssl_add_variables(ngx_conf_t * cf);
 static void * ngx_http_ssl_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf,
-    void * parent, void * child);
-
-static char * ngx_http_ssl_enable(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
-static char * ngx_http_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
+static const char * ngx_http_ssl_enable(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_ssl_password_file(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_ssl_session_cache(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_int_t ngx_http_ssl_init(ngx_conf_t * cf);
 
@@ -64,41 +53,16 @@ static ngx_conf_enum_t ngx_http_ssl_verify[] = {
 };
 
 static ngx_command_t ngx_http_ssl_commands[] = {
-	{ ngx_string("ssl"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_http_ssl_enable,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, enable),
-	  NULL },
-
-	{ ngx_string("ssl_certificate"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_array_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, certificates),
-	  NULL },
-
-	{ ngx_string("ssl_certificate_key"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_array_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, certificate_keys),
-	  NULL },
-
-	{ ngx_string("ssl_password_file"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_http_ssl_password_file,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("ssl_dhparam"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, dhparam),
-	  NULL },
-
+	{ ngx_string("ssl"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_http_ssl_enable, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, enable), NULL },
+	{ ngx_string("ssl_certificate"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_array_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, certificates), NULL },
+	{ ngx_string("ssl_certificate_key"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_array_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, certificate_keys), NULL },
+	{ ngx_string("ssl_password_file"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_http_ssl_password_file, NGX_HTTP_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("ssl_dhparam"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, dhparam), NULL },
 	{ ngx_string("ssl_ecdh_curve"),
 	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
 	  ngx_conf_set_str_slot,
@@ -155,26 +119,12 @@ static ngx_command_t ngx_http_ssl_commands[] = {
 	  offsetof(ngx_http_ssl_srv_conf_t, trusted_certificate),
 	  NULL },
 
-	{ ngx_string("ssl_prefer_server_ciphers"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, prefer_server_ciphers),
-	  NULL },
-
-	{ ngx_string("ssl_session_cache"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE12,
-	  ngx_http_ssl_session_cache,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("ssl_session_tickets"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, session_tickets),
-	  NULL },
+	{ ngx_string("ssl_prefer_server_ciphers"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, prefer_server_ciphers), NULL },
+	{ ngx_string("ssl_session_cache"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE12,
+	  ngx_http_ssl_session_cache, NGX_HTTP_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("ssl_session_tickets"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, session_tickets), NULL },
 
 	{ ngx_string("ssl_session_ticket_key"),
 	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
@@ -204,27 +154,12 @@ static ngx_command_t ngx_http_ssl_commands[] = {
 	  offsetof(ngx_http_ssl_srv_conf_t, stapling),
 	  NULL },
 
-	{ ngx_string("ssl_stapling_file"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, stapling_file),
-	  NULL },
-
-	{ ngx_string("ssl_stapling_responder"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_str_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, stapling_responder),
-	  NULL },
-
-	{ ngx_string("ssl_stapling_verify"),
-	  NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
-	  ngx_conf_set_flag_slot,
-	  NGX_HTTP_SRV_CONF_OFFSET,
-	  offsetof(ngx_http_ssl_srv_conf_t, stapling_verify),
-	  NULL },
-
+	{ ngx_string("ssl_stapling_file"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, stapling_file), NULL },
+	{ ngx_string("ssl_stapling_responder"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_str_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, stapling_responder), NULL },
+	{ ngx_string("ssl_stapling_verify"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_FLAG,
+	  ngx_conf_set_flag_slot, NGX_HTTP_SRV_CONF_OFFSET, offsetof(ngx_http_ssl_srv_conf_t, stapling_verify), NULL },
 	ngx_null_command
 };
 
@@ -540,8 +475,7 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 			return NGX_CONF_ERROR;
 		}
 		if(conf->certificate_keys->nelts < conf->certificates->nelts) {
-			ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
-			    "no \"ssl_certificate_key\" is defined for certificate \"%V\" and the \"ssl\" directive in %s:%ui",
+			ngx_log_error(NGX_LOG_EMERG, cf->log, 0, "no \"ssl_certificate_key\" is defined for certificate \"%V\" and the \"ssl\" directive in %s:%ui",
 			    ((ngx_str_t*)conf->certificates->elts) + conf->certificates->nelts - 1, conf->file, conf->line);
 			return NGX_CONF_ERROR;
 		}
@@ -630,19 +564,18 @@ static char * ngx_http_ssl_merge_srv_conf(ngx_conf_t * cf, void * parent, void *
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_ssl_enable(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_ssl_enable(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_ssl_srv_conf_t * sscf = (ngx_http_ssl_srv_conf_t *)conf;
-	char  * rv = ngx_conf_set_flag_slot(cf, cmd, conf);
-	if(rv != NGX_CONF_OK) {
-		return rv;
+	const char * rv = ngx_conf_set_flag_slot(cf, cmd, conf);
+	if(rv == NGX_CONF_OK) {
+		sscf->file = cf->conf_file->file.name.data;
+		sscf->line = cf->conf_file->line;
 	}
-	sscf->file = cf->conf_file->file.name.data;
-	sscf->line = cf->conf_file->line;
-	return NGX_CONF_OK;
+	return rv;
 }
 
-static char * ngx_http_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_ssl_password_file(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_ssl_srv_conf_t * sscf = (ngx_http_ssl_srv_conf_t *)conf;
 	if(sscf->passwords != NGX_CONF_UNSET_PTR) {
@@ -658,7 +591,7 @@ static char * ngx_http_ssl_password_file(ngx_conf_t * cf, ngx_command_t * cmd, v
 	}
 }
 
-static char * ngx_http_ssl_session_cache(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_ssl_session_cache(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_ssl_srv_conf_t * sscf = (ngx_http_ssl_srv_conf_t *)conf;
 	size_t len;

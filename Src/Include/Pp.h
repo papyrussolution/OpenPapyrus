@@ -6593,7 +6593,7 @@ public:
 	//
 	// @construction
 	//
-	int    SLAPI DispatchNgxRequest(void * pReq); // @cs
+	int    SLAPI DispatchNgxRequest(void * pReq, const void * pCfg); // @cs
 
 	enum {
 		ldsLock      = 1,

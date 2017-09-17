@@ -64,8 +64,10 @@
 #define NGX_HTTP_SERVER_TOKENS_ON       1
 #define NGX_HTTP_SERVER_TOKENS_BUILD    2
 
-typedef struct ngx_http_location_tree_node_s ngx_http_location_tree_node_t;
-typedef struct ngx_http_core_loc_conf_s ngx_http_core_loc_conf_t;
+struct ngx_http_location_tree_node_t;
+struct ngx_http_core_loc_conf_t;
+//typedef struct ngx_http_location_tree_node_s ngx_http_location_tree_node_t;
+//typedef struct ngx_http_core_loc_conf_s ngx_http_core_loc_conf_t;
 
 struct ngx_http_listen_opt_t {
 	ngx_sockaddr_t sockaddr;
@@ -245,10 +247,10 @@ struct ngx_http_err_page_t {
 	ngx_str_t args;
 };
 
-struct ngx_http_core_loc_conf_s {
+struct /*ngx_http_core_loc_conf_s*/ngx_http_core_loc_conf_t {
 	ngx_str_t name; // location name 
 #if (NGX_PCRE)
-	ngx_http_regex_t  * regex;
+	ngx_http_regex_t * regex;
 #endif
 	unsigned noname : 1;  /* "if () {}" block or limit_except */
 	unsigned lmt_excpt : 1;
@@ -363,7 +365,7 @@ struct ngx_http_location_queue_t {
 	ngx_queue_t list;
 };
 
-struct ngx_http_location_tree_node_s {
+struct /*ngx_http_location_tree_node_s*/ngx_http_location_tree_node_t {
 	ngx_http_location_tree_node_t * left;
 	ngx_http_location_tree_node_t * right;
 	ngx_http_location_tree_node_t * tree;
@@ -375,19 +377,19 @@ struct ngx_http_location_tree_node_s {
 };
 
 void ngx_http_core_run_phases(ngx_http_request_t * r);
-ngx_int_t ngx_http_core_generic_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_post_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_access_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_post_access_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
-ngx_int_t ngx_http_core_content_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph);
+ngx_int_t ngx_http_core_generic_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_post_rewrite_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_access_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_post_access_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
+ngx_int_t ngx_http_core_content_phase(ngx_http_request_t * r, ngx_http_phase_handler_t * ph); // @callback
 
 void * ngx_http_test_content_type(ngx_http_request_t * r, ngx_hash_t * types_hash);
 ngx_int_t ngx_http_set_content_type(ngx_http_request_t * r);
 void ngx_http_set_exten(ngx_http_request_t * r);
 ngx_int_t ngx_http_set_etag(ngx_http_request_t * r);
-void ngx_http_weak_etag(ngx_http_request_t * r);
+void FASTCALL ngx_http_weak_etag(ngx_http_request_t * pReq);
 ngx_int_t ngx_http_send_response(ngx_http_request_t * r, ngx_uint_t status, ngx_str_t * ct, ngx_http_complex_value_t * cv);
 u_char * ngx_http_map_uri_to_path(ngx_http_request_t * r, ngx_str_t * name, size_t * root_length, size_t reserved);
 ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t * r);
@@ -403,7 +405,7 @@ typedef ngx_int_t (*ngx_http_output_header_filter_pt)(ngx_http_request_t * r);
 typedef ngx_int_t (*ngx_http_output_body_filter_pt)(ngx_http_request_t * r, ngx_chain_t * chain);
 typedef ngx_int_t (*ngx_http_request_body_filter_pt)(ngx_http_request_t * r, ngx_chain_t * chain);
 
-ngx_int_t ngx_http_output_filter(ngx_http_request_t * r, ngx_chain_t * chain);
+ngx_int_t FASTCALL ngx_http_output_filter(ngx_http_request_t * r, ngx_chain_t * chain);
 ngx_int_t ngx_http_write_filter(ngx_http_request_t * r, ngx_chain_t * chain);
 ngx_int_t ngx_http_request_body_save_filter(ngx_http_request_t * r, ngx_chain_t * chain);
 ngx_int_t ngx_http_set_disable_symlinks(ngx_http_request_t * r, ngx_http_core_loc_conf_t * clcf, ngx_str_t * path, ngx_open_file_info_t * of);

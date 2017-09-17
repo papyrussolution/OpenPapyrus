@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 typedef struct {
 	ngx_stream_complex_value_t text;
@@ -18,7 +18,7 @@ typedef struct {
 static void ngx_stream_return_handler(ngx_stream_session_t * s);
 static void ngx_stream_return_write_handler(ngx_event_t * ev);
 static void * ngx_stream_return_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_stream_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_stream_return(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_stream_return_commands[] = {
 	{ ngx_string("return"), NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
@@ -131,7 +131,7 @@ static void * ngx_stream_return_create_srv_conf(ngx_conf_t * cf)
 	return conf;
 }
 
-static char * ngx_stream_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_return(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_return_srv_conf_t * rscf = (ngx_stream_return_srv_conf_t *)conf;
 	ngx_stream_core_srv_conf_t * cscf;

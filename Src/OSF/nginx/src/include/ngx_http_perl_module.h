@@ -8,7 +8,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 //#include <ngx_http.h>
-#include <nginx.h>
+//#include <nginx.h>
 #include <EXTERN.h>
 #include <perl.h>
 

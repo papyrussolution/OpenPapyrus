@@ -47,7 +47,7 @@ static time_t ngx_ssl_parse_time(
 #endif
     ASN1_TIME * asn1time);
 static void * ngx_openssl_create_conf(ngx_cycle_t * cycle);
-static char * ngx_openssl_engine(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_openssl_engine(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void ngx_openssl_exit(ngx_cycle_t * cycle);
 
 static ngx_command_t ngx_openssl_commands[] = {
@@ -698,51 +698,37 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 
 				pwd->len = len;
 				pwd->data = (u_char*)ngx_pnalloc(cf->temp_pool, len);
-
 				if(pwd->data == NULL) {
 					passwords->nelts--;
 					passwords = NULL;
 					goto cleanup;
 				}
-
 				memcpy(pwd->data, p, len);
 			}
-
 			p = last;
 		}
-
 		len = end - p;
-
 		if(len == NGX_SSL_PASSWORD_BUFFER_SIZE) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "too long line in \"%s\"", file->data);
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "too long line in \"%s\"", file->data);
 			passwords = NULL;
 			goto cleanup;
 		}
-
 		memmove(buf, p, len);
 		last = buf + len;
 	} while(n != 0);
-
 	if(passwords->nelts == 0) {
 		pwd = (ngx_str_t*)ngx_array_push(passwords);
 		if(pwd == NULL) {
 			passwords = NULL;
 			goto cleanup;
 		}
-
 		memzero(pwd, sizeof(ngx_str_t));
 	}
-
 cleanup:
-
 	if(ngx_close_file(fd) == NGX_FILE_ERROR) {
-		ngx_conf_log_error(NGX_LOG_ALERT, cf, ngx_errno,
-		    ngx_close_file_n " \"%s\" failed", file->data);
+		ngx_conf_log_error(NGX_LOG_ALERT, cf, ngx_errno, ngx_close_file_n " \"%s\" failed", file->data);
 	}
-
 	memzero(buf, NGX_SSL_PASSWORD_BUFFER_SIZE);
-
 	return passwords;
 }
 
@@ -822,22 +808,19 @@ ngx_int_t ngx_ssl_ecdh_curve(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * name)
 	/* not needed in OpenSSL 1.1.0+ */
 	SSL_CTX_set_ecdh_auto(ssl->ctx, 1);
 #endif
-
-	if(ngx_strcmp(name->data, "auto") == 0) {
+	if(sstreq(name->data, "auto")) {
 		return NGX_OK;
 	}
-
 	if(SSL_CTX_set1_curves_list(ssl->ctx, (char*)name->data) == 0) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_CTX_set1_curves_list(\"%s\") failed", name->data);
 		return NGX_ERROR;
 	}
 
 #else
-
 	int nid;
 	char  * curve;
 	EC_KEY  * ecdh;
-	if(ngx_strcmp(name->data, "auto") == 0) {
+	if(sstreq(name->data, "auto")) {
 		curve = "prime256v1";
 	}
 	else {
@@ -1445,18 +1428,11 @@ static void ngx_ssl_connection_error(ngx_connection_t * c, int sslerr, ngx_err_t
 	int n;
 	ngx_uint_t level = NGX_LOG_CRIT;
 	if(sslerr == SSL_ERROR_SYSCALL) {
-		if(err == NGX_ECONNRESET || err == NGX_EPIPE || err == NGX_ENOTCONN || err == NGX_ETIMEDOUT
-		    || err == NGX_ECONNREFUSED || err == NGX_ENETDOWN || err == NGX_ENETUNREACH || err == NGX_EHOSTDOWN || err == NGX_EHOSTUNREACH) {
+		if(oneof9(err, NGX_ECONNRESET, NGX_EPIPE, NGX_ENOTCONN, NGX_ETIMEDOUT, NGX_ECONNREFUSED, NGX_ENETDOWN, NGX_ENETUNREACH, NGX_EHOSTDOWN, NGX_EHOSTUNREACH)) {
 			switch(c->log_error) {
 				case NGX_ERROR_IGNORE_ECONNRESET:
-				case NGX_ERROR_INFO:
-				    level = NGX_LOG_INFO;
-				    break;
-
-				case NGX_ERROR_ERR:
-				    level = NGX_LOG_ERR;
-				    break;
-
+				case NGX_ERROR_INFO: level = NGX_LOG_INFO; break;
+				case NGX_ERROR_ERR: level = NGX_LOG_ERR; break;
 				default:
 				    break;
 			}
@@ -2937,7 +2913,7 @@ static void * ngx_openssl_create_conf(ngx_cycle_t * cycle)
 	return oscf;
 }
 
-static char * ngx_openssl_engine(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_openssl_engine(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #ifndef OPENSSL_NO_ENGINE
 	ngx_openssl_conf_t * oscf = (ngx_openssl_conf_t *)conf;

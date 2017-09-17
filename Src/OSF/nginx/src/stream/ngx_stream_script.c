@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
 static ngx_int_t ngx_stream_script_init_arrays(ngx_stream_script_compile_t * sc);
 static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc);
@@ -144,7 +144,7 @@ ngx_int_t ngx_stream_compile_complex_value(ngx_stream_compile_complex_value_t * 
 	return NGX_OK;
 }
 
-char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+const char * ngx_stream_set_complex_value_slot(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char  * p = (char *)conf;
 	ngx_str_t * value;

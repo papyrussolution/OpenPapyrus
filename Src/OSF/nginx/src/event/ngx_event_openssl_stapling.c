@@ -477,97 +477,67 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_cert_to_id() failed");
 		goto error;
 	}
-
-	if(OCSP_resp_find_status(basic, id, &n, NULL, NULL,
-		    &thisupdate, &nextupdate)
-	    != 1) {
-		ngx_log_error(NGX_LOG_ERR, ctx->log, 0,
-		    "certificate status not found in the OCSP response");
+	if(OCSP_resp_find_status(basic, id, &n, NULL, NULL, &thisupdate, &nextupdate) != 1) {
+		ngx_log_error(NGX_LOG_ERR, ctx->log, 0, "certificate status not found in the OCSP response");
 		goto error;
 	}
-
 	if(n != V_OCSP_CERTSTATUS_GOOD) {
-		ngx_log_error(NGX_LOG_ERR, ctx->log, 0,
-		    "certificate status \"%s\" in the OCSP response",
-		    OCSP_cert_status_str(n));
+		ngx_log_error(NGX_LOG_ERR, ctx->log, 0, "certificate status \"%s\" in the OCSP response", OCSP_cert_status_str(n));
 		goto error;
 	}
-
 	if(OCSP_check_validity(thisupdate, nextupdate, 300, -1) != 1) {
 		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_check_validity() failed");
 		goto error;
 	}
-
 	if(nextupdate) {
 		valid = ngx_ssl_stapling_time(nextupdate);
 		if(valid == (time_t)NGX_ERROR) {
-			ngx_log_error(NGX_LOG_ERR, ctx->log, 0,
-			    "invalid nextUpdate time in certificate status");
+			ngx_log_error(NGX_LOG_ERR, ctx->log, 0, "invalid nextUpdate time in certificate status");
 			goto error;
 		}
 	}
 	else {
 		valid = NGX_MAX_TIME_T_VALUE;
 	}
-
 	OCSP_CERTID_free(id);
 	OCSP_BASICRESP_free(basic);
 	OCSP_RESPONSE_free(ocsp);
-
 	id = NULL;
 	basic = NULL;
 	ocsp = NULL;
-
 	/* copy the response to memory not in ctx->pool */
-
 	response.len = len;
 	response.data = (u_char *)ngx_alloc(response.len, ctx->log);
-
 	if(response.data == NULL) {
 		goto error;
 	}
-
 	memcpy(response.data, ctx->response->pos, response.len);
-
-	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ctx->log, 0,
-	    "ssl ocsp response, %s, %uz",
-	    OCSP_cert_status_str(n), response.len);
-
+	ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ctx->log, 0, "ssl ocsp response, %s, %uz", OCSP_cert_status_str(n), response.len);
 	if(staple->staple.data) {
 		ngx_free(staple->staple.data);
 	}
-
 	staple->staple = response;
 	staple->valid = valid;
-
 	/*
 	 * refresh before the response expires,
 	 * but not earlier than in 5 minutes, and at least in an hour
 	 */
-
 	staple->loading = 0;
 	staple->refresh = MAX(MIN(valid - 300, now + 3600), now + 300);
-
 	ngx_ssl_ocsp_done(ctx);
 	return;
-
 error:
-
 	staple->loading = 0;
 	staple->refresh = now + 300;
-
 	if(id) {
 		OCSP_CERTID_free(id);
 	}
-
 	if(basic) {
 		OCSP_BASICRESP_free(basic);
 	}
-
 	if(ocsp) {
 		OCSP_RESPONSE_free(ocsp);
 	}
-
 	ngx_ssl_ocsp_done(ctx);
 }
 
@@ -577,7 +547,6 @@ static time_t ngx_ssl_stapling_time(ASN1_GENERALIZEDTIME * asn1time)
 	char  * value;
 	size_t len;
 	time_t time;
-
 	/*
 	 * OpenSSL doesn't provide a way to convert ASN1_GENERALIZEDTIME
 	 * into time_t.  To do this, we use ASN1_GENERALIZEDTIME_print(),

@@ -5,21 +5,21 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_stream.h>
+//#include <ngx_stream.h>
 
-typedef struct {
+struct ngx_stream_access_rule_t {
 	in_addr_t mask;
 	in_addr_t addr;
 	ngx_uint_t deny;         /* unsigned  deny:1; */
-} ngx_stream_access_rule_t;
+};
 
 #if (NGX_HAVE_INET6)
 
-typedef struct {
+struct ngx_stream_access_rule6_t {
 	struct in6_addr addr;
 	struct in6_addr mask;
 	ngx_uint_t deny;         /* unsigned  deny:1; */
-} ngx_stream_access_rule6_t;
+};
 
 #endif
 
@@ -42,40 +42,24 @@ typedef struct {
 } ngx_stream_access_srv_conf_t;
 
 static ngx_int_t ngx_stream_access_handler(ngx_stream_session_t * s);
-static ngx_int_t ngx_stream_access_inet(ngx_stream_session_t * s,
-    ngx_stream_access_srv_conf_t * ascf, in_addr_t addr);
+static ngx_int_t ngx_stream_access_inet(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, in_addr_t addr);
 #if (NGX_HAVE_INET6)
-static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s,
-    ngx_stream_access_srv_conf_t * ascf, u_char * p);
+static ngx_int_t ngx_stream_access_inet6(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf, u_char * p);
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
-static ngx_int_t ngx_stream_access_unix(ngx_stream_session_t * s,
-    ngx_stream_access_srv_conf_t * ascf);
+static ngx_int_t ngx_stream_access_unix(ngx_stream_session_t * s, ngx_stream_access_srv_conf_t * ascf);
 #endif
-static ngx_int_t ngx_stream_access_found(ngx_stream_session_t * s,
-    ngx_uint_t deny);
-static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd,
-    void * conf);
+static ngx_int_t ngx_stream_access_found(ngx_stream_session_t * s, ngx_uint_t deny);
+static const char * ngx_stream_access_rule(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static void * ngx_stream_access_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_stream_access_merge_srv_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_stream_access_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_stream_access_init(ngx_conf_t * cf);
 
 static ngx_command_t ngx_stream_access_commands[] = {
-	{ ngx_string("allow"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_stream_access_rule,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
-	{ ngx_string("deny"),
-	  NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_stream_access_rule,
-	  NGX_STREAM_SRV_CONF_OFFSET,
-	  0,
-	  NULL },
-
+	{ ngx_string("allow"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_stream_access_rule, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
+	{ ngx_string("deny"), NGX_STREAM_MAIN_CONF|NGX_STREAM_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_stream_access_rule, NGX_STREAM_SRV_CONF_OFFSET, 0, NULL },
 	ngx_null_command
 };
 
@@ -244,15 +228,13 @@ static ngx_int_t ngx_stream_access_unix(ngx_stream_session_t * s,
 static ngx_int_t ngx_stream_access_found(ngx_stream_session_t * s, ngx_uint_t deny)
 {
 	if(deny) {
-		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-		    "access forbidden by rule");
+		ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "access forbidden by rule");
 		return NGX_STREAM_FORBIDDEN;
 	}
-
 	return NGX_OK;
 }
 
-static char * ngx_stream_access_rule(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_stream_access_rule(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_stream_access_srv_conf_t * ascf = (ngx_stream_access_srv_conf_t *)conf;
 	ngx_int_t rc;

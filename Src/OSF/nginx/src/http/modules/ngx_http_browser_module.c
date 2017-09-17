@@ -14,35 +14,34 @@
 #define  NGX_HTTP_MODERN_BROWSER   0
 #define  NGX_HTTP_ANCIENT_BROWSER  1
 
-typedef struct {
+struct ngx_http_modern_browser_mask_t {
 	u_char browser[12];
 	size_t skip;
 	size_t add;
 	u_char name[12];
-} ngx_http_modern_browser_mask_t;
+};
 
-typedef struct {
+struct ngx_http_modern_browser_t {
 	ngx_uint_t version;
 	size_t skip;
 	size_t add;
 	u_char name[12];
-} ngx_http_modern_browser_t;
+};
 
-typedef struct {
+struct ngx_http_browser_variable_t {
 	ngx_str_t name;
 	ngx_http_get_variable_pt handler;
 	uintptr_t data;
-} ngx_http_browser_variable_t;
+};
 
-typedef struct {
+struct ngx_http_browser_conf_t {
 	ngx_array_t  * modern_browsers;
 	ngx_array_t  * ancient_browsers;
 	ngx_http_variable_value_t  * modern_browser_value;
 	ngx_http_variable_value_t  * ancient_browser_value;
-
 	unsigned modern_unlisted_browsers : 1;
 	unsigned netscape4 : 1;
-} ngx_http_browser_conf_t;
+};
 
 static ngx_int_t ngx_http_msie_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_browser_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
@@ -51,10 +50,10 @@ static ngx_int_t ngx_http_browser_add_variable(ngx_conf_t * cf);
 static void * ngx_http_browser_create_conf(ngx_conf_t * cf);
 static char * ngx_http_browser_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one, const void * two);
-static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_ancient_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_modern_browser(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_ancient_browser(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_modern_browser_value(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_ancient_browser_value(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 
 static ngx_command_t ngx_http_browser_commands[] = {
 	{ ngx_string("modern_browser"), NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE12,
@@ -71,13 +70,10 @@ static ngx_command_t ngx_http_browser_commands[] = {
 static ngx_http_module_t ngx_http_browser_module_ctx = {
 	ngx_http_browser_add_variable,     /* preconfiguration */
 	NULL,                              /* postconfiguration */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	NULL,                              /* create server configuration */
 	NULL,                              /* merge server configuration */
-
 	ngx_http_browser_create_conf,      /* create location configuration */
 	ngx_http_browser_merge_conf        /* merge location configuration */
 };
@@ -351,12 +347,12 @@ found:
 
 static int ngx_libc_cdecl ngx_http_modern_browser_sort(const void * one, const void * two)
 {
-	ngx_http_modern_browser_t * first = (ngx_http_modern_browser_t*)one;
-	ngx_http_modern_browser_t * second = (ngx_http_modern_browser_t*)two;
+	const ngx_http_modern_browser_t * first = (const ngx_http_modern_browser_t *)one;
+	const ngx_http_modern_browser_t * second = (const ngx_http_modern_browser_t *)two;
 	return (first->skip - second->skip);
 }
 
-static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_modern_browser(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
 	u_char c;
@@ -365,7 +361,7 @@ static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void
 	ngx_http_modern_browser_mask_t  * mask;
 	const ngx_str_t * value = (const ngx_str_t *)cf->args->elts;
 	if(cf->args->nelts == 2) {
-		if(ngx_strcmp(value[1].data, "unlisted") == 0) {
+		if(sstreq(value[1].data, "unlisted")) {
 			bcf->modern_unlisted_browsers = 1;
 			return NGX_CONF_OK;
 		}
@@ -383,7 +379,7 @@ static char * ngx_http_modern_browser(ngx_conf_t * cf, ngx_command_t * cmd, void
 	}
 	mask = ngx_http_modern_browser_masks;
 	for(n = 0; mask[n].browser[0] != '\0'; n++) {
-		if(ngx_strcasecmp(mask[n].browser, value[1].data) == 0) {
+		if(sstreqi_ascii(mask[n].browser, value[1].data)) {
 			goto found;
 		}
 	}
@@ -419,13 +415,13 @@ found:
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_ancient_browser(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
 	ngx_str_t * browser;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	for(ngx_uint_t i = 1; i < cf->args->nelts; i++) {
-		if(ngx_strcmp(value[i].data, "netscape4") == 0) {
+		if(sstreq(value[i].data, "netscape4")) {
 			bcf->netscape4 = 1;
 			continue;
 		}
@@ -444,7 +440,7 @@ static char * ngx_http_ancient_browser(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_modern_browser_value(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
 	ngx_str_t  * value;
@@ -461,7 +457,7 @@ static char * ngx_http_modern_browser_value(ngx_conf_t * cf, ngx_command_t * cmd
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_ancient_browser_value(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_ancient_browser_value(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_browser_conf_t * bcf = (ngx_http_browser_conf_t *)conf;
 	ngx_str_t  * value;

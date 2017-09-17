@@ -8,23 +8,23 @@
 #pragma hdrstop
 //#include <ngx_http.h>
 
-typedef struct {
+struct ngx_http_rewrite_loc_conf_t {
 	ngx_array_t  * codes;   /* uintptr_t */
 	ngx_uint_t stack_size;
 	ngx_flag_t log;
 	ngx_flag_t uninitialized_variable_warn;
-} ngx_http_rewrite_loc_conf_t;
+};
 
 static void * ngx_http_rewrite_create_loc_conf(ngx_conf_t * cf);
 static char * ngx_http_rewrite_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_rewrite_init(ngx_conf_t * cf);
-static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_rewrite_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_rewrite_break(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_http_rewrite_if(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_rewrite_return(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_rewrite_break(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_loc_conf_t * lcf);
 static char * ngx_http_rewrite_variable(ngx_conf_t * cf, ngx_http_rewrite_loc_conf_t * lcf, ngx_str_t * value);
-static char * ngx_http_rewrite_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_http_rewrite_set(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static char * ngx_http_rewrite_value(ngx_conf_t * cf, ngx_http_rewrite_loc_conf_t * lcf, ngx_str_t * value);
 
 static ngx_command_t ngx_http_rewrite_commands[] = {
@@ -184,7 +184,7 @@ static ngx_int_t ngx_http_rewrite_init(ngx_conf_t * cf)
 	return NGX_OK;
 }
 
-static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	ngx_str_t  * value;
@@ -288,7 +288,7 @@ static char * ngx_http_rewrite(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_rewrite_return(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_rewrite_return(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	u_char   * p;
@@ -335,7 +335,7 @@ static char * ngx_http_rewrite_return(ngx_conf_t * cf, ngx_command_t * cmd, void
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_rewrite_break(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_rewrite_break(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	ngx_http_script_code_pt  * code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
@@ -346,7 +346,7 @@ static char * ngx_http_rewrite_break(ngx_conf_t * cf, ngx_command_t * cmd, void 
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_rewrite_if(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	void  * mconf;
@@ -603,7 +603,7 @@ static char * ngx_http_rewrite_variable(ngx_conf_t * cf, ngx_http_rewrite_loc_co
 	return NGX_CONF_OK;
 }
 
-static char * ngx_http_rewrite_set(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_http_rewrite_set(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_http_rewrite_loc_conf_t  * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	ngx_int_t index;

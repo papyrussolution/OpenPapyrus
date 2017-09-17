@@ -8,7 +8,7 @@
 //#include <ngx_event.h>
 #include <ngx_mail.h>
 
-static char * ngx_mail_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_mail_add_ports(ngx_conf_t * cf, ngx_array_t * ports, ngx_mail_listen_t * listen);
 static char * ngx_mail_optimize_servers(ngx_conf_t * cf, ngx_array_t * ports);
 static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ngx_mail_conf_addr_t * addr);
@@ -20,13 +20,8 @@ static ngx_int_t ngx_mail_cmp_conf_addrs(const void * one, const void * two);
 ngx_uint_t ngx_mail_max_module; // @global
 
 static ngx_command_t ngx_mail_commands[] = {
-	{ ngx_string("mail"),
-	  NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
-	  ngx_mail_block,
-	  0,
-	  0,
-	  NULL },
-
+	{ ngx_string("mail"), NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
+	  ngx_mail_block, 0, 0, NULL },
 	ngx_null_command
 };
 
@@ -51,7 +46,7 @@ ngx_module_t ngx_mail_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static char * ngx_mail_block(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	char * rv;
 	ngx_uint_t i, m, mi, s;

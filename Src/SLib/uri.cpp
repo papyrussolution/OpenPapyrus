@@ -316,19 +316,19 @@ static int UriAppendSegment(UriUri * uri, const char * first, const char * after
 	return ok;
 }
 
-static int FASTCALL UriEqualsAuthority(const UriUri * first, const UriUri * second)
+static int FASTCALL UriEqualsAuthority(const UriUri * pFirst, const UriUri * second)
 {
 	
-	if(first->HostData.ip4) // IPv4 
-		return (second->HostData.ip4 && !memcmp(first->HostData.ip4->data, second->HostData.ip4->data, 4)) ? TRUE : FALSE;
-	else if(first->HostData.ip6) // IPv6 
-		return (second->HostData.ip6 && !memcmp(first->HostData.ip6->data, second->HostData.ip6->data, 16)) ? TRUE : FALSE;
-	else if(first->HostData.ipFuture.P_First) // IPvFuture 
-		return (second->HostData.ipFuture.P_First && !strncmp(first->HostData.ipFuture.P_First,
-			second->HostData.ipFuture.P_First, first->HostData.ipFuture.P_AfterLast-first->HostData.ipFuture.P_First)) ? TRUE : FALSE;
-	else if(first->HostText.P_First)
-		return (second->HostText.P_First && !strncmp(first->HostText.P_First, second->HostText.P_First,
-			first->HostText.P_AfterLast-first->HostText.P_First)) ? TRUE : FALSE;
+	if(pFirst->HostData.ip4) // IPv4 
+		return (second->HostData.ip4 && !memcmp(pFirst->HostData.ip4->data, second->HostData.ip4->data, 4)) ? TRUE : FALSE;
+	else if(pFirst->HostData.ip6) // IPv6 
+		return (second->HostData.ip6 && !memcmp(pFirst->HostData.ip6->data, second->HostData.ip6->data, 16)) ? TRUE : FALSE;
+	else if(pFirst->HostData.ipFuture.P_First) // IPvFuture 
+		return (second->HostData.ipFuture.P_First && !strncmp(pFirst->HostData.ipFuture.P_First,
+			second->HostData.ipFuture.P_First, pFirst->HostData.ipFuture.P_AfterLast-pFirst->HostData.ipFuture.P_First)) ? TRUE : FALSE;
+	else if(pFirst->HostText.P_First)
+		return (second->HostText.P_First && !strncmp(pFirst->HostText.P_First, second->HostText.P_First,
+			pFirst->HostText.P_AfterLast-pFirst->HostText.P_First)) ? TRUE : FALSE;
 	else
 		return (second->HostText.P_First == NULL);
 }
@@ -696,18 +696,18 @@ void UriFreeQueryList(UriQueryList * pQueryList)
 	}
 }
 
-int UriDissectQueryMalloc(UriQueryList ** dest, int * itemCount, const char * first, const char * afterLast) 
+int UriDissectQueryMalloc(UriQueryList ** dest, int * itemCount, const char * pFirst, const char * afterLast) 
 {
 	const int plusToSpace = TRUE;
 	const UriBreakConversion breakConversion = URI_BR_DONT_TOUCH;
-	return UriDissectQueryMallocEx(dest, itemCount, first, afterLast, plusToSpace, breakConversion);
+	return UriDissectQueryMallocEx(dest, itemCount, pFirst, afterLast, plusToSpace, breakConversion);
 }
 
-int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * first, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion) 
+int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * pFirst, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion) 
 {
 	int    ok = 1;
-	const char * walk = first;
-	const char * keyFirst = first;
+	const char * walk = pFirst;
+	const char * keyFirst = pFirst;
 	const char * keyAfter = NULL;
 	const char * valueFirst = NULL;
 	const char * valueAfter = NULL;
@@ -716,8 +716,8 @@ int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * 
 	int * itemsAppended = NZOR(itemCount, &nullCounter);
 	ASSIGN_PTR(dest, 0);
 	*itemsAppended = 0;
-	THROW_S(dest && first && afterLast, SLERR_URI_NULL);
-	THROW_S(first <= afterLast, SLERR_URI_RANGE_INVALID);
+	THROW_S(dest && pFirst && afterLast, SLERR_URI_NULL);
+	THROW_S(pFirst <= afterLast, SLERR_URI_RANGE_INVALID);
 	// Parse query string 
 	for(; walk < afterLast; walk++) {
 		switch(*walk) {
@@ -765,15 +765,15 @@ int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * 
 //
 //
 //
-static int UriFilenameToUriString(const char * filename, char * uriString, int fromUnix)
+static int UriFilenameToUriString(const char * pFileName, char * uriString, int fromUnix)
 {
 	int    ok = 1;
-	const char * input = filename;
+	const char * input = pFileName;
 	const char * lastSep = input-1;
 	int firstSegment = TRUE;
 	char * output = uriString;
-	const int absolute = (filename) && ((fromUnix && (filename[0] == _UT('/'))) || (!fromUnix &&(filename[0] != _UT('\0')) &&(filename[1] == _UT(':'))));
-	THROW_S(filename && uriString, SLERR_URI_NULL);
+	const int absolute = (pFileName) && ((fromUnix && (pFileName[0] == _UT('/'))) || (!fromUnix &&(pFileName[0] != _UT('\0')) &&(pFileName[1] == _UT(':'))));
+	THROW_S(pFileName && uriString, SLERR_URI_NULL);
 	if(absolute) {
 		const char * const prefix = fromUnix ? _UT("file://") : _UT("file:///");
 		const int prefixLen = fromUnix ? 7 : 8;
@@ -1632,8 +1632,7 @@ int UriFixAmbiguity(UriUri * uri)
 void UriFixEmptyTrailSegment(UriUri*uri)
 {
 	/* Fix path if only one empty segment */
-	if(!uri->IsAbsolutePath && !UriIsHostSet(uri) && uri->pathHead &&
-	  !uri->pathHead->next && (uri->pathHead->text.P_First == uri->pathHead->text.P_AfterLast)) {
+	if(!uri->IsAbsolutePath && !UriIsHostSet(uri) && uri->pathHead && !uri->pathHead->next && (uri->pathHead->text.P_First == uri->pathHead->text.P_AfterLast)) {
 		ZFREE(uri->pathHead);
 		uri->pathTail = NULL;
 	}
@@ -1644,13 +1643,13 @@ void UriFixEmptyTrailSegment(UriUri*uri)
 static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask);
 static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range);
 static int FASTCALL UriMakeOwner(UriUri*uri, uint * doneMask);
-static void FASTCALL UriFixPercentEncodingInplace(const char * first, const char ** afterLast);
-static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const char * afterLast);
-static void FASTCALL UriLowercaseInplace(const char * first, const char * afterLast);
-static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterLast);
-static void UriPreventLeakage(UriUri*uri, uint revertMask);
+static void FASTCALL UriFixPercentEncodingInplace(const char * pFirst, const char ** afterLast);
+static int FASTCALL UriContainsUglyPercentEncoding(const char * pFirst, const char * afterLast);
+static void FASTCALL UriLowercaseInplace(const char * pFirst, const char * afterLast);
+static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afterLast);
+static void UriPreventLeakage(UriUri * uri, uint revertMask);
 
-static void UriPreventLeakage(UriUri*uri, uint revertMask)
+static void UriPreventLeakage(UriUri * uri, uint revertMask)
 {
 	if(revertMask&URI_NORMALIZE_SCHEME) {
 		SAlloc::F((char *)uri->Scheme.P_First);
@@ -1697,11 +1696,10 @@ static void UriPreventLeakage(UriUri*uri, uint revertMask)
 	}
 }
 
-static int FASTCALL UriContainsUppercaseLetters(const char * first, const char * afterLast)
+static int FASTCALL UriContainsUppercaseLetters(const char * pFirst, const char * afterLast)
 {
-	if(first && afterLast && (afterLast > first)) {
-		const char * i = first;
-		for(; i < afterLast; i++) {
+	if(pFirst && afterLast && (afterLast > pFirst)) {
+		for(const char * i = pFirst; i < afterLast; i++) {
 			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
 			if((*i >= _UT('A')) &&(*i <= _UT('Z'))) {
 				return TRUE;
@@ -1711,16 +1709,15 @@ static int FASTCALL UriContainsUppercaseLetters(const char * first, const char *
 	return FALSE;
 }
 
-static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const char * afterLast)
+static int FASTCALL UriContainsUglyPercentEncoding(const char * pFirst, const char * afterLast)
 {
-	if(first && afterLast && (afterLast > first)) {
-		const char * i = first;
+	if(pFirst && afterLast && (afterLast > pFirst)) {
+		const char * i = pFirst;
 		for(; i+2 < afterLast; i++) {
 			if(i[0] == _UT('%')) {
 				/* 6.2.2.1 Case Normalization: *
 				* lowercase percent-encodings */
-				if(((i[1] >= _UT('a')) &&(i[1] <= _UT('f'))) ||
-				  ((i[2] >= _UT('a')) &&(i[2] <= _UT('f')))) {
+				if(((i[1] >= _UT('a')) &&(i[1] <= _UT('f'))) || ((i[2] >= _UT('a')) &&(i[2] <= _UT('f')))) {
 					return TRUE;
 				}
 				else {
@@ -1739,30 +1736,30 @@ static int FASTCALL UriContainsUglyPercentEncoding(const char * first, const cha
 	return FALSE;
 }
 
-static void FASTCALL UriLowercaseInplace(const char * first, const char * afterLast)
+static void FASTCALL UriLowercaseInplace(const char * pFirst, const char * afterLast)
 {
-	if(first && afterLast && (afterLast > first)) {
-		char * i =(char *)first;
+	if(pFirst && afterLast && (afterLast > pFirst)) {
+		char * i = (char *)pFirst; // @badcast
 		const int lowerUpperDiff =(_UT('a')-_UT('A'));
 		for(; i < afterLast; i++) {
 			if((*i >= _UT('A')) &&(*i <=_UT('Z'))) {
-				*i =(char)(*i+lowerUpperDiff);
+				*i = (char)(*i+lowerUpperDiff);
 			}
 		}
 	}
 }
 
-static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterLast)
+static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afterLast)
 {
 	int    ok = 1;
 	const  int lowerUpperDiff =(_UT('a')-_UT('A'));
 	char * buffer;
 	int i = 0;
-	if(!first || !afterLast || (*first == NULL) || (*afterLast == NULL)) {
+	if(!ppFirst || !afterLast || (*ppFirst == NULL) || (*afterLast == NULL)) {
 		ok = 0;
 	}
 	else {
-		int    lenInChars =(int)(*afterLast-*first);
+		int    lenInChars =(int)(*afterLast-*ppFirst);
 		if(lenInChars < 0) {
 			ok = 0;
 		}
@@ -1773,14 +1770,14 @@ static int FASTCALL UriLowercaseMalloc(const char ** first, const char ** afterL
 			}
 			else {
 				for(; i < lenInChars; i++) {
-					if(((*first)[i] >= _UT('A')) &&((*first)[i] <=_UT('Z'))) {
-						buffer[i] =(char)((*first)[i]+lowerUpperDiff);
+					if(((*ppFirst)[i] >= _UT('A')) &&((*ppFirst)[i] <=_UT('Z'))) {
+						buffer[i] =(char)((*ppFirst)[i]+lowerUpperDiff);
 					}
 					else {
-						buffer[i] =(*first)[i];
+						buffer[i] =(*ppFirst)[i];
 					}
 				}
-				*first = buffer;
+				*ppFirst = buffer;
 				*afterLast = buffer+lenInChars;
 			}
 		}
@@ -3924,10 +3921,10 @@ const char * FASTCALL UriParserState::ParsePchar(const char * first, const char 
 /*
  * [pctEncoded]-><%>[HEXDIG][HEXDIG]
  */
-const char * FASTCALL UriParserState::ParsePctEncoded(const char * first, const char * afterLast)
+const char * FASTCALL UriParserState::ParsePctEncoded(const char * pFirst, const char * afterLast)
 {
-	if(first >= afterLast) {
-		StopSyntax(first);
+	if(pFirst >= afterLast) {
+		StopSyntax(pFirst);
 		return NULL;
 	}
 	/*
@@ -3937,25 +3934,25 @@ const char * FASTCALL UriParserState::ParsePctEncoded(const char * first, const 
 	   switch(*first) {
 	   case _UT('%'):
 	*/
-	else if(first+1 >= afterLast) {
-		StopSyntax(first+1);
+	else if(pFirst+1 >= afterLast) {
+		StopSyntax(pFirst+1);
 		return NULL;
 	}
 	else {
-		switch(first[1]) {
+		switch(pFirst[1]) {
 			case URI_SET_HEXDIG:
-				if(first+2 >= afterLast) {
-					StopSyntax(first+2);
+				if(pFirst+2 >= afterLast) {
+					StopSyntax(pFirst+2);
 					return NULL;
 				}
 				else {
-					switch(first[2]) {
-						case URI_SET_HEXDIG: return first+3;
-						default: StopSyntax(first+2); return NULL;
+					switch(pFirst[2]) {
+						case URI_SET_HEXDIG: return pFirst+3;
+						default: StopSyntax(pFirst+2); return NULL;
 					}
 				}
 			default:
-				StopSyntax(first+1);
+				StopSyntax(pFirst+1);
 				return NULL;
 		}
 		/*
@@ -4118,44 +4115,44 @@ int FASTCALL UriParserState::OnExitSegmentNzNcOrScheme2(const char * first)
  * [segmentNzNcOrScheme2]-><'>[mustBeSegmentNzNc]
  * [segmentNzNcOrScheme2]-><->[segmentNzNcOrScheme2]
  */
-const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * first, const char * afterLast)
+const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * pFirst, const char * afterLast)
 {
-	if(first >= afterLast) {
-		if(!OnExitSegmentNzNcOrScheme2(first)) {
+	if(pFirst >= afterLast) {
+		if(!OnExitSegmentNzNcOrScheme2(pFirst)) {
 			StopMalloc();
 			return NULL;
 		}
 		else
 			return afterLast;
 	}
-	switch(*first) {
+	switch(*pFirst) {
 	    case _UT('.'):
 	    case _UT('+'):
 	    case _UT('-'):
 	    case URI_SET_ALPHA:
 	    case URI_SET_DIGIT:
-			return ParseSegmentNzNcOrScheme2(first+1, afterLast); // @recursion
+			return ParseSegmentNzNcOrScheme2(pFirst+1, afterLast); // @recursion
 	    case _UT('%'):
 	    {
-		    const char * const afterPctEncoded = ParsePctEncoded(first, afterLast);
+		    const char * const afterPctEncoded = ParsePctEncoded(pFirst, afterLast);
 			return afterPctEncoded ? ParseMustBeSegmentNzNc(afterPctEncoded, afterLast) : 0;
 	    }
 	    case _UT('!'): case _UT('$'): case _UT('&'): case _UT('('): case _UT(')'):
 	    case _UT('*'): case _UT(','): case _UT(';'): case _UT('@'): case _UT('_'):
 	    case _UT('~'): case _UT('='): case _UT('\''):
-			return ParseMustBeSegmentNzNc(first+1, afterLast);
+			return ParseMustBeSegmentNzNc(pFirst+1, afterLast);
 	    case _UT('/'):
 	    {
-		    const char * const p_after_segment = ParseSegment(first+1, afterLast);
+		    const char * const p_after_segment = ParseSegment(pFirst+1, afterLast);
 		    if(!p_after_segment)
 			    return NULL;
-		    else if(!PushPathSegment(P_Uri->Scheme.P_First, first)) { // SEGMENT BOTH 
+		    else if(!PushPathSegment(P_Uri->Scheme.P_First, pFirst)) { // SEGMENT BOTH 
 			    StopMalloc();
 			    return NULL;
 		    }
 			else {
 				P_Uri->Scheme.P_First = NULL; // Not a scheme, reset 
-				if(!PushPathSegment(first+1, p_after_segment)) { // SEGMENT BOTH 
+				if(!PushPathSegment(pFirst+1, p_after_segment)) { // SEGMENT BOTH 
 					StopMalloc();
 					return NULL;
 				}
@@ -4167,17 +4164,17 @@ const char * UriParserState::ParseSegmentNzNcOrScheme2(const char * first, const
 	    }
 	    case _UT(':'):
 	    {
-		    const char * const p_after_hier_part = ParseHierPart(first+1, afterLast);
-		    P_Uri->Scheme.P_AfterLast = first; // SCHEME END 
+		    const char * const p_after_hier_part = ParseHierPart(pFirst+1, afterLast);
+		    P_Uri->Scheme.P_AfterLast = pFirst; // SCHEME END 
 			return p_after_hier_part ? ParseUriTail(p_after_hier_part, afterLast) : 0;
 	    }
 	    default:
-			if(!OnExitSegmentNzNcOrScheme2(first)) {
+			if(!OnExitSegmentNzNcOrScheme2(pFirst)) {
 				StopMalloc();
 				return NULL;
 			}
 			else
-				return ParseUriTail(first, afterLast);
+				return ParseUriTail(pFirst, afterLast);
 	}
 }
 /*

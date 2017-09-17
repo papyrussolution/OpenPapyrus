@@ -3866,6 +3866,7 @@ int    FASTCALL sstreq(const uchar * pS1, const char * pS2);
 //   0  - строки не эквивалентны
 //
 int    FASTCALL sstreqi_ascii(const char * pS1, const char * pS2);
+int    FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 //
 // Descr: Определяет все ли len символов строки pS находятся в диапазоне [0..0x7f].
 // Note: Функция может быть использована для быстрой идентификации необходимости

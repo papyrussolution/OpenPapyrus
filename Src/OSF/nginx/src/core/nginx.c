@@ -5,7 +5,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <nginx.h>
+//#include <nginx.h>
 
 //static void ngx_show_version_info(void);
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t * cycle);
@@ -14,13 +14,13 @@ static void ngx_cleanup_environment(void * data);
 //static ngx_int_t ngx_process_options(ngx_cycle_t * cycle);
 //static ngx_int_t ngx_save_argv(ngx_cycle_t * cycle, int argc, char * const * argv);
 static void * ngx_core_module_create_conf(ngx_cycle_t * cycle);
-static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf);
-static char * ngx_set_user(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_set_priority(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_set_cpu_affinity(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
-static char * ngx_load_module(ngx_conf_t * cf, ngx_command_t * cmd, void * conf);
+static const char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf);
+static const char * ngx_set_user(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_set_env(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_set_priority(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_set_cpu_affinity(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_set_worker_processes(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
+static const char * ngx_load_module(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 #if (NGX_HAVE_DLOPEN)
 	static void ngx_unload_module(void * data);
 #endif
@@ -415,7 +415,7 @@ static void ngx_show_version_info(const NgxStartUpOptions & rO)
 		ngx_write_stderr("built by " NGX_COMPILER NGX_LINEFEED);
 #endif
 #if (NGX_SSL)
-		if(ngx_strcmp(ngx_ssl_version(), OPENSSL_VERSION_TEXT) == 0) {
+		if(sstreq(ngx_ssl_version(), OPENSSL_VERSION_TEXT)) {
 			ngx_write_stderr("built with " OPENSSL_VERSION_TEXT NGX_LINEFEED);
 		}
 		else {
@@ -676,8 +676,6 @@ int NgxStartUp(const NgxStartUpOptions & rO)
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t * cycle)
 {
 	u_char * p, * v;
-	ngx_int_t s;
-	ngx_listening_t  * ls;
 	u_char * inherited = (u_char*)getenv(NGINX_VAR);
 	if(inherited == NULL) {
 		return NGX_OK;
@@ -688,18 +686,20 @@ static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t * cycle)
 	}
 	for(p = inherited, v = p; *p; p++) {
 		if(*p == ':' || *p == ';') {
-			s = ngx_atoi(v, p - v);
+			ngx_int_t s = ngx_atoi(v, p - v);
 			if(s == NGX_ERROR) {
 				ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "invalid socket number \"%s\" in " NGINX_VAR " environment variable, ignoring the rest of the variable", v);
 				break;
 			}
 			v = p + 1;
-			ls = (ngx_listening_t *)ngx_array_push(&cycle->listening);
-			if(ls == NULL) {
-				return NGX_ERROR;
+			{
+				ngx_listening_t * ls = (ngx_listening_t *)ngx_array_push(&cycle->listening);
+				if(ls == NULL) {
+					return NGX_ERROR;
+				}
+				memzero(ls, sizeof(ngx_listening_t));
+				ls->fd = (ngx_socket_t)s;
 			}
-			memzero(ls, sizeof(ngx_listening_t));
-			ls->fd = (ngx_socket_t)s;
 		}
 	}
 	if(v != p) {
@@ -721,7 +721,7 @@ char ** ngx_set_environment(ngx_cycle_t * cycle, ngx_uint_t * last)
 	}
 	var = (ngx_str_t*)ccf->env.elts;
 	for(i = 0; i < ccf->env.nelts; i++) {
-		if(ngx_strcmp(var[i].data, "TZ") == 0 || ngx_strncmp(var[i].data, "TZ=", 3) == 0) {
+		if(sstreq(var[i].data, "TZ") || ngx_strncmp(var[i].data, "TZ=", 3) == 0) {
 			goto tz_found;
 		}
 	}
@@ -737,12 +737,13 @@ tz_found:
 	for(i = 0; i < ccf->env.nelts; i++) {
 		if(var[i].data[var[i].len] == '=') {
 			n++;
-			continue;
 		}
-		for(p = ngx_os_environ; *p; p++) {
-			if(ngx_strncmp(*p, var[i].data, var[i].len) == 0 && (*p)[var[i].len] == '=') {
-				n++;
-				break;
+		else {
+			for(p = ngx_os_environ; *p; p++) {
+				if(ngx_strncmp(*p, var[i].data, var[i].len) == 0 && (*p)[var[i].len] == '=') {
+					n++;
+					break;
+				}
 			}
 		}
 	}
@@ -769,12 +770,13 @@ tz_found:
 	for(i = 0; i < ccf->env.nelts; i++) {
 		if(var[i].data[var[i].len] == '=') {
 			env[n++] = (char*)var[i].data;
-			continue;
 		}
-		for(p = ngx_os_environ; *p; p++) {
-			if(ngx_strncmp(*p, var[i].data, var[i].len) == 0 && (*p)[var[i].len] == '=') {
-				env[n++] = *p;
-				break;
+		else {
+			for(p = ngx_os_environ; *p; p++) {
+				if(ngx_strncmp(*p, var[i].data, var[i].len) == 0 && (*p)[var[i].len] == '=') {
+					env[n++] = *p;
+					break;
+				}
 			}
 		}
 	}
@@ -851,8 +853,7 @@ ngx_pid_t ngx_exec_new_binary(ngx_cycle_t * pCycle, char * const * argv)
 	pid = ngx_execute(pCycle, &ctx);
 	if(pid == NGX_INVALID_PID) {
 		if(ngx_rename_file(ccf->oldpid.data, ccf->pid.data) == NGX_FILE_ERROR) {
-			ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno,
-			    ngx_rename_file_n " %s back to %s failed after an attempt to execute new binary process \"%s\"",
+			ngx_log_error(NGX_LOG_ALERT, pCycle->log, ngx_errno, ngx_rename_file_n " %s back to %s failed after an attempt to execute new binary process \"%s\"",
 			    ccf->oldpid.data, ccf->pid.data, argv[0]);
 		}
 	}
@@ -892,7 +893,7 @@ static void * ngx_core_module_create_conf(ngx_cycle_t * cycle)
 	return ccf;
 }
 
-static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
+static const char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 {
 	ngx_core_conf_t * ccf = (ngx_core_conf_t *)conf;
 	ngx_conf_init_value(ccf->daemon, 1);
@@ -902,14 +903,9 @@ static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 	ngx_conf_init_value(ccf->worker_processes, 1);
 	ngx_conf_init_value(ccf->debug_points, 0);
 #if (NGX_HAVE_CPU_AFFINITY)
-	if(!ccf->cpu_affinity_auto
-	    && ccf->cpu_affinity_n
-	    && ccf->cpu_affinity_n != 1
-	    && ccf->cpu_affinity_n != (ngx_uint_t)ccf->worker_processes) {
-		ngx_log_error(NGX_LOG_WARN, cycle->log, 0,
-		    "the number of \"worker_processes\" is not equal to the number of \"worker_cpu_affinity\" masks, using last mask for remaining worker processes");
+	if(!ccf->cpu_affinity_auto && ccf->cpu_affinity_n && ccf->cpu_affinity_n != 1 && ccf->cpu_affinity_n != (ngx_uint_t)ccf->worker_processes) {
+		ngx_log_error(NGX_LOG_WARN, cycle->log, 0, "the number of \"worker_processes\" is not equal to the number of \"worker_cpu_affinity\" masks, using last mask for remaining worker processes");
 	}
-
 #endif
 	if(ccf->pid.len == 0) {
 		ngx_str_set(&ccf->pid, NGX_PID_PATH);
@@ -976,7 +972,7 @@ static char * ngx_core_module_init_conf(ngx_cycle_t * cycle, void * conf)
 	return NGX_CONF_OK;
 }
 
-static char * ngx_set_user(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_set_user(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #if (NGX_WIN32)
 	ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "\"user\" is not supported, ignored");
@@ -1017,7 +1013,7 @@ static char * ngx_set_user(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 #endif
 }
 
-static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_set_env(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t *)conf;
 	ngx_uint_t i;
@@ -1038,7 +1034,7 @@ static char * ngx_set_env(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
 	}
 }
 
-static char * ngx_set_priority(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_set_priority(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_core_conf_t  * ccf = (ngx_core_conf_t *)conf;
 	ngx_uint_t n, minus;
@@ -1070,7 +1066,7 @@ static char * ngx_set_priority(ngx_conf_t * cf, ngx_command_t * cmd, void * conf
 	}
 }
 
-static char * ngx_set_cpu_affinity(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_set_cpu_affinity(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #if (NGX_HAVE_CPU_AFFINITY)
 	ngx_core_conf_t  * ccf = conf;
@@ -1088,7 +1084,7 @@ static char * ngx_set_cpu_affinity(ngx_conf_t * cf, ngx_command_t * cmd, void * 
 	ccf->cpu_affinity_n = cf->args->nelts - 1;
 	ccf->cpu_affinity = mask;
 	value = cf->args->elts;
-	if(ngx_strcmp(value[1].data, "auto") == 0) {
+	if(sstreq(value[1].data, "auto")) {
 		if(cf->args->nelts > 3) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of arguments in \"worker_cpu_affinity\" directive");
 			return NGX_CONF_ERROR;
@@ -1169,7 +1165,7 @@ ngx_cpuset_t * ngx_get_cpu_affinity(ngx_uint_t n)
 #endif
 }
 
-static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_set_worker_processes(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 	ngx_core_conf_t * ccf = (ngx_core_conf_t*)conf;
 	if(ccf->worker_processes != NGX_CONF_UNSET) {
@@ -1177,7 +1173,7 @@ static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	}
 	else {
 		ngx_str_t * value = (ngx_str_t*)cf->args->elts;
-		if(ngx_strcmp(value[1].data, "auto") == 0) {
+		if(sstreq(value[1].data, "auto")) {
 			ccf->worker_processes = ngx_ncpu;
 			return NGX_CONF_OK;
 		}
@@ -1189,7 +1185,7 @@ static char * ngx_set_worker_processes(ngx_conf_t * cf, ngx_command_t * cmd, voi
 	}
 }
 
-static char * ngx_load_module(ngx_conf_t * cf, ngx_command_t * cmd, void * conf)
+static const char * ngx_load_module(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf) // F_SetHandler
 {
 #if (NGX_HAVE_DLOPEN)
 	void  * handle;

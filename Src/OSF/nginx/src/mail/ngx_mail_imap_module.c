@@ -53,36 +53,19 @@ static ngx_mail_protocol_t ngx_mail_imap_protocol = {
 };
 
 static ngx_command_t ngx_mail_imap_commands[] = {
-	{ ngx_string("imap_client_buffer"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
-	  ngx_conf_set_size_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_imap_srv_conf_t, client_buffer_size),
-	  NULL },
-
-	{ ngx_string("imap_capabilities"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_mail_capabilities,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_imap_srv_conf_t, capabilities),
-	  NULL },
-
-	{ ngx_string("imap_auth"),
-	  NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_1MORE,
-	  ngx_conf_set_bitmask_slot,
-	  NGX_MAIL_SRV_CONF_OFFSET,
-	  offsetof(ngx_mail_imap_srv_conf_t, auth_methods),
-	  &ngx_mail_imap_auth_methods },
-
+	{ ngx_string("imap_client_buffer"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_TAKE1,
+	  ngx_conf_set_size_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_imap_srv_conf_t, client_buffer_size), NULL },
+	{ ngx_string("imap_capabilities"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_mail_capabilities, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_imap_srv_conf_t, capabilities), NULL },
+	{ ngx_string("imap_auth"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_1MORE,
+	  ngx_conf_set_bitmask_slot, NGX_MAIL_SRV_CONF_OFFSET, offsetof(ngx_mail_imap_srv_conf_t, auth_methods), &ngx_mail_imap_auth_methods },
 	ngx_null_command
 };
 
 static ngx_mail_module_t ngx_mail_imap_module_ctx = {
 	&ngx_mail_imap_protocol,           /* protocol */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	ngx_mail_imap_create_srv_conf,     /* create server configuration */
 	ngx_mail_imap_merge_srv_conf       /* merge server configuration */
 };
