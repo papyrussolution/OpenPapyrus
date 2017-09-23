@@ -6,8 +6,8 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_imap_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_imap_module.h>
 
 static ngx_int_t ngx_mail_imap_login(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_imap_authenticate(ngx_mail_session_t * s, ngx_connection_t * c);

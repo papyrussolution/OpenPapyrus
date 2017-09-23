@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/aes.h>
+//#include <openssl/aes.h>
 #include "aes_locl.h"
 
 #define N_WORDS (AES_BLOCK_SIZE / sizeof(ulong))

@@ -16,7 +16,7 @@
 	#include <signal.h>             /* to declare signal() */
 #endif
 #ifdef USE_SETMODE
-	#include <fcntl.h>              /* to declare setmode()'s parameter macros */
+	//#include <fcntl.h>              /* to declare setmode()'s parameter macros */
 /* If you have setmode() but not <io.h>, just delete this line: */
 //#include <io.h>			/* to declare setmode() */
 #endif

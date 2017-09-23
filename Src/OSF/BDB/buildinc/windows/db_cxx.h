@@ -185,10 +185,8 @@ public:
 
 	// These methods exactly match those in the C interface.
 	//
-	virtual int associate(DbTxn * txn, Db * secondary, int (*callback)
-		(Db*, const Dbt*, const Dbt*, Dbt *), uint32 flags);
-	virtual int associate_foreign(Db * foreign, int (*callback)
-		(Db*, const Dbt*, Dbt*, const Dbt*, int *), uint32 flags);
+	virtual int associate(DbTxn * txn, Db * secondary, int (*callback)(Db*, const Dbt*, const Dbt*, Dbt *), uint32 flags);
+	virtual int associate_foreign(Db * foreign, int (*callback)(Db*, const Dbt*, Dbt*, const Dbt*, int *), uint32 flags);
 	virtual int close(uint32 flags);
 	virtual int compact(DbTxn * txnid, Dbt * start, Dbt * stop, DB_COMPACT * c_data, uint32 flags, Dbt * end);
 	virtual int cursor(DbTxn * txnid, Dbc ** cursorp, uint32 flags);
@@ -198,14 +196,10 @@ public:
 	virtual int exists(DbTxn * txnid, Dbt * key, uint32 flags);
 	virtual int fd(int * fdp);
 	virtual int get(DbTxn * txnid, Dbt * key, Dbt * data, uint32 flags);
-	virtual int get_alloc(
-		db_malloc_fcn_type *, db_realloc_fcn_type *, db_free_fcn_type *);
+	virtual int get_alloc(db_malloc_fcn_type *, db_realloc_fcn_type *, db_free_fcn_type *);
 	virtual int get_append_recno(int (* *)(Db*, Dbt*, db_recno_t));
 	virtual int get_bt_compare(int (* *)(Db*, const Dbt*, const Dbt *));
-	virtual int get_bt_compress(
-	        int (* *)(
-	                Db*, const Dbt*, const Dbt*, const Dbt*, const Dbt*, Dbt *),
-	        int (* *)(Db*, const Dbt*, const Dbt*, Dbt*, Dbt*, Dbt *));
+	virtual int get_bt_compress(int (* *)(Db*, const Dbt*, const Dbt*, const Dbt*, const Dbt*, Dbt *), int (* *)(Db*, const Dbt*, const Dbt*, Dbt*, Dbt*, Dbt *));
 	virtual int get_bt_minkey(uint32 *);
 	virtual int get_bt_prefix(size_t (* *)(Db*, const Dbt*, const Dbt *));
 	virtual int get_byteswapped(int *);
@@ -214,8 +208,7 @@ public:
 	virtual int get_dbname(const char **, const char **);
 	virtual int get_dup_compare(int (* *)(Db*, const Dbt*, const Dbt *));
 	virtual int get_encrypt_flags(uint32 *);
-	virtual void get_errcall(
-	        void (* *)(const DbEnv*, const char *, const char *));
+	virtual void get_errcall(void (* *)(const DbEnv*, const char *, const char *));
 	virtual void get_errfile(FILE **);
 	virtual void get_errpfx(const char **);
 	virtual int get_feedback(void (* *)(Db*, int, int));
@@ -231,8 +224,7 @@ public:
 	virtual int get_multiple();
 	virtual int get_open_flags(uint32 *);
 	virtual int get_pagesize(uint32 *);
-	virtual int get_partition_callback(
-	        uint32*, uint32 (* *)(Db*, Dbt*key));
+	virtual int get_partition_callback(uint32*, uint32 (* *)(Db*, Dbt*key));
 	virtual int get_partition_dirs(const char ***);
 	virtual int get_partition_keys(uint32 *, Dbt **);
 	virtual int get_priority(DB_CACHE_PRIORITY *);
@@ -245,8 +237,7 @@ public:
 	virtual int get_type(DBTYPE *);
 	virtual int join(Dbc ** curslist, Dbc ** dbcp, uint32 flags);
 	virtual int key_range(DbTxn*, Dbt*, DB_KEY_RANGE*, uint32);
-	virtual int open(DbTxn*txnid,
-	                 const char *, const char * subname, DBTYPE, uint32, int);
+	virtual int open(DbTxn*txnid, const char *, const char * subname, DBTYPE, uint32, int);
 	virtual int pget(DbTxn * txnid, Dbt * key, Dbt * pkey, Dbt * data, uint32 flags);
 	virtual int put(DbTxn*, Dbt*, Dbt*, uint32);
 	virtual int remove(const char *, const char *, uint32);
@@ -257,10 +248,7 @@ public:
 	virtual int set_append_recno(int (*)(Db *, Dbt *, db_recno_t));
 	virtual int set_bt_compare(bt_compare_fcn_type); /*deprecated*/
 	virtual int set_bt_compare(int (*)(Db *, const Dbt *, const Dbt *));
-	virtual int set_bt_compress(
-	        int (*)
-	        (Db*, const Dbt*, const Dbt*, const Dbt*, const Dbt*, Dbt *),
-	        int (*)(Db *, const Dbt *, const Dbt *, Dbt *, Dbt *, Dbt *));
+	virtual int set_bt_compress(int (*)(Db*, const Dbt*, const Dbt*, const Dbt*, const Dbt*, Dbt *), int (*)(Db *, const Dbt *, const Dbt *, Dbt *, Dbt *, Dbt *));
 	virtual int set_bt_minkey(uint32);
 	virtual int set_bt_prefix(bt_prefix_fcn_type); /*deprecated*/
 	virtual int set_bt_prefix(size_t (*)(Db *, const Dbt *, const Dbt *));
@@ -269,8 +257,7 @@ public:
 	virtual int set_dup_compare(dup_compare_fcn_type); /*deprecated*/
 	virtual int set_dup_compare(int (*)(Db *, const Dbt *, const Dbt *));
 	virtual int set_encrypt(const char *, uint32);
-	virtual void set_errcall(
-	        void (*)(const DbEnv *, const char *, const char *));
+	virtual void set_errcall(void (*)(const DbEnv *, const char *, const char *));
 	virtual void set_errfile(FILE *);
 	virtual void set_errpfx(const char *);
 	virtual int set_feedback(void (*)(Db *, int, int));
@@ -287,8 +274,7 @@ public:
 	virtual void set_msgfile(FILE *);
 	virtual int set_pagesize(uint32);
 	virtual int set_paniccall(void (*)(DbEnv *, int));
-	virtual int set_partition(
-	        uint32, Dbt*, uint32 (*)(Db *, Dbt *));
+	virtual int set_partition(uint32, Dbt*, uint32 (*)(Db *, Dbt *));
 	virtual int set_partition_dirs(const char **);
 	virtual int set_priority(DB_CACHE_PRIORITY);
 	virtual int set_q_extentsize(uint32);
@@ -302,8 +288,7 @@ public:
 	virtual int sync(uint32 flags);
 	virtual int truncate(DbTxn*, uint32*, uint32);
 	virtual int upgrade(const char * name, uint32 flags);
-	virtual int verify(
-	        const char *, const char *, __DB_STD(ostream)*, uint32);
+	virtual int verify(const char *, const char *, __DB_STD(ostream)*, uint32);
 
 	// These additional methods are not in the C interface, and
 	// are only available for C++.
@@ -321,7 +306,6 @@ public:
 	{
 		return imp_->env;
 	}
-
 	virtual DB * get_DB()
 	{
 		return imp_;

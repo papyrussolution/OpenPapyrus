@@ -16,10 +16,7 @@
  * The extra state information to record how much of the 128bit block we have
  * used is contained in *num;
  */
-void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], int * num,
-    int enc, block128_f block)
+void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], int * num, int enc, block128_f block)
 {
 	size_t l = 0;
 	uint n = *num;

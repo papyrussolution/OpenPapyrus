@@ -36,29 +36,28 @@
    POSSIBILITY OF SUCH DAMAGE.
    -----------------------------------------------------------------------------
  */
-
 /* This module contains an internal function that tests a compiled pattern to
    see if it was compiled with the opposite endianness. If so, it uses an
    auxiliary local function to flip the appropriate bytes. */
-
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
+#pragma hdrstop
 
 /*************************************************
 *             Swap byte functions                *
 *************************************************/
 
 /* The following functions swap the bytes of a pcre_uint16
-   and pcre_uint32 value.
+   and uint32 value.
 
    Arguments:
    value        any number
 
    Returns:       the byte swapped value
  */
-static pcre_uint32 swap_uint32(pcre_uint32 value)
+static uint32 swap_uint32(uint32 value)
 {
 	return ((value & 0x000000ff) << 24) | ((value & 0x0000ff00) <<  8) | ((value & 0x00ff0000) >>  8) | (value >> 24);
 }
@@ -83,16 +82,12 @@ static pcre_uint16 swap_uint16(pcre_uint16 value)
 
    Returns:          0 if the swap is successful, negative on error
  */
-
 #if defined COMPILE_PCRE8
-PCRE_EXP_DECL int pcre_pattern_to_host_byte_order(pcre * argument_re,
-    pcre_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre_pattern_to_host_byte_order(pcre * argument_re, pcre_extra * extra_data, const unsigned char * tables)
 #elif defined COMPILE_PCRE16
-PCRE_EXP_DECL int pcre16_pattern_to_host_byte_order(pcre16 * argument_re,
-    pcre16_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre16_pattern_to_host_byte_order(pcre16 * argument_re, pcre16_extra * extra_data, const unsigned char * tables)
 #elif defined COMPILE_PCRE32
-PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re,
-    pcre32_extra * extra_data, const unsigned char * tables)
+PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re, pcre32_extra * extra_data, const unsigned char * tables)
 #endif
 {
 	REAL_PCRE * re = (REAL_PCRE*)argument_re;
@@ -112,17 +107,16 @@ PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re,
 		re->tables = tables;
 		return 0;
 	}
-
-	if(re->magic_number != REVERSED_MAGIC_NUMBER) return PCRE_ERROR_BADMAGIC;
-	if((swap_uint32(re->flags) & PCRE_MODE) == 0) return PCRE_ERROR_BADMODE;
-
+	if(re->magic_number != REVERSED_MAGIC_NUMBER) 
+		return PCRE_ERROR_BADMAGIC;
+	if((swap_uint32(re->flags) & PCRE_MODE) == 0) 
+		return PCRE_ERROR_BADMODE;
 	re->magic_number = MAGIC_NUMBER;
 	re->size = swap_uint32(re->size);
 	re->options = swap_uint32(re->options);
 	re->flags = swap_uint32(re->flags);
 	re->limit_match = swap_uint32(re->limit_match);
 	re->limit_recursion = swap_uint32(re->limit_recursion);
-
 #if defined COMPILE_PCRE8 || defined COMPILE_PCRE16
 	re->first_char = swap_uint16(re->first_char);
 	re->req_char = swap_uint16(re->req_char);
@@ -130,7 +124,6 @@ PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re,
 	re->first_char = swap_uint32(re->first_char);
 	re->req_char = swap_uint32(re->req_char);
 #endif
-
 	re->max_lookbehind = swap_uint16(re->max_lookbehind);
 	re->top_bracket = swap_uint16(re->top_bracket);
 	re->top_backref = swap_uint16(re->top_backref);
@@ -139,8 +132,7 @@ PCRE_EXP_DECL int pcre32_pattern_to_host_byte_order(pcre32 * argument_re,
 	re->name_count = swap_uint16(re->name_count);
 	re->ref_count = swap_uint16(re->ref_count);
 	re->tables = tables;
-
-	if(extra_data != NULL && (extra_data->flags & PCRE_EXTRA_STUDY_DATA) != 0) {
+	if(extra_data && (extra_data->flags & PCRE_EXTRA_STUDY_DATA) != 0) {
 		study = (pcre_study_data*)extra_data->study_data;
 		study->size = swap_uint32(study->size);
 		study->flags = swap_uint32(study->flags);

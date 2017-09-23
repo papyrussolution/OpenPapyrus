@@ -49,16 +49,16 @@
 	#include <libxml/relaxng.h>
 #endif
 #ifdef HAVE_CTYPE_H
-	#include <ctype.h>
+	//#include <ctype.h>
 #endif
 #ifdef HAVE_STDLIB_H
-	#include <stdlib.h>
+	//#include <stdlib.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-	#include <sys/stat.h>
+	//#include <sys/stat.h>
 #endif
 #ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
+	//#include <fcntl.h>
 #endif
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>

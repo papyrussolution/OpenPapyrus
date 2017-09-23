@@ -427,26 +427,45 @@ int SLAPI Tddo::GetVar(const SString & rInput, SString & rBuf) const
 	return 1;
 }
 
+void SLAPI Tddo::Skip()
+{
+	Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &LineNo);
+}
+
 int FASTCALL Tddo::ScanMeta(Meta & rM)
 {
 	rM.Clear();
 
 	int    ok = 1;
 	const  char fc = Scan[0];
-	if(fc != '#' && fc != '$') {
-		//
-		// Так как все мета-символы начинаются с # или $ оптимизируем
-		// функцию предварительной проверкой.
-		//
+	if(fc != '#' && fc != '$') { // Так как все мета-символы начинаются с # или $ оптимизируем функцию предварительной проверкой.
 		ok = -1;
 	}
 	else {
 		const  char * s_ = 0;
 		SString temp_buf, text_buf;
-		while(Scan.GetRe(ReH_RemLine, temp_buf)) {
+		/*while(Scan.GetRe(ReH_RemLine, temp_buf)) {
 			LineNo++;
+		}*/
+		while(Scan.Get("##", temp_buf)) {
+			while(Scan[0] && !Scan.IsEol(eolUndef))
+				Scan.Incr();
+			if(Scan.GetEol(eolUndef))
+				LineNo++;
 		}
-		if(Scan.GetRe(ReH_If, temp_buf)) {
+		if(Scan.Get("#macro", temp_buf)) {
+			rM.Tok = tMacro;
+		}
+		/*
+		else if(Scan.Get("#if", temp_buf)) {
+			Skip();
+			if(Scan[0] == '{') {
+			}
+			else if(Scan[0] == '(') {
+			}
+		}
+		*/
+		else if(Scan.GetRe(ReH_If, temp_buf)) {
 			text_buf.Z();
 			const char * c = temp_buf;
 			while(*c && *c != '{')
@@ -472,12 +491,10 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 			rM.Tok = tElif;
 			rM.Text = text_buf;
 		}
-		else if(Scan.Is(s_ = "#else")) {
-			Scan.Incr(strlen(s_));
+		else if(Scan.Get("#else", temp_buf)) {
 			rM.Tok = tElse;
 		}
-		else if(Scan.Is(s_ = "#endif")) {
-			Scan.Incr(strlen(s_));
+		else if(Scan.Get("#endif", temp_buf)) {
 			rM.Tok = tEndif;
 		}
 		else if(Scan.GetRe(ReH_Meta, temp_buf) || Scan.GetRe(ReH_String, temp_buf)) {
@@ -518,11 +535,11 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 			}
 			rM.Text = text_buf;
 			if(rM.Tok == tStart) {
-				if(text_buf.StrChr(':', 0))
+				if(text_buf.HasChr(':'))
 					text_buf.Divide(':', rM.Text, rM.Param);
 			}
 			else if(rM.Tok == tText) {
-				if(text_buf.StrChr(':', 0))
+				if(text_buf.HasChr(':'))
 					text_buf.Divide(':', rM.Param, rM.Text);
 			}
 		}
@@ -534,8 +551,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 			rM.Tok = tVarArgN;
 			GetVar(temp_buf, rM.Text);
 		}
-		else if(Scan[0] == '$' && Scan[1] == '{') {
-			Scan.Incr(2);
+		else if(Scan.Get("${", temp_buf)) {
 			text_buf.Z();
 			if(Scan.SearchChar('}')) {
 				Scan.Get(text_buf);
@@ -651,7 +667,7 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 			(rR.S = p_scope->GetName()).CatChar(':').Cat(rR.RefID);
 		}
 		else {
-			if(Cp == cp1251 || Cp == cpUndef || Cp == cpANSI)
+			if(oneof3(Cp, cp1251, cpUndef, cpANSI))
 				rR.S.Transf(CTRANSF_INNER_TO_OUTER);
 			else if(Cp == cpUTF8)
 				rR.S.Transf(CTRANSF_INNER_TO_UTF8);
@@ -1090,8 +1106,14 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 				char cc = Scan[0];
 				if(!skip)
 					rOut.WriteByte(cc);
-				if(cc == '\n')
+				if(cc == '\xD' && Scan[1] == '\xA') {
+					Scan.Incr();
 					LineNo++;
+				}
+				else if(oneof2(cc, '\n', '\r'))
+					LineNo++;
+				/*if(cc == '\n')
+					LineNo++;*/
 				Scan.Incr();
 			}
 		}
@@ -1111,6 +1133,81 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 	return ok;
 }
 
+class TddoExprSet : public SStrGroup {
+public:
+	enum {
+		opUndef = 0,
+		opFunc,   // foo()
+		opPlus,   // +
+		opMinus,  // -
+		opMult,   // *
+		opDiv,    // /
+		opMod,    // %
+		opEq,     // == | "eq"
+		opNEq,    // != | "ne"
+		opGt,     // >
+		opGe,     // >=
+		opLt,     // <
+		opLe,     // <=
+		opNot,    // ! | "not"
+		opAnd,    // && | "and"
+		opOr      // || | "or"
+	};
+	enum {
+		kOp = 1,
+		kString,
+		kInt,
+		kReal,
+		kVar
+	};
+	struct ExprItem {
+		SLAPI  ExprItem();
+
+		uint16 K;
+		uint16 ArgCount; // Количество аргументов (для K == kOp)
+		union {
+			uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
+			uint32 Op;    // Ид операции (для K == kOp)
+		};
+	};
+	class ExprStack : public TSStack <ExprItem> {
+	public:
+		SLAPI  ExprStack();
+		int FASTCALL Push(const ExprStack & rS);
+	};
+	class Expression {
+	public:
+		SLAPI  Expression();
+		uint   NameP;
+		long   Flags;
+		ExprStack ES; // Стэк выражения //
+	};
+
+	TddoExprSet();
+	~TddoExprSet();
+private:
+	TSCollection <Expression> EL;
+};
+//
+// Implementation of PPALDD_HttpPreprocessBase
+//
+PPALDD_CONSTRUCTOR(HttpPreprocessBase)
+{
+	InitFixData(rscDefHdr, &H, sizeof(H));
+}
+
+PPALDD_DESTRUCTOR(HttpPreprocessBase)
+{
+	Destroy();
+}
+
+int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
+{
+	return DlRtm::InitData(rFilt, rsrv);
+}
+//
+//
+//
 int SLAPI TestTddo()
 {
 	int    ok = 1;

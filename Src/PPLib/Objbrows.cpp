@@ -149,7 +149,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 		if(TVCOMMAND && TVCMD == cmLBDblClk)
 			TVCMD = DefaultCmd;
 		else if(TVKEYDOWN && TVKEY == kbEnter) {
-			event.what = evCommand;
+			event.what = TEvent::evCommand;
 			TVCMD = DefaultCmd;
 		}
 	}

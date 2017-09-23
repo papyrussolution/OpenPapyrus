@@ -86,7 +86,7 @@ char * SLAPI setLastSlash(char * p)
 {
 	if(p) {
 		size_t len = strlen(p);
-		if(len > 0 && p[len-1] != '\\' && p[len-1] != '/') {
+		if(len > 0 && !oneof2(p[len-1], '\\', '/')) {
 			p[len++] = '\\';
 			p[len] = 0;
 		}
@@ -98,7 +98,7 @@ char * SLAPI rmvLastSlash(char * p)
 {
 	if(p) {
 		size_t len = strlen(p);
-		if(len > 0 && (p[len-1] == '\\' || p[len-1] == '/'))
+		if(len > 0 && oneof2(p[len-1], '\\', '/'))
 			p[len-1] = 0;
 	}
 	return p;

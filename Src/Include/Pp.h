@@ -98,8 +98,8 @@
 // @redundant     - обозначает избыточный код (иногда как аргументация комментария)
 // @nobreak       - помечаются варианты switch {case} для подтверждения, что отсутствие break - не ошибка.
 // @fallthrough   - то же, что и @nobreak
-// @macrow        - специальная пометка рядом с декларацией функции, означающая, что ее определение обернуто в макрос 
-//                  (для того, чтобы программиста не смущала неспособность слишком "умной" IDE найти это определение) 
+// @macrow        - специальная пометка рядом с декларацией функции, означающая, что ее определение обернуто в макрос
+//                  (для того, чтобы программиста не смущала неспособность слишком "умной" IDE найти это определение)
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -309,6 +309,7 @@ class  PPTextAnalyzerWrapper;
 class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
+class  PersonCache;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -6792,6 +6793,7 @@ private:
 	int    SLAPI GetLocalPath(SString & rBuf);
 	DlContext * SLAPI Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit);
 	int    SLAPI SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue);
+	void   FASTCALL MoveCommonPathOnInitThread(long pathID);
 
 	struct ObjIdentBlock {
 		ObjIdentBlock();
@@ -8536,7 +8538,7 @@ public:
 struct PPClientAgreement { // @persistent
 	SLAPI  PPClientAgreement();
 	SLAPI  PPClientAgreement(const PPClientAgreement &);
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    SLAPI IsEmpty() const;
 	int    FASTCALL IsEqual(const PPClientAgreement & rS) const;
 	PPClientAgreement & FASTCALL operator = (const PPClientAgreement &);
@@ -8608,7 +8610,7 @@ public:
 	int    SLAPI IsEmpty() const;
 	int    FASTCALL IsEqual(const PPSupplAgreement & rS) const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    FASTCALL RestoreAutoOrderParams(const PPSupplAgreement & rS);
+	void   FASTCALL RestoreAutoOrderParams(const PPSupplAgreement & rS);
 
 	enum {
 		invpaRestrict  = 0,
@@ -13073,7 +13075,7 @@ PPID SLAPI GetCashiersPsnKindID();
 //
 struct CSessTotal {
 	SLAPI  CSessTotal();
-	int    FASTCALL Add(const CSessTotal * pSubTotal);
+	void   FASTCALL Add(const CSessTotal * pSubTotal);
 
 	PPID   SessID;         // Для выборки сессий - 0
 	long   SessCount;      // Для итога по выборке сессий
@@ -18660,7 +18662,7 @@ protected:
 		// @<<PPAsyncCashSession::OpenSession
 	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
 	int    SLAPI CreateTables();
-	int    SLAPI DestroyTables();
+	void   SLAPI DestroyTables();
 	int    SLAPI IsCheckExistence(PPID cashID, long code, const LDATETIME * pDT, PPID * pTempReplaceID);
 	int    SLAPI SearchTempCheckByCode(PPID cashID, PPID code, PPID sessNo = -1L);
 	int    SLAPI SearchTempCheckByTime(PPID cashID, const LDATETIME *);
@@ -18672,8 +18674,8 @@ protected:
 	int    SLAPI SetTempCheckAmounts(PPID checkID, double amt, double dis);
 	int    SLAPI AddTempCheckSCardID(PPID checkID, PPID scardID);
 	int    SLAPI AddTempCheckGiftCardID(PPID checkID, PPID giftCardID);
-	int    SLAPI SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID);
-	int    SLAPI SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const char * pBarcode = 0);
+	void   SLAPI SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID);
+	void   SLAPI SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const char * pBarcode = 0);
 	int    SLAPI GetExpPathSet(StringSet *);
 	int    FASTCALL CheckCnFlag(long);
 	int    FASTCALL CheckCnExtFlag(long);
@@ -22726,9 +22728,6 @@ private:
 // Флаги (параметр flags) функции PPObjPerson::Subst
 //
 #define PSNSUBSTF_LASTRELINHIERARH 0x00000001L
-
-class PersonCache;
-class PPObjArticle;
 
 class PPObjPerson : public PPObject {
 	//
@@ -27947,7 +27946,7 @@ private:
 //
 struct AsyncCashGoodsGroupInfo {
 	SLAPI  AsyncCashGoodsGroupInfo();
-	int    SLAPI Init();
+	void   SLAPI Init();
 
 	PPID   ID;
 	char   Name[128];   // @name
@@ -35655,7 +35654,7 @@ public:
 			prcsFillSales  = 0x0001,
 			prcsFillHoles  = 0x0002,
 			prcsFillModel  = 0x0004,
-			prcsTest       = 0x0008  // @v7.5.1 Режим тестирования //
+			prcsTest       = 0x0008  // Режим тестирования //
 		};
 		enum {
 			fRecalcByPeriod     = 0x0001,
@@ -35669,7 +35668,7 @@ public:
 		// Descr: Устанавливает период заполнения.
 		// ARG(period IN): Может быть задан как абсолютной, так и в относительной форме.
 		//
-		int    SetPeriod(DateRange period);
+		void   FASTCALL SetPeriod(const DateRange & rPeriod);
 		//
 		// Descr: Возвращает период в том виде, как он задан
 		//
@@ -41851,9 +41850,9 @@ private:
 	int    SLAPI UniteObjects(PPID objType, PPID srcID, PPID destID);
 
 	ObjLikenessFilt Filt;
-	PPObjPerson     PsnObj;
-	PPObjGoods      GObj;
-	ObjLikenessTbl  Tbl;
+	PPObjPerson PsnObj;
+	PPObjGoods GObj;
+	ObjLikenessTbl Tbl;
 };
 //
 //
@@ -43116,6 +43115,8 @@ public:
 	int    SLAPI ExportPosSession(const PPIDArray & rSessList, PPID posNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination);
 	int    SLAPI ProcessInput(ProcessInputBlock & rPib);
 private:
+	friend DECL_CMPCFUNC(ObjBlockRef_);
+
 	struct WriteBlock {
 		SLAPI  WriteBlock();
 		SLAPI ~WriteBlock();
@@ -43314,6 +43315,7 @@ private:
 		int    SLAPI CreateItem(int type, uint * pRefPos);
 		void * SLAPI GetItem(uint refPos, int * pType) const;
 		int    SLAPI SearchRef(int type, uint pos, uint * pRefPos) const;
+		//void   SLAPI SortRefList();
 		int    SLAPI SearchAnalogRef_QuotKind(const QuotKindBlock & rBlk, uint exclPos, uint * pRefPos) const;
 		const  QuotKindBlock * FASTCALL SearchAnalog_QuotKind(const QuotKindBlock & rBlk) const;
 		//
@@ -44789,6 +44791,7 @@ private:
 		long    RefID;
 	};
 	int    FASTCALL ScanMeta(Meta & rM);
+	void   SLAPI Skip();
 	int    SLAPI Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput);
 	int    SLAPI ResolveVar(const SString & rText, const DlScope * pScope, Result & rR);
 	int    SLAPI ResolveArgN(const SString & rText, Result & rR);
@@ -44822,9 +44825,11 @@ private:
 		tElse,
 		tElif,
 		tEndif,
-		tText,     // @v7.5.10
-		tInclude,  // @v7.5.10
-		tIterCount // @v7.6.5
+		tText,      // @v7.5.10
+		tInclude,   // @v7.5.10
+		tIterCount, // @v7.6.5
+		tMacro,     // @v9.8.2 #macro(MACRONAME $arg1, $arg2) $foo($arg1, $arg2, $request) #end
+		tSet        // @v9.8.2 #set($var = value)
 	};
 	enum {
 		fHtmlEncode  = 0x0001 // Кодировать специальные символы в извлекаемых полях html-сущностями
@@ -45204,6 +45209,7 @@ private:
 #define PPNTOK_DATE          19 // date
 #define PPNTOK_TIME          20 // time
 #define PPNTOK_SOFTWAREVER   21 // 9.9.9
+#define PPNTOK_COLORHEX      22 // #hhhhhh
 
 #define PPNTOKSEQ_DEC        1 // 0-9
 #define PPNTOKSEQ_HEX        2 // A-F||a-f
@@ -45312,7 +45318,6 @@ public:
 			stAny,             // %* Любая (не пустая) последовательность токенов
 			stCortege,         // %@cortegename. Совпадение с одним из элементов кортежа (нельзя использовать в целевом определении)
 			stPercent,         // %% литеральный '%'
-
 			stLastLex,         // Служебное значение для отделения лексических типов термов от операторов
 			//
 			// Note: Принципиально важно, чтобы операторы stOpTo, stOpFrom, stOpOr имели меньшее значение чем
@@ -45326,17 +45331,13 @@ public:
 			stOpCortege,       // %= single infix Один или более образцов, ассоциированных с именующим символом
 			stOpSignal,        // %! single infix Аналогично stOp, но преобразованный текст не замещает оригинальный,
 				// а возвращается посредством callback-процедуры вызывающей функции для специализированной обработки.
-
 			stOpCapital,       // %K single suffix Слово преобразовывать к виду: первый символ прописной, остальные - строчные
 			stOpLower,         // %a single suffix Слово преобразовывать к виду: все символы строчные
 			stOpUpper,         // %A single suffix Слово преобразовывать к виду: все символы прописные
-
 			stOpClusterStart,  // %{
 			stOpClusterEnd,    // %}
-
 			stOpComment,       // %--
 			stOpPragma,        // %#
-
 			stOpContext        // %/ Контекст (обрамляется с обеих сторон такими символами: %/apple%/
 		};
 
@@ -46620,7 +46621,7 @@ private:
 	PPID   AccSheetID;     // Если != 0, то означает что поиск будет вестись по статьям, иначе по персоналиям.
 	PPID   SrchRegTypeID;
 	PPIDArray InhRegTypeList; // список наследуемых регистров для отношения филиал<->главная организаци
-	PPObjPerson  PsnObj;
+	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
 };
 
@@ -47768,7 +47769,7 @@ private:
 	int RcvrValidCode;
 	SPaintToolBox  Ptb;
 	PPBankingOrder Data;
-	PPObjPerson    PsnObj;
+	PPObjPerson PsnObj;
 	RegisterFilt BnkAccFilt;
 };
 
@@ -49326,9 +49327,9 @@ protected:
 		void   ClearCur();
 		int    ClearGift();
 		int    HasCur() const;
-		PPID   GetAgentID(int actual = 0) const;
+		PPID   FASTCALL GetAgentID(int actual = 0) const;
 		double GetGoodsQtty(PPID goodsID) const;
-		int    SetupCCheckPacket(CCheckPacket * pPack) const;
+		int    FASTCALL SetupCCheckPacket(CCheckPacket * pPack) const;
 		int    SetupInfo(SString & rBuf);
 		CCheckItem & GetCur();
 		const CCheckItem & GetCurC() const;

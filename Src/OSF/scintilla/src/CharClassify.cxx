@@ -8,8 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-#include "CharClassify.h"
+//#include "CharClassify.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

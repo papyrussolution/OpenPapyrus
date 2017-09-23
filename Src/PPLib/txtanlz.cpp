@@ -85,28 +85,30 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 		stat.Len = sstrlen(pToken);
     if(stat.Len) {
 		enum {
-			hDec       = 0x0001,
-			hLatLow    = 0x0002,
-			hLatUpp    = 0x0004,
-			hLat       = 0x0008,
-			hHex       = 0x0010,
-            hAscii     = 0x0020,
-            hUtf8      = 0x0040,
-            h1251      = 0x0080,
-            h866       = 0x0100,
-            hDecLat    = 0x0200,
-            hHexHyphen = 0x0400, // Только hex && -
-            hDecHyphen = 0x0800, // Только dec && -
-            hHexColon  = 0x1000, // Только hex && :
-            hDecColon  = 0x2000, // Только dec && :
-            hHexDot    = 0x1000, // Только hex && .
-            hDecDot    = 0x2000, // Только dec && .
-            hDecSlash  = 0x4000, // Только dec && /
+			hDec       = 0x00000001,
+			hLatLow    = 0x00000002,
+			hLatUpp    = 0x00000004,
+			hLat       = 0x00000008,
+			hHex       = 0x00000010,
+            hAscii     = 0x00000020,
+            hUtf8      = 0x00000040,
+            h1251      = 0x00000080,
+            h866       = 0x00000100,
+            hDecLat    = 0x00000200,
+            hHexHyphen = 0x00000400, // Только hex && -
+            hDecHyphen = 0x00000800, // Только dec && -
+            hHexColon  = 0x00001000, // Только hex && :
+            hDecColon  = 0x00002000, // Только dec && :
+            hHexDot    = 0x00001000, // Только hex && .
+            hDecDot    = 0x00002000, // Только dec && .
+            hDecSlash  = 0x00004000, // Только dec && /
+            hLeadSharp = 0x00008000  // Лидирующий символ # (если этот символ встречается только в начале строки,
+				// то он не отключает остальные флаги.
 		};
 		enum {
 			fUtf8   = 0x0001
 		};
-		uint32 h = 0xffffffffU;
+		uint32 h = 0xffffffffU & ~hLeadSharp;
 		uint32 f = 0;
 		uint   i;
 		LAssocArray chr_list;
@@ -135,45 +137,49 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 		else {
 			for(i = 0; i < chr_list.getCount(); i++) {
 				const uchar c = (uchar)chr_list.at(i).Key;
-				if(h & hAscii && !(c >= 1 && c <= 127)) {
-					h &= ~hAscii;
-				}
+				if(i == 0 && c == '#')
+					h |= hLeadSharp;
 				else {
-					if(h & hLat && !IsLetterASCII(c))
-						h &= ~hLat;
-					else {
-						if(h & hLatLow && !(c >= 'a' && c <= 'z'))
-							h &= ~hLatLow;
-						if(h & hLatUpp && !(c >= 'A' && c <= 'Z'))
-							h &= ~hLatUpp;
+					if(h & hAscii && !(c >= 1 && c <= 127)) {
+						h &= ~hAscii;
 					}
-					if(h & hHex && !ishex(c))
-						h &= ~hHex;
 					else {
-						if(h & hDec && !isdec(c))
-							h &= ~hDec;
+						if(h & hLat && !IsLetterASCII(c))
+							h &= ~hLat;
+						else {
+							if(h & hLatLow && !(c >= 'a' && c <= 'z'))
+								h &= ~hLatLow;
+							if(h & hLatUpp && !(c >= 'A' && c <= 'Z'))
+								h &= ~hLatUpp;
+						}
+						if(h & hHex && !ishex(c))
+							h &= ~hHex;
+						else {
+							if(h & hDec && !isdec(c))
+								h &= ~hDec;
+						}
+						if(h & hDecHyphen && !(isdec(c) || c == '-'))
+							h &= ~hDecHyphen;
+						if(h & hHexHyphen && !(ishex(c) || c == '-'))
+							h &= ~hHexHyphen;
+						if(h & hDecLat && !(isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+							h &= ~hDecLat;
+						if(h & hDecColon && !(isdec(c) || c == ':'))
+							h &= ~hDecColon;
+						if(h & hHexColon && !(ishex(c) || c == ':'))
+							h &= ~hHexColon;
+						if(h & hDecDot && !(isdec(c) || c == '.'))
+							h &= ~hDecDot;
+						if(h & hHexDot && !(ishex(c) || c == '.'))
+							h &= ~hHexDot;
+						if(h & hDecSlash && !(isdec(c) || c == '/'))
+							h &= ~hDecSlash;
 					}
-					if(h & hDecHyphen && !(isdec(c) || c == '-'))
-						h &= ~hDecHyphen;
-					if(h & hHexHyphen && !(ishex(c) || c == '-'))
-						h &= ~hHexHyphen;
-					if(h & hDecLat && !(isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
-						h &= ~hDecLat;
-					if(h & hDecColon && !(isdec(c) || c == ':'))
-						h &= ~hDecColon;
-					if(h & hHexColon && !(ishex(c) || c == ':'))
-						h &= ~hHexColon;
-					if(h & hDecDot && !(isdec(c) || c == '.'))
-						h &= ~hDecDot;
-					if(h & hHexDot && !(ishex(c) || c == '.'))
-						h &= ~hHexDot;
-					if(h & hDecSlash && !(isdec(c) || c == '/'))
-						h &= ~hDecSlash;
+					if(h & h866 && !IsLetter866(c))
+						h &= ~h866;
+					if(h & h1251 && !IsLetter1251(c))
+						h &= ~h1251;
 				}
-				if(h & h866 && !IsLetter866(c))
-					h &= ~h866;
-				if(h & h1251 && !IsLetter1251(c))
-					h &= ~h1251;
 			}
 			if(!(h & hAscii)) {
 				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot|hDecSlash);
@@ -185,162 +191,165 @@ int SLAPI PPTokenRecognizer::Run(const uchar * pToken, int len, PPNaturalTokenAr
 					h &= ~(hLatLow|hLatUpp);
 			}
 		}
-		if(h & hDec) {
-			uchar last = pToken[stat.Len-1];
-			int   cd = 0;
-			rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
-			switch(stat.Len) {
-				case 6:
-					if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
-						rResultList.Add(PPNTOK_DATE, 0.5f);
-					}
-					break;
-				case 8:
-					cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
-					if((uchar)cd == (last-'0')) {
-                        if(pToken[0] == '0') {
-							rResultList.Add(PPNTOK_UPCE, 0.9f);
-                        }
-                        else {
-                        	rResultList.Add(PPNTOK_EAN8, 0.9f);
-                        }
-					}
-					if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
-						rResultList.Add(PPNTOK_DATE, 0.8f);
-					}
-					break;
-				case 10:
-					if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
-						rResultList.Add(PPNTOK_RU_INN, 1.0f);
-					}
-					break;
-				case 12:
-					cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
-					if((uchar)cd == (last-'0')) {
-                        if(pToken[0] == '0') {
-							rResultList.Add(PPNTOK_UPCE, 1.0f);
-                        }
-                        else {
-                        	rResultList.Add(PPNTOK_EAN8, 1.0f);
-                        }
-					}
-					else {
+		if(h & hLeadSharp) {
+			if(h & hHex && stat.Len == 7) {
+				rResultList.Add(PPNTOK_COLORHEX, 0.9f);
+			}
+		}
+		else {
+			if(h & hDec) {
+				uchar last = pToken[stat.Len-1];
+				int   cd = 0;
+				rResultList.Add(PPNTOK_DIGITCODE, 1.0f);
+				switch(stat.Len) {
+					case 6:
+						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+							rResultList.Add(PPNTOK_DATE, 0.5f);
+						}
+						break;
+					case 8:
+						cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
+						if((uchar)cd == (last-'0')) {
+							if(pToken[0] == '0')
+								rResultList.Add(PPNTOK_UPCE, 0.9f);
+							else
+								rResultList.Add(PPNTOK_EAN8, 0.9f);
+						}
+						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+							rResultList.Add(PPNTOK_DATE, 0.8f);
+						}
+						break;
+					case 10:
 						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
 							rResultList.Add(PPNTOK_RU_INN, 1.0f);
 						}
-					}
-					break;
-				case 13:
-					cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
-					if((uchar)cd == (last-'0')) {
-						rResultList.Add(PPNTOK_EAN13, 1.0f);
-					}
-					break;
-				case 15:
-					if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
-						rResultList.Add(PPNTOK_IMEI, 0.9f);
-						rResultList.Add(PPNTOK_DIGITCODE, 0.1f);
-					}
-					break;
-				case 19:
-					if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
-						rResultList.Add(PPNTOK_LUHN, 0.9f);
-						rResultList.Add(PPNTOK_EGAISWARECODE, 0.1f);
-					}
-					else {
-						rResultList.Add(PPNTOK_EGAISWARECODE, 1.0f);
-					}
-					break;
-			}
-		}
-		if(h & hDecLat) {
-            if(stat.Len == 68) {
-                rResultList.Add(PPNTOK_EGAISMARKCODE, 1.0f);
-            }
-            else {
-				rResultList.Add(PPNTOK_DIGLAT, 1.0f);
-            }
-		}
-		if(h & hHexHyphen) {
-			if(stat.Len == 36) {
-				uint   pos = 0;
-				long   val = 0;
-				if(chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
-					rResultList.Add(PPNTOK_GUID, 1.0f);
+						break;
+					case 12:
+						cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
+						if((uchar)cd == (last-'0')) {
+							if(pToken[0] == '0')
+								rResultList.Add(PPNTOK_UPCE, 1.0f);
+							else
+								rResultList.Add(PPNTOK_EAN8, 1.0f);
+						}
+						else {
+							if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+								rResultList.Add(PPNTOK_RU_INN, 1.0f);
+							}
+						}
+						break;
+					case 13:
+						cd = CalcBarcodeCheckDigitL((const char *)pToken, stat.Len-1);
+						if((uchar)cd == (last-'0')) {
+							rResultList.Add(PPNTOK_EAN13, 1.0f);
+						}
+						break;
+					case 15:
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+							rResultList.Add(PPNTOK_IMEI, 0.9f);
+							rResultList.Add(PPNTOK_DIGITCODE, 0.1f);
+						}
+						break;
+					case 19:
+						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+							rResultList.Add(PPNTOK_LUHN, 0.9f);
+							rResultList.Add(PPNTOK_EGAISWARECODE, 0.1f);
+						}
+						else {
+							rResultList.Add(PPNTOK_EGAISWARECODE, 1.0f);
+						}
+						break;
 				}
 			}
-		}
-		if(h & (hDecHyphen|hDecSlash|hDecDot)) {
-			// 1-1-1 17-12-2016
-			if(stat.Len >= 5 && stat.Len <= 10) {
-				temp_buf.CatN((const char *)pToken, stat.Len);
-				StringSet ss;
-				const char * p_div = 0;
-				if(h & hDecHyphen)
-					p_div = "-";
-				else if(h & hDecSlash)
-					p_div = "/";
-				else if(h & hDecDot)
-					p_div = ".";
-                temp_buf.Tokenize(p_div, ss);
-                const uint ss_count = ss.getCount();
-                if(ss_count == 3) {
-                    if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
-						rResultList.Add(PPNTOK_DATE, 0.8f);
-					}
-                }
+			if(h & hDecLat) {
+				if(stat.Len == 68) {
+					rResultList.Add(PPNTOK_EGAISMARKCODE, 1.0f);
+				}
+				else {
+					rResultList.Add(PPNTOK_DIGLAT, 1.0f);
+				}
 			}
-		}
-		if(h & hDecDot) {
-			// 1.1.1.1 255.255.255.255
-			if(stat.Len >= 7 && stat.Len <= 15) {
-				temp_buf.CatN((const char *)pToken, stat.Len);
-				StringSet ss;
-                temp_buf.Tokenize(".", ss);
-                const uint ss_count = ss.getCount();
-                if(ss_count == 4) {
-					int   is_ip4 = 1;
-                    for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
-						if(temp_buf.Empty())
-							is_ip4 = 0;
-						else {
-							long v = temp_buf.ToLong();
-							if(v < 0 || v > 255)
+			if(h & hHexHyphen) {
+				if(stat.Len == 36) {
+					uint   pos = 0;
+					long   val = 0;
+					if(chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
+						rResultList.Add(PPNTOK_GUID, 1.0f);
+					}
+				}
+			}
+			if(h & (hDecHyphen|hDecSlash|hDecDot)) {
+				// 1-1-1 17-12-2016
+				if(stat.Len >= 5 && stat.Len <= 10) {
+					temp_buf.CatN((const char *)pToken, stat.Len);
+					StringSet ss;
+					const char * p_div = 0;
+					if(h & hDecHyphen)
+						p_div = "-";
+					else if(h & hDecSlash)
+						p_div = "/";
+					else if(h & hDecDot)
+						p_div = ".";
+					temp_buf.Tokenize(p_div, ss);
+					const uint ss_count = ss.getCount();
+					if(ss_count == 3) {
+						if(_ProbeDate(temp_buf.Z().CatN((const char *)pToken, stat.Len))) {
+							rResultList.Add(PPNTOK_DATE, 0.8f);
+						}
+					}
+				}
+			}
+			if(h & hDecDot) {
+				// 1.1.1.1 255.255.255.255
+				if(stat.Len >= 7 && stat.Len <= 15) {
+					temp_buf.CatN((const char *)pToken, stat.Len);
+					StringSet ss;
+					temp_buf.Tokenize(".", ss);
+					const uint ss_count = ss.getCount();
+					if(ss_count == 4) {
+						int   is_ip4 = 1;
+						for(uint ssp = 0; is_ip4 && ss.get(&ssp, temp_buf);) {
+							if(temp_buf.Empty())
 								is_ip4 = 0;
+							else {
+								long v = temp_buf.ToLong();
+								if(v < 0 || v > 255)
+									is_ip4 = 0;
+							}
 						}
-                    }
-					if(is_ip4) {
-						float prob = 0.95f;
-						if(strncmp((const char *)pToken, "127.0.0.1", stat.Len) == 0)
-							prob = 1.0f;
-						rResultList.Add(PPNTOK_IP4, prob);
+						if(is_ip4) {
+							float prob = 0.95f;
+							if(strncmp((const char *)pToken, "127.0.0.1", stat.Len) == 0)
+								prob = 1.0f;
+							rResultList.Add(PPNTOK_IP4, prob);
+						}
 					}
-                }
-                else if(ss_count == 3) {
-					int   is_ver = 1;
-                    for(uint ssp = 0; is_ver && ss.get(&ssp, temp_buf);) {
-                    	if(temp_buf.Empty())
-							is_ver = 0;
-						else {
-							long v = temp_buf.ToLong();
-							if(v < 0 || v > 100)
+					else if(ss_count == 3) {
+						int   is_ver = 1;
+						for(uint ssp = 0; is_ver && ss.get(&ssp, temp_buf);) {
+							if(temp_buf.Empty())
 								is_ver = 0;
+							else {
+								long v = temp_buf.ToLong();
+								if(v < 0 || v > 100)
+									is_ver = 0;
+							}
 						}
-                    }
-                    if(is_ver) {
-						rResultList.Add(PPNTOK_SOFTWAREVER, 0.5f);
-                    }
-                }
+						if(is_ver) {
+							rResultList.Add(PPNTOK_SOFTWAREVER, 0.5f);
+						}
+					}
+				}
 			}
-		}
-		if(h & hAscii) {
-			uint   pos = 0;
-			long   val = 0;
-			if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
-				size_t _offs = P_ReEMail->start();
-				size_t _len = P_ReEMail->end() - P_ReEMail->start();
-				if(_offs == 0 && _len == stat.Len)
-					rResultList.Add(PPNTOK_EMAIL, 1.0f);
+			if(h & hAscii) {
+				uint   pos = 0;
+				long   val = 0;
+				if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
+					size_t _offs = P_ReEMail->start();
+					size_t _len = P_ReEMail->end() - P_ReEMail->start();
+					if(_offs == 0 && _len == stat.Len)
+						rResultList.Add(PPNTOK_EMAIL, 1.0f);
+				}
 			}
 		}
     }

@@ -215,11 +215,11 @@ int TBaseBrowserWindow::Insert()
 			// @v9.0.4 {
 			{
 				TEvent event;
-				event.what = evCommand;
+				event.what = TEvent::evCommand;
 				event.message.command = cmExecute;
 				event.message.infoPtr = 0;
 				this->handleEvent(event);
-				ret = (event.what == evNothing) ? event.message.infoLong : 0;
+				ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
 			}
 			// } @v9.0.4
 		}
@@ -2614,7 +2614,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			if(p_view) {
 				char kb_scan_code = LOBYTE(HIWORD(lParam));
 				if(wParam != VK_RETURN || kb_scan_code != 0x1c) {
-					e.what = evKeyDown;
+					e.what = TEvent::evKeyDown;
 					e.keyDown.keyCode = wParam;
 					p_view->handleEvent(e);
 				}
@@ -2636,7 +2636,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 				tp.setwparam(lParam);
 				p_view->ItemByPoint(tp, &hPos, &vPos);
 				p_view->FocusItem(hPos, vPos);
-				e.what = evKeyDown;
+				e.what = TEvent::evKeyDown;
 				e.keyDown.keyCode = kbShiftF10;
 				p_view->handleEvent(e);
 			}
@@ -2710,12 +2710,12 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 		case WM_USER+101:
 			if(p_view) {
 				if(HIWORD(wParam) == 0) {
-					e.what = evKeyDown;
+					e.what = TEvent::evKeyDown;
 					e.keyDown.keyCode = LOWORD(wParam);
 					p_view->handleEvent(e);
 				}
 				else if(HIWORD(wParam) == 1) {
-					e.what = evCommand;
+					e.what = TEvent::evCommand;
 					e.message.command = LOWORD(wParam);
 					p_view->handleEvent(e);
 				}

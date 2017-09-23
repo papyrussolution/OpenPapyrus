@@ -2855,15 +2855,15 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 		if(p) {
 			n = 0;
 			for(p += offset; p < last; p++) {
-				if(*p == ',' || *p == ';' || *p == ' ') {
+				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-				if(*p >= '0' && *p <= '9') {
+				else if(*p >= '0' && *p <= '9')
 					n = n * 10 + (*p - '0');
-					continue;
+				else {
+					u->cacheable = 0;
+					return NGX_OK;
 				}
-				u->cacheable = 0;
-				return NGX_OK;
 			}
 			if(n == 0) {
 				u->cacheable = 0;
@@ -2875,16 +2875,15 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 		if(p) {
 			n = 0;
 			for(p += 23; p < last; p++) {
-				if(*p == ',' || *p == ';' || *p == ' ') {
+				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-
-				if(*p >= '0' && *p <= '9') {
+				else if(*p >= '0' && *p <= '9')
 					n = n * 10 + (*p - '0');
-					continue;
+				else {
+					u->cacheable = 0;
+					return NGX_OK;
 				}
-				u->cacheable = 0;
-				return NGX_OK;
 			}
 			r->cache->updating_sec = n;
 			r->cache->error_sec = n;
@@ -2893,15 +2892,15 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 		if(p) {
 			n = 0;
 			for(p += 15; p < last; p++) {
-				if(*p == ',' || *p == ';' || *p == ' ') {
+				if(oneof3(*p, ',', ';', ' ')) {
 					break;
 				}
-				if(*p >= '0' && *p <= '9') {
+				else if(*p >= '0' && *p <= '9')
 					n = n * 10 + (*p - '0');
-					continue;
+				else {
+					u->cacheable = 0;
+					return NGX_OK;
 				}
-				u->cacheable = 0;
-				return NGX_OK;
 			}
 			r->cache->error_sec = n;
 		}
@@ -2959,7 +2958,7 @@ static ngx_int_t ngx_http_upstream_process_accel_expires(ngx_http_request_t * r,
 			switch(n) {
 				case 0:
 				    u->cacheable = 0;
-				/* fall through */
+				// @fallthrough
 				case NGX_ERROR:
 				    return NGX_OK;
 				default:
@@ -3893,7 +3892,7 @@ const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_
 			    break;
 			case NGX_DECLINED:
 			    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid address \"%V\"", &value[1]);
-			/* fall through */
+			// @fallthrough
 			default:
 			    return (char *)NGX_CONF_ERROR;
 		}

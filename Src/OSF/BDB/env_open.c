@@ -328,7 +328,7 @@ int __env_config(DB_ENV * dbenv, const char * db_home, uint32 * flagsp, int mode
 		 * home set to NULL if __os_getenv failed to find DB_HOME.
 		 */
 	}
-	if(home != NULL) {
+	if(home) {
 		__os_free(env, env->db_home);
 		if((ret = __os_strdup(env, home, &env->db_home)) != 0)
 			return ret;
@@ -384,7 +384,7 @@ int __env_close_pp(DB_ENV * dbenv, uint32 flags)
 	 */
 	if(PANIC_ISSET(env)) {
 		/* clean up from registry file */
-		if(dbenv->registry != NULL) {
+		if(dbenv->registry) {
 			/*
 			 * Temporarily set no panic so we do not trigger the
 			 * LAST_PANIC_CHECK_BEFORE_IO check in __os_physwr
@@ -497,15 +497,15 @@ int __env_close(DB_ENV * dbenv, uint32 flags)
 	dbenv->db_log_dir = NULL;
 	__os_free(env, dbenv->db_tmp_dir);
 	dbenv->db_tmp_dir = NULL;
-	if(dbenv->db_data_dir != NULL) {
-		for(p = dbenv->db_data_dir; *p != NULL; ++p)
+	if(dbenv->db_data_dir) {
+		for(p = dbenv->db_data_dir; *p; ++p)
 			__os_free(env, *p);
 		__os_free(env, dbenv->db_data_dir);
 		dbenv->db_data_dir = NULL;
 		dbenv->data_next = 0;
 	}
 	__os_free(env, dbenv->intermediate_dir_mode);
-	if(env->db_home != NULL) {
+	if(env->db_home) {
 		__os_free(env, env->db_home);
 		env->db_home = NULL;
 	}
@@ -548,7 +548,7 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 	 * in files closing which may require locks being released.
 	 */
 	if(LOCKING_ON(env)) {
-		if(!F_ISSET(env, ENV_THREAD) && env->env_lref != NULL && (t_ret = __lock_id_free(env, env->env_lref)) != 0 && ret == 0)
+		if(!F_ISSET(env, ENV_THREAD) && env->env_lref && (t_ret = __lock_id_free(env, env->env_lref)) != 0 && ret == 0)
 			ret = t_ret;
 		env->env_lref = NULL;
 		if((t_ret = __lock_env_refresh(env)) != 0 && ret == 0)
@@ -580,7 +580,7 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 		ret = t_ret;
 	if((t_ret = __mutex_free(env, &env->mtx_mt)) != 0 && ret == 0)
 		ret = t_ret;
-	if(env->mt != NULL) {
+	if(env->mt) {
 		__os_free(env, env->mt);
 		env->mt = NULL;
 	}
@@ -624,14 +624,14 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 	 * Crypto comes last, because higher level close functions need
 	 * cryptography.
 	 */
-	if(env->reginfo != NULL && (t_ret = __crypto_env_refresh(env)) != 0 && ret == 0)
+	if(env->reginfo && (t_ret = __crypto_env_refresh(env)) != 0 && ret == 0)
 		ret = t_ret;
 #endif
 	/*
 	 * Mark the thread as out of the env before we get rid of the handles
 	 * needed to do so.
 	 */
-	if(env->thr_hashtab != NULL && (t_ret = __env_set_state(env, &ip, THREAD_OUT)) != 0 && ret == 0)
+	if(env->thr_hashtab && (t_ret = __env_set_state(env, &ip, THREAD_OUT)) != 0 && ret == 0)
 		ret = t_ret;
 	/*
 	 * We are about to detach from the mutex region.  This is the last
@@ -665,7 +665,7 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 		ret = t_ret;
 #endif
 	/* Free memory for thread tracking. */
-	if(env->reginfo != NULL) {
+	if(env->reginfo) {
 		if(F_ISSET(env, ENV_PRIVATE)) {
 			__env_thread_destroy(env);
 			t_ret = __env_detach(env, 1);
@@ -680,12 +680,12 @@ int __env_refresh(DB_ENV * dbenv, uint32 orig_flags, int rep_check)
 		 * that was done by __env_detach().
 		 */
 	}
-	if(env->recover_dtab.int_dispatch != NULL) {
+	if(env->recover_dtab.int_dispatch) {
 		__os_free(env, env->recover_dtab.int_dispatch);
 		env->recover_dtab.int_size = 0;
 		env->recover_dtab.int_dispatch = NULL;
 	}
-	if(env->recover_dtab.ext_dispatch != NULL) {
+	if(env->recover_dtab.ext_dispatch) {
 		__os_free(env, env->recover_dtab.ext_dispatch);
 		env->recover_dtab.ext_size = 0;
 		env->recover_dtab.ext_dispatch = NULL;
@@ -948,7 +948,7 @@ err:
 		// calls to __env_refresh.
 		//
 		infop = env->reginfo;
-		if(infop != NULL && F_ISSET(infop, REGION_CREATE)) {
+		if(infop && F_ISSET(infop, REGION_CREATE)) {
 			ret = __env_panic(env, ret);
 			// Refresh the DB_ENV so can use it to call remove
 			__env_refresh(dbenv, orig_flags, rep_check);

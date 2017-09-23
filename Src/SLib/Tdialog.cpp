@@ -661,7 +661,7 @@ IMPL_HANDLE_EVENT(TDialog)
 	else {
 		TWindow::handleEvent(event);
 		switch(event.what) {
-			case evCommand:
+			case TEvent::evCommand:
 				switch(event.message.command) {
 					case cmOK:
 					case cmCancel:

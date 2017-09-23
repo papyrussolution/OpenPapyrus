@@ -206,7 +206,7 @@
 //#include <string>
 //#include <algorithm>
 //#include "Position.h"
-#include "CharClassify.h"
+//#include "CharClassify.h"
 #include "RESearch.h"
 
 #ifdef SCI_NAMESPACE

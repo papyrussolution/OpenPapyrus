@@ -75,7 +75,7 @@ class PCRECPP_EXP_DEFN Arg {
   PCRE_MAKE_PARSER(short,              parse_short);
   PCRE_MAKE_PARSER(unsigned short,     parse_ushort);
   PCRE_MAKE_PARSER(int,                parse_int);
-  PCRE_MAKE_PARSER(unsigned int,       parse_uint);
+  PCRE_MAKE_PARSER(uint,       parse_uint);
   PCRE_MAKE_PARSER(long,               parse_long);
   PCRE_MAKE_PARSER(unsigned long,      parse_ulong);
 #if 1
@@ -154,7 +154,7 @@ inline bool Arg::Parse(const char* str, int n) const {
 MAKE_INTEGER_PARSER(short,              short)     /*                        */
 MAKE_INTEGER_PARSER(unsigned short,     ushort)    /*                        */
 MAKE_INTEGER_PARSER(int,                int)       /* Don't use semicolons   */
-MAKE_INTEGER_PARSER(unsigned int,       uint)      /* after these statement  */
+MAKE_INTEGER_PARSER(uint,       uint)      /* after these statement  */
 MAKE_INTEGER_PARSER(long,               long)      /* because they can cause */
 MAKE_INTEGER_PARSER(unsigned long,      ulong)     /* compiler warnings if   */
 #if 1                          /* the checking level is  */

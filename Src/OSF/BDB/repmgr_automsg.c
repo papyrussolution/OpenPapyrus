@@ -33,8 +33,7 @@ int __repmgr_handshake_unmarshal(ENV * env, __repmgr_handshake_args * argp, uint
 	DB_NTOHS_COPYIN(env, argp->alignment, bp);
 	DB_NTOHL_COPYIN(env, argp->ack_policy, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_handshake message"));
@@ -62,8 +61,7 @@ int __repmgr_v3handshake_unmarshal(ENV * env, __repmgr_v3handshake_args * argp, 
 	DB_NTOHS_COPYIN(env, argp->port, bp);
 	DB_NTOHL_COPYIN(env, argp->priority, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_v3handshake message"));
@@ -90,8 +88,7 @@ int __repmgr_v2handshake_unmarshal(ENV * env, __repmgr_v2handshake_args * argp, 
 		goto too_few;
 	DB_NTOHS_COPYIN(env, argp->port, bp);
 	DB_NTOHL_COPYIN(env, argp->priority, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_v2handshake message"));
@@ -118,8 +115,7 @@ int __repmgr_parm_refresh_unmarshal(ENV * env, __repmgr_parm_refresh_args * argp
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->ack_policy, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_parm_refresh message"));
@@ -175,8 +171,7 @@ int __repmgr_version_proposal_unmarshal(ENV * env, __repmgr_version_proposal_arg
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->min, bp);
 	DB_NTOHL_COPYIN(env, argp->max, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_version_proposal message"));
@@ -202,10 +197,8 @@ int __repmgr_version_confirmation_unmarshal(ENV * env, __repmgr_version_confirma
 	if(max < __REPMGR_VERSION_CONFIRMATION_SIZE)
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->version, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
-
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_version_confirmation message"));
 	return EINVAL;
@@ -233,8 +226,7 @@ int __repmgr_msg_hdr_unmarshal(ENV * env, __repmgr_msg_hdr_args * argp, uint8 * 
 	argp->type = *bp++;
 	DB_NTOHL_COPYIN(env, argp->word1, bp);
 	DB_NTOHL_COPYIN(env, argp->word2, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_msg_hdr message"));
@@ -261,8 +253,7 @@ int __repmgr_msg_metadata_unmarshal(ENV * env, __repmgr_msg_metadata_args * argp
 	DB_NTOHL_COPYIN(env, argp->tag, bp);
 	DB_NTOHL_COPYIN(env, argp->limit, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_msg_metadata message"));
@@ -305,8 +296,7 @@ int __repmgr_membership_key_unmarshal(ENV * env, __repmgr_membership_key_args * 
 		goto too_few;
 	bp += argp->host.size;
 	DB_NTOHS_COPYIN(env, argp->port, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_membership_key message"));
@@ -331,8 +321,7 @@ int __repmgr_membership_data_unmarshal(ENV * env, __repmgr_membership_data_args 
 	if(max < __REPMGR_MEMBERSHIP_DATA_SIZE)
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_membership_data message"));
@@ -359,8 +348,7 @@ int __repmgr_member_metadata_unmarshal(ENV * env, __repmgr_member_metadata_args 
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->format, bp);
 	DB_NTOHL_COPYIN(env, argp->version, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_member_metadata message"));
@@ -406,10 +394,8 @@ int __repmgr_gm_fwd_unmarshal(ENV * env, __repmgr_gm_fwd_args * argp, uint8 * bp
 	bp += argp->host.size;
 	DB_NTOHS_COPYIN(env, argp->port, bp);
 	DB_NTOHL_COPYIN(env, argp->gen, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
-
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_gm_fwd message"));
 	return EINVAL;
@@ -433,10 +419,8 @@ int __repmgr_membr_vers_unmarshal(ENV * env, __repmgr_membr_vers_args * argp, ui
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->version, bp);
 	DB_NTOHL_COPYIN(env, argp->gen, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
-
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_membr_vers message"));
 	return EINVAL;
@@ -480,8 +464,7 @@ int __repmgr_site_info_unmarshal(ENV * env, __repmgr_site_info_args * argp, uint
 	bp += argp->host.size;
 	DB_NTOHS_COPYIN(env, argp->port, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_site_info message"));
@@ -508,8 +491,7 @@ int __repmgr_connect_reject_unmarshal(ENV * env, __repmgr_connect_reject_args * 
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->version, bp);
 	DB_NTOHL_COPYIN(env, argp->gen, bp);
-	if(nextp != NULL)
-		*nextp = bp;
+	ASSIGN_PTR(nextp, bp);
 	return 0;
 too_few:
 	__db_errx(env, DB_STR("3675", "Not enough input bytes to fill a __repmgr_connect_reject message"));

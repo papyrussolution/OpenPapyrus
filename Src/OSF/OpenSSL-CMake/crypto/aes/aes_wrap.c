@@ -8,8 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/aes.h>
-#include <openssl/modes.h>
+//#include <openssl/aes.h>
+//#include <openssl/modes.h>
 
 int AES_wrap_key(AES_KEY * key, const uchar * iv, uchar * out, const uchar * in, uint inlen)
 {

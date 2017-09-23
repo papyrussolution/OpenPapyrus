@@ -8,8 +8,7 @@
 #pragma hdrstop
 #include <ngx_md5.h>
 
-static const u_char * ngx_md5_body(ngx_md5_t * ctx, const u_char * data,
-    size_t size);
+static const u_char * ngx_md5_body(ngx_md5_t * ctx, const u_char * data, size_t size);
 
 void ngx_md5_init(ngx_md5_t * ctx)
 {
@@ -17,58 +16,44 @@ void ngx_md5_init(ngx_md5_t * ctx)
 	ctx->b = 0xefcdab89;
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
-
 	ctx->bytes = 0;
 }
 
 void ngx_md5_update(ngx_md5_t * ctx, const void * data, size_t size)
 {
-	size_t used, free;
-
-	used = (size_t)(ctx->bytes & 0x3f);
+	const size_t used = (size_t)(ctx->bytes & 0x3f);
 	ctx->bytes += size;
-
 	if(used) {
-		free = 64 - used;
-
-		if(size < free) {
+		const size_t _free = 64 - used;
+		if(size < _free) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
-
-		memcpy(&ctx->buffer[used], data, free);
-		data = (u_char*)data + free;
-		size -= free;
+		memcpy(&ctx->buffer[used], data, _free);
+		data = (u_char*)data + _free;
+		size -= _free;
 		(void)ngx_md5_body(ctx, ctx->buffer, 64);
 	}
-
 	if(size >= 64) {
 		data = ngx_md5_body(ctx, (const u_char *)data, size & ~(size_t)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 
 void ngx_md5_final(u_char result[16], ngx_md5_t * ctx)
 {
-	size_t used, free;
-
-	used = (size_t)(ctx->bytes & 0x3f);
-
+	size_t free;
+	size_t used = (size_t)(ctx->bytes & 0x3f);
 	ctx->buffer[used++] = 0x80;
-
 	free = 64 - used;
-
 	if(free < 8) {
 		memzero(&ctx->buffer[used], free);
 		(void)ngx_md5_body(ctx, ctx->buffer, 64);
 		used = 0;
 		free = 64;
 	}
-
 	memzero(&ctx->buffer[used], free - 8);
-
 	ctx->bytes <<= 3;
 	ctx->buffer[56] = (u_char)ctx->bytes;
 	ctx->buffer[57] = (u_char)(ctx->bytes >> 8);
@@ -78,9 +63,7 @@ void ngx_md5_final(u_char result[16], ngx_md5_t * ctx)
 	ctx->buffer[61] = (u_char)(ctx->bytes >> 40);
 	ctx->buffer[62] = (u_char)(ctx->bytes >> 48);
 	ctx->buffer[63] = (u_char)(ctx->bytes >> 56);
-
 	(void)ngx_md5_body(ctx, ctx->buffer, 64);
-
 	result[0] = (u_char)ctx->a;
 	result[1] = (u_char)(ctx->a >> 8);
 	result[2] = (u_char)(ctx->a >> 16);

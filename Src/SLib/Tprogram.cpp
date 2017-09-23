@@ -1068,7 +1068,7 @@ HWND TProgram::GetFrameWindow() const
 IMPL_HANDLE_EVENT(TProgram)
 {
 	TGroup::handleEvent(event);
-	if(event.what == evCommand && event.message.command == cmQuit) {
+	if(event.what == TEvent::evCommand && event.message.command == cmQuit) {
 		// @v9.0.4 (бессмысленная строка) endModal(cmQuit);
 		::DestroyWindow(H_MainWnd);
 		clearEvent(event);

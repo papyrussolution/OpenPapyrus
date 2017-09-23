@@ -8,18 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdio.h>
-//#include <assert.h>
-//#include <stdexcept>
-//#include <string>
-//#include <vector>
-//#include <algorithm>
-//#include "Platform.h"
-//#include "Scintilla.h"
-//#include "Position.h"
-//#include "CharacterSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE

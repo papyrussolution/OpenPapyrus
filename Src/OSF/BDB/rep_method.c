@@ -22,7 +22,7 @@ static int __rep_save_lsn_hist __P((ENV*, DB_THREAD_INFO*, DB_LSN *));
  * __rep_env_create --
  *	Replication-specific initialization of the ENV structure.
  */
-int __rep_env_create(DB_ENV*dbenv)
+int __rep_env_create(DB_ENV * dbenv)
 {
 	DB_REP * db_rep;
 	int ret;
@@ -62,7 +62,7 @@ int __rep_env_create(DB_ENV*dbenv)
  * __rep_env_destroy --
  *	Replication-specific destruction of the ENV structure.
  */
-void __rep_env_destroy(DB_ENV*dbenv)
+void __rep_env_destroy(DB_ENV * dbenv)
 {
 	ENV * env = dbenv->env;
 	if(env->rep_handle != NULL) {

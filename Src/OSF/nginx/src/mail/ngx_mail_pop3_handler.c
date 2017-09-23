@@ -6,13 +6,12 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_pop3_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_pop3_module.h>
 
 static ngx_int_t ngx_mail_pop3_user(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_pop3_pass(ngx_mail_session_t * s, ngx_connection_t * c);
-static ngx_int_t ngx_mail_pop3_capa(ngx_mail_session_t * s, ngx_connection_t * c,
-    ngx_int_t stls);
+static ngx_int_t ngx_mail_pop3_capa(ngx_mail_session_t * s, ngx_connection_t * c, ngx_int_t stls);
 static ngx_int_t ngx_mail_pop3_stls(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_pop3_apop(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_pop3_auth(ngx_mail_session_t * s, ngx_connection_t * c);
@@ -228,7 +227,7 @@ void ngx_mail_pop3_auth_state(ngx_event_t * rev)
 
 		    ngx_str_set(&s->out, pop3_invalid_command);
 
-		/* fall through */
+		// @fallthrough
 
 		case NGX_OK:
 

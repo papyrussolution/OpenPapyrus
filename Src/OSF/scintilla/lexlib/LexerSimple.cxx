@@ -1,50 +1,51 @@
 // Scintilla source code edit control
 /** @file LexerSimple.cxx
- ** A simple lexer with no state.
- **/
+** A simple lexer with no state.
+**/
 // Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <string>
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "PropSetSimple.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "LexerModule.h"
-#include "LexerBase.h"
-#include "LexerSimple.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-LexerSimple::LexerSimple(const LexerModule *module_) : module(module_) {
-	for (int wl = 0; wl < module->GetNumWordLists(); wl++) {
-		if (!wordLists.empty())
+LexerSimple::LexerSimple(const LexerModule * module_) : module(module_)
+{
+	for(int wl = 0; wl < module->GetNumWordLists(); wl++) {
+		/*
+		if(!wordLists.empty())
 			wordLists += "\n";
 		wordLists += module->GetWordListDescription(wl);
+		*/
+		if(WordList.NotEmpty())
+			WordList.CR();
+		WordList.Cat(module->GetWordListDescription(wl));
 	}
 }
 
-const char * SCI_METHOD LexerSimple::DescribeWordListSets() {
-	return wordLists.c_str();
+const char * SCI_METHOD LexerSimple::DescribeWordListSets() 
+{
+	//return wordLists.c_str();
+	return WordList.cptr();
 }
 
-void SCI_METHOD LexerSimple::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess) {
+void SCI_METHOD LexerSimple::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument * pAccess) 
+{
 	Accessor astyler(pAccess, &props);
 	module->Lex(startPos, lengthDoc, initStyle, keyWordLists, astyler);
 	astyler.Flush();
 }
 
-void SCI_METHOD LexerSimple::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess) {
-	if (props.GetInt("fold")) {
+void SCI_METHOD LexerSimple::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument * pAccess) 
+{
+	if(props.GetInt("fold")) {
 		Accessor astyler(pAccess, &props);
 		module->Fold(startPos, lengthDoc, initStyle, keyWordLists, astyler);
 		astyler.Flush();
 	}
 }
+

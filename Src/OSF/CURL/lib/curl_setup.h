@@ -672,13 +672,13 @@
 	#include <setjmp.h>
 #endif
 #ifdef HAVE_LIMITS_H
-	#include <limits.h>
+	//#include <limits.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
 	#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_FCNTL_H
-	#include <fcntl.h>
+	//#include <fcntl.h>
 #endif
 #ifdef HAVE_SIGNAL_H
 	#include <signal.h>

@@ -129,9 +129,7 @@ static arm_cpu_features_t detect_cpu_features(void)
 {
 	arm_cpu_features_t features = 0;
 	Elf32_auxv_t aux;
-	int fd;
-
-	fd = open("/proc/self/auxv", O_RDONLY);
+	int fd = open("/proc/self/auxv", O_RDONLY);
 	if(fd >= 0) {
 		while(read(fd, &aux, sizeof(Elf32_auxv_t)) == sizeof(Elf32_auxv_t)) {
 			if(aux.a_type == AT_HWCAP) {

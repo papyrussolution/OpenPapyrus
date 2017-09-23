@@ -480,8 +480,8 @@
 //
 //  Event masks
 //
-#define positionalEvents    evMouse
-#define focusedEvents       (evKeyboard | evCommand)
+#define positionalEvents    TEvent::evMouse
+#define focusedEvents       (TEvent::evKeyboard|TEvent::evCommand)
 //
 // MsgBox constants
 //

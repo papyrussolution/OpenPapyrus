@@ -92,7 +92,7 @@ int db_create(DB ** dbpp, DB_ENV * dbenv, uint32 flags)
 	    default:
 			return __db_ferr(env, "db_create", 0);
 	}
-	if(env != NULL)
+	if(env)
 		ENV_ENTER(env, ip);
 	// 
 	// If we are opening an XA database, make sure we don't have a global XA transaction running.
@@ -104,7 +104,7 @@ int db_create(DB ** dbpp, DB_ENV * dbenv, uint32 flags)
 	}
 	ret = __db_create_internal(dbpp, env, flags);
 err:
-	if(env != NULL)
+	if(env)
 		ENV_LEAVE(env, ip);
 	return ret;
 }
@@ -270,17 +270,15 @@ static int __db_init(DB * dbp, uint32 flags)
 //
 // Error if an unreasonable method is called.
 //
-int __dbh_am_chk(DB * dbp, uint32 flags)
+int FASTCALL __dbh_am_chk(DB * dbp, uint32 flags)
 {
 	// 
 	// We start out allowing any access methods to be called, and as the
 	// application calls the methods the options become restricted.  The
 	// idea is to quit as soon as an illegal method combination is called.
 	//
-	if((LF_ISSET(DB_OK_BTREE) && FLD_ISSET(dbp->am_ok, DB_OK_BTREE)) ||
-	   (LF_ISSET(DB_OK_HASH) && FLD_ISSET(dbp->am_ok, DB_OK_HASH)) ||
-	   (LF_ISSET(DB_OK_HEAP) && FLD_ISSET(dbp->am_ok, DB_OK_HEAP)) ||
-	   (LF_ISSET(DB_OK_QUEUE) && FLD_ISSET(dbp->am_ok, DB_OK_QUEUE)) ||
+	if((LF_ISSET(DB_OK_BTREE) && FLD_ISSET(dbp->am_ok, DB_OK_BTREE)) || (LF_ISSET(DB_OK_HASH) && FLD_ISSET(dbp->am_ok, DB_OK_HASH)) ||
+	   (LF_ISSET(DB_OK_HEAP) && FLD_ISSET(dbp->am_ok, DB_OK_HEAP)) || (LF_ISSET(DB_OK_QUEUE) && FLD_ISSET(dbp->am_ok, DB_OK_QUEUE)) ||
 	   (LF_ISSET(DB_OK_RECNO) && FLD_ISSET(dbp->am_ok, DB_OK_RECNO))) {
 		FLD_CLR(dbp->am_ok, ~flags);
 		return 0;
@@ -448,7 +446,7 @@ static int __db_get_create_dir(DB * dbp, const char ** dirp)
 static int __db_get_dup_compare(DB * dbp, int (**funcp)(DB*, const DBT*, const DBT *))
 {
 	DB_ILLEGAL_METHOD(dbp, DB_OK_BTREE|DB_OK_HASH);
-	if(funcp != NULL) {
+	if(funcp) {
 #ifdef HAVE_COMPRESSION
 		if(DB_IS_COMPRESSED(dbp)) {
 			*funcp = ((BTREE *)dbp->bt_internal)->compress_dup_compare;

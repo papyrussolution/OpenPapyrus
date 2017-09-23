@@ -454,20 +454,12 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 		ret += n;
 	}
 	EVP_MD_CTX_free(ctx);
-
 #ifdef OPENSSL_SSL_TRACE_CRYPTO
 	if(ret > 0 && s->msg_callback) {
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_PREMASTER,
-		    p, len, s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_CLIENT_RANDOM,
-		    s->s3->client_random, SSL3_RANDOM_SIZE,
-		    s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_SERVER_RANDOM,
-		    s->s3->server_random, SSL3_RANDOM_SIZE,
-		    s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_MASTER,
-		    tmpout, SSL3_MASTER_SECRET_SIZE,
-		    s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_PREMASTER, p, len, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_CLIENT_RANDOM, s->s3->client_random, SSL3_RANDOM_SIZE, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_SERVER_RANDOM, s->s3->server_random, SSL3_RANDOM_SIZE, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_MASTER, tmpout, SSL3_MASTER_SECRET_SIZE, s, s->msg_callback_arg);
 	}
 #endif
 	OPENSSL_cleanse(buf, sizeof(buf));
@@ -477,72 +469,38 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 int ssl3_alert_code(int code)
 {
 	switch(code) {
-		case SSL_AD_CLOSE_NOTIFY:
-		    return (SSL3_AD_CLOSE_NOTIFY);
-		case SSL_AD_UNEXPECTED_MESSAGE:
-		    return (SSL3_AD_UNEXPECTED_MESSAGE);
-		case SSL_AD_BAD_RECORD_MAC:
-		    return (SSL3_AD_BAD_RECORD_MAC);
-		case SSL_AD_DECRYPTION_FAILED:
-		    return (SSL3_AD_BAD_RECORD_MAC);
-		case SSL_AD_RECORD_OVERFLOW:
-		    return (SSL3_AD_BAD_RECORD_MAC);
-		case SSL_AD_DECOMPRESSION_FAILURE:
-		    return (SSL3_AD_DECOMPRESSION_FAILURE);
-		case SSL_AD_HANDSHAKE_FAILURE:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_NO_CERTIFICATE:
-		    return (SSL3_AD_NO_CERTIFICATE);
-		case SSL_AD_BAD_CERTIFICATE:
-		    return (SSL3_AD_BAD_CERTIFICATE);
-		case SSL_AD_UNSUPPORTED_CERTIFICATE:
-		    return (SSL3_AD_UNSUPPORTED_CERTIFICATE);
-		case SSL_AD_CERTIFICATE_REVOKED:
-		    return (SSL3_AD_CERTIFICATE_REVOKED);
-		case SSL_AD_CERTIFICATE_EXPIRED:
-		    return (SSL3_AD_CERTIFICATE_EXPIRED);
-		case SSL_AD_CERTIFICATE_UNKNOWN:
-		    return (SSL3_AD_CERTIFICATE_UNKNOWN);
-		case SSL_AD_ILLEGAL_PARAMETER:
-		    return (SSL3_AD_ILLEGAL_PARAMETER);
-		case SSL_AD_UNKNOWN_CA:
-		    return (SSL3_AD_BAD_CERTIFICATE);
-		case SSL_AD_ACCESS_DENIED:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_DECODE_ERROR:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_DECRYPT_ERROR:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_EXPORT_RESTRICTION:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_PROTOCOL_VERSION:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_INSUFFICIENT_SECURITY:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_INTERNAL_ERROR:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_USER_CANCELLED:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_NO_RENEGOTIATION:
-		    return (-1); /* Don't send it :-) */
-		case SSL_AD_UNSUPPORTED_EXTENSION:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_CERTIFICATE_UNOBTAINABLE:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_UNRECOGNIZED_NAME:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_BAD_CERTIFICATE_STATUS_RESPONSE:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_BAD_CERTIFICATE_HASH_VALUE:
-		    return (SSL3_AD_HANDSHAKE_FAILURE);
-		case SSL_AD_UNKNOWN_PSK_IDENTITY:
-		    return (TLS1_AD_UNKNOWN_PSK_IDENTITY);
-		case SSL_AD_INAPPROPRIATE_FALLBACK:
-		    return (TLS1_AD_INAPPROPRIATE_FALLBACK);
-		case SSL_AD_NO_APPLICATION_PROTOCOL:
-		    return (TLS1_AD_NO_APPLICATION_PROTOCOL);
-		default:
-		    return (-1);
+		case SSL_AD_CLOSE_NOTIFY: return (SSL3_AD_CLOSE_NOTIFY);
+		case SSL_AD_UNEXPECTED_MESSAGE: return (SSL3_AD_UNEXPECTED_MESSAGE);
+		case SSL_AD_BAD_RECORD_MAC: return (SSL3_AD_BAD_RECORD_MAC);
+		case SSL_AD_DECRYPTION_FAILED: return (SSL3_AD_BAD_RECORD_MAC);
+		case SSL_AD_RECORD_OVERFLOW: return (SSL3_AD_BAD_RECORD_MAC);
+		case SSL_AD_DECOMPRESSION_FAILURE: return (SSL3_AD_DECOMPRESSION_FAILURE);
+		case SSL_AD_HANDSHAKE_FAILURE: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_NO_CERTIFICATE: return (SSL3_AD_NO_CERTIFICATE);
+		case SSL_AD_BAD_CERTIFICATE: return (SSL3_AD_BAD_CERTIFICATE);
+		case SSL_AD_UNSUPPORTED_CERTIFICATE: return (SSL3_AD_UNSUPPORTED_CERTIFICATE);
+		case SSL_AD_CERTIFICATE_REVOKED: return (SSL3_AD_CERTIFICATE_REVOKED);
+		case SSL_AD_CERTIFICATE_EXPIRED: return (SSL3_AD_CERTIFICATE_EXPIRED);
+		case SSL_AD_CERTIFICATE_UNKNOWN: return (SSL3_AD_CERTIFICATE_UNKNOWN);
+		case SSL_AD_ILLEGAL_PARAMETER: return (SSL3_AD_ILLEGAL_PARAMETER);
+		case SSL_AD_UNKNOWN_CA: return (SSL3_AD_BAD_CERTIFICATE);
+		case SSL_AD_ACCESS_DENIED: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_DECODE_ERROR: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_DECRYPT_ERROR: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_EXPORT_RESTRICTION: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_PROTOCOL_VERSION: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_INSUFFICIENT_SECURITY: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_INTERNAL_ERROR: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_USER_CANCELLED: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_NO_RENEGOTIATION: return (-1); /* Don't send it :-) */
+		case SSL_AD_UNSUPPORTED_EXTENSION: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_CERTIFICATE_UNOBTAINABLE: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_UNRECOGNIZED_NAME: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_BAD_CERTIFICATE_STATUS_RESPONSE: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_BAD_CERTIFICATE_HASH_VALUE: return (SSL3_AD_HANDSHAKE_FAILURE);
+		case SSL_AD_UNKNOWN_PSK_IDENTITY: return (TLS1_AD_UNKNOWN_PSK_IDENTITY);
+		case SSL_AD_INAPPROPRIATE_FALLBACK: return (TLS1_AD_INAPPROPRIATE_FALLBACK);
+		case SSL_AD_NO_APPLICATION_PROTOCOL: return (TLS1_AD_NO_APPLICATION_PROTOCOL);
+		default: return (-1);
 	}
 }
-

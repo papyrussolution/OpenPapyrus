@@ -378,9 +378,6 @@
     <ClInclude Include="..\Osf\scintilla\src\CellBuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\CharClassify.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\scintilla\src\ContractionState.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -411,22 +408,7 @@
     <ClInclude Include="..\Osf\scintilla\include\ILexer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\Indicator.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\scintilla\src\KeyMap.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerBase.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerNoExceptions.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerSimple.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\LineMarker.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\scintilla\src\MarginView.h">

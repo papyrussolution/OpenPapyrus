@@ -144,7 +144,6 @@ int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 		case 'd':
 		    proc->dumping = 1;
 		    return 0;
-
 		case '+':
 		case '=':
 		    if(proc->window) {
@@ -159,7 +158,6 @@ int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 		    }
 		    break;
 	}
-
 	_zbar_mutex_lock(&proc->mutex);
 	proc->input = input;
 	if(input == -1 && proc->visible && proc->streaming)
@@ -547,13 +545,11 @@ done:
 	return(rc);
 }
 
-int zbar_process_one(zbar_processor_t * proc,
-    int timeout)
+int zbar_process_one(zbar_processor_t * proc, int timeout)
 {
 	proc_enter(proc);
 	int streaming = proc->streaming;
 	_zbar_mutex_unlock(&proc->mutex);
-
 	int rc = 0;
 	if(!proc->video) {
 		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video input not initialized");
@@ -591,4 +587,3 @@ int zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 	proc_leave(proc);
 	return(rc);
 }
-

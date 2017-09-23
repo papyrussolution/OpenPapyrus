@@ -36,15 +36,17 @@
    POSSIBILITY OF SUCH DAMAGE.
    -----------------------------------------------------------------------------
  */
-
-/* This file contains a private PCRE function that converts an ordinal
-   character value into a UTF8 string. */
-
+//
+// This file contains a private PCRE function that converts an ordinal
+// character value into a UTF8 string. 
+//
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
+// @sobolev (у нас и так режим COMPILE_PCRE8, а эта директива ломает precompiled header) 
 #define COMPILE_PCRE8
 #include "pcre_internal.h"
+#pragma hdrstop
 
 /*************************************************
 *       Convert character value to UTF-8         *
@@ -59,7 +61,7 @@
 
    Returns:     number of characters placed in the buffer
  */
-unsigned int PRIV(ord2utf) (pcre_uint32 cvalue, pcre_uchar *buffer)
+uint PRIV(ord2utf) (uint32 cvalue, pcre_uchar *buffer)
 {
 #ifdef SUPPORT_UTF
 	register int i, j;

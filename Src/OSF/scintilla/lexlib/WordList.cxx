@@ -8,9 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <algorithm>
-//#include "WordList.h"
-//#include "StringCopy.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

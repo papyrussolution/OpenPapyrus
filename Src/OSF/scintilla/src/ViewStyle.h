@@ -104,9 +104,9 @@ struct EdgeProperties {
 	int    column;
 	ColourDesired colour;
 };
-
-/**
- */
+//
+//
+//
 class ViewStyle {
 	FontNames fontNames;
 	FontMap fonts;
@@ -197,38 +197,36 @@ public:
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
 	~ViewStyle();
-	void CalculateMarginWidthAndMask();
-	void Init(size_t stylesSize_=256);
-	void Refresh(Surface &surface, int tabInChars);
-	void ReleaseAllExtendedStyles();
+	void   CalculateMarginWidthAndMask();
+	void   Init(size_t stylesSize_=256);
+	void   Refresh(Surface &surface, int tabInChars);
+	void   ReleaseAllExtendedStyles();
 	int    FASTCALL AllocateExtendedStyles(int numberStyles);
-	void EnsureStyle(size_t index);
-	void ResetDefaultStyle();
-	void ClearStyles();
-	void SetStyleFontName(int styleIndex, const char *name);
-	bool ProtectionActive() const;
-	int ExternalMarginWidth() const;
-	int MarginFromLocation(Point pt) const;
-	bool ValidStyle(size_t styleIndex) const;
-	void CalcLargestMarkerHeight();
+	void   EnsureStyle(size_t index);
+	void   ResetDefaultStyle();
+	void   ClearStyles();
+	void   SetStyleFontName(int styleIndex, const char *name);
+	bool   ProtectionActive() const;
+	int    ExternalMarginWidth() const;
+	int    MarginFromLocation(Point pt) const;
+	bool   ValidStyle(size_t styleIndex) const;
+	void   CalcLargestMarkerHeight();
 	ColourOptional Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const;
-	bool SelectionBackgroundDrawn() const;
-	bool WhitespaceBackgroundDrawn() const;
+	bool   SelectionBackgroundDrawn() const;
+	bool   WhitespaceBackgroundDrawn() const;
 	ColourDesired WrapColour() const;
 
-	bool SetWrapState(int wrapState_);
-	bool SetWrapVisualFlags(int wrapVisualFlags_);
-	bool SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation_);
-	bool SetWrapVisualStartIndent(int wrapVisualStartIndent_);
-	bool SetWrapIndentMode(int wrapIndentMode_);
-
-	bool WhiteSpaceVisible(bool inIndent) const;
-
+	bool   SetWrapState(int wrapState_);
+	bool   SetWrapVisualFlags(int wrapVisualFlags_);
+	bool   SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation_);
+	bool   SetWrapVisualStartIndent(int wrapVisualStartIndent_);
+	bool   SetWrapIndentMode(int wrapIndentMode_);
+	bool   WhiteSpaceVisible(bool inIndent) const;
 private:
-	void AllocStyles(size_t sizeNew);
-	void CreateAndAddFont(const FontSpecification &fs);
+	void   AllocStyles(size_t sizeNew);
+	void   CreateAndAddFont(const FontSpecification &fs);
 	FontRealised *Find(const FontSpecification &fs);
-	void FindMaxAscentDescent();
+	void   FindMaxAscentDescent();
 	// Private so can only be copied through copy constructor which ensures font names initialised correctly
 	ViewStyle & operator = (const ViewStyle &);
 };

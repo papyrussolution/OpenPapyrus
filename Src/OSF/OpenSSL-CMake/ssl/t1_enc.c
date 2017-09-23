@@ -460,33 +460,20 @@ int tls1_generate_master_secret(SSL * s, uchar * out, uchar * p, int len)
 	fprintf(stderr, "Server Random:\n");
 	BIO_dump_fp(stderr, (char*)s->s3->server_random, SSL3_RANDOM_SIZE);
 	fprintf(stderr, "Master Secret:\n");
-	BIO_dump_fp(stderr, (char*)s->session->master_key,
-	    SSL3_MASTER_SECRET_SIZE);
+	BIO_dump_fp(stderr, (char*)s->session->master_key, SSL3_MASTER_SECRET_SIZE);
 #endif
-
 #ifdef OPENSSL_SSL_TRACE_CRYPTO
 	if(s->msg_callback) {
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_PREMASTER,
-		    p, len, s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_CLIENT_RANDOM,
-		    s->s3->client_random, SSL3_RANDOM_SIZE,
-		    s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_SERVER_RANDOM,
-		    s->s3->server_random, SSL3_RANDOM_SIZE,
-		    s, s->msg_callback_arg);
-		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_MASTER,
-		    s->session->master_key,
-		    SSL3_MASTER_SECRET_SIZE, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_PREMASTER, p, len, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_CLIENT_RANDOM, s->s3->client_random, SSL3_RANDOM_SIZE, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_SERVER_RANDOM, s->s3->server_random, SSL3_RANDOM_SIZE, s, s->msg_callback_arg);
+		s->msg_callback(2, s->version, TLS1_RT_CRYPTO_MASTER, s->session->master_key, SSL3_MASTER_SECRET_SIZE, s, s->msg_callback_arg);
 	}
 #endif
-
 	return (SSL3_MASTER_SECRET_SIZE);
 }
 
-int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
-    const char * label, size_t llen,
-    const uchar * context,
-    size_t contextlen, int use_context)
+int tls1_export_keying_material(SSL * s, uchar * out, size_t olen, const char * label, size_t llen, const uchar * context, size_t contextlen, int use_context)
 {
 	uchar * val = NULL;
 	size_t vallen = 0, currentvalpos;

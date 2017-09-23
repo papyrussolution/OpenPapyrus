@@ -80,7 +80,7 @@ int __db_associate_pp(DB * dbp, DB_TXN * txn, DB * sdbp, int (*callback)__P((DB*
 	 * to make sure that no older cursors are lying around when we make
 	 * the transition.
 	 */
-	if(TAILQ_FIRST(&sdbp->active_queue) != NULL || TAILQ_FIRST(&sdbp->join_queue) != NULL) {
+	if(TAILQ_FIRST(&sdbp->active_queue) || TAILQ_FIRST(&sdbp->join_queue)) {
 		__db_errx(env, DB_STR("0572", "Databases may not become secondary indices while cursors are open"));
 		ret = EINVAL;
 		goto err;
@@ -275,7 +275,7 @@ int __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32
 	// If this is CDB, do all the locking in the interface, which is right here.
 	//
 	if(CDB_LOCKING(env)) {
-		mode = (LF_ISSET(DB_WRITELOCK)) ? DB_LOCK_WRITE : ((LF_ISSET(DB_WRITECURSOR) || txn != NULL) ? DB_LOCK_IWRITE : DB_LOCK_READ);
+		mode = (LF_ISSET(DB_WRITELOCK)) ? DB_LOCK_WRITE : ((LF_ISSET(DB_WRITECURSOR) || txn) ? DB_LOCK_IWRITE : DB_LOCK_READ);
 		if((ret = __lock_get(env, dbc->locker, 0, &dbc->lock_dbt, mode, &dbc->mylock)) != 0)
 			goto err;
 		if(LF_ISSET(DB_WRITECURSOR))
@@ -283,9 +283,9 @@ int __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32
 		if(LF_ISSET(DB_WRITELOCK))
 			F_SET(dbc, DBC_WRITER);
 	}
-	if(LF_ISSET(DB_READ_UNCOMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
+	if(LF_ISSET(DB_READ_UNCOMMITTED) || (txn && F_ISSET(txn, TXN_READ_UNCOMMITTED)))
 		F_SET(dbc, DBC_READ_UNCOMMITTED);
-	if(LF_ISSET(DB_READ_COMMITTED) || (txn != NULL && F_ISSET(txn, TXN_READ_COMMITTED)))
+	if(LF_ISSET(DB_READ_COMMITTED) || (txn && F_ISSET(txn, TXN_READ_COMMITTED)))
 		F_SET(dbc, DBC_READ_COMMITTED);
 	*dbcp = dbc;
 	return 0;
@@ -426,10 +426,9 @@ int __db_exists(DB * dbp, DB_TXN * txn, DBT * key, uint32 flags)
 	STRIP_AUTO_COMMIT(flags);
 	if((ret = __db_fchk(dbp->env, "DB->exists", flags, DB_READ_COMMITTED|DB_READ_UNCOMMITTED|DB_RMW)) != 0)
 		return ret;
-	/*
-	 * Configure a data DBT that returns no bytes so there's no copy
-	 * of the data.
-	 */
+	// 
+	// Configure a data DBT that returns no bytes so there's no copy of the data.
+	// 
 	memzero(&data, sizeof(data));
 	data.dlen = 0;
 	data.flags = DB_DBT_PARTIAL|DB_DBT_USERMEM;
@@ -703,7 +702,7 @@ int __db_join_pp(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 	int    handle_check, ret, t_ret;
 	ENV  * env = primary->env;
 	ENV_ENTER(env, ip);
-	/* Check for replication block. */
+	// Check for replication block. 
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (ret = __db_rep_enter(primary, 1, 0, IS_REAL_TXN(curslist[0]->txn))) != 0) {
 		handle_check = 0;
@@ -736,7 +735,7 @@ static int __db_join_arg(DB * primary, DBC ** curslist, uint32 flags)
 	}
 	else {
 		DB_TXN * txn = curslist[0]->txn;
-		for(int i = 1; curslist[i] != NULL; i++)
+		for(int i = 1; curslist[i]; i++)
 			if(curslist[i]->txn != txn) {
 				__db_errx(env, DB_STR("0589", "All secondary cursors must share the same transaction"));
 				return EINVAL;
@@ -810,7 +809,8 @@ int __db_key_range_pp(DB * dbp, DB_TXN * txn, DBT * key, DB_KEY_RANGE * kr, uint
 		ret = __db_unknown_type(env, "DB->key_range", dbp->type);
 		break;
 	}
-err:    /* Release replication block. */
+err:    
+	// Release replication block
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && !ret)
 		ret = t_ret;
 	ENV_LEAVE(env, ip);
@@ -866,7 +866,7 @@ int __db_open_pp(DB * dbp, DB_TXN * txn, const char * fname, const char * dname,
 			goto err;
 		txn_local = 1;
 	}
-	else if(txn != NULL && !TXN_ON(env) && (!CDB_LOCKING(env) || !F_ISSET(txn, TXN_FAMILY))) {
+	else if(txn && !TXN_ON(env) && (!CDB_LOCKING(env) || !F_ISSET(txn, TXN_FAMILY))) {
 		ret = __db_not_txn_env(env);
 		goto err;
 	}
@@ -1016,14 +1016,14 @@ static int __db_open_arg(DB * dbp, DB_TXN * txn, const char * fname, const char 
 		return EINVAL;
 	}
 	/* DB_TRUNCATE is neither transaction recoverable nor lockable. */
-	if(LF_ISSET(DB_TRUNCATE) && (LOCKING_ON(env) || txn != NULL)) {
+	if(LF_ISSET(DB_TRUNCATE) && (LOCKING_ON(env) || txn)) {
 		__db_errx(env, DB_STR_A("0599", "DB_TRUNCATE illegal with %s specified", "%s"), LOCKING_ON(env) ? "locking" : "transactions");
 		return EINVAL;
 	}
 	/* Subdatabase checks. */
-	if(dname != NULL) {
+	if(dname) {
 		/* QAM can only be done on in-memory subdatabases. */
-		if(type == DB_QUEUE && fname != NULL) {
+		if(type == DB_QUEUE && fname) {
 			__db_errx(env, DB_STR("0600", "Queue databases must be one-per-file"));
 			return EINVAL;
 		}
@@ -1339,9 +1339,9 @@ int __db_compact_pp(DB * dbp, DB_TXN * txn, DBT * start, DBT * stop, DB_COMPACT 
 	/* Check for changes to a read-only database. */
 	if(DB_IS_READONLY(dbp))
 		return __db_rdonly(env, "DB->compact");
-	if(start != NULL && (ret = __dbt_usercopy(env, start)) != 0)
+	if(start && (ret = __dbt_usercopy(env, start)) != 0)
 		return ret;
-	if(stop != NULL && (ret = __dbt_usercopy(env, stop)) != 0) {
+	if(stop && (ret = __dbt_usercopy(env, stop)) != 0) {
 		__dbt_userfree(env, start, 0, 0);
 		return ret;
 	}
@@ -1354,7 +1354,7 @@ int __db_compact_pp(DB * dbp, DB_TXN * txn, DBT * start, DBT * stop, DB_COMPACT 
 		handle_check = 0;
 		goto err;
 	}
-	if(txn != NULL) {
+	if(txn) {
 		if((ret = __db_walk_cursors(dbp, NULL, __db_compact_func, &count, 0, 0, txn)) != 0) {
 			if(ret == EEXIST) {
 				__db_errx(env, DB_STR("0609", "DB->compact may not be called with active cursors in the transaction."));
@@ -1454,7 +1454,7 @@ static int __db_associate_foreign_arg(DB * fdbp, DB * dbp, int (*callback)__P((D
 		__db_errx(env, DB_STR("0614", "When specifying a delete action of nullify, a callback function needs to be configured"));
 		return EINVAL;
 	}
-	else if(!LF_ISSET(DB_FOREIGN_NULLIFY) && callback != NULL) {
+	else if(!LF_ISSET(DB_FOREIGN_NULLIFY) && callback) {
 		__db_errx(env, DB_STR("0615", "When not specifying a delete action of nullify, a callback function cannot be configured"));
 		return EINVAL;
 	}
@@ -1523,7 +1523,7 @@ int __dbc_close_pp(DBC * dbc)
 	/* Check for replication block. */
 	handle_check = !IS_REAL_TXN(dbc->txn) && IS_ENV_REPLICATED(env);
 	/* Unregister the cursor from its transaction, regardless of ret. */
-	if(txn != NULL) {
+	if(txn) {
 		TAILQ_REMOVE(&(txn->my_cursors), dbc, txn_cursors);
 		dbc->txn_cursors.tqe_next = NULL;
 		dbc->txn_cursors.tqe_prev = NULL;
@@ -1680,7 +1680,7 @@ int __dbc_dup_pp(DBC * dbc, DBC ** dbcp, uint32 flags)
 	ret = __dbc_dup(dbc, dbcp, flags);
 	/* Register externally created cursors into the valid transaction. */
 	DB_ASSERT(env, (*dbcp)->txn == dbc->txn);
-	if((*dbcp)->txn != NULL && ret == 0)
+	if((*dbcp)->txn && ret == 0)
 		TAILQ_INSERT_HEAD(&((*dbcp)->txn->my_cursors), *dbcp, txn_cursors);
 err:
 	if(ret != 0 && rep_blocked)
@@ -1968,10 +1968,10 @@ static int __dbc_pget_arg(DBC * dbc, DBT * pkey, uint32 flags)
 	 * We allow the pkey field to be NULL, so that we can make the
 	 * two-DBT get calls into wrappers for the three-DBT ones.
 	 */
-	if(pkey != NULL && (ret = __dbt_ferr(dbp, "primary key", pkey, 0)) != 0)
+	if(pkey && (ret = __dbt_ferr(dbp, "primary key", pkey, 0)) != 0)
 		return ret;
 	/* Check invalid partial pkey. */
-	if(pkey != NULL && F_ISSET(pkey, DB_DBT_PARTIAL)) {
+	if(pkey && F_ISSET(pkey, DB_DBT_PARTIAL)) {
 		__db_errx(env, DB_STR("0711", "The primary key returned by pget can't be partial."));
 		return EINVAL;
 	}
@@ -2039,7 +2039,7 @@ static int __dbc_put_arg(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		    case DB_HASH:       /* Only with unsorted duplicates. */
 			if(!F_ISSET(dbp, DB_AM_DUP))
 				goto err;
-			if(dbp->dup_compare != NULL)
+			if(dbp->dup_compare)
 				goto err;
 			break;
 		    case DB_QUEUE:      /* Not permitted. */
@@ -2167,7 +2167,7 @@ int __db_txn_auto_init(ENV * env, DB_THREAD_INFO * ip, DB_TXN ** txnidp)
 	 * specified if a transaction cookie is also specified, nor can the
 	 * flag be specified in a non-transactional environment.
 	 */
-	if(*txnidp != NULL && !F_ISSET(*txnidp, TXN_FAMILY)) {
+	if(*txnidp && !F_ISSET(*txnidp, TXN_FAMILY)) {
 		__db_errx(env, DB_STR("0632", "DB_AUTO_COMMIT may not be specified along with a transaction handle"));
 		return EINVAL;
 	}

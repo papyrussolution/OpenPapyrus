@@ -39,11 +39,11 @@
 
 /* This module contains internal functions for comparing and finding the length
    of strings for different data item sizes. */
-
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
+#pragma hdrstop
 
 #ifndef COMPILE_PCRE8
 
@@ -141,7 +141,7 @@ int PRIV(strcmp_uc_c8_utf) (const pcre_uchar *str1, const char * str2)
    Returns:      0 if both string are equal (like strcmp), 1 otherwise
  */
 
-int PRIV(strncmp_uc_uc) (const pcre_uchar *str1, const pcre_uchar *str2, unsigned int num)
+int PRIV(strncmp_uc_uc) (const pcre_uchar *str1, const pcre_uchar *str2, uint num)
 {
 	pcre_uchar c1;
 	pcre_uchar c2;
@@ -155,7 +155,7 @@ int PRIV(strncmp_uc_uc) (const pcre_uchar *str1, const pcre_uchar *str2, unsigne
 	return 0;
 }
 
-int PRIV(strncmp_uc_c8) (const pcre_uchar *str1, const char * str2, unsigned int num)
+int PRIV(strncmp_uc_c8) (const pcre_uchar *str1, const char * str2, uint num)
 {
 	const pcre_uint8 * ustr2 = (pcre_uint8*)str2;
 	pcre_uchar c1;
@@ -179,9 +179,9 @@ int PRIV(strncmp_uc_c8) (const pcre_uchar *str1, const char * str2, unsigned int
    Returns:      length of the string
  */
 
-unsigned int PRIV(strlen_uc) (const pcre_uchar *str)
+uint PRIV(strlen_uc) (const pcre_uchar *str)
 {
-	unsigned int len = 0;
+	uint len = 0;
 	while(*str++ != 0)
 		len++;
 	return len;

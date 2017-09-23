@@ -8,16 +8,10 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <time.h>
-//#include <vector>
-//#include <map>
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #undef WINVER
 #define WINVER 0x0500
-//#include <windows.h>
-//#include <commctrl.h>
-//#include <richedit.h>
 #include <windowsx.h>
 #if defined(NTDDI_WIN7) && !defined(DISABLE_D2D)
 	#define USE_D2D 1
@@ -26,10 +20,7 @@
 	#include <d2d1.h>
 	#include <dwrite.h>
 #endif
-//#include "Platform.h"
-////#include "StringCopy.h"
 #include "XPM.h"
-//#include "UniConversion.h"
 #include "FontQuality.h"
 #ifndef IDC_HAND
 	#define IDC_HAND MAKEINTRESOURCE(32649)
@@ -73,15 +64,20 @@ static HCURSOR reverseArrowCursor = NULL;
 namespace Scintilla {
 #endif
 
-Point Point::FromLong(long lpoint)
+//static 
+Point FASTCALL Point::FromInts(int x_, int y_)
+{
+	return Point(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
+}
+
+Point FASTCALL Point::FromLong(long lpoint)
 {
 	return Point(static_cast<short>(LOWORD(lpoint)), static_cast<short>(HIWORD(lpoint)));
 }
 
 static RECT RectFromPRectangle(PRectangle prc)
 {
-	RECT rc = {static_cast<LONG>(prc.left), static_cast<LONG>(prc.top),
-		   static_cast<LONG>(prc.right), static_cast<LONG>(prc.bottom)};
+	RECT rc = { static_cast<LONG>(prc.left), static_cast<LONG>(prc.top), static_cast<LONG>(prc.right), static_cast<LONG>(prc.bottom) };
 	return rc;
 }
 
@@ -108,22 +104,16 @@ bool LoadD2D()
 			D2D1CFSig fnD2DCF = (D2D1CFSig) ::GetProcAddress(hDLLD2D, "D2D1CreateFactory");
 			if(fnD2DCF) {
 				// A single threaded factory as Scintilla always draw on the GUI thread
-				fnD2DCF(D2D1_FACTORY_TYPE_SINGLE_THREADED,
-				    __uuidof(ID2D1Factory),
-				    0,
-				    reinterpret_cast<IUnknown**>(&pD2DFactory));
+				fnD2DCF(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory), 0, reinterpret_cast<IUnknown**>(&pD2DFactory));
 			}
 		}
 		hDLLDWrite = ::LoadLibraryEx(TEXT("DWRITE.DLL"), 0, 0x00000800 /*LOAD_LIBRARY_SEARCH_SYSTEM32*/);
 		if(hDLLDWrite) {
 			DWriteCFSig fnDWCF = (DWriteCFSig) ::GetProcAddress(hDLLDWrite, "DWriteCreateFactory");
 			if(fnDWCF) {
-				fnDWCF(DWRITE_FACTORY_TYPE_SHARED,
-				    __uuidof(IDWriteFactory),
-				    reinterpret_cast<IUnknown**>(&pIDWriteFactory));
+				fnDWCF(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&pIDWriteFactory));
 			}
 		}
-
 		if(pIDWriteFactory) {
 			HRESULT hr = pIDWriteFactory->CreateRenderingParams(&defaultRenderingParams);
 			if(SUCCEEDED(hr)) {
@@ -134,7 +124,6 @@ bool LoadD2D()
 						gamma = static_cast<FLOAT>(clearTypeContrast) / 1000.0f;
 					else
 						gamma = defaultRenderingParams->GetGamma();
-
 					pIDWriteFactory->CreateCustomRenderingParams(gamma,
 					    defaultRenderingParams->GetEnhancedContrast(), defaultRenderingParams->GetClearTypeLevel(),
 					    defaultRenderingParams->GetPixelGeometry(),
@@ -186,7 +175,6 @@ struct FormatAndMetrics {
 		yInternalLeading(yInternalLeading_)
 	{
 	}
-
 #endif
 	~FormatAndMetrics()
 	{
@@ -203,7 +191,6 @@ struct FormatAndMetrics {
 		yDescent = 1;
 		yInternalLeading = 0;
 	}
-
 	HFONT HFont();
 };
 
@@ -3103,7 +3090,6 @@ static bool ListBoxX_Register()
 	wndclassc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wndclassc.lpszClassName = ListBoxX_ClassName;
 	wndclassc.hIconSm = 0;
-
 	return ::RegisterClassEx(&wndclassc) != 0;
 }
 

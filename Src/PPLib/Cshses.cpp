@@ -1,14 +1,13 @@
 // CSHSES.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Интерфейс с асинхронными кассовыми устройствами
+// РРЅС‚РµСЂС„РµР№СЃ СЃ Р°СЃРёРЅС…СЂРѕРЅРЅС‹РјРё РєР°СЃСЃРѕРІС‹РјРё СѓСЃС‚СЂРѕР№СЃС‚РІР°РјРё
 //
 #include <pp.h>
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+//#include <fcntl.h>
 //
 // PPSyncCashSession
 //
@@ -186,15 +185,14 @@ int SLAPI PPAsyncCashSession::CreateTables()
 	return ok;
 }
 
-int SLAPI PPAsyncCashSession::DestroyTables()
+void SLAPI PPAsyncCashSession::DestroyTables()
 {
    	ZDELETE(P_TmpCcTbl);
    	ZDELETE(P_TmpCclTbl);
 	ZDELETE(P_TmpCpTbl); // @v8.1.0
-	return 1;
 }
 
-int SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
+void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
 {
 	SETIFZ(pRec, &P_TmpCclTbl->data);
 	memzero(pRec, sizeof(*pRec));
@@ -203,17 +201,15 @@ int SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, 
 	pRec->Dt        = dt;
 	pRec->DivID     = (int16)div;
 	pRec->GoodsID   = goodsID;
-	return 1;
 }
 
-int SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const char * pSerial /*=0*/)
+void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const char * pSerial /*=0*/)
 {
 	SETIFZ(pRec, &P_TmpCclTbl->data);
 	pRec->Quantity = qtty;
 	pRec->Price = dbltointmny(price);
 	pRec->Dscnt = discount;
 	STRNSCPY(pRec->Serial, pSerial);
-	return 1;
 }
 
 int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME * pDT, PPID * pTempReplaceID)
@@ -227,7 +223,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 		if(a == 0.0 && CS.Search(CC.data.SessID, &cses_rec) > 0 && cses_rec.Temporary) {
 			SString msg_buf, fmt_buf, cc_text_buf;
 			CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
-			// PPTXT_DUPNEWCCHECKCODEZAMT        "В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)"
+			// PPTXT_DUPNEWCCHECKCODEZAMT        "Р’ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ РІСЂРµРјРµРЅРЅРѕР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РѕР±РЅР°СЂСѓР¶РµРЅ С‡РµРє-РґСѓР±Р»РµСЂ РїСЂРёРЅРёРјР°РµРјРѕРіРѕ С‡РµРєР° СЃ РЅСѓР»РµРІРѕР№ СЃСѓРјРјРѕР№ (%s)"
 			PPLoadText(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf);
 			msg_buf.Printf(fmt_buf, cc_text_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -240,11 +236,10 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 		}
 	}
 	else if(r < 0) {
-		// @v7.7.11 {
 		//
-		// Специальный случай: некоторые кассовые модули могут возвращать в оперативном отчете (с незавершенной сессией)
-		// не оконченный чек. На этот случай проверим наличие непосредственно предшествующего чека с тем же номером по
-		// той же кассе и с временем, отличающимся от времени нового чека не более, чем на 10 минут.
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РЅРµРєРѕС‚РѕСЂС‹Рµ РєР°СЃСЃРѕРІС‹Рµ РјРѕРґСѓР»Рё РјРѕРіСѓС‚ РІРѕР·РІСЂР°С‰Р°С‚СЊ РІ РѕРїРµСЂР°С‚РёРІРЅРѕРј РѕС‚С‡РµС‚Рµ (СЃ РЅРµР·Р°РІРµСЂС€РµРЅРЅРѕР№ СЃРµСЃСЃРёРµР№)
+		// РЅРµ РѕРєРѕРЅС‡РµРЅРЅС‹Р№ С‡РµРє. РќР° СЌС‚РѕС‚ СЃР»СѓС‡Р°Р№ РїСЂРѕРІРµСЂРёРј РЅР°Р»РёС‡РёРµ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РµРіРѕ С‡РµРєР° СЃ С‚РµРј Р¶Рµ РЅРѕРјРµСЂРѕРј РїРѕ
+		// С‚РѕР№ Р¶Рµ РєР°СЃСЃРµ Рё СЃ РІСЂРµРјРµРЅРµРј, РѕС‚Р»РёС‡Р°СЋС‰РёРјСЃСЏ РѕС‚ РІСЂРµРјРµРЅРё РЅРѕРІРѕРіРѕ С‡РµРєР° РЅРµ Р±РѕР»РµРµ, С‡РµРј РЅР° 10 РјРёРЅСѓС‚.
 		//
 		CCheckTbl::Key2 k2;
 		k2.CashID = cashID;
@@ -259,7 +254,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 				SString msg_buf, fmt_buf, cc_text_buf, time_buf;
 				CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
-				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"
+				// PPTXT_DUPNEWCCHECKCODE            "Р’ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё РѕР±РЅР°СЂСѓР¶РµРЅ С‡РµРє-РґСѓР±Р»РµСЂ '%s' РїСЂРёРЅРёРјР°РµРјРѕРіРѕ, РІСЂРµРјСЏ РЅРѕРІРѕРіРѕ С‡РµРєР° = '%s'"
 				PPLoadText(PPTXT_DUPNEWCCHECKCODE, fmt_buf);
 				msg_buf.Printf(fmt_buf, cc_text_buf.cptr(), time_buf.cptr());
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -268,7 +263,6 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 				ok = 100;
 			}
 		}
-		// } @v7.7.11
 	}
 	ASSIGN_PTR(pTempReplaceID, temp_replace_id);
 	return ok;
@@ -336,6 +330,7 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 
 int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, double dis)
 {
+	int    ok = -1;
 	CCheckTbl::Key0 k0;
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
@@ -343,9 +338,9 @@ int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, doub
 		double d = MONEYTOLDBL(P_TmpCcTbl->data.Discount) + dis;
 		LDBLTOMONEY(a, P_TmpCcTbl->data.Amount);
 		LDBLTOMONEY(d, P_TmpCcTbl->data.Discount);
-		return P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
+		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPAsyncCashSession::UpdateTempCheckFlags(long checkID, long flags)
@@ -389,36 +384,39 @@ int SLAPI PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, doubl
 
 int SLAPI PPAsyncCashSession::SetTempCheckAmounts(PPID checkID, double amt, double dis)
 {
+	int    ok = -1;
 	CCheckTbl::Key0 k0;
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
 		LDBLTOMONEY(amt, P_TmpCcTbl->data.Amount);
 		LDBLTOMONEY(dis, P_TmpCcTbl->data.Discount);
-		return P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
+		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPAsyncCashSession::AddTempCheckSCardID(PPID checkID, PPID scardID)
 {
+	int    ok = -1;
 	CCheckTbl::Key0 k0;
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
 		P_TmpCcTbl->data.SCardID = scardID;
-		return P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
+		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPAsyncCashSession::AddTempCheckGiftCardID(PPID checkID, PPID giftCardID)
 {
+	int    ok = -1;
 	CCheckTbl::Key0 k0;
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
 		P_TmpCcTbl->data.GiftCardID = giftCardID;
-		return P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
+		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI PPAsyncCashSession::SearchTempCheckByCode(PPID cashID, PPID code, PPID sessNo)
@@ -505,17 +503,17 @@ int SLAPI PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long
 	PPID   sess_id = 0;
 	int16  assc_period = (CConfig.CSessFwAsscPeriod > 0) ? CConfig.CSessFwAsscPeriod : (24*60);
 	if(forwardSess) {
-		// Сессия с форвардными номерами смен. То есть, в чеке номер смены
-		// не прописывается, но в конце каждой смены присутствует чек
-		// идентифицирующий смену, которой принадлежали чеки до этого чека
-		// и следующие за последним таким же чеком.
+		// РЎРµСЃСЃРёСЏ СЃ С„РѕСЂРІР°СЂРґРЅС‹РјРё РЅРѕРјРµСЂР°РјРё СЃРјРµРЅ. РўРѕ РµСЃС‚СЊ, РІ С‡РµРєРµ РЅРѕРјРµСЂ СЃРјРµРЅС‹
+		// РЅРµ РїСЂРѕРїРёСЃС‹РІР°РµС‚СЃСЏ, РЅРѕ РІ РєРѕРЅС†Рµ РєР°Р¶РґРѕР№ СЃРјРµРЅС‹ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ С‡РµРє
+		// РёРґРµРЅС‚РёС„РёС†РёСЂСѓСЋС‰РёР№ СЃРјРµРЅСѓ, РєРѕС‚РѕСЂРѕР№ РїСЂРёРЅР°РґР»РµР¶Р°Р»Рё С‡РµРєРё РґРѕ СЌС‚РѕРіРѕ С‡РµРєР°
+		// Рё СЃР»РµРґСѓСЋС‰РёРµ Р·Р° РїРѕСЃР»РµРґРЅРёРј С‚Р°РєРёРј Р¶Рµ С‡РµРєРѕРј.
 		if(sessNumber) {
-			// Засекли чек Z-отчета
+			// Р—Р°СЃРµРєР»Рё С‡РµРє Z-РѕС‚С‡РµС‚Р°
 
 			//
-			// Проверяем нет-ли уже созданной сессии по найденному чеку
-			// Z-отчета (такое бывает когда при уже созданной сессии удаляют
-			// такой чек).
+			// РџСЂРѕРІРµСЂСЏРµРј РЅРµС‚-Р»Рё СѓР¶Рµ СЃРѕР·РґР°РЅРЅРѕР№ СЃРµСЃСЃРёРё РїРѕ РЅР°Р№РґРµРЅРЅРѕРјСѓ С‡РµРєСѓ
+			// Z-РѕС‚С‡РµС‚Р° (С‚Р°РєРѕРµ Р±С‹РІР°РµС‚ РєРѕРіРґР° РїСЂРё СѓР¶Рµ СЃРѕР·РґР°РЅРЅРѕР№ СЃРµСЃСЃРёРё СѓРґР°Р»СЏСЋС‚
+			// С‚Р°РєРѕР№ С‡РµРє).
 			//
 			THROW(r = CS.SearchByNumber(&sess_id, NodeID, cashNumber, sessNumber, dtm.d));
 			if(r < 0)
@@ -523,7 +521,7 @@ int SLAPI PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long
 			THROW(SetLastSess(cashNumber, sessNumber, sess_id, dtm));
 		}
 		else {
-			// Ищем впереди идущий номер Z-отчета
+			// РС‰РµРј РІРїРµСЂРµРґРё РёРґСѓС‰РёР№ РЅРѕРјРµСЂ Z-РѕС‚С‡РµС‚Р°
 			long fw_sess_number = 0;
 			CCheckTbl::Rec chk_rec;
 			if(GetLastSess(cashNumber, dtm, &fw_sess_number, &sess_id) <= 0) {
@@ -549,7 +547,7 @@ int SLAPI PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long
 		}
 	}
 	else {
-		// Ищем смену с номером sessNumber
+		// РС‰РµРј СЃРјРµРЅСѓ СЃ РЅРѕРјРµСЂРѕРј sessNumber
 		if(GetLastSess(cashNumber, dtm, &sessNumber, &sess_id) <= 0) {
 			if(CS.SearchByNumber(&sess_id, NodeID, cashNumber, sessNumber, dtm.d) > 0) {
 				if(!temporary && CS.data.Temporary)
@@ -599,6 +597,7 @@ struct CclAssocItem {
 	PPID   TempChkID;
 	PPID   ChkID;
 	uint16 RByCheck;
+	uint16 Reserve;  // @v9.8.2 @alignment 
 	long   Flags;
 };
 
@@ -729,7 +728,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 	#if 0 // @v8.1.0 {
 				if(temp_chk_rec.CrdSCardID) {
 					if(!chk_rec.SCardID) {
-						// Коллизия: придется убрать ссылку на дисконтную карту ради платежной карты.
+						// РљРѕР»Р»РёР·РёСЏ: РїСЂРёРґРµС‚СЃСЏ СѓР±СЂР°С‚СЊ СЃСЃС‹Р»РєСѓ РЅР° РґРёСЃРєРѕРЅС‚РЅСѓСЋ РєР°СЂС‚Сѓ СЂР°РґРё РїР»Р°С‚РµР¶РЅРѕР№ РєР°СЂС‚С‹.
 					}
 					chk_rec.SCardID = temp_chk_rec.CrdSCardID;
 				}
@@ -750,8 +749,8 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 						chk_rec.Flags |= (CCHKF_EXT|CCHKF_ADDPAYM);
 					}
 					else {
-						// Коллизия: не удалось сохранить сумму доплаты по причине того, что конфигурация не поддерживает
-						// расширения чеков.
+						// РљРѕР»Р»РёР·РёСЏ: РЅРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ СЃСѓРјРјСѓ РґРѕРїР»Р°С‚С‹ РїРѕ РїСЂРёС‡РёРЅРµ С‚РѕРіРѕ, С‡С‚Рѕ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚
+						// СЂР°СЃС€РёСЂРµРЅРёСЏ С‡РµРєРѕРІ.
 					}
 				}
 	#endif // } 0 @v8.1.0
@@ -759,7 +758,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 				THROW(CC.Add(&check_id, &chk_rec, 0)); // @use BExtInsert ?
 	#if 0 // @v8.1.0 {
 				//
-				// Данные об оплатах
+				// Р”Р°РЅРЅС‹Рµ РѕР± РѕРїР»Р°С‚Р°С…
 				//
 				if(use_ext && (chk_rec.Flags & CCHKF_EXT)) {
 					chk_rec.ID = check_id;
@@ -775,8 +774,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 						const int do_turn_sc_op = BIN(!(chk_rec.Flags & (CCHKF_JUNK|CCHKF_SKIP|CCHKF_SUSPENDED)));
 						PPSCardSeries scs_rec;
 						int16  rbc = 0;
-						uint   i;
-						for(i = 0; i < plc; i++) {
+						for(uint i = 0; i < plc; i++) {
 							const CcAmountEntry & r_entry = cp_list.at(i);
 							CCheckPaymTbl::Rec cp_rec;
 							MEMSZERO(cp_rec);
@@ -820,7 +818,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 			}
 			LAssocArray extlines_list;
 			THROW(FlashTempCcLines(&ccl_assoc, &extlines_list));
-			{ // Для чеков, у которых есть строки с расширениями нужно установить соотвествующий флаг
+			{ // Р”Р»СЏ С‡РµРєРѕРІ, Сѓ РєРѕС‚РѕСЂС‹С… РµСЃС‚СЊ СЃС‚СЂРѕРєРё СЃ СЂР°СЃС€РёСЂРµРЅРёСЏРјРё РЅСѓР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРѕС‚РІРµСЃС‚РІСѓСЋС‰РёР№ С„Р»Р°Рі
 				uint count = extlines_list.getCount();
 				for(uint i = 0; i < count; i++) {
 					LAssoc extl_item = extlines_list.at(i);
@@ -873,8 +871,7 @@ int SLAPI PPAsyncCashSession::LogExportingGoodsItem(const AsyncCashGoodsInfo * p
 	if(!LogFmt_ExpGoods)
 		PPLoadText(PPTXT_LOG_ACNEXP_GOODS, LogFmt_ExpGoods);
 	if(pInfo)
-		added_info.Cat(pInfo->BarCode).CatDiv('-', 1).
-			Cat(pInfo->Name).CatDiv('-', 1).Cat(pInfo->Price, SFMT_MONEY);
+		added_info.Cat(pInfo->BarCode).CatDiv('-', 1).Cat(pInfo->Name).CatDiv('-', 1).Cat(pInfo->Price, SFMT_MONEY);
 	else
 		added_info.Space();
 	msg_buf.Printf(LogFmt_ExpGoods, added_info.cptr());
@@ -907,13 +904,13 @@ int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 		}
 	}
 	if(ready) {
-		SinceDlsID = updOnly ? sinceDlsID : 0; // @v7.1.11
+		SinceDlsID = updOnly ? sinceDlsID : 0;
 		SetGoodsRestLoadFlag(updOnly);
 		ok = ExportData(updOnly);
 		if(ok) {
 			DS.LogAction(PPACN_EXPCASHSESS, PPOBJ_CASHNODE, NodeID, updOnly, 1);
 			//
-			// Пустой файл, сигнализирующий о том, что экспорт данных завершен (ACSEXP.)
+			// РџСѓСЃС‚РѕР№ С„Р°Р№Р», СЃРёРіРЅР°Р»РёР·РёСЂСѓСЋС‰РёР№ Рѕ С‚РѕРј, С‡С‚Рѕ СЌРєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… Р·Р°РІРµСЂС€РµРЅ (ACSEXP.)
 			//
 			SString path;
 			PPGetFilePath(PPPATH_OUT, PPFILNAM_SIG_ACSOPENED, path);
@@ -944,7 +941,7 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 	THROW_PP_S(loc_id, PPERR_UNDEFCASHNODELOC, acn.Name);
 	SETFLAG(Flags, PPACSF_TEMPSESS, asTempSess);
 	//
-	// Находим и закрываем незавершенные сессии
+	// РќР°С…РѕРґРёРј Рё Р·Р°РєСЂС‹РІР°РµРј РЅРµР·Р°РІРµСЂС€РµРЅРЅС‹Рµ СЃРµСЃСЃРёРё
 	//
 	if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_CLOSEINCMPL, 0);
@@ -958,7 +955,7 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 			THROW(ConvertSessListToBills(&super_sess_list, loc_id, 1));
 	}
 	//
-	// Импортируем кассовые сессии
+	// РРјРїРѕСЂС‚РёСЂСѓРµРј РєР°СЃСЃРѕРІС‹Рµ СЃРµСЃСЃРёРё
 	//
 	sess_list.freeAll();
 	super_sess_list.freeAll();
@@ -979,7 +976,7 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 		PPWaitMsg(PPSTR_TEXT, PPTXT_ACSCLS_TOBILLS, 0);
 		{
 			//
-			// Блок перестроен так, чтобы исполняться в общей транзакции {
+			// Р‘Р»РѕРє РїРµСЂРµСЃС‚СЂРѕРµРЅ С‚Р°Рє, С‡С‚РѕР±С‹ РёСЃРїРѕР»РЅСЏС‚СЊСЃСЏ РІ РѕР±С‰РµР№ С‚СЂР°РЅР·Р°РєС†РёРё {
 			//
 			PPIDArray temp_sess_list;
 			PPGenCashNode gcn;
@@ -1189,7 +1186,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 							ok = 1;
 					}
 					else if(action == 1) {
-						// Если файл не найден, то полагаем, что результат удаления положительный
+						// Р•СЃР»Рё С„Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ, С‚Рѕ РїРѕР»Р°РіР°РµРј, С‡С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№
 						ok = 1;
 					}
 					if(action == 0) { // Copy file
@@ -1207,7 +1204,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 			else {
 				if(action == 3) {
 					//
-					// Проверка на возможность создания файла в заданном каталоге
+					// РџСЂРѕРІРµСЂРєР° РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р° РІ Р·Р°РґР°РЅРЅРѕРј РєР°С‚Р°Р»РѕРіРµ
 					//
 					FILE * f_temp = fopen(MakeTempFileName(path, 0, 0, 0, temp_file_name), "w");
 					if(f_temp) {
@@ -1231,7 +1228,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 							ok = 1;
 					}
 					else if(action == 1) {
-						// Если файл не найден, то полагаем, что результат удаления положительный
+						// Р•СЃР»Рё С„Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ, С‚Рѕ РїРѕР»Р°РіР°РµРј, С‡С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№
 						ok = 1;
 					}
 					if(action == 0) { // Copy file
@@ -1286,10 +1283,10 @@ int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goods
 		const LDATE stop_date = plusdate(cd, -PricesLookBackPeriod);
 		ReceiptCore & r_rc = BillObj->trfr->Rcpt;
 		ReceiptTbl::Rec lot_rec;
-#if 0 // Этот блок получает список цен только по открытым лотам {
+#if 0 // Р­С‚РѕС‚ Р±Р»РѕРє РїРѕР»СѓС‡Р°РµС‚ СЃРїРёСЃРѕРє С†РµРЅ С‚РѕР»СЊРєРѕ РїРѕ РѕС‚РєСЂС‹С‚С‹Рј Р»РѕС‚Р°Рј {
 		DateIter di(stop_date, 0);
 		while(r_rc.EnumLots(goodsID, LocID, &di, &lot_rec) > 0) {
-			// Transfer::GetLotPrices вызывать не следует поскольку нам нужна текущая цена
+			// Transfer::GetLotPrices РІС‹Р·С‹РІР°С‚СЊ РЅРµ СЃР»РµРґСѓРµС‚ РїРѕСЃРєРѕР»СЊРєСѓ РЅР°Рј РЅСѓР¶РЅР° С‚РµРєСѓС‰Р°СЏ С†РµРЅР°
 			double price = R3(lot_rec.Price);
 			uint   p = 0;
 			if(price > 0.0 && price != basePrice && !rList.lsearch(&price, &p, PTR_CMPFUNC(double))) {
@@ -1297,7 +1294,7 @@ int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goods
 				ok = 1;
 			}
 		}
-#else // }{ А этот блок получает список цен и по открытым и по закрытым лотам
+#else // }{ Рђ СЌС‚РѕС‚ Р±Р»РѕРє РїРѕР»СѓС‡Р°РµС‚ СЃРїРёСЃРѕРє С†РµРЅ Рё РїРѕ РѕС‚РєСЂС‹С‚С‹Рј Рё РїРѕ Р·Р°РєСЂС‹С‚С‹Рј Р»РѕС‚Р°Рј
 		LDATE   enm_dt = MAXDATE;
 		long    enm_opn = MAXLONG;
 		while(r_rc.EnumLastLots(goodsID, LocID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
@@ -1356,7 +1353,7 @@ int SLAPI AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID
 int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
 {
 	int    ok = 1;
-	int    is_redo = 0; // Признак того, что выгрузка осуществляется в режиме REDO (товары, выгруженные ранее, начиная с заданной sinceDlsID)
+	int    is_redo = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РІС‹РіСЂСѓР·РєР° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІ СЂРµР¶РёРјРµ REDO (С‚РѕРІР°СЂС‹, РІС‹РіСЂСѓР¶РµРЅРЅС‹Рµ СЂР°РЅРµРµ, РЅР°С‡РёРЅР°СЏ СЃ Р·Р°РґР°РЅРЅРѕР№ sinceDlsID)
 	SString temp_buf;
 	PPIniFile ini_file;
 	LDATETIME last_exp_moment;
@@ -1376,8 +1373,8 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		AlcoGoodsClsID = 0;
 		TobaccoGoodsClsID = 0;
 		GiftCardGoodsClsID = 0;
-		AlcoProofExpr = 0;
-		AlcoVolExpr = 0;
+		AlcoProofExpr.Z();
+		AlcoVolExpr.Z();
 		PricesLookBackPeriod = 0;
 
 		uint   i = 0;
@@ -1392,8 +1389,8 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 			}
 			else {
 				AlcoGoodsClsID = 0;
-				AlcoProofExpr = 0;
-				AlcoVolExpr = 0;
+				AlcoProofExpr.Z();
+				AlcoVolExpr.Z();
 			}
 		}
 		//
@@ -1460,7 +1457,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		if(AcnPack.GoodsGrpID) {
 			uint c = IterGoodsList.getCount();
 			if(c) do {
-				PPID goods_id = IterGoodsList.get(--c);
+				const PPID goods_id = IterGoodsList.get(--c);
 				if(!GObj.BelongToGroup(goods_id, AcnPack.GoodsGrpID))
 					IterGoodsList.atFree(c);
 			} while(c);
@@ -1484,9 +1481,9 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 				moment.t = ZEROTIME;
 			if(UserOnlyGoodsGrpID) {
 				//
-				// В случае загрузки изменений только по товарам, которыми ограничен данный пользователь,
-				// момент, от которого отсчитываются изменения, определяется последней загрузкой, сделанной этим
-				// пользователем.
+				// Р’ СЃР»СѓС‡Р°Рµ Р·Р°РіСЂСѓР·РєРё РёР·РјРµРЅРµРЅРёР№ С‚РѕР»СЊРєРѕ РїРѕ С‚РѕРІР°СЂР°Рј, РєРѕС‚РѕСЂС‹РјРё РѕРіСЂР°РЅРёС‡РµРЅ РґР°РЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ,
+				// РјРѕРјРµРЅС‚, РѕС‚ РєРѕС‚РѕСЂРѕРіРѕ РѕС‚СЃС‡РёС‚С‹РІР°СЋС‚СЃСЏ РёР·РјРµРЅРµРЅРёСЏ, РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїРѕСЃР»РµРґРЅРµР№ Р·Р°РіСЂСѓР·РєРѕР№, СЃРґРµР»Р°РЅРЅРѕР№ СЌС‚РёРј
+				// РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.
 				//
 				SysJournalTbl::Key1 k1;
 				MEMSZERO(k1);
@@ -1598,7 +1595,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 					group_list.add(goods_rec.ParentID); // @v8.0.10 addUnique-->add
 				}
 				//
-				// Снова иницализируем итератор
+				// РЎРЅРѕРІР° РёРЅРёС†Р°Р»РёР·РёСЂСѓРµРј РёС‚РµСЂР°С‚РѕСЂ
 				//
 				if(AcnPack.GoodsGrpID) {
 					THROW(Iter.Init(AcnPack.GoodsGrpID, GoodsIterator::ordByName));
@@ -1742,7 +1739,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					Rec.ID       = grec.ID;
-					// @v7.9.0 Замена символов перевода каретки на пробелы
+					// Р—Р°РјРµРЅР° СЃРёРјРІРѕР»РѕРІ РїРµСЂРµРІРѕРґР° РєР°СЂРµС‚РєРё РЅР° РїСЂРѕР±РµР»С‹
 					(temp_buf = grec.Name).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceStr("  ", " ", 0).CopyTo(Rec.Name, sizeof(Rec.Name));
 					(temp_buf = grec.Abbr).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceStr("  ", " ", 0).CopyTo(Rec.Abbr, sizeof(Rec.Abbr));
 					if(Flags & ACGIF_EXCLALTFOLD)
@@ -1772,7 +1769,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						Rec.NoDis = 0;
 					Rec.ExtQuot = rtl_ext_item.ExtPrice;
 					//
-					// Инициализируем номер отдела, ассоциированный с группой товара
+					// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РЅРѕРјРµСЂ РѕС‚РґРµР»Р°, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ РіСЂСѓРїРїРѕР№ С‚РѕРІР°СЂР°
 					//
 					Rec.DivN = 1;
 					if(AcnPack.Flags & CASHF_EXPDIVN && AcnPack.P_DivGrpList) {
@@ -1794,7 +1791,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						PROFILE_END
 					}
 					//
-					// Инициализируем (если необходимо) кассовый узел, ассоциированный с товаром
+					// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР», Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ С‚РѕРІР°СЂРѕРј
 					//
 					if(P_G2DAssoc) {
 						PPID   assoc_id = 0;
@@ -1925,7 +1922,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	LocPrnID = 0;
 	AsscPosNodeID = 0;
 	AddedMsgList.clear(1);
-	LabelName = 0;
+	LabelName.Z();
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
 	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));
 	for(uint i = 0; i < QuotList.getCount(); i++)
@@ -2004,7 +2001,7 @@ SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updO
 			}
 			if(is_event) {
 				//
-				// Получаем список карт, которые изменились с момента последней загрузки
+				// РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє РєР°СЂС‚, РєРѕС‚РѕСЂС‹Рµ РёР·РјРµРЅРёР»РёСЃСЊ СЃ РјРѕРјРµРЅС‚Р° РїРѕСЃР»РµРґРЅРµР№ Р·Р°РіСЂСѓР·РєРё
 				//
 				PPIDArray acn_list;
 				acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_SCARDDISUPD, 0L);
@@ -2210,10 +2207,9 @@ SLAPI AsyncCashGoodsGroupInfo::AsyncCashGoodsGroupInfo()
 	Init();
 }
 
-int SLAPI AsyncCashGoodsGroupInfo::Init()
+void SLAPI AsyncCashGoodsGroupInfo::Init()
 {
 	THISZERO();
-	return 1;
 }
 
 SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList)

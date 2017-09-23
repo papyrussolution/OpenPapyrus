@@ -71,7 +71,7 @@ static const char * __rep_syncstate_to_string(repsync_t);
  *
  * PUBLIC: int __rep_stat_pp __P((DB_ENV *, DB_REP_STAT **, uint32));
  */
-int __rep_stat_pp(DB_ENV*dbenv, DB_REP_STAT ** statp, uint32 flags)
+int __rep_stat_pp(DB_ENV * dbenv, DB_REP_STAT ** statp, uint32 flags)
 {
 	int ret;
 	ENV * env = dbenv->env;
@@ -189,7 +189,7 @@ static int __rep_stat(ENV * env, DB_REP_STAT ** statp, uint32 flags)
  *
  * PUBLIC: int __rep_stat_print_pp(DB_ENV *, uint32);
  */
-int __rep_stat_print_pp(DB_ENV*dbenv, uint32 flags)
+int __rep_stat_print_pp(DB_ENV * dbenv, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	ENV * env;
@@ -489,14 +489,14 @@ static int __rep_stat_summary_print(ENV*env)
 
 #else /* !HAVE_STATISTICS */
 
-int __rep_stat_pp(DB_ENV*dbenv, DB_REP_STAT ** statp, uint32 flags)
+int __rep_stat_pp(DB_ENV * dbenv, DB_REP_STAT ** statp, uint32 flags)
 {
 	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
 }
 
-int __rep_stat_print_pp(DB_ENV*dbenv, uint32 flags)
+int __rep_stat_print_pp(DB_ENV * dbenv, uint32 flags)
 {
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);

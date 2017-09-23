@@ -598,7 +598,7 @@ int __db_pg_alloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 		uint32 nelem;
 		if((ret = __memp_get_freelist(mpf, &nelem, &list)) != 0)
 			goto out;
-		if(list != NULL && (nelem == 0 || *list != argp->pgno)) {
+		if(list && (nelem == 0 || *list != argp->pgno)) {
 			if((ret =
 			            __memp_extend_freelist(mpf, nelem+1, &list)) != 0)
 				goto out;
@@ -1158,7 +1158,7 @@ int __db_pg_trunc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 		 */
 		if((ret = __memp_get_freelist(mpf, &felem, &list)) != 0)
 			goto out;
-		if(list != NULL) {
+		if(list) {
 			if(felem != 0 && list[felem-1] > pglist->pgno) {
 				__db_freelist_pos(pglist->pgno, list, felem, &pos);
 				DB_ASSERT(env, pos < felem);
@@ -1270,7 +1270,7 @@ int __db_realloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 		/* Put the pages back in the sorted list. */
 		if((ret = __memp_get_freelist(mpf, &felem, &list)) != 0)
 			goto out;
-		if(list != NULL) {
+		if(list) {
 			__db_freelist_pos(pglist->pgno, list, felem, &pos);
 			if(pglist->pgno == list[pos])
 				goto done;
@@ -1386,7 +1386,7 @@ int __db_pg_sort_44_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	if(op == DB_TXN_ABORT) {
 		if((ret = __memp_get_freelist(mpf, &felem, &list)) != 0)
 			goto out;
-		if(list != NULL) {
+		if(list) {
 			DB_ASSERT(env, felem == 0 || argp->last_free == list[felem-1]);
 			if((ret = __memp_extend_freelist(mpf, felem+nelem, &list)) != 0)
 				goto out;

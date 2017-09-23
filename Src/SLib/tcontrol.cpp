@@ -226,14 +226,13 @@ int TButton::SetBitmap(uint bmpID)
 
 int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	int    result = 1;
 	HWND   h_wnd;
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			h_wnd = getHandle();
 			EnableWindow(h_wnd, !IsInState(sfDisabled));
-			// @v9.1.11 SetWindowLong(h_wnd, GWLP_USERDATA, (long)this);
-			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this); // @v9.1.11
-			// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWLP_WNDPROC, (long)ButtonDialogProc);
+			TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
 			PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc);
 			if(BmpID > 0 && TView::GetWindowStyle(h_wnd) & BS_BITMAP) {
 				LoadBitmap(BmpID);
@@ -241,15 +240,16 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			SetupText(&Title);
 			break;
-		case WM_CHAR:
-		case WM_VKEYTOITEM:
-			return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == BN_CLICKED)
 				press(LOWORD(wParam));
 			break;
+		case WM_CHAR:
+		case WM_VKEYTOITEM:
+			result = 0;
+			break;
 	 }
-	 return 1;
+	 return result;
 }
 
 void TButton::drawState(bool down)
@@ -261,7 +261,7 @@ IMPL_HANDLE_EVENT(TButton)
 {
 	TView::handleEvent(event);
 	switch(event.what) {
-		case evBroadcast:
+		case TEvent::evBroadcast:
 			switch(TVCMD) {
 				case cmDefault:
 					if(flags & bfDefault) {
@@ -667,10 +667,8 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					SendDlgItemMessage(Parent, Id, EM_SETPASSWORDCHAR, DEFAULT_PASSWORD_SYMB, 0);
 				Draw_();
 				HWND h_wnd = getHandle();
-				// @v9.1.11 SetWindowLong(h_wnd, GWLP_USERDATA, (long)this);
-				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this); // @v9.1.11
-				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(h_wnd, GWLP_WNDPROC, (long)TInputLine::DlgProc);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc); // @v9.1.11
+				TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
+				PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TInputLine::DlgProc);
 				if(TView::GetWindowStyle(h_wnd) & ES_READONLY)
 					Sf |= sfReadOnly;
 			}
@@ -679,7 +677,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(wParam == VK_DOWN) {
 				if(owner) {
 					TEvent t;
-					t.what = evKeyDown;
+					t.what = TEvent::evKeyDown;
 					t.keyDown.keyCode = kbDown;
 					owner->handleEvent(t);
 				}
@@ -687,7 +685,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else if(oneof3(wParam, VK_UP, VK_PRIOR, VK_NEXT) && owner) {
 				TEvent t;
-				t.what = evKeyDown;
+				t.what = TEvent::evKeyDown;
 				t.keyDown.keyCode = (wParam == VK_UP) ? kbUp : ((wParam == VK_PRIOR) ? kbPgUp : kbPgDn);
 				owner->handleEvent(t);
 			}
@@ -1056,8 +1054,7 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet & rStrings) :
-	TView(bounds), Value(0), Sel(0)
+TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet & rStrings) : TView(bounds), Value(0), Sel(0)
 {
 	assert(oneof2(aClusterKind, RADIOBUTTONS, CHECKBOXES));
 	Kind = aClusterKind;
@@ -1149,6 +1146,7 @@ int TCluster::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	int    result = 1;
 	int    i;
 	switch(uMsg) {
 		case WM_INITDIALOG:
@@ -1236,14 +1234,15 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			break;
-		case WM_VKEYTOITEM:
-			return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == BN_CLICKED)
 				press(LOWORD(wParam));
 			break;
+		case WM_VKEYTOITEM:
+			result = 0;
+			break;
 	 }
-	 return 1;
+	 return result;
 }
 
 int TCluster::TransmitData(int dir, void * pData)
@@ -1535,7 +1534,7 @@ ComboBox::~ComboBox()
 	delete P_ListWin;
 }
 
-int ComboBox::setupListWindow(int noUpdateSize)
+void ComboBox::setupListWindow(int noUpdateSize)
 {
 	if(P_ListWin) {
 		HWND   h_box = P_ListWin->H();
@@ -1555,17 +1554,15 @@ int ComboBox::setupListWindow(int noUpdateSize)
 		MoveWindow(GetDlgItem(h_box, MAKE_BUTTON_ID(CTL_LBX_LIST, 1)), list_rect.right, 0,
 			GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
 	}
-	return 1;
 }
 
-int ComboBox::setupTreeListWindow(int noUpdateSize)
+void ComboBox::setupTreeListWindow(int noUpdateSize)
 {
 	if(P_ListWin) {
 		RECT   rect;
 		GetWindowRect(getHandle(), &rect);
 		P_ListWin->MoveWindow(P_ILink->getHandle(), rect.right);
 	}
-	return 1;
 }
 
 int ComboBox::setListWindow(ListWindow * pListWin)
@@ -1621,7 +1618,7 @@ LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			if(wParam != VK_ESCAPE && wParam != VK_RETURN)
+			if(!oneof2(wParam, VK_ESCAPE, VK_RETURN))
 				p_view->SendToParent(hWnd, WM_USER_KEYDOWN, MAKELPARAM((WORD)wParam, 0), (long)hWnd);
 			break;
 		case WM_ERASEBKGND:
@@ -1645,10 +1642,8 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					P_Def->TransmitData(-1, &prev_item_selected);
 					setRange(P_Def->getRecsCount());
 				}
-				// @v9.1.11 SetWindowLong(hcb, GWLP_USERDATA, (long)this);
-				TView::SetWindowProp(hcb, GWLP_USERDATA, this); // @v9.1.11
-				// @v9.1.11 PrevWindowProc = (WNDPROC)SetWindowLong(hcb, GWLP_WNDPROC, (long)ComboBox::DlgProc);
-				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); // @v9.1.11
+				TView::SetWindowProp(hcb, GWLP_USERDATA, this);
+				PrevWindowProc = (WNDPROC)TView::SetWindowProp(hcb, GWLP_WNDPROC, ComboBox::DlgProc); 
 				{
 					HBITMAP h_bm = APPL->FetchSystemBitmap(OBM_COMBO);
 					::SendMessage(hcb, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)h_bm);
@@ -1990,10 +1985,8 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(uMsg == WM_INITDIALOG) {
-		//draw();
 		HWND   h_wnd = getHandle();
-		// @v9.5.6 TView::SetWindowProp(h_wnd, GWLP_USERDATA, this);
-		TView::SetWindowUserData(h_wnd, this); // @v9.5.6
+		TView::SetWindowUserData(h_wnd, this);
 		PrevWindowProc = (WNDPROC)TView::SetWindowProp(h_wnd, GWLP_WNDPROC, TImageView::DlgProc);
 	 }
 	 return 1;

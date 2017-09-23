@@ -8,10 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <vector>
-//#include <algorithm>
-//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "CellBuffer.h"

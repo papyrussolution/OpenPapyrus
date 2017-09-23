@@ -329,52 +329,52 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	// The top left visible point in main window coordinates. Will be 0,0 except for
 	// scroll views where it will be equivalent to the current scroll position.
 	virtual Point GetVisibleOriginInMain() const;
-	PointDocument DocumentPointFromView(Point ptView) const;  // Convert a point from view space to document
+	PointDocument FASTCALL DocumentPointFromView(const Point & rPtView) const;  // Convert a point from view space to document
 	int TopLineOfMain() const;   // Return the line at Main's y coordinate 0
 	virtual PRectangle GetClientRectangle() const;
 	virtual PRectangle GetClientDrawingRectangle();
 	PRectangle GetTextRectangle() const;
 
 	virtual int LinesOnScreen() const;
-	int LinesToScroll() const;
-	int MaxScrollPos() const;
+	int    LinesToScroll() const;
+	int    MaxScrollPos() const;
 	SelectionPosition ClampPositionIntoDocument(SelectionPosition sp) const;
-	Point LocationFromPosition(SelectionPosition pos, PointEnd pe = peDefault);
-	Point LocationFromPosition(int pos, PointEnd pe = peDefault);
-	int XFromPosition(int pos);
-	int XFromPosition(SelectionPosition sp);
-	SelectionPosition SPositionFromLocation(Point pt, bool canReturnInvalid = false, bool charPosition = false, bool virtualSpace = true);
-	int PositionFromLocation(Point pt, bool canReturnInvalid = false, bool charPosition = false);
+	Point  LocationFromPosition(SelectionPosition pos, PointEnd pe = peDefault);
+	Point  LocationFromPosition(int pos, PointEnd pe = peDefault);
+	int    XFromPosition(int pos);
+	int    XFromPosition(SelectionPosition sp);
+	SelectionPosition SPositionFromLocation(const Point & rPt, bool canReturnInvalid = false, bool charPosition = false, bool virtualSpace = true);
+	int    PositionFromLocation(const Point & rPt, bool canReturnInvalid = false, bool charPosition = false);
 	SelectionPosition SPositionFromLineX(int lineDoc, int x);
-	int PositionFromLineX(int line, int x);
-	int LineFromLocation(Point pt) const;
-	void SetTopLine(int topLineNew);
+	int    PositionFromLineX(int line, int x);
+	int    LineFromLocation(Point pt) const;
+	void   SetTopLine(int topLineNew);
 
 	virtual bool AbandonPaint();
 	virtual void RedrawRect(PRectangle rc);
 	virtual void DiscardOverdraw();
 	virtual void Redraw();
-	void RedrawSelMargin(int line = -1, bool allAfter = false);
+	void   RedrawSelMargin(int line = -1, bool allAfter = false);
 	PRectangle RectangleFromRange(Range r, int overlap);
-	void InvalidateRange(int start, int end);
-	bool UserVirtualSpace() const
+	void   InvalidateRange(int start, int end);
+	bool   UserVirtualSpace() const
 	{
 		return ((virtualSpaceOptions & SCVS_USERACCESSIBLE) != 0);
 	}
-	int CurrentPosition() const;
-	bool SelectionEmpty() const;
+	int    CurrentPosition() const;
+	bool   SelectionEmpty() const;
 	SelectionPosition SelectionStart();
 	SelectionPosition SelectionEnd();
-	void SetRectangularRange();
-	void ThinRectangularRange();
-	void InvalidateSelection(SelectionRange newMain, bool invalidateWholeSelection = false);
-	void InvalidateWholeSelection();
-	void SetSelection(SelectionPosition currentPos_, SelectionPosition anchor_);
-	void SetSelection(int currentPos_, int anchor_);
-	void SetSelection(SelectionPosition currentPos_);
-	void SetSelection(int currentPos_);
-	void SetEmptySelection(SelectionPosition currentPos_);
-	void SetEmptySelection(int currentPos_);
+	void   SetRectangularRange();
+	void   ThinRectangularRange();
+	void   InvalidateSelection(SelectionRange newMain, bool invalidateWholeSelection = false);
+	void   InvalidateWholeSelection();
+	void   SetSelection(SelectionPosition currentPos_, SelectionPosition anchor_);
+	void   SetSelection(int currentPos_, int anchor_);
+	void   SetSelection(SelectionPosition currentPos_);
+	void   SetSelection(int currentPos_);
+	void   SetEmptySelection(SelectionPosition currentPos_);
+	void   SetEmptySelection(int currentPos_);
 	
 	enum AddNumber { 
 		addOne, 
@@ -471,7 +471,7 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	};
 
 	void InsertPasteShape(const char * text, int len, PasteShape shape);
-	void ClearSelection(bool retainMultipleSelections = false);
+	void FASTCALL ClearSelection(bool retainMultipleSelections = false);
 	void ClearAll();
 	void ClearDocumentStyle();
 	void Cut();

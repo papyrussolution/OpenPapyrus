@@ -41,13 +41,17 @@
    character tables for PCRE in the current locale. The file is compiled on its
    own as part of the PCRE library. However, it is also included in the
    compilation of dftables.c, in which case the macro DFTABLES is defined. */
-
-#ifndef DFTABLES
+#ifdef HAVE_CONFIG_H
+	#include "config.h"
+#endif
+#include "pcre_internal.h"
+#pragma hdrstop
+/* @sobolev #ifndef DFTABLES
 	#ifdef HAVE_CONFIG_H
 		#include "config.h"
 	#endif
 	#include "pcre_internal.h"
-#endif
+#endif */
 
 /*************************************************
 *           Create PCRE character tables         *
@@ -75,9 +79,8 @@ pcre32_maketables(void)
 {
 	unsigned char * yield, * p;
 	int i;
-
 #ifndef DFTABLES
-	yield = (unsigned char*)(PUBL (malloc))(tables_length);
+	yield = (unsigned char*)(PUBL(malloc))(tables_length);
 #else
 	yield = (unsigned char*)malloc(tables_length);
 #endif
@@ -102,7 +105,7 @@ pcre32_maketables(void)
 	   being lower or upper, such as "male and female ordinals" (\xAA and \xBA) in the
 	   fr_FR locale (at least under Debian Linux's locales as of 12/2005). So we must
 	   test for alnum specially. */
-	memset(p, 0, cbit_length);
+	memzero(p, cbit_length);
 	for(i = 0; i < 256; i++) {
 		if(isdigit(i)) p[cbit_digit  + i/8] |= 1 << (i&7);
 		if(isupper(i)) p[cbit_upper  + i/8] |= 1 << (i&7);

@@ -1089,7 +1089,7 @@ ssize_t ngx_ssl_recv(ngx_connection_t * c, u_char * buf, size_t size)
 			    return 0;
 			case NGX_ERROR:
 			    c->P_EvRd->error = 1;
-			/* fall through */
+			// @fallthrough
 			case NGX_AGAIN:
 			    return c->ssl->last;
 		}

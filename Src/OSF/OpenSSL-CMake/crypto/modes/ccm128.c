@@ -27,8 +27,7 @@ void CRYPTO_ccm128_init(CCM128_CONTEXT * ctx, uint M, uint L, void * key, block1
 /* !!! Following interfaces are to be called *once* per packet !!! */
 
 /* Then you setup per-message nonce and pass the length of the message */
-int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx,
-    const uchar * nonce, size_t nlen, size_t mlen)
+int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx, const uchar * nonce, size_t nlen, size_t mlen)
 {
 	uint L = ctx->nonce.c[0] & 7; /* the L parameter */
 	if(nlen < (14 - L))
@@ -51,25 +50,20 @@ int CRYPTO_ccm128_setiv(CCM128_CONTEXT * ctx,
 }
 
 /* Then you pass additional authentication data, this is optional */
-void CRYPTO_ccm128_aad(CCM128_CONTEXT * ctx,
-    const uchar * aad, size_t alen)
+void CRYPTO_ccm128_aad(CCM128_CONTEXT * ctx, const uchar * aad, size_t alen)
 {
 	uint i;
 	block128_f block = ctx->block;
-
 	if(alen == 0)
 		return;
-
 	ctx->nonce.c[0] |= 0x40; /* set Adata flag */
 	(*block)(ctx->nonce.c, ctx->cmac.c, ctx->key), ctx->blocks++;
-
 	if(alen < (0x10000 - 0x100)) {
 		ctx->cmac.c[0] ^= (u8)(alen >> 8);
 		ctx->cmac.c[1] ^= (u8)alen;
 		i = 2;
 	}
-	else if(sizeof(alen) == 8
-	    && alen >= (size_t)1 << (32 % (sizeof(alen) * 8))) {
+	else if(sizeof(alen) == 8 && alen >= (size_t)1 << (32 % (sizeof(alen) * 8))) {
 		ctx->cmac.c[0] ^= 0xFF;
 		ctx->cmac.c[1] ^= 0xFF;
 		ctx->cmac.c[2] ^= (u8)(alen >> (56 % (sizeof(alen) * 8)));
@@ -110,7 +104,6 @@ static void ctr64_inc(uchar * counter)
 {
 	uint n = 8;
 	u8 c;
-
 	counter += 8;
 	do {
 		--n;
@@ -122,9 +115,7 @@ static void ctr64_inc(uchar * counter)
 	} while(n);
 }
 
-int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx,
-    const uchar * inp, uchar * out,
-    size_t len)
+int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx, const uchar * inp, uchar * out, size_t len)
 {
 	size_t n;
 	uint i, L;
@@ -206,9 +197,7 @@ int CRYPTO_ccm128_encrypt(CCM128_CONTEXT * ctx,
 	return 0;
 }
 
-int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx,
-    const uchar * inp, uchar * out,
-    size_t len)
+int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx, const uchar * inp, uchar * out, size_t len)
 {
 	size_t n;
 	uint i, L;
@@ -283,7 +272,6 @@ int CRYPTO_ccm128_decrypt(CCM128_CONTEXT * ctx,
 static void ctr64_add(uchar * counter, size_t inc)
 {
 	size_t n = 8, val = 0;
-
 	counter += 8;
 	do {
 		--n;
@@ -294,9 +282,7 @@ static void ctr64_add(uchar * counter, size_t inc)
 	} while(n && (inc || val));
 }
 
-int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx,
-    const uchar * inp, uchar * out,
-    size_t len, ccm128_f stream)
+int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx, const uchar * inp, uchar * out, size_t len, ccm128_f stream)
 {
 	size_t n;
 	uint i, L;
@@ -345,22 +331,16 @@ int CRYPTO_ccm128_encrypt_ccm64(CCM128_CONTEXT * ctx,
 		for(i = 0; i < len; ++i)
 			out[i] = scratch.c[i] ^ inp[i];
 	}
-
 	for(i = 15 - L; i < 16; ++i)
 		ctx->nonce.c[i] = 0;
-
 	(*block)(ctx->nonce.c, scratch.c, key);
 	ctx->cmac.u[0] ^= scratch.u[0];
 	ctx->cmac.u[1] ^= scratch.u[1];
-
 	ctx->nonce.c[0] = flags0;
-
 	return 0;
 }
 
-int CRYPTO_ccm128_decrypt_ccm64(CCM128_CONTEXT * ctx,
-    const uchar * inp, uchar * out,
-    size_t len, ccm128_f stream)
+int CRYPTO_ccm128_decrypt_ccm64(CCM128_CONTEXT * ctx, const uchar * inp, uchar * out, size_t len, ccm128_f stream)
 {
 	size_t n;
 	uint i, L;

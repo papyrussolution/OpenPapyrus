@@ -41,7 +41,7 @@ int SLAPI RunNginxWorker()
 // 
 // Content handler.
 // 
-extern ngx_module_s ngx_http_papyrus_test_module;
+extern ngx_module_t ngx_http_papyrus_test_module;
 
 struct NgxModule_Papyrus {
 	struct Config {
@@ -156,7 +156,7 @@ static ngx_http_module_t ngx_http_papyrus_test_module_ctx = {
 //
 // Module definition
 //
-ngx_module_s ngx_http_papyrus_test_module = {
+ngx_module_t ngx_http_papyrus_test_module = {
 	NGX_MODULE_V1,
 	&ngx_http_papyrus_test_module_ctx, /* module context */
 	ngx_http_papyrus_test_commands, /* module directives */
@@ -370,12 +370,41 @@ private:
 		return ok;
 	}
 	int    ProcessHttpRequest(ngx_http_request_t * pReq, PPServerCmd & rCmd, PPJobSrvReply & rReply);
+	int    PreprocessContent(const char * pSrc, SBuffer & rResult);
 
 	Evnt   WakeUpEv; // Событие, которым можно разбудить поток что бы он взял запрос из очереди и обработал
 	SBufferPipe * P_OutPipe; // @notowned Указатель на этот канал поток получает вместе с командой
 	NgxReqQueue * P_Queue; // @notowned Указатель на очередь запросов сервера
 	const DbLoginBlock DblBlk;
 };
+
+int PPWorkingPipeSession::PreprocessContent(const char * pSrc, SBuffer & rResult)
+{
+	int       ok = 1;
+	SString   temp_buf, txt_buf, file_name;
+	//StringSet in_line(',', rOutTemplate);
+	StringSet ext_param_list;
+	uint   ip = 0;
+	//THROW_PP(in_line.get(&ip, file_name), PPERR_CMDSEL_MISSTDDOTEMPLATE);
+	//THROW(Tddo::LoadFile(file_name, temp_buf));
+	/*
+	while(in_line.get(&ip, txt_buf))
+		ext_param_list.add(txt_buf.Strip());
+	*/
+	{
+		Tddo t;
+		t.SetInputFileName(file_name);
+		DlRtm::ExportParam ep;
+		PPFilt _pf;
+		_pf.ID = 0/*dataId*/;
+		_pf.Ptr = 0/*pAry*/;
+		ep.P_F = &_pf;
+		THROW(t.Process("HttpPreprocessBase", pSrc, ep, &ext_param_list, rResult)); // @badcast
+		//rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
+	}
+	CATCHZOK
+	return ok;
+}
 
 int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServerCmd & rCmd, PPJobSrvReply & rReply)
 {
@@ -418,6 +447,12 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 						rReply.Read(&tfb, sizeof(tfb));
 					}
 					reply_size = rReply.GetAvailableSize();
+
+					temp_buf.Z().CatN((const char *)rReply.GetBuf(rReply.GetRdOffs()), reply_size);
+					rReply.Clear();
+					PreprocessContent(temp_buf, rReply);
+					reply_size = rReply.GetAvailableSize();
+
 					b = ngx_create_temp_buf(pReq->pool, reply_size);
 					ngx_chain_t out(b, 0/*just one buffer*/);
 					rReply.Read(b->pos, reply_size);

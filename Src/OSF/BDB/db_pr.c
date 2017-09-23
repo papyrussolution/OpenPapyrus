@@ -64,7 +64,7 @@ int __db_dumptree(DB * dbp, DB_TXN * txn, char * op, char * name, db_pgno_t firs
 	__db_prdb(dbp, flags);
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	ret = __db_prtree(dbp, txn, flags, first, last);
-	if(fp != NULL) {
+	if(fp) {
 		fclose(fp);
 		env->dbenv->db_msgfile = orig_fp;
 	}
@@ -320,7 +320,7 @@ static void __db_meta(ENV * env, DB * dbp, DBMETA * dbmeta, FN const * fn, uint3
 	 * If we're doing recovery testing, don't display the free list,
 	 * it may have changed and that makes the dump diff not work.
 	 */
-	if(dbp != NULL && !LF_ISSET(DB_PR_RECOVERYTEST)) {
+	if(dbp && !LF_ISSET(DB_PR_RECOVERYTEST)) {
 		mpf = dbp->mpf;
 		__db_msgadd(env, &mb, "\tfree list: %lu", (ulong)dbmeta->free);
 		for(pgno = dbmeta->free, cnt = 0, sep = ", "; pgno != PGNO_INVALID; ) {
@@ -343,7 +343,7 @@ static void __db_meta(ENV * env, DB * dbp, DBMETA * dbmeta, FN const * fn, uint3
 		DB_MSGBUF_FLUSH(env, &mb);
 		__db_msg(env, "\tlast_pgno: %lu", (ulong)dbmeta->last_pgno);
 	}
-	if(fn != NULL) {
+	if(fn) {
 		DB_MSGBUF_FLUSH(env, &mb);
 		__db_msgadd(env, &mb, "\tflags: %#lx", (ulong)dbmeta->flags);
 		__db_prflags(env, &mb, dbmeta->flags, fn, " (", ")");
@@ -529,7 +529,7 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 	if(!HEAPTYPE(h))
 		__db_msgadd(env, mbp, " level %lu", (ulong)h->level);
 	/* Record count. */
-	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || (dbp != NULL && TYPE(h) == P_LRECNO && h->pgno == ((BTREE *)dbp->bt_internal)->bt_root))
+	if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO || (dbp && TYPE(h) == P_LRECNO && h->pgno == ((BTREE *)dbp->bt_internal)->bt_root))
 		__db_msgadd(env, mbp, " records: %lu", (ulong)RE_NREC(h));
 	DB_MSGBUF_FLUSH(env, mbp);
 
@@ -582,7 +582,7 @@ int __db_prpage_int(ENV * env, DB_MSGBUF * mbp, DB * dbp, char * lead, PAGE * h,
 	DB_MSGBUF_FLUSH(env, mbp);
 	if(dbp == NULL || TYPE(h) == P_INVALID || !LF_ISSET(DB_PR_PAGE))
 		return 0;
-	if(data != NULL)
+	if(data)
 		pagesize += HOFFSET(h);
 	else if(pagesize < HOFFSET(h))
 		return 0;
@@ -838,7 +838,7 @@ void __db_prflags(ENV * env, DB_MSGBUF * mbp, uint32 flags, FN const * fn, const
 			sep = ", ";
 			found = 1;
 		}
-	if((standalone || found) && suffix != NULL)
+	if((standalone || found) && suffix)
 		__db_msgadd(env, mbp, "%s", suffix);
 	if(standalone)
 		DB_MSGBUF_FLUSH(env, mbp);
@@ -1007,7 +1007,7 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 	 * used by db_dump(1) and db_load(1).  This means that the format
 	 * cannot change.
 	 */
-	if(prefix != NULL && (ret = callback(handle, prefix)) != 0)
+	if(prefix && (ret = callback(handle, prefix)) != 0)
 		return ret;
 	if(is_recno) {
 		/*
@@ -1112,7 +1112,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 	 * Also, the verifier may set the pflag on a per-salvage basis.  If so,
 	 * respect that.
 	 */
-	if(vdp != NULL) {
+	if(vdp) {
 		if((ret = __db_vrfy_getpageinfo(vdp, meta_pgno, &pip)) != 0)
 			return ret;
 		if(F_ISSET(vdp, SALVAGE_PRINTABLE))
@@ -1164,7 +1164,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 	buflen = 64;
 	if((ret = __os_malloc(env, buflen, &buf)) != 0)
 		goto err;
-	if(subname != NULL) {
+	if(subname) {
 		snprintf(buf, buflen, "database=");
 		if((ret = callback(handle, buf)) != 0)
 			goto err;
@@ -1385,7 +1385,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 		}
 	}
 #ifdef HAVE_PARTITION
-	if(dbp != NULL && DB_IS_PARTITIONED(dbp) && F_ISSET((DB_PARTITION *)dbp->p_internal, PART_RANGE)) {
+	if(dbp && DB_IS_PARTITIONED(dbp) && F_ISSET((DB_PARTITION *)dbp->p_internal, PART_RANGE)) {
 		DBT * keys;
 		uint32 i;
 		if((ret = __partition_get_keys(dbp, &tmp_u_int32, &keys)) != 0)

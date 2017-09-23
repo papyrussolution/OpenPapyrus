@@ -8,42 +8,36 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static bool Is0To9(char ch) {
+static bool Is0To9(char ch) 
+{
 	return (ch >= '0') && (ch <= '9');
 }
 
-static bool IsAlphabetic(int ch) {
+static bool IsAlphabetic(int ch) 
+{
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i) {
-	return (styler[i] == '\n') ||
-	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
+static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i) 
+{
+	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
 // Tests for BATCH Operators
-static bool IsBOperator(char ch) {
-	return (ch == '=') || (ch == '+') || (ch == '>') || (ch == '<') ||
-	       (ch == '|') || (ch == '?') || (ch == '*');
+static bool IsBOperator(char ch) 
+{
+	return (ch == '=') || (ch == '+') || (ch == '>') || (ch == '<') || (ch == '|') || (ch == '?') || (ch == '*');
 }
 
 // Tests for BATCH Separators
-static bool IsBSeparator(char ch) {
-	return (ch == '\\') || (ch == '.') || (ch == ';') ||
-	       (ch == '\"') || (ch == '\'') || (ch == '/');
+static bool IsBSeparator(char ch) 
+{
+	return (ch == '\\') || (ch == '.') || (ch == ';') || (ch == '\"') || (ch == '\'') || (ch == '/');
 }
 
 static void ColouriseBatchLine(char * lineBuffer,
@@ -440,13 +434,9 @@ static void ColouriseBatchLine(char * lineBuffer,
 	styler.ColourTo(endPos, SCE_BAT_DEFAULT);
 }
 
-static void ColouriseBatchDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int /*initStyle*/,
-    WordList * keywordlists[],
-    Accessor &styler) {
+static void ColouriseBatchDoc(Sci_PositionU startPos, Sci_Position length, int /*initStyle*/, WordList * keywordlists[], Accessor &styler) 
+{
 	char lineBuffer[1024];
-
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
 	Sci_PositionU linePos = 0;
@@ -463,8 +453,7 @@ static void ColouriseBatchDoc(Sci_PositionU startPos,
 	}
 	if(linePos > 0) {       // Last line does not have ending characters
 		lineBuffer[linePos] = '\0';
-		ColouriseBatchLine(lineBuffer, linePos, startLine, startPos + length - 1,
-		    keywordlists, styler);
+		ColouriseBatchLine(lineBuffer, linePos, startLine, startPos + length - 1, keywordlists, styler);
 	}
 }
 

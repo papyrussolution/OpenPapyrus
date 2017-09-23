@@ -35,8 +35,8 @@
 	#ifndef NTDDI_VERSION
 		#define NTDDI_VERSION NTDDI_WIN7
 	#endif
+	#define _CRT_SECURE_NO_WARNINGS 
 #endif
-#define _CRT_SECURE_NO_WARNINGS // @v9.1.11
 
 /* Remove comment if clarion date format is needed
 #define USE_DF_CLARION */
@@ -50,10 +50,6 @@
 #define COMPLEX_TYPES // Remove comment if complex types are needed (see STYPE.H)
 // #define OBJSTORE_STREAM // Remove comment if ObjStore streaming is needed
 #define DECL_INTX // Comment if 'typedef [un]signed [char|short|long] [u]int[8|16|32]' not needed
-//
-// Требуется для MSVS 10.0 дабы он не выдавал замечания на использование "небезопасных" функций.
-//
-#define _CRT_SECURE_NO_WARNINGS
 //
 // Если !0, то некоторые низкоуровневые функции заменяются на соответствующие функции из ASMLIB
 // Замена осуществляется в slib.h посредством #define

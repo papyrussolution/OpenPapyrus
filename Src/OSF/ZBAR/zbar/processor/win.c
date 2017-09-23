@@ -25,11 +25,7 @@
 #pragma hdrstop
 #include "processor.h"
 
-#define WIN_STYLE (WS_CAPTION |	\
-	    WS_SYSMENU | \
-	    WS_THICKFRAME | \
-	    WS_MINIMIZEBOX | \
-	    WS_MAXIMIZEBOX)
+#define WIN_STYLE (WS_CAPTION |	WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
 #define EXT_STYLE (WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW)
 
 int _zbar_event_init(zbar_event_t * event)
@@ -88,8 +84,7 @@ int _zbar_thread_start(zbar_thread_t * thr, zbar_thread_proc_t proc, void * arg,
 	return 0;
 }
 
-int _zbar_thread_stop(zbar_thread_t * thr,
-    zbar_mutex_t * lock)
+int _zbar_thread_stop(zbar_thread_t * thr, zbar_mutex_t * lock)
 {
 	if(thr->started) {
 		thr->started = 0;
@@ -112,12 +107,10 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		assert(proc);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)proc);
 		proc->display = hwnd;
-
 		zbar_window_attach(proc->window, proc->display, proc->xwin);
 	}
 	else if(!proc)
 		return(DefWindowProc(hwnd, message, wparam, lparam));
-
 	switch(message) {
 		case WM_SIZE: {
 		    RECT r;
@@ -128,7 +121,6 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		    InvalidateRect(hwnd, NULL, 0);
 		    return 0;
 	    }
-
 		case WM_PAINT: {
 		    PAINTSTRUCT ps;
 		    BeginPaint(hwnd, &ps);
@@ -142,33 +134,27 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 		    EndPaint(hwnd, &ps);
 		    return 0;
 	    }
-
 		case WM_CHAR: {
 		    _zbar_processor_handle_input(proc, wparam);
 		    return 0;
 	    }
-
 		case WM_LBUTTONDOWN: {
 		    _zbar_processor_handle_input(proc, 1);
 		    return 0;
 	    }
-
 		case WM_MBUTTONDOWN: {
 		    _zbar_processor_handle_input(proc, 2);
 		    return 0;
 	    }
-
 		case WM_RBUTTONDOWN: {
 		    _zbar_processor_handle_input(proc, 3);
 		    return 0;
 	    }
-
 		case WM_CLOSE: {
 		    zprintf(3, "WM_CLOSE\n");
 		    _zbar_processor_handle_input(proc, -1);
 		    return 1;
 	    }
-
 		case WM_DESTROY: {
 		    zprintf(3, "WM_DESTROY\n");
 		    proc->display = NULL;
@@ -179,18 +165,17 @@ static LRESULT CALLBACK win_handle_event(HWND hwnd, UINT message, WPARAM wparam,
 	return(DefWindowProc(hwnd, message, wparam, lparam));
 }
 
-static inline int win_handle_events(zbar_processor_t * proc)
+static int win_handle_events(zbar_processor_t * proc)
 {
-	int rc = 0;
 	while(1) {
 		MSG msg;
-		rc = PeekMessage(&msg, (HWND)proc->display, 0, 0, PM_NOYIELD | PM_REMOVE);
-		if(!rc)
-			return 0;
-		if(rc < 0)
-			return err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain event");
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		const int rc = PeekMessage(&msg, (HWND)proc->display, 0, 0, PM_NOYIELD | PM_REMOVE);
+		if(rc > 0) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+			return rc ? err_capture(proc, SEV_ERROR, ZBAR_ERR_WINAPI, __func__, "failed to obtain event") : 0;
 	}
 }
 
@@ -204,23 +189,18 @@ int _zbar_processor_cleanup(zbar_processor_t * proc)
 	return 0;
 }
 
-int _zbar_processor_input_wait(zbar_processor_t * proc,
-    zbar_event_t * event,
-    int timeout)
+int _zbar_processor_input_wait(zbar_processor_t * proc, zbar_event_t * event, int timeout)
 {
 	int n = (event) ? 1 : 0;
 	int rc = MsgWaitForMultipleObjects(n, event, 0, timeout, QS_ALLINPUT);
-
-	if(rc == n) {
-		if(win_handle_events(proc) < 0)
-			return -1;
+	if(rc == n)
+		return (win_handle_events(proc) < 0) ? -1 : 1;
+	else if(!rc)
 		return 1;
-	}
-	if(!rc)
-		return 1;
-	if(rc == WAIT_TIMEOUT)
+	else if(rc == WAIT_TIMEOUT)
 		return 0;
-	return -1;
+	else
+		return -1;
 }
 
 int _zbar_processor_enable(zbar_processor_t * proc)
@@ -232,7 +212,6 @@ static inline ATOM win_register_class(HINSTANCE hmod)
 {
 	BYTE and_mask[1] = { 0xff };
 	BYTE xor_mask[1] = { 0x00 };
-
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), 0, };
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hInstance = hmod;
@@ -240,8 +219,7 @@ static inline ATOM win_register_class(HINSTANCE hmod)
 	wc.lpszClassName = "_ZBar Class";
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.hCursor = CreateCursor(hmod, 0, 0, 1, 1, and_mask, xor_mask);
-
-	return(RegisterClassEx(&wc));
+	return RegisterClassEx(&wc);
 }
 
 int _zbar_processor_open(zbar_processor_t * proc, char * title, uint width, uint height)

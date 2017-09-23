@@ -76,26 +76,6 @@ public:
 	TDialog * P_OutDlg;
 };
 //
-// Event codes
-//
-enum {
-	evMouseDown = 0x0001,
-	evMouseUp   = 0x0002,
-	evMouseMove = 0x0004,
-	evMouseAuto = 0x0008,
-	evKeyDown   = 0x0010,
-	evCommand   = 0x0100,
-	evBroadcast = 0x0200,
-	evWinCmd    = 0x0400, // @v9.6.5 @construction
-	//
-	// Event masks
-	//
-	evNothing   = 0x0000,
-	evMouse     = 0x000f,
-	evKeyboard  = 0x0010,
-	evMessage   = 0xFF00
-};
-//
 // Mouse button state masks
 //
 enum {
@@ -271,8 +251,28 @@ struct DragndropEvent {
 };
 
 struct TEvent {
+	//
+	// Event codes
+	//
+	enum {
+		evMouseDown = 0x0001,
+		evMouseUp   = 0x0002,
+		evMouseMove = 0x0004,
+		evMouseAuto = 0x0008,
+		evKeyDown   = 0x0010,
+		evCommand   = 0x0100,
+		evBroadcast = 0x0200,
+		evWinCmd    = 0x0400, // @v9.6.5 @construction
+		//
+		// Event masks
+		//
+		evNothing   = 0x0000,
+		evMouse     = 0x000f,
+		evKeyboard  = 0x0010,
+		evMessage   = 0xFF00
+	};
 	struct Mouse {
-		uchar  buttons;
+		uint8  buttons;
 		int8   doubleClick;
 		int16  WhereX;
 		int16  WhereY;
@@ -314,6 +314,7 @@ struct TEvent {
 
 	TEvent();
 	TEvent & setCmd(uint msg, TView * pInfoView);
+	TEvent & setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam);
 	uint getCtlID() const;
 	int  FASTCALL isCmd(uint cmd) const;
 	int  FASTCALL isKeyDown(uint keyCode) const;
@@ -326,9 +327,9 @@ struct TEvent {
 };
 
 #define TVEVENT     event.what
-#define TVCOMMAND   (event.what == evCommand)
-#define TVBROADCAST (event.what == evBroadcast)
-#define TVKEYDOWN   (event.what == evKeyDown)
+#define TVCOMMAND   (event.what == TEvent::evCommand)
+#define TVBROADCAST (event.what == TEvent::evBroadcast)
+#define TVKEYDOWN   (event.what == TEvent::evKeyDown)
 #define TVCMD       event.message.command
 #define TVKEY       event.keyDown.keyCode
 #define TVCHR       event.keyDown.charScan.charCode
@@ -1449,7 +1450,7 @@ public:
 	//
 	static void * CreateFont(const SFontDescr & rFd);
 	static void * SetWindowProp(HWND hWnd, int propIndex, void * ptr);
-	static void * SetWindowUserData(HWND hWnd, void * ptr);
+	static void * FASTCALL SetWindowUserData(HWND hWnd, void * ptr);
 	static long SetWindowProp(HWND hWnd, int propIndex, long value);
 	static void * FASTCALL GetWindowProp(HWND hWnd, int propIndex);
 	static void * FASTCALL GetWindowUserData(HWND hWnd);
@@ -3587,8 +3588,8 @@ public:
 	int    getInputLineText(char * pBuf, size_t bufLen);
 	ListBoxDef * listDef() const { return P_Def; }
 	void   setRange(long aRange);
-	int    setupListWindow(int noUpdateSize);
-	int    setupTreeListWindow(int noUpdateSize);
+	void   setupListWindow(int noUpdateSize);
+	void   setupTreeListWindow(int noUpdateSize);
 	void   search(const char * pFirstLetter, int srchMode);
 	int    search(const void * pPattern, CompFunc fcmp, int srchMode);
 	int    addItem(long id, char * pS, long * pPos = 0);
@@ -4780,14 +4781,7 @@ public:
 		bmpModeHourDay,
 		bmpBack
 	};
-	void   SetBmpId(int ident, uint bmpId)
-	{
-		switch(ident) {
-			case bmpModeGantt: BmpId_ModeGantt = bmpId; break;
-			case bmpModeHourDay: BmpId_ModeHourDay = bmpId; break;
-			case bmpBack: BmpId_Back = bmpId; break;
-		}
-	}
+	void   SetBmpId(int ident, uint bmpId);
 	int    SetParam(const Param *);
 	int    SetData(STimeChunkGrid *, int takeAnOwnership);
 	int    FASTCALL IsKeepingData(const STimeChunkGrid *) const;
@@ -4876,7 +4870,7 @@ private:
 		SRect & Clear();
 
 		long   RowId;
-		uint   DayN;  // Служебное значение, идентифицирующее номер даты на 'кране в режиме vHourDay
+		uint   DayN;  // Служебное значение, идентифицирующее номер даты на экране в режиме vHourDay
 		STimeChunkAssoc C;
 	};
 	class SRectArray : public TSArray <SRect> {
@@ -5002,6 +4996,90 @@ public:
 
 int SLAPI ImpLoadToolbar(TVRez & rez, ToolbarList * pList);
 
+class SScEditorStyleSet : private SStrGroup {
+public:
+	enum {
+		sgUnkn = 0,
+		sgLexer,
+		sgGlobal
+	};
+	enum {
+		FONTSTYLE_NONE      = 0x0000,
+		FONTSTYLE_BOLD      = 0x0001, // @persistent
+		FONTSTYLE_ITALIC    = 0x0002, // @persistent
+		FONTSTYLE_UNDERLINE = 0x0004  // @persistent
+	};
+	struct Style {
+		int    Group;
+		int    LexerId;
+		int    StyleId;
+		SColor BgC;
+		SColor FgC;
+		int    FontStyle;
+		uint   FontSize;
+		SString LexerDescr;
+		SString StyleName;
+		SString FontFace;
+		SString KeywordClass;
+	};
+	struct LangModel {
+        int   LexerId;
+        SString CommentLine;
+        SString CommentStart;
+        SString CommentEnd;
+        SString ExtList;
+	};
+	struct LangModelKeywords {
+        int   LexerId;
+		SString KeywordClass;
+		SString KeywordList;
+	};
+	SLAPI  SScEditorStyleSet();
+	SLAPI ~SScEditorStyleSet();
+	void   Destroy();
+
+	int    SLAPI GetStyle(int group, int lexerId, int styleId, Style & rS) const;
+	int    SLAPI GetStyles(int group, int lexerId, TSCollection <Style> * pList) const;
+	int    SLAPI GetModel(int lexerId, LangModel * pModel) const;
+	int    SLAPI GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const;
+
+	int    SLAPI ParseStylesXml(const char * pFileName);
+	int    SLAPI ParseModelXml(const char * pFileName);
+private:
+	struct InnerStyle {
+		int    Group;
+		int    LexerId;
+		int    StyleId;
+		SColor BgC;
+		SColor FgC;
+		int    FontStyle;
+		uint   FontSize;
+		uint   LexerDescrP;
+		uint   StyleNameP;
+		uint   FontFaceP;
+		uint   KeywordClassP;
+	};
+	struct InnerLangModel {
+        int    LexerId;
+        uint   CommentLineP;
+        uint   CommentStartP;
+        uint   CommentEndP;
+        uint   ExtListP;
+	};
+	struct InnerLangModelKeywords {
+        int    LexerId;
+		uint   KeywordClassP;
+		uint   KeywordListP;
+	};
+	void   FASTCALL InnerToOuter(const InnerStyle & rS, Style & rD) const;
+	void   FASTCALL InnerToOuter(const InnerLangModel & rS, LangModel & rD) const;
+	void   FASTCALL InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const;
+
+	TSArray <InnerLangModel> ML;
+	TSArray <InnerLangModelKeywords> KwL;
+	TSArray <InnerStyle> L;
+};
+
 class SScEditorBase {
 public:
 	SScEditorBase();
@@ -5010,11 +5088,14 @@ protected:
 	int    Release();
 	int    CallFunc(int msg, int param1, int param2);
 	int    SetKeybAccelerator(KeyDownCommand & rK, int cmd);
+	int    SetLexer(const char * pLexerName);
+	void   SetSpecialStyle(const SScEditorStyleSet::Style & rStyle);
 
 	int32  GetCurrentPos();
 	int32  FASTCALL SetCurrentPos(int32 pos);
 	int    FASTCALL GetSelection(IntRange & rR);
 	int    FASTCALL SetSelection(const IntRange * pR);
+	int    FASTCALL GetSelectionText(SString & rBuf);
 	enum {
 		srfUseDialog = 0x0001
 	};

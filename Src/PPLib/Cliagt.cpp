@@ -1,7 +1,7 @@
 // CLIAGT.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
-// Соглашения с клиентами об условиях торговли
+// @codepage UTF-8
+// РЎРѕРіР»Р°С€РµРЅРёСЏ СЃ РєР»РёРµРЅС‚Р°РјРё РѕР± СѓСЃР»РѕРІРёСЏС… С‚РѕСЂРіРѕРІР»Рё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,11 +19,10 @@ SLAPI PPClientAgreement::PPClientAgreement(const PPClientAgreement & rSrc)
 	DebtLimList = rSrc.DebtLimList;
 }
 
-int SLAPI PPClientAgreement::Init()
+void SLAPI PPClientAgreement::Init()
 {
 	memzero(this, offsetof(PPClientAgreement, DebtLimList));
 	DebtLimList.freeAll();
-	return 1;
 }
 
 int FASTCALL PPClientAgreement::IsEqual(const PPClientAgreement & rS) const
@@ -182,19 +181,19 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	long   Flags;          //
 	LDATE  BegDt;          //
 	LDATE  Expiry;         //
-	double MaxCredit;      // Максимальный кредит
-	double MaxDscnt;       // Максимальная скидка в %% (>= 100% - неограниченная)
-	double Dscnt;          // Обычная скидка в %%
-	short  DefPayPeriod;   // Количество дней от отгрузки до оплаты по умолчанию
-	PPID   DefAgentID;     // Агент, закрепленный за клиентом
-	PPID   DefQuotKindID;  // Вид котировки, используемый для отгрузки этому клиенту
-	char   Code[12];       // @v5.7.12 Номер соглашения //
-	PPID   ExtObjectID;    // @v5.9.3 Дополнительный объект (таблица дополнительных объектов для общего соглашения)
-	LDATE  LockPrcBefore;  // @v6.0.7 Дата, до которой процессинг должников не меняет параметры соглашения //
-	int16  PriceRoundDir;  // @v6.4.1 Направление округления окончательной цены в документах
-	float  PriceRoundPrec; // @v6.4.1 Точность округления окончательной цены в документах
-	int16  RetLimPrd;      // @v7.1.5 Период ограничения доли возвратов от суммы товарооборота
-	uint16 RetLimPart;     // @v7.1.5 Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	double MaxCredit;      // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РєСЂРµРґРёС‚
+	double MaxDscnt;       // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃРєРёРґРєР° РІ %% (>= 100% - РЅРµРѕРіСЂР°РЅРёС‡РµРЅРЅР°СЏ)
+	double Dscnt;          // РћР±С‹С‡РЅР°СЏ СЃРєРёРґРєР° РІ %%
+	short  DefPayPeriod;   // РљРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№ РѕС‚ РѕС‚РіСЂСѓР·РєРё РґРѕ РѕРїР»Р°С‚С‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+	PPID   DefAgentID;     // РђРіРµРЅС‚, Р·Р°РєСЂРµРїР»РµРЅРЅС‹Р№ Р·Р° РєР»РёРµРЅС‚РѕРј
+	PPID   DefQuotKindID;  // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РѕС‚РіСЂСѓР·РєРё СЌС‚РѕРјСѓ РєР»РёРµРЅС‚Сѓ
+	char   Code[12];       // @v5.7.12 РќРѕРјРµСЂ СЃРѕРіР»Р°С€РµРЅРёСЏ //
+	PPID   ExtObjectID;    // @v5.9.3 Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ (С‚Р°Р±Р»РёС†Р° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РґР»СЏ РѕР±С‰РµРіРѕ СЃРѕРіР»Р°С€РµРЅРёСЏ)
+	LDATE  LockPrcBefore;  // @v6.0.7 Р”Р°С‚Р°, РґРѕ РєРѕС‚РѕСЂРѕР№ РїСЂРѕС†РµСЃСЃРёРЅРі РґРѕР»Р¶РЅРёРєРѕРІ РЅРµ РјРµРЅСЏРµС‚ РїР°СЂР°РјРµС‚СЂС‹ СЃРѕРіР»Р°С€РµРЅРёСЏ //
+	int16  PriceRoundDir;  // @v6.4.1 РќР°РїСЂР°РІР»РµРЅРёРµ РѕРєСЂСѓРіР»РµРЅРёСЏ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕР№ С†РµРЅС‹ РІ РґРѕРєСѓРјРµРЅС‚Р°С…
+	float  PriceRoundPrec; // @v6.4.1 РўРѕС‡РЅРѕСЃС‚СЊ РѕРєСЂСѓРіР»РµРЅРёСЏ РѕРєРѕРЅС‡Р°С‚РµР»СЊРЅРѕР№ С†РµРЅС‹ РІ РґРѕРєСѓРјРµРЅС‚Р°С…
+	int16  RetLimPrd;      // @v7.1.5 РџРµСЂРёРѕРґ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РґРѕР»Рё РІРѕР·РІСЂР°С‚РѕРІ РѕС‚ СЃСѓРјРјС‹ С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р°
+	uint16 RetLimPart;     // @v7.1.5 РњР°РєСЃ РґРѕР»СЏ РІРѕР·РІСЂР°С‚РѕРІ РѕС‚ СЃСѓРјРјС‹ С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р° Р·Р° РїРµСЂРёРѕРґ RetLimPrd (РІ РїСЂРѕРјРёР»Р»Рµ)
 	long   PaymDateBase;   // @v8.4.2
 };
 
@@ -692,10 +691,8 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 0);
 			}
 			// } @v8.2.4
-			// @v7.1.5 {
 			SetupStringCombo(this, CTLSEL_CLIAGT_RETLIMPRD, PPTXT_CYCLELIST, data.RetLimPrd);
 			setCtrlReal(CTL_CLIAGT_RETLIM, fdiv100i(data.RetLimPart));
-			// } @v7.1.5
 			return 1;
 		}
 		int    getDTS(PPClientAgreement * pAgt)
@@ -882,9 +879,9 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 	return *this;
 }
 //
-// Descr: Структура конфигурации обмена данными с поставщиком
-//   Хранится в таблице Property с координатами {PPOBJ_ARTICLE, SupplID, ARTPRP_SUPPLAGT_EXCH}
-// Начиная с @v8.5.0 структура устарела - применяется только для обратной совместимости при чтении из базы данных.
+// Descr: РЎС‚СЂСѓРєС‚СѓСЂР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё СЃ РїРѕСЃС‚Р°РІС‰РёРєРѕРј
+//   РҐСЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ Property СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё {PPOBJ_ARTICLE, SupplID, ARTPRP_SUPPLAGT_EXCH}
+// РќР°С‡РёРЅР°СЏ СЃ @v8.5.0 СЃС‚СЂСѓРєС‚СѓСЂР° СѓСЃС‚Р°СЂРµР»Р° - РїСЂРёРјРµРЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё РїСЂРё С‡С‚РµРЅРёРё РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹С….
 //
 struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 	SLAPI  PPSupplExchangeCfg()
@@ -901,23 +898,23 @@ struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 		return ((!SupplID || !GGrpID || !IP) && isempty(PrvdrSymb)); // @vmiller @added --> isempty(PrvdrSymb) // ???
 	}
 	PPID   Tag;            // const=PPOBJ_ARTICLE
-	PPID   SupplID;        // ИД поставщика
+	PPID   SupplID;        // РР” РїРѕСЃС‚Р°РІС‰РёРєР°
 	PPID   PropID;         // const=ATRPRP_SUPPLAGT_EXCH
-	LDATE  LastDt;         // Дата последнего обмена
-	PPID   GGrpID;         // Группа товаров
-	PPID   TechID;         // Технология обмена
-	char   ClientCode[16]; // Код данного клиента на сервере поставщика
-	PPID   ExpendOp;       // Вид операции отгрузки
+	LDATE  LastDt;         // Р”Р°С‚Р° РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±РјРµРЅР°
+	PPID   GGrpID;         // Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ
+	PPID   TechID;         // РўРµС…РЅРѕР»РѕРіРёСЏ РѕР±РјРµРЅР°
+	char   ClientCode[16]; // РљРѕРґ РґР°РЅРЅРѕРіРѕ РєР»РёРµРЅС‚Р° РЅР° СЃРµСЂРІРµСЂРµ РїРѕСЃС‚Р°РІС‰РёРєР°
+	PPID   ExpendOp;       // Р’РёРґ РѕРїРµСЂР°С†РёРё РѕС‚РіСЂСѓР·РєРё
 	ulong  IP;             //
 	int16  Port;           //
-	PPID   RcptOp;         // Операция прихода
-	PPID   SupplRetOp;     // Операция возврата поставщику
-	PPID   RetOp;          // Операция возврата от покупател
-	PPID   MovInOp;        // Перемещение со склада (расход)
-	PPID   MovOutOp;       // Перемещение на склад (приход)
-	PPID   PriceQuotID;    // Котировка по которой будем назначать цену в документах
-	uint16 Ver;            // Версия протокола обмена
-	char   PrvdrSymb[12];  // Символ провайдера EDI
+	PPID   RcptOp;         // РћРїРµСЂР°С†РёСЏ РїСЂРёС…РѕРґР°
+	PPID   SupplRetOp;     // РћРїРµСЂР°С†РёСЏ РІРѕР·РІСЂР°С‚Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ
+	PPID   RetOp;          // РћРїРµСЂР°С†РёСЏ РІРѕР·РІСЂР°С‚Р° РѕС‚ РїРѕРєСѓРїР°С‚РµР»
+	PPID   MovInOp;        // РџРµСЂРµРјРµС‰РµРЅРёРµ СЃРѕ СЃРєР»Р°РґР° (СЂР°СЃС…РѕРґ)
+	PPID   MovOutOp;       // РџРµСЂРµРјРµС‰РµРЅРёРµ РЅР° СЃРєР»Р°Рґ (РїСЂРёС…РѕРґ)
+	PPID   PriceQuotID;    // РљРѕС‚РёСЂРѕРІРєР° РїРѕ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµРј РЅР°Р·РЅР°С‡Р°С‚СЊ С†РµРЅСѓ РІ РґРѕРєСѓРјРµРЅС‚Р°С…
+	uint16 Ver;            // Р’РµСЂСЃРёСЏ РїСЂРѕС‚РѕРєРѕР»Р° РѕР±РјРµРЅР°
+	char   PrvdrSymb[12];  // РЎРёРјРІРѕР» РїСЂРѕРІР°Р№РґРµСЂР° EDI
 	//char   Reserve[12];    // @reserve
 };
 
@@ -1095,7 +1092,7 @@ SLAPI PPSupplAgreement::PPSupplAgreement()
 int FASTCALL PPSupplAgreement::IsEqual(const PPSupplAgreement & rS) const
 {
 #define CMP_FLD(f) if((f) != (rS.f)) return 0
-	// Ver не сравниваем - не значащее поле
+	// Ver РЅРµ СЃСЂР°РІРЅРёРІР°РµРј - РЅРµ Р·РЅР°С‡Р°С‰РµРµ РїРѕР»Рµ
 	CMP_FLD(SupplID);
 	CMP_FLD(Flags);
 	CMP_FLD(BegDt);
@@ -1152,14 +1149,13 @@ int SLAPI PPSupplAgreement::IsEmpty() const
 		return 1;
 }
 
-int FASTCALL PPSupplAgreement::RestoreAutoOrderParams(const PPSupplAgreement & rS)
+void FASTCALL PPSupplAgreement::RestoreAutoOrderParams(const PPSupplAgreement & rS)
 {
 	SETFLAGBYSAMPLE(Flags, AGTF_AUTOORDER, rS.Flags);
 	// @v8.5.2 OrdPrdDays = rS.OrdPrdDays;
 	DefDlvrTerm = rS.DefDlvrTerm;
 	Dr = rS.Dr;
 	OrderParamList = rS.OrderParamList;
-	return 1;
 }
 
 int SLAPI PPSupplAgreement::SearchOrderParamEntry(const OrderParamEntry & rKey, int thisPos, uint * pFoundPos) const
@@ -1235,24 +1231,24 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 	long   ArtID;          // ->Article.ID
 	long   PropID;         // Const=ARTPRP_SUPPLAGT
 	long   Flags;          //
-	LDATE  BegDt;          // Дата начала действия соглашения //
-	LDATE  Expiry;         // Дата окончания действия соглашения //
-	int16  OrdPrdDays;     // Период для расчета заказа поставщику при автоматическом формировании документов заказа поставщику (в днях)
-	int16  OrdDrPrd;       // Календарь для автоматического создания документов
-	int16  OrdDrKind;      //   заказа поставщику
+	LDATE  BegDt;          // Р”Р°С‚Р° РЅР°С‡Р°Р»Р° РґРµР№СЃС‚РІРёСЏ СЃРѕРіР»Р°С€РµРЅРёСЏ //
+	LDATE  Expiry;         // Р”Р°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ РґРµР№СЃС‚РІРёСЏ СЃРѕРіР»Р°С€РµРЅРёСЏ //
+	int16  OrdPrdDays;     // РџРµСЂРёРѕРґ РґР»СЏ СЂР°СЃС‡РµС‚Р° Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ РїСЂРё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРј С„РѕСЂРјРёСЂРѕРІР°РЅРёРё РґРѕРєСѓРјРµРЅС‚РѕРІ Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ (РІ РґРЅСЏС…)
+	int16  OrdDrPrd;       // РљР°Р»РµРЅРґР°СЂСЊ РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+	int16  OrdDrKind;      //   Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ
 	int16  Reserve1;       // @reserve
 	double Reserve2;       // @reserve
 	double Reserve3;       // @reserve
-	short  DefPayPeriod;   // Количество дней от отгрузки до оплаты по умолчанию
-	PPID   DefAgentID;     // Агент, закрепленный за поставщиком
-	PPID   CostQuotKindID; // Вид котировки, управляющей контрактными ценами поставщиков
-	short  DefDlvrTerm;    // Срок доставки товара в днях, начиная с даты документа закупки
-	short  PctRet;         // Максимальный объем возврата товара по накладной в процентах от суммы накладной
-	PPID   PurchaseOpID;   // Вид операции закупки (драфт-приход)
-	PPID   DevUpQuotKindID; // Вид котировки, ограничивающий верхнюю границу отклонения фактических цен от контрактных
-	PPID   DevDnQuotKindID; // Вид котировки, ограничивающий нижнюю границу отклонения фактических цен от контрактных
-	PPID   MngrRelID;      // Тип отношения, определяющий привязку поставщиков к менеджерам
-	int16  InvPriceAction; // Действие при неправильной контрактной цене
+	short  DefPayPeriod;   // РљРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№ РѕС‚ РѕС‚РіСЂСѓР·РєРё РґРѕ РѕРїР»Р°С‚С‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+	PPID   DefAgentID;     // РђРіРµРЅС‚, Р·Р°РєСЂРµРїР»РµРЅРЅС‹Р№ Р·Р° РїРѕСЃС‚Р°РІС‰РёРєРѕРј
+	PPID   CostQuotKindID; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, СѓРїСЂР°РІР»СЏСЋС‰РµР№ РєРѕРЅС‚СЂР°РєС‚РЅС‹РјРё С†РµРЅР°РјРё РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+	short  DefDlvrTerm;    // РЎСЂРѕРє РґРѕСЃС‚Р°РІРєРё С‚РѕРІР°СЂР° РІ РґРЅСЏС…, РЅР°С‡РёРЅР°СЏ СЃ РґР°С‚С‹ РґРѕРєСѓРјРµРЅС‚Р° Р·Р°РєСѓРїРєРё
+	short  PctRet;         // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РѕР±СЉРµРј РІРѕР·РІСЂР°С‚Р° С‚РѕРІР°СЂР° РїРѕ РЅР°РєР»Р°РґРЅРѕР№ РІ РїСЂРѕС†РµРЅС‚Р°С… РѕС‚ СЃСѓРјРјС‹ РЅР°РєР»Р°РґРЅРѕР№
+	PPID   PurchaseOpID;   // Р’РёРґ РѕРїРµСЂР°С†РёРё Р·Р°РєСѓРїРєРё (РґСЂР°С„С‚-РїСЂРёС…РѕРґ)
+	PPID   DevUpQuotKindID; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РёР№ РІРµСЂС…РЅСЋСЋ РіСЂР°РЅРёС†Сѓ РѕС‚РєР»РѕРЅРµРЅРёСЏ С„Р°РєС‚РёС‡РµСЃРєРёС… С†РµРЅ РѕС‚ РєРѕРЅС‚СЂР°РєС‚РЅС‹С…
+	PPID   DevDnQuotKindID; // Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё, РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РёР№ РЅРёР¶РЅСЋСЋ РіСЂР°РЅРёС†Сѓ РѕС‚РєР»РѕРЅРµРЅРёСЏ С„Р°РєС‚РёС‡РµСЃРєРёС… С†РµРЅ РѕС‚ РєРѕРЅС‚СЂР°РєС‚РЅС‹С…
+	PPID   MngrRelID;      // РўРёРї РѕС‚РЅРѕС€РµРЅРёСЏ, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РїСЂРёРІСЏР·РєСѓ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ Рє РјРµРЅРµРґР¶РµСЂР°Рј
+	int16  InvPriceAction; // Р”РµР№СЃС‚РІРёРµ РїСЂРё РЅРµРїСЂР°РІРёР»СЊРЅРѕР№ РєРѕРЅС‚СЂР°РєС‚РЅРѕР№ С†РµРЅРµ
 	long   OrdDrDtl;
 };
 
@@ -1335,7 +1331,7 @@ int SLAPI PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int 
 							for(uint i = 0; r < 0 && i < rel_list.getCount(); i++) {
 								PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
 								// @v8.5.0 {
-								if(GetSupplAgreement(rel_ar_id, pAgt, 0) > 0) { // @recursion не зависимо от версии хранения результат будет верным
+								if(GetSupplAgreement(rel_ar_id, pAgt, 0) > 0) { // @recursion РЅРµ Р·Р°РІРёСЃРёРјРѕ РѕС‚ РІРµСЂСЃРёРё С…СЂР°РЅРµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚ Р±СѓРґРµС‚ РІРµСЂРЅС‹Рј
 									pAgt->SupplID = id;
 									ok = 2;
 								}
@@ -1639,19 +1635,37 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		}
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
 		{
-			PPOprKind op_kind;
-			PPIDArray op_list;
 			if(!RVALUEPTR(Data, pData))
 				Data.Clear();
-			// Расход товара
 			{
+				PPOprKind op_kind;
+				PPIDArray op_list_exp;
+				PPIDArray op_list_rcpt;
+				PPIDArray op_list_ret;
+				PPIDArray op_list_movout;
+				PPIDArray op_list_movin;
 				MEMSZERO(op_kind);
-				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))
-						op_list.add(op_id);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_EXP, Data.ExpendOp, 0, &op_list, OPKLF_OPLIST);
+				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;) {
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))  // Р Р°СЃС…РѕРґ С‚РѕРІР°СЂР°
+						op_list_exp.add(op_id);
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GENERIC)) // РџСЂРёС…РѕРґ С‚РѕРІР°СЂР°
+						op_list_rcpt.add(op_id);
+					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRETURN, PPOPT_GENERIC)) // Р’РѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ Рё РїРѕСЃС‚Р°РІС‰РёРєСѓ
+						op_list_ret.add(op_id);
+					if(op_kind.OpTypeID == PPOPT_GOODSEXPEND) // РњРµР¶СЃРєР»Р°РґСЃРєРѕР№ СЂР°СЃС…РѕРґ С‚РѕРІР°СЂР°, РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїРѕСЃС‚Р°РІС‰РёРєСѓ
+						op_list_movout.add(op_id);
+					if(op_kind.OpTypeID == PPOPT_GOODSRECEIPT) // РњРµР¶СЃР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ С‚РѕРІР°СЂР°
+						op_list_movin.add(op_id);
+				}
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_EXP, Data.ExpendOp, 0, &op_list_exp, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RCPT, Data.RcptOp, 0, &op_list_rcpt, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RET, Data.RetOp, 0, &op_list_ret, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_SUPRET, Data.SupplRetOp, 0, &op_list_ret, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list_movout, OPKLF_OPLIST);
+				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list_movin, OPKLF_OPLIST);
 			}
-			// Приход товара
+			/* @v9.7.2 
+			// РџСЂРёС…РѕРґ С‚РѕРІР°СЂР°
 			{
 				op_list.freeAll();
 				MEMSZERO(op_kind);
@@ -1660,7 +1674,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 						op_list.add(op_id);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RCPT, Data.RcptOp, 0, &op_list, OPKLF_OPLIST);
 			}
-			// Возврат товара от покупател
+			// Р’РѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РѕС‚ РїРѕРєСѓРїР°С‚РµР»
 			{
 				op_list.freeAll();
 				MEMSZERO(op_kind);
@@ -1670,7 +1684,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RET, Data.RetOp, 0, &op_list, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_SUPRET, Data.SupplRetOp, 0, &op_list, OPKLF_OPLIST);
 			}
-			// Межскладской расход товара, возврат товара поставщику
+			// РњРµР¶СЃРєР»Р°РґСЃРєРѕР№ СЂР°СЃС…РѕРґ С‚РѕРІР°СЂР°, РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїРѕСЃС‚Р°РІС‰РёРєСѓ
 			{
 				op_list.freeAll();
 				MEMSZERO(op_kind);
@@ -1679,7 +1693,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 						op_list.add(op_id);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list, OPKLF_OPLIST);
 			}
-			// Межсладской приход товара
+			// РњРµР¶СЃР»Р°РґСЃРєРѕР№ РїСЂРёС…РѕРґ С‚РѕРІР°СЂР°
 			{
 				op_list.freeAll();
 				MEMSZERO(op_kind);
@@ -1688,11 +1702,11 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 						op_list.add(op_id);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list, OPKLF_OPLIST);
 			}
+			*/
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_UNIT, PPOBJ_UNIT, Data.Fb.DefUnitID, OLW_CANINSERT, 0); // @v9.2.4
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &PsnTagFlt); // @v9.4.4
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &LocTagFlt); // @v9.4.4
 			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_BACKTAG, PPOBJ_TAG, Data.Fb.BillAckTagID, OLW_CANINSERT, &BillTagFlt); // @v9.5.7
-
 			updateList(-1);
 			return 1;
 		}
@@ -1840,7 +1854,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			{
 				getCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf);
-				// @v9.1.3 if(temp_buf.Empty()) // @vmiller Если указан EDI провайдер, то группу товаров указывать не обязательно
+				// @v9.1.3 if(temp_buf.Empty()) // @vmiller Р•СЃР»Рё СѓРєР°Р·Р°РЅ EDI РїСЂРѕРІР°Р№РґРµСЂ, С‚Рѕ РіСЂСѓРїРїСѓ С‚РѕРІР°СЂРѕРІ СѓРєР°Р·С‹РІР°С‚СЊ РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ
 				// @v9.1.3 THROW_PP(Data.GoodsGrpID, PPERR_INVGOODSGRP);
 			}
 			// getCtrlData(CTLSEL_SUPLEXCHCFG_OP,   &Data.OpID);

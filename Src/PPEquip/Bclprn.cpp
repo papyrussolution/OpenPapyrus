@@ -3,8 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <fcntl.h>
-#include <sys\stat.h>
 //
 // @ModuleDef(PPObjBarcodePrinter)
 //
@@ -2421,15 +2419,15 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 // Implementation of PPALDD_BarcodeLabelList
 //
 struct DlBarcodeLabelListBlock {
-	DlBarcodeLabelListBlock(void * ptr)
+	DlBarcodeLabelListBlock(const void * ptr)
 	{
-		P_RgiList = (TSCollection <RetailGoodsInfo> *)ptr;
+		P_RgiList = (const TSCollection <RetailGoodsInfo> *)ptr;
 		N = 0;
 		ExemplarN = 0;
 	}
 	uint   N; // Текущий номер позиции
 	uint   ExemplarN; // Номер экземпляра для N [0..P_RgiList[N].LabelCount-1]
-	TSCollection <RetailGoodsInfo> * P_RgiList;
+	const TSCollection <RetailGoodsInfo> * P_RgiList;
 };
 
 PPALDD_CONSTRUCTOR(BarcodeLabelList)

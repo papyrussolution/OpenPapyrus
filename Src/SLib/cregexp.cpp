@@ -182,7 +182,7 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 #endif
 #define FAIL(m)		{ regerror(m); return NULL; }
 
-#define ISMULT(c)	((c) == '*' || (c) == '+' || (c) == '?')
+#define ISMULT(c)	oneof3(c, '*', '+', '?')
 #define META		"^$.[()|?+*\\"
 //
 // Flags to be passed up and down.
@@ -367,12 +367,12 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 				}
 				else
 					p_ret = regnode(ANYOF);
-				if(*P_RegParse == ']' || *P_RegParse == '-')
+				if(oneof2(*P_RegParse, ']', '-'))
 					regc(*P_RegParse++);
-				while(*P_RegParse != '\0' && *P_RegParse != ']') {
+				while(!oneof2(*P_RegParse, ']', '\0')) {
 					if(*P_RegParse == '-') {
 						P_RegParse++;
-						if(*P_RegParse == ']' || *P_RegParse == '\0' || (P_RegParse-2) == p_preserve_ptr)
+						if(oneof2(*P_RegParse, ']', '\0') || (P_RegParse-2) == p_preserve_ptr)
 							regc('-');
 						else {
 							int rxpclass    = UCHARAT(P_RegParse - 2) + 1;

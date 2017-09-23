@@ -117,7 +117,7 @@ int __db_pitem_nolog(DBC * dbc, PAGE * pagep, uint32 indx, uint32 nbytes, DBT * 
 	++NUM_ENT(pagep);
 	p = P_ENTRY(dbp, pagep, indx);
 	memcpy(p, hdr->data, hdr->size);
-	if(data != NULL)
+	if(data)
 		memcpy(p+hdr->size, data->data, data->size);
 	return 0;
 }

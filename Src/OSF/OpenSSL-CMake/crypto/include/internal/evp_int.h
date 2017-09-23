@@ -88,27 +88,17 @@ struct evp_md_st {
 struct evp_cipher_st {
 	int nid;
 	int block_size;
-	/* Default value for variable length ciphers */
-	int key_len;
+	int key_len; // Default value for variable length ciphers 
 	int iv_len;
-	/* Various flags */
-	ulong flags;
-	/* init key */
-	int (* init)(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
-	/* encrypt/decrypt data */
-	int (* do_cipher)(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
-	/* cleanup ctx */
-	int (* cleanup)(EVP_CIPHER_CTX *);
-	/* how big ctx->cipher_data needs to be */
-	int ctx_size;
-	/* Populate a ASN1_TYPE with parameters */
-	int (* set_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *);
-	/* Get parameters from a ASN1_TYPE */
-	int (* get_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *);
-	/* Miscellaneous operations */
-	int (* ctrl)(EVP_CIPHER_CTX *, int type, int arg, void * ptr);
-	/* Application data */
-	void * app_data;
+	ulong flags; // Various flags 
+	int (* init)(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc); // init key 
+	int (* do_cipher)(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl); // encrypt/decrypt data 
+	int (* cleanup)(EVP_CIPHER_CTX *); // cleanup ctx 
+	int ctx_size; // how big ctx->cipher_data needs to be 
+	int (* set_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *); // Populate a ASN1_TYPE with parameters 
+	int (* get_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *); // Get parameters from a ASN1_TYPE 
+	int (* ctrl)(EVP_CIPHER_CTX *, int type, int arg, void * ptr); // Miscellaneous operations 
+	void * app_data; // Application data 
 } /* EVP_CIPHER */;
 
 /* Macros to code block cipher wrappers */

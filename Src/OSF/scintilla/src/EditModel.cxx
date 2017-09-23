@@ -8,31 +8,19 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <string>
-//#include <vector>
-//#include <map>
-//#include <algorithm>
-//#include <memory>
-//#include "ILexer.h"
-//#include "Position.h"
-//#include "StringCopy.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
 #include "ContractionState.h"
 #include "CellBuffer.h"
 #include "KeyMap.h"
-#include "Indicator.h"
+//#include "Indicator.h"
 #include "XPM.h"
-#include "LineMarker.h"
-//#include "Style.h"
+//#include "LineMarker.h"
 #include "ViewStyle.h"
-#include "CharClassify.h"
+//#include "CharClassify.h"
 #include "Decoration.h"
-//#include "CaseFolder.h"
 #include "Document.h"
-//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -51,15 +39,16 @@ Caret::Caret()
 
 EditModel::EditModel()
 {
-	inOverstrike = false;
+	EditModelFlags = fPrimarySelection;
+	//inOverstrike = false;
+	//trackLineWidth = false;
+	//primarySelection = true;
 	xOffset = 0;
-	trackLineWidth = false;
 	posDrag = SelectionPosition(invalidPosition);
 	braces[0] = invalidPosition;
 	braces[1] = invalidPosition;
 	bracesMatchStyle = STYLE_BRACEBAD;
 	highlightGuideColumn = 0;
-	primarySelection = true;
 	imeInteraction = imeWindowed;
 	foldFlags = 0;
 	foldDisplayTextStyle = SC_FOLDDISPLAYTEXT_HIDDEN;

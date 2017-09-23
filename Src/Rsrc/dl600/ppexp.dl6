@@ -6713,6 +6713,11 @@ data TSession {
 
 	link   Bill GetWrOffMemberByOp(string opSymb[20]); // Возвращает первый документ в пуле документов списания,
 		// имеющий вид операции с символом opSymb
+	//
+	// @v9.8.2
+	// Descr: Возвращает тег технологической сессии по символу tagSymb
+	//
+	link   ObjectTag GetTag(string tagSymb[20]);
 }
 
 data TSessionData : TSession {
@@ -8798,4 +8803,11 @@ data UhttTSessPlaceStatusList {
 		int    Status;     // Статус места 0 - не идентифицировано, 1 - свободно, -1 - занято
 		string Descr[128]; // Описание места
 	}
+}
+//
+// Descr: Специальная структура, используемая как базовая для
+//   препроцессинга html-контента.
+//
+data HttpPreprocessBase {
+	long   Dummy;
 }

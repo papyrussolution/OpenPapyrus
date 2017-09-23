@@ -1,6 +1,5 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015
-//
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017
 //
 // DTI
 //
@@ -127,7 +126,7 @@ static int SLAPI GetServerNameFromUncPath(const char * pUncPath, SString & rServ
 			p += 2;
 			start = 1;
 		}
-		else if(p[0] == '\\' || p[0] == '/')
+		else if(oneof2(p[0], '\\', '/'))
 			start = -1;
 		if(start > 0)
 			rServerName.CatChar(p[0]);

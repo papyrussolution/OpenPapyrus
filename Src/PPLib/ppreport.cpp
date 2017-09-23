@@ -2345,23 +2345,21 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 						ep.OutputFormat = SFileFormat(SFileFormat::Html);
 						out_file_name.SetLastSlash().Cat("index.html");
 					}
+					else if(p_sel_entry->OutputFormat.CmpNC("latex") == 0) {
+						ps.Ext.Z();
+                		ps.Merge(inner_fn);
+						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
+						SFile::Remove(out_file_name);
+						THROW_SL(::createDir(out_file_name));
+						ep.DestPath = out_file_name;
+						ep.OutputFormat = SFileFormat(SFileFormat::Latex);
+						out_file_name.SetLastSlash().Cat(nam).Dot().Cat("tex");
+					}
 					else {
-						if(p_sel_entry->OutputFormat.CmpNC("latex") == 0) {
-							ps.Ext.Z();
-                			ps.Merge(inner_fn);
-							PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
-							SFile::Remove(out_file_name);
-							THROW_SL(::createDir(out_file_name));
-							ep.DestPath = out_file_name;
-							ep.OutputFormat = SFileFormat(SFileFormat::Latex);
-							out_file_name.SetLastSlash().Cat(nam).Dot().Cat("tex");
-						}
-						else {
-							ps.Ext = "txt";
-                			ps.Merge(inner_fn);
-							PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
-							PPGetPath(PPPATH_OUT, ep.DestPath);
-						}
+						ps.Ext = "txt";
+                		ps.Merge(inner_fn);
+						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
+						PPGetPath(PPPATH_OUT, ep.DestPath);
 					}
 				}
 				THROW(t.Process(data_name, temp_buf, ep, 0, result));

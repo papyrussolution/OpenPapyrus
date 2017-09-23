@@ -135,7 +135,7 @@ static int __rep_skip_msg(ENV*, REP*, int, uint32);
  * PUBLIC: int __rep_process_message_pp
  * PUBLIC:      __P((DB_ENV *, DBT *, DBT *, int, DB_LSN *));
  */
-int __rep_process_message_pp(DB_ENV*dbenv, DBT * control, DBT * rec, int eid, DB_LSN * ret_lsnp)
+int __rep_process_message_pp(DB_ENV * dbenv, DBT * control, DBT * rec, int eid, DB_LSN * ret_lsnp)
 {
 	ENV * env = dbenv->env;
 	int ret = 0;

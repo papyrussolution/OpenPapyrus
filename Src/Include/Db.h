@@ -3978,15 +3978,19 @@ public:
 		int    IdxType;      // BDbTable::idxtypXXX
 		long   Flags;        // BDbTable::cfXXX
 		uint32 DataChunk;    //
-		uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
+		//uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
 		uint32 PageSize;     // @v9.6.4 Размер страницы данных (bytes). 0 - default
 		
 		uint32 HashNElem;    // @v9.7.12 Для хэш-таблиц: ожидаемый размер хэш-таблицы
 		uint32 HashFFactor;  // @v9.7.12 Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
 
+		uint   PartitionCount; // @v9.8.2 Количество partitions. Если параметр не нулевой, то 
+			// класс таблицы обязан переопределить виртуальную функцию Implement_PartitionFunc(DBT * pKey) 
+			// таким образом, чтобы она возвращала номер [0..PartitionCount-1] в зависимости от значения ключа pKey.
+
 		SString Name;        // Имя файла
 	protected:
-		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb);
+		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb, uint partitionCount);
 	};
 	//
 	// Descr: Конфигурация таблицы с типом индекса HASH.
@@ -3997,8 +4001,8 @@ public:
 		// Note: Экспериментально выяснилось, что аргументы nElem и ffactor улучшения производительности
 		//   не дают, и чаще сильно затормаживают работу (возможно, нужны дополнительные изыскания).
 		//
-		ConfigHash(const char * pName, long flags, uint32 pageSize, uint32 nElem = 0, uint32 ffactor = 0) :
-			Config(pName, idxtypHash, flags, pageSize, 0)
+		ConfigHash(const char * pName, long flags, uint32 pageSize, uint partitionCount, uint32 nElem = 0, uint32 ffactor = 0) :
+			Config(pName, idxtypHash, flags, pageSize, 0, partitionCount)
 		{
 			HashNElem = nElem;
 			HashFFactor = ffactor;
@@ -4008,8 +4012,8 @@ public:
 	// Descr: Конфигурация таблицы с типом индекса BTREE.
 	//
 	struct ConfigBTree : public Config {
-		ConfigBTree(const char * pName, long flags, uint32 pageSize) : 
-			Config(pName, idxtypBTree, flags, pageSize, 0)
+		ConfigBTree(const char * pName, long flags, uint32 pageSize, uint partitionCount) : 
+			Config(pName, idxtypBTree, flags, pageSize, 0, partitionCount)
 		{
 		}
 	};
@@ -4201,12 +4205,14 @@ protected:
 	static int VerifyStatic();
 	static int ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult);
 	static int CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2);
+	static uint32 PartitionCallback(DB * pDb, DBT * pDbt);
 	//
 	// Descr: Реализует сравнение ключей.
 	//   Специальный случай: если pKey1 == 0 && pKey2 == 0, функция должна вернуть 1, если
 	//   следует устанавливать специальное сравнение и 0 - если BDB должна применять сравнение по умолчанию.
 	//
 	virtual int Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2);
+	virtual uint FASTCALL Implement_PartitionFunc(DBT * pKey);
 	//
 	// Descr: Инициализирует экземпляр таблицы в контексте базы данных pDb.
 	// ARG(pDb   IN): Указатель на экземпляр базы данных, в контексте которой открывается таблица.

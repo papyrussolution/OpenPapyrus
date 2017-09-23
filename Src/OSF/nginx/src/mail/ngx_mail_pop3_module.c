@@ -6,12 +6,11 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_pop3_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_pop3_module.h>
 
 static void * ngx_mail_pop3_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_str_t ngx_mail_pop3_default_capabilities[] = {
 	ngx_string("TOP"),
@@ -62,10 +61,8 @@ static ngx_command_t ngx_mail_pop3_commands[] = {
 
 static ngx_mail_module_t ngx_mail_pop3_module_ctx = {
 	&ngx_mail_pop3_protocol,           /* protocol */
-
 	NULL,                              /* create main configuration */
 	NULL,                              /* init main configuration */
-
 	ngx_mail_pop3_create_srv_conf,     /* create server configuration */
 	ngx_mail_pop3_merge_srv_conf       /* merge server configuration */
 };

@@ -880,9 +880,6 @@
     <ClInclude Include="..\Osf\scintilla\include\SciLexer.h" />
     <ClInclude Include="..\Osf\scintilla\include\Scintilla.h" />
     <ClInclude Include="..\Osf\scintilla\include\ScintillaWidget.h" />
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerBase.h" />
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerNoExceptions.h" />
-    <ClInclude Include="..\OSF\scintilla\lexlib\LexerSimple.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\OptionSet.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\PropSetSimple.h" />
     <ClInclude Include="..\OSF\scintilla\lexlib\SparseState.h" />
@@ -891,7 +888,6 @@
     <ClInclude Include="..\Osf\scintilla\src\CallTip.h" />
     <ClInclude Include="..\Osf\scintilla\src\CaseConvert.h" />
     <ClInclude Include="..\Osf\scintilla\src\CellBuffer.h" />
-    <ClInclude Include="..\Osf\scintilla\src\CharClassify.h" />
     <ClInclude Include="..\Osf\scintilla\src\ContractionState.h" />
     <ClInclude Include="..\Osf\scintilla\src\Decoration.h" />
     <ClInclude Include="..\Osf\scintilla\src\Document.h" />
@@ -900,9 +896,7 @@
     <ClInclude Include="..\Osf\scintilla\src\EditView.h" />
     <ClInclude Include="..\Osf\scintilla\src\ExternalLexer.h" />
     <ClInclude Include="..\Osf\scintilla\src\FontQuality.h" />
-    <ClInclude Include="..\Osf\scintilla\src\Indicator.h" />
     <ClInclude Include="..\Osf\scintilla\src\KeyMap.h" />
-    <ClInclude Include="..\Osf\scintilla\src\LineMarker.h" />
     <ClInclude Include="..\Osf\scintilla\src\MarginView.h" />
     <ClInclude Include="..\Osf\scintilla\src\Partitioning.h" />
     <ClInclude Include="..\Osf\scintilla\src\PerLine.h" />

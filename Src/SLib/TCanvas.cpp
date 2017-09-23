@@ -1902,7 +1902,7 @@ int FASTCALL SFontDescr::FromStr(const char * pStr)
 			size_t len = (p - pStr);
 			Face.CatN(pStr, len).Strip();
 			p++;
-			while(*p == ' ' || *p == '\t')
+			while(oneof2(*p, ' ', '\t'))
 				p++;
 			SString temp_buf;
 			while(isdigit(*p))

@@ -40,7 +40,6 @@ size_t CRYPTO_cts128_encrypt_block(const uchar * in, uchar * out, size_t len, co
 	(*block)(ivec, ivec, key);
 	memcpy(out, out - 16, residue);
 	memcpy(out - 16, ivec, 16);
-
 	return len + residue;
 }
 
@@ -50,48 +49,34 @@ size_t CRYPTO_nistcts128_encrypt_block(const uchar * in, uchar * out, size_t len
 	if(len < 16)
 		return 0;
 	residue = len % 16;
-
 	len -= residue;
-
 	CRYPTO_cbc128_encrypt(in, out, len, key, ivec, block);
-
 	if(residue == 0)
 		return len;
-
 	in += len;
 	out += len;
-
 	for(n = 0; n < residue; ++n)
 		ivec[n] ^= in[n];
 	(*block)(ivec, ivec, key);
 	memcpy(out - 16 + residue, ivec, 16);
-
 	return len + residue;
 }
 
-size_t CRYPTO_cts128_encrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], cbc128_f cbc)
+size_t CRYPTO_cts128_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc)
 {
 	size_t residue;
 	union {
 		size_t align;
 		uchar c[16];
 	} tmp;
-
 	if(len <= 16)
 		return 0;
-
 	if((residue = len % 16) == 0)
 		residue = 16;
-
 	len -= residue;
-
 	(*cbc)(in, out, len, key, ivec, 1);
-
 	in += len;
 	out += len;
-
 #if defined(CBC_HANDLES_TRUNCATED_IO)
 	memcpy(tmp.c, out - 16, 16);
 	(*cbc)(in, out - 16, residue, key, ivec, 1);
@@ -105,31 +90,22 @@ size_t CRYPTO_cts128_encrypt(const uchar * in, uchar * out,
 	return len + residue;
 }
 
-size_t CRYPTO_nistcts128_encrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], cbc128_f cbc)
+size_t CRYPTO_nistcts128_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc)
 {
 	size_t residue;
 	union {
 		size_t align;
 		uchar c[16];
 	} tmp;
-
 	if(len < 16)
 		return 0;
-
 	residue = len % 16;
-
 	len -= residue;
-
 	(*cbc)(in, out, len, key, ivec, 1);
-
 	if(residue == 0)
 		return len;
-
 	in += len;
 	out += len;
-
 #if defined(CBC_HANDLES_TRUNCATED_IO)
 	(*cbc)(in, out - 16 + residue, residue, key, ivec, 1);
 #else
@@ -140,37 +116,27 @@ size_t CRYPTO_nistcts128_encrypt(const uchar * in, uchar * out,
 	return len + residue;
 }
 
-size_t CRYPTO_cts128_decrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key, uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_cts128_decrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
 	union {
 		size_t align;
 		uchar c[32];
 	} tmp;
-
 	if(len <= 16)
 		return 0;
-
 	if((residue = len % 16) == 0)
 		residue = 16;
-
 	len -= 16 + residue;
-
 	if(len) {
 		CRYPTO_cbc128_decrypt(in, out, len, key, ivec, block);
 		in += len;
 		out += len;
 	}
-
 	(*block)(in, tmp.c + 16, key);
-
 	memcpy(tmp.c, tmp.c + 16, 16);
 	memcpy(tmp.c, in + 16, residue);
 	(*block)(tmp.c, tmp.c, key);
-
 	for(n = 0; n < 16; ++n) {
 		uchar c = in[n];
 		out[n] = tmp.c[n] ^ ivec[n];
@@ -178,15 +144,10 @@ size_t CRYPTO_cts128_decrypt_block(const uchar * in,
 	}
 	for(residue += 16; n < residue; ++n)
 		out[n] = tmp.c[n] ^ in[n];
-
 	return 16 + len + residue;
 }
 
-size_t CRYPTO_nistcts128_decrypt_block(const uchar * in,
-    uchar * out, size_t len,
-    const void * key,
-    uchar ivec[16],
-    block128_f block)
+size_t CRYPTO_nistcts128_decrypt_block(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], block128_f block)
 {
 	size_t residue, n;
 	union {
@@ -230,9 +191,7 @@ size_t CRYPTO_nistcts128_decrypt_block(const uchar * in,
 	return 16 + len + residue;
 }
 
-size_t CRYPTO_cts128_decrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], cbc128_f cbc)
+size_t CRYPTO_cts128_decrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc)
 {
 	size_t residue;
 	union {
@@ -269,9 +228,7 @@ size_t CRYPTO_cts128_decrypt(const uchar * in, uchar * out,
 	return 16 + len + residue;
 }
 
-size_t CRYPTO_nistcts128_decrypt(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16], cbc128_f cbc)
+size_t CRYPTO_nistcts128_decrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], cbc128_f cbc)
 {
 	size_t residue;
 	union {
@@ -386,8 +343,7 @@ void test_vector(const uchar * vector, size_t len)
 
 	/* test block-based encryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_cts128_encrypt_block(test_input, ciphertext, len, &encks, iv,
-	    (block128_f)AES_encrypt);
+	CRYPTO_cts128_encrypt_block(test_input, ciphertext, len, &encks, iv, (block128_f)AES_encrypt);
 	if(memcmp(ciphertext, vector, len))
 		fprintf(stderr, "output_%d mismatch\n", len), exit(1);
 	if(memcmp(iv, vector + len - tail, sizeof(iv)))
@@ -395,8 +351,7 @@ void test_vector(const uchar * vector, size_t len)
 
 	/* test block-based decryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_cts128_decrypt_block(ciphertext, cleartext, len, &decks, iv,
-	    (block128_f)AES_decrypt);
+	CRYPTO_cts128_decrypt_block(ciphertext, cleartext, len, &decks, iv, (block128_f)AES_decrypt);
 	if(memcmp(cleartext, test_input, len))
 		fprintf(stderr, "input_%d mismatch\n", len), exit(2);
 	if(memcmp(iv, vector + len - tail, sizeof(iv)))
@@ -404,8 +359,7 @@ void test_vector(const uchar * vector, size_t len)
 
 	/* test streamed encryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_cts128_encrypt(test_input, ciphertext, len, &encks, iv,
-	    (cbc128_f)AES_cbc_encrypt);
+	CRYPTO_cts128_encrypt(test_input, ciphertext, len, &encks, iv, (cbc128_f)AES_cbc_encrypt);
 	if(memcmp(ciphertext, vector, len))
 		fprintf(stderr, "output_%d mismatch\n", len), exit(3);
 	if(memcmp(iv, vector + len - tail, sizeof(iv)))
@@ -413,8 +367,7 @@ void test_vector(const uchar * vector, size_t len)
 
 	/* test streamed decryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_cts128_decrypt(ciphertext, cleartext, len, &decks, iv,
-	    (cbc128_f)AES_cbc_encrypt);
+	CRYPTO_cts128_decrypt(ciphertext, cleartext, len, &decks, iv, (cbc128_f)AES_cbc_encrypt);
 	if(memcmp(cleartext, test_input, len))
 		fprintf(stderr, "input_%d mismatch\n", len), exit(4);
 	if(memcmp(iv, vector + len - tail, sizeof(iv)))
@@ -443,8 +396,7 @@ void test_nistvector(const uchar * vector, size_t len)
 
 	/* test block-based encryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_nistcts128_encrypt_block(test_input, ciphertext, len, &encks, iv,
-	    (block128_f)AES_encrypt);
+	CRYPTO_nistcts128_encrypt_block(test_input, ciphertext, len, &encks, iv, (block128_f)AES_encrypt);
 	if(memcmp(ciphertext, nistvector, len))
 		fprintf(stderr, "output_%d mismatch\n", len), exit(1);
 	if(memcmp(iv, nistvector + len - tail, sizeof(iv)))
@@ -452,8 +404,7 @@ void test_nistvector(const uchar * vector, size_t len)
 
 	/* test block-based decryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_nistcts128_decrypt_block(ciphertext, cleartext, len, &decks, iv,
-	    (block128_f)AES_decrypt);
+	CRYPTO_nistcts128_decrypt_block(ciphertext, cleartext, len, &decks, iv, (block128_f)AES_decrypt);
 	if(memcmp(cleartext, test_input, len))
 		fprintf(stderr, "input_%d mismatch\n", len), exit(2);
 	if(memcmp(iv, nistvector + len - tail, sizeof(iv)))
@@ -461,17 +412,14 @@ void test_nistvector(const uchar * vector, size_t len)
 
 	/* test streamed encryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_nistcts128_encrypt(test_input, ciphertext, len, &encks, iv,
-	    (cbc128_f)AES_cbc_encrypt);
+	CRYPTO_nistcts128_encrypt(test_input, ciphertext, len, &encks, iv, (cbc128_f)AES_cbc_encrypt);
 	if(memcmp(ciphertext, nistvector, len))
 		fprintf(stderr, "output_%d mismatch\n", len), exit(3);
 	if(memcmp(iv, nistvector + len - tail, sizeof(iv)))
 		fprintf(stderr, "iv_%d mismatch\n", len), exit(3);
-
 	/* test streamed decryption */
 	memcpy(iv, test_iv, sizeof(test_iv));
-	CRYPTO_nistcts128_decrypt(ciphertext, cleartext, len, &decks, iv,
-	    (cbc128_f)AES_cbc_encrypt);
+	CRYPTO_nistcts128_decrypt(ciphertext, cleartext, len, &decks, iv, (cbc128_f)AES_cbc_encrypt);
 	if(memcmp(cleartext, test_input, len))
 		fprintf(stderr, "input_%d mismatch\n", len), exit(4);
 	if(memcmp(iv, nistvector + len - tail, sizeof(iv)))

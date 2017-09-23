@@ -11,7 +11,7 @@
 //#include <stdexcept>
 //#include <vector>
 //#include <map>
-#include "Indicator.h"
+//#include "Indicator.h"
 #include "XPM.h"
 
 #ifdef SCI_NAMESPACE

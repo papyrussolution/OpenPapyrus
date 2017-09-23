@@ -1,0 +1,11 @@
+#humname_ini = oneof "а б в г д дж е ж з и к л м н о п р с т у ф х ц ч ш ы э ю я a b c d e f g h i j k l m n o p q r s t u v w x y z";
+#humname_prefix = "van der" | "van den" | oneof "mr mrs sir bar ben bin da dal de la de del der di ibn la le san st ste van vel von";
+#humname_suffix = oneof "esq esquire jr sr i ii iii iv v vi vii viii ix x xi xii xiii xiv xv xvi";
+
+
+#humname_f = :hum_fname | [PERSN] | (#humname_ini ".");
+#humname_p = :hum_pname | [PATRN] | (#humname_ini ".");
+#humname_s = :hum_sname | [FAMN];
+
+humname = (#humname_f #humname_p #humname_s) | (#humname_s #humname_f #humname_p) | (#humname_s #humname_f) | (#humname_f #humname_s) | (#humname_f #humname_p) | #humname_f | #humname_s;
+

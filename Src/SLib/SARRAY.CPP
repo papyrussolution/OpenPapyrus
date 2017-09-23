@@ -3562,8 +3562,7 @@ int STimeChunkAssocArray::Add(long chunkId, long status, const STimeChunk * pChu
 {
 	STimeChunkAssoc item;
 	MEMSZERO(item);
-	if(pChunk)
-		item.Chunk = *pChunk;
+	RVALUEPTR(item.Chunk, pChunk);
 	item.Id = chunkId;
 	item.Status = status;
 	return insert(&item);

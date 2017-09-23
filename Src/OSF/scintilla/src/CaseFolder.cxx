@@ -8,12 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <vector>
-//#include <algorithm>
-//#include "CaseFolder.h"
 #include "CaseConvert.h"
-//#include "UniConversion.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

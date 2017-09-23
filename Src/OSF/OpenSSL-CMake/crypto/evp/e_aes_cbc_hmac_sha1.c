@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/evp.h>
 //#include <openssl/objects.h>
-#include <openssl/aes.h>
+//#include <openssl/aes.h>
 #include <openssl/sha.h>
 //#include <openssl/rand.h>
 #include "modes_lcl.h"
@@ -29,55 +29,31 @@ typedef struct {
 
 #define NO_PAYLOAD_LENGTH       ((size_t)-1)
 
-#if     defined(AES_ASM) &&     ( \
-	defined(__x86_64)       || defined(__x86_64__)  || \
-	defined(_M_AMD64)       || defined(_M_X64)      )
+#if defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
 
 extern uint OPENSSL_ia32cap_P[];
 # define AESNI_CAPABLE   (1<<(57-32))
 
-int aesni_set_encrypt_key(const uchar * userKey, int bits,
-    AES_KEY * key);
-int aesni_set_decrypt_key(const uchar * userKey, int bits,
-    AES_KEY * key);
+int aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+int aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+void aesni_cbc_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int enc);
+void aesni_cbc_sha1_enc(const void * inp, void * out, size_t blocks, const AES_KEY * key, uchar iv[16], SHA_CTX * ctx, const void * in0);
+void aesni256_cbc_sha1_dec(const void * inp, void * out, size_t blocks, const AES_KEY * key, uchar iv[16], SHA_CTX * ctx, const void * in0);
 
-void aesni_cbc_encrypt(const uchar * in,
-    uchar * out,
-    size_t length,
-    const AES_KEY * key, uchar * ivec, int enc);
+#define data(ctx) ((EVP_AES_HMAC_SHA1*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
-void aesni_cbc_sha1_enc(const void * inp, void * out, size_t blocks,
-    const AES_KEY * key, uchar iv[16],
-    SHA_CTX * ctx, const void * in0);
-
-void aesni256_cbc_sha1_dec(const void * inp, void * out, size_t blocks,
-    const AES_KEY * key, uchar iv[16],
-    SHA_CTX * ctx, const void * in0);
-
-# define data(ctx) ((EVP_AES_HMAC_SHA1*)EVP_CIPHER_CTX_get_cipher_data(ctx))
-
-static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX * ctx,
-    const uchar * inkey,
-    const uchar * iv, int enc)
+static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX * ctx, const uchar * inkey, const uchar * iv, int enc)
 {
 	EVP_AES_HMAC_SHA1 * key = data(ctx);
 	int ret;
-
 	if(enc)
-		ret = aesni_set_encrypt_key(inkey,
-		    EVP_CIPHER_CTX_key_length(ctx) * 8,
-		    &key->ks);
+		ret = aesni_set_encrypt_key(inkey, EVP_CIPHER_CTX_key_length(ctx) * 8, &key->ks);
 	else
-		ret = aesni_set_decrypt_key(inkey,
-		    EVP_CIPHER_CTX_key_length(ctx) * 8,
-		    &key->ks);
-
+		ret = aesni_set_decrypt_key(inkey, EVP_CIPHER_CTX_key_length(ctx) * 8, &key->ks);
 	SHA1_Init(&key->head);  /* handy when benchmarking */
 	key->tail = key->head;
 	key->md = key->head;
-
 	key->payload_length = NO_PAYLOAD_LENGTH;
-
 	return ret < 0 ? 0 : 1;
 }
 

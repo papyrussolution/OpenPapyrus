@@ -104,7 +104,7 @@ int __db_pgfmt(ENV * env, db_pgno_t pgno)
  */
 void __db_assert(ENV * env, const char * e, const char * file, int line)
 {
-	if(DB_GLOBAL(j_assert) != NULL)
+	if(DB_GLOBAL(j_assert))
 		DB_GLOBAL(j_assert) (e, file, line);
 	else {
 		__db_errx(env, DB_STR_A("0059", "assert failure: %s/%d: \"%s\"", "%s %d %s"), file, line, e);
@@ -125,13 +125,13 @@ int __env_panic_msg(ENV * env)
 	DB_ENV * dbenv = env->dbenv;
 	int ret = DB_RUNRECOVERY;
 	__db_errx(env, DB_STR("0060", "PANIC: fatal region error detected; run recovery"));
-	if(dbenv->db_paniccall != NULL)                 /* Deprecated */
+	if(dbenv->db_paniccall)                 /* Deprecated */
 		dbenv->db_paniccall(dbenv, ret);
 	/* Must check for DB_EVENT_REG_PANIC panic first because it is never
 	 * set by itself.  If set, it means panic came from DB_REGISTER code
 	 * only, otherwise it could be from many possible places in the code.
 	 */
-	if((env->reginfo != NULL) && (((REGENV *)env->reginfo->primary)->reg_panic))
+	if(env->reginfo && (((REGENV *)env->reginfo->primary)->reg_panic))
 		DB_EVENT(env, DB_EVENT_REG_PANIC, &ret);
 	else
 		DB_EVENT(env, DB_EVENT_PANIC, &ret);
@@ -147,17 +147,17 @@ int __env_panic_msg(ENV * env)
 int __env_panic(ENV * env, int errval)
 {
 	DB_ENV * dbenv = env->dbenv;
-	if(env != NULL) {
+	if(env) {
 		__env_panic_set(env, 1);
 		__db_err(env, errval, DB_STR("0061", "PANIC"));
-		if(dbenv->db_paniccall != NULL)         /* Deprecated */
+		if(dbenv->db_paniccall)         /* Deprecated */
 			dbenv->db_paniccall(dbenv, errval);
 		/* Must check for DB_EVENT_REG_PANIC first because it is never
 		 * set by itself.  If set, it means panic came from DB_REGISTER
 		 * code only, otherwise it could be from many possible places
 		 * in the code.
 		 */
-		if((env->reginfo != NULL) && (((REGENV *)env->reginfo->primary)->reg_panic))
+		if(env->reginfo && (((REGENV *)env->reginfo->primary)->reg_panic))
 			DB_EVENT(env, DB_EVENT_REG_PANIC, &errval);
 		else
 			DB_EVENT(env, DB_EVENT_PANIC, &errval);
@@ -318,12 +318,12 @@ void __db_errx(const ENV * env, const char * fmt, ...)
  * PUBLIC: void __db_errcall
  * PUBLIC:    __P((const DB_ENV *, int, db_error_set_t, const char *, va_list));
  */
-void __db_errcall(const DB_ENV*dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
+void __db_errcall(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
 	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	char * p = buf;
-	if(fmt != NULL)
+	if(fmt)
 		p += vsnprintf(buf, sizeof(buf), fmt, ap);
 	if(error_set != DB_ERROR_NOT_SET)
 		p += snprintf(p, sizeof(buf)-(size_t)(p-buf), ": %s", error_set == DB_ERROR_SET ? db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
@@ -337,7 +337,7 @@ void __db_errcall(const DB_ENV*dbenv, int error, db_error_set_t error_set, const
  * PUBLIC: void __db_errfile
  * PUBLIC:    __P((const DB_ENV *, int, db_error_set_t, const char *, va_list));
  */
-void __db_errfile(const DB_ENV*dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
+void __db_errfile(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
 	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
 	FILE * fp = (!dbenv || !dbenv->db_errfile) ? stderr : dbenv->db_errfile;
@@ -521,12 +521,12 @@ int __db_check_txn(DB * dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op
 	 *	a transaction handle in a non-transactional environment
 	 *	a transaction handle for a non-transactional database
 	 */
-	if(!read_op && txn != NULL && F_ISSET(txn, TXN_READONLY)) {
+	if(!read_op && txn && F_ISSET(txn, TXN_READONLY)) {
 		__db_errx(env, DB_STR("0096", "Read-only transaction cannot be used for an update"));
 		return EINVAL;
 	}
 	else if(txn == NULL || F_ISSET(txn, TXN_PRIVATE)) {
-		if(dbp->cur_locker != NULL && dbp->cur_locker->id >= TXN_MINIMUM)
+		if(dbp->cur_locker && dbp->cur_locker->id >= TXN_MINIMUM)
 			goto open_err;
 		if(!read_op && F_ISSET(dbp, DB_AM_TXN)) {
 			__db_errx(env, DB_STR("0097", "Transaction not specified for a transactional database"));
@@ -549,7 +549,7 @@ int __db_check_txn(DB * dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op
 		}
 		if(F_ISSET(txn, TXN_DEADLOCK))
 			return __db_txn_deadlock_err(env, txn);
-		if(dbp->cur_locker != NULL && dbp->cur_locker->id >= TXN_MINIMUM && dbp->cur_locker->id != txn->txnid) {
+		if(dbp->cur_locker && dbp->cur_locker->id >= TXN_MINIMUM && dbp->cur_locker->id != txn->txnid) {
 			if((ret = __lock_locker_same_family(env, dbp->cur_locker, txn->locker, &related)) != 0)
 				return ret;
 			if(!related)

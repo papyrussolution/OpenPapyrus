@@ -725,17 +725,15 @@ static void HandshakeCallback(PRFileDesc * sock, void * arg)
 	uchar buf[50];
 	uint buflen;
 	SSLNextProtoState state;
-
 	if(!conn->bits.tls_enable_npn && !conn->bits.tls_enable_alpn) {
 		return;
 	}
-
 	if(SSL_GetNextProto(sock, &state, buf, &buflen, buflenmax) == SECSuccess) {
 		switch(state) {
 #if NSSVERNUM >= 0x031a00 /* 3.26.0 */
 			/* used by NSS internally to implement 0-RTT */
 			case SSL_NEXT_PROTO_EARLY_VALUE:
-			    /* fall through! */
+			    // @fallthrough
 #endif
 			case SSL_NEXT_PROTO_NO_SUPPORT:
 			case SSL_NEXT_PROTO_NO_OVERLAP:
@@ -2036,7 +2034,7 @@ static CURLcode nss_connect_common(struct connectdata * conn, int sockindex,
 		    if(!blocking)
 			    /* CURLE_AGAIN in non-blocking mode is not an error */
 			    return CURLE_OK;
-		/* fall through */
+		// @fallthrough
 		default:
 		    return result;
 	}

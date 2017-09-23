@@ -72,10 +72,10 @@ void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 	void * p_ret = 0;
 	if(pReceiver) {
 		TEvent event;
-		event.what = evCommand;
+		event.what = TEvent::evCommand;
 		event.message.command = command;
 		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
+		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
@@ -87,11 +87,11 @@ void * TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
 	void * p_ret = 0;
 	if(pReceiver) {
 		TEvent event;
-		event.what = evCommand;
+		event.what = TEvent::evCommand;
 		event.message.command = command;
 		event.message.infoPtr = pInfoPtr;
 		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
+		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
@@ -103,10 +103,10 @@ void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 	void * p_ret = 0;
 	if(pReceiver) {
 		TEvent event;
-		event.what = evBroadcast;
+		event.what = TEvent::evBroadcast;
 		event.message.command = command;
 		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
+		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
@@ -118,11 +118,11 @@ void * TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
 	void * p_ret = 0;
 	if(pReceiver) {
 		TEvent event;
-		event.what = evBroadcast;
+		event.what = TEvent::evBroadcast;
 		event.message.command = command;
 		event.message.infoPtr = pInfoPtr;
 		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
+		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
 	}
 	return p_ret;
@@ -409,7 +409,7 @@ void * TView::SetWindowProp(HWND hWnd, int propIndex, void * ptr)
 }
 
 //static
-void * TView::SetWindowUserData(HWND hWnd, void * ptr)
+void * FASTCALL TView::SetWindowUserData(HWND hWnd, void * ptr)
 {
 	return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(ptr)));
 }
@@ -817,7 +817,7 @@ HWND TView::getHandle() const
 
 void FASTCALL TView::clearEvent(TEvent & event)
 {
-	event.what = evNothing;
+	event.what = TEvent::evNothing;
 	event.message.infoPtr = this;
 }
 
@@ -1358,6 +1358,15 @@ TEvent & TEvent::setCmd(uint cmd, TView * pInfoView)
 	return *this;
 }
 
+TEvent & TEvent::setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam)
+{
+	what = evWinCmd;
+	message.command = uMsg;
+	message.WP = wParam;
+	message.LP = lParam;
+	return *this;
+}
+
 uint TEvent::getCtlID() const
 {
 	return message.infoView->GetId();
@@ -1547,11 +1556,11 @@ ushort TGroup::execView(TWindow * p)
 			// @v9.0.4 {
 			{
 				TEvent event;
-				event.what = evCommand;
+				event.what = TEvent::evCommand;
 				event.message.command = cmExecute;
 				event.message.infoPtr = 0;
 				p->handleEvent(event);
-				retval = (event.what == evNothing) ? (ushort)event.message.infoLong : 0;
+				retval = (event.what == TEvent::evNothing) ? (ushort)event.message.infoLong : 0;
 			}
 			// } @v9.0.4
 		}
@@ -1609,7 +1618,7 @@ IMPL_HANDLE_EVENT(TGroup)
 	else {
 		TView::handleEvent(event);
 		handleStruct hs;
-		if(event.what != evNothing) {
+		if(event.what != TEvent::evNothing) {
 			hs.event = &event;
 			hs.grp = this;
 			if(event.what & focusedEvents) {

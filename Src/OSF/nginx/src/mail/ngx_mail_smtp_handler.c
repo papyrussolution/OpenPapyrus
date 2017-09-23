@@ -6,8 +6,8 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_smtp_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_smtp_module.h>
 
 static void ngx_mail_smtp_resolve_addr_handler(ngx_resolver_ctx_t * ctx);
 static void ngx_mail_smtp_resolve_name(ngx_event_t * rev);
@@ -355,7 +355,7 @@ void ngx_mail_smtp_auth_state(ngx_event_t * rev)
 		    s->mail_state = ngx_smtp_start;
 		    s->state = 0;
 		    ngx_str_set(&s->out, smtp_invalid_command);
-		/* fall through */
+		// @fallthrough
 		case NGX_OK:
 		    s->args.nelts = 0;
 		    if(s->buffer->pos == s->buffer->last) {

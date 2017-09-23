@@ -31,12 +31,12 @@
    IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "zipint.h"
-#include <sys/stat.h>
+//#include <sys/stat.h>
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
 #ifdef _WIN32
-	#include <fcntl.h> // WIN32 needs <fcntl.h> for _O_BINARY 
+	//#include <fcntl.h> // WIN32 needs <fcntl.h> for _O_BINARY 
 #endif
 // Windows sys/types.h does not provide these 
 #ifndef S_ISREG

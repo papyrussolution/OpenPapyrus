@@ -1060,7 +1060,7 @@ tag_started:
 					ctx->saved_state = ssi_double_quoted_value_state;
 					state = ssi_quoted_symbol_state;
 
-				    /* fall through */
+				    // @fallthrough
 
 				    default:
 					if(ctx->param->value.len == ctx->value_len) {
@@ -1085,7 +1085,7 @@ tag_started:
 					ctx->saved_state = ssi_quoted_value_state;
 					state = ssi_quoted_symbol_state;
 
-				    /* fall through */
+				    // @fallthrough
 
 				    default:
 					if(ctx->param->value.len == ctx->value_len) {

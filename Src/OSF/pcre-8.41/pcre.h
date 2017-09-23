@@ -35,12 +35,10 @@
    POSSIBILITY OF SUCH DAMAGE.
    -----------------------------------------------------------------------------
  */
-
 #ifndef _PCRE_H
 #define _PCRE_H
 
-/* The current PCRE version information. */
-
+// The current PCRE version information. 
 #define PCRE_MAJOR          8
 #define PCRE_MINOR          41
 #define PCRE_PRERELEASE
@@ -74,7 +72,6 @@
 #    define PCRE_EXP_DECL  extern
 #  endif
 #endif
-
 #ifdef __cplusplus
 #  ifndef PCRECPP_EXP_DECL
 #    define PCRECPP_EXP_DECL  extern
@@ -84,13 +81,8 @@
 #  endif
 #endif
 
-/* Have to include stdlib.h in order to ensure that size_t is defined;
-   it is needed here for malloc. */
-
+// Have to include stdlib.h in order to ensure that size_t is defined; it is needed here for malloc. 
 #include <stdlib.h>
-
-/* Allow for C++ users */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -169,9 +161,9 @@ extern "C" {
 #define PCRE_PARTIAL_HARD       0x08000000  /*    E D J */
 #define PCRE_NOTEMPTY_ATSTART   0x10000000  /*    E D J */
 #define PCRE_UCP                0x20000000  /* C3       */
-
-/* Exec-time and get/set-time error codes */
-
+// 
+// Exec-time and get/set-time error codes 
+// 
 #define PCRE_ERROR_NOMATCH          (-1)
 #define PCRE_ERROR_NULL             (-2)
 #define PCRE_ERROR_BADOPTION        (-3)
@@ -210,9 +202,9 @@ extern "C" {
 #define PCRE_ERROR_JIT_BADOPTION   (-31)
 #define PCRE_ERROR_BADLENGTH       (-32)
 #define PCRE_ERROR_UNSET           (-33)
-
-/* Specific error codes for UTF-8 validity checks */
-
+// 
+// Specific error codes for UTF-8 validity checks 
+// 
 #define PCRE_UTF8_ERR0               0
 #define PCRE_UTF8_ERR1               1
 #define PCRE_UTF8_ERR2               2
@@ -236,24 +228,24 @@ extern "C" {
 #define PCRE_UTF8_ERR20             20
 #define PCRE_UTF8_ERR21             21
 #define PCRE_UTF8_ERR22             22  /* Unused (was non-character) */
-
-/* Specific error codes for UTF-16 validity checks */
-
+// 
+// Specific error codes for UTF-16 validity checks 
+// 
 #define PCRE_UTF16_ERR0              0
 #define PCRE_UTF16_ERR1              1
 #define PCRE_UTF16_ERR2              2
 #define PCRE_UTF16_ERR3              3
 #define PCRE_UTF16_ERR4              4  /* Unused (was non-character) */
-
-/* Specific error codes for UTF-32 validity checks */
-
+// 
+// Specific error codes for UTF-32 validity checks 
+// 
 #define PCRE_UTF32_ERR0              0
 #define PCRE_UTF32_ERR1              1
 #define PCRE_UTF32_ERR2              2  /* Unused (was non-character) */
 #define PCRE_UTF32_ERR3              3
-
-/* Request types for pcre_fullinfo() */
-
+// 
+// Request types for pcre_fullinfo() 
+// 
 #define PCRE_INFO_OPTIONS            0
 #define PCRE_INFO_SIZE               1
 #define PCRE_INFO_CAPTURECOUNT       2
@@ -281,10 +273,9 @@ extern "C" {
 #define PCRE_INFO_MATCHLIMIT        23
 #define PCRE_INFO_RECURSIONLIMIT    24
 #define PCRE_INFO_MATCH_EMPTY       25
-
-/* Request types for pcre_config(). Do not re-arrange, in order to remain
-   compatible. */
-
+// 
+// Request types for pcre_config(). Do not re-arrange, in order to remain compatible.
+// 
 #define PCRE_CONFIG_UTF8                    0
 #define PCRE_CONFIG_NEWLINE                 1
 #define PCRE_CONFIG_LINK_SIZE               2
@@ -299,18 +290,17 @@ extern "C" {
 #define PCRE_CONFIG_JITTARGET              11
 #define PCRE_CONFIG_UTF32                  12
 #define PCRE_CONFIG_PARENS_LIMIT           13
-
-/* Request types for pcre_study(). Do not re-arrange, in order to remain
-   compatible. */
-
+// 
+// Request types for pcre_study(). Do not re-arrange, in order to remain compatible. 
+// 
 #define PCRE_STUDY_JIT_COMPILE                0x0001
 #define PCRE_STUDY_JIT_PARTIAL_SOFT_COMPILE   0x0002
 #define PCRE_STUDY_JIT_PARTIAL_HARD_COMPILE   0x0004
 #define PCRE_STUDY_EXTRA_NEEDED               0x0008
-
-/* Bit flags for the pcre[16|32]_extra structure. Do not re-arrange or redefine
-   these bits, just add new ones on the end, in order to remain compatible. */
-
+// 
+// Bit flags for the pcre[16|32]_extra structure. Do not re-arrange or redefine
+// these bits, just add new ones on the end, in order to remain compatible. 
+// 
 #define PCRE_EXTRA_STUDY_DATA             0x0001
 #define PCRE_EXTRA_MATCH_LIMIT            0x0002
 #define PCRE_EXTRA_CALLOUT_DATA           0x0004
@@ -318,9 +308,9 @@ extern "C" {
 #define PCRE_EXTRA_MATCH_LIMIT_RECURSION  0x0010
 #define PCRE_EXTRA_MARK                   0x0020
 #define PCRE_EXTRA_EXECUTABLE_JIT         0x0040
-
-/* Types */
-
+// 
+// Types 
+// 
 struct real_pcre;                 /* declaration; the definition is private  */
 struct real_pcre8_or_16;
 struct real_pcre32;
@@ -335,14 +325,14 @@ struct real_pcre16_jit_stack;     /* declaration; the definition is private  */
 typedef struct real_pcre16_jit_stack pcre16_jit_stack;
 struct real_pcre32_jit_stack;     /* declaration; the definition is private  */
 typedef struct real_pcre32_jit_stack pcre32_jit_stack;
-
-/* If PCRE is compiled with 16 bit character support, PCRE_UCHAR16 must contain
-   a 16 bit wide signed data type. Otherwise it can be a dummy data type since
-   pcre16 functions are not implemented. There is a check for this in pcre_internal.h. */
+// 
+// If PCRE is compiled with 16 bit character support, PCRE_UCHAR16 must contain
+// a 16 bit wide signed data type. Otherwise it can be a dummy data type since
+// pcre16 functions are not implemented. There is a check for this in pcre_internal.h. 
+// 
 #ifndef PCRE_UCHAR16
-#define PCRE_UCHAR16 unsigned short
+	#define PCRE_UCHAR16 unsigned short
 #endif
-
 #ifndef PCRE_SPTR16
 	#define PCRE_SPTR16 const PCRE_UCHAR16 *
 #endif
@@ -350,7 +340,7 @@ typedef struct real_pcre32_jit_stack pcre32_jit_stack;
    a 32 bit wide signed data type. Otherwise it can be a dummy data type since
    pcre32 functions are not implemented. There is a check for this in pcre_internal.h. */
 #ifndef PCRE_UCHAR32
-	#define PCRE_UCHAR32 unsigned int
+	#define PCRE_UCHAR32 uint
 #endif
 #ifndef PCRE_SPTR32
 	#define PCRE_SPTR32 const PCRE_UCHAR32 *
@@ -365,12 +355,12 @@ typedef struct real_pcre32_jit_stack pcre32_jit_stack;
    such as way as to be extensible. Always add new fields at the end, in order to
    remain compatible. */
 typedef struct pcre_extra {
-	unsigned long int flags;  /* Bits for which fields are set */
+	unsigned long flags;  /* Bits for which fields are set */
 	void * study_data;        /* Opaque data from pcre_study() */
-	unsigned long int match_limit; /* Maximum number of calls to match() */
+	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
 	const unsigned char * tables; /* Pointer to character tables */
-	unsigned long int match_limit_recursion; /* Max recursive calls to match() */
+	unsigned long match_limit_recursion; /* Max recursive calls to match() */
 	unsigned char ** mark;    /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
 } pcre_extra;
@@ -378,12 +368,12 @@ typedef struct pcre_extra {
 /* Same structure as above, but with 16 bit char pointers. */
 
 typedef struct pcre16_extra {
-	unsigned long int flags;  /* Bits for which fields are set */
+	unsigned long flags;  /* Bits for which fields are set */
 	void * study_data;        /* Opaque data from pcre_study() */
-	unsigned long int match_limit; /* Maximum number of calls to match() */
+	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
 	const unsigned char * tables; /* Pointer to character tables */
-	unsigned long int match_limit_recursion; /* Max recursive calls to match() */
+	unsigned long match_limit_recursion; /* Max recursive calls to match() */
 	PCRE_UCHAR16 ** mark;     /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
 } pcre16_extra;
@@ -391,12 +381,12 @@ typedef struct pcre16_extra {
 /* Same structure as above, but with 32 bit char pointers. */
 
 typedef struct pcre32_extra {
-	unsigned long int flags;  /* Bits for which fields are set */
+	unsigned long flags;  /* Bits for which fields are set */
 	void * study_data;        /* Opaque data from pcre_study() */
-	unsigned long int match_limit; /* Maximum number of calls to match() */
+	unsigned long match_limit; /* Maximum number of calls to match() */
 	void * callout_data;      /* Data passed back in callouts */
 	const unsigned char * tables; /* Pointer to character tables */
-	unsigned long int match_limit_recursion; /* Max recursive calls to match() */
+	unsigned long match_limit_recursion; /* Max recursive calls to match() */
 	PCRE_UCHAR32 ** mark;     /* For passing back a mark pointer */
 	void * executable_jit;    /* Contains a pointer to a compiled jit code */
 } pcre32_extra;
@@ -447,87 +437,85 @@ typedef struct pcre16_callout_block {
 	const PCRE_UCHAR16 * mark; /* Pointer to current mark or NULL    */
 	/* ------------------------------------------------------------------ */
 } pcre16_callout_block;
-
-/* Same structure as above, but with 32 bit char pointers. */
-
+//
+// Same structure as above, but with 32 bit char pointers. 
+//
 typedef struct pcre32_callout_block {
-	int version;              /* Identifies version of block */
-	/* ------------------------ Version 0 ------------------------------- */
-	int callout_number;       /* Number compiled into pattern */
-	int         * offset_vector; /* The offset vector */
+	int    version; // Identifies version of block 
+	// ------------------------ Version 0 ------------------------------- 
+	int    callout_number;       /* Number compiled into pattern */
+	int  * offset_vector; /* The offset vector */
 	PCRE_SPTR32 subject;      /* The subject being matched */
-	int subject_length;       /* The length of the subject */
-	int start_match;          /* Offset to start of this match attempt */
-	int current_position;     /* Where we currently are in the subject */
-	int capture_top;          /* Max current capture */
-	int capture_last;         /* Most recently closed capture */
-	void        * callout_data; /* Data passed in with the call */
-	/* ------------------- Added for Version 1 -------------------------- */
-	int pattern_position;     /* Offset to next item in the pattern */
-	int next_item_length;     /* Length of next item in the pattern */
-	/* ------------------- Added for Version 2 -------------------------- */
+	int    subject_length;       /* The length of the subject */
+	int    start_match;          /* Offset to start of this match attempt */
+	int    current_position;     /* Where we currently are in the subject */
+	int    capture_top;          /* Max current capture */
+	int    capture_last;         /* Most recently closed capture */
+	void * callout_data; /* Data passed in with the call */
+	// ------------------- Added for Version 1 -------------------------- 
+	int    pattern_position;     /* Offset to next item in the pattern */
+	int    next_item_length;     /* Length of next item in the pattern */
+	// ------------------- Added for Version 2 -------------------------- 
 	const PCRE_UCHAR32 * mark; /* Pointer to current mark or NULL    */
-	/* ------------------------------------------------------------------ */
 } pcre32_callout_block;
-
-/* Indirection for store get and free functions. These can be set to
-   alternative malloc/free functions if required. Special ones are used in the
-   non-recursive case for "frames". There is also an optional callout function
-   that is triggered by the (?) regex item. For Virtual Pascal, these definitions
-   have to take another form. */
-
+//
+// Indirection for store get and free functions. These can be set to
+// alternative malloc/free functions if required. Special ones are used in the
+// non-recursive case for "frames". There is also an optional callout function
+// that is triggered by the (?) regex item. For Virtual Pascal, these definitions have to take another form. 
+//
 #ifndef VPCOMPAT
-PCRE_EXP_DECL void *(*pcre_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre_free)(void *);
-PCRE_EXP_DECL void *(*pcre_stack_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre_stack_free)(void *);
-PCRE_EXP_DECL int (* pcre_callout)(pcre_callout_block *);
-PCRE_EXP_DECL int (* pcre_stack_guard)(void);
+	PCRE_EXP_DECL void *(*pcre_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre_free)(void *);
+	PCRE_EXP_DECL void *(*pcre_stack_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre_stack_free)(void *);
+	PCRE_EXP_DECL int (* pcre_callout)(pcre_callout_block *);
+	PCRE_EXP_DECL int (* pcre_stack_guard)(void);
 
-PCRE_EXP_DECL void *(*pcre16_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre16_free)(void *);
-PCRE_EXP_DECL void *(*pcre16_stack_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre16_stack_free)(void *);
-PCRE_EXP_DECL int (* pcre16_callout)(pcre16_callout_block *);
-PCRE_EXP_DECL int (* pcre16_stack_guard)(void);
+	PCRE_EXP_DECL void *(*pcre16_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre16_free)(void *);
+	PCRE_EXP_DECL void *(*pcre16_stack_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre16_stack_free)(void *);
+	PCRE_EXP_DECL int (* pcre16_callout)(pcre16_callout_block *);
+	PCRE_EXP_DECL int (* pcre16_stack_guard)(void);
 
-PCRE_EXP_DECL void *(*pcre32_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre32_free)(void *);
-PCRE_EXP_DECL void *(*pcre32_stack_malloc)(size_t);
-PCRE_EXP_DECL void (* pcre32_stack_free)(void *);
-PCRE_EXP_DECL int (* pcre32_callout)(pcre32_callout_block *);
-PCRE_EXP_DECL int (* pcre32_stack_guard)(void);
+	PCRE_EXP_DECL void *(*pcre32_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre32_free)(void *);
+	PCRE_EXP_DECL void *(*pcre32_stack_malloc)(size_t);
+	PCRE_EXP_DECL void (* pcre32_stack_free)(void *);
+	PCRE_EXP_DECL int (* pcre32_callout)(pcre32_callout_block *);
+	PCRE_EXP_DECL int (* pcre32_stack_guard)(void);
 #else   /* VPCOMPAT */
-PCRE_EXP_DECL void * pcre_malloc(size_t);
-PCRE_EXP_DECL void  pcre_free(void *);
-PCRE_EXP_DECL void * pcre_stack_malloc(size_t);
-PCRE_EXP_DECL void  pcre_stack_free(void *);
-PCRE_EXP_DECL int   pcre_callout(pcre_callout_block *);
-PCRE_EXP_DECL int   pcre_stack_guard(void);
+	PCRE_EXP_DECL void * pcre_malloc(size_t);
+	PCRE_EXP_DECL void  pcre_free(void *);
+	PCRE_EXP_DECL void * pcre_stack_malloc(size_t);
+	PCRE_EXP_DECL void  pcre_stack_free(void *);
+	PCRE_EXP_DECL int   pcre_callout(pcre_callout_block *);
+	PCRE_EXP_DECL int   pcre_stack_guard(void);
 
-PCRE_EXP_DECL void * pcre16_malloc(size_t);
-PCRE_EXP_DECL void  pcre16_free(void *);
-PCRE_EXP_DECL void * pcre16_stack_malloc(size_t);
-PCRE_EXP_DECL void  pcre16_stack_free(void *);
-PCRE_EXP_DECL int   pcre16_callout(pcre16_callout_block *);
-PCRE_EXP_DECL int   pcre16_stack_guard(void);
+	PCRE_EXP_DECL void * pcre16_malloc(size_t);
+	PCRE_EXP_DECL void  pcre16_free(void *);
+	PCRE_EXP_DECL void * pcre16_stack_malloc(size_t);
+	PCRE_EXP_DECL void  pcre16_stack_free(void *);
+	PCRE_EXP_DECL int   pcre16_callout(pcre16_callout_block *);
+	PCRE_EXP_DECL int   pcre16_stack_guard(void);
 
-PCRE_EXP_DECL void * pcre32_malloc(size_t);
-PCRE_EXP_DECL void  pcre32_free(void *);
-PCRE_EXP_DECL void * pcre32_stack_malloc(size_t);
-PCRE_EXP_DECL void  pcre32_stack_free(void *);
-PCRE_EXP_DECL int   pcre32_callout(pcre32_callout_block *);
-PCRE_EXP_DECL int   pcre32_stack_guard(void);
+	PCRE_EXP_DECL void * pcre32_malloc(size_t);
+	PCRE_EXP_DECL void  pcre32_free(void *);
+	PCRE_EXP_DECL void * pcre32_stack_malloc(size_t);
+	PCRE_EXP_DECL void  pcre32_stack_free(void *);
+	PCRE_EXP_DECL int   pcre32_callout(pcre32_callout_block *);
+	PCRE_EXP_DECL int   pcre32_stack_guard(void);
 #endif  /* VPCOMPAT */
-
-/* User defined callback which provides a stack just before the match starts. */
-
+//
+// User defined callback which provides a stack just before the match starts. 
+//
 typedef pcre_jit_stack *(*pcre_jit_callback)(void *);
 typedef pcre16_jit_stack *(*pcre16_jit_callback)(void *);
 typedef pcre32_jit_stack *(*pcre32_jit_callback)(void *);
-
-/* Exported PCRE functions */
-
+//
+// Exported PCRE functions 
+//
 PCRE_EXP_DECL pcre * pcre_compile(const char *, int, const char **, int *, const unsigned char *);
 PCRE_EXP_DECL pcre16 * pcre16_compile(PCRE_SPTR16, int, const char **, int *, const unsigned char *);
 PCRE_EXP_DECL pcre32 * pcre32_compile(PCRE_SPTR32, int, const char **, int *, const unsigned char *);

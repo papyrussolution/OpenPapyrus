@@ -88,7 +88,7 @@ int SLAPI SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfc
 int SLAPI SCoClass::RaiseAppError()
 {
 	AppError = 1;
-	return 0;
+	return 0; // @important!
 }
 
 int FASTCALL SCoClass::SetAppError(int assertion)
@@ -150,7 +150,7 @@ HRESULT SLAPI SCoClass::Epilog()
 		return S_OK;
 }
 
-int SLAPI SCoClass::InitVTable(void * pVt)
+int FASTCALL SCoClass::InitVTable(void * pVt)
 {
 	int    ok = 1;
 	P_Vt = pVt;

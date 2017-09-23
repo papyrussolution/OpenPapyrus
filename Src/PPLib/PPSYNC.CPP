@@ -5,10 +5,10 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <errno.h>
-#include <fcntl.h>
+//#include <errno.h>
+//#include <fcntl.h>
 #include <share.h>
-#include <sys\stat.h>
+//#include <sys\stat.h>
 #include <sys\locking.h>
 
 #define LOCK_MAGIC        0x18051974L

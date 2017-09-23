@@ -9,14 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -30,11 +22,7 @@ static bool FASTCALL IsAWordChar(const int ch)
 static bool FASTCALL IsAnOperator(char ch)
 {
 	// '.' left out as it is used to make up numbers
-	if(ch == '*' || ch == '/' || ch == '-' || ch == '+' ||
-	    ch == '(' || ch == ')' || ch == '=' || ch == '^' ||
-	    ch == '[' || ch == ']' || ch == '<' || ch == '&' ||
-	    ch == '>' || ch == ',' || ch == '|' || ch == '~' ||
-	    ch == '$' || ch == ':' || ch == '%')
+	if(oneof9(ch, '*', '/', '-', '+', '(', ')', '=', '^', '[') || oneof10(ch, ']', '<', '&', '>', ',', '|', '~', '$', ':', '%'))
 		return true;
 	return false;
 }
@@ -43,14 +31,12 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
     Accessor &styler)
 {
 	int stringStart = ' ';
-
 	WordList &processors = *keywordlists[0];
 	WordList &commands = *keywordlists[1];
 	WordList &slashcommands = *keywordlists[2];
 	WordList &starcommands = *keywordlists[3];
 	WordList &arguments = *keywordlists[4];
 	WordList &functions = *keywordlists[5];
-
 	// Do not leak onto next line
 	initStyle = SCE_APDL_DEFAULT;
 	StyleContext sc(startPos, length, initStyle, styler);

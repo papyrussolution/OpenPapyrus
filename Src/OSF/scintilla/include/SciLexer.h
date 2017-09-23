@@ -134,6 +134,11 @@
 #define SCLEX_TEHEX 119
 #define SCLEX_JSON 120
 #define SCLEX_EDIFACT 121
+
+#define SCLEX_SEARCHRESULT 150 // @sobolev (from notepad++)
+#define SCLEX_OBJC 151 // @sobolev (from notepad++)
+#define SCLEX_USER 152 // @sobolev (from notepad++)
+
 #define SCLEX_AUTOMATIC 1000
 #define SCE_P_DEFAULT 0
 #define SCE_P_COMMENTLINE 1

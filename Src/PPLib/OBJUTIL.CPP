@@ -2253,19 +2253,19 @@ int SLAPI PPGlobalAccRights::Parse(const SString & rStr)
 			STRNSCPY(perm_rec.Scope, "@def");
 			temp_buf = s1;
 		}
-		if(temp_buf.StrChr('A'))
+		if(temp_buf.HasChr('A'))
 			perm_rec.Flags |= fAccess;
-		if(temp_buf.StrChr('C'))
+		if(temp_buf.HasChr('C'))
 			perm_rec.Flags |= fCreate;
-		if(temp_buf.StrChr('E'))
+		if(temp_buf.HasChr('E'))
 			perm_rec.Flags |= fEdit;
-		if(temp_buf.StrChr('D'))
+		if(temp_buf.HasChr('D'))
 			perm_rec.Flags |= fDelete;
-		if(temp_buf.StrChr('O'))
+		if(temp_buf.HasChr('O'))
 			perm_rec.Flags |= fOperation;
-		if(temp_buf.StrChr('I'))
+		if(temp_buf.HasChr('I'))
 			perm_rec.Flags |= fAccessByID;
-		if(temp_buf.StrChr('S'))
+		if(temp_buf.HasChr('S'))
 			perm_rec.Flags |= fAccessBySymb;
 		{
 			int    found = 0;

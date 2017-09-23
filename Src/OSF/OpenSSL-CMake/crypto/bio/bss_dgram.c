@@ -10,38 +10,30 @@
 #pragma hdrstop
 //#include "bio_lcl.h"
 #ifndef OPENSSL_NO_DGRAM
-
-# if !(defined(_WIN32) || defined(OPENSSL_SYS_VMS))
-#  include <sys/time.h>
-# endif
-# if defined(OPENSSL_SYS_VMS)
-#  include <sys/timeb.h>
-# endif
-
-# ifndef OPENSSL_NO_SCTP
-#  include <netinet/sctp.h>
-#  include <fcntl.h>
-#  define OPENSSL_SCTP_DATA_CHUNK_TYPE            0x00
-#  define OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE 0xc0
-# endif
-
-# if defined(OPENSSL_SYS_LINUX) && !defined(IP_MTU)
-#  define IP_MTU      14        /* linux is lame */
-# endif
-
-# if OPENSSL_USE_IPV6 && !defined(IPPROTO_IPV6)
-#  define IPPROTO_IPV6 41       /* windows is lame */
-# endif
-
-# if defined(__FreeBSD__) && defined(IN6_IS_ADDR_V4MAPPED)
-/* Standard definition causes type-punning problems. */
-#  undef IN6_IS_ADDR_V4MAPPED
-#  define s6_addr32 __u6_addr.__u6_addr32
-#  define IN6_IS_ADDR_V4MAPPED(a)		\
-	(((a)->s6_addr32[0] == 0) &&	      \
-	    ((a)->s6_addr32[1] == 0) &&		 \
-	    ((a)->s6_addr32[2] == htonl(0x0000ffff)))
-# endif
+#if !(defined(_WIN32) || defined(OPENSSL_SYS_VMS))
+	#include <sys/time.h>
+#endif
+#if defined(OPENSSL_SYS_VMS)
+	#include <sys/timeb.h>
+#endif
+#ifndef OPENSSL_NO_SCTP
+	#include <netinet/sctp.h>
+	#include <fcntl.h>
+	#define OPENSSL_SCTP_DATA_CHUNK_TYPE            0x00
+	#define OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE 0xc0
+#endif
+#if defined(OPENSSL_SYS_LINUX) && !defined(IP_MTU)
+	#define IP_MTU      14        /* linux is lame */
+#endif
+#if OPENSSL_USE_IPV6 && !defined(IPPROTO_IPV6)
+	#define IPPROTO_IPV6 41       /* windows is lame */
+#endif
+#if defined(__FreeBSD__) && defined(IN6_IS_ADDR_V4MAPPED)
+	// Standard definition causes type-punning problems. 
+	#undef IN6_IS_ADDR_V4MAPPED
+	#define s6_addr32 __u6_addr.__u6_addr32
+	#define IN6_IS_ADDR_V4MAPPED(a)  (((a)->s6_addr32[0] == 0) && ((a)->s6_addr32[1] == 0) && ((a)->s6_addr32[2] == htonl(0x0000ffff)))
+#endif
 
 static int dgram_write(BIO * h, const char * buf, int num);
 static int dgram_read(BIO * h, char * buf, int size);
@@ -51,21 +43,19 @@ static int dgram_new(BIO * h);
 static int dgram_free(BIO * data);
 static int dgram_clear(BIO * bio);
 
-# ifndef OPENSSL_NO_SCTP
-static int dgram_sctp_write(BIO * h, const char * buf, int num);
-static int dgram_sctp_read(BIO * h, char * buf, int size);
-static int dgram_sctp_puts(BIO * h, const char * str);
-static long dgram_sctp_ctrl(BIO * h, int cmd, long arg1, void * arg2);
-static int dgram_sctp_new(BIO * h);
-static int dgram_sctp_free(BIO * data);
-#  ifdef SCTP_AUTHENTICATION_EVENT
-static void dgram_sctp_handle_auth_free_key_event(BIO * b, union sctp_notification
-    * snp);
-#  endif
-# endif
+#ifndef OPENSSL_NO_SCTP
+	static int dgram_sctp_write(BIO * h, const char * buf, int num);
+	static int dgram_sctp_read(BIO * h, char * buf, int size);
+	static int dgram_sctp_puts(BIO * h, const char * str);
+	static long dgram_sctp_ctrl(BIO * h, int cmd, long arg1, void * arg2);
+	static int dgram_sctp_new(BIO * h);
+	static int dgram_sctp_free(BIO * data);
+	#ifdef SCTP_AUTHENTICATION_EVENT
+		static void dgram_sctp_handle_auth_free_key_event(BIO * b, union sctp_notification * snp);
+	#endif
+#endif
 
 static int BIO_dgram_should_retry(int s);
-
 static void get_current_time(struct timeval * t);
 
 static const BIO_METHOD methods_dgramp = {

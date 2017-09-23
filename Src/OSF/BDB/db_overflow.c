@@ -125,13 +125,13 @@ int __db_goff(DBC * dbc, DBT * dbt, uint32 tlen, db_pgno_t pgno, void ** bpp, ui
 		if((ret = __os_urealloc(env, needed, &dbt->data)) != 0)
 			return ret;
 	}
-	else if(bpsz != NULL && (*bpsz == 0 || *bpsz < needed)) {
+	else if(bpsz && (*bpsz == 0 || *bpsz < needed)) {
 		if((ret = __os_realloc(env, needed, bpp)) != 0)
 			return ret;
 		*bpsz = needed;
 		dbt->data = *bpp;
 	}
-	else if(bpp != NULL)
+	else if(bpp)
 		dbt->data = *bpp;
 	else {
 		DB_ASSERT(env, F_ISSET(dbt, DB_DBT_USERMEM|DB_DBT_MALLOC|DB_DBT_REALLOC) || bpsz != NULL);
@@ -274,8 +274,8 @@ int __db_poff(DBC * dbc, const DBT * dbt, db_pgno_t * pgnop)
 		}
 		else
 			LSN_NOT_LOGGED(LSN(pagep));
-		/* Move LSN onto page. */
-		if(lastp != NULL)
+		// Move LSN onto page
+		if(lastp)
 			LSN(lastp) = LSN(pagep);
 		OV_LEN(pagep) = pagespace;
 		OV_REF(pagep) = 1;
@@ -302,7 +302,7 @@ int __db_poff(DBC * dbc, const DBT * dbt, db_pgno_t * pgnop)
 		lastp = pagep;
 	}
 err:
-	if(lastp != NULL) {
+	if(lastp) {
 		if(ret == 0) {
 			dbc->internal->stream_curr_pgno = PGNO(lastp);
 			dbc->internal->stream_off = dbt->size-OV_LEN(lastp);
@@ -429,7 +429,7 @@ int __db_moff(DBC * dbc, const DBT * dbt, db_pgno_t pgno, uint32 tlen, int (*cmp
 	 * If there is a user-specified comparison function, build a
 	 * contiguous copy of the key, and call it.
 	 */
-	if(cmpfunc != NULL) {
+	if(cmpfunc) {
 		memzero(&local_dbt, sizeof(local_dbt));
 		buf = NULL;
 		bufsize = 0;
@@ -513,7 +513,7 @@ int __db_coff(DBC * dbc, const DBT * dbt, const DBT * match, int (*cmpfunc)(DB*,
 	 * If there is a custom comparator, fully resolve both DBTs.
 	 * Then call the users comparator.
 	 */
-	if(cmpfunc != NULL) {
+	if(cmpfunc) {
 		memzero(&local_key, sizeof(local_key));
 		memzero(&local_match, sizeof(local_match));
 		dbt_buf = match_buf = NULL;

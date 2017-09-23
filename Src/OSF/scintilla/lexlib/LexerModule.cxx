@@ -8,16 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <string>
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "PropSetSimple.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "LexerModule.h"
-#include "LexerBase.h"
-#include "LexerSimple.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

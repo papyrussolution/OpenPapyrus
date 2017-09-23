@@ -1076,7 +1076,7 @@ static SString & SLAPI _GetEnumText(uint strId, int i, SString & rBuf)
 	SString item_buf;
 	for(int idx = 0; !ok && PPGetSubStr(strId, idx, item_buf) > 0; idx++) {
 		long   id = 0;
-		const  char * p = item_buf.StrChr(',');
+		const  char * p = item_buf.StrChr(',', 0);
 		if(p) {
 			id = atol(item_buf);
 			p++;

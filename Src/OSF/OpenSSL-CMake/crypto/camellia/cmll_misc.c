@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/opensslv.h>
-#include <openssl/camellia.h>
+//#include <openssl/camellia.h>
 #include "cmll_locl.h"
 
 int Camellia_set_key(const uchar * userKey, const int bits, CAMELLIA_KEY * key)

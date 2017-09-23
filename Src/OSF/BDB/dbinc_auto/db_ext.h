@@ -179,9 +179,9 @@ int __db_haslock(ENV*, DB_LOCKER*, DB_MPOOLFILE*, db_pgno_t, db_lockmode_t, uint
 #ifdef DIAGNOSTIC
 int __db_has_pagelock(ENV*, DB_LOCKER*, DB_MPOOLFILE*, PAGE*, db_lockmode_t);
 #endif
-int FASTCALL __db_lput(DBC*, DB_LOCK *);
-int __db_create_internal(DB**, ENV*, uint32);
-int __dbh_am_chk(DB*, uint32);
+int FASTCALL __db_lput(DBC *, DB_LOCK *);
+int __db_create_internal(DB **, ENV *, uint32);
+int FASTCALL __dbh_am_chk(DB *, uint32);
 int __db_get_flags(DB*, uint32 *);
 int __db_set_flags(DB*, uint32);
 int __db_get_lorder(DB*, int *);
@@ -262,7 +262,7 @@ int __db_retcopy(ENV*, DBT*, void *, uint32, void **, uint32 *);
 int __env_fileid_reset_pp(DB_ENV*, const char *, uint32);
 int __env_fileid_reset(ENV*, DB_THREAD_INFO*, const char *, int);
 int __env_lsn_reset_pp(DB_ENV*, const char *, uint32);
-int __db_lsn_reset(DB_MPOOLFILE*, DB_THREAD_INFO *);
+int FASTCALL __db_lsn_reset(DB_MPOOLFILE *, DB_THREAD_INFO *);
 int __db_compare_both(DB*, const DBT*, const DBT*, const DBT*, const DBT *);
 int __db_sort_multiple(DB*, DBT*, DBT*, uint32);
 int __db_stat_pp(DB*, DB_TXN*, void *, uint32);

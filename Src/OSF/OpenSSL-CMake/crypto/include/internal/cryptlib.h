@@ -222,6 +222,9 @@ void bio_sock_cleanup_int(void);
 #include <openssl/ec.h>
 #include <openssl/cast.h>
 #include <openssl/blowfish.h>
+#include <openssl/aes.h>
+#include <openssl/camellia.h>
+#include <openssl/modes.h>
 //#include <internal/cryptlib.h>
 #include <internal/engine.h>
 #include <internal/thread_once.h>

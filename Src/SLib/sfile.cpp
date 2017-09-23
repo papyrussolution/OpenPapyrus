@@ -4,9 +4,9 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <fcntl.h>
+//#include <fcntl.h>
 #include <share.h>
-#include <sys\stat.h>
+//#include <sys\stat.h>
 #include <sys\locking.h>
 
 #if 0 // @construction {
@@ -1977,7 +1977,7 @@ int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * 
 
 	(new_ext = pExt).Strip();
 	(new_mime = pMime).Strip();
-	if(new_ext.StrChr(';', 0)) {
+	if(new_ext.HasChr(';')) {
 		StringSet ss(';', new_ext);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			THROW(ok = Helper_Register(id, pMime, temp_buf, pSign, signFunc)); // @recursion

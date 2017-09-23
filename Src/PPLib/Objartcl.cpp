@@ -1350,28 +1350,29 @@ StrAssocArray * SLAPI PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetI
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
 	DBQ  * dbq = 0;
-	BExtQuery q(P_Tbl, 2);
+	ArticleTbl * p_tbl = P_Tbl;
+	BExtQuery q(p_tbl, 2);
 	THROW_MEM(p_list = new StrAssocArray);
 	if(acs_id)
 		THROW(acc_sheet_obj.Fetch(acs_id, &acs_rec) > 0);
 #ifdef DO_GET_NAME_FROM_CACHE
-	q.select(P_Tbl->ID, P_Tbl->ObjID, 0L);
+	q.select(p_tbl->ID, p_tbl->ObjID, 0L);
 #else
-	q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->ObjID, P_Tbl->Flags, 0L); // @v9.5.9 P_Tbl->Flags
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->ObjID, p_tbl->Flags, 0L); // @v9.5.9 P_Tbl->Flags
 #endif // DO_GET_NAME_FROM_CACHE
 	if(acs_id)
-		dbq = & (P_Tbl->AccSheetID == acs_id);
+		dbq = & (p_tbl->AccSheetID == acs_id);
 	// @v9.2.1 if(!full_list)
 	if(!p_filt || p_filt->Ft_Closed < 0)
-		dbq = & (*dbq && (P_Tbl->Closed == 0L));
+		dbq = & (*dbq && (p_tbl->Closed == 0L));
 	else if(p_filt && p_filt->Ft_Closed > 0)
-		dbq = & (*dbq && (P_Tbl->Closed > 0L));
+		dbq = & (*dbq && (p_tbl->Closed > 0L));
 	q.where(*dbq);
 	MEMSZERO(k2);
 	k2.AccSheetID = acs_id;
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-		const PPID ar_id = P_Tbl->data.ID;
-		P_Tbl->copyBufTo(&ar_rec);
+		const PPID ar_id = p_tbl->data.ID;
+		p_tbl->copyBufTo(&ar_rec);
 		int   do_skip = 0;
 		if(p_filt) {
 			if(p_filt->Flags & ArticleFilt::fNonGenericOnly && ar_rec.Flags & ARTRF_GROUP)

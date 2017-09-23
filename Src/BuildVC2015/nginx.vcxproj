@@ -841,11 +841,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_upstream_round_robin.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_imap_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_pop3_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_smtp_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_ssl_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_md5.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_times.h" />

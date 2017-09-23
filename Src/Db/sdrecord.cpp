@@ -118,7 +118,7 @@ struct ReList {
 static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & rBuf)
 {
 	rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsComma);
-	if(rScan[0] == '/' || rScan[0] == '\\') {
+	if(oneof2(rScan[0], '/', '\\')) {
 		rBuf = '\\';
 		rScan.Incr();
 		return TOK_SLASH;

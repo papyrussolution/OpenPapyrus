@@ -16,7 +16,6 @@ namespace Scintilla {
 */
 class Caret {
 public:
-
 	//bool   active;
 	//bool   on;
 	enum {
@@ -48,16 +47,22 @@ public:
 		imeInline 
 	} imeInteraction;
 
-	int foldFlags;
-	int foldDisplayTextStyle;
+	int    foldFlags;
+	int    foldDisplayTextStyle;
 	ContractionState cs;
-	Range hotspot; // Hotspot support
-	int hoverIndicatorPos;
-	int wrapWidth; // Wrapping support
+	Range  hotspot; // Hotspot support
+	int    hoverIndicatorPos;
+	int    wrapWidth; // Wrapping support
 	Document * pdoc;
-	bool   inOverstrike;
-	bool   trackLineWidth;
-	bool   primarySelection;
+	//bool   inOverstrike;
+	//bool   trackLineWidth;
+	//bool   primarySelection;
+	enum {
+		fInOverstrike     = 0x0001,
+		fTrackLineWidth   = 0x0002,
+		fPrimarySelection = 0x0004
+	};
+	long   EditModelFlags;
 
 	EditModel();
 	virtual ~EditModel();
@@ -65,6 +70,10 @@ public:
 	virtual Point GetVisibleOriginInMain() const = 0;
 	virtual int LinesOnScreen() const = 0;
 	virtual Range GetHotSpotRange() const = 0;
+	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const
+	{
+		return main ? ((EditModelFlags & fPrimarySelection) ? vsDraw.selColours.back : vsDraw.selBackground2) : vsDraw.selAdditionalBackground;
+	}
 };
 
 #ifdef SCI_NAMESPACE

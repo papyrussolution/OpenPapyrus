@@ -1667,7 +1667,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_CHAR:
 			if(p_view && (wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c)) {
 				TEvent event;
-				event.what = evKeyDown;
+				event.what = TEvent::evKeyDown;
 				event.keyDown.keyCode = wParam;
 				p_view->handleEvent(event);
 			}

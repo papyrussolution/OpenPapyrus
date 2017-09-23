@@ -8,21 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <string>
-//#include <vector>
-//#include <map>
-//#include <algorithm>
-//#include "ILexer.h"
-#ifdef SCI_LEXER
-	//#include "SciLexer.h"
-#endif
-//#include "PropSetSimple.h"
-#ifdef SCI_LEXER
-	//#include "LexerModule.h"
-	//#include "Catalogue.h"
-#endif
-//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -30,14 +15,12 @@
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
-#include "Indicator.h"
+//#include "Indicator.h"
 #include "XPM.h"
-#include "LineMarker.h"
-//#include "Style.h"
+//#include "LineMarker.h"
 #include "ViewStyle.h"
-#include "CharClassify.h"
+//#include "CharClassify.h"
 #include "Decoration.h"
-//#include "CaseFolder.h"
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"

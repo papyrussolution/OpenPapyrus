@@ -23,6 +23,9 @@
 	#include <math.h>
 	#include <float.h>
 	#include <time.h>
+	#include <errno.h>
+	#include <fcntl.h> // @v9.8.2
+	#include <sys\stat.h> // @v9.8.2
 #endif
 #include <port.h>
 //
@@ -3173,7 +3176,7 @@ public:
 	size_t SLAPI Len() const;
 	size_t SLAPI BufSize() const;
 	void   SLAPI Obfuscate();
-	const  char * SLAPI StrChr(int c, size_t * pPos = 0) const;
+	const  char * SLAPI StrChr(int c, size_t * pPos) const;
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
@@ -6663,9 +6666,10 @@ class STimeChunkGrid : public TSCollection <STimeChunkAssocArray> {
 public:
 	STimeChunkGrid();
 	~STimeChunkGrid();
-	STimeChunkGrid & operator = (const STimeChunkGrid &);
+	STimeChunkGrid & FASTCALL operator = (const STimeChunkGrid &);
 	STimeChunkAssocArray * Get(long id, uint * pPos) const;
 	int    GetChunk(long chunkId, long * pRowId, STimeChunkAssoc *) const;
+	int    GetChunksByTime(const STimeChunk & rRange, STimeChunkAssocArray & rList) const;
 	//
 	// Descr: Устанавливает массив pList как строку решетки. Вместе со строкой может быть
 	//   передан текст описания pText, который будет отображаться в левой части временной диаграммы.
@@ -6761,10 +6765,7 @@ public:
 private:
 	class HolidayArray : public STimeChunkArray {
 	public:
-		HolidayArray(long id)
-		{
-			Id = id;
-		}
+		HolidayArray(long id);
 		long   Id;
 	};
 	TSCollection <HolidayArray> HL;
@@ -8175,12 +8176,24 @@ struct SStrScan : public SRegExpSet {
 	//
 	// Descr: сопоставляет текущий и, возможно, следующий символ с символом новой строки.
 	//   Параметр eolf задает формат новой строки.
+	//   Если eolf == eolUndef, то любая из трех комбинаций "\xD\xA" || "\xD" || "\xA" воспринимается
+	//   как символ новой строки.
 	// Returns:
 	//   0  - текущий символ не является символом новой строки
 	//   !0 - текущий символ и, возможно, последующий идентифицируют новую строку. Возвращаемое
-	//     значение определяет количество символов, используемых для 'того (1 или 2).
+	//     значение определяет количество символов, используемых для этого (1 или 2).
 	//
 	uint   FASTCALL IsEol(SEOLFormat eolf) const;
+	//
+	// Descr: Если текущий символ (или 2 символа) представляет перевод строки в согласии
+	//   с форматом eolf, то функция смещает текущую позицию на соответствующее число
+	//   символов и возвращает !0. 
+	// Returns:
+	//   0  - текущий символ не является символом новой строки
+	//   !0 - текущий символ и, возможно, последующий идентифицируют новую строку.
+	//      Текущая позиция смещена на начало новой строки.
+	//
+	int    FASTCALL GetEol(SEOLFormat eolf);
 
 	SString & FASTCALL Get(SString & rBuf) const;
 	int    FASTCALL GetQuotedString(SString & rBuf);
@@ -9638,6 +9651,7 @@ struct SColorBase { // @persistent
 	{
 		return (!B && !G && !R && !Alpha);
 	}
+	SColorBase SetEmpty();
 	SColorBase Set(uint r, uint g, uint b);
 	SColorBase FASTCALL Set(uint v);
 	SColorBase PremultiplyAlpha();

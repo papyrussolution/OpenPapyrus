@@ -42,7 +42,7 @@
 	#include <memory.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
-	#include <sys/stat.h>
+	//#include <sys/stat.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
 	#include <sys/time.h>
@@ -55,8 +55,8 @@
 	#endif
 #endif
 #ifdef WIN32
-	#include <io.h>
-	#include <fcntl.h>
+	//#include <io.h>
+	//#include <fcntl.h>
 #endif
 #if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
 	#include <stdbool.h>

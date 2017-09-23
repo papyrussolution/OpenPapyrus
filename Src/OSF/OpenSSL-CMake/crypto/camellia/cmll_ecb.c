@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/camellia.h>
+//#include <openssl/camellia.h>
 #include "cmll_locl.h"
 
 void Camellia_ecb_encrypt(const uchar * in, uchar * out, const CAMELLIA_KEY * key, const int enc)

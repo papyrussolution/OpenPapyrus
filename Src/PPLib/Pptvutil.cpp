@@ -5638,7 +5638,7 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 		invalidateRect(getClientRect(), 1);
 		::UpdateWindow(H());
 	}
-	else if(TVEVENT == evMouseDown) {
+	else if(TVEVENT == TEvent::evMouseDown) {
 		Select(event.mouse.WhereX, event.mouse.WhereY);
 		if(event.mouse.doubleClick == 1)
 			endModal(cmOK);

@@ -91,7 +91,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 	mpf = dbp->mpf;
 	h = NULL;
 	newnext = PGNO_INVALID;
-	if(lockp != NULL)
+	if(lockp)
 		LOCK_INIT(*lockp);
 	hash = 0;
 	ret = 0;
@@ -101,7 +101,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 	if(dbp->type == DB_HASH) {
 		if((ret = __ham_return_meta(dbc, DB_MPOOL_DIRTY, &meta)) != 0)
 			goto err;
-		if(meta != NULL)
+		if(meta)
 			hash = 1;
 	}
 #endif
@@ -133,7 +133,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		 * commits.  We can do this because no one will hold a free
 		 * page locked.
 		 */
-		if(lockp != NULL && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
+		if(lockp && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
 			goto err;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &h)) != 0)
 			goto err;
@@ -166,7 +166,7 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 		LSN_NOT_LOGGED(LSN(meta));
 	meta->free = newnext;
 	if(extend == 1) {
-		if(lockp != NULL && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
+		if(lockp && (ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, lockp)) != 0)
 			goto err;
 		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_NEW, &h)) != 0)
 			goto err;
@@ -221,12 +221,12 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 	PERFMON6(env, alloc, new, dbp->fname, dbp->dname, pgno, type, h, 0);
 	return 0;
 err:
-	if(h != NULL)
+	if(h)
 		__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
-	if(meta != NULL && hash == 0)
+	if(meta && hash == 0)
 		__memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	__TLPUT(dbc, metalock);
-	if(lockp != NULL)
+	if(lockp)
 		__LPUT(dbc, *lockp);
 	/* Failure return - report 0 pgno, null page address. */
 	PERFMON6(env, alloc, new, dbp->fname, dbp->dname, 0, type, NULL, ret);
@@ -292,7 +292,7 @@ int __db_free(DBC * dbc, PAGE * h, uint32 flags)
  #endif
 			    &meta)) != 0)
 			goto err;
-		if(meta != NULL)
+		if(meta)
 			hash = 1;
 	}
 #endif
@@ -463,7 +463,7 @@ logged:
 	}
 	else {
 #ifdef HAVE_FTRUNCATE
-		if(list != NULL) {
+		if(list) {
 			/* Put the page number into the list. */
 			if((ret = __memp_extend_freelist(mpf, nelem+1, &list)) != 0)
 				goto err1;
@@ -492,11 +492,11 @@ logged:
 	}
 	/* Discard the metadata or previous page. */
 err1:
-	if(hash == 0 && meta != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, (PAGE *)meta, dbc->priority)) != 0 && ret == 0)
+	if(hash == 0 && meta && (t_ret = __memp_fput(mpf, dbc->thread_info, (PAGE *)meta, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __TLPUT(dbc, metalock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(prev != (PAGE *)meta && prev != NULL && (t_ret = __memp_fput(mpf, dbc->thread_info, prev, dbc->priority)) != 0 && ret == 0)
+	if(prev != (PAGE *)meta && prev && (t_ret = __memp_fput(mpf, dbc->thread_info, prev, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
 	/* Discard the caller's page reference. */
 err:
@@ -629,10 +629,10 @@ again:
 		slp = &lp[elems];
 
 		ZERO_LSN(null_lsn);
-		if((ret = __db_pg_trunc_log(dbp, dbc->txn, lsnp, last == 1 ? DB_FLUSH : 0, PGNO_BASE_MD,
-			lsnp, h != NULL ? PGNO(h) : PGNO_INVALID, h != NULL ? &LSN(h) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
+		if((ret = __db_pg_trunc_log(dbp, dbc->txn, lsnp, last == 1 ? DB_FLUSH : 0, PGNO_BASE_MD, lsnp, 
+			h ? PGNO(h) : PGNO_INVALID, h ? &LSN(h) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
 			goto err;
-		if(h != NULL) {
+		if(h) {
 			LSN(h) = *lsnp;
 			if((ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0)
 				goto err;
@@ -695,7 +695,7 @@ skip:
 	*nelemp = tpoint;
 	if(0) {
 err:
-		if(h != NULL)
+		if(h)
 			__memp_fput(mpf, dbc->thread_info, h, dbc->priority);
 	}
 	return ret;
@@ -731,7 +731,7 @@ int __db_free_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags
 	mpf = dbp->mpf;
 	h = NULL;
 	nelems = 0;
-	if(listp != NULL) {
+	if(listp) {
 		*listp = NULL;
 		DB_ASSERT(env, nelemp != NULL);
 		*nelemp = 0;
@@ -743,7 +743,7 @@ int __db_free_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags
 		goto err;
 	if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		goto err;
-	if(last_pgnop != NULL)
+	if(last_pgnop)
 		*last_pgnop = meta->last_pgno;
 	if((pgno = meta->free) == PGNO_INVALID)
 		goto done;
@@ -777,7 +777,7 @@ int __db_free_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags
 		goto err;
 	meta->free = (nelems == 0) ? PGNO_INVALID : list[0].pgno;
 done:
-	if(last_pgnop != NULL)
+	if(last_pgnop)
 		*last_pgnop = meta->last_pgno;
 	/*
 	 * The truncate point is the number of pages in the free
@@ -792,7 +792,7 @@ done:
 		if(c_data->compact_truncate > nelems>>2)
 			c_data->compact_truncate -= nelems>>2;
 	}
-	if(nelems != 0 && listp != NULL) {
+	if(nelems != 0 && listp) {
 		*listp = list;
 		*nelemp = nelems;
 		list = NULL;
@@ -869,9 +869,9 @@ again:
 		else if((ret = __memp_fget(mpf, &spp[-1].pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &pg)) != 0)
 			goto err;
 		if((ret = __db_pg_trunc_log(dbp, dbc->txn, &LSN(meta), last == 1 ? DB_FLUSH : 0, PGNO(meta), &LSN(meta),
-			    pg != NULL ? PGNO(pg) : PGNO_INVALID, pg != NULL ? &LSN(pg) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
+			    pg ? PGNO(pg) : PGNO_INVALID, pg ? &LSN(pg) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
 			goto err;
-		if(pg != NULL) {
+		if(pg) {
 			LSN(pg) = LSN(meta);
 			if(pg != last_free && (ret = __memp_fput(mpf, dbc->thread_info, pg, DB_PRIORITY_VERY_LOW)) != 0)
 				goto err;
@@ -950,7 +950,7 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	 * calling __db_lget to acquire the lock.
 	 */
 	if(CDB_LOCKING(env) || !LOCKING_ON(env) || (MULTIVERSION(dbp) && mode == DB_LOCK_READ &&
-	    dbc->txn != NULL && F_ISSET(dbc->txn, TXN_SNAPSHOT)) || F_ISSET(dbc, DBC_DONTLOCK) || (F_ISSET(dbc, DBC_RECOVER) &&
+	    dbc->txn && F_ISSET(dbc->txn, TXN_SNAPSHOT)) || F_ISSET(dbc, DBC_DONTLOCK) || (F_ISSET(dbc, DBC_RECOVER) &&
 		(action != LCK_ROLLBACK || IS_REP_CLIENT(env))) || (action != LCK_ALWAYS && F_ISSET(dbc, DBC_OPD))) {
 		LOCK_INIT(*lockp);
 		return 0;

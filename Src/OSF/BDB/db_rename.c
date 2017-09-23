@@ -55,8 +55,7 @@ int __env_dbrename_pp(DB_ENV * dbenv, DB_TXN * txn, const char * name, const cha
 		txn_local = 1;
 	}
 	else
-	if(txn != NULL && !TXN_ON(env) &&
-	   (!CDB_LOCKING(env) || !F_ISSET(txn, TXN_FAMILY))) {
+	if(txn && !TXN_ON(env) && (!CDB_LOCKING(env) || !F_ISSET(txn, TXN_FAMILY))) {
 		ret = __db_not_txn_env(env);
 		goto err;
 	}
@@ -95,8 +94,7 @@ err:    if(txn_local && (t_ret =
 	 * then opened the DB handle; we're resolving the txn and then closing
 	 * closing the DB handle -- it's safer.
 	 */
-	if(dbp != NULL &&
-	   (t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
+	if(dbp && (t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	if(handle_check && (t_ret = __env_db_rep_exit(env)) != 0 && ret == 0)
 		ret = t_ret;
@@ -184,7 +182,7 @@ int __db_rename_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 	}
 	if(name == NULL)
 		MAKE_INMEM(dbp);
-	else if(subdb != NULL) {
+	else if(subdb) {
 		ret = __db_subdb_rename(dbp, ip, txn, name, subdb, newname, flags);
 		goto err;
 	}
@@ -205,7 +203,7 @@ int __db_rename_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 	DB_ASSERT(env, old != NULL);
 	if((ret = __fop_remove_setup(dbp, txn, real_name, 0)) != 0)
 		goto err;
-	if(dbp->db_am_rename != NULL && (ret = dbp->db_am_rename(dbp, ip, txn, name, subdb, newname)) != 0)
+	if(dbp->db_am_rename && (ret = dbp->db_am_rename(dbp, ip, txn, name, subdb, newname)) != 0)
 		goto err;
 	/*
 	 * The transactional case and non-transactional case are
@@ -231,7 +229,7 @@ int __db_rename_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTDESTROY, ret, newname);
 	DB_TEST_RECOVERY_LABEL
 err:
-	if(!F_ISSET(dbp, DB_AM_INMEM) && real_name != NULL)
+	if(!F_ISSET(dbp, DB_AM_INMEM) && real_name)
 		__os_free(env, real_name);
 	return ret;
 }
@@ -266,7 +264,7 @@ static int __db_subdb_rename(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const 
 	if((ret = __memp_fget(mdbp->mpf, &dbp->meta_pgno, ip, txn, 0, &meta)) != 0)
 		goto err;
 	memcpy(dbp->fileid, ((DBMETA *)meta)->uid, DB_FILE_ID_LEN);
-	if((ret = __fop_lock_handle(env, dbp, (mdbp->cur_locker != NULL) ? mdbp->cur_locker : mdbp->locker, DB_LOCK_WRITE, NULL, NOWAIT_FLAG(txn))) != 0)
+	if((ret = __fop_lock_handle(env, dbp, mdbp->cur_locker ? mdbp->cur_locker : mdbp->locker, DB_LOCK_WRITE, NULL, NOWAIT_FLAG(txn))) != 0)
 		goto err;
 	ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority);
 	meta = NULL;
@@ -279,7 +277,7 @@ static int __db_subdb_rename(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const 
 err:
 	if((t_ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(mdbp != NULL && (t_ret = __db_close(mdbp, txn, (LF_ISSET(DB_NOSYNC) || txn != NULL) ? DB_NOSYNC : 0)) != 0 && ret == 0)
+	if(mdbp && (t_ret = __db_close(mdbp, txn, (LF_ISSET(DB_NOSYNC) || txn) ? DB_NOSYNC : 0)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
 }

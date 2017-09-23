@@ -1136,6 +1136,8 @@ namespace Scintilla {
 	class WordList;
 	class PropSetSimple;
 	class ICaseConverter;
+	class XPM;
+	class RGBAImage;
 	//
 	// Underlying the implementation of the platform classes are platform specific types.
 	// Sometimes these need to be passed around by client code so they are defined here
@@ -1163,12 +1165,11 @@ namespace Scintilla {
 		explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
 		{
 		}
-		static Point FromInts(int x_, int y_)
-		{
-			return Point(static_cast<XYPOSITION>(x_), static_cast<XYPOSITION>(y_));
-		}
+		static Point FASTCALL FromInts(int x_, int y_);
+		//
 		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
-		static Point FromLong(long lpoint);
+		//
+		static Point FASTCALL FromLong(long lpoint);
 	};
 	/**
 	 * A geometric rectangle class.
@@ -1228,7 +1229,7 @@ namespace Scintilla {
 		{
 			co = red | (green << 8) | (blue << 16);
 		}
-		static inline uint ValueOfHex(const char ch)
+		/*static inline uint ValueOfHex(const char ch)
 		{
 			if(ch >= '0' && ch <= '9')
 				return ch - '0';
@@ -1238,15 +1239,20 @@ namespace Scintilla {
 				return ch - 'a' + 10;
 			else
 				return 0;
-		}
+		}*/
 		void FASTCALL Set(const char * val)
 		{
 			if(*val == '#') {
 				val++;
 			}
+			/*
 			uint r = ValueOfHex(val[0]) * 16 + ValueOfHex(val[1]);
 			uint g = ValueOfHex(val[2]) * 16 + ValueOfHex(val[3]);
 			uint b = ValueOfHex(val[4]) * 16 + ValueOfHex(val[5]);
+			*/
+			uint r = hex(val[0]) * 16 + hex(val[1]);
+			uint g = hex(val[2]) * 16 + hex(val[3]);
+			uint b = hex(val[4]) * 16 + hex(val[5]);
 			Set(r, g, b);
 		}
 		long AsLong() const
@@ -1659,6 +1665,28 @@ namespace Scintilla {
 
 	CharacterCategory FASTCALL CategoriseCharacter(int character);
 	//
+	// #include "CharClassify.h"
+	//
+	class CharClassify {
+	public:
+		CharClassify();
+
+		enum cc { 
+			ccSpace, 
+			ccNewLine, 
+			ccWord, 
+			ccPunctuation 
+		};
+		void SetDefaultCharClasses(bool includeWordClass);
+		void SetCharClasses(const uchar *chars, cc newCharClass);
+		int GetCharsOfClass(cc charClass, uchar *buffer) const;
+		cc GetClass(uchar ch) const { return static_cast<cc>(charClass[ch]);}
+		bool IsWord(uchar ch) const { return static_cast<cc>(charClass[ch]) == ccWord;}
+	private:
+		enum { maxChar=256 };
+		uchar charClass[maxChar];    // not type cc to save space
+	};
+	//
 	//
 	//
 	class LexAccessor {
@@ -1865,7 +1893,60 @@ namespace Scintilla {
 		static const LexerModule * FASTCALL Find(const char *languageName);
 		static void AddLexerModule(LexerModule *plm);
 	};
+	//
+	// A simple lexer with no state
+	//
+	class LexerBase : public ILexer {
+	protected:
+		PropSetSimple props;
+		enum {
+			numWordLists = KEYWORDSET_MAX+1
+		};
+		WordList * keyWordLists[numWordLists+1];
+	public:
+		LexerBase();
+		virtual ~LexerBase();
+		void SCI_METHOD Release();
+		int SCI_METHOD Version() const;
+		const char * SCI_METHOD PropertyNames();
+		int SCI_METHOD PropertyType(const char *name);
+		const char * SCI_METHOD DescribeProperty(const char *name);
+		Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+		const char * SCI_METHOD DescribeWordListSets();
+		Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess) = 0;
+		void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess) = 0;
+		void * SCI_METHOD PrivateCall(int operation, void *pointer);
+	};
+	//
+	// A simple lexer with no state
+	//
+	class LexerSimple : public LexerBase {
+	private:
+		const LexerModule * module;
+		//std::string wordLists;
+		SString WordList;
+	public:
+		explicit LexerSimple(const LexerModule *module_);
+		const char * SCI_METHOD DescribeWordListSets();
+		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
+		void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
+	};
+	//
+	// A simple lexer with no state
+	//
+	class LexerNoExceptions : public LexerBase {
+	public:
+		// TODO Also need to prevent exceptions in constructor and destructor
+		Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+		Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
+		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
+		void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *);
 
+		virtual void Lexer(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor &styler) = 0;
+		virtual void Folder(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess, Accessor &styler) = 0;
+	};
+	//
 	// Shut up annoying Visual C++ warnings:
 	#ifdef _MSC_VER
 		#pragma warning(disable: 4244 4456 4457)
@@ -1987,6 +2068,99 @@ namespace Scintilla {
 			//return !(changeable && visible);
 			return !(Flags & (fChangeable|fVisible));
 		}
+	};
+	//
+	// #include "Indicator.h"
+	//
+	struct StyleAndColour {
+		int style;
+		ColourDesired fore;
+		StyleAndColour() : style(INDIC_PLAIN), fore(0, 0, 0) 
+		{
+		}
+		StyleAndColour(int style_, ColourDesired fore_ = ColourDesired(0, 0, 0)) : style(style_), fore(fore_) 
+		{
+		}
+		bool operator == (const StyleAndColour &other) const 
+		{
+			return (style == other.style) && (fore == other.fore);
+		}
+	};
+	//
+	//
+	//
+	class Indicator {
+	public:
+		enum DrawState { 
+			drawNormal, 
+			drawHover 
+		};
+		StyleAndColour sacNormal;
+		StyleAndColour sacHover;
+		bool under;
+		int  fillAlpha;
+		int  outlineAlpha;
+		int  attributes;
+
+		Indicator() : under(false), fillAlpha(30), outlineAlpha(50), attributes(0) 
+		{
+		}
+		Indicator(int style_, ColourDesired fore_=ColourDesired(0,0,0), bool under_=false, int fillAlpha_=30, int outlineAlpha_=50) :
+			sacNormal(style_, fore_), sacHover(style_, fore_), under(under_), fillAlpha(fillAlpha_), outlineAlpha(outlineAlpha_), attributes(0) 
+		{
+		}
+		void Draw(Surface *surface, const PRectangle &rc, const PRectangle &rcLine, const PRectangle &rcCharacter, DrawState drawState, int value) const;
+		bool IsDynamic() const 
+		{
+			return !(sacNormal == sacHover);
+		}
+		bool OverridesTextFore() const 
+		{
+			return sacNormal.style == INDIC_TEXTFORE || sacHover.style == INDIC_TEXTFORE;
+		}
+		int Flags() const 
+		{
+			return attributes;
+		}
+		void SetFlags(int attributes_);
+	};
+	//
+	// #include "LineMarker.h"
+	//
+	typedef void (*DrawLineMarkerFn)(Surface *surface, PRectangle &rcWhole, Font &fontForCharacter, int tFold, int marginStyle, const void *lineMarker);
+	//
+	//
+	//
+	class LineMarker {
+	public:
+		enum typeOfFold { 
+			undefined, 
+			head, 
+			body, 
+			tail, 
+			headWithTail 
+		};
+		int markType;
+		ColourDesired fore;
+		ColourDesired back;
+		ColourDesired backSelected;
+		int    alpha;
+		XPM  * pxpm;
+		RGBAImage * image;
+		/** Some platforms, notably PLAT_CURSES, do not support Scintilla's native
+		 * Draw function for drawing line markers. Allow those platforms to override
+		 * it instead of creating a new method(s) in the Surface class that existing
+		 * platforms must implement as empty. */
+		DrawLineMarkerFn customDraw;
+
+		LineMarker();
+		LineMarker(const LineMarker &);
+		~LineMarker();
+		LineMarker & FASTCALL operator = (const LineMarker &other);
+		void FASTCALL SetXPM(const char * textForm);
+		void FASTCALL SetXPM(const char * const * linesForm);
+		void SetRGBAImage(Point sizeRGBAImage, float scale, const uchar *pixelsRGBAImage);
+		void Draw(Surface *surface, PRectangle &rc, Font &fontForCharacter, typeOfFold tFold, int marginStyle) const;
 	};
 	//
 	// #include "UniConversion.h"

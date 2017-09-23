@@ -1430,17 +1430,17 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				if(lex_next == reWord && PPSearchSubStr(Prefixes, 0, TempBuf, 1)) {
 					TempBuf.ToLower().Space().Cat(next_buf);
 					lex_next = 0;
-					next_buf = 0;
+					next_buf.Z();
 				}
 				if(lex_next == reWord && next_buf.C(0) == '-') {
 					TempBuf.Cat(next_buf);
 					lex_next = 0;
-					next_buf = 0;
+					next_buf.Z();
 				}
 				if(lex_next == reWord && TempBuf.Last() == '-') {
 					TempBuf.Cat(next_buf);
 					lex_next = 0;
-					next_buf = 0;
+					next_buf.Z();
 				}
 				TempBuf.TrimRightChr('.');
 			}
@@ -1449,18 +1449,17 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 					single_pct_measure = TempBuf;
 					single_pct_measure_idx = word_count;
 				}
-				else {
-					single_pct_measure = 0;
-				}
+				else
+					single_pct_measure.Z();
 				//
 				// Для алкоголя после процентов иногда следует "vol" - это опускаем.
 				//
 				if(lex_next == reWord && next_buf.CmpNC("vol") == 0) {
 					lex_next = 0;
-					next_buf = 0;
+					next_buf.Z();
 				}
 			}
-			else if(lex == reNumber && !TempBuf.StrChr('-', 0) && TempBuf.Last() != '%') {
+			else if(lex == reNumber && !TempBuf.HasChr('-') && TempBuf.Last() != '%') {
 				int normalize_val = 1;
 				TempBuf.ReplaceChar(',', '.');
 				double val = R6(TempBuf.ToReal());
@@ -1483,13 +1482,13 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 								TempBuf.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Cat(first_unit_abbr);
 								normalize_val = 0;
 								lex_next = 0;
-								next_buf = 0;
+								next_buf.Z();
 								if(single_measure.Empty() && unit_id != UNIT_COLOR) {
 									single_measure = TempBuf;
 									single_measure_idx = word_count;
 								}
 								else
-									single_measure = 0;
+									single_measure.Z();
 								break;
 							}
 						}
@@ -1826,7 +1825,6 @@ int SLAPI PPGoodsImporter::AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket 
 					gc_pack.RealToExtDim(rRec.DimW, PPGdsCls::eW, &pPack->ExtRec.W);
 					ok = 1;
 				}
-				// @v7.4.7 {
 				if(rRec.PropKindName[0] && gc_pack.Rec.Flags & PPGdsCls::fUsePropKind) {
 					THROW(gc_pack.PropNameToID(PPGdsCls::eKind, rRec.PropKindName, &pPack->ExtRec.KindID, 1, 0));
 				}
@@ -1839,8 +1837,7 @@ int SLAPI PPGoodsImporter::AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket 
 				if(rRec.PropAdd2Name[0] && gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd2) {
 					THROW(gc_pack.PropNameToID(PPGdsCls::eAdd2, rRec.PropAdd2Name, &pPack->ExtRec.AddObj2ID, 1, 0));
 				}
-				// } @v7.4.7
-				gc_pack.CompleteGoodsPacket(pPack); // @v7.4.9
+				gc_pack.CompleteGoodsPacket(pPack);
 			}
 		}
 	}
@@ -2014,7 +2011,7 @@ int SLAPI PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageF
 						size_t _pos = 0;
 						while(ps.Nam[_pos]) {
 							if(isdec(ps.Nam[_pos])) {
-								code_buf = 0;
+								code_buf.Z();
 								const size_t _start = _pos;
 								do {
 									code_buf.CatChar(ps.Nam[_pos++]);

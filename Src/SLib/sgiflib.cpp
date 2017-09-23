@@ -6,8 +6,8 @@
 #include <gif_lib.h>
 //#include "gif_lib_private.h"
 //#pragma hdrstop
-#include <fcntl.h>
-#include <sys/stat.h>
+//#include <fcntl.h>
+//#include <sys/stat.h>
 //#include <unistd.h>
 //#include <stdint.h>
 

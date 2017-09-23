@@ -277,7 +277,7 @@ int CPosProcessor::Packet::ClearGift()
 	return 1;
 }
 
-PPID CPosProcessor::Packet::GetAgentID(int actual) const
+PPID FASTCALL CPosProcessor::Packet::GetAgentID(int actual) const
 {
 	return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__);
 }
@@ -298,7 +298,7 @@ int CPosProcessor::Packet::HasCur() const
 	return BIN(CurPos >= 0);
 }
 
-int CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
+int FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
 {
 	if(pPack) {
 		// @v8.2.11 {
@@ -5935,6 +5935,29 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 #undef BARRIER
 #define BARRIER(f) if(!Barrier()) { f; Barrier(1); }
 
+static int FASTCALL IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel)
+{
+	int    ok = 0;
+	if(rFilter.NotEmpty() && rChannel.NotEmpty()) {
+		if(rFilter.CmpNC("@all") == 0) {
+			ok = 1;
+		}
+		else if(rFilter.HasChr(';') || rFilter.HasChr(',') || rFilter.HasChr(' ')) {
+			SString temp_buf;
+            StringSet ss;
+            rFilter.Tokenize(" ;,", ss);
+            for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
+				if(rChannel.CmpPrefix(temp_buf, 1) == 0)
+					ok = 1;
+            }
+		}
+		else if(rChannel.CmpPrefix(rFilter, 1) == 0) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 int CheckPaneDialog::ProcessPhnSvc(int mode)
 {
 	int    ok = 1;
@@ -5955,7 +5978,8 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 						if(cnl_status.State == PhnSvcChannelStatus::stUp) {
 							if(cnl_status.Channel.CmpPrefix("SIP", 1) == 0) {
 								if(cnl_status.ConnectedLineNum.Empty() || cnl_status.ConnectedLineNum.ToLong() != 0) {
-									if(PhnSvcLocalChannelSymb.NotEmpty() && cnl_status.Channel.NotEmpty() && (cnl_status.Channel.CmpPrefix(PhnSvcLocalChannelSymb, 1) == 0 || PhnSvcLocalChannelSymb.CmpNC("@all") == 0)) {
+									//if(PhnSvcLocalChannelSymb.NotEmpty() && cnl_status.Channel.NotEmpty() && (cnl_status.Channel.CmpPrefix(PhnSvcLocalChannelSymb, 1) == 0 || PhnSvcLocalChannelSymb.CmpNC("@all") == 0)) {
+									if(IsPhnChannelAcceptable(PhnSvcLocalChannelSymb, cnl_status.Channel)) {
 										if(CnSpeciality == PPCashNode::spDelivery && !(P.Eccd.Flags & P.Eccd.fDelivery) && IsState(sEMPTYLIST_EMPTYBUF) && !(Flags & fBarrier)) {
 											pop_dlvr_pane = 1;
 											if(cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len())

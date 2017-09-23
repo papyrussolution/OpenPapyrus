@@ -581,8 +581,8 @@ public:
 	{
 		Err     = 0;
 		MsgCode = 0;
-		SocketHandle = NULL; // @v5.6.9 VADIM
-		IsConnected  = 0;    // @v5.6.9 VADIM
+		SocketHandle = NULL;
+		IsConnected  = 0;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
@@ -1142,7 +1142,7 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 		}
 		THROW_PP(bcc == buf[10], PPERR_SCALE_RCV); // Контрольный байт
 		sc_st.Sum = (long)round(temp_buf.ToReal() * 100.0, 0); // Стоимость
-		buf.Sub(13,10,temp_buf);
+		buf.Sub(13, 10, temp_buf);
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
 			bcc ^= temp_buf[pos];
@@ -1153,7 +1153,7 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 		if(sc_st.Weight == 0) {
 			sc_st.Status |= (1<<3); // 1 - нулевой вес
 		}
-		buf.Sub(26,8,temp_buf); // Выделяем байты отвечающие за цену
+		buf.Sub(26, 8, temp_buf); // Выделяем байты отвечающие за цену
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
 			bcc ^= temp_buf[pos];

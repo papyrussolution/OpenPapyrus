@@ -2770,9 +2770,7 @@ DlCtxHdr::DlCtxHdr()
 
 int DlCtxHdr::Check() const
 {
-	if(Signature[0] != 'D' || Signature[1] != 'L' || Signature[2] != '6' || Signature[3] != 'B')
-		return 0;
-	return 1;
+	return BIN(Signature[0] == 'D' && Signature[1] == 'L' && Signature[2] == '6' && Signature[3] == 'B');
 }
 
 int SLAPI DlContext::Read_Code()

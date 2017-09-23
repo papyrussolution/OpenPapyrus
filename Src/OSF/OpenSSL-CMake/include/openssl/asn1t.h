@@ -624,9 +624,7 @@ typedef struct ASN1_PRIMITIVE_FUNCS_st {
  * changes in the default behaviour are required then an external type is
  * more appropriate.
  */
-
-typedef int ASN1_aux_cb(int operation, ASN1_VALUE **in, const ASN1_ITEM *it,
-                        void *exarg);
+typedef int ASN1_aux_cb(int operation, ASN1_VALUE **in, const ASN1_ITEM *it, void *exarg);
 
 typedef struct ASN1_AUX_st {
     void *app_data;

@@ -1028,7 +1028,7 @@ int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, i
 		THROW(rSs.get(&p, rTempBuf));
 		rItem.Clock = rTempBuf.ToInt64();
 		if(rSs.get(&p, rTempBuf)) {
-			if(rTempBuf.StrChr(',', 0)) {
+			if(rTempBuf.HasChr(',')) {
 				StringSet _ss(',', rTempBuf);
 				p = 0;
 				for(uint i = 0; i < SIZEOFARRAY(rItem.Factors) && _ss.get(&p, rTempBuf); i++) {

@@ -14,7 +14,7 @@
 
 typedef ngx_http_request_t * nginx;
 
-typedef struct {
+struct ngx_http_perl_ctx_t {
 	ngx_str_t filename;
 	ngx_str_t redirect_uri;
 	ngx_str_t redirect_args;
@@ -24,23 +24,22 @@ typedef struct {
 #if (NGX_HTTP_SSI)
 	ngx_http_ssi_ctx_t  * ssi;
 #endif
-} ngx_http_perl_ctx_t;
+};
 
-typedef struct {
+struct ngx_http_perl_var_t {
 	ngx_uint_t hash;
 	ngx_str_t name;
 	ngx_str_t value;
-} ngx_http_perl_var_t;
+};
 
 extern ngx_module_t ngx_http_perl_module;
-
 /*
  * workaround for "unused variable `Perl___notused'" warning
  * when building with perl 5.6.1
  */
 #ifndef PERL_IMPLICIT_CONTEXT
-#undef  dTHXa
-#define dTHXa(a)
+	#undef  dTHXa
+	#define dTHXa(a)
 #endif
 
 extern void boot_DynaLoader(pTHX_ CV* cv);

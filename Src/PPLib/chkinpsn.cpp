@@ -1,6 +1,6 @@
 // CHKINPSN.CPP
 // Copyright (c) A.Sobolev 2013, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -20,7 +20,7 @@ SLAPI PPCheckInPersonConfig::PPCheckInPersonConfig(PPObjTSession & rTSesObj, con
 		THROW_PP_S(prc_rec.Flags & PRCF_ALLOWCIP, PPERR_PRCNOTALLOWEDCIP, prc_rec.Name);
 		Flags |= fInitPrc;
 		PersonKindID = prc_rec.CipPersonKindID;
-		Capacity = prc_rec.CipMax; // Имеет меньший приоритет, чем TechTbl::Rec::CipMax
+		Capacity = prc_rec.CipMax; // РРјРµРµС‚ РјРµРЅСЊС€РёР№ РїСЂРёРѕСЂРёС‚РµС‚, С‡РµРј TechTbl::Rec::CipMax
 		if(rTSessPack.Rec.TechID) {
 			THROW(rTSesObj.GetTech(rTSessPack.Rec.TechID, &tec_rec) > 0);
 			Flags |= fInitTech;
@@ -90,7 +90,7 @@ int SLAPI PPCheckInPersonItem::Cancel(long flags, const char * pPinCode)
     }
     if(GetStatus() == statusCanceled) {
 		PPSetError(PPERR_TSESSCIPOP_ALLRCANCELED);
-		// Возврат -1
+		// Р’РѕР·РІСЂР°С‚ -1
     }
     else {
 		THROW(SetStatus(statusCanceled));
@@ -106,7 +106,7 @@ int SLAPI PPCheckInPersonItem::CheckIn(long flags, const char * pPinCode)
 	const  int current_status = GetStatus();
     if(current_status == statusCheckedIn) {
 		PPSetError(PPERR_TSESSCIPOP_ALLRCHECKEDIN);
-		// Возврат -1
+		// Р’РѕР·РІСЂР°С‚ -1
     }
     else {
 		THROW_PP(current_status != statusCanceled, PPERR_TSESSCIPOP_ALLRCANCELED);
@@ -464,7 +464,7 @@ void SLAPI PPCheckInPersonArray::Normalize(int kind, PPID prmrID)
 int SLAPI PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
-	// Ссылка CCheckID не разрешается.
+	// РЎСЃС‹Р»РєР° CCheckID РЅРµ СЂР°Р·СЂРµС€Р°РµС‚СЃСЏ.
 	for(uint i = 0; i < getCount(); i++) {
 		PPCheckInPersonItem & r_item = at(i);
 		PPID   person_id = r_item.GetPerson();
@@ -782,13 +782,13 @@ struct PPCheckInPersonItem_Strg {
 	uint16 RegCount;
 	uint16 CiCount;
 	long   Flags;
-	LDATETIME RegDtm;      // Время регистрации //
-	LDATETIME CiDtm;       // Время подтверждения регистрации (CheckID)
-	double Amount;         // Сумма, уплаченная или которая должна быть уплачена за регистрацию (подтверждение)
-	PPID   CCheckID;       // Кассовый чек, которым оплачено подтверждение регистрации
-	PPID   SCardID;        // Карта, с которой ассоциирована зерегистрированная персоналия //
+	LDATETIME RegDtm;      // Р’СЂРµРјСЏ СЂРµРіРёСЃС‚СЂР°С†РёРё //
+	LDATETIME CiDtm;       // Р’СЂРµРјСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ СЂРµРіРёСЃС‚СЂР°С†РёРё (CheckID)
+	double Amount;         // РЎСѓРјРјР°, СѓРїР»Р°С‡РµРЅРЅР°СЏ РёР»Рё РєРѕС‚РѕСЂР°СЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СѓРїР»Р°С‡РµРЅР° Р·Р° СЂРµРіРёСЃС‚СЂР°С†РёСЋ (РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ)
+	PPID   CCheckID;       // РљР°СЃСЃРѕРІС‹Р№ С‡РµРє, РєРѕС‚РѕСЂС‹Рј РѕРїР»Р°С‡РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ СЂРµРіРёСЃС‚СЂР°С†РёРё
+	PPID   SCardID;        // РљР°СЂС‚Р°, СЃ РєРѕС‚РѕСЂРѕР№ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅР° Р·РµСЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅР°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ //
 	uint   MemoPos;        // @internal
-	char   PlaceCode[8];   // @v8.7.0 Номер места (для регистрации, ассоциированной с посадочным местом)
+	char   PlaceCode[8];   // @v8.7.0 РќРѕРјРµСЂ РјРµСЃС‚Р° (РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅРѕР№ СЃ РїРѕСЃР°РґРѕС‡РЅС‹Рј РјРµСЃС‚РѕРј)
 	uint8  Reserve[12];
 };
 
@@ -1171,8 +1171,8 @@ private:
 		long   pos = 0, id = 0;
 		if(getCurItem(&pos, &id) > 0 && pos >= 0 && pos < (long)Data.GetCount()) {
 			//
-			// @attention Будем работать с копией элемента Data[pos]. Необходимо синхронизировать
-			// собственно Data[pos] и item_ при изменении того или другого.
+			// @attention Р‘СѓРґРµРј СЂР°Р±РѕС‚Р°С‚СЊ СЃ РєРѕРїРёРµР№ СЌР»РµРјРµРЅС‚Р° Data[pos]. РќРµРѕР±С…РѕРґРёРјРѕ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°С‚СЊ
+			// СЃРѕР±СЃС‚РІРµРЅРЅРѕ Data[pos] Рё item_ РїСЂРё РёР·РјРµРЅРµРЅРёРё С‚РѕРіРѕ РёР»Рё РґСЂСѓРіРѕРіРѕ.
 			//
 			PPCheckInPersonItem item_ = Data.Get(pos);
 			if(item_.CCheckID) {
@@ -1200,8 +1200,8 @@ private:
 							THROW(p_cm = PPCashMachine::CreateInstance(cn_id));
 							THROW(Cfg.TurnProc(&Cfg, &Data, pos, Cfg.P_TurnProcExt));
 							//
-							// Так как мы работаем с копией элемента Data.Get(pos), то необходимо обновить значение
-							// идентификатора, на случай, если он изменился после вызова Cfg.TurnProc()
+							// РўР°Рє РєР°Рє РјС‹ СЂР°Р±РѕС‚Р°РµРј СЃ РєРѕРїРёРµР№ СЌР»РµРјРµРЅС‚Р° Data.Get(pos), С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РѕР±РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ
+							// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°, РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РѕРЅ РёР·РјРµРЅРёР»СЃСЏ РїРѕСЃР»Рµ РІС‹Р·РѕРІР° Cfg.TurnProc()
 							//
 							item_.ID = Data.Get(pos).ID;
 							//

@@ -14,10 +14,10 @@
 //#include <openssl/crypto.h>
 //#include <openssl/engine.h>
 //#include <openssl/evp.h>
-#include <openssl/aes.h>
+//#include <openssl/aes.h>
 //#include <openssl/rand.h>
 //#include <openssl/err.h>
-#include <openssl/modes.h>
+//#include <openssl/modes.h>
 
 #ifndef OPENSSL_NO_HW
 # ifndef OPENSSL_NO_HW_PADLOCK
@@ -303,20 +303,17 @@ static int padlock_ecb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 	    ALIGNED_CIPHER_DATA(ctx), nbytes);
 }
 
-static int padlock_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
-    const uchar * in_arg, size_t nbytes)
+static int padlock_cbc_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg, const uchar * in_arg, size_t nbytes)
 {
 	struct padlock_cipher_data * cdata = ALIGNED_CIPHER_DATA(ctx);
 	int ret;
-
 	memcpy(cdata->iv, EVP_CIPHER_CTX_iv(ctx), AES_BLOCK_SIZE);
 	if((ret = padlock_cbc_encrypt(out_arg, in_arg, cdata, nbytes)))
 		memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), cdata->iv, AES_BLOCK_SIZE);
 	return ret;
 }
 
-static int padlock_cfb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
-    const uchar * in_arg, size_t nbytes)
+static int padlock_cfb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg, const uchar * in_arg, size_t nbytes)
 {
 	struct padlock_cipher_data * cdata = ALIGNED_CIPHER_DATA(ctx);
 	size_t chunk;
@@ -355,7 +352,6 @@ static int padlock_cfb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 
 	if(nbytes) {
 		uchar * ivp = cdata->iv;
-
 		out_arg += chunk;
 		in_arg += chunk;
 		EVP_CIPHER_CTX_set_num(ctx, nbytes);
@@ -387,43 +383,33 @@ static int padlock_cfb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 	return 1;
 }
 
-static int padlock_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
-    const uchar * in_arg, size_t nbytes)
+static int padlock_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg, const uchar * in_arg, size_t nbytes)
 {
 	struct padlock_cipher_data * cdata = ALIGNED_CIPHER_DATA(ctx);
 	size_t chunk;
-
 	/*
 	 * ctx->num is maintained in byte-oriented modes, such as CFB and OFB...
 	 */
 	if((chunk = EVP_CIPHER_CTX_num(ctx))) { /* borrow chunk variable */
 		uchar * ivp = EVP_CIPHER_CTX_iv_noconst(ctx);
-
 		if(chunk >= AES_BLOCK_SIZE)
 			return 0;  /* bogus value */
-
 		while(chunk < AES_BLOCK_SIZE && nbytes != 0) {
 			*(out_arg++) = *(in_arg++) ^ ivp[chunk];
 			chunk++, nbytes--;
 		}
-
 		EVP_CIPHER_CTX_set_num(ctx, chunk % AES_BLOCK_SIZE);
 	}
-
 	if(nbytes == 0)
 		return 1;
-
 	memcpy(cdata->iv, EVP_CIPHER_CTX_iv(ctx), AES_BLOCK_SIZE);
-
 	if((chunk = nbytes & ~(AES_BLOCK_SIZE - 1))) {
 		if(!padlock_ofb_encrypt(out_arg, in_arg, cdata, chunk))
 			return 0;
 		nbytes -= chunk;
 	}
-
 	if(nbytes) {
 		uchar * ivp = cdata->iv;
-
 		out_arg += chunk;
 		in_arg += chunk;
 		EVP_CIPHER_CTX_set_num(ctx, nbytes);
@@ -435,32 +421,23 @@ static int padlock_ofb_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
 			ivp++, nbytes--;
 		}
 	}
-
 	memcpy(EVP_CIPHER_CTX_iv_noconst(ctx), cdata->iv, AES_BLOCK_SIZE);
-
 	return 1;
 }
 
-static void padlock_ctr32_encrypt_glue(const uchar * in,
-    uchar * out, size_t blocks,
-    struct padlock_cipher_data * ctx,
-    const uchar * ivec)
+static void padlock_ctr32_encrypt_glue(const uchar * in, uchar * out, size_t blocks,
+    struct padlock_cipher_data * ctx, const uchar * ivec)
 {
 	memcpy(ctx->iv, ivec, AES_BLOCK_SIZE);
 	padlock_ctr32_encrypt(out, in, ctx, AES_BLOCK_SIZE * blocks);
 }
 
-static int padlock_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg,
-    const uchar * in_arg, size_t nbytes)
+static int padlock_ctr_cipher(EVP_CIPHER_CTX * ctx, uchar * out_arg, const uchar * in_arg, size_t nbytes)
 {
 	struct padlock_cipher_data * cdata = ALIGNED_CIPHER_DATA(ctx);
 	uint num = EVP_CIPHER_CTX_num(ctx);
-
-	CRYPTO_ctr128_encrypt_ctr32(in_arg, out_arg, nbytes,
-	    cdata, EVP_CIPHER_CTX_iv_noconst(ctx),
-	    EVP_CIPHER_CTX_buf_noconst(ctx), &num,
-	    (ctr128_f)padlock_ctr32_encrypt_glue);
-
+	CRYPTO_ctr128_encrypt_ctr32(in_arg, out_arg, nbytes, cdata, EVP_CIPHER_CTX_iv_noconst(ctx),
+	    EVP_CIPHER_CTX_buf_noconst(ctx), &num, (ctr128_f)padlock_ctr32_encrypt_glue);
 	EVP_CIPHER_CTX_set_num(ctx, (size_t)num);
 	return 1;
 }

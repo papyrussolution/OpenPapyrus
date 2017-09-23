@@ -143,7 +143,7 @@ int __db_verify(DB * dbp, DB_THREAD_INFO * ip, const char * name, const char * s
 
 	F_SET(dbp, DB_AM_VERIFYING);
 	/* Initialize any feedback function. */
-	if(!LF_ISSET(DB_SALVAGE) && dbp->db_feedback != NULL)
+	if(!LF_ISSET(DB_SALVAGE) && dbp->db_feedback)
 		dbp->db_feedback(dbp, DB_VERIFY, 0);
 	/*
 	 * We don't know how large the cache is, and if the database
@@ -225,7 +225,7 @@ int __db_verify(DB * dbp, DB_THREAD_INFO * ip, const char * name, const char * s
 		goto done;
 	}
 	sflags = flags;
-	if(dbp->p_internal != NULL)
+	if(dbp->p_internal)
 		LF_CLR(DB_SALVAGE);
 	/*
 	 * When salvaging, we use a db to keep track of whether we've seen a
@@ -283,7 +283,7 @@ int __db_verify(DB * dbp, DB_THREAD_INFO * ip, const char * name, const char * s
 	flags = sflags;
 
 #ifdef HAVE_PARTITION
-	if(t_ret == 0 && dbp->p_internal != NULL)
+	if(t_ret == 0 && dbp->p_internal)
 		t_ret = __part_verify(dbp, vdp, name, handle, callback, flags);
 #endif
 	SETIFZ(ret, t_ret);
@@ -292,13 +292,13 @@ int __db_verify(DB * dbp, DB_THREAD_INFO * ip, const char * name, const char * s
 		__db_prfooter(handle, callback);
 done: err :
 	/* Send feedback that we're done. */
-	if(!LF_ISSET(DB_SALVAGE) && dbp->db_feedback != NULL)
+	if(!LF_ISSET(DB_SALVAGE) && dbp->db_feedback)
 		dbp->db_feedback(dbp, DB_VERIFY, 100);
 	if(LF_ISSET(DB_SALVAGE) && (t_ret = __db_salvage_destroy(vdp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
+	if(fhp && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(vdp != NULL && (t_ret = __db_vrfy_dbinfo_destroy(env, vdp)) != 0 && ret == 0)
+	if(vdp && (t_ret = __db_vrfy_dbinfo_destroy(env, vdp)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, real_name);
 	/*
@@ -624,7 +624,7 @@ err1:
 			 * that this is the first of two passes through the
 			 * database (front-to-back, then top-to-bottom).
 			 */
-			if(dbp->db_feedback != NULL)
+			if(dbp->db_feedback)
 				dbp->db_feedback(dbp, DB_VERIFY, (int)((i+1)*50/(vdp->last_pgno+1)));
 		}
 		/*
@@ -687,7 +687,7 @@ static int __db_vrfy_structure(DB * dbp, VRFY_DBINFO * vdp, const char * dbname,
 	 * never give a percentage under 50 or over 100.  (The first pass
 	 * covered the range 0-50%.)
 	 */
-	if(dbp->db_feedback != NULL)
+	if(dbp->db_feedback)
 		vdp->pgs_remaining = vdp->last_pgno+1;
 	/*
 	 * Call the appropriate function to downwards-traverse the db type.
@@ -809,7 +809,7 @@ static int __db_vrfy_structure(DB * dbp, VRFY_DBINFO * vdp, const char * dbname,
 		pip = NULL;
 	}
 err:
-	if(pip != NULL)
+	if(pip)
 		__db_vrfy_putpageinfo(env, vdp, pip);
 	return (isbad == 1 && ret == 0) ? DB_VERIFY_BAD : ret;
 }
@@ -1280,7 +1280,7 @@ static int __db_vrfy_subdbs(DB * dbp, VRFY_DBINFO * vdp, const char * dbname, ui
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 err:
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __db_close(mdbp, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
@@ -1429,9 +1429,9 @@ static int __db_vrfy_orderchkonly(DB * dbp, VRFY_DBINFO * vdp, const char * name
 		break;
 	}
 err:
-	if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
+	if(pgsc && (t_ret = __dbc_close(pgsc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret == 0)
+	if(pgset && (t_ret = __db_close(pgset, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
 	if((t_ret = __memp_fput(mpf, vdp->thread_info, h, dbp->priority)) != 0)
 		ret = t_ret;
@@ -1801,7 +1801,7 @@ int __db_vrfy_inpitem(DB * dbp, PAGE * h, db_pgno_t pgno, uint32 i, int is_btree
 			return DB_VERIFY_BAD;
 		}
 	}
-	if(offsetp != NULL)
+	if(offsetp)
 		*offsetp = offset;
 	return 0;
 }
@@ -2126,9 +2126,9 @@ static int __db_salvage_subdbpg(DB * dbp, VRFY_DBINFO * vdp, PAGE * master, void
 	}
 err:
 	__os_free(env, subdbname);
-	if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0)
+	if(pgsc && (t_ret = __dbc_close(pgsc)) != 0)
 		ret = t_ret;
-	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0)
+	if(pgset && (t_ret = __db_close(pgset, NULL, 0)) != 0)
 		ret = t_ret;
 	if((t_ret = __db_salvage_markdone(vdp, PGNO(master))) != 0)
 		return t_ret;
@@ -2200,11 +2200,11 @@ static int __db_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void *
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 err:
-	if(dbc != NULL && (t_ret = __dbc_close(dbc)) != 0)
+	if(dbc && (t_ret = __dbc_close(dbc)) != 0)
 		ret = t_ret;
-	if(pgsc != NULL && (t_ret = __dbc_close(pgsc)) != 0)
+	if(pgsc && (t_ret = __dbc_close(pgsc)) != 0)
 		ret = t_ret;
-	if(pgset != NULL && (t_ret = __db_close(pgset, NULL, 0)) != 0)
+	if(pgset && (t_ret = __db_close(pgset, NULL, 0)) != 0)
 		ret = t_ret;
 	return (err_ret != 0) ? err_ret : ret;
 }

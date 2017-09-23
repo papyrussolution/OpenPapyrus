@@ -506,16 +506,17 @@ int SLAPI PPObjBill::GetCurRate(PPID curID, LDATE * pDt, double * pRate)
 int SLAPI PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray * pList)
 {
 	int    ok = 1;
+	BillTbl * p_tbl = P_Tbl;
 	BillTbl::Key3 k3;
-	BExtQuery q(P_Tbl, 3);
-	q.select(P_Tbl->ID, P_Tbl->OpID, P_Tbl->Object, P_Tbl->LinkBillID, 0L).
-		where(P_Tbl->Object == orderID && daterange(P_Tbl->Dt, pRange) && P_Tbl->OpID == 0L);
+	BExtQuery q(p_tbl, 3);
+	q.select(p_tbl->ID, p_tbl->OpID, p_tbl->Object, p_tbl->LinkBillID, 0L).
+		where(p_tbl->Object == orderID && daterange(p_tbl->Dt, pRange) && p_tbl->OpID == 0L);
 	k3.Object = orderID;
 	k3.Dt   = pRange ? pRange->low : ZERODATE;
 	k3.BillNo = 0;
 	pList->clear();
 	for(q.initIteration(0, &k3, spGt); ok && q.nextIteration() > 0;)
-		if(!pList->addUnique(P_Tbl->data.LinkBillID))
+		if(!pList->addUnique(p_tbl->data.LinkBillID))
 			ok = 0;
 	return ok;
 }
@@ -1838,6 +1839,7 @@ int SLAPI PPObjBill::ReplyInventGoodsReplace(PPID dest, PPID src)
 int SLAPI PPObjBill::ReplyArticleReplace(PPID dest, PPID src)
 {
 	int    ok = DBRPL_OK;
+	BillCore * p_tbl = P_Tbl;
 	uint   i;
 	PPBillExt ext_rec;
 	BillTbl::Key3    bk3;
@@ -1846,10 +1848,10 @@ int SLAPI PPObjBill::ReplyArticleReplace(PPID dest, PPID src)
 	MEMSZERO(bk3);
 	bk3.Object = dest;
 	// @todo update_for
-	while(P_Tbl->search(3, &bk3, spGt) && bk3.Object == dest) {
-		THROW_DB(P_Tbl->rereadForUpdate(3, &bk3));
-		P_Tbl->data.Object = src;
-		THROW_DB(P_Tbl->updateRec()); // @sfu
+	while(p_tbl->search(3, &bk3, spGt) && bk3.Object == dest) {
+		THROW_DB(p_tbl->rereadForUpdate(3, &bk3));
+		p_tbl->data.Object = src;
+		THROW_DB(p_tbl->updateRec()); // @sfu
 	}
 	MEMSZERO(rk5);
 	rk5.SupplID = dest;
@@ -1860,19 +1862,19 @@ int SLAPI PPObjBill::ReplyArticleReplace(PPID dest, PPID src)
 		THROW_DB(trfr->Rcpt.updateRec()); // @sfu
 	}
 	// Agent
-	THROW(P_Tbl->GetBillListByExt(dest, 0, bill_list));
+	THROW(p_tbl->GetBillListByExt(dest, 0, bill_list));
 	for(i = 0; i < bill_list.getCount(); i++)
-		if(P_Tbl->GetExtraData(bill_list.at(i), &ext_rec) > 0) {
+		if(p_tbl->GetExtraData(bill_list.at(i), &ext_rec) > 0) {
 			ext_rec.AgentID = src;
-			THROW(P_Tbl->PutExtraData(bill_list.at(i), &ext_rec, 0));
+			THROW(p_tbl->PutExtraData(bill_list.at(i), &ext_rec, 0));
 		}
 	// Payer
 	bill_list.clear();
-	THROW(P_Tbl->GetBillListByExt(0, dest, bill_list));
+	THROW(p_tbl->GetBillListByExt(0, dest, bill_list));
 	for(i = 0; i < bill_list.getCount(); i++)
-		if(P_Tbl->GetExtraData(bill_list.at(i), &ext_rec) > 0) {
+		if(p_tbl->GetExtraData(bill_list.at(i), &ext_rec) > 0) {
 			ext_rec.PayerID = src;
-			THROW(P_Tbl->PutExtraData(bill_list.at(i), &ext_rec, 0));
+			THROW(p_tbl->PutExtraData(bill_list.at(i), &ext_rec, 0));
 		}
 	CATCHZOK
 	return ok;
@@ -1880,15 +1882,16 @@ int SLAPI PPObjBill::ReplyArticleReplace(PPID dest, PPID src)
 
 int SLAPI PPObjBill::ReplyArticleDel(PPID id)
 {
-	for(DateIter diter; P_Tbl->EnumByObj(id, &diter) > 0;)
-		if(P_Tbl->data.OpID) // В теневом док-те Object имеет спец. назначение
-			return RetRefsExistsErr(Obj, P_Tbl->data.ID);
+	BillCore * p_tbl = P_Tbl;
+	for(DateIter diter; p_tbl->EnumByObj(id, &diter) > 0;)
+		if(p_tbl->data.OpID) // В теневом док-те Object имеет спец. назначение
+			return RetRefsExistsErr(Obj, p_tbl->data.ID);
 	{
 		PPID   k = 0;
-		BExtQuery q(P_Tbl, 0);
-		q.select(P_Tbl->ID, 0L).where(P_Tbl->Object2 == id);
+		BExtQuery q(p_tbl, 0);
+		q.select(p_tbl->ID, 0L).where(p_tbl->Object2 == id);
 		if(q.fetchFirst(&k, spFirst) > 0)
-			return RetRefsExistsErr(Obj, P_Tbl->data.ID);
+			return RetRefsExistsErr(Obj, p_tbl->data.ID);
 	}
 	return DBRPL_OK;
 }
@@ -1898,6 +1901,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	int    ok = DBRPL_OK;
 	PPID   k = 0;
 	PPID   bill_id = 0;
+	BillCore * p_tbl = P_Tbl;
 	if(msg == DBMSG_OBJDELETE) {
 		switch(_obj) {
 			case PPOBJ_GOODS:
@@ -1912,8 +1916,8 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				}
 				break;
 			case PPOBJ_OPRKIND:
-				if(P_Tbl->EnumByOpr(_id, 0) > 0)
-					ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
+				if(p_tbl->EnumByOpr(_id, 0) > 0)
+					ok = RetRefsExistsErr(Obj, p_tbl->data.ID);
 				break;
 			case PPOBJ_LOCATION:
 				{
@@ -1923,12 +1927,12 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							BillTbl::Key5 k5;
 							MEMSZERO(k5);
 							k5.LocID = _id;
-							if(P_Tbl->search(5, &k5, spGe) && k5.LocID == _id)
-								ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
+							if(p_tbl->search(5, &k5, spGe) && k5.LocID == _id)
+								ok = RetRefsExistsErr(Obj, p_tbl->data.ID);
 						}
 						else if(loc_rec.Type == LOCTYP_ADDRESS) {
 							LAssocArray dlvr_addr_list;
-							P_Tbl->GetDlvrAddrList(&dlvr_addr_list);
+							p_tbl->GetDlvrAddrList(&dlvr_addr_list);
 							for(uint i = 0; i < dlvr_addr_list.getCount(); i++)
 								if(dlvr_addr_list.at(i).Val == _id) {
 									THROW(RetRefsExistsErr(Obj, dlvr_addr_list.at(i).Key));
@@ -1943,7 +1947,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					FreightFilt ff;
 					ff.Flags |= FreightFilt::fStrictPort;
 					ff.PortID = _id;
-					if(P_Tbl->GetListByFreightFilt(ff, list) > 0) {
+					if(p_tbl->GetListByFreightFilt(ff, list) > 0) {
 						ulong first_id = 0;
 						list.Enum(&first_id);
 						THROW(RetRefsExistsErr(Obj, (long)first_id));
@@ -1954,7 +1958,7 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					FreightFilt ff;
 					ff.Flags |= FreightFilt::fStrictPort;
 					ff.PortOfLoading = _id;
-					if(P_Tbl->GetListByFreightFilt(ff, list) > 0) {
+					if(p_tbl->GetListByFreightFilt(ff, list) > 0) {
 						ulong first_id = 0;
 						list.Enum(&first_id);
 						THROW(RetRefsExistsErr(Obj, (long)first_id));
@@ -1974,17 +1978,17 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				}
 				break;
 			case PPOBJ_AMOUNTTYPE:
-				if(P_Tbl->CheckAmtTypeRef(_id, &bill_id) > 0)
+				if(p_tbl->CheckAmtTypeRef(_id, &bill_id) > 0)
 					ok = RetRefsExistsErr(Obj, bill_id);
 				break;
 			case PPOBJ_BILLSTATUS:
 				{
 					BillTbl::Key0 k0;
-					BExtQuery q(P_Tbl, 0, 4);
-					q.select(P_Tbl->ID, 0L).where(P_Tbl->StatusID == _id);
+					BExtQuery q(p_tbl, 0, 4);
+					q.select(p_tbl->ID, 0L).where(p_tbl->StatusID == _id);
 					MEMSZERO(k0);
 					if(q.fetchFirst(&k0, spFirst) > 0)
-						ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
+						ok = RetRefsExistsErr(Obj, p_tbl->data.ID);
 				}
 				break;
 		}
@@ -2008,14 +2012,14 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			LocationTbl::Rec replacement_rec;
 			THROW(LocObj.Search((long)extraPtr, &replacement_rec) > 0);
 			THROW_PP(replacement_rec.Type == LOCTYP_ADDRESS, PPERR_REPLACEMENTID_NOTADDR);
-			P_Tbl->GetDlvrAddrList(&dlvr_addr_list);
+			p_tbl->GetDlvrAddrList(&dlvr_addr_list);
 			for(uint i = 0; ok == DBRPL_OK && i < dlvr_addr_list.getCount(); i++) {
 				if(dlvr_addr_list.at(i).Val == _id) {
 					const PPID bill_id = dlvr_addr_list.at(i).Key;
 					PPFreight freight;
-					if(P_Tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID == _id) {
+					if(p_tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID == _id) {
 						freight.DlvrAddrID = (long)extraPtr;
-						THROW(P_Tbl->SetFreight(bill_id, &freight, 0));
+						THROW(p_tbl->SetFreight(bill_id, &freight, 0));
 					}
 				}
 			}
@@ -2026,12 +2030,12 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				FreightFilt ff;
 				ff.Flags |= FreightFilt::fStrictPort;
 				ff.PortID = _id;
-				if(P_Tbl->GetListByFreightFilt(ff, list) > 0) {
+				if(p_tbl->GetListByFreightFilt(ff, list) > 0) {
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
-						if(P_Tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfDischarge == _id) {
+						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfDischarge == _id) {
 							freight.PortOfDischarge = (long)extraPtr;
-							THROW(P_Tbl->SetFreight((long)bill_id, &freight, 0));
+							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
 				}
@@ -2041,12 +2045,12 @@ int SLAPI PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				FreightFilt ff;
 				ff.Flags |= FreightFilt::fStrictPort;
 				ff.PortOfLoading = _id;
-				if(P_Tbl->GetListByFreightFilt(ff, list) > 0) {
+				if(p_tbl->GetListByFreightFilt(ff, list) > 0) {
 					for(ulong bill_id = 0; list.Enum(&bill_id);) {
 						PPFreight freight;
-						if(P_Tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfLoading == _id) {
+						if(p_tbl->GetFreight((long)bill_id, &freight) > 0 && freight.PortOfLoading == _id) {
 							freight.PortOfLoading = (long)extraPtr;
-							THROW(P_Tbl->SetFreight((long)bill_id, &freight, 0));
+							THROW(p_tbl->SetFreight((long)bill_id, &freight, 0));
 						}
 					}
 				}

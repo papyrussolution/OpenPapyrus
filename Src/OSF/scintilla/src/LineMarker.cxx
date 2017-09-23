@@ -13,20 +13,67 @@
 //#include <map>
 //#include "StringCopy.h"
 #include "XPM.h"
-#include "LineMarker.h"
+//#include "LineMarker.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-void LineMarker::SetXPM(const char * textForm)
+LineMarker::LineMarker() 
+{
+	markType = SC_MARK_CIRCLE;
+	fore = ColourDesired(0,0,0);
+	back = ColourDesired(0xff,0xff,0xff);
+	backSelected = ColourDesired(0xff,0x00,0x00);
+	alpha = SC_ALPHA_NOALPHA;
+	pxpm = NULL;
+	image = NULL;
+	customDraw = NULL;
+}
+	
+LineMarker::LineMarker(const LineMarker &) 
+{
+	// Defined to avoid pxpm being blindly copied, not as a complete copy constructor
+	markType = SC_MARK_CIRCLE;
+	fore = ColourDesired(0,0,0);
+	back = ColourDesired(0xff,0xff,0xff);
+	backSelected = ColourDesired(0xff,0x00,0x00);
+	alpha = SC_ALPHA_NOALPHA;
+	pxpm = NULL;
+	image = NULL;
+	customDraw = NULL;
+}
+
+LineMarker::~LineMarker() 
+{
+	delete pxpm;
+	delete image;
+}
+
+LineMarker & FASTCALL LineMarker::operator = (const LineMarker &other) 
+{
+	// Defined to avoid pxpm being blindly copied, not as a complete assignment operator
+	if (this != &other) {
+		markType = SC_MARK_CIRCLE;
+		fore = ColourDesired(0,0,0);
+		back = ColourDesired(0xff,0xff,0xff);
+		backSelected = ColourDesired(0xff,0x00,0x00);
+		alpha = SC_ALPHA_NOALPHA;
+		ZDELETE(pxpm);
+		ZDELETE(image);
+		customDraw = NULL;
+	}
+	return *this;
+}
+
+void FASTCALL LineMarker::SetXPM(const char * textForm)
 {
 	delete pxpm;
 	pxpm = new XPM(textForm);
 	markType = SC_MARK_PIXMAP;
 }
 
-void LineMarker::SetXPM(const char * const * linesForm)
+void FASTCALL LineMarker::SetXPM(const char * const * linesForm)
 {
 	delete pxpm;
 	pxpm = new XPM(linesForm);
@@ -42,21 +89,13 @@ void LineMarker::SetRGBAImage(Point sizeRGBAImage, float scale, const uchar * pi
 
 static void DrawBox(Surface * surface, int centreX, int centreY, int armSize, ColourDesired fore, ColourDesired back)
 {
-	PRectangle rc = PRectangle::FromInts(
-	    centreX - armSize,
-	    centreY - armSize,
-	    centreX + armSize + 1,
-	    centreY + armSize + 1);
+	PRectangle rc = PRectangle::FromInts(centreX - armSize, centreY - armSize, centreX + armSize + 1, centreY + armSize + 1);
 	surface->RectangleDraw(rc, back, fore);
 }
 
 static void DrawCircle(Surface * surface, int centreX, int centreY, int armSize, ColourDesired fore, ColourDesired back)
 {
-	PRectangle rcCircle = PRectangle::FromInts(
-	    centreX - armSize,
-	    centreY - armSize,
-	    centreX + armSize + 1,
-	    centreY + armSize + 1);
+	PRectangle rcCircle = PRectangle::FromInts(centreX - armSize, centreY - armSize, centreX + armSize + 1, centreY + armSize + 1);
 	surface->Ellipse(rcCircle, back, fore);
 }
 
@@ -80,11 +119,9 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		customDraw(surface, rcWhole, fontForCharacter, tFold, marginStyle, this);
 		return;
 	}
-
 	ColourDesired colourHead = back;
 	ColourDesired colourBody = back;
 	ColourDesired colourTail = back;
-
 	switch(tFold) {
 		case LineMarker::head:
 		case LineMarker::headWithTail:
@@ -212,11 +249,9 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		surface->PenColour(colourTail);
 		surface->MoveTo(centreX, centreY);
 		surface->LineTo(static_cast<int>(rc.right) - 1, centreY);
-
 		surface->PenColour(colourBody);
 		surface->MoveTo(centreX, static_cast<int>(rcWhole.top));
 		surface->LineTo(centreX, centreY + 1);
-
 		surface->PenColour(colourHead);
 		surface->LineTo(centreX, static_cast<int>(rcWhole.bottom));
 	}
@@ -232,11 +267,9 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		surface->MoveTo(centreX, centreY-3);
 		surface->LineTo(centreX+3, centreY);
 		surface->LineTo(static_cast<int>(rc.right) - 1, centreY);
-
 		surface->PenColour(colourBody);
 		surface->MoveTo(centreX, static_cast<int>(rcWhole.top));
 		surface->LineTo(centreX, centreY-2);
-
 		surface->PenColour(colourHead);
 		surface->LineTo(centreX, static_cast<int>(rcWhole.bottom));
 	}

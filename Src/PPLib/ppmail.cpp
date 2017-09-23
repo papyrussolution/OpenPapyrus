@@ -3,8 +3,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <sys/stat.h>
-#include <fcntl.h>
+//#include <sys/stat.h>
+//#include <fcntl.h>
 // @v9.6.3 #include <idea.h>
 #include <charry.h>
 //

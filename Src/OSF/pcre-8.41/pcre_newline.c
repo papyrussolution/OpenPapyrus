@@ -44,11 +44,11 @@
    only NLTYPE_FIXED, which gets handled without these functions, NLTYPE_ANYCRLF,
    and NLTYPE_ANY. The full list of Unicode newline characters is taken from
    http://unicode.org/unicode/reports/tr18/. */
-
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
+#pragma hdrstop
 
 /*************************************************
 *      Check for newline at given position       *
@@ -69,7 +69,7 @@
 
 BOOL PRIV(is_newline) (PCRE_PUCHAR ptr, int type, PCRE_PUCHAR endptr, int * lenptr, BOOL utf)
 {
-	pcre_uint32 c;
+	uint32 c;
 	(void)utf;
 #ifdef SUPPORT_UTF
 	if(utf) {
@@ -134,7 +134,7 @@ BOOL PRIV(is_newline) (PCRE_PUCHAR ptr, int type, PCRE_PUCHAR endptr, int * lenp
  */
 BOOL PRIV(was_newline) (PCRE_PUCHAR ptr, int type, PCRE_PUCHAR startptr, int * lenptr, BOOL utf)
 {
-	pcre_uint32 c;
+	uint32 c;
 	(void)utf;
 	ptr--;
 #ifdef SUPPORT_UTF

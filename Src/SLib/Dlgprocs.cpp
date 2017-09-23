@@ -146,7 +146,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 #define GETKEYCODE(tab) i_tab_limited(tab, wParam, SIZEOFARRAY(tab))
 #endif // } 0
 	TEvent event;
-	event.what = evKeyDown;
+	event.what = TEvent::evKeyDown;
 	if(isPpyCodeType)
 		event.keyDown.keyCode = (uchar)wParam;
 	else {
@@ -349,12 +349,12 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else {
 						if(lParam == 0) {
 							if(hiw == 0) { // from menu
-								event.what = evKeyDown;
+								event.what = TEvent::evKeyDown;
 								event.keyDown.keyCode = low;
 								p_dlg->handleEvent(event);
 							}
 							else if(hiw == 1) { // from accelerator
-								event.what = evCommand;
+								event.what = TEvent::evCommand;
 								event.message.command = low;
 								p_dlg->handleEvent(event);
 							}
@@ -370,7 +370,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONDBLCLK:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 			if(p_dlg) {
-				event.what              = evMouseDown;
+				event.what              = TEvent::evMouseDown;
 				event.mouse.buttons     = (uchar)wParam;
 				event.mouse.WhereX      = LOWORD(lParam);
 				event.mouse.WhereY      = HIWORD(lParam);
@@ -381,7 +381,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONDOWN:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 			if(p_dlg) {
-				event.what = evMouseDown;
+				event.what = TEvent::evMouseDown;
 				event.mouse.buttons = (uchar)wParam;
 				event.mouse.WhereX = LOWORD(lParam);
 				event.mouse.WhereY = HIWORD(lParam);
@@ -398,7 +398,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONUP:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 			if(p_dlg) {
-				event.what = evMouseUp;
+				event.what = TEvent::evMouseUp;
 				event.mouse.buttons = (uchar)wParam;
 				event.mouse.WhereX = LOWORD(lParam);
 				event.mouse.WhereY = HIWORD(lParam);
@@ -408,7 +408,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONUP:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 			if(p_dlg && HIWORD(wParam) != 1) {
-				event.what = evKeyDown;
+				event.what = TEvent::evKeyDown;
 				event.keyDown.keyCode = kbShiftF10;
 				p_dlg->handleEvent(event);
 			}
@@ -417,7 +417,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 				if(p_dlg) {
-					event.what = evMouseMove;
+					event.what = TEvent::evMouseMove;
 					event.mouse.buttons = (uchar)wParam;
 					event.mouse.WhereX = LOWORD(lParam);
 					event.mouse.WhereY = HIWORD(lParam);
@@ -447,7 +447,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(GetKeyState(VK_SHIFT) & 0x8000)
 						key_cmd.State |= KeyDownCommand::stateShift;
 					key_cmd.Code = (uint16)wParam;
-					event.what = evCommand;
+					event.what = TEvent::evCommand;
 					event.message.command = cmWinKeyDown;
 					event.message.infoPtr = (void*)&key_cmd;
 					p_dlg->handleEvent(event);
@@ -498,7 +498,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_SIZING:
 			p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
 			if(p_dlg) {
-				event.what = evCommand;
+				event.what = TEvent::evCommand;
 				event.message.command = cmResize;
 				event.message.infoPtr = (uMsg == WM_SIZING) ? (void *)lParam : 0;
 				p_dlg->handleEvent(event);

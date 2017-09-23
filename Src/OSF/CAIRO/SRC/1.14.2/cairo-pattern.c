@@ -2640,7 +2640,7 @@ void _cairo_pattern_alpha_range(const cairo_pattern_t * pattern,
 
 		default:
 		    ASSERT_NOT_REACHED;
-		/* fall through */
+		// @fallthrough
 
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:

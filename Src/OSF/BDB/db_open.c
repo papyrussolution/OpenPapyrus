@@ -86,7 +86,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	 * this interface as well.
 	 */
 	if(fname == NULL) {
-		if(dbp->p_internal != NULL) {
+		if(dbp->p_internal) {
 			__db_errx(env, DB_STR("0634", "Partitioned databases may not be in memory."));
 			return ENOENT;
 		}
@@ -147,7 +147,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 			LF_CLR(DB_RDONLY);
 	}
 	else {
-		if(dbp->p_internal != NULL) {
+		if(dbp->p_internal) {
 			__db_errx(env, DB_STR("0637", "Partitioned databases may not be included with multiple databases."));
 			return ENOENT;
 		}
@@ -241,7 +241,7 @@ int __db_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, cons
 	}
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTLOGMETA, ret, name);
 	// Sync the file in preparation for moving it into place
-	if(ret == 0 && fhp != NULL)
+	if(ret == 0 && fhp)
 		ret = __os_fsync(dbp->env, fhp);
 	DB_TEST_RECOVERY(dbp, DB_TEST_POSTSYNC, ret, name);
 	if(F_ISSET(dbp, DB_AM_INMEM))
@@ -336,7 +336,7 @@ chk_retry:
 			}
 		}
 	}
-	else if(dbp != NULL)
+	else if(dbp)
 		F_CLR(dbp, DB_AM_CHKSUM);
 #ifdef HAVE_CRYPTO
 	ret = __crypto_decrypt_meta(env, dbp, (uint8 *)meta, LF_ISSET(DB_CHK_META));

@@ -433,7 +433,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope,
 									THROW(SearchTypeID(pExpr->GetOrgTypeID(), 0, &te));
 									if(te.T.IsZStr(&slen)) {
 										SString * p_str = *(SString **)S.GetPtr(ret_pos);
-										(*p_str) = 0;
+										p_str->Z();
 									}
 									else
 										memzero(S.GetPtr(ret_pos), te.T.GetBinSize());
@@ -498,21 +498,22 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 			THROW_SL(p_child->AllocDataBuf());
 			if(topLevel)
 				if(p_child->IsKind(DlScope::kExpDataHdr)) {
-					if(p_child->Name.Cmp("hdr", 0) == 0)
+					if(p_child->Name == "hdr")
 						P_HdrScope = p_child;
 				}
-				else if(p_child->IsKind(DlScope::kExpDataIter))
-					if(p_child->Name.Cmp("iter@def", 0) == 0 && IterList.GetCount()) {
+				else if(p_child->IsKind(DlScope::kExpDataIter)) {
+					if(p_child->Name == "iter@def" && IterList.GetCount()) {
 						//
 						// default-итератор должен быть самым первым в списке.
 						// Этот блок гарантирует выполнение такого правила.
 						//
-						uint32 first = IterList[0];
+						const uint32 first = IterList[0];
 						IterList.P_Data[1+0] = p_child->ID;
 						IterList.Add(first);
 					}
 					else
 						IterList.Add(p_child->ID);
+				}
 		}
 		//
 		// Теперь инициализируем базовую область
@@ -583,7 +584,7 @@ void * DlRtm::GetFixFieldData(const DlScope * pScope, uint fldPos)
 	return ptr;
 }
 
-int DlRtm::FinishRecord(const DlScope * pScope)
+int FASTCALL DlRtm::FinishRecord(const DlScope * pScope)
 {
 	int    ok = 1;
 	uint   i;
@@ -696,12 +697,11 @@ int DlRtm::InitFixData(const char * pScopeName, void * pData, size_t dataSize)
 		const DlScope * p_base = P_Data;
 		while(p_base->GetBase())
 			p_base = p_base->GetBase();
-		//
-		// Очень плохо! Преобразование const к не-const
-		//
-		DlScope * p_scope = (DlScope *)p_base->SearchByName_Const(0, pScopeName, &parent_id);
-		if(p_scope)
-			ok = p_scope->SetFixDataBuf(pData, dataSize, 1);
+		DlScope * p_scope = (DlScope *)p_base->SearchByName_Const(0, pScopeName, &parent_id); // @badcast (const-->non-const)
+		if(p_scope) {
+			p_scope->SetFixDataBuf(pData, dataSize, 1);
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -725,7 +725,7 @@ public:
 	~SetScopeBlk()
 	{
 	}
-	int Init(DlScope * pRoot)
+	int FASTCALL Init(DlScope * pRoot)
 	{
 		int    ok = 1;
 		THROW(P_Root = pRoot);
@@ -733,7 +733,7 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	int ToChild(const char *pName)
+	int FASTCALL ToChild(const char * pName)
 	{
 		int    ok = 1;
 		THROW(P_Curr = P_Root->SearchByName(DlScope::kExpDataIter, pName, &ParentID));
@@ -743,7 +743,7 @@ public:
 	}
 	int ToHeader()
 	{
-		int ok = 1;
+		int    ok = 1;
 		THROW(P_Curr = P_Root->SearchByName(0, "hdr", &ParentID));
 		ID = 0;
 		CATCHZOK
@@ -751,7 +751,7 @@ public:
 	}
 	int GetFieldByName(const char * pName, SdbField * pFld) const
 	{
-		int ok = 1;
+		int    ok = 1;
 		THROW(P_Curr);
 		THROW(P_Curr->GetFieldByName(pName, pFld));
 		CATCHZOK
@@ -778,7 +778,6 @@ int DlRtm::SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk)
 	int    ok = 1;
 	void * p_buf = NULL;
 	const  char * fld_name = 0;
-	//char * p_value = 0;
 	SdbField fld;
 	SFormatParam fp;
 	SString temp_buf;
@@ -956,7 +955,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 				if(rParam.Flags & ExportParam::fDiff_ID_ByScope)
 					idn = 1;
 			}
-			else if(p_child->Name.CmpNC("iter@def") == 0) {
+			else if(p_child->Name == "iter@def") {
 				suffix = "_Iter";
 				PPGetFileName(PPFILNAM_ITER_BTR, fname);
 				if(rParam.Flags & ExportParam::fDiff_ID_ByScope)
@@ -1060,7 +1059,7 @@ int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, Str
 			buf.CopyTo(xml_entity_spec, sizeof(xml_entity_spec));
 			p_xml_entity_spec = xml_entity_spec;
 		}
-		buf = 0;
+		buf.Z();
 	}
 	const DlScope * p_scope = 0;
 	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
@@ -1086,7 +1085,7 @@ int SLAPI DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, Str
 	return 1;
 }
 
-int SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const
+void SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const
 {
 	StringSet ss_dtd(',', 0);
 	FillXmlBuf(pScope, pWriter, &ss_dtd, SCodepageIdent(cpANSI));
@@ -1095,7 +1094,6 @@ int SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, con
 	xmlTextWriterWriteDTDElement(pWriter, (const xmlChar*)pElemName, huge_buf.ucptr());
 	for(uint p = 0; ss_dtd.get(&p, buf) > 0;)
 		xmlTextWriterWriteDTDElement(pWriter, buf.ucptr(), (const xmlChar*)"(#PCDATA)");
-	return 1;
 }
 
 int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
@@ -1141,7 +1139,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 						suffix = "Head";
 						is_hdr = 1;
 					}
-					else if(p_child->Name.CmpNC("iter@def") == 0)
+					else if(p_child->Name == "iter@def")
 						suffix = "Iter";
 					else if(p_child->Name.Divide('@', left, suffix) > 0) {
 						left.Z().CatChar('_').Cat(suffix);
@@ -1159,7 +1157,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(p_child->Name.CmpNC("hdr") == 0)
 					suffix = "Head";
-				else if(p_child->Name.CmpNC("iter@def") == 0)
+				else if(p_child->Name == "iter@def")
 					suffix = "Iter";
 				else if(p_child->Name.Divide('@', left, suffix) > 0) {
 					left.Z().CatChar('_').Cat(suffix);
@@ -1180,7 +1178,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 					is_hdr = 1;
 					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 				}
-				else if(p_child->Name.CmpNC("iter@def") == 0) {
+				else if(p_child->Name == "iter@def") {
 					suffix = "Iter";
 				}
 				else if(p_child->Name.Divide('@', left, suffix) > 0) {
@@ -1261,7 +1259,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 						suffix = "Head";
 						is_hdr = 1;
 					}
-					else if(p_child->Name.CmpNC("iter@def") == 0)
+					else if(p_child->Name == "iter@def")
 						suffix = "Iter";
 					else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
 						temp_buf.Z().CatChar('_').Cat(suffix);
@@ -1279,7 +1277,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(p_child->Name.CmpNC("hdr") == 0)
 					suffix = "Head";
-				else if(p_child->Name.CmpNC("iter@def") == 0)
+				else if(p_child->Name == "iter@def")
 					suffix = "Iter";
 				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
 					temp_buf.Z().CatChar('_').Cat(suffix);
@@ -1304,7 +1302,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 					h_i++;
 					suffix = "Head";
 				}
-				else if(p_child->Name.CmpNC("iter@def") == 0) {
+				else if(p_child->Name == "iter@def") {
 					h_i++;
 					suffix = "Iter";
 				}
@@ -1335,7 +1333,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 				is_hdr = 1;
 				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 			}
-			else if(p_child->Name.CmpNC("iter@def") == 0) {
+			else if(p_child->Name == "iter@def") {
 				suffix = "Iter";
 			}
 			else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
@@ -1406,7 +1404,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot)
 		}
 		else {
 			long iter_id = GetIterID(p_child->Name);
-			if(p_child->Name.CmpNC("iter@def") == 0) {
+			if(p_child->Name == "iter@def") {
 				suffix = "Iter";
 			}
 			else if(p_child->Name.Divide('@', left, suffix) > 0) {

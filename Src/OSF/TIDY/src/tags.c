@@ -826,7 +826,7 @@ uint TY_(nodeHeaderLevel) (Node* node)
 		case TidyTag_H6: return 6;
 		default:
 	    {
-		    /* fall through */
+		    // @fallthrough
 	    }
 	}
 	return 0;

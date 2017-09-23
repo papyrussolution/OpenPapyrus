@@ -8,8 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/camellia.h>
-#include <openssl/modes.h>
+//#include <openssl/camellia.h>
+//#include <openssl/modes.h>
 /*
  * The input and output encrypted as though 128bit ofb mode is being used.
  * The extra state information to record how much of the 128bit block we have

@@ -315,7 +315,7 @@ retry_search:
 			 * aggressive, choose the best candidate from within
 			 * the chain for freezing.
 			 */
-			for(mvcc_bhp = oldest_bhp = current_bhp; mvcc_bhp != NULL; oldest_bhp = mvcc_bhp, mvcc_bhp = SH_CHAIN_PREV(mvcc_bhp, vc, __bh)) {
+			for(mvcc_bhp = oldest_bhp = current_bhp; mvcc_bhp; oldest_bhp = mvcc_bhp, mvcc_bhp = SH_CHAIN_PREV(mvcc_bhp, vc, __bh)) {
 				DB_ASSERT(env, mvcc_bhp != SH_CHAIN_PREV(mvcc_bhp, vc, __bh));
 				if(aggressive > 1 && BH_REFCOUNT(mvcc_bhp) == 0 && !F_ISSET(mvcc_bhp, BH_FROZEN) && (!bhp || bhp->priority > mvcc_bhp->priority)) {
 					if(bhp)
@@ -566,7 +566,7 @@ this_buffer:
 		 * If so, we can simply reuse it.  Otherwise, free the buffer
 		 * and its space and keep looking.
 		 */
-		if(mfp != NULL && mfp->pagesize == bh_mfp->pagesize) {
+		if(mfp && mfp->pagesize == bh_mfp->pagesize) {
 			if((ret = __memp_bhfree(dbmp, infop, bh_mfp, hp, bhp, 0)) != 0)
 				return ret;
 			p = bhp;
@@ -575,9 +575,8 @@ this_buffer:
 		freed_space += sizeof(*bhp)+bh_mfp->pagesize;
 		if((ret = __memp_bhfree(dbmp, infop, bh_mfp, hp, bhp, BH_FREE_FREEMEM)) != 0)
 			return ret;
-		/* Reset "aggressive" and "write_error" if we free any space. */
-		if(aggressive > 1)
-			aggressive = 1;
+		// Reset "aggressive" and "write_error" if we free any space. 
+		SETMIN(aggressive, 1);
 		write_error = 0;
 		/*
 		 * Unlock this buffer and re-acquire the region lock. If
@@ -645,7 +644,7 @@ int __memp_bhwrite(DB_MPOOL * dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bh
 		break;
 	}
 	MUTEX_UNLOCK(env, dbmp->mutex);
-	if(dbmfp != NULL) {
+	if(dbmfp) {
 		/*
 		 * Temporary files may not have been created.  We only handle
 		 * temporary files in this path, because only the process that
@@ -777,7 +776,7 @@ int __memp_pgread(DB_MPOOLFILE * dbmfp, BH * bhp, int can_create)
 	 * them now, we create them when the pages have to be flushed.
 	 */
 	nr = 0;
-	if(dbmfp->fhp != NULL) {
+	if(dbmfp->fhp) {
 		PERFMON3(env, mpool, read, __memp_fn(dbmfp), bhp->pgno, bhp);
 		if((ret = __os_io(env, DB_IO_READ, dbmfp->fhp, bhp->pgno, pagesize, 0, pagesize, bhp->buf, &nr)) != 0)
 			goto err;
@@ -1046,7 +1045,7 @@ int __memp_bhfree(DB_MPOOL * dbmp, REGINFO * infop, MPOOLFILE * mfp, DB_MPOOL_HA
 		goto no_hp;
 	prev_bhp = SH_CHAIN_PREV(bhp, vc, __bh);
 	if(!SH_CHAIN_HASNEXT(bhp, vc)) {
-		if(prev_bhp != NULL)
+		if(prev_bhp)
 			SH_TAILQ_INSERT_AFTER(&hp->hash_bucket, bhp, prev_bhp, hq, __bh);
 		SH_TAILQ_REMOVE(&hp->hash_bucket, bhp, hq, __bh);
 	}
@@ -1271,7 +1270,7 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 	 * It would be possible to do so by reference counting the open
 	 * pages from the mmap, but it's unclear to me that it's worth it.
 	 */
-	if(dbmfp->addr != NULL && F_ISSET(mfp, MP_CAN_MMAP) && *pgnoaddr <= mfp->orig_last_pgno) {
+	if(dbmfp->addr && F_ISSET(mfp, MP_CAN_MMAP) && *pgnoaddr <= mfp->orig_last_pgno) {
 		*(void **)addrp = (uint8 *)dbmfp->addr+(*pgnoaddr*mfp->pagesize);
 		STAT_INC_VERB(env, mpool, map, mfp->stat.st_map, __memp_fn(dbmfp), *pgnoaddr);
 		return 0;
@@ -1544,7 +1543,7 @@ reuse:
 			}
 		}
 		// We found the buffer or we're ready to copy -- we're done. 
-		if(!(makecopy || F_ISSET(bhp, BH_FROZEN)) || alloc_bhp != NULL)
+		if(!(makecopy || F_ISSET(bhp, BH_FROZEN)) || alloc_bhp)
 			break;
 	    // @fallthrough 
 	    case FIRST_MISS:
@@ -2883,7 +2882,8 @@ have_mfp:
 	TAILQ_INSERT_TAIL(&dbmp->dbmfq, dbmfp, q);
 	MUTEX_UNLOCK(env, dbmp->mutex);
 	if(0) {
-err:            if(refinc) {
+err:            
+		if(refinc) {
 			/*
 			 * If mpf_cnt goes to zero here and unlink_on_close is
 			 * set, then we missed the last close, but there was an
@@ -3908,8 +3908,7 @@ err:
 			MPOOL_REGION_UNLOCK(env, infop);
 		}
 	}
-	if(real_name)
-		__os_free(env, real_name);
+	__os_free(env, real_name);
 	if(ret != 0 && ret != EBUSY && ret != ENOMEM)
 		__db_err(env, ret, "__memp_bh_freeze");
 	return ret;

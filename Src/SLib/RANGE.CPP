@@ -20,7 +20,7 @@ int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
 		if(i)
 			do {
 				i--;
-				if(p_tmp[i] == '\'' || p_tmp[i] == ' ')
+				if(oneof2(p_tmp[i], '\'', ' '))
 					strcpy(p_tmp+i, p_tmp+i+1);
 				else if(p_tmp[i] == ',') // @v9.6.7 
 					p_tmp[i] = '.';

@@ -36,14 +36,14 @@
    POSSIBILITY OF SUCH DAMAGE.
    -----------------------------------------------------------------------------
  */
-
-/* This module contains an internal function that is used to match an extended
-   class. It is used by both pcre_exec() and pcre_def_exec(). */
-
+// This module contains an internal function that is used to match an extended
+// class. It is used by both pcre_exec() and pcre_def_exec(). 
+//
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
+#pragma hdrstop
 
 /*************************************************
 *       Match character against an XCLASS        *
@@ -59,7 +59,7 @@
    Returns:      TRUE if character matches, else FALSE
  */
 
-BOOL PRIV(xclass) (pcre_uint32 c, const pcre_uchar *data, BOOL utf)
+BOOL PRIV(xclass) (uint32 c, const pcre_uchar *data, BOOL utf)
 {
 	pcre_uchar t;
 	BOOL negated = (*data & XCL_NOT) != 0;
@@ -89,7 +89,7 @@ BOOL PRIV(xclass) (pcre_uint32 c, const pcre_uchar *data, BOOL utf)
 	if((*data++ & XCL_MAP) != 0) data += 32 / sizeof(pcre_uchar);
 
 	while((t = *data++) != XCL_END) {
-		pcre_uint32 x, y;
+		uint32 x, y;
 		if(t == XCL_SINGLE) {
 #ifdef SUPPORT_UTF
 			if(utf) {
@@ -116,7 +116,7 @@ BOOL PRIV(xclass) (pcre_uint32 c, const pcre_uchar *data, BOOL utf)
 		}
 
 #ifdef SUPPORT_UCP
-		else{ /* XCL_PROP & XCL_NOTPROP */
+		else { /* XCL_PROP & XCL_NOTPROP */
 			const ucd_record * prop = GET_UCD(c);
 			BOOL isprop = t == XCL_PROP;
 
@@ -179,7 +179,7 @@ VSPACE_CASES:
 						    c == CHAR_GRAVE_ACCENT) == isprop)
 						    return !negated;
 				    }
-				    else{
+				    else {
 					    if((c < 0xd800 || c > 0xdfff) == isprop)
 						    return !negated;
 				    }

@@ -9,25 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-// C++ wrappers of C standard library
-//#include <cassert>
-// C++ standard library
-//#include <string>
-//#include <map>
-
-// Scintilla headers
-
-// Non-platform-specific headers
-
-// include
-//#include "ILexer.h"
-//#include "SciLexer.h"
-// lexlib
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE

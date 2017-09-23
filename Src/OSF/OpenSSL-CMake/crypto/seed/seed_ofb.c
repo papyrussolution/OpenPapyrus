@@ -9,12 +9,10 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/seed.h>
-#include <openssl/modes.h>
+//#include <openssl/modes.h>
 
-void SEED_ofb128_encrypt(const uchar *in, uchar *out,
-                         size_t len, const SEED_KEY_SCHEDULE *ks,
-                         uchar ivec[SEED_BLOCK_SIZE], int *num)
+void SEED_ofb128_encrypt(const uchar * in, uchar * out, size_t len, const SEED_KEY_SCHEDULE * ks, uchar ivec[SEED_BLOCK_SIZE], int * num)
 {
-    CRYPTO_ofb128_encrypt(in, out, len, ks, ivec, num,
-                          (block128_f) SEED_encrypt);
+	CRYPTO_ofb128_encrypt(in, out, len, ks, ivec, num, (block128_f)SEED_encrypt);
 }
+

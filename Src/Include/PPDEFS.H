@@ -278,9 +278,10 @@
 #define PPPATH_DOC           17 // @v7.8.6 Каталог хранения документации на систему
 #define PPPATH_SPII          18 // @v8.5.10 Каталог обмена между мобильными устройствами и JobServer'ом
 #define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
-#define PPPATH_LAST          20L  // Последний из путей
+#define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
+	// не относящиеся к дистрибутиву, из BIN
+// @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
-
 #define PPPRP_PRINTER        21L  // Принтер
 #define PPPRP_CFGPRIVATE     22L  // Частная конфигурация пользователя //
 //

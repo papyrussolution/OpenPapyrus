@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
+//#include <ngx_mail.h>
 
 static void ngx_mail_init_session(ngx_connection_t * c);
 

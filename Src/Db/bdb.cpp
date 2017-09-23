@@ -488,13 +488,18 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 				}
 			}
 		}
-		/*
+		/* @v9.8.2
 		if(pTbl->Cfg.CacheSize) {
 			const uint32 _gb = (pTbl->Cfg.CacheSize / (1024 * 1024));
 			const uint32 _b  = (pTbl->Cfg.CacheSize % (1024 * 1024)) * 1024;
 			THROW(ProcessError(p_db->set_cachesize(p_db, _gb, _b, 1)));
 		}
 		*/
+		// @v9.8.2 {
+		if(pTbl->Cfg.PartitionCount) {
+			THROW(ProcessError(p_db->set_partition(p_db, pTbl->Cfg.PartitionCount, 0, BDbTable::PartitionCallback), p_db, pFileName));
+		}
+		// } @v9.8.2
 	}
 	{
 		int    opf = DB_AUTO_COMMIT | DB_MULTIVERSION | DB_READ_UNCOMMITTED;
@@ -563,6 +568,11 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 			}
 		}
 	}
+	// @v9.8.2 {
+	if(pCfg->PartitionCount) {
+		THROW(ProcessError(p_db->set_partition(p_db, pCfg->PartitionCount, 0, BDbTable::PartitionCallback), p_db, pFileName));
+	}
+	// } @v9.8.2
 	{
 		int    opf = (DB_CREATE|DB_AUTO_COMMIT);
 		opf |= DB_THREAD;
@@ -668,7 +678,7 @@ int BDbDatabase::CreateSequence(const char * pName, int64 initVal, long * pSeqID
 		if(!P_SeqT) {
 			SString file_name;
 			(file_name = "system.db").Cat("->").Cat("sequence");
-			BDbTable::ConfigHash cfg(file_name, 0, 0);
+			BDbTable::ConfigHash cfg(file_name, 0, 0, 0);
 			THROW_D(P_SeqT = new BDbTable(cfg, this), BE_NOMEM);
 			THROW(P_SeqT->GetState(BDbTable::stOpened));
 		}
@@ -1036,15 +1046,16 @@ int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const
 //
 //
 //BDbTable::Config::Config(const char * pName, int idxType /*= idxtypDefault*/, long flags /*= 0*/)
-BDbTable::Config::Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb)
+BDbTable::Config::Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb, uint partitionCount)
 {
 	Clear();
 	IdxType = idxType;
 	Flags = flags;
 	PageSize = pageSize;
-	CacheSize = cacheSizeKb;
+	//CacheSize = cacheSizeKb;
 	DataChunk = 1024;
 	Name = pName;
+	PartitionCount = partitionCount; // @v9.8.2
 }
 
 void BDbTable::Config::Clear()
@@ -1052,11 +1063,12 @@ void BDbTable::Config::Clear()
 	IdxType = idxtypDefault;
 	Flags = 0;
 	DataChunk = 0;
-	CacheSize = 0;
+	//CacheSize = 0;
 	PageSize = 0;
 	HashFFactor = 0;
 	HashNElem = 0;
-	Name = 0;
+	PartitionCount = 0;
+	Name.Z();
 }
 //
 //
@@ -1178,26 +1190,51 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 	int    c = 0;
 	if(pDbt1 != 0 || pDbt2 != 0) {
 		const DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
-		BDbTable * p_taget_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
+		BDbTable * p_target_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
 #ifndef NDEBUG
 		// testing {
 		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
 			BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
 			if(p_tbl && p_tbl->H == pDb) {
-				assert(p_taget_tbl == p_tbl);
-				//p_taget_tbl = p_tbl;
+				assert(p_target_tbl == p_tbl);
+				//p_target_tbl = p_tbl;
 				break;
 			}
 		}
 		// }
 #endif
-		if(p_taget_tbl) {
+		if(p_target_tbl) {
 			BDbTable::Buffer key1(pDbt1);
 			BDbTable::Buffer key2(pDbt2);
-			c = p_taget_tbl->Implement_Cmp(&key1, &key2);
+			c = p_target_tbl->Implement_Cmp(&key1, &key2);
 		}
 	}
 	return c;
+}
+
+//static 
+uint32 BDbTable::PartitionCallback(DB * pDb, DBT * pDbt)
+{
+	uint32 partition = 0;
+	if(pDb && pDbt) {
+		const DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
+		BDbTable * p_target_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pDb);
+#ifndef NDEBUG
+		// testing {
+		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
+			BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
+			if(p_tbl && p_tbl->H == pDb) {
+				assert(p_target_tbl == p_tbl);
+				//p_target_tbl = p_tbl;
+				break;
+			}
+		}
+		// }
+#endif
+		if(p_target_tbl)
+			partition = p_target_tbl->Implement_PartitionFunc(pDbt);
+	}
+	return partition;
 }
 
 int BDbTable::InitInstance(BDbDatabase * pDb, int flags)
@@ -1304,6 +1341,12 @@ int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buff
 	return P_IdxHandle ? P_IdxHandle->Implement_Cmp(this, pKey1, pKey2) : 0;
 }
 
+//virtual 
+uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey)
+{
+	return 0;
+}
+
 SSerializeContext * BDbTable::GetSCtx() const
 {
 	return P_SCtx;
@@ -1343,13 +1386,20 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 			THROW(BDbDatabase::ProcessError(p_db->get_dbname(p_db, &p_file_name, &p_db_name), p_db, 0));
 			rCfg.Name = p_file_name;
 		}
-		{
+		/* @v9.8.2 {
 			uint32 _gb = 0;
 			uint32 _b = 0;
 			int    _c = 0;
 			THROW(BDbDatabase::ProcessError(p_db->get_cachesize(p_db, &_gb, &_b, &_c), p_db, 0));
 			rCfg.CacheSize = (_gb * 1024 * 1024) + _b / 1024;
+		}*/
+		// @v9.8.2 {
+		{
+			uint32 np = 0;
+			BDbDatabase::ProcessError(p_db->get_partition_keys(p_db, &np, 0), p_db, 0);
+			rCfg.PartitionCount = np;
 		}
+		// } @v9.8.2
 		{
 			uint32 _ps = 0;
 			THROW(BDbDatabase::ProcessError(p_db->get_pagesize(p_db, &_ps), p_db, 0));

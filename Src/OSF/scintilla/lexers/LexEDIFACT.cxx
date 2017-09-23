@@ -5,20 +5,9 @@
 // This code is subject to the same license terms as the rest of the scintilla project:
 // The License.txt file describes the conditions under which this software may be distributed.
 //
-
-// Header order must match order in scripts/HeaderOrder.txt
-
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include <cstdlib>
-#include <cassert>
-#include <cstring>
-#include <cctype>
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "LexAccessor.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

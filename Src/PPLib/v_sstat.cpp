@@ -1,6 +1,6 @@
 // V_SSTAT.CPP
 // Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -422,7 +422,7 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 					(Filt.QttyVarRange.IsZero() || Filt.QttyVarRange.CheckX(p_t->data.QttyVar))) {
 					MEMSZERO(ord_rec);
 					ord_rec.ID = p_t->data.GoodsID;
-					// Если установлены циклы, то допускается сортировка только по наименованию //
+					// Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ С†РёРєР»С‹, С‚Рѕ РґРѕРїСѓСЃРєР°РµС‚СЃСЏ СЃРѕСЂС‚РёСЂРѕРІРєР° С‚РѕР»СЊРєРѕ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ //
 					if(ord == OrdByGoodsName || CycleList.getCount()) {
 						char dt_buf[16];
 						strnzcpy(ord_rec.Name, p_t->data.GoodsName, 48);
@@ -705,10 +705,10 @@ double SLAPI __CalcOrderQuantity(
 	const double rest,
 	const double prediction,
 	//
-	// Два взаимоисключающих показателя: если minStockDays == 0 используется minStockQtty
+	// Р”РІР° РІР·Р°РёРјРѕРёСЃРєР»СЋС‡Р°СЋС‰РёС… РїРѕРєР°Р·Р°С‚РµР»СЏ: РµСЃР»Рё minStockDays == 0 РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ minStockQtty
 	//
-	const int    minStockDays, // Страховочный запас в днях
-	const double minStockQtty, // Страховочный запас в торговых единицах
+	const int    minStockDays, // РЎС‚СЂР°С…РѕРІРѕС‡РЅС‹Р№ Р·Р°РїР°СЃ РІ РґРЅСЏС…
+	const double minStockQtty, // РЎС‚СЂР°С…РѕРІРѕС‡РЅС‹Р№ Р·Р°РїР°СЃ РІ С‚РѕСЂРіРѕРІС‹С… РµРґРёРЅРёС†Р°С…
 	//
 	const int calcWithoutStat,
 	const int minStockAsMinOrder,
@@ -792,7 +792,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 		THROW(tra);
 		if(Filt.Sgg) {
 			//
-			// Расчет с подстановкой товара. Подстановка исключает расчет заказов поставщику.
+			// Р Р°СЃС‡РµС‚ СЃ РїРѕРґСЃС‚Р°РЅРѕРІРєРѕР№ С‚РѕРІР°СЂР°. РџРѕРґСЃС‚Р°РЅРѕРІРєР° РёСЃРєР»СЋС‡Р°РµС‚ СЂР°СЃС‡РµС‚ Р·Р°РєР°Р·РѕРІ РїРѕСЃС‚Р°РІС‰РёРєСѓ.
 			//
 			long   c = 0;
 			uint   i;
@@ -857,11 +857,11 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 		}
 		else if(Filt.Flags & SStatFilt::fSupplOrderForm && P_VGr) {
 			//
-			// Формирование таблицы для расчета заказов поставщикам.
-			// Таблица формируется по товарам, перечисленным в таблице остатков товаров (PPViewGoodsRest).
-			// Если задан расчет по циклам (CycleList) или период расчета статистики Filt.Period,
-			// то прогноз строится на основе данных статистики продаж за выбранный период по простому среднему,
-			// иначе - по стандартной процедуре прогнозирования спроса (класс Predictor).
+			// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РґР»СЏ СЂР°СЃС‡РµС‚Р° Р·Р°РєР°Р·РѕРІ РїРѕСЃС‚Р°РІС‰РёРєР°Рј.
+			// РўР°Р±Р»РёС†Р° С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РїРѕ С‚РѕРІР°СЂР°Рј, РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹Рј РІ С‚Р°Р±Р»РёС†Рµ РѕСЃС‚Р°С‚РєРѕРІ С‚РѕРІР°СЂРѕРІ (PPViewGoodsRest).
+			// Р•СЃР»Рё Р·Р°РґР°РЅ СЂР°СЃС‡РµС‚ РїРѕ С†РёРєР»Р°Рј (CycleList) РёР»Рё РїРµСЂРёРѕРґ СЂР°СЃС‡РµС‚Р° СЃС‚Р°С‚РёСЃС‚РёРєРё Filt.Period,
+			// С‚Рѕ РїСЂРѕРіРЅРѕР· СЃС‚СЂРѕРёС‚СЃСЏ РЅР° РѕСЃРЅРѕРІРµ РґР°РЅРЅС‹С… СЃС‚Р°С‚РёСЃС‚РёРєРё РїСЂРѕРґР°Р¶ Р·Р° РІС‹Р±СЂР°РЅРЅС‹Р№ РїРµСЂРёРѕРґ РїРѕ РїСЂРѕСЃС‚РѕРјСѓ СЃСЂРµРґРЅРµРјСѓ,
+			// РёРЅР°С‡Рµ - РїРѕ СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ РїСЂРѕС†РµРґСѓСЂРµ РїСЂРѕРіРЅРѕР·РёСЂРѕРІР°РЅРёСЏ СЃРїСЂРѕСЃР° (РєР»Р°СЃСЃ Predictor).
 			//
 			const int use_matrix = BIN(r_cfg.Flags & CFGFLG_USEGOODSMATRIX);
 			const int minstock_as_minorder = BIN(PrCfg.Flags & PPPredictConfig::fMinStockAsMinOrder);
@@ -876,14 +876,14 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 			}
 			Predictor::EvalParam ep(&Filt);
 			for(P_VGr->InitIteration(); P_VGr->NextIteration(&item) > 0; PPWaitPercent(P_VGr->GetCounter())) {
-				int    calc_ord_wo_stat = 0; // расчитывать заказ для товаров, по которым нет статистики.
+				int    calc_ord_wo_stat = 0; // СЂР°СЃС‡РёС‚С‹РІР°С‚СЊ Р·Р°РєР°Р· РґР»СЏ С‚РѕРІР°СЂРѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј РЅРµС‚ СЃС‚Р°С‚РёСЃС‚РёРєРё.
 				double prediction = 0.0, order = 0.0;
 				//double ord_predict = 0.0;
 				//
-				// Два взаимоисключающих показателя: если min_stock_days == 0 используется min_stock_qtty
+				// Р”РІР° РІР·Р°РёРјРѕРёСЃРєР»СЋС‡Р°СЋС‰РёС… РїРѕРєР°Р·Р°С‚РµР»СЏ: РµСЃР»Рё min_stock_days == 0 РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ min_stock_qtty
 				//
-				double min_stock_qtty = 0.0; // Страховочный запас в торговых единицах
-				int    min_stock_days = 0;   // Страховочный запас в днях
+				double min_stock_qtty = 0.0; // РЎС‚СЂР°С…РѕРІРѕС‡РЅС‹Р№ Р·Р°РїР°СЃ РІ С‚РѕСЂРіРѕРІС‹С… РµРґРёРЅРёС†Р°С…
+				int    min_stock_days = 0;   // РЎС‚СЂР°С…РѕРІРѕС‡РЅС‹Р№ Р·Р°РїР°СЃ РІ РґРЅСЏС…
 				double sales_per_day = 0.0;
 				int    can_trust = 1;
 				THROW(PPCheckUserBreak());
@@ -914,8 +914,8 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 						if(min_stock_days > 0) {
 							add_days += min_stock_days;
 							//
-							// Функция расчета прогноза учтет мин. запас в днях. Следовательно, нам
-							// необходимо обнулить мин. запас во избежании двойного его учета.
+							// Р¤СѓРЅРєС†РёСЏ СЂР°СЃС‡РµС‚Р° РїСЂРѕРіРЅРѕР·Р° СѓС‡С‚РµС‚ РјРёРЅ. Р·Р°РїР°СЃ РІ РґРЅСЏС…. РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РЅР°Рј
+							// РЅРµРѕР±С…РѕРґРёРјРѕ РѕР±РЅСѓР»РёС‚СЊ РјРёРЅ. Р·Р°РїР°СЃ РІРѕ РёР·Р±РµР¶Р°РЅРёРё РґРІРѕР№РЅРѕРіРѕ РµРіРѕ СѓС‡РµС‚Р°.
 							//
 							min_stock_qtty = 0.0;
 						}
@@ -946,7 +946,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 		}
 		else {
 			//
-			// Обыкновенная таблица анализа статистики (без подстановки товара и без расчета заказов поставщику)
+			// РћР±С‹РєРЅРѕРІРµРЅРЅР°СЏ С‚Р°Р±Р»РёС†Р° Р°РЅР°Р»РёР·Р° СЃС‚Р°С‚РёСЃС‚РёРєРё (Р±РµР· РїРѕРґСЃС‚Р°РЅРѕРІРєРё С‚РѕРІР°СЂР° Рё Р±РµР· СЂР°СЃС‡РµС‚Р° Р·Р°РєР°Р·РѕРІ РїРѕСЃС‚Р°РІС‰РёРєСѓ)
 			//
 			for(g_iter.Init(Filt.GoodsGrpID, 0); g_iter.Next(&goods_rec) > 0; PPWaitPercent(g_iter.GetIterCounter())) {
 				THROW(PPCheckUserBreak());
@@ -1054,7 +1054,7 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 				p_q->addField(p_gr->IsPredictTrust); // #15
 				p_q->addField(p_tt->PriceAvg);       // #16
 				p_q->addField(p_gr->MinStock);       // #17
-				p_q->addField(p_gr->Cost);           // #18 @v7.1.7 Цена поступления //
+				p_q->addField(p_gr->Cost);           // #18 @v7.1.7 Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
 				if(ot)
 					p_q->from(ot, p_tt, p_gr, 0L).where(p_tt->GoodsID == ot->ID && p_gr->GoodsID == p_tt->GoodsID).orderBy(ot->Name, 0L);
 				else {
@@ -1124,7 +1124,7 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 		if(p_def && col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPID goods_id = P_Ct ? ((PPID *)pData)[1] : ((PPID *)pData)[0];
-			if(col == 0) { // Наименование товара
+			if(col == 0) { // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
 				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 				SColor clr;
 				if(!r_tag_filt.IsEmpty() && r_tag_filt.SelectIndicator(goods_id, clr) > 0) {
@@ -1134,19 +1134,19 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 				}
 			}
 			else if(!P_Ct) {
-				if(r_col.OrgOffs == 13) { // Прогноз
+				if(r_col.OrgOffs == 13) { // РџСЂРѕРіРЅРѕР·
 					const  DBQuery * p_q = p_def->getQuery();
 					short  is_trust = 0;
 					long   stat_count = -1;
 					int    is_new_goods = 0;
 					if(p_q) {
-						if(p_q->fldCount > 15) { // #15 - поле запроса, содержащее признак доверия к прогнозу
+						if(p_q->fldCount > 15) { // #15 - РїРѕР»Рµ Р·Р°РїСЂРѕСЃР°, СЃРѕРґРµСЂР¶Р°С‰РµРµ РїСЂРёР·РЅР°Рє РґРѕРІРµСЂРёСЏ Рє РїСЂРѕРіРЅРѕР·Сѓ
 							size_t offs = 0;
 							for(uint i = 0; i < 15; i++)
 								offs += stsize(p_q->flds[i].type);
 							memcpy(&is_trust, PTR8(pData) + offs, sizeof(short));
 						}
-						if(p_q->fldCount > 3) { // #03 - поле запроса, содержащее количество элементов статистики
+						if(p_q->fldCount > 3) { // #03 - РїРѕР»Рµ Р·Р°РїСЂРѕСЃР°, СЃРѕРґРµСЂР¶Р°С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ СЃС‚Р°С‚РёСЃС‚РёРєРё
 							size_t offs = 0;
 							for(uint i = 0; i < 3; i++)
 								offs += stsize(p_q->flds[i].type);
@@ -1337,8 +1337,7 @@ int SLAPI PPViewSStat::EditOrder(PPID ctID, PPID goodsID)
 int SLAPI PPViewSStat::Print(const void *)
 {
 	int    ok = 1;
-	uint   rpt_id = (Filt.Flags & SStatFilt::fSupplOrderForm) ?
-		(P_Ct ? REPORT_SSTATSUPPLORD_CT : REPORT_SSTATSUPPLORD) : REPORT_SSTATGGROUP;
+	uint   rpt_id = (Filt.Flags & SStatFilt::fSupplOrderForm) ? (P_Ct ? REPORT_SSTATSUPPLORD_CT : REPORT_SSTATSUPPLORD) : REPORT_SSTATGGROUP;
 	PPReportEnv env;
 	PView  pv(this);
 	env.Sort = Filt.Order;
@@ -1479,7 +1478,7 @@ int SLAPI PPViewSStat::AddPurchaseBill()
 				SString memo;
 				LDATETIME cur_dtm;
 				getcurdatetime(&cur_dtm);
-				(memo = "@autoorder").Space().Cat(cur_dtm).Dot().Space().CatEq("Период заказа дней", (long)Filt.OrdTerm);
+				(memo = "@autoorder").Space().Cat(cur_dtm).Dot().Space().CatEq("РџРµСЂРёРѕРґ Р·Р°РєР°Р·Р° РґРЅРµР№", (long)Filt.OrdTerm);
 				memo.ToOem();
 				memo.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
 			}
@@ -1624,4 +1623,3 @@ void PPALDD_SStatView::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(PredictSales);
 }
-

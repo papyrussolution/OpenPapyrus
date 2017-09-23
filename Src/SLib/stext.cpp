@@ -2335,10 +2335,10 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 	ss_p.Flags = 0;
 	strnzcpy(pOutBuf, pInBuf, outBufSize);
 	while(searchstr(pOutBuf, ss_p, &pos, &len) > 0) {
-		if(pos + 1 < in_buf_len)
-			if(pOutBuf[pos + 1] == 'x' || pOutBuf[pos + 1] == 'X')
+		if((pos+1) < in_buf_len)
+			if(oneof2(pOutBuf[pos+1], 'x', 'X'))
 				base = 16;
-			else if(pOutBuf[pos + 1] == '0')
+			else if(pOutBuf[pos+1] == '0')
 				base = 8;
 		if(base) {
 			int    i = 0;

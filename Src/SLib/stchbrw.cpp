@@ -15,6 +15,11 @@
 //
 //
 //
+STimeChunkGrid::HolidayArray::HolidayArray(long id)
+{
+	Id = id;
+}
+
 STimeChunkGrid::STimeChunkGrid() : TSCollection <STimeChunkAssocArray> ()
 {
 	P_CollapseList = 0;
@@ -25,7 +30,7 @@ STimeChunkGrid::~STimeChunkGrid()
 	delete P_CollapseList;
 }
 
-STimeChunkGrid & STimeChunkGrid::operator = (const STimeChunkGrid & s)
+STimeChunkGrid & FASTCALL STimeChunkGrid::operator = (const STimeChunkGrid & s)
 {
 	if(&s) {
 		freeAll();
@@ -54,14 +59,31 @@ STimeChunkAssocArray * STimeChunkGrid::Get(long id, uint * pPos) const
 
 int STimeChunkGrid::GetChunk(long chunkId, long * pRowId, STimeChunkAssoc * pItem) const
 {
-	for(uint i = 0; i < getCount(); i++) {
+	int    ok = 0;
+	for(uint i = 0; !ok && i < getCount(); i++) {
 		const STimeChunkAssocArray * p_row = at(i);
 		if(p_row->Get(chunkId, 0, pItem)) {
 			ASSIGN_PTR(pRowId, p_row->Id);
-			return 1;
+			ok = 1;
 		}
 	}
-	return 0;
+	return ok;
+}
+
+int STimeChunkGrid::GetChunksByTime(const STimeChunk & rRange, STimeChunkAssocArray & rList) const
+{
+	int    ok = -1;
+	for(uint i = 0; i < getCount(); i++) {
+		const STimeChunkAssocArray * p_row = at(i);
+		for(uint j = 0; j < p_row->getCount(); j++) {
+			const STimeChunkAssoc * p_item = (const STimeChunkAssoc *)p_row->at(j);
+			if(p_item->Chunk.Intersect(rRange, 0) > 0) {
+				rList.Add(p_item->Id, p_item->Status, &p_item->Chunk, 0);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
 int STimeChunkGrid::SetRow(STimeChunkAssocArray * pArray, const char * pText)
@@ -268,7 +290,6 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			}
 			if(p_view) {
 				p_view->HW = hWnd;
-				//SetWindowLong(hWnd, GWLP_USERDATA, (LONG)p_view);
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, p_view);
 				::SetFocus(hWnd);
 				::SendMessage(hWnd, WM_NCACTIVATE, TRUE, 0);
@@ -350,6 +371,11 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
 					return 0;
 				}
+			}
+			else if(LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)) {
+				p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+				if(p_view)
+					p_view->CopyToClipboard();
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
@@ -721,6 +747,15 @@ void STimeChunkBrowser::SetupScroll()
 	{
 		GetArea(a2.Clear());
 		CalcChunkRect(&a2, RL);
+	}
+}
+
+void STimeChunkBrowser::SetBmpId(int ident, uint bmpId)
+{
+	switch(ident) {
+		case bmpModeGantt: BmpId_ModeGantt = bmpId; break;
+		case bmpModeHourDay: BmpId_ModeHourDay = bmpId; break;
+		case bmpBack: BmpId_Back = bmpId; break;
 	}
 }
 
@@ -2275,17 +2310,27 @@ int STimeChunkBrowser::CopyToClipboard()
 	int    ok = 1;
 	if(P.ViewType == P.vHourDay) {
 		const char * p_fontface_tnr = "Times New Roman";
+		long   column = 0;
 		long   row = 0;
 		SString temp_buf;
+		SString out_buf;
 		SString dow_buf;
+		SString dec;
 		SylkWriter sw(0);
 		sw.PutRec("ID", "PPapyrus");
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
+		OpenClipboard(APPL->H_MainWnd);
+		EmptyClipboard();
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 		sw.PutFont('F', p_fontface_tnr, 8,  0);
 		sw.PutRec('F', "G");
 		{
 			row = 1;
-			long   column = 2;
+			column = 2;
 			for(long quant = 0; ; quant++) {
 				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
 				if(dt <= St.Bounds.Finish.d) {
@@ -2295,7 +2340,7 @@ int STimeChunkBrowser::CopyToClipboard()
 
 						sw.PutFormat("FC0L", 1, column, row);
 						sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-						sw.PutVal(temp_buf, 1);
+						sw.PutVal(temp_buf, 0);
 						column++;
 					}
 				}
@@ -2305,27 +2350,42 @@ int STimeChunkBrowser::CopyToClipboard()
 		}
 		{
 			uint   time_quant = 15 * 60; // 15 minuts
+			STimeChunkAssocArray chunk_list(0);
+			SString cell_buf;
 			row = 2;
 			for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
-				long   column = 1;
-				sw.PutFormat("FC0L", 1, column, row);
-				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 				LTIME   tm_start;
 				LTIME   tm_end;
 				tm_start.settotalsec(time_band);
 				tm_end.settotalsec(time_band+time_quant-1);
+
+				sw.PutFormat("FC0L", row, 1, row);
+				sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
 				sw.PutVal(temp_buf.Z().Cat(tm_start, TIMF_HM), 1);
+
+				column = 1;
 				for(long quant = 0; ; quant++) {
 					const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+					column++;
 					if(dt <= St.Bounds.Finish.d) {
-						if(IsQuantVisible(quant)) {
-							GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
-							temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
-
-							sw.PutFormat("FC0L", 1, column, row);
-							sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-							sw.PutVal(temp_buf, 1);
-							column++;
+						STimeChunk range;
+						range.Start.Set(dt, tm_start);
+						range.Finish.Set(dt, tm_end);
+						chunk_list.clear();
+						if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
+							cell_buf.Z();
+							for(uint i = 0; i < chunk_list.getCount(); i++) {
+								const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+								GetChunkText(p_chunk->Id, temp_buf.Z());
+								if(cell_buf.NotEmpty())
+									cell_buf.CR();
+								cell_buf.Cat(temp_buf);
+							}
+							if(cell_buf.NotEmpty()) {
+								sw.PutFormat("FC0L", row, column, row);
+								sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+								sw.PutVal(cell_buf, 0);
+							}
 						}
 					}
 					else
@@ -2333,6 +2393,17 @@ int STimeChunkBrowser::CopyToClipboard()
 				}
 			}
 		}
+		sw.PutLine("E");
+		sw.GetBuf(&out_buf);
+		{
+			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
+			char * p_buf = (char *)GlobalLock(h_glb);
+			out_buf.CopyTo(p_buf, out_buf.Len());
+			p_buf[out_buf.Len()] = '\0';
+			GlobalUnlock(h_glb);
+			SetClipboardData(CF_SYLK, h_glb);
+		}
+		CloseClipboard();
 	}
 	else
 		ok = -1;
@@ -2459,11 +2530,10 @@ void STimeChunkBrowser::Paint()
 			canv.SelectObjectAndPush(Ptb.Get(brushDefChunk)); // {
 			for(i = 0; i < RL.getCount(); i++) {
 				const  SRect & r_sr = RL.at(i);
-				int    bs;
 				HBRUSH brush_chunk;
 				//
 				// Установить цвет заливки отрезка
-				bs = SelectChunkColor(&r_sr.C, &brush_chunk);
+				int    bs = SelectChunkColor(&r_sr.C, &brush_chunk);
 				if(bs)
 					canv.SelectObjectAndPush(brush_chunk);
 				//
@@ -2487,7 +2557,7 @@ void STimeChunkBrowser::Paint()
 					TRect tr = r_sr;
 					tr.setmarginx(2);
 					tr.setmarginy(1);
-					canv.DrawText(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
+					canv.DrawText(tr, temp_buf, DT_LEFT|DT_END_ELLIPSIS);
 				}
 			}
 			DrawMoveSpot(canv, move_spot);
@@ -2763,7 +2833,7 @@ void STimeChunkBrowser::Paint()
 			upp_edge += row_full_height;
 		}
 		{
-			canv.SetTextColor(Ptb.GetColor(colorBlackText)); // @v7.6.10 colorWhiteText-->colorBlackText
+			canv.SetTextColor(Ptb.GetColor(colorBlackText));
 			canv.SelectObjectAndPush(Ptb.Get(fontChunkText)); // {
 			for(i = 0; i < RL.getCount(); i++) {
 				const  SRect & r_sr = RL.at(i);

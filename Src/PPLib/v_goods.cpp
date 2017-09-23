@@ -1279,7 +1279,7 @@ int SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 
 static void FASTCALL SetGsChr(SString & rS, char c)
 {
-	if(!rS.StrChr(c, 0))
+	if(!rS.HasChr(c))
 		rS.CatChar(c);
 }
 

@@ -395,6 +395,8 @@ Section -PPALDD SEC_PPALDD
 	;	
 	File "${SRC_ROOT}\SRC\RSRC\DATA\RAR-AlcoholCategory.txt"
 	File "${SRC_ROOT}\SRC\RSRC\DATA\replacer-rule-goods.sr" ; @v9.7.5
+	File "${SRC_ROOT}\SRC\RSRC\DATA\editorlangmodel.xml" ; @v9.8.2
+	File "${SRC_ROOT}\SRC\RSRC\DATA\editorstyles.xml"    ; @v9.8.2
 	;
 	; @v6.7.1
 	; WTM-פאיכû

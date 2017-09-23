@@ -8,8 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/camellia.h>
-#include <openssl/modes.h>
+//#include <openssl/camellia.h>
+//#include <openssl/modes.h>
 
 void Camellia_cbc_encrypt(const uchar * in, uchar * out, size_t len, const CAMELLIA_KEY * key, uchar * ivec, const int enc)
 {

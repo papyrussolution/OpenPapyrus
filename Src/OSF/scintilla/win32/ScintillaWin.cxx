@@ -33,15 +33,9 @@
 	#include <d2d1.h>
 	#include <dwrite.h>
 #endif
-//#include "ILexer.h"
 #ifdef SCI_LEXER
 	#include "SciLexer.h"
 #endif
-//#include "StringCopy.h"
-#ifdef SCI_LEXER
-	//#include "LexerModule.h"
-#endif
-//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -49,17 +43,14 @@
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
-#include "Indicator.h"
+//#include "Indicator.h"
 #include "XPM.h"
-#include "LineMarker.h"
-//#include "Style.h"
+//#include "LineMarker.h"
 #include "ViewStyle.h"
-#include "CharClassify.h"
+//#include "CharClassify.h"
 #include "Decoration.h"
-//#include "CaseFolder.h"
 #include "Document.h"
 #include "CaseConvert.h"
-//#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "EditModel.h"
@@ -68,40 +59,32 @@
 #include "Editor.h"
 #include "AutoComplete.h"
 #include "ScintillaBase.h"
-
 #ifdef SCI_LEXER
-#include "ExternalLexer.h"
+	#include "ExternalLexer.h"
 #endif
-
 #include "PlatWin.h"
 #include "HanjaDic.h"
 
 #ifndef SPI_GETWHEELSCROLLLINES
-#define SPI_GETWHEELSCROLLLINES   104
+	#define SPI_GETWHEELSCROLLLINES   104
 #endif
-
 #ifndef WM_UNICHAR
-#define WM_UNICHAR                      0x0109
+	#define WM_UNICHAR                      0x0109
 #endif
-
 #ifndef UNICODE_NOCHAR
-#define UNICODE_NOCHAR                  0xFFFF
+	#define UNICODE_NOCHAR                  0xFFFF
 #endif
-
 #ifndef IS_HIGH_SURROGATE
-#define IS_HIGH_SURROGATE(x)            ((x) >= SURROGATE_LEAD_FIRST && (x) <= SURROGATE_LEAD_LAST)
+	#define IS_HIGH_SURROGATE(x)            ((x) >= SURROGATE_LEAD_FIRST && (x) <= SURROGATE_LEAD_LAST)
 #endif
-
 #ifndef IS_LOW_SURROGATE
-#define IS_LOW_SURROGATE(x)             ((x) >= SURROGATE_TRAIL_FIRST && (x) <= SURROGATE_TRAIL_LAST)
+	#define IS_LOW_SURROGATE(x)             ((x) >= SURROGATE_TRAIL_FIRST && (x) <= SURROGATE_TRAIL_LAST)
 #endif
-
 #ifndef MK_ALT
-#define MK_ALT 32
+	#define MK_ALT 32
 #endif
 
 #define SC_WIN_IDLE 5001
-
 #define SC_INDICATOR_INPUT INDIC_IME
 #define SC_INDICATOR_TARGET INDIC_IME+1
 #define SC_INDICATOR_CONVERTED INDIC_IME+2
@@ -2743,7 +2726,7 @@ LRESULT ScintillaWin::ImeOnReconvert(LPARAM lParam)
 	for(size_t r = 0; r<sel.Count(); r++) {
 		int rBase = sel.Range(r).Start().Position();
 		int docCompStart = rBase + adjust;
-		if(inOverstrike) {  // the docCompLen of bytes will be overstriked.
+		if(EditModelFlags & fInOverstrike) {  // the docCompLen of bytes will be overstriked.
 			sel.Range(r).caret.SetPosition(docCompStart);
 			sel.Range(r).anchor.SetPosition(docCompStart);
 		}
@@ -3159,7 +3142,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_)
 	wndclass.lpszClassName = L"Scintilla";
 	wndclass.hIconSm = 0;
 	scintillaClassAtom = ::RegisterClassExW(&wndclass);
-	result = 0 != scintillaClassAtom;
+	result = (0 != scintillaClassAtom);
 	if(result) {
 		// Register the CallTip class
 		WNDCLASSEX wndclassc;
@@ -3176,7 +3159,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_)
 		wndclassc.lpszClassName = callClassName;
 		wndclassc.hIconSm = 0;
 		callClassAtom = ::RegisterClassEx(&wndclassc);
-		result = 0 != callClassAtom;
+		result = (0 != callClassAtom);
 	}
 	return result;
 }

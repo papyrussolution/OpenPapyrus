@@ -11,7 +11,6 @@
  *
  * Daniel.Veillard@imag.fr
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -21,13 +20,13 @@
 		#include <sys/types.h>
 	#endif
 	#ifdef HAVE_SYS_STAT_H
-		#include <sys/stat.h>
+		//#include <sys/stat.h>
 	#endif
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
 	#endif
 	#ifdef HAVE_FCNTL_H
-		#include <fcntl.h>
+		//#include <fcntl.h>
 	#endif
 	#include <libxml/parserInternals.h>
 	#include <libxml/catalog.h>

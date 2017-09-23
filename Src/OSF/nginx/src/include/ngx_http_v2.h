@@ -46,20 +46,18 @@ typedef struct ngx_http_v2_out_frame_s ngx_http_v2_out_frame_t;
 
 typedef u_char *(*ngx_http_v2_handler_pt)(ngx_http_v2_connection_t * h2c, u_char * pos, u_char * end);
 
-typedef struct {
+struct ngx_http_v2_header_t {
 	ngx_str_t name;
 	ngx_str_t value;
-} ngx_http_v2_header_t;
+};
 
-typedef struct {
+struct ngx_http_v2_state_t {
 	ngx_uint_t sid;
 	size_t length;
 	size_t padding;
 	unsigned flags : 8;
-
 	unsigned incomplete : 1;
 	unsigned keep_pool : 1;
-
 	/* HPACK */
 	unsigned parse_name : 1;
 	unsigned parse_value : 1;
@@ -75,9 +73,9 @@ typedef struct {
 	u_char buffer[NGX_HTTP_V2_STATE_BUFFER_SIZE];
 	size_t buffer_used;
 	ngx_http_v2_handler_pt handler;
-} ngx_http_v2_state_t;
+};
 
-typedef struct {
+struct ngx_http_v2_hpack_t {
 	ngx_http_v2_header_t  ** entries;
 	ngx_uint_t added;
 	ngx_uint_t deleted;
@@ -87,7 +85,7 @@ typedef struct {
 	size_t free;
 	u_char * storage;
 	u_char * pos;
-} ngx_http_v2_hpack_t;
+};
 
 struct ngx_http_v2_connection_s {
 	ngx_connection_t   * connection;

@@ -120,15 +120,18 @@ int SLAPI Predictor::GetPredictCfg(PPPredictConfig * pCfg)
 int SLAPI Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
 {
 	int    ok = 1, is_new = 1;
+	Reference * p_ref = PPRef;
 	PPPredictConfig prev_cfg;
 	PPPredictConfig cfg = *pCfg;
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
-		is_new = 0;
-	THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &cfg, sizeof(cfg), 0));
-	DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_PREDICTSALES, 0, 0, 0);
-	THROW(tra.Commit());
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+			is_new = 0;
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &cfg, sizeof(cfg), 0));
+		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_PREDICTSALES, 0, 0, 0);
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }
@@ -149,13 +152,13 @@ Predictor::EvalParam::EvalParam(SStatFilt * pFilt)
 	if(pFilt && pFilt->Flags & SStatFilt::fOverrideCfgParams) {
 		Method = pFilt->_Method;
 		P = pFilt->_P;
-		MinP = pFilt->_MinP; // @v6.4.0
+		MinP = pFilt->_MinP;
 		TrustCriterion = pFilt->_TrustCriterion;
 	}
 	else {
 		Method = -1;
 		P = -1;
-		MinP = -1; // @v6.4.0
+		MinP = -1;
 		TrustCriterion = -1;
 	}
 }
@@ -344,10 +347,9 @@ int SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const 
 //
 //
 //
-int PrcssrPrediction::Param::SetPeriod(DateRange period)
+void FASTCALL PrcssrPrediction::Param::SetPeriod(const DateRange & rPeriod)
 {
-	Period = period;
-	return 1;
+	Period = rPeriod;
 }
 
 DateRange PrcssrPrediction::Param::GetPeriod() const
@@ -556,9 +558,7 @@ class PSalesTestParamDialog : public TDialog {
 public:
 	PSalesTestParamDialog(PPPredictConfig * pCfg) : TDialog(DLG_PSALESTEST)
 	{
-		if(pCfg)
-			Cfg = *pCfg;
-		else
+		if(!RVALUEPTR(Cfg, pCfg))
 			MEMSZERO(Cfg);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PSALTST_GGROUP, CTLSEL_PSALTST_GOODS));
 	}
@@ -566,15 +566,13 @@ public:
 	{
 		int    ok = 1;
 		long   mode = 0;
-    	if(pData)
-			Data = *pData;
-		else
+		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		Data.Process = PrcssrPrediction::Param::prcsTest;
 		SetupCalPeriod(CTLCAL_PSALTST_PERIOD, CTL_PSALTST_PERIOD);
 		GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(GRP_GOODS, &rec);
-		mode = (Data.Flags & PrcssrPrediction::Param::fTestUpdatedItems) ? 1 : 0;
+		mode = BIN(Data.Flags & PrcssrPrediction::Param::fTestUpdatedItems);
 		AddClusterAssocDef(CTL_PSALTST_GOODSSELKIND, 0, 0);
 		AddClusterAssoc(CTL_PSALTST_GOODSSELKIND, 1, 1);
 		SetClusterData(CTL_PSALTST_GOODSSELKIND, mode);
@@ -726,15 +724,12 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	LDATE  last_dt = ZERODATE;
 	THROW(P_SalesTbl);
 	P_SalesTbl->GetTblUpdateDt(&last_dt);
-	// @v7.7.2 Data.GoodsGrpID = getCtrlLong(CTLSEL_FILLSALESTBL_GRP);
-	// @v7.7.2 {
 	{
 		GoodsCtrlGroup::Rec ggrp_rec;
 		getGroupData(GRP_GOODS, &ggrp_rec);
 		Data.GoodsGrpID = ggrp_rec.GrpID;
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}
-	// } @v7.7.2
 	GetClusterData(CTL_FILLSALESTBL_UPDATE, &Data.Replace);
 	{
 		LDATE first_date = period.low;
@@ -847,13 +842,11 @@ int SLAPI PrcssrPrediction::Init(const Param * pParam)
 		MaxTime = 0;
 	PPGetFilePath(PPPATH_BIN, "psalesstop.", StopFileName);
 	P = *pParam;
-	// @v7.6.9 {
 	if(!P.GetPeriod().low) {
 		DateRange temp_period = P.GetPeriod();
 		temp_period.low = Cfg.StartDate;
 		P.SetPeriod(temp_period);
 	}
-	// } @v7.6.9
 	P.GoodsQuant = goods_quant;
 	THROW_PP(Cfg.OpID > 0, PPERR_INVPREDICTOP);
 	//

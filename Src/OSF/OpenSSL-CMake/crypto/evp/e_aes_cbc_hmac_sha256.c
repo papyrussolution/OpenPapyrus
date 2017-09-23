@@ -13,7 +13,7 @@
 //#include <string.h>
 //#include <openssl/evp.h>
 //#include <openssl/objects.h>
-#include <openssl/aes.h>
+//#include <openssl/aes.h>
 //#include <openssl/sha.h>
 //#include <openssl/rand.h>
 #include "modes_lcl.h"

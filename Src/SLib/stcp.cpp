@@ -2183,7 +2183,7 @@ int SLAPI ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rE
 		}
 		{ // year or time
 			scan.Skip().GetWord(" \t", temp_buf.Z());
-			if(temp_buf.StrChr(':', 0)) {
+			if(temp_buf.HasChr(':')) {
 				strtotime(temp_buf, TIMF_HMS, &t);
 			}
 			else {

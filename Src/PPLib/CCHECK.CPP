@@ -1204,7 +1204,7 @@ int SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, i
 			//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
 			p_item->Dscnt = -d;
 		}
-		else 
+		else
 			p_item->Dscnt = d;
 	}
 	else /* } @v9.8.1 */ {
@@ -1449,7 +1449,7 @@ SLAPI CSessTotal::CSessTotal()
 	THISZERO();
 }
 
-int FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
+void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 {
 	CheckCount     += pSubTotal->CheckCount;
 	Amount         += pSubTotal->Amount;
@@ -1459,7 +1459,6 @@ int FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 	WORetAmount    += pSubTotal->WORetAmount;
 	WORetBnkAmount += pSubTotal->WORetBnkAmount;
 	BnkDiscount    += pSubTotal->BnkDiscount;
-	return 1;
 }
 //
 // CCheckCore
@@ -1854,8 +1853,10 @@ int SLAPI CCheckCore::LineByCheck(PPID checkID, int16 * pLine)
 		*pLine = k.RByCheck + 1;
 		return 1;
 	}
-	*pLine = 1;
-	return (BTROKORNFOUND) ? 1 : PPSetErrorDB();
+	else {
+		*pLine = 1;
+		return (BTROKORNFOUND) ? 1 : PPSetErrorDB();
+	}
 }
 
 int SLAPI CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Rec * b)
@@ -1868,7 +1869,8 @@ int SLAPI CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Re
 		*pRByCheck = k.RByCheck;
 		return 1;
 	}
-	return PPDbSearchError();
+	else
+		return PPDbSearchError();
 }
 
 int SLAPI CCheckCore::LoadLinesBySessList(PPID goodsID, const PPIDArray * pSessList, const PPIDArray * pCashList,

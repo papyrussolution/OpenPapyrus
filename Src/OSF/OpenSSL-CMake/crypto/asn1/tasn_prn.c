@@ -147,7 +147,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const A
 				    return 0;
 			    break;
 		    }
-		/* fall through */
+		// @fallthrough
 		case ASN1_ITYPE_MSTRING:
 		    if(!asn1_primitive_print(out, fld, it, indent, fname, sname, pctx))
 			    return 0;

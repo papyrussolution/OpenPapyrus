@@ -9,7 +9,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "CharacterSet.h"
 #ifdef SCI_NAMESPACE
 	using namespace Scintilla;
 #endif

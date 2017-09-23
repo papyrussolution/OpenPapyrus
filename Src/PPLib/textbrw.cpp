@@ -10,6 +10,566 @@
 //
 //
 //
+struct SScLangEntry {
+	const char * P_LangName;
+	int    ScModuleId;
+};
+
+static const SScLangEntry SScLangEntryList[] = {
+	{ "normal",         SCLEX_NULL },
+	{ "php",            SCLEX_HTML },
+	{ "c",              SCLEX_CPP },
+	{ "cpp",            SCLEX_CPP },
+	{ "cs",             SCLEX_CPP },
+	{ "objc",           SCLEX_CPP },
+	{ "java",           SCLEX_CPP },
+	{ "rc",             SCLEX_CPP },
+	{ "html",           SCLEX_HTML },
+	{ "xml",            SCLEX_XML },
+	{ "makefile",       SCLEX_MAKEFILE },
+	{ "pascal",         SCLEX_PASCAL },
+	{ "batch",          SCLEX_BATCH },
+	{ "ini",            SCLEX_PROPERTIES },
+	{ "nfo",            SCLEX_NULL },
+	{ "udf",            SCLEX_USER },
+	{ "asp",            SCLEX_HTML },
+	{ "sql",            SCLEX_SQL },
+	{ "vb",             SCLEX_VB },
+	{ "javascript",     SCLEX_CPP },
+	{ "css",            SCLEX_CSS },
+	{ "perl",           SCLEX_PERL },
+	{ "python",         SCLEX_PYTHON },
+	{ "lua",            SCLEX_LUA },
+	{ "tex",            SCLEX_TEX },
+	{ "fortran",        SCLEX_FORTRAN },
+	{ "bash",           SCLEX_BASH },
+	{ "actionscript",   SCLEX_CPP },
+	{ "nsis",           SCLEX_NSIS },
+	{ "tcl",            SCLEX_TCL },
+	{ "lisp",           SCLEX_LISP },
+	{ "scheme",         SCLEX_LISP },
+	{ "asm",            SCLEX_ASM },
+	{ "diff",           SCLEX_DIFF },
+	{ "props",          SCLEX_PROPERTIES },
+	{ "postscript",     SCLEX_PS },
+	{ "ruby",           SCLEX_RUBY },
+	{ "smalltalk",      SCLEX_SMALLTALK },
+	{ "vhdl",           SCLEX_VHDL },
+	{ "kix",            SCLEX_KIX },
+	{ "autoit",         SCLEX_AU3 },
+	{ "caml",           SCLEX_CAML },
+	{ "ada",            SCLEX_ADA },
+	{ "verilog",        SCLEX_VERILOG },
+	{ "matlab",         SCLEX_MATLAB },
+	{ "haskell",        SCLEX_HASKELL },
+	{ "inno",           SCLEX_INNOSETUP },
+	{ "searchResult",   SCLEX_SEARCHRESULT },
+	{ "cmake",          SCLEX_CMAKE },
+	{ "yaml",           SCLEX_YAML },
+	{ "cobol",          SCLEX_COBOL },
+	{ "gui4cli",        SCLEX_GUI4CLI },
+	{ "d",              SCLEX_D },
+	{ "powershell",     SCLEX_POWERSHELL },
+	{ "r",              SCLEX_R },
+	{ "jsp",            SCLEX_HTML },
+	{ "coffeescript",   SCLEX_COFFEESCRIPT },
+	{ "json",           SCLEX_CPP },
+	{ "javascript.js",  SCLEX_CPP },
+	{ "fortran77",      SCLEX_F77 },
+	{ "baanc",          SCLEX_BAAN },
+	{ "srec",           SCLEX_SREC },
+	{ "ihex",           SCLEX_IHEX },
+	{ "tehex",          SCLEX_TEHEX },
+	{ "swift",          SCLEX_CPP },
+	{ "asn1",           SCLEX_ASN1 },
+	{ "avs",            SCLEX_AVS },
+	{ "blitzbasic",     SCLEX_BLITZBASIC },
+	{ "purebasic",      SCLEX_PUREBASIC },
+	{ "freebasic",      SCLEX_FREEBASIC },
+	{ "csound",         SCLEX_CSOUND },
+	{ "erlang",         SCLEX_ERLANG },
+	{ "escript",        SCLEX_ESCRIPT },
+	{ "forth",          SCLEX_FORTH },
+	{ "latex",          SCLEX_LATEX },
+	{ "mmixal",         SCLEX_MMIXAL },
+	{ "nimrod",         SCLEX_NIMROD },
+	{ "nncrontab",      SCLEX_NNCRONTAB },
+	{ "oscript",        SCLEX_OSCRIPT },
+	{ "rebol",          SCLEX_REBOL },
+	{ "registry",       SCLEX_REGISTRY },
+	{ "rust",           SCLEX_RUST },
+	{ "spice",          SCLEX_SPICE },
+	{ "txt2tags",       SCLEX_TXT2TAGS },
+	{ "ext",            SCLEX_NULL }
+};
+
+static int FASTCALL SScGetLexerIdByName(const char * pName)
+{
+    for(uint i = 0; i < SIZEOFARRAY(SScLangEntryList); i++) {
+		const SScLangEntry & r_entry = SScLangEntryList[i];
+		if(sstreqi_ascii(r_entry.P_LangName, pName)) {
+			return i+1;
+		}
+    }
+    return 0;
+}
+
+static const char * FASTCALL SScGetLexerNameById(int id)
+{
+	return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_LangName : 0;
+}
+
+static int FASTCALL SScGetLexerModelById(int id)
+{
+	return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].ScModuleId : 0;
+}
+
+SLAPI SScEditorStyleSet::SScEditorStyleSet()
+{
+}
+
+SLAPI SScEditorStyleSet::~SScEditorStyleSet()
+{
+}
+
+void SScEditorStyleSet::Destroy()
+{
+	L.freeAll();
+	ML.freeAll();
+	KwL.freeAll();
+	DestroyS();
+}
+
+void   FASTCALL SScEditorStyleSet::InnerToOuter(const InnerLangModel & rS, LangModel & rD) const
+{
+	rD.LexerId = rS.LexerId;
+	GetS(rS.CommentLineP, rD.CommentLine);
+	GetS(rS.CommentStartP, rD.CommentStart);
+	GetS(rS.CommentEndP, rD.CommentEnd);
+}
+
+void   FASTCALL SScEditorStyleSet::InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const
+{
+	rD.LexerId = rS.LexerId;
+	GetS(rS.KeywordClassP, rD.KeywordClass);
+	GetS(rS.KeywordListP, rD.KeywordList);
+}
+
+void FASTCALL SScEditorStyleSet::InnerToOuter(const InnerStyle & rS, Style & rD) const
+{
+    rD.Group = rS.Group;
+    rD.LexerId = rS.LexerId;
+    rD.StyleId = rS.StyleId;
+    rD.BgC = rS.BgC;
+    rD.FgC = rS.FgC;
+    rD.FontStyle = rS.FontStyle;
+    rD.FontSize = rS.FontSize;
+    GetS(rS.LexerDescrP, rD.LexerDescr);
+    GetS(rS.StyleNameP, rD.StyleName);
+    GetS(rS.FontFaceP, rD.FontFace);
+    GetS(rS.KeywordClassP, rD.KeywordClass);
+}
+
+int SLAPI SScEditorStyleSet::GetModel(int lexerId, LangModel * pModel) const
+{
+	int    ok = 0;
+	for(uint i = 0; !ok && i < ML.getCount(); i++) {
+		const InnerLangModel & r_item = ML.at(i);
+		if(r_item.LexerId == lexerId) {
+			if(pModel) {
+				InnerToOuter(r_item, *pModel);
+			}
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SLAPI SScEditorStyleSet::GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const
+{
+	int    ok = 0;
+	for(uint i = 0; i < KwL.getCount(); i++) {
+		const InnerLangModelKeywords & r_item = KwL.at(i);
+		if(r_item.LexerId == lexerId) {
+			if(pList) {
+				LangModelKeywords * p_new_entry = pList->CreateNewItem();
+				THROW(p_new_entry);
+				InnerToOuter(r_item, *p_new_entry);
+			}
+			ok++;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SScEditorStyleSet::GetStyles(int group, int lexerId, TSCollection <Style> * pList) const
+{
+	int    ok = 0;
+	SString temp_buf;
+    for(uint i = 0; i < L.getCount(); i++) {
+        const InnerStyle & r_is = L.at(i);
+        if(r_is.Group == group) {
+			if(lexerId) {
+				if(r_is.LexerId == lexerId) {
+					if(pList) {
+						Style * p_new_entry = pList->CreateNewItem();
+						THROW_SL(p_new_entry);
+						InnerToOuter(r_is, *p_new_entry);
+					}
+					ok++;
+				}
+			}
+			else if(group == sgGlobal) {
+				if(pList) {
+					Style * p_new_entry = pList->CreateNewItem();
+					THROW_SL(p_new_entry);
+					InnerToOuter(r_is, *p_new_entry);
+				}
+				ok++;
+			}
+        }
+    }
+	CATCHZOK
+    return ok;
+}
+
+int SLAPI SScEditorStyleSet::GetStyle(int group, int lexerId, int styleId, Style & rS) const
+{
+	int    ok = 0;
+	SString temp_buf;
+    for(uint i = 0; !ok && i < L.getCount(); i++) {
+        const InnerStyle & r_is = L.at(i);
+        if(r_is.Group == group && r_is.StyleId == styleId) {
+			if(lexerId) {
+				if(r_is.LexerId == lexerId) {
+					InnerToOuter(r_is, rS);
+					ok = 1;
+				}
+			}
+			else if(group == sgGlobal) {
+				InnerToOuter(r_is, rS);
+				ok = 1;
+			}
+        }
+    }
+    return ok;
+}
+
+int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString lexer_name;
+	SString lexer_descr;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	xmlNode * p_root = 0;
+	THROW_SL(fileExists(pFileName));
+	THROW(p_ctx = xmlNewParserCtxt());
+	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
+	THROW(p_root = xmlDocGetRootElement(p_doc));
+	if(SXml::IsName(p_root, "EditorStyles")) {
+		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+			if(SXml::IsName(p_n, "LexerStyles")) {
+				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+					if(SXml::IsName(p_s, "LexerType")) {
+						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
+							uint   lexer_id = SScGetLexerIdByName(lexer_name);
+							if(lexer_id) {
+								uint   lexer_descr_p = 0;
+								if(SXml::GetAttrib(p_s, "desc", lexer_descr) > 0) 
+									AddS(lexer_descr, &lexer_descr_p);
+								for(xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
+									if(SXml::IsName(p_e, "WordsStyle")) {
+										InnerStyle st;
+										MEMSZERO(st);
+										st.Group = sgLexer;
+										st.LexerId = lexer_id;
+										st.LexerDescrP = lexer_descr_p;
+										st.FgC.SetEmpty();
+										st.BgC.SetEmpty();
+										st.FontStyle = -1;
+										if(SXml::GetAttrib(p_e, "name", temp_buf) > 0)
+											AddS(temp_buf, &st.StyleNameP);
+										if(SXml::GetAttrib(p_e, "styleID", temp_buf) > 0)
+											st.StyleId = (uint)temp_buf.ToLong();
+										if(SXml::GetAttrib(p_e, "fgColor", temp_buf) > 0) {
+											if(temp_buf.Len() == 6) {
+												temp_buf.Insert(0, "#");
+												st.FgC.FromStr(temp_buf);
+											}
+										}
+										if(SXml::GetAttrib(p_e, "bgColor", temp_buf) > 0) {
+											if(temp_buf.Len() == 6) {
+												temp_buf.Insert(0, "#");
+												st.BgC.FromStr(temp_buf);
+											}
+										}
+										if(SXml::GetAttrib(p_e, "fontName", temp_buf) > 0)
+											AddS(temp_buf, &st.FontFaceP);
+										if(SXml::GetAttrib(p_e, "fontStyle", temp_buf) > 0)
+											st.FontStyle = temp_buf.ToLong();
+										if(SXml::GetAttrib(p_e, "fontSize", temp_buf) > 0)
+											st.FontSize = (uint)temp_buf.ToLong();
+										if(SXml::GetAttrib(p_e, "keywordClass", temp_buf) > 0)
+											AddS(temp_buf, &st.KeywordClassP);
+										THROW_SL(L.insert(&st));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(SXml::IsName(p_n, "GlobalStyles")) {
+				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+					if(SXml::IsName(p_s, "WidgetStyle")) {
+						InnerStyle st;
+						MEMSZERO(st);
+						st.Group = sgGlobal;
+						st.FgC.SetEmpty();
+						st.BgC.SetEmpty();
+						if(SXml::GetAttrib(p_s, "name", temp_buf) > 0)
+							AddS(temp_buf, &st.StyleNameP);
+						if(SXml::GetAttrib(p_s, "styleID", temp_buf) > 0)
+							st.StyleId = (uint)temp_buf.ToLong();
+						if(SXml::GetAttrib(p_s, "fgColor", temp_buf) > 0) {
+							if(temp_buf.Len() == 6) {
+								temp_buf.Insert(0, "#");
+								st.FgC.FromStr(temp_buf);
+							}
+						}
+						if(SXml::GetAttrib(p_s, "bgColor", temp_buf) > 0) {
+							if(temp_buf.Len() == 6) {
+								temp_buf.Insert(0, "#");
+								st.BgC.FromStr(temp_buf);
+							}
+						}
+						if(SXml::GetAttrib(p_s, "fontName", temp_buf) > 0)
+							AddS(temp_buf, &st.FontFaceP);
+						if(SXml::GetAttrib(p_s, "fontStyle", temp_buf) > 0)
+							st.FontStyle = (uint)temp_buf.ToLong();
+						if(SXml::GetAttrib(p_s, "fontSize", temp_buf) > 0)
+							st.FontSize = (uint)temp_buf.ToLong();
+						if(SXml::GetAttrib(p_s, "keywordClass", temp_buf) > 0)
+							AddS(temp_buf, &st.KeywordClassP);
+						THROW_SL(L.insert(&st));
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+int SLAPI SScEditorStyleSet::ParseModelXml(const char * pFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString lexer_name;
+	SString lexer_ext;
+	SString keyword_class_name;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	xmlNode * p_root = 0;
+	THROW_SL(fileExists(pFileName));
+	THROW(p_ctx = xmlNewParserCtxt());
+	THROW_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
+	THROW(p_root = xmlDocGetRootElement(p_doc));
+	if(SXml::IsName(p_root, "EditorLangModels")) {
+		for(xmlNode * p_n = p_root->children; p_n; p_n = p_n->next) {
+			if(SXml::IsName(p_n, "Languages")) {
+				for(xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
+					if(SXml::IsName(p_s, "Language")) {
+						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
+							uint   lexer_id = SScGetLexerIdByName(lexer_name);
+							if(lexer_id) {
+								InnerLangModel model;
+								MEMSZERO(model);
+								model.LexerId = lexer_id;
+								if(SXml::GetAttrib(p_s, "ext", temp_buf) > 0)
+									AddS(temp_buf, &model.ExtListP);
+								if(SXml::GetAttrib(p_s, "commentLine", temp_buf) > 0)
+									AddS(temp_buf, &model.CommentLineP);
+								if(SXml::GetAttrib(p_s, "commentStart", temp_buf) > 0)
+									AddS(temp_buf, &model.CommentStartP);
+								if(SXml::GetAttrib(p_s, "commentEnd", temp_buf) > 0)
+									AddS(temp_buf, &model.CommentEndP);
+								THROW_SL(ML.insert(&model));
+								for(xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
+									if(SXml::IsName(p_e, "Keywords")) {
+										if(SXml::GetContent(p_e, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+											InnerLangModelKeywords entry;
+											MEMSZERO(entry);
+											entry.LexerId = lexer_id;
+											AddS(temp_buf, &entry.KeywordListP);
+											if(SXml::GetAttrib(p_e, "name", temp_buf) > 0)
+												AddS(temp_buf, &entry.KeywordClassP);
+											THROW_SL(KwL.insert(&entry));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+void SScEditorBase::SetSpecialStyle(const SScEditorStyleSet::Style & rStyle)
+{
+	int styleID = rStyle.StyleId;
+	if(!rStyle.FgC.IsEmpty())
+		CallFunc(SCI_STYLESETFORE, styleID, rStyle.FgC);
+	if(!rStyle.BgC.IsEmpty())
+		CallFunc(SCI_STYLESETBACK, styleID, rStyle.BgC);
+	if(rStyle.FontFace.NotEmpty()) {
+		CallFunc(SCI_STYLESETFONT, styleID, (LPARAM)rStyle.FontFace.cptr());
+	}
+	int font_style = rStyle.FontStyle;
+	if(font_style != -1/*STYLE_NOT_USED*/) {
+		CallFunc(SCI_STYLESETBOLD, styleID, font_style & SScEditorStyleSet::FONTSTYLE_BOLD);
+		CallFunc(SCI_STYLESETITALIC, styleID, font_style & SScEditorStyleSet::FONTSTYLE_ITALIC);
+		CallFunc(SCI_STYLESETUNDERLINE, styleID, font_style & SScEditorStyleSet::FONTSTYLE_UNDERLINE);
+	}
+	if(rStyle.FontSize > 0)
+		CallFunc(SCI_STYLESETSIZE, styleID, rStyle.FontSize);
+}
+
+const int LANG_INDEX_INSTR  = 0;
+const int LANG_INDEX_INSTR2 = 1;
+const int LANG_INDEX_TYPE   = 2;
+const int LANG_INDEX_TYPE2  = 3;
+const int LANG_INDEX_TYPE3  = 4;
+const int LANG_INDEX_TYPE4  = 5;
+const int LANG_INDEX_TYPE5  = 6;
+
+static int GetKwClassFromName(const char * pStr, const char * pLexerName)
+{
+	if(sstreq(pStr, "instre1")) 
+		return LANG_INDEX_INSTR;
+	if(sstreq(pStr, "instre2")) 
+		return LANG_INDEX_INSTR2;
+	if(sstreq(pStr, "type1")) {
+		if(sstreq(pLexerName, "cpp"))
+			return 1;
+		else
+			return LANG_INDEX_TYPE;
+	}
+	if(sstreq(pStr, "type2")) 
+		return LANG_INDEX_TYPE2;
+	if(sstreq(pStr, "type3")) 
+		return LANG_INDEX_TYPE3;
+	if(sstreq(pStr, "type4")) 
+		return LANG_INDEX_TYPE4;
+	if(sstreq(pStr, "type5")) 
+		return LANG_INDEX_TYPE5;
+	else if(pStr[1] == 0 && pStr[0] >= '0' && pStr[0] <= '8')
+		return (pStr[0] - '0');
+	else
+		return -1;
+}
+
+static SScEditorStyleSet * _GetGlobalSScEditorStyleSetInstance()
+{
+	static const char * P_GlobalSymbol = "SScEditorStyleSet";
+	SScEditorStyleSet * p_ss = 0;
+	long   symbol_id = SLS.GetGlobalSymbol(P_GlobalSymbol, -1, 0);
+	THROW_SL(symbol_id);
+	if(symbol_id < 0) {
+		TSClassWrapper <SScEditorStyleSet> cls;
+		THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
+		THROW_SL(p_ss = (SScEditorStyleSet *)SLS.GetGlobalObject(symbol_id));
+		{
+			long s = SLS.GetGlobalSymbol(P_GlobalSymbol, symbol_id, 0);
+			assert(symbol_id == s);
+		}
+		{
+			int    r = 0;
+			SString file_name;
+			PPGetFilePath(PPPATH_DD, "editorlangmodel.xml", file_name);
+			r = p_ss->ParseModelXml(file_name);
+			if(r) {
+				PPGetFilePath(PPPATH_DD, "editorstyles.xml", file_name);
+				r = p_ss->ParseStylesXml(file_name);
+			}
+			if(!r) {
+				p_ss->Destroy(); // ”казатель оставл€ем не нулевым дабы в течении 
+					// сеанса каждый раз не пытатьс€ создавать его заново.
+			}
+		}
+	}
+	else if(symbol_id > 0) {
+		THROW_SL(p_ss = (SScEditorStyleSet *)SLS.GetGlobalObject(symbol_id));
+	}
+	CATCH
+		p_ss = 0;
+	ENDCATCH
+	return p_ss;
+}
+
+int SScEditorBase::SetLexer(const char * pLexerName)
+{
+	int    ok = 0;
+	SScEditorStyleSet * p_ss = _GetGlobalSScEditorStyleSetInstance();
+	int    lexer_id = SScGetLexerIdByName(pLexerName);
+	if(lexer_id && p_ss) {
+		int lexer_model = SScGetLexerModelById(lexer_id);
+		SScEditorStyleSet::LangModel model;
+		if(p_ss->GetModel(lexer_model, &model)) {
+
+			CallFunc(SCI_SETLEXER, lexer_model, 0);
+
+			TSCollection <SScEditorStyleSet::LangModelKeywords> kw_list;
+			TSCollection <SScEditorStyleSet::Style> style_list;
+			p_ss->GetStyles(SScEditorStyleSet::sgLexer, lexer_id, &style_list);
+			int    kwc = p_ss->GetModelKeywords(lexer_model, &kw_list);
+			for(uint i = 0; i < style_list.getCount(); i++) {
+				const SScEditorStyleSet::Style * p_style = style_list.at(i);
+				if(p_style) {
+					if(p_style->KeywordClass.NotEmpty()) {
+						for(uint j = 0; j < kw_list.getCount(); j++) {
+							SScEditorStyleSet::LangModelKeywords * p_kw = kw_list.at(j);
+							if(p_kw && p_kw->KeywordClass.CmpNC(p_style->KeywordClass) == 0) {
+								int kw_n = GetKwClassFromName(p_kw->KeywordClass, pLexerName);
+								if(kw_n >= 0 && kw_n <= 8) {
+									CallFunc(SCI_SETKEYWORDS, kw_n, (LPARAM)p_kw->KeywordList.cptr());
+									break;
+								}
+							}
+						}
+					}
+					SetSpecialStyle(*p_style);
+				}
+			}
+			if(sstreq(pLexerName, "cpp")) {
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold", (LPARAM)"1");
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.compact", (LPARAM)"0");
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.comment", (LPARAM)"1");
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"fold.preprocessor", (LPARAM)"1");
+				// Disable track preprocessor to avoid incorrect detection.
+				// In the most of cases, the symbols are defined outside of file.
+				CallFunc(SCI_SETPROPERTY, (WPARAM)"lexer.cpp.track.preprocessor", (LPARAM)"0");
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 class SearchReplaceDialog : public TDialog {
 public:
 	SearchReplaceDialog() : TDialog(DLG_SCISEARCH)
@@ -141,10 +701,33 @@ int FASTCALL SScEditorBase::SetSelection(const IntRange * pR)
 	return ok;
 }
 
+int FASTCALL SScEditorBase::GetSelectionText(SString & rBuf)
+{
+	rBuf.Z();
+	int sz = CallFunc(SCI_GETSELTEXT, 0, 0);
+	if(sz > 0) {
+		STempBuffer temp_b(sz);
+		if(temp_b.IsValid()) {
+			sz = CallFunc(SCI_GETSELTEXT, 0, (LPARAM)(char *)temp_b);
+			rBuf = temp_b;
+		}
+		else
+			sz = 0;
+	}
+	return sz;
+}
+
 int SScEditorBase::SearchAndReplace(long flags)
 {
 	int    ok = -1;
 	SSearchReplaceParam param = LastSrParam;
+	IntRange sel;
+	int   ssz = 0;
+	if(param.Pattern.Empty() || flags & srfUseDialog) {
+		ssz = GetSelectionText(param.Pattern);
+		if(ssz > 0)
+			param.Pattern.Transf(CTRANSF_UTF8_TO_INNER);
+	}
 	if(!(flags & srfUseDialog) || EditSearchReplaceParam(&param) > 0) {
 		LastSrParam = param;
 		SString pattern = param.Pattern;
@@ -152,7 +735,6 @@ int SScEditorBase::SearchAndReplace(long flags)
 		if(pattern.NotEmpty()) {
 			int    sci_srch_flags = 0;
 			int    _func = 0;
-			IntRange sel;
 			if(!(param.Flags & param.fNoCase))
 				sci_srch_flags |= SCFIND_MATCHCASE;
 			if(param.Flags & param.fWholeWords)
@@ -361,6 +943,7 @@ LPCTSTR STextBrowser::WndClsName = _T("STextBrowser"); // @global
 int STextBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
+	MEMSZERO(wc);
 	wc.cbSize        = sizeof(wc);
 	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	wc.lpfnWndProc   = STextBrowser::WndProc;
@@ -370,9 +953,7 @@ int STextBrowser::RegWindowClass(HINSTANCE hInst)
 	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(/*ICON_TIMEGRID*/172));
 	wc.hCursor       = NULL; // LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
-	wc.lpszMenuName  = 0;
 	wc.lpszClassName = STextBrowser::WndClsName;
-	wc.hIconSm       = 0;
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	Scintilla_RegisterClasses(hInst);
 #endif
@@ -506,7 +1087,8 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 					switch(p_scn->nmhdr.code) {
 						case SCN_CHARADDED:
 						case SCN_MODIFIED:
-							p_view->Doc.SetState(Document::stDirty, 1);
+							if(p_scn->modificationType & (SC_MOD_DELETETEXT|SC_MOD_INSERTTEXT|SC_PERFORMED_UNDO|SC_PERFORMED_REDO))
+								p_view->Doc.SetState(Document::stDirty, 1);
 							break;
 						case SCN_DWELLSTART:
 							{
@@ -729,7 +1311,8 @@ int STextBrowser::WMHCreate()
 	CallFunc(SCI_SETCARETLINEVISIBLE, 1, 0);
 	CallFunc(SCI_SETCARETLINEBACK, RGB(232,232,255), 0);
 	CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
-	CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED, 0);
+	CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED, 0); // @v9.8.2 SC_EFF_QUALITY_ANTIALIASED-->SC_EFF_QUALITY_LCD_OPTIMIZED
+	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
 	//
 	CallFunc(SCI_SETMOUSEDWELLTIME, 500, 0); // @v9.2.0
 	//
@@ -974,6 +1557,9 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 	(file_name = pFileName).Strip();
 	THROW_SL(fileExists(file_name));
 	{
+		SFileFormat ff;
+		const int fir = ff.Identify(file_name);
+
 		size_t block_size = 8 * 1024 * 1024;
 		int64  _fsize = 0;
 		SFile _f(file_name, SFile::mRead|SFile::mBinary);
@@ -995,6 +1581,17 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 				/*
 					«десь следует установить LEXER
 				*/
+				if(oneof3(fir, 1, 2, 3)) {
+					if(ff == ff.Ini) {
+						SetLexer("ini");
+					}
+					else if(ff == ff.Xml) {
+						SetLexer("xml");
+					}
+					else if(oneof3(ff, ff.C, ff.CPP, ff.H)) {
+						SetLexer("cpp");
+					}
+				}
 				if(orgCp != cpANSI) {
 					CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 				}

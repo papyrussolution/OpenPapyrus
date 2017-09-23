@@ -53,7 +53,7 @@ static int site_by_addr __P((ENV*, const char *, uint, DB_SITE**));
 /*
  * PUBLIC: int __repmgr_start __P((DB_ENV *, int, uint32));
  */
-int __repmgr_start(DB_ENV*dbenv, int nthreads, uint32 flags)
+int __repmgr_start(DB_ENV * dbenv, int nthreads, uint32 flags)
 {
 	DB_REP * db_rep;
 	REP * rep;
@@ -597,7 +597,7 @@ int __repmgr_close(ENV*env)
 /*
  * PUBLIC: int __repmgr_set_ack_policy __P((DB_ENV *, int));
  */
-int __repmgr_set_ack_policy(DB_ENV*dbenv, int policy)
+int __repmgr_set_ack_policy(DB_ENV * dbenv, int policy)
 {
 	DB_THREAD_INFO * ip;
 	int ret;
@@ -640,7 +640,7 @@ int __repmgr_set_ack_policy(DB_ENV*dbenv, int policy)
 /*
  * PUBLIC: int __repmgr_get_ack_policy __P((DB_ENV *, int *));
  */
-int __repmgr_get_ack_policy(DB_ENV*dbenv, int * policy)
+int __repmgr_get_ack_policy(DB_ENV * dbenv, int * policy)
 {
 	ENV * env = dbenv->env;
 	DB_REP * db_rep = env->rep_handle;
@@ -795,7 +795,7 @@ static int __repmgr_await_threads(ENV*env)
 /*
  * PUBLIC: int __repmgr_local_site __P((DB_ENV *, DB_SITE **));
  */
-int __repmgr_local_site(DB_ENV*dbenv, DB_SITE ** sitep)
+int __repmgr_local_site(DB_ENV * dbenv, DB_SITE ** sitep)
 {
 	ENV * env = dbenv->env;
 	DB_REP * db_rep = env->rep_handle;
@@ -819,7 +819,7 @@ static int addr_chk(const ENV*env, const char * host, uint port)
 /*
  * PUBLIC: int __repmgr_channel __P((DB_ENV *, int, DB_CHANNEL **, uint32));
  */
-int __repmgr_channel(DB_ENV*dbenv, int eid, DB_CHANNEL ** dbchannelp, uint32 flags)
+int __repmgr_channel(DB_ENV * dbenv, int eid, DB_CHANNEL ** dbchannelp, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	REP * rep;
@@ -2135,7 +2135,7 @@ static int site_by_addr(ENV * env, const char * host, uint port, DB_SITE ** site
 /*
  * PUBLIC: int __repmgr_site_by_eid __P((DB_ENV *, int, DB_SITE **));
  */
-int __repmgr_site_by_eid(DB_ENV*dbenv, int eid, DB_SITE ** sitep)
+int __repmgr_site_by_eid(DB_ENV * dbenv, int eid, DB_SITE ** sitep)
 {
 	DB_REP * db_rep;
 	REPMGR_SITE * site;

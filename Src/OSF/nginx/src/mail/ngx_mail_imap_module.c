@@ -6,12 +6,11 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_imap_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_imap_module.h>
 
 static void * ngx_mail_imap_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_str_t ngx_mail_imap_default_capabilities[] = {
 	ngx_string("IMAP4"),

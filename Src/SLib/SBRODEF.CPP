@@ -496,7 +496,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 					memcpy(pBuf+i, pBuf+i+1, len);
 					pBuf[i] = ' ';
 				}
-				else if(c == '\n' || c == '\t')
+				else if(oneof2(c, '\n', '\t'))
 					pBuf[i] = ' ';
 			}
 		}

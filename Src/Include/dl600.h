@@ -403,7 +403,7 @@ public:
 	SLAPI ~DlScope();
 	DlScope & FASTCALL operator = (const DlScope &);
 	int    SLAPI Copy(const DlScope &, int withoutChilds = 0);
-	int    SLAPI Add(DlScope * pChild);
+	int    FASTCALL Add(DlScope * pChild);
 	//
 	// Descr: Удаляет из списка дочерних областей ту, что имеет идентификатор scopeID.
 	// Returns:
@@ -444,7 +444,7 @@ public:
 	//   после загрузки списка областей из хранилища, поскольку в хранилище держится только
 	//   идентификатор базовой области.
 	//
-	int    SLAPI InitInheritance(const DlScope * pTopScope); // @recursion
+	int    FASTCALL InitInheritance(const DlScope * pTopScope); // @recursion
 	DlScope * SLAPI SearchByName(uint kind, const char * pName, DLSYMBID * pParentID);
 	const  DlScope * SLAPI SearchByName_Const(uint kind, const char * pName, DLSYMBID * pParentID) const;
 	DlScope * SLAPI SearchByID(DLSYMBID id, DLSYMBID * pParentID);
@@ -465,13 +465,13 @@ public:
 	int    SLAPI Read(SBuffer & rBuf);
 	int    FASTCALL IsEqual(const DlScope & rPat) const;
 
-	int    SLAPI SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
+	void   SLAPI SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
 	void * FASTCALL GetFixDataPtr(size_t offs) const;
 	//
 	// Descr: Устанавливает атрибут Attr. Атрибут представлен флагом и, возможно, дополнительным
 	//   значением. Функция является аддитивной и, в общем случае, не коммутативной.
 	//
-	int    SLAPI SetAttrib(const Attr &);
+	int    FASTCALL SetAttrib(const Attr &);
 	int    SLAPI GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const;
 	//
 	// Descr: Добавляет константу, соответствующую идентификатору id в структуру ConstList.
@@ -1228,13 +1228,13 @@ protected:
 	};
 	int    InitFixData(const char * pScopeName, void * pData, size_t dataSize);
 	int    InitFixData(int reservedScopeCode, void * pData, size_t dataSize);
-	int    FinishRecord(const DlScope * pScope); // @recursion
+	int    FASTCALL FinishRecord(const DlScope * pScope); // @recursion
 	int    FASTCALL AssignHeadData(void * pData, size_t dataSize);          // PPALDD compatibility
 		// @>>InitFixData
 	int    FASTCALL AssignIterData(int one, void * pData, size_t dataSize); // PPALDD compatibility
 		// @>>InitFixData
 	int    SLAPI FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const;
-	int    SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
+	void   SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
 	//
 	// Descr: Стандартный пролог функций InitIteration и NextIteration.
 	// Returns:
@@ -1453,7 +1453,7 @@ protected:
 	SString RetStrBuf; // Временный буфер, используемый только для возврата строковых значений.
 		// @!Больше ни для каких целей использовать нельзя.
 private:
-	int    SLAPI InitVTable(void * pVt);
+	int    FASTCALL InitVTable(void * pVt);
 	int    SLAPI ReleaseVTable();
 
 	ACount Ref;

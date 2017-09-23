@@ -218,16 +218,16 @@ void UriFreeQueryList(UriQueryList*queryList);
 int UriParseIpFourAddress(uchar * octetOutput, const char * pFirst, const char * afterLast);
 
 void UriResetUri(UriUri*uri);
-int UriRemoveDotSegmentsAbsolute(UriUri*uri);
-int UriRemoveDotSegments(UriUri*uri, int relative);
-int UriRemoveDotSegmentsEx(UriUri*uri, int relative, int pathOwned);
-uchar UriHexdigToInt(char hexdig);
-char UriHexToLetter(uint value);
-char UriHexToLetterEx(uint value, int uppercase);
+int UriRemoveDotSegmentsAbsolute(UriUri * uri);
+int UriRemoveDotSegments(UriUri * uri, int relative);
+int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned);
+uchar FASTCALL UriHexdigToInt(char hexdig);
+char FASTCALL UriHexToLetter(uint value);
+char FASTCALL UriHexToLetterEx(uint value, int uppercase);
 int UriIsHostSet(const UriUri * uri);
-int UriCopyPath(UriUri*dest, const UriUri*source);
-int UriCopyAuthority(UriUri*dest, const UriUri*source);
-int UriFixAmbiguity(UriUri*uri);
-void UriFixEmptyTrailSegment(UriUri*uri);
+int UriCopyPath(UriUri * dest, const UriUri * source);
+int UriCopyAuthority(UriUri * dest, const UriUri * source);
+int UriFixAmbiguity(UriUri * uri);
+void UriFixEmptyTrailSegment(UriUri * uri);
 
 

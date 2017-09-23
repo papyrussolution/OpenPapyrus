@@ -192,11 +192,11 @@ private:
 	POINT DrawRGBMarker(HDC hdc, HBRUSH brush, POINT ptMax, int color);
 	RECT NormalizeRect(RECT rect);
 
-	int    GetBrightRect(RECT * pRect, RECT * pModifRect);
+	void   GetBrightRect(RECT * pRect, RECT * pModifRect);
 	double GetCircleDistance(POINT pt, POINT * pPt);
-	int    CirclePosByMousePos(POINT pt);
-	int    BrightPosByMousePos(POINT pt);
-	int    RGBPosByMousePos(POINT pt);
+	void   CirclePosByMousePos(POINT pt);
+	void   BrightPosByMousePos(POINT pt);
+	void   RGBPosByMousePos(POINT pt);
 	int    InCircle(POINT pt);
 	int    InRGB(POINT pt);
 	int    InBright(POINT pt);
@@ -298,11 +298,10 @@ void PPColorPickerDialog::SetHSVCtrls(HSV c)
 
 void PPColorPickerDialog::SetRGBCtrls(COLORREF c)
 {
-	long r = 0, g = 0, b = 0;
 	Data = c;
-	r = GetRValue(Data);
-	g = GetGValue(Data);
-	b = GetBValue(Data);
+	long r = GetRValue(Data);
+	long g = GetGValue(Data);
+	long b = GetBValue(Data);
 	setGroupData(GRP_REDSPIN,   &r);
 	setGroupData(GRP_GREENSPIN, &g);
 	setGroupData(GRP_BLUESPIN,  &b);
@@ -320,10 +319,9 @@ int PPColorPickerDialog::setDTS(const long * pColor)
 
 int PPColorPickerDialog::getDTS(long * pColor)
 {
-	long r = 0, g = 0, b = 0;
-	r = getCtrlLong(CTL_COLORS_RED);
-	g = getCtrlLong(CTL_COLORS_GREEN);
-	b = getCtrlLong(CTL_COLORS_BLUE);
+	long r = getCtrlLong(CTL_COLORS_RED);
+	long g = getCtrlLong(CTL_COLORS_GREEN);
+	long b = getCtrlLong(CTL_COLORS_BLUE);
 	Data = RGB(r, g, b);
 	ASSIGN_PTR(pColor, (long)Data);
 	return 1;
@@ -333,7 +331,7 @@ IMPL_HANDLE_EVENT(PPColorPickerDialog)
 {
 	int test = 0;
 	TDialog::handleEvent(event);
-	if(event.what == evMouseDown) {
+	if(event.what == TEvent::evMouseDown) {
 		uint ctl = 0;
 		RECT r;
 		POINT pt;
@@ -348,7 +346,7 @@ IMPL_HANDLE_EVENT(PPColorPickerDialog)
 		if(BeginCircleMove || BeginRGBMove || BeginBrightMove)
 			ClipCursor(&r);
 	}
-	else if(event.what == evMouseUp) {
+	else if(event.what == TEvent::evMouseUp) {
 		POINT pt;
 		ClipCursor(0);
 		pt.x = event.mouse.WhereX;
@@ -363,7 +361,7 @@ IMPL_HANDLE_EVENT(PPColorPickerDialog)
 			Paint();
 		BeginCircleMove = BeginRGBMove = BeginBrightMove = 0;
 	}
-	else if(event.what == evMouseMove) {
+	else if(event.what == TEvent::evMouseMove) {
 		POINT pt;
 		pt.x = event.mouse.WhereX;
 		pt.y = event.mouse.WhereY;
@@ -385,8 +383,8 @@ IMPL_HANDLE_EVENT(PPColorPickerDialog)
 	else if(TVCOMMAND) {
 		if((TVCMD == cmInputUpdatedByBtn || oneof2(TVCMD, cmUp, cmDown))) {
 			const uint ctl_id = TVINFOVIEW->GetId();
-			if(oneof6(ctl_id, CTL_COLORS_RUP, CTL_COLORS_GUP, CTL_COLORS_BUP, CTL_COLORS_RDOWN, CTL_COLORS_GDOWN, CTL_COLORS_BDOWN)
-				|| oneof3(ctl_id, CTL_COLORS_RED, CTL_COLORS_GREEN, CTL_COLORS_BLUE)) {
+			if(oneof9(ctl_id, CTL_COLORS_RUP, CTL_COLORS_GUP, CTL_COLORS_BUP, CTL_COLORS_RDOWN, CTL_COLORS_GDOWN, 
+				CTL_COLORS_BDOWN, CTL_COLORS_RED, CTL_COLORS_GREEN, CTL_COLORS_BLUE)) {
 				long r = getCtrlLong(CTL_COLORS_RED);
 				long g = getCtrlLong(CTL_COLORS_GREEN);
 				long b = getCtrlLong(CTL_COLORS_BLUE);
@@ -394,8 +392,8 @@ IMPL_HANDLE_EVENT(PPColorPickerDialog)
 				SetHSVCtrls(RGBToHSV(Data));
 				Paint();
 			}
-			else if(oneof6(ctl_id, CTL_COLORS_HUP, CTL_COLORS_SUP, CTL_COLORS_VUP, CTL_COLORS_HDOWN, CTL_COLORS_SDOWN, CTL_COLORS_VDOWN)
-				|| oneof3(ctl_id, CTL_COLORS_HUE, CTL_COLORS_SAT, CTL_COLORS_VAL)) {
+			else if(oneof9(ctl_id, CTL_COLORS_HUP, CTL_COLORS_SUP, CTL_COLORS_VUP, CTL_COLORS_HDOWN, CTL_COLORS_SDOWN, 
+				CTL_COLORS_VDOWN, CTL_COLORS_HUE, CTL_COLORS_SAT, CTL_COLORS_VAL)) {
 				HsvColor.H = getCtrlLong(CTL_COLORS_HUE);
 				HsvColor.S = getCtrlLong(CTL_COLORS_SAT);
 				HsvColor.V = getCtrlLong(CTL_COLORS_VAL);
@@ -449,9 +447,10 @@ void PPColorPickerDialog::DrawColorRect(COLORREF c, uint ctl)
 	RECT   rect;
 	HWND   hwnd = ::GetDlgItem(H(), ctl);
 	HDC    hdc = ::GetDC(hwnd);
-	HPEN   pen = 0, old_pen = 0;
-	HBRUSH brush = 0, old_brush = 0;
-
+	HPEN   pen = 0;
+	HPEN   old_pen = 0;
+	HBRUSH brush = 0;
+	HBRUSH old_brush = 0;
 	::GetClientRect(hwnd, &rect);
 	rect.left   += 2;
 	rect.right  -= 2;
@@ -476,7 +475,7 @@ RECT PPColorPickerDialog::NormalizeRect(RECT rect)
 
 double PPColorPickerDialog::GetCircleDistance(POINT pt, POINT * pPt)
 {
-	double d = 0;
+	double d = 0.0;
 	RECT r;
 	::GetWindowRect(::GetDlgItem(H(), CTL_COLORS_HSBRECT), &r);
 	r = NormalizeRect(r);
@@ -487,7 +486,7 @@ double PPColorPickerDialog::GetCircleDistance(POINT pt, POINT * pPt)
 	return d;
 }
 
-int PPColorPickerDialog::GetBrightRect(RECT * pRect, RECT * pModifRect)
+void PPColorPickerDialog::GetBrightRect(RECT * pRect, RECT * pModifRect)
 {
 	RECT r;
 	::GetWindowRect(::GetDlgItem(H(), CTL_COLORS_BRIGHTRECT), &r);
@@ -500,12 +499,11 @@ int PPColorPickerDialog::GetBrightRect(RECT * pRect, RECT * pModifRect)
 		r.bottom--;
 		ASSIGN_PTR(pModifRect, r);
 	}
-	return 1;
 }
 
 int PPColorPickerDialog::InCircle(POINT pt)
 {
-	return (GetCircleDistance(pt, 0) <= RADIUS) ? 1 : 0;
+	return BIN(GetCircleDistance(pt, 0) <= RADIUS);
 }
 
 int PPColorPickerDialog::InRGB(POINT pt)
@@ -543,9 +541,8 @@ int PPColorPickerDialog::InBright(POINT pt)
 	return (pt.x >= r.left && pt.x <= r.right && pt.y >= r.top && pt.y <= r.bottom) ? 1 : 0;
 }
 
-int PPColorPickerDialog::CirclePosByMousePos(POINT pt)
+void PPColorPickerDialog::CirclePosByMousePos(POINT pt)
 {
-	int ok = -1;
 	double d = GetCircleDistance(pt, &pt);
 	HsvColor.H = (int)radtodeg(AngleFromPoint(pt, CircleCenter));
 	HsvColor.H = (HsvColor.H < 0)   ? HsvColor.H + 360 : HsvColor.H;
@@ -555,11 +552,9 @@ int PPColorPickerDialog::CirclePosByMousePos(POINT pt)
 	HsvColor.S = (HsvColor.S < 0)   ? 0 : HsvColor.S;
 	SetHSVCtrls(HsvColor);
 	SetRGBCtrls(HsvColor.ToRGB());
-	ok = 1;
-	return ok;
 }
 
-int PPColorPickerDialog::BrightPosByMousePos(POINT pt)
+void PPColorPickerDialog::BrightPosByMousePos(POINT pt)
 {
 	RECT r;
 	GetBrightRect(0, &r);
@@ -569,12 +564,13 @@ int PPColorPickerDialog::BrightPosByMousePos(POINT pt)
 	HsvColor.V = (HsvColor.V < 0)   ? 0   : HsvColor.V;
 	SetHSVCtrls(HsvColor);
 	SetRGBCtrls(HsvColor.ToRGB());
-	return 1;
 }
 
-int PPColorPickerDialog::RGBPosByMousePos(POINT pt)
+void PPColorPickerDialog::RGBPosByMousePos(POINT pt)
 {
-	int    red = GetRValue(Data), green = GetGValue(Data), blue = GetBValue(Data);
+	int    red = GetRValue(Data);
+	int    green = GetGValue(Data);
+	int    blue = GetBValue(Data);
 	RECT   rect;
 	::GetWindowRect(::GetDlgItem(H(), CTL_COLORS_RGBRECT), &rect);
 	rect = NormalizeRect(rect);
@@ -603,7 +599,6 @@ int PPColorPickerDialog::RGBPosByMousePos(POINT pt)
 	Data = RGB(red, green, blue);
 	SetRGBCtrls(Data);
 	SetHSVCtrls(RGBToHSV(Data));
-	return 1;
 }
 
 POINT PPColorPickerDialog::DrawRGBMarker(HDC hdc, HBRUSH brush, POINT ptMax, int color)

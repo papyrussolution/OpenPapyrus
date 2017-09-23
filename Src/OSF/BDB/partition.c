@@ -11,17 +11,17 @@
 
 #ifdef HAVE_PARTITION
 
-static int __part_rr __P((DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, const char *, uint32));
-static int __partc_close __P((DBC*, db_pgno_t, int *));
-static int __partc_del (DBC*, uint32);
+static int __part_rr(DB*, DB_THREAD_INFO*, DB_TXN*, const char *, const char *, const char *, uint32);
+static int __partc_close(DBC*, db_pgno_t, int *);
+static int __partc_del(DBC*, uint32);
 static int __partc_destroy(DBC *);
 static int __partc_get_pp(DBC*, DBT*, DBT*, uint32);
-static int __partc_put __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
+static int __partc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
 static int __partc_writelock(DBC *);
-static int __partition_chk_meta __P((DB*, DB_THREAD_INFO*, DB_TXN*, uint32));
-static int __partition_setup_keys __P((DBC*, DB_PARTITION*, DBMETA*, uint32));
-static int __part_key_cmp __P((const void *, const void *));
-static inline void __part_search __P((DB*, DB_PARTITION*, DBT*, uint32 *));
+static int __partition_chk_meta(DB*, DB_THREAD_INFO*, DB_TXN*, uint32);
+static int __partition_setup_keys(DBC*, DB_PARTITION*, DBMETA*, uint32);
+static int __part_key_cmp(const void *, const void *);
+static inline void __part_search(DB*, DB_PARTITION*, DBT*, uint32 *);
 
 static char * Alloc_err = DB_STR_A("0644", "Partition open failed to allocate %d bytes", "%d");
 /*
@@ -33,13 +33,11 @@ static char * Alloc_err = DB_STR_A("0644", "Partition open failed to allocate %d
  *				the whole DB, not the partition.
  */
  #define GET_PART_CURSOR(dbc, new_dbc, part_id) do {                          \
-	DB * __part_dbp;                                                      \
-	__part_dbp = part->handles[part_id];                                 \
+	DB * __part_dbp = part->handles[part_id];                                 \
 	if((ret = __db_cursor_int(__part_dbp, (dbc)->thread_info, (dbc)->txn, __part_dbp->type, PGNO_INVALID, 0, (dbc)->locker, &new_dbc)) != 0) \
 		goto err;                                                    \
 	(new_dbc)->flags = (dbc)->flags&~(DBC_PARTITIONED|DBC_OWN_LID|DBC_WRITECURSOR|DBC_WRITER);       \
 } while(0)
-
 /*
  * Search for the correct partition.(DB*, const DBT*, const DBT *)
  */
@@ -48,11 +46,9 @@ static inline void __part_search(DB * dbp, DB_PARTITION * part, DBT * key, uint3
 	db_indx_t base, indx, limit;
 	int cmp;
 	int (*func)(DB*, const DBT*, const DBT *);
-
 	DB_ASSERT(dbp->env, part->nparts != 0);
 	COMPQUIET(cmp, 0);
 	COMPQUIET(indx, 0);
-
 	func = ((BTREE *)dbp->bt_internal)->bt_compare;
 	DB_BINARY_SEARCH_FOR(base, limit, part->nparts, O_INDX) {
 		DB_BINARY_SEARCH_INCR(indx, base, limit, O_INDX);
@@ -104,13 +100,11 @@ int __partition_init(DB * dbp, uint32 flags)
  * PUBLIC: int __partition_set __P((DB *, uint32, DBT *,
  * PUBLIC:	uint32 (*callback)(DB *, DBT *key)));
  */
-
 int __partition_set(DB * dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *, DBT * key))
 {
 	DB_PARTITION * part;
 	ENV * env;
 	int ret;
-
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_partition");
 	env = dbp->dbenv->env;
 	if(parts < 2) {
@@ -121,15 +115,15 @@ int __partition_set(DB * dbp, uint32 parts, DBT * keys, uint32 (* callback)(DB *
 		__db_errx(env, DB_STR("0647", "Must specify either keys or a callback."));
 		return EINVAL;
 	}
-	if(keys != NULL && callback != NULL) {
+	if(keys && callback) {
 bad:
 		__db_errx(env, DB_STR("0648", "May not specify both keys and a callback."));
 		return EINVAL;
 	}
-	if((ret = __partition_init(dbp, keys != NULL ? DBMETA_PART_RANGE : DBMETA_PART_CALLBACK)) != 0)
+	if((ret = __partition_init(dbp, keys ? DBMETA_PART_RANGE : DBMETA_PART_CALLBACK)) != 0)
 		return ret;
 	part = (DB_PARTITION *)dbp->p_internal;
-	if((part->keys != NULL && callback != NULL) || (part->callback != NULL && keys != NULL))
+	if((part->keys && callback) || (part->callback && keys))
 		goto bad;
 	part->nparts = parts;
 	part->keys = keys;
@@ -151,14 +145,12 @@ int __partition_set_dirs(DB * dbp, const char ** dirp)
 	int i, ret;
 	const char ** dir;
 	char * cp, ** part_dirs, ** pd;
-
 	DB_ILLEGAL_AFTER_OPEN(dbp, "DB->set_partition_dirs");
 	dbenv = dbp->dbenv;
 	env = dbp->env;
-
 	ndirs = 1;
 	slen = 0;
-	for(dir = dirp; *dir != NULL; dir++) {
+	for(dir = dirp; *dir; dir++) {
 		if(F_ISSET(env, ENV_DBLOCAL))
 			slen += (uint32)strlen(*dir)+1;
 		ndirs++;
@@ -167,10 +159,9 @@ int __partition_set_dirs(DB * dbp, const char ** dirp)
 	if((ret = __os_malloc(env, slen,  &part_dirs)) != 0)
 		return EINVAL;
 	memzero(part_dirs, slen);
-
 	cp = (char *)part_dirs+(sizeof(char *)*ndirs);
 	pd = part_dirs;
-	for(dir = dirp; *dir != NULL; dir++, pd++) {
+	for(dir = dirp; *dir; dir++, pd++) {
 		if(F_ISSET(env, ENV_DBLOCAL)) {
 			strcpy(cp, *dir);
 			*pd = cp;
@@ -204,16 +195,14 @@ int __partition_set_dirs(DB * dbp, const char ** dirp)
 int __partition_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, DBTYPE type, uint32 flags, int mode, int do_open)
 {
 	DB * part_db;
-	DB_PARTITION * part;
 	DBC * dbc;
-	ENV * env;
 	uint32 part_id;
 	int ret;
-	char * name, * sp;
+	char * sp;
 	const char ** dirp, * np;
-	part = (DB_PARTITION *)dbp->p_internal;
-	env = dbp->dbenv->env;
-	name = NULL;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	ENV * env = dbp->dbenv->env;
+	char * name = NULL;
 	if((ret = __partition_chk_meta(dbp, ip, txn, flags)) != 0 && do_open)
 		goto err;
 	if((ret = __os_calloc(env, part->nparts, sizeof(*part->handles), &part->handles)) != 0) {
@@ -263,7 +252,7 @@ int __partition_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * f
 			 * Cycle through the directory names passed in,
 			 * if any.
 			 */
-			if(dirp != NULL && (part_db->dirname = *dirp++) == NULL) {
+			if(dirp && (part_db->dirname = *dirp++) == NULL) {
 				part_db->dirname = *(dirp = part->dirs);
 				dirp++;
 			}
@@ -282,8 +271,7 @@ done:
 err:
 		__partition_close(dbp, txn, 0);
 	}
-	if(name)
-		__os_free(env, name);
+	__os_free(env, name);
 	return ret;
 }
 /*
@@ -293,28 +281,24 @@ err:
  */
 static int __partition_chk_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags)
 {
-	DBMETA * meta;
 	DB_PARTITION * part;
-	DBC * dbc;
 	DB_LOCK metalock;
 	DB_MPOOLFILE * mpf;
 	ENV * env;
 	db_pgno_t base_pgno;
 	int ret, t_ret;
-
-	dbc = NULL;
-	meta = NULL;
+	DBC * dbc = NULL;
+	DBMETA * meta = NULL;
 	LOCK_INIT(metalock);
 	part = (DB_PARTITION *)dbp->p_internal;
 	mpf = dbp->mpf;
 	env = dbp->env;
 	ret = 0;
-
-	/* Get a cursor on the main db.  */
+	// Get a cursor on the main db
 	dbp->p_internal = NULL;
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
 		goto err;
-	/* Get the metadata page. */
+	// Get the metadata page
 	base_pgno = PGNO_BASE_MD;
 	if((ret = __db_lget(dbc, 0, base_pgno, DB_LOCK_READ, 0, &metalock)) != 0)
 		goto err;
@@ -330,16 +314,13 @@ static int __partition_chk_meta(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uin
 		ret = EINVAL;
 		goto err;
 	}
-	if((F_ISSET(part, PART_RANGE) &&
-	    FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK)) ||
-	   (F_ISSET(part, PART_CALLBACK) &&
-	    FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE))) {
+	if((F_ISSET(part, PART_RANGE) && FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK)) || 
+		(F_ISSET(part, PART_CALLBACK) && FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE))) {
 		__db_errx(env, DB_STR("0652", "Incompatible partitioning specified."));
 		ret = EINVAL;
 		goto err;
 	}
-	if(FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK) &&
-	   part->callback == NULL && !IS_RECOVERING(env) &&
+	if(FLD_ISSET(meta->metaflags, DBMETA_PART_CALLBACK) && !part->callback && !IS_RECOVERING(env) &&
 	   !F_ISSET(dbp, DB_AM_RECOVER) && !LF_ISSET(DB_RDWRMASTER)) {
 		__db_errx(env, DB_STR("0653", "Partition callback not specified."));
 		ret = EINVAL;
@@ -386,7 +367,6 @@ err: // Put the metadata page back
 	dbp->p_internal = part;
 	return ret;
 }
-
 /*
  * Support for sorting keys.  Keys must be sorted using the btree
  * compare function so if we call qsort in __partiton_setup_keys
@@ -527,7 +507,7 @@ again:
 					ret = DB_NOTFOUND;
 					break;
 				}
-				if(keys != NULL && j != 0 && compare(dbc->dbp, ks[j-1].key, kp) != 0) {
+				if(keys && j != 0 && compare(dbc->dbp, ks[j-1].key, kp) != 0) {
 					if(kp->data == NULL && F_ISSET(dbp, DB_AM_RECOVER))
 						goto err;
 					__db_errx(env, DB_STR_A("0662", "Partition key %d does not match", "%d"), j);
@@ -554,7 +534,7 @@ int __partition_get_callback(DB * dbp, uint32 * parts, uint32 (**callback)(DB*, 
 {
 	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
 	// Only return populated results if partitioned using callbacks.
-	if(part != NULL && !F_ISSET(part, PART_CALLBACK))
+	if(part && !F_ISSET(part, PART_CALLBACK))
 		part = NULL;
 	ASSIGN_PTR(parts, (part ? part->nparts : 0));
 	ASSIGN_PTR(callback, (part ? part->callback : NULL));
@@ -568,13 +548,13 @@ int __partition_get_callback(DB * dbp, uint32 * parts, uint32 (**callback)(DB*, 
 int __partition_get_keys(DB * dbp, uint32 * parts, DBT ** keys)
 {
 	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
-	/* Only return populated results if partitioned using ranges. */
-	if(part != NULL && !F_ISSET(part, PART_RANGE))
+	// Only return populated results if partitioned using ranges
+	if(part && !F_ISSET(part, PART_RANGE))
 		part = NULL;
-	if(parts != NULL)
-		*parts = (part != NULL ? part->nparts : 0);
-	if(keys != NULL)
-		*keys = (part != NULL ? &part->keys[1] : NULL);
+	if(parts)
+		*parts = (part ? part->nparts : 0);
+	if(keys)
+		*keys = (part ? &part->keys[1] : NULL);
 	return 0;
 }
 /*
@@ -602,8 +582,7 @@ int __partition_get_dirs(DB * dbp, const char *** dirpp)
 	 */
 	if((*dirpp = part->dirs) != NULL)
 		return 0;
-	if((ret = __os_calloc(env,
-		    sizeof(char *), part->nparts+1, (char **)&part->dirs)) != 0)
+	if((ret = __os_calloc(env, sizeof(char *), part->nparts+1, (char **)&part->dirs)) != 0)
 		return ret;
 	for(i = 0; i < part->nparts; i++)
 		part->dirs[i] = part->handles[i]->dirname;
@@ -620,10 +599,10 @@ int __partc_init(DBC * dbc)
 {
 	int ret;
 	ENV * env = dbc->env;
-	/* Allocate/initialize the internal structure. */
-	if(dbc->internal == NULL && (ret = __os_calloc(env, 1, sizeof(PART_CURSOR), &dbc->internal)) != 0)
+	// Allocate/initialize the internal structure
+	if(!dbc->internal && (ret = __os_calloc(env, 1, sizeof(PART_CURSOR), &dbc->internal)) != 0)
 		return ret;
-	/* Initialize methods. */
+	// Initialize methods
 	dbc->close = dbc->c_close = __dbc_close_pp;
 	dbc->cmp = __dbc_cmp_pp;
 	dbc->count = dbc->c_count = __dbc_count_pp;
@@ -639,10 +618,8 @@ int __partc_init(DBC * dbc)
 	dbc->am_get = NULL;
 	dbc->am_put = __partc_put;
 	dbc->am_writelock = __partc_writelock;
-
-	/* We avoid swapping partition cursors since we swap the sub cursors */
+	// We avoid swapping partition cursors since we swap the sub cursors 
 	F_SET(dbc, DBC_PARTITIONED);
-
 	return 0;
 }
 /*
@@ -775,7 +752,7 @@ int __partc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		goto err;
 	/* Success: swap original and new cursors. */
 	if(new_dbc != orig_dbc) {
-		if(orig_dbc != NULL) {
+		if(orig_dbc) {
 			cp->sub_cursor = NULL;
 			if((ret = __dbc_close(orig_dbc)) != 0)
 				goto err;
@@ -828,7 +805,7 @@ static int __partc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 	if((ret = __dbc_put(new_dbc, key, data, flags)) != 0)
 		goto err;
 	if(new_dbc != cp->sub_cursor) {
-		if(cp->sub_cursor != NULL) {
+		if(cp->sub_cursor) {
 			if((ret = __dbc_close(cp->sub_cursor)) != 0)
 				goto err;
 			cp->sub_cursor = NULL;
@@ -861,8 +838,7 @@ static int __partc_del(DBC * dbc, uint32 flags)
  */
 static int __partc_writelock(DBC * dbc)
 {
-	PART_CURSOR * cp;
-	cp = (PART_CURSOR *)dbc->internal;
+	PART_CURSOR * cp = (PART_CURSOR *)dbc->internal;
 	return cp->sub_cursor->am_writelock(cp->sub_cursor);
 }
 /*
@@ -913,17 +889,14 @@ int __partition_close(DB * dbp, DB_TXN * txn, uint32 flags)
 	ret = 0;
 	if((pdbp = part->handles) != NULL) {
 		for(i = 0; i < part->nparts; i++, pdbp++)
-			if(*pdbp != NULL && (t_ret = __db_close(*pdbp, txn, flags)) != 0 && ret == 0)
+			if(*pdbp && (t_ret = __db_close(*pdbp, txn, flags)) != 0 && ret == 0)
 				ret = t_ret;
 		__os_free(env, part->handles);
 	}
-	if(part->dirs != NULL)
-		__os_free(env, (char **)part->dirs);
-	if(part->data != NULL)
-		__os_free(env, (char **)part->data);
+	__os_free(env, (char **)part->dirs);
+	__os_free(env, (char **)part->data);
 	__os_free(env, part);
 	dbp->p_internal = NULL;
-
 	return ret;
 }
 /*
@@ -941,7 +914,7 @@ int __partition_sync(DB * dbp)
 	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
 	if((pdbp = part->handles) != NULL) {
 		for(i = 0; i < part->nparts; i++, pdbp++)
-			if(*pdbp != NULL && F_ISSET(*pdbp, DB_AM_OPEN_CALLED) && (t_ret = __memp_fsync((*pdbp)->mpf)) != 0 && ret == 0)
+			if(*pdbp && F_ISSET(*pdbp, DB_AM_OPEN_CALLED) && (t_ret = __memp_fsync((*pdbp)->mpf)) != 0 && ret == 0)
 				ret = t_ret;
 	}
 	if((t_ret = __memp_fsync(dbp->mpf)) != 0 && ret == 0)
@@ -956,25 +929,21 @@ int __partition_sync(DB * dbp)
  */
 int __partition_stat(DBC * dbc, void * spp, uint32 flags)
 {
-	DB * dbp, ** pdbp;
-	DB_BTREE_STAT * fsp, * bsp;
+	DB_BTREE_STAT * bsp;
  #ifdef HAVE_HASH
-	DB_HASH_STAT * hfsp, * hsp;
+	DB_HASH_STAT * hsp;
  #endif
-	DB_PARTITION * part;
 	DBC * new_dbc;
-	ENV * env;
 	uint32 i;
 	int ret;
-	dbp = dbc->dbp;
-	part = (DB_PARTITION *)dbp->p_internal;
-	env = dbp->env;
-	fsp = NULL;
+	DB * dbp = dbc->dbp;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	ENV * env = dbp->env;
+	DB_BTREE_STAT * fsp = NULL;
  #ifdef HAVE_HASH
-	hfsp = NULL;
+	DB_HASH_STAT * hfsp = NULL;
  #endif
-
-	pdbp = part->handles;
+	DB ** pdbp = part->handles;
 	for(i = 0; i < part->nparts; i++, pdbp++) {
 		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn, (*pdbp)->type, PGNO_INVALID, 0, dbc->locker, &new_dbc)) != 0)
 			goto err;
@@ -990,8 +959,7 @@ int __partition_stat(DBC * dbc, void * spp, uint32 flags)
 				fsp->bt_nkeys += bsp->bt_nkeys;
 				fsp->bt_ndata += bsp->bt_ndata;
 				fsp->bt_pagecnt += bsp->bt_pagecnt;
-				if(fsp->bt_levels < bsp->bt_levels)
-					fsp->bt_levels = bsp->bt_levels;
+				SETMAX(fsp->bt_levels, bsp->bt_levels);
 				fsp->bt_int_pg += bsp->bt_int_pg;
 				fsp->bt_leaf_pg += bsp->bt_leaf_pg;
 				fsp->bt_dup_pg += bsp->bt_dup_pg;
@@ -1037,7 +1005,6 @@ int __partition_stat(DBC * dbc, void * spp, uint32 flags)
 			goto err;
 	}
 	return 0;
-
 err:
 	__os_ufree(env, fsp);
 	*(DB_BTREE_STAT **)spp = NULL;
@@ -1049,15 +1016,13 @@ err:
  */
 int __part_truncate(DBC * dbc, uint32 * countp)
 {
-	DB * dbp, ** pdbp;
-	DB_PARTITION * part;
 	DBC * new_dbc;
 	uint32 count, i;
-	int ret, t_ret;
-	dbp = dbc->dbp;
-	part = (DB_PARTITION *)dbp->p_internal;
-	pdbp = part->handles;
-	ret = 0;
+	int t_ret;
+	DB * dbp = dbc->dbp;
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	DB ** pdbp = part->handles;
+	int ret = 0;
 	ASSIGN_PTR(countp, 0);
 	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++) {
 		if((ret = __db_cursor_int(*pdbp, dbc->thread_info, dbc->txn, (*pdbp)->type, PGNO_INVALID, 0, dbc->locker, &new_dbc)) != 0)
@@ -1075,15 +1040,14 @@ int __part_truncate(DBC * dbc, uint32 * countp)
 		    case DB_QUEUE:
 		    case DB_UNKNOWN:
 		    default:
-			ret = __db_unknown_type(dbp->env,
-				"DB->truncate", dbp->type);
+			ret = __db_unknown_type(dbp->env, "DB->truncate", dbp->type);
 			count = 0;
 			break;
 		}
 		if((t_ret = __dbc_close(new_dbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(countp != NULL)
-			*countp += count;
+		if(countp)
+			countp += count;
 	}
 	return ret;
 }
@@ -1095,24 +1059,19 @@ int __part_truncate(DBC * dbc, uint32 * countp)
  */
 int __part_compact(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, DBT * stop, DB_COMPACT * c_data, uint32 flags, DBT * end)
 {
-	DB ** pdbp;
-	DB_PARTITION * part;
-	uint32 i;
-	int ret;
-	part = (DB_PARTITION *)dbp->p_internal;
-	pdbp = part->handles;
-	ret = 0;
-	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++) {
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	DB ** pdbp = part->handles;
+	int ret = 0;
+	for(uint32 i = 0; ret == 0 && i < part->nparts; i++, pdbp++) {
 		switch(dbp->type) {
 		    case DB_HASH:
 		    case DB_BTREE:
 		    case DB_RECNO:
-			ret = __db_compact_int(*pdbp, ip, txn, start, stop, c_data, flags, end);
-			break;
-
+				ret = __db_compact_int(*pdbp, ip, txn, start, stop, c_data, flags, end);
+				break;
 		    default:
-			ret = __dbh_am_chk(dbp, DB_OK_BTREE);
-			break;
+				ret = __dbh_am_chk(dbp, DB_OK_BTREE);
+				break;
 		}
 	}
 	return ret;
@@ -1125,14 +1084,10 @@ int __part_compact(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, DBT
  */
 int __part_lsn_reset(DB * dbp, DB_THREAD_INFO * ip)
 {
-	DB ** pdbp;
-	DB_PARTITION * part;
-	uint32 i;
-	int ret;
-	part = (DB_PARTITION *)dbp->p_internal;
-	pdbp = part->handles;
-	ret = 0;
-	for(i = 0; ret == 0 && i < part->nparts; i++, pdbp++)
+	DB_PARTITION * part = (DB_PARTITION *)dbp->p_internal;
+	DB ** pdbp = part->handles;
+	int ret = 0;
+	for(uint32 i = 0; ret == 0 && i < part->nparts; i++, pdbp++)
 		ret = __db_lsn_reset((*pdbp)->mpf, ip);
 	return ret;
 }
@@ -1219,50 +1174,50 @@ int __part_key_range(DBC * dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 	 */
 	empty = less_elems = greater_elems = 0;
 	for(id = 0; id < part->nparts; id++) {
-		if(id == part_id) {
+		if(id == part_id)
 			empty = 0;
-			continue;
-		}
-		GET_PART_CURSOR(dbc, new_dbc, id);
-		cp = (BTREE_CURSOR *)new_dbc->internal;
-		if((ret = __memp_fget(new_dbc->dbp->mpf, &cp->root, new_dbc->thread_info, new_dbc->txn, 0, &h)) != 0)
-			goto c_err;
-		elems = NUM_ENT(h);
-		levels = LEVEL(h);
-		if(levels == 1)
-			elems /= 2;
-		if((ret = __memp_fput(new_dbc->dbp->mpf, new_dbc->thread_info, h, new_dbc->priority)) != 0)
-			goto c_err;
-		if((ret = __dbc_close(new_dbc)) != 0)
-			goto err;
-		/* If the tree is empty, ignore it. */
-		if(elems == 0) {
-			empty++;
-			continue;
-		}
-		/*
-		 * If a tree has fewer levels than the max just count
-		 * it as a single element in the higher level.
-		 */
-		if(id < part_id) {
-			if(levels > max_levels) {
-				max_levels = levels;
-				less_elems = id+elems-empty;
-			}
-			else if(levels < max_levels)
-				less_elems++;
-			else
-				less_elems += elems;
-		}
 		else {
-			if(levels > max_levels) {
-				max_levels = levels;
-				greater_elems = (id-part_id)+elems-empty;
+			GET_PART_CURSOR(dbc, new_dbc, id);
+			cp = (BTREE_CURSOR *)new_dbc->internal;
+			if((ret = __memp_fget(new_dbc->dbp->mpf, &cp->root, new_dbc->thread_info, new_dbc->txn, 0, &h)) != 0)
+				goto c_err;
+			elems = NUM_ENT(h);
+			levels = LEVEL(h);
+			if(levels == 1)
+				elems /= 2;
+			if((ret = __memp_fput(new_dbc->dbp->mpf, new_dbc->thread_info, h, new_dbc->priority)) != 0)
+				goto c_err;
+			if((ret = __dbc_close(new_dbc)) != 0)
+				goto err;
+			// If the tree is empty, ignore it. 
+			if(elems == 0)
+				empty++;
+			else {
+				// 
+				// If a tree has fewer levels than the max just count
+				// it as a single element in the higher level.
+				// 
+				if(id < part_id) {
+					if(levels > max_levels) {
+						max_levels = levels;
+						less_elems = id+elems-empty;
+					}
+					else if(levels < max_levels)
+						less_elems++;
+					else
+						less_elems += elems;
+				}
+				else {
+					if(levels > max_levels) {
+						max_levels = levels;
+						greater_elems = (id-part_id)+elems-empty;
+					}
+					else if(levels < max_levels)
+						greater_elems++;
+					else
+						greater_elems += elems;
+				}
 			}
-			else if(levels < max_levels)
-				greater_elems++;
-			else
-				greater_elems += elems;
 		}
 	}
 	if(my_levels < max_levels) {
@@ -1345,14 +1300,12 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 {
 	DB ** pdbp, * ptmpdbp, * tmpdbp;
 	DB_PARTITION * part;
-	ENV * env;
 	uint32 i;
-	int ret, t_ret;
+	int t_ret;
 	char * np;
-
-	env = dbp->env;
-	ret = 0;
-	if(subdb != NULL && name != NULL) {
+	ENV * env = dbp->env;
+	int ret = 0;
+	if(subdb && name) {
 		__db_errx(env, DB_STR("0663", "A partitioned database can not be in a multiple databases file"));
 		return EINVAL;
 	}
@@ -1373,7 +1326,7 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 	part = (DB_PARTITION *)tmpdbp->p_internal;
 	pdbp = part->handles;
 	COMPQUIET(np, 0);
-	if(newname != NULL && (ret = __os_malloc(env, strlen(newname)+PART_LEN+1, &np)) != 0) {
+	if(newname && (ret = __os_malloc(env, strlen(newname)+PART_LEN+1, &np)) != 0) {
 		__db_errx(env, Alloc_err, strlen(newname)+PART_LEN+1);
 		goto err;
 	}
@@ -1393,7 +1346,7 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 		if(ret != 0)
 			break;
 	}
-	if(newname != NULL)
+	if(newname)
 		__os_free(env, np);
 	if(!F_ISSET(dbp, DB_AM_OPEN_CALLED)) {
 err:            /*
@@ -1402,7 +1355,7 @@ err:            /*
 		 */
 		tmpdbp->locker = NULL;
 		/* We need to remove the lock event we associated with this. */
-		if(txn != NULL)
+		if(txn)
 			__txn_remlock(env, txn, &tmpdbp->handle_lock, DB_LOCK_INVALIDID);
 		if((t_ret = __db_close(tmpdbp, txn, DB_NOSYNC)) != 0 && ret == 0)
 			ret = t_ret;
@@ -1419,20 +1372,16 @@ err:            /*
  */
 int __part_verify(DB * dbp, VRFY_DBINFO * vdp, const char * fname, void * handle, int (*callback)__P((void *, const void *)), uint32 flags)
 {
-	BINTERNAL * lp, * rp;
 	DB ** pdbp;
 	DB_PARTITION * part;
-	DBC * dbc;
 	DBT * key;
-	ENV * env;
-	DB_THREAD_INFO * ip;
 	uint32 i;
 	int ret, t_ret;
-
-	env = dbp->env;
-	lp = rp = NULL;
-	dbc = NULL;
-	ip = vdp->thread_info;
+	ENV * env = dbp->env;
+	BINTERNAL * lp = 0;
+	BINTERNAL * rp = 0;
+	DBC * dbc = NULL;
+	DB_THREAD_INFO * ip = vdp->thread_info;
 	if(dbp->type == DB_BTREE) {
 		if((ret = __bam_open(dbp, ip, NULL, fname, PGNO_BASE_MD, flags)) != 0)
 			goto err;
@@ -1464,8 +1413,7 @@ int __part_verify(DB * dbp, VRFY_DBINFO * vdp, const char * fname, void * handle
 	for(i = 0; i < part->nparts; i++, pdbp++) {
 		if(!F_ISSET(part, PART_RANGE) || part->keys == NULL)
 			goto vrfy;
-		if(lp != NULL)
-			__os_free(env, lp);
+		__os_free(env, lp);
 		lp = rp;
 		rp = NULL;
 		if(i+1 <  part->nparts) {
@@ -1481,10 +1429,8 @@ vrfy:
 			ret = t_ret;
 	}
 err:
-	if(lp != NULL)
-		__os_free(env, lp);
-	if(rp != NULL)
-		__os_free(env, rp);
+	__os_free(env, lp);
+	__os_free(env, rp);
 	return ret;
 }
  #endif

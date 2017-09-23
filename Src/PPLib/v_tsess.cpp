@@ -1,5 +1,6 @@
 // V_TSESS.CPP
 // Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1238,7 +1239,7 @@ int SLAPI PPViewTSession::ExportUhtt()
 						}
 					}
 					else {
-						// Íå óäàëîñü èäåíòèôèöèðîâàòü ïðîöåññîð ñåññèè ïî êîäó
+						// ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€ ÑÐµÑÑÐ¸Ð¸ Ð¿Ð¾ ÐºÐ¾Ð´Ñƒ
 					}
 				}
 			}
@@ -1265,7 +1266,7 @@ int SLAPI PPViewTSession::SendAutoSms()
  	StrAssocArray phone_list;
 	StrAssocArray tsess_list;
 	//
-	// Íî ïåðåä ýòèì äîëæíà áûòü ïðîâåðêà íà ðàçðåøåííûé ïåðèîä îòïðàâêè ñîîáùåíèé
+	// ÐÐ¾ Ð¿ÐµÑ€ÐµÐ´ ÑÑ‚Ð¸Ð¼ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ñ€Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð½Ñ‹Ð¹ Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ¸ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹
 	//
  	if(PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) {
 		GetSmsLists(psn_list, phone_list, tsess_list);
@@ -1430,10 +1431,10 @@ int SLAPI PPViewTSessLine::CreateIterQuery()
 		}
 		else {
 			//
-			// Åñëè ôóíêöèÿ NextIteration ïîïûòàåòñÿ ñíîâà âûçâàòü
-			// ñîçäàíèå çàïðîñà, òî ìû îòâåòèì åé îòêàçîì è òàêèì îáðàçîì
-			// èçáåæèì çàöèêëèâàíèÿ.
-			// Ïðè ýòîì ìû ïîëàãàåìñÿ íà òî, ÷òî InitIteration îáíóëèëà P_IterQuery.
+			// Ð•ÑÐ»Ð¸ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ NextIteration Ð¿Ð¾Ð¿Ñ‹Ñ‚Ð°ÐµÑ‚ÑÑ ÑÐ½Ð¾Ð²Ð° Ð²Ñ‹Ð·Ð²Ð°Ñ‚ÑŒ
+			// ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°, Ñ‚Ð¾ Ð¼Ñ‹ Ð¾Ñ‚Ð²ÐµÑ‚Ð¸Ð¼ ÐµÐ¹ Ð¾Ñ‚ÐºÐ°Ð·Ð¾Ð¼ Ð¸ Ñ‚Ð°ÐºÐ¸Ð¼ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð¼
+			// Ð¸Ð·Ð±ÐµÐ¶Ð¸Ð¼ Ð·Ð°Ñ†Ð¸ÐºÐ»Ð¸Ð²Ð°Ð½Ð¸Ñ.
+			// ÐŸÑ€Ð¸ ÑÑ‚Ð¾Ð¼ Ð¼Ñ‹ Ð¿Ð¾Ð»Ð°Ð³Ð°ÐµÐ¼ÑÑ Ð½Ð° Ñ‚Ð¾, Ñ‡Ñ‚Ð¾ InitIteration Ð¾Ð±Ð½ÑƒÐ»Ð¸Ð»Ð° P_IterQuery.
 			//
 			ok = -1;
 		}
@@ -1505,8 +1506,8 @@ int FASTCALL PPViewTSessLine::NextIteration(TSessLineViewItem * pItem)
 				if(GoodsListIter >= 0 && !GoodsIdList.bsearch(rec.GoodsID))
 					continue;
 				//
-				// Åñëè ñïèñîê ñåññèé íå îïðåäåëåí, íî îò÷åò ïîäíèìàåòñÿ ïî ìíîæåñòâó ñåññèé,
-				// òî ïðîâåðÿåì êàæäóþ ñåññèþ íà óäîâëåòâîðåíèå îãðàíè÷åíèÿ ïî ïåðèîäó íà÷àëà
+				// Ð•ÑÐ»Ð¸ ÑÐ¿Ð¸ÑÐ¾Ðº ÑÐµÑÑÐ¸Ð¹ Ð½Ðµ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½, Ð½Ð¾ Ð¾Ñ‚Ñ‡ÐµÑ‚ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÐµÑ‚ÑÑ Ð¿Ð¾ Ð¼Ð½Ð¾Ð¶ÐµÑÑ‚Ð²Ñƒ ÑÐµÑÑÐ¸Ð¹,
+				// Ñ‚Ð¾ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ ÐºÐ°Ð¶Ð´ÑƒÑŽ ÑÐµÑÑÐ¸ÑŽ Ð½Ð° ÑƒÐ´Ð¾Ð²Ð»ÐµÑ‚Ð²Ð¾Ñ€ÐµÐ½Ð¸Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð¿Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ñƒ Ð½Ð°Ñ‡Ð°Ð»Ð°
 				//
 				if(Filt.GoodsID && !Filt.TSesList.IsExists() && !Filt.StPeriod.IsZero()) {
 					TSessionTbl::Rec ses_rec;
@@ -2001,6 +2002,9 @@ void PPALDD_TSession::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack
 				}
 			}
 		}
+	}
+	else if(pF->Name == "?GetTag") {
+		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_TSESSION, H.ID, _ARG_STR(1));
 	}
 }
 //

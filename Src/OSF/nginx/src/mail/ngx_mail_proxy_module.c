@@ -7,30 +7,28 @@
 #pragma hdrstop
 //#include <ngx_event.h>
 //#include <ngx_event_connect.h>
-#include <ngx_mail.h>
+//#include <ngx_mail.h>
 
-typedef struct {
+struct ngx_mail_proxy_conf_t {
 	ngx_flag_t enable;
 	ngx_flag_t pass_error_message;
 	ngx_flag_t xclient;
 	size_t buffer_size;
 	ngx_msec_t timeout;
-} ngx_mail_proxy_conf_t;
+};
 
 static void ngx_mail_proxy_block_read(ngx_event_t * rev);
 static void ngx_mail_proxy_pop3_handler(ngx_event_t * rev);
 static void ngx_mail_proxy_imap_handler(ngx_event_t * rev);
 static void ngx_mail_proxy_smtp_handler(ngx_event_t * rev);
 static void ngx_mail_proxy_dummy_handler(ngx_event_t * ev);
-static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s,
-    ngx_uint_t state);
+static ngx_int_t ngx_mail_proxy_read_response(ngx_mail_session_t * s, ngx_uint_t state);
 static void ngx_mail_proxy_handler(ngx_event_t * ev);
 static void ngx_mail_proxy_upstream_error(ngx_mail_session_t * s);
 static void ngx_mail_proxy_internal_server_error(ngx_mail_session_t * s);
 static void ngx_mail_proxy_close_session(ngx_mail_session_t * s);
 static void * ngx_mail_proxy_create_conf(ngx_conf_t * cf);
-static char * ngx_mail_proxy_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_mail_proxy_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_command_t ngx_mail_proxy_commands[] = {
 	{ ngx_string("proxy"), NGX_MAIL_MAIN_CONF|NGX_MAIL_SRV_CONF|NGX_CONF_FLAG,

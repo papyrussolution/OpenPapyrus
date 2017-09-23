@@ -14,7 +14,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/modes.h>
+//#include <openssl/modes.h>
 
 /** RFC 3394 section 2.2.3.1 Default Initial Value */
 static const uchar default_iv[] = { 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, };

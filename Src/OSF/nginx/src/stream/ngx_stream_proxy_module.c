@@ -1444,7 +1444,7 @@ static const char * ngx_stream_proxy_bind(ngx_conf_t * cf, const ngx_command_t *
 					break;
 				case NGX_DECLINED:
 					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid address \"%V\"", &value[1]);
-				/* fall through */
+				// @fallthrough
 				default:
 					return NGX_CONF_ERROR;
 			}

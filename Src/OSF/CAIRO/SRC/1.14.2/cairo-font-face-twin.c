@@ -497,7 +497,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 		switch(*g++) {
 			case 'M':
 			    cairo_close_path(cr);
-			/* fall through */
+			// @fallthrough
 			case 'm':
 			    x1 = SNAPX(*g++);
 			    y1 = SNAPY(*g++);
@@ -505,7 +505,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 			    continue;
 			case 'L':
 			    cairo_close_path(cr);
-			/* fall through */
+			// @fallthrough
 			case 'l':
 			    x1 = SNAPX(*g++);
 			    y1 = SNAPY(*g++);
@@ -513,7 +513,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 			    continue;
 			case 'C':
 			    cairo_close_path(cr);
-			/* fall through */
+			// @fallthrough
 			case 'c':
 			    x1 = SNAPX(*g++);
 			    y1 = SNAPY(*g++);
@@ -525,7 +525,7 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 			    continue;
 			case 'E':
 			    cairo_close_path(cr);
-			/* fall through */
+			// @fallthrough
 			case 'e':
 			    cairo_restore(cr); /* restore glyph space */
 			    cairo_set_tolerance(cr, 0.01);

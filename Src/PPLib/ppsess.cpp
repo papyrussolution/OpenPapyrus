@@ -1875,11 +1875,11 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 				SString path, root_path;
 				PPGetPath(PPPATH_SYSROOT, root_path);
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					Helper_SetPath(PPPATH_TEMP, path);
 				}
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf.cptr() : 0;
 					if(!path.NotEmptyS()) {
 						PPIniFile::GetParamSymb(PPINIPARAM_LOG, temp_buf.Z());
 						(path = root_path).SetLastSlash().Cat(temp_buf);
@@ -1890,21 +1890,29 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 						SLS.SetLogPath(path);
 				}
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_PACK, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					if(!path.NotEmptyS())
 						(path = root_path).SetLastSlash().Cat("PACK");
 					Helper_SetPath(PPPATH_PACK, path);
 				}
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					Helper_SetPath(PPPATH_SPII, path);
 				}
 				// @v9.7.8 {
 				{
-					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf : (const char *)0;
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					Helper_SetPath(PPPATH_SARTREDB, path);
 				}
 				// } @v9.7.8
+				// @v9.8.2 {
+				{
+					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+					if(!path.NotEmptyS())
+						(path = root_path).SetLastSlash().Cat("WORKSPACE");
+					Helper_SetPath(PPPATH_PACK, path);
+				}
+				// } @v9.8.2
 				LoadDriveMapping(&ini_file);
 			}
 		}
@@ -1926,11 +1934,27 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 	return ok;
 }
 
+void FASTCALL PPSession::MoveCommonPathOnInitThread(long pathID)
+{
+	SString temp_buf;
+	if(CommonPaths.GetPath(pathID, 0, temp_buf) > 0) {
+		SetPath(pathID, temp_buf, 0, 1);
+		if(pathID == PPPATH_TEMP)
+			SLS.SetLogPath(temp_buf);
+	}
+}
+
 int SLAPI PPSession::InitThread(const PPThread * pThread)
 {
 	PPThreadLocalArea * p_tla = new PPThreadLocalArea;
 	ENTER_CRITICAL_SECTION
 	TlsSetValue(TlsIdx, p_tla);
+	// @v9.8.2 {
+	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB };
+	for(uint i = 0; i < SIZEOFARRAY(common_path_id_list); i++)
+		MoveCommonPathOnInitThread(common_path_id_list[i]);
+	// } @v9.8.2
+	/* @v9.8.2
 	SString path;
 	if(CommonPaths.GetPath(PPPATH_BIN, 0, path) > 0) {
 		SetPath(PPPATH_BIN, path, 0, 1);
@@ -1949,6 +1973,7 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	if(CommonPaths.GetPath(PPPATH_SARTREDB, 0, path) > 0)
 		SetPath(PPPATH_SARTREDB, path, 0, 1);
 	// } @9.7.8
+	*/
 	LEAVE_CRITICAL_SECTION
 	if(pThread) {
 		p_tla->TId = pThread->GetThreadID();

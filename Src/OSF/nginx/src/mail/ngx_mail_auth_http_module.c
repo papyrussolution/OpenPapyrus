@@ -7,7 +7,7 @@
 #pragma hdrstop
 //#include <ngx_event.h>
 //#include <ngx_event_connect.h>
-#include <ngx_mail.h>
+//#include <ngx_mail.h>
 
 typedef struct {
 	ngx_addr_t * peer;
@@ -551,7 +551,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 				    break;
 				case NGX_DECLINED:
 				    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "auth http server %V sent invalid server address:\"%V\"", ctx->peer.name, &ctx->addr);
-				/* fall through */
+				// @fallthrough
 				default:
 				    ngx_destroy_pool(ctx->pool);
 				    ngx_mail_session_internal_server_error(s);

@@ -8,10 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <string>
-//#include <vector>
-//#include <algorithm>
 
 #define NOEXCEPT
 
@@ -24,23 +20,15 @@
 		#define NOEXCEPT noexcept
 	#endif
 #endif
-//#include "Platform.h"
-//#include "ILexer.h"
-//#include "Scintilla.h"
-//#include "Position.h"
-//#include "CharacterSet.h"
-//#include "CharacterCategory.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
 #include "CellBuffer.h"
 #include "PerLine.h"
-#include "CharClassify.h"
+//#include "CharClassify.h"
 #include "Decoration.h"
-//#include "CaseFolder.h"
 #include "Document.h"
 #include "RESearch.h"
-//#include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
 
 #ifdef SCI_NAMESPACE

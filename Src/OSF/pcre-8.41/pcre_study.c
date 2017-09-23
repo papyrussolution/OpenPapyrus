@@ -44,6 +44,7 @@
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
+#pragma hdrstop
 
 #define SET_BIT(c) start_bits[c/8] |= (1 << (c&7))
 
@@ -75,48 +76,37 @@ enum { SSB_FAIL, SSB_DONE, SSB_CONTINUE, SSB_UNKNOWN };
  */
 
 static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
-    const pcre_uchar * startcode, int options, recurse_check * recurses,
-    int * countptr)
+    const pcre_uchar * startcode, int options, recurse_check * recurses, int * countptr)
 {
 	int length = -1;
-/* PCRE_UTF16 has the same value as PCRE_UTF8. */
+	// PCRE_UTF16 has the same value as PCRE_UTF8. 
 	BOOL utf = (options & PCRE_UTF8) != 0;
 	BOOL had_recurse = FALSE;
 	recurse_check this_recurse;
 	register int branchlength = 0;
 	register pcre_uchar * cc = (pcre_uchar*)code + 1 + LINK_SIZE;
-
-	if((*countptr)++ > 1000) return -1;  /* too complex */
-
-	if(*code == OP_CBRA || *code == OP_SCBRA ||
-	    *code == OP_CBRAPOS || *code == OP_SCBRAPOS) cc += IMM2_SIZE;
-
-/* Scan along the opcodes for this branch. If we get to the end of the
-   branch, check the length against that of the other branches. */
-
+	if((*countptr)++ > 1000) 
+		return -1;  /* too complex */
+	if(oneof4(*code, OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS))
+		cc += IMM2_SIZE;
+	// Scan along the opcodes for this branch. If we get to the end of the
+	// branch, check the length against that of the other branches. 
 	for(;; ) {
 		int d, min;
 		pcre_uchar * cs, * ce;
 		register pcre_uchar op = *cc;
-
-		switch(op)
-		{
+		switch(op) {
 			case OP_COND:
 			case OP_SCOND:
-
 			    /* If there is only one branch in a condition, the implied branch has zero
 			       length, so we don't add anything. This covers the DEFINE "condition"
 			       automatically. */
-
 			    cs = cc + GET(cc, 1);
 			    if(*cs != OP_ALT) {
 				    cc = cs + 1 + LINK_SIZE;
 				    break;
 			    }
-
-			/* Otherwise we can fall through and treat it the same as any other
-			   subpattern. */
-
+			// Otherwise we can fall through and treat it the same as any other subpattern. 
 			case OP_CBRA:
 			case OP_SCBRA:
 			case OP_BRA:
@@ -128,18 +118,18 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			case OP_ONCE:
 			case OP_ONCE_NC:
 			    d = find_minlength(re, cc, startcode, options, recurses, countptr);
-			    if(d < 0) return d;
+			    if(d < 0) 
+					return d;
 			    branchlength += d;
-			    do cc += GET(cc, 1); while(*cc == OP_ALT);
+			    do {
+					cc += GET(cc, 1); 
+				} while(*cc == OP_ALT);
 			    cc += 1 + LINK_SIZE;
 			    break;
-
 			/* ACCEPT makes things far too complicated; we have to give up. */
-
 			case OP_ACCEPT:
 			case OP_ASSERT_ACCEPT:
 			    return -1;
-
 			/* Reached end of a branch; if it's a ket it is the end of a nested
 			   call. If it's ALT it is an alternation in a nested call. If it is END it's
 			   the end of the outer call. All can be handled by the same code. If an
@@ -154,7 +144,8 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			case OP_END:
 			    if(length < 0 || (!had_recurse && branchlength < length))
 				    length = branchlength;
-			    if(op != OP_ALT) return length;
+			    if(op != OP_ALT) 
+					return length;
 			    cc += 1 + LINK_SIZE;
 			    branchlength = 0;
 			    had_recurse = FALSE;
@@ -167,7 +158,7 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			case OP_ASSERTBACK:
 			case OP_ASSERTBACK_NOT:
 			    do cc += GET(cc, 1); while(*cc == OP_ALT);
-			/* Fall through */
+			// @fallthrough
 
 			/* Skip over things that don't match chars */
 
@@ -223,10 +214,10 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			    branchlength++;
 			    cc += 2;
 #ifdef SUPPORT_UTF
-			    if(utf && HAS_EXTRALEN(cc[-1])) cc += GET_EXTRALEN(cc[-1]);
+			    if(utf && HAS_EXTRALEN(cc[-1])) 
+					cc += GET_EXTRALEN(cc[-1]);
 #endif
 			    break;
-
 			case OP_TYPEPLUS:
 			case OP_TYPEMINPLUS:
 			case OP_TYPEPOSPLUS:
@@ -244,23 +235,19 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			    branchlength += GET2(cc, 1);
 			    cc += 2 + IMM2_SIZE;
 #ifdef SUPPORT_UTF
-			    if(utf && HAS_EXTRALEN(cc[-1])) cc += GET_EXTRALEN(cc[-1]);
+			    if(utf && HAS_EXTRALEN(cc[-1])) 
+					cc += GET_EXTRALEN(cc[-1]);
 #endif
 			    break;
-
 			case OP_TYPEEXACT:
 			    branchlength += GET2(cc, 1);
-			    cc += 2 + IMM2_SIZE + ((cc[1 + IMM2_SIZE] == OP_PROP
-				    || cc[1 + IMM2_SIZE] == OP_NOTPROP) ? 2 : 0);
+			    cc += 2 + IMM2_SIZE + ((cc[1 + IMM2_SIZE] == OP_PROP || cc[1 + IMM2_SIZE] == OP_NOTPROP) ? 2 : 0);
 			    break;
-
 			/* Handle single-char non-literal matchers */
-
 			case OP_PROP:
 			case OP_NOTPROP:
 			    cc += 2;
-			/* Fall through */
-
+			// @fallthrough
 			case OP_NOT_DIGIT:
 			case OP_DIGIT:
 			case OP_NOT_WHITESPACE:
@@ -292,35 +279,32 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 
 			case OP_ANYBYTE:
 #ifdef SUPPORT_UTF
-			    if(utf) return -1;
+			    if(utf) 
+					return -1;
 #endif
 			    branchlength++;
 			    cc++;
 			    break;
-
 			/* For repeated character types, we have to test for \p and \P, which have
 			   an extra two bytes of parameters. */
-
 			case OP_TYPESTAR:
 			case OP_TYPEMINSTAR:
 			case OP_TYPEQUERY:
 			case OP_TYPEMINQUERY:
 			case OP_TYPEPOSSTAR:
 			case OP_TYPEPOSQUERY:
-			    if(cc[1] == OP_PROP || cc[1] == OP_NOTPROP) cc += 2;
+			    if(cc[1] == OP_PROP || cc[1] == OP_NOTPROP) 
+					cc += 2;
 			    cc += PRIV(OP_lengths)[op];
 			    break;
-
 			case OP_TYPEUPTO:
 			case OP_TYPEMINUPTO:
 			case OP_TYPEPOSUPTO:
-			    if(cc[1 + IMM2_SIZE] == OP_PROP
-			    || cc[1 + IMM2_SIZE] == OP_NOTPROP) cc += 2;
+			    if(cc[1 + IMM2_SIZE] == OP_PROP || cc[1 + IMM2_SIZE] == OP_NOTPROP) 
+					cc += 2;
 			    cc += PRIV(OP_lengths)[op];
 			    break;
-
 			/* Check a class for variable quantification */
-
 			case OP_CLASS:
 			case OP_NCLASS:
 #if defined SUPPORT_UTF || defined COMPILE_PCRE16 || defined COMPILE_PCRE32
@@ -334,14 +318,12 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 #else
 			    cc += PRIV(OP_lengths)[OP_CLASS];
 #endif
-
-			    switch(*cc)
-			    {
+			    switch(*cc) {
 				    case OP_CRPLUS:
 				    case OP_CRMINPLUS:
 				    case OP_CRPOSPLUS:
 					branchlength++;
-				    /* Fall through */
+				    // @fallthrough
 
 				    case OP_CRSTAR:
 				    case OP_CRMINSTAR:
@@ -386,28 +368,33 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 				    d = INT_MAX;
 				    while(count-- > 0) {
 					    ce = cs = (pcre_uchar*)PRIV(find_bracket) (startcode, utf, GET2(slot, 0));
-					    if(cs == NULL) return -2;
-					    do ce += GET(ce, 1); while(*ce == OP_ALT);
+					    if(cs == NULL) 
+							return -2;
+						do {
+							ce += GET(ce, 1); 
+						} while(*ce == OP_ALT);
 					    if(cc > cs && cc < ce) { /* Simple recursion */
 						    d = 0;
 						    had_recurse = TRUE;
 						    break;
 					    }
-					    else{
+					    else {
 						    recurse_check * r = recurses;
-						    for(r = recurses; r != NULL; r = r->prev) if(r->group == cs) break;
-						    if(r != NULL) { /* Mutual recursion */
+						    for(r = recurses; r; r = r->prev) 
+								if(r->group == cs) 
+									break;
+						    if(r) { /* Mutual recursion */
 							    d = 0;
 							    had_recurse = TRUE;
 							    break;
 						    }
-						    else{
+						    else {
 							    int dd;
 							    this_recurse.prev = recurses;
 							    this_recurse.group = cs;
-							    dd = find_minlength(re, cs, startcode, options, &this_recurse,
-							    countptr);
-							    if(dd < d) d = dd;
+							    dd = find_minlength(re, cs, startcode, options, &this_recurse, countptr);
+							    if(dd < d) 
+									d = dd;
 						    }
 					    }
 					    slot += re->name_entry_size;
@@ -421,20 +408,25 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 			case OP_REFI:
 			    if((options & PCRE_JAVASCRIPT_COMPAT) == 0) {
 				    ce = cs = (pcre_uchar*)PRIV(find_bracket) (startcode, utf, GET2(cc, 1));
-				    if(cs == NULL) return -2;
-				    do ce += GET(ce, 1); while(*ce == OP_ALT);
+				    if(cs == NULL) 
+						return -2;
+					do {
+						ce += GET(ce, 1); 
+					} while(*ce == OP_ALT);
 				    if(cc > cs && cc < ce) { /* Simple recursion */
 					    d = 0;
 					    had_recurse = TRUE;
 				    }
-				    else{
+				    else {
 					    recurse_check * r = recurses;
-					    for(r = recurses; r != NULL; r = r->prev) if(r->group == cs) break;
-					    if(r != NULL) { /* Mutual recursion */
+					    for(r = recurses; r; r = r->prev) 
+							if(r->group == cs) 
+								break;
+					    if(r) { /* Mutual recursion */
 						    d = 0;
 						    had_recurse = TRUE;
 					    }
-					    else{
+					    else {
 						    this_recurse.prev = recurses;
 						    this_recurse.group = cs;
 						    d = find_minlength(re, cs, startcode, options, &this_recurse,
@@ -442,14 +434,12 @@ static int find_minlength(const REAL_PCRE * re, const pcre_uchar * code,
 					    }
 				    }
 			    }
-			    else d = 0;
+			    else 
+					d = 0;
 			    cc += 1 + IMM2_SIZE;
-
 			    /* Handle repeated back references */
-
 REPEAT_BACK_REFERENCE:
-			    switch(*cc)
-			    {
+			    switch(*cc) {
 				    case OP_CRSTAR:
 				    case OP_CRMINSTAR:
 				    case OP_CRQUERY:
@@ -490,12 +480,14 @@ REPEAT_BACK_REFERENCE:
 			    do ce += GET(ce, 1); while(*ce == OP_ALT);
 			    if(cc > cs && cc < ce) /* Simple recursion */
 				    had_recurse = TRUE;
-			    else{
+			    else {
 				    recurse_check * r = recurses;
-				    for(r = recurses; r != NULL; r = r->prev) if(r->group == cs) break;
-				    if(r != NULL) /* Mutual recursion */
+				    for(r = recurses; r; r = r->prev) 
+						if(r->group == cs) 
+							break;
+				    if(r) /* Mutual recursion */
 					    had_recurse = TRUE;
-				    else{
+				    else {
 					    this_recurse.prev = recurses;
 					    this_recurse.group = cs;
 					    branchlength += find_minlength(re, cs, startcode, options,
@@ -554,21 +546,18 @@ REPEAT_BACK_REFERENCE:
 
 			    cc += PRIV(OP_lengths)[op];
 #ifdef SUPPORT_UTF
-			    if(utf && HAS_EXTRALEN(cc[-1])) cc += GET_EXTRALEN(cc[-1]);
+			    if(utf && HAS_EXTRALEN(cc[-1])) 
+					cc += GET_EXTRALEN(cc[-1]);
 #endif
 			    break;
-
 			/* Skip these, but we need to add in the name length. */
-
 			case OP_MARK:
 			case OP_PRUNE_ARG:
 			case OP_SKIP_ARG:
 			case OP_THEN_ARG:
 			    cc += PRIV(OP_lengths)[op] + cc[1];
 			    break;
-
 			/* The remaining opcodes are just skipped over. */
-
 			case OP_CLOSE:
 			case OP_COMMIT:
 			case OP_FAIL:
@@ -578,15 +567,13 @@ REPEAT_BACK_REFERENCE:
 			case OP_THEN:
 			    cc += PRIV(OP_lengths)[op];
 			    break;
-
 			/* This should not occur: we list all opcodes explicitly so that when
 			   new ones get added they are properly considered. */
-
 			default:
 			    return -3;
 		}
 	}
-/* Control never gets here */
+	// Control never gets here 
 }
 
 /*************************************************
@@ -608,10 +595,9 @@ REPEAT_BACK_REFERENCE:
    Returns:        pointer after the character
  */
 
-static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_uchar * p, BOOL caseless,
-    compile_data * cd, BOOL utf)
+static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_uchar * p, BOOL caseless, compile_data * cd, BOOL utf)
 {
-	pcre_uint32 c = *p;
+	uint32 c = *p;
 
 #ifdef COMPILE_PCRE8
 	SET_BIT(c);
@@ -635,17 +621,16 @@ static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_ucha
 
 /* Not UTF-8 mode, or character is less than 127. */
 
-	if(caseless && (cd->ctypes[c] & ctype_letter) != 0) SET_BIT(cd->fcc[c]);
+	if(caseless && (cd->ctypes[c] & ctype_letter) != 0) 
+		SET_BIT(cd->fcc[c]);
 	return p + 1;
 #endif  /* COMPILE_PCRE8 */
-
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
 	if(c > 0xff) {
 		c = 0xff;
 		caseless = FALSE;
 	}
 	SET_BIT(c);
-
 #ifdef SUPPORT_UTF
 	if(utf && c > 127) {
 		GETCHARINC(c, p);
@@ -662,8 +647,8 @@ static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_ucha
 #else   /* Not SUPPORT_UTF */
 	(void)(utf); /* Stops warning for unused parameter */
 #endif  /* SUPPORT_UTF */
-
-	if(caseless && (cd->ctypes[c] & ctype_letter) != 0) SET_BIT(cd->fcc[c]);
+	if(caseless && (cd->ctypes[c] & ctype_letter) != 0) 
+		SET_BIT(cd->fcc[c]);
 	return p + 1;
 #endif
 }
@@ -687,14 +672,13 @@ static const pcre_uchar * set_table_bit(pcre_uint8 * start_bits, const pcre_ucha
 
    Returns:         nothing
  */
-
-static void set_type_bits(pcre_uint8 * start_bits, int cbit_type, unsigned int table_limit,
-    compile_data * cd)
+static void set_type_bits(pcre_uint8 * start_bits, int cbit_type, uint table_limit, compile_data * cd)
 {
-	register pcre_uint32 c;
+	register uint32 c;
 	for(c = 0; c < table_limit; c++) start_bits[c] |= cd->cbits[c+cbit_type];
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
-	if(table_limit == 32) return;
+	if(table_limit == 32) 
+		return;
 	for(c = 128; c < 256; c++) {
 		if((cd->cbits[c/8] & (1 << (c&7))) != 0) {
 			pcre_uchar buff[6];
@@ -704,35 +688,33 @@ static void set_type_bits(pcre_uint8 * start_bits, int cbit_type, unsigned int t
 	}
 #endif
 }
-
 /*************************************************
 *     Set bits for a negative character type     *
 *************************************************/
-
-/* This function sets starting bits for a negative character type such as \D.
-   In UTF-8 mode, we can only do a direct setting for bytes less than 128, as
-   otherwise there can be confusion with bytes in the middle of UTF-8 characters.
-   Unlike in the positive case, where we can set appropriate starting bits for
-   specific high-valued UTF-8 characters, in this case we have to set the bits for
-   all high-valued characters. The lowest is 0xc2, but we overkill by starting at
-   0xc0 (192) for simplicity.
-
-   Arguments:
-   start_bits     the starting bitmap
-   cbit type      the type of character wanted
-   table_limit    32 for non-UTF-8; 16 for UTF-8
-   cd             the block with char table pointers
-
-   Returns:         nothing
- */
-
-static void set_nottype_bits(pcre_uint8 * start_bits, int cbit_type, unsigned int table_limit,
-    compile_data * cd)
+//
+// This function sets starting bits for a negative character type such as \D.
+// In UTF-8 mode, we can only do a direct setting for bytes less than 128, as
+// otherwise there can be confusion with bytes in the middle of UTF-8 characters.
+// Unlike in the positive case, where we can set appropriate starting bits for
+// specific high-valued UTF-8 characters, in this case we have to set the bits for
+// all high-valued characters. The lowest is 0xc2, but we overkill by starting at 0xc0 (192) for simplicity.
+//
+// Arguments:
+//   start_bits     the starting bitmap
+//   cbit type      the type of character wanted
+//   table_limit    32 for non-UTF-8; 16 for UTF-8
+//   cd             the block with char table pointers
+// Returns:         nothing
+//
+static void set_nottype_bits(pcre_uint8 * start_bits, int cbit_type, uint table_limit, compile_data * cd)
 {
-	register pcre_uint32 c;
-	for(c = 0; c < table_limit; c++) start_bits[c] |= ~cd->cbits[c+cbit_type];
+	uint c;
+	for(c = 0; c < table_limit; c++) 
+		start_bits[c] |= ~cd->cbits[c+cbit_type];
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
-	if(table_limit != 32) for(c = 24; c < 32; c++) start_bits[c] = 0xff;
+	if(table_limit != 32) 
+		for(c = 24; c < 32; c++) 
+			start_bits[c] = 0xff;
 #endif
 }
 
@@ -759,11 +741,9 @@ static void set_nottype_bits(pcre_uint8 * start_bits, int cbit_type, unsigned in
                SSB_CONTINUE => Found optional starting bytes
                SSB_UNKNOWN  => Hit an unrecognized opcode
  */
-
-static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL utf,
-    compile_data * cd)
+static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL utf, compile_data * cd)
 {
-	register pcre_uint32 c;
+	register uint32 c;
 	int yield = SSB_DONE;
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
 	int table_limit = utf ? 16 : 32;
@@ -787,19 +767,14 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 	volatile int dummy;
 /* ========================================================================= */
 #endif
-
 	do {
 		BOOL try_next = TRUE;
 		const pcre_uchar * tcode = code + 1 + LINK_SIZE;
-
-		if(*code == OP_CBRA || *code == OP_SCBRA ||
-		    *code == OP_CBRAPOS || *code == OP_SCBRAPOS) tcode += IMM2_SIZE;
-
+		if(oneof4(*code, OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS))
+			tcode += IMM2_SIZE;
 		while(try_next) { /* Loop for items in this branch */
 			int rc;
-
-			switch(*tcode)
-			{
+			switch(*tcode) {
 				/* If we reach something we don't understand, it means a new opcode has
 				   been created that hasn't been added to this code. Hopefully this problem
 				   will be discovered during testing. */
@@ -887,9 +862,10 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				   point in recognizing them for OP_NOTPROP. */
 
 				case OP_PROP:
-				    if(tcode[1] != PT_CLIST) return SSB_FAIL;
+				    if(tcode[1] != PT_CLIST) 
+						return SSB_FAIL;
 				    {
-					    const pcre_uint32 * p = PRIV(ucd_caseless_sets) + tcode[2];
+					    const uint32 * p = PRIV(ucd_caseless_sets) + tcode[2];
 					    while((c = *p++) < NOTACHAR) {
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
 						    if(utf) {
@@ -898,7 +874,10 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 							    c = buff[0];
 						    }
 #endif
-						    if(c > 0xff) SET_BIT(0xff); else SET_BIT(c);
+						    if(c > 0xff) 
+								SET_BIT(0xff); 
+							else 
+								SET_BIT(c);
 					    }
 				    }
 				    try_next = FALSE;
@@ -928,13 +907,17 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				case OP_ONCE_NC:
 				case OP_ASSERT:
 				    rc = set_start_bits(tcode, start_bits, utf, cd);
-				    if(rc == SSB_FAIL || rc == SSB_UNKNOWN) return rc;
-				    if(rc == SSB_DONE) try_next = FALSE; else{
-					    do tcode += GET(tcode, 1); while(*tcode == OP_ALT);
+				    if(rc == SSB_FAIL || rc == SSB_UNKNOWN) 
+						return rc;
+				    if(rc == SSB_DONE) 
+						try_next = FALSE; 
+					else {
+					    do {
+							tcode += GET(tcode, 1); 
+						} while(*tcode == OP_ALT);
 					    tcode += 1 + LINK_SIZE;
 				    }
 				    break;
-
 				/* If we hit ALT or KET, it means we haven't found anything mandatory in
 				   this branch, though we might have found something optional. For ALT, we
 				   continue with the next alternative, but we have to arrange that the final
@@ -974,26 +957,27 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				case OP_BRAMINZERO:
 				case OP_BRAPOSZERO:
 				    rc = set_start_bits(++tcode, start_bits, utf, cd);
-				    if(rc == SSB_FAIL || rc == SSB_UNKNOWN) return rc;
+				    if(rc == SSB_FAIL || rc == SSB_UNKNOWN) 
+						return rc;
 /* =========================================================================
       See the comment at the head of this function concerning the next line,
       which was an old fudge for the benefit of OS/2.
       dummy = 1;
    ========================================================================= */
-				    do tcode += GET(tcode, 1); while(*tcode == OP_ALT);
+				    do {
+						tcode += GET(tcode, 1); 
+					} while(*tcode == OP_ALT);
 				    tcode += 1 + LINK_SIZE;
 				    break;
-
 				/* SKIPZERO skips the bracket. */
-
 				case OP_SKIPZERO:
 				    tcode++;
-				    do tcode += GET(tcode, 1); while(*tcode == OP_ALT);
+				    do {
+						tcode += GET(tcode, 1); 
+					} while(*tcode == OP_ALT);
 				    tcode += 1 + LINK_SIZE;
 				    break;
-
 				/* Single-char * or ? sets the bit and tries the next item */
-
 				case OP_STAR:
 				case OP_MINSTAR:
 				case OP_POSSTAR:
@@ -1030,7 +1014,7 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 
 				case OP_EXACT:
 				    tcode += IMM2_SIZE;
-				/* Fall through */
+				// @fallthrough
 				case OP_CHAR:
 				case OP_PLUS:
 				case OP_MINPLUS:
@@ -1041,7 +1025,7 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 
 				case OP_EXACTI:
 				    tcode += IMM2_SIZE;
-				/* Fall through */
+				// @fallthrough
 				case OP_CHARI:
 				case OP_PLUSI:
 				case OP_MINPLUSI:
@@ -1110,75 +1094,59 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				    }
 				    try_next = FALSE;
 				    break;
-
-				/* Single character types set the bits and stop. Note that if PCRE_UCP
-				   is set, we do not see these op codes because \d etc are converted to
-				   properties. Therefore, these apply in the case when only characters less
-				   than 256 are recognized to match the types. */
-
+				// Single character types set the bits and stop. Note that if PCRE_UCP
+				// is set, we do not see these op codes because \d etc are converted to
+				// properties. Therefore, these apply in the case when only characters less
+				// than 256 are recognized to match the types. 
 				case OP_NOT_DIGIT:
 				    set_nottype_bits(start_bits, cbit_digit, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
 				case OP_DIGIT:
 				    set_type_bits(start_bits, cbit_digit, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
 				/* The cbit_space table has vertical tab as whitespace; we no longer
 				   have to play fancy tricks because Perl added VT to its whitespace at
 				   release 5.18. PCRE added it at release 8.34. */
-
 				case OP_NOT_WHITESPACE:
 				    set_nottype_bits(start_bits, cbit_space, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
 				case OP_WHITESPACE:
 				    set_type_bits(start_bits, cbit_space, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
 				case OP_NOT_WORDCHAR:
 				    set_nottype_bits(start_bits, cbit_word, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
 				case OP_WORDCHAR:
 				    set_type_bits(start_bits, cbit_word, table_limit, cd);
 				    try_next = FALSE;
 				    break;
-
-				/* One or more character type fudges the pointer and restarts, knowing
-				   it will hit a single character type and stop there. */
-
+				// One or more character type fudges the pointer and restarts, knowing
+				// it will hit a single character type and stop there. 
 				case OP_TYPEPLUS:
 				case OP_TYPEMINPLUS:
 				case OP_TYPEPOSPLUS:
 				    tcode++;
 				    break;
-
 				case OP_TYPEEXACT:
 				    tcode += 1 + IMM2_SIZE;
 				    break;
-
-				/* Zero or more repeats of character types set the bits and then
-				   try again. */
-
+				// Zero or more repeats of character types set the bits and then try again. 
 				case OP_TYPEUPTO:
 				case OP_TYPEMINUPTO:
 				case OP_TYPEPOSUPTO:
-				    tcode += IMM2_SIZE; /* Fall through */
-
+				    tcode += IMM2_SIZE; // @fallthrough
 				case OP_TYPESTAR:
 				case OP_TYPEMINSTAR:
 				case OP_TYPEPOSSTAR:
 				case OP_TYPEQUERY:
 				case OP_TYPEMINQUERY:
 				case OP_TYPEPOSQUERY:
-				    switch(tcode[1])
-				    {
+				    switch(tcode[1]) {
 					    default:
 					    case OP_ANY:
 					    case OP_ALLANY:
@@ -1226,36 +1194,28 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 #endif /* SUPPORT_UTF */
 						SET_BIT(CHAR_NEL);
 						break;
-
 					    case OP_NOT_DIGIT:
-						set_nottype_bits(start_bits, cbit_digit, table_limit, cd);
-						break;
-
+							set_nottype_bits(start_bits, cbit_digit, table_limit, cd);
+							break;
 					    case OP_DIGIT:
-						set_type_bits(start_bits, cbit_digit, table_limit, cd);
-						break;
-
+							set_type_bits(start_bits, cbit_digit, table_limit, cd);
+							break;
 					    /* The cbit_space table has vertical tab as whitespace; we no longer
 					       have to play fancy tricks because Perl added VT to its whitespace at
 					       release 5.18. PCRE added it at release 8.34. */
-
 					    case OP_NOT_WHITESPACE:
-						set_nottype_bits(start_bits, cbit_space, table_limit, cd);
-						break;
-
+							set_nottype_bits(start_bits, cbit_space, table_limit, cd);
+							break;
 					    case OP_WHITESPACE:
-						set_type_bits(start_bits, cbit_space, table_limit, cd);
-						break;
-
+							set_type_bits(start_bits, cbit_space, table_limit, cd);
+							break;
 					    case OP_NOT_WORDCHAR:
-						set_nottype_bits(start_bits, cbit_word, table_limit, cd);
-						break;
-
+							set_nottype_bits(start_bits, cbit_word, table_limit, cd);
+							break;
 					    case OP_WORDCHAR:
-						set_type_bits(start_bits, cbit_word, table_limit, cd);
-						break;
+							set_type_bits(start_bits, cbit_word, table_limit, cd);
+							break;
 				    }
-
 				    tcode += 2;
 				    break;
 
@@ -1273,7 +1233,7 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				    if((tcode[1 + LINK_SIZE] & XCL_MAP) == 0 && (tcode[1 + LINK_SIZE] & XCL_NOT) != 0)
 					    return SSB_FAIL;
 #endif
-				/* Fall through */
+				// @fallthrough
 
 				case OP_NCLASS:
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
@@ -1285,7 +1245,7 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 #if defined COMPILE_PCRE16 || defined COMPILE_PCRE32
 				    SET_BIT(0xFF); /* For characters > 255 */
 #endif
-				/* Fall through */
+				// @fallthrough
 
 				case OP_CLASS:
 			    {
@@ -1312,64 +1272,57 @@ static int set_start_bits(const pcre_uchar * code, pcre_uint8 * start_bits, BOOL
 				       characters in the range 128 - 255. */
 
 #if defined SUPPORT_UTF || !defined COMPILE_PCRE8
-				    if(map != NULL)
+				    if(map)
 #endif
 				    {
 #if defined SUPPORT_UTF && defined COMPILE_PCRE8
 					    if(utf) {
-						    for(c = 0; c < 16; c++) start_bits[c] |= map[c];
+						    for(c = 0; c < 16; c++) 
+								start_bits[c] |= map[c];
 						    for(c = 128; c < 256; c++) {
 							    if((map[c/8] & (1 << (c&7))) != 0) {
-								    int d = (c >> 6) | 0xc0; /* Set bit for this starter
-									                       */
-								    start_bits[d/8] |= (1 << (d&7)); /* and then skip on
-									                               to the */
-								    c = (c & 0xc0) + 0x40 - 1; /* next relevant
-									                         character. */
+								    int d = (c >> 6) | 0xc0; // Set bit for this starter 
+								    start_bits[d/8] |= (1 << (d&7)); // and then skip on to the 
+								    c = (c & 0xc0) + 0x40 - 1; // next relevant character. 
 							    }
 						    }
 					    }
 					    else
 #endif
 					    {
-						    /* In non-UTF-8 mode, the two bit maps are completely compatible. */
-						    for(c = 0; c < 32; c++) start_bits[c] |= map[c];
+						    // In non-UTF-8 mode, the two bit maps are completely compatible. 
+						    for(c = 0; c < 32; c++) 
+								start_bits[c] |= map[c];
 					    }
 				    }
-
-				    /* Advance past the bit map, and act on what follows. For a zero
-				       minimum repeat, continue; otherwise stop processing. */
-
-				    switch(*tcode)
-				    {
+				    // Advance past the bit map, and act on what follows. For a zero minimum repeat, continue; otherwise stop processing.
+				    switch(*tcode) {
 					    case OP_CRSTAR:
 					    case OP_CRMINSTAR:
 					    case OP_CRQUERY:
 					    case OP_CRMINQUERY:
 					    case OP_CRPOSSTAR:
 					    case OP_CRPOSQUERY:
-						tcode++;
-						break;
-
+							tcode++;
+							break;
 					    case OP_CRRANGE:
 					    case OP_CRMINRANGE:
 					    case OP_CRPOSRANGE:
-						if(GET2(tcode, 1) == 0) tcode += 1 + 2 * IMM2_SIZE;
-						else try_next = FALSE;
-						break;
-
+							if(GET2(tcode, 1) == 0) 
+								tcode += 1 + 2 * IMM2_SIZE;
+							else 
+								try_next = FALSE;
+							break;
 					    default:
-						try_next = FALSE;
-						break;
+							try_next = FALSE;
+							break;
 				    }
 			    }
 			    break; /* End of bitmap class handling */
 			} /* End of switch */
 		} /* End of try_next loop */
-
 		code += GET(code, 1); /* Advance to next branch */
-	}
-	while(*code == OP_ALT);
+	} while(*code == OP_ALT);
 	return yield;
 }
 
@@ -1441,120 +1394,94 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
    a multiline pattern that matches only at "line starts", there is no point in
    seeking a list of starting bytes. */
 
-	if((re->options & PCRE_ANCHORED) == 0 &&
-	    (re->flags & (PCRE_FIRSTSET|PCRE_STARTLINE)) == 0) {
+	if((re->options & PCRE_ANCHORED) == 0 && (re->flags & (PCRE_FIRSTSET|PCRE_STARTLINE)) == 0) {
 		int rc;
-
 		/* Set the character tables in the block that is passed around */
-
 		tables = re->tables;
-
 #if defined COMPILE_PCRE8
 		if(tables == NULL)
-			(void)pcre_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES,
-			    (void*)(&tables));
+			(void)pcre_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
 #elif defined COMPILE_PCRE16
 		if(tables == NULL)
-			(void)pcre16_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES,
-			    (void*)(&tables));
+			(void)pcre16_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
 #elif defined COMPILE_PCRE32
 		if(tables == NULL)
-			(void)pcre32_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES,
-			    (void*)(&tables));
+			(void)pcre32_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES, (void*)(&tables));
 #endif
-
 		compile_block.lcc = tables + lcc_offset;
 		compile_block.fcc = tables + fcc_offset;
 		compile_block.cbits = tables + cbits_offset;
 		compile_block.ctypes = tables + ctypes_offset;
-
-		/* See if we can find a fixed set of initial characters for the pattern. */
-
-		memset(start_bits, 0, 32 * sizeof(pcre_uint8));
-		rc = set_start_bits(code, start_bits, (re->options & PCRE_UTF8) != 0,
-		    &compile_block);
+		// See if we can find a fixed set of initial characters for the pattern. 
+		memzero(start_bits, 32 * sizeof(pcre_uint8));
+		rc = set_start_bits(code, start_bits, (re->options & PCRE_UTF8) != 0, &compile_block);
 		bits_set = rc == SSB_DONE;
 		if(rc == SSB_UNKNOWN) {
 			*errorptr = "internal error: opcode not recognized";
 			return NULL;
 		}
 	}
-
-/* Find the minimum length of subject string. */
-
-	switch(min = find_minlength(re, code, code, re->options, NULL, &count))
-	{
+	/* Find the minimum length of subject string. */
+	switch(min = find_minlength(re, code, code, re->options, NULL, &count)) {
 		case -2: *errorptr = "internal error: missing capturing bracket"; return NULL;
 		case -3: *errorptr = "internal error: opcode not recognized"; return NULL;
 		default: break;
 	}
-
-/* If a set of starting bytes has been identified, or if the minimum length is
-   greater than zero, or if JIT optimization has been requested, or if
-   PCRE_STUDY_EXTRA_NEEDED is set, get a pcre[16]_extra block and a
-   pcre_study_data block. The study data is put in the latter, which is pointed to
-   by the former, which may also get additional data set later by the calling
-   program. At the moment, the size of pcre_study_data is fixed. We nevertheless
-   save it in a field for returning via the pcre_fullinfo() function so that if it
-   becomes variable in the future, we don't have to change that code. */
-
+	// If a set of starting bytes has been identified, or if the minimum length is
+	// greater than zero, or if JIT optimization has been requested, or if
+	// PCRE_STUDY_EXTRA_NEEDED is set, get a pcre[16]_extra block and a
+	// pcre_study_data block. The study data is put in the latter, which is pointed to
+	// by the former, which may also get additional data set later by the calling
+	// program. At the moment, the size of pcre_study_data is fixed. We nevertheless
+	// save it in a field for returning via the pcre_fullinfo() function so that if it
+	// becomes variable in the future, we don't have to change that code. 
 	if(bits_set || min > 0 || (options & (
 #ifdef SUPPORT_JIT
-			    PCRE_STUDY_JIT_COMPILE | PCRE_STUDY_JIT_PARTIAL_SOFT_COMPILE |
-			    PCRE_STUDY_JIT_PARTIAL_HARD_COMPILE |
+		PCRE_STUDY_JIT_COMPILE | PCRE_STUDY_JIT_PARTIAL_SOFT_COMPILE | PCRE_STUDY_JIT_PARTIAL_HARD_COMPILE |
 #endif
-			    PCRE_STUDY_EXTRA_NEEDED)) != 0) {
-		extra = (PUBL(extra) *)(PUBL (malloc))
-		    (sizeof(PUBL(extra)) + sizeof(pcre_study_data));
+			PCRE_STUDY_EXTRA_NEEDED)) != 0) {
+		extra = (PUBL(extra) *)(PUBL(malloc))(sizeof(PUBL(extra)) + sizeof(pcre_study_data));
 		    if(extra == NULL) {
 			    *errorptr = "failed to get memory";
 			    return NULL;
 		    }
-
 		    study = (pcre_study_data*)((char*)extra + sizeof(PUBL(extra)));
 		    extra->flags = PCRE_EXTRA_STUDY_DATA;
 		    extra->study_data = study;
-
 		    study->size = sizeof(pcre_study_data);
 		    study->flags = 0;
-
 		    /* Set the start bits always, to avoid unset memory errors if the
 		       study data is written to a file, but set the flag only if any of the bits
 		       are set, to save time looking when none are. */
-
 		    if(bits_set) {
 			    study->flags |= PCRE_STUDY_MAPPED;
 			    memcpy(study->start_bits, start_bits, sizeof(start_bits));
 		    }
-		    else memset(study->start_bits, 0, 32 * sizeof(pcre_uint8));
-
+		    else 
+				memzero(study->start_bits, 32 * sizeof(pcre_uint8));
 #ifdef PCRE_DEBUG
 		    if(bits_set) {
 			    pcre_uint8 * ptr = start_bits;
 			    int i;
-
 			    printf("Start bits:\n");
 			    for(i = 0; i < 32; i++)
 				    printf("%3d: %02x%s", i * 8, *ptr++, ((i + 1) & 0x7) != 0 ? " " : "\n");
 		    }
 #endif
-
 		    /* Always set the minlength value in the block, because the JIT compiler
 		       makes use of it. However, don't set the bit unless the length is greater than
 		       zero - the interpretive pcre_exec() and pcre_dfa_exec() needn't waste time
 		       checking the zero case. */
-
 		    if(min > 0) {
 			    study->flags |= PCRE_STUDY_MINLEN;
 			    study->minlength = min;
 		    }
-		    else study->minlength = 0;
-
+		    else 
+				study->minlength = 0;
 		    /* If JIT support was compiled and requested, attempt the JIT compilation.
 		       If no starting bytes were found, and the minimum length is zero, and JIT
 		       compilation fails, abandon the extra block and return NULL, unless
 		       PCRE_STUDY_EXTRA_NEEDED is set. */
-
 #ifdef SUPPORT_JIT
 		    extra->executable_jit = NULL;
 		    if((options & PCRE_STUDY_JIT_COMPILE) != 0)
@@ -1563,9 +1490,7 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
 			    PRIV(jit_compile) (re, extra, JIT_PARTIAL_SOFT_COMPILE);
 		    if((options & PCRE_STUDY_JIT_PARTIAL_HARD_COMPILE) != 0)
 			    PRIV(jit_compile) (re, extra, JIT_PARTIAL_HARD_COMPILE);
-
-		    if(study->flags == 0 && (extra->flags & PCRE_EXTRA_EXECUTABLE_JIT) == 0 &&
-		    (options & PCRE_STUDY_EXTRA_NEEDED) == 0) {
+		    if(study->flags == 0 && (extra->flags & PCRE_EXTRA_EXECUTABLE_JIT) == 0 && (options & PCRE_STUDY_EXTRA_NEEDED) == 0) {
 #if defined COMPILE_PCRE8
 			    pcre_free_study(extra);
 #elif defined COMPILE_PCRE16
@@ -1577,7 +1502,6 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
 		    }
 #endif
 	}
-
 	return extra;
 }
 
@@ -1590,7 +1514,6 @@ PCRE_EXP_DEFN pcre32_extra * PCRE_CALL_CONVENTION pcre32_study(const pcre32 * ex
    Argument:   a pointer to the pcre[16]_extra block
    Returns:    nothing
  */
-
 #if defined COMPILE_PCRE8
 PCRE_EXP_DEFN void pcre_free_study(pcre_extra * extra)
 #elif defined COMPILE_PCRE16
@@ -1602,8 +1525,7 @@ PCRE_EXP_DEFN void pcre32_free_study(pcre32_extra * extra)
 	if(extra == NULL)
 		return;
 #ifdef SUPPORT_JIT
-	if((extra->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 &&
-	    extra->executable_jit != NULL)
+	if((extra->flags & PCRE_EXTRA_EXECUTABLE_JIT) != 0 && extra->executable_jit)
 		PRIV(jit_free) (extra->executable_jit);
 #endif
 	PUBL(free) (extra);

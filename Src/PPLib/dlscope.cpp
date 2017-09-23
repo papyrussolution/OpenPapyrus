@@ -200,13 +200,12 @@ int SLAPI DlScope::Read(SBuffer & rBuf)
 	return ok;
 }
 
-int SLAPI DlScope::SetFixDataBuf(void * pBuf, size_t size, int clear)
+void SLAPI DlScope::SetFixDataBuf(void * pBuf, size_t size, int clear)
 {
 	FixDataBuf.P_Buf = (char *)pBuf;
 	FixDataBuf.Size = size;
 	if(clear)
 		FixDataBuf.Zero();
-	return 1;
 }
 
 void * FASTCALL DlScope::GetFixDataPtr(size_t offs) const
@@ -214,7 +213,7 @@ void * FASTCALL DlScope::GetFixDataPtr(size_t offs) const
 	return (offs < FixDataBuf.Size) ? (FixDataBuf.P_Buf+offs) : 0;
 }
 
-int SLAPI DlScope::Add(DlScope * pChild)
+int FASTCALL DlScope::Add(DlScope * pChild)
 {
 	if(pChild) {
 		pChild->ParentId = ID;
@@ -581,7 +580,7 @@ int SLAPI DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
 	return p_scope ? 1 : 0;
 }
 
-int SLAPI DlScope::InitInheritance(const DlScope * pTopScope)
+int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
 {
 	int    ok = 1;
 	const  uint c = ChildList.getCount();
@@ -697,7 +696,7 @@ int SLAPI DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const
 	return ok;
 }
 
-int SLAPI DlScope::SetAttrib(const Attr & rAttr)
+int FASTCALL DlScope::SetAttrib(const Attr & rAttr)
 {
 	int    ok = 1;
 	// @v5.7.1 if(oneof4(rAttr.A, sfHidden, sfRestricted, sfVersion, sfNoIDL)) {

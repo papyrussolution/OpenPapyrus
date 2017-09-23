@@ -62,7 +62,7 @@ int XmlDbFile::State::SetParam(const Param * pParam)
 	ZDELETE(P_SplittedRecTag);
 	if(pParam) {
 		P = *pParam;
-		if(P.RecTag.StrChr('/', 0) || P.RecTag.StrChr('\\', 0)) {
+		if(P.RecTag.HasChr('/') || P.RecTag.HasChr('\\')) {
 			P_SplittedRecTag = new StringSet;
 			if(P_SplittedRecTag) {
 				P.RecTag.Tokenize("/\\", *P_SplittedRecTag);
@@ -479,7 +479,7 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				// Предварительная обработка имени поля для идентификации вложенности тегов
 				// Например: "TAG-LEVEL-1/TAG-LEVEL-2/TAG-LEVEL-3"
 				//
-				if(fld.Name.StrChr('/', 0) || fld.Name.StrChr('\\', 0)) {
+				if(fld.Name.HasChr('/') || fld.Name.HasChr('\\')) {
 					const char * p = 0;
 					const size_t len = fld.Name.Len();
 					for(size_t start = 0; start < len; ) {

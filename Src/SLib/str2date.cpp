@@ -56,7 +56,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 	// @v9.7.0 {
 	if(strnicmp(c, "date", 4) == 0) {
 		c += 4;
-		while(*c == ' ' || *c == '\t')
+		while(oneof2(*c, ' ', '\t'))
 			c++;
 		if(*c == '\'')
 			c++;
@@ -165,14 +165,14 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 					}
 				}
 				else {
-					while(*c == ' ' || *c == '\t')
+					while(oneof2(*c, ' ', '\t'))
 						c++;
 					if(*c == '@') {
 						is_first_subst = BIN(cnt == 0);
 						c++;
 						int * p_cur_pos_plus = getnmb(cnt, ord, &plus_d, &plus_m, &plus_y);
 						*p_cur_pos = -1;
-						if(*c == '+' || *c == '-') {
+						if(oneof2(*c, '+', '-')) {
 							int  sign = (*c++ == '-') ? -1 : +1;
 							for(i = 0; isdec(*c);)
 								tmp[i++] = *c++;
@@ -197,9 +197,9 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 						if(p_cur_pos == &y && tmp[0])
 							not_empty_year = 1;
 					}
-					while(*c == ' ' || *c == '\t')
+					while(oneof2(*c, ' ', '\t'))
 						c++;
-					if(!(*c == '.' && c[1] != '.') && *c != '/' && *c != '-' && *c != '\\')
+					if(!(*c == '.' && c[1] != '.') && !oneof3(*c, '/', '-', '\\'))
 						break;
 					c++;
 				}
@@ -370,7 +370,7 @@ static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 	//int    i;
 	char   buf[64];
 	char * t = buf;
-	while(**b == ' ' || **b == '\t')
+	while(oneof2(**b, ' ', '\t'))
 		(*b)++;
 	long   ret_flags = 0;
 	int    offs = _strtodate(*b, DATF_DMY, &pV->D, &pV->M, &pV->Y, &ret_flags);
@@ -401,7 +401,7 @@ static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 	}
 	else if(**b == '\0')
 		result = TOK_EOL;
-	else if(**b == '/' || **b == '-') {
+	else if(oneof2(**b, '/', '-')) {
 		(*b)++;
 		result = TOK_DELIM;
 	}

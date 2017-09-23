@@ -1895,6 +1895,14 @@ PPERR_DS_SYNTAX                  "Синтаксическая ошибка"
 PPERR_TOOLARGERANGE              "Слишком большой диапазон [%s]"
 PPERR_INVPOSNUMBERITEM           "Недопустимый элемент списка номеров касс '%s'"
 PPERR_LOTTAGNEEDED_DIFFPARAM     "При заданном значении дифференциации отчета необходимо выбрать тег лота"
+PPERR_PPPP_CORRPOSLISTNEEDED     "%s: не определены ни список корреспондирующих кассовых узлов, ни список логических номеров касс"
+PPERR_PPPP_MISPL_RETURN          "Ошибка разбора PPPP-файла '%s': <return> может быть только в <cc>"
+PPERR_PPPP_GOODSCODELENEXC       "Ошибка разбора PPPP-файла: превышение максимальной длины кода товара '%s'"
+PPERR_PPPP_INNERREFNF_GG         "Внутренняя ошибка разбора PPPP-файла: не найдена ссылка на объект obGoodsGroup"
+PPERR_PPPP_INNERREFNF_G          "Внутренняя ошибка разбора PPPP-файла: не найдена ссылка на объект obGoods"
+PPERR_PPPP_INNERREFNF_SC         "Внутренняя ошибка разбора PPPP-файла: не найдена ссылка на объект obSCard"
+PPERR_PPPP_INNERREFNF_CSESS      "Внутренняя ошибка разбора PPPP-файла: не найдена ссылка на объект obCSession"
+PPERR_PPPP_INNERREFNF_CC         "Внутренняя ошибка разбора PPPP-файла: не найдена ссылка на объект obCCheck"
 #!{
 PPERR_ESME_RINVMSGLEN            "Message Length is invalid"
 PPERR_ESME_RINVCMDLEN            "Command Length is invalid"
@@ -2795,6 +2803,7 @@ PPINIPARAM_WORKBOOKINTERCHANGEUHTT     "workbookinterchangeuhtt"
 PPINIPARAM_SARTREDB                    "sartredb" // [path]
 PPINIPARAM_ALTERNATEREGPASS            "alternateregpass" // [config]
 PPINIPARAM_NGINX                       "nginx" // [server]
+PPINIPARAM_WORKSPACE                   "workspace" // [path]
 
 PPTXT_NEEDEDFILES "Reference2;\
 Property;\
@@ -11445,6 +11454,8 @@ PPHSC_RU_LINENUMBER            "НомСтр"
 PPHSC_RU_WAREQTTY              "КолТов"
 PPHSC_RU_WARENAME              "НаимТов"
 PPHSC_RU_WAREOKEI              "ОКЕИ_Тов"
+PPHSC_RU_OKEI                  "ОКЕИ"
+PPHSC_RU_UNITNAME              "НаимЕдИзм"
 PPHSC_RU_TAXRATE               "НалСт"
 PPHSC_RU_PRICE                 "Цена"
 PPHSC_RU_WAREPRICE             "ЦенаТов"
@@ -11452,6 +11463,7 @@ PPHSC_RU_QUANTITY              "Количество"
 PPHSC_RU_WAREAMTWOVAT          "СтТовБезНДС"
 PPHSC_RU_WAREAMT               "СтТовУчНал"
 PPHSC_RU_EXCISE                "Акциз"
+PPHSC_RU_AMTVAT                "СумНДС"
 PPHSC_RU_AMTEXCISE             "СумАкциз"
 PPHSC_RU_NOEXCISE_TAG          "БезАкциз"
 PPHSC_RU_NOEXCISE_VAL          "без акциза"

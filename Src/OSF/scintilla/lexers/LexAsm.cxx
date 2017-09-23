@@ -12,16 +12,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <string>
-//#include <map>
-//#include <set>
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE

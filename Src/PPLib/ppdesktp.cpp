@@ -1754,8 +1754,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_SIZE:
 			if(lParam && p_desk) {
 				PPBizScoreWindow * p_bizscore_wnd = p_desk->GetBizScoreWnd();
-				if(p_bizscore_wnd)
-					p_bizscore_wnd->Move();
+				CALLPTRMEMB(p_bizscore_wnd, Move());
 				p_desk->ArrangeIcons();
 			}
 			break;
@@ -1834,7 +1833,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 				APPL->NotifyFrame(0);
 				if(p_desk) {
 					APPL->SelectTabItem(p_desk);
-					e.what = evBroadcast;
+					e.what = TEvent::evBroadcast;
 					e.message.command = cmReceivedFocus;
 					e.message.infoView = 0;
 					p_desk->handleEvent(e);
@@ -1845,7 +1844,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_KILLFOCUS:
 			APPL->NotifyFrame(0);
 			if(p_desk) {
-				e.what = evBroadcast;
+				e.what = TEvent::evBroadcast;
 				e.message.command = cmReleasedFocus;
 				e.message.infoView = 0;
 				p_desk->handleEvent(e);
@@ -1864,7 +1863,7 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 		case WM_CHAR:
 			if(wParam != VK_RETURN || LOBYTE(HIWORD(lParam)) != 0x1c) {
 				TEvent event;
-				event.what = evKeyDown;
+				event.what = TEvent::evKeyDown;
 				event.keyDown.keyCode = wParam;
 				p_desk->handleEvent(event);
 			}

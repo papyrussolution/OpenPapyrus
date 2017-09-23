@@ -3,9 +3,9 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <fcntl.h>
-#include <io.h>
-#include <sys\stat.h>
+//#include <fcntl.h>
+//#include <io.h>
+//#include <sys\stat.h>
 #include <scintilla.h>
 #include <scilexer.h>
 

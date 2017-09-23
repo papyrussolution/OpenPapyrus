@@ -1868,7 +1868,7 @@ struct __db {
 			pointer = NULL;                                 \
 		else {                                                  \
 			memcpy(__destk, (writekey), (writeklen));       \
-			if(__destd != NULL)                            \
+			if(__destd)                            \
 				memcpy(__destd, (writedata), (writedlen)); \
 		}                                                       \
 	} while(0)

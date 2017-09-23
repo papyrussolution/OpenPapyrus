@@ -421,8 +421,21 @@ uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
 			return (c == '\xD') ? 1 : 0;
 		else if(eolf == eolWindows)
 			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 0;
+		else if(eolf == eolUndef) 
+			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 1;
 	}
 	return 0;
+}
+
+int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
+{
+	uint n = IsEol(eolf);
+	if(n) {
+		Incr(n);
+		return 1;
+	}
+	else
+		return 0;
 }
 
 int FASTCALL SStrScan::GetHex(SString & rBuf)
@@ -597,15 +610,20 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 			buf[i++] = ' ';
 		if(ws & wsTab)
 			buf[i++] = '\t';
-		if(ws & wsNewLine)
-			buf[i++] = '\n';
+		if(ws & wsNewLine) {
+			buf[i++] = '\xD'; //'\n';
+			buf[i++] = '\xA';
+		}
 		if(ws & wsComma)
 			buf[i++] = ',';
 		if(ws & wsSemicol)
 			buf[i++] = ';';
 		const char * p = (P_Buf+Offs);
-		while(memchr(buf, *p, i))
+		while(memchr(buf, *p, i)) {
+			if(ws & wsNewLine && *p == '\xD' && p[1] == '\xA')
+				p++;
 			p++;
+		}
 		Offs += (p - (P_Buf + Offs));
 	}
 	return *this;
@@ -622,15 +640,21 @@ SStrScan & SLAPI SStrScan::Skip(int ws, uint * pLineCount)
 			buf[i++] = ' ';
 		if(ws & wsTab)
 			buf[i++] = '\t';
-		if(ws & wsNewLine)
-			buf[i++] = '\n';
+		if(ws & wsNewLine) {
+			buf[i++] = '\xD'; //'\n';
+			buf[i++] = '\xA';
+		}
 		if(ws & wsComma)
 			buf[i++] = ',';
 		if(ws & wsSemicol)
 			buf[i++] = ';';
 		const char * p = (P_Buf+Offs);
 		while(memchr(buf, *p, i)) {
-			if(*p == '\n')
+			if(*p == '\xD' && p[1] == '\xA') {
+				p++;
+				line_count++;
+			}
+			else if(oneof2(*p, '\xD', '\xA'))
 				line_count++;
 			p++;
 		}
@@ -4273,7 +4297,7 @@ long SLAPI SStringU::ToLong() const
 {
 	if(L) {
 		const wchar_t * p = P_Buf;
-		while(*p == L' ' || *p == L'\t')
+		while(oneof2(*p, L' ', L'\t'))
 			p++;
 		wchar_t * p_end = 0;
 		if(p[0] == '0' && oneof2(p[1], L'x', L'X'))
@@ -4289,7 +4313,7 @@ int64 SLAPI SStringU::ToInt64() const
 {
 	if(L) {
 		const wchar_t * p = P_Buf;
-		while(*p == L' ' || *p == L'\t')
+		while(oneof2(*p, L' ', L'\t'))
 			p++;
 		return _wtoi64(p);
 	}
@@ -4326,7 +4350,7 @@ int SLAPI SStringU::AnalyzeCase() const
 		int    all_alpha = 1;
 		int    capital = 0;
 		const wchar_t * p = P_Buf;
-		while(*p == L' ' || *p == L'\t')
+		while(oneof2(*p, L' ', L'\t'))
 			p++;
 		if(iswalpha(*p) && iswupper(*p)) {
 			capital = 1;

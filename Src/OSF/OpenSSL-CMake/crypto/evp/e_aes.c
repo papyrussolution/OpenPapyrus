@@ -14,7 +14,7 @@
 //#include <openssl/err.h>
 //#include <string.h>
 //#include <assert.h>
-#include <openssl/aes.h>
+//#include <openssl/aes.h>
 //#include <internal/evp_int.h>
 #include "modes_lcl.h"
 //#include <openssl/rand.h>
@@ -346,12 +346,8 @@ static int aesni_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uch
 			 */
 			aesni_set_encrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8, &octx->ksenc.ks);
 			aesni_set_decrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8, &octx->ksdec.ks);
-			if(!CRYPTO_ocb128_init(&octx->ocb,
-				    &octx->ksenc.ks, &octx->ksdec.ks,
-				    (block128_f)aesni_encrypt,
-				    (block128_f)aesni_decrypt,
-				    enc ? aesni_ocb_encrypt
-				    : aesni_ocb_decrypt))
+			if(!CRYPTO_ocb128_init(&octx->ocb, &octx->ksenc.ks, &octx->ksdec.ks, (block128_f)aesni_encrypt,
+				    (block128_f)aesni_decrypt, enc ? aesni_ocb_encrypt : aesni_ocb_decrypt))
 				return 0;
 		}
 		while(0);
@@ -1398,8 +1394,7 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 					bulk += res;
 				}
 #endif
-				if(CRYPTO_gcm128_decrypt(&gctx->gcm,
-					    in + bulk, out + bulk, len - bulk))
+				if(CRYPTO_gcm128_decrypt(&gctx->gcm, in + bulk, out + bulk, len - bulk))
 					return -1;
 			}
 		}
@@ -1409,9 +1404,7 @@ static int aes_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, s
 		if(!EVP_CIPHER_CTX_encrypting(ctx)) {
 			if(gctx->taglen < 0)
 				return -1;
-			if(CRYPTO_gcm128_finish(&gctx->gcm,
-				    EVP_CIPHER_CTX_buf_noconst(ctx),
-				    gctx->taglen) != 0)
+			if(CRYPTO_gcm128_finish(&gctx->gcm, EVP_CIPHER_CTX_buf_noconst(ctx), gctx->taglen) != 0)
 				return -1;
 			gctx->iv_set = 0;
 			return 0;

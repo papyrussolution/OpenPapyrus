@@ -16,7 +16,7 @@ NON_EMPTY_TRANSLATION_UNIT
 //#include <openssl/err.h>
 //#include <string.h>
 //#include <assert.h>
-#include <openssl/camellia.h>
+//#include <openssl/camellia.h>
 //#include <internal/evp_int.h>
 #include "modes_lcl.h"
 
@@ -248,8 +248,7 @@ static int camellia_cfb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * 
 {
 	EVP_CAMELLIA_KEY * dat = EVP_C_DATA(EVP_CAMELLIA_KEY, ctx);
 	int num = EVP_CIPHER_CTX_num(ctx);
-	CRYPTO_cfb128_encrypt(in, out, len, &dat->ks,
-	    EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
+	CRYPTO_cfb128_encrypt(in, out, len, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 	EVP_CIPHER_CTX_set_num(ctx, num);
 	return 1;
 }
@@ -258,36 +257,29 @@ static int camellia_cfb8_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar *
 {
 	EVP_CAMELLIA_KEY * dat = EVP_C_DATA(EVP_CAMELLIA_KEY, ctx);
 	int num = EVP_CIPHER_CTX_num(ctx);
-	CRYPTO_cfb128_8_encrypt(in, out, len, &dat->ks,
-	    EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
+	CRYPTO_cfb128_8_encrypt(in, out, len, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 	EVP_CIPHER_CTX_set_num(ctx, num);
 	return 1;
 }
 
-static int camellia_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len)
+static int camellia_cfb1_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len)
 {
 	EVP_CAMELLIA_KEY * dat = EVP_C_DATA(EVP_CAMELLIA_KEY, ctx);
-
 	if(EVP_CIPHER_CTX_test_flags(ctx, EVP_CIPH_FLAG_LENGTH_BITS)) {
 		int num = EVP_CIPHER_CTX_num(ctx);
-		CRYPTO_cfb128_1_encrypt(in, out, len, &dat->ks,
-		    EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
+		CRYPTO_cfb128_1_encrypt(in, out, len, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 		EVP_CIPHER_CTX_set_num(ctx, num);
 		return 1;
 	}
-
 	while(len >= MAXBITCHUNK) {
 		int num = EVP_CIPHER_CTX_num(ctx);
-		CRYPTO_cfb128_1_encrypt(in, out, MAXBITCHUNK * 8, &dat->ks,
-		    EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
+		CRYPTO_cfb128_1_encrypt(in, out, MAXBITCHUNK * 8, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 		len -= MAXBITCHUNK;
 		EVP_CIPHER_CTX_set_num(ctx, num);
 	}
 	if(len) {
 		int num = EVP_CIPHER_CTX_num(ctx);
-		CRYPTO_cfb128_1_encrypt(in, out, len * 8, &dat->ks,
-		    EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
+		CRYPTO_cfb128_1_encrypt(in, out, len * 8, &dat->ks, EVP_CIPHER_CTX_iv_noconst(ctx), &num, EVP_CIPHER_CTX_encrypting(ctx), dat->block);
 		EVP_CIPHER_CTX_set_num(ctx, num);
 	}
 

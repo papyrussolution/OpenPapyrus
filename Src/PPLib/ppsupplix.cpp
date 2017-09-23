@@ -5487,7 +5487,7 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::Debug_TestUtfText(const SString 
         PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		ok = 0;
 	}
-	else if(rText.StrChr('?', 0)) {
+	else if(rText.HasChr('?')) {
 		PPLoadText(PPTXT_TXTHASSUSPCHR, fmt_buf);
 		msg_buf.Printf(fmt_buf, rText.cptr());
 		if(pAddendum)

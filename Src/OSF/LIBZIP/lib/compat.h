@@ -41,8 +41,8 @@
 #ifdef _WIN32
 	//#define ZIP_EXTERN __declspec(dllexport)
 	// for dup(), close(), etc. 
-	#include <io.h>
-	#include <fcntl.h>
+	//#include <io.h>
+	//#include <fcntl.h>
 #endif
 #define ZIP_EXTERN // @sobolev
 /*

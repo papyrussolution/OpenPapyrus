@@ -8,8 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/camellia.h>
-#include <openssl/modes.h>
+//#include <openssl/camellia.h>
+//#include <openssl/modes.h>
 
 void Camellia_ctr128_encrypt(const uchar * in, uchar * out, size_t length, const CAMELLIA_KEY * key,
     uchar ivec[CAMELLIA_BLOCK_SIZE], uchar ecount_buf[CAMELLIA_BLOCK_SIZE], uint * num)

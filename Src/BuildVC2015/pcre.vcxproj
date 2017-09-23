@@ -69,6 +69,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -113,6 +116,9 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Lib>
       <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
@@ -136,6 +142,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\pcre-8.41\pcre-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Osf\pcre-8.41\pcre_byte_order.c" />
     <ClCompile Include="..\Osf\pcre-8.41\pcre_chartables.c" />
     <ClCompile Include="..\osf\pcre-8.41\pcre_compile.c" />
@@ -159,8 +169,6 @@
     <ClCompile Include="..\osf\pcre-8.41\pcre_xclass.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\osf\pcre-8.41\build\config.h" />
-    <ClInclude Include="..\osf\pcre-8.41\build\pcre.h" />
     <ClInclude Include="..\OSF\pcre-8.41\config.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcre.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcrecpp.h" />
@@ -168,6 +176,7 @@
     <ClInclude Include="..\OSF\pcre-8.41\pcrecpp_internal.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcreposix.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcre_internal.h" />
+    <ClInclude Include="..\OSF\pcre-8.41\pcre_isnewline.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcre_scanner.h" />
     <ClInclude Include="..\OSF\pcre-8.41\pcre_stringpiece.h" />
     <ClInclude Include="..\OSF\pcre-8.41\ucp.h" />

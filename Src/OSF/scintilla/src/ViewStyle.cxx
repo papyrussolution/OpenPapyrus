@@ -8,17 +8,12 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <stdexcept>
-//#include <vector>
-//#include <map>
-//#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
-#include "Indicator.h"
+//#include "Indicator.h"
 #include "XPM.h"
-#include "LineMarker.h"
-//#include "Style.h"
+//#include "LineMarker.h"
 #include "ViewStyle.h"
 
 #ifdef SCI_NAMESPACE

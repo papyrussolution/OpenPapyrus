@@ -631,6 +631,7 @@ public:
 	int    SLAPI Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID);
 	int    SLAPI GetWayNodes(const PPOsm::Way & rWay, TSArray <PPOsm::Node> & rNodeList);
 private:
+	virtual uint FASTCALL Implement_PartitionFunc(DBT * pKey);
 	int    SLAPI Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
 	int    SLAPI Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
 	//

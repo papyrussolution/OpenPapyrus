@@ -1132,7 +1132,7 @@ static size_t strlen_url(const char * url)
 		switch(*ptr) {
 			case '?':
 			    left = FALSE;
-			/* fall through */
+			// @fallthrough
 			default:
 			    if(*ptr >= 0x80)
 				    newlen += 2;
@@ -1164,7 +1164,7 @@ static void strcpy_url(char * output, const char * url)
 		switch(*iptr) {
 			case '?':
 			    left = FALSE;
-			/* fall through */
+			// @fallthrough
 			default:
 			    if(*iptr >= 0x80) {
 				    snprintf(optr, 4, "%%%02x", *iptr);

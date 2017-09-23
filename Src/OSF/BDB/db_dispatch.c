@@ -258,9 +258,8 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 			 */
 			if(redo == DB_TXN_LOG_VERIFY)
 				lvh->external_logrec_cnt++;
-			if(dbenv->app_dispatch != NULL)
-				return dbenv->app_dispatch(dbenv,
-					db, lsnp, redo);
+			if(dbenv->app_dispatch)
+				return dbenv->app_dispatch(dbenv, db, lsnp, redo);
 			/* No application-specific dispatch */
 			urectype = rectype-DB_user_BEGIN;
 			if(urectype > dtab->ext_size ||
@@ -399,7 +398,7 @@ int __db_txnlist_init(ENV * env, DB_THREAD_INFO * ip, uint32 low_txn, uint32 hi_
 	headp->gen_array[0].generation = 0;
 	headp->gen_array[0].txn_min = TXN_MINIMUM;
 	headp->gen_array[0].txn_max = TXN_MAXIMUM;
-	if(trunc_lsn != NULL) {
+	if(trunc_lsn) {
 		headp->trunc_lsn = *trunc_lsn;
 		headp->maxlsn = *trunc_lsn;
 	}
@@ -450,7 +449,7 @@ int __db_txnlist_add(ENV * env, DB_TXNHEAD * hp, uint32 txnid, uint32 status, DB
 	elp->u.t.status = status;
 	if(txnid > hp->maxid)
 		hp->maxid = txnid;
-	if(lsn != NULL && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
+	if(lsn && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
 		hp->maxlsn = *lsn;
 	DB_ASSERT(env, lsn == NULL || status != TXN_COMMIT || LOG_COMPARE(&hp->maxlsn, lsn) >= 0);
 	return 0;
@@ -495,7 +494,7 @@ void __db_txnlist_end(ENV * env, DB_TXNHEAD * hp)
 	DB_TXNLIST * p;
 	if(hp) {
 		for(uint32 i = 0; i < hp->nslots; i++) {
-			while(hp != NULL && (p = LIST_FIRST(&hp->head[i])) != NULL) {
+			while(hp && (p = LIST_FIRST(&hp->head[i])) != NULL) {
 				switch(p->type) {
 					case TXNLIST_LSN:
 					__os_free(env, p->u.l.lsn_stack);
@@ -559,7 +558,7 @@ int __db_txnlist_update(ENV * env, DB_TXNHEAD * hp, uint32 txnid, uint32 status,
 	if(*ret_status == TXN_IGNORE)
 		return 0;
 	elp->u.t.status = status;
-	if(lsn != NULL && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
+	if(lsn && IS_ZERO_LSN(hp->maxlsn) && status == TXN_COMMIT)
 		hp->maxlsn = *lsn;
 	return ret;
 }

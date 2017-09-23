@@ -40,7 +40,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/camellia.h>
+//#include <openssl/camellia.h>
 #include "cmll_locl.h"
 
 /* 32-bit rotations */

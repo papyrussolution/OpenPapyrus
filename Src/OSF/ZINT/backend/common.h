@@ -50,7 +50,7 @@
 #include <locale.h>
 #ifdef _MSC_VER
 	#include <malloc.h>
-	#include <fcntl.h>
+	//#include <fcntl.h>
 	#define inline _inline
 #endif
 

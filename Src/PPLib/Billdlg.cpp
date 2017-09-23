@@ -2536,19 +2536,20 @@ int PPObjBill::CalcReturnPart(PPID arID, const DateRange & rPeriod, double * pSh
 		if(shpm_op_list.getCount() || ret_op_list.getCount()) {
 			shpm_op_list.sort();
 			ret_op_list.sort();
+			BillTbl * p_tbl = P_Tbl;
 			BillTbl::Key3 k3;
-			BExtQuery q(P_Tbl, 3, 128);
-			q.select(P_Tbl->ID, P_Tbl->OpID, P_Tbl->Object, P_Tbl->LinkBillID, P_Tbl->Amount, 0L).
-				where(P_Tbl->Object == arID && daterange(P_Tbl->Dt, &rPeriod));
+			BExtQuery q(p_tbl, 3, 128);
+			q.select(p_tbl->ID, p_tbl->OpID, p_tbl->Object, p_tbl->LinkBillID, p_tbl->Amount, 0L).
+				where(p_tbl->Object == arID && daterange(p_tbl->Dt, &rPeriod));
 			k3.Object = arID;
 			k3.Dt   = rPeriod.low;
 			k3.BillNo = 0;
 			for(q.initIteration(0, &k3, spGt); q.nextIteration() > 0;) {
-				if(shpm_op_list.bsearch(P_Tbl->data.OpID)) {
-					shipment += P_Tbl->data.Amount;
+				if(shpm_op_list.bsearch(p_tbl->data.OpID)) {
+					shipment += p_tbl->data.Amount;
 				}
-				else if(ret_op_list.bsearch(P_Tbl->data.OpID)) {
-					ret += P_Tbl->data.Amount;
+				else if(ret_op_list.bsearch(p_tbl->data.OpID)) {
+					ret += p_tbl->data.Amount;
 				}
 			}
 		}

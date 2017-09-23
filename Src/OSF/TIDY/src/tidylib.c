@@ -996,8 +996,8 @@ int tidyDocSaveFile(TidyDocImpl* doc, ctmbstr filnam)
 #if !defined(NO_SETMODE_SUPPORT)
 
 #if defined(_WIN32) || defined(OS2_OS)
-#include <fcntl.h>
-#include <io.h>
+	//#include <fcntl.h>
+	//#include <io.h>
 #endif
 
 #endif

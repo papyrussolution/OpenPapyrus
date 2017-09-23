@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
+//#include <ngx_mail.h>
 
 static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_mail_add_ports(ngx_conf_t * cf, ngx_array_t * ports, ngx_mail_listen_t * listen);

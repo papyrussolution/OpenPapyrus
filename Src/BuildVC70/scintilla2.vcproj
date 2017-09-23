@@ -889,9 +889,6 @@
 				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\CharClassify.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\ContractionState.h">
 			</File>
 			<File

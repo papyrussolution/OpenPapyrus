@@ -22,7 +22,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\osf\pcre-8.41"
+				AdditionalIncludeDirectories="..\include;..\osf\pcre-8.41"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -31,6 +31,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation="Debug/"
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
@@ -86,7 +89,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\osf\pcre-8.41"
+				AdditionalIncludeDirectories="..\include;..\osf\pcre-8.41"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -95,6 +98,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile="$(IntDir)/"
 				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
@@ -144,6 +150,23 @@
 		<Filter
 			Name="Source Files"
 			Filter="">
+			<File
+				RelativePath="..\Osf\pcre-8.41\pcre-pch.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough=""/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="..\Osf\pcre-8.41\pcre_byte_order.c">
 			</File>
@@ -216,6 +239,12 @@
 			</File>
 			<File
 				RelativePath="..\osf\pcre-8.41\build\pcre.h">
+			</File>
+			<File
+				RelativePath="..\Osf\pcre-8.41\pcre_isnewline.h">
+			</File>
+			<File
+				RelativePath="..\Osf\pcre-8.41\pcrecpp_internal.h">
 			</File>
 		</Filter>
 	</Files>

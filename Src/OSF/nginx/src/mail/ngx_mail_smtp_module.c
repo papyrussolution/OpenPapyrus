@@ -6,12 +6,11 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
-#include <ngx_mail_smtp_module.h>
+//#include <ngx_mail.h>
+//#include <ngx_mail_smtp_module.h>
 
 static void * ngx_mail_smtp_create_srv_conf(ngx_conf_t * cf);
-static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_conf_bitmask_t ngx_mail_smtp_auth_methods[] = {
 	{ ngx_string("plain"), NGX_MAIL_AUTH_PLAIN_ENABLED },

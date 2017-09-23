@@ -36,20 +36,22 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------------
 */
-
-#ifndef PCRE_INCLUDED
-
-/* This module contains some fixed tables that are used by more than one of the
-PCRE code modules. The tables are also #included by the pcretest program, which
-uses macros to change their names from _pcre_xxx to xxxx, thereby avoiding name
-clashes with the library. */
-
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #include "pcre_internal.h"
-
-#endif /* PCRE_INCLUDED */
+#pragma hdrstop
+/* @sobolev
+#ifndef PCRE_INCLUDED
+	// This module contains some fixed tables that are used by more than one of the
+	// PCRE code modules. The tables are also #included by the pcretest program, which
+	// uses macros to change their names from _pcre_xxx to xxxx, thereby avoiding name clashes with the library. 
+	#ifdef HAVE_CONFIG_H
+		#include "config.h"
+	#endif
+	#include "pcre_internal.h"
+#endif 
+*/
 
 /* Table of sizes for the fixed-length opcodes. It's defined in a macro so that
 the definition is next to the definition of the opcodes in pcre_internal.h. */
@@ -59,8 +61,8 @@ const pcre_uint8 PRIV(OP_lengths)[] = { OP_LENGTHS };
 /* Tables of horizontal and vertical whitespace characters, suitable for
 adding to classes. */
 
-const pcre_uint32 PRIV(hspace_list)[] = { HSPACE_LIST };
-const pcre_uint32 PRIV(vspace_list)[] = { VSPACE_LIST };
+const uint32 PRIV(hspace_list)[] = { HSPACE_LIST };
+const uint32 PRIV(vspace_list)[] = { VSPACE_LIST };
 
 /*************************************************
 *           Tables for UTF-8 support             *
@@ -99,7 +101,7 @@ const pcre_uint8 PRIV(utf8_table4)[] = {
 
 /* Table to translate from particular type value to the general value. */
 
-const pcre_uint32 PRIV(ucp_gentype)[] = {
+const uint32 PRIV(ucp_gentype)[] = {
   ucp_C, ucp_C, ucp_C, ucp_C, ucp_C,  /* Cc, Cf, Cn, Co, Cs */
   ucp_L, ucp_L, ucp_L, ucp_L, ucp_L,  /* Ll, Lu, Lm, Lo, Lt */
   ucp_M, ucp_M, ucp_M,                /* Mc, Me, Mn */
@@ -144,7 +146,7 @@ are implementing).
 7. Otherwise, break everywhere.
 */
 
-const pcre_uint32 PRIV(ucp_gbtable[]) = {
+const uint32 PRIV(ucp_gbtable[]) = {
    (1<<ucp_gbLF),                                           /*  0 CR */
    0,                                                       /*  1 LF */
    0,                                                       /*  2 Control */

@@ -11,14 +11,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <cstring>
-//#include <stdexcept>
-//#include <string>
-//#include <vector>
-//#include <algorithm>
-//#include "StringCopy.h"
 #include "CaseConvert.h"
-//#include "UniConversion.h"
 #include "UnicodeFromUTF8.h"
 
 #ifdef SCI_NAMESPACE

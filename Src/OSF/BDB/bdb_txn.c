@@ -51,7 +51,7 @@ static void __clear_fe_watermark(DB_TXN *, DB *);
  * __txn_begin_pp --
  *	ENV->txn_begin pre/post processing.
  */
-int __txn_begin_pp(DB_ENV*dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags)
+int __txn_begin_pp(DB_ENV * dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	int rep_check, ret;
@@ -1604,7 +1604,7 @@ static int __txn_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * commit
  * __txn_checkpoint_pp --
  *	ENV->txn_checkpoint pre/post processing.
  */
-int __txn_checkpoint_pp(DB_ENV*dbenv, uint32 kbytes, uint32 minutes, uint32 flags)
+int __txn_checkpoint_pp(DB_ENV * dbenv, uint32 kbytes, uint32 minutes, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	int ret;
@@ -2000,7 +2000,6 @@ err:
 		ret = EINVAL;
 	}
 	__os_free(env, argp);
-
 	return ret;
 }
 /*
@@ -2370,7 +2369,7 @@ int __txn_ckp_42_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
  * __txn_recover_pp --
  *	ENV->txn_recover pre/post processing.
  */
-int __txn_recover_pp(DB_ENV*dbenv, DB_PREPLIST * preplist, long count, long * retp, uint32 flags)
+int __txn_recover_pp(DB_ENV * dbenv, DB_PREPLIST * preplist, long count, long * retp, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	int ret;
@@ -3214,7 +3213,7 @@ static int __txn_compare(const void * a1, const void * b1)
 
 #else /* !HAVE_STATISTICS */
 
-int __txn_stat_pp(DB_ENV*dbenv, DB_TXN_STAT ** statp, uint32 flags)
+int __txn_stat_pp(DB_ENV * dbenv, DB_TXN_STAT ** statp, uint32 flags)
 {
 	COMPQUIET(statp, 0);
 	COMPQUIET(flags, 0);
@@ -3222,7 +3221,7 @@ int __txn_stat_pp(DB_ENV*dbenv, DB_TXN_STAT ** statp, uint32 flags)
 	return __db_stat_not_built(dbenv->env);
 }
 
-int __txn_stat_print_pp(DB_ENV*dbenv, uint32 flags)
+int __txn_stat_print_pp(DB_ENV * dbenv, uint32 flags)
 {
 	COMPQUIET(flags, 0);
 	return __db_stat_not_built(dbenv->env);
@@ -3308,12 +3307,12 @@ void __txn_remrem(ENV*env, DB_TXN * txn, const char * name)
 	TXN_EVENT * next_e;
 	for(TXN_EVENT * e = TAILQ_FIRST(&txn->events); e; e = next_e) {
 		next_e = TAILQ_NEXT(e, links);
-		if(e->op != TXN_REMOVE || strcmp(name, e->u.r.name) != 0)
-			continue;
-		TAILQ_REMOVE(&txn->events, e, links);
-		__os_free(env, e->u.r.name);
-		__os_free(env, e->u.r.fileid);
-		__os_free(env, e);
+		if(e->op == TXN_REMOVE && strcmp(name, e->u.r.name) == 0) {
+			TAILQ_REMOVE(&txn->events, e, links);
+			__os_free(env, e->u.r.name);
+			__os_free(env, e->u.r.fileid);
+			__os_free(env, e);
+		}
 	}
 }
 /*
@@ -3681,7 +3680,7 @@ int __txn_pg_above_fe_watermark(DB_TXN*txn, MPOOLFILE * mpf, db_pgno_t pgno)
  * __txn_env_create --
  *	Transaction specific initialization of the DB_ENV structure.
  */
-int __txn_env_create(DB_ENV*dbenv)
+int __txn_env_create(DB_ENV * dbenv)
 {
 	/*
 	 * !!!
@@ -3696,12 +3695,12 @@ int __txn_env_create(DB_ENV*dbenv)
  * __txn_env_destroy --
  *	Transaction specific destruction of the DB_ENV structure.
  */
-void __txn_env_destroy(DB_ENV*dbenv)
+void __txn_env_destroy(DB_ENV * dbenv)
 {
 	COMPQUIET(dbenv, 0);
 }
 
-int __txn_get_tx_max(DB_ENV*dbenv, uint32 * tx_maxp)
+int __txn_get_tx_max(DB_ENV * dbenv, uint32 * tx_maxp)
 {
 	ENV * env = dbenv->env;
 	ENV_NOT_CONFIGURED(env, env->tx_handle, "DB_ENV->get_tx_max", DB_INIT_TXN);
@@ -3714,7 +3713,7 @@ int __txn_get_tx_max(DB_ENV*dbenv, uint32 * tx_maxp)
 	return 0;
 }
 
-int __txn_set_tx_max(DB_ENV*dbenv, uint32 tx_max)
+int __txn_set_tx_max(DB_ENV * dbenv, uint32 tx_max)
 {
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_tx_max");
@@ -3722,7 +3721,7 @@ int __txn_set_tx_max(DB_ENV*dbenv, uint32 tx_max)
 	return 0;
 }
 
-int __txn_get_tx_timestamp(DB_ENV*dbenv, __time64_t * timestamp)
+int __txn_get_tx_timestamp(DB_ENV * dbenv, __time64_t * timestamp)
 {
 	*timestamp = dbenv->tx_timestamp;
 	return 0;
@@ -3730,7 +3729,7 @@ int __txn_get_tx_timestamp(DB_ENV*dbenv, __time64_t * timestamp)
 //
 // Set the transaction recovery timestamp.
 //
-int __txn_set_tx_timestamp(DB_ENV*dbenv, __time64_t * timestamp)
+int __txn_set_tx_timestamp(DB_ENV * dbenv, __time64_t * timestamp)
 {
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_tx_timestamp");

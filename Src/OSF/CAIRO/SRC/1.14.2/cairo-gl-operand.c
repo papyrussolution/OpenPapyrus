@@ -608,7 +608,7 @@ void _cairo_gl_operand_bind_to_shader(cairo_gl_context_t * ctx,
 		    _cairo_gl_shader_bind_float(ctx,
 		    ctx->current_shader->a_location[tex_unit],
 		    operand->gradient.a);
-		/* fall through */
+		// @fallthrough
 		case CAIRO_GL_OPERAND_RADIAL_GRADIENT_A0:
 		    _cairo_gl_shader_bind_vec3(ctx,
 		    ctx->current_shader->circle_d_location[tex_unit],
@@ -618,7 +618,7 @@ void _cairo_gl_operand_bind_to_shader(cairo_gl_context_t * ctx,
 		    _cairo_gl_shader_bind_float(ctx,
 		    ctx->current_shader->radius_0_location[tex_unit],
 		    operand->gradient.radius_0);
-		/* fall through */
+		// @fallthrough
 		case CAIRO_GL_OPERAND_LINEAR_GRADIENT:
 		case CAIRO_GL_OPERAND_TEXTURE:
 		    /*

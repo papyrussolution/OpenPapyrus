@@ -1,5 +1,5 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -42,7 +42,7 @@ IMPL_HANDLE_EVENT(TCalcInputLine)
 {
 	TInputLine::handleEvent(event);
 	if(TVBROADCAST && TVCMD == cmSearchVirtButton && TVINFOVIEW == this) {
-		event.what = evNothing;
+		event.what = TEvent::evNothing;
 		event.message.infoPtr = (void *)Vbwe.ButtonCtrlId;
 	}
 }
@@ -51,10 +51,10 @@ LRESULT CALLBACK InLnCalcWindProc(HWND, UINT, WPARAM, LPARAM);
 
 int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	int    ok = 0;
-	LRESULT (CALLBACK *virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = {0, InLnCalcWindProc, InLnCalcWindProc};
-	int    virtButtonBitmapId[] = {0, IDB_INLNCALC, IDB_INLNCALCL};
-	if((ok = TInputLine::handleWindowsMessage(uMsg, wParam, lParam)) > 0) {
+	LRESULT (CALLBACK *virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = { 0, InLnCalcWindProc, InLnCalcWindProc };
+	const int virtButtonBitmapId[] = { 0, IDB_INLNCALC, IDB_INLNCALCL };
+	int    ok = TInputLine::handleWindowsMessage(uMsg, wParam, lParam);
+	if(ok > 0) {
 		if(uMsg == WM_INITDIALOG) {
 			Vbwe.P_Dlg = (TDialog *)owner;
 			Vbwe.FieldCtrlId = Id;
@@ -67,9 +67,8 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 			SendDlgItemMessage(Parent, Vbwe.ButtonCtrlId, BM_SETIMAGE, IMAGE_BITMAP, (long)Vbwe.HBmp);
 			{
 				TButton * p_button = (TButton *)Vbwe.P_Dlg->getCtrlView(Vbwe.ButtonCtrlId);
-				if(p_button && p_button->IsSubSign(TV_SUBSIGN_BUTTON)) {
+				if(p_button && p_button->IsSubSign(TV_SUBSIGN_BUTTON))
 					p_button->SetBitmap(bmp_id);
-				}
 			}
 		}
 	}
@@ -251,25 +250,26 @@ uint InputLineCalc::TranslateCharToCmd(int chr)
 {
 	if(isdigit(chr))
 		return (CTL_INLNCALC_0 + chr - '0');
-	if(chr == '.')
+	else if(chr == '.')
 		return CTL_INLNCALC_DOT;
-	if(chr == 'C' || chr == 'c' || chr == 'Ñ' || chr == 'ñ')
+	else if(oneof4(chr, 'C', 'c', 'Ñ', 'ñ'))
 		return CTL_INLNCALC_CLEAR;
-	if(chr == 'E' || chr == 'e' || chr == 'Å' || chr == 'å')
+	else if(oneof4(chr, 'E', 'e', 'Å', 'å'))
 		return CTL_INLNCALC_CLEAR_ENTER;
-	if(chr == 'I' || chr == 'i' || chr == 'È' || chr == 'è')
+	else if(oneof4(chr, 'I', 'i', 'È', 'è'))
 		return CTL_INLNCALC_INVERSE;
-	if(chr == '+')
+	else if(chr == '+')
 		return CTL_INLNCALC_PLUS;
-	if(chr == '-')
+	else if(chr == '-')
 		return CTL_INLNCALC_MINUS;
-	if(chr == '*')
+	else if(chr == '*')
 		return CTL_INLNCALC_MULT;
-	if(chr == '/')
+	else if(chr == '/')
 		return CTL_INLNCALC_DIVD;
-	if(chr == '=')
+	else if(chr == '=')
 		return CTL_INLNCALC_EQV;
-	return 0;
+	else 
+		return 0;
 }
 
 void InputLineCalc::ProcessCommand(uint cmd)
@@ -350,7 +350,7 @@ IMPL_HANDLE_EVENT(InputLineCalc)
 {
 	TDialog::handleEvent(event);
 	switch(event.what) {
-		case evCommand:
+		case TEvent::evCommand:
 			if(TVCMD == cmValid) {
 				InLnCalcCapture();
 				ProcessCommand(TVINFOVIEW->GetId());
@@ -358,10 +358,10 @@ IMPL_HANDLE_EVENT(InputLineCalc)
 			else
 				return;
 			break;
-		case evKeyDown:
+		case TEvent::evKeyDown:
 			ProcessCommand(TranslateCharToCmd(TVCHR));
 			break;
-		case evMouseDown:
+		case TEvent::evMouseDown:
 			if(event.mouse.buttons == MK_LBUTTON) {
 				int    x = event.mouse.WhereX + DlgRect.left + 3;
 				int    y = event.mouse.WhereY + DlgRect.top + 3;

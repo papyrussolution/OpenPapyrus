@@ -6,7 +6,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 //#include <ngx_event.h>
-#include <ngx_mail.h>
+//#include <ngx_mail.h>
 
 static void * ngx_mail_core_create_main_conf(ngx_conf_t * cf);
 static void * ngx_mail_core_create_srv_conf(ngx_conf_t * cf);

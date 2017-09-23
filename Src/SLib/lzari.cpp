@@ -11,8 +11,8 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <fcntl.h>
-#include <sys\stat.h>
+//#include <fcntl.h>
+//#include <sys\stat.h>
 //
 // Defines
 //

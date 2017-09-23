@@ -512,15 +512,12 @@ static cairo_status_t _cairo_stroker_join(cairo_stroker_t * stroker, const cairo
 					    points[2].x = _cairo_fixed_from_double(mx);
 					    points[2].y = _cairo_fixed_from_double(my);
 					    points[3] = *outpt;
-
 					    return stroker->add_convex_quad(stroker->closure, points);
 				    }
 			    }
 		    }
 	    }
-
-		/* fall through ... */
-
+		// @fallthrough
 		case CAIRO_LINE_JOIN_BEVEL:
 		    if(stroker->add_external_edge != NULL) {
 			    if(clockwise) {
@@ -536,7 +533,6 @@ static cairo_status_t _cairo_stroker_join(cairo_stroker_t * stroker, const cairo
 			    points[0] = in->point;
 			    points[1] = *inpt;
 			    points[2] = *outpt;
-
 			    return stroker->add_triangle(stroker->closure, points);
 		    }
 	}
@@ -547,22 +543,14 @@ static cairo_status_t _cairo_stroker_add_cap(cairo_stroker_t * stroker, const ca
 	switch(stroker->style.line_cap) {
 		case CAIRO_LINE_CAP_ROUND: {
 		    cairo_slope_t slope;
-
 		    slope.dx = -f->dev_vector.dx;
 		    slope.dy = -f->dev_vector.dy;
-
-		    return _tessellate_fan(stroker,
-			    &f->dev_vector,
-			    &slope,
-			    &f->point, &f->cw, &f->ccw,
-			    FALSE);
+		    return _tessellate_fan(stroker, &f->dev_vector, &slope, &f->point, &f->cw, &f->ccw, FALSE);
 	    }
-
 		case CAIRO_LINE_CAP_SQUARE: {
 		    double dx, dy;
 		    cairo_slope_t fvector;
 		    cairo_point_t quad[4];
-
 		    dx = f->usr_vector.x;
 		    dy = f->usr_vector.y;
 		    dx *= stroker->half_line_width;

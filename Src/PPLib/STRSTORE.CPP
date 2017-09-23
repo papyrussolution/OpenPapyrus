@@ -355,7 +355,7 @@ int SLAPI StringStore2::GetDescription(const char * pSignature, SString & rBuf) 
 int SLAPI StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) const
 {
 	int    ok = -1;
-	if(rBuf.Len() > 3 && rBuf.StrChr('@')) {
+	if(rBuf.Len() > 3 && rBuf.HasChr('@')) {
 		size_t ips = 0, ipe = 0;
 		SString temp_buf, inner_signature;
 		while(rBuf.Search("@{", ips, 0, &ips) && rBuf.Search("}", ips+2, 0, &ipe)) {

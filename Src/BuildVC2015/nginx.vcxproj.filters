@@ -575,21 +575,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2_module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_imap_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_pop3_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_smtp_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_mail_ssl_module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\nginx\src\include\ngx_md5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
