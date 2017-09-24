@@ -62,18 +62,19 @@ int SLAPI __ReplacePersonNames()
 
 #endif // } 0
 
-SString & SLAPI GetMainOrgName(SString & rBuf)
+SString & FASTCALL GetMainOrgName(SString & rBuf)
 {
 	return (rBuf = DS.GetConstTLA().MainOrgName);
 }
 
-int SLAPI GetMainOrgID(PPID * pID)
+int FASTCALL GetMainOrgID(PPID * pID)
 {
-	ASSIGN_PTR(pID, CConfig.MainOrgID);
-	return CConfig.MainOrgID ? 1 : PPSetError(PPERR_UNDEFMAINORG);
+	const PPID _id = CConfig.MainOrgID;
+	ASSIGN_PTR(pID, _id);
+	return _id ? 1 : PPSetError(PPERR_UNDEFMAINORG);
 }
 
-int SLAPI GetMainCityID(PPID * pCityID)
+int FASTCALL GetMainCityID(PPID * pCityID)
 {
 	int    ok = -1;
 	PPID   city_id = 0;
@@ -97,7 +98,7 @@ int SLAPI GetMainCityID(PPID * pCityID)
 	return ok;
 }
 
-int SLAPI GetMainEmployerID(PPID * pID)
+int FASTCALL GetMainEmployerID(PPID * pID)
 {
 	PPID   main_org_id = 0;
 	ASSIGN_PTR(pID, 0);
@@ -111,7 +112,7 @@ int SLAPI GetMainEmployerID(PPID * pID)
 	return 0;
 }
 
-int SLAPI GetCurUserPerson(PPID * pID, SString * pBuf)
+int FASTCALL GetCurUserPerson(PPID * pID, SString * pBuf)
 {
 	int    ok = -1;
 	PPObjSecur sec_obj(PPOBJ_USR, 0);

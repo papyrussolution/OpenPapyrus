@@ -1168,7 +1168,7 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 					SupplList.Set(&list);
 			}
 			if(!SupplList.IsExists())
-				SupplList.Add(Filt.SupplID, 1);
+				SupplList.Add(Filt.SupplID);
 		}
 	}
 	if(IsTempTblNeeded()) {

@@ -979,7 +979,7 @@ int SrConceptNgTbl::GetNgList(CONCEPTID cID, Int64Array & rNgList)
 	return ok;
 }
 
-//virtual 
+//virtual
 uint FASTCALL SrGeoNodeTbl::Implement_PartitionFunc(DBT * pKey)
 {
 	uint64 node_id = sexpanduint64(pKey->data, pKey->size);
@@ -991,7 +991,7 @@ uint FASTCALL SrGeoNodeTbl::Implement_PartitionFunc(DBT * pKey)
 // page-size = 2048
 // ffactor = (2048 - 32) / (4.1 + 42.2 + 8) = 37.12
 //
-SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash(/*"geomap.db->node"*/"geonode.db", 0, 2048, 20), pDb)
+SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->node", 0, /*2048*/16*1024, 0), pDb)
 {
 	/*
 	class Idx01 : public SecondaryIndex {

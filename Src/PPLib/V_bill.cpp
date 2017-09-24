@@ -939,7 +939,7 @@ PPBaseFilt * SLAPI PPViewBill::CreateFilt(void * extraPtr) const
 		BillFilt::FiltExtraParam * p = extraPtr ? (BillFilt::FiltExtraParam *)extraPtr : 0;
 		if(p && p->SetupValues) {
 			p_filt->Period.SetDate(r_cfg.OperDate);
-			p_filt->LocList.Add(r_cfg.Location, 1);
+			p_filt->LocList.Add(r_cfg.Location);
 			p_filt->Bbt   = p->Bbt;
 			if(p_filt->Bbt == bbtGoodsBills) {
 				if(DS.CheckExtFlag(ECF_GOODSBILLFILTSHOWDEBT))
@@ -3454,7 +3454,7 @@ int SLAPI PPViewBill::AttachBillToOrder(PPID billID)
 						op_id = 0;
 						break;
 					}
-			flt.LocList.Add(PPObjLocation::ObjToWarehouse(bill_rec.Object), 1);
+			flt.LocList.Add(PPObjLocation::ObjToWarehouse(bill_rec.Object));
 			flt.LocList.Add(bill_rec.LocID);
 		}
 		else {
@@ -3841,7 +3841,7 @@ int SLAPI PPViewBill::SetupPoolInsertionFilt(BillFilt * pFilt)
 				if(GetOpData(pFilt->OpID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 					pFilt->ObjectID = pool_rec.Object;
 			}
-			pFilt->LocList.Add(pool_rec.LocID, 1);
+			pFilt->LocList.Add(pool_rec.LocID);
 		}
 		if(EnumMembersOfPool(&first_member_id) > 0) {
 			BillTbl::Rec first_member_rec;

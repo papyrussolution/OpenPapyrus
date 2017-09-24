@@ -170,7 +170,6 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 	SIZEQ_HEAD * q;
 	ALLOC_ELEMENT * elp, * frag, * elp_tmp;
 	ALLOC_LAYOUT * head;
-	ENV * env;
 	REGION_MEM * mem;
 	REGINFO * envinfop;
 	size_t total_len;
@@ -180,7 +179,7 @@ int __env_alloc(REGINFO * infop, size_t len, void * retp)
 #ifdef HAVE_STATISTICS
 	uint32 st_search;
 #endif
-	env = infop->env;
+	ENV * env = infop->env;
 	*(void **)retp = NULL;
 #ifdef HAVE_MUTEX_SUPPORT
 	MUTEX_REQUIRED(env, infop->mtx_alloc);

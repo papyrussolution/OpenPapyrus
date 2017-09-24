@@ -372,11 +372,10 @@ int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const cha
 	return ok;
 }
 
-int BDbDatabase::Helper_Close(void * pH)
+void BDbDatabase::Helper_Close(void * pH)
 {
 	DB * p_db = (DB *)pH;
 	CALLPTRMEMB(p_db, close(p_db, 0));
-	return 1;
 }
 
 int BDbDatabase::RemoveUnusedLogs()
@@ -610,13 +609,9 @@ int BDbDatabase::Implement_Close(BDbTable * pTbl)
 	if(State & stWriteStatOnClose) {
 		WriteStat(pTbl);
 	}
-	if(Helper_Close(pTbl->H)) {
-		pTbl->H = 0;
-		pTbl->State &= ~BDbTable::stOpened;
-	}
-	else {
-		ok = 0;
-	}
+	Helper_Close(pTbl->H);
+	pTbl->H = 0;
+	pTbl->State &= ~BDbTable::stOpened;
 	return ok;
 }
 
@@ -1731,15 +1726,16 @@ int BDbTransaction::operator !() const
 
 int BDbTransaction::Commit()
 {
+	int    ok = 1;
 	if(Ta && P_Db) {
 		if(P_Db->CommitWork())
 			Ta = 0;
 		else {
 			Err = 1;
-			return 0;
+			ok = 0;
 		}
 	}
-	return 1;
+	return ok;
 }
 //
 //

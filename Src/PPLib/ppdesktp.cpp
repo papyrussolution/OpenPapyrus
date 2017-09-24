@@ -660,7 +660,7 @@ int PPDesktop::Init__(long desktopID)
 			PPGetPath(PPPATH_BIN, path);
 			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			path.SetLastSlash().Cat(buf);
-			MakeTempFileName(path, "TMP", ps.Ext, 0, (buf = 0));
+			MakeTempFileName(path, "TMP", ps.Ext, 0, buf.Z());
 			path = buf;
 			copyFileByName(P_ActiveDesktop->GetLogo(), path);
 			Logotype.LoadImage(path);

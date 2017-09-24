@@ -599,13 +599,15 @@ public:
 	//
 	ObjIdListFilt & SLAPI InitEmpty();
 	ObjIdListFilt & FASTCALL Set(const PPIDArray *);
-	int    SLAPI Add(PPID, int ignoreZero = 1);
+	//int    SLAPI Add(PPID, int ignoreZero = 1);
+	int    FASTCALL Add(PPID id);
+	int    FASTCALL AddNotIgnoringZero(PPID id);
 	//
 	// Descr: Добавляет в список элементы из массива pList.
 	// Attention: В отличии от метода ObjIdListFilt::Add(PPID, int)
 	//   эта функция не игноирует нулевые значения.
 	//
-	int    SLAPI Add(const PPIDArray * pList);
+	int    FASTCALL Add(const PPIDArray * pList);
 	int    SLAPI Update(uint pos, PPID newId, int ignoreZero = 1);
 	int    SLAPI Remove(PPID, int bsearch = 0);
 	PPID   SLAPI GetSingle() const;
@@ -686,9 +688,9 @@ public:
 
 class IterCounter {
 public:
-	SLAPI  IterCounter() { Init(); }
+	SLAPI  IterCounter();
 	operator ulong() const { return Count; }
-	void   FASTCALL Init(ulong total = 0L) { Total = total; Count = 0L; }
+	void   FASTCALL Init(ulong total = 0L);
 	int    FASTCALL Init(DBTable *);
 	void   FASTCALL SetTotal(ulong total)  { Total = total; }
 	IterCounter & SLAPI Increment() { Count++; return *this; }
@@ -1125,6 +1127,7 @@ public:
 	static int IdTSesLnFlags;       // (fldFlags)
 	static int IdPercent;           // (fldDividend, fldDivisor) =(100 * div / divisor)
 	static int IdPercentIncDiv;     // (fldDividend, fldDivisor) =(100 * div / (divisor+div))
+	static int IdPercentAddendum;   // // @v9.8.2 (fldDividend, fldDivisor) =(100 * (fldDividend-fldDivisor) / fldDivisor))
 	static int IdWorldIsMemb;       // (fldCity, WorldItemFilt)
 	static int IdTaCost;            // Цена поступления в анализе товарных операций
 	static int IdTaPrice;           // Цена реализации в анализе товарных операций
@@ -1175,13 +1178,15 @@ public:
 
 	static int SLAPI Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
-	static int SLAPI InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
-	static int SLAPI InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
+	static void SLAPI InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static void SLAPI InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
-	// ARG(incDiv) Если !0, то результат равен (100 * div / (divisor+div))
-	//   В противном случае (100 * div / divisor)
+	// ARG(incDiv)
+	//   Если 0, то результат равен (100 * fld1 / fld2)
+	//   Если 1, то результат равен (100 * fld1 / (fld2+fld1))
+	//   Если 2, то результат равен (100 * (fld1-fld2) / fld2)
 	//
-	static int SLAPI InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv = 0);
+	static void SLAPI InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv);
 	//static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 	static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 };
@@ -1618,9 +1623,10 @@ public:
 	enum {
 		fDisableOutput = 0x0001
 	};
-	SLAPI  PPLogger(long flags = 0);
+	SLAPI  PPLogger();
+	SLAPI  PPLogger(long flags);
 	SLAPI ~PPLogger();
-	int    SLAPI Log(const char * pMsg);
+	int    FASTCALL Log(const char * pMsg);
 	int    SLAPI LogMsgCode(uint msgOptions, uint msgId, const char * pAddedInfo);
 		// @>>PPGetMessage(msgOptions, msgId, pAddedInfo, ...)
 	int    SLAPI LogSubString(uint strID, int idx);
@@ -1887,7 +1893,8 @@ public:
 	static int   FASTCALL GetSectSymb(int idx, SString & rBuf);
 	static int   FASTCALL GetParamSymb(int idx, SString & rBuf);
 
-	SLAPI  PPIniFile(const char * pFileName = 0, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
+	SLAPI  PPIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
+	SLAPI  PPIniFile();
 	int    SLAPI GetEntryList(uint sectId, StringSet * pEntries, int storeAllString = 0);
 	int    SLAPI Get(uint sectId, uint paramId, SString & rBuf);
 	int    SLAPI Get(uint sectId, const char * pParamName, SString & rBuf);
@@ -1952,7 +1959,7 @@ public:
 	SLAPI  PPConfigDatabase(const char * pDbDir);
 	SLAPI ~PPConfigDatabase();
 	int    SLAPI Open(const char * pDbPath);
-	int    SLAPI Close();
+	void   SLAPI Close();
 	int    SLAPI GetObjList(int type, const char * pSubSymb, const char * pDbSymb, const char * pOwner, StrAssocArray & rList);
 	int    SLAPI GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData);
 	int    SLAPI GetObj(CObjHeader & rHdr, int32 * pID, SBuffer * pData);
@@ -2395,9 +2402,8 @@ enum SubstGrpPerson {
 		// является статьей, а не персоналией.
 };
 
-#define IS_SGG_CLSSUBST(x) ((x)==sggDimX||(x)==sggDimY||(x)==sggDimZ||(x)==sggDimW||\
-	(x)==sggClsKind||(x)==sggClsGrade||(x)==sggClsAddObj||(x)==sggClsKind_Grade||\
-	(x)==sggClsKind_Grade_AddObj||(x)==sggClsKind_AddObj_Grade)
+#define IS_SGG_CLSSUBST(x) oneof10(x, sggDimX, sggDimY, sggDimZ, sggDimW, sggClsKind, sggClsGrade,\
+	sggClsAddObj, sggClsKind_Grade, sggClsKind_Grade_AddObj, sggClsKind_AddObj_Grade)
 //
 // Строки соответствующие SubstGrpSCard: PPTXT_SUBSTSCARDLIST
 //
@@ -2590,7 +2596,7 @@ protected:
 	int    SLAPI PutSgpMembToBuf(SubstGrpPerson, const char * pMembName, SString & rBuf) const;
 	int    SLAPI PutSgdMembToBuf(SubstGrpDate,   const char * pMembName, SString & rBuf) const;
 private:
-	int    SLAPI CheckBranchOffs(size_t offs);
+	int    FASTCALL CheckBranchOffs(size_t offs);
 	void   SLAPI Destroy();
 	int    SLAPI AddBranch(uint type, size_t offs, int32 extraId);
 
@@ -7277,9 +7283,9 @@ DBQ  * FASTCALL ppcheckfiltidlist(DBQ *, DBItem &, const PPIDArray *);
 DBQ  * FASTCALL ppcheckflag(DBQ * pDbq, DBItem & rItem, long mask, int test);
 DBQ  * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rItem, int dayOfWeek);
 
-SString & SLAPI GetMainOrgName(SString &);
-int    SLAPI GetMainOrgID(PPID *);
-int    SLAPI GetMainEmployerID(PPID *);
+SString & FASTCALL GetMainOrgName(SString &);
+int    FASTCALL GetMainOrgID(PPID *);
+int    FASTCALL GetMainEmployerID(PPID *);
 //
 // Descr: Определяет город, в котором находится главная организация.
 //   Город определяется по фактическому или (если нет фактического) юридическому
@@ -7289,7 +7295,7 @@ int    SLAPI GetMainEmployerID(PPID *);
 //   1  - город идентифицирован по фактическому адресу
 //   2  - город идентифицирован по юридическому адресу
 //
-int    SLAPI GetMainCityID(PPID * pCityID);
+int    FASTCALL GetMainCityID(PPID * pCityID);
 //
 // Descr: Извлекает информацию о персоналии, ассоциированной с текущим пользователем (LConfig.User).
 // ARG(pPersonID      OUT): @#{vptr0} Указатель, по которому функция присваивает идентификатор искомой
@@ -7306,16 +7312,16 @@ int    SLAPI GetMainCityID(PPID * pCityID);
 //        запись персоналии.
 //   0  - ошибка
 //
-int    SLAPI GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
+int    FASTCALL GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
 int    SLAPI GetUserByPerson(PPID psnID, PPID * pUserID);
-int    SLAPI GetLocationName(PPID locID, SString &);
+int    FASTCALL GetLocationName(PPID locID, SString &);
 int    SLAPI SearchDlvrAddr();
 int    SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData);
 //
 // Функция GetExtLocationName отличается от GetLocationName тем,
 // что при locID == 0 копирует в буфер строку "Все объекты"
 //
-int    SLAPI GetExtLocationName(PPID locID, SString &);
+int    FASTCALL GetExtLocationName(PPID locID, SString &);
 //
 // Descr: Заносит в буфер rBuf наименования складов из списка rLocList.
 // ARG(rLocList IN): список идентификаторов складов. Если rLocList.IsEmpty(), то
@@ -7335,7 +7341,7 @@ SString & SLAPI GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxIte
 //   Обращений к базе данных при этом не происходит.
 //   Глобальное состояние системы никак не меняется.
 //
-SString & SLAPI GetCurUserName(SString & rBuf);
+SString & FASTCALL GetCurUserName(SString & rBuf);
 int    FASTCALL GetPersonName(PPID id, SString & rBuf);
 int    FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf);
 SString & FASTCALL GetGoodsName(PPID goodsID, SString & rBuf);
@@ -44738,6 +44744,8 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
+//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+
 class Tddo {
 public:
 	enum {
@@ -44756,15 +44764,16 @@ public:
 	//   то возвращает ошибку. Данные инициализируются посредством параметров dataId и pDataPtr.
 	//   Результат выводится в буфер rOut.
 	//
-	//int    SLAPI Process(const char * pDataName, const char * pBuf, long dataId, void * pDataPtr, const StringSet * pExtParamList, SBuffer & rOut);
 	int    SLAPI Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
 	//
 	// Descr: Устанавливает имя входного файла. В общем случае, имя входного файла может быть
 	//   пустым (поскольку функция Process обрабатывает входной поток символов из RAM), но при обработке
 	//   ошибок и для правильной идентификации пути внутренних файлов имя файла может быть востребовано.
 	//
-	int    SLAPI SetInputFileName(const char * pFileName);
+	void   SLAPI SetInputFileName(const char * pFileName);
 private:
+	friend class TddoExprSet;
+
 	struct Meta {
 		Meta();
 		Meta & FASTCALL operator = (const Meta & rS);
@@ -44791,6 +44800,15 @@ private:
 		long    RefID;
 	};
 	int    FASTCALL ScanMeta(Meta & rM);
+	int    SLAPI Helper_RecognizeMetaKeyword();
+	//
+	// Descr: Флаги функции Helper_RecognizeExprToken
+	//
+	enum {
+		rexptfMetaOnly = 0x0001 // Идентифицировать только метасимволы (натуральные строки и числа не рассматривать)
+	};
+
+	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
 	void   SLAPI Skip();
 	int    SLAPI Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput);
 	int    SLAPI ResolveVar(const SString & rText, const DlScope * pScope, Result & rR);
@@ -44825,11 +44843,17 @@ private:
 		tElse,
 		tElif,
 		tEndif,
-		tText,      // @v7.5.10
-		tInclude,   // @v7.5.10
-		tIterCount, // @v7.6.5
+		tText,      // 
+		tInclude,   // 
+		tIterCount, // 
 		tMacro,     // @v9.8.2 #macro(MACRONAME $arg1, $arg2) $foo($arg1, $arg2, $request) #end
-		tSet        // @v9.8.2 #set($var = value)
+		tSet,       // @v9.8.2 #set($var = value)
+		tForEach,
+		tComment,   // ##         
+		tLiteral,
+		tDollarBrace, // ${ - начало выражения. В один проход всю конструкцию ${expr} не разобрать ибо внутри могут быть сложные подвыражения
+		tOperator = 1000 // Значения выше tOperator содержат и сам оператор как слагаемое результата.
+			// Например 1000+_DIVIDE_ (=1022) означает оператор деления.
 	};
 	enum {
 		fHtmlEncode  = 0x0001 // Кодировать специальные символы в извлекаемых полях html-сущностями

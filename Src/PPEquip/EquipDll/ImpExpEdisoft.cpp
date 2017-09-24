@@ -1202,7 +1202,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 				P_ExportCls->PathStruct.Ext = "xml";
 		}
 		else {
-			THROWERR(SLS.Init("Papyrus"), IEERR_NOEXPPATH);
+			SLS.Init("Papyrus");
 			str = SLS.GetExePath();
 			P_ExportCls->PathStruct.Split(str);
 			P_ExportCls->PathStruct.Dir.ReplaceStr("\\bin", "\\out", 1);

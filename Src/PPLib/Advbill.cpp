@@ -273,7 +273,7 @@ void AdvBillItemDialog::editLink()
 						if(GetOpType(op_id) == PPOPT_ACCTURN && !CheckOpFlags(op_id, OPKF_EXTACCTURN))
 							r = p_bobj->AddGenAccturn(&bill_id, op_id, 0);
 						else {
-							bill_filt.LocList.Add(loc_id, 1);
+							bill_filt.LocList.Add(loc_id);
 							bill_filt.OpID = op_id;
 							bill_filt.ObjectID = Data.ArID;
 							bill_filt.Period.SetDate(Data.AdvDt);
@@ -287,7 +287,7 @@ void AdvBillItemDialog::editLink()
 					}
 				}
 				else if(v == 1) {
-					bill_filt.LocList.Add(loc_id, 1);
+					bill_filt.LocList.Add(loc_id);
 					bill_filt.OpID  = op_id;
 					bill_filt.ObjectID = Data.ArID;
 					bill_filt.Period.SetDate(Data.AdvDt);

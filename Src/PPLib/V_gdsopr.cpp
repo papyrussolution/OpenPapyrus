@@ -303,10 +303,10 @@ int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 void FASTCALL GoodsOpAnalyzeFilt::AddTradePlanBillID(PPID billID)
 {
 	if(Flags & fBillListAsTradePlan)
-		BillList.Add(billID, 1);
+		BillList.Add(billID);
 	else {
 		BillList.Set(0);
-		BillList.Add(billID, 1);
+		BillList.Add(billID);
 		Flags |= fBillListAsTradePlan;
 	}
 }
@@ -2599,7 +2599,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			else if(id == GoodsOpAnalyzeFilt::fldidPctMargin) {
 				PPGetWord(PPWORD_MARGIN, 0, c_title);
 				c_title.Space().CatChar('%');
-				PPDbqFuncPool::InitPctFunc(dbe_pct_margin1, tbl->Income, tbl->SumPrice);
+				PPDbqFuncPool::InitPctFunc(dbe_pct_margin1, tbl->Income, tbl->SumPrice, 0);
 				c  = 30;
 				aggr_fld_add = 1;
 			}
@@ -3632,8 +3632,8 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 		}
 		q->addField(tbl->Barcode);         // #19
 		if(P_TradePlanPacket) {
-			PPDbqFuncPool::InitPctFunc(dbe_pct_qtty, tbl->Quantity, tbl->OldCost);
-			PPDbqFuncPool::InitPctFunc(dbe_pct_sum,  tbl->SumPrice, tbl->OldPrice);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_qtty, tbl->Quantity, tbl->OldCost, 0);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_sum,  tbl->SumPrice, tbl->OldPrice, 0);
 			q->addField(dbe_pct_qtty);     // #20
 			q->addField(dbe_pct_sum);      // #21
 		}
@@ -3645,10 +3645,10 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 		// Сравнение товарного отчета по операции за 2 разных периода
 		//
 		if(p_add_ttbl) {
-			PPDbqFuncPool::InitPctFunc(dbe_pct_income1, tbl->Income, tbl->SumCost);
-			PPDbqFuncPool::InitPctFunc(dbe_pct_income2, p_add_ttbl->Income, p_add_ttbl->SumCost);
-			PPDbqFuncPool::InitPctFunc(dbe_pct_margin1, tbl->Income, tbl->SumPrice);
-			PPDbqFuncPool::InitPctFunc(dbe_pct_margin2, p_add_ttbl->Income, p_add_ttbl->SumPrice);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_income1, tbl->Income, tbl->SumCost, 0);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_income2, p_add_ttbl->Income, p_add_ttbl->SumCost, 0);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_margin1, tbl->Income, tbl->SumPrice, 0);
+			PPDbqFuncPool::InitPctFunc(dbe_pct_margin2, p_add_ttbl->Income, p_add_ttbl->SumPrice, 0);
 			//
 			// Значения для дополнительного периода
 			//

@@ -772,7 +772,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 			else {
 				BillFilt flt;
 				flt.Period.SetDate(r_cfg.OperDate);
-				flt.LocList.Add(NodeRec.LocID ? NodeRec.LocID : r_cfg.Location, 1);
+				flt.LocList.Add(NodeRec.LocID ? NodeRec.LocID : r_cfg.Location);
 				flt.Flags |= BillFilt::fCashOnly;
 				if(deny_ops)
 					flt.Flags |= (BillFilt::fDenyAdd|BillFilt::fDenyUpdate|BillFilt::fDenyRemove);

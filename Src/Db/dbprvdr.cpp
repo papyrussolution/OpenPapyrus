@@ -415,7 +415,7 @@ int SLAPI DbProvider::DelTempFileName(const char * pFileName)
 
 }
 
-int SLAPI DbProvider::RemoveTempFiles()
+void SLAPI DbProvider::RemoveTempFiles()
 {
 	SString file_name;
 	StringSet temp_list;
@@ -431,7 +431,6 @@ int SLAPI DbProvider::RemoveTempFiles()
 			temp_list.add(file_name);
 	}
 	TempFileList = temp_list;
-	return 1;
 }
 
 int SLAPI DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists)

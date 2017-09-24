@@ -671,30 +671,29 @@ static ngx_int_t ngx_init_zone_pool(ngx_cycle_t * cycle, ngx_shm_zone_t * zn)
 
 ngx_int_t ngx_create_pidfile(ngx_str_t * name, ngx_log_t * log, const NgxStartUpOptions & rO)
 {
-	size_t len;
-	ngx_uint_t create;
-	ngx_file_t file;
-	u_char pid[NGX_INT64_LEN + 2];
-	if(ngx_process > NGX_PROCESS_MASTER) {
-		return NGX_OK;
-	}
-	memzero(&file, sizeof(ngx_file_t));
-	file.name = *name;
-	file.log = log;
-	create = (/*ngx_test_config*/rO.Flags & rO.fTestConf) ? NGX_FILE_CREATE_OR_OPEN : NGX_FILE_TRUNCATE;
-	file.fd = ngx_open_file(file.name.data, NGX_FILE_RDWR, create, NGX_FILE_DEFAULT_ACCESS);
-	if(file.fd == NGX_INVALID_FILE) {
-		ngx_log_error(NGX_LOG_EMERG, log, ngx_errno, ngx_open_file_n " \"%s\" failed", file.name.data);
-		return NGX_ERROR;
-	}
-	if(!(/*ngx_test_config*/rO.Flags & rO.fTestConf)) {
-		len = ngx_snprintf(pid, NGX_INT64_LEN + 2, "%P%N", ngx_pid) - pid;
-		if(ngx_write_file(&file, pid, len, 0) == NGX_ERROR) {
+	if(ngx_process <= NGX_PROCESS_MASTER) {
+		size_t len;
+		ngx_uint_t create;
+		u_char pid[NGX_INT64_LEN + 2];
+		ngx_file_t file;
+		memzero(&file, sizeof(ngx_file_t));
+		file.name = *name;
+		file.log = log;
+		create = (/*ngx_test_config*/rO.Flags & rO.fTestConf) ? NGX_FILE_CREATE_OR_OPEN : NGX_FILE_TRUNCATE;
+		file.fd = ngx_open_file(file.name.data, NGX_FILE_RDWR, create, NGX_FILE_DEFAULT_ACCESS);
+		if(file.fd == NGX_INVALID_FILE) {
+			ngx_log_error(NGX_LOG_EMERG, log, ngx_errno, ngx_open_file_n " \"%s\" failed", file.name.data);
 			return NGX_ERROR;
 		}
-	}
-	if(ngx_close_file(file.fd) == NGX_FILE_ERROR) {
-		ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_close_file_n " \"%s\" failed", file.name.data);
+		if(!(/*ngx_test_config*/rO.Flags & rO.fTestConf)) {
+			len = ngx_snprintf(pid, NGX_INT64_LEN + 2, "%P%N", ngx_pid) - pid;
+			if(ngx_write_file(&file, pid, len, 0) == NGX_ERROR) {
+				return NGX_ERROR;
+			}
+		}
+		if(ngx_close_file(file.fd) == NGX_FILE_ERROR) {
+			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_close_file_n " \"%s\" failed", file.name.data);
+		}
 	}
 	return NGX_OK;
 }

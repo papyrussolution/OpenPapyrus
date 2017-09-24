@@ -27,6 +27,11 @@ SLAPI PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, i
 		Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
 }
 
+SLAPI PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
+{
+	Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
+}
+
 int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)
 {
 	if(pSectName) {
@@ -342,12 +347,11 @@ int SLAPI PPConfigDatabase::Open(const char * pDbPath)
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::Close()
+void SLAPI PPConfigDatabase::Close()
 {
 	ZDELETE(P_OT);
 	ZDELETE(P_OtT);
 	ZDELETE(P_Db);
-	return 1;
 }
 
 int SLAPI PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const char * pDbSymb, const char * pOwner, StrAssocArray & rList)

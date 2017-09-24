@@ -132,7 +132,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				gct_flt.LocList    = Filt.LocList;
 				gct_flt.SupplID    = Filt.SupplID;
 				gct_flt.SupplAgentID = Filt.SupplAgentID;
-				gct_flt.ArList.Add(Filt.ArID, 1);
+				gct_flt.ArList.Add(Filt.ArID);
 				gct_flt.GoodsGrpID = Filt.GoodsGrpID;
 				gct_flt.GoodsID    = Filt.GoodsID;
 				gct_flt.ExtGoodsTypeID = Filt.ExtGoodsTypeID;
@@ -890,7 +890,7 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				tra_flt.SupplAgentID = Filt.SupplAgentID;
 				if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
 					tra_flt.LocList.FreeAll();
-					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()), 1);
+					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
 					PPIDArray op_list;
 					for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {
 						const int dir = IsIntrOp(op_id);
@@ -919,7 +919,7 @@ int SLAPI PPViewOpGrouping::InitBillList(PPID opID)
 		tra_flt.GoodsID = Filt.GoodsID;
 		if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
 			tra_flt.LocList.FreeAll();
-			tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()), 1);
+			tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
 			PPIDArray op_list;
 			for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {
 				const int dir = IsIntrOp(op_id);

@@ -928,13 +928,13 @@ PPID SLAPI GetAgentAccSheet()
 	return agent_acs_id;
 }
 
-SString & SLAPI GetCurUserName(SString & rBuf)
+SString & FASTCALL GetCurUserName(SString & rBuf)
 {
 	rBuf = DS.GetConstTLA().UserName;
 	return rBuf;
 }
 
-int SLAPI GetLocationName(PPID locID, SString & rBuf)
+int FASTCALL GetLocationName(PPID locID, SString & rBuf)
 {
 	int    ok = -1;
 	//
@@ -981,7 +981,7 @@ SString & SLAPI GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxIte
 	return rBuf;
 }
 
-int SLAPI GetExtLocationName(PPID locID, SString & rBuf)
+int FASTCALL GetExtLocationName(PPID locID, SString & rBuf)
 {
 	int    ok = 1;
 	if(locID)
@@ -1325,6 +1325,17 @@ int FASTCALL DateIter::Cmp(const DateIter & rS) const
 //
 // IterCounter
 //
+SLAPI IterCounter::IterCounter() 
+{ 
+	Init(); 
+}
+
+void FASTCALL IterCounter::Init(ulong total) 
+{
+	Total = total; 
+	Count = 0L; 
+}
+
 int SLAPI IterCounter::Init(DBTable * pTbl)
 {
 	RECORDNUMBER num_recs = 0;

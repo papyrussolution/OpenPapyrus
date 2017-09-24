@@ -1,7 +1,6 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
-//
 // Анализ отгрузки товаров
 //
 #include <pp.h>
@@ -26,7 +25,7 @@ int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 {
 	if(pBillFilt) {
 		pBillFilt->Period = Period;
-		pBillFilt->LocList.Add(LocID, 1);
+		pBillFilt->LocList.Add(LocID);
 		pBillFilt->OpID   = OpID;
 		pBillFilt->AccSheetID = AccSheetID;
 		pBillFilt->ObjectID = ObjectID;

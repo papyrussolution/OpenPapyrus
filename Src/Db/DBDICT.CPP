@@ -51,12 +51,11 @@ int SLAPI DbDictionary::IsValid() const
 }
 
 //static
-int DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options))
+void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options))
 {
 	ENTER_CRITICAL_SECTION
 	CreateInstanceProc = proc;
 	LEAVE_CRITICAL_SECTION
-	return 1;
 }
 
 //static
@@ -73,9 +72,9 @@ const char * BDictionary::DdfIndexFileName = "INDEX.DDF";
 //
 // Implementation of API functions
 //
-int SLAPI DBRemoveTempFiles()
+void SLAPI DBRemoveTempFiles()
 {
-	return CurDict ? CurDict->RemoveTempFiles() : 0;
+	CALLPTRMEMB(CurDict, RemoveTempFiles());
 }
 //
 // Implementation of class BDictionary

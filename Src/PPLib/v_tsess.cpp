@@ -1325,7 +1325,7 @@ int SLAPI ViewManufPlan(const TSessionFilt * pFilt)
 SLAPI TSessLineFilt::TSessLineFilt(PPID sessID, PPID goodsID, int showRest)
 {
 	THISZERO();
-	TSesList.Add(sessID, 1);
+	TSesList.Add(sessID);
 	GoodsID = goodsID;
 	SETFLAG(Flags, fOutRest, showRest);
 }

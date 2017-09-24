@@ -895,7 +895,13 @@ void SLAPI TVMsgLog::RefreshList()
 //
 //
 //
-SLAPI PPLogger::PPLogger(long flags /* = 0 */)
+SLAPI PPLogger::PPLogger()
+{
+	Flags = 0;
+	P_Log = 0;
+}
+
+SLAPI PPLogger::PPLogger(long flags)
 {
 	Flags = flags;
 	P_Log = 0;
@@ -914,7 +920,7 @@ void SLAPI PPLogger::Clear()
 		TVMsgLog::Delete_((TVMsgLog *)P_Log);
 }
 
-int SLAPI PPLogger::Log(const char * pMsg)
+int FASTCALL PPLogger::Log(const char * pMsg)
 {
 	int    ok = 1;
 	if(!(Flags & fDisableOutput)) {

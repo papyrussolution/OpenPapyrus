@@ -935,12 +935,17 @@ static void SLAPI dbqf_objname_acctrel_i(int option, DBConst * result, DBConst *
 
 static void SLAPI dbqf_percent_rr(int options, DBConst * result, DBConst * params)
 {
-	result->init(fdivnz(100 * params[0].rval, params[1].rval));
+	result->init(fdivnz(100.0 * params[0].rval, params[1].rval));
 }
 
 static void SLAPI dbqf_percentincdiv_rr(int options, DBConst * result, DBConst * params)
 {
-	result->init(fdivnz(100 * params[0].rval, params[1].rval+params[0].rval));
+	result->init(fdivnz(100.0 * params[0].rval, params[1].rval+params[0].rval));
+}
+
+static void SLAPI dbqf_percentaddendum_rr(int options, DBConst * result, DBConst * params)
+{
+	result->init(fdivnz(100.0 * (params[0].rval-params[1].rval), params[1].rval));
 }
 
 static void SLAPI dbqf_invent_diffqtty_i(int option, DBConst * result, DBConst * params)
@@ -1159,16 +1164,17 @@ int PPDbqFuncPool::IdObjNameAmountType = 0; //
 int PPDbqFuncPool::IdObjNamePsnKind    = 0; //
 int PPDbqFuncPool::IdObjSymbCurrency   = 0; //
 int PPDbqFuncPool::IdObjCodeBillCmplx  = 0; // (fldBillID)
-int PPDbqFuncPool::IdObjCodeBill       = 0; // @v7.2.8  (fldBillID)
-int PPDbqFuncPool::IdObjMemoBill       = 0; // @v7.2.8  (fldBillID)
+int PPDbqFuncPool::IdObjCodeBill       = 0; // (fldBillID)
+int PPDbqFuncPool::IdObjMemoBill       = 0; // (fldBillID)
 int PPDbqFuncPool::IdObjNameSCardSer   = 0; //
 int PPDbqFuncPool::IdObjNameDebtDim    = 0; //
 int PPDbqFuncPool::IdDateTime          = 0; // (fldDate, fldTime)
 int PPDbqFuncPool::IdInventDiffQtty    = 0; //
 int PPDbqFuncPool::IdTSesLnPhQtty      = 0; //
 int PPDbqFuncPool::IdTSesLnFlags       = 0; //
-int PPDbqFuncPool::IdPercent           = 0; // (100 * div / divisor)
-int PPDbqFuncPool::IdPercentIncDiv     = 0; // (100 * div / (divisor+div))
+int PPDbqFuncPool::IdPercent           = 0; // (100 * fld1 / fld2)
+int PPDbqFuncPool::IdPercentIncDiv     = 0; // (100 * fld1 / (fld2+fld1))
+int PPDbqFuncPool::IdPercentAddendum   = 0; // @v9.8.2 (100 * (fld1-fld2) / fld2)
 int PPDbqFuncPool::IdWorldIsMemb       = 0; //
 int PPDbqFuncPool::IdTaCost            = 0; //
 int PPDbqFuncPool::IdTaPrice           = 0; //
@@ -1496,17 +1502,18 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdTrfrPrice,           0, BTS_REAL,   dbqf_trfrprice_irrr,
 		7, BTS_INT, BTS_INT, BTS_DATE, BTS_INT, BTS_REAL, BTS_REAL, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdDateTime,            0, BTS_STRING, dbqf_datetime_dt, 2, BTS_DATE, BTS_TIME));
-	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      0, BTS_REAL,   dbqf_invent_diffqtty_i, 2, BTS_INT, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnPhQtty,        0, BTS_REAL,   dbqf_tseslnphqtty_iirr, 4, BTS_INT, BTS_INT, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         0, BTS_STRING, dbqf_tseslnflags_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             0, BTS_REAL,   dbqf_percent_rr,        2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercentIncDiv,       0, BTS_REAL,   dbqf_percentincdiv_rr,  2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdWorldIsMemb,         0, BTS_INT,    dbqf_world_ismemb_ii,   2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdTaCost,              0, BTS_REAL,   dbqf_tacost_rr,         2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTaPrice,             0, BTS_REAL,   dbqf_taprice_rrr,       3, BTS_REAL, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdDurationToTime,      0, BTS_STRING, dbqf_durationtotime_dt, 1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdCommSyncId,          0, BTS_STRING, dbqf_idcommsyncid_ii,   2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjTitle,            0, BTS_STRING, dbqf_idobjtitle_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      0, BTS_REAL,   dbqf_invent_diffqtty_i,  2, BTS_INT, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnPhQtty,        0, BTS_REAL,   dbqf_tseslnphqtty_iirr,  4, BTS_INT, BTS_INT, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         0, BTS_STRING, dbqf_tseslnflags_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             0, BTS_REAL,   dbqf_percent_rr,         2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercentIncDiv,       0, BTS_REAL,   dbqf_percentincdiv_rr,   2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercentAddendum,     0, BTS_REAL,   dbqf_percentaddendum_rr, 2, BTS_REAL, BTS_REAL)); // @v9.8.2
+	THROW(DbqFuncTab::RegisterDyn(&IdWorldIsMemb,         0, BTS_INT,    dbqf_world_ismemb_ii,    2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdTaCost,              0, BTS_REAL,   dbqf_tacost_rr,          2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTaPrice,             0, BTS_REAL,   dbqf_taprice_rrr,        3, BTS_REAL, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdDurationToTime,      0, BTS_STRING, dbqf_durationtotime_dt,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCommSyncId,          0, BTS_STRING, dbqf_idcommsyncid_ii,    2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTitle,            0, BTS_STRING, dbqf_idobjtitle_i,       1, BTS_INT));
 
 	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockDim,       0, BTS_STRING, dbqf_goodsstockdim_i,    1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockBrutto,    0, BTS_STRING, dbqf_goodsstockbrutto_i, 1, BTS_INT));
@@ -1553,32 +1560,34 @@ void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & r
 }
 
 //static
-int SLAPI PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
+void SLAPI PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);
 	rDbe.push((DBFunc)funcId);
-	return 1;
 }
 
 //static
-int SLAPI PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
+void SLAPI PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
 {
 	rDbe.init();
 	rDbe.push(rA1);
 	rDbe.push(rA2);
 	rDbe.push((DBFunc)funcId);
-	return 1;
 }
 
 //static
-int SLAPI PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
+void SLAPI PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
 {
 	rDbe.init();
 	rDbe.push(rFld1);
 	rDbe.push(rFld2);
-	rDbe.push(incDiv ? (DBFunc)PPDbqFuncPool::IdPercentIncDiv : (DBFunc)PPDbqFuncPool::IdPercent);
-	return 1;
+	if(incDiv == 2)
+		rDbe.push((DBFunc)IdPercentAddendum);
+	else if(incDiv == 1)
+		rDbe.push((DBFunc)PPDbqFuncPool::IdPercentIncDiv);
+	else
+		rDbe.push((DBFunc)PPDbqFuncPool::IdPercent);
 }
 
 //static

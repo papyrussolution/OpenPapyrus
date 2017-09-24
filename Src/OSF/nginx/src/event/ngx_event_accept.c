@@ -303,7 +303,6 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 			}
 #endif
 		}
-
 #endif
 		n = recvmsg(lc->fd, &msg, 0);
 		if(n == -1) {
@@ -372,9 +371,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 			c->local_sockaddr = sockaddr;
 			for(cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
 #if (NGX_HAVE_IP_RECVDSTADDR)
-				if(cmsg->cmsg_level == IPPROTO_IP
-				    && cmsg->cmsg_type == IP_RECVDSTADDR
-				    && sockaddr->sa_family == AF_INET) {
+				if(cmsg->cmsg_level == IPPROTO_IP && cmsg->cmsg_type == IP_RECVDSTADDR && sockaddr->sa_family == AF_INET) {
 					struct in_addr * addr;
 					struct sockaddr_in  * sin;
 					addr = (struct in_addr*)CMSG_DATA(cmsg);
@@ -391,7 +388,6 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 					sin->sin_addr = pkt->ipi_addr;
 					break;
 				}
-
 #endif
 #if (NGX_HAVE_INET6 && NGX_HAVE_IPV6_RECVPKTINFO)
 				if(cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO && sockaddr->sa_family == AF_INET6) {
@@ -425,13 +421,10 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 		 *           - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
 		 */
-
 		c->number = ngx_atomic_fetch_add(ngx_connection_counter, 1);
-
 #if (NGX_STAT_STUB)
 		(void)ngx_atomic_fetch_add(ngx_stat_handled, 1);
 #endif
-
 		if(ls->addr_ntop) {
 			c->addr_text.data = ngx_pnalloc(c->pool, ls->addr_text_max_len);
 			if(c->addr_text.data == NULL) {

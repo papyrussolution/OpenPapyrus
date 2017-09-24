@@ -58,7 +58,7 @@ IMPL_HANDLE_EVENT(StaffCalFiltDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_STAFFCALFLT_OBJ)) {
 		Data.LinkObjList.Set(0);
-		Data.LinkObjList.Add(getCtrlLong(CTLSEL_STAFFCALFLT_OBJ), 1 /* ignore zero */);
+		Data.LinkObjList.Add(getCtrlLong(CTLSEL_STAFFCALFLT_OBJ));
 	}
 	else if(event.isCmd(cmStaffCalFiltObjList)) {
 		PPID   obj_type = getCtrlLong(CTLSEL_STAFFCALFLT_OT);

@@ -3083,7 +3083,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	// @v9.4.4 {
 	{
 		LocationCtrlGroup::Rec lcg_rec;
-		lcg_rec.LocList.Add(Data.Rec.LocID, 1);
+		lcg_rec.LocList.Add(Data.Rec.LocID);
 		setGroupData(GRP_LOC, &lcg_rec);
 	}
 	// } @v9.4.4

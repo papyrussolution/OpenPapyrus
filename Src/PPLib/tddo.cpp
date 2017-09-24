@@ -4,6 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
+#ifndef USE_TDDO_2 // {
 /*
 
 ## #start{__StrAssocArray}
@@ -139,10 +140,9 @@ SLAPI Tddo::~Tddo()
 {
 }
 
-int SLAPI Tddo::SetInputFileName(const char * pFileName)
+void SLAPI Tddo::SetInputFileName(const char * pFileName)
 {
 	InputFileName = pFileName;
-	return 1;
 }
 
 Tddo::Meta::Meta()
@@ -1287,3 +1287,5 @@ SLTEST_R(Tddo)
 }
 
 #endif // } SLTEST_RUNNING
+
+#endif // } !USE_TDDO_2 

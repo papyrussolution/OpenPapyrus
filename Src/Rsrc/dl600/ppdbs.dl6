@@ -3606,7 +3606,7 @@ table TempGoodsRest {
 	double SumPrice;        // Сумма в ценах реализации  //
 	double SumCVat;         // @v8.3.4 Сумма НДС в ценах поступления //
 	double SumPVat;         // @v8.3.4 Сумма НДС в ценах реализации //
-	float  PctAddedVal;     // Процент наценки
+	// @v9.8.2 float  PctAddedVal;     // Процент наценки
 	string BarCode[24];     // @v8.8.0 [16]-->[24]
 	string Serial[64];      // @v8.1.0 @v9.7.11 [24]-->[64] здесь теперь может храниться значение произвольного тега
 	long   Predict;         //
@@ -3620,7 +3620,6 @@ table TempGoodsRest {
 	date   Expiry;          // @v9.7.11 Дата истечения срока годности
 	date   LastSellDate;    // @v8.7.3 Дата последней продажи
 	int16  IsPredictTrust;  // Признак того, что значение Predict удовлетворяет критерию надежности.
-	// @v8.7.3 int16  IsInMatrix;      // @v6.1.7
 index:
 	ID__ (unique);
 	//

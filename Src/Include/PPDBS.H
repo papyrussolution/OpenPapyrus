@@ -6009,7 +6009,6 @@ public:
 		double SumPrice;
 		double SumCVat;
 		double SumPVat;
-		float  PctAddedVal;
 		char   BarCode[24];
 		char   Serial[64];
 		int32  Predict;
@@ -6059,7 +6058,6 @@ public:
 	DBField SumPrice;
 	DBField SumCVat;
 	DBField SumPVat;
-	DBField PctAddedVal;
 	DBField BarCode;
 	DBField Serial;
 	DBField Predict;

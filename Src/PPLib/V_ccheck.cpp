@@ -253,7 +253,7 @@ PPBaseFilt * SLAPI PPViewCCheck::CreateFilt(void * extraPtr) const
 	CCheckFilt * p_filt = new CCheckFilt;
 	if(p_filt) {
 		PPObjCashNode cn_obj;
-		p_filt->NodeList.Add(cn_obj.GetSingle(), 1);
+		p_filt->NodeList.Add(cn_obj.GetSingle());
 		p_filt->Flags |= CCheckFilt::fWithoutSkipTag;
 	}
 	else
@@ -459,7 +459,7 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 			if(Data.NodeList.GetCount() == 0) {
 				PPEquipConfig eq_cfg;
 				ReadEquipConfig(&eq_cfg);
-				Data.NodeList.Add(eq_cfg.DefCashNodeID, 1);
+				Data.NodeList.Add(eq_cfg.DefCashNodeID);
 			}
 			PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
 			setGroupData(GRP_POSNODE, &cn_rec);
@@ -1250,7 +1250,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		// } @v9.7.11
 	}
 	if(Filt.SCardID)
-		SCardList.Add(Filt.SCardID, 1);
+		SCardList.Add(Filt.SCardID);
 	else if(Filt.ScsList.GetCount() || Filt.SCardSerID) {
 		PPIDArray scs_list;
 		temp_list.clear();
@@ -3774,8 +3774,8 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				temp_flt.CorrGoodsList.Set(&list1);
 			}
 			else {
-				temp_flt.CorrGoodsList.Add(p_gc_rec->Goods1ID, 1);
-				temp_flt.CorrGoodsList.Add(p_gc_rec->Goods2ID, 1);
+				temp_flt.CorrGoodsList.Add(p_gc_rec->Goods1ID);
+				temp_flt.CorrGoodsList.Add(p_gc_rec->Goods2ID);
 			}
 			temp_flt.Flags &= ~CCheckFilt::fGoodsCorr;
 			if(temp_flt.CorrGoodsList.GetCount())
@@ -3930,7 +3930,7 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 				}
 				pV->P_CC->MakeCodeString(&chk_rec, bill_memo);
 			}
-			b_filt.LocList.Add(loc_id, 1);
+			b_filt.LocList.Add(loc_id);
 			THROW(pack.CreateBlankByFilt(r_eq_cfg.OpOnTempSess, &b_filt, 1));
 			while(!all_selection || pV->NextIteration(&chk_rec) > 0) {
 				CCheckLineTbl::Rec cc_line;

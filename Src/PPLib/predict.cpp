@@ -1185,7 +1185,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		int16  loc_idx = 0;
 		T.ShrinkLoc(loc_id, &loc_idx);
 		ObjIdListFilt loc_list2;
-		loc_list2.Add(loc_id, 0);
+		loc_list2.AddNotIgnoringZero(loc_id);
 		PredictSalesTbl::Key0 k_init, k;
 		T.SetKey(&k_init, PSRECTYPE_DAY, loc_id, low_goods_id, ZERODATE);
 		k_init.Dt = 0;

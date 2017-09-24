@@ -2463,7 +2463,7 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 	if(pList)
 		pList->clear();
 	if(pFilt->Flags & QuotFilt::fAllLocations)
-		loc_list.Add(0, 0);
+		loc_list.AddNotIgnoringZero(0);
 	if(pFilt->LocID)
 		loc_list.Add(pFilt->LocID);
 	loc_list.Add(&pFilt->LocList.Get());
@@ -2539,7 +2539,7 @@ int SLAPI Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
 			pVal->LocID = rec.LocID;
 			pVal->CurID = rec.CurID;
 			pVal->MinQtty = rec.MinQtty;
-			Quotation2Core::PeriodIdxToPeriod(rec.PeriodIdx, &pVal->Period); // @v7.3.5
+			Quotation2Core::PeriodIdxToPeriod(rec.PeriodIdx, &pVal->Period);
 		}
 		ok = 1;
 	}
@@ -2549,7 +2549,7 @@ int SLAPI Quotation2Core::GetRelByID(PPID relID, PPQuot * pVal)
 		pVal->LocID = 0;
 		pVal->CurID = 0;
 		pVal->MinQtty = 0;
-		pVal->Period.SetZero(); // @v7.3.5
+		pVal->Period.SetZero();
 	}
 	return ok;
 }

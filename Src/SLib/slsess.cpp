@@ -127,7 +127,7 @@ int SLAPI SlThreadLocalArea::RegisterTempFileName(const char * pFileName)
 	return isempty(pFileName) ? -1 : TempFileList.add(pFileName);
 }
 
-int SLAPI SlThreadLocalArea::RemoveTempFiles()
+void SLAPI SlThreadLocalArea::RemoveTempFiles()
 {
 	SString file_name;
 	StringSet temp_list;
@@ -135,7 +135,6 @@ int SLAPI SlThreadLocalArea::RemoveTempFiles()
 		if(!SFile::Remove(file_name))
 			temp_list.add(file_name);
 	TempFileList = temp_list;
-	return 1;
 }
 
 SLAPI SlSession::SlSession() : SSys(1), GlobSymbList(512, 0) // @v9.8.1 256-->512
@@ -251,7 +250,7 @@ int SLAPI SlSession::ResetStopState()
 	return ok;
 }
 
-int SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
+void SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 {
 	/*
 	{
@@ -285,7 +284,6 @@ int SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	}
 	RegisterBIST();
 	SFileFormat::Register();
-	return 1;
 }
 
 void SLAPI SlSession::SetAppName(const char * pAppName)
@@ -409,7 +407,7 @@ const SString & SLAPI SlSession::GetExePath() const
 const SString & SLAPI SlSession::GetAppName() const
 	{ return AppName; }
 
-int SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
+void SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 {
 	if(currentThreadOnly) {
 		GetTLA().UiLanguageId = languageId;
@@ -419,7 +417,6 @@ int SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 		UiLanguageId = languageId;
 		LEAVE_CRITICAL_SECTION
 	}
-	return 1;
 }
 
 int  SLAPI SlSession::GetUiLanguageId() const
@@ -443,13 +440,12 @@ SString & SlSession::GetStopEventName(SString & rBuf) const
 
 int SLAPI SlSession::RegisterTempFileName(const char * pFileName)
 	{ return GetTLA().RegisterTempFileName(pFileName); }
-int SLAPI SlSession::RemoveTempFiles()
-	{ return GetTLA().RemoveTempFiles(); }
+void SLAPI SlSession::RemoveTempFiles()
+	{ GetTLA().RemoveTempFiles(); }
 
-int SLAPI SlSession::SetLogPath(const char * pPath)
+void SLAPI SlSession::SetLogPath(const char * pPath)
 {
 	GetTLA().LogPath = pPath;
-	return 1;
 }
 
 SString & SLAPI SlSession::GetLogPath(SString & rPath) const

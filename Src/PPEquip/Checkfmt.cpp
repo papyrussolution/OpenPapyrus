@@ -188,7 +188,7 @@ private:
 	void   Helper_InitIteration();
 	int    NextToken(SFile & rFile, SString & rResult);
 	int    ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormatZone * pZone);
-	int    AddZone(PPSlipFormatZone * pZone);
+	void   AddZone(PPSlipFormatZone * pZone);
 	int    ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr);
 	int    CheckCondition(const Iter * pIter, const SString & rText, int condition);
 	int    GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtRec = 0);
@@ -1579,6 +1579,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							bip.OutputFormat = SFileFormat::Png;
 							PPMakeTempFileName("fccqr", "png", 0, bip.OutputFileName);
 							if(PPBarcode::CreateImage(bip)) {
+								SLS.RegisterTempFileName(bip.OutputFileName); // @v9.8.2
 								STRNSCPY(r_pb.Path, bip.OutputFileName);
 								ok = 1;
 							}
@@ -1683,10 +1684,9 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 	return ok;
 }
 
-int PPSlipFormat::AddZone(PPSlipFormatZone * pZone)
+void PPSlipFormat::AddZone(PPSlipFormatZone * pZone)
 {
 	ZoneList.insert(pZone);
-	return 1;
 }
 
 int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
@@ -1875,9 +1875,8 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 				// Разбираем конструкцию: "( left_part condition right_part )"
 				THROW(token = NextToken(rFile, rTokResult));
 				THROW_PP_S(token == tokLPar, PPERR_TOKENEXPECTED, "(");
-
 				THROW(token = NextToken(rFile, rTokResult));
-				if(token == tokString || token == tokNumber)
+				if(oneof2(token, tokString, tokNumber))
 					p_entry->Text.Cat(rTokResult);
 				else if(token == tokMetavar)
 					p_entry->Text.Cat(rTokResult);
@@ -1897,7 +1896,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 				}
 				THROW(token = NextToken(rFile, rTokResult));
 				p_entry->Text.Semicol();
-				if(token == tokString || token == tokNumber)
+				if(oneof2(token, tokString, tokNumber))
 					p_entry->Text.Cat(rTokResult);
 				else if(token == tokMetavar)
 					p_entry->Text.Cat(rTokResult);
@@ -2144,7 +2143,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 						}
 						THROW_MEM(p_zone = new PPSlipFormatZone(zone_kind));
 						THROW(token = ParseZone(file, tok_result, 0, p_zone));
-						THROW(AddZone(p_zone));
+						AddZone(p_zone);
 						p_zone = 0;
 					} while(token == tokZone);
 					THROW_PP_S(token == tokRBrace, PPERR_TOKENEXPECTED, "}");

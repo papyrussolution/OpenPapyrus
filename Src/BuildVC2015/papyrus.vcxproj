@@ -1353,6 +1353,7 @@
     <ClCompile Include="..\PPLib\Strstore.cpp" />
     <ClCompile Include="..\PPLib\TAGCORE.CPP" />
     <ClCompile Include="..\PPLib\tddo.cpp" />
+    <ClCompile Include="..\PPLib\tddo2.cpp" />
     <ClCompile Include="..\PPLib\tech.cpp" />
     <ClCompile Include="..\PPLib\tempassc.cpp" />
     <ClCompile Include="..\PPLib\textbrw.cpp" />

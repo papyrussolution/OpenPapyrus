@@ -302,8 +302,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 #if (NGX_HAVE_REUSEPORT)
 
 			if(ls[i].reuseport && !ngx_test_config) {
-				int reuseport;
-				reuseport = 1;
+				int reuseport = 1;
 				if(setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (const void*)&reuseport, sizeof(int)) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno, "setsockopt(SO_REUSEPORT) %V failed", &ls[i].addr_text);
 					if(ngx_close_socket(s) == -1) {
@@ -350,7 +349,6 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 				continue;
 			}
 #if (NGX_HAVE_UNIX_DOMAIN)
-
 			if(ls[i].sockaddr->sa_family == AF_UNIX) {
 				u_char  * name = ls[i].addr_text.data + sizeof("unix:") - 1;
 				mode_t mode = (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
@@ -528,7 +526,6 @@ void ngx_configure_listening_sockets(ngx_cycle_t * cycle)
 			}
 			if(setsockopt(ls[i].fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &value, sizeof(int)) == -1) {
 				ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "setsockopt(TCP_DEFER_ACCEPT, %d) for %V failed, ignored", value, &ls[i].addr_text);
-
 				continue;
 			}
 		}

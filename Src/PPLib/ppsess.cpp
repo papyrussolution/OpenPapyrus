@@ -1493,6 +1493,34 @@ void InitTest()
 	}
 	{
 		//
+		// Проверка компилятора не предмет однозначного равенства результатов сравнения 0 или 1.
+		//
+		int    ix;
+		double rx;
+		void * p_x = 0;
+		ix = 0;
+		assert((ix == 0) == 1);
+		assert((ix != 0) == 0);
+		assert((ix > 0) == 0);
+		assert((ix <= 0) == 1);
+		ix = 93281;
+		assert((ix == 93281) == 1);
+		assert((ix != 93281) == 0);
+		rx = 0.0;
+		assert((rx == 0) == 1);
+		assert((rx != 0) == 0);
+		rx = 17.5;
+		assert((rx == 17.5) == 1);
+		assert((rx != 17.5) == 0);
+		p_x = 0;
+		assert((p_x == 0) == 1);
+		assert((p_x != 0) == 0);
+		p_x = &rx;
+		assert((p_x == &rx) == 1);
+		assert((p_x != &rx) == 0);
+	}
+	{
+		//
 		// Тестирование макроса SETIFZ
 		//
 		int    a = 1;

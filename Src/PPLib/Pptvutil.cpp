@@ -4419,7 +4419,7 @@ int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
-		Data.List.Add(temp_id, 1);
+		Data.List.Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;
@@ -4518,7 +4518,7 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.FreeAll();
-		Data.List.Add(temp_id, 1);
+		Data.List.Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;
@@ -4651,7 +4651,7 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 		pDlg->getCtrlData(CtlselPsn2, &Data.ScndID);
 		const PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
 		Data.PsnOpList.FreeAll();
-		Data.PsnOpList.Add(temp_id, 1);
+		Data.PsnOpList.Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;

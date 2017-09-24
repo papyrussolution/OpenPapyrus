@@ -204,7 +204,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 			BillViewItem bill_item;
 			bill_filt.SetupBrowseBillsType(bbtGoodsBills);
 			bill_filt.Period = Filt.BillPeriod;
-			bill_filt.LocList.Add(Filt.LocID, 1);
+			bill_filt.LocList.Add(Filt.LocID);
 			bill_filt.OpID = Filt.OpID;
 			bill_filt.ObjectID = Filt.ObjectID;
 			if(!(Filt.Flags & FreightFilt::fUseCargoParam)) // AHTOXA

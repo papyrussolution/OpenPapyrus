@@ -389,7 +389,7 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 			if(Filt.DiffParam & GoodsRestParam::_diffExpiry && item.Expiry) {
 				lot_flt.ExpiryPrd.SetDate(item.Expiry);
 			}
-			// } @v9.7.11 
+			// } @v9.7.11
 			if(orderLots) {
 				lot_flt.Flags |= LotFilt::fOrders;
 				if(Filt.Flags & GoodsRestFilt::fEachLocation)
@@ -1047,10 +1047,10 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			r_rec.QttyWithDeficit = r_rec.Quantity - r_rec.Deficit;
 			r_rec.SumPrice    = rItem.Price * (r_rec.QttyWithDeficit + r_rec.DraftRcpt);
 			r_rec.SumCost     = (Flags & fAccsCost) ? (rItem.Cost * (r_rec.QttyWithDeficit + r_rec.DraftRcpt)) : 0.0;
-			if(Flags & fAccsCost && rItem.Cost)
+			/* @v9.8.2 if(Flags & fAccsCost && rItem.Cost)
 				r_rec.PctAddedVal = (float)R5(100.0 * (rItem.Price - rItem.Cost) / rItem.Cost);
 			else
-				r_rec.PctAddedVal = 0.0f;
+				r_rec.PctAddedVal = 0.0f;*/
 			r_rec.SumCVat     = (Flags & fAccsCost) ? (r_rec.SumCVat + rItem.SumCVat) : 0.0; // @v8.3.4
 			r_rec.SumPVat     = (r_rec.SumPVat + rItem.SumPVat); // @v8.3.4
 			if(memcmp(&r_rec, &pattern, sizeof(pattern))) {
@@ -1125,10 +1125,10 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			rec.DraftRcpt   = rItem.DraftRcpt;
 			rec.SumPrice    = rItem.Price * (rItem.Rest + rItem.DraftRcpt - rItem.Deficit);
 			rec.SumCost     = (Flags & fAccsCost) ? (rItem.Cost * (rItem.Rest + rItem.DraftRcpt - rItem.Deficit)) : 0.0;
-			if(Flags & fAccsCost && rItem.Cost)
+			/* @v9.8.2 if(Flags & fAccsCost && rItem.Cost)
 				rec.PctAddedVal = (float)((rItem.Price - rItem.Cost) / rItem.Cost * 100.0);
 			else
-				rec.PctAddedVal = 0.0f;
+				rec.PctAddedVal = 0.0f; */
 			rec.SumCVat     = (Flags & fAccsCost) ? rItem.SumCVat : 0.0; // @v8.3.4
 			rec.SumPVat     = rItem.SumPVat; // @v8.3.4
 			// @v9.7.11 {
@@ -2790,7 +2790,7 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 		TempOrderTbl::Rec ord_rec;
 		TempGoodsRestTbl::Key0 k;
 		TempGoodsRestTbl * p_t = P_Tbl;
-		BExtQuery q(P_Tbl, 0, 64);
+		BExtQuery q(p_t, 0, 64);
 		THROW(p_o = CreateTempOrderFile());
 		THROW_MEM(p_bei = new BExtInsert(p_o));
 		q.select(p_t->ID__, p_t->GoodsID, p_t->GoodsGrp, p_t->BarCode, p_t->Price, 0L);
@@ -2831,7 +2831,8 @@ int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
 {
 	int    ok = -1;
 	BExtQuery::ZDelete(&P_IterQuery);
-	if(P_Tbl) {
+	TempGoodsRestTbl * p_t = P_Tbl;
+	if(p_t) {
 		char   k_[MAXKEYLEN];
 		TempGoodsRestTbl::Key2 k2;
 		int    sp_mode = spFirst;
@@ -2839,15 +2840,15 @@ int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
 		void * k = k_;
 		DBQ * dbq = 0;
 		if(Filt.ExhaustTerm > 0) {
-			dbq = &(*dbq && P_Tbl->RestInDays >= 0L && P_Tbl->RestInDays <= (long)Filt.ExhaustTerm);
+			dbq = &(*dbq && p_t->RestInDays >= 0L && p_t->RestInDays <= (long)Filt.ExhaustTerm);
 		}
 		else if(Filt.ExhaustTerm < 0) {
-			dbq = &(*dbq && P_Tbl->RestInDays >= (long)Filt.ExhaustTerm && P_Tbl->RestInDays < 0L);
+			dbq = &(*dbq && p_t->RestInDays >= (long)Filt.ExhaustTerm && p_t->RestInDays < 0L);
 		}
-		P_IterQuery = new BExtQuery(P_Tbl, IterIdx, 16);
+		P_IterQuery = new BExtQuery(p_t, IterIdx, 16);
 		P_IterQuery->selectAll().where(*dbq);
 		if(grpID) {
-			P_IterQuery->where(P_Tbl->GoodsGrp == grpID);
+			P_IterQuery->where(p_t->GoodsGrp == grpID);
 			if(IterIdx == 2) {
 				MEMSZERO(k2);
 				k2.GoodsGrp = grpID;
@@ -2962,7 +2963,13 @@ int SLAPI PPViewGoodsRest::InitAppBuff(const TempGoodsRestTbl::Rec * pRec, Goods
 		pItem->SumPrice     = pItem->Price * pItem->Rest;
 		pItem->SumCVat      = pRec->SumCVat; // @v8.3.4
 		pItem->SumPVat      = pRec->SumPVat; // @v8.3.4
-		pItem->PctAddedVal  = pRec->PctAddedVal;
+		// @v9.8.2 pItem->PctAddedVal  = pRec->PctAddedVal;
+		// @v9.8.2 {
+		if(Flags & fAccsCost && pItem->Cost)
+			pItem->PctAddedVal = (float)R5(100.0 * (pItem->Price - pItem->Cost) / pItem->Cost);
+		else
+			pItem->PctAddedVal = 0.0f;
+		// } @v9.8.2
 		pItem->IsPredictTrust = pRec->IsPredictTrust;
 		pItem->Predict      = pRec->Predict;
 		pItem->RestInDays   = pRec->RestInDays;
@@ -3443,6 +3450,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBQ  * dbq = 0;
 	DBE    cq;
 	DBE    dbe_loc;
+	DBE    dbe_pct_add;
 	DBE  * dbe_rest_total = 0;
 	if(P_Ct == 0) {
 		THROW_MEM(tbl = new TempGoodsRestTbl(P_Tbl->fileName));
@@ -3509,7 +3517,14 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		q->addField(tbl->SumCost);         // #14
 		q->addField(tbl->SumPrice);        // #15
 		q->addField(tbl->RestInDays);      // #16
-		q->addField(tbl->PctAddedVal);     // #17
+		{
+			if(Flags & fAccsCost)
+				PPDbqFuncPool::InitPctFunc(dbe_pct_add, tbl->Price, tbl->Cost, 2);
+			else
+				PPDbqFuncPool::InitPctFunc(dbe_pct_add, tbl->Price, tbl->Price, 2);
+			// @v9.8.2 q->addField(tbl->PctAddedVal);     // #17
+			q->addField(dbe_pct_add);            // #17 @v9.8.2
+		}
 		q->addField(tbl->Deficit);         // #18
 		q->addField(tbl->QttyWithDeficit); // #19
 		q->addField(tbl->SubstAsscCount);  // #20
@@ -3980,7 +3995,7 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 					SETIFZ(P_OpGrpngFilt, new OpGroupingFilt);
 					if(P_OpGrpngFilt) {
 						P_OpGrpngFilt->LocList.Set(0);
-						P_OpGrpngFilt->LocList.Add(hdr.LocID, 1);
+						P_OpGrpngFilt->LocList.Add(hdr.LocID);
 						P_OpGrpngFilt->SupplID = Filt.SupplID;
 						P_OpGrpngFilt->GoodsID = hdr.GoodsID;
 						if(v.EditBaseFilt(P_OpGrpngFilt) > 0)

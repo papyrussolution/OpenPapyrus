@@ -208,12 +208,11 @@ char * ngx_conf_parse(ngx_conf_t * cf, ngx_str_t * filename)
 				goto failed;
 			}
 		}
-		/* rc == NGX_OK || rc == NGX_CONF_BLOCK_START */
+		// rc == NGX_OK || rc == NGX_CONF_BLOCK_START 
 		if(cf->handler) {
-			/*
-			 * the custom handler, i.e., that is used in the http's
-			 * "types { ... }" directive
-			 */
+			//
+			// the custom handler, i.e., that is used in the http's "types { ... }" directive
+			//
 			if(rc == NGX_CONF_BLOCK_START) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unexpected \"{\"");
 				goto failed;
@@ -427,7 +426,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 			continue;
 		}
 		if(need_space) {
-			if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF) {
+			if(oneof4(ch, ' ', '\t', __CR, LF)) {
 				last_space = 1;
 				need_space = 0;
 				continue;
@@ -448,7 +447,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 			}
 		}
 		if(last_space) {
-			if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF) {
+			if(oneof4(ch, ' ', '\t', __CR, LF)) {
 				continue;
 			}
 			start = b->pos - 1;
@@ -518,7 +517,7 @@ static ngx_int_t ngx_conf_read_token(ngx_conf_t * cf)
 					found = 1;
 				}
 			}
-			else if(ch == ' ' || ch == '\t' || ch == __CR || ch == LF || ch == ';' || ch == '{') {
+			else if(oneof6(ch, ' ', '\t', __CR, LF, ';', '{')) {
 				last_space = 1;
 				found = 1;
 			}
@@ -647,10 +646,7 @@ ngx_open_file_t * FASTCALL ngx_conf_open_file(ngx_cycle_t * cycle, const ngx_str
 				file = (ngx_open_file_t *)part->elts;
 				i = 0;
 			}
-			if(full.len != file[i].name.len) {
-				continue;
-			}
-			if(sstreq(full.data, file[i].name.data)) {
+			if(full.len == file[i].name.len && sstreq(full.data, file[i].name.data)) {
 				return &file[i];
 			}
 		}

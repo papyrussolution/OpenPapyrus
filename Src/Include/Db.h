@@ -1286,7 +1286,7 @@ public:
 //
 int    FASTCALL Btr2SLibType(int);
 int    FASTCALL SLib2BtrType(int);
-int    SLAPI DBRemoveTempFiles();
+void   SLAPI DBRemoveTempFiles();
 //
 // Класс BNKey ссылается на поля таблицы DBTable
 // по индексу в списке DBTable::fields
@@ -1915,7 +1915,7 @@ public:
 
 class DbDictionary {
 public:
-	static int SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options));
+	static void SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options));
 	static DbDictionary * CreateInstance(const char * pPath, long options);
 
 	SLAPI  DbDictionary();
@@ -2185,7 +2185,7 @@ public:
 	//   используется функция DOS remove(); Если файл прихвачен другим
 	//   приложением или пользователем, то он просто не удаляется и все.
 	//
-	int    SLAPI RemoveTempFiles();
+	void   SLAPI RemoveTempFiles();
 	//
 	// Descr: Добавляет в коллекцию имен временных файлов имя файла pFileName.
 	//   При разрушении экземпляра словаря все файлы, имена которых находятся в
@@ -3315,14 +3315,14 @@ struct DBE : public DBItem {
 		};
 	} * P_Terms;
 
-	int    FASTCALL init();
-	void   FASTCALL destroy();
+	void   init();
+	void   destroy();
 	int    FASTCALL getTblHandle(int item);
 	int    FASTCALL evaluate(int option, DBConst *);
 	int    FASTCALL push(DBE::T *);
 	int    FASTCALL push(DBItem &);
 	int    FASTCALL push(DBFunc);
-	int    FASTCALL pop();
+	int    pop();
 	int    FASTCALL call(int option, DBConst *);
 };
 //
@@ -3368,7 +3368,7 @@ struct DBQ {
 
 	SLAPI  DBQ(DBItem &, int comp, DBItem &);
 	SLAPI  DBQ(int logic, DBQ &, DBQ &);
-	void   SLAPI destroy(int withTree = 0);
+	void   FASTCALL destroy(int withTree = 0);
 	int    SLAPI testForKey(int itm, int tblID, int * pIsDyn);
 		// @<<DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 	int    SLAPI getPotentialKey(int itm, int tblID, int segment, KR * pKr);
@@ -3381,7 +3381,7 @@ struct DBQ {
 
 struct DBTree {
 	SLAPI  DBTree(DBQ * pOwner = 0);
-	void   SLAPI init(DBQ * pOwner);
+	void   FASTCALL init(DBQ * pOwner);
 	int    SLAPI addNode(int link, int left, int right, int * pPos);
 	int    SLAPI addLeaf(int term, int flags, int * pPos);
 	int    SLAPI addTree(DBTree *, int p, int * pPos);
@@ -3389,7 +3389,6 @@ struct DBTree {
 	int    FASTCALL checkRestriction(int = -1);
 	int    FASTCALL expand(int *);
 	void   SLAPI destroy();
-
 	int    SLAPI CreateSqlExpr(Generator_SQL * pGen, int node) const;
 
 	DBQ  * P_Terms;
@@ -3407,8 +3406,8 @@ struct DBTree {
 };
 
 struct __range {
-	void * low;
-	void * upp;
+	const void * low;
+	const void * upp;
 	int    ol; // Признак строгого сравнения (_LT_)
 	int    ou; // Признак строгого сравнения (_GT_)
 };
@@ -3491,8 +3490,8 @@ public:
 
 int SLAPI compare(KR, KR);
 
-DBQuery & SLAPI  selectbycell(int count, DBDataCell *);
-DBQuery & SLAPI  select(const DBFieldList &);
+DBQuery & FASTCALL selectbycell(int count, DBDataCell *);
+DBQuery & FASTCALL select(const DBFieldList &);
 DBQuery & SLAPIV select(DBField,...);
 DBQuery & SLAPI  selectAll();
 
@@ -3549,10 +3548,10 @@ public:
 	DBQuery & SLAPIV orderBy(DBField,...);
 	DBQuery & FASTCALL where(DBQ &);
 	DBQuery & SLAPI  having(DBQ &);
-	int    SLAPI addField(DBConst &);
-	int    SLAPI addField(DBE &);
-	int    SLAPI addField(DBField &);
-	int    SLAPI addTable(DBTable *);
+	int    FASTCALL addField(DBConst &);
+	int    FASTCALL addField(DBE &);
+	int    FASTCALL addField(DBField &);
+	int    FASTCALL addTable(DBTable *);
 	int    SLAPI addOrderField(const DBField & rFld);
 	int    SLAPI getFieldPosByName(const char * pFldName, uint * pPos) const;
 	int    SLAPI setFrame(uint viewHight, uint = (uint)_defaultBufSize, uint = (uint)_defaultBufDelta);
@@ -4350,7 +4349,7 @@ private:
 	//   0  - ошибка
 	//
 	void * Helper_Open(const char * pFileName, BDbTable * pTbl, int flags);
-	int    Helper_Close(void * pH);
+	void   Helper_Close(void * pH);
 	uint   FASTCALL SearchSequence(const char * pSeqName) const;
 	int    FASTCALL Helper_CloseSequence(uint pos);
 

@@ -664,7 +664,7 @@ void SLAPI PPBaseFilt::SetFlatChunk(size_t offs, size_t size)
 	FlatSize = (uint16)size;
 }
 
-int SLAPI PPBaseFilt::CheckBranchOffs(size_t offs)
+int FASTCALL PPBaseFilt::CheckBranchOffs(size_t offs)
 {
 	assert(offs >= sizeof(*this));
 	assert(!FlatOffs || offs < FlatOffs || offs >= (size_t)(FlatOffs + FlatSize));

@@ -254,17 +254,16 @@ int FASTCALL compare(DBConst * c1, DBConst * c2)
 //
 // DBE
 //
-int FASTCALL DBE::init()
+void DBE::init()
 {
 	id = DBE_ID;
 	P_Terms = 0;
 	Count = 0;
 	Pointer = 0;
 	DontDestroy = 0;
-	return 1;
 }
 
-void FASTCALL DBE::destroy()
+void DBE::destroy()
 {
 	if(P_Terms) {
 		for(int i = 0; i < Count; i++) {
@@ -350,7 +349,7 @@ int FASTCALL DBE::push(DBFunc f)
 	return push(&t);
 }
 
-int FASTCALL DBE::pop()
+int DBE::pop()
 {
 	if(Pointer) {
 		Pointer--;
@@ -700,7 +699,7 @@ SLAPI DBQ::DBQ(int logic, DBQ & left, DBQ & right)
 	delete &right;
 }
 
-void SLAPI DBQ::destroy(int withTree)
+void FASTCALL DBQ::destroy(int withTree)
 {
 	ZDELETE(items);
 	count = 0;
@@ -833,11 +832,11 @@ int FASTCALL DBQ::checkTerm(int itm)
 			l.destroy();
 			r.destroy();
 			if(c > 0)
-				c = (cmp == _GT_ || cmp == _GE_);
+				c = oneof2(cmp, _GT_, _GE_);
 			else if(c < 0)
-				c = (cmp == _LT_ || cmp == _LE_);
+				c = oneof2(cmp, _LT_, _LE_);
 			else
-				c = (cmp == _EQ_ || cmp == _LE_ || cmp == _GE_);
+				c = oneof3(cmp, _EQ_, _LE_, _GE_);
 			return c;
 		}
 	}
@@ -850,7 +849,7 @@ SLAPI DBTree::DBTree(DBQ * pOwner)
 	init(pOwner);
 }
 
-void SLAPI DBTree::init(DBQ * pOwner)
+void FASTCALL DBTree::init(DBQ * pOwner)
 {
 	P_Terms = pOwner;
 	Count = 0;

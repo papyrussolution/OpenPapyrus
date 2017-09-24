@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -951,7 +951,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 				QuotFilt q_filt;
 				QuotViewItem q_item;
 				q_filt.QuotKindID = flt.AdvOptQuotKindID;
-				q_filt.LocList.Add(flt.AdvOptLocID, 1 /* ignore zero */);
+				q_filt.LocList.Add(flt.AdvOptLocID);
 				q_filt.GoodsGrpID = flt.GoodsGrpID;
 				q_filt.GoodsID    = flt.GoodsID; // @v7.3.8
 				THROW_PP(flt.AdvOptQuotKindID, PPERR_QUOTKINDNEEDED);

@@ -3187,79 +3187,10 @@ public:
 		uint   WordCount; // Количество слов в элементе
 	};
 	struct RunStat : public SStrGroup, public TSArray <PPKeywordListGenerator::RunStatEntry> {
-		RunStat()
-		{
-			WordCount = 0;
-			ItemCount = 0;
-			LastRunWordCount = 0;
-			LastRunItemCount = 0;
-			RunCount = 0;
-		}
-		int    GetText(uint p, SString & rText) const
-		{
-			return GetS(p, rText);
-		}
-		int    AddItem(const SString & rItem)
-		{
-			uint   idx = 0;
-			StringSet ss;
-			rItem.Tokenize(" \t\n\r.,;", ss);
-            SString temp_buf;
-            uint   p = 0;
-            uint   word_count = 0;
-            for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				word_count++;
-            	p = 0;
-            	PPKeywordListGenerator::RunStatEntry entry;
-				temp_buf.Strip();
-                if(Pool.search(temp_buf, &p, 0)) {
-					if(lsearch(&p, &idx, CMPF_LONG)) {
-						assert(at(idx).WordCount == 1);
-						at(idx).Count++;
-					}
-					else {
-						entry.WordP = p;
-						entry.Count = 1;
-						entry.WordCount = 1;
-						insert(&entry);
-					}
-                }
-                else {
-                	AddS(temp_buf, &entry.WordP);
-					entry.Count = 1;
-					entry.WordCount = 1;
-					insert(&entry);
-                }
-                WordCount++;
-            }
-            if(word_count > 1) {
-				PPKeywordListGenerator::RunStatEntry entry;
-            	(temp_buf = rItem).Strip();
-                if(Pool.search(temp_buf, &p, 0)) {
-					if(lsearch(&p, &idx, CMPF_LONG)) {
-						assert(at(idx).WordCount == word_count);
-						at(idx).Count++;
-					}
-					else {
-						entry.WordP = p;
-						entry.Count = 1;
-						entry.WordCount = word_count;
-						insert(&entry);
-					}
-                }
-                else {
-                	AddS(temp_buf, &entry.WordP);
-					entry.Count = 1;
-					entry.WordCount = word_count;
-					insert(&entry);
-                }
-            }
-			WordCount += word_count;
-			ItemCount++;
-			LastRunWordCount += word_count;
-			LastRunItemCount++;
-			return 1;
-		}
+		RunStat();
+		int    GetText(uint p, SString & rText) const;
+		int    AddItem(const SString & rItem);
+
 		uint   WordCount;
 		uint   ItemCount;
 		uint   LastRunWordCount;
@@ -3268,22 +3199,10 @@ public:
 	};
 
 	SLAPI  PPKeywordListGenerator();
-	SLAPI ~PPKeywordListGenerator()
-	{
-	}
-	void   SLAPI Clear()
-	{
-		SStrGroup::ClearS();
-		List.freeAll();
-	}
-	const SString & SLAPI GetDataFileName() const
-	{
-		return DataFileName;
-	}
-	int SLAPI GetWord(uint wordP, SString & rBuf) const
-	{
-		return GetS(wordP, rBuf);
-	}
+	SLAPI ~PPKeywordListGenerator();
+	void   SLAPI Clear();
+	const  SString & SLAPI GetDataFileName() const;
+	int    SLAPI GetWord(uint wordP, SString & rBuf) const;
 	int    SLAPI Run(const char * pContext, SString & rResult, RunStat * pStat);
 private:
 	int    SLAPI ReadData(const char * pFileName);
@@ -3314,24 +3233,10 @@ private:
 	class RandWordBlock : public SStrGroup {
 	public:
 		int    SLAPI ReadData(const char * pFileName);
-		void   SLAPI Clear()
-		{
-			SStrGroup::ClearS();
-			Idx.freeAll();
-		}
-        uint   SLAPI GetCount() const
-        {
-        	return Idx.getCount();
-        }
-        int    FASTCALL GetWord(uint idx, SString & rBuf) const
-        {
-        	rBuf.Z();
-        	if(idx < Idx.getCount()) {
-				const uint pos = (uint)Idx.get(idx);
-        		GetS(pos, rBuf);
-        	}
-        	return BIN(rBuf.NotEmpty());
-        }
+		void   SLAPI Clear();
+        uint   SLAPI GetCount() const;
+        int    FASTCALL GetWord(uint idx, SString & rBuf) const;
+
 		LongArray Idx;
 	};
 	RandWordBlock Rwb;
@@ -3339,6 +3244,82 @@ private:
 	LDATETIME DataFileDtm;
 	SCycleTimer DataFileChangeDetectTimer;
 };
+
+PPKeywordListGenerator::RunStat::RunStat()
+{
+	WordCount = 0;
+	ItemCount = 0;
+	LastRunWordCount = 0;
+	LastRunItemCount = 0;
+	RunCount = 0;
+}
+
+int PPKeywordListGenerator::RunStat::GetText(uint p, SString & rText) const
+{
+	return GetS(p, rText);
+}
+
+int PPKeywordListGenerator::RunStat::AddItem(const SString & rItem)
+{
+	uint   idx = 0;
+	StringSet ss;
+	rItem.Tokenize(" \t\n\r.,;", ss);
+	SString temp_buf;
+	uint   p = 0;
+	uint   word_count = 0;
+	for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+		word_count++;
+		p = 0;
+		PPKeywordListGenerator::RunStatEntry entry;
+		temp_buf.Strip();
+		if(Pool.search(temp_buf, &p, 0)) {
+			if(lsearch(&p, &idx, CMPF_LONG)) {
+				assert(at(idx).WordCount == 1);
+				at(idx).Count++;
+			}
+			else {
+				entry.WordP = p;
+				entry.Count = 1;
+				entry.WordCount = 1;
+				insert(&entry);
+			}
+		}
+		else {
+			AddS(temp_buf, &entry.WordP);
+			entry.Count = 1;
+			entry.WordCount = 1;
+			insert(&entry);
+		}
+		WordCount++;
+	}
+	if(word_count > 1) {
+		PPKeywordListGenerator::RunStatEntry entry;
+		(temp_buf = rItem).Strip();
+		if(Pool.search(temp_buf, &p, 0)) {
+			if(lsearch(&p, &idx, CMPF_LONG)) {
+				assert(at(idx).WordCount == word_count);
+				at(idx).Count++;
+			}
+			else {
+				entry.WordP = p;
+				entry.Count = 1;
+				entry.WordCount = word_count;
+				insert(&entry);
+			}
+		}
+		else {
+			AddS(temp_buf, &entry.WordP);
+			entry.Count = 1;
+			entry.WordCount = word_count;
+			insert(&entry);
+		}
+	}
+	WordCount += word_count;
+	ItemCount++;
+	LastRunWordCount += word_count;
+	LastRunItemCount++;
+	return 1;
+}
 
 SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000)
 {
@@ -3359,6 +3340,26 @@ SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileCh
 	}
 }
 
+SLAPI PPKeywordListGenerator::~PPKeywordListGenerator()
+{
+}
+
+void SLAPI PPKeywordListGenerator::Clear()
+{
+	SStrGroup::ClearS();
+	List.freeAll();
+}
+
+const SString & SLAPI PPKeywordListGenerator::GetDataFileName() const
+{
+	return DataFileName;
+}
+
+int SLAPI PPKeywordListGenerator::GetWord(uint wordP, SString & rBuf) const
+{
+	return GetS(wordP, rBuf);
+}
+
 int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName)
 {
 	int    ok = 1;
@@ -3377,6 +3378,27 @@ int SLAPI PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName
     else
 		ok = 0;
     return ok;
+}
+
+void SLAPI PPKeywordListGenerator::RandWordBlock::Clear()
+{
+	SStrGroup::ClearS();
+	Idx.freeAll();
+}
+
+uint SLAPI PPKeywordListGenerator::RandWordBlock::GetCount() const
+{
+	return Idx.getCount();
+}
+
+int FASTCALL PPKeywordListGenerator::RandWordBlock::GetWord(uint idx, SString & rBuf) const
+{
+	rBuf.Z();
+	if(idx < Idx.getCount()) {
+		const uint pos = (uint)Idx.get(idx);
+		GetS(pos, rBuf);
+	}
+	return BIN(rBuf.NotEmpty());
 }
 
 int SLAPI PPKeywordListGenerator::GetRandomWord(SString & rBuf)
@@ -3497,7 +3519,6 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 	rResult.Z();
 	if(pStat)
 		pStat->LastRunWordCount = 0;
-
 	int    ok = 0;
 	uint   grp_pos = 0;
 	SString context, temp_buf, random_word;

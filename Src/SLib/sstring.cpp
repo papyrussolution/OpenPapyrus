@@ -329,6 +329,11 @@ int SLAPI SStrScan::IsDigits()
 	return ok;
 }
 
+int SLAPI SStrScan::IsEnd() const
+{
+	return (!P_Buf || Offs >= Len || P_Buf[Offs] == 0);
+}
+
 int SLAPI SStrScan::IsNumber()
 {
 	return BIN(InitReNumber() && P_ReNumber->Find(P_Buf+Offs));
@@ -2655,6 +2660,16 @@ SString & SLAPI SString::Chomp()
 			TrimRight();
 	}
 	return *this;
+}
+
+int SLAPI SString::Empty() const 
+{ 
+	return BIN(Len() == 0); 
+}
+
+int SLAPI SString::NotEmpty() const 
+{ 
+	return BIN(Len()); 
 }
 
 int SLAPI SString::NotEmptyS()

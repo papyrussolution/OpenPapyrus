@@ -815,7 +815,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 					if(CycleList.getCount() == 0) {
 						for(uint i = 0; i < loc_list.getCount(); i++) {
 							ObjIdListFilt objlf_loc_list;
-							objlf_loc_list.Add(loc_list.at(i), 0);
+							objlf_loc_list.Add(loc_list.at(i));
 							if(PsT.CalcStat(goods_rec.ID, objlf_loc_list, &Filt.Period, 0, &pss) > 0) {
 								sgg_blk.LocID = pss.LocID;
 								THROW(GObj.SubstGoods(goods_rec.ID, &subst_id, Filt.Sgg, &sgg_blk, &Gsl));
@@ -845,7 +845,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 					else {
 						ObjIdListFilt objlf_loc_list;
 						if(Filt.Sgg == sggLocation)
-							objlf_loc_list.Add(subst_id & ~GOODSSUBSTMASK, 0);
+							objlf_loc_list.AddNotIgnoringZero(subst_id & ~GOODSSUBSTMASK);
 						else
 							objlf_loc_list.Set(&loc_list);
 						if(PsT.CalcStat(id_list, objlf_loc_list, &Filt.Period, &pss) > 0)
@@ -1203,7 +1203,7 @@ int SLAPI PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			ps_filt.SetGoodsList(&id_list, temp_buf);
 			ps_filt.LocList = Filt.LocList;
 			if(Filt.Sgg == sggLocation)
-				ps_filt.LocList.Add(goods_id & ~GOODSSUBSTMASK, 0);
+				ps_filt.LocList.AddNotIgnoringZero(goods_id & ~GOODSSUBSTMASK);
 		}
 		else {
 			ps_filt.GoodsGrpID = Filt.GoodsGrpID;

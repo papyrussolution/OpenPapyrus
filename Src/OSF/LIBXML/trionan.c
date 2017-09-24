@@ -454,9 +454,7 @@ TRIO_PUBLIC int trio_isfinite(double number)
 TRIO_PUBLIC int trio_fpclassify_and_signbit(double number, int * is_negative)
 {
 #if defined(fpclassify) && defined(signbit)
-	/*
-	 * C99 defines fpclassify() and signbit() as a macros
-	 */
+	// C99 defines fpclassify() and signbit() as a macros
 	*is_negative = signbit(number);
 	switch(fpclassify(number)) {
 		case FP_NAN: return TRIO_FP_NAN;
@@ -465,126 +463,109 @@ TRIO_PUBLIC int trio_fpclassify_and_signbit(double number, int * is_negative)
 		case FP_ZERO: return TRIO_FP_ZERO;
 		default: return TRIO_FP_NORMAL;
 	}
-
 #else
-# if defined(TRIO_COMPILER_DECC)
-	/*
-	 * DECC has an fp_class() function.
-	 */
-#  define TRIO_FPCLASSIFY(n) fp_class(n)
-#  define TRIO_QUIET_NAN FP_QNAN
-#  define TRIO_SIGNALLING_NAN FP_SNAN
-#  define TRIO_POSITIVE_INFINITY FP_POS_INF
-#  define TRIO_NEGATIVE_INFINITY FP_NEG_INF
-#  define TRIO_POSITIVE_SUBNORMAL FP_POS_DENORM
-#  define TRIO_NEGATIVE_SUBNORMAL FP_NEG_DENORM
-#  define TRIO_POSITIVE_ZERO FP_POS_ZERO
-#  define TRIO_NEGATIVE_ZERO FP_NEG_ZERO
-#  define TRIO_POSITIVE_NORMAL FP_POS_NORM
-#  define TRIO_NEGATIVE_NORMAL FP_NEG_NORM
-
-# elif defined(TRIO_COMPILER_MSVC) || defined(TRIO_COMPILER_BCB)
-	/*
-	 * Microsoft Visual C++ and Borland C++ Builder have an _fpclass()
-	 * function.
-	 */
-#  define TRIO_FPCLASSIFY(n) _fpclass(n)
-#  define TRIO_QUIET_NAN _FPCLASS_QNAN
-#  define TRIO_SIGNALLING_NAN _FPCLASS_SNAN
-#  define TRIO_POSITIVE_INFINITY _FPCLASS_PINF
-#  define TRIO_NEGATIVE_INFINITY _FPCLASS_NINF
-#  define TRIO_POSITIVE_SUBNORMAL _FPCLASS_PD
-#  define TRIO_NEGATIVE_SUBNORMAL _FPCLASS_ND
-#  define TRIO_POSITIVE_ZERO _FPCLASS_PZ
-#  define TRIO_NEGATIVE_ZERO _FPCLASS_NZ
-#  define TRIO_POSITIVE_NORMAL _FPCLASS_PN
-#  define TRIO_NEGATIVE_NORMAL _FPCLASS_NN
-
-# elif defined(FP_PLUS_NORM)
-	/*
-	 * HP-UX 9.x and 10.x have an fpclassify() function, that is different
-	 * from the C99 fpclassify() macro supported on HP-UX 11.x.
-	 *
-	 * AIX has class() for C, and _class() for C++, which returns the
-	 * same values as the HP-UX fpclassify() function.
-	 */
-#  if defined(TRIO_PLATFORM_AIX)
-#   if defined(__cplusplus)
-#    define TRIO_FPCLASSIFY(n) _class(n)
-#   else
-#    define TRIO_FPCLASSIFY(n) class(n)
-#   endif
-#  else
-#   define TRIO_FPCLASSIFY(n) fpclassify(n)
-#  endif
-#  define TRIO_QUIET_NAN FP_QNAN
-#  define TRIO_SIGNALLING_NAN FP_SNAN
-#  define TRIO_POSITIVE_INFINITY FP_PLUS_INF
-#  define TRIO_NEGATIVE_INFINITY FP_MINUS_INF
-#  define TRIO_POSITIVE_SUBNORMAL FP_PLUS_DENORM
-#  define TRIO_NEGATIVE_SUBNORMAL FP_MINUS_DENORM
-#  define TRIO_POSITIVE_ZERO FP_PLUS_ZERO
-#  define TRIO_NEGATIVE_ZERO FP_MINUS_ZERO
-#  define TRIO_POSITIVE_NORMAL FP_PLUS_NORM
-#  define TRIO_NEGATIVE_NORMAL FP_MINUS_NORM
-# endif
-
-# if defined(TRIO_FPCLASSIFY)
-	switch(TRIO_FPCLASSIFY(number)) {
-		case TRIO_QUIET_NAN:
-		case TRIO_SIGNALLING_NAN: /* NaN has no sign */ *is_negative = TRIO_FALSE; return TRIO_FP_NAN;
-		case TRIO_POSITIVE_INFINITY: *is_negative = TRIO_FALSE; return TRIO_FP_INFINITE;
-		case TRIO_NEGATIVE_INFINITY: *is_negative = TRIO_TRUE; return TRIO_FP_INFINITE;
-		case TRIO_POSITIVE_SUBNORMAL: *is_negative = TRIO_FALSE; return TRIO_FP_SUBNORMAL;
-		case TRIO_NEGATIVE_SUBNORMAL: *is_negative = TRIO_TRUE; return TRIO_FP_SUBNORMAL;
-		case TRIO_POSITIVE_ZERO: *is_negative = TRIO_FALSE; return TRIO_FP_ZERO;
-		case TRIO_NEGATIVE_ZERO: *is_negative = TRIO_TRUE; return TRIO_FP_ZERO;
-		case TRIO_POSITIVE_NORMAL: *is_negative = TRIO_FALSE; return TRIO_FP_NORMAL;
-		case TRIO_NEGATIVE_NORMAL: *is_negative = TRIO_TRUE; return TRIO_FP_NORMAL;
-		default: /* Just in case... */ *is_negative = (number < 0.0); return TRIO_FP_NORMAL;
-	}
-# else
-	/*
-	 * Fallback solution.
-	 */
-	int rc;
-
-	if(number == 0.0) {
-		/*
-		 * In IEEE 754 the sign of zero is ignored in comparisons, so we
-		 * have to handle this as a special case by examining the sign bit
-		 * directly.
-		 */
-#  if defined(USE_IEEE_754)
-		*is_negative = trio_is_negative(number);
-#  else
-		*is_negative = TRIO_FALSE; /* FIXME */
-#  endif
-		return TRIO_FP_ZERO;
-	}
-	if(trio_isnan(number)) {
-		*is_negative = TRIO_FALSE;
-		return TRIO_FP_NAN;
-	}
-	if((rc = trio_isinf(number))) {
-		*is_negative = (rc == -1);
-		return TRIO_FP_INFINITE;
-	}
-	if((number > 0.0) && (number < DBL_MIN)) {
-		*is_negative = TRIO_FALSE;
-		return TRIO_FP_SUBNORMAL;
-	}
-	if((number < 0.0) && (number > -DBL_MIN)) {
-		*is_negative = TRIO_TRUE;
-		return TRIO_FP_SUBNORMAL;
-	}
-	*is_negative = (number < 0.0);
-	return TRIO_FP_NORMAL;
-
-# endif
+	#if defined(TRIO_COMPILER_DECC)
+		// DECC has an fp_class() function.
+		#define TRIO_FPCLASSIFY(n) fp_class(n)
+		#define TRIO_QUIET_NAN FP_QNAN
+		#define TRIO_SIGNALLING_NAN FP_SNAN
+		#define TRIO_POSITIVE_INFINITY FP_POS_INF
+		#define TRIO_NEGATIVE_INFINITY FP_NEG_INF
+		#define TRIO_POSITIVE_SUBNORMAL FP_POS_DENORM
+		#define TRIO_NEGATIVE_SUBNORMAL FP_NEG_DENORM
+		#define TRIO_POSITIVE_ZERO FP_POS_ZERO
+		#define TRIO_NEGATIVE_ZERO FP_NEG_ZERO
+		#define TRIO_POSITIVE_NORMAL FP_POS_NORM
+		#define TRIO_NEGATIVE_NORMAL FP_NEG_NORM
+	#elif defined(TRIO_COMPILER_MSVC) || defined(TRIO_COMPILER_BCB)
+		// Microsoft Visual C++ and Borland C++ Builder have an _fpclass() function.
+		#define TRIO_FPCLASSIFY(n) _fpclass(n)
+		#define TRIO_QUIET_NAN _FPCLASS_QNAN
+		#define TRIO_SIGNALLING_NAN _FPCLASS_SNAN
+		#define TRIO_POSITIVE_INFINITY _FPCLASS_PINF
+		#define TRIO_NEGATIVE_INFINITY _FPCLASS_NINF
+		#define TRIO_POSITIVE_SUBNORMAL _FPCLASS_PD
+		#define TRIO_NEGATIVE_SUBNORMAL _FPCLASS_ND
+		#define TRIO_POSITIVE_ZERO _FPCLASS_PZ
+		#define TRIO_NEGATIVE_ZERO _FPCLASS_NZ
+		#define TRIO_POSITIVE_NORMAL _FPCLASS_PN
+		#define TRIO_NEGATIVE_NORMAL _FPCLASS_NN
+	#elif defined(FP_PLUS_NORM)
+		//
+		// HP-UX 9.x and 10.x have an fpclassify() function, that is different from the C99 fpclassify() macro supported on HP-UX 11.x.
+		//
+		// AIX has class() for C, and _class() for C++, which returns the same values as the HP-UX fpclassify() function.
+		//
+		#if defined(TRIO_PLATFORM_AIX)
+			#if defined(__cplusplus)
+				#define TRIO_FPCLASSIFY(n) _class(n)
+			#else
+				#define TRIO_FPCLASSIFY(n) class(n)
+			#endif
+		#else
+			#define TRIO_FPCLASSIFY(n) fpclassify(n)
+		#endif
+		#define TRIO_QUIET_NAN FP_QNAN
+		#define TRIO_SIGNALLING_NAN FP_SNAN
+		#define TRIO_POSITIVE_INFINITY FP_PLUS_INF
+		#define TRIO_NEGATIVE_INFINITY FP_MINUS_INF
+		#define TRIO_POSITIVE_SUBNORMAL FP_PLUS_DENORM
+		#define TRIO_NEGATIVE_SUBNORMAL FP_MINUS_DENORM
+		#define TRIO_POSITIVE_ZERO FP_PLUS_ZERO
+		#define TRIO_NEGATIVE_ZERO FP_MINUS_ZERO
+		#define TRIO_POSITIVE_NORMAL FP_PLUS_NORM
+		#define TRIO_NEGATIVE_NORMAL FP_MINUS_NORM
+	#endif
+	#if defined(TRIO_FPCLASSIFY)
+		switch(TRIO_FPCLASSIFY(number)) {
+			case TRIO_QUIET_NAN:
+			case TRIO_SIGNALLING_NAN: /* NaN has no sign */ *is_negative = TRIO_FALSE; return TRIO_FP_NAN;
+			case TRIO_POSITIVE_INFINITY: *is_negative = TRIO_FALSE; return TRIO_FP_INFINITE;
+			case TRIO_NEGATIVE_INFINITY: *is_negative = TRIO_TRUE; return TRIO_FP_INFINITE;
+			case TRIO_POSITIVE_SUBNORMAL: *is_negative = TRIO_FALSE; return TRIO_FP_SUBNORMAL;
+			case TRIO_NEGATIVE_SUBNORMAL: *is_negative = TRIO_TRUE; return TRIO_FP_SUBNORMAL;
+			case TRIO_POSITIVE_ZERO: *is_negative = TRIO_FALSE; return TRIO_FP_ZERO;
+			case TRIO_NEGATIVE_ZERO: *is_negative = TRIO_TRUE; return TRIO_FP_ZERO;
+			case TRIO_POSITIVE_NORMAL: *is_negative = TRIO_FALSE; return TRIO_FP_NORMAL;
+			case TRIO_NEGATIVE_NORMAL: *is_negative = TRIO_TRUE; return TRIO_FP_NORMAL;
+			default: /* Just in case... */ *is_negative = (number < 0.0); return TRIO_FP_NORMAL;
+		}
+	#else
+		// 
+		// Fallback solution.
+		// 
+		int rc;
+		if(number == 0.0) {
+			// In IEEE 754 the sign of zero is ignored in comparisons, so we
+			// have to handle this as a special case by examining the sign bit directly.
+	#if defined(USE_IEEE_754)
+			*is_negative = trio_is_negative(number);
+	#else
+			*is_negative = TRIO_FALSE; /* FIXME */
+	#endif
+			return TRIO_FP_ZERO;
+		}
+		if(trio_isnan(number)) {
+			*is_negative = TRIO_FALSE;
+			return TRIO_FP_NAN;
+		}
+		if((rc = trio_isinf(number))) {
+			*is_negative = (rc == -1);
+			return TRIO_FP_INFINITE;
+		}
+		if((number > 0.0) && (number < DBL_MIN)) {
+			*is_negative = TRIO_FALSE;
+			return TRIO_FP_SUBNORMAL;
+		}
+		if((number < 0.0) && (number > -DBL_MIN)) {
+			*is_negative = TRIO_TRUE;
+			return TRIO_FP_SUBNORMAL;
+		}
+		*is_negative = (number < 0.0);
+		return TRIO_FP_NORMAL;
+	#endif
 #endif
 }
-
 /**
    Examine the sign of a number.
 

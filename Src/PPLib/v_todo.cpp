@@ -941,11 +941,11 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 				ClientList.Set(&client_list);
 		}
 		if(!CreatorList.IsExists())
-			CreatorList.Add(Filt.CreatorID, 1);
+			CreatorList.Add(Filt.CreatorID);
 		if(!EmployerList.IsExists())
-			EmployerList.Add(Filt.EmployerID, 1);
+			EmployerList.Add(Filt.EmployerID);
 		if(!ClientList.IsExists())
-			ClientList.Add(Filt.ClientID, 1);
+			ClientList.Add(Filt.ClientID);
 	}
 	{
 		PrjTaskFilt filt = Filt;

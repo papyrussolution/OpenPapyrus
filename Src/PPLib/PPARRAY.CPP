@@ -385,9 +385,8 @@ ObjIdListFilt & FASTCALL ObjIdListFilt::operator = (const ObjIdListFilt & s)
 
 ObjIdListFilt & FASTCALL ObjIdListFilt::operator = (long value)
 {
-    if(P_List)
-		P_List->clear();
-	Add(value, 1);
+	CALLPTRMEMB(P_List, clear());
+	Add(value);
 	return *this;
 }
 
@@ -439,7 +438,7 @@ PPID FASTCALL ObjIdListFilt::Get(uint pos) const
 int SLAPI ObjIdListFilt::SetSingle(PPID id)
 {
 	Set(0);
-	return Add(id, 1);
+	return Add(id);
 }
 
 uint SLAPI ObjIdListFilt::IncPointer()
@@ -465,6 +464,7 @@ ObjIdListFilt & FASTCALL ObjIdListFilt::Set(const PPIDArray * pList)
 	return *this;
 }
 
+#if 0 // {
 int SLAPI ObjIdListFilt::Add(PPID id, int ignoreZero /* = 1 */)
 {
 	int    ok = -1;
@@ -474,6 +474,29 @@ int SLAPI ObjIdListFilt::Add(PPID id, int ignoreZero /* = 1 */)
 		else
 			ok = P_List->addUnique(id);
 	}
+	return ok;
+}
+#endif // } 0
+
+int FASTCALL ObjIdListFilt::Add(PPID id)
+{
+	int    ok = -1;
+	if(id != 0) {
+		if(!SETIFZ(P_List, new PPIDArray))
+			ok = PPSetErrorNoMem();
+		else
+			ok = P_List->addUnique(id);
+	}
+	return ok;
+}
+
+int FASTCALL ObjIdListFilt::AddNotIgnoringZero(PPID id)
+{
+	int    ok = -1;
+	if(!SETIFZ(P_List, new PPIDArray))
+		ok = PPSetErrorNoMem();
+	else
+		ok = P_List->addUnique(id);
 	return ok;
 }
 
@@ -489,7 +512,7 @@ int SLAPI ObjIdListFilt::Update(uint pos, PPID newId, int ignoreZero /* = 1 */)
 	return ok;
 }
 
-int SLAPI ObjIdListFilt::Add(const PPIDArray * pList)
+int FASTCALL ObjIdListFilt::Add(const PPIDArray * pList)
 {
 	int    ok = -1;
 	if(pList && pList->getCount()) {

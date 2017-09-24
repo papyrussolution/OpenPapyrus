@@ -127,20 +127,18 @@ int SLAPI BNKey::setFlags(int flags, int seg)
 {
 	int    ok = 0;
 	if(data) {
+		const int _ns = HEAD.numSeg;
 		if(seg == (int)UNDEF) {
-			for(int i = 0; i < HEAD.numSeg; i++) {
+			for(int i = 0; i < _ns; i++) {
 				int32 * f = &SEG(i).flags;
 				*f &= ~XIF_ALLSEGFLAGS;
 				*f |= flags;
-				if(i < (HEAD.numSeg - 1))
-					*f |= XIF_SEG;
-				else
-					*f &= ~XIF_SEG;
+				SETFLAG(*f, XIF_SEG, i < (_ns - 1));
 			}
 			ok = 1;
 		}
-		else if(seg >= 0 && seg < HEAD.numSeg) {
-			if(seg < (HEAD.numSeg - 1))
+		else if(seg >= 0 && seg < _ns) {
+			if(seg < (_ns - 1))
 				flags |= XIF_SEG;
 			SEG(seg).flags |= (flags & ~XIF_ALLSEGFLAGS);
 			ok = 1;
@@ -151,10 +149,14 @@ int SLAPI BNKey::setFlags(int flags, int seg)
 
 int SLAPI BNKey::containsField(int fldID, int * pSeg) const
 {
-	if(data)
-		for(int i = 0; i < HEAD.numSeg; i++)
-			if(SEG(i).fldID == fldID)
-				return ((*pSeg = i), 1);
+	if(data) {
+		const int _ns = HEAD.numSeg;
+		for(int i = 0; i < _ns; i++)
+			if(SEG(i).fldID == fldID) {
+				*pSeg = i;
+				return 1;
+			}
+	}
 	return 0;
 }
 /*

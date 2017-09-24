@@ -301,7 +301,7 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 	return count;
 }
 
-int SLAPI DBQuery::addField(DBConst & r)
+int FASTCALL DBQuery::addField(DBConst & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
@@ -315,7 +315,7 @@ int SLAPI DBQuery::addField(DBConst & r)
 		return 0;
 }
 
-int SLAPI DBQuery::addField(DBE & r)
+int FASTCALL DBQuery::addField(DBE & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
@@ -329,7 +329,7 @@ int SLAPI DBQuery::addField(DBE & r)
 		return 0;
 }
 
-int SLAPI DBQuery::addField(DBField & r)
+int FASTCALL DBQuery::addField(DBField & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
@@ -343,7 +343,7 @@ int SLAPI DBQuery::addField(DBField & r)
 		return 0;
 }
 
-DBQuery & SLAPI select(const DBFieldList & list)
+DBQuery & FASTCALL select(const DBFieldList & list)
 {
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
@@ -364,23 +364,23 @@ DBQuery & SLAPI select(const DBFieldList & list)
 	return q;
 }
 
-DBQuery & SLAPI selectbycell(int count, DBDataCell * pList)
+DBQuery & FASTCALL selectbycell(int count, DBDataCell * pList)
 {
 	DBQuery & q = *new DBQuery;
-	if(&q == 0)
-		return q;
-	if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * count)) != 0)
-		for(int i = 0; i < count; i++) {
-			DBQuery::Fld & fld = q.flds[i];
-			fld.cell = pList[i];
-			fld.type = pList[i].i.stype();
+	if(&q != 0) {
+		if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * count)) != 0)
+			for(int i = 0; i < count; i++) {
+				DBQuery::Fld & fld = q.flds[i];
+				fld.cell = pList[i];
+				fld.type = pList[i].i.stype();
+			}
+		else {
+			q.error = 1;
+			count   = 0;
 		}
-	else {
-		q.error = 1;
-		count   = 0;
+		q.fldCount = count;
+		q.syntax |= DBQuery::t_select;
 	}
-	q.fldCount = count;
-	q.syntax |= DBQuery::t_select;
 	return q;
 }
 
@@ -459,7 +459,7 @@ DBQuery & SLAPIV DBQuery::from(DBTable * first_arg, ...)
 	return *this;
 }
 
-int SLAPI DBQuery::addTable(DBTable * pTbl)
+int FASTCALL DBQuery::addTable(DBTable * pTbl)
 {
 	int    ok = 1;
 	if(pTbl) {
