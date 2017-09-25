@@ -88,7 +88,7 @@ static ngx_int_t ngx_http_rewrite_handler(ngx_http_request_t * r)
 		return NGX_DECLINED;
 	}
 	e = (ngx_http_script_engine_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_script_engine_t));
-	if(e == NULL) {
+	if(!e) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	e->sp = (ngx_http_variable_value_t *)ngx_pcalloc(r->pool, rlcf->stack_size * sizeof(ngx_http_variable_value_t));
@@ -161,7 +161,7 @@ static char * ngx_http_rewrite_merge_loc_conf(ngx_conf_t * cf, void * parent, vo
 		return NGX_CONF_OK;
 	}
 	code = (uintptr_t *)ngx_array_push_n(conf->codes, sizeof(uintptr_t));
-	if(code == NULL) {
+	if(!code) {
 		return NGX_CONF_ERROR;
 	}
 	*code = (uintptr_t)NULL;
@@ -279,7 +279,7 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 	regex_end->redirect = regex->redirect;
 	if(last) {
 		code = (ngx_http_script_code_pt *)ngx_http_script_add_code(lcf->codes, sizeof(uintptr_t), &regex);
-		if(code == NULL) {
+		if(!code) {
 			return NGX_CONF_ERROR;
 		}
 		*code = NULL;
@@ -339,7 +339,7 @@ static const char * ngx_http_rewrite_break(ngx_conf_t * cf, const ngx_command_t 
 {
 	ngx_http_rewrite_loc_conf_t * lcf = (ngx_http_rewrite_loc_conf_t *)conf;
 	ngx_http_script_code_pt  * code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
-	if(code == NULL) {
+	if(!code) {
 		return NGX_CONF_ERROR;
 	}
 	*code = ngx_http_script_break_code;
@@ -360,7 +360,7 @@ static const char * ngx_http_rewrite_if(ngx_conf_t * cf, const ngx_command_t * c
 	ngx_http_script_if_code_t  * if_code;
 	ngx_http_rewrite_loc_conf_t  * nlcf;
 	ngx_http_conf_ctx_t * ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
@@ -483,7 +483,7 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 				return NGX_CONF_ERROR;
 			}
 			code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
-			if(code == NULL) {
+			if(!code) {
 				return NGX_CONF_ERROR;
 			}
 			*code = ngx_http_script_equal_code;
@@ -494,7 +494,7 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 				return NGX_CONF_ERROR;
 			}
 			code = (ngx_http_script_code_pt *)ngx_http_script_start_code(cf->pool, &lcf->codes, sizeof(uintptr_t));
-			if(code == NULL) {
+			if(!code) {
 				return NGX_CONF_ERROR;
 			}
 			*code = ngx_http_script_not_equal_code;
@@ -618,7 +618,7 @@ static const char * ngx_http_rewrite_set(ngx_conf_t * cf, const ngx_command_t * 
 	value[1].len--;
 	value[1].data++;
 	v = ngx_http_add_variable(cf, &value[1], NGX_HTTP_VAR_CHANGEABLE|NGX_HTTP_VAR_WEAK);
-	if(v == NULL) {
+	if(!v) {
 		return NGX_CONF_ERROR;
 	}
 	index = ngx_http_get_variable_index(cf, &value[1]);

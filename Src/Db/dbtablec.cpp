@@ -128,7 +128,7 @@ int SLob::SetStructured()
 		return -1;
 }
 
-int FASTCALL SLob::Init(uint32 descriptor)
+void FASTCALL SLob::Init(uint32 descriptor)
 {
 	DestroyPtr();
 	THISZERO();
@@ -136,15 +136,13 @@ int FASTCALL SLob::Init(uint32 descriptor)
 		SetStructured();
 		Buf.H.H = descriptor;
 	}
-	return 1;
 }
 
-int SLob::Empty()
+void SLob::Empty()
 {
 	DestroyPtr();
 	THISZERO();
 	SetStructured();
-	return 1;
 }
 
 int SLob::EnsureUnstructured()

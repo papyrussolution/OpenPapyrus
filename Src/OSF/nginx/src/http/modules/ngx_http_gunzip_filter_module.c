@@ -106,7 +106,7 @@ static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 	}
 
 	ctx = (ngx_http_gunzip_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_gunzip_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 
@@ -350,7 +350,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate(ngx_http_request_t * r, ngx_http
 		b = ctx->out_buf;
 		if(ngx_buf_size(b) == 0) {
 			b = (ngx_buf_t*)ngx_calloc_buf(ctx->request->pool);
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 		}
@@ -418,7 +418,7 @@ static ngx_int_t ngx_http_gunzip_filter_inflate_end(ngx_http_request_t * r, ngx_
 
 	if(ngx_buf_size(b) == 0) {
 		b = (ngx_buf_t*)ngx_calloc_buf(ctx->request->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 	}

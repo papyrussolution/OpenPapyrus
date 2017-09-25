@@ -55,7 +55,7 @@ int _CONF_add_string(CONF * conf, CONF_VALUE * section, CONF_VALUE * value)
 
 char * _CONF_get_string(const CONF * conf, const char * section, const char * name)
 {
-	if(name == NULL)
+	if(!name)
 		return NULL;
 	if(conf != NULL) {
 		CONF_VALUE * v, vv;
@@ -105,7 +105,7 @@ static int conf_value_cmp(const CONF_VALUE * a, const CONF_VALUE * b)
 
 int _CONF_new_data(CONF * conf)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		return 0;
 	}
 	if(conf->data == NULL) {

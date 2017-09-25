@@ -317,8 +317,7 @@ int SLAPI GetFirstMACAddr(MACAddr * pAddr)
 {
 	int    ok = 0;
 	MACAddrArray ma_list;
-	if(pAddr)
-		pAddr->Init();
+	CALLPTRMEMB(pAddr, Init());
 	if(GetMACAddrList(&ma_list)) {
 		ASSIGN_PTR(pAddr, ma_list.at(0));
 		ok = 1;

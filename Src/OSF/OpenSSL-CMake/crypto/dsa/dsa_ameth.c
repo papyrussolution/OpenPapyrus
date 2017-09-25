@@ -75,7 +75,7 @@ static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	DSA * dsa = pkey->pkey.dsa;
 	if(pkey->save_parameters && dsa->p && dsa->q && dsa->g) {
 		str = ASN1_STRING_new();
-		if(str == NULL) {
+		if(!str) {
 			DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

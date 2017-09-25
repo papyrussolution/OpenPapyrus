@@ -62,7 +62,7 @@ static const char * ngx_mail_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	}
 	/* the main mail context */
 	ctx = (ngx_mail_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_mail_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	*(ngx_mail_conf_ctx_t**)conf = ctx;
@@ -296,7 +296,7 @@ static ngx_int_t ngx_mail_add_addrs(ngx_conf_t * cf, ngx_mail_port_t * mport, ng
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
 		p = (u_char*)ngx_pnalloc(cf->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		memcpy(p, buf, len);
@@ -330,7 +330,7 @@ static ngx_int_t ngx_mail_add_addrs6(ngx_conf_t * cf, ngx_mail_port_t * mport, n
 #endif
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
 		p = (u_char *)ngx_pnalloc(cf->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		memcpy(p, buf, len);

@@ -95,7 +95,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 	ngx_stream_realip_ctx_t  * ctx;
 	ngx_connection_t  * c = s->connection;
 	ctx = (ngx_stream_realip_ctx_t *)ngx_palloc(c->pool, sizeof(ngx_stream_realip_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	len = ngx_sock_ntop(addr->sockaddr, addr->socklen, text, NGX_SOCKADDR_STRLEN, 0);
@@ -103,7 +103,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 		return NGX_ERROR;
 	}
 	p = (u_char*)ngx_pnalloc(c->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	memcpy(p, text, len);
@@ -194,7 +194,7 @@ static const char * ngx_stream_realip_from(ngx_conf_t * cf, const ngx_command_t 
 static void * ngx_stream_realip_create_srv_conf(ngx_conf_t * cf)
 {
 	ngx_stream_realip_srv_conf_t  * conf = (ngx_stream_realip_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_realip_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

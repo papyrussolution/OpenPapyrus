@@ -86,7 +86,7 @@ static const char * ngx_conf_split_clients_block(ngx_conf_t * cf, const ngx_comm
 	ngx_http_split_clients_part_t  * part;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_http_split_clients_ctx_t * ctx = (ngx_http_split_clients_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_split_clients_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	value = (ngx_str_t*)cf->args->elts;

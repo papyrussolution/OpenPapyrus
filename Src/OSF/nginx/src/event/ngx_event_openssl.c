@@ -2563,7 +2563,7 @@ ngx_int_t ngx_ssl_get_subject_dn(ngx_connection_t * c, ngx_pool_t * pool, ngx_st
 		return NGX_OK;
 	}
 	name = X509_get_subject_name(cert);
-	if(name == NULL) {
+	if(!name) {
 		return NGX_ERROR;
 	}
 	bio = BIO_new(BIO_s_mem());
@@ -2600,7 +2600,7 @@ ngx_int_t ngx_ssl_get_issuer_dn(ngx_connection_t * c, ngx_pool_t * pool, ngx_str
 		return NGX_OK;
 	}
 	name = X509_get_issuer_name(cert);
-	if(name == NULL) {
+	if(!name) {
 		return NGX_ERROR;
 	}
 	bio = BIO_new(BIO_s_mem());
@@ -2638,7 +2638,7 @@ ngx_int_t ngx_ssl_get_subject_dn_legacy(ngx_connection_t * c, ngx_pool_t * pool,
 		return NGX_OK;
 	}
 	name = X509_get_subject_name(cert);
-	if(name == NULL) {
+	if(!name) {
 		X509_free(cert);
 		return NGX_ERROR;
 	}
@@ -2670,7 +2670,7 @@ ngx_int_t ngx_ssl_get_issuer_dn_legacy(ngx_connection_t * c, ngx_pool_t * pool, 
 		return NGX_OK;
 	}
 	name = X509_get_issuer_name(cert);
-	if(name == NULL) {
+	if(!name) {
 		X509_free(cert);
 		return NGX_ERROR;
 	}

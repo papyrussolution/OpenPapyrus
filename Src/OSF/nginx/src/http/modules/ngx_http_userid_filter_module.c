@@ -140,7 +140,7 @@ static ngx_int_t ngx_http_userid_filter(ngx_http_request_t * r)
 		return ngx_http_next_header_filter(r);
 	}
 	ctx = ngx_http_userid_get_uid(r, conf);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	if(ngx_http_userid_set_uid(r, ctx, conf) == NGX_OK) {
@@ -157,7 +157,7 @@ static ngx_int_t ngx_http_userid_got_variable(ngx_http_request_t * r, ngx_http_v
 	}
 	else {
 		ngx_http_userid_ctx_t * ctx = ngx_http_userid_get_uid(r->main, conf);
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 		if(ctx->uid_got[3] != 0) {
@@ -177,7 +177,7 @@ static ngx_int_t ngx_http_userid_set_variable(ngx_http_request_t * r, ngx_http_v
 		return NGX_OK;
 	}
 	ctx = ngx_http_userid_get_uid(r->main, conf);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	if(ngx_http_userid_create_uid(r->main, ctx, conf) != NGX_OK) {
@@ -199,9 +199,9 @@ static ngx_http_userid_ctx_t * ngx_http_userid_get_uid(ngx_http_request_t * r, n
 	if(ctx) {
 		return ctx;
 	}
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = (ngx_http_userid_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_userid_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NULL;
 		}
 		ngx_http_set_ctx(r, ctx, ngx_http_userid_filter_module);
@@ -446,7 +446,7 @@ static ngx_int_t ngx_http_userid_add_variables(ngx_conf_t * cf)
 static void * ngx_http_userid_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_userid_conf_t  * conf = (ngx_http_userid_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_userid_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 

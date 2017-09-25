@@ -112,7 +112,7 @@ static int asn1_bio_init(BIO_ASN1_BUF_CTX * ctx, int size)
 
 static int asn1_bio_free(BIO * b)
 {
-	if(b == NULL)
+	if(!b)
 		return 0;
 	else {
 		BIO_ASN1_BUF_CTX * ctx = (BIO_ASN1_BUF_CTX*)BIO_get_data(b);

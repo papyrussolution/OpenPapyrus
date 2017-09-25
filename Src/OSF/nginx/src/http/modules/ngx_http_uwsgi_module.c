@@ -688,7 +688,7 @@ static ngx_int_t ngx_http_uwsgi_create_request(ngx_http_request_t * r)
 #endif
 
 	b = ngx_create_temp_buf(r->pool, len + 4);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 
@@ -831,7 +831,7 @@ next:
 
 		while(body) {
 			b = (ngx_buf_t*)ngx_alloc_buf(r->pool);
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 
@@ -1449,18 +1449,18 @@ next:
 			return NGX_ERROR;
 		}
 		code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 		code = (uintptr_t *)ngx_array_push_n(params->values, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 	}
 	code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	*code = (uintptr_t)NULL;

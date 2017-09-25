@@ -465,7 +465,7 @@ static int xmlPatMatch(xmlPatternPtr comp, xmlNode * node)
 	int i;
 	xmlStepOpPtr step;
 	xmlStepStates states = {0, 0, NULL}; /* // may require backtrack */
-	if((comp == NULL) || (node == NULL))
+	if(!comp || !node)
 		return -1;
 	i = 0;
 restart:
@@ -847,7 +847,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 	xmlChar * URL = NULL;
 	SKIP_BLANKS;
 	name = xmlPatScanNCName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		if(CUR == '*') {
 			PUSH(XML_OP_ATTR, 0, 0);
 			NEXT;
@@ -957,7 +957,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 		return;
 	}
 	name = xmlPatScanNCName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		if(CUR == '*') {
 			NEXT;
 			PUSH(XML_OP_ALL, 0, 0);
@@ -1025,7 +1025,7 @@ static void xmlCompileStepPattern(xmlPatParserContextPtr ctxt)
 			if(sstreq(name, (const xmlChar*)"child")) {
 				XML_PAT_FREE_STRING(ctxt, name);
 				name = xmlPatScanName(ctxt);
-				if(name == NULL) {
+				if(!name) {
 					if(CUR == '*') {
 						NEXT;
 						PUSH(XML_OP_ALL, 0, 0);
@@ -2268,10 +2268,10 @@ error:
 int xmlPatternMatch(xmlPatternPtr comp, xmlNode * node)
 {
 	int ret = 0;
-	if((comp == NULL) || (node == NULL))
+	if(!comp || !node)
 		return -1;
 	else {
-		while(comp != NULL) {
+		while(comp) {
 			ret = xmlPatMatch(comp, node);
 			if(ret != 0)
 				return ret;

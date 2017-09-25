@@ -416,7 +416,7 @@ static void /* PRIVATE */ png_format_buffer(png_const_structrp png_ptr, char * b
 PNG_NORETURN void PNGAPI png_chunk_error(png_const_structrp png_ptr, const char * error_message)
 {
 	char msg[18+PNG_MAX_ERROR_TEXT];
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		png_error(png_ptr, error_message);
 	else {
 		png_format_buffer(png_ptr, msg, error_message);
@@ -429,7 +429,7 @@ PNG_NORETURN void PNGAPI png_chunk_error(png_const_structrp png_ptr, const char 
 void PNGAPI png_chunk_warning(png_const_structrp png_ptr, const char * warning_message)
 {
 	char msg[18+PNG_MAX_ERROR_TEXT];
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		png_warning(png_ptr, warning_message);
 	else {
 		png_format_buffer(png_ptr, msg, warning_message);
@@ -441,18 +441,15 @@ void PNGAPI png_chunk_warning(png_const_structrp png_ptr, const char * warning_m
 
 #ifdef PNG_READ_SUPPORTED
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
-void PNGAPI png_chunk_benign_error(png_const_structrp png_ptr, const char *
-    error_message)
+void PNGAPI png_chunk_benign_error(png_const_structrp png_ptr, const char * error_message)
 {
 	if((png_ptr->flags & PNG_FLAG_BENIGN_ERRORS_WARN) != 0)
 		png_chunk_warning(png_ptr, error_message);
-
 	else
 		png_chunk_error(png_ptr, error_message);
-
-#  ifndef PNG_ERROR_TEXT_SUPPORTED
+#ifndef PNG_ERROR_TEXT_SUPPORTED
 	PNG_UNUSED(error_message)
-#  endif
+#endif
 }
 
 #endif
@@ -526,7 +523,7 @@ jmp_buf * PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjm
 	 * the buffer is allocated and this may fail, causing the function to return
 	 * NULL.
 	 */
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return NULL;
 	if(png_ptr->jmp_buf_ptr == NULL) {
 		png_ptr->jmp_buf_size = 0; /* not allocated */

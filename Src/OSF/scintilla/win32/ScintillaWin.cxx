@@ -8,13 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <cmath>
-//#include <stdexcept>
-//#include <new>
-//#include <string>
-//#include <vector>
-//#include <map>
-//#include <algorithm>
+#include <scintilla-internal.h>
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #undef WINVER
@@ -36,29 +30,6 @@
 #ifdef SCI_LEXER
 	#include "SciLexer.h"
 #endif
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
-#include "ContractionState.h"
-#include "CellBuffer.h"
-#include "CallTip.h"
-#include "KeyMap.h"
-//#include "Indicator.h"
-#include "XPM.h"
-//#include "LineMarker.h"
-#include "ViewStyle.h"
-//#include "CharClassify.h"
-#include "Decoration.h"
-#include "Document.h"
-#include "CaseConvert.h"
-#include "Selection.h"
-#include "PositionCache.h"
-#include "EditModel.h"
-#include "MarginView.h"
-#include "EditView.h"
-#include "Editor.h"
-#include "AutoComplete.h"
-#include "ScintillaBase.h"
 #ifdef SCI_LEXER
 	#include "ExternalLexer.h"
 #endif

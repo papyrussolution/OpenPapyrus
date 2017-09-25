@@ -142,7 +142,7 @@ ngx_err_t ngx_win32_rename_file(ngx_str_t * from, ngx_str_t * to, ngx_log_t * lo
 	ngx_uint_t collision;
 	ngx_atomic_uint_t num;
 	u_char * name = (u_char *)ngx_alloc(to->len + 1 + NGX_ATOMIC_T_LEN + 1 + sizeof("DELETE"), log);
-	if(name == NULL) {
+	if(!name) {
 		return NGX_ENOMEM;
 	}
 	memcpy(name, to->data, to->len);

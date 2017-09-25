@@ -96,9 +96,9 @@ static ngx_int_t ngx_stream_ssl_preread_handler(ngx_stream_session_t * s)
 		return NGX_AGAIN;
 	}
 	ctx = (ngx_stream_ssl_preread_ctx_t *)ngx_stream_get_module_ctx(s, ngx_stream_ssl_preread_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = (ngx_stream_ssl_preread_ctx_t *)ngx_pcalloc(c->pool, sizeof(ngx_stream_ssl_preread_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 
@@ -332,7 +332,7 @@ static ngx_int_t ngx_stream_ssl_preread_server_name_variable(ngx_stream_session_
 
 	ctx = (ngx_stream_ssl_preread_ctx_t *)ngx_stream_get_module_ctx(s, ngx_stream_ssl_preread_module);
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		v->not_found = 1;
 		return NGX_OK;
 	}
@@ -367,7 +367,7 @@ static void * ngx_stream_ssl_preread_create_srv_conf(ngx_conf_t * cf)
 {
 	ngx_stream_ssl_preread_srv_conf_t  * conf;
 	conf = (ngx_stream_ssl_preread_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_ssl_preread_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	conf->enabled = NGX_CONF_UNSET;

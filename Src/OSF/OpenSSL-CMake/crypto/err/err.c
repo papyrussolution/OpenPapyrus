@@ -668,7 +668,7 @@ void ERR_add_error_vdata(int num, va_list args)
 	char * str, * p, * a;
 	s = 80;
 	str = (char*)OPENSSL_malloc(s + 1);
-	if(str == NULL)
+	if(!str)
 		return;
 	str[0] = '\0';
 	n = 0;

@@ -8,26 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
-#include "ContractionState.h"
-#include "CellBuffer.h"
-#include "PerLine.h"
-#include "KeyMap.h"
-//#include "Indicator.h"
-#include "XPM.h"
-//#include "LineMarker.h"
-#include "ViewStyle.h"
-//#include "CharClassify.h"
-#include "Decoration.h"
-#include "Document.h"
-#include "Selection.h"
-#include "PositionCache.h"
-#include "EditModel.h"
-#include "MarginView.h"
-#include "EditView.h"
-#include "Editor.h"
+#include <scintilla-internal.h>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

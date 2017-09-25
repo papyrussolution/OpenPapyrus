@@ -80,7 +80,7 @@ int __db_unmap_rmid(int rmid)
 	ENV * e;
 	for(e = TAILQ_FIRST(&DB_GLOBAL(envq)); e->xa_rmid != rmid; e = TAILQ_NEXT(e, links))
 		;
-	if(e == NULL)
+	if(!e)
 		return EINVAL;
 	TAILQ_REMOVE(&DB_GLOBAL(envq), e, links);
 	return 0;

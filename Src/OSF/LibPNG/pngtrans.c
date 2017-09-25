@@ -32,7 +32,7 @@ void PNGAPI png_set_bgr(png_structrp png_ptr)
 void PNGAPI png_set_swap(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_swap");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	if(png_ptr->bit_depth == 16)
 		png_ptr->transformations |= PNG_SWAP_BYTES;
@@ -45,7 +45,7 @@ void PNGAPI png_set_swap(png_structrp png_ptr)
 void PNGAPI png_set_packing(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_packing");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	if(png_ptr->bit_depth < 8) {
 		png_ptr->transformations |= PNG_PACK;
@@ -63,7 +63,7 @@ void PNGAPI png_set_packswap(png_structrp png_ptr)
 {
 	png_debug(1, "in png_set_packswap");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(png_ptr->bit_depth < 8)
@@ -76,7 +76,7 @@ void PNGAPI png_set_packswap(png_structrp png_ptr)
 void PNGAPI png_set_shift(png_structrp png_ptr, png_const_color_8p true_bits)
 {
 	png_debug(1, "in png_set_shift");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	png_ptr->transformations |= PNG_SHIFT;
 	png_ptr->shift = *true_bits;
@@ -106,7 +106,7 @@ int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
 void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
 	png_debug(1, "in png_set_filler");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	/* In libpng 1.6 it is possible to determine whether this is a read or write
 	 * operation and therefore to do more checking here for a valid call.
@@ -178,7 +178,7 @@ void PNGAPI png_set_filler(png_structrp png_ptr, uint32 filler, int filler_loc)
 void PNGAPI png_set_add_alpha(png_structrp png_ptr, uint32 filler, int filler_loc)
 {
 	png_debug(1, "in png_set_add_alpha");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	png_set_filler(png_ptr, filler, filler_loc);
 	/* The above may fail to do anything. */

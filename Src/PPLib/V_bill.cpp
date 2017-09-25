@@ -4597,8 +4597,9 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath); // @prototype
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const char * pPath); // @prototype
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName); // @prototype
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName); // @prototype
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName); // @prototype
 
 int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
@@ -4653,17 +4654,25 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
 				// @construction {
-				if(oneof2(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, PPBillImpExpParam::pfNalogR_REZRUISP)) {
+				if(oneof3(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR)) {
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
 						int    err = 0;
 						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
-							if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice)
-								WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP)
-								WriteBill_NalogRu2_DP_REZRUISP(pack, b_e.BillParam.FileName);
+							int    r = 0;
+							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
+							if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice) {
+								r = WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
+							}
+							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP) {
+								r = WriteBill_NalogRu2_DP_REZRUISP(pack, b_e.BillParam.FileName);
+							}
+							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_SCHFDOPPR) {
+								r = WriteBill_NalogRu2_UPD(pack, b_e.BillParam.FileName);
+							}
+							if(r > 0)
+								result_file_list.add(b_e.BillParam.FileName);
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}

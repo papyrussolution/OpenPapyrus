@@ -950,7 +950,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	 * are within the DTD and then not associated to namespace names.
 	 */
 	name = xmlSplitQName3(fullname, &len);
-	if(name == NULL) {
+	if(!name) {
 		name = xmlDictLookup(ctxt->dict, fullname, -1);
 		prefix = NULL;
 	}
@@ -990,7 +990,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	 * are within the DTD and hen not associated to namespace names.
 	 */
 	name = xmlSplitQName3(fullattr, &len);
-	if(name == NULL) {
+	if(!name) {
 		name = xmlDictLookup(ctxt->dict, fullattr, -1);
 		prefix = NULL;
 	}
@@ -2198,7 +2198,7 @@ void xmlParserHandlePEReference(xmlParserCtxt * ctxt)
 	name = xmlParseName(ctxt);
 	if(xmlParserDebugEntities)
 		xmlGenericError(0, "PEReference: %s\n", name);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErr(ctxt, XML_ERR_PEREF_NO_NAME, 0);
 	}
 	else {
@@ -4554,7 +4554,7 @@ const xmlChar * xmlParsePITarget(xmlParserCtxt * ctxt)
 		}
 		xmlWarningMsg(ctxt, XML_ERR_RESERVED_XML_NAME, "xmlParsePITarget: invalid name prefix 'xml'\n", 0, 0);
 	}
-	if(name && (xmlStrchr(name, ':') != NULL)) {
+	if(name && xmlStrchr(name, ':')) {
 		xmlNsErr(ctxt, XML_NS_ERR_COLON, "colons are forbidden from PI names '%s'\n", name, 0, 0);
 	}
 	return name;
@@ -4790,7 +4790,7 @@ void xmlParseNotationDecl(xmlParserCtxt * ctxt)
 		else {
 			SKIP_BLANKS;
 			name = xmlParseName(ctxt);
-			if(name == NULL) {
+			if(!name) {
 				xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, 0);
 			}
 			else if(!IS_BLANK_CH(CUR)) {
@@ -4873,7 +4873,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 			isParameter = 1;
 		}
 		name = xmlParseName(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseEntityDecl: no name\n");
 			return;
 		}
@@ -5137,7 +5137,7 @@ xmlEnumerationPtr xmlParseNotationType(xmlParserCtxt * ctxt)
 		NEXT;
 		SKIP_BLANKS;
 		name = xmlParseName(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "Name expected in NOTATION declaration\n");
 			xmlFreeEnumeration(ret);
 			return 0;
@@ -5202,7 +5202,7 @@ xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxt * ctxt)
 		NEXT;
 		SKIP_BLANKS;
 		name = xmlParseNmtoken(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			xmlFatalErr(ctxt, XML_ERR_NMTOKEN_REQUIRED, 0);
 			return ret;
 		}
@@ -5953,7 +5953,7 @@ int xmlParseElementDecl(xmlParserCtxt * ctxt)
 		}
 		SKIP_BLANKS;
 		name = xmlParseName(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseElementDecl: no name for Element\n");
 			return -1;
 		}
@@ -6257,7 +6257,7 @@ void xmlParseTextDecl(xmlParserCtxt * ctxt)
 	 * We may have the VersionInfo here.
 	 */
 	version = xmlParseVersionInfo(ctxt);
-	if(version == NULL)
+	if(!version)
 		version = xmlCharStrdup(XML_DEFAULT_VERSION);
 	else {
 		if(!IS_BLANK_CH(CUR)) {
@@ -6275,7 +6275,7 @@ void xmlParseTextDecl(xmlParserCtxt * ctxt)
 		 */
 		return;
 	}
-	if((encoding == NULL) && (ctxt->errNo == XML_ERR_OK)) {
+	if(!encoding && (ctxt->errNo == XML_ERR_OK)) {
 		xmlFatalErrMsg(ctxt, XML_ERR_MISSING_ENCODING, "Missing encoding in text declaration\n");
 	}
 	SKIP_BLANKS;
@@ -6293,7 +6293,6 @@ void xmlParseTextDecl(xmlParserCtxt * ctxt)
 		NEXT;
 	}
 }
-
 /**
  * xmlParseExternalSubset:
  * @ctxt:  an XML parser context
@@ -6501,7 +6500,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 		 * content and do checkings
 		 */
 		ent->checked = (ctxt->nbentities - oldnbent + 1) * 2;
-		if((ent->content != NULL) && (xmlStrchr(ent->content, '<')))
+		if(ent->content && (xmlStrchr(ent->content, '<')))
 			ent->checked |= 1;
 		if(ret == XML_ERR_ENTITY_LOOP) {
 			xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
@@ -6799,7 +6798,7 @@ xmlEntityPtr xmlParseEntityRef(xmlParserCtxt * ctxt)
 		return 0;
 	NEXT;
 	name = xmlParseName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseEntityRef: no name\n");
 		return 0;
 	}
@@ -6957,7 +6956,7 @@ static xmlEntity * xmlParseStringEntityRef(xmlParserCtxt * pCtxt, const xmlChar 
 		if(cur == '&') {
 			ptr++;
 			xmlChar * name = xmlParseStringName(pCtxt, &ptr);
-			if(name == NULL) {
+			if(!name) {
 				xmlFatalErrMsg(pCtxt, XML_ERR_NAME_REQUIRED, "xmlParseStringEntityRef: no name\n");
 				*ppStr = ptr;
 			}
@@ -7097,7 +7096,7 @@ void xmlParsePEReference(xmlParserCtxt * ctxt)
 		return;
 	NEXT;
 	name = xmlParseName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParsePEReference: no name\n");
 		return;
 	}
@@ -7224,8 +7223,7 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity)
 	}
 	GROW;
 	c = CUR_CHAR(l);
-	while((ctxt->input == input) && (ctxt->input->cur < ctxt->input->end) &&
-	    (IS_CHAR(c))) {
+	while((ctxt->input == input) && (ctxt->input->cur < ctxt->input->end) && (IS_CHAR(c))) {
 		xmlBufferAdd(buf, ctxt->input->cur, l);
 		if(count++ > XML_PARSER_CHUNK_SIZE) {
 			count = 0;
@@ -7261,7 +7259,6 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity)
 	xmlBufferFree(buf);
 	return 0;
 }
-
 /**
  * xmlParseStringPEReference:
  * @ctxt:  an XML parser context
@@ -7299,7 +7296,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlCha
 	xmlChar cur;
 	xmlChar * name;
 	xmlEntity * entity = NULL;
-	if((str == NULL) || (*str == NULL))
+	if(!str || *str == NULL)
 		return 0;
 	ptr = *str;
 	cur = *ptr;
@@ -7307,7 +7304,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlCha
 		return 0;
 	ptr++;
 	name = xmlParseStringName(ctxt, &ptr);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseStringPEReference: no name\n");
 		*str = ptr;
 		return 0;
@@ -7333,7 +7330,7 @@ static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlCha
 		SAlloc::F(name);
 		return 0;
 	}
-	if(entity == NULL) {
+	if(!entity) {
 		/*
 		 * [WFC: Entity Declared]
 		 * In a document without any DTD, a document with only an
@@ -7400,7 +7397,7 @@ void xmlParseDocTypeDecl(xmlParserCtxt * ctxt)
 	 * Parse the DOCTYPE name.
 	 */
 	name = xmlParseName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseDocTypeDecl : no DOCTYPE name !\n");
 	}
 	ctxt->intSubName = name;
@@ -7409,7 +7406,7 @@ void xmlParseDocTypeDecl(xmlParserCtxt * ctxt)
 	 * Check for SystemID and ExternalID
 	 */
 	URI = xmlParseExternalID(ctxt, &ExternalID, 1);
-	if((URI != NULL) || (ExternalID != NULL)) {
+	if(URI || ExternalID) {
 		ctxt->hasExternalSubset = 1;
 	}
 	ctxt->extSubURI = URI;
@@ -7530,7 +7527,7 @@ const xmlChar * xmlParseAttribute(xmlParserCtxt * ctxt, xmlChar ** value)
 	*value = NULL;
 	GROW;
 	name = xmlParseName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "error parsing attribute name\n");
 	}
 	else {
@@ -7614,7 +7611,7 @@ const xmlChar * xmlParseStartTag(xmlParserCtxt * ctxt)
 	if(RAW == '<') {
 		NEXT1;
 		name = xmlParseName(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "xmlParseStartTag: invalid element name\n");
 		}
 		else {
@@ -7749,7 +7746,7 @@ static void xmlParseEndTag1(xmlParserCtxt * ctxt, int line)
 	 *
 	 */
 	if(name != (xmlChar*)1) {
-		if(name == NULL)
+		if(!name)
 			name = BAD_CAST "unparseable";
 		xmlFatalErrMsgStrIntStr(ctxt, XML_ERR_TAG_NAME_MISMATCH, "Opening and ending tag mismatch: %s line %d and %s\n", ctxt->name, line, name);
 	}
@@ -8167,7 +8164,7 @@ static const xmlChar * xmlParseAttribute2(xmlParserCtxt * ctxt,
 	*value = NULL;
 	GROW;
 	name = xmlParseQName(ctxt, prefix);
-	if(name == NULL) {
+	if(!name) {
 		xmlFatalErrMsg(ctxt, XML_ERR_NAME_REQUIRED, "error parsing attribute name\n");
 		return 0;
 	}
@@ -8953,7 +8950,7 @@ void xmlParseElement(xmlParserCtxt * ctxt)
 #endif /* LIBXML_SAX1_ENABLED */
 	if(ctxt->instate == XML_PARSER_EOF)
 		return;
-	if(name == NULL) {
+	if(!name) {
 		spacePop(ctxt);
 		return;
 	}
@@ -10243,7 +10240,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 #endif /* LIBXML_SAX1_ENABLED */
 			    if(ctxt->instate == XML_PARSER_EOF)
 				    goto done;
-			    if(name == NULL) {
+			    if(!name) {
 				    spacePop(ctxt);
 				    ctxt->instate = XML_PARSER_EOF;
 				    if(ctxt->sax && ctxt->sax->endDocument)
@@ -11711,14 +11708,12 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const 
 			ret = ctxt->errNo;
 	}
 	else {
-		if(lst != NULL) {
-			xmlNode * cur;
-
+		if(lst) {
 			/*
 			 * Return the newly created nodeset after unlinking it from
 			 * they pseudo parent.
 			 */
-			cur = newDoc->children->children;
+			xmlNode * cur = newDoc->children->children;
 			*lst = cur;
 			while(cur) {
 				cur->parent = NULL;
@@ -12179,7 +12174,7 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * node, const char * data, int dat
 	/*
 	 * check all input parameters, grab the document
 	 */
-	if((lst == NULL) || (node == NULL) || (data == NULL) || (datalen < 0))
+	if(!lst || !node || !data || (datalen < 0))
 		return XML_ERR_INTERNAL_ERROR;
 	switch(node->type) {
 		case XML_ELEMENT_NODE:

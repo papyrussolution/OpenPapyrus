@@ -81,7 +81,7 @@ int ASN1_STRING_print(BIO * bp, const ASN1_STRING * v)
 	char buf[80];
 	const char * p;
 
-	if(v == NULL)
+	if(!v)
 		return 0;
 	n = 0;
 	p = (const char*)v->data;

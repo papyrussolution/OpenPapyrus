@@ -267,7 +267,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 		case NGX_HTTP_AUTOINDEX_XML: b = ngx_http_autoindex_xml(r, &entries); break;
 		default: b = ngx_http_autoindex_html(r, &entries); break; // NGX_HTTP_AUTOINDEX_HTML 
 	}
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	/* TODO: free temporary pool */
@@ -337,7 +337,7 @@ static ngx_buf_t * ngx_http_autoindex_html(ngx_http_request_t * r, ngx_array_t *
 		    + 2;
 	}
 	b = ngx_create_temp_buf(r->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NULL;
 	}
 	b->last = ngx_cpymem(b->last, title, sizeof(title) - 1);
@@ -493,7 +493,7 @@ static ngx_buf_t * ngx_http_autoindex_json(ngx_http_request_t * r, ngx_array_t *
 		}
 	}
 	b = ngx_create_temp_buf(r->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NULL;
 	}
 	if(callback) {
@@ -589,7 +589,7 @@ static ngx_buf_t * ngx_http_autoindex_xml(ngx_http_request_t * r, ngx_array_t * 
 		}
 	}
 	b = ngx_create_temp_buf(r->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NULL;
 	}
 	b->last = ngx_cpymem(b->last, head, sizeof(head) - 1);

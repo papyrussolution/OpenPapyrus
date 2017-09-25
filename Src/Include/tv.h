@@ -2916,7 +2916,7 @@ protected:
 	InputStat Stat;
 	ComboBox * combo;
 private:
-	int    Init();
+	void   Init();
 	int    OnMouseWheel(int delta);
 	int    OnPaste();
 };

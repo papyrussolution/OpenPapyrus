@@ -1091,7 +1091,7 @@ static char * wide_to_asc(LPCWSTR wstr)
 		return NULL;
 	}
 	str = (char*)OPENSSL_malloc(sz);
-	if(str == NULL) {
+	if(!str) {
 		CAPIerr(CAPI_F_WIDE_TO_ASC, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -1118,7 +1118,7 @@ static int capi_get_provname(CAPI_CTX * ctx, LPSTR * pname, DWORD * ptype,
 		return 0;
 	}
 	name = (LPTSTR)OPENSSL_malloc(len);
-	if(name == NULL) {
+	if(!name) {
 		CAPIerr(CAPI_F_CAPI_GET_PROVNAME, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

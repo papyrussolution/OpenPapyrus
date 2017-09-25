@@ -2296,7 +2296,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 			}
 			else {
 				ent = htmlParseEntityRef(ctxt, &name);
-				if(name == NULL) {
+				if(!name) {
 					*out++ = '&';
 					if(out - buffer > buffer_size - 100) {
 						int indx = out - buffer;
@@ -2404,7 +2404,7 @@ const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxtPtr ctxt, const xmlChar 
 	if(CUR == '&') {
 		NEXT;
 		name = htmlParseName(ctxt);
-		if(name == NULL) {
+		if(!name) {
 			htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseEntityRef: no name\n", 0, 0);
 		}
 		else {
@@ -3080,7 +3080,7 @@ static void htmlParseDocTypeDecl(htmlParserCtxtPtr ctxt) {
 	 * Parse the DOCTYPE name.
 	 */
 	name = htmlParseName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseDocTypeDecl : no DOCTYPE name !\n", 0, 0);
 	}
 	/*
@@ -3143,7 +3143,7 @@ static const xmlChar * htmlParseAttribute(htmlParserCtxtPtr ctxt, xmlChar ** val
 	xmlChar * val = NULL;
 	*value = NULL;
 	name = htmlParseHTMLName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "error parsing attribute name\n", 0, 0);
 		return NULL;
 	}
@@ -3334,7 +3334,7 @@ static int htmlParseStartTag(htmlParserCtxtPtr ctxt)
 	maxatts = ctxt->maxatts;
 	GROW;
 	name = htmlParseHTMLName(ctxt);
-	if(name == NULL) {
+	if(!name) {
 		htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 		/* Dump the bogus tag like browsers do */
 		while((IS_CHAR_CH(CUR)) && (CUR != '>') && (ctxt->instate != XML_PARSER_EOF))
@@ -3499,7 +3499,7 @@ static int htmlParseEndTag(htmlParserCtxtPtr ctxt)
 	}
 	SKIP(2);
 	name = htmlParseHTMLName(ctxt);
-	if(name == NULL)
+	if(!name)
 		return 0;
 	/*
 	 * We should definitely be at the ending "S? '>'" part
@@ -3619,7 +3619,7 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt) {
 	}
 	else {
 		ent = htmlParseEntityRef(ctxt, &name);
-		if(name == NULL) {
+		if(!name) {
 			htmlCheckParagraph(ctxt);
 			if(ctxt->sax && ctxt->sax->characters)
 				ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
@@ -3690,7 +3690,7 @@ static void htmlParseContent(htmlParserCtxtPtr ctxt)
 		}
 		else if((CUR == '<') && ((IS_ASCII_LETTER(NXT(1))) || (NXT(1) == '_') || (NXT(1) == ':'))) {
 			name = htmlParseHTMLName_nonInvasive(ctxt);
-			if(name == NULL) {
+			if(!name) {
 				htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 				/* Dump the bogus tag like browsers do */
 				while((IS_CHAR_CH(CUR)) && (CUR != '>'))
@@ -4028,7 +4028,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 		}
 		else if((CUR == '<') && ((IS_ASCII_LETTER(NXT(1))) || (NXT(1) == '_') || (NXT(1) == ':'))) {
 			name = htmlParseHTMLName_nonInvasive(ctxt);
-			if(name == NULL) {
+			if(!name) {
 				htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 				/* Dump the bogus tag like browsers do */
 				while((IS_CHAR_CH(CUR)) && (CUR != '>'))

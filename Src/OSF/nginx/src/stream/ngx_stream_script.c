@@ -357,14 +357,14 @@ static ngx_int_t ngx_stream_script_done(ngx_stream_script_compile_t * sc)
 	}
 	if(sc->complete_lengths) {
 		uintptr_t * code = (uintptr_t *)ngx_stream_script_add_code(*sc->lengths, sizeof(uintptr_t), NULL);
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 	}
 	if(sc->complete_values) {
 		uintptr_t * code = (uintptr_t *)ngx_stream_script_add_code(*sc->values, sizeof(uintptr_t), &sc->main);
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
@@ -396,14 +396,14 @@ static ngx_int_t ngx_stream_script_add_copy_code(ngx_stream_script_compile_t * s
 	zero = (sc->zero && last);
 	len = value->len + zero;
 	code = (ngx_stream_script_copy_code_t *)ngx_stream_script_add_code(*sc->lengths, sizeof(ngx_stream_script_copy_code_t), NULL);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = (ngx_stream_script_code_pt)ngx_stream_script_copy_len_code;
 	code->len = len;
 	size = (sizeof(ngx_stream_script_copy_code_t) + len + sizeof(uintptr_t) - 1) & ~(sizeof(uintptr_t) - 1);
 	code = (ngx_stream_script_copy_code_t *)ngx_stream_script_add_code(*sc->values, size, &sc->main);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = ngx_stream_script_copy_code;
@@ -444,19 +444,19 @@ static ngx_int_t ngx_stream_script_add_var_code(ngx_stream_script_compile_t * sc
 	}
 	if(sc->flushes) {
 		p = (ngx_int_t *)ngx_array_push(*sc->flushes);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		*p = index;
 	}
 	code = (ngx_stream_script_var_code_t *)ngx_stream_script_add_code(*sc->lengths, sizeof(ngx_stream_script_var_code_t), NULL);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = (ngx_stream_script_code_pt)ngx_stream_script_copy_var_len_code;
 	code->index = (uintptr_t)index;
 	code = (ngx_stream_script_var_code_t *)ngx_stream_script_add_code(*sc->values, sizeof(ngx_stream_script_var_code_t), &sc->main);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = ngx_stream_script_copy_var_code;
@@ -508,13 +508,13 @@ static ngx_int_t ngx_stream_script_add_capture_code(ngx_stream_script_compile_t 
 {
 	ngx_stream_script_copy_capture_code_t  * code = (ngx_stream_script_copy_capture_code_t *)ngx_stream_script_add_code(*sc->lengths,
 	    sizeof(ngx_stream_script_copy_capture_code_t), NULL);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = (ngx_stream_script_code_pt)ngx_stream_script_copy_capture_len_code;
 	code->n = 2 * n;
 	code = (ngx_stream_script_copy_capture_code_t *)ngx_stream_script_add_code(*sc->values, sizeof(ngx_stream_script_copy_capture_code_t), &sc->main);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = ngx_stream_script_copy_capture_code;
@@ -566,13 +566,13 @@ static ngx_int_t ngx_stream_script_add_full_name_code(ngx_stream_script_compile_
 {
 	ngx_stream_script_full_name_code_t  * code = (ngx_stream_script_full_name_code_t *)ngx_stream_script_add_code(*sc->lengths,
 	    sizeof(ngx_stream_script_full_name_code_t), NULL);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = (ngx_stream_script_code_pt)ngx_stream_script_full_name_len_code;
 	code->conf_prefix = sc->conf_prefix;
 	code = (ngx_stream_script_full_name_code_t  *)ngx_stream_script_add_code(*sc->values, sizeof(ngx_stream_script_full_name_code_t), &sc->main);
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	code->code = ngx_stream_script_full_name_code;

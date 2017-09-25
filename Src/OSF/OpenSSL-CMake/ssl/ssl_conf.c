@@ -728,7 +728,7 @@ int SSL_CONF_cmd_argv(SSL_CONF_CTX * cctx, int * pargc, char *** pargv)
 		return 0;
 	if(!pargc || *pargc > 0)
 		arg = **pargv;
-	if(arg == NULL)
+	if(!arg)
 		return 0;
 	if(!pargc || *pargc > 1)
 		argn = (*pargv)[1];

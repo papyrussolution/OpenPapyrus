@@ -212,8 +212,7 @@ int SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue *
 	return 1;
 }
 
-int SLAPI ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi,
-	const LMatrix * pR, const DblQueue * pRDIInitQueue)
+int SLAPI ARIMA::Init(int p, int q, const LVect * pModel, const LVect * pPhi, const LMatrix * pR, const DblQueue * pRDIInitQueue)
 {
 	Rdi.Init(pRDIInitQueue);
 	ARMA::Init(p, q, pModel, pPhi, pR);

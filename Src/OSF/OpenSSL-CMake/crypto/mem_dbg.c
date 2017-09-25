@@ -587,7 +587,7 @@ int CRYPTO_mem_leaks(BIO * b)
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_DISABLE);
 		b = BIO_new(BIO_s_file());
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
-		if(b == NULL)
+		if(!b)
 			return -1;
 		BIO_set_fp(b, fp, BIO_NOCLOSE);
 		ret = CRYPTO_mem_leaks(b);

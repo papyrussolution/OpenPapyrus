@@ -542,7 +542,7 @@ static char * ngx_http_geo_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * ctx,
 
 	p = ngx_strlchr(net->data, last, '-');
 
-	if(p == NULL) {
+	if(!p) {
 		goto invalid;
 	}
 

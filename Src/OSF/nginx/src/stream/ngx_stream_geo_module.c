@@ -507,7 +507,7 @@ static char * ngx_stream_geo_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * 
 
 	p = ngx_strlchr(net->data, last, '-');
 
-	if(p == NULL) {
+	if(!p) {
 		goto invalid;
 	}
 

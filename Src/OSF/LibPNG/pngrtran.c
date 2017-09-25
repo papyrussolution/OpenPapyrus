@@ -25,7 +25,7 @@
 void PNGAPI png_set_crc_action(png_structrp png_ptr, int crit_action, int ancil_action)
 {
 	png_debug(1, "in png_set_crc_action");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	/* Tell libpng how we react to CRC errors in critical chunks */
 	switch(crit_action) {

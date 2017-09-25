@@ -269,7 +269,7 @@ ngx_int_t ngx_stream_upstream_create_round_robin_peer(ngx_stream_session_t * s, 
 			memcpy(sockaddr, ur->addrs[i].sockaddr, socklen);
 			ngx_inet_set_port(sockaddr, ur->port);
 			p = (u_char*)ngx_pnalloc(s->connection->pool, NGX_SOCKADDR_STRLEN);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			len = ngx_sock_ntop(sockaddr, socklen, p, NGX_SOCKADDR_STRLEN, 1);

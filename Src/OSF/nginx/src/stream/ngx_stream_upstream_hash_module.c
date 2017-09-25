@@ -469,7 +469,7 @@ static void * ngx_stream_upstream_hash_create_conf(ngx_conf_t * cf)
 {
 	ngx_stream_upstream_hash_srv_conf_t * conf;
 	conf = (ngx_stream_upstream_hash_srv_conf_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_upstream_hash_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	conf->points = NULL;

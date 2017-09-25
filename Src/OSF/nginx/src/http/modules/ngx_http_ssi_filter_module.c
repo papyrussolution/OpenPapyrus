@@ -268,7 +268,7 @@ static ngx_int_t ngx_http_ssi_header_filter(ngx_http_request_t * r)
 		return ngx_http_next_header_filter(r);
 	}
 	ctx = (ngx_http_ssi_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_ssi_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	ngx_http_set_ctx(r, ctx, ngx_http_ssi_filter_module);
@@ -369,7 +369,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 						}
 						else {
 							b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-							if(b == NULL) {
+							if(!b) {
 								return NGX_ERROR;
 							}
 							cl = ngx_alloc_chain_link(r->pool);
@@ -392,7 +392,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 					}
 					else {
 						b = (ngx_buf_t*)ngx_alloc_buf(r->pool);
-						if(b == NULL) {
+						if(!b) {
 							return NGX_ERROR;
 						}
 						cl = ngx_alloc_chain_link(r->pool);
@@ -423,7 +423,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 				else {
 					if(ctx->block && ctx->saved + (ctx->copy_end - ctx->copy_start)) {
 						b = ngx_create_temp_buf(r->pool, ctx->saved + (ctx->copy_end - ctx->copy_start));
-						if(b == NULL) {
+						if(!b) {
 							return NGX_ERROR;
 						}
 						if(ctx->saved) {
@@ -479,7 +479,7 @@ static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 							    + param[i].value.len + 1;
 						}
 						b = ngx_create_temp_buf(r->pool, len);
-						if(b == NULL) {
+						if(!b) {
 							return NGX_ERROR;
 						}
 						cl = ngx_alloc_chain_link(r->pool);
@@ -599,7 +599,7 @@ ssi_error:
 			}
 			else {
 				b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-				if(b == NULL) {
+				if(!b) {
 					return NGX_ERROR;
 				}
 				cl = ngx_alloc_chain_link(r->pool);
@@ -617,7 +617,7 @@ ssi_error:
 			continue;
 		}
 		if(ctx->buf->last_buf || ngx_buf_in_memory(ctx->buf)) {
-			if(b == NULL) {
+			if(!b) {
 				if(ctx->free) {
 					cl = ctx->free;
 					ctx->free = ctx->free->next;
@@ -626,7 +626,7 @@ ssi_error:
 				}
 				else {
 					b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-					if(b == NULL) {
+					if(!b) {
 						return NGX_ERROR;
 					}
 					cl = ngx_alloc_chain_link(r->pool);
@@ -1466,7 +1466,7 @@ static ngx_int_t ngx_http_ssi_evaluate_string(ngx_http_request_t * r, ngx_http_s
 		}
 	}
 	p = (u_char *)ngx_pnalloc(r->pool, len + ((flags & NGX_HTTP_SSI_ADD_ZERO) ? 1 : 0));
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	text->len = len;
@@ -1656,7 +1656,7 @@ found:
 				}
 				else {
 					b = (ngx_buf_t*)ngx_alloc_buf(r->pool);
-					if(b == NULL) {
+					if(!b) {
 						return NGX_ERROR;
 					}
 
@@ -1830,7 +1830,7 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 		    NGX_ESCAPE_HTML);
 		    if(len) {
 			    p = (u_char *)ngx_pnalloc(r->pool, value->len + len);
-			    if(p == NULL) {
+			    if(!p) {
 				    return NGX_HTTP_SSI_ERROR;
 			    }
 
@@ -1845,7 +1845,7 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 
 		    if(len) {
 			    p = (u_char *)ngx_pnalloc(r->pool, value->len + len);
-			    if(p == NULL) {
+			    if(!p) {
 				    return NGX_HTTP_SSI_ERROR;
 			    }
 
@@ -1861,7 +1861,7 @@ static ngx_int_t ngx_http_ssi_echo(ngx_http_request_t * r, ngx_http_ssi_ctx_t * 
 	}
 
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_HTTP_SSI_ERROR;
 	}
 

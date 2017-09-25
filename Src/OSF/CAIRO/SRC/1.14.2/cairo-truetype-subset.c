@@ -1312,7 +1312,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 		    be16_to_cpu(record->encoding) == encoding &&
 		    (language == -1 || be16_to_cpu(record->language) == language)) {
 			str = (char *)SAlloc::M(be16_to_cpu(record->length) + 1);
-			if(str == NULL)
+			if(!str)
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			len = be16_to_cpu(record->length);
 			memcpy(str, ((char*)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);
@@ -1320,7 +1320,7 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 			break;
 		}
 	}
-	if(str == NULL) {
+	if(!str) {
 		*str_out = NULL;
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -1405,7 +1405,7 @@ cairo_int_status_t _cairo_truetype_read_font_name(cairo_scaled_font_t      * sca
 	if(status)
 		return status;
 	name = (tt_name_t *)SAlloc::M(size);
-	if(name == NULL)
+	if(!name)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
 	status = backend->load_truetype_table(scaled_font,

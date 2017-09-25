@@ -1698,7 +1698,7 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
 const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNode * node)
 {
 	unsigned long pos;
-	if(!ctx || (node == NULL))
+	if(!ctx || !node)
 		return 0;
 	/* Find position where node should be at */
 	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, node);
@@ -1707,7 +1707,6 @@ const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, cons
 	else
 		return NULL;
 }
-
 /**
  * xmlInitNodeInfoSeq:
  * @seq:  a node info sequence pointer
@@ -1722,7 +1721,6 @@ void xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 		seq->buffer = NULL;
 	}
 }
-
 /**
  * xmlClearNodeInfoSeq:
  * @seq:  a node info sequence pointer
@@ -1737,7 +1735,6 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
 		xmlInitNodeInfoSeq(seq);
 	}
 }
-
 /**
  * xmlParserFindNodeInfoIndex:
  * @seq:  a node info sequence pointer
@@ -1753,7 +1750,7 @@ unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, cons
 {
 	unsigned long upper, lower, middle;
 	int found = 0;
-	if((seq == NULL) || (node == NULL))
+	if(!seq || !node)
 		return ((unsigned long)-1);
 	/* Do a binary search for the key */
 	lower = 1;

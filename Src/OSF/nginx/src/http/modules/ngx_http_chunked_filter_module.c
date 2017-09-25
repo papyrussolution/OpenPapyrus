@@ -59,7 +59,7 @@ static ngx_int_t ngx_http_chunked_header_filter(ngx_http_request_t * r)
 			}
 			r->chunked = 1;
 			ctx = (ngx_http_chunked_filter_ctx_t*)ngx_pcalloc(r->pool, sizeof(ngx_http_chunked_filter_ctx_t));
-			if(ctx == NULL) {
+			if(!ctx) {
 				return NGX_ERROR;
 			}
 			ngx_http_set_ctx(r, ctx, ngx_http_chunked_filter_module);

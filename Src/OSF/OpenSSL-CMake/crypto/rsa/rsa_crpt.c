@@ -107,13 +107,13 @@ BN_BLINDING * RSA_setup_blinding(RSA * rsa, BN_CTX * in_ctx)
 		ctx = in_ctx;
 	BN_CTX_start(ctx);
 	e = BN_CTX_get(ctx);
-	if(e == NULL) {
+	if(!e) {
 		RSAerr(RSA_F_RSA_SETUP_BLINDING, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
 	if(rsa->e == NULL) {
 		e = rsa_get_public_exp(rsa->d, rsa->p, rsa->q, ctx);
-		if(e == NULL) {
+		if(!e) {
 			RSAerr(RSA_F_RSA_SETUP_BLINDING, RSA_R_NO_PUBLIC_EXPONENT);
 			goto err;
 		}

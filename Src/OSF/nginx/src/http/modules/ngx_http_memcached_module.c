@@ -124,7 +124,7 @@ static ngx_int_t ngx_http_memcached_handler(ngx_http_request_t * pReq)
 		u->finalize_request = ngx_http_memcached_finalize_request;
 		{
 			ngx_http_memcached_ctx_t * ctx = (ngx_http_memcached_ctx_t *)ngx_palloc(pReq->pool, sizeof(ngx_http_memcached_ctx_t));
-			if(ctx == NULL) {
+			if(!ctx) {
 				return NGX_HTTP_INTERNAL_SERVER_ERROR;
 			}
 			ctx->request = pReq;
@@ -154,7 +154,7 @@ static ngx_int_t ngx_http_memcached_create_request(ngx_http_request_t * pReq)
 	escape = 2 * ngx_escape_uri(NULL, vv->data, vv->len, NGX_ESCAPE_MEMCACHED);
 	len = sizeof("get ") - 1 + vv->len + escape + sizeof(CRLF) - 1;
 	b = ngx_create_temp_buf(pReq->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	cl = ngx_alloc_chain_link(pReq->pool);

@@ -188,7 +188,7 @@ zip_t * _zip_open(zip_source_t * src, uint flags, zip_error_t * error)
 	SAlloc::F(cdir);
 	for(idx = 0; idx < za->nentry; idx++) {
 		const uint8 * name = _zip_string_get(za->entry[idx].orig->filename, NULL, 0, error);
-		if(name == NULL) {
+		if(!name) {
 			/* keep src so discard does not get rid of it */
 			zip_source_keep(src);
 			zip_discard(za);

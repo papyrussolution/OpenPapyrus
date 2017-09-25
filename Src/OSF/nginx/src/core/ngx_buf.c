@@ -50,13 +50,13 @@ ngx_chain_t * ngx_create_chain_of_bufs(ngx_pool_t * pool, ngx_bufs_t * bufs)
 	ngx_buf_t  * b;
 	ngx_chain_t  * chain, * cl, ** ll;
 	u_char * p = (u_char *)ngx_palloc(pool, bufs->num * bufs->size);
-	if(p == NULL) {
+	if(!p) {
 		return NULL;
 	}
 	ll = &chain;
 	for(i = 0; i < bufs->num; i++) {
 		b = (ngx_buf_t*)ngx_calloc_buf(pool);
-		if(b == NULL) {
+		if(!b) {
 			return NULL;
 		}
 		/*

@@ -11,8 +11,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "CaseConvert.h"
-#include "UnicodeFromUTF8.h"
+#include <scintilla-internal.h>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

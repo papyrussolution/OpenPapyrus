@@ -1657,23 +1657,21 @@ SLAPI STimeChunk::STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish
 	Init(rStart, rFinish);
 }
 
-int SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
+void SLAPI STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
 {
 	Start = start;
 	if(finish.d)
 		Finish = finish;
 	else
 		Finish.SetFar();
-	return 1;
 }
 
-int SLAPI STimeChunk::Init(const LDATETIME & start, long cont)
+void SLAPI STimeChunk::Init(const LDATETIME & start, long cont)
 {
 	Start = start;
 	Finish = plusdatetime(start, cont, 3);
 	if(!start.d)
 		Finish.d = ZERODATE;
-	return 1;
 }
 
 int FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const

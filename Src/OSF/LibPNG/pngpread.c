@@ -79,7 +79,7 @@ uint32 PNGAPI png_process_data_skip(png_structrp png_ptr)
  */
 void /* PRIVATE */ png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	switch(png_ptr->process_mode) {
 		case PNG_READ_SIG_MODE:
@@ -343,7 +343,7 @@ void PNGCBAPI png_push_fill_buffer(png_structp png_ptr, png_bytep buffer, size_t
 {
 	png_bytep ptr;
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	ptr = buffer;

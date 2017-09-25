@@ -1680,7 +1680,7 @@ static cairo_status_t botor_generate(cairo_botor_scan_converter_t     * self,
 				}
 
 				event = event_next(&sweep_line);
-				if(event == NULL)
+				if(!event)
 					goto end;
 			} while(event->y == sweep_line.current_subrow);
 		} while(event->y < sweep_line.current_row + STEP_Y);

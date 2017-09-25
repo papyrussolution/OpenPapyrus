@@ -90,7 +90,7 @@ static ngx_int_t ngx_stream_upstream_addr_variable(ngx_stream_session_t * s, ngx
 			len += 2;
 		}
 		p = (u_char*)ngx_pnalloc(s->connection->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		v->data = p;
@@ -125,7 +125,7 @@ static ngx_int_t ngx_stream_upstream_bytes_variable(ngx_stream_session_t * s, ng
 	}
 	len = s->upstream_states->nelts * (NGX_OFF_T_LEN + 2);
 	p = (u_char*)ngx_pnalloc(s->connection->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -164,7 +164,7 @@ static ngx_int_t ngx_stream_upstream_response_time_variable(ngx_stream_session_t
 	}
 	len = s->upstream_states->nelts * (NGX_TIME_T_LEN + 4 + 2);
 	p = (u_char*)ngx_pnalloc(s->connection->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -219,7 +219,7 @@ static const char * ngx_stream_upstream(ngx_conf_t * cf, const ngx_command_t * c
 		return NGX_CONF_ERROR;
 	}
 	ctx = (ngx_stream_conf_ctx_t*)ngx_pcalloc(cf->pool, sizeof(ngx_stream_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	stream_ctx = (ngx_stream_conf_ctx_t*)cf->ctx;

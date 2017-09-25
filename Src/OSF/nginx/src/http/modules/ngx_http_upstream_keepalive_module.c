@@ -372,7 +372,7 @@ static void * ngx_http_upstream_keepalive_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_upstream_keepalive_srv_conf_t  * conf;
 	conf = (ngx_http_upstream_keepalive_srv_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_http_upstream_keepalive_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

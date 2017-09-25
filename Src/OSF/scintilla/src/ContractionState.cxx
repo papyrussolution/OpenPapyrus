@@ -8,11 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
-#include "SparseVector.h"
-#include "ContractionState.h"
+#include <scintilla-internal.h>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

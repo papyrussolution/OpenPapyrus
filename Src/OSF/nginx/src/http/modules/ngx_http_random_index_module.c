@@ -167,7 +167,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 		}
 
 		name = (ngx_str_t*)ngx_array_push(&names);
-		if(name == NULL) {
+		if(!name) {
 			return ngx_http_random_index_error(r, &dir, &path);
 		}
 

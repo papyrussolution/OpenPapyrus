@@ -134,7 +134,7 @@ XmlDbFile::Param::Param(const char * pRootTag, const char * pHdrTag, const char 
 	Init(pRootTag, pHdrTag, pRecTag, flags);
 }
 
-int XmlDbFile::Param::Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags)
+void XmlDbFile::Param::Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags)
 {
 	Ver = XMLDBFILEPARAM_SVER;
 	Flags = flags;
@@ -145,7 +145,6 @@ int XmlDbFile::Param::Init(const char * pRootTag, const char * pHdrTag, const ch
 		RootTag = PPYXML_ROOTTAG;
 	if(RecTag.Len() == 0)
 		RecTag = PPYXML_RECTAG;
-	return 1;
 }
 
 int XmlDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

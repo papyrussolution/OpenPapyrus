@@ -2854,7 +2854,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
 		}
 		// Check for a supported opcode, and load its properties. 
 		code = get_chr_property_list(code, utf, cd->fcc, list);
-		if(code == NULL) 
+		if(!code) 
 			return FALSE;  /* Unsupported */
 		// If either opcode is a small character list, set pointers for comparing
 		// characters from that list with another list, or with a property. 

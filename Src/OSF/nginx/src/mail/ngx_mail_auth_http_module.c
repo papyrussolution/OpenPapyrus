@@ -121,7 +121,7 @@ void ngx_mail_auth_http_init(ngx_mail_session_t * s)
 		return;
 	}
 	ctx = (ngx_mail_auth_http_ctx_t *)ngx_pcalloc(pool, sizeof(ngx_mail_auth_http_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		ngx_destroy_pool(pool);
 		ngx_mail_session_internal_server_error(s);
 		return;
@@ -403,7 +403,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 					    continue;
 				}
 				p = (u_char*)ngx_pnalloc(s->connection->pool, size);
-				if(p == NULL) {
+				if(!p) {
 					ngx_close_connection(ctx->peer.connection);
 					ngx_destroy_pool(ctx->pool);
 					ngx_mail_session_internal_server_error(s);
@@ -493,7 +493,7 @@ static void ngx_mail_auth_http_process_headers(ngx_mail_session_t * s, ngx_mail_
 					}
 					ctx->err.len = ctx->errcode.len + ctx->errmsg.len + sizeof(" " CRLF) - 1;
 					p = (u_char*)ngx_pnalloc(s->connection->pool, ctx->err.len);
-					if(p == NULL) {
+					if(!p) {
 						ngx_destroy_pool(ctx->pool);
 						ngx_mail_session_internal_server_error(s);
 						return;
@@ -895,7 +895,7 @@ static ngx_buf_t * ngx_mail_auth_http_create_request(ngx_mail_session_t * s, ngx
 	    + ahcf->header.len
 	    + sizeof(CRLF) - 1;
 	b = ngx_create_temp_buf(pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NULL;
 	}
 	b->last = ngx_cpymem(b->last, "GET ", sizeof("GET ") - 1);
@@ -998,7 +998,7 @@ static ngx_int_t ngx_mail_auth_http_escape(ngx_pool_t * pool, ngx_str_t * text, 
 	else {
 		escaped->len = text->len + n * 2;
 		p = (u_char*)ngx_pnalloc(pool, escaped->len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		(void)ngx_escape_uri(p, text->data, text->len, NGX_ESCAPE_MAIL_AUTH);
@@ -1049,7 +1049,7 @@ static char * ngx_mail_auth_http_merge_conf(ngx_conf_t * cf, void * parent, void
 			len += header[i].key.len + 2 + header[i].value.len + 2;
 		}
 		p = (u_char*)ngx_pnalloc(cf->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_CONF_ERROR;
 		}
 		conf->header.len = len;

@@ -745,7 +745,7 @@ number:
 			    static const char null[] = "(nil)";
 			    size_t len;
 			    const char * str = (char*)p->data.str;
-			    if(str == NULL) {
+			    if(!str) {
 				    /* Write null[] if there's space.  */
 				    if(prec == -1 || prec >= (long)sizeof(null) - 1) {
 					    str = null;

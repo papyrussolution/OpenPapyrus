@@ -628,7 +628,7 @@ static ngx_int_t ngx_http_scgi_create_request(ngx_http_request_t * r)
 	/* netstring: "length:" + packet + "," */
 
 	b = ngx_create_temp_buf(r->pool, NGX_SIZE_T_LEN + 1 + len + 1);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 
@@ -744,7 +744,7 @@ next:
 		r->upstream->request_bufs = cl;
 		while(body) {
 			b = (ngx_buf_t*)ngx_alloc_buf(r->pool);
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 			memcpy(b, body->buf, sizeof(ngx_buf_t));
@@ -1280,18 +1280,18 @@ next:
 			return NGX_ERROR;
 		}
 		code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 		code = (uintptr_t *)ngx_array_push_n(params->values, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 	}
 	code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	*code = (uintptr_t)NULL;

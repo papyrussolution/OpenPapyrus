@@ -8,10 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "CellBuffer.h"
-#include "PerLine.h"
+#include <scintilla-internal.h>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

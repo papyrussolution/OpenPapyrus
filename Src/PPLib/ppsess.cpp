@@ -1938,7 +1938,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					if(!path.NotEmptyS())
 						(path = root_path).SetLastSlash().Cat("WORKSPACE");
-					Helper_SetPath(PPPATH_PACK, path);
+					Helper_SetPath(PPPATH_WORKSPACE, path);
 				}
 				// } @v9.8.2
 				LoadDriveMapping(&ini_file);

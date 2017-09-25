@@ -1,5 +1,5 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -14,7 +14,7 @@ ExcelDbFile::Param::Param(long flags /* = 0*/)
 
 #define EXCELDBFILEPARAM_SVER 0
 
-int ExcelDbFile::Param::Init()
+void ExcelDbFile::Param::Init()
 {
 	Ver = EXCELDBFILEPARAM_SVER; // serialize version
 	HdrLinesCount = 0;
@@ -26,7 +26,6 @@ int ExcelDbFile::Param::Init()
 	Flags = 0;
 	SheetName_ = 0;
 	EndStr_ = 0;
-	return 1;
 }
 
 int ExcelDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

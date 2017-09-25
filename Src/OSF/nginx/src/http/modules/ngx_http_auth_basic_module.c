@@ -220,9 +220,9 @@ static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_h
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	/* rc == NGX_AGAIN */
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = (ngx_http_auth_basic_ctx_t *)ngx_palloc(r->pool, sizeof(ngx_http_auth_basic_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		ngx_http_set_ctx(r, ctx, ngx_http_auth_basic_module);

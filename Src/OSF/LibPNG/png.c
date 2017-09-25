@@ -65,7 +65,7 @@ int PNGAPI png_sig_cmp(png_const_bytep sig, size_t start, size_t num_to_check)
 PNG_ALLOCATED voidpf /* PRIVATE */ png_zalloc(voidpf png_ptr, uInt items, uInt size)
 {
 	png_alloc_size_t num_bytes = size;
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return NULL;
 	if(items >= (~(png_alloc_size_t)0)/size) {
 		png_warning(png_voidcast(png_structrp, png_ptr), "Potential overflow in png_zalloc()");
@@ -278,7 +278,7 @@ PNG_ALLOCATED png_infop PNGAPI png_create_info_struct(png_const_structrp png_ptr
 {
 	png_inforp info_ptr;
 	png_debug(1, "in png_create_info_struct");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return NULL;
 	/* Use the internal API that does not (or at least should not) error out, so
 	 * that this call always returns ok.  The application typically sets up the
@@ -533,7 +533,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
  */
 void * PNGAPI png_get_io_ptr(png_const_structrp png_ptr)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return NULL;
 	return (png_ptr->io_ptr);
 }
@@ -788,7 +788,7 @@ int /* PRIVATE */ png_chunk_unknown_handling(png_const_structrp png_ptr, uint32 
 /* This function, added to libpng-1.0.6g, is untested. */
 int PNGAPI png_reset_zstream(png_structrp png_ptr)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return Z_STREAM_ERROR;
 	/* WARNING: this resets the window bits to the maximum! */
 	return (inflateReset(&png_ptr->zstream));

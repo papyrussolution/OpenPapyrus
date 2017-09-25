@@ -467,7 +467,7 @@ int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar 
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
 			name = xmlDictLookup(table->dict, name, -1);
-			if(name == NULL)
+			if(!name)
 				return -1;
 		}
 		if(name2 && (!xmlDictOwns(table->dict, name2))) {
@@ -565,7 +565,7 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
 			name = xmlDictLookup(table->dict, name, -1);
-			if(name == NULL)
+			if(!name)
 				return -1;
 		}
 		if(name2 && (!xmlDictOwns(table->dict, name2))) {

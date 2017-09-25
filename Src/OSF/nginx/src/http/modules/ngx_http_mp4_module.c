@@ -486,7 +486,7 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 	}
 	if(mp4 == NULL) {
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		b->file = (ngx_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_file_t));

@@ -940,7 +940,7 @@ ToolbarCfg::~ToolbarCfg()
 int ToolbarCfg::Init()
 {
 	delete P_Buttons;
-	return (P_Buttons = new TBButtonCfg[Count]) ? 1 : 0;
+	return BIN(P_Buttons = new TBButtonCfg[Count]);
 }
 
 int ToolbarCfg::Init(const void * pBuf)

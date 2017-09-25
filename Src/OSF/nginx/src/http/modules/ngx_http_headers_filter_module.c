@@ -233,9 +233,9 @@ static ngx_int_t ngx_http_set_expires(ngx_http_request_t * r, ngx_http_headers_c
 		}
 	}
 	e = r->headers_out.expires;
-	if(e == NULL) {
+	if(!e) {
 		e = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
-		if(e == NULL) {
+		if(!e) {
 			return NGX_ERROR;
 		}
 		r->headers_out.expires = e;

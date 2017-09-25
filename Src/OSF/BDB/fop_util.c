@@ -248,7 +248,7 @@ retry:
 	}
 	if(!F_ISSET(dbp, DB_AM_COMPENSATE) && !F_ISSET(dbp, DB_AM_RECOVER))
 		GET_ENVLOCK(env, locker, &elock);
-	if(name == NULL)
+	if(!name)
 		ret = ENOENT;
 	else if(F_ISSET(dbp, DB_AM_INMEM)) {
 		ret = __env_mpool(dbp, name, flags);
@@ -1035,7 +1035,7 @@ static int __fop_inmem_create(DB * dbp, const char * name, DB_TXN * txn, uint32 
 	 * combination of a unique id (__os_unique_id) and a hash of the
 	 * original name.
 	 */
-	if(name == NULL) {
+	if(!name) {
 		if(LOCKING_ON(env) && (ret = __lock_id(env, (uint32 *)dbp->fileid, NULL)) != 0)
 			goto err;
 	}

@@ -1031,7 +1031,7 @@ ngx_int_t ngx_http_cache_send(ngx_http_request_t * r)
 	}
 	/* we need to allocate all before the header would be sent */
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	b->file = (ngx_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_file_t));
@@ -1126,7 +1126,7 @@ static time_t ngx_http_file_cache_forced_expire(ngx_http_file_cache_t * cache)
 	path = cache->path;
 	len = path->name.len + 1 + path->len + 2 * NGX_HTTP_CACHE_KEY_LEN;
 	name = (u_char *)ngx_alloc(len + 1, ngx_cycle->log);
-	if(name == NULL) {
+	if(!name) {
 		return 10;
 	}
 	memcpy(name, path->name.data, path->name.len);
@@ -1191,7 +1191,7 @@ static time_t ngx_http_file_cache_expire(ngx_http_file_cache_t * cache)
 	path = cache->path;
 	len = path->name.len + 1 + path->len + 2 * NGX_HTTP_CACHE_KEY_LEN;
 	name = (u_char *)ngx_alloc(len + 1, ngx_cycle->log);
-	if(name == NULL) {
+	if(!name) {
 		return 10;
 	}
 	memcpy(name, path->name.data, path->name.len);
@@ -1743,7 +1743,7 @@ const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_comma
 	if(n == 1) {
 		for(i = 0; i < 3; i++) {
 			v = (ngx_http_cache_valid_t *)ngx_array_push(*a);
-			if(v == NULL) {
+			if(!v) {
 				return NGX_CONF_ERROR;
 			}
 			v->status = statuses[i];
@@ -1763,7 +1763,7 @@ const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_comma
 			}
 		}
 		v = (ngx_http_cache_valid_t *)ngx_array_push(*a);
-		if(v == NULL) {
+		if(!v) {
 			return NGX_CONF_ERROR;
 		}
 		v->status = status;

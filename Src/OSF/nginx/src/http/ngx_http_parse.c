@@ -1657,13 +1657,13 @@ ngx_int_t ngx_http_arg(ngx_http_request_t * r, const u_char * name, size_t len, 
 		for(/* void */; p < last; p++) {
 			/* we need '=' after name, so drop one char from last */
 			p = ngx_strlcasestrn(p, last - 1, name, len - 1);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_DECLINED;
 			}
 			if((p == r->args.data || *(p - 1) == '&') && *(p + len) == '=') {
 				value->data = p + len + 1;
 				p = ngx_strlchr(p, last, '&');
-				if(p == NULL) {
+				if(!p) {
 					p = r->args.data + r->args.len;
 				}
 				value->len = p - value->data;

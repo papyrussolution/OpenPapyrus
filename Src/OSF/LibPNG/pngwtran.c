@@ -429,7 +429,7 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
 {
 	png_debug(1, "in png_do_write_transformations");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 #ifdef PNG_WRITE_USER_TRANSFORM_SUPPORTED
 	if((png_ptr->transformations & PNG_USER_TRANSFORM) != 0)

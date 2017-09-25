@@ -740,7 +740,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return 1;
 }
 
-int TInputLine::Init()
+void TInputLine::Init()
 {
 	SubSign = TV_SUBSIGN_INPUTLINE;
 	maxLen = DEFAULT_MAX_LEN;
@@ -750,7 +750,6 @@ int TInputLine::Init()
 	type     = 0;
 	combo = 0;
 	InlSt = stValidStr;
-	return 1;
 }
 
 TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bounds)

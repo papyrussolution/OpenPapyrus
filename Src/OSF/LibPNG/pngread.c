@@ -289,7 +289,7 @@ static void png_do_read_intrapixel(png_row_infop row_info, png_bytep row)
 void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 {
 	png_row_info row_info;
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	png_debug2(1, "in png_read_row (row %lu, pass %d)", (unsigned long)png_ptr->row_number, png_ptr->pass);
 	/* png_read_start_row sets the information (in particular iwidth) for this
@@ -542,7 +542,7 @@ void PNGAPI png_read_image(png_structrp png_ptr, png_bytepp image)
 	int pass, j;
 	png_bytepp rp;
 	png_debug(1, "in png_read_image");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	if((png_ptr->flags & PNG_FLAG_ROW_INIT) == 0) {
@@ -593,7 +593,7 @@ void PNGAPI png_read_end(png_structrp png_ptr, png_inforp info_ptr)
 	int keep;
 #endif
 	png_debug(1, "in png_read_end");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	/* If png_read_end is called in the middle of reading the rows there may
 	 * still be pending IDAT data and an owned zstream.  Deal with this here.
@@ -774,7 +774,7 @@ void PNGAPI png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_pt
 	png_debug(1, "in png_destroy_read_struct");
 	if(png_ptr_ptr != NULL)
 		png_ptr = *png_ptr_ptr;
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	/* libpng 1.6.0: use the API to destroy info structs to ensure consistent
 	 * behavior.  Prior to 1.6.0 libpng did extra 'info' destruction in this API.

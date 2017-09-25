@@ -237,7 +237,7 @@ int ASN1_object_size(int constructed, int length, int tag)
 
 int ASN1_STRING_copy(ASN1_STRING * dst, const ASN1_STRING * str)
 {
-	if(str == NULL)
+	if(!str)
 		return 0;
 	dst->type = str->type;
 	if(!ASN1_STRING_set(dst, str->data, str->length))

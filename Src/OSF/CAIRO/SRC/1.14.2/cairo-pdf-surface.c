@@ -4263,7 +4263,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 	}
 	if(ascii) {
 		str = (char *)SAlloc::M(len + 3);
-		if(str == NULL)
+		if(!str)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		str[0] = '(';
 		for(i = 0; i < len; i++)
@@ -4278,7 +4278,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 		if(unlikely(status))
 			return status;
 		str = (char *)SAlloc::M(utf16_len*4 + 7);
-		if(str == NULL) {
+		if(!str) {
 			SAlloc::F(utf16);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}

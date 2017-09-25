@@ -632,7 +632,7 @@ static int hwcrhk_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 			    HWCRHKerr(HWCRHK_F_HWCRHK_CTRL, HWCRHK_R_ALREADY_LOADED);
 			    return 0;
 		    }
-		    if(p == NULL) {
+		    if(!p) {
 			    HWCRHKerr(HWCRHK_F_HWCRHK_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return 0;
 		    }

@@ -3884,7 +3884,7 @@ int xmlRegExecPushString2(xmlRegExecCtxtPtr exec, const xmlChar * value, const x
 			const size_t lenp = sstrlen(value);
 			if((lenn + lenp + 2) > sizeof(buf)) {
 				str = (xmlChar*)SAlloc::M(lenn + lenp + 2);
-				if(str == NULL) {
+				if(!str) {
 					exec->status = -1;
 					return -1;
 				}
@@ -5482,7 +5482,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
 		xmlChar * str = (xmlChar*)SAlloc::M(lenn + lenp + 2);
-		if(str == NULL) {
+		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
 		}
@@ -5540,7 +5540,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
 		xmlChar * str = (xmlChar*)SAlloc::M(lenn + lenp + 2);
-		if(str == NULL) {
+		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
 		}
@@ -5605,7 +5605,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am, xmlAutomataStat
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
 		xmlChar * str = (xmlChar*)SAlloc::M(lenn + lenp + 2);
-		if(str == NULL) {
+		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
 		}
@@ -5753,7 +5753,7 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataState
 		int lenn = sstrlen(token2);
 		int lenp = sstrlen(token);
 		xmlChar * str = (xmlChar*)SAlloc::M(lenn + lenp + 2);
-		if(str == NULL) {
+		if(!str) {
 			xmlRegFreeAtom(atom);
 			return 0;
 		}
@@ -6505,7 +6505,7 @@ xmlExpNodePtr xmlExpNewAtom(xmlExpCtxtPtr ctxt, const xmlChar * name, int len)
 	if(!ctxt || (name == NULL))
 		return 0;
 	name = xmlDictLookup(ctxt->dict, name, len);
-	if(name == NULL)
+	if(!name)
 		return 0;
 	return(xmlExpHashGetEntry(ctxt, XML_EXP_ATOM, NULL, NULL, name, 0, 0));
 }

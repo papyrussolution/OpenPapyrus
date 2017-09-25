@@ -697,7 +697,7 @@ ngx_int_t ngx_resolve_addr(ngx_resolver_ctx_t * ctx)
 			rn->expire = ngx_time() + r->expire;
 			ngx_queue_insert_head(expire_queue, &rn->queue);
 			name = (u_char *)ngx_resolver_dup(r, rn->name, rn->nlen);
-			if(name == NULL) {
+			if(!name) {
 				goto failed;
 			}
 			ctx->name.len = rn->nlen;
@@ -966,9 +966,9 @@ static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_co
 	rc = NGX_OK;
 	if(rec->tcp == NULL) {
 		b = rec->read_buf;
-		if(b == NULL) {
+		if(!b) {
 			b = (ngx_buf_t*)ngx_resolver_calloc(r, sizeof(ngx_buf_t));
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 			b->start = (u_char *)ngx_resolver_alloc(r, NGX_RESOLVER_TCP_RSIZE);
@@ -982,9 +982,9 @@ static ngx_int_t ngx_resolver_send_tcp_query(ngx_resolver_t * r, ngx_resolver_co
 		b->pos = b->start;
 		b->last = b->start;
 		b = rec->write_buf;
-		if(b == NULL) {
+		if(!b) {
 			b = (ngx_buf_t*)ngx_resolver_calloc(r, sizeof(ngx_buf_t));
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 			b->start = (u_char *)ngx_resolver_alloc(r, NGX_RESOLVER_TCP_WSIZE);
@@ -2822,7 +2822,7 @@ static ngx_int_t ngx_resolver_create_name_query(ngx_resolver_t * r, ngx_resolver
 #else
 	p = (u_char *)ngx_resolver_alloc(r, len);
 #endif
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	rn->qlen = (u_short)len;
@@ -2902,7 +2902,7 @@ static ngx_int_t ngx_resolver_create_srv_query(ngx_resolver_t * r, ngx_resolver_
 	size_t nlen = name->len ? (1 + name->len + 1) : 1;
 	size_t len = sizeof(ngx_resolver_hdr_t) + nlen + sizeof(ngx_resolver_qs_t);
 	u_char * p = (u_char *)ngx_resolver_alloc(r, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	rn->qlen = (u_short)len;
@@ -2975,7 +2975,7 @@ static ngx_int_t ngx_resolver_create_addr_query(ngx_resolver_t * r, ngx_resolver
 		    len = sizeof(ngx_resolver_hdr_t) + sizeof(".255.255.255.255.in-addr.arpa.") - 1 + sizeof(ngx_resolver_qs_t);
 	}
 	p = (u_char *)ngx_resolver_alloc(r, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	rn->query = p;
@@ -3051,7 +3051,7 @@ invalid:
 	ngx_log_error(r->log_level, r->log, 0, err);
 	return NGX_ERROR;
 done:
-	if(name == NULL) {
+	if(!name) {
 		return NGX_OK;
 	}
 	if(len == -1) {

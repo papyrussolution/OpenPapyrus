@@ -112,7 +112,7 @@ zip_encoding_type_t _zip_guess_encoding(zip_string_t * str, zip_encoding_type_t 
 	zip_encoding_type_t enc;
 	const uint8 * name;
 	uint32 i, j, ulen;
-	if(str == NULL)
+	if(!str)
 		return ZIP_ENCODING_ASCII;
 	name = str->raw;
 	if(str->encoding != ZIP_ENCODING_UNKNOWN)

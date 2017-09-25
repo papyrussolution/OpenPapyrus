@@ -88,7 +88,7 @@ static int dh_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	ASN1_INTEGER * pub_key = NULL;
 	DH * dh = pkey->pkey.dh;
 	ASN1_STRING * str = ASN1_STRING_new();
-	if(str == NULL) {
+	if(!str) {
 		DHerr(DH_F_DH_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

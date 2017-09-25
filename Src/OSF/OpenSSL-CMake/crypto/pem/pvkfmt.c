@@ -324,7 +324,7 @@ static EVP_PKEY * b2i_rsa(const uchar ** in,
 	if(rsa == NULL || ret == NULL)
 		goto memerr;
 	e = BN_new();
-	if(e == NULL)
+	if(!e)
 		goto memerr;
 	if(!BN_set_word(e, read_ledword(&pin)))
 		goto memerr;

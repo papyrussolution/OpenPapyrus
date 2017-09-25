@@ -184,7 +184,7 @@ static void ngx_stream_proxy_protocol_handler(ngx_event_t * rev)
 				ngx_del_timer(rev);
 			}
 			p = ngx_proxy_protocol_read(c, buf, buf + n);
-			if(p == NULL) {
+			if(!p) {
 				ngx_stream_finalize_session(s, NGX_STREAM_BAD_REQUEST);
 				return;
 			}

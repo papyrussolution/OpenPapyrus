@@ -334,7 +334,7 @@ void PNGAPI png_write_end(png_structrp png_ptr, png_inforp info_ptr)
 {
 	png_debug(1, "in png_write_end");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if((png_ptr->mode & PNG_HAVE_IDAT) == 0)
@@ -535,7 +535,7 @@ void PNGAPI png_write_rows(png_structrp png_ptr, png_bytepp row,
 
 	png_debug(1, "in png_write_rows");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	/* Loop through the rows */
@@ -553,7 +553,7 @@ void PNGAPI png_write_image(png_structrp png_ptr, png_bytepp image)
 	int pass, num_pass; /* pass variables */
 	png_bytepp rp; /* points to current row */
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_debug(1, "in png_write_image");
@@ -640,7 +640,7 @@ void PNGAPI png_write_row(png_structrp png_ptr, png_const_bytep row)
 {
 	/* 1.5.6: moved from png_struct to be a local structure: */
 	png_row_info row_info;
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	png_debug2(1, "in png_write_row (row %u, pass %d)", png_ptr->row_number, png_ptr->pass);
 	/* Initialize transformations and other stuff if first time */
@@ -905,7 +905,7 @@ void PNGAPI png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_p
 void PNGAPI png_set_filter(png_structrp png_ptr, int method, int filters)
 {
 	png_debug(1, "in png_set_filter");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 #ifdef PNG_MNG_FEATURES_SUPPORTED
 	if((png_ptr->mng_features_permitted & PNG_FLAG_MNG_FILTER_64) != 0 && (method == PNG_INTRAPIXEL_DIFFERENCING))
@@ -1055,7 +1055,7 @@ void PNGAPI png_set_compression_level(png_structrp png_ptr, int level)
 {
 	png_debug(1, "in png_set_compression_level");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->zlib_level = level;
@@ -1065,7 +1065,7 @@ void PNGAPI png_set_compression_mem_level(png_structrp png_ptr, int mem_level)
 {
 	png_debug(1, "in png_set_compression_mem_level");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->zlib_mem_level = mem_level;
@@ -1075,7 +1075,7 @@ void PNGAPI png_set_compression_strategy(png_structrp png_ptr, int strategy)
 {
 	png_debug(1, "in png_set_compression_strategy");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	/* The flag setting here prevents the libpng dynamic selection of strategy.
@@ -1089,7 +1089,7 @@ void PNGAPI png_set_compression_strategy(png_structrp png_ptr, int strategy)
  */
 void PNGAPI png_set_compression_window_bits(png_structrp png_ptr, int window_bits)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	/* Prior to 1.6.0 this would warn but then set the window_bits value. This
@@ -1115,7 +1115,7 @@ void PNGAPI png_set_compression_method(png_structrp png_ptr, int method)
 {
 	png_debug(1, "in png_set_compression_method");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	/* This would produce an invalid PNG file if it worked, but it doesn't and
@@ -1148,7 +1148,7 @@ void PNGAPI png_set_text_compression_mem_level(png_structrp png_ptr, int mem_lev
 void PNGAPI png_set_text_compression_strategy(png_structrp png_ptr, int strategy)
 {
 	png_debug(1, "in png_set_text_compression_strategy");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 	png_ptr->zlib_text_strategy = strategy;
 }
@@ -1158,7 +1158,7 @@ void PNGAPI png_set_text_compression_strategy(png_structrp png_ptr, int strategy
  */
 void PNGAPI png_set_text_compression_window_bits(png_structrp png_ptr, int window_bits)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(window_bits > 15) {
@@ -1178,7 +1178,7 @@ void PNGAPI png_set_text_compression_method(png_structrp png_ptr, int method)
 {
 	png_debug(1, "in png_set_text_compression_method");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(method != 8)
@@ -1192,7 +1192,7 @@ void PNGAPI png_set_text_compression_method(png_structrp png_ptr, int method)
 
 void PNGAPI png_set_write_status_fn(png_structrp png_ptr, png_write_status_ptr write_row_fn)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->write_row_fn = write_row_fn;
@@ -1204,7 +1204,7 @@ void PNGAPI png_set_write_user_transform_fn(png_structrp png_ptr, png_user_trans
 {
 	png_debug(1, "in png_set_write_user_transform_fn");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->transformations |= PNG_USER_TRANSFORM;

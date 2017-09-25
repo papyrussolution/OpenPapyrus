@@ -474,7 +474,7 @@ static ngx_int_t ngx_process_options(ngx_cycle_t * cycle, const NgxStartUpOption
 		p = ngx_prefix;
 		if(len && !ngx_path_separator(p[len-1])) {
 			p = (u_char *)ngx_pnalloc(cycle->pool, len + 1);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			memcpy(p, ngx_prefix, len);
@@ -491,7 +491,7 @@ static ngx_int_t ngx_process_options(ngx_cycle_t * cycle, const NgxStartUpOption
 	else {
 #ifndef NGX_PREFIX
 		p = (u_char *)ngx_pnalloc(cycle->pool, NGX_MAX_PATH);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		if(ngx_getcwd(p, NGX_MAX_PATH) == 0) {

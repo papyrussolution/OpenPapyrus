@@ -128,7 +128,7 @@ static const struct ssl_conf_name * ssl_name_find(const char * name){
 
 	const struct ssl_conf_name * nm;
 
-	if(name == NULL)
+	if(!name)
 		return NULL;
 	for(i = 0, nm = ssl_names; i < ssl_names_count; i++, nm++) {
 		if(strcmp(nm->name, name) == 0)

@@ -98,7 +98,7 @@ static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 	}
 	log = r->connection->log;
 	p = ngx_http_map_uri_to_path(r, &path, &root, sizeof(".gz") - 1);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	*p++ = '.';
@@ -182,7 +182,7 @@ static ngx_int_t ngx_http_gzip_static_handler(ngx_http_request_t * r)
 	r->headers_out.content_encoding = h;
 	/* we need to allocate all before the header would be sent */
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	b->file = (ngx_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_file_t));

@@ -612,7 +612,7 @@ ZIP_EXTERN int64 zip_dir_add(zip_t * za, const char * name, zip_flags_t flags)
 	if(ZIP_IS_RDONLY(za)) {
 		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	}
-	if(name == NULL) {
+	if(!name) {
 		return zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 	}
 	s = NULL;
@@ -4258,7 +4258,7 @@ static uint16 FASTCALL _hash_string(const uint8 * name, uint16 size)
 {
 #define HASH_MULTIPLIER 33
 	uint16 value = 5381;
-	if(name == NULL)
+	if(!name)
 		return 0;
 	while(*name != 0) {
 		value = (uint16)(((value * HASH_MULTIPLIER) + (uint8)*name) % size);

@@ -286,10 +286,10 @@ static ngx_int_t ngx_http_limit_req_lookup(ngx_http_limit_req_limit_t * limit, n
 	size = offsetof(ngx_rbtree_node_t, color) + offsetof(ngx_http_limit_req_node_t, data) + key->len;
 	ngx_http_limit_req_expire(ctx, 1);
 	node = (ngx_rbtree_node_t *)ngx_slab_alloc_locked(ctx->shpool, size);
-	if(node == NULL) {
+	if(!node) {
 		ngx_http_limit_req_expire(ctx, 0);
 		node = (ngx_rbtree_node_t *)ngx_slab_alloc_locked(ctx->shpool, size);
-		if(node == NULL) {
+		if(!node) {
 			ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, 0, "could not allocate node%s", ctx->shpool->log_ctx);
 			return NGX_ERROR;
 		}
@@ -443,7 +443,7 @@ static ngx_int_t ngx_http_limit_req_init_zone(ngx_shm_zone_t * shm_zone, void * 
 static void * ngx_http_limit_req_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_limit_req_conf_t  * conf = (ngx_http_limit_req_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_req_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*
@@ -481,7 +481,7 @@ static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t
 	ngx_http_compile_complex_value_t ccv;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	ngx_http_limit_req_ctx_t * ctx = (ngx_http_limit_req_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_req_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
@@ -499,7 +499,7 @@ static const char * ngx_http_limit_req_zone(ngx_conf_t * cf, const ngx_command_t
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
 			p = (u_char*)ngx_strchr(name.data, ':');
-			if(p == NULL) {
+			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}

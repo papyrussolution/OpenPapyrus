@@ -64,7 +64,7 @@ static const char * ngx_stream_block(ngx_conf_t * cf, const ngx_command_t * cmd,
 	}
 	/* the main stream context */
 	ctx = (ngx_stream_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	*(ngx_stream_conf_ctx_t**)conf = ctx;
@@ -404,7 +404,7 @@ static ngx_int_t ngx_stream_add_addrs(ngx_conf_t * cf, ngx_stream_port_t * stpor
 		addrs[i].conf.proxy_protocol = addr[i].opt.proxy_protocol;
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
 		p = (u_char*)ngx_pnalloc(cf->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		memcpy(p, buf, len);
@@ -440,7 +440,7 @@ static ngx_int_t ngx_stream_add_addrs6(ngx_conf_t * cf, ngx_stream_port_t * stpo
 		addrs6[i].conf.proxy_protocol = addr[i].opt.proxy_protocol;
 		len = ngx_sock_ntop(&addr[i].opt.sockaddr.sockaddr, addr[i].opt.socklen, buf, NGX_SOCKADDR_STRLEN, 1);
 		p = (u_char *)ngx_pnalloc(cf->pool, len);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		memcpy(p, buf, len);

@@ -180,7 +180,7 @@ int __db_rename_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 		ret = EINVAL;
 		goto err;
 	}
-	if(name == NULL)
+	if(!name)
 		MAKE_INMEM(dbp);
 	else if(subdb) {
 		ret = __db_subdb_rename(dbp, ip, txn, name, subdb, newname, flags);

@@ -828,7 +828,7 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 	CHECK_COMPAT(buf)
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
 		return -1;
-	if(str == NULL) {
+	if(!str) {
 #ifdef DEBUG_BUFFER
 		xmlGenericError(0, "xmlBufAddHead: str == NULL\n");
 #endif
@@ -874,7 +874,6 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 	UPDATE_COMPAT(buf)
 	return 0;
 }
-
 /**
  * xmlBufCat:
  * @buf:  the buffer to add to
@@ -885,14 +884,15 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufCat(xmlBufPtr buf, const xmlChar * str)
+int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str)
 {
 	if(!buf || buf->error)
 		return -1;
-	CHECK_COMPAT(buf)
-	return (str && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) ? xmlBufAdd(buf, str, -1) : -1;
+	else {
+		CHECK_COMPAT(buf)
+		return (str && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) ? xmlBufAdd(buf, str, -1) : -1;
+	}
 }
-
 /**
  * xmlBufCCat:
  * @buf:  the buffer to dump
@@ -903,14 +903,14 @@ int xmlBufCat(xmlBufPtr buf, const xmlChar * str)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufCCat(xmlBufPtr buf, const char * str)
+int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
 {
 	const char * cur;
 	if(!buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) return -1;
-	if(str == NULL) {
+	if(!str) {
 #ifdef DEBUG_BUFFER
 		xmlGenericError(0, "xmlBufCCat: str == NULL\n");
 #endif
@@ -941,16 +941,13 @@ int xmlBufCCat(xmlBufPtr buf, const char * str)
  * Returns 0 if successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufWriteCHAR(xmlBufPtr buf, const xmlChar * string) 
+int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string) 
 {
 	if(!buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
-	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
-		return -1;
-	return(xmlBufCat(buf, string));
+	return (buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufCat(buf, string);
 }
-
 /**
  * xmlBufWriteChar:
  * @buf:  the XML buffer output
@@ -962,16 +959,13 @@ int xmlBufWriteCHAR(xmlBufPtr buf, const xmlChar * string)
  * Returns 0 if successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufWriteChar(xmlBufPtr buf, const char * string) 
+int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string) 
 {
 	if(!buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
-	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
-		return -1;
-	return(xmlBufCCat(buf, string));
+	return (buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufCCat(buf, string);
 }
-
 /**
  * xmlBufWriteQuotedString:
  * @buf:  the XML buffer output
@@ -984,7 +978,7 @@ int xmlBufWriteChar(xmlBufPtr buf, const char * string)
  * Returns 0 if successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
+int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 {
 	const xmlChar * cur, * base;
 	if(!buf || buf->error)

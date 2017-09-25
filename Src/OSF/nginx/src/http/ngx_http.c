@@ -83,7 +83,7 @@ static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	}
 	/* the main http context */
 	ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	*(ngx_http_conf_ctx_t**)conf = ctx;

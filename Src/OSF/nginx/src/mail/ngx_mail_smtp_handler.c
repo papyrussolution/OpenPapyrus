@@ -57,7 +57,7 @@ void ngx_mail_smtp_init_session(ngx_mail_session_t * s, ngx_connection_t * c)
 #endif
 		c->log->action = "in resolving client address";
 		ctx = ngx_resolve_start(cscf->resolver, NULL);
-		if(ctx == NULL)
+		if(!ctx)
 			ngx_mail_close_connection(c);
 		else {
 			ctx->addr.sockaddr = c->sockaddr;
@@ -110,7 +110,7 @@ static void ngx_mail_smtp_resolve_name(ngx_event_t * rev)
 	ngx_mail_session_t * s = (ngx_mail_session_t*)c->data;
 	ngx_mail_core_srv_conf_t * cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 	ngx_resolver_ctx_t * ctx = ngx_resolve_start(cscf->resolver, NULL);
-	if(ctx == NULL) {
+	if(!ctx) {
 		ngx_mail_close_connection(c);
 	}
 	else {

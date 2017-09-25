@@ -187,7 +187,7 @@ static ngx_uint_t ngx_http_browser(ngx_http_request_t * r, ngx_http_browser_conf
 				continue;
 			}
 			name = (u_char*)ngx_strstr(name, modern[i].name);
-			if(name == NULL) {
+			if(!name) {
 				continue;
 			}
 			ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "browser: \"%s\"", name);
@@ -262,7 +262,7 @@ static ngx_int_t ngx_http_browser_add_variable(ngx_conf_t * cf)
 {
 	for(ngx_http_browser_variable_t * var = ngx_http_browsers; var->name.len; var++) {
 		ngx_http_variable_t * v = ngx_http_add_variable(cf, &var->name, NGX_HTTP_VAR_CHANGEABLE);
-		if(v == NULL) {
+		if(!v) {
 			return NGX_ERROR;
 		}
 		v->get_handler = var->handler;
@@ -274,7 +274,7 @@ static ngx_int_t ngx_http_browser_add_variable(ngx_conf_t * cf)
 static void * ngx_http_browser_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_browser_conf_t  * conf = (ngx_http_browser_conf_t*)ngx_pcalloc(cf->pool, sizeof(ngx_http_browser_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

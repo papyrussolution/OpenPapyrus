@@ -184,7 +184,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
 static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 {
 	const char * cur;
-	if(str == NULL)
+	if(!str)
 		return -1;
 	cur = *str;
 	if(!ISA_ALPHA(cur))
@@ -219,7 +219,7 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 {
 	const char * cur;
-	if(str == NULL)
+	if(!str)
 		return -1;
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
@@ -250,7 +250,7 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 {
 	const char * cur;
-	if(str == NULL)
+	if(!str)
 		return -1;
 	cur = *str;
 	while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
@@ -818,7 +818,7 @@ static int xmlParse3986URI(xmlURIPtr uri, const char * str)
 static int xmlParse3986URIReference(xmlURIPtr uri, const char * str)
 {
 	int ret;
-	if(str == NULL)
+	if(!str)
 		return -1;
 	xmlCleanURI(uri);
 	/*
@@ -1545,7 +1545,7 @@ xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 	xmlChar * temp;
 	const xmlChar * in;
 	int len, out;
-	if(str == NULL)
+	if(!str)
 		return 0;
 	if(str[0] == 0)
 		return sstrdup(str);
@@ -1615,7 +1615,7 @@ xmlChar * xmlURIEscape(const xmlChar * str)
 	xmlURIPtr uri;
 	int ret2;
 #define NULLCHK(p) if(!p) { xmlURIErrMemory("escaping URI value\n"); xmlFreeURI(uri); return NULL; }
-	if(str == NULL)
+	if(!str)
 		return 0;
 	uri = xmlCreateURI();
 	if(uri) {

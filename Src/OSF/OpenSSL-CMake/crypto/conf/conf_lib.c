@@ -92,10 +92,9 @@ LHASH_OF(CONF_VALUE) *CONF_load_bio(LHASH_OF(CONF_VALUE) *conf, BIO *bp,
 	return NULL;
 }
 
-STACK_OF(CONF_VALUE) *CONF_get_section(LHASH_OF(CONF_VALUE) *conf,
-    const char * section)
+STACK_OF(CONF_VALUE) *CONF_get_section(LHASH_OF(CONF_VALUE) *conf, const char * section)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	else {
@@ -107,7 +106,7 @@ STACK_OF(CONF_VALUE) *CONF_get_section(LHASH_OF(CONF_VALUE) *conf,
 
 char * CONF_get_string(LHASH_OF(CONF_VALUE) * conf, const char * group, const char * name)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		return NCONF_get_string(NULL, group, name);
 	}
 	else {
@@ -121,7 +120,7 @@ long CONF_get_number(LHASH_OF(CONF_VALUE) * conf, const char * group, const char
 {
 	int status;
 	long result = 0;
-	if(conf == NULL) {
+	if(!conf) {
 		status = NCONF_get_number_e(NULL, group, name, &result);
 	}
 	else {
@@ -129,7 +128,6 @@ long CONF_get_number(LHASH_OF(CONF_VALUE) * conf, const char * group, const char
 		CONF_set_nconf(&ctmp, conf);
 		status = NCONF_get_number_e(&ctmp, group, name, &result);
 	}
-
 	if(status == 0) {
 		/* This function does not believe in errors... */
 		ERR_clear_error();
@@ -201,7 +199,7 @@ void NCONF_free_data(CONF * conf)
 
 int NCONF_load(CONF * conf, const char * file, long * eline)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		CONFerr(CONF_F_NCONF_LOAD, CONF_R_NO_CONF);
 		return 0;
 	}
@@ -226,7 +224,7 @@ int NCONF_load_fp(CONF * conf, FILE * fp, long * eline)
 
 int NCONF_load_bio(CONF * conf, BIO * bp, long * eline)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		CONFerr(CONF_F_NCONF_LOAD_BIO, CONF_R_NO_CONF);
 		return 0;
 	}
@@ -235,7 +233,7 @@ int NCONF_load_bio(CONF * conf, BIO * bp, long * eline)
 
 STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf, const char * section)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		CONFerr(CONF_F_NCONF_GET_SECTION, CONF_R_NO_CONF);
 		return NULL;
 	}
@@ -255,7 +253,7 @@ char * NCONF_get_string(const CONF * conf, const char * group, const char * name
 	 */
 	if(s)
 		return s;
-	if(conf == NULL) {
+	if(!conf) {
 		CONFerr(CONF_F_NCONF_GET_STRING, CONF_R_NO_CONF_OR_ENVIRONMENT_VARIABLE);
 		return NULL;
 	}
@@ -272,7 +270,7 @@ int NCONF_get_number_e(const CONF * conf, const char * group, const char * name,
 		return 0;
 	}
 	str = NCONF_get_string(conf, group, name);
-	if(str == NULL)
+	if(!str)
 		return 0;
 	for(*result = 0; conf->meth->is_number(conf, *str); ) {
 		*result = (*result) * 10 + conf->meth->to_int(conf, *str);
@@ -299,7 +297,7 @@ int NCONF_dump_fp(const CONF * conf, FILE * out)
 
 int NCONF_dump_bio(const CONF * conf, BIO * out)
 {
-	if(conf == NULL) {
+	if(!conf) {
 		CONFerr(CONF_F_NCONF_DUMP_BIO, CONF_R_NO_CONF);
 		return 0;
 	}
@@ -338,4 +336,3 @@ void OPENSSL_INIT_free(OPENSSL_INIT_SETTINGS * settings)
 	free(settings->appname);
 	free(settings);
 }
-

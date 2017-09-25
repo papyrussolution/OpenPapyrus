@@ -131,7 +131,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_conf_get_module_srv_conf(cf, ngx_mail_core_module);
 	size = sizeof("220  ESMTP ready" CRLF) - 1 + cscf->server_name.len;
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -143,7 +143,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	memcpy(p, " ESMTP ready" CRLF, sizeof(" ESMTP ready" CRLF) - 1);
 	size = sizeof("250 " CRLF) - 1 + cscf->server_name.len;
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -181,7 +181,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	}
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -228,7 +228,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	size += sizeof("250 STARTTLS" CRLF) - 1;
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -247,7 +247,7 @@ static char * ngx_mail_smtp_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	    + sizeof("250 STARTTLS" CRLF) - 1;
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 

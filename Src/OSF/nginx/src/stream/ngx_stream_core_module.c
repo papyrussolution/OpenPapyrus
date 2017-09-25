@@ -339,7 +339,7 @@ static const char * ngx_stream_core_server(ngx_conf_t * cf, const ngx_command_t 
 	ngx_stream_core_main_conf_t  * cmcf;
 
 	ctx = (ngx_stream_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -536,7 +536,7 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 				u_char * end = value[i].data + value[i].len;
 				s.data = value[i].data + 13;
 				p = ngx_strlchr(s.data, end, ':');
-				if(p == NULL) {
+				if(!p) {
 					p = end;
 				}
 				if(p > s.data) {
@@ -548,7 +548,7 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 				}
 				s.data = (p < end) ? (p + 1) : end;
 				p = ngx_strlchr(s.data, end, ':');
-				if(p == NULL) {
+				if(!p) {
 					p = end;
 				}
 				if(p > s.data) {

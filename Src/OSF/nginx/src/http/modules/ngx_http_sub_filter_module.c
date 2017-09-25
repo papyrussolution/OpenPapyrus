@@ -116,7 +116,7 @@ static ngx_int_t ngx_http_sub_header_filter(ngx_http_request_t * pReq)
 	ngx_http_sub_loc_conf_t * slcf = (ngx_http_sub_loc_conf_t*)ngx_http_get_module_loc_conf(pReq, ngx_http_sub_filter_module);
 	if(slcf->pairs && pReq->headers_out.content_length_n && ngx_http_test_content_type(pReq, &slcf->types)) {
 		ngx_http_sub_ctx_t * ctx = (ngx_http_sub_ctx_t*)ngx_pcalloc(pReq->pool, sizeof(ngx_http_sub_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 		if(slcf->dynamic == 0) {
@@ -199,7 +199,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 	ngx_http_sub_match_t * match;
 	ngx_http_sub_loc_conf_t * slcf;
 	ngx_http_sub_ctx_t * ctx = (ngx_http_sub_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_sub_filter_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return ngx_http_next_body_filter(r, in);
 	}
 	if((in == NULL && ctx->buf == NULL && ctx->in == NULL && ctx->busy == NULL)) {
@@ -333,7 +333,7 @@ static ngx_int_t ngx_http_sub_body_filter(ngx_http_request_t * r, ngx_chain_t * 
 			ctx->looked.len = 0;
 		}
 		if(ctx->buf->last_buf || ctx->buf->flush || ctx->buf->sync || ngx_buf_in_memory(ctx->buf)) {
-			if(b == NULL) {
+			if(!b) {
 				cl = ngx_chain_get_free_buf(r->pool, &ctx->free);
 				if(cl == NULL) {
 					return NGX_ERROR;

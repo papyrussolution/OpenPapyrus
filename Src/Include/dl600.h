@@ -620,10 +620,10 @@ public:
 	void   FASTCALL Init(int kind = 0);
 	void   FASTCALL Init(const CtmExprConst & c);
 	void   FASTCALL Init(const CtmVar & v);
-	int    InitUnaryOp(uint op, CtmExpr & a);
-	int    InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2);
-	int    InitTypeConversion(CtmExpr & a, DLSYMBID toType);
-	int    InitRefOp(DLSYMBID type, CtmExpr & a1);
+	void   InitUnaryOp(uint op, CtmExpr & a);
+	void   InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2);
+	void   InitTypeConversion(CtmExpr & a, DLSYMBID toType);
+	void   InitRefOp(DLSYMBID type, CtmExpr & a1);
 	int    FASTCALL InitVar(const char * pName);
 	int    FASTCALL InitVar(const CtmVar &);
 	int    InitFuncCall(const char * pFuncName, CtmExpr & a);

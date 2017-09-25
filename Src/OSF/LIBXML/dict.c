@@ -400,7 +400,7 @@ static ulong xmlDictComputeBigQKey(const xmlChar * prefix, int plen, const xmlCh
 static ulong xmlDictComputeFastKey(const xmlChar * name, int namelen, int seed)
 {
 	ulong value = seed;
-	if(name == NULL)
+	if(!name)
 		return 0;
 	value = *name;
 	value <<= 5;

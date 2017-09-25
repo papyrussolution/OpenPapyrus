@@ -335,7 +335,7 @@ static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r)
 		len += header[i].key.len + sizeof(": ") - 1 + header[i].value.len + sizeof(CRLF) - 1;
 	}
 	b = ngx_create_temp_buf(r->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	/* "HTTP/1.x " */

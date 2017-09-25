@@ -799,7 +799,7 @@ static void * ngx_http_log_create_main_conf(ngx_conf_t * cf)
 {
 	ngx_http_log_fmt_t  * fmt;
 	ngx_http_log_main_conf_t  * conf = (ngx_http_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_log_main_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_http_log_fmt_t)) != NGX_OK) {
@@ -1224,7 +1224,7 @@ found:
 				else {
 					op->run = ngx_http_log_copy_long;
 					p = (u_char*)ngx_pnalloc(cf->pool, len);
-					if(p == NULL) {
+					if(!p) {
 						return NGX_CONF_ERROR;
 					}
 					memcpy(p, data, len);

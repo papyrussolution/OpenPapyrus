@@ -8,24 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
-#include "ContractionState.h"
-#include "CellBuffer.h"
-#include "KeyMap.h"
-//#include "Indicator.h"
-#include "XPM.h"
-//#include "LineMarker.h"
-#include "ViewStyle.h"
-//#include "CharClassify.h"
-#include "Decoration.h"
-#include "Document.h"
-#include "Selection.h"
-#include "PositionCache.h"
-#include "EditModel.h"
-#include "MarginView.h"
-#include "EditView.h"
+#include <scintilla-internal.h>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -35,23 +18,17 @@ using namespace Scintilla;
 namespace Scintilla {
 #endif
 
-void DrawWrapMarker(Surface * surface, PRectangle rcPlace,
-    bool isEndMarker, ColourDesired wrapColour)
+void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour)
 {
 	surface->PenColour(wrapColour);
-
 	enum { xa = 1 }; // gap before start
 
 	int w = static_cast<int>(rcPlace.right - rcPlace.left) - xa - 1;
-
 	bool xStraight = isEndMarker;  // x-mirrored symbol for start marker
-
 	int x0 = static_cast<int>(xStraight ? rcPlace.left : rcPlace.right - 1);
 	int y0 = static_cast<int>(rcPlace.top);
-
 	int dy = static_cast<int>(rcPlace.bottom - rcPlace.top) / 5;
 	int y = static_cast<int>(rcPlace.bottom - rcPlace.top) / 2 + dy;
-
 	struct Relative {
 		Surface * surface;
 		int xBase;

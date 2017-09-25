@@ -431,41 +431,37 @@ void FASTCALL CtmExpr::Init(const CtmVar & v)
 	U.V = v;
 }
 
-int CtmExpr::InitUnaryOp(uint op, CtmExpr & a)
+void CtmExpr::InitUnaryOp(uint op, CtmExpr & a)
 {
 	Init(kOp);
 	U.Op = op;
 	AddArg(a);
-	return 1;
 }
 
-int CtmExpr::InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2)
+void CtmExpr::InitBinaryOp(uint op, CtmExpr & a1, CtmExpr & a2)
 {
 	Init(kOp);
 	U.Op = op;
 	AddArg(a1);
 	AddArg(a2);
-	return 1;
 }
 
 // | '@' '(' T_TYPE ',' expr ')' { $$.InitRefOp($3.U.S, $5);
 
-int CtmExpr::InitRefOp(DLSYMBID type, CtmExpr & a1)
+void CtmExpr::InitRefOp(DLSYMBID type, CtmExpr & a1)
 {
 	Init(kOp);
 	U.Ref.Op = dlopObjRef;
 	U.Ref.Typ = type;
 	AddArg(a1);
-	return 1;
 }
 
-int CtmExpr::InitTypeConversion(CtmExpr & a, DLSYMBID toType)
+void CtmExpr::InitTypeConversion(CtmExpr & a, DLSYMBID toType)
 {
 	Init(kOp);
 	U.Cvt.Op = dlopConvert;
 	U.Cvt.ToTyp = toType;
 	AddArg(a);
-	return 1;
 }
 
 int FASTCALL CtmExpr::InitVar(const char * pVarName)
@@ -1756,8 +1752,7 @@ int SLAPI DlContext::GetInterface(const S_GUID & rIID, DLSYMBID * pScopeID, cons
 	return ok;
 }
 
-int SLAPI DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI,
-	DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const
+int SLAPI DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const
 {
 	int    ok = -1;
 	const  uint ibc = pCls->GetIfaceBaseCount();
@@ -1769,7 +1764,7 @@ int SLAPI DlContext::EnumInterfacesByICls(const DlScope * pCls, uint * pI,
 			if(ppIfaceScope) {
 				const DlScope * p_ifs = GetScope_Const(ifb.ID);
 				*ppIfaceScope = p_ifs;
-				ok = (p_ifs && p_ifs->IsKind(DlScope::kInterface)) ? 1 : 0;
+				ok = BIN(p_ifs && p_ifs->IsKind(DlScope::kInterface));
 			}
 			else
 				ok = 1;

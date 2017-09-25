@@ -2331,7 +2331,7 @@ int xmlXIncludeProcessTree(xmlNode * tree)
 int xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNode * node)
 {
 	int ret = 0;
-	if((node == NULL) || (node->type == XML_NAMESPACE_DECL) || (node->doc == NULL) || (ctxt == NULL))
+	if(!node || (node->type == XML_NAMESPACE_DECL) || (node->doc == NULL) || (ctxt == NULL))
 		return -1;
 	ret = xmlXIncludeDoProcess(ctxt, node->doc, node);
 	if((ret >= 0) && (ctxt->nbErrors > 0))

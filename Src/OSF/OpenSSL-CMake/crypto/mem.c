@@ -91,7 +91,7 @@ void * CRYPTO_realloc(void * str, size_t num, const char * file, int line)
 {
 	if(realloc_impl != NULL && realloc_impl != &CRYPTO_realloc)
 		return realloc_impl(str, num, file, line);
-	if(str == NULL)
+	if(!str)
 		return CRYPTO_malloc(num, file, line);
 	if(num == 0) {
 		CRYPTO_free(str, file, line);
@@ -115,7 +115,7 @@ void * CRYPTO_realloc(void * str, size_t num, const char * file, int line)
 void * CRYPTO_clear_realloc(void * str, size_t old_len, size_t num, const char * file, int line)
 {
 	void * ret = NULL;
-	if(str == NULL)
+	if(!str)
 		return CRYPTO_malloc(num, file, line);
 	if(num == 0) {
 		CRYPTO_clear_free(str, old_len, file, line);

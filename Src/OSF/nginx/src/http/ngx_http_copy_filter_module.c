@@ -70,9 +70,9 @@ static ngx_int_t ngx_http_copy_filter(ngx_http_request_t * r, ngx_chain_t * in)
 	ngx_connection_t * c = r->connection;
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http copy filter: \"%V?%V\"", &r->uri, &r->args);
 	ctx = (ngx_output_chain_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_copy_filter_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = (ngx_output_chain_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_output_chain_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 		ngx_http_set_ctx(r, ctx, ngx_http_copy_filter_module);

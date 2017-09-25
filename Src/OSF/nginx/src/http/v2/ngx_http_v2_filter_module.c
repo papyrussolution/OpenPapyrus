@@ -337,7 +337,7 @@ static ngx_int_t ngx_http_v2_header_filter(ngx_http_request_t * r)
 		if(r->headers_out.content_type_len == r->headers_out.content_type.len && r->headers_out.charset.len) {
 			len = r->headers_out.content_type.len + sizeof("; charset=") - 1 + r->headers_out.charset.len;
 			p = (u_char *)ngx_pnalloc(r->pool, len);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			p = ngx_cpymem(p, r->headers_out.content_type.data, r->headers_out.content_type.len);
@@ -554,7 +554,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_create_headers_frame(ngx_http_reque
 			flags |= NGX_HTTP_V2_END_HEADERS_FLAG;
 		}
 		b = ngx_create_temp_buf(r->pool, NGX_HTTP_V2_FRAME_HEADER_SIZE);
-		if(b == NULL) {
+		if(!b) {
 			return NULL;
 		}
 		b->last = ngx_http_v2_write_len_and_type(b->last, frame_size, type);
@@ -569,7 +569,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_create_headers_frame(ngx_http_reque
 		*ll = cl;
 		ll = &cl->next;
 		b = (ngx_buf_t *)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NULL;
 		}
 		b->pos = pos;

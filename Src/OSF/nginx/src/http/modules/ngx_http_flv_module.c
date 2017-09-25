@@ -147,7 +147,7 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 	}
 	if(i == 0) {
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		b->pos = ngx_flv_header;
@@ -157,7 +157,7 @@ static ngx_int_t ngx_http_flv_handler(ngx_http_request_t * r)
 		out[0].next = &out[1];
 	}
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	b->file = (ngx_file_t *)ngx_pcalloc(r->pool, sizeof(ngx_file_t));

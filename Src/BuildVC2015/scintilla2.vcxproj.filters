@@ -483,6 +483,9 @@
     <ClInclude Include="..\Osf\scintilla\src\XPM.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

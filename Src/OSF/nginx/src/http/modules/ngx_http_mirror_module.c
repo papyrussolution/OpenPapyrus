@@ -77,7 +77,7 @@ static ngx_int_t ngx_http_mirror_handler(ngx_http_request_t * r)
 			return ctx->status;
 		}
 		ctx = (ngx_http_mirror_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_mirror_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 		ctx->status = NGX_DONE;

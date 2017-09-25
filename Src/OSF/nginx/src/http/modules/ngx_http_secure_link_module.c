@@ -117,7 +117,7 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 			goto not_found;
 		}
 		ctx = (ngx_http_secure_link_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_secure_link_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 
@@ -258,7 +258,7 @@ static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r,
 static void * ngx_http_secure_link_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_secure_link_conf_t  * conf = (ngx_http_secure_link_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_secure_link_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

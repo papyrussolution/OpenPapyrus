@@ -322,7 +322,7 @@ ngx_int_t ngx_hash_wildcard_init(ngx_hash_init_t * hinit, ngx_hash_key_t * names
 			}
 		}
 		name = (ngx_hash_key_t *)ngx_array_push(&curr_names);
-		if(name == NULL) {
+		if(!name) {
 			return NGX_ERROR;
 		}
 		name->key.len = len;
@@ -530,7 +530,7 @@ ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * 
 		}
 	}
 	name = (ngx_str_t *)ngx_array_push(&ha->keys_hash[k]);
-	if(name == NULL) {
+	if(!name) {
 		return NGX_ERROR;
 	}
 	*name = *key;
@@ -566,7 +566,7 @@ wildcard:
 			}
 		}
 		name = (ngx_str_t *)ngx_array_push(&ha->keys_hash[k]);
-		if(name == NULL) {
+		if(!name) {
 			return NGX_ERROR;
 		}
 		name->len = last - 1;
@@ -582,7 +582,7 @@ wildcard:
 		 *      and ".example.com" to "com.example\0"
 		 */
 		p = (u_char *)ngx_pnalloc(ha->temp_pool, last);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		len = 0;
@@ -609,7 +609,7 @@ wildcard:
 		/* convert "www.example.*" to "www.example\0" */
 		last++;
 		p = (u_char *)ngx_pnalloc(ha->temp_pool, last);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		ngx_cpystrn(p, key->data, last);
@@ -635,7 +635,7 @@ wildcard:
 		}
 	}
 	name = (ngx_str_t *)ngx_array_push(keys);
-	if(name == NULL) {
+	if(!name) {
 		return NGX_ERROR;
 	}
 	name->len = last - skip;

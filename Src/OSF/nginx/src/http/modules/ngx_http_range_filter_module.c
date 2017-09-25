@@ -159,7 +159,7 @@ static ngx_int_t ngx_http_range_header_filter(ngx_http_request_t * r)
 	}
 parse:
 	ctx = (ngx_http_range_filter_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_range_filter_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	ctx->offset = r->headers_out.content_offset;
@@ -544,7 +544,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		// "Content-Range: bytes "
 		// 
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		b->memory = 1;
@@ -557,7 +557,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		hcl->buf = b;
 		// "SSSS-EEEE/TTTT" CRLF CRLF 
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		b->temporary = 1;
@@ -570,7 +570,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 		rcl->buf = b;
 		// the range data 
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		b->in_file = buf->in_file;
@@ -598,7 +598,7 @@ static ngx_int_t ngx_http_range_multipart_body(ngx_http_request_t * r, ngx_http_
 	}
 	// the last boundary CRLF "--0123456789--" CRLF  
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	b->temporary = 1;

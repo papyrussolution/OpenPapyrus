@@ -184,7 +184,7 @@ int FASTCALL BIO_write(BIO * b, const void * in, int inl)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
-	if(b == NULL)
+	if(!b)
 		return 0;
 	cb = b->callback;
 	if((b->method == NULL) || (b->method->bwrite == NULL)) {
@@ -297,7 +297,7 @@ long BIO_callback_ctrl(BIO * b, int cmd, void (* fp)(struct bio_st *, int, const
 {
 	long ret;
 	long (* cb)(BIO *, int, const char *, int, long, long);
-	if(b == NULL)
+	if(!b)
 		return 0;
 	if((b->method == NULL) || (b->method->callback_ctrl == NULL)) {
 		BIOerr(BIO_F_BIO_CALLBACK_CTRL, BIO_R_UNSUPPORTED_METHOD);
@@ -330,7 +330,7 @@ size_t BIO_ctrl_wpending(BIO * bio)
 /* put the 'bio' on the end of b's list of operators */
 BIO * BIO_push(BIO * b, BIO * bio)
 {
-	if(b == NULL)
+	if(!b)
 		return (bio);
 	else {
 		BIO * lb = b;
@@ -371,7 +371,7 @@ BIO * BIO_get_retry_BIO(BIO * bio, int * reason)
 			break;
 		last = b;
 		b = b->next_bio;
-		if(b == NULL)
+		if(!b)
 			break;
 	}
 	ASSIGN_PTR(reason, last->retry_reason);

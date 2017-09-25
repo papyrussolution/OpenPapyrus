@@ -133,10 +133,10 @@ static ngx_int_t ngx_http_limit_conn_handler(ngx_http_request_t * r)
 		shpool = (ngx_slab_pool_t*)limits[i].shm_zone->shm.addr;
 		ngx_shmtx_lock(&shpool->mutex);
 		node = ngx_http_limit_conn_lookup(ctx->rbtree, &key, hash);
-		if(node == NULL) {
+		if(!node) {
 			n = offsetof(ngx_rbtree_node_t, color) + offsetof(ngx_http_limit_conn_node_t, data) + key.len;
 			node = (ngx_rbtree_node_t *)ngx_slab_alloc_locked(shpool, n);
-			if(node == NULL) {
+			if(!node) {
 				ngx_shmtx_unlock(&shpool->mutex);
 				ngx_http_limit_conn_cleanup_all(r->pool);
 				return lccf->status_code;
@@ -334,7 +334,7 @@ static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_
 	ngx_http_compile_complex_value_t ccv;
 	ngx_str_t * value = (ngx_str_t*)cf->args->elts;
 	ngx_http_limit_conn_ctx_t  * ctx = (ngx_http_limit_conn_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_limit_conn_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	memzero(&ccv, sizeof(ngx_http_compile_complex_value_t));
@@ -350,7 +350,7 @@ static const char * ngx_http_limit_conn_zone(ngx_conf_t * cf, const ngx_command_
 		if(ngx_strncmp(value[i].data, "zone=", 5) == 0) {
 			name.data = value[i].data + 5;
 			p = (u_char*)ngx_strchr(name.data, ':');
-			if(p == NULL) {
+			if(!p) {
 				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid zone size \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}

@@ -3670,7 +3670,7 @@ int __memp_bh_settxn(DB_MPOOL * dbmp, MPOOLFILE * mfp, BH * bhp, void * vtd)
 {
 	ENV * env = dbmp->env;
 	TXN_DETAIL * td = (TXN_DETAIL *)vtd;
-	if(td == NULL) {
+	if(!td) {
 		__db_errx(env, DB_STR_A("3002", "%s: non-transactional update to a multiversion file", "%s"), __memp_fns(dbmp, mfp));
 		return EINVAL;
 	}

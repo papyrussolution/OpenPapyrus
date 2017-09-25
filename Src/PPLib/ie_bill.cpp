@@ -4230,8 +4230,32 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 //
 class Generator_DocNalogRu {
 public:
+	struct HeaderInfo {
+		HeaderInfo()
+		{
+			SenderPersonID = 0;
+			ReceiverPersonID = 0;
+			ProviderPersonID = 0;
+			Uuid.SetZero();
+		}
+
+		PPID   SenderPersonID;
+		PPID   ReceiverPersonID;
+		PPID   ProviderPersonID;
+		SString FormatPrefix;
+
+		S_GUID Uuid;
+		SString SenderIdent;
+		SString ReceiverIdent;
+		SString ProviderIdent;
+		SString ProviderName;
+		SString ProviderINN;
+		SString FileId;
+		SString FileName;
+	};
 	struct File {
-		File(Generator_DocNalogRu & rG, const char * pId, PPID sndPsnID, PPID rcvPsnID, PPID providerPsnID);
+		//File(Generator_DocNalogRu & rG, const char * pPrefix, PPID sndPsnID, PPID rcvPsnID, PPID providerPsnID);
+		File(Generator_DocNalogRu & rG, const HeaderInfo & rHi);
 		SXml::WNode N;
 	};
 	struct Document {
@@ -4244,19 +4268,22 @@ public:
 	};
 	SLAPI  Generator_DocNalogRu();
 	SLAPI ~Generator_DocNalogRu();
-	int   SLAPI StartDoc(const char * pFileName);
-	int   SLAPI EndDoc();
-	int   SLAPI WriteInvoiceItems(const PPBillPacket & rBp);
-	int   SLAPI WriteAddress(const PPLocationPacket & rP, int regionCode);
-	int   SLAPI WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	int    SLAPI CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, HeaderInfo & rInfo);
+	int    SLAPI MakeOutFileIdent(const char * pPrefix, const char * pRcvrId, const char * pSndrId, SString & rBuf);
+	int    SLAPI MakeOutFileName(const char * pFileIdent, SString & rFileName);
+	int    SLAPI StartDoc(const char * pFileName);
+	int    SLAPI EndDoc();
+	int    SLAPI WriteInvoiceItems(const PPBillPacket & rBp);
+	int    SLAPI WriteAddress(const PPLocationPacket & rP, int regionCode);
+	int    SLAPI WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	//
 	// Descr: Записывает тип "УчастникТип"
 	//
-	int   SLAPI WriteParticipant(const char * pHeaderTag, PPID psnID);
-	int   SLAPI WriteFIO(const char * pName);
-	int   SLAPI Underwriter(PPID psnID);
-	const SString & FASTCALL EncText(const SString & rS);
-	const SString & FASTCALL GetToken(uint tokId);
+	int    SLAPI WriteParticipant(const char * pHeaderTag, PPID psnID);
+	int    SLAPI WriteFIO(const char * pName);
+	int    SLAPI Underwriter(PPID psnID);
+	const  SString & FASTCALL EncText(const SString & rS);
+	const  SString & FASTCALL GetToken(uint tokId);
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -4267,10 +4294,78 @@ private:
 	SString TokBuf;
 };
 
-Generator_DocNalogRu::File::File(Generator_DocNalogRu & rG, const char * pId, PPID sndPsnID, PPID rcvPsnID, PPID providerPsnID) : N(rG.P_X, "Файл")
+int SLAPI Generator_DocNalogRu::MakeOutFileIdent(const char * pPrefix, const char * pRcvrId, const char * pSndrId, SString & rBuf)
+{
+	int    ok = 1;
+	SString temp_buf;
+	S_GUID uuid;
+	uuid.Generate();
+	(rBuf = pPrefix).CatChar('_').Cat(pRcvrId).CatChar('_').Cat(pSndrId).CatChar('_').
+		Cat(temp_buf.Z().Cat(getcurdate_(), DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(uuid, S_GUID::fmtIDL);
+	return ok;
+}
+
+int SLAPI Generator_DocNalogRu::MakeOutFileName(const char * pFileIdent, SString & rFileName)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SPathStruc ps;
+	ps.Split(rFileName);
+	ps.Ext = "xml";
+	ps.Nam = pFileIdent;
+	ps.Merge(rFileName);
+	return ok;
+}
+
+int SLAPI Generator_DocNalogRu::CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, HeaderInfo & rInfo)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	rInfo.SenderPersonID = senderID;
+	rInfo.ReceiverPersonID = rcvrID;
+	rInfo.ProviderPersonID = providerID;
+	rInfo.FormatPrefix = pFormatPrefix;
+	rInfo.Uuid.SetZero();
+	rInfo.SenderIdent.Z();
+	rInfo.ReceiverIdent.Z();
+	rInfo.ProviderIdent.Z();
+	rInfo.ProviderName.Z();
+	rInfo.ProviderINN.Z();
+	rInfo.FileId.Z();
+	rInfo.FileName.Z();
+	PersonTbl::Rec psn_rec;
+	if(rInfo.ProviderPersonID) {
+		if(PsnObj.Search(rInfo.ProviderPersonID, &psn_rec) > 0) {
+			PsnObj.GetRegNumber(rInfo.ProviderPersonID, PPREGT_DTO_ID, rInfo.ProviderIdent);
+			rInfo.ProviderName = psn_rec.Name;
+			PsnObj.GetRegNumber(rInfo.ProviderPersonID, PPREGT_TPID, rInfo.ProviderINN);
+		}
+		else
+			rInfo.ProviderPersonID = 0;
+	}
+	if(rInfo.SenderPersonID) {
+		if(PsnObj.Search(rInfo.SenderPersonID, &psn_rec) > 0)
+			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.SenderPersonID, PPTAG_PERSON_ENALOGID, rInfo.SenderIdent);
+		else 
+			rInfo.SenderPersonID = 0;
+	}
+	if(rInfo.ReceiverPersonID) {
+		if(PsnObj.Search(rInfo.ReceiverPersonID, &psn_rec) > 0) 
+			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.ReceiverPersonID, PPTAG_PERSON_ENALOGID, rInfo.ReceiverIdent);
+		else
+			rInfo.ReceiverPersonID = 0;
+	}
+	MakeOutFileIdent(rInfo.FormatPrefix, rInfo.ReceiverIdent, rInfo.SenderIdent, rInfo.FileId);
+	rInfo.FileName = pBaseFileName;
+	MakeOutFileName(rInfo.FileId, rInfo.FileName);
+	return ok;
+}
+
+Generator_DocNalogRu::File::File(Generator_DocNalogRu & rG, const HeaderInfo & rHi) : N(rG.P_X, "Файл")
 {
 	Reference * p_ref = PPRef;
-	N.PutAttrib("ИдФайл", pId);
+	N.PutAttrib("ИдФайл", rHi.FileId);
 	{
 		SString temp_buf;
 		SString ver_buf;
@@ -4283,52 +4378,47 @@ Generator_DocNalogRu::File::File(Generator_DocNalogRu & rG, const char * pId, PP
 	N.PutAttrib("ВерсФорм", "5.01");
 	{
 		SString temp_buf;
-		SString dtoid; // ИД оператора передачи данных
 		SXml::WNode n_(rG.P_X, "СвУчДокОбор"); // Сведения об участниках электронного документооборота
-		PersonTbl::Rec psn_rec;
-		if(providerPsnID) {
-			if(rG.PsnObj.Search(providerPsnID, &psn_rec) > 0) {
-				// Сведения об операторе электронного документооборота отправителя информации исполнителя
-				// Обязателен при направлении документа через оператора ЭДО СФ
-				SXml::WNode n_op(rG.P_X, "СвОЭДОтпр");
-				n_op.PutAttrib(rG.GetToken(PPHSC_RU_NAMEOFORG), rG.EncText(temp_buf.Z().Cat(psn_rec.Name))); // Наименование
-				rG.PsnObj.GetRegNumber(providerPsnID, PPREGT_TPID, temp_buf);
-				n_op.PutAttrib(rG.GetToken(PPHSC_RU_INNJUR), temp_buf); // ИНН
-				// Идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) -
-				// символьный трехзначный код. В значении идентификатора допускаются символы латинского алфавита A-Z, a–z,
-				// цифры 0–9, знаки «@», «.», «-».
-				//Значение идентификатора регистронезависимо. При включении оператора ЭДО СФ в сеть доверенных операторов
-				// ЭДО СФ ФНС России, идентификатор присваивается ФНС России
-				rG.PsnObj.GetRegNumber(providerPsnID, PPREGT_DTO_ID, dtoid);
-				n_op.PutAttrib("ИдЭДО", rG.EncText(temp_buf));
-			}
+		if(rHi.ProviderPersonID) {
+			// Сведения об операторе электронного документооборота отправителя информации исполнителя
+			// Обязателен при направлении документа через оператора ЭДО СФ
+			SXml::WNode n_op(rG.P_X, "СвОЭДОтпр");
+			n_op.PutAttrib(rG.GetToken(PPHSC_RU_NAMEOFORG), rG.EncText(rHi.ProviderName)); // Наименование
+			n_op.PutAttrib(rG.GetToken(PPHSC_RU_INNJUR), rHi.ProviderINN); // ИНН
+			// Идентификатор оператора электронного оборота счетов-фактур и первичных документов (оператор ЭДО СФ) -
+			// символьный трехзначный код. В значении идентификатора допускаются символы латинского алфавита A-Z, a–z,
+			// цифры 0–9, знаки «@», «.», «-».
+			//Значение идентификатора регистронезависимо. При включении оператора ЭДО СФ в сеть доверенных операторов
+			// ЭДО СФ ФНС России, идентификатор присваивается ФНС России
+			n_op.PutAttrib("ИдЭДО", rG.EncText(rHi.ProviderIdent));
 		}
-		temp_buf.Z();
-		if(sndPsnID && rG.PsnObj.Search(sndPsnID, &psn_rec) > 0) {
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, sndPsnID, PPTAG_PERSON_ENALOGID, temp_buf);
-			if(temp_buf.NotEmpty() && dtoid.NotEmpty()) {
-				dtoid.CatChar('-');
-				temp_buf.Insert(0, dtoid);
-			}
+		if(rHi.SenderIdent.NotEmpty()) {
+			if(rHi.ProviderIdent.NotEmpty())
+				(temp_buf = rHi.ProviderIdent).CatChar('-').Cat(rHi.SenderIdent);
+			else
+				temp_buf = rHi.SenderIdent;
 		}
+		else
+			temp_buf.Z();
 		n_.PutAttrib("ИдОтпр", temp_buf);
-		temp_buf.Z();
-		if(rcvPsnID && rG.PsnObj.Search(rcvPsnID, &psn_rec) > 0) {
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rcvPsnID, PPTAG_PERSON_ENALOGID, temp_buf);
-			if(temp_buf.NotEmpty() && dtoid.NotEmpty()) {
-				dtoid.CatChar('-');
-				temp_buf.Insert(0, dtoid);
-			}
+		//
+		if(rHi.ReceiverIdent.NotEmpty()) {
+			if(rHi.ProviderIdent.NotEmpty())
+				(temp_buf = rHi.ProviderIdent).CatChar('-').Cat(rHi.ReceiverIdent);
+			else
+				temp_buf = rHi.ReceiverIdent;
 		}
+		else
+			temp_buf.Z();
 		n_.PutAttrib("ИдПол", temp_buf);
 	}
 }
 
 Generator_DocNalogRu::Document::Document(Generator_DocNalogRu & rG, const char * pK, const LDATETIME & rDtm, const char * pSubj, const char * pSubjReason) :
-	N(rG.P_X, rG.GetToken(PPHSC_RU_DOCUMENT)/*"Документ"*/)
+	N(rG.P_X, rG.GetToken(PPHSC_RU_DOCUMENT))
 {
 	SString temp_buf;
-	N.PutAttrib(rG.GetToken(PPHSC_RU_KND)/*"КНД"*/, pK); // Код по Классификатору налоговой документации
+	N.PutAttrib(rG.GetToken(PPHSC_RU_KND), pK); // Код по Классификатору налоговой документации
 	if(!!rDtm) {
 		temp_buf.Z().Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
 		N.PutAttrib("ДатаИнфЗак", temp_buf);
@@ -4561,10 +4651,10 @@ int SLAPI Generator_DocNalogRu::WriteFIO(const char * pName)
 				patronimic = temp_buf.Strip();
 		}
 		if(sername.NotEmpty() && first_name.NotEmpty()) {
-			SXml::WNode n_fio(P_X, "ФИО");
-			n_fio.PutAttrib("Фамилия", EncText(sername));
-			n_fio.PutAttrib("Имя", EncText(first_name));
-			n_fio.PutAttribSkipEmpty("Отчество", EncText(patronimic));
+			SXml::WNode n_fio(P_X, GetToken(PPHSC_RU_FIO));
+			n_fio.PutAttrib(GetToken(PPHSC_RU_SURNAME), EncText(sername));
+			n_fio.PutAttrib(GetToken(PPHSC_RU_NAME), EncText(first_name));
+			n_fio.PutAttribSkipEmpty(GetToken(PPHSC_RU_PATRONYMIC), EncText(patronimic));
 			ok = 1;
 		}
 	}
@@ -4590,7 +4680,7 @@ int SLAPI Generator_DocNalogRu::Underwriter(PPID psnID)
 			psnID = is_free ? main_org_id : CConfig.MainOrgDirector_;
 		}
 		if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
-			SXml::WNode n_uw(P_X, "Подписант");
+			SXml::WNode n_uw(P_X, GetToken(PPHSC_RU_SIGNER));
 			if(is_free) {
 				SXml::WNode n_p(P_X, "ИП");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNPHS), inn);
@@ -4723,7 +4813,7 @@ const SString & FASTCALL Generator_DocNalogRu::GetToken(uint tokId)
 }
 
 //DP_REZRUISP_1_990_01_05_01_01.xsd
-int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const char * pPath)
+int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;
@@ -4732,18 +4822,21 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const char * pPath)
 		PPOprKind op_rec;
 		PPOprKind link_op_rec;
 		SString temp_buf;
+
+		PPID   main_org_id = 0; // PPOBJ_PERSON
+		PPID   dto_id = 0; // PPOBJ_PERSON
+		GetMainOrgID(&main_org_id);
+		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
+		Generator_DocNalogRu::HeaderInfo _hi;
+		THROW(g.CreateHeaderInfo("DP_REZRUISP", main_org_id, contragent_id, dto_id, rFileName, _hi));
+
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(pPath));
+		THROW(g.StartDoc(_hi.FileName));
         {
-			PPID   main_org_id = 0; // PPOBJ_PERSON
-			PPID   contragent_id = 0; // PPOBJ_PERSON
-			PPID   dto_id = 0; // PPOBJ_PERSON
-			GetMainOrgID(&main_org_id);
-			contragent_id = ObjectToPerson(rBp.Rec.Object, 0);
-			Generator_DocNalogRu::File f(g, "000", main_org_id, contragent_id, dto_id);
+			Generator_DocNalogRu::File f(g, _hi);
 			Generator_DocNalogRu::Document d(g, "1175012", ZERODATETIME, 0, 0);
 			// Дата формирования документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
 			d.N.PutAttrib("ДатаИнфИсп", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
@@ -4890,7 +4983,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const char * pPath)
 	return ok;
 }
 
-int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath)
+int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;
@@ -4899,17 +4992,20 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath)
 		PPOprKind op_rec;
 		PPOprKind link_op_rec;
 		SString temp_buf;
+
+		PPID   main_org_id = 0; // PPOBJ_PERSON
+		PPID   dto_id = 0; // PPOBJ_PERSON
+		rBp.GetMainOrgID_(&main_org_id);
+		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
+		Generator_DocNalogRu::HeaderInfo _hi;
+		THROW(g.CreateHeaderInfo("ON_SFAKT", main_org_id, contragent_id, dto_id, rFileName, _hi));
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 		}
-		THROW(g.StartDoc(pPath));
+		THROW(g.StartDoc(_hi.FileName));
         {
-			PPID   main_org_id = 0; // PPOBJ_PERSON
-			PPID   contragent_id = 0; // PPOBJ_PERSON
-			PPID   dto_id = 0; // PPOBJ_PERSON
-
-			Generator_DocNalogRu::File f(g, "000", main_org_id, contragent_id, dto_id);
+			Generator_DocNalogRu::File f(g, _hi);
 			Generator_DocNalogRu::Document d(g, "1115101", ZERODATETIME, 0, 0);
 			{
 				Generator_DocNalogRu::Invoice inv(g, rBp);
@@ -4923,10 +5019,104 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const char * pPath)
 				PPID   buyer_psn_id = 0;
 				int    do_skip = 0;
 				int    is_intrexpend = 0;
-				rBp.GetMainOrgID_(&main_org_id);
 				{
 					if(oneof2(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
-						//wb_type = wbtInvcFromMe;
+						PPID   ar2_main_org_id = 0;
+						if(IsIntrExpndOp(rBp.Rec.OpID)) {
+							consignee_psn_id = main_org_id;
+							consignee_loc_id = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
+							buyer_psn_id = consignee_psn_id;
+							shipper_psn_id = main_org_id;
+							shipper_loc_id = rBp.Rec.LocID;
+							is_intrexpend = 1;
+						}
+						else {
+							consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+							consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							buyer_psn_id = consignee_psn_id;
+							shipper_psn_id = main_org_id;
+							shipper_loc_id = rBp.Rec.LocID;
+						}
+					}
+					else if(oneof2(rBp.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+						//wb_type = wbtInvcToMe;
+						consignee_psn_id = main_org_id;
+						consignee_loc_id = rBp.Rec.LocID;
+						buyer_psn_id = consignee_psn_id;
+						shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+						shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+					}
+					else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
+						if(op_rec.LinkOpID) {
+							if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+								consignee_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+								consignee_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+								buyer_psn_id = consignee_psn_id;
+								shipper_psn_id = main_org_id;
+								shipper_loc_id = rBp.Rec.LocID;
+							}
+							else if(link_op_rec.OpTypeID == PPOPT_GOODSEXPEND) {
+								consignee_psn_id = main_org_id;
+								consignee_loc_id = rBp.Rec.LocID;
+								buyer_psn_id = consignee_psn_id;
+								shipper_psn_id = ObjectToPerson(rBp.Rec.Object, 0);
+								shipper_loc_id = rBp.P_Freight ? rBp.P_Freight->DlvrAddrID : 0;
+							}
+						}
+					}
+				}
+				g.WriteOrgInfo("СвПрод", shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo("СвПокуп", buyer_psn_id, 0, rBp.Rec.Dt, 0);
+			}
+			g.WriteInvoiceItems(rBp);
+			g.Underwriter(0);
+		}
+		g.EndDoc();
+	}
+	CATCHZOK
+	return ok;
+}
+//
+// Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+//
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName) 
+{
+	int    ok = 1;
+	Generator_DocNalogRu g;
+	{
+		PPObjAccSheet acs_obj;
+		PPOprKind op_rec;
+		PPOprKind link_op_rec;
+		SString temp_buf;
+
+		PPID   main_org_id = 0; // PPOBJ_PERSON
+		PPID   dto_id = 0; // PPOBJ_PERSON
+		rBp.GetMainOrgID_(&main_org_id);
+		PPID   contragent_id = ObjectToPerson(rBp.Rec.Object, 0); // PPOBJ_PERSON
+		Generator_DocNalogRu::HeaderInfo _hi;
+		THROW(g.CreateHeaderInfo("ON_SCHFDOPPR", main_org_id, contragent_id, dto_id, rFileName, _hi));
+
+		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
+		if(op_rec.LinkOpID) {
+			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
+		}
+		THROW(g.StartDoc(_hi.FileName));
+        {
+			Generator_DocNalogRu::File f(g, _hi);
+			Generator_DocNalogRu::Document d(g, "1115125", ZERODATETIME, 0, 0);
+			{
+				Generator_DocNalogRu::Invoice inv(g, rBp);
+				PPID   consignee_psn_id = 0;
+				PPID   consignee_loc_id = 0;
+				PPID   shipper_psn_id = 0;
+				PPID   shipper_loc_id = 0;
+				PPID   suppl_psn_id = 0;
+				PPID   suppl_loc_id = 0;
+				PPID   buyer_psn_id = 0;
+				int    do_skip = 0;
+				int    is_intrexpend = 0;
+				{
+					if(oneof2(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND)) {
 						PPID   ar2_main_org_id = 0;
 						if(IsIntrExpndOp(rBp.Rec.OpID)) {
 							consignee_psn_id = main_org_id;

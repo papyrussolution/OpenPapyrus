@@ -904,6 +904,7 @@
     <ClInclude Include="..\Osf\scintilla\src\PositionCache.h" />
     <ClInclude Include="..\Osf\scintilla\src\RESearch.h" />
     <ClInclude Include="..\Osf\scintilla\src\RunStyles.h" />
+    <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h" />
     <ClInclude Include="..\Osf\scintilla\src\ScintillaBase.h" />
     <ClInclude Include="..\Osf\scintilla\src\Selection.h" />
     <ClInclude Include="..\OSF\scintilla\src\SparseVector.h" />

@@ -867,9 +867,9 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 	xmlChar * buffer, * cur;
 	int len;
 	int level;
-	if(name == NULL)
+	if(!name)
 		name = xmlXPathParseName(ctxt);
-	if(name == NULL)
+	if(!name)
 		XP_ERROR(XPATH_EXPR_ERROR);
 	if(CUR != '(')
 		XP_ERROR(XPATH_EXPR_ERROR);
@@ -1022,7 +1022,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
 static void xmlXPtrEvalFullXPtr(xmlXPathParserContextPtr ctxt, xmlChar * name)
 {
 	SETIFZ(name, xmlXPathParseName(ctxt));
-	if(name == NULL)
+	if(!name)
 		XP_ERROR(XPATH_EXPR_ERROR);
 	while(name) {
 		ctxt->error = XPATH_EXPRESSION_OK;
@@ -1137,7 +1137,7 @@ static void xmlXPtrEvalXPointer(xmlXPathParserContextPtr ctxt)
 	}
 	else {
 		xmlChar * name = xmlXPathParseName(ctxt);
-		if(name == NULL)
+		if(!name)
 			XP_ERROR(XPATH_EXPR_ERROR);
 		if(CUR == '(') {
 			xmlXPtrEvalFullXPtr(ctxt, name);
@@ -2394,7 +2394,7 @@ static int xmlXPtrGetLastChar(xmlNode ** node, int * indx)
 {
 	xmlNode * cur;
 	int pos, len = 0;
-	if((node == NULL) || (*node == NULL) || ((*node)->type == XML_NAMESPACE_DECL) || (indx == NULL))
+	if(!node || (*node == NULL) || ((*node)->type == XML_NAMESPACE_DECL) || (indx == NULL))
 		return -1;
 	cur = *node;
 	pos = *indx;
@@ -2468,7 +2468,7 @@ static int xmlXPtrGetStartPoint(xmlXPathObjectPtr obj, xmlNode ** node, int * in
  */
 static int xmlXPtrGetEndPoint(xmlXPathObjectPtr obj, xmlNode ** node, int * indx)
 {
-	if((obj == NULL) || (node == NULL) || (indx == NULL))
+	if(!obj || !node || !indx)
 		return -1;
 	switch(obj->type) {
 		case XPATH_POINT:
@@ -2490,7 +2490,6 @@ static int xmlXPtrGetEndPoint(xmlXPathObjectPtr obj, xmlNode ** node, int * indx
 	}
 	return -1;
 }
-
 /**
  * xmlXPtrStringRangeFunction:
  * @ctxt:  the XPointer Parser context

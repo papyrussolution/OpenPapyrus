@@ -1095,7 +1095,7 @@ static xmlChar * xmlTextReaderCollectSiblings(xmlNode * node)
 {
 	xmlBufferPtr buffer;
 	xmlChar * ret;
-	if((node == NULL) || (node->type == XML_NAMESPACE_DECL))
+	if(!node || (node->type == XML_NAMESPACE_DECL))
 		return 0;
 	buffer = xmlBufferCreate();
 	if(!buffer)

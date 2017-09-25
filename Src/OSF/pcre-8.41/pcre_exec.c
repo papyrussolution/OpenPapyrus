@@ -738,9 +738,10 @@ TAIL_RECURSE:
 			    md->mark = NULL; /* In case previously set by assertion */
 			    RMATCH(eptr, ecode + PRIV(OP_lengths)[*ecode] + ecode[1], offset_top, md,
 			    eptrb, RM56);
-			    if((rrc == MATCH_MATCH || rrc == MATCH_ACCEPT) &&
-			    md->mark == NULL) md->mark = ecode + 2;
-			    if(rrc != MATCH_NOMATCH) RRETURN(rrc);
+			    if((rrc == MATCH_MATCH || rrc == MATCH_ACCEPT) && md->mark == NULL) 
+					md->mark = ecode + 2;
+			    if(rrc != MATCH_NOMATCH) 
+					RRETURN(rrc);
 			    RRETURN(MATCH_PRUNE);
 
 			case OP_SKIP:

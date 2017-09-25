@@ -625,7 +625,7 @@ static u_char * ngx_stream_log_json_variable(ngx_stream_session_t * s, u_char * 
 static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf)
 {
 	ngx_stream_log_main_conf_t  * conf = (ngx_stream_log_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_main_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	if(ngx_array_init(&conf->formats, cf->pool, 4, sizeof(ngx_stream_log_fmt_t)) != NGX_OK) {
@@ -637,7 +637,7 @@ static void * ngx_stream_log_create_main_conf(ngx_conf_t * cf)
 static void * ngx_stream_log_create_srv_conf(ngx_conf_t * cf)
 {
 	ngx_stream_log_srv_conf_t  * conf = (ngx_stream_log_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_log_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	conf->open_file_cache = (ngx_open_file_cache_t *)NGX_CONF_UNSET_PTR;
@@ -994,7 +994,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 				else {
 					op->run = ngx_stream_log_copy_long;
 					p = (u_char*)ngx_pnalloc(cf->pool, len);
-					if(p == NULL) {
+					if(!p) {
 						return NGX_CONF_ERROR;
 					}
 					memcpy(p, data, len);

@@ -43,7 +43,8 @@
 //
 // Descr: Далее следует список макроопределений, используемых в разнообразных формулах и парсерах.
 //   Крайне желательно при написании очередного парсера использовать именно эти определения.
-// Note: Программный код не должен полагаться на неизменность значений этих определений.
+// Note: Значения макросов НЕ МЕНЯТЬ! На некоторые из них ссылается программный код неявно!
+// DON'T CHANGE MACROS VALUES. Some of them are refered by the program code implicitly!
 //
 #define _UNDEF_              -1 //
 #define _NONE_                0 //
@@ -51,14 +52,14 @@
 #define _AND_                 1 //
 #define _OR_                  2 //
 #define _NOT_                 3 //
-#define _ALL_                 0
-#define _EQ_                  1
-#define _OUTER_EQ_          101
-#define _GT_                  2
-#define _LT_                  3
-#define _NE_                  4
-#define _GE_                  5
-#define _LE_                  6
+#define _ALL_                 0 //
+#define _EQ_                  1 // ==
+#define _OUTER_EQ_          101 // outer join
+#define _GT_                  2 // >
+#define _LT_                  3 // <
+#define _NE_                  4 // !=
+#define _GE_                  5 // >=
+#define _LE_                  6 // <=
 #define _IN_                  7	// SQL
 #define _NIN_                 8	// SQL
 #define _BETWEEN_             9	// SQL
@@ -80,31 +81,6 @@
 #define _SHIFTRIHT_          29 // >>
 #define _ASSIGN_             30 // присваивание (что-то вроде a := b)
 #define _DOT_                31 // Оператор . Чаще всего используется как ссылка на компонент сложного типа. Например data.member
-
-
-/*#define _END_                 0 //
-#define _ALL_                 0 //
-#define _FUNC_                1 // call of funсtion
-#define _EQ_                  2 // ==
-#define _OUTER_EQ_          102 // outer join
-#define _GT_                  3 // >
-#define _LT_                  4 // <
-#define _NE_                  5 // !=
-#define _NEQ_              _NE_ // != @synonim
-#define _GE_                  6 // >=
-#define _LE_                  7 // <=
-#define _IN_                  8	// SQL
-#define _NIN_                 9	// SQL
-#define _BETWEEN_            10	// SQL
-#define _NBETWEEN_           11	// SQL
-#define _BEGWITH_            12	// SQL
-#define _CONTAINS_           13	// SQL
-#define _NCONTAINS_          14	// SQL
-#define _LIKE_               15	// SQL
-#define _NLIKE_              16	// SQL
-#define _EXISTS_             17	// SQL
-#define _NEXISTS_            18	// SQL
-*/
 //
 // Стороны света
 //
@@ -1611,8 +1587,8 @@ extern const LDATETIME MAXDATETIME;
 struct STimeChunk {
 	SLAPI  STimeChunk();
 	SLAPI  STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish);
-	int    SLAPI Init(const LDATETIME & rStart, const LDATETIME & rFinish);
-	int    SLAPI Init(const LDATETIME &, long cont);
+	void   SLAPI Init(const LDATETIME & rStart, const LDATETIME & rFinish);
+	void   SLAPI Init(const LDATETIME &, long cont);
 	//
 	// Descr: Определяет, совпадают ли точки начала и окончания //
 	//   отрезков *this и rTest.
@@ -1848,6 +1824,7 @@ private:
 #define oneof9(f,c1,c2,c3,c4,c5,c6,c7,c8,c9) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9))
 #define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
 #define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
+#define oneof12(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12))
 #define NZOR(v,a)                   ((v)?(v):(a))
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // @v8.6.8 #define SETIFZ(v,a)                 if(!v) {(v)=(a);}

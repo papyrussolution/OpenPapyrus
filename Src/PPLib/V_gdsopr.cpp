@@ -1602,7 +1602,7 @@ public:
 	{
 		ZDELETE(ABCGrpRecs);
 	}
-	int    Init(const ABCAnlzFilt *, double totalSum, long totalRecs);
+	void   Init(const ABCAnlzFilt *, double totalSum, long totalRecs);
 	int    CalcBelongToABCGrp(const GoodsOpAnalyzeViewItem *, short * pABCGrp, int finish = 0);
 	int    EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pRec);
 private:
@@ -1640,7 +1640,7 @@ private:
 	short  MinABCGrp;
 };
 
-int ABCGroupingRecsStorage::Init(const ABCAnlzFilt * pFilt, double totalSum, long totalRecsCount)
+void ABCGroupingRecsStorage::Init(const ABCAnlzFilt * pFilt, double totalSum, long totalRecsCount)
 {
 	ABCGrpRecs->freeAll();
 	ExcludedGrps.freeAll();
@@ -1659,7 +1659,6 @@ int ABCGroupingRecsStorage::Init(const ABCAnlzFilt * pFilt, double totalSum, lon
 	}
 	TotalFraction = GetMaxFraction(&ABCGrp);
 	MEMSZERO(TempRec);
-	return 1;
 }
 
 double ABCGroupingRecsStorage::GetMaxFraction(short * pABCGrp)
@@ -1819,11 +1818,11 @@ private:
 	long GetGoodsGrpPos(PPID goodsID);
 	ABCGroupingRecsStorage * ABCGrpStorageList::GetStorage(PPID goodsID);
 
-	uint                     EnumIdx;
-	SArray                 * P_TotalItems;
-	PPIDArray                GoodsGroupList;
+	uint   EnumIdx;
+	SArray * P_TotalItems;
+	PPIDArray GoodsGroupList;
 	ABCGroupingRecsStorage * P_StorageList;
-	PPObjGoods             * P_GObj;
+	PPObjGoods * P_GObj;
 };
 
 int ABCGrpStorageList::Init(const ABCAnlzFilt * pFilt)
@@ -1835,7 +1834,7 @@ int ABCGrpStorageList::Init(const ABCAnlzFilt * pFilt)
 			THROW_MEM(P_StorageList = new ABCGroupingRecsStorage[count]);
 			for(long i = 0; i < count; i++) {
 				TotalItem * p_item = (TotalItem*)P_TotalItems->at((uint)i);
-				THROW(P_StorageList[i].Init(pFilt, p_item->TotalSum, p_item->RecsCount));
+				P_StorageList[i].Init(pFilt, p_item->TotalSum, p_item->RecsCount);
 			}
 			ok = 1;
 		}

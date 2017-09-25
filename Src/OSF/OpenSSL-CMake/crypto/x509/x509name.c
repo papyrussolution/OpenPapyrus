@@ -54,7 +54,7 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 	int n;
 	X509_NAME_ENTRY * ne;
 	STACK_OF(X509_NAME_ENTRY) *sk;
-	if(name == NULL)
+	if(!name)
 		return (-1);
 	if(lastpos < 0)
 		lastpos = -1;
@@ -152,7 +152,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc, i
 	X509_NAME_ENTRY * new_name = NULL;
 	int n, i, inc;
 	STACK_OF(X509_NAME_ENTRY) *sk;
-	if(name == NULL)
+	if(!name)
 		return 0;
 	sk = name->entries;
 	n = sk_X509_NAME_ENTRY_num(sk);

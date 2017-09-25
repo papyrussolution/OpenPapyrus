@@ -88,7 +88,7 @@ static int enc_free(BIO * a)
 		return 0;
 
 	b = (BIO_ENC_CTX*)BIO_get_data(a);
-	if(b == NULL)
+	if(!b)
 		return 0;
 
 	EVP_CIPHER_CTX_free(b->cipher);

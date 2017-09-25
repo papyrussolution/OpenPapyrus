@@ -76,7 +76,7 @@ static ngx_int_t ngx_http_addition_header_filter(ngx_http_request_t * r)
 		}
 		else {
 			ngx_http_addition_ctx_t * ctx = (ngx_http_addition_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_addition_ctx_t));
-			if(ctx == NULL) {
+			if(!ctx) {
 				return NGX_ERROR;
 			}
 			ngx_http_set_ctx(r, ctx, ngx_http_addition_filter_module);
@@ -101,7 +101,7 @@ static ngx_int_t ngx_http_addition_body_filter(ngx_http_request_t * r, ngx_chain
 		return ngx_http_next_body_filter(r, in);
 	}
 	ctx = (ngx_http_addition_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_addition_filter_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return ngx_http_next_body_filter(r, in);
 	}
 	conf = (ngx_http_addition_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_addition_filter_module);

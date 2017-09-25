@@ -401,7 +401,7 @@ ngx_int_t ngx_add_path(ngx_conf_t * cf, ngx_path_t ** slot)
 		}
 	}
 	p = (ngx_path_t **)ngx_array_push(&cf->cycle->paths);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	*p = path;
@@ -505,7 +505,7 @@ ngx_int_t ngx_ext_rename_file(ngx_str_t * src, ngx_str_t * to, ngx_ext_rename_fi
 		cf.time = ext->time;
 		cf.log = ext->log;
 		name = (u_char *)ngx_alloc(to->len + 1 + 10 + 1, ext->log);
-		if(name == NULL) {
+		if(!name) {
 			return NGX_ERROR;
 		}
 		(void)ngx_sprintf(name, "%*s.%010uD%Z", to->len, to->data, (uint32_t)ngx_next_temp_number(0));

@@ -119,7 +119,7 @@ static ngx_int_t ngx_http_auth_request_handler(ngx_http_request_t * r)
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	ctx = (ngx_http_auth_request_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_auth_request_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	ps = (ngx_http_post_subrequest_t *)ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
@@ -278,7 +278,7 @@ static const char * ngx_http_auth_request_set(ngx_conf_t * cf, const ngx_command
 		return NGX_CONF_ERROR;
 	}
 	v = ngx_http_add_variable(cf, &value[1], NGX_HTTP_VAR_CHANGEABLE);
-	if(v == NULL) {
+	if(!v) {
 		return NGX_CONF_ERROR;
 	}
 	av->index = ngx_http_get_variable_index(cf, &value[1]);

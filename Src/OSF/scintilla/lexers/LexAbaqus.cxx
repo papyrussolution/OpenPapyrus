@@ -128,7 +128,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    sc.SetState(SCE_ABAQUS_DEFAULT);
 				    state = KW_LINE_VAL;
 			    }
-			    else if( (sc.ch == '\'') || (sc.ch == '\"') ) {
+			    else if(oneof2(sc.ch, '\'', '\"')) {
 				    sc.SetState(SCE_ABAQUS_STRING);
 				    state = KW_LINE_VAL;
 			    }

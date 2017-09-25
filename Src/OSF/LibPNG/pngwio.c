@@ -50,7 +50,7 @@ void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, size_t
 {
 	size_t check;
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	check = fwrite(data, 1, length, (png_FILE_p)(png_ptr->io_ptr));
@@ -117,7 +117,7 @@ void PNGCBAPI png_default_flush(png_structp png_ptr)
 void PNGAPI png_set_write_fn(png_structrp png_ptr, void * io_ptr,
     png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->io_ptr = io_ptr;

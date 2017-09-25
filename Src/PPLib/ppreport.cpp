@@ -2262,7 +2262,7 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // См. коммент в конце функции
 	if(pEnv) {
 		if(pEnv->PrnFlags & SReport::Landscape)
-			fl = INIREPF_FORCELANDSCAPE;
+			fl |= INIREPF_FORCELANDSCAPE;
 		if(pEnv->PrnFlags & SReport::PrintingNoAsk)
 			fl |= INIREPF_NOSHOWDIALOG;
 	}
@@ -2319,7 +2319,7 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fIsView, isView);
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fInheritedTblNames, inherited_tbl_names);
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fDiff_ID_ByScope, diffidbyscope);
-			SETFLAG(ep.Flags, DlRtm::ExportParam::fDontWriteXmlTypes, 1); // @v7.1.9
+			SETFLAG(ep.Flags, DlRtm::ExportParam::fDontWriteXmlTypes, 1);
 			if(p_sel_entry && p_sel_entry->Flags & ReportDescrEntry::fTddoResource) {
 				rpt.PrnDest = PrnDlgAns::aExportTDDO;
 				Tddo t;

@@ -1136,7 +1136,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	const char * alias;
 	char upper[500];
 	int i;
-	if(name == NULL)
+	if(!name)
 		return(XML_CHAR_ENCODING_NONE);
 	/*
 	 * Do the alias resolution
@@ -1264,7 +1264,7 @@ xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char * name, xmlCharEn
 	/*
 	 * Keep only the uppercase version of the encoding.
 	 */
-	if(name == NULL) {
+	if(!name) {
 		xmlEncodingErr(XML_I18N_NO_NAME, "xmlNewCharEncodingHandler : no name !\n", 0);
 	}
 	else {

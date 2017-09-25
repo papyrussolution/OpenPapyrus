@@ -86,7 +86,7 @@ static CONF * def_create(CONF_METHOD * meth)
 
 static int def_init_default(CONF * conf)
 {
-	if(conf == NULL)
+	if(!conf)
 		return 0;
 
 	conf->meth = &default_method;
@@ -98,7 +98,7 @@ static int def_init_default(CONF * conf)
 
 static int def_init_WIN32(CONF * conf)
 {
-	if(conf == NULL)
+	if(!conf)
 		return 0;
 
 	conf->meth = &WIN32_method;
@@ -119,7 +119,7 @@ static int def_destroy(CONF * conf)
 
 static int def_destroy_data(CONF * conf)
 {
-	if(conf == NULL)
+	if(!conf)
 		return 0;
 	_CONF_free_data(conf);
 	return 1;

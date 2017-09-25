@@ -80,7 +80,7 @@ void ngx_mail_proxy_init(ngx_mail_session_t * s, ngx_addr_t * peer)
 	s->connection->log->action = "connecting to upstream";
 	cscf = (ngx_mail_core_srv_conf_t*)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 	p = (ngx_mail_proxy_ctx_t *)ngx_pcalloc(s->connection->pool, sizeof(ngx_mail_proxy_ctx_t));
-	if(p == NULL) {
+	if(!p) {
 		ngx_mail_session_internal_server_error(s);
 		return;
 	}

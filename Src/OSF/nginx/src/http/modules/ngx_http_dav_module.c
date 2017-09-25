@@ -338,7 +338,7 @@ static ngx_int_t ngx_http_dav_mkcol_handler(ngx_http_request_t * r, ngx_http_dav
 		return NGX_HTTP_CONFLICT;
 	}
 	p = ngx_http_map_uri_to_path(r, &path, &root, 0);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	*(p - 1) = '\0';
@@ -741,7 +741,7 @@ static ngx_int_t ngx_http_dav_location(ngx_http_request_t * r, u_char * path)
 static void * ngx_http_dav_create_loc_conf(ngx_conf_t * cf)
 {
 	ngx_http_dav_loc_conf_t  * conf = (ngx_http_dav_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_dav_loc_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

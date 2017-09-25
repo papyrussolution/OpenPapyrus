@@ -1815,13 +1815,13 @@ long xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDocPtr doc)
  */
 long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr node)
 {
-	long ret = 0;
-
-	if(!ctxt || (node == NULL)) return -1;
-	xmlNodeDumpOutputInternal(ctxt, node);
-	return ret;
+	if(!ctxt || !node) 
+		return -1;
+	else {
+		xmlNodeDumpOutputInternal(ctxt, node);
+		return 0;
+	}
 }
-
 /**
  * xmlSaveFlush:
  * @ctxt:  a document saving context
@@ -1833,11 +1833,8 @@ long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr node)
  */
 int xmlSaveFlush(xmlSaveCtxtPtr ctxt)
 {
-	if(!ctxt) return -1;
-	if(ctxt->buf == NULL) return -1;
-	return(xmlOutputBufferFlush(ctxt->buf));
+	return (ctxt && ctxt->buf) ? xmlOutputBufferFlush(ctxt->buf) : -1;
 }
-
 /**
  * xmlSaveClose:
  * @ctxt:  a document saving context

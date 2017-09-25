@@ -85,7 +85,7 @@ ngx_stream_variable_t * ngx_stream_add_variable(ngx_conf_t * cf, ngx_str_t * nam
 		return v;
 	}
 	v = (ngx_stream_variable_t *)ngx_palloc(cf->pool, sizeof(ngx_stream_variable_t));
-	if(v == NULL) {
+	if(!v) {
 		return NULL;
 	}
 	v->name.len = name->len;
@@ -155,7 +155,7 @@ ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 	}
 	cmcf = (ngx_stream_core_main_conf_t *)ngx_stream_conf_get_module_main_conf(cf, ngx_stream_core_module);
 	v = (ngx_stream_variable_t *)cmcf->variables.elts;
-	if(v == NULL) {
+	if(!v) {
 		if(ngx_array_init(&cmcf->variables, cf->pool, 4, sizeof(ngx_stream_variable_t)) != NGX_OK) {
 			return NGX_ERROR;
 		}
@@ -169,7 +169,7 @@ ngx_int_t ngx_stream_get_variable_index(ngx_conf_t * cf, ngx_str_t * name)
 		}
 	}
 	v = (ngx_stream_variable_t *)ngx_array_push(&cmcf->variables);
-	if(v == NULL) {
+	if(!v) {
 		return NGX_ERROR;
 	}
 	v->name.len = name->len;
@@ -409,7 +409,7 @@ static ngx_int_t ngx_stream_variable_server_port(ngx_stream_session_t * s, ngx_s
 static ngx_int_t ngx_stream_variable_bytes(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_OFF_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	if(data == 1) {
@@ -430,7 +430,7 @@ static ngx_int_t ngx_stream_variable_session_time(ngx_stream_session_t * s, ngx_
 	ngx_time_t * tp;
 	ngx_msec_int_t ms;
 	u_char   * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	tp = ngx_timeofday();
@@ -460,7 +460,7 @@ static ngx_int_t ngx_stream_variable_status(ngx_stream_session_t * s, ngx_stream
 static ngx_int_t ngx_stream_variable_connection(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_ATOMIC_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%uA", s->connection->number) - p;
@@ -494,7 +494,7 @@ static ngx_int_t ngx_stream_variable_hostname(ngx_stream_session_t * s, ngx_stre
 static ngx_int_t ngx_stream_variable_pid(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_INT64_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%P", ngx_pid) - p;
@@ -509,7 +509,7 @@ static ngx_int_t ngx_stream_variable_msec(ngx_stream_session_t * s, ngx_stream_v
 {
 	ngx_time_t  * tp;
 	u_char * p = (u_char *)ngx_pnalloc(s->connection->pool, NGX_TIME_T_LEN + 4);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	tp = ngx_timeofday();
@@ -525,7 +525,7 @@ static ngx_int_t ngx_stream_variable_time_iso8601(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_iso8601.len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	memcpy(p, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len);
@@ -541,7 +541,7 @@ static ngx_int_t ngx_stream_variable_time_local(ngx_stream_session_t * s,
     ngx_stream_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(s->connection->pool, ngx_cached_http_log_time.len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
@@ -673,7 +673,7 @@ ngx_stream_regex_t * ngx_stream_regex_compile(ngx_conf_t * cf, ngx_regex_compile
 		name.len = ngx_strlen(name.data);
 
 		v = ngx_stream_add_variable(cf, &name, NGX_STREAM_VAR_CHANGEABLE);
-		if(v == NULL) {
+		if(!v) {
 			return NULL;
 		}
 
@@ -761,7 +761,7 @@ ngx_int_t ngx_stream_variables_add_core_vars(ngx_conf_t * cf)
 	}
 	for(cv = ngx_stream_core_variables; cv->name.len; cv++) {
 		v = ngx_stream_add_variable(cf, &cv->name, cv->flags);
-		if(v == NULL) {
+		if(!v) {
 			return NGX_ERROR;
 		}
 		*v = *cv;

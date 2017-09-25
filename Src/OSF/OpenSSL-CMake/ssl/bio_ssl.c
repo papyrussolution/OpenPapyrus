@@ -520,7 +520,7 @@ void BIO_ssl_shutdown(BIO * b)
 	SSL * s;
 
 	b = BIO_find_type(b, BIO_TYPE_SSL);
-	if(b == NULL)
+	if(!b)
 		return;
 
 	s = (SSL*)BIO_get_data(b);

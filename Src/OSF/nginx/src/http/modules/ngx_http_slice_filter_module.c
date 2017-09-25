@@ -94,7 +94,7 @@ static ngx_int_t ngx_http_slice_header_filter(ngx_http_request_t * r)
 	ngx_http_slice_loc_conf_t  * slcf;
 	ngx_http_slice_content_range_t cr;
 	ngx_http_slice_ctx_t  * ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return ngx_http_next_header_filter(r);
 	}
 	if(r->headers_out.status != NGX_HTTP_PARTIAL_CONTENT) {
@@ -291,7 +291,7 @@ static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r, ngx_http_
 	u_char * p;
 	ngx_http_slice_loc_conf_t  * slcf;
 	ngx_http_slice_ctx_t  * ctx = (ngx_http_slice_ctx_t*)ngx_http_get_module_ctx(r, ngx_http_slice_filter_module);
-	if(ctx == NULL) {
+	if(!ctx) {
 		if(r != r->main || r->headers_out.status) {
 			v->not_found = 1;
 			return NGX_OK;
@@ -305,14 +305,14 @@ static ngx_int_t ngx_http_slice_range_variable(ngx_http_request_t * r, ngx_http_
 		}
 
 		ctx = (ngx_http_slice_ctx_t*)ngx_pcalloc(r->pool, sizeof(ngx_http_slice_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NGX_ERROR;
 		}
 
 		ngx_http_set_ctx(r, ctx, ngx_http_slice_filter_module);
 
 		p = (u_char*)ngx_pnalloc(r->pool, sizeof("bytes=-") - 1 + 2 * NGX_OFF_T_LEN);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 

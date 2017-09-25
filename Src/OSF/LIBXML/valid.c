@@ -820,7 +820,7 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 		dict = doc->dict;
 	switch(type) {
 		case XML_ELEMENT_CONTENT_ELEMENT:
-		    if(name == NULL) {
+		    if(!name) {
 			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewElementContent : name == NULL !\n", 0);
 		    }
 		    break;
@@ -1244,7 +1244,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	if(dtd == NULL) {
 		return 0;
 	}
-	if(name == NULL) {
+	if(!name) {
 		return 0;
 	}
 
@@ -1720,7 +1720,7 @@ xmlAttributePtr xmlAddAttributeDecl(xmlValidCtxtPtr ctxt,
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
-	if(name == NULL) {
+	if(!name) {
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
@@ -2091,7 +2091,7 @@ xmlNotationPtr xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xml
 	if(dtd == NULL) {
 		return 0;
 	}
-	if(name == NULL) {
+	if(!name) {
 		return 0;
 	}
 	if((PublicID == NULL) && (SystemID == NULL)) {
@@ -3540,7 +3540,7 @@ xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr do
 		return 0;
 	if(elem == NULL) 
 		return 0;
-	if(name == NULL) 
+	if(!name) 
 		return 0;
 	if(!value) 
 		return 0;
@@ -3622,7 +3622,7 @@ xmlChar * xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNode * elem, const x
 
 	if(!doc) return 0;
 	if(elem == NULL) return 0;
-	if(name == NULL) return 0;
+	if(!name) return 0;
 	if(!value) return 0;
 	if(elem->ns && elem->ns->prefix) {
 		xmlChar fn[50];
@@ -5033,7 +5033,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt,
 	int plen;
 	name = xmlSplitQName3(qname, &plen);
 
-	if(name == NULL) {
+	if(!name) {
 		while(cont != NULL) {
 			if(cont->type == XML_ELEMENT_CONTENT_ELEMENT) {
 				if((cont->prefix == NULL) && (sstreq(cont->name, qname)))

@@ -68,7 +68,7 @@ void engine_set_all_null(ENGINE * e)
 int engine_free_util(ENGINE * e, int locked)
 {
 	int i;
-	if(e == NULL)
+	if(!e)
 		return 1;
 	if(locked)
 		CRYPTO_atomic_add(&e->struct_ref, -1, &i, global_engine_lock);
@@ -196,7 +196,7 @@ int ENGINE_set_id(ENGINE * e, const char * id)
 
 int ENGINE_set_name(ENGINE * e, const char * name)
 {
-	if(name == NULL) {
+	if(!name) {
 		ENGINEerr(ENGINE_F_ENGINE_SET_NAME, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

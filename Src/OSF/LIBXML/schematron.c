@@ -266,13 +266,11 @@ static void xmlSchematronVErrMemory(xmlSchematronValidCtxtPtr ctxt, const char *
  * Returns the new pointer or NULL in case of error
  */
 static xmlSchematronTestPtr xmlSchematronAddTest(xmlSchematronParserCtxtPtr ctxt,
-    xmlSchematronTestType type, xmlSchematronRulePtr rule,
-    xmlNode * node, xmlChar * test, xmlChar * report)
+    xmlSchematronTestType type, xmlSchematronRulePtr rule, xmlNode * node, xmlChar * test, xmlChar * report)
 {
 	xmlSchematronTestPtr ret;
 	xmlXPathCompExprPtr comp;
-
-	if(!ctxt || (rule == NULL) || (node == NULL) || (test == NULL))
+	if(!ctxt || !rule || !node || !test)
 		return 0;
 	/*
 	 * try first to compile the test expression
@@ -341,7 +339,7 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxtPtr ctxt
 {
 	xmlSchematronRulePtr ret;
 	xmlPatternPtr pattern;
-	if(!ctxt || (schema == NULL) || (node == NULL) || (context == NULL))
+	if(!ctxt || !schema || !node || !context)
 		return 0;
 	/*
 	 * Try first to compile the pattern
@@ -415,7 +413,7 @@ static void xmlSchematronFreeRules(xmlSchematronRulePtr rules)
 static xmlSchematronPatternPtr xmlSchematronAddPattern(xmlSchematronParserCtxtPtr ctxt, xmlSchematronPtr schema, xmlNode * node, xmlChar * name)
 {
 	xmlSchematronPatternPtr ret;
-	if(!ctxt || (schema == NULL) || (node == NULL) || (name == NULL))
+	if(!ctxt || !schema || !node || !name)
 		return 0;
 	ret = (xmlSchematronPatternPtr)SAlloc::M(sizeof(xmlSchematronPattern));
 	if(!ret) {

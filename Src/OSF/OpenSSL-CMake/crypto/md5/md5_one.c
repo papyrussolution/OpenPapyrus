@@ -13,32 +13,30 @@
 	#include <openssl/ebcdic.h>
 #endif
 
-uchar *MD5(const uchar *d, size_t n, uchar *md)
+uchar * MD5(const uchar * d, size_t n, uchar * md)
 {
-    MD5_CTX c;
-    static uchar m[MD5_DIGEST_LENGTH];
-
-    if (md == NULL)
-        md = m;
-    if (!MD5_Init(&c))
-        return NULL;
+	MD5_CTX c;
+	static uchar m[MD5_DIGEST_LENGTH];
+	if(md == NULL)
+		md = m;
+	if(!MD5_Init(&c))
+		return NULL;
 #ifndef CHARSET_EBCDIC
-    MD5_Update(&c, d, n);
+	MD5_Update(&c, d, n);
 #else
-    {
-        char temp[1024];
-        ulong chunk;
-
-        while (n > 0) {
-            chunk = (n > sizeof(temp)) ? sizeof(temp) : n;
-            ebcdic2ascii(temp, d, chunk);
-            MD5_Update(&c, temp, chunk);
-            n -= chunk;
-            d += chunk;
-        }
-    }
+	{
+		char temp[1024];
+		ulong chunk;
+		while(n > 0) {
+			chunk = (n > sizeof(temp)) ? sizeof(temp) : n;
+			ebcdic2ascii(temp, d, chunk);
+			MD5_Update(&c, temp, chunk);
+			n -= chunk;
+			d += chunk;
+		}
+	}
 #endif
-    MD5_Final(md, &c);
-    OPENSSL_cleanse(&c, sizeof(c)); /* security consideration */
-    return (md);
+	MD5_Final(md, &c);
+	OPENSSL_cleanse(&c, sizeof(c)); /* security consideration */
+	return (md);
 }

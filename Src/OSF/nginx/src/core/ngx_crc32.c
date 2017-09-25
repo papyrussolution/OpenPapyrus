@@ -100,7 +100,7 @@ ngx_int_t ngx_crc32_table_init(void)
 		return NGX_OK;
 	}
 	p = ngx_alloc(16 * sizeof(uint32_t) + ngx_cacheline_size, ngx_cycle->log);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	p = ngx_align_ptr(p, ngx_cacheline_size);

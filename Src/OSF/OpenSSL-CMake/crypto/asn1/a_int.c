@@ -210,7 +210,7 @@ static int asn1_get_uint64(uint64_t * pr, const uchar * b, size_t blen)
 		return 0;
 	}
 	*pr = 0;
-	if(b == NULL)
+	if(!b)
 		return 0;
 	for(i = 0; i < blen; i++) {
 		*pr <<= 8;

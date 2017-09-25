@@ -146,7 +146,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	}
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -177,7 +177,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	size += sizeof(" STARTTLS") - 1;
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 
@@ -193,7 +193,7 @@ static char * ngx_mail_imap_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	    + sizeof(" STARTTLS LOGINDISABLED") - 1;
 
 	p = (u_char*)ngx_pnalloc(cf->pool, size);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_CONF_ERROR;
 	}
 

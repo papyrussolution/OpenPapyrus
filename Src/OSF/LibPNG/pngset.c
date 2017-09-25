@@ -1150,7 +1150,7 @@ void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_infor
 uint32 PNGAPI png_permit_mng_features(png_structrp png_ptr, uint32 mng_features)
 {
 	png_debug(1, "in png_permit_mng_features");
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return 0;
 	png_ptr->mng_features_permitted = mng_features & PNG_ALL_MNG_FEATURES;
 	return png_ptr->mng_features_permitted;
@@ -1189,7 +1189,7 @@ void PNGAPI png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 	png_bytep new_list;
 	unsigned int num_chunks, old_num_chunks;
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(keep < 0 || keep >= PNG_HANDLE_CHUNK_LAST) {
@@ -1333,7 +1333,7 @@ void PNGAPI png_set_read_user_chunk_fn(png_structrp png_ptr, void * user_chunk_p
 {
 	png_debug(1, "in png_set_read_user_chunk_fn");
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	png_ptr->read_user_chunk_fn = read_user_chunk_fn;
@@ -1365,7 +1365,7 @@ void PNGAPI png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr,
 
 void PNGAPI png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(size == 0 || size > PNG_UINT_31_MAX)

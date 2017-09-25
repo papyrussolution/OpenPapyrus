@@ -92,7 +92,7 @@ int CONF_modules_load_file(const char * filename, const char * appname, ulong fl
 	char * file = NULL;
 	int ret = 0;
 	CONF * conf = NCONF_new(NULL);
-	if(conf == NULL)
+	if(!conf)
 		goto err;
 	if(filename == NULL) {
 		file = CONF_get1_default_config_file();

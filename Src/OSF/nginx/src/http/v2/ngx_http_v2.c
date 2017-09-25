@@ -257,7 +257,7 @@ static void ngx_http_v2_read_handler(ngx_event_t * rev)
 		h2c->state.incomplete = 0;
 		do {
 			p = h2c->state.handler(h2c, p, end);
-			if(p == NULL) {
+			if(!p) {
 				return;
 			}
 		} while(p != end);
@@ -797,7 +797,7 @@ static u_char * ngx_http_v2_state_headers(ngx_http_v2_connection_t * h2c, u_char
 		goto rst_stream;
 	}
 	node = ngx_http_v2_get_node_by_id(h2c, h2c->state.sid, 1);
-	if(node == NULL) {
+	if(!node) {
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 	}
 	if(node->parent) {
@@ -1362,7 +1362,7 @@ static u_char * ngx_http_v2_state_priority(ngx_http_v2_connection_t * h2c, u_cha
 
 	node = ngx_http_v2_get_node_by_id(h2c, h2c->state.sid, 1);
 
-	if(node == NULL) {
+	if(!node) {
 		return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 	}
 
@@ -1965,7 +1965,7 @@ static ngx_http_v2_stream_t * ngx_http_v2_create_stream(ngx_http_v2_connection_t
 			return NULL;
 		}
 		ctx = (ngx_http_log_ctx_t *)ngx_palloc(h2c->pool, sizeof(ngx_http_log_ctx_t));
-		if(ctx == NULL) {
+		if(!ctx) {
 			return NULL;
 		}
 		ctx->connection = fc;
@@ -2050,7 +2050,7 @@ static ngx_http_v2_node_t * ngx_http_v2_get_node_by_id(ngx_http_v2_connection_t 
 
 	if(h2c->closed_nodes < 32) {
 		node = (ngx_http_v2_node_t *)ngx_pcalloc(h2c->connection->pool, sizeof(ngx_http_v2_node_t));
-		if(node == NULL) {
+		if(!node) {
 			return NULL;
 		}
 	}
@@ -2355,7 +2355,7 @@ static ngx_int_t ngx_http_v2_construct_request_line(ngx_http_request_t * r)
 	r->request_line.len = r->method_name.len + 1 + r->unparsed_uri.len + sizeof(ending) - 1;
 
 	p = (u_char*)ngx_pnalloc(r->pool, r->request_line.len + 1);
-	if(p == NULL) {
+	if(!p) {
 		ngx_http_v2_close_stream(r->stream, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;
 	}

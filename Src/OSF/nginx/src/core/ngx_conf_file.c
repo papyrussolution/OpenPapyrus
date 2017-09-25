@@ -85,7 +85,7 @@ static ngx_int_t ngx_conf_add_dump(ngx_conf_t * cf, ngx_str_t * filename)
 		return NGX_OK;
 	}
 	p = ngx_pstrdup(cf->cycle->pool, filename);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	cd = (ngx_conf_dump_t *)ngx_array_push(&cf->cycle->config_dump);

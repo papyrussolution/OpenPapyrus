@@ -5589,7 +5589,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann * ann, Fann:
 {
 	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -5678,7 +5678,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann * ann, Fan
 {
 	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -5787,7 +5787,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 {
 	Fann** ann_vect = (Fann**)SAlloc::M(threadnumb * sizeof(Fann*));
 	int i = 0, j = 0;
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -5991,7 +5991,7 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
 
 float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -6077,7 +6077,7 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 
 float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -6180,7 +6180,7 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 
 float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 	//#define THREADNUM 1
@@ -6373,7 +6373,7 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
 
 float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();
@@ -6463,7 +6463,7 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 
 float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();
@@ -6574,7 +6574,7 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 
 float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
 {
-	if(ann->P_PrevTrainSlopes == NULL) {
+	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();

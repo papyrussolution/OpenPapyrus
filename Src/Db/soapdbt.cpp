@@ -11,12 +11,11 @@ SoapDbFile::Param::Param(const char * pRootTag, const char * pHeadTag, const cha
 	Init(pRootTag, pHeadTag, pRecTag);
 }
 
-int SoapDbFile::Param::Init(const char * pRootTag, const char * pHeadTag, const char * pRecTag)
+void SoapDbFile::Param::Init(const char * pRootTag, const char * pHeadTag, const char * pRecTag)
 {
-	RootTag.CopyFrom(pRootTag);
-	HeadTag.CopyFrom(pHeadTag);
-	RecTag.CopyFrom(pRecTag);
-	return 1;
+	RootTag = pRootTag;
+	HeadTag = pHeadTag;
+	RecTag = pRecTag;
 }
 
 SoapDbFile::SoapDbFile()

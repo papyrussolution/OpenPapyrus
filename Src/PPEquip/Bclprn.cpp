@@ -551,11 +551,11 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 		const  size_t tbs = 512;
 		char   word[tbs];
 		size_t dp = 0;
-		while(*s == ' ' || *s == '\t')
+		while(oneof2(*s, ' ', '\t'))
 			s++;
 		if(*s == '\"') {
 			s++;
-			while(*s != '\"' && *s != 0 && dp < tbs-2) {
+			while(!oneof2(*s, '\"', 0) && dp < tbs-2) {
 				if(*s == '\\') {
 					s++;
 					if(toupper(*s) == 'X') {
@@ -591,7 +591,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 			tok = tokString;
 		}
 		else  {
-			while(*s != ' ' && *s != '\t' && *s != '\"' && *s != ':' && *s != 0 && dp < tbs-2) {
+			while(!oneof5(*s, ' ', '\t', '\"', ':', 0) && dp < tbs-2) {
 				word[dp++] = *s++;
 			}
 			word[dp] = 0;

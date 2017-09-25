@@ -69,13 +69,13 @@ static void ngx_stream_return_handler(ngx_stream_session_t * s)
 		return;
 	}
 	ctx = (ngx_stream_return_ctx_t *)ngx_pcalloc(c->pool, sizeof(ngx_stream_return_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
 	ngx_stream_set_ctx(s, ctx, ngx_stream_return_module);
 	b = (ngx_buf_t*)ngx_calloc_buf(c->pool);
-	if(b == NULL) {
+	if(!b) {
 		ngx_stream_finalize_session(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return;
 	}
@@ -125,7 +125,7 @@ static void ngx_stream_return_write_handler(ngx_event_t * ev)
 static void * ngx_stream_return_create_srv_conf(ngx_conf_t * cf)
 {
 	ngx_stream_return_srv_conf_t  * conf = (ngx_stream_return_srv_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_stream_return_srv_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	return conf;

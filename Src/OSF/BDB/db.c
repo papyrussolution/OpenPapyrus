@@ -1156,7 +1156,7 @@ int __db_testcopy(ENV * env, DB * dbp, const char * name)
 	DB_MPOOL * dbmp;
 	DB_MPOOLFILE * mpf;
 	DB_ASSERT(env, dbp != NULL || name != NULL);
-	if(name == NULL) {
+	if(!name) {
 		dbmp = env->mp_handle;
 		mpf = dbp->mpf;
 		name = R_ADDR(dbmp->reginfo, mpf->mfp->path_off);

@@ -202,7 +202,7 @@ BN_BLINDING * BN_BLINDING_create_param(BN_BLINDING * b,
 	int retry_counter = 32;
 	BN_BLINDING * ret = NULL;
 
-	if(b == NULL)
+	if(!b)
 		ret = BN_BLINDING_new(NULL, NULL, m);
 	else
 		ret = b;
@@ -259,7 +259,7 @@ BN_BLINDING * BN_BLINDING_create_param(BN_BLINDING * b,
 
 	return ret;
 err:
-	if(b == NULL) {
+	if(!b) {
 		BN_BLINDING_free(ret);
 		ret = NULL;
 	}

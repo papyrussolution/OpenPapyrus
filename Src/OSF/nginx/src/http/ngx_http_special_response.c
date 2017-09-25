@@ -403,7 +403,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 		return ngx_http_send_special(r, NGX_HTTP_LAST);
 	}
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	b->memory = 1;
@@ -412,7 +412,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 	out[0].buf = b;
 	out[0].next = &out[1];
 	b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	b->memory = 1;
@@ -422,7 +422,7 @@ static ngx_int_t ngx_http_send_special_response(ngx_http_request_t * r, ngx_http
 	out[1].next = NULL;
 	if(msie_padding) {
 		b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		b->memory = 1;
@@ -467,7 +467,7 @@ static ngx_int_t ngx_http_send_refresh(ngx_http_request_t * pReq)
 		return rc;
 	}
 	b = ngx_create_temp_buf(pReq->pool, size);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	p = ngx_cpymem(b->pos, ngx_http_msie_refresh_head, sizeof(ngx_http_msie_refresh_head) - 1);

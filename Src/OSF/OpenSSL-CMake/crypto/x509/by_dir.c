@@ -202,7 +202,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type, X509_NAM
 	BUF_MEM * b = NULL;
 	X509_OBJECT stmp, * tmp;
 	const char * postfix = "";
-	if(name == NULL)
+	if(!name)
 		return 0;
 	stmp.type = type;
 	if(type == X509_LU_X509) {

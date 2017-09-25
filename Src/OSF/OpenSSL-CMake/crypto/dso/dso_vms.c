@@ -177,7 +177,7 @@ static int vms_load(DSO * dso)
 	}
 
 	p = DSO_MALLOC(sizeof(*p));
-	if(p == NULL) {
+	if(!p) {
 		DSOerr(DSO_F_VMS_LOAD, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -233,7 +233,7 @@ static int vms_unload(DSO * dso)
 	if(sk_void_num(dso->meth_data) < 1)
 		return 1;
 	p = (DSO_VMS_INTERNAL*)sk_void_pop(dso->meth_data);
-	if(p == NULL) {
+	if(!p) {
 		DSOerr(DSO_F_VMS_UNLOAD, DSO_R_NULL_HANDLE);
 		return 0;
 	}

@@ -8,6 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <scintilla-internal.h>
 
 #define NOEXCEPT
 
@@ -20,17 +21,6 @@
 		#define NOEXCEPT noexcept
 	#endif
 #endif
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
-#include "CellBuffer.h"
-#include "PerLine.h"
-//#include "CharClassify.h"
-#include "Decoration.h"
-#include "Document.h"
-#include "RESearch.h"
-#include "UnicodeFromUTF8.h"
-
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
@@ -2942,8 +2932,7 @@ bool MatchOnLines(const Document * doc, const Regex &regexp, const RESearchRange
 	return matched;
 }
 
-long Cxx11RegexFindText(Document * doc, int minPos, int maxPos, const char * s,
-	    bool caseSensitive, int * length, RESearch &search)
+long Cxx11RegexFindText(Document * doc, int minPos, int maxPos, const char * s, bool caseSensitive, int * length, RESearch &search)
 {
 	const RESearchRange resr(doc, minPos, maxPos);
 	try {

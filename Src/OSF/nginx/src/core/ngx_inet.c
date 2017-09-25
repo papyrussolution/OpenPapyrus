@@ -549,7 +549,7 @@ ngx_int_t ngx_parse_addr_port(ngx_pool_t * pool, ngx_addr_t * addr, u_char * tex
 #endif
 	{
 		p = ngx_strlchr(text, last, ':');
-		if(p == NULL) {
+		if(!p) {
 			return NGX_DECLINED;
 		}
 	}
@@ -738,7 +738,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 			u->addrs[0].sockaddr = (struct sockaddr*)sin;
 			u->addrs[0].socklen = sizeof(struct sockaddr_in);
 			p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			u->addrs[0].name.len = ngx_sprintf(p, "%V:%d", &u->host, u->port) - p;
@@ -785,7 +785,7 @@ static ngx_int_t ngx_parse_inet6_url(ngx_pool_t * pool, ngx_url_t * u)
 	host = u->url.data + 1;
 	last = u->url.data + u->url.len;
 	p = ngx_strlchr(host, last, ']');
-	if(p == NULL) {
+	if(!p) {
 		u->err = "invalid host";
 		return NGX_ERROR;
 	}
@@ -853,7 +853,7 @@ static ngx_int_t ngx_parse_inet6_url(ngx_pool_t * pool, ngx_url_t * u)
 	u->addrs[0].sockaddr = (struct sockaddr*)sin6;
 	u->addrs[0].socklen = sizeof(struct sockaddr_in6);
 	p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 
@@ -943,7 +943,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		u->addrs[i].socklen = rp->ai_addrlen;
 		len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
 		p = (u_char *)ngx_pnalloc(pool, len);
-		if(p == NULL) {
+		if(!p) {
 			goto failed;
 		}
 		len = ngx_sock_ntop((struct sockaddr*)sin, rp->ai_addrlen, p, len, 1);
@@ -965,7 +965,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		u->addrs[i].socklen = rp->ai_addrlen;
 		len = NGX_INET6_ADDRSTRLEN + sizeof("[]:65535") - 1;
 		p = (u_char *)ngx_pnalloc(pool, len);
-		if(p == NULL) {
+		if(!p) {
 			goto failed;
 		}
 		len = ngx_sock_ntop((struct sockaddr*)sin6, rp->ai_addrlen, p, len, 1);
@@ -1027,7 +1027,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 			u->addrs[i].socklen = sizeof(struct sockaddr_in);
 			len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
 			p = (u_char *)ngx_pnalloc(pool, len);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			len = ngx_sock_ntop((struct sockaddr*)sin, sizeof(struct sockaddr_in), p, len, 1);
@@ -1052,7 +1052,7 @@ ngx_int_t ngx_inet_resolve_host(ngx_pool_t * pool, ngx_url_t * u)
 		u->addrs[0].sockaddr = (struct sockaddr*)sin;
 		u->addrs[0].socklen = sizeof(struct sockaddr_in);
 		p = (u_char *)ngx_pnalloc(pool, u->host.len + sizeof(":65535") - 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		u->addrs[0].name.len = ngx_sprintf(p, "%V:%d", &u->host, ntohs(port)) - p;

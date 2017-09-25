@@ -125,7 +125,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 int ENGINE_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void))
 {
 	int ctrl_exists, ref_exists;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -285,7 +285,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 		return 0;
 	}
 	/* So, we require input */
-	if(arg == NULL) {
+	if(!arg) {
 		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING,
 		    ENGINE_R_COMMAND_TAKES_INPUT);
 		return 0;

@@ -106,7 +106,7 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 	len = ngx_sock_ntop(c->sockaddr, c->socklen, text, NGX_SOCKADDR_STRLEN, 1);
 	ngx_log_error(NGX_LOG_INFO, c->log, 0, "*%uA client %*s connected to %V", c->number, len, text, s->addr_text);
 	ctx = (ngx_mail_log_ctx_t *)ngx_palloc(c->pool, sizeof(ngx_mail_log_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		ngx_mail_close_connection(c);
 		return;
 	}
@@ -396,7 +396,7 @@ ngx_int_t ngx_mail_auth_cram_md5_salt(ngx_mail_session_t * s, ngx_connection_t *
 	ngx_uint_t n;
 
 	p = (u_char *)ngx_pnalloc(c->pool, len + ngx_base64_encoded_length(s->salt.len) + 2);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 

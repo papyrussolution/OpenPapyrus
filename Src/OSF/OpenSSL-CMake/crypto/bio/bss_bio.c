@@ -71,7 +71,7 @@ static int bio_new(BIO * bio)
 {
 	struct bio_bio_st * b = (struct bio_bio_st*)OPENSSL_zalloc(sizeof(*b));
 
-	if(b == NULL)
+	if(!b)
 		return 0;
 
 	/* enough for one TLS record (just a default) */

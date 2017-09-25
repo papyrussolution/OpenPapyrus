@@ -56,7 +56,7 @@ static int engine_list_add(ENGINE * e)
 	int conflict = 0;
 	ENGINE * iterator = NULL;
 
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LIST_ADD, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -106,7 +106,7 @@ static int engine_list_remove(ENGINE * e)
 {
 	ENGINE * iterator;
 
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LIST_REMOVE, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -176,7 +176,7 @@ ENGINE * ENGINE_get_last(void)
 ENGINE * ENGINE_get_next(ENGINE * e)
 {
 	ENGINE * ret = NULL;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_GET_NEXT, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -196,7 +196,7 @@ ENGINE * ENGINE_get_next(ENGINE * e)
 ENGINE * ENGINE_get_prev(ENGINE * e)
 {
 	ENGINE * ret = NULL;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_GET_PREV, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -217,7 +217,7 @@ ENGINE * ENGINE_get_prev(ENGINE * e)
 int ENGINE_add(ENGINE * e)
 {
 	int to_return = 1;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_ADD, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -238,7 +238,7 @@ int ENGINE_add(ENGINE * e)
 int ENGINE_remove(ENGINE * e)
 {
 	int to_return = 1;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_REMOVE, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -348,7 +348,7 @@ notfound:
 int ENGINE_up_ref(ENGINE * e)
 {
 	int i;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_UP_REF, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

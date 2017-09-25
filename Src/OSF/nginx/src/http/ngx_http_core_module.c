@@ -574,7 +574,7 @@ ngx_int_t ngx_http_core_find_config_phase(ngx_http_request_t * r, ngx_http_phase
 		else {
 			len = clcf->name.len + 1 + r->args.len;
 			p = (u_char *)ngx_pnalloc(r->pool, len);
-			if(p == NULL) {
+			if(!p) {
 				ngx_http_clear_location(r);
 				ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 				return NGX_OK;
@@ -840,7 +840,7 @@ static ngx_int_t ngx_http_core_find_static_location(ngx_http_request_t * r, ngx_
 	const u_char * uri = r->uri.data;
 	ngx_int_t rv = NGX_DECLINED;
 	for(;; ) {
-		if(node == NULL) {
+		if(!node) {
 			return rv;
 		}
 		else {
@@ -995,7 +995,7 @@ void FASTCALL ngx_http_weak_etag(ngx_http_request_t * pReq)
 		}
 		else {
 			u_char * p = (u_char *)ngx_pnalloc(pReq->pool, etag->value.len + 2);
-			if(p == NULL) {
+			if(!p) {
 				pReq->headers_out.etag->hash = 0;
 				pReq->headers_out.etag = NULL;
 			}
@@ -1305,7 +1305,7 @@ static ngx_int_t ngx_http_gzip_accept_encoding(ngx_str_t * ae)
 	const u_char * last = start + ae->len;
 	for(;; ) {
 		p = ngx_strcasestrn(start, "gzip", 4 - 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_DECLINED;
 		}
 		if(p == start || (*(p - 1) == ',' || *(p - 1) == ' ')) {
@@ -1785,7 +1785,7 @@ static const char * ngx_http_core_location(ngx_conf_t * cf, const ngx_command_t 
 	ngx_http_conf_ctx_t * pctx;
 	ngx_http_core_loc_conf_t * clcf, * pclcf;
 	ngx_http_conf_ctx_t * ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;
@@ -2584,7 +2584,7 @@ static const char * ngx_http_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 				end = value[n].data + value[n].len;
 				s.data = value[n].data + 13;
 				p = ngx_strlchr(s.data, end, ':');
-				if(p == NULL) {
+				if(!p) {
 					p = end;
 				}
 				if(p > s.data) {
@@ -2596,7 +2596,7 @@ static const char * ngx_http_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 				}
 				s.data = (p < end) ? (p + 1) : end;
 				p = ngx_strlchr(s.data, end, ':');
-				if(p == NULL) {
+				if(!p) {
 					p = end;
 				}
 				if(p > s.data) {
@@ -2829,7 +2829,7 @@ next:
 		pclcf->limit_except &= (uint32_t) ~NGX_HTTP_HEAD;
 	}
 	ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_CONF_ERROR;
 	}
 	pctx = (ngx_http_conf_ctx_t *)cf->ctx;

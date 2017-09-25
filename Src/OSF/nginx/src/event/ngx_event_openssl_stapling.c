@@ -362,7 +362,7 @@ static int ngx_ssl_certificate_status_callback(ngx_ssl_conn_t * ssl_conn, void *
 	if(staple->staple.len && staple->valid >= ngx_time()) {
 		/* we have to copy ocsp response as OpenSSL will free it by itself */
 		p = (u_char *)OPENSSL_malloc(staple->staple.len);
-		if(p == NULL) {
+		if(!p) {
 			ngx_ssl_error(NGX_LOG_ALERT, c->log, 0, "OPENSSL_malloc() failed");
 			return SSL_TLSEXT_ERR_NOACK;
 		}
@@ -382,7 +382,7 @@ static void ngx_ssl_stapling_update(ngx_ssl_stapling_t * staple)
 	}
 	staple->loading = 1;
 	ctx = ngx_ssl_ocsp_start();
-	if(ctx == NULL) {
+	if(!ctx) {
 		return;
 	}
 
@@ -595,7 +595,7 @@ static ngx_ssl_ocsp_ctx_t * ngx_ssl_ocsp_start(void)
 	}
 
 	ctx = (ngx_ssl_ocsp_ctx_t *)ngx_pcalloc(pool, sizeof(ngx_ssl_ocsp_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		ngx_destroy_pool(pool);
 		return NULL;
 	}
@@ -710,7 +710,7 @@ static void ngx_ssl_ocsp_resolve_handler(ngx_resolver_ctx_t * resolve)
 		ctx->addrs[i].sockaddr = sockaddr;
 		ctx->addrs[i].socklen = socklen;
 		p = (u_char *)ngx_pnalloc(ctx->pool, NGX_SOCKADDR_STRLEN);
-		if(p == NULL) {
+		if(!p) {
 			goto failed;
 		}
 		len = ngx_sock_ntop(sockaddr, socklen, p, NGX_SOCKADDR_STRLEN, 1);
@@ -894,7 +894,7 @@ static ngx_int_t ngx_ssl_ocsp_create_request(ngx_ssl_ocsp_ctx_t * ctx)
 	len = sizeof("GET ") - 1 + ctx->uri.len + sizeof("/") - 1 + base64.len + 2 * escape + sizeof(" HTTP/1.0" CRLF) - 1
 	    + sizeof("Host: ") - 1 + ctx->host.len + sizeof(CRLF) - 1 + sizeof(CRLF) - 1;
 	b = ngx_create_temp_buf(ctx->pool, len);
-	if(b == NULL) {
+	if(!b) {
 		goto failed;
 	}
 	p = b->last;

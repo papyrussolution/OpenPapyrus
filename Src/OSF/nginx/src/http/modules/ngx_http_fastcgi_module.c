@@ -1214,7 +1214,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 						size += part[i].end - part[i].start;
 					}
 					p = (u_char *)ngx_pnalloc(r->pool, size);
-					if(p == NULL) {
+					if(!p) {
 						h->hash = 0;
 						return NGX_ERROR;
 					}
@@ -1751,7 +1751,7 @@ static ngx_int_t ngx_http_fastcgi_add_variables(ngx_conf_t * cf)
 static void * ngx_http_fastcgi_create_main_conf(ngx_conf_t * cf)
 {
 	ngx_http_fastcgi_main_conf_t * conf = (ngx_http_fastcgi_main_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_fastcgi_main_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 #if (NGX_HTTP_CACHE)
@@ -1765,7 +1765,7 @@ static void * ngx_http_fastcgi_create_main_conf(ngx_conf_t * cf)
 static void * ngx_http_fastcgi_create_loc_conf(ngx_conf_t * cf)
 {
 	ngx_http_fastcgi_loc_conf_t * conf = (ngx_http_fastcgi_loc_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_fastcgi_loc_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*
@@ -2145,18 +2145,18 @@ next:
 			return NGX_ERROR;
 		}
 		code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 		code = (uintptr_t *)ngx_array_push_n(params->values, sizeof(uintptr_t));
-		if(code == NULL) {
+		if(!code) {
 			return NGX_ERROR;
 		}
 		*code = (uintptr_t)NULL;
 	}
 	code = (uintptr_t *)ngx_array_push_n(params->lengths, sizeof(uintptr_t));
-	if(code == NULL) {
+	if(!code) {
 		return NGX_ERROR;
 	}
 	*code = (uintptr_t)NULL;

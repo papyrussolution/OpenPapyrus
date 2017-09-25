@@ -40,30 +40,22 @@ static bool IsMatlabCommentChar(int c)
 
 static bool IsOctaveCommentChar(int c)
 {
-	return (c == '%' || c == '#');
+	return oneof2(c, '%', '#');
 }
 
 static inline int LowerCase(int c)
 {
-	if(c >= 'A' && c <= 'Z')
-		return 'a' + c - 'A';
-	return c;
+	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
 }
 
 static int CheckKeywordFoldPoint(char * str)
 {
-	if(strcmp("if", str) == 0 ||
-	    strcmp("for", str) == 0 ||
-	    strcmp("switch", str) == 0 ||
-	    strcmp("try", str) == 0 ||
-	    strcmp("do", str) == 0 ||
-	    strcmp("parfor", str) == 0 ||
-	    strcmp("function", str) == 0)
+	if(sstreq(str, "if") || sstreq(str, "for") || sstreq(str, "switch") || sstreq(str, "try") || sstreq(str, "do") || sstreq(str, "parfor") || sstreq(str, "function"))
 		return 1;
-	if(strncmp("end", str, 3) == 0 ||
-	    strcmp("until", str) == 0)
+	else if(strncmp("end", str, 3) == 0 || sstreq(str, "until"))
 		return -1;
-	return 0;
+	else
+		return 0;
 }
 
 static bool IsSpaceToEOL(Sci_Position startPos, Accessor &styler)
@@ -78,29 +70,21 @@ static bool IsSpaceToEOL(Sci_Position startPos, Accessor &styler)
 }
 
 static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor &styler,
-    bool (* IsCommentChar)(int),
-    bool ismatlab)
+    WordList * keywordlists[], Accessor &styler, bool (* IsCommentChar)(int), bool ismatlab)
 {
 	WordList &keywords = *keywordlists[0];
-
 	styler.StartAt(startPos);
-
 	// boolean for when the ' is allowed to be transpose vs the start/end
 	// of a string
 	bool transpose = false;
-
 	// approximate position of first non space character in a line
 	int nonSpaceColumn = -1;
 	// approximate column position of the current character in a line
 	int column = 0;
-
 	// use the line state of each line to store the block comment depth
 	Sci_Position curLine = styler.GetLine(startPos);
 	int commentDepth = curLine > 0 ? styler.GetLineState(curLine-1) : 0;
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward(), column++) {
 		if(sc.atLineStart) {
 			// set the line state to the current commentDepth
@@ -120,7 +104,7 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 		// check for end of states
 		if(sc.state == SCE_MATLAB_OPERATOR) {
 			if(sc.chPrev == '.') {
-				if(sc.ch == '*' || sc.ch == '/' || sc.ch == '\\' || sc.ch == '^') {
+				if(oneof4(sc.ch, '*', '/', '\\', '^')) {
 					sc.ForwardSetState(SCE_MATLAB_DEFAULT);
 					transpose = false;
 				}
@@ -157,26 +141,22 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 			}
 		}
 		else if(sc.state == SCE_MATLAB_NUMBER) {
-			if(!isdec(sc.ch) && sc.ch != '.'
-			    && !(sc.ch == 'e' || sc.ch == 'E')
-			    && !((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E'))) {
+			if(!isdec(sc.ch) && sc.ch != '.' && !oneof2(sc.ch, 'e', 'E') && !((sc.ch == '+' || sc.ch == '-') && (sc.chPrev == 'e' || sc.chPrev == 'E'))) {
 				sc.SetState(SCE_MATLAB_DEFAULT);
 				transpose = true;
 			}
 		}
 		else if(sc.state == SCE_MATLAB_STRING) {
 			if(sc.ch == '\'') {
-				if(sc.chNext == '\'') {
+				if(sc.chNext == '\'')
 					sc.Forward();
-				}
-				else {
+				else
 					sc.ForwardSetState(SCE_MATLAB_DEFAULT);
-				}
 			}
 		}
 		else if(sc.state == SCE_MATLAB_DOUBLEQUOTESTRING) {
 			if(sc.ch == '\\') {
-				if(sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+				if(oneof3(sc.chNext, '\"', '\'', '\\')) {
 					sc.Forward();
 				}
 			}
@@ -193,21 +173,18 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 		else if(sc.state == SCE_MATLAB_COMMENT) {
 			// end or start of a nested a block comment?
 			if(IsCommentChar(sc.ch) && sc.chNext == '}' && nonSpaceColumn == column && IsSpaceToEOL(sc.currentPos+2, styler)) {
-				if(commentDepth > 0) commentDepth--;
-
+				if(commentDepth > 0) 
+					commentDepth--;
 				curLine = styler.GetLine(sc.currentPos);
 				styler.SetLineState(curLine, commentDepth);
 				sc.Forward();
-
 				if(commentDepth == 0) {
 					sc.ForwardSetState(SCE_D_DEFAULT);
 					transpose = false;
 				}
 			}
-			else if(IsCommentChar(sc.ch) && sc.chNext == '{' && nonSpaceColumn == column &&
-			    IsSpaceToEOL(sc.currentPos+2, styler)) {
+			else if(IsCommentChar(sc.ch) && sc.chNext == '{' && nonSpaceColumn == column && IsSpaceToEOL(sc.currentPos+2, styler)) {
 				commentDepth++;
-
 				curLine = styler.GetLine(sc.currentPos);
 				styler.SetLineState(curLine, commentDepth);
 				sc.Forward();
@@ -215,13 +192,12 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 			}
 			else if(commentDepth == 0) {
 				// single line comment
-				if(sc.atLineEnd || sc.ch == '\r' || sc.ch == '\n') {
+				if(sc.atLineEnd || oneof2(sc.ch, '\r', '\n')) {
 					sc.SetState(SCE_MATLAB_DEFAULT);
 					transpose = false;
 				}
 			}
 		}
-
 		// check start of a new state
 		if(sc.state == SCE_MATLAB_DEFAULT) {
 			if(IsCommentChar(sc.ch)) {
@@ -236,20 +212,10 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 				sc.SetState(SCE_MATLAB_COMMENT);
 			}
 			else if(sc.ch == '!' && sc.chNext != '=') {
-				if(ismatlab) {
-					sc.SetState(SCE_MATLAB_COMMAND);
-				}
-				else {
-					sc.SetState(SCE_MATLAB_OPERATOR);
-				}
+				sc.SetState(ismatlab ? SCE_MATLAB_COMMAND : SCE_MATLAB_OPERATOR);
 			}
 			else if(sc.ch == '\'') {
-				if(transpose) {
-					sc.SetState(SCE_MATLAB_OPERATOR);
-				}
-				else {
-					sc.SetState(SCE_MATLAB_STRING);
-				}
+				sc.SetState(transpose ? SCE_MATLAB_OPERATOR : SCE_MATLAB_STRING);
 			}
 			else if(sc.ch == '"') {
 				sc.SetState(SCE_MATLAB_DOUBLEQUOTESTRING);
@@ -261,12 +227,7 @@ static void ColouriseMatlabOctaveDoc(Sci_PositionU startPos, Sci_Position length
 				sc.SetState(SCE_MATLAB_KEYWORD);
 			}
 			else if(isoperator(static_cast<char>(sc.ch)) || sc.ch == '@' || sc.ch == '\\') {
-				if(sc.ch == ')' || sc.ch == ']' || sc.ch == '}') {
-					transpose = true;
-				}
-				else {
-					transpose = false;
-				}
+				transpose = oneof3(sc.ch, ')', ']', '}') ? true : false;
 				sc.SetState(SCE_MATLAB_OPERATOR);
 			}
 			else {

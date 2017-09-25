@@ -790,7 +790,7 @@ int BN_GF2m_mod_div(BIGNUM * r, const BIGNUM * y, const BIGNUM * x,
 	b = BN_CTX_get(ctx);
 	u = BN_CTX_get(ctx);
 	v = BN_CTX_get(ctx);
-	if(v == NULL)
+	if(!v)
 		goto err;
 
 	/* reduce x and y mod p */

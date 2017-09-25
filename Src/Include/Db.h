@@ -68,13 +68,13 @@ enum SqlServerType {
 class SLob { // @persistent size=32
 public:
 	// @noconstructor @novtbl
-	int    FASTCALL Init(uint32 descriptor);
+	void   FASTCALL Init(uint32 descriptor);
 	int    FASTCALL InitPtr(uint32 sz);
 	int    IsPtr() const;
 	//
 	// Descr: Устанавливает структурированный объект с нулевым манипулятором.
 	//
-	int    Empty();
+	void   Empty();
 	int    DestroyPtr();
 	void * GetRawDataPtr();
 	size_t GetPtrSize() const;
@@ -450,7 +450,7 @@ public:
 	struct Param { // @persistent
 		Param(long flags = 0, const char * pFldDiv = 0, const char * pVertRecTerm = 0);
 		Param(long flags, int fldDivChr = 0, const char * pVertRecTerm = 0);
-		int    Init();
+		void   Init();
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		int32  Ver;              // @v7.4.7 Serialize version
@@ -518,7 +518,7 @@ public:
 			fSkipEntityList = 0x00000008L  // @v8.6.8 Не выводить в выходном файле список сущностей
 		};
 		Param(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
-		int    Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
+		void   Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		int32  Ver;      // @v7.4.7 Serialize version
@@ -608,7 +608,7 @@ class SoapDbFile {
 public:
 	struct Param {
 	    Param(const char * pRootTag = 0, const char * pHeadTag = 0, const char * pRecTag = 0);
-		int    Init(const char * pRootTag, const char * pHeadTag, const char * pRecTag);
+		void   Init(const char * pRootTag, const char * pHeadTag, const char * pRecTag);
 
 		SString RootTag;
 		SString HeadTag;
@@ -656,7 +656,7 @@ public:
 	};
 	struct Param {
 		Param(long flags = 0);
-		int   Init();
+		void  Init();
 		int   Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		int32  Ver;              // @v7.4.7 Serialize version

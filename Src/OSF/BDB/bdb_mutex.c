@@ -1922,7 +1922,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		F_SET(mutexp, DB_MUTEX_LOCKED);
 		dbenv->thread_id(dbenv, &mutexp->pid, &mutexp->tid);
 #ifdef HAVE_STATISTICS
-		if(event == NULL)
+		if(!event)
 			++mutexp->mutex_set_nowait;
 		else
 			++mutexp->mutex_set_wait;
@@ -1969,7 +1969,7 @@ loop:   /* Attempt to acquire the mutex mutex_tas_spins times, if waiting. */
 		time_left /= US_PER_MS;
 		SETMIN(ms, time_left);
 	}
-	if(event == NULL) {
+	if(!event) {
 #ifdef MUTEX_DIAG
 		QueryPerformanceCounter(&diag_now);
 		printf(DB_STR_A("2005", "[%I64d]: Waiting on mutex %p, id %d\n", "%I64d %p %d"), diag_now.QuadPart, mutexp, mutexp->id);
@@ -2082,7 +2082,7 @@ retry:
 			goto retry;
 		}
  #ifdef HAVE_STATISTICS
-		if(event == NULL)
+		if(!event)
 			++mutexp->mutex_set_rd_nowait;
 		else
 			++mutexp->mutex_set_rd_wait;
@@ -2114,7 +2114,7 @@ retry:
 	 * unlocking thread gets lost.  We start at 50 ms because it's unlikely
 	 * to happen often and we want to avoid wasting CPU.
 	 */
-	if(event == NULL) {
+	if(!event) {
  #ifdef MUTEX_DIAG
 		QueryPerformanceCounter(&diag_now);
 		printf(DB_STR_A("2008", "[%I64d]: Waiting on mutex %p, id %d\n", "%I64d %p %d"), diag_now.QuadPart, mutexp, mutexp->id);

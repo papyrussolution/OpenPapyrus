@@ -4016,7 +4016,7 @@ exit:
 static xmlSchemaTypePtr xmlSchemaGetType(xmlSchemaPtr schema, const xmlChar * name, const xmlChar * nsName)
 {
 	xmlSchemaTypePtr ret = NULL;
-	if(name == NULL)
+	if(!name)
 		return 0;
 	/* First try the built-in types. */
 	if(nsName && sstreq(nsName, xmlSchemaNs)) {
@@ -4209,7 +4209,7 @@ static xmlSchemaBasicItem * xmlSchemaGetNamedComponent(xmlSchemaPtr schema, xmlS
  */
 static int xmlSchemaIsBlank(xmlChar * str, int len)
 {
-	if(str == NULL)
+	if(!str)
 		return 1;
 	if(len < 0) {
 		while(*str != 0) {
@@ -5470,7 +5470,7 @@ static xmlSchemaAnnotPtr xmlSchemaParseAnnotation(xmlSchemaParserCtxtPtr ctxt, x
 	 * {any attributes with non-schema namespace . . .}>
 	 * Content: (appinfo | documentation)*
 	 */
-	if(!ctxt || (node == NULL))
+	if(!ctxt || !node)
 		return 0;
 	if(needed)
 		ret = xmlSchemaNewAnnot(ctxt, node);
@@ -5800,7 +5800,7 @@ static xmlSchemaParticlePtr xmlSchemaParseAny(xmlSchemaParserCtxtPtr ctxt, xmlSc
 	int min, max;
 	xmlAttr * attr;
 	xmlSchemaAnnotPtr annot = NULL;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	/*
 	 * Check for illegal attributes.
@@ -5873,10 +5873,10 @@ static xmlSchemaNotationPtr xmlSchemaParseNotation(xmlSchemaParserCtxtPtr ctxt, 
 	const xmlChar * name;
 	xmlSchemaNotationPtr ret;
 	xmlNode * child = NULL;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	name = xmlSchemaGetProp(ctxt, node, "name");
-	if(name == NULL) {
+	if(!name) {
 		xmlSchemaPErr2(ctxt, node, child, XML_SCHEMAP_NOTATION_NO_NAME, "Notation has no name\n", 0, 0);
 		return 0;
 	}
@@ -5910,7 +5910,7 @@ static xmlSchemaWildcardPtr xmlSchemaParseAnyAttribute(xmlSchemaParserCtxtPtr ct
 	xmlSchemaWildcardPtr ret;
 	xmlNode * child = NULL;
 	xmlAttr * attr;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	ret = xmlSchemaAddWildcard(ctxt, schema, XML_SCHEMA_TYPE_ANY_ATTRIBUTE, node);
 	if(!ret) {
@@ -5977,7 +5977,7 @@ static xmlSchemaBasicItem * xmlSchemaParseLocalAttribute(xmlSchemaParserCtxtPtr 
 	/*
 	 * 3.2.3 Constraints on XML Representations of Attribute Declarations
 	 */
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return 0;
 	attr = xmlSchemaGetPropNode(node, "ref");
 	if(attr) {
@@ -6325,14 +6325,13 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	xmlSchemaAttributePtr ret;
 	xmlNode * child = NULL;
 	xmlAttr * attr;
-
 	/*
 	 * Note that the w3c spec assumes the schema to be validated with schema
 	 * for schemas beforehand.
 	 *
 	 * 3.2.3 Constraints on XML Representations of Attribute Declarations
 	 */
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return 0;
 	/*
 	 * 3.2.3 : 3.1
@@ -6340,12 +6339,10 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	 */
 	attr = xmlSchemaGetPropNode(node, "name");
 	if(attr == NULL) {
-		xmlSchemaPMissingAttrErr(pctxt, XML_SCHEMAP_S4S_ATTR_MISSING,
-		    NULL, node, "name", 0);
+		xmlSchemaPMissingAttrErr(pctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, node, "name", 0);
 		return 0;
 	}
-	if(xmlSchemaPValAttrNode(pctxt, NULL, attr,
-		    xmlSchemaGetBuiltInType(XML_SCHEMAS_NCNAME), &attrValue) != 0) {
+	if(xmlSchemaPValAttrNode(pctxt, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_NCNAME), &attrValue) != 0) {
 		return 0;
 	}
 	/*
@@ -6353,12 +6350,8 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	 * TODO: Move this to the component layer.
 	 */
 	if(sstreq(attrValue, "xmlns")) {
-		xmlSchemaPSimpleTypeErr(pctxt,
-		    XML_SCHEMAP_NO_XMLNS,
-		    NULL, (xmlNode *)attr,
-		    xmlSchemaGetBuiltInType(XML_SCHEMAS_NCNAME), NULL, NULL,
-		    "The value of the attribute must not match 'xmlns'",
-		    NULL, 0);
+		xmlSchemaPSimpleTypeErr(pctxt, XML_SCHEMAP_NO_XMLNS, NULL, (xmlNode *)attr,
+		    xmlSchemaGetBuiltInType(XML_SCHEMAS_NCNAME), NULL, NULL, "The value of the attribute must not match 'xmlns'", NULL, 0);
 		return 0;
 	}
 	/*
@@ -6368,10 +6361,8 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	 *       if we have a schema construction API.
 	 */
 	if(sstreq(pctxt->targetNamespace, xmlSchemaInstanceNs)) {
-		xmlSchemaCustomErr(ACTXT_CAST pctxt,
-		    XML_SCHEMAP_NO_XSI, node, NULL,
-		    "The target namespace must not match '%s'",
-		    xmlSchemaInstanceNs, 0);
+		xmlSchemaCustomErr(ACTXT_CAST pctxt, XML_SCHEMAP_NO_XSI, node, NULL,
+		    "The target namespace must not match '%s'", xmlSchemaInstanceNs, 0);
 	}
 	ret = xmlSchemaAddAttribute(pctxt, schema, attrValue, pctxt->targetNamespace, node, 1);
 	if(!ret)
@@ -6460,7 +6451,7 @@ static xmlSchemaQNameRefPtr xmlSchemaParseAttributeGroupRef(xmlSchemaParserCtxtP
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 	const xmlChar * refNs = NULL, * ref = NULL;
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return 0;
 	attr = xmlSchemaGetPropNode(node, "ref");
 	if(attr == NULL) {
@@ -6566,7 +6557,7 @@ static xmlSchemaAttributeGroupPtr xmlSchemaParseAttributeGroupDefinition(xmlSche
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 	int hasRefs = 0;
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return 0;
 	attr = xmlSchemaGetPropNode(node, "name");
 	if(attr == NULL) {
@@ -7482,7 +7473,7 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 	const xmlChar * cur = NULL;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return -1;
 	/* Not a component, don't create it. */
 	type = ctxt->ctxtType;
@@ -7552,8 +7543,7 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
 				/*
 				 * Create a reference item.
 				 */
-				ref = xmlSchemaNewQNameRef(ctxt, XML_SCHEMA_TYPE_SIMPLE,
-				    localName, nsName);
+				ref = xmlSchemaNewQNameRef(ctxt, XML_SCHEMA_TYPE_SIMPLE, localName, nsName);
 				if(ref == NULL) {
 					ZFREE(tmp);
 					return -1;
@@ -7637,7 +7627,7 @@ static xmlSchemaTypePtr xmlSchemaParseList(xmlSchemaParserCtxtPtr ctxt, xmlSchem
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	/* Not a component, don't create it. */
 	type = ctxt->ctxtType;
@@ -7731,7 +7721,7 @@ static xmlSchemaTypePtr xmlSchemaParseSimpleType(xmlSchemaParserCtxtPtr ctxt, xm
 	const xmlChar * attrValue = NULL;
 	xmlAttr * attr;
 	int hasRestriction = 0;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	if(topLevel) {
 		attr = xmlSchemaGetPropNode(node, "name");
@@ -7925,7 +7915,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroupDefRef(xmlSchemaParserCtxtPtr
 	const xmlChar * ref = NULL, * refNs = NULL;
 	int min, max;
 
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 
 	attr = xmlSchemaGetPropNode(node, "ref");
@@ -8013,7 +8003,7 @@ static xmlSchemaModelGroupDefPtr xmlSchemaParseModelGroupDefinition(xmlSchemaPar
 	xmlAttr * attr;
 	const xmlChar * name;
 
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 
 	attr = xmlSchemaGetPropNode(node, "name");
@@ -9086,7 +9076,7 @@ static int xmlSchemaParseImport(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schem
 	int ret = 0;
 	xmlSchemaBucketPtr bucket = NULL;
 
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return -1;
 
 	/*
@@ -9207,7 +9197,7 @@ static int xmlSchemaParseIncludeOrRedefineAttrs(xmlSchemaParserCtxtPtr pctxt, xm
     xmlChar ** schemaLocation, int type)
 {
 	xmlAttr * attr;
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL) || (schemaLocation == NULL))
+	if(!pctxt || !schema || !node || !schemaLocation)
 		return -1;
 	*schemaLocation = NULL;
 	/*
@@ -9285,7 +9275,7 @@ static int xmlSchemaParseIncludeOrRedefine(xmlSchemaParserCtxtPtr pctxt, xmlSche
 	int res = 0; /* hasRedefinitions = 0 */
 	int isChameleon = 0, wasChameleon = 0;
 	xmlSchemaBucketPtr bucket = NULL;
-	if((pctxt == NULL) || (schema == NULL) || (node == NULL))
+	if(!pctxt || !schema || !node)
 		return -1;
 	/*
 	 * Parse attributes. Note that the returned schemaLocation will
@@ -9518,7 +9508,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt,
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 	int min = 1, max = 1, isElemRef, hasRefs = 0;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	/*
 	 * Create a model group with the given compositor.
@@ -9731,7 +9721,7 @@ static xmlSchemaTypePtr xmlSchemaParseRestriction(xmlSchemaParserCtxtPtr ctxt, x
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	/* Not a component, don't create it. */
 	type = ctxt->ctxtType;
@@ -10012,7 +10002,7 @@ static xmlSchemaTypePtr xmlSchemaParseExtension(xmlSchemaParserCtxtPtr ctxt, xml
 	xmlNode * child = NULL;
 	xmlAttr * attr;
 
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
 	/* Not a component, don't create it. */
 	type = ctxt->ctxtType;
@@ -10123,7 +10113,7 @@ static int xmlSchemaParseSimpleContent(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 	xmlSchemaTypePtr type;
 	xmlNode * child = NULL;
 	xmlAttr * attr;
-	if(!ctxt || (schema == NULL) || (node == NULL) || (hasRestrictionOrExtension == NULL))
+	if(!ctxt || !schema || !node || !hasRestrictionOrExtension)
 		return -1;
 	*hasRestrictionOrExtension = 0;
 	/* Not a component, don't create it. */
@@ -10193,7 +10183,7 @@ static int xmlSchemaParseComplexContent(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPt
 	xmlSchemaTypePtr type;
 	xmlNode * child = NULL;
 	xmlAttr * attr;
-	if(!ctxt || (schema == NULL) || (node == NULL) || (hasRestrictionOrExtension == NULL))
+	if(!ctxt || !schema || !node || !hasRestrictionOrExtension)
 		return -1;
 	*hasRestrictionOrExtension = 0;
 	/* Not a component, don't create it. */
@@ -10203,7 +10193,7 @@ static int xmlSchemaParseComplexContent(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPt
 	 */
 	attr = node->properties;
 	while(attr) {
-		if(attr->ns == NULL) {
+		if(!attr->ns) {
 			if((!sstreq(attr->name, "id")) && (!sstreq(attr->name, "mixed"))) {
 				xmlSchemaPIllegalAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_NOT_ALLOWED, NULL, attr);
 			}
@@ -10273,9 +10263,8 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 	char buf[40];
 #endif
 	int final = 0, block = 0, hasRestrictionOrExtension = 0;
-	if(!ctxt || (schema == NULL) || (node == NULL))
+	if(!ctxt || !schema || !node)
 		return 0;
-
 	ctxtType = ctxt->ctxtType;
 	if(topLevel) {
 		attr = xmlSchemaGetPropNode(node, "name");
@@ -10298,9 +10287,7 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 		    xmlDictLookup(ctxt->dict, (const xmlChar*)buf, -1),
 		    ctxt->targetNamespace, node, 0);
 #else
-		type = xmlSchemaAddType(ctxt, schema,
-		    XML_SCHEMA_TYPE_COMPLEX,
-		    NULL, ctxt->targetNamespace, node, 0);
+		type = xmlSchemaAddType(ctxt, schema, XML_SCHEMA_TYPE_COMPLEX, NULL, ctxt->targetNamespace, node, 0);
 #endif
 		if(type == NULL)
 			return 0;
@@ -10430,8 +10417,7 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 		 */
 		if(type->flags & XML_SCHEMAS_TYPE_MIXED)
 			type->flags ^= XML_SCHEMAS_TYPE_MIXED;
-		xmlSchemaParseSimpleContent(ctxt, schema, child,
-		    &hasRestrictionOrExtension);
+		xmlSchemaParseSimpleContent(ctxt, schema, child, &hasRestrictionOrExtension);
 		child = child->next;
 	}
 	else if(IS_SCHEMA(child, "complexContent")) {
@@ -10459,26 +10445,19 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 		 * Parse model groups.
 		 */
 		if(IS_SCHEMA(child, "all")) {
-			type->subtypes = (xmlSchemaTypePtr)
-			    xmlSchemaParseModelGroup(ctxt, schema, child,
-			    XML_SCHEMA_TYPE_ALL, 1);
+			type->subtypes = (xmlSchemaTypePtr)xmlSchemaParseModelGroup(ctxt, schema, child, XML_SCHEMA_TYPE_ALL, 1);
 			child = child->next;
 		}
 		else if(IS_SCHEMA(child, "choice")) {
-			type->subtypes = (xmlSchemaTypePtr)
-			    xmlSchemaParseModelGroup(ctxt, schema, child,
-			    XML_SCHEMA_TYPE_CHOICE, 1);
+			type->subtypes = (xmlSchemaTypePtr)xmlSchemaParseModelGroup(ctxt, schema, child, XML_SCHEMA_TYPE_CHOICE, 1);
 			child = child->next;
 		}
 		else if(IS_SCHEMA(child, "sequence")) {
-			type->subtypes = (xmlSchemaTypePtr)
-			    xmlSchemaParseModelGroup(ctxt, schema, child,
-			    XML_SCHEMA_TYPE_SEQUENCE, 1);
+			type->subtypes = (xmlSchemaTypePtr)xmlSchemaParseModelGroup(ctxt, schema, child, XML_SCHEMA_TYPE_SEQUENCE, 1);
 			child = child->next;
 		}
 		else if(IS_SCHEMA(child, "group")) {
-			type->subtypes = (xmlSchemaTypePtr)
-			    xmlSchemaParseModelGroupDefRef(ctxt, schema, child);
+			type->subtypes = (xmlSchemaTypePtr)xmlSchemaParseModelGroupDefRef(ctxt, schema, child);
 			/*
 			 * Note that the reference will be resolved in
 			 * xmlSchemaResolveTypeReferences();
@@ -10488,9 +10467,7 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 		/*
 		 * Parse attribute decls/refs.
 		 */
-		if(xmlSchemaParseLocalAttributes(ctxt, schema, &child,
-			    (xmlSchemaItemListPtr*)&(type->attrUses),
-			    XML_SCHEMA_TYPE_RESTRICTION, NULL) == -1)
+		if(xmlSchemaParseLocalAttributes(ctxt, schema, &child, (xmlSchemaItemListPtr*)&(type->attrUses), XML_SCHEMA_TYPE_RESTRICTION, NULL) == -1)
 			return 0;
 		/*
 		 * Parse attribute wildcard.
@@ -10508,10 +10485,8 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 	 * REDEFINE: SPEC src-redefine (5)
 	 */
 	if(topLevel && ctxt->isRedefine && (!hasRestrictionOrExtension)) {
-		xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_SRC_REDEFINE,
-		    NULL, node, "This is a redefinition, thus the "
-		    "<complexType> must have a <restriction> or <extension> "
-		    "grand-child", 0);
+		xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_SRC_REDEFINE, NULL, node, 
+			"This is a redefinition, thus the <complexType> must have a <restriction> or <extension> grand-child", 0);
 	}
 	ctxt->ctxtType = ctxtType;
 	return (type);

@@ -78,7 +78,7 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 		if(!pReq->headers_in.chunked && rb->rest > 0 && rb->rest <= (nginx_off_t)(pReq->header_in->end - pReq->header_in->last)) {
 			/* the whole request body may be placed in r->header_in */
 			b = (ngx_buf_t*)ngx_calloc_buf(pReq->pool);
-			if(b == NULL) {
+			if(!b) {
 				rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
 				goto done;
 			}

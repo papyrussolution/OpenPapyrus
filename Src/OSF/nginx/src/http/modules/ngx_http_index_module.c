@@ -120,7 +120,7 @@ static ngx_int_t ngx_http_index_handler(ngx_http_request_t * r)
 		}
 		if(reserve > allocated) {
 			name = ngx_http_map_uri_to_path(r, &path, &root, reserve);
-			if(name == NULL) {
+			if(!name) {
 				return NGX_ERROR;
 			}
 			allocated = path.data + path.len - name;

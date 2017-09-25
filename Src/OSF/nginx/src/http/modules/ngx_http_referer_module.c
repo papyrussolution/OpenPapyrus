@@ -186,7 +186,7 @@ valid:
 static void * ngx_http_referer_create_conf(ngx_conf_t * cf)
 {
 	ngx_http_referer_conf_t  * conf = (ngx_http_referer_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_referer_conf_t));
-	if(conf == NULL) {
+	if(!conf) {
 		return NULL;
 	}
 	/*

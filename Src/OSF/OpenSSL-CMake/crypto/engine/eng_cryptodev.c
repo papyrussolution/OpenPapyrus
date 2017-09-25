@@ -1211,7 +1211,7 @@ static int bn2crparam(const BIGNUM * a, struct crparam * crp)
 	bytes = BN_num_bytes(a);
 
 	b = OPENSSL_zalloc(bytes);
-	if(b == NULL)
+	if(!b)
 		return 1;
 
 	crp->crp_p = (caddr_t)b;

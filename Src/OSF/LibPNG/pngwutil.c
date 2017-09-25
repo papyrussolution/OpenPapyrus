@@ -78,7 +78,7 @@ static void png_write_chunk_header(png_structrp png_ptr, uint32 chunk_name,
 	png_debug2(0, "Writing %s chunk, length = %lu", buf, (unsigned long)length);
 #endif
 
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 #ifdef PNG_IO_STATE_SUPPORTED
@@ -124,7 +124,7 @@ void PNGAPI png_write_chunk_data(png_structrp png_ptr, png_const_bytep data,
     size_t length)
 {
 	/* Write the data, and run the CRC over it */
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	if(data != NULL && length > 0) {
@@ -142,7 +142,7 @@ void PNGAPI png_write_chunk_end(png_structrp png_ptr)
 {
 	uint8 buf[4];
 
-	if(png_ptr == NULL) return;
+	if(!png_ptr) return;
 
 #ifdef PNG_IO_STATE_SUPPORTED
 	/* Inform the I/O callback that the chunk CRC is being written.
@@ -169,7 +169,7 @@ void PNGAPI png_write_chunk_end(png_structrp png_ptr)
 static void png_write_complete_chunk(png_structrp png_ptr, uint32 chunk_name,
     png_const_bytep data, size_t length)
 {
-	if(png_ptr == NULL)
+	if(!png_ptr)
 		return;
 
 	/* On 64-bit architectures 'length' may not fit in a uint32. */
@@ -505,11 +505,11 @@ static int png_text_compress(png_structrp png_ptr, uint32 chunk_name,
 				 * already.
 				 */
 				next = *end;
-				if(next == NULL) {
+				if(!next) {
 					next = png_voidcast(png_compression_bufferp, png_malloc_base
 						    (png_ptr, PNG_COMPRESSION_BUFFER_SIZE(png_ptr)));
 
-					if(next == NULL) {
+					if(!next) {
 						ret = Z_MEM_ERROR;
 						break;
 					}

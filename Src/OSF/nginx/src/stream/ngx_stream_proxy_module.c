@@ -272,7 +272,7 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 	}
 	if(c->type == SOCK_STREAM) {
 		p = (u_char*)ngx_pnalloc(c->pool, pscf->buffer_size);
-		if(p == NULL) {
+		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
@@ -329,7 +329,7 @@ static void ngx_stream_proxy_handler(ngx_stream_session_t * s)
 		temp.name = *host;
 		cscf = (ngx_stream_core_srv_conf_t *)ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
 		ctx = ngx_resolve_start(cscf->resolver, &temp);
-		if(ctx == NULL) {
+		if(!ctx) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
@@ -556,7 +556,7 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 	c->log->action = "proxying connection";
 	if(u->upstream_buf.start == NULL) {
 		p = (u_char*)ngx_pnalloc(c->pool, pscf->buffer_size);
-		if(p == NULL) {
+		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
@@ -587,13 +587,13 @@ static void ngx_stream_proxy_init_upstream(ngx_stream_session_t * s)
 			return;
 		}
 		p = (u_char*)ngx_pnalloc(c->pool, NGX_PROXY_PROTOCOL_MAX_HEADER);
-		if(p == NULL) {
+		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
 		cl->buf->pos = p;
 		p = ngx_proxy_protocol_write(c, p, p + NGX_PROXY_PROTOCOL_MAX_HEADER);
-		if(p == NULL) {
+		if(!p) {
 			ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 			return;
 		}
@@ -632,7 +632,7 @@ static ngx_int_t ngx_stream_proxy_send_proxy_protocol(ngx_stream_session_t * s)
 	ngx_connection_t * c = s->connection;
 	ngx_log_debug0(NGX_LOG_DEBUG_STREAM, c->log, 0, "stream proxy send PROXY protocol header");
 	p = ngx_proxy_protocol_write(c, buf, buf + NGX_PROXY_PROTOCOL_MAX_HEADER);
-	if(p == NULL) {
+	if(!p) {
 		ngx_stream_proxy_finalize(s, NGX_STREAM_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;
 	}
@@ -776,7 +776,7 @@ static ngx_int_t ngx_stream_proxy_ssl_name(ngx_stream_session_t * s)
 	last = name.data + name.len;
 	if(*p == '[') {
 		p = ngx_strlchr(p, last, ']');
-		if(p == NULL) {
+		if(!p) {
 			p = name.data;
 		}
 	}
@@ -800,7 +800,7 @@ static ngx_int_t ngx_stream_proxy_ssl_name(ngx_stream_session_t * s)
 	 * hence we explicitly null-terminate name here
 	 */
 	p = (u_char*)ngx_pnalloc(s->connection->pool, name.len + 1);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	(void)ngx_cpystrn(p, name.data, name.len + 1);

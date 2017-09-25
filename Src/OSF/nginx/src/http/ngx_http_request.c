@@ -230,7 +230,7 @@ static void ngx_http_wait_request_handler(ngx_event_t * rev)
 		ngx_http_core_srv_conf_t  * cscf = (ngx_http_core_srv_conf_t *)ngx_http_get_module_srv_conf(hc->conf_ctx, ngx_http_core_module);
 		size_t size = cscf->client_header_buffer_size;
 		ngx_buf_t * b = c->buffer;
-		if(b == NULL) {
+		if(!b) {
 			THROW(b = ngx_create_temp_buf(c->pool, size));
 			c->buffer = b;
 		}
@@ -410,7 +410,7 @@ static void ngx_http_ssl_handshake(ngx_event_t * rev)
 			if(hc->proxy_protocol) {
 				hc->proxy_protocol = 0;
 				p = ngx_proxy_protocol_read(c, buf, buf + n);
-				if(p == NULL) {
+				if(!p) {
 					ngx_http_close_connection(c);
 					return;
 				}
@@ -795,7 +795,7 @@ static void ngx_http_process_request_headers(ngx_event_t * rev)
 					else if(rv == NGX_DECLINED) {
 						p = r->header_name_start;
 						r->lingering_close = 1;
-						if(p == NULL) {
+						if(!p) {
 							ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent too large request");
 							ngx_http_finalize_request(r, NGX_HTTP_REQUEST_HEADER_TOO_LARGE);
 						}
@@ -945,7 +945,7 @@ static ngx_int_t ngx_http_alloc_large_header_buffer(ngx_http_request_t * r, ngx_
 	}
 	else if(hc->nbusy < cscf->large_client_header_buffers.num) {
 		b = ngx_create_temp_buf(r->connection->pool, cscf->large_client_header_buffers.size);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		cl = ngx_alloc_chain_link(r->connection->pool);
@@ -2149,7 +2149,7 @@ void ngx_http_request_empty_handler(ngx_http_request_t * r)
 ngx_int_t ngx_http_send_special(ngx_http_request_t * r, ngx_uint_t flags)
 {
 	ngx_buf_t  * b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	if(flags & NGX_HTTP_LAST) {

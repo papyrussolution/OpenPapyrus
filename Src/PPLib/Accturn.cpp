@@ -1844,14 +1844,13 @@ SLAPI CurRevalParam::CurRevalParam()
 	Init();
 }
 
-int SLAPI CurRevalParam::Init()
+void SLAPI CurRevalParam::Init()
 {
 	Dt = ZERODATE;
 	MEMSZERO(CorrAcc);
 	MEMSZERO(NegCorrAcc);
 	LocID = LConfig.Location;
 	Flags = 0;
-	return 1;
 }
 
 CurRevalParam & FASTCALL CurRevalParam::operator = (const CurRevalParam & src)

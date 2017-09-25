@@ -20,9 +20,9 @@ namespace Scintilla {
 #define SCI_SUPER SCMOD_SUPER
 #define SCI_CSHIFT (SCI_CTRL | SCI_SHIFT)
 #define SCI_ASHIFT (SCI_ALT | SCI_SHIFT)
-
-/**
- */
+//
+//
+//
 class KeyModifiers {
 public:
 	int key;
@@ -30,30 +30,26 @@ public:
 	KeyModifiers(int key_, int modifiers_) : key(key_), modifiers(modifiers_) 
 	{
 	}
-	bool operator<(const KeyModifiers &other) const 
+	bool operator < (const KeyModifiers &other) const 
 	{
-		if (key == other.key)
-			return modifiers < other.modifiers;
-		else
-			return key < other.key;
+		return (key == other.key) ? (modifiers < other.modifiers) : (key < other.key);
 	}
 };
-
-/**
- */
+//
+//
+//
 class KeyToCommand {
 public:
 	int key;
 	int modifiers;
 	uint msg;
 };
-
-/**
- */
+//
+//
+//
 class KeyMap {
-	std::map<KeyModifiers, uint> kmap;
+	std::map <KeyModifiers, uint> kmap;
 	static const KeyToCommand MapDefault[];
-
 public:
 	KeyMap();
 	~KeyMap();

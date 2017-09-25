@@ -234,7 +234,7 @@ static ngx_int_t ngx_output_chain_add_copy(ngx_pool_t * pool, ngx_chain_t ** cha
 		if(buf->in_file && buf->file_pos < NGX_SENDFILE_LIMIT && buf->file_last > NGX_SENDFILE_LIMIT) {
 			/* split a file buf on two bufs by the sendfile limit */
 			b = ngx_calloc_buf(pool);
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 			memcpy(b, buf, sizeof(ngx_buf_t));
@@ -319,7 +319,7 @@ static ngx_int_t ngx_output_chain_get_buf(ngx_output_chain_ctx_t * ctx, nginx_of
 		}
 	}
 	b = (ngx_buf_t *)ngx_calloc_buf(ctx->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	if(ctx->directio) {

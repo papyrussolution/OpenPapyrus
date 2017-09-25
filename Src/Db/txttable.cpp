@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -28,7 +28,7 @@ TextDbFile::Param::Param(long flags, int fldDivChr, const char * pVertRecTerm)
 	VertRecTerm = pVertRecTerm;
 }
 
-int TextDbFile::Param::Init()
+void TextDbFile::Param::Init()
 {
 	Ver = TEXTDBFILEPARAM_SVER;
 	HdrLinesCount = 0;
@@ -40,7 +40,6 @@ int TextDbFile::Param::Init()
 	FldDiv = 0;
 	FooterLine = 0;
 	DefFileName = 0;
-	return 1;
 }
 
 int TextDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

@@ -400,7 +400,7 @@ static void ngx_http_upstream_init_request(ngx_http_request_t * pReq)
 			else {
 				temp.name = *host;
 				ctx = ngx_resolve_start(clcf->resolver, &temp);
-				if(ctx == NULL)
+				if(!ctx)
 					ngx_http_upstream_finalize_request(pReq, p_upstr, NGX_HTTP_INTERNAL_SERVER_ERROR);
 				else if(ctx == NGX_NO_RESOLVER) {
 					ngx_log_error(NGX_LOG_ERR, pReq->connection->log, 0, "no resolver defined to resolve %V", host);
@@ -1088,7 +1088,7 @@ static ngx_int_t ngx_http_upstream_ssl_name(ngx_http_request_t * r, ngx_http_ups
 	 * hence we explicitly null-terminate name here
 	 */
 	p = (u_char *)ngx_pnalloc(r->pool, name.len + 1);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	(void)ngx_cpystrn(p, name.data, name.len + 1);
@@ -2848,7 +2848,7 @@ static ngx_int_t ngx_http_upstream_process_cache_control(ngx_http_request_t * r,
 		}
 		p = ngx_strlcasestrn(start, last, (u_char*)"s-maxage=", 9 - 1);
 		offset = 9;
-		if(p == NULL) {
+		if(!p) {
 			p = ngx_strlcasestrn(start, last, (u_char*)"max-age=", 8 - 1);
 			offset = 8;
 		}
@@ -3314,7 +3314,7 @@ static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t * r, ngx_htt
 		}
 	}
 	p = (u_char *)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -3359,7 +3359,7 @@ static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t * r, ngx_h
 	}
 	len = r->upstream_states->nelts * (3 + 2);
 	p = (u_char *)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -3409,7 +3409,7 @@ static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t * r
 	}
 	len = r->upstream_states->nelts * (NGX_TIME_T_LEN + 4 + 2);
 	p = (u_char *)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -3469,7 +3469,7 @@ static ngx_int_t ngx_http_upstream_response_length_variable(ngx_http_request_t *
 	}
 	len = r->upstream_states->nelts * (NGX_OFF_T_LEN + 2);
 	p = (u_char *)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->data = p;
@@ -3560,7 +3560,7 @@ static ngx_int_t ngx_http_upstream_cache_last_modified(ngx_http_request_t * r, n
 	}
 	else {
 		u_char  * p = (u_char *)ngx_pnalloc(r->pool, sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		else {
@@ -3613,7 +3613,7 @@ static const char * ngx_http_upstream(ngx_conf_t * cf, const ngx_command_t * cmd
 		return (char *)NGX_CONF_ERROR;
 	}
 	ctx = (ngx_http_conf_ctx_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return (char *)NGX_CONF_ERROR;
 	}
 	http_ctx = (ngx_http_conf_ctx_t *)cf->ctx;

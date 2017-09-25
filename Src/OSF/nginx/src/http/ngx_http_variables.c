@@ -200,7 +200,7 @@ ngx_http_variable_t * ngx_http_add_variable(ngx_conf_t * cf, ngx_str_t * name, n
 		return v;
 	}
 	v = (ngx_http_variable_t *)ngx_palloc(cf->pool, sizeof(ngx_http_variable_t));
-	if(v == NULL) {
+	if(!v) {
 		return NULL;
 	}
 	v->name.len = name->len;
@@ -244,7 +244,7 @@ static ngx_http_variable_t * ngx_http_add_prefix_variable(ngx_conf_t * cf, ngx_s
 		}
 	}
 	v = (ngx_http_variable_t *)ngx_array_push(&cmcf->prefix_variables);
-	if(v == NULL) {
+	if(!v) {
 		return NULL;
 	}
 	v->name.len = name->len;
@@ -272,7 +272,7 @@ ngx_int_t FASTCALL ngx_http_get_variable_index(ngx_conf_t * cf, const ngx_str_t 
 	}
 	cmcf = (ngx_http_core_main_conf_t *)ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 	v = (ngx_http_variable_t *)cmcf->variables.elts;
-	if(v == NULL) {
+	if(!v) {
 		if(ngx_array_init(&cmcf->variables, cf->pool, 4, sizeof(ngx_http_variable_t)) != NGX_OK) {
 			return NGX_ERROR;
 		}
@@ -284,7 +284,7 @@ ngx_int_t FASTCALL ngx_http_get_variable_index(ngx_conf_t * cf, const ngx_str_t 
 		}
 	}
 	v = (ngx_http_variable_t *)ngx_array_push(&cmcf->variables);
-	if(v == NULL) {
+	if(!v) {
 		return NGX_ERROR;
 	}
 	v->name.len = name->len;
@@ -500,7 +500,7 @@ static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r, ngx_
 		return NGX_OK;
 	}
 	p = (u_char*)ngx_pnalloc(r->pool, len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = len;
@@ -689,7 +689,7 @@ static ngx_int_t ngx_http_variable_content_length(ngx_http_request_t * r, ngx_ht
 	}
 	else if(r->headers_in.content_length_n >= 0) {
 		p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		v->len = ngx_sprintf(p, "%O", r->headers_in.content_length_n) - p;
@@ -1047,7 +1047,7 @@ static ngx_int_t ngx_http_variable_remote_user(ngx_http_request_t * r, ngx_http_
 static ngx_int_t ngx_http_variable_bytes_sent(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%O", r->connection->sent) - p;
@@ -1066,7 +1066,7 @@ static ngx_int_t ngx_http_variable_body_bytes_sent(ngx_http_request_t * r, ngx_h
 		sent = 0;
 	}
 	p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%O", sent) - p;
@@ -1141,7 +1141,7 @@ static ngx_int_t ngx_http_variable_sent_content_length(ngx_http_request_t * r, n
 	}
 	if(r->headers_out.content_length_n >= 0) {
 		p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		v->len = ngx_sprintf(p, "%O", r->headers_out.content_length_n) - p;
@@ -1183,7 +1183,7 @@ static ngx_int_t ngx_http_variable_sent_last_modified(ngx_http_request_t * r, ng
 	}
 	if(r->headers_out.last_modified_time >= 0) {
 		p = (u_char*)ngx_pnalloc(r->pool, sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		v->len = ngx_http_time(p, r->headers_out.last_modified_time) - p;
@@ -1227,7 +1227,7 @@ static ngx_int_t ngx_http_variable_sent_keep_alive(ngx_http_request_t * r, ngx_h
 		ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 		if(clcf->keepalive_header) {
 			u_char * p = (u_char*)ngx_pnalloc(r->pool, sizeof("timeout=") - 1 + NGX_TIME_T_LEN);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			v->len = ngx_sprintf(p, "timeout=%T", clcf->keepalive_header) - p;
@@ -1297,7 +1297,7 @@ static ngx_int_t ngx_http_variable_request_body(ngx_http_request_t * r, ngx_http
 				len += buf->last - buf->pos;
 			}
 			p = (u_char*)ngx_pnalloc(r->pool, len);
-			if(p == NULL) {
+			if(!p) {
 				return NGX_ERROR;
 			}
 			v->data = p;
@@ -1333,7 +1333,7 @@ static ngx_int_t ngx_http_variable_request_body_file(ngx_http_request_t * r, ngx
 static ngx_int_t ngx_http_variable_request_length(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char*)ngx_pnalloc(r->pool, NGX_OFF_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%O", r->request_length) - p;
@@ -1349,7 +1349,7 @@ static ngx_int_t ngx_http_variable_request_time(ngx_http_request_t * r, ngx_http
 	ngx_time_t * tp;
 	ngx_msec_int_t ms;
 	u_char * p = (u_char*)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	tp = ngx_timeofday();
@@ -1391,7 +1391,7 @@ static ngx_int_t ngx_http_variable_request_id(ngx_http_request_t * r, ngx_http_v
 static ngx_int_t ngx_http_variable_connection(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_ATOMIC_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%uA", r->connection->number) - p;
@@ -1405,7 +1405,7 @@ static ngx_int_t ngx_http_variable_connection(ngx_http_request_t * r, ngx_http_v
 static ngx_int_t ngx_http_variable_connection_requests(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_INT_T_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%ui", r->connection->requests) - p;
@@ -1439,7 +1439,7 @@ static ngx_int_t ngx_http_variable_hostname(ngx_http_request_t * r, ngx_http_var
 static ngx_int_t ngx_http_variable_pid(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_INT64_LEN);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	v->len = ngx_sprintf(p, "%P", ngx_pid) - p;
@@ -1453,7 +1453,7 @@ static ngx_int_t ngx_http_variable_pid(ngx_http_request_t * r, ngx_http_variable
 static ngx_int_t ngx_http_variable_msec(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p = (u_char *)ngx_pnalloc(r->pool, NGX_TIME_T_LEN + 4);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	else {
@@ -1470,7 +1470,7 @@ static ngx_int_t ngx_http_variable_msec(ngx_http_request_t * r, ngx_http_variabl
 static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_iso8601.len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	memcpy(p, ngx_cached_http_log_iso8601.data, ngx_cached_http_log_iso8601.len);
@@ -1485,7 +1485,7 @@ static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http
 static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char  * p = (u_char *)ngx_pnalloc(r->pool, ngx_cached_http_log_time.len);
-	if(p == NULL) {
+	if(!p) {
 		return NGX_ERROR;
 	}
 	memcpy(p, ngx_cached_http_log_time.data, ngx_cached_http_log_time.len);
@@ -1585,7 +1585,7 @@ ngx_http_regex_t * ngx_http_regex_compile(ngx_conf_t * cf, ngx_regex_compile_t *
 		name.data = &p[2];
 		name.len = ngx_strlen(name.data);
 		v = ngx_http_add_variable(cf, &name, NGX_HTTP_VAR_CHANGEABLE);
-		if(v == NULL) {
+		if(!v) {
 			return NULL;
 		}
 		rv[i].index = ngx_http_get_variable_index(cf, &name);
@@ -1665,7 +1665,7 @@ ngx_int_t ngx_http_variables_add_core_vars(ngx_conf_t * cf)
 	}
 	for(cv = ngx_http_core_variables; cv->name.len; cv++) {
 		v = ngx_http_add_variable(cf, &cv->name, cv->flags);
-		if(v == NULL) {
+		if(!v) {
 			return NGX_ERROR;
 		}
 		*v = *cv;

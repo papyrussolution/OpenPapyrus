@@ -1334,7 +1334,7 @@ static int xmlRelaxNGRemoveRedefine(xmlRelaxNGParserCtxtPtr ctxt, const xmlChar 
 	xmlNode * tmp2;
 	xmlChar * name2;
 #ifdef DEBUG_INCLUDE
-	if(name == NULL)
+	if(!name)
 		xmlGenericError(0, "Elimination of <include> start from %s\n", URL);
 	else
 		xmlGenericError(0, "Elimination of <include> define %s from %s\n", name, URL);
@@ -1500,7 +1500,7 @@ static xmlRelaxNGIncludePtr xmlRelaxNGLoadInclude(xmlRelaxNGParserCtxtPtr ctxt, 
 		}
 		else if(IS_RELAXNG(cur, "define")) {
 			xmlChar * name = xmlGetProp(cur, BAD_CAST "name");
-			if(name == NULL) {
+			if(!name) {
 				xmlRngPErr(ctxt, node, XML_RNGP_NAME_MISSING, "xmlRelaxNG: include %s has define without name\n", URL, 0);
 			}
 			else {
@@ -2079,7 +2079,7 @@ static void xmlRelaxNGAddValidError(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValid
 		else {
 			node = seq = NULL;
 		}
-		if((node == NULL) && (seq == NULL)) {
+		if(!node && !seq) {
 			node = ctxt->pnode;
 		}
 		xmlRelaxNGShowValidError(ctxt, err, node, seq, arg1, arg2);
@@ -3050,7 +3050,7 @@ done:
  */
 static int xmlRelaxNGIsBlank(xmlChar * str)
 {
-	if(str == NULL)
+	if(!str)
 		return 1;
 	while(*str != 0) {
 		if(!(IS_BLANK_CH(*str)))
@@ -4038,7 +4038,7 @@ static int xmlRelaxNGParseDefine(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * node)
 	xmlRelaxNGDefinePtr def;
 	const xmlChar * olddefine;
 	xmlChar * name = xmlGetProp(node, BAD_CAST "name");
-	if(name == NULL) {
+	if(!name) {
 		xmlRngPErr(ctxt, node, XML_RNGP_DEFINE_NAME_MISSING, "define has no name\n", 0, 0);
 	}
 	else {
@@ -5781,7 +5781,7 @@ static xmlRelaxNGPtr xmlRelaxNGParseDocument(xmlRelaxNGParserCtxtPtr ctxt, xmlNo
 	xmlRelaxNGPtr schema = NULL;
 	const xmlChar * olddefine;
 	xmlRelaxNGGrammarPtr old;
-	if(!ctxt || (node == NULL))
+	if(!ctxt || !node)
 		return 0;
 	schema = xmlRelaxNGNewRelaxNG(ctxt);
 	if(schema == NULL)
@@ -6937,8 +6937,7 @@ static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlReg
 	if(!ctxt || (regexp == NULL))
 		return -1;
 	oldperr = ctxt->perr;
-	exec = xmlRegNewExecCtxt(regexp,
-	    xmlRelaxNGValidateCompiledCallback, ctxt);
+	exec = xmlRegNewExecCtxt(regexp, xmlRelaxNGValidateCompiledCallback, ctxt);
 	ctxt->perr = 0;
 	cur = content;
 	while(cur) {

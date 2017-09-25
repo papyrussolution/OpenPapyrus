@@ -156,7 +156,7 @@ const char * OBJ_NAME_get(const char * name, int type)
 	OBJ_NAME on, * ret;
 	int num = 0, alias;
 
-	if(name == NULL)
+	if(!name)
 		return NULL;
 	if((names_lh == NULL) && !OBJ_NAME_init())
 		return NULL;

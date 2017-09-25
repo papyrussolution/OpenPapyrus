@@ -183,7 +183,7 @@ static ngx_int_t ngx_event_pipe_read_upstream(ngx_event_pipe_t * p)
 			else if(p->allocated < p->bufs.num) {
 				/* allocate a new buf if it's still allowed */
 				b = ngx_create_temp_buf(p->pool, p->bufs.size);
-				if(b == NULL) {
+				if(!b) {
 					return NGX_ABORT;
 				}
 				p->allocated++;

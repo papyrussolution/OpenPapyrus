@@ -184,7 +184,7 @@ int __db_remove_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * na
 		ret = EINVAL;
 		goto err;
 	}
-	if(name == NULL) {
+	if(!name) {
 		MAKE_INMEM(dbp);
 		real_name = (char *)subdb;
 	}

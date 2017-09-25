@@ -10,21 +10,21 @@
 #pragma hdrstop
 #include "dbinc_auto/xa_ext.h"
 
-static void corrupted_env __P((ENV*, int));
-static int __xa_get_txn __P((ENV*, XID*, TXN_DETAIL*, DB_TXN**, ulong, int));
-static void __xa_put_txn __P((ENV*, DB_TXN *));
-static int __xa_txn_get_prepared __P((ENV*, XID*, DB_PREPLIST*, long, long *, uint32));
-static int __xa_thread_enter __P((ENV*, DB_THREAD_INFO**));
-static int __db_xa_close __P((char *, int, long));
-static int __db_xa_commit __P((XID*, int, long));
-static int __db_xa_complete __P((int *, int *, int, long));
-static int __db_xa_end __P((XID*, int, long));
-static int __db_xa_forget __P((XID*, int, long));
-static int __db_xa_open __P((char *, int, long));
-static int __db_xa_prepare __P((XID*, int, long));
-static int __db_xa_recover __P((XID*, long, int, long));
-static int __db_xa_rollback __P((XID*, int, long));
-static int __db_xa_start __P((XID*, int, long));
+static void corrupted_env(ENV*, int);
+static int __xa_get_txn(ENV*, XID*, TXN_DETAIL*, DB_TXN**, ulong, int);
+static void __xa_put_txn(ENV*, DB_TXN *);
+static int __xa_txn_get_prepared(ENV*, XID*, DB_PREPLIST*, long, long *, uint32);
+static int __xa_thread_enter(ENV*, DB_THREAD_INFO**);
+static int __db_xa_close(char *, int, long);
+static int __db_xa_commit(XID*, int, long);
+static int __db_xa_complete(int *, int *, int, long);
+static int __db_xa_end(XID*, int, long);
+static int __db_xa_forget(XID*, int, long);
+static int __db_xa_open(char *, int, long);
+static int __db_xa_prepare(XID*, int, long);
+static int __db_xa_recover(XID*, long, int, long);
+static int __db_xa_rollback(XID*, int, long);
+static int __db_xa_start(XID*, int, long);
 
 /*
  * Possible flag values:
@@ -93,7 +93,7 @@ static int __xa_get_txn(ENV * env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u
 	 * we should have found its detail and the JOIN or RESUME
 	 * flags should have been set.
 	 */
-	if(td == NULL) {
+	if(!td) {
 		DB_ASSERT(env, ending == 0);
 		if(LF_ISSET(TMJOIN|TMRESUME))
 			ret = XAER_NOTA;
@@ -460,7 +460,7 @@ static int __db_xa_end(XID * xid, int rmid, long arg_flags)
 		dbenv->err(dbenv, ret, DB_STR("4551", "xa_end: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	if(td == NULL)
+	if(!td)
 		return XAER_NOTA;
 	if((ret = __xa_get_txn(env, xid, td, &txn, flags, 1)) != 0)
 		return ret;
@@ -523,7 +523,6 @@ static void corrupted_env(ENV * env, int rmid)
 	char * home;
 	int ret;
 	ENV * env2;
-
 	COMPQUIET(home, 0);
 	ret = 0;
 	dbenv = env->dbenv;
@@ -601,7 +600,7 @@ static int __db_xa_prepare(XID * xid, int rmid, long arg_flags)
 		dbenv->err(dbenv, ret, DB_STR("4555", "xa_prepare: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	if(td == NULL) {
+	if(!td) {
 		dbenv->err(dbenv, EINVAL, DB_STR("4556", "xa_prepare: xid not found"));
 		return XAER_NOTA;
 	}
@@ -666,7 +665,7 @@ static int __db_xa_commit(XID * xid, int rmid, long arg_flags)
 		dbenv->err(dbenv, ret, DB_STR("4559", "xa_commit: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	if(td == NULL) {
+	if(!td) {
 		dbenv->err(dbenv, EINVAL, DB_STR("4560", "xa_commit: xid not found"));
 		return XAER_NOTA;
 	}
@@ -762,7 +761,7 @@ static int __db_xa_rollback(XID * xid, int rmid, long arg_flags)
 		dbenv->err(dbenv, ret, DB_STR("4565", "xa_rollback: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	if(td == NULL) {
+	if(!td) {
 		dbenv->err(dbenv, ret, DB_STR("4566", "xa_rollback: xid not found"));
 		return XAER_NOTA;
 	}
@@ -818,7 +817,7 @@ static int __db_xa_forget(XID * xid, int rmid, long arg_flags)
 		dbenv->err(dbenv, ret, DB_STR("4569", "xa_forget: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	if(td == NULL) {
+	if(!td) {
 		dbenv->err(dbenv, ret, DB_STR("4570", "xa_forget: xid not found"));
 		return XA_OK;
 	}

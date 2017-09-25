@@ -329,7 +329,7 @@ static void FASTCALL xmlCtxtDumpString(xmlDebugCtxt * ctxt, const xmlChar * str)
 {
 	if(!ctxt->check) {
 		// TODO: check UTF8 content of the string 
-		if(str == NULL) {
+		if(!str) {
 			fprintf(ctxt->output, "(NULL)");
 		}
 		else {
@@ -1080,7 +1080,7 @@ static void xmlCtxtDumpDTD(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
 void xmlDebugDumpString(FILE * output, const xmlChar * str)
 {
 	SETIFZ(output, stdout);
-	if(str == NULL) {
+	if(!str) {
 		fprintf(output, "(NULL)");
 	}
 	else {
@@ -1691,7 +1691,7 @@ static int xmlShellRegisterNamespace(xmlShellCtxtPtr ctxt, char * arg, xmlNode *
 		/* find prefix */
 		prefix = next;
 		next = (xmlChar*)xmlStrchr(next, '=');
-		if(next == NULL) {
+		if(!next) {
 			fprintf(ctxt->output, "setns: prefix=[nsuri] required\n");
 			SAlloc::F(nsListDup);
 			return -1;
@@ -1761,7 +1761,7 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 		return 0;
 	if(!node)
 		return 0;
-	if(arg == NULL)
+	if(!arg)
 		return 0;
 #ifdef LIBXML_REGEXP_ENABLED
 	if((xmlStrchr((xmlChar*)arg, '?')) || (xmlStrchr((xmlChar*)arg, '*')) || (xmlStrchr((xmlChar*)arg, '.')) || (xmlStrchr((xmlChar*)arg, '['))) {
@@ -2277,7 +2277,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree
 int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * node, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
 	xmlChar * path;
-	if((node == NULL) || (buffer == NULL))
+	if(!node || (buffer == NULL))
 		return -1;
 	path = xmlGetNodePath(node);
 	if(path == NULL)

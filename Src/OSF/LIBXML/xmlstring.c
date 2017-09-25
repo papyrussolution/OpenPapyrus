@@ -170,8 +170,8 @@ int xmlStrcmp(const xmlChar * str1, const xmlChar * str2)
 int xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str) 
 {
 	if(pref == NULL) return(sstreq(name, str));
-	if(name == NULL) return 0;
-	if(str == NULL) return 0;
+	if(!name) return 0;
+	if(!str) return 0;
 	do {
 		if(*pref++ != *str) return 0;
 	} while((*str++) && (*pref));
@@ -306,7 +306,7 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
  */
 const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val) 
 {
-	if(str == NULL) 
+	if(!str) 
 		return 0;
 	while(*str != 0) { /* non input consuming */
 		if(*str == val) 
@@ -343,7 +343,6 @@ const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val)
 	}
 	return 0;
 }
-
 /**
  * xmlStrcasestr:
  * @str:  the xmlChar * array (haystack)
@@ -353,14 +352,16 @@ const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val)
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */
-
 const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val) 
 {
 	int n;
-	if(str == NULL) return 0;
-	if(!val) return 0;
+	if(!str)
+		return 0;
+	if(!val) 
+		return 0;
 	n = sstrlen(val);
-	if(n == 0) return(str);
+	if(n == 0) 
+		return(str);
 	while(*str != 0) { /* non input consuming */
 		if(casemap[*str] == casemap[*val])
 			if(!xmlStrncasecmp(str, val, n)) return(str);
@@ -368,7 +369,6 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
 	}
 	return 0;
 }
-
 /**
  * xmlStrsub:
  * @str:  the xmlChar * array (haystack)
@@ -382,7 +382,7 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
 
 xmlChar * xmlStrsub(const xmlChar * str, int start, int len) 
 {
-	if(str == NULL) 
+	if(!str) 
 		return 0;
 	else if(start < 0) 
 		return 0;
@@ -408,7 +408,7 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len)
 /* int xmlStrlen_Removed(const xmlChar * str) 
 {
 	int len = 0;
-	if(str == NULL) 
+	if(!str) 
 		return 0;
 	while(*str != 0) { // non input consuming 
 		str++;

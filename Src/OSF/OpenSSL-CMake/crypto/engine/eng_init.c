@@ -76,7 +76,7 @@ int engine_unlocked_finish(ENGINE * e, int unlock_for_handlers)
 int ENGINE_init(ENGINE * e)
 {
 	int ret;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_INIT, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

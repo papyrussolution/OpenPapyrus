@@ -97,7 +97,7 @@ ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uin
 		index = (h2c->hpack.added - index - 1) % h2c->hpack.allocated;
 		entry = h2c->hpack.entries[index];
 		p = (u_char *)ngx_pnalloc(h2c->state.pool, entry->name.len + 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		h2c->state.header.name.len = entry->name.len;
@@ -115,7 +115,7 @@ ngx_int_t ngx_http_v2_get_indexed_header(ngx_http_v2_connection_t * h2c, ngx_uin
 			return NGX_OK;
 		}
 		p = (u_char *)ngx_pnalloc(h2c->state.pool, entry->value.len + 1);
-		if(p == NULL) {
+		if(!p) {
 			return NGX_ERROR;
 		}
 		h2c->state.header.value.len = entry->value.len;

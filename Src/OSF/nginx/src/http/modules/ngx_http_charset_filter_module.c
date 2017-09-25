@@ -278,7 +278,7 @@ static ngx_int_t ngx_http_main_request_charset(ngx_http_request_t * r, ngx_str_t
 		return NGX_DECLINED;
 	}
 	ctx = (ngx_http_charset_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_charset_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	ngx_http_set_ctx(r->main, ctx, ngx_http_charset_filter_module);
@@ -339,7 +339,7 @@ static ngx_int_t ngx_http_get_charset(ngx_http_request_t * r, ngx_str_t * name)
 static ngx_int_t ngx_http_charset_ctx(ngx_http_request_t * r, ngx_http_charset_t * charsets, ngx_int_t charset, ngx_int_t source_charset)
 {
 	ngx_http_charset_ctx_t  * ctx = (ngx_http_charset_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_charset_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 	ngx_http_set_ctx(r, ctx, ngx_http_charset_filter_module);

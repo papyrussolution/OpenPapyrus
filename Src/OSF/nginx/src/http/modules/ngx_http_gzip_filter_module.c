@@ -182,7 +182,7 @@ static ngx_int_t ngx_http_gzip_header_filter(ngx_http_request_t * r)
 	}
 
 	ctx = (ngx_http_gzip_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_gzip_ctx_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NGX_ERROR;
 	}
 
@@ -439,7 +439,7 @@ static ngx_int_t ngx_http_gzip_filter_gzheader(ngx_http_request_t * r, ngx_http_
 	ngx_chain_t  * cl;
 	static u_char gzheader[10] = { 0x1f, 0x8b, Z_DEFLATED, 0, 0, 0, 0, 0, 0, 3 };
 	ngx_buf_t * b = (ngx_buf_t*)ngx_calloc_buf(r->pool);
-	if(b == NULL) {
+	if(!b) {
 		return NGX_ERROR;
 	}
 	b->memory = 1;
@@ -580,7 +580,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate(ngx_http_request_t * r, ngx_http_g
 		b = ctx->out_buf;
 		if(ngx_buf_size(b) == 0) {
 			b = (ngx_buf_t*)ngx_calloc_buf(ctx->request->pool);
-			if(b == NULL) {
+			if(!b) {
 				return NGX_ERROR;
 			}
 		}
@@ -645,7 +645,7 @@ static ngx_int_t ngx_http_gzip_filter_deflate_end(ngx_http_request_t * r, ngx_ht
 	}
 	else {
 		b = ngx_create_temp_buf(r->pool, 8);
-		if(b == NULL) {
+		if(!b) {
 			return NGX_ERROR;
 		}
 		b->last_buf = 1;

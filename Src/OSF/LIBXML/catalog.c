@@ -935,10 +935,8 @@ static xmlChar * xmlCatalogNormalizePublic(const xmlChar * pubID)
 ************************************************************************/
 
 static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const xmlChar * filename);
-static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer,
-    xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup);
-static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * pubID,
-    const xmlChar * sysID);
+static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer, xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup);
+static xmlChar * xmlCatalogListXMLResolve(xmlCatalogEntryPtr catal, const xmlChar * pubID, const xmlChar * sysID);
 static xmlChar * xmlCatalogListXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar * URI);
 
 /**
@@ -990,10 +988,8 @@ static xmlCatalogEntryType xmlGetXMLCatalogEntryType(const xmlChar * name)
  *
  * Returns the new Catalog entry node or NULL in case of error.
  */
-static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type,
-    const xmlChar * name, const xmlChar * attrName,
-    const xmlChar * uriAttrName, xmlCatalogPrefer prefer,
-    xmlCatalogEntryPtr cgroup) 
+static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEntryType type, const xmlChar * name, 
+	const xmlChar * attrName, const xmlChar * uriAttrName, xmlCatalogPrefer prefer, xmlCatalogEntryPtr cgroup) 
 {
 	int ok = 1;
 	xmlChar * uriValue;
@@ -1051,8 +1047,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogOneNode(xmlNode * cur, xmlCatalogEnt
  * a Catalog entry from it adding it to its parent. The examination can
  * be recursive.
  */
-static void xmlParseXMLCatalogNode(xmlNode * cur, xmlCatalogPrefer prefer,
-    xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup)
+static void xmlParseXMLCatalogNode(xmlNode * cur, xmlCatalogPrefer prefer, xmlCatalogEntryPtr parent, xmlCatalogEntryPtr cgroup)
 {
 	xmlChar * base = NULL;
 	xmlCatalogEntryPtr entry = NULL;
@@ -2045,7 +2040,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 			xmlChar * name = NULL;
 			xmlCatalogEntryType type = XML_CATA_NONE;
 			cur = xmlParseSGMLCatalogName(cur, &name);
-			if(name == NULL) {
+			if(!name) {
 				/* error */
 				break;
 			}
@@ -2079,7 +2074,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
 			else if(sstreq(name, "OVERRIDE")) {
 				SAlloc::F(name);
 				cur = xmlParseSGMLCatalogName(cur, &name);
-				if(name == NULL) {
+				if(!name) {
 					/* error */
 					break;
 				}

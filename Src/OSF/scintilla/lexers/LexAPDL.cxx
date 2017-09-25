@@ -74,24 +74,18 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 			if(!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
-				if(processors.InList(s)) {
+				if(processors.InList(s))
 					sc.ChangeState(SCE_APDL_PROCESSOR);
-				}
-				else if(slashcommands.InList(s)) {
+				else if(slashcommands.InList(s))
 					sc.ChangeState(SCE_APDL_SLASHCOMMAND);
-				}
-				else if(starcommands.InList(s)) {
+				else if(starcommands.InList(s))
 					sc.ChangeState(SCE_APDL_STARCOMMAND);
-				}
-				else if(commands.InList(s)) {
+				else if(commands.InList(s))
 					sc.ChangeState(SCE_APDL_COMMAND);
-				}
-				else if(arguments.InList(s)) {
+				else if(arguments.InList(s))
 					sc.ChangeState(SCE_APDL_ARGUMENT);
-				}
-				else if(functions.InList(s)) {
+				else if(functions.InList(s))
 					sc.ChangeState(SCE_APDL_FUNCTION);
-				}
 				sc.SetState(SCE_APDL_DEFAULT);
 			}
 		}
@@ -112,7 +106,7 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 			else if(IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
 				sc.SetState(SCE_APDL_NUMBER);
 			}
-			else if(sc.ch == '\'' || sc.ch == '\"') {
+			else if(oneof2(sc.ch, '\'', '\"')) {
 				sc.SetState(SCE_APDL_STRING);
 				stringStart = sc.ch;
 			}

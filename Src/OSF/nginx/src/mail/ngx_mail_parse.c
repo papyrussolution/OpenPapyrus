@@ -112,7 +112,7 @@ ngx_int_t ngx_mail_pop3_parse_command(ngx_mail_session_t * s)
 				    case __CR:
 				    case LF:
 						arg = (ngx_str_t*)ngx_array_push(&s->args);
-						if(arg == NULL) {
+						if(!arg) {
 							return NGX_ERROR;
 						}
 						arg->len = p - s->arg_start;
@@ -144,7 +144,7 @@ done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
 		arg = (ngx_str_t*)ngx_array_push(&s->args);
-		if(arg == NULL) {
+		if(!arg) {
 			return NGX_ERROR;
 		}
 		arg->len = s->arg_end - s->arg_start;
@@ -363,7 +363,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 				    case __CR:
 				    case LF:
 					arg = (ngx_str_t*)ngx_array_push(&s->args);
-					if(arg == NULL) {
+					if(!arg) {
 						return NGX_ERROR;
 					}
 					arg->len = p - s->arg_start;
@@ -449,7 +449,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    }
 
 			    arg = (ngx_str_t*)ngx_array_push(&s->args);
-			    if(arg == NULL) {
+			    if(!arg) {
 				    return NGX_ERROR;
 			    }
 			    arg->len = p + 1 - s->arg_start;
@@ -494,7 +494,7 @@ done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
 		arg = (ngx_str_t*)ngx_array_push(&s->args);
-		if(arg == NULL) {
+		if(!arg) {
 			return NGX_ERROR;
 		}
 		arg->len = s->arg_end - s->arg_start;
@@ -655,7 +655,7 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 				    case __CR:
 				    case LF:
 					arg = (ngx_str_t*)ngx_array_push(&s->args);
-					if(arg == NULL) {
+					if(!arg) {
 						return NGX_ERROR;
 					}
 					arg->len = p - s->arg_start;
@@ -695,7 +695,7 @@ done:
 	s->buffer->pos = p + 1;
 	if(s->arg_start) {
 		arg = (ngx_str_t*)ngx_array_push(&s->args);
-		if(arg == NULL) {
+		if(!arg) {
 			return NGX_ERROR;
 		}
 		arg->len = s->arg_end - s->arg_start;
