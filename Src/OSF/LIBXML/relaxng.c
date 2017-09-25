@@ -7412,7 +7412,7 @@ static xmlNode * xmlRelaxNGSkipIgnored(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNU
 	 * TODO complete and handle entities
 	 */
 	while(node && (oneof4(node->type, XML_COMMENT_NODE, XML_PI_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) ||
-		(oneof2(node->type, XML_TEXT_NODE, node->type == XML_CDATA_SECTION_NODE) && ((ctxt->flags & FLAGS_MIXED_CONTENT) || (IS_BLANK_NODE(node)))))) {
+		(oneof2(node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE) && ((ctxt->flags & FLAGS_MIXED_CONTENT) || (IS_BLANK_NODE(node)))))) {
 		node = node->next;
 	}
 	return (node);

@@ -564,7 +564,7 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 			ok = 1;
 		}
 	}
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 //

@@ -7872,7 +7872,7 @@ PCRE_EARLY_ERROR_RETURN2:
 			}
 			if(firstcharflags >= 0) { /* Remove caseless flag for non-caseable chars */
 #if defined COMPILE_PCRE8
-				re->first_char = firstchar & 0xff;
+				re->first_char = (pcre_uint16)(firstchar & 0xff);
 #elif defined COMPILE_PCRE16
 				re->first_char = firstchar & 0xffff;
 #elif defined COMPILE_PCRE32
@@ -7904,7 +7904,7 @@ PCRE_EARLY_ERROR_RETURN2:
 	   variable length item in the regex. Remove the caseless flag for non-caseable bytes. */
 	if(reqcharflags >= 0 && ((re->options & PCRE_ANCHORED) == 0 || (reqcharflags & REQ_VARY) != 0)) {
 #if defined COMPILE_PCRE8
-		re->req_char = reqchar & 0xff;
+		re->req_char = (pcre_uint16)(reqchar & 0xff);
 #elif defined COMPILE_PCRE16
 		re->req_char = reqchar & 0xffff;
 #elif defined COMPILE_PCRE32

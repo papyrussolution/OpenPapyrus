@@ -949,6 +949,9 @@
 				RelativePath="..\Osf\scintilla\include\SciLexer.h">
 			</File>
 			<File
+				RelativePath="..\Osf\scintilla\src\scintilla-internal.h">
+			</File>
+			<File
 				RelativePath="..\Osf\scintilla\include\Scintilla.h">
 			</File>
 			<File

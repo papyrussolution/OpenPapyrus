@@ -69,7 +69,7 @@ int SoapDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		ok = 1;
 		Pos++;
 	}
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 
