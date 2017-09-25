@@ -46,9 +46,44 @@
 // Note: Программный код не должен полагаться на неизменность значений этих определений.
 //
 #define _UNDEF_              -1 //
-#define _END_                 0 // 
-#define _NONE_                0 // 
-#define _ALL_                 0 // 
+#define _NONE_                0 //
+#define _END_                 0 //
+#define _AND_                 1 //
+#define _OR_                  2 //
+#define _NOT_                 3 //
+#define _ALL_                 0
+#define _EQ_                  1
+#define _OUTER_EQ_          101
+#define _GT_                  2
+#define _LT_                  3
+#define _NE_                  4
+#define _GE_                  5
+#define _LE_                  6
+#define _IN_                  7	// SQL
+#define _NIN_                 8	// SQL
+#define _BETWEEN_             9	// SQL
+#define _NBETWEEN_           10	// SQL
+#define _BEGWITH_            11	// SQL
+#define _CONTAINS_           12	// SQL
+#define _NCONTAINS_          13	// SQL
+#define _LIKE_               14	// SQL
+#define _NLIKE_              15	// SQL
+#define _EXISTS_             16	// SQL
+#define _NEXISTS_            17	// SQL
+#define _PLUS_               19 // a + b
+#define _MINUS_              20 // a - b
+#define _MULT_               21 // a * b
+#define _DIVIDE_             22 // a / b
+#define _MODULO_             23 // a % b
+#define _XOR_                26 // ^
+#define _SHIFTLEFT_          28 // <<
+#define _SHIFTRIHT_          29 // >>
+#define _ASSIGN_             30 // присваивание (что-то вроде a := b)
+#define _DOT_                31 // Оператор . Чаще всего используется как ссылка на компонент сложного типа. Например data.member
+
+
+/*#define _END_                 0 //
+#define _ALL_                 0 //
 #define _FUNC_                1 // call of funсtion
 #define _EQ_                  2 // ==
 #define _OUTER_EQ_          102 // outer join
@@ -69,24 +104,12 @@
 #define _NLIKE_              16	// SQL
 #define _EXISTS_             17	// SQL
 #define _NEXISTS_            18	// SQL
-#define _PLUS_               19 // a + b
-#define _MINUS_              20 // a - b 
-#define _MULT_               21 // a * b
-#define _DIVIDE_             22 // a / b
-#define _MODULO_             23 // a % b
-#define _AND_                24 // &&
-#define _OR_                 25 // ||
-#define _XOR_                26 // ^
-#define _NOT_                27 // !
-#define _SHIFTLEFT_          28 // <<
-#define _SHIFTRIHT_          29 // >>
-#define _ASSIGN_             30 // присваивание (что-то вроде a := b)
-#define _DOT_                31 // Оператор . Чаще всего используется как ссылка на компонент сложного типа. Например data.member 
+*/
 //
 // Стороны света
 //
-#define SOW_UNKN              0  
-#define SOW_NORD              1 
+#define SOW_UNKN              0
+#define SOW_NORD              1
 #define SOW_NORDEAST          2
 #define SOW_EAST              3
 #define SOW_SOUTHEAST         4
@@ -8207,7 +8230,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	// Descr: Если текущий символ (или 2 символа) представляет перевод строки в согласии
 	//   с форматом eolf, то функция смещает текущую позицию на соответствующее число
-	//   символов и возвращает !0. 
+	//   символов и возвращает !0.
 	// Returns:
 	//   0  - текущий символ не является символом новой строки
 	//   !0 - текущий символ и, возможно, последующий идентифицируют новую строку.
