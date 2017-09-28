@@ -174,22 +174,25 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 int SLAPI PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    is_new = 1;
 	__PPDBXchgConfig p, prev_cfg;
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBXCHGCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
-		is_new = 0;
-	MEMSZERO(p);
-	p.RealizeOrder = pCfg->RealizeOrder;
-	p.OneRcvLocID  = pCfg->OneRcvLocID;
-	p.PctAdd = pCfg->PctAdd;
-	p.Flags  = pCfg->Flags;
-	p.CharryOutCounter = pCfg->CharryOutCounter;
-	p.DfctRcptOpID = pCfg->DfctRcptOpID; // @v7.7.0
-	THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBXCHGCFG, &p, 0, 0));
-	DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_DBXCHNG, 0, 0, 0);
-	THROW(tra.Commit());
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(p_ref->GetPropMainConfig(PPPRP_DBXCHGCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+			is_new = 0;
+		MEMSZERO(p);
+		p.RealizeOrder = pCfg->RealizeOrder;
+		p.OneRcvLocID  = pCfg->OneRcvLocID;
+		p.PctAdd = pCfg->PctAdd;
+		p.Flags  = pCfg->Flags;
+		p.CharryOutCounter = pCfg->CharryOutCounter;
+		p.DfctRcptOpID = pCfg->DfctRcptOpID;
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBXCHGCFG, &p, 0, 0));
+		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_DBXCHNG, 0, 0, 0);
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }
@@ -198,7 +201,7 @@ int SLAPI PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
 int SLAPI PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
 {
 	__PPDBXchgConfig p;
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBXCHGCFG, &p, sizeof(p));
+	int    r = PPRef->GetPropMainConfig(PPPRP_DBXCHGCFG, &p, sizeof(p));
 	memzero(pCfg, sizeof(*pCfg));
 	if(r > 0) {
 		pCfg->RealizeOrder = p.RealizeOrder;

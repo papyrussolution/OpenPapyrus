@@ -119,7 +119,7 @@ XMLPUBFUN int  XMLCALL xmlHashRemoveEntry3(xmlHashTablePtr table, const xmlChar 
 /*
  * Retrieve the userdata.
  */
-XMLPUBFUN void * XMLCALL xmlHashLookup(xmlHashTablePtr table, const xmlChar *name);
+XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlHashLookup(xmlHashTable * table, const xmlChar *name);
 XMLPUBFUN void * XMLCALL xmlHashLookup2(xmlHashTablePtr table, const xmlChar *name, const xmlChar *name2);
 XMLPUBFUN void * XMLCALL xmlHashLookup3(xmlHashTablePtr table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3);
 XMLPUBFUN void * XMLCALL xmlHashQLookup(xmlHashTablePtr table, const xmlChar *name, const xmlChar *prefix);

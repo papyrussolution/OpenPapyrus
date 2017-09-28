@@ -405,7 +405,7 @@ int SLAPI PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, in
 						;
 				}
 				else
-					for(j = 0; (r = TransferField(item.ID, tfdDataToBuf, &j, buf = 0)) > 0;) {
+					for(j = 0; (r = TransferField(item.ID, tfdDataToBuf, &j, buf.Z())) > 0;) {
 						WriteIndent(stream, level+1);
 						if(buf.NotEmpty())
 							fputs(buf, stream);
@@ -429,7 +429,7 @@ int SLAPI PPDeclStruc::Helper_WriteDataToStream(FILE * stream, int putPrefix, in
 						WriteBrace(stream, 0);
 					}
 				}
-				else if((r = TransferField(item.ID, tfdDataToBuf, &(j = 0), buf = 0)) > 0) {
+				else if((r = TransferField(item.ID, tfdDataToBuf, &(j = 0), buf.Z())) > 0) {
 					WriteIndent(stream, level);
 					fputs(item.Name, stream);
 					WriteEqSign(stream);

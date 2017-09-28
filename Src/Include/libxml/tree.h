@@ -320,19 +320,19 @@ extern "C" {
 typedef struct _xmlElement xmlElement;
 typedef xmlElement * xmlElementPtr;
 struct _xmlElement {
-	void           * _private;      /* application data */
+	void * _private;      /* application data */
 	xmlElementType type;            /* XML_ELEMENT_DECL, must be second ! */
-	const xmlChar          * name;  /* Element name */
-	struct _xmlNode    * children;  /* NULL */
-	struct _xmlNode        * last;  /* NULL */
-	struct _xmlDtd       * parent;  /* -> DTD */
-	struct _xmlNode        * next;  /* next sibling link  */
-	struct _xmlNode        * prev;  /* previous sibling link  */
-	struct _xmlDoc          * doc;  /* the containing document */
+	const xmlChar * name;  /* Element name */
+	struct _xmlNode * children;  /* NULL */
+	struct _xmlNode * last;  /* NULL */
+	struct _xmlDtd * parent;  /* -> DTD */
+	struct _xmlNode * next;  /* next sibling link  */
+	struct _xmlNode * prev;  /* previous sibling link  */
+	struct _xmlDoc * doc;  /* the containing document */
 	xmlElementTypeVal etype;        /* The type */
 	xmlElementContentPtr content;   /* the allowed element content */
 	xmlAttributePtr attributes;     /* List of the declared attributes */
-	const xmlChar        * prefix;  /* the namespace prefix if any */
+	const xmlChar * prefix;  /* the namespace prefix if any */
 #ifdef LIBXML_REGEXP_ENABLED
 	xmlRegexpPtr contModel;         /* the validating regexp */
 #else
@@ -377,29 +377,23 @@ struct /*_xmlNs*/xmlNs {
 typedef struct _xmlDtd xmlDtd;
 typedef xmlDtd * xmlDtdPtr;
 struct _xmlDtd {
-	void           * _private; /* application data */
+	void * _private; /* application data */
 	xmlElementType type;    /* XML_DTD_NODE, must be second ! */
 	const xmlChar * name;   /* Name of the DTD */
 	struct _xmlNode * children; /* the value of the property link */
-
 	struct _xmlNode * last; /* last child link */
-
 	struct _xmlDoc  * parent; /* child->parent link */
-
 	struct _xmlNode * next; /* next sibling link  */
-
 	struct _xmlNode * prev; /* previous sibling link  */
-
 	struct _xmlDoc  * doc;  /* the containing document */
-
 	/* End of common part */
-	void          * notations; /* Hash table for notations if any */
-	void          * elements; /* Hash table for elements if any */
-	void          * attributes; /* Hash table for attributes if any */
-	void          * entities; /* Hash table for entities if any */
+	void * notations; /* Hash table for notations if any */
+	void * elements; /* Hash table for elements if any */
+	void * attributes; /* Hash table for attributes if any */
+	void * entities; /* Hash table for entities if any */
 	const xmlChar * ExternalID; /* External identifier for PUBLIC DTD */
 	const xmlChar * SystemID; /* URI for a SYSTEM or PUBLIC DTD */
-	void          * pentities; /* Hash table for param entities if any */
+	void * pentities; /* Hash table for param entities if any */
 };
 
 /**
@@ -414,22 +408,15 @@ struct _xmlAttr {
 	xmlElementType type;    /* XML_ATTRIBUTE_NODE, must be second ! */
 	const xmlChar   * name; /* the name of the property */
 	struct _xmlNode * children; /* the value of the property */
-
 	struct _xmlNode * last; /* NULL */
-
 	struct _xmlNode * parent; /* child->parent link */
-
 	struct _xmlAttr * next; /* next sibling link  */
-
 	struct _xmlAttr * prev; /* previous sibling link  */
-
 	struct _xmlDoc  * doc;  /* the containing document */
-
 	xmlNs           * ns;   /* pointer to the associated namespace */
 	xmlAttributeType atype; /* the attribute type if validating */
 	void            * psvi; /* for type/PSVI informations */
 };
-
 /**
  * xmlID:
  *
@@ -652,7 +639,7 @@ XMLPUBFUN xmlNs * XMLCALL xmlNewGlobalNs(xmlDocPtr doc, const xmlChar * href, co
 #endif /* LIBXML_LEGACY_ENABLED */
 XMLPUBFUN xmlNs * XMLCALL xmlNewNs(xmlNode * node, const xmlChar * href, const xmlChar * prefix);
 XMLPUBFUN void XMLCALL xmlFreeNs(xmlNs * cur);
-XMLPUBFUN void XMLCALL xmlFreeNsList(xmlNs * cur);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNsList(xmlNs * cur);
 XMLPUBFUN xmlDocPtr XMLCALL xmlNewDoc(const xmlChar * version);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDoc(xmlDoc * pDoc);
 XMLPUBFUN xmlAttrPtr XMLCALL xmlNewDocProp(xmlDocPtr doc, const xmlChar * name, const xmlChar * value);
@@ -723,7 +710,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlDocSetRootElement(xmlDocPtr doc, xmlNode * root);
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN void XMLCALL xmlNodeSetName(xmlNode * cur, const xmlChar * name);
 #endif /* LIBXML_TREE_ENABLED */
-XMLPUBFUN xmlNode * XMLCALL xmlAddChild(xmlNode * parent, xmlNode * cur);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur);
 XMLPUBFUN xmlNode * XMLCALL xmlAddChildList(xmlNode * parent, xmlNode * cur);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_WRITER_ENABLED)
 XMLPUBFUN xmlNode * XMLCALL xmlReplaceNode(xmlNode * old, xmlNode * cur);
@@ -775,8 +762,8 @@ XMLPUBFUN void XMLCALL xmlNodeSetContent(xmlNode * cur, const xmlChar * content)
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN void XMLCALL xmlNodeSetContentLen(xmlNode * cur, const xmlChar * content, int len);
 #endif /* LIBXML_TREE_ENABLED */
-XMLPUBFUN void XMLCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
-XMLPUBFUN void XMLCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
 XMLPUBFUN xmlChar * XMLCALL xmlNodeGetContent(const xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlNodeBufGetContent(xmlBufferPtr buffer, const xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur);

@@ -1003,7 +1003,7 @@ int SLAPI PpyInetDataPrcssr::EditCfg()
 int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
 {
 	PPInetConnConfig cfg;
-	int    ok = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_INETCONNCFG, &cfg, sizeof(cfg));
+	int    ok = PPRef->GetPropMainConfig(PPPRP_INETCONNCFG, &cfg, sizeof(cfg));
 	if(ok <= 0)
 		MEMSZERO(cfg);
 	ASSIGN_PTR(pCfg, cfg);
@@ -1014,16 +1014,19 @@ int SLAPI PpyInetDataPrcssr::GetCfg(PPInetConnConfig * pCfg)
 int SLAPI PpyInetDataPrcssr::PutCfg(const PPInetConnConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    is_new = 1;
 	PPInetConnConfig prev_cfg;
 	PPInetConnConfig cfg = *pCfg;
-	PPTransaction tra(use_ta);
-	THROW(tra);
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_INETCONNCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
-		is_new = 0;
-	THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_INETCONNCFG, &cfg, sizeof(cfg), 0));
-	DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_INETCONN, 0, 0, 0);
-	THROW(tra.Commit());
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(p_ref->GetPropMainConfig(PPPRP_INETCONNCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+			is_new = 0;
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_INETCONNCFG, &cfg, sizeof(cfg), 0));
+		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_INETCONN, 0, 0, 0);
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }

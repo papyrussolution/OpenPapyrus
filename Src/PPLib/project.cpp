@@ -20,7 +20,7 @@ PPProjectConfig & PPProjectConfig::Clear()
 //static
 int SLAPI PPObjProject::ReadConfig(PPProjectConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(*pCfg));
 	return r;
@@ -46,7 +46,7 @@ static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg,
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PROJECTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+		if(PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
 			is_new = 0;
 		THROW(PutCounter(&pCfg->PrjCntrID, &opc_obj, pPrjCntr));
 		THROW(PutCounter(&pCfg->PhaseCntrID, &opc_obj, pPhsCntr));

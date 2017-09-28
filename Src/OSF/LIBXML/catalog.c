@@ -759,7 +759,7 @@ static xmlChar * xmlCatalogUnWrapURN(const xmlChar * urn)
  */
 xmlDocPtr xmlParseCatalogFile(const char * filename) 
 {
-	xmlDocPtr ret;
+	xmlDoc * ret;
 	char * directory = NULL;
 	xmlParserInputPtr inputStream;
 	xmlParserInputBufferPtr buf;
@@ -1157,7 +1157,7 @@ static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer, x
  */
 static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const xmlChar * filename) 
 {
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * cur;
 	xmlChar * prop;
 	xmlCatalogEntryPtr parent = NULL;
@@ -1181,10 +1181,10 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 		}
 		prop = xmlGetProp(cur, BAD_CAST "prefer");
 		if(prop != NULL) {
-			if(sstreq(prop, BAD_CAST "system")) {
+			if(sstreq(prop, "system")) {
 				prefer = XML_CATA_PREFER_SYSTEM;
 			}
-			else if(sstreq(prop, BAD_CAST "public")) {
+			else if(sstreq(prop, "public")) {
 				prefer = XML_CATA_PREFER_PUBLIC;
 			}
 			else {
@@ -1306,7 +1306,7 @@ static int xmlAddXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar * type, cons
 	 */
 	if(cur) {
 		while(cur) {
-			if((orig != NULL) && (cur->type == typ) && (sstreq(orig, cur->name))) {
+			if(orig && (cur->type == typ) && sstreq(orig, cur->name)) {
 				if(xmlDebugCatalogs)
 					xmlGenericError(0, "Updating element %s to catalog\n", type);
 				SAlloc::F(cur->value);
@@ -1361,7 +1361,7 @@ static int xmlDelXMLCatalog(xmlCatalogEntryPtr catal, const xmlChar * value)
 	 */
 	cur = catal->children;
 	while(cur) {
-		if(((cur->name != NULL) && (sstreq(value, cur->name))) || (sstreq(value, cur->value))) {
+		if((cur->name && sstreq(value, cur->name)) || sstreq(value, cur->value)) {
 			if(xmlDebugCatalogs) {
 				xmlGenericError(0, "Removing element %s from catalog\n", cur->name ? cur->name : cur->value);
 			}
@@ -2971,7 +2971,7 @@ int xmlCatalogAdd(const xmlChar * type, const xmlChar * orig, const xmlChar * re
 	 * Specific case where one want to override the default catalog
 	 * put in place by xmlInitializeCatalog();
 	 */
-	if(!xmlDefaultCatalog && (sstreq(type, BAD_CAST "catalog"))) {
+	if(!xmlDefaultCatalog && sstreq(type, "catalog")) {
 		xmlDefaultCatalog = xmlCreateNewCatalog(XML_XML_CATALOG_TYPE, xmlCatalogDefaultPrefer);
 		xmlDefaultCatalog->xml = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, orig, NULL,  xmlCatalogDefaultPrefer, 0);
 		xmlRMutexUnlock(xmlCatalogMutex);

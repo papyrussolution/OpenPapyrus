@@ -72,7 +72,7 @@ XMLPUBFUN xmlEntityPtr XMLCALL xmlNewEntity(xmlDocPtr doc, const xmlChar * name,
 XMLPUBFUN xmlEntityPtr XMLCALL xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
 XMLPUBFUN xmlEntityPtr XMLCALL xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
 XMLPUBFUN xmlEntityPtr XMLCALL xmlGetPredefinedEntity(const xmlChar * name);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name);
+XMLPUBFUN xmlEntity * /*XMLCALL*/FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name);
 XMLPUBFUN xmlEntityPtr XMLCALL xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name);
 XMLPUBFUN xmlEntityPtr XMLCALL xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name);
 #ifdef LIBXML_LEGACY_ENABLED

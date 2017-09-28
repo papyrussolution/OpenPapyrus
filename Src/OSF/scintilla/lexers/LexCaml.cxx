@@ -20,6 +20,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <scintilla-internal.h>
 
 //	Since the Microsoft __iscsym[f] funcs are not ANSI...
 /*inline*/ int FASTCALL iscaml(int c) 
@@ -46,13 +47,13 @@ using namespace Scintilla;
         (actually seems to work!)
  */
 #include "WindowAccessor.h"
-#include "ExternalLexer.h"
+//#include "ExternalLexer.h"
 
 #undef EXT_LEXER_DECL
 #define EXT_LEXER_DECL __declspec(dllexport) __stdcall
 
 #if PLAT_WIN
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 static void ColouriseCamlDoc(

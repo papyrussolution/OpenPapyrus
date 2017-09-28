@@ -2048,9 +2048,9 @@ int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) co
 }
 
 //static
-int SLAPI PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
+int FASTCALL PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GLOBALUSERACCCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_GLOBALUSERACCCFG, pCfg, sizeof(*pCfg));
 	if(r > 0) {
 		if(pCfg)
 			pCfg->Flags |= PPGlobalUserAccConfig::fValid;

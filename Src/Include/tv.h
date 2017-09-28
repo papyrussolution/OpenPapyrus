@@ -4592,7 +4592,7 @@ public:
 	void   init(BrowserDef * pDef = 0);
 	void   initWin();
 	BrowserDef * getDef();
-	int    SetDefUserProc(SBrowserDataProc proc, void * extraPtr);
+	void   SetDefUserProc(SBrowserDataProc proc, void * extraPtr);
 	void   go(long p);
 	void   top();
 	void   bottom();

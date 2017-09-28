@@ -1588,8 +1588,8 @@ int SLAPI GenerateCliBnkImpData()
 				}
 			}
 		}
-		THROW(p_bobj->CreateBankingOrders(in_paym_list, PPObjBill::cboIn, &order_list));
-		THROW(p_bobj->CreateBankingOrders(out_paym_list, 0, &order_list));
+		THROW(p_bobj->CreateBankingOrders(in_paym_list, PPObjBill::cboIn, order_list));
+		THROW(p_bobj->CreateBankingOrders(out_paym_list, 0, order_list));
 		THROW(cbed.CreateOutputFile());
 		THROW(cbed.PutHeader());
 		for(uint i = 0; i < order_list.getCount(); i++) {

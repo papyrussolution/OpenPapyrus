@@ -1268,98 +1268,542 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 	return ok;
 }
 
-class TddoExprSet : public SStrGroup {
+class TddoContentGraph : public SStrGroup {
 public:
 	enum {
-		kOp = 1,
-		kString,
-		kInt,
-		kReal,
-		kVar
+		kText = 1,
+		kExpr,
+		kIf,
+		kElse,
+		kElseIf,
+		kIter,
+		kMacro
 	};
-	struct ExprItem {
-		SLAPI  ExprItem()
-		{
-			K = 0;
-			ArgCount = 0;
-			Op = 0;
-		}
-		uint16 K;
-		uint16 ArgCount; // Количество аргументов (для K == kOp)
-		union {
-			uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
-			uint32 Op;    // Ид операции (для K == kOp)
+	struct Chunk {
+		int    Kind;
+		uint   NextP;
+		uint   ChildP;
+		uint   TextP;
+	};
+	class ExprSet {
+	public:
+		enum {
+			kOp = 1,
+			kString,
+			kNumber,
+			kVar
 		};
-	};
-	class ExprStack : public TSStack <ExprItem> {
-	public:
-		SLAPI  ExprStack()
+		struct Item {
+			SLAPI  Item()
+			{
+				K = 0;
+				ArgCount = 0;
+				Op = 0;
+			}
+			uint16 K;
+			uint16 ArgCount; // Количество аргументов (для K == kOp)
+			union {
+				uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
+				uint32 Op;    // Ид операции (для K == kOp)
+				double R;
+			};
+		};
+		class Stack : public TSStack <TddoContentGraph::ExprSet::Item> {
+		public:
+			SLAPI  Stack()
+			{
+			}
+			int FASTCALL Push(const Stack & rS);
+		};
+		class Expression {
+		public:
+			SLAPI  Expression()
+			{
+				NameP = 0;
+				Flags = 0;
+			}
+			uint   NameP;
+			long   Flags;
+			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
+		};
+
+		SLAPI  ExprSet(TddoContentGraph & rG) : R_G(rG)
 		{
 		}
-		int FASTCALL Push(const ExprStack & rS);
+		SLAPI ~ExprSet()
+		{
+		}
+		// untilToken: } | ) | , | EOF
+		int    Parse(int untilToken, TddoContentGraph::ExprSet::Stack & rStack, SBuffer & rOut)
+		{
+			int    ok = 1;
+			Tddo::Meta meta;
+			SString temp_buf;
+			//Tddo & r_t = R_G.R_T;
+			SStrScan & r_scan = R_G.Scan;
+			for(int done = 0; !done;) {
+				if(r_scan.IsEnd()) {
+					if(untilToken != 0) {
+						ok = 0;
+					}
+					done = 1;
+				}
+				else {
+					R_G.Skip();
+					int r = R_G.Helper_RecognizeExprToken(0, temp_buf);
+					if(r == Tddo::tLiteral) {
+						Item ei;
+						ei.K = kString;
+						R_G.AddS(temp_buf, &ei.SymbP);
+						rStack.push(ei);
+					}
+					else if(r == Tddo::tNumber) {
+						Item ei;
+						ei.K = kNumber;
+						ei.R = temp_buf.ToReal();
+						rStack.push(ei);
+					}
+					else if(r == Tddo::tVar) {
+						Item ei;
+						ei.K = kVar;
+						R_G.AddS(temp_buf, &ei.SymbP);
+						rStack.push(ei);
+					}
+					else if(r == Tddo::tVarArgN) {
+						Item ei;
+						ei.K = kVar;
+						R_G.AddS(temp_buf, &ei.SymbP);
+						rStack.push(ei);
+					}
+					else if(r == Tddo::tDollarBrace) {
+						Parse('}', rStack, rOut); // @recursion
+					}
+					else if(r > Tddo::tOperator) {
+						Item ei;
+						ei.K = kOp;
+						ei.Op = (r - Tddo::tOperator);
+						ei.ArgCount = 2;
+						rStack.push(ei);
+					}
+				}
+			}
+			return ok;
+		}
+	private:
+		TddoContentGraph & R_G;
+		TSCollection <Expression> EL;
 	};
-	class Expression {
-	public:
-		SLAPI  Expression();
-		uint   NameP;
-		long   Flags;
-		ExprStack ES; // Стэк выражения //
-	};
+	SLAPI  TddoContentGraph(Tddo & rT) : R_T(rT)
+	{
+	}
+	SLAPI ~TddoContentGraph()
+	{
+	}
+	int    SLAPI Parse(const char * pSrc)
+	{
+		int    ok = 1;
+		uint   prev_scan_stack_pos = 0;
+		SString temp_buf, msg_buf;
+		Tddo::Meta   meta;
 
-	TddoExprSet(Tddo & rT);
-	~TddoExprSet();
-	int    Parse(int untilToken, SBuffer & rOut);
+		struct CurrentBlock {
+			CurrentBlock()
+			{
+				Kind = 0;
+				P = 0;
+			}
+			int    AppendToList(TddoContentGraph * pG)
+			{
+				int    ok = 1;
+				P = pG->AddBlock(Kind, Text);
+				Kind = 0;
+				Text.Z();
+				return ok;
+			}
+			int    Kind;
+			uint   P;
+			SString Text;
+		};
+		CurrentBlock _cb;
+
+		Scan.Set(pSrc, 0);
+		LineNo = 0;
+		for(int exit_loop = 0; !exit_loop && Scan.IsEnd();) {
+			int    regular_text = 1;
+			int    m = Helper_RecognizeMetaKeyword(temp_buf);
+			if(m > 0) {
+				regular_text = 0;
+				switch(m) {
+					case Tddo::tMacro:
+						_cb.AppendToList(this);
+						{
+							// parse macro
+						}
+						break;
+					case Tddo::tMacroCall:
+						// temp_buf - symbol of macro
+						break;
+					case Tddo::tSet:
+						break;
+					case Tddo::tBreak:
+						break;
+					case Tddo::tStop:
+						break;
+					case Tddo::tIf:
+						break;
+					case Tddo::tElse:
+						break;
+					case Tddo::tElif:
+						break;
+					case Tddo::tForEach:
+						break;
+					case Tddo::tEndif:
+						break;
+					case Tddo::tEnd:
+						break;
+					case Tddo::tCodepage:
+						break;
+					case Tddo::tPragma:
+						break;
+					case Tddo::tStart:
+						break;
+					case Tddo::tRem:
+						break;
+					case Tddo::tIter:
+						break;
+					case Tddo::tIterCount:
+						break;
+					case Tddo::tText:
+						break;
+					case Tddo::tInclude:
+						break;
+					default:
+						regular_text = 1;
+						break;
+				}
+			}
+			else {
+				int t = Helper_RecognizeExprToken(Tddo::rexptfMetaOnly, temp_buf);
+				if(t > 0) {
+					regular_text = 0;
+				}
+			}
+			if(regular_text) {
+				if(Scan.GetEol(eolUndef)) {
+					_cb.Text.CR();
+					LineNo++;
+				}
+				else {
+					_cb.Text.CatChar(Scan[0]);
+					Scan.Incr();
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int SLAPI Helper_RecognizeExprToken(long flags, SString & rText)
+	{
+		int    t = 0;
+		char   text[512];
+		size_t tp = 0;
+		size_t sp = 0;
+		char   c = Scan[0];
+		if(c == '$') {
+			c = Scan[++sp];
+			if(c == '{') {
+				c = Scan[++sp];
+				if(isdec(c)) {
+					//
+					// ? Номер внешнего аргумента вида ${1}
+					//
+					do {
+						text[tp++] = c;
+						c = Scan[++sp];
+					} while(isdec(c));
+					text[tp] = 0;
+					if(c == '}') {
+						Scan.Incr(tp+3); // ${}
+						rText = text;
+						t = Tddo::tVarArgN;
+					}
+				}
+				else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+					//
+					// ? Простая переменная вида ${var}
+					//
+					do {
+						text[tp++] = c;
+						c = Scan[++sp];
+					} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+					text[tp] = 0;
+					if(c == '}') {
+						Scan.Incr(tp+3); // ${}
+						rText = text;
+						t = Tddo::tVar;
+					}
+				}
+				if(!t) {
+					//
+					// Скорее всего (но не обязательно) начало сложного выражения.
+					// Например: ${util.Goods.getSingleBarcode()}
+					// Функция разбора выражения должны быть вызвана рекурсивно для разбора содержимого
+					// с сигналом финаша '}'
+					//
+					t = Tddo::tDollarBrace;
+				}
+			}
+			else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+				do {
+					text[tp++] = c;
+					c = Scan[++sp];
+				} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+				text[tp] = 0;
+				Scan.Incr(tp+1); // $
+				rText = text;
+				t = Tddo::tVar;
+			}
+		}
+		else if(c == '@' && Scan[1] == '{') {
+			c = Scan[++sp];
+			if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+				do {
+					text[tp++] = c;
+					c = Scan[++sp];
+				} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+				text[tp] = 0;
+				if(c == '}') {
+					Scan.Incr(tp+3); // # + { + }
+					rText = text;
+					t = Tddo::tString;
+				}
+				else {
+					; // @suspicious
+				}
+			}
+		}
+		else if(!(flags & Tddo::rexptfMetaOnly)) {
+			if(Scan.Is("&&")) {
+				Scan.Incr(2);
+				rText = "&&";
+				t = Tddo::tOperator+_AND_;
+			}
+			else if(Scan.Is("and")) {
+				Scan.Incr(3);
+				rText = "&&";
+				t = Tddo::tOperator+_AND_;
+			}
+			else if(Scan.Is("||")) {
+				Scan.Incr(2);
+				rText = "||";
+				t = Tddo::tOperator+_OR_;
+			}
+			else if(Scan.Is("or")) {
+				Scan.Incr(2);
+				rText = "||";
+				t = Tddo::tOperator+_OR_;
+			}
+			else if(Scan.Is("==")) {
+				Scan.Incr(2);
+				rText = "==";
+				t = Tddo::tOperator+_EQ_;
+			}
+			else if(Scan.Is("!=") || Scan.Is("<>")) {
+				Scan.Incr(2);
+				rText = "!=";
+				t = Tddo::tOperator+_NE_;
+			}
+			else if(Scan.Is(">=")) {
+				Scan.Incr(2);
+				rText = ">=";
+				t = Tddo::tOperator+_GE_;
+			}
+			else if(Scan.Is("<=")) {
+				Scan.Incr(2);
+				rText = "<=";
+				t = Tddo::tOperator+_LE_;
+			}
+			else if(oneof9(c, '+', '-', '*', '/', '%', '<', '>', '=', '.')) {
+				Scan.Incr();
+				rText.Z().CatChar(c);
+				switch(c) {
+					case '+': t = Tddo::tOperator + _PLUS_; break;
+					case '-': t = Tddo::tOperator + _MINUS_; break;
+					case '*': t = Tddo::tOperator + _MULT_; break;
+					case '/': t = Tddo::tOperator + _DIVIDE_; break;
+					case '%': t = Tddo::tOperator + _MODULO_; break;
+					case '<': t = Tddo::tOperator + _LT_; break;
+					case '>': t = Tddo::tOperator + _GT_; break;
+					case '=': t = Tddo::tOperator + _ASSIGN_; break;
+					case '.': t = Tddo::tOperator + _DOT_; break;
+				}
+				assert(t > Tddo::tOperator);
+			}
+			else if(c == '\"') {
+				c = Scan[++sp];
+				while(c && c != '\"') {
+					if(c == '\\' && Scan[sp] == '\"') {
+						text[tp++] = '\"';
+						sp++;
+					}
+					else
+						text[tp++] = c;
+					c = Scan[++sp];
+				}
+				text[tp] = 0;
+				if(c == '\"') {
+					Scan.Incr(sp);
+					rText = text;
+					t = Tddo::tLiteral;
+				}
+			}
+			else if(Scan.IsNumber()) {
+				Scan.GetNumber(rText);
+				t = Tddo::tNumber;
+			}
+		}
+		return t;
+	}
+	int SLAPI Helper_RecognizeMetaKeyword(SString & rAddendum)
+	{
+		rAddendum.Z();
+		int    m = 0;
+		char   text[512];
+		size_t tp = 0;
+		size_t sp = 0;
+		char   c;
+		if(Scan[0] == '#') {
+			c = Scan[++sp];
+			if(c == '#') { // Пропускаем строчные комментарии
+				Scan.Incr(2);
+				while(Scan[0] && !Scan.IsEol(eolUndef))
+					Scan.Incr();
+				if(Scan.GetEol(eolUndef))
+					LineNo++;
+				m = Helper_RecognizeMetaKeyword(rAddendum); // @recusion
+			}
+			else if(c == '*') { // Пропускаем многострочные комментарии
+				Scan.Incr(2);
+				while(Scan[0] && !Scan.Is("*#")) {
+					if(Scan.GetEol(eolUndef))
+						LineNo++;
+					else
+						Scan.Incr();
+				}
+				if(Scan.Is("*#"))
+					Scan.Incr(2);
+				m = Helper_RecognizeMetaKeyword(rAddendum); // @recusion
+			}
+			else {
+				int    recogn_result = 0;
+				tp = 0;
+				if(c == '{') {
+					c = Scan[++sp];
+					if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+						do {
+							text[tp++] = c;
+							c = Scan[++sp];
+						} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+						text[tp] = 0;
+						if(c == '}') {
+							recogn_result = 200;
+						}
+						else {
+							recogn_result = -1; // suspicious
+						}
+					}
+				}
+				else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+					do {
+						text[tp++] = c;
+						c = Scan[++sp];
+					} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+					text[tp] = 0;
+					recogn_result = 100;
+				}
+				if(recogn_result > 0) {
+					if(sstreq(text, "macro"))
+						m = Tddo::tMacro;
+					else if(sstreq(text, "set"))
+						m = Tddo::tSet;
+					else if(sstreq(text, "break"))
+						m = Tddo::tBreak;
+					else if(sstreq(text, "stop"))
+						m = Tddo::tStop;
+					else if(sstreq(text, "if"))
+						m = Tddo::tIf;
+					else if(sstreq(text, "else"))
+						m = Tddo::tElse;
+					else if(sstreq(text, "elseif") || sstreq(text, "elif"))
+						m = Tddo::tElif;
+					else if(sstreq(text, "foreach"))
+						m = Tddo::tForEach;
+					else if(sstreq(text, "endif"))
+						m = Tddo::tEndif;
+					else if(sstreq(text, "end"))
+						m = Tddo::tEnd;
+					else if(sstreq(text, "codepage"))
+						m = Tddo::tCodepage;
+					else if(sstreq(text, "pragma"))
+						m = Tddo::tPragma;
+					else if(sstreq(text, "start"))
+						m = Tddo::tStart;
+					else if(sstreq(text, "rem"))
+						m = Tddo::tRem;
+					else if(sstreq(text, "iter"))
+						m = Tddo::tIter;
+					else if(sstreq(text, "itercount"))
+						m = Tddo::tIterCount;
+					else if(sstreq(text, "text"))
+						m = Tddo::tText;
+					else if(sstreq(text, "include"))
+						m = Tddo::tInclude;
+					else if(text[0]) {
+						m = Tddo::tMacroCall;
+						rAddendum = text;
+					}
+					if(m) {
+						if(recogn_result == 200)
+							Scan.Incr(tp+3); // # + { + }
+						else 
+							Scan.Incr(tp+1); // #
+					}
+				}
+			}
+		}
+		return m;
+	}
+	void SLAPI Skip()
+	{
+		Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &LineNo);
+	}
 private:
+	struct ChunkInner {
+		int    Kind;    // Вид блока (TddoContentGraph::kXXX)
+		uint   NextP;   // Следующий блок
+		uint   BranchP; // Ответвление (if | else | iter)
+		uint   HeadP;   // Головной блок (для ответвления - узел ветвления)
+		uint   TextP;   // Текст
+		uint   ExprP;   // Выражение  
+	};
+
+	uint   AddBlock(int kind, const SString & rText)
+	{
+		uint   result_pos = 0;
+		ChunkInner chunk;
+		MEMSZERO(chunk);
+		chunk.Kind = kind;
+		AddS(rText, &chunk.TextP);
+		result_pos = L.getCount();
+		L.insert(&chunk);
+		return result_pos;
+	}
+
+	TSArray <ChunkInner> L;
 	Tddo & R_T;
-	TSCollection <Expression> EL;
+	SStrScan Scan;
+	uint   LineNo;
 };
-
-SLAPI TddoExprSet::Expression::Expression()
-{
-	NameP = 0;
-	Flags = 0;
-}
-
-TddoExprSet::TddoExprSet(Tddo & rT) : R_T(rT)
-{
-}
-
-TddoExprSet::~TddoExprSet()
-{
-}
-
-// untilToken: } | ) | , | EOF
-int TddoExprSet::Parse(int untilToken, SBuffer & rOut)
-{
-	int    ok = 1;
-	Tddo::Meta meta;
-	SString temp_buf;
-	SStrScan & r_scan = R_T.Scan;
-    for(int done = 0; !done;) {
-		if(r_scan.IsEnd()) {
-			if(untilToken != 0) {
-				ok = 0;
-			}
-			done = 1;
-		}
-		else {
-			R_T.Skip();
-			int r = R_T.Helper_RecognizeExprToken(0, temp_buf);
-			if(r == R_T.tLiteral) {
-			}
-			else if(r == R_T.tNumber) {
-			}
-			else if(r == R_T.tVar) {
-			}
-			else if(r == R_T.tVarArgN) {
-			}
-			else if(r == R_T.tDollarBrace) {
-				Parse('}', rOut); // @recursion
-			}
-		}
-    }
-	return ok;
-}
 //
 // Implementation of PPALDD_HttpPreprocessBase
 //

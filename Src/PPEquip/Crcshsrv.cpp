@@ -3075,7 +3075,7 @@ private:
 	int    SubVer;
 	long   ChecksCount;
 	PPIDArray * P_LogNumList;
-	xmlDocPtr  P_Doc;
+	xmlDoc  * P_Doc;
 	xmlNode * P_CurRec;
 	xmlTextReaderPtr P_Reader;
 };
@@ -4222,7 +4222,7 @@ public:
 	int    SLAPI Next(ZRep * );
 private:
 	long   ZRepsCount;
-	xmlDocPtr  P_Doc;
+	xmlDoc  * P_Doc;
 	xmlNode * P_CurRec;
 	xmlTextReaderPtr P_Reader;
 };

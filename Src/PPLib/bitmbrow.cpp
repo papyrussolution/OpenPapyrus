@@ -2651,7 +2651,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					}
 					else if(TVCHR == kbCtrlL) {
 						if(!EventBarrier()) {
-							int16  c = getCurItemPos();
+							int    c = getCurItemPos();
 							if(c >= 0)
 								BarcodeLabelPrinter::PrintLabelByBill2(P_Pack, (uint)c);
 							EventBarrier(1);

@@ -214,9 +214,9 @@ PPWorkbookConfig & SLAPI PPWorkbookConfig::Clear()
 //
 //
 //static
-int SLAPI PPObjWorkbook::ReadConfig(PPWorkbookConfig * pCfg)
+int FASTCALL PPObjWorkbook::ReadConfig(PPWorkbookConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_WORKBOOKCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_WORKBOOKCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(*pCfg));
 	return r;
@@ -239,7 +239,7 @@ static int SLAPI PPObjWorkbook_WriteConfig(PPWorkbookConfig * pCfg, PPOpCounterP
 		Reference * p_ref = PPRef;
 		PPTransaction tra(1);
 		THROW(tra);
-		if(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_WORKBOOKCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+		if(p_ref->GetPropMainConfig(PPPRP_WORKBOOKCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
 			is_new = 0;
 		THROW(PutCounter(&pCfg->SymbCntrID, &opc_obj, pCntr));
 		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_WORKBOOKCFG, pCfg, sizeof(*pCfg), 0));

@@ -264,7 +264,7 @@ int SLAPI PrcssrMailCharry::RestoreParam(Param * pParam)
 	int    ok = 1;
 	__MailCharryParam strg;
 	memzero(pParam, sizeof(*pParam));
-	int r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_MAILCHARRYCFG, &strg, sizeof(strg));
+	int r = PPRef->GetPropMainConfig(PPPRP_MAILCHARRYCFG, &strg, sizeof(strg));
 	if(r == 0)
 		ok = 0;
 	else if(r < 0) {

@@ -17,7 +17,7 @@
 
 /* Define SIZE_T_MAX unless defined through <limits.h>. */
 #ifndef SIZE_T_MAX
-# define SIZE_T_MAX     ((size_t)-1)
+	#define SIZE_T_MAX     ((size_t)-1)
 #endif /* !SIZE_T_MAX */
 
 /* #define DEBUG_SAX2 */
@@ -246,9 +246,7 @@ int xmlSAX2IsStandalone(void * ctx)
 int xmlSAX2HasInternalSubset(void * ctx)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	if(!ctxt || (ctxt->myDoc == NULL)) 
-		return 0;
-	return (ctxt->myDoc->intSubset != NULL);
+	return (ctxt && ctxt->myDoc) ? (ctxt->myDoc->intSubset != NULL) : 0;
 }
 /**
  * xmlSAX2HasExternalSubset:
@@ -261,10 +259,8 @@ int xmlSAX2HasInternalSubset(void * ctx)
 int xmlSAX2HasExternalSubset(void * ctx)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	if(!ctxt || (ctxt->myDoc == NULL)) return 0;
-	return (ctxt->myDoc->extSubset != NULL);
+	return (ctxt && ctxt->myDoc) ? (ctxt->myDoc->extSubset != NULL) : 0;
 }
-
 /**
  * xmlSAX2InternalSubset:
  * @ctx:  the user data (XML parser context)
@@ -313,7 +309,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2ExternalSubset(%s, %s, %s)\n", name, ExternalID, SystemID);
 #endif
-	if((ExternalID || SystemID) && (((ctxt->validate) || (ctxt->loadsubset != 0)) && (ctxt->wellFormed && ctxt->myDoc))) {
+	if((ExternalID || SystemID) && (((ctxt->validate) || ctxt->loadsubset) && (ctxt->wellFormed && ctxt->myDoc))) {
 		/*
 		 * Try to fetch and parse the external subset.
 		 */
@@ -2270,8 +2266,8 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlNode * ret;
 	xmlNode * parent;
-
-	if(!ctx) return;
+	if(!ctx) 
+		return;
 	parent = ctxt->node;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2Comment(%s)\n", value);
@@ -2380,7 +2376,8 @@ int xmlSAXDefaultVersion(int version)
  */
 int xmlSAXVersion(xmlSAXHandler * hdlr, int version)
 {
-	if(hdlr == NULL) return -1;
+	if(hdlr == NULL) 
+		return -1;
 	if(version == 2) {
 		hdlr->startElement = NULL;
 		hdlr->endElement = NULL;

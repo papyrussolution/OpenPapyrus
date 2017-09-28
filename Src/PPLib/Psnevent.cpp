@@ -1496,7 +1496,7 @@ int PsnEventDialog::setupList()
 		else
 			buf.Z().Cat(p_item->TagID);
 		ss.add(buf, 0);
-		TagObj.GetCurrTagVal(p_item, (buf = 0));
+		TagObj.GetCurrTagVal(p_item, buf);
 		ss.add(buf, 0);
 		if(!addStringToList(p_item->TagID, ss.getBuf()))
 			return 0;
@@ -1536,11 +1536,7 @@ void PsnEventDialog::editRegister()
 {
 	RegisterTbl::Rec regrec = Pack.Reg;
 	SETIFZ(regrec.RegTypeID, PokPack.Rec.RegTypeID);
-	if(regrec.Dt == 0) {
-		LDATE dt;
-		getCtrlData(CTL_PSNEVNT_DATE, &dt);
-		regrec.Dt = dt;
-	}
+	SETIFZ(regrec.Dt, getCtrlDate(CTL_PSNEVNT_DATE));
 	if(P_PeObj->RegObj.EditDialog(&regrec, 0, (const PPPersonPacket *)0) > 0)
 		Pack.Reg = regrec;
 }
@@ -1665,7 +1661,6 @@ int PsnEventDialog::setDTS(PPPsnEventPacket * p)
 	if(Pack.Rec.ID == 0) {
 		SETIFZ(Pack.Rec.SecondID, PokPack.PCScnd.DefaultID);
 	}
-	// @v7.7.12 {
 	{
 		PersonCtrlGroup::Rec rec;
 		rec.PersonID = Pack.Rec.PersonID;
@@ -1680,11 +1675,6 @@ int PsnEventDialog::setDTS(PPPsnEventPacket * p)
 		rec.SCardID = Pack.Rec.ScndSCardID;
 		setGroupData(GRP_PERSON_SCND, &rec);
 	}
-	//SetupPersonCombo(this, CTLSEL_PSNEVNT_PRMR, Pack.Rec.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PokPack.PCPrmr.PersonKindID, 0);
-	//SetupPersonCombo(this, CTLSEL_PSNEVNT_SCND, Pack.Rec.SecondID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PokPack.PCScnd.PersonKindID, 0); // @v7.7.12
-	// } @v7.7.12
-	// @v7.7.12 SetupPPObjCombo(this, CTLSEL_PSNEVNT_PRMR, PPOBJ_PERSON, Pack.Rec.PersonID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PokPack.PCPrmr.PersonKindID);
-	// @v7.7.12 SetupPPObjCombo(this, CTLSEL_PSNEVNT_SCND, PPOBJ_PERSON, Pack.Rec.SecondID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PokPack.PCScnd.PersonKindID);
 	if(P.ExValGrp == POKEVG_POST) {
 		setupPost(0);
 	}
@@ -1729,25 +1719,19 @@ int PsnEventDialog::setDTS(PPPsnEventPacket * p)
 int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 {
 	int    ok = 1;
-	// @v7.7.12 {
 	{
 		PersonCtrlGroup::Rec rec;
 		getGroupData(GRP_PERSON_PRMR, &rec);
 		Pack.Rec.PersonID = rec.PersonID;
 		Pack.Rec.PrmrSCardID = rec.SCardID;
 	}
-	// } @v7.7.12
-	// @v7.7.12 getCtrlData(CTLSEL_PSNEVNT_PRMR, &Pack.Rec.PersonID);
 	THROW_PP(Pack.Rec.PersonID, PPERR_PRMRPSNNEEDED);
-	// @v7.7.12 {
 	{
 		PersonCtrlGroup::Rec rec;
 		getGroupData(GRP_PERSON_SCND, &rec);
 		Pack.Rec.SecondID = rec.PersonID;
 		Pack.Rec.ScndSCardID = rec.SCardID;
 	}
-	// } @v7.7.12
-	// @v7.7.12 getCtrlData(CTLSEL_PSNEVNT_SCND, &Pack.Rec.SecondID);
 	getCtrlData(CTL_PSNEVNT_DATE,    &Pack.Rec.Dt);
 	getCtrlData(CTL_PSNEVNT_TIME,    &Pack.Rec.Tm);
 	THROW_SL(checkdate(Pack.Rec.Dt, 0));
@@ -1872,7 +1856,7 @@ int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 	return ok;
 }
 
-int SLAPI PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
+void SLAPI PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID)
 {
 	PPID   id = 0;
 	if(sgpe == sgpeOp)
@@ -1882,10 +1866,9 @@ int SLAPI PPObjPersonEvent::Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmr
 	else if(sgpe == sgpeCntrAg)
 		id = scndID;
 	ASSIGN_PTR(pID, id);
-	return 1;
 }
 
-int SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen)
+void SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	if(sgpe == sgpeOp) {
@@ -1900,7 +1883,6 @@ int SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char
 	else if(oneof2(sgpe, sgpePerson, sgpeCntrAg))
 		GetPersonName(id, temp_buf);
 	temp_buf.CopyTo(pBuf, bufLen);
-	return 1;
 }
 
 IMPL_DESTROY_OBJ_PACK(PPObjPersonEvent, PPPsnEventPacket);
@@ -1974,8 +1956,8 @@ int SLAPI PPObjPersonEvent::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->Rec.SecondID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_LOCATION,      &p_pack->Rec.LocationID, ary, replace);
 		ProcessObjRefInArray(PPOBJ_BILL,          &p_pack->Rec.LinkBillID, ary, replace);
-		ProcessObjRefInArray(PPOBJ_SCARD,         &p_pack->Rec.PrmrSCardID, ary, replace); // @v7.7.12
-		ProcessObjRefInArray(PPOBJ_SCARD,         &p_pack->Rec.ScndSCardID, ary, replace); // @v7.7.12
+		ProcessObjRefInArray(PPOBJ_SCARD,         &p_pack->Rec.PrmrSCardID, ary, replace);
+		ProcessObjRefInArray(PPOBJ_SCARD,         &p_pack->Rec.ScndSCardID, ary, replace);
 		{
 			if(replace)
 				p_pack->Reg.ID = 0;

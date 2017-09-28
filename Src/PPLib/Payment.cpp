@@ -334,6 +334,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 	MemoList.Clear();
 
 	int    ok = 1;
+	BillCore * p_bt = P_BObj->P_Tbl;
 	Entry  entry, * p_entry;
 	uint   blnk = 0;
 	PPID   member_id = 0;
@@ -356,10 +357,10 @@ int SLAPI PPViewLinkedBill::MakeList()
 		int    is_paym_charge = 0;
 		int16  link_kind = 0;
 		if(oneof2(Filt.Kind, LinkedBillFilt::lkPayments, LinkedBillFilt::lkCharge)) {
-			int    paym_r = P_BObj->P_Tbl->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
+			int    paym_r = p_bt->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
 			if(paym_r < 0) {
 				do {
-					r = P_BObj->P_Tbl->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
+					r = p_bt->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
 				} while(r > 0 && P_BObj->Search(member_id, &bill_rec) <= 0);
 				link_kind = 2;
 			}
@@ -372,20 +373,20 @@ int SLAPI PPViewLinkedBill::MakeList()
 		}
 		else if(Filt.Kind == LinkedBillFilt::lkReckon) {
 			do {
-				r = P_BObj->P_Tbl->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
+				r = p_bt->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
 			} while(r > 0 && P_BObj->Search(member_id, &bill_rec) <= 0);
 			link_kind = 2;
 		}
 		else if(Filt.Kind == LinkedBillFilt::lkByReckon) {
 			do {
-				r = P_BObj->P_Tbl->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
+				r = p_bt->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
 			} while(r > 0 && (P_BObj->Search(member_id, &bill_rec) <= 0 || P_BObj->Search(bill_rec.LinkBillID, &bill_rec) <= 0));
 		}
 		else if(Filt.Kind == LinkedBillFilt::lkWrOffDraft) {
 			//
 			// Документы списания драфт-документа
 			//
-			r = P_BObj->P_Tbl->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
+			r = p_bt->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
 			link_kind = 3;
 		}
 		THROW(r)
@@ -404,7 +405,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 				entry.Payment = no_paym ? 0.0 : BR2(is_paym_charge ? -bill_rec.Amount : bill_rec.Amount);
 				if(oneof2(Filt.Kind, LinkedBillFilt::lkCharge, LinkedBillFilt::lkByReckon)) { // charge or reckoned bills
 					double temp = 0.0;
-					P_BObj->P_Tbl->GetAmount(entry.ID, PPAMT_PAYMENT, bill_rec.CurID, &temp);
+					p_bt->GetAmount(entry.ID, PPAMT_PAYMENT, bill_rec.CurID, &temp);
 					entry.Rest = entry.Payment - temp;
 				}
 				else {
@@ -690,15 +691,14 @@ SLAPI ReckonOpArList::~ReckonOpArList()
 	Destroy();
 }
 
-int SLAPI ReckonOpArList::Destroy()
+void SLAPI ReckonOpArList::Destroy()
 {
 	ReckonOpArItem * p_item;
 	for(uint i = 0; enumItems(&i, (void**)&p_item);)
 		ZDELETE(p_item->P_BillIDList);
-	return 1;
 }
 
-PPID SLAPI ReckonOpArList::GetPaymOpIDByBillID(PPID billID) const
+PPID FASTCALL ReckonOpArList::GetPaymOpIDByBillID(PPID billID) const
 {
 	ReckonOpArItem * p_item = 0;
 	for(uint i = 0; enumItems(&i, (void**)&p_item);)
@@ -1827,7 +1827,7 @@ IMPL_CMPFUNC(CBO_BillEntry, i1, i2)
 	return si;
 }
 
-int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList * pOrderList)
+int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList)
 {
 	int    ok = -1;
 	SArray list(sizeof(CBO_BillEntry));
@@ -1889,7 +1889,8 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 						if(psn_obj.GetSingleBnkAcct(rcvr_id, 0, &rcvr_bnk_acc_id, 0) > 0)
 							r2++;
 						if(r2 == 2 || !(flags & cboSkipUndefBnkAcc)) {
-							PPGPaymentOrder * p_new_order = new PPGPaymentOrder;
+							PPGPaymentOrder * p_new_order = rOrderList.CreateNewItem();
+							THROW_SL(p_new_order);
 							p_new_order->Options = 0;
 							p_new_order->Dt = getcurdate_();
 							p_new_order->ArID  = p_prev_entry->ArID;
@@ -1903,8 +1904,6 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 							p_new_order->BnkQueueing = BNKQUEUEING_DEFAULT;
 							p_new_order->PayerStatus = 1;
 							p_new_order->LinkBillList = link_bill_list;
-							if(pOrderList)
-								THROW_SL(pOrderList->insert(p_new_order));
 							ok = 1;
 						}
 					}

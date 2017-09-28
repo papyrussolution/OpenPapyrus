@@ -1325,15 +1325,15 @@ int FASTCALL DateIter::Cmp(const DateIter & rS) const
 //
 // IterCounter
 //
-SLAPI IterCounter::IterCounter() 
-{ 
-	Init(); 
+SLAPI IterCounter::IterCounter()
+{
+	Init();
 }
 
-void FASTCALL IterCounter::Init(ulong total) 
+void FASTCALL IterCounter::Init(ulong total)
 {
-	Total = total; 
-	Count = 0L; 
+	Total = total;
+	Count = 0L;
 }
 
 int SLAPI IterCounter::Init(DBTable * pTbl)
@@ -2456,6 +2456,43 @@ int SLAPI CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileN
 	return __CopyFileByPath(pSrc, pDest, pFileName) ? 1 : PPErrorZ();
 }
 
+int SLAPI PPValidateXml()
+{
+    int    ok = -1;
+    SString xsd_file_name;
+    SString xml_file_name;
+    SString msg_buf;
+    PPLogger logger;
+    TDialog * dlg = new TDialog(DLG_XMLVLD);
+    THROW(CheckDialogPtr(&dlg));
+	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_XMLVLD_XSDFILE, CTL_XMLVLD_XSDFILE, 2, 0, PPTXT_FILPAT_XSD,
+		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_XMLVLD_XMLFILE, CTL_XMLVLD_XMLFILE, 2, 0, PPTXT_FILPAT_XML,
+		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+    while(ExecView(dlg) == cmOK) {
+        dlg->getCtrlString(CTL_XMLVLD_XSDFILE, xsd_file_name);
+        dlg->getCtrlString(CTL_XMLVLD_XMLFILE, xml_file_name);
+        if(!fileExists(xsd_file_name))
+			PPError(PPERR_SLIB);
+		else if(!fileExists(xml_file_name))
+			PPError(PPERR_SLIB);
+		else {
+			SXmlValidationMessageList vlist;
+			SXml::Validate(xsd_file_name, xml_file_name, &vlist);
+            if(vlist.GetMessageCount()) {
+				for(uint i = 0; i < vlist.GetMessageCount(); i++) {
+					int msg_type = 0;
+					vlist.GetMessageByIdx(i, &msg_type, msg_buf);
+					logger.Log(msg_buf);
+				}
+            }
+		}
+    }
+    CATCHZOK
+    delete dlg;
+	return ok;
+}
+
 #if 0 // { replaced by XMLWriteSpecSymbEntities(void *)
 int SLAPI XMLFillDTDEntitys(void * pWriter)
 {
@@ -2765,7 +2802,7 @@ int SLAPI PPUhttClient::TestUi_GetLocationListByPhone()
 			if(r > 0 && uhtt_loc_list.getCount()) {
 				for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
 					const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
-					(log_buf = 0).
+					log_buf.Z().
 						CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
 						CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
 						CatEq("contact", p_uhtt_loc_item->Contact);
@@ -2803,7 +2840,7 @@ int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
 				if(r > 0 && uhtt_list.getCount()) {
 					for(uint i = 0; i < uhtt_list.getCount(); i++) {
 						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
-						(log_buf = 0).
+						log_buf.Z().
 							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
 							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
 							CatEq("loc", (long)p_uhtt_item->LocID);
@@ -3911,11 +3948,11 @@ int SLAPI PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFi
 						uint   j = 0;
 						UhttDCFileVersionInfo * p_vi = rResult.at(i);
 						StringSet ss('.', p_vi->Label);
-						if(ss.get(&j, (buf = 0))) {
+						if(ss.get(&j, buf)) {
 							mj = buf.ToLong();
-							if(ss.get(&j, (buf = 0))) {
+							if(ss.get(&j, buf)) {
 								mi = buf.ToLong();
-								if(ss.get(&j, (buf = 0))) {
+								if(ss.get(&j, buf)) {
 									rev = buf.ToLong();
 
 									SVerT cur_ver;

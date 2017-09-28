@@ -601,8 +601,8 @@ restart:
 						    if(step->value2 == NULL)
 							    break;
 					    }
-					    else if(node->ns->href != NULL) {
-						    if((step->value2 != NULL) && (sstreq(step->value2, node->ns->href)))
+					    else if(node->ns->href) {
+						    if(step->value2 && sstreq(step->value2, node->ns->href))
 							    break;
 					    }
 				    }

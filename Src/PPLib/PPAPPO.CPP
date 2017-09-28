@@ -29,6 +29,7 @@ int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
 int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
 int SLAPI RecoverAbsenceTrfr();
+int SLAPI PPValidateXml();
 //int SLAPI ImportSartre();
 // } @prototype
 //
@@ -861,6 +862,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
+		case cmValidateXml:             PPValidateXml(); break;
 		case cmConstructionTest:        DoConstructionTest(); break;
 		case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break; // @v8.3.2
 		case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break; // @v8.3.6

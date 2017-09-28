@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1229,6 +1229,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 					else
 						pBlk->SetZero();
 				}
+				break;
 		}
 	}
 	return ok;
@@ -1307,17 +1308,16 @@ int SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	if(pBrw) {
-		if(pBrw->SetDefUserProc(PPViewBizScValByTempl::GetDataForBrowser, this)) {
-			SString name;
-			PPBizScTemplCol * p_col = 0;
-			for(uint i = 0; Pack.Cols.enumItems(&i, (void**)&p_col) > 0;) {
-				if(!(p_col->Flags & PPBizScTemplCol::fInvisible)) {
-					if(strlen(p_col->Name))
-						name = p_col->Name;
-					else
-						name.Z().Cat(i);
-					pBrw->insertColumn(-1, name, i + 1, MKSTYPE(S_ZSTRING, 20), ALIGN_RIGHT, BCO_USERPROC);
-				}
+		SString name;
+		PPBizScTemplCol * p_col = 0;
+		pBrw->SetDefUserProc(PPViewBizScValByTempl::GetDataForBrowser, this);
+		for(uint i = 0; Pack.Cols.enumItems(&i, (void**)&p_col) > 0;) {
+			if(!(p_col->Flags & PPBizScTemplCol::fInvisible)) {
+				if(strlen(p_col->Name))
+					name = p_col->Name;
+				else
+					name.Z().Cat(i);
+				pBrw->insertColumn(-1, name, i + 1, MKSTYPE(S_ZSTRING, 20), ALIGN_RIGHT, BCO_USERPROC);
 			}
 		}
 		ok = 1;

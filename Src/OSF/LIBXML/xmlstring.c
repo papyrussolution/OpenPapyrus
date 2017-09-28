@@ -430,26 +430,27 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len)
  * Returns a new xmlChar *, the original @cur is reallocated if needed
  * and should not be freed
  */
-
 xmlChar * xmlStrncat(xmlChar * cur, const xmlChar * add, int len) 
 {
-	int size;
-	xmlChar * ret;
-	if((add == NULL) || (len == 0))
+	if(!add || !len)
 		return cur;
-	if(len < 0)
+	else if(len < 0)
 		return 0;
-	if(!cur)
-		return(xmlStrndup(add, len));
-	size = sstrlen(cur);
-	ret = (xmlChar*)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
-	if(!ret) {
-		xmlErrMemory(NULL, 0);
-		return cur;
+	else if(!cur)
+		return xmlStrndup(add, len);
+	else {
+		int size = sstrlen(cur);
+		xmlChar * ret = (xmlChar*)SAlloc::R(cur, (size + len + 1) * sizeof(xmlChar));
+		if(!ret) {
+			xmlErrMemory(NULL, 0);
+			return cur;
+		}
+		else {
+			memcpy(&ret[size], add, len * sizeof(xmlChar));
+			ret[size + len] = 0;
+			return ret;
+		}
 	}
-	memcpy(&ret[size], add, len * sizeof(xmlChar));
-	ret[size + len] = 0;
-	return ret;
 }
 /**
  * xmlStrncatNew:
@@ -486,7 +487,6 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
 		return ret;
 	}
 }
-
 /**
  * xmlStrcat:
  * @cur:  the original xmlChar * array
@@ -498,17 +498,19 @@ xmlChar * xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len)
  *
  * Returns a new xmlChar * containing the concatenated string.
  */
-xmlChar * xmlStrcat(xmlChar * cur, const xmlChar * add) 
+xmlChar * FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add) 
 {
-	const xmlChar * p = add;
-	if(add == NULL) return cur;
-	if(!cur)
+	if(add == NULL) 
+		return cur;
+	else if(!cur)
 		return sstrdup(add);
-	while(*p != 0) 
-		p++;  /* non input consuming */
-	return xmlStrncat(cur, add, p - add);
+	else {
+		const xmlChar * p = add;
+		while(*p != 0) 
+			p++;  /* non input consuming */
+		return xmlStrncat(cur, add, p - add);
+	}
 }
-
 /**
  * xmlStrPrintf:
  * @buf:   the result buffer.

@@ -28,10 +28,10 @@
 	#include <dwrite.h>
 #endif
 #ifdef SCI_LEXER
-	#include "SciLexer.h"
+	//#include "SciLexer.h"
 #endif
 #ifdef SCI_LEXER
-	#include "ExternalLexer.h"
+	//#include "ExternalLexer.h"
 #endif
 #include "PlatWin.h"
 #include "HanjaDic.h"
@@ -60,16 +60,14 @@
 #define SC_INDICATOR_TARGET INDIC_IME+1
 #define SC_INDICATOR_CONVERTED INDIC_IME+2
 #define SC_INDICATOR_UNKNOWN INDIC_IME_MAX
-
 #ifndef SCS_CAP_SETRECONVERTSTRING
-#define SCS_CAP_SETRECONVERTSTRING 0x00000004
-#define SCS_QUERYRECONVERTSTRING 0x00020000
-#define SCS_SETRECONVERTSTRING 0x00010000
+	#define SCS_CAP_SETRECONVERTSTRING 0x00000004
+	#define SCS_QUERYRECONVERTSTRING 0x00020000
+	#define SCS_SETRECONVERTSTRING 0x00010000
 #endif
 
 typedef BOOL (WINAPI *TrackMouseEventSig)(LPTRACKMOUSEEVENT);
-typedef UINT_PTR (WINAPI *SetCoalescableTimerSig)(HWND hwnd, UINT_PTR nIDEvent,
-    UINT uElapse, TIMERPROC lpTimerFunc, ULONG uToleranceDelay);
+typedef UINT_PTR (WINAPI *SetCoalescableTimerSig)(HWND hwnd, UINT_PTR nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc, ULONG uToleranceDelay);
 
 // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
 

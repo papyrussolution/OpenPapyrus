@@ -10,14 +10,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -27,37 +19,26 @@ using namespace Scintilla;
 //additionally numbers that follow 'M' can be contained in a keyword
 static bool FASTCALL IsSWordStart(const int ch, const int prev_ch)
 {
-	if(isalpha(ch) || (ch == '_') || ((isdec(ch)) && (prev_ch == 'M')))
-		return true;
-
-	return false;
+	return (isalpha(ch) || (ch == '_') || ((isdec(ch)) && (prev_ch == 'M'))) ? true : false;
 }
 
 //only digits that are not preceded by 'M' count as a number
 static bool FASTCALL IsSorcusNumber(const int ch, const int prev_ch)
 {
-	if((isdec(ch)) && (prev_ch != 'M'))
-		return true;
-
-	return false;
+	return ((isdec(ch)) && (prev_ch != 'M')) ? true : false;
 }
 
 //only = is a valid operator
 static bool FASTCALL IsSorcusOperator(const int ch)
 {
-	if(ch == '=')
-		return true;
-
-	return false;
+	return (ch == '=') ? true : false;
 }
 
-static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseSorcusDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	WordList &Command = *keywordlists[0];
 	WordList &Parameter = *keywordlists[1];
 	WordList &Constant = *keywordlists[2];
-
 	// Do not leak onto next line
 	if(initStyle == SCE_SORCUS_STRINGEOL)
 		initStyle = SCE_SORCUS_DEFAULT;

@@ -1015,7 +1015,7 @@ int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 	if(pOperRightsAry) {
 		_PPKeybordWKeyCfg  kwk_cfg;
 		pOperRightsAry->freeAll();
-		if(keyPos > 0 && PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) > 0) {
+		if(keyPos > 0 && PPRef->GetPropMainConfig(PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) > 0) {
 			for(int i = 0; i < WKEYRTCOUNT; i++) {
 				BitArray  key_pos_ary;
 				key_pos_ary.Init(&kwk_cfg.OperRights[i].KeyPos, 32);
@@ -1099,7 +1099,7 @@ int SLAPI EditDueToKeyboardRights()
 	KeybWKeyCfgDlg * p_dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_KEYBWKEYCFG, PPR_READ, 0));
 	THROW(CheckDialogPtr(&(p_dlg = new KeybWKeyCfgDlg())));
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) <= 0)
+	if(PPRef->GetPropMainConfig(PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) <= 0)
 		MEMSZERO(kwk_cfg);
 	p_dlg->setDTS(&kwk_cfg);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {

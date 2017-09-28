@@ -1336,7 +1336,7 @@ SString & SLAPI GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_
 	return rBuf;
 }
 
-SString & SLAPI GetObjectTitle(PPID objType, SString & rBuf)
+SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf)
 {
 	DS.GetObjectTitle(objType, rBuf);
 	return rBuf;

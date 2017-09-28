@@ -72,7 +72,7 @@ void xmlCheckVersion(int version)
  *
  * Handle a redefinition of attribute error
  */
-void xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
+void FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -86,7 +86,6 @@ void xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 	else
 		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "Memory allocation failed\n");
 }
-
 /**
  * __xmlErrEncoding:
  * @ctxt:  an XML parser context
@@ -227,7 +226,7 @@ int xmlParserInputRead(xmlParserInputPtr in ATTRIBUTE_UNUSED, int len ATTRIBUTE_
  * Returns the amount of char read, or -1 in case of error, 0 indicate the
  * end of this entity
  */
-int xmlParserInputGrow(xmlParserInputPtr in, int len) 
+int FASTCALL xmlParserInputGrow(xmlParserInput * in, int len) 
 {
 	size_t ret;
 	size_t indx;
@@ -252,19 +251,15 @@ int xmlParserInputGrow(xmlParserInputPtr in, int len)
 	}
 	else
 		return 0;
-
 	/*
 	 * NOTE : in->base may be a "dangling" i.e. freed pointer in this
 	 *        block, but we use it really as an integer to do some
 	 *        pointer arithmetic. Insure will raise it as a bug but in
 	 *        that specific case, that's not !
 	 */
-
 	content = xmlBufContent(in->buf->buffer);
 	if(in->base != content) {
-		/*
-		 * the buffer has been reallocated
-		 */
+		// the buffer has been reallocated
 		indx = in->cur - in->base;
 		in->base = content;
 		in->cur = &content[indx];
@@ -273,60 +268,45 @@ int xmlParserInputGrow(xmlParserInputPtr in, int len)
 	CHECK_BUFFER(in);
 	return ret;
 }
-
 /**
  * xmlParserInputShrink:
  * @in:  an XML parser input
  *
  * This function removes used input for the parser.
  */
-void xmlParserInputShrink(xmlParserInputPtr in)
+void FASTCALL xmlParserInputShrink(xmlParserInput * in)
 {
-	size_t used;
-	size_t ret;
-	size_t indx;
-	const xmlChar * content;
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "Shrink\n");
 #endif
-	if(!in) return;
-	if(in->buf == NULL) return;
-	if(in->base == NULL) return;
-	if(in->cur == NULL) return;
-	if(in->buf->buffer == NULL) return;
-
-	CHECK_BUFFER(in);
-
-	used = in->cur - xmlBufContent(in->buf->buffer);
-	/*
-	 * Do not shrink on large buffers whose only a tiny fraction
-	 * was consumed
-	 */
-	if(used > INPUT_CHUNK) {
-		ret = xmlBufShrink(in->buf->buffer, used - LINE_LEN);
-		if(ret > 0) {
-			in->cur -= ret;
-			in->consumed += ret;
+	if(in && in->buf && in->base && in->cur && in->buf->buffer) {
+		CHECK_BUFFER(in);
+		const size_t used = in->cur - xmlBufContent(in->buf->buffer);
+		//
+		// Do not shrink on large buffers whose only a tiny fraction was consumed
+		//
+		if(used > INPUT_CHUNK) {
+			const size_t ret = xmlBufShrink(in->buf->buffer, used - LINE_LEN);
+			if(ret > 0) {
+				in->cur -= ret;
+				in->consumed += ret;
+			}
+			in->end = xmlBufEnd(in->buf->buffer);
 		}
-		in->end = xmlBufEnd(in->buf->buffer);
+		CHECK_BUFFER(in);
+		if(xmlBufUse(in->buf->buffer) <= INPUT_CHUNK) {
+			xmlParserInputBufferRead(in->buf, 2 * INPUT_CHUNK);
+			const xmlChar * content = xmlBufContent(in->buf->buffer);
+			if(in->base != content) {
+				// the buffer has been reallocated
+				const size_t indx = in->cur - in->base;
+				in->base = content;
+				in->cur = &content[indx];
+			}
+			in->end = xmlBufEnd(in->buf->buffer);
+			CHECK_BUFFER(in);
+		}
 	}
-	CHECK_BUFFER(in);
-	if(xmlBufUse(in->buf->buffer) > INPUT_CHUNK) {
-		return;
-	}
-	xmlParserInputBufferRead(in->buf, 2 * INPUT_CHUNK);
-	content = xmlBufContent(in->buf->buffer);
-	if(in->base != content) {
-		/*
-		 * the buffer has been reallocated
-		 */
-		indx = in->cur - in->base;
-		in->base = content;
-		in->cur = &content[indx];
-	}
-	in->end = xmlBufEnd(in->buf->buffer);
-
-	CHECK_BUFFER(in);
 }
 
 /************************************************************************
@@ -334,15 +314,13 @@ void xmlParserInputShrink(xmlParserInputPtr in)
 *		UTF8 character input and related functions		*
 *									*
 ************************************************************************/
-
 /**
  * xmlNextChar:
  * @ctxt:  the XML parser context
  *
  * Skip to the next char input char.
  */
-
-void xmlNextChar(xmlParserCtxt * ctxt)
+void FASTCALL xmlNextChar(xmlParserCtxt * ctxt)
 {
 	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) || !ctxt->input)
 		return;
@@ -366,7 +344,8 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 			 *   the single character #xA.
 			 */
 			if(*(ctxt->input->cur) == '\n') {
-				ctxt->input->line++; ctxt->input->col = 1;
+				ctxt->input->line++; 
+				ctxt->input->col = 1;
 			}
 			else
 				ctxt->input->col++;
@@ -382,7 +361,6 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 			 * Check for the 0x110000 limit too
 			 */
 			cur = ctxt->input->cur;
-
 			c = *cur;
 			if(c & 0x80) {
 				if(c == 0xC0)
@@ -422,22 +400,15 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 						val |= (cur[1] & 0x3f) << 6;
 						val |= cur[2] & 0x3f;
 					}
-					if(((val > 0xd7ff) && (val < 0xe000)) ||
-					    ((val > 0xfffd) && (val < 0x10000)) ||
-					    (val >= 0x110000)) {
-						xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR,
-						    "Char 0x%X out of allowed range\n",
-						    val);
+					if(((val > 0xd7ff) && (val < 0xe000)) || ((val > 0xfffd) && (val < 0x10000)) || (val >= 0x110000)) {
+						xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR, "Char 0x%X out of allowed range\n", val);
 					}
 				}
 				else
-					/* 2-byte code */
-					ctxt->input->cur += 2;
+					ctxt->input->cur += 2; // 2-byte code 
 			}
 			else
-				/* 1-byte code */
-				ctxt->input->cur++;
-
+				ctxt->input->cur++; // 1-byte code 
 			ctxt->nbChars++;
 			if(*ctxt->input->cur == 0)
 				xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
@@ -449,9 +420,9 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 		 * a compatible encoding for the ASCII set, since
 		 * XML constructs only use < 128 chars
 		 */
-
 		if(*(ctxt->input->cur) == '\n') {
-			ctxt->input->line++; ctxt->input->col = 1;
+			ctxt->input->line++; 
+			ctxt->input->col = 1;
 		}
 		else
 			ctxt->input->col++;
@@ -462,8 +433,7 @@ void xmlNextChar(xmlParserCtxt * ctxt)
 	}
 	if((*ctxt->input->cur == '%') && (!ctxt->html))
 		xmlParserHandlePEReference(ctxt);
-	if((*ctxt->input->cur == 0) &&
-	    (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0))
+	if((*ctxt->input->cur == 0) && (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0))
 		xmlPopInput(ctxt);
 	return;
 encoding_error:
@@ -474,22 +444,18 @@ encoding_error:
 	 * to ISO-Latin-1 (if you don't like this policy, just declare the
 	 * encoding !)
 	 */
-	if(!ctxt || (ctxt->input == NULL) ||
-	    (ctxt->input->end - ctxt->input->cur < 4)) {
+	if(!ctxt || !ctxt->input || (ctxt->input->end - ctxt->input->cur < 4)) {
 		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n", 0, 0);
 	}
 	else {
 		char buffer[150];
-		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
-		    ctxt->input->cur[0], ctxt->input->cur[1],
-		    ctxt->input->cur[2], ctxt->input->cur[3]);
+		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", ctxt->input->cur[0], ctxt->input->cur[1], ctxt->input->cur[2], ctxt->input->cur[3]);
 		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, 0);
 	}
 	ctxt->charset = XML_CHAR_ENCODING_8859_1;
 	ctxt->input->cur++;
 	return;
 }
-
 /**
  * xmlCurrentChar:
  * @ctxt:  the XML parser context

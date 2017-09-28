@@ -15,14 +15,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -30,30 +22,23 @@ using namespace Scintilla;
 
 static bool FASTCALL IsASelfDelimitingChar(const int ch)
 {
-	return (ch == '[' || ch == ']' || ch == '{' || ch == '}' ||
-	    ch == '/' || ch == '<' || ch == '>' ||
-	    ch == '(' || ch == ')' || ch == '%');
+	return oneof10(ch, '[', ']', '{', '}', '/', '<', '>', '(', ')', '%');
 }
 
 static bool FASTCALL IsAWhitespaceChar(const int ch)
 {
-	return (ch == ' '  || ch == '\t' || ch == '\r' ||
-	    ch == '\n' || ch == '\f' || ch == '\0');
+	return oneof6(ch, ' ', '\t', '\r', '\n', '\f', '\0');
 }
 
 static bool IsABaseNDigit(const int ch, const int base)
 {
 	int maxdig = '9';
 	int letterext = -1;
-
 	if(base <= 10)
 		maxdig = '0' + base - 1;
 	else
 		letterext = base - 11;
-
-	return ((ch >= '0' && ch <= maxdig) ||
-	    (ch >= 'A' && ch <= ('A' + letterext)) ||
-	    (ch >= 'a' && ch <= ('a' + letterext)));
+	return ((ch >= '0' && ch <= maxdig) || (ch >= 'A' && ch <= ('A' + letterext)) || (ch >= 'a' && ch <= ('a' + letterext)));
 }
 
 static bool FASTCALL IsABase85Char(const int ch)
@@ -61,20 +46,14 @@ static bool FASTCALL IsABase85Char(const int ch)
 	return ((ch >= '!' && ch <= 'u') || ch == 'z');
 }
 
-static void ColourisePSDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColourisePSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	WordList &keywords1 = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];
 	WordList &keywords4 = *keywordlists[3];
 	WordList &keywords5 = *keywordlists[4];
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	int pslevel = styler.GetPropertyInt("ps.level", 3);
 	Sci_Position lineCurrent = styler.GetLine(startPos);
 	int nestTextCurrent = 0;
@@ -84,11 +63,9 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 	bool numHasPoint = false;
 	bool numHasExponent = false;
 	bool numHasSign = false;
-
 	for(; sc.More(); sc.Forward()) {
 		if(sc.atLineStart)
 			lineCurrent = styler.GetLine(sc.currentPos);
-
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_PS_COMMENT || sc.state == SCE_PS_DSC_VALUE) {
 			if(sc.atLineEnd) {
@@ -112,8 +89,7 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 		}
 		else if(sc.state == SCE_PS_NUMBER) {
 			if(IsASelfDelimitingChar(sc.ch) || IsAWhitespaceChar(sc.ch)) {
-				if((sc.chPrev == '+' || sc.chPrev == '-' ||
-					    sc.chPrev == 'E' || sc.chPrev == 'e') && numRadix == 0)
+				if(oneof4(sc.chPrev, '+', '-', 'E', 'e') && numRadix == 0)
 					sc.ChangeState(SCE_PS_NAME);
 				sc.SetState(SCE_C_DEFAULT);
 			}
@@ -160,21 +136,18 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 			if(IsASelfDelimitingChar(sc.ch) || IsAWhitespaceChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
-				if((pslevel >= 1 && keywords1.InList(s)) ||
-				    (pslevel >= 2 && keywords2.InList(s)) ||
-				    (pslevel >= 3 && keywords3.InList(s)) ||
-				    keywords4.InList(s) || keywords5.InList(s)) {
+				if((pslevel >= 1 && keywords1.InList(s)) || (pslevel >= 2 && keywords2.InList(s)) ||
+				    (pslevel >= 3 && keywords3.InList(s)) || keywords4.InList(s) || keywords5.InList(s)) {
 					sc.ChangeState(SCE_PS_KEYWORD);
 				}
 				sc.SetState(SCE_C_DEFAULT);
 			}
 		}
-		else if(sc.state == SCE_PS_LITERAL || sc.state == SCE_PS_IMMEVAL) {
+		else if(oneof2(sc.state, SCE_PS_LITERAL, SCE_PS_IMMEVAL)) {
 			if(IsASelfDelimitingChar(sc.ch) || IsAWhitespaceChar(sc.ch))
 				sc.SetState(SCE_C_DEFAULT);
 		}
-		else if(sc.state == SCE_PS_PAREN_ARRAY || sc.state == SCE_PS_PAREN_DICT ||
-		    sc.state == SCE_PS_PAREN_PROC) {
+		else if(oneof3(sc.state, SCE_PS_PAREN_ARRAY, SCE_PS_PAREN_DICT, SCE_PS_PAREN_PROC)) {
 			sc.SetState(SCE_C_DEFAULT);
 		}
 		else if(sc.state == SCE_PS_TEXT) {
@@ -208,7 +181,6 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 				styler.ColourTo(sc.currentPos, SCE_PS_BADSTRINGCHAR);
 			}
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_C_DEFAULT) {
 			if(sc.ch == '[' || sc.ch == ']') {
@@ -264,16 +236,14 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 					sc.SetState(SCE_PS_COMMENT);
 				}
 			}
-			else if((sc.ch == '+' || sc.ch == '-' || sc.ch == '.') &&
-			    IsABaseNDigit(sc.chNext, 10)) {
+			else if((sc.ch == '+' || sc.ch == '-' || sc.ch == '.') && IsABaseNDigit(sc.chNext, 10)) {
 				sc.SetState(SCE_PS_NUMBER);
 				numRadix = 0;
 				numHasPoint = (sc.ch == '.');
 				numHasExponent = false;
 				numHasSign = (sc.ch == '+' || sc.ch == '-');
 			}
-			else if((sc.ch == '+' || sc.ch == '-') && sc.chNext == '.' &&
-			    IsABaseNDigit(sc.GetRelative(2), 10)) {
+			else if((sc.ch == '+' || sc.ch == '-') && sc.chNext == '.' && IsABaseNDigit(sc.GetRelative(2), 10)) {
 				sc.SetState(SCE_PS_NUMBER);
 				numRadix = 0;
 				numHasPoint = false;
@@ -291,16 +261,13 @@ static void ColourisePSDoc(Sci_PositionU startPos,
 				sc.SetState(SCE_PS_NAME);
 			}
 		}
-
 		if(sc.atLineEnd)
 			styler.SetLineState(lineCurrent, nestTextCurrent);
 	}
-
 	sc.Complete();
 }
 
-static void FoldPSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[],
-    Accessor &styler)
+static void FoldPSDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
 {
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	bool foldAtElse = styler.GetPropertyInt("fold.at.else", 0) != 0;

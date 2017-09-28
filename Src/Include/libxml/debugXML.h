@@ -83,7 +83,7 @@ typedef xmlShellCtxt * xmlShellCtxtPtr;
 
 struct _xmlShellCtxt {
 	char * filename;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * node;
 	xmlXPathContextPtr pctxt;
 	int loaded;

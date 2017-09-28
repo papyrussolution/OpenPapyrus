@@ -17,19 +17,6 @@
 #ifdef _MSC_VER
 	#pragma warning(disable: 4786)
 #endif
-//#include <string>
-//#include <vector>
-//#include <map>
-//#include <algorithm>
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
-//#include "CharacterCategory.h"
 #include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE

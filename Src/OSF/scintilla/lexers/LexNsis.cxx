@@ -13,7 +13,6 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
-
 /*
    // located in SciLexer.h
    #define SCLEX_NSIS 43

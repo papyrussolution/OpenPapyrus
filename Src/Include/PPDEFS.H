@@ -10207,6 +10207,11 @@
 	#define CTLSEL_PRCBAUTOC_RULEGRP  (5 + WINDOWS_ID_BIAS)
 	#define CTL_PRCBAUTOC_OP          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRCBAUTOC_OP       (7 + WINDOWS_ID_BIAS)
+#define DLG_XMLVLD                1326
+	#define CTL_XMLVLD_XSDFILE        (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_XMLVLD_XSDFILE     (2 + WINDOWS_ID_BIAS)
+	#define CTL_XMLVLD_XMLFILE        (3 + WINDOWS_ID_BIAS)
+	#define CTLBRW_XMLVLD_XMLFILE     (4 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

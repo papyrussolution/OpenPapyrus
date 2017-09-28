@@ -408,7 +408,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 					long   sec = 0;
 					SFile  f(path, SFile::mRead);
 					if(f.IsValid()) {
-						f.ReadLine(buf = 0);
+						f.ReadLine(buf);
 						if((sec = (buf.CmpNC(p_quit) == 0) ? quit_after : buf.ToLong()) > 0) {
 							Timer = sec;
 							PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ACTIVESESSION, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

@@ -113,9 +113,7 @@ XMLPUBFUN void * XMLCALL xmlXPathPopExternal(xmlXPathParserContextPtr ctxt);
  *
  * Pushes the boolean @val on the context stack.
  */
-#define xmlXPathReturnBoolean(ctxt, val)				\
-	valuePush((ctxt), xmlXPathNewBoolean(val))
-
+#define xmlXPathReturnBoolean(ctxt, val) valuePush((ctxt), xmlXPathNewBoolean(val))
 /**
  * xmlXPathReturnTrue:
  * @ctxt:  an XPath parser context

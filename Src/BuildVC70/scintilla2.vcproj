@@ -877,9 +877,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Osf\scintilla\src\AutoComplete.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\CallTip.h">
 			</File>
 			<File
@@ -898,34 +895,13 @@
 				RelativePath="..\Osf\scintilla\src\Document.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\EditModel.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Editor.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\EditView.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\ExternalLexer.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\FontQuality.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\ILexer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\Indicator.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\KeyMap.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\LineMarker.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\MarginView.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\Partitioning.h">
@@ -940,9 +916,6 @@
 				RelativePath="..\Osf\scintilla\src\PositionCache.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\RESearch.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\RunStyles.h">
 			</File>
 			<File
@@ -953,9 +926,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\Scintilla.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\ScintillaBase.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\ScintillaWidget.h">

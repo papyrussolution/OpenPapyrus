@@ -3922,6 +3922,8 @@ PPTXT_FILPAT_PICT            "Изображения:*.bmp;*.jpg;*.jpeg;*.gif;*.
 PPTXT_FILPAT_SPIC            "Изображения, поддерживаемые Papyrus:*.svg;*.jpg;*.jpeg;*.png;*.bmp;*.ico;*.cur;*.gif"
 PPTXT_FILPAT_DDFBTR          "Файлы данных:*.ddf;*.btr"
 PPTXT_FILPAT_REPORT          "Файлы отчетов:*.rpt"
+PPTXT_FILPAT_XML             "Файлы XML:*.xml"
+PPTXT_FILPAT_XSD             "Схема XML-файлов XSD:*.xsd"
 PPTXT_FILPAT_ICONS           "Иконки:*.ico"
 PPTXT_FILPAT_ALLLINKFILES    "Все поддерживаемые файлы:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif"
 PPTXT_FILPAT_TEXT            "Текстовые (txt):*.txt"
@@ -3931,7 +3933,7 @@ PPTXT_FILPAT_ADOBEACROBAT    "Adobe Acrobat:*.pdf"
 PPTXT_FILPAT_WTA             "Файлы графических инструментов:*.wta"
 PPTXT_FILPAT_WTM             "Файлы графических полотен:*.wtm"
 PPTXT_FILPAT_FMT             "Файлы описания форматов:*.fmt"
-PPTXT_FILPAT_PPYTEXT         "Текстовые файлы Papyrus (txt,ini,fmt,lbl,log,dl6,dl2):*.txt;*.ini;*.fmt;*.lbl;*.log;*.dl6;*.dl2"
+PPTXT_FILPAT_PPYTEXT         "Текстовые файлы Papyrus (txt,ini,xml,fmt,lbl,log,dl6,dl2):*.txt;*.ini;*.xml;*.fmt;*.lbl;*.log;*.dl6;*.dl2"
 PPTXT_FILPAT_SARTRRULE       "Файлы правил обработки текстовых объектов (sr):*.sr"
 PPTXT_FILPAT_OSM             "Файлы @{brand_openstreetmap} (osm):*.osm"
 PPTXT_FILPAT_WORKBOOKATTACH  "Содержание рабочих книг:*.html;*.txt;*.vm;*.jpg;*.png;*.gif"
@@ -4662,6 +4664,9 @@ PPTXT_BNKTRM_RETURN               "@{op}: @{return}\n@{processing}..."
 PPTXT_BNKTRM_CLOSESESS            "@{op}: ЗАКРЫТИЕ ДНЯ\n@{processing}..."
 
 PPTXT_PREDEFIMPEXPBILLFMT         "1,Nalog.ru Счет-фактура (ON_SFAKT);2,Nalog.ru Акт выполненных работ (исполнитель)"
+PPTXT_NALOGRU_WORKSWERETRANSFERED "Результаты работ переданы (услуги оказаны)"
+PPTXT_NALOGRU_SHIPPINGBILL        "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
+PPTXT_NALOGRU_UPDOPCONTENT        "Товары переданы и услуги оказаны в полном объеме"
 //
 // LastText
 
@@ -11490,4 +11495,5 @@ PPHSC_RU_SURNAME               "Фамилия"
 PPHSC_RU_NAME                  "Имя"
 PPHSC_RU_PATRONYMIC            "Отчество"
 PPHSC_RU_SIGNER                "Подписант"
+PPHSC_RU_IDPARTICIPANT         "ИдСв"
 #!}

@@ -8,14 +8,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -23,8 +15,7 @@ using namespace Scintilla;
 
 static bool FASTCALL AtEOL(Accessor &styler, Sci_PositionU i)
 {
-	return (styler[i] == '\n') ||
-	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
+	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
 static bool FASTCALL isassignchar(uchar ch)
@@ -32,12 +23,8 @@ static bool FASTCALL isassignchar(uchar ch)
 	return (ch == '=') || (ch == ':');
 }
 
-static void ColourisePropsLine(char * lineBuffer,
-    Sci_PositionU lengthLine,
-    Sci_PositionU startLine,
-    Sci_PositionU endPos,
-    Accessor &styler,
-    bool allowInitialSpaces)
+static void ColourisePropsLine(char * lineBuffer, Sci_PositionU lengthLine, Sci_PositionU startLine,
+    Sci_PositionU endPos, Accessor &styler, bool allowInitialSpaces)
 {
 	Sci_PositionU i = 0;
 	if(allowInitialSpaces) {

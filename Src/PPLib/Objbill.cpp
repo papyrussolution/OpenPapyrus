@@ -5,6 +5,30 @@
 #include <pp.h>
 #pragma hdrstop
 
+SLAPI PPObjBill::EditParam::EditParam()
+{
+	Flags = 0;
+}
+
+SLAPI PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID excludeLotID, long flags)
+{
+	GoodsList.addnz(goodsID);
+	LocID = locID;
+	ExcludeLotID = excludeLotID;
+	Period.SetZero();
+	Flags = flags;
+	//
+	RetLotID = 0;
+	MEMSZERO(RetLotRec);
+}
+
+SLAPI PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm)
+{
+	THISZERO();
+	SETFLAG(Flags, fAutomat, automat);
+	SETFLAG(Flags, fDontConfirm, dontConfirm);
+}
+
 //static
 int SLAPI PPObjBill::IsPoolOwnedByBill(PPID assocID)
 {
@@ -2587,14 +2611,14 @@ int SLAPI PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		__PPBillConfig * p_temp = 0;
 		MEMSZERO(temp);
 		if(sz <= fix_size) {
-			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, &temp, sz);
+			ok = p_ref->GetPropMainConfig(PPPRP_BILLCFG, &temp, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 			p_temp = &temp;
 		}
 		else {
 			THROW_SL(temp_buf.Alloc(sz));
-			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, (char *)temp_buf, sz);
+			ok = p_ref->GetPropMainConfig(PPPRP_BILLCFG, (char *)temp_buf, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 			p_temp = (__PPBillConfig *)(const char *)temp_buf;
@@ -6956,7 +6980,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	THROW(CheckParentStatus(pPack->Rec.ID));
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(r_rt.CheckBillDate(pPack->Rec.Dt));
-		THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
+		if(!(pPack->ProcessFlags & PPBillPacket::pfIgnoreOpRtList)) // @v9.8.3
+			THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)); // @v9.6.1
 		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
@@ -7811,8 +7836,11 @@ int SLAPI PPObjBill::RecalcTurns(PPID id, long flags, int use_ta)
 	if(Search(id) > 0) {
 		PPBillPacket pack;
 		THROW(ExtractPacket(id, &pack));
-		if(pack.Rec.OpID && !(pack.Rec.Flags & BILLF_NOATURN) &&
-			(pack.OpTypeID != PPOPT_ACCTURN || CheckOpFlags(pack.Rec.OpID, OPKF_EXTACCTURN))) {
+		if(pack.Rec.OpID && !(pack.Rec.Flags & BILLF_NOATURN) && (pack.OpTypeID != PPOPT_ACCTURN || CheckOpFlags(pack.Rec.OpID, OPKF_EXTACCTURN))) {
+			// @v9.8.3 {
+			if(flags & BORTF_IGNOREOPRTLIST)
+				pack.ProcessFlags |= PPBillPacket::pfIgnoreOpRtList;
+			// } @v9.8.3 
 			if(flags & BORTF_RECALCTRFRS) {
 				PPTransferItem * p_ti;
 				for(uint i = 0; pack.EnumTItems(&i, &p_ti);)

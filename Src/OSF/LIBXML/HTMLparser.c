@@ -478,7 +478,6 @@ encoding_error:
 	*len = 1;
 	return((int)*ctxt->input->cur);
 }
-
 /**
  * htmlSkipBlankChars:
  * @ctxt:  the HTML parser context
@@ -491,8 +490,7 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 {
 	int res = 0;
 	while(IS_BLANK_CH(*(ctxt->input->cur))) {
-		if((*ctxt->input->cur == 0) &&
-		    (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0)) {
+		if((*ctxt->input->cur == 0) && (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0)) {
 			xmlPopInput(ctxt);
 		}
 		else {
@@ -1320,7 +1318,7 @@ static int htmlCheckParagraph(htmlParserCtxtPtr ctxt)
 		else {
 			if(htmlOmittedDefaultValue) {
 				for(int i = 0; htmlNoContentElements[i] != NULL; i++) {
-					if(sstreq(tag, BAD_CAST htmlNoContentElements[i])) {
+					if(sstreq(tag, htmlNoContentElements[i])) {
 						htmlAutoClose(ctxt, BAD_CAST "p");
 						htmlCheckImplied(ctxt, BAD_CAST "p");
 						htmlnamePush(ctxt, BAD_CAST "p");
@@ -3552,16 +3550,15 @@ static int htmlParseEndTag(htmlParserCtxtPtr ctxt)
 	 * of the stack.
 	 */
 	if(!sstreq(name, ctxt->name)) {
-		if((ctxt->name != NULL) && (!sstreq(ctxt->name, name))) {
+		if(ctxt->name && !sstreq(ctxt->name, name)) {
 			htmlParseErr(ctxt, XML_ERR_TAG_NAME_MISMATCH, "Opening and ending tag mismatch: %s and %s\n", name, ctxt->name);
 		}
 	}
-
 	/*
 	 * SAX: End of Tag
 	 */
 	oldname = ctxt->name;
-	if((oldname != NULL) && (sstreq(oldname, name))) {
+	if(oldname && sstreq(oldname, name)) {
 		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlNodeInfoPop(ctxt);

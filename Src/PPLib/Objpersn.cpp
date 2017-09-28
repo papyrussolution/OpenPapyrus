@@ -327,6 +327,14 @@ int SLAPI VCard::GetAddrs(SString &)
 //
 //
 //
+SLAPI PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePattern, long flags)
+{
+	NamePattern = pNamePattern;
+	Flags = flags;
+}
+//
+//
+//
 const char * PersonAddImageFolder = "PersonAddImageFolder";
 
 struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
@@ -365,7 +373,7 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, 0, 0));
+		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, 0, 0));
 		is_new = (r > 0) ? 0 : 1;
 		if(pCfg) {
 			size_t ext_size = 0;
@@ -417,7 +425,7 @@ int SLAPI PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 }
 
 //static
-int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
+int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 
@@ -426,12 +434,12 @@ int SLAPI PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
 	Storage_PPPersonConfig * p_cfg = (Storage_PPPersonConfig *)SAlloc::M(sz);
 	THROW_MEM(p_cfg);
-	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+	THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
 		p_cfg = (Storage_PPPersonConfig *)SAlloc::R(p_cfg, sz);
 		THROW_MEM(p_cfg);
-		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	}
 	if(r > 0) {
 		pCfg->Flags             = p_cfg->Flags;

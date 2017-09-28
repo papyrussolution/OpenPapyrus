@@ -2629,7 +2629,7 @@ int SLAPI PPDebtorStatConfig::Read(PPDebtorStatConfig * pCfg)
 {
 	int    r = -1;
 	if(pCfg) {
-		r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DEBTORSTATCFG, pCfg, sizeof(*pCfg));
+		r = PPRef->GetPropMainConfig(PPPRP_DEBTORSTATCFG, pCfg, sizeof(*pCfg));
 		if(r <= 0)
 			memzero(pCfg, sizeof(*pCfg));
 		if(pCfg->PaymSigmFactor <= 0.0 || pCfg->PaymSigmFactor > 1000.0)

@@ -1133,14 +1133,9 @@ void BrowserWindow::CalcRight()
 BrowserDef * BrowserWindow::getDef()
 	{ return P_Def; }
 
-int BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr)
+void BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr)
 {
-	if(P_Def) {
-		P_Def->SetUserProc(proc, extraPtr);
-		return 1;
-	}
-	else
-		return 0;
+	CALLPTRMEMB(P_Def, SetUserProc(proc, extraPtr));
 }
 
 void BrowserWindow::SetupScroll()

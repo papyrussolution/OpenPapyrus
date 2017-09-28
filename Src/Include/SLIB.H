@@ -2514,6 +2514,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
 #define TIMF_TIMEZONE  0x0020  // +0300
 #define TIMF_NODIV     0x0040  // @v9.4.3
+#define TIMF_DOTDIV    0x0080  // @v9.8.3 Разделители часов, минут и серкунд - точки. Например: 23.20.59
 //
 // String format flags
 //

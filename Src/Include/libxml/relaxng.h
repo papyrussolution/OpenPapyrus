@@ -41,10 +41,7 @@ typedef void (XMLCDECL *xmlRelaxNGValidityErrorFunc)(void * ctx, const char * ms
  *
  * Signature of a warning callback from a Relax-NG validation
  */
-typedef void (XMLCDECL *xmlRelaxNGValidityWarningFunc)(void * ctx,
-    const char * msg,
-    ...) LIBXML_ATTR_FORMAT(2, 3);
-
+typedef void (XMLCDECL *xmlRelaxNGValidityWarningFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 /**
  * A schemas validation context
  */
@@ -130,7 +127,7 @@ XMLPUBFUN void XMLCALL xmlRelaxNGSetParserErrors(xmlRelaxNGParserCtxtPtr ctxt, x
 XMLPUBFUN int XMLCALL xmlRelaxNGGetParserErrors(xmlRelaxNGParserCtxtPtr ctxt, xmlRelaxNGValidityErrorFunc * err, xmlRelaxNGValidityWarningFunc * warn, void ** ctx);
 XMLPUBFUN void XMLCALL xmlRelaxNGSetParserStructuredErrors(xmlRelaxNGParserCtxtPtr ctxt, xmlStructuredErrorFunc serror, void * ctx);
 XMLPUBFUN xmlRelaxNGPtr XMLCALL xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt);
-XMLPUBFUN void XMLCALL xmlRelaxNGFree(xmlRelaxNGPtr schema);
+XMLPUBFUN void XMLCALL xmlRelaxNGFree(xmlRelaxNG * schema);
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN void XMLCALL xmlRelaxNGDump(FILE * output, xmlRelaxNGPtr schema);
 XMLPUBFUN void XMLCALL xmlRelaxNGDumpTree(FILE * output, xmlRelaxNGPtr schema);

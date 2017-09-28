@@ -2097,7 +2097,7 @@ void SLAPI ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 
 IMPL_OBJ_FETCH(PPObjArticle, ArticleTbl::Rec, ArticleCache);
 
-int SLAPI IsSupplVATFree(PPID supplID)
+int FASTCALL IsSupplVATFree(PPID supplID)
 {
 	ArticleCache * p_cache = GetDbLocalCachePtr <ArticleCache> (PPOBJ_ARTICLE);
 	return p_cache ? p_cache->IsSupplVatFree(supplID) : 0;

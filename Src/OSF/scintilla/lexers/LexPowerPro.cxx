@@ -31,14 +31,6 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include "ILexer.h"
-//#include "SciLexer.h"
-//#include "WordList.h"
-//#include "LexAccessor.h"
-//#include "Accessor.h"
-//#include "StyleContext.h"
-//#include "CharacterSet.h"
-//#include "LexerModule.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -51,9 +43,8 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 
 static bool FASTCALL IsLineEndChar(uchar ch)
 {
-	return ch == 0x0a               //LF
-	       || ch == 0x0c            //FF
-	       || ch == 0x0d;           //CR
+	//LF FF CR
+	return (ch == 0x0a || ch == 0x0c || ch == 0x0d);
 }
 
 static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)

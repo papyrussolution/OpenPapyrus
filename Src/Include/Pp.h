@@ -3613,8 +3613,13 @@ public:
 	// свойства объекта { obj, id }. В противном случае удаляются только
 	// свойства с ИД == prop.
 	//
-	int    SLAPI RemoveProp(PPID, PPID, PPID, int use_ta);
-	int    SLAPI GetProp(PPID, PPID, PPID, void * = 0, size_t sz = 0);
+	int    SLAPI RemoveProp(PPID objType, PPID objID, PPID prop, int use_ta);
+	int    SLAPI GetProp(PPID objType, PPID objID, PPID prop, void * pBuf = 0, size_t sz = 0);
+	//
+	// Descr: Вызывает GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, pBuf, sz)
+	// Note: Реализована исключительно для упрощения кода.
+	//
+	int    SLAPI GetPropMainConfig(PPID prop, void * pBuf, size_t sz);
 	int    SLAPI GetPropActualSize(PPID objType, PPID objID, PPID prop, size_t * pActualSize);
 	int    SLAPI EnumProps(PPID objType, PPID objID, PPID * pProp, void * pData = 0, uint sz = 0);
 	int    SLAPI GetConfig(PPID, PPID, PPID cfgID, void * = 0, uint sz = 0);
@@ -7118,8 +7123,8 @@ PPID   SLAPI GetAgentAccSheet();
 // Descr: Если статья articleID соотносится с поставщиком, освобожденным от НДС,
 //   то функция IsSupplVATFree возвращает (>0).
 //
-int    SLAPI IsSupplVATFree(PPID articleID); // @>>ArticleCache::IsSupplVatFree
-int    SLAPI IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
+int    FASTCALL IsSupplVATFree(PPID articleID); // @>>ArticleCache::IsSupplVatFree
+int    FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
 //
 // Descr: GetSupplText если suppl != 0 возвращает строку вида "Поставщик: XXX" и
 //   код возврата > 0. В противном случае - пустую строку и код < 0.
@@ -9986,7 +9991,7 @@ public:
 	int    SLAPI Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE = ZERODATE);
 	int    SLAPI Add(const PUGI *, LDATE = ZERODATE);
 	int    SLAPI Add__(const PUGL *);
-	int    SLAPI Log(PPLogger * pLogger) const;
+	int    FASTCALL Log(PPLogger * pLogger) const;
 	void   FASTCALL GetItemsLocList(PPIDArray & rList) const;
 	int    SLAPI GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const;
 	//
@@ -10258,7 +10263,7 @@ public:
 	int    SLAPI InitACPacket();
 	int    SLAPI CreateAccTurn(PPAccTurn *) const;
 	int    SLAPI UngetCounter();
-	void   SLAPI SetQuantitySign(int minus /*= -1*/);
+	void   FASTCALL SetQuantitySign(int minus /*= -1*/);
 	//
 	// Descr: Сортирует строки по параметру PPTransferItem::RByBill
 	// Note: Использовать очень аккуратно, поскольку существуют привязки к позициям строк в массиве Lots
@@ -10328,8 +10333,8 @@ public:
 	//
 	void   SLAPI SetTotalDiscount(double dis, int pctdis, int rmvexcise);
 	int    SLAPI SumAmounts(AmtList *, int fromDB = 0);
-	int    SLAPI InitAmounts(const AmtList *);
-	int    SLAPI InitAmounts(int fromDB = 0);
+	int    FASTCALL InitAmounts(const AmtList *);
+	int    FASTCALL InitAmounts(int fromDB = 0);
 	//
 	// Descr: Идентифицирует долговую размерность, которой принадлежи документ.
 	//   Идентификатор размерности возвращается по указателю pDebtDimID.
@@ -10592,8 +10597,10 @@ public:
 		pfIgnoreStatusRestr     = 0x00004000, // @v8.6.6 При изменении документа игнорировать ограничения статуса
 		pfForceRByBill          = 0x00008000, // @v8.8.6 Для новых строк документа использовать тот RByBill, который указан (не обнулять)
 		pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
-		pfUpdateProhibited      = 0x00020000  // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
+		pfUpdateProhibited      = 0x00020000, // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
 			// (например, по причене не полной загрузки).
+		pfIgnoreOpRtList        = 0x00040000  // @v9.8.3 При изменении документа игнорировать ограничения списка доступных операций.
+			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
@@ -12213,7 +12220,7 @@ public:
 	int    SLAPI CheckObjForFilt(PPID objType, PPID objID, const SysJournalFilt * pFilt);
 	int    SLAPI DoMaintain(LDATE toDt, int recover, PPLogger * pLogger);
 	int    SLAPI Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
-	int    SLAPI GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen);
+	void   SLAPI GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen);
 private:
 	int    SLAPI GetObjEventList(PPID objType, PPID objID, const PPIDArray * pActList, SArray * pResultList);
 	SjRsrvTbl * P_RsrvT;
@@ -16768,7 +16775,7 @@ struct PPGlobalUserAcc {
 	PPID   PersonID;       // -->Person.ID
 };
 //
-// @v7.2.3
+// Descr: Пакет глобальной учетной записи
 //
 class PPGlobalUserAccPacket {
 public:
@@ -16781,7 +16788,7 @@ public:
 
 class PPObjGlobalUserAcc : public PPObjReference {
 public:
-	static int SLAPI ReadConfig(PPGlobalUserAccConfig * pCfg);
+	static int FASTCALL ReadConfig(PPGlobalUserAccConfig * pCfg);
 	static int SLAPI EditConfig();
 
 	SLAPI  PPObjGlobalUserAcc(void * extraPtr = 0);
@@ -19134,7 +19141,7 @@ struct PalmPaneData {
 
 class PPObjStyloPalm : public PPObjReference {
 public:
-	static int SLAPI ReadConfig(PPStyloPalmConfig *);
+	static int FASTCALL ReadConfig(PPStyloPalmConfig *);
 	static int SLAPI EditConfig();
 	static int SLAPI ImpExp(PalmPaneData *);
 	static int SLAPI EditImpExpData(PalmPaneData *);
@@ -20035,7 +20042,7 @@ private:
 
 class PPObjWorkbook : public PPObject {
 public:
-	static int SLAPI ReadConfig(PPWorkbookConfig * pCfg);
+	static int FASTCALL ReadConfig(PPWorkbookConfig * pCfg);
 	static int SLAPI EditConfig();
 
 	SLAPI  PPObjWorkbook(void * extraPtr = 0);
@@ -21112,7 +21119,7 @@ struct QuotKindFilt {
 struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
 	SLAPI  PPQuotKind2();
 	int    SLAPI GetTimeRange(TimeRange & rRange) const;
-	int    SLAPI SetTimeRange(const TimeRange & rRange);
+	void   SLAPI SetTimeRange(const TimeRange & rRange);
 	int    SLAPI GetAmtRange(RealRange * pRange) const;
 	int    SLAPI SetAmtRange(const RealRange * pRange);
 	int    SLAPI GetRestrText(SString & rBuf) const;
@@ -21155,7 +21162,7 @@ DECL_REF_REC(PPQuotKind);
 class PPQuotKindPacket {
 public:
 	SLAPI  PPQuotKindPacket();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    SLAPI GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const;
 	PPQuotKindPacket & FASTCALL operator = (const PPQuotKindPacket &);
 
@@ -22066,7 +22073,7 @@ public:
 
 class PPObjLocation : public PPObject {
 public:
-	static int SLAPI ReadConfig(PPLocationConfig * pCfg);
+	static int FASTCALL ReadConfig(PPLocationConfig * pCfg);
 	static int SLAPI WriteConfig(const PPLocationConfig * pCfg, int use_ta);
 	static int SLAPI EditConfig();
 	static int SLAPI FetchConfig(PPLocationConfig * pCfg);
@@ -22745,15 +22752,12 @@ public:
 		sapfMatchWholeWord = 0x0001
 	};
 	struct SrchAnalogPattern {
-		SrchAnalogPattern(const char * pNamePattern = 0, long flags = 0)
-		{
-			NamePattern = pNamePattern;
-			Flags = flags;
-		}
+		SLAPI  SrchAnalogPattern(const char * pNamePattern = 0, long flags = 0);
+
 		SString NamePattern;
 		long   Flags;             // Флаги (PPObjPerson::sapfXXX)
 	};
-	static int SLAPI ReadConfig(PPPersonConfig *);
+	static int FASTCALL ReadConfig(PPPersonConfig *);
 	static int SLAPI WriteConfig(const PPPersonConfig *, int use_ta);
 	static int SLAPI EditConfig();
 	static int SLAPI ReplacePerson(PPID srcID = 0, PPID srcKindID = 0);
@@ -24137,8 +24141,8 @@ public:
 	int    SLAPI InitPacket(PPPsnEventPacket * pPack, AddPersonEventFilt & rFilt, int interactive);
 	int    SLAPI GetPacket(PPID, PPPsnEventPacket *);
 	int    SLAPI PutPacket(PPID * pID, PPPsnEventPacket *, int use_ta);
-	int    SLAPI Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
-	int    SLAPI GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen);
+	void   SLAPI Subst(SubstGrpPersonEvent sgpe, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
+	void   SLAPI GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pBuf, size_t bufLen);
 	//
 	// Descr: Проверяет выполнение ограничений pConstr на персоналию personID и карту scardID
 	//
@@ -25763,7 +25767,7 @@ public:
 	};
 
 	static GoodsPacketKind SLAPI GetRecKind(const Goods2Tbl::Rec * pRec);
-	static int SLAPI ReadConfig(PPGoodsConfig *);
+	static int FASTCALL ReadConfig(PPGoodsConfig *);
 	static int SLAPI EditConfig();
 	static int SLAPI ReadGoodsExTitles(PPID grpID, SString & rBuf);
 
@@ -28704,41 +28708,41 @@ public:
 // PPObjBill::TurnPacket, а лишь запрещают обработку событий от
 // пользователя (мышь, клавиатура и пр.)
 //
-#define BILLST_NOADD         0x0001  // Запрет ввода документов
-#define BILLST_NORMV         0x0002  // Запрет удаления документов
-#define BILLST_NOUPD         0x0004  // Запрет изменения документов
-#define BILLST_NOOPR         (BILLST_NOADD|BILLST_NORMV|BILLST_NOUPD)
-#define BILLST_ORDERONLY     0x0008  // Показывать и добавлять только заказы
-#define BILLST_ACCBONLY      0x0010  // Показывать только бухгалтерские документы
-#define BILLST_INVONLY       0x0020  // Показывать только инвентаризацию
-#define BILLST_POOLONLY      0x0040  // Показывать только пулы документов
+#define BILLST_NOADD               0x0001  // Запрет ввода документов
+#define BILLST_NORMV               0x0002  // Запрет удаления документов
+#define BILLST_NOUPD               0x0004  // Запрет изменения документов
+#define BILLST_NOOPR               (BILLST_NOADD|BILLST_NORMV|BILLST_NOUPD)
+#define BILLST_ORDERONLY           0x0008  // Показывать и добавлять только заказы
+#define BILLST_ACCBONLY            0x0010  // Показывать только бухгалтерские документы
+#define BILLST_INVONLY             0x0020  // Показывать только инвентаризацию
+#define BILLST_POOLONLY            0x0040  // Показывать только пулы документов
 //
 // Специфические флаги доступа PPObjBill (в дополнение к общим PPR_XXX)
 //
-#define BILLRT_CASH          0x0100
-#define BILLRT_CLOSECASH     0x0200
-#define BILLRT_OPENCASH      0x0400
-#define BILLRT_MODDATE       0x0800
-#define BILLRT_SYSINFO       0x1000
-#define BILLRT_MODGOODS      0x2000 // Модификация товара в приходе
-#define BILLRT_USEWLABEL     0x4000 // Разрешение на использование WL
-#define BILLRT_ACCSCOST      0x8000 // Доступ к ценам поступления //
+#define BILLRT_CASH                0x0100
+#define BILLRT_CLOSECASH           0x0200
+#define BILLRT_OPENCASH            0x0400
+#define BILLRT_MODDATE             0x0800
+#define BILLRT_SYSINFO             0x1000
+#define BILLRT_MODGOODS            0x2000 // Модификация товара в приходе
+#define BILLRT_USEWLABEL           0x4000 // Разрешение на использование WL
+#define BILLRT_ACCSCOST            0x8000 // Доступ к ценам поступления //
 
-#define BILLOPRT_MULTUPD     0x0001 // Массовое изменение документов
-#define BILLOPRT_UNITEBILLS  0x0002 // Объединение документов
-#define BILLOPRT_MODOBJ      0x0004 // Модификация контрагента
-#define BILLOPRT_MODSTATUS   0x0008 // Модификация статуса
+#define BILLOPRT_MULTUPD           0x0001 // Массовое изменение документов
+#define BILLOPRT_UNITEBILLS        0x0002 // Объединение документов
+#define BILLOPRT_MODOBJ            0x0004 // Модификация контрагента
+#define BILLOPRT_MODSTATUS         0x0008 // Модификация статуса
 // @v6.3.0 #define BILLOPRT_NOTONLYOWNVIEW 0x0010 // @v6.2.8 Просмотр документов, не зависимо от того, каким пользователем созданы эти документы.
 	// Негативный смысл опции связан с тем, что по умолчанию, это значение флагов прав доступа включено.
-#define BILLOPRT_CANCELQUOT  0x0010 // Право на отмену установленной котировки в строке документа
-#define BILLOPRT_TOTALDSCNT  0x0020 // Право на установку скидки на весь документ
-#define BILLOPRT_MODFREIGHT  0x0040 // Право на модификацию фрахта. Опция действует независимо от права на модификацию
+#define BILLOPRT_CANCELQUOT        0x0010 // Право на отмену установленной котировки в строке документа
+#define BILLOPRT_TOTALDSCNT        0x0020 // Право на установку скидки на весь документ
+#define BILLOPRT_MODFREIGHT        0x0040 // Право на модификацию фрахта. Опция действует независимо от права на модификацию
 	// документа, но не переопределяет статусный запрет на модификацию.
-#define BILLOPRT_MODTRANSM   0x0080 // Право на изменение компонентов товарных документов, которые уже были переданы
+#define BILLOPRT_MODTRANSM         0x0080 // Право на изменение компонентов товарных документов, которые уже были переданы
 	// в другой раздел при том, что вносимые изменения не смогут быть изменены в разделе-получателе.
-#define BILLOPRT_ACCSSUPPL   0x0100 // @v7.2.4 Доступ к информации о поставщике лота
-#define BILLOPRT_REJECT      0x0200 // @v9.0.1 Право на установку признака 'Отклонен' на документе (если вид операции допускает такое действие)
-#define BILLOPRT_EMPTY       0x0400 // @v9.3.1 Право на сохранение пустого документа
+#define BILLOPRT_ACCSSUPPL         0x0100 // @v7.2.4 Доступ к информации о поставщике лота
+#define BILLOPRT_REJECT            0x0200 // @v9.0.1 Право на установку признака 'Отклонен' на документе (если вид операции допускает такое действие)
+#define BILLOPRT_EMPTY             0x0400 // @v9.3.1 Право на сохранение пустого документа
 //
 // Флаги функции PPObjBill::ConvertILTI
 //
@@ -28785,6 +28789,7 @@ public:
 //
 #define BORTF_NORECALCAMOUNTS     0x0001L // Don't recalc bill's amounts
 #define BORTF_RECALCTRFRS         0x0002L // Recalc transfer items (imply !BORTF_NORECALCAMOUNTS)
+#define BORTF_IGNOREOPRTLIST      0x0004L // @v9.8.3 При изменении пакета документа в нем устанавливается флаг PPBillPacket::pfIgnoreOpRtList
 //
 //
 //
@@ -28802,8 +28807,8 @@ class ReckonOpArList : public TSArray <ReckonOpArItem> {
 public:
 	SLAPI  ReckonOpArList();
 	SLAPI ~ReckonOpArList();
-	int    SLAPI Destroy();
-	PPID   SLAPI GetPaymOpIDByBillID(PPID billID) const;
+	void   SLAPI Destroy();
+	PPID   FASTCALL GetPaymOpIDByBillID(PPID billID) const;
 	int    SLAPI IsBillListSortingNeeded() const;
 };
 
@@ -29453,10 +29458,7 @@ public:
 	// Descr: Параметры редактирования документов
 	//
 	struct EditParam {
-		EditParam()
-		{
-			Flags = 0;
-		}
+		SLAPI  EditParam();
 		long   Flags; // PPObjBill::efXXX
 	};
 
@@ -29685,17 +29687,8 @@ public:
 	int    SLAPI SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID, ReceiptTbl::Rec * pRec);
 
 	struct SelectLotParam {
-		SelectLotParam(PPID goodsID, PPID locID, PPID excludeLotID, long flags)
-		{
-			GoodsList.addnz(goodsID);
-			LocID = locID;
-			ExcludeLotID = excludeLotID;
-			Period.SetZero();
-			Flags = flags;
-			//
-			RetLotID = 0;
-			MEMSZERO(RetLotRec);
-		}
+		SLAPI  SelectLotParam(PPID goodsID, PPID locID, PPID excludeLotID, long flags);
+
 		enum {
 			fFillLotRec     = 0x0001,
 			fWithSerialOnly = 0x0002,
@@ -29893,19 +29886,15 @@ public:
 	//   Документы в rBillList объединяются в группы по идентификатору
 	//   контрагента.
 	//
-	int    SLAPI CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList * pOrderList);
+	int    SLAPI CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList);
 	//
 	// Reckoning functions
 	//
 	int    SLAPI Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpKindID, PPID * pReckonBillID, int dateOption /* RECKON_DATE_XXX */, LDATE reckonDate, int use_ta);
 	int    SLAPI GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID locID, PPID obj2ID, const DateRange *, double * pDebt);
 	struct ReckonParam {
-		ReckonParam(int automat = 1, int dontConfirm = 0)
-		{
-			THISZERO();
-			SETFLAG(Flags, fAutomat, automat);
-			SETFLAG(Flags, fDontConfirm, dontConfirm);
-		}
+		SLAPI  ReckonParam(int automat = 1, int dontConfirm = 0);
+
 		enum {
 			fAutomat     = 0x0001, // Зачитывать автоматически (по умолчанию TRUE)
 			fDontConfirm = 0x0002, // Не запрашивать предупреждение (по умолчанию FALSE)
@@ -35621,7 +35610,7 @@ struct PPPredictConfig {   // @persistent @store(PropertyTbl)
 
 class Predictor {
 public:
-	static int SLAPI GetPredictCfg(PPPredictConfig *);
+	static int FASTCALL GetPredictCfg(PPPredictConfig *);
 	static int SLAPI PutPredictCfg(const PPPredictConfig *, int use_ta);
 
 	SLAPI  Predictor();
@@ -36790,7 +36779,7 @@ struct PriceListConfig {       // @persistent @store(PropertyTbl)
 	char   ExportSpec[256];    //
 };
 
-int SLAPI ReadPriceListConfig(PriceListConfig *);
+int FASTCALL ReadPriceListConfig(PriceListConfig *);
 
 #define PLISTF_PRESENTONLY  0x0001L  // Отфильтровывает только те строки,
 	// товар по которым присутствует на складе
@@ -44774,6 +44763,7 @@ public:
 	void   SLAPI SetInputFileName(const char * pFileName);
 private:
 	friend class TddoExprSet;
+	friend class TddoContentGraph;
 
 	struct Meta {
 		Meta();
@@ -44848,7 +44838,10 @@ private:
 		tInclude,   // 
 		tIterCount, // 
 		tMacro,     // @v9.8.2 #macro(MACRONAME $arg1, $arg2) $foo($arg1, $arg2, $request) #end
+		tMacroCall, // #macrosymb(arg_list) Вызов макроса
 		tSet,       // @v9.8.2 #set($var = value)
+		tBreak,
+		tStop,
 		tForEach,
 		tComment,   // ##         
 		tLiteral,
@@ -48261,7 +48254,7 @@ int    SLAPI EditPPObj(PPID objType, PPID objID);
 //
 // Descr: Возвращает наименование типа объекта (напр. "Документы", "Товары")
 //
-SString & SLAPI GetObjectTitle(PPID objType, SString & rBuf);
+SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf);
 //
 // Descr: Возвращает тип объекта, соответствующего символу pSymb.
 //   Если символ предполагает уточненяющее значение, то оно возвращается по

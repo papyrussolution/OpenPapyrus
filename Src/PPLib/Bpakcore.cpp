@@ -2174,7 +2174,7 @@ int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pCl
 	return ok; // @v9.5.1 @fix 1-->ok
 }
 
-void SLAPI PPBillPacket::SetQuantitySign(int minus)
+void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 {
 	PPTransferItem * p_ti;
 	for(uint i = 0; EnumTItems(&i, &p_ti);) {
@@ -2655,7 +2655,7 @@ int SLAPI PPBillPacket::ShrinkTRows(long fl /* = ETIEF_DIFFBYLOT | ETIEF_UNITEBY
 	return ok;
 }
 
-int SLAPI IsLotVATFree(const ReceiptTbl::Rec & rLotRec)
+int FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec)
 {
 	return BIN(IsSupplVATFree(rLotRec.SupplID) > 0 || PPObjLocation::CheckWarehouseFlags(rLotRec.LocID, LOCF_VATFREE));
 }
@@ -2717,13 +2717,13 @@ static void SLAPI AddSalesTax(PPTransferItem * pTI, double rate, int plus)
 struct TiDisItem {
 	double Price;
 	double Qtty;
-	uint16 Idx;
+	uint   Idx;
 };
 
 IMPL_CMPFUNC(TiDisItem, i1, i2)
 {
-	TiDisItem * p1 = (TiDisItem *)i1;
-	TiDisItem * p2 = (TiDisItem *)i2;
+	const TiDisItem * p1 = (const TiDisItem *)i1;
+	const TiDisItem * p2 = (const TiDisItem *)i2;
 	if(p1->Price < p2->Price)
 		return -1;
 	else if(p1->Price > p2->Price)
@@ -3169,7 +3169,7 @@ int SLAPI PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 	return ok;
 }
 
-int SLAPI PPBillPacket::InitAmounts(const AmtList * pList)
+int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 {
 	if(!(Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 		PPIDArray op_type_list; // Список типов операций, для которых следует
@@ -3225,7 +3225,7 @@ int SLAPI PPBillPacket::InitAmounts(const AmtList * pList)
 	return 1;
 }
 
-int SLAPI PPBillPacket::InitAmounts(int fromDB)
+int FASTCALL PPBillPacket::InitAmounts(int fromDB)
 {
 	AmtList al;
 	if(!(Rec.Flags & BILLF_FIXEDAMOUNTS))

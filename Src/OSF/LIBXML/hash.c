@@ -76,13 +76,13 @@ static ulong xmlHashComputeKey(xmlHashTablePtr table, const xmlChar * name, cons
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
-	if(name2 != NULL) {
+	if(name2) {
 		while((ch = *name2++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
-	if(name3 != NULL) {
+	if(name3) {
 		while((ch = *name3++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
 		}
@@ -390,11 +390,10 @@ int xmlHashUpdateEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlCh
  *
  * Returns the pointer to the userdata
  */
-void * xmlHashLookup(xmlHashTablePtr table, const xmlChar * name)
+void * FASTCALL xmlHashLookup(xmlHashTable * table, const xmlChar * name)
 {
-	return(xmlHashLookup3(table, name, NULL, NULL));
+	return xmlHashLookup3(table, name, NULL, NULL);
 }
-
 /**
  * xmlHashLookup2:
  * @table: the hash table
@@ -423,7 +422,6 @@ void * xmlHashQLookup(xmlHashTablePtr table, const xmlChar * prefix, const xmlCh
 {
 	return xmlHashQLookup3(table, prefix, name, NULL, NULL, NULL, NULL);
 }
-
 /**
  * xmlHashQLookup2:
  * @table: the hash table
@@ -663,16 +661,17 @@ void * xmlHashLookup3(xmlHashTablePtr table, const xmlChar * name, const xmlChar
 	if(table && name) {
 		ulong key = xmlHashComputeKey(table, name, name2, name3);
 		if(table->table[key].valid) {
-			xmlHashEntry * entry;
 			if(table->dict) {
-				for(entry = &(table->table[key]); entry != NULL; entry = entry->next) {
+				for(const xmlHashEntry * entry = &(table->table[key]); entry; entry = entry->next) {
 					if((entry->name == name) && (entry->name2 == name2) && (entry->name3 == name3))
-						return(entry->payload);
+						return entry->payload;
 				}
 			}
-			for(entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-				if((sstreq(entry->name, name)) && (sstreq(entry->name2, name2)) && (sstreq(entry->name3, name3)))
-					return(entry->payload);
+			{
+				for(const xmlHashEntry * entry = &(table->table[key]); entry; entry = entry->next) {
+					if(sstreq(entry->name, name) && sstreq(entry->name2, name2) && sstreq(entry->name3, name3))
+						return entry->payload;
+				}
 			}
 		}
 	}

@@ -179,7 +179,7 @@ int SLAPI PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, 0, 0));
+		THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, 0, 0));
 		is_new = (r > 0) ? 0 : 1;
 		if(pCfg) {
 			SBuffer buf;
@@ -233,12 +233,12 @@ int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 	if(PPRef->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
 		p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz);
 		THROW_MEM(p_cfg);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+		THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		if(r > 0 && p_cfg->GetSize() > sz) {
 			sz = p_cfg->GetSize();
 			p_cfg = (Storage_PPTSessionConfig *)SAlloc::R(p_cfg, sz);
 			THROW_MEM(p_cfg);
-			THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+			THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		}
 		if(r > 0) {
 			pCfg->Flags = p_cfg->Flags;
@@ -289,7 +289,7 @@ int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 ////static
 //int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 //{
-//	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_TSESSCFG, pCfg, sizeof(*pCfg));
+//	int    r = PPRef->GetPropMainConfig(PPPRP_TSESSCFG, pCfg, sizeof(*pCfg));
 //	if(r <= 0)
 //		memzero(pCfg, sizeof(*pCfg));
 //	return r;
@@ -1066,112 +1066,112 @@ int SLAPI PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, in
 
 int SLAPI PPObjTSession::PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	int    use_price = (GetConfig().Flags & PPTSessConfig::fUsePricing) ? 1 : 0;
 	PPID   main_goods_id = 0;
 	double qtty = 0.0;
 	double amount = 0.0;
 	TSessionTbl::Rec sess_rec;
 	TechTbl::Rec tec_rec;
-	THROW(PPStartTransaction(&ta, use_ta));
-	THROW(Search(sessID, &sess_rec) > 0);
-	if(sess_rec.TechID && TecObj.Fetch(sess_rec.TechID, &tec_rec) > 0)
-		main_goods_id = labs(tec_rec.GoodsID);
 	{
-		if(pRec) {
-			SString add_msg;
-			PPSetAddedMsgString(add_msg.Cat(pRec->Sign));
-			THROW_PP(oneof3(pRec->Sign, -1, +1, 0), PPERR_INVTSESLINESIGN);
-			if(pRec->Flags & TSESLF_REST) {
-				pRec->Sign = 0;
-				if(!pOprNo || *pOprNo == 0) {
-					if(pRec->Serial[0]) {
-						//
-						// Проследим, чтобы строка остатка в течении одной сессии по одному серийному номеру
-						// была единственной
-						//
-						TSessLineTbl::Rec rest_rec;
-						if(P_Tbl->SearchSerial(pRec->Serial, pRec->TSessID, 0, TSessionCore::sserRest, &rest_rec) > 0)
-							ASSIGN_PTR(pOprNo, rest_rec.OprNo);
-					}
-					else {
-						//
-						// @todo Проследить за тем, чтобы без серийного номера для одного товара
-						// в течении одной сессии была только одна строка остатка
-						//
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(Search(sessID, &sess_rec) > 0);
+		if(sess_rec.TechID && TecObj.Fetch(sess_rec.TechID, &tec_rec) > 0)
+			main_goods_id = labs(tec_rec.GoodsID);
+		{
+			if(pRec) {
+				SString add_msg;
+				PPSetAddedMsgString(add_msg.Cat(pRec->Sign));
+				THROW_PP(oneof3(pRec->Sign, -1, +1, 0), PPERR_INVTSESLINESIGN);
+				if(pRec->Flags & TSESLF_REST) {
+					pRec->Sign = 0;
+					if(!pOprNo || *pOprNo == 0) {
+						if(pRec->Serial[0]) {
+							//
+							// Проследим, чтобы строка остатка в течении одной сессии по одному серийному номеру
+							// была единственной
+							//
+							TSessLineTbl::Rec rest_rec;
+							if(P_Tbl->SearchSerial(pRec->Serial, pRec->TSessID, 0, TSessionCore::sserRest, &rest_rec) > 0)
+								ASSIGN_PTR(pOprNo, rest_rec.OprNo);
+						}
+						else {
+							//
+							// @todo Проследить за тем, чтобы без серийного номера для одного товара
+							// в течении одной сессии была только одна строка остатка
+							//
+						}
 					}
 				}
+				if(pRec->GoodsID == main_goods_id)
+					qtty = faddwsign(qtty, pRec->Qtty, pRec->Sign);
+				if(use_price)
+					amount = faddwsign(amount, -R2(pRec->Qtty * (pRec->Price - pRec->Discount)), pRec->Sign);
 			}
-			if(pRec->GoodsID == main_goods_id)
-				qtty = faddwsign(qtty, pRec->Qtty, pRec->Sign);
-			if(use_price)
-				amount = faddwsign(amount, -R2(pRec->Qtty * (pRec->Price - pRec->Discount)), pRec->Sign);
-		}
-		if(pOprNo && *pOprNo) {
-			TSessLineTbl::Rec rec;
-			THROW(P_Tbl->SearchLine(sessID, *pOprNo, &rec) > 0);
-			if(main_goods_id && rec.GoodsID == main_goods_id)
-				qtty = faddwsign(qtty, -rec.Qtty, rec.Sign);
-			if(use_price)
-				amount = faddwsign(amount, R2(rec.Qtty * (rec.Price - rec.Discount)), rec.Sign);
-			if(pRec == 0) {
-				THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_RMVLNCOMPLTSESS);
-				THROW(deleteFrom(&P_Tbl->Lines, 0, P_Tbl->Lines.TSessID == sessID && P_Tbl->Lines.OprNo == *pOprNo));
+			if(pOprNo && *pOprNo) {
+				TSessLineTbl::Rec rec;
+				THROW(P_Tbl->SearchLine(sessID, *pOprNo, &rec) > 0);
+				if(main_goods_id && rec.GoodsID == main_goods_id)
+					qtty = faddwsign(qtty, -rec.Qtty, rec.Sign);
+				if(use_price)
+					amount = faddwsign(amount, R2(rec.Qtty * (rec.Price - rec.Discount)), rec.Sign);
+				if(pRec == 0) {
+					THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_RMVLNCOMPLTSESS);
+					THROW(deleteFrom(&P_Tbl->Lines, 0, P_Tbl->Lines.TSessID == sessID && P_Tbl->Lines.OprNo == *pOprNo));
+				}
+				else {
+					THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_UPDLNCOMPLTSESS);
+					THROW_PP((rec.Flags & TSESLF_REST) == (pRec->Flags & TSESLF_REST), PPERR_UPDTESLNRESTSTATUS);
+					pRec->TSessID = sessID;
+					pRec->OprNo   = *pOprNo;
+					P_Tbl->Lines.copyBufFrom(pRec);
+					P_Tbl->Lines.data.Flags &= ~TSESLF_EXPANDSESS;
+					THROW_DB(P_Tbl->Lines.updateRec());
+				}
 			}
-			else {
-				THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_UPDLNCOMPLTSESS);
-				THROW_PP((rec.Flags & TSESLF_REST) == (pRec->Flags & TSESLF_REST), PPERR_UPDTESLNRESTSTATUS);
+			else if(pRec) {
+				long   oprno = 0;
+				THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_ADDLNCOMPLTSESS);
+				THROW(P_Tbl->SearchOprNo(sessID, &oprno, 0) > 0);
 				pRec->TSessID = sessID;
-				pRec->OprNo   = *pOprNo;
+				pRec->OprNo = oprno;
 				P_Tbl->Lines.copyBufFrom(pRec);
 				P_Tbl->Lines.data.Flags &= ~TSESLF_EXPANDSESS;
-				THROW_DB(P_Tbl->Lines.updateRec());
+				THROW_DB(P_Tbl->Lines.insertRec());
+				pRec->OprNo = oprno;
+				ASSIGN_PTR(pOprNo, oprno);
 			}
 		}
-		else if(pRec) {
-			long   oprno = 0;
-			THROW_PP(sess_rec.Incomplete || (GetConfig().Flags & PPTSessConfig::fAllowLinesInWrOffSessions), PPERR_ADDLNCOMPLTSESS);
-			THROW(P_Tbl->SearchOprNo(sessID, &oprno, 0) > 0);
-			pRec->TSessID = sessID;
-			pRec->OprNo = oprno;
-			P_Tbl->Lines.copyBufFrom(pRec);
-			P_Tbl->Lines.data.Flags &= ~TSESLF_EXPANDSESS;
-			THROW_DB(P_Tbl->Lines.insertRec());
-			pRec->OprNo = oprno;
-			ASSIGN_PTR(pOprNo, oprno);
-		}
-	}
-	if(qtty != 0.0 || amount != 0.0 || (pRec && pRec->Flags & TSESLF_EXPANDSESS)) {
-		sess_rec.ActQtty += qtty;
-		sess_rec.Amount  += amount;
-		if(pRec && pRec->Flags & TSESLF_EXPANDSESS) {
-			LDATETIME fin, ln_dtm;
-			fin.Set(sess_rec.FinDt, sess_rec.FinTm);
-			ln_dtm.Set(pRec->Dt, pRec->Tm);
-			if(fin.d == 0 || cmp(fin, ln_dtm) < 0) {
-				sess_rec.FinDt = ln_dtm.d;
-				sess_rec.FinTm = ln_dtm.t;
-				THROW(CheckSessionTime(sess_rec));
+		if(qtty != 0.0 || amount != 0.0 || (pRec && pRec->Flags & TSESLF_EXPANDSESS)) {
+			sess_rec.ActQtty += qtty;
+			sess_rec.Amount  += amount;
+			if(pRec && pRec->Flags & TSESLF_EXPANDSESS) {
+				LDATETIME fin, ln_dtm;
+				fin.Set(sess_rec.FinDt, sess_rec.FinTm);
+				ln_dtm.Set(pRec->Dt, pRec->Tm);
+				if(fin.d == 0 || cmp(fin, ln_dtm) < 0) {
+					sess_rec.FinDt = ln_dtm.d;
+					sess_rec.FinTm = ln_dtm.t;
+					THROW(CheckSessionTime(sess_rec));
+				}
 			}
+			THROW_DB(P_Tbl->updateRecBuf(&sess_rec));
 		}
-		THROW_DB(P_Tbl->updateRecBuf(&sess_rec));
+		if(use_price && sess_rec.SCardID) {
+			SCardTbl::Rec sc_rec;
+			if(ScObj.Search(sess_rec.SCardID, &sc_rec) > 0)
+				THROW(SetupDiscount(sessID, 1, fdiv100i(sc_rec.PDis), 0));
+		}
+		THROW(tra.Commit());
 	}
-	if(use_price && sess_rec.SCardID) {
-		SCardTbl::Rec sc_rec;
-		if(ScObj.Search(sess_rec.SCardID, &sc_rec) > 0)
-			THROW(SetupDiscount(sessID, 1, fdiv100i(sc_rec.PDis), 0));
-	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
 int SLAPI PPObjTSession::ReplaceGoodsInLines(PPID sessID, PPID replacedGoodsID, PPID substGoodsID, long flags, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	TSessLineTbl::Key0 k0;
 	Goods2Tbl::Rec goods_rec;
 	/*
@@ -1183,20 +1183,21 @@ int SLAPI PPObjTSession::ReplaceGoodsInLines(PPID sessID, PPID replacedGoodsID, 
 	if(flags & 0x0001)
 		use_ta = 0;
 	THROW(GObj.Search(substGoodsID, &goods_rec) > 0);
-	THROW(PPStartTransaction(&ta, use_ta));
-	MEMSZERO(k0);
-	k0.TSessID = sessID;
-	while(P_Tbl->Lines.search(0, &k0, spGt) && k0.TSessID == sessID)
-		if(P_Tbl->Lines.data.GoodsID == replacedGoodsID && P_Tbl->Lines.data.Sign > 0) {
-			P_Tbl->Lines.data.GoodsID = substGoodsID;
-			if(!(flags & 0x0001))
-				THROW_DB(P_Tbl->Lines.updateRec());
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		MEMSZERO(k0);
+		k0.TSessID = sessID;
+		while(P_Tbl->Lines.search(0, &k0, spGt) && k0.TSessID == sessID) {
+			if(P_Tbl->Lines.data.GoodsID == replacedGoodsID && P_Tbl->Lines.data.Sign > 0) {
+				P_Tbl->Lines.data.GoodsID = substGoodsID;
+				if(!(flags & 0x0001))
+					THROW_DB(P_Tbl->Lines.updateRec());
+			}
 		}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+		THROW(tra.Commit());
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -4401,13 +4402,11 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 			THROW(r = P_BhtCurSess->RemoveLastLine(0));
 			P_BhtCurSess->SetLastLine(0, 0);
 		}
-		if(pLogger)
-			pLogger->LogString((r > 0) ? PPTXT_LOG_BHTTSESS_LASTLNRMVD : PPTXT_LOG_BHTRSESS_CANTRMVLASTLN, 0);
+		CALLPTRMEMB(pLogger, LogString((r > 0) ? PPTXT_LOG_BHTTSESS_LASTLNRMVD : PPTXT_LOG_BHTRSESS_CANTRMVLASTLN, 0));
 	}
 	CATCH
 		ok = 0;
-		if(pLogger)
-			pLogger->LogLastError();
+		CALLPTRMEMB(pLogger, LogLastError());
 	ENDCATCH
 	return ok;
 }
@@ -4738,8 +4737,7 @@ SLAPI PrcssrTSessMaintenance::PrcssrTSessMaintenance()
 int SLAPI PrcssrTSessMaintenance::InitParam(PrcssrTSessMaintenance::Param * pP)
 {
 	int    ok = 1;
-	if(pP)
-		pP->Init();
+	CALLPTRMEMB(pP, Init());
 	return ok;
 }
 
@@ -4781,8 +4779,7 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 int SLAPI PrcssrTSessMaintenance::Init(const PrcssrTSessMaintenance::Param * pP)
 {
 	int    ok = 1;
-	if(pP)
-		P = *pP;
+	RVALUEPTR(P, pP);
 	P.Period.Actualize(ZERODATE);
 	return ok;
 }

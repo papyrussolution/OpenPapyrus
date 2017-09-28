@@ -239,12 +239,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 	STempBuffer buffer(2048);
 	pCfg->Clear();
 	if(pRef) {
-		THROW(r = pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, buffer.GetSize()));
+		THROW(r = pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, buffer, buffer.GetSize()));
 		if(r > 0) {
 			size_t sz = pCfg->Hdr.Size;
 			if(sz > buffer.GetSize()) {
 				THROW_SL(buffer.Alloc(sz));
-				THROW(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, buffer, sz) > 0);
+				THROW(pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, buffer, sz) > 0);
 			}
 			memcpy(&pCfg->Hdr, buffer, sizeof(pCfg->Hdr));
 			tail = ((const char *)buffer)+sizeof(pCfg->Hdr);
@@ -269,7 +269,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 				char   MailAddr[48];
 			};
 			OldConfig old_cfg;
-			if(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
+			if(pRef->GetPropMainConfig(PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
 				PPID   mac_id = 0;
 				PPAlbatrosCfgHdr cfg;
 				PPObjInternetAccount mac_obj;
@@ -321,7 +321,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCf
 {
 	int    ok = 1, r;
 	PPAlbatrosCfgHdr cfg;
-	THROW(r = pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG2, &cfg, sizeof(cfg)));
+	THROW(r = pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, &cfg, sizeof(cfg)));
 	if(r < 0) {
 		//
 		// ѕытаемс€ найти запись в старом формате и конвертировать в новый
@@ -337,7 +337,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCf
 			char   MailAddr[48];
 		};
 		OldConfig old_cfg;
-		if(pRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
+		if(pRef->GetPropMainConfig(PPPRP_ALBATROSCFG, &old_cfg, sizeof(old_cfg)) > 0) {
 			PPID   mac_id = 0;
 			PPObjInternetAccount mac_obj;
 			PPInternetAccount mac;

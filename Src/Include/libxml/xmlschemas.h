@@ -64,12 +64,8 @@ typedef enum {
  * This is the set of XML Schema validation options.
  */
 typedef enum {
-	XML_SCHEMA_VAL_VC_I_CREATE                  = 1<<0
-	    /* Default/fixed: create an attribute node
-	     * or an element's text node on the instance.
-	     */
+	XML_SCHEMA_VAL_VC_I_CREATE = 1<<0 // Default/fixed: create an attribute node or an element's text node on the instance.
 } xmlSchemaValidOption;
-
 /*
     XML_SCHEMA_VAL_XSI_ASSEMBLE			= 1<<1,
  * assemble schemata using
@@ -91,9 +87,7 @@ typedef xmlSchema * xmlSchemaPtr;
  *
  * Signature of an error callback from an XSD validation
  */
-typedef void (XMLCDECL *xmlSchemaValidityErrorFunc)
-	(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
-
+typedef void (XMLCDECL *xmlSchemaValidityErrorFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 /**
  * xmlSchemaValidityWarningFunc:
  * @ctx: the validation context
@@ -102,18 +96,14 @@ typedef void (XMLCDECL *xmlSchemaValidityErrorFunc)
  *
  * Signature of a warning callback from an XSD validation
  */
-typedef void (XMLCDECL *xmlSchemaValidityWarningFunc)
-	(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
-
+typedef void (XMLCDECL *xmlSchemaValidityWarningFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
 /**
  * A schemas validation context
  */
 typedef struct _xmlSchemaParserCtxt xmlSchemaParserCtxt;
 typedef xmlSchemaParserCtxt * xmlSchemaParserCtxtPtr;
-
 typedef struct _xmlSchemaValidCtxt xmlSchemaValidCtxt;
 typedef xmlSchemaValidCtxt * xmlSchemaValidCtxtPtr;
-
 /**
  * xmlSchemaValidityLocatorFunc:
  * @ctx: user provided context
@@ -126,16 +116,12 @@ typedef xmlSchemaValidCtxt * xmlSchemaValidCtxtPtr;
  *
  * Returns: 0 in case of success and -1 in case of error
  */
-
-typedef int (XMLCDECL *xmlSchemaValidityLocatorFunc)(void * ctx,
-    const char ** file, unsigned long * line);
-
+typedef int (XMLCDECL *xmlSchemaValidityLocatorFunc)(void * ctx, const char ** file, unsigned long * line);
 /*
  * Interfaces for parsing.
  */
 XMLPUBFUN xmlSchemaParserCtxtPtr XMLCALL xmlSchemaNewParserCtxt(const char * URL);
-XMLPUBFUN xmlSchemaParserCtxtPtr XMLCALL xmlSchemaNewMemParserCtxt(const char * buffer,
-    int size);
+XMLPUBFUN xmlSchemaParserCtxtPtr XMLCALL xmlSchemaNewMemParserCtxt(const char * buffer, int size);
 XMLPUBFUN xmlSchemaParserCtxtPtr XMLCALL xmlSchemaNewDocParserCtxt(xmlDocPtr doc);
 XMLPUBFUN void XMLCALL xmlSchemaFreeParserCtxt(xmlSchemaParserCtxtPtr ctxt);
 XMLPUBFUN void XMLCALL xmlSchemaSetParserErrors(xmlSchemaParserCtxtPtr ctxt, xmlSchemaValidityErrorFunc err, xmlSchemaValidityWarningFunc warn, void * ctx);
@@ -146,7 +132,7 @@ XMLPUBFUN int XMLCALL xmlSchemaIsValid(xmlSchemaValidCtxtPtr ctxt);
 XMLPUBFUN xmlSchemaPtr XMLCALL xmlSchemaParse(xmlSchemaParserCtxtPtr ctxt);
 XMLPUBFUN void XMLCALL xmlSchemaFree(xmlSchemaPtr schema);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL xmlSchemaDump(FILE * output, xmlSchemaPtr schema);
+	XMLPUBFUN void XMLCALL xmlSchemaDump(FILE * output, xmlSchemaPtr schema);
 #endif /* LIBXML_OUTPUT_ENABLED */
 /*
  * Interfaces for validating

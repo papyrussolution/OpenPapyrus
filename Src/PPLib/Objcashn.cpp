@@ -2600,7 +2600,7 @@ int SLAPI ReadEquipConfig(PPEquipConfig * pCfg)
 		if(reg_key.GetDWord(RpCheckScaleInput, &val))
 			use_scale_input = BIN(val);
 	}
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_EQUIPCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_EQUIPCFG, pCfg, sizeof(*pCfg));
 	if(pCfg)
 		if(r > 0) {
 			SETFLAG(pCfg->Flags, PPEquipConfig::fCheckScaleInput, use_scale_input);

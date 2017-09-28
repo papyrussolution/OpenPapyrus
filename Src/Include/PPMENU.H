@@ -506,5 +506,6 @@
 #define cmTestLogWindow                611 // @v9.7.0 Тестирование окна вывода сообщений
 #define cmProcessSartre                612 // @v9.7.8 Импорт данных проекта Sartre
 #define cmBillAutoCreate               613 // @v9.7.10 Автоматическое создание документов (попытка объедининить разрозненные процедуры)
+#define cmValidateXml                  614 // @v9.8.3 Проверка соответствия xml-файла xsd-схеме
 
 #endif /* __PPMENU_H */

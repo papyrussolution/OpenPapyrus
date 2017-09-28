@@ -1661,7 +1661,7 @@ int SLAPI SString::GetSubFrom(const char * pStr, int div, int idx)
 	for(int i = 0; ss.get(&pos, *this); i++)
 		if(i == idx)
 			return 1;
-	*this = 0;
+	Z();
 	return 0;
 }
 
@@ -1671,7 +1671,7 @@ int  SLAPI SString::GetIdxBySub(const char * pSubStr, int div)
 	uint   pos = 0;
 	SString buf;
 	StringSet ss(div, P_Buf);
-	for(int i = 0; idx == -1 && ss.get(&pos, (buf = 0)); i++)
+	for(int i = 0; idx == -1 && ss.get(&pos, buf); i++)
 		if(buf.CmpNC(pSubStr) == 0)
 			idx = i;
 	return idx;

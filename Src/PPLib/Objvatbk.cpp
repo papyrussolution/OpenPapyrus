@@ -209,7 +209,7 @@ int SLAPI PPObjVATBook::ReadCfgList(PPID kind, VATBCfg * pConfig)
 			else
 				sz += sizeof(VATBCfg::Item) * delta;
 			THROW_MEM(p_cfg = (PPVATBConfig *)SAlloc::R(p_cfg, sz));
-			THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, p_cfg, sz));
+			THROW(r = PPRef->GetPropMainConfig(prop, p_cfg, sz));
 		} while(r > 0);
 	}
 	if(r > 0) {

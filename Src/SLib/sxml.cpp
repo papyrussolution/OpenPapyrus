@@ -5,6 +5,7 @@
 #include <tv.h>
 #pragma hdrstop
 #include <sxml.h>
+#include <libxml/xmlschemastypes.h>
 
 struct SpcSymbEntry {
 	char   chr;
@@ -301,6 +302,117 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
 		}
     }
     return ok;
+}
+
+//static 
+void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
+{
+	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
+	if(p_this) {
+		SString text;
+		va_list argptr;
+		va_start(argptr, pMsg);
+		text.Printf(pMsg, argptr);
+		p_this->AddMessage(1, text);
+	}
+}
+
+//static 
+void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const char * pMsg, ...)
+{
+	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
+	if(p_this) {
+		SString text;
+		va_list argptr;
+		va_start(argptr, pMsg);
+		text.Printf(pMsg, argptr);
+		p_this->AddMessage(2, text);
+	}
+}
+
+SLAPI SXmlValidationMessageList::SXmlValidationMessageList() 
+{
+}
+
+int SLAPI SXmlValidationMessageList::AddMessage(int type, const char * pMsg)
+{
+	int    ok = 1;
+	if(pMsg) {
+		EntryInner entry;
+		entry.Type = type;
+		AddS(pMsg, &entry.MsgP);
+		L.insert(&entry);
+	}
+	return ok;
+}
+
+uint SLAPI SXmlValidationMessageList::GetMessageCount() const
+{
+	return L.getCount();
+}
+
+int SLAPI SXmlValidationMessageList::GetMessageByIdx(uint idx, int * pType, SString & rMsg) const
+{
+	rMsg.Z();
+	int    ok = 1;
+	if(idx < L.getCount()) {
+		const EntryInner & r_entry = L.at(idx);
+		ASSIGN_PTR(pType, r_entry.Type);
+		GetS(r_entry.MsgP, rMsg);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+//static
+int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList)
+{
+	int    ok = 1;
+	xmlDoc * doc = 0;
+	xmlSchema * schema = 0;
+	//char * XMLFileName = "test.xml";
+	//char * XSDFileName = "test.xsd";
+	xmlLineNumbersDefault(1);
+	xmlSchemaParserCtxt * p_sp_ctxt = xmlSchemaNewParserCtxt(pXsdFileName);
+	if(pMsgList) {
+		xmlSchemaSetParserErrors(p_sp_ctxt, SXmlValidationMessageList::SchemaValidityError, SXmlValidationMessageList::SchemaValidityWarning, pMsgList);
+	}
+	schema = xmlSchemaParse(p_sp_ctxt);
+	xmlSchemaFreeParserCtxt(p_sp_ctxt);
+	//xmlSchemaDump(stdout, schema); //To print schema dump
+	doc = xmlReadFile(pXmlFileName, NULL, 0);
+	if(doc == NULL) {
+		SXmlValidationMessageList::SchemaValidityError(pMsgList, "Could not parse %s\n", pXmlFileName);
+		ok = 0;
+	}
+	else {
+		xmlSchemaValidCtxt * p_sv_ctxt = 0;
+		int ret;
+		p_sv_ctxt = xmlSchemaNewValidCtxt(schema);
+		xmlSchemaSetValidErrors(p_sv_ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+		ret = xmlSchemaValidateDoc(p_sv_ctxt, doc);
+		if(ret == 0) {
+			SXmlValidationMessageList::SchemaValidityWarning(pMsgList, "%s validates\n", pXmlFileName);
+			ok = 1;
+		}
+		else if(ret > 0) {
+			SXmlValidationMessageList::SchemaValidityError(pMsgList, "%s fails to validate\n", pXmlFileName);
+			ok = 0;
+		}
+		else {
+			SXmlValidationMessageList::SchemaValidityError(pMsgList, "%s validation generated an internal error\n", pXmlFileName);
+			ok = 0;
+		}
+		xmlSchemaFreeValidCtxt(p_sv_ctxt);
+		xmlFreeDoc(doc);
+	}
+	// free the resource
+	xmlSchemaFree(schema);
+	xmlSchemaCleanupTypes();
+	xmlCleanupParser();
+	//xmlMemoryDump();
+	return ok;
 }
 
 #if 0 // @construction {

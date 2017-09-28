@@ -11,6 +11,25 @@
 //
 //
 //
+class SXmlValidationMessageList : SStrGroup {
+public:
+	static void __cdecl SchemaValidityError(void * pCtx, const char * pMsg, ...);
+	static void __cdecl SchemaValidityWarning(void * pCtx, const char * pMsg, ...);
+	//typedef void (XMLCDECL *xmlSchemaValidityErrorFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
+	//typedef void (XMLCDECL *xmlSchemaValidityWarningFunc)(void * ctx, const char * msg, ...) LIBXML_ATTR_FORMAT(2, 3);
+
+	SLAPI  SXmlValidationMessageList();
+	int    SLAPI AddMessage(int type, const char * pMsg);
+	uint   SLAPI GetMessageCount() const;
+	int    SLAPI GetMessageByIdx(uint idx, int * pType, SString & rMsg) const;
+private:
+	struct EntryInner {
+		int   Type;
+		uint  MsgP;
+	};
+	TSArray <EntryInner> L;
+};
+
 class SXml {
 public:
 	class WDoc {
@@ -51,6 +70,8 @@ public:
 		xmlTextWriter * Lx;
         SString Name;
     };
+
+	static int SLAPI Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList);
 
     static int FASTCALL IsName(const xmlNode * pNode, const char * pName);
     static int FASTCALL IsContent(const xmlNode * pNode, const char * pText);

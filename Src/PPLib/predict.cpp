@@ -106,10 +106,10 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 //
 //
 // static
-int SLAPI Predictor::GetPredictCfg(PPPredictConfig * pCfg)
+int FASTCALL Predictor::GetPredictCfg(PPPredictConfig * pCfg)
 {
 	PPPredictConfig cfg;
-	int    ok = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &cfg, sizeof(cfg));
+	int    ok = PPRef->GetPropMainConfig(PPPRP_PREDICTCFG, &cfg, sizeof(cfg));
 	if(ok <= 0)
 		MEMSZERO(cfg);
 	ASSIGN_PTR(pCfg, cfg);
@@ -126,7 +126,7 @@ int SLAPI Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
+		if(p_ref->GetPropMainConfig(PPPRP_PREDICTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
 			is_new = 0;
 		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PREDICTCFG, &cfg, sizeof(cfg), 0));
 		DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_PREDICTSALES, 0, 0, 0);

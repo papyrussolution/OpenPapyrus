@@ -404,6 +404,8 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 		const int _no_div = BIN(fmt & TIMF_NODIV);
 		if(_no_div)
 			strcpy(fs, "%02d%02d%02d");
+		else if(fmt & TIMF_DOTDIV)
+			strcpy(fs, "%02d.%02d.%02d");
 		else
 			strcpy(fs, "%02d:%02d:%02d");
 		switch(fmt & 7) {
@@ -598,7 +600,7 @@ char * SLAPI realfmt(double val, long fmt, char * pBuf)
 			uint   c_0 = 0; // количество '0'
 			uint   c_9 = 0; // количество '9'
 			uint   last_n09_pos = 0; // Позиция последней цифры, не являющейся '0' или '9'
-			int    do_carry = 0; // Для варианта "999999999999" нужно будет добавить лидирующую '1' 
+			int    do_carry = 0; // Для варианта "999999999999" нужно будет добавить лидирующую '1'
 			for(uint i = 0; i < _len; i++) {
 				const char _d = str[i];
 				if(_d == '0') {
@@ -616,7 +618,7 @@ char * SLAPI realfmt(double val, long fmt, char * pBuf)
 						if(last_n09_pos == 0 && str[0] == '9') {
 							do_carry = 1;
 						}
-						else 
+						else
 							str[last_n09_pos] += 1;
 						for(uint j = last_n09_pos+1; j < _len; j++) {
 							str[j] = '0';

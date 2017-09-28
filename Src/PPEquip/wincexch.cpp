@@ -508,8 +508,7 @@ int SLAPI StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIIL
 	StrAssocArray * p_list = 0;
 	if(locID) {
 		p_list = new StrAssocArray;
-		if(p_list)
-			p_list->Add(locID, 0, 0);
+		CALLPTRMEMB(p_list, Add(locID, 0, 0));
 	}
 	else
 		p_list = LocObj.MakeList_(&filt);
@@ -601,7 +600,7 @@ int SLAPI StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAd
 	getcurdatetime(&dtm);
 	str_dtm.Cat(dtm);
 	if(errCode) {
-		PPGetMessage(mfError, errCode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf = 0);
+		PPGetMessage(mfError, errCode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
 		buf.ShiftLeft();
 	}
 	else {

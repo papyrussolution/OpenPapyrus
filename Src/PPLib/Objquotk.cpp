@@ -20,7 +20,7 @@ int SLAPI PPQuotKind2::CheckWeekDay(LDATE dt) const
 	return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1))));
 }
 
-int SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
+void SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 {
 	BeginTm = 0;
 	EndTm = 0;
@@ -32,7 +32,6 @@ int SLAPI PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 		PTR8(&EndTm)[0] = rRange.upp.hour();
 		PTR8(&EndTm)[1] = rRange.upp.minut();
 	}
-	return 1;
 }
 
 int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
@@ -138,10 +137,9 @@ SLAPI PPQuotKindPacket::PPQuotKindPacket()
 	Init();
 }
 
-int SLAPI PPQuotKindPacket::Init()
+void SLAPI PPQuotKindPacket::Init()
 {
 	MEMSZERO(Rec);
-	return 1;
 }
 
 int SLAPI PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const
@@ -316,8 +314,8 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 IMPL_CMPFUNC(PPQuotKind_RankName, i1, i2)
 {
 	int    cmp = 0;
-	PPQuotKind * k1 = (PPQuotKind *)i1;
-	PPQuotKind * k2 = (PPQuotKind *)i2;
+	const PPQuotKind * k1 = (const PPQuotKind *)i1;
+	const PPQuotKind * k2 = (const PPQuotKind *)i2;
 	if(k1->ID == PPQUOTK_BASE && k2->ID != PPQUOTK_BASE)
 		cmp = -1;
 	else if(k1->ID != PPQUOTK_BASE && k2->ID == PPQUOTK_BASE)
@@ -521,12 +519,12 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 				THROW(GetPacket(*pID, &org_pack) > 0); // @v8.3.6
 				if(!IsPacketEq(*pPack, org_pack, 0)) { // @v8.3.6
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
-					THROW(CheckRights(PPR_MOD)); // @v7.9.5
+					THROW(CheckRights(PPR_MOD));
 					THROW(ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				}
 			}
 			else {
-				THROW(CheckRights(PPR_DEL)); // @v7.9.5
+				THROW(CheckRights(PPR_DEL));
 				{
 					PPObjGoods goods_obj;
 					THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(*pID, 0));
@@ -536,7 +534,7 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 			}
 		}
 		else {
-			THROW(CheckRights(PPR_INS)); // @v7.9.5
+			THROW(CheckRights(PPR_INS));
 			THROW(CheckDupName(*pID, pPack->Rec.Name)); // @v8.3.6
 			*pID = pPack->Rec.ID;
 			THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
@@ -680,6 +678,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 	PPObjQuotKind::Special spc;
 	GetSpecialKinds(&spc, 1);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
+		/* @v9.8.3 
 		if(Search(spc.SupplDealID, &qk_rec) > 0) {
 			THROW_SL(rec_list.insert(&qk_rec));
 		}
@@ -688,7 +687,15 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 		}
 		if(Search(spc.SupplDevDnID, &qk_rec) > 0) {
 			THROW_SL(rec_list.insert(&qk_rec));
+		} */
+		// @v9.8.3 {
+		const PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };
+		for(i = 0; i < SIZEOFARRAY(spc_qk_list); i++) {
+			if(Search(spc_qk_list[i], &qk_rec) > 0) {
+				THROW_SL(rec_list.insert(&qk_rec));
+			}
 		}
+		// } @v9.8.3 
 	}
 	else if(pFilt->Flags & (QuotKindFilt::fGoodsMatrix|QuotKindFilt::fGoodsMatrixRestrict)) {
 		const int is_matrix = BIN(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
@@ -1029,7 +1036,7 @@ int SLAPI PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	else {
-		THROW(pack.Init());
+		pack.Init();
 	}
 	p_dlg->setDTS(&pack);
 	while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {

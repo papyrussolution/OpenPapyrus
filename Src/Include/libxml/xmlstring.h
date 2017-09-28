@@ -49,7 +49,7 @@ XMLPUBFUN int XMLCALL xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2,
 //XMLPUBFUN int XMLCALL xmlStrEqual_Removed(const xmlChar * str1, const xmlChar * str2);
 XMLPUBFUN int XMLCALL xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str);
 //XMLPUBFUN int XMLCALL xmlStrlen_Removed(const xmlChar * str);
-XMLPUBFUN xmlChar * XMLCALL xmlStrcat(xmlChar * cur, const xmlChar * add);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add);
 XMLPUBFUN xmlChar * XMLCALL xmlStrncat(xmlChar * cur, const xmlChar * add, int len);
 XMLPUBFUN xmlChar * XMLCALL xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len);
 XMLPUBFUN int XMLCALL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg,...);

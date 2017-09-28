@@ -1216,7 +1216,7 @@ public:
 			SString buf, err_codes;
 			PPLoadText(PPTXT_CASCL5000J_ERRCODES, err_codes);
 			StringSet ss(';', err_codes);
-			for(uint i = 0; ss.get(&i, (buf = 0)) > 0;) {
+			for(uint i = 0; ss.get(&i, buf);) {
 				SString str_id, str_text;
 				buf.Divide(':', str_id, str_text);
 				ErrorCodes.Add(str_id.ToLong(), str_text);

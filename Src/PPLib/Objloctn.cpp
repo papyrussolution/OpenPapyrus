@@ -254,14 +254,14 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 };
 
 //static
-int SLAPI PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
+int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_LOCATIONCFG;
 	int    ok = -1, r;
 	Storage_PPLocationConfig cfg;
 	MEMSZERO(cfg);
 	memzero(pCfg, sizeof(*pCfg));
-	THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &cfg, sizeof(cfg)));
+	THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, &cfg, sizeof(cfg)));
 	if(r > 0) {
 		pCfg->WhZoneCoding = cfg.WhZoneCoding;
 		pCfg->WhColCoding = cfg.WhColCoding;
@@ -294,7 +294,7 @@ int SLAPI PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &cfg, sizeof(cfg)));
+		THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, &cfg, sizeof(cfg)));
 		is_new = (r > 0) ? 0 : 1;
 		cfg.WhZoneCoding = pCfg->WhZoneCoding;
 		cfg.WhColCoding = pCfg->WhColCoding;

@@ -2046,13 +2046,13 @@ int PPEmailAcctsImporter::ResolveAuthType(const char * pAuthType, uint16 * pOutA
 		auth.CopyFrom(pAuthType);
 		auth.Strip();
 		PPLoadText(PPTXT_SMTPAUTHTYPES, auths);
-		for(uint i = 0; ok < 0 && PPGetSubStr(auths, i, (buf = 0)) > 0; i++) {
+		for(uint i = 0; ok < 0 && PPGetSubStr(auths, i, buf) > 0; i++) {
 			uint j = 0;
 			long id = 0;
 			StringSet ss(',', buf);
-			ss.get(&j, (buf = 0));
+			ss.get(&j, buf);
 			id = buf.ToLong();
-			ss.get(&j, (buf = 0));
+			ss.get(&j, buf);
 			if(buf.CmpNC(auth) == 0) {
 				auth_type = (uint16)id;
 				ok = 1;

@@ -1219,12 +1219,12 @@ int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
 	Storage_PPTranspConfig * p_cfg = (Storage_PPTranspConfig *)SAlloc::M(sz);
 	THROW_MEM(p_cfg);
-	THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+	THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	if(r > 0 && p_cfg->GetSize() > sz) {
 		sz = p_cfg->GetSize();
 		p_cfg = (Storage_PPTranspConfig *)SAlloc::R(p_cfg, sz);
 		THROW_MEM(p_cfg);
-		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, p_cfg, sz));
+		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 	}
 	if(r > 0) {
 		pCfg->Flags = p_cfg->Flags;
@@ -1259,7 +1259,7 @@ int SLAPI PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, 0, 0));
+		THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, 0, 0));
 		is_new = (r > 0) ? 0 : 1;
 		if(pCfg) {
 			size_t ext_size = 0;

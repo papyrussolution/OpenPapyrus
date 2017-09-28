@@ -4242,6 +4242,9 @@ public:
 		PPID   SenderPersonID;
 		PPID   ReceiverPersonID;
 		PPID   ProviderPersonID;
+		LDATETIME CurDtm; // “екущее врем€. “ак как дебильные форматы NALOG.RU требуют текущие врем€ и дату в самых разных
+			// и неожиданных местах в цел€х избежани€ противоречивости сформируем один раз это значение дл€ 
+			// исопльзовани€ везде.
 		SString FormatPrefix;
 
 		S_GUID Uuid;
@@ -4259,7 +4262,7 @@ public:
 		SXml::WNode N;
 	};
 	struct Document {
-		Document(Generator_DocNalogRu & rG, const char * pK, const LDATETIME & rDtm, const char * pSubj, const char * pSubjReason);
+		Document(Generator_DocNalogRu & rG, const char * pK, const char * pSubj, const char * pSubjReason);
 		SXml::WNode N;
 	};
 	struct Invoice {
@@ -4269,7 +4272,7 @@ public:
 	SLAPI  Generator_DocNalogRu();
 	SLAPI ~Generator_DocNalogRu();
 	int    SLAPI CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, HeaderInfo & rInfo);
-	int    SLAPI MakeOutFileIdent(const char * pPrefix, const char * pRcvrId, const char * pSndrId, SString & rBuf);
+	int    SLAPI MakeOutFileIdent(HeaderInfo & rHi);
 	int    SLAPI MakeOutFileName(const char * pFileIdent, SString & rFileName);
 	int    SLAPI StartDoc(const char * pFileName);
 	int    SLAPI EndDoc();
@@ -4294,14 +4297,14 @@ private:
 	SString TokBuf;
 };
 
-int SLAPI Generator_DocNalogRu::MakeOutFileIdent(const char * pPrefix, const char * pRcvrId, const char * pSndrId, SString & rBuf)
+int SLAPI Generator_DocNalogRu::MakeOutFileIdent(/*const char * pPrefix, const char * pRcvrId, const char * pSndrId, SString & rBuf*/HeaderInfo & rHi)
 {
 	int    ok = 1;
 	SString temp_buf;
 	S_GUID uuid;
 	uuid.Generate();
-	(rBuf = pPrefix).CatChar('_').Cat(pRcvrId).CatChar('_').Cat(pSndrId).CatChar('_').
-		Cat(temp_buf.Z().Cat(getcurdate_(), DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(uuid, S_GUID::fmtIDL);
+	(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(rHi.ReceiverIdent).CatChar('_').Cat(rHi.SenderIdent).CatChar('_').
+		Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(uuid, S_GUID::fmtIDL);
 	return ok;
 }
 
@@ -4322,6 +4325,7 @@ int SLAPI Generator_DocNalogRu::CreateHeaderInfo(const char * pFormatPrefix, PPI
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
+	rInfo.CurDtm = getcurdatetime_();
 	rInfo.SenderPersonID = senderID;
 	rInfo.ReceiverPersonID = rcvrID;
 	rInfo.ProviderPersonID = providerID;
@@ -4356,7 +4360,7 @@ int SLAPI Generator_DocNalogRu::CreateHeaderInfo(const char * pFormatPrefix, PPI
 		else
 			rInfo.ReceiverPersonID = 0;
 	}
-	MakeOutFileIdent(rInfo.FormatPrefix, rInfo.ReceiverIdent, rInfo.SenderIdent, rInfo.FileId);
+	MakeOutFileIdent(rInfo);
 	rInfo.FileName = pBaseFileName;
 	MakeOutFileName(rInfo.FileId, rInfo.FileName);
 	return ok;
@@ -4414,23 +4418,23 @@ Generator_DocNalogRu::File::File(Generator_DocNalogRu & rG, const HeaderInfo & r
 	}
 }
 
-Generator_DocNalogRu::Document::Document(Generator_DocNalogRu & rG, const char * pK, const LDATETIME & rDtm, const char * pSubj, const char * pSubjReason) :
+Generator_DocNalogRu::Document::Document(Generator_DocNalogRu & rG, const char * pK, const char * pSubj, const char * pSubjReason) :
 	N(rG.P_X, rG.GetToken(PPHSC_RU_DOCUMENT))
 {
 	SString temp_buf;
 	N.PutAttrib(rG.GetToken(PPHSC_RU_KND), pK); //  од по  лассификатору налоговой документации
+	/*
 	if(!!rDtm) {
 		temp_buf.Z().Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
 		N.PutAttrib("ƒата»нф«ак", temp_buf);
-		temp_buf.Z().Cat(rDtm.t, TIMF_HMS);
+		temp_buf.Z().Cat(rDtm.t, TIMF_HMS|TIMF_DOTDIV);
 		N.PutAttrib("¬рем»нф«ак", temp_buf);
 	}
+	*/
 	if(!isempty(pSubj)) {
-		temp_buf = pSubj;
-		N.PutAttrib("ЌаимЁкон—уб—ост", temp_buf);
+		N.PutAttrib("ЌаимЁкон—уб—ост", rG.EncText(temp_buf = pSubj));
 		if(!isempty(pSubjReason)) {
-			temp_buf = pSubjReason;
-			N.PutAttrib("ќснƒоверќрг—ост", temp_buf);
+			N.PutAttrib("ќснƒоверќрг—ост", rG.EncText(temp_buf = pSubjReason));
 		}
 	}
 }
@@ -4601,7 +4605,7 @@ int SLAPI Generator_DocNalogRu::WriteParticipant(const char * pHeaderTag, PPID p
 		psn_pack.GetRegNumber(PPREGT_TPID, inn);
 		SXml::WNode n_h(P_X, pHeaderTag);
 		{
-			SXml::WNode n_id(P_X, "»д—в");
+			SXml::WNode n_id(P_X, GetToken(PPHSC_RU_IDPARTICIPANT));
 			if(inn.Len() == 12) { // ‘изическое лицо
 				SXml::WNode n__(P_X, "—в»ѕ");
 				n__.PutAttrib(GetToken(PPHSC_RU_INNPHS), EncText(inn));
@@ -4681,6 +4685,9 @@ int SLAPI Generator_DocNalogRu::Underwriter(PPID psnID)
 		}
 		if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
 			SXml::WNode n_uw(P_X, GetToken(PPHSC_RU_SIGNER));
+			n_uw.PutAttrib("ќблѕолн", "0");
+			n_uw.PutAttrib("—татус", "1");
+			n_uw.PutAttrib("ќснѕолн", "ƒолжностные об€занности");
 			if(is_free) {
 				SXml::WNode n_p(P_X, "»ѕ");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNPHS), inn);
@@ -4772,14 +4779,15 @@ int SLAPI Generator_DocNalogRu::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 	{
 		SXml::WNode n__(P_X, pScopeXmlTag);
 		{
+			SXml::WNode n_id(P_X, GetToken(PPHSC_RU_IDPARTICIPANT));
 			if(j_status == 2) {
-				SXml::WNode n_p(P_X, "—в‘Ћ");
+				SXml::WNode n_p(P_X, "—в»ѕ");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNPHS), inn);
-				//n_p.PutAttrib("‘»ќ»ѕ", EncText(temp_buf = psn_pack.Rec.Name))
+				WriteFIO(psn_pack.Rec.Name);
 			}
 			else {
-				SXml::WNode n_p(P_X, "—вёЋ");
-				n_p.PutAttrib(GetToken(PPHSC_RU_NAMEOFORG), EncText(temp_buf = psn_pack.Rec.Name));
+				SXml::WNode n_p(P_X, "—вёЋ”ч");
+				n_p.PutAttrib(GetToken(PPHSC_RU_NAMEOFORG), EncText(psn_pack.Rec.Name));
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNJUR), inn);
 				n_p.PutAttribSkipEmpty(GetToken(PPHSC_RU_KPP), kpp);
 			}
@@ -4837,17 +4845,13 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 		THROW(g.StartDoc(_hi.FileName));
         {
 			Generator_DocNalogRu::File f(g, _hi);
-			Generator_DocNalogRu::Document d(g, "1175012", ZERODATETIME, 0, 0);
-			// ƒата формировани€ документа о передаче результатов работ (документа об оказании услуг), информаци€ исполнител€
-			d.N.PutAttrib("ƒата»нф»сп", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
-			// ¬рем€ формировани€ документа о передаче результатов работ (документа об оказании услуг), информаци€ исполнител€
-			d.N.PutAttrib("¬рем»нф»сп", temp_buf.Z().Cat("15.00.00"));
 			// Ќаименование экономического субъекта Ц составител€ информации исполнител€
 			GetMainOrgName(temp_buf);
-			d.N.PutAttrib("ЌаимЁкон—уб—ост", g.EncText(temp_buf));
-			// ќснование, по которому экономический субъект €вл€етс€ составителем информации исполнител€.
-			// ќб€зателен, если составитель информации исполнител€ не €вл€етс€ исполнителем.
-			d.N.PutAttribSkipEmpty("ќснƒоверќрг—ост", "");
+			Generator_DocNalogRu::Document d(g, "1175012", temp_buf, 0);
+			// ƒата формировани€ документа о передаче результатов работ (документа об оказании услуг), информаци€ исполнител€
+			d.N.PutAttrib("ƒата»нф»сп", temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMAN|DATF_CENTURY));
+			// ¬рем€ формировани€ документа о передаче результатов работ (документа об оказании услуг), информаци€ исполнител€
+			d.N.PutAttrib("¬рем»нф»сп", temp_buf.Z().Cat(_hi.CurDtm.t, TIMF_HMS|TIMF_DOTDIV));
 			{
 				// —ведени€ документа кроме сведений о передаче результатов работ (о предъ€влении оказанных услуг)
 				SXml::WNode n_(g.P_X, "—вƒокѕ–”");
@@ -4962,8 +4966,8 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 			{
 				// —одержание факта хоз€йственной жизни (2) - сведени€ о передаче результатов работ (о предъ€влении оказанных услуг)
 				SXml::WNode n_(g.P_X, "—од‘’∆2");
-				temp_buf = "–езультаты работ переданы (услуги оказаны)";
-				n_.PutAttrib("—одќпер", temp_buf);
+				PPLoadText(PPTXT_NALOGRU_WORKSWERETRANSFERED, temp_buf); // "–езультаты работ переданы (услуги оказаны)";
+				n_.PutAttrib("—одќпер", g.EncText(temp_buf));
 				// ƒата передачи результатов работ (предъ€влени€ оказанных услуг)
 				// ќб€зателен, если ƒатаѕер не совпадает с ƒатаƒокѕ–”
 				temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
@@ -5006,7 +5010,8 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
 		THROW(g.StartDoc(_hi.FileName));
         {
 			Generator_DocNalogRu::File f(g, _hi);
-			Generator_DocNalogRu::Document d(g, "1115101", ZERODATETIME, 0, 0);
+			GetMainOrgName(temp_buf);
+			Generator_DocNalogRu::Document d(g, "1115101", temp_buf, 0);
 			{
 				Generator_DocNalogRu::Invoice inv(g, rBp);
 				PPID   main_org_id = 0;
@@ -5103,7 +5108,27 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 		THROW(g.StartDoc(_hi.FileName));
         {
 			Generator_DocNalogRu::File f(g, _hi);
-			Generator_DocNalogRu::Document d(g, "1115125", ZERODATETIME, 0, 0);
+			GetMainOrgName(temp_buf);
+			Generator_DocNalogRu::Document d(g, "1115125", temp_buf, 0);
+			// —„‘ - счет-фактура, примен€емый при расчетах по налогу на добавленную стоимость;
+			// —„‘ƒќѕ - счет-фактура, примен€емый при расчетах по налогу на добавленную стоимость, и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг);
+			// ƒќѕ - документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг).
+			// ѕод отгрузкой товаров понимаетс€ в том числе  передача (поставка, отпуск) товара (груза)
+			d.N.PutAttrib("‘ункци€", "ƒќѕ");
+			// Ќаименование документа по факту хоз€йственной жизни
+			// ѕри ‘ункци€=—„‘ не формируетс€.
+			// ѕри ‘ункци€=—„‘ƒќѕ или ‘ункци€=ƒќѕ ѕо‘акт’∆=ƒокумент об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
+			PPLoadText(PPTXT_NALOGRU_SHIPPINGBILL, temp_buf);
+			d.N.PutAttribSkipEmpty("ѕо‘акт’∆", g.EncText(temp_buf)); 
+			// Ќаименование первичного документа, определенное организацией (согласованное сторонами сделки)
+			// ѕри ‘ункци€=—„‘ не формируетс€. 
+			// ѕри ‘ункци€=—„‘ƒќѕ принимает значение Ђ—чет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)ї. 
+			// ѕри ‘ункци€=ƒќѕ самосто€тельно установленное наименование документа или Ђƒокумент об отгрузке товаров (выполнении работ), передаче имущественных прав (ƒокумент об оказании услуг)ї (по умолчанию)
+			temp_buf = op_rec.Name;
+			d.N.PutAttribSkipEmpty("Ќаимƒокќпр", g.EncText(temp_buf));
+
+			d.N.PutAttrib("ƒата»нфѕр", temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMAN|DATF_CENTURY));
+			d.N.PutAttrib("¬рем»нфѕр", temp_buf.Z().Cat(_hi.CurDtm.t, TIMF_HMS|TIMF_DOTDIV));
 			{
 				Generator_DocNalogRu::Invoice inv(g, rBp);
 				PPID   consignee_psn_id = 0;
@@ -5165,8 +5190,49 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 				}
 				g.WriteOrgInfo("—вѕрод", shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
 				g.WriteOrgInfo("—вѕокуп", buyer_psn_id, 0, rBp.Rec.Dt, 0);
-			}
+				{
+					SXml::WNode n(g.P_X, "ƒоп—в‘’∆1");
+					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
+						n.PutAttrib("»д√ос он", temp_buf);
+					n.PutAttrib("Ќаимќ ¬", "–оссийский рубль");
+				}
+				{
+					SXml::WNode n(g.P_X, "»нфѕол‘’∆1");
+					{
+						SXml::WNode n_1(g.P_X, "“екст»нф");
+						n_1.PutAttrib("»дентиф", "none");
+						n_1.PutAttrib("«начен", "none");
+					}
+				}
+			}	
 			g.WriteInvoiceItems(rBp);
+			{
+				SXml::WNode n(g.P_X, "—вѕродѕер");
+				{
+					SXml::WNode n_1(g.P_X, "—вѕер");
+					PPLoadText(PPTXT_NALOGRU_UPDOPCONTENT, temp_buf);
+					n_1.PutAttrib("—одќпер", g.EncText(temp_buf));
+					{
+						SXml::WNode n_11(g.P_X, "ќснѕер");
+						n_11.PutAttrib("Ќаимќсн", "ќтсутствует");
+					}
+					{
+						//SXml::WNode n_12(g.P_X, "—вЋицѕер");
+					}
+					{
+						//SXml::WNode n_13(g.P_X, "“ран√руз");
+					}
+					{
+						//SXml::WNode n_14(g.P_X, "—вѕер¬ещи");
+					}
+				}
+				/*{
+					SXml::WNode n_2(g.P_X, "»нфѕол‘’∆3");
+					{
+						SXml::WNode n_21(g.P_X, "“екст»нф");
+					}
+				}*/
+			}
 			g.Underwriter(0);
 		}
 		g.EndDoc();

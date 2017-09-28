@@ -47,11 +47,10 @@ static xmlChar* xmlGetPropNodeValueInternal(const xmlAttr * prop);
  *
  * Handle an out of memory condition
  */
-static void xmlTreeErrMemory(const char * extra)
+static void FASTCALL xmlTreeErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_TREE, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
-
 /**
  * xmlTreeErr:
  * @code:  the error number
@@ -63,20 +62,11 @@ static void xmlTreeErr(int code, xmlNode * node, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
-		case XML_TREE_INVALID_HEX:
-		    msg = "invalid hexadecimal character value\n";
-		    break;
-		case XML_TREE_INVALID_DEC:
-		    msg = "invalid decimal character value\n";
-		    break;
-		case XML_TREE_UNTERMINATED_ENTITY:
-		    msg = "unterminated entity reference %15s\n";
-		    break;
-		case XML_TREE_NOT_UTF8:
-		    msg = "string is not in UTF-8\n";
-		    break;
-		default:
-		    msg = "unexpected error number\n";
+		case XML_TREE_INVALID_HEX: msg = "invalid hexadecimal character value\n"; break;
+		case XML_TREE_INVALID_DEC: msg = "invalid decimal character value\n"; break;
+		case XML_TREE_UNTERMINATED_ENTITY: msg = "unterminated entity reference %15s\n"; break;
+		case XML_TREE_NOT_UTF8: msg = "string is not in UTF-8\n"; break;
+		default: msg = "unexpected error number\n";
 	}
 	__xmlSimpleError(XML_FROM_TREE, code, node, msg, extra);
 }
@@ -155,9 +145,8 @@ static xmlEntityPtr xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name
  */
 static xmlEntityPtr xmlGetParameterEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 {
-	xmlEntitiesTable * table;
 	if(dtd && dtd->pentities) {
-		table = (xmlEntitiesTablePtr)dtd->pentities;
+		xmlEntitiesTable * table = (xmlEntitiesTablePtr)dtd->pentities;
 		return (xmlEntity *)xmlHashLookup(table, name);
 		// return(xmlGetEntityFromTable(table, name)); 
 	}
@@ -229,7 +218,6 @@ xmlChar * xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar 
  * Returns NULL if not a QName, otherwise the local part, and prefix
  *   is updated to get the Prefix if any.
  */
-
 xmlChar * xmlSplitQName2(const xmlChar * name, xmlChar ** prefix)
 {
 	int len = 0;
@@ -264,11 +252,9 @@ xmlChar * xmlSplitQName2(const xmlChar * name, xmlChar ** prefix)
 	if(!ret) {
 		xmlTreeErrMemory("QName split");
 		ZFREE(*prefix);
-		return 0;
 	}
 	return ret;
 }
-
 /**
  * xmlSplitQName3:
  * @name:  the full QName
@@ -343,7 +329,8 @@ int xmlValidateNCName(const xmlChar * value, int space)
 	    ((*cur >= '0') && (*cur <= '9')) || (*cur == '_') || (*cur == '-') || (*cur == '.'))
 		cur++;
 	if(space)
-		while(IS_BLANK_CH(*cur)) cur++;
+		while(IS_BLANK_CH(*cur)) 
+			cur++;
 	if(*cur == 0)
 		return 0;
 try_complex:
@@ -460,11 +447,8 @@ try_complex:
 			c = CUR_SCHAR(cur, l);
 		}
 	}
-	if(c != 0)
-		return 1;
-	return 0;
+	return (c != 0) ? 1 : 0;
 }
-
 /**
  * xmlValidateName:
  * @value: the value to check
@@ -486,21 +470,17 @@ int xmlValidateName(const xmlChar * value, int space)
 	 */
 	if(space)
 		while(IS_BLANK_CH(*cur)) cur++;
-	if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) ||
-	    (*cur == '_') || (*cur == ':'))
+	if(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || (*cur == '_') || (*cur == ':'))
 		cur++;
 	else
 		goto try_complex;
-	while(((*cur >= 'a') && (*cur <= 'z')) ||
-	    ((*cur >= 'A') && (*cur <= 'Z')) ||
-	    ((*cur >= '0') && (*cur <= '9')) ||
+	while(((*cur >= 'a') && (*cur <= 'z')) || ((*cur >= 'A') && (*cur <= 'Z')) || ((*cur >= '0') && (*cur <= '9')) ||
 	    (*cur == '_') || (*cur == '-') || (*cur == '.') || (*cur == ':'))
 		cur++;
 	if(space)
 		while(IS_BLANK_CH(*cur)) cur++;
 	if(*cur == 0)
 		return 0;
-
 try_complex:
 	/*
 	 * Second check for chars outside the ASCII range
@@ -517,8 +497,7 @@ try_complex:
 		return 1;
 	cur += l;
 	c = CUR_SCHAR(cur, l);
-	while(IS_LETTER(c) || IS_DIGIT(c) || (c == '.') || (c == ':') ||
-	    (c == '-') || (c == '_') || IS_COMBINING(c) || IS_EXTENDER(c)) {
+	while(IS_LETTER(c) || IS_DIGIT(c) || oneof4(c, '.', ':', '-', '_') || IS_COMBINING(c) || IS_EXTENDER(c)) {
 		cur += l;
 		c = CUR_SCHAR(cur, l);
 	}
@@ -530,7 +509,6 @@ try_complex:
 	}
 	return (c != 0) ? 1 : 0;
 }
-
 /**
  * xmlValidateNMToken:
  * @value: the value to check
@@ -614,7 +592,6 @@ void xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme)
 	if(oneof3(scheme, XML_BUFFER_ALLOC_EXACT, XML_BUFFER_ALLOC_DOUBLEIT, XML_BUFFER_ALLOC_HYBRID))
 		xmlBufferAllocScheme = scheme;
 }
-
 /**
  * xmlGetBufferAllocationScheme:
  *
@@ -632,7 +609,6 @@ xmlBufferAllocationScheme xmlGetBufferAllocationScheme()
 {
 	return xmlBufferAllocScheme;
 }
-
 /**
  * xmlNewNs:
  * @node:  the element carrying the namespace
@@ -688,18 +664,20 @@ xmlNs * xmlNewNs(xmlNode * node, const xmlChar * href, const xmlChar * prefix)
 		}
 		else {
 			xmlNs * prev = node->nsDef;
-			if(((prev->prefix == NULL) && (cur->prefix == NULL)) || sstreq(prev->prefix, cur->prefix)) {
+			if((!prev->prefix && !cur->prefix) || sstreq(prev->prefix, cur->prefix)) {
 				xmlFreeNs(cur);
 				return 0;
 			}
-			while(prev->next) {
-				prev = prev->next;
-				if(((prev->prefix == NULL) && (cur->prefix == NULL)) || sstreq(prev->prefix, cur->prefix)) {
-					xmlFreeNs(cur);
-					return 0;
+			else {
+				while(prev->next) {
+					prev = prev->next;
+					if((!prev->prefix && !cur->prefix) || sstreq(prev->prefix, cur->prefix)) {
+						xmlFreeNs(cur);
+						return 0;
+					}
 				}
+				prev->next = cur;
 			}
-			prev->next = cur;
 		}
 	}
 	return cur;
@@ -746,7 +724,7 @@ void xmlFreeNs(xmlNs * cur)
  *
  * Free up all the structures associated to the chained namespaces.
  */
-void xmlFreeNsList(xmlNs * cur)
+void FASTCALL xmlFreeNsList(xmlNs * cur)
 {
 	xmlNs * next;
 	if(!cur) {
@@ -853,7 +831,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 	cur->type = XML_DTD_NODE;
 	if(name) {
 		cur->name = sstrdup(name);
-		if(cur->name == NULL) {
+		if(!cur->name) {
 			xmlTreeErrMemory("building internal subset");
 			SAlloc::F(cur);
 			return 0;
@@ -861,7 +839,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 	}
 	if(ExternalID) {
 		cur->ExternalID = sstrdup(ExternalID);
-		if(cur->ExternalID == NULL) {
+		if(!cur->ExternalID) {
 			xmlTreeErrMemory("building internal subset");
 			SAlloc::F((void *)cur->name); // @badcast
 			SAlloc::F(cur);
@@ -870,7 +848,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 	}
 	if(SystemID) {
 		cur->SystemID = sstrdup(SystemID);
-		if(cur->SystemID == NULL) {
+		if(!cur->SystemID) {
 			xmlTreeErrMemory("building internal subset");
 			SAlloc::F((char*)cur->name);
 			SAlloc::F((char*)cur->ExternalID);
@@ -915,7 +893,6 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 			}
 		}
 	}
-
 	if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
 		xmlRegisterNodeDefaultValue((xmlNode *)cur);
 	return cur;
@@ -2866,7 +2843,7 @@ xmlNode * xmlAddChildList(xmlNode * parent, xmlNode * cur)
  *
  * Returns the child or NULL in case of error.
  */
-xmlNode * xmlAddChild(xmlNode * parent, xmlNode * cur) 
+xmlNode * FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur) 
 {
 	xmlNode * prev;
 	if((parent == NULL) || (parent->type == XML_NAMESPACE_DECL)) {
@@ -2875,14 +2852,12 @@ xmlNode * xmlAddChild(xmlNode * parent, xmlNode * cur)
 #endif
 		return 0;
 	}
-
 	if(!cur || (cur->type == XML_NAMESPACE_DECL)) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlAddChild : child == NULL\n");
 #endif
 		return 0;
 	}
-
 	if(parent == cur) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlAddChild : parent == cur\n");
@@ -2931,13 +2906,9 @@ xmlNode * xmlAddChild(xmlNode * parent, xmlNode * cur)
 			return 0;
 		if(parent->properties) {
 			/* check if an attribute with the same name exists */
-			xmlAttrPtr lastattr;
-			if(cur->ns == NULL)
-				lastattr = xmlHasNsProp(parent, cur->name, 0);
-			else
-				lastattr = xmlHasNsProp(parent, cur->name, cur->ns->href);
+			xmlAttr * lastattr = cur->ns ? xmlHasNsProp(parent, cur->name, cur->ns->href) : xmlHasNsProp(parent, cur->name, 0);
 			if(lastattr && (lastattr != (xmlAttrPtr)cur) && (lastattr->type != XML_ATTRIBUTE_DECL)) {
-				/* different instance, destroy it (attributes must be unique) */
+				// different instance, destroy it (attributes must be unique) 
 				xmlUnlinkNode((xmlNode *)lastattr);
 				xmlFreeProp(lastattr);
 			}
@@ -2948,8 +2919,8 @@ xmlNode * xmlAddChild(xmlNode * parent, xmlNode * cur)
 			parent->properties = (xmlAttrPtr)cur;
 		}
 		else {
-			/* find the end */
-			xmlAttrPtr lastattr = parent->properties;
+			// find the end 
+			xmlAttr * lastattr = parent->properties;
 			while(lastattr->next)
 				lastattr = lastattr->next;
 			lastattr->next = (xmlAttrPtr)cur;
@@ -2970,7 +2941,6 @@ xmlNode * xmlAddChild(xmlNode * parent, xmlNode * cur)
 	}
 	return cur;
 }
-
 /**
  * xmlGetLastChild:
  * @parent:  the parent node
@@ -5125,66 +5095,64 @@ void xmlNodeSetContentLen(xmlNode * cur, const xmlChar * content, int len)
  *       raw text, so unescaped XML special chars are allowed, entity
  *       references are not supported.
  */
-void xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len) 
+void FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len) 
 {
 	if(!cur) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNodeAddContentLen : node == NULL\n");
 #endif
-		return;
 	}
-	if(len <= 0) return;
-	switch(cur->type) {
-		case XML_DOCUMENT_FRAG_NODE:
-		case XML_ELEMENT_NODE: {
-		    xmlNode * last = cur->last;
-		    xmlNode * newNode = xmlNewTextLen(content, len);
-		    if(newNode) {
-			    xmlNode * tmp = xmlAddChild(cur, newNode);
-			    if(tmp != newNode)
-				    return;
-			    if(last && (last->next == newNode)) {
-				    xmlTextMerge(last, newNode);
-			    }
-		    }
-		    break;
-	    }
-		case XML_ATTRIBUTE_NODE:
-		    break;
-		case XML_TEXT_NODE:
-		case XML_CDATA_SECTION_NODE:
-		case XML_ENTITY_REF_NODE:
-		case XML_ENTITY_NODE:
-		case XML_PI_NODE:
-		case XML_COMMENT_NODE:
-		case XML_NOTATION_NODE:
-		    if(content) {
-			    if((cur->content == (xmlChar*)&(cur->properties)) || (cur->doc && cur->doc->dict && xmlDictOwns(cur->doc->dict, cur->content))) {
-				    cur->content = xmlStrncatNew(cur->content, content, len);
-				    cur->properties = NULL;
-				    cur->nsDef = NULL;
-				    break;
-			    }
-			    cur->content = xmlStrncat(cur->content, content, len);
-		    }
-		case XML_DOCUMENT_NODE:
-		case XML_DTD_NODE:
-		case XML_HTML_DOCUMENT_NODE:
-		case XML_DOCUMENT_TYPE_NODE:
-		case XML_NAMESPACE_DECL:
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
+	else if(len > 0) {
+		switch(cur->type) {
+			case XML_DOCUMENT_FRAG_NODE:
+			case XML_ELEMENT_NODE: 
+				{
+					xmlNode * last = cur->last;
+					for(xmlNode * newNode = xmlNewTextLen(content, len); newNode; ) {
+						xmlNode * tmp = xmlAddChild(cur, newNode);
+						if(tmp != newNode)
+							return;
+						if(last && (last->next == newNode))
+							xmlTextMerge(last, newNode);
+					}
+				}
+				break;
+			case XML_ATTRIBUTE_NODE:
+				break;
+			case XML_TEXT_NODE:
+			case XML_CDATA_SECTION_NODE:
+			case XML_ENTITY_REF_NODE:
+			case XML_ENTITY_NODE:
+			case XML_PI_NODE:
+			case XML_COMMENT_NODE:
+			case XML_NOTATION_NODE:
+				if(content) {
+					if((cur->content == (xmlChar*)&(cur->properties)) || (cur->doc && cur->doc->dict && xmlDictOwns(cur->doc->dict, cur->content))) {
+						cur->content = xmlStrncatNew(cur->content, content, len);
+						cur->properties = NULL;
+						cur->nsDef = NULL;
+						break;
+					}
+					cur->content = xmlStrncat(cur->content, content, len);
+				}
+			case XML_DOCUMENT_NODE:
+			case XML_DTD_NODE:
+			case XML_HTML_DOCUMENT_NODE:
+			case XML_DOCUMENT_TYPE_NODE:
+			case XML_NAMESPACE_DECL:
+			case XML_XINCLUDE_START:
+			case XML_XINCLUDE_END:
 #ifdef LIBXML_DOCB_ENABLED
-		case XML_DOCB_DOCUMENT_NODE:
+			case XML_DOCB_DOCUMENT_NODE:
 #endif
-		    break;
-		case XML_ELEMENT_DECL:
-		case XML_ATTRIBUTE_DECL:
-		case XML_ENTITY_DECL:
-		    break;
+				break;
+			case XML_ELEMENT_DECL:
+			case XML_ATTRIBUTE_DECL:
+			case XML_ENTITY_DECL:
+				break;
+		}
 	}
 }
-
 /**
  * xmlNodeAddContent:
  * @cur:  the node being modified
@@ -5195,7 +5163,7 @@ void xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len)
  *       raw text, so unescaped XML special chars are allowed, entity
  *       references are not supported.
  */
-void xmlNodeAddContent(xmlNode * cur, const xmlChar * content) 
+void FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content) 
 {
 	if(!cur) {
 #ifdef DEBUG_TREE
@@ -5207,7 +5175,6 @@ void xmlNodeAddContent(xmlNode * cur, const xmlChar * content)
 		xmlNodeAddContentLen(cur, content, len);
 	}
 }
-
 /**
  * xmlTextMerge:
  * @first:  the first text node
@@ -5292,7 +5259,6 @@ xmlNs ** xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * node)
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
 /*
  * xmlTreeEnsureXMLDecl:
  * @doc: the doc
@@ -5301,28 +5267,28 @@ xmlNs ** xmlGetNsList(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlNode * node)
  *
  * Returns the XML ns-struct or NULL on API and internal errors.
  */
-static xmlNs * xmlTreeEnsureXMLDecl(xmlDocPtr doc)
+static xmlNs * FASTCALL xmlTreeEnsureXMLDecl(xmlDoc * doc)
 {
-	if(!doc)
-		return 0;
-	else if(doc->oldNs)
-		return (doc->oldNs);
-	else {
-		xmlNs * ns = (xmlNs *)SAlloc::M(sizeof(xmlNs));
-		if(ns == NULL) {
-			xmlTreeErrMemory("allocating the XML namespace");
-		}
+	xmlNs * ns = 0;
+	if(doc) {
+		if(doc->oldNs)
+			ns = doc->oldNs;
 		else {
-			memzero(ns, sizeof(xmlNs));
-			ns->type = XML_LOCAL_NAMESPACE;
-			ns->href = sstrdup(XML_XML_NAMESPACE);
-			ns->prefix = sstrdup((const xmlChar*)"xml");
-			doc->oldNs = ns;
+			ns = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+			if(ns == NULL) {
+				xmlTreeErrMemory("allocating the XML namespace");
+			}
+			else {
+				memzero(ns, sizeof(xmlNs));
+				ns->type = XML_LOCAL_NAMESPACE;
+				ns->href = sstrdup(XML_XML_NAMESPACE);
+				ns->prefix = sstrdup((const xmlChar*)"xml");
+				doc->oldNs = ns;
+			}
 		}
-		return ns;
 	}
+	return ns;
 }
-
 /**
  * xmlSearchNs:
  * @doc:  the document
@@ -5341,72 +5307,57 @@ static xmlNs * xmlTreeEnsureXMLDecl(xmlDocPtr doc)
  */
 xmlNs * xmlSearchNs(xmlDocPtr doc, xmlNode * node, const xmlChar * nameSpace) 
 {
-	xmlNs * cur;
+	xmlNs * cur = 0;
 	const xmlNode * orig = node;
-	if(!node || (node->type == XML_NAMESPACE_DECL)) 
-		return 0;
-	if(nameSpace && (sstreq(nameSpace, (const xmlChar*)"xml"))) {
-		if((doc == NULL) && (node->type == XML_ELEMENT_NODE)) {
-			/*
-			 * The XML-1.0 namespace is normally held on the root
-			 * element. In this case exceptionally create it on the
-			 * node element.
-			 */
-			cur = (xmlNs *)SAlloc::M(sizeof(xmlNs));
-			if(!cur) {
-				xmlTreeErrMemory("searching namespace");
-				return 0;
-			}
-			memzero(cur, sizeof(xmlNs));
-			cur->type = XML_LOCAL_NAMESPACE;
-			cur->href = sstrdup(XML_XML_NAMESPACE);
-			cur->prefix = sstrdup((const xmlChar*)"xml");
-			cur->next = node->nsDef;
-			node->nsDef = cur;
-			return cur;
-		}
-		if(!doc) {
-			doc = node->doc;
-			if(!doc)
-				return 0;
-		}
-		/*
-		 * Return the XML namespace declaration held by the doc.
-		 */
-		if(doc->oldNs == NULL)
-			return(xmlTreeEnsureXMLDecl(doc));
-		else
-			return(doc->oldNs);
-	}
-	while(node) {
-		if((node->type == XML_ENTITY_REF_NODE) ||
-		    (node->type == XML_ENTITY_NODE) ||
-		    (node->type == XML_ENTITY_DECL))
-			return 0;
-		if(node->type == XML_ELEMENT_NODE) {
-			cur = node->nsDef;
-			while(cur) {
-				if((cur->prefix == NULL) && (nameSpace == NULL) && cur->href)
-					return cur;
-				if(cur->prefix && nameSpace && cur->href && (sstreq(cur->prefix, nameSpace)))
-					return cur;
-				cur = cur->next;
-			}
-			if(orig != node) {
-				cur = node->ns;
-				if(cur) {
-					if((cur->prefix == NULL) && (nameSpace == NULL) && cur->href)
-						return cur;
-					if(cur->prefix && nameSpace && cur->href && (sstreq(cur->prefix, nameSpace)))
-						return cur;
+	if(node && node->type != XML_NAMESPACE_DECL) {
+		if(nameSpace && sstreq(nameSpace, "xml")) {
+			if(!doc && node->type == XML_ELEMENT_NODE) {
+				// 
+				// The XML-1.0 namespace is normally held on the root
+				// element. In this case exceptionally create it on the node element.
+				// 
+				cur = (xmlNs *)SAlloc::M(sizeof(xmlNs));
+				if(!cur) {
+					xmlTreeErrMemory("searching namespace");
+				}
+				else {
+					memzero(cur, sizeof(xmlNs));
+					cur->type = XML_LOCAL_NAMESPACE;
+					cur->href = sstrdup(XML_XML_NAMESPACE);
+					cur->prefix = sstrdup((const xmlChar*)"xml");
+					cur->next = node->nsDef;
+					node->nsDef = cur;
 				}
 			}
+			else {
+				SETIFZ(doc, node->doc);
+				// 
+				// Return the XML namespace declaration held by the doc.
+				// 
+				cur = doc ? (doc->oldNs ? doc->oldNs : xmlTreeEnsureXMLDecl(doc)) : 0;
+			}
+			return cur;
 		}
-		node = node->parent;
+		else {
+			for(; node; node = node->parent) {
+				if(node->type == XML_ELEMENT_NODE) {
+					for(cur = node->nsDef; cur; cur = cur->next) {
+						if(cur->href && sstreq(cur->prefix, nameSpace))
+							return cur;
+					}
+					if(orig != node) {
+						cur = node->ns;
+						if(cur && cur->href && sstreq(cur->prefix, nameSpace))
+							return cur;
+					}
+				}
+				else if(oneof3(node->type, XML_ENTITY_REF_NODE, XML_ENTITY_NODE, XML_ENTITY_DECL))
+					return 0;
+			}
+		}
 	}
 	return 0;
 }
-
 /**
  * xmlNsInScope:
  * @doc:  the document
@@ -5421,27 +5372,23 @@ xmlNs * xmlSearchNs(xmlDocPtr doc, xmlNode * node, const xmlChar * nameSpace)
  */
 static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * node, xmlNode * ancestor, const xmlChar * prefix)
 {
-	xmlNs * tst;
-	while(node && (node != ancestor)) {
-		if((node->type == XML_ENTITY_REF_NODE) || (node->type == XML_ENTITY_NODE) || (node->type == XML_ENTITY_DECL))
+	while(node && node != ancestor) {
+		if(oneof3(node->type, XML_ENTITY_REF_NODE, XML_ENTITY_NODE, XML_ENTITY_DECL))
 			return -1;
-		if(node->type == XML_ELEMENT_NODE) {
-			tst = node->nsDef;
-			while(tst) {
-				if((tst->prefix == NULL) && (prefix == NULL))
-					return 0;
-				if(tst->prefix && prefix && (sstreq(tst->prefix, prefix)))
-					return 0;
-				tst = tst->next;
+		else {
+			if(node->type == XML_ELEMENT_NODE) {
+				xmlNs * tst = node->nsDef;
+				while(tst) {
+					if(sstreq(tst->prefix, prefix))
+						return 0;
+					tst = tst->next;
+				}
 			}
+			node = node->parent;
 		}
-		node = node->parent;
 	}
-	if(node != ancestor)
-		return -1;
-	return 1;
+	return (node != ancestor) ? -1 : 1;
 }
-
 /**
  * xmlSearchNsByHref:
  * @doc:  the document
@@ -5573,11 +5520,9 @@ static xmlNs * xmlNewReconciliedNs(xmlDocPtr doc, xmlNode * tree, xmlNs * ns)
 		if(ns->prefix == NULL)
 			snprintf((char*)prefix, sizeof(prefix), "default%d", counter++);
 		else
-			snprintf((char*)prefix, sizeof(prefix), "%.20s%d",
-			    (char*)ns->prefix, counter++);
+			snprintf((char*)prefix, sizeof(prefix), "%.20s%d", (char*)ns->prefix, counter++);
 		def = xmlSearchNs(doc, tree, prefix);
 	}
-
 	/*
 	 * OK, now we are ready to create a new one.
 	 */
@@ -5737,17 +5682,14 @@ int xmlReconciliateNs(xmlDocPtr doc, xmlNode * tree)
 				attr = attr->next;
 			}
 		}
-
 		/*
 		 * Browse the full subtree, deep first
 		 */
 		if(node->children && (node->type != XML_ENTITY_REF_NODE)) {
-			/* deep first */
-			node = node->children;
+			node = node->children; // deep first 
 		}
 		else if((node != tree) && node->next) {
-			/* then siblings */
-			node = node->next;
+			node = node->next; // then siblings 
 		}
 		else if(node != tree) {
 			/* go up to parents->next if needed */
@@ -5836,7 +5778,7 @@ static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * node, const xmlChar * n
 			 * The common and nice case: Attr in no namespace.
 			 */
 			attrDecl = xmlGetDtdQAttrDesc(doc->intSubset, elemQName, name, 0);
-			if((attrDecl == NULL) && doc->extSubset) {
+			if(!attrDecl && doc->extSubset) {
 				attrDecl = xmlGetDtdQAttrDesc(doc->extSubset, elemQName, name, 0);
 			}
 		}
@@ -6242,9 +6184,7 @@ int xmlTextConcat(xmlNode * node, const xmlChar * content, int len)
 		node->content = xmlStrncat(node->content, content, len);
 	}
 	node->properties = NULL;
-	if(node->content == NULL)
-		return -1;
-	return 0;
+	return (node->content == NULL) ?  -1 : 0;
 }
 
 /************************************************************************
@@ -6337,7 +6277,6 @@ xmlChar * xmlBufferDetach(xmlBufferPtr buf)
 	}
 	return ret;
 }
-
 /**
  * xmlBufferCreateStatic:
  * @mem: the memory area
@@ -7198,7 +7137,7 @@ static xmlNs * xmlTreeNSListLookupByPrefix(xmlNs * nsList, const xmlChar * prefi
 	if(nsList) {
 		xmlNs * ns = nsList;
 		do {
-			if((prefix == ns->prefix) || sstreq(prefix, ns->prefix)) {
+			if(sstreq(prefix, ns->prefix)) {
 				return (ns);
 			}
 			ns = ns->next;
@@ -7468,9 +7407,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNode * node, const xml
 	*retNs = NULL;
 	if(sstreq(nsName, XML_XML_NAMESPACE)) {
 		*retNs = xmlTreeEnsureXMLDecl(doc);
-		if(*retNs == NULL)
-			return -1;
-		return 1;
+		return (*retNs == NULL) ? -1 : 1;
 	}
 	cur = node;
 	do {
@@ -7568,7 +7505,7 @@ static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNode * node, const xmlCha
 			if(cur->nsDef) {
 				ns = cur->nsDef;
 				do {
-					if((prefix == ns->prefix) || sstreq(prefix, ns->prefix)) {
+					if(sstreq(prefix, ns->prefix)) {
 						/*
 						 * Disabled namespaces, e.g. xmlns:abc="".
 						 */
@@ -7687,9 +7624,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc, xmlNode * elem, xml
 		 * Insert XML namespace mapping.
 		 */
 		*retNs = xmlTreeEnsureXMLDecl(doc);
-		if(*retNs == NULL)
-			return -1;
-		return 0;
+		return (*retNs == NULL) ? -1 : 0;
 	}
 	/*
 	 * If the search should be done in ancestors only and no
@@ -7789,7 +7724,6 @@ typedef enum {
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-
 int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNode * elem, int options)
 {
 	int depth = -1, adoptns = 0, parnsdone = 0;
@@ -7931,7 +7865,6 @@ next_ns_decl:
 			    if(xmlDOMWrapNSNormAquireNormalizedNs(doc, curElem, cur->ns, &ns, &nsMap, depth, ancestorsOnly, (cur->type == XML_ATTRIBUTE_NODE) ? 1 : 0) == -1)
 				    goto internal_error;
 			    cur->ns = ns;
-
 ns_end:
 			    if((cur->type == XML_ELEMENT_NODE) && cur->properties) {
 				    /*
@@ -8050,7 +7983,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 	 * 1) there's no destination parent
 	 * 2) custom ns-reference handling is used
 	 */
-	parnsdone = ((destParent == NULL) || (ctxt && ctxt->getNsForNodeFunc)) ? 1 : 0;
+	parnsdone = BIN(!destParent || (ctxt && ctxt->getNsForNodeFunc));
 	cur = node;
 	if(cur && (cur->type == XML_NAMESPACE_DECL))
 		goto internal_error;

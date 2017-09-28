@@ -54,7 +54,7 @@ typedef void (*xmlParserInputDeallocate)(xmlChar * str);
 struct _xmlParserInput {
 	/* Input buffer */
 	const xmlChar * cur;          // Current char being parsed 
-	xmlParserInputBufferPtr buf;  /* UTF-8 encoded buffer */
+	xmlParserInputBuffer * buf;   // UTF-8 encoded buffer 
 	const char * filename;        /* The file analyzed, if any */
 	const char * directory;       /* the directory/base of the file */
 	const xmlChar * base;         /* Base of the array to parse */
@@ -74,7 +74,6 @@ struct _xmlParserInput {
 	int standalone;               /* Was that entity marked standalone */
 	int id;                       /* an unique identifier for the entity */
 };
-
 /**
  * xmlParserNodeInfo:
  *
@@ -88,19 +87,19 @@ typedef xmlParserNodeInfo * xmlParserNodeInfoPtr;
 struct _xmlParserNodeInfo {
 	const struct _xmlNode* node;
 	// Position & line # that text that created the node begins & ends on 
-	unsigned long begin_pos;
-	unsigned long begin_line;
-	unsigned long end_pos;
-	unsigned long end_line;
+	ulong  begin_pos;
+	ulong  begin_line;
+	ulong  end_pos;
+	ulong  end_line;
 };
 
 typedef struct _xmlParserNodeInfoSeq xmlParserNodeInfoSeq;
 typedef xmlParserNodeInfoSeq * xmlParserNodeInfoSeqPtr;
 
 struct _xmlParserNodeInfoSeq {
-	unsigned long maximum;
-	unsigned long length;
-	xmlParserNodeInfo* buffer;
+	ulong  maximum;
+	ulong  length;
+	xmlParserNodeInfo * buffer;
 };
 /**
  * xmlParserInputState:
@@ -184,7 +183,7 @@ struct _xmlParserCtxt {
 	xmlParserInput * input;      // Current input stream
 	struct _xmlSAXHandler * sax;  // The SAX handler
 	void * userData;              // For SAX interface only, used by DOM build
-	xmlDocPtr myDoc;              // the document being built
+	xmlDoc * myDoc;              // the document being built
 	int wellFormed;               // is the document well formed
 	int replaceEntities;          // shall we replace entities ?
 	const xmlChar * version;      // the XML version string
@@ -261,8 +260,8 @@ struct _xmlParserCtxt {
 	const  xmlChar ** nsTab;       // the array of prefix/namespace name
 	int  * attallocs;             // which attribute were allocated
 	void ** pushTab;              // array of data for push
-	xmlHashTablePtr attsDefault;  // defaulted attributes if any
-	xmlHashTablePtr attsSpecial;  // non-CDATA attributes if any
+	xmlHashTable * attsDefault;  // defaulted attributes if any
+	xmlHashTable * attsSpecial;  // non-CDATA attributes if any
 	int    nsWellFormed;             // is the document XML Nanespace okay
 	int    options;                  // Extra options
 	//
@@ -272,21 +271,21 @@ struct _xmlParserCtxt {
 	int    freeElemsNr;            // number of freed element nodes
 	xmlNode * freeElems;       // List of freed element nodes
 	int    freeAttrsNr;            // number of freed attributes nodes
-	xmlAttrPtr freeAttrs;       // List of freed attributes nodes
+	xmlAttr * freeAttrs;       // List of freed attributes nodes
 	//
 	// the complete error informations for the last error.
 	//
 	xmlError lastError;
 	xmlParserMode parseMode;    // the parser mode
-	unsigned long nbentities;   // number of entities references
-	unsigned long sizeentities; // size of parsed entities
+	ulong  nbentities;   // number of entities references
+	ulong  sizeentities; // size of parsed entities
 	// for use by HTML non-recursive parser
 	xmlParserNodeInfo * nodeInfo; // Current NodeInfo
 	int    nodeInfoNr;               // Depth of the parsing stack
 	int    nodeInfoMax;              // Max depth of the parsing stack
 	xmlParserNodeInfo * nodeInfoTab; // array of nodeInfos
 	int    input_id;                 // we need to label inputs
-	unsigned long sizeentcopy;    // volume of entity copy
+	ulong  sizeentcopy;    // volume of entity copy
 };
 /**
  * xmlSAXLocator:
@@ -744,7 +743,7 @@ XMLPUBFUN void XMLCALL xmlCleanupParser();
  * Input functions
  */
 XMLPUBFUN int XMLCALL xmlParserInputRead(xmlParserInputPtr in, int len);
-XMLPUBFUN int XMLCALL xmlParserInputGrow(xmlParserInputPtr in, int len);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParserInputGrow(xmlParserInput * in, int len);
 
 /*
  * Basic parsing Interfaces

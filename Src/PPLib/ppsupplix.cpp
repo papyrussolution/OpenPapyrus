@@ -629,13 +629,13 @@ int SLAPI PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	if(P.Actions & P.opExportDebts) {
 		PPIDArray excl_ar_list;
 		SString temp_client_code = client_code;
-		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKASALDOCODE, (buf = 0)) > 0) {
+		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKASALDOCODE, buf.Z()) > 0) {
 			//STRNSCPY(Filt.ClientCode, buf);
 			temp_client_code = buf;
 		}
-		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAEXCLSALDOCONTRAGENTS, (buf = 0)) > 0) {
+		if(ini_file.IsValid() && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BALTIKAEXCLSALDOCONTRAGENTS, buf.Z()) > 0) {
 			StringSet ss(',', buf);
-			for(uint p = 0; ss.get(&p, (buf = 0)) > 0;)
+			for(uint p = 0; ss.get(&p, buf);)
 				excl_ar_list.add(buf.ToLong());
 			excl_ar_list.sort();
 		}
@@ -2486,7 +2486,7 @@ int SLAPI PPSupplExchange_Baltika::Import(const char * pPath)
 		}
 		THROW_PP(buf.Len() > 0, PPERR_UNEXPEOF);
 		ss.setBuf(buf, buf.Len() + 1);
-		for(uint i = 0, j = 0; ss.get(&i, (buf = 0)) > 0; j++) {
+		for(uint i = 0, j = 0; ss.get(&i, buf) > 0; j++) {
 			if(j != 0) {
 				ResolveGoodsItem gitem;
 				StringSet ss2("<f>");

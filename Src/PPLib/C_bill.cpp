@@ -655,8 +655,7 @@ int SLAPI RemoveBadReckons()
 			SString msg_buf, code1, code2;
 			PPObjBill::MakeCodeString(&scnd_bill_rec, 1, code1);
 			PPObjBill::MakeCodeString(&prmr_bill_rec, 1, code2);
-			msg_buf.Cat(code1).Space().CatChar('-').CatChar('>').Space().Cat(code2).
-				Quot('[', ']').Space().Cat("removed");
+			msg_buf.Cat(code1).Space().CatChar('-').CatChar('>').Space().Cat(code2).Quot('[', ']').Space().Cat("removed");
 			if(r1 > 0 && r2 > 0) {
 				PPOprKind op_rec;
 				PPID   op_type_id = GetOpType(scnd_bill_rec.OpID, &op_rec);

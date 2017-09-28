@@ -351,7 +351,7 @@ xmlEntityPtr xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const x
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-static xmlEntityPtr xmlGetEntityFromTable(xmlEntitiesTablePtr table, const xmlChar * name)
+static xmlEntity * FASTCALL xmlGetEntityFromTable(xmlEntitiesTable * table, const xmlChar * name)
 {
 	return (xmlEntity *)xmlHashLookup(table, name);
 }
@@ -415,21 +415,19 @@ xmlEntityPtr xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-xmlEntityPtr xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
+xmlEntity * FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
 {
-	xmlEntity * cur;
-	xmlEntitiesTable * table;
 	if(doc) {
 		if(doc->intSubset && doc->intSubset->entities) {
-			table = (xmlEntitiesTablePtr)doc->intSubset->entities;
-			cur = xmlGetEntityFromTable(table, name);
+			xmlEntitiesTable * table = (xmlEntitiesTable *)doc->intSubset->entities;
+			xmlEntity * cur = xmlGetEntityFromTable(table, name);
 			if(cur)
 				return cur;
 		}
 		if(doc->standalone != 1) {
 			if(doc->extSubset && doc->extSubset->entities) {
-				table = (xmlEntitiesTablePtr)doc->extSubset->entities;
-				cur = xmlGetEntityFromTable(table, name);
+				xmlEntitiesTable * table = (xmlEntitiesTable *)doc->extSubset->entities;
+				xmlEntity * cur = xmlGetEntityFromTable(table, name);
 				if(cur)
 					return cur;
 			}

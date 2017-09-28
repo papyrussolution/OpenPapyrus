@@ -504,7 +504,7 @@ int SLAPI SysJournal::Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPI
 	return 1;
 }
 
-int SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)
+void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	if(sgsj == sgsjOp)
@@ -518,7 +518,6 @@ int SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf
 	else if(sgsj == sgsjObjType)
 		GetObjectTitle(id, temp_buf);
 	temp_buf.CopyTo(pBuf, bufLen);
-	return 1;
 }
 //
 //

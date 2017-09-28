@@ -685,6 +685,11 @@ int SLAPI Reference::GetProp(PPID obj, PPID id, PPID prop, void * b, size_t s)
 	return _SearchProp(obj, id, prop, spEq, b, s);
 }
 
+int SLAPI Reference::GetPropMainConfig(PPID prop, void * b, size_t s)
+{
+	return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s);
+}
+
 int SLAPI Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualSize)
 {
 	int    ok = 1;
@@ -1854,7 +1859,7 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 {
 	int    ok = 1, r = 0;
 	memzero(pCfg, sizeof(*pCfg));
-	THROW(r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_COMMCFG, pCfg, sizeof(PPCommConfig)));
+	THROW(r = PPRef->GetPropMainConfig(PPPRP_COMMCFG, pCfg, sizeof(PPCommConfig)));
 	if(r <= 0) {
 		memzero(pCfg, sizeof(*pCfg));
 		pCfg->Tag          = PPOBJ_CONFIG;

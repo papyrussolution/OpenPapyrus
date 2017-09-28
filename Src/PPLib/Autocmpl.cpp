@@ -175,7 +175,7 @@ int SLAPI PUGL::Add(const ILTI * pItem, PPID locID, uint itemPos, LDATE dt /* = 
 	return Add(&item, dt);
 }
 
-int SLAPI PUGL::Log(PPLogger * pLogger) const
+int FASTCALL PUGL::Log(PPLogger * pLogger) const
 {
 	int    ok = -1;
 	if(pLogger) {

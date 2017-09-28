@@ -39,7 +39,8 @@ int SLAPI Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * p
 		copyBufTo(pRec);
 		return pIter->Advance(data.Dt, data.OprNo);
 	}
-	return r;
+	else
+		return r;
 }
 
 int SLAPI Transfer::IsDeadLot(PPID lotID)
@@ -1145,7 +1146,7 @@ int SLAPI Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, d
 			if(!check) {
 				THROW_DB(updateRec());
 				if(!(CConfig.Flags & CCFLG_TRFR_DONTRECALCREVAL))
-					THROW(!(data.Flags & PPTFR_REVAL) || BillObj->RecalcTurns(data.BillID, 0, 0));
+					THROW(!(data.Flags & PPTFR_REVAL) || BillObj->RecalcTurns(data.BillID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
 			}
 			ok = 2;
 		}
@@ -1953,7 +1954,7 @@ int SLAPI Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p
 						BillTbl::Rec bill_rec;
 						THROW(p_bobj->RecalcTurns(bill_id, 0, 0));
 						while(p_bobj->P_Tbl->EnumLinks(bill_id, &diter, BLNK_PAYMENT, &bill_rec) > 0) {
-							THROW(p_bobj->RecalcTurns(bill_rec.ID, 0, 0));
+							THROW(p_bobj->RecalcTurns(bill_rec.ID, BORTF_IGNOREOPRTLIST, 0)); // @v9.8.3 BORTF_IGNOREOPRTLIST
 						}
 					}
 					if(!is_const_c_reval && flags & TRUCLF_UPDCOST) {

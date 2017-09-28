@@ -219,7 +219,7 @@ static void xmlCtxtCheckName(xmlDebugCtxt * ctxt, const xmlChar * name)
 static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 {
 	xmlDict * dict;
-	xmlDocPtr doc = node->doc;
+	xmlDoc * doc = node->doc;
 	if(node->parent == NULL)
 		xmlDebugErr(ctxt, XML_CHECK_NO_PARENT, "Node has no parent\n");
 	if(node->doc == NULL) {
@@ -239,14 +239,14 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 		SETIFZ(ctxt->doc, doc);
 		SETIFZ(ctxt->dict, dict);
 	}
-	if((node->parent != NULL) && (node->doc != node->parent->doc) && (!sstreq(node->name, BAD_CAST "pseudoroot")))
+	if(node->parent && (node->doc != node->parent->doc) && !sstreq(node->name, "pseudoroot"))
 		xmlDebugErr(ctxt, XML_CHECK_WRONG_DOC, "Node doc differs from parent's one\n");
 	if(node->prev == NULL) {
 		if(node->type == XML_ATTRIBUTE_NODE) {
-			if((node->parent != NULL) && (node != (xmlNode *)node->parent->properties))
+			if(node->parent && (node != (xmlNode *)node->parent->properties))
 				xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Attr has no prev and not first of attr list\n");
 		}
-		else if((node->parent != NULL) && (node->parent->children != node))
+		else if(node->parent && (node->parent->children != node))
 			xmlDebugErr(ctxt, XML_CHECK_NO_PREV, "Node has no prev and not first of parent list\n");
 	}
 	else {
@@ -254,7 +254,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 			xmlDebugErr(ctxt, XML_CHECK_WRONG_PREV, "Node prev->next : back link wrong\n");
 	}
 	if(node->next == NULL) {
-		if((node->parent != NULL) && (node->type != XML_ATTRIBUTE_NODE) && (node->parent->last != node) && (node->parent->type == XML_ELEMENT_NODE))
+		if(node->parent && (node->type != XML_ATTRIBUTE_NODE) && (node->parent->last != node) && (node->parent->type == XML_ELEMENT_NODE))
 			xmlDebugErr(ctxt, XML_CHECK_NO_NEXT, "Node has no next and not last of parent list\n");
 	}
 	else {
@@ -266,15 +266,14 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 	if(node->type == XML_ELEMENT_NODE) {
 		for(xmlNs * ns = node->nsDef; ns; ns = ns->next)
 			xmlCtxtNsCheckScope(ctxt, node, ns);
-		if(node->ns != NULL)
+		if(node->ns)
 			xmlCtxtNsCheckScope(ctxt, node, node->ns);
 	}
 	else if(node->type == XML_ATTRIBUTE_NODE) {
-		if(node->ns != NULL)
+		if(node->ns)
 			xmlCtxtNsCheckScope(ctxt, node, node->ns);
 	}
-	if((node->type != XML_ELEMENT_NODE) && (node->type != XML_ATTRIBUTE_NODE) && (node->type != XML_ELEMENT_DECL) &&
-	    (node->type != XML_ATTRIBUTE_DECL) && (node->type != XML_DTD_NODE) && (node->type != XML_HTML_DOCUMENT_NODE) && (node->type != XML_DOCUMENT_NODE)) {
+	if(!oneof7(node->type, XML_ELEMENT_NODE, XML_ATTRIBUTE_NODE, XML_ELEMENT_DECL, XML_ATTRIBUTE_DECL, XML_DTD_NODE, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE)) {
 		if(node->content)
 			xmlCtxtCheckString(ctxt, (const xmlChar*)node->content);
 	}
@@ -359,13 +358,13 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
 	}
 	else {
 		if(!ctxt->check) {
-			if(dtd->name != NULL)
+			if(dtd->name)
 				fprintf(ctxt->output, "DTD(%s)", (char*)dtd->name);
 			else
 				fprintf(ctxt->output, "DTD");
-			if(dtd->ExternalID != NULL)
+			if(dtd->ExternalID)
 				fprintf(ctxt->output, ", PUBLIC %s", (char*)dtd->ExternalID);
-			if(dtd->SystemID != NULL)
+			if(dtd->SystemID)
 				fprintf(ctxt->output, ", SYSTEM %s", (char*)dtd->SystemID);
 			fprintf(ctxt->output, "\n");
 		}
@@ -1989,7 +1988,7 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * nod
  */
 int xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * node ATTRIBUTE_UNUSED, xmlNode * node2 ATTRIBUTE_UNUSED)
 {
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	int html = 0;
 	if(!ctxt || (filename == NULL)) 
 		return -1;

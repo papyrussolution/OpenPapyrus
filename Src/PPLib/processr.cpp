@@ -439,7 +439,7 @@ TLP_IMPL(PPObjProcessor, ProcessorTbl, P_Tbl);
 //static
 int SLAPI PPObjProcessor::ReadConfig(PPProcessorConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PRCCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_PRCCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(*pCfg));
 	return r;

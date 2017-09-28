@@ -310,7 +310,7 @@ XMLPUBFUN void XMLCALL __xmlErrEncoding(xmlParserCtxt * ctxt,
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity);
 XMLPUBFUN int XMLCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInputPtr input);
-XMLPUBFUN xmlChar XMLCALL xmlPopInput(xmlParserCtxt * ctxt);
+XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlFreeInputStream(xmlParserInputPtr input);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputStream(xmlParserCtxt * ctxt);
@@ -411,7 +411,7 @@ XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);
  */
 XMLPUBFUN int XMLCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
-XMLPUBFUN void XMLCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
 
 /*
@@ -420,8 +420,8 @@ XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
 XMLPUBFUN int XMLCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
 XMLPUBFUN int XMLCALL xmlCopyCharMultiByte(xmlChar * out, int val);
 XMLPUBFUN int XMLCALL xmlCopyChar(int len, xmlChar * out, int val);
-XMLPUBFUN void XMLCALL xmlNextChar(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlParserInputShrink(xmlParserInputPtr in);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNextChar(xmlParserCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserInputShrink(xmlParserInput * in);
 
 #ifdef LIBXML_HTML_ENABLED
 /*
@@ -466,7 +466,7 @@ XMLPUBFUN void XMLCALL xmlHandleEntity(xmlParserCtxt * ctxt, xmlEntityPtr entity
 /*
  * internal only
  */
-XMLPUBFUN void XMLCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra);
 #endif
 
 #ifdef __cplusplus

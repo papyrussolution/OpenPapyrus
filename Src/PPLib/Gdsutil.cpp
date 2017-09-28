@@ -853,7 +853,7 @@ int SLAPI PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SStri
 }
 
 // static
-int SLAPI PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
+int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -865,13 +865,13 @@ int SLAPI PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 		const size_t pre770_size = pCfg->GetSize_Pre770();
 		assert(pre770_size == (offsetof(PPGoodsConfig, Ver__)));
 		if(sz <= pre770_size) {
-			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, pCfg, sz);
+			ok = p_ref->GetPropMainConfig(PPPRP_GOODSCFG, pCfg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 		}
 		else {
 			STempBuffer temp_buf(sz);
-			ok = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, (char *)temp_buf, sz);
+			ok = p_ref->GetPropMainConfig(PPPRP_GOODSCFG, (char *)temp_buf, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 			{

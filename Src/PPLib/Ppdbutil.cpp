@@ -2717,7 +2717,7 @@ int SLAPI ReadDBMaintainCfg(DBMaintainParam * pParam)
 	int    ok = -1;
 	DBMaintainParam  db_param;
 	_DBMantainConfig dbm_cfg;
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_DBMAINTAINCFG, &dbm_cfg, sizeof(dbm_cfg)) > 0) {
+	if(PPRef->GetPropMainConfig(PPPRP_DBMAINTAINCFG, &dbm_cfg, sizeof(dbm_cfg)) > 0) {
 		db_param.DLSDays   = dbm_cfg.DLSDays;
 		db_param.MRPDays   = dbm_cfg.MRPDays;
 		db_param.SJDays    = dbm_cfg.DLSDays;

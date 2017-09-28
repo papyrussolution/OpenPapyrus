@@ -416,9 +416,9 @@ int SLAPI PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 }
 
 // static
-int SLAPI PPObjStyloPalm::ReadConfig(PPStyloPalmConfig * pCfg)
+int FASTCALL PPObjStyloPalm::ReadConfig(PPStyloPalmConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_STYLOPALMCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_STYLOPALMCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(*pCfg));
 	return r;
@@ -1148,7 +1148,7 @@ int SLAPI AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 	const char * p_hdr_tag = "GeoTrackTable";
 	const char * p_item_tag = "Item";
 	int    ok = 1;
-	xmlDocPtr p_doc = P_Doc;
+	xmlDoc * p_doc = P_Doc;
 	SString wait_msg_buf;
 	SString val;
 	PPLoadText(PPTXT_IMPGEOTRACK, wait_msg_buf);
@@ -1229,7 +1229,7 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 	const char * p_brow_tags = "_id;OrderID;GoodsID;Price;Quantity";
 	int    ok = 1;
 	uint   queue_pos = UINT_MAX;
-	xmlDocPtr p_doc = P_Doc;
+	xmlDoc * p_doc = P_Doc;
 	SString wait_msg_buf;
 	SString val;
 	PPLoadText(PPTXT_IMPBILL, wait_msg_buf);
@@ -3147,7 +3147,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 	int    r = -1;
 	const  char * p_tag = "StyloPalm";
 	LDATETIME dtm;
-	xmlDocPtr p_doc = 0;
+	xmlDoc * p_doc = 0;
 	xmlTextReaderPtr p_reader  = 0;
 	dtm.SetZero();
 	if(pXmlPath)

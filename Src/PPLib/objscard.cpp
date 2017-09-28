@@ -74,7 +74,7 @@ int SLAPI PPObjSCard::PreprocessSCardCode(SString & rCode)
 // static
 int SLAPI PPObjSCard::ReadConfig(PPSCardConfig * pCfg)
 {
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_SCARDCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(*pCfg));
 	return r;
@@ -91,7 +91,7 @@ int SLAPI PPObjSCard::WriteConfig(const PPSCardConfig * pCfg, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = p_ref->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, &ex_cfg, sizeof(ex_cfg)));
+		THROW(r = p_ref->GetPropMainConfig(PPPRP_SCARDCFG, &ex_cfg, sizeof(ex_cfg)));
 		is_new = (r > 0) ? 0 : 1;
 		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_SCARDCFG, pCfg, 0));
 		DS.LogAction((is_new < 0) ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_SCARD, 0, 0, 0);

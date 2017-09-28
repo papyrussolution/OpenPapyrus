@@ -2659,10 +2659,10 @@ int SLAPI PPViewPriceList::ExportUhtt()
 //
 //
 //
-int SLAPI ReadPriceListConfig(PriceListConfig * pCfg)
+int FASTCALL ReadPriceListConfig(PriceListConfig * pCfg)
 {
 	memzero(pCfg, sizeof(*pCfg));
-	int    r = PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PLISTCFG, pCfg, sizeof(*pCfg));
+	int    r = PPRef->GetPropMainConfig(PPPRP_PLISTCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
 		memzero(pCfg, sizeof(PriceListConfig));
 	return r;

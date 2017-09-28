@@ -176,6 +176,7 @@ int PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 {
 	int    ok = 1;
 	if(pCfg) {
+		Reference * p_ref = PPRef;
 		__StockOptConfig rec, prev_rec;
 		MEMSZERO(rec);
 		rec.Tag = PPOBJ_CONFIG;
@@ -190,13 +191,13 @@ int PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 			int    is_new = 1;
 			PPTransaction tra(1);
 			THROW(tra);
-			if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_STOCKOPTCFG, &prev_rec, sizeof(prev_rec)) > 0) {
+			if(p_ref->GetPropMainConfig(PPPRP_STOCKOPTCFG, &prev_rec, sizeof(prev_rec)) > 0) {
 				is_new = 0;
 				if(memcmp(&prev_rec, &rec, sizeof(rec)) == 0)
 					ok = -1;
 			}
 			if(ok > 0) {
-				THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_STOCKOPTCFG, &rec, sizeof(rec), 0));
+				THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_STOCKOPTCFG, &rec, sizeof(rec), 0));
 				DS.LogAction(is_new ? PPACN_CONFIGCREATED : PPACN_CONFIGUPDATED, PPCFGOBJ_STOCKOPT, 0, 0, 0);
 			}
 			THROW(tra.Commit());
@@ -213,7 +214,7 @@ int PPStockOpt::ReadConfig(PPStockOpt::Config * pCfg)
 {
 	int    ok = -1;
 	__StockOptConfig rec;
-	if(PPRef->GetProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_STOCKOPTCFG, &rec, sizeof(rec)) > 0) {
+	if(PPRef->GetPropMainConfig(PPPRP_STOCKOPTCFG, &rec, sizeof(rec)) > 0) {
 		if(pCfg) {
 			pCfg->MaxItems = rec.MaxItems;
 			pCfg->RateOfRet = rec.RateOfRet;
