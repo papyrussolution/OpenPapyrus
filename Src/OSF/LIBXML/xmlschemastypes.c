@@ -6,15 +6,14 @@
  *
  * Daniel Veillard <veillard@redhat.com>
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-#include <libxml/parserInternals.h>
-#include <libxml/xpath.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/xpath.h>
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>

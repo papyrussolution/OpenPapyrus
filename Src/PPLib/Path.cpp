@@ -443,19 +443,27 @@ SString & SLAPI PPMakeTempFileName(const char * pPrefix, const char * pExt, long
 	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
 }
 
-int SLAPI PPRemoveFiles(const PPFileNameArray * pFileList)
+int SLAPI PPRemoveFiles(const PPFileNameArray * pFileList, uint * pSuccCount, uint * pErrCount)
 {
 	int    ok = -1;
+	uint   succ_count = 0;
+	uint   err_count = 0;
 	if(pFileList) {
 		SString file_path;
-		for(uint i = 0; pFileList->Enum(&i, 0, &file_path);)
-			SFile::Remove(file_path);
+		for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
+			if(SFile::Remove(file_path))
+				succ_count++;
+			else
+				err_count++;
+		}
 		ok = 1;
 	}
+	ASSIGN_PTR(pSuccCount, succ_count);
+	ASSIGN_PTR(pErrCount, err_count);
 	return ok;
 }
 
-int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt)
+int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount)
 {
 	PPFileNameArray fary;
 	SString wildcard;
@@ -464,7 +472,7 @@ int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt)
 		wildcard.Dot();
 	wildcard.Cat(pExt);
 	fary.Scan(pSrc, wildcard);
-	return PPRemoveFiles(&fary);
+	return PPRemoveFiles(&fary, pSuccCount, pErrCount);
 }
 //
 //

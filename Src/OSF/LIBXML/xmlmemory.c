@@ -26,7 +26,7 @@
 		#define MEM_LIST /* keep a list of all the allocated memory blocks */
 	#endif
 #endif
-#include <libxml/threads.h>
+//#include <libxml/threads.h>
 
 static int   xmlMemInitialized = 0; // @global
 static ulong debugMemSize = 0; // @global

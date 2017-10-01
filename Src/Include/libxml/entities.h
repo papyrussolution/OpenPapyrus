@@ -29,12 +29,11 @@ typedef enum {
 	XML_EXTERNAL_PARAMETER_ENTITY = 5,
 	XML_INTERNAL_PREDEFINED_ENTITY = 6
 } xmlEntityType;
-
 /*
  * An unit of storage for an entity, contains the string, the value
  * and the linkind data needed for the linking in the hash table.
  */
-struct _xmlEntity {
+struct xmlEntity {
 	void * _private;      /* application data */
 	xmlElementType type;            /* XML_ENTITY_DECL, must be second ! */
 	const xmlChar * name;  /* Entity name */
@@ -50,7 +49,7 @@ struct _xmlEntity {
 	xmlEntityType etype;            /* The entity type */
 	const xmlChar * ExternalID;  /* External identifier for PUBLIC */
 	const xmlChar * SystemID;  /* URI for a SYSTEM or PUBLIC Entity */
-	struct _xmlEntity * nexte;  /* unused */
+	struct xmlEntity * nexte;  /* unused */
 	const  xmlChar * URI;  /* the full URI as computed */
 	int    owner;                      /* does the entity own the childrens */
 	int    checked; // was the entity content checked  this is also used to count entities references done from that entity and if it contains '<'

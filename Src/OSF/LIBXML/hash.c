@@ -464,17 +464,17 @@ int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar 
 	 */
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
-			name = xmlDictLookup(table->dict, name, -1);
+			name = xmlDictLookupSL(table->dict, name);
 			if(!name)
 				return -1;
 		}
-		if(name2 && (!xmlDictOwns(table->dict, name2))) {
-			name2 = xmlDictLookup(table->dict, name2, -1);
+		if(name2 && !xmlDictOwns(table->dict, name2)) {
+			name2 = xmlDictLookupSL(table->dict, name2);
 			if(name2 == NULL)
 				return -1;
 		}
-		if(name3 && (!xmlDictOwns(table->dict, name3))) {
-			name3 = xmlDictLookup(table->dict, name3, -1);
+		if(name3 && !xmlDictOwns(table->dict, name3)) {
+			name3 = xmlDictLookupSL(table->dict, name3);
 			if(name3 == NULL)
 				return -1;
 		}
@@ -562,17 +562,17 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
 	 */
 	if(table->dict) {
 		if(!xmlDictOwns(table->dict, name)) {
-			name = xmlDictLookup(table->dict, name, -1);
+			name = xmlDictLookupSL(table->dict, name);
 			if(!name)
 				return -1;
 		}
 		if(name2 && (!xmlDictOwns(table->dict, name2))) {
-			name2 = xmlDictLookup(table->dict, name2, -1);
+			name2 = xmlDictLookupSL(table->dict, name2);
 			if(name2 == NULL)
 				return -1;
 		}
 		if(name3 && (!xmlDictOwns(table->dict, name3))) {
-			name3 = xmlDictLookup(table->dict, name3, -1);
+			name3 = xmlDictLookupSL(table->dict, name3);
 			if(name3 == NULL)
 				return -1;
 		}

@@ -3482,7 +3482,7 @@ int SLAPI PPSession::Logout()
 		//
 		GetPath(PPPATH_TEMP, pn);
 		pn.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
-		PPRemoveFilesByExt(pn, "*");
+		PPRemoveFilesByExt(pn, "*", 0, 0);
 		::RemoveDirectory(pn); // @unicodeproblem
 		//
 		if(CCfg().Flags & CCFLG_DEBUG)
@@ -3787,16 +3787,34 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 			// @v8.1.6 getExecPath(rBuf).SetLastSlash();
 			PROFILE_END
 			break;
+		case PPPATH_TESTROOT:
+			{
+				//
+				// ѕуть нужен дл€ определени€ местонахождени€ вс€кого тестового смака.
+				// ќн находитс€ в SRC/PPTEST
+				// “ак как текущий файл находитс€ в одном из подкаталогов SRC (скорее всего в PPLIB)
+				// то нам нужен один уровень вверх и сразу в PPTEST (..\pptest).
+				//
+				SString temp_buf;
+                SPathStruc ps;
+				GetPath(PPPATH_BIN, temp_buf); // @recursion
+                ps.Split(temp_buf);
+                ps.Nam.Z();
+                ps.Ext.Z();
+                ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
+				ps.Merge(rBuf);
+			}
+			break;
 		case PPPATH_SYSROOT:
 			{
-				SString temp_str;
-				GetPath(PPPATH_BIN, temp_str); // @recursion
-				rBuf = temp_str.RmvLastSlash();
+				SString temp_buf;
+				GetPath(PPPATH_BIN, temp_buf); // @recursion
+				rBuf = temp_buf.RmvLastSlash();
 				int    last = rBuf.Last();
 				while(last && last != '\\' && last != '/')
 					last = rBuf.TrimRight().Last();
 				if(!last)
-					rBuf = temp_str;
+					rBuf = temp_buf;
 			}
 			break;
 		case PPPATH_DOC:

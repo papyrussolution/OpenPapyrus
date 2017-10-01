@@ -791,9 +791,9 @@ int SLAPI PPObjCashNode::GetAsync(PPID id, PPAsyncCashNode * pACN)
 {
 	int    ok = 1, r;
 	PPCashNode cn_rec;
-	pACN->ImpFiles = 0;
-	pACN->ExpPaths = 0;
-	pACN->LogNumList = 0;
+	pACN->ImpFiles.Z();
+	pACN->ExpPaths.Z();
+	pACN->LogNumList.Z();
 	ZDELETE(pACN->P_DivGrpList);
 	pACN->ApnCorrList.freeAll(); // @v9.6.5
 	if((r = Get(id, pACN, &cn_rec)) > 0) {
@@ -1254,6 +1254,8 @@ static int EditExtDevices(PPSyncCashNode * pData)
 		{
 			PPSetupCtrlMenu(this, CTL_EXTDEV_PRINTER, CTLMNU_EXTDEV_PRINTER, CTRLMENU_SELPRINTER);
 			PPSetupCtrlMenu(this, CTL_EXTDEV_RPTPRNPORT, CTLMNU_EXTDEV_RPTPRNPORT, CTRLMENU_SELPRINTER); // @v8.8.3
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_EXTDEV_HOSTICURL, CTL_EXTDEV_HOSTICURL, 1, 0, 0,
+				FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfPath);
 		}
 		int    setDTS(const PPSyncCashNode * pData)
 		{
@@ -1296,6 +1298,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  2, 2);
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			// } @v9.0.9
+			// @v9.8.3 {
+			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
+			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
+			// } @v9.8.3 
 			return 1;
 		}
 		int    getDTS(PPSyncCashNode * pData)
@@ -1348,6 +1354,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlString(CTL_EXTDEV_MANUFSERIAL, temp_buf);
 			Data.SetPropString(SCN_MANUFSERIAL, temp_buf);
 			// } @v9.0.11
+			// @v9.8.3 {
+			getCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
+			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
+			// } @v9.8.3 
 			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE); // @v9.0.9
 			ASSIGN_PTR(pData, Data);
 			CATCH
@@ -2812,6 +2822,11 @@ PPID SLAPI GetCashiersPsnKindID()
 //
 // @ModuleDef(PPObjTouchScreen)
 //
+SLAPI PPTouchScreen2::PPTouchScreen2()
+{
+	THISZERO();
+}
+
 SLAPI PPTouchScreenPacket::PPTouchScreenPacket()
 {
 }

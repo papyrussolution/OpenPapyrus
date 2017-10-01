@@ -608,6 +608,17 @@ int SLAPI SStrGroup::AddS(const char * pStr, uint * pPos)
 	return ok;
 }
 
+int SLAPI SStrGroup::AddS(const char * pStr, uint32 * pPos)
+{
+	int    ok = 1;
+	uint   pos = 0;
+	if(!isempty(pStr)) {
+		Pool.add(pStr, &pos);
+	}
+	ASSIGN_PTR(pPos, pos);
+	return ok;
+}
+
 int SLAPI SStrGroup::GetS(uint pos, SString & rStr) const
 {
 	return Pool.getnz(pos, rStr);

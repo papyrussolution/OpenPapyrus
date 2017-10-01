@@ -13,7 +13,6 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -24,9 +23,9 @@
  *       need a start to be able to pop out of entities refs since
  *       parent is the endity declaration, not the ref.
  */
-#include <libxml/xpointer.h>
-#include <libxml/parserInternals.h>
-#include <libxml/xpath.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/xpointer.h>
+//#include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
 #ifdef LIBXML_XPTR_ENABLED
@@ -35,7 +34,7 @@
 /* #define DEBUG_RANGES */
 #ifdef DEBUG_RANGES
 	#ifdef LIBXML_DEBUG_ENABLED
-		#include <libxml/debugXML.h>
+		//#include <libxml/debugXML.h>
 	#endif
 #endif
 #define TODO    xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);

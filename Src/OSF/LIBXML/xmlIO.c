@@ -74,7 +74,7 @@
 		#endif
 	#endif
 #endif
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #include <libxml/nanohttp.h>
 #include <libxml/nanoftp.h>
 #ifdef LIBXML_CATALOG_ENABLED
@@ -198,7 +198,7 @@ static const char * IOerr[] = {
  *
  * Convert a string from utf-8 to wchar (WINDOWS ONLY!)
  */
-static wchar_t * __xmlIOWin32UTF8ToWChar(const char * u8String)
+static wchar_t * FASTCALL __xmlIOWin32UTF8ToWChar(const char * u8String)
 {
 	wchar_t * wString = NULL;
 	if(u8String) {
@@ -217,14 +217,13 @@ static wchar_t * __xmlIOWin32UTF8ToWChar(const char * u8String)
 }
 
 #endif
-
 /**
  * xmlIOErrMemory:
  * @extra:  extra informations
  *
  * Handle an out of memory condition
  */
-static void xmlIOErrMemory(const char * extra)
+static void FASTCALL xmlIOErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_IO, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
@@ -406,7 +405,6 @@ void __xmlIOErr(int domain, int code, const char * extra)
 		idx = 0;
 	__xmlSimpleError(domain, code, NULL, IOerr[idx], extra);
 }
-
 /**
  * xmlIOErr:
  * @code:  the error number
@@ -414,7 +412,7 @@ void __xmlIOErr(int domain, int code, const char * extra)
  *
  * Handle an I/O error
  */
-static void xmlIOErr(int code, const char * extra)
+static void FASTCALL xmlIOErr(int code, const char * extra)
 {
 	__xmlIOErr(XML_FROM_IO, code, extra);
 }
@@ -1209,7 +1207,8 @@ static int xmlGzfileRead(void * context, char * buffer, int len)
 static int xmlGzfileWrite(void * context, const char * buffer, int len)
 {
 	int ret = gzwrite((gzFile)context, (char*)&buffer[0], len);
-	if(ret < 0) xmlIOErr(0, "gzwrite()");
+	if(ret < 0) 
+		xmlIOErr(0, "gzwrite()");
 	return ret;
 }
 
@@ -2387,7 +2386,7 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
 #ifdef HAVE_ZLIB_H
 		if((xmlInputCallbackTable[i].opencallback == xmlGzfileOpen) && (strcmp(URI, "-") != 0)) {
 #if defined(ZLIB_VERNUM) && ZLIB_VERNUM >= 0x1230
-			ret->compressed = !gzdirect(context);
+			ret->compressed = !gzdirect((gzFile)context);
 #else
 			if(((z_stream*)context)->avail_in > 4) {
 				char * cptr, buff4[4];
@@ -3072,7 +3071,7 @@ int xmlParserInputBufferRead(xmlParserInputBufferPtr in, int len)
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
+int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
 {
 	int nbchars = 0; /* number of chars to output to I/O */
 	int ret;     /* return from function call */
@@ -3088,16 +3087,14 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 		chunk = len;
 		if(chunk > 4 * MINLEN)
 			chunk = 4 * MINLEN;
-		/*
-		 * first handle encoding stuff.
-		 */
+		// 
+		// first handle encoding stuff.
+		// 
 		if(out->encoder) {
-			/*
-			 * Store the data in the incoming raw buffer
-			 */
-			if(out->conv == NULL) {
-				out->conv = xmlBufCreate();
-			}
+			// 
+			// Store the data in the incoming raw buffer
+			// 
+			SETIFZ(out->conv, xmlBufCreate());
 			ret = xmlBufAdd(out->buffer, (const xmlChar*)buf, chunk);
 			if(ret != 0)
 				return -1;
@@ -3125,9 +3122,9 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 		if((nbchars < MINLEN) && (len <= 0))
 			goto done;
 		if(out->writecallback) {
-			/*
-			 * second write the stuff to the I/O channel
-			 */
+			//
+			// second write the stuff to the I/O channel
+			//
 			if(out->encoder) {
 				ret = out->writecallback(out->context, (const char*)xmlBufContent(out->conv), nbchars);
 				if(ret >= 0)
@@ -3147,14 +3144,12 @@ int xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char * buf)
 		}
 		written += nbchars;
 	} while(len > 0);
-
 done:
 #ifdef DEBUG_INPUT
 	xmlGenericError(0, "I/O: wrote %d chars\n", written);
 #endif
 	return(written);
 }
-
 /**
  * xmlEscapeContent:
  * @out:  a pointer to an array of bytes to store the result

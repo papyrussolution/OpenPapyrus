@@ -13,6 +13,31 @@
 #define __XML_TREE_H__
 
 struct xmlDict;
+// 
+// Some of the basic types pointer to structures:
+// 
+struct xmlDict;
+//typedef struct _xmlParserInputBuffer xmlParserInputBuffer;
+struct xmlParserInputBuffer;
+typedef xmlParserInputBuffer * xmlParserInputBufferPtr;
+//typedef struct _xmlOutputBuffer xmlOutputBuffer;
+struct xmlOutputBuffer;
+typedef xmlOutputBuffer * xmlOutputBufferPtr;
+//typedef struct _xmlParserInput xmlParserInput;
+struct xmlParserInput;
+typedef xmlParserInput * xmlParserInputPtr;
+//typedef struct _xmlParserCtxt xmlParserCtxt;
+struct xmlParserCtxt;
+typedef xmlParserCtxt * xmlParserCtxtPtr;
+//typedef struct _xmlSAXLocator xmlSAXLocator;
+struct xmlSAXLocator;
+typedef xmlSAXLocator * xmlSAXLocatorPtr;
+//typedef struct _xmlSAXHandler xmlSAXHandler;
+struct xmlSAXHandler;
+typedef xmlSAXHandler * xmlSAXHandlerPtr;
+//typedef struct _xmlEntity xmlEntity;
+struct xmlEntity;
+typedef xmlEntity * xmlEntityPtr;
 
 #include <libxml/xmlversion.h>
 #include <libxml/xmlstring.h>
@@ -20,40 +45,12 @@ struct xmlDict;
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Some of the basic types pointer to structures:
- */
-/* xmlIO.h */
-typedef struct _xmlParserInputBuffer xmlParserInputBuffer;
-typedef xmlParserInputBuffer * xmlParserInputBufferPtr;
-
-typedef struct _xmlOutputBuffer xmlOutputBuffer;
-typedef xmlOutputBuffer * xmlOutputBufferPtr;
-
-/* parser.h */
-typedef struct _xmlParserInput xmlParserInput;
-typedef xmlParserInput * xmlParserInputPtr;
-
-typedef struct _xmlParserCtxt xmlParserCtxt;
-typedef xmlParserCtxt * xmlParserCtxtPtr;
-
-typedef struct _xmlSAXLocator xmlSAXLocator;
-typedef xmlSAXLocator * xmlSAXLocatorPtr;
-
-typedef struct _xmlSAXHandler xmlSAXHandler;
-typedef xmlSAXHandler * xmlSAXHandlerPtr;
-
-/* entities.h */
-typedef struct _xmlEntity xmlEntity;
-typedef xmlEntity * xmlEntityPtr;
-
-/**
- * BASE_BUFFER_SIZE:
- *
- * default buffer size 4000.
- */
+// 
+// BASE_BUFFER_SIZE:
+// 
+// default buffer size 4000.
+// 
 #define BASE_BUFFER_SIZE 4096
-
 /**
  * LIBXML_NAMESPACE_DICT:
  *
@@ -84,17 +81,17 @@ typedef enum {
  * A buffer structure, this old construct is limited to 2GB and
  * is being deprecated, use API with xmlBuf instead
  */
-typedef struct _xmlBuffer xmlBuffer;
+//typedef struct _xmlBuffer xmlBuffer;
+struct xmlBuffer;
 typedef xmlBuffer * xmlBufferPtr;
 
-struct _xmlBuffer {
+struct xmlBuffer {
 	xmlChar * content;      /* The buffer content UTF8 */
-	uint use;       /* The buffer size used */
-	uint size;      /* The buffer size */
+	uint   use;       /* The buffer size used */
+	uint   size;      /* The buffer size */
 	xmlBufferAllocationScheme alloc; /* The realloc method */
 	xmlChar * contentIO;    /* in IO mode we may have a different base */
 };
-
 /**
  * xmlBuf:
  *

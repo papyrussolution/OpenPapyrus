@@ -2546,18 +2546,22 @@ int SLAPI DoConstructionTest()
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
 	}
 	{
+		SString map_pool_file_name;
+		SString map_transl_file_name;
+		PPGetFilePath(PPPATH_OUT, "SCodepageMapPool.txt", map_pool_file_name);
+		PPGetFilePath(PPPATH_OUT, "SCodepageMapTransl.txt", map_transl_file_name);
 		//SUnicodeTable ut;
 		//ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
 		//ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
 		/*
 		SUnicodeBlock ub;
 		ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
-		//ub.Cpmp.Test(&ub.Ut);
+		//ub.Cpmp.Test(&ub.Ut, map_pool_file_name, map_transl_file_name);
 		ub.Write("d:/papyrus/__temp__/ub.bin");
 		{
 			SUnicodeBlock ub2;
 			ub2.Read("d:/papyrus/__temp__/ub.bin");
-			ub2.Cpmp.Test(&ub2.Ut);
+			ub2.Cpmp.Test(&ub2.Ut, map_pool_file_name, map_transl_file_name);
 		}
 		*/
 	}

@@ -1,7 +1,7 @@
 // PPMENU.H
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
-// @codepage windows-1251
-// Константы команд меню проекта Papyrus
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
+// РљРѕРЅСЃС‚Р°РЅС‚С‹ РєРѕРјР°РЅРґ РјРµРЅСЋ РїСЂРѕРµРєС‚Р° Papyrus
 //
 #ifndef __PPMENU_H
 #define __PPMENU_H
@@ -9,81 +9,81 @@
 #ifndef cmQuit
 	#define cmQuit                 1
 #endif
-#define cmCountry                      101 // Государства
+#define cmCountry                      101 // Р“РѕСЃСѓРґР°СЂСЃС‚РІР°
 #define cmAnotherPerson                106 // Obsolete
 #define cmPerson                       106 //
 #define cmNewConfig                    107 //
-#define cmEditConfig                   108 // Главная конфигурация //
-#define cmGroups_n_Users               109 // Группы и пользователи
-#define cmUnit                         110 // Единицы измерения //
-#define cmCityStatus                   111 // Статусы населенных пунктов
-#define cmPersonKind                   112 // Виды персоналий
-#define cmPersonStatus                 113 // Юридические статусы персоналий
-#define cmBnkAccType                   114 // Типы банковских счетов
-#define cmAccSheet                     115 // Таблицы аналитического учета
-#define cmAccArticle                   116 // Статьи аналитического учета
-#define cmAccPlan                      117 // План счетов
-#define cmGoodsGroup                   118 // Группы товаров
-#define cmGoods                        119 // Товары
-#define cmLocation                     120 // Склады
-#define cmAccTurnList                  121 // Опись бух. проводок
-#define cmAccTurn                      122 // Общая бух. проводка
-#define cmAccAnalyze                   123 // Анализ счета
-#define cmBalance                      124 // Балансы (оборотная ведомость)
-#define cmAmountType                   125 // Типы сумм документов
-#define cmOprType                      126 // Типы операций
-#define cmOprKind                      127 // Виды операций
-#define cmScale                        128 // Весы
-#define cmRegisterType                 129 // Тип регистрационных документов
-#define cmELinkKind                    130 // Виды электронных адресов
-#define cmQuotKind                     131 // Виды котировок товаров
-#define cmObjTag                       132 // Теги объектов
-#define cmSelectLocation               135 // Выбор позиции
-#define cmGoodsBillList                136 // Просмотр товарных документов
-#define cmViewLots                     137 // Просмотр лотов
-#define cmViewStatus                   138 // Просмотр текущего статуса
-#define cmViewGoodsCard                139 // Карточка товара (Obsolete from @v2.5.2 instead use cmTrfrAnalyze)
-#define cmGoodsTurnover                140 // Отчет о товарообороте
-#define cmGoodsRest                    142 // Остатки товаров
-#define cmCorrectTrfrRvrs              143 // Корректировка зеркальных проводок
+#define cmEditConfig                   108 // Р“Р»Р°РІРЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ //
+#define cmGroups_n_Users               109 // Р“СЂСѓРїРїС‹ Рё РїРѕР»СЊР·РѕРІР°С‚РµР»Рё
+#define cmUnit                         110 // Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ //
+#define cmCityStatus                   111 // РЎС‚Р°С‚СѓСЃС‹ РЅР°СЃРµР»РµРЅРЅС‹С… РїСѓРЅРєС‚РѕРІ
+#define cmPersonKind                   112 // Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmPersonStatus                 113 // Р®СЂРёРґРёС‡РµСЃРєРёРµ СЃС‚Р°С‚СѓСЃС‹ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmBnkAccType                   114 // РўРёРїС‹ Р±Р°РЅРєРѕРІСЃРєРёС… СЃС‡РµС‚РѕРІ
+#define cmAccSheet                     115 // РўР°Р±Р»РёС†С‹ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
+#define cmAccArticle                   116 // РЎС‚Р°С‚СЊРё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°
+#define cmAccPlan                      117 // РџР»Р°РЅ СЃС‡РµС‚РѕРІ
+#define cmGoodsGroup                   118 // Р“СЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ
+#define cmGoods                        119 // РўРѕРІР°СЂС‹
+#define cmLocation                     120 // РЎРєР»Р°РґС‹
+#define cmAccTurnList                  121 // РћРїРёСЃСЊ Р±СѓС…. РїСЂРѕРІРѕРґРѕРє
+#define cmAccTurn                      122 // РћР±С‰Р°СЏ Р±СѓС…. РїСЂРѕРІРѕРґРєР°
+#define cmAccAnalyze                   123 // РђРЅР°Р»РёР· СЃС‡РµС‚Р°
+#define cmBalance                      124 // Р‘Р°Р»Р°РЅСЃС‹ (РѕР±РѕСЂРѕС‚РЅР°СЏ РІРµРґРѕРјРѕСЃС‚СЊ)
+#define cmAmountType                   125 // РўРёРїС‹ СЃСѓРјРј РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmOprType                      126 // РўРёРїС‹ РѕРїРµСЂР°С†РёР№
+#define cmOprKind                      127 // Р’РёРґС‹ РѕРїРµСЂР°С†РёР№
+#define cmScale                        128 // Р’РµСЃС‹
+#define cmRegisterType                 129 // РўРёРї СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmELinkKind                    130 // Р’РёРґС‹ СЌР»РµРєС‚СЂРѕРЅРЅС‹С… Р°РґСЂРµСЃРѕРІ
+#define cmQuotKind                     131 // Р’РёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє С‚РѕРІР°СЂРѕРІ
+#define cmObjTag                       132 // РўРµРіРё РѕР±СЉРµРєС‚РѕРІ
+#define cmSelectLocation               135 // Р’С‹Р±РѕСЂ РїРѕР·РёС†РёРё
+#define cmGoodsBillList                136 // РџСЂРѕСЃРјРѕС‚СЂ С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmViewLots                     137 // РџСЂРѕСЃРјРѕС‚СЂ Р»РѕС‚РѕРІ
+#define cmViewStatus                   138 // РџСЂРѕСЃРјРѕС‚СЂ С‚РµРєСѓС‰РµРіРѕ СЃС‚Р°С‚СѓСЃР°
+#define cmViewGoodsCard                139 // РљР°СЂС‚РѕС‡РєР° С‚РѕРІР°СЂР° (Obsolete from @v2.5.2 instead use cmTrfrAnalyze)
+#define cmGoodsTurnover                140 // РћС‚С‡РµС‚ Рѕ С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Рµ
+#define cmGoodsRest                    142 // РћСЃС‚Р°С‚РєРё С‚РѕРІР°СЂРѕРІ
+#define cmCorrectTrfrRvrs              143 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р·РµСЂРєР°Р»СЊРЅС‹С… РїСЂРѕРІРѕРґРѕРє
 #define cmConvert1                     144 //
 #define cmConvert2                     145 //
 #define cmConvert3                     146 //
-#define cmCorrectBillPaym              147 // Корректировка сумм оплат по документу
-#define cmSupplTrnovr                  148 // Обороты по поставщикам
-#define cmSellTrnovr                   149 // Обороты по покупателям
-#define cmGoodsGrpRlz                  150 // (obsolete since @v2.9.11) Реализация по группам товаров
-#define cmGoodsTaxAnalyze              150 // Налоговый анализ товарооборота
-#define cmGoodsMov                     151 // Движение товаров
-#define cmGoodsOprGrouping             152 // Группировка товарных операций
-#define cmCorrectAccTurnRest           153 // Корректировка остатков бух. проводок
-#define cmCorrectLot                   154 // Корректировка лотов
+#define cmCorrectBillPaym              147 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° СЃСѓРјРј РѕРїР»Р°С‚ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
+#define cmSupplTrnovr                  148 // РћР±РѕСЂРѕС‚С‹ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєР°Рј
+#define cmSellTrnovr                   149 // РћР±РѕСЂРѕС‚С‹ РїРѕ РїРѕРєСѓРїР°С‚РµР»СЏРј
+#define cmGoodsGrpRlz                  150 // (obsolete since @v2.9.11) Р РµР°Р»РёР·Р°С†РёСЏ РїРѕ РіСЂСѓРїРїР°Рј С‚РѕРІР°СЂРѕРІ
+#define cmGoodsTaxAnalyze              150 // РќР°Р»РѕРіРѕРІС‹Р№ Р°РЅР°Р»РёР· С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Р°
+#define cmGoodsMov                     151 // Р”РІРёР¶РµРЅРёРµ С‚РѕРІР°СЂРѕРІ
+#define cmGoodsOprGrouping             152 // Р“СЂСѓРїРїРёСЂРѕРІРєР° С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+#define cmCorrectAccTurnRest           153 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РѕСЃС‚Р°С‚РєРѕРІ Р±СѓС…. РїСЂРѕРІРѕРґРѕРє
+#define cmCorrectLot                   154 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р»РѕС‚РѕРІ
 #define cmCashNode                     157 // PPOBJ_CASHNODE
-#define cmRecalcBillTurns              158 // Пересчет проводок по документам
-#define cmGoodsOper                    159 // Товарная ведомость по операции
-#define cmGoodsOrder                   160 // Заказы
+#define cmRecalcBillTurns              158 // РџРµСЂРµСЃС‡РµС‚ РїСЂРѕРІРѕРґРѕРє РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define cmGoodsOper                    159 // РўРѕРІР°СЂРЅР°СЏ РІРµРґРѕРјРѕСЃС‚СЊ РїРѕ РѕРїРµСЂР°С†РёРё
+#define cmGoodsOrder                   160 // Р—Р°РєР°Р·С‹
 #define cmAction                       161 // PPOBJ_ACTION
-#define cmViewSysJ                     162 // Просмотр системного журнала
-#define cmCalc                         164 // Калькулятор
-#define cmUnifyGoodsPrice              165 // Унификация цен товаров
-#define cmPriceList                    166 // Прайс-лист
-#define cmCommConfig                   167 // Общие настройки
-#define cmViewQCert                    168 // Просмотр сертификатов
-#define cmViewCntGrpList               169 // Группировка операций по счетчику
-#define cmCashBook                     170 // Кассовая книга
+#define cmViewSysJ                     162 // РџСЂРѕСЃРјРѕС‚СЂ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р¶СѓСЂРЅР°Р»Р°
+#define cmCalc                         164 // РљР°Р»СЊРєСѓР»СЏС‚РѕСЂ
+#define cmUnifyGoodsPrice              165 // РЈРЅРёС„РёРєР°С†РёСЏ С†РµРЅ С‚РѕРІР°СЂРѕРІ
+#define cmPriceList                    166 // РџСЂР°Р№СЃ-Р»РёСЃС‚
+#define cmCommConfig                   167 // РћР±С‰РёРµ РЅР°СЃС‚СЂРѕР№РєРё
+#define cmViewQCert                    168 // РџСЂРѕСЃРјРѕС‚СЂ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ
+#define cmViewCntGrpList               169 // Р“СЂСѓРїРїРёСЂРѕРІРєР° РѕРїРµСЂР°С†РёР№ РїРѕ СЃС‡РµС‚С‡РёРєСѓ
+#define cmCashBook                     170 // РљР°СЃСЃРѕРІР°СЏ РєРЅРёРіР°
 #if 0 // {
-#define cmExportGoodsRest       171 // Экспорт товарных остатков со штрих-кодами
-#define cmOpenCashDay           172 // Открыть кассовую сессию
-#define cmCloseCashDay          156 // Закрыть кассовую сессию
-#define cmCashNodePanel         173 // Панель операций с кассовым узлом
-#define cmOperateCashDay        174 // Операции в кассовой сессии
-	#define cmCashBillList          155 // Документы на кассовом узле
-	#define cmUpdateCashDay         175 // Обновление кассовой сессии
+#define cmExportGoodsRest       171 // Р­РєСЃРїРѕСЂС‚ С‚РѕРІР°СЂРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ СЃРѕ С€С‚СЂРёС…-РєРѕРґР°РјРё
+#define cmOpenCashDay           172 // РћС‚РєСЂС‹С‚СЊ РєР°СЃСЃРѕРІСѓСЋ СЃРµСЃСЃРёСЋ
+#define cmCloseCashDay          156 // Р—Р°РєСЂС‹С‚СЊ РєР°СЃСЃРѕРІСѓСЋ СЃРµСЃСЃРёСЋ
+#define cmCashNodePanel         173 // РџР°РЅРµР»СЊ РѕРїРµСЂР°С†РёР№ СЃ РєР°СЃСЃРѕРІС‹Рј СѓР·Р»РѕРј
+#define cmOperateCashDay        174 // РћРїРµСЂР°С†РёРё РІ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
+	#define cmCashBillList          155 // Р”РѕРєСѓРјРµРЅС‚С‹ РЅР° РєР°СЃСЃРѕРІРѕРј СѓР·Р»Рµ
+	#define cmUpdateCashDay         175 // РћР±РЅРѕРІР»РµРЅРёРµ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё
 #define cmACSViewExcess         180
 #endif // 0 }
 #define cmCashNodePanel                171
 //
-// Команды кассовых сессий
+// РљРѕРјР°РЅРґС‹ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
 // (CS - CashSession, ACS - Async Cash Session, SCS - Sync Cash Session)
 //
 #define cmCSOpen                       172
@@ -94,418 +94,419 @@
 #define cmViewCSessDeficit             176 // == cmACSViewExcess
 #define cmSCSLock                      177
 #define cmSCSUnlock                    178
-#define cmSCSXReport                   179 // X-отчет (SyncCashSess)
-#define cmACSGetChecks                 180 // Получить чеки (Async Cash Session)
+#define cmSCSXReport                   179 // X-РѕС‚С‡РµС‚ (SyncCashSess)
+#define cmACSGetChecks                 180 // РџРѕР»СѓС‡РёС‚СЊ С‡РµРєРё (Async Cash Session)
 #define cmCashBillList                 175 // Obsolete: use cmCSViewCheckList
 #define cmCloseCashDay                 173 // Obsolete: use cmCSClose
-#define cmBarCodeStruc                 181 // Структура внутренних штрих-кодов
-#define cmCorrectBalance               182 // Корректировка балансов
-#define cmCorrectCurRest               183 // Корректировка таблицы CurRest
-#define cmRemoveEmptyAcctRels          184 // Удаление неиспользуемых AcctRel
-#define cmDBDiv                        185 // Справочник разделов БД
-#define cmSelfSync                     186 // Синхронизация БД для разбиения на два раздела
-#define cmSendBills                    187 // Создать пакет для посылки документов
-#define cmReceivePackets               188 // Принять входящие пакеты
-#define cmReplacePerson                189 // Объединить персоналии
-#define cmReplaceGoods                 190 // Объединить товары
-#define cmGoodsCfg                     191 // Конфигурация справочника товаров
-#define cmCorrectLotsCloseTags         192 // Корректировка признаков закрытия лотов
-#define cmVATBook                      193 // Книги продаж/покупок
-#define cmVATBookSellCfg               194 // Конфигурация книг продаж
-#define cmVATBookBuyCfg                195 // Конфигурация книг покупок
-#define cmExpMonarchCfg                196 // Конфигурация экспорта в устройство Monarch
-#define cmCorrectLotSuppl              197 // Корректировка поставщиков по лотам
-#define cmCreateReservedObjs           198 // Создание зарезервированных объектов
-#define cmGoodsType                    199 // Типы товаров
-#define cmConvert197                   200 // Конвертация прав доступа и путей @v1.9.7
-#define cmPrinterCfg                   202 // Конфигурация принтера по умолчанию
-#define cmTransmitQCert                220 // Временная команда @v1.9.10
-#define cmCorrectZeroQCertRefs         221 // Обнуление висячих ссылок на сертификаты в ReceiptTbl
-#define cmResetOpCounters              222 // Сброс счетчиков всех операций
-#define cmCheckBillAmounts             223 // Проверка сумм по документам
-#define cmFormula                      224 // Формулы
-#define cmConvert200                   225 // Конвертация @v2.0.0
-#define cmDefaultCliAgt                226 // Соглашение с клиентами по умолчанию
-#define cmAccturnBillList              227 // Просмотр бухгалтерских документов
-#define cmCheckPane                    228 // Панель ввода чековых операций
-#define cmViewCCheck                   229 // Броузер чеков
-#define cmConvert2110                  230 // Конвертация @v2.1.10
-#define cmScalePrepareData             231 // Подготовка данных для весов
-#define cmScaleTransmitData            232 // Передача данных на весы
-#define cmConvert221                   233 // Конвертация @v2.2.1 (BarcodeTbl)
-#define cmConvert224                   234 // Конвертация @v2.2.4 (Location, Person)
-#define cmInventory                    235 // Инвентаризаци
-#define cmConvert229                   236 // Конвертация @v2.2.9 (Receipt - Expiry)
-#define cmUpdateQuots                  237 // Массовое изменение котировок
-#define cmPersonOpKind                 238 // Виды персональных операций @v2.3.4
-#define cmAbout                        239 // О программе...
-#define cmPersonEvent                  240 // Персональные события //
-#define cmDebtSupplTrnovr              244 // Долги по поставщикам
-#define cmDBXchgCfg                    245 // Конфигурация обмена данными между разделами
-#define cmRecover_v242                 246 // Корректировка проблемы @v2.4.2
-#define cmDivision                     247 // Подразделени
-#define cmAutoCharge                   248 // Автоматическое начисление ренты
-#define cmTrfrAnalyze                  249 // Анализ товарных операций
-#define cmStaffList                    250 // Штатное расписание
-#define cmConvert253                   251 // Конвертация @v2.5.3 (VATBook - 2 indexes added)
-#define cmStaff                        252 // Кадры
-#define cmNamedGoodsStruc              253 // Именованные структуры товаров
+#define cmBarCodeStruc                 181 // РЎС‚СЂСѓРєС‚СѓСЂР° РІРЅСѓС‚СЂРµРЅРЅРёС… С€С‚СЂРёС…-РєРѕРґРѕРІ
+#define cmCorrectBalance               182 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р±Р°Р»Р°РЅСЃРѕРІ
+#define cmCorrectCurRest               183 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚Р°Р±Р»РёС†С‹ CurRest
+#define cmRemoveEmptyAcctRels          184 // РЈРґР°Р»РµРЅРёРµ РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹С… AcctRel
+#define cmDBDiv                        185 // РЎРїСЂР°РІРѕС‡РЅРёРє СЂР°Р·РґРµР»РѕРІ Р‘Р”
+#define cmSelfSync                     186 // РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ Р‘Р” РґР»СЏ СЂР°Р·Р±РёРµРЅРёСЏ РЅР° РґРІР° СЂР°Р·РґРµР»Р°
+#define cmSendBills                    187 // РЎРѕР·РґР°С‚СЊ РїР°РєРµС‚ РґР»СЏ РїРѕСЃС‹Р»РєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmReceivePackets               188 // РџСЂРёРЅСЏС‚СЊ РІС…РѕРґСЏС‰РёРµ РїР°РєРµС‚С‹
+#define cmReplacePerson                189 // РћР±СЉРµРґРёРЅРёС‚СЊ РїРµСЂСЃРѕРЅР°Р»РёРё
+#define cmReplaceGoods                 190 // РћР±СЉРµРґРёРЅРёС‚СЊ С‚РѕРІР°СЂС‹
+#define cmGoodsCfg                     191 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ
+#define cmCorrectLotsCloseTags         192 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїСЂРёР·РЅР°РєРѕРІ Р·Р°РєСЂС‹С‚РёСЏ Р»РѕС‚РѕРІ
+#define cmVATBook                      193 // РљРЅРёРіРё РїСЂРѕРґР°Р¶/РїРѕРєСѓРїРѕРє
+#define cmVATBookSellCfg               194 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРі РїСЂРѕРґР°Р¶
+#define cmVATBookBuyCfg                195 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєРЅРёРі РїРѕРєСѓРїРѕРє
+#define cmExpMonarchCfg                196 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЌРєСЃРїРѕСЂС‚Р° РІ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Monarch
+#define cmCorrectLotSuppl              197 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїРѕСЃС‚Р°РІС‰РёРєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+#define cmCreateReservedObjs           198 // РЎРѕР·РґР°РЅРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
+#define cmGoodsType                    199 // РўРёРїС‹ С‚РѕРІР°СЂРѕРІ
+#define cmConvert197                   200 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РїСЂР°РІ РґРѕСЃС‚СѓРїР° Рё РїСѓС‚РµР№ @v1.9.7
+#define cmPrinterCfg                   202 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРёРЅС‚РµСЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+#define cmTransmitQCert                220 // Р’СЂРµРјРµРЅРЅР°СЏ РєРѕРјР°РЅРґР° @v1.9.10
+#define cmCorrectZeroQCertRefs         221 // РћР±РЅСѓР»РµРЅРёРµ РІРёСЃСЏС‡РёС… СЃСЃС‹Р»РѕРє РЅР° СЃРµСЂС‚РёС„РёРєР°С‚С‹ РІ ReceiptTbl
+#define cmResetOpCounters              222 // РЎР±СЂРѕСЃ СЃС‡РµС‚С‡РёРєРѕРІ РІСЃРµС… РѕРїРµСЂР°С†РёР№
+#define cmCheckBillAmounts             223 // РџСЂРѕРІРµСЂРєР° СЃСѓРјРј РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define cmFormula                      224 // Р¤РѕСЂРјСѓР»С‹
+#define cmConvert200                   225 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.0.0
+#define cmDefaultCliAgt                226 // РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РєР»РёРµРЅС‚Р°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+#define cmAccturnBillList              227 // РџСЂРѕСЃРјРѕС‚СЂ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmCheckPane                    228 // РџР°РЅРµР»СЊ РІРІРѕРґР° С‡РµРєРѕРІС‹С… РѕРїРµСЂР°С†РёР№
+#define cmViewCCheck                   229 // Р‘СЂРѕСѓР·РµСЂ С‡РµРєРѕРІ
+#define cmConvert2110                  230 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.1.10
+#define cmScalePrepareData             231 // РџРѕРґРіРѕС‚РѕРІРєР° РґР°РЅРЅС‹С… РґР»СЏ РІРµСЃРѕРІ
+#define cmScaleTransmitData            232 // РџРµСЂРµРґР°С‡Р° РґР°РЅРЅС‹С… РЅР° РІРµСЃС‹
+#define cmConvert221                   233 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.2.1 (BarcodeTbl)
+#define cmConvert224                   234 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.2.4 (Location, Person)
+#define cmInventory                    235 // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†Рё
+#define cmConvert229                   236 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.2.9 (Receipt - Expiry)
+#define cmUpdateQuots                  237 // РњР°СЃСЃРѕРІРѕРµ РёР·РјРµРЅРµРЅРёРµ РєРѕС‚РёСЂРѕРІРѕРє
+#define cmPersonOpKind                 238 // Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№ @v2.3.4
+#define cmAbout                        239 // Рћ РїСЂРѕРіСЂР°РјРјРµ...
+#define cmPersonEvent                  240 // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ //
+#define cmDebtSupplTrnovr              244 // Р”РѕР»РіРё РїРѕ РїРѕСЃС‚Р°РІС‰РёРєР°Рј
+#define cmDBXchgCfg                    245 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё
+#define cmRecover_v242                 246 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїСЂРѕР±Р»РµРјС‹ @v2.4.2
+#define cmDivision                     247 // РџРѕРґСЂР°Р·РґРµР»РµРЅРё
+#define cmAutoCharge                   248 // РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РЅР°С‡РёСЃР»РµРЅРёРµ СЂРµРЅС‚С‹
+#define cmTrfrAnalyze                  249 // РђРЅР°Р»РёР· С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+#define cmStaffList                    250 // РЁС‚Р°С‚РЅРѕРµ СЂР°СЃРїРёСЃР°РЅРёРµ
+#define cmConvert253                   251 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ @v2.5.3 (VATBook - 2 indexes added)
+#define cmStaff                        252 // РљР°РґСЂС‹
+#define cmNamedGoodsStruc              253 // РРјРµРЅРѕРІР°РЅРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚РѕРІР°СЂРѕРІ
 #define cmMakeCRptFiles                254 //
 #define cmViewOrdLots                  255 //
 #define cmConvert270                   256 //
-#define cmGoodsTax                     257 // Товарные налоговые группы
-#define cmCorrectAbsenceLots           258 // Восстановление отсутствующих (из-за сбоя) лотов
-#define cmBarcodePrinter               259 // Принтеры штрихкодов
-#define cmShipmAnalyze                 260 // Анализ отгрузки
-#define cmCurrency                     261 // Валюты
-#define cmCurRateType                  262 // Типы валютных курсов
-#define cmViewCurRates                 263 // Валютные курсы
-#define cmConvert300                   265 // @v3.0.0 Конвертация //
-#define cmUpdatePassword               266 // Изменение собственного пароля //
-#define cmPoolBillList                 267 // Пулы документов
-#define cmCorrectAccrelArRefs          268 // Корректировка несоответствий
-	// между номерами аналитических статей и номерами этих же статей в таблице AcctRel. Эта проблема характерна
-	// для баз данных, эксплуатировавшихся версиями ниже 2.9.11. В этих версиях отсутствовала процедура
-	// восстановления данного соответствия при ручном изменении номера аналитической статьи.
+#define cmGoodsTax                     257 // РўРѕРІР°СЂРЅС‹Рµ РЅР°Р»РѕРіРѕРІС‹Рµ РіСЂСѓРїРїС‹
+#define cmCorrectAbsenceLots           258 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… (РёР·-Р·Р° СЃР±РѕСЏ) Р»РѕС‚РѕРІ
+#define cmBarcodePrinter               259 // РџСЂРёРЅС‚РµСЂС‹ С€С‚СЂРёС…РєРѕРґРѕРІ
+#define cmShipmAnalyze                 260 // РђРЅР°Р»РёР· РѕС‚РіСЂСѓР·РєРё
+#define cmCurrency                     261 // Р’Р°Р»СЋС‚С‹
+#define cmCurRateType                  262 // РўРёРїС‹ РІР°Р»СЋС‚РЅС‹С… РєСѓСЂСЃРѕРІ
+#define cmViewCurRates                 263 // Р’Р°Р»СЋС‚РЅС‹Рµ РєСѓСЂСЃС‹
+#define cmConvert300                   265 // @v3.0.0 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ //
+#define cmUpdatePassword               266 // РР·РјРµРЅРµРЅРёРµ СЃРѕР±СЃС‚РІРµРЅРЅРѕРіРѕ РїР°СЂРѕР»СЏ //
+#define cmPoolBillList                 267 // РџСѓР»С‹ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmCorrectAccrelArRefs          268 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РЅРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№
+	// РјРµР¶РґСѓ РЅРѕРјРµСЂР°РјРё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№ Рё РЅРѕРјРµСЂР°РјРё СЌС‚РёС… Р¶Рµ СЃС‚Р°С‚РµР№ РІ С‚Р°Р±Р»РёС†Рµ AcctRel. Р­С‚Р° РїСЂРѕР±Р»РµРјР° С…Р°СЂР°РєС‚РµСЂРЅР°
+	// РґР»СЏ Р±Р°Р· РґР°РЅРЅС‹С…, СЌРєСЃРїР»СѓР°С‚РёСЂРѕРІР°РІС€РёС…СЃСЏ РІРµСЂСЃРёСЏРјРё РЅРёР¶Рµ 2.9.11. Р’ СЌС‚РёС… РІРµСЂСЃРёСЏС… РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р»Р° РїСЂРѕС†РµРґСѓСЂР°
+	// РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ РґР°РЅРЅРѕРіРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РїСЂРё СЂСѓС‡РЅРѕРј РёР·РјРµРЅРµРЅРёРё РЅРѕРјРµСЂР° Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё.
 	//
-#define cmTransmitGoods                269 // Передача товаров (с обновлением)
-#define cmShowTree                     270 // Деревянное окно
-#define cmOpCounter                    271 // Счетчики операций
-#define cmConvert301                   272 // Конвертация //
-#define cmReplaceGoodsTaxGrp           273 // Объединение налоговых групп
-#define cmDatabaseCutting              274 // Усечение базы данных
-#define cmCurReval                     275 // Валютная переоценка
-#define cmSaveBalance                  276 // Сохранить баланс
-#define cmRestoreBalance               277 // Восстановить баланс
-#define cmShowToolbar                  278 // Тулбарчик
-#define cmViewCSess                    279 // Кассовые сессии
-#define cmConvert329                   280 // Конвертация (sj.btr)
-#define cmViewObjSync                  281 // Просмотр таблицы синхронизации объектов
-#define cmTransmitModifications        282 // Передача изменений
-#define cmGoodsClass                   283 // Отраслевые классы товаров
-#define cmCorrectLotTaxGrp             284 // Корректировка налоговых групп в порожденных лотах
-#define cmWoodBreed                    285 // Породы древесины (отраслевой справочник)
-#define cmPckgType                     286 // Типы товарных пакетов
-#define cmTransportCar                 287 // Автотранспорт
-#define cmTransportShip                288 // Торговые суда
-#define cmCorrectPckgCloseTags         291 // Корректировка признаков закрытия пакетов
-#define cmGoodsBasket                  292 // Корзина товаров
-#define cmPriceListCfg                 293 // Конфигурация прайс-листа
-#define cmImportGoodsGrp               301 // Импорт справочника групп товаров
-#define cmImportGoods                  302 // Импорт справочника товаров
-#define cmImportPerson                 303 // Импорт справочника персоналий (старая версия)
-#define cmImportQuot                   304 // Импорт котировок (старая версия)
-#define cmChainDatabase                305 // Стяжка базы данных
-#define cmConvert3512                  306 // Конвертация (Register)
-#define cmBillCfg                      307 // Конфигурация документов
-#define cmDraftBillList                308 // Драфт-документы
-#define cmDeleteTmpFiles               309 // Удаление временных файлов
-#define cmMainOrg2                     310 // Форма "Главная организация"
-#define cmCreateNewFiles               311 // Создание Базы данных
-#define cmBht                          312 // Терминалы сбора данных (BHT)
-#define cmBhtConfig                    313 // Конфигурация обмена данными с BHT
-#define cmBhtTransmit                  314 // Передача данных в BHT
-#define cmBhtReceive                   315 // Прием данных из BHT
-#define cmBhtTransmitProgram           316 // @TEMP Загрузка программы на BHT
-#define cmUpdateLicense                318 // Обновление лицензии на использование Papyrus'a
-#define cmRegistration                 319 // Регистраци
-#define cmSCardSeries                  320 // Серии пластиковых карт
-#define cmSCard                        321 // Пластиковые карты
-#define cmConvert372                   322 // Конвертация кассовых чеков
-#define cmStyloPalmExport              323 // Создание данных для загрузки в StyloPalm
-#define cmStyloPalmImpExp              323 // Импорт/Экспорт для StyloPalm
+#define cmTransmitGoods                269 // РџРµСЂРµРґР°С‡Р° С‚РѕРІР°СЂРѕРІ (СЃ РѕР±РЅРѕРІР»РµРЅРёРµРј)
+#define cmShowTree                     270 // Р”РµСЂРµРІСЏРЅРЅРѕРµ РѕРєРЅРѕ
+#define cmOpCounter                    271 // РЎС‡РµС‚С‡РёРєРё РѕРїРµСЂР°С†РёР№
+#define cmConvert301                   272 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ //
+#define cmReplaceGoodsTaxGrp           273 // РћР±СЉРµРґРёРЅРµРЅРёРµ РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї
+#define cmDatabaseCutting              274 // РЈСЃРµС‡РµРЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmCurReval                     275 // Р’Р°Р»СЋС‚РЅР°СЏ РїРµСЂРµРѕС†РµРЅРєР°
+#define cmSaveBalance                  276 // РЎРѕС…СЂР°РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ
+#define cmRestoreBalance               277 // Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ Р±Р°Р»Р°РЅСЃ
+#define cmShowToolbar                  278 // РўСѓР»Р±Р°СЂС‡РёРє
+#define cmViewCSess                    279 // РљР°СЃСЃРѕРІС‹Рµ СЃРµСЃСЃРёРё
+#define cmConvert329                   280 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ (sj.btr)
+#define cmViewObjSync                  281 // РџСЂРѕСЃРјРѕС‚СЂ С‚Р°Р±Р»РёС†С‹ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ
+#define cmTransmitModifications        282 // РџРµСЂРµРґР°С‡Р° РёР·РјРµРЅРµРЅРёР№
+#define cmGoodsClass                   283 // РћС‚СЂР°СЃР»РµРІС‹Рµ РєР»Р°СЃСЃС‹ С‚РѕРІР°СЂРѕРІ
+#define cmCorrectLotTaxGrp             284 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї РІ РїРѕСЂРѕР¶РґРµРЅРЅС‹С… Р»РѕС‚Р°С…
+#define cmWoodBreed                    285 // РџРѕСЂРѕРґС‹ РґСЂРµРІРµСЃРёРЅС‹ (РѕС‚СЂР°СЃР»РµРІРѕР№ СЃРїСЂР°РІРѕС‡РЅРёРє)
+#define cmPckgType                     286 // РўРёРїС‹ С‚РѕРІР°СЂРЅС‹С… РїР°РєРµС‚РѕРІ
+#define cmTransportCar                 287 // РђРІС‚РѕС‚СЂР°РЅСЃРїРѕСЂС‚
+#define cmTransportShip                288 // РўРѕСЂРіРѕРІС‹Рµ СЃСѓРґР°
+#define cmCorrectPckgCloseTags         291 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїСЂРёР·РЅР°РєРѕРІ Р·Р°РєСЂС‹С‚РёСЏ РїР°РєРµС‚РѕРІ
+#define cmGoodsBasket                  292 // РљРѕСЂР·РёРЅР° С‚РѕРІР°СЂРѕРІ
+#define cmPriceListCfg                 293 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define cmImportGoodsGrp               301 // РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° РіСЂСѓРїРї С‚РѕРІР°СЂРѕРІ
+#define cmImportGoods                  302 // РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° С‚РѕРІР°СЂРѕРІ
+#define cmImportPerson                 303 // РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° РїРµСЂСЃРѕРЅР°Р»РёР№ (СЃС‚Р°СЂР°СЏ РІРµСЂСЃРёСЏ)
+#define cmImportQuot                   304 // РРјРїРѕСЂС‚ РєРѕС‚РёСЂРѕРІРѕРє (СЃС‚Р°СЂР°СЏ РІРµСЂСЃРёСЏ)
+#define cmChainDatabase                305 // РЎС‚СЏР¶РєР° Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmConvert3512                  306 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ (Register)
+#define cmBillCfg                      307 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmDraftBillList                308 // Р”СЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚С‹
+#define cmDeleteTmpFiles               309 // РЈРґР°Р»РµРЅРёРµ РІСЂРµРјРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
+#define cmMainOrg2                     310 // Р¤РѕСЂРјР° "Р“Р»Р°РІРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ"
+#define cmCreateNewFiles               311 // РЎРѕР·РґР°РЅРёРµ Р‘Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmBht                          312 // РўРµСЂРјРёРЅР°Р»С‹ СЃР±РѕСЂР° РґР°РЅРЅС‹С… (BHT)
+#define cmBhtConfig                    313 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё СЃ BHT
+#define cmBhtTransmit                  314 // РџРµСЂРµРґР°С‡Р° РґР°РЅРЅС‹С… РІ BHT
+#define cmBhtReceive                   315 // РџСЂРёРµРј РґР°РЅРЅС‹С… РёР· BHT
+#define cmBhtTransmitProgram           316 // @TEMP Р—Р°РіСЂСѓР·РєР° РїСЂРѕРіСЂР°РјРјС‹ РЅР° BHT
+#define cmUpdateLicense                318 // РћР±РЅРѕРІР»РµРЅРёРµ Р»РёС†РµРЅР·РёРё РЅР° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Papyrus'a
+#define cmRegistration                 319 // Р РµРіРёСЃС‚СЂР°С†Рё
+#define cmSCardSeries                  320 // РЎРµСЂРёРё РїР»Р°СЃС‚РёРєРѕРІС‹С… РєР°СЂС‚
+#define cmSCard                        321 // РџР»Р°СЃС‚РёРєРѕРІС‹Рµ РєР°СЂС‚С‹
+#define cmConvert372                   322 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєР°СЃСЃРѕРІС‹С… С‡РµРєРѕРІ
+#define cmStyloPalmExport              323 // РЎРѕР·РґР°РЅРёРµ РґР°РЅРЅС‹С… РґР»СЏ Р·Р°РіСЂСѓР·РєРё РІ StyloPalm
+#define cmStyloPalmImpExp              323 // РРјРїРѕСЂС‚/Р­РєСЃРїРѕСЂС‚ РґР»СЏ StyloPalm
 #define cmStyloPalm                    324 // Palm
-#define cmDraftWrOff                   325 // Типы списания драфт-документов
-#define cmWriteOffDrafts               326 // Списание драфт-документов по типу
-#define cmConvert380                   327 // Конвертация прайс-листа
-#define cmAssetWrOffGrp                328 // Группа списания активов
-#define cmRevalAssets                  329 // Списание активов
-#define cmPredictSales                 330 // Продажи товаров
-#define cmFillPredictSalesTbl          331 // Заполнение таблицы продаж
-#define cmPredictCfg                   332 // Конфигурация прогноза продаж
-#define cmGetPrognosis                 333 // Вычисление прогноза продаж по некоторому фильтру
-#define cmPaymPlan                     334 // План платежей
-#define cmAdvBillKind                  335 // Виды отчетных документов
-#define cmActiveUsersList              336 // Список активных на данный момент ползователей
-#define cmImportOrders                 337 // Прием заказов Albatros // @obsolete
-#define cmAlbatrosCfg                  338 // Конфигурация проекта Альбатрос
-#define cmProcessDL200                 339 // Обработка внешнего отчета DL200
-#define cmAccounts                     340 // Бухгалтерские счета (любые по фильтру)
-#define cmAccOutbal                    341 // Список забалансовых счетов
-#define cmAccRegister                  342 // Список бухгалтерских регистров
-#define cmAccAggr                      343 // Список агрегирующих счетов
-#define cmConvert400                   344 // Конвертация таблицы Account
-#define cmCorrectAccturn               345 // Проверка и восстановление бухгалтерских проводок
-#define cmReceiveCharry                346 // Прием объектов по технологии Charry
-#define cmConvert31102                 347 // Конвертация таблиц VATBook, ObjTag (меняются только индексы)
-#define cmCorrectAbsenceGoods          348 // Восстановление отсутствующих (из-за сбоя) товаров
-#define cmAnalyzeObjSyncCmp            349 // Анализ синхронизации объектов
-#define cmConvert31110                 350 // Конвертация таблицы CCheck (меняются только индексы)
-#define cmRecoverAbsenceBills          351 // Восстановление потерянных шапок документов
-#define cmViewAsset                    352 // Отчет по основным средствам
-#define cmSStat                        353 // Статистика по продажам
-#define cmCalcGoodsSaldo               354 // Расчет сальдо по товарам
-#define cmImportCurrList               356 // Загрузка списка валют из интернета
-#define cmInetConnCfg                  357 // Конфигурация соединения с интернетом
-#define cmUserInterfaceCfg             358 // Настройки интерфейса
-#define cmFreight                      359 // Информация о фрахте по документам
-#define cmProject                      360 // Проекты
-#define cmViewQuots                    361 // Котировки товаров
-#define cmSimpleLedgerCfg              362 // Настройки книги доходов/расходов
-#define cmMailAccount                  363 // Учетные записи электронной почты
-#define cmAddressBook                  364 // Адресная книга
-#define cmMailCharryFiles              365 // Передача файлов charry по электронной почте
-#define cmImportBanks                  366 // Импорт банков
-#define cmConvert4402                  367 // Конвертация таблицы VATBook
-#define cmConvert4405                  369 // Конвертация таблиц Goods2, PriceLine, QualityCert
-#define cmBrand                        370 // Торговые марки
-#define cmAsset                        371 // Справочник основных средств
-#define cmFastGrp_n_Users              372 // Быстрое редактирование групп и пользователей (Оч. удобно)
-#define cmEditHolidays                 373 // Редактирование списка выходных для прогнозирования //
-#define cmPersonRelType                374 // Типы отношений между персоналиями
-#define cmImportSpecSeries             375 // Импорт специальных серий
-#define cmRemoveBadReckons             376 // Удаление висячих и неправильных зачитывающих оплат
-#define cmEquipCfg                     377 // Конфигурация оборудовани
-#define cmCliBnkFmtCfg			       378 // Настройка форматов импорта/экспорта в клиент-банк
-#define cmCliBnkAsCfg                  379 // Настройка ассоциаций импорта из клиент-банка
-#define cmCliBnkImport                 380 // Импорт банковской выписки из клиент-банка
-#define cmSStatSupplOrder              381 // Статистика продаж с данными для заказа поставщику
-#define cmPersonCategory               382 // Категории персоналий
-#define cmAccAlias                     383 // Алиасы счетов
-#define cmMrpTab                       384 // MRP-таблицы
-#define cmPrjTask                      385 // Задачи
-#define cmStyloPalmCfg                 386 // Конфигурация обмена со StyloPalm
-#define cmProcessor                    387 // Процессоры
-#define cmTech                         388 // Технологии
-#define cmProjectCfg                   389 // Конфигурация проектов
-#define cmTSession                     390 // Технологические сессии
-#define cmConvert4707                  391 // Конвертация таблицы Receipt
-#define cmTSessAnlz                    392 // Анализ технологических сессий
-#define cmGoods2LocAssoc               393 // Список ассоциаций товар-склад
-#define cmDraftCreateRules             394 // Правила создания драфтов
-#define cmImportCountry                395 // Импорт гостударств
-#define cmImportSCard                  396 // Импорт дисконтных карт (старый вариант до v7.3.12)
-#define cmDefaultSupplAgt              397 // Соглашение с поставщиками по умолчанию
-#define cmImportSuppl                  398 // Импорт поставщиков
-#define cmTSessWrOffOrder              399 // Порядок списания технологических сессий
-#define cmCorrectGoodsGroups           400 // Корректировка товарных групп
-#define cmViewDLStat                   401 // Журнал загрузки оборудовани
-#define cmConvert4805                  402 // Конвертация таблицы DlsObj
-#define cmTSessionCfg                  403 // Конфигурация технологических сессий
-#define cmSetSCardsByRule              404 // Установка скидки на карты по правилам
-#define cmGoods2SupplAssoc             405 // Ассоциация товар (товарная группа) - поставщик
-#define cmGoodsRestTest                406 // Тест по остаткам товаров
-#define cmMaintainPrjTask              407 // Обслуживание задач
-#define cmPriceAnlz                    408 // Сравнительный анализ цен
-#define cmDynamicObjs                  409 // Список динамических объектов
-#define cmJobPool                      410 // Серверные задачи
-#define cmCheckGStrucRecursion         411 // Проверка нерекурсивности товарных структур
-#define cmBillStatus                   412 // Статусы документов
-#define cmDBMaintain                   413 // Обслуживание базы данных
-#define cmPrcPane                      414 // Панель ввода технологических сессий по процессору
-#define cmManufPlan                    415 // Производственные планы
-#define cmFTPAcct                      416 // FTP аккаунты
-#define cmReport                       417 // Настройка отчетов
-#define cmPrcBusy                      418 // @v5.0.5  Занятость процессоров
-#define cmPaymWOLinkBill               419 // @v5.0.10 Поиск оплат без связанного документа
-#define cmRemoveZeroLinkCCLines        420 // @v5.1.0  Удаление висячих строк чеков
+#define cmDraftWrOff                   325 // РўРёРїС‹ СЃРїРёСЃР°РЅРёСЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmWriteOffDrafts               326 // РЎРїРёСЃР°РЅРёРµ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ С‚РёРїСѓ
+#define cmConvert380                   327 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РїСЂР°Р№СЃ-Р»РёСЃС‚Р°
+#define cmAssetWrOffGrp                328 // Р“СЂСѓРїРїР° СЃРїРёСЃР°РЅРёСЏ Р°РєС‚РёРІРѕРІ
+#define cmRevalAssets                  329 // РЎРїРёСЃР°РЅРёРµ Р°РєС‚РёРІРѕРІ
+#define cmPredictSales                 330 // РџСЂРѕРґР°Р¶Рё С‚РѕРІР°СЂРѕРІ
+#define cmFillPredictSalesTbl          331 // Р—Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
+#define cmPredictCfg                   332 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶
+#define cmGetPrognosis                 333 // Р’С‹С‡РёСЃР»РµРЅРёРµ РїСЂРѕРіРЅРѕР·Р° РїСЂРѕРґР°Р¶ РїРѕ РЅРµРєРѕС‚РѕСЂРѕРјСѓ С„РёР»СЊС‚СЂСѓ
+#define cmPaymPlan                     334 // РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№
+#define cmAdvBillKind                  335 // Р’РёРґС‹ РѕС‚С‡РµС‚РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmActiveUsersList              336 // РЎРїРёСЃРѕРє Р°РєС‚РёРІРЅС‹С… РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РїРѕР»Р·РѕРІР°С‚РµР»РµР№
+#define cmImportOrders                 337 // РџСЂРёРµРј Р·Р°РєР°Р·РѕРІ Albatros // @obsolete
+#define cmAlbatrosCfg                  338 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚Р° РђР»СЊР±Р°С‚СЂРѕСЃ
+#define cmProcessDL200                 339 // РћР±СЂР°Р±РѕС‚РєР° РІРЅРµС€РЅРµРіРѕ РѕС‚С‡РµС‚Р° DL200
+#define cmAccounts                     340 // Р‘СѓС…РіР°Р»С‚РµСЂСЃРєРёРµ СЃС‡РµС‚Р° (Р»СЋР±С‹Рµ РїРѕ С„РёР»СЊС‚СЂСѓ)
+#define cmAccOutbal                    341 // РЎРїРёСЃРѕРє Р·Р°Р±Р°Р»Р°РЅСЃРѕРІС‹С… СЃС‡РµС‚РѕРІ
+#define cmAccRegister                  342 // РЎРїРёСЃРѕРє Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… СЂРµРіРёСЃС‚СЂРѕРІ
+#define cmAccAggr                      343 // РЎРїРёСЃРѕРє Р°РіСЂРµРіРёСЂСѓСЋС‰РёС… СЃС‡РµС‚РѕРІ
+#define cmConvert400                   344 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ Account
+#define cmCorrectAccturn               345 // РџСЂРѕРІРµСЂРєР° Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р±СѓС…РіР°Р»С‚РµСЂСЃРєРёС… РїСЂРѕРІРѕРґРѕРє
+#define cmReceiveCharry                346 // РџСЂРёРµРј РѕР±СЉРµРєС‚РѕРІ РїРѕ С‚РµС…РЅРѕР»РѕРіРёРё Charry
+#define cmConvert31102                 347 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС† VATBook, ObjTag (РјРµРЅСЏСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РёРЅРґРµРєСЃС‹)
+#define cmCorrectAbsenceGoods          348 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… (РёР·-Р·Р° СЃР±РѕСЏ) С‚РѕРІР°СЂРѕРІ
+#define cmAnalyzeObjSyncCmp            349 // РђРЅР°Р»РёР· СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ
+#define cmConvert31110                 350 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ CCheck (РјРµРЅСЏСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РёРЅРґРµРєСЃС‹)
+#define cmRecoverAbsenceBills          351 // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РїРѕС‚РµСЂСЏРЅРЅС‹С… С€Р°РїРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmViewAsset                    352 // РћС‚С‡РµС‚ РїРѕ РѕСЃРЅРѕРІРЅС‹Рј СЃСЂРµРґСЃС‚РІР°Рј
+#define cmSStat                        353 // РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ РїСЂРѕРґР°Р¶Р°Рј
+#define cmCalcGoodsSaldo               354 // Р Р°СЃС‡РµС‚ СЃР°Р»СЊРґРѕ РїРѕ С‚РѕРІР°СЂР°Рј
+#define cmImportCurrList               356 // Р—Р°РіСЂСѓР·РєР° СЃРїРёСЃРєР° РІР°Р»СЋС‚ РёР· РёРЅС‚РµСЂРЅРµС‚Р°
+#define cmInetConnCfg                  357 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРѕРµРґРёРЅРµРЅРёСЏ СЃ РёРЅС‚РµСЂРЅРµС‚РѕРј
+#define cmUserInterfaceCfg             358 // РќР°СЃС‚СЂРѕР№РєРё РёРЅС‚РµСЂС„РµР№СЃР°
+#define cmFreight                      359 // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С„СЂР°С…С‚Рµ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј
+#define cmProject                      360 // РџСЂРѕРµРєС‚С‹
+#define cmViewQuots                    361 // РљРѕС‚РёСЂРѕРІРєРё С‚РѕРІР°СЂРѕРІ
+#define cmSimpleLedgerCfg              362 // РќР°СЃС‚СЂРѕР№РєРё РєРЅРёРіРё РґРѕС…РѕРґРѕРІ/СЂР°СЃС…РѕРґРѕРІ
+#define cmMailAccount                  363 // РЈС‡РµС‚РЅС‹Рµ Р·Р°РїРёСЃРё СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕС‡С‚С‹
+#define cmAddressBook                  364 // РђРґСЂРµСЃРЅР°СЏ РєРЅРёРіР°
+#define cmMailCharryFiles              365 // РџРµСЂРµРґР°С‡Р° С„Р°Р№Р»РѕРІ charry РїРѕ СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕС‡С‚Рµ
+#define cmImportBanks                  366 // РРјРїРѕСЂС‚ Р±Р°РЅРєРѕРІ
+#define cmConvert4402                  367 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ VATBook
+#define cmConvert4405                  369 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС† Goods2, PriceLine, QualityCert
+#define cmBrand                        370 // РўРѕСЂРіРѕРІС‹Рµ РјР°СЂРєРё
+#define cmAsset                        371 // РЎРїСЂР°РІРѕС‡РЅРёРє РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
+#define cmFastGrp_n_Users              372 // Р‘С‹СЃС‚СЂРѕРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РіСЂСѓРїРї Рё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ (РћС‡. СѓРґРѕР±РЅРѕ)
+#define cmEditHolidays                 373 // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РІС‹С…РѕРґРЅС‹С… РґР»СЏ РїСЂРѕРіРЅРѕР·РёСЂРѕРІР°РЅРёСЏ //
+#define cmPersonRelType                374 // РўРёРїС‹ РѕС‚РЅРѕС€РµРЅРёР№ РјРµР¶РґСѓ РїРµСЂСЃРѕРЅР°Р»РёСЏРјРё
+#define cmImportSpecSeries             375 // РРјРїРѕСЂС‚ СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃРµСЂРёР№
+#define cmRemoveBadReckons             376 // РЈРґР°Р»РµРЅРёРµ РІРёСЃСЏС‡РёС… Рё РЅРµРїСЂР°РІРёР»СЊРЅС‹С… Р·Р°С‡РёС‚С‹РІР°СЋС‰РёС… РѕРїР»Р°С‚
+#define cmEquipCfg                     377 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РѕСЂСѓРґРѕРІР°РЅРё
+#define cmCliBnkFmtCfg			       378 // РќР°СЃС‚СЂРѕР№РєР° С„РѕСЂРјР°С‚РѕРІ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° РІ РєР»РёРµРЅС‚-Р±Р°РЅРє
+#define cmCliBnkAsCfg                  379 // РќР°СЃС‚СЂРѕР№РєР° Р°СЃСЃРѕС†РёР°С†РёР№ РёРјРїРѕСЂС‚Р° РёР· РєР»РёРµРЅС‚-Р±Р°РЅРєР°
+#define cmCliBnkImport                 380 // РРјРїРѕСЂС‚ Р±Р°РЅРєРѕРІСЃРєРѕР№ РІС‹РїРёСЃРєРё РёР· РєР»РёРµРЅС‚-Р±Р°РЅРєР°
+#define cmSStatSupplOrder              381 // РЎС‚Р°С‚РёСЃС‚РёРєР° РїСЂРѕРґР°Р¶ СЃ РґР°РЅРЅС‹РјРё РґР»СЏ Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ
+#define cmPersonCategory               382 // РљР°С‚РµРіРѕСЂРёРё РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmAccAlias                     383 // РђР»РёР°СЃС‹ СЃС‡РµС‚РѕРІ
+#define cmMrpTab                       384 // MRP-С‚Р°Р±Р»РёС†С‹
+#define cmPrjTask                      385 // Р—Р°РґР°С‡Рё
+#define cmStyloPalmCfg                 386 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±РјРµРЅР° СЃРѕ StyloPalm
+#define cmProcessor                    387 // РџСЂРѕС†РµСЃСЃРѕСЂС‹
+#define cmTech                         388 // РўРµС…РЅРѕР»РѕРіРёРё
+#define cmProjectCfg                   389 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїСЂРѕРµРєС‚РѕРІ
+#define cmTSession                     390 // РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРµ СЃРµСЃСЃРёРё
+#define cmConvert4707                  391 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ Receipt
+#define cmTSessAnlz                    392 // РђРЅР°Р»РёР· С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define cmGoods2LocAssoc               393 // РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ С‚РѕРІР°СЂ-СЃРєР»Р°Рґ
+#define cmDraftCreateRules             394 // РџСЂР°РІРёР»Р° СЃРѕР·РґР°РЅРёСЏ РґСЂР°С„С‚РѕРІ
+#define cmImportCountry                395 // РРјРїРѕСЂС‚ РіРѕСЃС‚СѓРґР°СЂСЃС‚РІ
+#define cmImportSCard                  396 // РРјРїРѕСЂС‚ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚ (СЃС‚Р°СЂС‹Р№ РІР°СЂРёР°РЅС‚ РґРѕ v7.3.12)
+#define cmDefaultSupplAgt              397 // РЎРѕРіР»Р°С€РµРЅРёРµ СЃ РїРѕСЃС‚Р°РІС‰РёРєР°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+#define cmImportSuppl                  398 // РРјРїРѕСЂС‚ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+#define cmTSessWrOffOrder              399 // РџРѕСЂСЏРґРѕРє СЃРїРёСЃР°РЅРёСЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define cmCorrectGoodsGroups           400 // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
+#define cmViewDLStat                   401 // Р–СѓСЂРЅР°Р» Р·Р°РіСЂСѓР·РєРё РѕР±РѕСЂСѓРґРѕРІР°РЅРё
+#define cmConvert4805                  402 // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ С‚Р°Р±Р»РёС†С‹ DlsObj
+#define cmTSessionCfg                  403 // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define cmSetSCardsByRule              404 // РЈСЃС‚Р°РЅРѕРІРєР° СЃРєРёРґРєРё РЅР° РєР°СЂС‚С‹ РїРѕ РїСЂР°РІРёР»Р°Рј
+#define cmGoods2SupplAssoc             405 // РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ (С‚РѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°) - РїРѕСЃС‚Р°РІС‰РёРє
+#define cmGoodsRestTest                406 // РўРµСЃС‚ РїРѕ РѕСЃС‚Р°С‚РєР°Рј С‚РѕРІР°СЂРѕРІ
+#define cmMaintainPrjTask              407 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ Р·Р°РґР°С‡
+#define cmPriceAnlz                    408 // РЎСЂР°РІРЅРёС‚РµР»СЊРЅС‹Р№ Р°РЅР°Р»РёР· С†РµРЅ
+#define cmDynamicObjs                  409 // РЎРїРёСЃРѕРє РґРёРЅР°РјРёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define cmJobPool                      410 // РЎРµСЂРІРµСЂРЅС‹Рµ Р·Р°РґР°С‡Рё
+#define cmCheckGStrucRecursion         411 // РџСЂРѕРІРµСЂРєР° РЅРµСЂРµРєСѓСЂСЃРёРІРЅРѕСЃС‚Рё С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ
+#define cmBillStatus                   412 // РЎС‚Р°С‚СѓСЃС‹ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmDBMaintain                   413 // РћР±СЃР»СѓР¶РёРІР°РЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmPrcPane                      414 // РџР°РЅРµР»СЊ РІРІРѕРґР° С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ
+#define cmManufPlan                    415 // РџСЂРѕРёР·РІРѕРґСЃС‚РІРµРЅРЅС‹Рµ РїР»Р°РЅС‹
+#define cmFTPAcct                      416 // FTP Р°РєРєР°СѓРЅС‚С‹
+#define cmReport                       417 // РќР°СЃС‚СЂРѕР№РєР° РѕС‚С‡РµС‚РѕРІ
+#define cmPrcBusy                      418 // @v5.0.5  Р—Р°РЅСЏС‚РѕСЃС‚СЊ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ
+#define cmPaymWOLinkBill               419 // @v5.0.10 РџРѕРёСЃРє РѕРїР»Р°С‚ Р±РµР· СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+#define cmRemoveZeroLinkCCLines        420 // @v5.1.0  РЈРґР°Р»РµРЅРёРµ РІРёСЃСЏС‡РёС… СЃС‚СЂРѕРє С‡РµРєРѕРІ
 #define cmTouchScreen                  421 // @v5.1.2  TouchScreen
-#define cmEditDesktops                 422 // @v5.1.x  Редактирование рабочих столов
-#define cmSelDesktop                   423 // @v5.1.x  Выбор рабочего стола
-#define cmEditMenus                    424 // @v5.1.x  Редактирование меню
-#define cmEditMenusFromFile            425 // @v5.1.x  Редактирование меню из файла
-#define cmDateTimeRep                  426 // @v5.2.0  Периодичность
-#define cmDutySched                    427 // @v5.2.0  График дежурств
-#define cmLocPrinter                   428 // @v5.2.0  Локальные принтеры
-#define cmCfgImpSpecSeries             429 // @v5.2.1  Конфигурация импорта специальных серий
-#define cmEditWorld                    430 // @v5.2.6  Редактирование географических объектов
-#define cmBillExpImpParams             431 // @v5.2.7  Редактирование форматов экспорта/импорта документов
-#define cmBRowExpImpParams             432 // @v5.2.7  Редактирование форматов экспорта/импорта строк документов
-#define cmImportBills                  433 // @v5.2.7  Импорт документов
-#define cmViewGoodsInfo                434 // @v5.2.9  Информационный киоск
-#define cmEditGoodsInfo                435 // @v5.2.9  Редактирование информационных киосков
-#define cmAddPerson                    436 // @v5.2.9  Добавить персоналию
-#define cmAddTask                      437 // @v5.2.9  Добавить задачу
-#define cmPrjTask_ByStatus             438 // @v5.2.9  Показать непросмотренные задачи (вызывается по двойному щелчку мыши из окна статуса)
-#define cmLoadFonts                    439 // @v5.2.12 Загрузка шрифтов на принтер штрихкодов
-#define cmCashSessExpImpParams         440 // @v5.3.0  Редактирование форматов экспорта/импорта кассовых сессий
-#define cmGenerateGoodsBills           441	// @v5.3.1  Генерация товарных документов
-#define cmPersonRel                    442 // @v5.3.2  Редактирование персональных отношений
-#define cmViewLogs                     443 // @v5.3.3  Просмотр логов
-#define cmMailAcct                     444 // @v5.3.4  Редактирование почтовых акаунтов
-#define cmImportEmailAccts             445 // @v5.3.4  Импорт почтовых акаунтов
-#define cmKeyboardWKeyCfg              446 // @v5.3.5  Конфигурация клавиатуры с ключом
-#define cmViewGoodsStruc               447 // @v5.3.6  Товарные структуры
-#define cmCorrectTransfer              448 // @v5.3.7  Восстановление записей transfer
-#define cmSalCharge                    449 // @v5.3.8  Начисления зарплаты
-// @v5.5.1 #define cmSalChargeGrp      450 // @v5.3.8  Группы начислений зарплаты
-#define cmStaffCalendar                451 // @v5.3.9  Календари
-#define cmSCSIncasso                   452 // @v5.3.11 Инкассация (SyncCashSess)
-#define cmSupplGoodsImport             453 // @v5.4.0  Импорт товаров от поставщика
-#define cmSupplInterchange             454 // @v5.4.0  Экспорт данных для поставщика // @v9.2.1 cmExportDataForSuppl-->cmSupplInterchange
+#define cmEditDesktops                 422 // @v5.1.x  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЂР°Р±РѕС‡РёС… СЃС‚РѕР»РѕРІ
+#define cmSelDesktop                   423 // @v5.1.x  Р’С‹Р±РѕСЂ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
+#define cmEditMenus                    424 // @v5.1.x  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РјРµРЅСЋ
+#define cmEditMenusFromFile            425 // @v5.1.x  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РјРµРЅСЋ РёР· С„Р°Р№Р»Р°
+#define cmDateTimeRep                  426 // @v5.2.0  РџРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ
+#define cmDutySched                    427 // @v5.2.0  Р“СЂР°С„РёРє РґРµР¶СѓСЂСЃС‚РІ
+#define cmLocPrinter                   428 // @v5.2.0  Р›РѕРєР°Р»СЊРЅС‹Рµ РїСЂРёРЅС‚РµСЂС‹
+#define cmCfgImpSpecSeries             429 // @v5.2.1  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РёРјРїРѕСЂС‚Р° СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃРµСЂРёР№
+#define cmEditWorld                    430 // @v5.2.6  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define cmBillExpImpParams             431 // @v5.2.7  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„РѕСЂРјР°С‚РѕРІ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmBRowExpImpParams             432 // @v5.2.7  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„РѕСЂРјР°С‚РѕРІ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmImportBills                  433 // @v5.2.7  РРјРїРѕСЂС‚ РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmViewGoodsInfo                434 // @v5.2.9  РРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹Р№ РєРёРѕСЃРє
+#define cmEditGoodsInfo                435 // @v5.2.9  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅС‹С… РєРёРѕСЃРєРѕРІ
+#define cmAddPerson                    436 // @v5.2.9  Р”РѕР±Р°РІРёС‚СЊ РїРµСЂСЃРѕРЅР°Р»РёСЋ
+#define cmAddTask                      437 // @v5.2.9  Р”РѕР±Р°РІРёС‚СЊ Р·Р°РґР°С‡Сѓ
+#define cmPrjTask_ByStatus             438 // @v5.2.9  РџРѕРєР°Р·Р°С‚СЊ РЅРµРїСЂРѕСЃРјРѕС‚СЂРµРЅРЅС‹Рµ Р·Р°РґР°С‡Рё (РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРѕ РґРІРѕР№РЅРѕРјСѓ С‰РµР»С‡РєСѓ РјС‹С€Рё РёР· РѕРєРЅР° СЃС‚Р°С‚СѓСЃР°)
+#define cmLoadFonts                    439 // @v5.2.12 Р—Р°РіСЂСѓР·РєР° С€СЂРёС„С‚РѕРІ РЅР° РїСЂРёРЅС‚РµСЂ С€С‚СЂРёС…РєРѕРґРѕРІ
+#define cmCashSessExpImpParams         440 // @v5.3.0  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С„РѕСЂРјР°С‚РѕРІ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
+#define cmGenerateGoodsBills           441	// @v5.3.1  Р“РµРЅРµСЂР°С†РёСЏ С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmPersonRel                    442 // @v5.3.2  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕС‚РЅРѕС€РµРЅРёР№
+#define cmViewLogs                     443 // @v5.3.3  РџСЂРѕСЃРјРѕС‚СЂ Р»РѕРіРѕРІ
+#define cmMailAcct                     444 // @v5.3.4  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РїРѕС‡С‚РѕРІС‹С… Р°РєР°СѓРЅС‚РѕРІ
+#define cmImportEmailAccts             445 // @v5.3.4  РРјРїРѕСЂС‚ РїРѕС‡С‚РѕРІС‹С… Р°РєР°СѓРЅС‚РѕРІ
+#define cmKeyboardWKeyCfg              446 // @v5.3.5  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РєР»Р°РІРёР°С‚СѓСЂС‹ СЃ РєР»СЋС‡РѕРј
+#define cmViewGoodsStruc               447 // @v5.3.6  РўРѕРІР°СЂРЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹
+#define cmCorrectTransfer              448 // @v5.3.7  Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р·Р°РїРёСЃРµР№ transfer
+#define cmSalCharge                    449 // @v5.3.8  РќР°С‡РёСЃР»РµРЅРёСЏ Р·Р°СЂРїР»Р°С‚С‹
+// @v5.5.1 #define cmSalChargeGrp      450 // @v5.3.8  Р“СЂСѓРїРїС‹ РЅР°С‡РёСЃР»РµРЅРёР№ Р·Р°СЂРїР»Р°С‚С‹
+#define cmStaffCalendar                451 // @v5.3.9  РљР°Р»РµРЅРґР°СЂРё
+#define cmSCSIncasso                   452 // @v5.3.11 РРЅРєР°СЃСЃР°С†РёСЏ (SyncCashSess)
+#define cmSupplGoodsImport             453 // @v5.4.0  РРјРїРѕСЂС‚ С‚РѕРІР°СЂРѕРІ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
+#define cmSupplInterchange             454 // @v5.4.0  Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… РґР»СЏ РїРѕСЃС‚Р°РІС‰РёРєР° // @v9.2.1 cmExportDataForSuppl-->cmSupplInterchange
 #define cmExportDataForSuppl           cmSupplInterchange // @obsolete
-#define cmSCardCfg                     455 // @v5.4.0  Конфигурация дисконтных карт
-#define cmRecoverAbsenceAccounts       456 // @v5.4.5 Восстановление отсутствующих счетов
-#define cmAddPersonEvent               457 // @v5.4.7  Добавить персональное событие
-#define cmRecoverAbsencePrjTaskPerson  458 // @v5.4.9  Восстановление отсутствующих персоналий в задачах
-#define cmPersonCfg                    459 // @v5.4.10 Конфигурация персоналий
-#define cmReplaceUnit                  460 // @v5.4.11 Объединение единиц измерени
-#define cmReplaceWorld                 461 // @v5.4.11 Объединение географических объектов
-#define cmRegisterComServer            462 // @v5.4.11 Регистрация COM-сервера
-#define cmUnregisterComServer          463 // @v5.4.11 Дерегистрация COM-сервера
-#define cmDBMaintainCfg                464 // @v5.4.14 Конфигурация обслуживания базы данных
-#define cmViewSalary                   465 // @v5.5.1  Просмотр начислений зарплаты
-#define cmChargeSalary                 466 // @v5.5.1  Начисление зарплаты
-#define cmGoods2CashNodeAssoc          467 // @v5.5.6  Ассоциация товар (товарная группа) - кассовый узел
-#define cmViewStaffCal                 468 // @v5.5.7  Анализ штатных календарей
-#define cmImportKLADR                  469 // @v5.5.12 Импорт классификатора адресов (КЛАДР)
-#define cmGoods2WareplaceAssoc         470 // @v5.6.3  Ассоциация товар (товарная группа) - места хранения //
-#define cmViewObjSyncQueue             471 // @v5.6.8  Просмотр очереди синхронизации объектов
-#define cmPriceListExpImpParams        472 // @v5.6.8  Конфигурация форматов экспорта/импорта прайс-листов
-#define cmCreateObjLikeness            473 // @v5.6.14 Создание таблицы сравнения объектов
-#define cmObjLikeness                  474 // @v5.6.14 Сравнение объектов
-#define cmNamedObjAssoc                475 // @v5.7.3  Именованные ассоциации объеков
-#define cmAddBill                      476 // @v5.7.5  Добавить документ
-#define cmExpImpParamsInventory        477 // @v5.8.4  Конфигурация импорта инвентаризации
-#define cmImportInventory              478 // @v5.8.4  Импорт инвентаризации
-#define cmEditPaintCloths              479 // @v5.8.x  Редактирование полотен
+#define cmSCardCfg                     455 // @v5.4.0  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
+#define cmRecoverAbsenceAccounts       456 // @v5.4.5 Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… СЃС‡РµС‚РѕРІ
+#define cmAddPersonEvent               457 // @v5.4.7  Р”РѕР±Р°РІРёС‚СЊ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕРµ СЃРѕР±С‹С‚РёРµ
+#define cmRecoverAbsencePrjTaskPerson  458 // @v5.4.9  Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… РїРµСЂСЃРѕРЅР°Р»РёР№ РІ Р·Р°РґР°С‡Р°С…
+#define cmPersonCfg                    459 // @v5.4.10 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmReplaceUnit                  460 // @v5.4.11 РћР±СЉРµРґРёРЅРµРЅРёРµ РµРґРёРЅРёС† РёР·РјРµСЂРµРЅРё
+#define cmReplaceWorld                 461 // @v5.4.11 РћР±СЉРµРґРёРЅРµРЅРёРµ РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define cmRegisterComServer            462 // @v5.4.11 Р РµРіРёСЃС‚СЂР°С†РёСЏ COM-СЃРµСЂРІРµСЂР°
+#define cmUnregisterComServer          463 // @v5.4.11 Р”РµСЂРµРіРёСЃС‚СЂР°С†РёСЏ COM-СЃРµСЂРІРµСЂР°
+#define cmDBMaintainCfg                464 // @v5.4.14 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РѕР±СЃР»СѓР¶РёРІР°РЅРёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmViewSalary                   465 // @v5.5.1  РџСЂРѕСЃРјРѕС‚СЂ РЅР°С‡РёСЃР»РµРЅРёР№ Р·Р°СЂРїР»Р°С‚С‹
+#define cmChargeSalary                 466 // @v5.5.1  РќР°С‡РёСЃР»РµРЅРёРµ Р·Р°СЂРїР»Р°С‚С‹
+#define cmGoods2CashNodeAssoc          467 // @v5.5.6  РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ (С‚РѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°) - РєР°СЃСЃРѕРІС‹Р№ СѓР·РµР»
+#define cmViewStaffCal                 468 // @v5.5.7  РђРЅР°Р»РёР· С€С‚Р°С‚РЅС‹С… РєР°Р»РµРЅРґР°СЂРµР№
+#define cmImportKLADR                  469 // @v5.5.12 РРјРїРѕСЂС‚ РєР»Р°СЃСЃРёС„РёРєР°С‚РѕСЂР° Р°РґСЂРµСЃРѕРІ (РљР›РђР”Р )
+#define cmGoods2WareplaceAssoc         470 // @v5.6.3  РђСЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂ (С‚РѕРІР°СЂРЅР°СЏ РіСЂСѓРїРїР°) - РјРµСЃС‚Р° С…СЂР°РЅРµРЅРёСЏ //
+#define cmViewObjSyncQueue             471 // @v5.6.8  РџСЂРѕСЃРјРѕС‚СЂ РѕС‡РµСЂРµРґРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕР±СЉРµРєС‚РѕРІ
+#define cmPriceListExpImpParams        472 // @v5.6.8  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С„РѕСЂРјР°С‚РѕРІ СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° РїСЂР°Р№СЃ-Р»РёСЃС‚РѕРІ
+#define cmCreateObjLikeness            473 // @v5.6.14 РЎРѕР·РґР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ СЃСЂР°РІРЅРµРЅРёСЏ РѕР±СЉРµРєС‚РѕРІ
+#define cmObjLikeness                  474 // @v5.6.14 РЎСЂР°РІРЅРµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
+#define cmNamedObjAssoc                475 // @v5.7.3  РРјРµРЅРѕРІР°РЅРЅС‹Рµ Р°СЃСЃРѕС†РёР°С†РёРё РѕР±СЉРµРєРѕРІ
+#define cmAddBill                      476 // @v5.7.5  Р”РѕР±Р°РІРёС‚СЊ РґРѕРєСѓРјРµРЅС‚
+#define cmExpImpParamsInventory        477 // @v5.8.4  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РёРјРїРѕСЂС‚Р° РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define cmImportInventory              478 // @v5.8.4  РРјРїРѕСЂС‚ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
+#define cmEditPaintCloths              479 // @v5.8.x  Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РїРѕР»РѕС‚РµРЅ
 #define cmEditWhatman                  479 // @v6.6.9
-#define cmViewLogsMon		           480 // @v5.8.4  Монитор журналов
-#define cmDebtRate                     481 // @v5.9.9  Процессинг должников
-#define cmBizScore                     482 // @v5.9.10 Бизнес-показатели
-#define cmTransportCfg                 483 // @v5.9.10 Конфигурация транспорта
-#define cmBizScoreCalc                 484 // @v5.9.10 Расчет бизнес-показателей
-#define cmBizScoreVal                  485 // @v5.9.10 Просмотр бизнес-показателей
-#define cmShowBizScoreOnDesktop        486 // @v5.9.11 Показать бизнес-показатели на рабочем столе
-#define cmGlobalUserAcc                487 // @v5.9.12 Глобальные учетные записи
-#define cmCreateGlobalUserAcc          488 // @v5.9.14 Регистрация пользователя в глобальной базе данных
-#define cmDebtorStat                   489 // @v6.0.0  Статистика по дебиторам
-#define cmDebtorStatCfg                490 // @v6.0.1  Конфигурация статистики дебиторов
-#define cmUpdatePpIni                  491 // @v6.0.2  Изменение параметров файла bin\pp.ini посредством транспортного
-									       // файла pp_upd.ini
-#define cmGotoSite                     492 // @v6.0.7  Перейти на сайт фирмы Петроглиф
-#define cmGenerateCliBnkImport         493 // @v6.0.9 Генерация платежей для импорта из клиент-банк
-#define cmLocTransf                    494 // @v6.1.0 Складские операции
-#define cmLocationCfg                  495 // @v6.1.0 Конфигурация локаций
-#define cmWmsBillList                  496 // @v6.1.1 Документы складских операций
-#define cmViewBBoard                   497 // @v6.1.x Информация о запущенных задачах на Job сервере
-#define cmSumByDivision                498 // @v6.1.x Быстрое редактирование типов сумм и календарей в привязке к штатным подразделениям.
-#define cmDivisionBySum                499 // @v6.1.x Быстрый просмотр штатных подразделений в привязке к типам сумм и календарям.
-#define cmLogin                        500 // @v6.1.10 Вход в систему
-#define cmDBMaintenance                501 // @v6.1.10 Обслуживание базы данных
-#define cmDBExit                       502 // @v6.1.10 Выход из системы
-#define cmGoodsExpImpParams            503 // @v6.1.12 Конфигурация импорта/экспорта товаров
-#define cmImportGoodsOld               504 // @v6.1.12 Импорт товаров (по устаревшей технологии)
-#define cmImportTodoFromVCal           505 // @v6.2.x  Импорт задач из vCalendar/iCalendar
-#define cmVerifyAllCRpt                506 // @v6.2.8  Верификация всех отчетов
-//#define cmEditImpExpCfgs               507 // @v6.3.0  Конфигурации импорта/экспорта
-#define cmImpExpListConfig             507 // @v6.3.0  Списочные конфигурации импорта/экспорта
-#define cmTransport                    508 // @v6.3.x  Транспортные средства (PPView)
-#define cmLotTag                       509 // @v6.3.x  Теги лотов
-#define cmPrivateBasket                510 // @v6.4.0  Показать приватную корзину
-#define cmReplaceLikeWorld             511 // @v6.3.x  Объединение похожих географических объектов
-#define cmSendBillsByFilt              512 // @v6.4.2  Передать документы с фильтрацией
-#define cmSearchDlvrAddr               514 // @v6.4.8  Поиск адреса доставки по коду или ид.
-#define cmGoodsValRestr                515 // @v6.4.10 Ограничения товарных величин PPOBJ_GOODSVALRESTR
-#define cmPrjTask_ByReminder           516 // @v6.4.15 Показать невыполненые задачи за определенный промежуток дней (указывается в настроках) (вызывается по двойному щелчку мыши из окна статуса)
-#define cmCreateTechSess               517 // @v6.5.1  Создание технологической сессии
-#define cmConstructionTest             518 // @v6.5.2  Специальная команда для отладки разрабатываемых модулей
-#define cmSCardPane                    519 // @v6.5.4  Панель информации о дисконтных картах
-#define cmCreateDraftBySupplOrder      520 // @v6.5.6  Создание драфт документов на основе заказа поставщику
-#define cmAccBudget                    521 // @v6.5.14 Бюджетные счета
-#define cmBudgeting                    522 // @v6.5.14 Бюджетирование
-#define cmViewBizScTempl               523 // @v6.6.8  Шаблоны бизнес-показателей
-#define cmBizScValByTempl              524 // @v6.6.8  Просмотр бизнес-показателей по шаблону
-#define cmRecalcLotCurRest             525 // @v6.6.9  Пересчет остатков по лотам
-#define cmViewCheckOpJ                 526 // @v6.6.10 Журнал чековых операций
-#define cmPallet                       527 // @v6.7.0  Справочник паллет
-#define cmCTblOrdCreate                528 // @v6.7.7  Создание заказа стола в ресторане
-#define cmReplaceDynamicObj            529 // @v6.7.12 Объединение динамических объектов
-#define cmBillTag                      530 // @v6.8.4  Теги документов
-#define cmCTblOrdTimeGraph             531 // @v6.8.5  Временная диаграмма заказов столов
-#define cmSearchBillByCtx              532 // @v6.8.7  Поиск документа по контексту
-#define cmSetupPreferredBarcodeTags    533 // @v6.8.8  Автоматически устанавливает признаки предпочтительных штрихкодов
+#define cmViewLogsMon		           480 // @v5.8.4  РњРѕРЅРёС‚РѕСЂ Р¶СѓСЂРЅР°Р»РѕРІ
+#define cmDebtRate                     481 // @v5.9.9  РџСЂРѕС†РµСЃСЃРёРЅРі РґРѕР»Р¶РЅРёРєРѕРІ
+#define cmBizScore                     482 // @v5.9.10 Р‘РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»Рё
+#define cmTransportCfg                 483 // @v5.9.10 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ С‚СЂР°РЅСЃРїРѕСЂС‚Р°
+#define cmBizScoreCalc                 484 // @v5.9.10 Р Р°СЃС‡РµС‚ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+#define cmBizScoreVal                  485 // @v5.9.10 РџСЂРѕСЃРјРѕС‚СЂ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+#define cmShowBizScoreOnDesktop        486 // @v5.9.11 РџРѕРєР°Р·Р°С‚СЊ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»Рё РЅР° СЂР°Р±РѕС‡РµРј СЃС‚РѕР»Рµ
+#define cmGlobalUserAcc                487 // @v5.9.12 Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ СѓС‡РµС‚РЅС‹Рµ Р·Р°РїРёСЃРё
+#define cmCreateGlobalUserAcc          488 // @v5.9.14 Р РµРіРёСЃС‚СЂР°С†РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ РіР»РѕР±Р°Р»СЊРЅРѕР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
+#define cmDebtorStat                   489 // @v6.0.0  РЎС‚Р°С‚РёСЃС‚РёРєР° РїРѕ РґРµР±РёС‚РѕСЂР°Рј
+#define cmDebtorStatCfg                490 // @v6.0.1  РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃС‚Р°С‚РёСЃС‚РёРєРё РґРµР±РёС‚РѕСЂРѕРІ
+#define cmUpdatePpIni                  491 // @v6.0.2  РР·РјРµРЅРµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ С„Р°Р№Р»Р° bin\pp.ini РїРѕСЃСЂРµРґСЃС‚РІРѕРј С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ
+									       // С„Р°Р№Р»Р° pp_upd.ini
+#define cmGotoSite                     492 // @v6.0.7  РџРµСЂРµР№С‚Рё РЅР° СЃР°Р№С‚ С„РёСЂРјС‹ РџРµС‚СЂРѕРіР»РёС„
+#define cmGenerateCliBnkImport         493 // @v6.0.9 Р“РµРЅРµСЂР°С†РёСЏ РїР»Р°С‚РµР¶РµР№ РґР»СЏ РёРјРїРѕСЂС‚Р° РёР· РєР»РёРµРЅС‚-Р±Р°РЅРє
+#define cmLocTransf                    494 // @v6.1.0 РЎРєР»Р°РґСЃРєРёРµ РѕРїРµСЂР°С†РёРё
+#define cmLocationCfg                  495 // @v6.1.0 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р»РѕРєР°С†РёР№
+#define cmWmsBillList                  496 // @v6.1.1 Р”РѕРєСѓРјРµРЅС‚С‹ СЃРєР»Р°РґСЃРєРёС… РѕРїРµСЂР°С†РёР№
+#define cmViewBBoard                   497 // @v6.1.x РРЅС„РѕСЂРјР°С†РёСЏ Рѕ Р·Р°РїСѓС‰РµРЅРЅС‹С… Р·Р°РґР°С‡Р°С… РЅР° Job СЃРµСЂРІРµСЂРµ
+#define cmSumByDivision                498 // @v6.1.x Р‘С‹СЃС‚СЂРѕРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С‚РёРїРѕРІ СЃСѓРјРј Рё РєР°Р»РµРЅРґР°СЂРµР№ РІ РїСЂРёРІСЏР·РєРµ Рє С€С‚Р°С‚РЅС‹Рј РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏРј.
+#define cmDivisionBySum                499 // @v6.1.x Р‘С‹СЃС‚СЂС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ С€С‚Р°С‚РЅС‹С… РїРѕРґСЂР°Р·РґРµР»РµРЅРёР№ РІ РїСЂРёРІСЏР·РєРµ Рє С‚РёРїР°Рј СЃСѓРјРј Рё РєР°Р»РµРЅРґР°СЂСЏРј.
+#define cmLogin                        500 // @v6.1.10 Р’С…РѕРґ РІ СЃРёСЃС‚РµРјСѓ
+#define cmDBMaintenance                501 // @v6.1.10 РћР±СЃР»СѓР¶РёРІР°РЅРёРµ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+#define cmDBExit                       502 // @v6.1.10 Р’С‹С…РѕРґ РёР· СЃРёСЃС‚РµРјС‹
+#define cmGoodsExpImpParams            503 // @v6.1.12 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° С‚РѕРІР°СЂРѕРІ
+#define cmImportGoodsOld               504 // @v6.1.12 РРјРїРѕСЂС‚ С‚РѕРІР°СЂРѕРІ (РїРѕ СѓСЃС‚Р°СЂРµРІС€РµР№ С‚РµС…РЅРѕР»РѕРіРёРё)
+#define cmImportTodoFromVCal           505 // @v6.2.x  РРјРїРѕСЂС‚ Р·Р°РґР°С‡ РёР· vCalendar/iCalendar
+#define cmVerifyAllCRpt                506 // @v6.2.8  Р’РµСЂРёС„РёРєР°С†РёСЏ РІСЃРµС… РѕС‚С‡РµС‚РѕРІ
+//#define cmEditImpExpCfgs               507 // @v6.3.0  РљРѕРЅС„РёРіСѓСЂР°С†РёРё РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
+#define cmImpExpListConfig             507 // @v6.3.0  РЎРїРёСЃРѕС‡РЅС‹Рµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
+#define cmTransport                    508 // @v6.3.x  РўСЂР°РЅСЃРїРѕСЂС‚РЅС‹Рµ СЃСЂРµРґСЃС‚РІР° (PPView)
+#define cmLotTag                       509 // @v6.3.x  РўРµРіРё Р»РѕС‚РѕРІ
+#define cmPrivateBasket                510 // @v6.4.0  РџРѕРєР°Р·Р°С‚СЊ РїСЂРёРІР°С‚РЅСѓСЋ РєРѕСЂР·РёРЅСѓ
+#define cmReplaceLikeWorld             511 // @v6.3.x  РћР±СЉРµРґРёРЅРµРЅРёРµ РїРѕС…РѕР¶РёС… РіРµРѕРіСЂР°С„РёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define cmSendBillsByFilt              512 // @v6.4.2  РџРµСЂРµРґР°С‚СЊ РґРѕРєСѓРјРµРЅС‚С‹ СЃ С„РёР»СЊС‚СЂР°С†РёРµР№
+#define cmSearchDlvrAddr               514 // @v6.4.8  РџРѕРёСЃРє Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РїРѕ РєРѕРґСѓ РёР»Рё РёРґ.
+#define cmGoodsValRestr                515 // @v6.4.10 РћРіСЂР°РЅРёС‡РµРЅРёСЏ С‚РѕРІР°СЂРЅС‹С… РІРµР»РёС‡РёРЅ PPOBJ_GOODSVALRESTR
+#define cmPrjTask_ByReminder           516 // @v6.4.15 РџРѕРєР°Р·Р°С‚СЊ РЅРµРІС‹РїРѕР»РЅРµРЅС‹Рµ Р·Р°РґР°С‡Рё Р·Р° РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РїСЂРѕРјРµР¶СѓС‚РѕРє РґРЅРµР№ (СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РІ РЅР°СЃС‚СЂРѕРєР°С…) (РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРѕ РґРІРѕР№РЅРѕРјСѓ С‰РµР»С‡РєСѓ РјС‹С€Рё РёР· РѕРєРЅР° СЃС‚Р°С‚СѓСЃР°)
+#define cmCreateTechSess               517 // @v6.5.1  РЎРѕР·РґР°РЅРёРµ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ СЃРµСЃСЃРёРё
+#define cmConstructionTest             518 // @v6.5.2  РЎРїРµС†РёР°Р»СЊРЅР°СЏ РєРѕРјР°РЅРґР° РґР»СЏ РѕС‚Р»Р°РґРєРё СЂР°Р·СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… РјРѕРґСѓР»РµР№
+#define cmSCardPane                    519 // @v6.5.4  РџР°РЅРµР»СЊ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚Р°С…
+#define cmCreateDraftBySupplOrder      520 // @v6.5.6  РЎРѕР·РґР°РЅРёРµ РґСЂР°С„С‚ РґРѕРєСѓРјРµРЅС‚РѕРІ РЅР° РѕСЃРЅРѕРІРµ Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ
+#define cmAccBudget                    521 // @v6.5.14 Р‘СЋРґР¶РµС‚РЅС‹Рµ СЃС‡РµС‚Р°
+#define cmBudgeting                    522 // @v6.5.14 Р‘СЋРґР¶РµС‚РёСЂРѕРІР°РЅРёРµ
+#define cmViewBizScTempl               523 // @v6.6.8  РЁР°Р±Р»РѕРЅС‹ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+#define cmBizScValByTempl              524 // @v6.6.8  РџСЂРѕСЃРјРѕС‚СЂ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№ РїРѕ С€Р°Р±Р»РѕРЅСѓ
+#define cmRecalcLotCurRest             525 // @v6.6.9  РџРµСЂРµСЃС‡РµС‚ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+#define cmViewCheckOpJ                 526 // @v6.6.10 Р–СѓСЂРЅР°Р» С‡РµРєРѕРІС‹С… РѕРїРµСЂР°С†РёР№
+#define cmPallet                       527 // @v6.7.0  РЎРїСЂР°РІРѕС‡РЅРёРє РїР°Р»Р»РµС‚
+#define cmCTblOrdCreate                528 // @v6.7.7  РЎРѕР·РґР°РЅРёРµ Р·Р°РєР°Р·Р° СЃС‚РѕР»Р° РІ СЂРµСЃС‚РѕСЂР°РЅРµ
+#define cmReplaceDynamicObj            529 // @v6.7.12 РћР±СЉРµРґРёРЅРµРЅРёРµ РґРёРЅР°РјРёС‡РµСЃРєРёС… РѕР±СЉРµРєС‚РѕРІ
+#define cmBillTag                      530 // @v6.8.4  РўРµРіРё РґРѕРєСѓРјРµРЅС‚РѕРІ
+#define cmCTblOrdTimeGraph             531 // @v6.8.5  Р’СЂРµРјРµРЅРЅР°СЏ РґРёР°РіСЂР°РјРјР° Р·Р°РєР°Р·РѕРІ СЃС‚РѕР»РѕРІ
+#define cmSearchBillByCtx              532 // @v6.8.7  РџРѕРёСЃРє РґРѕРєСѓРјРµРЅС‚Р° РїРѕ РєРѕРЅС‚РµРєСЃС‚Сѓ
+#define cmSetupPreferredBarcodeTags    533 // @v6.8.8  РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїСЂРёР·РЅР°РєРё РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅС‹С… С€С‚СЂРёС…РєРѕРґРѕРІ
 #define cmStockOpt                     534 // @v6.8.11
 #define cmStockOptCfg                  535 // @v6.8.11
-#define cmRFIDDevice                   536 // @v6.8.x  RFID-устройства
-#define cmReplacePersonCat             537 // @v6.9.0  Объединение категорий персоналий
-#define cmViewDialog                   538 // @v6.9.9  Диалоги
+#define cmRFIDDevice                   536 // @v6.8.x  RFID-СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define cmReplacePersonCat             537 // @v6.9.0  РћР±СЉРµРґРёРЅРµРЅРёРµ РєР°С‚РµРіРѕСЂРёР№ РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmViewDialog                   538 // @v6.9.9  Р”РёР°Р»РѕРіРё
 #define cmDebtDim                      539 // @v6.x.x
-#define cmGoodsTag                     540 // @v7.0.x  Теги товаров
-#define cmFiltPool                     541 // @paul pentaho фильтры
-#define cmConvertQuot720               542 // @v7.1.12 Конвертация котировок
-#define cmEventToken                   543 // @v7.2.1 Событийные метки
-#define cmGlobalUserAccTag             544 // @v7.2.2 Теги глобальных учетных записей
-#define cmReplaceBrand                 545 // @v7.2.4 Объединение брэндов
-#define cmSmsAccount                   546 // Учетные записи смс-клиентов
-#define cmSpecSeries                   547 // @v7.3.0 Специальные серии
-#define cmPhoneService                 548 // @v7.3.1 Справочник телефонных сервисов
-#define cmImportPhoneList              549 // @v7.3.3 Импорт телефонного справочника
+#define cmGoodsTag                     540 // @v7.0.x  РўРµРіРё С‚РѕРІР°СЂРѕРІ
+#define cmFiltPool                     541 // @paul pentaho С„РёР»СЊС‚СЂС‹
+#define cmConvertQuot720               542 // @v7.1.12 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєРѕС‚РёСЂРѕРІРѕРє
+#define cmEventToken                   543 // @v7.2.1 РЎРѕР±С‹С‚РёР№РЅС‹Рµ РјРµС‚РєРё
+#define cmGlobalUserAccTag             544 // @v7.2.2 РўРµРіРё РіР»РѕР±Р°Р»СЊРЅС‹С… СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№
+#define cmReplaceBrand                 545 // @v7.2.4 РћР±СЉРµРґРёРЅРµРЅРёРµ Р±СЂСЌРЅРґРѕРІ
+#define cmSmsAccount                   546 // РЈС‡РµС‚РЅС‹Рµ Р·Р°РїРёСЃРё СЃРјСЃ-РєР»РёРµРЅС‚РѕРІ
+#define cmSpecSeries                   547 // @v7.3.0 РЎРїРµС†РёР°Р»СЊРЅС‹Рµ СЃРµСЂРёРё
+#define cmPhoneService                 548 // @v7.3.1 РЎРїСЂР°РІРѕС‡РЅРёРє С‚РµР»РµС„РѕРЅРЅС‹С… СЃРµСЂРІРёСЃРѕРІ
+#define cmImportPhoneList              549 // @v7.3.3 РРјРїРѕСЂС‚ С‚РµР»РµС„РѕРЅРЅРѕРіРѕ СЃРїСЂР°РІРѕС‡РЅРёРєР°
 #define cmEditSmsAcc                   550 // @v7.3.3
-#define cmIndexPhones                  551 // @v7.3.3 Индексация телефонов из персоналий и из адресов.
-#define cmCvtQCert                     552 // @v7.x.x Конвертация сертификатов качества в теги лотов (для лэнда)
-#define cmGtaJournal                   553 // @v7.3.9 Просмотр журнала тарифицируемых операций глобальных аккаунтов
-#define cmSCardOp                      554 // @v7.3.9 Просмотр операций по дисконтным картам
-#define cmImportSCard2                 555 // Импорт дисконтных карт
-#define cmGlobalAccCfg                 556 // @v7.4.7 Конфигурация глобальных учетных записей
-#define cmCorrectTrfrIntrUnite         557 // @v7.4.10 Корректировка ошибочных объединений документов внутренней передачи
-#define cmTestPredictSalesTbl          558 // @v7.5.1 Тестирование таблицы продаж
-#define cmUhttStore                    559 // @v7.6.1 Интернет магазины Universe-HTT
-#define cmUhttStoreTag                 560 // @v7.6.1 Теги интернет магазинов Universe-HTT
-#define cmConvertBillUUID7601          561 // @v7.6.1 Конвертация атрибутов документов UUID
-#define cmImportPerson2                562 // @v7.6.1 Импорт справочника персоналий
-#define cmExportGoodsRestUhtt          563 // @v7.6.3 "кспорт цен и товарных остатков в Universe-HTT
-#define cmLotPacking                   564 // @v7.6.4 Упаковка лотов
-#define cmCorrectCCheckLine01          565 // @v7.6.6 Корректировка проблемы строк чеков 01
-#define cmTextBrowserTest              566 // @v7.6.x Текстовый редактор тест
-#define cmOpenTextFile                 567 // Открыть текстовый файл для редактирования //
-#define cmEditIniFiles                 567 // @obsolete @v7.6.x Редактирование ini файлов
-#define cmViewNewVersionList           568 // @v7.6.x Просмотр новых версий Papyrus'a
-#define cmGenericDevice                569 // @v7.8.0 Обобщенные устройства
-#define cmIndexTextObjects             570 // @v7.8.0 Индексация текстовых объектов // @construction
-#define cmImportSR25                   571 // Импорт базы данных SR25
-#define cmImportSuprWare               572 // Импорт товаров с их состовляющими
-#define cmSuprWare                     573 // Товары и их состав
-#define cmProcessObjText               574 // Обработка текстовых объектов
-#define cmPersonEventByReader          575 // @v7.9.6 Создание персональных событий по чтению с устройсва ввода
-#define cmWorkbook                     576 // Контент
-#define cmTestReconnect                577 // @v8.0.6 Тест реконнекта серверной сессии
-#define cmUserProfile                  578 // @v8.x.x Профайлер по пользователям и функциям
-#define cmTSessAutoSms                 579 // Рассылка смс на основе технологических сессий
-#define cmImportWorkbook               580 // @v8.1.2 Импорт рабочих книг
-#define cmConvertWorkbook813           581 // @v8.1.3 Конвертация рабочих книг
-#define cmWorkbookCfg                  582 // @v8.1.7 Конфигурация рабочих книг
-#define cmConvertLatexToHtml           583 // @v8.1.12 Команда конвертации документации (только для внутреннего использования)
-#define cmRecoverLostUnifiedLinks      584 // @v8.2.8 Корректировка потерянных в результате объединения объектов, ссылок в т'гах
-#define cmGenerateKeywordSeq           585 // @v8.2.10 Генерация последовательностей ключевых слов (тест)
-#define cmTestUhttGetLocByPhone        586 // @v8.3.2 Тест SOAP-функции получения списка адресов по номеру телефона
-#define cmTestUhttGetQuotByLoc         587 // @v8.3.6 Тест SOAP-функции получения списка котировок по коду локации
-#define cmLocationTag                  588 // @v8.3.6 Теги локаций
-#define cmCorrectGoodsGroupsNIA        589 // @v8.3.6 Корректировка товарных групп (не интерактивная)
-#define cmConvertVersionToHtml         590 // @v8.3.12 Команда конвертации информации о версиях (только для внутреннего использования)
-#define cmCafeTable                    591 // @v8.4.1 Справочник столов в ресторанном зале
-#define cmAlcReportCfg                 592 // @v8.4.4 Конфигурация алкогольной декларации
-#define cmObjTagAllObj                 593 // @v8.5.3 Типы тегов по всем объектам данных
-#define cmEdiProvider                  594 // @v8.5.5 EDI-провайдеры
-#define cmImportQuot2                  595 // @v8.5.11 Импорт котировок
-#define cmImportFias                   596 // @v8.6.2 Импорт справочника ФИАС
-#define cmExportDbTblTransfer          597 // @v8.6.7 Экспорт в XML данных таблицы Transfer
-#define cmExportDbTblBill              598 // @v8.6.8 Экспорт в XML данных таблицы Bill
-#define cmTestFias                     599 // @v8.6.10 Тестирование справочника ФИАС
-#define cmViewGeoTracking              600 // @v8.6.11 Просмотр событий гео-трекинга
-#define cmImportTSessUHTT              601 // @v8.7.10 Universe-HTT импорт технологических сессий
-#define cmTestCURL                     602 // @v8.8.0 Тестирование интерфейса с библиотекой cURL
-#define cmTestEGAIS                    603 // @v8.8.0 Тестирование интерфейса с сервером ЕГАИС
-#define cmQueryEGAIS                   604 // @v8.8.1 Интерактивный запрос к серверу ЕГАИС
-#define cmTestSearchEmail              605 // @v8.8.9 Тестирование функции поиска email адресов в персоналиях и локациях
-#define cmImportPosRefs                606 // @v9.0.8 Импорт POS-справочников
-#define cmBuildLocalDL600              607 // @v9.1.7 Компиляция локальных структур DL600
-#define cmWorkbookInterchange          608 // @v9.3.10 Синхронизация рабочих книг с серверо Universe-HTT
-#define cmProcessOsm                   609 // @v9.5.9 Процессинг данных OpenStreetMap
-#define cmPosNodeQuery                 610 // @v9.6.5 Интерактивный запрос к кассовому узлу
-#define cmTestLogWindow                611 // @v9.7.0 Тестирование окна вывода сообщений
-#define cmProcessSartre                612 // @v9.7.8 Импорт данных проекта Sartre
-#define cmBillAutoCreate               613 // @v9.7.10 Автоматическое создание документов (попытка объедининить разрозненные процедуры)
-#define cmValidateXml                  614 // @v9.8.3 Проверка соответствия xml-файла xsd-схеме
+#define cmIndexPhones                  551 // @v7.3.3 РРЅРґРµРєСЃР°С†РёСЏ С‚РµР»РµС„РѕРЅРѕРІ РёР· РїРµСЂСЃРѕРЅР°Р»РёР№ Рё РёР· Р°РґСЂРµСЃРѕРІ.
+#define cmCvtQCert                     552 // @v7.x.x РљРѕРЅРІРµСЂС‚Р°С†РёСЏ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РєР°С‡РµСЃС‚РІР° РІ С‚РµРіРё Р»РѕС‚РѕРІ (РґР»СЏ Р»СЌРЅРґР°)
+#define cmGtaJournal                   553 // @v7.3.9 РџСЂРѕСЃРјРѕС‚СЂ Р¶СѓСЂРЅР°Р»Р° С‚Р°СЂРёС„РёС†РёСЂСѓРµРјС‹С… РѕРїРµСЂР°С†РёР№ РіР»РѕР±Р°Р»СЊРЅС‹С… Р°РєРєР°СѓРЅС‚РѕРІ
+#define cmSCardOp                      554 // @v7.3.9 РџСЂРѕСЃРјРѕС‚СЂ РѕРїРµСЂР°С†РёР№ РїРѕ РґРёСЃРєРѕРЅС‚РЅС‹Рј РєР°СЂС‚Р°Рј
+#define cmImportSCard2                 555 // РРјРїРѕСЂС‚ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚
+#define cmGlobalAccCfg                 556 // @v7.4.7 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РіР»РѕР±Р°Р»СЊРЅС‹С… СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№
+#define cmCorrectTrfrIntrUnite         557 // @v7.4.10 РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РѕС€РёР±РѕС‡РЅС‹С… РѕР±СЉРµРґРёРЅРµРЅРёР№ РґРѕРєСѓРјРµРЅС‚РѕРІ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё
+#define cmTestPredictSalesTbl          558 // @v7.5.1 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶
+#define cmUhttStore                    559 // @v7.6.1 РРЅС‚РµСЂРЅРµС‚ РјР°РіР°Р·РёРЅС‹ Universe-HTT
+#define cmUhttStoreTag                 560 // @v7.6.1 РўРµРіРё РёРЅС‚РµСЂРЅРµС‚ РјР°РіР°Р·РёРЅРѕРІ Universe-HTT
+#define cmConvertBillUUID7601          561 // @v7.6.1 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ Р°С‚СЂРёР±СѓС‚РѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ UUID
+#define cmImportPerson2                562 // @v7.6.1 РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° РїРµСЂСЃРѕРЅР°Р»РёР№
+#define cmExportGoodsRestUhtt          563 // @v7.6.3 "РєСЃРїРѕСЂС‚ С†РµРЅ Рё С‚РѕРІР°СЂРЅС‹С… РѕСЃС‚Р°С‚РєРѕРІ РІ Universe-HTT
+#define cmLotPacking                   564 // @v7.6.4 РЈРїР°РєРѕРІРєР° Р»РѕС‚РѕРІ
+#define cmCorrectCCheckLine01          565 // @v7.6.6 РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїСЂРѕР±Р»РµРјС‹ СЃС‚СЂРѕРє С‡РµРєРѕРІ 01
+#define cmTextBrowserTest              566 // @v7.6.x РўРµРєСЃС‚РѕРІС‹Р№ СЂРµРґР°РєС‚РѕСЂ С‚РµСЃС‚
+#define cmOpenTextFile                 567 // РћС‚РєСЂС‹С‚СЊ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р» РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ //
+#define cmEditIniFiles                 567 // @obsolete @v7.6.x Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ ini С„Р°Р№Р»РѕРІ
+#define cmViewNewVersionList           568 // @v7.6.x РџСЂРѕСЃРјРѕС‚СЂ РЅРѕРІС‹С… РІРµСЂСЃРёР№ Papyrus'a
+#define cmGenericDevice                569 // @v7.8.0 РћР±РѕР±С‰РµРЅРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+#define cmIndexTextObjects             570 // @v7.8.0 РРЅРґРµРєСЃР°С†РёСЏ С‚РµРєСЃС‚РѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ // @construction
+#define cmImportSR25                   571 // РРјРїРѕСЂС‚ Р±Р°Р·С‹ РґР°РЅРЅС‹С… SR25
+#define cmImportSuprWare               572 // РРјРїРѕСЂС‚ С‚РѕРІР°СЂРѕРІ СЃ РёС… СЃРѕСЃС‚РѕРІР»СЏСЋС‰РёРјРё
+#define cmSuprWare                     573 // РўРѕРІР°СЂС‹ Рё РёС… СЃРѕСЃС‚Р°РІ
+#define cmProcessObjText               574 // РћР±СЂР°Р±РѕС‚РєР° С‚РµРєСЃС‚РѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ
+#define cmPersonEventByReader          575 // @v7.9.6 РЎРѕР·РґР°РЅРёРµ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… СЃРѕР±С‹С‚РёР№ РїРѕ С‡С‚РµРЅРёСЋ СЃ СѓСЃС‚СЂРѕР№СЃРІР° РІРІРѕРґР°
+#define cmWorkbook                     576 // РљРѕРЅС‚РµРЅС‚
+#define cmTestReconnect                577 // @v8.0.6 РўРµСЃС‚ СЂРµРєРѕРЅРЅРµРєС‚Р° СЃРµСЂРІРµСЂРЅРѕР№ СЃРµСЃСЃРёРё
+#define cmUserProfile                  578 // @v8.x.x РџСЂРѕС„Р°Р№Р»РµСЂ РїРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј Рё С„СѓРЅРєС†РёСЏРј
+#define cmTSessAutoSms                 579 // Р Р°СЃСЃС‹Р»РєР° СЃРјСЃ РЅР° РѕСЃРЅРѕРІРµ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define cmImportWorkbook               580 // @v8.1.2 РРјРїРѕСЂС‚ СЂР°Р±РѕС‡РёС… РєРЅРёРі
+#define cmConvertWorkbook813           581 // @v8.1.3 РљРѕРЅРІРµСЂС‚Р°С†РёСЏ СЂР°Р±РѕС‡РёС… РєРЅРёРі
+#define cmWorkbookCfg                  582 // @v8.1.7 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЂР°Р±РѕС‡РёС… РєРЅРёРі
+#define cmConvertLatexToHtml           583 // @v8.1.12 РљРѕРјР°РЅРґР° РєРѕРЅРІРµСЂС‚Р°С†РёРё РґРѕРєСѓРјРµРЅС‚Р°С†РёРё (С‚РѕР»СЊРєРѕ РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ)
+#define cmRecoverLostUnifiedLinks      584 // @v8.2.8 РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РїРѕС‚РµСЂСЏРЅРЅС‹С… РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РѕР±СЉРµРґРёРЅРµРЅРёСЏ РѕР±СЉРµРєС‚РѕРІ, СЃСЃС‹Р»РѕРє РІ С‚'РіР°С…
+#define cmGenerateKeywordSeq           585 // @v8.2.10 Р“РµРЅРµСЂР°С†РёСЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ (С‚РµСЃС‚)
+#define cmTestUhttGetLocByPhone        586 // @v8.3.2 РўРµСЃС‚ SOAP-С„СѓРЅРєС†РёРё РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° Р°РґСЂРµСЃРѕРІ РїРѕ РЅРѕРјРµСЂСѓ С‚РµР»РµС„РѕРЅР°
+#define cmTestUhttGetQuotByLoc         587 // @v8.3.6 РўРµСЃС‚ SOAP-С„СѓРЅРєС†РёРё РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РєРѕС‚РёСЂРѕРІРѕРє РїРѕ РєРѕРґСѓ Р»РѕРєР°С†РёРё
+#define cmLocationTag                  588 // @v8.3.6 РўРµРіРё Р»РѕРєР°С†РёР№
+#define cmCorrectGoodsGroupsNIA        589 // @v8.3.6 РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї (РЅРµ РёРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ)
+#define cmConvertVersionToHtml         590 // @v8.3.12 РљРѕРјР°РЅРґР° РєРѕРЅРІРµСЂС‚Р°С†РёРё РёРЅС„РѕСЂРјР°С†РёРё Рѕ РІРµСЂСЃРёСЏС… (С‚РѕР»СЊРєРѕ РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ)
+#define cmCafeTable                    591 // @v8.4.1 РЎРїСЂР°РІРѕС‡РЅРёРє СЃС‚РѕР»РѕРІ РІ СЂРµСЃС‚РѕСЂР°РЅРЅРѕРј Р·Р°Р»Рµ
+#define cmAlcReportCfg                 592 // @v8.4.4 РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ Р°Р»РєРѕРіРѕР»СЊРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё
+#define cmObjTagAllObj                 593 // @v8.5.3 РўРёРїС‹ С‚РµРіРѕРІ РїРѕ РІСЃРµРј РѕР±СЉРµРєС‚Р°Рј РґР°РЅРЅС‹С…
+#define cmEdiProvider                  594 // @v8.5.5 EDI-РїСЂРѕРІР°Р№РґРµСЂС‹
+#define cmImportQuot2                  595 // @v8.5.11 РРјРїРѕСЂС‚ РєРѕС‚РёСЂРѕРІРѕРє
+#define cmImportFias                   596 // @v8.6.2 РРјРїРѕСЂС‚ СЃРїСЂР°РІРѕС‡РЅРёРєР° Р¤РРђРЎ
+#define cmExportDbTblTransfer          597 // @v8.6.7 Р­РєСЃРїРѕСЂС‚ РІ XML РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹ Transfer
+#define cmExportDbTblBill              598 // @v8.6.8 Р­РєСЃРїРѕСЂС‚ РІ XML РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹ Bill
+#define cmTestFias                     599 // @v8.6.10 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ СЃРїСЂР°РІРѕС‡РЅРёРєР° Р¤РРђРЎ
+#define cmViewGeoTracking              600 // @v8.6.11 РџСЂРѕСЃРјРѕС‚СЂ СЃРѕР±С‹С‚РёР№ РіРµРѕ-С‚СЂРµРєРёРЅРіР°
+#define cmImportTSessUHTT              601 // @v8.7.10 Universe-HTT РёРјРїРѕСЂС‚ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№
+#define cmTestCURL                     602 // @v8.8.0 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РёРЅС‚РµСЂС„РµР№СЃР° СЃ Р±РёР±Р»РёРѕС‚РµРєРѕР№ cURL
+#define cmTestEGAIS                    603 // @v8.8.0 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РёРЅС‚РµСЂС„РµР№СЃР° СЃ СЃРµСЂРІРµСЂРѕРј Р•Р“РђРРЎ
+#define cmQueryEGAIS                   604 // @v8.8.1 РРЅС‚РµСЂР°РєС‚РёРІРЅС‹Р№ Р·Р°РїСЂРѕСЃ Рє СЃРµСЂРІРµСЂСѓ Р•Р“РђРРЎ
+#define cmTestSearchEmail              605 // @v8.8.9 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё РїРѕРёСЃРєР° email Р°РґСЂРµСЃРѕРІ РІ РїРµСЂСЃРѕРЅР°Р»РёСЏС… Рё Р»РѕРєР°С†РёСЏС…
+#define cmImportPosRefs                606 // @v9.0.8 РРјРїРѕСЂС‚ POS-СЃРїСЂР°РІРѕС‡РЅРёРєРѕРІ
+#define cmBuildLocalDL600              607 // @v9.1.7 РљРѕРјРїРёР»СЏС†РёСЏ Р»РѕРєР°Р»СЊРЅС‹С… СЃС‚СЂСѓРєС‚СѓСЂ DL600
+#define cmWorkbookInterchange          608 // @v9.3.10 РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЂР°Р±РѕС‡РёС… РєРЅРёРі СЃ СЃРµСЂРІРµСЂРѕ Universe-HTT
+#define cmProcessOsm                   609 // @v9.5.9 РџСЂРѕС†РµСЃСЃРёРЅРі РґР°РЅРЅС‹С… OpenStreetMap
+#define cmPosNodeQuery                 610 // @v9.6.5 РРЅС‚РµСЂР°РєС‚РёРІРЅС‹Р№ Р·Р°РїСЂРѕСЃ Рє РєР°СЃСЃРѕРІРѕРјСѓ СѓР·Р»Сѓ
+#define cmTestLogWindow                611 // @v9.7.0 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РѕРєРЅР° РІС‹РІРѕРґР° СЃРѕРѕР±С‰РµРЅРёР№
+#define cmProcessSartre                612 // @v9.7.8 РРјРїРѕСЂС‚ РґР°РЅРЅС‹С… РїСЂРѕРµРєС‚Р° Sartre
+#define cmBillAutoCreate               613 // @v9.7.10 РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ СЃРѕР·РґР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ (РїРѕРїС‹С‚РєР° РѕР±СЉРµРґРёРЅРёРЅРёС‚СЊ СЂР°Р·СЂРѕР·РЅРµРЅРЅС‹Рµ РїСЂРѕС†РµРґСѓСЂС‹)
+#define cmValidateXml                  614 // @v9.8.3 РџСЂРѕРІРµСЂРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ xml-С„Р°Р№Р»Р° xsd-СЃС…РµРјРµ
+#define cmTestTddo2                    615 // @v9.8.3 РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ С‚РµС…РЅРѕР»РѕРіРёРё TDDO-II
 
 #endif /* __PPMENU_H */

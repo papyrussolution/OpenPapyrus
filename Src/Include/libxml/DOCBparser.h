@@ -10,12 +10,12 @@
 
 #ifndef __DOCB_PARSER_H__
 #define __DOCB_PARSER_H__
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 
 #ifdef LIBXML_DOCB_ENABLED
 
-#include <libxml/parser.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/parser.h>
+//#include <libxml/parserInternals.h>
 
 #ifndef IN_LIBXML
 #ifdef __GNUC__
@@ -41,51 +41,20 @@ typedef xmlDocPtr docbDocPtr;
 /*
  * There is only few public functions.
  */
-XMLPUBFUN int XMLCALL
-		     docbEncodeEntities(uchar *out,
-                                        int *outlen,
-                                        const uchar *in,
-                                        int *inlen, int quoteChar);
-
-XMLPUBFUN docbDocPtr XMLCALL
-		     docbSAXParseDoc   (xmlChar *cur,
-                                        const char *encoding,
-                                        docbSAXHandlerPtr sax,
-                                        void *userData);
-XMLPUBFUN docbDocPtr XMLCALL
-		     docbParseDoc      (xmlChar *cur,
-                                        const char *encoding);
-XMLPUBFUN docbDocPtr XMLCALL
-		     docbSAXParseFile  (const char *filename,
-                                        const char *encoding,
-                                        docbSAXHandlerPtr sax,
-                                        void *userData);
-XMLPUBFUN docbDocPtr XMLCALL
-		     docbParseFile     (const char *filename,
-                                        const char *encoding);
-
+XMLPUBFUN int XMLCALL docbEncodeEntities(uchar * out, int * outlen, const uchar * in, int * inlen, int quoteChar);
+XMLPUBFUN docbDocPtr XMLCALL docbSAXParseDoc(xmlChar * cur, const char * encoding, docbSAXHandlerPtr sax, void * userData);
+XMLPUBFUN docbDocPtr XMLCALL docbParseDoc(xmlChar * cur, const char * encoding);
+XMLPUBFUN docbDocPtr XMLCALL docbSAXParseFile(const char * filename, const char * encoding, docbSAXHandlerPtr sax, void * userData);
+XMLPUBFUN docbDocPtr XMLCALL docbParseFile(const char * filename, const char * encoding);
 /**
  * Interfaces for the Push mode.
  */
-XMLPUBFUN void XMLCALL
-		     docbFreeParserCtxt      (docbParserCtxtPtr ctxt);
-XMLPUBFUN docbParserCtxtPtr XMLCALL
-		     docbCreatePushParserCtxt(docbSAXHandlerPtr sax,
-                                              void *user_data,
-                                              const char *chunk,
-                                              int size,
-                                              const char *filename,
-                                              xmlCharEncoding enc);
-XMLPUBFUN int XMLCALL
-		     docbParseChunk          (docbParserCtxtPtr ctxt,
-                                              const char *chunk,
-                                              int size,
-                                              int terminate);
-XMLPUBFUN docbParserCtxtPtr XMLCALL
-		     docbCreateFileParserCtxt(const char *filename,
-                                              const char *encoding);
-XMLPUBFUN int XMLCALL
-		     docbParseDocument       (docbParserCtxtPtr ctxt);
+XMLPUBFUN void XMLCALL docbFreeParserCtxt(docbParserCtxtPtr ctxt);
+XMLPUBFUN docbParserCtxtPtr XMLCALL docbCreatePushParserCtxt(docbSAXHandlerPtr sax, void * user_data,
+    const char * chunk, int size, const char * filename, xmlCharEncoding enc);
+XMLPUBFUN int XMLCALL docbParseChunk(docbParserCtxtPtr ctxt, const char * chunk, int size, int terminate);
+XMLPUBFUN docbParserCtxtPtr XMLCALL docbCreateFileParserCtxt(const char * filename, const char * encoding);
+XMLPUBFUN int XMLCALL docbParseDocument(docbParserCtxtPtr ctxt);
 
 #ifdef __cplusplus
 }

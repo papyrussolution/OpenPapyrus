@@ -286,7 +286,7 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 	if(!posNodeID || CnObj.GetAsync(posNodeID, &acn_pack) <= 0) {
 		acn_pack.ID = 0;
 	}
-	THROW(SelectOutFileName(acn_pack.ID ? &acn_pack : 0, "query", ss_out_files));
+	THROW(SelectOutFileName(acn_pack.ID, "query", ss_out_files));
 	for(uint ssp = 0; ss_out_files.get(&ssp, out_file_name);) {
 		PPPosProtocol::WriteBlock wb;
 		THROW(StartWriting(out_file_name, wb));
@@ -545,7 +545,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	{
 		int   copy_result = 0;
 		StringSet ss_out_files;
-		THROW(SelectOutFileName(&cn_data, "refs", ss_out_files));
+		THROW(SelectOutFileName(nodeID, "refs", ss_out_files));
 		for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
 			if(SCopyFile(out_file_name, temp_buf, 0, FILE_SHARE_READ, 0))
 				copy_result = 1;
@@ -2013,6 +2013,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						}
 						else if(type == obQuery) {
 							QueryBlock * p_blk = (QueryBlock *)p_item;
+							p_blk->Period = period;
 							if(p_blk->Q == QueryBlock::qCSession) {
 								if(p_blk->CSess || !p_blk->Period.IsZero() || (p_blk->Flags & (QueryBlock::fCSessCurrent|QueryBlock::fCSessLast))) {
 									THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
@@ -3498,7 +3499,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			if(rPib.PosNodeID) {
 				THROW(CnObj.Search(rPib.PosNodeID, &cn_rec) > 0);
 				THROW(Helper_GetPosNodeInfo_ForInputProcessing(&cn_rec, pos_node_isymb_list, pos_node_uuid_list));
-				{
+				if(cn_rec.Flags & CASHF_ASYNC) {
 					PPAsyncCashNode acn_pack;
 					if(CnObj.GetAsync(rPib.PosNodeID, &acn_pack) > 0) {
 						if(acn_pack.ImpFiles.NotEmptyS()) {
@@ -3507,6 +3508,16 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								if(isDir(temp_buf.RmvLastSlash())) {
 									ss_paths.add(temp_buf);
 								}
+							}
+						}
+					}
+				}
+				else if(cn_rec.Flags & CASHF_SYNC) {
+					PPSyncCashNode scn_pack;
+					if(CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
+						if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
+							if(isDir(temp_buf.RmvLastSlash())) {
+								ss_paths.add(temp_buf);
 							}
 						}
 					}
@@ -3692,6 +3703,20 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							}
 							else if(r_q.Q == QueryBlock::qCSession) {
 								if(cn_id) {
+									if(!r_q.Period.IsZero()) {
+										PPViewCSess cs_view;
+										CSessFilt cs_filt;
+										cs_filt.NodeList_.Add(cn_id);
+										cs_filt.Period = r_q.Period;
+										if(cs_view.Init_(&cs_filt)) {
+											CSessViewItem cs_item;
+											for(cs_view.InitIteration(PPViewCSess::ordByDefault); cs_view.NextIteration(&cs_item) > 0;) {
+												if(!cs_item.Temporary && cs_item.Incomplete <= 10 && cs_item.ID != cn_rec.CurSessID) {
+													csess_list.add(cs_item.ID);
+												}
+											}
+										}
+									}
 									if(r_q.Flags & QueryBlock::fCSessLast) {
 										if(CsObj.P_Tbl->SearchLast(cn_id, 1010, 0, &cs_rec) > 0) {
 											csess_list.add(cs_rec.ID);
@@ -3760,7 +3785,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	return ok;
 }
 
-int SLAPI PPPosProtocol::SelectOutFileName(const PPAsyncCashNode * pPosNode, const char * pInfix, StringSet & rResultSs)
+int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 {
 	rResultSs.clear(1);
 
@@ -3770,12 +3795,33 @@ int SLAPI PPPosProtocol::SelectOutFileName(const PPAsyncCashNode * pPosNode, con
 	SString temp_result_buf;
 	SString path;
 	StringSet ss_paths(";");
-	if(pPosNode && pPosNode->ExpPaths.NotEmpty()) {
-		ss_paths.setBuf(pPosNode->ExpPaths);
-	}
-	else {
-		THROW(PPGetPath(PPPATH_OUT, temp_buf));
-		ss_paths.setBuf(temp_buf);
+	{
+		int    path_done = 0;
+		PPCashNode cn_rec;
+		if(srcPosNodeID && CnObj.Search(srcPosNodeID, &cn_rec) > 0) {
+			if(cn_rec.Flags & CASHF_ASYNC) {
+				PPAsyncCashNode acn_pack;
+				if(CnObj.GetAsync(srcPosNodeID, &acn_pack) > 0) {
+					if(acn_pack.ExpPaths.NotEmpty()) {
+						ss_paths.setBuf(acn_pack.ExpPaths);
+						path_done = 1;
+					}
+				}
+			}
+			else if(cn_rec.Flags & CASHF_SYNC) {
+				PPSyncCashNode scn_pack;
+				if(CnObj.GetSync(srcPosNodeID, &scn_pack) > 0) {
+					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+						ss_paths.setBuf(temp_buf);
+						path_done = 1;
+					}
+				}
+			}
+		}
+		if(!path_done) {
+			THROW(PPGetPath(PPPATH_OUT, temp_buf));
+			ss_paths.setBuf(temp_buf);
+		}
 	}
 	for(uint ssp = 0; ss_paths.get(&ssp, path);) {
 		path.RmvLastSlash();
@@ -3802,7 +3848,7 @@ int SLAPI PPPosProtocol::SelectOutFileName(const PPAsyncCashNode * pPosNode, con
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID posNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination)
+int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination)
 {
 	int    ok = -1;
 	SString out_file_name;
@@ -3817,7 +3863,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID posN
 			}
 			else {
 				PPPosProtocol::RouteBlock rb_src;
-				InitSrcRootInfo(0, rb_src);
+				InitSrcRootInfo(srcPosNodeID, rb_src);
 				THROW(WriteRouteInfo(wb, "source", rb_src));
 			}
 			//THROW(WriteSourceRoute(wb));
@@ -4058,7 +4104,12 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
         		PPObjCashNode cn_obj;
 				PPSyncCashNode cn_pack;
 				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
-				PPGetPath(PPPATH_IN, in_path);
+				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && isDir(temp_buf)) {
+					in_path = temp_buf;
+				}
+				else {
+					PPGetPath(PPPATH_IN, in_path);
+				}
 				in_path.RmvLastSlash();
 				if(!isDir(in_path)) {
 

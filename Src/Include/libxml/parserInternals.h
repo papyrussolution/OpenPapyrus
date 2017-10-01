@@ -297,19 +297,14 @@ XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInpu
 
 #ifdef IN_LIBXML
 /* internal error reporting */
-XMLPUBFUN void XMLCALL __xmlErrEncoding(xmlParserCtxt * ctxt,
-    xmlParserErrors xmlerr,
-    const char * msg,
-    const xmlChar * str1,
-    const xmlChar * str2);
+XMLPUBFUN void XMLCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2);
 #endif
-
 /**
  * Input Streams.
  */
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity);
-XMLPUBFUN int XMLCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInputPtr input);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
 XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlFreeInputStream(xmlParserInputPtr input);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);

@@ -38,9 +38,9 @@
 #else
 	#define XML_DIR_SEP '/'
 #endif
-#include <libxml/threads.h>
-#include <libxml/parserInternals.h>
-#include <libxml/entities.h>
+//#include <libxml/threads.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/entities.h>
 #ifdef LIBXML_CATALOG_ENABLED
 	#include <libxml/catalog.h>
 #endif
@@ -119,8 +119,7 @@ static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntityPtr 
 		if(rep) {
 			if(xmlStrchr(rep, '<'))
 				ent->checked |= 1;
-			SAlloc::F(rep);
-			rep = NULL;
+			ZFREE(rep);
 		}
 	}
 	if(replacement != 0) {
@@ -144,7 +143,6 @@ static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntityPtr 
 		 */
 		if(size < XML_PARSER_BIG_ENTITY)
 			return 0;
-
 		/*
 		 * A limit on the amount of text data reasonably used
 		 */
@@ -175,18 +173,13 @@ static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntityPtr 
 			return 0;
 	}
 	else {
-		/*
-		 * strange we got no data for checking
-		 */
-		if(((ctxt->lastError.code != XML_ERR_UNDECLARED_ENTITY) &&
-			    (ctxt->lastError.code != XML_WAR_UNDECLARED_ENTITY)) ||
-		    (ctxt->nbentities <= 10000))
+		// strange we got no data for checking
+		if(!oneof2(ctxt->lastError.code, XML_ERR_UNDECLARED_ENTITY, XML_WAR_UNDECLARED_ENTITY) || (ctxt->nbentities <= 10000))
 			return 0;
 	}
 	xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, 0);
 	return 1;
 }
-
 /**
  * xmlParserMaxDepth:
  *
@@ -356,7 +349,6 @@ static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlFatalErrMsg:
  * @ctxt:  an XML parser context
@@ -951,11 +943,11 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	 */
 	name = xmlSplitQName3(fullname, &len);
 	if(!name) {
-		name = xmlDictLookup(ctxt->dict, fullname, -1);
+		name = xmlDictLookupSL(ctxt->dict, fullname);
 		prefix = NULL;
 	}
 	else {
-		name = xmlDictLookup(ctxt->dict, name, -1);
+		name = xmlDictLookupSL(ctxt->dict, name);
 		prefix = xmlDictLookup(ctxt->dict, fullname, len);
 	}
 	/*
@@ -991,11 +983,11 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	 */
 	name = xmlSplitQName3(fullattr, &len);
 	if(!name) {
-		name = xmlDictLookup(ctxt->dict, fullattr, -1);
+		name = xmlDictLookupSL(ctxt->dict, fullattr);
 		prefix = NULL;
 	}
 	else {
-		name = xmlDictLookup(ctxt->dict, name, -1);
+		name = xmlDictLookupSL(ctxt->dict, name);
 		prefix = xmlDictLookup(ctxt->dict, fullattr, len);
 	}
 	defaults->values[5 * defaults->nbAttrs] = name;
@@ -1821,7 +1813,7 @@ xmlChar FASTCALL xmlPopInput(xmlParserCtxt * ctxt)
  *               of the previous one(s).
  * Returns -1 in case of error or the index in the input stack
  */
-int xmlPushInput(xmlParserCtxt * ctxt, xmlParserInputPtr input)
+int FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input)
 {
 	int ret;
 	if(input == NULL)
@@ -2900,8 +2892,8 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 		return 0;
 	}
 	if((*ctxt->input->cur == '\n') && (ctxt->input->cur[-1] == '\r'))
-		return(xmlDictLookup(ctxt->dict, ctxt->input->cur - (len + 1), len));
-	return(xmlDictLookup(ctxt->dict, ctxt->input->cur - len, len));
+		return xmlDictLookup(ctxt->dict, ctxt->input->cur - (len + 1), len);
+	return xmlDictLookup(ctxt->dict, ctxt->input->cur - len, len);
 }
 
 /**
@@ -6693,7 +6685,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
 				 * node with a possible previous text one which
 				 * would make ent->children a dangling pointer
 				 */
-				const xmlChar * nbktext = xmlDictLookup(ctxt->dict, BAD_CAST "nbktext", -1);
+				const xmlChar * nbktext = xmlDictLookupSL(ctxt->dict, BAD_CAST "nbktext");
 				if(ent->children->type == XML_TEXT_NODE)
 					ent->children->name = nbktext;
 				if((ent->last != ent->children) && (ent->last->type == XML_TEXT_NODE))
@@ -7804,7 +7796,7 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 				tmp = xmlBuildQName(l, p, NULL, 0);
 				SAlloc::F((char*)l);
 			}
-			p = xmlDictLookup(ctxt->dict, tmp, -1);
+			p = xmlDictLookupSL(ctxt->dict, tmp);
 			SAlloc::F(tmp);
 			*prefix = NULL;
 			return(p);
@@ -7816,13 +7808,13 @@ static const xmlChar * FASTCALL xmlParseQName(xmlParserCtxt * ctxt, const xmlCha
 			tmp = (xmlChar*)xmlParseName(ctxt);
 			if(tmp) {
 				tmp = xmlBuildQName(tmp, l, NULL, 0);
-				l = xmlDictLookup(ctxt->dict, tmp, -1);
+				l = xmlDictLookupSL(ctxt->dict, tmp);
 				SAlloc::F(tmp);
 				*prefix = p;
 				return l;
 			}
 			tmp = xmlBuildQName(BAD_CAST "", l, NULL, 0);
-			l = xmlDictLookup(ctxt->dict, tmp, -1);
+			l = xmlDictLookupSL(ctxt->dict, tmp);
 			SAlloc::F(tmp);
 			*prefix = p;
 			return l;
@@ -9218,7 +9210,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 		 * UTF-16 encoding stwich has already taken place at this stage,
 		 * more over the little-endian/big-endian selection is already done
 		 */
-		if(encoding && ((!xmlStrcasecmp(encoding, BAD_CAST "UTF-16")) || (!xmlStrcasecmp(encoding, BAD_CAST "UTF16")))) {
+		if(encoding && (sstreqi_ascii(encoding, BAD_CAST "UTF-16") || sstreqi_ascii(encoding, BAD_CAST "UTF16"))) {
 			/*
 			 * If no encoding was passed to the parser, that we are
 			 * using UTF-16 and no decoder is present i.e. the
@@ -9234,12 +9226,12 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 		/*
 		 * UTF-8 encoding is handled natively
 		 */
-		else if(encoding && ((!xmlStrcasecmp(encoding, BAD_CAST "UTF-8")) || (!xmlStrcasecmp(encoding, BAD_CAST "UTF8")))) {
+		else if(encoding && (sstreqi_ascii(encoding, BAD_CAST "UTF-8") || sstreqi_ascii(encoding, BAD_CAST "UTF8"))) {
 			SAlloc::F((xmlChar*)ctxt->encoding);
 			ctxt->encoding = encoding;
 		}
 		else if(encoding) {
-			xmlCharEncodingHandlerPtr handler;
+			xmlCharEncodingHandler * handler;
 			SAlloc::F((xmlChar*)ctxt->input->encoding);
 			ctxt->input->encoding = encoding;
 			handler = xmlFindCharEncodingHandler((const char*)encoding);
@@ -12154,10 +12146,10 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * node, const char * data, int dat
 		while(cur && (cur->type == XML_ELEMENT_NODE)) {
 			xmlNs * ns = cur->nsDef;
 			const xmlChar * iprefix, * ihref;
-			while(ns != NULL) {
+			while(ns) {
 				if(ctxt->dict) {
-					iprefix = xmlDictLookup(ctxt->dict, ns->prefix, -1);
-					ihref = xmlDictLookup(ctxt->dict, ns->href, -1);
+					iprefix = xmlDictLookupSL(ctxt->dict, ns->prefix);
+					ihref = xmlDictLookupSL(ctxt->dict, ns->href);
 				}
 				else {
 					iprefix = ns->prefix;
@@ -13072,7 +13064,7 @@ void xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func)
 ************************************************************************/
 
 #ifdef LIBXML_XPATH_ENABLED
-	#include <libxml/xpath.h>
+	//#include <libxml/xpath.h>
 #endif
 
 extern void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx, const char * msg, ...);

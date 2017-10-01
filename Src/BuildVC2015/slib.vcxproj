@@ -325,6 +325,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <OpenMPSupport>false</OpenMPSupport>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -376,6 +377,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -1180,6 +1182,7 @@
     <ClCompile Include="..\SLib\str2date.cpp" />
     <ClCompile Include="..\SLib\Strset.cpp" />
     <ClCompile Include="..\SLib\Stype.cpp" />
+    <ClCompile Include="..\SLib\suc.cpp" />
     <ClCompile Include="..\SLib\sunit.cpp" />
     <ClCompile Include="..\SLib\sxml.cpp" />
     <ClCompile Include="..\SLib\s_crc32.cpp" />

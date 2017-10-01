@@ -4243,7 +4243,7 @@ public:
 		PPID   ReceiverPersonID;
 		PPID   ProviderPersonID;
 		LDATETIME CurDtm; // Текущее время. Так как дебильные форматы NALOG.RU требуют текущие время и дату в самых разных
-			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для 
+			// и неожиданных местах в целях избежания противоречивости сформируем один раз это значение для
 			// исопльзования везде.
 		SString FormatPrefix;
 
@@ -4351,11 +4351,11 @@ int SLAPI Generator_DocNalogRu::CreateHeaderInfo(const char * pFormatPrefix, PPI
 	if(rInfo.SenderPersonID) {
 		if(PsnObj.Search(rInfo.SenderPersonID, &psn_rec) > 0)
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.SenderPersonID, PPTAG_PERSON_ENALOGID, rInfo.SenderIdent);
-		else 
+		else
 			rInfo.SenderPersonID = 0;
 	}
 	if(rInfo.ReceiverPersonID) {
-		if(PsnObj.Search(rInfo.ReceiverPersonID, &psn_rec) > 0) 
+		if(PsnObj.Search(rInfo.ReceiverPersonID, &psn_rec) > 0)
 			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.ReceiverPersonID, PPTAG_PERSON_ENALOGID, rInfo.ReceiverIdent);
 		else
 			rInfo.ReceiverPersonID = 0;
@@ -4787,7 +4787,9 @@ int SLAPI Generator_DocNalogRu::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 			}
 			else {
 				SXml::WNode n_p(P_X, "СвЮЛУч");
-				n_p.PutAttrib(GetToken(PPHSC_RU_NAMEOFORG), EncText(psn_pack.Rec.Name));
+				if(psn_pack.GetExtName(temp_buf) <= 0)
+					temp_buf = psn_pack.Rec.Name;
+				n_p.PutAttrib(GetToken(PPHSC_RU_NAMEOFORG), EncText(temp_buf));
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNJUR), inn);
 				n_p.PutAttribSkipEmpty(GetToken(PPHSC_RU_KPP), kpp);
 			}
@@ -5070,8 +5072,8 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
 						}
 					}
 				}
-				g.WriteOrgInfo("СвПрод", shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
-				g.WriteOrgInfo("СвПокуп", buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
 			}
 			g.WriteInvoiceItems(rBp);
 			g.Underwriter(0);
@@ -5084,7 +5086,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, SString & rFileName)
 //
 // Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
 //
-int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName) 
+int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 {
 	int    ok = 1;
 	Generator_DocNalogRu g;
@@ -5114,15 +5116,15 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 			// СЧФДОП - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость, и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг);
 			// ДОП - документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг).
 			// Под отгрузкой товаров понимается в том числе  передача (поставка, отпуск) товара (груза)
-			d.N.PutAttrib("Функция", "ДОП");
+			d.N.PutAttrib(g.GetToken(PPHSC_RU_FUNCTION), "ДОП");
 			// Наименование документа по факту хозяйственной жизни
 			// При Функция=СЧФ не формируется.
 			// При Функция=СЧФДОП или Функция=ДОП ПоФактХЖ=Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
 			PPLoadText(PPTXT_NALOGRU_SHIPPINGBILL, temp_buf);
-			d.N.PutAttribSkipEmpty("ПоФактХЖ", g.EncText(temp_buf)); 
+			d.N.PutAttribSkipEmpty("ПоФактХЖ", g.EncText(temp_buf));
 			// Наименование первичного документа, определенное организацией (согласованное сторонами сделки)
-			// При Функция=СЧФ не формируется. 
-			// При Функция=СЧФДОП принимает значение «Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)». 
+			// При Функция=СЧФ не формируется.
+			// При Функция=СЧФДОП принимает значение «Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)».
 			// При Функция=ДОП самостоятельно установленное наименование документа или «Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (Документ об оказании услуг)» (по умолчанию)
 			temp_buf = op_rec.Name;
 			d.N.PutAttribSkipEmpty("НаимДокОпр", g.EncText(temp_buf));
@@ -5188,8 +5190,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 						}
 					}
 				}
-				g.WriteOrgInfo("СвПрод", shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
-				g.WriteOrgInfo("СвПокуп", buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
 				{
 					SXml::WNode n(g.P_X, "ДопСвФХЖ1");
 					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
@@ -5204,7 +5206,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 						n_1.PutAttrib("Значен", "none");
 					}
 				}
-			}	
+			}
 			g.WriteInvoiceItems(rBp);
 			{
 				SXml::WNode n(g.P_X, "СвПродПер");

@@ -27,10 +27,10 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-#include <libxml/parserInternals.h>
-#include <libxml/entities.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/entities.h>
 //#include <libxml/dict.h>
-#include <libxml/SAX.h>
+//#include <libxml/SAX.h>
 #ifdef LIBXML_CATALOG_ENABLED
 	#include <libxml/catalog.h>
 #endif
@@ -823,7 +823,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
  */
 int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 {
-	xmlCharEncodingHandlerPtr handler;
+	xmlCharEncodingHandler * handler;
 	int len = -1;
 	if(!ctxt) 
 		return -1;
@@ -1564,7 +1564,7 @@ void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 		SAlloc::F((char*)ctxt->extSubURI);
 		SAlloc::F((char*)ctxt->extSubSystem);
 	#ifdef LIBXML_SAX1_ENABLED
-		if(ctxt->sax && (ctxt->sax != (xmlSAXHandlerPtr) &xmlDefaultSAXHandler))
+		if(ctxt->sax && (ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler))
 	#else
 		if(ctxt->sax)
 	#endif /* LIBXML_SAX1_ENABLED */

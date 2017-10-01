@@ -1162,7 +1162,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
  */
 static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 {
-	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
+	if(!ctx || !cur || cur->type != XML_ELEMENT_NODE) {
 		xmlC14NErrParam("checking for relative namespaces");
 		return -1;
 	}
@@ -1179,7 +1179,7 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 					xmlFreeURI(uri);
 					return -1;
 				}
-				else if((xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "urn") != 0) && (xmlStrcasecmp((const xmlChar*)uri->scheme, BAD_CAST "dav") !=0) && !sstrlen(uri->server)) {
+				else if(!sstreqi_ascii(uri->scheme, "urn") && !sstreqi_ascii(uri->scheme, "dav") && !sstrlen(uri->server)) {
 					xmlC14NErrRelativeNamespace(uri->scheme);
 					xmlFreeURI(uri);
 					return -1;

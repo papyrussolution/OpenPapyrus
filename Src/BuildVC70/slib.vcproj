@@ -1093,6 +1093,9 @@
 				RelativePath="..\SLib\Stype.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\suc.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\sunit.cpp">
 			</File>
 			<File

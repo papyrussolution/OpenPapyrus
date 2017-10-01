@@ -16,12 +16,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
- * Those are the functions and datatypes for the parser input
- * I/O structures.
+ * Those are the functions and datatypes for the parser input I/O structures.
  */
-
 /**
  * xmlInputMatchCallback:
  * @filename: the filename or URI
@@ -121,26 +118,26 @@ typedef int (XMLCALL *xmlOutputCloseCallback) (void * context);
 #ifdef __cplusplus
 extern "C" {
 #endif
-struct _xmlParserInputBuffer {
+struct xmlParserInputBuffer {
     void * context;
     xmlInputReadCallback  readcallback;
     xmlInputCloseCallback closecallback;
     xmlCharEncodingHandlerPtr encoder; // I18N conversions to UTF-8
-    xmlBufPtr buffer;  // Local buffer encoded in UTF-8
-    xmlBufPtr raw;     // if encoder != NULL buffer for raw input
+    xmlBuf * buffer;  // Local buffer encoded in UTF-8
+    xmlBuf * raw;     // if encoder != NULL buffer for raw input
     int    compressed; // -1=unknown, 0=not compressed, 1=compressed
     int    error;
-    unsigned long rawconsumed; // amount consumed from raw
+    ulong  rawconsumed; // amount consumed from raw
 };
 
 #ifdef LIBXML_OUTPUT_ENABLED
-struct _xmlOutputBuffer {
+struct xmlOutputBuffer {
     void * context;
     xmlOutputWriteCallback writecallback;
     xmlOutputCloseCallback closecallback;
     xmlCharEncodingHandlerPtr encoder; // I18N conversions to UTF-8
-    xmlBufPtr buffer; // Local buffer encoded in UTF-8 or ISOLatin
-    xmlBufPtr conv;   // if encoder != NULL buffer for output
+    xmlBuf * buffer; // Local buffer encoded in UTF-8 or ISOLatin
+    xmlBuf * conv;   // if encoder != NULL buffer for output
     int    written;   // total number of byte written
     int    error;
 };
@@ -183,7 +180,7 @@ XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateIO(xmlOutputWriteCallb
 /* Couple of APIs to get the output without digging into the buffers */
 XMLPUBFUN const xmlChar * XMLCALL xmlOutputBufferGetContent(xmlOutputBufferPtr out);
 XMLPUBFUN size_t XMLCALL xmlOutputBufferGetSize(xmlOutputBufferPtr out);
-XMLPUBFUN int XMLCALL xmlOutputBufferWrite(xmlOutputBufferPtr out, int len, const char *buf);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char *buf);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char *str);
 XMLPUBFUN int XMLCALL xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar *str, xmlCharEncodingOutputFunc escaping);
 XMLPUBFUN int XMLCALL xmlOutputBufferFlush(xmlOutputBufferPtr out);

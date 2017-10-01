@@ -18,7 +18,7 @@
 #pragma hdrstop
 
 #ifdef LIBXML_SCHEMAS_ENABLED
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemastypes.h>
 #include <libxml/xmlautomata.h>

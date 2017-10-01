@@ -17,8 +17,8 @@
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
-#include <libxml/SAX.h>
-#include <libxml/SAX2.h>
+//#include <libxml/SAX.h>
+//#include <libxml/SAX2.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/encoding.h>
 
@@ -155,7 +155,7 @@ struct _xmlGlobalState {
 #ifdef __cplusplus
 }
 #endif
-#include <libxml/threads.h>
+//#include <libxml/threads.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

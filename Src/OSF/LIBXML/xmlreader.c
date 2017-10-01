@@ -20,7 +20,7 @@
 
 #ifdef LIBXML_READER_ENABLED
 #include <libxml/xmlreader.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 	#include <libxml/relaxng.h>
 	#include <libxml/xmlschemas.h>
@@ -179,7 +179,7 @@ struct _xmlTextReader {
  *
  * Macro used to return an interned string
  */
-#define CONSTSTR(str) xmlDictLookup(reader->dict, (str), -1)
+#define CONSTSTR(str) xmlDictLookupSL(reader->dict, (str))
 #define CONSTQSTR(p, str) xmlDictQLookup(reader->dict, (p), (str))
 
 static int xmlTextReaderReadTree(xmlTextReaderPtr reader);
@@ -4550,7 +4550,7 @@ else {
 	reader->xincctxt = NULL;
 	if(options & XML_PARSE_XINCLUDE) {
 		reader->xinclude = 1;
-		reader->xinclude_name = xmlDictLookup(reader->dict, XINCLUDE_NODE, -1);
+		reader->xinclude_name = xmlDictLookupSL(reader->dict, XINCLUDE_NODE);
 		options -= XML_PARSE_XINCLUDE;
 	}
 	else

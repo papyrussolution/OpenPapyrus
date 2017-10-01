@@ -4,7 +4,6 @@
            xmlns:ns="http://fsrar.ru/WEGAIS/CommonEnum"
            xmlns:c="http://fsrar.ru/WEGAIS/Common"
            targetNamespace="http://fsrar.ru/WEGAIS/CommonEnum"
-
 >
   <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
 
@@ -796,6 +795,11 @@
           <xs:documentation>Розничная реализация продукции, не подлежащей фиксации в ЕГАИС</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
+      <xs:enumeration value="Производственные потери">
+        <xs:annotation>
+          <xs:documentation>Списание продукции при производственных потерях</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
 
@@ -829,8 +833,12 @@
           <xs:documentation>Продукция, полученная до 01.01.2016</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
+      <xs:enumeration value="Производство_Сливы">
+        <xs:annotation>
+          <xs:documentation>Собственное производство/сливы продукции</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
-
 
 </xs:schema>

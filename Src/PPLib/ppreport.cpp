@@ -2025,10 +2025,10 @@ class SvdtStrDialog : public TDialog {
 public:
 	SvdtStrDialog(uint dlgID) : TDialog(dlgID)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH,
-			FBB_GROUP1, PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH,
-			FBB_GROUP2, 0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, FBB_GROUP1, 
+			PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, FBB_GROUP2, 
+			0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
 	}
 	int   setDTS(const SvdtStrDlgAns *);
 	int   getDTS(SvdtStrDlgAns *);

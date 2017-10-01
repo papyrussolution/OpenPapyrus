@@ -247,7 +247,7 @@ int FASTCALL xmlBufGetAllocationScheme(xmlBuf * buf)
  *
  * returns 0 in case of success and -1 in case of failure
  */
-int xmlBufSetAllocationScheme(xmlBufPtr buf, xmlBufferAllocationScheme scheme)
+int FASTCALL xmlBufSetAllocationScheme(xmlBuf * buf, xmlBufferAllocationScheme scheme)
 {
 	if(!buf || buf->error) {
 #ifdef DEBUG_BUFFER
@@ -846,12 +846,12 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 		len = sstrlen(str);
 	if(len <= 0)
 		return -1;
-	if((buf->alloc == XML_BUFFER_ALLOC_IO) && (buf->contentIO != NULL)) {
+	if((buf->alloc == XML_BUFFER_ALLOC_IO) && buf->contentIO) {
 		size_t start_buf = buf->content - buf->contentIO;
 		if(start_buf > (uint)len) {
-			/*
-			 * We can add it in the space previously shrinked
-			 */
+			// 
+			// We can add it in the space previously shrinked
+			// 
 			buf->content -= len;
 			memmove(&buf->content[0], str, len);
 			buf->use += len;

@@ -358,13 +358,13 @@ TYPEID IsSTypeName(SStrScan & rScan)
 			if(text.CmpPrefix(temp_buf, 1) == 0) {
 				char next2 = text[temp_buf.Len()];
 				if(!isalnum(next2) && next2 != '_') {
-					rScan.Len = temp_buf.Len();
+					rScan.SetLen(temp_buf.Len());
 					return TypeNameList[i].Typ;
 				}
 			}
 		}
 	}
-	rScan.Len = 0;
+	rScan.SetLen(0);
 	return 0;
 }
 //

@@ -17,20 +17,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/**
- * xmlChar:
- *
- * This is a basic byte in an UTF-8 encoded string.
- * It's unsigned allowing to pinpoint case where char * are assigned
- * to xmlChar * (possibly making serialization back impossible).
- */
-typedef uchar xmlChar;
-/**
- * BAD_CAST:
- *
- * Macro to cast a string to an xmlChar * when one know its safe.
- */
-#define BAD_CAST (xmlChar*)
 /*
  * xmlChar handling
  */
@@ -39,8 +25,8 @@ XMLPUBFUN xmlChar * XMLCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
 XMLPUBFUN xmlChar * XMLCALL xmlCharStrndup(const char * cur, int len);
 XMLPUBFUN xmlChar * XMLCALL xmlCharStrdup(const char * cur);
 XMLPUBFUN xmlChar * XMLCALL xmlStrsub(const xmlChar * str, int start, int len);
-XMLPUBFUN const xmlChar * XMLCALL xmlStrchr(const xmlChar * str, xmlChar val);
-XMLPUBFUN const xmlChar * XMLCALL xmlStrstr(const xmlChar * str, const xmlChar * val);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrchr(const xmlChar * str, xmlChar val);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val);
 XMLPUBFUN const xmlChar * XMLCALL xmlStrcasestr(const xmlChar * str, const xmlChar * val);
 XMLPUBFUN int XMLCALL xmlStrcmp(const xmlChar * str1, const xmlChar * str2);
 XMLPUBFUN int XMLCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len);
@@ -61,7 +47,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strndup(const xmlChar * utf, int len);
 XMLPUBFUN const xmlChar * XMLCALL xmlUTF8Strpos(const xmlChar * utf, int pos);
 XMLPUBFUN int XMLCALL xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar);
 XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strsub(const xmlChar * utf, int start, int len);
-XMLPUBFUN int XMLCALL xmlUTF8Strlen(const xmlChar * utf);
+XMLPUBFUN int /*XMLCALL*/FASTCALL  xmlUTF8Strlen(const xmlChar * utf);
 XMLPUBFUN int XMLCALL xmlUTF8Size(const xmlChar * utf);
 XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2);
 

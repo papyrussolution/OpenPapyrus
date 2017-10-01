@@ -85,13 +85,13 @@ XMLPUBFUN int XMLCALL xmlTextWriterWriteFormatRaw(xmlTextWriter * writer, const 
 LIBXML_ATTR_FORMAT(2, 3);
 XMLPUBFUN int XMLCALL xmlTextWriterWriteVFormatRaw(xmlTextWriter * writer, const char * format, va_list argptr)
 LIBXML_ATTR_FORMAT(2, 0);
-XMLPUBFUN int XMLCALL xmlTextWriterWriteRawLen(xmlTextWriter * writer, const xmlChar * content, int len);
-XMLPUBFUN int XMLCALL xmlTextWriterWriteRaw(xmlTextWriter * writer, const xmlChar * content);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterWriteRawLen(xmlTextWriter * writer, const xmlChar * content, int len);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterWriteRaw(xmlTextWriter * writer, const xmlChar * content);
 XMLPUBFUN int XMLCALL xmlTextWriterWriteFormatString(xmlTextWriter * writer, const char * format, ...)
 LIBXML_ATTR_FORMAT(2, 3);
 XMLPUBFUN int XMLCALL xmlTextWriterWriteVFormatString(xmlTextWriter * writer, const char * format, va_list argptr)
 LIBXML_ATTR_FORMAT(2, 0);
-XMLPUBFUN int XMLCALL xmlTextWriterWriteString(xmlTextWriter * writer, const xmlChar * content);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterWriteString(xmlTextWriter * writer, const xmlChar * content);
 XMLPUBFUN int XMLCALL xmlTextWriterWriteBase64(xmlTextWriter * writer, const char * data, int start, int len);
 XMLPUBFUN int XMLCALL xmlTextWriterWriteBinHex(xmlTextWriter * writer, const char * data, int start, int len);
 /*

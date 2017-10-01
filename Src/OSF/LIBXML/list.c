@@ -148,13 +148,9 @@ static xmlLinkPtr xmlListLinkReverseSearch(xmlListPtr l, void * data)
 	lk = xmlListHigherSearch(l, data);
 	if(lk == l->sentinel)
 		return NULL;
-	else {
-		if(l->linkCompare(lk->data, data) ==0)
-			return lk;
-		return NULL;
-	}
+	else
+		return (l->linkCompare(lk->data, data) == 0) ? lk : NULL;
 }
-
 /**
  * xmlListCreate:
  * @deallocator:  an optional deallocator function
@@ -295,7 +291,7 @@ int xmlListAppend(xmlListPtr pList, void * data)
  *
  * Deletes the list and its associated data
  */
-void xmlListDelete(xmlListPtr pList)
+void FASTCALL xmlListDelete(xmlList * pList)
 {
 	if(pList) {
 		xmlListClear(pList);
@@ -303,7 +299,6 @@ void xmlListDelete(xmlListPtr pList)
 		SAlloc::F(pList);
 	}
 }
-
 /**
  * xmlListRemoveFirst:
  * @l:  a list
@@ -336,16 +331,18 @@ int xmlListRemoveFirst(xmlListPtr pList, void * data)
  */
 int xmlListRemoveLast(xmlListPtr l, void * data)
 {
-	xmlLink * lk;
 	if(l == NULL)
 		return 0;
-	/*Find the last instance of this data */
-	lk = xmlListLinkReverseSearch(l, data);
-	if(lk != NULL) {
-		xmlLinkDeallocator(l, lk);
-		return 1;
+	else {
+		// Find the last instance of this data 
+		xmlLink * lk = xmlListLinkReverseSearch(l, data);
+		if(lk) {
+			xmlLinkDeallocator(l, lk);
+			return 1;
+		}
+		else
+			return 0;
 	}
-	return 0;
 }
 /**
  * xmlListRemoveAll:
@@ -371,18 +368,17 @@ int xmlListRemoveAll(xmlListPtr l, void * data)
  *
  * Remove the all data in the list
  */
-void xmlListClear(xmlListPtr pList)
+void FASTCALL xmlListClear(xmlList * pList)
 {
 	if(pList) {
-		xmlLinkPtr lk = pList->sentinel->next;
+		xmlLink * lk = pList->sentinel->next;
 		while(lk != pList->sentinel) {
-			xmlLinkPtr next = lk->next;
+			xmlLink * next = lk->next;
 			xmlLinkDeallocator(pList, lk);
 			lk = next;
 		}
 	}
 }
-
 /**
  * xmlListEmpty:
  * @l:  a list
@@ -395,7 +391,6 @@ int FASTCALL xmlListEmpty(xmlListPtr l)
 {
 	return l ? (l->sentinel->next == l->sentinel) : -1;
 }
-
 /**
  * xmlListFront:
  * @l:  a list
@@ -404,11 +399,10 @@ int FASTCALL xmlListEmpty(xmlListPtr l)
  *
  * Returns the first element in the list, or NULL
  */
-xmlLinkPtr xmlListFront(xmlListPtr l)
+xmlLink * FASTCALL xmlListFront(xmlList * l)
 {
 	return l ? l->sentinel->next : 0;
 }
-
 /**
  * xmlListEnd:
  * @l:  a list
@@ -421,7 +415,6 @@ xmlLinkPtr xmlListEnd(xmlListPtr l)
 {
 	return l ? l->sentinel->prev : 0;
 }
-
 /**
  * xmlListSize:
  * @l:  a list
@@ -446,12 +439,11 @@ int xmlListSize(xmlListPtr l)
  *
  * Removes the first element in the list
  */
-void xmlListPopFront(xmlListPtr l)
+void FASTCALL xmlListPopFront(xmlList * l)
 {
 	if(!xmlListEmpty(l))
 		xmlLinkDeallocator(l, l->sentinel->next);
 }
-
 /**
  * xmlListPopBack:
  * @l:  a list
@@ -472,13 +464,14 @@ void xmlListPopBack(xmlListPtr l)
  *
  * Returns 1 if successful, 0 otherwise
  */
-int xmlListPushFront(xmlListPtr l, void * data)
+int FASTCALL xmlListPushFront(xmlList * l, void * data)
 {
-	xmlLinkPtr lkPlace, lkNew;
+	xmlLink * lkPlace;
+	xmlLink * lkNew;
 	if(l == NULL)
 		return 0;
 	lkPlace = l->sentinel;
-	/* Add the new link */
+	// Add the new link 
 	lkNew = (xmlLinkPtr)SAlloc::M(sizeof(xmlLink));
 	if(lkNew == NULL) {
 		xmlGenericError(0, "Cannot initialize memory for new link");
@@ -527,7 +520,7 @@ int xmlListPushBack(xmlListPtr l, void * data)
  *
  * Returns a pointer to the data referenced from this link
  */
-void * xmlLinkGetData(xmlLinkPtr lk)
+void * FASTCALL xmlLinkGetData(xmlLink * lk)
 {
 	return lk ? lk->data : 0;
 }
@@ -570,7 +563,7 @@ void xmlListSort(xmlListPtr l)
 	 * would be based on a list copy followed by a clear followed by
 	 * an insert. This is slow...
 	 */
-	if(NULL ==(lTemp = xmlListDup(l)))
+	if(NULL == (lTemp = xmlListDup(l)))
 		return;
 	xmlListClear(l);
 	xmlListMerge(l, lTemp);
@@ -588,15 +581,13 @@ void xmlListSort(xmlListPtr l)
  */
 void xmlListWalk(xmlListPtr l, xmlListWalker walker, const void * user)
 {
-	xmlLink * lk;
-	if((l == NULL) || (walker == NULL))
-		return;
-	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
-		if((walker(lk->data, user)) == 0)
-			break;
+	if(l && walker) {
+		for(xmlLink * lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
+			if((walker(lk->data, user)) == 0)
+				break;
+		}
 	}
 }
-
 /**
  * xmlListReverseWalk:
  * @l:  a list
@@ -608,12 +599,11 @@ void xmlListWalk(xmlListPtr l, xmlListWalker walker, const void * user)
  */
 void xmlListReverseWalk(xmlListPtr l, xmlListWalker walker, const void * user)
 {
-	xmlLink * lk;
-	if((l == NULL) || (walker == NULL))
-		return;
-	for(lk = l->sentinel->prev; lk != l->sentinel; lk = lk->prev) {
-		if((walker(lk->data, user)) == 0)
-			break;
+	if(l && walker) {
+		for(xmlLink * lk = l->sentinel->prev; lk != l->sentinel; lk = lk->prev) {
+			if((walker(lk->data, user)) == 0)
+				break;
+		}
 	}
 }
 /**

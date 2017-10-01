@@ -1101,14 +1101,91 @@ SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
 	return rBuf.SetLastSlash().Cat("SYNCQUE").SetLastSlash();
 }
 
+int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSArray <ObjSyncQueueTbl::Rec> & rList, int use_ta)
+{
+	int    ok = 1;
+	SString msg_buf;
+	SString fmt_buf;
+	SString err_msg;
+	SString obj_buf;
+	SString wait_fmt_buf;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		PPLoadText(PPTXT_DBDE_SYNCQSETOBJECT, wait_fmt_buf);
+		for(uint i = 0; i < rList.getCount(); i++) {
+			ObjSyncQueueTbl::Rec idx_rec = rList.at(i);
+			ObjSyncQueueTbl::Rec ex_rec;
+			PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(idx_rec.ObjName));
+			int    r = P_Queue->SearchObject_(idx_rec.ObjType, idx_rec.ObjID, rHdr.DBID, &ex_rec);
+			THROW(r);
+			idx_rec.FileId = sysFileId;
+			if(r > 0) {
+				LDATETIME dtm_idx, dtm_ex;
+				dtm_idx.Set(idx_rec.ModDt, idx_rec.ModTm);
+				dtm_ex.Set(ex_rec.ModDt, ex_rec.ModTm);
+				if(ex_rec.Priority > idx_rec.Priority || (ex_rec.Priority == idx_rec.Priority && cmp(dtm_ex, dtm_idx) < 0)) {
+					ex_rec.CommIdPfx = idx_rec.CommIdPfx;
+					ex_rec.CommID    = idx_rec.CommID;
+					ex_rec.Flags     = idx_rec.Flags;
+					ex_rec.ModDt     = idx_rec.ModDt;
+					ex_rec.ModTm     = idx_rec.ModTm;
+					ex_rec.Priority  = idx_rec.Priority;
+					ex_rec.FileId    = idx_rec.FileId;
+					ex_rec.FilePos   = idx_rec.FilePos;
+					STRNSCPY(ex_rec.ObjName, idx_rec.ObjName);
+					PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("UPD").CatDiv(':', 2).Cat(idx_rec.ObjName));
+					{
+						int   ur = P_Queue->rereadForUpdate(1, 0); // @v9.8.3 ! idx=1 - because call P_Queue->SearchObject_ uses index = 1
+						if(ur)
+							ur = P_Queue->updateRecBuf(&ex_rec);
+						if(!ur) {
+							PPLoadText(PPTXT_LOG_ERRMODSYNCQUEUE, fmt_buf);
+							GetObjectTitle(ex_rec.ObjType, err_msg);
+							obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
+							PPGetLastErrorMessage(1, err_msg);
+							Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
+							PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+				}
+				else {
+					// Оставляет существующую запись
+					PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("SKIP").CatDiv(':', 2).Cat(idx_rec.ObjName));
+				}
+			}
+			else {
+				idx_rec.ID = 0;
+				PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("ADD").CatDiv(':', 2).Cat(idx_rec.ObjName));
+				if(!P_Queue->insertRecBuf(&idx_rec)) {
+					PPLoadText(PPTXT_LOG_ERRINSSYNCQUEUE, fmt_buf);
+					GetObjectTitle(idx_rec.ObjType, err_msg);
+					obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
+					PPGetLastErrorMessage(1, err_msg);
+					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
+					PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const char * pInFileName, FILE * pInStream, int use_ta)
 {
 	int    ok = 1;
 	PPObjID objid;
-	SString sys_file_name, fmt_buf, msg_buf, obj_buf, err_msg;
+	SString sys_file_name;
+	SString fmt_buf;
+	SString msg_buf;
+	//SString obj_buf;
+	SString err_msg;
 	SString wait_fmt_buf;
 	long   sys_file_id = 0;
-	ObjSyncQueueTbl::Rec idx_rec, ex_rec;
+	ObjSyncQueueTbl::Rec idx_rec;
+	//ObjSyncQueueTbl::Rec ex_rec;
 	//
 	// Заносим все объекты, которые надлежит акцептировать в общую очередь приема P_Queue
 	//
@@ -1124,98 +1201,67 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 		ok = -1;
 	}
 	else {
-		PPTransaction tra(use_ta);
-		THROW(tra);
+		const uint max_idx_recs_per_ta = 512;
+		//
+		// @v9.8.3 Алгортим реорганизован с целью сократить размер транзакций. 
+		// Выяснилось, что на этой фазе иногда надолго зависают задачи сервера.
+		// Теперь функция P_Queue->AddFileRecord вызывается в рамках собственной транзакции,
+		// а вся очередь объектов на прием формируется отрезками по max_idx_recs_per_ta записей.
+		//
+		// @v9.8.3 PPTransaction tra(use_ta);
+		// @v9.8.3 THROW(tra);
 		{
-			//
-			// Создаем копию файла в подкаталоге SYNCQUE каталога базы данных
-			// и заносим ссылку на этот файл в таблицу P_Queue
-			//
-			SFile sys_file;
-			size_t bytes_read = 0;
-			STempBuffer temp_buf(4096);
-			SString sys_file_path;
-			THROW_SL(::createDir(GetQueueFilePath(sys_file_path)));
-			THROW_SL(MakeTempFileName(sys_file_path, 0, 0, 0, sys_file_name));
-			THROW_SL(sys_file.Open(sys_file_name, SFile::mWrite | SFile::mBinary));
-			fseek(pInStream, 0L, SEEK_SET);
-			while((bytes_read = fread(temp_buf, 1, temp_buf.GetSize(), pInStream)) > 0) {
-				THROW_SL(sys_file.Write(temp_buf, bytes_read));
-			}
-			// @todo проверить CRC на копию файла
-			//
-			// Формируем запись о файле в таблице P_Queue
-			//
+			ObjSyncQueueCore::FileInfo fi;
 			{
-				PPLoadText(PPTXT_DBDE_SYNCQSETFILE, wait_fmt_buf);
-				PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(pInFileName)); // @v8.5.5
-
-				ObjSyncQueueCore::FileInfo fi;
+				//
+				// Создаем копию файла в подкаталоге SYNCQUE каталога базы данных
+				// и заносим ссылку на этот файл в таблицу P_Queue
+				//
+				SFile sys_file;
+				size_t bytes_read = 0;
+				STempBuffer temp_buf(4096);
+				SString sys_file_path;
+				THROW_SL(::createDir(GetQueueFilePath(sys_file_path)));
+				THROW_SL(MakeTempFileName(sys_file_path, 0, 0, 0, sys_file_name));
+				THROW_SL(sys_file.Open(sys_file_name, SFile::mWrite | SFile::mBinary));
+				fseek(pInStream, 0L, SEEK_SET);
+				while((bytes_read = fread(temp_buf, 1, temp_buf.GetSize(), pInStream)) > 0) {
+					THROW_SL(sys_file.Write(temp_buf, bytes_read));
+				}
+				// @todo проверить CRC на копию файла
+				//
+				// Формируем запись о файле для таблицы P_Queue
+				//
 				fi.InnerFileName = sys_file_name;
 				fi.OrgFileName = pInFileName;
 				fi.Ver   = rHdr.SwVer;
 				fi.Flags = rHdr.Flags;
 				sys_file.GetDateTime(0, 0, &fi.Mod);
 				sys_file.Close();
-				if(!P_Queue->AddFileRecord(&sys_file_id, fi, 0)) {
-					PPLoadText(PPTXT_LOG_ERRINSFILESYNCQUEUE, fmt_buf);
-					PPGetLastErrorMessage(1, err_msg);
-					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, err_msg.cptr()));
-					CALLEXCEPT();
-				}
+			}
+			PPLoadText(PPTXT_DBDE_SYNCQSETFILE, wait_fmt_buf);
+			PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(pInFileName)); // @v8.5.5
+			if(!P_Queue->AddFileRecord(&sys_file_id, fi, use_ta)) { // @v9.8.3 use_ta: 0-->use_ta
+				PPLoadText(PPTXT_LOG_ERRINSFILESYNCQUEUE, fmt_buf);
+				PPGetLastErrorMessage(1, err_msg);
+				Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, err_msg.cptr()));
+				CALLEXCEPT();
 			}
 		}
-		PPLoadText(PPTXT_DBDE_SYNCQSETOBJECT, wait_fmt_buf);
-		for(objid.Set(0, 0); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
-			PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(idx_rec.ObjName)); // @v8.5.5
-			int    r = P_Queue->SearchObject_(idx_rec.ObjType, idx_rec.ObjID, rHdr.DBID, &ex_rec);
-			THROW(r);
-			idx_rec.FileId = sys_file_id;
-			if(r > 0) {
-				LDATETIME dtm_idx, dtm_ex;
-				dtm_idx.Set(idx_rec.ModDt, idx_rec.ModTm);
-				dtm_ex.Set(ex_rec.ModDt, ex_rec.ModTm);
-				if(ex_rec.Priority > idx_rec.Priority || (ex_rec.Priority == idx_rec.Priority && cmp(dtm_ex, dtm_idx) < 0)) {
-					ex_rec.CommIdPfx = idx_rec.CommIdPfx;
-					ex_rec.CommID    = idx_rec.CommID;
-					ex_rec.Flags     = idx_rec.Flags;
-					ex_rec.ModDt     = idx_rec.ModDt;
-					ex_rec.ModTm     = idx_rec.ModTm;
-					ex_rec.Priority  = idx_rec.Priority;
-					ex_rec.FileId    = idx_rec.FileId;
-					ex_rec.FilePos   = idx_rec.FilePos;
-					STRNSCPY(ex_rec.ObjName, idx_rec.ObjName);
-					PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("UPD").CatDiv(':', 2).Cat(idx_rec.ObjName)); // @v8.5.5
-					if(!P_Queue->updateRecBuf(&ex_rec)) {
-						PPLoadText(PPTXT_LOG_ERRMODSYNCQUEUE, fmt_buf);
-						GetObjectTitle(ex_rec.ObjType, err_msg);
-						obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(ex_rec.ObjID).CatDiv('-', 1).Cat(ex_rec.DBID);
-						PPGetLastErrorMessage(1, err_msg);
-						Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
-						PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
-						//CALLEXCEPT();
-					}
-				}
-				else {
-					// Оставляет существующую запись
-					PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("SKIP").CatDiv(':', 2).Cat(idx_rec.ObjName)); // @v8.5.5
+		{
+			TSArray <ObjSyncQueueTbl::Rec> idx_rec_list;
+			for(objid.Set(0, 0); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
+				THROW_SL(idx_rec_list.insert(&idx_rec));
+				if(idx_rec_list.getCount() >= max_idx_recs_per_ta) {
+					THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
+					idx_rec_list.clear();
 				}
 			}
-			else {
-				idx_rec.ID = 0;
-				PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("ADD").CatDiv(':', 2).Cat(idx_rec.ObjName)); // @v8.5.5
-				if(!P_Queue->insertRecBuf(&idx_rec)) {
-					PPLoadText(PPTXT_LOG_ERRINSSYNCQUEUE, fmt_buf);
-					GetObjectTitle(idx_rec.ObjType, err_msg);
-					obj_buf.Z().Cat(err_msg).CatDiv('-', 1).Cat(idx_rec.ObjID).CatDiv('-', 1).Cat(idx_rec.DBID);
-					PPGetLastErrorMessage(1, err_msg);
-					Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_buf.cptr(), err_msg.cptr()));
-					PPLogMessage(PPFILNAM_ERR_LOG, err_msg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v8.5.5
-					//CALLEXCEPT();
-				}
+			if(idx_rec_list.getCount()) {
+				THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
 			}
 		}
-		THROW(tra.Commit());
+		// @v9.8.3 THROW(tra.Commit());
 		rHdr.Flags |= PPOTF_ACK;
 		THROW(UpdateInHeader(pInStream, &rHdr));
 	}

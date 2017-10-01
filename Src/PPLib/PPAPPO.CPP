@@ -28,6 +28,7 @@ int SLAPI TestCURL(); // pputil.cpp
 int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
 int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
+int SLAPI TestTddo2(); // tddo2.cpp
 int SLAPI RecoverAbsenceTrfr();
 int SLAPI PPValidateXml();
 //int SLAPI ImportSartre();
@@ -871,6 +872,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestEGAIS:               TestEGAIS(0); break; // @v8.8.0
 		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break; // @v8.8.9
 		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
+		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmConvertLatexToHtml:      PPTex2Html(); break; // @v8.1.12
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @v8.3.12 // @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;

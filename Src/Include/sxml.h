@@ -5,7 +5,6 @@
 #define __SXML_H
 
 #include <slib.h>
-//#include <libxml.h>
 #include <libxml\xmlwriter.h>
 #include <libxml\xmlreader.h>
 //

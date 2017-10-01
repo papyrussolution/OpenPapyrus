@@ -909,10 +909,10 @@ int CRegExp::Find(const char * pText)
 
 int CRegExp::Find(SStrScan * pScan)
 {
-	const char * p = pScan->P_Buf + pScan->Offs;
+	const char * p = (const char *)*pScan; //pScan->P_Buf + pScan->Offs;
 	if(Find(p)) {
-		pScan->Offs += (startp[0] - p);
-		pScan->Len = (endp[0] - startp[0]);
+		pScan->Incr(startp[0] - p);
+		pScan->SetLen(endp[0] - startp[0]);
 		return 1;
 	}
 	else

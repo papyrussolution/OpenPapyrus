@@ -2465,10 +2465,12 @@ int SLAPI PPValidateXml()
     PPLogger logger;
     TDialog * dlg = new TDialog(DLG_XMLVLD);
     THROW(CheckDialogPtr(&dlg));
-	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_XMLVLD_XSDFILE, CTL_XMLVLD_XSDFILE, 2, 0, PPTXT_FILPAT_XSD,
+	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_XMLVLD_XSDFILE, CTL_XMLVLD_XSDFILE, 1, 0, PPTXT_FILPAT_XSD,
 		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+	dlg->SetupInputLine(CTL_XMLVLD_XSDFILE, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_XMLVLD_XMLFILE, CTL_XMLVLD_XMLFILE, 2, 0, PPTXT_FILPAT_XML,
 		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+	dlg->SetupInputLine(CTL_XMLVLD_XMLFILE, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
     while(ExecView(dlg) == cmOK) {
         dlg->getCtrlString(CTL_XMLVLD_XSDFILE, xsd_file_name);
         dlg->getCtrlString(CTL_XMLVLD_XMLFILE, xml_file_name);

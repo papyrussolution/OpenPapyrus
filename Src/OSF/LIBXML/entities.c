@@ -9,8 +9,8 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/entities.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/entities.h>
+//#include <libxml/parserInternals.h>
 //#include <libxml/dict.h>
 #include "save.h"
 /*
@@ -115,17 +115,17 @@ static xmlEntityPtr xmlCreateEntity(xmlDict * dict, const xmlChar * name, int ty
 	ret->etype = (xmlEntityType)type;
 	if(!dict) {
 		ret->name = sstrdup(name);
-		if(ExternalID != NULL)
+		if(ExternalID)
 			ret->ExternalID = sstrdup(ExternalID);
-		if(SystemID != NULL)
+		if(SystemID)
 			ret->SystemID = sstrdup(SystemID);
 	}
 	else {
-		ret->name = xmlDictLookup(dict, name, -1);
-		if(ExternalID != NULL)
-			ret->ExternalID = xmlDictLookup(dict, ExternalID, -1);
-		if(SystemID != NULL)
-			ret->SystemID = xmlDictLookup(dict, SystemID, -1);
+		ret->name = xmlDictLookupSL(dict, name);
+		if(ExternalID)
+			ret->ExternalID = xmlDictLookupSL(dict, ExternalID);
+		if(SystemID)
+			ret->SystemID = xmlDictLookupSL(dict, SystemID);
 	}
 	if(content) {
 		ret->length = sstrlen(content);

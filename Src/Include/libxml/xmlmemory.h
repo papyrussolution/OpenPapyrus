@@ -177,8 +177,8 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
 
 #ifndef __XML_GLOBALS_H
 	#ifndef __XML_THREADS_H__
-		#include <libxml/threads.h>
-		#include <libxml/globals.h>
+		//#include <libxml/threads.h>
+		//#include <libxml/globals.h>
 	#endif
 #endif
 #endif  /* __DEBUG_MEMORY_ALLOC__ */

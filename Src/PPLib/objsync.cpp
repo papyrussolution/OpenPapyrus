@@ -648,7 +648,7 @@ int SLAPI ObjSyncQueueCore::Clear()
 	SString file_path;
 	PPObjectTransmit::GetQueueFilePath(file_path);
 	THROW_DB(deleteFrom(this, 1, *(DBQ *)0));
-	PPRemoveFilesByExt(file_path, 0); // Все файлы - без расширений
+	PPRemoveFilesByExt(file_path, 0, 0, 0); // Все файлы - без расширений
 	CATCHZOK
 	return ok;
 }

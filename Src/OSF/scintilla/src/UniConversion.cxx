@@ -230,7 +230,7 @@ uint UTF16FromUTF32Character(uint val, wchar_t * tbuf)
 int UTF8BytesOfLead[256];
 static bool initialisedBytesOfLead = false;
 
-static int BytesFromLead(int leadByte)
+static int FASTCALL BytesFromLead(int leadByte)
 {
 	if(leadByte < 0xC2) // Single byte or invalid
 		return 1;
@@ -247,7 +247,7 @@ static int BytesFromLead(int leadByte)
 void UTF8BytesOfLeadInitialise()
 {
 	if(!initialisedBytesOfLead) {
-		for(int i = 0; i<256; i++) {
+		for(int i = 0; i < 256; i++) {
 			UTF8BytesOfLead[i] = BytesFromLead(i);
 		}
 		initialisedBytesOfLead = true;
@@ -310,32 +310,22 @@ int FASTCALL UTF8Classify(const uchar * us, int len)
 		// 3 bytes
 		if(len < 3)
 			return UTF8MaskInvalid | 1;
-		if(UTF8IsTrailByte(us[1]) && UTF8IsTrailByte(us[2])) {
-			if((*us == 0xe0) && ((us[1] & 0xe0) == 0x80)) {
-				// Overlong
+		else if(UTF8IsTrailByte(us[1]) && UTF8IsTrailByte(us[2])) {
+			if((*us == 0xe0) && ((us[1] & 0xe0) == 0x80)) // Overlong
 				return UTF8MaskInvalid | 1;
-			}
-			if((*us == 0xed) && ((us[1] & 0xe0) == 0xa0)) {
-				// Surrogate
+			else if((*us == 0xed) && ((us[1] & 0xe0) == 0xa0)) // Surrogate
 				return UTF8MaskInvalid | 1;
-			}
-			if((*us == 0xef) && (us[1] == 0xbf) && (us[2] == 0xbe)) {
-				// U+FFFE non-character - 3 bytes long
+			else if((*us == 0xef) && (us[1] == 0xbf) && (us[2] == 0xbe)) // U+FFFE non-character - 3 bytes long
 				return UTF8MaskInvalid | 3;
-			}
-			if((*us == 0xef) && (us[1] == 0xbf) && (us[2] == 0xbf)) {
-				// U+FFFF non-character - 3 bytes long
+			else if((*us == 0xef) && (us[1] == 0xbf) && (us[2] == 0xbf)) // U+FFFF non-character - 3 bytes long
 				return UTF8MaskInvalid | 3;
-			}
-			if((*us == 0xef) && (us[1] == 0xb7) && (((us[2] & 0xf0) == 0x90) || ((us[2] & 0xf0) == 0xa0))) {
-				// U+FDD0 .. U+FDEF
+			else if((*us == 0xef) && (us[1] == 0xb7) && (((us[2] & 0xf0) == 0x90) || ((us[2] & 0xf0) == 0xa0))) // U+FDD0 .. U+FDEF
 				return UTF8MaskInvalid | 3;
-			}
-			return 3;
+			else 
+				return 3;
 		}
-		else {
+		else
 			return UTF8MaskInvalid | 1;
-		}
 	}
 	else if(*us >= 0xc2) {
 		// 2 bytes

@@ -1495,6 +1495,7 @@
     <ClInclude Include="..\Include\Pp.h" />
     <ClInclude Include="..\Include\ppbrow.H" />
     <ClInclude Include="..\Include\Ppdefs.h" />
+    <ClInclude Include="..\Include\PPMENU.H" />
     <ClInclude Include="..\Include\ppsoapclient.h" />
     <ClInclude Include="..\Include\sartre.h" />
     <ClInclude Include="..\PPMain\resrc1.h" />

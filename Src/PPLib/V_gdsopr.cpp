@@ -1582,7 +1582,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitGoodsRestView(PPViewGoodsRest * pGrView)
 	gr_filt.GoodsGrpID = Filt.GoodsGrpID;
 	gr_filt.SupplID = Filt.SupplID;
 	gr_filt.Sgg = Filt.Sgg;
-	THROW(pGrView->SetGsl(&Gsl));
+	pGrView->SetGsl(&Gsl);
 	gr_filt.Flags |= GoodsRestFilt::fOuterGsl;
 	THROW(pGrView->Init_(&gr_filt));
 	CATCHZOK

@@ -256,7 +256,6 @@ void SLAPI TestSArchive()
 	const  char * p_root = "d:/papyrus/src/pptest";
 	SString temp_buf;
 	SArchive arc;
-
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
 	{
 		(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");

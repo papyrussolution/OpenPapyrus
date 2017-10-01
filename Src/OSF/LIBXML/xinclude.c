@@ -12,9 +12,9 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/xpath.h>
-#include <libxml/xpointer.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/xpath.h>
+//#include <libxml/xpointer.h>
+//#include <libxml/parserInternals.h>
 
 #ifdef LIBXML_XINCLUDE_ENABLED
 #include <libxml/xinclude.h>
@@ -22,7 +22,7 @@
 /* #define DEBUG_XINCLUDE */
 #ifdef DEBUG_XINCLUDE
 	#ifdef LIBXML_DEBUG_ENABLED
-		#include <libxml/debugXML.h>
+		//#include <libxml/debugXML.h>
 	#endif
 #endif
 

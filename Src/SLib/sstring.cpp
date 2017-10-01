@@ -331,7 +331,7 @@ int SLAPI SStrScan::IsDigits()
 
 int SLAPI SStrScan::IsEnd() const
 {
-	return (!P_Buf || Offs >= Len || P_Buf[Offs] == 0);
+	return (!P_Buf || P_Buf[Offs] == 0);
 }
 
 int SLAPI SStrScan::IsNumber()
@@ -541,16 +541,23 @@ int FASTCALL SStrScan::GetTagBrace(SString & rText, int * pKind)
 		return 0;
 }
 
+size_t FASTCALL SStrScan::SetLen(size_t newLen)
+{
+	const size_t prev_len = Len;
+	Len = newLen;
+	return prev_len;
+}
+
 size_t FASTCALL SStrScan::Incr(size_t incr)
 {
-	size_t prev_offs = Offs;
+	const size_t prev_offs = Offs;
 	Offs += incr;
 	return prev_offs;
 }
 
 size_t FASTCALL SStrScan::IncrLen(size_t addedIncr /*=0*/)
 {
-	size_t prev_offs = Offs;
+	const size_t prev_offs = Offs;
 	Offs += (Len+addedIncr);
 	return prev_offs;
 }
@@ -634,25 +641,46 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 	return *this;
 }
 
+static size_t FASTCALL _MakeWhitespaceCharSet(int ws, char * pBuf)
+{
+	size_t i = 0;
+	if(ws & SStrScan::wsSpace)
+		pBuf[i++] = ' ';
+	if(ws & SStrScan::wsTab)
+		pBuf[i++] = '\t';
+	if(ws & SStrScan::wsNewLine) {
+		pBuf[i++] = '\xD'; //'\n';
+		pBuf[i++] = '\xA';
+	}
+	if(ws & SStrScan::wsComma)
+		pBuf[i++] = ',';
+	if(ws & SStrScan::wsSemicol)
+		pBuf[i++] = ';';
+	return i;
+}
+
+int FASTCALL SStrScan::IsSpace(int ws) const
+{
+	int    yes = 0;
+	if(P_Buf && ws) {
+		char   buf[16];
+		memzero(buf, sizeof(buf));
+		size_t i = _MakeWhitespaceCharSet(ws, buf);
+		const char * p = (P_Buf+Offs);
+		if(memchr(buf, *p, i)) {
+			yes = 1;
+		}
+	}
+	return yes;
+}
+
 SStrScan & SLAPI SStrScan::Skip(int ws, uint * pLineCount)
 {
 	uint   line_count = 0;
 	if(P_Buf && ws) {
-		size_t i = 0;
 		char   buf[16];
 		memzero(buf, sizeof(buf));
-		if(ws & wsSpace)
-			buf[i++] = ' ';
-		if(ws & wsTab)
-			buf[i++] = '\t';
-		if(ws & wsNewLine) {
-			buf[i++] = '\xD'; //'\n';
-			buf[i++] = '\xA';
-		}
-		if(ws & wsComma)
-			buf[i++] = ',';
-		if(ws & wsSemicol)
-			buf[i++] = ';';
+		size_t i = _MakeWhitespaceCharSet(ws, buf);
 		const char * p = (P_Buf+Offs);
 		while(memchr(buf, *p, i)) {
 			if(*p == '\xD' && p[1] == '\xA') {
@@ -4517,13 +4545,13 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		const  char * p = 0;
 		if(strpbrk(pPath, "*?") == 0) { // @v9.1.8 Следующая проверка возможна только если в пути нет wildcard-символов
 			SString buf;
-			fname_as_dir_part = isDir((buf = pPath).RmvLastSlash()) ? 1 : 0;
+			fname_as_dir_part = isDir((buf = pPath).RmvLastSlash());
 		}
 		if(scan.Is("\\\\") || scan.Is("//")) {
 			Flags |= fUNC;
-			scan.Offs += 2;
+			scan.Incr(2);
 			p = strpbrk(scan, "\\/");
-			scan.Len = p ? (p-scan) : strlen(scan);
+			scan.SetLen(p ? (p-scan) : strlen(scan));
 			scan.Get(Drv);
 			Flags |= fDrv;
 			scan.IncrLen();
@@ -4531,19 +4559,22 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		else {
 			p = strchr(scan, ':');
 			if(p) {
-				scan.Len = p-scan;
+				scan.SetLen(p-scan);
 				scan.Get(Drv);
 				Flags |= fDrv;
 				scan.IncrLen();
 				scan.Incr(); // Пропускаем двоеточие
 			}
 		}
-		size_t start = scan.Offs;
-		while((p = strpbrk(scan, "\\/")) != 0) {
-			scan.Incr(p-scan+1);
+		{
+			scan.Push();
+			const size_t start = scan.GetOffs();
+			while((p = strpbrk(scan, "\\/")) != 0) {
+				scan.Incr(p-scan+1);
+			}
+			scan.SetLen(scan.GetOffs() - start);
+			scan.Pop();
 		}
-		scan.Len  = scan.Offs - start;
-		scan.Offs = start;
 		scan.Get(Dir);
 		if(Dir.Len())
 			Flags |= fDir;
@@ -4551,21 +4582,27 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 		//
 		//
 		//
-		start = scan.Offs;
-		const char * p_last_dot = 0;
-		while((p = strchr(scan, '.')) != 0) {
-			p_last_dot = p;
-			scan.Incr(p-scan+1);
+		{
+			scan.Push();
+			const size_t start = scan.GetOffs();
+			const char * p_last_dot = 0;
+			while((p = strchr(scan, '.')) != 0) {
+				p_last_dot = p;
+				scan.Incr(p-scan+1);
+			}
+			if(p_last_dot) {
+				Ext = p_last_dot + 1;
+				Flags |= fExt;
+				scan.SetLen(scan.GetOffs() - start - 1);
+				//scan.Offs = start;
+				scan.Pop();
+				scan.Get(Nam);
+			}
+			else {
+				Nam = scan;
+				scan.Pop();
+			}
 		}
-		if(p_last_dot) {
-			Ext = p_last_dot + 1;
-			Flags |= fExt;
-			scan.Len = scan.Offs - start - 1;
-			scan.Offs = start;
-			scan.Get(Nam);
-		}
-		else
-			Nam = scan;
 		if(fname_as_dir_part) {
 			Dir.SetLastSlash().Cat(Nam);
 			Nam.Z();

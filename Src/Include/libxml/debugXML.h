@@ -11,12 +11,12 @@
 #ifndef __DEBUG_XML__
 #define __DEBUG_XML__
 //#include <stdio.h>
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
+//#include <libxml/xmlversion.h>
+//#include <libxml/tree.h>
 
 #ifdef LIBXML_DEBUG_ENABLED
 
-#include <libxml/xpath.h>
+//#include <libxml/xpath.h>
 
 #ifdef __cplusplus
 extern "C" {

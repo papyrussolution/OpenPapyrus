@@ -2932,11 +2932,13 @@ STDMETHODIMP ScintillaWin::QueryInterface(REFIID riid, PVOID * ppv)
 	return S_OK;
 }
 
-STDMETHODIMP_(ULONG) ScintillaWin::AddRef() {
+STDMETHODIMP_(ULONG) ScintillaWin::AddRef() 
+{
 	return 1;
 }
 
-STDMETHODIMP_(ULONG) ScintillaWin::Release() {
+STDMETHODIMP_(ULONG) ScintillaWin::Release() 
+{
 	return 1;
 }
 
@@ -2957,7 +2959,6 @@ STDMETHODIMP ScintillaWin::DragEnter(LPDATAOBJECT pIDataSource, DWORD grfKeyStat
 		*pdwEffect = DROPEFFECT_NONE;
 		return S_OK;
 	}
-
 	*pdwEffect = EffectFromState(grfKeyState);
 	return S_OK;
 }

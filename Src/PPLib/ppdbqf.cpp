@@ -398,7 +398,7 @@ static void SLAPI dbqf_checkcsposnode_ii(int option, DBConst * result, DBConst *
 static void SLAPI dbqf_checkcsposnodelist_ii(int option, DBConst * result, DBConst * params)
 {
 	long   r = 0;
-	const LongArray * p_list = (LongArray *)params[1].ptrval;
+	const LongArray * p_list = (const LongArray *)params[1].ptrval;
 	if(p_list) {
 		if(params[0].lval) {
 			PPObjCSession cs_obj;
@@ -410,6 +410,24 @@ static void SLAPI dbqf_checkcsposnodelist_ii(int option, DBConst * result, DBCon
 	else
 		r = 1;
 	result->init(r);
+}
+
+static void SLAPI dbqf_strbystrgrouppos_ip(int option, DBConst * result, DBConst * params)
+{
+	char   text_buf[256];
+	if(option == CALC_SIZE)
+		result->init((long)sizeof(text_buf));
+	else {
+		const SStrGroup * p_pool = (const SStrGroup *)params[1].ptrval;
+		if(p_pool) {
+			SString temp_buf;
+			p_pool->GetS(params[0].lval, temp_buf);
+			STRNSCPY(text_buf, temp_buf);
+		}
+		else
+			PTR32(text_buf)[0] = 0;
+		result->init(text_buf);
+	}
 }
 
 static void SLAPI dbqf_checkuserid_ii(int option, DBConst * result, DBConst * params)
@@ -1226,6 +1244,7 @@ int PPDbqFuncPool::IdOidText           = 0; // @v8.6.11 (objType, objID) Текстов
 int PPDbqFuncPool::IdDateBase          = 0; // @v8.6.11 (dateValue, baseDate) Текстовое представление даты, сжатой в виде количества дней, прошедших с baseDate
 int PPDbqFuncPool::IdBillFrghtStrgLoc  = 0; // @v8.8.6
 int PPDbqFuncPool::IdSCardExtString    = 0; // @v9.6.1 (scardID, fldId)
+int PPDbqFuncPool::IdStrByStrGroupPos  = 0; // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 
 static void SLAPI dbqf_goodsstockdim_i(int option, DBConst * result, DBConst * params)
 {
@@ -1537,9 +1556,10 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdAddrCityName,      0, BTS_STRING, dbqf_addr_city_name_i,   1, BTS_INT));          // @v7.0.9
 	THROW(DbqFuncTab::RegisterDyn(&IdAddrExField,       0, BTS_STRING, dbqf_addr_ex_field_ii,   2, BTS_INT, BTS_INT)); // @v7.0.9
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNode,    0, BTS_INT,    dbqf_checkcsposnode_ii,  2, BTS_INT, BTS_INT)); // @v7.6.3  (csessID, posNodeID)
-	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,0, BTS_INT,    dbqf_checkcsposnodelist_ii, 2, BTS_INT, BTS_INT)); // @v7.6.3  (csessID, (const LongArray *))
-	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,    0, BTS_INT,    dbqf_strexistsub_ss,     2, BTS_STRING, BTS_STRING)); // @vmiller
-	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,  0, BTS_REAL,   dbqf_addedcreditlimit_rii, 3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,0, BTS_INT,    dbqf_checkcsposnodelist_ii, 2, BTS_INT, BTS_PTR)); // @v7.6.3  (csessID, (const LongArray *))
+	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,  0, BTS_STRING, dbqf_strbystrgrouppos_ip,   2, BTS_INT, BTS_PTR)); // @v9.8.3 (position, (const SStrGroup *))
+	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,    0, BTS_INT,    dbqf_strexistsub_ss,        2, BTS_STRING, BTS_STRING)); // @vmiller
+	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,  0, BTS_REAL,   dbqf_addedcreditlimit_rii,  3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,   0, BTS_STRING, dbqf_getagrmntsymbol_i,  1, BTS_INT)); // @vmiller
 	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,      0, BTS_STRING, dbqf_registertext_i,     1, BTS_INT)); // @v8.4.4
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,        0, BTS_STRING, dbqf_objtagtext_ii,      2, BTS_INT, BTS_INT)); // @v8.4.11

@@ -6,25 +6,22 @@
  *
  * Author: Daniel Veillard
  */
-
 #ifndef __XML_PARSER_H__
 #define __XML_PARSER_H__
 
 #include <stdarg.h>
-
-//#include <libxml/xmlversion.h>
+#include <libxml/xmlversion.h>
 #include <libxml/tree.h>
 //#include <libxml/dict.h>
 #include <libxml/hash.h>
 #include <libxml/valid.h>
 #include <libxml/entities.h>
 #include <libxml/xmlerror.h>
-//#include <libxml/xmlstring.h>
+#include <libxml/xmlstring.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * XML_DEFAULT_VERSION:
  *
@@ -51,7 +48,7 @@ extern "C" {
  */
 typedef void (*xmlParserInputDeallocate)(xmlChar * str);
 
-struct _xmlParserInput {
+struct xmlParserInput {
 	/* Input buffer */
 	const xmlChar * cur;          // Current char being parsed 
 	xmlParserInputBuffer * buf;   // UTF-8 encoded buffer 
@@ -144,7 +141,6 @@ typedef enum {
  * Use it to initialize xmlLoadExtDtdDefaultValue.
  */
 #define XML_COMPLETE_ATTRS      4
-
 /**
  * XML_SKIP_IDS:
  *
@@ -152,7 +148,6 @@ typedef enum {
  * Used to initialize xmlLoadExtDtdDefaultValue in some special cases.
  */
 #define XML_SKIP_IDS            8
-
 /**
  * xmlParserMode:
  *
@@ -179,9 +174,9 @@ typedef enum {
  *      takes as the only argument the parser context pointer, so migrating
  *      to a state based parser for progressive parsing shouldn't be too hard.
  */
-struct _xmlParserCtxt {
+struct xmlParserCtxt {
 	xmlParserInput * input;      // Current input stream
-	struct _xmlSAXHandler * sax;  // The SAX handler
+	struct xmlSAXHandler * sax;  // The SAX handler
 	void * userData;              // For SAX interface only, used by DOM build
 	xmlDoc * myDoc;              // the document being built
 	int wellFormed;               // is the document well formed
@@ -292,7 +287,7 @@ struct _xmlParserCtxt {
  *
  * A SAX Locator.
  */
-struct _xmlSAXLocator {
+struct xmlSAXLocator {
 	const xmlChar *(*getPublicId)(void* ctx);
 	const xmlChar *(*getSystemId)(void* ctx);
 	int (* getLineNumber)(void * ctx);
@@ -638,7 +633,7 @@ typedef void (*startElementNsSAX2Func)(void * ctx,
 
 typedef void (*endElementNsSAX2Func)(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI);
 
-struct _xmlSAXHandler {
+struct xmlSAXHandler {
 	internalSubsetSAXFunc internalSubset;
 	isStandaloneSAXFunc isStandalone;
 	hasInternalSubsetSAXFunc hasInternalSubset;
@@ -726,81 +721,73 @@ typedef xmlParserInputPtr (*xmlExternalEntityLoader)(const char * URL, const cha
 #endif
 
 #include <libxml/xmlIO.h>
-#include <libxml/globals.h>
+//#include <libxml/globals.h>
 #include <libxml/encoding.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * Init/Cleanup
  */
 XMLPUBFUN void XMLCALL xmlInitParser();
 XMLPUBFUN void XMLCALL xmlCleanupParser();
-
 /*
  * Input functions
  */
 XMLPUBFUN int XMLCALL xmlParserInputRead(xmlParserInputPtr in, int len);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParserInputGrow(xmlParserInput * in, int len);
-
 /*
  * Basic parsing Interfaces
  */
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN xmlDocPtr XMLCALL xmlParseDoc(const xmlChar * cur);
-XMLPUBFUN xmlDocPtr XMLCALL xmlParseFile(const char * filename);
-XMLPUBFUN xmlDocPtr XMLCALL xmlParseMemory(const char * buffer,
-    int size);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlParseDoc(const xmlChar * cur);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlParseFile(const char * filename);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlParseMemory(const char * buffer, int size);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL xmlSubstituteEntitiesDefault(int val);
 XMLPUBFUN int XMLCALL xmlKeepBlanksDefault(int val);
 XMLPUBFUN void XMLCALL xmlStopParser(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlPedanticParserDefault(int val);
 XMLPUBFUN int XMLCALL xmlLineNumbersDefault(int val);
-
 #ifdef LIBXML_SAX1_ENABLED
-/*
- * Recovery mode
- */
-XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverDoc(const xmlChar * cur);
-XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverMemory(const char * buffer, int size);
-XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverFile(const char * filename);
+	/*
+	 * Recovery mode
+	 */
+	XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverDoc(const xmlChar * cur);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverMemory(const char * buffer, int size);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlRecoverFile(const char * filename);
 #endif /* LIBXML_SAX1_ENABLED */
-
 /*
  * Less common routines and SAX interfaces
  */
 XMLPUBFUN int XMLCALL xmlParseDocument(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlParseExtParsedEnt(xmlParserCtxt * ctxt);
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN int XMLCALL xmlSAXUserParseFile(xmlSAXHandlerPtr sax, void * user_data, const char * filename);
-XMLPUBFUN int XMLCALL xmlSAXUserParseMemory(xmlSAXHandlerPtr sax, void * user_data, const char * buffer, int size);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseDoc(xmlSAXHandlerPtr sax, const xmlChar * cur, int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseMemory(xmlSAXHandlerPtr sax, const char * buffer, int size, int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseMemoryWithData(xmlSAXHandlerPtr sax, const char * buffer, int size, int recovery, void * data);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseFile(xmlSAXHandlerPtr sax, const char * filename, int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseFileWithData(xmlSAXHandlerPtr sax, const char * filename, int recovery, void * data);
-XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseEntity(xmlSAXHandlerPtr sax, const char * filename);
-XMLPUBFUN xmlDocPtr XMLCALL xmlParseEntity(const char * filename);
+	XMLPUBFUN int XMLCALL xmlSAXUserParseFile(xmlSAXHandlerPtr sax, void * user_data, const char * filename);
+	XMLPUBFUN int XMLCALL xmlSAXUserParseMemory(xmlSAXHandlerPtr sax, void * user_data, const char * buffer, int size);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseDoc(xmlSAXHandlerPtr sax, const xmlChar * cur, int recovery);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseMemory(xmlSAXHandlerPtr sax, const char * buffer, int size, int recovery);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseMemoryWithData(xmlSAXHandlerPtr sax, const char * buffer, int size, int recovery, void * data);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseFile(xmlSAXHandlerPtr sax, const char * filename, int recovery);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseFileWithData(xmlSAXHandlerPtr sax, const char * filename, int recovery, void * data);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlSAXParseEntity(xmlSAXHandlerPtr sax, const char * filename);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlParseEntity(const char * filename);
 #endif /* LIBXML_SAX1_ENABLED */
-
 #ifdef LIBXML_VALID_ENABLED
-XMLPUBFUN xmlDtdPtr XMLCALL xmlSAXParseDTD(xmlSAXHandlerPtr sax, const xmlChar * ExternalID, const xmlChar * SystemID);
-XMLPUBFUN xmlDtdPtr XMLCALL xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID);
-XMLPUBFUN xmlDtdPtr XMLCALL xmlIOParseDTD(xmlSAXHandlerPtr sax, xmlParserInputBufferPtr input, xmlCharEncoding enc);
+	XMLPUBFUN xmlDtdPtr XMLCALL xmlSAXParseDTD(xmlSAXHandlerPtr sax, const xmlChar * ExternalID, const xmlChar * SystemID);
+	XMLPUBFUN xmlDtdPtr XMLCALL xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID);
+	XMLPUBFUN xmlDtdPtr XMLCALL xmlIOParseDTD(xmlSAXHandlerPtr sax, xmlParserInputBufferPtr input, xmlCharEncoding enc);
 #endif /* LIBXML_VALID_ENABLE */
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst);
+	XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN xmlParserErrors XMLCALL xmlParseInNodeContext(xmlNode * node, const char * data, int datalen, int options, xmlNode ** lst);
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst, int recover);
-XMLPUBFUN int XMLCALL xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
+	XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst, int recover);
+	XMLPUBFUN int XMLCALL xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
-
 /*
  * Parser contexts handling.
  */
@@ -809,47 +796,30 @@ XMLPUBFUN int XMLCALL xmlInitParserCtxt(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlClearParserCtxt(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt);
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN void XMLCALL xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const char * filename);
+	XMLPUBFUN void XMLCALL xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const char * filename);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateDocParserCtxt(const xmlChar * cur);
-
 #ifdef LIBXML_LEGACY_ENABLED
-/*
- * Reading/setting optional parsing features.
- */
-XMLPUBFUN int XMLCALL xmlGetFeaturesList(int * len, const char ** result);
-XMLPUBFUN int XMLCALL xmlGetFeature(xmlParserCtxt * ctxt, const char * name, void * result);
-XMLPUBFUN int XMLCALL xmlSetFeature(xmlParserCtxt * ctxt, const char * name, void * value);
+	/*
+	 * Reading/setting optional parsing features.
+	 */
+	XMLPUBFUN int XMLCALL xmlGetFeaturesList(int * len, const char ** result);
+	XMLPUBFUN int XMLCALL xmlGetFeature(xmlParserCtxt * ctxt, const char * name, void * result);
+	XMLPUBFUN int XMLCALL xmlSetFeature(xmlParserCtxt * ctxt, const char * name, void * value);
 #endif /* LIBXML_LEGACY_ENABLED */
-
 #ifdef LIBXML_PUSH_ENABLED
-/*
- * Interfaces for the Push mode.
- */
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax,
-    void * user_data,
-    const char * chunk,
-    int size,
-    const char * filename);
-XMLPUBFUN int XMLCALL xmlParseChunk(xmlParserCtxt * ctxt,
-    const char * chunk,
-    int size,
-    int terminate);
+	/*
+	 * Interfaces for the Push mode.
+	 */
+	XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data, const char * chunk, int size, const char * filename);
+	XMLPUBFUN int XMLCALL xmlParseChunk(xmlParserCtxt * ctxt, const char * chunk, int size, int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
-
 /*
  * Special I/O mode.
  */
-
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax,
-    void * user_data,
-    xmlInputReadCallback ioread,
-    xmlInputCloseCallback ioclose,
-    void * ioctx,
-    xmlCharEncoding enc);
-
+XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, xmlInputReadCallback ioread,
+    xmlInputCloseCallback ioclose, void * ioctx, xmlCharEncoding enc);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc);
-
 /*
  * Node infos.
  */
@@ -858,11 +828,9 @@ XMLPUBFUN void XMLCALL xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
 XMLPUBFUN void XMLCALL xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
 XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * node);
 XMLPUBFUN void XMLCALL xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info);
-
 /*
  * External entities handling actually implemented in xmlIO.
  */
-
 XMLPUBFUN void XMLCALL xmlSetExternalEntityLoader(xmlExternalEntityLoader f);
 XMLPUBFUN xmlExternalEntityLoader XMLCALL xmlGetExternalEntityLoader();
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlLoadExternalEntity(const char * URL, const char * ID, xmlParserCtxtPtr ctxt);
@@ -870,7 +838,6 @@ XMLPUBFUN xmlParserInputPtr XMLCALL xmlLoadExternalEntity(const char * URL, cons
  * Index lookup, actually implemented in the encoding module
  */
 XMLPUBFUN long XMLCALL xmlByteConsumed(xmlParserCtxt * ctxt);
-
 /*
  * New set of simpler/more flexible APIs
  */
@@ -919,7 +886,6 @@ XMLPUBFUN xmlDocPtr XMLCALL xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * f
 XMLPUBFUN xmlDocPtr XMLCALL xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options);
 XMLPUBFUN xmlDocPtr XMLCALL xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const char * encoding, int options);
 XMLPUBFUN xmlDocPtr XMLCALL xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options);
-
 /*
  * Library wide options
  */

@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:ns="http://fsrar.ru/WEGAIS/ProductRef_v2"
            targetNamespace="http://fsrar.ru/WEGAIS/ProductRef_v2"
            xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2"
            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonEnum"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
             >
   <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
   
   <xs:complexType name="ProductsType_v2">
@@ -38,6 +40,7 @@
       <xs:enumeration value="ССП"/>
       <xs:enumeration value="ССНП"/>
       <xs:enumeration value="Спирт"/>
+      <xs:enumeration value="УБП"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -46,7 +49,7 @@
       <xs:documentation>Информация о марках</xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="Type" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+      <xs:element name="Type" type="ce:TypeEnum" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Тип марки</xs:documentation>
         </xs:annotation>

@@ -257,11 +257,11 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	}
 	if(clean) {
 		if(filtFlags & PPMailMsg::fPpyObject)
-			PPRemoveFilesByExt(pDestPath, PPSEXT);
+			PPRemoveFilesByExt(pDestPath, PPSEXT, 0, 0);
 		if(filtFlags & PPMailMsg::fPpyOrder)
-			PPRemoveFilesByExt(pDestPath, ORDEXT);
+			PPRemoveFilesByExt(pDestPath, ORDEXT, 0, 0);
 		if(filtFlags & PPMailMsg::fPpyCharry)
-			PPRemoveFilesByExt(pDestPath, CHARRYEXT);
+			PPRemoveFilesByExt(pDestPath, CHARRYEXT, 0, 0);
 	}
 	msg_counter.Init(msg_list.getCount());
 	for(i = 0; i < msg_list.getCount(); i++) {
@@ -329,11 +329,11 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	THROW(ftp.SafeGetFileList(src_dir, &file_list, 0, 0));
 	if(clean) {
 		if(filtFlags & PPMailMsg::fPpyObject)
-			PPRemoveFilesByExt(pDestDir, PPSEXT);
+			PPRemoveFilesByExt(pDestDir, PPSEXT, 0, 0);
 		if(filtFlags & PPMailMsg::fPpyOrder)
-			PPRemoveFilesByExt(pDestDir, ORDEXT);
+			PPRemoveFilesByExt(pDestDir, ORDEXT, 0, 0);
 		if(filtFlags & PPMailMsg::fPpyCharry)
-			PPRemoveFilesByExt(pDestDir, CHARRYEXT);
+			PPRemoveFilesByExt(pDestDir, CHARRYEXT, 0, 0);
 	}
 	for(uint i = 0; i < file_list.getCount(); i++) {
 		SString src_path, dest_path;
@@ -451,7 +451,7 @@ int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const 
 	}
 	PPWait(0);
 	if(trnsmFlags & TRNSMF_DELINFILES)
-		PPRemoveFiles(pFileList);
+		PPRemoveFiles(pFileList, 0, 0);
 	CATCHZOK
 	return ok;
 }
@@ -487,8 +487,9 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		ok = -1;
 	else if(pParam->Flags & ObjReceiveParam::fGetFromOutSrcr) {
 		int    use_src = 0, use_email = 0, use_ftp = 0;
-		if(pParam->Flags & ObjReceiveParam::fClearInpBefore)
-			PPRemoveFilesByExt(dest, PPSEXT);
+		if(pParam->Flags & ObjReceiveParam::fClearInpBefore) {
+			PPRemoveFilesByExt(dest, PPSEXT, 0, 0);
+		}
 		if(pParam->SenderDbDivList.getCount()) {
 			for(i = 0; (!use_src || !use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
 				THROW(obj_dbdiv.Get(pParam->SenderDbDivList.at(i), &dbdiv_pack) > 0);
@@ -609,7 +610,7 @@ static int SLAPI PutFilesToDiskPath(const PPFileNameArray * pFileList, const cha
 		THROW_SL(createDir(dest_dir));
 	THROW_PP(::access(dest_dir, 2) == 0, PPERR_DIRACCESSDENIED_W);
 	if(trnsmFlags & TRNSMF_DELOUTFILES)
-		PPRemoveFilesByExt(pDestPath, PPSEXT);
+		PPRemoveFilesByExt(pDestPath, PPSEXT, 0, 0);
 	//
 	// copy files to dest
 	//
@@ -622,7 +623,7 @@ static int SLAPI PutFilesToDiskPath(const PPFileNameArray * pFileList, const cha
 	}
 	PPWait(0);
 	if(trnsmFlags & TRNSMF_DELINFILES)
-		PPRemoveFiles(pFileList);
+		PPRemoveFiles(pFileList, 0, 0);
 	CATCHZOK
 	return ok;
 }

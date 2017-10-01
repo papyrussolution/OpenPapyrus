@@ -11,7 +11,7 @@
 #ifndef __XML_THREADS_H__
 #define __XML_THREADS_H__
 
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +32,7 @@ typedef xmlRMutex *xmlRMutexPtr;
 #ifdef __cplusplus
 }
 #endif
-#include <libxml/globals.h>
+//#include <libxml/globals.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

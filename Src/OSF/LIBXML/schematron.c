@@ -25,7 +25,7 @@
 #pragma hdrstop
 
 #ifdef LIBXML_SCHEMATRON_ENABLED
-#include <libxml/xpath.h>
+//#include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 #include <libxml/pattern.h>
 #include <libxml/schematron.h>
@@ -514,7 +514,7 @@ xmlSchematronParserCtxtPtr xmlSchematronNewParserCtxt(const char * URL)
 	memzero(ret, sizeof(xmlSchematronParserCtxt));
 	ret->type = XML_STRON_CTXT_PARSER;
 	ret->dict = xmlDictCreate();
-	ret->URL = xmlDictLookup(ret->dict, (const xmlChar*)URL, -1);
+	ret->URL = xmlDictLookupSL(ret->dict, (const xmlChar*)URL);
 	ret->includes = NULL;
 	ret->xctxt = xmlXPathNewContext(NULL);
 	if(ret->xctxt == NULL) {
@@ -702,8 +702,8 @@ static void xmlSchematronAddNamespace(xmlSchematronParserCtxtPtr ctxt, const xml
 		ctxt->namespaces = tmp;
 		ctxt->maxNamespaces *= 2;
 	}
-	ctxt->namespaces[2 * ctxt->nbNamespaces] = xmlDictLookup(ctxt->dict, ns, -1);
-	ctxt->namespaces[2 * ctxt->nbNamespaces + 1] = xmlDictLookup(ctxt->dict, prefix, -1);
+	ctxt->namespaces[2 * ctxt->nbNamespaces] = xmlDictLookupSL(ctxt->dict, ns);
+	ctxt->namespaces[2 * ctxt->nbNamespaces + 1] = xmlDictLookupSL(ctxt->dict, prefix);
 	ctxt->nbNamespaces++;
 	ctxt->namespaces[2 * ctxt->nbNamespaces] = NULL;
 	ctxt->namespaces[2 * ctxt->nbNamespaces + 1] = NULL;
@@ -928,7 +928,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 			return 0;
 		}
 		doc->URL = sstrdup(BAD_CAST "in_memory_buffer");
-		ctxt->URL = xmlDictLookup(ctxt->dict, BAD_CAST "in_memory_buffer", -1);
+		ctxt->URL = xmlDictLookupSL(ctxt->dict, BAD_CAST "in_memory_buffer");
 		ctxt->preserve = 0;
 	}
 	else if(ctxt->doc) {
@@ -967,8 +967,8 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 	NEXT_SCHEMATRON(cur);
 	if(IS_SCHEMATRON(cur, "title")) {
 		xmlChar * title = xmlNodeGetContent(cur);
-		if(title != NULL) {
-			ret->title = xmlDictLookup(ret->dict, title, -1);
+		if(title) {
+			ret->title = xmlDictLookupSL(ret->dict, title);
 			SAlloc::F(title);
 		}
 		cur = cur->next;

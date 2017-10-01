@@ -29,16 +29,16 @@
 #ifdef HAVE_SIGNAL_H
 	#include <signal.h>
 #endif
-#include <libxml/xpath.h>
+//#include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #ifdef LIBXML_XPTR_ENABLED
-	#include <libxml/xpointer.h>
+	//#include <libxml/xpointer.h>
 #endif
 #ifdef LIBXML_DEBUG_ENABLED
-	#include <libxml/debugXML.h>
+	//#include <libxml/debugXML.h>
 #endif
-#include <libxml/threads.h>
+//#include <libxml/threads.h>
 #ifdef LIBXML_PATTERN_ENABLED
 	#include <libxml/pattern.h>
 #endif
@@ -610,7 +610,7 @@ static const char * xmlXPathErrorMessages[] = {
  *
  * Handle a redefinition of attribute error
  */
-static void xmlXPathErrMemory(xmlXPathContextPtr ctxt, const char * extra)
+static void FASTCALL xmlXPathErrMemory(xmlXPathContext * ctxt, const char * extra)
 {
 	SString msg_buf = "Memory allocation failed";
 	if(extra)
@@ -1022,13 +1022,13 @@ static int xmlXPathCompExprAdd(xmlXPathCompExprPtr comp, int ch1, int ch2,
 	comp->steps[comp->nbStep].value3 = value3;
 	if(comp->dict && oneof3(op, XPATH_OP_FUNCTION, XPATH_OP_VARIABLE, XPATH_OP_COLLECT)) {
 		if(value4) {
-			comp->steps[comp->nbStep].value4 = (xmlChar*)xmlDictLookup(comp->dict, (const xmlChar *)value4, -1);
+			comp->steps[comp->nbStep].value4 = (xmlChar*)xmlDictLookupSL(comp->dict, (const xmlChar *)value4);
 			SAlloc::F(value4);
 		}
 		else
 			comp->steps[comp->nbStep].value4 = NULL;
 		if(value5) {
-			comp->steps[comp->nbStep].value5 = (xmlChar*)xmlDictLookup(comp->dict, (const xmlChar *)value5, -1);
+			comp->steps[comp->nbStep].value5 = (xmlChar*)xmlDictLookupSL(comp->dict, (const xmlChar *)value5);
 			SAlloc::F(value5);
 		}
 		else
@@ -1049,9 +1049,9 @@ static int xmlXPathCompExprAdd(xmlXPathCompExprPtr comp, int ch1, int ch2,
  *
  * Swaps 2 operations in the compiled expression
  */
-static void xmlXPathCompSwap(xmlXPathStepOpPtr op) {
+static void xmlXPathCompSwap(xmlXPathStepOpPtr op) 
+{
 	int tmp;
-
 #ifndef LIBXML_THREAD_ENABLED
 	/*
 	 * Since this manipulates possibly shared variables, this is
@@ -1061,28 +1061,21 @@ static void xmlXPathCompSwap(xmlXPathStepOpPtr op) {
 	if(xmlXPathDisableOptimizer)
 		return;
 #endif
-
 	tmp = op->ch1;
 	op->ch1 = op->ch2;
 	op->ch2 = tmp;
 }
 
 #define PUSH_FULL_EXPR(op, op1, op2, val, val2, val3, val4, val5)	\
-	xmlXPathCompExprAdd(ctxt->comp, (op1), (op2),			    \
-	    (op), (val), (val2), (val3), (val4), (val5))
+	xmlXPathCompExprAdd(ctxt->comp, (op1), (op2), (op), (val), (val2), (val3), (val4), (val5))
 #define PUSH_LONG_EXPR(op, val, val2, val3, val4, val5)			\
-	xmlXPathCompExprAdd(ctxt->comp, ctxt->comp->last, -1,		    \
-	    (op), (val), (val2), (val3), (val4), (val5))
-
+	xmlXPathCompExprAdd(ctxt->comp, ctxt->comp->last, -1, (op), (val), (val2), (val3), (val4), (val5))
 #define PUSH_LEAVE_EXPR(op, val, val2)					\
 	xmlXPathCompExprAdd(ctxt->comp, -1, -1, (op), (val), (val2), 0, NULL, NULL)
-
 #define PUSH_UNARY_EXPR(op, ch, val, val2)				\
 	xmlXPathCompExprAdd(ctxt->comp, (ch), -1, (op), (val), (val2), 0, NULL, NULL)
-
 #define PUSH_BINARY_EXPR(op, ch1, ch2, val, val2)			\
-	xmlXPathCompExprAdd(ctxt->comp, (ch1), (ch2), (op),			\
-	    (val), (val2), 0, NULL, NULL)
+	xmlXPathCompExprAdd(ctxt->comp, (ch1), (ch2), (op), (val), (val2), 0, NULL, NULL)
 
 /************************************************************************
 *									*
@@ -4462,9 +4455,7 @@ int xmlXPathRegisterFuncNS(xmlXPathContextPtr ctxt, const xmlChar * name, const 
 	SETIFZ(ctxt->funcHash, xmlHashCreate(0));
 	if(ctxt->funcHash == NULL)
 		return -1;
-	if(f == NULL)
-		return(xmlHashRemoveEntry2(ctxt->funcHash, name, ns_uri, NULL));
-	return(xmlHashAddEntry2(ctxt->funcHash, name, ns_uri, XML_CAST_FPTR(f)));
+	return f ? xmlHashAddEntry2(ctxt->funcHash, name, ns_uri, XML_CAST_FPTR(f)) : xmlHashRemoveEntry2(ctxt->funcHash, name, ns_uri, NULL);
 }
 
 /**
@@ -13591,9 +13582,7 @@ return_1:
 			    return(res->floatval == ctxt->proximityPosition);
 			case XPATH_NODESET:
 			case XPATH_XSLT_TREE:
-			    if(res->nodesetval == NULL)
-				    return 0;
-			    return(res->nodesetval->nodeNr != 0);
+			    return res->nodesetval ? (res->nodesetval->nodeNr != 0) : 0;
 			case XPATH_STRING:
 			    return (res->stringval && (sstrlen(res->stringval) != 0));
 			default:
@@ -13634,17 +13623,13 @@ return_1:
 #endif
 			case XPATH_NODESET:
 			case XPATH_XSLT_TREE:
-			    if(res->nodesetval == NULL)
-				    return 0;
-			    return(res->nodesetval->nodeNr != 0);
+			    return res->nodesetval ? (res->nodesetval->nodeNr != 0) : 0;
 			case XPATH_STRING:
 			    return (res->stringval && (res->stringval[0] != 0));
 #ifdef LIBXML_XPTR_ENABLED
 			case XPATH_LOCATIONSET: {
 			    xmlLocationSetPtr ptr = (xmlLocationSetPtr)res->user;
-			    if(ptr == NULL)
-				    return 0;
-			    return (ptr->locNr != 0);
+			    return ptr ? (ptr->locNr != 0) : 0;
 		    }
 #endif
 			default:

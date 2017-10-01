@@ -1566,13 +1566,12 @@ SLAPI GoodsSubstList::~GoodsSubstList()
 	delete P_Goa;
 }
 
-int SLAPI GoodsSubstList::Init(int saveAssoc, const GoodsSubstList * pSrc)
+void SLAPI GoodsSubstList::Init(int saveAssoc, const GoodsSubstList * pSrc)
 {
 	SaveAssoc = saveAssoc;
 	Clear();
 	if(pSrc)
 		List = pSrc->List;
-	return 1;
 }
 
 int SLAPI GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1652,7 +1651,8 @@ int SLAPI GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
 		}
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 void SLAPI GoodsSubstList::Clear()

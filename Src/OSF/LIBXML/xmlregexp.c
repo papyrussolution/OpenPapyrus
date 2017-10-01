@@ -13,7 +13,6 @@
  *
  * Daniel Veillard <veillard@redhat.com>
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -22,7 +21,7 @@
 
 /* #define DEBUG_ERR */
 
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #include <libxml/xmlregexp.h>
 #include <libxml/xmlautomata.h>
 #include <libxml/xmlunicode.h>

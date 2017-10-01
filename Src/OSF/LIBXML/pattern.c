@@ -27,7 +27,7 @@
 #include "libxml.h"
 #pragma hdrstop
 //#include <libxml/dict.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #include <libxml/pattern.h>
 
 #ifdef LIBXML_PATTERN_ENABLED
@@ -69,9 +69,7 @@
 #define XML_STREAM_XS_IDC_FIELD(c) ((c)->flags & XML_PATTERN_XSFIELD)
 
 #define XML_PAT_COPY_NSNAME(c, r, nsname) \
-	if((c)->comp->dict) \
-		r = (xmlChar*)xmlDictLookup((c)->comp->dict, BAD_CAST nsname, -1); \
-	else r = sstrdup(BAD_CAST nsname);
+	r = ((c)->comp->dict) ? (xmlChar*)xmlDictLookupSL((c)->comp->dict, BAD_CAST nsname) : sstrdup(BAD_CAST nsname);
 
 #define XML_PAT_FREE_STRING(c, r) if((c)->comp->dict == NULL) SAlloc::F(r);
 

@@ -39,10 +39,14 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 	const  char * c = pBuf;
 	char   tmp[32], zero_buf[32];
 	int    i, cnt = 0, div;
-	int    ord; /* 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd */
+	int    ord; // 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd 
 	int    not_empty_year = 0;
-	int    d = 0, m = 0, y = 0;
-	int    plus_d = 0, plus_m = 0, plus_y = 0;
+	int    d = 0;
+	int    m = 0;
+	int    y = 0;
+	int    plus_d = 0;
+	int    plus_m = 0;
+	int    plus_y = 0;
 	int    is_first_subst = 0;
 	long   ret_flags = 0;
 
@@ -118,17 +122,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 				// За одно воспользуемся тем, что количество лидирующих цифр уже подсчитано (dig_count == 4)
 				//
 				if(dig_count == 4 && style != DATF_ISO8601) {
-					if(
-						/*isdec(c[0]) &&
-						isdec(c[1]) &&
-						isdec(c[2]) &&
-						isdec(c[3]) &&*/
-						c[4] == '-' &&
-						isdec(c[5]) &&
-						isdec(c[6]) &&
-						c[7] == '-' &&
-						isdec(c[8]) &&
-						isdec(c[9])) {
+					if(c[4] == '-' && isdec(c[5]) && isdec(c[6]) && c[7] == '-' && isdec(c[8]) && isdec(c[9])) {
 						style = DATF_ISO8601;
 					}
 				}
@@ -266,6 +260,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 		d = 0;
 		m = 0;
 		y = 0;
+		ret_flags |= strtodatefInvalid; // @v9.8.3
 	}
 	ASSIGN_PTR(pYear, y);
 	ASSIGN_PTR(pMon,  m);
@@ -377,7 +372,7 @@ static int gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
 	if(ret_flags & (strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay) && !(flags & strtoprdfEnableAnySign)) {
 		result = TOK_UNKNOWN;
 	}
-	else if(offs > 0 && (ret_flags & (strtodatefRelAny|strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay))) {
+	else if(offs > 0 && ((ret_flags & (strtodatefRelAny|strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay)) || (ret_flags == 0))) { // @v9.8.3 || (ret_flags == 0)
 		(*b) += offs;
 		result = TOK_DATE;
 	}

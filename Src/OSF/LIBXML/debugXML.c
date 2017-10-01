@@ -12,8 +12,8 @@
 #pragma hdrstop
 
 #ifdef LIBXML_DEBUG_ENABLED
-#include <libxml/parserInternals.h>
-#include <libxml/debugXML.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/debugXML.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/xpathInternals.h>
@@ -285,8 +285,8 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 		case XML_TEXT_NODE:
 		    if((node->name == xmlStringText) || (node->name == xmlStringTextNoenc))
 			    break;
-		    /* some case of entity substitution can lead to this */
-		    if((ctxt->dict != NULL) && (node->name == xmlDictLookup(ctxt->dict, BAD_CAST "nbktext", 7)))
+		    // some case of entity substitution can lead to this 
+		    if(ctxt->dict && (node->name == xmlDictLookup(ctxt->dict, BAD_CAST "nbktext", 7)))
 			    break;
 		    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME, "Text node has wrong name '%s'", (const char*)node->name);
 		    break;

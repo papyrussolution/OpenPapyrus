@@ -280,6 +280,7 @@
 #define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
 #define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
 	// не относящиеся к дистрибутиву, из BIN
+#define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки) корневой каталог тестовых данных
 // @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
 #define PPPRP_PRINTER        21L  // Принтер
@@ -8270,6 +8271,8 @@
 	#define CTL_EXTDEV_EXTNODEASALT     (23 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_ALTREG           (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_EXTDEV_ALTREG        (25 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_HOSTICURL        (26 + WINDOWS_ID_BIAS)
+	#define CTLBRW_EXTDEV_HOSTICURL     (27 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101

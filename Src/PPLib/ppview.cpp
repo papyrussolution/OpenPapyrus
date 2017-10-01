@@ -2034,8 +2034,8 @@ int PPViewBrowser::Export()
 			const long type = GETSTYPE(r_c.T);
 			(temp_buf = r_c.text).Transf(CTRANSF_INNER_TO_OUTER);
 			width_ary.add((PPID)temp_buf.Len());
-			fmt = 0;
-			fmt_rus = 0;
+			fmt.Z();
+			fmt_rus.Z();
 			if(type == S_DATE) {
 				fmt.Cat("DD/MM/YY;@");
 				fmt_rus.Cat("ÄÄ/ÌÌ/ÃÃ;@");
@@ -2098,10 +2098,6 @@ int PPViewBrowser::Export()
 	ZDELETE(p_app);
 	if(ok > 0)
 		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
-	/*
-	if(p_def)
-		p_def->top();
-	*/
 	return ok;
 }
 

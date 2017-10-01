@@ -119,6 +119,7 @@
     <ClCompile Include="..\Slib\winsrvc.cpp" />
     <ClCompile Include="..\SLib\wmi.cpp" />
     <ClCompile Include="..\Slib\xtagpars.cpp" />
+    <ClCompile Include="..\SLib\suc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">

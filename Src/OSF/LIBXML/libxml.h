@@ -9,8 +9,6 @@
 #ifndef __XML_LIBXML_H__
 #define __XML_LIBXML_H__
 
-struct xmlDict;
-
 #ifndef NO_LARGEFILE_SOURCE
 	#ifndef _LARGEFILE_SOURCE
 		#define _LARGEFILE_SOURCE
@@ -20,22 +18,27 @@ struct xmlDict;
 	#endif
 #endif
 #include <slib.h> // @sobolev
+//
+// Descr: Macro to cast a string to an xmlChar * when one know its safe.
+//
+#define BAD_CAST (xmlChar*)
+
 #if defined(macintosh)
 	#include "config-mac.h"
 #elif defined(_WIN32_WCE)
-	/*
-	* Windows CE compatibility definitions and functions
-	* This is needed to compile libxml2 for Windows CE.
-	* At least I tested it with WinCE 5.0 for Emulator and WinCE 4.2/SH4 target
-	*/
+	// 
+	// Windows CE compatibility definitions and functions
+	// This is needed to compile libxml2 for Windows CE.
+	// At least I tested it with WinCE 5.0 for Emulator and WinCE 4.2/SH4 target
+	// 
 	#include <win32config.h>
 	#include <libxml/xmlversion.h>
 #else
-	/*
-	* Currently supported platforms use either autoconf or
-	* copy to config.h own "preset" configuration file.
-	* As result ifdef HAVE_CONFIG_H is omited here.
-	*/
+	// 
+	// Currently supported platforms use either autoconf or
+	// copy to config.h own "preset" configuration file.
+	// As result ifdef HAVE_CONFIG_H is omited here.
+	// 
 	#include "config.h"
 	#include <libxml/xmlversion.h>
 #endif
@@ -121,6 +124,15 @@ int xmlNop(void);
 #include <libxml/hash.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlIO.h>
+#include <libxml/parserInternals.h>
+#include <libxml/entities.h>
+#include <libxml/threads.h>
+#include <libxml/SAX.h>
+#include <libxml/SAX2.h>
+#include <libxml/xpath.h>
+#include <libxml/xpointer.h>
+#include <libxml/xpathInternals.h>
+#include <libxml/debugXML.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,7 +161,8 @@ XMLPUBFUN void XMLCALL xmlDictFree(xmlDict * dict);
 // 
 // Lookup of entry in the dictionnary.
 // 
-XMLPUBFUN const xmlChar * XMLCALL xmlDictLookup(xmlDict * dict, const xmlChar *name, int len);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar *name, int len);
+const xmlChar * FASTCALL xmlDictLookupSL(xmlDict * dict, const xmlChar * name);
 XMLPUBFUN const xmlChar * XMLCALL xmlDictExists(xmlDict * dict, const xmlChar *name, int len);
 XMLPUBFUN const xmlChar * XMLCALL xmlDictQLookup(xmlDict * dict, const xmlChar *prefix, const xmlChar *name);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
@@ -213,7 +226,7 @@ XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
 xmlBuf * xmlBufCreate();
 xmlBuf * FASTCALL xmlBufCreateSize(size_t size);
 xmlBuf * FASTCALL xmlBufCreateStatic(void * mem, size_t size);
-int xmlBufSetAllocationScheme(xmlBufPtr buf, xmlBufferAllocationScheme scheme);
+int FASTCALL xmlBufSetAllocationScheme(xmlBuf * buf, xmlBufferAllocationScheme scheme);
 int FASTCALL xmlBufGetAllocationScheme(xmlBuf * buf);
 void FASTCALL xmlBufFree(xmlBuf * buf);
 void FASTCALL xmlBufEmpty(xmlBuf * buf);
@@ -250,7 +263,7 @@ int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, s
 int xmlCharEncFirstLineInt(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in, int len);
 int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len);
 int xmlCharEncInput(xmlParserInputBufferPtr input, int flush);
-int xmlCharEncOutput(xmlOutputBufferPtr output, int init);
+int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 //
 #ifdef __cplusplus
 }

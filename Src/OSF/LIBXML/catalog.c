@@ -28,10 +28,10 @@
 	#ifdef HAVE_FCNTL_H
 		//#include <fcntl.h>
 	#endif
-	#include <libxml/parserInternals.h>
+	//#include <libxml/parserInternals.h>
+	//#include <libxml/threads.h>
 	#include <libxml/catalog.h>
-	#include <libxml/threads.h>
-
+	
 	#define MAX_DELEGATE    50
 	#define MAX_CATAL_DEPTH 50
 	#ifdef _WIN32

@@ -726,6 +726,12 @@ void xmlDictFree(xmlDict * dict)
 		}
 	}
 }
+
+const xmlChar * FASTCALL xmlDictLookupSL(xmlDict * dict, const xmlChar * name)
+{
+	return xmlDictLookup(dict, name, -1);
+}
+
 /**
  * xmlDictLookup:
  * @dict: the dictionnary
@@ -736,7 +742,7 @@ void xmlDictFree(xmlDict * dict)
  *
  * Returns the internal copy of the name or NULL in case of internal error
  */
-const xmlChar * xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
+const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
 {
 	ulong key, okey, nbi = 0;
 	xmlDictEntryPtr entry;
@@ -748,9 +754,9 @@ const xmlChar * xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
 	l = (len < 0) ? strlen((const char*)name) : len;
 	if(((dict->limit > 0) && (l >= dict->limit)) || (l > INT_MAX / 2))
 		return 0;
-	/*
-	 * Check for duplicate and insertion location.
-	 */
+	// 
+	// Check for duplicate and insertion location.
+	// 
 	okey = xmlDictComputeKey(dict, name, l);
 	key = okey % dict->size;
 	if(dict->dict[key].valid == 0) {
@@ -781,14 +787,14 @@ const xmlChar * xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
 	}
 	if(dict->subdict) {
 		ulong skey;
-		/* we cannot always reuse the same okey for the subdict */
+		// we cannot always reuse the same okey for the subdict 
 		if(((dict->size == MIN_DICT_SIZE) && (dict->subdict->size != MIN_DICT_SIZE)) || ((dict->size != MIN_DICT_SIZE) && (dict->subdict->size == MIN_DICT_SIZE)))
 			skey = xmlDictComputeKey(dict->subdict, name, l);
 		else
 			skey = okey;
 		key = skey % dict->subdict->size;
 		if(dict->subdict->dict[key].valid != 0) {
-			xmlDictEntryPtr tmp;
+			xmlDictEntry * tmp;
 			for(tmp = &(dict->subdict->dict[key]); tmp->next; tmp = tmp->next) {
 #ifdef __GNUC__
 				if((tmp->okey == skey) && (tmp->len == l)) {
@@ -815,12 +821,12 @@ const xmlChar * xmlDictLookup(xmlDict * dict, const xmlChar * name, int len)
 	}
 	ret = xmlDictAddString(dict, name, l);
 	if(ret) {
-		if(insert == NULL) {
+		if(!insert) {
 			entry = &(dict->dict[key]);
 		}
 		else {
 			entry = (xmlDictEntryPtr)SAlloc::M(sizeof(xmlDictEntry));
-			if(entry == NULL)
+			if(!entry)
 				return 0;
 		}
 		entry->name = ret;
@@ -947,8 +953,8 @@ const xmlChar * xmlDictQLookup(xmlDict * dict, const xmlChar * prefix, const xml
 	uint len, plen, l;
 	if((dict == NULL) || (name == NULL))
 		return 0;
-	if(prefix == NULL)
-		return(xmlDictLookup(dict, name, -1));
+	if(!prefix)
+		return xmlDictLookupSL(dict, name);
 	l = len = strlen((const char*)name);
 	plen = strlen((const char*)prefix);
 	len += 1 + plen;

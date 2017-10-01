@@ -536,7 +536,7 @@
 			MENUITEM "@cmd_gtajournal",						cmGtaJournal
 			MENUITEM "@cmd_createreservedobjs",             cmCreateReservedObjs // @v9.0.5
 			MENUITEM "@cmd_buildlocaldl600",                cmBuildLocalDL600 // @v9.1.7
-			MENUITEM "Проверка корректности XML-файла",     cmValidateXml // @v9.8.3
+			MENUITEM "@cmd_validatexml",                    cmValidateXml // @v9.8.3
 			POPUP "@cmdpu_testing" {
 				MENUITEM "@cmd_generategoodsbills",			cmGenerateGoodsBills
 				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport

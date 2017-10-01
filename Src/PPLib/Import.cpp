@@ -6087,7 +6087,9 @@ IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 	}
 	return si;
 }
-
+//
+// Descr: Построение пропорциональной гео-координатной решетки 
+//
 int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
 {
 	rGridList.freeAll();
@@ -6162,10 +6164,7 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 			}
 			f_lon.Seek64(0);
         }
-        {
-        	//PPTXT_BUILDINGGEOGRID             "Построение пропорциональной гео-координатной решетки '%s'"
-        	PPLoadText(PPTXT_BUILDINGGEOGRID, fmt_buf);
-        }
+       	PPLoadText(PPTXT_BUILDINGGEOGRID, fmt_buf);
         const uint grid_count = (uppDim - lowDim) + 1;
         {
 			for(uint i = lowDim; i <= uppDim; i++) {
@@ -6334,7 +6333,6 @@ static SString & MakeSuffixedTxtFileName(const SString & rSrcFileName, const cha
 
 int SLAPI PrcssrOsm::SortFile(const char * pSrcFileName, const char * pSuffix, CompFunc fcmp)
 {
-
 	int    ok = -1;
 	//const size_t sort_max_chunk = 32 * 1024 * 1024;
 	//const uint sort_max_chunk_count = 16;
@@ -6381,16 +6379,7 @@ int SLAPI PrcssrOsm::Run()
 	SString out_file_name;
 	SString temp_buf;
 	SPathStruc ps;
-	const  char * p_db_path = 0; // "/PAPYRUS/PPY/BIN/SARTRDB";
-	/*
-	{
-		//
-		// DEBUG
-		//
-		PPOsm _debug_o(0);
-		THROW(_debug_o.OpenDatabase(p_db_path));
-	}
-	*/
+	const  char * p_db_path = 0;
 	PPWait(1);
 	RestoredStat.Clear();
 	{
@@ -6512,6 +6501,7 @@ int SLAPI PrcssrOsm::Run()
 		Phase = phaseSortPreprcResults;
         PPLoadText(PPTXT_SORTSPLIT, FmtMsg_SortSplit);
 		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
+		THROW(SortFile(file_name, "distance", PTR_CMPCFUNC(STRINT64))); // @v9.8.3
 		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "lon", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "nodewayassoc", PTR_CMPCFUNC(STRINT64)));

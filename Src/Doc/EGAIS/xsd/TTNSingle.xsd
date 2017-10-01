@@ -150,7 +150,7 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element name="Price" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+      <xs:element name="Price" type="c:NoNegativeDecimalType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Цена за единицу товара</xs:documentation>
         </xs:annotation>
@@ -224,7 +224,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="500"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -234,7 +234,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="50"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
 
@@ -245,7 +245,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="50"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -255,7 +255,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="500"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -265,7 +265,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="50"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -305,7 +305,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:maxLength value="50"/>
+            <xs:maxLength value="255"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>

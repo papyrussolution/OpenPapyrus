@@ -1693,7 +1693,7 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 {
 	rResult = 0;
 	int    token = 0;
-	if(Scan.P_Buf == 0) {
+	if(!Scan.GetBuf()) {
 		THROW_SL(rFile.ReadLine(LineBuf));
 		LineNo++;
 		Scan.Set(LineBuf.Chomp(), 0);

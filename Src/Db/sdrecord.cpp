@@ -204,7 +204,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 	while(ok && (tok = GetNextToken(rScan, *p_re_list, &tok_val, tok_buf)) != 0) {
 		if(tok == TOK_TYPE) {
 			if(T.Typ)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.P_Buf + prev_offs);
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
 			else
 				T.Typ = (TYPEID)tok_val;
 		}
@@ -212,20 +212,20 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			if(prev_tok == TOK_SLASH)
 				Name.Cat(tok_buf);
 			else if(Name.NotEmpty())
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.P_Buf + prev_offs);
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
 			else
 				Name = tok_buf;
 		}
 		else if(tok == TOK_SLASH) {
 			if(prev_tok != TOK_SYMB)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.P_Buf + prev_offs);
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
 			else {
 				Name.CatChar('\\');
 			}
 		}
 		else if(tok == TOK_SIZE) {
 			if(OuterFormat)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.P_Buf + prev_offs);
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
 			else
 				OuterFormat = tok_val;
 		}
@@ -235,7 +235,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			break;
 	}
 	if(!T.Typ || Name.Empty())
-		ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.P_Buf + org_offs);
+		ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(org_offs));
 	if(!ok) {
 		rScan.Offs = org_offs;
 		rScan.Len = 0;

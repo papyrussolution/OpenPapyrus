@@ -945,7 +945,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 							THROW_PP_S(p_scope, PPERR_TDDO_UNDEFDATANAME, meta.Text);
 							pblk.Ep.OutputFormat = rBlk.Ep.OutputFormat; // @v8.8.3
 							if(meta.Param.NotEmptyS()) {
-								const char * p_preserve_buf = Scan.P_Buf;
+								const char * p_preserve_buf = Scan.GetBuf();
 								Scan.Push();
 								Scan.Set(meta.Param, 0);
 								Meta m;

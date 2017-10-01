@@ -91,7 +91,7 @@
           <xs:documentation>Регистрационный номер записи справки Б</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="RealQuantity" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+      <xs:element name="RealQuantity" type="c:NoNegativeDecimalType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Количество фактическое</xs:documentation>
         </xs:annotation>

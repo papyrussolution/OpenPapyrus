@@ -474,6 +474,18 @@ int SLAPI PPCashMachine::SyncCloseSession()
 			THROW(tra.Commit());
 			//
 			THROW(P_SyncIntrf->CloseSession(sess_id));
+			{
+				ObjTagItem tag_item;
+				if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, NodeRec.ID, PPTAG_POSNODE_HOSTUUID, &tag_item) > 0) {
+					PPPosProtocol::RouteBlock dest_rb;
+					if(tag_item.GetGuid(&dest_rb.Uuid) > 0) {
+						PPIDArray sess_list;
+						sess_list.add(sess_id);
+						PPPosProtocol pp;
+						THROW(pp.ExportPosSession(sess_list, NodeRec.ID, 0, &dest_rb));
+					}
+				}
+			}
 			PPWait(0);
 			ok = 1;
 		}

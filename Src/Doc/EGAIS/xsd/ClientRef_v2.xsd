@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema  version="1.0"
             xmlns:ns=       "http://fsrar.ru/WEGAIS/ClientRef_v2" 
             targetNamespace="http://fsrar.ru/WEGAIS/ClientRef_v2" 
@@ -40,6 +40,16 @@
       <xs:element name="State" type="xs:string" minOccurs="0" maxOccurs="1" nillable="true">
         <xs:annotation>
           <xs:documentation>Статус: действующая или удалена</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VersionWB" type="c:NoEmptyString50" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>Версия схемы накладной принимаемая организацией</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="isLicense" type="xs:boolean" minOccurs="0" maxOccurs="1" nillable="true">
+        <xs:annotation>
+          <xs:documentation>Наличие действующей лицензии</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:all>
@@ -156,18 +166,6 @@
       <xs:pattern value="[0-9]{12}" />
     </xs:restriction>
   </xs:simpleType>
-
-  <xs:complexType name="OrgLicenseType">
-    <xs:annotation>
-      <xs:documentation>Лицензия организации</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="number" type="xs:string" minOccurs="1" maxOccurs="1"/>
-      <xs:element name="datefrom" type="c:DateNoTime"  minOccurs="1" maxOccurs="1"/>
-      <xs:element name="dateto" type="c:DateNoTime" minOccurs="1" maxOccurs="1"/>
-      <xs:element name="orgdistribute" type="xs:string" minOccurs="0" maxOccurs="1"/>
-    </xs:sequence>
-  </xs:complexType>
 
   <xs:complexType name="ProductContractType">
     <xs:annotation>

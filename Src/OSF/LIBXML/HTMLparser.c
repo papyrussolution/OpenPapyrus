@@ -22,10 +22,10 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
-#include <libxml/entities.h>
+//#include <libxml/entities.h>
 
 #define HTML_MAX_NAMELEN 1000
 #define HTML_PARSER_BIG_BUFFER_SIZE 1000
@@ -437,7 +437,7 @@ static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 	 * Humm this is bad, do an automatic flow conversion
 	 */
 	{
-		xmlCharEncodingHandlerPtr handler;
+		xmlCharEncodingHandler * handler;
 		xmlChar * guess = htmlFindEncoding(ctxt);
 		if(guess == NULL) {
 			xmlSwitchEncoding(ctxt, XML_CHAR_ENCODING_8859_1);
@@ -1033,7 +1033,6 @@ void htmlInitAutoClose()
 		htmlStartCloseIndexinitialized = 1;
 	}
 }
-
 /**
  * htmlTagLookup:
  * @tag:  The tag name in lowercase
@@ -1045,12 +1044,11 @@ void htmlInitAutoClose()
 const htmlElemDesc * htmlTagLookup(const xmlChar * tag) 
 {
 	for(uint i = 0; i < SIZEOFARRAY(html40ElementTable); i++) {
-		if(!xmlStrcasecmp(tag, BAD_CAST html40ElementTable[i].name))
-			return((htmlElemDescPtr) &html40ElementTable[i]);
+		if(sstreqi_ascii(tag, BAD_CAST html40ElementTable[i].name))
+			return (htmlElemDescPtr)&html40ElementTable[i];
 	}
 	return NULL;
 }
-
 /**
  * htmlGetEndPriority:
  * @name: The name of the element to look up the priority for.
@@ -1987,7 +1985,7 @@ static int areBlanks(htmlParserCtxtPtr ctxt, const xmlChar * str, int len)
 		if(sstreq(ctxt->name, "body") && ctxt->myDoc) {
 			xmlDtd * dtd = xmlGetIntSubset(ctxt->myDoc);
 			if(dtd && dtd->ExternalID) {
-				if(!xmlStrcasecmp(dtd->ExternalID, BAD_CAST "-//W3C//DTD HTML 4.01//EN") || !xmlStrcasecmp(dtd->ExternalID, BAD_CAST "-//W3C//DTD HTML 4//EN"))
+				if(sstreqi_ascii(dtd->ExternalID, BAD_CAST "-//W3C//DTD HTML 4.01//EN") || sstreqi_ascii(dtd->ExternalID, BAD_CAST "-//W3C//DTD HTML 4//EN"))
 					return 1;
 			}
 		}
@@ -3178,7 +3176,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxtPtr ctxt, const xmlChar * enco
 		return;
 	if(encoding) {
 		xmlCharEncoding enc;
-		xmlCharEncodingHandlerPtr handler;
+		xmlCharEncodingHandler * handler;
 		while((*encoding == ' ') || (*encoding == '\t'))
 			encoding++;
 		SAlloc::F((xmlChar*)ctxt->input->encoding);
@@ -3270,22 +3268,22 @@ static void htmlCheckMeta(htmlParserCtxtPtr ctxt, const xmlChar ** atts)
 	const xmlChar * att, * value;
 	int http = 0;
 	const xmlChar * content = NULL;
-	if(!ctxt || (atts == NULL))
-		return;
-	i = 0;
-	att = atts[i++];
-	while(att != NULL) {
-		value = atts[i++];
-		if(value && (!xmlStrcasecmp(att, BAD_CAST "http-equiv")) && (!xmlStrcasecmp(value, BAD_CAST "Content-Type")))
-			http = 1;
-		else if(value && (!xmlStrcasecmp(att, BAD_CAST "charset")))
-			htmlCheckEncodingDirect(ctxt, value);
-		else if(value && (!xmlStrcasecmp(att, BAD_CAST "content")))
-			content = value;
+	if(ctxt && atts) {
+		i = 0;
 		att = atts[i++];
+		while(att) {
+			value = atts[i++];
+			if(value && sstreqi_ascii(att, BAD_CAST "http-equiv") && sstreqi_ascii(value, BAD_CAST "Content-Type"))
+				http = 1;
+			else if(value && sstreqi_ascii(att, BAD_CAST "charset"))
+				htmlCheckEncodingDirect(ctxt, value);
+			else if(value && sstreqi_ascii(att, BAD_CAST "content"))
+				content = value;
+			att = atts[i++];
+		}
+		if(http && content)
+			htmlCheckEncoding(ctxt, content);
 	}
-	if((http) && (content != NULL))
-		htmlCheckEncoding(ctxt, content);
 }
 
 /**
@@ -4444,7 +4442,7 @@ static htmlParserCtxtPtr htmlCreateDocParserCtxt(const xmlChar * cur, const char
 		return NULL;
 	if(encoding) {
 		xmlCharEncoding enc;
-		xmlCharEncodingHandlerPtr handler;
+		xmlCharEncodingHandler * handler;
 		SAlloc::F((xmlChar*)ctxt->input->encoding);
 		ctxt->input->encoding = sstrdup((const xmlChar*)encoding);
 		enc = xmlParseCharEncoding(encoding);

@@ -23,7 +23,7 @@
     <xs:restriction base="xs:date">
       <xs:pattern value="((000[1-9])|(00[1-9][0-9])|(0[1-9][0-9]{2})|([1-9][0-9]{3}))-((0[1-9])|(1[012]))-((0[1-9])|([12][0-9])|(3[01]))" />
       <xs:maxInclusive value="2100-12-31" />
-      <xs:minInclusive value="2000-01-01" />
+      <xs:minInclusive value="1900-01-01" />
     </xs:restriction>
   </xs:simpleType>
   
@@ -68,5 +68,30 @@
       <xs:minExclusive value="0"/>
     </xs:restriction>
   </xs:simpleType>
-  
+
+  <xs:simpleType name="NoNegativeDecimalType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlcPercentType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MonthType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="YearType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
 </xs:schema>

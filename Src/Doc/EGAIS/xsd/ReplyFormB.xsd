@@ -60,6 +60,11 @@
           <xs:documentation>Количество</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="ExciseRate" type="c:NoNegativeDecimalType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Ставка акциза</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="MarkInfo" type="pref:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Информация о марках</xs:documentation>

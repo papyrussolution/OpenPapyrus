@@ -286,9 +286,10 @@ static void SetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, 
 
 static void GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
-	char   temp_buf[256];
-	dlg->getCtrlData(ctlID, temp_buf);
-	if(*strip(temp_buf))
+	//char   temp_buf[256];
+	SString temp_buf;
+	dlg->getCtrlString(ctlID, temp_buf);
+	if(temp_buf.NotEmptyS())
 		pData->SetExtField(strID, temp_buf);
 }
 
@@ -301,10 +302,11 @@ static void SetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, 
 
 static void GetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
-	char   temp_buf[256];
+	//char   temp_buf[256];
+	SString temp_buf;
 	long   val = 0;
 	dlg->getCtrlData(ctlID, &val);
-	ltoa(val, temp_buf, 10);
+	temp_buf.Cat(val);
 	pData->SetExtField(strID, temp_buf);
 }
 
@@ -352,7 +354,7 @@ public:
 	{
 		int    ok = 1;
 		uint   selctl = 0;
-		char   temp_buf[64];
+		SString temp_buf;
 		getCtrlData(selctl = CTL_MAILACC_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
 		GetExtStrData(this, &Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
@@ -361,10 +363,10 @@ public:
 		GetExtStrData(this, &Data, CTL_MAILACC_RCVSRV,   MAEXSTR_RCVSERVER);
 		GetExtIntData(this, &Data, CTL_MAILACC_RCVPORT,  MAEXSTR_RCVPORT);
 		GetExtStrData(this, &Data, CTL_MAILACC_RCVNAME,  MAEXSTR_RCVNAME);
-		getCtrlData(CTL_MAILACC_RCVPASSWORD, temp_buf);
+		getCtrlString(CTL_MAILACC_RCVPASSWORD, temp_buf);
 		getCtrlData(CTLSEL_MAILACC_AUTHTYPE, &Data.SmtpAuthType);
 		Data.SetPassword(temp_buf);
-		IdeaRandMem(temp_buf, sizeof(temp_buf));
+		temp_buf.Obfuscate();
 		getCtrlData(selctl = CTL_MAILACC_TIMEOUT, &Data.Timeout);
 		THROW_PP(Data.Timeout >= 0 && Data.Timeout <= 600, PPERR_USERINPUT);
 		GetClusterData(CTL_MAILACC_FLAGS, &Data.Flags); // @v8.3.5
@@ -427,7 +429,7 @@ public:
 		getCtrlData(selctl = CTL_FTPACCT_TIMEOUT, &Data.Timeout);
 		THROW_PP(Data.Timeout >= 0 && Data.Timeout <= 600, PPERR_USERINPUT);
 		getCtrlData(CTL_FTPACCT_ID, &Data.ID);
-		GetClusterData(CTL_FTPACCT_FLAGS, &Data.Flags); // @v6.4.4 AHTOXA
+		GetClusterData(CTL_FTPACCT_FLAGS, &Data.Flags);
 		Data.Flags |= PPInternetAccount::fFtpAccount;
 		ASSIGN_PTR(pData, Data);
 		CATCH

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema version="1.0"
            xmlns:ns="http://fsrar.ru/WEGAIS/ActChargeOn_v2"
            targetNamespace="http://fsrar.ru/WEGAIS/ActChargeOn_v2"
@@ -83,7 +83,7 @@
         </xs:unique>
 
         <xs:unique name="MarkCodeUn">
-          <xs:selector xpath="ns:Position/ns:MarkCodeInfo/ns:MarkCode"/>
+          <xs:selector xpath="ns:Position/ns:MarkCodeInfo/MarkCode"/>
           <xs:field xpath="."/>
         </xs:unique>
 
@@ -111,6 +111,24 @@
           <xs:documentation>Количество</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="alcPercent" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMin" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Минимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMax" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Максимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
       <xs:element name="InformF1F2" nillable="false" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Справки 1 и 2</xs:documentation>
@@ -126,15 +144,15 @@
         </xs:complexType>
       </xs:element>
 
-      <xs:element name="MarkCodeInfo"  type="ce:MarkCodeInfoType" minOccurs="0" maxOccurs="1">
+      
+      <xs:element name="MarkCodeInfo" type="ce:MarkCodeInfoType" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>Перечень считанных кодов марок</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:all>
   </xs:complexType>
-
- 
+  
   <xs:complexType name="InformF1F2RegType">
     <xs:annotation>
       <xs:documentation>Справки 1 и 2 документы</xs:documentation>
@@ -148,4 +166,16 @@
     </xs:sequence>
   </xs:complexType>
 
+<!--  
+  <xs:complexType name="MarkCodeInfoType">
+    <xs:annotation>
+      <xs:documentation>Список считанных кодов марок</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MarkCode" type="c:PDF417String" nillable="false" minOccurs="1" maxOccurs="unbounded" >
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+-->  
+  
 </xs:schema>

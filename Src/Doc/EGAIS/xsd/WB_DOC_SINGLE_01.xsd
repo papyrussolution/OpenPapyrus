@@ -8,6 +8,8 @@
            targetNamespace="http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
            xmlns:ns="http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonEnum"
+           xmlns:cev="http://fsrar.ru/WEGAIS/CommonV3"
            xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
            xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
            xmlns:wb="http://fsrar.ru/WEGAIS/TTNSingle"
@@ -17,21 +19,85 @@
            xmlns:ain="http://fsrar.ru/WEGAIS/ActInventorySingle"
            xmlns:ainp="http://fsrar.ru/WEGAIS/ActChargeOn"
            xmlns:qp="http://fsrar.ru/WEGAIS/QueryParameters"
+           xmlns:wbr="http://fsrar.ru/WEGAIS/TTNInformBReg"
+           xmlns:aint="http://fsrar.ru/WEGAIS/ActInventoryInformBReg"
+           xmlns:qf="http://fsrar.ru/WEGAIS/QueryFormAB"
+           xmlns:awr="http://fsrar.ru/WEGAIS/ActWriteOff"
+           xmlns:rpp="http://fsrar.ru/WEGAIS/RepProducedProduct"
+           xmlns:rpi="http://fsrar.ru/WEGAIS/RepImportedProduct"
+
            xmlns:rssp="http://fsrar.ru/WEGAIS/ReplySSP"
            xmlns:rs="http://fsrar.ru/WEGAIS/ReplySpirit"
            xmlns:rc="http://fsrar.ru/WEGAIS/ReplyClient"
            xmlns:rap="http://fsrar.ru/WEGAIS/ReplyAP"
            xmlns:rst="http://fsrar.ru/WEGAIS/ReplyRests"
-           xmlns:wbr="http://fsrar.ru/WEGAIS/TTNInformBReg"
-           xmlns:aint="http://fsrar.ru/WEGAIS/ActInventoryInformBReg"
-           xmlns:qf="http://fsrar.ru/WEGAIS/QueryFormAB"
            xmlns:rfa="http://fsrar.ru/WEGAIS/ReplyFormA"
            xmlns:rfb="http://fsrar.ru/WEGAIS/ReplyFormB"
-           xmlns:awr="http://fsrar.ru/WEGAIS/ActWriteOff"
+           
+           xmlns:rfhb="http://fsrar.ru/WEGAIS/ReplyHistFormB"
+           xmlns:orefv="http://fsrar.ru/WEGAIS/ReplyClientVersion"
           
->
+           xmlns:oref2="http://fsrar.ru/WEGAIS/ClientRef_v2"
+           xmlns:pref2="http://fsrar.ru/WEGAIS/ProductRef_v2"
+           xmlns:qrrp="http://fsrar.ru/WEGAIS/QueryRejectRepProduced"
+           xmlns:qrri="http://fsrar.ru/WEGAIS/QueryRejectRepImported"
+           
+           xmlns:rssp2="http://fsrar.ru/WEGAIS/ReplySSP_v2"
+           xmlns:rs2="http://fsrar.ru/WEGAIS/ReplySpirit_v2"
+           xmlns:rc2="http://fsrar.ru/WEGAIS/ReplyClient_v2"
+           xmlns:rap2="http://fsrar.ru/WEGAIS/ReplyAP_v2"
+           xmlns:rst2="http://fsrar.ru/WEGAIS/ReplyRests_v2"
+           xmlns:rfa2="http://fsrar.ru/WEGAIS/ReplyForm1"
+           xmlns:rfb2="http://fsrar.ru/WEGAIS/ReplyForm2"
+           xmlns:rfhb2="http://fsrar.ru/WEGAIS/ReplyHistForm2"
+           xmlns:wb2="http://fsrar.ru/WEGAIS/TTNSingle_v2"
+           xmlns:wa2="http://fsrar.ru/WEGAIS/ActTTNSingle_v2"
+           xmlns:ainp2="http://fsrar.ru/WEGAIS/ActChargeOn_v2"
+           xmlns:wbr2="http://fsrar.ru/WEGAIS/TTNInformF2Reg"
+           xmlns:aint2="http://fsrar.ru/WEGAIS/ActInventoryInformF2Reg"
+           xmlns:qf2="http://fsrar.ru/WEGAIS/QueryFormF1F2"
+           xmlns:awr2="http://fsrar.ru/WEGAIS/ActWriteOff_v2"
+           xmlns:tfs="http://fsrar.ru/WEGAIS/TransferFromShop"
+           xmlns:tts="http://fsrar.ru/WEGAIS/TransferToShop"
+           xmlns:ripf1="http://fsrar.ru/WEGAIS/RepInformF1Reg"
+           xmlns:nattn="http://fsrar.ru/WEGAIS/ReplyNoAnswerTTN"
+           xmlns:rsts2="http://fsrar.ru/WEGAIS/ReplyRestsShop_v2"
+           xmlns:asiu="http://fsrar.ru/WEGAIS/Asiiu"
+           xmlns:asiut="http://fsrar.ru/WEGAIS/AsiiuTime"
+
+           xmlns:ains2="http://fsrar.ru/WEGAIS/ActChargeOnShop_v2"
+           xmlns:awrs2="http://fsrar.ru/WEGAIS/ActWriteOffShop_v2"
+           xmlns:wbfu="http://fsrar.ru/WEGAIS/InfoVersionTTN"
+           xmlns:qbc="http://fsrar.ru/WEGAIS/QueryBarcode"
+           xmlns:rbc="http://fsrar.ru/WEGAIS/ReplyBarcode"
+           xmlns:rrwb="http://fsrar.ru/WEGAIS/RequestRepealWB"
+           xmlns:crwb="http://fsrar.ru/WEGAIS/ConfirmRepealWB"
+           xmlns:rraco="http://fsrar.ru/WEGAIS/RequestRepealACO"
+           xmlns:rrawo="http://fsrar.ru/WEGAIS/RequestRepealAWO"
+
+           xmlns:rstm="http://fsrar.ru/WEGAIS/ReplyRests_Mini"
+           xmlns:rstsm="http://fsrar.ru/WEGAIS/ReplyRestsShop_Mini"
+           xmlns:raddp="http://fsrar.ru/WEGAIS/RequestAddProducts"
+           xmlns:raddf="http://fsrar.ru/WEGAIS/RequestAddFProducer"
+           xmlns:rhrs="http://fsrar.ru/WEGAIS/ReplyHistoryShop"
+           xmlns:rwoc="http://fsrar.ru/WEGAIS/ReplyWriteOffCheque"
+           xmlns:ascp="http://fsrar.ru/WEGAIS/AscpNavigation"
+
+           xmlns:wb3="http://fsrar.ru/WEGAIS/TTNSingle_v3"
+           xmlns:awr3="http://fsrar.ru/WEGAIS/ActWriteOff_v3"
+           xmlns:wa3="http://fsrar.ru/WEGAIS/ActTTNSingle_v3"
+           xmlns:rpp3="http://fsrar.ru/WEGAIS/RepProducedProduct_v3"
+           xmlns:rpi3="http://fsrar.ru/WEGAIS/RepImportedProduct_v3"
+           xmlns:rsbc="http://fsrar.ru/WEGAIS/ReplyRestBCode"
+           xmlns:afbc="http://fsrar.ru/WEGAIS/ActFixBarCode"
+           xmlns:aufbc="http://fsrar.ru/WEGAIS/ActUnFixBarCode"
+           xmlns:rrhb2="http://fsrar.ru/WEGAIS/ReplyParentHistForm2"
+           xmlns:wbhr2="http://fsrar.ru/WEGAIS/TTNHistoryF2Reg"
+           >
 
   <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonV3" schemaLocation="EGCommonV3.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef" schemaLocation="ClientRef.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef" schemaLocation="ProductRef.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/TTNSingle" schemaLocation="TTNSingle.xsd"/>
@@ -43,6 +109,11 @@
   <xs:import namespace="http://fsrar.ru/WEGAIS/ActInventoryInformBReg" schemaLocation="ActInventoryInformBReg.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/QueryParameters" schemaLocation="QueryParameters.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/QueryFormAB" schemaLocation="QueryFormAB.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNInformBReg" schemaLocation="TTNInformBReg.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActWriteOff" schemaLocation="ActWriteOff.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RepProducedProduct" schemaLocation="RepProducedProduct.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RepImportedProduct" schemaLocation="RepImportedProduct.xsd"/>
+
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplySSP" schemaLocation="ReplySSP.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplySpirit" schemaLocation="ReplySpirit.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyClient" schemaLocation="ReplyClient.xsd"/>
@@ -50,8 +121,67 @@
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRests" schemaLocation="ReplyRests.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyFormA" schemaLocation="ReplyFormA.xsd"/>
   <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyFormB" schemaLocation="ReplyFormB.xsd"/>
-  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNInformBReg" schemaLocation="TTNInformBReg.xsd"/>
-  <xs:import namespace="http://fsrar.ru/WEGAIS/ActWriteOff" schemaLocation="ActWriteOff.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyHistFormB" schemaLocation="ReplyHistFormB.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyClientVersion" schemaLocation="ReplyClientVersion.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/QueryRejectRepProduced" schemaLocation="QueryRejectRepProduced.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/QueryRejectRepImported" schemaLocation="QueryRejectRepImported.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplySSP_v2" schemaLocation="ReplySSP_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplySpirit_v2" schemaLocation="ReplySpirit_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyClient_v2" schemaLocation="ReplyClient_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyAP_v2" schemaLocation="ReplyAP_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRests_v2" schemaLocation="ReplyRests_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyForm1" schemaLocation="ReplyForm1.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyForm2" schemaLocation="ReplyForm2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyHistForm2" schemaLocation="ReplyHistForm2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNSingle_v2" schemaLocation="TTNSingle_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActTTNSingle_v2" schemaLocation="TTNActSingle_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActChargeOn_v2" schemaLocation="ActChargeOn_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActInventoryInformF2Reg" schemaLocation="ActInventoryInformF2Reg.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/QueryFormF1F2" schemaLocation="QueryFormF1F2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNInformF2Reg" schemaLocation="TTNInformF2Reg.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActWriteOff_v2" schemaLocation="ActWriteOff_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TransferFromShop" schemaLocation="TransferFromShop.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TransferToShop" schemaLocation="TransferToShop.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RepInformF1Reg" schemaLocation="RepInformF1Reg.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyNoAnswerTTN" schemaLocation="ReplyNoAnswerTTN.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRestsShop_v2" schemaLocation="ReplyRestsShop_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Asiiu" schemaLocation="Asiiu.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/AsiiuTime" schemaLocation="AsiiuTime.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActChargeOnShop_v2" schemaLocation="ActChargeOnShop_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActWriteOffShop_v2" schemaLocation="ActWriteOffShop_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/InfoVersionTTN" schemaLocation="InfoVersionTTN.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/QueryBarcode" schemaLocation="QueryBarcode.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyBarcode" schemaLocation="ReplyBarcode.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RequestRepealWB" schemaLocation="RequestRepealWB.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ConfirmRepealWB" schemaLocation="ConfirmRepealWB.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RequestRepealACO" schemaLocation="RequestRepealACO.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RequestRepealAWO" schemaLocation="RequestRepealAWO.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRests_Mini" schemaLocation="ReplyRests_Mini.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRestsShop_Mini" schemaLocation="ReplyRestsShop_Mini.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RequestAddProducts" schemaLocation="RequestAddProducts.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RequestAddFProducer" schemaLocation="RequestAddForeignProducer.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyHistoryShop" schemaLocation="ReplyHistoryShop.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyWriteOffCheque" schemaLocation="ReplyWriteOffCheque.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/AscpNavigation" schemaLocation="ASCPNavigation.xsd"/>
+
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNSingle_v3" schemaLocation="TTNSingle_v3.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActWriteOff_v3" schemaLocation="ActWriteOff_v3.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActTTNSingle_v3" schemaLocation="TTNActSingle_v3.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RepProducedProduct_v3" schemaLocation="RepProducedProduct_v3.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/RepImportedProduct_v3" schemaLocation="RepImportedProduct_v3.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyRestBCode" schemaLocation="ReplyRestBCode.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActFixBarCode" schemaLocation="ActFixBarCode.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ActUnFixBarCode" schemaLocation="ActUnFixBarCode.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ReplyParentHistForm2" schemaLocation="ReplyParentHistForm2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/TTNHistoryF2Reg" schemaLocation="TTNHistoryF2Reg.xsd"/>
 
   <xs:element name="Documents">
     <xs:annotation>
@@ -64,42 +194,131 @@
             <xs:documentation>Организация, которая предоставляет документы</xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="Document" minOccurs="1" maxOccurs="1">
+        <xs:element name="Document" minOccurs="1" maxOccurs="1"  nillable="0" type="ns:DocBody">
           <xs:annotation>
             <xs:documentation>Документ</xs:documentation>
           </xs:annotation>
-          <xs:complexType>
-            <xs:choice>
-              <xs:element name="WayBill" type="wb:WayBillType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="Ticket" type="tc:TicketType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="WayBillAct" type="wa:WayBillActType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ConfirmTicket" type="ctc:ConfirmTicketType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="TTNInformBReg" type="wbr:WayBillInformBRegType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ActInventory" type="ain:ActInventoryType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ActChargeOn" type="ainp:ActChargeOnType" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ActInventoryInformBReg" type="aint:ActInventoryInformBReg" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QueryAP" type="qp:QueryParameters" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QuerySSP" type="qp:QueryParameters" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QuerySP" type="qp:QueryParameters" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QueryClients" type="qp:QueryParameters" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QueryRests" type="qp:QueryParameters" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QueryFormA" type="qf:QueryFormAB" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="QueryFormB" type="qf:QueryFormAB" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplySSP" type="rssp:ReplySSP" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplySpirit" type="rs:ReplySpirit" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplyClient" type="rc:ReplyClient" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplyAP" type="rap:ReplyAP" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplyRests" type="rst:ReplyRests" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplyFormA" type="rfa:ReplyFormA" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ReplyFormB" type="rfb:ReplyFormB" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="ActWriteOff" type="awr:ActWriteOffType" minOccurs="0" maxOccurs="1"/>
-            </xs:choice>
-          </xs:complexType>
         </xs:element>
       </xs:sequence>
       <xs:attribute name="Version" type="c:NoEmptyString" default="1.0"/>
     </xs:complexType>
   </xs:element>
+
+  <xs:complexType name="DocBody">
+    <xs:choice minOccurs="1" maxOccurs="1" id="name">
+      <xs:element name="WayBill" type="wb:WayBillType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Ticket" type="tc:TicketType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="WayBillAct" type="wa:WayBillActType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ConfirmTicket" type="ctc:ConfirmTicketType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="TTNInformBReg" type="wbr:WayBillInformBRegType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActInventory" type="ain:ActInventoryType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActChargeOn" type="ainp:ActChargeOnType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActInventoryInformBReg" type="aint:ActInventoryInformBReg" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryAP" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QuerySSP" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QuerySP" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryClients" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryClientVersion" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryRests" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      
+      <xs:element name="QueryFormBHistory" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryResendDoc" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      
+      <xs:element name="QueryFormA" type="qf:QueryFormAB" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryFormB" type="qf:QueryFormAB" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActWriteOff" type="awr:ActWriteOffType" minOccurs="1" maxOccurs="1"/>
+      
+      <xs:element name="RepProducedProduct" type="rpp:RepProducedType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RepImportedProduct" type="rpi:RepImportedType" minOccurs="1" maxOccurs="1"/>
+
+      <xs:element name="ReplySSP" type="rssp:ReplySSP" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplySpirit" type="rs:ReplySpirit" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyClient" type="rc:ReplyClient" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyAP" type="rap:ReplyAP" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyRests" type="rst:ReplyRests" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyFormA" type="rfa:ReplyFormA" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyFormB" type="rfb:ReplyFormB" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="ReplyHistFormB" type="rfhb:ReplyHistFormB" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyClientVersion" type="orefv:ReplyClientVersion" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="QueryRejectRepProduced" type="qrrp:QueryRejectRepProduced" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="QueryRejectRepImported" type="qrri:QueryRejectRepImported" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="ReplySSP_v2" type="rssp2:ReplySSP_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplySpirit_v2" type="rs2:ReplySpirit_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyClient_v2" type="rc2:ReplyClient_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyAP_v2" type="rap2:ReplyAP_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyRests_v2" type="rst2:ReplyRests_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyForm1" type="rfa2:ReplyForm1" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyForm2" type="rfb2:ReplyForm2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyHistForm2" type="rfhb2:ReplyHistForm2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="WayBill_v2" type="wb2:WayBillType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="WayBillAct_v2" type="wa2:WayBillActType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActChargeOn_v2" type="ainp2:ActChargeOnType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActInventoryInformF2Reg" type="aint2:ActInventoryInformF2Reg" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="TTNInformF2Reg" type="wbr2:WayBillInformF2RegType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryAP_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QuerySSP_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QuerySP_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryClients_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryRests_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryFormF1" type="qf2:QueryFormF1F2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryFormF2" type="qf2:QueryFormF1F2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActWriteOff_v2" type="awr2:ActWriteOffType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="TransferFromShop" type="tfs:TransferFromShopType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="TransferToShop" type="tts:TransferToShopType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryForm2History" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RepInformF1Reg" type="ripf1:RepPIInformF1RegType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyNoAnswerTTN" type="nattn:NoAnswerTTN" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryNATTN" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+
+      <xs:element name="QueryRestsShop_v2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyRestsShop_v2" type="rsts2:ReplyRestsShop_v2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Asiiu" type="asiu:Asiiu" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="AsiiuTime" type="asiut:AsiiuTime" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="ActChargeOnShop_v2" type="ains2:ActChargeOnShopType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActWriteOffShop_v2" type="awrs2:ActWriteOffShopType_v2" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="InfoVersionTTN" type="wbfu:InfoVersionTTN" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryBarcode" type="qbc:QueryBarcode" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyBarcode" type="rbc:ReplyBarcode" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RequestRepealWB" type="rrwb:RequestRepealWB" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ConfirmRepealWB" type="crwb:ConfirmRepealWB" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RequestRepealACO" type="rraco:RequestRepealACO" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RequestRepealAWO" type="rrawo:RequestRepealAWO" minOccurs="1" maxOccurs="1"/>
+
+      <xs:element name="QueryRests_Mini" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryRestsShop_Mini" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+
+      <xs:element name="ReplyRests_Mini" type="rstm:ReplyRests_Mini" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyRestsShop_Mini" type="rstsm:ReplyRestsShop_Mini" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="RequestAddFProducer" type="raddf:RequestAddFProducer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="RequestAddProducts" type="raddp:RequestAddProducts" minOccurs="0" maxOccurs="1"/>
+      <!--новые после 08.12.2016-->
+      <xs:element name="QueryHistoryRestShop" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryWriteOffCheque" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyHistoryShop" type="rhrs:ReplyHistoryTransferShop" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ReplyWriteOffCheque" type="rwoc:ReplyWOCheque" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="AscpNav" type="ascp:AscpNav" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="AsiiuSign" type="asiu:Asiiu" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="AsiiuTimeSign" type="asiut:AsiiuTime" minOccurs="0" maxOccurs="1"/>
+
+      <xs:element name="WayBill_v3" type="wb3:WayBillType_v3" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActWriteOff_v3" type="awr3:ActWriteOffType_v3" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="WayBillAct_v3" type="wa3:WayBillActType_v3" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RepProducedProduct_v3" type="rpp3:RepProducedType_v3" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="RepImportedProduct_v3" type="rpi3:RepImportedType_v3" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryRestBCode" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyRestBCode" type="rsbc:ReplyRestBCode" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ActFixBarCode" type="afbc:ActFixBarCode" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ActUnFixBarCode" type="aufbc:ActUnFixBarCode" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="QueryParentHistForm2" type="qp:QueryParameters" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="ReplyParentHistForm2" type="rrhb2:ReplyParentHistForm2" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="TTNHistoryF2Reg" type="wbhr2:TTNHistoryF2Reg" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
   <xs:complexType name="SenderInfo">
     <xs:annotation>
       <xs:documentation>Информация об отправителе</xs:documentation>

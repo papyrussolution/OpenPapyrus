@@ -15,13 +15,13 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-#include <libxml/entities.h>
-#include <libxml/parserInternals.h>
+//#include <libxml/entities.h>
+//#include <libxml/parserInternals.h>
 #ifdef LIBXML_HTML_ENABLED
 	#include <libxml/HTMLtree.h>
 #endif
 #ifdef LIBXML_DEBUG_ENABLED
-	#include <libxml/debugXML.h>
+	//#include <libxml/debugXML.h>
 #endif
 #include "save.h"
 
@@ -915,7 +915,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 #define DICT_COPY(str, cpy) \
 	if(str) { \
 		if(dict) { \
-			cpy = xmlDictOwns(dict, (const xmlChar*)(str)) ? (xmlChar*)(str) : (xmlChar*)xmlDictLookup((dict), (const xmlChar*)(str), -1); \
+			cpy = xmlDictOwns(dict, (const xmlChar*)(str)) ? (xmlChar*)(str) : (xmlChar*)xmlDictLookupSL((dict), (const xmlChar*)(str)); \
 		} else \
 			cpy = sstrdup((const xmlChar*)(str)); }
 
@@ -929,7 +929,7 @@ xmlDtdPtr xmlCreateIntSubset(xmlDocPtr doc, const xmlChar * name, const xmlChar 
 #define DICT_CONST_COPY(str, cpy) \
 	if(str) { \
 		if(dict) { \
-			cpy = xmlDictOwns(dict, (const xmlChar*)(str)) ? (const xmlChar*)(str) : xmlDictLookup((dict), (const xmlChar*)(str), -1); \
+			cpy = xmlDictOwns(dict, (const xmlChar*)(str)) ? (const xmlChar*)(str) : xmlDictLookupSL((dict), (const xmlChar*)(str)); \
 		} else \
 			cpy = sstrdup((const xmlChar*)(str)); }
 
@@ -1612,7 +1612,7 @@ static xmlAttrPtr xmlNewPropInternal(xmlNode * node, xmlNs * ns, const xmlChar *
 	}
 	cur->ns = ns;
 	if(eatname == 0)
-		cur->name = (doc && doc->dict) ? (xmlChar*)xmlDictLookup(doc->dict, name, -1) : sstrdup(name);
+		cur->name = (doc && doc->dict) ? (xmlChar*)xmlDictLookupSL(doc->dict, name) : sstrdup(name);
 	else
 		cur->name = name;
 	if(value) {
@@ -1745,7 +1745,7 @@ xmlAttrPtr xmlNewDocProp(xmlDocPtr doc, const xmlChar * name, const xmlChar * va
 		else {
 			memzero(cur, sizeof(xmlAttr));
 			cur->type = XML_ATTRIBUTE_NODE;
-			cur->name = (doc && doc->dict) ? xmlDictLookup(doc->dict, name, -1) : sstrdup(name);
+			cur->name = (doc && doc->dict) ? xmlDictLookupSL(doc->dict, name) : sstrdup(name);
 			cur->doc = doc;
 			if(value) {
 				cur->children = xmlStringGetNodeList(doc, value);
@@ -1875,7 +1875,7 @@ xmlNode * xmlNewDocPI(xmlDocPtr doc, const xmlChar * name, const xmlChar * conte
 	}
 	memzero(cur, sizeof(xmlNode));
 	cur->type = XML_PI_NODE;
-	cur->name = (doc && doc->dict) ? xmlDictLookup(doc->dict, name, -1) : sstrdup(name);
+	cur->name = (doc && doc->dict) ? xmlDictLookupSL(doc->dict, name) : sstrdup(name);
 	if(content)
 		cur->content = sstrdup(content);
 	cur->doc = doc;
@@ -1990,7 +1990,7 @@ xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name)
  */
 xmlNode * xmlNewDocNode(xmlDocPtr doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
 {
-	xmlNode * cur = (doc && doc->dict) ? xmlNewNodeEatName(ns, (xmlChar*)xmlDictLookup(doc->dict, name, -1)) : xmlNewNode(ns, name);
+	xmlNode * cur = (doc && doc->dict) ? xmlNewNodeEatName(ns, (xmlChar*)xmlDictLookupSL(doc->dict, name)) : xmlNewNode(ns, name);
 	if(cur) {
 		cur->doc = doc;
 		if(content) {
@@ -3652,7 +3652,7 @@ static xmlNode * xmlStaticCopyNode(xmlNode * node, xmlDocPtr doc, xmlNode * pare
 		ret->name = xmlStringComment;
 	else if(node->name) {
 		if(doc && doc->dict)
-			ret->name = xmlDictLookup(doc->dict, node->name, -1);
+			ret->name = xmlDictLookupSL(doc->dict, node->name);
 		else
 			ret->name = sstrdup(node->name);
 	}
@@ -4534,14 +4534,11 @@ void xmlNodeSetName(xmlNode * cur, const xmlChar * name)
 		    break;
 	}
 	doc = cur->doc;
-	if(doc)
-		dict = doc->dict;
-	else
-		dict = NULL;
+	dict = doc ? doc->dict : 0;
 	if(dict) {
 		if(cur->name && (!xmlDictOwns(dict, cur->name)))
 			freeme = cur->name;
-		cur->name = xmlDictLookup(dict, name, -1);
+		cur->name = xmlDictLookupSL(dict, name);
 	}
 	else {
 		if(cur->name)
@@ -4651,16 +4648,16 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
 				cur = cur->next;
 				continue;
 			}
-			if(!xmlStrcasecmp(cur->name, BAD_CAST "html")) {
+			if(sstreqi_ascii(cur->name, BAD_CAST "html")) {
 				cur = cur->children;
 				continue;
 			}
-			if(!xmlStrcasecmp(cur->name, BAD_CAST "head")) {
+			if(sstreqi_ascii(cur->name, BAD_CAST "head")) {
 				cur = cur->children;
 				continue;
 			}
-			if(!xmlStrcasecmp(cur->name, BAD_CAST "base")) {
-				return(xmlGetProp(cur, BAD_CAST "href"));
+			if(sstreqi_ascii(cur->name, BAD_CAST "base")) {
+				return xmlGetProp(cur, BAD_CAST "href");
 			}
 			cur = cur->next;
 		}
@@ -7208,8 +7205,8 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
 	if(adoptStr && str) {	\
 		if(destDoc->dict) { \
 			const xmlChar * old = str;   \
-			str = xmlDictLookup(destDoc->dict, str, -1); \
-			if((sourceDoc == NULL) || (sourceDoc->dict == NULL) || (!xmlDictOwns(sourceDoc->dict, old))) \
+			str = xmlDictLookupSL(destDoc->dict, str); \
+			if(!sourceDoc || !sourceDoc->dict || !xmlDictOwns(sourceDoc->dict, old)) \
 				SAlloc::F((char*)old); \
 		} else if((sourceDoc) && (sourceDoc->dict) && xmlDictOwns(sourceDoc->dict, str)) { \
 			str = BAD_CAST sstrdup(str); \
@@ -7222,7 +7219,7 @@ static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode *
  */
 #define XML_TREE_ADOPT_STR_2(str) \
 	if(adoptStr && (str) && sourceDoc && sourceDoc->dict && xmlDictOwns(sourceDoc->dict, cur->content)) { \
-		cur->content = destDoc->dict ? (xmlChar*)xmlDictLookup(destDoc->dict, cur->content, -1) : sstrdup(BAD_CAST cur->content); \
+		cur->content = destDoc->dict ? (xmlChar*)xmlDictLookupSL(destDoc->dict, cur->content) : sstrdup(BAD_CAST cur->content); \
 	}
 
 /*

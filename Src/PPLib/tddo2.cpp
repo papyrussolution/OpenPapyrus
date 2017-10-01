@@ -4,7 +4,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-#ifdef USE_TDDO_2 // {
+#ifndef USE_TDDO_2 // {
+int SLAPI TestTddo2() // @stub
+{
+	return -1;
+}
+#else
 /*
 
 ## #start{__StrAssocArray}
@@ -1080,7 +1085,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 							THROW_PP_S(p_scope, PPERR_TDDO_UNDEFDATANAME, meta.Text);
 							pblk.Ep.OutputFormat = rBlk.Ep.OutputFormat; // @v8.8.3
 							if(meta.Param.NotEmptyS()) {
-								const char * p_preserve_buf = Scan.P_Buf;
+								const char * p_preserve_buf = Scan.GetBuf();
 								Scan.Push();
 								Scan.Set(meta.Param, 0);
 								Meta m;
@@ -1271,19 +1276,30 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 class TddoContentGraph : public SStrGroup {
 public:
 	enum {
-		kText = 1,
+		kStart = 1, // Стартовый фиктивный блок
+		kFinish,    // Финишный фиктивный блок 
+		kText,
 		kExpr,
-		kIf,
-		kElse,
-		kElseIf,
-		kIter,
-		kMacro
+		kIf,        // branch
+		kElse,      // branch
+		kElseIf,    // branch
+		kIter,      // branch 
+		kMacro,     // branch 
+		kMacroCall,
+		kSet
 	};
 	struct Chunk {
 		int    Kind;
 		uint   NextP;
-		uint   ChildP;
+		uint   BranchP;
 		uint   TextP;
+	};
+	enum {
+		untiltokEot    = 0x0001,
+		untiltokRBrace = 0x0002,
+		untiltokRPar   = 0x0004,
+		untiltokComma  = 0x0008,
+		untiltokSpace  = 0x0010  // space || tab || newline
 	};
 	class ExprSet {
 	public:
@@ -1334,56 +1350,84 @@ public:
 		{
 		}
 		// untilToken: } | ) | , | EOF
-		int    Parse(int untilToken, TddoContentGraph::ExprSet::Stack & rStack, SBuffer & rOut)
+		int    Parse(uint untilToken, uint * pPos)
+		{
+			int    ok = 1;
+			uint   ep = 0;
+			Expression * p_new_expr = EL.CreateNewItem(&ep);
+			if(p_new_expr) {
+				if(Helper_Parse(untilToken, p_new_expr->ES)) {
+					ASSIGN_PTR(pPos, ep);
+				}
+				else {
+					EL.atFree(ep);
+					ok = 0;
+				}
+			}
+			else
+				ok = PPSetErrorSLib();
+			return ok;
+		}
+		int    Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack)
 		{
 			int    ok = 1;
 			Tddo::Meta meta;
 			SString temp_buf;
-			//Tddo & r_t = R_G.R_T;
 			SStrScan & r_scan = R_G.Scan;
 			for(int done = 0; !done;) {
 				if(r_scan.IsEnd()) {
-					if(untilToken != 0) {
+					if(!(untilToken & untiltokEot)) {
 						ok = 0;
 					}
 					done = 1;
 				}
+				else if(untilToken & untiltokSpace && r_scan.IsSpace(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine)) {
+					done = 1;
+				}
 				else {
 					R_G.Skip();
-					int r = R_G.Helper_RecognizeExprToken(0, temp_buf);
-					if(r == Tddo::tLiteral) {
-						Item ei;
-						ei.K = kString;
-						R_G.AddS(temp_buf, &ei.SymbP);
-						rStack.push(ei);
-					}
-					else if(r == Tddo::tNumber) {
-						Item ei;
-						ei.K = kNumber;
-						ei.R = temp_buf.ToReal();
-						rStack.push(ei);
-					}
-					else if(r == Tddo::tVar) {
-						Item ei;
-						ei.K = kVar;
-						R_G.AddS(temp_buf, &ei.SymbP);
-						rStack.push(ei);
-					}
-					else if(r == Tddo::tVarArgN) {
-						Item ei;
-						ei.K = kVar;
-						R_G.AddS(temp_buf, &ei.SymbP);
-						rStack.push(ei);
-					}
-					else if(r == Tddo::tDollarBrace) {
-						Parse('}', rStack, rOut); // @recursion
-					}
-					else if(r > Tddo::tOperator) {
-						Item ei;
-						ei.K = kOp;
-						ei.Op = (r - Tddo::tOperator);
-						ei.ArgCount = 2;
-						rStack.push(ei);
+					if(untilToken & untiltokRBrace && r_scan[0] == '}')
+						done = 1;
+					else if(untilToken & untiltokRPar && r_scan[0] == ')')
+						done = 1;
+					else if(untilToken & untiltokComma && r_scan[0] == ',')
+						done = 1;
+					else {
+						int r = R_G.Helper_RecognizeExprToken(0, temp_buf);
+						if(r == Tddo::tLiteral) {
+							Item ei;
+							ei.K = kString;
+							R_G.AddS(temp_buf, &ei.SymbP);
+							rStack.push(ei);
+						}
+						else if(r == Tddo::tNumber) {
+							Item ei;
+							ei.K = kNumber;
+							ei.R = temp_buf.ToReal();
+							rStack.push(ei);
+						}
+						else if(r == Tddo::tVar) {
+							Item ei;
+							ei.K = kVar;
+							R_G.AddS(temp_buf, &ei.SymbP);
+							rStack.push(ei);
+						}
+						else if(r == Tddo::tVarArgN) {
+							Item ei;
+							ei.K = kVar;
+							R_G.AddS(temp_buf, &ei.SymbP);
+							rStack.push(ei);
+						}
+						else if(r == Tddo::tDollarBrace) {
+							Helper_Parse(untiltokRBrace, rStack); // @recursion
+						}
+						else if(r > Tddo::tOperator) {
+							Item ei;
+							ei.K = kOp;
+							ei.Op = (r - Tddo::tOperator);
+							ei.ArgCount = 2;
+							rStack.push(ei);
+						}
 					}
 				}
 			}
@@ -1393,13 +1437,34 @@ public:
 		TddoContentGraph & R_G;
 		TSCollection <Expression> EL;
 	};
-	SLAPI  TddoContentGraph(Tddo & rT) : R_T(rT)
+	SLAPI  TddoContentGraph(Tddo & rT) : R_T(rT), ES(*this)
 	{
 	}
 	SLAPI ~TddoContentGraph()
 	{
 	}
+	enum {
+		stopEot    = 0x0001,
+		stopEnd    = 0x0002,
+		stopEndIf  = 0x0004,
+		stopElse   = 0x0008,
+		stopElseIf = 0x0010
+	};
 	int    SLAPI Parse(const char * pSrc)
+	{
+		int    ok = 1;
+		SString temp_buf;
+		L.clear();
+		EndChunkP = 0;
+		uint start_p = AddBlock(kStart, temp_buf.Z());
+		assert(start_p == 0);
+		EndChunkP = AddBlock(kFinish, temp_buf.Z());
+		Scan.Set(pSrc, 0);
+		LineNo = 0;
+		Helper_Parse(0, 0, stopEot);
+		return ok;
+	}
+	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent)
 	{
 		int    ok = 1;
 		uint   prev_scan_stack_pos = 0;
@@ -1407,59 +1472,188 @@ public:
 		Tddo::Meta   meta;
 
 		struct CurrentBlock {
-			CurrentBlock()
+			CurrentBlock(uint parentChunkP, int isBrach)
 			{
 				Kind = 0;
-				P = 0;
+				P = parentChunkP;
+				IsBranch = isBrach;
 			}
 			int    AppendToList(TddoContentGraph * pG)
 			{
 				int    ok = 1;
-				P = pG->AddBlock(Kind, Text);
+				uint   _p = pG->AddBlock(Kind, Text);
+				if(IsBranch) {
+					pG->L.at(P).BranchP = _p;
+				}
+				else {
+					pG->L.at(P).NextP = _p;
+				}
+				P = _p;
+				IsBranch = 0;
 				Kind = 0;
 				Text.Z();
 				return ok;
 			}
 			int    Kind;
+			int    IsBranch;
 			uint   P;
 			SString Text;
 		};
-		CurrentBlock _cb;
+		CurrentBlock _cb(parentChunkP, isBranch);
 
-		Scan.Set(pSrc, 0);
-		LineNo = 0;
-		for(int exit_loop = 0; !exit_loop && Scan.IsEnd();) {
+		for(int exit_loop = 0; !exit_loop && !Scan.IsEnd();) {
 			int    regular_text = 1;
 			int    m = Helper_RecognizeMetaKeyword(temp_buf);
 			if(m > 0) {
+				_cb.AppendToList(this); // Завершаем текущий блок
 				regular_text = 0;
 				switch(m) {
 					case Tddo::tMacro:
-						_cb.AppendToList(this);
 						{
 							// parse macro
+							// macro_name ( ident [$ident]* )
+							int    local_ok = 1;
+							uint   macro_name_p = 0;
+							LongArray macro_arg_list;
+							Skip();
+							if(Scan[0] == '(') {
+								Scan.Incr();
+								if(Scan[0] == ')') {
+									; // end of declaration
+								}
+								else if(Scan.GetIdent(temp_buf)) {
+									AddS(temp_buf, &macro_name_p);
+									Scan.Skip();
+									while(local_ok && Scan[0] != ')') {
+										if(Scan[0] == '$') {
+											Scan.Incr();
+											if(Scan.GetIdent(temp_buf)) {
+												uint   arg_p = 0;
+												AddS(temp_buf, &arg_p);
+												macro_arg_list.add((long)arg_p);
+												Scan.Skip();
+												if(Scan[0] == ',') { // optional ','
+													Scan.Incr();
+													Scan.Skip();
+												}
+											}
+											else {
+												local_ok = 0; // @error
+											}
+										}
+										else {
+											local_ok = 0; // @error
+										}
+									}
+								}
+								else {
+									local_ok = 0; // @error
+								}
+								GetS(macro_name_p, temp_buf);
+								_cb.Text = temp_buf;
+								_cb.Kind = kMacro;
+								_cb.AppendToList(this);
+								Helper_Parse(_cb.P, 1, stopEot|stopEnd); // @recursion
+							}
+							else {
+								local_ok = 0; // @error
+							}
 						}
 						break;
 					case Tddo::tMacroCall:
-						// temp_buf - symbol of macro
+						{
+							// temp_buf - symbol of macro
+							LongArray macro_arg_list;
+							_cb.Text = temp_buf;
+							_cb.Kind = kMacroCall;
+							Skip();
+							if(Scan[0] == '(') {
+								Scan.Incr();
+								do {
+									uint   expr_p = 0;
+									if(ES.Parse(untiltokRPar|untiltokSpace|untiltokComma, &expr_p)) {
+										macro_arg_list.add((long)expr_p);
+									}
+									Skip();
+									if(Scan[0] == ',') { // optional ','
+										Scan.Incr();
+										Scan.Skip();
+									}
+								} while(!Scan.IsEnd() && Scan[0] != ')');
+								if(Scan[0] == ')') {
+									Scan.Incr();
+								}
+								else {
+									; // @error
+								}
+							}
+							else {
+								; // @error
+							}
+							_cb.AppendToList(this);
+						}
 						break;
 					case Tddo::tSet:
+						Scan.Skip();
+						if(Scan[0] == '(') {
+							Scan.Incr();
+							uint   expr_p = 0;
+							if(ES.Parse(untiltokRPar, &expr_p)) {
+								_cb.Text.Z();
+								_cb.Kind = kSet;
+								_cb.AppendToList(this);
+							}
+							else {
+								; // @error
+							}
+						}
+						else {
+							; // @error
+						}
 						break;
 					case Tddo::tBreak:
 						break;
 					case Tddo::tStop:
 						break;
 					case Tddo::tIf:
+						Scan.Skip();
+						if(Scan[0] == '(') {
+							Scan.Incr();
+							uint   expr_p = 0;
+							if(ES.Parse(untiltokRPar, &expr_p)) {
+								_cb.Text.Z();
+								_cb.Kind = kIf;
+								_cb.AppendToList(this);
+							}
+							else {
+								; // @error
+							}
+						}
+						else {
+							; // @error
+						}
 						break;
 					case Tddo::tElse:
+						if(stopEvent & stopElse) {
+							exit_loop = 1;
+						}
 						break;
 					case Tddo::tElif:
+						if(stopEvent & stopElseIf) {
+							exit_loop = 1;
+						}
 						break;
 					case Tddo::tForEach:
 						break;
 					case Tddo::tEndif:
+						if(stopEvent & stopEndIf) {
+							exit_loop = 1;
+						}
 						break;
 					case Tddo::tEnd:
+						if(stopEvent & stopEnd) {
+							exit_loop = 1;
+						}
 						break;
 					case Tddo::tCodepage:
 						break;
@@ -1489,6 +1683,7 @@ public:
 				}
 			}
 			if(regular_text) {
+				_cb.Kind = kText;
 				if(Scan.GetEol(eolUndef)) {
 					_cb.Text.CR();
 					LineNo++;
@@ -1499,16 +1694,17 @@ public:
 				}
 			}
 		}
+		_cb.AppendToList(this); // Завершаем последний блок
 		CATCHZOK
 		return ok;
 	}
-	int SLAPI Helper_RecognizeExprToken(long flags, SString & rText)
+	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText)
 	{
 		int    t = 0;
 		char   text[512];
 		size_t tp = 0;
 		size_t sp = 0;
-		char   c = Scan[0];
+		char   c = Scan[sp];
 		if(c == '$') {
 			c = Scan[++sp];
 			if(c == '{') {
@@ -1652,7 +1848,7 @@ public:
 				}
 				text[tp] = 0;
 				if(c == '\"') {
-					Scan.Incr(sp);
+					Scan.Incr(sp+1); // + '\"'
 					rText = text;
 					t = Tddo::tLiteral;
 				}
@@ -1664,7 +1860,7 @@ public:
 		}
 		return t;
 	}
-	int SLAPI Helper_RecognizeMetaKeyword(SString & rAddendum)
+	int    SLAPI Helper_RecognizeMetaKeyword(SString & rAddendum)
 	{
 		rAddendum.Z();
 		int    m = 0;
@@ -1773,9 +1969,15 @@ public:
 		}
 		return m;
 	}
-	void SLAPI Skip()
+	void   SLAPI Skip()
 	{
 		Scan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &LineNo);
+	}
+
+	int    SLAPI Output(SString & rBuf)
+	{
+		rBuf.Z();
+		return ChunkToStr(0, 0, rBuf);
 	}
 private:
 	struct ChunkInner {
@@ -1786,7 +1988,45 @@ private:
 		uint   TextP;   // Текст
 		uint   ExprP;   // Выражение  
 	};
-
+	int    SLAPI ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const
+	{
+		int    ok = 1;
+		SString temp_buf;
+		const ChunkInner & r_chunk = L.at(cp);
+		if(tabLevel)
+			rBuf.Tab(tabLevel);
+		rBuf.CatEq("Chunk", cp);
+		switch(r_chunk.Kind) {
+			case kStart: temp_buf = "kStart"; break;
+			case kFinish: temp_buf = "kFinish"; break;
+			case kText: temp_buf = "kText"; break;
+			case kExpr: temp_buf = "kExpr"; break;
+			case kIf: temp_buf = "kIf"; break;
+			case kElse: temp_buf = "kElse"; break;
+			case kElseIf: temp_buf = "kElseIf"; break;
+			case kIter:temp_buf = "kIter"; break; 
+			case kMacro: temp_buf = "kMacro"; break;
+			case kSet: temp_buf = "kSet"; break;
+			default: temp_buf = "kUNKNOWN"; break;
+		}
+		rBuf.Space().CatEq("Kind", temp_buf);
+		if(r_chunk.ExprP) {
+			rBuf.Space().CatEq("ExprP", r_chunk.ExprP);
+		}
+		if(r_chunk.TextP) {
+			GetS(r_chunk.TextP, temp_buf);
+			rBuf.Space().CatEq("Text", temp_buf);
+		}
+		if(r_chunk.BranchP) {
+			rBuf.CR();
+			ChunkToStr(r_chunk.BranchP, tabLevel+1, rBuf); // @recursion
+		}
+		if(r_chunk.NextP) {
+			rBuf.CR();
+			ChunkToStr(r_chunk.NextP, tabLevel, rBuf); // @recursion
+		}
+		return ok;
+	}
 	uint   AddBlock(int kind, const SString & rText)
 	{
 		uint   result_pos = 0;
@@ -1800,6 +2040,9 @@ private:
 	}
 
 	TSArray <ChunkInner> L;
+	// Блок по индексу 0 всегда стартовый (фиктивный блок)
+	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока 
+	ExprSet ES; // Коллекция выражений. На них ссылаются ChunkInner::ExprP
 	Tddo & R_T;
 	SStrScan Scan;
 	uint   LineNo;
@@ -1821,6 +2064,50 @@ int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
 {
 	return DlRtm::InitData(rFilt, rsrv);
 }
+
+int SLAPI TestTddo2()
+{
+	int    ok = 1;
+	SString inp_file_name;
+	SString temp_buf, in_buf;
+	SBuffer out_buf;
+	LongArray id_list;
+	StringSet ext_param_list;
+	id_list.addUnique(55);
+	id_list.addUnique(3);
+	PPGetPath(PPPATH_TESTROOT, inp_file_name);
+	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("tddo2-test-01.tddo");
+	SFile in_file(inp_file_name, SFile::mRead);
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("tddo2-test-01-out.tddo");
+	SFile out_file(temp_buf, SFile::mWrite);
+	THROW_SL(in_file.IsValid());
+	THROW_SL(out_file.IsValid());
+	{
+		Tddo tddo;
+		TddoContentGraph tcg(tddo);
+		tddo.SetInputFileName(inp_file_name);
+		while(in_file.ReadLine(temp_buf))
+			in_buf.Cat(temp_buf);
+		tcg.Parse(in_buf);
+		tcg.Output(temp_buf);
+		out_file.WriteLine(temp_buf);
+	}
+#if 0 // {
+	for(uint i = 0; i < id_list.getCount(); i++) {
+		DlRtm::ExportParam ep;
+		PPFilt _pf;
+		_pf.ID = id_list.get(i);
+		_pf.Ptr = 0;
+		ep.P_F = &_pf;
+		tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
+		out_buf.WriteByte('\n');
+	}
+	out_file.Write(out_buf, out_buf.GetAvailableSize());
+#endif // } 0
+	CATCHZOK
+	return ok;
+}
 //
 //
 //
@@ -1834,10 +2121,12 @@ int SLAPI TestTddo()
 	Tddo tddo;
 	id_list.addUnique(55);
 	id_list.addUnique(3);
-	(temp_buf = "\\papyrus\\src\\pptest\\data").SetLastSlash().Cat("test.tddo");
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("test.tddo");
 	SFile in_file(temp_buf, SFile::mRead);
 	tddo.SetInputFileName(temp_buf);
-	(temp_buf = "\\papyrus\\src\\pptest\\out").SetLastSlash().Cat("test-out.tddo");
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("test-out.tddo");
 	SFile out_file(temp_buf, SFile::mWrite);
 	THROW_SL(in_file.IsValid());
 	THROW_SL(out_file.IsValid());

@@ -12,11 +12,10 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 //#include <libxml/xmlstring.h>
 
 /************************************************************************
@@ -206,7 +205,8 @@ int xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len)
 #else
 	do {
 		tmp = *str1++ - *str2;
-		if(tmp != 0 || --len == 0) return tmp;
+		if(tmp != 0 || --len == 0) 
+			return tmp;
 	} while(*str2++ != 0);
 	return 0;
 #endif
@@ -246,7 +246,6 @@ static const xmlChar casemap[256] = {
 	0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
 	0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
-
 /**
  * xmlStrcasecmp:
  * @str1:  the first xmlChar *
@@ -256,16 +255,19 @@ static const xmlChar casemap[256] = {
  *
  * Returns the integer result of the comparison
  */
-
 int xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2) 
 {
 	register int tmp;
-	if(str1 == str2) return 0;
-	if(str1 == NULL) return -1;
-	if(str2 == NULL) return 1;
+	if(str1 == str2) 
+		return 0;
+	if(str1 == NULL) 
+		return -1;
+	if(str2 == NULL) 
+		return 1;
 	do {
 		tmp = casemap[*str1++] - casemap[*str2];
-		if(tmp != 0) return tmp;
+		if(tmp != 0) 
+			return tmp;
 	} while(*str2++ != 0);
 	return 0;
 }
@@ -304,14 +306,14 @@ int xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len)
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */
-const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val) 
+const xmlChar * FASTCALL xmlStrchr(const xmlChar * str, xmlChar val) 
 {
-	if(!str) 
-		return 0;
-	while(*str != 0) { /* non input consuming */
-		if(*str == val) 
-			return((xmlChar*)str);
-		str++;
+	if(str) {
+		while(*str != 0) { /* non input consuming */
+			if(*str == val) 
+				return str;
+			str++;
+		}
 	}
 	return 0;
 }
@@ -324,8 +326,7 @@ const xmlChar * xmlStrchr(const xmlChar * str, xmlChar val)
  *
  * Returns the xmlChar * for the first occurrence or NULL.
  */
-
-const xmlChar * xmlStrstr(const xmlChar * str, const xmlChar * val) 
+const xmlChar * FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val) 
 {
 	if(str && val) {
 		int n = sstrlen(val);
@@ -613,12 +614,8 @@ int xmlUTF8Size(const xmlChar * utf)
  */
 int xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2) 
 {
-	if(utf1 == NULL) {
-		return (utf2 == NULL) ? 0 : -1;
-	}
-	return xmlStrncmp(utf1, utf2, xmlUTF8Size(utf1));
+	return utf1 ? xmlStrncmp(utf1, utf2, xmlUTF8Size(utf1)) : (utf2 ? -1 : 0);
 }
-
 /**
  * xmlUTF8Strlen:
  * @utf:  a sequence of UTF-8 encoded bytes
@@ -628,7 +625,7 @@ int xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2)
  *
  * Returns the number of characters in the string or -1 in case of error
  */
-int xmlUTF8Strlen(const xmlChar * utf) 
+int FASTCALL xmlUTF8Strlen(const xmlChar * utf) 
 {
 	int ret = 0;
 	if(utf == NULL)
@@ -682,7 +679,6 @@ int xmlGetUTF8Char(const uchar * utf, int * len)
 		goto error;
 	if(*len < 1)
 		goto error;
-
 	c = utf[0];
 	if(c & 0x80) {
 		if(*len < 2)
@@ -731,7 +727,6 @@ error:
 		*len = 0;
 	return -1;
 }
-
 /**
  * xmlCheckUTF8:
  * @utf: Pointer to putative UTF-8 encoded string.

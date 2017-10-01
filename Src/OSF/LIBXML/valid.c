@@ -6,11 +6,10 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/parserInternals.h>
+//#include <libxml/parserInternals.h>
 //#include <libxml/list.h>
 
 static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create);
@@ -845,14 +844,9 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 	ret->ocur = XML_ELEMENT_CONTENT_ONCE;
 	if(name) {
 		int l;
-		const xmlChar * tmp;
-
-		tmp = xmlSplitQName3(name, &l);
+		const xmlChar * tmp = xmlSplitQName3(name, &l);
 		if(!tmp) {
-			if(!dict)
-				ret->name = sstrdup(name);
-			else
-				ret->name = xmlDictLookup(dict, name, -1);
+			ret->name = dict ? xmlDictLookupSL(dict, name) : sstrdup(name);
 		}
 		else {
 			if(!dict) {
@@ -861,13 +855,12 @@ xmlElementContentPtr xmlNewDocElementContent(xmlDocPtr doc, const xmlChar * name
 			}
 			else {
 				ret->prefix = xmlDictLookup(dict, name, l);
-				ret->name = xmlDictLookup(dict, tmp, -1);
+				ret->name = xmlDictLookupSL(dict, tmp);
 			}
 		}
 	}
 	return ret;
 }
-
 /**
  * xmlNewElementContent:
  * @name:  the subelement name or NULL
@@ -908,9 +901,9 @@ xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPt
 	ret->type = cur->type;
 	ret->ocur = cur->ocur;
 	if(cur->name)
-		ret->name = dict ? xmlDictLookup(dict, cur->name, -1) : sstrdup(cur->name);
+		ret->name = dict ? xmlDictLookupSL(dict, cur->name) : sstrdup(cur->name);
 	if(cur->prefix)
-		ret->prefix = dict ? xmlDictLookup(dict, cur->prefix, -1) : sstrdup(cur->prefix);
+		ret->prefix = dict ? xmlDictLookupSL(dict, cur->prefix) : sstrdup(cur->prefix);
 	if(cur->c1)
 		ret->c1 = xmlCopyDocElementContent(doc, cur->c1);
 	if(ret->c1)
@@ -930,10 +923,10 @@ xmlElementContentPtr xmlCopyDocElementContent(xmlDocPtr doc, xmlElementContentPt
 				tmp->ocur = cur->ocur;
 				prev->c2 = tmp;
 				if(cur->name) {
-					tmp->name = dict ? xmlDictLookup(dict, cur->name, -1) : sstrdup(cur->name);
+					tmp->name = dict ? xmlDictLookupSL(dict, cur->name) : sstrdup(cur->name);
 				}
 				if(cur->prefix) {
-					tmp->prefix = dict ? xmlDictLookup(dict, cur->prefix, -1) : sstrdup(cur->prefix);
+					tmp->prefix = dict ? xmlDictLookupSL(dict, cur->prefix) : sstrdup(cur->prefix);
 				}
 				if(cur->c1)
 					tmp->c1 = xmlCopyDocElementContent(doc, cur->c1);
@@ -1811,9 +1804,9 @@ xmlAttributePtr xmlAddAttributeDecl(xmlValidCtxtPtr ctxt,
 	 */
 	ret->doc = dtd->doc;
 	if(dict) {
-		ret->name = xmlDictLookup(dict, name, -1);
-		ret->prefix = xmlDictLookup(dict, ns, -1);
-		ret->elem = xmlDictLookup(dict, elem, -1);
+		ret->name = xmlDictLookupSL(dict, name);
+		ret->prefix = xmlDictLookupSL(dict, ns);
+		ret->elem = xmlDictLookupSL(dict, elem);
 	}
 	else {
 		ret->name = sstrdup(name);
@@ -1823,7 +1816,7 @@ xmlAttributePtr xmlAddAttributeDecl(xmlValidCtxtPtr ctxt,
 	ret->def = def;
 	ret->tree = tree;
 	if(defaultValue)
-		ret->defaultValue = dict ? xmlDictLookup(dict, defaultValue, -1) : sstrdup(defaultValue);
+		ret->defaultValue = dict ? xmlDictLookupSL(dict, defaultValue) : sstrdup(defaultValue);
 	/*
 	 * Validity Check:
 	 * Search the DTD for previous declarations of the ATTLIST
@@ -2310,10 +2303,7 @@ xmlIDPtr xmlAddID(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * value, xm
 			/*
 			 * Operating in streaming mode, attr is gonna disapear
 			 */
-			if(doc->dict)
-				ret->name = xmlDictLookup(doc->dict, attr->name, -1);
-			else
-				ret->name = sstrdup(attr->name);
+			ret->name = doc->dict ? xmlDictLookupSL(doc->dict, attr->name) : sstrdup(attr->name);
 			ret->attr = NULL;
 		}
 		else {

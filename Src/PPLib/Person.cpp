@@ -698,7 +698,7 @@ void SLAPI PPPersonPacket::destroy()
 	// @v9.0.4 BAA.freeAll();
 	Loc.destroy();
 	RLoc.destroy();
-	ExtString = 0;
+	ExtString.Z();
 	DlvrLocList.freeAll();
 	ZDELETE(P_SCardPack);
 	LinkFiles.Clear();

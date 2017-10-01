@@ -6458,13 +6458,13 @@ cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          ICON_
 cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias } // @v8.6.2
 cmd ExportDbTblTransfer   { "Экспорт таблицы Transfer"                     none                   none cmExportDbTblTransfer } // @v8.6.7
 cmd ExportDbTblBill       { "Экспорт таблицы Bill"                         none                   none cmExportDbTblBill } // @v8.6.8
-cmd TestFias              { "Тестирование справочника ФИАС"                none                   none cmTestFias } // @v8.6.10
+cmd TestFias              { "@{cmd_testfias}"                              none                   none cmTestFias } // @v8.6.10
 cmd ViewGeoTracking       { "@{cmd_viewgeotracking}"                       none                   none cmViewGeoTracking } // @v8.6.11
 cmd ImportTSessUHTT       { "@{cmd_importtsessuhtt}"                       none                   none cmImportTSessUHTT } // @v8.7.10
-cmd TestCURL              { "Тестирование интерфейса с cURL"               ICON_TEST              none cmTestCURL } // @v8.8.0
-cmd TestEGAIS             { "Тестирование интерфейса с ЕГАИС"              ICON_TEST              none cmTestEGAIS } // @v8.8.0
+cmd TestCURL              { "@{cmd_testcurl}"                              ICON_TEST              none cmTestCURL } // @v8.8.0
+cmd TestEGAIS             { "@{cmd_testegais}"                             ICON_TEST              none cmTestEGAIS } // @v8.8.0
 cmd QueryEGAIS            { "@{cmd_queryegais}"                            none                   none cmQueryEGAIS } // @v8.8.1
-cmd TestSearchEmail       { "Тестирование поиска email-адресов"            ICON_TEST              none cmTestSearchEmail } // @v8.8.9
+cmd TestSearchEmail       { "@{cmd_testsearchemail}"                       ICON_TEST              none cmTestSearchEmail } // @v8.8.9
 cmd BuildLocalDL600       { "@{cmd_buildlocaldl600}"                       none                   none cmBuildLocalDL600 } // @v9.1.7
 cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none                   none cmSupplInterchange } // @v9.2.1
 cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange } // @v9.3.10
@@ -6473,6 +6473,7 @@ cmd ProcessOsm            { "@{prcssrosm}"                                 none 
 cmd TestLogWindow         { "@{cmd_testlogwindow}"                         ICON_TEST              none cmTestLogWindow } // @v9.7.0
 cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
 cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
+cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_TEST              none cmTestTddo2 } // @v9.8.3
 //
 // -------------- Описания серверных задач
 //

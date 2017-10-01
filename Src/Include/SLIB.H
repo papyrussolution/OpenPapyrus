@@ -258,6 +258,7 @@ typedef char              * BCD_T;
 typedef char              * Pchar;
 typedef uint16              RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
+typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
 
 // @v9.1.12 enum Boolean { False, True };
 
@@ -3555,11 +3556,11 @@ public:
 	//   формируемые сторонними программами, в формате "filename(lineno): message"
 	//
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
+	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
 private:
 	int    FASTCALL Alloc(size_t);
 	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
-	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage);
 	// @v9.0.4 L поставлен перед Size ради ускорения
 	size_t L;     // Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
@@ -4228,6 +4229,7 @@ enum {
 	strtodatefAnyDay   = 0x0100, // @v9.5.9
 	strtodatefAnyMon   = 0x0200, // @v9.5.9
 	strtodatefAnyYear  = 0x0400, // @v9.5.9
+	strtodatefInvalid  = 0x0800, // @v9.8.3 Дата, извлеченная из строки, инвалидная
 	strtodatefRelAny   = (strtodatefRel|strtodatefRelDay|strtodatefRelMon|strtodatefRelYear|strtodatefThrsMDay) // Маска
 };
 
@@ -6250,6 +6252,7 @@ public:
 	void   SLAPI DestroyS();
 	SStrGroup & FASTCALL CopyS(const SStrGroup & rS);
 	int    SLAPI AddS(const char * pStr, uint * pPos);
+	int    SLAPI AddS(const char * pStr, uint32 * pPos);
 	int    SLAPI GetS(uint pos, SString & rStr) const;
 	int    SLAPI SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL WriteS(SBuffer & rBuf) const;
@@ -7965,7 +7968,336 @@ private:
 	uint8 Utf8Prefix[8];
 	size_t Utf8PrefixLen;
 };
+//
+//
+//
+class SUnicodeTable : public SStrGroup {
+public:
+	enum {
+		gcUnkn = 0,
+		gcLu, // Uppercase_Letter 	an uppercase letter
+		gcLl, // Lowercase_Letter 	a lowercase letter
+		gcLt, // Titlecase_Letter 	a digraphic character, with first part uppercase
+		gcLC, // Cased_Letter 	Lu | Ll | Lt
+		gcLm, // Modifier_Letter 	a modifier letter
+		gcLo, // Other_Letter 	other letters, including syllables and ideographs
+		gcL,  // Letter 	Lu | Ll | Lt | Lm | Lo
+		gcMn, // Nonspacing_Mark 	a nonspacing combining mark (zero advance width)
+		gcMc, // Spacing_Mark 	a spacing combining mark (positive advance width)
+		gcMe, // Enclosing_Mark 	an enclosing combining mark
+		gcM,  // Mark 	Mn | Mc | Me
+		gcNd, // Decimal_Number 	a decimal digit
+		gcNl, // Letter_Number 	a letterlike numeric character
+		gcNo, // Other_Number 	a numeric character of other type
+		gcN,  // Number 	Nd | Nl | No
+		gcPc, // Connector_Punctuation 	a connecting punctuation mark, like a tie
+		gcPd, // Dash_Punctuation 	a dash or hyphen punctuation mark
+		gcPs, // Open_Punctuation 	an opening punctuation mark (of a pair)
+		gcPe, // Close_Punctuation 	a closing punctuation mark (of a pair)
+		gcPi, // Initial_Punctuation 	an initial quotation mark
+		gcPf, // Final_Punctuation 	a final quotation mark
+		gcPo, // Other_Punctuation 	a punctuation mark of other type
+		gcP,  // Punctuation 	Pc | Pd | Ps | Pe | Pi | Pf | Po
+		gcSm, // Math_Symbol 	a symbol of mathematical use
+		gcSc, // Currency_Symbol 	a currency sign
+		gcSk, // Modifier_Symbol 	a non-letterlike modifier symbol
+		gcSo, // Other_Symbol 	a symbol of other type
+		gcS,  // Symbol 	Sm | Sc | Sk | So
+		gcZs, // Space_Separator 	a space character (of various non-zero widths)
+		gcZl, // Line_Separator 	U+2028 LINE SEPARATOR only
+		gcZp, // Paragraph_Separator 	U+2029 PARAGRAPH SEPARATOR only
+		gcZ,  // Separator 	Zs | Zl | Zp
+		gcCc, // Control 	a C0 or C1 control code
+		gcCf, // Format 	a format control character
+		gcCs, // Surrogate 	a surrogate code point
+		gcCo, // Private_Use 	a private-use character
+		gcCn, // Unassigned 	a reserved unassigned code point or a noncharacter
+		gcC,  // Other 	Cc | Cf | Cs | Co | Cn
+	};
+	enum {
+		cccNot_Reordered        =   0, // Spacing and enclosing marks; also many vowel and consonant signs, even if nonspacing
+		cccOverlay              =   1, // Marks which overlay a base letter or symbol
+		cccNukta                =   7, // Diacritic nukta marks in Brahmi-derived scripts
+		cccKana_Voicing         =   8, // Hiragana/Katakana voicing marks
+		cccVirama               =   9, // Viramas
+		cccAttached_Below_Left  = 200, // Marks attached at the bottom left
+		cccAttached_Below       = 202, // Marks attached directly below
+		cccAttached_BottomRight = 204, // Marks attached at the bottom right
+		cccAttached_Left        = 208, // Marks attached to the left
+		cccAttached_Right       = 210, // Marks attached to the right
+		cccAttached_TopLeft     = 212, // Marks attached at the top left
+		cccAttached_Above       = 214, // Marks attached directly above
+		cccAttached_Above_Right = 216, // Marks attached at the top right
+		cccBelow_Left           = 218, // Distinct marks at the bottom left
+		cccBelow                = 220, // Distinct marks directly below
+		cccBelow_Right          = 222, // Distinct marks at the bottom right
+		cccLeft                 = 224, // Distinct marks to the left
+		cccRight                = 226, // Distinct marks to the right
+		cccAbove_Left           = 228, // Distinct marks at the top left
+		cccAbove                = 230, // Distinct marks directly above
+		cccAbove_Right          = 232, // Distinct marks at the top right
+		cccDouble_Below         = 233, // Distinct marks subtending two bases
+		cccDouble_Above         = 234, // Distinct marks extending above two bases
+		cccIota_Subscript       = 240  // Greek iota subscript only
+	};
+	enum {
+		bidiUnkn = 0,
+		bidiL,   // Left_To_Right 	any strong left-to-right character
+		bidiR,   // Right_To_Left 	any strong right-to-left (non-Arabic-type) character
+		bidiAL,  // Arabic_Letter 	any strong right-to-left (Arabic-type) character
+		bidiEN,  // European_Number 	any ASCII digit or Eastern Arabic-Indic digit
+		bidiES,  // European_Separator 	plus and minus signs
+		bidiET,  // European_Terminator 	a terminator in a numeric format context, includes currency signs
+		bidiAN,  // Arabic_Number 	any Arabic-Indic digit
+		bidiCS,  // Common_Separator 	commas, colons, and slashes
+		bidiNSM, // Nonspacing_Mark 	any nonspacing mark
+		bidiBN,  // Boundary_Neutral 	most format characters, control codes, or noncharacters
+		bidiB,   // Paragraph_Separator 	various newline characters
+		bidiS,   // Segment_Separator 	various segment-related control codes
+		bidiWS,  // White_Space 	spaces
+		bidiON,  // Other_Neutral 	most other symbols and punctuation marks
+		bidiLRE, // Left_To_Right_Embedding 	U+202A: the LR embedding control
+		bidiLRO, // Left_To_Right_Override 	U+202D: the LR override control
+		bidiRLE, // Right_To_Left_Embedding 	U+202B: the RL embedding control
+		bidiRLO, // Right_To_Left_Override 	U+202E: the RL override control
+		bidiPDF, // Pop_Directional_Format 	U+202C: terminates an embedding or override control
+		bidiLRI, // Left_To_Right_Isolate 	U+2066: the LR isolate control
+		bidiRLI, // Right_To_Left_Isolate 	U+2067: the RL isolate control
+		bidiFSI, // First_Strong_Isolate 	U+2068: the first strong isolate control
+		bidiPDI  // Pop_Directional_Isolate 	U+2069: terminates an isolate control
+	};
+	enum {
+		fBidiMirrored = 0x0001,
+		fRange        = 0x0002
+	};
+	struct Item32 {
+		SLAPI  Item32();
+		uint32 U4;
+		uint8  Gc;   // General category
+		uint8  Ccc;  // Canonical Combining Class
+		uint8  Bidi; // Bidi Class
+        uint8  Flags;
+		uint   DescrP;
+		uint16 SNScriptId;
+	};
+	struct UPair {
+		SLAPI  UPair(uint32 key, uint32 val);
+		uint32 K;
+		uint32 V;
+	};
 
+	static uint32 FASTCALL ParseUnicode(SString & rBuf);
+
+	SLAPI  SUnicodeTable();
+	uint32 FASTCALL GetU(uint idx) const;
+	uint   FASTCALL GetIndex(uint32 u) const;
+	const  Item32 * FASTCALL Get(uint32 u) const;
+
+	int    SLAPI ParseSource(const char * pFileName);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	uint32 FASTCALL ToLower(uint32 u) const;
+	uint32 FASTCALL ToUpper(uint32 u) const;
+	uint32 FASTCALL ToCapital(uint32 u) const;
+private:
+	int    SLAPI PreprocessLine(SString & rLine) const;
+	int    SLAPI ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD);
+
+	uint   LastIdx;
+	TSArray <Item32> List32;
+	TSArray <UPair> Ranges;
+	TSArray <UPair> SimpleToUpAndCap;
+	TSArray <UPair> SimpleToUp;
+	TSArray <UPair> SimpleToCap;
+	TSArray <UPair> SimpleToLo;
+	TSArray <UPair> MirrorPairs;
+};
+
+class SCodepageMapPool : public SStrGroup {
+private:
+	struct CMapTranslIndexTest;
+public:
+	struct MapEntry {
+		SLAPI  MapEntry();
+		int    FASTCALL operator == (const MapEntry & rS) const;
+		int    FASTCALL operator != (const MapEntry & rS) const;
+		int    FASTCALL Cmp(const MapEntry & rS) const;
+
+		uint8  B[4]; // от B[0] до B[3] в порядке следования символов в строке
+		uint16 U2;
+	};
+	enum {
+		fHas4U    = 0x0001, // Один или более элементов таблицы имеет unicode-символ шириной более 2 байт
+		fSolid256 = 0x0002, // Таблица представляет собой сплошной (без разрывов) участок внутри 256-байтового диапазона.
+			// Если таблица содержит менее 256 элементов, то поле Solid256Offs указывает на первый элемент.
+		fHas3B    = 0x0004  // Один или более элементов таблицы имеет MB код, содержащий 3 байта
+	};
+	struct CpMap {
+		SLAPI  CpMap();
+		void   SLAPI Clear();
+		//
+		// Descr: Ищет мультибайтовый символ b[] в таблице.
+		//   Длина массива b[] не должна превышать 4 байт. Если
+		//   в массиве менее 4 байт, то следующий за последним значащим байтом должен быть 0.
+		//
+		const  MapEntry * FASTCALL SearchC(const uint8 b[]) const; // Test - very slow func
+		const  MapEntry * FASTCALL SearchU(wchar_t u, const LongArray * pIdx) const;
+		const  MapEntry * FASTCALL SearchU(uint32 u) const; // Test - very slow func
+		const  MapEntry * FASTCALL SearchFallback(uint32 u) const;
+		int    SLAPI TranslateToU(const uint8 * pSrc, size_t srcLen, SStringU & rBuf) const;
+		int    SLAPI TranslateToB(const wchar_t * pSrc, size_t srcLen, SString & rBuf) const;
+		//
+		// Descr: Testing function
+		//
+		const  MapEntry * Test_ToLower(const MapEntry * pSrc, const SUnicodeTable * pUt) const;
+		const  MapEntry * Test_ToUpper(const MapEntry * pSrc, const SUnicodeTable * pUt) const;
+		const  MapEntry * Test_ToCapital(const MapEntry * pSrc, const SUnicodeTable * pUt) const;
+
+		int    SLAPI MakeUIndex(LongArray & rIdx) const;
+
+		SCodepage Id;
+		uint8  MbMl;    // Максимальная длина мультибайтовых символов (в байтах)
+		uint8  Solid256Offs;  // Если Flags & fSolid256, то это поле - смещение от нуля
+		uint16 StraightCount; // Количество элементов с начала таблицы, порядковый номер которых совпадает с байтовым значением.
+		uint16 CpSis;   //
+		uint16 Flags;
+		uint   MapCount;
+		uint   FallbackCount;
+		uint   NScriptCount;
+		const  MapEntry * P_Map;
+		const  MapEntry * P_Fallback;
+		const  uint16 * P_NScript;
+		SString Name;
+		SString Code;
+		SString Version;
+	private:
+		int   FASTCALL Helper_BSearchB(uint32 b4, wchar_t * pU) const;
+	};
+	//
+	// Descr: Временная структура для построения таблицы преобразования символьных таблиц
+	//
+	struct CMapTranslEntry {
+		CMapTranslEntry()
+		{
+			THISZERO();
+		}
+		enum {
+			fNone     = 0x0001,
+			fFallback = 0x0002,
+			fEqual    = 0x0004
+		};
+		uint8  S[4];
+		uint8  D[4];
+		uint8  F;
+	};
+	class TranslIndex {
+	public:
+		friend class SCodepageMapPool;
+
+		SLAPI  TranslIndex();
+		SLAPI  TranslIndex(const TranslIndex & rS);
+		SLAPI ~TranslIndex();
+		int    FASTCALL Copy(const TranslIndex & rS);
+		TranslIndex & FASTCALL operator = (const TranslIndex & rS);
+		const  uint8 * FASTCALL Search(const uint8 * pSrc) const;
+	private:
+		void   SLAPI Reset();
+		size_t SLAPI GetEntrySize() const;
+		int    SLAPI Setup(const SCodepageMapPool::CMapTranslIndexTest & rS);
+
+		enum {
+			fIdentical = 0x0001,
+			fEmpty     = 0x0002
+		};
+		void * P_Tab;
+		uint32 Count; // Количество элементов в P_Tab
+		uint8  SL;
+		uint8  DL;
+		uint16 IdenticalCount;
+		uint32 Flags;
+	};
+
+	SLAPI  SCodepageMapPool();
+	void   SLAPI Clear();
+	uint   SLAPI GetCount() const;
+	int    SLAPI GetByPos(uint pos, CpMap * pM) const;
+	int    SLAPI Get(SCodepage cp, CpMap * pM) const;
+	int    SLAPI GetByName(const char * pName, CpMap * pM) const;
+	//
+	// Descr: Сравнивает две таблицы на идентичность.
+	//
+	uint   SLAPI Compare(const CpMap & rS1, const CpMap & rS2) const;
+	uint   SLAPI Translate(const CpMap & rFrom, const CpMap & rTo, const uint8 * pSrc, size_t srcLen, SString & rDest);
+
+	int    SLAPI ParseXml(const char * pPath, SUnicodeTable * pUt);
+	int    SLAPI ParseXmlSingle(void * pXmlContext, const char * pFileName, SUnicodeTable * pUt);
+	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI Test(const SUnicodeTable * pUt, const char * pMapPoolFileName, const char * pMapTranslFileName);
+	int    SLAPI MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, TranslIndex & rIdx);
+private:
+	struct CpEntry {
+		SCodepage Id;
+		uint8  MbMl;          // Максимальная длина мультибайтовых символов (в байтах)
+		uint8  Solid256Offs;  // Если Flags & fSolid256, то это поле - смещение от нуля
+		uint16 StraightCount; // Количество элементов с начала таблицы, порядковый номер которых совпадает с байтовым значением.
+		uint16 CpSis;         //
+		uint16 Flags;         //
+		uint32 NameP;         //
+		uint32 CodeP;         //
+		uint32 VersionP;      //
+		uint32 MapStart;      // Начальная позиция в MeL
+		uint32 MapCount;      // Количество позиций в MeL
+		uint32 FallbackStart; // Начальная позиция в FbL
+		uint32 FallbackCount; // Количество позиций в FbL
+		uint32 NScriptStart;  // Начальная позиция списка натуральных скриптов в кодовой странице
+		uint32 NScriptCount;  // Количество натуральных скриптов в кодовой странице
+	};
+	struct CMapTranslIndexTest : TSArray <CMapTranslEntry> {
+		CMapTranslIndexTest();
+		void   Reset();
+		//
+		// Descr: Сортирует элементы массива по возрастанию CMapTranslEntry::S
+		//
+		void   Sort();
+
+		uint   MaxSLen;
+		uint   MaxDLen;
+		uint   IdenticalCount;
+		uint   SuccCount;
+		uint   FallbackCount;
+	};
+	int    SLAPI ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
+	int    SLAPI ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;
+	int    SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
+	int    SLAPI SearchMapSeq(const TSArray <MapEntry> & rSeq, uint * pPos) const;
+	int    SLAPI Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
+
+	TSArray <CpEntry> CpL;
+	TSArray <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4]
+	TSArray <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2
+	TSArray <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах
+};
+
+class SUnicodeBlock {
+public:
+    SLAPI  SUnicodeBlock();
+    SLAPI ~SUnicodeBlock();
+
+    int    SLAPI ReadRaw(const char * pUnicodePath, const char * pCpPath);
+    int    SLAPI Read(const char * pFileName);
+    int    SLAPI Write(const char * pFileName);
+
+	SUnicodeTable Ut;
+	SCodepageMapPool Cpmp;
+private:
+    struct StrgHeader { // @size=32
+        uint32 Signature; // UTCP = 0x50435455
+        uint32 Version;
+        uint32 Flags;
+        uint32 CRC;       // CRC32 сериализованного буфера данных (заголовок не включен)
+        uint8  Reserve[16]; // @reserve
+    };
+};
 //
 // Descr: Low level data alphabet analyzer
 //
@@ -8186,12 +8518,29 @@ struct SStrScan : public SRegExpSet {
 	~SStrScan();
 	int    FASTCALL Set(const char * pBuf, size_t offs);
 	operator const char * () const { return P_Buf ? (P_Buf+Offs) : 0; }
+	const char * GetBuf() const
+	{
+		return P_Buf;
+	}
+	const char * GetBuf(size_t offs) const
+	{
+		return P_Buf ? (P_Buf + offs) : 0;
+	}
+	size_t GetOffs() const
+	{
+		return Offs;
+	}
+	size_t GetLen() const
+	{
+		return Len;
+	}
 
 	int    FASTCALL Push(uint * pPrevPos = 0);
 	int    FASTCALL Pop();
 	int    FASTCALL Pop(uint prevPos);
 
 	int    IsEnd() const;
+	int    FASTCALL IsSpace(int ws) const;
 	int    IsNumber();
 	int    IsHex();
 	//
@@ -8270,6 +8619,13 @@ struct SStrScan : public SRegExpSet {
 	// Note: Буфер rBuf предварительно очищается функцией.
 	//
 	int    FASTCALL GetUtf8(SString & rBuf);
+	//
+	// Descr: Устанавливает внутреннюю переменную Len, характеризующую длину
+	//   форвардной распознанной конструкции.
+	// Returns:
+	//   Предыдущее знечение Len.
+	//
+	size_t FASTCALL SetLen(size_t newLen);
 	//
 	// Descr: Увеличивает смещение Offs на incr байт.
 	// Returns:
@@ -8351,10 +8707,10 @@ struct SStrScan : public SRegExpSet {
 	//   за ним правильной комбинацией, представляющей UTF8 символ.
 	//
 	int    IsLegalUtf8() const;
-
-	const  char * P_Buf;
 	size_t Offs;
 	size_t Len;
+private:
+	const  char * P_Buf;
 private:
 	TSStack <size_t> Stk;
 };

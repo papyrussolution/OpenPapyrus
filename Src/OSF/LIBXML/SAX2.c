@@ -5,14 +5,13 @@
  *
  * Daniel Veillard <daniel@veillard.com>
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/parserInternals.h>
-#include <libxml/entities.h>
-#include <libxml/debugXML.h>
-#include <libxml/SAX.h>
+//#include <libxml/parserInternals.h>
+//#include <libxml/entities.h>
+//#include <libxml/debugXML.h>
+//#include <libxml/SAX.h>
 #include <libxml/HTMLtree.h>
 
 /* Define SIZE_T_MAX unless defined through <limits.h>. */
@@ -901,7 +900,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		return;
 	}
 #ifdef LIBXML_HTML_ENABLED
-	if((ctxt->html) && (value == NULL) && (htmlIsBooleanAttr(fullname))) {
+	if(ctxt->html && !value && htmlIsBooleanAttr(fullname)) {
 		nval = sstrdup(fullname);
 		value = (const xmlChar*)nval;
 	}
@@ -1125,7 +1124,6 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		else if(xmlIsRef(ctxt->myDoc, ctxt->node, ret))
 			xmlAddRef(&ctxt->vctxt, ctxt->myDoc, value, ret);
 	}
-
 error:
 	SAlloc::F(nval);
 	SAlloc::F(ns);
@@ -1275,19 +1273,18 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	const xmlChar * att;
 	const xmlChar * value;
 	int i;
-
-	if(!ctx || (fullname == NULL) || (ctxt->myDoc == NULL)) return;
+	if(!ctx || (fullname == NULL) || (ctxt->myDoc == NULL)) 
+		return;
 	parent = ctxt->node;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2StartElement(%s)\n", fullname);
 #endif
-
 	/*
 	 * First check on validity:
 	 */
-	if(ctxt->validate && (ctxt->myDoc->extSubset == NULL) && ((ctxt->myDoc->intSubset == NULL) ||
-		    ((ctxt->myDoc->intSubset->notations == NULL) && (ctxt->myDoc->intSubset->elements == NULL) &&
-			    (ctxt->myDoc->intSubset->attributes == NULL) && (ctxt->myDoc->intSubset->entities == NULL)))) {
+	if(ctxt->validate && !ctxt->myDoc->extSubset && (!ctxt->myDoc->intSubset ||
+	    (!ctxt->myDoc->intSubset->notations && !ctxt->myDoc->intSubset->elements &&
+		!ctxt->myDoc->intSubset->attributes && !ctxt->myDoc->intSubset->entities))) {
 		xmlErrValid(ctxt, XML_ERR_NO_DTD, "Validation failed: no DTD found !", 0, 0);
 		ctxt->validate = 0;
 	}
@@ -1295,7 +1292,6 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	 * Split the full name into a namespace__ prefix and the tag name
 	 */
 	name = xmlSplitQName(ctxt, fullname, &prefix);
-
 	/*
 	 * Note : the namespace__ resolution is deferred until the end of the
 	 *        attributes parsing, since local namespace__ can be defined as
@@ -1319,13 +1315,9 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	ctxt->nodemem = -1;
 	if(ctxt->linenumbers) {
 		if(ctxt->input) {
-			if(ctxt->input->line < 65535)
-				ret->line = (short)ctxt->input->line;
-			else
-				ret->line = 65535;
+			ret->line = (ctxt->input->line < 65535) ? (short)ctxt->input->line : 65535;
 		}
 	}
-
 	/*
 	 * We are parsing a new node.
 	 */
@@ -1525,7 +1517,8 @@ static xmlNode * xmlSAX2TextNode(xmlParserCtxt * ctxt, const xmlChar * str, int 
 		}
 		else if(IS_BLANK_CH(*str) && (len < 60) && (cur == '<') && (str[len + 1] != '!')) {
 			for(int i = 1; i < len; i++) {
-				if(!IS_BLANK_CH(str[i])) goto skip;
+				if(!IS_BLANK_CH(str[i])) 
+					goto skip;
 			}
 			intern = xmlDictLookup(ctxt->dict, str, len);
 		}
@@ -1746,23 +1739,18 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 	}
 	else
 #endif /* LIBXML_VALID_ENABLED */
-	if(((ctxt->loadsubset & XML_SKIP_IDS) == 0) &&
-	    (((ctxt->replaceEntities == 0) && (ctxt->external != 2)) ||
-		    ((ctxt->replaceEntities != 0) && (ctxt->inSubset == 0)))) {
+	if(((ctxt->loadsubset & XML_SKIP_IDS) == 0) && (((ctxt->replaceEntities == 0) && (ctxt->external != 2)) || ((ctxt->replaceEntities != 0) && (ctxt->inSubset == 0)))) {
 		/*
 		 * when validating, the ID registration is done at the attribute
 		 * validation level. Otherwise we have to do specific handling here.
 		 */
-		if((prefix == ctxt->str_xml) &&
-		    (localname[0] == 'i') && (localname[1] == 'd') &&
-		    (localname[2] == 0)) {
+		if((prefix == ctxt->str_xml) && (localname[0] == 'i') && (localname[1] == 'd') && (localname[2] == 0)) {
 			/*
 			 * Add the xml:id value
 			 *
 			 * Open issue: normalization of the value.
 			 */
-			if(dup == NULL)
-				dup = xmlStrndup(value, valueend - value);
+			SETIFZ(dup, xmlStrndup(value, valueend - value));
 #if defined(LIBXML_SAX1_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_WRITER_ENABLED) || defined(LIBXML_DOCB_ENABLED) || \
 			defined(LIBXML_LEGACY_ENABLED)
 #ifdef LIBXML_VALID_ENABLED
