@@ -71,7 +71,7 @@
 // Актуально только для сервера. 
 //
 #ifdef _PPSERVER
-	#define SLTRACELOCKSTACK 1
+	#define SLTRACELOCKSTACK 0 // @v9.8.3 С помощью трассировки аномалии идентифицировать пока не удалось. До поры-времени отключаем.
 #else
 	#define SLTRACELOCKSTACK 0 
 #endif
