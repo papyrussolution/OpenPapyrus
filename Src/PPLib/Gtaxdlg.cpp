@@ -92,7 +92,7 @@ int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 	}
 	else {
 		selectCtrl(CTL_GDSTAX_ORDER);
-		ok = (PPError(PPERR_INVEXPR, temp_buf), 0); // @TODO (err code)
+		ok = (PPError(PPERR_INVEXPR, temp_buf), 0); // @todo (err code)
 	}
 	return ok;
 }

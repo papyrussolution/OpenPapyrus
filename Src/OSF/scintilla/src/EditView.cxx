@@ -139,14 +139,15 @@ EditView::EditView()
 {
 	ldTabstops = NULL;
 	tabWidthMinimumPixels = 2; // needed for calculating tab stops for fractional proportional fonts
-	hideSelection = false;
-	drawOverstrikeCaret = true;
-	bufferedDraw = true;
+	//hideSelection = false;
+	//drawOverstrikeCaret = true;
+	//bufferedDraw = true;
+	//additionalCaretsBlink = true;
+	//additionalCaretsVisible = true;
+	//imeCaretBlockOverride = false;
+	EditViewFlags = (fDrawOverstrikeCaret|fBufferedDraw|fAdditionalCaretsBlink|fAdditionalCaretsVisible);
 	phasesDraw = phasesTwo;
 	lineWidthMaxSeen = 0;
-	additionalCaretsBlink = true;
-	additionalCaretsVisible = true;
-	imeCaretBlockOverride = false;
 	pixmapLine = 0;
 	pixmapIndentGuide = 0;
 	pixmapIndentGuideHighlight = 0;
@@ -847,7 +848,7 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 		rcSegment.left = xEol + xStart;
 		rcSegment.right = xEol + xStart + virtualSpace;
 		surface->FillRectangle(rcSegment, background.isSet ? background : vsDraw.styles[ll->styles[ll->numCharsInLine]].back);
-		if(!hideSelection && ((vsDraw.selAlpha == SC_ALPHA_NOALPHA) || (vsDraw.selAdditionalAlpha == SC_ALPHA_NOALPHA))) {
+		if(/*!hideSelection*/!(EditViewFlags & fHideSelection) && ((vsDraw.selAlpha == SC_ALPHA_NOALPHA) || (vsDraw.selAdditionalAlpha == SC_ALPHA_NOALPHA))) {
 			SelectionSegment virtualSpaceRange(SelectionPosition(model.pdoc->LineEnd(line)), SelectionPosition(model.pdoc->LineEnd(line),
 				    model.sel.VirtualSpaceFor(model.pdoc->LineEnd(line))));
 			for(size_t r = 0; r<model.sel.Count(); r++) {
@@ -868,7 +869,7 @@ void EditView::DrawEOL(Surface * surface, const EditModel &model, const ViewStyl
 	}
 	int eolInSelection = 0;
 	int alpha = SC_ALPHA_NOALPHA;
-	if(!hideSelection) {
+	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
 		eolInSelection = (lastSubLine == true) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
@@ -1096,7 +1097,7 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 
 	int eolInSelection = 0;
 	int alpha = SC_ALPHA_NOALPHA;
-	if(!hideSelection) {
+	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
 		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
@@ -1298,7 +1299,7 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 {
 	// When drag is active it is the only caret drawn
 	bool drawDrag = model.posDrag.IsValid();
-	if(hideSelection && !drawDrag)
+	if(/*hideSelection*/(EditViewFlags & fHideSelection) && !drawDrag)
 		return;
 	const int posLineStart = model.pdoc->LineStart(lineDoc);
 	// For each selection draw
@@ -1321,8 +1322,9 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 				if(lineStart != 0)      // Wrapped
 					xposCaret += ll->wrapIndent;
 			}
-			bool caretBlinkState = ((model.caret.Flags & Caret::fActive) && (model.caret.Flags & Caret::fOn)) || (!additionalCaretsBlink && !mainCaret);
-			bool caretVisibleState = additionalCaretsVisible || mainCaret;
+			bool caretBlinkState = ((model.caret.Flags & Caret::fActive) && (model.caret.Flags & Caret::fOn)) || 
+				(/*!additionalCaretsBlink*/!(EditViewFlags & fAdditionalCaretsBlink) && !mainCaret);
+			bool caretVisibleState = (/*additionalCaretsVisible*/BIN(EditViewFlags & fAdditionalCaretsVisible) || mainCaret);
 			if((xposCaret >= 0) && (vsDraw.caretWidth > 0) && (vsDraw.caretStyle != CARETSTYLE_INVISIBLE) &&
 			    ((model.posDrag.IsValid()) || (caretBlinkState && caretVisibleState))) {
 				bool caretAtEOF = false;
@@ -1355,13 +1357,13 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 					rcCaret.left = static_cast<XYPOSITION>(RoundXYPosition(xposCaret - caretWidthOffset));
 					rcCaret.right = rcCaret.left + vsDraw.caretWidth;
 				}
-				else if(model.EditModelFlags & model.fInOverstrike && drawOverstrikeCaret) {
+				else if(model.EditModelFlags & model.fInOverstrike && /*drawOverstrikeCaret*/(EditViewFlags & fDrawOverstrikeCaret)) {
 					// Overstrike (insert mode), use a modified bar caret 
 					rcCaret.top = rcCaret.bottom - 2;
 					rcCaret.left = xposCaret + 1;
 					rcCaret.right = rcCaret.left + widthOverstrikeCaret - 1;
 				}
-				else if((vsDraw.caretStyle == CARETSTYLE_BLOCK) || imeCaretBlockOverride) {
+				else if((vsDraw.caretStyle == CARETSTYLE_BLOCK) || /*imeCaretBlockOverride*/(EditViewFlags & fImeCaretBlockOverride)) {
 					// Block caret 
 					rcCaret.left = xposCaret;
 					if(!caretAtEOL && !caretAtEOF && (ll->chars[offset] != '\t') && !(IsControlCharacter(ll->chars[offset]))) {
@@ -1452,7 +1454,7 @@ void EditView::DrawBackground(Surface * surface, const EditModel &model, const V
 			if(rcSegment.right > rcLine.right)
 				rcSegment.right = rcLine.right;
 
-			const int inSelection = hideSelection ? 0 : model.sel.CharacterInSelection(iDoc);
+			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.sel.CharacterInSelection(iDoc);
 			const bool inHotspot = (ll->hotspot.Valid()) && ll->hotspot.ContainsCharacter(iDoc);
 			ColourDesired textBack = TextBackground(model, vsDraw, ll, background, inSelection,
 			    inHotspot, ll->styles[i], i);
@@ -1672,7 +1674,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 					}
 				}
 			}
-			const int inSelection = hideSelection ? 0 : model.sel.CharacterInSelection(iDoc);
+			const int inSelection = /*hideSelection*/(EditViewFlags & fHideSelection) ? 0 : model.sel.CharacterInSelection(iDoc);
 			if(inSelection && (vsDraw.selColours.fore.isSet)) {
 				textFore = (inSelection == 1) ? vsDraw.selColours.fore : vsDraw.selAdditionalForeground;
 			}
@@ -1915,32 +1917,23 @@ void EditView::DrawLine(Surface * surface, const EditModel &model, const ViewSty
 		DrawEdgeLine(surface, vsDraw, ll, rcLine, lineRange, xStart);
 		DrawMarkUnderline(surface, model, vsDraw, line, rcLine);
 	}
-
 	if(phase & drawText) {
-		DrawForeground(surface, model, vsDraw, ll, lineVisible, rcLine, lineRange, posLineStart, xStart,
-		    subLine, background);
+		DrawForeground(surface, model, vsDraw, ll, lineVisible, rcLine, lineRange, posLineStart, xStart, subLine, background);
 	}
-
 	if(phase & drawIndentationGuides) {
 		DrawIndentGuidesOverEmpty(surface, model, vsDraw, ll, line, lineVisible, rcLine, xStart, subLine);
 	}
-
 	if(phase & drawIndicatorsFore) {
 		DrawIndicators(surface, model, vsDraw, ll, line, xStart, rcLine, subLine, lineRange.end, false, model.hoverIndicatorPos);
 	}
-
 	// End of the drawing of the current line
 	if(phasesDraw == phasesOne) {
-		DrawEOL(surface, model, vsDraw, ll, rcLine, line, lineRange.end,
-		    xStart, subLine, subLineStart, background);
+		DrawEOL(surface, model, vsDraw, ll, rcLine, line, lineRange.end, xStart, subLine, subLineStart, background);
 	}
-
 	DrawFoldDisplayText(surface, model, vsDraw, ll, line, xStart, rcLine, subLine, subLineStart, phase);
-
-	if(!hideSelection && (phase & drawSelectionTranslucent)) {
+	if(/*!hideSelection*/!(EditViewFlags & fHideSelection) && (phase & drawSelectionTranslucent)) {
 		DrawTranslucentSelection(surface, model, vsDraw, ll, line, rcLine, subLine, lineRange, xStart);
 	}
-
 	if(phase & drawLineTranslucent) {
 		DrawTranslucentLineState(surface, model, vsDraw, ll, line, rcLine);
 	}
@@ -1972,17 +1965,15 @@ static void DrawFoldLines(Surface * surface, const EditModel &model, const ViewS
 	}
 }
 
-void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRectangle rcArea,
-    PRectangle rcClient, const ViewStyle &vsDraw)
+void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRectangle rcArea, PRectangle rcClient, const ViewStyle &vsDraw)
 {
 	// Allow text at start of line to overlap 1 pixel into the margin as this displays
 	// serifs and italic stems for aliased text.
 	const int leftTextOverlap = ((model.xOffset == 0) && (vsDraw.leftMarginWidth > 0)) ? 1 : 0;
-
 	// Do the painting
 	if(rcArea.right > vsDraw.textStart - leftTextOverlap) {
 		Surface * surface = surfaceWindow;
-		if(bufferedDraw) {
+		if(/*bufferedDraw*/EditViewFlags & fBufferedDraw) {
 			surface = pixmapLine;
 			PLATFORM_ASSERT(pixmapLine->Initialised());
 		}
@@ -2007,10 +1998,8 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 		else {
 			rcTextArea = rcArea;
 		}
-
-		// Remove selection margin from drawing area so text will not be drawn
-		// on it in unbuffered mode.
-		if(!bufferedDraw && vsDraw.marginInside) {
+		// Remove selection margin from drawing area so text will not be drawn on it in unbuffered mode.
+		if(/*!bufferedDraw*/!(EditViewFlags & fBufferedDraw) && vsDraw.marginInside) {
 			PRectangle rcClipText = rcTextArea;
 			rcClipText.left -= leftTextOverlap;
 			surfaceWindow->SetClip(rcClipText);
@@ -2028,7 +2017,7 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 		int lineDocPrevious = -1;       // Used to avoid laying out one document line multiple times
 		AutoLineLayout ll(llc, 0);
 		std::vector<DrawPhase> phases;
-		if((phasesDraw == phasesMultiple) && !bufferedDraw) {
+		if((phasesDraw == phasesMultiple) && /*!bufferedDraw*/!(EditViewFlags & fBufferedDraw)) {
 			for(DrawPhase phase = drawBack; phase <= drawCarets; phase = static_cast<DrawPhase>(phase * 2)) {
 				phases.push_back(phase);
 			}
@@ -2038,7 +2027,7 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 		}
 		for(std::vector<DrawPhase>::iterator it = phases.begin(); it != phases.end(); ++it) {
 			int ypos = 0;
-			if(!bufferedDraw)
+			if(/*!bufferedDraw*/!(EditViewFlags & fBufferedDraw))
 				ypos += screenLinePaintFirst * vsDraw.lineHeight;
 			int yposScreen = screenLinePaintFirst * vsDraw.lineHeight;
 			int visibleLine = model.TopLineOfMain() + screenLinePaintFirst;
@@ -2061,7 +2050,7 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 				//durLayout += et.Duration(true);
 
 				if(ll) {
-					ll->containsCaret = !hideSelection && (lineDoc == lineCaret);
+					ll->containsCaret = /*!hideSelection*/!(EditViewFlags & fHideSelection) && (lineDoc == lineCaret);
 					ll->hotspot = model.GetHotSpotRange();
 
 					PRectangle rcLine = rcTextArea;
@@ -2074,45 +2063,37 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 					ll->SetBracesHighlight(rangeLine, model.braces, static_cast<char>(model.bracesMatchStyle),
 					    static_cast<int>(model.highlightGuideColumn * vsDraw.spaceWidth), bracesIgnoreStyle);
 
-					if(leftTextOverlap && (bufferedDraw || ((phasesDraw < phasesMultiple) && (*it & drawBack)))) {
+					if(leftTextOverlap && (/*bufferedDraw*/(EditViewFlags & fBufferedDraw) || ((phasesDraw < phasesMultiple) && (*it & drawBack)))) {
 						// Clear the left margin
 						PRectangle rcSpacer = rcLine;
 						rcSpacer.right = rcSpacer.left;
 						rcSpacer.left -= 1;
 						surface->FillRectangle(rcSpacer, vsDraw.styles[STYLE_DEFAULT].back);
 					}
-
 					DrawLine(surface, model, vsDraw, ll, lineDoc, visibleLine, xStart, rcLine, subLine, *it);
 					//durPaint += et.Duration(true);
 
 					// Restore the previous styles for the brace highlights in case layout is in cache.
 					ll->RestoreBracesHighlight(rangeLine, model.braces, bracesIgnoreStyle);
-
 					if(*it & drawFoldLines) {
 						DrawFoldLines(surface, model, vsDraw, lineDoc, rcLine);
 					}
-
 					if(*it & drawCarets) {
 						DrawCarets(surface, model, vsDraw, ll, lineDoc, xStart, rcLine, subLine);
 					}
-
-					if(bufferedDraw) {
+					if(/*bufferedDraw*/EditViewFlags & fBufferedDraw) {
 						Point from = Point::FromInts(vsDraw.textStart - leftTextOverlap, 0);
 						PRectangle rcCopyArea = PRectangle::FromInts(vsDraw.textStart - leftTextOverlap, yposScreen,
 						    static_cast<int>(rcClient.right - vsDraw.rightMarginWidth),
 						    yposScreen + vsDraw.lineHeight);
 						surfaceWindow->Copy(rcCopyArea, from, *pixmapLine);
 					}
-
-					lineWidthMaxSeen = Platform::Maximum(
-					    lineWidthMaxSeen, static_cast<int>(ll->positions[ll->numCharsInLine]));
+					lineWidthMaxSeen = Platform::Maximum(lineWidthMaxSeen, static_cast<int>(ll->positions[ll->numCharsInLine]));
 					//durCopy += et.Duration(true);
 				}
-
-				if(!bufferedDraw) {
+				if(/*!bufferedDraw*/!(EditViewFlags & fBufferedDraw)) {
 					ypos += vsDraw.lineHeight;
 				}
-
 				yposScreen += vsDraw.lineHeight;
 				visibleLine++;
 			}
@@ -2158,7 +2139,7 @@ void EditView::FillLineRemainder(Surface * surface, const EditModel &model, cons
 {
 	int eolInSelection = 0;
 	int alpha = SC_ALPHA_NOALPHA;
-	if(!hideSelection) {
+	if(/*!hideSelection*/!(EditViewFlags & fHideSelection)) {
 		int posAfterLineEnd = model.pdoc->LineStart(line + 1);
 		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;

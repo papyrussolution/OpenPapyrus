@@ -707,7 +707,7 @@ int SLAPI PPViewGoodsTaxAnalyze::InitIteration(IterOrder ord)
 	ZDELETE(P_GGIter);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
-	Counter.Init(P_TempTbl);
+	PPInitIterCounter(Counter, P_TempTbl);
 	if(ord == OrdByID)
 		IterIdx = 0;
 	else if(ord == OrdByName)

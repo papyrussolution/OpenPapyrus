@@ -204,7 +204,7 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 	rc.pattern = value[1];
 	rc.err.len = NGX_MAX_CONF_ERRSTR;
 	rc.err.data = errstr;
-	/* TODO: NGX_REGEX_CASELESS */
+	/* @todo NGX_REGEX_CASELESS */
 	regex->regex = ngx_http_regex_compile(cf, &rc);
 	if(regex->regex == NULL) {
 		return NGX_CONF_ERROR;

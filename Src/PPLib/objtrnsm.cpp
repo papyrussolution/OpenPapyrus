@@ -2027,7 +2027,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			PPLoadText(PPTXT_PUTTINGOBJTOSTRM, wait_msg);
 			PPWaitMsg(wait_msg);
 			{
-				cntr.Init(P_TmpIdxTbl);
+				PPInitIterCounter(cntr, P_TmpIdxTbl);
 				if(!SyncCmpTransmit) {
 					PPObjID iter_objid;
 					for(MEMSZERO(iter_objid); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
@@ -3251,7 +3251,7 @@ static int SLAPI SyncTblObj(ObjSyncCore * sync, DBTable * tbl, PPID obj, PPID de
 	int    ok = 1;
 	SString msg_buf;
 	IterCounter cntr;
-	cntr.Init(tbl);
+	PPInitIterCounter(cntr, tbl);
 	GetObjectTitle(obj, msg_buf);
 	for(PPID id = 0; tbl->search(0, &id, spGt); PPWaitPercent(cntr.Increment(), msg_buf))
 		THROW(sync->SelfSync(obj, id, dest, 0));
@@ -3264,7 +3264,7 @@ static int SLAPI SyncGoodsObjs(ObjSyncCore * sync, Goods2Tbl * tbl, PPID dest)
 	int    ok = 1;
 	SString msg_buf;
 	IterCounter cntr;
-	cntr.Init(tbl);
+	PPInitIterCounter(cntr, tbl);
 	GetObjectTitle(PPOBJ_GOODS, msg_buf);
 	for(PPID id = 0; tbl->search(0, &id, spGt); PPWaitPercent(cntr.Increment(), msg_buf)) {
 		PPID   obj_type = 0;

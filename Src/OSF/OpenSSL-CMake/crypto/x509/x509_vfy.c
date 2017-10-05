@@ -1785,7 +1785,7 @@ X509_CRL * X509_CRL_diff(X509_CRL * base, X509_CRL * newer, EVP_PKEY * skey, con
 			}
 		}
 	}
-	/* TODO: optionally prune deleted entries */
+	/* @todo optionally prune deleted entries */
 	if(skey && md && !X509_CRL_sign(crl, skey, md))
 		goto memerr;
 	return crl;

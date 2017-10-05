@@ -391,7 +391,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString fmt_buf, msg_buf, added_buf, temp_buf;
-	IterCounter counter;
+	IterCounter cntr;
 	SysJournalTbl::Key0 k;
 	{
 		PPTransaction tra(1);
@@ -399,7 +399,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 		if(recover && P_RsrvT) {
 			SjRsrvTbl::Key0 rk0;
 			MEMSZERO(rk0);
-			counter.Init(P_RsrvT);
+			PPInitIterCounter(cntr, P_RsrvT);
 			if(P_RsrvT->searchForUpdate(0, &rk0, spFirst)) {
 				do {
 					int    r = 0;
@@ -460,7 +460,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 	#endif // } @v7.7.8
-					PPWaitPercent(counter.Increment());
+					PPWaitPercent(cntr.Increment());
 				} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
 			}
 			else if(BTROKORNFOUND && pLogger)
@@ -477,11 +477,11 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 				MEMSZERO(k);
 				BExtQuery q(this, 0);
 				q.select(this->Dt, this->Tm, 0).where(this->Dt <= toDt);
-				counter.Init(q.countIterations(0, &k, spFirst));
+				cntr.Init(q.countIterations(0, &k, spFirst));
 			}
 			k.Dt = toDt;
 			k.Tm = MAXTIME;
-			for(; searchForUpdate(0, &k, spLt) && k.Dt <= toDt; PPWaitPercent(counter.Increment(), msg_buf)) {
+			for(; searchForUpdate(0, &k, spLt) && k.Dt <= toDt; PPWaitPercent(cntr.Increment(), msg_buf)) {
 				THROW_DB(deleteRec()); // @sfu
 			}
 		}

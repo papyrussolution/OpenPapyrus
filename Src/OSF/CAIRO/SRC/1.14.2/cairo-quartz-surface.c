@@ -853,7 +853,7 @@ static cairo_status_t _cairo_surface_to_cgimage(cairo_surface_t       * source,
 		    DataProviderReleaseCallback,
 		    source_img);
 
-		/* TODO: differentiate memory error and unsupported surface type */
+		/* @todo differentiate memory error and unsupported surface type */
 		if(unlikely(*image_out == NULL))
 			status = CAIRO_INT_STATUS_UNSUPPORTED;
 	}

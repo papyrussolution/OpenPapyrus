@@ -509,9 +509,7 @@ int SLAPI PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	PPObjGoods   gobj;
 	Goods2Tbl::Rec grec;
 	GoodsIterator  iter;
-
 	P = *pParam;
-
 	THROW(InitBillPack());
 	PPWait(1);
 	if(P.GoodsGrpID && !(P.Flags & PrcssrUnifyPriceFilt::fExcludeGoodsGrp))
@@ -519,7 +517,7 @@ int SLAPI PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	else
 		excl_goodsgrp_id = P.GoodsGrpID;
 	//
-	// @TODO В фильтр по товарам добавить опцию "!GF_UNLIM"
+	// @todo В фильтр по товарам добавить опцию "!GF_UNLIM"
 	//
 	for(iter.Init(goodsgrp_id, GoodsIterator::ordByName); iter.Next(&grec) > 0;) {
 		Goods2Tbl::Rec temp_grec;

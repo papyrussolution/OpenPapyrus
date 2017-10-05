@@ -83,7 +83,7 @@ class PCRECPP_EXP_DEFN Scanner {
                const Arg& arg0 = RE::no_arg,
                const Arg& arg1 = RE::no_arg,
                const Arg& arg2 = RE::no_arg
-               // TODO: Allow more arguments?
+               // @todo Allow more arguments?
                );
 
   // Set the "skip" regular expression.  If after consuming some data,
@@ -155,7 +155,7 @@ class PCRECPP_EXP_DEFN Scanner {
   bool          save_comments_; // If true, aggregate the skip expression
 
   // the skipped comments
-  // TODO: later consider requiring that the StringPieces be added
+  // @todo later consider requiring that the StringPieces be added
   // in order by their start position
   std::vector<StringPiece> *comments_;
 

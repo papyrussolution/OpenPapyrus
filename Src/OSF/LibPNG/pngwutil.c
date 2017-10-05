@@ -1450,7 +1450,7 @@ void /* PRIVATE */ png_write_iTXt(png_structrp png_ptr, int compression, const c
 	 *
 	 * The NUL character is forbidden by PNG-1.0 through PNG-1.2 and ISO PNG.
 	 *
-	 * TODO: validate the language tag correctly (see the spec.)
+	 * @todo validate the language tag correctly (see the spec.)
 	 */
 	if(lang == NULL) 
 		lang = "";  /* empty language is valid */

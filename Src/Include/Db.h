@@ -6,12 +6,7 @@
 #define __DB_H
 
 #include <stddef.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <stdarg.h>
 #include <slib.h>
-//#include <libxml\xmlwriter.h>
-//#include <libxml\xmlreader.h>
 #include <sxml.h>
 #include <dboci.h>
 #include <comdisp.h>
@@ -3167,13 +3162,17 @@ struct DBFuncInfo {
 class DbqFuncTab {
 public:
 	//
-	// Динамически регистрирует новую функцию.
-	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по
-	// этому указателю ИД новой функции.
+	// Динамически регистрирует новую неагрегатную функцию.
+	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
 	// Если *pFuncId != 0, тогда считает, что функция уже зарегестрирована.
-	// contains CriticalSection
 	//
-	static int SLAPIV RegisterDyn(int * pFuncId, int isAggr, int retType, DBQProc pProc, int paramCount, ...);
+	static int SLAPIV RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
+	//
+	// Динамически регистрирует новую агрегатную функцию.
+	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
+	// Если *pFuncId != 0, тогда считает, что функция уже зарегестрирована.
+	//
+	static int SLAPIV RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
 	static DBFuncInfo * FASTCALL Get(int);
 	SLAPI  DbqFuncTab();
 	SLAPI ~DbqFuncTab();

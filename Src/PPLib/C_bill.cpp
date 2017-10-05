@@ -101,7 +101,7 @@ int SLAPI PPObjBill::GatherPayments()
 	PPLogger logger;
 	PPWait(1);
 	IterCounter cntr;
-	cntr.Init(P_Tbl);
+	PPInitIterCounter(cntr, P_Tbl);
 	if(P_Tbl->search(0, &bill_id, spFirst)) do {
 		BillTbl::Rec rec;
 		P_Tbl->copyBufTo(&rec);

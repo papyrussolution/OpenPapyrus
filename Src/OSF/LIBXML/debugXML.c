@@ -327,7 +327,7 @@ static void xmlCtxtGenericNodeCheck(xmlDebugCtxt * ctxt, xmlNode * node)
 static void FASTCALL xmlCtxtDumpString(xmlDebugCtxt * ctxt, const xmlChar * str)
 {
 	if(!ctxt->check) {
-		// TODO: check UTF8 content of the string 
+		// @todo check UTF8 content of the string 
 		if(!str) {
 			fprintf(ctxt->output, "(NULL)");
 		}
@@ -1451,7 +1451,7 @@ const char * xmlBoolToText(int boolval)
 ****************************************************************/
 
 /*
- * TODO: Improvement/cleanups for the XML shell
+ * @todo Improvement/cleanups for the XML shell
  *     - allow to shell out an editor on a subpart
  *     - cleanup function registrations (with help) and calling
  *     - provide registration routines

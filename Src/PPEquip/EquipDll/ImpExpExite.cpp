@@ -7,9 +7,7 @@
 
 #include <slib.h>
 #include <ppbrow.h>
-#include <libxml.h>
-#include <libxml\xmlwriter.h>
-#include <libxml\xmlreader.h>
+#include <sxml.h>
 #include <snet.h>
 #include <winsock2.h>
 #include <wininet.h>

@@ -279,7 +279,7 @@ int SLAPI RecoverAbsenceLots()
 		IterCounter cntr;
 		PPWait(1);
 		if(period.IsZero())
-			cntr.Init(trfr);
+			PPInitIterCounter(cntr, trfr);
 		else {
 			BExtQuery q(trfr, 1, 128);
 			q.select(trfr->Dt, 0L).where(daterange(trfr->Dt, &period));
@@ -561,7 +561,7 @@ int SLAPI CorrectLotsCloseTags()
 	TransferTbl::Key2 k;
 	ReceiptTbl::Rec * rec = & p_bobj->trfr->Rcpt.data;
 	PPWait(1);
-	cntr.Init(&p_bobj->trfr->Rcpt);
+	PPInitIterCounter(cntr, &p_bobj->trfr->Rcpt);
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -705,7 +705,7 @@ int SLAPI CorrectZeroQCertRefs()
 	PPID   lot_id = 0;
 	RECORDNUMBER errcount = 0;
 	IterCounter cntr;
-	THROW(cntr.Init(&rcpt));
+	THROW(PPInitIterCounter(cntr, &rcpt));
 	PPWait(1);
 	{
 		PPTransaction tra(1);
@@ -1781,7 +1781,7 @@ int SLAPI Transfer::RecalcLcr()
 		BExtQuery q(&Rcpt, 0);
 		q.select(Rcpt.ID, Rcpt.Dt, 0L);
 		PPWait(1);
-		cntr.Init(&Rcpt);
+		PPInitIterCounter(cntr, &Rcpt);
 		BExtInsert bei(P_LcrT);
 		THROW(PPStartTransaction(&ta, 1));
 		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
@@ -1815,7 +1815,7 @@ int SLAPI PPObjBill::CorrectPckgCloseTag()
 		PPID   k = 0;
 		PackageTbl::Rec pckg_rec;
 		PPWait(1);
-		cntr.Init(P_PckgT);
+		PPInitIterCounter(cntr, P_PckgT);
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -2194,7 +2194,7 @@ int SLAPI RecoverTransfer()
 	TransferTbl::Rec & r_data = p_trfr->data;
 	TransferTbl::Key1 k1;
 	IterCounter cntr;
-	cntr.Init(p_trfr);
+	PPInitIterCounter(cntr, p_trfr);
 	SArray bad_list(sizeof(BadTrfrEntry));
 	BExtQuery q(p_trfr, 1);
 	PPWait(1);

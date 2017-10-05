@@ -15,9 +15,9 @@ namespace Scintilla {
 
 template <typename T> class SplitVector {
 protected:
+	int lengthBody; // @firstmember
 	T * body;
 	int size;
-	int lengthBody;
 	int part1Length;
 	int gapLength;  /// invariant: gapLength == size - lengthBody
 	int growSize;
@@ -28,14 +28,10 @@ protected:
 	void FASTCALL GapTo(int position)
 	{
 		if(position != part1Length) {
-			if(position < part1Length) {
-				// Moving the gap towards start so moving elements towards end
+			if(position < part1Length) // Moving the gap towards start so moving elements towards end
 				std::copy_backward(body + position, body + part1Length, body + gapLength + part1Length);
-			}
-			else {          // position > part1Length
-				// Moving the gap towards end so moving elements towards start
+			else // Moving the gap towards end so moving elements towards start
 				std::copy(body + part1Length + gapLength, body + gapLength + position, body + part1Length);
-			}
 			part1Length = position;
 		}
 	}
@@ -119,18 +115,16 @@ public:
 			if(position < 0) {
 				;
 			}
-			else {
+			else
 				body[position] = v;
-			}
 		}
 		else {
 			PLATFORM_ASSERT(position < lengthBody);
 			if(position >= lengthBody) {
 				;
 			}
-			else {
+			else
 				body[gapLength + position] = v;
-			}
 		}
 	}
 	T & FASTCALL operator[] (int position) const
@@ -197,7 +191,7 @@ public:
 		}
 	}
 	/// Delete one element from the buffer.
-	void Delete(int position)
+	void FASTCALL Delete(int position)
 	{
 		PLATFORM_ASSERT((position >= 0) && (position < lengthBody));
 		if(position >= 0 && position < lengthBody)
@@ -258,13 +252,11 @@ public:
 				GapTo(position);
 				return body + position + gapLength;
 			}
-			else {
+			else
 				return body + position;
-			}
 		}
-		else {
-			return body + position + gapLength;
-		}
+		else
+			return (body + position + gapLength);
 	}
 	int GapPosition() const
 	{

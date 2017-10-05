@@ -305,12 +305,12 @@ struct TEvent {
 			WPARAM  WP;
 		};
 	};
-	uint   what;
 	union {
+		Message message;
 		Mouse mouse;
 		KeyDown keyDown;
-		Message message;
 	};
+	uint   what;
 
 	TEvent();
 	TEvent & setCmd(uint msg, TView * pInfoView);

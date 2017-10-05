@@ -51,6 +51,12 @@ long SLAPI SetXORFlags(long v, long f1, long f2, long f)
 	return ((v & ~(f1 | f2)) | f);
 }
 
+int FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl)
+{
+	RECORDNUMBER num_recs = 0;
+	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (rCntr.Init(num_recs), 1) : PPSetErrorDB();
+}
+
 SString & SLAPI DateToStr(LDATE dt, SString & rBuf)
 {
 	rBuf.Z();
@@ -1321,25 +1327,6 @@ int FASTCALL DateIter::Cmp(const DateIter & rS) const
     int    si = 0;
     CMPCASCADE2(si, this, &rS, dt, oprno);
     return si;
-}
-//
-// IterCounter
-//
-SLAPI IterCounter::IterCounter()
-{
-	Init();
-}
-
-void FASTCALL IterCounter::Init(ulong total)
-{
-	Total = total;
-	Count = 0L;
-}
-
-int SLAPI IterCounter::Init(DBTable * pTbl)
-{
-	RECORDNUMBER num_recs = 0;
-	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (Init(num_recs), 1) : PPSetErrorDB();
 }
 //
 // Loading DBF structure from resource

@@ -475,7 +475,7 @@ out:
  *
  * rectangle.
  *
- * TODO:
+ * @todo 
  *   - Trim the mask to the destination clip/image?
  *   - Trim composite region based on sources, when the op ignores 0s.
  */

@@ -3755,7 +3755,7 @@ int SLAPI CCheckCore::RemoveZeroLinkLines(int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		cntr.Init(&Lines);
+		PPInitIterCounter(cntr, &Lines);
 		MEMSZERO(k0);
 		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment())) {
 			{
@@ -5572,7 +5572,7 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 			// ѕоиск и удаление строк чеков, не прив€занных к чекам
 			//
 			IterCounter cntr;
-			cntr.Init(&Lines);
+			PPInitIterCounter(cntr, &Lines);
 			CCheckLineTbl::Key0 k0;
 			MEMSZERO(k0);
 			if(Lines.search(0, &k0, spFirst)) do {
@@ -5591,7 +5591,7 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 			//ValidateCheck(item.ID, 0.001, logger);
 			const double tolerance = 0.001;
 			IterCounter cntr;
-			cntr.Init(this);
+			PPInitIterCounter(cntr, this);
 			CCheckPacket cc_pack;
 			CCheckTbl::Key0 k0;
 			if(search(0, &k0, spFirst)) do {

@@ -287,7 +287,7 @@ static CURLcode libssh2_session_error_to_CURLE(int err)
 		    return CURLE_AGAIN;
 	}
 
-	/* TODO: map some more of the libssh2 errors to the more appropriate CURLcode
+	/* @todo map some more of the libssh2 errors to the more appropriate CURLcode
 	   error code, and possibly add a few new SSH-related one. We must however
 	   not return or even depend on libssh2 errors in the public libcurl API */
 

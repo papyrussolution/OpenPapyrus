@@ -282,7 +282,7 @@ int SLAPI PPViewPrcBusy::InitIteration()
 	char   k[MAXKEYLEN];
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
-		Counter.Init(P_TempTbl);
+		PPInitIterCounter(Counter, P_TempTbl);
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
 		memzero(k, sizeof(k));
 		P_IterQuery->selectAll();

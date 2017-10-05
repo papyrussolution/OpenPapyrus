@@ -526,7 +526,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			ret = DB_REP_DUPMASTER;
 		break;
 #ifdef NOTYET
-	    case REP_FILE: /* TODO */
+	    case REP_FILE: /* @todo */
 		CLIENT_ONLY(rep, rp);
 		break;
 	    case REP_FILE_REQ:

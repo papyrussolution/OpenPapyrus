@@ -197,7 +197,7 @@ struct __repmgr_runnable {
  * scheduling a retry for "0" microseconds from now, putting its retry element
  * at the head of the list instead.
  *
- * TODO: I think this can be fixed by defining "time" to be the time the element
+ * @todo I think this can be fixed by defining "time" to be the time the element
  * was added (with some convention like "0" meaning immediate), rather than the
  * deadline time.
  */

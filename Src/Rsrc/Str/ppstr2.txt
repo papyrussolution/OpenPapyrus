@@ -11440,6 +11440,10 @@ PPHS_WEEKDAY                   "weekday"
 PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
 PPHS_LOGLOCKSTACK              "loglockstack"
+PPHS_PAYMENT                   "payment"
+PPHS_UNKN                      "unkn"
+PPHS_CASH                      "cash"
+PPHS_BANK                      "bank"
 
 #!}
 
@@ -11505,4 +11509,6 @@ PPHSC_RU_IDPARTICIPANT         "ИдСв"
 PPHSC_RU_FUNCTION              "Функция"
 PPHSC_RU_SELLERINFO            "СвПрод"
 PPHSC_RU_BUYERINFO             "СвПокуп"
+PPHSC_RU_IDENTIF               "Идентиф"
+PPHSC_RU_VAL                   "Значен"
 #!}

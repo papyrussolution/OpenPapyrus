@@ -128,7 +128,7 @@ __extension__ ({                                                              \
   curl_easy_getinfo(handle, _curl_info, arg);                                 \
 })
 
-/* TODO: typechecking for curl_share_setopt() and curl_multi_setopt(),
+/* @todo typechecking for curl_share_setopt() and curl_multi_setopt(),
  * for now just make sure that the functions are called with three
  * arguments
  */

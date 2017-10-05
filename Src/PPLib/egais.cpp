@@ -8767,7 +8767,7 @@ int SLAPI EgaisPersonCore::Clear(int use_ta)
 	SString msg_buf;
 	EgaisPersonTbl::Key0 k0;
 	MEMSZERO(k0);
-	cntr.Init(this);
+	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
 	msg_buf.CatDiv(':', 2).Cat(this->tableName);
 	{
@@ -9141,7 +9141,7 @@ int SLAPI EgaisProductCore::Clear(int use_ta)
 	SString msg_buf;
 	EgaisProductTbl::Key0 k0;
 	MEMSZERO(k0);
-	cntr.Init(this);
+	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
 	msg_buf.CatDiv(':', 2).Cat(this->tableName);
 	{
@@ -9418,7 +9418,7 @@ int SLAPI EgaisRefACore::Clear(int use_ta)
 	SString msg_buf;
 	EgaisRefATbl::Key0 k0;
 	MEMSZERO(k0);
-	cntr.Init(this);
+	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
 	msg_buf.CatDiv(':', 2).Cat(this->tableName);
 	{

@@ -1498,7 +1498,7 @@ static CURLcode nss_sslver_from_curl(PRUint16 * nssver, long version)
 {
 	switch(version) {
 		case CURL_SSLVERSION_TLSv1:
-		    /* TODO: set sslver->max to SSL_LIBRARY_VERSION_TLS_1_3 once stable */
+		    /* @todo set sslver->max to SSL_LIBRARY_VERSION_TLS_1_3 once stable */
 #ifdef SSL_LIBRARY_VERSION_TLS_1_2
 		    *nssver = SSL_LIBRARY_VERSION_TLS_1_2;
 #elif defined SSL_LIBRARY_VERSION_TLS_1_1

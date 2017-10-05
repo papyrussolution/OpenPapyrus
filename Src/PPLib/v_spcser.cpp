@@ -159,7 +159,7 @@ int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 // virtual
 DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncSpcSnTextFld, 0, BTS_STRING, dbqf_spcsn_textfld_iisi, 4, BTS_INT, BTS_INT, BTS_STRING, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncSpcSnTextFld, BTS_STRING, dbqf_spcsn_textfld_iisi, 4, BTS_INT, BTS_INT, BTS_STRING, BTS_INT);
 
 	uint brw_id = BROWSER_SPECSERIES;
 	DBQ     * dbq = 0;

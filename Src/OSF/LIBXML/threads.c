@@ -83,7 +83,7 @@ __attribute((weak));
 #endif /* HAVE_PTHREAD_H */
 
 /*
- * TODO: this module still uses malloc/free and not xmlMalloc/free
+ * @todo this module still uses malloc/free and not xmlMalloc/free
  *       to avoid some crazyness since xmlMalloc/free may actually
  *       be hosted on allocated blocks needing them for the allocation ...
  */
@@ -177,8 +177,8 @@ static void xmlOnceInit();
  */
 xmlMutex * xmlNewMutex()
 {
-	xmlMutex * tok;
-	if((tok = (xmlMutex *)malloc(sizeof(xmlMutex))) == NULL)
+	xmlMutex * tok = (xmlMutex *)malloc(sizeof(xmlMutex));
+	if(!tok == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0)
@@ -222,7 +222,7 @@ void xmlFreeMutex(xmlMutex * pTok)
  *
  * xmlMutexLock() is used to lock a libxml2 token.
  */
-void xmlMutexLock(xmlMutex * pTok)
+void FASTCALL xmlMutexLock(xmlMutex * pTok)
 {
 	if(pTok) {
 #ifdef HAVE_PTHREAD_H
@@ -246,7 +246,7 @@ void xmlMutexLock(xmlMutex * pTok)
  *
  * xmlMutexUnlock() is used to unlock a libxml2 token.
  */
-void xmlMutexUnlock(xmlMutex * tok)
+void FASTCALL xmlMutexUnlock(xmlMutex * tok)
 {
 	if(tok) {
 #ifdef HAVE_PTHREAD_H
@@ -320,14 +320,13 @@ void xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 #endif
 	SAlloc::F(tok);
 }
-
 /**
  * xmlRMutexLock:
  * @tok:  the reentrant mutex
  *
  * xmlRMutexLock() is used to lock a libxml2 token_r.
  */
-void xmlRMutexLock(xmlRMutexPtr tok)
+void FASTCALL xmlRMutexLock(xmlRMutex * tok)
 {
 	if(tok == NULL)
 		return;
@@ -366,14 +365,13 @@ void xmlRMutexLock(xmlRMutexPtr tok)
 	}
 #endif
 }
-
 /**
  * xmlRMutexUnlock:
  * @tok:  the reentrant mutex
  *
  * xmlRMutexUnlock() is used to unlock a libxml2 token_r.
  */
-void xmlRMutexUnlock(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
+void FASTCALL xmlRMutexUnlock(xmlRMutex * tok ATTRIBUTE_UNUSED)
 {
 	if(tok == NULL)
 		return;
@@ -403,7 +401,6 @@ void xmlRMutexUnlock(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 	}
 #endif
 }
-
 /**
  * xmlGlobalInitMutexLock
  *
@@ -524,8 +521,7 @@ void __xmlGlobalInitMutexDestroy()
 static void xmlFreeGlobalState(void * state)
 {
 	xmlGlobalState * gs = (xmlGlobalState*)state;
-
-	/* free any memory allocated in the thread's xmlLastError */
+	// free any memory allocated in the thread's xmlLastError 
 	xmlResetError(&(gs->xmlLastError));
 	SAlloc::F(state);
 }
@@ -564,8 +560,7 @@ typedef struct _xmlGlobalStateCleanupHelperParams {
 
 static void XMLCDECL xmlGlobalStateCleanupHelper(void * p)
 {
-	xmlGlobalStateCleanupHelperParams * params =
-	    (xmlGlobalStateCleanupHelperParams*)p;
+	xmlGlobalStateCleanupHelperParams * params = (xmlGlobalStateCleanupHelperParams *)p;
 	WaitForSingleObject(params->thread, INFINITE);
 	CloseHandle(params->thread);
 	xmlFreeGlobalState(params->memory);
@@ -600,8 +595,7 @@ static CRITICAL_SECTION cleanup_helpers_cs;
 void xmlGlobalStateCleanup(void * data)
 {
 	void * globalval = tls_get(globalkey);
-
-	if(globalval != NULL)
+	if(globalval)
 		xmlFreeGlobalState(globalval);
 }
 
@@ -618,18 +612,13 @@ xmlGlobalStatePtr xmlGetGlobalState()
 {
 #ifdef HAVE_PTHREAD_H
 	xmlGlobalState * globalval;
-
 	if(libxml_is_threaded == 0)
 		return 0;
-
 	pthread_once(&once_control, xmlOnceInit);
-
-	if((globalval = (xmlGlobalState*)
-			    pthread_getspecific(globalkey)) == NULL) {
+	if((globalval = (xmlGlobalState*)pthread_getspecific(globalkey)) == NULL) {
 		xmlGlobalState * tsd = xmlNewGlobalState();
 		if(tsd == NULL)
 			return 0;
-
 		pthread_setspecific(globalkey, tsd);
 		return (tsd);
 	}
@@ -644,7 +633,6 @@ xmlGlobalStatePtr xmlGetGlobalState()
 #else /* HAVE_COMPILER_TLS */
 	xmlGlobalState * globalval;
 	xmlGlobalStateCleanupHelperParams * p;
-
 	xmlOnceInit();
 #if defined(LIBXML_STATIC) && !defined(LIBXML_STATIC_FOR_DLL)
 	globalval = (xmlGlobalState*)TlsGetValue(globalkey);

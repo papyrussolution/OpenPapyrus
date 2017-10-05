@@ -22,6 +22,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
@@ -81,6 +82,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
@@ -148,7 +150,8 @@
 						CommandLine="cd $(InputDir)
 $(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o korus.h $(InputFileName)
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pkorus korus.h
-cd $(SolutionDir)"
+cd $(SolutionDir)
+"
 						Outputs="$(InputDir)korusC.cpp;$(InputDir)korusH.h;$(InputDir)korusEDIWebServiceSoapProxy.cpp;$(InputDir)korusEDIWebServiceSoapProxy.h"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -159,7 +162,8 @@ cd $(SolutionDir)"
 						CommandLine="cd $(InputDir)
 $(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o korus.h $(InputFileName)
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pkorus korus.h
-cd $(SolutionDir)"
+cd $(SolutionDir)
+"
 						Outputs="$(InputDir)korusC.cpp;$(InputDir)korusH.h;$(InputDir)korusEDIWebServiceSoapProxy.cpp;$(InputDir)korusEDIWebServiceSoapProxy.h"/>
 				</FileConfiguration>
 			</File>

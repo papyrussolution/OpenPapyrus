@@ -1420,7 +1420,7 @@ int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 	IterBillCounter = 0;
 	if(Filt.Flags & DebtTrnovrFilt::fPrintExt)
 		THROW_MEM(P_IterBillList = new PPIDArray /*PayableBillList*/);
-	Counter.Init(P_TempTbl);
+	PPInitIterCounter(Counter, P_TempTbl);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	P_IterQuery->selectAll();
 	memzero(k, sizeof(k));

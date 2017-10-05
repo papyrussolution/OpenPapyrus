@@ -589,7 +589,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 		}
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
 		if(ret != 0) {
-			/* TODO: consider add'l error recovery steps. */
+			/* @todo consider add'l error recovery steps. */
 			goto errlck;
 		}
 		ENV_GET_THREAD_INFO(env, ip);

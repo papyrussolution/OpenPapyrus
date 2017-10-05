@@ -22,7 +22,7 @@ void ngx_event_acceptex(ngx_event_t * rev)
 	/* SO_UPDATE_ACCEPT_CONTEXT is required for shutdown() to work */
 	if(setsockopt(c->fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&ls->fd, sizeof(ngx_socket_t)) == -1) {
 		ngx_log_error(NGX_LOG_CRIT, c->log, ngx_socket_errno, "setsockopt(SO_UPDATE_ACCEPT_CONTEXT) failed for %V", &c->addr_text);
-		/* TODO: close socket */
+		/* @todo close socket */
 		return;
 	}
 	ngx_getacceptexsockaddrs(c->buffer->pos, ls->post_accept_buffer_size, ls->socklen + 16, ls->socklen + 16,
@@ -37,12 +37,12 @@ void ngx_event_acceptex(ngx_event_t * rev)
 	if(ls->addr_ntop) {
 		c->addr_text.data = (u_char *)ngx_pnalloc(c->pool, ls->addr_text_max_len);
 		if(c->addr_text.data == NULL) {
-			/* TODO: close socket */
+			/* @todo close socket */
 			return;
 		}
 		c->addr_text.len = ngx_sock_ntop(c->sockaddr, c->socklen, c->addr_text.data, ls->addr_text_max_len, 0);
 		if(c->addr_text.len == 0) {
-			/* TODO: close socket */
+			/* @todo close socket */
 			return;
 		}
 	}
@@ -59,7 +59,7 @@ ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 	ngx_log_t * log;
 	ngx_event_t * rev, * wev;
 	for(ngx_uint_t i = 0; i < n; i++) {
-		// TODO: look up reused sockets 
+		// @todo look up reused sockets 
 		ngx_socket_t s = ngx_socket(ls->sockaddr->sa_family, ls->type, 0);
 		ngx_log_debug1(NGX_LOG_DEBUG_EVENT, &ls->log, 0, ngx_socket_n " s:%d", s);
 		if(s == (ngx_socket_t)-1) {

@@ -255,7 +255,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 	failed = 0;
 #endif
 	log = cycle->log;
-	/* TODO: configurable try number */
+	/* @todo configurable try number */
 	for(tries = 5; tries; tries--) {
 		failed = 0;
 		/* for each listening socket */
@@ -282,9 +282,9 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 				continue;
 			}
 			if(ls[i].inherited) {
-				/* TODO: close on exit */
-				/* TODO: nonblocking */
-				/* TODO: deferred accept */
+				/* @todo close on exit */
+				/* @todo nonblocking */
+				/* @todo deferred accept */
 				continue;
 			}
 			s = ngx_socket(ls[i].sockaddr->sa_family, ls[i].type, 0);
@@ -321,7 +321,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 				}
 			}
 #endif
-			/* TODO: close on exit */
+			/* @todo close on exit */
 			if(!(ngx_event_flags & NGX_USE_IOCP_EVENT)) {
 				if(ngx_nonblocking(s) == -1) {
 					ngx_log_error(NGX_LOG_EMERG, log, ngx_socket_errno, ngx_nonblocking_n " %V failed", &ls[i].addr_text);
@@ -393,7 +393,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t * cycle, const NgxStartUpOption
 		if(!failed) {
 			break;
 		}
-		/* TODO: delay configurable */
+		/* @todo delay configurable */
 		ngx_log_error(NGX_LOG_NOTICE, log, 0, "try again to bind() after 500ms");
 		ngx_msleep(500);
 	}

@@ -111,7 +111,7 @@
 #define XPATH_MAX_NODESET_LENGTH 10000000
 
 /*
- * TODO:
+ * @todo 
  * There are a few spots where some tests are done which depend upon ascii
  * data.  These should be enhanced for full UTF8 support (see particularly
  * any use of the macros IS_ASCII_CHARACTER and IS_ASCII_DIGIT)
@@ -148,7 +148,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 	switch(node1->type) {
 		case XML_ELEMENT_NODE:
 		    if(node2->type == XML_ELEMENT_NODE) {
-			    if((0 > (long)node1->content) && /* TODO: Would a != 0 suffice here? */
+			    if((0 > (long)node1->content) && /* @todo Would a != 0 suffice here? */
 			    (0 > (long)node2->content) &&
 			    (node1->doc == node2->doc)) {
 				    l1 = -((long)node1->content);
@@ -212,7 +212,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 	    break;
 		case XML_NAMESPACE_DECL:
 		    /*
-		     * TODO: why do we return 1 for namespace nodes?
+		     * @todo why do we return 1 for namespace nodes?
 		     */
 		    return 1;
 		default:
@@ -284,7 +284,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 			else {
 				/*
 				 * Evaluate based on higher precedence wrt to the element.
-				 * TODO: This assumes attributes are sorted before content.
+				 * @todo This assumes attributes are sorted before content.
 				 *   Is this 100% correct?
 				 */
 				if(precedence1 < precedence2)
@@ -531,7 +531,7 @@ static int xmlXPathGetSign(double val)
 }
 
 /*
- * TODO: when compatibility allows remove all "fake node libxslt" strings
+ * @todo when compatibility allows remove all "fake node libxslt" strings
  *       the test should just be name[0] = ' '
  */
 #ifdef DEBUG_XPATH_EXPRESSION
@@ -718,7 +718,7 @@ struct _xmlPointerList {
 };
 
 /*
- * TODO: Since such a list-handling is used in xmlschemas.c and libxslt
+ * @todo Since such a list-handling is used in xmlschemas.c and libxslt
  * and here, we should make the functions public.
  */
 static int xmlPointerListAddSize(xmlPointerListPtr list, void * item, int initialSize)
@@ -2678,7 +2678,7 @@ xmlChar * xmlXPathPopString(xmlXPathParserContextPtr ctxt)
 		return 0;
 	}
 	ret = xmlXPathCastToString(obj); /* this does required strdup */
-	/* TODO: needs refactoring somewhere else */
+	/* @todo needs refactoring somewhere else */
 	if(obj->stringval == ret)
 		obj->stringval = NULL;
 	xmlXPathReleaseObject(ctxt->context, obj);
@@ -3501,7 +3501,7 @@ xmlNodeSetPtr xmlXPathNodeSetMerge(xmlNodeSetPtr val1, xmlNodeSetPtr val2)
 			return 0;
 #if 0
 		/*
-		 * TODO: The optimization won't work in every case, since
+		 * @todo The optimization won't work in every case, since
 		 *  those nasty namespace nodes need to be added with
 		 *  xmlXPathNodeSetDupNs() to the set; thus a pure
 		 *  memcpy is not possible.
@@ -5010,7 +5010,7 @@ void xmlXPathFreeObject(xmlXPathObjectPtr obj)
 				}
 				else
 #endif
-				obj->type = XPATH_XSLT_TREE; /* TODO: Just for debugging. */
+				obj->type = XPATH_XSLT_TREE; /* @todo Just for debugging. */
 				if(obj->nodesetval)
 					xmlXPathFreeValueTree(obj->nodesetval);
 			}
@@ -5060,7 +5060,7 @@ static void FASTCALL xmlXPathReleaseObject(xmlXPathContextPtr ctxt, xmlXPathObje
 							/*
 							 * It looks like the @boolval is used for
 							 * evaluation if this an XSLT Result Tree Fragment.
-							 * TODO: Check if this assumption is correct.
+							 * @todo Check if this assumption is correct.
 							 */
 							pObj->type = XPATH_XSLT_TREE; /* just for debugging */
 							xmlXPathFreeValueTree(pObj->nodesetval);
@@ -5120,7 +5120,7 @@ static void FASTCALL xmlXPathReleaseObject(xmlXPathContextPtr ctxt, xmlXPathObje
 			if(pObj->nodesetval) {
 				xmlNodeSetPtr tmpset = pObj->nodesetval;
 				/*
-				 * TODO: Due to those nasty ns-nodes, we need to traverse
+				 * @todo Due to those nasty ns-nodes, we need to traverse
 				 *  the list and free the ns-nodes.
 				 * URGENT TODO: Check if it's actually slowing things down.
 				 *  Maybe we shouldn't try to preserve the list.
@@ -7204,7 +7204,7 @@ static xmlNode * xmlXPathNextDescendantOrSelfElemParent(xmlNode * cur, xmlNode *
 		while(cur) {
 			switch(cur->type) {
 				case XML_ELEMENT_NODE:
-				/* TODO: OK to have XInclude here? */
+				/* @todo OK to have XInclude here? */
 				case XML_XINCLUDE_START:
 				case XML_DOCUMENT_FRAG_NODE:
 				    if(cur != start)
@@ -7801,7 +7801,7 @@ xmlNode * xmlXPathNextNamespace(xmlXPathParserContextPtr ctxt, xmlNode * cur)
  * @cur:  the current attribute in the traversal
  *
  * Traversal function for the "attribute" direction
- * TODO: support DTD inherited default attributes
+ * @todo support DTD inherited default attributes
  *
  * Returns the next element following that axis
  */
@@ -9595,7 +9595,7 @@ static xmlChar * xmlXPathParseLiteral(xmlXPathParserContextPtr ctxt)
  *  [29]   Literal ::=   '"' [^"]* '"'
  *                    | "'" [^']* "'"
  *
- * TODO: xmlXPathCompLiteral memory allocation could be improved.
+ * @todo xmlXPathCompLiteral memory allocation could be improved.
  */
 static void xmlXPathCompLiteral(xmlXPathParserContextPtr ctxt) {
 	const xmlChar * q;
@@ -10336,7 +10336,7 @@ static void xmlXPathCompPredicate(xmlXPathParserContextPtr ctxt, int filter) {
 	/*
 	 * This call to xmlXPathCompileExpr() will deactivate sorting
 	 * of the predicate result.
-	 * TODO: Sorting is still activated for filters, since I'm not
+	 * @todo Sorting is still activated for filters, since I'm not
 	 *  sure if needed. Normally sorting should not be needed, since
 	 *  a filter can only diminish the number of items in a sequence,
 	 *  but won't change its order; so if the initial sequence is sorted,
@@ -10914,7 +10914,7 @@ static int xmlXPathCompOpEvalPredicate(xmlXPathParserContextPtr ctxt,
 		 */
 		if(comp->steps[op->ch1].op != XPATH_OP_PREDICATE) {
 			/*
-			 * TODO: raise an internal error.
+			 * @todo raise an internal error.
 			 */
 		}
 		contextSize = xmlXPathCompOpEvalPredicate(ctxt,
@@ -11031,7 +11031,7 @@ static int xmlXPathCompOpEvalPredicate(xmlXPathParserContextPtr ctxt,
 			}
 			else {
 				/*
-				 * TODO: The object was lost in the evaluation machinery.
+				 * @todo The object was lost in the evaluation machinery.
 				 *  Can this happen? Maybe in internal-error cases.
 				 */
 				contextObj = NULL;
@@ -11070,7 +11070,7 @@ static int xmlXPathCompOpEvalPositionalPredicate(xmlXPathParserContextPtr ctxt,
 		xmlXPathCompExprPtr comp = ctxt->comp;
 		if(comp->steps[op->ch1].op != XPATH_OP_PREDICATE) {
 			/*
-			 * TODO: raise an internal error.
+			 * @todo raise an internal error.
 			 */
 		}
 		contextSize = xmlXPathCompOpEvalPredicate(ctxt,
@@ -11089,7 +11089,7 @@ static int xmlXPathCompOpEvalPositionalPredicate(xmlXPathParserContextPtr ctxt,
 	}
 	if(op->ch2 == -1) {
 		/*
-		 * TODO: Can this ever happen?
+		 * @todo Can this ever happen?
 		 */
 		return (contextSize);
 	}
@@ -11286,7 +11286,7 @@ static int xmlXPathIsPositionalPredicate(xmlXPathParserContextPtr ctxt, xmlXPath
 	if(exprOp && (exprOp->op == XPATH_OP_VALUE) && exprOp->value4 && (((xmlXPathObjectPtr)exprOp->value4)->type == XPATH_NUMBER)) {
 		/*
 		 * We have a "[n]" predicate here.
-		 * TODO: Unfortunately this simplistic test here is not
+		 * @todo Unfortunately this simplistic test here is not
 		 * able to detect a position() predicate in compound
 		 * expressions like "[@attr = 'a" and position() = 1],
 		 * and even not the usage of position() in
@@ -11604,7 +11604,7 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt, xmlXPathSte
 				    goto error;
 				case NODE_TEST_TYPE:
 				    /*
-				     * TODO: Don't we need to use
+				     * @todo Don't we need to use
 				     *  xmlXPathNodeSetAddNs() for namespace nodes here?
 				     *  Surprisingly, some c14n tests fail, if we do this.
 				     */
@@ -11796,7 +11796,7 @@ apply_predicates: /* --------------------------------------------------- */
 				/*
 				 * Iterate over all predicates, starting with the outermost
 				 * predicate.
-				 * TODO: Problem: we cannot execute the inner predicates first
+				 * @todo Problem: we cannot execute the inner predicates first
 				 *  since we cannot go back *up* the operator tree!
 				 *  Options we have:
 				 *  1) Use of recursive functions (like is it currently done
@@ -11875,7 +11875,7 @@ error:
 		if((obj->boolval) && obj->user) {
 			/*
 			 * QUESTION TODO: What does this do and why?
-			 * TODO: Do we have to do this also for the "error"
+			 * @todo Do we have to do this also for the "error"
 			 * cleanup further down?
 			 */
 			ctxt->value->boolval = 1;
@@ -12069,7 +12069,7 @@ error:
 			    ctxt->context->contextSize = cs;
 			    cur = xmlXPathCompOpEvalLast(ctxt, &comp->steps[op->ch2], last);
 			    CHECK_ERROR0;
-			    if(ctxt->value && (ctxt->value->type == XPATH_NODESET) && ctxt->value->nodesetval && (ctxt->value->nodesetval->nodeNr >= 1)) { /* TODO: NOP ? */
+			    if(ctxt->value && (ctxt->value->type == XPATH_NODESET) && ctxt->value->nodesetval && (ctxt->value->nodesetval->nodeNr >= 1)) { /* @todo NOP ? */
 			    }
 			    CHECK_TYPE0(XPATH_NODESET);
 			    arg2 = valuePop(ctxt);
@@ -13264,7 +13264,7 @@ start:
 				res = xmlXPathCastToBoolean(resObj);
 			}
 			xmlXPathReleaseObject(ctxt->context, resObj);
-			return(res);
+			return res;
 		}
 
 		return 0;
@@ -13516,7 +13516,7 @@ return_1:
 				 */
 				res = xmlXPathRunStreamEval(ctxt->context, ctxt->comp->stream, NULL, 1);
 				if(res != -1)
-					return(res);
+					return res;
 			}
 			else {
 				xmlXPathObjectPtr resObj = NULL;
@@ -13905,7 +13905,7 @@ return_1:
 #ifndef LIBXML_THREAD_ENABLED
 		reentance--;
 #endif
-		return(res);
+		return res;
 	}
 
 /**
@@ -13922,7 +13922,7 @@ return_1:
 	{
 		xmlXPathObjectPtr res = NULL;
 		xmlXPathCompiledEvalInternal(comp, ctx, &res, 0);
-		return(res);
+		return res;
 	}
 
 /**
@@ -14028,7 +14028,7 @@ return_1:
 			res = NULL;
 		}
 		xmlXPathFreeParserContext(ctxt);
-		return(res);
+		return res;
 	}
 
 /**

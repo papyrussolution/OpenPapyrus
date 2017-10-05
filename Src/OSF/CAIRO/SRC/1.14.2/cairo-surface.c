@@ -554,7 +554,7 @@ cairo_image_surface_t * _cairo_surface_map_to_image(cairo_surface_t  * surface, 
 {
 	cairo_image_surface_t * image = NULL;
 	assert(extents);
-	// TODO: require map_to_image != NULL 
+	// @todo require map_to_image != NULL 
 	if(surface->backend->map_to_image)
 		image = surface->backend->map_to_image(surface, extents);
 	SETIFZ(image, _cairo_image_surface_clone_subimage(surface, extents));
@@ -598,7 +598,7 @@ cairo_int_status_t _cairo_surface_unmap_image(cairo_surface_t * surface, cairo_i
 		status = CAIRO_STATUS_SUCCESS;
 		goto destroy;
 	}
-	// TODO: require unmap_image != NULL 
+	// @todo require unmap_image != NULL 
 	if(surface->backend->unmap_image && !_cairo_image_surface_is_clone(image)) {
 		status = surface->backend->unmap_image(surface, image);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED)

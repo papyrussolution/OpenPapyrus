@@ -2725,7 +2725,7 @@ cairo_bool_t _cairo_gradient_pattern_is_solid(const cairo_gradient_pattern_t * g
 	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
 	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 
-	/* TODO: radial */
+	/* @todo radial */
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;
 		if(_linear_pattern_is_degenerate(linear)) {
@@ -2882,7 +2882,7 @@ static cairo_bool_t _gradient_is_opaque(const cairo_gradient_pattern_t * gradien
 		}
 	}
 	else
-		return FALSE;  /* TODO: check actual intersection */
+		return FALSE;  /* @todo check actual intersection */
 
 	for(i = 0; i < gradient->n_stops; i++)
 		if(!CAIRO_COLOR_IS_OPAQUE(&gradient->stops[i].color))
@@ -3229,7 +3229,7 @@ HANDLE_FILTER:
 			    goto EMPTY;
 		    }
 
-		    /* TODO: in some cases (focus outside/on the circle) it is
+		    /* @todo in some cases (focus outside/on the circle) it is
 		     * half-bounded. */
 		    if(pattern->extend != CAIRO_EXTEND_NONE)
 			    goto UNBOUNDED;
@@ -3264,7 +3264,7 @@ HANDLE_FILTER:
 			    goto EMPTY;
 		    }
 
-		    /* TODO: to get tight extents, use the matrix to transform
+		    /* @todo to get tight extents, use the matrix to transform
 		     * the pattern instead of transforming the extents later. */
 		    if(pattern->matrix.xy != 0. || pattern->matrix.yx != 0.)
 			    goto UNBOUNDED;

@@ -3599,7 +3599,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_gradient(cairo_pdf_surface_t  
 		double bounds_x1, bounds_x2, bounds_y1, bounds_y2;
 		double x_scale, y_scale, tolerance;
 
-		/* TODO: use tighter extents */
+		/* @todo use tighter extents */
 		bounds_x1 = 0;
 		bounds_y1 = 0;
 		bounds_x2 = surface->width;
@@ -4243,7 +4243,7 @@ static void _cairo_pdf_surface_write_pages(cairo_pdf_surface_t * surface)
 	}
 	_cairo_output_stream_printf(surface->output, "]\n");
 	_cairo_output_stream_printf(surface->output, "   /Count %d\n", num_pages);
-	// TODO: Figure out which other defaults to be inherited by /Page objects.
+	// @todo Figure out which other defaults to be inherited by /Page objects.
 	_cairo_output_stream_printf(surface->output, ">>\nendobj\n");
 }
 

@@ -3607,7 +3607,7 @@ int SLAPI PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PP
 										else
 											break;
 									}
-									// @TODO Process errors at next call
+									// @todo Process errors at next call
 									gg_obj.AssignGoodsToAltGrp(gid, alt_grp_id, 0, 0);
 									ok = 1;
 								}
@@ -4287,7 +4287,7 @@ int SLAPI PPObjBHT::AcceptBills(const char * pHName, const char * pLName, PPLogg
 						else
 							break;
 					}
-					// @TODO Process errors at next call
+					// @todo Process errors at next call
 					gg_obj.AssignGoodsToAltGrp(atol(gid), alt_grp_id, 0, 0);
 					ok = 1;
 				}

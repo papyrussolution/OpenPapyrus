@@ -1346,7 +1346,7 @@ int PPViewGoods::DynFuncStrucType = 0;
 
 DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncStrucType, 0, BTS_STRING, dbqf_goodsstructype_i, 1, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncStrucType, BTS_STRING, dbqf_goodsstructype_i, 1, BTS_INT);
 
 	DBQuery * q = 0;
 	DBE    dbe_unit, dbe_phunit, dbe_manuf, dbe_code_ar;
@@ -1737,7 +1737,7 @@ int SLAPI PPViewGoods::InitIteration(int aOrder)
 	CreateTempTable((PPViewGoods::IterOrder)aOrder, &P_TempTbl);
 	if(P_TempTbl) {
 		TempOrderTbl::Key1 k1;
-		Counter.Init(P_TempTbl);
+		PPInitIterCounter(Counter, P_TempTbl);
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1));
 		P_IterQuery->select(P_TempTbl->ID, 0);
 		MEMSZERO(k1);

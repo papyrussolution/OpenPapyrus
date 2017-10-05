@@ -2289,9 +2289,8 @@ static int _dbOpenException(const char * pFileName, int btrErr)
 {
 	BtrError = NZOR(btrErr, BE_FILNOPEN);
 	SString temp_buf = pFileName;
-	PPError(PPERR_DBENGINE, temp_buf.ToOem());
-	if(APPL)
-		APPL->CloseAllBrowsers();
+	PPError(PPERR_DBENGINE, temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
+	CALLPTRMEMB(APPL, CloseAllBrowsers());
 	DS.Logout();
 	exit(-1);
 	return 0;

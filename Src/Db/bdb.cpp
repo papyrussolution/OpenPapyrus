@@ -1769,7 +1769,7 @@ SLTEST_R(BerkeleyDB)
 				const  uint  test_ta_count = 20;
 				uint   count = 0;
 				BDbTable::Buffer key_buf, val_buf;
-				BDbTable tbl(BDbTable::ConfigHash("city-enru-pair", 0, /*1024*/0), &bdb);
+				BDbTable tbl(BDbTable::ConfigHash("city-enru-pair", 0, /*1024*/0, 0), &bdb);
 				THROW(SLTEST_CHECK_NZ(tbl));
 				{
 					//

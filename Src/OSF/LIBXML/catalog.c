@@ -41,7 +41,7 @@
 	#endif
 
 /**
- * TODO:
+ * @todo 
  *
  * macro to flag unimplemented blocks
  * XML_CATALOG_PREFER user env to select between system/public prefered
@@ -1142,7 +1142,7 @@ static void xmlParseXMLCatalogNodeList(xmlNode * cur, xmlCatalogPrefer prefer, x
 		}
 		cur = cur->next;
 	}
-	/* TODO: sort the list according to REWRITE lengths and prefer value */
+	/* @todo sort the list according to REWRITE lengths and prefer value */
 }
 
 /**
@@ -3000,9 +3000,8 @@ int xmlCatalogRemove(const xmlChar * value)
 	xmlRMutexLock(xmlCatalogMutex);
 	res = xmlACatalogRemove(xmlDefaultCatalog, value);
 	xmlRMutexUnlock(xmlCatalogMutex);
-	return(res);
+	return res;
 }
-
 /**
  * xmlCatalogConvert:
  *
@@ -3018,7 +3017,7 @@ int xmlCatalogConvert()
 	xmlRMutexLock(xmlCatalogMutex);
 	res = xmlConvertSGMLCatalog(xmlDefaultCatalog);
 	xmlRMutexUnlock(xmlCatalogMutex);
-	return(res);
+	return res;
 }
 
 /************************************************************************
@@ -3037,7 +3036,7 @@ int xmlCatalogConvert()
  */
 xmlCatalogAllow xmlCatalogGetDefaults() 
 {
-	return(xmlCatalogDefaultAllow);
+	return xmlCatalogDefaultAllow;
 }
 
 /**
@@ -3116,12 +3115,12 @@ int xmlCatalogSetDebug(int level)
  */
 void xmlCatalogFreeLocal(void * catalogs) 
 {
-	if(!xmlCatalogInitialized)
-		xmlInitializeCatalog();
-	xmlCatalogEntryPtr catal = (xmlCatalogEntryPtr)catalogs;
-	xmlFreeCatalogEntryList(catal);
+	if(catalogs) {
+		if(!xmlCatalogInitialized)
+			xmlInitializeCatalog();
+		xmlFreeCatalogEntryList((xmlCatalogEntry *)catalogs);
+	}
 }
-
 /**
  * xmlCatalogAddLocal:
  * @catalogs:  a document's list of catalogs

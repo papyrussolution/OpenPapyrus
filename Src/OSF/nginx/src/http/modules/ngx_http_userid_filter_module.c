@@ -341,7 +341,7 @@ static ngx_int_t ngx_http_userid_create_uid(ngx_http_request_t * r, ngx_http_use
 		}
 	}
 	/*
-	 * TODO: in the threaded mode the sequencers should be in TLS and their
+	 * @todo in the threaded mode the sequencers should be in TLS and their
 	 * ranges should be divided between threads
 	 */
 	if(conf->enable == NGX_HTTP_USERID_V1) {

@@ -969,48 +969,37 @@ void Editor::MoveSelectedLines(int lineDelta)
 	int startLine = pdoc->LineFromPosition(selectionStart);
 	int beginningOfStartLine = pdoc->LineStart(startLine);
 	selectionStart = beginningOfStartLine;
-
 	// if selection doesn't end at the beginning of a line greater than that of the start,
 	// then set it at the beginning of the next one
 	int selectionEnd = SelectionEnd().Position();
 	int endLine = pdoc->LineFromPosition(selectionEnd);
 	int beginningOfEndLine = pdoc->LineStart(endLine);
 	bool appendEol = false;
-	if(selectionEnd > beginningOfEndLine
-	    || selectionStart == selectionEnd) {
+	if(selectionEnd > beginningOfEndLine || selectionStart == selectionEnd) {
 		selectionEnd = pdoc->LineStart(endLine + 1);
 		appendEol = (selectionEnd == pdoc->Length() && pdoc->LineFromPosition(selectionEnd) == endLine);
 	}
-
 	// if there's nowhere for the selection to move
 	// (i.e. at the beginning going up or at the end going down),
 	// stop it right there!
-	if((selectionStart == 0 && lineDelta < 0)
-	    || (selectionEnd == pdoc->Length() && lineDelta > 0)
-	    || selectionStart == selectionEnd) {
+	if((selectionStart == 0 && lineDelta < 0) || (selectionEnd == pdoc->Length() && lineDelta > 0) || selectionStart == selectionEnd) {
 		return;
 	}
-
 	UndoGroup ug(pdoc);
-
 	if(lineDelta > 0 && selectionEnd == pdoc->LineStart(pdoc->LinesTotal() - 1)) {
 		SetSelection(pdoc->MovePositionOutsideChar(selectionEnd - 1, -1), selectionEnd);
 		ClearSelection();
 		selectionEnd = CurrentPosition();
 	}
 	SetSelection(selectionStart, selectionEnd);
-
 	SelectionText selectedText;
 	CopySelectionRange(&selectedText);
-
 	int selectionLength = SelectionRange(selectionStart, selectionEnd).Length();
 	Point currentLocation = LocationFromPosition(CurrentPosition());
 	int currentLine = LineFromLocation(currentLocation);
-
 	if(appendEol)
 		SetSelection(pdoc->MovePositionOutsideChar(selectionStart - 1, -1), selectionEnd);
 	ClearSelection();
-
 	const char * eol = StringFromEOLMode(pdoc->eolMode);
 	if(currentLine + lineDelta >= pdoc->LinesTotal())
 		pdoc->InsertString(pdoc->Length(), eol, istrlen(eol));
@@ -1157,48 +1146,40 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 				else {
 					yMoveB = linesOnScreen - yMoveT - 1;
 				}
-				if(lineCaret < topLine + yMarginT) {
-					// Caret goes too high
+				if(lineCaret < topLine + yMarginT) { // Caret goes too high
 					newXY.topLine = lineCaret - yMoveT;
 				}
-				else if(lineCaret > topLine + linesOnScreen - 1 - yMarginB) {
-					// Caret goes too low
+				else if(lineCaret > topLine + linesOnScreen - 1 - yMarginB) { // Caret goes too low
 					newXY.topLine = lineCaret - linesOnScreen + 1 + yMoveB;
 				}
 			}
-			else {          // Not strict
+			else { // Not strict
 				yMoveT = bJump ? caretYSlop * 3 : caretYSlop;
 				yMoveT = Platform::Clamp(yMoveT, 1, halfScreen);
 				yMoveB = bEven ? yMoveT : (linesOnScreen - yMoveT - 1);
-				if(lineCaret < topLine) {
-					// Caret goes too high
+				if(lineCaret < topLine) { // Caret goes too high
 					newXY.topLine = lineCaret - yMoveT;
 				}
-				else if(lineCaret > topLine + linesOnScreen - 1) {
-					// Caret goes too low
+				else if(lineCaret > (topLine + linesOnScreen - 1)) { // Caret goes too low
 					newXY.topLine = lineCaret - linesOnScreen + 1 + yMoveB;
 				}
 			}
 		}
-		else {          // No slop
+		else { // No slop
 			if(!bStrict && !bJump) {
 				// Minimal move
-				if(lineCaret < topLine) {
-					// Caret goes too high
+				if(lineCaret < topLine) { // Caret goes too high
 					newXY.topLine = lineCaret;
 				}
-				else if(lineCaret > topLine + linesOnScreen - 1) {
-					// Caret goes too low
+				else if(lineCaret > topLine + linesOnScreen - 1) { // Caret goes too low
 					newXY.topLine = bEven ? (lineCaret - linesOnScreen + 1) : lineCaret;
 				}
 			}
-			else {          // Strict or going out of display
-				if(bEven) {
-					// Always center caret
+			else { // Strict or going out of display
+				if(bEven) { // Always center caret
 					newXY.topLine = lineCaret - halfScreen;
 				}
-				else {
-					// Always put caret on top of display
+				else { // Always put caret on top of display
 					newXY.topLine = lineCaret;
 				}
 			}
@@ -1241,20 +1222,18 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 					xMarginR = Platform::Clamp(caretXSlop, 2, halfScreen);
 					xMarginL = bEven ? xMarginR : (static_cast<int>(rcClient.Width()) - xMarginR - 4);
 				}
-				if(bJump && bEven) {
-					// Jump is used only in even mode
+				if(bJump && bEven) { // Jump is used only in even mode
 					xMoveL = xMoveR = Platform::Clamp(caretXSlop * 3, 1, halfScreen);
 				}
 				else {
-					xMoveL = xMoveR = 0;    // Not used, avoid a warning
+					xMoveL = xMoveR = 0; // Not used, avoid a warning
 				}
 				if(pt.x < rcClient.left + xMarginL) {
 					// Caret is on the left of the display
 					if(bJump && bEven) {
 						newXY.xOffset -= xMoveL;
 					}
-					else {
-						// Move just enough to allow to display the caret
+					else { // Move just enough to allow to display the caret
 						newXY.xOffset -= static_cast<int>((rcClient.left + xMarginL) - pt.x);
 					}
 				}
@@ -1263,8 +1242,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 					if(bJump && bEven) {
 						newXY.xOffset += xMoveR;
 					}
-					else {
-						// Move just enough to allow to display the caret
+					else { // Move just enough to allow to display the caret
 						newXY.xOffset += static_cast<int>(pt.x - (rcClient.right - xMarginR) + 1);
 					}
 				}
@@ -1315,7 +1293,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 		}
 		else if(pt.x + xOffset >= rcClient.right + newXY.xOffset) {
 			newXY.xOffset = static_cast<int>(pt.x + xOffset - rcClient.right) + 2;
-			if((vs.caretStyle == CARETSTYLE_BLOCK) || view.imeCaretBlockOverride) {
+			if((vs.caretStyle == CARETSTYLE_BLOCK) || /*view.imeCaretBlockOverride*/(view.EditViewFlags & EditView::fImeCaretBlockOverride)) {
 				// Ensure we can see a good portion of the block caret
 				newXY.xOffset += static_cast<int>(vs.aveCharWidth);
 			}
@@ -1641,12 +1619,12 @@ void Editor::PaintSelMargin(Surface * surfWindow, PRectangle &rc)
 			rcMargin.left = 0;
 			rcMargin.right = static_cast<XYPOSITION>(vs.fixedColumnWidth);
 			if(rc.Intersects(rcMargin)) {
-				Surface * surface = view.bufferedDraw ? marginView.pixmapSelMargin : surfWindow;
+				Surface * surface = /*view.bufferedDraw*/(view.EditViewFlags & EditView::fBufferedDraw) ? marginView.pixmapSelMargin : surfWindow;
 				// Clip vertically to paint area to avoid drawing line numbers
 				SETMIN(rcMargin.bottom, rc.bottom);
 				SETMAX(rcMargin.top, rc.top);
 				marginView.PaintMargin(surface, topLine, rc, rcMargin, *this, vs);
-				if(view.bufferedDraw) {
+				if(/*view.bufferedDraw*/view.EditViewFlags & EditView::fBufferedDraw) {
 					surfWindow->Copy(rcMargin, Point(rcMargin.left, rcMargin.top), *marginView.pixmapSelMargin);
 				}
 			}
@@ -1658,7 +1636,7 @@ void Editor::RefreshPixMaps(Surface * surfaceWindow)
 {
 	view.RefreshPixMaps(surfaceWindow, wMain.GetID(), vs);
 	marginView.RefreshPixMaps(surfaceWindow, wMain.GetID(), vs);
-	if(view.bufferedDraw) {
+	if(/*view.bufferedDraw*/view.EditViewFlags & EditView::fBufferedDraw) {
 		PRectangle rcClient = GetClientRectangle();
 		if(!view.pixmapLine->Initialised()) {
 			view.pixmapLine->InitPixMap(static_cast<int>(rcClient.Width()), vs.lineHeight,
@@ -1702,10 +1680,8 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 		RefreshPixMaps(surfaceWindow);  // In case pixmaps invalidated by scrollbar change
 	}
 	PLATFORM_ASSERT(marginView.pixmapSelPattern->Initialised());
-
-	if(!view.bufferedDraw)
+	if(/*!view.bufferedDraw*/!(view.EditViewFlags & EditView::fBufferedDraw))
 		surfaceWindow->SetClip(rcArea);
-
 	if(paintState != paintAbandoned) {
 		if(vs.marginInside) {
 			PaintSelMargin(surfaceWindow, rcArea);
@@ -1794,7 +1770,7 @@ void Editor::SetScrollBars()
 		DwellEnd(true);
 	}
 
-	// TODO: ensure always showing as many lines as possible
+	// @todo ensure always showing as many lines as possible
 	// May not be, if, for example, window made larger
 	if(topLine > MaxScrollPos()) {
 		SetTopLine(Platform::Clamp(topLine, 0, MaxScrollPos()));
@@ -2911,7 +2887,7 @@ void Editor::NotifyMacroRecord(uint iMessage, uptr_t wParam, sptr_t lParam)
 }
 
 // Something has changed that the container should know about
-void Editor::ContainerNeedsUpdate(int flags)
+void FASTCALL Editor::ContainerNeedsUpdate(int flags)
 {
 	needUpdateUI |= flags;
 }
@@ -6086,7 +6062,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				return len;         // Not including NUL
 			}
 		case SCI_HIDESELECTION:
-		    view.hideSelection = wParam != 0;
+		    //view.hideSelection = wParam != 0;
+			SETFLAG(view.EditViewFlags, EditView::fHideSelection, wParam);
 		    Redraw();
 		    break;
 		case SCI_FORMATRANGE: return FormatRange(wParam != 0, reinterpret_cast<Sci_RangeToFormat *>(lParam));
@@ -6318,8 +6295,12 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    return 0;
 		    pdoc->SetStyles(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
 		    break;
-		case SCI_SETBUFFEREDDRAW: view.bufferedDraw = wParam != 0; break;
-		case SCI_GETBUFFEREDDRAW: return view.bufferedDraw;
+		case SCI_SETBUFFEREDDRAW: 
+			//view.bufferedDraw = wParam != 0; break;
+			SETFLAG(view.EditViewFlags, EditView::fBufferedDraw, wParam); break;
+		case SCI_GETBUFFEREDDRAW: 
+			//return view.bufferedDraw;
+			return BIN(view.EditViewFlags & EditView::fBufferedDraw);
 		case SCI_GETTWOPHASEDRAW: return view.phasesDraw == EditView::phasesTwo;
 		case SCI_SETTWOPHASEDRAW:
 		    if(view.SetTwoPhaseDraw(wParam != 0))
@@ -7364,11 +7345,13 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    multiPasteMode = static_cast<int>(wParam);
 		    break;
 		case SCI_SETADDITIONALCARETSBLINK:
-		    view.additionalCaretsBlink = wParam != 0;
+		    //view.additionalCaretsBlink = wParam != 0;
+			SETFLAG(view.EditViewFlags, EditView::fAdditionalCaretsBlink, wParam);
 		    InvalidateCaret();
 		    break;
 		case SCI_SETADDITIONALCARETSVISIBLE:
-		    view.additionalCaretsVisible = wParam != 0;
+		    //view.additionalCaretsVisible = wParam != 0;
+			SETFLAG(view.EditViewFlags, EditView::fAdditionalCaretsVisible, wParam);
 		    InvalidateCaret();
 		    break;
 		case SCI_CLEARSELECTIONS:
@@ -7456,8 +7439,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETMULTIPLESELECTION:            return BIN(Flags & fMultipleSelection);
 		case SCI_GETADDITIONALSELECTIONTYPING:    return BIN(Flags & fAdditionalSelectionTyping);
 		case SCI_GETMULTIPASTE:                   return multiPasteMode;
-		case SCI_GETADDITIONALCARETSBLINK:        return view.additionalCaretsBlink;
-		case SCI_GETADDITIONALCARETSVISIBLE:      return view.additionalCaretsVisible;
+		case SCI_GETADDITIONALCARETSBLINK:        return BIN(view.EditViewFlags & EditView::fAdditionalCaretsBlink); // view.additionalCaretsBlink;
+		case SCI_GETADDITIONALCARETSVISIBLE:      return BIN(view.EditViewFlags & EditView::fAdditionalCaretsVisible); // view.additionalCaretsVisible;
 		case SCI_GETSELECTIONS:                   return sel.Count();
 		case SCI_GETSELECTIONEMPTY:               return sel.Empty();
 		case SCI_GETMAINSELECTION:                return sel.Main();

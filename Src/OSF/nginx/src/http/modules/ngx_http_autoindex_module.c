@@ -166,7 +166,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	// MSVC thinks 'entries' may be used without having been initialized 
 	memzero(&entries, sizeof(ngx_array_t));
 #endif
-	// TODO: pool should be temporary pool 
+	// @todo pool should be temporary pool 
 	pool = r->pool;
 	if(ngx_array_init(&entries, pool, 40, sizeof(ngx_http_autoindex_entry_t)) != NGX_OK) {
 		return ngx_http_autoindex_error(r, &dir, &path);
@@ -270,7 +270,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	if(!b) {
 		return NGX_ERROR;
 	}
-	/* TODO: free temporary pool */
+	/* @todo free temporary pool */
 	if(r == r->main) {
 		b->last_buf = 1;
 	}

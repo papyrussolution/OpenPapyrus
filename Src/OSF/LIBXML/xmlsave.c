@@ -428,7 +428,7 @@ void xmlBufDumpNotationTable(xmlBufPtr buf, xmlNotationTablePtr table)
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
-		return; // TODO set the error in buf
+		return; // @todo set the error in buf
 	}
 	xmlDumpNotationTable(buffer, table);
 	xmlBufMergeBuffer(buf, buffer);
@@ -445,7 +445,7 @@ void xmlBufDumpElementDecl(xmlBufPtr buf, xmlElementPtr elem)
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
-		return; // TODO set the error in buf
+		return; // @todo set the error in buf
 	}
 	xmlDumpElementDecl(buffer, elem);
 	xmlBufMergeBuffer(buf, buffer);
@@ -462,7 +462,7 @@ void xmlBufDumpAttributeDecl(xmlBufPtr buf, xmlAttributePtr attr)
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
-		return; // TODO set the error in buf
+		return; // @todo set the error in buf
 	}
 	xmlDumpAttributeDecl(buffer, attr);
 	xmlBufMergeBuffer(buf, buffer);
@@ -478,7 +478,7 @@ void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntityPtr ent)
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
-		return; // TODO set the error in buf
+		return; // @todo set the error in buf
 	}
 	xmlDumpEntityDecl(buffer, ent);
 	xmlBufMergeBuffer(buf, buffer);
@@ -1664,7 +1664,7 @@ xmlSaveCtxtPtr xmlSaveToFd(int fd, const char * encoding, int options)
 xmlSaveCtxtPtr xmlSaveToFilename(const char * filename, const char * encoding, int options)
 {
 	xmlSaveCtxtPtr ret;
-	int compression = 0; /* TODO handle compression option */
+	int compression = 0; /* @todo handle compression option */
 
 	ret = xmlNewSaveCtxt(encoding, options);
 	if(!ret) return 0;
@@ -1751,7 +1751,7 @@ xmlSaveCtxtPtr xmlSaveToIO(xmlOutputWriteCallback iowrite,
  * @doc:  a document
  *
  * Save a full document to a saving context
- * TODO: The function is not fully implemented yet as it does not return the
+ * @todo The function is not fully implemented yet as it does not return the
  * byte count but 0 instead
  *
  * Returns the number of byte written or -1 in case of error
@@ -1772,7 +1772,7 @@ long xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDocPtr doc)
  * @node:  the top node of the subtree to save
  *
  * Save a subtree starting at the node parameter to a saving context
- * TODO: The function is not fully implemented yet as it does not return the
+ * @todo The function is not fully implemented yet as it does not return the
  * byte count but 0 instead
  *
  * Returns the number of byte written or -1 in case of error

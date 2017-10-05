@@ -1685,13 +1685,13 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 	if(use_ord_tbl) {
 		if(ord != TempOrder || !P_TempOrd)
 			THROW(CreateTempTable(ord, 0));
-		Counter.Init(P_TempOrd);
+		PPInitIterCounter(Counter, P_TempOrd);
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, idx));
 	}
 	else {
 		if(!P_TempTbl)
 			THROW(CreateTempTable(ord, 0));
-		Counter.Init(P_TempTbl);
+		PPInitIterCounter(Counter, P_TempTbl);
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	}
 	P_IterQuery->selectAll();

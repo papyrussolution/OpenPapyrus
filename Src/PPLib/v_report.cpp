@@ -476,7 +476,7 @@ int SLAPI PPViewReport::InitIteration()
 		k_ = &__k.k1;
 		idx = 1;
 	}
-	Counter.Init(P_TempTbl);
+	PPInitIterCounter(Counter, P_TempTbl);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	P_IterQuery->selectAll();
 	Counter.Init(P_IterQuery->countIterations(0, k_, spGe));

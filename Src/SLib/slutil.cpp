@@ -94,6 +94,25 @@ int FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
 	}
 }
 //
+// IterCounter
+//
+SLAPI IterCounter::IterCounter()
+{
+	Init();
+}
+
+void FASTCALL IterCounter::Init(ulong total)
+{
+	Total = total;
+	Count = 0L;
+}
+
+//int SLAPI IterCounter::Init(DBTable * pTbl)
+//{
+//	RECORDNUMBER num_recs = 0;
+//	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (Init(num_recs), 1) : 0; /*PPSetErrorDB()*/ // @todo Проекция DBERR_XXX в SLERR_XXX
+//}
+//
 // SEnum
 //
 SEnumImp::~SEnumImp()

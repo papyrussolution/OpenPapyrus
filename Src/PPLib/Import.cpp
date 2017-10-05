@@ -2565,7 +2565,7 @@ int SLAPI PrcssrImportKLADR::ProcessTempTable()
 		// ÑÑ ÐÐÐ ÃÃÃ ÏÏÏ [ÓÓÓÓ] ÀÀ
 		//
 		IterCounter cntr;
-		cntr.Init(P_TempTbl);
+		PPInitIterCounter(cntr, P_TempTbl);
 		TempKLADRTbl::Key1 k1;
 		MEMSZERO(k1);
 		if(P_TempTbl->search(1, &k1, spFirst))

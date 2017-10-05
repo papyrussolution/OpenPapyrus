@@ -34,11 +34,10 @@ public:
 	SLAPI  ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent)
 	{
 		P_Pib = 0;
-		PPAsyncCashNode acn;
-		if(GetNodeData(&acn) > 0) {
-			acn.GetLogNumList(LogNumList);
-			ExpPath = acn.ExpPaths;
-			ImpPath = acn.ImpFiles;
+		if(GetNodeData(&Acn) > 0) {
+			Acn.GetLogNumList(LogNumList);
+			ExpPath = Acn.ExpPaths;
+			ImpPath = Acn.ImpFiles;
 		}
 		StatID = 0;
 	}
@@ -81,29 +80,56 @@ public:
 		int    ok = -1;
         int    local_n = 0;
 		SString temp_buf;
+		SString wait_msg_tmpl, wait_msg;
 		const TSCollection <PPPosProtocol::ReadBlock> * p_rb_list = P_Pib ? (const TSCollection <PPPosProtocol::ReadBlock> *)P_Pib->GetStoredReadBlocks() : 0;
+		PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
+		THROW(CreateTables());
 		if(p_rb_list) {
 			for(uint i = 0; ok < 0 && i < p_rb_list->getCount(); i++) {
 				const PPPosProtocol::ReadBlock * p_ib = p_rb_list->at(i);
 				if(p_ib) {
+					const PPPosProtocol::RouteObjectBlock * p_src_route_blk = 0;
+					int    pos_no = 0;
 					for(uint _csidx = 0; ok < 0 && _csidx < p_ib->RefList.getCount(); _csidx++) {
 						const PPPosProtocol::ObjBlockRef & r_ref = p_ib->RefList.at(_csidx);
-						if(r_ref.Type == PPPosProtocol::obCSession) {
+						int    type = 0;
+						if(r_ref.Type == PPPosProtocol::obSource) {
+							p_src_route_blk = (const PPPosProtocol::RouteObjectBlock *)p_ib->GetItem(_csidx, &type);
+							THROW(type == PPPosProtocol::obSource);
+							if(p_src_route_blk) {
+								const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByGUID(p_src_route_blk->Uuid);
+								pos_no = p_pie ? p_pie->N : 0;
+							}
+						}
+						else if(r_ref.Type == PPPosProtocol::obCSession) {
 							if(local_n != sessN) {
 								local_n++;
 							}
 							else {
-								int    type = 0;
+								int    local_pos_no = 0;
 								PPID   src_ar_id = 0;
+								SCardTbl::Rec sc_rec;
 								const PPPosProtocol::CSessionBlock * p_cb = (const PPPosProtocol::CSessionBlock *)p_ib->GetItem(_csidx, &type);
 								const uint rc = p_ib->RefList.getCount();
 								THROW(type == PPPosProtocol::obCSession);
+								wait_msg.Printf(wait_msg_tmpl, temp_buf.Z().Cat(p_cb->Dtm, DATF_DMY, TIMF_HMS).cptr());
+								if(p_cb->PosBlkP) {
+									const PPPosProtocol::PosNodeBlock * p_pnb = (const PPPosProtocol::PosNodeBlock *)p_ib->GetItem(p_cb->PosBlkP, &type);
+									if(p_pnb) {
+										assert(type == PPPosProtocol::obPosNode);
+										p_ib->GetS(p_pnb->CodeP, temp_buf);
+										const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByName(temp_buf);
+										local_pos_no = p_pie ? p_pie->N : 0;
+									}
+								}
+								SETIFZ(local_pos_no, pos_no);
+								SETIFZ(local_pos_no, 1);
 								{
         							PPTransaction tra(1);
         							THROW(tra);
 									for(uint cc_refi = 0; cc_refi < rc; cc_refi++) {
 										const PPPosProtocol::ObjBlockRef & r_cc_ref = p_ib->RefList.at(cc_refi);
-										const long pos_n = 1; // @stub // ÷елочисленный номер кассы
+										//const long pos_n = 1; // @stub // ÷елочисленный номер кассы
 										if(r_cc_ref.Type == PPPosProtocol::obCCheck) {
 											int    cc_type = 0;
 											const PPPosProtocol::CCheckBlock * p_ccb = (const PPPosProtocol::CCheckBlock *)p_ib->GetItem(cc_refi, &cc_type);
@@ -121,24 +147,21 @@ public:
 													cc_flags |= CCHKF_RETURN;
 												if(p_ccb->SCardBlkP) {
 													int    sc_type = 0;
-													SCardTbl::Rec sc_rec;
 													const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_ccb->SCardBlkP, &sc_type);
 													assert(sc_type == PPPosProtocol::obSCard);
-													if(p_scb->NativeID) {
+													if(p_scb->NativeID)
 														sc_id = p_scb->NativeID;
-													}
 													else {
 														p_ib->GetS(p_scb->CodeP, temp_buf);
 														temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-														if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
+														if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
 															sc_id = sc_rec.ID;
-														}
 														else {
 															; // @log
 														}
 													}
 												}
-												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, pos_n, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
+												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
 												//
 												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
 													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
@@ -148,7 +171,7 @@ public:
 														THROW(cl_type == PPPosProtocol::obCcLine);
 														if(p_clb->CCheckBlkP == cc_refi) {
 															short  div_n = (short)p_clb->DivN;
-															double qtty = fabs(p_clb->Qtty);
+															double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
 															double price = p_clb->Price;
 															double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / qtty) : p_clb->Discount;
 															PPID   goods_id = 0;
@@ -168,9 +191,35 @@ public:
 															THROW_DB(P_TmpCclTbl->insertRec());
 														}
 													}
+													else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
+														int    cl_type = 0;
+														const PPPosProtocol::CcPaymentBlock * p_cpb = (const PPPosProtocol::CcPaymentBlock *)p_ib->GetItem(cl_refi, &cl_type);
+														THROW(cl_type == PPPosProtocol::obPayment);
+														if(p_cpb->CCheckBlkP == cc_refi) {
+															PPID   paym_sc_id = 0;
+															if(p_cpb->SCardBlkP && p_cpb->PaymType == CCAMTTYP_CRDCARD) {
+																int    sc_type = 0;
+																const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_cpb->SCardBlkP, &sc_type);
+																assert(sc_type == PPPosProtocol::obSCard);
+																if(p_scb->NativeID)
+																	paym_sc_id = p_scb->NativeID;
+																else {
+																	p_ib->GetS(p_scb->CodeP, temp_buf);
+																	temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+																	if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
+																		paym_sc_id = sc_rec.ID;
+																	else {
+																		; // @log
+																	}
+																}
+															}
+															THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
+														}
+													}
 												}
 											}
 										}
+										PPWaitPercent(cc_refi+1, rc, wait_msg);
 									}
 									THROW(tra.Commit());
 								}
@@ -205,6 +254,7 @@ public:
 private:
 	PPID   StatID;
 	PPID   ParentNodeID;
+	PPAsyncCashNode Acn;
 	PPIDArray  LogNumList;
 	PPIDArray  SessAry;
 	SString    ExpPath;
@@ -636,6 +686,7 @@ SLAPI PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock()
 {
 	CodeP = 0;
 	CodeI = 0;
+	Uuid.SetZero();
 }
 
 SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock()
@@ -728,6 +779,14 @@ SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock()
 	SerialP = 0;
 	EgaisMarkP = 0;
 }
+
+SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock()
+{
+	CcID = 0;
+	PaymType = 0;
+	Amount = 0.0;
+	SCardBlkP = 0;
+};
 
 SLAPI PPPosProtocol::QueryBlock::QueryBlock()
 {
@@ -829,6 +888,7 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 		case obCSession:    THROW(Helper_CreateItem(CSessBlkList, type, pRefPos)); break;
 		case obCCheck:      THROW(Helper_CreateItem(CcBlkList, type, pRefPos)); break;
 		case obCcLine:      THROW(Helper_CreateItem(CclBlkList, type, pRefPos)); break;
+		case obPayment:     THROW(Helper_CreateItem(CcPaymBlkList, type, pRefPos)); break;
 		case obPosNode:     THROW(Helper_CreateItem(PosBlkList, type, pRefPos)); break;
 		case obQuery:       THROW(Helper_CreateItem(QueryList, type, pRefPos)); break;
 		default:
@@ -861,6 +921,7 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	CPY_FLD(CSessBlkList);
 	CPY_FLD(CcBlkList);
 	CPY_FLD(CclBlkList);
+	CPY_FLD(CcPaymBlkList);
 	CPY_FLD(QueryList);
 	CPY_FLD(RefList);
 	#undef CPY_FLD
@@ -885,7 +946,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 	if(refPos < RefList.getCount()) {
 		const ObjBlockRef & r_ref = RefList.at(refPos);
 		type = r_ref.Type;
-		switch(r_ref.Type) {
+		switch(type) {
 			case obGoods:       p_ret = &GoodsBlkList.at(r_ref.P); break;
 			case obGoodsGroup:  p_ret = &GoodsGroupBlkList.at(r_ref.P); break;
 			case obPerson:      p_ret = &PersonBlkList.at(r_ref.P); break;
@@ -899,6 +960,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obCSession:    p_ret = &CSessBlkList.at(r_ref.P); break;
 			case obCCheck:      p_ret = &CcBlkList.at(r_ref.P); break;
 			case obCcLine:      p_ret = &CclBlkList.at(r_ref.P); break;
+			case obPayment:     p_ret = &CcPaymBlkList.at(r_ref.P); break;
 			case obPosNode:     p_ret = &PosBlkList.at(r_ref.P); break;
 			case obQuery:       p_ret = &QueryList.at(r_ref.P); break;
 			case obLot:         p_ret = &LotBlkList.at(r_ref.P); break;
@@ -1127,6 +1189,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
             CCheckCore * p_cc = ScObj.P_CcTbl;
             if(p_cc) {
 				CCheckPacket cc_pack;
+				SCardTbl::Rec sc_rec;
                 THROW(p_cc->GetListBySess(rInfo.ID, 0, cc_list));
 				for(uint i = 0; i < cc_list.getCount(); i++) {
 					const PPID cc_id = cc_list.get(i);
@@ -1134,6 +1197,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 					if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 						const double cc_amount = MONEYTOLDBL(cc_pack.Rec.Amount);
 						const double cc_discount = MONEYTOLDBL(cc_pack.Rec.Discount);
+
 						SXml::WNode w_cc(rB.P_Xw, "cc");
                         w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
                         w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
@@ -1155,12 +1219,9 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 							temp_buf.Z().Cat(cc_discount, MKSFMTD(0, 2, NMBF_NOTRAILZ));
 							w_cc.PutInner("discount", temp_buf);
 						}
-						if(cc_pack.Rec.SCardID) {
-							SCardTbl::Rec sc_rec;
-							if(ScObj.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
-								SXml::WNode w_sc(rB.P_Xw, "card");
-								w_sc.PutInner("code", EncText(sc_rec.Code));
-							}
+						if(cc_pack.Rec.SCardID && ScObj.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
+							SXml::WNode w_sc(rB.P_Xw, "card");
+							w_sc.PutInner("code", EncText(sc_rec.Code));
 						}
 						for(uint ln_idx = 0; ln_idx < cc_pack.GetCount(); ln_idx++) {
 							const CCheckLineTbl::Rec & r_item = cc_pack.GetLine(ln_idx);
@@ -1195,6 +1256,52 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 							w_ccl.PutInner("amount", temp_buf.Z().Cat(item_amount, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 							if(item_sum_discount != 0.0)
 								w_ccl.PutInner("sumdiscount", temp_buf.Z().Cat(item_sum_discount, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+						}
+						{
+							const CcAmountList & r_al = cc_pack.AL_Const();
+							if(r_al.getCount()) {
+								for(uint pi = 0; pi < r_al.getCount(); pi++) {
+									const CcAmountEntry & r_ai = r_al.at(pi);
+									SXml::WNode w_cp(rB.P_Xw, "payment");
+									{
+										temp_buf.Z().Cat(r_ai.Amount, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+										w_cp.PutInner("amount", temp_buf);
+										if(r_ai.Type == CCAMTTYP_CASH) {
+											w_cp.PutInner("type", "cash");
+										}
+										else if(r_ai.Type == CCAMTTYP_BANK) {
+											w_cp.PutInner("type", "bank");
+										}
+										else if(r_ai.Type == CCAMTTYP_CRDCARD) {
+											w_cp.PutInner("type", "card");
+											if(r_ai.AddedID && ScObj.Search(r_ai.AddedID, &sc_rec) > 0) {
+												SXml::WNode w_sc(rB.P_Xw, "card");
+												w_sc.PutInner("code", EncText(sc_rec.Code));
+											}
+										}
+										else
+											w_cp.PutInner("type", "unkn");
+									}
+								}
+							}
+							else {
+								SXml::WNode w_cp(rB.P_Xw, "payment");
+								temp_buf.Z().Cat(cc_amount, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+								w_cp.PutInner("amount", temp_buf);
+								if(cc_pack.Rec.Flags & CCHKF_BANKING) {
+									w_cp.PutInner("type", "bank");
+								}
+								else if(cc_pack.Rec.Flags & CCHKF_INCORPCRD) {
+									w_cp.PutInner("type", "card");
+									if(cc_pack.Rec.SCardID && ScObj.Search(cc_pack.Rec.SCardID, &sc_rec) > 0) {
+										SXml::WNode w_sc(rB.P_Xw, "card");
+										w_sc.PutInner("code", EncText(sc_rec.Code));
+									}
+								}
+								else {
+									w_cp.PutInner("type", "cash");
+								}
+							}
 						}
 					}
 				}
@@ -1630,7 +1737,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
 						THROW(RdB.CreateItem(obSCard, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
-						if(link_type == obCCheck) {
+						if(oneof2(link_type, obCCheck, obPayment)) {
 							int    test_type = 0;
 							SCardBlock * p_item = (SCardBlock *)RdB.GetItem(ref_pos, &test_type);
 							assert(test_type == obSCard);
@@ -1692,11 +1799,13 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
 						THROW(RdB.CreateItem(obCCheck, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
+						assert(link_type == obCSession);
 						if(link_type == obCSession) {
 							int    test_type = 0;
 							CCheckBlock * p_item = (CCheckBlock *)RdB.GetItem(ref_pos, &test_type);
 							assert(test_type == obCCheck);
 							p_item->CSessionBlkP = link_ref_pos; // „ек ссылаетс€ на позицию сессии, которой принадлежит
+							assert(p_item->CSessionBlkP);
 						}
 					}
 					break;
@@ -1712,6 +1821,21 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							CcLineBlock * p_item = (CcLineBlock *)RdB.GetItem(ref_pos, &test_type);
 							assert(test_type == obCcLine);
 							p_item->CCheckBlkP = link_ref_pos; // —трока ссылаетс€ на позицию чека, которому принадлежит
+						}
+					}
+					break;
+				case PPHS_PAYMENT:
+					{
+						uint   link_ref_pos = PeekRefPos();
+						int    link_type = 0;
+						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+						THROW(RdB.CreateItem(obPayment, &ref_pos));
+						RdB.RefPosStack.push(ref_pos);
+						if(link_type == obCCheck) {
+							int    test_type = 0;
+							CcPaymentBlock * p_item = (CcPaymentBlock *)RdB.GetItem(ref_pos, &test_type);
+							assert(test_type == obPayment);
+							p_item->CCheckBlkP = link_ref_pos; // ќплата ссылаетс€ на позицию чека, которому принадлежит
 						}
 					}
 					break;
@@ -1773,6 +1897,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_DATE: // log
 				case PPHS_COST: // lot
 				case PPHS_SERIAL: // lot
+				case PPHS_TYPE:
 					break;
 			}
 		}
@@ -1953,6 +2078,9 @@ int PPPosProtocol::EndElement(const char * pName)
 				if(type == obCCheck) {
 					((CCheckBlock *)p_item)->SCardBlkP = ref_pos;
 				}
+				else if(type == obPayment) {
+					((CcPaymentBlock *)p_item)->SCardBlkP = ref_pos;
+				}
 				break;
 			case PPHS_KIND:
 				{
@@ -2001,6 +2129,20 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 				else if(type == obGoodsGroup) {
 					((GoodsGroupBlock *)p_item)->ParentBlkP = ref_pos;
+				}
+				break;
+			case PPHS_TYPE:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obPayment) {
+					if(RdB.TagValue.CmpNC("cash") == 0) {
+						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_CASH;
+					}
+					else if(RdB.TagValue.CmpNC("bank") == 0) {
+						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_BANK;
+					}
+					else if(RdB.TagValue.CmpNC("card") == 0) {
+						((CcPaymentBlock *)p_item)->PaymType = CCAMTTYP_CRDCARD;
+					}
 				}
 				break;
 			case PPHS_PERIOD:
@@ -2310,21 +2452,21 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 				break;
 			case PPHS_AMOUNT:
-				p_item = PeekRefItem(&ref_pos, &type);
-				switch(type) {
-					case obCCheck:
-						{
-							const double _value = RdB.TagValue.ToReal();
+				{
+					p_item = PeekRefItem(&ref_pos, &type);
+					const double _value = RdB.TagValue.ToReal();
+					switch(type) {
+						case obCCheck:
 							((CCheckBlock *)p_item)->Amount = _value;
-						}
-						break;
-					case obCcLine:
-						{
-							const double _value = RdB.TagValue.ToReal();
+							break;
+						case obCcLine:
 							((CcLineBlock *)p_item)->Amount = _value;
-						}
-						break;
-				}
+							break;
+						case obPayment:
+							((CcPaymentBlock *)p_item)->Amount = _value;
+							break;
+					}
+				}	
 				break;
 			case PPHS_SOURCE:
 			case PPHS_DESTINATION:
@@ -2334,6 +2476,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_CSESSION:
 			case PPHS_CC:
 			case PPHS_CCL:
+			case PPHS_PAYMENT:
 				RdB.RefPosStack.pop(ref_pos);
 				break;
 			case PPHS_RESTRICTION:
@@ -2424,6 +2567,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	CSessBlkList.freeAll();
 	CcBlkList.freeAll();
 	CclBlkList.freeAll();
+	CcPaymBlkList.freeAll();
 	QueryList.freeAll();
 	RefList.freeAll();
 }
@@ -3384,6 +3528,11 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
 	THROW(!(RdB.State & RdB.stError));
 	// (Ќельз€ сортировать - позиции важны) RdB.SortRefList(); // @v9.8.2
 	CATCHZOK
+	if(RdB.P_SaxCtx) {
+		RdB.P_SaxCtx->sax = 0;
+		xmlFreeParserCtxt(RdB.P_SaxCtx);
+	}
+	RdB.P_SaxCtx = 0;
 	PPWait(0);
     return ok;
 }
@@ -3888,7 +4037,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	{
 		int   copy_result = 0;
 		StringSet ss_out_files;
-		THROW(SelectOutFileName(0, "csess", ss_out_files));
+		THROW(SelectOutFileName(srcPosNodeID, "csess", ss_out_files));
 		for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
 			if(SCopyFile(out_file_name, temp_buf, 0, FILE_SHARE_READ, 0))
 				copy_result = 1;

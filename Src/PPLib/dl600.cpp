@@ -1428,6 +1428,18 @@ _skip_switch:
 				break;
 			}
 		// } @v8.3.8
+		case 108: // string replace(string src, string pattern, string replacer)
+			if(!pF) {
+				#ifdef DL600C
+				AddBFunc("replace", impl_id = 108, "string", "string", "string", "string", 0);
+				#endif
+			}
+			else {
+				#ifndef DL600C
+				_RET_STR = _ARG_STR(1).ReplaceStr(_ARG_STR(2), _ARG_STR(3), 0);
+				#endif
+				break;
+			}
 		//
 		// Диапазон 200..499 зарезервирован за специальными функциями, требующими внешней
 		// обработки  {

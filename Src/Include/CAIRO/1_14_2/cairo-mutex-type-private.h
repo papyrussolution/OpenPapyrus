@@ -165,7 +165,7 @@
 
 #ifdef CAIRO_MUTEX_DEBUG
 
-/* TODO add mutex debugging facilities here (eg deadlock detection) */
+/* @todo add mutex debugging facilities here (eg deadlock detection) */
 
 #endif /* CAIRO_MUTEX_DEBUG */
 

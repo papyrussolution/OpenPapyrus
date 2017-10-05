@@ -1549,7 +1549,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 
 void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 {
-	xmlParserInputPtr input;
+	xmlParserInput * input;
 	if(ctxt) {
 		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
 			xmlFreeInputStream(input);
@@ -1592,17 +1592,16 @@ void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 				cur = next;
 			}
 		}
-		/*
-		* cleanup the error strings
-		*/
+		// 
+		// cleanup the error strings
+		// 
 		SAlloc::F(ctxt->lastError.message);
 		SAlloc::F(ctxt->lastError.file);
 		SAlloc::F(ctxt->lastError.str1);
 		SAlloc::F(ctxt->lastError.str2);
 		SAlloc::F(ctxt->lastError.str3);
 #ifdef LIBXML_CATALOG_ENABLED
-		if(ctxt->catalogs != NULL)
-			xmlCatalogFreeLocal(ctxt->catalogs);
+		xmlCatalogFreeLocal(ctxt->catalogs);
 #endif
 		SAlloc::F(ctxt);
 	}

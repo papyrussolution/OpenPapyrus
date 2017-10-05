@@ -435,7 +435,7 @@ struct _xmlSchemaFacetLink {
  * XML_SCHEMAS_TYPE_VARIETY_ABSENT:
  *
  * the simpleType has a variety of "absent".
- * TODO: Actually not necessary :-/, since if
+ * @todo Actually not necessary :-/, since if
  * none of the variety flags occur then it's
  * automatically absent.
  */
@@ -845,7 +845,7 @@ struct _xmlSchemaNotation {
 };
 
 /*
-* TODO: Actually all those flags used for the schema should sit
+* @todo Actually all those flags used for the schema should sit
 * on the schema parser context, since they are used only
 * during parsing an XML schema document, and not available
 * on the component level as per spec.

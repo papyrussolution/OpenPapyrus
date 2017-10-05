@@ -19,6 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\include;..\include\zlib;..\scintilla\include;..\scintilla\lexlib;..\scintilla\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DUMMYDEVICEDRIVER_EXPORTS"
 				StringPooling="TRUE"
@@ -74,6 +75,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\include;..\include\zlib;..\scintilla\include;..\scintilla\lexlib;..\scintilla\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DUMMYDEVICEDRIVER_EXPORTS"
 				StringPooling="TRUE"

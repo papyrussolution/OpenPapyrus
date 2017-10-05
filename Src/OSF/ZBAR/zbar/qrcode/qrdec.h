@@ -159,7 +159,7 @@ struct qr_code_data_list {
 //
 int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image_scanner_t * iscn, zbar_image_t * img);
 
-/*TODO: Parse DoCoMo standard barcode data formats.
+/* @todo Parse DoCoMo standard barcode data formats.
    See http://www.nttdocomo.co.jp/english/service/imode/make/content/barcode/function/application/
    for details.*/
 

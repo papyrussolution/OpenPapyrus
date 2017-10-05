@@ -540,7 +540,7 @@ static void xmlValidStateDebug(xmlValidCtxtPtr ctxt) {
 #define DEBUG_VALID_MSG(m)
 #endif
 
-/* TODO: use hash table for accesses to elem and attribute definitions */
+/* @todo use hash table for accesses to elem and attribute definitions */
 
 #define CHECK_DTD						\
 	if(!doc) return 0;				     \
@@ -721,7 +721,7 @@ int xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElementPtr elem)
 		return 0;
 	if(elem->etype != XML_ELEMENT_TYPE_ELEMENT)
 		return 1;
-	/* TODO: should we rebuild in this case ? */
+	/* @todo should we rebuild in this case ? */
 	if(elem->contModel) {
 		if(!xmlRegexpIsDeterminist(elem->contModel)) {
 			ctxt->valid = 0;
@@ -1434,7 +1434,7 @@ static xmlElementPtr xmlCopyElement(xmlElementPtr elem)
 	cur->name = sstrdup(elem->name);
 	cur->prefix = sstrdup(elem->prefix);
 	cur->content = xmlCopyElementContent(elem->content);
-	/* TODO : rebuild the attribute list on the copy */
+	/* @todo : rebuild the attribute list on the copy */
 	cur->attributes = NULL;
 	return cur;
 }
@@ -2654,7 +2654,7 @@ int xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr) {
 		return 0;
 	}
 	else if(doc->type == XML_HTML_DOCUMENT_NODE) {
-		/* TODO @@@ */
+		/* @todo @@@ */
 		return 0;
 	}
 	else {
@@ -4727,7 +4727,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 					    ret = 0;
 					    goto fail;
 					case XML_CDATA_SECTION_NODE:
-					    /* TODO */
+					    /* @todo */
 					    ret = 0;
 					    goto fail;
 					case XML_ELEMENT_NODE:
@@ -5175,7 +5175,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, 
 				    break;
 				case XML_ELEMENT_TYPE_ELEMENT:
 				    /*
-				     * TODO:
+				     * @todo 
 				     * VC: Standalone Document Declaration
 				     *     - element types with element content, if white space
 				     *       occurs directly within any instance of those types.
@@ -5249,7 +5249,7 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 						    }
 					    }
 					    /*
-					     * TODO:
+					     * @todo 
 					     * VC: Standalone Document Declaration
 					     *  element types with element content, if white space
 					     *  occurs directly within any instance of those types.

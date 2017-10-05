@@ -98,7 +98,7 @@ void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
 }
 
 /*
- * TODO: table should be optimised for the wNAF-based implementation,
+ * @todo table should be optimised for the wNAF-based implementation,
  * sometimes smaller windows will give better performance (thus the
  * boundaries should be increased)
  */

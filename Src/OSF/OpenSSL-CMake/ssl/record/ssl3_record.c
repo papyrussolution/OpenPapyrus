@@ -1550,7 +1550,7 @@ again:
 #endif
 	/* Check whether this is a repeat, or aged record. */
 	/*
-	 * TODO: Does it make sense to have replay protection in epoch 0 where
+	 * @todo Does it make sense to have replay protection in epoch 0 where
 	 * we have no integrity negotiated yet?
 	 */
 	if(!dtls1_record_replay_check(s, bitmap)) {

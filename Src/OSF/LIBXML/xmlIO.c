@@ -2556,7 +2556,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
  * If filename is "-' then we use stdout as the output.
  * Automatic support for ZLIB/Compress compressed document is provided
  * by default if found at compile-time.
- * TODO: currently if compression is set, the library only support
+ * @todo currently if compression is set, the library only support
  *       writing to a local file.
  *
  * Returns the new output or NULL
@@ -2948,7 +2948,7 @@ static int endOfInput(void * context ATTRIBUTE_UNUSED, char * buffer ATTRIBUTE_U
  * This routine handle the I18N transcoding to internal UTF-8
  * This routine is used when operating the parser in normal (pull) mode
  *
- * TODO: one should be able to remove one extra copy by copying directly
+ * @todo one should be able to remove one extra copy by copying directly
  *       onto in->buffer or in->raw
  *
  * Returns the number of chars read and stored in the buffer, or -1
@@ -3591,7 +3591,7 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 		if(!resource && URL)
 			resource = sstrdup((const xmlChar*)URL);
 		/*
-		 * TODO: do an URI lookup on the reference
+		 * @todo do an URI lookup on the reference
 		 */
 		if(resource && !xmlNoNetExists((const char*)resource)) {
 			xmlChar * tmp = NULL;

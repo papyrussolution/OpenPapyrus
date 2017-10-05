@@ -17,9 +17,9 @@
 #include "libxml.h"
 #pragma hdrstop
 /*
- * TODO: better handling of error cases, the full expression should
+ * @todo better handling of error cases, the full expression should
  *       be parsed beforehand instead of a progressive evaluation
- * TODO: Access into entities references are not supported now ...
+ * @todo Access into entities references are not supported now ...
  *       need a start to be able to pop out of entities refs since
  *       parent is the endity declaration, not the ref.
  */
@@ -478,7 +478,7 @@ xmlXPathObjectPtr xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr e
 					return 0;
 				break;
 			default:
-				/* TODO */
+				/* @todo */
 				return 0;
 		}
 		ret = (xmlXPathObjectPtr)SAlloc::M(sizeof(xmlXPathObject));
@@ -858,7 +858,7 @@ static void xmlXPtrGetChildNo(xmlXPathParserContextPtr ctxt, int indx)
  * Parse and evaluate an XPtrPart. Basically it generates the unescaped
  * string and if the scheme is 'xpointer' it will call the XPath interpreter.
  *
- * TODO: there is no new scheme registration mechanism
+ * @todo there is no new scheme registration mechanism
  */
 
 static void xmlXPtrEvalXPtrPart(xmlXPathParserContextPtr ctxt, xmlChar * name)
@@ -1254,7 +1254,7 @@ xmlXPathObjectPtr xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx)
 		res = NULL;
 	}
 	xmlXPathFreeParserContext(ctxt);
-	return(res);
+	return res;
 }
 
 /**
@@ -1664,7 +1664,7 @@ static void xmlXPtrStartPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 						xmlNode * node = (xmlNode *)tmp->user;
 						if(node) {
 							if(node->type == XML_ATTRIBUTE_NODE) {
-								/* TODO: Namespace Nodes ??? */
+								/* @todo Namespace Nodes ??? */
 								xmlXPathFreeObject(obj);
 								xmlXPtrFreeLocationSet(newset);
 								XP_ERROR(XPTR_SYNTAX_ERROR);
@@ -1756,7 +1756,7 @@ static void xmlXPtrEndPointFunction(xmlXPathParserContextPtr ctxt, int nargs)
 				    xmlNode * node = (xmlNode *)tmp->user2;
 				    if(node) {
 					    if(node->type == XML_ATTRIBUTE_NODE) {
-						    /* TODO: Namespace Nodes ??? */
+						    /* @todo Namespace Nodes ??? */
 						    xmlXPathFreeObject(obj);
 						    xmlXPtrFreeLocationSet(newset);
 						    XP_ERROR(XPTR_SYNTAX_ERROR);
@@ -2097,7 +2097,7 @@ void xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs)
  * @level: incremented/decremented to show level in tree
  *
  * Advance to the next element or text node in document order
- * TODO: add a stack for entering/exiting entities
+ * @todo add a stack for entering/exiting entities
  *
  * Returns -1 in case of failure, 0 otherwise
  */

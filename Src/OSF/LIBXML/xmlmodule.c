@@ -54,7 +54,7 @@ static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
  * guaranteed with @name using ASCII. We canot guarantee that
  * an UTF-8 string would work, which is why name is a const char *
  * and not a const xmlChar * .
- * TODO: options are not yet implemented.
+ * @todo options are not yet implemented.
  *
  * Returns a handle for the module or NULL in case of error
  */

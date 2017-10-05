@@ -325,7 +325,7 @@ int SLAPI PPViewTransport::InitIteration(int aOrder)
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		TempTransportTbl::Key1 k1;
-		Counter.Init(P_TempTbl);
+		PPInitIterCounter(Counter, P_TempTbl);
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 1));
 		P_IterQuery->select(P_TempTbl->ID, 0);
 		MEMSZERO(k1);

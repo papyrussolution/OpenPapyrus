@@ -49,7 +49,7 @@ static ngx_int_t ngx_http_postpone_filter(ngx_http_request_t * r, ngx_chain_t * 
 			return NGX_OK;
 		}
 #if 0
-		/* TODO: SSI may pass NULL */
+		/* @todo SSI may pass NULL */
 		ngx_log_error(NGX_LOG_ALERT, c->log, 0, "http postpone filter NULL inactive request");
 #endif
 		return NGX_OK;

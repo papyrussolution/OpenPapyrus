@@ -1,5 +1,5 @@
 // CUTTING.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -293,7 +293,7 @@ int SLAPI PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 	THROW_PP(f_out, PPERR_EXPFOPENFAULT);
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 0, msg_buf, sizeof(msg_buf));
 	PPGetSubStr(PPTXT_SAVBAL_STRINGS, 0, format, sizeof(format));
-	for(cntr.Init(&atobj->P_Tbl->AccRel); atobj->P_Tbl->AccRel.search(3, &k, spGt);) {
+	for(PPInitIterCounter(cntr, &atobj->P_Tbl->AccRel); atobj->P_Tbl->AccRel.search(3, &k, spGt);) {
 		AcctRelTbl::Rec accrel_rec;
 		atobj->P_Tbl->AccRel.copyBufTo(&accrel_rec);
 		if(!accrel_rec.Closed) {

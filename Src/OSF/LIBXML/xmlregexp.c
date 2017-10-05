@@ -54,7 +54,7 @@
 #define PREV (ctxt->cur[-1])
 
 /**
- * TODO:
+ * @todo 
  *
  * macro to flag unimplemented blocks
  */
@@ -4811,7 +4811,7 @@ static void xmlFAParseCharRange(xmlRegParserCtxtPtr ctxt) {
 		return;
 	}
 	NEXTL(len);
-	/* TODO check that the values are acceptable character ranges for XML */
+	/* @todo check that the values are acceptable character ranges for XML */
 	if(end < start) {
 		ERROR("End of range is before start of range");
 	}
@@ -6091,7 +6091,7 @@ void xmlExpFreeCtxt(xmlExpCtxtPtr ctxt)
 /* #define DEBUG_DERIV */
 
 /*
- * TODO:
+ * @todo 
  * - Wildcards
  * - public API for creation
  *
@@ -6738,7 +6738,7 @@ static xmlExpNodePtr xmlExpStringDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp
 #ifdef DEBUG_DERIV
 			    printf("deriv atom: mismatch => forbid\n");
 #endif
-			    /* TODO wildcards here */
+			    /* @todo wildcards here */
 			    ret = forbiddenExp;
 		    }
 		    return ret;
@@ -7023,7 +7023,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		    return(forbiddenExp);
 		case XML_EXP_ATOM:
 		    if(sub->type == XML_EXP_ATOM) {
-			    /* TODO: handle wildcards */
+			    /* @todo handle wildcards */
 			    if(exp->exp_str == sub->exp_str) {
 #ifdef DEBUG_DERIV
 				    printf("Atom match -> Empty\n");
@@ -7038,7 +7038,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 		    if((sub->type == XML_EXP_COUNT) &&
 		    (sub->exp_max == 1) &&
 		    (sub->exp_left->type == XML_EXP_ATOM)) {
-			    /* TODO: handle wildcards */
+			    /* @todo handle wildcards */
 			    if(exp->exp_str == sub->exp_left->exp_str) {
 #ifdef DEBUG_DERIV
 				    printf("Atom match -> Empty\n");
@@ -7067,7 +7067,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 				    printf("Seq trying left only worked\n");
 #endif
 				    /*
-				     * TODO: assumption here that we are determinist
+				     * @todo assumption here that we are determinist
 				     *       i.e. we won't get to a nillable exp left
 				     *       subset which could be matched by the right
 				     *       part too.
@@ -7210,7 +7210,7 @@ static xmlExpNodePtr xmlExpExpDeriveInt(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, x
 			    }
 			    else if(!IS_NILLABLE(tmp)) {
 				    /*
-				     * TODO: loop here to try to grow if working on finite
+				     * @todo loop here to try to grow if working on finite
 				     *       blocks.
 				     */
 #ifdef DEBUG_DERIV
@@ -7448,7 +7448,7 @@ int xmlExpSubsume(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, xmlExpNodePtr sub)
 		return -1;
 
 	/*
-	 * TODO: speedup by checking the language of sub is a subset of the
+	 * @todo speedup by checking the language of sub is a subset of the
 	 *       language of exp
 	 */
 	/*

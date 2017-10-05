@@ -12,7 +12,7 @@
  */
 
 /*
- * TODO:
+ * @todo 
  * - compilation flags to check for specific syntaxes
  *   using flags of xmlPatterncompile()
  * - making clear how pattern starting with / or . need to be handled,
@@ -572,7 +572,7 @@ restart:
 			    }
 			    continue;
 			case XML_OP_ANCESTOR:
-			    /* TODO: implement coalescing of ANCESTOR/NODE ops */
+			    /* @todo implement coalescing of ANCESTOR/NODE ops */
 			    if(!step->value) {
 				    i++;
 				    step = &comp->steps[i];
@@ -1166,7 +1166,7 @@ static void xmlCompilePathPattern(xmlPatParserContextPtr ctxt)
 		NEXT;
 		xmlCompileAttributeTest(ctxt);
 		SKIP_BLANKS;
-		/* TODO: check for incompleteness */
+		/* @todo check for incompleteness */
 		if(CUR != 0) {
 			xmlCompileStepPattern(ctxt);
 			if(ctxt->error)
@@ -1251,7 +1251,7 @@ error:
 							return;
 						}
 						if(CUR != '/') {
-							/* TODO: A more meaningful error message. */
+							/* @todo A more meaningful error message. */
 							ERROR5(NULL, NULL, NULL, "Unexpected token after '.' in '%s'.\n", ctxt->base);
 							goto error;
 						}
@@ -1727,7 +1727,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 			stream->blockLevel = -1;
 			if(comp->flags & XML_STREAM_FROM_ROOT) {
 				if(comp->nbStep == 0) {
-					/* TODO: We have a "/." here? */
+					/* @todo We have a "/." here? */
 					ret = 1;
 				}
 				else {
@@ -1740,7 +1740,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 						ret = 1;
 					}
 					else if(comp->steps[0].flags & XML_STREAM_STEP_ROOT) {
-						/* TODO: Do we need this ? */
+						/* @todo Do we need this ? */
 						tmp = xmlStreamCtxtAddState(stream, 0, 0);
 						if(tmp < 0)
 							err++;
@@ -1786,7 +1786,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 			/*
 				* No need to process nodes of other types if we don't
 				* resolve to those types.
-				* TODO: Do we need to block the context here?
+				* @todo Do we need to block the context here?
 				*/
 			stream->level++;
 			goto stream_next;
@@ -1804,7 +1804,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 					*/
 				stepNr = stream->states[2 * (stream->nbState -1)];
 				/*
-					* TODO: Security check, should not happen, remove it.
+					* @todo Security check, should not happen, remove it.
 					*/
 				if(stream->states[(2 * (stream->nbState -1)) + 1] <
 					stream->level) {
@@ -1821,7 +1821,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 					* level.
 					*/
 				stepNr = stream->states[2 * i];
-				/* TODO: should not happen anymore: dead states */
+				/* @todo should not happen anymore: dead states */
 				if(stepNr < 0)
 					goto next_state;
 				tmp = stream->states[(2 * i) + 1];
@@ -1870,7 +1870,7 @@ static int xmlStreamPushInternal(xmlStreamCtxtPtr stream, const xmlChar * name, 
 			}
 #if 0
 /*
-* TODO: Pointer comparison won't work, since not guaranteed that the given
+* @todo Pointer comparison won't work, since not guaranteed that the given
 *  values are in the same dict; especially if it's the namespace name,
 *  normally coming from ns->href. We need a namespace dict mechanism !
 */

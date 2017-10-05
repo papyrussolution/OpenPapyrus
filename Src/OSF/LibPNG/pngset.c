@@ -270,7 +270,7 @@ void PNGAPI png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 	png_debug1(3, "allocating purpose for info (%lu bytes)",
 	    (unsigned long)length);
 
-	/* TODO: validate format of calibration name and unit name */
+	/* @todo validate format of calibration name and unit name */
 
 	/* Check that the type matches the specification. */
 	if(type < 0 || type > 3)
@@ -1129,7 +1129,7 @@ void PNGAPI png_set_unknown_chunk_location(png_const_structrp png_ptr, png_infor
 	/* This API is pretty pointless in 1.6.0 because the location can be set
 	 * before the call to png_set_unknown_chunks.
 	 *
-	 * TODO: add a png_app_warning in 1.7
+	 * @todo add a png_app_warning in 1.7
 	 */
 	if(png_ptr && info_ptr && chunk >= 0 && chunk < info_ptr->unknown_chunks_num) {
 		if((location & (PNG_HAVE_IHDR|PNG_HAVE_PLTE|PNG_AFTER_IDAT)) == 0) {

@@ -23,7 +23,7 @@
 /* #define DEBUG_SAX2_TREE */
 
 /**
- * TODO:
+ * @todo 
  *
  * macro to flag unimplemented blocks
  * XML_CATALOG_PREFER user env to select between system/public prefered
@@ -604,7 +604,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 		xmlErrValid(ctxt, XML_DTD_XMLID_TYPE, "xml:id : attribute type should be ID\n", 0, 0);
 		ctxt->valid = tmp;
 	}
-	/* TODO: optimize name/prefix allocation */
+	/* @todo optimize name/prefix allocation */
 	name = xmlSplitQName(ctxt, fullname, &prefix);
 	ctxt->vctxt.valid = 1;
 	if(ctxt->inSubset == 1)

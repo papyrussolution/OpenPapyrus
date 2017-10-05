@@ -486,7 +486,7 @@ CURLcode Curl_axtls_connect(struct connectdata * conn,
 			ssl_display_error(ssl_fcn_return); /* goes to stdout. */
 			return map_error_to_curl(ssl_fcn_return);
 		}
-		/* TODO: avoid polling */
+		/* @todo avoid polling */
 		Curl_wait_ms(10);
 	}
 	infof(conn->data, "handshake completed successfully\n");

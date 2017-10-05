@@ -115,7 +115,7 @@ ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t * pReq, ngx_http_
 	clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(pReq, ngx_http_core_module);
 	size = clcf->client_body_buffer_size;
 	size += size >> 2;
-	/* TODO: honor r->request_body_in_single_buf */
+	/* @todo honor r->request_body_in_single_buf */
 	if(!pReq->headers_in.chunked && rb->rest < size) {
 		size = (ssize_t)rb->rest;
 		if(pReq->request_body_in_single_buf) {
@@ -352,7 +352,7 @@ static ngx_int_t ngx_http_write_request_body(ngx_http_request_t * r)
 
 	n = ngx_write_chain_to_temp_file(rb->temp_file, rb->bufs);
 
-	/* TODO: n == 0 or not complete and level event */
+	/* @todo n == 0 or not complete and level event */
 
 	if(n == NGX_ERROR) {
 		return NGX_ERROR;
@@ -844,7 +844,7 @@ ngx_int_t ngx_http_request_body_save_filter(ngx_http_request_t * r, ngx_chain_t 
 		    cl->buf->file_last - cl->buf->file_pos);
 	}
 #endif
-	/* TODO: coalesce neighbouring buffers */
+	/* @todo coalesce neighbouring buffers */
 	if(ngx_chain_add_copy(r->pool, &rb->bufs, in) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}

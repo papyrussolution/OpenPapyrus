@@ -43,7 +43,7 @@ static void write_unknown_chunks(png_structrp png_ptr, png_const_inforp info_ptr
 				 * The default handling is also slightly weird - it is not possible to
 				 * stop the writing of all unsafe-to-copy chunks!
 				 *
-				 * TODO: REVIEW: this would seem to be a bug.
+				 * @todo REVIEW: this would seem to be a bug.
 				 */
 				if(keep != PNG_HANDLE_CHUNK_NEVER &&
 				    ((up->name[3] & 0x20) /* safe-to-copy overrides everything */ ||
@@ -52,7 +52,7 @@ static void write_unknown_chunks(png_structrp png_ptr, png_const_inforp info_ptr
 						    png_ptr->unknown_default == PNG_HANDLE_CHUNK_ALWAYS)))
 #endif
 				{
-					/* TODO: review, what is wrong with a zero length unknown chunk? */
+					/* @todo review, what is wrong with a zero length unknown chunk? */
 					if(up->size == 0)
 						png_warning(png_ptr, "Writing zero-length unknown chunk");
 
@@ -512,7 +512,7 @@ PNG_ALLOCATED png_structp PNGAPI png_create_write_struct_2(const char * user_png
 		png_ptr->flags |= PNG_FLAG_APP_WARNINGS_WARN;
 #endif
 
-		/* TODO: delay this, it can be done in png_init_io() (if the app doesn't
+		/* @todo delay this, it can be done in png_init_io() (if the app doesn't
 		 * do it itself) avoiding setting the default function if it is not
 		 * required.
 		 */

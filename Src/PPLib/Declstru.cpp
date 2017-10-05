@@ -380,7 +380,7 @@ int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
 			PPWait(1);
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail)
-				THROW(GetFilesFromMailServer(rcp.MailAccID, path, PPMailMsg::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
+				THROW(GetFilesFromMailServer(rcp.MailAccID, path, SMailMsg::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
 			THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));
 			for(p = 0; fary.Enum(&p, 0, &file_path);) {
 				PPDeclStrucProcessor dsp;

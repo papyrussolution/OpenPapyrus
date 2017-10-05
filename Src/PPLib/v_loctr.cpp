@@ -809,7 +809,7 @@ DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSu
 				single_loc_crit = 1;
 			}
 			else if(Filt.LocList.GetCount() > 0) {
-				if(DbqFuncTab::RegisterDyn(&DynCheckCellParent, 0, BTS_INT, dbqf_checkcellparent_ii, 2, BTS_INT, BTS_INT)) {
+				if(DbqFuncTab::RegisterDyn(&DynCheckCellParent, BTS_INT, dbqf_checkcellparent_ii, 2, BTS_INT, BTS_INT)) {
 					CellList.clear();
 					PPIDArray temp_cell_list;
 					for(uint i = 0; i < Filt.LocList.GetCount(); i++) {

@@ -300,7 +300,7 @@ struct zip_buffer {
 
 struct zip_filelist {
     uint64 idx;
-/* TODO    const char *name; */
+/* @todo    const char *name; */
 };
 
 typedef struct zip_filelist zip_filelist_t;

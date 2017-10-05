@@ -443,8 +443,8 @@ public:
 	bool IsLineStartPosition(int position) const;
 	Sci_Position SCI_METHOD LineEnd(Sci_Position line) const;
 	int LineEndPosition(int position) const;
-	bool IsLineEndPosition(int position) const;
-	bool IsPositionInLineEnd(int position) const;
+	bool FASTCALL IsLineEndPosition(int position) const;
+	bool FASTCALL IsPositionInLineEnd(int position) const;
 	int VCHomePosition(int position) const;
 	int SCI_METHOD SetLevel(Sci_Position line, int level);
 	int SCI_METHOD GetLevel(Sci_Position line) const;
@@ -531,7 +531,7 @@ public:
 private:
 	void NotifyModifyAttempt();
 	void NotifySavePoint(bool atSavePoint);
-	void NotifyModified(DocModification mh);
+	void FASTCALL NotifyModified(DocModification mh);
 };
 
 class UndoGroup {

@@ -5377,7 +5377,7 @@ int SLAPI ConvertQuot720()
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		cntr.Init(&qc);
+		PPInitIterCounter(cntr, &qc);
 		PPWait(1);
 		if(qc.search(0, &k0, spFirst)) {
 			do {

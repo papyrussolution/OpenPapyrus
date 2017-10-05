@@ -467,7 +467,7 @@ static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t * r, ngx_http_upstre
 		if(u->create_key(r) != NGX_OK) {
 			return NGX_ERROR;
 		}
-		/* TODO: add keys */
+		/* @todo add keys */
 		ngx_http_file_cache_create_key(r);
 		if(r->cache->header_start + 256 >= u->conf->buffer_size) {
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%V_buffer_size %uz is not enough for cache key, it should be increased to at least %uz",
@@ -591,7 +591,7 @@ static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t * r, ngx_http_u
 		r->http_version = NGX_HTTP_VERSION_9;
 		return ngx_http_cache_send(r);
 	}
-	/* TODO: cache stack */
+	/* @todo cache stack */
 	u->buffer = *c->buf;
 	u->buffer.pos += c->header_start;
 	memzero(&u->headers_in, sizeof(ngx_http_upstream_headers_in_t));
@@ -608,7 +608,7 @@ static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t * r, ngx_http_u
 		return NGX_ERROR;
 	}
 	/* rc == NGX_HTTP_UPSTREAM_INVALID_HEADER */
-	/* TODO: delete file */
+	/* @todo delete file */
 	return rc;
 }
 
@@ -1831,7 +1831,7 @@ static void ngx_http_upstream_send_response(ngx_http_request_t * pReq, ngx_http_
 		}
 		return;
 	}
-	/* TODO: preallocate event_pipe bufs, look "Content-Length" */
+	/* @todo preallocate event_pipe bufs, look "Content-Length" */
 #if (NGX_HTTP_CACHE)
 	if(pReq->cache && pReq->cache->file.fd != NGX_INVALID_FILE) {
 		ngx_pool_run_cleanup_file(pReq->pool, pReq->cache->file.fd);
@@ -1964,7 +1964,7 @@ static void ngx_http_upstream_send_response(ngx_http_request_t * pReq, ngx_http_
 		/* the posted aio operation may corrupt a shadow buffer */
 		p->single_buf = 1;
 	}
-	/* TODO: p->free_bufs = 0 if use ngx_create_chain_of_bufs() */
+	/* @todo p->free_bufs = 0 if use ngx_create_chain_of_bufs() */
 	p->free_bufs = 1;
 	/*
 	 * event_pipe would do u->buffer.last += p->preread_size
@@ -2000,7 +2000,7 @@ static void ngx_http_upstream_upgrade(ngx_http_request_t * r, ngx_http_upstream_
 {
 	ngx_connection_t * c = r->connection;
 	ngx_http_core_loc_conf_t  * clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-	// TODO: prevent upgrade if not requested or not possible 
+	// @todo prevent upgrade if not requested or not possible 
 	r->keepalive = 0;
 	c->log->action = "proxying upgraded connection";
 	u->read_event_handler = ngx_http_upstream_upgraded_read_upstream;
@@ -2592,7 +2592,7 @@ static void ngx_http_upstream_next(ngx_http_request_t * r, ngx_http_upstream_t *
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, NGX_ETIMEDOUT, "upstream timed out");
 	}
 	if(u->peer.cached && ft_type == NGX_HTTP_UPSTREAM_FT_ERROR) {
-		/* TODO: inform balancer instead */
+		/* @todo inform balancer instead */
 		u->peer.tries++;
 	}
 	switch(ft_type) {
@@ -2683,7 +2683,7 @@ static void ngx_http_upstream_finalize_request(ngx_http_request_t * r, ngx_http_
 	}
 	if(u->peer.connection) {
 #if (NGX_HTTP_SSL)
-		/* TODO: do not shutdown persistent connection */
+		/* @todo do not shutdown persistent connection */
 		if(u->peer.connection->ssl) {
 			/*
 			 * We send the "close notify" shutdown alert to the upstream only

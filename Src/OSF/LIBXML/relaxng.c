@@ -7,7 +7,7 @@
  */
 
 /**
- * TODO:
+ * @todo 
  * - add support for DTD compatibility spec
  *   http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html
  * - report better mem allocations pbms at runtime and abort immediately.
@@ -2208,7 +2208,7 @@ static int xmlRelaxNGDefaultTypeCompare(void * data ATTRIBUTE_UNUSED, const xmlC
 	else if(sstreq(type, "token")) {
 		if(!sstreq(value1, value2)) {
 			/*
-			 * TODO: trivial optimizations are possible by computing at compile-time
+			 * @todo trivial optimizations are possible by computing at compile-time
 			 */
 			xmlChar * nval = xmlRelaxNGNormalize(NULL, value1);
 			xmlChar * nvalue = xmlRelaxNGNormalize(NULL, value2);
@@ -5407,7 +5407,7 @@ static xmlRelaxNGContentType xmlRelaxNGCheckRules(xmlRelaxNGParserCtxtPtr ctxt,
 		}
 		else if(ptype == XML_RELAXNG_INTERLEAVE) {
 			/*
-			 * TODO: scan complain that tmp is never used, seems on purpose
+			 * @todo scan complain that tmp is never used, seems on purpose
 			 *       need double-checking
 			 */
 			tmp = xmlRelaxNGGroupContentType(val, ret);
@@ -6527,7 +6527,7 @@ static void xmlRelaxNGDumpGrammar(FILE * output, xmlRelaxNGGrammarPtr grammar, i
 		xmlRelaxNGDumpDefine(output, grammar->start);
 		fprintf(output, "</start>\n");
 	}
-	/* TODO ? Dump the defines ? */
+	/* @todo ? Dump the defines ? */
 	fprintf(output, "</grammar>\n");
 }
 
@@ -6698,7 +6698,7 @@ static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlReg
 	}
 	else if(ret == 0) {
 		/*
-		 * TODO: get some of the names needed to exit the current state of exec
+		 * @todo get some of the names needed to exit the current state of exec
 		 */
 		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, BAD_CAST "");
 		ret = -1;
@@ -7044,7 +7044,7 @@ int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc ATTR
 	ret = xmlRegExecPushString(exec, 0, 0);
 	if(ret == 0) {
 		/*
-		 * TODO: get some of the names needed to exit the current state of exec
+		 * @todo get some of the names needed to exit the current state of exec
 		 */
 		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, BAD_CAST "");
 		ret = -1;
@@ -7124,7 +7124,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt,
 static xmlNode * xmlRelaxNGSkipIgnored(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNode * node)
 {
 	/*
-	 * TODO complete and handle entities
+	 * @todo complete and handle entities
 	 */
 	while(node && (oneof4(node->type, XML_COMMENT_NODE, XML_PI_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) ||
 		(oneof2(node->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE) && ((ctxt->flags & FLAGS_MIXED_CONTENT) || (IS_BLANK_NODE(node)))))) {
@@ -7331,7 +7331,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    }
 			    else {
 				    /*
-				     * TODO: trivial optimizations are possible by computing at compile-time
+				     * @todo trivial optimizations are possible by computing at compile-time
 				     */
 				    xmlChar * nval = xmlRelaxNGNormalize(ctxt, define->value);
 				    xmlChar * nvalue = xmlRelaxNGNormalize(ctxt, value);
@@ -8815,7 +8815,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    else if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				    content = xmlStrcat(content, child->content);
 			    }
-			    /* TODO: handle entities ... */
+			    /* @todo handle entities ... */
 			    child = child->next;
 		    }
 		    if(ret == -1) {
@@ -8853,7 +8853,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    else if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				    content = xmlStrcat(content, child->content);
 			    }
-			    /* TODO: handle entities ... */
+			    /* @todo handle entities ... */
 			    child = child->next;
 		    }
 		    if(ret == -1) {
@@ -8898,7 +8898,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    else if(oneof2(child->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
 				    content = xmlStrcat(content, child->content);
 			    }
-			    /* TODO: handle entities ... */
+			    /* @todo handle entities ... */
 			    child = child->next;
 		    }
 		    if(ret == -1) {
@@ -9357,7 +9357,7 @@ int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc)
 	 */
 	xmlRelaxNGCleanPSVI((xmlNode *)doc);
 	/*
-	 * TODO: build error codes
+	 * @todo build error codes
 	 */
 	return (ret == -1) ? 1 : ret;
 }

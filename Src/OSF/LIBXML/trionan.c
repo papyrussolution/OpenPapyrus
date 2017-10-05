@@ -32,7 +32,7 @@
  ************************************************************************/
 
 /*
- * TODO:
+ * @todo 
  *  o Put all the magic into trio_fpclassify_and_signbit(), and use this from
  *    trio_isnan() etc.
  */

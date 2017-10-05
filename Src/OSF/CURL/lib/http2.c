@@ -82,7 +82,7 @@ static int http2_perform_getsock(const struct connectdata * conn, curl_socket_t 
 	const struct http_conn * c = &conn->proto.httpc;
 	int bitmap = GETSOCK_BLANK;
 	(void)numsocks;
-	// TODO We should check underlying socket state if it is SSL socket because of renegotiation. 
+	// @todo We should check underlying socket state if it is SSL socket because of renegotiation. 
 	sock[0] = conn->sock[FIRSTSOCKET];
 	// in a HTTP/2 connection we can basically always get a frame so we should always be ready for one 
 	bitmap |= GETSOCK_READSOCK(FIRSTSOCKET);

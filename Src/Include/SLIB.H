@@ -279,7 +279,9 @@ struct SStrScan;
 struct SInvariantParam;
 class  SRandGenerator;
 class  SSerializeContext;
+class  SVectorBase;
 class  SArray;
+class  SVector;
 class  LongArray;
 class  RAssocArray;
 class  UintHashTable;
@@ -296,6 +298,7 @@ class  StatBase;
 class  SoapPacket;
 class  SoapPacketStruc;
 class  SoapPacketArray;
+class  DBTable;
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -2630,7 +2633,8 @@ struct IntRange { // @persistent @size=8
 	int    SLAPI Intersect(const IntRange & rD, IntRange * pResult) const;
 	SString & SLAPI Format(long fmt, SString &) const;
 
-	int32  low, upp;
+	int32  low;
+	int32  upp;
 };
 //
 //
@@ -2703,7 +2707,8 @@ struct RealRange {         // @persistent @size=16
 	//
 	RealRange & SLAPI SetMiddle(double middle, double delta);
 
-	double low, upp;
+	double low;
+	double upp;
 };
 
 struct DateRange { // @persistent @size=8
@@ -2759,7 +2764,8 @@ struct DateRange { // @persistent @size=8
 	//
 	DateRange & FASTCALL Actualize(LDATE rel);
 	DateRange & SLAPI ActualizeCmp(LDATE rel, LDATE cmp);
-	LDATE  low, upp;
+	LDATE  low;
+	LDATE  upp;
 };
 
 inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2)
@@ -4659,6 +4665,22 @@ void   SLAPI dectodec(double v, char * dec, int16 len, int16 prec);
 void   SLAPI dectobcd(char * dec, char * bcd, int16 len);
 int    SLAPI deccmp(const char * dc1, const char * dc2, int16 len);
 //
+//
+//
+class IterCounter {
+public:
+	SLAPI  IterCounter();
+	operator ulong() const { return Count; }
+	void   FASTCALL Init(ulong total = 0L);
+	void   FASTCALL SetTotal(ulong total)  { Total = total; }
+	IterCounter & SLAPI Increment() { Count++; return *this; }
+	IterCounter & FASTCALL Add(long a) { Count += a; return *this; }
+	ulong  SLAPI GetTotal() const { return Total; }
+private:
+	ulong  Count;
+	ulong  Total;
+};
+//
 // Descr: Просто удобная и часто используемая структура.
 //   Так как не содержит конструктора и деструктора, может
 //   быть использована в union'ах.
@@ -4701,8 +4723,8 @@ struct SBaseBuffer {
     int    SLAPI Get(size_t offs, int32 & rV) const;
     int    SLAPI Get(size_t offs, int64 & rV) const;
 	//
+	char * P_Buf; // @firstmember
 	size_t Size;
-	char * P_Buf;
 };
 //
 // Descr: Простой буфер с минимальной защитой. Все, что он умеет - распределить
@@ -4853,8 +4875,9 @@ public:
 	int    FASTCALL Read(LTIME & v);
 	int    FASTCALL Write(const LDATETIME & v);
 	int    FASTCALL Read(LDATETIME & v);
-	int    FASTCALL Write(const SArray * pAry, long options /*= 0*/);
+	int    FASTCALL Write(const /*SArray*/SVectorBase * pAry, long options /*= 0*/);
 	int    FASTCALL Read(SArray * pAry, long options /* = 0*/);
+	int    FASTCALL Read(SVector * pAry, long options /* = 0*/);
 	int    FASTCALL Write(const SBuffer & v);
 	int    FASTCALL Read(SBuffer & v);
 	//
@@ -4878,6 +4901,7 @@ private:
 	SBuffer & FASTCALL Reset(int freeBuf);
 	int    FASTCALL Alloc(size_t);
 	int    SLAPI Search(const char * pStr, size_t * pPos) const;
+	int    FASTCALL Helper_Read(SVectorBase * pAry, long options /* = 0*/);
 
 	size_t Size;   // Размер буфера
 	size_t WrOffs; // Смещение до которого буфер заполнен
@@ -5439,7 +5463,7 @@ protected:
 	uint16 delta;   //
 	uint8 * data;   //
 };
-#if 0 // @construction {
+#if 1 // @construction {
 //
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
@@ -5542,6 +5566,7 @@ public:
 	SLAPI  SArray(uint itemSize);
 	SLAPI  SArray(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
 	SLAPI  SArray(const SArray & rS);
+	SLAPI  SArray(const SVector & rS);
 	virtual SLAPI ~SArray();
 	SArray & FASTCALL operator = (const SArray &);
 	int    FASTCALL copy(const SArray & src);
@@ -5892,7 +5917,7 @@ public:
 //
 //
 //
-class LongArray : public TSArray <long> {
+class LongArray : public /*TSArray*/TSVector <long> {
 public:
 	SLAPI  LongArray();
 	SLAPI  LongArray(const LongArray & s);
@@ -5993,7 +6018,7 @@ struct LAssoc {
 	int32  Val;
 };
 
-class LAssocArray : public TSArray <LAssoc> {
+class LAssocArray : public /*TSArray*/TSVector <LAssoc> {
 public:
 	SLAPI  LAssocArray();
 	SLAPI  LAssocArray(const LAssocArray &);
@@ -7030,7 +7055,7 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
 	void * GetBlock(ulong val, int cr);
-	SArray List;
+	SVector List; // @v9.8.4 SArray-->SVector
 };
 //
 // BitArray
@@ -10149,6 +10174,7 @@ public:
 	int    SLAPI Serialize(int dir, FPoint & rV, SBuffer & rBuf);
 
 	int    SLAPI Serialize(int dir, SArray * pArray, SBuffer & rBuf);
+	int    SLAPI Serialize(int dir, SVector * pArray, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf);
 	int    SLAPI SerializeBlock(int dir, uint32 size, void * pData, SBuffer & rBuf, int skipMissizedBlock);
@@ -12942,7 +12968,7 @@ public:
 	int    ReadBotanTestSequence(int formatVer, const char * pFileName, const char * pZone);
 private:
 	const  Item EmptyItem;
-	TSArray <Item> L;
+	TSVector <Item> L; // @v9.8.4 TSArray-->TSVector
 	StringSet HexPool;
 };
 //

@@ -1,10 +1,8 @@
-// scintilla-internal.h 
+﻿// scintilla-internal.h 
 //
 #ifndef __SCINTILLA_INTERNAL_H
 #define __SCINTILLA_INTERNAL_H
 
-#include "CaseConvert.h"
-#include "UnicodeFromUTF8.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -12,13 +10,15 @@
 #include "CellBuffer.h"
 #include "PerLine.h"
 #include "CallTip.h"
-#include "KeyMap.h"
 #include "ViewStyle.h"
 #include "Decoration.h"
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"
-#include "XPM.h"
+//#include "CaseConvert.h"
+//#include "UnicodeFromUTF8.h"
+//#include "KeyMap.h"
+//#include "XPM.h"
 //#include "EditModel.h"
 //#include "MarginView.h"
 //#include "EditView.h"
@@ -34,10 +34,198 @@
 #else
 	#define EXT_LEXER_DECL
 #endif
-
+//
+// FontQuality
+//
+// These definitions match Scintilla.h
+//
+//#define SC_EFF_QUALITY_MASK            0xF
+//#define SC_EFF_QUALITY_DEFAULT           0
+//#define SC_EFF_QUALITY_NON_ANTIALIASED   1
+//#define SC_EFF_QUALITY_ANTIALIASED       2
+//#define SC_EFF_QUALITY_LCD_OPTIMIZED     3
+//
+// These definitions must match SC_TECHNOLOGY_* in Scintilla.h
+//
+#define SCWIN_TECH_GDI         0
+#define SCWIN_TECH_DIRECTWRITE 1
+//
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
+//
+// CaseConvert.h
+//
+enum CaseConversion {
+	CaseConversionFold,
+	CaseConversionUpper,
+	CaseConversionLower
+};
+
+class ICaseConverter {
+public:
+	virtual size_t CaseConvertString(char *converted, size_t sizeConverted, const char *mixed, size_t lenMixed) = 0;
+};
+
+ICaseConverter * ConverterFor(enum CaseConversion conversion);
+
+// Returns a UTF-8 string. Empty when no conversion
+const char *CaseConvert(int character, enum CaseConversion conversion);
+
+// When performing CaseConvertString, the converted value may be up to 3 times longer than the input.
+// Ligatures are often decomposed into multiple characters and long cases include:
+// ΐ "\xce\x90" folds to ΐ "\xce\xb9\xcc\x88\xcc\x81"
+const int maxExpansionCaseConversion=3;
+
+// Converts a mixed case string using a particular conversion.
+// Result may be a different length to input and the length is the return value.
+// If there is not enough space then 0 is returned.
+size_t CaseConvertString(char *converted, size_t sizeConverted, const char *mixed, size_t lenMixed, enum CaseConversion conversion);
+
+// Converts a mixed case string using a particular conversion.
+std::string CaseConvertString(const std::string &s, enum CaseConversion conversion);
+//
+//
+//
+inline int UnicodeFromUTF8(const uchar * us)
+{
+	if(us[0] < 0xC2)
+		return us[0];
+	else if(us[0] < 0xE0)
+		return ((us[0] & 0x1F) << 6) + (us[1] & 0x3F);
+	else if(us[0] < 0xF0) 
+		return ((us[0] & 0xF) << 12) + ((us[1] & 0x3F) << 6) + (us[2] & 0x3F);
+	else if(us[0] < 0xF5)
+		return ((us[0] & 0x7) << 18) + ((us[1] & 0x3F) << 12) + ((us[2] & 0x3F) << 6) + (us[3] & 0x3F);
+	else
+		return us[0];
+}
+//
+// KeyMap.h
+//
+#define SCI_NORM 0
+#define SCI_SHIFT SCMOD_SHIFT
+#define SCI_CTRL SCMOD_CTRL
+#define SCI_ALT SCMOD_ALT
+#define SCI_META SCMOD_META
+#define SCI_SUPER SCMOD_SUPER
+#define SCI_CSHIFT (SCI_CTRL | SCI_SHIFT)
+#define SCI_ASHIFT (SCI_ALT | SCI_SHIFT)
+//
+//
+//
+class KeyModifiers {
+public:
+	KeyModifiers(int key_, int modifiers_) : key(key_), modifiers(modifiers_) 
+	{
+	}
+	bool operator < (const KeyModifiers &other) const 
+	{
+		return (key == other.key) ? (modifiers < other.modifiers) : (key < other.key);
+	}
+private:
+	int    key;
+	int    modifiers;
+};
+//
+//
+//
+class KeyToCommand {
+public:
+	int    key;
+	int    modifiers;
+	uint   msg;
+};
+//
+//
+//
+class KeyMap {
+	std::map <KeyModifiers, uint> kmap;
+	static const KeyToCommand MapDefault[];
+public:
+	KeyMap();
+	~KeyMap();
+	void Clear();
+	void AssignCmdKey(int key, int modifiers, uint msg);
+	uint Find(int key, int modifiers) const;	// 0 returned on failure
+};
+//
+// XPM.H
+// 
+// Hold a pixmap in XPM format.
+// 
+class XPM {
+public:
+	explicit XPM(const char *textForm);
+	explicit XPM(const char *const *linesForm);
+	~XPM();
+	void Init(const char *textForm);
+	void Init(const char *const *linesForm);
+	/// Decompose image into runs and use FillRectangle for each run
+	void Draw(Surface *surface, PRectangle &rc);
+	int GetHeight() const { return height; }
+	int GetWidth() const { return width; }
+	void PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const;
+private:
+	std::vector<uchar> pixels; // @firstmember
+	int    height;
+	int    width;
+	int    nColours;
+	ColourDesired colourCodeTable[256];
+	char   codeTransparent;
+
+	ColourDesired ColourFromCode(int ch) const;
+	void FillRun(Surface *surface, int code, int startX, int y, int x) const;
+	static std::vector<const char *>LinesFormFromTextForm(const char *textForm);
+};
+// 
+// A translucent image stored as a sequence of RGBA bytes.
+// 
+class RGBAImage {
+public:
+	RGBAImage(int width_, int height_, float scale_, const uchar *pixels_);
+	explicit RGBAImage(const XPM &xpm);
+	virtual ~RGBAImage();
+	int GetHeight() const { return height; }
+	int GetWidth() const { return width; }
+	float GetScale() const { return scale; }
+	float GetScaledHeight() const { return height / scale; }
+	float GetScaledWidth() const { return width / scale; }
+	int CountBytes() const;
+	const uchar *Pixels() const;
+	void SetPixel(int x, int y, ColourDesired colour, int alpha=0xff);
+private:
+	// Private so RGBAImage objects can not be copied
+	RGBAImage(const RGBAImage &);
+	RGBAImage & operator= (const RGBAImage &);
+
+	int    height;
+	int    width;
+	float  scale;
+	std::vector<uchar> pixelBytes;
+};
+// 
+// A collection of RGBAImage pixmaps indexed by integer id.
+// 
+class RGBAImageSet {
+	typedef std::map<int, RGBAImage*> ImageMap;
+	ImageMap images;
+	mutable int height;	///< Memorize largest height of the set.
+	mutable int width;	///< Memorize largest width of the set.
+public:
+	RGBAImageSet();
+	~RGBAImageSet();
+	/// Remove all images.
+	void Clear();
+	/// Add an image.
+	void Add(int ident, RGBAImage *image);
+	/// Get image by id.
+	RGBAImage *Get(int ident);
+	/// Give the largest height of the set.
+	int GetHeight() const;
+	/// Give the largest width of the set.
+	int GetWidth() const;
+};
 //
 //
 //
@@ -60,6 +248,7 @@ class EditModel {
 	explicit EditModel(const EditModel &);
 	EditModel & FASTCALL operator = (const EditModel &);
 public:
+	uint   EditModelFlags; // @firstmember
 	int    xOffset; ///< Horizontal scrolled amount in pixels
 	SpecialRepresentations reprs;
 	Caret  caret;
@@ -89,7 +278,6 @@ public:
 		fTrackLineWidth   = 0x0002,
 		fPrimarySelection = 0x0004
 	};
-	long   EditModelFlags;
 
 	EditModel();
 	virtual ~EditModel();
@@ -172,25 +360,46 @@ public:
 	PrintParameters printParameters;
 	PerLine *ldTabstops;
 	int tabWidthMinimumPixels;
-	bool hideSelection;
-	bool drawOverstrikeCaret;
-	/** In bufferedDraw mode, graphics operations are drawn to a pixmap and then copied to
-	* the screen. This avoids flashing but is about 30% slower. */
-	bool bufferedDraw;
 	/** In phasesTwo mode, drawing is performed in two phases, first the background
 	* and then the foreground. This avoids chopping off characters that overlap the next run.
 	* In multiPhaseDraw mode, drawing is performed in multiple phases with each phase drawing
 	* one feature over the whole drawing area, instead of within one line. This allows text to
 	* overlap from one line to the next. */
-	enum PhasesDraw { phasesOne, phasesTwo, phasesMultiple };
+	enum PhasesDraw { 
+		phasesOne, 
+		phasesTwo, 
+		phasesMultiple 
+	};
 	PhasesDraw phasesDraw;
-	int lineWidthMaxSeen;
+	int    lineWidthMaxSeen;
+	/*
+	bool hideSelection;
+	bool drawOverstrikeCaret;
+	//
+	// In bufferedDraw mode, graphics operations are drawn to a pixmap and then copied to
+	// the screen. This avoids flashing but is about 30% slower. 
+	//
+	bool bufferedDraw;
 	bool additionalCaretsBlink;
 	bool additionalCaretsVisible;
 	bool imeCaretBlockOverride;
-	Surface *pixmapLine;
-	Surface *pixmapIndentGuide;
-	Surface *pixmapIndentGuideHighlight;
+	*/
+	enum {
+		fHideSelection           = 0x0001,
+		fDrawOverstrikeCaret     = 0x0002,
+		//
+		// In bufferedDraw mode, graphics operations are drawn to a pixmap and then copied to
+		// the screen. This avoids flashing but is about 30% slower. 
+		//
+		fBufferedDraw            = 0x0004,
+		fAdditionalCaretsBlink   = 0x0008,
+		fAdditionalCaretsVisible = 0x0010,
+		fImeCaretBlockOverride   = 0x0020,
+	};
+	uint   EditViewFlags;
+	Surface * pixmapLine;
+	Surface * pixmapIndentGuide;
+	Surface * pixmapIndentGuideHighlight;
 	LineLayoutCache llc;
 	PositionCache posCache;
 	int tabArrowHeight; // draw arrow heads this many pixels above/below line midpoint
@@ -252,7 +461,7 @@ public:
 class AutoLineLayout {
 	LineLayoutCache &llc;
 	LineLayout *ll;
-	AutoLineLayout &operator=(const AutoLineLayout &);
+	AutoLineLayout & operator = (const AutoLineLayout &);
 public:
 	AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) {}
 	~AutoLineLayout() 
@@ -865,7 +1074,7 @@ protected:      // ScintillaBase subclass needs access to much of Editor
 	void NotifyErrorOccurred(Document * doc, void * userData, int status);
 	void NotifyMacroRecord(uint iMessage, uptr_t wParam, sptr_t lParam);
 
-	void ContainerNeedsUpdate(int flags);
+	void FASTCALL ContainerNeedsUpdate(int flags);
 	void PageMove(int direction, Selection::selTypes selt = Selection::noSel, bool stuttered = false);
 	enum { 
 		cmSame, 
@@ -1365,7 +1574,7 @@ public:
 	int eopat[MAXTAG];
 	std::string pat[MAXTAG];
 private:
-	void ChSet(uchar c);
+	void FASTCALL ChSet(uchar c);
 	void ChSetWithCase(uchar c, bool caseSensitive);
 	int GetBackslashExpression(const char *pattern, int &incr);
 	int PMatch(CharacterIndexer &ci, int lp, int endp, char *ap);

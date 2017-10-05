@@ -1,5 +1,5 @@
 // OBJATURN.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -246,7 +246,7 @@ int SLAPI PPObjAccTurn::CorrectRelsArRefs()
 	IterCounter cntr;
 	PPWait(1);
 	ArticleCore & r_arc = P_Tbl->Art;
-	for(cntr.Init(&r_arc); r_arc.search(0, &k, spGt);) {
+	for(PPInitIterCounter(cntr, &r_arc); r_arc.search(0, &k, spGt);) {
 		if(!P_Tbl->UpdateRelsArRef(r_arc.data.ID, r_arc.data.Article, 1)) {
 			PPError();
 			PPWait(1);

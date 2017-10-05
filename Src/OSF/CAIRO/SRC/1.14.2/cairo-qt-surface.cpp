@@ -1649,7 +1649,7 @@ cairo_surface_t * cairo_qt_surface_get_image(cairo_surface_t * surface)
 }
 
 /*
- * TODO:
+ * @todo 
  *
  * - Figure out why QBrush isn't working with non-repeated images
  *

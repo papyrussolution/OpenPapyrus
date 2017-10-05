@@ -453,7 +453,7 @@ class PCRECPP_EXP_DEFN RE_Options {
     return all_options_ ;
   }
 
-  // TODO: add other pcre flags
+  // @todo add other pcre flags
 
  private:
   int match_limit_;

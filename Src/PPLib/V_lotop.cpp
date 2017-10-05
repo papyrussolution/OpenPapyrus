@@ -1,5 +1,5 @@
 // V_LOTOP.CPP
-// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016
+// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -99,7 +99,7 @@ int PPViewLotOp::DynFuncLadingBill = 0;
 
 DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncLadingBill, 0, BTS_INT, dbqf_lotopladingbill_i, 1, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncLadingBill, BTS_INT, dbqf_lotopladingbill_i, 1, BTS_INT);
 
 	PPID   loc_id = 0;
 	uint   brw_id = 0;

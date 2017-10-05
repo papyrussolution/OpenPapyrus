@@ -820,7 +820,7 @@ ZIP_EXTERN int zip_stat_index(zip_t * za, uint64 index, zip_flags_t flags, zip_s
 		st->comp_method = (uint16)de->comp_method;
 		if(de->bitflags & ZIP_GPBF_ENCRYPTED) {
 			if(de->bitflags & ZIP_GPBF_STRONG_ENCRYPTION) {
-				/* TODO */
+				/* @todo */
 				st->encryption_method = ZIP_EM_UNKNOWN;
 			}
 			else
@@ -1215,7 +1215,7 @@ static int64 pkware_decrypt(zip_source_t * src, void * ud, void * data, uint64 l
 		    zip_stat_t * st = (zip_stat_t*)data;
 		    st->encryption_method = ZIP_EM_NONE;
 		    st->valid |= ZIP_STAT_ENCRYPTION_METHOD;
-		    // TODO: deduce HEADERLEN from size for uncompressed 
+		    // @todo deduce HEADERLEN from size for uncompressed 
 		    if(st->valid & ZIP_STAT_COMP_SIZE)
 			    st->comp_size -= HEADERLEN;
 		    return 0;
@@ -1403,7 +1403,7 @@ uint64 _zip_file_get_offset(const zip_t * za, uint64 idx, zip_error_t * error)
 		_zip_error_set_from_source(error, za->src);
 		return 0;
 	}
-	/* TODO: cache? */
+	/* @todo cache? */
 	if((size = _zip_dirent_size(za->src, ZIP_EF_LOCAL, error)) < 0)
 		return 0;
 	if(offset+(uint32)size > ZIP_INT64_MAX) {
@@ -2251,7 +2251,7 @@ ZIP_EXTERN int zip_set_file_compression(zip_t * za, uint64 idx, int32 method, ui
 		return zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 	e = za->entry+idx;
 	old_method = (e->orig == NULL ? ZIP_CM_DEFAULT : e->orig->comp_method);
-	/* TODO: revisit this when flags are supported, since they may require a recompression */
+	/* @todo revisit this when flags are supported, since they may require a recompression */
 	if(method == old_method) {
 		if(e->changes) {
 			e->changes->changed &= ~ZIP_DIRENT_COMP_METHOD;
@@ -2285,7 +2285,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 	if(ZIP_IS_RDONLY(za))
 		return zip_error_set(&za->error, SLERR_ZIP_RDONLY, 0);
 	if(name && name[0] != '\0') {
-		/* TODO: check for string too long */
+		/* @todo check for string too long */
 		if((str = _zip_string_new((const uint8*)name, (uint16)strlen(name), flags, &za->error)) == NULL)
 			return -1;
 		if((flags & ZIP_FL_ENCODING_ALL) == ZIP_FL_ENC_GUESS &&
@@ -2294,7 +2294,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 	}
 	else
 		str = NULL;
-	/* TODO: encoding flags needed for CP437? */
+	/* @todo encoding flags needed for CP437? */
 	if((i = _zip_name_locate(za, name, 0, NULL)) >= 0 && (uint64)i != idx) {
 		_zip_string_free(str);
 		return zip_error_set(&za->error, SLERR_ZIP_EXISTS, 0);
@@ -2352,7 +2352,7 @@ int _zip_set_name(zip_t * za, uint64 idx, const char * name, zip_flags_t flags)
 					e->changes = NULL;
 				}
 				else {
-					/* TODO: what if not cloned? can that happen? */
+					/* @todo what if not cloned? can that happen? */
 					e->changes->filename = e->orig->filename;
 				}
 			}
@@ -2541,7 +2541,7 @@ int _zip_string_equal(const zip_string_t * a, const zip_string_t * b)
 		return a == b;
 	if(a->length != b->length)
 		return 0;
-	/* TODO: encoding */
+	/* @todo encoding */
 	return (memcmp(a->raw, b->raw, a->length) == 0);
 }
 
@@ -3052,7 +3052,7 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 		uint16 got_len;
 		zip_buffer_t * ef_buffer;
 		const uint8 * ef = _zip_ef_get_by_id(zde->extra_fields, &got_len, ZIP_EF_ZIP64, 0, local ? ZIP_EF_LOCAL : ZIP_EF_CENTRAL, error);
-		/* TODO: if got_len == 0 && !ZIP64_EOCD: no error, 0xffffffff is valid value */
+		/* @todo if got_len == 0 && !ZIP64_EOCD: no error, 0xffffffff is valid value */
 		if(ef == NULL) {
 			if(!from_buffer)
 				_zip_buffer_free(buffer);
@@ -3284,7 +3284,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 		}
 	}
 	_zip_buffer_put_16(buffer, _zip_string_length(de->filename));
-	/* TODO: check for overflow */
+	/* @todo check for overflow */
 	ef_total_size = (uint32)_zip_ef_size(de->extra_fields, flags) + (uint32)_zip_ef_size(ef, ZIP_EF_BOTH);
 	_zip_buffer_put_16(buffer, (uint16)ef_total_size);
 	if((flags & ZIP_FL_LOCAL) == 0) {
@@ -3366,7 +3366,7 @@ static zip_extra_field_t * _zip_ef_utf8(uint16 id, zip_string_t * str, zip_error
 		return NULL;
 	}
 	if(len+5 > ZIP_UINT16_MAX) {
-		zip_error_set(error, SLERR_ZIP_INVAL, 0); /* TODO: better error code? */
+		zip_error_set(error, SLERR_ZIP_INVAL, 0); /* @todo better error code? */
 		return NULL;
 	}
 	if((buffer = _zip_buffer_new(NULL, len+5)) == NULL) {
@@ -3519,7 +3519,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 	    {
 		    zip_stat_t * st = (zip_stat_t*)data;
 		    if(ctx->crc_complete) {
-			    /* TODO: Set comp_size, comp_method, encryption_method?
+			    /* @todo Set comp_size, comp_method, encryption_method?
 			            After all, this only works for uncompressed data. */
 			    st->size = ctx->size;
 			    st->crc = ctx->crc;
@@ -3976,7 +3976,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 				    }
 				    else if(n == 0) {
 					    ctx->eof = true;
-					    // TODO: check against stat of src? 
+					    // @todo check against stat of src? 
 					    ctx->size = ctx->zstr.total_in;
 				    }
 				    else {

@@ -375,7 +375,7 @@ int FASTCALL SBuffer::Read(SBuffer & v)
 	return ok;
 }
 
-int FASTCALL SBuffer::Write(const SArray * pAry, long options)
+int FASTCALL SBuffer::Write(const /*SArray*/SVectorBase * pAry, long options)
 {
 	int    ok = 1;
 	uint32 c = (pAry && !(options & ffAryForceEmpty)) ? pAry->getCount() : 0;
@@ -402,14 +402,14 @@ int FASTCALL SBuffer::Write(const SArray * pAry, long options)
 	return ok;
 }
 
-int FASTCALL SBuffer::Read(SArray * pAry, long options)
+int FASTCALL SBuffer::Helper_Read(SVectorBase * pAry, long options /* = 0*/)
 {
 	assert(pAry != 0);
 	int    ok = 1;
 	uint32 c = 0;
 	const size_t item_size = pAry->getItemSize();
 	const size_t beg_pos = RdOffs;
-	pAry->freeAll();
+	//pAry->freeAll();
 	if(options & ffAryCount32) {
 		THROW(ReadV(&c, sizeof(c)));
 	}
@@ -447,6 +447,20 @@ int FASTCALL SBuffer::Read(SArray * pAry, long options)
 		ok = 0;
 	ENDCATCH
 	return ok;
+}
+
+int FASTCALL SBuffer::Read(SArray * pAry, long options)
+{
+	assert(pAry != 0);
+	pAry->freeAll();
+	return Helper_Read(pAry, options);
+}
+
+int FASTCALL SBuffer::Read(SVector * pAry, long options)
+{
+	assert(pAry != 0);
+	pAry->freeAll();
+	return Helper_Read(pAry, options);
 }
 
 int FASTCALL SBuffer::Write(const SString & rBuf)
@@ -1141,6 +1155,18 @@ int SLAPI SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer 
 }
 
 int SLAPI SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
+{
+	int    ok = 1;
+	if(dir > 0) {
+		ok = rBuf.Write(pArray, SBuffer::ffAryCount32);
+	}
+	else if(dir < 0) {
+		ok = rBuf.Read(pArray, SBuffer::ffAryCount32);
+	}
+	return ok;
+}
+
+int SLAPI SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf)
 {
 	int    ok = 1;
 	if(dir > 0) {

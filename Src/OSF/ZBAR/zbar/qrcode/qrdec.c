@@ -150,7 +150,7 @@ static int qr_finder_cluster_lines(qr_finder_cluster * _clusters,
     qr_finder_line ** _neighbors, qr_finder_line * _lines, int _nlines, int _v)
 {
 	int nneighbors;
-	// TODO: Kalman filters!
+	// @todo Kalman filters!
 	uchar * mark = (uchar*)SAlloc::C(_nlines, sizeof(*mark));
 	qr_finder_line ** neighbors = _neighbors;
 	int nclusters = 0;
@@ -282,7 +282,7 @@ static int qr_finder_find_crossings(qr_finder_center * _centers,
 	uchar * hmark = (uchar*)SAlloc::C(_nhclusters, sizeof(*hmark));
 	uchar * vmark = (uchar*)SAlloc::C(_nvclusters, sizeof(*vmark));
 	int ncenters = 0;
-	/*TODO: This may need some re-working.
+	/* @todo This may need some re-working.
 	   We should be finding groups of clusters such that _all_ horizontal lines in
 	   _all_ horizontal clusters in the group cross _all_ vertical lines in _all_
 	   vertical clusters in the group.
@@ -845,7 +845,7 @@ static void qr_finder_edge_pts_hom_classify(qr_finder * _f, const qr_hom * _hom)
 	for(e = 1; e<4; e++) _f->edge_pts[e] = _f->edge_pts[e-1]+_f->nedge_pts[e-1];
 }
 
-/*TODO: Perhaps these thresholds should be on the module size instead?
+/* @todo Perhaps these thresholds should be on the module size instead?
    Unfortunately, I'd need real-world images of codes with larger versions to
    see if these thresholds are still effective, but such versions aren't used
    often.*/
@@ -2288,7 +2288,7 @@ static int qr_finder_version_decode(qr_finder * _f, const qr_hom * _hom,
 		w0 += dwi;
 	}
 	ret = bch18_6_correct(&v);
-	/*TODO: I seem to have an image with the version bits in a different order
+	/* @todo I seem to have an image with the version bits in a different order
 	   (the transpose of the standard order).
 	   Even if I change the order here so I can parse the version on this image,
 	   I can't decode the rest of the code.
@@ -2667,7 +2667,7 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 		_p[i][0] = QR_CLAMPI(-_width << QR_FINDER_SUBPREC, _p[i][0], _width << (QR_FINDER_SUBPREC+1));
 		_p[i][1] = QR_CLAMPI(-_height << QR_FINDER_SUBPREC, _p[i][1], _height << (QR_FINDER_SUBPREC+1));
 	}
-	/*TODO: Make fine adjustments using the timing patterns.
+	/* @todo Make fine adjustments using the timing patterns.
 	   Possible strategy: scan the timing pattern at QR_ALIGN_SUBPREC (or finer)
 	   resolution, use dynamic programming to match midpoints between
 	   transitions to the ideal grid locations.*/
@@ -3320,7 +3320,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 				    bits = qr_pack_buf_read(&qpb, 13);
 				    bits = (bits/0xC0<<8|bits%0xC0)+0x8140;
 				    if(bits>=0xA000) bits += 0x4000;
-				    /*TODO: Are values 0xXX7F, 0xXXFD...0xXXFF always invalid?
+				    /* @todo Are values 0xXX7F, 0xXXFD...0xXXFF always invalid?
 				       Should we reject them here?*/
 				    self_parity ^= bits;
 				    *buf++ = (uchar)(bits>>8);
@@ -3811,7 +3811,7 @@ void qr_reader_match_centers(qr_reader * _reader, qr_code_data_list * _qrlist,
 	int nfailures_max = QR_MAXI(8192, _width*_height>>9);
 	int nfailures = 0;
 	for(i = 0; i<_ncenters; i++) {
-		/*TODO: We might be able to accelerate this step significantly by
+		/* @todo We might be able to accelerate this step significantly by
 		   considering the remaining finder centers in a more intelligent order,
 		   based on the first finder center we just chose.*/
 		for(j = i+1; !mark[i]&&j<_ncenters; j++) {

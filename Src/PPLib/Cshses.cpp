@@ -608,7 +608,7 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(SArray * pList, LAssocArray * pHa
 		const  int use_ext = BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT);
 		SString wait_msg;
 		IterCounter cntr;
-		cntr.Init(P_TmpCclTbl);
+		PPInitIterCounter(cntr, P_TmpCclTbl);
 		PPLoadText(PPTXT_FLASHTEMPCCLINES, wait_msg);
 
 		BExtInsert bei(&CC.Lines);
@@ -687,7 +687,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 			PPID   kid = 0;
 			SString wait_msg;
 			IterCounter cntr;
-			cntr.Init(P_TmpCcTbl);
+			PPInitIterCounter(cntr, P_TmpCcTbl);
 			PPLoadText(PPTXT_FLASHTEMPCCHECKS, wait_msg);
 			SArray ccl_assoc(sizeof(CclAssocItem));
 			BExtQuery ccq(P_TmpCcTbl, 0, 64);

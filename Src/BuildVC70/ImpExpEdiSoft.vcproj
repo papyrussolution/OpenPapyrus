@@ -21,6 +21,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
@@ -80,6 +81,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\OSF\LIBXML;..\SOAP\CLIENT;..\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;IMPEXPKORUS_EXPORTS"
 				StringPooling="TRUE"
@@ -147,7 +149,8 @@
 						CommandLine="cd $(InputDir)
 $(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
-cd $(SolutionDir)"
+cd $(SolutionDir)
+"
 						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -158,7 +161,8 @@ cd $(SolutionDir)"
 						CommandLine="cd $(InputDir)
 $(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o edisoft.h $(InputFileName)
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pedisoft edisoft.h
-cd $(SolutionDir)"
+cd $(SolutionDir)
+"
 						Outputs="$(InputDir)edisoftC.cpp;$(InputDir)edisoftH.h;$(InputDir)edisoftEDIServiceSoapProxy.cpp;$(InputDir)edisoftEDIServiceSoapProxy.h"/>
 				</FileConfiguration>
 			</File>

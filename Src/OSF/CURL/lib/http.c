@@ -2923,7 +2923,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					conn->httpversion = 11; /* For us, RTSP acts like HTTP 1.1 */
 				}
 				else {
-					/* TODO: do we care about the other cases here? */
+					/* @todo do we care about the other cases here? */
 					nc = 0;
 				}
 			}
@@ -3153,7 +3153,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 				}
 
 				if(k->auto_decoding)
-					/* TODO: we only support the first mentioned compression for now */
+					/* @todo we only support the first mentioned compression for now */
 					break;
 
 				if(checkprefix("identity", start)) {

@@ -177,7 +177,7 @@ ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t * pc)
 		 * FreeBSD's aio allows to post an operation on non-connected socket.
 		 * NT does not support it.
 		 *
-		 * TODO: check in Win32, etc. As workaround we can use NGX_ONESHOT_EVENT
+		 * @todo check in Win32, etc. As workaround we can use NGX_ONESHOT_EVENT
 		 */
 		rev->ready = 1;
 		wev->ready = 1;

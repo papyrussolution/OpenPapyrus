@@ -121,7 +121,7 @@ static ngx_int_t ngx_http_upstream_get_ip_hash_peer(ngx_peer_connection_t * pc, 
 	ngx_uint_t i, n, p, hash;
 	ngx_http_upstream_rr_peer_t  * peer;
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "get ip hash peer, try: %ui", pc->tries);
-	/* TODO: cached */
+	/* @todo cached */
 	ngx_http_upstream_rr_peers_wlock(iphp->rrp.peers);
 	if(iphp->tries > 20 || iphp->rrp.peers->single) {
 		ngx_http_upstream_rr_peers_unlock(iphp->rrp.peers);

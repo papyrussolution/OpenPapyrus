@@ -198,6 +198,32 @@ int SLAPI PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 	return ok;
 }
 
+const PPGenCashNode::PosIdentEntry * FASTCALL PPAsyncCashNode::SearchPosIdentEntryByGUID(const S_GUID & rUuid) const
+{
+	const PPGenCashNode::PosIdentEntry * p_result = 0;
+	if(!rUuid.IsZero()) {
+		for(uint j = 0; !p_result && j < ApnCorrList.getCount(); j++) {
+			const PPGenCashNode::PosIdentEntry * p_pie = ApnCorrList.at(j);
+			if(p_pie && p_pie->Uuid == rUuid)
+				p_result = p_pie;
+		}
+	}
+	return p_result;
+}
+
+const PPGenCashNode::PosIdentEntry * FASTCALL PPAsyncCashNode::SearchPosIdentEntryByName(const char * pName) const
+{
+	const PPGenCashNode::PosIdentEntry * p_result = 0;
+	if(!isempty(pName)) {
+		for(uint j = 0; !p_result && j < ApnCorrList.getCount(); j++) {
+			const PPGenCashNode::PosIdentEntry * p_pie = ApnCorrList.at(j);
+			if(p_pie && p_pie->Name.CmpNC(pName) == 0)
+				p_result = p_pie;
+		}
+	}
+	return p_result;
+}
+
 struct __PPExtDevices {     // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
 	PPID   CashNodeID;      // ИД кассового узла

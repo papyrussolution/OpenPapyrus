@@ -616,7 +616,8 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 	}
 	if(P_List) {
 		if(oneof2(Order, ordByName, ordByAbbr)) {
-			P_List->SArray::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
+			//P_List->SArray::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
+			P_List->SVector::sort(PTR_CMPFUNC(GoodsIdListByName), &GObj);
 		}
 		else
 			P_List->sort();
@@ -851,7 +852,7 @@ int SLAPI GoodsIterator::CreateIterQuery()
 	else if(IterIdx == 4)
 		k.k4.Kind = PPGDSK_GOODS;
 	P_IterQuery->initIteration(0, &k, spGe);
-	Counter.Init(GObj.P_Tbl);
+	PPInitIterCounter(Counter, GObj.P_Tbl);
 	CATCHZOK
 	return ok;
 }

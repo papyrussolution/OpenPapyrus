@@ -1664,7 +1664,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list_movout, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list_movin, OPKLF_OPLIST);
 			}
-			/* @v9.7.2 
+			/* @v9.7.2
 			// Приход товара
 			{
 				op_list.freeAll();
@@ -2079,7 +2079,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 				PPSupplAgreement   suppl_agt;
 				if((acs_rec.Flags & ACSHF_USECLIAGT) && p_ar_obj->GetClientAgreement(H.ID, &cli_agt, 0) > 0) {
 					H.AgentID      = cli_agt.DefAgentID;
-					H.ExtObjectID  = cli_agt.ExtObjectID; // @v7.5.9
+					H.ExtObjectID  = cli_agt.ExtObjectID;
 					H.QKindID      = cli_agt.DefQuotKindID;
 					H.BegDt        = cli_agt.BegDt;
 					H.Expiry       = cli_agt.Expiry;

@@ -123,7 +123,9 @@ public:
 		protRTMPT    = 32,
 		protRTMPS    = 33,
 		protLDAP     = 34,
-		protLDAPS    = 35
+		protLDAPS    = 35,
+		protMailFrom = 36  // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется 
+			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
 	};
 	enum { // @persistent
 		cScheme = 1,
@@ -168,6 +170,7 @@ public:
 	int    SetComponent(int c, const char * pBuf);
 	int    GetProtocol() const;
 	int    SetProtocol(int protocol);
+	int    GetQueryParam(const char * pParam, SString & rBuf) const;
 	//
 	// Descr: Формирует url-строку из компонентов, установленных данном экземпляре.
 	// ARG(flags IN): Набор битовых флагов, соответствующих компонентам, которые должны быть внесены в строку.
@@ -654,6 +657,78 @@ private:
 //
 //
 //
+typedef void (*MailCallbackProc)(const IterCounter & bytesCounter, const IterCounter & msgCounter);
+
+struct SMailMsg {
+	enum {
+		fldFrom = 1,
+		fldTo,
+		fldSubj,
+		fldBoundary,
+		fldText,
+		fldCc, // @v8.9.11 Адреса для копий письма
+		fldMailer // @v9.8.4
+	};
+	enum {
+		fPpyOrder  = 0x0001, // Заказ Albatros
+		fPpyObject = 0x0002, // Данные передачи между разделами
+		fMultipart = 0x0004, //
+		fPpyCharry = 0x0008, // Объекты Charry
+		fFrontol   = 0x0010  // Файл с данными с кассового модуля Фронтол
+	};
+	SLAPI  SMailMsg();
+	SLAPI ~SMailMsg();
+	void   SLAPI Init();
+	int    SLAPI IsPpyData() const;
+	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
+	//
+	// Parameters:
+	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
+	// Returns:
+	//     pBuf - on success, 0 - on error
+	//
+	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
+	int    SLAPI AttachFile(const char *);
+	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
+	int    SLAPI SetField(int fldId, const char *);
+	int    FASTCALL IsField(int fldId) const;
+	const  char * FASTCALL GetField(int fldId) const;
+	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
+
+	int    SLAPI PutToFile(SFile & rF);
+
+	struct Disposition {
+		Disposition();
+		enum {
+			tUnkn = 0,
+			tInline,
+			tAttachment
+		};
+		int    Type;
+		SString FileName;       // "filename"
+		LDATETIME CreationDtm;  // "creation-date"
+		LDATETIME ModifDtm;     // "modification-date"
+		LDATETIME ReadDtm;      // "read-date"
+		int64  Size;            // "size"
+	};
+	long   Flags;
+	long   Size;
+private:
+	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
+
+	char   Zero[8];
+	SString From;
+	SString To;
+	SString Cc;
+	SString Subj;
+	SString Mailer;
+	SString Boundary;
+	SString Text;
+	SStrCollection AttList;
+};
+//
+//
+//
 class ScURL {
 public:
 	class HttpForm {
@@ -719,7 +794,12 @@ public:
 	int    FtpCreateDir(const InetUrl & rUrl, int mflags);
 	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
 	//
-	int    Pop3List();
+	int    Pop3Stat(const InetUrl & rUrl, int mflags, uint * pCount, uint64 * pSize); // STAT
+	int    Pop3Info(const InetUrl & rUrl, int mflags, uint msgN); // TOP
+	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg);  // RETR
+	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
+
+	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMsg & rMsg);
 private:
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);

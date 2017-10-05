@@ -6783,19 +6783,19 @@ public:
 		int32  ID;
 		int32  TabID;
 		char   Name[128];
-		char   Phone[128];
-		char   Address[128];
-		char   RAddress[128];
-		char   BnkName[128];
-		char   BnkAcct[28];
-		char   RegSerial[12];
+		uint32 PhoneP;
+		uint32 AddressP;
+		uint32 RAddressP;
+		uint32 BnkNameP;
+		uint32 BnkAcctP;
+		uint32 RegSerialP;
+		uint32 FiasAddrGuidP;
+		uint32 FiasHouseGuidP;
 		char   RegNumber[64];
 		int32  CityID;
 		LDATE  RegInitDate;
 		LDATE  RegExpiry;
 		int32  Flags;
-		char   FiasAddrGuid[36];
-		char   FiasHouseGuid[36];
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -6807,19 +6807,19 @@ public:
 	DBField ID;
 	DBField TabID;
 	DBField Name;
-	DBField Phone;
-	DBField Address;
-	DBField RAddress;
-	DBField BnkName;
-	DBField BnkAcct;
-	DBField RegSerial;
+	DBField PhoneP;
+	DBField AddressP;
+	DBField RAddressP;
+	DBField BnkNameP;
+	DBField BnkAcctP;
+	DBField RegSerialP;
+	DBField FiasAddrGuidP;
+	DBField FiasHouseGuidP;
 	DBField RegNumber;
 	DBField CityID;
 	DBField RegInitDate;
 	DBField RegExpiry;
 	DBField Flags;
-	DBField FiasAddrGuid;
-	DBField FiasHouseGuid;
 	};
 
 	class TempOrderTbl : public DBTable {

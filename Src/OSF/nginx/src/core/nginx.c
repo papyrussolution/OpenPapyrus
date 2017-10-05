@@ -566,7 +566,7 @@ int NgxStartUp(const NgxStartUpOptions & rO)
 			return 0;
 		}
 	}
-	/* TODO */ ngx_max_sockets = -1;
+	/* @todo */ ngx_max_sockets = -1;
 	ngx_time_init();
 #if (NGX_PCRE)
 	ngx_regex_init();

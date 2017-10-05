@@ -76,7 +76,7 @@ typedef char * (*xmlShellReadlineFunc)(char * prompt);
  * xmlShellCtxt:
  *
  * A debugging shell context.
- * TODO: add the defined function tables.
+ * @todo add the defined function tables.
  */
 typedef struct _xmlShellCtxt xmlShellCtxt;
 typedef xmlShellCtxt * xmlShellCtxtPtr;

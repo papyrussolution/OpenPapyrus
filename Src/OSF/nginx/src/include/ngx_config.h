@@ -51,7 +51,7 @@
 
 #define ngx_random               random
 
-/* TODO: #ifndef */
+/* @todo #ifndef */
 #define NGX_SHUTDOWN_SIGNAL      QUIT
 #define NGX_TERMINATE_SIGNAL     TERM
 #define NGX_NOACCEPT_SIGNAL      WINCH
@@ -92,10 +92,10 @@ typedef intptr_t        ngx_flag_t;
 
 #define ngx_abort       abort
 
-/* TODO: platform specific: array[NGX_INVALID_ARRAY_INDEX] must cause SIGSEGV */
+/* @todo platform specific: array[NGX_INVALID_ARRAY_INDEX] must cause SIGSEGV */
 #define NGX_INVALID_ARRAY_INDEX 0x80000000
 
-/* TODO: auto_conf: ngx_inline   inline __inline __inline__ */
+/* @todo auto_conf: ngx_inline   inline __inline __inline__ */
 #ifndef ngx_inline
 	#define ngx_inline      inline
 #endif

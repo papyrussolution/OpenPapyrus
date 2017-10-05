@@ -429,7 +429,7 @@ int xmlListSize(xmlListPtr l)
 	int count = 0;
 	if(l == NULL)
 		return -1;
-	/* TODO: keep a counter in xmlList instead */
+	/* @todo keep a counter in xmlList instead */
 	for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next, count++) ;
 	return count;
 }

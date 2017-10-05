@@ -353,7 +353,7 @@ int SLAPI PPViewAsset::InitIteration(IterOrder ord)
 	ZDELETE(P_GGIter);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
-	Counter.Init(P_TempTbl);
+	PPInitIterCounter(Counter, P_TempTbl);
 	if(GObj.IsAltGroup(Filt.GoodsGrpID) <= 0 && ord == OrdByGrp_GoodsName) {
 		IterIdx = 1;
 		THROW_MEM(P_GGIter = new GoodsGroupIterator(Filt.GoodsGrpID, GoodsGroupIterator::fAddZeroGroup));

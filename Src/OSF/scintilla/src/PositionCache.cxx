@@ -45,7 +45,7 @@ LineLayout::~LineLayout()
 	Free();
 }
 
-void LineLayout::Resize(int maxLineLength_)
+void FASTCALL LineLayout::Resize(int maxLineLength_)
 {
 	if(maxLineLength_ > maxLineLength) {
 		Free();
@@ -70,47 +70,40 @@ void LineLayout::Free()
 	lineStarts = 0;
 }
 
-void LineLayout::Invalidate(validLevel validity_)
+void FASTCALL LineLayout::Invalidate(validLevel validity_)
 {
 	if(validity > validity_)
 		validity = validity_;
 }
 
-int LineLayout::LineStart(int line) const
+int FASTCALL LineLayout::LineStart(int line) const
 {
-	if(line <= 0) {
+	if(line <= 0)
 		return 0;
-	}
-	else if((line >= lines) || !lineStarts) {
+	else if((line >= lines) || !lineStarts)
 		return numCharsInLine;
-	}
-	else {
+	else
 		return lineStarts[line];
-	}
 }
 
-int LineLayout::LineLastVisible(int line) const
+int FASTCALL LineLayout::LineLastVisible(int line) const
 {
-	if(line < 0) {
+	if(line < 0)
 		return 0;
-	}
-	else if((line >= lines-1) || !lineStarts) {
+	else if((line >= lines-1) || !lineStarts)
 		return numCharsBeforeEOL;
-	}
-	else {
+	else
 		return lineStarts[line+1];
-	}
 }
 
-Range LineLayout::SubLineRange(int subLine) const
+Range FASTCALL LineLayout::SubLineRange(int subLine) const
 {
 	return Range(LineStart(subLine), LineLastVisible(subLine));
 }
 
 bool LineLayout::InLine(int offset, int line) const
 {
-	return ((offset >= LineStart(line)) && (offset < LineStart(line + 1))) ||
-	       ((offset == numCharsInLine) && (line == (lines-1)));
+	return ((offset >= LineStart(line)) && (offset < LineStart(line + 1))) || ((offset == numCharsInLine) && (line == (lines-1)));
 }
 
 void LineLayout::SetLineStart(int line, int start)
@@ -119,10 +112,7 @@ void LineLayout::SetLineStart(int line, int start)
 		int newMaxLines = line + 20;
 		int * newLineStarts = new int[newMaxLines];
 		for(int i = 0; i < newMaxLines; i++) {
-			if(i < lenLineStarts)
-				newLineStarts[i] = lineStarts[i];
-			else
-				newLineStarts[i] = 0;
+			newLineStarts[i] = (i < lenLineStarts) ? lineStarts[i] : 0;
 		}
 		delete []lineStarts;
 		lineStarts = newLineStarts;
@@ -148,8 +138,7 @@ void LineLayout::SetBracesHighlight(Range rangeLine, const Position braces[],
 			styles[braceOffset] = bracesMatchStyle;
 		}
 	}
-	if((braces[0] >= rangeLine.start && braces[1] <= rangeLine.end) ||
-	    (braces[1] >= rangeLine.start && braces[0] <= rangeLine.end)) {
+	if((braces[0] >= rangeLine.start && braces[1] <= rangeLine.end) || (braces[1] >= rangeLine.start && braces[0] <= rangeLine.end)) {
 		xHighlightGuide = xHighlight;
 	}
 }
@@ -365,7 +354,7 @@ LineLayout * LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxCha
 	return ret;
 }
 
-void LineLayoutCache::Dispose(LineLayout * ll)
+void FASTCALL LineLayoutCache::Dispose(LineLayout * ll)
 {
 	allInvalidated = false;
 	if(ll)
@@ -376,7 +365,7 @@ void LineLayoutCache::Dispose(LineLayout * ll)
 }
 
 // Simply pack the (maximum 4) character bytes into an int
-static inline int KeyFromString(const char * charBytes, size_t len)
+static /*inline*/ int FASTCALL KeyFromString(const char * charBytes, size_t len)
 {
 	PLATFORM_ASSERT(len <= 4);
 	int k = 0;
@@ -530,7 +519,7 @@ TextSegment BreakFinder::Next()
 						nextBreak += charWidth;
 					}
 					else {
-						repr = 0;       // Optimize -> should remember repr
+						repr = 0; // Optimize -> should remember repr
 					}
 					if((nextBreak - prev) < lengthStartSubdivision) {
 						return TextSegment(prev, nextBreak - prev, repr);
@@ -729,4 +718,3 @@ void PositionCache::MeasureWidths(Surface * surface, const ViewStyle &vstyle, ui
 		pces[probe].Set(styleNumber, s, len, positions, clock);
 	}
 }
-

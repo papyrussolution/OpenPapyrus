@@ -6,7 +6,7 @@
 #pragma hdrstop
 // @v9.6.3 #include <idea.h>
 // @v9.6.3 #include <dos.h>
-#include <sys\stat.h>
+//#include <sys\stat.h>
 //
 // Формат записи параметров резервной копии в файле pp.ini
 //
@@ -1067,7 +1067,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 		if(tbl.HasLob(&lob_fld) > 0) {
 			has_lob = 1;
 		}
-		cntr.Init(&tbl);
+		PPInitIterCounter(cntr, &tbl);
 		MEMSZERO(key);
 		tbl.clearDataBuf();
 		if(tbl.search(0, &key, spFirst)) do {
@@ -2547,8 +2547,7 @@ int SLAPI PPLicRegister()
 //
 int DBMaintainParam::Read(SBuffer & rBuf, long)
 {
-	return rBuf.GetAvailableSize() ?
-		(rBuf.Read(this, sizeof(DBMaintainParam)) ? 1 : PPSetErrorSLib()) : -1;
+	return rBuf.GetAvailableSize() ? (rBuf.Read(this, sizeof(DBMaintainParam)) ? 1 : PPSetErrorSLib()) : -1;
 }
 
 int DBMaintainParam::Write(SBuffer & rBuf, long) const
@@ -2565,7 +2564,7 @@ public:
 	int    getDTS(DBMaintainParam *);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetCtrls(long tables);
+	void   SetCtrls(long tables);
 	DBMaintainParam Data;
 };
 
@@ -2580,7 +2579,7 @@ IMPL_HANDLE_EVENT(DBMaintainDlg)
 	}
 }
 
-int DBMaintainDlg::SetCtrls(long tables)
+void DBMaintainDlg::SetCtrls(long tables)
 {
 	uint   ctl = CTL_DBMAINTAIN_DLSDAYS;
 	for(long tbl = DBMaintainParam::tblDLS; tbl <= DBMaintainParam::tblXBill; tbl <<= 1, ctl++) {
@@ -2590,7 +2589,6 @@ int DBMaintainDlg::SetCtrls(long tables)
 		}
 		disableCtrl(ctl, !(tables & tbl));
 	}
-	return 1;
 }
 
 int DBMaintainDlg::setDTS(const DBMaintainParam * pParam)

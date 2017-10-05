@@ -206,7 +206,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 			schannel_cred.dwFlags = SCH_CRED_MANUAL_CRED_VALIDATION | SCH_CRED_IGNORE_NO_REVOCATION_CHECK | SCH_CRED_IGNORE_REVOCATION_OFFLINE;
 #else
 			schannel_cred.dwFlags = SCH_CRED_AUTO_CRED_VALIDATION;
-			/* TODO s/data->set.ssl.no_revoke/SSL_SET_OPTION(no_revoke)/g */
+			/* @todo s/data->set.ssl.no_revoke/SSL_SET_OPTION(no_revoke)/g */
 			if(data->set.ssl.no_revoke)
 				schannel_cred.dwFlags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK | SCH_CRED_IGNORE_REVOCATION_OFFLINE;
 			else
@@ -1603,7 +1603,7 @@ static CURLcode verify_certificate(struct connectdata * conn, int sockindex)
 			TCHAR cert_hostname_buff[256];
 			DWORD len;
 
-			/* TODO: Fix this for certificates with multiple alternative names.
+			/* @todo Fix this for certificates with multiple alternative names.
 			   Right now we're only asking for the first preferred alternative name.
 			   Instead we'd need to do all via CERT_NAME_SEARCH_ALL_NAMES_FLAG
 			   (if WinCE supports that?) and run this section in a loop for each.

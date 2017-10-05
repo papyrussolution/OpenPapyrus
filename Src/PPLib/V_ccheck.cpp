@@ -1852,7 +1852,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 			TempCCheckGdsCorrTbl::Key3 k3;
 			TempCCheckGdsCorrTbl::Key4 k4;
 		} k;
-		Counter.Init(P_TmpGdsCorrTbl);
+		PPInitIterCounter(Counter, P_TmpGdsCorrTbl);
 		if(order == CCheckFilt::ordByName)
 			idx = 3;
 		else
@@ -1871,7 +1871,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 			TempCCheckGrpTbl::Key4 k4;
 			TempCCheckGrpTbl::Key5 k5;
 		} k;
-		Counter.Init(P_TmpGrpTbl);
+		PPInitIterCounter(Counter, P_TmpGrpTbl);
 		switch(order) {
 			case CCheckFilt::ordByCount: idx = 3; break;
 			case CCheckFilt::ordByQtty:  idx = 4; break;
@@ -1895,7 +1895,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 			CCheckTbl::Key3 k3;
 		} k, k_;
 		if(P_TmpTbl) {
-			Counter.Init(P_TmpTbl);
+			PPInitIterCounter(Counter, P_TmpTbl);
 			THROW_MEM(p_q = new BExtQuery(P_TmpTbl, 1, 16));
 			idx = 1;
 			sp = spFirst;

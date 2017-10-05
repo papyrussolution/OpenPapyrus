@@ -1175,7 +1175,7 @@ typedef struct _TidyBuffer TidyBuffer;
 ** to use any tidy methods that open files as these
 ** will not be closed before panic() is called.
 **
-** TODO: associate file handles with tidyDoc and
+** @todo associate file handles with tidyDoc and
 ** ensure that tidyDocRelease() can close them all.
 **
 ** Calling the withAllocator() family (
@@ -1648,7 +1648,7 @@ TIDY_EXPORT int TIDY_CALL     tidySetErrorSink(TidyDoc tdoc, TidyOutputSink* sin
 
 /** @} end IO group */
 
-/* TODO: Catalog all messages for easy translation
+/* @todo Catalog all messages for easy translation
    TIDY_EXPORT ctmbstr     tidyLookupMessage( int errorNo );
  */
 

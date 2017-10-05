@@ -1603,7 +1603,7 @@ int SLAPI PPViewTrfrAnlz::InitGrpngNames()
 	if(p_tgt) {
 		SString msg_buf, temp_buf;
 		IterCounter counter;
-		counter.Init(p_tgt);
+		PPInitIterCounter(counter, p_tgt);
 		PPLoadText(PPTXT_TRFRANLZINITGRPNGTEXT, msg_buf);
 		PPObjWorld w_obj;
 		PROFILE_START
@@ -1650,7 +1650,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 		q.select(p_t->ID__, p_t->GoodsText, p_t->PersonText, p_t->DtText, p_t->Dt, 0L);
 		THROW(p_ord_tbl = CreateTempOrderFile());
 		THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
-		cntr.Init(p_t);
+		PPInitIterCounter(cntr, p_t);
 		for(q.initIteration(0, gk, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			p_ord_tbl->clearDataBuf();
 			p_ord_tbl->data.ID = P_TrGrpngTbl->data.ID__;
@@ -1695,7 +1695,7 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 			memzero(prev_name, sizeof(prev_name));
 			THROW(p_ord_tbl = CreateTempOrderFile());
 			THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
-			cntr.Init(p_tat);
+			PPInitIterCounter(cntr, p_tat);
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 				PPID   id = 0;
 				if(ord == PPViewTrfrAnlz::OrdByGoods)
@@ -1741,9 +1741,9 @@ int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 	CurOuterID  = -1;
 	CurIterOrd = ord;
 	if(P_TrAnlzTbl)
-		Counter.Init(P_TrAnlzTbl);
+		PPInitIterCounter(Counter, P_TrAnlzTbl);
 	else if(P_TrGrpngTbl)
-		Counter.Init(P_TrGrpngTbl);
+		PPInitIterCounter(Counter, P_TrGrpngTbl);
 	else
 		Counter.Init(0UL);
 	if(P_OrderTbl && ord == Filt.InitOrd) {
@@ -1953,9 +1953,9 @@ static void SLAPI dbqf_trfrnalz_getavgrest_iidp(int option, DBConst * result, DB
 
 DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncGetRest,    0, BTS_REAL, dbqf_trfrnalz_getrest_iidp,       4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
-	DbqFuncTab::RegisterDyn(&DynFuncGetAvgRest, 0, BTS_REAL, dbqf_trfrnalz_getavgrest_iidp,    4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
-	DbqFuncTab::RegisterDyn(&DynFuncGetTrnovr,  0, BTS_REAL, dbqf_trfrnalz_getturnover_iidprr, 6, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR, BTS_REAL, BTS_REAL);
+	DbqFuncTab::RegisterDyn(&DynFuncGetRest,    BTS_REAL, dbqf_trfrnalz_getrest_iidp,       4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
+	DbqFuncTab::RegisterDyn(&DynFuncGetAvgRest, BTS_REAL, dbqf_trfrnalz_getavgrest_iidp,    4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
+	DbqFuncTab::RegisterDyn(&DynFuncGetTrnovr,  BTS_REAL, dbqf_trfrnalz_getturnover_iidprr, 6, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR, BTS_REAL, BTS_REAL);
 
 	uint   brw_id = 0;
 	TempTrfrAnlzTbl  * tat = 0;

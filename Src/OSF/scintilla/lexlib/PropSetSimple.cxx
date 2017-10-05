@@ -10,15 +10,12 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
-//#include <string>
-//#include <map>
-//#include "PropSetSimple.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-typedef std::map<std::string, std::string> mapss;
+typedef std::map <std::string, std::string> mapss;
 
 PropSetSimple::PropSetSimple()
 {
@@ -36,16 +33,16 @@ PropSetSimple::~PropSetSimple()
 void PropSetSimple::Set(const char * key, const char * val, int lenKey, int lenVal)
 {
 	mapss * props = static_cast<mapss *>(impl);
-	if(!*key)       // Empty keys are not supported
-		return;
-	if(lenKey == -1)
-		lenKey = static_cast<int>(strlen(key));
-	if(lenVal == -1)
-		lenVal = static_cast<int>(strlen(val));
-	(*props)[std::string(key, lenKey)] = std::string(val, lenVal);
+	if(*key) { // Empty keys are not supported
+		if(lenKey == -1)
+			lenKey = static_cast<int>(strlen(key));
+		if(lenVal == -1)
+			lenVal = static_cast<int>(strlen(val));
+		(*props)[std::string(key, lenKey)] = std::string(val, lenVal);
+	}
 }
 
-static bool IsASpaceCharacter(uint ch)
+static bool FASTCALL IsASpaceCharacter(uint ch)
 {
 	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
 }
@@ -59,21 +56,18 @@ void PropSetSimple::Set(const char * keyVal)
 		endVal++;
 	const char * eqAt = strchr(keyVal, '=');
 	if(eqAt) {
-		Set(keyVal, eqAt + 1, static_cast<int>(eqAt-keyVal),
-		    static_cast<int>(endVal - eqAt - 1));
+		Set(keyVal, eqAt + 1, static_cast<int>(eqAt-keyVal), static_cast<int>(endVal - eqAt - 1));
 	}
-	else if(*keyVal) {      // No '=' so assume '=1'
+	else if(*keyVal) { // No '=' so assume '=1'
 		Set(keyVal, "1", static_cast<int>(endVal-keyVal), 1);
 	}
 }
 
 void PropSetSimple::SetMultiple(const char * s)
 {
-	const char * eol = strchr(s, '\n');
-	while(eol) {
+	for(const char * eol = strchr(s, '\n'); eol; eol = strchr(s, '\n')) {
 		Set(s);
 		s = eol + 1;
-		eol = strchr(s, '\n');
 	}
 	Set(s);
 }
@@ -82,12 +76,7 @@ const char * PropSetSimple::Get(const char * key) const
 {
 	mapss * props = static_cast<mapss *>(impl);
 	mapss::const_iterator keyPos = props->find(std::string(key));
-	if(keyPos != props->end()) {
-		return keyPos->second.c_str();
-	}
-	else {
-		return "";
-	}
+	return (keyPos != props->end()) ? keyPos->second.c_str() : "";
 }
 
 // There is some inconsistency between GetExpanded("foo") and Expand("$(foo)").
@@ -145,16 +134,12 @@ int PropSetSimple::GetExpanded(const char * key, char * result) const
 	if(result) {
 		memcpy(result, val.c_str(), n+1);
 	}
-	return n;       // Not including NUL
+	return n; // Not including NUL
 }
 
 int PropSetSimple::GetInt(const char * key, int defaultValue) const
 {
 	std::string val = Get(key);
 	ExpandAllInPlace(*this, val, 100, VarChain(key));
-	if(!val.empty()) {
-		return atoi(val.c_str());
-	}
-	return defaultValue;
+	return val.empty() ? defaultValue : atoi(val.c_str());
 }
-

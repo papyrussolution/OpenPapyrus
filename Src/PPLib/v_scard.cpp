@@ -1,5 +1,6 @@
 // V_SCARD.CPP
 // Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -212,17 +213,13 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		PPID   SeriesID;
 		PPID   PersonID;
 		PPID   EmployerID;
-		//double MinPDis;
-		//double MaxPDis;
-		//double MinTurnover;
-		//double MaxTurnover;
 		RealRange PDisR;
 		RealRange TurnoverR;
 		int16  Ft_Inherited;
 		int16  Ft_Closed;
 		long   Order;
 		long   Flags;
-		long   Reserve;            // @anchor Заглушка для отмера плоского участка фильтра
+		long   Reserve;            // @anchor Р—Р°РіР»СѓС€РєР° РґР»СЏ РѕС‚РјРµСЂР° РїР»РѕСЃРєРѕРіРѕ СѓС‡Р°СЃС‚РєР° С„РёР»СЊС‚СЂР°
 		SString Number;
 	};
 	struct SCardFilt_v2 : public PPBaseFilt {
@@ -242,17 +239,13 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		PPID   SeriesID;
 		PPID   PersonID;
 		PPID   EmployerID;
-		//double MinPDis;
-		//double MaxPDis;
-		//double MinTurnover;
-		//double MaxTurnover;
 		RealRange PDisR;
 		RealRange TurnoverR;
 		int16  Ft_Inherited;
 		int16  Ft_Closed;
 		long   Order;
 		long   Flags;
-		long   Reserve;       // @anchor Заглушка для отмера плоского участка фильтра
+		long   Reserve;       // @anchor Р—Р°РіР»СѓС€РєР° РґР»СЏ РѕС‚РјРµСЂР° РїР»РѕСЃРєРѕРіРѕ СѓС‡Р°СЃС‚РєР° С„РёР»СЊС‚СЂР°
 		SString Number;
 		SysJournalFilt * P_SjF;
 	};
@@ -266,10 +259,6 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(SeriesID);
 		CPYFLD(PersonID);
 		CPYFLD(EmployerID);
-		//CPYFLD(MinPDis);
-		//CPYFLD(MaxPDis);
-		//CPYFLD(MinTurnover);
-		//CPYFLD(MaxTurnover);
 		CPYFLD(PDisR);
 		CPYFLD(TurnoverR);
 		CPYFLD(Ft_Inherited);
@@ -289,10 +278,6 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(SeriesID);
 		CPYFLD(PersonID);
 		CPYFLD(EmployerID);
-		//CPYFLD(MinPDis);
-		//CPYFLD(MaxPDis);
-		//CPYFLD(MinTurnover);
-		//CPYFLD(MaxTurnover);
 		CPYFLD(PDisR);
 		CPYFLD(TurnoverR);
 		CPYFLD(Ft_Inherited);
@@ -385,7 +370,7 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	}
 	if(IsTempTblNeeded() || Filt.Flags & SCardFilt::fNoTempTable) {
 		//
-		// При (Filt.Flags & SCardFilt::fNoTempTable) формируется список this->List
+		// РџСЂРё (Filt.Flags & SCardFilt::fNoTempTable) С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ СЃРїРёСЃРѕРє this->List
 		//
 		THROW(CreateTempTable());
 	}
@@ -826,7 +811,7 @@ int SLAPI PPViewSCard::InitIteration()
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1));
 		P_IterQuery->selectAll();
 		P_IterQuery->initIteration(0, &k, spFirst);
-		Counter.Init(P_TempOrd);
+		PPInitIterCounter(Counter, P_TempOrd);
 	}
 	else {
 		int    idx = 2;
@@ -840,7 +825,7 @@ int SLAPI PPViewSCard::InitIteration()
 			idx = 2;
 			P_IterQuery = new BExtQuery(P_TmpTbl, idx);
 			P_IterQuery->selectAll().where(*dbq);
-			Counter.Init(P_TmpTbl);
+			PPInitIterCounter(Counter, P_TmpTbl);
 		}
 		else {
 			if(Filt.LocID) {
@@ -1066,8 +1051,8 @@ IMPL_HANDLE_EVENT(SCardFiltDialog)
 		}
 		if(Data.P_SjF) {
 			//
-			// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType
-			// не пустым. В данном случае это - не верно.
+			// Р¤СѓРЅРєС†РёСЏ SysJournalFilt::IsEmpty СЃС‡РёС‚Р°РµС‚ С„РёР»СЊС‚СЂ, РІ РєРѕС‚РѕСЂРѕРј СѓСЃС‚Р°РЅРѕРІР»РµРЅ ObjType
+			// РЅРµ РїСѓСЃС‚С‹Рј. Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ - РЅРµ РІРµСЂРЅРѕ.
 			//
 			Data.P_SjF->ObjType = 0;
 			if(Data.P_SjF->IsEmpty()) {
@@ -2052,7 +2037,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				if(param.NewSerID) {
 					//
-					// Проверка допустимости переноса между сериями //
+					// РџСЂРѕРІРµСЂРєР° РґРѕРїСѓСЃС‚РёРјРѕСЃС‚Рё РїРµСЂРµРЅРѕСЃР° РјРµР¶РґСѓ СЃРµСЂРёСЏРјРё //
 					//
 					THROW(param.Validate(item.SeriesID));
 				}
@@ -2079,7 +2064,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 					const  long preserve_flags = rec.Flags;
 					THROW(scs_obj.GetPacket(rec.SeriesID, &org_scs_pack) > 0);
 					//
-					// Прежде всего нормализуем наследуемую запись
+					// РџСЂРµР¶РґРµ РІСЃРµРіРѕ РЅРѕСЂРјР°Р»РёР·СѓРµРј РЅР°СЃР»РµРґСѓРµРјСѓСЋ Р·Р°РїРёСЃСЊ
 					//
 					THROW(SCObj.SetInheritance(&org_scs_pack, &rec));
 					if(param.AutoGoodsID && rec.AutoGoodsID != param.AutoGoodsID) {
@@ -2105,14 +2090,14 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 						else if(param.Discount > 0.0 && param.Discount <= 100.0)
 							rec.PDis = (long)(R6(param.Discount) * 100.0);
 						if(rec.PDis != preserve_pdis) {
-							rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+							rec.Flags &= ~SCRDF_INHERITED; // Р¤РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕ СЃРЅРёРјР°РµРј РїСЂРёР·РЅР°Рє РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ //
 							upd = 1;
 							upd_discount = 1;
 						}
 					}
 					if(param.Flags & param.fZeroExpiry && rec.Expiry) {
 						rec.Expiry = ZERODATE;
-						rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+						rec.Flags &= ~SCRDF_INHERITED; // Р¤РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕ СЃРЅРёРјР°РµРј РїСЂРёР·РЅР°Рє РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ //
 						upd = 1;
 					}
 					else if(param.DtEnd) {
@@ -2127,7 +2112,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 						}
 						if(checkdate(new_expiry_date, 0) && new_expiry_date != rec.Expiry) {
 							rec.Expiry = new_expiry_date;
-							rec.Flags &= ~SCRDF_INHERITED; // Форсированно снимаем признак наследования //
+							rec.Flags &= ~SCRDF_INHERITED; // Р¤РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕ СЃРЅРёРјР°РµРј РїСЂРёР·РЅР°Рє РЅР°СЃР»РµРґРѕРІР°РЅРёСЏ //
 							upd = 1;
 						}
 					}
@@ -2160,7 +2145,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 								else {
 									THROW_DB(BTROKORNFOUND);
 									rec.SeriesID = param.NewSerID;
-									SCObj.SetInheritance(&new_ser_pack, &rec); // Нормализация записи наследуемой карты после установки серии
+									SCObj.SetInheritance(&new_ser_pack, &rec); // РќРѕСЂРјР°Р»РёР·Р°С†РёСЏ Р·Р°РїРёСЃРё РЅР°СЃР»РµРґСѓРµРјРѕР№ РєР°СЂС‚С‹ РїРѕСЃР»Рµ СѓСЃС‚Р°РЅРѕРІРєРё СЃРµСЂРёРё
 									upd = 1;
 								}
 							}
@@ -2223,7 +2208,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 		MEMSZERO(hdr);
 	if(ppvCmd == PPVCMD_ADDITEM) {
 		//
-		// Перехватываем обработку команды до PPView::ProcessCommand
+		// РџРµСЂРµС…РІР°С‚С‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ РєРѕРјР°РЅРґС‹ РґРѕ PPView::ProcessCommand
 		//
 		PPID   id = 0;
 		PPObjSCard::AddParam param(Filt.SeriesID, Filt.PersonID);
@@ -2235,7 +2220,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 		if(ok > 0 && ImplementFlags & implOnAddSetupPos && pBrw) {
 			pBrw->Update();
 			pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
-			ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
+			ok = -1; // pBrw РЅРµ РґРѕР»Р¶РµРЅ С‚РµРїРµСЂСЊ РѕР±РЅРѕРІР»СЏС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ С‚Р°Р±Р»РёС†С‹
 		}
 	}
 	else {
@@ -2709,7 +2694,7 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 #ifndef NDEBUG
 					SCObj.FinishSCardUpdNotifyList(urn_list);
 #else
-					// @todo (необходимо уточнить кто должен посылать уведомления: uhtt или мы) SCObj.FinishSCardUpdNotifyList(urn_list);
+					// @todo (РЅРµРѕР±С…РѕРґРёРјРѕ СѓС‚РѕС‡РЅРёС‚СЊ РєС‚Рѕ РґРѕР»Р¶РµРЅ РїРѕСЃС‹Р»Р°С‚СЊ СѓРІРµРґРѕРјР»РµРЅРёСЏ: uhtt РёР»Рё РјС‹) SCObj.FinishSCardUpdNotifyList(urn_list);
 #endif // !NDEBUG
 					ok = 1;
 				}
@@ -2758,7 +2743,7 @@ int PPViewSCardOp::DynFuncExtObjName = 0;
 
 DBQuery * SLAPI PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncExtObjName, 0, BTS_STRING, dbqf_scardop_extobj_ii, 2, BTS_INT, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncExtObjName, BTS_STRING, dbqf_scardop_extobj_ii, 2, BTS_INT, BTS_INT);
 
 	uint   brw_id = BROWSER_SCARDOP;
 	DBQuery * q = 0;
@@ -2852,7 +2837,7 @@ int SLAPI PPViewSCardOp::Recover()
 			if(r_cc.LoadPacket(cc_id, 0, &cc_pack) > 0) {
 				if(cc_pack.Rec.SCardID != sc_id && !cc_pack.AL_Const().SearchAddedID(sc_id, 0)) {
 					{
-						// PPTXT_INVSCOPCHECKLINK      "Чек '@zstr', на который ссылается операция по карте '@scard' не содержит ссылку на эту карту"
+						// PPTXT_INVSCOPCHECKLINK      "Р§РµРє '@zstr', РЅР° РєРѕС‚РѕСЂС‹Р№ СЃСЃС‹Р»Р°РµС‚СЃСЏ РѕРїРµСЂР°С†РёСЏ РїРѕ РєР°СЂС‚Рµ '@scard' РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃСЃС‹Р»РєСѓ РЅР° СЌС‚Сѓ РєР°СЂС‚Сѓ"
 						PPLoadText(PPTXT_INVSCOPCHECKLINK, fmt_buf);
 						CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf.Z());
 						PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), sc_id);
@@ -3436,7 +3421,7 @@ int SLAPI PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 					_INCREASE_VAL(r_item, rItem);
 				}
 				else {
-					/* Расчет остатка по всем картам на дату */
+					/* Р Р°СЃС‡РµС‚ РѕСЃС‚Р°С‚РєР° РїРѕ РІСЃРµРј РєР°СЂС‚Р°Рј РЅР° РґР°С‚Сѓ */
 					rItem.SCardRest = 0;
 					{
 						SString       temp_buf;

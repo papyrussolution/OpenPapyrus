@@ -550,7 +550,7 @@ int SLAPI Crosstab::Create(int use_ta)
 	DBFieldList flist;
 	THROW(CreateTable());
 	{
-		cntr.Init(P_Tbl);
+		PPInitIterCounter(cntr, P_Tbl);
 		PPLoadText(PPTXT_CROSSTABMAKING, msg_buf);
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);

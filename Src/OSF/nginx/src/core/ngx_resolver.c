@@ -3384,7 +3384,7 @@ static ngx_int_t ngx_udp_connect(ngx_resolver_connection_t * rec)
 	c->number = ngx_atomic_fetch_add(ngx_connection_counter, 1);
 	ngx_log_debug3(NGX_LOG_DEBUG_EVENT, &rec->log, 0, "connect to %V, fd:%d #%uA", &rec->server, s, c->number);
 	rc = connect(s, rec->sockaddr, rec->socklen);
-	/* TODO: iocp */
+	/* @todo iocp */
 	if(rc == -1) {
 		ngx_log_error(NGX_LOG_CRIT, &rec->log, ngx_socket_errno, "connect() failed");
 		goto failed;
@@ -3489,7 +3489,7 @@ static ngx_int_t ngx_tcp_connect(ngx_resolver_connection_t * rec)
 		 * FreeBSD's aio allows to post an operation on non-connected socket.
 		 * NT does not support it.
 		 *
-		 * TODO: check in Win32, etc. As workaround we can use NGX_ONESHOT_EVENT
+		 * @todo check in Win32, etc. As workaround we can use NGX_ONESHOT_EVENT
 		 */
 		rev->ready = 1;
 		wev->ready = 1;

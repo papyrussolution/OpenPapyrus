@@ -1671,7 +1671,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	}
 	if(encoding) {
 		/*
-		 * TODO: we should not have to remap to the xmlCharEncoding
+		 * @todo we should not have to remap to the xmlCharEncoding
 		 *       predefined set, a better interface than
 		 *       xmlParserInputBufferCreateFilename should allow any
 		 *       encoding supported by iconv
@@ -2118,7 +2118,7 @@ static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNode 
 	if(xmlXIncludeTestNode(ctxt, cur) == 1)
 		xmlXIncludePreProcessNode(ctxt, cur);
 	while(cur && (cur != tree->parent)) {
-		/* TODO: need to work on entities -> stack */
+		/* @todo need to work on entities -> stack */
 		if(cur->children && !oneof3(cur->children->type, XML_ENTITY_DECL, XML_XINCLUDE_START, XML_XINCLUDE_END)) {
 			cur = cur->children;
 			if(xmlXIncludeTestNode(ctxt, cur))

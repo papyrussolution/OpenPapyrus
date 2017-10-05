@@ -2471,7 +2471,7 @@ static void CheckDocType(TidyDocImpl* doc)
 
 static bool urlMatch(ctmbstr url1, ctmbstr url2)
 {
-        /* TODO: Make host part case-insensitive and
+        /* @todo Make host part case-insensitive and
         ** remainder case-sensitive.
         */
 	return ( TY_(tmbstrcmp) (url1, url2) == 0 );

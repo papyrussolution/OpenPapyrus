@@ -796,7 +796,7 @@ int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, v
 //
 //
 //
-#if 0 // @construction {
+#if 1 // @construction {
 SLAPI SVector::SVector(uint itemSize, uint aDelta, int o /*= O_ARRAY*/) : SVectorBase(itemSize, aDelta, o)
 {
 	assert(!(o & aryEachItem));
@@ -988,6 +988,13 @@ SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, rS.delta, rS.fla
 {
 	data = 0;
 	copy(rS);
+}
+
+SLAPI SArray::SArray(const SVector & rS) : SVectorBase(rS.getItemSize(), 8, rS.getFlags())
+{
+	data = 0;
+	//copy(rS);
+	SVectorBase::CopyS(rS);
 }
 
 SLAPI SArray::~SArray()
@@ -1203,11 +1210,11 @@ int FASTCALL LAssoc::operator == (const LAssoc & s) const
 	return BIN(Key == s.Key && Val == s.Val);
 }
 
-SLAPI LAssocArray::LAssocArray() : TSArray <LAssoc>()
+SLAPI LAssocArray::LAssocArray() : /*TSArray*/TSVector <LAssoc>()
 {
 }
 
-SLAPI LAssocArray::LAssocArray(const LAssocArray & s) : TSArray <LAssoc> (s)
+SLAPI LAssocArray::LAssocArray(const LAssocArray & s) : /*TSArray*/TSVector <LAssoc> (s)
 {
 }
 
@@ -1360,7 +1367,8 @@ int SLAPI LAssocArray::SearchPair(long key, long val, uint * pPos) const
 
 void SLAPI LAssocArray::Sort()
 {
-	SArray::sort(CMPF_LONG);
+	//SArray::sort(CMPF_LONG);
+	SVector::sort(CMPF_LONG);
 }
 
 int SLAPI LAssocArray::CheckFlag(long key, long mask, int binary) const
@@ -2885,13 +2893,11 @@ void SLAPI RealArray::Sort()
 //
 // LongArray
 //
-SLAPI LongArray::LongArray() :
-	TSArray <long>()
+SLAPI LongArray::LongArray() : /*TSArray*/TSVector <long>()
 {
 }
 
-SLAPI LongArray::LongArray(const LongArray & s) :
-	TSArray <long> (s)
+SLAPI LongArray::LongArray(const LongArray & s) : /*TSArray*/TSVector <long> (s)
 {
 }
 
@@ -3029,28 +3035,33 @@ int SLAPI LongArray::removeByID(long id)
 
 int SLAPI LongArray::ordInsert(long i, uint * p)
 {
-	return SArray::ordInsert(&i, p, CMPF_LONG);
+	//return SArray::ordInsert(&i, p, CMPF_LONG);
+	return SVector::ordInsert(&i, p, CMPF_LONG);
 }
 
 int FASTCALL LongArray::bsearch(long i, uint * p) const
 {
-	return SArray::bsearch(&i, p, CMPF_LONG);
+	//return SArray::bsearch(&i, p, CMPF_LONG);
+	return SVector::bsearch(&i, p, CMPF_LONG);
 }
 int FASTCALL LongArray::bsearch(long i) const
 {
-	return SArray::bsearch(&i, 0, CMPF_LONG);
+	//return SArray::bsearch(&i, 0, CMPF_LONG);
+	return SVector::bsearch(&i, 0, CMPF_LONG);
 }
 //
 // @todo Ускорить функцию, закладываясь на особенности массива LongArray
 //
 int FASTCALL LongArray::lsearch(long k, uint * pIdx) const
 {
-	return SArray::lsearch(&k, pIdx, CMPF_LONG);
+	//return SArray::lsearch(&k, pIdx, CMPF_LONG);
+	return SVector::lsearch(&k, pIdx, CMPF_LONG);
 }
 
 int FASTCALL LongArray::lsearch(long k) const
 {
-	return SArray::lsearch(&k, 0, CMPF_LONG);
+	//return SArray::lsearch(&k, 0, CMPF_LONG);
+	return SVector::lsearch(&k, 0, CMPF_LONG);
 }
 
 int  SLAPI LongArray::isList() const
@@ -3081,13 +3092,15 @@ long SLAPI LongArray::getLast() const
 
 void SLAPI LongArray::sort()
 {
-	SArray::sort(CMPF_LONG);
+	//SArray::sort(CMPF_LONG);
+	SVector::sort(CMPF_LONG);
 }
 
 void SLAPI LongArray::sortAndUndup()
 {
 	uint   c = getCount();
-	SArray::sort(CMPF_LONG);
+	//SArray::sort(CMPF_LONG);
+	SVector::sort(CMPF_LONG);
 	assert(c == getCount()); // @paranoic
 	if(c > 1) {
 		long   prev = get(--c);
@@ -4056,6 +4069,132 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 	uint   i;
 	SArray * p_list = 0;
 	p_list = new SArray(sizeof(long));
+	const uint cs1 = 0,   cc1 = F.GetSaCount() / 4;
+	const uint cs2 = cc1, cc2 = cc1 + F.GetSaCount() / 2;
+	const uint cs3 = cc2, cc3 = cc2 + F.GetSaCount() / 4;
+	//
+	// Четверть элементов вставляем в конец списка (самая простая и быстрая операция)
+	//
+	for(i = cs3; i < cc3; i++) {
+		SLTEST_CHECK_NZ(p_list->insert(&F.Sa[i]));
+	}
+	//
+	// Четверть элементов вставляем в начало списка (при этом предшествующая четверть будет постепенно сдвигаться)
+	//
+	for(i = cs1; i < cc1; i++) {
+		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+	}
+	//
+	// Оставшуюся половину вставляем в середину списка (опять заставляет массив сдвигать хвостовые члены)
+	//
+	for(i = cs2; i < cc2; i++) {
+		SLTEST_CHECK_NZ(p_list->atInsert(i, &F.Sa[i]));
+	}
+	//
+	// Тестируем функцию incPointerSafe
+	//
+	{
+		p_list->setPointer(0);
+		for(int _inc = -3; _inc < (int)p_list->getCount() + 7; _inc++) {
+			const uint prev_ptr = p_list->getPointer();
+			SLTEST_CHECK_EQ(p_list->incPointerSafe(_inc), prev_ptr);
+			SLTEST_CHECK_CRANGE(p_list->getPointer(), 0UL, p_list->getCount()-1);
+		}
+		SLTEST_CHECK_EQ(p_list->getPointer(), p_list->getCount()-1);
+	}
+	//
+	// Теперь сравниваем элементы list с элементами F.Sa. Они должны быть в том же порядки и равны
+	//
+	if(SLTEST_CHECK_EQ((ulong)p_list->getCount(), (ulong)F.GetSaCount())) {
+		for(i = 0; i < F.GetSaCount(); i++) {
+			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[i]);
+		}
+		long p;
+		//
+		// Далее, занимаемся поиском. Перебираем все значения от 0 до F.GetSaCount().
+		// Сколько раз они встречаются в F.Sa столько раз мы должны их найти в p_list
+		//
+		for(p = 0; p < (long)F.GetSaCount(); p++) {
+			ulong ls_ss = 0;
+			ulong ls_sl = 0;
+			for(i = 0; i < F.GetSaCount(); i++)
+				if(F.Sa[i] == p)
+					++ls_ss;
+			for(i = 0; p_list->lsearch(&p, &i, CMPF_LONG); i++)
+				++ls_sl;
+			SLTEST_CHECK_EQ(ls_ss, ls_sl);
+		}
+		//
+		// Реверс списка
+		//
+		p_list->reverse(0, p_list->getCount());
+		for(i = 0; i < F.GetSaCount(); i++) {
+			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[F.GetSaCount()-i-1]);
+		}
+		//
+		// Сортируем список p_list и тестируем правильность сортировки
+		//
+		p_list->sort(CMPF_LONG);
+		for(i = 0; i < p_list->getCount()-1; i++) {
+			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+		}
+		//
+		// Перемешиваем элементы массива случайным образом
+		//
+		p_list->shuffle();
+		{
+			//
+			// Убеждаемся, что массив более не отсортирован
+			//
+			int    sorted = 1;
+			for(i = 0; sorted && i < p_list->getCount()-1; i++) {
+				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
+					sorted = 0;
+			}
+			SLTEST_CHECK_EQ(sorted, (long)0);
+		}
+		//
+		// Теперь сортируем список p_list методом sort2 и тестируем правильность сортировки
+		//
+		p_list->sort2(CMPF_LONG);
+		for(i = 0; i < p_list->getCount()-1; i++) {
+			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+		}
+		//
+		// Тестируем бинарный поиск (алгоритм аналогичен тесту последовательного поиска)
+		//
+		for(p = 0; p < (long)F.GetSaCount(); p++) {
+			ulong bs_ss = 0;
+			ulong bs_sl = 0;
+			for(i = 0; i < F.GetSaCount(); i++)
+				if(F.Sa[i] == p)
+					++bs_ss;
+			if(p_list->bsearch(&p, &i, CMPF_LONG)) {
+				++bs_sl;
+				//
+				// Бинарный поиск может найти только самый первый элемент. Остальные элементы
+				// выискиваем последовательным перебором
+				//
+				while(i < p_list->getCount() && *(long *)p_list->at(++i) == p)
+					++bs_sl;
+			}
+			SLTEST_CHECK_EQ(bs_ss, bs_sl);
+		}
+	}
+	// @todo Тест удаления элементов из массива
+	delete p_list;
+	return CurrentStatus;
+}
+//
+// Descr: Тест класса SVector.
+//   На момент создания полностью повторяет тест SArray. Необходимо убедиться, что
+//   SVector в большинстве аспектов функционирует также правильно как и SArray.
+//
+SLTEST_FIXTURE(SVector, TestFixtureSArray)
+{
+	uint   i;
+	SVector * p_list = 0;
+	p_list = new SVector(sizeof(long));
 	const uint cs1 = 0,   cc1 = F.GetSaCount() / 4;
 	const uint cs2 = cc1, cc2 = cc1 + F.GetSaCount() / 2;
 	const uint cs3 = cc2, cc3 = cc2 + F.GetSaCount() / 4;

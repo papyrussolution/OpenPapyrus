@@ -457,7 +457,7 @@ void ngx_http_upstream_free_round_robin_peer(ngx_peer_connection_t * pc, void * 
 	time_t now;
 	ngx_http_upstream_rr_peer_t  * peer;
 	ngx_log_debug2(NGX_LOG_DEBUG_HTTP, pc->log, 0, "free rr peer %ui %ui", pc->tries, state);
-	/* TODO: NGX_PEER_KEEPALIVE */
+	/* @todo NGX_PEER_KEEPALIVE */
 	peer = rrp->current;
 	ngx_http_upstream_rr_peers_rlock(rrp->peers);
 	ngx_http_upstream_rr_peer_lock(rrp->peers, peer);
@@ -611,7 +611,7 @@ void ngx_http_upstream_save_round_robin_peer_session(ngx_peer_connection_t * pc,
 	peer->ssl_session = ssl_session;
 	if(old_ssl_session) {
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, pc->log, 0, "old session: %p", old_ssl_session);
-		/* TODO: may block */
+		/* @todo may block */
 		ngx_ssl_free_session(old_ssl_session);
 	}
 }

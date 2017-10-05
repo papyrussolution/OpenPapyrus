@@ -21,8 +21,7 @@ MarkerHandleSet::MarkerHandleSet()
 
 MarkerHandleSet::~MarkerHandleSet()
 {
-	MarkerHandleNumber * mhn = root;
-	while(mhn) {
+	for(MarkerHandleNumber * mhn = root; mhn;) {
 		MarkerHandleNumber * mhnToFree = mhn;
 		mhn = mhn->next;
 		delete mhnToFree;
@@ -33,10 +32,8 @@ MarkerHandleSet::~MarkerHandleSet()
 int MarkerHandleSet::Length() const
 {
 	int c = 0;
-	MarkerHandleNumber * mhn = root;
-	while(mhn) {
+	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
 		c++;
-		mhn = mhn->next;
 	}
 	return c;
 }
@@ -44,22 +41,17 @@ int MarkerHandleSet::Length() const
 int MarkerHandleSet::MarkValue() const
 {
 	uint m = 0;
-	MarkerHandleNumber * mhn = root;
-	while(mhn) {
+	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
 		m |= (1 << mhn->number);
-		mhn = mhn->next;
 	}
 	return m;
 }
 
 bool FASTCALL MarkerHandleSet::Contains(int handle) const
 {
-	MarkerHandleNumber * mhn = root;
-	while(mhn) {
-		if(mhn->handle == handle) {
+	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
+		if(mhn->handle == handle)
 			return true;
-		}
-		mhn = mhn->next;
 	}
 	return false;
 }
@@ -196,19 +188,18 @@ int LineMarkers::MarkerNext(int lineStart, int mask) const
 int LineMarkers::AddMark(int line, int markerNum, int lines)
 {
 	handleCurrent++;
-	if(!markers.Length()) {
-		// No existing markers so allocate one element per line
+	if(!markers.Length()) // No existing markers so allocate one element per line
 		markers.InsertValue(0, lines, 0);
-	}
 	if(line >= markers.Length()) {
 		return -1;
 	}
-	if(!markers[line]) {
-		// Need new structure to hold marker handle
-		markers[line] = new MarkerHandleSet();
+	else {
+		if(!markers[line]) { // Need new structure to hold marker handle
+			markers[line] = new MarkerHandleSet();
+		}
+		markers[line]->InsertHandle(handleCurrent, markerNum);
+		return handleCurrent;
 	}
-	markers[line]->InsertHandle(handleCurrent, markerNum);
-	return handleCurrent;
 }
 
 bool LineMarkers::DeleteMark(int line, int markerNum, bool all)
@@ -444,7 +435,7 @@ void LineAnnotation::SetText(int line, const char * text)
 		annotations.EnsureLength(line+1);
 		int style = Style(line);
 		if(annotations[line]) {
-			delete []annotations[line];
+			delete [] annotations[line];
 		}
 		annotations[line] = AllocateAnnotation(static_cast<int>(strlen(text)), style);
 		AnnotationHeader * pah = reinterpret_cast<AnnotationHeader *>(annotations[line]);
@@ -455,7 +446,7 @@ void LineAnnotation::SetText(int line, const char * text)
 	}
 	else {
 		if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line]) {
-			delete []annotations[line];
+			delete [] annotations[line];
 			annotations[line] = 0;
 		}
 	}
@@ -473,9 +464,7 @@ void LineAnnotation::ClearAll()
 void LineAnnotation::SetStyle(int line, int style)
 {
 	annotations.EnsureLength(line+1);
-	if(!annotations[line]) {
-		annotations[line] = AllocateAnnotation(0, style);
-	}
+	SETIFZ(annotations[line], AllocateAnnotation(0, style));
 	reinterpret_cast<AnnotationHeader *>(annotations[line])->style = static_cast<short>(style);
 }
 
@@ -506,7 +495,7 @@ void LineAnnotation::SetStyles(int line, const uchar * styles)
 
 int LineAnnotation::Length(int line) const
 {
-	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line])
+	if(annotations.Length() && line >= 0 && (line < annotations.Length()) && annotations[line])
 		return reinterpret_cast<AnnotationHeader *>(annotations[line])->length;
 	else
 		return 0;
@@ -514,7 +503,7 @@ int LineAnnotation::Length(int line) const
 
 int LineAnnotation::Lines(int line) const
 {
-	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line])
+	if(annotations.Length() && line >= 0 && (line < annotations.Length()) && annotations[line])
 		return reinterpret_cast<AnnotationHeader *>(annotations[line])->lines;
 	else
 		return 0;
@@ -564,9 +553,7 @@ bool LineTabstops::ClearTabstops(int line)
 bool LineTabstops::AddTabstop(int line, int x)
 {
 	tabstops.EnsureLength(line + 1);
-	if(!tabstops[line]) {
-		tabstops[line] = new TabstopList();
-	}
+	SETIFZ(tabstops[line], new TabstopList());
 	TabstopList * tl = tabstops[line];
 	if(tl) {
 		// tabstop positions are kept in order - insert in the right place
@@ -594,4 +581,3 @@ int LineTabstops::GetNextTabstop(int line, int x) const
 	}
 	return 0;
 }
-

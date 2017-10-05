@@ -901,7 +901,7 @@ static CURLcode imap_state_listsearch_resp(struct connectdata * conn, int imapco
 		line[len] = '\0';
 	}
 	else if(imapcode != 'O')
-		result = CURLE_QUOTE_ERROR;  /* TODO: Fix error code */
+		result = CURLE_QUOTE_ERROR;  /* @todo Fix error code */
 	else
 		/* End of DO phase */
 		state(conn, IMAP_STOP);
@@ -966,7 +966,7 @@ static CURLcode imap_state_fetch_resp(struct connectdata * conn, int imapcode, i
 	if(imapcode != '*') {
 		Curl_pgrsSetDownloadSize(data, -1);
 		state(conn, IMAP_STOP);
-		return CURLE_REMOTE_FILE_NOT_FOUND; /* TODO: Fix error code */
+		return CURLE_REMOTE_FILE_NOT_FOUND; /* @todo Fix error code */
 	}
 	/* Something like this is received "* 1 FETCH (BODY[TEXT] {2021}\r" so parse
 	   the continuation data contained within the curly brackets */

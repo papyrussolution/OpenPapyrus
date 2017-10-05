@@ -457,9 +457,9 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
 	Flags = 0;
 	Priority = 0;
 	Seconds = 0;
-	Channel = 0;
-	CallerId = 0;
-	ConnectedLineNum = 0;
+	Channel.Z();
+	CallerId.Z();
+	ConnectedLineNum.Z();
 	return *this;
 }
 
@@ -494,10 +494,8 @@ int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 		Pool.add(rStatus.Channel, &item.ChannelPos);
 	if(rStatus.CallerId.NotEmpty())
 		Pool.add(rStatus.CallerId, &item.CallerIdPos);
-	// @v7.8.0 {
 	if(rStatus.ConnectedLineNum.NotEmpty())
 		Pool.add(rStatus.ConnectedLineNum, &item.ConnectedLineNumPos);
-	// } @v7.8.0
 	insert(&item);
 	return ok;
 }
@@ -727,8 +725,8 @@ int AsteriskAmiClient::Message::Convert(SString & rBuf) const
 int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValue) const
 {
 	int    ok = 0;
-	rTag = 0;
-	rValue = 0;
+	rTag.Z();
+	rValue.Z();
 	SString temp_buf;
 	if(get(pPos, temp_buf)) {
 		temp_buf.Divide(':', rTag, rValue);
@@ -742,7 +740,7 @@ int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValu
 int AsteriskAmiClient::Message::GetTag(const char * pTag, SString & rValue) const
 {
 	int    ok = 0;
-	rValue = 0;
+	rValue.Z();
 	SString temp_buf, tag, value;
 	for(uint p = 0; !ok && get(&p, temp_buf);) {
 		temp_buf.Divide(':', tag, value);
@@ -758,7 +756,7 @@ int AsteriskAmiClient::Message::GetReplyStatus(ReplyStatus & rS) const
 {
 	rS.Code = -1;
 	rS.EventListFlag = -1;
-	rS.Message = 0;
+	rS.Message.Z();
 	SString temp_buf, tag, value;
 	for(uint p = 0; get(&p, temp_buf);) {
 		temp_buf.Divide(':', tag, value);

@@ -664,7 +664,7 @@ public:
 		}
 	};
 
-	HereDocCls HereDoc;             // TODO: FIFO for stacked here-docs
+	HereDocCls HereDoc;             // @todo FIFO for stacked here-docs
 
 	class QuoteCls {        // Class to manage quote pairs
 public:

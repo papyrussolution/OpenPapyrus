@@ -827,16 +827,21 @@ int SLAPI PPViewStockOpt::PreprocessBrowser(PPViewBrowser * pBrw)
 
 SArray * SLAPI PPViewStockOpt::Helper_CreateBrowserArray()
 {
-	LongArray * p_list = new LongArray;
+	//LongArray * p_list = new LongArray;
+	TSArray <long> * p_list = new TSArray <long>;
 	if(Filt.Mode == Filt.modeGoods) {
 		const uint c = So.GetItems().getCount();
-		for(uint i = 0; i < c; i++)
-			p_list->add(i);
+		for(uint i = 0; i < c; i++) {
+			//p_list->add(i);
+			p_list->insert(&i);
+		}
 	}
 	else if(oneof2(Filt.Mode, Filt.modePreproc, Filt.modeOptimum)) {
 		const uint c = So.GetResult().getCount();
-		for(uint i = 0; i < c; i++)
-			p_list->add(i);
+		for(uint i = 0; i < c; i++) {
+			//p_list->add(i);
+			p_list->insert(&i);
+		}
 	}
 	return p_list;
 }

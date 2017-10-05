@@ -87,11 +87,10 @@ static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 {
 	ngx_http_gunzip_ctx_t * ctx;
 	ngx_http_gunzip_conf_t  * conf = (ngx_http_gunzip_conf_t*)ngx_http_get_module_loc_conf(r, ngx_http_gunzip_filter_module);
-	/* TODO support multiple content-codings */
-	/* TODO always gunzip - due to configuration or module request */
-	/* TODO ignore content encoding? */
-	if(!conf->enable || r->headers_out.content_encoding == NULL
-	    || r->headers_out.content_encoding->value.len != 4
+	// @todo support multiple content-codings 
+	// @todo always gunzip - due to configuration or module request 
+	// @todo ignore content encoding? 
+	if(!conf->enable || !r->headers_out.content_encoding || r->headers_out.content_encoding->value.len != 4
 	    || ngx_strncasecmp(r->headers_out.content_encoding->value.data, (u_char*)"gzip", 4) != 0) {
 		return ngx_http_next_header_filter(r);
 	}
@@ -104,25 +103,18 @@ static ngx_int_t ngx_http_gunzip_header_filter(ngx_http_request_t * r)
 	else if(r->gzip_ok) {
 		return ngx_http_next_header_filter(r);
 	}
-
 	ctx = (ngx_http_gunzip_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_gunzip_ctx_t));
 	if(!ctx) {
 		return NGX_ERROR;
 	}
-
 	ngx_http_set_ctx(r, ctx, ngx_http_gunzip_filter_module);
-
 	ctx->request = r;
-
 	r->filter_need_in_memory = 1;
-
 	r->headers_out.content_encoding->hash = 0;
 	r->headers_out.content_encoding = NULL;
-
 	ngx_http_clear_content_length(r);
 	ngx_http_clear_accept_ranges(r);
 	ngx_http_weak_etag(r);
-
 	return ngx_http_next_header_filter(r);
 }
 
@@ -142,69 +134,50 @@ static ngx_int_t ngx_http_gunzip_body_filter(ngx_http_request_t * r, ngx_chain_t
 			goto failed;
 		}
 	}
-
 	if(in) {
 		if(ngx_chain_add_copy(r->pool, &ctx->in, in) != NGX_OK) {
 			goto failed;
 		}
 	}
-
 	if(ctx->nomem) {
 		/* flush busy buffers */
-
 		if(ngx_http_next_body_filter(r, NULL) == NGX_ERROR) {
 			goto failed;
 		}
-
 		cl = NULL;
-
-		ngx_chain_update_chains(r->pool, &ctx->free, &ctx->busy, &cl,
-		    (ngx_buf_tag_t)&ngx_http_gunzip_filter_module);
+		ngx_chain_update_chains(r->pool, &ctx->free, &ctx->busy, &cl, (ngx_buf_tag_t)&ngx_http_gunzip_filter_module);
 		ctx->nomem = 0;
 		flush = 0;
 	}
 	else {
 		flush = ctx->busy ? 1 : 0;
 	}
-
 	for(;; ) {
 		/* cycle while we can write to a client */
-
 		for(;; ) {
 			/* cycle while there is data to feed zlib and ... */
-
 			rc = ngx_http_gunzip_filter_add_data(r, ctx);
-
 			if(rc == NGX_DECLINED) {
 				break;
 			}
-
 			if(rc == NGX_AGAIN) {
 				continue;
 			}
-
 			/* ... there are buffers to write zlib output */
-
 			rc = ngx_http_gunzip_filter_get_buf(r, ctx);
-
 			if(rc == NGX_DECLINED) {
 				break;
 			}
-
 			if(rc == NGX_ERROR) {
 				goto failed;
 			}
-
 			rc = ngx_http_gunzip_filter_inflate(r, ctx);
-
 			if(rc == NGX_OK) {
 				break;
 			}
-
 			if(rc == NGX_ERROR) {
 				goto failed;
 			}
-
 			/* rc == NGX_AGAIN */
 		}
 		if(ctx->out == NULL && !flush) {

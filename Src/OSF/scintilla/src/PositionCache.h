@@ -16,7 +16,6 @@ static inline bool IsEOLChar(char ch)
 {
 	return oneof2(ch, '\r', '\n');
 }
-
 /**
  * A point in document space.
  * Uses double for sufficient resolution in large (>20,000,000 line) documents.
@@ -33,18 +32,18 @@ public:
 	{
 	}
 };
-
+//
 // There are two points for some positions and this enumeration
-// can choose between the end of the first line or subline
-// and the start of the next line or subline.
+// can choose between the end of the first line or subline and the start of the next line or subline.
+//
 enum PointEnd {
 	peDefault = 0x0,
 	peLineEnd = 0x1,
 	peSubLineEnd = 0x2
 };
-
-/**
- */
+//
+//
+//
 class LineLayout {
 private:
 	friend class LineLayoutCache;
@@ -69,10 +68,7 @@ public:
 	uchar * styles;
 	XYPOSITION * positions;
 	char bracePreviousStyles[2];
-
-	// Hotspot support
-	Range hotspot;
-
+	Range hotspot; // Hotspot support
 	// Wrapped line support
 	int widthLine;
 	int lines;
@@ -80,21 +76,20 @@ public:
 
 	explicit LineLayout(int maxLineLength_);
 	virtual ~LineLayout();
-	void Resize(int maxLineLength_);
-	void Free();
-	void Invalidate(validLevel validity_);
-	int LineStart(int line) const;
-	int LineLastVisible(int line) const;
-	Range SubLineRange(int line) const;
-	bool InLine(int offset, int line) const;
-	void SetLineStart(int line, int start);
-	void SetBracesHighlight(Range rangeLine, const Position braces[],
-	    char bracesMatchStyle, int xHighlight, bool ignoreStyle);
-	void RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle);
-	int FindBefore(XYPOSITION x, int lower, int upper) const;
-	int FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
-	Point PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
-	int EndLineStyle() const;
+	void   FASTCALL Resize(int maxLineLength_);
+	void   Free();
+	void   FASTCALL Invalidate(validLevel validity_);
+	int    FASTCALL LineStart(int line) const;
+	int    FASTCALL LineLastVisible(int line) const;
+	Range  FASTCALL SubLineRange(int line) const;
+	bool   InLine(int offset, int line) const;
+	void   SetLineStart(int line, int start);
+	void   SetBracesHighlight(Range rangeLine, const Position braces[], char bracesMatchStyle, int xHighlight, bool ignoreStyle);
+	void   RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle);
+	int    FindBefore(XYPOSITION x, int lower, int upper) const;
+	int    FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
+	Point  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
+	int    EndLineStyle() const;
 };
 
 /**
@@ -126,7 +121,7 @@ public:
 	}
 
 	LineLayout * Retrieve(int lineNumber, int lineCaret, int maxChars, int styleClock_, int linesOnScreen, int linesInDoc);
-	void Dispose(LineLayout * ll);
+	void FASTCALL Dispose(LineLayout * ll);
 };
 
 class PositionCacheEntry {
@@ -175,7 +170,6 @@ struct TextSegment {
 		start(start_), length(length_), representation(representation_)
 	{
 	}
-
 	int end() const
 	{
 		return start + length;
@@ -201,10 +195,13 @@ class BreakFinder {
 public:
 	// If a whole run is longer than lengthStartSubdivision then subdivide
 	// into smaller runs at spaces or punctuation.
-	enum { lengthStartSubdivision = 300 };
-
+	enum { 
+		lengthStartSubdivision = 300 
+	};
 	// Try to make each subdivided run lengthEachSubdivision or shorter.
-	enum { lengthEachSubdivision = 100 };
+	enum { 
+		lengthEachSubdivision = 100 
+	};
 
 	BreakFinder(const LineLayout * ll_, const Selection * psel, Range rangeLine_, int posLineStart_,
 	    int xStart, bool breakForSelection, const Document * pdoc_, const SpecialRepresentations * preprs_, const ViewStyle * pvsDraw);

@@ -2348,7 +2348,6 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    result = setstropt(&data->set.str[STRING_SSH_PUBLIC_KEY],
 		    va_arg(param, char *));
 		    break;
-
 		case CURLOPT_SSH_PRIVATE_KEYFILE:
 		    /*
 		     * Use this file instead of the $HOME/.ssh/id_dsa file
@@ -2372,13 +2371,11 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    result = setstropt(&data->set.str[STRING_SSH_KNOWNHOSTS],
 		    va_arg(param, char *));
 		    break;
-
 		case CURLOPT_SSH_KEYFUNCTION:
 		    /* setting to NULL is fine since the ssh.c functions themselves will
 		       then rever to use the internal default */
 		    data->set.ssh_keyfunc = va_arg(param, curl_sshkeycallback);
 		    break;
-
 		case CURLOPT_SSH_KEYDATA:
 		    /*
 		     * Custom client data to pass to the SSH keyfunc callback
@@ -2386,37 +2383,25 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    data->set.ssh_keyfunc_userp = va_arg(param, void *);
 		    break;
 #endif /* HAVE_LIBSSH2_KNOWNHOST_API */
-
 #endif /* USE_LIBSSH2 */
-
 		case CURLOPT_HTTP_TRANSFER_DECODING:
 		    /*
 		     * disable libcurl transfer encoding is used
 		     */
 		    data->set.http_te_skip = (0 == va_arg(param, long)) ? TRUE : FALSE;
 		    break;
-
 		case CURLOPT_HTTP_CONTENT_DECODING:
 		    /*
 		     * raw data passed to the application when content encoding is used
 		     */
 		    data->set.http_ce_skip = (0 == va_arg(param, long)) ? TRUE : FALSE;
 		    break;
-
-		case CURLOPT_NEW_FILE_PERMS:
-		    /*
-		     * Uses these permissions instead of 0644
-		     */
+		case CURLOPT_NEW_FILE_PERMS: // Uses these permissions instead of 0644
 		    data->set.new_file_perms = va_arg(param, long);
 		    break;
-
-		case CURLOPT_NEW_DIRECTORY_PERMS:
-		    /*
-		     * Uses these permissions instead of 0755
-		     */
+		case CURLOPT_NEW_DIRECTORY_PERMS: // Uses these permissions instead of 0755
 		    data->set.new_directory_perms = va_arg(param, long);
 		    break;
-
 		case CURLOPT_ADDRESS_SCOPE:
 		    /*
 		     * We always get longs when passed plain numericals, but for this value we
@@ -2425,7 +2410,6 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		     */
 		    data->set.scope_id = curlx_sltoui(va_arg(param, long));
 		    break;
-
 		case CURLOPT_PROTOCOLS:
 		    /* set the bitmask for the protocols that are allowed to be used for the
 		       transfer, which thus helps the app which takes URLs from users or other
@@ -2433,7 +2417,6 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		       with. Defaults to CURLPROTO_ALL. */
 		    data->set.allowed_protocols = va_arg(param, long);
 		    break;
-
 		case CURLOPT_REDIR_PROTOCOLS:
 		    /* set the bitmask for the protocols that libcurl is allowed to follow to,
 		       as a subset of the CURLOPT_PROTOCOLS ones. That means the protocol needs
@@ -2441,36 +2424,24 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		       to all protocols except FILE and SCP. */
 		    data->set.redir_protocols = va_arg(param, long);
 		    break;
-
-		case CURLOPT_DEFAULT_PROTOCOL:
-		    /* Set the protocol to use when the URL doesn't include any protocol */
+		case CURLOPT_DEFAULT_PROTOCOL: // Set the protocol to use when the URL doesn't include any protocol 
 		    result = setstropt(&data->set.str[STRING_DEFAULT_PROTOCOL],
 		    va_arg(param, char *));
 		    break;
-
-		case CURLOPT_MAIL_FROM:
-		    /* Set the SMTP mail originator */
+		case CURLOPT_MAIL_FROM: // Set the SMTP mail originator 
 		    result = setstropt(&data->set.str[STRING_MAIL_FROM],
 		    va_arg(param, char *));
 		    break;
-
-		case CURLOPT_MAIL_AUTH:
-		    /* Set the SMTP auth originator */
+		case CURLOPT_MAIL_AUTH: // Set the SMTP auth originator 
 		    result = setstropt(&data->set.str[STRING_MAIL_AUTH],
 		    va_arg(param, char *));
 		    break;
-
-		case CURLOPT_MAIL_RCPT:
-		    /* Set the list of mail recipients */
+		case CURLOPT_MAIL_RCPT: // Set the list of mail recipients 
 		    data->set.mail_rcpt = va_arg(param, struct curl_slist *);
-
 		    break;
-
-		case CURLOPT_SASL_IR:
-		    /* Enable/disable SASL initial response */
+		case CURLOPT_SASL_IR: // Enable/disable SASL initial response 
 		    data->set.sasl_ir = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    break;
-
 		case CURLOPT_RTSP_REQUEST:
 	    {
 		    /*
@@ -2480,57 +2451,22 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option,
 		    long curl_rtspreq = va_arg(param, long);
 		    Curl_RtspReq rtspreq = RTSPREQ_NONE;
 		    switch(curl_rtspreq) {
-			    case CURL_RTSPREQ_OPTIONS:
-				rtspreq = RTSPREQ_OPTIONS;
-				break;
-
-			    case CURL_RTSPREQ_DESCRIBE:
-				rtspreq = RTSPREQ_DESCRIBE;
-				break;
-
-			    case CURL_RTSPREQ_ANNOUNCE:
-				rtspreq = RTSPREQ_ANNOUNCE;
-				break;
-
-			    case CURL_RTSPREQ_SETUP:
-				rtspreq = RTSPREQ_SETUP;
-				break;
-
-			    case CURL_RTSPREQ_PLAY:
-				rtspreq = RTSPREQ_PLAY;
-				break;
-
-			    case CURL_RTSPREQ_PAUSE:
-				rtspreq = RTSPREQ_PAUSE;
-				break;
-
-			    case CURL_RTSPREQ_TEARDOWN:
-				rtspreq = RTSPREQ_TEARDOWN;
-				break;
-
-			    case CURL_RTSPREQ_GET_PARAMETER:
-				rtspreq = RTSPREQ_GET_PARAMETER;
-				break;
-
-			    case CURL_RTSPREQ_SET_PARAMETER:
-				rtspreq = RTSPREQ_SET_PARAMETER;
-				break;
-
-			    case CURL_RTSPREQ_RECORD:
-				rtspreq = RTSPREQ_RECORD;
-				break;
-
-			    case CURL_RTSPREQ_RECEIVE:
-				rtspreq = RTSPREQ_RECEIVE;
-				break;
-			    default:
-				rtspreq = RTSPREQ_NONE;
+			    case CURL_RTSPREQ_OPTIONS: rtspreq = RTSPREQ_OPTIONS; break;
+			    case CURL_RTSPREQ_DESCRIBE: rtspreq = RTSPREQ_DESCRIBE; break;
+			    case CURL_RTSPREQ_ANNOUNCE: rtspreq = RTSPREQ_ANNOUNCE; break;
+			    case CURL_RTSPREQ_SETUP: rtspreq = RTSPREQ_SETUP; break;
+			    case CURL_RTSPREQ_PLAY: rtspreq = RTSPREQ_PLAY; break;
+			    case CURL_RTSPREQ_PAUSE: rtspreq = RTSPREQ_PAUSE; break;
+			    case CURL_RTSPREQ_TEARDOWN: rtspreq = RTSPREQ_TEARDOWN; break;
+			    case CURL_RTSPREQ_GET_PARAMETER: rtspreq = RTSPREQ_GET_PARAMETER; break;
+			    case CURL_RTSPREQ_SET_PARAMETER: rtspreq = RTSPREQ_SET_PARAMETER; break;
+			    case CURL_RTSPREQ_RECORD: rtspreq = RTSPREQ_RECORD; break;
+			    case CURL_RTSPREQ_RECEIVE: rtspreq = RTSPREQ_RECEIVE; break;
+			    default: rtspreq = RTSPREQ_NONE;
 		    }
-
 		    data->set.rtspreq = rtspreq;
 		    break;
 	    }
-
 		case CURLOPT_RTSP_SESSION_ID:
 		    /*
 		     * Set the RTSP Session ID manually. Useful if the application is

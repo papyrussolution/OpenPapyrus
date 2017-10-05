@@ -61,7 +61,7 @@
 /* #define DEBUG_READER */
 
 /**
- * TODO:
+ * @todo 
  *
  * macro to flag unimplemented blocks
  */
@@ -825,7 +825,7 @@ static void xmlTextReaderValidatePush(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
 			reader->ctxt->valid &= xmlValidatePushElement(&reader->ctxt->vctxt, reader->ctxt->myDoc, node, node->name);
 		}
 		else {
-			/* TODO use the BuildQName interface */
+			/* @todo use the BuildQName interface */
 			xmlChar * qname = sstrdup(node->ns->prefix);
 			qname = xmlStrcat(qname, BAD_CAST ":");
 			qname = xmlStrcat(qname, node->name);
@@ -902,7 +902,7 @@ static void xmlTextReaderValidatePop(xmlTextReaderPtr reader)
 			reader->ctxt->valid &= xmlValidatePopElement(&reader->ctxt->vctxt, reader->ctxt->myDoc, node, node->name);
 		}
 		else {
-			/* TODO use the BuildQName interface */
+			/* @todo use the BuildQName interface */
 			xmlChar * qname = sstrdup(node->ns->prefix);
 			qname = xmlStrcat(qname, BAD_CAST ":");
 			qname = xmlStrcat(qname, node->name);
@@ -1783,7 +1783,7 @@ int xmlTextReaderNextSibling(xmlTextReaderPtr reader)
 	if(!reader)
 		return -1;
 	if(reader->doc == NULL) {
-		/* TODO */
+		/* @todo */
 		return -1;
 	}
 	if(reader->state == XML_TEXTREADER_END)
@@ -2071,7 +2071,7 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReaderPtr reader, int no)
 		return 0;
 	if(reader->curnode != NULL)
 		return 0;
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 
@@ -2089,7 +2089,7 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReaderPtr reader, int no)
 		if(!cur)
 			return 0;
 	}
-	/* TODO walk the DTD if present */
+	/* @todo walk the DTD if present */
 	ret = xmlNodeListGetString(reader->node->doc, cur->children, 1);
 	return NZOR(ret, sstrdup((xmlChar*)""));
 }
@@ -2117,7 +2117,7 @@ xmlChar * xmlTextReaderGetAttribute(xmlTextReaderPtr reader, const xmlChar * nam
 	if(reader->curnode != NULL)
 		return 0;
 
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 
@@ -2184,7 +2184,7 @@ xmlChar * xmlTextReaderGetAttributeNs(xmlTextReaderPtr reader, const xmlChar * l
 	if(reader->curnode != NULL)
 		return 0;
 
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 
@@ -2300,7 +2300,7 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 		return -1;
 	if(reader->node == NULL)
 		return -1;
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return -1;
 	reader->curnode = NULL;
@@ -2320,7 +2320,7 @@ int xmlTextReaderMoveToAttributeNo(xmlTextReaderPtr reader, int no)
 		if(!cur)
 			return 0;
 	}
-	/* TODO walk the DTD if present */
+	/* @todo walk the DTD if present */
 	reader->curnode = (xmlNode *)cur;
 	return 1;
 }
@@ -2344,7 +2344,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReaderPtr reader, const xmlChar * name)
 		return -1;
 	if(reader->node == NULL)
 		return -1;
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	if(reader->node->type != XML_ELEMENT_NODE)
 		return 0;
 	localname = xmlSplitQName2(name, &prefix);
@@ -3102,7 +3102,7 @@ int xmlTextReaderHasAttributes(xmlTextReaderPtr reader)
 	node = reader->curnode ? reader->curnode : reader->node;
 	if((node->type == XML_ELEMENT_NODE) && (node->properties || node->nsDef))
 		return 1;
-	/* TODO: handle the xmlDecl */
+	/* @todo handle the xmlDecl */
 	return 0;
 }
 /**
@@ -3247,7 +3247,7 @@ int xmlTextReaderIsDefault(xmlTextReaderPtr reader)
  */
 int xmlTextReaderQuoteChar(xmlTextReaderPtr reader)
 {
-	// TODO maybe lookup the attribute value for " first
+	// @todo maybe lookup the attribute value for " first
 	return reader ? (int)'"' : -1;
 }
 
@@ -3845,7 +3845,7 @@ static int xmlTextReaderRelaxNGValidateInternal(xmlTextReaderPtr reader, const c
 	/*
 	 * Redirect the validation context's error channels to use
 	 * the reader channels.
-	 * TODO: In case the user provides the validation context we
+	 * @todo In case the user provides the validation context we
 	 *	could make this redirection optional.
 	 */
 	if(reader->errorFunc != NULL) {
@@ -3939,7 +3939,7 @@ static int xmlTextReaderSchemaValidateInternal(xmlTextReaderPtr reader, const ch
 	/*
 	 * Redirect the validation context's error channels to use
 	 * the reader channels.
-	 * TODO: In case the user provides the validation context we
+	 * @todo In case the user provides the validation context we
 	 *   could make this redirection optional.
 	 */
 	if(reader->errorFunc)
@@ -4968,7 +4968,7 @@ int xmlReaderNewIO(xmlTextReaderPtr reader, xmlInputReadCallback ioread,
  * @tolen:  the size of the output (in), the size written to (out)
  *
  * Base64 decoder, reads from @in and save in @to
- * TODO: tell jody when this is actually exported
+ * @todo tell jody when this is actually exported
  *
  * Returns 0 if all the input was consumer, 1 if the Base64 end was reached,
  *         2 if there wasn't enough space on the output or -1 in case of error.

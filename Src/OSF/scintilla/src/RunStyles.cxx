@@ -89,18 +89,17 @@ int RunStyles::FindNextChange(int position, int end) const
 {
 	int run = starts->PartitionFromPosition(position);
 	if(run < starts->Partitions()) {
-		int runChange = starts->PositionFromPartition(run);
+		const int runChange = starts->PositionFromPartition(run);
 		if(runChange > position)
 			return runChange;
-		int nextChange = starts->PositionFromPartition(run + 1);
-		if(nextChange > position) {
-			return nextChange;
-		}
-		else if(position < end) {
-			return end;
-		}
 		else {
-			return end + 1;
+			int nextChange = starts->PositionFromPartition(run + 1);
+			if(nextChange > position)
+				return nextChange;
+			else if(position < end)
+				return end;
+			else
+				return (end + 1);
 		}
 	}
 	else {

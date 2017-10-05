@@ -871,7 +871,7 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateSCardCheck
 	check_param.Amount = rPack.Amount;
 	check_param.Discount = rPack.Discount;
 	check_param.Flags = rPack.Flags;
-	// TODO: Process items
+	// @todo Process items
 	WSInterfaceImplServiceSoapBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxi, 0, 0);
 	ns1__createSCardCheck param;

@@ -814,7 +814,7 @@ void PNGFAPI png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
 	png_debug(1, "in png_set_rgb_to_gray");
 
 	/* Need the IHDR here because of the check on color_type below. */
-	/* TODO: fix this */
+	/* @todo fix this */
 	if(png_rtran_ok(png_ptr, 1) == 0)
 		return;
 	switch(error_action) {
@@ -1245,7 +1245,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 	 * PNG_BACKGROUND_IS_GRAY only to decide when to do the
 	 * png_do_gray_to_rgb() transformation.
 	 *
-	 * TODO: this code needs to be revised to avoid the complexity and
+	 * @todo this code needs to be revised to avoid the complexity and
 	 * interdependencies.  The color type of the background should be recorded in
 	 * png_set_background, along with the bit depth, then the code has a record
 	 * of exactly what color space the background is currently in.
@@ -1298,7 +1298,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 	    (png_ptr->transformations & PNG_COMPOSE) != 0 &&
 	    (png_ptr->transformations & PNG_BACKGROUND_EXPAND) == 0 &&
 	    png_ptr->bit_depth != 16) {
-		/* TODO: fix this.  Because the expand_16 operation is after the compose
+		/* @todo fix this.  Because the expand_16 operation is after the compose
 		 * handling the background color must be 8, not 16, bits deep, but the
 		 * application will supply a 16-bit value so reduce it here.
 		 *
@@ -1328,7 +1328,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		 * component this will also happen after PNG_COMPOSE and so the background
 		 * color must be pre-expanded here.
 		 *
-		 * TODO: fix this too.
+		 * @todo fix this too.
 		 */
 		png_ptr->background.red = (png_uint_16)(png_ptr->background.red * 257);
 		png_ptr->background.green =
@@ -1716,7 +1716,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 	 * been called before this from png_read_update_info->png_read_start_row
 	 * sometimes does the gamma transform and cancels the flag.
 	 *
-	 * TODO: this looks wrong; the info_ptr should end up with a gamma equal to
+	 * @todo this looks wrong; the info_ptr should end up with a gamma equal to
 	 * the screen_gamma value.  The following probably results in weirdness if
 	 * the info_ptr is used by the app after the rows have been read.
 	 */

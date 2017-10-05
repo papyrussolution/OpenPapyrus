@@ -1207,7 +1207,6 @@ namespace Scintilla {
 	// Holds a desired RGB colour.
 	// 
 	class ColourDesired {
-		long co;
 	public:
 		ColourDesired(long lcol = 0)
 		{
@@ -1271,6 +1270,8 @@ namespace Scintilla {
 		{
 			return (co >> 16) & 0xff;
 		}
+	private:
+		long co;
 	};
 	// 
 	// A surface abstracts a place to draw.
@@ -1937,7 +1938,7 @@ namespace Scintilla {
 	//
 	class LexerNoExceptions : public LexerBase {
 	public:
-		// TODO Also need to prevent exceptions in constructor and destructor
+		// @todo Also need to prevent exceptions in constructor and destructor
 		Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
 		Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
 		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);

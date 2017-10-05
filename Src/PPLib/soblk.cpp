@@ -2074,7 +2074,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		switch(Operator) {
 			case oSet:
 				if(ObjType == PPOBJ_DL600DATA) {
-					// TODO: этот случай обрабатывается отдельно
+					// @todo этот случай обрабатывается отдельно
 				}
 				else if(ObjType == PPOBJ_QUOT2) {
 					gta_blk.Op = GTAOP_OBJADD;
@@ -3762,7 +3762,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				break;
 			case oSet:
 				if(ObjType == PPOBJ_DL600DATA) {
-					gta_ok = 0; // TODO: этот случай обрабатывается отдельно
+					gta_ok = 0; // @todo этот случай обрабатывается отдельно
 				}
 				else if(ObjType == PPOBJ_QUOT2) {
 					gta_blk.ObjId.Id = P_SetBlk->U.Q.GoodsID;

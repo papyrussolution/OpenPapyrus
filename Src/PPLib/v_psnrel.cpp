@@ -313,7 +313,7 @@ int SLAPI PPViewPersonRel::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 	BExtQuery q(P_TempTbl, 0);
 	BExtInsert * p_bei = 0;
 
-	cntr.Init(p_t);
+	PPInitIterCounter(cntr, p_t);
 	THROW(p_o = CreateTempOrderFile());
 	THROW_MEM(p_bei = new BExtInsert(p_o));
 	q.select(p_t->ID, p_t->PrmrPersonID, p_t->ScndPersonID, p_t->RelName, 0L);

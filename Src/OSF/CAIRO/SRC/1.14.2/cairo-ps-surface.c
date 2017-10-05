@@ -3505,7 +3505,7 @@ static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t       *
 		double bounds_x1, bounds_x2, bounds_y1, bounds_y2;
 		double x_scale, y_scale, tolerance;
 
-		/* TODO: use tighter extents */
+		/* @todo use tighter extents */
 		bounds_x1 = 0;
 		bounds_y1 = 0;
 		bounds_x2 = surface->width;

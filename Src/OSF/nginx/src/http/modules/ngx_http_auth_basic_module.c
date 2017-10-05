@@ -233,7 +233,7 @@ static ngx_int_t ngx_http_auth_basic_crypt_handler(ngx_http_request_t * r, ngx_h
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 	}
-	/* TODO: add mutex event */
+	/* @todo add mutex event */
 	return rc;
 }
 

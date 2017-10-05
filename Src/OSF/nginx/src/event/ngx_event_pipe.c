@@ -404,7 +404,7 @@ static ngx_int_t ngx_event_pipe_write_to_downstream(ngx_event_pipe_t * p)
 				p->in = NULL;
 			}
 			ngx_log_debug0(NGX_LOG_DEBUG_EVENT, p->log, 0, "pipe write downstream done");
-			/* TODO: free unused bufs */
+			/* @todo free unused bufs */
 			p->downstream_done = 1;
 			break;
 		}
@@ -493,7 +493,7 @@ flush:
 					p->temp_file->offset = 0;
 				}
 			}
-			/* TODO: free buf if p->free_bufs && upstream done */
+			/* @todo free buf if p->free_bufs && upstream done */
 			/* add the free shadow raw buf to p->free_raw_bufs */
 			if(cl->buf->last_shadow) {
 				if(ngx_event_pipe_add_free_buf(p, cl->buf->shadow) != NGX_OK) {

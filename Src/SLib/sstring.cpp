@@ -3578,7 +3578,7 @@ SString & SLAPI SString::EncodeMime64(const void * pBuf, size_t dataLen)
 		assert(Len() == strlen(P_Buf));
 	}
 	else
-		CopyFrom(0);
+		Z();
 	return *this;
 }
 
@@ -6255,7 +6255,8 @@ SLTEST_R(SString)
 			SFile inf(in_buf, SFile::mRead);
 			line_no = 0;
 			SLTEST_CHECK_NZ(sstreq((const char *)0, (const char *)0));
-			SLTEST_CHECK_NZ(sstreqi_ascii(0, 0));
+			SLTEST_CHECK_NZ(sstreqi_ascii((const char *)0, (const char *)0));
+			SLTEST_CHECK_NZ(sstreqi_ascii((const uchar *)0, (const uchar *)0));
 			while(inf.ReadLine(str)) {
 				line_no++;
 				str.Chomp();

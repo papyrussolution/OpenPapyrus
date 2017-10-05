@@ -46,14 +46,14 @@ public:
 		}
 	}
 };
-
-/// Divide an interval into multiple partitions.
-/// Useful for breaking a document down into sections such as lines.
-/// A 0 length interval has a single 0 length partition, numbered 0
-/// If interval not 0 length then each partition non-zero length
-/// When needed, positions after the interval are considered part of the last partition
-/// but the end of the last partition can be found with PositionFromPartition(last+1).
-
+//
+// Descr: Divide an interval into multiple partitions.
+//   Useful for breaking a document down into sections such as lines.
+//   A 0 length interval has a single 0 length partition, numbered 0
+//   If interval not 0 length then each partition non-zero length
+//   When needed, positions after the interval are considered part of the last partition
+//   but the end of the last partition can be found with PositionFromPartition(last+1).
+//
 class Partitioning {
 private:
 	// To avoid calculating all the partition positions whenever any text is inserted
@@ -117,7 +117,6 @@ public:
 		if((partition >= 0) && (partition <= body->Length()))
 			body->SetValueAt(partition, pos);
 	}
-
 	void InsertText(int partitionInsert, int delta)
 	{
 		// Point all the partitions after the insertion point further along in the buffer
@@ -143,7 +142,7 @@ public:
 			stepLength = delta;
 		}
 	}
-	void RemovePartition(int partition)
+	void FASTCALL RemovePartition(int partition)
 	{
 		if(partition > stepPartition) {
 			ApplyStep(partition);
@@ -154,7 +153,7 @@ public:
 		}
 		body->Delete(partition);
 	}
-	int PositionFromPartition(int partition) const
+	int FASTCALL PositionFromPartition(int partition) const
 	{
 		PLATFORM_ASSERT(partition >= 0);
 		PLATFORM_ASSERT(partition < body->Length());
@@ -169,27 +168,27 @@ public:
 		}
 	}
 	/// Return value in range [0 .. Partitions() - 1] even for arguments outside interval
-	int PartitionFromPosition(int pos) const
+	int FASTCALL PartitionFromPosition(int pos) const
 	{
 		if(body->Length() <= 1)
 			return 0;
-		if(pos >= (PositionFromPartition(body->Length()-1)))
-			return body->Length() - 1 - 1;
-		int lower = 0;
-		int upper = body->Length()-1;
-		do {
-			int middle = (upper + lower + 1) / 2;   // Round high
-			int posMiddle = body->ValueAt(middle);
-			if(middle > stepPartition)
-				posMiddle += stepLength;
-			if(pos < posMiddle) {
-				upper = middle - 1;
-			}
-			else {
-				lower = middle;
-			}
-		} while(lower < upper);
-		return lower;
+		else if(pos >= (PositionFromPartition(body->Length()-1)))
+			return (body->Length() - 1 - 1);
+		else {
+			int lower = 0;
+			int upper = body->Length()-1;
+			do {
+				const int middle = (upper + lower + 1) / 2;   // Round high
+				int posMiddle = body->ValueAt(middle);
+				if(middle > stepPartition)
+					posMiddle += stepLength;
+				if(pos < posMiddle)
+					upper = (middle - 1);
+				else
+					lower = middle;
+			} while(lower < upper);
+			return lower;
+		}
 	}
 	void DeleteAll()
 	{

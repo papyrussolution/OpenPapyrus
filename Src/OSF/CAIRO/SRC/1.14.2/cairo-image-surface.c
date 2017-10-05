@@ -1044,7 +1044,7 @@ cairo_image_surface_t * _cairo_image_surface_clone_subimage(cairo_surface_t * su
 	    _cairo_format_from_content(surface->content), extents->width, extents->height);
 	if(image->status)
 		return to_image_surface(image);
-	// TODO: check me with non-identity device_transform. Should we clone the scaling, too? 
+	// @todo check me with non-identity device_transform. Should we clone the scaling, too? 
 	cairo_surface_set_device_offset(image, -extents->x, -extents->y);
 	_cairo_pattern_init_for_surface(&pattern, surface);
 	pattern.base.filter = CAIRO_FILTER_NEAREST;

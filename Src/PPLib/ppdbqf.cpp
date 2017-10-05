@@ -1464,109 +1464,108 @@ static void SLAPI dbqf_datebase_id(int option, DBConst * result, DBConst * param
 int SLAPI PPDbqFuncPool::Register()
 {
 	int    ok = 1;
-	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               0, BTS_STRING, dbqf_empty, 0));
-	THROW(DbqFuncTab::RegisterDyn(&IdBillDebt,            0, BTS_REAL,   dbqf_debt_rrii,  4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtIssueDt,    0, BTS_DATE,   dbqf_billfrghtissuedt_i, 1, BTS_INT)); // @v8.2.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtArrvlDt,    0, BTS_DATE,   dbqf_billfrghtarrvldt_i, 1, BTS_INT)); // @v8.2.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   0, BTS_STRING, dbqf_billfrghtdlvraddr_i, 1, BTS_INT)); // @v8.7.9
-	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    0, BTS_STRING, dbqf_billfrghtstrgloc_i, 1, BTS_INT)); // @v8.8.6
-	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       0, BTS_STRING, dbqf_billagentname_i,  1, BTS_INT)); // @v8.3.6
-	THROW(DbqFuncTab::RegisterDyn(&IdCQtty,               0, BTS_STRING, dbqf_cqtty_rrii, 4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBillStatus,   0, BTS_STRING, dbqf_objname_billstatus_i,  1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameOprKind,      0, BTS_STRING, dbqf_objname_oprkind_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameLoc,          0, BTS_STRING, dbqf_objname_loc_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAr,           0, BTS_STRING, dbqf_objname_ar_i,          1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameArByAcc,      0, BTS_STRING, dbqf_objname_arbyacc_i,     2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameUser,         0, BTS_STRING, dbqf_objname_user_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGlobalUser,   0, BTS_STRING, dbqf_objname_globaluser_i,  1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameUnit,         0, BTS_STRING, dbqf_objname_unit_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameTech,         0, BTS_STRING, dbqf_objname_tech_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoodsByTech,  0, BTS_STRING, dbqf_objname_goodsbytech_i, 1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePrc,          0, BTS_STRING, dbqf_objname_prc_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoods,        0, BTS_STRING, dbqf_objname_goods_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePerson,       0, BTS_STRING, dbqf_objname_person_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSalCharge,    0, BTS_STRING, dbqf_objname_salcharge_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaff,        0, BTS_STRING, dbqf_objname_staff_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaffCal,     0, BTS_STRING, dbqf_objname_staffcal_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonPost,   0, BTS_STRING, dbqf_objname_personpost_i,  1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffOrg,         0, BTS_STRING, dbqf_stafforgname_i,        1, BTS_INT)); // @v9.0.3
-	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffDiv,         0, BTS_STRING, dbqf_staffdivname_i,        1, BTS_INT)); // @v9.0.3
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAccSheet,     0, BTS_STRING, dbqf_objname_accsheet_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameQuotKind,     0, BTS_STRING, dbqf_objname_quotkind_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameCashNode,     0, BTS_STRING, dbqf_objname_cashnode_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameScale,        0, BTS_STRING, dbqf_objname_scale_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePsnOpKind,    0, BTS_STRING, dbqf_objname_psnopkind_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBizScore,     0, BTS_STRING, dbqf_objname_bizscore_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAcctRel,      0, BTS_STRING, dbqf_objname_acctrel_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBrand,        0, BTS_STRING, dbqf_objname_brand_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameWorld,        0, BTS_STRING, dbqf_objname_world_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonStatus, 0, BTS_STRING, dbqf_objname_personstatus_i, 1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonCat,    0, BTS_STRING, dbqf_objname_personcat_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAmountType,   0, BTS_STRING, dbqf_objname_amttype_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePsnKind,      0, BTS_STRING, dbqf_objname_psnkind_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjSymbCurrency,     0, BTS_STRING, dbqf_objsymb_currency_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBillCmplx,    0, BTS_STRING, dbqf_objcodecmplx_bill_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBill,         0, BTS_STRING, dbqf_objcode_bill_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoBill,         0, BTS_STRING, dbqf_objmemo_bill_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     0, BTS_STRING, dbqf_objname_scardser_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      0, BTS_STRING, dbqf_objname_debtdim_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        0, BTS_STRING, dbqf_objcode_scard_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdSCardOwnerName,      0, BTS_STRING, dbqf_scardownername_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdLocOwnerName,        0, BTS_STRING, dbqf_locownername_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdUsrPersonName,       0, BTS_STRING, dbqf_usrpersonname_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncName,         0, BTS_STRING, dbqf_ufpfuncname_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdVersionText,         0, BTS_STRING, dbqf_versionname_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncId,           0, BTS_INT,    dbqf_ufpfuncid_i,           1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdEmpty,               BTS_STRING, dbqf_empty, 0));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillDebt,            BTS_REAL,   dbqf_debt_rrii,  4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtIssueDt,    BTS_DATE,   dbqf_billfrghtissuedt_i, 1, BTS_INT)); // @v8.2.9
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtArrvlDt,    BTS_DATE,   dbqf_billfrghtarrvldt_i, 1, BTS_INT)); // @v8.2.9
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   BTS_STRING, dbqf_billfrghtdlvraddr_i, 1, BTS_INT)); // @v8.7.9
+	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    BTS_STRING, dbqf_billfrghtstrgloc_i, 1, BTS_INT)); // @v8.8.6
+	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,  1, BTS_INT)); // @v8.3.6
+	THROW(DbqFuncTab::RegisterDyn(&IdCQtty,               BTS_STRING, dbqf_cqtty_rrii, 4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBillStatus,   BTS_STRING, dbqf_objname_billstatus_i,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameOprKind,      BTS_STRING, dbqf_objname_oprkind_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameLoc,          BTS_STRING, dbqf_objname_loc_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAr,           BTS_STRING, dbqf_objname_ar_i,          1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameArByAcc,      BTS_STRING, dbqf_objname_arbyacc_i,     2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameUser,         BTS_STRING, dbqf_objname_user_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGlobalUser,   BTS_STRING, dbqf_objname_globaluser_i,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameUnit,         BTS_STRING, dbqf_objname_unit_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameTech,         BTS_STRING, dbqf_objname_tech_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoodsByTech,  BTS_STRING, dbqf_objname_goodsbytech_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePrc,          BTS_STRING, dbqf_objname_prc_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoods,        BTS_STRING, dbqf_objname_goods_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePerson,       BTS_STRING, dbqf_objname_person_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSalCharge,    BTS_STRING, dbqf_objname_salcharge_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaff,        BTS_STRING, dbqf_objname_staff_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameStaffCal,     BTS_STRING, dbqf_objname_staffcal_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonPost,   BTS_STRING, dbqf_objname_personpost_i,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffOrg,         BTS_STRING, dbqf_stafforgname_i,        1, BTS_INT)); // @v9.0.3
+	THROW(DbqFuncTab::RegisterDyn(&IdObjStaffDiv,         BTS_STRING, dbqf_staffdivname_i,        1, BTS_INT)); // @v9.0.3
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAccSheet,     BTS_STRING, dbqf_objname_accsheet_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameQuotKind,     BTS_STRING, dbqf_objname_quotkind_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameCashNode,     BTS_STRING, dbqf_objname_cashnode_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameScale,        BTS_STRING, dbqf_objname_scale_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePsnOpKind,    BTS_STRING, dbqf_objname_psnopkind_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBizScore,     BTS_STRING, dbqf_objname_bizscore_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAcctRel,      BTS_STRING, dbqf_objname_acctrel_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBrand,        BTS_STRING, dbqf_objname_brand_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameWorld,        BTS_STRING, dbqf_objname_world_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonStatus, BTS_STRING, dbqf_objname_personstatus_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePersonCat,    BTS_STRING, dbqf_objname_personcat_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAmountType,   BTS_STRING, dbqf_objname_amttype_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNamePsnKind,      BTS_STRING, dbqf_objname_psnkind_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjSymbCurrency,     BTS_STRING, dbqf_objsymb_currency_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBillCmplx,    BTS_STRING, dbqf_objcodecmplx_bill_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBill,         BTS_STRING, dbqf_objcode_bill_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoBill,         BTS_STRING, dbqf_objmemo_bill_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     BTS_STRING, dbqf_objname_scardser_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      BTS_STRING, dbqf_objname_debtdim_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        BTS_STRING, dbqf_objcode_scard_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdSCardOwnerName,      BTS_STRING, dbqf_scardownername_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdLocOwnerName,        BTS_STRING, dbqf_locownername_i,        1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdUsrPersonName,       BTS_STRING, dbqf_usrpersonname_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncName,         BTS_STRING, dbqf_ufpfuncname_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdVersionText,         BTS_STRING, dbqf_versionname_i,         1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdUfpFuncId,           BTS_INT,    dbqf_ufpfuncid_i,           1, BTS_INT));
 
-	THROW(DbqFuncTab::RegisterDyn(&IdTrfrPrice,           0, BTS_REAL,   dbqf_trfrprice_irrr,
-		7, BTS_INT, BTS_INT, BTS_DATE, BTS_INT, BTS_REAL, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdDateTime,            0, BTS_STRING, dbqf_datetime_dt, 2, BTS_DATE, BTS_TIME));
-	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      0, BTS_REAL,   dbqf_invent_diffqtty_i,  2, BTS_INT, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnPhQtty,        0, BTS_REAL,   dbqf_tseslnphqtty_iirr,  4, BTS_INT, BTS_INT, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         0, BTS_STRING, dbqf_tseslnflags_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             0, BTS_REAL,   dbqf_percent_rr,         2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercentIncDiv,       0, BTS_REAL,   dbqf_percentincdiv_rr,   2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdPercentAddendum,     0, BTS_REAL,   dbqf_percentaddendum_rr, 2, BTS_REAL, BTS_REAL)); // @v9.8.2
-	THROW(DbqFuncTab::RegisterDyn(&IdWorldIsMemb,         0, BTS_INT,    dbqf_world_ismemb_ii,    2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdTaCost,              0, BTS_REAL,   dbqf_tacost_rr,          2, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdTaPrice,             0, BTS_REAL,   dbqf_taprice_rrr,        3, BTS_REAL, BTS_REAL, BTS_REAL));
-	THROW(DbqFuncTab::RegisterDyn(&IdDurationToTime,      0, BTS_STRING, dbqf_durationtotime_dt,  1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdCommSyncId,          0, BTS_STRING, dbqf_idcommsyncid_ii,    2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjTitle,            0, BTS_STRING, dbqf_idobjtitle_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdTrfrPrice,           BTS_REAL,   dbqf_trfrprice_irrr, 7, BTS_INT, BTS_INT, BTS_DATE, BTS_INT, BTS_REAL, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdDateTime,            BTS_STRING, dbqf_datetime_dt, 2, BTS_DATE, BTS_TIME));
+	THROW(DbqFuncTab::RegisterDyn(&IdInventDiffQtty,      BTS_REAL,   dbqf_invent_diffqtty_i,  2, BTS_INT, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnPhQtty,        BTS_REAL,   dbqf_tseslnphqtty_iirr,  4, BTS_INT, BTS_INT, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTSesLnFlags,         BTS_STRING, dbqf_tseslnflags_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercent,             BTS_REAL,   dbqf_percent_rr,         2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercentIncDiv,       BTS_REAL,   dbqf_percentincdiv_rr,   2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdPercentAddendum,     BTS_REAL,   dbqf_percentaddendum_rr, 2, BTS_REAL, BTS_REAL)); // @v9.8.2
+	THROW(DbqFuncTab::RegisterDyn(&IdWorldIsMemb,         BTS_INT,    dbqf_world_ismemb_ii,    2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdTaCost,              BTS_REAL,   dbqf_tacost_rr,          2, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdTaPrice,             BTS_REAL,   dbqf_taprice_rrr,        3, BTS_REAL, BTS_REAL, BTS_REAL));
+	THROW(DbqFuncTab::RegisterDyn(&IdDurationToTime,      BTS_STRING, dbqf_durationtotime_dt,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCommSyncId,          BTS_STRING, dbqf_idcommsyncid_ii,    2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTitle,            BTS_STRING, dbqf_idobjtitle_i,       1, BTS_INT));
 
-	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockDim,       0, BTS_STRING, dbqf_goodsstockdim_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockBrutto,    0, BTS_STRING, dbqf_goodsstockbrutto_i, 1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockMin,       0, BTS_STRING, dbqf_goodsstockmin_i,    1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockPackage,   0, BTS_STRING, dbqf_goodsstockpack_i,   1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdGoodsSingleBarcode,  0, BTS_STRING, dbqf_goodssinglebarcode_i, 1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdReportTypeName,    0, BTS_STRING, dbqf_rpttypename_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdLogFileName,       0, BTS_STRING, dbqf_logfilename_i,      1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdSysJActionName,    0, BTS_STRING, dbqf_sysjaction_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdGtaJActionName,    0, BTS_STRING, dbqf_gtajaction_i,       1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdCounter,           0, BTS_INT,    dbqf_counter_i,          1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdPropSubStr,        0, BTS_STRING, dbqf_propsubstr_iiii,    4, BTS_INT, BTS_INT, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdCheckUserID,       0, BTS_INT,    dbqf_checkuserid_ii,     2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdCheckWmsLocID,     0, BTS_INT,    dbqf_checkwmsloc_ii,     2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdTransportTypeName, 0, BTS_STRING, dbqf_transptypename_i,   1, BTS_INT));  // @v6.3.2 AHTOXA
-	THROW(DbqFuncTab::RegisterDyn(&IdLotCloseDate,      0, BTS_DATE,   dbqf_lotclosedate_d,     1, BTS_DATE)); // @v6.3.2
-	THROW(DbqFuncTab::RegisterDyn(&IdFormatCycle,       0, BTS_STRING, dbqf_formatcycle_di,     2, BTS_DATE, BTS_INT)); // @v6.3.7
-	THROW(DbqFuncTab::RegisterDyn(&IdYesWordByFlag,     0, BTS_STRING, dbqf_yeswordbyflag_i,    3, BTS_INT, BTS_INT, BTS_STRING)); // @v6.5.6 AHTOXA
-	THROW(DbqFuncTab::RegisterDyn(&IdBudgetPlanOrFact,  0, BTS_REAL,   dbqf_budgplanorfact_rii, 3, BTS_REAL, BTS_INT, BTS_INT)); // @v6.5.14 AHTOXA
-	THROW(DbqFuncTab::RegisterDyn(&IdChkOpJActionName,  0, BTS_STRING, dbqf_chkopjaction_i,     1, BTS_INT)); // @v6.6.10 AHTOXA
-	THROW(DbqFuncTab::RegisterDyn(&IdAddrCityName,      0, BTS_STRING, dbqf_addr_city_name_i,   1, BTS_INT));          // @v7.0.9
-	THROW(DbqFuncTab::RegisterDyn(&IdAddrExField,       0, BTS_STRING, dbqf_addr_ex_field_ii,   2, BTS_INT, BTS_INT)); // @v7.0.9
-	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNode,    0, BTS_INT,    dbqf_checkcsposnode_ii,  2, BTS_INT, BTS_INT)); // @v7.6.3  (csessID, posNodeID)
-	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,0, BTS_INT,    dbqf_checkcsposnodelist_ii, 2, BTS_INT, BTS_PTR)); // @v7.6.3  (csessID, (const LongArray *))
-	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,  0, BTS_STRING, dbqf_strbystrgrouppos_ip,   2, BTS_INT, BTS_PTR)); // @v9.8.3 (position, (const SStrGroup *))
-	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,    0, BTS_INT,    dbqf_strexistsub_ss,        2, BTS_STRING, BTS_STRING)); // @vmiller
-	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,  0, BTS_REAL,   dbqf_addedcreditlimit_rii,  3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
-	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,   0, BTS_STRING, dbqf_getagrmntsymbol_i,  1, BTS_INT)); // @vmiller
-	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,      0, BTS_STRING, dbqf_registertext_i,     1, BTS_INT)); // @v8.4.4
-	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,        0, BTS_STRING, dbqf_objtagtext_ii,      2, BTS_INT, BTS_INT)); // @v8.4.11
-	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,         0, BTS_STRING, dbqf_daterange_dd,       2, BTS_DATE, BTS_DATE)); // @v8.6.4
-	THROW(DbqFuncTab::RegisterDyn(&IdOidText,           0, BTS_STRING, dbqf_oidtext_ii,         2, BTS_INT, BTS_INT)); // @v8.6.11
-	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,          0, BTS_DATE,   dbqf_datebase_id,        2, BTS_INT, BTS_DATE)); // @v8.6.11
-	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,    0, BTS_STRING, dbqf_scardextstring_ii,  2, BTS_INT, BTS_INT)); // @v9.6.1
+	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockDim,       BTS_STRING, dbqf_goodsstockdim_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockBrutto,    BTS_STRING, dbqf_goodsstockbrutto_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockMin,       BTS_STRING, dbqf_goodsstockmin_i,    1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdGoodsStockPackage,   BTS_STRING, dbqf_goodsstockpack_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdGoodsSingleBarcode,  BTS_STRING, dbqf_goodssinglebarcode_i, 1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdReportTypeName,      BTS_STRING, dbqf_rpttypename_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdLogFileName,         BTS_STRING, dbqf_logfilename_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdSysJActionName,      BTS_STRING, dbqf_sysjaction_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdGtaJActionName,      BTS_STRING, dbqf_gtajaction_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCounter,             BTS_INT,    dbqf_counter_i,          1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdPropSubStr,          BTS_STRING, dbqf_propsubstr_iiii,    4, BTS_INT, BTS_INT, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckUserID,         BTS_INT,    dbqf_checkuserid_ii,     2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckWmsLocID,       BTS_INT,    dbqf_checkwmsloc_ii,     2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdTransportTypeName,   BTS_STRING, dbqf_transptypename_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdLotCloseDate,        BTS_DATE,   dbqf_lotclosedate_d,     1, BTS_DATE));
+	THROW(DbqFuncTab::RegisterDyn(&IdFormatCycle,         BTS_STRING, dbqf_formatcycle_di,     2, BTS_DATE, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdYesWordByFlag,       BTS_STRING, dbqf_yeswordbyflag_i,    3, BTS_INT, BTS_INT, BTS_STRING));
+	THROW(DbqFuncTab::RegisterDyn(&IdBudgetPlanOrFact,    BTS_REAL,   dbqf_budgplanorfact_rii, 3, BTS_REAL, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdChkOpJActionName,    BTS_STRING, dbqf_chkopjaction_i,     1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdAddrCityName,        BTS_STRING, dbqf_addr_city_name_i,   1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdAddrExField,         BTS_STRING, dbqf_addr_ex_field_ii,   2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNode,      BTS_INT,    dbqf_checkcsposnode_ii,  2, BTS_INT, BTS_INT)); // (csessID, posNodeID)
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,  BTS_INT,    dbqf_checkcsposnodelist_ii, 2, BTS_INT, BTS_PTR)); // (csessID, (const LongArray *))
+	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,    BTS_STRING, dbqf_strbystrgrouppos_ip,   2, BTS_INT, BTS_PTR)); // @v9.8.3 (position, (const SStrGroup *))
+	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,      BTS_INT,    dbqf_strexistsub_ss,        2, BTS_STRING, BTS_STRING));
+	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,  3, BTS_REAL, BTS_INT, BTS_INT)); // @v8.2.4
+	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,  1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,     1, BTS_INT)); // @v8.4.4
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,      2, BTS_INT, BTS_INT)); // @v8.4.11
+	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,       2, BTS_DATE, BTS_DATE)); // @v8.6.4
+	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,         2, BTS_INT, BTS_INT)); // @v8.6.11
+	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,        2, BTS_INT, BTS_DATE)); // @v8.6.11
+	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,  2, BTS_INT, BTS_INT)); // @v9.6.1
 	CATCHZOK
 	return ok;
 }
@@ -1608,6 +1607,19 @@ void SLAPI PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFl
 		rDbe.push((DBFunc)PPDbqFuncPool::IdPercentIncDiv);
 	else
 		rDbe.push((DBFunc)PPDbqFuncPool::IdPercent);
+}
+
+//static
+void SLAPI PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg)
+{
+	rDbe.init();
+	rDbe.push(rFld);
+	{
+		DBConst dbc_ptr;
+		dbc_ptr.init(pSg);
+		rDbe.push(dbc_ptr);
+	}
+	rDbe.push((DBFunc)PPDbqFuncPool::IdStrByStrGroupPos);
 }
 
 //static

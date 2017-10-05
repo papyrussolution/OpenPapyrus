@@ -6003,7 +6003,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 								ringing_line.Cat(cnl_status.Channel).CatDiv(':', 2).Cat(caller_buf);
 								phn_list.AddPhone(caller_buf);
 								PsnObj.LocObj.P_Tbl->SearchPhoneIndex(caller_buf, 0, ea_id_list);
-								contact_buf = 0;
+								contact_buf.Z();
 								for(uint j = 0; !contact_buf.NotEmpty() && j < ea_id_list.getCount(); j++) {
 									EAddrTbl::Rec ea_rec;
 									if(PsnObj.LocObj.P_Tbl->GetEAddr(ea_id_list.get(j), &ea_rec) > 0) {

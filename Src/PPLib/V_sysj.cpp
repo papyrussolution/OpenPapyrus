@@ -725,7 +725,7 @@ int SLAPI PPViewSysJournal::Transmit()
 			PPObjIDArray objid_ary;
 			PPWait(1);
 			nmq.select(P_NamesTbl->PrmrID, P_NamesTbl->ScndID, 0L);
-			cntr.Init(P_NamesTbl);
+			PPInitIterCounter(cntr, P_NamesTbl);
 			MEMSZERO(k0);
 			for(nmq.initIteration(0, &k0, spGt); nmq.nextIteration() > 0; cntr.Increment()) {
 				PPObjID oi;

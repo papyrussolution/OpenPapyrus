@@ -1144,7 +1144,7 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 	else if(source->type == CAIRO_SURFACE_TYPE_RECORDING) {
 		/* We have to skip the call to attach_snapshot() because we possibly
 		 * only drew part of the recording surface.
-		 * TODO: When can we safely attach a snapshot?
+		 * @todo When can we safely attach a snapshot?
 		 */
 		return record_to_picture(&target->base, pattern, extents);
 	}

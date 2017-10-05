@@ -736,8 +736,8 @@ int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
 // virtual
 DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncCheckRelRestrictions, 0, BTS_INT,    dbqf_accturn_checkrelrestriction_iii, 3, BTS_INT, BTS_INT, BTS_INT);
-	DbqFuncTab::RegisterDyn(&DynFuncCurSymbByAccRelID,    0, BTS_STRING, dbqf_objname_cursymbbyacctrel_i, 1, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncCheckRelRestrictions, BTS_INT,    dbqf_accturn_checkrelrestriction_iii, 3, BTS_INT, BTS_INT, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncCurSymbByAccRelID,    BTS_STRING, dbqf_objname_cursymbbyacctrel_i, 1, BTS_INT);
 
 	uint   brw_id = 0;
 	SString sub_title;

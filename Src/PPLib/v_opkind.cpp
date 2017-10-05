@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -277,8 +277,8 @@ void OprKindBrowser::updateView()
 IMPL_CMPFUNC(OprKindBrwItemName, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (OprKindBrwItem*)_i1;
-	const OprKindBrwItem * p_item2 = (OprKindBrwItem*)_i2;
+	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
+	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
 	if((r = stricmp866(p_item1->Name, p_item2->Name)) < 0)
 		return -1;
 	else if(r > 0)
@@ -290,8 +290,8 @@ IMPL_CMPFUNC(OprKindBrwItemName, _i1, _i2)
 IMPL_CMPFUNC(OprKindBrwItemNameRank, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (OprKindBrwItem*)_i1;
-	const OprKindBrwItem * p_item2 = (OprKindBrwItem*)_i2;
+	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
+	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
 	if(p_item1->Rank > p_item2->Rank)
 		return -1;
 	else if(p_item1->Rank < p_item2->Rank)
@@ -307,8 +307,8 @@ IMPL_CMPFUNC(OprKindBrwItemNameRank, _i1, _i2)
 IMPL_CMPFUNC(OprKindBrwItemTypeName, _i1, _i2)
 {
 	int    r = 0;
-	const OprKindBrwItem * p_item1 = (OprKindBrwItem*)_i1;
-	const OprKindBrwItem * p_item2 = (OprKindBrwItem*)_i2;
+	const OprKindBrwItem * p_item1 = (const OprKindBrwItem *)_i1;
+	const OprKindBrwItem * p_item2 = (const OprKindBrwItem *)_i2;
 	if((r = stricmp866(p_item1->OpType, p_item2->OpType)) < 0)
 		return -1;
 	else if(r > 0)
@@ -347,38 +347,27 @@ int SLAPI PPViewOprKind::CreateFlagsMnemonics(const PPOprKind * pOpData, char * 
 	SString buf;
 	if(pOpData) {
 		// set op flags
-		if(pOpData->Flags & OPKF_NEEDPAYMENT)
-			buf.CatChar('P');
-		if(pOpData->Flags & OPKF_NOUPDLOTREST)
-			buf.CatChar('x');
-		if(pOpData->Flags & OPKF_ADVACC)
-			buf.CatChar('>');
-		if(pOpData->Flags & OPKF_PROFITABLE)
-			buf.CatChar('G');
-		if(pOpData->Flags & OPKF_ONORDER)
-			buf.CatChar('D');
-		if(pOpData->Flags & OPKF_ORDRESERVE)
-			buf.CatChar('R');
-		if(pOpData->Flags & OPKF_CALCSTAXES)
-			buf.CatChar('V');
-		if(pOpData->Flags & OPKF_OUTBALACCTURN)
-			buf.CatChar('O');
-		if(pOpData->Flags & OPKF_EXTACCTURN)
-			buf.CatChar('E');
-		if(pOpData->Flags & OPKF_EXTAMTLIST)
-			buf.CatChar('L');
-		if(pOpData->Flags & OPKF_RENT)
-			buf.CatChar('N');
-		if(pOpData->Flags & OPKF_NEEDACK)
-			buf.CatChar('A');
-		if(pOpData->Flags & OPKF_RECKON)
-			buf.CatChar('K');
-		if(pOpData->Flags & OPKF_BANKING)
-			buf.CatChar('B');
-		if(pOpData->Flags & OPKF_PASSIVE)
-			buf.CatChar('S');
-		if(pOpData->Flags & OPKF_CURTRANSIT)
-			buf.CatChar('T');
+		static const struct FL { long F; char L; } fl_list[] = {
+			{ OPKF_NEEDPAYMENT,   'P' },
+			{ OPKF_NOUPDLOTREST,  'x' },
+			{ OPKF_ADVACC,        '>' },
+			{ OPKF_PROFITABLE,    'G' },
+			{ OPKF_ONORDER,       'D' },
+			{ OPKF_ORDRESERVE,    'R' },
+			{ OPKF_CALCSTAXES,    'V' },
+			{ OPKF_OUTBALACCTURN, 'O' },
+			{ OPKF_EXTACCTURN,    'E' },
+			{ OPKF_EXTAMTLIST,    'L' },
+			{ OPKF_RENT,          'N' },
+			{ OPKF_NEEDACK,       'A' },
+			{ OPKF_RECKON,        'K' },
+			{ OPKF_BANKING,       'B' },
+			{ OPKF_PASSIVE,       'S' },
+			{ OPKF_CURTRANSIT,    'T' }
+		};
+		for(uint i = 0; i < SIZEOFARRAY(fl_list); i++)
+			if(pOpData->Flags & fl_list[i].F)
+				buf.CatChar(fl_list[i].L);
 		buf.CatChar('-');
 		// Set Amount type
 		int    use_main_amt = 0;

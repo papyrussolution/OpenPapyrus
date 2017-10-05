@@ -65,7 +65,7 @@
 //      Этот признак следует выставлять для того, чтобы вызывающая функция не пыталась
 //      вызывать такую функцию внутри транзакции.
 // @wota - транзактивная функция. Внутри функции не вызывается транзакция обработки данных, но
-//      функция должан обрамляться транзакцией посколько в ней используются методы изменения базы данных.
+//      функция должна обрамляться транзакцией посколько в ней используются методы изменения базы данных.
 //      Такая особенность может применяться только для локально используемых helper-функций.
 // @*  - обозначает функцию или класс, инициализирующие поле. Например:
 //     struct Foo {
@@ -100,6 +100,8 @@
 // @fallthrough   - то же, что и @nobreak
 // @macrow        - специальная пометка рядом с декларацией функции, означающая, что ее определение обернуто в макрос
 //                  (для того, чтобы программиста не смущала неспособность слишком "умной" IDE найти это определение)
+// @firstmember   - Помечается переменная-член структуры (класса), местонахождение которой на первой позиции
+//                  экспериментально обосновано.
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -685,21 +687,6 @@ public:
 	LDATE  dt;
 	long   oprno;
 };
-
-class IterCounter {
-public:
-	SLAPI  IterCounter();
-	operator ulong() const { return Count; }
-	void   FASTCALL Init(ulong total = 0L);
-	int    FASTCALL Init(DBTable *);
-	void   FASTCALL SetTotal(ulong total)  { Total = total; }
-	IterCounter & SLAPI Increment() { Count++; return *this; }
-	IterCounter & FASTCALL Add(long a) { Count += a; return *this; }
-	ulong  SLAPI GetTotal() const { return Total; }
-private:
-	ulong  Count;
-	ulong  Total;
-};
 //
 // Descr: Специализированный массив, хранящий пары {id, binary data}. Причем
 //   значение ключа автоматически назначается экземпляром массива при обращении
@@ -1188,6 +1175,7 @@ public:
 	//   Если 2, то результат равен (100 * (fld1-fld2) / fld2)
 	//
 	static void SLAPI InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv);
+	static void SLAPI InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg);
 	//static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 	static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 };
@@ -3628,9 +3616,9 @@ public:
 	int    SLAPI LoadSecur(PPID, PPID, PPSecurPacket *);
 	int    SLAPI EditSecur(PPID, PPID, PPSecurPacket *, int isNew);
 	int    SLAPI RemoveSecur(PPID obj, PPID id, int use_ta);
-	int    SLAPI GetPropArrayFromRecBuf(SArray * pAry);
-	int    SLAPI GetPropArray(PPID obj, PPID id, PPID prop, SArray *);
-	int    SLAPI PutPropArray(PPID obj, PPID id, PPID prop, const SArray *, int use_ta);
+	int    SLAPI GetPropArrayFromRecBuf(SVectorBase * pAry);
+	int    SLAPI GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry);
+	int    SLAPI PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * pAry, int use_ta);
 
 	static int SLAPI Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen);
 	static int SLAPI Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText);
@@ -17450,6 +17438,8 @@ public:
 	PPAsyncCashNode & FASTCALL operator = (const PPAsyncCashNode &);
 	int    FASTCALL Copy(const PPAsyncCashNode & rS);
 	int    FASTCALL GetLogNumList(PPIDArray & rList) const;
+	const  PosIdentEntry * FASTCALL SearchPosIdentEntryByGUID(const S_GUID & rUuid) const;
+	const  PosIdentEntry * FASTCALL SearchPosIdentEntryByName(const char * pName) const;
 
 	SString ExpPaths;
 	SString ImpFiles;
@@ -24524,6 +24514,8 @@ public:
 	int    SLAPI CreateAuthFile(PPID psnId);
 
 	int    FASTCALL IsNewCliPerson(PPID id) const;
+	void   FASTCALL GetFromStrPool(uint strP, SString & rBuf) const;
+	int    FASTCALL HasImage(const void * pData);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
@@ -24550,6 +24542,7 @@ private:
 
 	PPID   DefaultTagID;
 	UintHashTable NewCliList;
+	SStrGroup StrPool; // @v9.8.4 Пул строковых полей, на который ссылаются поля в TempPersonTbl
 	TempPersonTbl * P_TempPsn;
 	PersonFilt  Filt;
 	PPObjPerson PsnObj;
@@ -25617,7 +25610,7 @@ public:
 	GoodsStockExt    Stock;   //
 	BarcodeArray     Codes;   // Список штрихкодов товара
 	ArGoodsCodeArray ArCodes; // Список кодов, сопоставленных с контрагентами
-	PPGoodsStruc  GS;         // @TODO Если структура не собственная (GSF_NAMED), то при изменении требует блокировки.
+	PPGoodsStruc  GS;         // @todo Если структура не собственная (GSF_NAMED), то при изменении требует блокировки.
 	enum {
 		ufDontChgTaxGrp  = 0x0001, // Функция PPObjGoods::PutPacket не должна изменять налоговую группу товара или группы товаров.
 		ufChgNamedStruc  = 0x0002, // Функция PPObjGoods::PutPacket должна изменить именованную структуру товара
@@ -29278,7 +29271,7 @@ class PPBillImporter : public PPBillImpExpBaseProcessBlock {
 public:
 	SLAPI  PPBillImporter();
 	SLAPI ~PPBillImporter();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    SLAPI Init(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowParam, PPID opID, PPID locID);
 	//
 	// Descr: Функция не интерактивно инициализирует импорт с Universe-HTT
@@ -42833,70 +42826,6 @@ private:
 #define SUBJECTFRONTOL    "ATOL_RMK_CHANGE_"
 #define MIN_INET_PSW_SIZE 1
 
-typedef void (*MailCallbackProc)(const IterCounter & bytesCounter, const IterCounter & msgCounter);
-
-struct PPMailMsg {
-	enum {
-		fldFrom = 1,
-		fldTo,
-		fldSubj,
-		fldBoundary,
-		fldText,
-		fldCc // @v8.9.11 Адреса для копий письма
-	};
-	enum {
-		fPpyOrder  = 0x0001, // Заказ Albatros
-		fPpyObject = 0x0002, // Данные передачи между разделами
-		fMultipart = 0x0004, //
-		fPpyCharry = 0x0008, // Объекты Charry
-		fFrontol   = 0x0010  // Файл с данными с кассового модуля Фронтол
-	};
-	SLAPI  PPMailMsg();
-	SLAPI ~PPMailMsg();
-	int    SLAPI Init();
-	int    SLAPI IsPpyData() const;
-	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
-	//
-	// Parameters:
-	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
-	// Returns:
-	//     pBuf - on success, 0 - on error
-	//
-	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
-	int    SLAPI AttachFile(const char *);
-	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
-	int    SLAPI SetField(int fldId, const char *);
-	int    FASTCALL IsField(int fldId) const;
-	const  char * FASTCALL GetField(int fldId) const;
-	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
-
-	struct Disposition {
-		Disposition();
-		enum {
-			tUnkn = 0,
-			tInline,
-			tAttachment
-		};
-		int    Type;
-		SString FileName;       // "filename"
-		LDATETIME CreationDtm;  // "creation-date"
-		LDATETIME ModifDtm;     // "modification-date"
-		LDATETIME ReadDtm;      // "read-date"
-		int64  Size;            // "size"
-	};
-	long   Flags;
-	long   Size;
-private:
-	char   Zero[8];
-	SString From;
-	SString To;
-	SString Cc;
-	SString Subj;
-	SString Boundary;
-	SString Text;
-	SStrCollection AttList;
-};
-
 #define POP3CMD_SUBJECT 3L
 #define POP3CMD_RETR    4L
 #define POP3CMD_QUIT    5L
@@ -42919,12 +42848,12 @@ public:
 	int    SLAPI Open(const char * pFileName);
 	int    SLAPI Close();
 	const  char * SLAPI ReadLine();
-	const  PPMailMsg & SLAPI GetHeader() const { return Msg; }
+	const  SMailMsg & SLAPI GetHeader() const { return Msg; }
 	int    SLAPI SaveAttachment(const char * pAttachName, const char * pDestPath);
 	int    SLAPI SaveOrder(const char * pDestPath);
 private:
 	int    SLAPI ReadHeader();
-	int    SLAPI ReadDisposition(PPMailMsg::Disposition * pD);
+	int    SLAPI ReadDisposition(SMailMsg::Disposition * pD);
 	int    SLAPI SkipHeader();
 	int    SLAPI GetField(const char * pLine, uint fldID, SString & rBuf) const;
 	int    SLAPI GetFieldTitle(uint id, SString & rBuf) const;
@@ -42934,7 +42863,7 @@ private:
 	//
 	int    SLAPI IsBoundaryLine(int start) const;
 
-	PPMailMsg Msg;
+	SMailMsg Msg;
 	size_t LineBufSize;
 	char * P_LineBuf;
 	char * P_FieldStrBuf; // PPTXT_MAILFILEDS
@@ -42971,8 +42900,8 @@ public:
 	SLAPI  PPMailPop3(const PPInternetAccount *);
 	int    SLAPI Login();                                                // cmd USER & PASS
 	int    SLAPI GetStat(long * pCount, long * pSize);                   // cmd STAT
-	int    SLAPI GetMsgInfo(long msgN /* 1.. */, PPMailMsg *);           // cmd TOP
-	int    SLAPI GetMsg(long msgN, PPMailMsg *, const char * pFileName, MailCallbackProc, const IterCounter & msgCounter);               // cmd RETR
+	int    SLAPI GetMsgInfo(long msgN /* 1.. */, SMailMsg *);           // cmd TOP
+	int    SLAPI GetMsg(long msgN, SMailMsg *, const char * pFileName, MailCallbackProc, const IterCounter & msgCounter); // cmd RETR
 	int    SLAPI DeleteMsg(long msgN);                                   // cmd DELE
 
 	int    SLAPI SaveAttachment(const char * pMsgFileName, const char * pAttachName, const char * pDestPath);
@@ -42987,13 +42916,13 @@ protected:
 	virtual int SLAPI FinalizeServerUrl(InetUrl & rUrl);
 private:
 	int    SLAPI SendCmd(long cmd, const char * pAddedInfo, long addedInfo, SString & rReplyBuf);
-	int    SLAPI ProcessMsgHeaderLine(const char * pLine, PPMailMsg * pMsg);
+	int    SLAPI ProcessMsgHeaderLine(const char * pLine, SMailMsg * pMsg);
 	//int    Logged;
 };
 
 class PPMailSmtp : public PPMail {
 public:
-	static int SLAPI Send(const PPInternetAccount & rAcc, PPMailMsg & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter);
+	static int SLAPI Send(const PPInternetAccount & rAcc, SMailMsg & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter);
 
 	SLAPI  PPMailSmtp(const PPInternetAccount *);
 	SLAPI ~PPMailSmtp();
@@ -43003,8 +42932,8 @@ protected:
 	virtual int SLAPI FinalizeServerUrl(InetUrl & rUrl);
 private:
 	int    SLAPI SendCmd(long cmd, const char * pAddedInfo, SString & rReplyBuf);
-	int    SLAPI SendMsgToFile(PPMailMsg * pMsg, SString & rFileName);
-	int    SLAPI SendMsgFromFile(PPMailMsg *, const char *, MailCallbackProc, const IterCounter &);
+	int    SLAPI SendMsgToFile(SMailMsg * pMsg, SString & rFileName);
+	int    SLAPI SendMsgFromFile(SMailMsg *, const char *, MailCallbackProc, const IterCounter &);
 	int    SLAPI TransmitFile(const char * pFileName, MailCallbackProc, const IterCounter &);
 	int    SLAPI MakeMessageID(SString & rBuf);
 };
@@ -43146,7 +43075,8 @@ private:
 		obCcLine,
 		obPosNode,
 		obQuery,
-		obLot
+		obLot,
+		obPayment
 	};
 
 	struct ObjectBlock {
@@ -43194,6 +43124,7 @@ private:
 		SLAPI  PosNodeBlock();
         uint   CodeP; // Символьное представление кода узла
         long   CodeI; // Целочисленное значение кода узла
+		S_GUID Uuid;  // GUID кассового узла
 	};
 	struct QuotKindBlock : public ObjectBlock {
         SLAPI  QuotKindBlock();
@@ -43278,6 +43209,14 @@ private:
         uint   CCheckBlkP;
         uint   SerialP;
         uint   EgaisMarkP;
+	};
+	struct CcPaymentBlock : public ObjectBlock {
+		SLAPI  CcPaymentBlock();
+		long   CcID;
+		long   PaymType; // CCAMTTYP_XXX
+		double Amount;
+		uint   SCardBlkP;
+		uint   CCheckBlkP;
 	};
 	struct RouteObjectBlock : public ObjectBlock {
 		SLAPI  RouteObjectBlock();
@@ -43371,6 +43310,7 @@ private:
 		TSArray <CSessionBlock> CSessBlkList;
 		TSArray <CCheckBlock> CcBlkList;
 		TSArray <CcLineBlock> CclBlkList;
+		TSArray <CcPaymentBlock> CcPaymBlkList;
 		TSArray <QueryBlock> QueryList;
 		TSArray <ObjBlockRef> RefList;
 	};
@@ -44738,84 +44678,10 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:
-	enum {
-		ftTddo = 1,
-		ftTddt
-	};
-	static int SLAPI GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult);
-	static int SLAPI LoadFile(const char * pName, SString & rBuf);
-
-	SLAPI  Tddo();
-	SLAPI ~Tddo();
-	//
-	// Descr: Реализует обработку шаблона из буфера pBuf. Данные извлекаются из
-	//   структуры данных DL600, определенной в теле шаблона. Если эта структура
-	//   или ее родитель не совпадает со структурой, заданной наименованием pDataName,
-	//   то возвращает ошибку. Данные инициализируются посредством параметров dataId и pDataPtr.
-	//   Результат выводится в буфер rOut.
-	//
-	int    SLAPI Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
-	//
-	// Descr: Устанавливает имя входного файла. В общем случае, имя входного файла может быть
-	//   пустым (поскольку функция Process обрабатывает входной поток символов из RAM), но при обработке
-	//   ошибок и для правильной идентификации пути внутренних файлов имя файла может быть востребовано.
-	//
-	void   SLAPI SetInputFileName(const char * pFileName);
-private:
-	friend class TddoExprSet;
-	friend class TddoContentGraph;
-
-	struct Meta {
-		Meta();
-		Meta & FASTCALL operator = (const Meta & rS);
-		void   Clear();
-
-		int    Tok;
-		SString Text;
-		SString Param;
-	};
-	struct ProcessBlock {
-		ProcessBlock();
-
-		SString SrcDataName;
-		DlRtm::ExportParam Ep;
-		DlRtm * P_Rtm;
-		PPFilt F;
-	};
-	struct Result {
-		Result();
-		Result & Clear();
-
-		SString S;
-		DLSYMBID RefType;
-		long    RefID;
-	};
-	int    FASTCALL ScanMeta(Meta & rM);
-	int    SLAPI Helper_RecognizeMetaKeyword();
-	//
-	// Descr: Флаги функции Helper_RecognizeExprToken
-	//
-	enum {
-		rexptfMetaOnly = 0x0001 // Идентифицировать только метасимволы (натуральные строки и числа не рассматривать)
-	};
-
-	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
-	void   SLAPI Skip();
-	int    SLAPI Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput);
-	int    SLAPI ResolveVar(const SString & rText, const DlScope * pScope, Result & rR);
-	int    SLAPI ResolveArgN(const SString & rText, Result & rR);
-	int    SLAPI ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR);
-	int    SLAPI GetVar(const SString & rInput, SString & rBuf) const;
-	int    SLAPI IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet);
-	int    SLAPI ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut);
-
-	enum {
-		stStart = 0x0001
-	};
 	enum {
 		tNone = 0,
 		tRem,
@@ -44852,6 +44718,81 @@ private:
 		tDollarBrace, // ${ - начало выражения. В один проход всю конструкцию ${expr} не разобрать ибо внутри могут быть сложные подвыражения
 		tOperator = 1000 // Значения выше tOperator содержат и сам оператор как слагаемое результата.
 			// Например 1000+_DIVIDE_ (=1022) означает оператор деления.
+	};
+	enum {
+		ftTddo = 1,
+		ftTddt
+	};
+	static int SLAPI GetFileName(const char * pFileName, int fileType, const char * pInputFileName, SString & rResult);
+	static int SLAPI LoadFile(const char * pName, SString & rBuf);
+
+	SLAPI  Tddo();
+	SLAPI ~Tddo();
+	//
+	// Descr: Реализует обработку шаблона из буфера pBuf. Данные извлекаются из
+	//   структуры данных DL600, определенной в теле шаблона. Если эта структура
+	//   или ее родитель не совпадает со структурой, заданной наименованием pDataName,
+	//   то возвращает ошибку. Данные инициализируются посредством параметров dataId и pDataPtr.
+	//   Результат выводится в буфер rOut.
+	//
+	int    SLAPI Process(const char * pDataName, const char * pBuf, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
+	//
+	// Descr: Устанавливает имя входного файла. В общем случае, имя входного файла может быть
+	//   пустым (поскольку функция Process обрабатывает входной поток символов из RAM), но при обработке
+	//   ошибок и для правильной идентификации пути внутренних файлов имя файла может быть востребовано.
+	//
+	void   SLAPI SetInputFileName(const char * pFileName);
+
+	struct Meta {
+		Meta();
+		Meta & FASTCALL operator = (const Meta & rS);
+		void   Clear();
+
+		int    Tok;
+		SString Text;
+		SString Param;
+	};
+private:
+	friend class TddoExprSet;
+	friend class TddoContentGraph;
+
+	struct ProcessBlock {
+		ProcessBlock();
+
+		SString SrcDataName;
+		DlRtm::ExportParam Ep;
+		DlRtm * P_Rtm;
+		PPFilt F;
+	};
+	struct Result {
+		Result();
+		Result & Clear();
+
+		SString S;
+		DLSYMBID RefType;
+		long    RefID;
+	};
+	int    FASTCALL ScanMeta(Meta & rM);
+	int    SLAPI Helper_RecognizeMetaKeyword();
+	//
+	// Descr: Флаги функции Helper_RecognizeExprToken
+	//
+	enum {
+		rexptfMetaOnly = 0x0001 // Идентифицировать только метасимволы (натуральные строки и числа не рассматривать)
+	};
+
+	//int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
+	void   SLAPI Skip();
+	int    SLAPI Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput);
+	int    SLAPI ResolveVar(const SString & rText, const DlScope * pScope, Result & rR);
+	int    SLAPI ResolveArgN(const SString & rText, Result & rR);
+	int    SLAPI ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, SStrScan & rScan, Result & rR);
+	int    SLAPI GetVar(const SString & rInput, SString & rBuf) const;
+	int    SLAPI IsTextSection(const SString & rLineBuf, const char * pPattern, SString * pRet);
+	int    SLAPI ExtractText(const char * pFileName, const char * pTextIdent, int langId, SBuffer & rOut);
+
+	enum {
+		stStart = 0x0001
 	};
 	enum {
 		fHtmlEncode  = 0x0001 // Кодировать специальные символы в извлекаемых полях html-сущностями
@@ -47854,6 +47795,13 @@ private:
 //
 void   CallbackRMailPrctFunc(long *pPrc, long total, long addedInfo1, long addedInfo2);
 //
+// Descr: Инициализирует rCntr количеством записей в таблице pTbl.
+// Returns:
+//   <0 - функция выполнена успешно
+//    0 - ошибка
+//
+int    FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl);
+//
 // Descr: Копирует почту на носитель или отправляет по электронной почте
 //
 int    SLAPI PutTransmitFiles(PPID, long trnsmFlags);
@@ -48564,7 +48512,7 @@ STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser();
 PPPaintCloth * SLAPI PPFindLastPaintCloth();
 int     SLAPI InitSTimeChunkBrowserParam(const char * Symbol, STimeChunkBrowser::Param * pParam);
 //
-//
+// Descr: Варианты обработки товарного дефицита
 //
 enum PUGP {
 	pugpFull      = 1,

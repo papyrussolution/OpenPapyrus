@@ -225,7 +225,7 @@ xmlTextWriterPtr xmlNewTextWriterFilename(const char * uri, int compression)
  * @compression:  compress the output?
  *
  * Create a new xmlNewTextWriter structure with @buf as output
- * TODO: handle compression
+ * @todo handle compression
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
@@ -255,7 +255,7 @@ xmlTextWriterPtr xmlNewTextWriterMemory(xmlBufferPtr buf, int compression ATTRIB
  * Create a new xmlNewTextWriter structure with @ctxt as output
  * NOTE: the @ctxt context will be freed with the resulting writer
  *       (if the call succeeds).
- * TODO: handle compression
+ * @todo handle compression
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
@@ -1134,7 +1134,7 @@ int xmlTextWriterWriteVFormatRaw(xmlTextWriter * writer, const char * format, va
  * @len:  length of the text string
  *
  * Write an xml text.
- * TODO: what about entities and special chars??
+ * @todo what about entities and special chars??
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */

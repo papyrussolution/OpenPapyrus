@@ -780,7 +780,7 @@ static void fast_composite_add_1_1(pixman_implementation_t * imp,
 
 		while(w--) {
 			/*
-			 * TODO: improve performance by processing uint32_t data instead
+			 * @todo improve performance by processing uint32_t data instead
 			 *       of individual bits
 			 */
 			if(TEST_BIT(src, src_x + w))

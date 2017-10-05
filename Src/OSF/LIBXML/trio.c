@@ -25,7 +25,7 @@
  ************************************************************************/
 
 /*
- * TODO:
+ * @todo 
  *  - Scan is probably too permissive about its modifiers.
  *  - C escapes in %#[] ?
  *  - Multibyte characters (done for format parsing, except scan groups)

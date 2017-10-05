@@ -301,8 +301,8 @@ static xmlSchemaTypePtr xmlSchemaInitBasicType(const char * name, xmlSchemaValTy
 /*
  * WARNING: Those type reside normally in xmlschemas.c but are
  * redefined here locally in oder of being able to use them for xs:anyType-
- * TODO: Remove those definition if we move the types to a header file.
- * TODO: Always keep those structs up-to-date with the originals.
+ * @todo Remove those definition if we move the types to a header file.
+ * @todo Always keep those structs up-to-date with the originals.
  */
 #define UNBOUNDED (1 << 30)
 
@@ -1733,7 +1733,7 @@ xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value)
 	if(*cur == 0)
 		return 0;
 	ret = sstrdup(value);
-	/* TODO FIXME: I guess gcc will bark at this. */
+	/* @todo FIXME: I guess gcc will bark at this. */
 	mcur = (xmlChar*)(ret + (cur - value));
 	do {
 		if(((*mcur) == 0xd) || ((*mcur) == 0x9) || ((*mcur) == 0xa) )
@@ -1856,7 +1856,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 		while(*cur != 0) cur++;
 		while((*cur == 0) && (cur != endval)) cur++;
 	}
-	/* TODO what return value ? c.f. bug #158628
+	/* @todo what return value ? c.f. bug #158628
 	   if (ret != NULL) {
 	    TODO
 	   } */
@@ -2315,7 +2315,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    v = xmlSchemaNewValue(XML_SCHEMAS_FLOAT);
 				    if(v) {
 					    /*
-					     * TODO: sscanf seems not to give the correct
+					     * @todo sscanf seems not to give the correct
 					     * value for extremely high/low values.
 					     * E.g. "1E-149" results in zero.
 					     */
@@ -2336,7 +2336,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    v = xmlSchemaNewValue(XML_SCHEMAS_DOUBLE);
 				    if(v) {
 					    /*
-					     * TODO: sscanf seems not to give the correct
+					     * @todo sscanf seems not to give the correct
 					     * value for extremely high/low values.
 					     */
 					    if(sscanf((const char*)value, "%lf",
@@ -4600,7 +4600,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaValPt
 		    else
 			    yv = y->value.str;
 		    /*
-		     * TODO: Compare those against QName.
+		     * @todo Compare those against QName.
 		     */
 		    if(ytype == XML_SCHEMAS_QNAME) {
 			    TODO
@@ -4622,7 +4622,7 @@ static int xmlSchemaCompareValuesInternal(xmlSchemaValType xtype, xmlSchemaValPt
 			    (ytype == XML_SCHEMAS_ANYURI)) {
 			    if(xws == XML_SCHEMA_WHITESPACE_PRESERVE) {
 				    if(yws == XML_SCHEMA_WHITESPACE_PRESERVE) {
-					    /* TODO: What about x < y or x > y. */
+					    /* @todo What about x < y or x > y. */
 					    if(sstreq(xv, yv))
 						    return 0;
 					    else
@@ -4858,7 +4858,7 @@ static int xmlSchemaNormLen(const xmlChar * value)
 ulong xmlSchemaGetFacetValueAsULong(xmlSchemaFacetPtr facet)
 {
 	/*
-	 * TODO: Check if this is a decimal.
+	 * @todo Check if this is a decimal.
 	 */
 	if(facet == NULL)
 		return 0;
@@ -4882,7 +4882,7 @@ int xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacetPtr facet, const xmlChar 
 	if(facet == NULL)
 		return -1;
 	/*
-	 * TODO: Check if this will work with large numbers.
+	 * @todo Check if this will work with large numbers.
 	 * (compare value.decimal.mi and value.decimal.hi as well?).
 	 */
 	if(facet->type == XML_SCHEMA_FACET_LENGTH) {
@@ -4941,7 +4941,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 	if(!oneof3(facet->type, XML_SCHEMA_FACET_LENGTH, XML_SCHEMA_FACET_MAXLENGTH, XML_SCHEMA_FACET_MINLENGTH))
 		return -1;
 	/*
-	 * TODO: length, maxLength and minLength must be of type
+	 * @todo length, maxLength and minLength must be of type
 	 * nonNegativeInteger only. Check if decimal is used somehow.
 	 */
 	if((facet->val == NULL) || ((facet->val->type != XML_SCHEMAS_DECIMAL) && (facet->val->type != XML_SCHEMAS_NNINTEGER)) || (facet->val->value.decimal.frac != 0)) {
@@ -4960,7 +4960,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 				     * This is to ensure API compatibility with the old
 				     * xmlSchemaValidateLengthFacet(). Anyway, this was and
 				     * is not the correct handling.
-				     * TODO: Get rid of this case somehow.
+				     * @todo Get rid of this case somehow.
 				     */
 				    if(valType == XML_SCHEMAS_STRING)
 					    len = xmlUTF8Strlen(value);
@@ -5004,7 +5004,7 @@ static int xmlSchemaValidateLengthFacetInternal(xmlSchemaFacetPtr facet,
 	}
 	*length = (ulong)len;
 	/*
-	 * TODO: Return the whole expected value, i.e. "lo", "mi" and "hi".
+	 * @todo Return the whole expected value, i.e. "lo", "mi" and "hi".
 	 */
 	if(facet->type == XML_SCHEMA_FACET_LENGTH) {
 		if(len != facet->val->value.decimal.lo)
@@ -5133,7 +5133,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 			    return 0;
 		    return(XML_SCHEMAV_CVC_MININCLUSIVE_VALID);
 		case XML_SCHEMA_FACET_WHITESPACE:
-		    /* TODO whitespaces */
+		    /* @todo whitespaces */
 		    /*
 		     * NOTE: Whitespace should be handled to normalize
 		     * the value to be validated against a the facets;
@@ -5145,7 +5145,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 			    /*
 			     * This is to ensure API compatibility with the old
 			     * xmlSchemaValidateFacet().
-			     * TODO: Get rid of this case.
+			     * @todo Get rid of this case.
 			     */
 			    if((facet->value != NULL) &&
 			    (sstreq(facet->value, value)))
@@ -5178,7 +5178,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 			    (valType == XML_SCHEMAS_NOTATION))
 			    return 0;
 		    /*
-		     * TODO: length, maxLength and minLength must be of type
+		     * @todo length, maxLength and minLength must be of type
 		     * nonNegativeInteger only. Check if decimal is used somehow.
 		     */
 		    if((facet->val == NULL) ||
@@ -5200,7 +5200,7 @@ static int xmlSchemaValidateFacetInternal(xmlSchemaFacetPtr facet,
 						 * This is to ensure API compatibility with the old
 						 * xmlSchemaValidateFacet(). Anyway, this was and
 						 * is not the correct handling.
-						 * TODO: Get rid of this case somehow.
+						 * @todo Get rid of this case somehow.
 						 */
 						if(valType == XML_SCHEMAS_STRING)
 							len = xmlUTF8Strlen(value);
@@ -5441,7 +5441,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
  * WARNING: Some value types are not supported yet, resulting
  * in a @retValue of "???".
  *
- * TODO: XML Schema 1.0 does not define canonical representations
+ * @todo XML Schema 1.0 does not define canonical representations
  * for: duration, gYearMonth, gYear, gMonthDay, gMonth, gDay,
  * anyURI, QName, NOTATION. This will be fixed in XML Schema 1.1.
  *
@@ -5488,7 +5488,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_QNAME:
-		    /* TODO: Unclear in XML Schema 1.0. */
+		    /* @todo Unclear in XML Schema 1.0. */
 		    if(val->value.qname.uri == NULL) {
 			    *retValue = BAD_CAST sstrdup(BAD_CAST val->value.qname.name);
 			    return 0;
@@ -5502,7 +5502,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_DECIMAL:
 		    /*
-		     * TODO: Lookout for a more simple implementation.
+		     * @todo Lookout for a more simple implementation.
 		     */
 		    if((val->value.decimal.total == 1) && (val->value.decimal.lo == 0)) {
 			    *retValue = sstrdup(BAD_CAST "0.0");
@@ -5624,9 +5624,9 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    ulong mon, day, hour = 0, min = 0;
 		    double sec = 0, left;
 
-		    /* TODO: Unclear in XML Schema 1.0 */
+		    /* @todo Unclear in XML Schema 1.0 */
 		    /*
-		     * TODO: This results in a normalized output of the value
+		     * @todo This results in a normalized output of the value
 		     * - which is NOT conformant to the spec -
 		     * since the exact values of each property are not
 		     * recoverable. Think about extending the structure to
@@ -5654,15 +5654,15 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	    break;
 		case XML_SCHEMAS_GYEAR: {
 		    char buf[30];
-		    /* TODO: Unclear in XML Schema 1.0 */
-		    /* TODO: What to do with the timezone? */
+		    /* @todo Unclear in XML Schema 1.0 */
+		    /* @todo What to do with the timezone? */
 		    snprintf(buf, 30, "%04ld", val->value.date.year);
 		    *retValue = BAD_CAST sstrdup(BAD_CAST buf);
 	    }
 	    break;
 		case XML_SCHEMAS_GMONTH: {
-		    /* TODO: Unclear in XML Schema 1.0 */
-		    /* TODO: What to do with the timezone? */
+		    /* @todo Unclear in XML Schema 1.0 */
+		    /* @todo What to do with the timezone? */
 		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
@@ -5670,8 +5670,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	    }
 	    break;
 		case XML_SCHEMAS_GDAY: {
-		    /* TODO: Unclear in XML Schema 1.0 */
-		    /* TODO: What to do with the timezone? */
+		    /* @todo Unclear in XML Schema 1.0 */
+		    /* @todo What to do with the timezone? */
 		    *retValue = (xmlChar *)SAlloc::M(6);
 		    if(*retValue == NULL)
 			    return -1;
@@ -5679,8 +5679,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	    }
 	    break;
 		case XML_SCHEMAS_GMONTHDAY: {
-		    /* TODO: Unclear in XML Schema 1.0 */
-		    /* TODO: What to do with the timezone? */
+		    /* @todo Unclear in XML Schema 1.0 */
+		    /* @todo What to do with the timezone? */
 		    *retValue = (xmlChar *)SAlloc::M(8);
 		    if(*retValue == NULL)
 			    return -1;
@@ -5689,8 +5689,8 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	    break;
 		case XML_SCHEMAS_GYEARMONTH: {
 		    char buf[35];
-		    /* TODO: Unclear in XML Schema 1.0 */
-		    /* TODO: What to do with the timezone? */
+		    /* @todo Unclear in XML Schema 1.0 */
+		    /* @todo What to do with the timezone? */
 		    if(val->value.date.year < 0)
 			    snprintf(buf, 35, "-%04ld-%02u", labs(val->value.date.year), val->value.date.mon);
 		    else
@@ -5706,7 +5706,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * TODO: Check if "%.14g" is portable.
+			     * @todo Check if "%.14g" is portable.
 			     */
 			    snprintf(buf, 30, "%02u:%02u:%02.14gZ", norm->value.date.hour, norm->value.date.min, norm->value.date.sec);
 			    xmlSchemaFreeValue(norm);
@@ -5725,7 +5725,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * TODO: Append the canonical value of the
+			     * @todo Append the canonical value of the
 			     * recoverable timezone and not "Z".
 			     */
 			    snprintf(buf, 30, "%04ld:%02u:%02uZ", norm->value.date.year, norm->value.date.mon, norm->value.date.day);
@@ -5745,7 +5745,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(norm == NULL)
 				    return -1;
 			    /*
-			     * TODO: Check if "%.14g" is portable.
+			     * @todo Check if "%.14g" is portable.
 			     */
 			    snprintf(buf, 50, "%04ld:%02u:%02uT%02u:%02u:%02.14gZ",
 				    norm->value.date.year, norm->value.date.mon, norm->value.date.day, norm->value.date.hour, norm->value.date.min, norm->value.date.sec);
@@ -5763,7 +5763,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    break;
 		case XML_SCHEMAS_BASE64BINARY:
 		    /*
-		     * TODO: Is the following spec piece implemented?:
+		     * @todo Is the following spec piece implemented?:
 		     * SPEC: "Note: For some values the canonical form defined
 		     * above does not conform to [RFC 2045], which requires breaking
 		     * with linefeeds at appropriate intervals."
@@ -5774,7 +5774,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    char buf[30];
 		    /*
 		     * |m| < 16777216, -149 <= e <= 104.
-		     * TODO: Handle, NaN, INF, -INF. The format is not
+		     * @todo Handle, NaN, INF, -INF. The format is not
 		     * yet conformant. The c type float does not cover
 		     * the whole range.
 		     */
@@ -5786,7 +5786,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    char buf[40];
 		    /* |m| < 9007199254740992, -1075 <= e <= 970 */
 		    /*
-		     * TODO: Handle, NaN, INF, -INF. The format is not
+		     * @todo Handle, NaN, INF, -INF. The format is not
 		     * yet conformant. The c type float does not cover
 		     * the whole range.
 		     */

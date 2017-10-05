@@ -41,7 +41,7 @@
  * pixels processing. See 'pixman-arm-neon-asm.S' file for the usage
  * examples.
  *
- * TODO:
+ * @todo 
  *  - try overlapped pixel method (from Ian Rickards) when processing
  *    exactly two blocks of pixels
  *  - maybe add an option to do reverse scanline processing

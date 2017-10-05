@@ -1097,7 +1097,7 @@ static u_char * ngx_http_v2_state_process_header(ngx_http_v2_connection_t * h2c,
 
 	r = h2c->state.stream->request;
 
-	/* TODO Optimization: validate headers while parsing. */
+	/* @todo Optimization: validate headers while parsing. */
 	if(ngx_http_v2_validate_header(r, header) != NGX_OK) {
 		if(ngx_http_v2_terminate_stream(h2c, h2c->state.stream,
 			    NGX_HTTP_V2_PROTOCOL_ERROR)
@@ -1167,7 +1167,7 @@ static u_char * ngx_http_v2_state_process_header(ngx_http_v2_connection_t * h2c,
 		h->key.data = header->name.data;
 
 		/*
-		 * TODO Optimization: precalculate hash
+		 * @todo Optimization: precalculate hash
 		 * and handler for indexed headers.
 		 */
 		h->hash = ngx_hash_key(h->key.data, h->key.len);

@@ -1426,7 +1426,7 @@ int SLAPI PPViewTSessLine::CreateIterQuery()
 		if(P_IterQuery == 0) {
 			P_IterQuery = new BExtQuery(P_TempTbl, idx, 16);
 			P_IterQuery->selectAll();
-			Counter.Init(P_TempTbl);
+			PPInitIterCounter(Counter, P_TempTbl);
 			P_IterQuery->initIteration(0, &k, spFirst);
 		}
 		else {

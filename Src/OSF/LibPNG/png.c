@@ -3775,7 +3775,7 @@ void /* PRIVATE */ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 
 			/* Notice that the '16 from 1' table should be full precision, however
 			 * the lookup on this table still uses gamma_shift, so it can't be.
-			 * TODO: fix this.
+			 * @todo fix this.
 			 */
 			png_build_16bit_table(png_ptr, &png_ptr->gamma_16_from_1, shift,
 			    png_ptr->screen_gamma > 0 ? png_reciprocal(png_ptr->screen_gamma) :

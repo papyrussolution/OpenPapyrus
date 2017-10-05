@@ -8,6 +8,7 @@
 #include <Platform.h>
 #include <Scintilla.h>
 #pragma hdrstop
+#include <scintilla-internal.h>
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #undef WINVER
@@ -20,8 +21,8 @@
 	#include <d2d1.h>
 	#include <dwrite.h>
 #endif
-#include "XPM.h"
-#include "FontQuality.h"
+//#include "XPM.h"
+//#include "FontQuality.h"
 #ifndef IDC_HAND
 	#define IDC_HAND MAKEINTRESOURCE(32649)
 #endif
@@ -802,12 +803,9 @@ void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fil
 		cornerSize = Platform::Minimum(cornerSize, (Platform::Minimum(width, height) / 2) - 2);
 		BITMAPINFO bpih = {{sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0}};
 		void * image = 0;
-		HBITMAP hbmMem = CreateDIBSection(hMemDC, &bpih,
-		    DIB_RGB_COLORS, &image, NULL, 0);
-
+		HBITMAP hbmMem = CreateDIBSection(hMemDC, &bpih, DIB_RGB_COLORS, &image, NULL, 0);
 		if(hbmMem) {
 			HBITMAP hbmOld = SelectBitmap(hMemDC, hbmMem);
-
 			DWORD valEmpty = dwordFromBGRA(0, 0, 0, 0);
 			DWORD valFill = dwordFromBGRA(
 			    static_cast<byte>(GetBValue(fill.AsLong()) * alphaFill / 255),
@@ -838,11 +836,8 @@ void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fil
 			for(int x = 1; x<cornerSize; x++) {
 				AllFour(pixels, width, height, x, cornerSize-x, valOutline);
 			}
-
 			BLENDFUNCTION merge = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-
 			AlphaBlendFn(hdc, rcw.left, rcw.top, width, height, hMemDC, 0, 0, width, height, merge);
-
 			SelectBitmap(hMemDC, hbmOld);
 			::DeleteObject(hbmMem);
 		}
@@ -864,11 +859,9 @@ void SurfaceGDI::DrawRGBAImage(PRectangle rc, int width, int height, const uchar
 		if(rc.Height() > height)
 			rc.top += static_cast<int>((rc.Height() - height) / 2);
 		rc.bottom = rc.top + height;
-
 		BITMAPINFO bpih = {{sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0}};
 		uchar * image = 0;
-		HBITMAP hbmMem = CreateDIBSection(hMemDC, &bpih,
-		    DIB_RGB_COLORS, reinterpret_cast<void **>(&image), NULL, 0);
+		HBITMAP hbmMem = CreateDIBSection(hMemDC, &bpih, DIB_RGB_COLORS, reinterpret_cast<void **>(&image), NULL, 0);
 		if(hbmMem) {
 			HBITMAP hbmOld = SelectBitmap(hMemDC, hbmMem);
 			for(int y = height-1; y>=0; y--) {

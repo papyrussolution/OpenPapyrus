@@ -1473,7 +1473,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
 		return -1;
 	}
 	/*
-	 * TODO(jungshik)
+	 * @todo(jungshik)
 	 * 1. is ucnv_convert(To|From)Algorithmic better?
 	 * 2. had we better use an explicit pivot buffer?
 	 * 3. error returned comes from 'fromUnicode' only even when toUnicode is true !

@@ -962,7 +962,7 @@ void FASTCALL xmlFreeDtd(xmlDtd * pCur)
 		DICT_FREE(p_dict, pCur->name)
 		DICT_FREE(p_dict, pCur->SystemID)
 		DICT_FREE(p_dict, pCur->ExternalID)
-		/* TODO !!! */
+		/* @todo !!! */
 		xmlFreeNotationTable((xmlNotationTablePtr)pCur->notations);
 		xmlFreeElementTable((xmlElementTablePtr)pCur->elements);
 		xmlFreeAttributeTable((xmlAttributeTablePtr)pCur->attributes);
@@ -4109,7 +4109,7 @@ xmlChar * xmlGetNodePath(const xmlNode * node)
 
 			/*
 			 * Thumbler index computation
-			 * TODO: the ocurence test seems bogus for namespaced names
+			 * @todo the ocurence test seems bogus for namespaced names
 			 */
 			tmp = cur->prev;
 			while(tmp) {
@@ -4927,13 +4927,13 @@ xmlChar * xmlNodeGetContent(const xmlNode * cur)
 		case XML_NAMESPACE_DECL: 
 		    return sstrdup(((xmlNs *)cur)->href);
 		case XML_ELEMENT_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    return 0;
 		case XML_ATTRIBUTE_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    return 0;
 		case XML_ENTITY_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    return 0;
 		case XML_CDATA_SECTION_NODE:
 		case XML_TEXT_NODE:
@@ -5000,13 +5000,13 @@ void xmlNodeSetContent(xmlNode * cur, const xmlChar * content)
 		case XML_NAMESPACE_DECL:
 		    break;
 		case XML_ELEMENT_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 		case XML_ATTRIBUTE_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 		case XML_ENTITY_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 	}
 }
@@ -5068,13 +5068,13 @@ void xmlNodeSetContentLen(xmlNode * cur, const xmlChar * content, int len)
 #endif
 		    break;
 		case XML_ELEMENT_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 		case XML_ATTRIBUTE_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 		case XML_ENTITY_DECL:
-		    /* TODO !!! */
+		    /* @todo !!! */
 		    break;
 	}
 }
@@ -5822,7 +5822,7 @@ static xmlChar * xmlGetPropNodeValueInternal(const xmlAttr * prop)
 		if(prop->type == XML_ATTRIBUTE_NODE) {
 			/*
 			 * Note that we return at least the empty string.
-			 *   TODO: Do we really always want that?
+			 *   @todo Do we really always want that?
 			 */
 			if(prop->children) {
 				if(!prop->children->next && oneof2(prop->children->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE)) {
@@ -7114,7 +7114,7 @@ void xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt)
 	if(ctxt) {
 		xmlDOMWrapNsMapFree((xmlNsMapPtr)ctxt->namespaceMap);
 		/*
-		 * TODO: Store the namespace map in the context.
+		 * @todo Store the namespace map in the context.
 		 */
 		SAlloc::F(ctxt);
 	}
@@ -7277,7 +7277,7 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * node, i
 	xmlNs * ns;
 	if(!node || !doc || node->doc != doc)
 		return -1;
-	/* TODO: 0 or -1 ? */
+	/* @todo 0 or -1 ? */
 	if(node->parent == NULL)
 		return 0;
 	switch(node->type) {
@@ -7445,7 +7445,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNode * node, const xml
 							if(ret < 0)
 								return -1;
 							/*
-							 * TODO: Should we try to find a matching ns-name
+							 * @todo Should we try to find a matching ns-name
 							 * only once? This here keeps on searching.
 							 * I think we should try further since, there might
 							 * be an other matching ns-decl with an unshadowed
@@ -7991,7 +7991,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 		if(cur->doc != sourceDoc) {
 			/*
 			 * We'll assume XIncluded nodes if the doc differs.
-			 * TODO: Do we need to reconciliate XIncluded nodes?
+			 * @todo Do we need to reconciliate XIncluded nodes?
 			 * This here skips XIncluded nodes and tries to handle
 			 * broken sequences.
 			 */
@@ -8009,9 +8009,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 		switch(cur->type) {
 			case XML_XINCLUDE_START:
 			case XML_XINCLUDE_END:
-			    /*
-			     * TODO
-			     */
+				// @todo
 			    return -1;
 			case XML_ELEMENT_NODE:
 			    curElem = cur;
@@ -8111,7 +8109,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 ns_end:
 			    /*
 			     * Further node properties.
-			     * TODO: Is this all?
+			     * @todo Is this all?
 			     */
 			    XML_TREE_ADOPT_STR(cur->name)
 			    if(cur->type == XML_ELEMENT_NODE) {
@@ -8187,7 +8185,7 @@ leave_node:
 			break;
 		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END)) {
 			/*
-			 * TODO: Do we expect nsDefs on XML_XINCLUDE_START?
+			 * @todo Do we expect nsDefs on XML_XINCLUDE_START?
 			 */
 			if(XML_NSMAP_NOTEMPTY(nsMap)) {
 				/*
@@ -8262,7 +8260,7 @@ exit:
  * Note that, since prefixes of already existent ns-decls can be
  * shadowed by this process, it could break QNames in attribute
  * values or element content.
- * TODO:
+ * @todo 
  *   1) What to do with XInclude? Currently this returns an error for XInclude.
  *
  * Returns 0 if the operation succeeded,
@@ -8284,7 +8282,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 	int parnsdone = 0;
 	/*
 	 * @ancestorsOnly:
-	 * TODO: @ancestorsOnly should be set per option.
+	 * @todo @ancestorsOnly should be set per option.
 	 *
 	 */
 	int ancestorsOnly = 0;
@@ -8298,7 +8296,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 	if(!node || (resNode == NULL) || (destDoc == NULL))
 		return -1;
 	/*
-	 * TODO: Initially we support only element-nodes.
+	 * @todo Initially we support only element-nodes.
 	 */
 	if(node->type != XML_ELEMENT_NODE)
 		return 1;
@@ -8328,8 +8326,8 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 		if(cur->doc != sourceDoc) {
 			/*
 			 * We'll assume XIncluded nodes if the doc differs.
-			 * TODO: Do we need to reconciliate XIncluded nodes?
-			 * TODO: This here returns -1 in this case.
+			 * @todo Do we need to reconciliate XIncluded nodes?
+			 * @todo This here returns -1 in this case.
 			 */
 			goto internal_error;
 		}
@@ -8340,7 +8338,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 			case XML_XINCLUDE_START:
 			case XML_XINCLUDE_END:
 			    /*
-			     * TODO: What to do with XInclude?
+			     * @todo What to do with XInclude?
 			     */
 			    goto internal_error;
 			    break;
@@ -8389,7 +8387,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 			    memzero(clone, sizeof(xmlAttr));
 			    /*
 			     * Set hierachical links.
-			     * TODO: Change this to add to the end of attributes.
+			     * @todo Change this to add to the end of attributes.
 			     */
 			    if(resultClone) {
 				    clone->parent = parentClone;
@@ -8405,7 +8403,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 			    break;
 			default:
 			    /*
-			     * TODO QUESTION: Any other nodes expected?
+			     * @todo QUESTION: Any other nodes expected?
 			     */
 			    goto internal_error;
 		}
@@ -8432,9 +8430,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 		switch(cur->type) {
 			case XML_XINCLUDE_START:
 			case XML_XINCLUDE_END:
-			    /*
-			     * TODO
-			     */
+				// @todo
 			    return -1;
 			case XML_ELEMENT_NODE:
 			    curElem = cur;
@@ -8510,7 +8506,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 			    DICT_COPY(cur->content, clone->content);
 			    goto leave_node;
 			case XML_ENTITY_NODE:
-			    /* TODO: What to do here? */
+			    /* @todo What to do here? */
 			    goto leave_node;
 			case XML_ENTITY_REF_NODE:
 			    if(sourceDoc != destDoc) {
@@ -8619,7 +8615,7 @@ end_ns_reference:
 				xmlChar * idVal = xmlNodeListGetString(cur->doc, cur->children, 1);
 				if(idVal) {
 					if(xmlAddID(NULL, destDoc, idVal, (xmlAttrPtr)cur) == NULL) {
-						/* TODO: error message. */
+						/* @todo error message. */
 						SAlloc::F(idVal);
 						goto internal_error;
 					}
@@ -8661,7 +8657,7 @@ leave_node:
 			break;
 		if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END)) {
 			/*
-			 * TODO: Do we expect nsDefs on XML_XINCLUDE_START?
+			 * @todo Do we expect nsDefs on XML_XINCLUDE_START?
 			 */
 			if(XML_NSMAP_NOTEMPTY(nsMap)) {
 				/*
@@ -8733,7 +8729,7 @@ exit:
 			xmlDOMWrapNsMapFree(nsMap);
 	}
 	/*
-	 * TODO: Should we try a cleanup of the cloned node in case of a fatal error?
+	 * @todo Should we try a cleanup of the cloned node in case of a fatal error?
 	 */
 	*resNode = resultClone;
 	return ret;
@@ -8766,7 +8762,7 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlA
 	if(attr->ns) {
 		xmlNs * ns = NULL;
 		if(ctxt) {
-			/* TODO: User defined. */
+			/* @todo User defined. */
 		}
 		/* XML Namespace. */
 		if(IS_STR_XML(attr->ns->prefix)) {
@@ -8900,7 +8896,7 @@ int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * n
 		case XML_COMMENT_NODE:
 		    break;
 		case XML_DOCUMENT_FRAG_NODE:
-		    /* TODO: Support document-fragment-nodes. */
+		    /* @todo Support document-fragment-nodes. */
 		    return (2);
 		default:
 		    return 1;

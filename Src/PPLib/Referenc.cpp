@@ -836,7 +836,7 @@ int SLAPI Reference::GetPropSBuffer(PPID obj, PPID id, PPID prop, SBuffer & rBuf
 	return ok;
 }
 
-int SLAPI Reference::GetPropArrayFromRecBuf(SArray * pAry)
+int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 {
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;
@@ -863,13 +863,13 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SArray * pAry)
 	}
 	CATCH
 		ok = 0;
-		pAry->freeAll();
+		// @v9.8.4 (Из-за замены SArray-->SVectorBase) pAry->freeAll();
 	ENDCATCH
 	SAlloc::F(p_rec);
 	return ok;
 }
 
-int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SArray * pAry)
+int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry)
 {
 	int    ok = 1;
 	PropertyTbl::Key0 k;
@@ -883,12 +883,12 @@ int SLAPI Reference::GetPropArray(PPID obj, PPID id, PPID prop, SArray * pAry)
 		ok = PPDbSearchError();
 	CATCH
 		ok = 0;
-		pAry->freeAll();
+		// @v9.8.4 (Из-за замены SArray-->SVectorBase) pAry->freeAll();
 	ENDCATCH
 	return ok;
 }
 
-int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SArray * ary, int use_ta)
+int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * ary, int use_ta)
 {
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;

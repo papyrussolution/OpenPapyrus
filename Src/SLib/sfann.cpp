@@ -1087,7 +1087,7 @@ FANN_EXTERNAL void FANN_API fann_print_parameters(Fann * ann)
 	}
 	printf("Cascade candidate groups             :%4d\n", ann->CascadeNumCandidateGroups);
 	printf("Cascade no. of candidates            :%4d\n", ann->GetCascadeNumCandidates());
-	/* TODO: dump scale parameters */
+	/* @todo dump scale parameters */
 #endif
 }
 
@@ -1564,7 +1564,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 				}
 			}
 			//
-			// TODO it would be nice to have the randomly created connections sorted for smoother memory access.
+			// @todo it would be nice to have the randomly created connections sorted for smoother memory access.
 			//
 		}
 	}
@@ -1831,7 +1831,7 @@ int Fann::AllocateConnections()
 	int    ok = 1;
 	THROW(P_Weights = (ANNTYP *)SAlloc::C(TotalConnections, sizeof(ANNTYP)));
 	TotalConnectionsAllocated = TotalConnections;
-	// TODO make special cases for all places where the connections
+	// @todo make special cases for all places where the connections
 	// is used, so that it is not needed for fully connected networks
 	THROW(PP_Connections = (Fann::Neuron **)SAlloc::C(TotalConnectionsAllocated, sizeof(Fann::Neuron *)));
 	CATCH
@@ -1984,7 +1984,7 @@ int Fann::TrainOutputs(const Fann::TrainData * pData, float desiredError)
 	const uint _max_epochs = CascadeMaxOutEpochs;
 	const uint _min_epochs = CascadeMinOutEpochs;
 	uint  _stagnation = _max_epochs;
-	// TODO should perhaps not clear all arrays
+	// @todo should perhaps not clear all arrays
 	ClearTrainArrays();
 	// run an initial epoch to set the initital error
 	const float initial_error = TrainOutputsEpoch(pData);
@@ -2173,7 +2173,7 @@ int Fann::InitializeCandidates()
 				for(uint j = 0; j < CascadeActivationSteepnessesList.getCount(); j++) {
 					const ANNTYP steepness = CascadeActivationSteepnessesList[j];
 					for(uint k = 0; k < CascadeNumCandidateGroups; k++) {
-						// TODO candidates should actually be created both in
+						// @todo candidates should actually be created both in
 						// the last layer before the output layer, and in a new layer.
 						p_neurons[candidate_index].Value = 0;
 						p_neurons[candidate_index].Sum = 0;
@@ -2326,7 +2326,7 @@ void Fann::UpdateCandidateWeights(uint numData)
 		    UpdateWeightsIrpropm(p_first_cand->FirstCon, p_last_cand->LastCon + NumOutput);
 		    break;
 		case FANN_TRAIN_SARPROP:
-		    // TODO: increase epoch?
+		    // @todo increase epoch?
 		    UpdateWeightsSarprop(SarpropEpoch, p_first_cand->FirstCon, p_last_cand->LastCon + NumOutput);
 		    break;
 		case FANN_TRAIN_QUICKPROP:
@@ -2356,7 +2356,7 @@ ANNTYP Fann::TrainCandidatesEpoch(const Fann::TrainData * pData)
 		const DataVector * p_out_vect = pData->OutL.at(i);
 		Run((const float *)p_inp_vect->dataPtr());
 		for(uint j = 0; j < NumOutput; j++) {
-			/* TODO only debug, but the error is in opposite direction, this might be usefull info */
+			/* @todo only debug, but the error is in opposite direction, this might be usefull info */
 			/*          if(output_train_errors[j] != (ann->output[j] - data->output[i][j])){
 			 * printf("difference in calculated error at %f != %f; %f = %f - %f;\n", output_train_errors[j],
 			 *(ann->output[j] - data->output[i][j]), output_train_errors[j], ann->output[j],
@@ -3705,7 +3705,7 @@ int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
 		ANNTYP neuron_diff = *pDesiredOutput - neuron_value;
 		// @todo Если neuron_diff == 0, то нет смысла делать следующие действия, достаточно присвоить *p_error_it = 0
 		neuron_diff = UpdateMSE(p_last_layer_begin, neuron_diff);
-		if(TrainErrorFunction) { // TODO make switch when more functions
+		if(TrainErrorFunction) { // @todo make switch when more functions
 			if(neuron_diff < -0.9999999)
 				neuron_diff = -17.0;
 			else if(neuron_diff > 0.9999999)
@@ -4057,7 +4057,7 @@ void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 	// These should be set from variables
 	const float _increase_factor = RpropIncreaseFactor;     /*1.2; */
 	const float _decrease_factor = RpropDecreaseFactor;     /*0.5; */
-	// TODO: why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993)
+	// @todo why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993)
 	const float _delta_min = 0.000001f;
 	const float _delta_max = RpropDeltaMax; /*50.0; */
 	const float _weight_decay_shift = SarpropWeightDecayShift; /* ld 0.01 = -6.644 */
@@ -4068,17 +4068,17 @@ void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 	const float _RMSE = sqrtf(_MSE);
 	// for all weights; TODO: are biases included?
 	for(uint i = firstWeight; i != pastEnd; i++) {
-		// TODO: confirm whether 1x10^-6 == delta_min is really better
+		// @todo confirm whether 1x10^-6 == delta_min is really better
 		const ANNTYP _prev_step = MAX(p_prev_steps[i], (ANNTYP)0.000001); // prev_step may not be zero because then the training will stop
 		// calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)
 		ANNTYP _slope = -p_train_slopes[i] - p_weights[i] * (ANNTYP)fann_exp2(-_T * epoch + _weight_decay_shift);
-		// TODO: is prev_train_slopes[i] 0.0 in the beginning?
+		// @todo is prev_train_slopes[i] 0.0 in the beginning?
 		const ANNTYP _prev_slope = p_prev_train_slopes[i];
 		const ANNTYP _same_sign = _prev_slope * _slope;
 		ANNTYP _next_step = 0;
 		if(_same_sign > 0.0) {
 			_next_step = MIN(_prev_step * _increase_factor, _delta_max);
-			// TODO: are the signs inverted? see differences between SARPROP paper and iRprop
+			// @todo are the signs inverted? see differences between SARPROP paper and iRprop
 			if(_slope < 0.0)
 				p_weights[i] += _next_step;
 			else
@@ -5826,7 +5826,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 		/* These should be set from variables */
 		const float increase_factor = ann->RpropIncreaseFactor; /*1.2; */
 		const float decrease_factor = ann->RpropDecreaseFactor; /*0.5; */
-		/* TODO: why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
+		/* @todo why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
 		const float delta_min = 0.000001f;
 		const float delta_max = ann->RpropDeltaMax; /*50.0; */
 		const float weight_decay_shift = ann->SarpropWeightDecayShift; /* ld 0.01 = -6.644 */
@@ -5848,7 +5848,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 		{
 			#pragma omp for schedule(static)
 			for(i = first_weight; i < (int)past_end; i++) {
-				/* TODO: confirm whether 1x10^-6 == delta_min is really better */
+				/* @todo confirm whether 1x10^-6 == delta_min is really better */
 				const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP)0.000001); // prev_step may not be zero because then the training will stop
 				// calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)
 				ANNTYP prev_slope, same_sign;
@@ -5862,12 +5862,12 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 				}
 				temp_slopes = -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
 				next_step = 0.0;
-				// TODO: is prev_train_slopes[i] 0.0 in the beginning?
+				// @todo is prev_train_slopes[i] 0.0 in the beginning?
 				prev_slope = prev_train_slopes[i];
 				same_sign = prev_slope * temp_slopes;
 				if(same_sign > 0.0) {
 					next_step = MIN(prev_step * increase_factor, delta_max);
-					// TODO: are the signs inverted? see differences between SARPROP paper and iRprop
+					// @todo are the signs inverted? see differences between SARPROP paper and iRprop
 					if(temp_slopes < 0.0)
 						weights[i] += next_step;
 					else
@@ -5929,7 +5929,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_incremental_mod(Fann * ann, Fann::
 #include <omp.h>
 using namespace std;
 namespace parallel_fann {
-// TODO rewrite all these functions in c++ using fann_cpp interface
+// @todo rewrite all these functions in c++ using fann_cpp interface
 
 float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb)
 {
@@ -6217,7 +6217,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
     	/* These should be set from variables */
     	const float increase_factor = ann->RpropIncreaseFactor;	/*1.2; */
     	const float decrease_factor = ann->RpropDecreaseFactor;	/*0.5; */
-    	/* TODO: why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
+    	/* @todo why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
     	const float delta_min = 0.000001f;
     	const float delta_max = ann->RpropDeltaMax;	/*50.0; */
     	const float weight_decay_shift = ann->SarpropWeightDecayShift; /* ld 0.01 = -6.644 */
@@ -6238,7 +6238,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-					/* TODO: confirm whether 1x10^-6 == delta_min is really better */
+					/* @todo confirm whether 1x10^-6 == delta_min is really better */
 					const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP) 0.000001);	/* prev_step may not be zero because then the training will stop */
 					/* calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)*/
 					ANNTYP temp_slopes=0.0;
@@ -6251,12 +6251,12 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 					}
 					temp_slopes= -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
 					next_step=0.0;
-					/* TODO: is prev_train_slopes[i] 0.0 in the beginning? */
+					/* @todo is prev_train_slopes[i] 0.0 in the beginning? */
 					const ANNTYP prev_slope = prev_train_slopes[i];
 					const ANNTYP same_sign = prev_slope * temp_slopes;
 					if(same_sign > 0.0) {
 						next_step = MIN(prev_step * increase_factor, delta_max);
-						/* TODO: are the signs inverted? see differences between SARPROP paper and iRprop */
+						/* @todo are the signs inverted? see differences between SARPROP paper and iRprop */
 						if(temp_slopes < 0.0)
 							weights[i] += next_step;
 						else
@@ -6616,7 +6616,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
     	/* These should be set from variables */
     	const float increase_factor = ann->RpropIncreaseFactor;	/*1.2; */
     	const float decrease_factor = ann->RpropDecreaseFactor;	/*0.5; */
-    	/* TODO: why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
+    	/* @todo why is delta_min 0.0 in iRprop? SARPROP uses 1x10^-6 (Braun and Riedmiller, 1993) */
     	const float delta_min = 0.000001f;
     	const float delta_max = ann->RpropDeltaMax;	/*50.0; */
     	const float weight_decay_shift = ann->SarpropWeightDecayShift; /* ld 0.01 = -6.644 */
@@ -6637,7 +6637,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-					/* TODO: confirm whether 1x10^-6 == delta_min is really better */
+					/* @todo confirm whether 1x10^-6 == delta_min is really better */
 					const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP) 0.000001);	/* prev_step may not be zero because then the training will stop */
 					/* calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)*/
 					ANNTYP temp_slopes=0.0;
@@ -6650,12 +6650,12 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 					}
 					temp_slopes= -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
 					next_step=0.0;
-					/* TODO: is prev_train_slopes[i] 0.0 in the beginning? */
+					/* @todo is prev_train_slopes[i] 0.0 in the beginning? */
 					const ANNTYP prev_slope = prev_train_slopes[i];
 					const ANNTYP same_sign = prev_slope * temp_slopes;
 					if(same_sign > 0.0) {
 						next_step = MIN(prev_step * increase_factor, delta_max);
-						/* TODO: are the signs inverted? see differences between SARPROP paper and iRprop */
+						/* @todo are the signs inverted? see differences between SARPROP paper and iRprop */
 						if (temp_slopes < 0.0)
 							weights[i] += next_step;
 						else

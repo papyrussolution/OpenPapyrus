@@ -4,8 +4,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <libxml\xmlreader.h>
-//#include <libxml\tree.h>
 
 class SSvg {
 public:

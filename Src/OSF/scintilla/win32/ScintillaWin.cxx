@@ -1002,7 +1002,8 @@ sptr_t ScintillaWin::HandleCompositionInline(uptr_t, sptr_t lParam)
 		// fill in any virtual spaces.
 		ClearBeforeTentativeStart();
 	}
-	view.imeCaretBlockOverride = false;
+	//view.imeCaretBlockOverride = false;
+	view.EditViewFlags &= ~EditView::fImeCaretBlockOverride;
 	if(lParam & GCS_COMPSTR) {
 		const std::wstring wcs = imc.GetCompositionString(GCS_COMPSTR);
 		if((wcs.size() == 0) || (wcs.size() >= maxLenInputIME)) {
@@ -1028,7 +1029,8 @@ sptr_t ScintillaWin::HandleCompositionInline(uptr_t, sptr_t lParam)
 		int imeCaretPosDoc = pdoc->GetRelativePositionUTF16(CurrentPosition(), imeEndToImeCaretU16);
 		MoveImeCarets(-CurrentPosition() + imeCaretPosDoc);
 		if(KoreanIME()) {
-			view.imeCaretBlockOverride = true;
+			//view.imeCaretBlockOverride = true;
+			view.EditViewFlags |= EditView::fImeCaretBlockOverride;
 		}
 	}
 	else if(lParam & GCS_RESULTSTR) {

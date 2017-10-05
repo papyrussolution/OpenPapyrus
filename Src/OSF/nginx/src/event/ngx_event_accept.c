@@ -191,10 +191,10 @@ void ngx_event_accept(ngx_event_t * ev)
 		rev->log = log;
 		wev->log = log;
 		/*
-		 * TODO: MT: - ngx_atomic_fetch_add()
+		 * @todo MT: - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
 		 *
-		 * TODO: MP: - allocated in a shared memory
+		 * @todo MP: - allocated in a shared memory
 		 *           - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
 		 */
@@ -414,10 +414,10 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 		rev->log = log;
 		wev->log = log;
 		/*
-		 * TODO: MT: - ngx_atomic_fetch_add()
+		 * @todo MT: - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
 		 *
-		 * TODO: MP: - allocated in a shared memory
+		 * @todo MP: - allocated in a shared memory
 		 *           - ngx_atomic_fetch_add()
 		 *             or protection by critical section or light mutex
 		 */

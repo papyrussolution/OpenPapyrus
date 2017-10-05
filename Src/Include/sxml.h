@@ -1,5 +1,6 @@
 // SXML.H
 // Copyright (c) A.Sobolev 2015, 2016, 2017
+// @codepage UTF-8
 //
 #ifndef __SXML_H
 #define __SXML_H
@@ -76,15 +77,15 @@ public:
     static int FASTCALL IsContent(const xmlNode * pNode, const char * pText);
     static int FASTCALL GetContent(const xmlNode * pNode, SString & rResult);
     //
-    // Descr: Функция, совмещающая вызов
+    // Descr: Р¤СѓРЅРєС†РёСЏ, СЃРѕРІРјРµС‰Р°СЋС‰Р°СЏ РІС‹Р·РѕРІ
     // {
     //    if(SXml::IsName(pNode, pName))
     //       SXml::GetContent(pNode, rResult);
     // }
     // Returns:
-    //    >0 - узел pNode имеет имя pName и не пустое содержание, которое помещено в rResult
-    //    <0 - узел pNode имеет имя pName, но содержание пустое (rResult = 0)
-    //    0  - узел pNode не имеет имя pName. В этом случае rResult не меняется.
+    //    >0 - СѓР·РµР» pNode РёРјРµРµС‚ РёРјСЏ pName Рё РЅРµ РїСѓСЃС‚РѕРµ СЃРѕРґРµСЂР¶Р°РЅРёРµ, РєРѕС‚РѕСЂРѕРµ РїРѕРјРµС‰РµРЅРѕ РІ rResult
+    //    <0 - СѓР·РµР» pNode РёРјРµРµС‚ РёРјСЏ pName, РЅРѕ СЃРѕРґРµСЂР¶Р°РЅРёРµ РїСѓСЃС‚РѕРµ (rResult = 0)
+    //    0  - СѓР·РµР» pNode РЅРµ РёРјРµРµС‚ РёРјСЏ pName. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ rResult РЅРµ РјРµРЅСЏРµС‚СЃСЏ.
     //
     static int SLAPI GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
     static int SLAPI GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);

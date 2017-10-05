@@ -84,12 +84,8 @@
 //
 //
 #include <slib.h>
-//#include <ppbrow.h>
 #include <sxml.h>
 #include <ppedi.h>
-//#include <libxml.h>
-//#include <libxml\xmlwriter.h>
-//#include <libxml\xmlreader.h>
 #include <ppsoapclient.h>
 #include <Edisoft\edisoftEDIServiceSoapProxy.h>
 

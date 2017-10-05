@@ -932,7 +932,8 @@ int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 	for(uint i = 0; i < MapCount; i++) {
 		THROW(rIdx.add((long)i));
 	}
-	rIdx.SArray::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
+	//rIdx.SArray::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
+	rIdx.SVector::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
 	CATCHZOK
 	return ok;
 }

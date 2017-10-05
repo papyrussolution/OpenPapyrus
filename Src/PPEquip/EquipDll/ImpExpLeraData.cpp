@@ -1,17 +1,12 @@
 // IMPEXPLERADATA.CPP
 // Библиотека для импорта/экспорта документов в xml через провайдера LeraData
 //
-// Договрились именовать файлы так:
-//     <тип документа>_<порядковый номер>
+// Договрились именовать файлы так: <тип документа>_<порядковый номер>
 //
-
 #include <slib.h>
 #include <ppbrow.h>
-#include <libxml.h>
-#include <libxml\xmlwriter.h>
-#include <libxml\xmlreader.h>
+#include <sxml.h>
 #include <snet.h>
-#include <winsock2.h>
 #include <wininet.h>
 
 #define EXPORT	extern "C" __declspec (dllexport)

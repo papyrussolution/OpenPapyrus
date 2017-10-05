@@ -352,7 +352,7 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 				    CloseHandle(h);
 			    }
 			    if(success < 0) {
-				    // TODO: Is this the correct error to return in all cases? 
+				    // @todo Is this the correct error to return in all cases? 
 				    return zip_error_set(&ctx->error, SLERR_ZIP_READ, _zip_win32_error_to_errno(win32err));
 			    }
 		    }

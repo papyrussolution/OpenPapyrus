@@ -1301,7 +1301,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 					if(relative) {
 						if(p_prev == NULL)
 							removeSegment = FALSE;
-						else if(p_prev &&((p_prev->text.P_AfterLast-p_prev->text.P_First) == 2) && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
+						else if(p_prev && (p_prev->text.P_AfterLast-p_prev->text.P_First) == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
 							removeSegment = FALSE;
 					}
 					if(removeSegment) {
@@ -1406,11 +1406,11 @@ uchar FASTCALL UriHexdigToInt(char hexdig)
 {
 	switch(hexdig) {
 	    case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
-			return(uchar)(9+hexdig-_UT('9'));
+			return (uchar)(9+hexdig-_UT('9'));
 	    case _UT('a'): case _UT('b'): case _UT('c'): case _UT('d'): case _UT('e'): case _UT('f'):
-			return(uchar)(15+hexdig-_UT('f'));
+			return (uchar)(15+hexdig-_UT('f'));
 	    case _UT('A'): case _UT('B'): case _UT('C'): case _UT('D'): case _UT('E'): case _UT('F'):
-			return(uchar)(15+hexdig-_UT('F'));
+			return (uchar)(15+hexdig-_UT('F'));
 	    default:
 			return 0;
 	}
@@ -1971,7 +1971,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 		}
 	}
 	else {
-		/* Scheme */
+		// Scheme 
 		if((inMask&URI_NORMALIZE_SCHEME) && uri->Scheme.P_First) {
 			if(uri->IsOwner) {
 				UriLowercaseInplace(uri->Scheme.P_First, uri->Scheme.P_AfterLast);
@@ -2000,8 +2000,8 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 				uri->HostText.P_First = uri->HostData.ipFuture.P_First;
 				uri->HostText.P_AfterLast = uri->HostData.ipFuture.P_AfterLast;
 			}
-			else if(uri->HostText.P_First && (uri->HostData.ip4 == NULL) && (uri->HostData.ip6 == NULL)) {
-				/* Regname */
+			else if(uri->HostText.P_First && !uri->HostData.ip4 && !uri->HostData.ip6) {
+				// Regname 
 				if(uri->IsOwner)
 					UriFixPercentEncodingInplace(uri->HostText.P_First, &(uri->HostText.P_AfterLast));
 				else {
@@ -2882,11 +2882,11 @@ void UriParserState::StopMalloc()
 // 
 const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const char * pAfterLast)
 {
-	const char * p_result = 0;
+	const char * p_ret = 0;
 	if(pFirst >= pAfterLast) { // "" regname host 
 		P_Uri->HostText.P_First = UriSafeToPointTo;
 		P_Uri->HostText.P_AfterLast = UriSafeToPointTo;
-		p_result = pAfterLast;
+		p_ret = pAfterLast;
 	}
 	else {
 		switch(*pFirst) {
@@ -2895,7 +2895,7 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
 					const char * const p_after_ip_lit2 = ParseIpLit2(pFirst+1, pAfterLast);
 					if(p_after_ip_lit2) {
 						P_Uri->HostText.P_First = pFirst+1; // HOST BEGIN 
-						p_result = ParseAuthorityTwo(p_after_ip_lit2, pAfterLast);
+						p_ret = ParseAuthorityTwo(p_after_ip_lit2, pAfterLast);
 					}
 				}
 				break;
@@ -2906,16 +2906,16 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
 			case URI_SET_DIGIT:
 			case URI_SET_ALPHA:
 				P_Uri->UserInfo.P_First = pFirst; /* USERINFO BEGIN */
-				p_result = ParseOwnHostUserInfoNz(pFirst, pAfterLast);
+				p_ret = ParseOwnHostUserInfoNz(pFirst, pAfterLast);
 				break;
 			default: // "" regname host 
 				P_Uri->HostText.P_First = UriSafeToPointTo;
 				P_Uri->HostText.P_AfterLast = UriSafeToPointTo;
-				p_result = pFirst;
+				p_ret = pFirst;
 				break;
 		}
 	}
-	return p_result;
+	return p_ret;
 }
 /*
  * [authorityTwo]-><:>[port]
@@ -2923,20 +2923,20 @@ const char * FASTCALL UriParserState::ParseAuthority(const char * pFirst, const 
  */
 const char * FASTCALL UriParserState::ParseAuthorityTwo(const char * pFirst, const char * pAfterLast)
 {
-	const char * p_result = 0;
+	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
-		p_result = pAfterLast;
+		p_ret = pAfterLast;
 	else if(*pFirst == _UT(':')) {
 		const char * const p_after_port = ParsePort(pFirst+1, pAfterLast);
 		if(p_after_port) {
 			P_Uri->PortText.P_First = pFirst+1; // PORT BEGIN 
 			P_Uri->PortText.P_AfterLast = p_after_port; // PORT END 
-			p_result = p_after_port;
+			p_ret = p_after_port;
 		}
 	}
 	else
-		p_result = pFirst;
-	return p_result;
+		p_ret = pFirst;
+	return p_ret;
 }
 /*
  * [hexZero]->[HEXDIG][hexZero]
@@ -3032,13 +3032,12 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
 		StopSyntax(first);
 		return NULL;
 	}
-	/*
-	   First character has already been
-	   checked before entering this rule.
-
-	   switch(*first) {
-	   case _UT('v'):
-	 */
+	// 
+	// First character has already been checked before entering this rule.
+	// 
+	// switch(*first) {
+	// case _UT('v'):
+	// 
 	else if(first+1 >= afterLast) {
 		StopSyntax(first+1);
 		return NULL;
@@ -3086,40 +3085,37 @@ const char * FASTCALL UriParserState::ParseIpFuture(const char * first, const ch
  */
 const char * FASTCALL UriParserState::ParseIpLit2(const char * first, const char * afterLast)
 {
-	if(first >= afterLast) {
+	const char * p_ret = 0;
+	if(first >= afterLast)
 		StopSyntax(first);
-		return NULL;
-	}
 	else {
 		switch(*first) {
 			case _UT('v'):
-			{
-				const char * const afterIpFuture = ParseIpFuture(first, afterLast);
-				if(afterIpFuture == NULL) {
-					return NULL;
+				{
+					const char * const afterIpFuture = ParseIpFuture(first, afterLast);
+					if(afterIpFuture) {
+						if(afterIpFuture >= afterLast || *afterIpFuture != _UT(']'))
+							StopSyntax(first);
+						else
+							p_ret = afterIpFuture+1;
+					}
 				}
-				else if((afterIpFuture >= afterLast) ||(*afterIpFuture != _UT(']'))) {
-					StopSyntax(first);
-					return NULL;
-				}
-				else
-					return afterIpFuture+1;
-			}
+				break;
 			case _UT(':'):
 			case _UT(']'):
 			case URI_SET_HEXDIG:
 				P_Uri->HostData.ip6 =(UriIp6 *)SAlloc::M(1*sizeof(UriIp6));   /* Freed when stopping on parse error */
-				if(P_Uri->HostData.ip6 == NULL) {
+				if(!P_Uri->HostData.ip6)
 					StopMalloc();
-					return NULL;
-				}
 				else
-					return ParseIPv6address2(first, afterLast);
+					p_ret = ParseIPv6address2(first, afterLast);
+				break;
 			default:
 				StopSyntax(first);
-				return NULL;
+				break;
 		}
 	}
+	return p_ret;
 }
 /*
  * [IPv6address2]->..<]>
@@ -3459,7 +3455,7 @@ const char * FASTCALL UriParserState::ParseOwnHost(const char * pFirst, const ch
 		if(!afterIpLit2)
 			return NULL;
 		else {
-			P_Uri->HostText.P_First = pFirst+1;       /* HOST BEGIN */
+			P_Uri->HostText.P_First = pFirst+1; // HOST BEGIN 
 			return ParseAuthorityTwo(afterIpLit2, afterLast);
 		}
 	}
@@ -4164,15 +4160,15 @@ const char * FASTCALL UriParserState::ParseUriReference(const char * first, cons
  */
 const char * FASTCALL UriParserState::ParseUriTail(const char * pFirst, const char * pAfterLast)
 {
-	const char * p_result = 0;
+	const char * p_ret = 0;
 	if(pFirst >= pAfterLast)
-		p_result = pAfterLast;
+		p_ret = pAfterLast;
 	else if(*pFirst == _UT('#')) {
 		const char * const p_after_query_frag = ParseQueryFrag(pFirst+1, pAfterLast);
 		if(p_after_query_frag) {
 			P_Uri->fragment.P_First = pFirst+1; // FRAGMENT BEGIN 
 			P_Uri->fragment.P_AfterLast = p_after_query_frag; // FRAGMENT END 
-			p_result = p_after_query_frag;
+			p_ret = p_after_query_frag;
 		}
 	}
 	else if(*pFirst == _UT('?')) {
@@ -4180,12 +4176,12 @@ const char * FASTCALL UriParserState::ParseUriTail(const char * pFirst, const ch
 		if(p_after_query_frag) {
 			P_Uri->query.P_First = pFirst+1; // QUERY BEGIN 
 			P_Uri->query.P_AfterLast = p_after_query_frag; // QUERY END 
-			p_result = ParseUriTailTwo(p_after_query_frag, pAfterLast);
+			p_ret = ParseUriTailTwo(p_after_query_frag, pAfterLast);
 		}
 	}
 	else
-		p_result = pFirst;
-	return p_result;
+		p_ret = pFirst;
+	return p_ret;
 }
 /*
  * [uriTailTwo]-><#>[queryFrag]
@@ -4212,21 +4208,20 @@ const char * FASTCALL UriParserState::ParseUriTailTwo(const char * first, const 
  */
 const char * FASTCALL UriParserState::ParseZeroMoreSlashSegs(const char * first, const char * afterLast)
 {
+	const char * p_ret = 0;
 	if(first >= afterLast)
-		return afterLast;
+		p_ret = afterLast;
 	else if(*first == _UT('/')) {
-		const char * const afterSegment = ParseSegment(first+1, afterLast);
-		if(afterSegment == NULL)
-			return NULL;
-		else if(!PushPathSegment(first+1, afterSegment)) { // SEGMENT BOTH 
-			StopMalloc();
-			return NULL;
-		}
-		else
-			return ParseZeroMoreSlashSegs(afterSegment, afterLast); // @recursion
+		const char * const after_segment = ParseSegment(first+1, afterLast);
+		if(after_segment)
+			if(!PushPathSegment(first+1, after_segment)) // SEGMENT BOTH 
+				StopMalloc();
+			else
+				p_ret = ParseZeroMoreSlashSegs(after_segment, afterLast); // @recursion
 	}
 	else
-		return first;
+		p_ret = first;
+	return p_ret;
 }
 
 int FASTCALL UriParserState::ParseUriEx(const char * pFirst, const char * pAfterLast)
@@ -4250,7 +4245,8 @@ int FASTCALL UriParserState::ParseUriEx(const char * pFirst, const char * pAfter
 
 int UriParseUri(UriParserState * pState, const char * pText)
 {
-	return (pState && pText) ? pState->ParseUriEx(pText, pText+strlen(pText)) : SLS.SetError(SLERR_URI_NULL);
+	const size_t len = sstrlen(pText);
+	return (pState && len) ? pState->ParseUriEx(pText, pText+len) : SLS.SetError(SLERR_URI_NULL);
 }
 
 //void UriFreeUriMembers(UriUri * pUri)

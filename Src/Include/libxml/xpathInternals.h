@@ -327,7 +327,7 @@ XMLPUBFUN void XMLCALL xmlXPathRegisteredVariablesCleanup(xmlXPathContextPtr ctx
  */
 XMLPUBFUN xmlXPathParserContextPtr XMLCALL xmlXPathNewParserContext(const xmlChar * str, xmlXPathContextPtr ctxt);
 XMLPUBFUN void XMLCALL xmlXPathFreeParserContext(xmlXPathParserContextPtr ctxt);
-/* TODO: remap to xmlXPathValuePop and Push. */
+/* @todo remap to xmlXPathValuePop and Push. */
 XMLPUBFUN xmlXPathObjectPtr /*XMLCALL*/FASTCALL valuePop(xmlXPathParserContext * pCtxt);
 XMLPUBFUN int /*XMLCALL*/FASTCALL valuePush(xmlXPathParserContext * pCtxt, xmlXPathObject * pValue);
 

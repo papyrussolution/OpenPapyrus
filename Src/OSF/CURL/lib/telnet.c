@@ -1198,7 +1198,7 @@ process_iac:
 }
 
 /* Escape and send a telnet data block */
-/* TODO: write large chunks of data instead of one byte at a time */
+/* @todo write large chunks of data instead of one byte at a time */
 static CURLcode send_telnet_data(struct connectdata * conn,
     char * buffer, ssize_t nread)
 {

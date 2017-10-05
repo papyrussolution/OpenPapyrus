@@ -3476,7 +3476,7 @@ public:
 		SSerializeContext sctx;
 		PPBillImporter prcssr;
 		if(pParam->GetAvailableSize()) {
-			THROW(prcssr.Init())
+			prcssr.Init();
 			THROW(prcssr.SerializeParam(-1, *pParam, &sctx));
 			THROW(prcssr.LoadConfig(1));
 			THROW(prcssr.Run());

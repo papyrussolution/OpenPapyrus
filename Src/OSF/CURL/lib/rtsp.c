@@ -42,7 +42,7 @@
 #include "memdebug.h"
 
 /*
- * TODO (general)
+ * @todo (general)
  *  -incoming server requests
  *      -server CSeq counter
  *  -digest authentication
@@ -178,7 +178,7 @@ static CURLcode rtsp_done(struct connectdata * conn, CURLcode status, bool prema
 		if(data->set.rtspreq == RTSPREQ_RECEIVE &&
 		    (conn->proto.rtspc.rtp_channel == -1)) {
 			infof(data, "Got an RTP Receive with a CSeq of %ld\n", CSeq_recv);
-			/* TODO CPC: Server -> Client logic here */
+			/* @todo CPC: Server -> Client logic here */
 		}
 	}
 
@@ -272,7 +272,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 		failf(data, "Refusing to issue an RTSP request [%s] without a session ID.", p_request);
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 	}
-	/* TODO: proxy? */
+	/* @todo proxy? */
 	/* Stream URI. Default to server '*' if not specified */
 	p_stream_uri = data->set.str[STRING_RTSP_STREAM_URI] ? data->set.str[STRING_RTSP_STREAM_URI] : "*";
 	// Transport Header for SETUP requests 

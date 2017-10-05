@@ -244,8 +244,8 @@ const char bitarr[] = { 1, 2, 4, 8, 16, 32, 64, '\200' };
  * Document). The Document default state is that word chars are:
  * 0-9, a-z, A-Z and _
  */
-
-RESearch::RESearch(CharClassify * charClassTable) {
+RESearch::RESearch(CharClassify * charClassTable) 
+{
 	failure = 0;
 	charClass = charClassTable;
 	sta = NOP;                  /* status of lastpat */
@@ -256,11 +256,13 @@ RESearch::RESearch(CharClassify * charClassTable) {
 	Clear();
 }
 
-RESearch::~RESearch() {
+RESearch::~RESearch() 
+{
 	Clear();
 }
 
-void RESearch::Clear() {
+void RESearch::Clear() 
+{
 	for(int i = 0; i < MAXTAG; i++) {
 		pat[i].clear();
 		bopat[i] = NOTFOUND;
@@ -268,7 +270,8 @@ void RESearch::Clear() {
 	}
 }
 
-void RESearch::GrabMatches(CharacterIndexer &ci) {
+void RESearch::GrabMatches(CharacterIndexer &ci) 
+{
 	for(uint i = 0; i < MAXTAG; i++) {
 		if((bopat[i] != NOTFOUND) && (eopat[i] != NOTFOUND)) {
 			uint len = eopat[i] - bopat[i];
@@ -279,11 +282,13 @@ void RESearch::GrabMatches(CharacterIndexer &ci) {
 	}
 }
 
-void RESearch::ChSet(uchar c) {
+void FASTCALL RESearch::ChSet(uchar c) 
+{
 	bittab[((c) & BLKIND) >> 3] |= bitarr[(c) & BITIND];
 }
 
-void RESearch::ChSetWithCase(uchar c, bool caseSensitive) {
+void RESearch::ChSetWithCase(uchar c, bool caseSensitive) 
+{
 	if(caseSensitive) {
 		ChSet(c);
 	}
@@ -302,20 +307,22 @@ void RESearch::ChSetWithCase(uchar c, bool caseSensitive) {
 	}
 }
 
-static uchar escapeValue(uchar ch) {
+static uchar escapeValue(uchar ch) 
+{
 	switch(ch) {
-		case 'a':       return '\a';
-		case 'b':       return '\b';
-		case 'f':       return '\f';
-		case 'n':       return '\n';
-		case 'r':       return '\r';
-		case 't':       return '\t';
-		case 'v':       return '\v';
+		case 'a': return '\a';
+		case 'b': return '\b';
+		case 'f': return '\f';
+		case 'n': return '\n';
+		case 'r': return '\r';
+		case 't': return '\t';
+		case 'v': return '\v';
 	}
 	return 0;
 }
 
-static int GetHexaChar(uchar hd1, uchar hd2) {
+static int GetHexaChar(uchar hd1, uchar hd2) 
+{
 	int hexValue = 0;
 	if(hd1 >= '0' && hd1 <= '9') {
 		hexValue += 16 * (hd1 - '0');
@@ -352,8 +359,8 @@ static int GetHexaChar(uchar hd1, uchar hd2) {
  * @return the char if it resolves to a simple char,
  * or -1 for a char class. In this case, bittab is changed.
  */
-int RESearch::GetBackslashExpression(const char * pattern,
-    int &incr) {
+int RESearch::GetBackslashExpression(const char * pattern, int &incr) 
+{
 	// Since error reporting is primitive and messages are not used anyway,
 	// I choose to interpret unexpected syntax in a logical way instead
 	// of reporting errors. Otherwise, we can stick on, eg., PCRE behavior.
@@ -366,7 +373,6 @@ int RESearch::GetBackslashExpression(const char * pattern,
 		result = '\\';  // \ at end of pattern, take it literally
 		return result;
 	}
-
 	switch(bsc) {
 		case 'a':
 		case 'b':
@@ -437,7 +443,8 @@ int RESearch::GetBackslashExpression(const char * pattern,
 	return result;
 }
 
-const char * RESearch::Compile(const char * pattern, int length, bool caseSensitive, bool posix) {
+const char * RESearch::Compile(const char * pattern, int length, bool caseSensitive, bool posix) 
+{
 	char * mp = nfa;          /* nfa pointer       */
 	char * lp;              /* saved pointer     */
 	char * sp = nfa;          /* another one       */
@@ -784,21 +791,19 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
  *  respectively.
  *
  */
-int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
+int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) 
+{
 	uchar c;
 	int ep = NOTFOUND;
 	char * ap = nfa;
-
 	bol = lp;
 	failure = 0;
-
 	Clear();
-
 	switch(*ap) {
-		case BOL:               /* anchored: match from BOL only */
+		case BOL: /* anchored: match from BOL only */
 		    ep = PMatch(ci, lp, endp, ap);
 		    break;
-		case EOL:               /* just searching for end of line normal path doesn't work */
+		case EOL: /* just searching for end of line normal path doesn't work */
 		    if(*(ap+1) == END) {
 			    lp = endp;
 			    ep = lp;
@@ -807,13 +812,13 @@ int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
 		    else {
 			    return 0;
 		    }
-		case CHR:               /* ordinary char: locate it fast */
+		case CHR: /* ordinary char: locate it fast */
 		    c = *(ap+1);
 		    while((lp < endp) && (static_cast<uchar>(ci.CharAt(lp)) != c))
 			    lp++;
 		    if(lp >= endp) /* if EOS, fail, else fall through. */
 			    return 0;
-		default:                /* regular matching all the way. */
+		default: /* regular matching all the way. */
 		    while(lp < endp) {
 			    ep = PMatch(ci, lp, endp, ap);
 			    if(ep != NOTFOUND)
@@ -821,15 +826,16 @@ int RESearch::Execute(CharacterIndexer &ci, int lp, int endp) {
 			    lp++;
 		    }
 		    break;
-		case END:               /* munged automaton. fail always */
+		case END: /* munged automaton. fail always */
 		    return 0;
 	}
 	if(ep == NOTFOUND)
 		return 0;
-
-	bopat[0] = lp;
-	eopat[0] = ep;
-	return 1;
+	else {
+		bopat[0] = lp;
+		eopat[0] = ep;
+		return 1;
+	}
 }
 
 /*
@@ -873,14 +879,14 @@ extern void re_fail(char *, char);
 #define CHRSKIP 3       /* [CLO] CHR chr END      */
 #define CCLSKIP 34      /* [CLO] CCL 32 bytes END */
 
-int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char * ap) {
+int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char * ap) 
+{
 	int op, c, n;
 	int e;          /* extra pointer for CLO  */
 	int bp;         /* beginning of subpat... */
 	int ep;         /* ending of subpat...    */
 	int are;        /* to save the line ptr.  */
 	int llp;        /* lazy lp for LCLO       */
-
 	while((op = *ap++) != END)
 		switch(op) {
 			case CHR:
@@ -985,4 +991,3 @@ int RESearch::PMatch(CharacterIndexer &ci, int lp, int endp, char * ap) {
 		}
 	return lp;
 }
-

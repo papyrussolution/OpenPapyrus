@@ -729,7 +729,7 @@ static void ngx_ssl_ocsp_connect(ngx_ssl_ocsp_ctx_t * ctx)
 {
 	ngx_int_t rc;
 	ngx_log_debug0(NGX_LOG_DEBUG_EVENT, ctx->log, 0, "ssl ocsp connect");
-	/* TODO: use all ip addresses */
+	/* @todo use all ip addresses */
 	ctx->peer.sockaddr = ctx->addrs[0].sockaddr;
 	ctx->peer.socklen = ctx->addrs[0].socklen;
 	ctx->peer.name = &ctx->addrs[0].name;
@@ -1139,7 +1139,7 @@ static ngx_int_t ngx_ssl_ocsp_process_headers(ngx_ssl_ocsp_ctx_t * ctx)
 				}
 				continue;
 			}
-			/* TODO: honor Content-Length */
+			/* @todo honor Content-Length */
 			continue;
 		}
 		if(rc == NGX_DONE) {

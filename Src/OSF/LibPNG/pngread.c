@@ -54,7 +54,7 @@ PNG_ALLOCATED png_structp PNGAPI png_create_read_struct_2(const char * user_png_
 		png_ptr->flags |= PNG_FLAG_APP_WARNINGS_WARN;
 	#endif
 #endif
-		// TODO: delay this, it can be done in png_init_io (if the app doesn't
+		// @todo delay this, it can be done in png_init_io (if the app doesn't
 		// do it itself) avoiding setting the default function if it is not required.
 		png_set_read_fn(png_ptr, 0, 0);
 	}
@@ -2989,7 +2989,7 @@ static int png_image_read_direct(void * argument)
 				 * Handle this by doing the pre-multiplication or background
 				 * operation in this code, if necessary.
 				 *
-				 * TODO: fix this by rewriting pngrtran.c (!)
+				 * @todo fix this by rewriting pngrtran.c (!)
 				 *
 				 * For the moment (given that fixing this in pngrtran.c is an
 				 * enormous change) 'do_local_background' is used to indicate that
@@ -3044,7 +3044,7 @@ static int png_image_read_direct(void * argument)
 		 * correction; this is part of the work-round for the libpng bug
 		 * described above.
 		 *
-		 * TODO: fix libpng and remove this.
+		 * @todo fix libpng and remove this.
 		 */
 		if(do_local_background != 0) {
 			png_fixed_point gtest;
@@ -3087,7 +3087,7 @@ static int png_image_read_direct(void * argument)
 				/* If RGB->gray is happening the alpha channel must be left and the
 				 * operation completed locally.
 				 *
-				 * TODO: fix libpng and remove this.
+				 * @todo fix libpng and remove this.
 				 */
 				if(do_local_background != 0)
 					do_local_background = 2 /*required*/;
@@ -3186,7 +3186,7 @@ static int png_image_read_direct(void * argument)
 			 */
 			if((format & PNG_FORMAT_FLAG_ALPHA) != 0) {
 				/* Disable this if doing a local background,
-				 * TODO: remove this when local background is no longer required.
+				 * @todo remove this when local background is no longer required.
 				 */
 				if(do_local_background != 2)
 					png_set_swap_alpha(png_ptr);
@@ -3220,7 +3220,7 @@ static int png_image_read_direct(void * argument)
 	 * make sure to turn on the interlace handling if it will be required
 	 * (because it can't be turned on *after* the call to png_read_update_info!)
 	 *
-	 * TODO: remove the do_local_background fixup below.
+	 * @todo remove the do_local_background fixup below.
 	 */
 	if(do_local_compose == 0 && do_local_background != 2)
 		passes = png_set_interlace_handling(png_ptr);

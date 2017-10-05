@@ -124,7 +124,7 @@ static char * FASTCALL rcs_unwrap(RcString * rcs)
 
 /*static size_t FASTCALL rcs_length(RcString * rcs)
 {
-	// TODO account for UTF8
+	// @todo account for UTF8
 	assert(rcs);
 	return rcs->length;
 }*/
@@ -173,7 +173,7 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 			if(error == JSON_WAITING_FOR_EOF)
 				error = JSON_OK;
 			else
-				error = JSON_UNKNOWN_PROBLEM; // TODO refine this error code
+				error = JSON_UNKNOWN_PROBLEM; // @todo refine this error code
 		}
 	}
 	if(error == JSON_OK)
@@ -300,7 +300,7 @@ void json_free_value(json_t ** ppValue)
 
 enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 {
-	// TODO change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
+	// @todo change the child list from FIFO to LIFO, in order to get rid of the child_end pointer
 	assert(pParent); // the parent must exist
 	assert(pChild); // the child must exist
 	assert(pParent != pChild); // parent and child must not be the same. if they are, it will enter an infinite loop
@@ -1530,7 +1530,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // TODO return value according to the value returned from json_insert_child()
+								return JSON_UNKNOWN_PROBLEM; // @todo return value according to the value returned from json_insert_child()
 							}
 							info->cursor = p_temp;
 							p_temp = NULL;
@@ -1665,7 +1665,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
+								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
 							}
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
@@ -1681,7 +1681,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							p_temp->AssignAllocatedText(info->lex_text);
 							info->lex_text = NULL;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
+								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
 							}
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
@@ -1694,7 +1694,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if((p_temp = new json_t(json_t::tTRUE)) == NULL)
 								return JSON_MEMORY;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
+								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
 							}
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
@@ -1707,7 +1707,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if((p_temp = new json_t(json_t::tFALSE)) == NULL)
 								return JSON_MEMORY;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK)
-								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message
+								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message
 							if(!info->cursor->P_Parent)
 								info->state = 99; // finished document. only accepts whitespaces until EOF
 							else
@@ -1719,7 +1719,7 @@ enum json_error json_parse_fragment(json_parsing_info *info, const char *buffer)
 							if((p_temp = new json_t(json_t::tNULL)) == NULL)
 								return JSON_MEMORY;
 							if(json_insert_child(info->cursor, p_temp) != JSON_OK) {
-								return JSON_UNKNOWN_PROBLEM; // TODO specify the exact error message 
+								return JSON_UNKNOWN_PROBLEM; // @todo specify the exact error message 
 							}
 							if(!info->cursor->P_Parent)
 								info->state = 99;	/* finished document. only accepts whitespaces until EOF */
@@ -1939,7 +1939,7 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 
 enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functions * jsf, char c)
 {
-	// TODO handle a string instead of a single char
+	// @todo handle a string instead of a single char
 	RcString * temp = 0;
 	// make sure everything is in it's place
 	assert(jsps);

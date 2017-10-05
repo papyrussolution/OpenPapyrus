@@ -370,7 +370,7 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
 	char   k[MAXKEYLEN];
-	Counter.Init(P_TmpTbl);
+	PPInitIterCounter(Counter, P_TmpTbl);
 	if(order == OrdByDefault)
 		idx = 0;
 	else if(order == OrdByBillID)

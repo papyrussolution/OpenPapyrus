@@ -328,7 +328,7 @@ int PPViewAccount::DynFuncCheckRights = 0;
 // virtual
 DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncCheckRights, 0, BTS_INT, dbqf_account_checkrights_i, 1, BTS_INT);
+	DbqFuncTab::RegisterDyn(&DynFuncCheckRights, BTS_INT, dbqf_account_checkrights_i, 1, BTS_INT);
 
 	static DbqStringSubst acckind_subst(3);  // @global @threadsafe
 	uint    brw_id = 0;

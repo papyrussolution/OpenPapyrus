@@ -747,7 +747,7 @@ DBE_PROC(_max_v)
 DbqFuncTab DbqFuncTab::Inst; // @global @threadsafe
 
 //static
-int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int isAggr, int retType, DBQProc pProc, int paramCount, ...)
+int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
 {
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -755,7 +755,28 @@ int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int isAggr, int retType, DBQPr
 		if(Inst.GetDynFuncId(&func_id) > 0) {
 			va_list param_list;
 			va_start(param_list, paramCount);
-			if(Inst._RegisterFunc(func_id, isAggr, retType, pProc, paramCount, param_list))
+			if(Inst._RegisterFunc(func_id, 0, retType, pProc, paramCount, param_list))
+				ok = 1;
+			va_end(param_list);
+		}
+		ASSIGN_PTR(pFuncId, func_id);
+	}
+	else
+		ok = 1;
+	LEAVE_CRITICAL_SECTION
+	return ok;
+}
+
+//static
+int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
+{
+	int    ok = 0, func_id = 0;
+	ENTER_CRITICAL_SECTION
+	if(*pFuncId == 0) {
+		if(Inst.GetDynFuncId(&func_id) > 0) {
+			va_list param_list;
+			va_start(param_list, paramCount);
+			if(Inst._RegisterFunc(func_id, 1, retType, pProc, paramCount, param_list))
 				ok = 1;
 			va_end(param_list);
 		}

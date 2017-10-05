@@ -99,7 +99,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 				for(j = 0; j<sa_size; j++) sa[j] = -1;
 				for(j = i; j<nqrdata; j++) {
 					if(!mark[j]) {
-						// TODO: We could also match version, ECC level, etc. if size and
+						// @todo We could also match version, ECC level, etc. if size and
 						// parity alone are too ambiguous.
 						if(qrdata[j].sa_size==sa_size&&qrdata[j].sa_parity==sa_parity&&
 						    sa[qrdata[j].sa_index]<0) {
@@ -108,7 +108,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 						}
 					}
 				}
-				// TODO: If the S-A group is complete, check the parity
+				// @todo If the S-A group is complete, check the parity
 			}
 			else {
 				sa[0] = i;
@@ -263,7 +263,7 @@ int qr_code_data_list_extract_text(const qr_code_data_list * _qrlist, zbar_image
 							    sa_ntext += inleft;
 						    }
 					    } break;
-						/*TODO: This will not handle a multi-byte sequence split between
+						/* @todo This will not handle a multi-byte sequence split between
 						   multiple data blocks.
 						   Does such a thing occur?
 						   Is it allowed?

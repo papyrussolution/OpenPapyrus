@@ -1157,7 +1157,7 @@ static int __rep_remove_file(ENV * env, __rep_fileinfo_args * rfp, void * unused
 		 * locker allocated, and if not, db_open allocates a locker
 		 * which qam_remove then leaks.
 		 *
-		 * TODO: it would be better to avoid cobbling together this
+		 * @todo it would be better to avoid cobbling together this
 		 * sequence of low-level operations, if fileops provided some
 		 * API to allow us to remove a database without write-locking
 		 * its handle.

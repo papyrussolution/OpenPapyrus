@@ -1534,7 +1534,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens, const SymbolTabl
 							if(setWordStart.Contains(static_cast<uchar>(macroTokens[iMacro][0]))) {
 								std::map<std::string, std::string>::const_iterator itFind = arguments.find(macroTokens[iMacro]);
 								if(itFind != arguments.end()) {
-									// TODO: Possible that value will be expression so should insert
+									// @todo Possible that value will be expression so should insert
 									// tokenized form
 									macroTokens[iMacro] = itFind->second;
 								}

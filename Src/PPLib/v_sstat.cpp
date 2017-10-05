@@ -403,7 +403,7 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 	TempGoodsStatTbl * p_t = P_TempTbl;
 	BExtQuery q(P_TempTbl, 0);
 	PPID   prev_goods_id = 0;
-	cntr.Init(p_t);
+	PPInitIterCounter(cntr, p_t);
 	THROW(p_o = CreateTempOrderFile());
 	{
 		BExtInsert bei(p_o);
@@ -568,7 +568,7 @@ int SLAPI PPViewSStat::InitIteration()
 		P_IterQuery->selectAll();
 		MEMSZERO(k);
 		P_IterQuery->initIteration(0, &k, spFirst);
-		Counter.Init(P_TempOrd);
+		PPInitIterCounter(Counter, P_TempOrd);
 	}
 	else if(P_TempTbl) {
 		DBQ * dbq = 0;
@@ -577,7 +577,7 @@ int SLAPI PPViewSStat::InitIteration()
 		P_IterQuery->selectAll();
 		MEMSZERO(k1);
 		P_IterQuery->initIteration(0, &k1, spFirst);
-		Counter.Init(P_TempTbl);
+		PPInitIterCounter(Counter, P_TempTbl);
 	}
 	else
 		ok = 0;

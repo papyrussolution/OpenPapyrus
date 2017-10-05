@@ -250,7 +250,7 @@ error:
 int __db_sort_multiple(DB * db, DBT * key, DBT * data, uint32 flags)
 {
 	uint32 * kend, * dstart, * dend;
-	/* TODO: sanity checks on the DBTs */
+	/* @todo sanity checks on the DBTs */
 	/* DB_ILLEGAL_METHOD(db, DB_OK_BTREE); */
 	uint32 * kstart = (uint32 *)((uint8 *)key->data+key->ulen)-1;
 	switch(flags) {

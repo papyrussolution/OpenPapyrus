@@ -214,7 +214,7 @@ static ngx_int_t ngx_stream_access_unix(ngx_stream_session_t * s,
 
 	rule_un = ascf->rules_un->elts;
 	for(i = 0; i < ascf->rules_un->nelts; i++) {
-		/* TODO: check path */
+		/* @todo check path */
 		if(1) {
 			return ngx_stream_access_found(s, rule_un[i].deny);
 		}

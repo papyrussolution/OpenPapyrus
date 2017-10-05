@@ -1330,7 +1330,7 @@ int SLAPI PPViewGoodsOpAnalyze::InitIteration(IterOrder ord)
 	ZDELETE(P_TempOrd);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
-	Counter.Init(P_TempTbl);
+	PPInitIterCounter(Counter, P_TempTbl);
 	THROW(CreateOrderTable(ord, &P_TempOrd));
 	if(P_TempOrd) {
 		TempOrderTbl::Key1 k;
@@ -2353,7 +2353,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				// в текущем отчете.
 			THROW(InitGoodsRestView(&gr_view));
 			MEMSZERO(k3);
-			c.Init(P_TempTbl);
+			PPInitIterCounter(c, P_TempTbl);
 			PPLoadText(PPTXT_CALCREST, wait_msg);
 			if(P_TempTbl->searchForUpdate(3, &k3, spFirst)) do {
 				TempGoodsOprTbl::Rec rec;

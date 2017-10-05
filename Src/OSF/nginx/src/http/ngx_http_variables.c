@@ -74,7 +74,7 @@ static ngx_int_t ngx_http_variable_msec(ngx_http_request_t * r, ngx_http_variabl
 static ngx_int_t ngx_http_variable_time_iso8601(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 /*
- * TODO:
+ * @todo 
  *     Apache CGI: AUTH_TYPE, PATH_INFO (null), PATH_TRANSLATED
  *                 REMOTE_HOST (null), REMOTE_IDENT (null),
  *                 SERVER_SOFTWARE

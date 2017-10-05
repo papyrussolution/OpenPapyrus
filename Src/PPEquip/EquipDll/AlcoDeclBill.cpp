@@ -8,12 +8,9 @@
 // В каждом подкаталоге файлы с алкоголем, пивом, контрагентами (производителями). Количество пар файлов с инфой
 // о продукции равно количеству магазинов этого контрагента. Файл с контрагентами в подкаталоге один.
 //
-
 #include <slib.h>
 #include <ppbrow.h>
-#include <libxml.h>
-#include <libxml\xmlwriter.h>
-#include <libxml\xmlreader.h>
+#include <sxml.h>
 
 #define EXPORT	extern "C" __declspec (dllexport)
 #define THROWERR(expr,val) { if(!(expr)){ SetError(val, ""); goto __scatch; } }

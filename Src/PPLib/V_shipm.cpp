@@ -354,7 +354,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 int SLAPI PPViewShipmAnalyze::InitIteration()
 {
 	BExtQuery::ZDelete(&P_IterQuery);
-	Counter.Init(Tbl);
+	PPInitIterCounter(Counter, Tbl);
 	if(Tbl) {
 		P_IterQuery = new BExtQuery(Tbl, 1);
 		if(P_IterQuery) {

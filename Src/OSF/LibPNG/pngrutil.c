@@ -545,7 +545,7 @@ static int png_decompress_chunk(png_structrp png_ptr,
     png_alloc_size_t * newlength /* must be initialized to the maximum! */,
     int terminate /*add a '\0' to the end of the uncompressed data*/)
 {
-	/* TODO: implement different limits for different types of chunk.
+	/* @todo implement different limits for different types of chunk.
 	 *
 	 * The caller supplies *newlength set to the maximum length of the
 	 * uncompressed data, but this routine allocates space for the prefix and
@@ -924,7 +924,7 @@ void /* PRIVATE */ png_handle_PLTE(png_structrp png_ptr, png_inforp info_ptr, ui
 	}
 #endif
 
-	/* TODO: png_set_PLTE has the side effect of setting png_ptr->palette to its
+	/* @todo png_set_PLTE has the side effect of setting png_ptr->palette to its
 	 * own copy of the palette.  This has the side effect that when png_start_row
 	 * is called (this happens after any call to png_read_update_info) the
 	 * info_ptr palette gets changed.  This is extremely unexpected and
@@ -1223,7 +1223,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 		    keyword[keyword_length] != 0)
 			++keyword_length;
 
-		/* TODO: make the keyword checking common */
+		/* @todo make the keyword checking common */
 		if(keyword_length >= 1 && keyword_length <= 79) {
 			/* We only understand '0' compression - deflate - so if we get a
 			 * different value we can't safely decode the chunk.
@@ -1600,7 +1600,7 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 
 	else if(png_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
 		if((png_ptr->mode & PNG_HAVE_PLTE) == 0) {
-			/* TODO: is this actually an error in the ISO spec? */
+			/* @todo is this actually an error in the ISO spec? */
 			png_crc_finish(png_ptr, length);
 			png_chunk_benign_error(png_ptr, "out of place");
 			return;
@@ -1629,7 +1629,7 @@ void /* PRIVATE */ png_handle_tRNS(png_structrp png_ptr, png_inforp info_ptr, ui
 		return;
 	}
 
-	/* TODO: this is a horrible side effect in the palette case because the
+	/* @todo this is a horrible side effect in the palette case because the
 	 * png_struct ends up with a pointer to the tRNS buffer owned by the
 	 * png_info.  Fix this.
 	 */
@@ -2180,7 +2180,7 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 	if(png_crc_finish(png_ptr, 0) != 0)
 		return;
 
-	/* TODO: also check that the keyword contents match the spec! */
+	/* @todo also check that the keyword contents match the spec! */
 	for(keyword_length = 0;
 	    keyword_length < length && buffer[keyword_length] != 0;
 	    ++keyword_length)
@@ -2202,7 +2202,7 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 	else {
 		png_alloc_size_t uncompressed_length = PNG_SIZE_MAX;
 
-		/* TODO: at present png_decompress_chunk imposes a single application
+		/* @todo at present png_decompress_chunk imposes a single application
 		 * level memory limit, this should be split to different values for iCCP
 		 * and text chunks.
 		 */
@@ -2330,7 +2330,7 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		else if(compressed != 0 && prefix_length < length) {
 			uncompressed_length = PNG_SIZE_MAX;
 
-			/* TODO: at present png_decompress_chunk imposes a single application
+			/* @todo at present png_decompress_chunk imposes a single application
 			 * level memory limit, this should be split to different values for
 			 * iCCP and text chunks.
 			 */
@@ -3470,7 +3470,7 @@ void /* PRIVATE */ png_read_IDAT_data(png_structrp png_ptr, png_bytep output, pn
 		 * terminally damage the stream, above, by reading the chunk header of the
 		 * following chunk (it then exits with png_error).
 		 *
-		 * TODO: deal more elegantly with truncated IDAT lists.
+		 * @todo deal more elegantly with truncated IDAT lists.
 		 */
 		ret = PNG_INFLATE(png_ptr, Z_NO_FLUSH);
 		/* Take the unconsumed output back. */
@@ -3658,7 +3658,7 @@ void /* PRIVATE */ png_read_start_row(png_structrp png_ptr)
 	 * transformations can and will break libpng in a way that causes memory
 	 * overwrites.
 	 *
-	 * TODO: fix this.
+	 * @todo fix this.
 	 */
 #ifdef PNG_READ_PACK_SUPPORTED
 	if((png_ptr->transformations & PNG_PACK) != 0 && png_ptr->bit_depth < 8)

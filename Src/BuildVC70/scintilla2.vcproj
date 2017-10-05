@@ -22,6 +22,7 @@
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="0"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src"
 				PreprocessorDefinitions="WIN32;_WIN32;_DEBUG;_LIB;SCI_LEXER;STATIC_BUILD"
 				StringPooling="TRUE"
@@ -79,6 +80,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="..\include;..\osf\scintilla\include;..\osf\scintilla\lexlib;..\osf\scintilla\src"
 				PreprocessorDefinitions="WIN32;_WIN32;_LIB;SCI_LEXER;STATIC_BUILD"
 				StringPooling="TRUE"
@@ -880,9 +882,6 @@
 				RelativePath="..\Osf\scintilla\src\CallTip.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\CaseConvert.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
 			</File>
 			<File
@@ -895,13 +894,7 @@
 				RelativePath="..\Osf\scintilla\src\Document.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\FontQuality.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\include\ILexer.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\KeyMap.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\Partitioning.h">
@@ -940,13 +933,7 @@
 				RelativePath="..\Osf\scintilla\src\Style.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\UnicodeFromUTF8.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\ViewStyle.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\XPM.h">
 			</File>
 		</Filter>
 		<Filter

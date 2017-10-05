@@ -716,15 +716,11 @@ struct SingleRequest {
  */
 struct Curl_handler {
 	const char * scheme; /* URL scheme name. */
-
 	/* Complement to setup_connection_internals(). */
 	CURLcode (* setup_connection)(struct connectdata *);
-
 	/* These two functions MUST be set to be protocol dependent */
 	CURLcode (* do_it)(struct connectdata *, bool * done);
-
 	Curl_done_func done;
-
 	/* If the curl_do() function is better made in two halves, this
 	 * curl_do_more() function will be called afterwards, if set. For example
 	 * for doing the FTP stuff after the PASV/PORT command.
@@ -738,53 +734,32 @@ struct Curl_handler {
 	 * should call the curl_connecting() function until it is.
 	 */
 	CURLcode (* connect_it)(struct connectdata *, bool * done);
-
 	/* See above. Currently only used for FTP. */
 	CURLcode (* connecting)(struct connectdata *, bool * done);
-
 	CURLcode (* doing)(struct connectdata *, bool * done);
-
 	/* Called from the multi interface during the PROTOCONNECT phase, and it
 	   should then return a proper fd set */
-	int (* proto_getsock)(struct connectdata * conn,
-	    curl_socket_t * socks,
-	    int numsocks);
-
-	/* Called from the multi interface during the DOING phase, and it should
-	   then return a proper fd set */
-	int (* doing_getsock)(struct connectdata * conn,
-	    curl_socket_t * socks,
-	    int numsocks);
-
-	/* Called from the multi interface during the DO_MORE phase, and it should
-	   then return a proper fd set */
-	int (* domore_getsock)(struct connectdata * conn,
-	    curl_socket_t * socks,
-	    int numsocks);
-
+	int (* proto_getsock)(struct connectdata * conn, curl_socket_t * socks, int numsocks);
+	/* Called from the multi interface during the DOING phase, and it should then return a proper fd set */
+	int (* doing_getsock)(struct connectdata * conn, curl_socket_t * socks, int numsocks);
+	/* Called from the multi interface during the DO_MORE phase, and it should then return a proper fd set */
+	int (* domore_getsock)(struct connectdata * conn, curl_socket_t * socks, int numsocks);
 	/* Called from the multi interface during the DO_DONE, PERFORM and
 	   WAITPERFORM phases, and it should then return a proper fd set. Not setting
 	   this will make libcurl use the generic default one. */
-	int (* perform_getsock)(const struct connectdata * conn,
-	    curl_socket_t * socks,
-	    int numsocks);
-
+	int (* perform_getsock)(const struct connectdata * conn, curl_socket_t * socks, int numsocks);
 	/* This function *MAY* be set to a protocol-dependent function that is run
 	 * by the curl_disconnect(), as a step in the disconnection.  If the handler
 	 * is called because the connection has been considered dead, dead_connection
 	 * is set to TRUE.
 	 */
 	CURLcode (* disconnect)(struct connectdata *, bool dead_connection);
-
 	/* If used, this function gets called from transfer.c:readwrite_data() to
 	   allow the protocol to do extra reads/writes */
-	CURLcode (* readwrite)(struct Curl_easy * data, struct connectdata * conn,
-	    ssize_t * nread, bool * readmore);
-
-	long defport;     /* Default port. */
-	uint protocol; /* See CURLPROTO_* - this needs to be the single
-	                          specific protocol bit */
-	uint flags; /* Extra particular characteristics, see PROTOPT_* */
+	CURLcode (* readwrite)(struct Curl_easy * data, struct connectdata * conn, ssize_t * nread, bool * readmore);
+	long   defport;  // Default port. 
+	uint   protocol; // See CURLPROTO_* - this needs to be the single specific protocol bit 
+	uint   flags; /* Extra particular characteristics, see PROTOPT_* */
 };
 
 #define PROTOPT_NONE 0             /* nothing extra */

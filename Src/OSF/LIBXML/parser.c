@@ -1776,7 +1776,7 @@ int xmlSkipBlankChars(xmlParserCtxt * ctxt)
 				xmlParserHandlePEReference(ctxt);
 		} while(IS_BLANK(cur)); /* CHECKED tstblanks.xml */
 	}
-	return(res);
+	return res;
 }
 
 /************************************************************************
@@ -4184,7 +4184,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int stri
 			if(!IS_BLANK_CH(*ptr))
 				return 0;
 			while(IS_BLANK_CH(*ptr))
-				ptr++;  /* TODO: dangerous, fix ! */
+				ptr++;  /* @todo dangerous, fix ! */
 			if((*ptr != '\'') && (*ptr != '"'))
 				return 0;
 		}
@@ -5517,7 +5517,6 @@ xmlElementContentPtr xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int i
 	}
 	return ret;
 }
-
 /**
  * xmlParseElementChildrenContentDeclPriv:
  * @ctxt:  an XML parser context
@@ -5527,17 +5526,13 @@ xmlElementContentPtr xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int i
  * parse the declaration for a Mixed Element content
  * The leading '(' and spaces have been skipped in xmlParseElementContentDecl
  *
- *
  * [47] children ::= (choice | seq) ('?' | '*' | '+')?
- *
  * [48] cp ::= (Name | choice | seq) ('?' | '*' | '+')?
- *
  * [49] choice ::= '(' S? cp ( S? '|' S? cp )* S? ')'
- *
  * [50] seq ::= '(' S? cp ( S? ',' S? cp )* S? ')'
  *
  * [VC: Proper Group/PE Nesting] applies to [49] and [50]
- * TODO Parameter-entity replacement text must be properly nested
+ * @todo Parameter-entity replacement text must be properly nested
  *	with parenthesized groups. That is to say, if either of the
  *	opening or closing parentheses in a choice, seq, or Mixed
  *	construct is contained in the replacement text for a parameter
@@ -5547,8 +5542,7 @@ xmlElementContentPtr xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int i
  *	be empty, and neither the first nor last non-blank character of
  *	the replacement text should be a connector (| or ,).
  *
- * Returns the tree of xmlElementContentPtr describing the element
- *          hierarchy.
+ * Returns the tree of xmlElementContentPtr describing the element hierarchy.
  */
 static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt * ctxt, int inputchk, int depth)
 {
@@ -5607,12 +5601,9 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		 * Each loop we parse one separator and one element.
 		 */
 		if(RAW == ',') {
-			if(type == 0) type = CUR;
-
-			/*
-			 * Detect "Name | Name , Name" error
-			 */
-			else if(type != CUR) {
+			if(type == 0) 
+				type = CUR;
+			else if(type != CUR) { // Detect "Name | Name , Name" error
 				xmlFatalErrMsgInt(ctxt, XML_ERR_SEPARATOR_REQUIRED, "xmlParseElementChildrenContentDecl : '%c' expected\n", type);
 				if(last && last != ret)
 					xmlFreeDocElementContent(ctxt->myDoc, last);
@@ -5670,10 +5661,10 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 			}
 			else {
 				cur->c2 = op;
-				if(op != NULL)
+				if(op)
 					op->parent = cur;
 				op->c1 = last;
-				if(last != NULL)
+				if(last)
 					last->parent = op;
 				cur = op;
 				last = NULL;
@@ -5691,7 +5682,7 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		GROW;
 		if(RAW == '(') {
 			int inputid = ctxt->input->id;
-			/* Recurse on second child */
+			// Recurse on second child 
 			NEXT;
 			SKIP_BLANKS;
 			last = xmlParseElementChildrenContentDeclPriv(ctxt, inputid, depth + 1);
@@ -5747,10 +5738,9 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 		if(ret) {
 			ret->ocur = XML_ELEMENT_CONTENT_MULT;
 			cur = ret;
-			/*
-			 * Some normalization:
-			 * (a | b* | c?)* == (a | b | c)*
-			 */
+			// 
+			// Some normalization: (a | b* | c?)* == (a | b | c)*
+			// 
 			while(cur && (cur->type == XML_ELEMENT_CONTENT_OR)) {
 				if(cur->c1 && oneof2(cur->c1->ocur, XML_ELEMENT_CONTENT_OPT, XML_ELEMENT_CONTENT_MULT))
 					cur->c1->ocur = XML_ELEMENT_CONTENT_ONCE;
@@ -5768,17 +5758,17 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 				ret->ocur = XML_ELEMENT_CONTENT_MULT;
 			else
 				ret->ocur = XML_ELEMENT_CONTENT_PLUS;
-			/*
-			 * Some normalization:
-			 * (a | b*)+ == (a | b)*
-			 * (a | b?)+ == (a | b)*
-			 */
+			// 
+			// Some normalization:
+			// (a | b*)+ == (a | b)*
+			// (a | b?)+ == (a | b)*
+			// 
 			while(cur && (cur->type == XML_ELEMENT_CONTENT_OR)) {
-				if((cur->c1 != NULL) && ((cur->c1->ocur == XML_ELEMENT_CONTENT_OPT) || (cur->c1->ocur == XML_ELEMENT_CONTENT_MULT))) {
+				if(cur->c1 && ((cur->c1->ocur == XML_ELEMENT_CONTENT_OPT) || (cur->c1->ocur == XML_ELEMENT_CONTENT_MULT))) {
 					cur->c1->ocur = XML_ELEMENT_CONTENT_ONCE;
 					found = 1;
 				}
-				if((cur->c2 != NULL) && ((cur->c2->ocur == XML_ELEMENT_CONTENT_OPT) || (cur->c2->ocur == XML_ELEMENT_CONTENT_MULT))) {
+				if(cur->c2 && ((cur->c2->ocur == XML_ELEMENT_CONTENT_OPT) || (cur->c2->ocur == XML_ELEMENT_CONTENT_MULT))) {
 					cur->c2->ocur = XML_ELEMENT_CONTENT_ONCE;
 					found = 1;
 				}
@@ -5791,7 +5781,6 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
 	}
 	return ret;
 }
-
 /**
  * xmlParseElementChildrenContentDecl:
  * @ctxt:  an XML parser context
@@ -5809,7 +5798,7 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
  * [50] seq ::= '(' S? cp ( S? ',' S? cp )* S? ')'
  *
  * [VC: Proper Group/PE Nesting] applies to [49] and [50]
- * TODO Parameter-entity replacement text must be properly nested
+ * @todo Parameter-entity replacement text must be properly nested
  *	with parenthesized groups. That is to say, if either of the
  *	opening or closing parentheses in a choice, seq, or Mixed
  *	construct is contained in the replacement text for a parameter
@@ -5819,15 +5808,13 @@ static xmlElementContentPtr xmlParseElementChildrenContentDeclPriv(xmlParserCtxt
  *	be empty, and neither the first nor last non-blank character of
  *	the replacement text should be a connector (| or ,).
  *
- * Returns the tree of xmlElementContentPtr describing the element
- *          hierarchy.
+ * Returns the tree of xmlElementContentPtr describing the element hierarchy.
  */
 xmlElementContentPtr xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk)
 {
 	/* stub left for API/ABI compat */
 	return xmlParseElementChildrenContentDeclPriv(ctxt, inputchk, 1);
 }
-
 /**
  * xmlParseElementContentDecl:
  * @ctxt:  an XML parser context
@@ -5841,7 +5828,6 @@ xmlElementContentPtr xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, in
  *
  * returns: the type of element content XML_ELEMENT_TYPE_xxx
  */
-
 int xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlElementContentPtr * result)
 {
 	xmlElementContentPtr tree = NULL;
@@ -5867,9 +5853,8 @@ int xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlEl
 	}
 	SKIP_BLANKS;
 	*result = tree;
-	return(res);
+	return res;
 }
-
 /**
  * xmlParseElementDecl:
  * @ctxt:  an XML parser context
@@ -5961,8 +5946,7 @@ int xmlParseElementDecl(xmlParserCtxt * ctxt)
 					/*
 					 * this is a trick: if xmlAddElementDecl is called,
 					 * instead of copying the full tree it is plugged directly
-					 * if called from the parser. Avoid duplicating the
-					 * interfaces or change the API/ABI
+					 * if called from the parser. Avoid duplicating the interfaces or change the API/ABI
 					 */
 					xmlFreeDocElementContent(ctxt->myDoc, content);
 				}
@@ -5973,7 +5957,6 @@ int xmlParseElementDecl(xmlParserCtxt * ctxt)
 	}
 	return ret;
 }
-
 /**
  * xmlParseConditionalSections
  * @ctxt:  an XML parser context
@@ -6101,15 +6084,13 @@ static void xmlParseConditionalSections(xmlParserCtxt * ctxt)
 		SKIP(3);
 	}
 }
-
 /**
  * xmlParseMarkupDecl:
  * @ctxt:  an XML parser context
  *
  * parse Markup declarations
  *
- * [29] markupdecl ::= elementdecl | AttlistDecl | EntityDecl |
- *                     NotationDecl | PI | Comment
+ * [29] markupdecl ::= elementdecl | AttlistDecl | EntityDecl | NotationDecl | PI | Comment
  *
  * [VC: Proper Declaration/PE Nesting]
  * Parameter-entity replacement text must be properly nested with
@@ -6121,8 +6102,7 @@ static void xmlParseConditionalSections(xmlParserCtxt * ctxt)
  * [WFC: PEs in Internal Subset]
  * In the internal DTD subset, parameter-entity references can occur
  * only where markup declarations can occur, not within markup declarations.
- * (This does not apply to references that occur in external parameter
- * entities or to the external subset.)
+ * (This does not apply to references that occur in external parameter entities or to the external subset.)
  */
 void xmlParseMarkupDecl(xmlParserCtxt * ctxt)
 {
@@ -6145,8 +6125,7 @@ void xmlParseMarkupDecl(xmlParserCtxt * ctxt)
 				case '-':
 				    xmlParseComment(ctxt);
 				    break;
-				default:
-				    /* there is an error but it will be detected later */
+				default: // there is an error but it will be detected later 
 				    break;
 			}
 		}
@@ -6253,7 +6232,7 @@ void xmlParseExternalSubset(xmlParserCtxt * ctxt, const xmlChar * ExternalID, co
 {
 	xmlDetectSAX2(ctxt);
 	GROW;
-	if((ctxt->encoding == NULL) && (ctxt->input->end - ctxt->input->cur >= 4)) {
+	if(!ctxt->encoding && (ctxt->input->end - ctxt->input->cur >= 4)) {
 		xmlChar start[4];
 		xmlCharEncoding enc;
 		start[0] = RAW;
@@ -6952,7 +6931,7 @@ static xmlEntity * xmlParseStringEntityRef(xmlParserCtxt * pCtxt, const xmlChar 
 					else
 						xmlErrMsgStr(pCtxt, XML_WAR_UNDECLARED_ENTITY, "Entity '%s' not defined\n", name);
 					xmlParserEntityCheck(pCtxt, 0, p_ent, 0);
-					/* TODO ? check regressions ctxt->valid = 0; */
+					/* @todo ? check regressions ctxt->valid = 0; */
 				}
 				/*
 				 * [WFC: Parsed Entity]
@@ -7099,7 +7078,7 @@ void xmlParsePEReference(xmlParserCtxt * ctxt)
 		}
 		else {
 			/*
-			 * TODO !!!
+			 * @todo !!!
 			 * handle the extra spaces added before and after
 			 * c.f. http://www.w3.org/TR/REC-xml#as-PE
 			 */
@@ -9257,7 +9236,7 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
  *                 (("'" ('yes' | 'no') "'") | ('"' ('yes' | 'no')'"'))
  *
  * [VC: Standalone Document Declaration]
- * TODO The standalone document declaration must have the value "no"
+ * @todo The standalone document declaration must have the value "no"
  * if any external markup declarations contain declarations of:
  *  - attributes with default values, if elements to which these
  *    attributes apply appear in the document without specifications
@@ -10279,7 +10258,7 @@ static int xmlParseTryOrFinish(xmlParserCtxt * ctxt, int terminate)
 				    xmlParseReference(ctxt);
 			    }
 			    else {
-				    /* TODO Avoid the extra copy, handle directly !!! */
+				    /* @todo Avoid the extra copy, handle directly !!! */
 				    /*
 				     * Goal of the following test is:
 				     *  - minimize calls to the SAX 'character' callback
@@ -10908,7 +10887,7 @@ xmldecl_done:
 				size_t current = ctxt->input->cur - ctxt->input->base;
 				int nbchars = xmlCharEncInput(in, terminate);
 				if(nbchars < 0) {
-					/* TODO 2.6.0 */
+					/* @todo 2.6.0 */
 					xmlGenericError(0, "xmlParseChunk: encoder error\n");
 					return(XML_ERR_INVALID_ENCODING);
 				}
@@ -12792,7 +12771,7 @@ xmlParserCtxtPtr xmlCreateMemoryParserCtxt(const char * buffer, int size)
 	ctxt = xmlNewParserCtxt();
 	if(!ctxt)
 		return 0;
-	/* TODO: xmlParserInputBufferCreateStatic, requires some serious changes */
+	/* @todo xmlParserInputBufferCreateStatic, requires some serious changes */
 	buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
 	if(!buf) {
 		xmlFreeParserCtxt(ctxt);
@@ -13191,7 +13170,7 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 		ctxt->inputNr = 0;
 		ctxt->input = NULL;
 		ctxt->spaceNr = 0;
-		if(ctxt->spaceTab != NULL) {
+		if(ctxt->spaceTab) {
 			ctxt->spaceTab[0] = -1;
 			ctxt->space = &ctxt->spaceTab[0];
 		}
@@ -13247,8 +13226,7 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 		xmlHashFree(ctxt->attsSpecial, 0);
 		ctxt->attsSpecial = NULL;
 #ifdef LIBXML_CATALOG_ENABLED
-		if(ctxt->catalogs)
-			xmlCatalogFreeLocal(ctxt->catalogs);
+		xmlCatalogFreeLocal(ctxt->catalogs);
 #endif
 		if(ctxt->lastError.code != XML_ERR_OK)
 			xmlResetError(&ctxt->lastError);

@@ -5165,7 +5165,10 @@ static void FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOuter)
 	pOuter->Flags = (PpyOBillFlags)pInner->Rec.Flags;
 	FLD(Flags2);
 	FLD(SCardID);
-	(temp_buf = pInner->Rec.Code).CopyToOleStr(&pOuter->Code);
+	{
+        temp_buf = pInner->Rec.Code;
+		temp_buf.CopyToOleStr(&pOuter->Code);
+	}
 	(temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
 #undef FLD
 	//

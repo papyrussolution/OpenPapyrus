@@ -2072,7 +2072,7 @@ static char * ngx_http_core_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	ngx_http_core_srv_conf_t * conf = (ngx_http_core_srv_conf_t *)child;
 	ngx_str_t name;
 	ngx_http_server_name_t  * sn;
-	/* TODO: it does not merge, it inits only */
+	/* @todo it does not merge, it inits only */
 	ngx_conf_merge_size_value(conf->connection_pool_size, prev->connection_pool_size, 64 * sizeof(void *));
 	ngx_conf_merge_size_value(conf->request_pool_size, prev->request_pool_size, 4096);
 	ngx_conf_merge_msec_value(conf->client_header_timeout, prev->client_header_timeout, 60000);

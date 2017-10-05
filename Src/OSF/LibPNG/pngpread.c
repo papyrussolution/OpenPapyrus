@@ -65,7 +65,7 @@ size_t PNGAPI png_process_data_pause(png_structrp png_ptr, int save)
 
 uint32 PNGAPI png_process_data_skip(png_structrp png_ptr)
 {
-	/* TODO: Deprecate and remove this API.
+	/* @todo Deprecate and remove this API.
 	 * Somewhere the implementation of this seems to have been lost,
 	 * or abandoned.  It was only to support some internal back-door access
 	 * to png_struct) in libpng-1.4.x.
@@ -445,7 +445,7 @@ void /* PRIVATE */ png_push_read_IDAT(png_structrp png_ptr)
 		uint8 chunk_length[4];
 		uint8 chunk_tag[4];
 
-		/* TODO: this code can be commoned up with the same code in push_read */
+		/* @todo this code can be commoned up with the same code in push_read */
 		PNG_PUSH_SAVE_BUFFER_IF_LT(8)
 		png_push_fill_buffer(png_ptr, chunk_length, 4);
 		png_ptr->push_length = png_get_uint_31(png_ptr, chunk_length);
@@ -536,7 +536,7 @@ void /* PRIVATE */ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer,
 	 * handle the uncompressed results.
 	 */
 	png_ptr->zstream.next_in = buffer;
-	// TODO: WARNING: TRUNCATION ERROR: DANGER WILL ROBINSON: 
+	// @todo WARNING: TRUNCATION ERROR: DANGER WILL ROBINSON: 
 	png_ptr->zstream.avail_in = (uInt)buffer_length;
 	// Keep going until the decompressed data is all processed or the stream marked as finished.
 	while(png_ptr->zstream.avail_in > 0 && (png_ptr->flags & PNG_FLAG_ZSTREAM_ENDED) == 0) {
@@ -546,7 +546,7 @@ void /* PRIVATE */ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer,
 		// if we don't expect any results -- it may be the input data is just the LZ end code.
 		// 
 		if(!(png_ptr->zstream.avail_out > 0)) {
-			// TODO: WARNING: TRUNCATION ERROR: DANGER WILL ROBINSON: 
+			// @todo WARNING: TRUNCATION ERROR: DANGER WILL ROBINSON: 
 			png_ptr->zstream.avail_out = (uInt)(PNG_ROWBYTES(png_ptr->pixel_depth, png_ptr->iwidth) + 1);
 			png_ptr->zstream.next_out = png_ptr->row_buf;
 		}

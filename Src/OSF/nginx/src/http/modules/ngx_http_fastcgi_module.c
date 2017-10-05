@@ -1014,7 +1014,7 @@ static ngx_int_t ngx_http_fastcgi_body_output_filter(void * data, ngx_chain_t * 
 		cl->buf->last_buf = 1;
 	}
 	else if(padding == 0) {
-		/* TODO: do not allocate buffers instead */
+		/* @todo do not allocate buffers instead */
 		cl->buf->temporary = 0;
 		cl->buf->sync = 1;
 	}

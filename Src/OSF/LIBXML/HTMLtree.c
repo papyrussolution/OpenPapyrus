@@ -374,7 +374,7 @@ int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur)
 {
 	xmlBufPtr buffer;
 	size_t ret;
-	if((buf == NULL) || (cur == NULL))
+	if(!buf || !cur)
 		return -1;
 	xmlInitParser();
 	buffer = xmlBufFromBuffer(buf);
@@ -382,11 +382,8 @@ int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur)
 		return -1;
 	ret = htmlBufNodeDumpFormat(buffer, doc, cur, 1);
 	xmlBufBackToBuffer(buffer);
-	if(ret > INT_MAX)
-		return -1;
-	return((int)ret);
+	return (ret > INT_MAX) ? -1 : (int)ret;
 }
-
 /**
  * htmlNodeDumpFileFormat:
  * @out:  the FILE pointer
@@ -397,7 +394,7 @@ int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur)
  *
  * Dump an HTML node, recursive behaviour,children are printed too.
  *
- * TODO: if encoding == NULL try to save in the doc encoding
+ * @todo if encoding == NULL try to save in the doc encoding
  *
  * returns: the number of byte written or -1 in case of failure.
  */
@@ -534,7 +531,7 @@ void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur);
  * @doc:  the document
  * @encoding:  the encoding string
  *
- * TODO: check whether encoding is needed
+ * @todo check whether encoding is needed
  *
  * Dump the HTML document DTD, if any.
  */

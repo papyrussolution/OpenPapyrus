@@ -3185,7 +3185,7 @@ int SLAPI Quotation2Core::Verify()
 	PPLogger logger;
 	Quotation2Tbl::Rec rec;
 	IterCounter cntr;
-	cntr.Init(this);
+	PPInitIterCounter(cntr, this);
 	PPWait(1);
 	{
 		PPObjQuotKind qk_obj;

@@ -193,7 +193,7 @@ static ngx_int_t ngx_http_access_unix(ngx_http_request_t * r, ngx_http_access_lo
 	ngx_uint_t i;
 	ngx_http_access_rule_un_t  * rule_un = alcf->rules_un->elts;
 	for(i = 0; i < alcf->rules_un->nelts; i++) {
-		/* TODO: check path */
+		/* @todo check path */
 		if(1) {
 			return ngx_http_access_found(r, rule_un[i].deny);
 		}

@@ -954,7 +954,8 @@ static const char * SchemeMnem[] = {
 	"rtmpt",
 	"rtmps",
 	"ldap",
-	"ldaps"
+	"ldaps",
+	"mailfrom" // fixion
 };
 
 //static
@@ -1123,6 +1124,23 @@ int InetUrl::SetComponent(int c, const char * pBuf)
 	return ok;
 }
 
+int InetUrl::GetQueryParam(const char * pParam, SString & rBuf) const
+{
+	int   ok = -1;
+	SString temp_buf;
+	if(GetComponent(cQuery, temp_buf)) {
+		StringSet ss('&', temp_buf);
+		SString left, right;
+		for(uint ssp = 0; ok < 0 && ss.get(&ssp, temp_buf);) {
+			if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(pParam) == 0) {
+				rBuf = right.Strip();
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int InetUrl::Composite(long flags, SString & rBuf) const
 {
 	rBuf.Z();
@@ -1149,7 +1167,7 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 						rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
 					else if(Protocol == protMailto)
 						rBuf.Cat(temp_buf).CatChar(':');
-					else
+					else 
 						rBuf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
 					result |= cScheme;
 				}
@@ -1191,6 +1209,320 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 		}
 	}
 	return result;
+}
+//
+//
+//
+SMailMsg::Disposition::Disposition()
+{
+	Type = tUnkn;
+	CreationDtm.SetZero();
+	ModifDtm.SetZero();
+	ReadDtm.SetZero();
+	Size = 0;
+}
+
+SLAPI SMailMsg::SMailMsg()
+{
+	Flags = 0;
+	Size = 0;
+	memzero(Zero, sizeof(Zero));
+}
+
+SLAPI SMailMsg::~SMailMsg()
+{
+	Init();
+}
+
+void SLAPI SMailMsg::Init()
+{
+	Flags = 0;
+	Size = 0;
+	Subj.Z();
+	Mailer.Z();
+	From.Z();
+	To.Z();
+	Cc.Z();
+	Boundary.Z();
+	Text.Z();
+	AttList.freeAll();
+}
+
+SString & SLAPI SMailMsg::MakeBoundaryCode(SString & rBuf) const
+{
+	rBuf.Z();
+	uint16 hash[16];
+	rBuf.CatCharN('-', 10);
+	IdeaRandMem(hash, sizeof(hash));
+	for(size_t i = 0; i < SIZEOFARRAY(hash); i++) {
+		uint16 sym = hash[i] % (10 + 26); // digits + upper letters
+		int    c = 0;
+		if(sym < 10)
+			c = '0' + sym;
+		else if(sym < (10 + 26))
+			c = 'A' + (sym - 10);
+		else
+			c = '=';
+		rBuf.CatChar(c);
+	}
+	return rBuf;
+}
+
+SString & SLAPI SMailMsg::GetBoundary(int start, SString & rBuf) const
+{
+	rBuf.Z();
+	const char * p_boundary = GetField(SMailMsg::fldBoundary);
+	if(p_boundary) {
+		if(start == 1 || start == 2)
+			rBuf.CatCharN('-', 2);
+		rBuf.Cat(p_boundary);
+		if(start == 2)
+			rBuf.CatCharN('-', 2);
+	}
+	return rBuf;
+}
+
+int SLAPI SMailMsg::IsPpyData() const
+{
+	return (Flags & (fPpyOrder | fPpyObject)) ? 1 : 0;
+}
+
+int SLAPI SMailMsg::AttachFile(const char * pFileName)
+{
+	int    ok = 0;
+	if(fileExists(pFileName)) {
+		if(AttList.insert(newStr(pFileName))) {
+			Flags |= fMultipart;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int SLAPI SMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
+{
+	rFileName.Z();
+	rFullPath.Z();
+	int    ok = 0;
+	uint   pos = pPos ? *pPos : 0;
+	if(pos < AttList.getCount()) {
+		rFullPath = AttList.at(pos);
+		SPathStruc ps;
+		ps.Split(rFullPath);
+		ps.Drv.Z();
+		ps.Dir.Z();
+		ps.Merge(rFileName);
+		pos++;
+		ASSIGN_PTR(pPos, pos);
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI SMailMsg::SetField(int fldId, const char * pVal)
+{
+	switch(fldId) {
+		case fldFrom: (From = pVal).Strip(); break;
+		case fldTo:   (To = pVal).Strip(); break;
+		case fldCc:   (Cc = pVal).Strip(); break;
+		case fldSubj: (Subj = pVal).Strip(); break;
+		case fldMailer: (Mailer = pVal).Strip(); break;
+		case fldBoundary: (Boundary = pVal).Strip(); break;
+		case fldText: (Text = pVal).Strip(); break;
+		default: return 0;
+	}
+	return 1;
+}
+
+int FASTCALL SMailMsg::IsField(int fldId) const
+{
+	switch(fldId) {
+		case fldFrom: return From.NotEmpty();
+		case fldTo:   return To.NotEmpty();
+		case fldCc:   return Cc.NotEmpty();
+		case fldSubj: return Subj.NotEmpty();
+		case fldMailer: return Mailer.NotEmpty();
+		case fldBoundary: return Boundary.NotEmpty();
+		case fldText: return Text.NotEmpty();
+	}
+	return 0;
+}
+
+const char * FASTCALL SMailMsg::GetField(int fldId) const
+{
+	switch(fldId) {
+		case fldFrom: return From.NotEmpty() ? From.cptr() : Zero;
+		case fldTo:   return To.NotEmpty() ? To.cptr() : Zero;
+		case fldCc:   return Cc.NotEmpty() ? Cc.cptr() : Zero;
+		case fldSubj: return Subj.NotEmpty() ? Subj.cptr() : Zero;
+		case fldMailer: return Mailer.NotEmpty() ? Mailer.cptr() : Zero;
+		case fldBoundary: return Boundary.NotEmpty() ? Boundary.cptr() : Zero;
+		case fldText: return Text.NotEmpty() ? Text.cptr() : Zero;
+	}
+	return 0;
+}
+
+int SLAPI SMailMsg::CmpField(int fldId, const char * pStr, size_t len) const
+{
+	const char * ptr = GetField(fldId);
+	return isempty(ptr) ? -1 : strnicmp(pStr, ptr, (len) ? len : strlen(ptr));
+}
+
+static int SLAPI _PUTS(const char * pLine, SFile & rOut)
+{
+	rOut.WriteLine(pLine);
+	if(pLine)
+		rOut.WriteLine("\n");
+	/*if(pLine)
+		fputs(pLine, out);
+	fputc('\n', out);*/
+	return 1;
+}
+
+SString & SLAPI SMailMsg::PutField(const char * pFld, const char * pVal, SString & rBuf)
+{
+	rBuf.Z();
+	if(pVal) {
+		rBuf.Cat(pFld).CatDiv(':', 2).Cat(pVal);
+	}
+	return rBuf;
+}
+
+int SLAPI SMailMsg::PutToFile(SFile & rF)
+{
+/*
+186 /!/ "From:;To:;Subject:;Content-Type:;Content-Disposition:;Content-Transfer-Encoding:;MIME-Version:;boundary=;charset=;\
+attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-date;read-date;size"
+*/
+	int    ok = -1, is_attach = 0;
+	SString buf, boundary;
+	SString fname, temp_buf;
+	uint   i = 0;
+	SDirEntry * p_fb = 0;
+	//FILE * f2 = 0;
+	//FILE * out = 0;
+
+	SetField(SMailMsg::fldBoundary, MakeBoundaryCode(temp_buf));
+	is_attach = (Flags & SMailMsg::fMultipart) ? 1 : 0;
+	{
+		char   sd_buf[256];
+		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));
+		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(sd_buf);
+		_PUTS(temp_buf, rF);
+	}
+	PutField("From", GetField(fldFrom), buf);
+	_PUTS(buf, rF);
+	/*
+	{
+		char   ver_text[64];
+		PPVersionInfo vi = DS.GetVersionInfo();
+		vi.GetVersionText(ver_text, sizeof(ver_text));
+		temp_buf.Z().Cat("X-Mailer").CatDiv(':', 2).Cat("Papyrus").Space().CatChar('v').Cat(ver_text);
+		_PUTS(temp_buf, out);
+	}
+	*/
+	PutField("X-Mailer", GetField(fldMailer), buf);
+	_PUTS(buf, rF);
+	{
+		
+		S_GUID uuid;
+		uuid.Generate();
+		uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		buf.Z().CatChar('<').Cat(temp_buf).CatChar('>');
+		PutField("Message-ID", temp_buf, buf);
+		_PUTS(buf, rF);
+		/*MakeMessageID(temp_buf);
+		PutField(PPMAILFLD_MESSAGEID, temp_buf, buf);
+		_PUTS(buf, out);*/
+	}
+	PutField("To", GetField(fldTo), buf);
+	_PUTS(buf, rF);
+	{
+		temp_buf = GetField(fldSubj);
+		/*if(temp_buf == SUBJECTDBDIV) {
+			//
+			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
+			// обновлений во всех разделах, то дабы более старые версии могли принять почту из 7.6.3 и выше,
+			// не будем кодировать SUBJECTDBDIV ($PpyDbDivTransmission$)
+			//
+		}
+		else*/ {
+			SString subj;
+			subj.EncodeMime64(temp_buf, temp_buf.Len());
+			(temp_buf = "=?UTF-8?B?").Cat(subj).Cat("?=");
+		}
+		PutField("Subject", temp_buf, buf);
+		_PUTS(buf, rF);
+	}
+	_PUTS("MIME-Version: 1.0", rF);
+	if(is_attach) {
+		(temp_buf = "multipart/mixed; boundary=").CatQStr(GetBoundary(0, boundary));
+	}
+	else {
+		(temp_buf = "multipart/alternative; boundary=").CatQStr(GetBoundary(0, boundary));
+	}
+	PutField("Content-Type", temp_buf, buf);
+	_PUTS(buf, rF);
+	_PUTS(0, rF); // empty line
+	if(IsField(SMailMsg::fldText)) {
+		if(IsField(SMailMsg::fldBoundary)) {
+			_PUTS(GetBoundary(1, boundary), rF);
+			PutField("Content-Type", "text/plain; charset=UTF-8", buf);
+			_PUTS(buf, rF);
+			PutField("Content-Transfer-Encoding", "8bit", buf);
+			_PUTS(buf, rF);
+			_PUTS(0, rF); // Empty line
+		}
+		_PUTS(GetField(SMailMsg::fldText), rF);
+		_PUTS(0, rF); // Empty line
+	}
+	if(is_attach) {
+		SString fn, path;
+		SString mime_type;
+		for(i = 0; EnumAttach(&i, fn, path);) { // send attaches
+			//int    in_len;
+			SFileFormat ff;
+			THROW(fileExists(path));
+			const int   fir = ff.Identify(path);
+			fn.Quot('\"', '\"');
+			_PUTS(GetBoundary(1, boundary), rF);
+			if(!oneof3(fir, 1, 2, 3) || !SFileFormat::GetMime(ff, mime_type))
+				SFileFormat::GetMime(SFileFormat::Unkn, mime_type);
+			temp_buf.Z().Cat(mime_type).CatDiv(';', 2).CatEq("name", fn);
+			PutField("Content-Type", temp_buf, buf);
+			_PUTS(buf, rF);
+			PutField("Content-Transfer-Encoding", "base64", buf);
+			_PUTS(buf, rF);
+			if(oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp))
+				(temp_buf = "inline").CatDiv(';', 2).CatEq("filename", fn);
+			else
+				(temp_buf = "attachment").CatDiv(';', 2).CatEq("filename", fn);
+			PutField("Content-Disposition", temp_buf, buf);
+			_PUTS(buf, rF);
+			_PUTS(0, rF); // Empty line
+			{
+				SFile f_in(path, SFile::mRead|SFile::mBinary);
+				THROW(f_in.IsValid());
+				//THROW_PP_S(f2 = fopen(path, "rb"), PPERR_CANTOPENFILE, path);
+				{
+					char   mime_buf[256];
+					size_t actual_size = 0;
+					int    rr = 0;
+					while((rr = f_in.Read(mime_buf, 57, &actual_size)) > 0) {
+						_PUTS(temp_buf.EncodeMime64(mime_buf, actual_size), rF);
+					}
+				}
+				_PUTS(0, rF); // Empty line
+			}
+		}
+		_PUTS(GetBoundary(2, boundary), rF);
+	}
+	rF.WriteLine(buf.Z().CR().Dot().CR());
+	CATCHZOK
+	//SFile::ZClose(&f2);
+	//SFile::ZClose(&out);
+	//rFileName = fname;
+	return ok;
 }
 //
 //
@@ -1705,7 +2037,7 @@ read_header:                   /* for errorcode: 100 (continue) */
 	if((res->content_type && !strcmp(res->content_type->type, "multipart/related"))) {
 		status = mime_get_attachments(res->content_type, res->in, &mimeMessage);
 		if(status != H_OK) {
-			/* TODO (#1#): Handle error */
+			/* @todo (#1#): Handle error */
 			hresponse_free(res);
 			return status;
 		}
@@ -1714,7 +2046,7 @@ read_header:                   /* for errorcode: 100 (continue) */
 			http_input_stream_free(res->in);
 			res->in = http_input_stream_new_from_file(mimeMessage->root_part->filename);
 			if(!res->in) {
-				/* TODO (#1#): Handle error */
+				/* @todo (#1#): Handle error */
 			}
 			else {
 				/* res->in->deleteOnExit = 1; */
@@ -2234,8 +2566,11 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 		if(defaultProt == InetUrl::protFtp) {
 			THROW(oneof3(prot, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp));
 		}
-		if(defaultProt == InetUrl::protHttp) {
+		else if(defaultProt == InetUrl::protHttp) {
 			THROW(oneof2(prot, InetUrl::protHttp, InetUrl::protHttps));
+		}
+		else if(defaultProt == InetUrl::protPOP3) {
+			THROW(oneof2(prot, InetUrl::protPOP3, InetUrl::protPOP3S));
 		}
 	}
 	rUrl.GetComponent(InetUrl::cPath, temp_buf);
@@ -2486,44 +2821,54 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	THROW(Execute());
 	CATCHZOK
 	return ok;
-#if 0 // {
-int main(int argc, char *argv[])
-{
-  CURLcode ret;
-  CURL *hnd = curl_easy_init();
-  curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-  curl_easy_setopt(hnd, CURLOPT_URL, "ftp://petroglif.ru/test/abc/");
-  curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
-  curl_easy_setopt(hnd, CURLOPT_USERPWD, "test:1wQ1303WKwJX");
-  curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.54.1");
-  curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-  curl_easy_setopt(hnd, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
-  curl_easy_setopt(hnd, CURLOPT_CAINFO, "D:\\DEV\\NETWORK\\cURL\\curl-7.54.1-win64-mingw\\bin\\curl-ca-bundle.crt");
-  curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "C:\\Users\\sobolev\\AppData\\Roaming/_ssh/known_hosts");
-  curl_easy_setopt(hnd, CURLOPT_FTP_CREATE_MISSING_DIRS, 2L);
-  curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
-
-  /* Here is a list of options the curl code used that cannot get generated
-     as source easily. You may select to either not use them or implement
-     them yourself.
-  CURLOPT_WRITEDATA set to a objectpointer
-  CURLOPT_INTERLEAVEDATA set to a objectpointer
-  CURLOPT_WRITEFUNCTION set to a functionpointer
-  CURLOPT_READDATA set to a objectpointer
-  CURLOPT_READFUNCTION set to a functionpointer
-  CURLOPT_SEEKDATA set to a objectpointer
-  CURLOPT_SEEKFUNCTION set to a functionpointer
-  CURLOPT_ERRORBUFFER set to a objectpointer
-  CURLOPT_STDERR set to a objectpointer
-  CURLOPT_HEADERFUNCTION set to a functionpointer
-  CURLOPT_HEADERDATA set to a objectpointer
-  */
-  ret = curl_easy_perform(hnd);
-  curl_easy_cleanup(hnd);
-  hnd = NULL;
-  return (int)ret;
 }
-#endif // } 0
+
+int ScURL::Pop3Stat(const InetUrl & rUrl, int mflags, uint * pCount, uint64 * pSize)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
+	{
+		if(url_info.Path.NotEmptyS()) {
+			url_info.Path.SetLastDSlash();
+			url_local.SetComponent(InetUrl::cPath, url_info.Path);
+		}
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
+	//
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "STAT")));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOBODY, 1L)));
+	{
+		SBuffer reply_buf;
+		SFile reply_stream(reply_buf, SFile::mWrite);
+		THROW(SetupCbWrite(&reply_stream));
+		THROW(Execute());
+		{
+			SString line_buf;
+			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			if(p_result_buf) {
+				/*
+				SFileEntryPool::Entry entry;
+				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {
+					(temp_buf = line_buf).Chomp();
+					entry.Clear();
+					ParseFtpDirEntryLine(temp_buf, entry);
+					if(url_info.Path.NotEmpty())
+						entry.Path = url_info.Path;
+					rPool.Add(entry);
+				}
+				temp_buf = ""; // @debug
+				*/
+			}
+		}
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
 }
 //
 //
@@ -2615,6 +2960,9 @@ int SUniformFileTransmParam::Run(SCopyFileProgressProc pf, void * extraPtr)
 				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
 				THROW(wr_stream.IsValid());
 				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
+			}
+			else if(prot_src == InetUrl::protMailFrom) {
+
 			}
 		}
     }

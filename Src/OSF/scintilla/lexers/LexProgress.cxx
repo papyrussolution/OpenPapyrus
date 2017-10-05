@@ -6,7 +6,7 @@
 // Copyright 2006-2016 by Yuval Papish <Yuval@YuvCom.com>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-/** TODO:
+/** @todo 
 
    SpeedScript support in html lexer
    Differentiate between labels and variables

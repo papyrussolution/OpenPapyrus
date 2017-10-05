@@ -768,19 +768,19 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 		}
 	}
 	if(inet_acc.ID) {
-		PPMailMsg	mail_msg;
+		SMailMsg	mail_msg;
 		IterCounter	mail_counter;
 		uint   line_count = 0; // Количество строк считанных из временного файла журналов
 		//
 		// сгенерировать текст сообщения //
 		//
 		inet_acc.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
-		mail_msg.SetField(PPMailMsg::fldFrom, temp_buf);
+		mail_msg.SetField(SMailMsg::fldFrom, temp_buf);
 
 		Job.GetExtStrData(Job.extssEMailSubj, temp_buf);
 		if(!temp_buf.NotEmptyS())
 			PPLoadText(PPTXT_JOBSRV_MAILNOT_JOB, temp_buf);
-		mail_msg.SetField(PPMailMsg::fldSubj, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+		mail_msg.SetField(SMailMsg::fldSubj, temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 		if(!isempty(pTmpLogFileName)) {
 			//
 			// тело сообщения взять из временного файла
@@ -791,7 +791,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 				line_count++;
 			}
 			msg_buf.ToUtf8(); // @v7.6.4
-			mail_msg.SetField(PPMailMsg::fldText, msg_buf);
+			mail_msg.SetField(SMailMsg::fldText, msg_buf);
 		}
 		if(!(Job.Flags & Job.fSkipEmptyNotification) || line_count) {
 			SString subscribed_list_buff, addr_line;
@@ -816,7 +816,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 							addr_line.Cat(temp_buf);
 						}
 					}
-					mail_msg.SetField(PPMailMsg::fldTo, addr_line);
+					mail_msg.SetField(SMailMsg::fldTo, addr_line);
 					mail_counter.Init(1);
 					if(!PPMailSmtp::Send(inet_acc, mail_msg, SendMailCallback, mail_counter))
 						PPError();

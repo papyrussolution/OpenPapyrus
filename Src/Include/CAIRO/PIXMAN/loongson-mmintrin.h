@@ -200,7 +200,7 @@ _mm_set_pi16 (uint16_t __w3, uint16_t __w2, uint16_t __w1, uint16_t __w0)
 	}
 	else if (__w3 == __w2 && __w2 == __w1 && __w1 == __w0)
 	{
-		/* TODO: handle other cases */
+		/* @todo handle other cases */
 		uint64_t val = __w3;
 		uint64_t imm = _MM_SHUFFLE (0, 0, 0, 0);
 		__m64 ret;

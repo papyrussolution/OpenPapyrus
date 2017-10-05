@@ -1,5 +1,5 @@
 // BHISTCOR.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -166,7 +166,7 @@ int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 		}
 		PPTransaction tra(1);
 		THROW(tra);
-		counter.Init(this);
+		PPInitIterCounter(counter, this);
 		MEMSZERO(k);
 		while(search(0, &k, spGt)) {
 			if(data.Dt <= toDt)

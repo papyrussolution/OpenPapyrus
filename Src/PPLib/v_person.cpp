@@ -69,7 +69,7 @@ SLAPI PPViewPerson::~PPViewPerson()
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
 
-int SLAPI PPViewPerson::IsTempTblNeeded() 
+int SLAPI PPViewPerson::IsTempTblNeeded()
 {
 	int    yes = 0;
 	if(Filt.AttribType || Filt.P_RegF || Filt.P_TagF || Filt.P_SjF || (Filt.Flags & PersonFilt::fTagsCrsstab))
@@ -98,6 +98,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1, use_ta = 1;
 	SString srch_buf;
 	SString msg_buf;
+	SString temp_buf;
 	LocationTbl::Rec loc_rec;
 	PPNewContragentDetectionBlock ncd_blk;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -105,6 +106,7 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_TempPsn);
 	ZDELETE(P_Ct);
 	NewCliList.Clear();
+	StrPool.ClearS(); // @v9.8.4
 	if(IsTempTblNeeded()) {
 		IterCounter cntr;
 		PersonTbl     * pt = PsnObj.P_Tbl;
@@ -851,8 +853,9 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 			PPLoadString(pAddrKindText+1, temp_buf);
 			temp_buf.CopyTo(pItem->RegNumber, sizeof(pItem->RegNumber));
 		}
-		else
+		else {
 			STRNSCPY(pItem->RegNumber, pAddrKindText);
+		}
 		if(pLocRec || PsnObj.LocObj.Search(addrID, &loc_rec) > 0) {
 			const LocationTbl::Rec * p_loc_rec = NZOR(pLocRec, &loc_rec);
 			if(Filt.CityID && p_loc_rec->CityID != Filt.CityID) {
@@ -863,7 +866,8 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 			}
 			else {
 				LocationCore::GetAddress(*p_loc_rec, 0, temp_buf);
-				temp_buf.CopyTo(pItem->Address, sizeof(pItem->Address));
+				//temp_buf.CopyTo(pItem->Address, sizeof(pItem->Address));
+				StrPool.AddS(temp_buf, &pItem->AddressP);
 				// @v8.6.12 {
 				if(Filt.Flags & PersonFilt::fShowFiasRcgn && SETIFZ(P_Fr, new PPFiasReference)) {
 					PPLocAddrStruc las(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), P_Fr);
@@ -873,7 +877,8 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						if(P_Fr->FT.SearchAddrByID(las.FiasStreetID, &fa_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fa_rec.IdUuRef, uuid) > 0) {
 								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
-								STRNSCPY(pItem->FiasAddrGuid, temp_buf);
+								//STRNSCPY(pItem->FiasAddrGuid, temp_buf);
+								StrPool.AddS(temp_buf, &pItem->FiasAddrGuidP);
 							}
 						}
 					}
@@ -882,23 +887,28 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 						if(P_Fr->FT.SearchHouse(las.FiasHouseID, &fh_rec) > 0) {
 							if(P_Fr->FT.UrT.Search(fh_rec.IdUuRef, uuid) > 0) {
 								uuid.ToStr(S_GUID::fmtIDL, temp_buf.Z());
-								STRNSCPY(pItem->FiasHouseGuid, temp_buf);
+								//STRNSCPY(pItem->FiasHouseGuid, temp_buf);
+								StrPool.AddS(temp_buf, &pItem->FiasHouseGuidP);
 							}
 						}
 					}
 				}
 				// } @v8.6.12
-				STRNSCPY(pItem->BnkAcct, p_loc_rec->Code); // Код из адреса доставки
+				//STRNSCPY(pItem->BnkAcct, p_loc_rec->Code); // Код из адреса доставки
+				StrPool.AddS(p_loc_rec->Code, &pItem->BnkAcctP);
 				pItem->CityID = p_loc_rec->CityID;
 				if(Filt.AttribType == PPPSNATTR_STANDALONEADDR) {
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_PHONE, temp_buf);
-					temp_buf.CopyTo(pItem->Phone, sizeof(pItem->Phone));
+					//temp_buf.CopyTo(pItem->Phone, sizeof(pItem->Phone));
+					StrPool.AddS(temp_buf, &pItem->PhoneP);
 					// @v8.3.2 {
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_EMAIL, temp_buf);
-					temp_buf.CopyTo(pItem->RAddress, sizeof(pItem->RAddress));
+					//temp_buf.CopyTo(pItem->RAddress, sizeof(pItem->RAddress));
+					StrPool.AddS(temp_buf, &pItem->RAddressP);
 					// } @v8.3.2
 					LocationCore::GetExField(p_loc_rec, LOCEXSTR_CONTACT, temp_buf);
-					temp_buf.CopyTo(pItem->BnkName, sizeof(pItem->BnkName));
+					//temp_buf.CopyTo(pItem->BnkName, sizeof(pItem->BnkName));
+					StrPool.AddS(temp_buf, &pItem->BnkNameP);
 				}
 				ok = 1;
 			}
@@ -926,26 +936,30 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	if(Filt.AttribType == PPPSNATTR_PHONEADDR) {
 		PPELinkArray elink_ary;
 		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, &elink_ary)) {
-			const int buf_len = sizeof(item.Phone);
+			const int buf_len = 128; // @v9.8.4 sizeof(item.Phone);
 			SString phone_list, fax_list;
 
 			elink_ary.GetPhones(5, phone_list, ELNKRT_PHONE);
 			elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
 			if(fax_list.Len() && (phone_list.Len() + fax_list.Len() + 6) < buf_len)
 				phone_list.CatDiv(';', 2).Cat("fax").Space().Cat(fax_list);
-			phone_list.CopyTo(item.Phone, sizeof(item.Phone));
+			//phone_list.CopyTo(item.Phone, sizeof(item.Phone));
+			StrPool.AddS(phone_list, &item.PhoneP);
 		}
 		if(pPsnRec->MainLoc) {
 			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->MainLoc, 0, temp_buf);
 			PsnObj.LocObj.GetAddress(pPsnRec->MainLoc, 0, temp_buf); // @v9.5.5
-			temp_buf.CopyTo(item.Address, sizeof(item.Address));
+			//temp_buf.CopyTo(item.Address, sizeof(item.Address));
+			StrPool.AddS(temp_buf, &item.AddressP);
 		}
 		if(pPsnRec->RLoc) {
 			// @v9.5.5 PsnObj.LocObj.P_Tbl->GetAddress(pPsnRec->RLoc, 0, temp_buf);
 			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf); // @v9.5.5
-			temp_buf.CopyTo(item.RAddress, sizeof(item.RAddress));
+			//temp_buf.CopyTo(item.RAddress, sizeof(item.RAddress));
+			StrPool.AddS(temp_buf, &item.RAddressP);
 		}
-		if(item.Phone[0] == 0 && item.Address[0] == 0 && item.RAddress[0] == 0) {
+		//if(item.Phone[0] == 0 && item.Address[0] == 0 && item.RAddress[0] == 0) {
+		if(!item.PhoneP && !item.AddressP && !item.RAddressP) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -957,9 +971,11 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, &elink_ary)) {
 			SString email_list;
 			elink_ary.GetPhones(1, email_list, ELNKRT_EMAIL);
-			email_list.CopyTo(item.Phone, sizeof(item.Phone));
+			//email_list.CopyTo(item.Phone, sizeof(item.Phone));
+			StrPool.AddS(email_list, &item.PhoneP);
 		}
-		if(item.Phone[0] == 0) {
+		//if(item.Phone[0] == 0) {
+		if(!item.PhoneP) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -969,12 +985,14 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	else if(Filt.AttribType == PPPSNATTR_REGISTER && Filt.RegTypeID) {
 		RegisterTbl::Rec reg_rec;
 		if(PsnObj.GetRegister(pPsnRec->ID, Filt.RegTypeID, &reg_rec) > 0) {
-			STRNSCPY(item.RegSerial, reg_rec.Serial);
+			//STRNSCPY(item.RegSerial, reg_rec.Serial);
+			StrPool.AddS(reg_rec.Serial, &item.RegSerialP);
 			STRNSCPY(item.RegNumber, reg_rec.Num);
 			item.RegInitDate = reg_rec.Dt;
 			item.RegExpiry   = reg_rec.Expiry;
 		}
-		if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
+		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
+		if(!item.RegSerialP && !item.RegNumber[0]) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -1002,7 +1020,8 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 					datefmt(&p_tag->Val.DtVal, DATF_DMY, item.RegNumber);
 			}
 		}
-		if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
+		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
+		if(!item.RegSerialP && item.RegNumber[0] == 0) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -1045,6 +1064,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 		PsnAttrViewItem vi; // TempPersonTbl
 		ObjTagList tags;
 		SString buf;
+		SString buf2;
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
 		if(PsnObj.Search(id, &psn_rec) > 0 && CheckForFilt(&psn_rec)) {
@@ -1073,8 +1093,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				PsnObj.GetDlvrLocList(id, &dlvr_addr_list);
 				if(Filt.AttribType == PPPSNATTR_ALLADDR) {
 					if(psn_rec.MainLoc) {
-						if(pUsedLocList)
-							pUsedLocList->Add((ulong)psn_rec.MainLoc);
+						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.MainLoc));
 						long   tab_id = psn_rec.MainLoc;
 						MEMSZERO(vi);
 						vi.ID = id;
@@ -1084,8 +1103,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 						}
 					}
 					if(psn_rec.RLoc) {
-						if(pUsedLocList)
-							pUsedLocList->Add((ulong)psn_rec.RLoc);
+						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.RLoc));
 						long   tab_id = psn_rec.RLoc;
 						MEMSZERO(vi);
 						vi.ID = id;
@@ -1113,9 +1131,12 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 						const PsnAttrViewItem & r_item = *(const PsnAttrViewItem *)rec_list.at(--i);
 						if(i == (rec_list.getCount()-1)) {
 							int dup = 0;
+							StrPool.GetS(r_item.AddressP, buf);
 							for(uint j = 0; j < i; j++) {
 								const PsnAttrViewItem & r_item2 = *(const PsnAttrViewItem *)rec_list.at(j);
-								if(stricmp(r_item.Address, r_item2.Address) == 0) {
+								StrPool.GetS(r_item2.AddressP, buf2);
+								//if(stricmp(r_item.Address, r_item2.Address) == 0) {
+								if(buf.CmpNC(buf2) == 0) {
 									dup = 1;
 									break;
 								}
@@ -1166,11 +1187,15 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 							STRNSCPY(vi.Name, psn_rec.Name);
 							if(PsnObj.Fetch(r_ba.BankID, &bnk_rec) > 0) {
 								RegisterTbl::Rec bic_rec;
-								STRNSCPY(vi.BnkName, bnk_rec.Name);
-								if(PsnObj.GetRegister(r_ba.BankID, PPREGT_BIC, &bic_rec) > 0)
-									STRNSCPY(vi.Phone, bic_rec.Num);
+								//STRNSCPY(vi.BnkName, bnk_rec.Name);
+								StrPool.AddS(bnk_rec.Name, &vi.BnkNameP);
+								if(PsnObj.GetRegister(r_ba.BankID, PPREGT_BIC, &bic_rec) > 0) {
+									//STRNSCPY(vi.Phone, bic_rec.Num);
+									StrPool.AddS(bic_rec.Num, &vi.PhoneP);
+								}
 							}
-							STRNSCPY(vi.BnkAcct, r_ba.Acct);
+							//STRNSCPY(vi.BnkAcct, r_ba.Acct);
+							StrPool.AddS(r_ba.Acct, &vi.BnkAcctP);
 							vi.RegInitDate = r_ba.OpenDate;
 							if(r_ba.AccType) {
 								// @todo Чаще всего здесь одно и тоже значение PPBAC_CURRENT: можно ускорить
@@ -1222,7 +1247,7 @@ int SLAPI PPViewPerson::InitPersonAttribIteration()
 		ok = 0;
 	else if((P_IterQuery = new BExtQuery(P_TempPsn, 1, 8)) != 0) {
 		char   k[MAXKEYLEN];
-		Counter.Init(P_TempPsn);
+		PPInitIterCounter(Counter, P_TempPsn);
 		P_IterQuery->selectAll();
 		memzero(k, sizeof(k));
 		P_IterQuery->initIteration(0, k, spFirst);
@@ -1854,7 +1879,7 @@ int SLAPI PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-struct Register_ {
+/*struct Register_ {
 	long   ID;
 	char   Name[128];
 	char   RegSerial[12];
@@ -1874,82 +1899,28 @@ struct BnkAcct_ {
 	LDATE  RegInitDate;
 	char   BIC[128];
 	long   Flags;
-};
+};*/
 
-static int HasImages(PersonFilt * pFilt, const void * pData)
+int FASTCALL PPViewPerson::HasImage(const void * pData)
 {
 	long flags = 0L;
 	if(pData) {
-		if(pFilt->AttribType == PPPSNATTR_PHONEADDR) {
-			struct PhoneAddr_ {
-				long ID;
-				char Name[128];
-				char Phone[128];
-				char Address[128];
-				char RAddress[128];
-				long Flags;
-
-			} rec = *(PhoneAddr_*)pData;
-			flags = rec.Flags;
-		}
-		else if(pFilt->AttribType == PPPSNATTR_EMAIL) {
-			struct Email_ {
-				long ID;
-				char Name[128];
-				char Phone[128];
-				long Flags;
-
-			} rec = *(Email_*)pData;
-			flags = rec.Flags;
-		}
-		else if(oneof3(pFilt->AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
-			struct Addr_ {
-				long ID;
-				long TabID;
-				char Name[128];
-				char Address[128];
-				char BnkAcct[28];
-				char RegNumber[64];
-				char City[48];
-				long Flags;
-			} rec = *(Addr_*)pData;
-			flags = rec.Flags;
-		}
-		else if(pFilt->AttribType == PPPSNATTR_BNKACCT) {
-			BnkAcct_ rec = *(BnkAcct_*)pData;
-			flags = rec.Flags;
-		}
-		else if(pFilt->AttribType == PPPSNATTR_REGISTER) {
-			Register_ rec = *(Register_*)pData;
-			flags = rec.Flags;
-		}
-		else if(pFilt->AttribType == PPPSNATTR_TAG) {
-			struct Tag_ {
-				long ID;
-				char Name[128];
-				char RegNumber[64];
-				long Flags;
-			} rec = *(Tag_*)pData;
-			flags = rec.Flags;
-		}
-		else if(pFilt->AttribType != PPPSNATTR_HANGEDADDR) {
-			struct Person_ {
-				long ID;
-				char Name[128];
-				char Status[48];
-				char Cat[48];
-				char Memo[512];
-				long Flags;
-			} rec = *(Person_*)pData;
-			flags = rec.Flags;
-		}
+		PPID   psn_id = (Filt.AttribType != PPPSNATTR_HANGEDADDR) ? *(long *)pData : 0;
+		PersonTbl::Rec psn_rec;
+		if(PsnObj.Fetch(psn_id, &psn_rec) > 0)
+			flags = psn_rec.Flags;
 	}
-	return (flags & PSNF_HASIMAGES) ? 1 : 0;
+	return BIN(flags & PSNF_HASIMAGES);
 }
 
 int FASTCALL PPViewPerson::IsNewCliPerson(PPID id) const
 {
 	return NewCliList.Has(id);
+}
+
+void FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
+{
+	StrPool.GetS(strP, rBuf);
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
@@ -1961,7 +1932,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(!p_view->IsCrosstab() && p_filt) {
 			int is_register  = (p_filt->AttribType == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
 			int is_bank_acct = p_filt->AttribType == PPPSNATTR_BNKACCT;
-			if(col == 0 && HasImages(p_filt, pData)) { // К персоналии привязана картинка?
+			if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
 				pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 				pCellStyle->Color2 = GetColorRef(SClrGreen);
 				ok = 1;
@@ -1971,6 +1942,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pCellStyle->Color = GetColorRef(SClrOrange);
 				ok = 1;
 			}
+			/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
 			else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
 				int is_valid = 0;
 				SString code, bic;
@@ -1999,6 +1971,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 						pCellStyle->Color = GetColorRef(SClrCoral);
 				}
 			}
+			*/
 		}
 	}
 	return ok;
@@ -2073,6 +2046,15 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	else {
 		DBE    cq;
 		DBE    dbe_city;
+		DBE    dbe_phone;
+		DBE    dbe_addr;
+		DBE    dbe_raddr;
+		DBE    dbe_bnkacct;
+		DBE    dbe_bnkname;
+		//DBE    dbe_regnum;
+		DBE    dbe_regser;
+		DBE    dbe_fiasadrguid;
+		DBE    dbe_fiashseguid;
 		DBQ  * dbq = 0;
 		int    tbl_count = 0;
 		DBTable * tbl_l[12];
@@ -2119,86 +2101,121 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		}
 		switch(Filt.AttribType) {
 			case PPPSNATTR_PHONEADDR:
-				q = & select(
-					p->ID,
-					p->Name,
-					tmp_pt->Phone,
-					tmp_pt->Address,
-					tmp_pt->RAddress,
-					p->Flags,
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				{
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr,  tmp_pt->AddressP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_raddr, tmp_pt->RAddressP, &StrPool);
+					q = & select(
+						p->ID,
+						p->Name,
+						/*tmp_pt->Phone*/dbe_phone,
+						/*tmp_pt->Address*/dbe_addr,
+						/*tmp_pt->RAddress*/dbe_raddr,
+						p->Flags,
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				}
 				break;
 			case PPPSNATTR_EMAIL:
-				q = & select(
-					p->ID,
-					p->Name,
-					tmp_pt->Phone,
-					p->Flags,
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				{
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool);
+					q = & select(
+						p->ID,
+						p->Name,
+						/*tmp_pt->Phone*/dbe_phone,
+						p->Flags,
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				}
 				break;
 			case PPPSNATTR_ALLADDR:
 			case PPPSNATTR_DLVRADDR:
 			case PPPSNATTR_DUPDLVRADDR:
-				PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
-				q = & select(
-					p->ID,                // #0
-					tmp_pt->TabID,        // #1 ИД адреса
-					p->Name,              // #2 Наименование персоналии
-					tmp_pt->Address,      // #3 Строка адреса
-					tmp_pt->BnkAcct,      // #4 Код из адреса доставки
-					tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
-					dbe_city,             // #6
-					p->Flags,             // #7
-					tmp_pt->FiasAddrGuid, // #8 @v8.6.12
-					tmp_pt->FiasHouseGuid, // #9 @v8.6.12
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+				{
+					PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr, tmp_pt->AddressP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
+					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
+					q = & select(
+						p->ID,                // #0
+						tmp_pt->TabID,        // #1 ИД адреса
+						p->Name,              // #2 Наименование персоналии
+						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
+						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
+						tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
+						dbe_city,             // #6
+						p->Flags,             // #7
+						/*tmp_pt->FiasAddrGuid*/dbe_fiasadrguid,  // #8 @v8.6.12
+						/*tmp_pt->FiasHouseGuid*/dbe_fiashseguid, // #9 @v8.6.12
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+				}
 				break;
 			case PPPSNATTR_HANGEDADDR:
 			case PPPSNATTR_STANDALONEADDR:
-				PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
-				q = & select(
-					tmp_pt->ID,        // #0
-					tmp_pt->TabID,     // #1 ИД адреса
-					tmp_pt->Name,      // #2 Наименование персоналии
-					tmp_pt->Address,   // #3 Строка адреса
-					tmp_pt->BnkAcct,   // #4 Код из адреса доставки
-					tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
-					dbe_city,          // #6
-					tmp_pt->Phone,     // #7 Телефон (ассоциированный с адресом)
-					tmp_pt->BnkName,   // #8 Контакт (ассоциированный с адресом)
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+				{
+					PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr, tmp_pt->AddressP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
+					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
+					q = & select(
+						tmp_pt->ID,        // #0
+						tmp_pt->TabID,     // #1 ИД адреса
+						tmp_pt->Name,      // #2 Наименование персоналии
+						/*tmp_pt->Address*/dbe_addr,     // #3 Строка адреса
+						/*tmp_pt->BnkAcct*/dbe_bnkacct,  // #4 Код из адреса доставки
+						tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
+						dbe_city,          // #6
+						/*tmp_pt->Phone*/dbe_phone,      // #7 Телефон (ассоциированный с адресом)
+						/*tmp_pt->BnkName*/dbe_bnkname,  // #8 Контакт (ассоциированный с адресом)
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
+				}
 				break;
 			case PPPSNATTR_BNKACCT:
-				q = & select(
-					p->ID,               // #0
-					tmp_pt->TabID,       // #1
-					p->Name,             // #2
-					tmp_pt->BnkName,     // #3
-					tmp_pt->BnkAcct,     // #4
-					tmp_pt->RegNumber,   // #5 Тип счета
-					tmp_pt->RegInitDate, // #6 Дата открытия //
-					tmp_pt->Phone,       // #7 БИК банка
-					p->Flags,            // #8
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				{
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
+					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
+					q = & select(
+						p->ID,               // #0
+						tmp_pt->TabID,       // #1
+						p->Name,             // #2
+						/*tmp_pt->BnkName*/dbe_bnkname,     // #3
+						/*tmp_pt->BnkAcct*/dbe_bnkacct,     // #4
+						tmp_pt->RegNumber,    // #5 Тип счета
+						tmp_pt->RegInitDate,        // #6 Дата открытия //
+						/*tmp_pt->Phone*/dbe_phone, // #7 БИК банка
+						p->Flags,                   // #8
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				}
 				break;
 			case PPPSNATTR_REGISTER:
-				q = & select(
-					p->ID,
-					p->Name,
-					tmp_pt->RegSerial,
-					tmp_pt->RegNumber,
-					tmp_pt->RegInitDate,
-					tmp_pt->RegExpiry,
-					p->Flags,
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				{
+					PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
+					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
+					q = & select(
+						p->ID,
+						p->Name,
+						/*tmp_pt->RegSerial*/dbe_regser,
+						tmp_pt->RegNumber,
+						tmp_pt->RegInitDate,
+						tmp_pt->RegExpiry,
+						p->Flags,
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				}
 				break;
 			case PPPSNATTR_TAG:
-				q = & select(
-					p->ID,
-					p->Name,
-					tmp_pt->RegNumber,
-					p->Flags,
-					0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				{
+					//PPDbqFuncPool::InitStrPoolRefFunc(dbe_regnum,  tmp_pt->RegNumberP, &StrPool);
+					q = & select(
+						p->ID,
+						p->Name,
+						tmp_pt->RegNumber,
+						p->Flags,
+						0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
+				}
 				break;
 			default:
 				{
@@ -2363,7 +2380,7 @@ int SLAPI PPViewPerson::RemoveHangedAddr()
 			char    k[MAXKEYLEN];
 			memzero(k, sizeof(k));
 			BExtQuery q(P_TempPsn, 0);
-			q.select(P_TempPsn->TabID, P_TempPsn->Address, 0);
+			q.select(P_TempPsn->TabID, P_TempPsn->AddressP, 0);
 			for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
 				addr_list.addUnique(P_TempPsn->data.TabID);
 			}
@@ -2764,7 +2781,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_MOUSEHOVER:
 				{
-					int    has_images = BIN(HasImages(&Filt, pHdr) > 0);
+					const  int has_images = HasImage(pHdr);
 					long   h = 0;
 					pBrw->ItemByMousePos(&h, 0);
 					if(oneof2(h, 0, 1)) {
@@ -3175,13 +3192,28 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 			I.AddrID = item.AttrItem.TabID;
 		}
 	}
-	STRNSCPY(I.Phone,    item.AttrItem.Phone);
-	STRNSCPY(I.Address,  item.AttrItem.Address);
-	STRNSCPY(I.RAddress, item.AttrItem.RAddress);
-	STRNSCPY(I.BnkName,  item.AttrItem.BnkName);
-	STRNSCPY(I.BnkAcct,  item.AttrItem.BnkAcct);
-	STRNSCPY(I.Serial,   item.AttrItem.RegSerial);
-	STRNSCPY(I.Number,   item.AttrItem.RegNumber);
+	{
+		SString temp_buf;
+		p_v->GetFromStrPool(item.AttrItem.PhoneP, temp_buf);
+		STRNSCPY(I.Phone,    temp_buf);
+		p_v->GetFromStrPool(item.AttrItem.AddressP, temp_buf);
+		STRNSCPY(I.Address,  temp_buf);
+		p_v->GetFromStrPool(item.AttrItem.RAddressP, temp_buf);
+		STRNSCPY(I.RAddress, temp_buf);
+		p_v->GetFromStrPool(item.AttrItem.BnkNameP, temp_buf);
+		STRNSCPY(I.BnkName,  temp_buf);
+		p_v->GetFromStrPool(item.AttrItem.BnkAcctP, temp_buf);
+		STRNSCPY(I.BnkAcct,  temp_buf);
+		p_v->GetFromStrPool(item.AttrItem.RegSerialP, temp_buf);
+		STRNSCPY(I.Serial,   temp_buf);
+		//STRNSCPY(I.Phone,    item.AttrItem.Phone);
+		//STRNSCPY(I.Address,  item.AttrItem.Address);
+		//STRNSCPY(I.RAddress, item.AttrItem.RAddress);
+		//STRNSCPY(I.BnkName,  item.AttrItem.BnkName);
+		//STRNSCPY(I.BnkAcct,  item.AttrItem.BnkAcct);
+		//STRNSCPY(I.Serial,   item.AttrItem.RegSerial);
+		STRNSCPY(I.Number,   item.AttrItem.RegNumber);
+	}
 	I.InitDate =         item.AttrItem.RegInitDate;
 	I.Expiry   =         item.AttrItem.RegExpiry;
 	FINISH_PPVIEW_ALDD_ITER();

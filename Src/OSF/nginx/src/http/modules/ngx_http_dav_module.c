@@ -168,7 +168,6 @@ static void ngx_http_dav_put_handler(ngx_http_request_t * r)
 	ext.create_path = dlcf->create_full_put_path;
 	ext.delete_file = 1;
 	ext.log = r->connection->log;
-
 	if(r->headers_in.date) {
 		date = ngx_parse_http_time(r->headers_in.date->value.data, r->headers_in.date->value.len);
 		if(date != NGX_ERROR) {
@@ -243,10 +242,10 @@ ok:
 		dir = 1;
 	}
 	else {
-		/*
-		 * we do not need to test (r->uri.data[r->uri.len - 1] == '/')
-		 * because ngx_link_info("/file/") returned NGX_ENOTDIR above
-		 */
+		// 
+		// we do not need to test (r->uri.data[r->uri.len - 1] == '/')
+		// because ngx_link_info("/file/") returned NGX_ENOTDIR above
+		// 
 		depth = ngx_http_dav_depth(r, 0);
 		if(depth != 0 && depth != NGX_HTTP_DAV_INFINITY_DEPTH) {
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"Depth\" header must be 0 or infinity");
@@ -263,7 +262,7 @@ ok:
 
 static ngx_int_t ngx_http_dav_delete_path(ngx_http_request_t * r, ngx_str_t * path, ngx_uint_t dir)
 {
-	char  * failed;
+	char * failed;
 	ngx_tree_ctx_t tree;
 	if(dir) {
 		tree.init_handler = NULL;
@@ -274,36 +273,29 @@ static ngx_int_t ngx_http_dav_delete_path(ngx_http_request_t * r, ngx_str_t * pa
 		tree.data = NULL;
 		tree.alloc = 0;
 		tree.log = r->connection->log;
-
-		/* TODO: 207 */
-
+		// @todo 207 
 		if(ngx_walk_tree(&tree, path) != NGX_OK) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
-
 		if(ngx_delete_dir(path->data) != NGX_FILE_ERROR) {
 			return NGX_OK;
 		}
-
 		failed = ngx_delete_dir_n;
 	}
 	else {
 		if(ngx_delete_file(path->data) != NGX_FILE_ERROR) {
 			return NGX_OK;
 		}
-
 		failed = ngx_delete_file_n;
 	}
-
-	return ngx_http_dav_error(r->connection->log, ngx_errno,
-	    NGX_HTTP_NOT_FOUND, failed, path->data);
+	return ngx_http_dav_error(r->connection->log, ngx_errno, NGX_HTTP_NOT_FOUND, failed, path->data);
 }
 
 static ngx_int_t ngx_http_dav_delete_dir(ngx_tree_ctx_t * ctx, ngx_str_t * path)
 {
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http delete dir: \"%s\"", path->data);
 	if(ngx_delete_dir(path->data) == NGX_FILE_ERROR) {
-		/* TODO: add to 207 */
+		// @todo add to 207 
 		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_dir_n, path->data);
 	}
 	return NGX_OK;
@@ -313,7 +305,7 @@ static ngx_int_t ngx_http_dav_delete_file(ngx_tree_ctx_t * ctx, ngx_str_t * path
 {
 	ngx_log_debug1(NGX_LOG_DEBUG_HTTP, ctx->log, 0, "http delete file: \"%s\"", path->data);
 	if(ngx_delete_file(path->data) == NGX_FILE_ERROR) {
-		/* TODO: add to 207 */
+		// @todo add to 207 
 		(void)ngx_http_dav_error(ctx->log, ngx_errno, 0, ngx_delete_file_n, path->data);
 	}
 	return NGX_OK;

@@ -37,14 +37,13 @@ typedef xmlRMutex *xmlRMutexPtr;
 extern "C" {
 #endif
 XMLPUBFUN xmlMutex * XMLCALL xmlNewMutex();
-XMLPUBFUN void XMLCALL xmlMutexLock(xmlMutex * tok);
-XMLPUBFUN void XMLCALL xmlMutexUnlock(xmlMutex * tok);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexLock(xmlMutex * tok);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexUnlock(xmlMutex * tok);
 XMLPUBFUN void XMLCALL xmlFreeMutex(xmlMutex * tok);
-XMLPUBFUN xmlRMutexPtr XMLCALL xmlNewRMutex	();
-XMLPUBFUN void XMLCALL xmlRMutexLock(xmlRMutexPtr tok);
-XMLPUBFUN void XMLCALL xmlRMutexUnlock(xmlRMutexPtr tok);
+XMLPUBFUN xmlRMutexPtr XMLCALL xmlNewRMutex();
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexLock(xmlRMutex * tok);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexUnlock(xmlRMutex * tok);
 XMLPUBFUN void XMLCALL xmlFreeRMutex(xmlRMutexPtr tok);
-
 /*
  * Library wide APIs.
  */

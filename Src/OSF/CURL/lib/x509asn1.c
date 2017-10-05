@@ -956,7 +956,7 @@ CURLcode Curl_extract_certinfo(struct connectdata * conn,
 	do_pubkey(data, certnum, ccp, &param, &cert.subjectPublicKey);
 	SAlloc::F((char*)ccp);
 
-/* TODO: extensions. */
+/* @todo extensions. */
 
 	/* Signature. */
 	ccp = Curl_ASN1tostr(&cert.signature, 0);

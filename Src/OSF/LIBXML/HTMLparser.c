@@ -505,7 +505,7 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 		}
 		res++;
 	}
-	return(res);
+	return res;
 }
 
 /************************************************************************
@@ -938,7 +938,7 @@ static const char * const htmlStartClose[] = {
  * The list of HTML elements which are supposed not to have
  * CDATA content and where a p element will be implied
  *
- * TODO: extend that list by reading the HTML SGML DTD on
+ * @todo extend that list by reading the HTML SGML DTD on
  *       implied paragraph
  */
 static const char * const htmlNoContentElements[] = {
@@ -1665,7 +1665,7 @@ static const htmlEntityDesc html40EntitiesTable[] = {
  *
  * Lookup the given entity in EntitiesTable
  *
- * TODO: the linear scan is really ugly, an hash table is really needed.
+ * @todo the linear scan is really ugly, an hash table is really needed.
  *
  * Returns the associated htmlEntityDescPtr if found, NULL otherwise.
  */
@@ -1683,7 +1683,7 @@ const htmlEntityDesc * htmlEntityLookup(const xmlChar * name)
  *
  * Lookup the given entity in EntitiesTable
  *
- * TODO: the linear scan is really ugly, an hash table is really needed.
+ * @todo the linear scan is really ugly, an hash table is really needed.
  *
  * Returns the associated htmlEntityDescPtr if found, NULL otherwise.
  */
@@ -4426,7 +4426,7 @@ htmlParserCtxtPtr htmlCreateMemoryParserCtxt(const char * buffer, int size)
  *
  * Create a parser context for an HTML document.
  *
- * TODO: check the need to add encoding handling there
+ * @todo check the need to add encoding handling there
  *
  * Returns the new parser context or NULL
  */
@@ -5158,7 +5158,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 #ifdef DEBUG_PUSH
 					    xmlGenericError(0, "HPP: Parsing Reference\n");
 #endif
-					    /* TODO: check generation of subtrees if noent !!! */
+					    /* @todo check generation of subtrees if noent !!! */
 					    htmlParseReference(ctxt);
 				    }
 				    else {

@@ -575,7 +575,7 @@ static int fsend(struct soap * soap, const char * s, size_t n)
 				else
 					nwritten = send(soap->socket, s, (SOAP_WINSOCKINT)n, soap->socket_flags);
 				/* retry and back-off algorithm */
-				/* TODO: this is not very clear from specs so verify and limit conditions under which we
+				/* @todo this is not very clear from specs so verify and limit conditions under which we
 				  should loop (e.g. ENOBUFS) */
 				if(nwritten < 0) {
 					int udp_repeat;
@@ -2052,7 +2052,7 @@ int
 SOAP_FMAC2 soap_xop_forward(struct soap * soap, unsigned char ** ptr, int * size, char ** id, char ** type,
 	    char ** options)
 { /* Check MTOM xop:Include element (within hex/base64Binary) */
-	/* TODO: this code to be obsoleted with new import/xop.h conventions */
+	/* @todo this code to be obsoleted with new import/xop.h conventions */
 	short body = soap->body; /* should save type too? */
 	if(!soap_peek_element(soap)) {
 		if(!soap_element_begin_in(soap, "xop:Include", 0, NULL)) {
@@ -7466,7 +7466,7 @@ SOAP_FMAC2 soap_attachment(struct soap * soap, const char * tag, int id, const v
 		aid = soap_strdup(soap, soap->tmpbuf);
 	}
 	/* Add MTOM xop:Include element when necessary */
-	/* TODO: this code to be obsoleted with new import/xop.h conventions */
+	/* @todo this code to be obsoleted with new import/xop.h conventions */
 	if((soap->mode&SOAP_ENC_MTOM) && strcmp(tag, "xop:Include")) {
 		if(soap_element_begin_out(soap, tag, 0,
 				    type)                                                                 ||
@@ -8832,7 +8832,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_copy_stream(struct soap * copy, struct soap * so
 		copy->ssl = NULL;
  #endif
  #ifdef WITH_GNUTLS
-	copy->session = soap->session; /* TODO: Oops, GNUTLS provides a dup? */
+	copy->session = soap->session; /* @todo Oops, GNUTLS provides a dup? */
  #endif
  #ifdef WITH_ZLIB
 	copy->zlib_state = soap->zlib_state;
@@ -8933,7 +8933,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_free_stream(struct soap * soap)
 	soap->xcred = NULL;
 	soap->acred = NULL;
 	soap->cache = NULL;
-	soap->session = NULL; /* TODO: GNUTLS free here when dupped */
+	soap->session = NULL; /* @todo GNUTLS free here when dupped */
 	soap->dh_params = NULL;
 	soap->rsa_params = NULL;
  #endif

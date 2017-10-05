@@ -744,7 +744,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 	return ok;
 }
 
-int SLAPI Tddo::Helper_RecognizeExprToken(long flags, SString & rText)
+/*int SLAPI Tddo::Helper_RecognizeExprToken(long flags, SString & rText)
 {
 	int    t = 0;
 	char   text[512];
@@ -905,7 +905,7 @@ int SLAPI Tddo::Helper_RecognizeExprToken(long flags, SString & rText)
 		}
 	}
 	return t;
-}
+}*/
 
 int SLAPI Tddo::Helper_RecognizeMetaKeyword()
 {
@@ -1305,6 +1305,7 @@ public:
 	public:
 		enum {
 			kOp = 1,
+			kFunc,
 			kString,
 			kNumber,
 			kVar
@@ -1317,11 +1318,11 @@ public:
 				Op = 0;
 			}
 			uint16 K;
-			uint16 ArgCount; // Количество аргументов (для K == kOp)
+			uint16 ArgCount; // Количество аргументов (для oneof(K, kOp, kFunc))
 			union {
-				uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
+				uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kString, kVar, kFunc))
 				uint32 Op;    // Ид операции (для K == kOp)
-				double R;
+				double R;     // Значение числа (K == kNumber)
 			};
 		};
 		class Stack : public TSStack <TddoContentGraph::ExprSet::Item> {
@@ -1420,6 +1421,19 @@ public:
 						}
 						else if(r == Tddo::tDollarBrace) {
 							Helper_Parse(untiltokRBrace, rStack); // @recursion
+						}
+						else if(r == Tddo::tFunc) {
+							int    local_ok = 1;
+							uint   arg_count = 0;
+							Item ei;
+							ei.K = kFunc;
+							R_G.AddS(temp_buf, &ei.SymbP);
+							do {
+								Stack local_stk;
+								local_ok = Helper_Parse(untiltokComma|untiltokRPar, local_stk); // @recursion
+								if(local_ok && local_stk.getPointer())
+									arg_count++;
+							} while(r_scan[0] != ')' && local_ok);
 						}
 						else if(r > Tddo::tOperator) {
 							Item ei;
@@ -1744,7 +1758,7 @@ public:
 					// Скорее всего (но не обязательно) начало сложного выражения.
 					// Например: ${util.Goods.getSingleBarcode()}
 					// Функция разбора выражения должны быть вызвана рекурсивно для разбора содержимого
-					// с сигналом финаша '}'
+					// с сигналом финиша '}'
 					//
 					t = Tddo::tDollarBrace;
 				}
@@ -1756,8 +1770,13 @@ public:
 				} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
 				text[tp] = 0;
 				Scan.Incr(tp+1); // $
+				if(Scan[0] == '(') {
+					Scan.Incr();
+					t = Tddo::tFunc;
+				}
+				else
+					t = Tddo::tVar;
 				rText = text;
-				t = Tddo::tVar;
 			}
 		}
 		else if(c == '@' && Scan[1] == '{') {
