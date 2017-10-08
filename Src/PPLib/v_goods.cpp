@@ -452,7 +452,7 @@ int FASTCALL GoodsFilt::GetBarcodeLenList(PPIDArray & rList) const
 int FASTCALL GoodsFilt::GetBarcodePrefixList(StringSet & rSet) const
 {
 	int    ok = -1;
-	rSet.clear(1);
+	rSet.clear();
 	return ok;
 }
 
@@ -1383,7 +1383,7 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	PPDbqFuncPool::InitLongFunc(dbe_brand,     PPDbqFuncPool::IdObjNameBrand,      g->BrandID);
 	PPDbqFuncPool::InitLongFunc(dbe_group,     PPDbqFuncPool::IdObjNameGoods,      g->ParentID);
 	if(P_TempTbl)
-		THROW(CheckTblPtr(tmp_t = new TempOrderTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(tmp_t = new TempOrderTbl(P_TempTbl->GetName())));
 	q = & select(g->ID, 0L);                           // #00
 	q->addField(g->Flags);                             // #01
 	q->addField(g->Name);                              // #02

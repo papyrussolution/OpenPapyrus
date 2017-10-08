@@ -12,9 +12,8 @@
 #define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
 
-SLAPI SVectorBase::SVectorBase(uint itemSize, uint aDelta, int o)
+SLAPI SVectorBase::SVectorBase(uint itemSize, uint aDelta, int o) : isize(itemSize)
 {
-	isize = itemSize;
 	delta = aDelta;
 	flags = o;
 	data  = 0;
@@ -202,6 +201,15 @@ int SLAPI SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 	return ok;
 }
 
+/*int FASTCALL SVectorBase::checkIndex(uint idx) const
+{
+	return
+}
+
+int FASTCALL SVectorBase::checkIndex(long idx) const
+{
+}*/
+
 uint SLAPI SVectorBase::getFlags() const
 {
 	return flags;
@@ -220,11 +228,6 @@ void SLAPI SVectorBase::setLimit(uint aLimit)
 void SLAPI SVectorBase::setDelta(uint aDelta)
 {
 	delta = aDelta;
-}
-
-uint SLAPI SVectorBase::getPointer() const
-{
-	return pointer;
 }
 
 uint FASTCALL SVectorBase::setPointer(uint p)
@@ -1385,11 +1388,11 @@ int FASTCALL LLAssoc::operator == (const LLAssoc & s) const
 	return BIN(Key == s.Key && Val == s.Val);
 }
 
-SLAPI LLAssocArray::LLAssocArray() : TSArray <LLAssoc>()
+SLAPI LLAssocArray::LLAssocArray() : TSVector <LLAssoc>() // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI LLAssocArray::LLAssocArray(const LLAssocArray & s) : TSArray <LLAssoc> (s)
+SLAPI LLAssocArray::LLAssocArray(const LLAssocArray & s) : TSVector <LLAssoc> (s) // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -1543,16 +1546,16 @@ int SLAPI LLAssocArray::SearchPair(int64 key, int64 val, uint * pPos) const
 
 void SLAPI LLAssocArray::Sort()
 {
-	SArray::sort(CMPF_INT64);
+	SVector::sort(CMPF_INT64); // @v9.8.4 SArray-->SVector
 }
 //
 //
 //
-SLAPI RAssocArray::RAssocArray() : TSArray <RAssoc>()
+SLAPI RAssocArray::RAssocArray() : TSVector <RAssoc>() // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI RAssocArray::RAssocArray(const RAssocArray & s) : TSArray <RAssoc> (s)
+SLAPI RAssocArray::RAssocArray(const RAssocArray & s) : TSVector <RAssoc> (s) // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -1732,17 +1735,17 @@ void SLAPI RAssocArray::SortByValRev()
 //
 //
 //
-SLAPI RPairArray::RPairArray() : TSArray <RPair> ()
+SLAPI RPairArray::RPairArray() : TSVector <RPair> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI RPairArray::RPairArray(const RPairArray & rS)  : TSArray <RPair> (rS)
+SLAPI RPairArray::RPairArray(const RPairArray & rS)  : TSVector <RPair> (rS) // @v9.8.4 TSArray-->TSVector
 {
 }
 
 RPairArray & FASTCALL RPairArray::operator = (const RPairArray & rS)
 {
-	SArray::copy(rS);
+	SVector::copy(rS); // @v9.8.4 SArray-->SVector
 	return *this;
 }
 
@@ -1779,7 +1782,7 @@ void SLAPI RPairArray::SortByY()
 //
 //
 //
-SLAPI UUIDAssocArray::UUIDAssocArray() : TSArray <UUIDAssoc>()
+SLAPI UUIDAssocArray::UUIDAssocArray() : TSVector <UUIDAssoc>() // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -1826,7 +1829,7 @@ int SLAPI UUIDAssocArray::SearchVal(const S_GUID & rVal, long * pKey, uint * pPo
 //
 //
 //
-SLAPI TaggedStringArray::TaggedStringArray() : TSArray <TaggedString>()
+SLAPI TaggedStringArray::TaggedStringArray() : TSArray <TaggedString> ()
 {
 }
 
@@ -2852,11 +2855,11 @@ StrStrAssocArray & SLAPI StrStrAssocArray::Clear()
 //
 //
 //
-SLAPI RealArray::RealArray() : TSArray <double> ()
+SLAPI RealArray::RealArray() : TSVector <double> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI RealArray::RealArray(const RealArray & s) : TSArray <double> (s)
+SLAPI RealArray::RealArray(const RealArray & s) : TSVector <double> (s) // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -3175,11 +3178,11 @@ int SLAPI LongArray::freeByKey(long key, int binarySearch)
 //
 //
 //
-SLAPI Int64Array::Int64Array() : TSArray <int64> ()
+SLAPI Int64Array::Int64Array() : TSVector <int64> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI Int64Array::Int64Array(const Int64Array & rS) : TSArray <int64> (rS)
+SLAPI Int64Array::Int64Array(const Int64Array & rS) : TSVector <int64> (rS) // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -3219,9 +3222,9 @@ int64 FASTCALL Int64Array::get(uint pos) const
 }
 
 int Int64Array::lsearch(int64 k, uint * pIdx) const
-	{ return SArray::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
+	{ return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); } // @v9.8.4 SArray-->SVector
 int FASTCALL Int64Array::lsearch(int64 k) const
-	{ return SArray::lsearch(&k, 0, PTR_CMPFUNC(int64)); }
+	{ return SVector::lsearch(&k, 0, PTR_CMPFUNC(int64)); } // @v9.8.4 SArray-->SVector
 
 int FASTCALL Int64Array::add(int64 v)
 {
@@ -3241,7 +3244,7 @@ int FASTCALL Int64Array::addUnique(int64 v)
 //
 //
 //
-SLAPI FloatArray::FloatArray() : TSArray <float>()
+SLAPI FloatArray::FloatArray() : TSVector <float>() // @v9.8.4 TSArray-->TSVector
 	{}
 
 int FASTCALL FloatArray::operator == (const FloatArray & rS) const
@@ -3272,7 +3275,7 @@ float & FASTCALL FloatArray::operator [] (size_t i) const
 const FPoint & FASTCALL FloatArray::getPoint(uint i) const
 {
 	assert(i < (count-1));
-	return *(FPoint *)SArray::at(i);
+	return *(FPoint *)SVector::at(i); // @v9.8.4 SArray-->SVector
 }
 
 int FASTCALL FloatArray::IsEqual(const FloatArray * pS) const
@@ -3992,6 +3995,7 @@ int STree::Delete(uint32 pos)
 
 }*/
 
+#ifndef NDEBUG // {
 static int Helper_TestSTree(const char * pPath, StrAssocArray & rSaList, STree & rTree, long parentId, uint32 parentP, long * pCntr)
 {
 	int    ok = 1;
@@ -4043,6 +4047,7 @@ int SLAPI TestSTree()
 	CATCHZOK
 	return ok;
 }
+#endif
 //
 // @TEST {
 //

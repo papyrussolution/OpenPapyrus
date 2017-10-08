@@ -1270,7 +1270,7 @@ int StaffCalDialog::setupList()
 		LTIME tm;
 		tm.settotalsec(rrec.TmVal);
 		ss.add(sub.Z().Cat(tm, MKSFMT(0, TIMF_HMS)));
-		sub = 0;
+		sub.Z();
 		if(rrec.Flags & STCALEF_SKIP)
 			sub.CatChar('X');
 		ss.add(sub);

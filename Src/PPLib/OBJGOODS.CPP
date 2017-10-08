@@ -638,7 +638,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 			eq = 0;
 		else {
 			for(uint i = 0; eq && i < c; i++) {
-				if(!P_Tbl->GetBcTbl_().fields.IsEqualRecords(&rS1.Codes.at(i), &rS2.Codes.at(i)))
+				if(!P_Tbl->GetBcTbl_().GetFields().IsEqualRecords(&rS1.Codes.at(i), &rS2.Codes.at(i)))
 					eq = 0;
 			}
 		}
@@ -650,7 +650,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 		const int ext_empty2 = BIN(rS2.IsExtRecEmpty());
 		if(ext_empty1 != ext_empty2)
 			eq = 0;
-		else if(!ext_empty1 && !P_Tbl->GetExtTbl_().fields.IsEqualRecords(&rS1.ExtRec, &rS2.ExtRec))
+		else if(!ext_empty1 && !P_Tbl->GetExtTbl_().GetFields().IsEqualRecords(&rS1.ExtRec, &rS2.ExtRec))
 			eq = 0;
 		else if(!rS1.Stock.IsEqual(rS2.Stock))
 			eq = 0;
@@ -661,7 +661,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 			eq = 0;
 		else {
 			for(uint i = 0; eq && i < c; i++) {
-				if(!P_Tbl->GetACodTbl_().fields.IsEqualRecords(&rS1.ArCodes.at(i), &rS2.ArCodes.at(i)))
+				if(!P_Tbl->GetACodTbl_().GetFields().IsEqualRecords(&rS1.ArCodes.at(i), &rS2.ArCodes.at(i)))
 					eq = 0;
 			}
 		}
@@ -690,7 +690,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 		// идентифицировать факт изменения только флагов записи.
 		//
 		LongArray neq_fld_list;
-		if(!P_Tbl->fields.IsEqualRecords(&rS1.Rec, &rS2.Rec, &neq_fld_list)) {
+		if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec, &neq_fld_list)) {
 			if(neq_fld_list.getCount() == 1 && neq_fld_list.get(0) == P_Tbl->Flags.fld)
 				result_flags |= pefRecFlagsOnly;
 			eq = 0;
@@ -2515,8 +2515,8 @@ int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 			}
 		}
 		if(grp_txt_list.getCount() > 0 && !all) {
-			TaggedStringArray  sel_list;
-			ListToListAryData  grp_data(0, &grp_txt_list, &sel_list);
+			TaggedStringArray sel_list;
+			ListToListAryData grp_data(0, &grp_txt_list, &sel_list);
 			grp_data.TitleStrID = PPTXT_SELALTGOODSGRPS;
 			if(ListToListAryDialog(&grp_data) > 0)
 				grp_txt_list.copy(sel_list);

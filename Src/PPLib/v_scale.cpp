@@ -263,7 +263,7 @@ DBQuery * SLAPI PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	uint   brw_id = BROWSER_SCALE;
 	DBQ  * dbq = 0;
 	DBE    dbe_loc, dbe_ggrp;
-	THROW(CheckTblPtr(t = new TempScaleTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempScaleTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc,   t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsGrp);
 	q = & select(

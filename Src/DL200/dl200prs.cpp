@@ -986,26 +986,26 @@ DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
 	size_t max_col_name = 16;
 	DBTable * p_tbl = new DBTable;
 	THROW_MEM(p_tbl);
-	p_tbl->fields.addField(/*"HdrID"*/"__ID",       MKSTYPE(S_AUTOINC, 4));
-	p_tbl->fields.addField("Title",       MKSTYPE(S_ZSTRING, 36));
-	p_tbl->fields.addField("MainOrgID",   MKSTYPE(S_INT, 4));
-	p_tbl->fields.addField("MainOrgName", MKSTYPE(S_ZSTRING, 48));
-	p_tbl->fields.addField("MainOrgAddr", MKSTYPE(S_ZSTRING, 64));
-	p_tbl->fields.addField("MainOrgBusiness", MKSTYPE(S_ZSTRING, 48));
-	p_tbl->fields.addField("MainOrgINN",      MKSTYPE(S_ZSTRING, 24));
-	p_tbl->fields.addField("MainOrgOKPO",     MKSTYPE(S_ZSTRING, 24));
-	p_tbl->fields.addField("MainOrgOKONH",    MKSTYPE(S_ZSTRING, 32));
-	p_tbl->fields.addField("Beg",       MKSTYPE(S_DATE, 4));
-	p_tbl->fields.addField("End",       MKSTYPE(S_DATE, 4));
-	p_tbl->fields.addField("PeriodTxt", MKSTYPE(S_ZSTRING, 32));
-	p_tbl->fields.addField("Cycle",     MKSTYPE(S_INT, 2));
-	p_tbl->fields.addField("NumCycles", MKSTYPE(S_INT, 2));
-	p_tbl->fields.addField("CycleTxt",  MKSTYPE(S_ZSTRING, 24));
+	p_tbl->AddField(/*"HdrID"*/"__ID",       MKSTYPE(S_AUTOINC, 4));
+	p_tbl->AddField("Title",       MKSTYPE(S_ZSTRING, 36));
+	p_tbl->AddField("MainOrgID",   MKSTYPE(S_INT, 4));
+	p_tbl->AddField("MainOrgName", MKSTYPE(S_ZSTRING, 48));
+	p_tbl->AddField("MainOrgAddr", MKSTYPE(S_ZSTRING, 64));
+	p_tbl->AddField("MainOrgBusiness", MKSTYPE(S_ZSTRING, 48));
+	p_tbl->AddField("MainOrgINN",      MKSTYPE(S_ZSTRING, 24));
+	p_tbl->AddField("MainOrgOKPO",     MKSTYPE(S_ZSTRING, 24));
+	p_tbl->AddField("MainOrgOKONH",    MKSTYPE(S_ZSTRING, 32));
+	p_tbl->AddField("Beg",       MKSTYPE(S_DATE, 4));
+	p_tbl->AddField("End",       MKSTYPE(S_DATE, 4));
+	p_tbl->AddField("PeriodTxt", MKSTYPE(S_ZSTRING, 32));
+	p_tbl->AddField("Cycle",     MKSTYPE(S_INT, 2));
+	p_tbl->AddField("NumCycles", MKSTYPE(S_INT, 2));
+	p_tbl->AddField("CycleTxt",  MKSTYPE(S_ZSTRING, 24));
 	if(D.P_Descript)
 		max_col_name = strlen(D.P_Descript)+1;
 	else
 		max_col_name = 36;
-	p_tbl->fields.addField("Descript", MKSTYPE(S_ZSTRING, max_col_name));
+	p_tbl->AddField("Descript", MKSTYPE(S_ZSTRING, max_col_name));
 	for(i = 0; i < D.GetColumnsCount(); i++) {
 		const DL2_Column * p_c = D.GetColumn(i);
 		char fld_title[48];
@@ -1013,10 +1013,10 @@ DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
 		size_t col_name_len = 16;
 		if(p_c->P_Title)
 			col_name_len = strlen(p_c->P_Title)+1;
-		p_tbl->fields.addField(fld_title, MKSTYPE(S_ZSTRING, col_name_len));
+		p_tbl->AddField(fld_title, MKSTYPE(S_ZSTRING, col_name_len));
 	}
 	bnkey.addSegment(0, XIF_EXT);
-	p_tbl->indexes.addKey(bnkey);
+	p_tbl->AddKey(bnkey);
 	CATCH
 		ZDELETE(p_tbl);
 	ENDCATCH
@@ -1042,18 +1042,18 @@ DBTable * SLAPI PrcssrDL200::CreateIterDBTable()
 	char   fld_name[36];
 	DBTable * p_tbl = new DBTable;
 	THROW_MEM(p_tbl);
-	p_tbl->fields.addField(/*"IterID"*/"__ID",    MKSTYPE(S_AUTOINC, 4));
-	p_tbl->fields.addField("CycleNo",   MKSTYPE(S_INT, 2));
-	p_tbl->fields.addField("Beg",       MKSTYPE(S_DATE, 4));
-	p_tbl->fields.addField("End",       MKSTYPE(S_DATE, 4));
-	p_tbl->fields.addField("PeriodTxt", MKSTYPE(S_ZSTRING, 32));
-	p_tbl->fields.addField("CycleTxt",  MKSTYPE(S_ZSTRING, 32));
+	p_tbl->AddField(/*"IterID"*/"__ID",    MKSTYPE(S_AUTOINC, 4));
+	p_tbl->AddField("CycleNo",   MKSTYPE(S_INT, 2));
+	p_tbl->AddField("Beg",       MKSTYPE(S_DATE, 4));
+	p_tbl->AddField("End",       MKSTYPE(S_DATE, 4));
+	p_tbl->AddField("PeriodTxt", MKSTYPE(S_ZSTRING, 32));
+	p_tbl->AddField("CycleTxt",  MKSTYPE(S_ZSTRING, 32));
 
 	num_groups = D.GetMaxNesting();
 	for(i = 0; i < num_groups; i++) {
 		size_t max_descr_len = D.GetMaxDescriptionSize(i+1);
 		sprintf(fld_name, "Group%02u_Descr", i+1);
-		p_tbl->fields.addField(fld_name, MKSTYPE(S_ZSTRING, max_descr_len));
+		p_tbl->AddField(fld_name, MKSTYPE(S_ZSTRING, max_descr_len));
 	}
 	for(i = 0; i < D.GetColumnsCount(); i++) {
 		const DL2_Column * p_c = D.GetColumn(i);
@@ -1071,10 +1071,10 @@ DBTable * SLAPI PrcssrDL200::CreateIterDBTable()
 			typ = MKSTYPE(S_ZSTRING, p_c->MaxOutSize);
 		else
 			typ = MKSTYPE(S_ZSTRING, 36);
-		p_tbl->fields.addField(fld_name, typ);
+		p_tbl->AddField(fld_name, typ);
 	}
 	bnkey.addSegment(0, XIF_EXT);
-	p_tbl->indexes.addKey(bnkey);
+	p_tbl->AddKey(bnkey);
 	CATCH
 		ZDELETE(p_tbl);
 	ENDCATCH
@@ -1144,9 +1144,11 @@ int	SLAPI PrcssrDL200::FillHeader()
 int SLAPI PrcssrDL200::InitOutput()
 {
 	int    ok = 1;
-	// @v7.8.3 PPIniFile ini_file;
-	SString iter_fname, head_fname;
-	SString path, packpath, temp_buf;
+	SString iter_fname;
+	SString head_fname;
+	SString path;
+	SString packpath;
+	SString temp_buf;
 
 	ZDELETE(P_Dict);
 	ZDELETE(P_HdrTbl);
@@ -1178,12 +1180,12 @@ int SLAPI PrcssrDL200::InitOutput()
 	//
 	//
 	//
-	(temp_buf = D.Name).Cat("_Head").CopyTo(P_HdrTbl->tableName, sizeof(P_HdrTbl->tableName));
-	(P_HdrTbl->fileName = path).SetLastSlash().Cat(head_fname);
+	P_HdrTbl->SetTableName((temp_buf = D.Name).Cat("_Head"));
+	P_HdrTbl->SetName((temp_buf = path).SetLastSlash().Cat(head_fname));
 	THROW(P_Dict->CreateTableAndFileBySpec(&P_HdrTbl));
 	//
-	(temp_buf = D.Name).Cat("_Iter").CopyTo(P_IterTbl->tableName, sizeof(P_IterTbl->tableName));
-	(P_IterTbl->fileName = path).SetLastSlash().Cat(iter_fname);
+	P_IterTbl->SetTableName((temp_buf = D.Name).Cat("_Iter"));
+	P_IterTbl->SetName((temp_buf = path).SetLastSlash().Cat(iter_fname));
 	THROW(P_Dict->CreateTableAndFileBySpec(&P_IterTbl));
 	//
 	THROW(FillHeader());

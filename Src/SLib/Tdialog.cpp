@@ -912,7 +912,7 @@ int TDialog::SetFont(const SFontDescr & rFd)
 		HFONT new_font = ::CreateFontIndirect(&log_font);*/
 		HFONT new_font = (HFONT)TView::CreateFont(rFd); // @v9.1.3
 		if(new_font) {
-			ok = SETIFZ(P_FontsAry, new SArray(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
+			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
 			::SendMessage(H(), WM_SETFONT, (WPARAM)new_font, TRUE);
 			ok = 1;
 		}
@@ -931,7 +931,7 @@ int TDialog::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
 		HFONT new_font = CreateFontIndirect(&log_font); */
 		HFONT new_font = (HFONT)TView::CreateFont(rFd); // @v9.1.3
 		if(new_font) {
-			ok = SETIFZ(P_FontsAry, new SArray(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
+			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;
 			::SendMessage(h_ctl, WM_SETFONT, (WPARAM)new_font, TRUE);
 			ok = 1;
 		}
@@ -944,7 +944,7 @@ int TDialog::SetCtrlFont(uint ctrlID, const char * pFontName, int height)
 	int    ok = -1;
 	HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrlID), pFontName, height);
 	if(new_font) {
-		SETIFZ(P_FontsAry, new SArray(sizeof(HFONT)));
+		SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
 		ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 	}
 	return ok;
@@ -960,7 +960,7 @@ int __cdecl TDialog::SetCtrlsFont(const char * pFontName, int height, ...)
 	if(ctrl_id) {
 		HFONT  new_font = TView::setFont(GetDlgItem(H(), ctrl_id), pFontName, height);
 		if(new_font) {
-			SETIFZ(P_FontsAry, new SArray(sizeof(HFONT)));
+			SETIFZ(P_FontsAry, new SVector(sizeof(HFONT)));
 			ok = P_FontsAry ? P_FontsAry->insert(&new_font) : 0;
 			if(ok > 0)
 				while((ctrl_id = va_arg(vl, long)) != 0)

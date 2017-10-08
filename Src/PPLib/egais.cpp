@@ -8769,7 +8769,7 @@ int SLAPI EgaisPersonCore::Clear(int use_ta)
 	MEMSZERO(k0);
 	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
-	msg_buf.CatDiv(':', 2).Cat(this->tableName);
+	msg_buf.CatDiv(':', 2).Cat(this->GetTableName());
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -9143,7 +9143,7 @@ int SLAPI EgaisProductCore::Clear(int use_ta)
 	MEMSZERO(k0);
 	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
-	msg_buf.CatDiv(':', 2).Cat(this->tableName);
+	msg_buf.CatDiv(':', 2).Cat(this->GetTableName());
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -9420,7 +9420,7 @@ int SLAPI EgaisRefACore::Clear(int use_ta)
 	MEMSZERO(k0);
 	PPInitIterCounter(cntr, this);
 	PPLoadText(PPTXT_EGAIS_CLEARINNEREGAISDB, msg_buf);
-	msg_buf.CatDiv(':', 2).Cat(this->tableName);
+	msg_buf.CatDiv(':', 2).Cat(this->GetTableName());
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

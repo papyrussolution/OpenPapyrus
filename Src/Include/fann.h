@@ -1084,7 +1084,7 @@ public:
 	{
 		return TotalConnections;
 	}
-	int    GetConnectionArray(TSArray <FannConnection> & rList) const;
+	int    GetConnectionArray(TSVector <FannConnection> & rList) const;
 	void   SetLearningRate(float v)
 	{
 		LearningRate = v;

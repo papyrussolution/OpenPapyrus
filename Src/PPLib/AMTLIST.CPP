@@ -1,5 +1,5 @@
 // AMTLIST.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2004, 2005, 2007, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2004, 2005, 2007, 2011, 2012, 2014, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -38,13 +38,13 @@ int FASTCALL AmtEntry::IsEqual(const AmtEntry & rS) const
 	return BIN(AmtTypeID == rS.AmtTypeID && CurID == rS.CurID && Amt == rS.Amt);
 }
 
-SLAPI AmtList::AmtList() : TSArray <AmtEntry> ()
+SLAPI AmtList::AmtList() : TSVector <AmtEntry> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
 AmtList & FASTCALL AmtList::operator = (const AmtList & s)
 {
-	copy(s);
+	SVector::copy(s);
 	return *this;
 }
 

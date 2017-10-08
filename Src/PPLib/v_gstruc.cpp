@@ -123,7 +123,7 @@ int SLAPI PPViewGoodsStruc::UpdateTempTable(PPID goodsID, PPID parentStrucID, PP
 			Goods2Tbl::Rec grec;
 			PPGoodsStruc gs;
 			MEMSZERO(grec);
-			THROW(CheckTblPtr(t = new TempGoodsStrucTbl(P_TempTbl->fileName)));
+			THROW(CheckTblPtr(t = new TempGoodsStrucTbl(P_TempTbl->GetName())));
 			{
 				PPID   prev_goods = 0, prev_struc = 0;
 				IterCounter c;
@@ -199,7 +199,7 @@ DBQuery * SLAPI PPViewGoodsStruc::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBQuery * q  = 0;
 	TempGoodsStrucTbl * t = 0;
 	uint   brw_id = BROWSER_GOODSSTRUC;
-	THROW(CheckTblPtr(t = new TempGoodsStrucTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempGoodsStrucTbl(P_TempTbl->GetName())));
 	q = & select(
 		t->GoodsID,   // #00
 		t->StrucID,   // #01

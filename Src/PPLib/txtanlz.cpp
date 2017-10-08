@@ -2162,7 +2162,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 							memzero(p_nn_output, output_count * sizeof(*p_nn_output));
 							p_nn_output[group_pos] = 1.0f;
 							THROW_SL(RunSString(ident, 0, text, &first_token_pos, &token_count));
-							code_list.clear(1);
+							code_list.clear();
 							if(codes.getCount()) {
 								for(uint j = 0; j < codes.getCount(); j++) {
 									int    code_std = 0;

@@ -13,7 +13,7 @@ IMPL_CMPFUNC(PayPlanTblRec, i1, i2)
 	return CMPSIGN(((PayPlanTbl::Rec *)i1)->PayDate, ((PayPlanTbl::Rec *)i2)->PayDate);
 }
 
-PayPlanArray::PayPlanArray() : TSArray <PayPlanTbl::Rec>()
+PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>() // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -98,7 +98,7 @@ int PayPlanArray::Update(const PayPlanTbl::Rec * pItem, uint * pPos)
 
 void PayPlanArray::Sort()
 {
-	sort(PTR_CMPFUNC(PayPlanTblRec));
+	SVector::sort(PTR_CMPFUNC(PayPlanTblRec));
 }
 
 static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
@@ -365,7 +365,7 @@ int FASTCALL PPBill::IsEqual(const PPBill & rS) const
 	int    yes = 1;
 	PPObjBill * p_bobj = BillObj;
 	if(p_bobj) {
-		if(!p_bobj->P_Tbl->fields.IsEqualRecords(&Rec, &rS.Rec))
+		if(!p_bobj->P_Tbl->GetFields().IsEqualRecords(&Rec, &rS.Rec))
 			yes = 0;
 	}
 	else if(memcmp(&Rec, &rS.Rec, sizeof(Rec)) != 0)
@@ -1383,7 +1383,7 @@ int SLAPI PPBillPacket::SetupItemQuotInfo(int itemNo, PPID quotKindID, double qu
 {
 	int    ok = 1;
 	if(itemNo >= 0 && itemNo < (int)GetTCount() && quotKindID) {
-		if(SETIFZ(P_QuotSetupInfoList, new TSArray <QuotSetupInfoItem>)) {
+		if(SETIFZ(P_QuotSetupInfoList, new TSVector <QuotSetupInfoItem>)) { // @v9.8.4 TSArray-->TSVector
 			uint   p = 0;
 			if(P_QuotSetupInfoList->lsearch(&itemNo, &p, CMPF_LONG)) {
 				QuotSetupInfoItem & r_item = P_QuotSetupInfoList->at(p);
@@ -1627,7 +1627,7 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 	}
 	// @v8.2.0 {
 	if(rS.P_QuotSetupInfoList) {
-		THROW_MEM(P_QuotSetupInfoList = new TSArray <QuotSetupInfoItem> (*rS.P_QuotSetupInfoList));
+		THROW_MEM(P_QuotSetupInfoList = new TSVector <QuotSetupInfoItem> (*rS.P_QuotSetupInfoList)); // @v9.8.4 TSArray-->TSVector
 	}
 	// } @v8.2.0
 	CipB = rS.CipB; // @v8.7.8
@@ -3560,22 +3560,22 @@ int SLAPI PPBillPacket::GetMainOrgID_(PPID * pID) const
 //
 //
 //
-SLAPI CompleteArray::CompleteArray() : TSArray <CompleteItem> ()
+SLAPI CompleteArray::CompleteArray() : TSVector <CompleteItem> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
-SLAPI CompleteArray::CompleteArray(const CompleteArray & s) : TSArray <CompleteItem> ()
+SLAPI CompleteArray::CompleteArray(const CompleteArray & s) : TSVector <CompleteItem> () // @v9.8.4 TSArray-->TSVector
 {
 	LotID  = s.LotID;
 	BillID = s.BillID;
-	copy(s);
+	SVector::copy(s);
 }
 
 CompleteArray & FASTCALL CompleteArray::operator = (const CompleteArray & s)
 {
 	LotID  = s.LotID;
 	BillID = s.BillID;
-	copy(s);
+	SVector::copy(s);
 	return *this;
 }
 
@@ -4325,7 +4325,7 @@ void SLAPI BillTotalData::Clear()
 	PriceVatList.clear();
 }
 
-SLAPI BillVatArray::BillVatArray() : TSArray <BillVatEntry>()
+SLAPI BillVatArray::BillVatArray() : TSVector <BillVatEntry>() // @v9.8.4 TSArray-->TSVector
 {
 }
 

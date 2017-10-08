@@ -956,7 +956,7 @@ private:
 		int32  I;
 		SGlyph G;
 	};
-	SArray GlyphList;
+	SVector GlyphList; // @v9.8.4 SArray-->SVector
 };
 
 class STextLayout {
@@ -990,7 +990,7 @@ public:
 		SPaintObj::Font * P_Font;
 		int    PenId;
 		int    BrushId;
-		TSArray <STextLayout::Item> Items;
+		TSVector <STextLayout::Item> Items; // @v9.8.4 TSArray-->TSVector
 	};
 
 	STextLayout();
@@ -1043,11 +1043,11 @@ private:
 	FRect  Bounds;
 	FPoint EndPoint;          // @*STextLayout::Arrange Точка, до которой простирается собственно текст.
 	SStringU Text;
-	LongArray GlyphIdList;                    // @transient
-	TSArray <CStyle> CStyleList;              //
-	LAssocArray ParaList;                     // Список параграфов: ассоцииации {позиция первого символа; стиль параграфа}
-	TSArray <STextLayout::Item> List;         // @transient
-	TSArray <STextLayout::StyleGroup> SgList; // @transient
+	LongArray GlyphIdList;                     // @transient
+	TSVector <CStyle> CStyleList;              // @v9.8.4 TSArray-->TSVector
+	LAssocArray ParaList;                      // Список параграфов: ассоцииации {позиция первого символа; стиль параграфа}
+	TSVector <STextLayout::Item> List;         // @transient // @v9.8.4 TSArray-->TSVector
+	TSVector <STextLayout::StyleGroup> SgList; // @transient // @v9.8.4 TSArray-->TSVector
 
 	friend class TloRowState;
 };
@@ -1412,7 +1412,7 @@ private:
 		long   ID;
 		uint32 H;
 	};
-	TSArray <Entry> List;
+	TSVector <Entry> List; // @v9.8.4 TSArray-->TSVector
 };
 
 class TView {
@@ -1677,7 +1677,7 @@ struct ToolbarItem {
 	char   ToolTipText[128];
 };
 
-class ToolbarList : private SArray {
+class ToolbarList : private SVector { // @v9.8.4 SArray-->SVector
 public:
 	ToolbarList();
 	ToolbarList & FASTCALL operator = (const ToolbarList &);
@@ -1813,7 +1813,7 @@ public:
 	TRect  getRect() const;
 	int    invalidateRect(const TRect &, int erase);
 	int    invalidateRegion(const SRegion & rRgn, int erase);
-	int    invalidateAll(int erase);
+	void   FASTCALL invalidateAll(int erase);
 	//
 	// Descr: Инициализирует ожидание системой события покидания мышью клиентской области
 	//   окна и (или) "замирания" мыши над клиентской областью (MouseHover).
@@ -1854,7 +1854,7 @@ private:
 			long   KeyCode;
 			uint   StrPos;
 		};
-		SArray List;
+		SVector List; // @v9.8.4 SArray-->SVector
 		StringSet StrPool;
 		TWindow * P_Win; // @notowned
 	};
@@ -2512,14 +2512,14 @@ private:
 		double OneUnitLog10;
 		double OneUnitDots;
 		int    ScrollDelta; // @unit{px} Квант скроллирования //
-		TSArray <RuleNotch> NotchList;
+		TSVector <RuleNotch> NotchList; // @v9.8.4 TSArray-->TSVector
 	};
 
 	int    DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
 	int    GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
 	int    GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
 	int    CalcRule(double ptPerInch, Rule & rResult) const;
-	int    GetNotchList(const Rule & rRule, float size, float offs, int kind, TSArray <RuleNotch> & rList) const;
+	int    GetNotchList(const Rule & rRule, float size, float offs, int kind, TSVector <RuleNotch> & rList) const;
 	int    SnapX(float p, float * pDest) const;
 	int    SnapY(float p, float * pDest) const;
 	int    CalcScrollRange();
@@ -2771,7 +2771,7 @@ private:
 	void   SLAPI Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, long extraParam, ConstructorOption co); // @<<TDialog::TDialog
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
-	SArray * P_FontsAry;
+	SVector * P_FontsAry; // @v9.8.4 SArray-->SVector
 	HWND   ToolTipsWnd;
 	//
 	struct ResizeParamEntry {
@@ -2783,7 +2783,7 @@ private:
 		long   Bottom;
 		long   Flags; // CtrlResizeFlags
 	};
-	TSArray <ResizeParamEntry> ResizeParamAry;
+	TSVector <ResizeParamEntry> ResizeParamAry; // @v9.8.4 TSArray-->TSVector
 	//
 	// Descr: Пересчитывает координаты контрола
 	// ARG(firstCoord IN):           новая 1-ая координата диапазона, в котором должен находиться контрол
@@ -3185,7 +3185,7 @@ private:
 		SColor F;  // Цвет символов
 		SColor B;  // Цвет фона
 	};
-	TSArray <ColorItem> ColorAssoc;
+	TSVector <ColorItem> ColorAssoc; // @v9.8.4 TSArray-->TSVector
 };
 
 #define LBDEFSIGN_STD      0xABCD0001
@@ -4873,7 +4873,7 @@ private:
 		uint   DayN;  // Служебное значение, идентифицирующее номер даты на экране в режиме vHourDay
 		STimeChunkAssoc C;
 	};
-	class SRectArray : public TSArray <SRect> {
+	class SRectArray : public TSVector <SRect> { // @v9.8.4 TSArray-->TSVector
 	public:
 		SRectArray();
 		const SRect * FASTCALL SearchPoint(TPoint p) const;

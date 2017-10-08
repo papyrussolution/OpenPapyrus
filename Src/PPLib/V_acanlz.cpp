@@ -1661,7 +1661,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	sub_title.Space().Cat(Filt.Period);
 	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
 		DBE  * p_dbe1 = 0, * p_dbe2 = 0;
-		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->fileName)));
+		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
 		p_dbe1 = &(0 - ttt->InRest);  // @warn unary '-' not defined in class DBField
 		p_dbe2 = &(0 - ttt->OutRest); // @warn unary '-' not defined in class DBField
@@ -1691,7 +1691,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			brw_id = BROWSER_ACCTRNOVR;
 	}
 	else if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc || Filt.Cycl.Cycle) {
-		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->fileName)));
+		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
 		q = & select(
 			ttt->AccRelID,  // #00
@@ -1758,7 +1758,7 @@ DBQuery * SLAPI PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
 		}
 		else {
-			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->fileName)));
+			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName())));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
 			{
 				/* @v9.6.1

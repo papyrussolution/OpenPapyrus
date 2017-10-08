@@ -1189,7 +1189,7 @@ DBQuery * SLAPI PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSu
 {
 	uint   brw_id = BROWSER_PLINES;
 	int    by_all_quots = BIN(Filt.Flags & PLISTF_BYQUOT && Filt.QuotKindID == 0);
-	PriceLineTbl * pl = P_TempTbl ? new PriceLineTbl(P_TempTbl->fileName) : new PriceLineTbl;
+	PriceLineTbl * pl = P_TempTbl ? new PriceLineTbl(P_TempTbl->GetName()) : new PriceLineTbl;
 	DBQuery * q = 0;
 	DBQ  * dbq = 0;
 	DBE    dbe_unit;

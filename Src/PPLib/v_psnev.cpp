@@ -374,7 +374,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	if(P_TempGrpTbl) {
 		brw_id = BROWSER_PSNEVSUBST;
 		THROW(CheckTblPtr(P_TempGrpTbl));
-		THROW(CheckTblPtr(t = new TempPersonEventTbl(P_TempGrpTbl->fileName)));
+		THROW(CheckTblPtr(t = new TempPersonEventTbl(P_TempGrpTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, t->AvgEvTime);
 		q = & select(
 			t->ID,       // #0
@@ -391,7 +391,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	else {
 		brw_id = Filt.PrmrID ? BROWSER_PSNEVBYPSN : BROWSER_PSNEV;
 		if(P_TempTbl) {
-			THROW(CheckTblPtr(pe = new PersonEventTbl(P_TempTbl->fileName)));
+			THROW(CheckTblPtr(pe = new PersonEventTbl(P_TempTbl->GetName())));
 		}
 		else {
 			THROW(CheckTblPtr(pe = new PersonEventTbl));

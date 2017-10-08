@@ -1713,7 +1713,7 @@ int SLAPI PPObjMrpTab::DoMaintain(LDATE toDt)
 		SString file_name, fmt_buf;
 		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
 		SPathStruc ps;
-		ps.Split(P_Tbl->fileName);
+		ps.Split(P_Tbl->GetName());
 		ps.Drv.Z();
 		ps.Dir.Z();
 		ps.Merge(file_name);

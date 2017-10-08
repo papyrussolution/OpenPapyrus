@@ -425,7 +425,7 @@ DBQuery * SLAPI PPViewPrcBusy::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	TSessionTbl * p_st = 0;
 	DBQuery * p_q = 0;
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(p_tt = new TempPrcBusyTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_tt = new TempPrcBusyTbl(P_TempTbl->GetName())));
 		THROW(CheckTblPtr(p_st = new TSessionTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_prc, PPDbqFuncPool::IdObjNamePrc, p_tt->PrcID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  p_st->ArID);

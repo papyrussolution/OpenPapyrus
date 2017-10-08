@@ -287,6 +287,35 @@ size_t SLAPI SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 	return sz;
 }
 
+size_t FASTCALL SBuffer::ReadLine(SString & rBuf)
+{
+	rBuf.Z();
+
+	size_t sz = 0;
+	const size_t avl_size = GetAvailableSize();
+	const char * p_buf = ((char *)P_Buf) + RdOffs;
+	while(sz < avl_size) {
+		const char c = p_buf[sz];
+		if(c) {
+			rBuf.CatChar(c);
+			sz++;
+			if(c == 0x0A)
+				break;
+			else if(c == 0x0D) {
+				if(sz < avl_size && p_buf[sz] == 0x0A) {
+					rBuf.CatChar(p_buf[sz]);
+					sz++;
+				}
+				break;
+			}
+		}
+		else
+			break;
+	}
+	RdOffs += sz;
+	return sz;
+}
+
 size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 {
 	rBuf.Z();

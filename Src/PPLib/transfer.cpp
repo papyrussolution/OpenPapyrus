@@ -829,8 +829,7 @@ static int FASTCALL CR_MakeLocList(GoodsRestParam * pGrParam, PPIDArray * pList)
 	return ok;
 }
 
-int SLAPI ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt,
-	int closedTag, int nzRestOnly, SArray * pRecList)
+int SLAPI ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList)
 {
 	int    ok = 1;
 	ReceiptTbl::Key3 k3;
@@ -855,8 +854,7 @@ int SLAPI ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LD
 	return ok;
 }
 
-int SLAPI ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt,
-	int openedOnly, int nzRestOnly, SArray * pRecList)
+int SLAPI ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList)
 {
 	int    ok = 1;
 	THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, 0, nzRestOnly, pRecList));

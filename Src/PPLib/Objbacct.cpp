@@ -369,7 +369,7 @@ private:
 		BankAccountTbl::Rec * p_rec;
 		for(uint i = 0; Data.enumItems(&i, (void**)&p_rec);) {
 			StringSet ss(SLBColumnDelim);
-			sub = 0;
+			sub.Z();
 			GetPersonName(p_rec->BankID, sub);
 			ss.add(sub);
 			ss.add(p_rec->Acct);

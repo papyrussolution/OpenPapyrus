@@ -699,7 +699,7 @@ int SCardRuleDlg::setupList()
 	TrnovrRngDis * p_item = 0;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; Data.enumItems(&i, (void**)&p_item) > 0;) {
-		ss.clear(1);
+		ss.clear();
 		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
 			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("руб").ToOem();
 		ss.add(buf);

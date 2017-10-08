@@ -40,7 +40,7 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 		}
 		THROW_PP_S(temp_buf.C(p) == '%', PPERR_PRCPLCCODE_EXPPCT, pPattern);
 		p++;
-		sub = 0;
+		sub.Z();
 		while(isdec(temp_buf.C(p))) {
 			sub.CatChar(temp_buf.C(p++));
 		}
@@ -48,7 +48,7 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 		seq.Len = (uint8)sub.ToLong();
 		THROW_PP_S(temp_buf.C(p) == '[', PPERR_PRCPLCCODE_EXPLBRK, pPattern);
 		p++;
-		sub = 0;
+		sub.Z();
 		while(p < temp_buf.Len() && temp_buf.C(p) != '.') {
 			sub.CatChar(temp_buf.C(p++));
 		}

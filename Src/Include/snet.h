@@ -659,7 +659,7 @@ private:
 //
 typedef void (*MailCallbackProc)(const IterCounter & bytesCounter, const IterCounter & msgCounter);
 
-struct SMailMsg {
+struct SMailMsg : SStrGroup {
 	enum {
 		fldFrom = 1,
 		fldTo,
@@ -692,10 +692,11 @@ struct SMailMsg {
 	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
 	int    SLAPI SetField(int fldId, const char *);
 	int    FASTCALL IsField(int fldId) const;
-	const  char * FASTCALL GetField(int fldId) const;
+	SString & SLAPI GetField(int fldId, SString & rBuf) const;
 	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
 
 	int    SLAPI PutToFile(SFile & rF);
+	int    SLAPI ReadFromFile(SFile & rF);
 
 	struct Disposition {
 		Disposition();
@@ -717,14 +718,31 @@ private:
 	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
 
 	char   Zero[8];
-	SString From;
-	SString To;
-	SString Cc;
-	SString Subj;
-	SString Mailer;
-	SString Boundary;
-	SString Text;
-	SStrCollection AttList;
+
+	struct HdrFldPositions {
+		uint   FromP;
+		uint   ToP;
+		uint   CcP;
+		uint   SubjP;
+		uint   MailerP;
+		uint   BoundaryP;
+		uint   MsgIdP; // Message-ID:
+	};
+	HdrFldPositions HFP;
+	LDATETIME Dtm; // Date:
+	int    ContentLangId; // Content-Language:
+
+	struct Boundary {
+		uint   ContentTypeP; // Content-Type:
+		SCodepage Cp;
+		uint   ContentTransfEncP; // Content-Transfer-Encoding:
+		uint   TextP;
+	};
+	TSVector <Boundary> BL;
+	TSVector <uint> AttachPosL;
+	TSVector <uint> ReceivedChainL; // Received:
+
+	//SStrCollection AttList;
 };
 //
 //
@@ -794,8 +812,8 @@ public:
 	int    FtpCreateDir(const InetUrl & rUrl, int mflags);
 	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
 	//
-	int    Pop3Stat(const InetUrl & rUrl, int mflags, uint * pCount, uint64 * pSize); // STAT
-	int    Pop3Info(const InetUrl & rUrl, int mflags, uint msgN); // TOP
+	int    Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList); // LIST
+	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN); // TOP
 	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 

@@ -2665,7 +2665,7 @@ int SLAPI SuprWareListDialog::setupList()
 	for(uint i = 0; i < P_SuprWarePack.Items.getCount(); i++) {
 		MEMSZERO(goods_rec);
 		if(goods_o.Search(P_SuprWarePack.Items.at(i).CompID, &goods_rec) > 0) {
-			ss.clear(1);
+			ss.clear();
 			ss.add(goods_rec.Name);
 			if(P_SuprWarePack.Items.at(i).Qtty || P_SuprWarePack.Items.at(i).UnitID) {
 				str.Z().Cat(P_SuprWarePack.Items.at(i).Qtty);

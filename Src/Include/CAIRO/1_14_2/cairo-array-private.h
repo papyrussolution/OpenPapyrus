@@ -47,11 +47,11 @@ CAIRO_BEGIN_DECLS
 
 cairo_private void FASTCALL _cairo_array_init(cairo_array_t * array, uint element_size);
 cairo_private void FASTCALL _cairo_array_fini(cairo_array_t * array);
-cairo_private cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional);
-cairo_private void _cairo_array_truncate(cairo_array_t * array, uint num_elements);
+cairo_private cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additional);
+cairo_private void FASTCALL _cairo_array_truncate(cairo_array_t * array, uint num_elements);
 cairo_private cairo_status_t FASTCALL _cairo_array_append(cairo_array_t * array, const void * element);
 cairo_private cairo_status_t _cairo_array_append_multiple(cairo_array_t * array, const void * elements, uint num_elements);
-cairo_private cairo_status_t _cairo_array_allocate(cairo_array_t     * array, uint num_elements, void ** elements);
+cairo_private cairo_status_t _cairo_array_allocate(cairo_array_t * array, uint num_elements, void ** elements);
 cairo_private void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index);
 cairo_private const void * FASTCALL _cairo_array_index_const(const cairo_array_t * array, uint index);
 cairo_private void _cairo_array_copy_element(const cairo_array_t * array, uint index, void * dst);

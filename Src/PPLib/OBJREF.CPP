@@ -587,7 +587,7 @@ int SLAPI PPObjReference::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 
 int SLAPI PPObjReference::IsRecEq(const ReferenceTbl::Rec & rR1, const ReferenceTbl::Rec & rR2)
 {
-	return ref->fields.IsEqualRecords(&rR1, &rR2);
+	return ref->GetFields().IsEqualRecords(&rR1, &rR2);
 }
 
 int SLAPI PPObjReference::Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx)
@@ -2877,7 +2877,7 @@ private:
 		PPUhttStoreSelDescr::Entry entry;
 		for(uint i = 0; i < Data.Sd.GetCount(); i++) {
 			if(Data.Sd.GetEntry(i, entry)) {
-				ss.clear(1);
+				ss.clear();
 				switch(entry.Attr) {
 					case PPUhttStoreSelDescr::attrGroup:
 						PPLoadString("goodsgroup", temp_buf);

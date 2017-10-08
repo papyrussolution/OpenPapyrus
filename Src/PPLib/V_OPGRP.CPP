@@ -111,7 +111,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			uint   cycle_no = 0;
 			BExtInsert bei(p_tbl);
-			TSArray <DateRange> period_list;
+			TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
 			if(!Filt.Cycl)
 				period_list.insert(&Filt.Period);
 			else
@@ -754,7 +754,7 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 			brw_id = BROWSER_BILLOPGRPNGEXT;
 		else
 			brw_id = BROWSER_BILLOPGRPNG;
-		p_tbl = new TempOpGrpngTbl(P_TempStatTbl->fileName);
+		p_tbl = new TempOpGrpngTbl(P_TempStatTbl->GetName());
 	}
 	else {
 		if(Filt.GoodsGrpID || Filt.GoodsID || Filt.SupplAgentID)
@@ -763,7 +763,7 @@ DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pS
 			brw_id = !Filt.Cycl ? BROWSER_BILLOPGRPNGEXT : BROWSER_BILLOPGRPNGCYCLEEXT;
 		else
 			brw_id = !Filt.Cycl ? BROWSER_BILLOPGRPNG : BROWSER_BILLOPGRPNGCYCLE;
-		p_tbl = new TempOpGrpngTbl(P_TempTbl->fileName);
+		p_tbl = new TempOpGrpngTbl(P_TempTbl->GetName());
 	}
 	THROW(CheckTblPtr(p_tbl));
 	q = & select(

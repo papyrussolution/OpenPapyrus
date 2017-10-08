@@ -454,14 +454,14 @@ int SLAPI PPViewFreight::ViewTotal()
 DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Flags & FreightFilt::fFillLaggageFields) ? BROWSER_FREIGHT_LAGG : BROWSER_FREIGHT;
-	TempFreightTbl * tbl = new TempFreightTbl(P_TmpTbl->fileName);
+	TempFreightTbl * tbl = new TempFreightTbl(P_TmpTbl->GetName());
 	DBE    dbe_loc;
 	DBE    dbe_ar;
 	DBE    dbe_agent;
 	DBQuery * q = 0;
 	THROW(CheckTblPtr(tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,  tbl->ObjectID);
-	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID); // @v6.9.2
+	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 	q = & select(
 		tbl->BillID,    //  #0

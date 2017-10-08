@@ -333,7 +333,7 @@ int FiltPoolDialog::setupList()
 	PPNamedFilt  nfilt;
 	StringSet ss(SLBColumnDelim);
 	for(PPID id = 0; ok && P_Data->Enum(&id, &nfilt, 0/*1 - ForAllDb*/);) {
-		ss.clear(1);
+		ss.clear();
 		(ss += nfilt.Name) += nfilt.Symb;
 		if(!addStringToList(id, ss.getBuf()))
 			ok = 0;

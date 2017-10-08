@@ -2262,7 +2262,7 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		dbe_closedate.push((DBFunc)PPDbqFuncPool::IdLotCloseDate);
 	}
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->GetName())));
 		dbq = &(rcp->ID == tt->LotID);
 
 		fld_list[c++].f = rcp->ID;        // #00

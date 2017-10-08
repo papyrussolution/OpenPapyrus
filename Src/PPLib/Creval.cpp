@@ -167,7 +167,7 @@ void CRevalDialog::updateCRateList()
 		for(uint i = 0; Data.CRateList.enumItems(&i, (void**)&p_entry);) {
 			char sub[64];
 			PPCurrency cur_rec;
-			ss.clear(1);
+			ss.clear();
 			if(p_entry->CurID && PPRef->GetItem(PPOBJ_CURRENCY, p_entry->CurID, &cur_rec) > 0)
 				ss.add(cur_rec.Symb);
 			else

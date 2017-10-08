@@ -887,7 +887,7 @@ DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	DBQuery * q = 0;
 	TempReportTbl * p_tbl = 0;
 	THROW(P_TempTbl);
-	THROW(CheckTblPtr(p_tbl = new TempReportTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(p_tbl = new TempReportTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitLongFunc(dbe_type,   PPDbqFuncPool::IdReportTypeName, p_tbl->Type);
 	q = & select(p_tbl->ID, 0L);                           // #00
 	q->addField(p_tbl->StdName);                           // #01

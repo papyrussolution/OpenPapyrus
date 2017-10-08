@@ -573,7 +573,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 	int    ok = 1;
 	LineNo = 1;
 	if(!RVALUEPTR(ExtParamList, pExtParamList))
-		ExtParamList.clear(1);
+		ExtParamList.clear();
 	ProcessBlock pblk;
 	pblk.SrcDataName = pDataName;
 	pblk.P_Rtm = 0;

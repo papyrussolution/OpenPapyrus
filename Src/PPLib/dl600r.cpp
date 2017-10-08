@@ -848,21 +848,21 @@ static DBTable * __CreateDBTable(const DlScope * pScope, BDictionary * pDict,
 		fname = "_ID_";
 		if(idN)
 			fname.CatLongZ(idN, 3);
-		p_tbl->fields.addField(fname, MKSTYPE(S_AUTOINC, 4));
+		p_tbl->AddField(fname, MKSTYPE(S_AUTOINC, 4));
 	}
 	{
 		const DlScope * p_scope = 0;
 		for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);)
 			for(uint i = 0; p_scope->EnumFields(&i, &fld);)
-				p_tbl->fields.addField(fld.Name, fld.T.GetDbFieldType());
+				p_tbl->AddField(fld.Name, fld.T.GetDbFieldType());
 	}
 	bnkey.addSegment(0, XIF_EXT);
-	p_tbl->indexes.addKey(bnkey);
+	p_tbl->AddKey(bnkey);
 	{
-		(fname = pDataName).Cat(pSuffix).CopyTo(p_tbl->tableName, sizeof(p_tbl->tableName));
-		(p_tbl->fileName = pPath).SetLastSlash().Cat(pFileName);
+		p_tbl->SetTableName((fname = pDataName).Cat(pSuffix));
+		p_tbl->SetName((fname = pPath).SetLastSlash().Cat(pFileName));
 		THROW(pDict->CreateTableAndFileBySpec(&p_tbl));
-		p_tbl->flags |= XTF_TEMP; // @v7.9.6
+		p_tbl->SetFlag(XTF_TEMP);
 	}
 	CATCH
 		ZDELETE(p_tbl);
@@ -1000,7 +1000,7 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 					THROW(r);
 				}
 			}
-			out_file_set.add(p_tbl->fileName);
+			out_file_set.add(p_tbl->GetName());
 			ZDELETE(p_tbl);
 			if(rParam.DestPath.NotEmpty())
 				THROW(__CopyFileByPath(path, rParam.DestPath, fname));

@@ -2652,11 +2652,11 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	memzero(tbl_l, sizeof(tbl_l));
 	pSubTitle = 0;
 	if(P_TempTbl) {
-		bllt = new TempBillTbl(P_TempTbl->fileName);
+		bllt = new TempBillTbl(P_TempTbl->GetName());
 		THROW(CheckTblPtr(bllt));
 	}
 	if(P_TempOrd && oneof2(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject)) {
-		ordt = new TempOrderTbl(P_TempOrd->fileName);
+		ordt = new TempOrderTbl(P_TempOrd->GetName());
 		THROW(CheckTblPtr(ordt));
 	}
 	THROW(CheckTblPtr(bll = new BillTbl));

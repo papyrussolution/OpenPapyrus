@@ -350,7 +350,7 @@ DBQuery * SLAPI PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBQ  * dbq = 0;
 	DBE    dbe_commid;
 	DBE    dbe_objtitle;
-	ObjSyncTbl * t = P_TmpTbl ? new ObjSyncTbl(P_TmpTbl->fileName) : new ObjSyncTbl;
+	ObjSyncTbl * t = P_TmpTbl ? new ObjSyncTbl(P_TmpTbl->GetName()) : new ObjSyncTbl;
 	{
 		dbe_commid.init();
 		dbe_commid.push(t->CommIdPfx);
@@ -671,7 +671,7 @@ DBQuery * SLAPI PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBE    dbe_commid;
 	TempSyncCmpTbl * p_t = 0;
 	THROW_PP(P_TmpTbl, PPERR_PPVIEWNOTINITED);
-	THROW_MEM(p_t = new TempSyncCmpTbl(P_TmpTbl->fileName));
+	THROW_MEM(p_t = new TempSyncCmpTbl(P_TmpTbl->GetName()));
 	{
 		dbe_commid.init();
 		dbe_commid.push(p_t->CommIdPfx);
@@ -944,7 +944,7 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 		{
 			updateList(-1);
 		}
-		int    setDTS(const TSArray <_ObjSyncEntry> * pData)
+		int    setDTS(const TSVector <_ObjSyncEntry> * pData)
 		{
 			RVALUEPTR(Data, pData);
 			updateList(-1);
@@ -959,7 +959,7 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 			for(uint i = 0; i < Data.getCount(); i++) {
 				// @lbt_objsynctab        "20,L,Раздел;8,R,Общий ИД;8,R,Собственный ИД;12,L,Дата модификации"
 				const _ObjSyncEntry & r_entry = Data.at(i);
-				ss.clear(1);
+				ss.clear();
 				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf.Z());
 				ss.add(temp_buf);
 				ss.add(r_entry.CommID.ToStr(0, temp_buf.Z()));
@@ -969,13 +969,13 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 			}
 			return ok;
 		}
-		TSArray <_ObjSyncEntry> Data;
+		TSVector <_ObjSyncEntry> Data;
 	};
 
 	int    ok = -1;
 	ObjSyncTabDialog * dlg = 0;
 	SString temp_buf;
-	TSArray <_ObjSyncEntry> list;
+	TSVector <_ObjSyncEntry> list;
 	ObjSyncCore * p_tbl = DS.GetTLA().P_ObjSync;
 	ObjSyncTbl::Rec hdr_rec, rec;
 	if(p_tbl->SearchPrivate(oid.Obj, oid.Id, 0, &hdr_rec) > 0) {

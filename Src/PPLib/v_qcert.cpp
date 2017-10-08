@@ -236,7 +236,7 @@ DBQuery * SLAPI PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	QualityCertTbl * qc = 0;
 	ReceiptTbl * rcpt = 0;
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(qc = new QualityCertTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(qc = new QualityCertTbl(P_TempTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, qc->RegOrgan);
 		q = & select(
 			qc->ID,         // #00

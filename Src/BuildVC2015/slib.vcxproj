@@ -3655,6 +3655,7 @@
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\Smath.h" />
+    <ClInclude Include="..\Include\snet.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />
     <ClInclude Include="..\Include\Stype.h" />
     <ClInclude Include="..\Include\sxml.h" />

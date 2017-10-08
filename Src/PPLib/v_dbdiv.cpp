@@ -180,7 +180,7 @@ DBQuery * SLAPI PPViewDBDiv::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	TempDBDivTbl * t = 0;
 	uint   brw_id = BROWSER_DBDIV;
 	DBQ  * dbq = 0;
-	THROW(CheckTblPtr(t = new TempDBDivTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempDBDivTbl(P_TempTbl->GetName())));
 	q = & select(
 			t->ID,            // #0
 			t->Name,          // #1

@@ -469,8 +469,8 @@ int XmlDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		SFormatParam fmt_param;
 		for(uint fld_pos = 0; rRec.GetFieldByPos(fld_pos, &fld) > 0; fld_pos++) {
 			int    r = -1;
-			field_buf = 0;
-			fld_set.clear(1);
+			field_buf.Z();
+			fld_set.clear();
 			if(fld.Name.NotEmpty()) {
 				uint   fld_count = 0; // —четчик тегов в имени пол€, разделенных слышом (\) - т.е.
 					// уровень вложенности пол€.

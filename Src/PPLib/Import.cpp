@@ -2263,7 +2263,7 @@ int SLAPI ImportBanks()
 					rec.get(fldn_region, name);
 					if(name.NotEmptyS()) {
 						char idstr[128];
-						ss.clear(1);
+						ss.clear();
 						ss.add(ltoa(id, idstr, 10));
 						ss.add(name);
 						region_sc.insert(newStr(ss.getBuf()));

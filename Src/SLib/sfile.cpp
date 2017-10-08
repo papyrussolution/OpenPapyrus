@@ -2124,7 +2124,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 							//
 							used_offs_list.clear();
 							binary_chunk_list.Clear();
-							ss_subsigns.clear(1);
+							ss_subsigns.clear();
 							if(entry_sign.HasChr(' ')) {
 								entry_sign.Tokenize(" ", ss_subsigns);
 								for(uint ssp = 0; ss_subsigns.get(&ssp, temp_buf);) {

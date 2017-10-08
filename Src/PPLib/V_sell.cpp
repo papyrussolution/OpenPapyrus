@@ -529,7 +529,7 @@ DBQuery * SLAPI PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * 
 	DBQ * dbq = 0;
 	TempPredictSalesTbl * tt = 0;
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(tt = new TempPredictSalesTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(tt = new TempPredictSalesTbl(P_TempTbl->GetName())));
 		p_q = & select(
 			tt->Dt,           // #0
 			tt->Flags,        // #1

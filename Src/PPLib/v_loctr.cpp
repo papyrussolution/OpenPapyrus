@@ -501,7 +501,7 @@ int SLAPI PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int u
 			TempLocTransfTbl::Rec rec;
 			BillTbl::Rec bill_rec;
 			LongArray seen_list;
-			TSArray <LocTransfTbl::Rec> disp_list;
+			TSVector <LocTransfTbl::Rec> disp_list; // @v9.8.4 TSArray-->TSVector
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
 			THROW(Tbl.GetDisposition(billID, disp_list));
@@ -767,7 +767,7 @@ DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			brw_id = BROWSER_LOCTRANSF_DISP;
 		else if(Filt.Mode == LocTransfFilt::modeEmpty)
 			brw_id = BROWSER_LOCTRANSF_EMPTY;
-		tmpt = new TempLocTransfTbl(P_TempTbl->fileName);
+		tmpt = new TempLocTransfTbl(P_TempTbl->GetName());
 		PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc,   tmpt->LocID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, tmpt->GoodsID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_user,  PPDbqFuncPool::IdObjNameUser,  tmpt->UserID);

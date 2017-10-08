@@ -240,7 +240,7 @@ public:
 	virtual int SLAPI InteractiveQuery()
 	{
 		int    ok = -1;
-		TSArray <PPPosProtocol::QueryBlock> qb_list;
+		TSVector <PPPosProtocol::QueryBlock> qb_list; // @v9.8.4 TSArray-->TSVector
 		if(PPPosProtocol::EditPosQuery(qb_list) > 0) {
 			if(qb_list.getCount()) {
 				for(uint i = 0; i < qb_list.getCount(); i++) {
@@ -3542,7 +3542,7 @@ void SLAPI PPPosProtocol::DestroyReadBlock()
     RdB.Destroy();
 }
 
-int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSArray <PosNodeISymbEntry> & rISymbList, TSArray <PosNodeUuidEntry> & rUuidList)
+int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -3638,8 +3638,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		SString in_path;
 		SDirEntry de;
 		SString done_plus_xml_suffix;
-		TSArray <PosNodeUuidEntry> pos_node_uuid_list;
-		TSArray <PosNodeISymbEntry> pos_node_isymb_list;
+		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
 		StringSet ss_paths;
 
 		(done_plus_xml_suffix = p_done_suffix).Dot().Cat("xml");
@@ -3936,7 +3936,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 
 int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 {
-	rResultSs.clear(1);
+	rResultSs.clear();
 
 	int    ok = -1;
 	const char * p_base_name = "pppp";
@@ -4051,7 +4051,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 }
 
 //static
-int SLAPI PPPosProtocol::EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQList)
+int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
 {
 	enum {
 		qvLastSession = 1,
@@ -4068,7 +4068,7 @@ int SLAPI PPPosProtocol::EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQLi
         {
         	SetupCalPeriod(CTLCAL_POSNQUERY_PERIOD, CTL_POSNQUERY_PERIOD);
         }
-        int    SLAPI setDTS(const TSArray <PPPosProtocol::QueryBlock> * pData)
+        int    SLAPI setDTS(const TSVector <PPPosProtocol::QueryBlock> * pData)
         {
         	int    ok = 1;
         	//RVALUEPTR(Data, pData);
@@ -4083,7 +4083,7 @@ int SLAPI PPPosProtocol::EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQLi
 			SetupCtrls();
         	return ok;
         }
-        int    SLAPI getDTS(TSArray <PPPosProtocol::QueryBlock> * pData)
+        int    SLAPI getDTS(TSVector <PPPosProtocol::QueryBlock> * pData)
         {
         	int    ok = 1;
 			uint   sel = 0;
@@ -4199,7 +4199,7 @@ int SLAPI PPPosProtocol::EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQLi
 			disableCtrl(CTL_POSNQUERY_PERIOD, (qv != qvSessByPeriod));
 			disableCtrl(CTL_POSNQUERY_SESSL, !oneof2(qv, qvSessByNumber, qvSessByID));
 		}
-		TSArray <PPPosProtocol::QueryBlock> Data;
+		TSVector <PPPosProtocol::QueryBlock> Data; // @v9.8.4 TSArray-->TSVector
 	};
 	DIALOG_PROC_BODY(PosQueryDialog, &rQList);
 }

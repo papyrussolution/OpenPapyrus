@@ -209,15 +209,15 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 
 int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, int indent)
 {
-	const char * p_name = NZOR(pFileName, rTbl.fileName);
+	const char * p_name = NZOR(pFileName, rTbl.GetName());
 	Tok(tokCreate).Sp().Tok(tokTable).Sp();
 	Buf.Cat(p_name);
 	Sp().LPar();
 	if(indent)
 		Cr();
-	const  uint c = rTbl.fields.getCount();
+	const  uint c = rTbl.GetFields().getCount();
 	for(uint i = 0; i < c; i++) {
-		const BNField & r_fld = rTbl.fields[i];
+		const BNField & r_fld = rTbl.GetFields()[i];
 		if(indent)
 			Tab();
 		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, Temp.Z()));
@@ -239,11 +239,11 @@ Generator_SQL & Generator_SQL::Eos()
 int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uint n)
 {
 	int    ok = 1;
-	if(n < rTbl.indexes.getNumKeys()) {
+	if(n < rTbl.GetIndices().getNumKeys()) {
 		SString temp_buf;
-		BNKey  key = rTbl.indexes.getKey(n);
+		const  BNKey  key = rTbl.GetIndices().getKey(n);
 		int    fl = key.getFlags();
-		const char * p_name = NZOR(pFileName, rTbl.fileName);
+		const char * p_name = NZOR(pFileName, rTbl.GetName());
 		Tok(tokCreate).Sp();
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
@@ -260,10 +260,10 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 				// Для ORACLE нечувствительность к регистру символов
 				// реализуется функциональным сегментом индекса nls_lower(fld)
 				//
-				Buf.Cat("nls_lower(").Cat(rTbl.indexes.field(n, i).Name).CatChar(')');
+				Buf.Cat("nls_lower(").Cat(rTbl.GetIndices().field(n, i).Name).CatChar(')');
 			}
 			else
-				Buf.Cat(rTbl.indexes.field(n, i).Name);
+				Buf.Cat(rTbl.GetIndices().field(n, i).Name);
 			if(key.getFlags(i) & XIF_DESC) {
 				Buf.Space();
 				Tok(tokDesc);
@@ -282,8 +282,8 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 {
 	int    ok = 1;
-	if(n < rTbl.indexes.getNumKeys())
-		PrefixName(Temp.Z().Cat(rTbl.fileName).Cat("Key").Cat(n), pfxIndex, rBuf, 0);
+	if(n < rTbl.GetIndices().getNumKeys())
+		PrefixName(Temp.Z().Cat(rTbl.GetName()).Cat("Key").Cat(n), pfxIndex, rBuf, 0);
 	else
 		ok = 0;
 	return ok;
@@ -292,10 +292,10 @@ int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 int Generator_SQL::CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal)
 {
 	int    ok = 1;
-	if(fldN < rTbl.fields.getCount()) {
+	if(fldN < rTbl.GetFields().getCount()) {
 		SString temp_buf;
-		const BNField & r_fld = rTbl.fields[fldN];
-		const char * p_name = NZOR(pFileName, rTbl.fileName);
+		const BNField & r_fld = rTbl.GetFields()[fldN];
+		const char * p_name = NZOR(pFileName, rTbl.GetName());
 		Tok(tokCreate).Sp().Tok(tokSequence).Sp();
 		PrefixName(temp_buf.Z().Cat(p_name).CatChar('_').Cat(r_fld.Name), pfxSequence, Temp, 0);
 		Buf.Cat(Temp);
@@ -314,8 +314,8 @@ int Generator_SQL::GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SStri
 {
 	int    ok = 1;
 	rBuf.Z();
-	if(fldN < rTbl.fields.getCount())
-		PrefixName(Temp.Z().Cat(rTbl.fileName).CatChar('_').Cat(rTbl.fields[fldN].Name), pfxSequence, rBuf, 0);
+	if(fldN < rTbl.GetFields().getCount())
+		PrefixName(Temp.Z().Cat(rTbl.GetName()).CatChar('_').Cat(rTbl.GetFields()[fldN].Name), pfxSequence, rBuf, 0);
 	else
 		ok = 0;
 	return ok;
@@ -393,8 +393,7 @@ Generator_SQL & Generator_SQL::HintIndex(const DBTable & rTbl, const char * pAli
 {
 	SString idx_name;
 	if(GetIndexName(rTbl, idxN, idx_name))
-		Tok(desc ? tokHintIndexDesc : tokHintIndexAsc).LPar().
-		Text(pAlias ? pAlias : rTbl.fileName).Sp().Text(idx_name).RPar();
+		Tok(desc ? tokHintIndexDesc : tokHintIndexAsc).LPar().Text(pAlias ? pAlias : rTbl.GetName()).Sp().Text(idx_name).RPar();
 	return *this;
 
 }

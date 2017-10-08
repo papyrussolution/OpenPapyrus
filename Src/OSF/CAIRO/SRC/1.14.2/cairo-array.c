@@ -81,7 +81,7 @@ void FASTCALL _cairo_array_fini(cairo_array_t * array)
  * @additional free spaces in the array. The actual size of the array
  * is always increased by doubling as many times as necessary.
  **/
-cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional)
+cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additional)
 {
 	char * new_elements;
 	uint old_size = array->size;
@@ -114,7 +114,7 @@ cairo_status_t _cairo_array_grow_by(cairo_array_t * array, uint additional)
  * current size. No memory is actually freed. The stored objects
  * beyond @num_elements are simply "forgotten".
  **/
-void _cairo_array_truncate(cairo_array_t * array, uint num_elements)
+void FASTCALL _cairo_array_truncate(cairo_array_t * array, uint num_elements)
 {
 	if(num_elements < array->num_elements)
 		array->num_elements = num_elements;

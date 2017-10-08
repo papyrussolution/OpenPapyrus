@@ -987,7 +987,7 @@ int CfmReckoningDialog::updateList()
 		for(uint i = 0; i < Data.P_BillList->getCount(); i++) {
 			BillTbl::Rec bill_rec;
 			PPID   bill_id = Data.P_BillList->at(i);
-			ss.clear(1);
+			ss.clear();
 			if(P_BObj->Fetch(bill_id, &bill_rec) > 0) {
 				double amt = BR2(bill_rec.Amount);
 				double paym;
@@ -998,7 +998,7 @@ int CfmReckoningDialog::updateList()
 				ss.add(sub.Z().Cat(amt, SFMT_MONEY));
 				ss.add(sub.Z().Cat(amt-paym, SFMT_MONEY));
 				if(P_BObj->FetchExt(bill_id, &ext) > 0 && ext.AgentID) {
-					GetArticleName(ext.AgentID, sub = 0);
+					GetArticleName(ext.AgentID, sub);
 					ss.add(sub);
 				}
 				else

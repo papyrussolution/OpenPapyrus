@@ -47,7 +47,7 @@ public:
 	void   DebugOutput(long flags, SString & rBuf);
 	void   DebugOutputStat(SString & rBuf) const;
 private:
-	class String : public SArray {
+	class String : public SVector { // @v9.8.4 SArray-->SVector
 	public:
 		String(uint itemSize, uint32 id);
 
@@ -55,7 +55,7 @@ private:
         uint   PhasePosition;
 	};
 
-	class StringArray : public TSArray <SSuffixTree::String> {
+	class StringArray : public TSArray <SSuffixTree::String> { 
 	public:
 		StringArray();
 		~StringArray();
@@ -179,8 +179,8 @@ private:
 	String Alphabet; // Список символов, встречающихся во всех строках StrList. Каждый
 		// символ представлен уникально, но массив не отсортирован (Edge ссылается на элементы
 		// массива по индексу позиции [0..]).
-	TSArray <Node> NodeL; // Нулевая позиция в массиве - эксклюзивная
-	TSArray <SSuffixTree::Edge> EdgeL; // Нулевая позиция в массиве - эксклюзивная
+	TSVector <Node> NodeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
+	TSVector <SSuffixTree::Edge> EdgeL; // Нулевая позиция в массиве - эксклюзивная // @v9.8.4 TSArray-->TSVector
 	EdgeHubArray HubL; // Нулевая позиция в массиве - эксклюзивная
 	//
 	// Current phase of Ukkonen's algorithm. In order to implement the "Once a leaf, always a leaf"
@@ -258,7 +258,7 @@ IMPL_CMPFUNC(SfxTreeChr, p1, p2)
     return result;
 }
 
-SSuffixTree::String::String(uint itemSize, uint32 id) : SArray(itemSize, 128, O_ARRAY)
+SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, 128, O_ARRAY) // @v9.8.4 SArray-->SVector
 {
 	ID = id;
 	PhasePosition = 0;

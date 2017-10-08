@@ -345,7 +345,7 @@ xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compression)
+xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr P_Node, int compression)
 {
 	xmlTextWriterPtr ret = 0;
 	xmlSAXHandler saxHandler;
@@ -374,7 +374,7 @@ xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compre
 			}
 			else {
 				ctxt->myDoc = doc;
-				ctxt->node = node;
+				ctxt->P_Node = P_Node;
 				ret->no_doc_free = 1;
 				xmlSetDocCompressMode(doc, compression);
 			}

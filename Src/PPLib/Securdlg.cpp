@@ -604,7 +604,7 @@ int ActiveUserListDlg::setupList()
 			uint   pos = i + 1;
 			LDATETIME login_dtm;
 			PPSyncItem * p_item = &SyncAry.at(i);
-			ss.clear(1);
+			ss.clear();
 			ss.add(p_item->Name, 0);
 			ss.add(buf.Z().Cat(p_item->ID), 0);
 			ss.add(buf.Z().Cat(p_item->ObjID), 0);

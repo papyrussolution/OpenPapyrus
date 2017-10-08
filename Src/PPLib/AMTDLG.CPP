@@ -137,7 +137,7 @@ int AmtListDialog::setupListEntry(PPID idx, AmtEntry * pEntry)
 		PPObjCurrency cur_obj;
 		PPCurrency cur_rec;
 		if(pEntry->CurID == 0)
-			sub = 0;
+			sub.Z();
 		else if(cur_obj.Fetch(pEntry->CurID, &cur_rec) > 0)
 			sub = amt_rec.Symb;
 		else
@@ -280,7 +280,7 @@ int StaffAmtListDialog::setupList()
 	uint   i;
 	StaffAmtEntry * p_entry;
 	for(i = 0; Data.enumItems(&i, (void**)&p_entry);) {
-		ss.clear(1);
+		ss.clear();
 		if(at_obj.Search(p_entry->AmtTypeID, &at_rec) > 0)
 			sub = at_rec.Name;
 		else
@@ -292,7 +292,7 @@ int StaffAmtListDialog::setupList()
 			else if(p_entry->CurID > 0)
 				ideqvalstr(p_entry->CurID, sub.Z());
 			else
-				sub = 0;
+				sub.Z();
 			ss.add(sub);
 		}
 		ss.add(sub.Z().Cat(p_entry->Period, 1));

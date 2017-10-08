@@ -206,10 +206,7 @@ void * SLob::GetRawDataPtr()
 
 size_t SLob::GetPtrSize() const
 {
-	if(IsStructured())
-		return (Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0;
-	else
-		return 0;
+	return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0;
 }
 
 int SLob::Serialize(int dir, size_t flatSize, uint8 * pInd, SBuffer & rBuf)
@@ -251,7 +248,7 @@ int SLob::Serialize(int dir, size_t flatSize, uint8 * pInd, SBuffer & rBuf)
 //
 //
 //
-DBLobBlock::DBLobBlock() : SArray(sizeof(DBLobItem))
+DBLobBlock::DBLobBlock() : SVector(sizeof(DBLobItem)) // @v9.8.4 SArray-->SVector
 {
 }
 
@@ -360,7 +357,7 @@ int (*DBTable::OpenExceptionProc)(const char * pFileName, int btrErr) = 0; // @g
 int SLAPI DBTable::Init(DbProvider * pDbP)
 {
 	index  = 0;
-	buf    = 0;
+	P_DBuf = 0;
 	bufLen = 0;
 	State  = 0;
 	FixRecSize = 0;
@@ -418,7 +415,7 @@ SLAPI DBTable::~DBTable()
 {
 	close();
 	if(State & sOwnDataBuf)
-		ZFREE(buf);
+		ZFREE(P_DBuf);
 	ZDELETE(P_Stmt);
 	ZDELETE(P_OppStmt);
 }
@@ -553,24 +550,24 @@ int SLAPI DBTable::getFieldByName(const char * pName, DBField * pFld) const
 
 int SLAPI DBTable::getFieldValue(uint fldN, void * pBuf, size_t * pSize) const
 {
-	return (buf && fldN < fields.getCount()) ? fields[fldN].getValue(buf, pBuf, pSize) : 0;
+	return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].getValue(P_DBuf, pBuf, pSize) : 0;
 }
 
 int SLAPI DBTable::setFieldValue(uint fldN, const void * pBuf)
 {
-	return (buf && fldN < fields.getCount()) ? fields[fldN].setValue(buf, pBuf) : 0;
+	return (P_DBuf && fldN < fields.getCount()) ? fields[fldN].setValue(P_DBuf, pBuf) : 0;
 }
 
 int SLAPI DBTable::getFieldValByName(const char * pName, void * pVal, size_t * pSize) const
 {
 	const  BNField * f = &fields.getField(pName, 0);
-	return (buf && f) ? f->getValue(buf, pVal, pSize) : 0;
+	return (P_DBuf && f) ? f->getValue(P_DBuf, pVal, pSize) : 0;
 }
 
 int SLAPI DBTable::setFieldValByName(const char * pName, const void * pVal)
 {
 	const  BNField * f = &fields.getField(pName, 0);
-	return (f && buf) ? f->setValue(buf, pVal) : 0;
+	return (f && P_DBuf) ? f->setValue(P_DBuf, pVal) : 0;
 }
 
 int SLAPI DBTable::putRecToString(SString & rBuf, int withFieldNames)
@@ -579,7 +576,7 @@ int SLAPI DBTable::putRecToString(SString & rBuf, int withFieldNames)
 	for(uint i = 0; i < fields.getCount(); i++) {
 		char   temp_buf[1024];
 		const BNField & f = fields[i];
-		f.putValueToString(buf, temp_buf);
+		f.putValueToString(P_DBuf, temp_buf);
 		if(withFieldNames)
 			rBuf.CatEq(f.Name, temp_buf);
 		else
@@ -593,11 +590,11 @@ int DBTable::allocOwnBuffer(int size)
 {
 	int    ok = 1;
 	RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : (RECORDSIZE)size;
-	if(buf && State & sOwnDataBuf) {
-		ZFREE(buf);
+	if(P_DBuf && State & sOwnDataBuf) {
+		ZFREE(P_DBuf);
 	}
-	buf = (char *)SAlloc::C(rec_size+1, 1);
-	if(buf)
+	P_DBuf = (char *)SAlloc::C(rec_size+1, 1);
+	if(P_DBuf)
 		bufLen = rec_size;
 	else {
 		bufLen = 0;
@@ -609,51 +606,51 @@ int DBTable::allocOwnBuffer(int size)
 void FASTCALL DBTable::setDataBuf(void * pBuf, RECORDSIZE aBufLen)
 {
 	if(State & sOwnDataBuf)
-		ZFREE(buf);
-	buf    = pBuf;
+		ZFREE(P_DBuf);
+	P_DBuf = pBuf;
 	bufLen = aBufLen;
 }
 
 void FASTCALL DBTable::setBuffer(SBaseBuffer & rBuf)
 {
 	if(State & sOwnDataBuf)
-		ZFREE(buf);
-	buf    = rBuf.P_Buf;
+		ZFREE(P_DBuf);
+	P_DBuf = rBuf.P_Buf;
 	bufLen = (RECORDSIZE)rBuf.Size;
 }
 
 const SBaseBuffer FASTCALL DBTable::getBuffer() const
 {
 	SBaseBuffer ret_buf;
-	ret_buf.P_Buf = (char *)buf; // @trick
+	ret_buf.P_Buf = (char *)P_DBuf; // @trick
 	ret_buf.Size = bufLen;
 	return ret_buf;
 }
 
 void SLAPI DBTable::clearDataBuf()
 {
-	memzero(buf, bufLen);
+	memzero(P_DBuf, bufLen);
 }
 
 void FASTCALL DBTable::copyBufFrom(const void * pBuf)
 {
-	if(pBuf && buf) {
-		memcpy(buf, pBuf, bufLen);
+	if(pBuf && P_DBuf) {
+		memcpy(P_DBuf, pBuf, bufLen);
 	}
 }
 
 void FASTCALL DBTable::copyBufFrom(const void * pBuf, size_t srcBufSize)
 {
-	if(pBuf && buf) {
+	if(pBuf && P_DBuf) {
 		size_t s = (srcBufSize && srcBufSize < bufLen) ? srcBufSize : bufLen;
-		memcpy(buf, pBuf, s);
+		memcpy(P_DBuf, pBuf, s);
 	}
 }
 
 void FASTCALL DBTable::copyBufTo(void * pBuf) const
 {
-	if(pBuf && buf)
-		memcpy(pBuf, buf, bufLen);
+	if(pBuf && P_DBuf)
+		memcpy(pBuf, P_DBuf, bufLen);
 }
 
 int SLAPI DBTable::copyBufToKey(int idx, void * pKey) const
@@ -667,7 +664,7 @@ int SLAPI DBTable::copyBufToKey(int idx, void * pKey) const
 		size_t offs = 0;
 		for(int i = 0; i < ns; i++) {
 			size_t sz;
-			indexes.field(idx, i).getValue(buf, PTR8(pKey)+offs, &sz);
+			indexes.field(idx, i).getValue(P_DBuf, PTR8(pKey)+offs, &sz);
 			offs += sz;
 		}
 	}
@@ -864,7 +861,7 @@ int SLAPI DBTable::StoreAndTrimLob()
 				uint32 lob_sz = p_lob_item->Size;
 				LobB.Storage.Write(lob_sz);
 				if(lob_sz) {
-					SLob * p_lob = (SLob *)(PTR8(buf)+r_fld.Offs);
+					SLob * p_lob = (SLob *)(PTR8(P_DBuf)+r_fld.Offs);
 					THROW_DS(p_lob->Serialize(+1, stsize(r_fld.T), &p_lob_item->StrgInd, LobB.Storage));
 					p_lob->Empty();
 					p_lob_item->Size = 0;
@@ -891,7 +888,7 @@ int SLAPI DBTable::RestoreLob()
 				uint32 lob_sz = 0;
 				THROW(LobB.Storage.Read(lob_sz));
 				if(lob_sz) {
-					SLob * p_lob = (SLob *)(PTR8(buf)+r_fld.Offs);
+					SLob * p_lob = (SLob *)(PTR8(P_DBuf)+r_fld.Offs);
 					THROW_DS(p_lob->Serialize(-1, stsize(r_fld.T), &p_lob_item->StrgInd, LobB.Storage));
 				}
 				p_lob_item->Size = lob_sz;
@@ -1122,13 +1119,11 @@ int SLAPI DBTable::SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerial
 	return ok;
 }
 
-int SLAPI DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx)
+int SLAPI DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	int32  c = pList ? pList->getCount() : 0; // @persistent
 	STempBuffer temp_buf(0);
-	if(dir < 0 && pList)
-		pList->freeAll();
 	THROW(pCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		if(pList) {
@@ -1147,4 +1142,19 @@ int SLAPI DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rB
 	}
 	CATCHZOK
 	return ok;
+}
+
+
+int SLAPI DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	if(dir < 0 && pList)
+		pList->freeAll();
+	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
+}
+
+int SLAPI DBTable::SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx)
+{
+	if(dir < 0 && pList)
+		pList->freeAll();
+	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
 }

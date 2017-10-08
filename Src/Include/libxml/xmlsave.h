@@ -44,7 +44,7 @@ XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToFilename(const char * filename, const 
 XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToBuffer(xmlBufferPtr buffer, const char * encoding, int options);
 XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
 XMLPUBFUN long XMLCALL xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDocPtr doc);
-XMLPUBFUN long XMLCALL xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNode * node);
+XMLPUBFUN long XMLCALL xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNode * P_Node);
 XMLPUBFUN int XMLCALL xmlSaveFlush(xmlSaveCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlSaveClose(xmlSaveCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlSaveSetEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape);

@@ -82,7 +82,7 @@ typedef struct _xmlParserNodeInfo xmlParserNodeInfo;
 typedef xmlParserNodeInfo * xmlParserNodeInfoPtr;
 
 struct _xmlParserNodeInfo {
-	const struct _xmlNode* node;
+	const struct _xmlNode* P_Node;
 	// Position & line # that text that created the node begins & ends on 
 	ulong  begin_pos;
 	ulong  begin_line;
@@ -175,77 +175,78 @@ typedef enum {
  *      to a state based parser for progressive parsing shouldn't be too hard.
  */
 struct xmlParserCtxt {
-	xmlParserInput * input;      // Current input stream
-	struct xmlSAXHandler * sax;  // The SAX handler
-	void * userData;              // For SAX interface only, used by DOM build
-	xmlDoc * myDoc;              // the document being built
-	int wellFormed;               // is the document well formed
-	int replaceEntities;          // shall we replace entities ?
-	const xmlChar * version;      // the XML version string
-	const xmlChar * encoding;     // the declared encoding, if any
+	xmlParserInput * input;          // Current input stream
+	struct xmlSAXHandler * sax;      // The SAX handler
+	void * userData;                 // For SAX interface only, used by DOM build
+	xmlDoc * myDoc;                  // the document being built
+	int    wellFormed;               // is the document well formed
+	int    replaceEntities;          // shall we replace entities ?
+	const  xmlChar * version;        // the XML version string
+	const  xmlChar * encoding;       // the declared encoding, if any
 	int    standalone;               // standalone document
 	int    html;                     // an HTML(1)/Docbook(2) document 3 is HTML after <head> 10 is HTML after <body>
 	// Input stream stack
 	int    inputNr;                  // Number of current input streams
 	int    inputMax;                 // Max number of input streams
-	xmlParserInput ** inputTab; // stack of inputs
+	xmlParserInput ** inputTab;      // stack of inputs
 	// Node analysis stack only used for DOM building
-	xmlNode * node;              // Current parsed Node
+	xmlNode * P_Node;                // Current parsed Node
 	int    nodeNr;                   // Depth of the parsing stack
 	int    nodeMax;                  // Max depth of the parsing stack
-	xmlNode ** nodeTab;         // array of nodes
+	xmlNode ** PP_NodeTab;           // array of nodes
 	int    record_info;              // Whether node info should be kept
-	xmlParserNodeInfoSeq node_seq; // info about each node parsed
+	xmlParserNodeInfoSeq node_seq;   // info about each node parsed
 	int    errNo;                    // error code
 	int    hasExternalSubset;        // reference and external subset
 	int    hasPErefs;                // the internal subset has PE refs
 	int    external;                 // are we parsing an external entity
 	int    valid;                    // is the document valid
 	int    validate;                 // shall we try to validate ?
-	xmlValidCtxt vctxt;           // The validity context
-	xmlParserInputState instate;  // current type of input
+	xmlValidCtxt vctxt;              // The validity context
+	xmlParserInputState instate;     // current type of input
 	int    token;                    // next char look-ahead
 	char * directory;   // the data directory
 	// Node name stack
-	const  xmlChar * name;     // Current parsed Node
+	const  xmlChar * name;           // Current parsed Node
 	int    nameNr;                   // Depth of the parsing stack
 	int    nameMax;                  // Max depth of the parsing stack
-	const  xmlChar ** nameTab;     // array of nodes
-	long   nbChars;                 // number of xmlChar processed
-	long   checkIndex;              // used by progressive parsing lookup
-	int    keepBlanks;               // ugly but ...
-	int    disableSAX;               // SAX callbacks are disabled
+	const  xmlChar ** nameTab;       // array of nodes
+	long   nbChars;                  // number of xmlChar processed
+	long   CheckIndex;               // used by progressive parsing lookup
+	int    keepBlanks;               // (bool) ugly but ...
+	int    disableSAX;               // (bool) SAX callbacks are disabled
+	int    pedantic;                 // (bool) signal pedantic warnings
+	int    recovery;                 // (bool) run in recovery mode
+	int    docdict;                  // (bool) use strings from dict to build tree
+	int    nsWellFormed;             // (bool) is the document XML Nanespace okay
 	int    inSubset;                 // Parsing is in int 1/ext 2 subset
-	const xmlChar *    intSubName; // name of subset
+	const xmlChar * intSubName; // name of subset
 	xmlChar * extSubURI; // URI of external subset
 	xmlChar * extSubSystem; // SYSTEM ID of external subset
 	// xml:space values
-	int  * space;     // Should the parser preserve spaces
+	int  * space;                    // Should the parser preserve spaces
 	int    spaceNr;                  // Depth of the parsing stack
 	int    spaceMax;                 // Max depth of the parsing stack
-	int  * spaceTab;  // array of space infos
+	int  * spaceTab;                 // array of space infos
 	int    depth;                    // to prevent entity substitution loops
-	xmlParserInputPtr entity;     // used to check entities boundaries
+	xmlParserInput * entity;         // used to check entities boundaries
 	int    charset;                  // encoding of the in-memory content actually an xmlCharEncoding
 	int    nodelen;                  // Those two fields are there to
 	int    nodemem;                  // Speed up large node parsing
-	int    pedantic;                 // signal pedantic warnings
-	void * _private; // For user data, libxml won't touch it
+	void * _private;                 // For user data, libxml won't touch it
 	int    loadsubset;               // should the external subset be loaded
 	int    linenumbers;              // set line number in element content
-	void * catalogs; // document's own catalog
-	int    recovery;                 // run in recovery mode
+	void * catalogs;                 // document's own catalog
 	int    progressive;              // is this a progressive parsing
-	xmlDict * dict;              // dictionnary for the parser
-	const xmlChar ** atts;        // array for the attributes callbacks
+	xmlDict * dict;                  // dictionnary for the parser
+	const xmlChar ** atts;           // array for the attributes callbacks
 	int    maxatts;                  // the size of the array
-	int    docdict;                  // use strings from dict to build tree
 	//
 	// pre-interned strings
 	//
-	const xmlChar * str_xml;
-	const xmlChar * str_xmlns;
-	const xmlChar * str_xml_ns;
+	const  xmlChar * str_xml;
+	const  xmlChar * str_xmlns;
+	const  xmlChar * str_xml_ns;
 	//
 	// Everything below is used only by the new SAX mode
 	//
@@ -257,7 +258,6 @@ struct xmlParserCtxt {
 	void ** pushTab;              // array of data for push
 	xmlHashTable * attsDefault;  // defaulted attributes if any
 	xmlHashTable * attsSpecial;  // non-CDATA attributes if any
-	int    nsWellFormed;             // is the document XML Nanespace okay
 	int    options;                  // Extra options
 	//
 	// Those fields are needed only for treaming parsing so far
@@ -782,7 +782,7 @@ XMLPUBFUN int XMLCALL xmlParseExtParsedEnt(xmlParserCtxt * ctxt);
 #ifdef LIBXML_SAX1_ENABLED
 	XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemory(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst);
 #endif /* LIBXML_SAX1_ENABLED */
-XMLPUBFUN xmlParserErrors XMLCALL xmlParseInNodeContext(xmlNode * node, const char * data, int datalen, int options, xmlNode ** lst);
+XMLPUBFUN xmlParserErrors XMLCALL xmlParseInNodeContext(xmlNode * P_Node, const char * data, int datalen, int options, xmlNode ** lst);
 #ifdef LIBXML_SAX1_ENABLED
 	XMLPUBFUN int XMLCALL xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * string, xmlNode ** lst, int recover);
 	XMLPUBFUN int XMLCALL xmlParseExternalEntity(xmlDocPtr doc, xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst);
@@ -823,10 +823,10 @@ XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewIOInputStream(xmlParserCtxt * ctxt, xm
 /*
  * Node infos.
  */
-XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt, const xmlNode * node);
+XMLPUBFUN const xmlParserNodeInfo* XMLCALL xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt, const xmlNode * P_Node);
 XMLPUBFUN void XMLCALL xmlInitNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
 XMLPUBFUN void XMLCALL xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq);
-XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * node);
+XMLPUBFUN unsigned long XMLCALL xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * P_Node);
 XMLPUBFUN void XMLCALL xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info);
 /*
  * External entities handling actually implemented in xmlIO.

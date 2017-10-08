@@ -1004,41 +1004,18 @@ TRIO_PRIVATE trio_long_double_t TrioPower(int number, int exponent)
 	trio_long_double_t result;
 	if(number == 10) {
 		switch(exponent) {
-			/* Speed up calculation of common cases */
-			case 0:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E-1);
-			    break;
-			case 1:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+0);
-			    break;
-			case 2:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+1);
-			    break;
-			case 3:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+2);
-			    break;
-			case 4:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+3);
-			    break;
-			case 5:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+4);
-			    break;
-			case 6:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+5);
-			    break;
-			case 7:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+6);
-			    break;
-			case 8:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+7);
-			    break;
-			case 9:
-			    result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+8);
-			    break;
-			default:
-			    result = powl((trio_long_double_t)number,
-			    (trio_long_double_t)exponent);
-			    break;
+			// Speed up calculation of common cases 
+			case 0: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E-1); break;
+			case 1: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+0); break;
+			case 2: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+1); break;
+			case 3: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+2); break;
+			case 4: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+3); break;
+			case 5: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+4); break;
+			case 6: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+5); break;
+			case 7: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+6); break;
+			case 8: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+7); break;
+			case 9: result = (trio_long_double_t)number * TRIO_SUFFIX_LONG(1E+8); break;
+			default: result = powl((trio_long_double_t)number, (trio_long_double_t)exponent); break;
 		}
 	}
 	else {
@@ -1156,22 +1133,18 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			currentParam = TrioGetPosition(format, &index);
 			positional = (NO_POSITION != currentParam);
 			if(!positional) {
-				/* We have no positional, get the next counter */
-				currentParam = parameterPosition;
+				currentParam = parameterPosition; // We have no positional, get the next counter 
 			}
 			if(currentParam >= MAX_PARAMETERS) {
-				/* Bail out completely to make the error more obvious */
-				return TRIO_ERROR_RETURN(TRIO_ETOOMANY, index);
+				return TRIO_ERROR_RETURN(TRIO_ETOOMANY, index); // Bail out completely to make the error more obvious 
 			}
 			if(currentParam > maxParam)
 				maxParam = currentParam;
-
 			/* Default values */
 			width = NO_WIDTH;
 			precision = NO_PRECISION;
 			base = NO_BASE;
 			varsize = NO_SIZE;
-
 			while(TrioIsQualifier(format[index])) {
 				ch = format[index++];
 				switch(ch) {
@@ -1320,9 +1293,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					    /* &format[index - 1] is used to "rewind" the read
 					     * character from format
 					     */
-					    width = trio_to_long(&format[index - 1],
-					    &tmpformat,
-					    BASE_DECIMAL);
+					    width = trio_to_long(&format[index - 1], &tmpformat, BASE_DECIMAL);
 					    index = (int)(tmpformat - format);
 					    break;
 
@@ -1343,7 +1314,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					    else
 						    flags |= FLAGS_LONG;
 					    break;
-
 					case QUALIFIER_LONG_UPPER:
 					    flags |= FLAGS_LONGDOUBLE;
 					    break;
@@ -1413,31 +1383,26 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					    flags |= FLAGS_FIXED_SIZE;
 					    break;
 #endif
-
 #if defined(QUALIFIER_WIDECHAR)
 					case QUALIFIER_WIDECHAR:
 					    flags |= FLAGS_WIDECHAR;
 					    break;
 #endif
-
 #if defined(QUALIFIER_SIZE_T_UPPER)
 					case QUALIFIER_SIZE_T_UPPER:
 					    break;
 #endif
-
 #if defined(QUALIFIER_QUOTE)
 					case QUALIFIER_QUOTE:
 					    flags |= FLAGS_QUOTE;
 					    break;
 #endif
-
 #if defined(QUALIFIER_STICKY)
 					case QUALIFIER_STICKY:
 					    flags |= FLAGS_STICKY;
 					    gotSticky = TRUE;
 					    break;
 #endif
-
 #if defined(QUALIFIER_VARSIZE)
 					case QUALIFIER_VARSIZE:
 					    flags |= FLAGS_VARSIZE_PARAMETER;
@@ -1452,22 +1417,17 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 						    maxParam = currentParam;
 					    break;
 #endif
-
 #if defined(QUALIFIER_ROUNDING_UPPER)
 					case QUALIFIER_ROUNDING_UPPER:
 					    flags |= FLAGS_ROUNDING;
 					    break;
 #endif
-
 					default:
-					    /* Bail out completely to make the error more obvious */
-					    return TRIO_ERROR_RETURN(TRIO_EINVAL, index);
+					    return TRIO_ERROR_RETURN(TRIO_EINVAL, index); // Bail out completely to make the error more obvious 
 				}
 			} /* while qualifier */
-
 			/*
-			 * Parameters only need the type and value. The value is
-			 * read later.
+			 * Parameters only need the type and value. The value is read later.
 			 */
 			if(flags & FLAGS_WIDTH_PARAMETER) {
 				usedEntries[width] += 1;
@@ -1497,11 +1457,8 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				indices[varsize] = pos;
 				varsize = pos++;
 			}
-
 			indices[currentParam] = pos;
-
-			switch(format[index++])
-			{
+			switch(format[index++]) {
 #if defined(SPECIFIER_CHAR_UPPER)
 				case SPECIFIER_CHAR_UPPER:
 				    flags |= FLAGS_WIDECHAR;
@@ -1553,30 +1510,25 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					    }
 				    }
 				    break;
-
 				case SPECIFIER_INTEGER:
 				    parameters[pos].type = FORMAT_INT;
 				    break;
-
 				case SPECIFIER_UNSIGNED:
 				    flags |= FLAGS_UNSIGNED;
 				    parameters[pos].type = FORMAT_INT;
 				    break;
-
 				case SPECIFIER_DECIMAL:
 				    /* Disable base modifier */
 				    flags &= ~FLAGS_BASE_PARAMETER;
 				    base = BASE_DECIMAL;
 				    parameters[pos].type = FORMAT_INT;
 				    break;
-
 				case SPECIFIER_OCTAL:
 				    flags |= FLAGS_UNSIGNED;
 				    flags &= ~FLAGS_BASE_PARAMETER;
 				    base = BASE_OCTAL;
 				    parameters[pos].type = FORMAT_INT;
 				    break;
-
 #if defined(SPECIFIER_BINARY)
 				case SPECIFIER_BINARY_UPPER:
 				    flags |= FLAGS_UPPER;
@@ -1588,7 +1540,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				    parameters[pos].type = FORMAT_INT;
 				    break;
 #endif
-
 				case SPECIFIER_HEX_UPPER:
 				    flags |= FLAGS_UPPER;
 				// @fallthrough
@@ -1598,7 +1549,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				    base = BASE_HEX;
 				    parameters[pos].type = FORMAT_INT;
 				    break;
-
 				case SPECIFIER_FLOAT_E_UPPER:
 				    flags |= FLAGS_UPPER;
 				// @fallthrough
@@ -1606,7 +1556,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				    flags |= FLAGS_FLOAT_E;
 				    parameters[pos].type = FORMAT_DOUBLE;
 				    break;
-
 				case SPECIFIER_FLOAT_G_UPPER:
 				    flags |= FLAGS_UPPER;
 				// @fallthrough
@@ -1614,14 +1563,12 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				    flags |= FLAGS_FLOAT_G;
 				    parameters[pos].type = FORMAT_DOUBLE;
 				    break;
-
 				case SPECIFIER_FLOAT_F_UPPER:
 				    flags |= FLAGS_UPPER;
 				// @fallthrough
 				case SPECIFIER_FLOAT_F:
 				    parameters[pos].type = FORMAT_DOUBLE;
 				    break;
-
 				case SPECIFIER_POINTER:
 				    if(sizeof(trio_pointer_t) == sizeof(trio_ulonglong_t))
 					    flags |= FLAGS_QUAD;
@@ -1629,11 +1576,9 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					    flags |= FLAGS_LONG;
 				    parameters[pos].type = FORMAT_POINTER;
 				    break;
-
 				case SPECIFIER_COUNT:
 				    parameters[pos].type = FORMAT_COUNT;
 				    break;
-
 #if defined(SPECIFIER_HEXFLOAT)
 # if defined(SPECIFIER_HEXFLOAT_UPPER)
 				case SPECIFIER_HEXFLOAT_UPPER:
@@ -1645,23 +1590,19 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 				    parameters[pos].type = FORMAT_DOUBLE;
 				    break;
 #endif
-
 #if defined(FORMAT_ERRNO)
 				case SPECIFIER_ERRNO:
 				    parameters[pos].type = FORMAT_ERRNO;
 				    break;
 #endif
-
 #if defined(SPECIFIER_USER_DEFINED_BEGIN)
 				case SPECIFIER_USER_DEFINED_BEGIN:
 			    {
 				    uint max;
 				    int without_namespace = TRUE;
-
 				    parameters[pos].type = FORMAT_USER_DEFINED;
 				    parameters[pos].user_name[0] = NIL;
 				    tmpformat = (char*)&format[index];
-
 				    while((ch = format[index])) {
 					    index++;
 					    if(ch == SPECIFIER_USER_DEFINED_END) {
@@ -1683,9 +1624,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 						    max = (uint)(&format[index] - tmpformat);
 						    if(max > MAX_USER_DATA)
 							    max = MAX_USER_DATA;
-						    trio_copy_max(parameters[pos].user_data,
-							    max,
-							    tmpformat);
+						    trio_copy_max(parameters[pos].user_data, max, tmpformat);
 						    break; /* while */
 					    }
 					    if(ch == SPECIFIER_USER_DEFINED_SEPARATOR) {
@@ -1694,9 +1633,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 						    max = (int)(&format[index] - tmpformat);
 						    if(max > MAX_USER_NAME)
 							    max = MAX_USER_NAME;
-						    trio_copy_max(parameters[pos].user_name,
-							    max,
-							    tmpformat);
+						    trio_copy_max(parameters[pos].user_name, max, tmpformat);
 						    tmpformat = (char*)&format[index];
 					    }
 				    }
@@ -1705,22 +1642,17 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			    }
 			    break;
 #endif /* defined(SPECIFIER_USER_DEFINED_BEGIN) */
-
 				default:
-				    /* Bail out completely to make the error more obvious */
-				    return TRIO_ERROR_RETURN(TRIO_EINVAL, index);
+				    return TRIO_ERROR_RETURN(TRIO_EINVAL, index); // Bail out completely to make the error more obvious 
 			}
-
 			/*  Count the number of times this entry has been used */
 			usedEntries[currentParam] += 1;
-
 			/* Find last sticky parameters */
 			if(gotSticky && !(flags & FLAGS_STICKY)) {
 				for(i = pos - 1; i >= 0; i--) {
 					if(parameters[i].type == FORMAT_PARAMETER)
 						continue;
-					if((parameters[i].flags & FLAGS_STICKY) &&
-					    (parameters[i].type == parameters[pos].type)) {
+					if((parameters[i].flags & FLAGS_STICKY) && (parameters[i].type == parameters[pos].type)) {
 						/* Do not overwrite current qualifiers */
 						flags |= (parameters[i].flags & (unsigned long)~FLAGS_STICKY);
 						if(width == NO_WIDTH)
@@ -1733,7 +1665,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 					}
 				}
 			}
-
 			parameters[pos].indexAfterSpecifier = index;
 			parameters[pos].flags = flags;
 			parameters[pos].width = width;
@@ -1741,12 +1672,10 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			parameters[pos].base = (base == NO_BASE) ? BASE_DECIMAL : base;
 			parameters[pos].varsize = varsize;
 			pos++;
-
 			if(!positional)
 				parameterPosition++;
 		} /* if identifier */
 	} /* while format characters left */
-
 	for(num = 0; num <= maxParam; num++) {
 		if(usedEntries[num] != 1) {
 			if(usedEntries[num] == 0) /* gap detected */
@@ -1754,9 +1683,7 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			else /* double references detected */
 				return TRIO_ERROR_RETURN(TRIO_EDBLREF, num);
 		}
-
 		i = indices[num];
-
 		/*
 		 * FORMAT_PARAMETERS are only present if they must be read,
 		 * so it makes no sense to check the ignore flag (besides,
@@ -1764,7 +1691,6 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 		 */
 		if((parameters[i].type != FORMAT_PARAMETER) && (parameters[i].flags & FLAGS_IGNORE))
 			continue;  /* for all arguments */
-
 		/*
 		 * The stack arguments are read according to ANSI C89
 		 * default argument promotions:
@@ -1797,12 +1723,9 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 			    else
 #endif
 			    {
-				    parameters[i].data.string = (argarray == NULL)
-				    ? va_arg(TRIO_VA_LIST_DEREF(arglist), char *)
-				    : (char*)(argarray[num]);
+				    parameters[i].data.string = (argarray == NULL) ? va_arg(TRIO_VA_LIST_DEREF(arglist), char *) : (char*)(argarray[num]);
 			    }
 			    break;
-
 #if defined(FORMAT_USER_DEFINED)
 			case FORMAT_USER_DEFINED:
 #endif
@@ -1862,16 +1785,12 @@ TRIO_PRIVATE int TrioParse(int type, TRIO_CONST char * format, trio_parameter_t 
 #endif /* defined(QUALIFIER_VARSIZE) */
 #if defined(QUALIFIER_SIZE_T) || defined(QUALIFIER_SIZE_T_UPPER)
 				    if(parameters[i].flags & FLAGS_SIZE_T)
-					    parameters[i].data.number.as_unsigned = (argarray == NULL)
-					    ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), size_t)
-					    : (trio_uintmax_t)(*((size_t*)argarray[num]));
+					    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), size_t) : (trio_uintmax_t)(*((size_t*)argarray[num]));
 				    else
 #endif
 #if defined(QUALIFIER_PTRDIFF_T)
 				    if(parameters[i].flags & FLAGS_PTRDIFF_T)
-					    parameters[i].data.number.as_unsigned = (argarray == NULL)
-					    ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), ptrdiff_t)
-					    : (trio_uintmax_t)(*((ptrdiff_t*)argarray[num]));
+					    parameters[i].data.number.as_unsigned = (!argarray) ? (trio_uintmax_t)va_arg(TRIO_VA_LIST_DEREF(arglist), ptrdiff_t) : (trio_uintmax_t)(*((ptrdiff_t*)argarray[num]));
 				    else
 #endif
 #if defined(QUALIFIER_INTMAX_T)
@@ -2057,16 +1976,12 @@ TRIO_PRIVATE void TrioWriteNumber(trio_class_t * self, trio_uintmax_t number, tr
 	}
 
 	/* Calculate padding */
-	count = (!((flags & FLAGS_LEFTADJUST) || (precision == NO_PRECISION)))
-	    ? precision
-	    : 0;
-
+	count = (!((flags & FLAGS_LEFTADJUST) || (precision == NO_PRECISION))) ? precision : 0;
 	/* Adjust width further */
 	if(isNegative || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
 		width--;
 	if((flags & FLAGS_ALTERNATIVE) && !isNumberZero) {
-		switch(base)
-		{
+		switch(base) {
 			case BASE_BINARY:
 			case BASE_HEX:
 			    width -= 2;
@@ -2081,12 +1996,10 @@ TRIO_PRIVATE void TrioWriteNumber(trio_class_t * self, trio_uintmax_t number, tr
 	}
 
 	/* Output prefixes spaces if needed */
-	if(!((flags & FLAGS_LEFTADJUST) ||
-		    ((flags & FLAGS_NILPADDING) && (precision == NO_PRECISION)))) {
+	if(!((flags & FLAGS_LEFTADJUST) || ((flags & FLAGS_NILPADDING) && (precision == NO_PRECISION)))) {
 		while(width-- > count)
 			self->OutStream(self, CHAR_ADJUST);
 	}
-
 	/* width has been adjusted for signs and alternatives */
 	if(isNegative)
 		self->OutStream(self, '-');
@@ -4161,33 +4074,26 @@ TRIO_PRIVATE int TrioGetCharacterClass(TRIO_CONST char * format, int * indexPoin
 				    return TRIO_ERROR_RETURN(TRIO_EINVAL, index);
 			    if(range_begin > range_end)
 				    return TRIO_ERROR_RETURN(TRIO_ERANGE, index);
-
 			    for(i = (int)range_begin; i <= (int)range_end; i++)
 				    characterclass[i]++;
-
 			    ch = range_end;
 			    break;
-
 #if TRIO_EXTENSION
-
 			case SPECIFIER_GROUP:
 			    switch(format[index + 1]) {
 				    case QUALIFIER_DOT: /* Collating symbol */
 					/*
 					 * FIXME: This will be easier to implement when multibyte
-					 * characters have been implemented. Until now, we ignore
-					 * this feature.
+					 * characters have been implemented. Until now, we ignore this feature.
 					 */
 					for(i = index + 2;; i++) {
 						if(format[i] == NIL)
-							/* Error in syntax */
-							return -1;
+							return -1; /* Error in syntax */
 						else if(format[i] == QUALIFIER_DOT)
 							break;  /* for */
 					}
 					if(format[++i] != SPECIFIER_UNGROUP)
 						return -1;
-
 					index = i;
 					break;
 
@@ -4195,7 +4101,6 @@ TRIO_PRIVATE int TrioGetCharacterClass(TRIO_CONST char * format, int * indexPoin
 				{
 					uint j;
 					uint k;
-
 					if(internalCollationUnconverted) {
 						/* Lazy evaluation of collation array */
 						TrioGetCollation();
@@ -4203,8 +4108,7 @@ TRIO_PRIVATE int TrioGetCharacterClass(TRIO_CONST char * format, int * indexPoin
 					}
 					for(i = index + 2;; i++) {
 						if(format[i] == NIL)
-							/* Error in syntax */
-							return -1;
+							return -1; /* Error in syntax */
 						else if(format[i] == QUALIFIER_EQUAL)
 							break;  /* for */
 						else {
@@ -4277,15 +4181,13 @@ TRIO_PRIVATE int TrioGetCharacterClass(TRIO_CONST char * format, int * indexPoin
 								characterclass[i]++;
 						index += sizeof(CLASS_SPACE) - 1;
 					}
-					else if(trio_equal_max(CLASS_UPPER, sizeof(CLASS_UPPER) - 1,
-					    &format[index])) {
+					else if(trio_equal_max(CLASS_UPPER, sizeof(CLASS_UPPER) - 1, &format[index])) {
 						for(i = 0; i < MAX_CHARACTER_CLASS; i++)
 							if(isupper(i))
 								characterclass[i]++;
 						index += sizeof(CLASS_UPPER) - 1;
 					}
-					else if(trio_equal_max(CLASS_XDIGIT, sizeof(CLASS_XDIGIT) - 1,
-					    &format[index])) {
+					else if(trio_equal_max(CLASS_XDIGIT, sizeof(CLASS_XDIGIT) - 1, &format[index])) {
 						for(i = 0; i < MAX_CHARACTER_CLASS; i++)
 							if(isxdigit(i))
 								characterclass[i]++;
@@ -4400,10 +4302,8 @@ TRIO_PRIVATE BOOLEAN_T TrioReadNumber(trio_class_t * self, trio_uintmax_t * targ
 		number *= base;
 		number += digit;
 		gotNumber = TRUE; /* we need at least one digit */
-
 		self->InStream(self, 0);
 	}
-
 	/* Was anything read at all? */
 	if(!gotNumber)
 		return FALSE;
@@ -4455,7 +4355,6 @@ TRIO_PRIVATE int TrioReadChar(trio_class_t * self, char * target, trio_flags_t f
 				    break;
 			}
 		}
-
 		if(target)
 			target[i] = ch;
 	}
@@ -4631,10 +4530,8 @@ TRIO_PRIVATE BOOLEAN_T TrioReadDouble(trio_class_t * self, trio_pointer_t target
 			    self->InStream(self, &ch);
 		    }
 		    doubleString[index] = NIL;
-
 		    /* Case insensitive string comparison */
-		    if(trio_equal(&doubleString[start], INFINITE_UPPER) ||
-		    trio_equal(&doubleString[start], LONG_INFINITE_UPPER)) {
+		    if(trio_equal(&doubleString[start], INFINITE_UPPER) || trio_equal(&doubleString[start], LONG_INFINITE_UPPER)) {
 			    if(flags & FLAGS_LONGDOUBLE) {
 				    if((start == 1) && (doubleString[0] == '-')) {
 					    *((trio_long_double_t*)target) = trio_ninf();
@@ -4792,11 +4689,9 @@ TRIO_PRIVATE int TrioScanProcess(trio_class_t * data, TRIO_CONST char * format, 
 			}
 		}
 #endif /* TRIO_COMPILER_SUPPORTS_MULTIBYTE */
-
 		if((EOF == ch) && (parameters[i].type != FORMAT_COUNT)) {
 			return (assignment > 0) ? assignment : EOF;
 		}
-
 		if(CHAR_IDENTIFIER == format[index]) {
 			if(CHAR_IDENTIFIER == format[index + 1]) {
 				// Two % in format matches one % in input stream 
@@ -5232,10 +5127,8 @@ TRIO_PUBLIC int trio_cscanf TRIO_VARGS4((stream, closure, format, va_alist),
 	int status;
 	va_list args;
 	trio_custom_t data;
-
 	assert(VALID(stream));
 	assert(VALID(format));
-
 	TRIO_VA_START(args, format);
 	data.stream.in = stream;
 	data.closure = closure;

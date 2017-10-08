@@ -226,7 +226,7 @@ DBQuery * SLAPI PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	uint   brw_id = BROWSER_CASHNODE;
 	DBQ  * dbq = 0;
 	DBE dbe_loc;
-	THROW(CheckTblPtr(t = new TempCashNodeTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempCashNodeTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc, t->LocID);
 	q = & select(
 		t->ID,            // #0

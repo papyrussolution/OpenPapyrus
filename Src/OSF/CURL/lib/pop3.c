@@ -776,8 +776,7 @@ static CURLcode pop3_state_user_resp(struct connectdata * conn, int pop3code, po
 		failf(data, "Access denied. %c", pop3code);
 		result = CURLE_LOGIN_DENIED;
 	}
-	else
-		/* Send the PASS command */
+	else // Send the PASS command 
 		result = Curl_pp_sendf(&conn->proto.pop3c.pp, "PASS %s", conn->passwd ? conn->passwd : "");
 	if(!result)
 		state(conn, POP3_PASS);
@@ -813,21 +812,20 @@ static CURLcode pop3_state_command_resp(struct connectdata * conn, int pop3code,
 		state(conn, POP3_STOP);
 		return CURLE_RECV_ERROR;
 	}
-	/* This 'OK' line ends with a CR LF pair which is the two first bytes of the
-	   EOB string so count this is two matching bytes. This is necessary to make
-	   the code detect the EOB if the only data than comes now is %2e CR LF like
-	   when there is no body to return. */
+	// This 'OK' line ends with a CR LF pair which is the two first bytes of the
+	// EOB string so count this is two matching bytes. This is necessary to make
+	// the code detect the EOB if the only data than comes now is %2e CR LF like
+	// when there is no body to return. 
 	pop3c->eob = 2;
-	/* But since this initial CR LF pair is not part of the actual body, we set
-	   the strip counter here so that these bytes won't be delivered. */
+	// But since this initial CR LF pair is not part of the actual body, we set
+	// the strip counter here so that these bytes won't be delivered.
 	pop3c->strip = 2;
 	if(pop3->transfer == FTPTRANSFER_BODY) {
-		/* POP3 download */
+		// POP3 download 
 		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, NULL, -1, 0);
 		if(pp->cache) {
-			/* The header "cache" contains a bunch of data that is actually body
-			   content so send it as such. Note that there may even be additional
-			   "headers" after the body */
+			// The header "cache" contains a bunch of data that is actually body
+			// content so send it as such. Note that there may even be additional "headers" after the body
 			if(!data->set.opt_no_body) {
 				result = Curl_pop3_write(conn, pp->cache, pp->cache_size);
 				if(result)
@@ -927,15 +925,14 @@ static CURLcode pop3_block_statemach(struct connectdata * conn)
 		result = Curl_pp_statemach(&pop3c->pp, TRUE);
 	return result;
 }
-
-/* Allocate and initialize the POP3 struct for the current Curl_easy if
-   required */
+//
+// Allocate and initialize the POP3 struct for the current Curl_easy if required 
+//
 static CURLcode pop3_init(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	struct POP3 * pop3;
-	pop3 = (struct POP3 *)(data->req.protop = SAlloc::C(sizeof(struct POP3), 1));
+	struct POP3 * pop3 = (struct POP3 *)(data->req.protop = SAlloc::C(sizeof(struct POP3), 1));
 	if(!pop3)
 		result = CURLE_OUT_OF_MEMORY;
 	return result;

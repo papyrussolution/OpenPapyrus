@@ -167,7 +167,7 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 	SpecSeries2Tbl * t = 0;
 	DBE   dbe_goods_name;
 	DBE   dbe_manuf_name;
-	THROW(CheckTblPtr(t = new SpecSeries2Tbl(Tbl.fileName)));
+	THROW(CheckTblPtr(t = new SpecSeries2Tbl(Tbl.GetName())));
 	{
 		dbe_goods_name.init();
 		dbe_goods_name.push(t->GoodsID);

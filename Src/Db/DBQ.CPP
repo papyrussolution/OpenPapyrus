@@ -631,7 +631,7 @@ int SLAPI DBDataCell::toString(SString & rBuf, long options) const
 {
 	rBuf.Z();
 	if(i.id > 0) {
-		rBuf.Cat(f.getTable()->tableName).Dot().Cat(f.getField().Name);
+		rBuf.Cat(f.getTable()->GetName()).Dot().Cat(f.getField().Name);
 	}
 	else if(i.id == DBConst_ID) {
 		char   temp[512];
@@ -787,7 +787,7 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 						if(kr->first())
 							do {
 								memcpy(dest, kr->P_b + kr->P_h->current, kr->itemSize(kr->P_b + kr->P_h->current));
-								if(tbl->indexes.makeKey(keyPos, seg, cmp, val, dest)) {
+								if(tbl->GetIndices().makeKey(keyPos, seg, cmp, val, dest)) {
 									kr->remove();
 									kr->add(dest);
 								   	found = 1;
@@ -795,7 +795,7 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 							} while(++(*kr));
 					}
 					else {
-						if(tbl->indexes.makeKey(keyPos, seg, cmp, val, dest))
+						if(tbl->GetIndices().makeKey(keyPos, seg, cmp, val, dest))
 							if(kr->disjunction(dest) > 0)
 								found = 1;
 					}

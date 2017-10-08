@@ -237,7 +237,7 @@ DBQuery * SLAPI PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 {
 	DBQuery	 *q = 0;
 	DBE		 dbe_logfname;
-	TempLogFileMonTbl *p_tbl = new TempLogFileMonTbl(P_TmpTbl->fileName);
+	TempLogFileMonTbl *p_tbl = new TempLogFileMonTbl(P_TmpTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_logfname, PPDbqFuncPool::IdLogFileName, p_tbl->LogFileId);
 	if(p_tbl) {
 		q = & select (

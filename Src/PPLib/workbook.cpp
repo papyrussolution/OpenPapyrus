@@ -3131,7 +3131,7 @@ static void ShuffleWordList(SString & rText)
 		}
 		if(pos_list.getCount() > 1) {
 			pos_list.shuffle();
-			ss.clear(1);
+			ss.clear();
 			for(uint i = 0; i < pos_list.getCount(); i++) {
 				new_ss.get(pos_list.get(i), word_buf);
 				ss.add(word_buf);

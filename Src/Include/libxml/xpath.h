@@ -81,7 +81,7 @@ typedef xmlNodeSet *xmlNodeSetPtr;
 struct _xmlNodeSet {
     int nodeNr;			/* number of nodes in the set */
     int nodeMax;		/* size of the array as allocated */
-    xmlNode ** nodeTab; // array of nodes in no particular order 
+    xmlNode ** PP_NodeTab; // array of nodes in no particular order 
     /* @@ with_ns to check wether namespace nodes should be looked at @@ */
 };
 /*
@@ -280,7 +280,7 @@ typedef xmlXPathFunction (*xmlXPathFuncLookupFunc) (void *ctxt, const xmlChar *n
 
 struct _xmlXPathContext {
     xmlDoc  * doc;  // The current document 
-    xmlNode * node; // The current node 
+    xmlNode * P_Node; // The current node 
     int nb_variables_unused;		/* unused (hash table) */
     int max_variables_unused;		/* unused (hash table) */
     xmlHashTablePtr varHash;		/* Hash table of defined variables */
@@ -397,7 +397,7 @@ XMLPUBVAR double xmlXPathNINF;
  * Returns the xmlNodePtr at the given @index in @ns or NULL if
  *         @index is out of range (0 to length-1)
  */
-#define xmlXPathNodeSetItem(ns, index) ((((ns) != NULL) && ((index) >= 0) && ((index) < (ns)->nodeNr)) ? (ns)->nodeTab[(index)] : NULL)
+#define xmlXPathNodeSetItem(ns, index) ((((ns) != NULL) && ((index) >= 0) && ((index) < (ns)->nodeNr)) ? (ns)->PP_NodeTab[(index)] : NULL)
 /**
  * xmlXPathNodeSetIsEmpty:
  * @ns: a node-set
@@ -406,7 +406,7 @@ XMLPUBVAR double xmlXPathNINF;
  *
  * Returns %TRUE if @ns is an empty node-set.
  */
-#define xmlXPathNodeSetIsEmpty(ns) (((ns) == NULL) || ((ns)->nodeNr == 0) || ((ns)->nodeTab == NULL))
+#define xmlXPathNodeSetIsEmpty(ns) (((ns) == NULL) || ((ns)->nodeNr == 0) || ((ns)->PP_NodeTab == NULL))
 
 XMLPUBFUN void XMLCALL xmlXPathFreeObject(xmlXPathObjectPtr obj);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeSetCreate(xmlNode * val);
@@ -423,12 +423,12 @@ XMLPUBFUN int XMLCALL xmlXPathCastNodeSetToBoolean(xmlNodeSetPtr ns);
 XMLPUBFUN int XMLCALL xmlXPathCastToBoolean	(xmlXPathObjectPtr val);
 XMLPUBFUN double XMLCALL xmlXPathCastBooleanToNumber(int val);
 XMLPUBFUN double XMLCALL xmlXPathCastStringToNumber(const xmlChar * val);
-XMLPUBFUN double XMLCALL xmlXPathCastNodeToNumber(xmlNode * node);
+XMLPUBFUN double XMLCALL xmlXPathCastNodeToNumber(xmlNode * P_Node);
 XMLPUBFUN double XMLCALL xmlXPathCastNodeSetToNumber(xmlNodeSetPtr ns);
 XMLPUBFUN double XMLCALL xmlXPathCastToNumber(xmlXPathObjectPtr val);
 XMLPUBFUN xmlChar * XMLCALL xmlXPathCastBooleanToString(int val);
 XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNumberToString(double val);
-XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeToString(xmlNode * node);
+XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeToString(xmlNode * P_Node);
 XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeSetToString(xmlNodeSetPtr ns);
 XMLPUBFUN xmlChar * XMLCALL xmlXPathCastToString(xmlXPathObjectPtr val);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathConvertBoolean(xmlXPathObjectPtr val);
@@ -445,8 +445,8 @@ XMLPUBFUN int XMLCALL xmlXPathContextSetCache(xmlXPathContextPtr ctxt, int activ
  * Evaluation functions.
  */
 XMLPUBFUN long XMLCALL xmlXPathOrderDocElems(xmlDocPtr doc);
-XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * node, xmlXPathContextPtr ctx);
-XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNodeEval(xmlNode * node, const xmlChar *str, xmlXPathContextPtr ctx);
+XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * P_Node, xmlXPathContextPtr ctx);
+XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNodeEval(xmlNode * P_Node, const xmlChar *str, xmlXPathContextPtr ctx);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathEval(const xmlChar *str, xmlXPathContextPtr ctx);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathEvalExpression(const xmlChar *str, xmlXPathContextPtr ctxt);
 XMLPUBFUN int XMLCALL xmlXPathEvalPredicate(xmlXPathContextPtr ctxt, xmlXPathObjectPtr res);

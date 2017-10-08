@@ -261,7 +261,7 @@ DBQuery * SLAPI PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	uint   brw_id = BROWSER_PALM;
 	DBQ  * dbq = 0;
 	DBE    dbe_loc, dbe_ggrp, dbe_ar;
-	THROW(CheckTblPtr(t = new TempPalmTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempPalmTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc,    t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp,  PPDbqFuncPool::IdObjNameGoods,  t->GoodsGrpID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,     t->AgentID);

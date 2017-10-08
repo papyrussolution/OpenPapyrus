@@ -1271,7 +1271,7 @@ int LinkFilesDialog::setupList()
 	if(LinksAry.getCount()) {
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < LinksAry.getCount(); i++) {
-			ss.clear(0);
+			ss.clear();
 			PPLinkFile flink = *LinksAry.at(i);
 			ss.add(flink.Description);
 			THROW(addStringToList(i, ss.getBuf()));

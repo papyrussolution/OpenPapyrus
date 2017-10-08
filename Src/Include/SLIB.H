@@ -3660,6 +3660,17 @@ public:
 	SLAPI  StringSet(char delim, const char * pBuf);
 	SLAPI  StringSet(const StringSet &);
 	SLAPI ~StringSet();
+	//
+	// Descr: Разрушает внутренний буфер экземпляра и обнуляет текущую длину данных (DataLen).
+	//   Параметр Delim (разделитель элементов) не меняет.
+	//
+	void   SLAPI destroy();
+	//
+	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер.
+	// Note: Следует использовать при необходимости повторного использования объекта 
+	//   (распределенный ранее буфер улучшит производительность).
+	//
+	void   SLAPI clear(/*int dontFreeBuf = 0*/);
 	int    FASTCALL copy(const StringSet & rS);
 	int    SLAPI setBuf(const void * b, size_t len);
 	int    FASTCALL setBuf(const SString & rBuf);
@@ -3694,15 +3705,14 @@ public:
 	int    SLAPI getnz(uint pos, SString & rBuf) const;
 	int    SLAPI search(const char * pPattern, uint * pPos, int ignoreCase) const;
 	int    SLAPI search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const;
-	void   FASTCALL clear(int dontFreeBuf = 0);
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
-	int    SLAPI sort();
+	void   SLAPI sort();
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке и удаляет из него дубликаты
 	//
-	int    SLAPI sortAndUndup();
+	void   SLAPI sortAndUndup();
 	//
 	// Descr: Переставляет элементы набора в обратном порядке: первый становится последним, последний - первым.
 	//
@@ -4845,6 +4855,7 @@ public:
 	//
 	size_t SLAPI ReadTerm(const char * pTerm, void * pBuf, size_t bufLen);
 	size_t SLAPI ReadTermStr(const char * pTerm, SString & rBuf);
+	size_t FASTCALL ReadLine(SString & rBuf);
 	int    FASTCALL WriteByte(char);
 	int    FASTCALL Read(char &);
 	int    FASTCALL Write(const int8 & v);
@@ -5317,6 +5328,8 @@ class SVectorBase { // @novtbl
 public:
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
+	//int    FASTCALL checkIndex(uint) const;
+	//int    FASTCALL checkIndex(long) const;
 	int    SLAPI getEnd() const { return (int)(count-1); }
 	uint   SLAPI getItemSize() const { return isize; }
 	uint   SLAPI getFlags() const;
@@ -5326,7 +5339,10 @@ public:
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
-	uint   SLAPI getPointer() const;
+	uint   SLAPI getPointer() const
+	{
+		return pointer;
+	}
 	//
 	// Descr: Устанавливает значение внутреннего указателя позиции
 	// Returns:
@@ -5545,7 +5561,7 @@ public:
 template <class T> class TSVector : public SVector {
 public:
 	TSVector() : SVector(sizeof(T)) {}
-	TSVector(const TSVector & src) : SVector(src) {}
+	//TSVector(const TSVector & src) : SVector(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SVector::at(pos); }
 };
 #endif // } 0 @construction
@@ -5876,7 +5892,7 @@ DECL_CMPFUNC(STimeChunk);
 
 typedef TSCollection <char> SStrCollection;
 
-class RealArray : public TSArray <double> {
+class RealArray : public TSVector <double> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  RealArray();
 	SLAPI  RealArray(const RealArray & s);
@@ -5893,7 +5909,7 @@ public:
 //
 //
 //
-class FloatArray : public TSArray <float> {
+class FloatArray : public TSVector <float> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  FloatArray();
 	int    FASTCALL operator == (const FloatArray & rS) const;
@@ -5981,7 +5997,7 @@ typedef LongArray IntArray;
 //
 //
 //
-class Int64Array : public TSArray <int64> {
+class Int64Array : public TSVector <int64> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  Int64Array();
 	SLAPI  Int64Array(const Int64Array & s);
@@ -5999,7 +6015,7 @@ public:
 //
 //
 //
-typedef TSArray <S_GUID> UuidArray;
+typedef TSVector <S_GUID> UuidArray; // @v9.8.4 TSArray-->TSVector
 //
 //
 //
@@ -6079,7 +6095,7 @@ struct LLAssoc {
 	int64  Val;
 };
 
-class LLAssocArray : public TSArray <LLAssoc> {
+class LLAssocArray : public TSVector <LLAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  LLAssocArray();
 	SLAPI  LLAssocArray(const LLAssocArray &);
@@ -6138,7 +6154,7 @@ struct RAssoc {
 	double Val;
 };
 
-class RAssocArray : public TSArray <RAssoc> {
+class RAssocArray : public TSVector <RAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  RAssocArray();
 	SLAPI  RAssocArray(const RAssocArray &);
@@ -6193,7 +6209,7 @@ struct RPair {
 	double Y;
 };
 
-class RPairArray : public TSArray <RPair> {
+class RPairArray : public TSVector <RPair> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  RPairArray();
 	SLAPI  RPairArray(const RPairArray &);
@@ -6212,7 +6228,7 @@ struct UUIDAssoc {
 	S_GUID Val;
 };
 
-class UUIDAssocArray : public TSArray <UUIDAssoc> {
+class UUIDAssocArray : public TSVector <UUIDAssoc> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  UUIDAssocArray();
 	int    SLAPI Add(long key, const S_GUID & rVal, uint * pPos);
@@ -6576,7 +6592,7 @@ private:
 
 	void   SLAPI ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
 
-    TSArray <InnerEntry> L;
+    TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
     long   State;
 };
 //
@@ -6585,7 +6601,7 @@ private:
 //   элементы списка, отличные от STimeChunk, но при этом, такие элементы должны в начале
 //   обязательно содержать структуру STimeChunk.
 //
-class STimeChunkArray : public SArray {
+class STimeChunkArray : public SArray { // @attention dont't change to SVector
 public:
 	SLAPI  STimeChunkArray();
 	//
@@ -7144,7 +7160,7 @@ public:
 	void * FASTCALL GetData(uint32 pos) const;
 private:
 	struct Item_ {
-		uint32 DataP;       // Этот компонент находится в начале структуры для быстрого поиска по значению
+		uint32 DataP;       // @firstmember
 		uint32 ParentP;
 		uint32 NextP;
 		uint32 PrevP;
@@ -7158,7 +7174,7 @@ private:
 
 	UintHashTable SvcFreeList;
 	UintHashTable DatFreeList;
-	TSArray <Item_> TreeList;
+	TSVector <Item_> TreeList; // @v9.8.4 TSArray-->TSVector
 };
 
 template <class T> class TSTree : public STree {
@@ -7324,17 +7340,16 @@ public:
 	struct SearchBlockEntry {
 		int    T; // Идент токена
 		uint   P; // Позиция токена в исходном тексте
-		TSArray <STokenizer::ResourceToken> RL; // Список идентификаторов ресурсов, в которых встречается токен T
-		//LongArray ResourceIdList;
+		TSVector <STokenizer::ResourceToken> RL; // Список идентификаторов ресурсов, в которых встречается токен T // @v9.8.4 TSArray-->TSVector
 	};
 	int    SLAPI Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult);
 	int    SLAPI IndexResources(int force);
 private:
 	uint16 SLAPI NextChr();
 	int    FASTCALL IsDelim(uint16 chr) const;
-	int    FASTCALL AddToken(TSArray <uint16> & rBuf, int tok);
-	int    SLAPI ProcessSearchToken(TSArray <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
-	void   SLAPI _CopySrcToAddTokenBuf(const TSArray <uint16> & rBuf);
+	int    FASTCALL AddToken(TSVector <uint16> & rBuf, int tok);
+	int    SLAPI ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult);
+	void   SLAPI _CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf);
 
 	struct Token {
 		int    T;  //
@@ -7352,7 +7367,7 @@ private:
 	//
 	struct ResourceIndexItem {
 		int    PP;
-		TSArray <STokenizer::ResourceToken> RL;
+		TSVector <STokenizer::ResourceToken> RL; // @v9.8.4 TSArray-->TSVector
 	};
 
 	Param  P;
@@ -7361,12 +7376,12 @@ private:
 	int64  SO;  // Смещение содержимого S в источнике данных: необходимо для сопоставления токена с источником данных
 	SBuffer S;  // Буфер входящего потока
 	SymbHashTable T;
-	TSArray <Token> L;
-	TSArray <CToken> CL;
+	TSVector <Token> L;   // @v9.8.4 TSArray-->TSVector
+	TSVector <CToken> CL; // @v9.8.4 TSArray-->TSVector
 	TSCollection <ResourceIndexItem> * P_ResourceIndex;
 	//
 	SString  AddTokenBuf;      // @allocreuse Для ускорения AddToken()
-	TSArray <uint16> TokenBuf; // @allocreuse Для ускорения Run()
+	TSVector <uint16> TokenBuf; // @allocreuse Для ускорения Run() // @v9.8.4 TSArray-->TSVector
 	SStringU DelimU; // Для входящего потока в UTF-формате список разделителей должен быть в Unicode-формате
 };
 //
@@ -7747,7 +7762,7 @@ private:
 	// При снятии блокировки обнуляется значение Size что свидетельствует о том, что элемент свободен
 	// для использования другой блокировкой.
 	//
-	TSArray <SFile::LckChunk> LckList;
+	TSVector <SFile::LckChunk> LckList; // @v9.8.4 TSArray-->TSVector
 };
 //
 //
@@ -8129,13 +8144,13 @@ private:
 	int    SLAPI ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD);
 
 	uint   LastIdx;
-	TSArray <Item32> List32;
-	TSArray <UPair> Ranges;
-	TSArray <UPair> SimpleToUpAndCap;
-	TSArray <UPair> SimpleToUp;
-	TSArray <UPair> SimpleToCap;
-	TSArray <UPair> SimpleToLo;
-	TSArray <UPair> MirrorPairs;
+	TSVector <Item32> List32; // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> Ranges;   // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> SimpleToUpAndCap; // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> SimpleToUp; // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> SimpleToCap; // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> SimpleToLo; // @v9.8.4 TSArray-->TSVector
+	TSVector <UPair> MirrorPairs; // @v9.8.4 TSArray-->TSVector
 };
 
 class SCodepageMapPool : public SStrGroup {
@@ -8294,13 +8309,13 @@ private:
 	int    SLAPI ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
 	int    SLAPI ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;
 	int    SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
-	int    SLAPI SearchMapSeq(const TSArray <MapEntry> & rSeq, uint * pPos) const;
+	int    SLAPI SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
 	int    SLAPI Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
-	TSArray <CpEntry> CpL;
-	TSArray <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4]
-	TSArray <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2
-	TSArray <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах
+	TSVector <CpEntry> CpL;  // @v9.8.4 TSArray-->TSVector
+	TSVector <MapEntry> MeL; // Список соответствий multibyte-unicode. Отрезок каждой таблицы отсортирован по B[4] // @v9.8.4 TSArray-->TSVector
+	TSVector <MapEntry> FbL; // Список fallback-соответствий. Отрезок каждой таблицы отсортирован по U2 // @v9.8.4 TSArray-->TSVector
+	TSVector <uint16> NScrL; // Список натуральных скриптов, присутствующих в кодовых страницах // @v9.8.4 TSArray-->TSVector
 };
 
 class SUnicodeBlock {
@@ -8353,7 +8368,7 @@ public:
 	//
 	int    FASTCALL GetFreqListOrdered(RAssocArray & rList) const;
 private:
-	TSArray <Entry> Alphabet;
+	TSVector <Entry> Alphabet; // @v9.8.4 TSArray-->TSVector
 	uint64 Count;
 	long   Status;
 };
@@ -8853,7 +8868,7 @@ struct SMathResult {
 };
 
 typedef long LMIDX;
-typedef TSArray <unsigned long> UlongArray;
+typedef TSVector <unsigned long> UlongArray; // @v9.8.4 TSArray-->TSVector
 
 int    SLAPI IsValidIEEE(double);
 int    fisnan(double);
@@ -10233,7 +10248,7 @@ private:
 	SSerializeContext * P_SCtx;
 };
 //
-// Descr: Специализированная функция для сериализации шаблонизщированных массивов, элементы которых
+// Descr: Специализированная функция для сериализации шаблонизированных массивов, элементы которых
 //   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 //
 template <class T> int TSArray_Serialize(TSArray <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -10370,7 +10385,7 @@ public:
 		//   Валидность проверяется по сигнатуре Sign.
 		//
 		int    SLAPI IsConsistent() const;
-		int    SLAPI Clear();
+		void   SLAPI Clear();
 		int    FASTCALL Add(const char * pStr);
 		int    FASTCALL Add(long intVal);
 		int    SLAPI Add(double number);

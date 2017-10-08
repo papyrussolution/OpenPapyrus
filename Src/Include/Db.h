@@ -287,7 +287,7 @@ public:
 	// Descr: Устанавливает внешний буфер данных pBuf размером bufLen.
 	//   Клиент класса самостоятельно управляет временем жизни буфера pBuf.
 	//
-	int    SetDataBuf(void * pBuf, size_t bufLen);
+	void   SetDataBuf(void * pBuf, size_t bufLen);
 	//
 	// Descr: Распределяет память под собственный буфер данных размером GetRecSize().
 	//   Если до этого был установлен внешний буфер данных, то он сбрасывается.
@@ -370,7 +370,7 @@ private:
 	int32  Ver;              // @persistent (Serialize())
 	int32  Flags;            // @persistent
 	uint32 DescrPos;         // @persistent
-	SArray Items;            // @persistent
+	SVector Items;           // @persistent // @v9.8.4 SArray-->SVector
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
 	SString TempBuf;         // @transient @allocreuse
@@ -1402,7 +1402,7 @@ private:
 	uint8  S[32];
 };
 
-typedef TSArray <DBRowId> DBRowIdArray;
+typedef TSVector <DBRowId> DBRowIdArray; // @v9.8.4 TSArray-->TSVector
 
 struct DBLobItem {
 	uint   FldN;
@@ -1412,7 +1412,7 @@ struct DBLobItem {
 	uint8  Reserve[3];
 };
 
-class DBLobBlock : public SArray {
+class DBLobBlock : public SVector { // @v9.8.4 SArray-->SVector
 public:
 	DBLobBlock();
 	int    SetSize(uint fldIdx, size_t sz);
@@ -1597,9 +1597,11 @@ struct DbTableStat {
 
 class DBTable {
 public:
+	friend class DbProvider;
 	friend class BDictionary;
 	friend class DbDict_Btrieve;
 	friend class SOraDbProvider;
+	friend struct DBField;
 
 	static void   FASTCALL InitErrFileName(const char * pFileName);
 	static const  char * SLAPI GetLastErrorFileName();
@@ -1652,7 +1654,7 @@ public:
 	int    FASTCALL HasLob(DBField * pLastFld) const;
 
 	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
-	char * FASTCALL getDataBuf() { return (char *)buf; }
+	char * FASTCALL getDataBuf() { return (char *)P_DBuf; }
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer FASTCALL getBuffer() const;
 	int    allocOwnBuffer(int size = -1);
@@ -1744,7 +1746,7 @@ public:
 	// Caller must destroy ptr returned by getIndexSpec
 	//
 	DBIdxSpec * SLAPI getIndexSpec(int idxNo, int * pNumSeg);
-	int    SLAPI getNumRecs(RECORDNUMBER * pNumRecs);
+	int    FASTCALL getNumRecs(RECORDNUMBER * pNumRecs);
 	int    SLAPI getTabFlags(int16 * pFlags);
 	//
 	// Descr: Возвращает размер фиксированной части записи (без "хвостов" переменной длины)
@@ -1755,6 +1757,7 @@ public:
 	int    SLAPI SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    SLAPI SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
 	// Format of data buffer for Insert Extended operation:
 	//     Fixed portion:
@@ -1765,16 +1768,57 @@ public:
 	// ARG(NCC IN): No Change Currency (не изменять текущую позицию таблицы)
 	//
 	int    Btr_Implement_BExtInsert(BExtInsert * pBei); // really private
+	int    FASTCALL SetPageSize(uint newPageSize);
 	int    Debug_Output(SString & rBuf) const;
 
-	int    handle;
-	int    flags;
-	BTBLID tableID;        // X$FILE.XfId
-	int16  ownrLvl;
-	BTABLENAME  tableName;
-	SString fileName;
-	BNFieldList fields;
-	BNKeyList   indexes;
+	int    SLAPI GetHandle() const
+	{
+		return handle;
+	}
+	BTBLID SLAPI GetTableID() const
+	{
+		return tableID;
+	}
+	void   FASTCALL SetTableID(BTBLID _id);
+	const  BNKeyList & SLAPI GetIndices() const
+	{
+		return indexes;
+	}
+	void   SLAPI SetIndicesTblRef();
+	const  BNFieldList & SLAPI GetFields() const
+	{
+		return fields;
+	}
+	BNFieldList & SLAPI GetFieldsNonConst()
+	{
+		return fields;
+	}
+	//
+	// Descr: returns fileName
+	//
+	const SString & SLAPI GetName() const
+	{
+		return fileName;
+	}
+	//
+	// Descr: set fileName
+	//
+	void   FASTCALL SetName(const char * pN);
+	const  char * SLAPI GetTableName() const
+	{
+		return tableName;
+	}
+	void   FASTCALL SetTableName(const char * pN);
+	int    SLAPI GetFlags() const
+	{
+		return flags;
+	}
+	void   FASTCALL SetFlag(int f);
+	void   FASTCALL ResetFlag(int f);
+	int    SLAPI AddField(const char * pName, TYPEID fldType, int fldId = UNDEF);
+	int    FASTCALL AddField(const BNField & rF);
+	int    FASTCALL AddKey(BNKey & rK);
+public:
 	//
 	struct SelectStmt : public SSqlStmt {
 		SelectStmt(DbProvider * pDb, const char * pText, int idx, int sp, int sf);
@@ -1805,6 +1849,7 @@ private:
 	int    Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf);
 	int    FASTCALL Btr_Implement_GetPosition(DBRowId * pPos);
 	void   FASTCALL OutOfTransactionLogging(const char * pOp) const;
+	int    SLAPI Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffer & rBuf, SSerializeContext * pCtx);
 
 	enum {
 		sOpened_    = 0x0001, // Таблица открыта на низком уровне (open_)
@@ -1816,28 +1861,36 @@ private:
 			// Вставка записей в такую таблицу, возможно, должна обрабатываться специальным образом.
 	};
 
+	void * P_DBuf;
+	int    handle;
+	int    flags;
 	long   State;
-	void * buf;
-	int16  index;
-	RECORDSIZE bufLen;
-	RECORDSIZE retBufLen;
-	RECORDSIZE FixRecSize; // @*DBTable::open
-	SString OpenedFileName;
 	DbProvider * P_Db;     // @notowned Указатель на провайдера БД
 	SelectStmt * P_Stmt;   // Последний SQL-оператор, использовавшийся для поиска
 	SelectStmt * P_OppStmt; // SQL-оператор, сохраняемый при переключении направления выборки.
 	DBRowId CurRowId;      // Текущая позиция записи (используется для SQL-серверов)
+	DBRowId LastLockedRow; // @v8.1.4 Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
+	BTBLID tableID;        // X$FILE.XfId
+	int16  ownrLvl;
+	int16  index;
+	RECORDSIZE bufLen;
+	RECORDSIZE retBufLen;
+	RECORDSIZE FixRecSize; // @*DBTable::open
+	uint16 PageSize;       // Размер страницы, определенный в спецификации.
+	uint8  Reserve[18];    // @alignment // @v9.0.0 [10]-->[14] Размер SArray снизился на 4 байта: а sizeof(DBTable) должен быть кратен 32
+		// @v9.8.4 [14]-->[18] Уменьшился размер DBLobBlock из-за перехода SArray-->SVector
+	BTABLENAME tableName;
+	BNFieldList fields;
+	BNKeyList   indexes;
+	SString fileName;
+	SString OpenedFileName;
 	DBLobBlock LobB;
 	char   FPB[256];
-public:
-	uint16 PageSize;       // Размер страницы, определенный в спецификации.
-private:
-	DBRowId LastLockedRow; // @v8.1.4 Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
-	uint8  Reserve[14];    // @alignment // @v9.0.0 [10]-->[14] Размер SArray снизился на 4 байта: а sizeof(DBTable) должен быть кратен 32
 	//
 	// Структура должна быть выравненена до размера, кратного 32.
 	// В результате буфер данных, находящийся в начале порожденной структуры будет
-	// находиться на границе кэш-линии, что увеличит скорость работы
+	// находиться на границе кэш-линии, что увеличит скорость работы. 
+	// Общий размер регулируется полем Reserve[] (see above)
 	//
 };
 //

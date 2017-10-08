@@ -34,7 +34,7 @@ XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterFilename(const char * uri, in
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterMemory(xmlBufferPtr buf, int compression);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterDoc(xmlDocPtr * doc, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr node, int compression);
+XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr P_Node, int compression);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter);
 
 /*

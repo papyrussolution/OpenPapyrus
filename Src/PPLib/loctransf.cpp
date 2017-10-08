@@ -144,7 +144,7 @@ int SLAPI LocTransfCore::SearchRestByLot(PPID lotID, PPID locID, long rByLoc, Lo
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSArray <LocTransfTbl::Rec> * pList)
+int SLAPI LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	LocTransfTbl::Key3 k3;
 	BExtQuery q(this, 3, 128);
@@ -617,7 +617,7 @@ int SLAPI LocTransfCore::GetGoodsList(PPID locCellID, RAssocArray * pList)
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetDisposition(PPID billID, int rByBill, TSArray <LocTransfTbl::Rec> & rDispositionList)
+int SLAPI LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -633,7 +633,7 @@ int SLAPI LocTransfCore::GetDisposition(PPID billID, int rByBill, TSArray <LocTr
 	return ok;
 }
 
-int SLAPI LocTransfCore::GetDisposition(PPID billID, TSArray <LocTransfTbl::Rec> & rDispositionList)
+int SLAPI LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
@@ -729,7 +729,7 @@ int SLAPI LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLo
 		const PPID bill_id = rBillList.get(i);
 		Transfer * p_tr = BillObj->trfr;
 		BillTbl::Rec bill_rec;
-		TSArray <LocTransfTbl::Rec> disp_list;
+		TSVector <LocTransfTbl::Rec> disp_list; // @v9.8.4 TSArray-->TSVector
 		THROW(LtT.GetDisposition(bill_id, disp_list));
 		if(BillObj->Search(bill_id, &bill_rec) > 0) {
 			PPTransferItem ti;

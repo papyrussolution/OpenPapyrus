@@ -194,9 +194,10 @@ int DraftWrOffDialog::setupList()
 {
 	PPDraftWrOffEntry * p_item = 0;
 	SString sub;
-	if(Data.P_List)
+	if(Data.P_List) {
+		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; Data.P_List->enumItems(&i, (void**)&p_item);) {
-			StringSet ss(SLBColumnDelim);
+			ss.clear();
 			GetOpName(p_item->OpID, sub);
 			ss.add(sub);
 			GetLocationName(p_item->LocID, sub);
@@ -204,6 +205,7 @@ int DraftWrOffDialog::setupList()
 			if(!addStringToList(i, ss.getBuf()))
 				return 0;
 		}
+	}
 	return 1;
 }
 
@@ -331,7 +333,7 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); SLAPI PrcssrWrOffDraftFilt::PrcssrWr
 	SetFlatChunk(offsetof(PrcssrWrOffDraftFilt, ReserveStart),
 		offsetof(PrcssrWrOffDraftFilt, MrpTabName)-offsetof(PrcssrWrOffDraftFilt, ReserveStart));
 	SetBranchSString(offsetof(PrcssrWrOffDraftFilt, MrpTabName));
-	SetBranchSArray(offsetof(PrcssrWrOffDraftFilt, CSessList));
+	SetBranchSVector(offsetof(PrcssrWrOffDraftFilt, CSessList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 

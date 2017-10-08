@@ -1006,7 +1006,7 @@ DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	TempTSessRepTbl * p_tt = 0;
 	DBQuery * p_q = 0;
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(p_tt = new TempTSessRepTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_tt = new TempTSessRepTbl(P_TempTbl->GetName())));
 		p_q = & select(
 			p_tt->ID__,            // #0
 			p_tt->DtText,          // #1

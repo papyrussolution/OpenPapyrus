@@ -2287,7 +2287,7 @@ private:
 		int16  ExpiryPeriod;  //
 		int16  GseFlags;      // @v7.4.5 Reserve-->GseFlags
 		RAssocArray MinStockList;
-		TSArray <GoodsStockExt::Pallet> PltList;
+		TSVector <GoodsStockExt::Pallet> PltList; // @v9.8.4 TSArray-->TSVector
 	};
 	class GslArray : public TSArray <GoodsCache::StockExt> {
 	public:

@@ -251,7 +251,7 @@ DBQuery * SLAPI PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	DBQ * dbq = 0;
 	THROW(CheckTblPtr(t = new MrpTabTbl));
 	THROW(CheckTblPtr(lt = new LocationTbl));
-	THROW(CheckTblPtr(ot  = new TempOrderTbl(P_TempOrd->fileName)));
+	THROW(CheckTblPtr(ot  = new TempOrderTbl(P_TempOrd->GetName())));
 	q = & select(
 		t->ID,           // #00
 		t->Name,         // #01

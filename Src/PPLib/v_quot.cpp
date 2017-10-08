@@ -726,7 +726,7 @@ public:
 	int    SLAPI Add(const TempQuotTbl::Rec *, uint quotPos);
 	// @v8.1.1 @unused int    SLAPI PrepareForWriting();
 	int    SLAPI GetRec(uint i, TempQuotTbl::Rec * pRec) const;
-	int    SLAPI Clear();
+	void   SLAPI Clear();
 private:
 	uint   MaxQuotPos;
 	PPObjGoods   GObj;
@@ -778,12 +778,11 @@ int SLAPI VQuotCache::PrepareForWriting()
 }
 */
 
-int SLAPI VQuotCache::Clear()
+void SLAPI VQuotCache::Clear()
 {
 	GoodsNameList.Clear();
-	ValPool.clear(1);
+	ValPool.clear();
 	clear();
-	return 1;
 }
 
 int SLAPI VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
@@ -1310,7 +1309,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	TempOrderTbl * p_ot = 0;
 	if(P_TempSerTbl) {
 		brw_id = BROWSER_QUOT_SER;
-		p_ts = new TempQuotSerialTbl(P_TempSerTbl->fileName);
+		p_ts = new TempQuotSerialTbl(P_TempSerTbl->GetName());
 		q = & select(
 			p_ts->Dt,
 			p_ts->Tm,
@@ -1321,10 +1320,10 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		THROW(CheckQueryPtr(q));
 	}
 	else if(P_TempTbl) {
-		tbl = new TempQuotTbl(P_TempTbl->fileName);
+		tbl = new TempQuotTbl(P_TempTbl->GetName());
 		if(P_Ct == 0) {
 			if(P_TempOrd) {
-				p_ot = new TempOrderTbl(P_TempOrd->fileName);
+				p_ot = new TempOrderTbl(P_TempOrd->GetName());
 			}
 			if(Filt.ArID) {
 				brw_id = BROWSER_QUOT_AR;

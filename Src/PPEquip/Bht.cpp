@@ -2210,7 +2210,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 			qtty = sdr_brow.Qtty;
 			{
 				LocTransfCore loct_tbl;
-				TSArray <LocTransfTbl::Rec> cell_list;
+				TSVector <LocTransfTbl::Rec> cell_list; // @v9.8.4 TSArray-->TSVector
 				if(IsExpendOp(pack.Rec.OpID)) {
 					RAssocArray list;
 					SString name;

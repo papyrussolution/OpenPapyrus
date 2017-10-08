@@ -972,7 +972,7 @@ int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocLis
 //
 //
 //
-SLAPI PsiArray::PsiArray() : TSArray <PredictSalesItem>()
+SLAPI PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
 {
 	setDelta(16);
 }

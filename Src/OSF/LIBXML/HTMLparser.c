@@ -1989,7 +1989,7 @@ static int areBlanks(htmlParserCtxtPtr ctxt, const xmlChar * str, int len)
 					return 1;
 			}
 		}
-		if(ctxt->node == NULL) 
+		if(ctxt->P_Node == NULL) 
 			return 0;
 		else {
 			// 
@@ -2005,11 +2005,11 @@ static int areBlanks(htmlParserCtxtPtr ctxt, const xmlChar * str, int len)
 				"li", "noframes", "noscript", "object", "p", "pre", "q", "s", "samp",
 				"small", "span", "strike", "strong", "td", "th", "tt", "u", "var"
 			};
-			xmlNode * lastChild = xmlGetLastChild(ctxt->node);
+			xmlNode * lastChild = xmlGetLastChild(ctxt->P_Node);
 			while(lastChild && lastChild->type == XML_COMMENT_NODE)
 				lastChild = lastChild->prev;
 			if(lastChild == NULL) {
-				if(ctxt->node->type != XML_ELEMENT_NODE && ctxt->node->content) 
+				if(ctxt->P_Node->type != XML_ELEMENT_NODE && ctxt->P_Node->content) 
 					return 0;
 				else {
 					// keep ws in constructs like ...<b> </b>... for all tags "b" allowing PCDATA 
@@ -3765,7 +3765,7 @@ static void htmlParseContent(htmlParserCtxtPtr ctxt)
 				htmlParseCharData(ctxt);
 			}
 			if(cons == ctxt->nbChars) {
-				if(ctxt->node != NULL) {
+				if(ctxt->P_Node != NULL) {
 					htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				}
 				break;
@@ -3850,7 +3850,7 @@ void htmlParseElement(htmlParserCtxtPtr ctxt)
 		if(ctxt->record_info) {
 			node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 			node_info.end_line = ctxt->input->line;
-			node_info.node = ctxt->node;
+			node_info.P_Node = ctxt->P_Node;
 			xmlParserAddNodeInfo(ctxt, &node_info);
 		}
 		return;
@@ -3883,7 +3883,7 @@ void htmlParseElement(htmlParserCtxtPtr ctxt)
 	if(currentNode != NULL && ctxt->record_info) {
 		node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 		node_info.end_line = ctxt->input->line;
-		node_info.node = ctxt->node;
+		node_info.P_Node = ctxt->P_Node;
 		xmlParserAddNodeInfo(ctxt, &node_info);
 	}
 	if(!IS_CHAR_CH(CUR)) {
@@ -3897,10 +3897,10 @@ static void htmlParserFinishElementParsing(htmlParserCtxtPtr ctxt)
 	/*
 	 * Capture end position and add node
 	 */
-	if(ctxt->node != NULL && ctxt->record_info) {
+	if(ctxt->P_Node != NULL && ctxt->record_info) {
 		ctxt->nodeInfo->end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 		ctxt->nodeInfo->end_line = ctxt->input->line;
-		ctxt->nodeInfo->node = ctxt->node;
+		ctxt->nodeInfo->P_Node = ctxt->P_Node;
 		xmlParserAddNodeInfo(ctxt, ctxt->nodeInfo);
 		htmlNodeInfoPop(ctxt);
 	}
@@ -4108,7 +4108,7 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 				htmlParseCharData(ctxt);
 			}
 			if(cons == ctxt->nbChars) {
-				if(ctxt->node != NULL) {
+				if(ctxt->P_Node != NULL) {
 					htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				}
 				break;
@@ -4285,12 +4285,12 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	ctxt->standalone = -1;
 	ctxt->instate = XML_PARSER_START;
 	/* Allocate the Node stack */
-	ctxt->nodeTab = (htmlNodePtr*)SAlloc::M(10 * sizeof(htmlNodePtr));
-	if(ctxt->nodeTab == NULL) {
+	ctxt->PP_NodeTab = (htmlNodePtr*)SAlloc::M(10 * sizeof(htmlNodePtr));
+	if(ctxt->PP_NodeTab == NULL) {
 		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
@@ -4298,7 +4298,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	}
 	ctxt->nodeNr = 0;
 	ctxt->nodeMax = 10;
-	ctxt->node = NULL;
+	ctxt->P_Node = NULL;
 
 	/* Allocate the Name stack */
 	ctxt->nameTab = (const xmlChar**)SAlloc::M(10 * sizeof(xmlChar *));
@@ -4309,7 +4309,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 		ctxt->name = NULL;
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
@@ -4342,7 +4342,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	ctxt->record_info = 0;
 	ctxt->validate = 0;
 	ctxt->nbChars = 0;
-	ctxt->checkIndex = 0;
+	ctxt->CheckIndex = 0;
 	ctxt->catalogs = NULL;
 	xmlInitNodeInfoSeq(&ctxt->node_seq);
 	return 0;
@@ -4509,9 +4509,8 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 	base = in->cur - in->base;
 	if(base < 0)
 		return -1;
-	if(ctxt->checkIndex > base)
-		base = ctxt->checkIndex;
-	if(in->buf == NULL) {
+	SETMAX(base, ctxt->CheckIndex);
+	if(!in->buf) {
 		buf = in->base;
 		len = in->length;
 	}
@@ -4519,18 +4518,16 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 		buf = xmlBufContent(in->buf->buffer);
 		len = xmlBufUse(in->buf->buffer);
 	}
-
-	/* take into account the sequence length */
+	// take into account the sequence length 
 	if(third)
 		len -= 2;
 	else if(next)
 		len--;
 	for(; base < len; base++) {
 		if((!incomment) && (base + 4 < len) && (!iscomment)) {
-			if((buf[base] == '<') && (buf[base + 1] == '!') &&
-			    (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
+			if((buf[base] == '<') && (buf[base + 1] == '!') && (buf[base + 2] == '-') && (buf[base + 3] == '-')) {
 				incomment = 1;
-				/* do not increment past <! - some people use <!--> */
+				// do not increment past <! - some people use <!--> 
 				base += 2;
 			}
 		}
@@ -4555,8 +4552,7 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 		if(incomment) {
 			if(base + 3 > len)
 				return -1;
-			if((buf[base] == '-') && (buf[base + 1] == '-') &&
-			    (buf[base + 2] == '>')) {
+			if((buf[base] == '-') && (buf[base + 1] == '-') && (buf[base + 2] == '>')) {
 				incomment = 0;
 				base += 2;
 			}
@@ -4571,7 +4567,7 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 				if(buf[base + 1] != next)
 					continue;
 			}
-			ctxt->checkIndex = 0;
+			ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			if(next == 0)
 				xmlGenericError(0, "HPP: lookup '%c' found at %d\n", first, base);
@@ -4584,7 +4580,7 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 		}
 	}
 	if((!incomment) && (!invalue))
-		ctxt->checkIndex = base;
+		ctxt->CheckIndex = base;
 #ifdef DEBUG_PUSH
 	if(next == 0)
 		xmlGenericError(0, "HPP: lookup '%c' failed\n", first);
@@ -4595,7 +4591,6 @@ static int htmlParseLookupSequence(htmlParserCtxtPtr ctxt, xmlChar first, xmlCha
 #endif
 	return -1;
 }
-
 /**
  * htmlParseLookupChars:
  * @ctxt: an HTML parser context
@@ -4621,8 +4616,8 @@ static int htmlParseLookupChars(htmlParserCtxtPtr ctxt, const xmlChar * stop, in
 		if(base >= 0) {
 			int    len;
 			const  xmlChar * buf;
-			if(ctxt->checkIndex > base)
-				base = ctxt->checkIndex;
+			if(ctxt->CheckIndex > base)
+				base = ctxt->CheckIndex;
 			if(in->buf == NULL) {
 				buf = in->base;
 				len = in->length;
@@ -4651,12 +4646,12 @@ static int htmlParseLookupChars(htmlParserCtxtPtr ctxt, const xmlChar * stop, in
 				}
 				for(i = 0; i < stopLen; ++i) {
 					if(buf[base] == stop[i]) {
-						ctxt->checkIndex = 0;
+						ctxt->CheckIndex = 0;
 						return (base - (in->cur - in->base));
 					}
 				}
 			}
-			ctxt->checkIndex = base;
+			ctxt->CheckIndex = base;
 		}
 	}
 	return -1;
@@ -4954,7 +4949,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			    }
 			    if(next == '/') {
 				    ctxt->instate = XML_PARSER_END_TAG;
-				    ctxt->checkIndex = 0;
+				    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 				    xmlGenericError(0, "HPP: entering END_TAG\n");
 #endif
@@ -5045,7 +5040,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    if(ctxt->sax && ctxt->sax->characters)
 					    ctxt->sax->characters(ctxt->userData, chr, 1);
 				    ctxt->token = 0;
-				    ctxt->checkIndex = 0;
+				    ctxt->CheckIndex = 0;
 			    }
 			    if((avail == 1) && (terminate)) {
 				    cur = in->cur[0];
@@ -5068,7 +5063,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 						    }
 					    }
 					    ctxt->token = 0;
-					    ctxt->checkIndex = 0;
+					    ctxt->CheckIndex = 0;
 					    in->cur++;
 					    break;
 				    }
@@ -5094,7 +5089,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    htmlParseScript(ctxt);
 				    if((cur == '<') && (next == '/')) {
 					    ctxt->instate = XML_PARSER_END_TAG;
-					    ctxt->checkIndex = 0;
+					    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 					    xmlGenericError(0, "HPP: entering END_TAG\n");
 #endif
@@ -5138,7 +5133,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    }
 				    else if((cur == '<') && (next == '/')) {
 					    ctxt->instate = XML_PARSER_END_TAG;
-					    ctxt->checkIndex = 0;
+					    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 					    xmlGenericError(0, "HPP: entering END_TAG\n");
 #endif
@@ -5146,7 +5141,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    }
 				    else if(cur == '<') {
 					    ctxt->instate = XML_PARSER_START_TAG;
-					    ctxt->checkIndex = 0;
+					    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 					    xmlGenericError(0, "HPP: entering START_TAG\n");
 #endif
@@ -5170,7 +5165,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 					     */
 					    if((!terminate) && (htmlParseLookupChars(ctxt, BAD_CAST "<&", 2) < 0))
 						    goto done;
-					    ctxt->checkIndex = 0;
+					    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 					    xmlGenericError(0, "HPP: Parsing char data\n");
 #endif
@@ -5178,7 +5173,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    }
 			    }
 			    if(cons == ctxt->nbChars) {
-				    if(ctxt->node != NULL) {
+				    if(ctxt->P_Node != NULL) {
 					    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				    }
 				    NEXT;
@@ -5200,7 +5195,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			    else {
 				    ctxt->instate = XML_PARSER_CONTENT;
 			    }
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5208,7 +5203,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_CDATA_SECTION:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == CDATA\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5216,7 +5211,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_DTD:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == DTD\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5224,7 +5219,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_COMMENT:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == COMMENT\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5232,7 +5227,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_PI:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == PI\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5240,7 +5235,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_ENTITY_DECL:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == ENTITY_DECL\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5248,7 +5243,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_ENTITY_VALUE:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == ENTITY_VALUE\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering DTD\n");
 #endif
@@ -5256,7 +5251,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_ATTRIBUTE_VALUE:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == ATTRIBUTE_VALUE\n", 0, 0);
 			    ctxt->instate = XML_PARSER_START_TAG;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering START_TAG\n");
 #endif
@@ -5264,7 +5259,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_SYSTEM_LITERAL:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == XML_PARSER_SYSTEM_LITERAL\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5272,7 +5267,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_IGNORE:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == XML_PARSER_IGNORE\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5280,7 +5275,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_PUBLIC_LITERAL:
 			    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "HPP: internal error, state == XML_PARSER_LITERAL\n", 0, 0);
 			    ctxt->instate = XML_PARSER_CONTENT;
-			    ctxt->checkIndex = 0;
+			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
 #endif
@@ -5721,16 +5716,16 @@ htmlStatus htmlAttrAllowed(const htmlElemDesc* elt, const xmlChar* attr, int leg
  *	for Attribute nodes, a return from htmlAttrAllowed
  *	for other nodes, HTML_NA (no checks performed)
  */
-htmlStatus htmlNodeStatus(const htmlNodePtr node, int legacy)
+htmlStatus htmlNodeStatus(const htmlNodePtr P_Node, int legacy)
 {
-	if(!node)
+	if(!P_Node)
 		return HTML_INVALID;
-	switch(node->type) {
+	switch(P_Node->type) {
 		case XML_ELEMENT_NODE:
-		    return legacy ? ( htmlElementAllowedHere(htmlTagLookup(node->parent->name), node->name) ? HTML_VALID : HTML_INVALID ) :
-				htmlElementStatusHere(htmlTagLookup(node->parent->name), htmlTagLookup(node->name));
+		    return legacy ? ( htmlElementAllowedHere(htmlTagLookup(P_Node->parent->name), P_Node->name) ? HTML_VALID : HTML_INVALID ) :
+				htmlElementStatusHere(htmlTagLookup(P_Node->parent->name), htmlTagLookup(P_Node->name));
 		case XML_ATTRIBUTE_NODE:
-		    return htmlAttrAllowed(htmlTagLookup(node->parent->name), node->name, legacy);
+		    return htmlAttrAllowed(htmlTagLookup(P_Node->parent->name), P_Node->name, legacy);
 		default: return HTML_NA;
 	}
 }
@@ -5774,7 +5769,7 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 			ctxt->space = NULL;
 		}
 		ctxt->nodeNr = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->nameNr = 0;
 		ctxt->name = NULL;
 		DICT_FREE(ctxt->version);
@@ -5806,7 +5801,7 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 		ctxt->vctxt.warning = xmlParserValidityWarning;
 		ctxt->record_info = 0;
 		ctxt->nbChars = 0;
-		ctxt->checkIndex = 0;
+		ctxt->CheckIndex = 0;
 		ctxt->inSubset = 0;
 		ctxt->errNo = XML_ERR_OK;
 		ctxt->depth = 0;

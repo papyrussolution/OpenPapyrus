@@ -287,7 +287,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 		GoodsGrpngArray gga;
 		PPIDArray goods_list, local_goods_list;
 		Goods2Tbl::Rec goods_rec;
-		TSArray <DateRange> period_list;
+		TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
 		if(!Filt.Cycl)
 			period_list.insert(&Filt.Period);
 		else if(Filt.Flags & GoodsTaxAnalyzeFilt::fMonthly) {
@@ -781,7 +781,7 @@ int FASTCALL PPViewGoodsTaxAnalyze::NextIteration(GoodsTaxAnalyzeViewItem * pIte
 DBQuery * SLAPI PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString * )
 {
 	uint   brw_id = Filt.HasCycleFlags() ? BROWSER_GOODSTAXANLZ_D : BROWSER_GOODSTAXANLZ;
-	TempGoodsTaxAnlzTbl * t = new TempGoodsTaxAnlzTbl(P_TempTbl->fileName);
+	TempGoodsTaxAnlzTbl * t = new TempGoodsTaxAnlzTbl(P_TempTbl->GetName());
 	DBQuery * q = 0;
 	THROW(CheckTblPtr(t));
 	if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {

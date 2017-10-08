@@ -98,7 +98,7 @@ extern "C" {
  *
  * Returns the context node.
  */
-#define xmlXPathGetContextNode(ctxt)    ((ctxt)->context->node)
+#define xmlXPathGetContextNode(ctxt)    ((ctxt)->context->P_Node)
 
 XMLPUBFUN int XMLCALL xmlXPathPopBoolean(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN double XMLCALL xmlXPathPopNumber(xmlXPathParserContextPtr ctxt);
@@ -203,7 +203,7 @@ XMLPUBFUN void * XMLCALL xmlXPathPopExternal(xmlXPathParserContextPtr ctxt);
  *
  * Empties a node-set.
  */
-#define xmlXPathEmptyNodeSet(ns) { while((ns)->nodeNr > 0) (ns)->nodeTab[(ns)->nodeNr--] = NULL; }
+#define xmlXPathEmptyNodeSet(ns) { while((ns)->nodeNr > 0) (ns)->PP_NodeTab[(ns)->nodeNr--] = NULL; }
 /**
  * CHECK_ERROR:
  *
@@ -298,13 +298,13 @@ XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathIntersection(xmlNodeSetPtr nodes1, xmlNo
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathDistinctSorted(xmlNodeSetPtr nodes);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathDistinct(xmlNodeSetPtr nodes);
 XMLPUBFUN int XMLCALL xmlXPathHasSameNodes(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2);
-XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNode * node);
+XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeLeadingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathLeadingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2);
-XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeLeading(xmlNodeSetPtr nodes, xmlNode * node);
+XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeLeading(xmlNodeSetPtr nodes, xmlNode * P_Node);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathLeading(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2);
-XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeTrailingSorted(xmlNodeSetPtr nodes, xmlNode * node);
+XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeTrailingSorted(xmlNodeSetPtr nodes, xmlNode * P_Node);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathTrailingSorted(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2);
-XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeTrailing(xmlNodeSetPtr nodes, xmlNode * node);
+XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeTrailing(xmlNodeSetPtr nodes, xmlNode * P_Node);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathTrailing(xmlNodeSetPtr nodes1, xmlNodeSetPtr nodes2);
 /**
  * Extending a context.
@@ -341,7 +341,7 @@ XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNewNodeSet(xmlNodePtr val);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPathNewValueTree(xmlNodePtr val);
 XMLPUBFUN int XMLCALL xmlXPathNodeSetAdd(xmlNodeSetPtr cur, xmlNodePtr val);
 XMLPUBFUN int XMLCALL xmlXPathNodeSetAddUnique(xmlNodeSetPtr cur, xmlNodePtr val);
-XMLPUBFUN int XMLCALL xmlXPathNodeSetAddNs(xmlNodeSetPtr cur, xmlNodePtr node, xmlNs * ns);
+XMLPUBFUN int XMLCALL xmlXPathNodeSetAddNs(xmlNodeSetPtr cur, xmlNodePtr P_Node, xmlNs * ns);
 XMLPUBFUN void XMLCALL xmlXPathNodeSetSort(xmlNodeSetPtr set);
 
 XMLPUBFUN void XMLCALL xmlXPathRoot(xmlXPathParserContextPtr ctxt);

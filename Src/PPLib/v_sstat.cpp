@@ -996,8 +996,8 @@ DBQuery * SLAPI PPViewSStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			brw_id = CycleList.getCount() ? BROWSER_SSTAT_CYCLE : BROWSER_SSTAT;
 		if(P_TempTbl) {
 			if(P_TempOrd)
-				THROW(CheckTblPtr(ot = new TempOrderTbl(P_TempOrd->fileName)));
-			THROW(CheckTblPtr(p_tt = new TempGoodsStatTbl(P_TempTbl->fileName)));
+				THROW(CheckTblPtr(ot = new TempOrderTbl(P_TempOrd->GetName())));
+			THROW(CheckTblPtr(p_tt = new TempGoodsStatTbl(P_TempTbl->GetName())));
 			fld_list.Add(p_tt->GoodsID);     //  #0
 			fld_list.Add(p_tt->Dt);          //  #1
 			fld_list.Add(p_tt->GoodsName);   //  #2

@@ -2060,7 +2060,7 @@ DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		DBTable * tbl_l[12];
 		memzero(tbl_l, sizeof(tbl_l));
 		if(P_TempPsn) {
-			THROW(CheckTblPtr(tmp_pt = new TempPersonTbl(P_TempPsn->fileName)));
+			THROW(CheckTblPtr(tmp_pt = new TempPersonTbl(P_TempPsn->GetName())));
 			tbl_l[tbl_count++] = tmp_pt;
 			if(!oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
 				THROW(CheckTblPtr(p = new PersonTbl));

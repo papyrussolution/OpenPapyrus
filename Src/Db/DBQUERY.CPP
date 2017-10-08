@@ -86,7 +86,7 @@ int SLAPI DBQuery::arrangeTerms()
 	int   list[32];
 	uint  n;
 	for(n = 0; n < tblCount; n++)
-		list[n] = tbls[n].tbl->handle;
+		list[n] = tbls[n].tbl->GetHandle();
 	for(n = 0; n < w_restrict->count; n++) {
 		DBQ::T * t = &w_restrict->items[n];
 		t->tblIdx = _max_hdl(&t->right, list, _max_hdl(&t->left, list, -1));
@@ -200,7 +200,7 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 			t.key.P_h->pseg = 0;
 			seg = 0;
 			do {
-				if(!t.tree.chooseKey(t.tree.Root, t.tbl->handle, seg, &t.key, 0))
+				if(!t.tree.chooseKey(t.tree.Root, t.tbl->GetHandle(), seg, &t.key, 0))
 					return 0;
 			} while((t.key.P_h->pseg & ~DYN_KEY) == ++seg);
 		}
@@ -208,7 +208,7 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 	else {
 		int    ka_c = 0; // Количество допустимых индексов
 		int  * p_ka = 0;   // Массив допустимых индексов
-		uint   num_keys = t.tbl->indexes.getNumKeys();
+		uint   num_keys = t.tbl->GetIndices().getNumKeys();
 		if(tblN == 0)
 			if((p_ka = (int *)SAlloc::M(num_keys * sizeof(int))) != 0)
 				ka_c = analyzeOrder(p_ka);
@@ -229,10 +229,10 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 						use_index = 1;
 			if(use_index) {
 				p_trace[0] = 0;
-				KR k(t.tbl->handle, i);
+				KR k(t.tbl->GetHandle(), i);
 				seg = 0;
 				do
-					if(!t.tree.chooseKey(t.tree.Root, t.tbl->handle, seg, &k, p_trace))
+					if(!t.tree.chooseKey(t.tree.Root, t.tbl->GetHandle(), seg, &k, p_trace))
 						return (k.destroy(), 0);
 				while((k.P_h->pseg & ~DYN_KEY) == ++seg);
 				int    cm = compare(t.key, k);
@@ -253,7 +253,7 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 			*/
 		}
 		SAlloc::F(p_best_trace);
-		t.tbl->setIndex(t.tbl->indexes[t.key.P_h->keyNum].getKeyNumber());
+		t.tbl->setIndex(t.tbl->GetIndices()[t.key.P_h->keyNum].getKeyNumber());
 		if((t.keyBuf = new char[MAXKEYLEN]) == 0)
 			return 0;
 	}
@@ -277,13 +277,13 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 	uint   count = 0;
 	if(ordCount) {
 		uint   i;
-		uint   num_keys = tbls[0].tbl->indexes.getNumKeys();
+		const  uint num_keys = tbls[0].tbl->GetIndices().getNumKeys();
 		for(i = 0; i < ordCount; i++)
 			if(order[i].getTable() != tbls[0].tbl)
 				return ((status |= s_tmp_table_needed), 0);
 		for(i = 0; i < num_keys; i++) {
 			int    ok = 1;
-			BNKey key = tbls[0].tbl->indexes[i];
+			const  BNKey key = tbls[0].tbl->GetIndices()[i];
 			for(uint j = 0; j < (uint)key.getNumSeg() && j < ordCount; j++)
 				if(order[j].fld != key.getFieldID(j)) {
 					ok = 0;
@@ -719,7 +719,7 @@ int SLAPI DBQuery::fillRecord(Pchar buf, RECORDNUMBER * pPos)
 	if(buf) {
 		if(syntax & t_all) {
 			for(i = 0; i < tblCount; i++) {
-				RECORDSIZE s = tbls[i].tbl->fields.getRecSize();
+				RECORDSIZE s = tbls[i].tbl->GetFields().getRecSize();
 				memcpy(buf+p, tbls[i].tbl->getDataBuf(), s);
 				p += s;
 			}
@@ -1344,7 +1344,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			}
 			for(uint i = 0; i < c; i++) {
 				DBUpdateSetItem & r_item = rSet.Get(i);
-				if(r_item.Fld.id == pTbl->handle) {
+				if(r_item.Fld.id == pTbl->GetHandle()) {
 					void * p_data = r_item.Fld.getValuePtr();
 					const BNField & r_fld = r_item.Fld.getField();
 					DBConst val;

@@ -6107,7 +6107,7 @@ typedef enum {
 	XML_EXP_NILABLE = (1 << 0)
 } xmlExpNodeInfo;
 
-#define IS_NILLABLE(node) ((node)->info & XML_EXP_NILABLE)
+#define IS_NILLABLE(P_Node) ((P_Node)->info & XML_EXP_NILABLE)
 
 struct _xmlExpNode {
 	uchar type; /* xmlExpNodeType */

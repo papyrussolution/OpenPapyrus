@@ -2460,9 +2460,9 @@ public:
 	int    Overflow;
 	FRect  Bounds;
 	TSStack <StkItem> Stk;
-	TSArray <STextLayout::Item> & R_List;
+	TSVector <STextLayout::Item> & R_List; // @v9.8.4 TSArray-->TSVector
 
-	TloRowState(TSArray <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList)
+	TloRowState(TSVector <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList) // @v9.8.4 TSArray-->TSVector
 	{
 		N = 0;
 		S = 0;
@@ -2473,7 +2473,7 @@ public:
 	{
 		return Stk.getPointer();
 	}
-	float AdjustRowPos(int justif)
+	float FASTCALL AdjustRowPos(int justif)
 	{
 		const uint c = GetCount();
 		float ht = 0.0f;
@@ -2506,15 +2506,14 @@ public:
 		}
 		return ht;
 	}
-	int NewRow(uint curTxtPos)
+	void FASTCALL NewRow(uint curTxtPos)
 	{
 		N++;
 		S = curTxtPos;
 		Stk.clear();
 		Overflow = 0;
-		return 1;
 	}
-	float PopGlyph(uint c)
+	float FASTCALL PopGlyph(uint c)
 	{
 		float x = Stk.peek().X;
 		for(uint i = 0; i < c; i++) {
@@ -3703,7 +3702,7 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 								p_descr->P_CrFace = cairo_win32_font_face_create_for_logfontw_hfont(&log_fontw, p_descr->Hf);
 								cairo_font_options_t * p_options = cairo_font_options_create();
 								if(p_font->Flags & SFontDescr::fAntialias) {
-									cairo_font_options_set_antialias(p_options, CAIRO_ANTIALIAS_DEFAULT);
+									cairo_font_options_set_antialias(p_options, /*CAIRO_ANTIALIAS_DEFAULT*/CAIRO_ANTIALIAS_BEST);
 								}
 								mtx_font.InitScale(p_font->Size, p_font->Size);
 								p_descr->P_CrScFont = cairo_scaled_font_create(p_descr->P_CrFace, (cairo_matrix_t *)&mtx_font, (cairo_matrix_t *)&mtx_ctm, p_options);

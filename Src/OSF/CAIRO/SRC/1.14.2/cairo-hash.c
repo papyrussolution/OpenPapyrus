@@ -280,7 +280,6 @@ static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 		return CAIRO_STATUS_SUCCESS;
 	}
 }
-
 /**
  * _cairo_hash_table_lookup:
  * @hash_table: a hash table
@@ -447,7 +446,6 @@ void _cairo_hash_table_remove(cairo_hash_table_t * hash_table, cairo_hash_entry_
 	*_cairo_hash_table_lookup_exact_key(hash_table, key) = DEAD_ENTRY;
 	hash_table->live_entries--;
 	hash_table->cache[key->hash & 31] = NULL;
-
 	/* Check for table resize. Don't do this when iterating as this will
 	 * reorder elements of the table and cause the iteration to potentially
 	 * skip some elements. */
@@ -496,4 +494,3 @@ void _cairo_hash_table_foreach(cairo_hash_table_t * hash_table, cairo_hash_callb
 		_cairo_hash_table_manage(hash_table);
 	}
 }
-

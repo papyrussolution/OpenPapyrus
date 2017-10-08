@@ -82,7 +82,7 @@ found_meta:
 				const xmlChar * value;
 				content = NULL;
 				while(attr) {
-					if((attr->children != NULL) && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL)) {
+					if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL)) {
 						value = attr->children->content;
 						if(sstreqi_ascii(attr->name, BAD_CAST "http-equiv") && sstreqi_ascii(value, BAD_CAST "Content-Type"))
 							http = 1;
@@ -118,7 +118,6 @@ found_content:
 	}
 	return(encoding);
 }
-
 /**
  * htmlSetMetaEncoding:
  * @doc:  the document
@@ -306,7 +305,7 @@ static void htmlSaveErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void htmlSaveErr(int code, xmlNodePtr node, const char * extra)
+static void htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -316,7 +315,7 @@ static void htmlSaveErr(int code, xmlNodePtr node, const char * extra)
 		case XML_SAVE_NO_DOCTYPE: msg = "HTML has no DOCTYPE\n"; break;
 		default: msg = "unexpected error number\n";
 	}
-	__xmlSimpleError(XML_FROM_OUTPUT, code, node, msg, extra);
+	__xmlSimpleError(XML_FROM_OUTPUT, code, P_Node, msg, extra);
 }
 
 /************************************************************************
@@ -883,8 +882,7 @@ int htmlDocDump(FILE * f, xmlDocPtr cur)
 			xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 			if(enc != cur->charset) {
 				if(cur->charset != XML_CHAR_ENCODING_UTF8) {
-					// Not supported yet
-					return -1;
+					return -1; // Not supported yet
 				}
 				handler = xmlFindCharEncodingHandler(encoding);
 				if(handler == NULL)
@@ -954,7 +952,6 @@ int htmlSaveFile(const char * filename, xmlDocPtr cur)
 	ret = xmlOutputBufferClose(buf);
 	return ret;
 }
-
 /**
  * htmlSaveFileFormat:
  * @filename:  the filename
@@ -971,15 +968,14 @@ int htmlSaveFileFormat(const char * filename, xmlDocPtr cur, const char * encodi
 	xmlOutputBufferPtr buf;
 	xmlCharEncodingHandler * handler = NULL;
 	int ret;
-	if(!cur || (filename == NULL))
+	if(!cur || !filename)
 		return -1;
 	xmlInitParser();
 	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
 		if(enc != cur->charset) {
 			if(cur->charset != XML_CHAR_ENCODING_UTF8) {
-				// Not supported yet
-				return -1;
+				return -1; // Not supported yet
 			}
 			handler = xmlFindCharEncodingHandler(encoding);
 			if(handler == NULL)

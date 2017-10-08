@@ -131,7 +131,7 @@ int SLAPI CreateByExample(const char * pPath)
 								if(ins_rec && !p_dst_tbl->insertRec()) {
 									PPSaveErrContext();
 									SString msg_buf, rec_txt_buf;
-									msg_buf.Cat(p_dst_tbl->fileName).CatDiv('-', 1);
+									msg_buf.Cat(p_dst_tbl->GetName()).CatDiv('-', 1);
 									//
 									// Так как список полей	в p_dst_tbl не инициализирован,
 									// а буфер этой таблицы идентичен буферу p_src_tbl,
@@ -199,7 +199,7 @@ int SLAPI CreateByExample(const char * pPath)
 						}
 					}
 				}
-				PPWaitPercent(i++, rn, p_rc->tableName);
+				PPWaitPercent(i++, rn, p_rc->GetTableName());
 				THROW(PPCheckUserBreak());
 			} while(src_tbl.step(spNext));
 		}

@@ -1302,7 +1302,7 @@ int TWhatman::DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj)
 
 const float __rule_width = 15.5f;
 
-int TWhatman::GetNotchList(const Rule & rRule, float size, float offs, int kind, TSArray <RuleNotch> & rList) const
+int TWhatman::GetNotchList(const Rule & rRule, float size, float offs, int kind, TSVector <RuleNotch> & rList) const
 {
 	int    ok = 1;
 	rList.clear();
@@ -1359,7 +1359,7 @@ int TWhatman::Draw(TCanvas2 & rCanv)
 	LMatrix2D mtx;
 	FPoint notch_area;
 	FPoint notch_offs;
-	TSArray <RuleNotch> notch_list;
+	TSVector <RuleNotch> notch_list; // @v9.8.4 TSArray-->TSVector
 	TCanvas2::Capability caps;
 	rCanv.GetCapability(&caps);
 	//

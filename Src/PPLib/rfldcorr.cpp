@@ -250,15 +250,14 @@ int SdFieldCorrListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	SdbField fld, inner_fld;
 	for(uint i = 0; ok && Data.EnumFields(&i, &fld);) {
-		ss.clear(1);
-		sub = 0;
+		ss.clear();
+		sub.Z();
 		if(fld.T.Flags & STypEx::fFormula)
 			sub.CatChar('F').CatChar(':').Cat(fld.Formula);
 		else if(P_Rec->GetFieldByID(fld.ID, 0, &inner_fld) > 0)
 			sub = inner_fld.Name;
 		ss.add(sub);
-		// @v7.0.3 ss.add(fld.Name);
-		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER)); // @v7.0.3
+		ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
 		ss.add(GetBaseTypeString(stbase(fld.T.Typ), BTSF_NATIVE|BTSF_OEM, sub));
 		len = SFMTLEN(fld.OuterFormat);
 		sub.Z().Cat(len);

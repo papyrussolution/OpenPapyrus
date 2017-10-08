@@ -151,7 +151,7 @@ DBQuery * SLAPI PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString *
 	uint   brw_id = BROWSER_GLOBALUSERACC;
 	DBQ  * dbq = 0;
 	DBE dbe_psn;
-	THROW(CheckTblPtr(t = new TempGlobUserAccTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(t = new TempGlobUserAccTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn,  PPDbqFuncPool::IdObjNamePerson, t->PersonID);
 	q = & select(
 			t->ID,            // #0

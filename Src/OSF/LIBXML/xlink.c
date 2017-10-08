@@ -100,18 +100,18 @@ void xlinkSetDefaultDetect(xlinkNodeDetectFunc func)
  * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
  *         link detected.
  */
-xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node) 
+xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr P_Node) 
 {
 	xmlChar * type = NULL, * role = NULL;
 	xlinkType ret = XLINK_TYPE_NONE;
-	if(!node) return(XLINK_TYPE_NONE);
-	if(!doc) doc = node->doc;
+	if(!P_Node) return(XLINK_TYPE_NONE);
+	if(!doc) doc = P_Node->doc;
 	if(doc && (doc->type == XML_HTML_DOCUMENT_NODE)) {
 		/*
 		 * This is an HTML document.
 		 */
 	}
-	else if(node->ns && (sstreq(node->ns->href, XHTML_NAMESPACE))) {
+	else if(P_Node->ns && (sstreq(P_Node->ns->href, XHTML_NAMESPACE))) {
 		/*
 		 * !!!! We really need an IS_XHTML_ELEMENT function from HTMLtree.h @@@
 		 */
@@ -126,15 +126,15 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr node)
 	 * We don't prevent a-priori having XML Linking constructs on
 	 * XHTML elements
 	 */
-	type = xmlGetNsProp(node, BAD_CAST "type", XLINK_NAMESPACE);
+	type = xmlGetNsProp(P_Node, BAD_CAST "type", XLINK_NAMESPACE);
 	if(type != NULL) {
 		if(sstreq(type, BAD_CAST "simple")) {
 			ret = XLINK_TYPE_SIMPLE;
 		}
 		else if(sstreq(type, BAD_CAST "extended")) {
-			role = xmlGetNsProp(node, BAD_CAST "role", XLINK_NAMESPACE);
+			role = xmlGetNsProp(P_Node, BAD_CAST "role", XLINK_NAMESPACE);
 			if(role != NULL) {
-				xmlNs * xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
+				xmlNs * xlink = xmlSearchNs(doc, P_Node, XLINK_NAMESPACE);
 				if(xlink == NULL) {
 					/* Humm, fallback method */
 					if(sstreq(role, BAD_CAST "xlink:external-linkset"))

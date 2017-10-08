@@ -512,7 +512,7 @@ STimeChunkBrowser::SRect & STimeChunkBrowser::SRect::Clear()
 	return *this;
 }
 
-STimeChunkBrowser::SRectArray::SRectArray() : TSArray <SRect> ()
+STimeChunkBrowser::SRectArray::SRectArray() : TSVector <SRect> () // @v9.8.4 TSArray-->TSVector
 {
 }
 

@@ -684,6 +684,8 @@ int FASTCALL PPBaseFilt::SetBranchSString(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSString, offs, 0) : 0; }
 int FASTCALL PPBaseFilt::SetBranchSArray(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSArray, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::SetBranchSVector(size_t offs)
+	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSVector, offs, 0) : 0; }
 int FASTCALL PPBaseFilt::SetBranchObjIdListFilt(size_t offs)
 	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tObjIdListFilt, offs, 0) : 0; }
 int FASTCALL PPBaseFilt::SetBranchStrAssocArray(size_t offs)
@@ -720,6 +722,10 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 		}
 		else if(p_b->Type == Branch::tSArray) {
 			SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
+			p_ary->freeAll();
+		}
+		else if(p_b->Type == Branch::tSVector) {
+			SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
 			p_ary->freeAll();
 		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
@@ -840,6 +846,10 @@ int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
 			const SArray * p_ary = (const SArray *)(((const uint8 *)this) + p_b->Offs);
 			THROW_SL(rBuf.Write(p_ary, 0));
 		}
+		else if(p_b->Type == Branch::tSVector) {
+			const SVector * p_ary = (const SVector *)(((const uint8 *)this) + p_b->Offs);
+			THROW_SL(rBuf.Write(p_ary, 0));
+		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
 			const ObjIdListFilt * p_list = (const ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
 			THROW_SL(p_list->Write(rBuf));
@@ -926,6 +936,10 @@ int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 						SArray * p_ary = (SArray *)(((const uint8 *)this) + p_b->Offs);
 						THROW_SL(rBuf.Read(p_ary, 0));
 					}
+					else if(p_b->Type == Branch::tSVector) {
+						SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
+						THROW_SL(rBuf.Read(p_ary, 0));
+					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
 						ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
 						THROW_SL(p_list->Read(rBuf));
@@ -1007,6 +1021,11 @@ int SLAPI PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 			const SArray * p_src_ary = (const SArray *)(((const uint8 *)pS) + p_b->Offs);
 			*p_ary = *p_src_ary;
 		}
+		else if(p_b->Type == Branch::tSVector) {
+			SVector * p_ary = (SVector *)(((const uint8 *)this) + p_b->Offs);
+			const SVector * p_src_ary = (const SVector *)(((const uint8 *)pS) + p_b->Offs);
+			*p_ary = *p_src_ary;
+		}
 		else if(p_b->Type == Branch::tObjIdListFilt) {
 			ObjIdListFilt * p_list = (ObjIdListFilt *)(((const uint8 *)this) + p_b->Offs);
 			const ObjIdListFilt * p_src_list = (const ObjIdListFilt *)(((const uint8 *)pS) + p_b->Offs);
@@ -1059,6 +1078,12 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 					else if(p_b->Type == Branch::tSArray) {
 						const SArray * p_ary = (const SArray *)(((const uint8 *)this) + p_b->Offs);
 						const SArray * p_src_ary = (const SArray *)(((const uint8 *)pS) + p_b->Offs);
+						if(!p_ary->IsEqual(*p_src_ary))
+							ok = 0;
+					}
+					else if(p_b->Type == Branch::tSVector) {
+						const SVector * p_ary = (const SVector *)(((const uint8 *)this) + p_b->Offs);
+						const SVector * p_src_ary = (const SVector *)(((const uint8 *)pS) + p_b->Offs);
 						if(!p_ary->IsEqual(*p_src_ary))
 							ok = 0;
 					}

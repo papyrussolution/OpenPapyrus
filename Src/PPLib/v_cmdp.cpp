@@ -547,7 +547,7 @@ int DesktopAssocCmdsDialog::setupList()
 		if(Data.GetItem(i, assci)) {
 			uint pos = 0;
 			if(CmdList.Search(assci.CmdID, &pos) > 0) {
-				ss.clear(1);
+				ss.clear();
 				ss.add(assci.Code, 0);
 				ss.add(CmdList.at(pos).Txt, 0);
 				if(!addStringToList(i+1, ss.getBuf()))

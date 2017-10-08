@@ -60,10 +60,10 @@ int SLAPI DbDict_DL600::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 int SLAPI DbDict_DL600::CreateTableSpec(DBTable * pTbl)
 {
 	int    ok = 1;
-	if(pTbl->tableName[0] == 0) {
+	if(pTbl->GetTableName()[0] == 0) {
 		SString tbl_name;
 		ulong  t = SLS.GetTLA().Rg.Get();
-		(tbl_name = "CT").Cat(t).CopyTo(pTbl->tableName, sizeof(pTbl->tableName));
+		pTbl->SetTableName((tbl_name = "CT").Cat(t));
 	}
 	DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxDatabase);
 	THROW(p_ctx);
@@ -525,7 +525,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 					Marker = EvqList.at(evqc-1).Ident;
 				if(DS.GetAdviseList(NotifyID, 0, adv_list) > 0) {
 					PPThreadLocalArea & r_tla = DS.GetTLA();
-					TSArray <PPAdviseEvent> result_list;
+					TSVector <PPAdviseEvent> result_list; // @v9.8.4 TSArray-->TSVector
 					if(!p_queue) {
 						SysJournal * p_sj = r_tla.P_SysJ;
 						if(p_sj) {
@@ -3090,7 +3090,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								//STimer timer;
 								LDATETIME dtm;
 								LDATETIME last_purge_time = getcurdatetime_();
-								TSArray <PPAdviseEvent> temp_list;
+								TSVector <PPAdviseEvent> temp_list; // @v9.8.4 TSArray-->TSVector
 								Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 								BExtQuery * p_q = 0;
 
@@ -3347,9 +3347,9 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 				PPID   ObjID;
 				long   Extra;
 			};
-			SArray list(sizeof(SjEntry), 64, O_ARRAY);
+			SVector list(sizeof(SjEntry), 64, O_ARRAY); // @v9.8.4 SArray-->SVector
 
-			TSArray <PPAdviseEvent> evq_list;
+			TSVector <PPAdviseEvent> evq_list; // @v9.8.4 TSArray-->TSVector
 			PPAdviseEventQueue * p_queue = (pCli && __UseAdvEvQueue && !CheckExtFlag(ECF_DISABLEASYNCADVQUEUE)) ? CMng.GetAdviseEventQueue(dbPathID) : 0;
 			if(pCli && p_queue)
 				pCli->Register(dbPathID, p_queue);
@@ -4530,7 +4530,7 @@ PPAdviseEventQueue::Stat::Stat()
 	MaxLength = 0;
 }
 
-SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSArray <PPAdviseEvent> (), CliList(DEFCOLLECTDELTA, (aryDataOwner|aryPtrContainer))
+SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSVector <PPAdviseEvent> (), CliList(DEFCOLLECTDELTA, (aryDataOwner|aryPtrContainer))
 {
 	LastIdent = 0;
 	//
@@ -4568,7 +4568,7 @@ int FASTCALL PPAdviseEventQueue::RegisterClient(const Client * pCli)
 	return ok;
 }
 
-int FASTCALL PPAdviseEventQueue::Push(const TSArray <PPAdviseEvent> & rList)
+int FASTCALL PPAdviseEventQueue::Push(const TSVector <PPAdviseEvent> & rList)
 {
 	int    ok = 1;
 	uint   ql = 0;
@@ -4605,7 +4605,7 @@ uint PPAdviseEventQueue::GetCount()
 	return c;
 }
 
-int PPAdviseEventQueue::Get(int64 lowIdent, TSArray <PPAdviseEvent> & rList)
+int PPAdviseEventQueue::Get(int64 lowIdent, TSVector <PPAdviseEvent> & rList)
 {
 	int    ok = -1;
 	int    declined = 0;

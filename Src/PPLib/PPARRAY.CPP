@@ -252,11 +252,11 @@ int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 //
 //
 //
-SLAPI ObjRestrictArray::ObjRestrictArray() : TSArray <ObjRestrictItem> ()
+SLAPI ObjRestrictArray::ObjRestrictArray() : /*TSArray*/TSVector <ObjRestrictItem> ()
 {
 }
 
-SLAPI ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : TSArray <ObjRestrictItem> (s)
+SLAPI ObjRestrictArray::ObjRestrictArray(const ObjRestrictArray & s) : /*TSArray*/TSVector <ObjRestrictItem> (s)
 {
 }
 
@@ -266,7 +266,7 @@ ObjRestrictArray & FASTCALL ObjRestrictArray::operator = (const ObjRestrictArray
 	return *this;
 }
 
-int SLAPI ObjRestrictArray::Helper_MergeItems(const ObjRestrictArray * pS)
+int FASTCALL ObjRestrictArray::Helper_MergeItems(const ObjRestrictArray * pS)
 {
 	int    ok = 1;
 	if(pS) {
@@ -320,7 +320,7 @@ int SLAPI ObjRestrictArray::Add(PPID objID, long flags, uint * pPos)
 		return PPSetErrorSLib();
 }
 
-int SLAPI ObjRestrictArray::CheckUniqueID(PPID objID) const
+int FASTCALL ObjRestrictArray::CheckUniqueID(PPID objID) const
 {
 	return SearchItemByID(objID, 0) ? 0 : 1;
 }
@@ -336,7 +336,7 @@ int SLAPI ObjRestrictArray::UpdateItemByID(PPID objID, long itemFlags)
 	return ok;
 }
 
-int SLAPI ObjRestrictArray::RemoveItemByID(PPID objID)
+int FASTCALL ObjRestrictArray::RemoveItemByID(PPID objID)
 {
 	uint   pos = 0;
 	if(SearchItemByID(objID, &pos)) {

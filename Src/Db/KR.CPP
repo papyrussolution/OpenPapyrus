@@ -32,7 +32,8 @@ int SLAPI KR::init(int hdlTable, int keyPosition)
 		P_h->count    = 0;
 		P_h->current  = 0;
 		P_h->hdlTable = hdlTable;
-		P_h->keyLen   = _GetTable(hdlTable)->indexes.getKeySize(keyPosition);
+		//P_h->keyLen   = _GetTable(hdlTable)->indexes.getKeySize(keyPosition);
+		P_h->keyLen   = _GetTable(hdlTable)->GetIndices().getKeySize(keyPosition);
 		return 1;
 	}
 }
@@ -205,7 +206,7 @@ int SLAPI KR::conjunction(__range & A /*dest*/, __range & B, int * comp, int * e
 {
 	int    c;
 	__range C;
-	BNKeyList * keyList = &_GetTable(P_h->hdlTable)->indexes;
+	const BNKeyList * keyList = &_GetTable(P_h->hdlTable)->GetIndices();
 	if(A.low == 0 || B.low == 0)
 		if(A.low)
 			{ C.low = A.low; C.ol = A.ol; }
@@ -281,7 +282,7 @@ int SLAPI KR::disjunction(void * d)
 	char    buf[sizeof(I) + 2 * MAXKEYLEN];
 	int     c, tc, eq;
 	int     next;
-	BNKeyList * keyList = &_GetTable(P_h->hdlTable)->indexes;
+	const BNKeyList * keyList = &_GetTable(P_h->hdlTable)->GetIndices();
 	__range A, B, C;
 	makeRange(d, B);
 	if(first()) do {
@@ -395,7 +396,7 @@ int SLAPI KR::getKey(void * d, int * sp)
 		const char * c = P_b + P_h->current;
 		KR::I & ih = *(KR::I*)c;
 		if(ih.low == _EQ_) {
-			const int dup = (_GetTable(P_h->hdlTable)->indexes[P_h->keyNum].getFlags() & (XIF_DUP|XIF_REPDUP));
+			const int dup = (_GetTable(P_h->hdlTable)->GetIndices()[P_h->keyNum].getFlags() & (XIF_DUP|XIF_REPDUP));
 			memcpy(d, c+sizeof(KR::I), P_h->keyLen);
 			if(*sp == spNext)
 				*sp = dup ? spEq : (spEq | ONLY_ONE_REC);
@@ -439,7 +440,7 @@ int FASTCALL KR::checkKey(const void * d) const
 		const uchar  low = ((KR::I*)c)->low;
 		const uchar  upp = ((KR::I*)c)->upp;
 		c += sizeof(KR::I);
-		BNKeyList * idxs = &_GetTable(P_h->hdlTable)->indexes;
+		const  BNKeyList * idxs = &_GetTable(P_h->hdlTable)->GetIndices();
 		int    cmp = idxs->compareKey(P_h->keyNum, d, c);
 		if(cmp > 0) {
 			if(oneof2(low, _GE_, _GT_)) {
@@ -487,7 +488,7 @@ int SLAPI KR::rating()
 		return 0;
 	int      mark   = 1;
 	DBTable * p_tbl = _GetTable(P_h->hdlTable);
-	BNKey    key    = p_tbl->indexes.getKey(P_h->keyNum);
+	const BNKey key = p_tbl->GetIndices().getKey(P_h->keyNum);
 	const int flags  = key.getFlags();
 	const int unique = (flags & (XIF_DUP|XIF_REPDUP)) ? 0 : 1;
 	do {
@@ -503,7 +504,7 @@ int SLAPI KR::rating()
 				char * c1  = P_b + P_h->current+sizeof(I);
 				char * c2  = c1 + P_h->keyLen;
 				for(int i = 0; i < ns; i++) {
-					const BNField & f = p_tbl->fields[key.getFieldID(i)];
+					const BNField & f = p_tbl->GetFields()[key.getFieldID(i)];
 					if(stcomp(f.T, c1+ofs, c2+ofs) == 0) {
 						s++;
 						ofs += stsize(f.T);

@@ -3148,7 +3148,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 	const  char * p_tag = "StyloPalm";
 	LDATETIME dtm;
 	xmlDoc * p_doc = 0;
-	xmlTextReaderPtr p_reader  = 0;
+	xmlTextReader * p_reader  = 0;
 	dtm.SetZero();
 	if(pXmlPath)
 		p_reader = xmlReaderForFile(pXmlPath, NULL, XML_PARSE_NOENT);

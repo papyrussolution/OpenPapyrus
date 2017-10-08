@@ -210,7 +210,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 	int code = -1;
 	int domain;
 	const xmlChar * name = NULL;
-	xmlNode * node;
+	xmlNode * P_Node;
 	xmlErrorLevel level;
 	xmlParserInputPtr input = NULL;
 	xmlParserInputPtr cur = NULL;
@@ -224,11 +224,11 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 		code = err->code;
 		domain = err->domain;
 		level = err->level;
-		node = (xmlNode *)err->node;
+		P_Node = (xmlNode *)err->P_Node;
 		if(code == XML_ERR_OK)
 			return;
-		if(node && node->type == XML_ELEMENT_NODE)
-			name = node->name;
+		if(P_Node && P_Node->type == XML_ELEMENT_NODE)
+			name = P_Node->name;
 		/*
 		 * Maintain the compatibility with the legacy error handling
 		 */
@@ -404,7 +404,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
     const char * str2, const char * str3, int int1, int col, const char * msg, ...)
 {
 	xmlParserCtxtPtr ctxt = NULL;
-	xmlNode * node = (xmlNode *)nod;
+	xmlNode * P_Node = (xmlNode *)nod;
 	char * str = NULL;
 	xmlParserInputPtr input = NULL;
 	xmlErrorPtr to = &xmlLastError;
@@ -457,20 +457,20 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		}
 		to = &ctxt->lastError;
 	}
-	else if(node && !file) {
+	else if(P_Node && !file) {
 		int i;
-		if(node->doc && node->doc->URL) {
-			baseptr = node;
+		if(P_Node->doc && P_Node->doc->URL) {
+			baseptr = P_Node;
 /*	    file = (const char *) node->doc->URL; */
 		}
-		for(i = 0; ((i < 10) && node && (node->type != XML_ELEMENT_NODE)); i++)
-			node = node->parent;
-		if(!baseptr && node && node->doc && node->doc->URL)
-			baseptr = node;
-		if(node && node->type == XML_ELEMENT_NODE)
-			line = node->line;
+		for(i = 0; ((i < 10) && P_Node && (P_Node->type != XML_ELEMENT_NODE)); i++)
+			P_Node = P_Node->parent;
+		if(!baseptr && P_Node && P_Node->doc && P_Node->doc->URL)
+			baseptr = P_Node;
+		if(P_Node && P_Node->type == XML_ELEMENT_NODE)
+			line = P_Node->line;
 		if(!line || line == 65535)
-			line = xmlGetLineNo(node);
+			line = xmlGetLineNo(P_Node);
 	}
 	/*
 	 * Save the information about the error
@@ -517,8 +517,8 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		else
 #endif
 		to->file = (char *)sstrdup(baseptr->doc->URL);
-		if((to->file == NULL) && node && node->doc)
-			to->file = (char*)sstrdup(node->doc->URL);
+		if((to->file == NULL) && P_Node && P_Node->doc)
+			to->file = (char*)sstrdup(P_Node->doc->URL);
 	}
 	to->line = line;
 	if(str1)
@@ -529,7 +529,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		to->str3 = sstrdup(str3);
 	to->int1 = int1;
 	to->int2 = col;
-	to->node = node;
+	to->P_Node = P_Node;
 	to->ctxt = ctx;
 	if(to != &xmlLastError)
 		xmlCopyError(to, &xmlLastError);
@@ -568,16 +568,16 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
  *
  * Handle an out of memory condition
  */
-void __xmlSimpleError(int domain, int code, xmlNode * node, const char * msg, const char * extra)
+void __xmlSimpleError(int domain, int code, xmlNode * P_Node, const char * msg, const char * extra)
 {
 	if(code == XML_ERR_NO_MEMORY) {
 		if(extra)
-			__xmlRaiseError(0, 0, 0, 0, node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
+			__xmlRaiseError(0, 0, 0, 0, P_Node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 		else
-			__xmlRaiseError(0, 0, 0, 0, node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
+			__xmlRaiseError(0, 0, 0, 0, P_Node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, 0, node, domain, code, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, msg, extra);
+		__xmlRaiseError(0, 0, 0, 0, P_Node, domain, code, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, msg, extra);
 	}
 }
 /**
@@ -852,10 +852,10 @@ int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to)
 		to->code = from->code;
 		to->level = from->level;
 		to->line = from->line;
-		to->node = from->node;
+		to->P_Node = from->P_Node;
 		to->int1 = from->int1;
 		to->int2 = from->int2;
-		to->node = from->node;
+		to->P_Node = from->P_Node;
 		to->ctxt = from->ctxt;
 		to->message = message;
 		to->file = file;

@@ -99,7 +99,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 	THROW(p_writer = xmlNewTextWriterFilename(pOutFileName, 0));
 	{
 		SString temp_buf, fld_name;
-		const BNFieldList & r_fl = p_t->fields;
+		const BNFieldList & r_fl = p_t->GetFields();
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentString(p_writer, (const xmlChar*)"\t");
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
@@ -107,7 +107,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 		{
 			DbProvider * p_dict = CurDict;
 			SLS.GetTLA().TxtDateFmt_ = DATF_DMY|DATF_CENTURY;
-			(temp_buf = p_t->tableName).ToUtf8();
+			(temp_buf = p_t->GetTableName()).ToUtf8();
 			SXml::WNode n_tbl(p_writer, temp_buf);
 			DS.GetVersion().ToStr(temp_buf.Z());
 			n_tbl.PutAttrib("version", temp_buf);

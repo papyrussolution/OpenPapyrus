@@ -121,7 +121,7 @@ typedef enum {
 
 struct xmlStepState {
 	int step;
-	xmlNode * node;
+	xmlNode * P_Node;
 };
 
 //typedef struct _xmlStepState xmlStepState;
@@ -427,7 +427,7 @@ static int xmlReversePattern(xmlPatternPtr comp)
 *									*
 ************************************************************************/
 
-static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * node)
+static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
 {
 	if((states->states == NULL) || (states->maxstates <= 0)) {
 		states->maxstates = 4;
@@ -442,7 +442,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * node)
 		states->maxstates *= 2;
 	}
 	states->states[states->nbstates].step = step;
-	states->states[states->nbstates++].node = node;
+	states->states[states->nbstates++].P_Node = P_Node;
 #if 0
 	fprintf(stderr, "Push: %d, %s\n", step, node->name);
 #endif
@@ -458,12 +458,12 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * node)
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-static int xmlPatMatch(xmlPatternPtr comp, xmlNode * node)
+static int xmlPatMatch(xmlPatternPtr comp, xmlNode * P_Node)
 {
 	int i;
 	xmlStepOpPtr step;
 	xmlStepStates states = {0, 0, NULL}; /* // may require backtrack */
-	if(!comp || !node)
+	if(!comp || !P_Node)
 		return -1;
 	i = 0;
 restart:
@@ -473,46 +473,46 @@ restart:
 			case XML_OP_END:
 			    goto found;
 			case XML_OP_ROOT:
-			    if(node->type == XML_NAMESPACE_DECL)
+			    if(P_Node->type == XML_NAMESPACE_DECL)
 				    goto rollback;
-			    node = node->parent;
-			    if((node->type == XML_DOCUMENT_NODE) ||
+			    P_Node = P_Node->parent;
+			    if((P_Node->type == XML_DOCUMENT_NODE) ||
 #ifdef LIBXML_DOCB_ENABLED
-			    (node->type == XML_DOCB_DOCUMENT_NODE) ||
+			    (P_Node->type == XML_DOCB_DOCUMENT_NODE) ||
 #endif
-			    (node->type == XML_HTML_DOCUMENT_NODE))
+			    (P_Node->type == XML_HTML_DOCUMENT_NODE))
 				    continue;
 			    goto rollback;
 			case XML_OP_ELEM:
-			    if(node->type != XML_ELEMENT_NODE)
+			    if(P_Node->type != XML_ELEMENT_NODE)
 				    goto rollback;
 			    if(!step->value)
 				    continue;
-			    if(step->value[0] != node->name[0])
+			    if(step->value[0] != P_Node->name[0])
 				    goto rollback;
-			    if(!sstreq(step->value, node->name))
+			    if(!sstreq(step->value, P_Node->name))
 				    goto rollback;
 			    /* Namespace test */
-			    if(node->ns == NULL) {
+			    if(P_Node->ns == NULL) {
 				    if(step->value2 != NULL)
 					    goto rollback;
 			    }
-			    else if(node->ns->href != NULL) {
+			    else if(P_Node->ns->href != NULL) {
 				    if(step->value2 == NULL)
 					    goto rollback;
-				    if(!sstreq(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, P_Node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
 			case XML_OP_CHILD: {
 			    xmlNode * lst;
-			    if((node->type != XML_ELEMENT_NODE) && (node->type != XML_DOCUMENT_NODE) &&
+			    if((P_Node->type != XML_ELEMENT_NODE) && (P_Node->type != XML_DOCUMENT_NODE) &&
 #ifdef LIBXML_DOCB_ENABLED
-				    (node->type != XML_DOCB_DOCUMENT_NODE) &&
+				    (P_Node->type != XML_DOCB_DOCUMENT_NODE) &&
 #endif
-				    (node->type != XML_HTML_DOCUMENT_NODE))
+				    (P_Node->type != XML_HTML_DOCUMENT_NODE))
 				    goto rollback;
-			    lst = node->children;
+			    lst = P_Node->children;
 			    if(step->value != NULL) {
 				    while(lst != NULL) {
 					    if((lst->type == XML_ELEMENT_NODE) && (step->value[0] == lst->name[0]) && (sstreq(step->value, lst->name)))
@@ -525,49 +525,49 @@ restart:
 			    goto rollback;
 		    }
 			case XML_OP_ATTR:
-			    if(node->type != XML_ATTRIBUTE_NODE)
+			    if(P_Node->type != XML_ATTRIBUTE_NODE)
 				    goto rollback;
 			    if(step->value != NULL) {
-				    if(step->value[0] != node->name[0])
+				    if(step->value[0] != P_Node->name[0])
 					    goto rollback;
-				    if(!sstreq(step->value, node->name))
+				    if(!sstreq(step->value, P_Node->name))
 					    goto rollback;
 			    }
 			    /* Namespace test */
-			    if(node->ns == NULL) {
+			    if(P_Node->ns == NULL) {
 				    if(step->value2 != NULL)
 					    goto rollback;
 			    }
 			    else if(step->value2 != NULL) {
-				    if(!sstreq(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, P_Node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
 			case XML_OP_PARENT:
-			    if((node->type == XML_DOCUMENT_NODE) || (node->type == XML_HTML_DOCUMENT_NODE) ||
+			    if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE) ||
 #ifdef LIBXML_DOCB_ENABLED
-			    (node->type == XML_DOCB_DOCUMENT_NODE) ||
+			    (P_Node->type == XML_DOCB_DOCUMENT_NODE) ||
 #endif
-			    (node->type == XML_NAMESPACE_DECL))
+			    (P_Node->type == XML_NAMESPACE_DECL))
 				    goto rollback;
-			    node = node->parent;
-			    if(!node)
+			    P_Node = P_Node->parent;
+			    if(!P_Node)
 				    goto rollback;
 			    if(!step->value)
 				    continue;
-			    if(step->value[0] != node->name[0])
+			    if(step->value[0] != P_Node->name[0])
 				    goto rollback;
-			    if(!sstreq(step->value, node->name))
+			    if(!sstreq(step->value, P_Node->name))
 				    goto rollback;
 			    /* Namespace test */
-			    if(node->ns == NULL) {
+			    if(P_Node->ns == NULL) {
 				    if(step->value2 != NULL)
 					    goto rollback;
 			    }
-			    else if(node->ns->href != NULL) {
+			    else if(P_Node->ns->href != NULL) {
 				    if(step->value2 == NULL)
 					    goto rollback;
-				    if(!sstreq(step->value2, node->ns->href))
+				    if(!sstreq(step->value2, P_Node->ns->href))
 					    goto rollback;
 			    }
 			    continue;
@@ -583,55 +583,55 @@ restart:
 				    if(!step->value)
 					    return -1;
 			    }
-			    if(!node)
+			    if(!P_Node)
 				    goto rollback;
-			    if((node->type == XML_DOCUMENT_NODE) || (node->type == XML_HTML_DOCUMENT_NODE) ||
+			    if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE) ||
 #ifdef LIBXML_DOCB_ENABLED
-			    (node->type == XML_DOCB_DOCUMENT_NODE) ||
+			    (P_Node->type == XML_DOCB_DOCUMENT_NODE) ||
 #endif
-			    (node->type == XML_NAMESPACE_DECL))
+			    (P_Node->type == XML_NAMESPACE_DECL))
 				    goto rollback;
-			    node = node->parent;
-			    while(node) {
-				    if((node->type == XML_ELEMENT_NODE) && (step->value[0] == node->name[0]) && (sstreq(step->value, node->name))) {
+			    P_Node = P_Node->parent;
+			    while(P_Node) {
+				    if((P_Node->type == XML_ELEMENT_NODE) && (step->value[0] == P_Node->name[0]) && (sstreq(step->value, P_Node->name))) {
 					    /* Namespace test */
-					    if(node->ns == NULL) {
+					    if(P_Node->ns == NULL) {
 						    if(step->value2 == NULL)
 							    break;
 					    }
-					    else if(node->ns->href) {
-						    if(step->value2 && sstreq(step->value2, node->ns->href))
+					    else if(P_Node->ns->href) {
+						    if(step->value2 && sstreq(step->value2, P_Node->ns->href))
 							    break;
 					    }
 				    }
-				    node = node->parent;
+				    P_Node = P_Node->parent;
 			    }
-			    if(!node)
+			    if(!P_Node)
 				    goto rollback;
 			    /*
 			     * prepare a potential rollback from here for ancestors of that node.
 			     */
 			    if(step->op == XML_OP_ANCESTOR)
-				    xmlPatPushState(&states, i, node);
+				    xmlPatPushState(&states, i, P_Node);
 			    else
-				    xmlPatPushState(&states, i-1, node);
+				    xmlPatPushState(&states, i-1, P_Node);
 			    continue;
 			case XML_OP_NS:
-			    if(node->type != XML_ELEMENT_NODE)
+			    if(P_Node->type != XML_ELEMENT_NODE)
 				    goto rollback;
-			    if(node->ns == NULL) {
+			    if(P_Node->ns == NULL) {
 				    if(step->value != NULL)
 					    goto rollback;
 			    }
-			    else if(node->ns->href != NULL) {
+			    else if(P_Node->ns->href != NULL) {
 				    if(!step->value)
 					    goto rollback;
-				    if(!sstreq(step->value, node->ns->href))
+				    if(!sstreq(step->value, P_Node->ns->href))
 					    goto rollback;
 			    }
 			    break;
 			case XML_OP_ALL:
-			    if(node->type != XML_ELEMENT_NODE)
+			    if(P_Node->type != XML_ELEMENT_NODE)
 				    goto rollback;
 			    break;
 		}
@@ -649,7 +649,7 @@ rollback:
 	}
 	states.nbstates--;
 	i = states.states[states.nbstates].step;
-	node = states.states[states.nbstates].node;
+	P_Node = states.states[states.nbstates].P_Node;
 #if 0
 	fprintf(stderr, "Pop: %d, %s\n", i, node->name);
 #endif
@@ -2263,14 +2263,14 @@ error:
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-int xmlPatternMatch(xmlPatternPtr comp, xmlNode * node)
+int xmlPatternMatch(xmlPatternPtr comp, xmlNode * P_Node)
 {
 	int ret = 0;
-	if(!comp || !node)
+	if(!comp || !P_Node)
 		return -1;
 	else {
 		while(comp) {
-			ret = xmlPatMatch(comp, node);
+			ret = xmlPatMatch(comp, P_Node);
 			if(ret != 0)
 				return ret;
 			comp = comp->next;

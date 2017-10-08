@@ -1356,7 +1356,7 @@ private:
 	LocationTbl::Rec  Data;
 };
 
-static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const SArray * pStrings, long initID, uint /*flags*/)
+static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;

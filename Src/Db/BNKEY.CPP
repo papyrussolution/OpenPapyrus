@@ -341,7 +341,7 @@ const BNField & SLAPI BNKeyList::field(int key, int seg) const
 {
 	if(P_Data) {
 		DBTable * p_tbl = (DBTable *)(((char *)this) - ((BNKeyCell *)P_Data)->ih.tblBackOffset);
-		return p_tbl->fields[getKey(key).getFieldID(seg)];
+		return p_tbl->GetFields()[getKey(key).getFieldID(seg)];
 	}
 	else
 		return *(BNField *)0;
@@ -410,7 +410,7 @@ uint SLAPI BNKeyList::setBound(int key, int seg, int min_max /* 0 - min, !0 - ma
 	uint   ofs = 0;
 	int    ns = k.getNumSeg();
 	for(int i = seg; i < ns; i++) {
-		const BNField & f = table()->fields[k.getFieldID(i)];
+		const BNField & f = table()->GetFields()[k.getFieldID(i)];
 		if(((k.getFlags(i) & XIF_DESC) ? !min_max : min_max) != 0)
 			stmaxval(f.T, PTR8(pDest) + ofs);
 		else
@@ -450,7 +450,7 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 	int    use = 0;
 	uint   ofs, segOfs;
 	BNKey  k  = getKey(key);
-	uint   ss = table()->fields[k.getFieldID(seg)].size();
+	uint   ss = table()->GetFields()[k.getFieldID(seg)].size();
 	int    ns = k.getNumSeg();
 	uint   keyLen;
 	d = (char *)dest;
@@ -469,7 +469,7 @@ int SLAPI BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void *
 		use = 2;
 		keyLen = getKeySize(key);
 		for(int i = 0; i < seg; i++) {
-			const BNField & f = table()->fields[k.getFieldID(i)];
+			const BNField & f = table()->GetFields()[k.getFieldID(i)];
 			if(stcomp(f.T, d + o, d + o + keyLen) != 0) {
 				use = 0;
 				break;
@@ -536,7 +536,7 @@ int SLAPI BNKey::compareKey(DBTable * tbl, const void * k1, const void * k2) con
 	uint   ofs = 0;
 	for(int i = 0; i < ns; i++) {
 		BNKeySeg s = SEG(i);
-		const BNField & f = tbl->fields[s.fldID];
+		const BNField & f = tbl->GetFields()[s.fldID];
 		int    c = stcomp(f.T, PTR8(k1) + ofs, PTR8(k2) + ofs);
 		if(c)
 			return (s.flags & XIF_DESC) ? -c : c;

@@ -2936,7 +2936,7 @@ int GoodsAsscDialog::setupAssoc(PPID asscType, uint asscText, PPID objType)
 		}
 		else
 			GetObjectName(objType, assc_id, name);
-		ss.clear(1);
+		ss.clear();
 		ss.add(assc_name);
 		ss.add(name);
 		ss.add(ltoa(assc_rec.InnerNum, temp_buf, 10));

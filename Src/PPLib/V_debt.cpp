@@ -104,8 +104,8 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : P
 {
 #define _S_ DebtTrnovrFilt
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
-	SetBranchSArray(offsetof(_S_, LocIDList));
-	SetBranchSArray(offsetof(_S_, CliIDList));
+	SetBranchSVector(offsetof(_S_, LocIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(_S_, CliIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	SetBranchObjIdListFilt(offsetof(_S_, BillList));
 	SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 	SetBranchObjIdListFilt(offsetof(_S_, DebtDimList)); // @v9.1.4
@@ -124,8 +124,8 @@ int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			{
 			#define _S_ DebtTrnovrFilt
 				SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
-				SetBranchSArray(offsetof(_S_, LocIDList));
-				SetBranchSArray(offsetof(_S_, CliIDList));
+				SetBranchSVector(offsetof(_S_, LocIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+				SetBranchSVector(offsetof(_S_, CliIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 				SetBranchObjIdListFilt(offsetof(_S_, BillList));
 				SetBranchObjIdListFilt(offsetof(_S_, RcknBillList));
 			#undef _S_
@@ -2348,7 +2348,7 @@ DBQuery * SLAPI PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pS
 	else {
 		DBE  * dbe_stop = 0;
 		DBFieldList fld_list;
-		tbl = new TempSellTrnovrTbl(P_TempTbl->fileName);
+		tbl = new TempSellTrnovrTbl(P_TempTbl->GetName());
 		THROW(CheckTblPtr(tbl));
 		dbe_stop = & enumtoa(tbl->NotStop, 2, stop_subst.Get(PPTXT_DEBTTRNOVR_NOTSTOP));
 		if(Filt.Flags & DebtTrnovrFilt::fExtended)
@@ -2927,7 +2927,7 @@ double SLAPI PPDebtorStatArray::PreprocessRatingVal(double val) const
 		return val;
 }
 
-int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSArray <RPoint3> * pOutMatrix)
+int SLAPI PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <RPoint3> * pOutMatrix)
 {
 	int    ok = 1;
 	Total  total;
@@ -4433,7 +4433,7 @@ int SLAPI PPViewDebtorStat::ViewGraph(PPViewBrowser * pBrw)
 	PPDebtorStatArray list;
 	Generator_GnuPlot plot(0);
 	Generator_GnuPlot::PlotParam param;
-	TSArray <RPoint3> matrix;
+	TSVector <RPoint3> matrix; // @v9.8.4 TSArray-->TSVector
 	PPDebtorStatArray::Total total;
 	if(col == 8) { // sigm factor
 		if(Tbl.GetList(Filt.AccSheetID, list) > 0) {
@@ -4654,7 +4654,7 @@ DBQuery * SLAPI PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pS
 	TempOrderTbl * p_ot = 0;
 	THROW(CheckTblPtr(tbl = new DebtStatTbl));
 	if(P_TempTbl) {
-		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempTbl->GetName())));
 		dbq = &(*dbq && tbl->ArID == p_ot->ID && tbl->Dt == LastDate && tbl->AccSheetID == Filt.AccSheetID);
 	}
 	else {

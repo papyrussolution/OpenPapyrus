@@ -518,7 +518,7 @@ DBQuery * SLAPI PPViewAsset::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 {
 	uint   brw_id = Filt.OperPeriod.IsZero() ? BROWSER_ASSET : BROWSER_ASSETOPER;
 	DBQuery * q = 0;
-	TempAssetTbl * tbl = new TempAssetTbl(P_TempTbl->fileName);
+	TempAssetTbl * tbl = new TempAssetTbl(P_TempTbl->GetName());
 	q = & select(
 		tbl->LotID,
 		tbl->GoodsID,

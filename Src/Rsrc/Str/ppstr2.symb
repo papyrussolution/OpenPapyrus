@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489306
+LastSignatureCode=2147489311
 LastAutoCodeList=1,11023;102,10162;103,10071;110,10000;111,11646;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10252;1002,10000;1003,10000;1004,10000;1005,10000;124,10062
 
 [SignatureList]
@@ -534,6 +534,8 @@ document=2147483884
 draftdocument=2147487878
 writeoffdrafts=2147488644
 documents=2147486830
+document_wroff=2147489309
+document_wroff_pl=2147489310
 inventory=2147487889
 salesledger=2147488203
 purchaseledger=2147488204
@@ -549,6 +551,7 @@ check_count_s=2147487900
 poscheck=2147488956
 avgcheck=2147487901
 checkno=2147487182
+ctableno=2147489311
 project=2147486944
 project_pl=2147486945
 linkdocument=2147486840
@@ -3216,12 +3219,14 @@ goodstype_gtf_rplc_cost=2147485669
 goodstype_gtf_rplc_dscnt=2147485670
 goodstype_gtf_rplc_price=2147485671
 goodstype_gtf_unlimited=2147485672
+goodstype_gtf_lookbackprices=2147489307
 goodstype_id=2147485673
 goodstype_name=2147485674
 goodstype_pricerestr=2147485675
 goodstype_symb=2147485676
 goodstype_tag=2147485677
 goodstype_wroffgrp=2147485678
+goodstype_stocktolerance=2147489308
 goodsvalrestr=2147487930
 goodsvalrestr_id=2147485680
 goodsvalrestr_name=2147485681

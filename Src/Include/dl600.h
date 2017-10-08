@@ -547,14 +547,14 @@ private:
 		int32  I;
 		CtmExprConst C;
 	};
-	TSArray <CItem> CList;       // Список констант, используемый для хранения специфических опций
-	TSArray <CfItem> CfList;     // Список констант, ассоциированных с полями.
+	TSVector <CItem> CList;      // Список констант, используемый для хранения специфических опций // @v9.8.4 TSArray-->TSVector
+	TSVector <CfItem> CfList;    // Список констант, ассоциированных с полями // @v9.8.4 TSArray-->TSVector
 	LongArray * P_DbIdxSegFlags; // Список флагов сегментов индекса таблицы базы данных (только для kDbIndex)
 	SBaseBuffer FixDataBuf;      // @transient Буфер записи для фиксированных полей (не формул)
 		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор
 		// не вызывает FixDataBuf.Destroy()
 #ifdef DL600C // {
-	TSArray <CfItem> TempCfList;
+	TSVector <CfItem> TempCfList; // @v9.8.4 TSArray-->TSVector
 	DLSYMBID LastLocalId;
 #endif
 };
@@ -1058,7 +1058,7 @@ private:
 	SymbHashTable Tab;              //
 	StringSet CurDeclList;
 	CtmConstList ConstList;         // @persistent
-	TSArray <TypeEntry> TypeList;   // @persistent
+	TSVector <TypeEntry> TypeList;  // @persistent // @v9.8.4 TSArray-->TSVector
 	UUIDAssocArray UuidList;        // @persistent
 	SStack ScopeStack;              //
 	DlScope Sc;          // @persistent Глобальная область видимости (все остальные области являются членами этой области)
@@ -1087,11 +1087,11 @@ private:
 	int    RestoreUuidList();
 	int    SetupScopeUUID(DLSYMBID scopeID, const char * pName, const S_GUID * pForceUUID);
 
-	TSArray <SyncUuidAssoc> SyncUuidList; // @transient Compile-time
+	TSVector <SyncUuidAssoc> SyncUuidList; // @transient Compile-time // @v9.8.4 TSArray-->TSVector
 	StringSet SyncUuidNameList;
 	LAssocArray UiSymbAssoc; // Ассоциации символов элементов UI с символами сериий.
 #else
-	TSArray <uint> Pss; // Run-time "Pushed String Stack" Стэк позиций строк, распределенных на стеке StP.
+	TSVector <uint> Pss; // Run-time "Pushed String Stack" Стэк позиций строк, распределенных на стеке StP. // @v9.8.4 TSArray-->TSVector
 		// Нужен для того, чтобы при освобождении стекового пространства освобождать соответствующие строки
 	SStringPool StP;                     // Run-time
 	TSCollection <DlRtm> RtmList;        // Run-time

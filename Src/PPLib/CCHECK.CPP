@@ -50,7 +50,7 @@ int CcAmountEntry::GetTypeText(SString & rBuf) const
 //
 //
 //
-CcAmountList::CcAmountList() : TSArray <CcAmountEntry> ()
+CcAmountList::CcAmountList() : TSVector <CcAmountEntry> () // @v9.8.4 TSArray-->TSVector
 {
 }
 

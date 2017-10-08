@@ -17,7 +17,7 @@ IMPLEMENT_PPFILT_FACTORY(SysJournal); SLAPI SysJournalFilt::SysJournalFilt() : P
 {
 	SetFlatChunk(offsetof(SysJournalFilt, ReserveStart),
 		offsetof(SysJournalFilt, ActionIDList)-offsetof(SysJournalFilt, ReserveStart));
-	SetBranchSArray(offsetof(SysJournalFilt, ActionIDList));
+	SetBranchSVector(offsetof(SysJournalFilt, ActionIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 
@@ -438,11 +438,11 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 	DBE    dbe_avg_tm;
 	DBQ  * dbq = 0;
 	TempSysJournalTbl * p_t = 0;
-	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->fileName.cptr() : (const char *)0);
+	SysJournalTbl * sj  = new SysJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : (const char *)0);
 	TempDoubleIDTbl * nm  = 0;
 	if(P_SubstTbl) {
 		brw_id = BROWSER_SYSJ_SUBST;
-		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->fileName.cptr()));
+		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->GetName().cptr()));
 		THROW(CheckTblPtr(p_t));
 
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, p_t->Count);
@@ -476,7 +476,7 @@ DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		if(Filt.BegTm)
 			dbq = & (*dbq && sj->Tm >= (long)Filt.BegTm);
 		if(Filt.Flags & SysJournalFilt::fShowObjects) {
-			THROW(CheckTblPtr(nm = P_NamesTbl ? new TempDoubleIDTbl(P_NamesTbl->fileName) : new TempDoubleIDTbl));
+			THROW(CheckTblPtr(nm = P_NamesTbl ? new TempDoubleIDTbl(P_NamesTbl->GetName()) : new TempDoubleIDTbl));
 			dbq = & (*dbq && (nm->PrmrID == sj->ObjType && (nm->ScndID += sj->ObjID)));
 			q = & select(
 				sj->ObjType,  // #0
@@ -961,7 +961,7 @@ IMPLEMENT_PPFILT_FACTORY(GtaJournal); SLAPI GtaJournalFilt::GtaJournalFilt() : P
 {
 	SetFlatChunk(offsetof(GtaJournalFilt, ReserveStart),
 		offsetof(GtaJournalFilt, ActionIDList)-offsetof(GtaJournalFilt, ReserveStart));
-	SetBranchSArray(offsetof(GtaJournalFilt, ActionIDList));
+	SetBranchSVector(offsetof(GtaJournalFilt, ActionIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 
@@ -1220,7 +1220,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBE    dbe_objtitle;
 	DBE    dbe_action;
 	DBQ  * dbq = 0;
-	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->fileName.cptr() : (const char *)0);
+	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : (const char *)0);
 	TempDoubleIDTbl * nm  = 0;
 
 	THROW(CheckTblPtr(t));
@@ -1236,7 +1236,7 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	if(Filt.BegTm)
 		dbq = & (*dbq && t->Tm >= (long)Filt.BegTm);
 	if(Filt.Flags & GtaJournalFilt::fShowObjects) {
-		THROW(CheckTblPtr(nm = P_NamesTbl ? new TempDoubleIDTbl(P_NamesTbl->fileName) : new TempDoubleIDTbl));
+		THROW(CheckTblPtr(nm = P_NamesTbl ? new TempDoubleIDTbl(P_NamesTbl->GetName()) : new TempDoubleIDTbl));
 		dbq = & (*dbq && (nm->PrmrID == t->ObjType && (nm->ScndID += t->ObjID)));
 		q = & select(
 			t->ObjType,   // #0

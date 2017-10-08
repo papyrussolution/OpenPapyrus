@@ -354,7 +354,7 @@ int SLAPI Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction
 				new_rec.ObjType = obj;
 				new_rec.ObjID   = id;
 				// @v8.3.6 if(memcmp(&prev_rec, &new_rec, sizeof(new_rec)) != 0) {
-				if(!fields.IsEqualRecords(&prev_rec, &new_rec)) { // @v8.3.6
+				if(!DBTable::GetFields().IsEqualRecords(&prev_rec, &new_rec)) { // @v8.3.6
 					// @v8.1.4 {
 					DBRowId _dbpos;
 					THROW_DB(getPosition(&_dbpos));
@@ -2104,7 +2104,7 @@ int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, in
 	return ok;
 }
 
-int SLAPI UuidRefCore::PutChunk(TSArray <S_GUID> & rChunk, uint maxCount, int use_ta)
+int SLAPI UuidRefCore::PutChunk(TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	const  uint cc = rChunk.getCount();

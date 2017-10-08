@@ -804,7 +804,7 @@ private:
 			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 				PPBankAccount ba(r_reg_rec);
 				ss.clear();
-				sub = 0;
+				sub.Z();
 				GetPersonName(ba.BankID, sub);
 				ss.add(sub);
 				ss.add(ba.Acct);

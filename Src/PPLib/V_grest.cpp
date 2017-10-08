@@ -3091,7 +3091,7 @@ int SLAPI PPViewGoodsRest::GetGoodsStat(PPID goodsID, const ObjIdListFilt & rLoc
 
 int SLAPI PPViewGoodsRest::GetTableName(SString & rBuf) const
 {
-	return P_Tbl ? ((rBuf = P_Tbl->fileName), 1) : (rBuf.Z(), 0);
+	return P_Tbl ? ((rBuf = P_Tbl->GetName()), 1) : (rBuf.Z(), 0);
 }
 
 int SLAPI PPViewGoodsRest::SetSupplOrderValues(PPID goodsID, PPID locID, double predict, double minStock, double order, int canTrust)
@@ -3472,7 +3472,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBE    dbe_serial;
 	DBE  * dbe_rest_total = 0;
 	if(P_Ct == 0) {
-		THROW_MEM(tbl = new TempGoodsRestTbl(P_Tbl->fileName));
+		THROW_MEM(tbl = new TempGoodsRestTbl(P_Tbl->GetName()));
 		if(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) { // @v9.5.8 CalcPrognosis-->Flags2
 			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly))
 				brw_id = BROWSER_GOODSRESTORDER_PRGN;

@@ -866,10 +866,10 @@ int VATBCfgDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.List.getCount(); i++) {
 		const VATBCfg::Item & r_item = Data.List.at(i);
-		ss.clear(1);
+		ss.clear();
 		GetOpName(r_item.OpID, sub.Z());
 		ss.add(sub);
-		sub = 0;
+		sub.Z();
 		if(r_item.Flags & VATBCfg::fExclude)
 			sub.CatChar('x');
 		if(r_item.Flags & VATBCfg::fNegative)

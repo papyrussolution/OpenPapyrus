@@ -1688,12 +1688,12 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	if(Filt.SeriesID)
 		sub_title.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
 	if(P_TempOrd) {
-		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempOrd->fileName)));
+		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempOrd->GetName())));
 	}
 	else
 		THROW(CreateOrderTable(Filt.Order, &p_ot));
 	if(P_TmpTbl) {
-		THROW(CheckTblPtr(p_t = new TempSCardTbl(P_TmpTbl->fileName)));
+		THROW(CheckTblPtr(p_t = new TempSCardTbl(P_TmpTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson,   p_t->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_t->SeriesID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_t->AutoGoodsID);
@@ -3557,9 +3557,8 @@ int PPALDD_UhttSCardOpArray::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
 	TSArray <UhttSCardOpViewItem> * p_list = (TSArray <UhttSCardOpViewItem> *)Extra[0].Ptr;
-	if(p_list)
-		p_list->setPointer(0);
-	return -1;
+	CALLPTRMEMB(p_list, setPointer(0));
+	return 1;
 }
 
 int PPALDD_UhttSCardOpArray::NextIteration(long iterId)

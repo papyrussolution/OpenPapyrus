@@ -1091,7 +1091,7 @@ DBQuery * SLAPI PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pS
 	TempBizScTemplTbl * tt  = 0;
 
 	THROW(P_TempTbl);
-	THROW(CheckTblPtr(tt = new TempBizScTemplTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(tt = new TempBizScTemplTbl(P_TempTbl->GetName())));
 	q = &select(
 		tt->ID,
 		tt->Name,

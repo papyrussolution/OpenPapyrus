@@ -656,7 +656,7 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	DBE    dbe_tech, dbe_prc, dbe_ar, dbe_goods;
 	PPIDArray status_list;
 	if(P_TempTbl)
-		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempTbl->GetName())));
 	THROW(CheckTblPtr(p_tsst = new TSessionTbl));
 	dbe_status = & enumtoa(p_tsst->Status, 5, status_subst.Get(PPTXT_TSESS_STATUS));
 	dbe_diff_qtty = &(p_tsst->ActQtty - p_tsst->PlannedQtty);
@@ -1575,7 +1575,7 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBE  * p_dbe_sign   = 0;
 	if(P_TempTbl) {
 		brw_id = BROWSER_TSESSLINEGOODS;
-		THROW(CheckTblPtr(p_tslt = new TSessLineTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_tslt = new TSessLineTbl(P_TempTbl->GetName())));
 	}
 	else {
 		if(Filt.GoodsID)

@@ -127,15 +127,15 @@ static int Implement_GetPersonPacket(const ns1__person * pSp, UhttPersonPacket &
 		rP.CategoryID = pSp->CategoryID;
 		GetSoapStr(pSp->Name, rP.Name);
 		GetSoapStr(pSp->INN, rP.INN);
-		rP.PhoneList.clear(1);
+		rP.PhoneList.clear();
 		for(i = 0; i < pSp->__sizePhoneList; i++) {
 			rP.PhoneList.add(GetSoapStr(pSp->PhoneList[i], temp_buf));
 		}
-		rP.EMailList.clear(1);
+		rP.EMailList.clear();
 		for(i = 0; i < pSp->__sizeEMailList; i++) {
 			rP.EMailList.add(GetSoapStr(pSp->EMailList[i], temp_buf));
 		}
-		rP.UrlList.clear(1);
+		rP.UrlList.clear();
 		for(i = 0; i < pSp->__sizeUrlList; i++) {
 			rP.UrlList.add(GetSoapStr(pSp->UrlList[i], temp_buf));
 		}

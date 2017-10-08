@@ -168,7 +168,7 @@ DBQuery * SLAPI PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	uint   brw_id = BROWSER_TRANSPORT;
 
 	THROW(P_TempTbl);
-	THROW(CheckTblPtr(p_tmp_t = new TempTransportTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(p_tmp_t = new TempTransportTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_owner,   PPDbqFuncPool::IdObjNamePerson,  p_tmp_t->OwnerID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_captain, PPDbqFuncPool::IdObjNamePerson,  p_tmp_t->CaptainID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_country, PPDbqFuncPool::IdObjNameWorld,   p_tmp_t->CountryID);

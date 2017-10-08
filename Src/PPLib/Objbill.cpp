@@ -3906,7 +3906,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 					double old_price = ByCost ? p_item->Cost : p_item->Price;
 					double diff = new_price-old_price;
 					if(new_price > 0.0) {
-						ss.clear(1);
+						ss.clear();
 						// @v9.5.5 GetGoodsName(p_item->GoodsID, sub);
 						goods_obj.FetchNameR(p_item->GoodsID, sub); // @v9.5.5
 						ss.add(sub);
@@ -4108,7 +4108,7 @@ int SLAPI PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem *
 						THROW(SetupStrListBox(p_lbx));
 						qks_list.sort(PTR_CMPFUNC(PcharNoCase));
 						for(i = 0; qks_list.enumItems(&i, (void **)&p_item);) {
-							ss.clear(1);
+							ss.clear();
 							ss.add(p_item->Name);
 							ss.add(sub.Z().Cat(p_item->Price, SFMT_MONEY));
 							p_lbx->addItem(p_item->ID, ss.getBuf());

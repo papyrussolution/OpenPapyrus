@@ -302,7 +302,7 @@ int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
 	{
 		SString buf, added_param;
 		SPathStruc ps;
-		ps.Split(fileName);
+		ps.Split(DBTable::GetName());
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, added_param);
 		msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), added_param);
 	}
@@ -536,7 +536,7 @@ DBQuery * SLAPI PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString 
 	Goods2Tbl * p_g_tbl = 0;
 	DlsObjTbl * p_dlso_tbl = 0;
 	DBFieldList fld_list;
-	THROW(CheckTblPtr(p_tbl = new DvcLoadingStatTbl(DlsT.fileName)));
+	THROW(CheckTblPtr(p_tbl = new DvcLoadingStatTbl(DlsT.GetName())));
 	if(Filt.DvcID && pSubTitle) {
 		pSubTitle->CatChar(0xa0);
 		pSubTitle->CatChar(':');
@@ -703,7 +703,7 @@ DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DlsObjTbl * tbl = 0;
 	SCardTbl  * sc  = 0;
 	DBFieldList fld_list;
-	THROW(CheckTblPtr(tbl = new DlsObjTbl(P_DlsObjTbl->fileName)));
+	THROW(CheckTblPtr(tbl = new DlsObjTbl(P_DlsObjTbl->GetName())));
 	if(pSubTitle) {
 		GetDvcName(Filt.DvcType, pSubTitle);
 		pSubTitle->Space();

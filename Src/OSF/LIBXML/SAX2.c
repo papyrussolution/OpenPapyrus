@@ -536,21 +536,21 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
 {
 	xmlEntity * ent;
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	if(!ctx) return;
+	if(!ctx) 
+		return;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
 #endif
 	if(ctxt->inSubset == 1) {
 		ent = xmlAddDocEntity(ctxt->myDoc, name, type, publicId, systemId, content);
-		if((ent == NULL) && (ctxt->pedantic))
+		if(!ent && (ctxt->pedantic))
 			xmlWarnMsg(ctxt, XML_WAR_ENTITY_REDEFINED, "Entity(%s) already defined in the internal subset\n", name);
-		if(ent && (ent->URI == NULL) && systemId) {
+		if(ent && !ent->URI && systemId) {
 			xmlChar * URI;
 			const char * base = NULL;
 			if(ctxt->input)
 				base = ctxt->input->filename;
-			if(base == NULL)
-				base = ctxt->directory;
+			SETIFZ(base, ctxt->directory);
 			URI = xmlBuildURI(systemId, (const xmlChar*)base);
 			ent->URI = URI;
 		}
@@ -596,7 +596,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2AttributeDecl(%s, %s, %d, %d, %s, ...)\n", elem, fullname, type, def, defaultValue);
 #endif
-	if((sstreq(fullname, BAD_CAST "xml:id")) && (type != XML_ATTRIBUTE_ID)) {
+	if(sstreq(fullname, BAD_CAST "xml:id") && type != XML_ATTRIBUTE_ID) {
 		/*
 		 * Raise the error but keep the validity flag
 		 */
@@ -718,9 +718,9 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
 #endif
 	if(ctxt->inSubset == 1) {
 		ent = xmlAddDocEntity(ctxt->myDoc, name, XML_EXTERNAL_GENERAL_UNPARSED_ENTITY, publicId, systemId, notationName);
-		if((ent == NULL) && (ctxt->pedantic) && ctxt->sax && ctxt->sax->warning)
+		if(!ent && (ctxt->pedantic) && ctxt->sax && ctxt->sax->warning)
 			ctxt->sax->warning(ctxt->userData, "Entity(%s) already defined in the internal subset\n", name);
-		if(ent && (ent->URI == NULL) && systemId) {
+		if(ent && !ent->URI && systemId) {
 			xmlChar * URI;
 			const char * base = ctxt->input ? ctxt->input->filename : 0;
 			SETIFZ(base, ctxt->directory);
@@ -730,9 +730,9 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
 	}
 	else if(ctxt->inSubset == 2) {
 		ent = xmlAddDtdEntity(ctxt->myDoc, name, XML_EXTERNAL_GENERAL_UNPARSED_ENTITY, publicId, systemId, notationName);
-		if((ent == NULL) && (ctxt->pedantic) && ctxt->sax && ctxt->sax->warning)
+		if(!ent && (ctxt->pedantic) && ctxt->sax && ctxt->sax->warning)
 			ctxt->sax->warning(ctxt->userData, "Entity(%s) already defined in the external subset\n", name);
-		if(ent && (ent->URI == NULL) && systemId) {
+		if(ent && !ent->URI && systemId) {
 			xmlChar * URI;
 			const char * base = ctxt->input ? ctxt->input->filename : 0;
 			SETIFZ(base, ctxt->directory);
@@ -760,7 +760,6 @@ void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc
 	xmlGenericError(0, "SAX.xmlSAX2SetDocumentLocator()\n");
 #endif
 }
-
 /**
  * xmlSAX2StartDocument:
  * @ctx: the user data (XML parser context)
@@ -770,52 +769,51 @@ void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc
 void xmlSAX2StartDocument(void * ctx)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlDocPtr doc;
-	if(!ctx)
-		return;
+	if(ctx) {
 #ifdef DEBUG_SAX
-	xmlGenericError(0, "SAX.xmlSAX2StartDocument()\n");
+		xmlGenericError(0, "SAX.xmlSAX2StartDocument()\n");
 #endif
-	if(ctxt->html) {
+		if(ctxt->html) {
 #ifdef LIBXML_HTML_ENABLED
-		SETIFZ(ctxt->myDoc, htmlNewDocNoDtD(NULL, NULL));
-		if(ctxt->myDoc == NULL) {
-			xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
-			return;
-		}
-		ctxt->myDoc->properties = XML_DOC_HTML;
-		ctxt->myDoc->parseFlags = ctxt->options;
+			SETIFZ(ctxt->myDoc, htmlNewDocNoDtD(NULL, NULL));
+			if(!ctxt->myDoc) {
+				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
+				return;
+			}
+			ctxt->myDoc->properties = XML_DOC_HTML;
+			ctxt->myDoc->parseFlags = ctxt->options;
 #else
-		xmlGenericError(0, "libxml2 built without HTML support\n");
-		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
-		ctxt->instate = XML_PARSER_EOF;
-		ctxt->disableSAX = 1;
-		return;
+			xmlGenericError(0, "libxml2 built without HTML support\n");
+			ctxt->errNo = XML_ERR_INTERNAL_ERROR;
+			ctxt->instate = XML_PARSER_EOF;
+			ctxt->disableSAX = 1;
+			return;
 #endif
-	}
-	else {
-		doc = ctxt->myDoc = xmlNewDoc(ctxt->version);
-		if(doc) {
-			doc->properties = 0;
-			if(ctxt->options & XML_PARSE_OLD10)
-				doc->properties |= XML_DOC_OLD10;
-			doc->parseFlags = ctxt->options;
-			doc->encoding = sstrdup(ctxt->encoding);
-			doc->standalone = ctxt->standalone;
 		}
 		else {
-			xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
-			return;
+			xmlDoc * doc = ctxt->myDoc = xmlNewDoc(ctxt->version);
+			if(doc) {
+				doc->properties = 0;
+				if(ctxt->options & XML_PARSE_OLD10)
+					doc->properties |= XML_DOC_OLD10;
+				doc->parseFlags = ctxt->options;
+				doc->encoding = sstrdup(ctxt->encoding);
+				doc->standalone = ctxt->standalone;
+				if(ctxt->dictNames) {
+					doc->dict = ctxt->dict;
+					xmlDictReference(doc->dict);
+				}
+			}
+			else {
+				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
+				return;
+			}
 		}
-		if(ctxt->dictNames && doc) {
-			doc->dict = ctxt->dict;
-			xmlDictReference(doc->dict);
+		if(ctxt->myDoc && !ctxt->myDoc->URL && ctxt->input && ctxt->input->filename) {
+			ctxt->myDoc->URL = xmlPathToURI((const xmlChar*)ctxt->input->filename);
+			if(!ctxt->myDoc->URL)
+				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
 		}
-	}
-	if(ctxt->myDoc && (ctxt->myDoc->URL == NULL) && ctxt->input && ctxt->input->filename) {
-		ctxt->myDoc->URL = xmlPathToURI((const xmlChar*)ctxt->input->filename);
-		if(ctxt->myDoc->URL == NULL)
-			xmlSAX2ErrMemory(ctxt, "xmlSAX2StartDocument");
 	}
 }
 /**
@@ -914,7 +912,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		 *   http://www.w3.org/TR/html4/types.html#h-6.2
 		 */
 		ctxt->vctxt.valid = 1;
-		nval = xmlValidCtxtNormalizeAttributeValue(&ctxt->vctxt, ctxt->myDoc, ctxt->node, fullname, value);
+		nval = xmlValidCtxtNormalizeAttributeValue(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, fullname, value);
 		if(ctxt->vctxt.valid != 1) {
 			ctxt->valid = 0;
 		}
@@ -959,14 +957,14 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			}
 		}
 		/* a default namespace__ definition */
-		nsret = xmlNewNs(ctxt->node, val, 0);
+		nsret = xmlNewNs(ctxt->P_Node, val, 0);
 #ifdef LIBXML_VALID_ENABLED
 		/*
 		 * Validate also for namespace__ decls, they are attributes from
 		 * an XML-1.0 perspective
 		 */
 		if(nsret && ctxt->validate && ctxt->wellFormed && ctxt->myDoc && ctxt->myDoc->intSubset)
-			ctxt->valid &= xmlValidateOneNamespace(&ctxt->vctxt, ctxt->myDoc, ctxt->node, prefix, nsret, val);
+			ctxt->valid &= xmlValidateOneNamespace(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, prefix, nsret, val);
 #endif /* LIBXML_VALID_ENABLED */
 		SAlloc::F(name);
 		SAlloc::F(nval);
@@ -1007,7 +1005,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			}
 		}
 		/* a standard namespace__ definition */
-		nsret = xmlNewNs(ctxt->node, val, name);
+		nsret = xmlNewNs(ctxt->P_Node, val, name);
 		SAlloc::F(ns);
 #ifdef LIBXML_VALID_ENABLED
 		/*
@@ -1015,7 +1013,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		 * an XML-1.0 perspective
 		 */
 		if(nsret && ctxt->validate && ctxt->wellFormed && ctxt->myDoc && ctxt->myDoc->intSubset)
-			ctxt->valid &= xmlValidateOneNamespace(&ctxt->vctxt, ctxt->myDoc, ctxt->node, prefix, nsret, value);
+			ctxt->valid &= xmlValidateOneNamespace(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, prefix, nsret, value);
 #endif /* LIBXML_VALID_ENABLED */
 		SAlloc::F(name);
 		SAlloc::F(nval);
@@ -1024,12 +1022,12 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		return;
 	}
 	if(ns) {
-		namespace__ = xmlSearchNs(ctxt->myDoc, ctxt->node, ns);
+		namespace__ = xmlSearchNs(ctxt->myDoc, ctxt->P_Node, ns);
 		if(namespace__ == NULL) {
 			xmlNsErrMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s of attribute %s is not defined\n", ns, name);
 		}
 		else {
-			xmlAttrPtr prop = ctxt->node->properties;
+			xmlAttrPtr prop = ctxt->P_Node->properties;
 			while(prop) {
 				if(prop->ns) {
 					if((sstreq(name, prop->name)) && ((namespace__ == prop->ns) || (sstreq(namespace__->href, prop->ns->href)))) {
@@ -1048,7 +1046,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		namespace__ = NULL;
 	}
 	/* !!!!!! <a toto:arg="" xmlns:toto="http://toto.com"> */
-	ret = xmlNewNsPropEatName(ctxt->node, namespace__, name, 0);
+	ret = xmlNewNsPropEatName(ctxt->P_Node, namespace__, name, 0);
 	if(ret) {
 		if((ctxt->replaceEntities == 0) && (!ctxt->html)) {
 			xmlNode * tmp;
@@ -1081,24 +1079,24 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			val = xmlStringDecodeEntities(ctxt, value, XML_SUBSTITUTE_REF, 0, 0, 0);
 			ctxt->depth--;
 			if(!val)
-				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, value);
+				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, value);
 			else {
 				/*
 				 * Do the last stage of the attribute normalization
 				 * It need to be done twice ... it's an extra burden related
 				 * to the ability to keep xmlSAX2References in attributes
 				 */
-				xmlChar * nvalnorm = xmlValidNormalizeAttributeValue(ctxt->myDoc, ctxt->node, fullname, val);
+				xmlChar * nvalnorm = xmlValidNormalizeAttributeValue(ctxt->myDoc, ctxt->P_Node, fullname, val);
 				if(nvalnorm) {
 					SAlloc::F(val);
 					val = nvalnorm;
 				}
-				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, val);
+				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, val);
 				SAlloc::F(val);
 			}
 		}
 		else {
-			ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, value);
+			ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, value);
 		}
 	}
 	else
@@ -1119,9 +1117,9 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			}
 			xmlAddID(&ctxt->vctxt, ctxt->myDoc, value, ret);
 		}
-		else if(xmlIsID(ctxt->myDoc, ctxt->node, ret))
+		else if(xmlIsID(ctxt->myDoc, ctxt->P_Node, ret))
 			xmlAddID(&ctxt->vctxt, ctxt->myDoc, value, ret);
-		else if(xmlIsRef(ctxt->myDoc, ctxt->node, ret))
+		else if(xmlIsRef(ctxt->myDoc, ctxt->P_Node, ret))
 			xmlAddRef(&ctxt->vctxt, ctxt->myDoc, value, ret);
 	}
 error:
@@ -1275,7 +1273,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 	int i;
 	if(!ctx || (fullname == NULL) || (ctxt->myDoc == NULL)) 
 		return;
-	parent = ctxt->node;
+	parent = ctxt->P_Node;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2StartElement(%s)\n", fullname);
 #endif
@@ -1438,7 +1436,7 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	if(ctx) {
-		xmlNode * cur = ctxt->node;
+		xmlNode * cur = ctxt->P_Node;
 #ifdef DEBUG_SAX
 		if(!name)
 			xmlGenericError(0, "SAX.xmlSAX2EndElement(NULL)\n");
@@ -1449,7 +1447,7 @@ void xmlSAX2EndElement(void * ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 		if(cur && ctxt->record_info) {
 			ctxt->nodeInfo->end_pos = ctxt->input->cur - ctxt->input->base;
 			ctxt->nodeInfo->end_line = ctxt->input->line;
-			ctxt->nodeInfo->node = cur;
+			ctxt->nodeInfo->P_Node = cur;
 			xmlParserAddNodeInfo(ctxt, ctxt->nodeInfo);
 		}
 		ctxt->nodemem = -1;
@@ -1603,7 +1601,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 	 * Note: if prefix == NULL, the attribute is not in the default namespace__
 	 */
 	if(prefix)
-		namespace__ = xmlSearchNs(ctxt->myDoc, ctxt->node, prefix);
+		namespace__ = xmlSearchNs(ctxt->myDoc, ctxt->P_Node, prefix);
 	/*
 	 * allocate the node
 	 */
@@ -1613,16 +1611,16 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 		ctxt->freeAttrsNr--;
 		memzero(ret, sizeof(xmlAttr));
 		ret->type = XML_ATTRIBUTE_NODE;
-		ret->parent = ctxt->node;
+		ret->parent = ctxt->P_Node;
 		ret->doc = ctxt->myDoc;
 		ret->ns = namespace__;
 		ret->name = ctxt->dictNames ? localname : sstrdup(localname);
 		/* link at the end to preserv order, TODO speed up with a last */
-		if(ctxt->node->properties == NULL) {
-			ctxt->node->properties = ret;
+		if(ctxt->P_Node->properties == NULL) {
+			ctxt->P_Node->properties = ret;
 		}
 		else {
-			xmlAttr * prev = ctxt->node->properties;
+			xmlAttr * prev = ctxt->P_Node->properties;
 			while(prev->next) 
 				prev = prev->next;
 			prev->next = ret;
@@ -1633,9 +1631,9 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 	}
 	else {
 		if(ctxt->dictNames)
-			ret = xmlNewNsPropEatName(ctxt->node, namespace__, (xmlChar*)localname, 0);
+			ret = xmlNewNsPropEatName(ctxt->P_Node, namespace__, (xmlChar*)localname, 0);
 		else
-			ret = xmlNewNsProp(ctxt->node, namespace__, localname, 0);
+			ret = xmlNewNsProp(ctxt->P_Node, namespace__, localname, 0);
 		if(!ret) {
 			xmlErrMemory(ctxt, "xmlSAX2AttributeNs");
 			return;
@@ -1688,7 +1686,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			dup = xmlSAX2DecodeAttrEntities(ctxt, value, valueend);
 			if(dup == NULL) {
 				if(*valueend == 0) {
-					ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, value);
+					ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, value);
 				}
 				else {
 					/*
@@ -1697,7 +1695,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 					 * entry points in the full validation code
 					 */
 					dup = xmlStrndup(value, valueend - value);
-					ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, dup);
+					ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, dup);
 				}
 			}
 			else {
@@ -1714,7 +1712,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 					xmlChar * fullname = xmlBuildQName(localname, prefix, fn, 50);
 					if(fullname) {
 						ctxt->vctxt.valid = 1;
-						nvalnorm = xmlValidCtxtNormalizeAttributeValue(&ctxt->vctxt, ctxt->myDoc, ctxt->node, fullname, dup);
+						nvalnorm = xmlValidCtxtNormalizeAttributeValue(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, fullname, dup);
 						if(ctxt->vctxt.valid != 1)
 							ctxt->valid = 0;
 						if((fullname != fn) && (fullname != localname))
@@ -1725,7 +1723,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 						}
 					}
 				}
-				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, dup);
+				ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, dup);
 			}
 		}
 		else {
@@ -1734,7 +1732,7 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 			 * the attribute as passed is already normalized
 			 */
 			dup = xmlStrndup(value, valueend - value);
-			ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->node, ret, dup);
+			ctxt->valid &= xmlValidateOneAttribute(&ctxt->vctxt, ctxt->myDoc, ctxt->P_Node, ret, dup);
 		}
 	}
 	else
@@ -1761,12 +1759,12 @@ static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, 
 #endif
 			xmlAddID(&ctxt->vctxt, ctxt->myDoc, dup, ret);
 		}
-		else if(xmlIsID(ctxt->myDoc, ctxt->node, ret)) {
+		else if(xmlIsID(ctxt->myDoc, ctxt->P_Node, ret)) {
 			/* might be worth duplicate entry points and not copy */
 			SETIFZ(dup, xmlStrndup(value, valueend - value));
 			xmlAddID(&ctxt->vctxt, ctxt->myDoc, dup, ret);
 		}
-		else if(xmlIsRef(ctxt->myDoc, ctxt->node, ret)) {
+		else if(xmlIsRef(ctxt->myDoc, ctxt->P_Node, ret)) {
 			SETIFZ(dup, xmlStrndup(value, valueend - value));
 			xmlAddRef(&ctxt->vctxt, ctxt->myDoc, dup, ret);
 		}
@@ -1804,7 +1802,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 	int i, j;
 	if(!ctx) 
 		return;
-	parent = ctxt->node;
+	parent = ctxt->P_Node;
 	/*
 	 * First check on validity:
 	 */
@@ -2003,12 +2001,12 @@ void xmlSAX2EndElementNs(void * ctx, const xmlChar * localname ATTRIBUTE_UNUSED,
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlParserNodeInfo node_info;
 	if(ctx) {
-		xmlNode * cur = ctxt->node;
+		xmlNode * cur = ctxt->P_Node;
 		/* Capture end position and add node */
 		if((ctxt->record_info) && cur) {
 			node_info.end_pos = ctxt->input->cur - ctxt->input->base;
 			node_info.end_line = ctxt->input->line;
-			node_info.node = cur;
+			node_info.P_Node = cur;
 			xmlParserAddNodeInfo(ctxt, &node_info);
 		}
 		ctxt->nodemem = -1;
@@ -2045,7 +2043,7 @@ void xmlSAX2Reference(void * ctx, const xmlChar * name)
 #ifdef DEBUG_SAX_TREE
 	xmlGenericError(0, "add xmlSAX2Reference %s to %s \n", name, ctxt->node->name);
 #endif
-	if(xmlAddChild(ctxt->node, ret) == NULL) {
+	if(xmlAddChild(ctxt->P_Node, ret) == NULL) {
 		xmlFreeNode(ret);
 	}
 }
@@ -2072,13 +2070,13 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 	 * add it as content, otherwise if the last child is text,
 	 * concatenate it, else create a new node of type text.
 	 */
-	if(ctxt->node == NULL) {
+	if(ctxt->P_Node == NULL) {
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(0, "add chars: ctxt->node == NULL !\n");
 #endif
 		return;
 	}
-	lastChild = ctxt->node->last;
+	lastChild = ctxt->P_Node->last;
 #ifdef DEBUG_SAX_TREE
 	xmlGenericError(0, "add chars to %s \n", ctxt->node->name);
 #endif
@@ -2090,10 +2088,10 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 	if(lastChild == NULL) {
 		lastChild = xmlSAX2TextNode(ctxt, ch, len);
 		if(lastChild) {
-			ctxt->node->children = lastChild;
-			ctxt->node->last = lastChild;
-			lastChild->parent = ctxt->node;
-			lastChild->doc = ctxt->node->doc;
+			ctxt->P_Node->children = lastChild;
+			ctxt->P_Node->last = lastChild;
+			lastChild->parent = ctxt->P_Node;
+			lastChild->doc = ctxt->P_Node->doc;
 			ctxt->nodelen = len;
 			ctxt->nodemem = len + 1;
 		}
@@ -2150,7 +2148,7 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 			if(xmlTextConcat(lastChild, ch, len)) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2Characters");
 			}
-			if(ctxt->node->children) {
+			if(ctxt->P_Node->children) {
 				ctxt->nodelen = sstrlen(lastChild->content);
 				ctxt->nodemem = ctxt->nodelen + 1;
 			}
@@ -2159,8 +2157,8 @@ void xmlSAX2Characters(void * ctx, const xmlChar * ch, int len)
 			/* Mixed content, first time */
 			lastChild = xmlSAX2TextNode(ctxt, ch, len);
 			if(lastChild) {
-				xmlAddChild(ctxt->node, lastChild);
-				if(ctxt->node->children) {
+				xmlAddChild(ctxt->P_Node, lastChild);
+				if(ctxt->P_Node->children) {
 					ctxt->nodelen = len;
 					ctxt->nodemem = len + 1;
 				}
@@ -2201,7 +2199,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 	xmlNode * parent;
 	if(!ctx)
 		return;
-	parent = ctxt->node;
+	parent = ctxt->P_Node;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2ProcessingInstruction(%s, %s)\n", target, data);
 #endif
@@ -2256,7 +2254,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 	xmlNode * parent;
 	if(!ctx) 
 		return;
-	parent = ctxt->node;
+	parent = ctxt->P_Node;
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.xmlSAX2Comment(%s)\n", value);
 #endif
@@ -2314,7 +2312,7 @@ void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 #ifdef DEBUG_SAX
 	xmlGenericError(0, "SAX.pcdata(%.10s, %d)\n", value, len);
 #endif
-	lastChild = xmlGetLastChild(ctxt->node);
+	lastChild = xmlGetLastChild(ctxt->P_Node);
 #ifdef DEBUG_SAX_TREE
 	xmlGenericError(0, "add chars to %s \n", ctxt->node->name);
 #endif
@@ -2323,7 +2321,7 @@ void xmlSAX2CDataBlock(void * ctx, const xmlChar * value, int len)
 	}
 	else {
 		ret = xmlNewCDataBlock(ctxt->myDoc, value, len);
-		xmlAddChild(ctxt->node, ret);
+		xmlAddChild(ctxt->P_Node, ret);
 	}
 }
 

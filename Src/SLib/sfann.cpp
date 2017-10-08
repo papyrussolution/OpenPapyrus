@@ -1140,7 +1140,7 @@ void Fann::GetBiasArray(LongArray & rList) const
 	}
 }
 
-int Fann::GetConnectionArray(TSArray <FannConnection> & rList) const
+int Fann::GetConnectionArray(TSVector <FannConnection> & rList) const
 {
 	rList.clear();
 	int    ok = 1;
@@ -7240,7 +7240,7 @@ int main(int argc, char **argv)
 
 static int AssertWeights(STestCase * pTc, const Fann * pNet, ANNTYP min, ANNTYP max, ANNTYP avg)
 {
-	TSArray <FannConnection> connections;
+	TSVector <FannConnection> connections;
 	pNet->GetConnectionArray(connections);
     ANNTYP min_weight = connections.at(0).Weight;
     ANNTYP max_weight = connections.at(0).Weight;

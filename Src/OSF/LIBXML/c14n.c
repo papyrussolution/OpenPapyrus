@@ -36,7 +36,7 @@ typedef struct _xmlC14NVisibleNsStack {
 	int nsPrevEnd;      /* the end of the stack for previous visible node */
 	int nsMax;          /* size of the array as allocated */
 	xmlNs ** nsTab; // array of ns in no particular order 
-	xmlNode ** nodeTab; // array of nodes in no particular order 
+	xmlNode ** PP_NodeTab; // array of nodes in no particular order 
 } xmlC14NVisibleNsStack, * xmlC14NVisibleNsStackPtr;
 
 typedef struct _xmlC14NCtx {
@@ -56,13 +56,13 @@ typedef struct _xmlC14NCtx {
 
 static xmlC14NVisibleNsStackPtr xmlC14NVisibleNsStackCreate();
 static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur);
-static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNode * node);
+static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNode * P_Node);
 static void xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
 static void xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
 static void xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur);
 static int  xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns);
 static int  xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlC14NCtxPtr ctx);
-static int  xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr node, xmlNodePtr parent);
+static int  xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNodePtr parent);
 static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur);
 static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur);
 typedef enum {
@@ -78,7 +78,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 #define xmlC11NNormalizeComment(a) xmlC11NNormalizeString((a), XMLC14N_NORMALIZE_COMMENT)
 #define xmlC11NNormalizePI(a) xmlC11NNormalizeString((a), XMLC14N_NORMALIZE_PI)
 #define xmlC11NNormalizeText(a)	xmlC11NNormalizeString((a), XMLC14N_NORMALIZE_TEXT)
-#define xmlC14NIsVisible(ctx, node, parent) (((ctx)->is_visible_callback) ? (ctx)->is_visible_callback((ctx)->user_data, (xmlNode *)(node), (xmlNode *)(parent)) : 1)
+#define xmlC14NIsVisible(ctx, P_Node, parent) (((ctx)->is_visible_callback) ? (ctx)->is_visible_callback((ctx)->user_data, (xmlNode *)(P_Node), (xmlNode *)(parent)) : 1)
 #define xmlC14NIsExclusive(ctx)	((ctx)->mode == XML_C14N_EXCLUSIVE_1_0)
 
 /************************************************************************
@@ -158,11 +158,11 @@ static void xmlC14NErrRelativeNamespace(const char * ns_uri)
  *
  * Handle a redefinition of attribute error
  */
-static void xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr node, int error, const char * msg)
+static void xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr P_Node, int error, const char * msg)
 {
 	if(ctxt)
 		ctxt->error = error;
-	__xmlRaiseError(0, 0, 0, ctxt, node, XML_FROM_C14N, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
+	__xmlRaiseError(0, 0, 0, ctxt, P_Node, XML_FROM_C14N, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 }
 
 /************************************************************************
@@ -172,15 +172,15 @@ static void xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr node, int error, const cha
 ************************************************************************/
 #define XML_NAMESPACES_DEFAULT          16
 
-static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr node, xmlNodePtr parent) 
+static int xmlC14NIsNodeInNodeset(xmlNodeSetPtr nodes, xmlNodePtr P_Node, xmlNodePtr parent) 
 {
-	if(nodes && node) {
-		if(node->type != XML_NAMESPACE_DECL) {
-			return(xmlXPathNodeSetContains(nodes, node));
+	if(nodes && P_Node) {
+		if(P_Node->type != XML_NAMESPACE_DECL) {
+			return(xmlXPathNodeSetContains(nodes, P_Node));
 		}
 		else {
 			xmlNs ns;
-			memcpy(&ns, node, sizeof(ns));
+			memcpy(&ns, P_Node, sizeof(ns));
 			/* this is a libxml hack! check xpath.c for details */
 			if(parent && (parent->type == XML_ATTRIBUTE_NODE)) {
 				ns.next = (xmlNs *)parent->parent;
@@ -218,30 +218,30 @@ static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur)
 			memzero(cur->nsTab, cur->nsMax * sizeof(xmlNs *));
 			SAlloc::F(cur->nsTab);
 		}
-		if(cur->nodeTab) {
-			memzero(cur->nodeTab, cur->nsMax * sizeof(xmlNode *));
-			SAlloc::F(cur->nodeTab);
+		if(cur->PP_NodeTab) {
+			memzero(cur->PP_NodeTab, cur->nsMax * sizeof(xmlNode *));
+			SAlloc::F(cur->PP_NodeTab);
 		}
 		memzero(cur, sizeof(xmlC14NVisibleNsStack));
 		SAlloc::F(cur);
 	}
 }
 
-static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNodePtr node) 
+static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNodePtr P_Node) 
 {
-	if(!cur || ((cur->nsTab == NULL) && cur->nodeTab) || (cur->nsTab && (cur->nodeTab == NULL))) {
+	if(!cur || ((cur->nsTab == NULL) && cur->PP_NodeTab) || (cur->nsTab && (cur->PP_NodeTab == NULL))) {
 		xmlC14NErrParam("adding namespace to stack");
 		return;
 	}
-	if((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
+	if((cur->nsTab == NULL) && (cur->PP_NodeTab == NULL)) {
 		cur->nsTab = (xmlNs **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNs *));
-		cur->nodeTab = (xmlNode **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
-		if((cur->nsTab == NULL) || (cur->nodeTab == NULL)) {
+		cur->PP_NodeTab = (xmlNode **)SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
+		if((cur->nsTab == NULL) || (cur->PP_NodeTab == NULL)) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
 		memzero(cur->nsTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNs *));
-		memzero(cur->nodeTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
+		memzero(cur->PP_NodeTab, XML_NAMESPACES_DEFAULT * sizeof(xmlNode *));
 		cur->nsMax = XML_NAMESPACES_DEFAULT;
 	}
 	else if(cur->nsMax == cur->nsCurEnd) {
@@ -252,16 +252,16 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 			return;
 		}
 		cur->nsTab = (xmlNs **)tmp;
-		tmp = SAlloc::R(cur->nodeTab, tmpSize * sizeof(xmlNode *));
+		tmp = SAlloc::R(cur->PP_NodeTab, tmpSize * sizeof(xmlNode *));
 		if(!tmp) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		cur->nodeTab = (xmlNodePtr*)tmp;
+		cur->PP_NodeTab = (xmlNodePtr*)tmp;
 		cur->nsMax = tmpSize;
 	}
 	cur->nsTab[cur->nsCurEnd] = ns;
-	cur->nodeTab[cur->nsCurEnd] = node;
+	cur->PP_NodeTab[cur->nsCurEnd] = P_Node;
 	++cur->nsCurEnd;
 }
 
@@ -375,7 +375,7 @@ static int xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns
 			xmlNs * ns1 = cur->nsTab[i];
 			if(xmlC14NStrEqual(prefix, ns1 ? ns1->prefix : NULL)) {
 				if(xmlC14NStrEqual(href, ns1 ? ns1->href : NULL)) {
-					return(xmlC14NIsVisible(ctx, ns1, cur->nodeTab[i]));
+					return(xmlC14NIsVisible(ctx, ns1, cur->PP_NodeTab[i]));
 				}
 				else {
 					return 0;

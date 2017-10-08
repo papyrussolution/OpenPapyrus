@@ -100,7 +100,7 @@ static void FASTCALL xmlSaveErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void xmlSaveErr(int code, xmlNodePtr node, const char * extra)
+static void xmlSaveErr(int code, xmlNodePtr P_Node, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -110,7 +110,7 @@ static void xmlSaveErr(int code, xmlNodePtr node, const char * extra)
 		case XML_SAVE_NO_DOCTYPE: msg = "document has no DOCTYPE\n"; break;
 		default: msg = "unexpected error number\n";
 	}
-	__xmlSimpleError(XML_FROM_OUTPUT, code, node, msg, extra);
+	__xmlSimpleError(XML_FROM_OUTPUT, code, P_Node, msg, extra);
 }
 
 /************************************************************************
@@ -1126,59 +1126,59 @@ static int xmlDocContentDumpOutput(xmlSaveCtxtPtr ctxt, xmlDocPtr cur)
  *
  * Returns 1 if the node is an empty node, 0 if not and -1 in case of error
  */
-static int xhtmlIsEmpty(xmlNodePtr node)
+static int xhtmlIsEmpty(xmlNodePtr P_Node)
 {
-	if(!node)
+	if(!P_Node)
 		return -1;
-	if(node->type != XML_ELEMENT_NODE)
+	if(P_Node->type != XML_ELEMENT_NODE)
 		return 0;
-	if((node->ns != NULL) && (!sstreq(node->ns->href, XHTML_NS_NAME)))
+	if((P_Node->ns != NULL) && (!sstreq(P_Node->ns->href, XHTML_NS_NAME)))
 		return 0;
-	if(node->children != NULL)
+	if(P_Node->children != NULL)
 		return 0;
-	switch(node->name[0]) {
+	switch(P_Node->name[0]) {
 		case 'a':
-		    if(sstreq(node->name, "area"))
+		    if(sstreq(P_Node->name, "area"))
 			    return 1;
 		    return 0;
 		case 'b':
-		    if(sstreq(node->name, "br"))
+		    if(sstreq(P_Node->name, "br"))
 			    return 1;
-		    if(sstreq(node->name, "base"))
+		    if(sstreq(P_Node->name, "base"))
 			    return 1;
-		    if(sstreq(node->name, "basefont"))
+		    if(sstreq(P_Node->name, "basefont"))
 			    return 1;
 		    return 0;
 		case 'c':
-		    if(sstreq(node->name, "col"))
+		    if(sstreq(P_Node->name, "col"))
 			    return 1;
 		    return 0;
 		case 'f':
-		    if(sstreq(node->name, "frame"))
+		    if(sstreq(P_Node->name, "frame"))
 			    return 1;
 		    return 0;
 		case 'h':
-		    if(sstreq(node->name, "hr"))
+		    if(sstreq(P_Node->name, "hr"))
 			    return 1;
 		    return 0;
 		case 'i':
-		    if(sstreq(node->name, "img"))
+		    if(sstreq(P_Node->name, "img"))
 			    return 1;
-		    if(sstreq(node->name, "input"))
+		    if(sstreq(P_Node->name, "input"))
 			    return 1;
-		    if(sstreq(node->name, "isindex"))
+		    if(sstreq(P_Node->name, "isindex"))
 			    return 1;
 		    return 0;
 		case 'l':
-		    if(sstreq(node->name, "link"))
+		    if(sstreq(P_Node->name, "link"))
 			    return 1;
 		    return 0;
 		case 'm':
-		    if(sstreq(node->name, "meta"))
+		    if(sstreq(P_Node->name, "meta"))
 			    return 1;
 		    return 0;
 		case 'p':
-		    if(sstreq(node->name, "param"))
+		    if(sstreq(P_Node->name, "param"))
 			    return 1;
 		    return 0;
 	}
@@ -1777,12 +1777,12 @@ long xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDocPtr doc)
  *
  * Returns the number of byte written or -1 in case of error
  */
-long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr node)
+long xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNodePtr P_Node)
 {
-	if(!ctxt || !node) 
+	if(!ctxt || !P_Node) 
 		return -1;
 	else {
-		xmlNodeDumpOutputInternal(ctxt, node);
+		xmlNodeDumpOutputInternal(ctxt, P_Node);
 		return 0;
 	}
 }

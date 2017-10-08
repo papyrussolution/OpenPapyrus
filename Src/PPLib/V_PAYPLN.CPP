@@ -545,7 +545,7 @@ DBQuery * SLAPI PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		brw_id = BROWSER_PAYMPLAN_CROSSTAB;
 	}
 	else {
-		t = new TempPaymPlanTbl(P_TempTbl->fileName);
+		t = new TempPaymPlanTbl(P_TempTbl->GetName());
 		THROW(CheckTblPtr(t));
 		{
 			dbe_cycle.init();

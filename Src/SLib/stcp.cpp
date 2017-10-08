@@ -19,7 +19,7 @@ ulong SLAPI InetAddr::IPToULong(const char * pIP)
 	StringSet ss('.', pIP);
 	THROW(ss.getCount() == 4);
 	for(uint i = 0, j = 4; j > 0 && ss.get(&i, buf) > 0; j--) {
-		ulong elem = buf.ToLong();
+		const ulong elem = buf.ToLong();
 		THROW(elem >= 0 && elem <= 255);
 		addr |= elem << 8 * (j - 1);
 	}
@@ -1227,6 +1227,7 @@ SLAPI SMailMsg::SMailMsg()
 	Flags = 0;
 	Size = 0;
 	memzero(Zero, sizeof(Zero));
+	Init();
 }
 
 SLAPI SMailMsg::~SMailMsg()
@@ -1238,14 +1239,12 @@ void SLAPI SMailMsg::Init()
 {
 	Flags = 0;
 	Size = 0;
-	Subj.Z();
-	Mailer.Z();
-	From.Z();
-	To.Z();
-	Cc.Z();
-	Boundary.Z();
-	Text.Z();
-	AttList.freeAll();
+	MEMSZERO(HFP);
+	Dtm.SetZero();
+	ContentLangId = 0;
+	BL.clear();
+	AttachPosL.clear();
+	ReceivedChainL.clear();
 }
 
 SString & SLAPI SMailMsg::MakeBoundaryCode(SString & rBuf) const
@@ -1271,13 +1270,12 @@ SString & SLAPI SMailMsg::MakeBoundaryCode(SString & rBuf) const
 SString & SLAPI SMailMsg::GetBoundary(int start, SString & rBuf) const
 {
 	rBuf.Z();
-	const char * p_boundary = GetField(SMailMsg::fldBoundary);
-	if(p_boundary) {
+	if(HFP.BoundaryP) {
+		GetField(fldBoundary, rBuf);
 		if(start == 1 || start == 2)
-			rBuf.CatCharN('-', 2);
-		rBuf.Cat(p_boundary);
+			rBuf.Insert(0, "--");
 		if(start == 2)
-			rBuf.CatCharN('-', 2);
+			rBuf.Cat("--");
 	}
 	return rBuf;
 }
@@ -1291,10 +1289,11 @@ int SLAPI SMailMsg::AttachFile(const char * pFileName)
 {
 	int    ok = 0;
 	if(fileExists(pFileName)) {
-		if(AttList.insert(newStr(pFileName))) {
-			Flags |= fMultipart;
-			ok = 1;
-		}
+		uint   _p = 0;
+		AddS(pFileName, &_p);
+		AttachPosL.insert(&_p);
+		Flags |= fMultipart;
+		ok = 1;
 	}
 	return ok;
 }
@@ -1305,8 +1304,9 @@ int SLAPI SMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFull
 	rFullPath.Z();
 	int    ok = 0;
 	uint   pos = pPos ? *pPos : 0;
-	if(pos < AttList.getCount()) {
-		rFullPath = AttList.at(pos);
+	if(pos < AttachPosL.getCount()) {
+		//rFullPath = AttList.at(pos);
+		GetS(AttachPosL.at(pos), rFullPath);
 		SPathStruc ps;
 		ps.Split(rFullPath);
 		ps.Drv.Z();
@@ -1321,15 +1321,38 @@ int SLAPI SMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFull
 
 int SLAPI SMailMsg::SetField(int fldId, const char * pVal)
 {
+	SString temp_buf;
 	switch(fldId) {
-		case fldFrom: (From = pVal).Strip(); break;
-		case fldTo:   (To = pVal).Strip(); break;
-		case fldCc:   (Cc = pVal).Strip(); break;
-		case fldSubj: (Subj = pVal).Strip(); break;
-		case fldMailer: (Mailer = pVal).Strip(); break;
-		case fldBoundary: (Boundary = pVal).Strip(); break;
-		case fldText: (Text = pVal).Strip(); break;
-		default: return 0;
+		case fldFrom: 
+			//(From = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.FromP);
+			break;
+		case fldTo:   
+			//(To = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.ToP);
+			break;
+		case fldCc:   
+			//(Cc = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.CcP);
+			break;
+		case fldSubj: 
+			//(Subj = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.SubjP);
+			break;
+		case fldMailer: 
+			//(Mailer = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.MailerP);
+			break;
+		case fldBoundary: 
+			//(Boundary = pVal).Strip(); 
+			AddS(temp_buf.Strip(), &HFP.BoundaryP);
+			break;
+		case fldText: 
+			//(Text = pVal).Strip(); 
+			//AddS(temp_buf.Strip(), &HFP.TextP);
+			break;
+		default: 
+			return 0;
 	}
 	return 1;
 }
@@ -1337,20 +1360,29 @@ int SLAPI SMailMsg::SetField(int fldId, const char * pVal)
 int FASTCALL SMailMsg::IsField(int fldId) const
 {
 	switch(fldId) {
-		case fldFrom: return From.NotEmpty();
+		/*case fldFrom: return From.NotEmpty();
 		case fldTo:   return To.NotEmpty();
 		case fldCc:   return Cc.NotEmpty();
 		case fldSubj: return Subj.NotEmpty();
 		case fldMailer: return Mailer.NotEmpty();
 		case fldBoundary: return Boundary.NotEmpty();
-		case fldText: return Text.NotEmpty();
+		case fldText: return Text.NotEmpty();*/
+		case fldFrom: return BIN(HFP.FromP);
+		case fldTo:   return BIN(HFP.ToP);
+		case fldCc:   return BIN(HFP.CcP);
+		case fldSubj: return BIN(HFP.SubjP);
+		case fldMailer: return BIN(HFP.MailerP);
+		case fldBoundary: return BIN(HFP.BoundaryP);
+		//case fldText: return Text.NotEmpty();
 	}
 	return 0;
 }
 
-const char * FASTCALL SMailMsg::GetField(int fldId) const
+SString & SLAPI SMailMsg::GetField(int fldId, SString & rBuf) const
 {
+	uint   _p = 0;
 	switch(fldId) {
+		/*
 		case fldFrom: return From.NotEmpty() ? From.cptr() : Zero;
 		case fldTo:   return To.NotEmpty() ? To.cptr() : Zero;
 		case fldCc:   return Cc.NotEmpty() ? Cc.cptr() : Zero;
@@ -1358,14 +1390,24 @@ const char * FASTCALL SMailMsg::GetField(int fldId) const
 		case fldMailer: return Mailer.NotEmpty() ? Mailer.cptr() : Zero;
 		case fldBoundary: return Boundary.NotEmpty() ? Boundary.cptr() : Zero;
 		case fldText: return Text.NotEmpty() ? Text.cptr() : Zero;
+		*/
+		case fldFrom: _p = HFP.FromP; break;
+		case fldTo:   _p = HFP.ToP; break;
+		case fldCc:   _p = HFP.CcP; break;
+		case fldSubj: _p = HFP.SubjP; break;
+		case fldMailer: _p = HFP.MailerP; break;
+		case fldBoundary: _p = HFP.BoundaryP; break;
+		//case fldText: return Text.NotEmpty() ? Text.cptr() : Zero;
 	}
-	return 0;
+	GetS(_p, rBuf);
+	return rBuf;
 }
 
 int SLAPI SMailMsg::CmpField(int fldId, const char * pStr, size_t len) const
 {
-	const char * ptr = GetField(fldId);
-	return isempty(ptr) ? -1 : strnicmp(pStr, ptr, (len) ? len : strlen(ptr));
+	SString temp_buf;
+	GetField(fldId, temp_buf);
+	return temp_buf.NotEmpty() ? strnicmp(pStr, temp_buf, (len) ? len : temp_buf.Len()) : 0;
 }
 
 static int SLAPI _PUTS(const char * pLine, SFile & rOut)
@@ -1388,6 +1430,30 @@ SString & SLAPI SMailMsg::PutField(const char * pFld, const char * pVal, SString
 	return rBuf;
 }
 
+int SLAPI SMailMsg::ReadFromFile(SFile & rF)
+{
+	int    ok = -1;
+	SString line_buf;
+	SString full_line;
+	while(rF.ReadLine(line_buf)) {
+		line_buf.Chomp();
+		if(line_buf.Len() && line_buf[0] == '\t' || line_buf[0] == ' ') {
+			if(line_buf[0] == '\t')
+				full_line.Cat(line_buf.cptr()+1);
+			else
+				full_line.Cat(line_buf);
+		}
+		else {
+			// do process full_line
+			//
+			full_line = line_buf;
+		}
+	}
+	// do process full_line
+	//
+	return ok;
+}
+
 int SLAPI SMailMsg::PutToFile(SFile & rF)
 {
 /*
@@ -1399,9 +1465,6 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	SString fname, temp_buf;
 	uint   i = 0;
 	SDirEntry * p_fb = 0;
-	//FILE * f2 = 0;
-	//FILE * out = 0;
-
 	SetField(SMailMsg::fldBoundary, MakeBoundaryCode(temp_buf));
 	is_attach = (Flags & SMailMsg::fMultipart) ? 1 : 0;
 	{
@@ -1410,7 +1473,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(sd_buf);
 		_PUTS(temp_buf, rF);
 	}
-	PutField("From", GetField(fldFrom), buf);
+	PutField("From", GetField(fldFrom, temp_buf), buf);
 	_PUTS(buf, rF);
 	/*
 	{
@@ -1421,7 +1484,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 		_PUTS(temp_buf, out);
 	}
 	*/
-	PutField("X-Mailer", GetField(fldMailer), buf);
+	PutField("X-Mailer", GetField(fldMailer, temp_buf), buf);
 	_PUTS(buf, rF);
 	{
 		
@@ -1435,10 +1498,10 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 		PutField(PPMAILFLD_MESSAGEID, temp_buf, buf);
 		_PUTS(buf, out);*/
 	}
-	PutField("To", GetField(fldTo), buf);
+	PutField("To", GetField(fldTo, temp_buf), buf);
 	_PUTS(buf, rF);
 	{
-		temp_buf = GetField(fldSubj);
+		GetField(fldSubj, temp_buf);
 		/*if(temp_buf == SUBJECTDBDIV) {
 			//
 			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
@@ -1473,7 +1536,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 			_PUTS(buf, rF);
 			_PUTS(0, rF); // Empty line
 		}
-		_PUTS(GetField(SMailMsg::fldText), rF);
+		_PUTS(GetField(SMailMsg::fldText, temp_buf), rF);
 		_PUTS(0, rF); // Empty line
 	}
 	if(is_attach) {
@@ -2823,25 +2886,20 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	return ok;
 }
 
-int ScURL::Pop3Stat(const InetUrl & rUrl, int mflags, uint * pCount, uint64 * pSize)
+int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LIST
 {
+	rList.clear();
 	int    ok = 1;
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
-		if(url_info.Path.NotEmptyS()) {
-			url_info.Path.SetLastDSlash();
-			url_local.SetComponent(InetUrl::cPath, url_info.Path);
-		}
+		url_local.SetComponent(InetUrl::cPath, 0);
 		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
-	//
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "STAT")));
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOBODY, 1L)));
 	{
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
@@ -2851,23 +2909,76 @@ int ScURL::Pop3Stat(const InetUrl & rUrl, int mflags, uint * pCount, uint64 * pS
 			SString line_buf;
 			SBuffer * p_result_buf = (SBuffer *)reply_stream;
 			if(p_result_buf) {
-				/*
-				SFileEntryPool::Entry entry;
-				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {
-					(temp_buf = line_buf).Chomp();
-					entry.Clear();
-					ParseFtpDirEntryLine(temp_buf, entry);
-					if(url_info.Path.NotEmpty())
-						entry.Path = url_info.Path;
-					rPool.Add(entry);
+				SString left, right;
+				while(p_result_buf->ReadLine(line_buf)) {
+					line_buf.Chomp().Strip();
+					if(line_buf.Divide(' ', left, right) > 0) {
+						long   n = left.Strip().ToLong();
+						long   s = right.Strip().ToLong();
+						rList.Add(n, s, 0);
+					}
 				}
-				temp_buf = ""; // @debug
-				*/
 			}
 		}
 	}
 	CATCHZOK
 	CleanCbRW();
+	return ok;
+}
+
+int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
+	{
+		url_local.SetComponent(InetUrl::cPath, temp_buf.Z().Cat(msgN));
+		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
+	{
+		SBuffer reply_buf;
+		SFile reply_stream(reply_buf, SFile::mWrite);
+		THROW(SetupCbWrite(&reply_stream));
+		THROW(Execute());
+		{
+			SString line_buf;
+			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			if(p_result_buf) {
+				SString left, right;
+				while(p_result_buf->ReadLine(line_buf)) {
+					line_buf.Chomp().Strip();
+					if(line_buf.Divide(' ', left, right) > 0) {
+						long   n = left.Strip().ToLong();
+						long   s = right.Strip().ToLong();
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	CleanCbRW();
+	return ok;
+}
+
+int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMsg & rMsg)
+{
+	int    ok = -1;
 	return ok;
 }
 //
@@ -2973,6 +3084,44 @@ int SUniformFileTransmParam::Run(SCopyFileProgressProc pf, void * extraPtr)
 //
 //
 #if SLTEST_RUNNING // {
+
+SLTEST_R(ScURL_Mail)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString url_text;
+	InetUrl url;
+	{
+		uint   arg_no = 0;
+		if(EnumArg(&arg_no, temp_buf)) {
+			url.Parse(temp_buf);
+			if(EnumArg(&arg_no, temp_buf)) {
+				url.SetComponent(url.cUserName, temp_buf);
+				if(EnumArg(&arg_no, temp_buf))
+					url.SetComponent(url.cPassword, temp_buf);
+			}
+		}
+	}
+	{
+		LAssocArray mail_list;
+		ScURL curl;
+		{
+			//uint msg_count = 0;
+			//uint64 msg_size = 0;
+			//THROW(SLTEST_CHECK_NZ(curl.Pop3Stat(url, ScURL::mfDontVerifySslPeer, &msg_count, &msg_size)));
+			THROW(SLTEST_CHECK_NZ(curl.Pop3List(url, ScURL::mfDontVerifySslPeer, mail_list)));
+		}
+		if(mail_list.getCount()) {
+			SMailMsg msg;
+			THROW(SLTEST_CHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(0).Key, msg)));
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+		ok = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
 
 SLTEST_R(ScURL_Ftp)
 {

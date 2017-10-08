@@ -178,7 +178,7 @@ int RightsDialog::setupList()
 	}
 	temp_list.SortByText();
 	for(i = 0; i < temp_list.getCount(); i++) {
-		ss.clear(1);
+		ss.clear();
 		StrAssocArray::Item entry = temp_list.at(i);
 		ObjRights * p_obj_rt = Data.GetObjRights(entry.Id, 1);
 		THROW(p_obj_rt);
@@ -505,7 +505,7 @@ int RtCfgListDialog::setupList()
 			StringSet ss(SLBColumnDelim);
 			PPGetSubStr(CfgNames, i - 1, sub);
 			ss.add(sub);
-			sub = 0;
+			sub.Z();
 			sub.CatChar((rtfld & PPR_READ) ? 'R' : ' ');
 			sub.CatChar((rtfld & PPR_INS)  ? 'C' : ' ');
 			sub.CatChar((rtfld & PPR_MOD)  ? 'M' : ' ');

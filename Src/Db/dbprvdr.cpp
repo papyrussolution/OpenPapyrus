@@ -424,7 +424,7 @@ void SLAPI DbProvider::RemoveTempFiles()
 		const  int ec = DBS.GetTLA().GetTabEntriesCount();
 		for(int j = 1; !opened && j <= ec; j++) {
 			DBTable * p_table = _GetTable(j);
-			if(p_table && file_name.CmpNC(p_table->fileName) == 0)
+			if(p_table && file_name.CmpNC(p_table->GetName()) == 0)
 				opened = 1;
 		}
 		if(opened || DropFile(file_name) != 0)
@@ -444,12 +444,12 @@ int SLAPI DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const
 		else if(Capability & cSQL)
 			tbl_loc = pTblName;
 		else
-			tbl_loc = pTbl->fileName;
+			tbl_loc = pTbl->GetName();
 		pTbl->fileName = MakeFileName_(pTblName, tbl_loc);
 	}
-	if(createIfNExists && !IsFileExists_(pTbl->fileName)) {
+	if(createIfNExists && !IsFileExists_(pTbl->GetName())) {
 		char   acs[265];
-		THROW(CreateDataFile(pTbl, pTbl->fileName, crmNoReplace, GetRusNCaseACS(acs)));
+		THROW(CreateDataFile(pTbl, pTbl->GetName(), crmNoReplace, GetRusNCaseACS(acs)));
 	}
 	CATCH
 		pTbl->tableID = 0;
@@ -466,11 +466,11 @@ int SLAPI DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 	DBTable * p_tbl = *ppTblSpec;
 	DBTable * p_new_tbl = 0;
 	SString file_name;
-	SString tbl_name = p_tbl->tableName;
+	SString tbl_name = p_tbl->GetTableName();
 	DbTableStat ts;
-	P_Dict->DropTableSpec(p_tbl->tableName, &ts);
+	P_Dict->DropTableSpec(p_tbl->GetTableName(), &ts);
 	THROW(P_Dict->CreateTableSpec(p_tbl));
-	file_name = p_tbl->fileName;
+	file_name = p_tbl->GetName();
 	ZDELETE(p_tbl);
 	DropFile(file_name);
 	THROW(p_new_tbl = new DBTable(tbl_name, file_name, omNormal, this));
@@ -504,8 +504,8 @@ int SLAPI DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAl
 {
 	int    ok = 1;
 	char   acst[512];
-	SString tbl_fname = rTbl.fileName;
-	SString tbl_name = rTbl.tableName;
+	SString tbl_fname = rTbl.GetName();
+	SString tbl_name = rTbl.GetTableName();
 	rTbl.close();
 	THROW(DropFile(tbl_fname));
 	THROW(LoadTableSpec(&rTbl, tbl_name, tbl_fname, 0));

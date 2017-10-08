@@ -140,7 +140,7 @@ void PPDesktopAssocCmdPool::Init(PPID desktopId)
 {
 	DesktopID = desktopId;
 	L.clear();
-	P.clear(1);
+	P.clear();
 	P.add("$"); // zero index - is empty string
 }
 

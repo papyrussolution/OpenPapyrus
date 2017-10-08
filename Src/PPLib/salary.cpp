@@ -735,7 +735,7 @@ DBQuery * SLAPI PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 		DBQ  * dbq = 0;
 		DBE    dbe_staff, dbe_psn, dbe_charge, dbe_bill;
 		if(P_TempTbl) {
-			THROW_MEM(p_tmp = new TempSalaryTbl(P_TempTbl->fileName));
+			THROW_MEM(p_tmp = new TempSalaryTbl(P_TempTbl->GetName()));
 			PPDbqFuncPool::InitObjNameFunc(dbe_staff,  PPDbqFuncPool::IdObjNameStaff, p_tmp->StaffID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_psn,    PPDbqFuncPool::IdObjNamePerson, p_tmp->PersonID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_charge, PPDbqFuncPool::IdObjNameSalCharge, p_tmp->SalChargeID);

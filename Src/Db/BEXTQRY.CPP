@@ -73,14 +73,15 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 	}
 	else
 		pSg->Aster();
-	pSg->Sp().From(P_Tbl->fileName);
+	pSg->Sp().From(P_Tbl->GetName());
 	int _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
 		//
 		// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из
 		// этого индекса.
 		//
-		BNKey  key = P_Tbl->indexes[index];
+		//BNKey  key = P_Tbl->indexes[index];
+		BNKey  key = P_Tbl->GetIndices()[index];
 		int    ns = key.getNumSeg();
 		size_t offs = 0;
 		char   temp[512];
@@ -89,7 +90,8 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 		pSg->LPar();
 		for(int i = 0; i < ns; i++) {
 			int fldid = key.getFieldID(i);
-			const BNField fld = P_Tbl->indexes.field(index, i);
+			//const BNField fld = P_Tbl->indexes.field(index, i);
+			const BNField fld = P_Tbl->GetIndices().field(index, i);
 			if(i > 0) { // НЕ первый сегмент
 				pSg->Tok(Generator_SQL::tokAnd).Sp();
 				if(initSpMode != spEq)
@@ -135,7 +137,8 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 				//
 				pSg->Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 				for(int j = 0; j < i; j++) {
-					const BNField fld2 = P_Tbl->indexes.field(index, j);
+					//const BNField fld2 = P_Tbl->indexes.field(index, j);
+					const BNField fld2 = P_Tbl->GetIndices().field(index, j);
 					if(j > 0)
 						pSg->Tok(Generator_SQL::tokAnd).Sp();
 					if(key.getFlags(j) & XIF_ACS)
@@ -143,7 +146,8 @@ int SLAPI BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char 
 					else
 						pSg->Text(fld2.Name);
 					pSg->_Symb(_NE_);
-					sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->indexes.getSegOffset(index, j), COMF_SQL, temp);
+					//sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->indexes.getSegOffset(index, j), COMF_SQL, temp);
+					sttostr(fld2.T, PTR8(pInitKey) + P_Tbl->GetIndices().getSegOffset(index, j), COMF_SQL, temp);
 					pSg->Text(temp);
 					pSg->Sp();
 				}
@@ -278,8 +282,8 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 				// эта функция возвращает размер записи без полей переменной длины
 				// и без NOTE-полей.
 				//
-				for(uint i = 0; i < P_Tbl->fields.getCount(); i++)
-					RecSize += P_Tbl->fields[i].size();
+				for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
+					RecSize += P_Tbl->GetFields()[i].size();
 			}
 			THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
 			//
@@ -287,7 +291,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 				THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf, P_Tbl->getLobBlock()));
 			}
 			else {
-				THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->fields, Buf, P_Tbl->getLobBlock()));
+				THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf, P_Tbl->getLobBlock()));
 			}
 			THROW(r = P_Stmt->Fetch(MaxRecs, &ActCount));
 			if(r > 0) {
@@ -324,7 +328,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		}
 		else {
 			p_item = (BExtTailItem *)(p_tail + 1);
-			p_item->fldLen = P_Tbl->fields.getRecSize();
+			p_item->fldLen = P_Tbl->GetFields().getRecSize();
 			p_item->fldOfs = 0;
 			RecSize += p_item->fldLen;
 		}
@@ -503,13 +507,13 @@ int SLAPI BExtQuery::add_term(int link, int n)
 	char   val[1024];
 	const  BNField * fld = 0;
 	DBQ::T & t = P_Restrict->items[n];
-	assert(t.left.i.id == P_Tbl->handle || t.right.i.id == P_Tbl->handle);
-	if(t.left.i.id == P_Tbl->handle) {
+	assert(t.left.i.id == P_Tbl->GetHandle() || t.right.i.id == P_Tbl->GetHandle());
+	if(t.left.i.id == P_Tbl->GetHandle()) {
 		fld = &t.left.f.getField();
 		cmp = t.cmp;
 		t.right.getValue(fld->T, val);
 	}
-	else if(t.right.i.id == P_Tbl->handle) {
+	else if(t.right.i.id == P_Tbl->GetHandle()) {
 		fld = &t.right.f.getField();
 		cmp = _invertComp(t.cmp);
 		t.left.getValue(fld->T, val);

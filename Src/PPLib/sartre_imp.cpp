@@ -2219,7 +2219,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 						if(list.GetItem(i, entry)) {
 							NGID   ngram_id = 0;
 							ngram.clear();
-							name_ss.clear(1);
+							name_ss.clear();
 							entry.Name.Tokenize(" ", name_ss);
 							for(uint nssp = 0; name_ss.get(&nssp, temp_buf);) {
 								LEXID  word_id = 0;
@@ -2751,7 +2751,7 @@ int PrcssrSartre::TestConcept()
 		for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
 			temp_buf = p_words[i];
 			line_buf.Z().Cat(temp_buf).CR();
-			tok_list.clear(1);
+			tok_list.clear();
 			temp_buf.Tokenize(0, tok_list);
 			int    unkn_word = 0;
 			LongArray ng;

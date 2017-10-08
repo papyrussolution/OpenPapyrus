@@ -342,7 +342,7 @@ PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Clear()
 {
 	LastAnonymN = 0;
 	SArray::clear();
-	MemoPool.clear(1);
+	MemoPool.clear();
 	MemoPool.add("$"); // zero index - is empty string
 	return *this;
 }
@@ -580,7 +580,7 @@ int SLAPI PPCheckInPersonArray::Serialize(int dir, SBuffer & rBuf, SSerializeCon
 			THROW_SL(MemoPool.Serialize(dir, rBuf, pCtx));
 		}
 		else {
-			MemoPool.clear(1);
+			MemoPool.clear();
 		}
 	}
 	else if(dir > 0) {
@@ -1238,7 +1238,7 @@ int CheckInPersonListDialog::setupList()
 		const PPCheckInPersonItem & r_item = Data.Get(i);
 		double price = 0.0;
 		double amt = 0.0;
-		ss.clear(1);
+		ss.clear();
 		r_item.GetPersonName(temp_buf);
 		ss.add(temp_buf);
 		if(r_item.Flags & PPCheckInPersonItem::fCheckedIn)

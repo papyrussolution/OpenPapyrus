@@ -70,7 +70,7 @@ int SLAPI PoClauseArray_::IsEqual(const PoClauseArray_ & rS, int options) const
 PoClauseArray_ & SLAPI PoClauseArray_::Clear()
 {
 	L.clear();
-	Pool.clear(1);
+	Pool.clear();
 	Pool.add("$"); // zero index - is empty string
 	return *this;
 }

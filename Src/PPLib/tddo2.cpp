@@ -1330,7 +1330,15 @@ public:
 			SLAPI  Stack()
 			{
 			}
-			int FASTCALL Push(const Stack & rS);
+			int FASTCALL Push(const Stack & rS)
+			{
+				int    ok = -1;
+				for(uint i = 0; i < rS.getPointer(); i++) {
+					push(*(TddoContentGraph::ExprSet::Item *)rS.at(i));
+					ok = 1;
+				}
+				return ok;
+			}
 		};
 		class Expression {
 		public:
@@ -1424,16 +1432,31 @@ public:
 						}
 						else if(r == Tddo::tFunc) {
 							int    local_ok = 1;
-							uint   arg_count = 0;
 							Item ei;
 							ei.K = kFunc;
 							R_G.AddS(temp_buf, &ei.SymbP);
+							TSCollection <Stack> local_arg_list;
 							do {
-								Stack local_stk;
-								local_ok = Helper_Parse(untiltokComma|untiltokRPar, local_stk); // @recursion
-								if(local_ok && local_stk.getPointer())
-									arg_count++;
-							} while(r_scan[0] != ')' && local_ok);
+								uint   local_stk_pos = 0;
+								Stack * p_local_stk = local_arg_list.CreateNewItem(&local_stk_pos);
+								THROW_SL(p_local_stk);
+								local_ok = Helper_Parse(untiltokComma|untiltokRPar, *p_local_stk); // @recursion
+								if(p_local_stk->getPointer() == 0) {
+									local_arg_list.atFree(local_stk_pos);
+									if(r_scan[0] != ')' && local_ok)
+										local_ok = 0; // @error Empty expression
+								}
+							} while(local_ok && r_scan[0] != ')');
+							if(r_scan[0] == ')') {
+								r_scan.Incr();
+							}
+							if(local_ok) {
+								ei.ArgCount = local_arg_list.getCount();
+								rStack.push(ei);
+								for(uint i = 0; i < local_arg_list.getCount(); i++) {
+									rStack.Push(*local_arg_list.at(i));
+								}
+							}
 						}
 						else if(r > Tddo::tOperator) {
 							Item ei;
@@ -1445,6 +1468,7 @@ public:
 					}
 				}
 			}
+			CATCHZOK
 			return ok;
 		}
 	private:

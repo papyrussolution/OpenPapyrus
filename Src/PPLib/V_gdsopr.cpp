@@ -232,7 +232,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); SLAPI GoodsOpAnalyzeFilt::GoodsOpAnaly
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, GoodsIdList));
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, BillList));
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, LocList));
-	SetBranchSArray(offsetof(GoodsOpAnalyzeFilt, CompareItems));
+	SetBranchSVector(offsetof(GoodsOpAnalyzeFilt, CompareItems)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 
@@ -3582,7 +3582,7 @@ DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString 
 			ff = QTTYF_FRACTION | NMBF_NOZERO;
 		if(oneof5(CurrentViewOrder, OrdByQtty, OrdByCostSum, OrdByPriceSum, OrdByIncome, OrdByRest))
 			THROW(CreateOrderTable(CurrentViewOrder, &p_ot));
-		tbl = new TempGoodsOprTbl(P_TempTbl->fileName);
+		tbl = new TempGoodsOprTbl(P_TempTbl->GetName());
 		{
 			dbe_cqtty.init();
 			dbe_cqtty.push(tbl->Quantity);
@@ -3879,7 +3879,7 @@ int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 
 void SLAPI PPViewGoodsOpAnalyze::GetTempTableName(SString & rBuf) const
 {
-	rBuf = P_TempTbl ? P_TempTbl->fileName : (const char *)0;
+	rBuf = P_TempTbl ? P_TempTbl->GetName() : (const char *)0;
 }
 
 int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)

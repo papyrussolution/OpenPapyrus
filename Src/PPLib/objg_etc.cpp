@@ -61,6 +61,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 6, GTF_EXCLVAT);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 7, GTF_REQBARCODE);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 8, GTF_QUASIUNLIM); // @v8.5.1
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 9, GTF_LOOKBACKPRICES); // @v9.8.4
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
 	dlg->setCtrlReal(CTL_GDSTYP_STKTLR, rec.StockTolerance); // @v9.0.4
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -411,7 +412,7 @@ int GoodsValRestrDialog::setupList()
 	const ObjRestrictArray & r_list = Data.GetBillArRestrictList();
 	for(uint i = 0; i < r_list.getCount(); i++) {
 		const ObjRestrictItem & r_item = r_list.at(i);
-		ss.clear(1);
+		ss.clear();
 		GetArticleName(r_item.ObjID, temp_buf.Z());
 		ss.add(temp_buf);
 		{
@@ -587,12 +588,10 @@ int SLAPI PPObjGoodsValRestr::PutPacket(PPID * pID, const PPGoodsValRestrPacket 
 				}
 				THROW(ref->PutPropVlrString(Obj, *pID, GVRPROP_TEXT, p));
 			}
-			// @v7.9.2 {
 			{
-				const SArray * p_array = pPack->GetBillArRestrictList().getCount() ? &pPack->GetBillArRestrictList() : 0;
+				const SVector * p_array = pPack->GetBillArRestrictList().getCount() ? &pPack->GetBillArRestrictList() : 0;
 				THROW(ref->PutPropArray(Obj, *pID, GVRPROP_BAR, p_array, 0));
 			}
-			// } @v7.9.2
 		}
 		THROW(tra.Commit());
 	}

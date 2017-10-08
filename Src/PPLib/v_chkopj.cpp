@@ -66,7 +66,7 @@ IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); SLAPI CheckOpJrnlFilt::CheckOpJrnlFilt() 
 {
 	SetFlatChunk(offsetof(CheckOpJrnlFilt, ReserveStart),
 		offsetof(CheckOpJrnlFilt, ActionIDList)-offsetof(CheckOpJrnlFilt, ReserveStart));
-	SetBranchSArray(offsetof(CheckOpJrnlFilt, ActionIDList));
+	SetBranchSVector(offsetof(CheckOpJrnlFilt, ActionIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 

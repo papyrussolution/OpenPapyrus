@@ -211,9 +211,9 @@ static void xmlCatalogErrMemory(const char * extra)
  *
  * Handle a catalog error
  */
-static void xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
-	__xmlRaiseError(0, 0, 0, catal, node, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, (const char*)str3, 0, 0,
+	__xmlRaiseError(0, 0, 0, catal, P_Node, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, (const char*)str3, 0, 0,
 	    msg, str1, str2, str3);
 }
 
@@ -455,7 +455,7 @@ static void xmlCatalogDumpEntry(xmlCatalogEntryPtr entry, FILE * out)
  */
 static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDocPtr doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
 {
-	xmlNode * node;
+	xmlNode * P_Node;
 	/*
 	 * add all the catalog entries
 	 */
@@ -473,75 +473,75 @@ static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, 
 				    }
 				    break;
 				case XML_CATA_NEXT_CATALOG:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "nextCatalog", 0);
-				    xmlSetProp(node, BAD_CAST "catalog", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "nextCatalog", 0);
+				    xmlSetProp(P_Node, BAD_CAST "catalog", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_NONE:
 				    break;
 				case XML_CATA_GROUP:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "group", 0);
-				    xmlSetProp(node, BAD_CAST "id", cur->name);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "group", 0);
+				    xmlSetProp(P_Node, BAD_CAST "id", cur->name);
 				    if(cur->value != NULL) {
-					    xmlNs * xns = xmlSearchNsByHref(doc, node, XML_XML_NAMESPACE);
+					    xmlNs * xns = xmlSearchNsByHref(doc, P_Node, XML_XML_NAMESPACE);
 					    if(xns)
-						    xmlSetNsProp(node, xns, BAD_CAST "base", cur->value);
+						    xmlSetNsProp(P_Node, xns, BAD_CAST "base", cur->value);
 				    }
 				    switch(cur->prefer) {
 					    case XML_CATA_PREFER_NONE: break;
-					    case XML_CATA_PREFER_PUBLIC: xmlSetProp(node, BAD_CAST "prefer", BAD_CAST "public"); break;
-					    case XML_CATA_PREFER_SYSTEM: xmlSetProp(node, BAD_CAST "prefer", BAD_CAST "system"); break;
+					    case XML_CATA_PREFER_PUBLIC: xmlSetProp(P_Node, BAD_CAST "prefer", BAD_CAST "public"); break;
+					    case XML_CATA_PREFER_SYSTEM: xmlSetProp(P_Node, BAD_CAST "prefer", BAD_CAST "system"); break;
 				    }
-				    xmlDumpXMLCatalogNode(cur->next, node, doc, ns, cur);
-				    xmlAddChild(catalog, node);
+				    xmlDumpXMLCatalogNode(cur->next, P_Node, doc, ns, cur);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_PUBLIC:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "public", 0);
-				    xmlSetProp(node, BAD_CAST "publicId", cur->name);
-				    xmlSetProp(node, BAD_CAST "uri", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "public", 0);
+				    xmlSetProp(P_Node, BAD_CAST "publicId", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "uri", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_SYSTEM:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "system", 0);
-				    xmlSetProp(node, BAD_CAST "systemId", cur->name);
-				    xmlSetProp(node, BAD_CAST "uri", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "system", 0);
+				    xmlSetProp(P_Node, BAD_CAST "systemId", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "uri", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_REWRITE_SYSTEM:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "rewriteSystem", 0);
-				    xmlSetProp(node, BAD_CAST "systemIdStartString", cur->name);
-				    xmlSetProp(node, BAD_CAST "rewritePrefix", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "rewriteSystem", 0);
+				    xmlSetProp(P_Node, BAD_CAST "systemIdStartString", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "rewritePrefix", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_DELEGATE_PUBLIC:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "delegatePublic", 0);
-				    xmlSetProp(node, BAD_CAST "publicIdStartString", cur->name);
-				    xmlSetProp(node, BAD_CAST "catalog", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "delegatePublic", 0);
+				    xmlSetProp(P_Node, BAD_CAST "publicIdStartString", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "catalog", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_DELEGATE_SYSTEM:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "delegateSystem", 0);
-				    xmlSetProp(node, BAD_CAST "systemIdStartString", cur->name);
-				    xmlSetProp(node, BAD_CAST "catalog", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "delegateSystem", 0);
+				    xmlSetProp(P_Node, BAD_CAST "systemIdStartString", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "catalog", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_URI:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "uri", 0);
-				    xmlSetProp(node, BAD_CAST "name", cur->name);
-				    xmlSetProp(node, BAD_CAST "uri", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "uri", 0);
+				    xmlSetProp(P_Node, BAD_CAST "name", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "uri", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_REWRITE_URI:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "rewriteURI", 0);
-				    xmlSetProp(node, BAD_CAST "uriStartString", cur->name);
-				    xmlSetProp(node, BAD_CAST "rewritePrefix", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "rewriteURI", 0);
+				    xmlSetProp(P_Node, BAD_CAST "uriStartString", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "rewritePrefix", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case XML_CATA_DELEGATE_URI:
-				    node = xmlNewDocNode(doc, ns, BAD_CAST "delegateURI", 0);
-				    xmlSetProp(node, BAD_CAST "uriStartString", cur->name);
-				    xmlSetProp(node, BAD_CAST "catalog", cur->value);
-				    xmlAddChild(catalog, node);
+				    P_Node = xmlNewDocNode(doc, ns, BAD_CAST "delegateURI", 0);
+				    xmlSetProp(P_Node, BAD_CAST "uriStartString", cur->name);
+				    xmlSetProp(P_Node, BAD_CAST "catalog", cur->value);
+				    xmlAddChild(catalog, P_Node);
 				    break;
 				case SGML_CATA_SYSTEM:
 				case SGML_CATA_PUBLIC:

@@ -312,6 +312,7 @@ class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
 class  PersonCache;
+class  BhtTSess;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1312,7 +1313,7 @@ private:
 
 	UserProfileStaticBlock UPSB;
 	TSStack <UserProfileEntry> UserProfileStack;
-	TSArray <UserProfileEntry> UserProfileAccum;
+	TSVector <UserProfileEntry> UserProfileAccum; // @v9.8.4 TSArray-->TSVector
 	//
 	//
 	//
@@ -1419,7 +1420,7 @@ struct PPSyncItem {        // @persistent @size=66 (+4 Lock Prefix Size)
 	ulong  TerminalSessID; //
 };
 
-typedef TSArray <PPSyncItem> PPSyncArray;
+typedef TSVector <PPSyncItem> PPSyncArray; // @v9.8.4 TSArray-->TSVector
 //
 // Descr: Класс, управляющий блокировками объектов данных
 //
@@ -1699,7 +1700,7 @@ struct ObjRestrictItem {
 	long   Flags;
 };
 
-class ObjRestrictArray : public TSArray <ObjRestrictItem> {
+class ObjRestrictArray : public TSVector <ObjRestrictItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  ObjRestrictArray();
 	SLAPI  ObjRestrictArray(const ObjRestrictArray &);
@@ -1716,13 +1717,13 @@ public:
 	//   0  - В списке уже есть элемент с идентификатором id
 	//   !0 - В списке нет элемента с идентификатором id.
 	//
-	int    SLAPI CheckUniqueID(PPID id) const;
+	int    FASTCALL CheckUniqueID(PPID id) const;
 	int    SLAPI UpdateItemByID(PPID id, long flags);
-	int    SLAPI RemoveItemByID(PPID id);
+	int    FASTCALL RemoveItemByID(PPID id);
 	int    SLAPI SearchItemByID(PPID id, uint * pPos) const;
 	int    SLAPI CheckFlag(PPID id, long flag) const;
 private:
-	int    SLAPI Helper_MergeItems(const ObjRestrictArray * pS);
+	int    FASTCALL Helper_MergeItems(const ObjRestrictArray * pS);
 };
 //
 // Общие флаги доступа (первые восемь бит зарезервированы как общие)
@@ -2565,6 +2566,7 @@ protected:
 	void   SLAPI SetFlatChunk(size_t offs, size_t len);
 	int    FASTCALL SetBranchSString(size_t offs);
 	int    FASTCALL SetBranchSArray(size_t offs);
+	int    FASTCALL SetBranchSVector(size_t offs); // @v9.8.4
 	int    FASTCALL SetBranchObjIdListFilt(size_t offs);
 	int    FASTCALL SetBranchStrAssocArray(size_t offs);
 	int    SLAPI SetBranchBaseFiltPtr(int filtID, size_t offs);
@@ -2604,13 +2606,14 @@ private:
 			tObjIdListFilt,
 			tBaseFiltPtr,
 			tStrAssocArray,
-			tDisplayExtList
+			tDisplayExtList,
+			tSVector, // @v9.8.4
 		};
 		uint16 Type;
 		uint16 Offs;
 		int32  ExtraId; // For tBaseFiltPtr - FiltID
 	};
-	SArray BranchList; // @transient Список ветвлений структуры фильтра
+	SVector BranchList; // @transient Список ветвлений структуры фильтра // @v9.8.4 SArray-->SVector
 };
 //
 //
@@ -2835,7 +2838,7 @@ public:
 	int    SLAPI GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta);
 	int    SLAPI RemoveUuid(S_GUID & rUuid, int use_ta);
 	int    SLAPI Remove(long id, int use_ta);
-	int    SLAPI PutChunk(TSArray <S_GUID> & rChunk, uint maxCount, int use_ta);
+	int    SLAPI PutChunk(TSVector <S_GUID> & rChunk, uint maxCount, int use_ta); // @v9.8.4 TSArray-->TSVector
 private:
 	//static int FASTCALL TextToUuid(const char * pText, S_GUID & rUuid);
 	//static int FASTCALL UuidToText(const S_GUID & rUuid, SString & rText);
@@ -3842,7 +3845,7 @@ struct PPQuot { // @persistent(DBX see Note above)
 
 DECL_CMPFUNC(PPQuot);
 
-class PPQuotArray : public TSArray <PPQuot> {
+class PPQuotArray : public TSVector <PPQuot> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  PPQuotArray(PPID goodsID = 0);
 	SLAPI  PPQuotArray(const PPQuotArray & s);
@@ -3958,7 +3961,7 @@ struct PPQuotItem_ { // @persistent
 	double Val;
 };
 
-class PPQuotItemArray : public TSArray <PPQuotItem_> {
+class PPQuotItemArray : public TSVector <PPQuotItem_> { // @v9.8.4 TSArray-->TSVector
 public:
 	PPQuotItemArray();
 	int    FASTCALL Add(const PPQuotItem_ & rItem);
@@ -4280,7 +4283,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 
 #define BARCODE_TYPE_PREFERRED 1000
 
-class BarcodeArray : public TSArray <BarcodeTbl::Rec> {
+class BarcodeArray : public TSVector <BarcodeTbl::Rec> { // @v9.8.4 TSArray-->TSVector
 public:
 	int    SLAPI Add(const char * pCode, long codeType, double qtty);
 	int    SLAPI Arrange();
@@ -4311,7 +4314,7 @@ public:
 #define CARGOUNIT_PCKG   2
 #define CARGOUNIT_PALLET 3
 
-typedef TSArray <ArGoodsCodeTbl::Rec> ArGoodsCodeArray;
+typedef TSVector <ArGoodsCodeTbl::Rec> ArGoodsCodeArray; // @v9.8.4 TSArray-->TSVector
 //
 // Descr: Параметры товара для заказа, транспортировки и хранения //
 //   Property {PPOBJ_GOODS, Goods2.ID, GDSPRP_STOCKDATA}
@@ -4379,7 +4382,7 @@ struct GoodsStockExt {     // @persistent(DBX) @size=28+2*sizeof(SArray)
 	double MinShippmQtty;  // @v7.2.7 Минимальное количество, которое можно отгрузить в одном документе
 	PPDimention RtlDim;    // @v7.2.7 Габаритные размеры торговой единицы, мм
 	RAssocArray MinStockList; // @anchor Минимальный запас товара по складам
-	TSArray <Pallet> PltList; // Список описаний укладки упаковок на паллете
+	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете // @v9.8.4 TSArray-->TSVector
 };
 
 class GoodsCore : public Goods2Tbl {
@@ -5671,12 +5674,12 @@ struct PPAdviseEvent {
 //   Реципиенты же, наоборот, забирают данные из очередь только после успешной блокировки
 //   без ожидания - с целью избежать задерки.
 //
-class PPAdviseEventQueue : private TSArray <PPAdviseEvent> {
+class PPAdviseEventQueue : private TSVector <PPAdviseEvent> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  PPAdviseEventQueue();
-    int    FASTCALL Push(const TSArray <PPAdviseEvent> & rList);
+    int    FASTCALL Push(const TSVector <PPAdviseEvent> & rList);
 	uint   GetCount();
-	int    Get(int64 lowIdent, TSArray <PPAdviseEvent> & rList);
+	int    Get(int64 lowIdent, TSVector <PPAdviseEvent> & rList);
 	//int64  Marker(int64 _newMarker);
 	int    Purge();
 
@@ -5693,7 +5696,7 @@ public:
 
 		uint32 Sign;
 		int64  Marker;
-		TSArray <PPAdviseEvent> EvqList;
+		TSVector <PPAdviseEvent> EvqList; // @v9.8.4 TSArray-->TSVector
 		LongArray RegDbList; // Список идентификаторов путей баз данных, в чьих очередях
 			// клиент зарегистрирован. Необходим для ускорения процесса регистрации.
 	};
@@ -8778,7 +8781,7 @@ struct AmtEntry { // @persistent
 	double Amt;
 };
 
-class AmtList : public TSArray <AmtEntry> { // @persistent
+class AmtList : public TSVector <AmtEntry> { // @persistent // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  AmtList();
 	AmtList & FASTCALL operator = (const AmtList &);
@@ -9624,7 +9627,7 @@ struct PPAdvanceRep {      // @persistent @store(PropertyTbl)
 	Rcpt   Rcp[2];         // Информация о полученных суммах // @todo Увеличить количество элементов //
 };
 
-class PayPlanArray : public TSArray <PayPlanTbl::Rec> {
+class PayPlanArray : public TSVector <PayPlanTbl::Rec> { // @v9.8.4 TSArray-->TSVector
 public:
 	PayPlanArray();
 	int    FASTCALL IsEqual(const PayPlanArray & rS) const;
@@ -9820,7 +9823,7 @@ struct BillVatEntry {
 		// иногда возникать разница в пределах нескольких копеек.
 };
 
-class BillVatArray : public TSArray <BillVatEntry> {
+class BillVatArray : public TSVector <BillVatEntry> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  BillVatArray();
 	int    SLAPI Add(double rate, double sum, double base, double amtByVat);
@@ -9935,9 +9938,9 @@ private:
 	int    AccsCost;       // Если 0, то доступ к ценам поступления запрещен
 	PPID   FiltGrpID;      // Товарная группа, ограничивающая выборку.
 	LongArray Seen;        // Список позиций документа, которые уже были обработаны
-	TSArray <IndexItem> Index;
+	TSVector <IndexItem> Index; // @v9.8.4 TSArray-->TSVector
 	RAssocArray SaldoList; // Список товаров, принадлежащих группе FiltGrpID и ассоциированных с величной сальдо по контаргенту.
-	TSArray <LocTransfTbl::Rec> DispList;
+	TSVector <LocTransfTbl::Rec> DispList; // @v9.8.4 TSArray-->TSVector
 };
 //
 //
@@ -10031,7 +10034,7 @@ struct CompleteItem {
 	long   Flags;
 };
 
-class CompleteArray : public TSArray <CompleteItem> {
+class CompleteArray : public TSVector <CompleteItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  CompleteArray();
 	SLAPI  CompleteArray(const CompleteArray &);
@@ -10092,8 +10095,8 @@ private:
 	SString StoreDir;
 };
 
-typedef TSArray <PPTransferItem> PPTrfrArray;
-typedef TSArray <InventoryTbl::Rec> InventoryArray;
+typedef TSVector <PPTransferItem> PPTrfrArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <InventoryTbl::Rec> InventoryArray; // @v9.8.4 TSArray-->TSVector
 //
 // Descr: Варианты распределения дополнительной себестоимости на себестоимость
 //   отдельных строк товарного документа.
@@ -10528,7 +10531,7 @@ public:
 	// могут ссылаться более одного элемента из Lots.
 	//
 	PPTrfrArray * P_ShLots;
-	TSArray <PPAccTurn> Turns; //
+	TSVector <PPAccTurn> Turns; // @v9.8.4 TSArray-->TSVector
 	PPAdvBillItemList AdvList; // Элементы расширения бух документа
 	PPBillPacket * P_ACPack;   // Агрегированный пакет автокомплектации
 	PPBillPacket * P_Outer;    // @notowned Внешний (агрегирующий) пакет
@@ -10547,7 +10550,7 @@ public:
 		PPID   QkID;
 		double Value;
 	};
-	TSArray <QuotSetupInfoItem> * P_QuotSetupInfoList;
+	TSVector <QuotSetupInfoItem> * P_QuotSetupInfoList; // @v9.8.4 TSArray-->TSVector
 	//
 	// @todo Следующие четыре контейнера необходимо объединить в общий контейнер поскольку
 	//  они представляют однотипные объекты (теги).
@@ -10669,8 +10672,8 @@ struct ILBillPacket : public PPBill {
 	//
 	PPID   LocObj;
 	long   IlbFlags;
-	TSArray <ILTI> Lots;
-	TSArray <PPAccTurn> Turns;
+	TSVector <ILTI> Lots; // @v9.8.4 TSArray-->TSVector
+	TSVector <PPAccTurn> Turns; // @v9.8.4 TSArray-->TSVector
 	ClbNumberList  ClbL;       // Список ГТД, ассоциированных с лотами
 	ClbNumberList  SnL;        // Список серийных номеров лотов
 	PPLotTagContainer LTagL;   // @v7.3.5 Список тегов лотов
@@ -11006,7 +11009,7 @@ public:
 
 	HistBillTbl::Rec Head;
 private:
-	TSArray <HistTrfrTbl::Rec> Items;
+	TSVector <HistTrfrTbl::Rec> Items; // @v9.8.4 TSArray-->TSVector
 };
 
 class HistBillCore : public HistBillTbl {
@@ -11071,7 +11074,7 @@ private:
 #define LOTSF_LINKCOSTDN   0x0040 // Цена поступления ниже, чем цена в документе заказа, на основании которого вводится данный док
 #define LOTSF_RESTRBOUNDS  0x0080 // Цена выходит за границы диапазона, определяемого ограничениями товарных величин
 
-typedef TSArray <ReceiptTbl::Rec> LotArray;
+typedef TSVector <ReceiptTbl::Rec> LotArray; // @v9.8.4 TSArray-->TSVector
 
 class ReceiptCore : public ReceiptTbl {
 public:
@@ -11128,8 +11131,7 @@ public:
 	//   Если поле pLotRec->PrevLotID == 0, то возвращает информацию из этой записи.
 	//
 	int    SLAPI GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pDate, PPID * pBillID = 0);
-	int    SLAPI GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt,
-		int openedOnly, int nzRestOnly, SArray * pRecList);
+	int    SLAPI GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList);
 	int    SLAPI EnumLots(PPID goodsID, PPID locID, DateIter *, void * = 0);
 	int    SLAPI EnumLastLots(PPID goodsID, PPID locID, LDATE *, long * oprno, ReceiptTbl::Rec * pRec = 0);
 	int    SLAPI GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
@@ -11217,14 +11219,12 @@ protected:
 	int    SLAPI _SearchLot(int closed, PPID goods, PPID loc, LDATE, long oprno, int spMode);
 private:
 	int    SLAPI Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec);
+	int    SLAPI Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
+	int    SLAPI Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList);
+
 	int    IgnoreGpretMostRecentFlags; // В функции GetCurrentGoodsPrice игнорировать флаг
 		// GPRET_MOSTRECENT. Проекция флага (PPGoodsConfig::Flags | GCF_RETAILPRICEBYMOSTRECENTLOT)
-		// Изначально инициализируется в -1 (что означает неопределенность и необходимость извлечь
-		// конфигурацию товаров).
-	int    SLAPI Helper_GetCurrentGoodsPrice(
-		PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
-	int    SLAPI Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt,
-		int closedTag, int nzRestOnly, SArray * pRecList);
+		// Изначально инициализируется в -1 (что означает неопределенность и необходимость извлечь конфигурацию товаров).
 };
 
 int SLAPI GetCurGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * = 0);
@@ -11250,7 +11250,7 @@ struct GoodsRestVal {
 	char   LotTagText[128];
 };
 
-class GoodsRestParam : public TSArray <GoodsRestVal> {
+class GoodsRestParam : public TSVector <GoodsRestVal> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  GoodsRestParam();
 	GoodsRestParam & FASTCALL operator = (const GoodsRestParam &);
@@ -12083,7 +12083,7 @@ private:
 			double ExRest;     // Значение остатка в текущем состоянии записи
 			double ValidRest;  // Правильное или новое значение остатка.
 		};
-		TSArray <Item> List;
+		TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
 		PPID   LotID;
 		LDATE  LastDate;
 		double LastRest;
@@ -12653,7 +12653,7 @@ struct PredictSalesItem {
 	double Amount;
 };
 
-class PsiArray : public TSArray <PredictSalesItem> {
+class PsiArray : public TSVector <PredictSalesItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  PsiArray();
 	int    SLAPI Add(const PredictSalesItem *);
@@ -12855,7 +12855,7 @@ private:
 	int    SLAPI SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, GoodsStatTbl::Rec * pRec);
 	int    SLAPI Helper_Enumerate(PPID goodsID, PPID locID, const DateRange * pPeriod, int maxItems, EnumPredictSalesProc proc, long extraData);
 
-	TSArray <LocTabEntry> LocTab;
+	TSVector <LocTabEntry> LocTab; // @v9.8.4 TSArray-->TSVector
 	int    IsLocTabUpdated;
 	//
 	// Descr: Таблица P_HldTab содержит записи выходных дней по каждому складу.
@@ -13191,7 +13191,7 @@ public:
 //
 // @ModuleDecl(CCheckCore)
 //
-typedef TSArray <CCheckLineTbl::Rec> CCheckLineArray;
+typedef TSVector <CCheckLineTbl::Rec> CCheckLineArray; // @v9.8.4 TSArray-->TSVector
 
 class CTableOrder {
 public:
@@ -13330,7 +13330,7 @@ struct CCheckItem { // @transient
 	char   EgaisMark[80];   // @v9.0.9 Марка алкогольной продукции ЕГАИС
 };
 
-typedef TSArray <CCheckItem> CCheckItemArray;
+typedef TSVector <CCheckItem> CCheckItemArray; // @v9.8.4 TSArray-->TSVector
 //
 // Типы сумм кассовых чеков
 //
@@ -13373,7 +13373,7 @@ struct CcAmountEntry {
 //
 //
 //
-class CcAmountList : public TSArray <CcAmountEntry> {
+class CcAmountList : public TSVector <CcAmountEntry> { // @v9.8.4 TSArray-->TSVector
 public:
 	CcAmountList();
 	CcAmountList & Clear();
@@ -13558,8 +13558,8 @@ private:
 	// @v9.0.11 int    SLAPI PrepareForWriting(PPID ccheckID, int16 lastRbc);
 
 	CCheckLineArray Items_; //
-	TSArray <LineExt> ExtList;
-	CcAmountList CcAl;      // @v7.6.1 Список оплат по чеку. Используется только, если по чеку было более
+	TSVector <LineExt> ExtList; // @v9.8.4 TSArray-->TSVector
+	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более
 		// одного типа оплаты. Например: безналичная оплата + доплата наличными.
 	//
 	// Серийные номера храняться в виде ассоциаций {position, serial}.
@@ -14065,7 +14065,7 @@ template <class T> int SerializeDbTableByFileName(int dir, T ** ppT, SBuffer & r
 	SString temp_buf;
 	if(dir > 0) {
 		if((*ppT) != 0)
-			temp_buf = (*ppT)->fileName;
+			temp_buf = (*ppT)->GetName();
 		else
 			temp_buf.Z();
 		THROW_SL(pCtx->Serialize(dir, temp_buf, rBuf));
@@ -20302,6 +20302,9 @@ private:
 #define GTF_REQBARCODE     0x00000800L // Обязательно требовать ввода штрихкода на товар этого типа
 #define GTF_QUASIUNLIM     0x00001000L // @v8.5.1 Квази-нелимитированный ресурс. Ведет себя как обычный товар,
 	// но при печати отчетов может интрепретироваться как нелимитированный.
+#define GTF_LOOKBACKPRICES 0x00002000L // @v9.8.4 На товары этого типа розничные цены могут дифференцироваться в зависимости от партии
+	// В России эта опция нужна для разрешения проблем с ценами на сигареты. При изменении максимальной розничной цены (МРЦ)
+	// ритейлеры вынуждены выбирать ту цену, которая отпечатана на пачке.
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	long   Tag;            // Const=PPOBJ_GOODSTYPE
@@ -22561,8 +22564,8 @@ private:
 // @todo DlvrAddrExtFldList перевести на StrAssocArray (понадобится конвертация хранящихся в Property данных)
 //
 struct PPPersonConfig { // @transient (для сохранения проецируется на PropertyTbl::Rec)
-	PPPersonConfig();
-	int    Init();
+	SLAPI  PPPersonConfig();
+	void   SLAPI Init();
 
 	struct NewClientDetectionItem {
 		PPObjID Oi;
@@ -22587,7 +22590,7 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	SString TopFolder;             // @anchor
 	SString AddImageFolder;        // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
 	TaggedStringArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки
-	TSArray <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12
+	TSVector <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12 // @v9.8.4 TSArray-->TSVector
 };
 
 struct PersonReq {
@@ -25429,7 +25432,7 @@ public:
 	//
 	int    SLAPI GetGoodsBySubstID(PPID substID, PPIDArray * pGoodsList) const;
 	int    SLAPI GetGoodsBySubstID(PPID substID, ObjIdListFilt * pGoodsList) const;
-	int    SLAPI GetSubstAssocList(PPID substID, TSArray <AssocItem> * pList) const;
+	int    SLAPI GetSubstAssocList(PPID substID, TSVector <AssocItem> * pList) const;
 	int    SLAPI AddToAssoc(PPID substID, const AssocItem & rAssocItem);
 
 	PPID   SLAPI SubstAlcoCategory(PPID goodsID);
@@ -25447,7 +25450,7 @@ private:
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		PPID   SubstID;
-		TSArray <AssocItem> List;
+		TSVector <AssocItem> List; // @v9.8.4 TSArray-->TSVector
 	};
 	class AssocCollection : public TSCollection <InnerAssocItem> {
 	public:
@@ -29094,7 +29097,7 @@ struct ComplItem {
 
 //typedef TSArray <ComplItem> ComplArray;
 
-class PPComplBlock : public TSArray <ComplItem> {
+class PPComplBlock : public TSVector <ComplItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	int    SLAPI Add(const PPComplBlock & rS);
 	ComplItem Head;
@@ -29342,7 +29345,7 @@ struct PayableBillListItem {
 	double PaymAmt;        // @v8.5.8 Сумма оплаты из записи документа. Используется если (CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 };
 
-class PayableBillList : public TSArray <PayableBillListItem> {
+class PayableBillList : public TSVector <PayableBillListItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  PayableBillList(AmtList * pAmt = 0, AmtList * pPaym = 0);
 	int    SLAPI GetIdList(LongArray & rList) const;
@@ -30465,7 +30468,7 @@ public:
 	int    SLAPI SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    SLAPI SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    SLAPI EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
-	int    SLAPI GetTransByBill(PPID billID, int16 rByBill, TSArray <LocTransfTbl::Rec> * pList);
+	int    SLAPI GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
 	int    SLAPI RemoveOp(PPID locID, long rByLoc, int use_ta);
 	int    SLAPI ValidateOpBlock(const LocTransfOpBlock & rBlk);
@@ -30486,12 +30489,12 @@ public:
 	// Descr: Определяет размещение по ячейкам строки rByBill товарного документа billID.
 	//   Резудьтат возвращается в массиве rDispositionList.
 	//
-	int    SLAPI GetDisposition(PPID billID, int rByBill, TSArray <LocTransfTbl::Rec> & rDispositionList);
+	int    SLAPI GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList); // @v9.8.4 TSArray-->TSVector
 	//
 	// Descr: Определяет размещение по ячейкам строк товарного документа billID.
 	//   Резудьтат возвращается в массиве rDispositionList.
 	//
-	int    SLAPI GetDisposition(PPID billID, TSArray <LocTransfTbl::Rec> & rDispositionList);
+	int    SLAPI GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList); // @v9.8.4 TSArray-->TSVector
 private:
 	int    SLAPI PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec);
 	int    SLAPI GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
@@ -30534,7 +30537,7 @@ struct LocTransfDisposeItem {
 	double Qtty;           // INOUT
 };
 
-typedef TSArray <LocTransfDisposeItem> LocTransfDisposeArray;
+typedef TSVector <LocTransfDisposeItem> LocTransfDisposeArray; // @v9.8.4 TSArray-->TSVector
 
 class LocTransfDisposer {
 public:
@@ -32322,8 +32325,6 @@ private:
 //
 // @ModuleDecl(PPObjTSession)
 //
-class  BhtTSess;
-//
 // Descr: Список процессоров (групп процессоров) ранжированных в том порядке, в котором должно
 //   быть реализовано списание технологических сессий по этим процессорам.
 // Storage: DB/Property(PPOBJ_TSESSION, 0, TSESPRP_WROFFORDER)
@@ -32769,6 +32770,7 @@ public:
 		PPID   LocID;      // IN  Склад, для которого запрашивается выбор по коду. Это поле используется //
 			// только в том случае, если InTSesID == 0.
 		int16  CodeType;   // OUT {1 - goods code, 2 - serial code by lot, 3 - serial code by TSessLine}
+		uint16 Reserve;    // @v9.8.4 @alignment
 		PPID   OutTSesID;  // OUT Сессия, создавшая код Serial (CodeType == 3)
 		PPID   GoodsID;    // OUT Товар, соответствующий коду Serial
 		PPID   LotID;      // OUT Лот, соответствующий коду Serial (CodeType == 2)
@@ -37343,7 +37345,7 @@ public:
 		omRatingData,             // Комбинация точек: {PaymRatingVariable, DelayRatingVariable, RatingRgbColor}
 		omSigmFactor              // Комбинация точек: {PaymPeriod, SigmFactor, 0.0}
 	};
-	int    SLAPI CalcRating(Total * pTotal, int outMatrixStyle = 0, TSArray <RPoint3> * pOutMatrix = 0);
+	int    SLAPI CalcRating(Total * pTotal, int outMatrixStyle = 0, TSVector <RPoint3> * pOutMatrix = 0);
 	double SLAPI GetSigmFactor(double sigmA, long paymPeriod, double paymPeriodMean) const;
 	int    SLAPI CalcDelayIndex(const PPDebtorStat * pItem, const Total * pTotal, double expWeight, double * pResult) const;
 private:
@@ -41084,8 +41086,8 @@ class PPDfCreateRulePacket {
 public:
 	SLAPI  PPDfCreateRulePacket();
 	int    SLAPI Init();
-	int    SLAPI GetCashNN(SString * pBuf, int delim = ',') const;
-	int    SLAPI GetCashNN(PPIDArray * pAry) const;
+	void   SLAPI GetCashNN(SString * pBuf, int delim = ',') const;
+	void   SLAPI GetCashNN(PPIDArray * pAry) const;
 	int    SLAPI SetCashNN(const char * pBuf, int delim = ',');
 	int    SLAPI SetCashNN(const PPIDArray * pAry);
 	int    SLAPI CheckCash(PPID cash) const;
@@ -43033,7 +43035,7 @@ public:
 		PPAsyncCashSession * P_ACS;
 	};
 
-	static int SLAPI EditPosQuery(TSArray <PPPosProtocol::QueryBlock> & rQList);
+	static int SLAPI EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList); // @v9.8.4 TSArray-->TSVector
 
 	SLAPI  PPPosProtocol();
 	SLAPI ~PPPosProtocol();
@@ -43352,7 +43354,7 @@ private:
 	const  SString & FASTCALL EncText(const char * pS);
 	uint   SLAPI PeekRefPos() const;
 	void * SLAPI PeekRefItem(uint * pRefPos, int * pType) const;
-	int    SLAPI Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSArray <PosNodeISymbEntry> & rISymbList, TSArray <PosNodeUuidEntry> & rUuidList);
+	int    SLAPI Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * pCnRec, TSVector <PosNodeISymbEntry> & rISymbList, TSVector <PosNodeUuidEntry> & rUuidList);
 	void   FASTCALL Helper_AddStringToPool(uint * pPos);
 	int    FASTCALL Helper_PushQuery(int queryType);
 	QueryBlock * Helper_RenewQuery(uint & rRefPos, int queryType);
@@ -44678,7 +44680,7 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:
@@ -48859,13 +48861,13 @@ public:
 	//   объекта при использовании вне кассовой панели.
 	//
 	int    Backend_Release();
-	int    Backend_GetCCheckList(long ctblId, TSArray <CCheckViewItem> & rList);
+	int    Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList);
 
 	int    ExportCurrentState(SString & rBuf) const;
 	int    ExportCTblList(SString & rBuf);
 	int    ExportCCheckList(long ctblId, SString & rBuf);
 	int    ExportModifList(PPID goodsID, SString & rBuf);
-	int    GetTblOrderList(LDATE lastDate, TSArray <CCheckViewItem> & rList);
+	int    GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList);
 	int    AutosaveCheck();
 	CCheckCore & GetCc()
 	{

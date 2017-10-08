@@ -1586,7 +1586,7 @@ void OprKindDialog::updateList()
 					StringSet ss(SLBColumnDelim);
 					GetOpName(p_ori->ObjID, sub);
 					ss.add(sub);
-					sub = 0;
+					sub.Z();
 					if(p_ori->Flags & GOIF_NEGATIVE)
 						sub.CatChar('-');
 					ss.add(sub);

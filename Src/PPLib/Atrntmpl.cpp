@@ -1323,7 +1323,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 	if(Options & selSymbAmount) {
 		PPAmountType at_rec;
 		for(id = 0; AtObj.EnumItems(&id, &at_rec) > 0;) {
-			ss.clear(1);
+			ss.clear();
 			ss.add("A");
 			ss.add(at_rec.Symb);
 			ss.add(at_rec.Name);
@@ -1334,7 +1334,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 		ReferenceTbl::Rec frm_rec;
 		for(id = 0; FrmObj.EnumItems(&id, &frm_rec) > 0;) {
 			FrmObj.Get(id, frm_name, frm_expr);
-			ss.clear(1);
+			ss.clear();
 			ss.add("F");
 			ss.add(frm_name);
 			ss.add(frm_expr);
@@ -1345,7 +1345,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 		PPStaffCal sc_rec;
 		for(id = 0; ScObj.EnumItems(&id, &sc_rec) > 0;) {
 			if(sc_rec.LinkObjType == 0 && sc_rec.LinkObjID == 0) {
-				ss.clear(1);
+				ss.clear();
 				ss.add("C");
 				ss.add(sc_rec.Symb);
 				ss.add(sc_rec.Name);
@@ -1360,7 +1360,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 		id = 1;
 		for(uint pos = 0; f.get(&pos, temp_buf); id++) {
 			temp_buf.Divide(',', frm_name, frm_expr);
-			ss.clear(1);
+			ss.clear();
 			ss.add("P");
 			ss.add(frm_name);
 			ss.add(frm_expr);

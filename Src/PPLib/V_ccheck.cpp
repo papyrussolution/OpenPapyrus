@@ -9,7 +9,7 @@
 IMPLEMENT_PPFILT_FACTORY(CCheck); SLAPI CCheckFilt::CCheckFilt() : PPBaseFilt(PPFILT_CCHECK, 0, 4)
 {
 	SetFlatChunk(offsetof(CCheckFilt, ReserveStart), offsetof(CCheckFilt, SessIDList)-offsetof(CCheckFilt, ReserveStart));
-	SetBranchSArray(offsetof(CCheckFilt, SessIDList));
+	SetBranchSVector(offsetof(CCheckFilt, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, NodeList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CorrGoodsList));
 	SetBranchObjIdListFilt(offsetof(CCheckFilt, CtValList));
@@ -33,7 +33,7 @@ int SLAPI CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			SLAPI  CCheckFilt_v3() : PPBaseFilt(PPFILT_CCHECK, 0, 3)
 			{
 				SetFlatChunk(offsetof(CCheckFilt_v3, ReserveStart), offsetof(CCheckFilt_v3, SessIDList)-offsetof(CCheckFilt_v3, ReserveStart));
-				SetBranchSArray(offsetof(CCheckFilt_v3, SessIDList));
+				SetBranchSVector(offsetof(CCheckFilt_v3, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, NodeList));
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, CorrGoodsList));
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, CtValList));
@@ -325,7 +325,7 @@ int CCheckFiltCtDialog::setupList()
 	StringSet text_list(';', CtValNames);
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
-		ss.clear(1);
+		ss.clear();
 		ss.add(buf);
 		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 		ss.add(buf);
@@ -2239,7 +2239,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			default: brw_id = (Filt.Flags & CCheckFilt::fGoodsCorr) ? BROWSER_CCHECK_GOODSCORR : BROWSER_CCHECK;
 		}
 		if(P_TmpGdsCorrTbl) {
-			p_gc = new TempCCheckGdsCorrTbl(P_TmpGdsCorrTbl->fileName);
+			p_gc = new TempCCheckGdsCorrTbl(P_TmpGdsCorrTbl->GetName());
 			p_q = & select(
 				p_gc->ID__,           // #0
 				p_gc->Goods1ID,       // #1
@@ -2259,7 +2259,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			DBE * p_dbe_avrg = 0;
 			DBE * p_dbe_lc_avg = 0; // Среднее количество строк
 			DBE * p_dbe_sc_avg = 0; // Среднее количество товаров
-			g = new TempCCheckGrpTbl(P_TmpGrpTbl->fileName);
+			g = new TempCCheckGrpTbl(P_TmpGrpTbl->GetName());
 			p_dbe_avrg = & (g->Amount / g->Count);
 			p_dbe_lc_avg = & (g->LinesCount / g->Count);
 			p_dbe_sc_avg = & (g->SkuCount / g->Count);
@@ -2297,7 +2297,7 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			}
 		}
 		else if(P_TmpTbl) {
-			cq = new TempCCheckQttyTbl(P_TmpTbl->fileName);
+			cq = new TempCCheckQttyTbl(P_TmpTbl->GetName());
 			PPDbqFuncPool::InitObjNameFunc(dbe_sc_code, PPDbqFuncPool::IdObjCodeSCard, cq->SCardID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_scowner_name, PPDbqFuncPool::IdSCardOwnerName, cq->SCardID);
 			p_q = & select(
@@ -3504,7 +3504,7 @@ public:
 				StringSet ss(SLBColumnDelim);
 				for(uint i = 0; i < Data.AL_Const().getCount(); i++) {
 					const CcAmountEntry & r_entry = Data.AL_Const().at(i);
-					ss.clear(1);
+					ss.clear();
 					r_entry.GetTypeText(temp_buf);
 					ss.add(temp_buf);
 					temp_buf.Z().Cat(r_entry.Amount, SFMT_MONEY);

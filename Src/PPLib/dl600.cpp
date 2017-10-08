@@ -2563,19 +2563,19 @@ int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
 	int    ok = 1;
 	uint   i;
 	SString temp_buf;
-	SString tbl_name = pTbl->tableName;
+	SString tbl_name = pTbl->GetTableName();
 	DLSYMBID scope_id = CreateSymb(tbl_name, '$', DlContext::crsymfErrorOnDup);
 	DlScope * p_scope = new DlScope(scope_id, DlScope::kDbTable, tbl_name, 0);
 	SdbField fld;
-	for(i = 0; i < pTbl->fields.getCount(); i++) {
-		const BNField & r_fld = pTbl->fields[i];
+	for(i = 0; i < pTbl->GetFields().getCount(); i++) {
+		const BNField & r_fld = pTbl->GetFields()[i];
 		uint   fld_id = 0;
 		fld.Init();
 		fld.T.Typ = r_fld.T;
 		fld.Name = r_fld.Name;
 		p_scope->AddField(&fld_id, &fld);
 	}
-	for(i = 0; i < pTbl->indexes.getNumKeys(); i++) {
+	for(i = 0; i < pTbl->GetIndices().getNumKeys(); i++) {
 		uint   ci = 0, cc = 0;
 		DlScope * p_child = 0;
 		const char * p_idx_name = 0;
@@ -2592,7 +2592,7 @@ int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
 		else
 			(temp_buf = "Key").Cat(cc);
 		{
-			BNKey key = pTbl->indexes.getKey(i);
+			const BNKey key = pTbl->GetIndices().getKey(i);
 			DLSYMBID idx_id = GetNewSymbID();
 			THROW_MEM(p_child = new DlScope(idx_id, DlScope::kDbIndex, temp_buf, 0));
 			{
@@ -2618,7 +2618,7 @@ int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
 			}
 			p_scope->Add(p_child);
 			for(uint j = 0; j < (uint)key.getNumSeg(); j++) {
-				const BNField & r_fld = pTbl->indexes.field(i, j);
+				const BNField & r_fld = pTbl->GetIndices().field(i, j);
 				THROW(p_child->AddDbIndexSegment(r_fld.Name, key.getFlags(j)));
 			}
 		}
@@ -2640,24 +2640,24 @@ int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pT
 	CtmExprConst c;
 	DlScope * p_index = 0;
 	THROW_INVARG(pScope);
-	pTbl->tableID = pScope->GetId();
-	STRNSCPY(pTbl->tableName, pScope->GetName());
+	pTbl->SetTableID(pScope->GetId());
+	pTbl->SetTableName(pScope->GetName());
 	if(pScope->GetConst(DlScope::cdbtPageSize, &c)) {
 		uint32 page_size = 0;
 		GetConstData(c, &page_size, sizeof(page_size));
 		if(page_size)
-			pTbl->PageSize = (uint16)page_size;
+			pTbl->SetPageSize(page_size);
 	}
 	if(pScope->GetConst(DlScope::cdbtFileName, &c)) {
 		s_buf[0] = 0;
 		GetConstData(c, s_buf, sizeof(s_buf));
-		pTbl->fileName = s_buf;
+		pTbl->SetName(s_buf);
 	}
 	for(k = 0; pScope->EnumFields(&k, &fld);) {
 		//
 		// Идентификаторы полям присваиваются автоматически [0..]
 		//
-		THROW_SL(pTbl->fields.addField(fld.Name, fld.T.Typ));
+		THROW_SL(pTbl->AddField(fld.Name, fld.T.Typ));
 	}
 	for(k = 0; pScope->EnumChilds(&k, &p_index);) {
 		if(p_index->IsKind(DlScope::kDbIndex)) {
@@ -2669,7 +2669,7 @@ int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pT
 				// тот идентификатор поля, который был установлен предшествующим вызовом
 				// p_tbl->fields.addField()
 				//
-				const BNField * p_f = &pTbl->fields.getField(fld.Name);
+				const BNField * p_f = &pTbl->GetFields().getField(fld.Name);
 				THROW(p_f);
 				long seg_flags = p_index->GetDbIndexSegOptions(j-1);
 				THROW_SL(key.addSegment(p_f->Id, seg_flags));
@@ -2684,24 +2684,26 @@ int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pT
 				idx_flags |= XIF_ANYSEGNULL;
 			key.setFlags(idx_flags);
 			key.setKeyParams(key_number++, 0);
-			pTbl->indexes.addKey(key);
+			pTbl->AddKey(key);
 		}
 	}
-	if(pScope->GetAttrib(DlScope::sfDbtVLR, 0))
-		pTbl->flags |= XTF_VLR;
-	if(pScope->GetAttrib(DlScope::sfDbtVAT, 0))
-		pTbl->flags |= XTF_VAT;
-	if(pScope->GetAttrib(DlScope::sfDbtTruncate, 0))
-		pTbl->flags |= XTF_TRUNCATE;
-	if(pScope->GetAttrib(DlScope::sfDbtCompress, 0))
-		pTbl->flags |= XTF_COMPRESS;
-	if(pScope->GetAttrib(DlScope::sfDbtBalanced, 0))
-		pTbl->flags |= XTF_BALANCED;
-	if(pScope->GetAttrib(DlScope::sfDbtTemporary, 0))
-		pTbl->flags |= XTF_TEMP;
-	if(pScope->GetAttrib(DlScope::sfDbtSystem, 0))
-		pTbl->flags |= XTF_DICT;
-	pTbl->indexes.setTableRef(offsetof(DBTable, indexes));
+	{
+		if(pScope->GetAttrib(DlScope::sfDbtVLR, 0))
+			pTbl->SetFlag(XTF_VLR);
+		if(pScope->GetAttrib(DlScope::sfDbtVAT, 0))
+			pTbl->SetFlag(XTF_VAT);
+		if(pScope->GetAttrib(DlScope::sfDbtTruncate, 0))
+			pTbl->SetFlag(XTF_TRUNCATE);
+		if(pScope->GetAttrib(DlScope::sfDbtCompress, 0))
+			pTbl->SetFlag(XTF_COMPRESS);
+		if(pScope->GetAttrib(DlScope::sfDbtBalanced, 0))
+			pTbl->SetFlag(XTF_BALANCED);
+		if(pScope->GetAttrib(DlScope::sfDbtTemporary, 0))
+			pTbl->SetFlag(XTF_TEMP);
+		if(pScope->GetAttrib(DlScope::sfDbtSystem, 0))
+			pTbl->SetFlag(XTF_DICT);
+	}
+	pTbl->SetIndicesTblRef();
 	pTbl->InitLob();
 	CATCHZOK
 	return ok;

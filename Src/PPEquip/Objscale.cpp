@@ -254,7 +254,7 @@ int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen
 {
 	int    ok = -1;
 	uint   line_count = 0;
-	rLines.clear(1);
+	rLines.clear();
 	if(pPlu->HasAddedMsg()) {
 		int    done = 0;
 		SString temp_buf, head, tail, line_buf;
@@ -4914,7 +4914,7 @@ int SLAPI PPObjScale::SendPlu(PPScale * pScaleData, const char * pFileName, int 
 					if(line_buf.Chomp().Strip().Len()) {
 						int    to_load = 1;
 						THROW_MEM(p_plu = new ScalePLU);
-						ss_rec.clear(1);
+						ss_rec.clear();
 						ss_rec.setBuf(line_buf, line_buf.Len()+1);
 						uint   fld_no = 0;
 						for(uint   pos = 0; ss_rec.get(&pos, fld_buf); fld_no++) {

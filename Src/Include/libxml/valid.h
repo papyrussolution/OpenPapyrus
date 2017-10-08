@@ -79,10 +79,10 @@ struct _xmlValidCtxt {
 	xmlValidityErrorFunc error;     /* the callback in case of errors */
 	xmlValidityWarningFunc warning; /* the callback in case of warning */
 	/* Node analysis stack used when validating within entities */
-	xmlNode * node;              /* Current parsed Node */
+	xmlNode * P_Node;              /* Current parsed Node */
 	int nodeNr;                   /* Depth of the parsing stack */
 	int nodeMax;                  /* Max depth of the parsing stack */
-	xmlNode ** nodeTab; // array of nodes 
+	xmlNode ** PP_NodeTab; // array of nodes 
 	uint finishDtd;       /* finished validating the Dtd ? */
 	xmlDocPtr doc;                /* the document */
 	int valid;                    /* temporary validity check result */

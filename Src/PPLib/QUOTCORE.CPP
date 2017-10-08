@@ -123,13 +123,13 @@ IMPL_CMPFUNC(PPQuotItem_, i1, i2)
 	return si;
 }
 
-PPQuotItemArray::PPQuotItemArray() : TSArray <PPQuotItem_> ()
+PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
 int FASTCALL PPQuotItemArray::Add(const PPQuotItem_ & rItem)
 {
-	return SArray::insert(&rItem) ? 1 : PPSetErrorSLib();
+	return SVector::insert(&rItem) ? 1 : PPSetErrorSLib(); // @v9.8.4 SArray-->SVector
 }
 
 int FASTCALL PPQuotItemArray::Add(const PPQuot & rQ)
@@ -170,7 +170,7 @@ int SLAPI PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 
 void SLAPI PPQuotItemArray::Sort()
 {
-	SArray::sort(PTR_CMPFUNC(PPQuotItem_));
+	SVector::sort(PTR_CMPFUNC(PPQuotItem_)); // @v9.8.4 SArray-->SVector
 }
 //
 // PPQuot
@@ -428,12 +428,12 @@ IMPL_CMPFUNC(PPQuot, i1, i2)
 //
 // PPQuotArray
 //
-SLAPI PPQuotArray::PPQuotArray(PPID goodsID) : TSArray <PPQuot>()
+SLAPI PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>() // @v9.8.4 TSArray-->TSVector
 {
 	GoodsID = goodsID;
 }
 
-SLAPI PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSArray <PPQuot> (s)
+SLAPI PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s) // @v9.8.4 TSArray-->TSVector
 {
 	GoodsID = s.GoodsID;
 }
@@ -685,7 +685,7 @@ int SLAPI PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double p
 
 void SLAPI PPQuotArray::Sort()
 {
-	SArray::sort(PTR_CMPFUNC(PPQuot));
+	SVector::sort(PTR_CMPFUNC(PPQuot)); // @v9.8.4 SArray-->SVector
 }
 
 int SLAPI PPQuotArray::IsDisabled(const QuotIdent & rIdent, const PPIDArray * pQKList, PPQuotArray * pParentQuots)

@@ -470,7 +470,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 		if(toDt) {
 			PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
 			SPathStruc ps;
-			ps.Split(fileName);
+			ps.Split(DBTable::GetName());
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 			msg_buf.Printf(fmt_buf, temp_buf.cptr());
 			{

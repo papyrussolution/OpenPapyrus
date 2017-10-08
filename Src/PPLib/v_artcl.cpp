@@ -678,7 +678,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		DBQ  * dbq = 0;
 		PPAccSheet acs_rec;
 		THROW(ArObj.CheckRights(PPR_READ));
-		THROW(CheckTblPtr(a = new ArticleTbl(ArObj.P_Tbl->fileName)));
+		THROW(CheckTblPtr(a = new ArticleTbl(ArObj.P_Tbl->GetName())));
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));
 		if(Filt.PersonID) {
 			THROW(CheckTblPtr(rf = new ReferenceTbl));
@@ -710,7 +710,7 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 				brw_id = BROWSER_ARTICLE_AGTCLI;
 			else if(AgtProp == ARTPRP_SUPPLAGT)
 				brw_id = BROWSER_ARTICLE_AGTSUPPL;
-			THROW(CheckTblPtr(tt = new TempArAgtTbl(P_TempTbl->fileName)));
+			THROW(CheckTblPtr(tt = new TempArAgtTbl(P_TempTbl->GetName())));
 			PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr, tt->DefAgentID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_quotkind, PPDbqFuncPool::IdObjNameQuotKind, tt->DefQuotKindID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_extobj, PPDbqFuncPool::IdObjNameAr, tt->ExtObjectID);

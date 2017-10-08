@@ -386,7 +386,7 @@ DBQuery * SLAPI PPViewShipmAnalyze::CreateBrowserQuery(uint * pBrwId, SString * 
 {
 	uint   brw_id = 0;
 	DBQuery * q = 0;
-	TempShipmentAnlzTbl * tbl = new TempShipmentAnlzTbl(Tbl->fileName);
+	TempShipmentAnlzTbl * tbl = new TempShipmentAnlzTbl(Tbl->GetName());
 	BillTbl * bt = 0;
 	if(Filt.Flags & ShipmAnalyzeFilt::fDiffByBill) {
 		brw_id = BROWSER_SHIPMANLZBYBILL;

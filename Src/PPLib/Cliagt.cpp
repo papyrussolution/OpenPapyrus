@@ -1482,12 +1482,12 @@ private:
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < Data.OrderParamList.getCount(); i++) {
 			const PPSupplAgreement::OrderParamEntry & r_entry = Data.OrderParamList.at(i);
-			ss.clear(1);
-			sub = 0;
+			ss.clear();
+			sub.Z();
 			if(r_entry.GoodsGrpID)
 				GetGoodsName(r_entry.GoodsGrpID, sub);
 			ss.add(sub);
-			sub = 0;
+			sub.Z();
 			if(r_entry.LocID)
 				GetLocationName(r_entry.LocID, sub);
 			ss.add(sub);

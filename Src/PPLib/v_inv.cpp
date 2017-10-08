@@ -1874,7 +1874,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	if(is_subst) {
 		assert(P_TempSubstTbl);
 		brw_id = BROWSER_INVNTRYLINESSUBST;
-		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->fileName)));
+		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
 		q = & (select(
 			st->GoodsID,       // #00
 			st->Name,          // #01
@@ -1890,9 +1890,9 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		brw_id = BROWSER_INVNTRYLINES;
 		tbl_l[0] = 0;
 		tbl_l[1] = 0;
-		THROW(CheckTblPtr(it = new InventoryTbl(P_TempTbl ? P_TempTbl->fileName.cptr() : 0)));
+		THROW(CheckTblPtr(it = new InventoryTbl(P_TempTbl ? P_TempTbl->GetName().cptr() : 0)));
 		if(P_TempOrd)
-			THROW(CheckTblPtr(p_tord = new TempDoubleIDTbl(P_TempOrd->fileName)));
+			THROW(CheckTblPtr(p_tord = new TempDoubleIDTbl(P_TempOrd->GetName())));
 		dbe_tmp1 = & (it->Quantity * it->Price);
 		dbe_tmp2 = & (it->CSesDfctQtty * it->CSesDfctPrice);
 		{

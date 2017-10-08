@@ -180,9 +180,9 @@ static xmlSchemaTypePtr xmlSchemaTypeNmtokensDef = NULL;
  *
  * Handle an out of memory condition
  */
-static void xmlSchemaTypeErrMemory(xmlNodePtr node, const char * extra)
+static void xmlSchemaTypeErrMemory(xmlNodePtr P_Node, const char * extra)
 {
-	__xmlSimpleError(XML_FROM_DATATYPE, XML_ERR_NO_MEMORY, node, NULL, extra);
+	__xmlSimpleError(XML_FROM_DATATYPE, XML_ERR_NO_MEMORY, P_Node, NULL, extra);
 }
 
 /************************************************************************
@@ -324,7 +324,7 @@ struct _xmlSchemaParticle {
 	xmlSchemaTreeItemPtr children;
 	int minOccurs;
 	int maxOccurs;
-	xmlNode * node;
+	xmlNode * P_Node;
 };
 
 typedef struct _xmlSchemaModelGroup xmlSchemaModelGroup;
@@ -334,7 +334,7 @@ struct _xmlSchemaModelGroup {
 	xmlSchemaAnnotPtr annot;
 	xmlSchemaTreeItemPtr next;
 	xmlSchemaTreeItemPtr children;
-	xmlNode * node;
+	xmlNode * P_Node;
 };
 
 static xmlSchemaParticlePtr xmlSchemaAddParticle()
@@ -1809,7 +1809,7 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
  * Returns the number of items if this validates, a negative error code
  *         number otherwise
  */
-static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr node) 
+static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * value, xmlSchemaValPtr * ret, xmlNodePtr P_Node) 
 {
 	xmlChar * val, * cur, * endval;
 	int nb_values = 0;
@@ -1850,7 +1850,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaTypePtr type, const xmlChar * val
 	cur = val;
 	while((*cur == 0) && (cur != endval)) cur++;
 	while(cur != endval) {
-		tmp = xmlSchemaValPredefTypeNode(type, cur, NULL, node);
+		tmp = xmlSchemaValPredefTypeNode(type, cur, NULL, P_Node);
 		if(tmp != 0)
 			break;
 		while(*cur != 0) cur++;
@@ -1932,7 +1932,7 @@ static int xmlSchemaParseUInt(const xmlChar ** str, ulong * llo, ulong * lmi, ul
  *         and -1 in case of internal or API error.
  */
 static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
-    xmlSchemaValPtr * val, xmlNodePtr node, int flags,
+    xmlSchemaValPtr * val, xmlNodePtr P_Node, int flags,
     xmlSchemaWhitespaceValueType ws,
     int normOnTheFly, int applyNorm, int createStringValue)
 {
@@ -2491,7 +2491,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    goto return1;
 		case XML_SCHEMAS_NMTOKENS:
 		    ret = xmlSchemaValAtomicListNode(xmlSchemaTypeNmtokenDef,
-		    value, val, node);
+		    value, val, P_Node);
 		    if(ret > 0)
 			    ret = 0;
 		    else
@@ -2522,12 +2522,12 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    ret = xmlValidateQName(value, 1);
 		    if(ret != 0)
 			    goto done;
-		    if(node) {
+		    if(P_Node) {
 			    xmlChar * prefix;
 			    xmlNs * ns;
 
 			    local = xmlSplitQName2(value, &prefix);
-			    ns = xmlSearchNs(node->doc, node, prefix);
+			    ns = xmlSearchNs(P_Node->doc, P_Node, prefix);
 			    if((ns == NULL) && (prefix != NULL)) {
 				    SAlloc::F(prefix);
 				    SAlloc::F(local);
@@ -2580,8 +2580,8 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    goto error;
 			    }
 		    }
-		    if((ret == 0) && (node != NULL) && (node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)node;
+		    if((ret == 0) && (P_Node != NULL) && (P_Node->type == XML_ATTRIBUTE_NODE)) {
+			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
 			    /*
 			     * NOTE: the IDness might have already be declared in the DTD
 			     */
@@ -2589,11 +2589,11 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    xmlIDPtr res;
 				    xmlChar * strip = xmlSchemaStrip(value);
 				    if(strip != NULL) {
-					    res = xmlAddID(NULL, node->doc, strip, attr);
+					    res = xmlAddID(NULL, P_Node->doc, strip, attr);
 					    SAlloc::F(strip);
 				    }
 				    else
-					    res = xmlAddID(NULL, node->doc, value, attr);
+					    res = xmlAddID(NULL, P_Node->doc, value, attr);
 				    if(res == NULL) {
 					    ret = 2;
 				    }
@@ -2612,28 +2612,28 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    v->value.str = sstrdup(value);
 			    *val = v;
 		    }
-		    if((ret == 0) && (node != NULL) && (node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)node;
+		    if((ret == 0) && (P_Node != NULL) && (P_Node->type == XML_ATTRIBUTE_NODE)) {
+			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
 			    xmlChar * strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
-				    xmlAddRef(NULL, node->doc, strip, attr);
+				    xmlAddRef(NULL, P_Node->doc, strip, attr);
 				    SAlloc::F(strip);
 			    }
 			    else
-				    xmlAddRef(NULL, node->doc, value, attr);
+				    xmlAddRef(NULL, P_Node->doc, value, attr);
 			    attr->atype = XML_ATTRIBUTE_IDREF;
 		    }
 		    goto done;
 		case XML_SCHEMAS_IDREFS:
 		    ret = xmlSchemaValAtomicListNode(xmlSchemaTypeIdrefDef,
-		    value, val, node);
+		    value, val, P_Node);
 		    if(ret < 0)
 			    ret = 2;
 		    else
 			    ret = 0;
-		    if((ret == 0) && (node != NULL) &&
-		    (node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)node;
+		    if((ret == 0) && (P_Node != NULL) &&
+		    (P_Node->type == XML_ATTRIBUTE_NODE)) {
+			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_IDREFS;
 		    }
@@ -2642,18 +2642,18 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    xmlChar * strip;
 
 		    ret = xmlValidateNCName(value, 1);
-		    if(!node || (node->doc == NULL))
+		    if(!P_Node || (P_Node->doc == NULL))
 			    ret = 3;
 		    if(ret == 0) {
 			    xmlEntityPtr ent;
 
 			    strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
-				    ent = xmlGetDocEntity(node->doc, strip);
+				    ent = xmlGetDocEntity(P_Node->doc, strip);
 				    SAlloc::F(strip);
 			    }
 			    else {
-				    ent = xmlGetDocEntity(node->doc, value);
+				    ent = xmlGetDocEntity(P_Node->doc, value);
 			    }
 			    if((ent == NULL) ||
 				    (ent->etype !=
@@ -2663,26 +2663,26 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    if((ret == 0) && (val != NULL)) {
 			    TODO;
 		    }
-		    if((ret == 0) && (node != NULL) &&
-			    (node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)node;
+		    if((ret == 0) && (P_Node != NULL) &&
+			    (P_Node->type == XML_ATTRIBUTE_NODE)) {
+			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_ENTITY;
 		    }
 		    goto done;
 	    }
 		case XML_SCHEMAS_ENTITIES:
-		    if(!node || (node->doc == NULL))
+		    if(!P_Node || (P_Node->doc == NULL))
 			    goto return3;
 		    ret = xmlSchemaValAtomicListNode(xmlSchemaTypeEntityDef,
-		    value, val, node);
+		    value, val, P_Node);
 		    if(ret <= 0)
 			    ret = 1;
 		    else
 			    ret = 0;
-		    if((ret == 0) && (node != NULL) &&
-		    (node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)node;
+		    if((ret == 0) && (P_Node != NULL) &&
+		    (P_Node->type == XML_ATTRIBUTE_NODE)) {
+			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_ENTITIES;
 		    }
@@ -2691,11 +2691,11 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    xmlChar * uri = NULL;
 		    xmlChar * local = NULL;
 		    ret = xmlValidateQName(value, 1);
-		    if((ret == 0) && (node != NULL)) {
+		    if((ret == 0) && (P_Node != NULL)) {
 			    xmlChar * prefix;
 			    local = xmlSplitQName2(value, &prefix);
 			    if(prefix != NULL) {
-				    xmlNs * ns = xmlSearchNs(node->doc, node, prefix);
+				    xmlNs * ns = xmlSearchNs(P_Node->doc, P_Node, prefix);
 				    if(ns == NULL)
 					    ret = 1;
 				    else if(val)
@@ -2705,10 +2705,10 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    SAlloc::F(local);
 			    SAlloc::F(prefix);
 		    }
-		    if(!node || (node->doc == NULL))
+		    if(!P_Node || (P_Node->doc == NULL))
 			    ret = 3;
 		    if(ret == 0) {
-			    ret = xmlValidateNotationUse(NULL, node->doc, value);
+			    ret = xmlValidateNotationUse(NULL, P_Node->doc, value);
 			    if(ret == 1)
 				    ret = 0;
 			    else
@@ -2805,7 +2805,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			     */
 			    cur = xmlStrndup(start, i);
 			    if(!cur) {
-				    xmlSchemaTypeErrMemory(node, "allocating hexbin data");
+				    xmlSchemaTypeErrMemory(P_Node, "allocating hexbin data");
 				    SAlloc::F(v);
 				    goto return1;
 			    }
@@ -2930,7 +2930,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 				    (xmlChar*)SAlloc::M((i + pad + 1) *
 				    sizeof(xmlChar));
 			    if(base == NULL) {
-				    xmlSchemaTypeErrMemory(node, "allocating base64 data");
+				    xmlSchemaTypeErrMemory(P_Node, "allocating base64 data");
 				    SAlloc::F(v);
 				    goto return1;
 			    }
@@ -3177,8 +3177,8 @@ error:
  *         and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNode(xmlSchemaTypePtr type, const xmlChar * value,
-    xmlSchemaValPtr * val, xmlNodePtr node) {
-	return(xmlSchemaValAtomicType(type, value, val, node, 0,
+    xmlSchemaValPtr * val, xmlNodePtr P_Node) {
+	return(xmlSchemaValAtomicType(type, value, val, P_Node, 0,
 		    XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 1, 0));
 }
 
@@ -3197,8 +3197,8 @@ int xmlSchemaValPredefTypeNode(xmlSchemaTypePtr type, const xmlChar * value,
  *         and -1 in case of internal or API error.
  */
 int xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaTypePtr type, const xmlChar * value,
-    xmlSchemaValPtr * val, xmlNodePtr node) {
-	return(xmlSchemaValAtomicType(type, value, val, node, 1,
+    xmlSchemaValPtr * val, xmlNodePtr P_Node) {
+	return(xmlSchemaValAtomicType(type, value, val, P_Node, 1,
 		    XML_SCHEMA_WHITESPACE_UNKNOWN, 1, 0, 1));
 }
 

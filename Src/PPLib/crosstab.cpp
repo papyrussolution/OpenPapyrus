@@ -283,8 +283,8 @@ int SLAPI Crosstab::DestroyTable()
 {
 	if(P_RTbl) {
 		char   tbl_name[64], file_name[MAXPATH];
-		STRNSCPY(tbl_name, P_RTbl->tableName);
-		STRNSCPY(file_name, P_RTbl->fileName);
+		STRNSCPY(tbl_name, P_RTbl->GetTableName());
+		STRNSCPY(file_name, P_RTbl->GetName());
 		ZDELETE(P_RTbl);
 		{
 			PPSaveErrContext();
@@ -350,70 +350,70 @@ int SLAPI Crosstab::CreateTable()
 	THROW(GetCrossValues(P_Tbl, CrssFld, &P_CtValList));
 
 	THROW_MEM(P_RTbl = new DBTable);
-	P_RTbl->fields.addField("CTID", MKSTYPE(S_AUTOINC, 4));
+	P_RTbl->AddField("CTID", MKSTYPE(S_AUTOINC, 4));
 	const uint start_fld_pos = 1;
 	const uint idx_fld_count = IdxFldList.GetCount();
 	for(i = 0; i < idx_fld_count; i++)
-		P_RTbl->fields.addField(IdxFldList.GetField(i));
+		P_RTbl->AddField(IdxFldList.GetField(i));
 	for(i = 0; i < InhFldList.GetCount(); i++)
-		P_RTbl->fields.addField(InhFldList.GetField(i));
+		P_RTbl->AddField(InhFldList.GetField(i));
 	for(i = 0; i < FixFldList.getCount(); i++)
-		P_RTbl->fields.addField(FixFldList[i].Name, FixFldList[i].T);
+		P_RTbl->AddField(FixFldList[i].Name, FixFldList[i].T);
 	for(i = 0; i < P_CtValList->getCount(); i++) {
 		for(j = 0; j < AggrFldList.GetCount(); j++) {
 			sprintf(fldname, "CTF%02u%02u", i+1, j+1);
-			P_RTbl->fields.addField(fldname, MKSTYPE(S_FLOAT, 8), UNDEF);
+			P_RTbl->AddField(fldname, MKSTYPE(S_FLOAT, 8), UNDEF);
 		}
 	}
 	if(P_TotalCols) {
 		for(j = 0; j < P_TotalCols->GetCount(); j++) {
 			sprintf(fldname, "CTFT%02u", j);
-			P_RTbl->fields.addField(fldname, MKSTYPE(S_FLOAT, 8), UNDEF);
+			P_RTbl->AddField(fldname, MKSTYPE(S_FLOAT, 8), UNDEF);
 		}
 	}
 	if(SortIdxList.getCount() && GetTotalRowsCount()) {
-		P_RTbl->fields.addField("CTIX", MKSTYPE(S_INT, 4)); // Поле, используемое как часть
+		P_RTbl->AddField("CTIX", MKSTYPE(S_INT, 4)); // Поле, используемое как часть
 			// сортирующего индекса для смещения итоговых строк в них таблицы просмотра
 		Flags |= fHasExtSortField;
 	}
 	{
 		BNKey key;
-		key.addSegment(P_RTbl->fields.getField((uint)0).Id, XIF_EXT);
-		P_RTbl->indexes.addKey(key);
+		key.addSegment(P_RTbl->GetFields().getField((uint)0).Id, XIF_EXT);
+		P_RTbl->AddKey(key);
 		key.setKeyParams(0, 0);
 		for(i = 0; i < IdxFldList.GetCount(); i++)
-			key.addSegment(P_RTbl->fields.getField(start_fld_pos+i).Id, XIF_EXT | XIF_MOD);
+			key.addSegment(P_RTbl->GetFields().getField(start_fld_pos+i).Id, XIF_EXT | XIF_MOD);
 		key.setKeyParams(1, 0);
-		P_RTbl->indexes.addKey(key);
+		P_RTbl->AddKey(key);
 		if(SortIdxList.getCount()) {
 			SString seg_name;
 			if(Flags & fHasExtSortField) {
 				uint   fld_pos = 0;
-				const  BNField * p_fld = &P_RTbl->fields.getField("CTIX", &fld_pos);
+				const  BNField * p_fld = &P_RTbl->GetFields().getField("CTIX", &fld_pos);
 				THROW(p_fld);
 				key.addSegment(p_fld->Id, XIF_EXT | XIF_MOD | XIF_DUP);
 			}
 			for(uint p = 0; SortIdxList.get(&p, seg_name) > 0;) {
 				uint   fld_pos = 0;
-				const  BNField * p_fld = &P_RTbl->fields.getField(seg_name, &fld_pos);
+				const  BNField * p_fld = &P_RTbl->GetFields().getField(seg_name, &fld_pos);
 				THROW(p_fld);
 				key.addSegment(p_fld->Id, XIF_EXT | XIF_MOD | XIF_DUP);
 			}
 			key.setKeyParams(2, 0);
-			P_RTbl->indexes.addKey(key);
+			P_RTbl->AddKey(key);
 			Flags |= fHasSortIdx;
 		}
 	}
 	CurDict->GetUniqueTableName("CT", P_RTbl);
 	{
 		DbProvider * p_dict = CurDict;
-		SString table_name = P_RTbl->tableName;
+		SString table_name = P_RTbl->GetTableName();
 		SString file_name;
 		THROW_DB(p_dict->CreateTableSpec(P_RTbl));
 		THROW_DB(p_dict->CreateTempFile(table_name, file_name, 0));
 		ZDELETE(P_RTbl);
 		THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
-		P_RTbl->flags |= XTF_TEMP; // @v8.1.1
+		P_RTbl->SetFlag(XTF_TEMP); // @v8.1.1
 	}
 	P_RTbl->allocOwnBuffer();
 	CrssFldList.Destroy();
@@ -564,7 +564,7 @@ int SLAPI Crosstab::Create(int use_ta)
 		const uint idx_fld_count = IdxFldList.GetCount();
 		const long zero = 0;
 		uint  ext_sort_fld_pos = 0;
-		if(Flags & fHasExtSortField && &P_RTbl->fields.getField("CTIX", &ext_sort_fld_pos) == 0)
+		if(Flags & fHasExtSortField && &P_RTbl->GetFields().getField("CTIX", &ext_sort_fld_pos) == 0)
 			ext_sort_fld_pos = 0;
 		for(q.initIteration(0, 0, -1); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			uint   ct_val_pos = 0;
@@ -682,9 +682,9 @@ DBQuery * SLAPI Crosstab::CreateBrowserQuery()
 {
 	DBFieldList fld_list;
 	DBField fld;
-	DBTable * p_tbl = new DBTable(P_RTbl->tableName, P_RTbl->fileName);
+	DBTable * p_tbl = new DBTable(P_RTbl->GetTableName(), P_RTbl->GetName());
 	p_tbl->allocOwnBuffer();
-	for(uint i = 0; i < p_tbl->fields.getCount(); i++) {
+	for(uint i = 0; i < p_tbl->GetFields().getCount(); i++) {
 		p_tbl->getField(i, &fld);
 		fld_list.Add(fld);
 	}
@@ -693,14 +693,14 @@ DBQuery * SLAPI Crosstab::CreateBrowserQuery()
 		SString seg_name;
 		if(Flags & fHasExtSortField) {
 			uint   fld_pos = 0;
-			if(&p_tbl->fields.getField("CTIX", &fld_pos) != 0) {
+			if(&p_tbl->GetFields().getField("CTIX", &fld_pos) != 0) {
 				p_tbl->getField(fld_pos, &fld);
 				p_q->addOrderField(fld);
 			}
 		}
 		for(uint p = 0; SortIdxList.get(&p, seg_name) > 0;) {
 			uint   fld_pos = 0;
-			if(&p_tbl->fields.getField(seg_name, &fld_pos) != 0) {
+			if(&p_tbl->GetFields().getField(seg_name, &fld_pos) != 0) {
 				p_tbl->getField(fld_pos, &fld);
 				p_q->addOrderField(fld);
 			}
@@ -799,7 +799,7 @@ int SLAPI Crosstab::GetIdxFields(PPID id, DBFieldList * pFldList)
 	if(pFldList) {
 		DBField field;
 		if(P_RTbl->search(0, &id, spEq) > 0) {
-			for(uint i = 0; (i + 1 < P_RTbl->fields.getCount()) && i < IdxFldList.GetCount(); i++) {
+			for(uint i = 0; (i + 1 < P_RTbl->GetFields().getCount()) && i < IdxFldList.GetCount(); i++) {
 				P_RTbl->getField(i + 1, &field);
 				pFldList->Add(field);
 			}
@@ -923,8 +923,8 @@ int SLAPI Crosstab::Write(SBuffer & rBuf, SSerializeContext * pCtx)
 	SString temp_buf;
 	THROW_SL(pCtx->Serialize(+1, Flags, rBuf));
 	THROW_SL(SortIdxList.Write(rBuf));
-	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->tableName : 0), rBuf));
-	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->fileName.cptr() : 0), rBuf));
+	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->GetTableName() : 0), rBuf));
+	THROW_SL(pCtx->Serialize(+1, (temp_buf = P_Tbl ? P_Tbl->GetName().cptr() : 0), rBuf));
 	THROW_SL(pCtx->Serialize(+1, &AggrFuncList, rBuf));
 	THROW_SL(pCtx->Serialize(+1, &AggrFldColNames, rBuf));
 	{
@@ -971,9 +971,9 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 	THROW_SL(pCtx->Serialize(-1, Flags, rBuf));
 	THROW_SL(SortIdxList.Read(rBuf));
 	THROW_SL(pCtx->Serialize(-1, temp_buf, rBuf));
-	THROW_PP_S(temp_buf.CmpNC(pTbl->tableName) == 0, PPERR_CTSERIALIZE_INVTBLNAME, temp_buf);
+	THROW_PP_S(temp_buf.CmpNC(pTbl->GetTableName()) == 0, PPERR_CTSERIALIZE_INVTBLNAME, temp_buf);
 	THROW_SL(pCtx->Serialize(-1, temp_buf, rBuf));
-	THROW_PP_S(temp_buf.CmpNC(pTbl->fileName) == 0, PPERR_CTSERIALIZE_INVFILNAME, temp_buf);
+	THROW_PP_S(temp_buf.CmpNC(pTbl->GetName()) == 0, PPERR_CTSERIALIZE_INVFILNAME, temp_buf);
 	THROW_SL(pCtx->Serialize(-1, &AggrFuncList, rBuf));
 	THROW_SL(pCtx->Serialize(-1, &AggrFldColNames, rBuf));
 	{
@@ -993,8 +993,8 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 			THROW_MEM(P_RTbl = new DBTable);
 			THROW(P_RTbl->SerializeSpec(-1, rBuf, pCtx));
 			{
-				SString table_name = P_RTbl->tableName;
-				SString file_name = P_RTbl->fileName;
+				SString table_name = P_RTbl->GetTableName();
+				SString file_name = P_RTbl->GetName();
 				THROW_DB(CurDict->CreateTableSpec(P_RTbl));
 				ZDELETE(P_RTbl);
 				THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
@@ -1004,7 +1004,7 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 		int32 f = 0;
 		THROW_SL(pCtx->Serialize(-1, f, rBuf));
 		if(P_Tbl) {
-			CrssFld.id = P_Tbl->handle;
+			CrssFld.id = P_Tbl->GetHandle();
 			CrssFld.fld = f;
 		}
 		else {
@@ -1060,7 +1060,7 @@ int SLAPI Crosstab::ReadDbFieldList(DBTable * pTbl, DBFieldList & rList, SBuffer
 		THROW_SL(pCtx->Serialize(-1, f, rBuf));
 		if(pTbl) {
 			DBField fld;
-			fld.id = pTbl->handle;
+			fld.id = pTbl->GetHandle();
 			fld.fld = f;
 			rList.Add(fld);
 		}

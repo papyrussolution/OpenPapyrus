@@ -1277,7 +1277,7 @@ int GSDialog::setupList()
 		}
 		ss.add(sub);
 		t_qtty  += sub.ToReal();
-		sub = 0;
+		sub.Z();
 		if(inner_struc.Rec.ID) {
 			if(GsObj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
 				int    uncert = 0;
@@ -1296,7 +1296,7 @@ int GSDialog::setupList()
 		ss.add(sub.Z().Cat(p_item->Netto, qtty_fmt));
 		ss.add(sub.Z().Cat(price, money_fmt));
 		ss.add(sub.Z().Cat(sum,   money_fmt));
-		sub = 0;
+		sub.Z();
 		if(inner_struc.Rec.ID)
 			sub.CatChar('R');
 		ss.add(sub);

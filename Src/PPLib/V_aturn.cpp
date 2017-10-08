@@ -752,7 +752,7 @@ DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_acc_dbt, dbe_acc_crd;
 	if(Filt.GrpAco) {
 		THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
-		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->fileName)));
+		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
 		q = & select(
 			p_grp_tbl->Dt,          // #00
@@ -779,10 +779,10 @@ DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		bll = new BillTbl;
 		at  = new AccTurnTbl;
 		if(P_TmpBillTbl)
-			p_tmp_bill_t = new TempAssocTbl(P_TmpBillTbl->fileName);
+			p_tmp_bill_t = new TempAssocTbl(P_TmpBillTbl->GetName());
 		THROW(CheckTblPtr(at) && CheckTblPtr(bll));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPViewAccturn::DynFuncCurSymbByAccRelID, at->Acc);
-		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID); // @v6.8.7
+		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_dbt, PPDbqFuncPool::IdObjNameAcctRel, at->Acc);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_crd, PPDbqFuncPool::IdObjNameAcctRel, at->CorrAcc);
 		{

@@ -124,7 +124,7 @@ DBQuery * SLAPI PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * p
 	DBE dbe_pct_rate, dbe_name1, dbe_name2;
 	DBQ  * dbq = 0;
 
-	THROW(CheckTblPtr(l = new ObjLikenessTbl(Tbl.fileName)));
+	THROW(CheckTblPtr(l = new ObjLikenessTbl(Tbl.GetName())));
 	dbq = ppcheckfiltid(dbq, l->ObjType, Filt.ObjTypeID);
 	dbq =& (*dbq && l->Rate >= Filt.Rate);
 	{

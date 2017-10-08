@@ -667,7 +667,7 @@ int FASTCALL UpdateByID_Cmp(DBTable * pTbl, PPID objType, PPID id, void * b, int
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SearchByID_ForUpdate(pTbl, objType, id, 0) > 0);
-		if(!pTbl->fields.IsEqualRecords(b, pTbl->getDataBuf())) {
+		if(!pTbl->GetFields().IsEqualRecords(b, pTbl->getDataBuf())) {
 			THROW_DB(pTbl->updateRecBuf(b)); // @sfu
 		}
 		else

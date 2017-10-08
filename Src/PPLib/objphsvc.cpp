@@ -470,7 +470,7 @@ PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SArray(sizeof(Item_))
 
 PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 {
-	Pool.clear(1);
+	Pool.clear();
 	Pool.add("$"); // zero index - is empty string
 	SArray::clear();
 	return *this;
@@ -689,7 +689,7 @@ AsteriskAmiClient::Message::Message(const char * pReply) : StringSet()
 
 AsteriskAmiClient::Message & AsteriskAmiClient::Message::Clear()
 {
-	StringSet::clear(1);
+	StringSet::clear();
 	return *this;
 }
 
@@ -788,7 +788,7 @@ int AsteriskAmiClient::Message::GetReplyStatus(ReplyStatus & rS) const
 int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 {
 	int    ok = 1;
-	clear(1);
+	clear();
 	SStrScan scan(pReply);
 	SString temp_buf, left, right;
 	while(scan.Search("\xD\xA")) {

@@ -1,6 +1,6 @@
 // V_CSESS.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -175,7 +175,7 @@ PPBaseFilt * SLAPI PPViewCSess::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 //
-// Äèàëîã ôèëüòðà ïî êàññîâûì ñåññèÿì
+// Ð”Ð¸Ð°Ð»Ð¾Ð³ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð° Ð¿Ð¾ ÐºÐ°ÑÑÐ¾Ð²Ñ‹Ð¼ ÑÐµÑÑÐ¸ÑÐ¼
 //
 int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
@@ -354,12 +354,10 @@ int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 							temp_buf.CatLongZ(item.CashNodeID, 20);
 						break;
 					case ordByDtm_CashNumber:
-						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
-						temp_buf.CatLongZ(item.CashNumber, 20);
+						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).CatLongZ(item.CashNumber, 20);
 						break;
 					case ordByDtm_SessNumber:
-						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
-						temp_buf.CatLongZ(item.SessNumber, 20);
+						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC).CatLongZ(item.SessNumber, 20);
 						break;
 					case ordByCashNode_Dtm:
 						if(cn_obj.Fetch(item.CashNodeID, &cn_rec) > 0)
@@ -369,12 +367,10 @@ int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 						break;
 					case ordByCashNumber_Dtm:
-						temp_buf.CatLongZ(item.CashNumber, 20);
-						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+						temp_buf.CatLongZ(item.CashNumber, 20).Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 						break;
 					case ordBySessNumber:
-						temp_buf.CatLongZ(item.SessNumber, 20);
-						temp_buf.Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+						temp_buf.CatLongZ(item.SessNumber, 20).Cat(dtm, DATF_YMD|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
 						break;
 					case ordByAmount:
 						temp_buf.Cat(large_val-item.Amount, MKSFMTD(30, 5, 0));
@@ -538,10 +534,10 @@ DBQuery * SLAPI PPViewCSess::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	THROW(CreateOrderTable(CurrentViewOrder, &p_ot));
 	if(Filt.Flags & CSessFilt::fExtBill) {
 		THROW(P_CSessIterQuery);
-		THROW(p_ch = new TempCSessChecksTbl(P_TempTbl->fileName));
+		THROW(p_ch = new TempCSessChecksTbl(P_TempTbl->GetName()));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cashnode, PPDbqFuncPool::IdObjNameCashNode, p_ch->CashNodeID);
-		p_dbe_ret = &(p_ch->WORetAmount-p_ch->Amount); // Ïåðåâîðà÷èâàåì óìåíüøàåìîå ñ âû÷åòàåìûì, ÷òîáû ïîëó÷èòü
-			// ïîëîæèòåëüíóþ âåëè÷èíó âîçâðàòîâ
+		p_dbe_ret = &(p_ch->WORetAmount-p_ch->Amount); // ÐŸÐµÑ€ÐµÐ²Ð¾Ñ€Ð°Ñ‡Ð¸Ð²Ð°ÐµÐ¼ ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ°ÐµÐ¼Ð¾Ðµ Ñ Ð²Ñ‹Ñ‡ÐµÑ‚Ð°ÐµÐ¼Ñ‹Ð¼, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ
+			// Ð¿Ð¾Ð»Ð¾Ð¶Ð¸Ñ‚ÐµÐ»ÑŒÐ½ÑƒÑŽ Ð²ÐµÐ»Ð¸Ñ‡Ð¸Ð½Ñƒ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð¾Ð²
 		p_q = &select(
 			p_ch->ID,             // #0
 			p_ch->Dt,             // #1
@@ -1155,7 +1151,7 @@ int SLAPI PPDfCreateRulePacket::CheckCash(PPID cash) const
 	return CashNN.getCount() ? CashNN.bsearch(cash) : 1;
 }
 
-int SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
+void SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 {
 	PPID * p_id = 0;
 	StringSet ss((char)delim, 0);
@@ -1164,15 +1160,12 @@ int SLAPI PPDfCreateRulePacket::GetCashNN(SString * pBuf, int delim) const
 		ltoa(*p_id, buf, 10);
 		ss.add(buf, 0);
 	}
-	if(pBuf)
-		*pBuf = ss.getBuf();
-	return 1;
+	ASSIGN_PTR(pBuf, ss.getBuf());
 }
 
-int SLAPI PPDfCreateRulePacket::GetCashNN(PPIDArray * pAry) const
+void SLAPI PPDfCreateRulePacket::GetCashNN(PPIDArray * pAry) const
 {
 	ASSIGN_PTR(pAry, CashNN);
-	return 1;
 }
 
 int SLAPI PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
@@ -1359,13 +1352,11 @@ struct _E {
 	double Price;
 };
 
-#define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
-
 IMPL_CMPFUNC(EGOODSLOC, i1, i2)
 {
-	_E * p_e1 = (_E*)i1;
-	_E * p_e2 = (_E*)i2;
-	int    r = COMPARE(p_e1->LocID, p_e2->LocID);
+	const _E * p_e1 = (const _E *)i1;
+	const _E * p_e2 = (const _E *)i2;
+	int    r = CMPSIGN(p_e1->LocID, p_e2->LocID);
 	return r ? r : stricmp866(p_e1->GoodsName, p_e2->GoodsName);
 }
 
@@ -1376,7 +1367,7 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 	PPIDArray sess_list;
 	PPIDArray rules;
 	PPObjDraftCreateRule r_obj;
-	PPObjGoods goods_obj; // ×òîáû íå îòêðûâàëàñü òàáëèöà âíóòðè òðàíçàêöèè
+	PPObjGoods goods_obj; // Ð§Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°Ð»Ð°ÑÑŒ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ð° Ð²Ð½ÑƒÑ‚Ñ€Ð¸ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸
 	PPWait(1);
 	if(!sessID)
 		GetSessList(&sess_list);
@@ -1393,7 +1384,7 @@ int SLAPI PPViewCSess::CreateDrafts(PPID ruleGrpID, PPID ruleID, PPID sessID)
 			c_msg1.Printf(msg1, i+1, sess_list.getCount(), j+1, rules.getCount());
 			c_msg2.Printf(msg2, i+1, sess_list.getCount(), j+1, rules.getCount());
 			//
-			// Ïî êàæäîé ïàðå {ñåññèÿ-ïðàâèëî} èñïîëüçóåì îòäåëüíóþ òðàíçàêöèþ
+			// ÐŸÐ¾ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ð¿Ð°Ñ€Ðµ {ÑÐµÑÑÐ¸Ñ-Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð¾} Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ Ð¾Ñ‚Ð´ÐµÐ»ÑŒÐ½ÑƒÑŽ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸ÑŽ
 			//
 			THROW(ok = CreateDraft(rules.at(j), sess_list.at(i), c_msg1, c_msg2, 1));
 		}
@@ -1440,7 +1431,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			bill_dt = csess_rec.Dt;
 			rule.GetCashNN(&cash_list);
 			//
-			// Ôèëüòðàöèÿ ÷åêîâ ïî íåêîòîðûì ïðèçíàêàì
+			// Ð¤Ð¸Ð»ÑŒÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ñ‡ÐµÐºÐ¾Ð² Ð¿Ð¾ Ð½ÐµÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¼ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ°Ð¼
 			//
 			if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) || rule.Rec.SCardSerID || (rule.Rec.Flags & (PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking))) {
 				long chk_count = 0;
@@ -1493,7 +1484,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 				_e.Price   = (rule.Rec.PriceAlg == PPDraftCreateRule::pByAvgSumDis) ? (price-discount) : price;
 				_e.LocID   = 0;
 				//
-				// Åñëè óñòàíîâëåíà ãàëêà "Èñïîëüçîâàòü àññîöèàöèè òîâàð-ñêëàä", òî áóäåì ñîçäàâàòü ðàçíûå äîêóìåíòû äëÿ êàæäîãî ñêëàäà
+				// Ð•ÑÐ»Ð¸ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð° Ð³Ð°Ð»ÐºÐ° "Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ Ð°ÑÑÐ¾Ñ†Ð¸Ð°Ñ†Ð¸Ð¸ Ñ‚Ð¾Ð²Ð°Ñ€-ÑÐºÐ»Ð°Ð´", Ñ‚Ð¾ Ð±ÑƒÐ´ÐµÐ¼ ÑÐ¾Ð·Ð´Ð°Ð²Ð°Ñ‚ÑŒ Ñ€Ð°Ð·Ð½Ñ‹Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð´Ð»Ñ ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ ÑÐºÐ»Ð°Ð´Ð°
 				//
 				if(p_gds_assc)
 					p_gds_assc->Get(p_crec->GoodsID, &_e.LocID);
@@ -1514,7 +1505,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					int    grp_ok = BIN(g_obj.BelongToGroup(p_crec->GoodsID, rule.Rec.GoodsGrpID, 0));
 					if(!rule.Rec.GoodsGrpID || ((grp_ok && !excl_ggrp) || (!grp_ok && excl_ggrp))) {
 						//
-						// Èç-çà òîãî, ÷òî èä òîâàðà ìîã èçìåíèòüñÿ, ïðåäïðèíèìàåì ïîïûòêó ïîèñêà åùå ðàç
+						// Ð˜Ð·-Ð·Ð° Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾ Ð¸Ð´ Ñ‚Ð¾Ð²Ð°Ñ€Ð° Ð¼Ð¾Ð³ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒÑÑ, Ð¿Ñ€ÐµÐ´Ð¿Ñ€Ð¸Ð½Ð¸Ð¼Ð°ÐµÐ¼ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÑƒ Ð¿Ð¾Ð¸ÑÐºÐ° ÐµÑ‰Ðµ Ñ€Ð°Ð·
 						//
 						_e.GoodsID = p_crec->GoodsID;
 						if(goods.lsearch(&_e, &(pos = 0), PTR_CMPFUNC(_2long))) {
@@ -1565,7 +1556,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					ti.Quantity_ = p_e->Qtty;
 					new_doc_by_loc = BIN(rule.Rec.Flags & PPDraftCreateRule::fUseGoodsLocAssoc && prev_loc_id != loc_id);
 					//
-					// áåðåì öåíû ïîñòóïëåíèÿ è ðåàëèçàöèè èç ïîñëåäíåãî ëîòà
+					// Ð±ÐµÑ€ÐµÐ¼ Ñ†ÐµÐ½Ñ‹ Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ Ð¸ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð¸Ð· Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ Ð»Ð¾Ñ‚Ð°
 					//
 					if(oneof2(price_alg, PPDraftCreateRule::pByLastLot, PPDraftCreateRule::pByQuot) ||
 						oneof2(cost_alg, PPDraftCreateRule::cByLastLot, PPDraftCreateRule::cByQuot)) {
@@ -1573,45 +1564,45 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 						double price = 0.0, add_summ = 0.0;
 						LDATE  oper_dt = LConfig.OperDate;
 						//
-						// LConfig.OperDate = last_check_dt íóæíî äëÿ òîãî, ÷òîáû äîñòàòü ïîñëåäíèé ëîò äî çàäàííîé äàòû
+						// LConfig.OperDate = last_check_dt Ð½ÑƒÐ¶Ð½Ð¾ Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð´Ð¾ÑÑ‚Ð°Ñ‚ÑŒ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð»Ð¾Ñ‚ Ð´Ð¾ Ð·Ð°Ð´Ð°Ð½Ð½Ð¾Ð¹ Ð´Ð°Ñ‚Ñ‹
 						//
 						DS.SetOperDate(last_check_dtm.d);
 						//
 						r = ::GetCurGoodsPrice(p_e->GoodsID, LConfig.Location, GPRET_MOSTRECENT | GPRET_OTHERLOC, &price, &lot_rec);
 						//
-						// LConfig.OperDate = oper_dt âîçâðàùàåì LConfig.OperDate â èñõîäíîå ñîñòîÿíèå
+						// LConfig.OperDate = oper_dt Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ LConfig.OperDate Ð² Ð¸ÑÑ…Ð¾Ð´Ð½Ð¾Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ
 						//
 						DS.SetOperDate(oper_dt);
 						THROW(r != GPRET_ERROR);
 						//
-						// åñëè öåíà ðåàëèçàöèè 0, òî òî áóäåì áðàòü â êà÷åñòâå öåíû ñðåäíåå àðèôìåòè÷åñêîå ïî ÷åêàì
+						// ÐµÑÐ»Ð¸ Ñ†ÐµÐ½Ð° Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ 0, Ñ‚Ð¾ Ñ‚Ð¾ Ð±ÑƒÐ´ÐµÐ¼ Ð±Ñ€Ð°Ñ‚ÑŒ Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ Ñ†ÐµÐ½Ñ‹ ÑÑ€ÐµÐ´Ð½ÐµÐµ Ð°Ñ€Ð¸Ñ„Ð¼ÐµÑ‚Ð¸Ñ‡ÐµÑÐºÐ¾Ðµ Ð¿Ð¾ Ñ‡ÐµÐºÐ°Ð¼
 						//
 						if(lot_rec.Price == 0 && price_alg == PPDraftCreateRule::pByLastLot)
 							price_alg = PPDraftCreateRule::pByAvgSum;
 						//
-						// åñëè öåíà ïîñòóïëåíèÿ 0, òî òî áóäåì áðàòü â êà÷åñòâå öåíû - öåíó ðåàëèçàöèè - ïðîöåíò
+						// ÐµÑÐ»Ð¸ Ñ†ÐµÐ½Ð° Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ 0, Ñ‚Ð¾ Ñ‚Ð¾ Ð±ÑƒÐ´ÐµÐ¼ Ð±Ñ€Ð°Ñ‚ÑŒ Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ Ñ†ÐµÐ½Ñ‹ - Ñ†ÐµÐ½Ñƒ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ - Ð¿Ñ€Ð¾Ñ†ÐµÐ½Ñ‚
 						//
 						if(lot_rec.Cost == 0 && cost_alg == PPDraftCreateRule::cByLastLot)
 							cost_alg  = PPDraftCreateRule::cByPricePctVal;
 					}
 					//
-					// Ðàññ÷èòûâàåì öåíó ïîñòóïëåíèÿ ïî êîòèðîâêå
+					// Ð Ð°ÑÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ñ†ÐµÐ½Ñƒ Ð¿Ð¾ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐµ
 					//
 					if(cost_alg == PPDraftCreateRule::cByQuot) {
 						QuotIdent qi(loc_id, rule.Rec.CQuot, 0, 0);
 						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Cost, 1));
-						// åñëè öåíà ïî êîòèðîâêå 0, òî áóäåì áðàòü èç ïîñëåäíåãî ëîòà
+						// ÐµÑÐ»Ð¸ Ñ†ÐµÐ½Ð° Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐµ 0, Ñ‚Ð¾ Ð±ÑƒÐ´ÐµÐ¼ Ð±Ñ€Ð°Ñ‚ÑŒ Ð¸Ð· Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ Ð»Ð¾Ñ‚Ð°
 						if(ti.Cost == 0.0)
 							cost_alg = (lot_rec.Cost != 0.0) ? PPDraftCreateRule::cByLastLot : PPDraftCreateRule::cByPricePctVal;
 					}
 					//
-					// Ðàññ÷èòûâàåì öåíó ðåàëèçàöèè ïî êîòèðîâêå
+					// Ð Ð°ÑÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ñ†ÐµÐ½Ñƒ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐµ
 					//
 					if(price_alg == PPDraftCreateRule::pByQuot) {
 						QuotIdent qi(loc_id, rule.Rec.PQuot, 0, 0);
 						THROW(g_obj.GetQuotExt(p_e->GoodsID, qi, lot_rec.Cost, lot_rec.Price, &ti.Price, 1));
 						//
-						// åñëè öåíà ïî êîòèðîâêå 0, òî áóäåì áðàòü â êà÷åñòâå öåíû ñðåäíåå àðèôìåòè÷åñêîå ïî ÷åêà
+						// ÐµÑÐ»Ð¸ Ñ†ÐµÐ½Ð° Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐµ 0, Ñ‚Ð¾ Ð±ÑƒÐ´ÐµÐ¼ Ð±Ñ€Ð°Ñ‚ÑŒ Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ Ñ†ÐµÐ½Ñ‹ ÑÑ€ÐµÐ´Ð½ÐµÐµ Ð°Ñ€Ð¸Ñ„Ð¼ÐµÑ‚Ð¸Ñ‡ÐµÑÐºÐ¾Ðµ Ð¿Ð¾ Ñ‡ÐµÐºÐ°
 						//
 						if(ti.Price == 0.0)
 							price_alg = PPDraftCreateRule::pByAvgSum;
@@ -2145,7 +2136,7 @@ IMPLEMENT_PPFILT_FACTORY(CSessExc); SLAPI CSessExcFilt::CSessExcFilt() : PPBaseF
 {
 	SetFlatChunk(offsetof(CSessExcFilt, ReserveStart),
 		offsetof(CSessExcFilt, SessIDList)-offsetof(CSessExcFilt, ReserveStart));
-	SetBranchSArray(offsetof(CSessExcFilt, SessIDList));
+	SetBranchSVector(offsetof(CSessExcFilt, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 
@@ -2254,8 +2245,8 @@ int SLAPI PPViewCSessExc::AddItemToTempTable(const PPID orgGoodsID, CGoodsLineTb
 	uint   pos = 0;
 	PPID   goods_id = pRec->GoodsID;
 	//
-	// Åñëè åñòü ïîäìåíà äëÿ òîâàðà goods_id, òî çàìåíÿåì èäåíòèôèêàòîð
-	// goods_id íà àññîöèèðîâàííûé ñ íèì.
+	// Ð•ÑÐ»Ð¸ ÐµÑÑ‚ÑŒ Ð¿Ð¾Ð´Ð¼ÐµÐ½Ð° Ð´Ð»Ñ Ñ‚Ð¾Ð²Ð°Ñ€Ð° goods_id, Ñ‚Ð¾ Ð·Ð°Ð¼ÐµÐ½ÑÐµÐ¼ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€
+	// goods_id Ð½Ð° Ð°ÑÑÐ¾Ñ†Ð¸Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ñ Ð½Ð¸Ð¼.
 	//
 	pRgAssoc->Search(goods_id, &goods_id, &pos);
 	TempCSessExcTbl::Rec trec;
@@ -2484,7 +2475,7 @@ int FASTCALL PPViewCSessExc::NextIteration(CSessExcViewItem * pItem)
 DBQuery * SLAPI PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBE    dbe_goods;
-	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->fileName);
+	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsID);
 	DBQuery * q = & (select(
 		t->GoodsID,       // #0
@@ -2563,7 +2554,7 @@ public:
 	int    getDTS(PPID * pAltGoodsID);
 private:
 	DECL_HANDLE_EVENT;
-	int    SetupLastLotCtrs(PPID goodsID, int isDfctGoods);
+	void   SetupLastLotCtrs(PPID goodsID, int isDfctGoods);
 	CSessExcAltGoodsParam Data;
 	RealRange SubstPriceRange;
 };
@@ -2592,7 +2583,7 @@ IMPL_HANDLE_EVENT(CSessExcAltGoodsDialog)
 	clearEvent(event);
 }
 
-int CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
+void CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
 {
 	LDATE  dt = ZERODATE;
 	double cost = 0.0, price = 0.0;
@@ -2614,7 +2605,6 @@ int CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
 		setCtrlReal(CTL_CSEXCAG_ALGCOST,  cost);
 		setCtrlReal(CTL_CSEXCAG_ALGPRICE, price);
 	}
-	return 1;
 }
 
 int CSessExcAltGoodsDialog::setDTS(const CSessExcAltGoodsParam * pData)

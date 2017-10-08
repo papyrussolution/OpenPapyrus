@@ -95,7 +95,7 @@ static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char 
  *
  * Handle a validation error, provide contextual informations
  */
-static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
@@ -111,7 +111,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserError
 				pctxt = (xmlParserCtxtPtr)ctxt->userData;
 		}
 	}
-	__xmlRaiseError(schannel, channel, data, pctxt, node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0,
+	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0,
 	    (const char*)str1, (const char*)str1, (const char*)str3, 0, 0, msg, str1, str2, str3);
 }
 
@@ -129,7 +129,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserError
  *
  * Handle a validation error, provide contextual informations
  */
-static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErrors error, const char * msg, const xmlChar * str1, int int2, const xmlChar * str3)
+static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErrors error, const char * msg, const xmlChar * str1, int int2, const xmlChar * str3)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
@@ -145,7 +145,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErr
 				pctxt = (xmlParserCtxtPtr)ctxt->userData;
 		}
 	}
-	__xmlRaiseError(schannel, channel, data, pctxt, node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str3, NULL, int2, 0, msg, str1, int2, str3);
+	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str3, NULL, int2, 0, msg, str1, int2, str3);
 }
 
 /**
@@ -160,7 +160,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * node, xmlParserErr
  * Handle a validation error, provide contextual information
  */
 static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
-    xmlNode * node, xmlParserErrors error,
+    xmlNode * P_Node, xmlParserErrors error,
     const char * msg, const xmlChar * str1,
     const xmlChar * str2, const xmlChar * str3)
 {
@@ -178,7 +178,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 				pctxt = (xmlParserCtxtPtr)ctxt->userData;
 		}
 	}
-	__xmlRaiseError(schannel, channel, data, pctxt, node, XML_FROM_VALID, error, XML_ERR_WARNING, NULL, 0,
+	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_WARNING, NULL, 0,
 	    (const char*)str1, (const char*)str1, (const char*)str3, 0, 0, msg, str1, str2, str3);
 }
 
@@ -193,11 +193,11 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 
 typedef struct _xmlValidState {
 	xmlElementPtr elemDecl;         /* pointer to the content model */
-	xmlNode * node;                /* pointer to the current node */
+	xmlNode * P_Node;                /* pointer to the current node */
 	xmlRegExecCtxtPtr exec;         /* regexp runtime */
 } _xmlValidState;
 
-static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * node) 
+static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * P_Node) 
 {
 	if((ctxt->vstateMax == 0) || (ctxt->vstateTab == NULL)) {
 		ctxt->vstateMax = 10;
@@ -223,7 +223,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * n
 	}
 	ctxt->vstate = &ctxt->vstateTab[ctxt->vstateNr];
 	ctxt->vstateTab[ctxt->vstateNr].elemDecl = elemDecl;
-	ctxt->vstateTab[ctxt->vstateNr].node = node;
+	ctxt->vstateTab[ctxt->vstateNr].P_Node = P_Node;
 	if(elemDecl && (elemDecl->etype == XML_ELEMENT_TYPE_ELEMENT)) {
 		if(elemDecl->contModel == NULL)
 			xmlValidBuildContentModel(ctxt, elemDecl);
@@ -232,7 +232,7 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * n
 		}
 		else {
 			ctxt->vstateTab[ctxt->vstateNr].exec = NULL;
-			xmlErrValidNode(ctxt, (xmlNode *)elemDecl, XML_ERR_INTERNAL_ERROR, "Failed to build content model regexp for %s\n", node->name, 0, 0);
+			xmlErrValidNode(ctxt, (xmlNode *)elemDecl, XML_ERR_INTERNAL_ERROR, "Failed to build content model regexp for %s\n", P_Node->name, 0, 0);
 		}
 	}
 	return(ctxt->vstateNr++);
@@ -245,7 +245,7 @@ static int vstateVPop(xmlValidCtxtPtr ctxt) {
 	ctxt->vstateNr--;
 	elemDecl = ctxt->vstateTab[ctxt->vstateNr].elemDecl;
 	ctxt->vstateTab[ctxt->vstateNr].elemDecl = NULL;
-	ctxt->vstateTab[ctxt->vstateNr].node = NULL;
+	ctxt->vstateTab[ctxt->vstateNr].P_Node = NULL;
 	if(elemDecl && (elemDecl->etype == XML_ELEMENT_TYPE_ELEMENT)) {
 		xmlRegFreeExecCtxt(ctxt->vstateTab[ctxt->vstateNr].exec);
 	}
@@ -356,10 +356,10 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 {
 	if(ctxt->nodeMax <= 0) {
 		ctxt->nodeMax = 4;
-		ctxt->nodeTab =
+		ctxt->PP_NodeTab =
 		    (xmlNodePtr*)SAlloc::M(ctxt->nodeMax *
-		    sizeof(ctxt->nodeTab[0]));
-		if(ctxt->nodeTab == NULL) {
+		    sizeof(ctxt->PP_NodeTab[0]));
+		if(ctxt->PP_NodeTab == NULL) {
 			xmlVErrMemory(ctxt, "malloc failed");
 			ctxt->nodeMax = 0;
 			return 0;
@@ -367,16 +367,16 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 	}
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
 		xmlNode ** tmp;
-		tmp = (xmlNodePtr*)SAlloc::R(ctxt->nodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->nodeTab[0]));
+		tmp = (xmlNodePtr*)SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0]));
 		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return 0;
 		}
 		ctxt->nodeMax *= 2;
-		ctxt->nodeTab = tmp;
+		ctxt->PP_NodeTab = tmp;
 	}
-	ctxt->nodeTab[ctxt->nodeNr] = value;
-	ctxt->node = value;
+	ctxt->PP_NodeTab[ctxt->nodeNr] = value;
+	ctxt->P_Node = value;
 	return (ctxt->nodeNr++);
 }
 
@@ -387,11 +387,11 @@ static xmlNode * nodeVPop(xmlValidCtxtPtr ctxt)
 		return 0;
 	ctxt->nodeNr--;
 	if(ctxt->nodeNr > 0)
-		ctxt->node = ctxt->nodeTab[ctxt->nodeNr - 1];
+		ctxt->P_Node = ctxt->PP_NodeTab[ctxt->nodeNr - 1];
 	else
-		ctxt->node = NULL;
-	ret = ctxt->nodeTab[ctxt->nodeNr];
-	ctxt->nodeTab[ctxt->nodeNr] = NULL;
+		ctxt->P_Node = NULL;
+	ret = ctxt->PP_NodeTab[ctxt->nodeNr];
+	ctxt->PP_NodeTab[ctxt->nodeNr] = NULL;
 	return ret;
 }
 
@@ -794,7 +794,7 @@ void xmlFreeValidCtxt(xmlValidCtxtPtr cur)
 {
 	if(cur) {
 		SAlloc::F(cur->vstateTab);
-		SAlloc::F(cur->nodeTab);
+		SAlloc::F(cur->PP_NodeTab);
 		SAlloc::F(cur);
 	}
 }
@@ -4584,15 +4584,15 @@ analyze:
  * This will dump the list of elements to the buffer
  * Intended just for the debug routine
  */
-static void xmlSnprintfElements(char * buf, int size, xmlNode * node, int glob) 
+static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob) 
 {
 	xmlNode * cur;
 	int len;
-	if(!node) 
+	if(!P_Node) 
 		return;
 	if(glob) 
 		strcat(buf, "(");
-	cur = node;
+	cur = P_Node;
 	while(cur) {
 		len = strlen(buf);
 		if(size - len < 50) {
@@ -4704,7 +4704,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 		}
 		ctxt->nodeMax = 0;
 		ctxt->nodeNr = 0;
-		ctxt->nodeTab = NULL;
+		ctxt->PP_NodeTab = NULL;
 		exec = xmlRegNewExecCtxt(elemDecl->contModel, 0, 0);
 		if(exec != NULL) {
 			cur = child;
@@ -4937,9 +4937,9 @@ done:
 #endif
 	ctxt->nodeMax = 0;
 	ctxt->nodeNr = 0;
-	if(ctxt->nodeTab != NULL) {
-		SAlloc::F(ctxt->nodeTab);
-		ctxt->nodeTab = NULL;
+	if(ctxt->PP_NodeTab != NULL) {
+		SAlloc::F(ctxt->PP_NodeTab);
+		ctxt->PP_NodeTab = NULL;
 	}
 	return ret;
 }
@@ -5000,9 +5000,9 @@ static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNo
 done:
 	ctxt->nodeMax = 0;
 	ctxt->nodeNr = 0;
-	if(ctxt->nodeTab != NULL) {
-		SAlloc::F(ctxt->nodeTab);
-		ctxt->nodeTab = NULL;
+	if(ctxt->PP_NodeTab != NULL) {
+		SAlloc::F(ctxt->PP_NodeTab);
+		ctxt->PP_NodeTab = NULL;
 	}
 	return ret;
 }
@@ -5154,7 +5154,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, 
 				    ret = 0;
 				    break;
 				case XML_ELEMENT_TYPE_EMPTY:
-				    xmlErrValidNode(ctxt, state->node, XML_DTD_NOT_EMPTY, "Element %s was declared EMPTY this one has content\n", state->node->name, 0, 0);
+				    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_NOT_EMPTY, "Element %s was declared EMPTY this one has content\n", state->P_Node->name, 0, 0);
 				    ret = 0;
 				    break;
 				case XML_ELEMENT_TYPE_ANY:
@@ -5163,13 +5163,13 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, 
 				case XML_ELEMENT_TYPE_MIXED:
 				    /* simple case of declared as #PCDATA */
 				    if((elemDecl->content != NULL) && (elemDecl->content->type == XML_ELEMENT_CONTENT_PCDATA)) {
-					    xmlErrValidNode(ctxt, state->node, XML_DTD_NOT_PCDATA, "Element %s was declared #PCDATA but contains non text nodes\n", state->node->name, 0, 0);
+					    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_NOT_PCDATA, "Element %s was declared #PCDATA but contains non text nodes\n", state->P_Node->name, 0, 0);
 					    ret = 0;
 				    }
 				    else {
 					    ret = xmlValidateCheckMixed(ctxt, elemDecl->content, qname);
 					    if(ret != 1) {
-						    xmlErrValidNode(ctxt, state->node, XML_DTD_INVALID_CHILD, "Element %s is not declared in %s list of possible children\n", qname, state->node->name, 0);
+						    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_INVALID_CHILD, "Element %s is not declared in %s list of possible children\n", qname, state->P_Node->name, 0);
 					    }
 				    }
 				    break;
@@ -5183,7 +5183,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, 
 				    if(state->exec != NULL) {
 					    ret = xmlRegExecPushString(state->exec, qname, 0);
 					    if(ret < 0) {
-						    xmlErrValidNode(ctxt, state->node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Misplaced %s\n", state->node->name, qname, 0);
+						    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Misplaced %s\n", state->P_Node->name, qname, 0);
 						    ret = 0;
 					    }
 					    else {
@@ -5230,7 +5230,7 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 				    ret = 0;
 				    break;
 				case XML_ELEMENT_TYPE_EMPTY:
-				    xmlErrValidNode(ctxt, state->node, XML_DTD_NOT_EMPTY, "Element %s was declared EMPTY this one has content\n", state->node->name, 0, 0);
+				    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_NOT_EMPTY, "Element %s was declared EMPTY this one has content\n", state->P_Node->name, 0, 0);
 				    ret = 0;
 				    break;
 				case XML_ELEMENT_TYPE_ANY:
@@ -5243,7 +5243,7 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 
 					    for(i = 0; i < len; i++) {
 						    if(!IS_BLANK_CH(data[i])) {
-							    xmlErrValidNode(ctxt, state->node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Text not allowed\n", state->node->name, 0, 0);
+							    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Text not allowed\n", state->P_Node->name, 0, 0);
 							    ret = 0;
 							    goto done;
 						    }
@@ -5294,7 +5294,7 @@ int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, 
 				if(state->exec != NULL) {
 					ret = xmlRegExecPushString(state->exec, 0, 0);
 					if(ret == 0) {
-						xmlErrValidNode(ctxt, state->node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Expecting more child\n", state->node->name, 0, 0);
+						xmlErrValidNode(ctxt, state->P_Node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Expecting more child\n", state->P_Node->name, 0, 0);
 					}
 					else {
 						/*

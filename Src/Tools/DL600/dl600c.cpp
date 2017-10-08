@@ -3837,32 +3837,32 @@ int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDa
 		THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
 		if(CurDict) {
 			if(!CurDict->CreateTableSpec(&tbl)) {
-				(msg_buf = tbl.tableName).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
+				(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
 				SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
 				CALLEXCEPT();
 			}
-			if(!(tbl.flags & XTF_TEMP) && !(tbl.flags & XTF_DICT)) {
+			if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
 				if(!CurDict->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
-					(msg_buf = tbl.fileName).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
+					(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
 					SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
 					CALLEXCEPT();
 				}
 			}
 		}
 		if(p_sqlgen) {
-			p_sqlgen->CreateTable(tbl, tbl.tableName);
+			p_sqlgen->CreateTable(tbl, tbl.GetTableName());
 			p_sqlgen->Eos().Cr();
 			uint j;
-			for(j = 0; j < tbl.indexes.getNumKeys(); j++) {
-				p_sqlgen->CreateIndex(tbl, tbl.tableName, j);
+			for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
+				p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
 				p_sqlgen->Eos();
 			}
 			p_sqlgen->Cr();
 			if(sqlst == sqlstORA) {
-				for(j = 0; j < tbl.fields.getCount(); j++) {
-					TYPEID _t = tbl.fields[j].T;
+				for(j = 0; j < tbl.GetFields().getCount(); j++) {
+					TYPEID _t = tbl.GetFields()[j].T;
 					if(GETSTYPE(_t) == S_AUTOINC) {
-						p_sqlgen->CreateSequenceOnField(tbl, tbl.tableName, j, 0);
+						p_sqlgen->CreateSequenceOnField(tbl, tbl.GetTableName(), j, 0);
 						p_sqlgen->Eos();
 					}
 				}

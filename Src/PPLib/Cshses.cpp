@@ -1921,7 +1921,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	VatRate = 0;
 	LocPrnID = 0;
 	AsscPosNodeID = 0;
-	AddedMsgList.clear(1);
+	AddedMsgList.clear();
 	LabelName.Z();
 	memzero(LocPrnSymb, sizeof(LocPrnSymb));
 	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));

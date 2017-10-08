@@ -1513,7 +1513,7 @@ DBQuery * SLAPI PPViewBudget::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 
 	if(Filt.Kind == BudgetFilt::kBudget) {
 		THROW(P_TempBudgTbl);
-		THROW(CheckTblPtr(tt = new TempBudgetTbl(P_TempBudgTbl->fileName)));
+		THROW(CheckTblPtr(tt = new TempBudgetTbl(P_TempBudgTbl->GetName())));
 		q = &select(
 			tt->ID,
 			tt->Name,
@@ -1530,7 +1530,7 @@ DBQuery * SLAPI PPViewBudget::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 			q = PPView::CrosstabDbQueryStub;
 		}
 		else {
-			THROW(CheckTblPtr(tit = new TempBudgItemTbl(P_TempBudgItemTbl->fileName)));
+			THROW(CheckTblPtr(tit = new TempBudgItemTbl(P_TempBudgItemTbl->GetName())));
 			q = &select(
 				tit->ID,
 				tit->Acc,

@@ -260,7 +260,7 @@ struct _xmlSchemaAttribute {
     int occurs; /* Deprecated; not used */
     const xmlChar *defValue; /* The initial value of the value constraint */
     xmlSchemaTypePtr subtypes; /* the type definition */
-    xmlNode * node;
+    xmlNode * P_Node;
     const xmlChar *targetNamespace;
     int flags;
     const xmlChar *refPrefix; /* Deprecated; not used */
@@ -308,7 +308,7 @@ struct _xmlSchemaWildcard {
     xmlSchemaTypeType type;        /* The kind of type */
     const xmlChar *id; /* Deprecated; not used */
     xmlSchemaAnnotPtr annot;
-    xmlNode * node;
+    xmlNode * P_Node;
     int minOccurs; /* Deprecated; not used */
     int maxOccurs; /* Deprecated; not used */
     int processContents;
@@ -368,7 +368,7 @@ struct _xmlSchemaAttributeGroup {
     xmlSchemaAnnotPtr annot;
 
     xmlSchemaAttributePtr attributes; /* Deprecated; not used */
-    xmlNode * node;
+    xmlNode * P_Node;
     int flags;
     xmlSchemaWildcardPtr attributeWildcard;
     const xmlChar *refPrefix; /* Deprecated; not used */
@@ -609,7 +609,7 @@ struct _xmlSchemaType {
     xmlSchemaAnnotPtr annot;
     xmlSchemaTypePtr subtypes;
     xmlSchemaAttributePtr attributes; /* Deprecated; not used */
-    xmlNode * node;
+    xmlNode * P_Node;
     int minOccurs; /* Deprecated; not used */
     int maxOccurs; /* Deprecated; not used */
 
@@ -824,7 +824,7 @@ struct _xmlSchemaFacet {
     const xmlChar *value; /* The original value */
     const xmlChar *id; /* Obsolete */
     xmlSchemaAnnotPtr annot;
-    xmlNode * node;
+    xmlNode * P_Node;
     int fixed; /* XML_SCHEMAS_FACET_PRESERVE, etc. */
     int whitespace;
     xmlSchemaValPtr val; /* The compiled value */

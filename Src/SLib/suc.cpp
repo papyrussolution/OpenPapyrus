@@ -669,7 +669,7 @@ int SLAPI SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapE
 	return ok;
 }
 
-int SLAPI SCodepageMapPool::SearchMapSeq(const TSArray <MapEntry> & rSeq, uint * pPos) const
+int SLAPI SCodepageMapPool::SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const
 {
     int    ok = 0;
     const  uint _c = rSeq.getCount();
@@ -711,8 +711,8 @@ int SLAPI SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFil
 	int    has_b3 = 0;
 	uint8  mbml = 0;
 	uint8  mbml_fallback = 0;
-	TSArray <MapEntry> map_list;
-	TSArray <MapEntry> fallback_list;
+	TSVector <MapEntry> map_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <MapEntry> fallback_list; // @v9.8.4 TSArray-->TSVector
 
 	MEMSZERO(two_c_start);
 	MEMSZERO(four_c_start);

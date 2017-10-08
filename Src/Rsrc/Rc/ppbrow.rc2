@@ -490,7 +490,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_BILLS,           "Документы списания\tF5"
+	PAYMENT          :  kbF5,       TBBM_BILLS,           "@{document_wroff_pl}\tF5"
 	COMPARE          :  kbCtrlC,    TBBM_COMPARE,         "Сравнение документов\tCtrl-C"
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "Объединение документов\tCtrl-U"
@@ -1344,8 +1344,8 @@ browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 	"Водитель/Капитан", 5, notype, 0, 20
 	"@country",         6, notype, 0, 15
 	"@number",          7, notype, 0, 15
-	"Номер прицепа",    8, notype, 0, 15
-	"Грузоподъемность", 9, notype, NMBF_NOZERO, 8.3
+	"@transport_trailercode", 8, notype, 0, 15
+	"Грузоподъемность",       9, notype, NMBF_NOZERO, 8.3
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM                : kbEnter, TBBM_EDIT,         "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   TBBM_INSERT,       "@{add}\tInsert"
@@ -3155,7 +3155,7 @@ browser GOODSOPER_CMPWITHRECEIPT north(100), 3, 1, "Товарный отчет со сравнением
 		"@sumcost_s",    5, notype, NMBF_NOZERO, 10.2
 		"@sumprice_s",   6, notype, NMBF_NOZERO, 10.2
 	}
-	group "Документы списания" {
+	group "@document_wroff_pl" {
 		"@qtty",         4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 		"@sumcost_s",   13, notype, NMBF_NOZERO, 10.2
 		"@sumprice_s",  10, notype, NMBF_NOZERO, 10.2
@@ -3987,7 +3987,7 @@ browser SALARY north(100), 2, 1, "Начисление зарплаты", OWNER|GRID, 0
 	"@person_position",  4, notype, 0, 10
 	"Вид начисления",    5, notype, 0, 10
 	"@amount",           6, notype, 0, 10.2
-	"Документ списания", 7, notype, 0, 12
+	"@document_wroff",   7, notype, 0, 12
 	toolbar SALARY
 }
 
@@ -4084,7 +4084,7 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 	VIEWGOODSTAXANLZ : kbShiftF4, TBBM_NOICON,        "Налоговый отчет по списанию\tShift-F4"
 	CCHECKS          : kbAltF4,   TBBM_CCHECKS,       "Чеки по всей выборке сессий\tAlt-F4"
 	separator
-	WROFFBILLS       : kbF5,      TBBM_BILLS,         "Документы списания\tF5"
+	WROFFBILLS       : kbF5,      TBBM_BILLS,         "@{document_wroff_pl}\tF5"
 	WROFFBILLSALL    : kbCtrlF5,  TBBM_BILLS,         "Документы списания по всей выборке\tCtrl-F5"
 	DFCTBILLS        : kbShiftF5, TBBM_DFCTBILLS,     "Документы покрытия дефицита\tShift-F5"
 	separator
@@ -4112,8 +4112,8 @@ browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 	"@date",              1, notype, 0, 8
 	"Номер\nсмены",       2, notype, 0, 6
 	"@posnode",          10, notype, 0, 8
-	"Номер\nкассы",       3, notype, NMBF_NOZERO, 6
-	"Завер-\nшенность",   4, notype, 0, 9
+	"@posnodeno",         3, notype, NMBF_NOZERO, 6
+	"Завершенность",      4, notype, 0, 9
 	"Сумма\nчеков",       5, notype, NMBF_NOZERO, 10.2
 	group "В том числе" {
 		"Безналичн оплата",      9, notype, NMBF_NOZERO, 10.2
@@ -4131,8 +4131,8 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 	"@date",               1, notype, 0, 8
 	"Номер\nсмены",        2, notype, 0, 6
 	"@posnode",           16, notype, 0, 8
-	"Номер\nкассы",        3, notype, 0, 6
-	"Завер-\nшенность",    4, notype, 0, 9
+	"@posnodeno",          3, notype, 0, 6
+	"Завершенность",       4, notype, 0, 9
 	"Кол-во\nчеков",      12, notype, 0, 6
 	group "Суммы чеков" {
 		"Продажи",    13, notype, NMBF_NOZERO, 10.2
@@ -5167,7 +5167,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		separator
 		COMPLETE    : kbCtrlF8,  TBBM_COMPLETECSESS, "Рассчитать автоматическое списание\tCtrl-F8"
 		WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,    "@{dowriteoffsess}\tCtrl-W"
-		WROFFBILLS  : kbF5,      TBBM_BILLS,         "Документы списания\tF5"
+		WROFFBILLS  : kbF5,      TBBM_BILLS,         "@{document_wroff_pl}\tF5"
 		DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,     "Документы покрытия дефицита\tShift-F5"
 		CHECKPAN    : kbF8,      TBBM_CCHECKS,       "Загрузка сессии в кассовую панель\tF8"
 		separator
@@ -5224,7 +5224,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		separator
 		COMPLETE    : kbCtrlF8,  TBBM_CHARGE,        "Cформировать автоматически\tCtrl-F8"
 		//WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,    "@{dowriteoffsess}\tCtrl-W"
-		//WROFFBILLS  : kbF5,      TBBM_BILLS,         "Документы списания\tF5"
+		//WROFFBILLS  : kbF5,      TBBM_BILLS,         "@{document_wroff_pl}\tF5"
 		//DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,     "Документы покрытия дефицита\tShift-F5"
 		CHECKPAN    : kbF8,      TBBM_CCHECKS,       "Загрузка сессии в кассовую панель\tF8"
 		separator
@@ -5491,7 +5491,7 @@ browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 		EDITPRC        : kbF2,      TBBM_PRC,         "@{processor}\tF2"
 		WROFFSESS      : kbCtrlW,   TBBM_CLOSECSESS,  "@{dowriteoffsess}\tCtrl-W"
 		DELETEITEM     : kbDel,     TBBM_DELETE,      "Удалить/Откатить списание\tDelete"
-		WROFFBILLS     : kbF5,      TBBM_BILLS,       "Документы списания\tF5"
+		WROFFBILLS     : kbF5,      TBBM_BILLS,       "@{document_wroff_pl}\tF5"
 		DFCTBILLS      : kbShiftF5, TBBM_DFCTBILLS,   "Документы покрытия дефицита\tShift-F5"
 		CHECKPAN       : kbF8,      TBBM_CCHECKS,     "Загрузка сессии в кассовую панель\tF8"
 		VIEWTSESS      : kbCtrlS,   TBBM_TSESS,       "Все сессии процессора\tCtrl-S"
@@ -7335,7 +7335,7 @@ record SBIIBillRow {
 	BillID   long                  "Ид документа";
 	GoodsID  long                  "@{goodsid}";
 	StorageP long                  "@{storageplace}";
-	Number   long                  "Номер";
+	Number   long                  "@{number}";
 	Serial   zstring(16)           "Серийный номер/штрихкод";
 	Expiry   date                  "@{expirationdate}";
 	Time     zstring(6)            "Время создания";
@@ -7769,7 +7769,7 @@ record CPosHeader {
 }
 
 record CPosTable {
-	_id        long                "Номер столика";
+	_id        long                "@{ctableno}";
 	Name       zstring(32)         "Наименование столика";
 	GuestCount long                "Количество гостей";
 	Flags      long                "@{flags}";
@@ -7792,7 +7792,7 @@ record CPosGoodsGroup {
 
 record CPosCheck {
 	_id        long                "@{id}";
-	TableId    long                "Номер столика";
+	TableId    long                "@{ctableno}";
 	GuestCount long                "Количество гостей";
 	Number     long                "@{checkno}";
 	SCardId    long                "Ид дискотной карты";

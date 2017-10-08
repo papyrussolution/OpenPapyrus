@@ -306,14 +306,14 @@ int PrcFreeListDialog::setupList()
 		ss.clear();
 		ss.add(entry.ToStr(sub.Z()), 0);
 		long   dur = entry.GetDuration();
-		sub = 0;
+		sub.Z();
 		if(dur >= 0) {
 			LTIME tm_dur;
 			tm_dur.settotalsec(dur);
 			sub.Cat(tm_dur);
 		}
 		ss.add(sub, 0);
-		sub = 0;
+		sub.Z();
 		if(Capacity > 0 && dur > 0)
 			sub.Cat(Capacity * dur, MKSFMTD(0, 3, NMBF_NOTRAILZ | NMBF_NOZERO));
 		ss.add(sub, 0);

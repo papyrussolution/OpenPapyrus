@@ -642,7 +642,7 @@ int SLAPI CrosstabProcessor::Finish()
 		long   tab_type = Filt.TabType;
 		IterCounter counter;
 		TempPrjTaskTbl::Key0 k, k_;
-		THROW(CheckTblPtr(p_tbl = new TempPrjTaskTbl(P_TempTbl->fileName)));
+		THROW(CheckTblPtr(p_tbl = new TempPrjTaskTbl(P_TempTbl->GetName())));
 		BExtQuery q(p_tbl, 0);
 		q.select(p_tbl->StartDt, p_tbl->ClientID, p_tbl->EmployerID, p_tbl->TabParam, 0L);
 		MEMSZERO(k);
@@ -1639,7 +1639,7 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		DBE    dbe_psn_cli, dbe_psn_emp;
 
 		brw_id = (Filt.Kind == TODOKIND_TEMPLATE) ? BROWSER_PRJTASKTEMPL : BROWSER_PRJTASK;
-		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->fileName)));
+		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
 		THROW(CheckTblPtr(t = new PrjTaskTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_cli, PPDbqFuncPool::IdObjNamePerson, t->ClientID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_emp, PPDbqFuncPool::IdObjNamePerson, t->EmployerID);

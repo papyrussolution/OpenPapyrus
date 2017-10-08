@@ -12,7 +12,7 @@ int FASTCALL StringSet::Alloc(size_t sz)
 {
 	int    ok = 1;
 	if(sz == 0) {
-		clear(1);
+		clear();
 	}
 	else if(sz > Size) {
 		size_t new_size = SnapUpSize(sz);
@@ -204,7 +204,7 @@ int FASTCALL StringSet::setBuf(const SString & rBuf)
 int SLAPI StringSet::setBuf(const void * b, size_t len)
 {
 	int    ok = 1;
-	clear(1);
+	clear();
 	if(len) {
 		assert(b);
 		assert(PTR8(b)[len-1] == 0);
@@ -230,31 +230,19 @@ int SLAPI StringSet::setBuf(const void * b, size_t len)
 	return ok;
 }
 
-void FASTCALL StringSet::clear(int dontFreeBuf)
+void SLAPI StringSet::destroy()
 {
-	if(!dontFreeBuf) {
-		ZFREE(P_Buf);
-		Size = 0;
-	}
+	ZFREE(P_Buf);
+	Size = 0;
 	DataLen = 0;
 }
 
-int SLAPI StringSet::sort()
+void SLAPI StringSet::clear(/*int dontFreeBuf*/)
 {
-	StrAssocArray temp_list;
-	SString str;
-	uint   i;
-	long   id = 0;
-	for(i = 0; get(&i, str);)
-		temp_list.Add(++id, str);
-	temp_list.SortByText();
-	clear(1);
-	for(i = 0; i < temp_list.getCount(); i++)
-		add(temp_list.at(i).Txt);
-	return 1;
+	DataLen = 0;
 }
 
-int SLAPI StringSet::sortAndUndup()
+void SLAPI StringSet::sort()
 {
 	StrAssocArray temp_list;
 	SString str;
@@ -263,7 +251,21 @@ int SLAPI StringSet::sortAndUndup()
 	for(i = 0; get(&i, str);)
 		temp_list.Add(++id, str);
 	temp_list.SortByText();
-	clear(1);
+	clear();
+	for(i = 0; i < temp_list.getCount(); i++)
+		add(temp_list.at(i).Txt);
+}
+
+void SLAPI StringSet::sortAndUndup()
+{
+	StrAssocArray temp_list;
+	SString str;
+	uint   i;
+	long   id = 0;
+	for(i = 0; get(&i, str);)
+		temp_list.Add(++id, str);
+	temp_list.SortByText();
+	clear();
 	str = 0;
 	for(i = 0; i < temp_list.getCount(); i++) {
 		const char * p_item = temp_list.at(i).Txt;
@@ -272,7 +274,6 @@ int SLAPI StringSet::sortAndUndup()
 		}
 		str = p_item;
 	}
-	return 1;
 }
 
 int SLAPI StringSet::reverse()
@@ -281,7 +282,7 @@ int SLAPI StringSet::reverse()
 	SString temp_buf;
 	StringSet temp_ss;
 	temp_ss = *this;
-	temp_ss.clear(1);
+	temp_ss.clear();
 	LongArray pos_list;
 	uint prev_pos = 0;
 	uint pos = 0;
@@ -587,13 +588,13 @@ SStrGroup & FASTCALL SStrGroup::CopyS(const SStrGroup & rS)
 
 void SLAPI SStrGroup::ClearS()
 {
-	Pool.clear(1);
+	Pool.clear();
 	Pool.add("$"); // zero index - is empty string
 }
 
 void SLAPI SStrGroup::DestroyS()
 {
-	Pool.clear(0);
+	Pool.destroy();
 	Pool.add("$"); // zero index - is empty string
 }
 

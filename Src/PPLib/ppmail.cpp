@@ -1459,7 +1459,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(sd_buf);
 		_PUTS(temp_buf, out);
 	}
-	PutField(PPMAILFLD_FROM, pMsg->GetField(SMailMsg::fldFrom), buf);
+	PutField(PPMAILFLD_FROM, pMsg->GetField(SMailMsg::fldFrom, temp_buf), buf);
 	_PUTS(buf, out);
 	{
 		char   ver_text[64];
@@ -1473,11 +1473,10 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 		PutField(PPMAILFLD_MESSAGEID, temp_buf, buf);
 		_PUTS(buf, out);
 	}
-	PutField(PPMAILFLD_TO, pMsg->GetField(SMailMsg::fldTo), buf);
+	PutField(PPMAILFLD_TO, pMsg->GetField(SMailMsg::fldTo, temp_buf), buf);
 	_PUTS(buf, out);
 	{
-		temp_buf = pMsg->GetField(SMailMsg::fldSubj);
-		if(temp_buf == SUBJECTDBDIV) {
+		if(pMsg->GetField(SMailMsg::fldSubj, temp_buf) == SUBJECTDBDIV) {
 			//
 			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
 			// обновлений во всех разделах, то дабы более старые версии могли принять почту из 7.6.3 и выше,
@@ -1513,7 +1512,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 			_PUTS(buf, out);
 			_PUTS(0, out); // Empty line
 		}
-		_PUTS(pMsg->GetField(SMailMsg::fldText), out);
+		_PUTS(pMsg->GetField(SMailMsg::fldText, temp_buf), out);
 		_PUTS(0, out); // Empty line
 	}
 	if(is_attach) {
@@ -1586,12 +1585,11 @@ int SLAPI PPMailSmtp::SendMsgFromFile(SMailMsg * pMsg, const char * pFileName, M
 	THROW_PP(in = fopen(pFileName, "rt"), PPERR_CANTOPENFILE);
 	is_attach = (pMsg->Flags & SMailMsg::fMultipart) ? 1 : 0;
 
-	temp_buf.Z().CatChar('<').Cat(pMsg->GetField(SMailMsg::fldFrom)).CatChar('>');
+	temp_buf.Z().CatChar('<').Cat(pMsg->GetField(SMailMsg::fldFrom, buf)).CatChar('>');
 	THROW(SendCmd(SMTPCMD_MAIL, temp_buf, buf));
 	{
 		SString addr_buf;
-		temp_buf = pMsg->GetField(SMailMsg::fldTo);
-		StringSet ss(',', temp_buf);
+		StringSet ss(',', pMsg->GetField(SMailMsg::fldTo, temp_buf));
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			addr_buf.Z().CatChar('<').Cat(temp_buf.Strip()).CatChar('>');
 			THROW(SendCmd(SMTPCMD_RCPT, addr_buf, buf));

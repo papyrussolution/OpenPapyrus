@@ -1982,7 +1982,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	}
 	else {
 		if(P_TrAnlzTbl) {
-			THROW(CheckTblPtr(tat = new TempTrfrAnlzTbl(P_TrAnlzTbl->fileName)));
+			THROW(CheckTblPtr(tat = new TempTrfrAnlzTbl(P_TrAnlzTbl->GetName())));
 			PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, tat->ArticleID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, tat->OpID);
 			if(Flags & fAsGoodsCard) {
@@ -2020,7 +2020,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 				PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tat->LocID);
 				brw_id = BROWSER_TRFRANLZ;
 				if(P_OrderTbl)
-					THROW(CheckTblPtr(tot = new TempOrderTbl(P_OrderTbl->fileName)));
+					THROW(CheckTblPtr(tot = new TempOrderTbl(P_OrderTbl->GetName())));
 				{
 					dbe_cost.init();
 					dbe_cost.push(tat->Qtty);
@@ -2132,7 +2132,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 				case TrfrAnlzFilt::gBillCntragent: brw_id = BROWSER_TRFRGR_BP; break;
 			}
 			DBFieldList fld_list;
-			THROW(CheckTblPtr(tgt = new TempTrfrGrpngTbl(P_TrGrpngTbl->fileName)));
+			THROW(CheckTblPtr(tgt = new TempTrfrGrpngTbl(P_TrGrpngTbl->GetName())));
 			fld_list.Add(tgt->ID__);       //  #0
 			fld_list.Add(tgt->GoodsID);    //  #1
 			fld_list.Add(tgt->PersonID);   //  #2
@@ -2221,7 +2221,7 @@ DBQuery * SLAPI PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSub
 				q->addField(tgt->ID__);      // #24 @stub // @v9.3.5 #20-->21 // @v9.4.10 #21-->#24
 			}
 			if(P_OrderTbl) {
-				THROW(CheckTblPtr(tot = new TempOrderTbl(P_OrderTbl->fileName)));
+				THROW(CheckTblPtr(tot = new TempOrderTbl(P_OrderTbl->GetName())));
 				q->from(tot, tgt, 0L).where(tgt->ID__ == tot->ID).orderBy(tot->Name, 0L);
 			}
 			else
@@ -3137,7 +3137,7 @@ int TrfrAnlzCtDialog::setupList()
 	StringSet text_list(';', CtValNames);
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0, j = 1; ok && text_list.get(&i, buf) > 0; j++) {
-		ss.clear(1);
+		ss.clear();
 		ss.add(buf);
 		buf.Z().CatChar(Data.CtValList.CheckID(j) ? 'v' : ' ');
 		ss.add(buf);

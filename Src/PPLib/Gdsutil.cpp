@@ -2292,7 +2292,7 @@ void QuotationDialog::updatePage()
 			SString temp_buf;
 			StringSet ss(SLBColumnDelim);
 			for(uint i = 0; i < Data.getCount(); i++) {
-				ss.clear(1);
+				ss.clear();
 				const PPQuot & r_q = Data.at(i);
 				if(r_q.Kind == Spc.PredictCoeffID && r_q.LocID == SelLocID && !r_q.Period.IsZero()) {
 					ss.add(temp_buf.Z().Cat(r_q.Period, 1));

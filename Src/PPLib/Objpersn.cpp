@@ -654,8 +654,8 @@ public:
 		}
 		selectCtrl(CTL_LBXSEL_LIST);
 	}
-	int    setDTS(const TSArray <PPPersonConfig::NewClientDetectionItem> *);
-	int    getDTS(TSArray <PPPersonConfig::NewClientDetectionItem> *);
+	int    setDTS(const TSVector <PPPersonConfig::NewClientDetectionItem> *);
+	int    getDTS(TSVector <PPPersonConfig::NewClientDetectionItem> *);
 private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
@@ -663,7 +663,7 @@ private:
 	virtual int setupList();
 	int    Edit(PPPersonConfig::NewClientDetectionItem * pItem, SString & rStr);
 
-	TSArray <PPPersonConfig::NewClientDetectionItem> Data;
+	TSVector <PPPersonConfig::NewClientDetectionItem> Data; // @v9.8.4 TSArray-->TSVector
 };
 
 class NewPersMarksFieldDialog : public TDialog {
@@ -857,7 +857,7 @@ int NewPersMarksDialog::setupList()
 	return ok;
 }
 
-int NewPersMarksDialog::setDTS(const TSArray <PPPersonConfig::NewClientDetectionItem> * pData)
+int NewPersMarksDialog::setDTS(const TSVector <PPPersonConfig::NewClientDetectionItem> * pData)
 {
 	Data.freeAll();
 	if(pData)
@@ -866,26 +866,24 @@ int NewPersMarksDialog::setDTS(const TSArray <PPPersonConfig::NewClientDetection
 	return 1;
 }
 
-int NewPersMarksDialog::getDTS(TSArray <PPPersonConfig::NewClientDetectionItem> * pData)
+int NewPersMarksDialog::getDTS(TSVector <PPPersonConfig::NewClientDetectionItem> * pData)
 {
-	if(pData)
-		pData->copy(Data);
+	CALLPTRMEMB(pData, copy(Data));
 	return 1;
 }
 
-PPPersonConfig::PPPersonConfig()
+SLAPI PPPersonConfig::PPPersonConfig()
 {
 	Init();
 }
 
-int PPPersonConfig::Init()
+void SLAPI PPPersonConfig::Init()
 {
 	memzero(this, offsetof(PPPersonConfig, TopFolder));
 	TopFolder = 0;
 	AddImageFolder = 0;
 	DlvrAddrExtFldList.freeAll();
 	NewClientDetectionList.freeAll();
-	return 1;
 }
 
 //static
@@ -895,17 +893,13 @@ int SLAPI PPObjPerson::EditConfig()
 	public:
 		PersonCfgDialog() : TDialog(DLG_PSNCFG)
 		{
-			FileBrowseCtrlGroup::Setup(this, CTLBRW_PSNCFG_FOLDER, CTL_PSNCFG_FOLDER,
-				GRP_PERSONFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
-			FileBrowseCtrlGroup::Setup(this, CTLBRW_PSNCFG_IMGFOLDER, CTL_PSNCFG_IMGFOLDER,
-				GRP_IMGFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_PSNCFG_FOLDER, CTL_PSNCFG_FOLDER, GRP_PERSONFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_PSNCFG_IMGFOLDER, CTL_PSNCFG_IMGFOLDER, GRP_IMGFOLD, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 			enableCommand(cmOK, CheckCfgRights(PPCFGOBJ_PERSON, PPR_MOD, 0));
 		}
 		int setDTS(const PPPersonConfig * pData)
 		{
-			if(pData)
-				Data = *pData;
-			else
+			if(!RVALUEPTR(Data, pData))
 				Data.Init();
 			setCtrlString(CTL_PSNCFG_FOLDER,    Data.TopFolder);
 			setCtrlString(CTL_PSNCFG_IMGFOLDER, Data.AddImageFolder);
@@ -1017,7 +1011,7 @@ SLAPI PPObjPerson::~PPObjPerson()
 int SLAPI PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & rS2, long flags)
 {
 	int    eq = 1;
-	if(!P_Tbl->fields.IsEqualRecords(&rS1.Rec, &rS2.Rec))
+	if(!P_Tbl->GetFields().IsEqualRecords(&rS1.Rec, &rS2.Rec))
 		eq = 0;
 	else if(rS1.Kinds != rS2.Kinds)
 		eq = 0;
@@ -3403,7 +3397,7 @@ int AddrListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; ok && Data.EnumDlvrLoc(&i, &loc_pack);) {
 		WorldTbl::Rec w_rec;
-		ss.clear(1);
+		ss.clear();
 		ss.add(temp_buf.Z().Cat(loc_pack.ID));
 		ss.add((w_obj.Fetch(loc_pack.CityID, &w_rec) > 0) ? w_rec.Name : 0);
 		LocationCore::GetExField(&loc_pack, LOCEXSTR_SHORTADDR, temp_buf.Z());
@@ -5364,7 +5358,7 @@ int PersonRelListDialog::setupList()
 	LAssoc * p_item;
 	for(uint i = 0; p_rel_list->enumItems(&i, (void **)&p_item);) {
 		PPPersonRelType reltyp_rec;
-		ss.clear(1);
+		ss.clear();
 		GetPersonName(p_item->Key, sub);
 		ss.add(sub);
 		if(SearchObject(PPOBJ_PERSONRELTYPE, p_item->Val, &reltyp_rec) > 0)

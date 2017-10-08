@@ -436,9 +436,8 @@ int FASTCALL SdRecord::Copy(const SdRecord & rSrc)
 		else
 			P_DataBuf = 0;
 	}
-	else {
-		THROW(SetDataBuf(rSrc.P_DataBuf, rSrc.OuterDataBufSize));
-	}
+	else
+		SetDataBuf(rSrc.P_DataBuf, rSrc.OuterDataBufSize);
 	CATCHZOK
 	return ok;
 }
@@ -537,12 +536,11 @@ size_t SdRecord::GetRecSize() const
 	return RecSize;
 }
 
-int SdRecord::SetDataBuf(void * pBuf, size_t bufSize)
+void SdRecord::SetDataBuf(void * pBuf, size_t bufSize)
 {
 	DestroyDataBuf();
 	P_DataBuf = pBuf;
 	OuterDataBufSize = bufSize;
-	return 1;
 }
 
 int SdRecord::AllocDataBuf()
@@ -810,8 +808,7 @@ int SdRecord::EnumFields(uint * pPos, SdbField * pFld) const
 int SdRecord::GetFieldByID(uint id, uint * pPos, SdbField * pFld) const
 {
 	uint   pos = 0;
-	if(pFld)
-		pFld->Init();
+	CALLPTRMEMB(pFld, Init());
 	if(Items.lsearch(&id, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pPos, pos);
 		return GetFieldByPos(pos, pFld);
@@ -831,9 +828,7 @@ int SdRecord::GetFieldByName(const char * pName, SdbField * pFld) const
 	// спецификацию const для этой функции.
 	//
 	SString temp_buf = pName;
-	// @v7.0.3 temp_buf.ToUpper();
-	if(pFld)
-		pFld->Init();
+	CALLPTRMEMB(pFld, Init());
 	return (SearchName(temp_buf, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0;
 }
 

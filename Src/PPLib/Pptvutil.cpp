@@ -6951,7 +6951,7 @@ void OpenEditFileDialog::SetupReservList()
 	if(p_reserv_box) {
 		for(SEnum en = DS.EnumRFileInfo(); en.Next(&fi) > 0;) {
 			if(fi.Flags & PPRFILEF_TEXT) {
-				ss.clear(1);
+				ss.clear();
 				ss.add(fi.Name);
 				if(fi.PathID) {
 					PPGetPath(fi.PathID, temp_buf);

@@ -9,7 +9,7 @@
 int SLAPI SuprWareFilt::InitInstance()
 {
 	SetFlatChunk(offsetof(SuprWareFilt, ReserveStart), offsetof(SuprWareFilt, SrchStr) - offsetof(SuprWareFilt, ReserveStart));
-	SetBranchSArray(offsetof(SuprWareFilt, TypeIDList));
+	SetBranchSVector(offsetof(SuprWareFilt, TypeIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	SetBranchSString(offsetof(SuprWareFilt, SrchStr));
 	return Init(1, 0);
 }

@@ -647,7 +647,7 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 	return ok;
 }
 
-int CPosProcessor::Backend_GetCCheckList(long ctblId, TSArray <CCheckViewItem> & rList)
+int CPosProcessor::Backend_GetCCheckList(long ctblId, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
 
@@ -684,7 +684,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
-	TSArray <CCheckViewItem> cc_list;
+	TSVector <CCheckViewItem> cc_list;
 	LongArray ctbl_list;
 	if(CTblList.getCount()) {
 		for(i = 0; i < CTblList.getCount(); i++) {
@@ -757,7 +757,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 
-	TSArray <CCheckViewItem> cc_list;
+	TSVector <CCheckViewItem> cc_list;
 	THROW(Backend_GetCCheckList(ctblId, cc_list));
 	//
 	THROW(p_xml_buf = xmlBufferCreate());
@@ -968,7 +968,7 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 	return ok;
 }
 
-int CPosProcessor::GetTblOrderList(LDATE lastDate, TSArray <CCheckViewItem> & rList)
+int CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
 	CCheckFilt cc_filt;
@@ -4360,7 +4360,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 					long   focus_pos = 0;
 					for(uint i = 0; i < r_entry.GenericList.getCount(); i++) {
 						const PPID goods_id = r_entry.GenericList.at(i).Key;
-						ss.clear(1);
+						ss.clear();
 						GetGoodsName(goods_id, temp_buf);
 						ss.add(temp_buf);
 						ss.add(temp_buf.Z().Cat(r_entry.GenericList.at(i).Val, SFMT_MONEY));
@@ -4443,7 +4443,7 @@ int ComplexDinnerDialog::setupList()
 	for(uint i = 0; i < Data.getCount(); i++) {
 		const SaComplexEntry & r_entry = Data.at(i);
 		const PPID goods_id = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
-		ss.clear(1);
+		ss.clear();
 		GetGoodsName(goods_id, temp_buf);
 		ss.add(temp_buf);
 		ss.add(temp_buf.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
@@ -4516,7 +4516,7 @@ public:
 		SETFLAG(State, stSelectSlipFormat, (selectFormat > 0));
 		Init(pCm);
 	}
-	SelCheckListDialog(uint dlgId, const TSArray <CCheckViewItem> * pChkList, int selToUnite, CPosProcessor * pSrv, const AddedParam * pAddParam = 0) :
+	SelCheckListDialog(uint dlgId, const TSVector <CCheckViewItem> * pChkList, int selToUnite, CPosProcessor * pSrv, const AddedParam * pAddParam = 0) :
 		PPListDialog(dlgId, CTL_SELCHECK_LIST)
 	{
 		Helper_Constructor(pSrv, pAddParam);
@@ -4533,7 +4533,7 @@ public:
 		delete P_Cto;
 	}
 	int    getDTS(_SelCheck * pSelCheck);
-	int    setList(const TSArray <CCheckViewItem> & rChkList)
+	int    setList(const TSVector <CCheckViewItem> & rChkList)
 	{
 		int    ok = -1;
 		if(State & stOuterList) {
@@ -4595,7 +4595,7 @@ private:
 	PPObjGoods GObj;
 	CTableOrder * P_Cto;
 	StrAssocArray FmtList;
-	TSArray <CCheckViewItem> ChkList;
+	TSVector <CCheckViewItem> ChkList;
 	long   LastChkNo;
 	PPID   LastChkID;
 	LDATE  LastDate;
@@ -5021,7 +5021,7 @@ int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 		ListItem * p_item = 0;
 		pListBox->freeAll();
 		for(uint i = 0; pList->enumItems(&i, (void**)&p_item) > 0;) {
-			ss.clear(1);
+			ss.clear();
 			GetGoodsName(p_item->GoodsID, temp_buf);
 			ss.add(temp_buf, 0);
 			ss.add(temp_buf.Z().Cat(p_item->Price), 0);
@@ -5160,7 +5160,7 @@ int SelCheckListDialog::UniteChecks()
 	getCurItem(0, &chk1_id);
 	if(chk1_id && ChkList.getCount() > 1 && oneof2(resourceID, DLG_SELSUSCHECK_L, DLG_SELSUSCHECK)) {
 		uint   pos = 0;
-		TSArray <CCheckViewItem> list;
+		TSVector <CCheckViewItem> list;
 		THROW_PP(!P_AddParam || P_AddParam->Rights & CheckPaneDialog::orfMergeChecks, PPERR_NORIGHTS); // @v8.5.5
 		list.copy(ChkList);
 		THROW_SL(list.lsearch(&chk1_id, &pos, PTR_CMPFUNC(long)) > 0);
@@ -5637,7 +5637,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 					StringSet ss(SLBColumnDelim);
 					for(uint i = 0; i < Data.getCount(); i++) {
 						const AddrByPhoneItem & r_entry = Data.at(i);
-						ss.clear(1);
+						ss.clear();
 						sc_list.clear();
 						if(r_entry.ObjType == PPOBJ_LOCATION) {
 							PPLoadString("address", temp_buf);
@@ -6587,7 +6587,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID */0, P.TableCode, P.GetAgentID(), OperRightsFlags);
 							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
-							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (TSArray <CCheckViewItem> *)0, 0, this, &param);
+							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (TSVector <CCheckViewItem> *)0, 0, this, &param);
 							if(CheckDialogPtrErr(&dlg)) {
 								if(ExecView(dlg) == cmNewCheck) {
 									_SelCheck sc;
@@ -7392,7 +7392,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 	if(IsState(sEMPTYLIST_EMPTYBUF)) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		TSArray <CCheckViewItem> list;
+		TSVector <CCheckViewItem> list;
 		SelCheckListDialog::AddedParam param(/* @v8.4.3 CashNodeID*/0, P.TableCode, single_agent_id, OperRightsFlags);
 		THROW(InitCcView());
 		const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELSUSCHECK_L : DLG_SELSUSCHECK;
@@ -8017,7 +8017,7 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 		}
 		*/
 		for(i = 0; P.enumItems(&i, (void**)&p_item);) {
-			ss.clear(1);
+			ss.clear();
 			char   sub[256];
 			ss.add(itoa((int)i, sub, 10));
 			sub[0] = (p_item->Flags & cifIsPrinted) ? 'v' : ' ';
@@ -8472,8 +8472,8 @@ void CheckPaneDialog::SelectGoods__(int mode)
 							SString sub;
 							StringSet ss(SLBColumnDelim);
 							for(uint i = 0; i < List.getCount(); i++) {
-								ss.clear(1);
-								SaModifEntry & r_entry = List.at(i);
+								ss.clear();
+								const SaModifEntry & r_entry = List.at(i);
 								GetGoodsName(r_entry.GoodsID, sub);
 								ss.add(sub);
 								ss.add(sub.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, 0)));

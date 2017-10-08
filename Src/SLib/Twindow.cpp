@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // WIN32
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -14,11 +14,9 @@
 
 TMenuPopup::TMenuPopup()
 {
-	H = 0;
 	State = 0;
 	Count = 0;
-	HMENU h_menu = ::CreatePopupMenu();
-	H = (uint32)h_menu;
+	H = (uint32)::CreatePopupMenu();
 }
 
 TMenuPopup::~TMenuPopup()
@@ -117,8 +115,8 @@ int TWindow::LocalMenuPool::GetCtrlIdByButtonId(uint buttonId, uint * pCtrlId) c
 {
 	int    ok = 0;
 	if(buttonId) {
-		Item * p_item = 0;
-		for(uint i = 0; !ok && List.enumItems(&i, (void **)&p_item);) {
+		for(uint i = 0; !ok && i < List.getCount(); i++) {
+			const Item * p_item = (const Item *)List.at(i);
 			if(p_item->ButtonId == buttonId && p_item->CtrlId) {
 				ASSIGN_PTR(pCtrlId, p_item->CtrlId);
 				ok = 1;
@@ -132,8 +130,8 @@ int TWindow::LocalMenuPool::GetButtonIdByCtrlId(uint ctrlId, uint * pButtonId) c
 {
 	int    ok = 0;
 	if(ctrlId) {
-		Item * p_item = 0;
-		for(uint i = 0; !ok && List.enumItems(&i, (void **)&p_item);) {
+		for(uint i = 0; !ok && i < List.getCount(); i++) {
+			const Item * p_item = (const Item *)List.at(i);
 			if(p_item->CtrlId == ctrlId && p_item->ButtonId) {
 				ASSIGN_PTR(pButtonId, p_item->ButtonId);
 				ok = 1;
@@ -148,10 +146,10 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 	int    ok = 1;
 	if(P_Win) {
 		uint   sel = 0;
-		Item * p_item;
 		SString text;
 		TMenuPopup menu;
-		for(uint i = 0; ok > 0 && List.enumItems(&i, (void **)&p_item);) {
+		for(uint i = 0; ok > 0 && i < List.getCount(); i++) {
+			const Item * p_item = (const Item *)List.at(i);
 			if(p_item->ButtonId == buttonId && p_item->StrPos) {
 				if(p_item->CtrlId) {
 					TView * p_view = P_Win->getCtrlView(p_item->CtrlId);
@@ -175,7 +173,7 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 //
 //
 //
-ToolbarList::ToolbarList() : SArray(sizeof(ToolbarItem))
+ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)) // @v9.8.4 SArray-->SVector
 	{ Bitmap = 0; }
 
 void ToolbarList::setBitmap(uint b)
@@ -212,11 +210,12 @@ uint ToolbarList::getVisibleItemsCount() const
 int ToolbarList::enumItems(uint * pIdx, ToolbarItem * pItem)
 {
 	ToolbarItem * p_item;
-	if(SArray::enumItems(pIdx, (void**)&p_item) > 0) {
+	if(SVector::enumItems(pIdx, (void**)&p_item) > 0) {
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int ToolbarList::searchKeyCode(ushort keyCode, uint * pIdx) const
@@ -842,9 +841,9 @@ int TWindow::invalidateRegion(const SRegion & rRgn, int erase)
 	return ::InvalidateRgn(HW, h_rgn, erase);
 }
 
-int TWindow::invalidateAll(int erase)
+void FASTCALL TWindow::invalidateAll(int erase)
 {
-	return ::InvalidateRect(HW, 0, erase ? TRUE : FALSE);
+	::InvalidateRect(HW, 0, erase ? TRUE : FALSE);
 }
 
 int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)

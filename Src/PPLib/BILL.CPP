@@ -476,7 +476,7 @@ int SLAPI BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 {
 	int    ok = -1, do_update = 0;
 	BillTbl::Rec rec;
-	if(flags) {
+	if(flag) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SearchByID(this, PPOBJ_BILL, billID, &rec) > 0); // @v8.1.4 SearchByID_ForUpdate-->SearchByID

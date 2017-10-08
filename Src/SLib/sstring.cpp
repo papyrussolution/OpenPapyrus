@@ -1054,7 +1054,7 @@ int FASTCALL STokenizer::IsDelim(uint16 chr) const
 	return 0;
 }
 
-void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSArray <uint16> & rBuf)
+void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
 {
 	AddTokenBuf = 0;
 	const uint bc = rBuf.getCount();
@@ -1068,7 +1068,7 @@ void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSArray <uint16> & rBuf)
 	}
 }
 
-int FASTCALL STokenizer::AddToken(TSArray <uint16> & rBuf, int tokType)
+int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType)
 {
 	int    ok = 1;
 	const  uint bc = rBuf.getCount();
@@ -1155,7 +1155,7 @@ int SLAPI STokenizer::IndexResources(int force)
 	return ok;
 }
 
-int SLAPI STokenizer::ProcessSearchToken(TSArray <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
 {
 	int    ok = -1;
 	if(tokType != tokDelim) {
@@ -2682,11 +2682,14 @@ SString & SLAPI SString::Excise(size_t start, size_t size)
 
 SString & SLAPI SString::Chomp()
 {
-	if(Last() == '\n') {
+	const char _last = Last();
+	if(_last == '\xA') {
 		TrimRight();
-		if(Last() == '\r')
+		if(Last() == '\xD')
 			TrimRight();
 	}
+	else if(_last == '\xD')
+		TrimRight();
 	return *this;
 }
 

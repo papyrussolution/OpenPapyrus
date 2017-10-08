@@ -3077,7 +3077,7 @@ private:
 	PPIDArray * P_LogNumList;
 	xmlDoc  * P_Doc;
 	xmlNode * P_CurRec;
-	xmlTextReaderPtr P_Reader;
+	xmlTextReader * P_Reader;
 };
 
 SLAPI XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer)
@@ -4224,7 +4224,7 @@ private:
 	long   ZRepsCount;
 	xmlDoc  * P_Doc;
 	xmlNode * P_CurRec;
-	xmlTextReaderPtr P_Reader;
+	xmlTextReader * P_Reader;
 };
 
 SLAPI XmlZRepReader::XmlZRepReader(const char * pPath)

@@ -46,7 +46,7 @@ typedef enum {
 XMLPUBFUN void XMLCALL xmlFreePattern(xmlPattern * comp);
 XMLPUBFUN void XMLCALL xmlFreePatternList(xmlPattern * comp);
 XMLPUBFUN xmlPatternPtr XMLCALL xmlPatterncompile(const xmlChar *pattern, xmlDict *dict, int flags, const xmlChar **namespaces);
-XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPatternPtr comp, xmlNode * node);
+XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPatternPtr comp, xmlNode * P_Node);
 
 /* streaming interfaces */
 typedef struct _xmlStreamCtxt xmlStreamCtxt;

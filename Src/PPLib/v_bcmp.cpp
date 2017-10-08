@@ -9,8 +9,8 @@
 IMPLEMENT_PPFILT_FACTORY(GoodsBillCmp); SLAPI GoodsBillCmpFilt::GoodsBillCmpFilt() : PPBaseFilt(PPFILT_GOODSBILLCMP, 0, 1)
 {
 	SetFlatChunk(offsetof(GoodsBillCmpFilt, ReserveStart), offsetof(GoodsBillCmpFilt, Reserve)+sizeof(Reserve)-offsetof(GoodsBillCmpFilt, ReserveStart));
-	SetBranchSArray(offsetof(GoodsBillCmpFilt, LhBillList));
-	SetBranchSArray(offsetof(GoodsBillCmpFilt, RhBillList));
+	SetBranchSVector(offsetof(GoodsBillCmpFilt, LhBillList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(GoodsBillCmpFilt, RhBillList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
 	Init(1, 0);
 }
 
@@ -255,7 +255,7 @@ DBQuery * SLAPI PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * 
 {
 	uint   brw_id = BROWSER_GBILLCMP;
 	DBQuery * q = 0;
-	TempGoodsBillCmpTbl * tbl = new TempGoodsBillCmpTbl(P_TempTbl->fileName);
+	TempGoodsBillCmpTbl * tbl = new TempGoodsBillCmpTbl(P_TempTbl->GetName());
 	DBE * dbe_minus_qtty  = &(tbl->DiffQtty * -1);
 	DBE * dbe_minus_price = &(tbl->DiffPrice * -1);
 	q = & select(

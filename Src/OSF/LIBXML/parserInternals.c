@@ -1427,22 +1427,22 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 	ctxt->directory = NULL;
 
 	/* Allocate the Node stack */
-	if(ctxt->nodeTab == NULL) {
-		ctxt->nodeTab = (xmlNode **)SAlloc::M(10 * sizeof(xmlNode *));
+	if(ctxt->PP_NodeTab == NULL) {
+		ctxt->PP_NodeTab = (xmlNode **)SAlloc::M(10 * sizeof(xmlNode *));
 		ctxt->nodeMax = 10;
 	}
-	if(ctxt->nodeTab == NULL) {
+	if(ctxt->PP_NodeTab == NULL) {
 		xmlErrMemory(NULL, "cannot initialize parser context\n");
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
 		return -1;
 	}
 	ctxt->nodeNr = 0;
-	ctxt->node = NULL;
+	ctxt->P_Node = NULL;
 
 	/* Allocate the Name stack */
 	if(ctxt->nameTab == NULL) {
@@ -1453,7 +1453,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 		xmlErrMemory(NULL, "cannot initialize parser context\n");
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
@@ -1474,7 +1474,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 		xmlErrMemory(NULL, "cannot initialize parser context\n");
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
-		ctxt->node = NULL;
+		ctxt->P_Node = NULL;
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
@@ -1525,7 +1525,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 	}
 	ctxt->record_info = 0;
 	ctxt->nbChars = 0;
-	ctxt->checkIndex = 0;
+	ctxt->CheckIndex = 0;
 	ctxt->inSubset = 0;
 	ctxt->errNo = XML_ERR_OK;
 	ctxt->depth = 0;
@@ -1556,7 +1556,7 @@ void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 		}
 		SAlloc::F(ctxt->spaceTab);
 		SAlloc::F((xmlChar**)ctxt->nameTab);
-		SAlloc::F(ctxt->nodeTab);
+		SAlloc::F(ctxt->PP_NodeTab);
 		SAlloc::F(ctxt->nodeInfoTab);
 		SAlloc::F(ctxt->inputTab);
 		SAlloc::F((char*)ctxt->version);
@@ -1570,7 +1570,7 @@ void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 	#endif /* LIBXML_SAX1_ENABLED */
 			SAlloc::F(ctxt->sax);
 		SAlloc::F((char*)ctxt->directory);
-		SAlloc::F(ctxt->vctxt.nodeTab);
+		SAlloc::F(ctxt->vctxt.PP_NodeTab);
 		SAlloc::F((xmlChar**)ctxt->atts);
 		xmlDictFree(ctxt->dict);
 		SAlloc::F((char*)ctxt->nsTab);
@@ -1660,14 +1660,14 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
  *
  * Returns an xmlParserNodeInfo block pointer or NULL
  */
-const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNode * node)
+const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNode * P_Node)
 {
 	unsigned long pos;
-	if(!ctx || !node)
+	if(!ctx || !P_Node)
 		return 0;
 	/* Find position where node should be at */
-	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, node);
-	if(pos < ctx->node_seq.length && ctx->node_seq.buffer[pos].node == node)
+	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, P_Node);
+	if(pos < ctx->node_seq.length && ctx->node_seq.buffer[pos].P_Node == P_Node)
 		return &ctx->node_seq.buffer[pos];
 	else
 		return NULL;
@@ -1711,11 +1711,11 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  *
  * Returns a long indicating the position of the record
  */
-unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * node)
+unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * P_Node)
 {
 	unsigned long upper, lower, middle;
 	int found = 0;
-	if(!seq || !node)
+	if(!seq || !P_Node)
 		return ((unsigned long)-1);
 	/* Do a binary search for the key */
 	lower = 1;
@@ -1723,15 +1723,15 @@ unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, cons
 	middle = 0;
 	while(lower <= upper && !found) {
 		middle = lower + (upper - lower) / 2;
-		if(node == seq->buffer[middle - 1].node)
+		if(P_Node == seq->buffer[middle - 1].P_Node)
 			found = 1;
-		else if(node < seq->buffer[middle - 1].node)
+		else if(P_Node < seq->buffer[middle - 1].P_Node)
 			upper = middle - 1;
 		else
 			lower = middle + 1;
 	}
 	/* Return position */
-	if(middle == 0 || seq->buffer[middle - 1].node < node)
+	if(middle == 0 || seq->buffer[middle - 1].P_Node < P_Node)
 		return middle;
 	else
 		return middle - 1;
@@ -1747,8 +1747,8 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 {
 	if(ctxt && info) {
 		/* Find pos and check to see if node is already in the sequence */
-		unsigned long pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->node);
-		if((pos < ctxt->node_seq.length) && (ctxt->node_seq.buffer != NULL) && (ctxt->node_seq.buffer[pos].node == info->node)) {
+		unsigned long pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->P_Node);
+		if((pos < ctxt->node_seq.length) && (ctxt->node_seq.buffer != NULL) && (ctxt->node_seq.buffer[pos].P_Node == info->P_Node)) {
 			ctxt->node_seq.buffer[pos] = *info;
 		}
 		/* Otherwise, we need to add new node to buffer */

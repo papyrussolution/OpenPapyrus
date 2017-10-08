@@ -186,8 +186,8 @@ int SLAPI PPTableConversion::Convert()
 		SPathStruc path_struc;
 		THROW(DS.GetSync().LockDB());
 		db_locked = 1;
-		SString tbl_name = p_tbl->tableName;
-		const SString file_name = p_tbl->fileName;
+		SString tbl_name = p_tbl->GetTableName();
+		const SString file_name = p_tbl->GetName();
 		DestroyTable(p_tbl);
 		p_tbl = 0;
 
@@ -241,7 +241,7 @@ int SLAPI PPTableConversion::Convert()
 			THROW_DB(p_cr_tbl->IsOpened());
 			ZDELETE(p_cr_tbl);
 			THROW_MEM(p_tbl = CreateTableInstance(0));
-			p_tbl->flags |= XTF_DISABLEOUTOFTAMSG; // @v8.9.10
+			p_tbl->SetFlag(XTF_DISABLEOUTOFTAMSG); // @v8.9.10
 			THROW_MEM(p_old_tbl = new DBTable(0, old_fname_to_convert, omNormal/*, p*/));
 			rec_size = 4096;
 			p_old_tbl->getNumRecs(&num_recs);
@@ -266,7 +266,7 @@ int SLAPI PPTableConversion::Convert()
 				} while(p_old_tbl->step(spNext));
 			}
 			THROW(Final(p_tbl));
-			p_tbl->flags &= ~XTF_DISABLEOUTOFTAMSG; // @v8.9.10
+			p_tbl->ResetFlag(XTF_DISABLEOUTOFTAMSG); // @v8.9.10
 		}
 	}
 	else

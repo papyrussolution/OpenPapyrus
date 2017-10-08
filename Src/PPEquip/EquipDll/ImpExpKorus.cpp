@@ -565,7 +565,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	int    ok = 1;
 	SString str;
 	StRlnConfig * p_rln_cfg = 0;
-	xmlTextReaderPtr p_xml_ptr;
+	xmlTextReader * p_xml_ptr;
 	xmlParserInputBufferPtr p_input = 0;
 	xmlNode * p_node;
 	RlnCfgList.freeAll();
@@ -2107,7 +2107,7 @@ int ImportCls::ListMessageBox(uint messageType)
 	int    ok = -1;
 	uint   pos = 0;
 
-	xmlTextReaderPtr p_xml_ptr = 0;
+	xmlTextReader * p_xml_ptr = 0;
 	xmlParserInputBufferPtr p_input = 0;
 	//MessageInfoBlock * p_info_blk = 0;
 
@@ -2626,7 +2626,7 @@ int ImportCls::ParseAperakResp(const char * pResp)
 {
 	int    ok = 1;
 	SString str;
-	xmlTextReaderPtr p_xml_ptr;
+	xmlTextReader * p_xml_ptr;
 	xmlParserInputBufferPtr p_input = 0;
 	xmlNode * p_node;
 	AperakInfo.Clear();

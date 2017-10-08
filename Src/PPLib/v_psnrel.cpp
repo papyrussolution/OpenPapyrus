@@ -394,8 +394,8 @@ DBQuery * SLAPI PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBQ  * dbq = 0;
 	DBE    dbe_psn1, dbe_psn2;
 	uint   brw_id = BROWSER_PERSONREL;
-	THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->fileName)));
-	THROW(CheckTblPtr(t = new TempPersonRelTbl(P_TempTbl->fileName)));
+	THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
+	THROW(CheckTblPtr(t = new TempPersonRelTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn1, PPDbqFuncPool::IdObjNamePerson, t->PrmrPersonID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn2, PPDbqFuncPool::IdObjNamePerson, t->ScndPersonID);
 	dbq = &(*dbq && t->ID == p_ord->ID);

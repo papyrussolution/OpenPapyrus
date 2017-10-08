@@ -682,7 +682,7 @@ DBQuery * SLAPI PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSu
 		dbe_chargegrp,  // #08
 		0);
 	if(P_TempTbl) {
-		p_temp_tbl = new TempOrderTbl(P_TempTbl->fileName);
+		p_temp_tbl = new TempOrderTbl(P_TempTbl->GetName());
 		dbq = &(p_tbl->ID == p_temp_tbl->ID);
 		q->from(p_temp_tbl, p_tbl, 0L).where(*dbq);
 	}

@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -54,12 +54,11 @@ int SLAPI STab::Row::IsConsistent() const
 	return BIN(Sign == STAB_ROW_SIGN);
 }
 
-int SLAPI STab::Row::Clear()
+void SLAPI STab::Row::Clear()
 {
 	PosList.clear();
-	Set.clear(1);
+	Set.clear();
 	Set.add("$."); // Zero position is invalid
-	return 1;
 }
 
 int FASTCALL STab::Row::Add(const char * pStr)
