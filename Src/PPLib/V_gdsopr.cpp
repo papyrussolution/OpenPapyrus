@@ -2115,6 +2115,13 @@ private:
 	PPViewGoodsOpAnalyze * P_V;
 };
 
+struct __GoaBillEntry {
+	PPID   BillID;
+	int    IsPaym;
+	double Payment;
+	double Part;
+};
+
 int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 {
 	assert(pUfpFactors != 0);
@@ -2234,12 +2241,6 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		}
 		{
 			// @v9.8.4 {
-			struct __GoaBillEntry {
-				PPID   BillID;
-				int    IsPaym;
-				double Payment;
-				double Part;
-			};
 			TSVector <__GoaBillEntry> bill_entry_list;
 			// } @v9.8.4 
 			for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
