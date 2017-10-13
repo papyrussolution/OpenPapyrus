@@ -2854,7 +2854,7 @@ int RFIDDevPrcssr::Run()
 								double amount = 0;
 								ScObj.P_Tbl->GetRest(sc_rec.ID, ZERODATE, &amount);
 								if((amount - price) > 0.0) {
-									TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+									TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 									SCardCore::OpBlock op_blk;
 									op_blk.SCardID = sc_rec.ID;
 									op_blk.PrevRest = amount;

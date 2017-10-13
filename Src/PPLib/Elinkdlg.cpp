@@ -22,10 +22,10 @@ int SLAPI EditELink(PPELink * pLink)
 			else {
 				valid_data = 1;
 				if(pLink->KindID == PPELK_EMAIL) {
-					PPTokenRecognizer tr;
-					PPNaturalTokenArray nta;
+					STokenRecognizer tr;
+					SNaturalTokenArray nta;
 					tr.Run((const uchar *)pLink->Addr, -1, nta, 0);
-					if(nta.Has(PPNTOK_EMAIL) == 0.0f) {
+					if(nta.Has(SNTOK_EMAIL) == 0.0f) {
 						valid_data = PPSetError(PPERR_INVEMAILADDR, pLink->Addr);
 						PPErrorByDialog(dlg, CTL_ELINK_ADDR);
 					}
@@ -217,10 +217,10 @@ int ELinkDialog::getDTS(PPELinkArray * pData)
 		getCtrlData(sel = (i * 3 + 3 + WINDOWS_ID_BIAS), p_item->Addr);
 		strip(p_item->Addr);
 		if(p_item->KindID == PPELK_EMAIL && p_item->Addr[0]) {
-			PPTokenRecognizer tr;
-			PPNaturalTokenArray nta;
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
 			tr.Run((const uchar *)p_item->Addr, -1, nta, 0);
-			THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
+			THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
 		}
 	}
 	for(int j = data.getCount() - 1; j >= 0; j--) {

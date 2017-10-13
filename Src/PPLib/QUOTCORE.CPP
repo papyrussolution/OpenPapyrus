@@ -3095,7 +3095,7 @@ int SLAPI Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, i
 int SLAPI Quotation2Core::ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = -1;
-	TSArray <Quot2RelTbl::Rec> rel_list;
+	TSVector <Quot2RelTbl::Rec> rel_list; // @v9.8.4 TSArray-->TSVector
 	if(objType == PPOBJ_ARTICLE) {
 		Quot2RelTbl::Key3 k3;
 		MEMSZERO(k3);

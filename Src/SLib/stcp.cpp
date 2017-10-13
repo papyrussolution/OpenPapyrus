@@ -1167,7 +1167,7 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 						rBuf.Cat(temp_buf).CatChar(':').CatCharN('/', 3);
 					else if(Protocol == protMailto)
 						rBuf.Cat(temp_buf).CatChar(':');
-					else 
+					else
 						rBuf.Cat(p_scheme).CatChar(':').CatCharN('/', 2);
 					result |= cScheme;
 				}
@@ -1213,16 +1213,105 @@ int InetUrl::Composite(long flags, SString & rBuf) const
 //
 //
 //
-SMailMsg::Disposition::Disposition()
+SLAPI SMailMessage::ContentDispositionBlock::ContentDispositionBlock()
 {
-	Type = tUnkn;
-	CreationDtm.SetZero();
-	ModifDtm.SetZero();
-	ReadDtm.SetZero();
-	Size = 0;
+	Destroy();
 }
 
-SLAPI SMailMsg::SMailMsg()
+void SLAPI SMailMessage::ContentDispositionBlock::Destroy()
+{
+	Type = tUnkn;
+	NameP = 0;
+	FileNameP = 0;
+	Size = 0;
+	ModifDtm.SetZero();
+	CrDtm.SetZero();
+	RdDtm.SetZero();
+}
+
+SLAPI SMailMessage::ContentTypeBlock::ContentTypeBlock()
+{
+	Destroy();
+}
+
+void SLAPI SMailMessage::ContentTypeBlock::Destroy()
+{
+	MimeP = 0;
+	TypeP = 0;
+	NameP = 0;
+	BoundaryP = 0;
+	Cp = cpUndef;
+}
+
+SLAPI SMailMessage::Boundary::Boundary()
+{
+	LineNo_Start = 0;
+	LineNo_Finish = 0;
+	P_Parent = 0;
+	ContentTransfEnc = SFileFormat::cteUndef;
+}
+
+void SLAPI SMailMessage::Boundary::Destroy()
+{
+	Ct.Destroy();
+	Cd.Destroy();
+	ContentTransfEnc = SFileFormat::cteUndef;
+	LineNo_Start = 0;
+	LineNo_Finish = 0;
+	P_Parent = 0;
+	Data.Destroy();
+	Children.freeAll();
+}
+
+uint SLAPI SMailMessage::Boundary::GetAttachmentCount() const
+{
+	uint   c = 0;
+	if(Cd.Type == Cd.tAttachment)
+		c++;
+	for(uint i = 0; i < Children.getCount(); i++) {
+		const Boundary * p_child = Children.at(i);
+		if(p_child)
+			c += p_child->GetAttachmentCount(); // @recursion
+	}
+	return c;
+}
+
+const SMailMessage::Boundary * FASTCALL SMailMessage::Boundary::Helper_GetAttachmentByIndex(int & rIdx /*0..*/) const
+{
+	const SMailMessage::Boundary * p_result = 0;
+	if(Cd.Type == Cd.tAttachment) {
+		if(rIdx == 0)
+			p_result = this;
+		else
+			rIdx--;
+	}
+	for(uint i = 0; !p_result && rIdx >= 0 && i < Children.getCount(); i++) {
+		const Boundary * p_child = Children.at(i);
+		if(p_child)
+			p_result = p_child->Helper_GetAttachmentByIndex(rIdx);
+	}
+	return p_result;
+}
+
+const SMailMessage::Boundary * FASTCALL SMailMessage::Boundary::GetAttachmentByIndex(uint idx /*0..*/) const
+{
+	int    iidx = (int)idx;
+	return Helper_GetAttachmentByIndex(iidx);
+}
+
+SLAPI SMailMessage::ParserBlock::ParserBlock()
+{
+	Destroy();
+}
+
+void SLAPI SMailMessage::ParserBlock::Destroy()
+{
+	State = 0;
+	LineNo = 0;
+	P_B = 0;
+}
+
+SLAPI SMailMessage::SMailMessage()
 {
 	Flags = 0;
 	Size = 0;
@@ -1230,24 +1319,23 @@ SLAPI SMailMsg::SMailMsg()
 	Init();
 }
 
-SLAPI SMailMsg::~SMailMsg()
+SLAPI SMailMessage::~SMailMessage()
 {
 	Init();
 }
 
-void SLAPI SMailMsg::Init()
+void SLAPI SMailMessage::Init()
 {
 	Flags = 0;
 	Size = 0;
 	MEMSZERO(HFP);
-	Dtm.SetZero();
-	ContentLangId = 0;
-	BL.clear();
+	B.Destroy();
 	AttachPosL.clear();
 	ReceivedChainL.clear();
+	ClearS();
 }
 
-SString & SLAPI SMailMsg::MakeBoundaryCode(SString & rBuf) const
+SString & SLAPI SMailMessage::MakeBoundaryCode(SString & rBuf) const
 {
 	rBuf.Z();
 	uint16 hash[16];
@@ -1267,10 +1355,10 @@ SString & SLAPI SMailMsg::MakeBoundaryCode(SString & rBuf) const
 	return rBuf;
 }
 
-SString & SLAPI SMailMsg::GetBoundary(int start, SString & rBuf) const
+SString & SLAPI SMailMessage::GetBoundary(int start, SString & rBuf) const
 {
 	rBuf.Z();
-	if(HFP.BoundaryP) {
+	if(B.Ct.BoundaryP) {
 		GetField(fldBoundary, rBuf);
 		if(start == 1 || start == 2)
 			rBuf.Insert(0, "--");
@@ -1280,12 +1368,12 @@ SString & SLAPI SMailMsg::GetBoundary(int start, SString & rBuf) const
 	return rBuf;
 }
 
-int SLAPI SMailMsg::IsPpyData() const
+int SLAPI SMailMessage::IsPpyData() const
 {
 	return (Flags & (fPpyOrder | fPpyObject)) ? 1 : 0;
 }
 
-int SLAPI SMailMsg::AttachFile(const char * pFileName)
+int SLAPI SMailMessage::AttachFile(const char * pFileName)
 {
 	int    ok = 0;
 	if(fileExists(pFileName)) {
@@ -1298,7 +1386,7 @@ int SLAPI SMailMsg::AttachFile(const char * pFileName)
 	return ok;
 }
 
-int SLAPI SMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
+int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & rFullPath)
 {
 	rFileName.Z();
 	rFullPath.Z();
@@ -1319,45 +1407,45 @@ int SLAPI SMailMsg::EnumAttach(uint * pPos, SString & rFileName, SString & rFull
 	return ok;
 }
 
-int SLAPI SMailMsg::SetField(int fldId, const char * pVal)
+int SLAPI SMailMessage::SetField(int fldId, const char * pVal)
 {
 	SString temp_buf;
 	switch(fldId) {
-		case fldFrom: 
-			//(From = pVal).Strip(); 
+		case fldFrom:
+			//(From = pVal).Strip();
 			AddS(temp_buf.Strip(), &HFP.FromP);
 			break;
-		case fldTo:   
-			//(To = pVal).Strip(); 
+		case fldTo:
+			//(To = pVal).Strip();
 			AddS(temp_buf.Strip(), &HFP.ToP);
 			break;
-		case fldCc:   
-			//(Cc = pVal).Strip(); 
+		case fldCc:
+			//(Cc = pVal).Strip();
 			AddS(temp_buf.Strip(), &HFP.CcP);
 			break;
-		case fldSubj: 
-			//(Subj = pVal).Strip(); 
+		case fldSubj:
+			//(Subj = pVal).Strip();
 			AddS(temp_buf.Strip(), &HFP.SubjP);
 			break;
-		case fldMailer: 
-			//(Mailer = pVal).Strip(); 
+		case fldMailer:
+			//(Mailer = pVal).Strip();
 			AddS(temp_buf.Strip(), &HFP.MailerP);
 			break;
-		case fldBoundary: 
-			//(Boundary = pVal).Strip(); 
-			AddS(temp_buf.Strip(), &HFP.BoundaryP);
+		case fldBoundary:
+			//(Boundary = pVal).Strip();
+			AddS(temp_buf.Strip(), &B.Ct.BoundaryP);
 			break;
-		case fldText: 
-			//(Text = pVal).Strip(); 
+		case fldText:
+			//(Text = pVal).Strip();
 			//AddS(temp_buf.Strip(), &HFP.TextP);
 			break;
-		default: 
+		default:
 			return 0;
 	}
 	return 1;
 }
 
-int FASTCALL SMailMsg::IsField(int fldId) const
+int FASTCALL SMailMessage::IsField(int fldId) const
 {
 	switch(fldId) {
 		/*case fldFrom: return From.NotEmpty();
@@ -1372,13 +1460,13 @@ int FASTCALL SMailMsg::IsField(int fldId) const
 		case fldCc:   return BIN(HFP.CcP);
 		case fldSubj: return BIN(HFP.SubjP);
 		case fldMailer: return BIN(HFP.MailerP);
-		case fldBoundary: return BIN(HFP.BoundaryP);
+		case fldBoundary: return BIN(B.Ct.BoundaryP);
 		//case fldText: return Text.NotEmpty();
 	}
 	return 0;
 }
 
-SString & SLAPI SMailMsg::GetField(int fldId, SString & rBuf) const
+SString & SLAPI SMailMessage::GetField(int fldId, SString & rBuf) const
 {
 	uint   _p = 0;
 	switch(fldId) {
@@ -1396,18 +1484,56 @@ SString & SLAPI SMailMsg::GetField(int fldId, SString & rBuf) const
 		case fldCc:   _p = HFP.CcP; break;
 		case fldSubj: _p = HFP.SubjP; break;
 		case fldMailer: _p = HFP.MailerP; break;
-		case fldBoundary: _p = HFP.BoundaryP; break;
+		case fldBoundary: _p = B.Ct.BoundaryP; break;
 		//case fldText: return Text.NotEmpty() ? Text.cptr() : Zero;
 	}
 	GetS(_p, rBuf);
 	return rBuf;
 }
 
-int SLAPI SMailMsg::CmpField(int fldId, const char * pStr, size_t len) const
+int SLAPI SMailMessage::CmpField(int fldId, const char * pStr, size_t len) const
 {
 	SString temp_buf;
 	GetField(fldId, temp_buf);
 	return temp_buf.NotEmpty() ? strnicmp(pStr, temp_buf, (len) ? len : temp_buf.Len()) : 0;
+}
+
+int SLAPI SMailMessage::IsFrom(const char * pEmail) const
+{
+	int    ok = 0;
+	if(!isempty(pEmail)) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run((const uchar *)pEmail, -1, nta, 0);
+		if(nta.Has(SNTOK_EMAIL) > 0.0f) {
+			SString addr;
+			GetS(HFP.FromP, addr);
+			if(addr.NotEmptyS() && addr.Search(pEmail, 0, 1, 0)) {
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI SMailMessage::IsSubj(const char * pSubj, int substr) const
+{
+	int    ok = 0;
+	if(!isempty(pSubj)) {
+		SString subj;
+		GetS(HFP.SubjP, subj);
+		if(subj.NotEmptyS()) {
+			if(substr) {
+				if(subj.Search(pSubj, 0, 1, 0))
+					ok = 1;
+			}
+			else {
+				if(subj.CmpNC(pSubj) == 0)
+					ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
 static int SLAPI _PUTS(const char * pLine, SFile & rOut)
@@ -1421,7 +1547,7 @@ static int SLAPI _PUTS(const char * pLine, SFile & rOut)
 	return 1;
 }
 
-SString & SLAPI SMailMsg::PutField(const char * pFld, const char * pVal, SString & rBuf)
+SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SString & rBuf)
 {
 	rBuf.Z();
 	if(pVal) {
@@ -1430,31 +1556,553 @@ SString & SLAPI SMailMsg::PutField(const char * pFld, const char * pVal, SString
 	return rBuf;
 }
 
-int SLAPI SMailMsg::ReadFromFile(SFile & rF)
+//static
+int SLAPI SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue)
 {
-	int    ok = -1;
-	SString line_buf;
-	SString full_line;
-	while(rF.ReadLine(line_buf)) {
-		line_buf.Chomp();
-		if(line_buf.Len() && line_buf[0] == '\t' || line_buf[0] == ' ') {
-			if(line_buf[0] == '\t')
-				full_line.Cat(line_buf.cptr()+1);
-			else
-				full_line.Cat(line_buf);
-		}
-		else {
-			// do process full_line
-			//
-			full_line = line_buf;
+	rValue.Z();
+	size_t hl = sstrlen(pHeader);
+	if(hl && rLineBuf.CmpPrefix(pHeader, 1) == 0) {
+		if(rLineBuf[hl] == ':') {
+			hl++;
+			while(rLineBuf[hl] == ' ')
+				hl++;
+			rValue = rLineBuf.cptr() + hl;
+			return 1;
 		}
 	}
-	// do process full_line
-	//
+	return 0;
+}
+
+int SLAPI DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, SBuffer & rBuf)
+{
+	int    ok = 1;
+	const size_t src_len = rLine.Len();
+	if(src_len) {
+		const char * p_src_buf = rLine.cptr();
+		if(contentTransfEnc == SFileFormat::cteQuotedPrintable) {
+			SString temp_buf;
+			rLine.Decode_QuotedPrintable(temp_buf);
+			THROW(rBuf.Write(temp_buf.cptr(), temp_buf.Len()));
+		}
+		else if(contentTransfEnc == SFileFormat::cteBase64) {
+			char   mime_buf[1024];
+			size_t mime_len = 0;
+			rLine.DecodeMime64(mime_buf, sizeof(mime_buf), &mime_len);
+			THROW(rBuf.Write(mime_buf, mime_len));
+		}
+		else {
+			THROW(rBuf.Write(rLine.cptr(), src_len));
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
-int SLAPI SMailMsg::PutToFile(SFile & rF)
+int SLAPI SMailMessage::ProcessInputLine(ParserBlock & rBlk, SString & rLineBuf)
+{
+	int    ok = 1;
+	int    do_read_field = 1;
+	size_t prefix_len = 0;
+	SString temp_buf;
+	SString decode_buf;
+	if(rLineBuf.Empty()) {
+		if(rBlk.State == rBlk.stHeader)
+			rBlk.State = rBlk.stBody;
+		else if(rBlk.State == rBlk.stMimePartHeader)
+			rBlk.State = rBlk.stMimePartBody;
+		else if(oneof2(rBlk.State, rBlk.stBody, rBlk.stMimePartBody)) {
+			if(rBlk.P_B) {
+				THROW(DecodeMimeStringToBuffer(rLineBuf, rBlk.P_B->ContentTransfEnc, rBlk.P_B->Data));
+			}
+		}
+	}
+	else if(rLineBuf[0] == '-' && rLineBuf[1] == '-') {
+		temp_buf = rLineBuf+2;
+		SMailMessage::Boundary * p_b = SearchBoundary(temp_buf);
+		if(p_b) {
+			SString boundary_ident;
+			GetS(p_b->Ct.BoundaryP, boundary_ident);
+			const size_t bl = boundary_ident.Len();
+			if(temp_buf.Len() > bl && temp_buf[bl] == '-' && temp_buf[bl+1] == '-') {
+				//assert(p_b == rBlk.P_B);
+				if(oneof2(rBlk.State, rBlk.stMimePartBody, rBlk.stMimePartHeader)) {
+					rBlk.State = rBlk.stBody;
+				}
+				rBlk.P_B->LineNo_Finish = rBlk.LineNo;
+				rBlk.P_B = rBlk.P_B->P_Parent;
+			}
+			else {
+				rBlk.State = rBlk.stMimePartHeader;
+				Boundary * p_new_b = p_b->Children.CreateNewItem();
+				THROW(p_new_b);
+				p_new_b->P_Parent = p_b;//rBlk.P_B;
+				rBlk.P_B->LineNo_Finish = rBlk.LineNo;
+				rBlk.P_B = p_new_b;
+				rBlk.P_B->LineNo_Start = rBlk.LineNo;
+			}
+		}
+		else { // Лидирующие "--" могут быть просто текстом (но только если мы в rBlk.stBody или rBlk.stMimePartBody
+			if(oneof2(rBlk.State, rBlk.stBody, rBlk.stMimePartBody)) {
+				THROW(DecodeMimeStringToBuffer(rLineBuf, rBlk.P_B->ContentTransfEnc, rBlk.P_B->Data));
+			}
+			else {
+				; // @error
+			}
+		}
+	}
+	else if(oneof2(rBlk.State, rBlk.stBody, rBlk.stMimePartBody)) {
+		THROW(DecodeMimeStringToBuffer(rLineBuf, rBlk.P_B->ContentTransfEnc, rBlk.P_B->Data));
+	}
+	else if(IsFieldHeader(rLineBuf, "Received", temp_buf)) {
+		uint _p = 0;
+		AddS(temp_buf, &_p);
+		ReceivedChainL.insert(&_p);
+	}
+	else if(IsFieldHeader(rLineBuf, "Delivered-To", temp_buf)) {
+		AddS(temp_buf, &HFP.DeliveredToP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Reply-To", temp_buf)) {
+		AddS(temp_buf, &HFP.ReplyToP);
+	}
+	else if(IsFieldHeader(rLineBuf, "X-Original-To", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "From", temp_buf)) {
+		temp_buf.Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+		AddS(decode_buf, &HFP.FromP);
+	}
+	else if(IsFieldHeader(rLineBuf, "To", temp_buf)) {
+		temp_buf.Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+		AddS(decode_buf, &HFP.ToP);
+	}
+	else if(IsFieldHeader(rLineBuf, "CC", temp_buf)) {
+		temp_buf.Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+		AddS(decode_buf, &HFP.CcP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Return-Path", temp_buf)) {
+		AddS(temp_buf, &HFP.ReturnPathP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Subject", temp_buf)) {
+		temp_buf.Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+		AddS(decode_buf, &HFP.SubjP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Thread-Topic", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "Thread-Index", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "Organization", temp_buf)) {
+		AddS(temp_buf, &HFP.OrganizationP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Message-ID", temp_buf)) {
+		AddS(temp_buf, &HFP.MsgIdP);
+	}
+	else if(IsFieldHeader(rLineBuf, "Date", temp_buf)) {
+		strtodatetime(temp_buf, &HFP.Dtm, DATF_INTERNET, TIMF_HMS);
+	}
+	else if(IsFieldHeader(rLineBuf, "User-Agent", temp_buf)) {
+		AddS(temp_buf, &HFP.UserAgentP);
+	}
+	else if(IsFieldHeader(rLineBuf, "x-originating-ip", temp_buf)) {
+		AddS(temp_buf, &HFP.XOrgIpP);
+	}
+	else if(IsFieldHeader(rLineBuf, "MIME-Version", temp_buf)) {
+		HFP.MimeVer.FromStr(temp_buf);
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-Type", temp_buf)) {
+		SString left, right;
+		StringSet ss;
+		temp_buf.Tokenize(";", ss);
+		uint   ssp = 0;
+		if(ss.get(&ssp, temp_buf)) {
+			SString boundary_ident;
+			AddS(temp_buf.Strip(), &rBlk.P_B->Ct.MimeP);
+			while(ss.get(&ssp, temp_buf)) {
+				if(temp_buf.Divide('=', left, right)) {
+					left.Strip();
+					if(left.CmpNC("type") == 0) {
+						AddS(right.Strip().StripQuotes().Strip(), &rBlk.P_B->Ct.TypeP);
+					}
+					if(left.CmpNC("name") == 0) {
+						right.Strip().StripQuotes().Strip().Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+						AddS(decode_buf, &rBlk.P_B->Ct.NameP);
+					}
+					else if(left.CmpNC("boundary") == 0) {
+						boundary_ident = right.Strip().StripQuotes().Strip();
+						//AddS(boundary_ident, &rBlk.P_B->Ct.BoundaryP);
+					}
+					else if(left.CmpNC("charset") == 0) {
+						rBlk.P_B->Ct.Cp.FromStr(right.Strip().StripQuotes());
+					}
+				}
+			}
+			if(boundary_ident.NotEmpty()) {
+				if(rBlk.State == rBlk.stMimePartHeader) {
+					Boundary * p_new_b = rBlk.P_B->Children.CreateNewItem();
+					THROW(p_new_b);
+					AddS(boundary_ident, &p_new_b->Ct.BoundaryP);
+					p_new_b->P_Parent = rBlk.P_B;
+				}
+				else if(rBlk.State == rBlk.stHeader) {
+					AddS(boundary_ident, &rBlk.P_B->Ct.BoundaryP);
+				}
+			}
+		}
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-Language", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "Accept-Language", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-Transfer-Encoding", temp_buf)) {
+		rBlk.P_B->ContentTransfEnc = SFileFormat::IdentifyContentTransferEnc(temp_buf.Strip());
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-Disposition", temp_buf)) {
+		// Content-Disposition: inline; filename="image002.png"; size=4980;creation-date="Tue, 03 Oct 2017 08:41:39 GMT";modification-date="Tue, 03 Oct 2017 08:41:39 GMT"
+		SString left, right;
+		StringSet ss;
+		temp_buf.Tokenize(";", ss);
+		uint   ssp = 0;
+		if(ss.get(&ssp, temp_buf)) {
+			temp_buf.Strip();
+			if(temp_buf.CmpNC("inline") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tInline;
+			else if(temp_buf.CmpNC("attachment") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tAttachment;
+			else if(temp_buf.CmpNC("form-data") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tFormData;
+			else if(temp_buf.CmpNC("signal") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tSignal;
+			else if(temp_buf.CmpNC("alert") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tAlert;
+			else if(temp_buf.CmpNC("icon") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tIcon;
+			else if(temp_buf.CmpNC("render") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tRender;
+			else if(temp_buf.CmpNC("recipient-list-history") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tRecipientListHistory;
+			else if(temp_buf.CmpNC("session") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tSession;
+			else if(temp_buf.CmpNC("aib") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tAIB;
+			else if(temp_buf.CmpNC("early-session") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tEarlySession;
+			else if(temp_buf.CmpNC("recipient-list") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tRecipientList;
+			else if(temp_buf.CmpNC("notification") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tNotification;
+			else if(temp_buf.CmpNC("by-reference") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tByReference;
+			else if(temp_buf.CmpNC("recording-session") == 0)
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tRecordingSession;
+			else
+				rBlk.P_B->Cd.Type = ContentDispositionBlock::tUnkn;
+			while(ss.get(&ssp, temp_buf)) {
+				if(temp_buf.Divide('=', left, right)) {
+					left.Strip();
+					if(left.CmpNC("filename") == 0) {
+						right.Strip().StripQuotes().Strip().Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+						AddS(decode_buf, &rBlk.P_B->Cd.FileNameP);
+					}
+					if(left.CmpNC("name") == 0) {
+						right.Strip().StripQuotes().Strip().Decode_EncodedWordRFC2047(decode_buf, 0, 0);
+						AddS(decode_buf, &rBlk.P_B->Cd.NameP);
+					}
+					else if(left.CmpNC("size") == 0) {
+						rBlk.P_B->Cd.Size = (uint64)right.ToInt64();
+					}
+					else if(left.CmpNC("creation-date") == 0) {
+						strtodatetime(right, &rBlk.P_B->Cd.CrDtm, DATF_INTERNET, TIMF_HMS);
+					}
+					else if(left.CmpNC("modification-date") == 0) {
+						strtodatetime(right, &rBlk.P_B->Cd.ModifDtm, DATF_INTERNET, TIMF_HMS);
+					}
+					else if(left.CmpNC("read-date") == 0) {
+						strtodatetime(right, &rBlk.P_B->Cd.RdDtm, DATF_INTERNET, TIMF_HMS);
+					}
+				}
+			}
+		}
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-Description", temp_buf)) {
+	}
+	else if(IsFieldHeader(rLineBuf, "Content-ID", temp_buf)) {
+	}
+	CATCHZOK
+	return ok;
+}
+
+SMailMessage::Boundary * FASTCALL SMailMessage::SearchBoundary(const SString & rIdent)
+{
+	return Helper_SearchBoundary(rIdent, &B);
+}
+
+SMailMessage::Boundary * SLAPI SMailMessage::Helper_SearchBoundary(const SString & rIdent, Boundary * pB)
+{
+	Boundary * p_result = 0;
+	if(pB) {
+		SString boundary_ident;
+		if(pB->Ct.BoundaryP && GetS(pB->Ct.BoundaryP, boundary_ident) > 0 && rIdent.CmpPrefix(boundary_ident, 1) == 0) {
+			p_result = pB;
+		}
+		else {
+			for(uint i = 0; !p_result && i < pB->Children.getCount(); i++)
+				p_result = Helper_SearchBoundary(rIdent, pB->Children.at(i)); // @recursion
+		}
+	}
+	return p_result;
+}
+
+int SLAPI SMailMessage::ReadFromFile(SFile & rF)
+{
+	int    ok = -1;
+	SString line_buf;
+	SString prev_line;
+	SString full_line;
+	TSStack <Boundary *> boundary_pos_stk;
+	ParserBlock blk;
+	blk.P_B = &B;
+	while(rF.ReadLine(line_buf)) {
+		blk.LineNo++;
+		line_buf.Chomp();
+		if(line_buf.Len() && (line_buf[0] == '\t' || line_buf[0] == ' ')) {
+			if(line_buf[0] == '\t')
+				full_line./*Space().*/Cat(line_buf.cptr()+1);
+			else
+				full_line.Cat(line_buf.cptr()+1);
+		}
+		else {
+			if(blk.LineNo > 1)
+				THROW(ProcessInputLine(blk, full_line));
+			full_line = line_buf;
+		}
+		ok = 1;
+	}
+	THROW(ProcessInputLine(blk, full_line));
+	CATCHZOK
+	return ok;
+}
+
+uint SLAPI SMailMessage::GetAttachmentCount() const
+{
+	return B.GetAttachmentCount();
+}
+
+const SMailMessage::Boundary * FASTCALL SMailMessage::GetAttachmentByIndex(uint attIdx) const
+{
+	return B.GetAttachmentByIndex(attIdx);
+}
+
+int SLAPI SMailMessage::GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const
+{
+	rFileName.Z();
+	int    ok = 0;
+	if(pB) {
+		if(pB->Cd.FileNameP) {
+			GetS(pB->Cd.FileNameP, rFileName);
+			if(rFileName.NotEmpty())
+				ok = 1;
+		}
+		if(!ok && pB->Cd.NameP) {
+			GetS(pB->Cd.NameP, rFileName);
+			if(rFileName.NotEmpty())
+				ok = 2;
+		}
+		if(!ok && pB->Ct.NameP) {
+			GetS(pB->Ct.NameP, rFileName);
+			if(rFileName.NotEmpty())
+				ok = 3;
+		}
+	}
+	return ok;
+}
+
+int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const
+{
+	int    ok = 0;
+	SString result_file_name;
+	const Boundary * p_attm = B.GetAttachmentByIndex(attIdx);
+	if(p_attm) {
+		SString mime_type;
+		SString mime_ext;
+		SString path;
+		SString file_name;
+		if(p_attm->Cd.FileNameP) {
+			GetS(p_attm->Cd.FileNameP, file_name);
+		}
+		if(file_name.Empty() && p_attm->Cd.NameP) {
+			GetS(p_attm->Cd.NameP, file_name);
+		}
+		if(file_name.Empty() && p_attm->Ct.NameP) {
+			GetS(p_attm->Ct.NameP, file_name);
+		}
+		if(p_attm->Ct.MimeP) {
+			GetS(p_attm->Ct.MimeP, mime_type);
+			if(mime_type.NotEmpty()) {
+				SFileFormat ff;
+				if(ff.IdentifyMime(mime_type)) {
+					SFileFormat::GetExt(ff, mime_ext);
+				}
+			}
+		}
+		{
+
+			SPathStruc ps;
+			ps.Split(pDestPath);
+			ps.Nam = 0;
+			ps.Ext = 0;
+			ps.Merge(path);
+			if(file_name.Empty()) {
+				MakeTempFileName(path, "eml", mime_ext, 0, result_file_name);
+			}
+			else {
+				file_name.Transf(CTRANSF_UTF8_TO_OUTER);
+				(result_file_name = path).SetLastSlash().Cat(file_name);
+			}
+			SFile f_out(result_file_name, SFile::mWrite|SFile::mBinary);
+			THROW(f_out.IsValid());
+			THROW(f_out.Write(p_attm->Data.GetBuf(p_attm->Data.GetRdOffs()), p_attm->Data.GetAvailableSize()));
+			ASSIGN_PTR(pResultFileName, result_file_name);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SMailMessage::DebugOutput(SString & rBuf) const
+{
+	SString temp_buf;
+	if(GetS(HFP.FromP, temp_buf) > 0)
+		rBuf.CatEq("from", temp_buf).CR();
+	if(GetS(HFP.ToP, temp_buf) > 0)
+		rBuf.CatEq("to", temp_buf).CR();
+	if(GetS(HFP.CcP, temp_buf) > 0)
+		rBuf.CatEq("cc", temp_buf).CR();
+	if(GetS(HFP.SubjP, temp_buf) > 0)
+		rBuf.CatEq("subj", temp_buf).CR();
+	if(GetS(HFP.MailerP, temp_buf) > 0)
+		rBuf.CatEq("mailer", temp_buf).CR();
+	if(GetS(HFP.MsgIdP, temp_buf) > 0)
+		rBuf.CatEq("msgid", temp_buf).CR();
+	if(GetS(HFP.UserAgentP, temp_buf) > 0)
+		rBuf.CatEq("useragent", temp_buf).CR();
+	if(GetS(HFP.OrganizationP, temp_buf) > 0)
+		rBuf.CatEq("organization", temp_buf).CR();
+	if(GetS(HFP.ReturnPathP, temp_buf) > 0)
+		rBuf.CatEq("returnpath", temp_buf).CR();
+	if(GetS(HFP.DeliveredToP, temp_buf) > 0)
+		rBuf.CatEq("deliveredto", temp_buf).CR();
+	if(GetS(HFP.ReplyToP, temp_buf) > 0)
+		rBuf.CatEq("replyto", temp_buf).CR();
+	if(GetS(HFP.ContentLangP, temp_buf) > 0)
+		rBuf.CatEq("contentlang", temp_buf).CR();
+	if(GetS(HFP.AcceptLangP, temp_buf) > 0)
+		rBuf.CatEq("acceptlang", temp_buf).CR();
+	if(GetS(HFP.XOrgIpP, temp_buf) > 0)
+		rBuf.CatEq("xorgip", temp_buf).CR();
+	temp_buf.Z().Cat(HFP.Dtm, DATF_ISO8601|DATF_CENTURY, 0);
+	rBuf.CatEq("date", temp_buf).CR();
+	HFP.MimeVer.ToStr(temp_buf.Z());
+	rBuf.CatEq("mimever", temp_buf).CR();
+	if(ReceivedChainL.getCount()) {
+		for(uint i = 0; i < ReceivedChainL.getCount(); i++) {
+			GetS(ReceivedChainL.at(i), temp_buf);
+			rBuf.CatEq("received", temp_buf).CR();
+		}
+	}
+	DebugOutput_Boundary(B, 1, rBuf);
+	return 1;
+}
+
+int SLAPI SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const
+{
+	SString temp_buf;
+	temp_buf.Z().Cat(rB.LineNo_Start).Dot().Dot().Cat(rB.LineNo_Finish);
+	rBuf.Tab(tab).Cat("boundary").Space().CatEq("lines", temp_buf).CR();
+	GetS(rB.Ct.MimeP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("ct:mime", temp_buf).CR();
+	GetS(rB.Ct.TypeP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("ct:type", temp_buf).CR();
+	GetS(rB.Ct.NameP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("ct:name", temp_buf).CR();
+	GetS(rB.Ct.BoundaryP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("ct:boundaryid", temp_buf).CR();
+	rB.Ct.Cp.ToStr(SCodepageIdent::fmtDefault, temp_buf);
+	rBuf.Tab(tab+1).CatEq("ct:cp", temp_buf).CR();
+	//
+	rBuf.Tab(tab+1).CatEq("cd:type", (long)rB.Cd.Type).CR();
+	GetS(rB.Cd.NameP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("cd:name", temp_buf).CR();
+	GetS(rB.Cd.FileNameP, temp_buf);
+	rBuf.Tab(tab+1).CatEq("cd:filename", temp_buf).CR();
+	if(rB.Cd.Size != 0)
+		rBuf.Tab(tab+1).CatEq("cd:size", rB.Cd.Size).CR();
+	if(!!rB.Cd.CrDtm) {
+		temp_buf.Z().Cat(rB.Cd.CrDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		rBuf.Tab(tab+1).CatEq("cd:crdtm", rB.Cd.Size).CR();
+	}
+	if(!!rB.Cd.ModifDtm) {
+		temp_buf.Z().Cat(rB.Cd.ModifDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		rBuf.Tab(tab+1).CatEq("cd:modifdtm", rB.Cd.Size).CR();
+	}
+	if(!!rB.Cd.RdDtm) {
+		temp_buf.Z().Cat(rB.Cd.RdDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		rBuf.Tab(tab+1).CatEq("cd:readdtm", rB.Cd.Size).CR();
+	}
+	rBuf.Tab(tab+1).CatEq("contenttypeenc", (long)rB.ContentTransfEnc).CR();
+	rBuf.Tab(tab+1).CatEq("datasize", (long)rB.Data.GetAvailableSize()).CR();
+	for(uint i = 0; i < rB.Children.getCount(); i++) {
+		const Boundary * p_b = rB.Children.at(i);
+		if(p_b) {
+			DebugOutput_Boundary(*p_b, tab+1, rBuf);
+		}
+		else {
+			rBuf.Tab(tab+2).Cat("zeroptr child boundary").CR();
+		}
+	}
+	return 1;
+}
+
+void SLAPI Test_MailMsg_ReadFromFile()
+{
+	const char * src_file_name_list[] = {
+		"test-01.eml",
+		"test-02.eml",
+		"test-03.eml",
+		"test-04.eml",
+		"test-05.eml"
+	};
+
+	SString temp_buf;
+	const SString test_mailmsg_path = "d:/papyrus/src/pptest/data/email/";
+	for(uint i = 0; i < SIZEOFARRAY(src_file_name_list); i++) {
+		(temp_buf = test_mailmsg_path).SetLastDSlash().Cat(src_file_name_list[i]);
+		SFile f_in(temp_buf, SFile::mRead);
+		if(f_in.IsValid()) {
+			SMailMessage msg;
+			msg.ReadFromFile(f_in);
+			{
+				SString out_file_name;
+				SString out_buf;
+				SPathStruc ps;
+				ps.Split(f_in.GetName());
+				ps.Nam.Cat("-testoutput");
+				ps.Ext = "out";
+				ps.Merge(out_file_name);
+				msg.DebugOutput(out_buf);
+				SFile f_out(out_file_name, SFile::mWrite);
+				f_out.WriteLine(out_buf);
+			}
+			{
+				const uint attcount = msg.GetAttachmentCount();
+				for(uint j = 0; j < attcount; j++) {
+					(temp_buf = test_mailmsg_path).SetLastDSlash().Cat("attachment");
+					msg.SaveAttachmentTo(j, temp_buf, 0);
+				}
+			}
+		}
+	}
+}
+
+int SLAPI SMailMessage::PutToFile(SFile & rF)
 {
 /*
 186 /!/ "From:;To:;Subject:;Content-Type:;Content-Disposition:;Content-Transfer-Encoding:;MIME-Version:;boundary=;charset=;\
@@ -1465,8 +2113,8 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	SString fname, temp_buf;
 	uint   i = 0;
 	SDirEntry * p_fb = 0;
-	SetField(SMailMsg::fldBoundary, MakeBoundaryCode(temp_buf));
-	is_attach = (Flags & SMailMsg::fMultipart) ? 1 : 0;
+	SetField(SMailMessage::fldBoundary, MakeBoundaryCode(temp_buf));
+	is_attach = (Flags & SMailMessage::fMultipart) ? 1 : 0;
 	{
 		char   sd_buf[256];
 		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));
@@ -1487,7 +2135,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	PutField("X-Mailer", GetField(fldMailer, temp_buf), buf);
 	_PUTS(buf, rF);
 	{
-		
+
 		S_GUID uuid;
 		uuid.Generate();
 		uuid.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -1527,8 +2175,8 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	PutField("Content-Type", temp_buf, buf);
 	_PUTS(buf, rF);
 	_PUTS(0, rF); // empty line
-	if(IsField(SMailMsg::fldText)) {
-		if(IsField(SMailMsg::fldBoundary)) {
+	if(IsField(SMailMessage::fldText)) {
+		if(IsField(SMailMessage::fldBoundary)) {
 			_PUTS(GetBoundary(1, boundary), rF);
 			PutField("Content-Type", "text/plain; charset=UTF-8", buf);
 			_PUTS(buf, rF);
@@ -1536,7 +2184,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 			_PUTS(buf, rF);
 			_PUTS(0, rF); // Empty line
 		}
-		_PUTS(GetField(SMailMsg::fldText, temp_buf), rF);
+		_PUTS(GetField(SMailMessage::fldText, temp_buf), rF);
 		_PUTS(0, rF); // Empty line
 	}
 	if(is_attach) {
@@ -2896,7 +3544,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
 		url_local.SetComponent(InetUrl::cPath, 0);
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
@@ -2926,22 +3574,48 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 	return ok;
 }
 
-int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN)
+int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg)
 {
 	int    ok = -1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
+	{
+		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
+	temp_buf.Z().Cat("TOP").Space().Cat(msgN).Space().CatChar('0');
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, temp_buf.cptr())));
+	{
+		SBuffer reply_buf;
+		SFile reply_stream(reply_buf, SFile::mWrite);
+		THROW(SetupCbWrite(&reply_stream));
+		THROW(Execute());
+		{
+			SString line_buf;
+			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			if(p_result_buf) {
+				ok = rMsg.ReadFromFile(reply_stream);
+			}
+		}
+	}
+	CATCHZOK
+	CleanCbRW();
 	return ok;
 }
 
-int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg)
+int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg)
 {
-	int    ok = 1;
+	int    ok = -1;
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
 		url_local.SetComponent(InetUrl::cPath, temp_buf.Z().Cat(msgN));
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
@@ -2954,14 +3628,7 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg)
 			SString line_buf;
 			SBuffer * p_result_buf = (SBuffer *)reply_stream;
 			if(p_result_buf) {
-				SString left, right;
-				while(p_result_buf->ReadLine(line_buf)) {
-					line_buf.Chomp().Strip();
-					if(line_buf.Divide(' ', left, right) > 0) {
-						long   n = left.Strip().ToLong();
-						long   s = right.Strip().ToLong();
-					}
-				}
+				ok = rMsg.ReadFromFile(reply_stream);
 			}
 		}
 	}
@@ -2976,7 +3643,7 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 	return ok;
 }
 
-int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMsg & rMsg)
+int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 {
 	int    ok = -1;
 	return ok;
@@ -3072,8 +3739,54 @@ int SUniformFileTransmParam::Run(SCopyFileProgressProc pf, void * extraPtr)
 				THROW(wr_stream.IsValid());
 				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
 			}
-			else if(prot_src == InetUrl::protMailFrom) {
-
+			else if(oneof2(prot_src, InetUrl::protPOP3, InetUrl::protPOP3S)) {
+				ScURL curl;
+				SString filt_from;
+				SString filt_subj;
+				SString filt_subjsub;
+				SString filt_filename;
+				url_src.GetQueryParam("from", filt_from);
+				url_src.GetQueryParam("subj", filt_subj);
+				url_src.GetQueryParam("subjsub", filt_subjsub);
+				url_src.GetQueryParam("wildcard", filt_filename);
+                if(AccsName.NotEmpty()) {
+                    url_src.SetComponent(InetUrl::cUserName, AccsName);
+                    url_src.SetComponent(InetUrl::cPassword, AccsPassword);
+                }
+				{
+					LAssocArray mail_list;
+					THROW(curl.Pop3List(url_src, ScURL::mfDontVerifySslPeer, mail_list));
+					{
+						SMailMessage msg;
+						for(uint i = 0; i < mail_list.getCount(); i++) {
+							msg.Init();
+							if(curl.Pop3Top(url_src, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)) {
+								int   do_get = 1;
+								do_get = do_get && (!filt_from.NotEmptyS() || msg.IsFrom(filt_from));
+								do_get = do_get && (!filt_subj.NotEmptyS() || msg.IsSubj(filt_subj, 0));
+								do_get = do_get && (!filt_subjsub.NotEmptyS() || msg.IsSubj(filt_subjsub, 1));
+								if(do_get && curl.Pop3Get(url_src, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)) {
+									uint attc = msg.GetAttachmentCount();
+									for(uint ai = 0; ai < attc; ai++) {
+										const SMailMessage::Boundary * p_att = msg.GetAttachmentByIndex(ai);
+										if(p_att) {
+											int    do_accept = 1;
+											if(filt_filename.NotEmptyS()) {
+												msg.GetAttachmentFileName(p_att, temp_buf);
+											}
+											if(do_accept) {
+												//msg.SaveAttachmentTo();
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				SFile wr_stream(local_path_dest, SFile::mWrite|SFile::mBinary);
+				THROW(wr_stream.IsValid());
+				THROW(curl.HttpGet(url_src, ScURL::mfDontVerifySslPeer, 0, &wr_stream));
 			}
 		}
     }
@@ -3105,16 +3818,47 @@ SLTEST_R(ScURL_Mail)
 	{
 		LAssocArray mail_list;
 		ScURL curl;
+		SString output_path;
 		{
 			//uint msg_count = 0;
 			//uint64 msg_size = 0;
 			//THROW(SLTEST_CHECK_NZ(curl.Pop3Stat(url, ScURL::mfDontVerifySslPeer, &msg_count, &msg_size)));
 			THROW(SLTEST_CHECK_NZ(curl.Pop3List(url, ScURL::mfDontVerifySslPeer, mail_list)));
 		}
-		if(mail_list.getCount()) {
-			SMailMsg msg;
-			THROW(SLTEST_CHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(0).Key, msg)));
+		{
+			for(uint i = 0; i < mail_list.getCount(); i++) {
+				SMailMessage msg;
+				if(curl.Pop3Top(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)) {
+					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).Dot().Cat("output"));
+					msg.DebugOutput(temp_buf.Z());
+					SFile f_output(output_path, SFile::mWrite);
+					if(f_output.IsValid())
+						f_output.WriteLine(temp_buf);
+				}
+			}
 		}
+		/*
+		{
+			for(uint i = 0; i < mail_list.getCount(); i++) {
+				SMailMessage msg;
+				//THROW(SLTEST_CHECK_NZ(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)));
+				if(curl.Pop3Get(url, ScURL::mfDontVerifySslPeer, mail_list.at(i).Key, msg)) {
+					output_path = MakeOutputFilePath(temp_buf.Z().Cat(i).Dot().Cat("output"));
+					msg.DebugOutput(temp_buf.Z());
+					SFile f_output(output_path, SFile::mWrite);
+					if(f_output.IsValid())
+						f_output.WriteLine(temp_buf);
+					{
+						const uint attcount = msg.GetAttachmentCount();
+						for(uint j = 0; j < attcount; j++) {
+							output_path = MakeOutputFilePath("attachment");
+							msg.SaveAttachmentTo(j, output_path, 0);
+						}
+					}
+				}
+			}
+		}
+		*/
 	}
 	CATCH
 		CurrentStatus = 0;

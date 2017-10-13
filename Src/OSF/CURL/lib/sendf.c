@@ -22,20 +22,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "connect.h"
-//#include "vtls/vtls.h"
 #include "ssh.h"
-//#include "multiif.h"
-//#include "non-ascii.h"
-//#include "strerror.h"
-//#include "select.h"
-//#include "strdup.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifdef CURL_DO_LINEEND_CONV
@@ -45,16 +34,13 @@
  * blocks of data.  Remaining, bare CRs are changed to LFs.  The possibly new
  * size of the data is returned.
  */
-static size_t convert_lineends(struct Curl_easy * data,
-    char * startPtr, size_t size)
+static size_t convert_lineends(struct Curl_easy * data, char * startPtr, size_t size)
 {
 	char * inPtr, * outPtr;
-
 	/* sanity check */
 	if((startPtr == NULL) || (size < 1)) {
 		return size;
 	}
-
 	if(data->state.prev_block_had_trailing_cr) {
 		/* The previous block of incoming data
 		   had a trailing CR, which was turned into a LF. */
@@ -68,7 +54,6 @@ static size_t convert_lineends(struct Curl_easy * data,
 		}
 		data->state.prev_block_had_trailing_cr = FALSE; /* reset the flag */
 	}
-
 	/* find 1st CR, if any */
 	inPtr = outPtr = memchr(startPtr, '\r', size);
 	if(inPtr) {
@@ -125,8 +110,7 @@ static size_t convert_lineends(struct Curl_easy * data,
 bool Curl_recv_has_postponed_data(struct connectdata * conn, int sockindex)
 {
 	struct postponed_data * const psnd = &(conn->postponed[sockindex]);
-	return psnd->buffer && psnd->allocated_size &&
-	       psnd->recv_size > psnd->recv_processed;
+	return psnd->buffer && psnd->allocated_size && psnd->recv_size > psnd->recv_processed;
 }
 
 static void pre_receive_plain(struct connectdata * conn, int num)
@@ -139,9 +123,7 @@ static void pre_receive_plain(struct connectdata * conn, int num)
 	   To avoid lossage of received data, recv() must be
 	   performed before every send() if any incoming data is
 	   available. However, skip this, if buffer is already full. */
-	if((conn->handler->protocol&PROTO_FAMILY_HTTP) != 0 &&
-	    conn->recv[num] == Curl_recv_plain &&
-	    (!psnd->buffer || bytestorecv)) {
+	if((conn->handler->protocol&PROTO_FAMILY_HTTP) != 0 && conn->recv[num] == Curl_recv_plain && (!psnd->buffer || bytestorecv)) {
 		const int readymask = Curl_socket_check(sockfd, CURL_SOCKET_BAD,
 		    CURL_SOCKET_BAD, 0);
 		if(readymask != -1 && (readymask & CURL_CSELECT_IN) != 0) {
@@ -302,12 +284,9 @@ CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn,
 		else
 			break;
 	}
-
 	SAlloc::F(s); /* free the output string */
-
 	return result;
 }
-
 /*
  * Curl_write() is an internal write function that sends data to the
  * server. Works with plain sockets, SCP, SSL or kerberos.
@@ -315,65 +294,45 @@ CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn,
  * If the write would block (CURLE_AGAIN), we return CURLE_OK and
  * (*written == 0). Otherwise we return regular CURLcode value.
  */
-CURLcode Curl_write(struct connectdata * conn,
-    curl_socket_t sockfd,
-    const void * mem,
-    size_t len,
-    ssize_t * written)
+CURLcode Curl_write(struct connectdata * conn, curl_socket_t sockfd, const void * mem, size_t len, ssize_t * written)
 {
-	ssize_t bytes_written;
 	CURLcode result = CURLE_OK;
 	int num = (sockfd == conn->sock[SECONDARYSOCKET]);
-
-	bytes_written = conn->send[num](conn, num, mem, len, &result);
-
+	ssize_t bytes_written = conn->send[num](conn, num, mem, len, &result);
 	*written = bytes_written;
 	if(bytes_written >= 0)
-		/* we completely ignore the curlcode value when subzero is not returned */
-		return CURLE_OK;
-
-	/* handle CURLE_AGAIN or a send failure */
+		return CURLE_OK; // we completely ignore the curlcode value when subzero is not returned 
+	// handle CURLE_AGAIN or a send failure 
 	switch(result) {
 		case CURLE_AGAIN:
 		    *written = 0;
 		    return CURLE_OK;
-
 		case CURLE_OK:
-		    /* general send failure */
-		    return CURLE_SEND_ERROR;
-
+		    return CURLE_SEND_ERROR; // general send failure 
 		default:
-		    /* we got a specific curlcode, forward it */
-		    return result;
+		    return result; // we got a specific curlcode, forward it 
 	}
 }
 
-ssize_t Curl_send_plain(struct connectdata * conn, int num,
-    const void * mem, size_t len, CURLcode * code)
+ssize_t Curl_send_plain(struct connectdata * conn, int num, const void * mem, size_t len, CURLcode * code)
 {
 	curl_socket_t sockfd = conn->sock[num];
 	ssize_t bytes_written;
-	/* WinSock will destroy unread received data if send() is
-	   failed.
-	   To avoid lossage of received data, recv() must be
-	   performed before every send() if any incoming data is
-	   available. */
+	// WinSock will destroy unread received data if send() is failed.
+	// To avoid lossage of received data, recv() must be
+	// performed before every send() if any incoming data is available. 
 	pre_receive_plain(conn, num);
-
 #ifdef MSG_FASTOPEN /* Linux */
 	if(conn->bits.tcp_fastopen) {
-		bytes_written = sendto(sockfd, mem, len, MSG_FASTOPEN,
-		    conn->ip_addr->ai_addr, conn->ip_addr->ai_addrlen);
+		bytes_written = sendto(sockfd, mem, len, MSG_FASTOPEN, conn->ip_addr->ai_addr, conn->ip_addr->ai_addrlen);
 		conn->bits.tcp_fastopen = FALSE;
 	}
 	else
 #endif
 	bytes_written = swrite(sockfd, mem, len);
-
 	*code = CURLE_OK;
 	if(-1 == bytes_written) {
 		int err = SOCKERRNO;
-
 		if(
 #ifdef WSAEWOULDBLOCK
 		    /* This is how Windows does it */
@@ -398,48 +357,33 @@ ssize_t Curl_send_plain(struct connectdata * conn, int num,
 	}
 	return bytes_written;
 }
-
 /*
  * Curl_write_plain() is an internal write function that sends data to the
  * server using plain sockets only. Otherwise meant to have the exact same
  * proto as Curl_write()
  */
-CURLcode Curl_write_plain(struct connectdata * conn,
-    curl_socket_t sockfd,
-    const void * mem,
-    size_t len,
-    ssize_t * written)
+CURLcode Curl_write_plain(struct connectdata * conn, curl_socket_t sockfd, const void * mem, size_t len, ssize_t * written)
 {
-	ssize_t bytes_written;
 	CURLcode result;
 	int num = (sockfd == conn->sock[SECONDARYSOCKET]);
-
-	bytes_written = Curl_send_plain(conn, num, mem, len, &result);
-
+	ssize_t bytes_written = Curl_send_plain(conn, num, mem, len, &result);
 	*written = bytes_written;
-
 	return result;
 }
 
-ssize_t Curl_recv_plain(struct connectdata * conn, int num, char * buf,
-    size_t len, CURLcode * code)
+ssize_t Curl_recv_plain(struct connectdata * conn, int num, char * buf, size_t len, CURLcode * code)
 {
 	curl_socket_t sockfd = conn->sock[num];
-	ssize_t nread;
-	/* Check and return data that already received and storied in internal
-	   intermediate buffer */
-	nread = get_pre_recved(conn, num, buf, len);
+	// Check and return data that already received and storied in internal intermediate buffer 
+	ssize_t nread = get_pre_recved(conn, num, buf, len);
 	if(nread > 0) {
 		*code = CURLE_OK;
 		return nread;
 	}
-
 	nread = sread(sockfd, buf, len);
-
 	*code = CURLE_OK;
 	if(-1 == nread) {
 		int err = SOCKERRNO;
-
 		if(
 #ifdef WSAEWOULDBLOCK
 		    /* This is how Windows does it */
@@ -463,10 +407,7 @@ ssize_t Curl_recv_plain(struct connectdata * conn, int num, char * buf,
 	return nread;
 }
 
-static CURLcode pausewrite(struct Curl_easy * data,
-    int type,                        /* what type of data */
-    const char * ptr,
-    size_t len)
+static CURLcode pausewrite(struct Curl_easy * data, int type/* what type of data */, const char * ptr, size_t len)
 {
 	/* signalled to pause sending on this connection, but since we have data
 	   we want to send we need to dup it to save a copy for when the sending
@@ -476,7 +417,6 @@ static CURLcode pausewrite(struct Curl_easy * data,
 	char * dupl;
 	uint i;
 	bool newtype = TRUE;
-
 	if(s->tempcount) {
 		for(i = 0; i< s->tempcount; i++) {
 			if(s->tempwrite[i].type == type) {

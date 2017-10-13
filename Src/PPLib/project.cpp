@@ -2118,7 +2118,7 @@ int ViewTasksDialog::editItem(long pos, long id)
 	return ok;
 }
 
-struct LostPrjTPersonItem {
+struct LostPrjTPersonItem { // @flat
 	PPID   CreatorID;
 	PPID   EmployerID;
 	PPID   ClientID;
@@ -2128,7 +2128,7 @@ struct LostPrjTPersonItem {
 	long   Flags;
 };
 
-typedef TSArray <LostPrjTPersonItem> LostPrjTPersonArray;
+typedef TSVector <LostPrjTPersonItem> LostPrjTPersonArray; // @v9.8.4 TSArray-->TSVector
 
 class RestoreLostPrjTPersonDlg : public PPListDialog {
 public:

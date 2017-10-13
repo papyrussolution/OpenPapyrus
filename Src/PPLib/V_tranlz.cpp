@@ -4533,7 +4533,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 				}
 				if(_is_ref_a) {
 					rItem.InformA = temp_buf;
-					TSArray <EgaisRefATbl::Rec> refa_list;
+					TSVector <EgaisRefATbl::Rec> refa_list; // @v9.8.4 TSArray-->TSVector
 					const int actual_pos = P_RefC->RaC.SearchByCode(rItem.InformA, refa_list);
 					if(actual_pos > 0) {
 						const EgaisRefATbl::Rec & r_item = refa_list.at(actual_pos-1);
@@ -4554,7 +4554,7 @@ int SLAPI PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const O
 					if(isempty(p_egais_code) || rItem.StatusFlags & rItem.stEgaisCodeByGoods)
 						p_egais_code = rItem.RefcEgaisCode;
                     if(!isempty(p_egais_code)) {
-						TSArray <EgaisProductTbl::Rec> pr_list;
+						TSVector <EgaisProductTbl::Rec> pr_list; // @v9.8.4 TSArray-->TSVector
                         const int actual_pos = P_RefC->PrC.SearchByCode(p_egais_code, pr_list);
                         if(actual_pos > 0) {
 							EgaisProductCore::Item pr_item;

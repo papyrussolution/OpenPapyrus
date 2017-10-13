@@ -234,20 +234,15 @@ cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, i
    Note that this also equation works for M == m (a circle) as it
    doesn't matter where on the circle the error is computed.
  */
-
-int _cairo_pen_vertices_needed(double tolerance,
-    double radius,
-    const cairo_matrix_t  * matrix)
+int _cairo_pen_vertices_needed(double tolerance, double radius, const cairo_matrix_t  * matrix)
 {
 	/*
 	 * the pen is a circle that gets transformed to an ellipse by matrix.
 	 * compute major axis length for a pen with the specified radius.
 	 * we don't need the minor axis length.
 	 */
-	double major_axis = _cairo_matrix_transformed_circle_major_axis(matrix,
-	    radius);
+	double major_axis = _cairo_matrix_transformed_circle_major_axis(matrix, radius);
 	int num_vertices;
-
 	if(tolerance >= 4*major_axis) { /* XXX relaxed from 2*major for inkscape */
 		num_vertices = 1;
 	}

@@ -135,8 +135,7 @@ bool Curl_auth_digest_get_pair(const char * str, char * value, char * content, c
 static void auth_digest_md5_to_ascii(uchar * source, /* 16 bytes */
     uchar * dest)                                 /* 33 bytes */
 {
-	int i;
-	for(i = 0; i < 16; i++)
+	for(int i = 0; i < 16; i++)
 		snprintf((char*)&dest[i * 2], 3, "%02x", source[i]);
 }
 
@@ -145,9 +144,8 @@ static char * auth_digest_string_quoted(const char * source)
 {
 	char * dest, * d;
 	const char * s = source;
-	size_t n = 1; /* null terminator */
-
-	/* Calculate size needed */
+	size_t n = 1; // null terminator 
+	// Calculate size needed 
 	while(*s) {
 		++n;
 		if(*s == '"' || *s == '\\') {
@@ -167,7 +165,6 @@ static char * auth_digest_string_quoted(const char * source)
 		}
 		*d = 0;
 	}
-
 	return dest;
 }
 

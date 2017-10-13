@@ -2340,7 +2340,7 @@ int SLAPI TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText
 	return ok;
 }
 
-int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSArray <TextRefIdent> * pList)
+int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pPrefix);
@@ -2370,7 +2370,7 @@ int SLAPI TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t
 	return ok;
 }
 
-int SLAPI TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSArray <TextRefIdent> * pList)
+int SLAPI TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
 	return SearchTextByPrefix(ident, pPrefix, pList);

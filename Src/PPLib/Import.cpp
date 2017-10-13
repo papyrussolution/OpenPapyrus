@@ -4172,7 +4172,7 @@ SLAPI FiasImporter::ProcessState::ProcessState()
 
 int SLAPI FiasImporter::ProcessState::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
-	return TSArray_Serialize <Item> (L, dir, rBuf, pSCtx) ? 1 : PPSetErrorSLib();
+	return TSVector_Serialize <Item> (L, dir, rBuf, pSCtx) ? 1 : PPSetErrorSLib();
 }
 
 int SLAPI FiasImporter::ProcessState::Store(int use_ta)

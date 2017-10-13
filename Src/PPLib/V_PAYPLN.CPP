@@ -68,7 +68,7 @@ struct IterProcParam_ProcessPeriod {
 	//
 	ObjIdListFilt * P_BillList; // @notowned
 	RPairArray    * P_PaymList; // @notowned
-	TSArray <BillPaymItem> BillPaymList; // Список учтенных платежей по документам.
+	TSVector <BillPaymItem> BillPaymList; // Список учтенных платежей по документам // @v9.8.4 TSArray-->TSVector
 	PPID   FiltObjID;
 };
 
@@ -236,7 +236,7 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 		Psp.Init(Filt.Sgp);
 		IterCounter cntr;
 		long   count = 0;
-		TSArray <DateRange> period_list;
+		TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
 		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&Filt.Period, IterProc_Count, (long)&count));
 		cntr.Init(count);
 		THROW(P_TempTbl = CreateTempFile());

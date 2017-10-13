@@ -3625,8 +3625,8 @@ int SLAPI PPObjBHT::AcceptBillsPalm(const char * pHName, const char * pLName, PP
 
 IMPL_CMPFUNC(Sdr_SBIIBillRow, i1, i2)
 {
-	Sdr_SBIIBillRow * p_i1 = (Sdr_SBIIBillRow*)i1;
-	Sdr_SBIIBillRow * p_i2 = (Sdr_SBIIBillRow*)i2;
+	const Sdr_SBIIBillRow * p_i1 = (const Sdr_SBIIBillRow*)i1;
+	const Sdr_SBIIBillRow * p_i2 = (const Sdr_SBIIBillRow*)i2;
 	if(p_i1->Number < p_i2->Number)
 		return -1;
 	else if(p_i1->Number > p_i2->Number)
@@ -3635,7 +3635,7 @@ IMPL_CMPFUNC(Sdr_SBIIBillRow, i1, i2)
 		return 0;
 }
 
-int SLAPI GetBillRows(const char * pLName, TSArray <Sdr_SBIIBillRow> * pList)
+static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	PPImpExpParam ie_param_brow;
@@ -3717,7 +3717,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 	PPObjBill * p_bobj = BillObj;
 	SString bill_code, buf, goods_name, add_info, temp_buf;
 	S_GUID  uuid;
-	TSArray <Sdr_SBIIBillRow> bill_rows_list;
+	TSVector <Sdr_SBIIBillRow> bill_rows_list; // @v9.8.4 TSArray-->TSVector
 	PPObjGoods goods_obj;
 	PPObjOprKind op_obj;
 	PPImpExpParam ie_param_bill;

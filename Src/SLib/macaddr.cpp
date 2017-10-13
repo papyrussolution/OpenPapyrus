@@ -105,7 +105,7 @@ int FASTCALL MACAddr::Cmp(const MACAddr & s) const
 	return 0;
 }
 
-SLAPI MACAddrArray::MACAddrArray() : TSArray <MACAddr> ()
+SLAPI MACAddrArray::MACAddrArray() : TSVector <MACAddr> () // @v9.8.4 TSArray-->TSVector
 {
 }
 

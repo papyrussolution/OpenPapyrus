@@ -1123,7 +1123,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 										//SCI_CALLTIPSHOW(int posStart, const char *definition)
 										if(left.getCount()) {
                                     		SString src_text, text_to_show;
-                                    		TSArray <SrWordInfo> info_list;
+                                    		TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
 											for(uint ti = 0; ti < left.getCount(); ti++)
 												src_text.CatChar((char)left.at(ti));
 											if(p_srdb->GetWordInfo(src_text, 0, info_list) > 0) {

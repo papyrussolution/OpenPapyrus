@@ -1168,13 +1168,12 @@ cairo_status_t _cairo_gstate_set_font_size(cairo_gstate_t * gstate, double size)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_gstate_set_font_matrix(cairo_gstate_t       * gstate,
-    const cairo_matrix_t * matrix)
+cairo_status_t FASTCALL _cairo_gstate_set_font_matrix(cairo_gstate_t * gstate, const cairo_matrix_t * matrix)
 {
-	if(memcmp(matrix, &gstate->font_matrix, sizeof(cairo_matrix_t)) == 0)
-		return CAIRO_STATUS_SUCCESS;
-	_cairo_gstate_unset_scaled_font(gstate);
-	gstate->font_matrix = *matrix;
+	if(memcmp(matrix, &gstate->font_matrix, sizeof(cairo_matrix_t)) != 0) {
+		_cairo_gstate_unset_scaled_font(gstate);
+		gstate->font_matrix = *matrix;
+	}
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1183,12 +1182,12 @@ void _cairo_gstate_get_font_matrix(cairo_gstate_t * gstate, cairo_matrix_t * mat
 	*matrix = gstate->font_matrix;
 }
 
-void _cairo_gstate_set_font_options(cairo_gstate_t * gstate, const cairo_font_options_t * options)
+void FASTCALL _cairo_gstate_set_font_options(cairo_gstate_t * gstate, const cairo_font_options_t * options)
 {
-	if(memcmp(options, &gstate->font_options, sizeof(cairo_font_options_t)) == 0)
-		return;
-	_cairo_gstate_unset_scaled_font(gstate);
-	_cairo_font_options_init_copy(&gstate->font_options, options);
+	if(memcmp(options, &gstate->font_options, sizeof(cairo_font_options_t)) != 0) {
+		_cairo_gstate_unset_scaled_font(gstate);
+		_cairo_font_options_init_copy(&gstate->font_options, options);
+	}
 }
 
 void _cairo_gstate_get_font_options(cairo_gstate_t * gstate, cairo_font_options_t * options)

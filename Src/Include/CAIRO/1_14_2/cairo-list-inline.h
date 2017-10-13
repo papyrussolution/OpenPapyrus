@@ -33,45 +33,24 @@
  *      Chris Wilson <chris@chris-wilson.co.uk>
  *
  */
-
 #ifndef CAIRO_LIST_INLINE_H
 #define CAIRO_LIST_INLINE_H
 
 //#include "cairo-list-private.h"
 
-#define cairo_list_entry(ptr, type, member) \
-	cairo_container_of(ptr, type, member)
-
-#define cairo_list_first_entry(ptr, type, member) \
-	cairo_list_entry((ptr)->next, type, member)
-
-#define cairo_list_last_entry(ptr, type, member) \
-	cairo_list_entry((ptr)->prev, type, member)
-
+#define cairo_list_entry(ptr, type, member)       cairo_container_of(ptr, type, member)
+#define cairo_list_first_entry(ptr, type, member) cairo_list_entry((ptr)->next, type, member)
+#define cairo_list_last_entry(ptr, type, member)  cairo_list_entry((ptr)->prev, type, member)
 #define cairo_list_foreach(pos, head)			\
 	for(pos = (head)->next; pos != (head); pos = pos->next)
-
 #define cairo_list_foreach_entry(pos, type, head, member)		\
-	for(pos = cairo_list_entry((head)->next, type, member);	\
-	    &pos->member != (head);				       \
-	    pos = cairo_list_entry(pos->member.next, type, member))
-
+	for(pos = cairo_list_entry((head)->next, type, member);	&pos->member != (head); pos = cairo_list_entry(pos->member.next, type, member))
 #define cairo_list_foreach_entry_safe(pos, n, type, head, member)	\
-	for(pos = cairo_list_entry((head)->next, type, member),	\
-	    n = cairo_list_entry(pos->member.next, type, member); \
-	    &pos->member != (head);				       \
-	    pos = n, n = cairo_list_entry(n->member.next, type, member))
-
+	for(pos = cairo_list_entry((head)->next, type, member),	n = cairo_list_entry(pos->member.next, type, member); &pos->member != (head); pos = n, n = cairo_list_entry(n->member.next, type, member))
 #define cairo_list_foreach_entry_reverse(pos, type, head, member)	\
-	for(pos = cairo_list_entry((head)->prev, type, member);	\
-	    &pos->member != (head);				       \
-	    pos = cairo_list_entry(pos->member.prev, type, member))
-
+	for(pos = cairo_list_entry((head)->prev, type, member);	&pos->member != (head); pos = cairo_list_entry(pos->member.prev, type, member))
 #define cairo_list_foreach_entry_reverse_safe(pos, n, type, head, member)	\
-	for(pos = cairo_list_entry((head)->prev, type, member),	\
-	    n = cairo_list_entry(pos->member.prev, type, member); \
-	    &pos->member != (head);				       \
-	    pos = n, n = cairo_list_entry(n->member.prev, type, member))
+	for(pos = cairo_list_entry((head)->prev, type, member),	n = cairo_list_entry(pos->member.prev, type, member); &pos->member != (head); pos = n, n = cairo_list_entry(n->member.prev, type, member))
 
 #ifdef CAIRO_LIST_DEBUG
 static inline void _cairo_list_validate(const cairo_list_t * link)
@@ -83,7 +62,6 @@ static inline void _cairo_list_validate(const cairo_list_t * link)
 static inline void cairo_list_validate(const cairo_list_t * head)
 {
 	cairo_list_t * link;
-
 	cairo_list_foreach(link, head)
 	_cairo_list_validate(link);
 }

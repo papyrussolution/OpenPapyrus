@@ -2055,7 +2055,7 @@ void OprKindDialog::moreDialog()
 			case PPOPT_GOODSORDER:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_RENT,
 					OPKF_FREIGHT, OPKF_ORDEXSTONLY, OPKF_ORDRESERVE, OPKF_ORDERBYLOC, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L); // @v8.2.6 OPKF_NOCALCTIORD
-				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, 0L);
+				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_IGNORECLISTOP, 0L); // @v9.8.4 OPKFX_IGNORECLISTOP
 				editOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_PAYMENT:
@@ -2209,7 +2209,7 @@ public:
 		setOpList(pOpList);
 	}
 protected:
-	int    setOpList(const PPIDArray *);
+	void   setOpList(const PPIDArray *);
 	void   getOpList(PPIDArray *);
 private:
 	DECL_HANDLE_EVENT;
@@ -2240,12 +2240,11 @@ IMPL_HANDLE_EVENT(OpListDialog)
 	clearEvent(event);
 }
 
-int OpListDialog::setOpList(const PPIDArray * pOpList)
+void OpListDialog::setOpList(const PPIDArray * pOpList)
 {
 	if(!RVALUEPTR(OpListData, pOpList))
 		OpListData.freeAll();
 	updateList(-1);
-	return 1;
 }
 
 void OpListDialog::getOpList(PPIDArray * pOpList)
@@ -2342,7 +2341,8 @@ void OprKindDialog::editPaymList()
 			AddClusterAssoc(CTL_OPRPOP_FLAGS, 7, ROXF_THISALTOBJONLY);
 			SetClusterData(CTL_OPRPOP_FLAGS, data.Flags);
 			SetupPPObjCombo(this, CTLSEL_OPRPOP_PSNRELTYPE, PPOBJ_PERSONRELTYPE, data.PersonRelTypeID, 0, 0);
-			return setOpList(&data.OpList);
+			setOpList(&data.OpList);
+			return 1;
 		}
 		int    getDTS(PPReckonOpEx * pData)
 		{
@@ -2608,7 +2608,8 @@ void OprKindDialog::editPoolOptions()
 			AddClusterAssoc(CTL_OPRPOOL_COMMF, 0, OPKF_NEEDPAYMENT);
 			AddClusterAssoc(CTL_OPRPOOL_COMMF, 1, OPKF_FREIGHT);
 			SetClusterData(CTL_OPRPOOL_COMMF, P_Data->Rec.Flags);
-			return setOpList(&p_bpox->OpList);
+			setOpList(&p_bpox->OpList);
+			return 1;
 		}
 		int    getDTS(PPOprKindPacket * /*pData*/)
 		{

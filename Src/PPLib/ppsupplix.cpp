@@ -780,7 +780,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	SString client_code;
 	PPID   weakalc_locid = 0, weakalc_ggrpid = 0, wotarebeer_locid = 0, wotarebeer_ggrpid = 0, tare_ggrpid = 0;
 	PPIDArray loc_list, spoilage_loc_list;
-	TSArray <Sdr_Baltika_RestPartLine> wotarebeerrest_list;
+	TSVector <Sdr_Baltika_RestPartLine> wotarebeerrest_list; // @v9.8.4 TSArray-->TSVector
 	//SupplExpFilt  se_filt;
 	GoodsRestFilt filt;
 	SoapExporter soap_e;
@@ -845,7 +845,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 			// @v8.7.8 skip_delete = 1;
 		}
 		if(loc_list.at(i) != wotarebeer_locid) {
-			TSArray <Sdr_Baltika_RestPartLine> items_list;
+			TSVector <Sdr_Baltika_RestPartLine> items_list; // @v9.8.4 TSArray-->TSVector
 			for(gr_view.InitIteration(); gr_view.NextIteration(&item) > 0;) {
 				double bc_pack = 1.0;
 				Sdr_Baltika_RestPartLine line_rec;
@@ -891,7 +891,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		}
 		else { // Ёкспортируем остатки разливного пива
 			uint items_count = wotarebeerrest_list.getCount();
-			TSArray <Sdr_Baltika_RestPartLine> items_list;
+			TSVector <Sdr_Baltika_RestPartLine> items_list; // @v9.8.4 TSArray-->TSVector
 			for(uint j = 0; j < items_count; j++) {
 				Sdr_Baltika_RestPartLine temp_item = wotarebeerrest_list.at(j);
 				Sdr_Baltika_RestPartLine line_rec = temp_item;
@@ -1020,7 +1020,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 		head_rec.DocumentDate = filt.Date;
 		THROW(soap_e.AppendRecP(&head_rec, sizeof(head_rec), 0, 0, 0/*headRecForNewFile*/));
 		if(!oneof2(loc_list.at(i), weakalc_locid, wotarebeer_locid)) {
-			TSArray <Sdr_SupplRestLine> items_list;
+			TSVector <Sdr_SupplRestLine> items_list; // @v9.8.4 TSArray-->TSVector
 			for(v.InitIteration(); v.NextIteration(&item) > 0;) {
 				if(weakalc_ggrpid && GObj.BelongToGroup(item.GoodsID, weakalc_ggrpid) > 0)
 					weakalcrest_list.Add(item.GoodsID, item.Rest, 1, 0);
@@ -1061,7 +1061,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 		else { // Ёкспортируем остатки слабоалкогольной продукции и разливного пива
 			RAssocArray * p_rest_list = (loc_list.at(i) == weakalc_locid) ? &weakalcrest_list : &wotarebeerrest_list;
 			uint items_count = p_rest_list->getCount();
-			TSArray <Sdr_SupplRestLine> items_list;
+			TSVector <Sdr_SupplRestLine> items_list; // @v9.8.4 TSArray-->TSVector
 			for(uint j = 0; j < items_count; j++) {
 				PPID   goods_id = p_rest_list->at(j).Key;
 				double rest     = p_rest_list->at(j).Val;
@@ -1135,7 +1135,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 	PPID   wotarebeer_ggrpid = 0;
 	Sdr_SupplRest     head_rec;
 	GoodsRestViewItem rest_item;
-	TSArray <Sdr_SupplRestLine> items_list;
+	TSVector <Sdr_SupplRestLine> items_list; // @v9.8.4 TSArray-->TSVector
 	//SupplExpFilt      se_filt;
 	GoodsRestFilt     filt;
 	SoapExporter      soap_e;
@@ -1294,7 +1294,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	LAssocArray dlvr_addr_list;
 	BillFilt filt;
 	PPIDArray loss_op_list, invrcpt_op_list, spoilage_loc_list;
-	TSArray <Sdr_BaltikaBillItemAttrs> items_attrs_list;
+	TSVector <Sdr_BaltikaBillItemAttrs> items_attrs_list; // @v9.8.4 TSArray-->TSVector
 	BillViewItem item;
 	PPObjTag   obj_tag;
 	PPObjWorld obj_world;
@@ -1380,7 +1380,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		PersonTbl::Rec psn_rec;
 		PPTransferItem trfr_item;
 		PPBillPacket bpack;
-		TSArray <Sdr_SupplBillLine> items_list;
+		TSVector <Sdr_SupplBillLine> items_list; // @v9.8.4 TSArray-->TSVector
 		THROW(P_BObj->ExtractPacket(item.ID, &bpack));
 		PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
 		if(bpack.GetOrderList(ord_list) > 0) {

@@ -1940,7 +1940,7 @@ enum json_error json_parse_document(json_t ** root, const char *text)
 enum json_error json_saxy_parse(json_saxy_parser_status *jsps, json_saxy_functions * jsf, char c)
 {
 	// @todo handle a string instead of a single char
-	RcString * temp = 0;
+	//RcString * temp = 0;
 	// make sure everything is in it's place
 	assert(jsps);
 	assert(jsf);

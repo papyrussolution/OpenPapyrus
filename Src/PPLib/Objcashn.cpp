@@ -1229,7 +1229,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 	int    ok = 1;
 	long   sel_prn_id = 0, def_prn_id = 0;
 	SString prn_port, temp_buf;
-	TSArray <SPrinting::PrnInfo> prn_list;
+	TSVector <SPrinting::PrnInfo> prn_list; // @v9.8.4 TSArray-->TSVector
 	StrAssocArray * p_list = new StrAssocArray;
 	ListWindow * p_lw = 0;
 

@@ -363,7 +363,6 @@ void GoodsOpAnalyzeFilt::ZeroCompareItems()
 SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE)
 {
 	P_BObj   = BillObj;
-	P_PsnObj = 0;
 	P_Psc    = 0;
 	State    = 0;
 	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
@@ -387,7 +386,6 @@ SLAPI PPViewGoodsOpAnalyze::~PPViewGoodsOpAnalyze()
 	delete P_TempOrd;
 	delete P_GGIter;
 	delete P_Psc;
-	delete P_PsnObj;
 	delete P_TrfrFilt;
 	delete P_TradePlanPacket;
 	delete P_Cache;
@@ -1525,7 +1523,7 @@ int SLAPI PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 	return 1;
 }
 
-int FASTCALL PPViewGoodsOpAnalyze::CheckBillRec(const BillTbl::Rec * pRec) const
+int FASTCALL PPViewGoodsOpAnalyze::CheckBillRec(const BillTbl::Rec * pRec)
 {
 	PPID   psn_id, city_id;
 	if((Filt.Flags & GoodsOpAnalyzeFilt::fLabelOnly) && !(pRec->Flags & BILLF_WHITELABEL))
@@ -1541,8 +1539,8 @@ int FASTCALL PPViewGoodsOpAnalyze::CheckBillRec(const BillTbl::Rec * pRec) const
 		if(psn_id) {
 			city_id = 0;
 			PPID   addr_id = 0;
-			if(P_PsnObj->GetAddrID(psn_id, 0, PSNGETADDRO_DEFAULT, &addr_id) > 0) {
-				P_PsnObj->GetCityByAddr(addr_id, &city_id, 0);
+			if(PsnObj.GetAddrID(psn_id, 0, PSNGETADDRO_DEFAULT, &addr_id) > 0) {
+				PsnObj.GetCityByAddr(addr_id, &city_id, 0);
 				if(city_id != Filt.ObjCityID)
 					return 0;
 			}
@@ -2136,8 +2134,6 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	PPIDArray * p_suppl_bill_list = 0;
 	int    use_ext_list = 0;
 
-	if(Filt.ObjCityID)
-		THROW_MEM(SETIFZ(P_PsnObj, new PPObjPerson));
 	ZDELETE(P_CmpView);
 	ZDELETE(P_TempTbl);
 	if(!Filt.CmpPeriod.IsZero())
@@ -2236,60 +2232,103 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						}
 			}
 		}
-		for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
-			BillTbl::Rec bill_rec;
-			int    is_paym = 0;
-			double part    = 1.0;
-			if(Filt.OpGrpID != GoodsOpAnalyzeFilt::ogSelected)
-				if(GetOpType(*p_op_id, &op_rec) == PPOPT_GOODSRETURN)
-					part = -1.0;
-				else if(op_rec.OpTypeID == PPOPT_PAYMENT)
-					is_paym = 1;
-			BillTbl::Key2 k2;
-			BillTbl * p_bt = P_BObj->P_Tbl;
-			BExtQuery q(p_bt, 2);
-			q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->LocID, p_bt->OpID, p_bt->Object, p_bt->Object2, p_bt->Flags,
-				p_bt->LinkBillID, p_bt->Amount, 0).
-				where(p_bt->OpID == *p_op_id && daterange(p_bt->Dt, &Filt.Period));
-			MEMSZERO(k2);
-			k2.OpID = *p_op_id;
-			k2.Dt = Filt.Period.low;
-			for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-				THROW(PPCheckUserBreak());
-				p_bt->copyBufTo(&bill_rec);
-				if(!is_paym && use_ext_list && !ext_bill_list.bsearch(bill_rec.ID))
-					continue;
-				if(is_paym || CheckBillRec(&bill_rec)) {
-					int    sign = 0, r;
-					PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 1, wait_msg));
-					if(is_paym) {
-						id = bill_rec.LinkBillID;
-						payment = BR2(bill_rec.Amount);
-						if(payment == 0)
-							continue;
-						if(use_ext_list && !ext_bill_list.bsearch(id))
-							continue;
-						THROW(r = P_BObj->Search(id, &pack.Rec));
-						if(r > 0) {
-							if(!CheckBillRec(&pack.Rec))
+		{
+			// @v9.8.4 {
+			struct __GoaBillEntry {
+				PPID   BillID;
+				int    IsPaym;
+				double Payment;
+				double Part;
+			};
+			TSVector <__GoaBillEntry> bill_entry_list;
+			// } @v9.8.4 
+			for(i = 0; op_list.enumItems(&i, (void**)&p_op_id);) {
+				BillTbl::Rec bill_rec;
+				int    is_paym = 0;
+				double part    = 1.0;
+				if(Filt.OpGrpID != GoodsOpAnalyzeFilt::ogSelected) {
+					if(GetOpType(*p_op_id, &op_rec) == PPOPT_GOODSRETURN)
+						part = -1.0;
+					else if(op_rec.OpTypeID == PPOPT_PAYMENT)
+						is_paym = 1;
+				}
+				BillTbl::Key2 k2;
+				BillTbl * p_bt = P_BObj->P_Tbl;
+				BExtQuery q(p_bt, 2);
+				q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->LocID, p_bt->OpID, p_bt->Object, p_bt->Object2, p_bt->Flags,
+					p_bt->LinkBillID, p_bt->Amount, 0).
+					where(p_bt->OpID == *p_op_id && daterange(p_bt->Dt, &Filt.Period));
+				MEMSZERO(k2);
+				k2.OpID = *p_op_id;
+				k2.Dt = Filt.Period.low;
+				for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
+					THROW(PPCheckUserBreak());
+					p_bt->copyBufTo(&bill_rec);
+					if(!is_paym && use_ext_list && !ext_bill_list.bsearch(bill_rec.ID))
+						continue;
+					if(is_paym || CheckBillRec(&bill_rec)) {
+						int    sign = 0, r;
+						// @v9.8.4 PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 1, wait_msg));
+						if(is_paym) {
+							id = bill_rec.LinkBillID;
+							payment = BR2(bill_rec.Amount);
+							if(payment == 0)
 								continue;
+							if(use_ext_list && !ext_bill_list.bsearch(id))
+								continue;
+							THROW(r = P_BObj->Search(id, &pack.Rec));
+							if(r > 0) {
+								if(!CheckBillRec(&pack.Rec))
+									continue;
+							}
+							else {
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+								continue;
+							}
 						}
-						else {
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
-							continue;
+						else
+							id = bill_rec.ID;
+						// @v9.8.4 {
+						{
+							__GoaBillEntry entry;
+							entry.BillID = id;
+							entry.IsPaym = is_paym;
+							entry.Payment = payment;
+							entry.Part = part;
+							THROW_SL(bill_entry_list.insert(&entry));
 						}
+						// } @v9.8.4 
+						/* @v9.8.4 
+						THROW(P_BObj->ExtractPacket(id, &pack) > 0);
+						if(is_paym)
+							part = fdivnz(payment, pack.GetAmount());
+						if(oneof2(Filt.OpGrpID, GoodsOpAnalyzeFilt::ogInOutAnalyze, GoodsOpAnalyzeFilt::ogSelected))
+							sign = neg_op_list.lsearch(pack.Rec.OpID) ? -1 : 1;
+						THROW(PutBillToTempTable(&pack, part, sign, p_suppl_bill_list));
+						pUfpFactors[0] += (1.0 + (double)pack.GetTCount()); // @v8.1.12
+						*/
 					}
-					else
-						id = bill_rec.ID;
-					THROW(P_BObj->ExtractPacket(id, &pack) > 0);
-					if(is_paym)
-						part = fdivnz(payment, pack.GetAmount());
+				}
+			}
+			// @v9.8.4 {
+			{
+				bill_entry_list.sort(CMPF_LONG);
+				for(uint i = 0; i < bill_entry_list.getCount(); i++) {
+					THROW(PPCheckUserBreak());
+					const __GoaBillEntry & r_entry = bill_entry_list.at(i);
+					int    sign = 0;
+					double part = r_entry.Part;
+					THROW(P_BObj->ExtractPacket(r_entry.BillID, &pack) > 0);
+					if(r_entry.IsPaym)
+						part = fdivnz(r_entry.Payment, pack.GetAmount());
 					if(oneof2(Filt.OpGrpID, GoodsOpAnalyzeFilt::ogInOutAnalyze, GoodsOpAnalyzeFilt::ogSelected))
 						sign = neg_op_list.lsearch(pack.Rec.OpID) ? -1 : 1;
 					THROW(PutBillToTempTable(&pack, part, sign, p_suppl_bill_list));
-					pUfpFactors[0] += (1.0 + (double)pack.GetTCount()); // @v8.1.12
+					pUfpFactors[0] += (1.0 + (double)pack.GetTCount());
+					PPWaitPercent(i+1, bill_entry_list.getCount(), PPObjBill::MakeCodeString(&pack.Rec, 1, wait_msg));
 				}
 			}
+			// } @v9.8.4 
 		}
 	}
 	THROW(FlashCacheItems(0));
@@ -2623,7 +2662,6 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	ENDCATCH
 	ZDELETE(p_prev_temp_tbl);
 	ZDELETE(P_Cache);
-	ZDELETE(P_PsnObj);
 	if(!_CrtCheckMemory())
 		ok = 0;
 	return ok;
@@ -3284,7 +3322,7 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 	int    ok = -1;
 	if(Filt.ABCAnlzGroup > 0) {
 		GoodsOpAnalyzeTotal  goa_total;
-		TSArray <TempGoodsOprTbl::Rec>  abc_ary;
+		TSVector <TempGoodsOprTbl::Rec>  abc_ary; // @v9.8.4 TSArray-->TSVector
 		TempGoodsOprTbl::Key0 k;
 		TempGoodsOprTbl * p_t = P_TempTbl;
 		BExtQuery q(P_TempTbl, 0, 16);

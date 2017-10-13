@@ -211,7 +211,8 @@ typedef struct _cairo_matrix {
  *
  * Since: 1.0
  **/
-typedef struct _cairo_pattern cairo_pattern_t;
+//typedef struct _cairo_pattern cairo_pattern_t;
+struct cairo_pattern_t;
 
 /**
  * cairo_destroy_func_t:
@@ -578,7 +579,7 @@ cairo_public void cairo_pop_group_to_source(cairo_t * cr);
  *
  * Since: 1.0
  **/
-/*typedef*/ enum _cairo_operator {
+/*typedef*/ enum /*_cairo_operator*/cairo_operator_t {
 	CAIRO_OPERATOR_CLEAR,
 
 	CAIRO_OPERATOR_SOURCE,
@@ -614,7 +615,7 @@ cairo_public void cairo_pop_group_to_source(cairo_t * cr);
 	CAIRO_OPERATOR_HSL_LUMINOSITY
 };
 
-typedef enum _cairo_operator cairo_operator_t;
+//typedef enum _cairo_operator cairo_operator_t;
 
 cairo_public void cairo_set_operator(cairo_t * cr, cairo_operator_t op);
 cairo_public void cairo_set_source(cairo_t * cr, cairo_pattern_t * source);
@@ -2274,7 +2275,7 @@ cairo_public void FASTCALL cairo_matrix_init_identity(cairo_matrix_t * matrix);
 cairo_public void cairo_matrix_init_translate(cairo_matrix_t * matrix, double tx, double ty);
 cairo_public void cairo_matrix_init_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void cairo_matrix_init_rotate(cairo_matrix_t * matrix, double radians);
-cairo_public void cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty);
+cairo_public void FASTCALL cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty);
 cairo_public void cairo_matrix_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void cairo_matrix_rotate(cairo_matrix_t * matrix, double radians);
 cairo_public cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix);

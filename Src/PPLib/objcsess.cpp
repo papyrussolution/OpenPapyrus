@@ -1579,7 +1579,7 @@ int CTableOrder::Create(Param * pParam)
 	}
 	if(Edit(&ord) > 0) {
 		CCheckPacket cc_pack;
-		TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+		TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 		PPTransaction tra(1);
 		THROW(tra);
 		THROW(MakeCCheckPacket(&ord, &cc_pack));

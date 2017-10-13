@@ -757,31 +757,24 @@ static void fast_composite_add_n_8_8(pixman_implementation_t * imp,
 #define SET_BIT(p, n)							\
 	do { *((p) + ((n) >> 5)) |= CREATE_BITMASK((n) & 31); } while(0);
 
-static void fast_composite_add_1_1(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_add_1_1(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32_t     * dst_line, * dst;
 	uint32_t     * src_line, * src;
 	int dst_stride, src_stride;
 	int32_t w;
-
-	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32_t,
-	    src_stride, src_line, 1);
-	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32_t,
-	    dst_stride, dst_line, 1);
-
+	PIXMAN_IMAGE_GET_LINE(src_image, 0, src_y, uint32_t, src_stride, src_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, 0, dest_y, uint32_t, dst_stride, dst_line, 1);
 	while(height--) {
 		dst = dst_line;
 		dst_line += dst_stride;
 		src = src_line;
 		src_line += src_stride;
 		w = width;
-
 		while(w--) {
 			/*
-			 * @todo improve performance by processing uint32_t data instead
-			 *       of individual bits
+			 * @todo improve performance by processing uint32_t data instead of individual bits
 			 */
 			if(TEST_BIT(src, src_x + w))
 				SET_BIT(dst, dest_x + w);
@@ -789,8 +782,7 @@ static void fast_composite_add_1_1(pixman_implementation_t * imp,
 	}
 }
 
-static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void fast_composite_over_n_1_8888(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32_t src, srca;
@@ -799,19 +791,14 @@ static void fast_composite_over_n_1_8888(pixman_implementation_t * imp,
 	int mask_stride, dst_stride;
 	uint32_t bitcache, bitmask;
 	int32_t w;
-
 	if(width <= 0)
 		return;
-
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	srca = src >> 24;
 	if(src == 0)
 		return;
-
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t,
-	    dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t,
-	    mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
 
 	if(srca == 0xff) {
@@ -874,19 +861,14 @@ static void fast_composite_over_n_1_0565(pixman_implementation_t * imp,
 	int32_t w;
 	uint32_t d;
 	uint16_t src565;
-
 	if(width <= 0)
 		return;
-
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 	srca = src >> 24;
 	if(src == 0)
 		return;
-
-	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t,
-	    dst_stride, dst_line, 1);
-	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t,
-	    mask_stride, mask_line, 1);
+	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16_t, dst_stride, dst_line, 1);
+	PIXMAN_IMAGE_GET_LINE(mask_image, 0, mask_y, uint32_t, mask_stride, mask_line, 1);
 	mask_line += mask_x >> 5;
 
 	if(srca == 0xff) {
@@ -1084,18 +1066,14 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp,
 		src_width = src_image->bits.width;
 		need_src_extension = FALSE;
 	}
-
 	sx = src_x;
 	sy = src_y;
-
 	while(--height >= 0) {
 		sx = MOD(sx, src_width);
 		sy = MOD(sy, src_image->bits.height);
-
 		if(need_src_extension) {
 			if(src_bpp == 32) {
 				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint32_t, src_stride, src_line, 1);
-
 				for(i = 0; i < src_width; ) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
 						extended_src[i] = src_line[j];
@@ -1103,11 +1081,8 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp,
 			}
 			else if(src_bpp == 16) {
 				uint16_t * src_line_16;
-
-				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint16_t, src_stride,
-				    src_line_16, 1);
+				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint16_t, src_stride, src_line_16, 1);
 				src_line = (uint32_t*)src_line_16;
-
 				for(i = 0; i < src_width; ) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
 						((uint16_t*)extended_src)[i] = ((uint16_t*)src_line)[j];
@@ -1115,25 +1090,19 @@ static void fast_composite_tiled_repeat(pixman_implementation_t * imp,
 			}
 			else if(src_bpp == 8) {
 				uint8_t * src_line_8;
-
-				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint8_t, src_stride,
-				    src_line_8, 1);
+				PIXMAN_IMAGE_GET_LINE(src_image, 0, sy, uint8_t, src_stride, src_line_8, 1);
 				src_line = (uint32_t*)src_line_8;
-
 				for(i = 0; i < src_width; ) {
 					for(j = 0; j < src_image->bits.width; j++, i++)
 						((uint8_t*)extended_src)[i] = ((uint8_t*)src_line)[j];
 				}
 			}
-
 			info2.src_y = 0;
 		}
 		else {
 			info2.src_y = sy;
 		}
-
 		width_remain = width;
-
 		while(width_remain > 0) {
 			num_pixels = src_width - sx;
 
@@ -1534,19 +1503,13 @@ static void fast_composite_scaled_nearest(pixman_implementation_t * imp,
 		pix_type       * src_line;						   \
 		int dst_stride, src_stride;				      \
 		int src_x_t, src_y_t;					      \
-									      \
-		PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, pix_type,		 \
-		    dst_stride, dst_line, 1);			       \
-		src_x_t = -src_y + pixman_fixed_to_int(					 \
-		    src_image->common.transform->matrix[0][2] +	  \
+		PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, pix_type, dst_stride, dst_line, 1); \
+		src_x_t = -src_y + pixman_fixed_to_int(src_image->common.transform->matrix[0][2] +	  \
 		    pixman_fixed_1 / 2 - pixman_fixed_e) - height; \
-		src_y_t = src_x + pixman_fixed_to_int(					 \
-		    src_image->common.transform->matrix[1][2] +	  \
+		src_y_t = src_x + pixman_fixed_to_int(src_image->common.transform->matrix[1][2] +	  \
 		    pixman_fixed_1 / 2 - pixman_fixed_e);	  \
-		PIXMAN_IMAGE_GET_LINE(src_image, src_x_t, src_y_t, pix_type,		 \
-		    src_stride, src_line, 1);			       \
-		blt_rotated_90_ ## suffix(dst_line, dst_stride, src_line, src_stride,	   \
-		    width, height);				     \
+		PIXMAN_IMAGE_GET_LINE(src_image, src_x_t, src_y_t, pix_type, src_stride, src_line, 1);			       \
+		blt_rotated_90_ ## suffix(dst_line, dst_stride, src_line, src_stride, width, height);				     \
 	}									      \
 									      \
 	static void fast_composite_rotate_270_ ## suffix(pixman_implementation_t *imp, pixman_composite_info_t *info) \

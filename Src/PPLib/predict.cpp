@@ -31,7 +31,7 @@ class LocValList : public SArray {
 public:
 	SLAPI  LocValList();
 	int    SLAPI Setup(LDATE startDate, const GoodsRestParam *);
-	int    SLAPI Setup(LDATE startDate, PPID goodsID, const TSArray <PrcssrPrediction::_GoodsLocRestItem> * pList);
+	int    SLAPI Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList); // @v9.8.4 TSArray-->TSVect
 	LocValEntry * FASTCALL GetEntry(PPID locID);
 private:
 	int    FASTCALL AddEntry(PPID locID, double rest)
@@ -46,7 +46,7 @@ SLAPI LocValList::LocValList() : SArray(sizeof(LocValEntry), 32, O_ARRAY)
 {
 }
 
-int SLAPI LocValList::Setup(LDATE startDate, PPID goodsID, const TSArray <PrcssrPrediction::_GoodsLocRestItem> * pList)
+int SLAPI LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <PrcssrPrediction::_GoodsLocRestItem> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	assert(pList);
 	StartDate = startDate;
@@ -1484,7 +1484,7 @@ struct __CI {
 	LocValList Lvl;
 };
 
-struct __HI {
+struct __HI { // @flat
 	int16  LocIdx;
 	LDATE  Dt;
 };
@@ -1496,9 +1496,9 @@ static IMPL_CMPFUNC(__HI, i1, i2)
 	return si;
 }
 
-class __HolidayArray : public TSArray <__HI> {
+class __HolidayArray : public TSVector <__HI> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSArray <__HI>(), T(rT)
+	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT)
 	{
 		setDelta(32);
 		Period = rPeriod;

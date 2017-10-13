@@ -516,7 +516,7 @@ long TSessionDialog::getToolingTiming()
 			TSesObj.GetTech(Data.Rec.TechID, &tec_rec) > 0 &&
 			TSesObj.GetTech(prev_sess_rec.TechID, &prev_tec_rec, 1) > 0) {
 			//if(tec_rec.GoodsID != prev_tec_rec.GoodsID) {
-				TSArray <TechTbl::Rec> t_list;
+				TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
 				PPObjTech tec_obj;
 				if(tec_obj.SelectTooling(Data.Rec.PrcID, tec_rec.GoodsID, prev_tec_rec.GoodsID, &t_list) > 0)
 					for(uint i = 0; i < t_list.getCount(); i++)

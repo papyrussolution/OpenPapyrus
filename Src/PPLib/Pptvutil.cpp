@@ -5576,8 +5576,8 @@ private:
 		long MinDelta;
 		long HCellLen;
 		long MCellLen;
-		TSArray <TRect> Hours;
-		TSArray <TRect> Minuts;
+		TSVector <TRect> Hours; // @v9.8.4 TSArray-->TSVector
+		TSVector <TRect> Minuts; // @v9.8.4 TSArray-->TSVector
 	};
 	TimeRects TmRects;
 	LTIME  Data;

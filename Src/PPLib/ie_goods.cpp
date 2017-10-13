@@ -1194,14 +1194,14 @@ private:
 		ImageFileBlock(const char * pSetPath);
 		int    SetFile(const char * pFileName, PPID goodsID);
 
-		struct Entry {
+		struct Entry { // @flat
 			PPID   GoodsID;
 			uint   H;
 			uint   W;
 			int64  Sz;
 			uint   FnP;
 		};
-		TSArray <Entry> List;
+		TSVector <Entry> List; // @v9.8.4 TSArray-->TSVector
 		const SString SetPath;
 	private:
 		SPathStruc Ps;
@@ -1247,13 +1247,13 @@ SLAPI PPGoodsImporter::~PPGoodsImporter()
 	ZDELETE(P_IE);
 }
 
-struct CommonUnit {
+struct CommonUnit { // @flat
 	char   Abbr[128];
 	uint   BaseId;   // UNIT_XXX
 	double Rate;     // Отношение base / this
 };
 
-int SLAPI PPLoadCommonUnits(TSArray <CommonUnit> * pList)
+int SLAPI PPLoadCommonUnits(TSVector <CommonUnit> * pList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -1276,8 +1276,7 @@ int SLAPI PPLoadCommonUnits(TSArray <CommonUnit> * pList)
 		}
 	}
 	CATCH
-		if(pList)
-			pList->freeAll();
+		CALLPTRMEMB(pList, freeAll());
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -1321,7 +1320,7 @@ private:
 	long   ReH_ManyInOne;
 	long   ReH_Frac;
 	long   ReH_PaperFmt;
-	TSArray <CommonUnit> Units;
+	TSVector <CommonUnit> Units; // @v9.8.4 TSArray-->TSVector
 	SString Prefixes;
 	SString TempBuf; // @allocreuse
 };

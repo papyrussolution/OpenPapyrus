@@ -837,15 +837,15 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				THROW(mail.GetStat(&mailbox_count, &mailbox_size));
 				PPLoadText(PPTXT_CHECKINMAILFORPPY, wait_msg);
 				for(msg_n = 1; msg_n <= mailbox_count; msg_n++) {
-					SMailMsg msg;
+					SMailMessage msg;
 					if(mail.GetMsgInfo(msg_n, &msg) > 0)
-						if(msg.Flags & SMailMsg::fFrontol)
+						if(msg.Flags & SMailMessage::fFrontol)
 							msg_list.add(msg_n);
 					PPWaitPercent(msg_n, mailbox_count, wait_msg);
 				}
 				msg_counter.Init(msg_list.getCount());
 				for(i = 0; i < msg_list.getCount(); i++) {
-					SMailMsg msg;
+					SMailMessage msg;
 					PPMakeTempFileName(0, "msg", 0, temp_fname.Z());
 					msg_counter.Increment();
 					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));

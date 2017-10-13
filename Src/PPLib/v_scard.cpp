@@ -1357,7 +1357,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 		if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
 			PPLogger logger;
 			long   inc = 0;
-			TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+			TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 			SCardViewItem item;
 			PPWait(1);
 			if(uhtt_sync) {
@@ -2689,7 +2689,7 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 			if(freezing)
 				blk.Flags |= SCardCore::OpBlock::fFreezing;
 			while(ok <= 0 && EditSCardOp(blk) > 0) {
-				TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+				TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 				if(SCObj.PutUhttOp(Filt.SCardID, blk.Amount) != 0 && SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
 #ifndef NDEBUG
 					SCObj.FinishSCardUpdNotifyList(urn_list);
@@ -2907,7 +2907,7 @@ int SLAPI PPViewSCardOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						SCardCore::OpBlock blk;
 						if(p_hdr->SCardID && SCObj.P_Tbl->GetOp(p_hdr->SCardID, p_hdr->Dtm, &blk) > 0)
 							for(int valid = 0; !valid && EditSCardOp(blk) > 0;) {
-								TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+								TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 								if(SCObj.P_Tbl->PutOpBlk(blk, &urn_list, 1)) {
 									SCObj.FinishSCardUpdNotifyList(urn_list);
 									ok = valid = 1;

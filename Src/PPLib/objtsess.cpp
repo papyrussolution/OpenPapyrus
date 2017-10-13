@@ -1432,7 +1432,7 @@ int SLAPI PPObjTSession::Complete(PPID sessID, int use_ta)
 					if(goods_id == tec_goods_id) {
 						THROW(r = GetPrevSession(tses_rec, &prev_sess_rec));
 						if(r > 0 && TecObj.Fetch(prev_sess_rec.TechID, &tec_rec2) > 0 && goods_id != tec_rec2.GoodsID) {
-							TSArray <TechTbl::Rec> t_list;
+							TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
 							THROW(r = TecObj.SelectTooling(tses_rec.PrcID, goods_id, tec_rec2.GoodsID, &t_list));
 							if(r > 0)
 								for(i = 0; i < t_list.getCount(); i++) {
@@ -1706,7 +1706,7 @@ int SLAPI PPObjTSession::CalcToolingTiming(const TSessionTbl::Rec * pRec, long *
 	if(GetPrevSession(*pRec, &prev_sess_rec) > 0 && TecObj.Fetch(pRec->TechID, &tec_rec) > 0 &&
 		TecObj.Fetch(prev_sess_rec.TechID, &prev_tec_rec) > 0) {
 		//if(tec_rec.GoodsID != prev_tec_rec.GoodsID) {
-			TSArray <TechTbl::Rec> t_list;
+			TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
 			if(TecObj.SelectTooling(pRec->PrcID, tec_rec.GoodsID, prev_tec_rec.GoodsID, &t_list) > 0)
 				for(uint i = 0; i < t_list.getCount(); i++) {
 					timing += t_list.at(i).Duration;

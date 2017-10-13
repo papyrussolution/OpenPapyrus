@@ -16,9 +16,9 @@ time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len)
 	uint64_t time;
 	enum {
 		no = 0,
-		rfc822, /* Tue, 10 Nov 2002 23:50:13   */
-		rfc850, /* Tuesday, 10-Dec-02 23:50:13 */
-		isoc /* Tue Dec 10 23:50:13 2002    */
+		rfc822, // Tue, 10 Nov 2002 23:50:13   
+		rfc850, // Tuesday, 10-Dec-02 23:50:13 
+		isoc    // Tue Dec 10 23:50:13 2002    
 	} fmt;
 	fmt = no; //0;
 	end = value + len;
@@ -162,18 +162,15 @@ time_t FASTCALL ngx_parse_http_time(const u_char * value, size_t len)
 		month += 12;
 		year -= 1;
 	}
-	/* Gauss' formula for Gregorian days since March 1, 1 BC */
+	// Gauss' formula for Gregorian days since March 1, 1 BC 
 	time = (uint64_t)(
-	    /* days in years including leap years since March 1, 1 BC */
-	    365 * year + year / 4 - year / 100 + year / 400
-	    /* days before the month */
-	    + 367 * month / 12 - 30
-	    /* days before the day */
-	    + day - 1
-	    /*
-	   * 719527 days were between March 1, 1 BC and March 1, 1970,
-	   * 31 and 28 days were in January and February 1970
-	     */
+	    365 * year + year / 4 - year / 100 + year / 400 // days in years including leap years since March 1, 1 BC 
+	    + 367 * month / 12 - 30 // days before the month 
+	    + day - 1 // days before the day 
+		// 
+		// 719527 days were between March 1, 1 BC and March 1, 1970,
+		// 31 and 28 days were in January and February 1970
+		// 
 	    - 719527 + 31 + 28) * 86400 + hour * 3600 + min * 60 + sec;
 #if (NGX_TIME_T_SIZE <= 4)
 	if(time > 0x7fffffff) {

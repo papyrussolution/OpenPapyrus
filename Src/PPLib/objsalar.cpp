@@ -877,7 +877,7 @@ int SLAPI PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::
 	return 0;
 }
 
-int SLAPI PPStaffCalPacket::CheckContinuousEntry(const StaffCalendarTbl::Rec * pRec) const
+int FASTCALL PPStaffCalPacket::CheckContinuousEntry(const StaffCalendarTbl::Rec * pRec) const
 {
 	int    ok = 1;
 	if(pRec) {
@@ -1746,7 +1746,7 @@ int SLAPI PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::CheckContinuousEntry(const StaffCalendarTbl::Rec * pRec)
+int FASTCALL PPObjStaffCal::CheckContinuousEntry(const StaffCalendarTbl::Rec * pRec)
 {
 	int    ok = 1, r;
 	if(pRec) {
@@ -1813,7 +1813,7 @@ int SLAPI PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, Staf
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSArray <StaffCalendarTbl::Rec> & rList)
+int SLAPI PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffCalendarTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -1834,7 +1834,7 @@ int SLAPI PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSArray <S
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSArray <StaffCalendarTbl::Rec> & rList)
+int SLAPI PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::Rec> & rList)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Rec rec;
@@ -1963,7 +1963,7 @@ int SLAPI PPObjStaffCal::SetEntry(StaffCalendarTbl::Rec & rEntry, int use_ta)
 		}
 		else {
 			int    done = 0;
-			TSArray <StaffCalendarTbl::Rec> dlist;
+			TSVector <StaffCalendarTbl::Rec> dlist; // @v9.8.4 TSArray-->TSVector
 			THROW(r = SearchEntriesByDtVal(rEntry.CalID, rEntry.DtVal, dlist));
 			if(r > 0) {
 				assert(dlist.getCount()); // ѕараноидальна€ проверка правильности работы SearchEntriesByDtVal
@@ -2094,7 +2094,7 @@ int SLAPI PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID
 }
 
 int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
-	const TSArray <StaffCalendarTbl::Rec> & rCalList, const TSArray <StaffCalendarTbl::Rec> & rProjCalList,
+	const TSVector <StaffCalendarTbl::Rec> & rCalList, const TSVector <StaffCalendarTbl::Rec> & rProjCalList,
 	STimeChunkArray * pList, long & rDays, double & rHour)
 {
 	uint   i;
@@ -2198,8 +2198,8 @@ int SLAPI PPObjStaffCal::CalcPeriodByPersonEvent(const ScObjAssoc & rAssc, const
 	int    ok = 1;
 	long   numdays = 0;
 	double numhours = 0.0;
-	TSArray <StaffCalendarTbl::Rec> cal_list;
-	TSArray <StaffCalendarTbl::Rec> proj_cal_list;
+	TSVector <StaffCalendarTbl::Rec> cal_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <StaffCalendarTbl::Rec> proj_cal_list; // @v9.8.4 TSArray-->TSVector
 	for(uint i = 0; i < rEvList.getCount(); i++) {
 		const PPID ev_id = rEvList.get(i);
 		StaffCalendarTbl::Key2 k2;
@@ -2244,8 +2244,8 @@ int SLAPI PPObjStaffCal::CalcPeriod(const ScObjAssoc & rAssc, const DateRange & 
 	int    ok = 1;
 	long   numdays = 0;
 	double numhours = 0.0;
-	TSArray <StaffCalendarTbl::Rec> cal_list;
-	TSArray <StaffCalendarTbl::Rec> proj_cal_list;
+	TSVector <StaffCalendarTbl::Rec> cal_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <StaffCalendarTbl::Rec> proj_cal_list; // @v9.8.4 TSArray-->TSVector
 	for(LDATE dt = rPeriod.low; dt <= rPeriod.upp; dt = plusdate(dt, 1)) {
 		int    r = -1, proj_r = -1;
 		uint   i;

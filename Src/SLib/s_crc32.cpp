@@ -260,6 +260,53 @@ ulong SLAPI CRC32::Calc(ulong crc, const uint8 * buf, size_t len)
 //
 //
 //
+char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca)
+{
+	char   code[32], dest[32];
+	STRNSCPY(code, pUpce);
+	int    last = code[6] - '0';
+	memset(dest, '0', 12);
+	dest[11] = 0;
+	dest[0] = code[0];
+	if(last == 0 || last == 1 || last == 2) {
+		dest[1] = code[1];
+		dest[2] = code[2];
+		dest[3] = code[6];
+
+		dest[8] = code[3];
+		dest[9] = code[4];
+		dest[10] = code[5];
+	}
+	else if(last == 3) {
+		dest[1] = code[1];
+		dest[2] = code[2];
+		dest[3] = code[3];
+
+		dest[9] = code[4];
+		dest[10] = code[5];
+	}
+	else if(last == 4) {
+		dest[1] = code[1];
+		dest[2] = code[2];
+		dest[3] = code[3];
+		dest[4] = code[4];
+
+		dest[10] = code[5];
+	}
+	else { // last = 5..9
+		dest[1] = code[1];
+		dest[2] = code[2];
+		dest[3] = code[3];
+		dest[4] = code[4];
+		dest[5] = code[5];
+
+		dest[10] = code[6];
+	}
+	return strcpy(pUpca, dest);
+}
+//
+//
+//
 int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 {
 	int    cd = 0;
@@ -379,6 +426,26 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 			}
 			else if(_alg == SCHKDIGALG_RUSNILS) {
 			}
+		}
+	}
+	return cd;
+}
+
+int FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len)
+{
+	int    cd = 0;
+	if(pBarcode && len) {
+		if(len == 7 && pBarcode[0] == '0') {
+			char   code[64];
+			memcpy(code, pBarcode, len);
+			code[len] = 0;
+			len = strlen(SUpceToUpca(code, code));
+			cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, code, len);
+			cd = isdec(cd) ? (cd - '0') : 0;
+		}
+		else {
+			cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, pBarcode, len);
+			cd = isdec(cd) ? (cd - '0') : 0;
 		}
 	}
 	return cd;

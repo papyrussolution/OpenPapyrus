@@ -1923,7 +1923,7 @@ public:
 		GoodsID = goodsID;
 		PrevGoodsID = prevGoodsID;
 	}
-	int    SLAPI Run(TSArray <TechTbl::Rec> * pList);
+	int    SLAPI Run(TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 private:
 	int    SLAPI LoadList(PPID prcID); // @recursion
 	int    SLAPI IsSuited(const Entry * pEntry);
@@ -2120,7 +2120,7 @@ int SLAPI ToolingSelector::IsSuited(const Entry * pEntry)
 	return BIN(is_suited);
 }
 
-int SLAPI ToolingSelector::Run(TSArray <TechTbl::Rec> * pList)
+int SLAPI ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	int    ok = -1;
 	uint   i;
@@ -2156,7 +2156,7 @@ int SLAPI ToolingSelector::Run(TSArray <TechTbl::Rec> * pList)
 	return ok;
 }
 
-int SLAPI PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSArray <TechTbl::Rec> * pList)
+int SLAPI PPObjTech::SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
 {
 	ToolingSelector ts(prcID, goodsID, prevGoodsID);
 	return ts.Run(pList);

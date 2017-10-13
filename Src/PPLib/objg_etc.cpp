@@ -252,7 +252,7 @@ int SLAPI PPGoodsValRestrPacket::RemoveBillArRestr(PPID arID)
 //
 //
 //
-PPObjGoodsValRestr::GvrArray::GvrArray() : TSArray <PPObjGoodsValRestr::GvrItem> ()
+PPObjGoodsValRestr::GvrArray::GvrArray() : TSVector <PPObjGoodsValRestr::GvrItem> () // @v9.8.4 TSArray-->TSVector
 {
 }
 

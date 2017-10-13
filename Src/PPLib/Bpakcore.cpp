@@ -350,8 +350,8 @@ SLAPI PPBill::PPBill()
 
 void SLAPI PPBill::BaseDestroy()
 {
-	Pays.freeAll();
-	Amounts.freeAll();
+	Pays.clear(); // @v9.8.4 freeAll-->clear
+	Amounts.clear(); // @v9.8.4 freeAll-->clear
 	MEMSZERO(Rec);
 	MEMSZERO(Rent);
 	MEMSZERO(Ext);
@@ -1085,21 +1085,33 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			}
 		}
 		if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-			int    is_stopped = -1;
-			SString stop_err_addedmsg = ar_rec.Name;
-			if(rRet.State & rRet.stHasCliAgreement) {
-				PPID   debt_dim_id = 0;
-				GetDebtDim(&debt_dim_id);
-				is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
-				if(is_stopped > 0 && !(rRet.Flags & SetupObjectBlock::fEnableStop)) { // @v9.5.10 !(rRet.Flags & SetupObjectBlock::fEnableStop)
-					SString debt_dim_name;
-					GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
-					stop_err_addedmsg.CatChar(':').Cat(debt_dim_name);
+			{
+				int    ignore_stop = 0;
+				if(!(rRet.Flags & SetupObjectBlock::fEnableStop)) 
+					ignore_stop = 1;
+				else {
+					PPOprKind op_rec;
+					if(GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP)
+						ignore_stop = 1;
+				}
+				if(!ignore_stop) {
+					int    is_stopped = -1;
+					SString stop_err_addedmsg = ar_rec.Name;
+					if(rRet.State & rRet.stHasCliAgreement) {
+						PPID   debt_dim_id = 0;
+						GetDebtDim(&debt_dim_id);
+						is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
+						if(is_stopped > 0) { // @v9.5.10 !(rRet.Flags & SetupObjectBlock::fEnableStop)
+							SString debt_dim_name;
+							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
+							stop_err_addedmsg.CatChar(':').Cat(debt_dim_name);
+						}
+					}
+					if(is_stopped < 0)
+						is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
+					THROW_PP_S(!is_stopped, PPERR_DENYSTOPPEDAR, stop_err_addedmsg); // @v9.5.10 SetupObjectBlock::fEnableStop
 				}
 			}
-			if(is_stopped < 0)
-				is_stopped = BIN(ar_rec.Flags & ARTRF_STOPBILL);
-			THROW_PP_S(!is_stopped || (rRet.Flags & SetupObjectBlock::fEnableStop), PPERR_DENYSTOPPEDAR, stop_err_addedmsg); // @v9.5.10 SetupObjectBlock::fEnableStop
 			if(rRet.PsnID) {
 				PPID   restrict_psn_kind = 0;
 				PPAccSheet acs_rec;
@@ -1152,21 +1164,23 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 	}
 	if(arID && Rec.Object != arID) {
 		Rec.Object = arID;
-		PPObjGoods goods_obj;
-		SString msg;
-		const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
-		const PPCommConfig & r_ccfg = CConfig;
-		for(uint i = 0; i < GetTCount(); i++) {
-			const PPTransferItem & r_ti = ConstTI(i);
-			THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
-			if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
-				PPSupplDeal sd;
-				QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
-				goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
-				THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
-				if(invp_act == PPSupplAgreement::invpaRestrict &&
-					(OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
-					THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
+		if(GetTCount()) {
+			PPObjGoods goods_obj;
+			SString msg;
+			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
+			const PPCommConfig & r_ccfg = CConfig;
+			for(uint i = 0; i < GetTCount(); i++) {
+				const PPTransferItem & r_ti = ConstTI(i);
+				THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
+				if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+					PPSupplDeal sd;
+					QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
+					goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
+					THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
+					if(invp_act == PPSupplAgreement::invpaRestrict &&
+						(OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
+						THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
+					}
 				}
 			}
 		}
@@ -1370,7 +1384,7 @@ int SLAPI PPBillPacket::RemoveRows(IntArray * pPositions, int lowStop)
 	}
 	else {
 		Rec.Flags &= ~BILLF_RECOMPLETE;
-		Lots.freeAll();
+		Lots.clear(); // @v9.8.4 freeAll-->clear
 		ClbL.Release();
 		SnL.Release();
 		LTagL.Release();
@@ -1539,7 +1553,7 @@ void SLAPI PPBillPacket::destroy()
 {
 	PPBill::BaseDestroy();
 	RemoveRows(0);
-	Turns.freeAll();
+	Turns.clear(); // @v9.8.4 freeAll-->clear
 	ZDELETE(P_ShLots);
 	ZDELETE(P_ACPack);
 	ZDELETE(P_LinkPack); // @v9.4.3

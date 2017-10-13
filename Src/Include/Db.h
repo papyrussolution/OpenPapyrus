@@ -1510,7 +1510,7 @@ private:
 		fForUpdate  = 0x0002,
 		fNoMoreData = 0x0004  // Последний вызов Fetch выбрал все доступные данные. Больше вызывать Fetch не следует.
 	};
-	class BindArray : public TSArray <SSqlStmt::Bind> {
+	class BindArray : public TSVector <SSqlStmt::Bind> {
 	public:
 		BindArray(uint dim = 1);
 		uint   Dim; // Размерность связываемого массива элементов.

@@ -337,8 +337,7 @@ int PriceChecker::Login()
 int PriceChecker::Logout()
 {
 	long   ret = 0;
-	if(P_Session)
-		P_Session->Logout(&ret);
+	CALLPTRMEMB(P_Session, Logout(&ret));
 	return (ret > 0);
 }
 

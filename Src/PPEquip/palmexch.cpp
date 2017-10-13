@@ -956,7 +956,7 @@ int SyncTable::TransmitCompressedFile(PROGRESSFN pFn, SpiiExchgContext * pCtx)
 //
 //
 //
-int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SArray * pAry, CompFunc cf)
+int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	if(pDbName && pAry) {
@@ -986,7 +986,7 @@ int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SArray * pAry,
 	return ok;
 }
 
-int SCDBObject::ExportIndexes(PROGRESSFN pFn, SArray * pAry)
+int SCDBObject::ExportIndexes(PROGRESSFN pFn, SVector * pAry) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	uint   count = 0;

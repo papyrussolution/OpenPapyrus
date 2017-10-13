@@ -686,8 +686,7 @@ int SLAPI PPViewQuot::InitIteration()
 int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem)
-		memzero(pItem, sizeof(*pItem));
+	memzero(pItem, sizeof(*pItem));
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
 			pItem->GoodsID   = P_TempTbl->data.GoodsID;
@@ -712,13 +711,13 @@ struct VQuotEntry {
 IMPL_CMPFUNC(VQuotEntry, i1, i2)
 {
 	int    si;
-	CMPCASCADE3(si, (VQuotEntry *)i1, (VQuotEntry *)i2, GoodsID, LocID, ArID);
+	CMPCASCADE3(si, (const VQuotEntry *)i1, (const VQuotEntry *)i2, GoodsID, LocID, ArID);
 	return si;
 }
 
-class VQuotCache : public TSArray <VQuotEntry> {
+class VQuotCache : public TSVector <VQuotEntry> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  VQuotCache() : TSArray <VQuotEntry>()
+	SLAPI  VQuotCache() : TSVector <VQuotEntry>()
 	{
 		MaxQuotPos = 0;
 		ValPool.add("$"); // zero index - is empty string

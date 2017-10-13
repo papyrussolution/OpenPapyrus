@@ -1484,7 +1484,7 @@ struct LTIME {
 	int    SLAPI hs()    const { return (int)(((uint8 *)&v)[0]); }
 	long   SLAPI totalsec() const { return (sec() + minut() * 60 + hour() * 3600); }
 	//
-	// Descr: Устанавливает время соответствии с количеством секунд, заданных параметром s.
+	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
 	// Returns:
 	//   Количество целых суток, содержащихся в s
 	//
@@ -1495,6 +1495,39 @@ struct LTIME {
 	LTIME & FASTCALL addhs(long n);
 	ulong  v;
 };
+//
+// @construction {
+// Descr: Представление времени, обеспечивающее хранение времени с точностью до миллисекунд
+//   и с фактором временного пояса.
+//
+class STIME {
+public:
+	DECL_INVARIANT_C();
+	SLAPI  operator unsigned long() const { return v; }
+	operator OleDate() const;
+	STIME  operator = (OleDate);
+	STIME  operator = (double); // OleDate
+	STIME  SLAPI encode(int h, int m, int s, int ms, int tz);
+	int    SLAPI hour()  const;
+	int    SLAPI minut() const;
+	int    SLAPI sec()   const;
+	int    SLAPI ms()    const;
+	int    SLAPI zone()  const;
+	long   SLAPI totalsec() const;
+	//
+	// Descr: Устанавливает время в соответствии с количеством секунд, заданных параметром s.
+	// Returns:
+	//   Количество целых суток, содержащихся в s
+	//
+	long   FASTCALL settotalsec(long s);
+	//
+	// Descr: добавляет к значению времени ms миллисекунд.
+	//
+	STIME & FASTCALL addms(long ms);
+private:
+	ulong  v;
+};
+// } @construction
 //
 // Descr: Представление рабочего дня //
 //   Календарные даты представлены индексами количества календарных дней после WorkDate::InitDate.
@@ -1786,7 +1819,7 @@ private:
 class SCycleTimer {
 public:
 	SCycleTimer(uint32 msDelay);
-	int    FASTCALL Restart(uint32 msDelay);
+	void   FASTCALL Restart(uint32 msDelay);
 	int    FASTCALL Check(LDATETIME * pLast);
 private:
 	uint32 Delay;
@@ -3466,6 +3499,7 @@ public:
 	SString & FASTCALL CatHex(ulong val);
 	SString & FASTCALL CatHex(int64 val);
 	SString & FASTCALL CatHex(uint8 val);
+	SString & FASTCALL CatHexUpper(uint8 val);
 	//
 	// Descr: Конкатенация конструкции {"%d.%d.%d", ver, mjr, mnr}
 	//
@@ -3555,6 +3589,19 @@ public:
 	SString & EncodeString(const char * pSrc, const char * pEncodeStr, int decode);
 	SString & SLAPI EncodeMime64(const void * pBuf, size_t bufLen);
 	int    SLAPI DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const;
+	SString & SLAPI Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen);
+	int    SLAPI Decode_QuotedPrintable(SString & rBuf) const;
+	//
+	// Descr: Способы кодировки encoded-word RFC2047
+	//
+	enum {
+		rfc2207encMime64 = 1, // mime64
+		rfc2207encQP,         // quoted-printable
+	};
+
+	SString & SLAPI Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc);
+	size_t SLAPI Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
+
 	int    SLAPI DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	//
 	// Descr: Утилитная функция, формирующая унифицированную строку сообщения при разборе файла.
@@ -3567,6 +3614,7 @@ private:
 	int    FASTCALL Alloc(size_t);
 	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
+	size_t FASTCALL CharToQp(char c);
 	// @v9.0.4 L поставлен перед Size ради ускорения
 	size_t L;     // Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
@@ -3667,7 +3715,7 @@ public:
 	void   SLAPI destroy();
 	//
 	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер.
-	// Note: Следует использовать при необходимости повторного использования объекта 
+	// Note: Следует использовать при необходимости повторного использования объекта
 	//   (распределенный ранее буфер улучшит производительность).
 	//
 	void   SLAPI clear(/*int dontFreeBuf = 0*/);
@@ -3843,6 +3891,18 @@ struct SVerT { // @persistent Size=4
 	int    SLAPI IsEq(int, int, int) const;
 	int    SLAPI Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
+	//
+	// Descr: Преобразует строковое представление версии в данный экземпляр объекта.
+	//   Возможен разбор 2 вариантов представления:
+	//      9.9.9
+	//      9.9
+	//   Пробелы и табуляции перед первой цифрой незначимы.
+	//   Любые символы после шаблона незначимы.
+	// Returns:
+	//   3 - распознано представление номера версии в формате 9.9.9
+	//   2 - распознано представление номера версии в формате 9.9
+	//   0 - не удалось распознать номер версии во входящей строке.
+	//
 	int    FASTCALL FromStr(const char * pStr);
 	operator uint32() const;
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -4269,6 +4329,12 @@ enum {
 int   SLAPI _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
 int   SLAPI strtodate(const char * pBuf, long fmt, void *);
 LDATE FASTCALL strtodate_(const char * pBuf, long fmt);
+//
+// Descr: Заимствованная у CURL функция преобразования строки в дату/время.
+// Note: поскольку встроенная библиотеку libcurl зависит от SLIB, то оригинальный код 
+//   также использует эту функцию.
+//
+time_t FASTCALL Sl_Curl_GetDate(const char * p);
 //
 // Descr: Преобразует строку pBuf в представление времени в формате LTIME
 //   Строка может иметь вид "hh:mm:ss:hs", где
@@ -4960,7 +5026,9 @@ uint32 FASTCALL BobJencHash(const void * pData, size_t len);
 // Note: некоторые алгоритмы предполагают наличие более одной контрольной цифры. Для таких
 // алгоритмов возможно использование функции только в режиме проверки (alg & SCHKDIGALG_TEST)
 //
-int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
+int    SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
+char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca);
+int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
 
 #endif // } _WIN32_WCE
 //
@@ -5561,7 +5629,7 @@ public:
 template <class T> class TSVector : public SVector {
 public:
 	TSVector() : SVector(sizeof(T)) {}
-	//TSVector(const TSVector & src) : SVector(src) {}
+	TSVector(const TSVector & src) : SVector(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SVector::at(pos); }
 };
 #endif // } 0 @construction
@@ -5770,15 +5838,6 @@ public:
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
-		/*
-		if(!p_new_item)
-			SLS.SetError(SLERR_NOMEM);
-		else if(insert(p_new_item)) {
-			ASSIGN_PTR(pPosition, count-1);
-		}
-		else
-			ZDELETE(p_new_item);
-		*/
 		if(p_new_item) {
 			if(insert(p_new_item)) {
 				ASSIGN_PTR(pPosition, count-1);
@@ -5791,12 +5850,6 @@ public:
 	T * FASTCALL CreateNewItem()
 	{
 		T * p_new_item = new T;
-		/*
-		if(!p_new_item)
-			SLS.SetError(SLERR_NOMEM);
-		else if(!insert(p_new_item))
-			ZDELETE(p_new_item);
-		*/
 		if(p_new_item) {
 			if(!insert(p_new_item))
 				ZDELETE(p_new_item);
@@ -7521,9 +7574,10 @@ class SFile {
 public:
 	DECL_INVARIANT_C();
 
-	static int SLAPI Remove(const char * pFileName);
+	static int FASTCALL Remove(const char * pFileName);
 	static int SLAPI Rename(const char * pFileName, const char * pNewFileName);
 	static int SLAPI Compare(const char * pFileName1, const char * pFileName2, long flags);
+	static int FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
 	//
 	// Descr: Структура дополнительных параметров сортировки файла
 	//
@@ -7658,8 +7712,8 @@ public:
 	//   то возвращает 0 и устанавливает код ошибки SLERR_SFILRDSIZE.
 	//
 	int    SLAPI ReadV(void * pBuf, size_t size);
-	int    SLAPI WriteLine(const char *);
-	int    SLAPI ReadLine(SString &);
+	int    FASTCALL WriteLine(const char *);
+	int    FASTCALL ReadLine(SString &);
 	//
 	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
 	//   Сначала записывает размер буфера, затем - данные.
@@ -7817,6 +7871,33 @@ typedef int (*FileFormatSignatureFunc)(FILE * pF, long extraParam);
 //
 class SFileFormat { // @persistent (новые зарезервированные форматы добавлять в конце списка перед FirstUser)
 public:
+	//
+	// Descr: Типы кодировки контента (Content-Transfer-Encoding)
+	//
+	enum {
+		cteUndef = 0,
+		cte8bit,
+		cte7bit,
+		cteBinary,
+		cteBase64,
+		cteQuotedPrintable
+	};
+	//
+	// Descr: MIME types (e.g. in application/pdf application is type, pdf - subtype)
+	//
+	enum {
+		mtUndef = 0,
+		mtMultipart,
+		mtText,
+		mtApplication,
+		mtImage,
+		mtMessage,
+		mtVideo,
+		mtAudio,
+		mtFont,
+		mtModel,
+		mtExample
+	};
 	enum {
 		Unkn             =  0,
 		Txt              =  1,
@@ -7939,8 +8020,12 @@ public:
 
 		FirstUser        = 10000
 	};
-	static int Register(int id, const char * pMime, const char * pExt, const char * pSign);
+	static int Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
+	static int Register(int id, const char * pExt, const char * pSign);
 	static int Register();
+	static int IdentifyContentTransferEnc(const char * pCte);
+	static int IdentifyMimeType(const char * pMimeType);
+	static int GetMimeTypeName(int mimeType, SString & rBuf);
 	static int GetMime(int id, SString & rMime);
 	static int GetExt(int id, SString & rExt);
 
@@ -8292,7 +8377,7 @@ private:
 		uint32 NScriptStart;  // Начальная позиция списка натуральных скриптов в кодовой странице
 		uint32 NScriptCount;  // Количество натуральных скриптов в кодовой странице
 	};
-	struct CMapTranslIndexTest : TSArray <CMapTranslEntry> {
+	struct CMapTranslIndexTest : TSVector <CMapTranslEntry> { // @v9.8.4 TSArray-->TSVector
 		CMapTranslIndexTest();
 		void   Reset();
 		//
@@ -8822,6 +8907,74 @@ private:
 	FILE * P_Stream;
 };
 //
+// Descr: Идентификаторы распознаваемых натуральных токенов.
+//   @persistent
+//   Символьные обозначения токенов находятся в строке PPTXT_NATURALTOKENID
+//
+#define SNTOK_UNKN           0
+#define SNTOK_NATURALWORD    1
+#define SNTOK_DIGITCODE      2
+#define SNTOK_EAN13          3
+#define SNTOK_EAN8           4
+#define SNTOK_UPCA           5
+#define SNTOK_UPCE           6
+#define SNTOK_RU_INN         7
+#define SNTOK_EGAISWARECODE  8 // Код алкогольной продукции ЕГАИС
+#define SNTOK_EGAISMARKCODE  9 // Код акцизной марки алкогольной продукции ЕГАИС
+#define SNTOK_LUHN          10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
+#define SNTOK_DIGLAT        11 // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
+#define SNTOK_GUID          12 // Общепринятое текстовое представление GUID
+#define SNTOK_EMAIL         13 // Адрес электронной почты
+#define SNTOK_PHONE         14 // Номер телефона
+#define SNTOK_IMEI          15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
+#define SNTOK_IP4           16 // ip4-address xx.xx.xx.xx
+#define SNTOK_IP6           17 // @todo ip6-address
+#define SNTOK_MACADDR48     18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
+#define SNTOK_DATE          19 // date
+#define SNTOK_TIME          20 // time
+#define SNTOK_SOFTWAREVER   21 // 9.9.9
+#define SNTOK_COLORHEX      22 // #hhhhhh
+
+#define SNTOKSEQ_DEC        1 // 0-9
+#define SNTOKSEQ_HEX        2 // A-F||a-f
+#define SNTOKSEQ_LATUPR     3 // A-Z
+#define SNTOKSEQ_LATLWR     4 // a-z
+#define SNTOKSEQ_DECLAT     5 // 0-9||A-F||a-f
+#define SNTOKSEQ_ASCII      6 // 1-127
+#define SNTOKSEQ_UTF8       7
+#define SNTOKSEQ_1251       8
+#define SNTOKSEQ_866        9
+
+struct SNaturalTokenStat {
+	SLAPI  SNaturalTokenStat();
+    uint32 Len;  // Длина токена в байтах
+    uint32 Seq;
+};
+
+struct SNaturalToken { // @flat
+	uint32 ID;
+	float  Prob;
+};
+
+class SNaturalTokenArray : public TSVector <SNaturalToken> {
+public:
+	float  FASTCALL Has(uint32 tok) const;
+	int    SLAPI Add(uint32 tok, float prob);
+};
+
+class STokenRecognizer : public SRegExpSet {
+public:
+	SLAPI  STokenRecognizer();
+	SLAPI ~STokenRecognizer();
+	//
+	// Descr: Функция пытается идентифицировать natural token в строке pToken длиной len.
+	//   Если len < 0, то просматривается sstrlen(pToken) символов
+	//
+	int    SLAPI Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+private:
+	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
+};
+//
 // Mathematics {
 //
 class SMathConst {
@@ -8943,7 +9096,7 @@ private:
 	};
 	long   Flags;
 	RAssocArray BinList;
-	TSArray <SHistogram::Val> ValList;
+	TSVector <SHistogram::Val> ValList; // @v9.8.4 TSArray-->TSVector
 	double LeftEdge;
 	double Step;
 	double DevWidthSigm;
@@ -10251,7 +10404,37 @@ private:
 // Descr: Специализированная функция для сериализации шаблонизированных массивов, элементы которых
 //   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 //
+#if 0 // @unused {
 template <class T> int TSArray_Serialize(TSArray <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint32 c = 0;
+	if(dir > 0) {
+		c = rList.getCount();
+		THROW(pSCtx->Serialize(dir, c, rBuf));
+		for(uint i = 0; i < c; i++) {
+			T & r_item = rList.at(i);
+			THROW(r_item.Serialize(dir, rBuf, pSCtx));
+		}
+	}
+	else if(dir < 0) {
+		rList.clear();
+		THROW(pSCtx->Serialize(dir, c, rBuf));
+		for(uint i = 0; i < c; i++) {
+			T  item;
+			THROW(item.Serialize(dir, rBuf, pSCtx));
+			THROW(rList.insert(&item));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0
+//
+// Descr: Специализированная функция для сериализации шаблонизированных векторов, элементы которых
+//   поддерживают невиртуальный метод Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+//
+template <class T> int TSVector_Serialize(TSVector <T> & rList, int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	uint32 c = 0;
@@ -10537,7 +10720,7 @@ private:
 //
 class SPrinting {
 public:
-	struct PrnInfo {
+	struct PrnInfo { // @flat
 		enum {
 			fDefault = 0x0001,
 			fLocal   = 0x0002,
@@ -10548,7 +10731,7 @@ public:
 		char   PrinterName[64];
 		char   ShareName[128];
 	};
-	static int SLAPI GetListOfPrinters(TSArray <PrnInfo> * pInfoList);
+	static int SLAPI GetListOfPrinters(TSVector <PrnInfo> * pInfoList); // @v9.8.4 TSArray-->TSVector
 	SPrinting(HWND);
 	~SPrinting();
 	int    Init(const char * pPort);
@@ -11720,10 +11903,11 @@ int    CopyPaste(HWND hWnd, int copy, const char * pPath);
 //
 struct _cairo;
 struct _cairo_surface;
-struct _cairo_pattern;
+//struct _cairo_pattern;
+struct cairo_pattern_t;
 typedef struct _cairo cairo_t;
 typedef struct _cairo_surface cairo_surface_t;
-typedef struct _cairo_pattern cairo_pattern_t;
+//typedef struct _cairo_pattern cairo_pattern_t;
 typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;
 //

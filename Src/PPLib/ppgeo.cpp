@@ -424,7 +424,7 @@ int SLAPI PPOsm::NodeCluster::Put__(const Put__Param & rP, uint64 * pOuterID, Pu
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSVector <Node> * pList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
@@ -578,12 +578,12 @@ int SLAPI PPOsm::NodeCluster::Implement_Get(uint64 outerID, TSArray <Node> * pLi
 	return ok;
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList)
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList)
 {
 	return Implement_Get(outerID, &rList, pNrList, 0, 0, 0);
 }
 
-int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSArray <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
+int SLAPI PPOsm::NodeCluster::Get(uint64 outerID, TSVector <Node> & rList, NodeRefs * pNrList, Node * pHead, uint * pCountLogic, uint * pCountActual)
 {
 	return Implement_Get(outerID, &rList, pNrList, pHead, pCountLogic, pCountActual);
 }
@@ -1072,7 +1072,7 @@ SLAPI PPOsm::Tag::Tag()
 }
 
 //static
-int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSArray <NodeClusterStatEntry> & rStat)
+int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSVector <NodeClusterStatEntry> & rStat)
 {
 	int    ok = 1;
 	int    found = 0;
@@ -1095,7 +1095,7 @@ int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSArray <
 }
 
 //static
-int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSArray <WayStatEntry> & rStat)
+int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSVector <WayStatEntry> & rStat)
 {
 	int    ok = 1;
 	int    found = 0;
@@ -1118,7 +1118,7 @@ int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSArray <WaySt
 }
 
 //static
-int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSArray <WayStatEntry> & rStat)
+int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSVector <WayStatEntry> & rStat)
 {
     int    ok = 1;
     Way    way;
@@ -1149,7 +1149,7 @@ int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSArray <WayStatEntry> & rSt
 }
 
 //static
-int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSArray <NodeClusterStatEntry> & rStat)
+int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSVector <NodeClusterStatEntry> & rStat)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
@@ -1384,7 +1384,7 @@ int SLAPI GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
 	return ok;
 }
 
-int SLAPI GeoTrackCore::PutChunk(const TSArray <PPGeoTrackItem> & rList, int use_ta)
+int SLAPI GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const  uint _c = rList.getCount();

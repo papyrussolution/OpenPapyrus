@@ -837,7 +837,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				// Наконец, импортируем основы слов с правилами преобразования //
 				//
 				if(fm_file.ReadLine(line_buf)) {
-					TSArray <SrWordAssoc> test_wa_list;
+					TSVector <SrWordAssoc> test_wa_list; // @v9.8.4 TSArray-->TSVector
 					long   lm_count = line_buf.ToLong();
 					THROW(lm_count > 0);
 					for(long i = 0; i < lm_count; i++) {
@@ -1646,8 +1646,8 @@ int SrConceptParser::Run(const char * pFileName)
 	int    ok = 1;
 	int    finish = 0;
 	int    lang_id = 0;
-	//TSArray <SrWordAssoc> wa_list;
-	TSArray <SrWordInfo> word_info;
+	//TSVector <SrWordAssoc> wa_list;
+	TSVector <SrWordInfo> word_info; // @v9.8.4 TSArray-->TSVector
 	SString temp_buf, ident_buf;
 	SString msg_buf;
 	StrAssocArray temp_token_list;
@@ -2620,7 +2620,7 @@ int SLAPI PrcssrSartre::TestSearchWords()
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
-	TSArray <SrWordInfo> info_list;
+	TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
 	SrDatabase db;
 	THROW(db.Open(0, 0)); // @todo Режим открытия
 	{
@@ -3908,7 +3908,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					SrNGram sng;
 					SrNGram sng_local;
 					uint   tidx = rB.TextIdx;
-					TSArray <NGID> ng_list;
+					TSVector <NGID> ng_list; // @v9.8.4 TSArray-->TSVect
 					Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
 					Int64Array concept_hier_list; // Иерархия отдельной концепции
 					rB.GetTextItemWithAdvance(tidx);

@@ -63,6 +63,57 @@ static size_t FASTCALL CalcArrayDelta(uint itemSize)
     return quant / itemSize;
 }
 
+static uint FASTCALL SnapUpCount(uint newCount, uint itemSize)
+{
+	const size_t low_limit_bytes = 256;
+	size_t s = newCount * itemSize;
+	uint   result = newCount;
+	// Если запрашивается первый элемент, то на один и распределяем пространство (один элемент в массиве очень популярное значение)
+	if(result > 1) { 
+		if(s < low_limit_bytes)
+			result = (low_limit_bytes / itemSize);
+		else {
+			size_t j = s;
+			j |= (j >>  1);
+			j |= (j >>  2);
+			j |= (j >>  4);
+			j |= (j >>  8);
+			j |= (j >> 16);
+			result = (j + 1) / itemSize; // Least power of two greater than i
+		}
+		assert(result >= newCount);
+	}
+	return result;
+}
+
+int FASTCALL SVectorBase::expand(uint numNewRecs)
+{
+	int    ok = 1;
+	uint   new_count = count + numNewRecs;
+	if(new_count > Limit) {
+		const  size_t _is = (size_t)isize;
+		uint   new_limit = SnapUpCount(new_count, _is);
+		assert(new_limit >= new_count);
+		void * ptr = SAlloc::R(data, new_limit * _is);
+		while(!ptr && (new_limit > new_count)) {
+			const uint minus_delta = ((new_limit - new_count) / 2);
+			if(minus_delta) {
+				new_limit -= minus_delta;
+				ptr = SAlloc::R(data, new_limit * _is);
+			}
+		}
+		if(ptr) {
+			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is);
+			data = (uint8 *)ptr;
+			Limit = new_limit;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
+/*
 int FASTCALL SVectorBase::expand(uint numNewRecs)
 {
 	int    ok = 1;
@@ -83,16 +134,19 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 	}
 	return ok;
 }
+*/
 
 void SLAPI SVectorBase::shrink()
 {
 	// @v9.1.1 const  uint _delta = delta;
+	/* @v9.8.4
 	const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
 	uint   newlimit = ((count + (uint)(_delta - 1)) / (uint)_delta) * (uint)_delta;
 	if(newlimit < Limit) {
 		Limit = newlimit;
 		data  = (uint8 *)SAlloc::R(data, Limit * isize);
 	}
+	*/
 }
 
 void SLAPI SVectorBase::atPut(uint idx, const void * pItem)

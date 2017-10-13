@@ -652,9 +652,10 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi, struct Curl_easy *
 	update_timer(multi);
 	return CURLM_OK;
 }
-
-/* Return TRUE if the application asked for a certain set of pipelining */
-bool Curl_pipeline_wanted(const struct Curl_multi * multi, int bits)
+//
+// Return TRUE if the application asked for a certain set of pipelining 
+//
+bool FASTCALL Curl_pipeline_wanted(const struct Curl_multi * multi, int bits)
 {
 	return (multi && (multi->pipelining & bits)) ? TRUE : FALSE;
 }
@@ -925,7 +926,7 @@ void Curl_multi_connchanged(struct Curl_multi * multi)
  *
  * Set 'clear' to TRUE to have it also clear the state variable.
  */
-static bool multi_ischanged(struct Curl_multi * multi, bool clear)
+static bool FASTCALL multi_ischanged(struct Curl_multi * multi, bool clear)
 {
 	bool retval = multi->recheckstate;
 	if(clear)
@@ -1187,8 +1188,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 						    rc = CURLM_CALL_MULTI_PERFORM;
 
 						    if(protocol_connect)
-							    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ?
-							    CURLM_STATE_WAITDO : CURLM_STATE_DO);
+							    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ? CURLM_STATE_WAITDO : CURLM_STATE_DO);
 						    else {
 #ifndef CURL_DISABLE_HTTP
 							    if(data->easy_conn->tunnel_state[FIRSTSOCKET] == TUNNEL_CONNECT)
@@ -1311,8 +1311,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 				    multistate(data, CURLM_STATE_PROTOCONNECT);
 			    else if(!result) {
 				    /* protocol connect has completed, go WAITDO or DO */
-				    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ?
-				    CURLM_STATE_WAITDO : CURLM_STATE_DO);
+				    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ? CURLM_STATE_WAITDO : CURLM_STATE_DO);
 				    rc = CURLM_CALL_MULTI_PERFORM;
 			    }
 			    else if(result) {
@@ -1328,8 +1327,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi, struct timeval now, 
 			    result = Curl_protocol_connecting(data->easy_conn, &protocol_connect);
 			    if(!result && protocol_connect) {
 				    /* after the connect has completed, go WAITDO or DO */
-				    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ?
-				    CURLM_STATE_WAITDO : CURLM_STATE_DO);
+				    multistate(data, Curl_pipeline_wanted(multi, CURLPIPE_HTTP1) ? CURLM_STATE_WAITDO : CURLM_STATE_DO);
 				    rc = CURLM_CALL_MULTI_PERFORM;
 			    }
 			    else if(result) {

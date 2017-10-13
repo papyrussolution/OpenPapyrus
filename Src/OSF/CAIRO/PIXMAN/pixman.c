@@ -172,8 +172,7 @@ static inline pixman_bool_t clip_general_image(pixman_region32_t * region, pixma
 	return pixman_region32_not_empty(region);
 }
 
-static inline pixman_bool_t clip_source_image(pixman_region32_t * region,
-    pixman_image_t * image, int dx, int dy)
+static inline pixman_bool_t clip_source_image(pixman_region32_t * region, pixman_image_t * image, int dx, int dy)
 {
 	/* Source clips are ignored, unless they are explicitly turned on
 	 * and the clip in question was set by an X client. (Because if
@@ -285,44 +284,33 @@ typedef struct {
 } box_48_16_t;
 
 static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
-    const pixman_box32_t * extents,
-    box_48_16_t * transformed)
+    const pixman_box32_t * extents, box_48_16_t * transformed)
 {
 	pixman_fixed_48_16_t tx1, ty1, tx2, ty2;
-	pixman_fixed_t x1, y1, x2, y2;
 	int i;
-
-	x1 = pixman_int_to_fixed(extents->x1) + pixman_fixed_1 / 2;
-	y1 = pixman_int_to_fixed(extents->y1) + pixman_fixed_1 / 2;
-	x2 = pixman_int_to_fixed(extents->x2) - pixman_fixed_1 / 2;
-	y2 = pixman_int_to_fixed(extents->y2) - pixman_fixed_1 / 2;
-
+	pixman_fixed_t x1 = pixman_int_to_fixed(extents->x1) + pixman_fixed_1 / 2;
+	pixman_fixed_t y1 = pixman_int_to_fixed(extents->y1) + pixman_fixed_1 / 2;
+	pixman_fixed_t x2 = pixman_int_to_fixed(extents->x2) - pixman_fixed_1 / 2;
+	pixman_fixed_t y2 = pixman_int_to_fixed(extents->y2) - pixman_fixed_1 / 2;
 	if(!transform) {
 		transformed->x1 = x1;
 		transformed->y1 = y1;
 		transformed->x2 = x2;
 		transformed->y2 = y2;
-
 		return TRUE;
 	}
-
 	tx1 = ty1 = INT64_MAX;
 	tx2 = ty2 = INT64_MIN;
-
 	for(i = 0; i < 4; ++i) {
 		pixman_fixed_48_16_t tx, ty;
 		pixman_vector_t v;
-
 		v.vector[0] = (i & 0x01) ? x1 : x2;
 		v.vector[1] = (i & 0x02) ? y1 : y2;
 		v.vector[2] = pixman_fixed_1;
-
 		if(!pixman_transform_point(transform, &v))
 			return FALSE;
-
 		tx = (pixman_fixed_48_16_t)v.vector[0];
 		ty = (pixman_fixed_48_16_t)v.vector[1];
-
 		if(tx < tx1)
 			tx1 = tx;
 		if(ty < ty1)
@@ -332,12 +320,10 @@ static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
 		if(ty > ty2)
 			ty2 = ty;
 	}
-
 	transformed->x1 = tx1;
 	transformed->y1 = ty1;
 	transformed->x2 = tx2;
 	transformed->y2 = ty2;
-
 	return TRUE;
 }
 
@@ -345,9 +331,7 @@ static pixman_bool_t compute_transformed_extents(pixman_transform_t * transform,
 #define ABS(f)      (((f) < 0) ?  (-(f)) : (f))
 #define IS_16_16(f) (((f) >= pixman_min_fixed_48_16 && ((f) <= pixman_max_fixed_48_16)))
 
-static pixman_bool_t analyze_extent(pixman_image_t       * image,
-    const pixman_box32_t * extents,
-    uint32_t             * flags)
+static pixman_bool_t analyze_extent(pixman_image_t * image, const pixman_box32_t * extents, uint32_t * flags)
 {
 	pixman_transform_t * transform;
 	pixman_fixed_t x_off, y_off;
@@ -355,10 +339,8 @@ static pixman_bool_t analyze_extent(pixman_image_t       * image,
 	pixman_fixed_t * params;
 	box_48_16_t transformed;
 	pixman_box32_t exp_extents;
-
 	if(!image)
 		return TRUE;
-
 	/* Some compositing functions walk one step
 	 * outside the destination rectangle, so we
 	 * check here that the expanded-by-one source
@@ -663,8 +645,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_blt(const uint32_t * src_bits, uint32_t * dst
 	    src_bpp, dst_bpp, src_x, src_y, dest_x, dest_y, width, height);
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y,
-    int width, int height, uint32_t filler)
+PIXMAN_EXPORT pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t filler)
 {
 	return _pixman_implementation_fill(get_implementation(), bits, stride, bpp, x, y, width, height, filler);
 }

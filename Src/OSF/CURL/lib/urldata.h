@@ -771,17 +771,13 @@ struct Curl_handler {
    the send function might need to be called while uploading, or vice versa.
  */
 #define PROTOPT_DIRLOCK (1<<3)
-#define PROTOPT_NONETWORK (1<<4)   /* protocol doesn't use the network! */
-#define PROTOPT_NEEDSPWD (1<<5)    /* needs a password, and if none is set it
-	                              gets a default */
-#define PROTOPT_NOURLQUERY (1<<6)   /* protocol can't handle
-	                                url query strings (?foo=bar) ! */
-#define PROTOPT_CREDSPERREQUEST (1<<7) /* requires login credentials per
-	                                  request instead of per connection */
-#define PROTOPT_ALPN_NPN (1<<8) /* set ALPN and/or NPN for this */
-#define PROTOPT_STREAM (1<<9) /* a protocol with individual logical streams */
-#define PROTOPT_URLOPTIONS (1<<10) /* allow options part in the userinfo field
-	                              of the URL */
+#define PROTOPT_NONETWORK (1<<4)   // protocol doesn't use the network! 
+#define PROTOPT_NEEDSPWD (1<<5)    // needs a password, and if none is set it gets a default 
+#define PROTOPT_NOURLQUERY (1<<6)   // protocol can't handle url query strings (?foo=bar) ! 
+#define PROTOPT_CREDSPERREQUEST (1<<7) // requires login credentials per request instead of per connection 
+#define PROTOPT_ALPN_NPN (1<<8) // set ALPN and/or NPN for this 
+#define PROTOPT_STREAM (1<<9) // a protocol with individual logical streams 
+#define PROTOPT_URLOPTIONS (1<<10) // allow options part in the userinfo field of the URL 
 
 /* return the count of bytes sent, or -1 on error */
 typedef ssize_t (Curl_send)(struct connectdata * conn, /* connection data */
@@ -799,14 +795,12 @@ typedef ssize_t (Curl_recv)(struct connectdata * conn, /* connection data */
 
 #ifdef USE_RECV_BEFORE_SEND_WORKAROUND
 struct postponed_data {
-	char * buffer;   /* Temporal store for received data during
-	                    sending, must be freed */
-	size_t allocated_size; /* Size of temporal store */
-	size_t recv_size; /* Size of received data during sending */
-	size_t recv_processed; /* Size of processed part of postponed data */
+	char * buffer; // Temporal store for received data during sending, must be freed 
+	size_t allocated_size; // Size of temporal store 
+	size_t recv_size; // Size of received data during sending 
+	size_t recv_processed; // Size of processed part of postponed data 
 #ifdef DEBUGBUILD
-	curl_socket_t bindsock; /* Structure must be bound to specific socket,
-	                           used only for DEBUGASSERT */
+	curl_socket_t bindsock; // Structure must be bound to specific socket, used only for DEBUGASSERT 
 #endif /* DEBUGBUILD */
 };
 
@@ -814,7 +808,6 @@ struct postponed_data {
 
 struct proxy_info {
 	struct hostname host;
-
 	long port;
 	curl_proxytype proxytype; /* what kind of proxy that is in use */
 	char * user; /* proxy user name string, allocated */

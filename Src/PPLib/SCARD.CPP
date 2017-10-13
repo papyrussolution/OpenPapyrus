@@ -165,7 +165,7 @@ int SLAPI SCardCore::UpdateDiscount(PPID id, double discount, int use_ta)
 	return ok;
 }
 
-int SLAPI SCardCore::UpdateRest_(PPID id, double rest, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
+int SLAPI SCardCore::UpdateRest_(PPID id, double rest, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	if(id) {
@@ -772,7 +772,7 @@ int SLAPI SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec 
 		return PPDbSearchError();
 }
 
-int SLAPI SCardCore::GetOpByLinkObj(PPObjID oid, TSArray <OpBlock> & rList)
+int SLAPI SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -796,7 +796,7 @@ int SLAPI SCardCore::GetOpByLinkObj(PPObjID oid, TSArray <OpBlock> & rList)
 	return ok;
 }
 
-int SLAPI SCardCore::GetFreezingOpList(PPID cardID, TSArray <OpBlock> & rList)
+int SLAPI SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -902,11 +902,11 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
+int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	const  PPID user_id = LConfig.User;
-	TSArray <OpBlock> ex_link_op_list;
+	TSVector <OpBlock> ex_link_op_list; // @v9.8.4 TSArray-->TSVector
 	PPTransaction tra(use_ta);
 	THROW(tra);
 	/* @construction
@@ -978,7 +978,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSArray <UpdateRestNotifyEnt
 	return ok;
 }
 
-int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSArray <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
+int SLAPI SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1, new_op = -1, r = -1;
 	double rest;
@@ -1082,7 +1082,7 @@ int SLAPI SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 int SLAPI SCardCore::RemoveOpAll(PPID cardID, int use_ta)
 {
 	int    ok = 1;
-	TSArray <LDATETIME> list;
+	TSVector <LDATETIME> list; // @v9.8.4 TSArray-->TSVector
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

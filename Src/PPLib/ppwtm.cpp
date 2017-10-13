@@ -2529,10 +2529,14 @@ int SLAPI CollectLldFileStat();
 int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
+void SLAPI Test_MailMsg_ReadFromFile();
 
 int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
+
+	Test_MailMsg_ReadFromFile();
+
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
 	//TestFrameWindow::Run();

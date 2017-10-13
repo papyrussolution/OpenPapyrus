@@ -145,9 +145,15 @@ typedef int                 sig_atomic_t;
 	#define NGX_PTR_SIZE            4
 	#define NGX_SIZE_T_LEN          (sizeof("-2147483648") - 1)
 	#define NGX_MAX_SIZE_T_VALUE    2147483647
-	#define NGX_TIME_T_LEN          (sizeof("-2147483648") - 1)
-	#define NGX_TIME_T_SIZE         4
-	#define NGX_MAX_TIME_T_VALUE    2147483647
+	#ifdef SLIBINCLUDED
+		#define NGX_TIME_T_LEN          (sizeof("-9223372036854775808") - 1)
+		#define NGX_TIME_T_SIZE         8
+		#define NGX_MAX_TIME_T_VALUE    9223372036854775807
+	#else
+		#define NGX_TIME_T_LEN          (sizeof("-2147483648") - 1)
+		#define NGX_TIME_T_SIZE         4
+		#define NGX_MAX_TIME_T_VALUE    2147483647
+	#endif
 #endif
 #define NGX_OFF_T_LEN           (sizeof("-9223372036854775807") - 1)
 #define NGX_MAX_OFF_T_VALUE     9223372036854775807

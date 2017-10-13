@@ -2198,7 +2198,7 @@ int SLAPI GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int u
 {
 	int    ok = 1;
 	Goods2Tbl::Rec gen_rec, goods_rec;
-	SArray assc_list(sizeof(ObjAssocTbl::Rec));
+	TSVector <ObjAssocTbl::Rec> assc_list;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

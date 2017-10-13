@@ -737,7 +737,7 @@ int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillLi
 {
 	int    ok = 1;
 	if(poolOpID && pBillList->getCount()) {
-		SArray pool_list(sizeof(ObjAssocTbl::Rec));
+		TSVector <ObjAssocTbl::Rec> pool_list;
 		PPBillPacket pool_pack;
 		{
 			PPTransaction tra(use_ta);

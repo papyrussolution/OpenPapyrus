@@ -213,7 +213,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 			uint   i, j, k;
 			LAssocArray op_list;
 			TSCollection <OpGroupingStatEntry> stat_list[siNumItems];
-			TSArray <OpGroupingViewItem> item_list;
+			TSVector <OpGroupingViewItem> item_list; // @v9.8.4 TSArray-->TSVector
 			THROW(CreateStatList(&op_list, &item_list, stat_list));
 			THROW(P_TempStatTbl = CreateTempFile());
 			{
@@ -481,7 +481,7 @@ IMPL_CMPFUNC(OpGroupingViewItem, i1, i2)
 	return si;
 }
 
-int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSArray <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList)
+int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(CycleList.getCount()) {
@@ -489,7 +489,7 @@ int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSArray <OpGro
 		PPIDArray date_list;
 		OpGroupingViewItem item;
 		LAssocArray proxi_op_list;
-		TSArray <OpGroupingViewItem> proxi_item_list;
+		TSVector <OpGroupingViewItem> proxi_item_list; // @v9.8.4 TSArray-->TSVector
 		SETIFZ(pOpList, &proxi_op_list);
 		SETIFZ(pItemList, &proxi_item_list);
 		for(InitIteration(); NextIteration(&item) > 0;) {
@@ -1158,7 +1158,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 
 		LAssocArray op_list;
 		TSCollection <OpGroupingStatEntry> stat_list[siNumItems];
-		TSArray <OpGroupingViewItem> item_list;
+		TSVector <OpGroupingViewItem> item_list; // @v9.8.4 TSArray-->TSVector
 		THROW(CreateStatList(&op_list, &item_list, stat_list));
 
 		plot.StartData(1);

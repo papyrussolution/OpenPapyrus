@@ -228,11 +228,11 @@ public:
 	virtual int PutHdrRec(void * pRec) { return -1; }
 	virtual int PutLineRec(void * pRec) { return -1; }
 
-	int    ExportIndex(PROGRESSFN pFn, const char * pDbName, SArray * pAry, CompFunc cf);
+	int    ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf); // @v9.8.4 SArray-->SVector
 	int    InitTable(SyncTable *);
 protected:
 	SyncTable * OpenTable();
-	int    ExportIndexes(PROGRESSFN pFn, SArray * pAry);
+	int    ExportIndexes(PROGRESSFN pFn, SVector * pAry); // @v9.8.4 SArray-->SVector
 	//static const PalmConfig * P_HostCfg;
 	//static const PalmConfig * P_PalmCfg;
 	SpiiExchgContext * P_Ctx;
@@ -298,15 +298,15 @@ private:
 		long   AdrID;
 		char   Addr[64];
 	};
-	int LoadAddrList();
-	int GetAddressList(long cliID, TSArray <ClientAddr> *);
+	int    LoadAddrList();
+	int    GetAddressList(long cliID, TSVector <ClientAddr> *); // @v9.8.4 TSArray-->TSVector
 	SCDBObjClient::PalmRec * AllocPalmRec(uint addrCount, size_t * pBufLen);
 	SCDBObjClient::PalmRec700 * AllocPalmRec700(uint addrCount, size_t * pBufLen);
 
 	DbfTable * P_CliTbl;
 	DbfTable * P_AdrTbl;
-	TSArray <AddrItem> AddrList;
-	TSArray <IdxRec> IdxList;
+	TSVector <AddrItem> AddrList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList;    // @v9.8.4 TSArray-->TSVector
 };
 
 class SCDBObjClientDebt : public SCDBObject {
@@ -342,8 +342,8 @@ private:
 	int ReadData();
 
 	DbfTable * P_CliDebtTbl;
-	TSArray <TempRec> TempList;
-	TSArray <IdxRec> IdxList;
+	TSVector <TempRec> TempList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
 };
 
 class SCDBObjSell : public SCDBObject {
@@ -379,14 +379,14 @@ private:
 		int16  ItemsCount;
 		//SalesItem Items[1];
 	};
-	SCDBObjSell::PalmRec * AllocPalmRec(const TSArray <TempRec> * pPool, size_t * pBufLen);
-	int GetNextPool(uint * pCurPos, TSArray <TempRec> * pPool);
-	int ReadData();
-	int LogErrRec(const PalmRec *);
+	SCDBObjSell::PalmRec * AllocPalmRec(const TSVector <TempRec> * pPool, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	int    GetNextPool(uint * pCurPos, TSVector <TempRec> * pPool); // @v9.8.4 TSArray-->TSVector
+	int    ReadData();
+	int    LogErrRec(const PalmRec *);
 
 	DbfTable * P_Tbl;
-	TSArray <TempRec> TempList;
-	TSArray <IdxRec> IdxList;
+	TSVector <TempRec> TempList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
 };
 
 class SCDBObjGoodsGrp : public SCDBObject {
@@ -417,7 +417,7 @@ private:
 	SCDBObjGoodsGrp::PalmRec156 * AllocPalmRec156(size_t * pBufLen);
 
 	DbfTable * P_GGrpTbl;
-	TSArray <IdxRec> IdxList;
+	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
 };
 
 class SCDBObjGoods : public SCDBObject {
@@ -507,17 +507,17 @@ private:
 	};
 	int    SendQuotKindList();
 	int    LoadQuotKindList();
-	int    GetQuotList(DbfRecord * pRec, int pFldnList[], TSArray <Quot> & rList);
-	SCDBObjGoods::PalmRec * AllocPalmRec(const TSArray <Quot> *, size_t * pBufLen);
-	SCDBObjGoods::PalmRec156 * AllocPalmRec156(const TSArray <Quot> *, size_t * pBufLen);
-	SCDBObjGoods::PalmRec500 * AllocPalmRec500(const TSArray <Quot> *, size_t * pBufLen);
-	SCDBObjGoods::PalmRec800 * AllocPalmRec800(const TSArray <Quot> *, size_t * pBufLen);
-	SCDBObjGoods::PalmRec900 * AllocPalmRec900(const TSArray <Quot> *, size_t * pBufLen);
+	int    GetQuotList(DbfRecord * pRec, int pFldnList[], TSVector <Quot> & rList); // @v9.8.4 TSArray-->TSVector
+	SCDBObjGoods::PalmRec * AllocPalmRec(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	SCDBObjGoods::PalmRec156 * AllocPalmRec156(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	SCDBObjGoods::PalmRec500 * AllocPalmRec500(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	SCDBObjGoods::PalmRec800 * AllocPalmRec800(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
+	SCDBObjGoods::PalmRec900 * AllocPalmRec900(const TSVector <Quot> *, size_t * pBufLen); // @v9.8.4 TSArray-->TSVector
 
 	DbfTable * P_GoodsTbl;
 	DbfTable * P_QkTbl;
-	TSArray <QuotKind> QkList;
-	TSArray <IdxRec> IdxList;
+	TSVector <QuotKind> QkList; // @v9.8.4 TSArray-->TSVector
+	TSVector <IdxRec> IdxList;  // @v9.8.4 TSArray-->TSVector
 };
 
 
@@ -543,7 +543,7 @@ private:
 	SCDBObjBrand::PalmRec * AllocPalmRec(size_t * pBufLen);
 
 	DbfTable * P_Tbl;
-	TSArray <IdxRec> IdxList;
+	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
 };
 
 class SCDBObjLoc : public SCDBObject {
@@ -565,7 +565,7 @@ private:
 	SCDBObjLoc::PalmRec * AllocPalmRec(size_t * pBufLen);
 
 	DbfTable * P_Tbl;
-	TSArray <IdxRec> IdxList;
+	TSVector <IdxRec> IdxList; // @v9.8.4 TSArray-->TSVector
 };
 
 

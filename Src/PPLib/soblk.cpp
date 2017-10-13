@@ -3554,7 +3554,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						rest += sc_rec.MaxCredit;
 						THROW_PP_S((Operator == oSCardDeposit) || amount <= rest, PPERR_SCARDRESTNOTENOUGH, sc_rec.Code);
 						{
-							TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+							TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 							SCardCore::OpBlock ob;
 							ob.SCardID = sc_rec.ID;
 							ob.Amount = (Operator == oSCardDeposit) ? amount : -amount;

@@ -1,5 +1,5 @@
 // MAILSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -396,9 +396,7 @@ int SLAPI SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
 			THROW_S_S(oneof8(code, 211, 214, 220, 221, 235, 250, 334, 354), SLERR_MAIL_SMTP_REPLYERR, rReplyBuf);
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -512,9 +510,7 @@ int SLAPI SMailClient::ReadLine(SString & rBuf)
 		const char * p_reply = (const char *)RdBuf.GetBuf(RdBuf.GetRdOffs());
 		rBuf.CatN(p_reply, rd_size).Chomp();
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -528,9 +524,7 @@ int SLAPI SMailClient::WriteLine(const char * pLine, SString * pReply)
 	if(pReply) {
 		THROW(ReadLine(*pReply));
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -544,9 +538,7 @@ int SLAPI SMailClient::WriteBlock(const void * pData, size_t dataSize)
 	}
 	else
 		ok = -1;
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -576,9 +568,7 @@ int SLAPI SMailClient::Pop3_GetStat(long * pCount, long * pSize)
 			total_size = atol(q+1);
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	ASSIGN_PTR(pCount, msgs_count);
 	ASSIGN_PTR(pSize, total_size);
 	return ok;
@@ -598,9 +588,7 @@ int SLAPI SMailClient::Pop3_GetMsgSize(long msgN, long * pSize)
 			msg_size = atol(reply_buf.cptr()+p);
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	ASSIGN_PTR(pSize, msg_size);
 	return ok;
 }
@@ -611,8 +599,6 @@ int SLAPI SMailClient::Pop3_DeleteMsg(long msgN)
 	SString cmd_buf, reply_buf;
 	THROW(WriteLine((cmd_buf = "DELE").Space().Cat(msgN), &reply_buf));
 	THROW(CheckReply(reply_buf));
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }

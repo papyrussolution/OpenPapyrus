@@ -411,7 +411,7 @@ public:
 	{
 		ZDELETE(P_DebtDimList);
 	}
-	int    setDTS(const TSArray <PPClientAgreement::DebtLimit> * pData)
+	int    setDTS(const TSVector <PPClientAgreement::DebtLimit> * pData) // @v9.8.4 TSArray-->TSVector
 	{
 		//long    id = 0;
 		if(pData)
@@ -424,7 +424,7 @@ public:
 				P_DebtDimList->Remove(Data.at(i).DebtDimID);
 		return 1;
 	}
-	int    getDTS(TSArray <PPClientAgreement::DebtLimit> * pData)
+	int    getDTS(TSVector <PPClientAgreement::DebtLimit> * pData) // @v9.8.4 TSArray-->TSVector
 	{
 		int    ok = 1;
 		CALLPTRMEMB(pData, copy(Data));
@@ -438,7 +438,7 @@ private:
 	virtual int setupList();
 	int    Edit(PPClientAgreement::DebtLimit * pItem);
 	StrAssocArray * P_DebtDimList;
-	TSArray <PPClientAgreement::DebtLimit> Data;
+	TSVector <PPClientAgreement::DebtLimit> Data; // @v9.8.4 TSArray-->TSVector
 };
 
 IMPL_HANDLE_EVENT(DebtLimListDialog)
@@ -1221,7 +1221,7 @@ int SLAPI PPSupplAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	else {
 		THROW(Ep.Serialize_(dir, rBuf, pSCtx));
 	}
-	THROW_SL(TSArray_Serialize(OrderParamList, dir, rBuf, pSCtx));
+	THROW_SL(TSVector_Serialize(OrderParamList, dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
 }

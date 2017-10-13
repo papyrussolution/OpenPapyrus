@@ -59,17 +59,17 @@ struct _cairo_pattern_observer {
     cairo_list_t link;
 };
 
-struct _cairo_pattern {
-    cairo_reference_count_t	ref_count;
-    cairo_status_t		status;
-    cairo_user_data_array_t	user_data;
-    cairo_list_t		observers;
-    cairo_pattern_type_t	type;
-    cairo_filter_t		filter;
-    cairo_extend_t		extend;
-    cairo_bool_t		has_component_alpha;
-    cairo_matrix_t		matrix;
-    double			opacity;
+struct /*_cairo_pattern*/cairo_pattern_t {
+    cairo_reference_count_t ref_count;
+    cairo_status_t status;
+    cairo_user_data_array_t user_data;
+    cairo_list_t observers;
+    cairo_pattern_type_t type;
+    cairo_filter_t filter;
+    cairo_extend_t extend;
+    cairo_bool_t   has_component_alpha;
+    cairo_matrix_t matrix;
+    double opacity;
 };
 
 struct _cairo_solid_pattern {

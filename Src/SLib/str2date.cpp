@@ -39,7 +39,7 @@ int SLAPI _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int *
 	const  char * c = pBuf;
 	char   tmp[32], zero_buf[32];
 	int    i, cnt = 0, div;
-	int    ord; // 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd 
+	int    ord; // 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd
 	int    not_empty_year = 0;
 	int    d = 0;
 	int    m = 0;
@@ -289,26 +289,38 @@ int SLAPI strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long t
 	pDtm->SetZero();
 	const char * p = pBuf;
 	if(p) {
-		const  char * p_div = strchr(p, ' ');
+		int    done = 0;
 		char   dt_buf[128], tm_buf[128];
-		dt_buf[0] = 0;
-		tm_buf[0] = 0;
-		SETIFZ(p_div, strchr(p, 'T')); // @v8.7.2
-		SETIFZ(p_div, strchr(p, 't')); // @v8.7.2
-		if(p_div) {
-			size_t dp = 0;
-			while(p != p_div && (dp+1) < sizeof(dt_buf))
-				dt_buf[dp++] = *p++;
-			dt_buf[dp] = 0;
-			if(oneof2(p_div[1], 'T', 't'))
-				STRNSCPY(tm_buf, p_div + 2);
-			else
-				STRNSCPY(tm_buf, p_div + 1);
+		while(oneof2(*p, ' ', '\t'))
+			p++;
+		if(!isdec(*p)) {
+			time_t tt = Sl_Curl_GetDate(p);
+			if(tt != -1) {
+				pDtm->SetTimeT(tt);
+				done = 1;
+			}
 		}
-		else
-			STRNSCPY(dt_buf, p);
-		strtodate(dt_buf, datFmt, &pDtm->d);
-		strtotime(tm_buf, timFmt, &pDtm->t);
+		if(!done) {
+			const  char * p_div = strchr(p, ' ');
+			dt_buf[0] = 0;
+			tm_buf[0] = 0;
+			SETIFZ(p_div, strchr(p, 'T')); // @v8.7.2
+			SETIFZ(p_div, strchr(p, 't')); // @v8.7.2
+			if(p_div) {
+				size_t dp = 0;
+				while(p != p_div && (dp+1) < sizeof(dt_buf))
+					dt_buf[dp++] = *p++;
+				dt_buf[dp] = 0;
+				if(oneof2(p_div[1], 'T', 't'))
+					STRNSCPY(tm_buf, p_div + 2);
+				else
+					STRNSCPY(tm_buf, p_div + 1);
+			}
+			else
+				STRNSCPY(dt_buf, p);
+			strtodate(dt_buf, datFmt, &pDtm->d);
+			strtotime(tm_buf, timFmt, &pDtm->t);
+		}
 		return 1;
 	}
 	else

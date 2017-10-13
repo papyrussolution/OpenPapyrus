@@ -43,309 +43,189 @@
 CAIRO_BEGIN_DECLS
 
 typedef struct {
-    cairo_scaled_font_t *font;
-    cairo_glyph_t *glyphs;
-    int num_glyphs;
-    cairo_bool_t use_mask;
-    CairoIRect extents;
+	cairo_scaled_font_t * font;
+	cairo_glyph_t * glyphs;
+	int num_glyphs;
+	cairo_bool_t use_mask;
+	CairoIRect extents;
 } cairo_composite_glyphs_info_t;
 
 struct cairo_compositor {
-    const cairo_compositor_t *delegate;
+	const cairo_compositor_t * delegate;
 
-    cairo_warn cairo_int_status_t (*paint)(const cairo_compositor_t	*compositor, cairo_composite_rectangles_t	*extents);
-    cairo_warn cairo_int_status_t (*mask)(const cairo_compositor_t	*compositor, cairo_composite_rectangles_t	*extents);
-    cairo_warn cairo_int_status_t (*stroke)(const cairo_compositor_t	*compositor,
-				 cairo_composite_rectangles_t	*extents,
-				 const cairo_path_fixed_t	*path,
-				 const cairo_stroke_style_t	*style,
-				 const cairo_matrix_t		*ctm,
-				 const cairo_matrix_t		*ctm_inverse,
-				 double				 tolerance,
-				 cairo_antialias_t		 antialias);
-
-    cairo_warn cairo_int_status_t (*fill)(const cairo_compositor_t	*compositor,
-				 cairo_composite_rectangles_t	*extents,
-				 const cairo_path_fixed_t	*path,
-				 CairoFillRule		 fill_rule,
-				 double				 tolerance,
-				 cairo_antialias_t		 antialias);
-
-    cairo_warn cairo_int_status_t (*glyphs)(const cairo_compositor_t	 *compositor,
-				 cairo_composite_rectangles_t	*extents,
-				 cairo_scaled_font_t		*scaled_font,
-				 cairo_glyph_t			*glyphs,
-				 int				 num_glyphs,
-				 cairo_bool_t			 overlap);
+	cairo_warn cairo_int_status_t (* paint)(const cairo_compositor_t     * compositor, cairo_composite_rectangles_t       * extents);
+	cairo_warn cairo_int_status_t (* mask)(const cairo_compositor_t      * compositor, cairo_composite_rectangles_t       * extents);
+	cairo_warn cairo_int_status_t (* stroke)(const cairo_compositor_t    * compositor,
+	    cairo_composite_rectangles_t   * extents,
+	    const cairo_path_fixed_t       * path,
+	    const cairo_stroke_style_t     * style,
+	    const cairo_matrix_t           * ctm,
+	    const cairo_matrix_t           * ctm_inverse,
+	    double tolerance,
+	    cairo_antialias_t antialias);
+	cairo_warn cairo_int_status_t (* fill)(const cairo_compositor_t * compositor, cairo_composite_rectangles_t * extents, 
+		const cairo_path_fixed_t * path, CairoFillRule fill_rule, double tolerance, cairo_antialias_t antialias);
+	cairo_warn cairo_int_status_t (* glyphs)(const cairo_compositor_t * compositor,
+	    cairo_composite_rectangles_t   * extents,
+	    cairo_scaled_font_t            * scaled_font,
+	    cairo_glyph_t                  * glyphs,
+	    int num_glyphs,
+	    cairo_bool_t overlap);
 };
 
 struct cairo_mask_compositor {
-    cairo_compositor_t base;
-    cairo_int_status_t (*acquire) (void *surface);
-	cairo_int_status_t (*release) (void *surface);
-    cairo_int_status_t (*set_clip_region) (void		 *surface, cairo_region_t	*clip_region);
-    cairo_surface_t * (*pattern_to_surface) (cairo_surface_t *dst,
-					     const cairo_pattern_t *pattern,
-					     cairo_bool_t is_mask,
-					     const CairoIRect *extents,
-					     const CairoIRect *sample,
-					     int *src_x, int *src_y);
-
-    cairo_int_status_t (*draw_image_boxes) (void *surface,
-					    cairo_image_surface_t *image,
-					    cairo_boxes_t *boxes,
-					    int dx, int dy);
-
-    cairo_int_status_t (*copy_boxes) (void *surface,
-				      cairo_surface_t *src,
-				      cairo_boxes_t *boxes,
-				      const CairoIRect *extents,
-				      int dx, int dy);
-
-    cairo_int_status_t
-	(*fill_rectangles)	(void			 *surface,
-				 cairo_operator_t	  op,
-				 const cairo_color_t     *color,
-				 CairoIRect   *rectangles,
-				 int			  num_rects);
-
-    cairo_int_status_t
-	(*fill_boxes)		(void			*surface,
-				 cairo_operator_t op,
-				 const cairo_color_t	*color,
-				 cairo_boxes_t		*boxes);
-
-    cairo_int_status_t
-	(*check_composite) (const cairo_composite_rectangles_t *extents);
-
-    cairo_int_status_t
-	(*composite)		(void			*dst,
-				 cairo_operator_t op,
-				 cairo_surface_t	*src,
-				 cairo_surface_t	*mask,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 mask_x,
-				 int			 mask_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 uint		 width,
-				 uint		 height);
-
-    cairo_int_status_t
-	(*composite_boxes)	(void			*surface,
-				 cairo_operator_t op,
-				 cairo_surface_t	*source,
-				 cairo_surface_t	*mask,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 mask_x,
-				 int			 mask_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 cairo_boxes_t		*boxes,
-				 const CairoIRect  *extents);
-
-    cairo_int_status_t
-	(*check_composite_glyphs) (const cairo_composite_rectangles_t *extents,
-				   cairo_scaled_font_t *scaled_font,
-				   cairo_glyph_t *glyphs,
-				   int *num_glyphs);
-    cairo_int_status_t
-	(*composite_glyphs)	(void				*surface,
-				 cairo_operator_t		 op,
-				 cairo_surface_t		*src,
-				 int				 src_x,
-				 int				 src_y,
-				 int				 dst_x,
-				 int				 dst_y,
-				 cairo_composite_glyphs_info_t  *info);
+	cairo_compositor_t base;
+	cairo_int_status_t (* acquire)(void * surface);
+	cairo_int_status_t (* release)(void * surface);
+	cairo_int_status_t (* set_clip_region)(void * surface, cairo_region_t       * clip_region);
+	cairo_surface_t * (*pattern_to_surface)(cairo_surface_t *dst, const cairo_pattern_t *pattern,
+	    cairo_bool_t is_mask, const CairoIRect *extents, const CairoIRect *sample, int * src_x, int * src_y);
+	cairo_int_status_t (* draw_image_boxes)(void * surface, cairo_image_surface_t * image, cairo_boxes_t * boxes, int dx, int dy);
+	cairo_int_status_t (* copy_boxes)(void * surface, cairo_surface_t * src, cairo_boxes_t * boxes, const CairoIRect * extents, int dx, int dy);
+	cairo_int_status_t (* fill_rectangles)(void * surface, cairo_operator_t op, const cairo_color_t * color, CairoIRect * rectangles, int num_rects);
+	cairo_int_status_t (* fill_boxes)(void * surface, cairo_operator_t op, const cairo_color_t * color, cairo_boxes_t * boxes);
+	cairo_int_status_t (* check_composite)(const cairo_composite_rectangles_t * extents);
+	cairo_int_status_t (* composite)(void * dst, cairo_operator_t op, cairo_surface_t * src, cairo_surface_t * mask,
+	    int src_x, int src_y, int mask_x, int mask_y, int dst_x, int dst_y, uint width, uint height);
+	cairo_int_status_t (* composite_boxes)(void * surface, cairo_operator_t op, cairo_surface_t * source, cairo_surface_t * mask,
+	    int src_x, int src_y, int mask_x, int mask_y, int dst_x, int dst_y, cairo_boxes_t * boxes, const CairoIRect  * extents);
+	cairo_int_status_t (* check_composite_glyphs)(const cairo_composite_rectangles_t * extents, cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int * num_glyphs);
+	cairo_int_status_t (* composite_glyphs)(void * surface, cairo_operator_t op, cairo_surface_t * src,
+	    int src_x, int src_y, int dst_x, int dst_y, cairo_composite_glyphs_info_t * info);
 };
 
 struct cairo_traps_compositor {
-    cairo_compositor_t base;
+	cairo_compositor_t base;
+	cairo_int_status_t (* acquire)(void * surface);
+	cairo_int_status_t (* release)(void * surface);
+	cairo_int_status_t (* set_clip_region)(void * surface, cairo_region_t * clip_region);
+	cairo_surface_t * (*pattern_to_surface)(cairo_surface_t *dst, const cairo_pattern_t *pattern,
+	    cairo_bool_t is_mask, const CairoIRect *extents, const CairoIRect *sample, int * src_x, int * src_y);
+	cairo_int_status_t (* draw_image_boxes)(void * surface, cairo_image_surface_t * image, cairo_boxes_t * boxes, int dx, int dy);
+	cairo_int_status_t (* copy_boxes)(void * surface, cairo_surface_t * src, cairo_boxes_t * boxes, const CairoIRect * extents, int dx, int dy);
+	cairo_int_status_t (* fill_boxes)(void                   * surface,
+	    cairo_operator_t op,
+	    const cairo_color_t    * color,
+	    cairo_boxes_t          * boxes);
+	cairo_int_status_t (* check_composite)(const cairo_composite_rectangles_t * extents);
+	cairo_int_status_t (* composite)(void                   * dst,
+	    cairo_operator_t op,
+	    cairo_surface_t        * src,
+	    cairo_surface_t        * mask,
+	    int src_x,
+	    int src_y,
+	    int mask_x,
+	    int mask_y,
+	    int dst_x,
+	    int dst_y,
+	    uint width,
+	    uint height);
+	cairo_int_status_t (* lerp)(void * _dst, cairo_surface_t * abstract_src, cairo_surface_t * abstract_mask,
+	    int src_x,
+	    int src_y,
+	    int mask_x,
+	    int mask_y,
+	    int dst_x,
+	    int dst_y,
+	    uint width,
+	    uint height);
+	cairo_int_status_t
+	(* composite_boxes)(void                   * surface,
+	    cairo_operator_t op,
+	    cairo_surface_t        * source,
+	    cairo_surface_t        * mask,
+	    int src_x,
+	    int src_y,
+	    int mask_x,
+	    int mask_y,
+	    int dst_x,
+	    int dst_y,
+	    cairo_boxes_t          * boxes,
+	    const CairoIRect  * extents);
 
-    cairo_int_status_t
-	(*acquire) (void *surface);
+	cairo_int_status_t
+	(* composite_traps)(void                   * dst,
+	    cairo_operator_t op,
+	    cairo_surface_t        * source,
+	    int src_x,
+	    int src_y,
+	    int dst_x,
+	    int dst_y,
+	    const CairoIRect * extents,
+	    cairo_antialias_t antialias,
+	    cairo_traps_t          * traps);
 
-    cairo_int_status_t
-	(*release) (void *surface);
+	cairo_int_status_t
+	(* composite_tristrip)(void                   * dst,
+	    cairo_operator_t op,
+	    cairo_surface_t        * source,
+	    int src_x,
+	    int src_y,
+	    int dst_x,
+	    int dst_y,
+	    const CairoIRect * extents,
+	    cairo_antialias_t antialias,
+	    cairo_tristrip_t       * tristrip);
 
-    cairo_int_status_t
-	(*set_clip_region) (void		 *surface,
-			    cairo_region_t	*clip_region);
-
-    cairo_surface_t *
-	(*pattern_to_surface) (cairo_surface_t *dst,
-			       const cairo_pattern_t *pattern,
-			       cairo_bool_t is_mask,
-			       const CairoIRect *extents,
-			       const CairoIRect *sample,
-			       int *src_x, int *src_y);
-
-    cairo_int_status_t (*draw_image_boxes) (void *surface,
-					    cairo_image_surface_t *image,
-					    cairo_boxes_t *boxes,
-					    int dx, int dy);
-
-    cairo_int_status_t (*copy_boxes) (void *surface,
-				      cairo_surface_t *src,
-				      cairo_boxes_t *boxes,
-				      const CairoIRect *extents,
-				      int dx, int dy);
-
-    cairo_int_status_t
-	(*fill_boxes)		(void			*surface,
-				 cairo_operator_t op,
-				 const cairo_color_t	*color,
-				 cairo_boxes_t		*boxes);
-
-    cairo_int_status_t
-	(*check_composite) (const cairo_composite_rectangles_t *extents);
-
-    cairo_int_status_t
-	(*composite)		(void			*dst,
-				 cairo_operator_t op,
-				 cairo_surface_t	*src,
-				 cairo_surface_t	*mask,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 mask_x,
-				 int			 mask_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 uint		 width,
-				 uint		 height);
-    cairo_int_status_t
-	    (*lerp)		(void			*_dst,
-				 cairo_surface_t	*abstract_src,
-				 cairo_surface_t	*abstract_mask,
-				 int			src_x,
-				 int			src_y,
-				 int			mask_x,
-				 int			mask_y,
-				 int			dst_x,
-				 int			dst_y,
-				 uint		width,
-				 uint		height);
-
-    cairo_int_status_t
-	(*composite_boxes)	(void			*surface,
-				 cairo_operator_t op,
-				 cairo_surface_t	*source,
-				 cairo_surface_t	*mask,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 mask_x,
-				 int			 mask_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 cairo_boxes_t		*boxes,
-				 const CairoIRect  *extents);
-
-    cairo_int_status_t
-	(*composite_traps)	(void			*dst,
-				 cairo_operator_t op,
-				 cairo_surface_t	*source,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 const CairoIRect *extents,
-				 cairo_antialias_t	 antialias,
-				 cairo_traps_t		*traps);
-
-    cairo_int_status_t
-	(*composite_tristrip)	(void			*dst,
-				 cairo_operator_t op,
-				 cairo_surface_t	*source,
-				 int			 src_x,
-				 int			 src_y,
-				 int			 dst_x,
-				 int			 dst_y,
-				 const CairoIRect *extents,
-				 cairo_antialias_t	 antialias,
-				 cairo_tristrip_t	*tristrip);
-
-    cairo_int_status_t
-	(*check_composite_glyphs) (const cairo_composite_rectangles_t *extents,
-				   cairo_scaled_font_t *scaled_font,
-				   cairo_glyph_t *glyphs,
-				   int *num_glyphs);
-    cairo_int_status_t
-	(*composite_glyphs)	(void				*surface,
-				 cairo_operator_t		 op,
-				 cairo_surface_t		*src,
-				 int				 src_x,
-				 int				 src_y,
-				 int				 dst_x,
-				 int				 dst_y,
-				 cairo_composite_glyphs_info_t  *info);
+	cairo_int_status_t
+	(* check_composite_glyphs)(const cairo_composite_rectangles_t * extents,
+	    cairo_scaled_font_t * scaled_font,
+	    cairo_glyph_t * glyphs,
+	    int * num_glyphs);
+	cairo_int_status_t
+	(* composite_glyphs)(void                           * surface,
+	    cairo_operator_t op,
+	    cairo_surface_t                * src,
+	    int src_x,
+	    int src_y,
+	    int dst_x,
+	    int dst_y,
+	    cairo_composite_glyphs_info_t  * info);
 };
 
 cairo_private extern const cairo_compositor_t __cairo_no_compositor;
 cairo_private extern const cairo_compositor_t _cairo_fallback_compositor;
 
-cairo_private void
-_cairo_mask_compositor_init (cairo_mask_compositor_t *compositor,
-			     const cairo_compositor_t *delegate);
+cairo_private void _cairo_mask_compositor_init(cairo_mask_compositor_t * compositor, const cairo_compositor_t * delegate);
+cairo_private void _cairo_shape_mask_compositor_init(cairo_compositor_t * compositor, const cairo_compositor_t  * delegate);
+cairo_private void _cairo_traps_compositor_init(cairo_traps_compositor_t * compositor, const cairo_compositor_t * delegate);
+cairo_private cairo_int_status_t _cairo_compositor_paint(const cairo_compositor_t * compositor,
+    cairo_surface_t                * surface,
+    cairo_operator_t op,
+    const cairo_pattern_t          * source,
+    const cairo_clip_t             * clip);
 
-cairo_private void
-_cairo_shape_mask_compositor_init (cairo_compositor_t *compositor,
-				   const cairo_compositor_t  *delegate);
+cairo_private cairo_int_status_t _cairo_compositor_mask(const cairo_compositor_t * compositor,
+    cairo_surface_t                 * surface,
+    cairo_operator_t op,
+    const cairo_pattern_t           * source,
+    const cairo_pattern_t           * mask,
+    const cairo_clip_t              * clip);
 
-cairo_private void
-_cairo_traps_compositor_init (cairo_traps_compositor_t *compositor,
-			      const cairo_compositor_t *delegate);
+cairo_private cairo_int_status_t _cairo_compositor_stroke(const cairo_compositor_t      * compositor,
+    cairo_surface_t               * surface,
+    cairo_operator_t op,
+    const cairo_pattern_t         * source,
+    const cairo_path_fixed_t      * path,
+    const cairo_stroke_style_t    * style,
+    const cairo_matrix_t          * ctm,
+    const cairo_matrix_t          * ctm_inverse,
+    double tolerance,
+    cairo_antialias_t antialias,
+    const cairo_clip_t            * clip);
 
-cairo_private cairo_int_status_t
-_cairo_compositor_paint (const cairo_compositor_t	*compositor,
-			 cairo_surface_t		*surface,
-			 cairo_operator_t		 op,
-			 const cairo_pattern_t		*source,
-			 const cairo_clip_t		*clip);
+cairo_private cairo_int_status_t _cairo_compositor_fill(const cairo_compositor_t * compositor,
+    cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source,
+    const cairo_path_fixed_t * path, CairoFillRule fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip);
 
-cairo_private cairo_int_status_t
-_cairo_compositor_mask (const cairo_compositor_t	*compositor,
-			cairo_surface_t			*surface,
-			cairo_operator_t		 op,
-			const cairo_pattern_t		*source,
-			const cairo_pattern_t		*mask,
-			const cairo_clip_t		*clip);
-
-cairo_private cairo_int_status_t
-_cairo_compositor_stroke (const cairo_compositor_t	*compositor,
-			  cairo_surface_t		*surface,
-			  cairo_operator_t		 op,
-			  const cairo_pattern_t		*source,
-			  const cairo_path_fixed_t	*path,
-			  const cairo_stroke_style_t	*style,
-			  const cairo_matrix_t		*ctm,
-			  const cairo_matrix_t		*ctm_inverse,
-			  double			 tolerance,
-			  cairo_antialias_t		 antialias,
-			  const cairo_clip_t		*clip);
-
-cairo_private cairo_int_status_t
-_cairo_compositor_fill (const cairo_compositor_t	*compositor,
-			cairo_surface_t			*surface,
-			cairo_operator_t		 op,
-			const cairo_pattern_t		*source,
-			const cairo_path_fixed_t	*path,
-			CairoFillRule		 fill_rule,
-			double				 tolerance,
-			cairo_antialias_t		 antialias,
-			const cairo_clip_t		*clip);
-
-cairo_private cairo_int_status_t
-_cairo_compositor_glyphs (const cairo_compositor_t		*compositor,
-			  cairo_surface_t			*surface,
-			  cairo_operator_t			 op,
-			  const cairo_pattern_t			*source,
-			  cairo_glyph_t				*glyphs,
-			  int					 num_glyphs,
-			  cairo_scaled_font_t			*scaled_font,
-			  const cairo_clip_t			*clip);
+cairo_private cairo_int_status_t _cairo_compositor_glyphs(const cairo_compositor_t * compositor,
+    cairo_surface_t                       * surface,
+    cairo_operator_t op,
+    const cairo_pattern_t                 * source,
+    cairo_glyph_t                         * glyphs,
+    int num_glyphs,
+    cairo_scaled_font_t                   * scaled_font,
+    const cairo_clip_t                    * clip);
 
 CAIRO_END_DECLS
 

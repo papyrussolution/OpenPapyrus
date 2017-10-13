@@ -149,7 +149,7 @@ int SLAPI StaffAmtList::Put(uint pos, const StaffAmtEntry * pItem)
 //
 //
 //
-SLAPI PersonPostArray::PersonPostArray() : TSArray <PersonPostTbl::Rec> ()
+SLAPI PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
@@ -169,7 +169,7 @@ static IMPL_CMPFUNC(PersonPost_Closed_Finish_Dt, i1, i2)
 
 void SLAPI PersonPostArray::Sort()
 {
-	SArray::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0);
+	SVector::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0); // @v9.8.4 SArray-->SVector
 }
 
 uint SLAPI PersonPostArray::GetBusyCount() const

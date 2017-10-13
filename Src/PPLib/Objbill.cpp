@@ -8410,7 +8410,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 								subst_buf = p_tsess_rec->Memo;
 								break;
 							}
-							// @nobreak
+							// @fallthrough
 						case PPSYM_BILLMEMO:
 							subst_buf = pk->Rec.Memo;
 							break;

@@ -339,8 +339,7 @@ void _cairo_surface_attach_snapshot(cairo_surface_t * surface,
 	assert(_cairo_surface_has_snapshot(surface, snapshot->backend) == snapshot);
 }
 
-cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * surface,
-    const cairo_surface_backend_t * backend)
+cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * surface, const cairo_surface_backend_t * backend)
 {
 	cairo_surface_t * snapshot;
 	cairo_list_foreach_entry(snapshot, cairo_surface_t, &surface->snapshots, snapshot)
@@ -351,7 +350,7 @@ cairo_surface_t * _cairo_surface_has_snapshot(cairo_surface_t * surface,
 	return NULL;
 }
 
-cairo_status_t _cairo_surface_begin_modification(cairo_surface_t * surface)
+cairo_status_t FASTCALL _cairo_surface_begin_modification(cairo_surface_t * surface)
 {
 	assert(surface->status == CAIRO_STATUS_SUCCESS);
 	assert(!surface->finished);
@@ -1281,25 +1280,25 @@ void _cairo_surface_set_font_options(cairo_surface_t * surface, cairo_font_optio
  **/
 void cairo_surface_get_font_options(cairo_surface_t * surface, cairo_font_options_t  * options)
 {
-	if(cairo_font_options_status(options))
-		return;
-	if(surface->status) {
-		_cairo_font_options_init_default(options);
-		return;
-	}
-	if(!surface->has_font_options) {
-		surface->has_font_options = TRUE;
-		_cairo_font_options_init_default(&surface->font_options);
-		if(!surface->finished && surface->backend->get_font_options) {
-			surface->backend->get_font_options(surface, &surface->font_options);
+	if(cairo_font_options_status(options) == 0) {
+		if(surface->status)
+			_cairo_font_options_init_default(options);
+		else {
+			if(!surface->has_font_options) {
+				surface->has_font_options = TRUE;
+				_cairo_font_options_init_default(&surface->font_options);
+				if(!surface->finished && surface->backend->get_font_options) {
+					surface->backend->get_font_options(surface, &surface->font_options);
+				}
+			}
+			_cairo_font_options_init_copy(options, &surface->font_options);
 		}
 	}
-	_cairo_font_options_init_copy(options, &surface->font_options);
 }
 
 slim_hidden_def(cairo_surface_get_font_options);
 
-cairo_status_t _cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
+cairo_status_t FASTCALL _cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 {
 	// update the current snapshots *before* the user updates the surface 
 	_cairo_surface_detach_snapshots(surface);
@@ -1696,7 +1695,7 @@ void _cairo_surface_default_release_source_image(void * surface, cairo_image_sur
 	(void)ignored;
 }
 
-cairo_surface_t * _cairo_surface_get_source(cairo_surface_t * surface, CairoIRect * extents)
+cairo_surface_t * FASTCALL _cairo_surface_get_source(cairo_surface_t * surface, CairoIRect * extents)
 {
 	assert(surface->backend->source);
 	return surface->backend->source(surface, extents);
@@ -2016,7 +2015,7 @@ slim_hidden_def(cairo_surface_show_page);
  * This behavior would have to be changed is we ever exported a public
  * variant of this function.
  **/
-cairo_bool_t _cairo_surface_get_extents(cairo_surface_t * surface, CairoIRect   * extents)
+cairo_bool_t FASTCALL _cairo_surface_get_extents(cairo_surface_t * surface, CairoIRect * extents)
 {
 	cairo_bool_t bounded;
 	if(unlikely(surface->status))
@@ -2168,7 +2167,6 @@ void _cairo_surface_set_resolution(cairo_surface_t * surface, double x_res, doub
 		surface->y_resolution = y_res;
 	}
 }
-
 /**
  * _cairo_surface_create_in_error:
  * @status: the error status
@@ -2179,7 +2177,7 @@ void _cairo_surface_set_resolution(cairo_surface_t * surface, double x_res, doub
  * in an error state. This simplifies internal code as no refcounting has
  * to be done.
  **/
-cairo_surface_t * _cairo_surface_create_in_error(cairo_status_t status)
+cairo_surface_t * FASTCALL _cairo_surface_create_in_error(cairo_status_t status)
 {
 	assert(status < CAIRO_STATUS_LAST_STATUS);
 	switch(status) {

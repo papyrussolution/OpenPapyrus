@@ -864,7 +864,7 @@ SLAPI PPViewGoodsRest::Cache::Cache()
 
 PPViewGoodsRest::Cache & SLAPI PPViewGoodsRest::Cache::Clear()
 {
-	TSArray <PPViewGoodsRest::CacheItem>::freeAll();
+	TSVector <PPViewGoodsRest::CacheItem>::freeAll(); // @v9.8.4 TSArray-->TSVector
 	SStrGroup::DestroyS();
 	return *this;
 }
@@ -4006,8 +4006,20 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				}
 				break;
 			case PPVCMD_PUTTOBASKET:
-				GetEditIds(pHdr, &hdr.LocID, &hdr.GoodsID, (pBrw) ? pBrw->GetCurColumn() : 0);
-				ok = AddGoodsToBasket(hdr.GoodsID, LocList.GetSingle());
+				{
+					GetEditIds(pHdr, &hdr.LocID, &hdr.GoodsID, (pBrw) ? pBrw->GetCurColumn() : 0);
+					// @v9.8.4 {
+					double price_to_basket = 0.0;
+					GoodsRestViewItem item;
+					if(GetItem(hdr.__ID, &item) > 0) {
+                        if(Filt.AmtType == 1)
+							price_to_basket = item.Cost;
+                        else if(Filt.AmtType == 2)
+							price_to_basket = item.Price;
+					}
+					// } @v9.8.4
+					ok = AddGoodsToBasket(hdr.GoodsID, LocList.GetSingle(), 0.0, price_to_basket);
+				}
 				break;
 			case PPVCMD_PUTTOBASKETALL:
 				ok = ConvertLinesToBasket();

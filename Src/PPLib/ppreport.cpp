@@ -1148,7 +1148,7 @@ private:
 
 	int    EnableEMail;
 	SString InitPrepareDataPath;
-	TSArray <SPrinting::PrnInfo> PrnList;
+	TSVector <SPrinting::PrnInfo> PrnList; // @v9.8.4 TSArray-->TSVector
 	PrnDlgAns * P_Data;
 };
 

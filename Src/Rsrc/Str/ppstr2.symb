@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489311
+LastSignatureCode=2147489324
 LastAutoCodeList=1,11023;102,10162;103,10071;110,10000;111,11646;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10252;1002,10000;1003,10000;1004,10000;1005,10000;124,10062
 
 [SignatureList]
@@ -3502,6 +3502,7 @@ oprkind_opkfx_unlinkret=2147486898
 oprkind_opkfx_usesuppldeal=2147486899
 oprkind_opkfx_dsblhalfmodif=2147488200
 oprkind_opkfx_sourceserial=2147488201
+oprkind_opkfx_ignoreclistop=2147489324
 oprkind_prnorder=2147488868
 oprkind_prnorder_default=2147488869
 oprkind_prnorder_bygoods=2147488870
@@ -5477,6 +5478,18 @@ billautocreateparam_ta_filt=2147489225
 billautocreateparam_ss_filt=2147489226
 billautocreateparam_cc_filt=2147489227
 billautocreateparam_cs_filt=2147489228
+palmpane=2147489312
+palmpane_device=2147489313
+palmpane_op=2147489314
+palmpane_loc=2147489315
+palmpane_flags=2147489316
+palmpane_fupdatedata=2147489317
+palmpane_fexportftp=2147489318
+palmpane_fimportftp=2147489319
+palmpane_fdelimpdata=2147489320
+palmpane_fforceedit=2147489321
+palmpane_fexclexpdebts=2147489322
+palmpane_fignoremutex=2147489323
 setpassword=2147489075
 setpassword_input1=2147489076
 setpassword_input2=2147489077

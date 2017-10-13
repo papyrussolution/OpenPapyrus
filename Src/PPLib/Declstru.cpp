@@ -199,10 +199,10 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 			{
 				// @v8.8.11 THROW_PP_S(strchr(Data.DestAddr, '@'), PPERR_INVEMAILADDR, Data.DestAddr);
 				// @v8.8.11 {
-				PPTokenRecognizer tr;
-				PPNaturalTokenArray nta;
+				STokenRecognizer tr;
+				SNaturalTokenArray nta;
 				tr.Run((const uchar *)Data.DestAddr, -1, nta, 0);
-				THROW_PP_S(nta.Has(PPNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
+				THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, Data.DestAddr);
 				// } @v8.8.11
 			}
 			getCtrlData(CTL_MAILCHRY_FLAGS, &(v = 0));
@@ -380,7 +380,7 @@ int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
 			PPWait(1);
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail)
-				THROW(GetFilesFromMailServer(rcp.MailAccID, path, SMailMsg::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
+				THROW(GetFilesFromMailServer(rcp.MailAccID, path, SMailMessage::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
 			THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));
 			for(p = 0; fary.Enum(&p, 0, &file_path);) {
 				PPDeclStrucProcessor dsp;

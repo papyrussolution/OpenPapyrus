@@ -9,19 +9,78 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-static int traverse_string(const uchar * p, int len, int inform,
-    int (* rfunc)(ulong value, void * in),
-    void * arg);
+static int traverse_string(const uchar * p, int len, int inform, int (* rfunc)(ulong value, void * in), void * arg);
 static int in_utf8(ulong value, void * arg);
 static int out_utf8(ulong value, void * arg);
 static int type_str(ulong value, void * arg);
 static int cpy_asc(ulong value, void * arg);
 static int cpy_bmp(ulong value, void * arg);
 static int cpy_univ(ulong value, void * arg);
-static int cpy_utf8(ulong value, void * arg);
-static int is_numeric(ulong value);
-static int is_printable(ulong value);
-
+//
+// Copy to a UTF8String 
+//
+static int cpy_utf8(ulong value, void * arg) // @handler
+{
+	uchar ** p = (uchar**)arg;
+	// We already know there is enough room so pass 0xff as the length 
+	int ret = UTF8_putc(*p, 0xff, value);
+	*p += ret;
+	return 1;
+}
+//
+// Return 1 if the character is a digit or space 
+//
+static int FASTCALL is_numeric(ulong value)
+{
+	int ch;
+	if(value > 0x7f)
+		return 0;
+	ch = (int)value;
+#ifndef CHARSET_EBCDIC
+	if(!isdigit(ch) && ch != ' ')
+		return 0;
+#else
+	if(ch > os_toascii['9'])
+		return 0;
+	if(ch < os_toascii['0'] && ch != os_toascii[' '])
+		return 0;
+#endif
+	return 1;
+}
+//
+// Return 1 if the character is permitted in a PrintableString 
+//
+static int FASTCALL is_printable(ulong value)
+{
+	int ch;
+	if(value > 0x7f)
+		return 0;
+	ch = (int)value;
+	/*
+	 * Note: we can't use 'isalnum' because certain accented characters may
+	 * count as alphanumeric in some environments.
+	 */
+#ifndef CHARSET_EBCDIC
+	if((ch >= 'a') && (ch <= 'z'))
+		return 1;
+	if((ch >= 'A') && (ch <= 'Z'))
+		return 1;
+	if((ch >= '0') && (ch <= '9'))
+		return 1;
+	if((ch == ' ') || strchr("'()+,-./:=?", ch))
+		return 1;
+#else // CHARSET_EBCDIC 
+	if((ch >= os_toascii['a']) && (ch <= os_toascii['z']))
+		return 1;
+	if((ch >= os_toascii['A']) && (ch <= os_toascii['Z']))
+		return 1;
+	if((ch >= os_toascii['0']) && (ch <= os_toascii['9']))
+		return 1;
+	if((ch == os_toascii[' ']) || strchr("'()+,-./:=?", os_toebcdic[ch]))
+		return 1;
+#endif // CHARSET_EBCDIC 
+	return 0;
+}
 /*
  * These functions take a string in UTF8, ASCII or multibyte form and a mask
  * of permissible ASN1 string types. It then works out the minimal type
@@ -30,9 +89,7 @@ static int is_printable(ulong value);
  * horrible: it has to be :-( The 'ncopy' form checks minimum and maximum
  * size limits too.
  */
-
-int ASN1_mbstring_copy(ASN1_STRING ** out, const uchar * in, int len,
-    int inform, ulong mask)
+int ASN1_mbstring_copy(ASN1_STRING ** out, const uchar * in, int len, int inform, ulong mask)
 {
 	return ASN1_mbstring_ncopy(out, in, len, inform, mask, 0, 0);
 }
@@ -55,16 +112,14 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 	switch(inform) {
 		case MBSTRING_BMP:
 		    if(len & 1) {
-			    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY,
-			    ASN1_R_INVALID_BMPSTRING_LENGTH);
+			    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_INVALID_BMPSTRING_LENGTH);
 			    return -1;
 		    }
 		    nchar = len >> 1;
 		    break;
 		case MBSTRING_UNIV:
 		    if(len & 3) {
-			    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY,
-			    ASN1_R_INVALID_UNIVERSALSTRING_LENGTH);
+			    ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_INVALID_UNIVERSALSTRING_LENGTH);
 			    return -1;
 		    }
 		    nchar = len >> 2;
@@ -97,14 +152,12 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 		ERR_add_error_data(2, "maxsize=", strbuf);
 		return -1;
 	}
-
-	/* Now work out minimal type (if any) */
+	// Now work out minimal type (if any) 
 	if(traverse_string(in, len, inform, type_str, &mask) < 0) {
 		ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_ILLEGAL_CHARACTERS);
 		return -1;
 	}
-
-	/* Now work out output format and string type */
+	// Now work out output format and string type 
 	outform = MBSTRING_ASC;
 	if(mask & B_ASN1_NUMERICSTRING)
 		str_type = V_ASN1_NUMERICSTRING;
@@ -153,24 +206,20 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 		}
 		return str_type;
 	}
-
-	/* Work out how much space the destination will need */
+	// Work out how much space the destination will need 
 	switch(outform) {
 		case MBSTRING_ASC:
 		    outlen = nchar;
 		    cpyfunc = cpy_asc;
 		    break;
-
 		case MBSTRING_BMP:
 		    outlen = nchar << 1;
 		    cpyfunc = cpy_bmp;
 		    break;
-
 		case MBSTRING_UNIV:
 		    outlen = nchar << 2;
 		    cpyfunc = cpy_univ;
 		    break;
-
 		case MBSTRING_UTF8:
 		    outlen = 0;
 		    traverse_string(in, len, inform, out_utf8, &outlen);
@@ -189,12 +238,10 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len, int infor
 	traverse_string(in, len, inform, cpyfunc, &p);
 	return str_type;
 }
-
 /*
  * This function traverses a string and passes the value of each character to
  * an optional function along with a void * argument.
  */
-
 static int traverse_string(const uchar * p, int len, int inform, int (* rfunc)(ulong value, void * in), void * arg)
 {
 	ulong value;
@@ -233,9 +280,9 @@ static int traverse_string(const uchar * p, int len, int inform, int (* rfunc)(u
 }
 
 /* Various utility functions for traverse_string */
-
-/* Just count number of characters */
-
+//
+// Just count number of characters 
+//
 static int in_utf8(ulong value, void * arg)
 {
 	int * nchar;
@@ -243,9 +290,9 @@ static int in_utf8(ulong value, void * arg)
 	(*nchar)++;
 	return 1;
 }
-
-/* Determine size of output as a UTF8 String */
-
+//
+// Determine size of output as a UTF8 String 
+//
 static int out_utf8(ulong value, void * arg)
 {
 	int * outlen;
@@ -253,12 +300,9 @@ static int out_utf8(ulong value, void * arg)
 	*outlen += UTF8_putc(NULL, -1, value);
 	return 1;
 }
-
-/*
- * Determine the "type" of a string: check each character against a supplied
- * "mask".
- */
-
+//
+// Determine the "type" of a string: check each character against a supplied "mask".
+//
 static int type_str(ulong value, void * arg)
 {
 	ulong types = *((ulong*)arg);
@@ -277,9 +321,9 @@ static int type_str(ulong value, void * arg)
 	*((ulong*)arg) = types;
 	return 1;
 }
-
-/* Copy one byte per character ASCII like strings */
-
+//
+// Copy one byte per character ASCII like strings 
+//
 static int cpy_asc(ulong value, void * arg)
 {
 	uchar ** p = (uchar**)arg;
@@ -288,95 +332,30 @@ static int cpy_asc(ulong value, void * arg)
 	(*p)++;
 	return 1;
 }
-
-/* Copy two byte per character BMPStrings */
-
+//
+// Copy two byte per character BMPStrings 
+//
 static int cpy_bmp(ulong value, void * arg)
 {
-	uchar ** p, * q;
-	p = (uchar**)arg;
-	q = *p;
+	uchar ** p = (uchar**)arg;
+	uchar * q = *p;
 	*q++ = (uchar)((value >> 8) & 0xff);
 	*q = (uchar)(value & 0xff);
 	*p += 2;
 	return 1;
 }
-
-/* Copy four byte per character UniversalStrings */
-
+//
+// Copy four byte per character UniversalStrings 
+//
 static int cpy_univ(ulong value, void * arg)
 {
-	uchar ** p, * q;
-	p = (uchar**)arg;
-	q = *p;
+	uchar ** p = (uchar**)arg;
+	uchar * q = *p;
 	*q++ = (uchar)((value >> 24) & 0xff);
 	*q++ = (uchar)((value >> 16) & 0xff);
 	*q++ = (uchar)((value >> 8) & 0xff);
 	*q = (uchar)(value & 0xff);
 	*p += 4;
-	return 1;
-}
-
-/* Copy to a UTF8String */
-
-static int cpy_utf8(ulong value, void * arg)
-{
-	uchar ** p = (uchar**)arg;
-	// We already know there is enough room so pass 0xff as the length 
-	int ret = UTF8_putc(*p, 0xff, value);
-	*p += ret;
-	return 1;
-}
-
-/* Return 1 if the character is permitted in a PrintableString */
-static int is_printable(ulong value)
-{
-	int ch;
-	if(value > 0x7f)
-		return 0;
-	ch = (int)value;
-	/*
-	 * Note: we can't use 'isalnum' because certain accented characters may
-	 * count as alphanumeric in some environments.
-	 */
-#ifndef CHARSET_EBCDIC
-	if((ch >= 'a') && (ch <= 'z'))
-		return 1;
-	if((ch >= 'A') && (ch <= 'Z'))
-		return 1;
-	if((ch >= '0') && (ch <= '9'))
-		return 1;
-	if((ch == ' ') || strchr("'()+,-./:=?", ch))
-		return 1;
-#else                           /* CHARSET_EBCDIC */
-	if((ch >= os_toascii['a']) && (ch <= os_toascii['z']))
-		return 1;
-	if((ch >= os_toascii['A']) && (ch <= os_toascii['Z']))
-		return 1;
-	if((ch >= os_toascii['0']) && (ch <= os_toascii['9']))
-		return 1;
-	if((ch == os_toascii[' ']) || strchr("'()+,-./:=?", os_toebcdic[ch]))
-		return 1;
-#endif                          /* CHARSET_EBCDIC */
-	return 0;
-}
-
-/* Return 1 if the character is a digit or space */
-static int is_numeric(ulong value)
-{
-	int ch;
-	if(value > 0x7f)
-		return 0;
-	ch = (int)value;
-#ifndef CHARSET_EBCDIC
-	if(!isdigit(ch) && ch != ' ')
-		return 0;
-#else
-	if(ch > os_toascii['9'])
-		return 0;
-	if(ch < os_toascii['0'] && ch != os_toascii[' '])
-		return 0;
-#endif
 	return 1;
 }
 

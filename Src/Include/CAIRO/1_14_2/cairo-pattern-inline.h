@@ -32,7 +32,6 @@
  * Contributor(s):
  *	Carl D. Worth <cworth@redhat.com>
  */
-
 #ifndef CAIRO_PATTERN_INLINE_H
 #define CAIRO_PATTERN_INLINE_H
 
@@ -41,22 +40,16 @@
 
 CAIRO_BEGIN_DECLS
 
-static inline void
-_cairo_pattern_add_observer (cairo_pattern_t *pattern,
-			     cairo_pattern_observer_t *observer,
-			     void (*func) (cairo_pattern_observer_t *,
-					   cairo_pattern_t *,
-					   uint))
+static inline void _cairo_pattern_add_observer(cairo_pattern_t * pattern, cairo_pattern_observer_t * observer, 
+	void (* func)(cairo_pattern_observer_t *, cairo_pattern_t *, uint))
 {
-    observer->notify = func;
-    cairo_list_add (&observer->link, &pattern->observers);
+	observer->notify = func;
+	cairo_list_add(&observer->link, &pattern->observers);
 }
 
-static inline cairo_surface_t *
-_cairo_pattern_get_source (const cairo_surface_pattern_t *pattern,
-			   CairoIRect *extents)
+static inline cairo_surface_t * _cairo_pattern_get_source(const cairo_surface_pattern_t * pattern, CairoIRect * extents)
 {
-    return _cairo_surface_get_source (pattern->surface, extents);
+	return _cairo_surface_get_source(pattern->surface, extents);
 }
 
 CAIRO_END_DECLS

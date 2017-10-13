@@ -870,6 +870,17 @@ SLAPI PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos)
 	P = pos;
 }
 
+int SLAPI PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos) 
+{
+	int    ok = 1;
+	ObjBlockRef ref(type, rList.getCount());
+	THROW_SL(rList.insert(pNewBlk));
+	ASSIGN_PTR(pRefPos, RefList.getCount());
+	THROW_SL(RefList.insert(&ref));
+	CATCHZOK
+	return ok;
+}
+
 int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 {
 	int    ok = 1;

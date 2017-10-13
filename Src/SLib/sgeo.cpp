@@ -2259,7 +2259,7 @@ SLTEST_R(SGeo)
 			volatile int  _test_result = 0; // @debug
 			GeodTestRecord rec;
 			line_buf.Chomp();
-			ss.clear(1);
+			ss.clear();
             line_buf.Tokenize(" \t", ss);
             uint   fld_count = 0;
             for(uint ssp = 0; ss.get(&ssp, temp_buf);) {

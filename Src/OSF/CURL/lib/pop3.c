@@ -563,14 +563,10 @@ static CURLcode pop3_perform_command(struct connectdata * conn)
  */
 static CURLcode pop3_perform_quit(struct connectdata * conn)
 {
-	CURLcode result = CURLE_OK;
-
-	/* Send the QUIT command */
-	result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s", "QUIT");
-
+	// Send the QUIT command 
+	CURLcode result = Curl_pp_sendf(&conn->proto.pop3c.pp, "%s", "QUIT");
 	if(!result)
 		state(conn, POP3_QUIT);
-
 	return result;
 }
 
@@ -600,24 +596,19 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn, int pop3c
 						break;
 					/* Allocate some memory for the timestamp */
 					pop3c->apoptimestamp = (char*)SAlloc::C(1, timestamplen + 1);
-
 					if(!pop3c->apoptimestamp)
 						break;
-
 					/* Copy the timestamp */
 					memcpy(pop3c->apoptimestamp, line + i, timestamplen);
 					pop3c->apoptimestamp[timestamplen] = '\0';
-
 					/* Store the APOP capability */
 					pop3c->authtypes |= POP3_TYPE_APOP;
 					break;
 				}
 			}
 		}
-
 		result = pop3_perform_capa(conn);
 	}
-
 	return result;
 }
 
@@ -633,14 +624,11 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code, po
 	(void)instate; /* no use for this yet */
 	/* Do we have a untagged continuation response? */
 	if(pop3code == '*') {
-		/* Does the server support the STLS capability? */
-		if(len >= 4 && !memcmp(line, "STLS", 4))
+		if(len >= 4 && !memcmp(line, "STLS", 4)) // Does the server support the STLS capability? 
 			pop3c->tls_supported = TRUE;
-		/* Does the server support clear text authentication? */
-		else if(len >= 4 && !memcmp(line, "USER", 4))
+		else if(len >= 4 && !memcmp(line, "USER", 4)) // Does the server support clear text authentication? 
 			pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
-		/* Does the server support SASL based authentication? */
-		else if(len >= 5 && !memcmp(line, "SASL ", 5)) {
+		else if(len >= 5 && !memcmp(line, "SASL ", 5)) { // Does the server support SASL based authentication? 
 			pop3c->authtypes |= POP3_TYPE_SASL;
 			/* Advance past the SASL keyword */
 			line += 5;
@@ -669,13 +657,11 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code, po
 	}
 	else if(pop3code == '+') {
 		if(data->set.use_ssl && !conn->ssl[FIRSTSOCKET].use) {
-			/* We don't have a SSL/TLS connection yet, but SSL is requested */
+			// We don't have a SSL/TLS connection yet, but SSL is requested 
 			if(pop3c->tls_supported)
-				/* Switch to TLS connection now */
-				result = pop3_perform_starttls(conn);
-			else if(data->set.use_ssl == CURLUSESSL_TRY)
-				/* Fallback and carry on with authentication */
-				result = pop3_perform_authentication(conn);
+				result = pop3_perform_starttls(conn); // Switch to TLS connection now 
+			else if(data->set.use_ssl == CURLUSESSL_TRY) 
+				result = pop3_perform_authentication(conn); // Fallback and carry on with authentication 
 			else {
 				failf(data, "STLS not supported.");
 				result = CURLE_USE_SSL_FAILED;
@@ -684,9 +670,8 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code, po
 		else
 			result = pop3_perform_authentication(conn);
 	}
-	else {
-		/* Clear text is supported when CAPA isn't recognised */
-		pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
+	else { 
+		pop3c->authtypes |= POP3_TYPE_CLEARTEXT; // Clear text is supported when CAPA isn't recognised 
 		result = pop3_perform_authentication(conn);
 	}
 	return result;
@@ -708,7 +693,6 @@ static CURLcode pop3_state_starttls_resp(struct connectdata * conn, int pop3code
 	}
 	else
 		result = pop3_perform_upgrade_tls(conn);
-
 	return result;
 }
 
@@ -794,8 +778,7 @@ static CURLcode pop3_state_pass_resp(struct connectdata * conn, int pop3code, po
 		result = CURLE_LOGIN_DENIED;
 	}
 	else
-		/* End of connect phase */
-		state(conn, POP3_STOP);
+		state(conn, POP3_STOP); // End of connect phase 
 	return result;
 }
 

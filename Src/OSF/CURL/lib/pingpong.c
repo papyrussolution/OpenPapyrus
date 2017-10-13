@@ -151,7 +151,7 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp, const char * fmt, va_list args)
 	write_len = strlen(s);
 	Curl_pp_init(pp);
 	result = Curl_convert_to_network(data, s, write_len);
-	/* Curl_convert_to_network calls failf if unsuccessful */
+	// Curl_convert_to_network calls failf if unsuccessful 
 	if(result) {
 		SAlloc::F(s);
 		return result;
@@ -171,7 +171,7 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp, const char * fmt, va_list args)
 	if(conn->data->set.verbose)
 		Curl_debug(conn->data, CURLINFO_HEADER_OUT, s, (size_t)bytes_written, conn);
 	if(bytes_written != (ssize_t)write_len) {
-		/* the whole chunk was not sent, keep it around and adjust sizes */
+		// the whole chunk was not sent, keep it around and adjust sizes 
 		pp->sendthis = s;
 		pp->sendsize = write_len;
 		pp->sendleft = write_len - bytes_written;

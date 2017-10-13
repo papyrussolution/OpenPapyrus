@@ -507,6 +507,9 @@
 				RelativePath="..\SLib\crypto.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\curl-parsedate.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\dec.cpp">
 			</File>
 			<File

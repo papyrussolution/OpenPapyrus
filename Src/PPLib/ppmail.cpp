@@ -767,32 +767,32 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 	int    ok = 1;
 	SString buf;
 	if(GetField(pLine, PPMAILFLD_SUBJ, buf) > 0) {
-		Msg.SetField(SMailMsg::fldSubj, buf);
-		if(Msg.CmpField(SMailMsg::fldSubj, SUBJECTDBDIV) == 0)
-			Msg.Flags |= SMailMsg::fPpyObject;
-		else if(Msg.CmpField(SMailMsg::fldSubj, SUBJECTORDER) == 0)
-			Msg.Flags |= SMailMsg::fPpyOrder;
-		else if(Msg.CmpField(SMailMsg::fldSubj, SUBJECTCHARRY) == 0)
-			Msg.Flags |= SMailMsg::fPpyCharry;
-		else if(Msg.CmpField(SMailMsg::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
-			Msg.Flags |= SMailMsg::fFrontol;
+		Msg.SetField(SMailMessage::fldSubj, buf);
+		if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTDBDIV) == 0)
+			Msg.Flags |= SMailMessage::fPpyObject;
+		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTORDER) == 0)
+			Msg.Flags |= SMailMessage::fPpyOrder;
+		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
+			Msg.Flags |= SMailMessage::fPpyCharry;
+		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
+			Msg.Flags |= SMailMessage::fFrontol;
 	}
 	else if(GetField(pLine, PPMAILFLD_FROM, buf) > 0) {
-		Msg.SetField(SMailMsg::fldFrom, buf);
+		Msg.SetField(SMailMessage::fldFrom, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_TO, buf) > 0) {
-		Msg.SetField(SMailMsg::fldTo, buf);
+		Msg.SetField(SMailMessage::fldTo, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
 		if(strnicmp(buf, "multipart", strlen("multipart")) == 0) {
-			Msg.Flags |= SMailMsg::fMultipart;
+			Msg.Flags |= SMailMessage::fMultipart;
 			const char * p = strchr(buf, ';');
 			if(p) {
 				p++;
 				while(*p == ' ')
 					*p++;
 				if(GetField(p, PPMAILFLD_BOUNDARY, buf) > 0)
-					Msg.SetField(SMailMsg::fldBoundary, buf.StripQuotes());
+					Msg.SetField(SMailMessage::fldBoundary, buf.StripQuotes());
 			}
 		}
 	}
@@ -820,7 +820,7 @@ int SLAPI PPMailFile::SkipHeader()
 	return 0;
 }
 
-int SLAPI PPMailFile::ReadDisposition(SMailMsg::Disposition * pD)
+int SLAPI PPMailFile::ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD)
 {
 	pD->Type = pD->tUnkn;
 
@@ -851,7 +851,7 @@ int SLAPI PPMailFile::ReadDisposition(SMailMsg::Disposition * pD)
 			SString key, val, fld_name;
 			while(scan.GetEqQ(key, val)) {
 				if(GetFieldTitle(PPMAILFLD_FILENAME, fld_name) && key.CmpNC(fld_name) == 0) {
-					pD->FileName = val.Strip();
+					Msg.AddS(val.Strip(), &pD->FileNameP);
 				}
 				else if(GetFieldTitle(PPMAILFLD_MODIFICATIONDATE, fld_name) && key.CmpNC(fld_name) == 0) {
 					; // @todo
@@ -880,11 +880,11 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 	FILE * p_out = 0;
 	THROW_INVARG(pDestPath);
 	THROW(SkipHeader());
-	if(Msg.Flags & SMailMsg::fMultipart) {
+	if(Msg.Flags & SMailMessage::fMultipart) {
 		int    boundary = 0, this_attachment = 0;
 		int    start_file = 0;
 		int    line_readed = 0;
-		SMailMsg::Disposition disposition;
+		SMailMessage::ContentDispositionBlock disposition;
 		while(line_readed || ReadLine()) {
 			line_readed = 0;
 			int    bound_kind = -1;
@@ -935,14 +935,17 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 						}
 					}
 #else // }{ @v8.2.2
-					int rd = ReadDisposition(&disposition);
+					int rd = ReadDisposition(Msg, &disposition);
 					if(rd > 0) {
 						line_readed = 1;
-						if(disposition.FileName.NotEmpty() && (pAttachName == 0 || disposition.FileName.CmpNC(pAttachName) == 0)) {
-							this_attachment = 1;
-							SFile::ZClose(&p_out);
-							(file_name = pDestPath).Strip().SetLastSlash().Cat(disposition.FileName);
-							THROW_PP_S(p_out = fopen(file_name, "wb"), PPERR_CANTOPENFILE, file_name);
+						if(disposition.FileNameP) {
+							Msg.GetS(disposition.FileNameP, temp_buf);
+							if(temp_buf.NotEmptyS() && (pAttachName == 0 || temp_buf.CmpNC(pAttachName) == 0)) {
+								this_attachment = 1;
+								SFile::ZClose(&p_out);
+								(file_name = pDestPath).Strip().SetLastSlash().Cat(temp_buf);
+								THROW_PP_S(p_out = fopen(file_name, "wb"), PPERR_CANTOPENFILE, file_name);
+							}
 						}
 					}
 #endif // } @v8.2.2
@@ -972,7 +975,7 @@ int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
 	FILE * p_out = 0;
 	THROW_INVARG(pDestFileName);
 	THROW(SkipHeader());
-	if(Msg.Flags & SMailMsg::fPpyOrder) {
+	if(Msg.Flags & SMailMessage::fPpyOrder) {
 		int    store = 0;
 		char   main_tag[64], start_str[64], end_str[64];
 		PPGetSubStr(PPTXT_ALBATROSTAGNAMES, PPALTAGNAM_ALBORD, main_tag, sizeof(main_tag));
@@ -1193,39 +1196,39 @@ int SLAPI PPMailPop3::GetStat(long * pCount, long * pSize)
 	return Sess.Pop3_GetStat(pCount, pSize) ? 1 : PPSetErrorSLib();
 }
 
-int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMsg * pMsg)
+int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pMsg)
 {
 	int    ok = 1;
 	SString buf, temp_buf;
 	if(GetField(pLine, PPMAILFLD_SUBJ, buf) > 0) {
-		pMsg->SetField(SMailMsg::fldSubj, buf);
-		if(pMsg->CmpField(SMailMsg::fldSubj, SUBJECTDBDIV) == 0)
-			pMsg->Flags |= SMailMsg::fPpyObject;
-		else if(pMsg->CmpField(SMailMsg::fldSubj, SUBJECTORDER) == 0)
-			pMsg->Flags |= SMailMsg::fPpyOrder;
-		else if(pMsg->CmpField(SMailMsg::fldSubj, SUBJECTCHARRY) == 0)
-			pMsg->Flags |= SMailMsg::fPpyCharry;
-		else if(pMsg->CmpField(SMailMsg::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
-			pMsg->Flags |= SMailMsg::fFrontol;
+		pMsg->SetField(SMailMessage::fldSubj, buf);
+		if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTDBDIV) == 0)
+			pMsg->Flags |= SMailMessage::fPpyObject;
+		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTORDER) == 0)
+			pMsg->Flags |= SMailMessage::fPpyOrder;
+		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
+			pMsg->Flags |= SMailMessage::fPpyCharry;
+		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
+			pMsg->Flags |= SMailMessage::fFrontol;
 	}
 	else if(GetField(pLine, PPMAILFLD_FROM, buf) > 0) {
-		pMsg->SetField(SMailMsg::fldFrom, buf);
+		pMsg->SetField(SMailMessage::fldFrom, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_TO, buf) > 0) {
-		pMsg->SetField(SMailMsg::fldTo, buf);
+		pMsg->SetField(SMailMessage::fldTo, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
 		if(strnicmp(buf, "multipart", strlen("multipart")) == 0) {
-			pMsg->Flags |= SMailMsg::fMultipart;
+			pMsg->Flags |= SMailMessage::fMultipart;
 			const char * p = strchr(buf, ';');
 			if(p && GetField((temp_buf = p+1), PPMAILFLD_BOUNDARY, buf) > 0)
-				pMsg->SetField(SMailMsg::fldBoundary, buf.StripQuotes());
+				pMsg->SetField(SMailMessage::fldBoundary, buf.StripQuotes());
 		}
 	}
 	return ok;
 }
 
-int SLAPI PPMailPop3::GetMsgInfo(long msgN, SMailMsg * pMsg)
+int SLAPI PPMailPop3::GetMsgInfo(long msgN, SMailMessage * pMsg)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1247,7 +1250,7 @@ int SLAPI PPMailPop3::GetMsgInfo(long msgN, SMailMsg * pMsg)
 	return ok;
 }
 
-int SLAPI PPMailPop3::GetMsg(long msgN, SMailMsg * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
+int SLAPI PPMailPop3::GetMsg(long msgN, SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
 {
 	int    ok = 1;
 	long   msg_size = 0, symb_num = 0;
@@ -1433,7 +1436,7 @@ int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)
 	return 1;
 }
 
-int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
+int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 {
 	int    ok = -1, is_attach = 0;
 	SString buf, boundary;
@@ -1451,15 +1454,15 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 	PPMakeTempFileName("ppm", "msg", 0, fname);
 	PPSetAddedMsgString(fname);
 	THROW_PP_S(out = fopen(fname, "wt"), PPERR_CANTOPENFILE, fname);
-	pMsg->SetField(SMailMsg::fldBoundary, pMsg->MakeBoundaryCode(temp_buf));
-	is_attach = (pMsg->Flags & SMailMsg::fMultipart) ? 1 : 0;
+	pMsg->SetField(SMailMessage::fldBoundary, pMsg->MakeBoundaryCode(temp_buf));
+	is_attach = (pMsg->Flags & SMailMessage::fMultipart) ? 1 : 0;
 	{
 		char   sd_buf[256];
 		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));
 		temp_buf.Z().Cat("Date").CatDiv(':', 2).Cat(sd_buf);
 		_PUTS(temp_buf, out);
 	}
-	PutField(PPMAILFLD_FROM, pMsg->GetField(SMailMsg::fldFrom, temp_buf), buf);
+	PutField(PPMAILFLD_FROM, pMsg->GetField(SMailMessage::fldFrom, temp_buf), buf);
 	_PUTS(buf, out);
 	{
 		char   ver_text[64];
@@ -1473,10 +1476,10 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 		PutField(PPMAILFLD_MESSAGEID, temp_buf, buf);
 		_PUTS(buf, out);
 	}
-	PutField(PPMAILFLD_TO, pMsg->GetField(SMailMsg::fldTo, temp_buf), buf);
+	PutField(PPMAILFLD_TO, pMsg->GetField(SMailMessage::fldTo, temp_buf), buf);
 	_PUTS(buf, out);
 	{
-		if(pMsg->GetField(SMailMsg::fldSubj, temp_buf) == SUBJECTDBDIV) {
+		if(pMsg->GetField(SMailMessage::fldSubj, temp_buf) == SUBJECTDBDIV) {
 			//
 			// Специальный случай: так как кодировка в UTF8 введена с версии 7.6.3, которая не предполагает
 			// обновлений во всех разделах, то дабы более старые версии могли принять почту из 7.6.3 и выше,
@@ -1503,8 +1506,8 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 	_PUTS(buf, out);
 	_PUTS(0, out); // empty line
 
-	if(pMsg->IsField(SMailMsg::fldText)) {
-		if(pMsg->IsField(SMailMsg::fldBoundary)) {
+	if(pMsg->IsField(SMailMessage::fldText)) {
+		if(pMsg->IsField(SMailMessage::fldBoundary)) {
 			_PUTS(pMsg->GetBoundary(1, boundary), out);
 			PutField(PPMAILFLD_CONTENTTYPE, "text/plain; charset=UTF-8", buf);
 			_PUTS(buf, out);
@@ -1512,7 +1515,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 			_PUTS(buf, out);
 			_PUTS(0, out); // Empty line
 		}
-		_PUTS(pMsg->GetField(SMailMsg::fldText, temp_buf), out);
+		_PUTS(pMsg->GetField(SMailMessage::fldText, temp_buf), out);
 		_PUTS(0, out); // Empty line
 	}
 	if(is_attach) {
@@ -1573,7 +1576,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMsg * pMsg, SString & rFileName)
 	return ok;
 }
 
-int SLAPI PPMailSmtp::SendMsgFromFile(SMailMsg * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
+int SLAPI PPMailSmtp::SendMsgFromFile(SMailMessage * pMsg, const char * pFileName, MailCallbackProc pf, const IterCounter & msgCounter)
 {
 	int    ok = -1, is_attach = 0;
 	SString buf, temp_buf;
@@ -1583,13 +1586,13 @@ int SLAPI PPMailSmtp::SendMsgFromFile(SMailMsg * pMsg, const char * pFileName, M
 
 	THROW_INVARG(pMsg);
 	THROW_PP(in = fopen(pFileName, "rt"), PPERR_CANTOPENFILE);
-	is_attach = (pMsg->Flags & SMailMsg::fMultipart) ? 1 : 0;
+	is_attach = (pMsg->Flags & SMailMessage::fMultipart) ? 1 : 0;
 
-	temp_buf.Z().CatChar('<').Cat(pMsg->GetField(SMailMsg::fldFrom, buf)).CatChar('>');
+	temp_buf.Z().CatChar('<').Cat(pMsg->GetField(SMailMessage::fldFrom, buf)).CatChar('>');
 	THROW(SendCmd(SMTPCMD_MAIL, temp_buf, buf));
 	{
 		SString addr_buf;
-		StringSet ss(',', pMsg->GetField(SMailMsg::fldTo, temp_buf));
+		StringSet ss(',', pMsg->GetField(SMailMessage::fldTo, temp_buf));
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			addr_buf.Z().CatChar('<').Cat(temp_buf.Strip()).CatChar('>');
 			THROW(SendCmd(SMTPCMD_RCPT, addr_buf, buf));
@@ -1648,7 +1651,7 @@ int SLAPI PPMailSmtp::TransmitFile(const char * pFileName, MailCallbackProc pf, 
 }
 
 //static
-int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMsg & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
 	int    ok = 1;
 	PPMailSmtp cli(&rAcc);
@@ -1715,13 +1718,13 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 	PPLoadText(PPTXT_MAIL_SENDOK, ok_msg);
 	msg_counter.Init(1);
 	for(uint i = 0; i < pMailList->getCount(); i++) {
-		SMailMsg mail_msg;
+		SMailMessage mail_msg;
 		mail_addr = pMailList->at(i).Txt;
 		pAccount->GetExtField(MAEXSTR_FROMADDRESS, from_addr);
-		mail_msg.SetField(SMailMsg::fldSubj,     pSubj);
-		mail_msg.SetField(SMailMsg::fldFrom,     from_addr.cptr());
-		mail_msg.SetField(SMailMsg::fldTo,       mail_addr.cptr());
-		mail_msg.SetField(SMailMsg::fldText,     NZOR(pLetter, ""));
+		mail_msg.SetField(SMailMessage::fldSubj,     pSubj);
+		mail_msg.SetField(SMailMessage::fldFrom,     from_addr.cptr());
+		mail_msg.SetField(SMailMessage::fldTo,       mail_addr.cptr());
+		mail_msg.SetField(SMailMessage::fldText,     NZOR(pLetter, ""));
 		if(pFilesList) {
 			char * p_path = 0;
 			for(uint i = 0; pFilesList->enumItems(&i, (void **)&p_path);)

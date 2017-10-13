@@ -27,7 +27,7 @@ private:
 		int   Type;
 		uint  MsgP;
 	};
-	TSArray <EntryInner> L;
+	TSVector <EntryInner> L; // @v9.8.4 TSArray-->TSVector
 };
 
 class SXml {

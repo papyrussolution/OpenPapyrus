@@ -89,7 +89,7 @@ int SLAPI FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rL
 				}
 				else {
 					TextRefIdent tri(PPOBJ_SELFREFTEXT, text_ref_id, PPTRPROP_DEFAULT);
-					TSArray <TextRefIdent> text_ref_list;
+					TSVector <TextRefIdent> text_ref_list; // @v9.8.4 TSArray-->TSVector
 					text_ref_list.insert(&tri);
 					ok = P_T->SearchObjByTextRefList(text_ref_list, rList);
 					if(ok > 0) {
@@ -6155,7 +6155,7 @@ int SLAPI PPFiasReference::MakeAddressText(PPID terminalID, long flags, SString 
 	return ok;
 }
 
-int SLAPI PPFiasReference::SearchObjByTextRefList(const TSArray <TextRefIdent> & rTRefList, PPIDArray & rList)
+int SLAPI PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRefList, PPIDArray & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	const int use_bextq = 1;
@@ -6200,7 +6200,7 @@ int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID 
 		pattern_mb.Transf(CTRANSF_INNER_TO_OUTER);
     pattern_mb.ToLower1251();
     pattern.CopyFromUtf8((temp_buf = pattern_mb).ToUtf8());
-	TSArray <TextRefIdent> text_ref_list;
+	TSVector <TextRefIdent> text_ref_list; // @v9.8.4 TSArray-->TSVector
 	int   sr = 0;
 	if(flags & stfPrefix)
 		sr = p_ref->TrT.SearchSelfRefTextByPrefix(pattern, &text_ref_list);

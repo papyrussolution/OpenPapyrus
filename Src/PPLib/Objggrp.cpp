@@ -2359,11 +2359,10 @@ PPSuprWarePacket & FASTCALL PPSuprWarePacket::operator = (const PPSuprWarePacket
 	return *this;
 }
 
-int SLAPI PPSuprWarePacket::Init()
+void SLAPI PPSuprWarePacket::Init()
 {
 	MEMSZERO(Rec);
 	Items.clear();
-	return 1;
 }
 //
 //
@@ -2402,10 +2401,10 @@ int SLAPI PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 			}
 			{
 				PPSuprWareAssoc goods_comp;
-				SArray items_list(sizeof(ObjAssocTbl::Rec));
+				TSVector <ObjAssocTbl::Rec> items_list;
 				THROW(PPRef->Assc.GetItemsListByPrmr(PPASS_GOODSCOMP, id, &items_list));
 				for(i = 0; i < items_list.getCount(); i++) {
-					const ObjAssocTbl::Rec & r_assc = *(const ObjAssocTbl::Rec *)items_list.at(i);
+					const ObjAssocTbl::Rec & r_assc = items_list.at(i);
 					goods_comp = r_assc;
 					if(Fetch(goods_comp.GoodsID, &goods_rec) > 0)
 						goods_comp.TypeID = goods_rec.WrOffGrpID;

@@ -166,7 +166,7 @@ IMPL_INVARIANT_C(SSqlStmt::Bind)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SSqlStmt::BindArray::BindArray(uint dim) : TSArray <SSqlStmt::Bind>()
+SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>()
 {
 	Dim = dim;
 }

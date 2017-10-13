@@ -55,7 +55,7 @@ int SPrinting::Init(const char * pPort)
 	int    ok = 1;
 	SString port = pPort;
 	if(!port.NotEmpty()) {
-		TSArray <SPrinting::PrnInfo> prn_list;
+		TSVector <SPrinting::PrnInfo> prn_list; // @v9.8.4 TSArray-->TSVector
 		SPrinting::GetListOfPrinters(&prn_list);
 		for(uint j = 0; !port.NotEmpty() && j < prn_list.getCount(); j++) {
 			if(prn_list.at(j).Flags & SPrinting::PrnInfo::fDefault)
@@ -140,7 +140,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 }
 
 //static
-int SLAPI SPrinting::GetListOfPrinters(TSArray <PrnInfo> * pInfoList)
+int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 0;
 	STempBuffer info_buf(32*1024);

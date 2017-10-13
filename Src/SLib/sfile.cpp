@@ -889,8 +889,86 @@ application:wps application/vnd.ms-works
 {"x-world/x-vrml", ".xof"},
 */
 
+// static
+int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
+{
+	// 
+	// Backtrack to previous * on mismatch and retry starting one
+	// character later in the string.  Because * matches all characters
+	// (no exception for /), it can be easily proved that there's never a need to backtrack multiple levels.
+	// 
+	const char * back_pat = NULL;
+	const char * back_str = pStr; //back_str;
+	// 
+	// Loop over each token (character or class) in pat, matching
+	// it against the remaining unmatched tail of str.  Return false
+	// on mismatch, or true after matching the trailing nul bytes.
+	// 
+	for(;;) {
+		uchar c = *pStr++;
+		uchar d = *pPattern++;
+		switch(d) {
+			case '?': // Wildcard: anything but nul 
+				if(c == '\0')
+					return 0;
+				break;
+			case '*': // Any-length wildcard 
+				if(*pPattern == '\0') // Optimize trailing * case 
+					return 1;
+				back_pat = pPattern;
+				back_str = --pStr; // Allow zero-length match 
+				break;
+			case '[': // Character class 
+				{	
+					const  int  inverted = BIN(*pPattern == '!');
+					const  char * p_cls = pPattern + inverted;
+					int    match = 0;
+					uchar  a = *p_cls++;
+					// 
+					// Iterate over each span in the character class.
+					// A span is either a single character a, or a range a-b.  The first span may begin with ']'.
+					// 
+					do {
+						uchar b = a;
+						if(a == '\0') // Malformed 
+							goto literal;
+						if(p_cls[0] == '-' && p_cls[1] != ']') {
+							b = p_cls[1];
+							if(b == '\0')
+								goto literal;
+							p_cls += 2;
+							// Any special action if a > b? 
+						}
+						match |= (a <= c && c <= b);
+					} while((a = *p_cls++) != ']');
+					if(match == inverted)
+						goto backtrack;
+					pPattern = p_cls;
+				}
+				break;
+			case '\\':
+				d = *pPattern++;
+				// @fallthrough
+			default: // Literal character 
+literal:
+				if(c == d) {
+					if(d == '\0')
+						return 1;
+					break;
+				}
+backtrack:
+				if(c == '\0' || !back_pat)
+					return 0; // No point continuing 
+				// Try again from last *, one character later in str. 
+				pPattern = back_pat;
+				pStr = ++back_str;
+				break;
+			}
+	}
+}
+
 //static
-int SLAPI SFile::Remove(const char * pFileName)
+int FASTCALL SFile::Remove(const char * pFileName)
 {
 	return (::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName);
 }
@@ -1515,7 +1593,7 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 	return ok;
 }
 
-int SLAPI SFile::WriteLine(const char * pBuf)
+int FASTCALL SFile::WriteLine(const char * pBuf)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1556,7 +1634,7 @@ int SLAPI SFile::WriteLine(const char * pBuf)
 	return ok;
 }
 
-int SLAPI SFile::ReadLine(SString & rBuf)
+int FASTCALL SFile::ReadLine(SString & rBuf)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
@@ -1833,8 +1911,8 @@ class FileFormatRegBase : private SArray {
 public:
 	FileFormatRegBase();
 	~FileFormatRegBase();
-	int    Register(int id, const char * pMime, const char * pExt, const char * pSign);
-	int    Register(int id, const char * pMime, const char * pExt, FileFormatSignatureFunc signFunc);
+	int    Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
+	int    Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, FileFormatSignatureFunc signFunc);
 	//
 	// Descr: Идентифицирует формат файла по расширению и сигнатуре.
 	// Returns:
@@ -1855,13 +1933,14 @@ private:
 		int    FmtId;
 		uint   ExtIdx;
 		uint   SignIdx;
-		uint   MimeIdx;
+		int    MimeType; // SFileFormat::mtXXX
+		uint   MimeSubtypeIdx;
 		FileFormatSignatureFunc SignFunc;
 	};
 	int    SearchEntryByID(int id, LongArray & rPosList) const;
 	int    SearchEntryByExt(const char * pExt, LongArray & rPosList) const;
-	int    Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, SString & rMime) const;
-	int    Helper_Register(int id, const char * pMime, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc);
+	int    Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, int & rMimeType, SString & rMimeSubtype) const;
+	int    Helper_Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc);
 
 	StringSet Pool;
 	uint   MaxSignSize;
@@ -1879,12 +1958,15 @@ FileFormatRegBase::~FileFormatRegBase()
 
 int FileFormatRegBase::GetMime(int id, SString & rMime) const
 {
+	rMime.Z();
 	int    ok = 0;
 	for(uint i = 0; !ok && i < getCount(); i++) {
 		const Entry * p_entry = (const Entry *)at(i);
 		if(p_entry && p_entry->FmtId == id) {
-			if(p_entry->MimeIdx && Pool.get(p_entry->MimeIdx, rMime))
+			if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
+				Pool.get(p_entry->MimeSubtypeIdx, rMime);
 				ok = 1;
+			}
 			break;
 		}
 	}
@@ -1943,12 +2025,13 @@ int FileFormatRegBase::SearchEntryByExt(const char * pExt, LongArray & rPosList)
 	return ok;
 }
 
-int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, SString & rMime) const
+int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, int & rMimeType, SString & rMimeSubtype) const
 {
 	int    ok = 0;
-	rExt = 0;
-	rSign = 0;
-	rMime = 0;
+	rExt.Z();
+	rSign.Z();
+	rMimeType = 0;
+	rMimeSubtype.Z();
 	if(pos < getCount()) {
 		const Entry * p_entry = (const Entry *)at(pos);
 		if(p_entry) {
@@ -1960,8 +2043,9 @@ int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & r
 			if(p_entry->SignIdx && Pool.get(p_entry->SignIdx, temp_buf)) {
 				rSign = temp_buf;
 			}
-			if(p_entry->MimeIdx && Pool.get(p_entry->MimeIdx, temp_buf)) {
-				rMime = temp_buf;
+			rMimeType = p_entry->MimeType;
+			if(p_entry->MimeSubtypeIdx && Pool.get(p_entry->MimeSubtypeIdx, temp_buf)) {
+				rMimeSubtype = temp_buf;
 			}
 			ok = 1;
 		}
@@ -1969,18 +2053,21 @@ int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & r
 	return ok;
 }
 
-int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc)
+int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc)
 {
 	int    ok = 1;
-	SString new_ext, new_sign, new_mime, temp_buf;
+	SString new_ext;
+	SString new_sign;
+	SString new_mime_subtype;
+	SString temp_buf;
 	LongArray pos_list;
 
 	(new_ext = pExt).Strip();
-	(new_mime = pMime).Strip();
+	(new_mime_subtype = pMimeSubtype).Strip();
 	if(new_ext.HasChr(';')) {
 		StringSet ss(';', new_ext);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
-			THROW(ok = Helper_Register(id, pMime, temp_buf, pSign, signFunc)); // @recursion
+			THROW(ok = Helper_Register(id, mimeType, pMimeSubtype, temp_buf, pSign, signFunc)); // @recursion
 		}
 	}
 	else {
@@ -2000,11 +2087,15 @@ int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * 
 			}
 		}
 		if(SearchEntryByID(id, pos_list) > 0) {
-			SString entry_ext, entry_sign, entry_mime;
+			SString entry_ext;
+			SString entry_sign;
+			SString entry_mime_subtype;
+			int    entry_mime_type;
 			for(i = 0; i < pos_list.getCount(); i++) {
 				Entry entry;
-				if(Get((uint)pos_list.get(i), entry, entry_ext, entry_sign, entry_mime)) {
-					if(entry_ext == new_ext && entry_sign == new_sign && entry.SignFunc == signFunc && entry_mime == new_mime) {
+				if(Get((uint)pos_list.get(i), entry, entry_ext, entry_sign, entry_mime_type, entry_mime_subtype)) {
+					if(entry_ext == new_ext && entry_sign == new_sign && entry.SignFunc == signFunc && 
+						entry_mime_type == mimeType && entry_mime_subtype == new_mime_subtype) {
 						ok = -1;
 						break;
 					}
@@ -2021,8 +2112,9 @@ int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * 
 				SETMAX(MaxSignSize, is_text_sign ? (new_sign.Len()-1) : new_sign.Len()/2);
 				THROW(Pool.add(new_sign, &new_entry.SignIdx));
 			}
-			if(new_mime.NotEmpty()) {
-				THROW(Pool.add(new_mime, &new_entry.MimeIdx));
+			new_entry.MimeType = mimeType;
+			if(new_mime_subtype.NotEmpty()) {
+				THROW(Pool.add(new_mime_subtype, &new_entry.MimeSubtypeIdx));
 			}
 			new_entry.FmtId = id;
 			new_entry.SignFunc = signFunc;
@@ -2033,27 +2125,38 @@ int FileFormatRegBase::Helper_Register(int id, const char * pMime, const char * 
 	return ok;
 }
 
-int FileFormatRegBase::Register(int id, const char * pMime, const char * pExt, const char * pSign)
+int FileFormatRegBase::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
 {
-	return Helper_Register(id, pMime, pExt, pSign, 0);
+	return Helper_Register(id, mimeType, pMimeSubtype, pExt, pSign, 0);
 }
 
-int FileFormatRegBase::Register(int id, const char * pMime, const char * pExt, FileFormatSignatureFunc signFunc)
+int FileFormatRegBase::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, FileFormatSignatureFunc signFunc)
 {
-	return Helper_Register(id, pMime, pExt, 0, signFunc);
+	return Helper_Register(id, mimeType, pMimeSubtype, pExt, 0, signFunc);
 }
 
 int FileFormatRegBase::IdentifyMime(const char * pMime, int * pFmtId) const
 {
 	int    ok = -1;
 	int    fmt_id = 0;
-	SString entry_ext, entry_sign, entry_mime;
-	for(uint i = 0; ok < 0 && i < getCount(); i++) {
-		Entry entry;
-		if(Get(i, entry, entry_ext, entry_sign, entry_mime)) {
-			if(entry_mime.NotEmpty() && entry_mime.CmpNC(pMime) == 0) {
-				fmt_id = entry.FmtId;
-				ok = 8;
+	if(!isempty(pMime)) {
+		SString entry_ext, entry_mime_subtype;
+		SString temp_buf;
+		(temp_buf = pMime).Strip();
+		if(temp_buf.Divide('/', entry_ext, entry_mime_subtype) > 0) {
+			const int key_mime_type = SFileFormat::IdentifyMimeType(entry_ext);
+			if(key_mime_type && entry_mime_subtype.NotEmpty()) {
+				const SString key_mime_subtype = entry_mime_subtype;
+				for(uint i = 0; ok < 0 && i < getCount(); i++) {
+					Entry entry;
+					int   mime_type;
+					if(Get(i, entry, entry_ext, temp_buf, mime_type, entry_mime_subtype)) {
+						if(mime_type == key_mime_type && entry_mime_subtype.CmpNC(key_mime_subtype) == 0) {
+							fmt_id = entry.FmtId;
+							ok = 8;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2070,8 +2173,9 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	{
 		SPathStruc ps;
 		ps.Split(pFileName);
+		int    entry_mime_type;
 		SString ext = ps.Ext;
-		SString entry_ext, entry_sign, entry_mime;
+		SString entry_ext, entry_sign, entry_mime_subtype;
 		SString temp_buf, left_buf, right_buf;
 		StringSet ss_subsigns;
 		LongArray used_offs_list;
@@ -2088,7 +2192,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 		ext.Strip().ShiftLeftChr('.').Strip().ToLower();
 		for(uint i = 0; i < getCount(); i++) {
 			Entry entry;
-			if(Get(i, entry, entry_ext, entry_sign, entry_mime)) {
+			if(Get(i, entry, entry_ext, entry_sign, entry_mime_type, entry_mime_subtype)) {
 				if(entry_ext.NotEmpty() && entry_ext == ext) {
 					candid_by_ext.addUnique(entry.FmtId);
 				}
@@ -2230,7 +2334,13 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 uint SFileFormat::GloBaseIdx = 0;
 
 //static
-int SFileFormat::Register(int id, const char * pMime, const char * pExt, const char * pSign)
+int SFileFormat::Register(int id, const char * pExt, const char * pSign)
+{
+	return Register(id, 0, 0, pExt, pSign);
+}
+
+//static
+int SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
 {
 	int    ok = 0;
 	if(!GloBaseIdx) {
@@ -2244,7 +2354,71 @@ int SFileFormat::Register(int id, const char * pMime, const char * pExt, const c
 	if(GloBaseIdx) {
 		FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
-			ok = p_reg->Register(id, pMime, pExt, pSign);
+			ok = p_reg->Register(id, mimeType, pMimeSubtype, pExt, pSign);
+	}
+	return ok;
+}
+
+//static 
+int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
+{
+	int    cte = cteUndef;
+	if(!isempty(pCte)) {
+		if(sstreqi_ascii(pCte, "base64"))
+			cte = cteBase64;
+		else if(sstreqi_ascii(pCte, "quoted-printable"))
+			cte = cteQuotedPrintable;
+		else if(sstreqi_ascii(pCte, "8bit"))
+			cte = cte8bit;
+		else if(sstreqi_ascii(pCte, "7bit"))
+			cte = cte7bit;
+		else if(sstreqi_ascii(pCte, "binary"))
+			cte = cteBinary;
+	}
+	return cte;
+}
+
+struct __MimeTypeNameEntry {
+	int    Type;
+	const char * P_Name;
+};
+
+static __MimeTypeNameEntry MimeTypeNameList[] = {
+	{ SFileFormat::mtMultipart, "multipart" },
+	{ SFileFormat::mtText, "text" },
+	{ SFileFormat::mtApplication, "application" },
+	{ SFileFormat::mtImage, "image" },
+	{ SFileFormat::mtMessage, "message" },
+	{ SFileFormat::mtVideo, "video" },
+	{ SFileFormat::mtAudio, "audio" },
+	{ SFileFormat::mtFont, "font" },
+	{ SFileFormat::mtModel, "model" },
+	{ SFileFormat::mtExample, "example" }
+};
+
+//static 
+int SFileFormat::IdentifyMimeType(const char * pMimeType)
+{
+	int    mt = mtUndef;
+	if(!isempty(pMimeType)) {
+		for(uint i = 0; mt == mtUndef && i < SIZEOFARRAY(MimeTypeNameList); i++) {
+			if(sstreqi_ascii(MimeTypeNameList[i].P_Name, pMimeType))
+				mt = MimeTypeNameList[i].Type;
+		}
+	}
+	return mt;
+}
+
+//static 
+int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	for(uint i = 0; i < SIZEOFARRAY(MimeTypeNameList); i++) {
+		if(MimeTypeNameList[i].Type == mimeType) {
+			rBuf = MimeTypeNameList[i].P_Name;
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -2326,160 +2500,160 @@ int SFileFormat::IdentifyMime(const char * pMime)
 int SFileFormat::Register()
 {
 	int    ok = 1;
-	Register(Txt,    "text/plain", "txt;csv", 0);
-	Register(Jpeg,   "image/jpeg", "jpg;jpeg;jp2;jfif", "FFD8FFE0");        // JPG
-	Register(Jpeg,             0, "jpg", "FFD8FFE1");                      // JPG
-	Register(Jpeg,             0, "jpg", "0000000C6A5020200D0A870A");      // JP2
-	Register(Jpeg,             0, "jpg", "4A4946393961");                  // JIF
-	Register(Jpeg,             0, "jpg", "FFD8FFE14ED84578696600004949");  // JPG Kodak
-	Register(Png,    "image/png",  "png", "89504E470D0A1A0A");   // PNG
-	Register(Png,              0, "png", "889A0D12");                      // PNG
-	Register(Tiff,   "image/tiff", "tff;tiff", "49492A00");      // TIFF
-	Register(Tiff,             0, "tff;tiff", "4D4D2A");                   // TIFF
-	Register(Gif,    "image/gif", "gif", "47494638");            // GIF
-	Register(Bmp,    "image/bmp", "bmp", "424D");                // BMP
-	Register(Ico,    "image/x-icon", "ico", "0001");             // ICO
-	Register(Cur,    "application/octet-stream", "cur", "0002"); // CUR
-	Register(Xml,    "application/xml", "xml", "T<?xml");                 // XML  @v8.1.0
-	Register(Svg,    "image/svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
-	Register(Html,   "text/html", "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
-	Register(Ini,              0, "ini", (const char *)0);  // INI  @v8.1.0
+	Register(Txt,    mtText,  "plain", "txt;csv", 0);
+	Register(Jpeg,   mtImage, "jpeg", "jpg;jpeg;jp2;jfif", "FFD8FFE0");        // JPG
+	Register(Jpeg,   "jpg", "FFD8FFE1");                      // JPG
+	Register(Jpeg,   "jpg", "0000000C6A5020200D0A870A");      // JP2
+	Register(Jpeg,   "jpg", "4A4946393961");                  // JIF
+	Register(Jpeg,   "jpg", "FFD8FFE14ED84578696600004949");  // JPG Kodak
+	Register(Png,    mtImage, "png",  "png", "89504E470D0A1A0A");   // PNG
+	Register(Png,    "png", "889A0D12");                      // PNG
+	Register(Tiff,   mtImage, "tiff", "tff;tiff", "49492A00");      // TIFF
+	Register(Tiff,   "tff;tiff", "4D4D2A");                   // TIFF
+	Register(Gif,    mtImage, "gif", "gif", "47494638");            // GIF
+	Register(Bmp,    mtImage, "bmp", "bmp", "424D");                // BMP
+	Register(Ico,    mtImage, "x-icon", "ico", "0001");             // ICO
+	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
+	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML  @v8.1.0
+	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
+	Register(Html,   mtText,  "html", "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
+	Register(Ini,    "ini", (const char *)0);  // INI  @v8.1.0
 
-	Register(Latex,  "application/x-latex", "tex", (const char *)0);  // LATEX @v8.8.3
-	Register(Latex,            0, "latex", (const char *)0);         // LATEX @v8.8.3
-	Register(TxtBomUTF8,       0, "txt;csv", "EFBBBF");
-	Register(TxtBomUTF16BE,    0, "txt;csv", "FEFF");
-	Register(TxtBomUTF16LE,    0, "txt;csv", "FFFE");
-	Register(TxtBomUTF32BE,    0, "txt;csv", "0000FEFF");
-	Register(TxtBomUTF32LE,    0, "txt;csv", "FFFE0000");
-	Register(TxtBomUTF7,       0, "txt;csv", "2B2F7638");
-	Register(TxtBomUTF7,       0, "txt;csv", "2B2F7639");
-	Register(TxtBomUTF7,       0, "txt;csv", "2B2F762B");
-	Register(TxtBomUTF7,       0, "txt;csv", "2B2F762F");
-	Register(TxtBomUTF1,       0, "txt;csv", "F7644C");
-	Register(TxtBomUTF_EBCDIC, 0, "txt;csv", "DD736673");
-	Register(TxtBomSCSU,       0, "txt;csv", "OEFEFF");
-	Register(TxtBomBOCU1,      0, "txt;csv", "FBEE28");
-	Register(TxtBomGB18030,    0, "txt;csv", "84319533");
+	Register(Latex,            mtApplication, "x-latex", "tex", (const char *)0);  // LATEX @v8.8.3
+	Register(Latex,            "latex", (const char *)0);         // LATEX @v8.8.3
+	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
+	Register(TxtBomUTF16BE,    "txt;csv", "FEFF");
+	Register(TxtBomUTF16LE,    "txt;csv", "FFFE");
+	Register(TxtBomUTF32BE,    "txt;csv", "0000FEFF");
+	Register(TxtBomUTF32LE,    "txt;csv", "FFFE0000");
+	Register(TxtBomUTF7,       "txt;csv", "2B2F7638");
+	Register(TxtBomUTF7,       "txt;csv", "2B2F7639");
+	Register(TxtBomUTF7,       "txt;csv", "2B2F762B");
+	Register(TxtBomUTF7,       "txt;csv", "2B2F762F");
+	Register(TxtBomUTF1,       "txt;csv", "F7644C");
+	Register(TxtBomUTF_EBCDIC, "txt;csv", "DD736673");
+	Register(TxtBomSCSU,       "txt;csv", "OEFEFF");
+	Register(TxtBomBOCU1,      "txt;csv", "FBEE28");
+	Register(TxtBomGB18030,    "txt;csv", "84319533");
 
-	Register(Pdf, "application/pdf", "pdf", "25504446"); // @v8.8.12
+	Register(Pdf, mtApplication, "pdf", "pdf", "25504446"); // @v8.8.12
 
-	Register(Rtf,              0, "rtf",     "7B5C72746631");
-	Register(Mdb,              0, "mdb",     "000100005374616E64617264204A6574204442");
-	Register(AccDb,            0, "accdb",   "000100005374616E6461726420414345204442");
-	Register(WbXml,            0, "wbxml",   "030B6A");
-	Register(Wmf,              0, "wmf",     "D7CDC69A");
-	Register(Eps,              0, "eps",     "252150532D41646F6265");
-	Register(Eps,              0, "eps",     "C5D0D3C6");
-	Register(Hlp,              0, "hlp",     "6:0000FFFFFFFF");
-	Register(Ppd,              0, "ppd",     "2A5050442D41646F62653A");
-	Register(PList,            0, "plist",   "62706C697374");
-	Register(Mat,              0, "mat",     "4D41544C4142");
-	Register(Pdb,              0, "pdb",     "4D6963726F736F667420432F432B2B20");
-	Register(WcbffOld,         0, "",        "0E11fC0DD0CF11E0");
+	Register(Rtf,        "rtf",     "7B5C72746631");
+	Register(Mdb,        "mdb",     "000100005374616E64617264204A6574204442");
+	Register(AccDb,      "accdb",   "000100005374616E6461726420414345204442");
+	Register(WbXml,      "wbxml",   "030B6A");
+	Register(Wmf,        "wmf",     "D7CDC69A");
+	Register(Eps,        "eps",     "252150532D41646F6265");
+	Register(Eps,        "eps",     "C5D0D3C6");
+	Register(Hlp,        "hlp",     "6:0000FFFFFFFF");
+	Register(Ppd,        "ppd",     "2A5050442D41646F62653A");
+	Register(PList,      "plist",   "62706C697374");
+	Register(Mat,        "mat",     "4D41544C4142");
+	Register(Pdb,        "pdb",     "4D6963726F736F667420432F432B2B20");
+	Register(WcbffOld,   "",        "0E11fC0DD0CF11E0");
 
-	Register(Zip, "application/zip",    "zip", "504B0304");
-	Register(Zip,              0, "zip", "504B0506");
-	Register(Zip,              0, "zip", "504B0708");
-	Register(Rar,              0, "rar", "52617221");
-	Register(Gz,  "application/x-gzip", "gz",  "1F8B08");
-	Register(Bz2,              0, "bz2", "425A68");
-	Register(SevenZ,           0, "7z",  "377ABCAF");
-	Register(Xz,               0, "xz",  "FD377A585A");
-	Register(Z,                0, "z",   "1F9D90");
-	Register(Cab,              0, "cab", "49536328");
-	Register(Cab,              0, "cab", "4D534346");
-	Register(Arj,              0, "arj", "60EA");
-	Register(Lzh,              0, "lzh", "2D6C68");
-	Register(Xar,              0, "xar", "78617221001C");
-	Register(Pmd,              0, "pmd", "8FAFAC84");
-	Register(Deb,              0, "deb", "213C617263683E");
-	Register(Rpm,              0, "rpm", "EDABEEDB");
-	Register(Chm,              0, "chm", "49545346");
-	Register(Vhd,              0, "vhd", "636F6E6563746978");
-	Register(Wim,              0, "wim", "4D5357494D");
-	Register(Mdf,              0, "mdf", "00FFFFFFFFFFFFFFFFFFFF0000020001");
-	Register(Nri,              0, "nri", "0E4E65726F49534F");
-	Register(Swf,              0, "swf", "435753");
-	Register(Swf,              0, "swf", "465753");
-	Register(Mar,              0, "mar", "4D41723000");
-	Register(Mar,              0, "mar", "4D415243");
-	Register(Mar,              0, "mar", "4D41523100");
-	Register(Tar,              0, "tar", "257:7573746172"); // начиная с 257 байта
-	//Register(Iso,  0, "iso", "32769:4344303031"); // начиная с 32769 байта (пока не поддерживаем)
+	Register(Zip, mtApplication, "zip",    "zip", "504B0304");
+	Register(Zip,        "zip", "504B0506");
+	Register(Zip,        "zip", "504B0708");
+	Register(Rar,        "rar", "52617221");
+	Register(Gz,  mtApplication, "x-gzip", "gz",  "1F8B08");
+	Register(Bz2,        "bz2", "425A68");
+	Register(SevenZ,     "7z",  "377ABCAF");
+	Register(Xz,         "xz",  "FD377A585A");
+	Register(Z,          "z",   "1F9D90");
+	Register(Cab,        "cab", "49536328");
+	Register(Cab,        "cab", "4D534346");
+	Register(Arj,        "arj", "60EA");
+	Register(Lzh,        "lzh", "2D6C68");
+	Register(Xar,        "xar", "78617221001C");
+	Register(Pmd,        "pmd", "8FAFAC84");
+	Register(Deb,        "deb", "213C617263683E");
+	Register(Rpm,        "rpm", "EDABEEDB");
+	Register(Chm,        "chm", "49545346");
+	Register(Vhd,        "vhd", "636F6E6563746978");
+	Register(Wim,        "wim", "4D5357494D");
+	Register(Mdf,        "mdf", "00FFFFFFFFFFFFFFFFFFFF0000020001");
+	Register(Nri,        "nri", "0E4E65726F49534F");
+	Register(Swf,        "swf", "435753");
+	Register(Swf,        "swf", "465753");
+	Register(Mar,        "mar", "4D41723000");
+	Register(Mar,        "mar", "4D415243");
+	Register(Mar,        "mar", "4D41523100");
+	Register(Tar,        "tar", "257:7573746172"); // начиная с 257 байта
+	//Register(Iso,  "iso", "32769:4344303031"); // начиная с 32769 байта (пока не поддерживаем)
 
-	Register(Mkv,              0, "mkv", "1A45DFA3934282886D6174726F736B61");
-	Register(Avi,              0, "avi", "52494646 8:415649204C495354");
-	Register(Mp4,              0, "mp4", "0000002066747970");
-	Register(Mp4,              0, "mp4", "0000001C66747970");
-	Register(Wmv,              0, "wmv", "3026B2758E66CF11");
-	Register(Mpg,              0, "mpg", "000001BA");
-	Register(Flv,              0, "flv", "464C5601");
-	Register(Mov,              0, "mov", "4:6D6F6F76");
-	Register(F4f,              0, "f4f", "4:61667261");
+	Register(Mkv,        "mkv", "1A45DFA3934282886D6174726F736B61");
+	Register(Avi,        "avi", "52494646 8:415649204C495354");
+	Register(Mp4,        "mp4", "0000002066747970");
+	Register(Mp4,        "mp4", "0000001C66747970");
+	Register(Wmv,        "wmv", "3026B2758E66CF11");
+	Register(Mpg,        "mpg", "000001BA");
+	Register(Flv,        "flv", "464C5601");
+	Register(Mov,        "mov", "4:6D6F6F76");
+	Register(F4f,        "f4f", "4:61667261");
 
-	Register(Class,            0, "class", "CAFEBABE"); // @v9.0.9 binary:class 0:CAFEBABE
-	Register(Exe,              "application/octet-stream", "exe",   "4D5A"); // @v9.0.9 binary:exe   0:4D5A
-	Register(Dll,              "application/x-msdownload", "dll",   "4D5A"); // @v9.0.9 binary:dll   0:4D5A
-	Register(Pcap,             0, "pcap",  "D4C3B2A1"); // @v9.0.9 binary:pcap  0:D4C3B2A1
-	Register(Pyo,              0, "pyo",   "03F30D0A"); // @v9.0.9 binary:pyo   0:03F30D0A
-	Register(So,               0, "so",    "7F454C46"); // @v9.0.9 binary:so    0:7F454C46
-	Register(Mo,               0, "mo",    "DE120495"); // @v9.0.9 binary:mo    0:DE120495
-	Register(Mui,              0, "mui",   "50413330"); // @v9.0.9 binary:mui   0:50413330
-	Register(Cat,              0, "cat",   "0:30 6:2A864886"); // @v9.0.9 binary:cat   0:30 6:2A864886
-	Register(Xsb,              0, "xsb",   "DA7ABABE"); // @v9.0.9 binary:xsb   0:DA7ABABE
-	Register(Key,              0, "key",   "4B4C737727"); // @v9.0.9 binary:key   0:4B4C737727
-	Register(Sq3,              0, "sq3",   "53514C697465"); // @v9.0.9 binary:sq3   0:53514C697465
-	Register(Qst,              0, "qst",   "0401C4030000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-	Register(Qst,              0, "qst",   "040180040000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
-	Register(Crx,              0, "crx",   "43723234"); // @v9.0.9 binary:crx   0:43723234
-	Register(Utx,              0, "utx",   "4C0069006E006500610067006500"); // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
-	Register(Rx3,              0, "rx3",   "52583362"); // @v9.0.9 binary:rx3   0:52583362
-	Register(Kdc,              0, "kdc",   "44494646"); // @v9.0.9 binary:kdc   0:44494646
-	Register(Xnb,              0, "xnb",   "584E42"); // @v9.0.9 binary:xnb   0:584E42
-	Register(Blp,              0, "blp",   "424C5031"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-	Register(Blp,              0, "blp",   "424C5032"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
-	Register(Big,              0, "big",   "42494746"); // @v9.0.9 binary:big   0:42494746
-	Register(Mdl,              0, "mdl",   "49445354"); // @v9.0.9 binary:mdl   0:49445354
-	Register(Spr,              0, "spr",   "CDCC8C3F"); // @v9.0.9 binary:spr   0:CDCC8C3F
-	Register(Sfo,              0, "sfo",   "00505346"); // @v9.0.9 binary:sfo   0:00505346
-	Register(Mpq,              0, "mpq",   "4D50511A"); // @v9.0.9 binary:mpq   0:4D50511A
-	Register(Nes,              0, "nes",   "4E45531A"); // @v9.0.9 binary:nes   0:4E45531A
-	Register(Dmp,              0, "dmp",   "4D444D5093A7"); // @v9.0.9 binary:dmp   0:4D444D5093A7
-	Register(Dex,              0, "dex",   "6465780a30333500"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-	Register(Dex,              0, "dex",   "6465780a30333600"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-	Register(Gim,              0, "gim",   "4D49472E30302E31505350"); // @v9.0.9 binary:gim   0:4D49472E30302E31505350
-	Register(Amxx,             0, "amxx",  "58584D41"); // @v9.0.9 binary:amxx  0:58584D41
-	Register(Sln,              0, "sln",  "TMicrosoft Visual Studio Solution File"); // @v9.1.2
-	Register(VCProj,           "application/xml", "vcproj", "T<?xml"); // @v9.1.2
-	Register(VCProj,           0, "vcxproj", "T<?xml");
-	Register(Asm,              0, "asm", 0); // @v9.1.2
-	Register(C,                0, "c",   0); // @v9.1.2
-	Register(C,                0, "c",   "T/*"); // @v9.1.2
-	Register(CPP,              0, "cpp;cxx;cc", 0); // @v9.1.2
-	Register(CPP,              0, "cpp;cxx;cc", "T/*"); // @v9.1.2
-	Register(CPP,              0, "cpp;cxx;cc", "T//"); // @v9.1.2
-	Register(H,                0, "h;hpp", 0); // @v9.1.2
-	Register(H,                0, "h;hpp", "T/*"); // @v9.1.2
-	Register(H,                0, "h;hpp", "T//"); // @v9.1.2
-	Register(Perl,             0, "pl",   "T#!perl"); // @v9.1.2
-	Register(Perl,             0, "pm",   "Tpackage"); // @v9.1.2
-	Register(Php,              0, "php",  "T<?php"); // @v9.1.2
-	Register(Java,             0, "java", 0); // @v9.1.2
-	Register(Java,             0, "java", "Tpackage"); // @v9.1.2
-	Register(Java,             0, "java", "Timport"); // @v9.1.2
-	Register(Java,             0, "java", "T/*"); // @v9.1.2
-	Register(Py,               0, "py", 0); // @v9.1.2
+	Register(Class,      "class", "CAFEBABE"); // @v9.0.9 binary:class 0:CAFEBABE
+	Register(Exe,   mtApplication, "octet-stream", "exe",   "4D5A"); // @v9.0.9 binary:exe   0:4D5A
+	Register(Dll,   mtApplication, "x-msdownload", "dll",   "4D5A"); // @v9.0.9 binary:dll   0:4D5A
+	Register(Pcap,       "pcap",  "D4C3B2A1"); // @v9.0.9 binary:pcap  0:D4C3B2A1
+	Register(Pyo,        "pyo",   "03F30D0A"); // @v9.0.9 binary:pyo   0:03F30D0A
+	Register(So,         "so",    "7F454C46"); // @v9.0.9 binary:so    0:7F454C46
+	Register(Mo,         "mo",    "DE120495"); // @v9.0.9 binary:mo    0:DE120495
+	Register(Mui,        "mui",   "50413330"); // @v9.0.9 binary:mui   0:50413330
+	Register(Cat,        "cat",   "0:30 6:2A864886"); // @v9.0.9 binary:cat   0:30 6:2A864886
+	Register(Xsb,        "xsb",   "DA7ABABE"); // @v9.0.9 binary:xsb   0:DA7ABABE
+	Register(Key,        "key",   "4B4C737727"); // @v9.0.9 binary:key   0:4B4C737727
+	Register(Sq3,        "sq3",   "53514C697465"); // @v9.0.9 binary:sq3   0:53514C697465
+	Register(Qst,        "qst",   "0401C4030000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
+	Register(Qst,        "qst",   "040180040000"); // @v9.0.9 binary:qst   0:0401C4030000 binary:qst   0:040180040000
+	Register(Crx,        "crx",   "43723234"); // @v9.0.9 binary:crx   0:43723234
+	Register(Utx,        "utx",   "4C0069006E006500610067006500"); // @v9.0.9 binary:utx   0:4C0069006E006500610067006500
+	Register(Rx3,        "rx3",   "52583362"); // @v9.0.9 binary:rx3   0:52583362
+	Register(Kdc,        "kdc",   "44494646"); // @v9.0.9 binary:kdc   0:44494646
+	Register(Xnb,        "xnb",   "584E42"); // @v9.0.9 binary:xnb   0:584E42
+	Register(Blp,        "blp",   "424C5031"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
+	Register(Blp,        "blp",   "424C5032"); // @v9.0.9 binary:blp   0:424C5031 binary:blp   0:424C5032
+	Register(Big,        "big",   "42494746"); // @v9.0.9 binary:big   0:42494746
+	Register(Mdl,        "mdl",   "49445354"); // @v9.0.9 binary:mdl   0:49445354
+	Register(Spr,        "spr",   "CDCC8C3F"); // @v9.0.9 binary:spr   0:CDCC8C3F
+	Register(Sfo,        "sfo",   "00505346"); // @v9.0.9 binary:sfo   0:00505346
+	Register(Mpq,        "mpq",   "4D50511A"); // @v9.0.9 binary:mpq   0:4D50511A
+	Register(Nes,        "nes",   "4E45531A"); // @v9.0.9 binary:nes   0:4E45531A
+	Register(Dmp,        "dmp",   "4D444D5093A7"); // @v9.0.9 binary:dmp   0:4D444D5093A7
+	Register(Dex,        "dex",   "6465780a30333500"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+	Register(Dex,        "dex",   "6465780a30333600"); // @v9.0.9 binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+	Register(Gim,        "gim",   "4D49472E30302E31505350"); // @v9.0.9 binary:gim   0:4D49472E30302E31505350
+	Register(Amxx,       "amxx",  "58584D41"); // @v9.0.9 binary:amxx  0:58584D41
+	Register(Sln,        "sln",  "TMicrosoft Visual Studio Solution File"); // @v9.1.2
+	Register(VCProj,     mtApplication, "xml", "vcproj", "T<?xml"); // @v9.1.2
+	Register(VCProj,     "vcxproj", "T<?xml");
+	Register(Asm,        "asm", 0); // @v9.1.2
+	Register(C,          "c",   0); // @v9.1.2
+	Register(C,          "c",   "T/*"); // @v9.1.2
+	Register(CPP,        "cpp;cxx;cc", 0); // @v9.1.2
+	Register(CPP,        "cpp;cxx;cc", "T/*"); // @v9.1.2
+	Register(CPP,        "cpp;cxx;cc", "T//"); // @v9.1.2
+	Register(H,          "h;hpp", 0); // @v9.1.2
+	Register(H,          "h;hpp", "T/*"); // @v9.1.2
+	Register(H,          "h;hpp", "T//"); // @v9.1.2
+	Register(Perl,       "pl",   "T#!perl"); // @v9.1.2
+	Register(Perl,       "pm",   "Tpackage"); // @v9.1.2
+	Register(Php,        "php",  "T<?php"); // @v9.1.2
+	Register(Java,       "java", 0); // @v9.1.2
+	Register(Java,       "java", "Tpackage"); // @v9.1.2
+	Register(Java,       "java", "Timport"); // @v9.1.2
+	Register(Java,       "java", "T/*"); // @v9.1.2
+	Register(Py,         "py", 0); // @v9.1.2
 
-	Register(UnixShell,        0, "sh",   "T#!/bin/sh"); // @v9.1.2
-	Register(Msi,              "application/x-ole-storage", "msi",  "D0CF11E0A1B11AE1"); // @v9.1.2
-	Register(Log,              0, "log", 0); // @v9.7.1
-	Register(Properties,       0, "properties", 0); // @v9.7.1
-	Register(Css,              0, "css", 0); // @v9.7.1
-	Register(JavaScript,       0, "js",  0); // @v9.7.1
-	Register(Json,             0, "json", "T{"); // @v9.7.2
-	Register(Json,             0, "json", "T["); // @v9.7.2
-	Register(Pbxproj,          0, "pbxproj", 0); // @v9.8.1
+	Register(UnixShell,  "sh",   "T#!/bin/sh"); // @v9.1.2
+	Register(Msi,        mtApplication, "x-ole-storage", "msi",  "D0CF11E0A1B11AE1"); // @v9.1.2
+	Register(Log,        "log", 0); // @v9.7.1
+	Register(Properties, "properties", 0); // @v9.7.1
+	Register(Css,        "css", 0); // @v9.7.1
+	Register(JavaScript, "js",  0); // @v9.7.1
+	Register(Json,       "json", "T{"); // @v9.7.2
+	Register(Json,       "json", "T["); // @v9.7.2
+	Register(Pbxproj,    "pbxproj", 0); // @v9.8.1
 
 	return ok;
 }
@@ -2662,6 +2836,19 @@ SLTEST_R(SFile)
 		// @todo Не проверенным остался случай реального ожидания закрытия файла
 		// поскольку для этого надо создавать отдельный асинхронный поток.
 		//
+	}
+	{
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("*.*", "abc.txt"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("*.txt", "abc.txt"));
+		SLTEST_CHECK_Z(SFile::WildcardMatch("*.txt", "abc.tx"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txt"));
+		SLTEST_CHECK_Z(SFile::WildcardMatch("*xyz*.t?t", "12xyz.txxt"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("*xyz*.t?t", "12xyz-foo.txt"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.t?t", "12xyz-foo.txt"));
+		SLTEST_CHECK_Z(SFile::WildcardMatch("??xyz*.t?t", "123xyz-foo.txt"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xml"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xls"));
+		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xlsm"));
 	}
 	CATCHZOK;
 	return CurrentStatus;

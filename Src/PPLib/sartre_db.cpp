@@ -342,7 +342,7 @@ int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 	return ok;
 }
 
-int SrWordAssocTbl::Search(LEXID wordID, TSArray <SrWordAssoc> & rList)
+int SrWordAssocTbl::Search(LEXID wordID, TSVector <SrWordAssoc> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf, data_buf;
@@ -496,7 +496,7 @@ int SrNGramTbl::Search(const SrNGram & rKey, NGID * pID)
 	return ok;
 }
 
-int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSArray <NGID> & rList)
+int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) // @v9.8.4 TSArray-->TSVect
 {
 	int    ok = -1;
 	const  LongArray & r_key_list = rKey.WordIdList;
@@ -1051,7 +1051,7 @@ int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSArray <PPOsm::Nod
 
 	rNodeList.clear();
 	PPOsm::NodeCluster clu;
-	TSArray <PPOsm::Node> clu_node_list;
+	TSVector <PPOsm::Node> clu_node_list; // @v9.8.4 TSArray-->TSVector
 	UintHashTable processed_pos_list;
 	//
 	// Для замкнутого контура последняя точка равна первой - просто добавим ее в список в самом конце функции
@@ -1119,7 +1119,7 @@ LogicalCount=  8; ClusterCount= 2389896; ActualCount=17049582; Size=112131954;
 	int    ok = -1;
 	uint64 ret_logical_id = 0;
 	PPOsm::NodeCluster nc;
-	TSArray <PPOsm::Node> nc_list;
+	TSVector <PPOsm::Node> nc_list; // @v9.8.4 TSArray-->TSVector
 	PPOsm::NodeRefs nr_list;
 	DataBuf.Alloc(1024);
 	for(uint i = 0; ok < 0 && i < SIZEOFARRAY(logical_count_priority); /* see end of loop */) {
@@ -1615,7 +1615,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
 			assert(wa.BaseFormID);
 			assert(wa.FlexiaModelID);
 			int32   wa_id = 0;
-			TSArray <SrWordAssoc> wa_list;
+			TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
 			P_WaT->Search(wordID, wa_list);
 			for(uint i = 0; !wa_id && i < wa_list.getCount(); i++) {
 				const SrWordAssoc & r_wa = wa_list.at(i);
@@ -1633,7 +1633,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
 	return ok;
 }
 
-int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo)
+int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	LongArray wf_list;
@@ -1668,7 +1668,7 @@ int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray 
 int SrDatabase::IsWordInForm(const char * pWordUtf8, const SrWordForm & rForm)
 {
 	int    ok = -1;
-	TSArray <SrWordInfo> info_list;
+	TSVector <SrWordInfo> info_list;
 	SrWordForm base_wf, var_wf, wf;
 	GetWordInfo(pWordUtf8, 0, info_list);
 	for(uint i = 0; ok < 0 && i < info_list.getCount(); i++) {
@@ -1689,7 +1689,7 @@ int SrDatabase::IsWordInForm(const char * pWordUtf8, const SrWordForm & rForm)
 	return ok;
 }
 
-int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSArray <SrWordInfo> & rInfo)
+int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <SrWordInfo> & rInfo)
 {
 	int    ok = -1;
 	SStringU word_buf, base_buf_u, afx_buf_u, pfx_buf_u;
@@ -1699,7 +1699,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSArray <SrW
 	base_buf_u = word_buf.ToLower();
 	const  uint len = word_buf.Len();
 	StrAssocArray afx_list;
-	TSArray <SrWordAssoc> wa_list;
+	TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
 		int    inv_pfx = 0; // Если !0, то префикс не допустимый
 		LEXID  pfx_id = 0;
@@ -1787,14 +1787,14 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSArray <SrW
 	return ok;
 }
 
-int SrDatabase::Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSArray <SrWordInfo> & rResult)
+int SrDatabase::Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSVector <SrWordInfo> & rResult)
 {
 	int    ok = -1;
 	rResult.clear();
-	TSArray <SrWordInfo> info_list;
+	TSVector <SrWordInfo> info_list;
 	if(GetWordInfo(pWordUtf8, 0, info_list) > 0) {
 		SrWordForm base_wf, wf, test_wf;
-		TSArray <SrWordAssoc> wa_list;
+		TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
 		for(uint j = 0; j < info_list.getCount(); j++) {
 			const SrWordInfo & r_item = info_list.at(j);
 			if(r_item.FormID) {
@@ -2305,7 +2305,7 @@ int SrDatabase::SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, doub
 	return ok;
 }
 
-int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat)
+int SrDatabase::StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat)
 {
 	const  uint max_cluster_per_tx = 1024;
 	const  int  use_transaction = 1;
@@ -2314,10 +2314,10 @@ int SrDatabase::StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAs
 	const  uint _count = rList.getCount();
 	if(_count) {
 		TSCollection <PPOsm::NodeCluster> cluster_list;
-		TSArray <uint64> outer_id_list;
-		TSArray <PPOsm::Node> test_list;
+		TSVector <uint64> outer_id_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPOsm::Node> test_list; // @v9.8.4 TSArray-->TSVector
 		PPOsm::NodeCluster ex_cluster;
-		TSArray <PPOsm::Node> ex_list;
+		TSVector <PPOsm::Node> ex_list; // @v9.8.4 TSArray-->TSVector
 		uint   next_node_to_way_assc_pos = 0;
 		size_t offs = 0;
 		{
@@ -2436,8 +2436,8 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 	if(_count) {
 		int64 prev_node_id = 0;
 		PPOsm::NodeCluster nc;
-		TSArray <PPOsm::Node> node_list;
-		TSArray <PPOsm::Node> node_list_test;
+		TSVector <PPOsm::Node> node_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <PPOsm::Node> node_list_test;
 		PPOsm::NodeRefs ref_list;
 		PPOsm::NodeRefs ref_list_test;
 		for(uint _current_pos = 0; _current_pos < _count;) {
@@ -2511,7 +2511,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 	return ok;
 }
 
-int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat)
+int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat)
 {
 	const  uint max_entries_per_tx = 1024;
 	const  int  use_transaction = 1;

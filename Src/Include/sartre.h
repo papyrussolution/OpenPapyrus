@@ -324,7 +324,7 @@ private:
 //
 // Descr: Ассоциация, связывающая базовую часть слова с модельными позициями (префиксами, суффиксами и т.д.)
 //
-struct SrWordAssoc {
+struct SrWordAssoc { // @flat
 	SLAPI  SrWordAssoc();
 	SrWordAssoc & SLAPI Normalize();
 	SString & FASTCALL ToStr(SString & rBuf) const;
@@ -409,7 +409,7 @@ public:
 	int    Add(SrWordAssoc * pWa, int32 * pID);
 	//int    Update(int32 id, SrWordAssoc * pWa);
 	int    Search(int32 id, SrWordAssoc * pWa);
-	int    Search(LEXID wordID, TSArray <SrWordAssoc> & rList);
+	int    Search(LEXID wordID, TSVector <SrWordAssoc> & rList); // @v9.8.4 TSArray-->TSVector
 	int    SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf);
 private:
 	long   SeqID;
@@ -444,7 +444,7 @@ public:
 	int    Add(SrNGram & rNGram);
 	int    Search(NGID id, SrNGram * pNGram);
 	int    Search(const SrNGram & rNGram, NGID * pID);
-	int    SearchByPrefix(const SrNGram & rNGram, TSArray <NGID> & rList);
+	int    SearchByPrefix(const SrNGram & rNGram, TSVector <NGID> & rList); // @v9.8.4 TSArray-->TSVect
 
 	int    SerializeRecBuf(int dir, SrNGram * pRec, SBuffer & rBuf);
 private:
@@ -686,7 +686,7 @@ public:
 	StrAssocArray StrItems; // Список текстовых параметров
 };
 
-struct SrWordInfo {
+struct SrWordInfo { // @flat
 	SrWordInfo();
 	SrWordInfo & Clear();
 
@@ -765,14 +765,14 @@ public:
 	//   <0 - функция не нашла грамматических ассоциаций слова.
 	//    0 - ошибка
 	//
-	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSArray <SrWordAssoc> & rWaList, TSArray <SrWordInfo> & rInfo);
-	int    GetWordInfo(const char * pWordUtf8, long flags, TSArray <SrWordInfo> & rInfo);
+	int    GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo);  // @v9.8.4 TSArray-->TSVector
+	int    GetWordInfo(const char * pWordUtf8, long flags, TSVector <SrWordInfo> & rInfo);
 	int    IsWordInForm(const char * pWordUtf8, const SrWordForm & rForm);
 	int    WordInfoToStr(const SrWordInfo & rWi, SString & rBuf);
 	//
 	// Descr: Трансформирует слово pWordUtf8 в форму, определенную параметром rDestForm
 	//
-	int    Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSArray <SrWordInfo> & rResult);
+	int    Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSVector <SrWordInfo> & rResult);
 
 	int    SearchWord(const char * pWordUtf8, LEXID * pID);
 	int    SearchSpecialWord(int special, const char * pWordUtf8, LEXID * pID);
@@ -843,8 +843,8 @@ public:
 
 	int    ImportFlexiaModel(const SrImportParam & rParam);
 
-	int    StoreGeoNodeList(const TSArray <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSArray <PPOsm::NodeClusterStatEntry> * pStat);
-	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSArray <PPOsm::WayStatEntry> * pStat);
+	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);
+	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
 
 	//
@@ -989,7 +989,7 @@ public:
 			uint   TextIdx;
 		};
 		TSStack <InnerStackItem> InnerStack;
-		TSArray <MatchEntry> MatchList;
+		TSVector <MatchEntry> MatchList; // @v9.8.4 TSArray-->TSVector
 	};
 
 	int    SLAPI __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;

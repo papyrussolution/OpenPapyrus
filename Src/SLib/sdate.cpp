@@ -1087,9 +1087,9 @@ LDATETIME & SLAPI LDATETIME::SetFar()
 	return *this;
 }
 
-LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t t)
+LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 {
-	const struct tm * p_temp_tm = gmtime(&t);
+	const struct tm * p_temp_tm = gmtime(&_tm);
 	if(p_temp_tm) {
 		d.encode(p_temp_tm->tm_mday, p_temp_tm->tm_mon+1, p_temp_tm->tm_year + 1900);
 		t = encodetime(p_temp_tm->tm_hour, p_temp_tm->tm_min, p_temp_tm->tm_sec, 0);
@@ -2374,11 +2374,10 @@ SCycleTimer::SCycleTimer(uint32 msDelay)
 	Restart(msDelay);
 }
 
-int FASTCALL SCycleTimer::Restart(uint32 msDelay)
+void FASTCALL SCycleTimer::Restart(uint32 msDelay)
 {
 	Delay = msDelay;
 	Last = getcurdatetime_();
-	return 1;
 }
 
 int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
@@ -2422,12 +2421,42 @@ SLTEST_R(LDATE)
 		{"^10",               "1/10/2007"},
 		{"^4",                "1/11/2007"}
 	};
+
+	struct PairDateTime {
+		char   In[128];
+		char   Out[128];
+	} pair_list_dtm[] = {
+		{"Sun, 06 Nov 1994 08:49:37 GMT",   "6/11/1994 8:49:37"},
+		{"Sunday, 06-Nov-94 08:49:37 GMT",  "6/11/1994 8:49:37"},
+		{"Sun Nov  6 08:49:37 1994",        "6/11/1994 8:49:37"},
+		{"Nov  6 08:49:37 1994",            "6/11/1994 8:49:37"},
+		{"GMT 08:49:37 06-Nov-94",          "6/11/1994 8:49:37"},
+		{"Sun Nov 6 94",                    "6/11/1994"},
+		{"Sun/Nov/6/94/GMT",                "6/11/1994"},
+		{"Sun, 06 Nov 1994 08:49:37 CET",   "6/11/1994 8:49:37"},
+		{"Sun, 12 Sep 2004 15:05:58 -0700", "12/09/2004 15:05:58"},
+		{"Sat, 11 Sep 2004 21:32:11 +0200", "11/09/2004 21:32:11"}
+	};
+
 	uint i;
 	_datefmt(20, 9, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[2].Out);
 	_datefmt(12, getcurdate_().month(), getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[4].Out);
 	_datefmt(11, 10, getcurdate_().year(), DATF_DMY | DATF_CENTURY, pair_list[9].Out);
-	char   cvt_buf[64];
-	for(i = 0; i < sizeof(pair_list) / sizeof(pair_list[0]); i++) {
+	char   cvt_buf[128];
+
+	for(i = 0; i < SIZEOFARRAY(pair_list_dtm); i++) {
+		const PairDateTime & r_item = pair_list_dtm[i];
+		LDATETIME test_val, cvt_val;
+		strtodatetime(r_item.In, &test_val, DATF_DMY, TIMF_HMS);
+		//
+		// Проверяем конвертацию из даты в строку
+		//
+		datetimefmt(test_val, DATF_DMY, TIMF_HMS, cvt_buf, sizeof(cvt_buf));
+		strtodatetime(cvt_buf, &cvt_val, DATF_DMY, TIMF_HMS);
+		SLTEST_CHECK_EQ(test_val, cvt_val);
+	}
+
+	for(i = 0; i < SIZEOFARRAY(pair_list); i++) {
 		const Pair & r_item = pair_list[i];
 		LDATE test_val, pattern_val, cvt_val;
 		strtodate(r_item.In,  DATF_DMY, &test_val);

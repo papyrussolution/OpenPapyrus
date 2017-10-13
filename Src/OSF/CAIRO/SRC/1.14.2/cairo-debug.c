@@ -184,20 +184,12 @@ static cairo_status_t _print_line_to(void * closure, const cairo_point_t * point
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _print_curve_to(void * closure,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    const cairo_point_t * p3)
+static cairo_status_t _print_curve_to(void * closure, const cairo_point_t * p1,
+    const cairo_point_t * p2, const cairo_point_t * p3)
 {
-	fprintf((FILE *)closure,
-	    " %f %f %f %f %f %f c",
-	    _cairo_fixed_to_double(p1->x),
-	    _cairo_fixed_to_double(p1->y),
-	    _cairo_fixed_to_double(p2->x),
-	    _cairo_fixed_to_double(p2->y),
-	    _cairo_fixed_to_double(p3->x),
-	    _cairo_fixed_to_double(p3->y));
-
+	fprintf((FILE *)closure, " %f %f %f %f %f %f c",
+	    _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y), _cairo_fixed_to_double(p2->x),
+	    _cairo_fixed_to_double(p2->y), _cairo_fixed_to_double(p3->x), _cairo_fixed_to_double(p3->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 

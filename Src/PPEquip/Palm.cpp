@@ -2414,7 +2414,7 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 	PalmBillQueue bill_queue;
 	SQueue todo_queue(sizeof(PalmToDoItem), 1024);
 	SQueue bill_debt_memo_queue(sizeof(PalmDebtMemoItem), 1024);
-	TSArray <PPGeoTrackItem> gt_list;
+	TSVector <PPGeoTrackItem> gt_list; // @v9.8.4 TSArray-->TSVector
 	PalmInputParam input_param;
 	input_param.P_BillQueue = &bill_queue;
 	input_param.P_ToDoQueue = &todo_queue;
@@ -4168,6 +4168,7 @@ int PalmPaneDialog::setDTS(const PalmPaneData * pData)
 	AddClusterAssoc(CTL_PALMPANE_FLAGS, 2, PalmPaneData::fImportFTP);
 	AddClusterAssoc(CTL_PALMPANE_FLAGS, 3, PalmPaneData::fDelImpData);
 	AddClusterAssoc(CTL_PALMPANE_FLAGS, 4, PalmPaneData::fExclExpDebts); // @v9.0.0
+	AddClusterAssoc(CTL_PALMPANE_FLAGS, 5, PalmPaneData::fIgnoreMutex); // @v9.8.4
 	SetClusterData(CTL_PALMPANE_FLAGS, Data.Flags);
 	SetupPPObjCombo(this, CTLSEL_PALMPANE_PALM, PPOBJ_STYLOPALM, Data.PalmID, OLW_CANSELUPLEVEL, 0);
 	PPIDArray op_type_list;
@@ -4229,13 +4230,6 @@ int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 	PPSyncItem sync_item;
 	PalmPaneData data;
 	PPObjStyloPalm palm_obj;
-	if((r = DS.GetSync().CreateMutex(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
-		THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
-	}
-	else if(r == 0) {
-		THROW_PP(0, PPERR_LOGICLOCKFAULT);
-	}
-	locked = 1;
 	RVALUEPTR(data, pData);
 	if(data.PalmID == 0) {
 		PPID temp_id = 0;
@@ -4252,30 +4246,41 @@ int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 		THROW(ok = EditImpExpData(&data));
 	}
 	if(ok > 0) {
-		int    do_remove_imp_data = BIN(data.Flags & PalmPaneData::fDelImpData);
-		int    import_from_ftp_ok = 1;
-		int    ftp_err_code = 0;
-		SString ftp_add_errmsg;
-		PPWait(1);
-		if(data.Flags & PalmPaneData::fImportFTP) {
-			import_from_ftp_ok = palm_obj.CopyFromFTP(data.PalmID, do_remove_imp_data, &logger);
-			ftp_err_code   = PPErrCode;
-			ftp_add_errmsg = DS.GetTLA().AddedMsgString;
+		if(!(data.Flags & data.fIgnoreMutex)) { // @v9.8.4
+			if((r = DS.GetSync().CreateMutex(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
+				THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
+			}
+			else if(r == 0) {
+				THROW_PP(0, PPERR_LOGICLOCKFAULT);
+			}
+			locked = 1;
+		}
+		{
+			int    do_remove_imp_data = BIN(data.Flags & PalmPaneData::fDelImpData);
+			int    import_from_ftp_ok = 1;
+			int    ftp_err_code = 0;
+			SString ftp_add_errmsg;
 			PPWait(1);
+			if(data.Flags & PalmPaneData::fImportFTP) {
+				import_from_ftp_ok = palm_obj.CopyFromFTP(data.PalmID, do_remove_imp_data, &logger);
+				ftp_err_code   = PPErrCode;
+				ftp_add_errmsg = DS.GetTLA().AddedMsgString;
+				PPWait(1);
+			}
+			if(!palm_obj.ImportData(data.PalmID, data.OpID, data.LocID, &logger)) {
+				logger.LogLastError();
+				do_remove_imp_data = 0;
+			}
+			PPSetAddedMsgString(ftp_add_errmsg);
+			THROW_PP(import_from_ftp_ok, ftp_err_code);
+			if(data.Flags & PalmPaneData::fUpdateData)
+				THROW(palm_obj.ExportData(data));
+			if(data.Flags & PalmPaneData::fExportFTP)
+				THROW(palm_obj.CopyToFTP(data.PalmID, BIN(data.Flags & PalmPaneData::fDelImpData), &logger));
+			if(do_remove_imp_data)
+				THROW(palm_obj.DeleteImportData(data.PalmID));
+			PPWait(0);
 		}
-		if(!palm_obj.ImportData(data.PalmID, data.OpID, data.LocID, &logger)) {
-			logger.LogLastError();
-			do_remove_imp_data = 0;
-		}
-		PPSetAddedMsgString(ftp_add_errmsg);
-		THROW_PP(import_from_ftp_ok, ftp_err_code);
-		if(data.Flags & PalmPaneData::fUpdateData)
-			THROW(palm_obj.ExportData(data));
-		if(data.Flags & PalmPaneData::fExportFTP)
-			THROW(palm_obj.CopyToFTP(data.PalmID, BIN(data.Flags & PalmPaneData::fDelImpData), &logger));
-		if(do_remove_imp_data)
-			THROW(palm_obj.DeleteImportData(data.PalmID));
-		PPWait(0);
 	}
 	CATCHZOKPPERR
 	if(locked)

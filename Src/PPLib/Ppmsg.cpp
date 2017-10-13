@@ -281,7 +281,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 						const int _btr_err_code = BtrError;
 						if(_btr_err_code) {
 							if(_btr_err_code == BE_SLIB) {
-								; // @nobreak : управление передается ветке {case PPERR_SLIB}
+								; // @fallthrough : управление передается ветке {case PPERR_SLIB}
 							}
 							else {
 								group   = addcode = PPSTR_DBENGINE; // @v9.6.5 msgcode-->PPSTR_DBENGINE

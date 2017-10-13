@@ -165,11 +165,9 @@ int SLAPI PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKind
 	const  QuotIdent qi(pRPB->Dt, Filt.LocID, quotKindID, 0, Filt.ArticleID);
 	if(GObj.GetQuotExt(pRPB->GoodsID, qi, pRPB->Cost, pRPB->BasePrice, &price, 1) > 0) {
 		if(pRPB->GoodsPriceWoTaxes) {
-			PPID   op_id = 0;
 			PPQuotKind qk_rec;
 			PPGoodsTaxEntry gtx;
-			if(pRPB->QkObj.Fetch(quotKindID, &qk_rec) > 0)
-				op_id = qk_rec.OpID;
+			const PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_rec) > 0) ? qk_rec.OpID : 0;
 			if(GObj.FetchTax(pRPB->GoodsID, LConfig.OperDate, op_id, &gtx) > 0)
 				GObj.AdjPriceToTaxes(gtx.TaxGrpID, pRPB->TaxFactor, &price, 1);
 		}
@@ -257,7 +255,7 @@ int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExpor
 	return ok;
 }
 
-typedef TSArray <Sdr_PriceList> Sdr_PriceListArray;
+// @v9.8.4 typedef TSVector <Sdr_PriceList> Sdr_PriceListArray; // @v9.8.4 TSArray-->TSVector
 
 class PPPriceListImporter {
 public:

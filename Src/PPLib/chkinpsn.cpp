@@ -629,7 +629,7 @@ int SLAPI PPCheckInPersonMngr::GetList(int kind, PPID prmrID, PPCheckInPersonArr
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	TSArray <ObjAssocTbl::Rec> items_list;
+	TSVector <ObjAssocTbl::Rec> items_list; // @v9.8.4 TSArray-->TSVector
 	PPID   assc_type = GetAssocType(kind);
 	rList.Init(kind, prmrID);
 	THROW(assc_type);

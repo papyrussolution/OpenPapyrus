@@ -119,11 +119,7 @@ cairo_bool_t FASTCALL _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
  *
  * Since: 1.0
  **/
-void cairo_matrix_init(cairo_matrix_t * matrix,
-    double xx, double yx,
-
-    double xy, double yy,
-    double x0, double y0)
+void cairo_matrix_init(cairo_matrix_t * matrix, double xx, double yx, double xy, double yy, double x0, double y0)
 {
 	matrix->xx = xx; matrix->yx = yx;
 	matrix->xy = xy; matrix->yy = yy;
@@ -152,23 +148,17 @@ slim_hidden_def(cairo_matrix_init);
  * external matrix type, or when renaming members to more meaningful
  * names (such as a,b,c,d,e,f) for particular manipulations.
  **/
-void _cairo_matrix_get_affine(const cairo_matrix_t * matrix,
-    double * xx, double * yx,
-    double * xy, double * yy,
-    double * x0, double * y0)
+void _cairo_matrix_get_affine(const cairo_matrix_t * matrix, double * xx, double * yx, double * xy, double * yy, double * x0, double * y0)
 {
 	*xx  = matrix->xx;
 	*yx  = matrix->yx;
-
 	*xy  = matrix->xy;
 	*yy  = matrix->yy;
-
 	if(x0)
 		*x0 = matrix->x0;
 	if(y0)
 		*y0 = matrix->y0;
 }
-
 /**
  * cairo_matrix_init_translate:
  * @matrix: a #cairo_matrix_t
@@ -180,13 +170,9 @@ void _cairo_matrix_get_affine(const cairo_matrix_t * matrix,
  *
  * Since: 1.0
  **/
-void cairo_matrix_init_translate(cairo_matrix_t * matrix,
-    double tx, double ty)
+void cairo_matrix_init_translate(cairo_matrix_t * matrix, double tx, double ty)
 {
-	cairo_matrix_init(matrix,
-	    1, 0,
-	    0, 1,
-	    tx, ty);
+	cairo_matrix_init(matrix, 1, 0, 0, 1, tx, ty);
 }
 
 slim_hidden_def(cairo_matrix_init_translate);
@@ -204,12 +190,10 @@ slim_hidden_def(cairo_matrix_init_translate);
  *
  * Since: 1.0
  **/
-void cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty)
+void FASTCALL cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty)
 {
 	cairo_matrix_t tmp;
-
 	cairo_matrix_init_translate(&tmp, tx, ty);
-
 	cairo_matrix_multiply(matrix, &tmp, matrix);
 }
 
@@ -273,19 +257,11 @@ slim_hidden_def(cairo_matrix_scale);
  *
  * Since: 1.0
  **/
-void cairo_matrix_init_rotate(cairo_matrix_t * matrix,
-    double radians)
+void cairo_matrix_init_rotate(cairo_matrix_t * matrix, double radians)
 {
-	double s;
-	double c;
-
-	s = sin(radians);
-	c = cos(radians);
-
-	cairo_matrix_init(matrix,
-	    c, s,
-	    -s, c,
-	    0, 0);
+	double s = sin(radians);
+	double c = cos(radians);
+	cairo_matrix_init(matrix, c, s, -s, c, 0, 0);
 }
 
 slim_hidden_def(cairo_matrix_init_rotate);
@@ -309,9 +285,7 @@ slim_hidden_def(cairo_matrix_init_rotate);
 void cairo_matrix_rotate(cairo_matrix_t * matrix, double radians)
 {
 	cairo_matrix_t tmp;
-
 	cairo_matrix_init_rotate(&tmp, radians);
-
 	cairo_matrix_multiply(matrix, &tmp, matrix);
 }
 
@@ -355,10 +329,8 @@ void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const 
 {
 	r->xx = a->xx * b->xx + a->yx * b->xy;
 	r->yx = a->xx * b->yx + a->yx * b->yy;
-
 	r->xy = a->xy * b->xx + a->yy * b->xy;
 	r->yy = a->xy * b->yx + a->yy * b->yy;
-
 	r->x0 = a->x0 * b->xx + a->y0 * b->xy + b->x0;
 	r->y0 = a->x0 * b->yx + a->y0 * b->yy + b->y0;
 }
@@ -518,10 +490,8 @@ static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar
 {
 	matrix->xx *= scalar;
 	matrix->yx *= scalar;
-
 	matrix->xy *= scalar;
 	matrix->yy *= scalar;
-
 	matrix->x0 *= scalar;
 	matrix->y0 *= scalar;
 }
@@ -594,18 +564,18 @@ cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix)
 
 slim_hidden_def(cairo_matrix_invert);
 
-cairo_bool_t _cairo_matrix_is_invertible(const cairo_matrix_t * matrix)
+cairo_bool_t FASTCALL _cairo_matrix_is_invertible(const cairo_matrix_t * matrix)
 {
 	double det = _cairo_matrix_compute_determinant(matrix);
 	return ISFINITE(det) && det != 0.;
 }
 
-cairo_bool_t _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix)
+cairo_bool_t FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix)
 {
 	return (matrix->xx == 0. && matrix->xy == 0. && matrix->yx == 0. && matrix->yy == 0.);
 }
 
-double _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix)
+double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix)
 {
 	double a = matrix->xx; 
 	double b = matrix->yx;
@@ -685,7 +655,7 @@ cairo_bool_t _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix,
  * are allowed to handle matricies filled in using trig functions
  * such as sin(M_PI_2).
  */
-cairo_bool_t _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
+cairo_bool_t FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
 {
 	/* check that the determinant is near +/-1 */
 	double det = _cairo_matrix_compute_determinant(matrix);
@@ -707,7 +677,7 @@ cairo_bool_t _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix)
  * mapping between source and destination pixels. If we transform an image
  * with a pixel-exact matrix, filtering is not useful.
  */
-cairo_bool_t _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
+cairo_bool_t FASTCALL _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
 {
 	if(!_cairo_matrix_has_unity_scale(matrix))
 		return FALSE;
@@ -838,28 +808,18 @@ cairo_bool_t _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix)
 
 /* determine the length of the major axis of a circle of the given radius
    after applying the transformation matrix. */
-double _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix,
-    double radius)
+double FASTCALL _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix, double radius)
 {
 	double a, b, c, d, f, g, h, i, j;
-
 	if(_cairo_matrix_has_unity_scale(matrix))
 		return radius;
-
-	_cairo_matrix_get_affine(matrix,
-	    &a, &b,
-	    &c, &d,
-	    NULL, 0);
-
+	_cairo_matrix_get_affine(matrix, &a, &b, &c, &d, NULL, 0);
 	i = a*a + b*b;
 	j = c*c + d*d;
-
 	f = 0.5 * (i + j);
 	g = 0.5 * (i - j);
 	h = a*c + b*d;
-
 	return radius * sqrt(f + hypot(g, h));
-
 	/*
 	 * we don't need the minor axis length, which is
 	 * double min = radius * sqrt (f - sqrt (g*g+h*h));
@@ -872,26 +832,19 @@ static const pixman_transform_t pixman_identity_transform = {{
 								     {       0,       0, 1 << 16}
 							     }};
 
-static cairo_status_t _cairo_matrix_to_pixman_matrix(const cairo_matrix_t    * matrix,
-    pixman_transform_t      * pixman_transform,
-    double xc,
-    double yc)
+static cairo_status_t _cairo_matrix_to_pixman_matrix(const cairo_matrix_t * matrix, pixman_transform_t * pixman_transform, double xc, double yc)
 {
 	cairo_matrix_t inv;
 	unsigned max_iterations;
-
 	pixman_transform->matrix[0][0] = _cairo_fixed_16_16_from_double(matrix->xx);
 	pixman_transform->matrix[0][1] = _cairo_fixed_16_16_from_double(matrix->xy);
 	pixman_transform->matrix[0][2] = _cairo_fixed_16_16_from_double(matrix->x0);
-
 	pixman_transform->matrix[1][0] = _cairo_fixed_16_16_from_double(matrix->yx);
 	pixman_transform->matrix[1][1] = _cairo_fixed_16_16_from_double(matrix->yy);
 	pixman_transform->matrix[1][2] = _cairo_fixed_16_16_from_double(matrix->y0);
-
 	pixman_transform->matrix[2][0] = 0;
 	pixman_transform->matrix[2][1] = 0;
 	pixman_transform->matrix[2][2] = 1 << 16;
-
 	/* The conversion above breaks cairo's translation invariance:
 	 * a translation of (a, b) in device space translates to
 	 * a translation of (xx * a + xy * b, yx * a + yy * b)
@@ -905,16 +858,10 @@ static cairo_status_t _cairo_matrix_to_pixman_matrix(const cairo_matrix_t    * m
 
 	if(_cairo_matrix_has_unity_scale(matrix))
 		return CAIRO_STATUS_SUCCESS;
-
-	if(unlikely(fabs(matrix->xx) > PIXMAN_MAX_INT ||
-		    fabs(matrix->xy) > PIXMAN_MAX_INT ||
-		    fabs(matrix->x0) > PIXMAN_MAX_INT ||
-		    fabs(matrix->yx) > PIXMAN_MAX_INT ||
-		    fabs(matrix->yy) > PIXMAN_MAX_INT ||
-		    fabs(matrix->y0) > PIXMAN_MAX_INT)) {
+	if(unlikely(fabs(matrix->xx) > PIXMAN_MAX_INT || fabs(matrix->xy) > PIXMAN_MAX_INT || fabs(matrix->x0) > PIXMAN_MAX_INT ||
+		    fabs(matrix->yx) > PIXMAN_MAX_INT || fabs(matrix->yy) > PIXMAN_MAX_INT || fabs(matrix->y0) > PIXMAN_MAX_INT)) {
 		return _cairo_error(CAIRO_STATUS_INVALID_MATRIX);
 	}
-
 	/* Note: If we can't invert the transformation, skip the adjustment. */
 	inv = *matrix;
 	if(cairo_matrix_invert(&inv) != CAIRO_STATUS_SUCCESS)
@@ -979,22 +926,15 @@ static inline double _pixman_nearest_sample(double d)
  * Return value: %TRUE if @matrix can be represented as a pixman
  * translation, %FALSE otherwise.
  **/
-cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t     * matrix,
-    cairo_filter_t filter,
-    int                      * x_offset,
-    int                      * y_offset)
+cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix, cairo_filter_t filter, int * x_offset, int * y_offset)
 {
 	double tx, ty;
-
 	if(!_cairo_matrix_is_translation(matrix))
 		return FALSE;
-
 	if(matrix->x0 == 0. && matrix->y0 == 0.)
 		return TRUE;
-
 	tx = matrix->x0 + *x_offset;
 	ty = matrix->y0 + *y_offset;
-
 	if(filter == CAIRO_FILTER_FAST || filter == CAIRO_FILTER_NEAREST) {
 		tx = _pixman_nearest_sample(tx);
 		ty = _pixman_nearest_sample(ty);
@@ -1002,10 +942,8 @@ cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t     * matr
 	else if(tx != floor(tx) || ty != floor(ty)) {
 		return FALSE;
 	}
-
 	if(fabs(tx) > PIXMAN_MAX_INT || fabs(ty) > PIXMAN_MAX_INT)
 		return FALSE;
-
 	*x_offset = _cairo_lround(tx);
 	*y_offset = _cairo_lround(ty);
 	return TRUE;
@@ -1061,7 +999,6 @@ cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t     * 
 		cairo_matrix_t m = *matrix;
 		cairo_matrix_translate(&m, *x_offset, *y_offset);
 		if(m.x0 != 0.0 || m.y0 != 0.0) {
-			double tx, ty, norm;
 			int i, j;
 			/* pixman also limits the [xy]_offset to 16 bits so evenly
 			 * spread the bits between the two.
@@ -1072,25 +1009,26 @@ cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t     * 
 			 *
 			 * and select the one whose maximum norm is smallest.
 			 */
-			tx = m.x0;
-			ty = m.y0;
-			norm = MAX(fabs(tx), fabs(ty));
+			double tx = m.x0;
+			double ty = m.y0;
+			double norm = MAX(fabs(tx), fabs(ty));
 			for(i = -1; i < 2; i += 2) {
 				for(j = -1; j < 2; j += 2) {
-					double x, y, new_norm;
 					double den = (m.xx + i) * (m.yy + j) - m.xy * m.yx;
-					if(fabs(den) < DBL_EPSILON)
-						continue;
-					x = m.y0 * m.xy - m.x0 * (m.yy + j);
-					y = m.x0 * m.yx - m.y0 * (m.xx + i);
-					den = 1 / den;
-					x *= den;
-					y *= den;
-					new_norm = MAX(fabs(x), fabs(y));
-					if(norm > new_norm) {
-						norm = new_norm;
-						tx = x;
-						ty = y;
+					if(fabs(den) >= DBL_EPSILON) {
+						double x = m.y0 * m.xy - m.x0 * (m.yy + j);
+						double y = m.x0 * m.yx - m.y0 * (m.xx + i);
+						den = 1 / den;
+						x *= den;
+						y *= den;
+						{
+							double new_norm = MAX(fabs(x), fabs(y));
+							if(norm > new_norm) {
+								norm = new_norm;
+								tx = x;
+								ty = y;
+							}
+						}
 					}
 				}
 			}
@@ -1104,7 +1042,6 @@ cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t     * 
 			*x_offset = 0;
 			*y_offset = 0;
 		}
-
 		return _cairo_matrix_to_pixman_matrix(&m, out_transform, xc, yc);
 	}
 }

@@ -24,14 +24,14 @@ int SLAPI PPCycleFilt::operator !() const
 //
 // PPCycleArray
 //
-SLAPI PPCycleArray::PPCycleArray() : TSArray <DateRange> ()
+SLAPI PPCycleArray::PPCycleArray() : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
 {
 	Period.SetZero();
 	Cycle = 0;
 	NumCycles = 0;
 }
 
-SLAPI PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSArray <DateRange> ()
+SLAPI PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
 {
 	init(beg, end, cycle, numCycles);
 }
@@ -715,7 +715,7 @@ int FASTCALL PPObjID::FromStr(const char * pStr)
 //
 //
 //
-SLAPI PPObjIDArray::PPObjIDArray() : TSArray <PPObjID>()
+SLAPI PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>() // @v9.8.4 TSArray-->TSVector
 {
 	DoReplace = 0;
 }

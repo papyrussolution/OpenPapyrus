@@ -1143,7 +1143,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 		int    is_person_rel = 0;
 		ArticleTbl::Rec ar_rec;
 		PPAccSheet acs_rec;
-		TSArray <AcctRelTbl::Rec> acr_list;
+		TSVector <AcctRelTbl::Rec> acr_list; // @v9.8.4 TSArray-->TSVector
 		THROW(P_TmpATTbl = CreateTempATFile());
 		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
 		THROW_PP(acc_rec.AccSheetID, PPERR_ACCHASNTSHEET);

@@ -6,82 +6,17 @@
 #include <pp.h>
 #pragma hdrstop
 
-static char * SLAPI UpceToUpca(const char * pUpce, char * pUpca)
-{
-	char   code[32], dest[32];
-	STRNSCPY(code, pUpce);
-	int    last = code[6] - '0';
-	memset(dest, '0', 12);
-	dest[11] = 0;
-	dest[0] = code[0];
-	if(last == 0 || last == 1 || last == 2) {
-		dest[1] = code[1];
-		dest[2] = code[2];
-		dest[3] = code[6];
-
-		dest[8] = code[3];
-		dest[9] = code[4];
-		dest[10] = code[5];
-	}
-	else if(last == 3) {
-		dest[1] = code[1];
-		dest[2] = code[2];
-		dest[3] = code[3];
-
-		dest[9] = code[4];
-		dest[10] = code[5];
-	}
-	else if(last == 4) {
-		dest[1] = code[1];
-		dest[2] = code[2];
-		dest[3] = code[3];
-		dest[4] = code[4];
-
-		dest[10] = code[5];
-	}
-	else { // last = 5..9
-		dest[1] = code[1];
-		dest[2] = code[2];
-		dest[3] = code[3];
-		dest[4] = code[4];
-		dest[5] = code[5];
-
-		dest[10] = code[6];
-	}
-	return strcpy(pUpca, dest);
-}
-
-int FASTCALL CalcBarcodeCheckDigitL(const char * pBarcode, size_t len)
-{
-	int    cd = 0;
-	if(pBarcode && len) {
-		if(len == 7 && pBarcode[0] == '0') {
-			char   code[64];
-			memcpy(code, pBarcode, len);
-			code[len] = 0;
-			len = strlen(UpceToUpca(code, code));
-			cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, code, len);
-			cd = isdec(cd) ? (cd - '0') : 0;
-		}
-		else {
-			cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, pBarcode, len);
-			cd = isdec(cd) ? (cd - '0') : 0;
-		}
-	}
-	return cd;
-}
-
 int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 {
 	size_t len = sstrlen(pBarcode);
-	return CalcBarcodeCheckDigitL(pBarcode, len);
+	return SCalcBarcodeCheckDigitL(pBarcode, len);
 }
 
 char * SLAPI AddBarcodeCheckDigit(char * pBarcode)
 {
 	size_t len = sstrlen(pBarcode);
 	if(len) {
-		int    cdig = CalcBarcodeCheckDigitL(pBarcode, len);
+		int    cdig = SCalcBarcodeCheckDigitL(pBarcode, len);
 		pBarcode[len++] = '0' + cdig;
 		pBarcode[len] = 0;
 	}
@@ -91,7 +26,7 @@ char * SLAPI AddBarcodeCheckDigit(char * pBarcode)
 SString & SLAPI AddBarcodeCheckDigit(SString & rBarcode)
 {
 	if(rBarcode.Len()) {
-		int    cdig = CalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
+		int    cdig = SCalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
 		rBarcode.CatChar('0' + cdig);
 	}
 	return rBarcode;
@@ -434,7 +369,8 @@ SLAPI GoodsCodeSrchBlock::~GoodsCodeSrchBlock()
 int SLAPI PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString & rCode)
 {
 	int    ok = -1;
-	rCode = 0;
+	rCode.Z();
+	InitConfig();
 	if(GetConfig().Flags & GCF_USESCALEBCPREFIX) {
 		PPObjScale sc_obj;
 		PPScale sc_rec;
@@ -473,6 +409,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 	STRNSCPY(code, pCode);
 	size_t code_len = strlen(code);
 	if(oneof2(code_len, 12, 13)) {
+		InitConfig();
 		const  int wp = GetConfig().IsWghtPrefix(code);
 		if(wp) {
 			code[12] = 0;
@@ -481,7 +418,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 			else
 				qtty = fdiv1000i(atol(code+7));
 			code[7] = 0;
-			if(Cfg.Flags & GCF_LOADTOSCALEGID) {
+			if(GetConfig().Flags & GCF_LOADTOSCALEGID) {
 				strtolong(code+2, &goods_id);
 				if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS)
 					ok = 2;
@@ -936,7 +873,7 @@ int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
 {
 	int    ok = -1;
 	PPObjGoods goods_obj;
-	PPID   cntr_id = goods_obj.GetConfig().OwnArCodeCntrID;
+	const  PPID cntr_id = goods_obj.GetConfig().OwnArCodeCntrID;
 	if(cntr_id) {
 		PPObjOpCounter opc_obj;
 		long   counter = 0;
@@ -946,7 +883,7 @@ int SLAPI PPObjGoods::GenerateOwnArCode(SString & rCode, int use_ta)
 		ok = rCode.NotEmptyS() ? 1 : -1;
 	}
 	else
-		rCode = 0;
+		rCode.Z();
 	return ok;
 }
 //
@@ -983,8 +920,7 @@ int SLAPI PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) co
 	SString len_str = BarCodeLen;
 	SString item_buf;
 	StringSet ss(',', len_str.Strip());
-	if(pList)
-		pList->freeAll();
+	CALLPTRMEMB(pList, freeAll());
 	for(uint i = 0; ss.get(&i, item_buf) > 0;) {
 		item_buf.Strip();
 		if(item_buf.C(0) == '+' && item_buf.Len() == 1)
@@ -1072,14 +1008,12 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_IGNFLDMTX, 0, GCF_IGNOREFOLDERMATRIX); // @v8.3.4
 	SetClusterData(CTL_GDSCFG_IGNFLDMTX, Data.Flags);                 // @v8.3.4
 	SetupPPObjCombo(this, CTLSEL_GDSCFG_GMTXRESTR, PPOBJ_QUOTKIND,  Data.MtxRestrQkID, 0, (void *)1);
-	// @v7.7.2 {
 	{
 		ObjTagFilt ot_filt;
 		ot_filt.ObjTypeID = PPOBJ_GLOBALUSERACC;
 		ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 		SetupObjTagCombo(this, CTLSEL_GDSCFG_BCPGUATAG, Data.BcPrefixGuaTagID, 0, &ot_filt);
 	}
-	// } @v7.7.2
 	setCtrlString(CTL_GDSCFG_OWNACTMPL, rOwnAcCntr.Head.CodeTemplate);
 	setCtrlLong(CTL_GDSCFG_OWNACCNTR, rOwnAcCntr.Head.Counter);
 	disableCtrl(CTL_GDSCFG_OWNACCNTR, 1);
@@ -1094,25 +1028,25 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTL_GDSCFG_CODLEN, Data.BarCodeLen);
 	getCtrlData(CTL_GDSCFG_MINUNIQBCLEN, &Data.MinUniqBcLen);
 	getCtrlData(CTL_GDSCFG_WPRFX,  Data.WghtPrefix);
-	getCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix); // @v7.0.7
+	getCtrlData(CTL_GDSCFG_CPRFX,  Data.WghtCntPrefix);
 	getCtrlData(CTLSEL_GDSCFG_DEFUNIT, &Data.DefUnitID);
 	getCtrlData(CTLSEL_GDSCFG_DEFPCKGTYP, &Data.DefPckgTypeID);
-	getCtrlData(CTLSEL_GDSCFG_DEFGRP,   &Data.DefGroupID); // @v7.2.7
+	getCtrlData(CTLSEL_GDSCFG_DEFGRP,   &Data.DefGroupID);
 	getCtrlData(CTLSEL_GDSCFG_ASSETGRP, &Data.AssetGrpID);
 	getCtrlData(CTLSEL_GDSCFG_TAREGRP,  &Data.TareGrpID);
 	getCtrlData(CTLSEL_GDSCFG_DEFGOODS, &Data.DefGoodsID); // @v8.9.5
 	getCtrlData(CTL_GDSCFG_ACGIT,  &Data.ACGI_Threshold);
-	getCtrlData(CTLSEL_GDSCFG_GDSMATRIX, &Data.MtxQkID);      // @v7.7.2 CTL_-->CTLSEL_
+	getCtrlData(CTLSEL_GDSCFG_GDSMATRIX, &Data.MtxQkID);
 	GetClusterData(CTL_GDSCFG_IGNFLDMTX, &Data.Flags);        // @v8.3.4
-	getCtrlData(CTLSEL_GDSCFG_GMTXRESTR, &Data.MtxRestrQkID); // @v7.7.2 CTL_-->CTLSEL_
-	getCtrlData(CTLSEL_GDSCFG_BCPGUATAG, &Data.BcPrefixGuaTagID); // @v7.7.2
+	getCtrlData(CTLSEL_GDSCFG_GMTXRESTR, &Data.MtxRestrQkID);
+	getCtrlData(CTLSEL_GDSCFG_BCPGUATAG, &Data.BcPrefixGuaTagID);
 	GetClusterData(CTL_GDSCFG_FLAGS, &Data.Flags);
 	GetClusterData(CTL_GDSCFG_XCHG_FLAGS, &Data.Flags);
 	sel = CTL_GDSCFG_ACGIT;
 	THROW_PP(Data.ACGI_Threshold >= 0 && Data.ACGI_Threshold <= 1461, PPERR_USERINPUT);
 	sel = CTL_GDSCFG_CODLEN;
 	for(p = strip(Data.BarCodeLen); *p; p++)
-		THROW_PP_S(isdec(*p) || *p == ' ' || *p == ',' || *p == '+', PPERR_INVEXPR, Data.BarCodeLen);
+		THROW_PP_S(isdec(*p) || oneof3(*p, ' ', ',', '+'), PPERR_INVEXPR, Data.BarCodeLen);
 	sel = CTL_GDSCFG_WPRFX;
 	for(p = strip(Data.WghtPrefix); *p; p++)
 		THROW_PP_S(isdec(*p), PPERR_INVEXPR, Data.WghtPrefix);
@@ -3042,7 +2976,7 @@ SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rU
 {
 	rUpca = 0;
 	char   temp[64];
-	UpceToUpca(pUpce, temp);
+	SUpceToUpca(pUpce, temp);
 	rUpca = temp;
 	return rUpca;
 }

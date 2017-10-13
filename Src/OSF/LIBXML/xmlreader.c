@@ -3116,7 +3116,7 @@ xmlChar * xmlTextReaderValue(xmlTextReader * reader)
 			case XML_COMMENT_NODE:
 				if(P_Node->content)
 					return sstrdup(P_Node->content);
-				// @nobreak
+				// @fallthrough
 			default:
 				return 0;
 				break;

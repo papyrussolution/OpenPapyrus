@@ -1,5 +1,5 @@
 // OBJASSOC.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -100,7 +100,7 @@ int SLAPI ObjAssoc::SearchFreeNum(PPID asscTyp, PPID prmr, long * pNum, ObjAssoc
 	return r;
 }
 
-int SLAPI ObjAssoc::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, long * pCount, SArray * pItemsList)
+int SLAPI ObjAssoc::GetByPrmr_Helper(PPID asscTyp, PPID prmrID, PPIDArray * pList, long * pCount, TSVector <ObjAssocTbl::Rec> * pItemsList)
 {
 	int    ok = -1;
 	long   count = 0;
@@ -143,7 +143,7 @@ int SLAPI ObjAssoc::Count(PPID asscTyp, PPID prmrID, long * pCount)
 	return GetByPrmr_Helper(asscTyp, prmrID, 0, pCount, 0);
 }
 
-int SLAPI ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, SArray * pList)
+int SLAPI ObjAssoc::GetItemsListByPrmr(PPID asscTyp, PPID prmrID, TSVector <ObjAssocTbl::Rec> * pList)
 {
 	return (pList && pList->getItemSize() == sizeof(ObjAssocTbl::Rec)) ?
 		GetByPrmr_Helper(asscTyp, prmrID, 0, 0, pList) : PPSetErrorInvParam();
@@ -186,7 +186,7 @@ SEnumImp * SLAPI ObjAssoc::Enum(PPID asscType, PPID keyID, int byScnd)
 	return EnumList.RegisterIterHandler(q, &h) ? (new PPTblEnum <ObjAssoc> (this, h)) : 0;
 }
 
-int SLAPI ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const SArray * pList, int preRemove, int use_ta)
+int SLAPI ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const TSVector <ObjAssocTbl::Rec> * pList, int preRemove, int use_ta)
 {
 	int    ok = 1;
 	THROW_INVARG(asscTyp && prmrID);
@@ -200,8 +200,8 @@ int SLAPI ObjAssoc::AddArray(PPID asscTyp, PPID prmrID, const SArray * pList, in
 		if(pList && pList->getCount()) {
 			BExtInsert bei(this);
 			for(uint i = 0; i < pList->getCount(); i++) {
-				ObjAssocTbl::Rec rec;
-				memcpy(&rec, pList->at(i), sizeof(rec));
+				ObjAssocTbl::Rec rec = pList->at(i); // rec isn't reference (copy)
+				//memcpy(&rec, pList->at(i), sizeof(rec));
 				rec.AsscType  = asscTyp;
 				rec.PrmrObjID = prmrID;
 				SETIFZ(rec.InnerNum, i+1);

@@ -1194,14 +1194,14 @@ int SLAPI SCodepageMapPool::CpMap::TranslateToU(const uint8 * pSrc, size_t srcSi
 	return 0;
 }
 
-SCodepageMapPool::CMapTranslIndexTest::CMapTranslIndexTest() : TSArray <CMapTranslEntry>()
+SCodepageMapPool::CMapTranslIndexTest::CMapTranslIndexTest() : TSVector <CMapTranslEntry>() // @v9.8.4 TSArray-->TSVector
 {
 	Reset();
 }
 
 void SCodepageMapPool::CMapTranslIndexTest::Reset()
 {
-	SArray::clear();
+	SVector::clear(); // @v9.8.4 SArray-->SVector
 	MaxSLen = 0;
 	MaxDLen = 0;
 	IdenticalCount = 0;

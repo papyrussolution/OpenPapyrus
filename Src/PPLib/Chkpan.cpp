@@ -2612,7 +2612,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	int    do_clear_junk_attrs = 0;
 	SString temp_buf;
 	PPCheckInPersonMngr cip_mgr;
-	TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 	const  LDATETIME dtm = getcurdatetime_();
 	assert(pPack);
 	THROW_INVARG(pPack != 0);
@@ -9044,7 +9044,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			}
 			{
 				SString added_msg_buf;
-				TSArray <SCardCore::OpBlock> frz_op_list;
+				TSVector <SCardCore::OpBlock> frz_op_list; // @v9.8.4 TSArray-->TSVector
 				if(ScObj.P_Tbl->GetFreezingOpList(SCardID, frz_op_list) > 0) {
 					uint   info_pos = 0;
 					for(uint i = 0; i < frz_op_list.getCount(); i++) {
@@ -9324,7 +9324,7 @@ void SCardInfoDialog::CommitMovCrd()
 	int    ok = 1;
 	const  uint c = OwnerList.getCount();
 	if(Mode == modeMovCrd && c) {
-		TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+		TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 		THROW(ScObj.CheckRights(SCRDRT_ADDOPS));
 		PPTransaction tra(1);
 		THROW(tra);

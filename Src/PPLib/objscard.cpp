@@ -1955,7 +1955,7 @@ int SLAPI PPObjSCard::CheckExpiredBillDebt(PPID scardID)
 	return ok;
 }
 
-int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSArray <SCardCore::UpdateRestNotifyEntry> & rList)
+int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(rList.getCount()) { // @v9.6.12
@@ -2056,7 +2056,7 @@ int SLAPI PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, 
 		// } @v8.6.9
 		{
 			SString added_msg_buf;
-			TSArray <SCardCore::OpBlock> frz_op_list;
+			TSVector <SCardCore::OpBlock> frz_op_list; // @v9.8.4 TSArray-->TSVector
 			if(P_Tbl->GetFreezingOpList(pRec->ID, frz_op_list) > 0) {
 				for(uint i = 0; i < frz_op_list.getCount(); i++) {
 					const SCardCore::OpBlock & r_ob = frz_op_list.at(i);
@@ -2090,7 +2090,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	LDATE  prev_prd_beg = ZERODATE;
 	SString fmt_buf, msg_buf, scard_name, temp_buf, temp_buf2;
 	char   prd_txt[32];
-	TSArray <SCardCore::UpdateRestNotifyEntry> urn_list;
+	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
 	SCardTbl::Key2 k2;
 
 	PPUserFuncProfiler ufp(PPUPRF_SCARDUPDBYRULE); // @v8.1.6

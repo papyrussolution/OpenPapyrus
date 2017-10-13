@@ -264,8 +264,12 @@ int FASTCALL SVerT::FromStr(const char * pStr)
 					if(scan.Skip().GetDigits(temp_buf)) {
 						r = (int)temp_buf.ToLong();
 						Set(j, n, r);
-						ok = 1;
+						ok = 3;
 					}
+				}
+				else {
+					Set(j, n, 0);
+					ok = 2;
 				}
 			}
 		}

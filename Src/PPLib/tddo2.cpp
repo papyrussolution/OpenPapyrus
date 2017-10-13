@@ -2082,7 +2082,7 @@ private:
 		return result_pos;
 	}
 
-	TSArray <ChunkInner> L;
+	TSVector <ChunkInner> L; 
 	// Блок по индексу 0 всегда стартовый (фиктивный блок)
 	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока 
 	ExprSet ES; // Коллекция выражений. На них ссылаются ChunkInner::ExprP

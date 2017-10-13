@@ -433,6 +433,7 @@ int SLAPI PPObjGoods::Unlock(PPID id)
 void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
 {
 	Sctr = sctr;
+	P_Cfg = 0;
 	//TLP_OPEN(tbl);
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
@@ -444,6 +445,15 @@ void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
 		TLP_OPEN(HistGoods);
 }
 
+void PPObjGoods::InitConfig()
+{
+	if(!P_Cfg) {
+		P_Cfg = new PPGoodsConfig;
+		if(P_Cfg)
+			P_Tbl->FetchConfig(P_Cfg);
+	}
+}
+
 // Protected constructor
 SLAPI PPObjGoods::PPObjGoods(PPID objType, void * extraPtr) : PPObject(objType)
 {
@@ -453,14 +463,15 @@ SLAPI PPObjGoods::PPObjGoods(PPID objType, void * extraPtr) : PPObject(objType)
 SLAPI PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)
 {
 	InitInstance(SConstructorDef, extraPtr);
-	P_Tbl->FetchConfig(&Cfg);
+	InitConfig();
 }
 
 SLAPI PPObjGoods::PPObjGoods(SCtrLite sctr) : PPObject(PPOBJ_GOODS)
 {
 	InitInstance(sctr, 0);
-	if(Sctr != SConstructorLite)
-		P_Tbl->FetchConfig(&Cfg);
+	if(Sctr != SConstructorLite) {
+		InitConfig();
+	}
 }
 
 SLAPI PPObjGoods::~PPObjGoods()
@@ -472,6 +483,7 @@ SLAPI PPObjGoods::~PPObjGoods()
 	}
 	// } @v8.0.9
 	TLP_CLOSE(P_Tbl);
+	delete P_Cfg;
 }
 
 int SLAPI PPObjGoods::Search(PPID id, void * b)
@@ -1443,14 +1455,15 @@ int SLAPI PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 int SLAPI PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * pID)
 {
 	int    ok = -1;
+	InitConfig();
 	BarcodeTbl::Rec bc_rec;
-	int16  min_uniq_bc_len = (Cfg.MinUniqBcLen > 0) ? Cfg.MinUniqBcLen : 7;
+	int16  min_uniq_bc_len = (P_Cfg->MinUniqBcLen > 0) ? P_Cfg->MinUniqBcLen : 7;
 	size_t len = strlen(pCode);
-	const  int wp = Cfg.IsWghtPrefix(pCode);
+	const  int wp = P_Cfg->IsWghtPrefix(pCode);
 	if(wp == 1)
-		len -= strlen(Cfg.WghtPrefix);
+		len -= strlen(P_Cfg->WghtPrefix);
 	else if(wp == 2)
-		len -= strlen(Cfg.WghtCntPrefix);
+		len -= strlen(P_Cfg->WghtCntPrefix);
 	if(len >= (size_t)min_uniq_bc_len && SearchByBarcode(pCode, &bc_rec, 0, 0) > 0) {
 		ASSIGN_PTR(pID, bc_rec.GoodsID);
 		ok = 1;
@@ -3054,17 +3067,18 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 				allow_empty = 0;
 		}
 		if(pPack->Codes.getCount()) {
+			InitConfig();
 			for(uint i = 0; ok && i < pPack->Codes.getCount(); i++) {
 				memzero(k, sizeof(k));
 				len = strlen(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
-				if(!(Cfg.Flags & GCF_BCNDIG))
+				if(!(P_Cfg->Flags & GCF_BCNDIG))
 					for(p = k; *p && ok; p++)
 						THROW_PP((is_group_code && p == k && *p == '@') || (*p >= '0' && *p <= '9'), PPERR_INVBARCODE);
 				if(!is_group_code) {
 					THROW_PP_S(!code_len_list.getCount() || code_len_list.lsearch(len), PPERR_INVBCODELEN, k);
-					strip(Cfg.WghtPrefix);
-					THROW_PP((Cfg.Flags & GCF_ENABLEWP) || !Cfg.IsWghtPrefix(k), PPERR_INVBCODEPRFX);
-					if(Cfg.Flags & GCF_SUPPRLZERO) {
+					strip(P_Cfg->WghtPrefix);
+					THROW_PP((P_Cfg->Flags & GCF_ENABLEWP) || !P_Cfg->IsWghtPrefix(k), PPERR_INVBCODEPRFX);
+					if(P_Cfg->Flags & GCF_SUPPRLZERO) {
 						for(p = k; *p == '0';)
 							p++;
 						if(p != k)
@@ -3240,7 +3254,7 @@ StrAssocArray * SLAPI PPObjGoods::CreateListByPrice(PPID locID, double price)
 	BExtQuery::ZDelete(&p_q);
 	if(GetConfig().ACGI_Threshold > 0) {
 		ReceiptTbl::Key1 k1;
-		LDATE  dt = plusdate(LConfig.OperDate, -Cfg.ACGI_Threshold);
+		LDATE  dt = plusdate(LConfig.OperDate, -P_Cfg->ACGI_Threshold);
 		THROW_MEM(p_q = new BExtQuery(rcpt, 1, 128));
 		p_q->select(rcpt->GoodsID, 0L).where(rcpt->Dt >= dt && rcpt->Closed > 0L &&
 			rcpt->GoodsID > 0L && rcpt->LocID == locID && rcpt->Price == price);
@@ -3305,7 +3319,7 @@ int SLAPI PPObjGoods::Browse(void * extraPtr /*groupID*/)
 
 const PPGoodsConfig & SLAPI PPObjGoods::GetConfig() const
 {
-	return Cfg;
+	return *P_Cfg;
 }
 
 int SLAPI PPObjGoods::Edit(PPID * pID, void * extraPtr /*group*/)
@@ -3614,6 +3628,7 @@ int SLAPI PPObjGoods::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv)
 {
 	int    ok = 1;
+	InitConfig();
 	if(dir > 0 && DS.CheckStateFlag(CFGST_TRANSQUOT))
 		pPack->Rec.Flags |= GF_TRANSQUOT;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -3622,8 +3637,8 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 	THROW_SL(P_Tbl->GetACodTbl_().SerializeArrayOfRecords(dir, &pPack->ArCodes, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->ExtString, rBuf));
 	THROW(pPack->Stock.Serialize(dir, rBuf, pSCtx));
-	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx)); // @v7.2.0
-	THROW(pPack->GenericList.Serialize(dir, rBuf, pSCtx)); // @v7.7.12
+	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
+	THROW(pPack->GenericList.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
 	{
 		PPQuotArray quot_list;

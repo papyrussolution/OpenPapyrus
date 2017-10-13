@@ -693,7 +693,7 @@ public:
 			// Для радиального градиента:
 			// 0x01 - cx, 0x02 - cy, 0x04 - r, 0x08 - fx, 0x10 - fy, 0x20 - fr (радиус фокуса)
 		float  Coord[8];
-		TSArray <Stop> StopList;
+		TSVector <Stop> StopList; // @v9.8.4 TSArray-->TSVector
 	};
 
 	class Font : public Base, public SFontDescr { // @persistent @store(SSerializeContext)
@@ -1948,8 +1948,8 @@ private:
 	int    IsEmpty(long itemId) const;
 	int    CalcCoord(Dim dim, int containerLow, int containerUpp, int gravitySide) const;
 
-	TSArray <RItem> List;
-	TSArray <WItem> WinList;
+	TSVector <RItem> List; // @v9.8.4 TSArray-->TSVector
+	TSVector <WItem> WinList; // @v9.8.4 TSArray-->TSVector
 	TRect ContainerBounds;
 };
 //
@@ -5075,9 +5075,9 @@ private:
 	void   FASTCALL InnerToOuter(const InnerLangModel & rS, LangModel & rD) const;
 	void   FASTCALL InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const;
 
-	TSArray <InnerLangModel> ML;
-	TSArray <InnerLangModelKeywords> KwL;
-	TSArray <InnerStyle> L;
+	TSVector <InnerLangModel> ML; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerLangModelKeywords> KwL; // @v9.8.4 TSArray-->TSVector
+	TSVector <InnerStyle> L; // @v9.8.4 TSArray-->TSVector
 };
 
 class SScEditorBase {

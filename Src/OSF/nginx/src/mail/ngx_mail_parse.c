@@ -602,32 +602,21 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 				    else {
 					    goto invalid;
 				    }
-
 				    s->cmd.data = s->cmd_start;
 				    s->cmd.len = p - s->cmd_start;
-
 				    switch(ch) {
-					    case ' ':
-						state = sw_spaces_before_argument;
-						break;
-					    case __CR:
-						state = sw_almost_done;
-						break;
-					    case LF:
-						goto done;
+					    case ' ': state = sw_spaces_before_argument; break;
+					    case __CR: state = sw_almost_done; break;
+					    case LF: goto done;
 				    }
 				    break;
 			    }
-
 			    if((ch < 'A' || ch > 'Z') && (ch < 'a' || ch > 'z')) {
 				    goto invalid;
 			    }
-
 			    break;
-
 			case sw_invalid:
 			    goto invalid;
-
 			case sw_spaces_before_argument:
 			    switch(ch) {
 				    case ' ':
@@ -648,43 +637,33 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 					goto invalid;
 			    }
 			    break;
-
 			case sw_argument:
 			    switch(ch) {
 				    case ' ':
 				    case __CR:
 				    case LF:
-					arg = (ngx_str_t*)ngx_array_push(&s->args);
-					if(!arg) {
-						return NGX_ERROR;
-					}
-					arg->len = p - s->arg_start;
-					arg->data = s->arg_start;
-					s->arg_start = NULL;
-
-					switch(ch) {
-						case ' ':
-						    state = sw_spaces_before_argument;
-						    break;
-						case __CR:
-						    state = sw_almost_done;
-						    break;
-						case LF:
-						    goto done;
-					}
-					break;
-
+						arg = (ngx_str_t*)ngx_array_push(&s->args);
+						if(!arg) {
+							return NGX_ERROR;
+						}
+						arg->len = p - s->arg_start;
+						arg->data = s->arg_start;
+						s->arg_start = NULL;
+						switch(ch) {
+							case ' ': state = sw_spaces_before_argument; break;
+							case __CR: state = sw_almost_done; break;
+							case LF: goto done;
+						}
+						break;
 				    default:
-					break;
+						break;
 			    }
 			    break;
 
 			case sw_almost_done:
 			    switch(ch) {
-				    case LF:
-					goto done;
-				    default:
-					goto invalid;
+				    case LF: goto done;
+				    default: goto invalid;
 			    }
 		}
 	}

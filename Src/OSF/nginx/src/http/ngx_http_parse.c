@@ -196,10 +196,8 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 				    break;
 			    }
 			    switch(ch) {
-				    case ' ':
-					break;
-				    default:
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case ' ': break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_schema:
@@ -218,20 +216,14 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    break;
 			case sw_schema_slash:
 			    switch(ch) {
-				    case '/':
-						state = sw_schema_slash_slash;
-						break;
-				    default:
-						return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case '/': state = sw_schema_slash_slash; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_schema_slash_slash:
 			    switch(ch) {
-				    case '/':
-						state = sw_host_start;
-						break;
-				    default:
-						return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case '/': state = sw_host_start; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_host_start:
@@ -500,84 +492,70 @@ ngx_int_t ngx_http_parse_request_line(ngx_http_request_t * r, ngx_buf_t * b)
 			    }
 			    switch(ch) {
 				    case ' ':
-					r->uri_end = p;
-					state = sw_http_09;
-					break;
+						r->uri_end = p;
+						state = sw_http_09;
+						break;
 				    case __CR:
-					r->uri_end = p;
-					r->http_minor = 9;
-					state = sw_almost_done;
-					break;
+						r->uri_end = p;
+						r->http_minor = 9;
+						state = sw_almost_done;
+						break;
 				    case LF:
-					r->uri_end = p;
-					r->http_minor = 9;
-					goto done;
+						r->uri_end = p;
+						r->http_minor = 9;
+						goto done;
 				    case '#':
-					r->complex_uri = 1;
-					break;
+						r->complex_uri = 1;
+						break;
 				    case '\0':
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+						return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
-
 			/* space+ after URI */
 			case sw_http_09:
 			    switch(ch) {
 				    case ' ':
-					break;
+						break;
 				    case __CR:
-					r->http_minor = 9;
-					state = sw_almost_done;
-					break;
+						r->http_minor = 9;
+						state = sw_almost_done;
+						break;
 				    case LF:
-					r->http_minor = 9;
-					goto done;
+						r->http_minor = 9;
+						goto done;
 				    case 'H':
-					r->http_protocol.data = p;
-					state = sw_http_H;
-					break;
+						r->http_protocol.data = p;
+						state = sw_http_H;
+						break;
 				    default:
-					r->space_in_uri = 1;
-					state = sw_uri;
-					p--;
-					break;
+						r->space_in_uri = 1;
+						state = sw_uri;
+						p--;
+						break;
 			    }
 			    break;
-
 			case sw_http_H:
 			    switch(ch) {
-				    case 'T':
-					state = sw_http_HT;
-					break;
-				    default:
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case 'T': state = sw_http_HT; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_http_HT:
 			    switch(ch) {
-				    case 'T':
-					state = sw_http_HTT;
-					break;
-				    default:
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case 'T': state = sw_http_HTT; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_http_HTT:
 			    switch(ch) {
-				    case 'P':
-					state = sw_http_HTTP;
-					break;
-				    default:
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case 'P': state = sw_http_HTTP; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			case sw_http_HTTP:
 			    switch(ch) {
-				    case '/':
-					state = sw_first_major_digit;
-					break;
-				    default:
-					return NGX_HTTP_PARSE_INVALID_REQUEST;
+				    case '/': state = sw_first_major_digit; break;
+				    default: return NGX_HTTP_PARSE_INVALID_REQUEST;
 			    }
 			    break;
 			/* first digit of major HTTP version */
@@ -786,92 +764,87 @@ ngx_int_t ngx_http_parse_header_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 			case sw_space_before_value:
 			    switch(ch) {
 				    case ' ':
-					break;
+						break;
 				    case __CR:
-					r->header_start = p;
-					r->header_end = p;
-					state = sw_almost_done;
-					break;
+						r->header_start = p;
+						r->header_end = p;
+						state = sw_almost_done;
+						break;
 				    case LF:
-					r->header_start = p;
-					r->header_end = p;
-					goto done;
+						r->header_start = p;
+						r->header_end = p;
+						goto done;
 				    case '\0':
-					return NGX_HTTP_PARSE_INVALID_HEADER;
+						return NGX_HTTP_PARSE_INVALID_HEADER;
 				    default:
-					r->header_start = p;
-					state = sw_value;
-					break;
+						r->header_start = p;
+						state = sw_value;
+						break;
 			    }
 			    break;
-
-			/* header value */
+			// header value 
 			case sw_value:
 			    switch(ch) {
 				    case ' ':
-					r->header_end = p;
-					state = sw_space_after_value;
-					break;
+						r->header_end = p;
+						state = sw_space_after_value;
+						break;
 				    case __CR:
-					r->header_end = p;
-					state = sw_almost_done;
-					break;
+						r->header_end = p;
+						state = sw_almost_done;
+						break;
 				    case LF:
-					r->header_end = p;
-					goto done;
+						r->header_end = p;
+						goto done;
 				    case '\0':
-					return NGX_HTTP_PARSE_INVALID_HEADER;
+						return NGX_HTTP_PARSE_INVALID_HEADER;
 			    }
 			    break;
-
-			/* space* before end of header line */
+			// space* before end of header line 
 			case sw_space_after_value:
 			    switch(ch) {
 				    case ' ':
-					break;
+						break;
 				    case __CR:
-					state = sw_almost_done;
-					break;
+						state = sw_almost_done;
+						break;
 				    case LF:
-					goto done;
+						goto done;
 				    case '\0':
-					return NGX_HTTP_PARSE_INVALID_HEADER;
+						return NGX_HTTP_PARSE_INVALID_HEADER;
 				    default:
-					state = sw_value;
-					break;
+						state = sw_value;
+						break;
 			    }
 			    break;
-
-			/* ignore header line */
+			// ignore header line 
 			case sw_ignore_line:
 			    switch(ch) {
 				    case LF:
-					state = sw_start;
-					break;
+						state = sw_start;
+						break;
 				    default:
-					break;
+						break;
 			    }
 			    break;
-
-			/* end of header line */
+			// end of header line 
 			case sw_almost_done:
 			    switch(ch) {
 				    case LF:
-					goto done;
+						goto done;
 				    case __CR:
-					break;
+						break;
 				    default:
-					return NGX_HTTP_PARSE_INVALID_HEADER;
+						return NGX_HTTP_PARSE_INVALID_HEADER;
 			    }
 			    break;
-
-			/* end of header */
+			// end of header 
 			case sw_header_almost_done:
 			    switch(ch) {
 				    case LF:
-					goto header_done;
+						goto header_done;
 				    default:
-					return NGX_HTTP_PARSE_INVALID_HEADER;
+						return NGX_HTTP_PARSE_INVALID_HEADER;
 			    }
 		}
 	}
@@ -1331,47 +1304,32 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 			/* "HTTP/" */
 			case sw_start:
 			    switch(ch) {
-				    case 'H':
-						state = sw_H;
-						break;
-				    default:
-						return NGX_ERROR;
+				    case 'H': state = sw_H; break;
+				    default: return NGX_ERROR;
 			    }
 			    break;
 			case sw_H:
 			    switch(ch) {
-				    case 'T':
-						state = sw_HT;
-						break;
-				    default:
-						return NGX_ERROR;
+				    case 'T': state = sw_HT; break;
+				    default: return NGX_ERROR;
 			    }
 			    break;
 			case sw_HT:
 			    switch(ch) {
-				    case 'T':
-						state = sw_HTT;
-						break;
-				    default:
-						return NGX_ERROR;
+				    case 'T': state = sw_HTT; break;
+				    default: return NGX_ERROR;
 			    }
 			    break;
 			case sw_HTT:
 			    switch(ch) {
-				    case 'P':
-						state = sw_HTTP;
-						break;
-				    default:
-						return NGX_ERROR;
+				    case 'P': state = sw_HTTP; break;
+				    default: return NGX_ERROR;
 			    }
 			    break;
 			case sw_HTTP:
 			    switch(ch) {
-				    case '/':
-						state = sw_first_major_digit;
-						break;
-				    default:
-						return NGX_ERROR;
+				    case '/': state = sw_first_major_digit; break;
+				    default: return NGX_ERROR;
 			    }
 			    break;
 			/* the first digit of major HTTP version */
@@ -1450,27 +1408,19 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 					return NGX_ERROR;
 			    }
 			    break;
-
 			/* any text until end of line */
 			case sw_status_text:
 			    switch(ch) {
-				    case __CR:
-					state = sw_almost_done;
-
-					break;
-				    case LF:
-					goto done;
+				    case __CR: state = sw_almost_done; break;
+				    case LF: goto done;
 			    }
 			    break;
-
 			/* end of status line */
 			case sw_almost_done:
 			    status->end = p - 1;
 			    switch(ch) {
-				    case LF:
-					goto done;
-				    default:
-					return NGX_ERROR;
+				    case LF: goto done;
+				    default: return NGX_ERROR;
 			    }
 		}
 	}
@@ -1479,9 +1429,7 @@ ngx_int_t ngx_http_parse_status_line(ngx_http_request_t * r, ngx_buf_t * b, ngx_
 	return NGX_AGAIN;
 done:
 	b->pos = p + 1;
-	if(status->end == NULL) {
-		status->end = p;
-	}
+	SETIFZ(status->end, p);
 	status->http_version = r->http_major * 1000 + r->http_minor;
 	r->state = sw_start;
 	return NGX_OK;
@@ -1618,7 +1566,7 @@ ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * nam
 {
 	ngx_uint_t i;
 	u_char  * start, * last, * end;
-	ngx_table_elt_t  ** h = (ngx_table_elt_t  **)headers->elts;
+	ngx_table_elt_t ** h = (ngx_table_elt_t **)headers->elts;
 	for(i = 0; i < headers->nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_HTTP, headers->pool->log, 0, "parse header: \"%V: %V\"", &h[i]->key, &h[i]->value);
 		if(name->len >= h[i]->value.len) {
@@ -1630,17 +1578,16 @@ ngx_int_t ngx_http_parse_set_cookie_lines(ngx_array_t * headers, ngx_str_t * nam
 			continue;
 		}
 		for(start += name->len; start < end && *start == ' '; start++) {
-			/* void */
+			// void 
 		}
 		if(start == end || *start++ != '=') {
-			/* the invalid header value */
-			continue;
+			continue; // the invalid header value 
 		}
 		while(start < end && *start == ' ') {
 			start++;
 		}
 		for(last = start; last < end && *last != ';'; last++) {
-			/* void */
+			// void 
 		}
 		value->len = last - start;
 		value->data = start;
@@ -1745,47 +1692,28 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    }
 			    if(ctx->size == 0) {
 				    switch(ch) {
-					    case __CR:
-						state = sw_last_chunk_extension_almost_done;
-						break;
-					    case LF:
-						state = sw_trailer;
-						break;
+					    case __CR: state = sw_last_chunk_extension_almost_done; break;
+					    case LF: state = sw_trailer; break;
 					    case ';':
 					    case ' ':
-					    case '\t':
-						state = sw_last_chunk_extension;
-						break;
-					    default:
-						goto invalid;
+					    case '\t': state = sw_last_chunk_extension; break;
+					    default: goto invalid;
 				    }
-
 				    break;
 			    }
-
 			    switch(ch) {
-				    case __CR:
-					state = sw_chunk_extension_almost_done;
-					break;
-				    case LF:
-					state = sw_chunk_data;
-					break;
+				    case __CR: state = sw_chunk_extension_almost_done; break;
+				    case LF: state = sw_chunk_data; break;
 				    case ';':
 				    case ' ':
-				    case '\t':
-					state = sw_chunk_extension;
-					break;
-				    default:
-					goto invalid;
+				    case '\t': state = sw_chunk_extension; break;
+				    default: goto invalid;
 			    }
 			    break;
 			case sw_chunk_extension:
 			    switch(ch) {
-				    case __CR:
-					state = sw_chunk_extension_almost_done;
-					break;
-				    case LF:
-					state = sw_chunk_data;
+				    case __CR: state = sw_chunk_extension_almost_done; break;
+				    case LF: state = sw_chunk_data;
 			    }
 			    break;
 
@@ -1802,11 +1730,8 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 
 			case sw_after_data:
 			    switch(ch) {
-				    case __CR:
-					state = sw_after_data_almost_done;
-					break;
-				    case LF:
-					state = sw_chunk_start;
+				    case __CR: state = sw_after_data_almost_done; break;
+				    case LF: state = sw_chunk_start;
 			    }
 			    break;
 			case sw_after_data_almost_done:
@@ -1817,11 +1742,8 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_last_chunk_extension:
 			    switch(ch) {
-				    case __CR:
-					state = sw_last_chunk_extension_almost_done;
-					break;
-				    case LF:
-					state = sw_trailer;
+				    case __CR: state = sw_last_chunk_extension_almost_done; break;
+				    case LF: state = sw_trailer;
 			    }
 			    break;
 			case sw_last_chunk_extension_almost_done:
@@ -1832,13 +1754,9 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_trailer:
 			    switch(ch) {
-				    case __CR:
-					state = sw_trailer_almost_done;
-					break;
-				    case LF:
-					goto done;
-				    default:
-					state = sw_trailer_header;
+				    case __CR: state = sw_trailer_almost_done; break;
+				    case LF: goto done;
+				    default: state = sw_trailer_header;
 			    }
 			    break;
 			case sw_trailer_almost_done:
@@ -1848,11 +1766,8 @@ ngx_int_t ngx_http_parse_chunked(ngx_http_request_t * r, ngx_buf_t * b, ngx_http
 			    goto invalid;
 			case sw_trailer_header:
 			    switch(ch) {
-				    case __CR:
-					state = sw_trailer_header_almost_done;
-					break;
-				    case LF:
-					state = sw_trailer;
+				    case __CR: state = sw_trailer_header_almost_done; break;
+				    case LF: state = sw_trailer;
 			    }
 			    break;
 			case sw_trailer_header_almost_done:

@@ -236,14 +236,14 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	PPLoadText(PPTXT_CHECKINMAILFORPPY, wait_msg);
 	for(msg_n = 1; msg_n <= mailbox_count; msg_n++) {
 		if(filtFlags) {
-			SMailMsg msg;
+			SMailMessage msg;
 			const int gmi_r = mail.GetMsgInfo(msg_n, &msg);
 			//THROW(mail.GetMsgInfo(msg_n, &msg));
 			//if(mail.GetMsgInfo(msg_n, &msg) > 0)
 			if(gmi_r > 0) {
-				if((filtFlags & SMailMsg::fPpyOrder && msg.Flags & SMailMsg::fPpyOrder) ||
-					(filtFlags & SMailMsg::fPpyObject && msg.Flags & SMailMsg::fPpyObject) ||
-					(filtFlags & SMailMsg::fPpyCharry && msg.Flags & SMailMsg::fPpyCharry))
+				if((filtFlags & SMailMessage::fPpyOrder && msg.Flags & SMailMessage::fPpyOrder) ||
+					(filtFlags & SMailMessage::fPpyObject && msg.Flags & SMailMessage::fPpyObject) ||
+					(filtFlags & SMailMessage::fPpyCharry && msg.Flags & SMailMessage::fPpyCharry))
 					msg_list.add(msg_n);
 			}
 			else {
@@ -256,24 +256,24 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 		assert(MemHeapTracer::Check()); // @debug
 	}
 	if(clean) {
-		if(filtFlags & SMailMsg::fPpyObject)
+		if(filtFlags & SMailMessage::fPpyObject)
 			PPRemoveFilesByExt(pDestPath, PPSEXT, 0, 0);
-		if(filtFlags & SMailMsg::fPpyOrder)
+		if(filtFlags & SMailMessage::fPpyOrder)
 			PPRemoveFilesByExt(pDestPath, ORDEXT, 0, 0);
-		if(filtFlags & SMailMsg::fPpyCharry)
+		if(filtFlags & SMailMessage::fPpyCharry)
 			PPRemoveFilesByExt(pDestPath, CHARRYEXT, 0, 0);
 	}
 	msg_counter.Init(msg_list.getCount());
 	for(i = 0; i < msg_list.getCount(); i++) {
-		SMailMsg msg;
+		SMailMessage msg;
 		MakeTempFileName(temp_path, 0, "msg", 0, temp_fname.Z());
 		msg_counter.Increment();
 		THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
-		if(filtFlags & SMailMsg::fPpyObject && msg.Flags & SMailMsg::fPpyObject)
+		if(filtFlags & SMailMessage::fPpyObject && msg.Flags & SMailMessage::fPpyObject)
 			THROW(mail.SaveAttachment(temp_fname, 0, pDestPath));
-		if(filtFlags & SMailMsg::fPpyCharry && msg.Flags & SMailMsg::fPpyCharry)
+		if(filtFlags & SMailMessage::fPpyCharry && msg.Flags & SMailMessage::fPpyCharry)
 			THROW(mail.SaveAttachment(temp_fname, 0, pDestPath));
-		if(filtFlags & SMailMsg::fPpyOrder && msg.Flags & SMailMsg::fPpyOrder) {
+		if(filtFlags & SMailMessage::fPpyOrder && msg.Flags & SMailMessage::fPpyOrder) {
 			SPathStruc::ReplacePath(dest_fname = temp_fname, pDestPath, 1);
 			SPathStruc::ReplaceExt(dest_fname, ORDEXT, 1);
 			THROW(mail.SaveOrder(temp_fname, dest_fname));
@@ -328,11 +328,11 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	THROW(ftp.Connect(&acct));
 	THROW(ftp.SafeGetFileList(src_dir, &file_list, 0, 0));
 	if(clean) {
-		if(filtFlags & SMailMsg::fPpyObject)
+		if(filtFlags & SMailMessage::fPpyObject)
 			PPRemoveFilesByExt(pDestDir, PPSEXT, 0, 0);
-		if(filtFlags & SMailMsg::fPpyOrder)
+		if(filtFlags & SMailMessage::fPpyOrder)
 			PPRemoveFilesByExt(pDestDir, ORDEXT, 0, 0);
-		if(filtFlags & SMailMsg::fPpyCharry)
+		if(filtFlags & SMailMessage::fPpyCharry)
 			PPRemoveFilesByExt(pDestDir, CHARRYEXT, 0, 0);
 	}
 	for(uint i = 0; i < file_list.getCount(); i++) {
@@ -343,8 +343,8 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_list.at(i).Txt);
 		(dest_path = dest_dir).Cat(file_list.at(i).Txt);
-		if((filtFlags & SMailMsg::fPpyObject) && ext.CmpNC(PPSEXT) == 0 || (filtFlags & SMailMsg::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
-			(filtFlags & SMailMsg::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0) {
+		if((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0 || (filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
+			(filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
 				int accept_file = 1;
@@ -383,7 +383,7 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 	PPInternetAccount mac_rec;
 	IterCounter msg_counter;
 	PPID   mail_acc_id = mailAccID;
-	SMailMsg msg;
+	SMailMessage msg;
 	msg_counter.Init(1);
 	PPWait(1);
 	if(mail_acc_id == 0) {
@@ -393,10 +393,10 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 	}
 	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
 	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
-	msg.SetField(SMailMsg::fldSubj, pSubj);
+	msg.SetField(SMailMessage::fldSubj, pSubj);
 	mac_rec.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
-	msg.SetField(SMailMsg::fldFrom, temp_buf.Strip());
-	msg.SetField(SMailMsg::fldTo,   pDestAddr);
+	msg.SetField(SMailMessage::fldFrom, temp_buf.Strip());
+	msg.SetField(SMailMessage::fldTo,   pDestAddr);
 	if(pFileList) {
         for(i = 0; pFileList->get(&i, file_path);) {
 			if(::fileExists(file_path))
@@ -540,10 +540,10 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		}
 		assert(MemHeapTracer::Check()); // @debug
 		if(use_email && check_email) {
-			THROW(GetFilesFromMailServer(0, dest, SMailMsg::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
+			THROW(GetFilesFromMailServer(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
 		}
 		if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
-			THROW(GetFilesFromFtp(0, src, dest, SMailMsg::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
+			THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
 		}
 		assert(MemHeapTracer::Check()); // @debug
 	}

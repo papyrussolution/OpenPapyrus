@@ -168,7 +168,7 @@ int SLAPI PPViewAccturn::Print(const void *)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempAGFile, TempAccturnGrpng);
 
-struct ACGREC {
+struct ACGREC { // @flat
 	LDATE  Dt;
 	PPID   DbtAccID;
 	PPID   CrdAccID;
@@ -263,7 +263,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 			return ok;
 		}
 	private:
-		TSArray <ACGREC> List;
+		TSVector <ACGREC> List; // @v9.8.4 TSArray-->TSVector
 		StrAssocArray NameList;
 		long   LastNameIdx;
 		SString TempBuf; // @allocreuse

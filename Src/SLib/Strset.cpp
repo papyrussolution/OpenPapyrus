@@ -429,7 +429,7 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 	uint   len = 0;
 	if(pos < DataLen)
 		if(Delim[0]) {
-			char * c = strstr(P_Buf + pos, Delim);
+			const char * c = strstr(P_Buf + pos, Delim);
 			if(c != 0)
 				len = (uint)(c - (P_Buf + pos));
 			else
@@ -443,7 +443,7 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 {
 	int    ok = 1;
-	char * c = 0;
+	const  char * c = 0;
 	uint   p = *pos, len = 0, delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {
@@ -488,7 +488,7 @@ int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 int FASTCALL StringSet::get(uint * pPos, SString & s) const
 {
 	int    ok = 1;
-	char * c = 0;
+	const  char * c = 0;
 	uint   p = *pPos, len = 0, delim_len = 0;
 	if(p < DataLen) {
 		if(Delim[0]) {

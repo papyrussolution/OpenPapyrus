@@ -374,12 +374,12 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 		case PPEDIOP_EGAIS_WAYBILL_V2:
 			if(msg_buf.Empty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILL, msg_buf);
-			// @nobreak
+			// @fallthrough
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2: // @v9.5.8
 			if(msg_buf.Empty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILLACT, msg_buf);
-			// @nobreak
+			// @fallthrough
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
 			if(msg_buf.Empty())
@@ -1290,7 +1290,7 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 		PPID   __loc_id = 0;
 		SString __full_addr_buf;
 		if(P_RefC && rar_id.NotEmpty()) {
-			TSArray <EgaisPersonTbl::Rec> epr_list;
+			TSVector <EgaisPersonTbl::Rec> epr_list; // @v9.8.4 TSArray-->TSVector
 			const int psc_idx = P_RefC->PsC.SearchByCode(rar_id, epr_list);
 			if(psc_idx > 0) {
                 const EgaisPersonTbl::Rec & r_rec = epr_list.at(psc_idx-1);
@@ -1668,7 +1668,7 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 		if(flags & wpifPutManufInfo) {
 			const  long woif = (flags & wpifVersion2) ? (woifDontSendWithoutFSRARID|woifVersion2) : woifDontSendWithoutFSRARID;
 			if(use_refc_data && (agi.RefcImporterCode.NotEmpty() || agi.RefcManufCode.NotEmpty())) {
-				TSArray <EgaisPersonTbl::Rec> epr_list;
+				TSVector <EgaisPersonTbl::Rec> epr_list; // @v9.8.4 TSArray-->TSVector
 				if(agi.RefcManufCode.NotEmpty()) {
 					const int idx = P_RefC->PsC.SearchByCode(agi.RefcManufCode, epr_list);
 					if(idx > 0) {
@@ -3971,7 +3971,7 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
     return ok;
 }
 
-struct WayBillActRecadvItem {
+struct WayBillActRecadvItem { // @flat
 	WayBillActRecadvItem()
 	{
 		THISZERO();
@@ -3997,7 +3997,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     PPObjOprKind op_obj;
     BillTbl::Rec bhdr;
     MEMSZERO(bhdr);
-    TSArray <WayBillActRecadvItem> items;
+    TSVector <WayBillActRecadvItem> items; // @v9.8.4 TSArray-->TSVector
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
 			was_header_accepted = 1;
@@ -4161,7 +4161,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     return ok;
 }
 
-struct EgaisWayBillRowTags {
+struct EgaisWayBillRowTags { // @flat
 	int     RByBill;
 	char    GoodsCode[24];
 	char    InformA[24];
@@ -4205,7 +4205,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     SString temp_buf;
     BillTbl::Rec bhdr;
     MEMSZERO(bhdr);
-	TSArray <EgaisWayBillRowTags> row_tags;
+	TSVector <EgaisWayBillRowTags> row_tags; // @v9.8.4 TSArray-->TSVector
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	if(pPack)
 		pPack->Flags |= Packet::fFaultObj; // @v9.2.8 Иницилизируем флаг. Когда убедимся, что документ OK, флаг снимим.
@@ -4751,7 +4751,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
     return ok;
 }
 
-struct EgaisRestItem {
+struct EgaisRestItem { // @flat
 	EgaisRestItem()
 	{
 		THISZERO();
@@ -5259,7 +5259,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
     SString temp_buf;
     BillTbl::Rec bhdr;
     MEMSZERO(bhdr);
-    TSArray <EgaisRestItem> items;
+    TSVector <EgaisRestItem> items; // @v9.8.4 TSArray-->TSVector
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
         if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
@@ -8517,7 +8517,7 @@ int SLAPI EgaisPersonCore::Search(PPID id, EgaisPersonCore::Item & rItem)
 int SLAPI EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
 {
 	int    ok = -1;
-	TSArray <EgaisPersonTbl::Rec> list;
+	TSVector <EgaisPersonTbl::Rec> list; // @v9.8.4 TSArray-->TSVector
 	int    ap = SearchByCode(pRarCode, list);
 	if(ap > 0) {
 		for(uint i = 0; ok < 0 && i < list.getCount(); i++)
@@ -8529,7 +8529,7 @@ int SLAPI EgaisPersonCore::IsVerifiedCode(const char * pRarCode)
 	return ok;
 }
 
-int SLAPI EgaisPersonCore::SearchByCode(const char * pRarCode, TSArray <EgaisPersonTbl::Rec> & rList)
+int SLAPI EgaisPersonCore::SearchByCode(const char * pRarCode, TSVector <EgaisPersonTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -8914,7 +8914,7 @@ int SLAPI EgaisProductCore::Search(PPID id, EgaisProductCore::Item & rItem)
 int SLAPI EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
 {
 	int    ok = -1;
-	TSArray <EgaisProductTbl::Rec> list;
+	TSVector <EgaisProductTbl::Rec> list; // @v9.8.4 TSArray-->TSVector
 	int    ap = SearchByCode(pAlcoCode, list);
 	if(ap > 0) {
 		for(uint i = 0; ok < 0 && i < list.getCount(); i++) {
@@ -8928,7 +8928,7 @@ int SLAPI EgaisProductCore::IsVerifiedCode(const char * pAlcoCode)
 	return ok;
 }
 
-int SLAPI EgaisProductCore::SearchByCode(const char * pAlcoCode, TSArray <EgaisProductTbl::Rec> & rList)
+int SLAPI EgaisProductCore::SearchByCode(const char * pAlcoCode, TSVector <EgaisProductTbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9223,7 +9223,7 @@ int SLAPI EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec)
 	return SearchByID(this, PPOBJ_EGAISREFA, id, pRec);
 }
 
-int SLAPI EgaisRefACore::SearchByCode(const char * pRefACode, TSArray <EgaisRefATbl::Rec> & rList)
+int SLAPI EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -9253,7 +9253,7 @@ int SLAPI EgaisRefACore::SearchByCode(const char * pRefACode, TSArray <EgaisRefA
 	return ok;
 }
 
-int SLAPI EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSArray <EgaisRefATbl::Rec> & rList)
+int SLAPI EgaisRefACore::SearchByProductCode(const char * pAlcoCode, TSVector <EgaisRefATbl::Rec> & rList) // @v9.8.4 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;

@@ -907,6 +907,7 @@
     </ClCompile>
     <ClCompile Include="..\SLib\cregexp.cpp" />
     <ClCompile Include="..\SLib\crypto.cpp" />
+    <ClCompile Include="..\SLib\curl-parsedate.cpp" />
     <ClCompile Include="..\SLib\dec.cpp" />
     <ClCompile Include="..\SLib\Dlgprocs.cpp" />
     <ClCompile Include="..\Slib\findfile.cpp">

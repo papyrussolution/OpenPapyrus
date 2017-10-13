@@ -29,7 +29,7 @@ struct MACAddr { // size=6
 	uint8  Addr[6];
 };
 
-class MACAddrArray : public TSArray <MACAddr> {
+class MACAddrArray : public TSVector <MACAddr> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  MACAddrArray();
 	int    SLAPI addUnique(const MACAddr &);
@@ -124,18 +124,21 @@ public:
 		protRTMPS    = 33,
 		protLDAP     = 34,
 		protLDAPS    = 35,
-		protMailFrom = 36  // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется 
+		protMailFrom = 36  // Фиктивный протокол (не имеющий соответствия в стандартах). Применяется
 			// для внутреннего представления описания параметров приема данных из почтовых сообщений.
 	};
+	//
+	// Descr: Компоненты URL
+	//
 	enum { // @persistent
-		cScheme = 1,
-		cUserName,
-		cPassword,
-		cHost,
-		cPort,
-		cPath,
-		cQuery,
-		cRef
+		cScheme = 1, // Схема (протокол) (http)://
+		cUserName,   // Имя доступа
+		cPassword,   // Пароль доступа
+		cHost,       // Наименование хоста https://(twitter.com)
+		cPort,       // ip-port http://192.168.0.100:(8080)
+		cPath,       // Путь   http://192.168.0.100:8080(/index)?parav=value
+		cQuery,      // Запрос http://192.168.0.100:8080/index(?parav=value)
+		cRef         // Ссылка http://192.168.0.100:8080/index#(15)
 	};
 	enum {
 		stError    = 0x80000000,
@@ -659,7 +662,7 @@ private:
 //
 typedef void (*MailCallbackProc)(const IterCounter & bytesCounter, const IterCounter & msgCounter);
 
-struct SMailMsg : SStrGroup {
+struct SMailMessage : SStrGroup {
 	enum {
 		fldFrom = 1,
 		fldTo,
@@ -676,8 +679,8 @@ struct SMailMsg : SStrGroup {
 		fPpyCharry = 0x0008, // Объекты Charry
 		fFrontol   = 0x0010  // Файл с данными с кассового модуля Фронтол
 	};
-	SLAPI  SMailMsg();
-	SLAPI ~SMailMsg();
+	SLAPI  SMailMessage();
+	SLAPI ~SMailMessage();
 	void   SLAPI Init();
 	int    SLAPI IsPpyData() const;
 	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
@@ -694,28 +697,107 @@ struct SMailMsg : SStrGroup {
 	int    FASTCALL IsField(int fldId) const;
 	SString & SLAPI GetField(int fldId, SString & rBuf) const;
 	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
+	//
+	// Descr: Определяет, является ли адрес pEmail адресом отправителя сообщения.
+	//   Сравнение осуществляется строго по формальному адресу с исключением описательной части.
+	//   Например IsFrom("nemo@gmail.com") даст положительный результат на адрес "Капитан Немо <nemo@gmail.com>"
+	//
+	int    SLAPI IsFrom(const char * pEmail) const;
+	int    SLAPI IsSubj(const char * pSubj, int substr) const;
 
 	int    SLAPI PutToFile(SFile & rF);
 	int    SLAPI ReadFromFile(SFile & rF);
 
-	struct Disposition {
-		Disposition();
+	int    SLAPI DebugOutput(SString & rBuf) const;
+
+	struct ContentDispositionBlock {
+		SLAPI  ContentDispositionBlock();
+		void   SLAPI Destroy();
+
 		enum {
 			tUnkn = 0,
-			tInline,
-			tAttachment
+			tAttachment, // attachment
+			tInline, // inline
+			tFormData, // form-data
+			tSignal, // signal
+			tAlert, // alert
+			tIcon, // icon
+			tRender, // render
+			tRecipientListHistory, // recipient-list-history
+			tSession, // session
+			tAIB, // aib
+			tEarlySession, // early-session
+			tRecipientList, // recipient-list
+			tNotification, // notification
+			tByReference, // by-reference
+			tInfoPackage, // info-package
+			tRecordingSession // recording-session
 		};
 		int    Type;
-		SString FileName;       // "filename"
-		LDATETIME CreationDtm;  // "creation-date"
-		LDATETIME ModifDtm;     // "modification-date"
-		LDATETIME ReadDtm;      // "read-date"
-		int64  Size;            // "size"
+		uint   NameP;
+		uint   FileNameP;
+		uint64 Size;
+		LDATETIME ModifDtm; // modification-date
+		LDATETIME CrDtm;    // creation-date
+		LDATETIME RdDtm;    // read-date
 	};
+	struct ContentTypeBlock {
+		SLAPI  ContentTypeBlock();
+		void   SLAPI Destroy();
+		uint   MimeP;
+		uint   TypeP;
+		uint   NameP;
+		uint   BoundaryP; // Позиция идентификатора (применяется ко всем внутренним элементам 1-го уровня,
+			// если внутренний элемент имеет собственное вложение, то его BoundaryP != 0).
+		SCodepageIdent Cp;
+	};
+	struct Boundary {
+		SLAPI  Boundary();
+		void   SLAPI Destroy();
+		uint   SLAPI GetAttachmentCount() const;
+		const  Boundary * FASTCALL GetAttachmentByIndex(uint idx /*0..*/) const;
+
+		ContentTypeBlock Ct;
+		ContentDispositionBlock Cd;
+		int    ContentTransfEnc; // SFileFormat::cteXXX Content-Transfer-Encoding:
+		uint   LineNo_Start;  // @debug
+		uint   LineNo_Finish; // @debug
+		Boundary * P_Parent;  // @notowned
+		SBuffer Data;
+		TSCollection <Boundary> Children;
+	private:
+		const SMailMessage::Boundary * FASTCALL Helper_GetAttachmentByIndex(int & rIdx /*0..*/) const;
+	};
+
+	uint   SLAPI GetAttachmentCount() const;
+	int    SLAPI SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
+	const  SMailMessage::Boundary * FASTCALL GetAttachmentByIndex(uint attIdx) const;
+	int    SLAPI GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const;
+
 	long   Flags;
 	long   Size;
 private:
+	struct ParserBlock {
+		SLAPI  ParserBlock();
+		void   SLAPI Destroy();
+		enum {
+			stHeader = 0,
+			stBody,
+			stMimePartHeader,
+			stMimePartBody,
+		};
+		int    State;
+		uint   LineNo;
+		Boundary * P_B; // @notowned
+	};
+
+	static int SLAPI IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue);
+
 	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
+	int    SLAPI ProcessInputLine(ParserBlock & rBlk, SString & rLineBuf);
+	Boundary * FASTCALL SearchBoundary(const SString & rIdent);
+	Boundary * SLAPI Helper_SearchBoundary(const SString & rIdent, Boundary * pB);
+	int    SLAPI DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const;
 
 	char   Zero[8];
 
@@ -725,24 +807,23 @@ private:
 		uint   CcP;
 		uint   SubjP;
 		uint   MailerP;
-		uint   BoundaryP;
 		uint   MsgIdP; // Message-ID:
+		uint   UserAgentP;
+		uint   OrganizationP;
+		uint   ReturnPathP;
+		uint   DeliveredToP;
+		uint   ReplyToP;
+		uint   ContentLangP; // Content-Language:
+		uint   AcceptLangP;  // Accept-Language:
+		uint   XOrgIpP;      // x-originating-ip
+		LDATETIME Dtm; // Date:
+		SVerT  MimeVer;
 	};
 	HdrFldPositions HFP;
-	LDATETIME Dtm; // Date:
-	int    ContentLangId; // Content-Language:
 
-	struct Boundary {
-		uint   ContentTypeP; // Content-Type:
-		SCodepage Cp;
-		uint   ContentTransfEncP; // Content-Transfer-Encoding:
-		uint   TextP;
-	};
-	TSVector <Boundary> BL;
+	Boundary B; // Заголовочный список тел сообщения
 	TSVector <uint> AttachPosL;
 	TSVector <uint> ReceivedChainL; // Received:
-
-	//SStrCollection AttList;
 };
 //
 //
@@ -813,11 +894,11 @@ public:
 	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
 	//
 	int    Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList); // LIST
-	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN); // TOP
-	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMsg & rMsg);  // RETR
+	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg); // TOP
+	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 
-	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMsg & rMsg);
+	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg);
 private:
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);

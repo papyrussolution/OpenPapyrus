@@ -1931,18 +1931,26 @@ int SLAPI PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 }
 
 static IMPL_CMPFUNC(_GSItem, i1, i2)
-	{ return cmp_long(((_GSItem*)i1)->Num, ((_GSItem*)i2)->Num); }
+{ 
+	return cmp_long(((const _GSItem *)i1)->Num, ((const _GSItem *)i2)->Num); 
+}
 
 int SLAPI PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 {
 	int    ok = 1;
-	SArray items_list(sizeof(_GSItem));
+	//SArray items_list(sizeof(_GSItem));
+	TSVector <ObjAssocTbl::Rec> raw_items_list;
 	_GSItem * p_raw_item;
 	SString temp_buf, formula;
 	THROW(ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
-	THROW(ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &items_list));
-	items_list.sort(PTR_CMPFUNC(_GSItem));
-	for(uint i = 0; items_list.enumItems(&i, (void **)&p_raw_item);) {
+	THROW(ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
+	raw_items_list.sort(PTR_CMPFUNC(_GSItem));
+	//
+	// !Мы получили вектор записей типа <ObjAssocTbl::Rec> но обрабатываем его так, как будто
+	// там элементы типа _GSItem. Здесь мы закладываемся на то, что структура _GSItem подогнана под ObjAssocTbl::Rec
+	// (see remarks on _GSItem)
+	//
+	for(uint i = 0; raw_items_list.enumItems(&i, (void **)&p_raw_item);) {
 		PPGoodsStrucItem item;
 		item.GoodsID = p_raw_item->ItemGoodsID;
 		item.Flags   = p_raw_item->Flags;

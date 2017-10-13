@@ -44,7 +44,7 @@ int SLAPI TSessAnlzFilt::IsDiffFlag() const
 //
 //
 //
-struct TSessAnlzEntry {
+struct TSessAnlzEntry { // @flat
 	int    IsTotalRow() const
 	{
 		return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG);
@@ -81,9 +81,9 @@ struct AddQttyBlock {
 	double CompPart;
 };
 
-class TSessAnlzList : public TSArray <TSessAnlzEntry> {
+class TSessAnlzList : public TSVector <TSessAnlzEntry> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSArray <TSessAnlzEntry> ()
+	SLAPI  TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSVector <TSessAnlzEntry> ()
 	{
 		Sgg = sgg;
 		if(pGsl) {

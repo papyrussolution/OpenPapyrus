@@ -1961,7 +1961,7 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 		}
 		else
 			item.Quantity = 1.0;
-		if(price > 0)
+		if(price > 0.0)
 			item.Price = R2(price);
 		if(gb_obj.GetPreferredBasket(basket) > 0) {
 			THROW(CheckDialogPtr(&(dlg = new GBItemDialog(basket, defLocID, basket_dlg_flags))));
