@@ -819,7 +819,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 									msg.Cat(" >> ");
 								msg.Cat(pInfo->P_Dest);
 							}
-							PPWaitPercent(pInfo->OverallSizeDone, pInfo->OverallSizeTotal, msg);
+							PPWaitPercent((ulong)pInfo->OverallSizeDone, (ulong)pInfo->OverallSizeTotal, msg);
 						}
 						return 0;
 					}
