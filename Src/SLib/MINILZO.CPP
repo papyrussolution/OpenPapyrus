@@ -20,260 +20,232 @@ typedef long lzo_ptrdiff_t;
 
 #undef LZO_HAVE_CONFIG_H
 #include "minilzo.h"
-
 #if !defined(MINILZO_VERSION) || (MINILZO_VERSION != 0x1040)
- #error "version mismatch in miniLZO source files"
+	#error "version mismatch in miniLZO source files"
 #endif
-
 #ifdef MINILZO_HAVE_CONFIG_H
- #define LZO_HAVE_CONFIG_H
+	#define LZO_HAVE_CONFIG_H
 #endif
-
 #ifndef __LZO_CONF_H
- #define __LZO_CONF_H
+	#define __LZO_CONF_H
+	#if !defined(__LZO_IN_MINILZO)
+		#ifndef __LZOCONF_H
+			#include <lzoconf.h>
+		#endif
+	#endif
+	#if !defined(LZO_HAVE_CONFIG_H)
+		//#include <string.h>
+		#if !defined(NO_STDLIB_H)
+			//#include <stdlib.h>
+		#endif
+		#define HAVE_MEMCMP
+		#define HAVE_MEMCPY
+		#define HAVE_MEMMOVE
+		#define HAVE_MEMSET
+	#else
+		#include <sys/types.h>
+		#if defined(STDC_HEADERS)
+			#include <string.h>
+			#include <stdlib.h>
+		#endif
+		#if defined(HAVE_STDDEF_H)
+			#include <stddef.h>
+		#endif	
+		#if defined(HAVE_MEMORY_H)
+			#include <memory.h>
+		#endif
+	#endif
+	#undef NDEBUG
+	#if !defined(LZO_DEBUG)
+		#define NDEBUG
+	#endif
+	#if defined(__BOUNDS_CHECKING_ON)
+		#include <unchecked.h>
+	#else
+		#define BOUNDS_CHECKING_OFF_DURING(stmt)      stmt
+		#define BOUNDS_CHECKING_OFF_IN_EXPR(expr)     (expr)
+	#endif
+	#if !defined(LZO_UNUSED)
+		#define LZO_UNUSED(parm)  (parm = parm)
+	#endif
+	#if !defined(__inline__) && !defined(__GNUC__)
+		#if defined(__cplusplus)
+			#define __inline__ inline
+		#else
+			#define __inline__
+		#endif
+	#endif
+	#define LZO_BYTE(x)       ((unsigned char)(x))
+	#define LZO_USHORT(x)     ((unsigned short)((x)&0xffff))
+	#define LZO_MAX3(a, b, c)     ((a) >= (b) ? MAX(a, c) : MAX(b, c))
+	#define LZO_MIN3(a, b, c)     ((a) <= (b) ? MIN(a, c) : MIN(b, c))
+	#define lzo_sizeof(type)    ((lzo_uint)(sizeof(type)))
+	#define LZO_HIGH(array)     ((lzo_uint)(sizeof(array)/sizeof(*(array))))
+	#define LZO_SIZE(bits)      (1u<<(bits))
+	#define LZO_MASK(bits)      (LZO_SIZE(bits)-1)
+	#define LZO_LSIZE(bits)     (1ul<<(bits))
+	#define LZO_LMASK(bits)     (LZO_LSIZE(bits)-1)
+	#define LZO_USIZE(bits)     ((lzo_uint)1<<(bits))
+	#define LZO_UMASK(bits)     (LZO_USIZE(bits)-1)
+	#define LZO_STYPE_MAX(b)    (((1l<<(8*(b)-2))-1l)+(1l<<(8*(b)-2)))
+	#define LZO_UTYPE_MAX(b)    (((1ul<<(8*(b)-1))-1ul)+(1ul<<(8*(b)-1)))
+	#if !defined(SIZEOF_UNSIGNED)
+		#if (UINT_MAX == 0xffff)
+			#define SIZEOF_UNSIGNED         2
+		#elif (UINT_MAX == LZO_0xffffffffL)
+			#define SIZEOF_UNSIGNED         4
+		#elif (UINT_MAX >= LZO_0xffffffffL)
+			#define SIZEOF_UNSIGNED         8
+		#else
+			#error SIZEOF_UNSIGNED
+		#endif
+	#endif
+	#if !defined(SIZEOF_UNSIGNED_LONG)
+		#if (ULONG_MAX == LZO_0xffffffffL)
+			#define SIZEOF_UNSIGNED_LONG    4
+		#elif (ULONG_MAX >= LZO_0xffffffffL)
+			#define SIZEOF_UNSIGNED_LONG    8
+		#else
+			#error SIZEOF_UNSIGNED_LONG
+		#endif
+	#endif
+	#if !defined(SIZEOF_SIZE_T)
+		#define SIZEOF_SIZE_T             SIZEOF_UNSIGNED
+	#endif
+	#if !defined(SIZE_T_MAX)
+		#define SIZE_T_MAX                LZO_UTYPE_MAX(SIZEOF_SIZE_T)
+	#endif
+	#if 1 && defined(__LZO_i386) && (UINT_MAX == LZO_0xffffffffL)
+		#if !defined(LZO_UNALIGNED_OK_2) && (USHRT_MAX == 0xffff)
+			#define LZO_UNALIGNED_OK_2
+		#endif
+		#if !defined(LZO_UNALIGNED_OK_4) && (LZO_UINT32_MAX == LZO_0xffffffffL)
+			#define LZO_UNALIGNED_OK_4
+		#endif
+	#endif
+	#if defined(LZO_UNALIGNED_OK_2) || defined(LZO_UNALIGNED_OK_4)
+		#if !defined(LZO_UNALIGNED_OK)
+			#define LZO_UNALIGNED_OK
+		#endif
+	#endif
+	#if defined(__LZO_NO_UNALIGNED)
+		#undef LZO_UNALIGNED_OK
+		#undef LZO_UNALIGNED_OK_2
+		#undef LZO_UNALIGNED_OK_4
+	#endif
+	#if defined(LZO_UNALIGNED_OK_2) && (USHRT_MAX != 0xffff)
+		#error "LZO_UNALIGNED_OK_2 must not be defined on this system"
+	#endif
+	#if defined(LZO_UNALIGNED_OK_4) && (LZO_UINT32_MAX != LZO_0xffffffffL)
+		#error "LZO_UNALIGNED_OK_4 must not be defined on this system"
+	#endif
+	#if defined(__LZO_NO_ALIGNED)
+		#undef LZO_ALIGNED_OK_4
+	#endif
+	#if defined(LZO_ALIGNED_OK_4) && (LZO_UINT32_MAX != LZO_0xffffffffL)
+		#error "LZO_ALIGNED_OK_4 must not be defined on this system"
+	#endif
+	#define LZO_LITTLE_ENDIAN       1234
+	#define LZO_BIG_ENDIAN          4321
+	#define LZO_PDP_ENDIAN          3412
+	#if !defined(LZO_BYTE_ORDER)
+		#if defined(MFX_BYTE_ORDER)
+			#define LZO_BYTE_ORDER      MFX_BYTE_ORDER
+		#elif defined(__LZO_i386)
+			#define LZO_BYTE_ORDER      LZO_LITTLE_ENDIAN
+		#elif defined(BYTE_ORDER)
+			#define LZO_BYTE_ORDER      BYTE_ORDER
+		#elif defined(__BYTE_ORDER)
+			#define LZO_BYTE_ORDER      __BYTE_ORDER
+		#endif
+	#endif
+	#if defined(LZO_BYTE_ORDER)
+		#if (LZO_BYTE_ORDER != LZO_LITTLE_ENDIAN) && (LZO_BYTE_ORDER != LZO_BIG_ENDIAN)
+			#error "invalid LZO_BYTE_ORDER"
+		#endif
+	#endif
+	#if defined(LZO_UNALIGNED_OK) && !defined(LZO_BYTE_ORDER)
+		#error "LZO_BYTE_ORDER is not defined"
+	#endif
+	#define LZO_OPTIMIZE_GNUC_i386_IS_BUGGY
+	#if defined(NDEBUG) && !defined(LZO_DEBUG) && !defined(__BOUNDS_CHECKING_ON)
+		#if defined(__GNUC__) && defined(__i386__)
+			#if !defined(LZO_OPTIMIZE_GNUC_i386_IS_BUGGY)
+				#define LZO_OPTIMIZE_GNUC_i386
+			#endif
+		#endif
+	#endif
 
- #if !defined(__LZO_IN_MINILZO)
-  #ifndef __LZOCONF_H
-   #include <lzoconf.h>
-  #endif
- #endif
+	extern int __lzo_init_done;
+	extern const lzo_byte __lzo_copyright[];
+	extern const lzo_byte * lzo_copyright(void);
+	extern const lzo_uint32 _lzo_crc32_table[256];
 
- #if !defined(LZO_HAVE_CONFIG_H)
-  #include <string.h>
-  #if !defined(NO_STDLIB_H)
-   #include <stdlib.h>
-  #endif
-  #define HAVE_MEMCMP
-  #define HAVE_MEMCPY
-  #define HAVE_MEMMOVE
-  #define HAVE_MEMSET
- #else
-  #include <sys/types.h>
-  #if defined(STDC_HEADERS)
-   #include <string.h>
-   #include <stdlib.h>
-  #endif
-  #if defined(HAVE_STDDEF_H)
-   #include <stddef.h>
-  #endif
-  #if defined(HAVE_MEMORY_H)
-   #include <memory.h>
-  #endif
- #endif
+	#define _LZO_STRINGIZE(x)           # x
+	#define _LZO_MEXPAND(x)             _LZO_STRINGIZE(x)
 
- #undef NDEBUG
- #if !defined(LZO_DEBUG)
-  #define NDEBUG
- #endif
- #if defined(__BOUNDS_CHECKING_ON)
-  #include <unchecked.h>
- #else
-  #define BOUNDS_CHECKING_OFF_DURING(stmt)      stmt
-  #define BOUNDS_CHECKING_OFF_IN_EXPR(expr)     (expr)
- #endif
+	#define _LZO_CONCAT2(a, b)           a ## b
+	#define _LZO_CONCAT3(a, b, c)         a ## b ## c
+	#define _LZO_CONCAT4(a, b, c, d)       a ## b ## c ## d
+	#define _LZO_CONCAT5(a, b, c, d, e)     a ## b ## c ## d ## e
 
- #if !defined(LZO_UNUSED)
-  #define LZO_UNUSED(parm)  (parm = parm)
- #endif
+	#define _LZO_ECONCAT2(a, b)          _LZO_CONCAT2(a, b)
+	#define _LZO_ECONCAT3(a, b, c)        _LZO_CONCAT3(a, b, c)
+	#define _LZO_ECONCAT4(a, b, c, d)      _LZO_CONCAT4(a, b, c, d)
+	#define _LZO_ECONCAT5(a, b, c, d, e)    _LZO_CONCAT5(a, b, c, d, e)
 
- #if !defined(__inline__) && !defined(__GNUC__)
-  #if defined(__cplusplus)
-   #define __inline__ inline
-  #else
-   #define __inline__
-  #endif
- #endif
+	#define PTR(a)              ((lzo_ptr_t)(a))
+	#define PTR_LINEAR(a)       PTR(a)
+	#define PTR_ALIGNED_4(a)    ((PTR_LINEAR(a)&3) == 0)
+	#define PTR_ALIGNED_8(a)    ((PTR_LINEAR(a)&7) == 0)
+	#define PTR_ALIGNED2_4(a, b) (((PTR_LINEAR(a)|PTR_LINEAR(b))&3) == 0)
+	#define PTR_ALIGNED2_8(a, b) (((PTR_LINEAR(a)|PTR_LINEAR(b))&7) == 0)
 
-#define LZO_BYTE(x)       ((unsigned char)(x))
-#define LZO_USHORT(x)     ((unsigned short)((x)&0xffff))
-#define LZO_MAX3(a, b, c)     ((a) >= (b) ? MAX(a, c) : MAX(b, c))
-#define LZO_MIN3(a, b, c)     ((a) <= (b) ? MIN(a, c) : MIN(b, c))
-#define lzo_sizeof(type)    ((lzo_uint)(sizeof(type)))
-#define LZO_HIGH(array)     ((lzo_uint)(sizeof(array)/sizeof(*(array))))
-#define LZO_SIZE(bits)      (1u<<(bits))
-#define LZO_MASK(bits)      (LZO_SIZE(bits)-1)
-#define LZO_LSIZE(bits)     (1ul<<(bits))
-#define LZO_LMASK(bits)     (LZO_LSIZE(bits)-1)
-#define LZO_USIZE(bits)     ((lzo_uint)1<<(bits))
-#define LZO_UMASK(bits)     (LZO_USIZE(bits)-1)
-#define LZO_STYPE_MAX(b)    (((1l<<(8*(b)-2))-1l)+(1l<<(8*(b)-2)))
-#define LZO_UTYPE_MAX(b)    (((1ul<<(8*(b)-1))-1ul)+(1ul<<(8*(b)-1)))
+	#define PTR_LT(a, b)         (PTR(a) < PTR(b))
+	#define PTR_GE(a, b)         (PTR(a) >= PTR(b))
+	#define PTR_DIFF(a, b)       ((lzo_ptrdiff_t)(PTR(a)-PTR(b)))
 
- #if !defined(SIZEOF_UNSIGNED)
-  #if (UINT_MAX == 0xffff)
-   #define SIZEOF_UNSIGNED         2
-  #elif (UINT_MAX == LZO_0xffffffffL)
-   #define SIZEOF_UNSIGNED         4
-  #elif (UINT_MAX >= LZO_0xffffffffL)
-   #define SIZEOF_UNSIGNED         8
-  #else
-   #error SIZEOF_UNSIGNED
-  #endif
- #endif
+	#ifdef __cplusplus
+		extern "C" {
+	#endif
+	LZO_EXTERN(lzo_ptr_t) __lzo_ptr_linear(const lzo_voidp ptr);
+	#ifdef __cplusplus
+		}
+	#endif
 
- #if !defined(SIZEOF_UNSIGNED_LONG)
-  #if (ULONG_MAX == LZO_0xffffffffL)
-   #define SIZEOF_UNSIGNED_LONG    4
-  #elif (ULONG_MAX >= LZO_0xffffffffL)
-   #define SIZEOF_UNSIGNED_LONG    8
-  #else
-   #error SIZEOF_UNSIGNED_LONG
-  #endif
- #endif
+	typedef union {
+		char   a_char;
+		uchar  a_uchar;
+		short  a_short;
+		ushort a_ushort;
+		int    a_int;
+		uint   a_uint;
+		long   a_long;
+		ulong  a_ulong;
+		lzo_int a_lzo_int;
+		lzo_uint a_lzo_uint;
+		lzo_int32 a_lzo_int32;
+		lzo_uint32 a_lzo_uint32;
+		ptrdiff_t a_ptrdiff_t;
+		lzo_ptrdiff_t a_lzo_ptrdiff_t;
+		lzo_ptr_t a_lzo_ptr_t;
+		char * a_charp;
+		lzo_bytep a_lzo_bytep;
+		lzo_bytepp a_lzo_bytepp;
+	} lzo_align_t;
 
- #if !defined(SIZEOF_SIZE_T)
-  #define SIZEOF_SIZE_T             SIZEOF_UNSIGNED
- #endif
- #if !defined(SIZE_T_MAX)
-  #define SIZE_T_MAX                LZO_UTYPE_MAX(SIZEOF_SIZE_T)
- #endif
-
- #if 1 && defined(__LZO_i386) && (UINT_MAX == LZO_0xffffffffL)
-  #if !defined(LZO_UNALIGNED_OK_2) && (USHRT_MAX == 0xffff)
-   #define LZO_UNALIGNED_OK_2
-  #endif
-  #if !defined(LZO_UNALIGNED_OK_4) && (LZO_UINT32_MAX == LZO_0xffffffffL)
-   #define LZO_UNALIGNED_OK_4
-  #endif
- #endif
-
- #if defined(LZO_UNALIGNED_OK_2) || defined(LZO_UNALIGNED_OK_4)
-  #if !defined(LZO_UNALIGNED_OK)
-   #define LZO_UNALIGNED_OK
-  #endif
- #endif
-
- #if defined(__LZO_NO_UNALIGNED)
-  #undef LZO_UNALIGNED_OK
-  #undef LZO_UNALIGNED_OK_2
-  #undef LZO_UNALIGNED_OK_4
- #endif
-
- #if defined(LZO_UNALIGNED_OK_2) && (USHRT_MAX != 0xffff)
-  #error "LZO_UNALIGNED_OK_2 must not be defined on this system"
- #endif
- #if defined(LZO_UNALIGNED_OK_4) && (LZO_UINT32_MAX != LZO_0xffffffffL)
-  #error "LZO_UNALIGNED_OK_4 must not be defined on this system"
- #endif
-
- #if defined(__LZO_NO_ALIGNED)
-  #undef LZO_ALIGNED_OK_4
- #endif
-
- #if defined(LZO_ALIGNED_OK_4) && (LZO_UINT32_MAX != LZO_0xffffffffL)
-  #error "LZO_ALIGNED_OK_4 must not be defined on this system"
- #endif
-
- #define LZO_LITTLE_ENDIAN       1234
- #define LZO_BIG_ENDIAN          4321
- #define LZO_PDP_ENDIAN          3412
-
- #if !defined(LZO_BYTE_ORDER)
-  #if defined(MFX_BYTE_ORDER)
-   #define LZO_BYTE_ORDER      MFX_BYTE_ORDER
-  #elif defined(__LZO_i386)
-   #define LZO_BYTE_ORDER      LZO_LITTLE_ENDIAN
-  #elif defined(BYTE_ORDER)
-   #define LZO_BYTE_ORDER      BYTE_ORDER
-  #elif defined(__BYTE_ORDER)
-   #define LZO_BYTE_ORDER      __BYTE_ORDER
-  #endif
- #endif
-
- #if defined(LZO_BYTE_ORDER)
-  #if (LZO_BYTE_ORDER != LZO_LITTLE_ENDIAN) && (LZO_BYTE_ORDER != LZO_BIG_ENDIAN)
-   #error "invalid LZO_BYTE_ORDER"
-  #endif
- #endif
-
- #if defined(LZO_UNALIGNED_OK) && !defined(LZO_BYTE_ORDER)
-  #error "LZO_BYTE_ORDER is not defined"
- #endif
-
- #define LZO_OPTIMIZE_GNUC_i386_IS_BUGGY
-
- #if defined(NDEBUG) && !defined(LZO_DEBUG) && !defined(__BOUNDS_CHECKING_ON)
-  #if defined(__GNUC__) && defined(__i386__)
-   #if !defined(LZO_OPTIMIZE_GNUC_i386_IS_BUGGY)
-    #define LZO_OPTIMIZE_GNUC_i386
-   #endif
-  #endif
- #endif
-
-extern int __lzo_init_done;
-extern const lzo_byte __lzo_copyright[];
-extern const lzo_byte * lzo_copyright(void);
-extern const lzo_uint32 _lzo_crc32_table[256];
-
-#define _LZO_STRINGIZE(x)           # x
-#define _LZO_MEXPAND(x)             _LZO_STRINGIZE(x)
-
-#define _LZO_CONCAT2(a, b)           a ## b
-#define _LZO_CONCAT3(a, b, c)         a ## b ## c
-#define _LZO_CONCAT4(a, b, c, d)       a ## b ## c ## d
-#define _LZO_CONCAT5(a, b, c, d, e)     a ## b ## c ## d ## e
-
-#define _LZO_ECONCAT2(a, b)          _LZO_CONCAT2(a, b)
-#define _LZO_ECONCAT3(a, b, c)        _LZO_CONCAT3(a, b, c)
-#define _LZO_ECONCAT4(a, b, c, d)      _LZO_CONCAT4(a, b, c, d)
-#define _LZO_ECONCAT5(a, b, c, d, e)    _LZO_CONCAT5(a, b, c, d, e)
-
-#define PTR(a)              ((lzo_ptr_t)(a))
-#define PTR_LINEAR(a)       PTR(a)
-#define PTR_ALIGNED_4(a)    ((PTR_LINEAR(a)&3) == 0)
-#define PTR_ALIGNED_8(a)    ((PTR_LINEAR(a)&7) == 0)
-#define PTR_ALIGNED2_4(a, b) (((PTR_LINEAR(a)|PTR_LINEAR(b))&3) == 0)
-#define PTR_ALIGNED2_8(a, b) (((PTR_LINEAR(a)|PTR_LINEAR(b))&7) == 0)
-
-#define PTR_LT(a, b)         (PTR(a) < PTR(b))
-#define PTR_GE(a, b)         (PTR(a) >= PTR(b))
-#define PTR_DIFF(a, b)       ((lzo_ptrdiff_t)(PTR(a)-PTR(b)))
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-LZO_EXTERN(lzo_ptr_t) __lzo_ptr_linear(const lzo_voidp ptr);
-#ifdef __cplusplus
-}
-#endif
-
-typedef union {
-	char   a_char;
-	uchar  a_uchar;
-	short  a_short;
-	ushort a_ushort;
-	int    a_int;
-	uint   a_uint;
-	long   a_long;
-	ulong  a_ulong;
-	lzo_int a_lzo_int;
-	lzo_uint a_lzo_uint;
-	lzo_int32 a_lzo_int32;
-	lzo_uint32 a_lzo_uint32;
-	ptrdiff_t a_ptrdiff_t;
-	lzo_ptrdiff_t a_lzo_ptrdiff_t;
-	lzo_ptr_t a_lzo_ptr_t;
-	char * a_charp;
-	lzo_bytep a_lzo_bytep;
-	lzo_bytepp a_lzo_bytepp;
-} lzo_align_t;
-
- #define LZO_DETERMINISTIC
-
- #define LZO_DICT_USE_PTR
-
- #if defined(LZO_DICT_USE_PTR)
-  #define lzo_dict_t    const lzo_bytep
-  #define lzo_dict_p    lzo_dict_t __LZO_MMODEL*
- #else
-  #define lzo_dict_t    lzo_uint
-  #define lzo_dict_p    lzo_dict_t __LZO_MMODEL*
- #endif
-
- #if !defined(lzo_moff_t)
-  #define lzo_moff_t      lzo_uint
- #endif
-
+	#define LZO_DETERMINISTIC
+	#define LZO_DICT_USE_PTR
+	#if defined(LZO_DICT_USE_PTR)
+		#define lzo_dict_t    const lzo_bytep
+		#define lzo_dict_p    lzo_dict_t __LZO_MMODEL*
+	#else
+		#define lzo_dict_t    lzo_uint
+		#define lzo_dict_p    lzo_dict_t __LZO_MMODEL*
+	#endif
+	#if !defined(lzo_moff_t)
+		#define lzo_moff_t      lzo_uint
+	#endif
 #endif
 
 lzo_ptr_t __lzo_ptr_linear(const lzo_voidp ptr)
@@ -574,28 +546,22 @@ static lzo_bool basic_ptr_check(void)
 {
 	lzo_bool r = 1;
 	lzo_bool sanity;
-
 	r &= __lzo_assert(sizeof(char *) >= sizeof(int));
 	r &= __lzo_assert(sizeof(lzo_byte *) >= sizeof(char *));
-
 	r &= __lzo_assert(sizeof(lzo_voidp) == sizeof(lzo_byte *));
 	r &= __lzo_assert(sizeof(lzo_voidp) == sizeof(lzo_voidpp));
 	r &= __lzo_assert(sizeof(lzo_voidp) == sizeof(lzo_bytepp));
 	r &= __lzo_assert(sizeof(lzo_voidp) >= sizeof(lzo_uint));
-
 	r &= __lzo_assert(sizeof(lzo_ptr_t) == sizeof(lzo_voidp));
 	r &= __lzo_assert(sizeof(lzo_ptr_t) >= sizeof(lzo_uint));
-
 	r &= __lzo_assert(sizeof(lzo_ptrdiff_t) >= 4);
 	r &= __lzo_assert(sizeof(lzo_ptrdiff_t) >= sizeof(ptrdiff_t));
-
 #if defined(SIZEOF_CHAR_P)
 	r &= __lzo_assert(SIZEOF_CHAR_P == sizeof(char *));
 #endif
 #if defined(SIZEOF_PTRDIFF_T)
 	r &= __lzo_assert(SIZEOF_PTRDIFF_T == sizeof(ptrdiff_t));
 #endif
-
 	sanity = IS_UNSIGNED(unsigned short) && IS_UNSIGNED(unsigned) && IS_UNSIGNED(unsigned long) && IS_SIGNED(short) && IS_SIGNED(int) && IS_SIGNED(long);
 	if(sanity) {
 		r &= __lzo_assert(IS_UNSIGNED(lzo_ptr_t));

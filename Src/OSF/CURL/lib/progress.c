@@ -22,100 +22,70 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "progress.h"
 #include "curl_printf.h"
-
-/* Provide a string that is 2 + 1 + 2 + 1 + 2 = 8 letters long (plus the zero
-   byte) */
-static void time2str(char * r, curl_off_t seconds)
+//
+// Provide a string that is 2 + 1 + 2 + 1 + 2 = 8 letters long (plus the zero byte) 
+//
+static void FASTCALL time2str(char * r, curl_off_t seconds)
 {
-	curl_off_t d, h, m, s;
 	if(seconds <= 0) {
 		strcpy(r, "--:--:--");
-		return;
-	}
-	h = seconds / CURL_OFF_T_C(3600);
-	if(h <= CURL_OFF_T_C(99)) {
-		m = (seconds - (h*CURL_OFF_T_C(3600))) / CURL_OFF_T_C(60);
-		s = (seconds - (h*CURL_OFF_T_C(3600))) - (m*CURL_OFF_T_C(60));
-		snprintf(r, 9, "%2" CURL_FORMAT_CURL_OFF_T ":%02" CURL_FORMAT_CURL_OFF_T
-		    ":%02" CURL_FORMAT_CURL_OFF_T, h, m, s);
 	}
 	else {
-		/* this equals to more than 99 hours, switch to a more suitable output
-		   format to fit within the limits. */
-		d = seconds / CURL_OFF_T_C(86400);
-		h = (seconds - (d*CURL_OFF_T_C(86400))) / CURL_OFF_T_C(3600);
-		if(d <= CURL_OFF_T_C(999))
-			snprintf(r, 9, "%3" CURL_FORMAT_CURL_OFF_T
-			    "d %02" CURL_FORMAT_CURL_OFF_T "h", d, h);
-		else
-			snprintf(r, 9, "%7" CURL_FORMAT_CURL_OFF_T "d", d);
+		curl_off_t h = seconds / CURL_OFF_T_C(3600);
+		if(h <= CURL_OFF_T_C(99)) {
+			curl_off_t m = (seconds - (h*CURL_OFF_T_C(3600))) / CURL_OFF_T_C(60);
+			curl_off_t s = (seconds - (h*CURL_OFF_T_C(3600))) - (m*CURL_OFF_T_C(60));
+			snprintf(r, 9, "%2" CURL_FORMAT_CURL_OFF_T ":%02" CURL_FORMAT_CURL_OFF_T ":%02" CURL_FORMAT_CURL_OFF_T, h, m, s);
+		}
+		else {
+			// this equals to more than 99 hours, switch to a more suitable output format to fit within the limits
+			curl_off_t d = seconds / CURL_OFF_T_C(86400);
+			h = (seconds - (d*CURL_OFF_T_C(86400))) / CURL_OFF_T_C(3600);
+			if(d <= CURL_OFF_T_C(999))
+				snprintf(r, 9, "%3" CURL_FORMAT_CURL_OFF_T "d %02" CURL_FORMAT_CURL_OFF_T "h", d, h);
+			else
+				snprintf(r, 9, "%7" CURL_FORMAT_CURL_OFF_T "d", d);
+		}
 	}
 }
-
-/* The point of this function would be to return a string of the input data,
-   but never longer than 5 columns (+ one zero byte).
-   Add suffix k, M, G when suitable... */
-static char * max5data(curl_off_t bytes, char * max5)
+// 
+// The point of this function would be to return a string of the input data,
+// but never longer than 5 columns (+ one zero byte).
+// Add suffix k, M, G when suitable... 
+// 
+static char * FASTCALL max5data(curl_off_t bytes, char * max5)
 {
 #define ONE_KILOBYTE  CURL_OFF_T_C(1024)
 #define ONE_MEGABYTE (CURL_OFF_T_C(1024) * ONE_KILOBYTE)
 #define ONE_GIGABYTE (CURL_OFF_T_C(1024) * ONE_MEGABYTE)
 #define ONE_TERABYTE (CURL_OFF_T_C(1024) * ONE_GIGABYTE)
 #define ONE_PETABYTE (CURL_OFF_T_C(1024) * ONE_TERABYTE)
-
 	if(bytes < CURL_OFF_T_C(100000))
 		snprintf(max5, 6, "%5" CURL_FORMAT_CURL_OFF_T, bytes);
-
 	else if(bytes < CURL_OFF_T_C(10000) * ONE_KILOBYTE)
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "k", bytes/ONE_KILOBYTE);
-
-	else if(bytes < CURL_OFF_T_C(100) * ONE_MEGABYTE)
-		/* 'XX.XM' is good as long as we're less than 100 megs */
-		snprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0"
-		    CURL_FORMAT_CURL_OFF_T "M", bytes/ONE_MEGABYTE,
-		    (bytes%ONE_MEGABYTE) / (ONE_MEGABYTE/CURL_OFF_T_C(10)) );
-
+	else if(bytes < CURL_OFF_T_C(100) * ONE_MEGABYTE) // 'XX.XM' is good as long as we're less than 100 megs 
+		snprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0" CURL_FORMAT_CURL_OFF_T "M", bytes/ONE_MEGABYTE, (bytes%ONE_MEGABYTE) / (ONE_MEGABYTE/CURL_OFF_T_C(10)) );
 #if (CURL_SIZEOF_CURL_OFF_T > 4)
-
-	else if(bytes < CURL_OFF_T_C(10000) * ONE_MEGABYTE)
-		/* 'XXXXM' is good until we're at 10000MB or above */
+	else if(bytes < CURL_OFF_T_C(10000) * ONE_MEGABYTE) // 'XXXXM' is good until we're at 10000MB or above 
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "M", bytes/ONE_MEGABYTE);
-
-	else if(bytes < CURL_OFF_T_C(100) * ONE_GIGABYTE)
-		/* 10000 MB - 100 GB, we show it as XX.XG */
-		snprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0"
-		    CURL_FORMAT_CURL_OFF_T "G", bytes/ONE_GIGABYTE,
-		    (bytes%ONE_GIGABYTE) / (ONE_GIGABYTE/CURL_OFF_T_C(10)) );
-
-	else if(bytes < CURL_OFF_T_C(10000) * ONE_GIGABYTE)
-		/* up to 10000GB, display without decimal: XXXXG */
+	else if(bytes < CURL_OFF_T_C(100) * ONE_GIGABYTE) // 10000 MB - 100 GB, we show it as XX.XG 
+		snprintf(max5, 6, "%2" CURL_FORMAT_CURL_OFF_T ".%0" CURL_FORMAT_CURL_OFF_T "G", bytes/ONE_GIGABYTE, (bytes%ONE_GIGABYTE) / (ONE_GIGABYTE/CURL_OFF_T_C(10)));
+	else if(bytes < CURL_OFF_T_C(10000) * ONE_GIGABYTE) // up to 10000GB, display without decimal: XXXXG 
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "G", bytes/ONE_GIGABYTE);
-
-	else if(bytes < CURL_OFF_T_C(10000) * ONE_TERABYTE)
-		/* up to 10000TB, display without decimal: XXXXT */
+	else if(bytes < CURL_OFF_T_C(10000) * ONE_TERABYTE) // up to 10000TB, display without decimal: XXXXT 
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "T", bytes/ONE_TERABYTE);
-
-	else
-		/* up to 10000PB, display without decimal: XXXXP */
+	else // up to 10000PB, display without decimal: XXXXP 
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "P", bytes/ONE_PETABYTE);
-
 	/* 16384 petabytes (16 exabytes) is the maximum a 64 bit unsigned number
 	   can hold, but our data type is signed so 8192PB will be the maximum. */
-
 #else
-
 	else
 		snprintf(max5, 6, "%4" CURL_FORMAT_CURL_OFF_T "M", bytes/ONE_MEGABYTE);
-
 #endif
-
 	return max5;
 }
-
 /*
 
    New proposed interface, 9th of February 2000:
@@ -129,7 +99,6 @@ static char * max5data(curl_off_t bytes, char * max5)
    pgrsDone() - transfer complete
 
  */
-
 int Curl_pgrsDone(struct connectdata * conn)
 {
 	int rc;
@@ -138,13 +107,9 @@ int Curl_pgrsDone(struct connectdata * conn)
 	rc = Curl_pgrsUpdate(conn); /* the final (forced) update */
 	if(rc)
 		return rc;
-
-	if(!(data->progress.flags & PGRS_HIDE) &&
-	    !data->progress.callback)
-		/* only output if we don't use a progress callback and we're not
-		 * hidden */
+	if(!(data->progress.flags & PGRS_HIDE) && !data->progress.callback)
+		// only output if we don't use a progress callback and we're not hidden 
 		fprintf(data->set.err, "\n");
-
 	data->progress.speeder_c = 0; /* reset the progress meter display */
 	return 0;
 }
@@ -156,7 +121,6 @@ void Curl_pgrsResetTimesSizes(struct Curl_easy * data)
 	data->progress.t_connect = 0.0;
 	data->progress.t_pretransfer = 0.0;
 	data->progress.t_starttransfer = 0.0;
-
 	Curl_pgrsSetDownloadSize(data, -1);
 	Curl_pgrsSetUploadSize(data, -1);
 }
@@ -164,47 +128,36 @@ void Curl_pgrsResetTimesSizes(struct Curl_easy * data)
 void Curl_pgrsTime(struct Curl_easy * data, timerid timer)
 {
 	struct timeval now = Curl_tvnow();
-
 	switch(timer) {
 		default:
-		case TIMER_NONE:
-		    /* mistake filter */
+		case TIMER_NONE: // mistake filter 
 		    break;
-		case TIMER_STARTOP:
-		    /* This is set at the start of a transfer */
+		case TIMER_STARTOP: // This is set at the start of a transfer 
 		    data->progress.t_startop = now;
 		    break;
-		case TIMER_STARTSINGLE:
-		    /* This is set at the start of each single fetch */
+		case TIMER_STARTSINGLE: // This is set at the start of each single fetch 
 		    data->progress.t_startsingle = now;
 		    break;
-
 		case TIMER_STARTACCEPT:
 		    data->progress.t_acceptdata = Curl_tvnow();
 		    break;
-
 		case TIMER_NAMELOOKUP:
-		    data->progress.t_nslookup =
-		    Curl_tvdiff_secs(now, data->progress.t_startsingle);
+		    data->progress.t_nslookup = Curl_tvdiff_secs(now, data->progress.t_startsingle);
 		    break;
 		case TIMER_CONNECT:
-		    data->progress.t_connect =
-		    Curl_tvdiff_secs(now, data->progress.t_startsingle);
+		    data->progress.t_connect = Curl_tvdiff_secs(now, data->progress.t_startsingle);
 		    break;
 		case TIMER_APPCONNECT:
-		    data->progress.t_appconnect =
-		    Curl_tvdiff_secs(now, data->progress.t_startsingle);
+		    data->progress.t_appconnect = Curl_tvdiff_secs(now, data->progress.t_startsingle);
 		    break;
 		case TIMER_PRETRANSFER:
-		    data->progress.t_pretransfer =
-		    Curl_tvdiff_secs(now, data->progress.t_startsingle);
+		    data->progress.t_pretransfer = Curl_tvdiff_secs(now, data->progress.t_startsingle);
 		    break;
 		case TIMER_STARTTRANSFER:
-		    data->progress.t_starttransfer =
-		    Curl_tvdiff_secs(now, data->progress.t_startsingle);
+		    data->progress.t_starttransfer = Curl_tvdiff_secs(now, data->progress.t_startsingle);
 		    break;
 		case TIMER_POSTRANSFER:
-		    /* this is the normal end-of-transfer thing */
+		    // this is the normal end-of-transfer thing 
 		    break;
 		case TIMER_REDIRECT:
 		    data->progress.t_redirect = Curl_tvdiff_secs(now, data->progress.start);
@@ -243,47 +196,31 @@ void Curl_pgrsStartNow(struct Curl_easy * data)
  * should be reset (to current), or the number of milliseconds to wait to get
  * back under the speed limit.
  */
-long Curl_pgrsLimitWaitTime(curl_off_t cursize,
-    curl_off_t startsize,
-    curl_off_t limit,
-    struct timeval start,
-    struct timeval now)
+long Curl_pgrsLimitWaitTime(curl_off_t cursize, curl_off_t startsize, curl_off_t limit, struct timeval start, struct timeval now)
 {
 	curl_off_t size = cursize - startsize;
 	time_t minimum;
 	time_t actual;
-
 	/* we don't have a starting point yet -- return 0 so it gets (re)set */
 	if(start.tv_sec == 0 && start.tv_usec == 0)
 		return 0;
-
 	/* not enough data yet */
 	if(size < limit)
 		return -1;
-
 	minimum = (time_t)(CURL_OFF_T_C(1000) * size / limit);
 	actual = Curl_tvdiff(now, start);
-
-	if(actual < minimum)
-		/* this is a conversion on some systems (64bit time_t => 32bit long) */
+	if(actual < minimum) // this is a conversion on some systems (64bit time_t => 32bit long) 
 		return (long)(minimum - actual);
-
 	return 0;
 }
 
 void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size)
 {
 	struct timeval now = Curl_tvnow();
-
 	data->progress.downloaded = size;
-
 	/* download speed limit */
-	if((data->set.max_recv_speed > 0) &&
-	    (Curl_pgrsLimitWaitTime(data->progress.downloaded,
-			    data->progress.dl_limit_size,
-			    data->set.max_recv_speed,
-			    data->progress.dl_limit_start,
-			    now) == 0)) {
+	if((data->set.max_recv_speed > 0) && (Curl_pgrsLimitWaitTime(data->progress.downloaded,
+		data->progress.dl_limit_size, data->set.max_recv_speed, data->progress.dl_limit_start, now) == 0)) {
 		data->progress.dl_limit_start = now;
 		data->progress.dl_limit_size = size;
 	}
@@ -292,16 +229,10 @@ void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size)
 void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size)
 {
 	struct timeval now = Curl_tvnow();
-
 	data->progress.uploaded = size;
-
 	/* upload speed limit */
-	if((data->set.max_send_speed > 0) &&
-	    (Curl_pgrsLimitWaitTime(data->progress.uploaded,
-			    data->progress.ul_limit_size,
-			    data->set.max_send_speed,
-			    data->progress.ul_limit_start,
-			    now) == 0)) {
+	if((data->set.max_send_speed > 0) && (Curl_pgrsLimitWaitTime(data->progress.uploaded,
+		data->progress.ul_limit_size, data->set.max_send_speed, data->progress.ul_limit_start, now) == 0)) {
 		data->progress.ul_limit_start = now;
 		data->progress.ul_limit_size = size;
 	}
@@ -330,7 +261,6 @@ void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size)
 		data->progress.flags &= ~PGRS_UL_SIZE_KNOWN;
 	}
 }
-
 /*
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!

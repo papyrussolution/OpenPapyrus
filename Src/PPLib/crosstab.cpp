@@ -309,7 +309,7 @@ int SLAPI Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STyp
 	DBFieldList flist;
 	flist.Add(crssFld);
 	q.select(flist);
-	THROW_MEM(p_list = new STypArray(crssFld.getField().T, 8));
+	THROW_MEM(p_list = new STypArray(crssFld.getField().T, O_ARRAY));
 	pTbl->search(0, temp_key, spFirst);
 	for(q.initIteration(0, 0, -1); q.nextIteration() > 0;) {
 		const char * p_data_buf = (pTbl->getDataBuf() + crss_fld_offs);
@@ -981,7 +981,7 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 		ZDELETE(P_CtValList);
 		THROW_SL(pCtx->Serialize(-1, tid, rBuf));
 		if(tid) {
-			THROW_MEM(P_CtValList = new STypArray(tid, 8));
+			THROW_MEM(P_CtValList = new STypArray(tid, O_ARRAY));
 			THROW_SL(pCtx->Serialize(-1, P_CtValList, rBuf));
 		}
 	}

@@ -541,9 +541,11 @@ err:
  */
 void __os_dirfree(ENV*env, char ** names, int cnt)
 {
-	while(cnt > 0)
-		__os_free(env, names[--cnt]);
-	__os_free(env, names);
+	if(names) {
+		while(cnt > 0)
+			__os_free(env, names[--cnt]);
+		__os_free(env, names);
+	}
 }
 /*
  * __os_get_errno_ret_zero --
@@ -551,7 +553,7 @@ void __os_dirfree(ENV*env, char ** names, int cnt)
  */
 int __os_get_errno_ret_zero()
 {
-	/* This routine must be able to return the same value repeatedly. */
+	// This routine must be able to return the same value repeatedly
 	return errno;
 }
 

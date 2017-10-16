@@ -546,9 +546,9 @@ int PPImpExpParam::Init(int import)
 	Direction  = BIN(import);
 	// @v8.4.6 ImpExpByDll = 0; // @vmiller
 	DataFormat = 0;
-	FtpAccID = 0;
-	Name = 0;
-	FileName = 0;
+	InetAccID = 0;
+	Name.Z();
+	FileName.Z();
 	HdrInrRec.Clear();
 	HdrOtrRec.Clear();
 	InrRec.Clear();
@@ -683,14 +683,30 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 }
 
 //virtual
-int PPImpExpParam::PreprocessImportFileSpec(const SString & rFileSpec, PPFileNameArray & rList)
+int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
+	rList.clear();
+	int    ok = -1;
+
+	SString _file_spec;
+	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
+
 	SPathStruc ps;
-	ps.Split(rFileSpec);
+	ps.Split(_file_spec);
 	SString wildcard, path;
 	(wildcard = ps.Nam).Dot().Cat(ps.Ext);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
-	return rList.Scan(path, wildcard);
+	//return rList.Scan(path, wildcard);
+	PPFileNameArray ffa;
+	if(ffa.Scan(path, wildcard)) {
+		for(uint fi = 0; ffa.Enum(&fi, 0, &path.Z());) {
+			rList.add(path);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 //virtual
@@ -699,19 +715,133 @@ int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, StrAssocA
 	return -1;
 }
 
-int PPImpExpParam::GetFilesFromSource(const char * pWildcard, PPLogger * pLogger)
+int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger)
 {
+	rList.clear();
 	int    ok = -1;
-	if(Direction /*import*/ && FtpAccID) {
-		PPObjInternetAccount ia_obj;
-		PPInternetAccount ia_pack;
-		if(ia_obj.Get(FtpAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+	if(Direction /*import*/ /*&& InetAccID*/) {
+		SString temp_buf;
+		SString path, wildcard;
+		SString uni_url_buf;
+		InetUrl url;
+		const int urlpr = url.Parse(pUrl);
+		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
+		if(url_prot <= 0 || url_prot == InetUrl::protFile) {
+			if(url_prot == InetUrl::protFile) {
+				url.GetComponent(InetUrl::cPath, 0, temp_buf);
+			}
+			else 
+				temp_buf = pUrl;
+			SPathStruc ps;
+			ps.Split(temp_buf);
+			(wildcard = ps.Nam).Dot().Cat(ps.Ext);
+			ps.Nam.Z();
+			ps.Ext.Z();
+			ps.Merge(path);
+			{
+				PPFileNameArray fna;
+				fna.Scan(path, wildcard);
+				for(uint i = 0; fna.Enum(&i, 0, &temp_buf.Z());) {
+					rList.add(temp_buf);
+				}
+			}
+		}
+		else {
+			PPObjInternetAccount ia_obj;
+			PPInternetAccount ia_pack;
+			SString pw_buf;
+			SUniformFileTransmParam uftp;
+			if(oneof2(url_prot, InetUrl::protFtp, InetUrl::protFtps)) {
+				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
+				THROW_PP_S(ia_pack.Flags & PPInternetAccount::fFtpAccount, PPERR_ACCISNTFTP, ia_pack.Name);
+				ia_pack.GetExtField(FTPAEXSTR_HOST, temp_buf);
+				url.SetComponent(InetUrl::cHost, temp_buf);
+				ia_pack.GetExtField(FTPAEXSTR_PORT, temp_buf);
+				url.SetComponent(InetUrl::cPort, temp_buf);
+				ia_pack.GetExtField(FTPAEXSTR_USER, pw_buf);
+				uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
+				ia_pack.GetExtField(FTPAEXSTR_PASSWORD, temp_buf);
+				Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
+				uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
+				url.Composite(0, uni_url_buf);
+			}
+			else if(oneof2(url_prot, InetUrl::protPOP3, InetUrl::protPOP3S)) {
+				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
+				THROW_PP_S(!(ia_pack.Flags & PPInternetAccount::fFtpAccount), PPERR_ACCISNTEMAIL, ia_pack.Name);
+				ia_pack.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
+				url.SetComponent(InetUrl::cHost, temp_buf);
+				ia_pack.GetExtField(MAEXSTR_RCVPORT, temp_buf);
+				url.SetComponent(InetUrl::cPort, temp_buf);
+				ia_pack.GetExtField(MAEXSTR_RCVNAME, pw_buf);
+				uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
+				ia_pack.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+				Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
+				uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
+				url.Composite(0, uni_url_buf);
+			}
+			else if(url_prot == InetUrl::protMailFrom) {
+				THROW(ia_obj.Get(InetAccID, &ia_pack) > 0);
+				THROW_PP_S(!(ia_pack.Flags & PPInternetAccount::fFtpAccount), PPERR_ACCISNTEMAIL, ia_pack.Name);
+				url.GetComponent(InetUrl::cPath, 0, temp_buf);
+				url.SetProtocol((ia_pack.Flags & ia_pack.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3);
+				ia_pack.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
+				url.SetComponent(InetUrl::cHost, temp_buf);
+				ia_pack.GetExtField(MAEXSTR_RCVPORT, temp_buf);
+				url.SetComponent(InetUrl::cPort, temp_buf);
+				ia_pack.GetExtField(MAEXSTR_RCVNAME, pw_buf);
+				uftp.AccsName = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cUserName, temp_buf.EncodeUrl(pw_buf, 0));
+				ia_pack.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+				Reference::Helper_DecodeOtherPw(0, temp_buf, /*POP3_PW_SIZE*/20, pw_buf);
+				uftp.AccsPassword = pw_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				url.SetComponent(InetUrl::cPassword, temp_buf.EncodeUrl(pw_buf, 0));
+				url.Composite(0, uni_url_buf);
+			}
+			else {
+				CALLEXCEPT(); // protocol is unsupported
+			}
+			{
+				class ProgressInfo {
+				public:
+					static int Proc(const SDataMoveProgressInfo * pInfo)
+					{
+						if(pInfo) {
+							SString msg;
+							if(pInfo->P_Src) {
+								msg.Cat(pInfo->P_Src);
+							}
+							if(pInfo->P_Dest) {
+								if(msg.NotEmpty())
+									msg.Cat(" >> ");
+								msg.Cat(pInfo->P_Dest);
+							}
+							PPWaitPercent(pInfo->OverallSizeDone, pInfo->OverallSizeTotal, msg);
+						}
+						return 0;
+					}
+				};
+				PPGetPath(PPPATH_IN, uftp.DestPath);
+				uftp.SrcPath = uni_url_buf;
+				THROW_SL(uftp.Run(ProgressInfo::Proc, 0));
+				//temp_buf = uftp.Reply;
+				for(uint i = 0; i < uftp.ResultList.getCount(); i++) {
+					const SUniformFileTransmParam::ResultItem & r_ri = uftp.ResultList.at(i);
+					uftp.GetS(r_ri.DestPathP, temp_buf);
+					rList.add(temp_buf);
+				}
+			}
+		}
+		/*if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
 			StrAssocArray file_list;
 			SString ftp_path, file_name;
 			SPathStruc ps;
 			ps.Split(FileName);
-			if(pWildcard)
-				file_name = pWildcard;
+			if(pUrl)
+				file_name = pUrl;
 			else {
                 (file_name = ps.Nam).Dot().Cat(ps.Ext);
 			}
@@ -732,7 +862,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pWildcard, PPLogger * pLogger
                     ok = 1;
 				}
 			}
-		}
+		}*/
 	}
 	CATCH
 		CALLPTRMEMB(pLogger, LogLastError());
@@ -744,10 +874,10 @@ int PPImpExpParam::GetFilesFromSource(const char * pWildcard, PPLogger * pLogger
 int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 {
 	int    ok = -1;
-	if(!Direction /*export*/ && FtpAccID) {
+	if(!Direction /*export*/ && InetAccID) {
 		PPObjInternetAccount ia_obj;
 		PPInternetAccount ia_pack;
-		if(ia_obj.Get(FtpAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+		if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
 			if(fileExists(FileName)) {
 				SString ftp_path, naked_file_name;
 				{
@@ -933,10 +1063,10 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	// } @v8.4.6
 	// @v8.6.1 {
-	if(FtpAccID) {
+	if(InetAccID) {
         PPObjInternetAccount ia_obj;
         PPInternetAccount ia_pack;
-        if(ia_obj.Get(FtpAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+        if(ia_obj.Get(InetAccID, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
 			temp_buf = ia_pack.Symb;
 			if(temp_buf.NotEmptyS()) {
 				THROW(tsl_par.Retranslate(iefFtpAccSymb, symb_buf));
@@ -945,7 +1075,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			}
 			else {
 				THROW(tsl_par.Retranslate(iefFtpAccID, symb_buf));
-				THROW(pFile->AppendIntParam(pSect, symb_buf, FtpAccID, 1));
+				THROW(pFile->AppendIntParam(pSect, symb_buf, InetAccID, 1));
 			}
         }
         else {
@@ -953,7 +1083,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
         	// Вполне возможно, что идент аккаунта принадлежит другой базе данных, потому сохраняем его без изменений
         	//
 			THROW(tsl_par.Retranslate(iefFtpAccID, symb_buf));
-			THROW(pFile->AppendIntParam(pSect, symb_buf, FtpAccID, 1));
+			THROW(pFile->AppendIntParam(pSect, symb_buf, InetAccID, 1));
         }
 	}
 	// } @v8.6.1
@@ -1137,7 +1267,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	PPSymbTranslator tsl_par(PPSSYM_IMPEXPPAR);
 	Name = pSect;
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
-	FtpAccID = 0; // @v9.3.7.
+	InetAccID = 0; // @v9.3.7.
 	pFile->SetFlag(SIniFile::fWinCoding, 0);
 	pFile->GetEntries(Name, &param_list, 1);
 	for(uint pos = 0; param_list.get(&pos, ini_param);) {
@@ -1262,17 +1392,17 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
                 	PPInternetAccount ia_pack;
                 	PPID   ia_id = 0;
                 	(msg_buf = val).Transf(CTRANSF_OUTER_TO_INNER);
-                	if(ia_obj.SearchBySymb(msg_buf, &ia_id, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-                		FtpAccID = ia_pack.ID;
+                	if(ia_obj.SearchBySymb(msg_buf, &ia_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
+                		InetAccID = ia_pack.ID;
                 	}
                 }
 				break;
 			case iefFtpAccID:
-				if(!FtpAccID) {
+				if(!InetAccID) {
                 	PPObjInternetAccount ia_obj;
                 	PPInternetAccount ia_pack;
-					if(ia_obj.Get(val.ToLong(), &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-						FtpAccID = ia_pack.ID;
+					if(ia_obj.Get(val.ToLong(), &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
+						InetAccID = ia_pack.ID;
 					}
 				}
 				break;
@@ -1436,7 +1566,8 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 	setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 	// @v8.6.1 {
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
-		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.FtpAccID, OLW_CANINSERT, (void *)INETACCT_ONLYFTP);
+		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.InetAccID, OLW_CANINSERT, 
+			(void *)(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail)/*INETACCT_ONLYFTP*/);
 	}
 	// } @v8.6.1
 	name = Data.Name;
@@ -1466,8 +1597,8 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 		if(acc_id) {
 			PPObjInternetAccount ia_obj;
 			PPInternetAccount ia_pack;
-			if(ia_obj.Get(acc_id, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-				Data.FtpAccID = acc_id;
+			if(ia_obj.Get(acc_id, &ia_pack) > 0 /*&& ia_pack.Flags & PPInternetAccount::fFtpAccount*/) {
+				Data.InetAccID = acc_id;
 			}
 		}
 	}

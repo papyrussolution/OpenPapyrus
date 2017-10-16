@@ -132,7 +132,7 @@ void ProfileEntry::Destroy()
 	ZFREE(P_AddedInfo);
 }
 
-SLAPI Profile::Profile(int singleThreaded) : SProfile(singleThreaded), SArray(sizeof(ProfileEntry), 64, O_ARRAY|aryEachItem)
+SLAPI Profile::Profile(int singleThreaded) : SProfile(singleThreaded), SArray(sizeof(ProfileEntry), /*64,*/O_ARRAY|aryEachItem)
 {
 	/*
 	StartClock = 0;
@@ -1127,12 +1127,7 @@ struct UserProfileLoadCacheStartEntry {
 	long   Flags;
 };
 
-IMPL_CMPFUNC(UserProfileLoadCacheEntry, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (const UserProfileLoadCacheStartEntry *)i1, (const UserProfileLoadCacheStartEntry *)i2, SessID, SeqID);
-	return si;
-}
+IMPL_CMPFUNC(UserProfileLoadCacheEntry, i1, i2) { RET_CMPCASCADE2((const UserProfileLoadCacheStartEntry *)i1, (const UserProfileLoadCacheStartEntry *)i2, SessID, SeqID); }
 
 int SLAPI PPUserProfileCore::OpenInputFile(const char * pFileName, int64 offset, SFile & rF)
 {

@@ -46,7 +46,7 @@
 //
 //   Sync_BillTaxArray
 //
-struct Sync_BillTaxEntry {
+struct Sync_BillTaxEntry { // @flat
 	SLAPI  Sync_BillTaxEntry()
 	{
 		THISZERO();
@@ -56,9 +56,9 @@ struct Sync_BillTaxEntry {
 	double Amount;
 };
 
-class Sync_BillTaxArray : public SArray {
+class Sync_BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  Sync_BillTaxArray() : SArray(sizeof(Sync_BillTaxEntry))
+	SLAPI  Sync_BillTaxArray() : SVector(sizeof(Sync_BillTaxEntry))
 	{
 	}
 	SLAPI ~Sync_BillTaxArray()
@@ -71,12 +71,7 @@ public:
 	Sync_BillTaxEntry & SLAPI  at(uint p);
 };
 
-IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2)
-{
-	int    si;
-	CMPCASCADE2(si, (Sync_BillTaxEntry*)i1, (Sync_BillTaxEntry*)i2, VAT, SalesTax);
-	return si;
-}
+IMPL_CMPFUNC(Sync_BillTaxEnKey, i1, i2) { RET_CMPCASCADE2((const Sync_BillTaxEntry*)i1, (const Sync_BillTaxEntry*)i2, VAT, SalesTax); }
 
 int SLAPI Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 {
@@ -93,7 +88,7 @@ int SLAPI Sync_BillTaxArray::Insert(Sync_BillTaxEntry * e, uint * p)
 
 Sync_BillTaxEntry & SLAPI Sync_BillTaxArray::at(uint p)
 {
-	return *(Sync_BillTaxEntry*)SArray::at(p);
+	return *(Sync_BillTaxEntry*)SVector::at(p); // @v9.8.4 SArray-->SVector
 }
 
 int SLAPI Sync_BillTaxArray::Add(Sync_BillTaxEntry * e)

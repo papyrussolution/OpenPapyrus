@@ -758,7 +758,7 @@ int SLAPI DL2_Data::Print(FILE * pStream) const
 //
 //
 //
-SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), 3, aryDataOwner | aryPtrContainer)
+SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwner|aryPtrContainer)
 {
 }
 //

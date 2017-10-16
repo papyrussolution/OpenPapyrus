@@ -516,7 +516,7 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 //
 GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
-	Pool.setDelta(1024);
+	//Pool.setDelta(1024);
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
 

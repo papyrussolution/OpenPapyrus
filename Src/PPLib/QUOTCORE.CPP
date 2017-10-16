@@ -116,12 +116,7 @@ PPQuotItem_::PPQuotItem_(const PPQuot & rS)
 	Val = rS.Quot;
 }
 
-IMPL_CMPFUNC(PPQuotItem_, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE6(si, (PPQuotItem_ *)i1, (PPQuotItem_ *)i2, GoodsID, KindID, LocID, ArID, CurID, Period);
-	return si;
-}
+IMPL_CMPFUNC(PPQuotItem_, i1, i2) { RET_CMPCASCADE6((const PPQuotItem_ *)i1, (const PPQuotItem_ *)i2, GoodsID, KindID, LocID, ArID, CurID, Period); }
 
 PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArray-->TSVector
 {
@@ -419,12 +414,7 @@ int FASTCALL PPQuot::CheckForFilt(const QuotFilt * pFilt, const PPIDArray * pKin
 	return 1;
 }
 
-IMPL_CMPFUNC(PPQuot, i1, i2)
-{
-	int    si;
-	CMPCASCADE4(si, (PPQuot*)i1, (PPQuot*)i2, LocID, Kind, CurID, ArID);
-	return si;
-}
+IMPL_CMPFUNC(PPQuot, i1, i2) { RET_CMPCASCADE4((const PPQuot*)i1, (const PPQuot*)i2, LocID, Kind, CurID, ArID); }
 //
 // PPQuotArray
 //

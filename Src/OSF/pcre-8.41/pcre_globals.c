@@ -50,9 +50,6 @@
 
    Also, when compiling for Virtual Pascal, things are done differently, and
    global variables are not used. */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

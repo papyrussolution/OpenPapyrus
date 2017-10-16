@@ -22,16 +22,12 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "slist.h"
-/* The last #include files should be: */
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* returns last node in linked list */
 static struct curl_slist * slist_get_last(struct curl_slist * list)
 {
-	struct curl_slist     * item;
+	struct curl_slist * item;
 	/* if caller passed us a NULL, return now */
 	if(!list)
 		return NULL;
@@ -110,16 +106,15 @@ struct curl_slist * Curl_slist_duplicate(struct curl_slist * inlist)
 /* be nice and clean up resources */
 void curl_slist_free_all(struct curl_slist * list)
 {
-	struct curl_slist     * next;
-	struct curl_slist     * item;
-	if(!list)
-		return;
-	item = list;
-	do {
-		next = item->next;
-		ZFREE(item->data);
-		SAlloc::F(item);
-		item = next;
-	} while(next);
+	if(list) {
+		struct curl_slist * item = list;
+		struct curl_slist * next;
+		do {
+			next = item->next;
+			ZFREE(item->data);
+			SAlloc::F(item);
+			item = next;
+		} while(next);
+	}
 }
 

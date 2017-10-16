@@ -5241,7 +5241,7 @@ private:
 	int    SLAPI _readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition);
 	SString FileName;
 	FILE   * Stream;
-	SArray * Index;
+	SVector * P_Index;
 	int      HeaderType;
 };
 

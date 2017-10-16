@@ -1850,7 +1850,7 @@ int SLAPI PrcssrBizScore::EditParam(Param * pParam)
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 0, Param::fExportXml);
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 1, Param::fSendToFTP);
 			dlg->SetClusterData(CTL_BIZSCPRC_FLAGS, data.Flags);
-			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, (void *)INETACCT_ONLYFTP);
+			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(!GetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period))
 					PPErrorByDialog(dlg, CTL_BIZSCPRC_PERIOD);

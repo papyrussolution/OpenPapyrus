@@ -92,18 +92,10 @@
 #else
 	#error "Can't compile NTLM support without a crypto library."
 #endif
-//#include "urldata.h"
-//#include "non-ascii.h"
-//#include "strcase.h"
 #include "curl_ntlm_core.h"
-//#include "curl_md5.h"
-//#include "curl_hmac.h"
-//#include "warnless.h"
 #include "curl_endian.h"
 #include "curl_des.h"
-/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 #define NTLM_HMAC_MD5_LEN     (16)

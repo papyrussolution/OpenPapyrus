@@ -106,7 +106,6 @@ struct brw_indirect {
 };
 
 struct brw_glsl_label;
-
 struct brw_glsl_call;
 
 #define BRW_EU_MAX_INSN_STACK 5
@@ -114,34 +113,20 @@ struct brw_glsl_call;
 
 struct brw_compile {
 	struct brw_instruction store[BRW_EU_MAX_INSN];
-
 	uint32_t nr_insn;
-
 	cairo_bool_t is_g4x;
-
-	/* Allow clients to push/pop instruction state:
-	 */
+	// Allow clients to push/pop instruction state:
 	struct brw_instruction stack[BRW_EU_MAX_INSN_STACK];
-
 	struct brw_instruction * current;
-
 	uint32_t flag_value;
 	int single_program_flow;
 	struct brw_context * brw;
-
 	struct brw_glsl_label * first_label; /*< linked list of labels */
-
 	struct brw_glsl_call * first_call; /*< linked list of CALs */
 };
 
-cairo_private void brw_save_label(struct brw_compile * c,
-    const char * name,
-    uint32_t position);
-
-cairo_private void brw_save_call(struct brw_compile * c,
-    const char * name,
-    uint32_t call_pos);
-
+cairo_private void brw_save_label(struct brw_compile * c, const char * name, uint32_t position);
+cairo_private void brw_save_call(struct brw_compile * c, const char * name, uint32_t call_pos);
 cairo_private void brw_resolve_cals(struct brw_compile * c);
 
 static cairo_always_inline int type_sz(uint32_t type)

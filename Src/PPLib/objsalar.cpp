@@ -843,22 +843,8 @@ int SLAPI PPStaffCalPacket::GetTimeChunkList(const DateRange & rPeriod, STimeChu
 	return ok;
 }
 
-IMPL_CMPFUNC(STAFFCALREC, i1, i2)
-{
-	int    r;
-	// @v6.3.1 CMPCASCADE4(r, (StaffCalendarTbl::Rec*)i1, (StaffCalendarTbl::Rec*)i2, CalID, Kind, DtVal, TmStart);
-	CMPCASCADE3(r, (StaffCalendarTbl::Rec*)i1, (StaffCalendarTbl::Rec*)i2, CalID, DtVal, TmStart); // @v6.3.1
-	return r;
-}
-
-IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2)
-{
-	int    r;
-	// @v6.3.1 CMPCASCADE3(r, (StaffCalendarTbl::Rec*)i1, (StaffCalendarTbl::Rec*)i2, CalID, Kind, DtVal);
-	CMPCASCADE2(r, (StaffCalendarTbl::Rec*)i1, (StaffCalendarTbl::Rec*)i2, CalID, DtVal); // @v6.3.1
-	return r;
-}
-
+IMPL_CMPFUNC(STAFFCALREC, i1, i2) { RET_CMPCASCADE3((const StaffCalendarTbl::Rec*)i1, (const StaffCalendarTbl::Rec*)i2, CalID, DtVal, TmStart); }
+IMPL_CMPFUNC(STAFFCALREC_WO_TM, i1, i2) { RET_CMPCASCADE2((const StaffCalendarTbl::Rec*)i1, (const StaffCalendarTbl::Rec*)i2, CalID, DtVal); }
 
 int SLAPI PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::Rec * pRec) const
 {
@@ -866,14 +852,13 @@ int SLAPI PPStaffCalPacket::SearchContinuousEntry(long dtVal, StaffCalendarTbl::
 	// Предполагаем, что массив Items отсортирован по критерию CMPFUNC(STAFFCALREC)
 	//
 	uint   c = Items.getCount();
-	if(c)
-		do {
-			const StaffCalendarTbl::Rec & r_rec = Items.at(--c);
-			if(r_rec.DtVal <= dtVal && r_rec.Flags & STCALEF_CONTINUOUS) {
-				ASSIGN_PTR(pRec, r_rec);
-				return 1;
-			}
-		} while(c);
+	if(c) do {
+		const StaffCalendarTbl::Rec & r_rec = Items.at(--c);
+		if(r_rec.DtVal <= dtVal && r_rec.Flags & STCALEF_CONTINUOUS) {
+			ASSIGN_PTR(pRec, r_rec);
+			return 1;
+		}
+	} while(c);
 	return 0;
 }
 

@@ -3256,16 +3256,11 @@ int SLAPI CCheckCore::IsLostJunkCheck(PPID id, S_GUID * pExtUuid, PPSession::Reg
 //
 //
 //
-IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE4(si, (CCheckGoodsEntry *)i1, (CCheckGoodsEntry *)i2, Dt, Sign, GoodsID, SerialID);
-	return si;
-}
+IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4((const CCheckGoodsEntry *)i1, (const CCheckGoodsEntry *)i2, Dt, Sign, GoodsID, SerialID); }
 
-SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSArray <CCheckGoodsEntry>()
+SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> () // @v9.8.4 TSArray-->TSVector
 {
-	setDelta(32);
+	//setDelta(32);
 	Sum = 0.0;
 }
 
@@ -3292,8 +3287,7 @@ int SLAPI CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID 
 	uint   pos = 0;
 	if(price == 0.0 && pRec->Dscnt != 0.0) {
 		//
-		// Специальный случай: скидка суммой на весь чек, не распределенная //
-		// по строкам чека.
+		// Специальный случай: скидка суммой на весь чек, не распределенная по строкам чека.
 		// Включаем такую строку в группировку для возврата.
 		//
 		sign = -1;
@@ -3366,7 +3360,7 @@ int SLAPI CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCh
 	Reference * p_ref = PPRef;
 	uint   i;
 	LDATE  curdt = getcurdate_();
-	SArray chk_list(sizeof(ChkItem), 32, O_ARRAY);
+	SArray chk_list(sizeof(ChkItem), /*32,*/ O_ARRAY);
 	{
 		PPTransaction tra((flags & gglfUpdChecks) && use_ta);
 		THROW(tra);
@@ -3926,14 +3920,9 @@ int SLAPI CGoodsLine::CalcSessTotal(PPID sessID, CSessTotal * pTotal)
 //
 //
 //
-IMPL_CMPFUNC(CSessDfctItem_DateGoods, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (CSessDfctItem *)i1, (CSessDfctItem *)i2, Dt, GoodsID);
-	return si;
-}
+IMPL_CMPFUNC(CSessDfctItem_DateGoods, i1, i2) { RET_CMPCASCADE2((const CSessDfctItem *)i1, (const CSessDfctItem *)i2, Dt, GoodsID); }
 
-SLAPI CSessDfctList::CSessDfctList() : TSArray <CSessDfctItem>()
+SLAPI CSessDfctList::CSessDfctList() : TSVector <CSessDfctItem> ()
 {
 }
 

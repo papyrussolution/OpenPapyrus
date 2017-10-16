@@ -62,7 +62,7 @@ void Curl_sndbufset(curl_socket_t sockfd);
 
 void Curl_updateconninfo(struct connectdata * conn, curl_socket_t sockfd);
 void Curl_persistconninfo(struct connectdata * conn);
-int Curl_closesocket(struct connectdata * conn, curl_socket_t sock);
+int FASTCALL Curl_closesocket(struct connectdata * conn, curl_socket_t sock);
 
 /*
  * The Curl_sockaddr_ex structure is basically libcurl's external API

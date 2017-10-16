@@ -237,7 +237,7 @@ int SLAPI PPViewObjLikeness::CreateLikenessTable()
 		ObjLikenessTbl::Rec lkns_rec;
 		Goods2Tbl::Key0 k0;
 		Goods2Tbl::Rec grec1, grec2;
-		SArray likeness_list(sizeof(ObjLikenessTbl::Rec), 32, O_ARRAY);
+		SArray likeness_list(sizeof(ObjLikenessTbl::Rec), /*32,*/O_ARRAY);
 		StrAssocArray list;
 		PPObjGoods gobj;
 		GoodsIterator gi;

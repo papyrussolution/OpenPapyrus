@@ -190,15 +190,15 @@ typedef struct __db_lockpart{ /* SHARED */
  * by the environment, as opposed to the internal one laid out in the region.)
  */
 struct __db_locktab {
-	ENV		*env;		/* Environment. */
-	REGINFO		 reginfo;	/* Region information. */
-	uint8	*conflicts;	/* Pointer to conflict matrix. */
-	DB_LOCKPART	*part_array;	/* Beginning of partition array. */
+	ENV  * env;        // Environment
+	REGINFO reginfo;   // Region information
+	uint8 * conflicts; // Pointer to conflict matrix
+	DB_LOCKPART * part_array; // Beginning of partition array
 #ifdef HAVE_STATISTICS
-	DB_LOCK_HSTAT	*obj_stat;	/* Object hash stats array. */
+	DB_LOCK_HSTAT * obj_stat; // Object hash stats array
 #endif
-	DB_HASHTAB	*obj_tab;	/* Beginning of object hash table. */
-	DB_HASHTAB	*locker_tab;	/* Beginning of locker hash table. */
+	DB_HASHTAB * obj_tab;    // Beginning of object hash table
+	DB_HASHTAB * locker_tab; // Beginning of locker hash table
 };
 
 /*

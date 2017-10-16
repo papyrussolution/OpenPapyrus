@@ -627,8 +627,7 @@ int __db_pg_alloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, vo
 		 */
 		if(DB_UNDO(op))
 			goto do_truncate;
-		if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL,
-			    DB_MPOOL_CREATE, &pagep)) != 0) {
+		if((ret = __memp_fget(mpf, &argp->pgno, ip, NULL, DB_MPOOL_CREATE, &pagep)) != 0) {
 			if(DB_UNDO(op) && ret == ENOSPC)
 				goto do_truncate;
 			ret = __db_pgerr(file_dbp, argp->pgno, ret);

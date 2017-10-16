@@ -452,24 +452,19 @@ static int TestBillRec(const PPDraftWrOffEntry * pDwoEntry, const BillTbl::Rec &
 		(!pDwoEntry->LocID || pDwoEntry->LocID == rRec.LocID) && (!pDfctList || !pDfctList->lsearch(rRec.ID)));
 }
 
-struct DwoBillEntry {
+struct DwoBillEntry { // @flat
 	LDATE  Dt;
 	PPID   LocID;
 	PPID   ID;
 };
 
-static IMPL_CMPFUNC(DwoBillEntry, i1, i2)
-{
-	int    si;
-	CMPCASCADE3(si, (DwoBillEntry *)i1, (DwoBillEntry *)i2, Dt, LocID, ID);
-	return si;
-}
+static IMPL_CMPFUNC(DwoBillEntry, i1, i2) { RET_CMPCASCADE3((const DwoBillEntry *)i1, (const DwoBillEntry *)i2, Dt, LocID, ID); }
 
 int SLAPI PrcssrWrOffDraft::ArrangeBillList(PPIDArray * pList)
 {
 	int    ok = 1;
 	uint   i;
-	SArray temp_list(sizeof(DwoBillEntry));
+	SVector temp_list(sizeof(DwoBillEntry)); // @v9.8.4 TSArray-->TSVector
 	for(i = 0; i < pList->getCount(); i++) {
 		const PPID bill_id = pList->get(i);
 		BillTbl::Rec bill_rec;

@@ -40,12 +40,12 @@ struct curl_llist {
 	size_t size;
 };
 
-void Curl_llist_init(struct curl_llist *, curl_llist_dtor);
-int Curl_llist_insert_next(struct curl_llist *, struct curl_llist_element *, const void *);
-int Curl_llist_remove(struct curl_llist *, struct curl_llist_element *, void *);
-size_t Curl_llist_count(struct curl_llist *);
-void Curl_llist_destroy(struct curl_llist *, void *);
-int Curl_llist_move(struct curl_llist *, struct curl_llist_element *, struct curl_llist *, struct curl_llist_element *);
+void   FASTCALL Curl_llist_init(struct curl_llist *, curl_llist_dtor);
+int    FASTCALL Curl_llist_insert_next(struct curl_llist *, struct curl_llist_element *, const void *);
+int    FASTCALL Curl_llist_remove(struct curl_llist *, struct curl_llist_element *, void *);
+size_t FASTCALL Curl_llist_count(struct curl_llist *);
+void   FASTCALL Curl_llist_destroy(struct curl_llist *, void *);
+int    Curl_llist_move(struct curl_llist *, struct curl_llist_element *, struct curl_llist *, struct curl_llist_element *);
 
 #endif /* HEADER_CURL_LLIST_H */
 

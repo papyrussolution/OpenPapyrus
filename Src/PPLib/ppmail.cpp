@@ -16,9 +16,12 @@ int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 	int    r = 0;
 	PPInternetAccount * p_acct = (PPInternetAccount*)pData;
 	if(pData)
-		if(p_acct->Flags & PPInternetAccount::fFtpAccount)
-			r = BIN(extra_param == INETACCT_ONLYFTP);
-		else if(extra_param == INETACCT_ONLYMAIL)
+		if(p_acct->Flags & PPInternetAccount::fFtpAccount) {
+			//r = BIN(extra_param == INETACCT_ONLYFTP);
+			r = BIN(extra_param & PPObjInternetAccount::filtfFtp);
+		}
+		//else if(extra_param == INETACCT_ONLYMAIL) 
+		else if(extra_param & PPObjInternetAccount::filtfMail)
 			r = 1;
 	return r;
 }
@@ -64,7 +67,7 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 	};
 	int    ok = -1;
 	const  long extra_param = (long)extraPtr;
-	if(extra_param == INETACCT_ONLYMAIL) {
+	if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) {
 		MailAcctsView * p_dlg = 0;
 		if(CheckRights(PPR_READ) && CheckDialogPtr(&(p_dlg = new MailAcctsView(this, extraPtr)))) {
 			ExecView(p_dlg);
@@ -441,19 +444,31 @@ public:
 
 int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 {
-	const  long extra_param = (long)extraPtr;
+	long   extra_param = (long)extraPtr;
 	int    r = cmCancel, ok = 1, valid_data = 0;
 	PPInternetAccount rec;
 	InetAcctDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
-	if(extra_param == INETACCT_ONLYMAIL)
-		dlg = new MailAcctDialog();
-	else if(extra_param == INETACCT_ONLYFTP)
-		dlg = new FTPAcctDialog();
-	THROW(CheckDialogPtr(&dlg));
 	if(*pID) {
 		THROW(Get(*pID, &rec) > 0);
+		if(rec.Flags & rec.fFtpAccount)
+			extra_param = PPObjInternetAccount::filtfFtp;
+		else
+			extra_param = PPObjInternetAccount::filtfMail;
 	}
+	if(!oneof2(extra_param, PPObjInternetAccount::filtfMail, PPObjInternetAccount::filtfFtp)) {
+		uint   t = 0;
+		SelectorDialog(DLG_SELIACC, CTL_SELIACC_WHAT, &t, 0);
+		if(t == 0)
+			extra_param = PPObjInternetAccount::filtfMail;
+		else if(t == 1)
+			extra_param = PPObjInternetAccount::filtfFtp;
+	}
+	if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/)
+		dlg = new MailAcctDialog();
+	else if(extra_param == PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/)
+		dlg = new FTPAcctDialog();
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		if(dlg->getDTS(&rec)) {

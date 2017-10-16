@@ -61,7 +61,10 @@ int __bam_split(DBC*dbc, void * arg, db_pgno_t * root_pgnop)
 {
 	BTREE_CURSOR * cp;
 	DB_LOCK metalock, next_lock;
-	enum { UP, DOWN } dir;
+	enum { 
+		UP, 
+		DOWN 
+	} dir;
 	db_pgno_t pgno, next_pgno, root_pgno;
 	int exact, level, ret;
 	if(F_ISSET(dbc, DBC_OPD))
@@ -69,18 +72,14 @@ int __bam_split(DBC*dbc, void * arg, db_pgno_t * root_pgnop)
 	cp = (BTREE_CURSOR *)dbc->internal;
 	LOCK_INIT(next_lock);
 	next_pgno = PGNO_INVALID;
-
 	/*
 	 * First get a lock on the metadata page, we will have to allocate
 	 * pages and cannot get a lock while we have the search tree pinnned.
 	 */
-
 	pgno = PGNO_BASE_MD;
-	if((ret = __db_lget(dbc,
-		    0, pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+	if((ret = __db_lget(dbc, 0, pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 		goto err;
 	root_pgno = BAM_ROOT_PGNO(dbc);
-
 	/*
 	 * The locking protocol we use to avoid deadlock to acquire locks by
 	 * walking down the tree, but we do it as lazily as possible, locking
@@ -117,10 +116,9 @@ retry:
 			__bam_rsearch(dbc, (db_recno_t *)arg, SR_WRPAIR, level, &exact))) != 0)
 			break;
 		if(cp->csp[0].page->pgno == root_pgno) {
-			/* we can overshoot the top of the tree. */
+			// we can overshoot the top of the tree
 			level = cp->csp[0].page->level;
-			if(root_pgnop)
-				*root_pgnop = root_pgno;
+			ASSIGN_PTR(root_pgnop, root_pgno);
 		}
 		else if(root_pgnop)
 			*root_pgnop = cp->csp[-1].page->pgno;
@@ -135,10 +133,9 @@ retry:
 				goto err;
 			goto no_split;
 		}
-		/*
-		 * We need to try to lock the next page so we can update
-		 * its PREV.
-		 */
+		//
+		// We need to try to lock the next page so we can update its PREV.
+		//
 		if(ISLEAF(cp->csp->page) && (pgno = NEXT_PGNO(cp->csp->page)) != PGNO_INVALID) {
 			TRY_LOCK(dbc, pgno, next_pgno, next_lock, DB_LOCK_WRITE, retry);
 			if(ret != 0)
@@ -146,7 +143,6 @@ retry:
 		}
 		ret = cp->csp[0].page->pgno == root_pgno ? __bam_root(dbc, &cp->csp[0]) : __bam_page(dbc, &cp->csp[-1], &cp->csp[0]);
 		BT_STK_CLR(cp);
-
 		switch(ret) {
 		    case 0:
 no_split:               /* Once we've split the leaf page, we're done. */
@@ -170,8 +166,7 @@ no_split:               /* Once we've split the leaf page, we're done. */
 			goto err;
 		}
 	}
-	if(root_pgnop)
-		*root_pgnop = BAM_ROOT_PGNO(dbc);
+	ASSIGN_PTR(root_pgnop, BAM_ROOT_PGNO(dbc));
 err:
 done:
 	__LPUT(dbc, metalock);

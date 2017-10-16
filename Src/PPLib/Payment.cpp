@@ -1811,7 +1811,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 //
 //
 //
-struct CBO_BillEntry {
+struct CBO_BillEntry { // @flat
 	PPID   ID;
 	LDATE  Dt;
 	PPID   ArID;
@@ -1820,17 +1820,12 @@ struct CBO_BillEntry {
 	char   Code[24];
 };
 
-IMPL_CMPFUNC(CBO_BillEntry, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE4(si, (CBO_BillEntry *)i1, (CBO_BillEntry *)i2, ArID, Ar2ID, Dt, Amount);
-	return si;
-}
+IMPL_CMPFUNC(CBO_BillEntry, i1, i2) { RET_CMPCASCADE4((const CBO_BillEntry *)i1, (const CBO_BillEntry *)i2, ArID, Ar2ID, Dt, Amount); }
 
 int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGPaymentOrderList & rOrderList)
 {
 	int    ok = -1;
-	SArray list(sizeof(CBO_BillEntry));
+	SVector list(sizeof(CBO_BillEntry)); // @v9.8.4 SArray-->SVector
 	for(uint i = 0; i < rBillList.getCount(); i++) {
 		BillTbl::Rec bill_rec;
 		if(Search(rBillList.get(i), &bill_rec) > 0 && bill_rec.Object && CheckOpFlags(bill_rec.OpID, OPKF_NEEDPAYMENT)) {

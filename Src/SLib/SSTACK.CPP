@@ -11,12 +11,12 @@
 #define _INTRPTR(ptr) ((flags&aryPtrContainer)?&(ptr):(ptr))
 #define _BDATA        PTR8(data)
 
-SLAPI SStack::SStack(uint itemSize, uint aDelta, int o) : SArray(itemSize, aDelta, o)
+SLAPI SStack::SStack(uint itemSize, /*uint aDelta,*/ uint o) : SArray(itemSize, /*aDelta,*/ o)
 {
 	pointer = 0;
 	// @v9.8.1 {
-	if(flags & aryRing && delta) {
-		expand(delta);
+	if(flags & aryRing/* && delta*/) {
+		// @v9.8.4 expand(/*delta*/32);
 	}
 	// } @v9.8.1 
 }
@@ -111,7 +111,7 @@ void * SLAPI SStack::peek() const
 //
 //
 //
-SLAPI SQueue::SQueue(uint itemSize, uint queueSize, int o) : SArray(itemSize, 8, o)
+SLAPI SQueue::SQueue(uint itemSize, uint queueSize, uint o) : SArray(itemSize, /*8,*/ o)
 {
 	QueueSize = queueSize;
 	Front = End = 0;

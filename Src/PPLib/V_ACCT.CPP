@@ -137,12 +137,7 @@ int FASTCALL PPViewAccount::CheckForFilt(const PPAccount & rItem) const
 	return BIN(rItem.CurID == 0 && (!Filt.Type || rItem.Type == Filt.Type) && ObjRts.CheckAccID(rItem.ID, PPR_READ));
 }
 
-IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2)
-{
-	int   si = 0;
-	CMPCASCADE2(si, (const PPViewAccount::BrwEntry *)p1, (const PPViewAccount::BrwEntry *)p2, A.Ac, A.Sb);
-	return si;
-}
+IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2((const PPViewAccount::BrwEntry *)p1, (const PPViewAccount::BrwEntry *)p2, A.Ac, A.Sb); }
 
 int SLAPI PPViewAccount::FetchData(long id)
 {

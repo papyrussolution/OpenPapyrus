@@ -1265,9 +1265,9 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		log_path.Copy(&P_ExportCls->PathStruct, SPathStruc::fDrv | SPathStruc::fDir | SPathStruc::fNam | SPathStruc::fExt);
 		log_path.Nam = "export_log";
 		log_path.Ext = "txt";
-		log_path.Merge(LogName.Z());
+		log_path.Merge(LogName);
 		log_path.Nam = "system_log";
-		log_path.Merge(SysLogName.Z());
+		log_path.Merge(SysLogName);
 		P_ExportCls->Id = 1;
 		*pId = P_ExportCls->Id; // ИД сеанса экспорта
 		P_ExportCls->Inited = 1;
@@ -2492,9 +2492,9 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 				ps.Copy(&inp_ps, SPathStruc::fDrv|SPathStruc::fDir|SPathStruc::fNam|SPathStruc::fExt);
 				ps.Nam = "import_log";
 				ps.Ext = "txt";
-				ps.Merge(LogName.Z());
+				ps.Merge(LogName);
 				ps.Nam = "system_log";
-				ps.Merge(SysLogName.Z());
+				ps.Merge(SysLogName);
 			}
 			{
 				ps.Nam.Z();

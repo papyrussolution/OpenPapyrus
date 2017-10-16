@@ -8,14 +8,14 @@
 SLAPI TVRez::TVRez(const char * fName, int useIndex)
 {
 	Stream = 0;
-	Index = 0;
+	P_Index = 0;
 	HeaderType = hdrUnknown;
 	open(fName, useIndex);
 }
 
 SLAPI TVRez::~TVRez()
 {
-	delete Index;
+	delete P_Index;
 	SFile::ZClose(&Stream);
 }
 
@@ -24,7 +24,7 @@ int SLAPI TVRez::open(const char * fName, int useIndex)
 	int    ok = 1;
 	error = 0;
 	FileName = fName;
-	ZDELETE(Index);
+	ZDELETE(P_Index);
 	THROW(fileExists(fName));
 	Stream = fopen(fName, "rb");
 	if(!Stream) {
@@ -192,27 +192,22 @@ int SLAPI TVRez::setHdrType()
 	return ok;
 }
 
-struct ResIdxItem {
+struct ResIdxItem { // @flat
 	uint16 type;
 	uint16 id;
 	uint32 pos;
 	uint32 sz;
 };
 
-static IMPL_CMPFUNC(ResIdxItem, _i1, _i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (ResIdxItem*)_i1, (ResIdxItem*)_i2, type, id);
-	return si;
-}
+static IMPL_CMPFUNC(ResIdxItem, _i1, _i2) { RET_CMPCASCADE2((const ResIdxItem*)_i1, (const ResIdxItem*)_i2, type, id); }
 
 int SLAPI TVRez::buildIndex()
 {
-	if(Index)
-		Index->freeAll();
+	if(P_Index)
+		P_Index->freeAll();
 	else {
-		Index = new SArray(sizeof(ResIdxItem));
-		if(Index == 0)
+		P_Index = new SVector(sizeof(ResIdxItem));
+		if(P_Index == 0)
 			return 0;
 	}
 	WResHeaderInfo hdr;
@@ -224,8 +219,8 @@ int SLAPI TVRez::buildIndex()
 			item.id   = hdr.IntID;
 			item.pos  = ftell(Stream);
 			item.sz   = hdr.Size;
-			if(!Index->insert(&item)) {
-				ZDELETE(Index);
+			if(!P_Index->insert(&item)) {
+				ZDELETE(P_Index);
 				return 0;
 			}
 		}
@@ -234,7 +229,7 @@ int SLAPI TVRez::buildIndex()
 			item.pos = ftell(Stream);
 		}
 	}
-	Index->sort(PTR_CMPFUNC(ResIdxItem));
+	P_Index->sort(PTR_CMPFUNC(ResIdxItem));
 	return 1;
 }
 
@@ -345,13 +340,13 @@ int SLAPI TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 	long   offs = 0L, sz = 0L;
 	WResHeaderInfo hdr;
 	if(!error && !ferror(Stream) && !feof(Stream)) {
-		if(Index) {
+		if(P_Index) {
 			uint   p = 0;
 			ResIdxItem item;
 			item.type = rscType;
 			item.id = id;
-			if(Index->bsearch(&item, &p, PTR_CMPFUNC(ResIdxItem))) {
-				item = *(ResIdxItem*)Index->at(p);
+			if(P_Index->bsearch(&item, &p, PTR_CMPFUNC(ResIdxItem))) {
+				item = *(const ResIdxItem *)P_Index->at(p);
 				offs = item.pos;
 				sz   = item.sz;
 				fseek(Stream, item.pos, SEEK_SET);

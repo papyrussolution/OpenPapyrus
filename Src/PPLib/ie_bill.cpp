@@ -47,14 +47,14 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	Flags = 0;
 	ImpOpID = 0;
 	PredefFormat = pfUndef;
-	Object1SrchCode = 0;
-	Object2SrchCode = 0;
+	Object1SrchCode.Z();
+	Object2SrchCode.Z();
 }
 
 //virtual
 int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = 1;
 	int    use_ps = 0;
 	int    _is_subst = 0;
@@ -139,39 +139,67 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 }
 
 //virtual
-int PPBillImpExpParam::PreprocessImportFileSpec(const SString & rFileSpec, PPFileNameArray & rList)
+int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
 	// mailfrom:coke@gmail.com?subj=orders
 
 	int    ok = -1;
-	SPathStruc ps;
-	SString wildcard, path;
+
+	SString _file_spec;
+	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
+
+	//SString path;
 	{
 		InetUrl url;
-		SString url_path;
-		const int urlpr = url.Parse(rFileSpec);
+		const int urlpr = url.Parse(_file_spec);
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
-		if(urlpr > 0 && url_prot != InetUrl::protFile) {
+		{
+			SString temp_buf;
+			SPathStruc ps;
+			if(url_prot > 0) {
+				url.GetComponent(InetUrl::cPath, 0, temp_buf); 
+				ps.Split(temp_buf);
+			}
+			else
+				ps.Split(_file_spec);
+			SString templ = ps.Nam;
+			SString name = ps.Nam;
+			SString wildcard;
+			StrAssocArray result_list;
+			if(PPObjBill::ParseText(name, templ, result_list, &wildcard) > 0) {
+				ps.Nam = wildcard;
+				ps.Merge(temp_buf);
+				if(url_prot > 0) {
+					SString url_path;
+					url_path.EncodeUrl(temp_buf, 0);
+					url.SetComponent(InetUrl::cPath, temp_buf);
+					url.Composite(0, _file_spec);
+				}
+				else
+					_file_spec = temp_buf;
+			}
+		}
+		THROW(GetFilesFromSource(_file_spec, rList, 0));
+		/*if(url_prot > 0) {
+			if(url_prot == InetUrl::protFile) {
+			}
+			else if(oneof2(url_prot, InetUrl::protFtp, InetUrl::protFtps)) {
+			}
+			else if(oneof2(url_prot, InetUrl::protHttp, InetUrl::protHttps)) {
+			}
+			else if(oneof2(url_prot, InetUrl::protPOP3, InetUrl::protPOP3S)) {
+			}
+			else if(url_prot == InetUrl::protMailFrom) {
 
+			}
+			if(urlpr > 0 && url_prot != InetUrl::protFile) {
+			
+			}
 		}
-
-		SString templ, name;
-		ps.Split(FileName);
-		templ = ps.Nam;
-		ps.Split(rFileSpec);
-		name = ps.Nam;
-		StrAssocArray result_list;
-		if(PPObjBill::ParseText(name, templ, result_list, &wildcard) > 0) {
-			wildcard.Dot().Cat(ps.Ext);
-		}
-		else {
-			ps.Split(rFileSpec);
-			(wildcard = ps.Nam).Dot().Cat(ps.Ext);
-		}
-		THROW(GetFilesFromSource(wildcard, 0));
-		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
+		//THROW(GetFilesFromSource(wildcard, 0));
+		//ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);*/
 	}
-	rList.Scan(path, wildcard);
+	//rList.Scan(path, wildcard);
     if(rList.getCount())
 		ok = 1;
 	CATCHZOK
@@ -574,7 +602,7 @@ public:
 			AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fSignExport);
 			AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fTestMode);
 			SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
-			SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, INETACCT_ONLYMAIL);
+			SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);
 			{
 				EmailCtrlGroup::Rec grp_rec(&P_Data->Tp.AddrList);
 				setGroupData(GRP_EMAILLIST, &grp_rec);
@@ -1583,6 +1611,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 	int    ok = 1;
 	long   count = 0;
 	const  LDATE cdate = getcurdate_();
+	PPID   ar_id_by_code2 = 0;
 	SString def_inn;
 	SString temp_buf;
 	SString inn;
@@ -1596,6 +1625,20 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 	THROW(pImpExp->InitDynRec(&dyn_rec));
 	pImpExp->GetNumRecs(&count);
 	def_inn = BillParam.Object1SrchCode;
+	// @v9.8.4 {
+	if(BillParam.Object2SrchCode.NotEmpty()) {
+		PPID   reg_type_id = PPREGT_TPID;
+		SString code = BillParam.Object2SrchCode;
+		const PPID suppl_acs_id = GetSupplAccSheet();
+		if(PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &reg_type_id) > 0) {
+			PPIDArray psn_list, ar_list;
+			PsnObj.GetListByRegNumber(reg_type_id, 0, code, psn_list);
+			ArObj.GetByPersonList(suppl_acs_id, &psn_list, &ar_list);
+			if(ar_list.getCount() == 1)
+				ar_id_by_code2 = ar_list.get(0);
+		}
+	}
+	// } @v9.8.4 
 	for(long i = 0; i < count; i++) {
 		uint   p = 0;
 		PPID   id = 0;
@@ -1648,13 +1691,13 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				PPID   goods_id = 0;
 				ObjTagList tag_list;
 				Goods2Tbl::Rec goods_rec;
+				ArGoodsCodeTbl::Rec code_rec;
 				if(brow_.GoodsID && gobj.Fetch(brow_.GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 					goods_id = goods_rec.ID;
 				}
 				else if(CConfig.Flags & CCFLG_USEARGOODSCODE && (brow_.Barcode[0] || brow_.ArCode[0])) {
 					PPID   ar_id = 0;
 					ArticleTbl::Rec ar_rec;
-					ArGoodsCodeTbl::Rec code_rec;
 					MEMSZERO(code_rec);
 					if(brow_.CntragID && ArObj.Fetch(brow_.CntragID, &ar_rec) > 0) {
 						ar_id = brow_.CntragID;
@@ -1684,6 +1727,12 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 					else if(gobj.SearchByName(brow_.GoodsName, &id) > 0)
 						goods_id = id;
 				}
+				// @v9.8.4 {
+				if(!goods_id && ar_id_by_code2 && brow_.ArCode[0]) {
+					if(gobj.P_Tbl->SearchByArCode(ar_id_by_code2, brow_.ArCode, &code_rec) > 0)
+						goods_id = code_rec.GoodsID;
+				}
+				// } @v9.8.4 
 				brow_.GoodsID = goods_id;
 				if(dyn_rec.GetCount()) {
 					const PPImpExpParam & r_iep = pImpExp->GetParam();
@@ -1987,13 +2036,15 @@ int SLAPI PPBillImporter::AssignFnFieldToRecord(const StrAssocArray & rFldList, 
 
 int SLAPI PPBillImporter::ReadData()
 {
-	int    ok = -1, r = -1;
+	int    ok = -1;
+	int    r = -1;
 	char   _err_buf[1024];
 	_err_buf[0] = 0;
 	ImpExpDll imp_dll;
 	SString err_msg, path, wildcard, filename, temp_buf;
 	PPObjGoods gobj;
-	PPFileNameArray file_list;
+	//PPFileNameArray file_list;
+	StringSet ss_files;
 	Sdr_Bill bill;
 	SPathStruc ps;
 	const int h_r_eq_f = (BillParam.DataFormat == BRowParam.DataFormat) ? BillParam.DataFormat : -1;
@@ -2100,8 +2151,8 @@ int SLAPI PPBillImporter::ReadData()
 	}
 	else if(h_r_eq_f == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0 && !imp_rows_only) {
 		// @v8.6.4 const  int imp_rows_only = BIN(BillParam.Flags & PPBillImpExpParam::fImpRowsOnly);
-		THROW(BillParam.PreprocessImportFileSpec((path = BillParam.FileName).Transf(CTRANSF_INNER_TO_OUTER), file_list));
-		for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
+		THROW(BillParam.PreprocessImportFileSpec(ss_files));
+		for(uint ssp = 0; ss_files.get(&ssp, filename);) {
 			uint   p = 0;
 			long   count = 0;
 			long   row_rec_count = 0;
@@ -2145,8 +2196,9 @@ int SLAPI PPBillImporter::ReadData()
 		PPImpExp ie_row(&BRowParam, 0);
 		SString bid;
 		BillsRows.freeAll(); // @v8.7.1
-		THROW(BillParam.PreprocessImportFileSpec((path = BillParam.FileName).Transf(CTRANSF_INNER_TO_OUTER), file_list));
-		for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
+		THROW(BillParam.PreprocessImportFileSpec(ss_files));
+		//for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
+		for(uint ssp = 0, fi = 0; ss_files.get(&ssp, filename); fi++) {
 			StrAssocArray fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			if(imp_rows_only) {
@@ -2263,8 +2315,9 @@ int SLAPI PPBillImporter::ReadData()
 		}
 		if(!imp_rows_from_same_file) {
 			if(GetOpType(BillParam.ImpOpID) != PPOPT_ACCTURN) { // @v8.4.10
-				THROW(BRowParam.PreprocessImportFileSpec((path = BRowParam.FileName).Transf(CTRANSF_INNER_TO_OUTER), file_list));
-				for(uint fi = 0; file_list.Enum(&fi, 0, &filename);) {
+				THROW(BRowParam.PreprocessImportFileSpec(ss_files));
+				//for(uint fi = 0; file_list.Enum(&fi, 0, &filename);) {
+				for(uint ssp = 0; ss_files.get(&ssp, filename);) {
 					StrAssocArray fn_fld_list;
 					BillParam.PreprocessImportFileName(filename, fn_fld_list);
 					THROW(ie_row.OpenFileForReading(filename));
@@ -3370,7 +3423,7 @@ private:
 				sign_spath.Split(SignFileName);
 				spath.Nam = sign_spath.Nam;
 				spath.Ext = sign_spath.Ext;
-				spath.Merge(SignFileName.Z());
+				spath.Merge(SignFileName);
 			}
 		}
 		else if(event.isCmd(cmSignBill)) {

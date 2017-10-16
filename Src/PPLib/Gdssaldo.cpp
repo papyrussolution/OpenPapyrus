@@ -105,7 +105,7 @@ int SLAPI GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID ar
 //
 //   CalcSaldoList
 //
-struct CalcSaldoEntry {
+struct CalcSaldoEntry { // @flat
 	SLAPI  CalcSaldoEntry()
 	{
 		THISZERO();
@@ -115,25 +115,20 @@ struct CalcSaldoEntry {
 	LDATE  Dt;
 };
 
-class CalcSaldoList : public SArray {
+class CalcSaldoList : public SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  CalcSaldoList() : SArray(sizeof(CalcSaldoEntry))
+	SLAPI  CalcSaldoList() : SVector(sizeof(CalcSaldoEntry))
 	{
 	}
 	int   SLAPI Search(PPID gdsID, PPID artID, uint * p = 0);
 	int   SLAPI Insert(CalcSaldoEntry * e, uint * p = 0);
 	CalcSaldoEntry & FASTCALL at(uint p) const
 	{
-		return *(CalcSaldoEntry*)SArray::at(p);
+		return *(CalcSaldoEntry*)SVector::at(p);
 	}
 };
 
-IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (CalcSaldoEntry*)i1, (CalcSaldoEntry*)i2, GoodsID, ArticleID);
-	return si;
-}
+IMPL_CMPFUNC(CalcSaldoEnKey, i1, i2) { RET_CMPCASCADE2((const CalcSaldoEntry*)i1, (const CalcSaldoEntry*)i2, GoodsID, ArticleID); }
 
 int SLAPI CalcSaldoList::Search(PPID gdsID, PPID artID, uint * p)
 {
@@ -152,7 +147,7 @@ int SLAPI CalcSaldoList::Insert(CalcSaldoEntry * e, uint * p)
 //
 #define DEF_SALDO_PERIOD  7L
 
-struct GArSEntry {
+struct GArSEntry { // @flat
 	PPID   GoodsID;
 	PPID   ArID;
 	PPID   DlvrLocID; // @v9.1.8
@@ -189,7 +184,7 @@ public:
 	int    SLAPI Test(PPID goodsID, PPID arID, PPID dlvrID, const DateRange * pPeriod);
 private:
 	int    SLAPI SetUnworkingContragentsSaldo(LDATE dt, CalcSaldoList * pList);
-	int    SLAPI SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSArray <GArSEntry> & rList);
+	int    SLAPI SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList); // @v9.8.4 SArray-->SVector
 
 	GoodsSaldoCore GSCore;
 	Param  Par;
@@ -316,14 +311,9 @@ int SLAPI PrcssrGoodsSaldo::Init(const Param * pPar)
 	return RVALUEPTR(Par, pPar) ? 1 : PPSetErrorInvParam();
 }
 
-IMPL_CMPFUNC(GArSEntry, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE4(si, (const GArSEntry *)i1, (const GArSEntry *)i2, GoodsID, ArID, DlvrLocID, Dt);
-	return si;
-}
+IMPL_CMPFUNC(GArSEntry, i1, i2) { RET_CMPCASCADE4((const GArSEntry *)i1, (const GArSEntry *)i2, GoodsID, ArID, DlvrLocID, Dt); }
 
-int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSArray <GArSEntry> & rList)
+int SLAPI PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
 {
 	int    ok = 1;
 	if(checkdate(dt, 0)) {
@@ -431,7 +421,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 	PPIDArray actual_goods_list; // Список товаров, для которых надо удалить записи перед вставкой новых
 	SString goods_name, temp_buf;
 	IterCounter cntr;
-	TSArray <GArSEntry> list;
+	TSVector <GArSEntry> list; // @v9.8.4 SArray-->SVector
 	//TSArray <GArSLastEntry> idx_list;
 	THROW_INVARG(Par.GoodsGrpID || Par.GoodsID);
 	PPWait(1);

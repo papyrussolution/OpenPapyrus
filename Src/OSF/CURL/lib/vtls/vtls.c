@@ -112,7 +112,7 @@ bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source, struct ss
 	return TRUE;
 }
 
-void Curl_free_primary_ssl_config(struct ssl_primary_config* sslc)
+void FASTCALL Curl_free_primary_ssl_config(struct ssl_primary_config* sslc)
 {
 	ZFREE(sslc->CAfile);
 	ZFREE(sslc->CApath);
@@ -271,13 +271,9 @@ bool Curl_ssl_getsessionid(struct connectdata * conn, void ** ssl_sessionid, siz
 	*ssl_sessionid = NULL;
 	DEBUGASSERT(SSL_SET_OPTION(primary.sessionid));
 	if(!SSL_SET_OPTION(primary.sessionid))
-		/* session ID re-use is disabled */
-		return TRUE;
-	/* Lock if shared */
-	if(SSLSESSION_SHARED(data))
-		general_age = &data->share->sessionage;
-	else
-		general_age = &data->state.sessionage;
+		return TRUE; // session ID re-use is disabled 
+	// Lock if shared 
+	general_age = SSLSESSION_SHARED(data) ? &data->share->sessionage : &data->state.sessionage;
 	for(i = 0; i < data->set.general_ssl.max_ssl_sessions; i++) {
 		check = &data->state.session[i];
 		if(!check->sessionid)
@@ -297,16 +293,13 @@ bool Curl_ssl_getsessionid(struct connectdata * conn, void ** ssl_sessionid, siz
 			(*general_age)++; /* increase general age */
 			check->age = *general_age; /* set this as used in this age */
 			*ssl_sessionid = check->sessionid;
-			if(idsize)
-				*idsize = check->idsize;
+			ASSIGN_PTR(idsize, check->idsize);
 			no_match = FALSE;
 			break;
 		}
 	}
-
 	return no_match;
 }
-
 /*
  * Kill a single session ID entry in the cache.
  */
@@ -316,12 +309,9 @@ void Curl_ssl_kill_session(struct curl_ssl_session * session)
 		/* defensive check */
 		/* free the ID the SSL-layer specific way */
 		curlssl_session_free(session->sessionid);
-
 		session->sessionid = NULL;
 		session->age = 0; /* fresh */
-
 		Curl_free_primary_ssl_config(&session->ssl_config);
-
 		ZFREE(session->name);
 		ZFREE(session->conn_to_host);
 	}
@@ -332,12 +322,9 @@ void Curl_ssl_kill_session(struct curl_ssl_session * session)
  */
 void Curl_ssl_delsessionid(struct connectdata * conn, void * ssl_sessionid)
 {
-	size_t i;
 	struct Curl_easy * data = conn->data;
-
-	for(i = 0; i < data->set.general_ssl.max_ssl_sessions; i++) {
+	for(size_t i = 0; i < data->set.general_ssl.max_ssl_sessions; i++) {
 		struct curl_ssl_session * check = &data->state.session[i];
-
 		if(check->sessionid == ssl_sessionid) {
 			Curl_ssl_kill_session(check);
 			break;
@@ -351,10 +338,7 @@ void Curl_ssl_delsessionid(struct connectdata * conn, void * ssl_sessionid)
  * layer. Curl_XXXX_session_free() will be called to free/kill the session ID
  * later on.
  */
-CURLcode Curl_ssl_addsessionid(struct connectdata * conn,
-    void * ssl_sessionid,
-    size_t idsize,
-    int sockindex)
+CURLcode Curl_ssl_addsessionid(struct connectdata * conn, void * ssl_sessionid, size_t idsize, int sockindex)
 {
 	size_t i;
 	struct Curl_easy * data = conn->data; /* the mother of all structs */
@@ -487,13 +471,10 @@ CURLcode Curl_ssl_shutdown(struct connectdata * conn, int sockindex)
 {
 	if(curlssl_shutdown(conn, sockindex))
 		return CURLE_SSL_SHUTDOWN_FAILED;
-
 	conn->ssl[sockindex].use = FALSE; /* get back to ordinary socket usage */
 	conn->ssl[sockindex].state = ssl_connection_none;
-
 	conn->recv[sockindex] = Curl_recv_plain;
 	conn->send[sockindex] = Curl_send_plain;
-
 	return CURLE_OK;
 }
 
@@ -700,13 +681,11 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 	char * encoded, * pinkeycopy, * begin_pos, * end_pos;
 	uchar * sha256sumdigest = NULL;
 #endif
-
 	/* if a path wasn't specified, don't pin */
 	if(!pinnedpubkey)
 		return CURLE_OK;
 	if(!pubkey || !pubkeylen)
 		return result;
-
 	/* only do this if pinnedpubkey starts with "sha256//", length 8 */
 	if(strncmp(pinnedpubkey, "sha256//", 8) == 0) {
 #ifdef curlssl_sha256sum
@@ -717,12 +696,9 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 		curlssl_sha256sum(pubkey, pubkeylen, sha256sumdigest, SHA256_DIGEST_LENGTH);
 		encode = Curl_base64_encode(data, (char*)sha256sumdigest, SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
 		ZFREE(sha256sumdigest);
-
 		if(encode)
 			return encode;
-
 		infof(data, "\t public key hash: sha256//%s\n", encoded);
-
 		/* it starts with sha256//, copy so we can modify it */
 		pinkeylen = strlen(pinnedpubkey) + 1;
 		pinkeycopy = (char *)SAlloc::M(pinkeylen);
@@ -775,7 +751,6 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 			break;
 		if(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
 			break;
-
 		/*
 		 * if the size of our certificate is bigger than the file
 		 * size then it can't match
@@ -839,7 +814,6 @@ CURLcode Curl_ssl_md5sum(uchar * tmp/* input */, size_t tmplen, uchar * md5sum/*
 }
 
 #endif
-
 /*
  * Check whether the SSL backend supports the status_request extension.
  */
@@ -851,7 +825,6 @@ bool Curl_ssl_cert_status_request(void)
 	return FALSE;
 #endif
 }
-
 /*
  * Check whether the SSL backend supports false start.
  */

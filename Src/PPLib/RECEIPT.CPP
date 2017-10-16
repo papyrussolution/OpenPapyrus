@@ -559,12 +559,7 @@ int SLAPI ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::R
 		return PPDbSearchError();
 }
 
-IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (ReceiptTbl::Rec *)i2, (ReceiptTbl::Rec *)i1, Dt, OprNo);
-	return si;
-}
+IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i2, (const ReceiptTbl::Rec *)i1, Dt, OprNo); }
 
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 {
@@ -572,7 +567,7 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)
 	const  LDATE  expiry1 = NZOR(((ReceiptTbl::Rec *)i1)->Expiry, MAXDATE);
 	const  LDATE  expiry2 = NZOR(((ReceiptTbl::Rec *)i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
-		CMPCASCADE2(si, (ReceiptTbl::Rec *)i1, (ReceiptTbl::Rec *)i2, Dt, OprNo);
+		CMPCASCADE2(si, (const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo);
 	}
 	else
         si = cmp_ulong(expiry1, expiry2);
@@ -585,7 +580,7 @@ IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc, i1, i2)
 	const  LDATE  expiry1 = NZOR(((ReceiptTbl::Rec *)i1)->Expiry, MAXDATE);
 	const  LDATE  expiry2 = NZOR(((ReceiptTbl::Rec *)i2)->Expiry, MAXDATE);
 	if(expiry1 == expiry2) {
-		CMPCASCADE2(si, (ReceiptTbl::Rec *)i2, (ReceiptTbl::Rec *)i1, Dt, OprNo);
+		CMPCASCADE2(si, (const ReceiptTbl::Rec *)i2, (const ReceiptTbl::Rec *)i1, Dt, OprNo);
 	}
 	else
 		si = cmp_ulong(expiry1, expiry2);

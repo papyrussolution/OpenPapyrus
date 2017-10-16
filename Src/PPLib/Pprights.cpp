@@ -1031,7 +1031,7 @@ int SLAPI EditRightsDialog(PPRights & rights)
 //
 class SecurCollection : public SCollection {
 public:
-	SLAPI  SecurCollection(uint aDelta = DEFCOLLECTDELTA, int o = O_COLLECTION) : SCollection(aDelta, o)
+	SLAPI  SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
 	{
 	}
 	SLAPI  SecurCollection(const SecurCollection & src) : SCollection(src)
@@ -1054,7 +1054,7 @@ int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
 	if(aSrc.flags & aryDataOwner) {
 		freeAll();
 		isize = aSrc.isize;
-		delta = aSrc.delta;
+		//delta = aSrc.delta;
 		Limit = 0;
 		count = 0;
 		flags = aSrc.flags;

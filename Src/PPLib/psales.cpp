@@ -74,7 +74,7 @@ int FASTCALL PredictSalesStat::Step(const PredictSalesItem * pItem)
 		AmtSum    += amt;
 		AmtSqSum  += amt * amt;
 		if(Flags & PSSF_USELSSLIN) {
-			SETIFZ(P_List, new SArray(sizeof(LsEntry), 32, O_ARRAY));
+			SETIFZ(P_List, new SArray(sizeof(LsEntry), /*32,*/O_ARRAY));
 			THROW_MEM(P_List);
 			LsEntry entry;
 			PredictSalesCore::ShrinkDate(pItem->Dt, &entry.Day);
@@ -974,7 +974,7 @@ int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocLis
 //
 SLAPI PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
 {
-	setDelta(16);
+	//setDelta(16);
 }
 
 int SLAPI PsiArray::Add(const PredictSalesItem * pItem)

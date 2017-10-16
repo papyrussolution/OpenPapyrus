@@ -341,12 +341,7 @@ struct TagrCacheItem {
 	DBRowId DbPos;
 };
 
-IMPL_CMPFUNC(TagrCacheItem, i1, i2)
-{
-	int    s = 0;
-	CMPCASCADE5(s, (TagrCacheItem*)i1, (TagrCacheItem*)i2, Dt, GoodsID, PersonID, BillID, DlvrLocID);
-	return s;
-}
+IMPL_CMPFUNC(TagrCacheItem, i1, i2) { RET_CMPCASCADE5((const TagrCacheItem *)i1, (const TagrCacheItem *)i2, Dt, GoodsID, PersonID, BillID, DlvrLocID); }
 
 TagrCacheItem & FASTCALL PPViewTrfrAnlz::GetCacheItem(uint pos) const
 {
@@ -457,7 +452,7 @@ int SLAPI PPViewTrfrAnlz::FlashCacheItems(uint count)
 
 SLAPI PPViewTrfrAnlz::PPViewTrfrAnlz() :
 	PPView(0, &Filt, PPVIEW_TRFRANLZ),
-	Cache(sizeof(TagrCacheItem), 32, O_ARRAY),
+	Cache(sizeof(TagrCacheItem), /*32,*/O_ARRAY),
 	MaxCacheItems(DS.CheckExtFlag(ECF_SYSSERVICE) ? (128*1024) : (64*1024U)),
 	CacheDelta(DS.CheckExtFlag(ECF_SYSSERVICE) ? 4096 : 2048)
 {

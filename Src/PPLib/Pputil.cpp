@@ -1322,12 +1322,7 @@ int SLAPI DateIter::IsEnd() const
 	return (end && dt > end);
 }
 
-int FASTCALL DateIter::Cmp(const DateIter & rS) const
-{
-    int    si = 0;
-    CMPCASCADE2(si, this, &rS, dt, oprno);
-    return si;
-}
+int FASTCALL DateIter::Cmp(const DateIter & rS) const { RET_CMPCASCADE2(this, &rS, dt, oprno); }
 //
 // Loading DBF structure from resource
 //
@@ -3678,15 +3673,15 @@ int SLAPI PPUhttClient::GetSCardRest(const char * pNumber, const char * pDate, d
 // } @Muxa
 
 int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey,
-	const char * pVersionLabel, const char * pVersionMemo, SCopyFileProgressProc pp, void * pExtra)
+	const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra)
 {
 	int    ok = 1;
 	int    transfer_id = 0;
 	int    pp_reply = 0;
 	int    pp_quite = 0;
 	int    pp_cancel = 0;
-	SCopyFileData scfd;
-	SString dest_display_name; // Текст, обозначающий место назначения отправки файла (для процедуры SCopyFileProgressProc)
+	SDataMoveProgressInfo scfd;
+	SString dest_display_name; // Текст, обозначающий место назначения отправки файла (для процедуры SDataMoveProgressProc)
 	THROW_SL(fileExists(pFileName));
 	if(State & stAuth && P_Lib) {
 		PPSoapClientSession sess;
@@ -3708,17 +3703,17 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 				ps.Split(pFileName);
 				ps.Drv.Z();
 				ps.Dir.Z();
-				ps.Merge(temp_buf.Z());
+				ps.Merge(temp_buf);
 				temp_buf.ToUtf8();
 				THROW(StartTransferData(temp_buf, file_size, chunk_count + BIN(tail_size), &transfer_id));
 				assert(tail_size < chunk_size);
 				//
 				dest_display_name = pKey;
-				scfd.SrcFileName   = pFileName;
-				scfd.DestFileName  = dest_display_name;
-				scfd.TotalFileSize = file_size;
-				scfd.TransferredBytes = 0UL;
-				scfd.ExtraParam = pExtra;
+				scfd.P_Src  = pFileName;
+				scfd.P_Dest = dest_display_name;
+				scfd.SizeTotal = file_size;
+				scfd.SizeDone  = 0UL;
+				scfd.ExtraPtr = pExtra;
 				if(!pp_quite && pp) {
 					pp_reply = pp(&scfd);
 					if(oneof2(pp_reply, SPRGRS_CANCEL, SPRGRS_STOP))
@@ -3732,7 +3727,7 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 						THROW_SL(f.ReadV(buffer, chunk_size));
 						THROW(TransferData(transfer_id, (int)(i+1), chunk_size, buffer));
 						if(!pp_quite && pp) {
-							scfd.TransferredBytes += chunk_size;
+							scfd.SizeDone += chunk_size;
 							pp_reply = pp(&scfd);
 							if(oneof2(pp_reply, SPRGRS_CANCEL, SPRGRS_STOP))
 								pp_cancel = 1;
@@ -3744,7 +3739,7 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 						THROW_SL(f.ReadV(buffer, tail_size));
 						THROW(TransferData(transfer_id, (int)(chunk_count+1), tail_size, buffer));
 						if(!pp_quite && pp) {
-							scfd.TransferredBytes += tail_size;
+							scfd.SizeDone += tail_size;
 							pp_reply = pp(&scfd);
 							if(oneof2(pp_reply, SPRGRS_CANCEL, SPRGRS_STOP))
 								pp_cancel = 1;

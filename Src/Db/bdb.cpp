@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <BerkeleyDB.h>
 
-BDbDatabase::Txn::Txn() : TblList(16, aryPtrContainer /* not aryEachItem */)
+BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */)
 {
 	T = 0;
 }

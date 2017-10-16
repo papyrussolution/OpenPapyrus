@@ -9,8 +9,7 @@
 
 class DL2_ExprStack : public SStack {
 public:
-	SLAPI  DL2_ExprStack() :
-		SStack(sizeof(void *), 3, aryDataOwner | aryPtrContainer)
+	SLAPI  DL2_ExprStack() : SStack(sizeof(void *), /*3,*/ aryDataOwner|aryPtrContainer)
 	{
 	}
 };

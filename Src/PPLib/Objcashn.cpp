@@ -2677,7 +2677,7 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 	SetupOprKindCombo(this, CTLSEL_EQCFG_OPDOTHRLOC, Data.OpOnDfctOthrLoc, 0, &op_type_list, 0);
 	SetupOprKindCombo(this, CTLSEL_EQCFG_TEMPSESSOP, Data.OpOnTempSess,    0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_EQCFG_QUOT, PPOBJ_QUOTKIND, Data.QuotKindID,  0);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)INETACCT_ONLYFTP);
+	SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
 	SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
 	setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 	setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);

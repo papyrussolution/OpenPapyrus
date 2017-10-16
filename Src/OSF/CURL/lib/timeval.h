@@ -36,7 +36,7 @@ struct timeval curlx_tvnow(void);
  *
  * Returns: the time difference in number of milliseconds.
  */
-time_t curlx_tvdiff(struct timeval t1, struct timeval t2);
+time_t FASTCALL curlx_tvdiff(struct timeval t1, struct timeval t2);
 /*
  * Same as curlx_tvdiff but with full usec resolution.
  *

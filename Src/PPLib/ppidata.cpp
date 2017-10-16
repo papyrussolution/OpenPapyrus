@@ -370,19 +370,19 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 	uint   conn_flags = (Account.Flags & PPInternetAccount::fFtpPassive) ? INTERNET_FLAG_PASSIVE : 0;
 	{
 		InetUrl url(url_buf);
-		url.GetComponent(InetUrl::cHost, host);
+		url.GetComponent(InetUrl::cHost, 0, host);
 		if(host.Empty())
 			host = url_buf;
 		if(pwd[0] == 0) {
-			if(url.GetComponent(InetUrl::cPassword, temp_buf) > 0)
+			if(url.GetComponent(InetUrl::cPassword, 0, temp_buf) > 0)
 				STRNSCPY(pwd, temp_buf);
 		}
 		if(user.Empty()) {
-			if(url.GetComponent(InetUrl::cUserName, temp_buf) > 0)
+			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf) > 0)
 				user = temp_buf;
 		}
 		if(port == 0) {
-			if(url.GetComponent(InetUrl::cPort, temp_buf) > 0)
+			if(url.GetComponent(InetUrl::cPort, 0, temp_buf) > 0)
 				port = temp_buf.ToLong();
 		}
 		SETIFZ(port, INTERNET_DEFAULT_FTP_PORT);
@@ -424,7 +424,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 		}
 		else {
 			InetUrl url(temp_buf);
-			url.GetComponent(InetUrl::cPath, temp_buf);
+			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
         SPathStruc ps;
         ps.Split(temp_buf);
@@ -640,13 +640,13 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 	FILE * p_file = 0;
 	HINTERNET file_conn = NULL, ftp_dir = NULL;
 	{
-		(temp_buf = pFTPPath).Strip().ReplaceChar('\\', '/');
+		SPathStruc::NormalizePath(pFTPPath, SPathStruc::npfSlash, temp_buf);
 		if(temp_buf.CmpPrefix("//", 0) == 0) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
 			InetUrl url(temp_buf);
-			url.GetComponent(InetUrl::cPath, temp_buf);
+			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
         SPathStruc ps;
         ps.Split(temp_buf);
@@ -762,14 +762,14 @@ int WinInetFTP::Delete(const char * pPath)
 	int    ok = 1;
 	SString file_name;
 	{
-		SString temp_buf = pPath;
-		temp_buf.Strip().ReplaceChar('\\', '/');
+		SString temp_buf;
+		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash, temp_buf);
 		if(temp_buf.CmpPrefix("//", 0) == 0) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
 			InetUrl url(temp_buf);
-			url.GetComponent(InetUrl::cPath, temp_buf);
+			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
         SPathStruc ps;
         ps.Split(temp_buf);
@@ -791,14 +791,14 @@ int WinInetFTP::Exists(const char * pPath)
 	int    ok = 1;
 	SString file_name;
 	{
-		SString temp_buf = pPath;
-		temp_buf.Strip().ReplaceChar('\\', '/');
+		SString temp_buf;
+		SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash, temp_buf);
 		if(temp_buf.CmpPrefix("//", 0) == 0) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
 			InetUrl url(temp_buf);
-			url.GetComponent(InetUrl::cPath, temp_buf);
+			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
         SPathStruc ps;
         ps.Split(temp_buf);
@@ -825,14 +825,14 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 {
 	int    ok = 1;
 	if(!isempty(pDir)) {
-		SString temp_buf = pDir;
-		temp_buf.Strip().ReplaceChar('\\', '/');
+		SString temp_buf;
+		SPathStruc::NormalizePath(pDir, SPathStruc::npfSlash, temp_buf);
 		if(temp_buf.CmpPrefix("//", 0) == 0) {
 			temp_buf.ShiftLeft(1);
 		}
 		else {
 			InetUrl url(temp_buf);
-			url.GetComponent(InetUrl::cPath, temp_buf);
+			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
         SPathStruc ps;
         ps.Split(temp_buf);

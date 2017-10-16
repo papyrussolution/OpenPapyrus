@@ -91,7 +91,7 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 //
 //
 //
-struct _LotCmp {
+struct _LotCmp { // @flat
 	_LotCmp & init(uint p, const ReceiptTbl::Rec * lotr, double cost, double price)
 	{
 		pos        = p;
@@ -106,19 +106,14 @@ struct _LotCmp {
 	double price_diff;
 };
 
-IMPL_CMPFUNC(_LotCmp, p1, p2)
-{
-	int    si = 0;
-	CMPCASCADE3(si, (_LotCmp*)p1, (_LotCmp*)p2, cost_diff, price_diff, pos);
-	return si;
-}
+IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3((const _LotCmp*)p1, (const _LotCmp*)p2, cost_diff, price_diff, pos); }
 
 int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID genGoodsID, double cost, double price, double qtty)
 {
 	int    ok = 1;
 	uint   i;
 	ReceiptTbl::Rec   lotr;
-	TSArray <_LotCmp> _lots;
+	TSVector <_LotCmp> _lots; // @v9.8.4 TSArray-->TSVector
 	for(i = 0; qtty < 0.0 && i < pLots->getCount(); i++) {
 		PPID   lot_id = pLots->at(i);
 		double rest = 0.0, ratio;

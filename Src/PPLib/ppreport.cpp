@@ -269,7 +269,7 @@ int SLAPI SReport::createDataFiles(const char * pDataName, const char * pRptPath
 	}
 	else {
 		SString fname;
-		SCollection fld_ids(DEFCOLLECTDELTA, aryPtrContainer);
+		SCollection fld_ids(/*DEFCOLLECTDELTA,*/aryPtrContainer);
 		createBodyDataFile(fname, &fld_ids);
 		createVarDataFile(fname, &fld_ids);
 	}
@@ -1325,7 +1325,7 @@ int SLAPI SReport::prepareData()
 	uint   di;
 	Field * f = 0;
 	SString dbfname;
-	SCollection fld_ids(DEFCOLLECTDELTA, aryPtrContainer);
+	SCollection fld_ids(/*DEFCOLLECTDELTA,*/aryPtrContainer);
 	DbfTable * dbf = 0;
 	createBodyDataFile(dbfname, &fld_ids);
 	dbf = new DbfTable(dbfname);

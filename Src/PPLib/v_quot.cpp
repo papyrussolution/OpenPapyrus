@@ -425,7 +425,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	HasPeriodVal = 0;
 	QList_.freeAll();
-	QList_.setDelta(1024);
+	//QList_.setDelta(1024);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	{
@@ -708,12 +708,7 @@ struct VQuotEntry {
 	uint   Qp[MAX_QUOTS_PER_TERM_REC];
 };
 
-IMPL_CMPFUNC(VQuotEntry, i1, i2)
-{
-	int    si;
-	CMPCASCADE3(si, (const VQuotEntry *)i1, (const VQuotEntry *)i2, GoodsID, LocID, ArID);
-	return si;
-}
+IMPL_CMPFUNC(VQuotEntry, i1, i2) { RET_CMPCASCADE3((const VQuotEntry *)i1, (const VQuotEntry *)i2, GoodsID, LocID, ArID); }
 
 class VQuotCache : public TSVector <VQuotEntry> { // @v9.8.4 TSArray-->TSVector
 public:

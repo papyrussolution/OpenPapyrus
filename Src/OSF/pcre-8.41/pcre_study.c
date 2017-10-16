@@ -39,10 +39,6 @@
 
 /* This module contains the external function pcre_study(), along with local
    supporting functions. */
-
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

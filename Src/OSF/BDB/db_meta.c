@@ -107,11 +107,9 @@ int __db_new(DBC * dbc, uint32 type, DB_LOCK * lockp, PAGE ** pagepp)
 #endif
 	if(meta == NULL) {
 		pgno = PGNO_BASE_MD;
-		if((ret = __db_lget(dbc,
-			    LCK_ALWAYS, pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
+		if((ret = __db_lget(dbc, LCK_ALWAYS, pgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 			goto err;
-		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn,
-			    DB_MPOOL_DIRTY, &meta)) != 0)
+		if((ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0)
 			goto err;
 	}
 	last = meta->last_pgno;
@@ -236,18 +234,14 @@ err:
  * __db_free --
  *	Add a page to the head of the freelist.
  *
- * PUBLIC: int __db_free __P((DBC *, PAGE *, uint32));
+ * PUBLIC: int __db_free(DBC *, PAGE *, uint32);
  */
 int __db_free(DBC * dbc, PAGE * h, uint32 flags)
 {
-	DB * dbp;
-	DBMETA * meta;
 	DBT ddbt, ldbt;
 	DB_LOCK metalock;
 	DB_LSN * lsnp;
-	DB_MPOOLFILE * mpf;
-	PAGE * prev;
-	db_pgno_t last_pgno, next_pgno, pgno, prev_pgno;
+	db_pgno_t last_pgno, next_pgno, pgno;
 	uint32 lflag;
 	int hash, ret, t_ret;
 #ifdef HAVE_FTRUNCATE
@@ -255,19 +249,17 @@ int __db_free(DBC * dbc, PAGE * h, uint32 flags)
 	uint32 nelem, position, start;
 	int do_truncate;
 #endif
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	prev_pgno = PGNO_INVALID;
-	meta = NULL;
-	prev = NULL;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	db_pgno_t prev_pgno = PGNO_INVALID;
+	DBMETA * meta = NULL;
+	PAGE * prev = NULL;
 	LOCK_INIT(metalock);
 #ifdef HAVE_FTRUNCATE
 	lp = NULL;
 	nelem = 0;
 	do_truncate = 0;
 #endif
-
 	/*
 	 * Retrieve the metadata page.  If we are not keeping a sorted
 	 * free list put the page at the head of the the free list.
@@ -408,8 +400,7 @@ no_sort:
 				ldbt.size += h->entries*sizeof(db_indx_t);
 				ddbt.data = (uint8 *)h+HOFFSET(h);
 				ddbt.size = dbp->pgsize-HOFFSET(h);
-				if((ret = __db_pg_freedata_log(dbp, dbc->txn, lsnp, lflag,
-					h->pgno, lsnp, pgno, &ldbt, next_pgno, last_pgno, &ddbt)) != 0)
+				if((ret = __db_pg_freedata_log(dbp, dbc->txn, lsnp, lflag, h->pgno, lsnp, pgno, &ldbt, next_pgno, last_pgno, &ddbt)) != 0)
 					goto err1;
 				goto logged;
 			}
@@ -522,15 +513,14 @@ err:
  */
 void __db_freelist_pos(db_pgno_t pgno, db_pgno_t * list, uint32 nelem, uint32 * posp)
 {
-	uint32 base, lim;
-	uint32 indx = 0;
-	for(base = 0, lim = nelem; lim != 0; lim >>= 1) {
-		indx = base+(lim>>1);
+	uint32 base = 0;
+	for(uint32 lim = nelem; lim != 0; lim >>= 1) {
+		const uint32 indx = base+(lim>>1);
 		if(pgno == list[indx]) {
 			*posp = indx;
 			return;
 		}
-		if(pgno > list[indx]) {
+		else if(pgno > list[indx]) {
 			base = indx+1;
 			--lim;
 		}
@@ -538,7 +528,6 @@ void __db_freelist_pos(db_pgno_t pgno, db_pgno_t * list, uint32 nelem, uint32 * 
 	if(base != 0)
 		base--;
 	*posp = base;
-	return;
 }
 
 static int __db_pglistcmp(const void * a, const void * b)
@@ -627,7 +616,6 @@ again:
 				goto err;
 		}
 		slp = &lp[elems];
-
 		ZERO_LSN(null_lsn);
 		if((ret = __db_pg_trunc_log(dbp, dbc->txn, lsnp, last == 1 ? DB_FLUSH : 0, PGNO_BASE_MD, lsnp, 
 			h ? PGNO(h) : PGNO_INVALID, h ? &LSN(h) : &null_lsn, free_pgno, lpgno, &ddbt)) != 0)
@@ -810,20 +798,17 @@ err:
 
 static int __db_truncate_freelist(DBC * dbc, DBMETA * meta, PAGE * h, db_pgno_t * list, uint32 start, uint32 nelem)
 {
-	DB * dbp;
 	DBT ddbt;
 	DB_LSN null_lsn;
-	DB_MPOOLFILE * mpf;
-	PAGE * last_free, * pg;
 	db_pgno_t * lp, free_pgno, lpgno;
-	db_pglist_t * plist, * pp, * spp;
+	db_pglist_t * pp, * spp;
 	uint32 elem, log_size;
 	int last, ret;
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	plist = NULL;
-	last_free = NULL;
-	pg = NULL;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	db_pglist_t * plist = NULL;
+	PAGE * last_free = NULL;
+	PAGE * pg = NULL;
 	if(start != 0 && (ret = __memp_fget(mpf, &list[start-1], dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &last_free)) != 0)
 		goto err;
 	if(DBC_LOGGING(dbc)) {
@@ -935,8 +920,7 @@ int __db_lprint(DBC * dbc)
  * __db_lget --
  *	The standard lock get call.
  *
- * PUBLIC: int __db_lget __P((DBC *,
- * PUBLIC:     int, db_pgno_t, db_lockmode_t, uint32, DB_LOCK *));
+ * PUBLIC: int __db_lget __P((DBC *, int, db_pgno_t, db_lockmode_t, uint32, DB_LOCK *));
  */
 int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 lkflags, DB_LOCK * lockp)
 {
@@ -945,20 +929,20 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	DB_TXN * txn = dbc->txn;
-	/*
-	 * We do not always check if we're configured for locking before
-	 * calling __db_lget to acquire the lock.
-	 */
+	// 
+	// We do not always check if we're configured for locking before
+	// calling __db_lget to acquire the lock.
+	// 
 	if(CDB_LOCKING(env) || !LOCKING_ON(env) || (MULTIVERSION(dbp) && mode == DB_LOCK_READ &&
 	    dbc->txn && F_ISSET(dbc->txn, TXN_SNAPSHOT)) || F_ISSET(dbc, DBC_DONTLOCK) || (F_ISSET(dbc, DBC_RECOVER) &&
 		(action != LCK_ROLLBACK || IS_REP_CLIENT(env))) || (action != LCK_ALWAYS && F_ISSET(dbc, DBC_OPD))) {
 		LOCK_INIT(*lockp);
 		return 0;
 	}
-	/*
-	 * If the transaction enclosing this cursor has DB_LOCK_NOWAIT set,
-	 * pass that along to the lock call.
-	 */
+	// 
+	// If the transaction enclosing this cursor has DB_LOCK_NOWAIT set,
+	// pass that along to the lock call.
+	// 
 	if(DB_NONBLOCK(dbc))
 		lkflags |= DB_LOCK_NOWAIT;
 	/*
@@ -1001,10 +985,8 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 	/*
 	 * Transactional locking.
 	 * Hold on to the previous read lock only if we are in full isolation.
-	 * COUPLE_ALWAYS indicates we are holding an interior node which need
-	 *	not be isolated.
-	 * Downgrade write locks if we are supporting dirty readers and the
-	 * update did not have an error.
+	 * COUPLE_ALWAYS indicates we are holding an interior node which need not be isolated.
+	 * Downgrade write locks if we are supporting dirty readers and the update did not have an error.
 	 */
 	if(!oneof2(action, LCK_COUPLE, LCK_COUPLE_ALWAYS) || !LOCK_ISSET(*lockp))
 		action = 0;

@@ -747,7 +747,7 @@ int SLAPI CMrpTab::Aggregate(PPID destTabID)
 //
 //
 //
-SLAPI MrpTabPacket::MrpTabPacket() : TSArray <MrpTabLeaf>()
+SLAPI MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>() // @v9.8.4 SArray-->SVector
 {
 	ObjType  = 0;
 	ObjID    = 0;
@@ -872,12 +872,7 @@ int SLAPI MrpTabPacket::GetList(PPIDArray * pList) const
 	return pList->getCount() ? 1 : -1;
 }
 
-IMPL_CMPFUNC(MrpTabLeaf, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE3(si, (MrpTabLeaf *)i1, (MrpTabLeaf *)i2, Dt, LocID, TabID);
-	return si;
-}
+IMPL_CMPFUNC(MrpTabLeaf, i1, i2) { RET_CMPCASCADE3((const MrpTabLeaf *)i1, (const MrpTabLeaf *)i2, Dt, LocID, TabID); }
 
 void SLAPI MrpTabPacket::Sort()
 {

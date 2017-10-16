@@ -22,13 +22,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "curl_memrchr.h"
-//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 
 #ifndef HAVE_MEMRCHR
-
 /*
  * Curl_memrchr()
  *
@@ -37,7 +33,6 @@
  * backwards from the end of the n bytes pointed to by s instead of forward
  * from the beginning.
  */
-
 void * Curl_memrchr(const void * s, int c, size_t n)
 {
 	const uchar * p = (const uchar *)s;

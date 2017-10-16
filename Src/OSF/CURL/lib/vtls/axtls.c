@@ -20,12 +20,10 @@
 * KIND, either express or implied.
 *
 ***************************************************************************/
-
 /*
  * Source file for all axTLS-specific code for the TLS/SSL layer. No code
  * but vtls.c should ever call or use these functions.
  */
-
 #include "curl_setup.h"
 #pragma hdrstop
 
@@ -33,18 +31,11 @@
 #include <axTLS/config.h>
 #include <axTLS/ssl.h>
 #include "axtls.h"
-//#include "sendf.h"
-//#include "inet_pton.h"
 #include "vtls.h"
-//#include "parsedate.h"
-//#include "connect.h" /* for the connect timeout */
-//#include "select.h"
 #include "curl_printf.h"
 #include "hostcheck.h"
 #include <unistd.h>
-
 // The last #include files should be: 
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Global axTLS init, called from Curl_ssl_init() */

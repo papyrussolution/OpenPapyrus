@@ -10215,6 +10215,8 @@
 	#define CTLBRW_XMLVLD_XSDFILE     (2 + WINDOWS_ID_BIAS)
 	#define CTL_XMLVLD_XMLFILE        (3 + WINDOWS_ID_BIAS)
 	#define CTLBRW_XMLVLD_XMLFILE     (4 + WINDOWS_ID_BIAS)
+#define DLG_SELIACC               1327
+	#define CTL_SELIACC_WHAT          (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

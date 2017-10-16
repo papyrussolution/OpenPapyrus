@@ -44,6 +44,9 @@
 #ifndef PCRE_INTERNAL_H
 #define PCRE_INTERNAL_H
 
+#ifdef HAVE_CONFIG_H
+	#include "config.h"
+#endif
 #include <slib.h> // @sobolev
 //
 // Define PCRE_DEBUG to get debugging output on stdout. 

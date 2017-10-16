@@ -766,8 +766,7 @@ int __ham_metagroup_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	ret = __memp_fget(mpf, &pgno, ip, NULL, 0, &pagep);
 	/* If we are undoing, then we don't want to create the page. */
 	if(ret != 0 && DB_REDO(op))
-		ret = __memp_fget(mpf,
-			&pgno, ip, NULL, DB_MPOOL_CREATE, &pagep);
+		ret = __memp_fget(mpf, &pgno, ip, NULL, DB_MPOOL_CREATE, &pagep);
 	else if(ret == DB_PAGE_NOTFOUND)
 		goto do_meta;
 	if(ret != 0) {

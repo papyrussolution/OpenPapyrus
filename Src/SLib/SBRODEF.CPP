@@ -56,7 +56,7 @@ uint SLAPI BroGroup::NextColumn() const
 //
 //
 SLAPI BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) :
-	SArray(sizeof(BroColumn), 8, aryDataOwner|aryEachItem)
+	SArray(sizeof(BroColumn), /*8,*/ aryDataOwner|aryEachItem)
 {
 	capHight = captionHight;
 	options = aOptions;

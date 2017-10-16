@@ -1296,17 +1296,16 @@ retry:
 		++st_hsearch;
 		if(bhp->pgno != *pgnoaddr || bhp->mf_offset != mf_offset)
 			continue;
-		/* Snapshot reads -- get the version visible at read_lsn. */
+		// Snapshot reads -- get the version visible at read_lsn
 		if(read_lsnp) {
 			while(bhp && !BH_OWNED_BY(env, bhp, txn) && !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
 				bhp = SH_CHAIN_PREV(bhp, vc, __bh);
-			/*
-			 * We can get a null bhp if we are looking for a
-			 * page that was created after the transaction was
-			 * started so its not visible  (i.e. page added to
-			 * the BTREE in a subsequent txn).
-			 */
-			if(bhp == NULL) {
+			// 
+			// We can get a null bhp if we are looking for a
+			// page that was created after the transaction was
+			// started so its not visible  (i.e. page added to the BTREE in a subsequent txn).
+			// 
+			if(!bhp) {
 				ret = DB_PAGE_NOTFOUND;
 				goto err;
 			}
@@ -3711,16 +3710,16 @@ int __memp_skip_curadj(DBC * dbc, db_pgno_t pgno)
 	 */
 	MP_GET_BUCKET(env, mfp, pgno, &infop, hp, bucket, ret);
 	if(ret != 0) {
-		/* Panic: there is no way to return the error. */
+		// Panic: there is no way to return the error
 		__env_panic(env, ret);
 		return 0;
 	}
 	SH_TAILQ_FOREACH(bhp, &hp->hash_bucket, hq, __bh) {
-		if(bhp->pgno != pgno || bhp->mf_offset != mf_offset)
-			continue;
-		if(!BH_OWNED_BY(env, bhp, txn))
-			skip = 1;
-		break;
+		if(bhp->pgno == pgno && bhp->mf_offset == mf_offset) {
+			if(!BH_OWNED_BY(env, bhp, txn))
+				skip = 1;
+			break;
+		}
 	}
 	MUTEX_UNLOCK(env, hp->mtx_hash);
 	return skip;

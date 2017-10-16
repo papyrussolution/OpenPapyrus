@@ -7,16 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/qam.h"
 
 #define QAM_EXNAME(Q, I, B, L)  snprintf((B), (L), QUEUE_EXTENT, (Q)->dir, PATH_SEPARATOR[0], (Q)->name, (I))
 /*
@@ -27,7 +18,7 @@
  * PUBLIC: int __qam_fprobe __P((DBC *, db_pgno_t,
  * PUBLIC:     void *, qam_probe_mode, DB_CACHE_PRIORITY, uint32));
  */
-int __qam_fprobe(DBC*dbc, db_pgno_t pgno, void * addrp, qam_probe_mode mode, DB_CACHE_PRIORITY priority, uint32 flags)
+int __qam_fprobe(DBC * dbc, db_pgno_t pgno, void * addrp, qam_probe_mode mode, DB_CACHE_PRIORITY priority, uint32 flags)
 {
 	DB_MPOOLFILE * mpf;
 	MPFARRAY * array;
@@ -42,27 +33,19 @@ int __qam_fprobe(DBC*dbc, db_pgno_t pgno, void * addrp, qam_probe_mode mode, DB_
 	if(qp->page_ext == 0) {
 		mpf = dbp->mpf;
 		switch(mode) {
-		    case QAM_PROBE_GET:
-			return __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
-		    case QAM_PROBE_PUT:
-			return __memp_fput(mpf, dbc->thread_info, addrp, priority);
-		    case QAM_PROBE_DIRTY:
-			return __memp_dirty(mpf, addrp, dbc->thread_info, dbc->txn, priority, flags);
-		    case QAM_PROBE_MPF:
-			*(DB_MPOOLFILE **)addrp = mpf;
-			return 0;
+		    case QAM_PROBE_GET: return __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
+		    case QAM_PROBE_PUT: return __memp_fput(mpf, dbc->thread_info, addrp, priority);
+		    case QAM_PROBE_DIRTY: return __memp_dirty(mpf, addrp, dbc->thread_info, dbc->txn, priority, flags);
+		    case QAM_PROBE_MPF: *(DB_MPOOLFILE **)addrp = mpf; return 0;
 		}
 	}
 	mpf = NULL;
-
 	/*
 	 * Need to lock long enough to find the mpf or create the file.
-	 * The file cannot go away because we must have a record locked
-	 * in that file.
+	 * The file cannot go away because we must have a record locked in that file.
 	 */
 	MUTEX_LOCK(env, dbp->mutex);
 	extid = QAM_PAGE_EXTENT(dbp, pgno);
-
 	/* Array1 will always be in use if array2 is in use. */
 	array = &qp->array1;
 	if(array->n_extent == 0) {
@@ -82,10 +65,7 @@ retry:
 		less = 0;
 		offset = extid-array->low_extent;
 	}
-	if(qp->array2.n_extent != 0 &&
-	   (extid >= qp->array2.low_extent ?
-	    offset > extid-qp->array2.low_extent :
-	    offset > qp->array2.low_extent-extid)) {
+	if(qp->array2.n_extent != 0 && (extid >= qp->array2.low_extent ? offset > extid-qp->array2.low_extent : offset > qp->array2.low_extent-extid)) {
 		array = &qp->array2;
 		if(extid < array->low_extent) {
 			less = 1;
@@ -107,8 +87,7 @@ retry:
 		if(less == 1 && offset+numext <= array->n_extent) {
 			/*
 			 * If we can fit this one into the existing array by
-			 * shifting the existing entries then we do not have
-			 * to allocate.
+			 * shifting the existing entries then we do not have to allocate.
 			 */
 			memmove(&array->mpfarray[offset], array->mpfarray, numext * sizeof(array->mpfarray[0]));
 			memzero(array->mpfarray, offset*sizeof(array->mpfarray[0]));
@@ -121,7 +100,7 @@ retry:
 			 * the bottom extent and put this one at the end.
 			 */
 			mpf = array->mpfarray[0].mpf;
-			if(mpf != NULL && (ret = __memp_fclose(mpf, 0)) != 0)
+			if(mpf && (ret = __memp_fclose(mpf, 0)) != 0)
 				goto err;
 			memmove(&array->mpfarray[0], &array->mpfarray[1], (array->n_extent-1)*sizeof(array->mpfarray[0]));
 			array->low_extent++;
@@ -147,23 +126,27 @@ retry:
 				numext = 0;
 			}
 			else if(array->mpfarray[0].pinref == 0) {
-				/*
-				 * Check to see if there are extents marked
-				 * for deletion at the beginning of the cache.
-				 * If so close them so they will go away.
-				 */
+				// 
+				// Check to see if there are extents marked
+				// for deletion at the beginning of the cache.
+				// If so close them so they will go away.
+				// 
 				for(i = 0; i < array->n_extent; i++) {
 					if(array->mpfarray[i].pinref != 0)
 						break;
-					mpf = array->mpfarray[i].mpf;
-					if(mpf == NULL)
-						continue;
-					__memp_get_flags(mpf, &lflags);
-					if(!FLD_ISSET(lflags, DB_MPOOL_UNLINK))
-						break;
-					array->mpfarray[i].mpf = NULL;
-					if((ret = __memp_fclose(mpf, 0)) != 0)
-						goto err;
+					else {
+						mpf = array->mpfarray[i].mpf;
+						if(mpf) {
+							__memp_get_flags(mpf, &lflags);
+							if(!FLD_ISSET(lflags, DB_MPOOL_UNLINK))
+								break;
+							else {
+								array->mpfarray[i].mpf = NULL;
+								if((ret = __memp_fclose(mpf, 0)) != 0)
+									goto err;
+							}
+						}
+					}
 				}
 				if(i == 0)
 					goto increase;
@@ -174,10 +157,7 @@ retry:
 				goto retry;
 			}
 			else {
-				/*
-				 * Increase the size to at least include
-				 * the new one and double it.
-				 */
+				// Increase the size to at least include the new one and double it.
 increase:
 				array->n_extent += offset;
 				array->n_extent <<= 2;
@@ -186,26 +166,22 @@ alloc:
 			if((ret = __os_realloc(env, array->n_extent*sizeof(struct __qmpf), &array->mpfarray)) != 0)
 				goto err;
 			if(less == 1) {
-				/*
-				 * Move the array up and put the new one
-				 * in the first slot.
-				 */
+				// Move the array up and put the new one in the first slot.
 				memmove(&array->mpfarray[offset], array->mpfarray, numext*sizeof(array->mpfarray[0]));
 				memzero(array->mpfarray, offset*sizeof(array->mpfarray[0]));
 				memzero(&array->mpfarray[numext+offset], (array->n_extent-(numext+offset))*sizeof(array->mpfarray[0]));
 				offset = 0;
 			}
-			else
-				/* Clear the new part of the array. */
+			else // Clear the new part of the array
 				memzero(&array->mpfarray[oldext], (array->n_extent-oldext)*sizeof(array->mpfarray[0]));
 		}
 	}
-	/* Update the low and hi range of saved extents. */
+	// Update the low and hi range of saved extents
 	if(extid < array->low_extent)
 		array->low_extent = extid;
 	if(extid > array->hi_extent)
 		array->hi_extent = extid;
-	/* If the extent file is not yet open, open it. */
+	// If the extent file is not yet open, open it
 	if(array->mpfarray[offset].mpf == NULL) {
 		QAM_EXNAME(qp, extid, buf, sizeof(buf));
 		if((ret = __memp_fcreate(env, &array->mpfarray[offset].mpf)) != 0)
@@ -216,7 +192,6 @@ alloc:
 		__memp_get_ftype(dbp->mpf, &ftype);
 		__memp_set_ftype(mpf, ftype);
 		__memp_set_clear_len(mpf, dbp->pgsize);
-
 		/* Set up the fileid for this extent. */
 		__qam_exid(dbp, fid, extid);
 		__memp_set_fileid(mpf, fid);
@@ -254,18 +229,18 @@ err:
 		pgno %= qp->page_ext;
 		switch(mode) {
 		    case QAM_PROBE_GET:
-			ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
-			if(ret == 0)
-				return 0;
-			break;
+				ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
+				if(ret == 0)
+					return 0;
+				break;
 		    case QAM_PROBE_PUT:
-			ret = __memp_fput(mpf, dbc->thread_info, addrp, dbp->priority);
-			break;
+				ret = __memp_fput(mpf, dbc->thread_info, addrp, dbp->priority);
+				break;
 		    case QAM_PROBE_DIRTY:
-			return __memp_dirty(mpf, addrp, dbc->thread_info, dbc->txn, dbp->priority, flags);
+				return __memp_dirty(mpf, addrp, dbc->thread_info, dbc->txn, dbp->priority, flags);
 		    case QAM_PROBE_MPF:
-			*(DB_MPOOLFILE **)addrp = mpf;
-			return 0;
+				*(DB_MPOOLFILE **)addrp = mpf;
+				return 0;
 		}
 		MUTEX_LOCK(env, dbp->mutex);
 		/* Recalculate because we dropped the lock. */
@@ -329,27 +304,18 @@ done:
 int __qam_fremove(DB*dbp, db_pgno_t pgnoaddr)
 {
 	DB_MPOOLFILE * mpf;
-	ENV * env;
 	MPFARRAY * array;
-	QUEUE * qp;
 	uint32 extid, offset;
-	int ret;
-
-	qp = (QUEUE *)dbp->q_internal;
-	env = dbp->env;
-	ret = 0;
-
+	QUEUE * qp = (QUEUE *)dbp->q_internal;
+	ENV * env = dbp->env;
+	int ret = 0;
 	MUTEX_LOCK(env, dbp->mutex);
-
 	extid = QAM_PAGE_EXTENT(dbp, pgnoaddr);
 	array = &qp->array1;
 	if(array->low_extent > extid || array->hi_extent < extid)
 		array = &qp->array2;
 	offset = extid-array->low_extent;
-
-	DB_ASSERT(env,
-		extid >= array->low_extent && offset < array->n_extent);
-
+	DB_ASSERT(env, extid >= array->low_extent && offset < array->n_extent);
 	mpf = array->mpfarray[offset].mpf;
 	/* This extent my already be marked for delete and closed. */
 	if(mpf == NULL)
@@ -372,11 +338,8 @@ int __qam_fremove(DB*dbp, db_pgno_t pgnoaddr)
 	 * shift things down and adjust the end points.
 	 */
 	if(offset == 0) {
-		memmove(array->mpfarray, &array->mpfarray[1],
-			(array->hi_extent-array->low_extent)*
-			sizeof(array->mpfarray[0]));
-		array->mpfarray[
-		        array->hi_extent-array->low_extent].mpf = NULL;
+		memmove(array->mpfarray, &array->mpfarray[1], (array->hi_extent-array->low_extent)*sizeof(array->mpfarray[0]));
+		array->mpfarray[array->hi_extent-array->low_extent].mpf = NULL;
 		if(array->low_extent != array->hi_extent)
 			array->low_extent++;
 	}
@@ -397,18 +360,16 @@ err:
 int __qam_sync(DB*dbp)
 {
 	int ret;
-	/*
-	 * We can't easily identify the extent files associated with a specific
-	 * Queue file, so flush all Queue extent files.
-	 */
+	// 
+	// We can't easily identify the extent files associated with a specific
+	// Queue file, so flush all Queue extent files.
+	// 
 	if((ret = __memp_fsync(dbp->mpf)) != 0)
 		return ret;
 	if(((QUEUE *)dbp->q_internal)->page_ext != 0)
-		return __memp_sync_int(
-			dbp->env, NULL, 0, DB_SYNC_QUEUE_EXTENT, 0, 0);
+		return __memp_sync_int(dbp->env, NULL, 0, DB_SYNC_QUEUE_EXTENT, 0, 0);
 	return 0;
 }
-
 /*
  * __qam_gen_filelist -- generate a list of extent files.
  *	Another thread may close the handle so this should only
@@ -420,25 +381,21 @@ int __qam_sync(DB*dbp)
 int __qam_gen_filelist(DB*dbp, DB_THREAD_INFO * ip, QUEUE_FILELIST ** filelistp)
 {
 	DBC * dbc;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
 	QMETA * meta;
-	QUEUE * qp;
 	size_t extent_cnt;
 	db_recno_t i, current, first, stop, rec_extent;
 	QUEUE_FILELIST * fp;
 	int ret;
-
-	env = dbp->env;
-	mpf = dbp->mpf;
-	qp = (QUEUE *)dbp->q_internal;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	QUEUE * qp = (QUEUE *)dbp->q_internal;
 	*filelistp = NULL;
 	if(qp->page_ext == 0)
 		return 0;
-	/* This may happen during metapage recovery. */
+	// This may happen during metapage recovery
 	if(qp->name == NULL)
 		return 0;
-	/* Find out the first and last record numbers in the database. */
+	// Find out the first and last record numbers in the database
 	i = PGNO_BASE_MD;
 	if((ret = __memp_fget(mpf, &i, ip, NULL, 0, &meta)) != 0)
 		return ret;
@@ -456,24 +413,16 @@ int __qam_gen_filelist(DB*dbp, DB_THREAD_INFO * ip, QUEUE_FILELIST ** filelistp)
 	 *   UINT32_MAX wraparound (the last extent can be small).
 	 */
 	rec_extent = qp->rec_page*qp->page_ext;
-	if(current >= first)
-		extent_cnt = (current-first)/rec_extent+3;
-	else
-		extent_cnt =
-		        (current+(UINT32_MAX-first))/rec_extent+4;
+	extent_cnt = (current >= first) ? ((current-first)/rec_extent+3) : ((current+(UINT32_MAX-first))/rec_extent+4);
 	if(extent_cnt == 0)
 		return 0;
-	if((ret = __os_calloc(env,
-		    extent_cnt, sizeof(QUEUE_FILELIST), filelistp)) != 0)
+	if((ret = __os_calloc(env, extent_cnt, sizeof(QUEUE_FILELIST), filelistp)) != 0)
 		return ret;
 	fp = *filelistp;
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
 		return ret;
 again:
-	if(current >= first)
-		stop = current;
-	else
-		stop = UINT32_MAX;
+	stop = (current >= first) ? current : UINT32_MAX;
 	/*
 	 * Make sure that first is at the same offset in the extent as stop.
 	 * This guarantees that the stop will be reached in the loop below,
@@ -482,7 +431,6 @@ again:
 	 */
 	first -= first%rec_extent;
 	first += stop%rec_extent;
-
 	for(i = first; i >= first && i <= stop; i += rec_extent) {
 		if((ret = __qam_fprobe(dbc, QAM_RECNO_PAGE(dbp, i), &fp->mpf, QAM_PROBE_MPF, dbp->priority, 0)) != 0) {
 			if(ret == ENOENT)
@@ -532,7 +480,7 @@ int __qam_extent_names(ENV * env, char * name, char *** namelistp)
 	cnt = 0;
 	for(fp = filelist; fp->mpf != NULL; fp++)
 		cnt++;
-	/* QUEUE_EXTENT contains extra chars, but add 6 anyway for the int. */
+	// QUEUE_EXTENT contains extra chars, but add 6 anyway for the int
 	len = (size_t)cnt*(sizeof(**namelistp)+strlen(QUEUE_EXTENT)+strlen(qp->dir)+strlen(qp->name)+6);
 	if((ret = __os_malloc(dbp->env, len, namelistp)) != 0)
 		goto done;
@@ -547,8 +495,7 @@ int __qam_extent_names(ENV * env, char * name, char *** namelistp)
 	}
 	*cp = NULL;
 done:
-	if(filelist != NULL)
-		__os_free(dbp->env, filelist);
+	__os_free(dbp->env, filelist);
 	if((t_ret = __db_close(dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
 	return ret;
@@ -571,12 +518,12 @@ void __qam_exid(DB*dbp, uint8 * fidp, uint32 exnum)
 {
 	int i;
 	uint8 * p;
-	/* Copy the fileid from the master. */
+	// Copy the fileid from the master
 	memcpy(fidp, dbp->fileid, DB_FILE_ID_LEN);
-	/* The first four bytes are the inode or the FileIndexLow; 0 it. */
+	// The first four bytes are the inode or the FileIndexLow; 0 it
 	for(i = sizeof(uint32); i > 0; --i)
 		*fidp++ = 0;
-	/* The next four bytes are the dev/FileIndexHigh; insert the exnum . */
+	// The next four bytes are the dev/FileIndexHigh; insert the exnum 
 	for(p = (uint8 *)&exnum, i = sizeof(uint32); i > 0; --i)
 		*fidp++ = *p++;
 }
@@ -592,8 +539,6 @@ void __qam_exid(DB*dbp, uint8 * fidp, uint32 exnum)
  */
 int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 {
-	ENV * env;
-	QUEUE * qp;
 	size_t exlen, fulllen, len;
 	uint8 fid[DB_FILE_ID_LEN];
 	uint32 exid;
@@ -601,9 +546,8 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 	char buf[DB_MAXPATHLEN], nbuf[DB_MAXPATHLEN], sepsave;
 	char * endname, * endpath, * exname, * fullname, ** names;
 	char * ndir, * namep, * p_new_, * cp;
-
-	env = dbp->env;
-	qp = (QUEUE *)dbp->q_internal;
+	ENV * env = dbp->env;
+	QUEUE * qp = (QUEUE *)dbp->q_internal;
 	cnt = ret = t_ret = 0;
 	namep = exname = fullname = NULL;
 	names = NULL;
@@ -715,14 +659,10 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 		}
 	}
 err:
-	if(fullname != NULL)
-		__os_free(env, fullname);
-	if(exname != NULL)
-		__os_free(env, exname);
-	if(namep != NULL)
-		__os_free(env, namep);
-	if(names != NULL)
-		__os_dirfree(env, names, cnt);
+	__os_free(env, fullname);
+	__os_free(env, exname);
+	__os_free(env, namep);
+	__os_dirfree(env, names, cnt);
 	return ret;
 }
 /*

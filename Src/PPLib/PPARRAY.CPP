@@ -791,7 +791,7 @@ struct SurKey {
 	SBaseBuffer Val;
 };
 
-SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), 8, aryDataOwner | aryEachItem)
+SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), /*8,*/ aryDataOwner|aryEachItem)
 {
 	LastId = 0;
 }

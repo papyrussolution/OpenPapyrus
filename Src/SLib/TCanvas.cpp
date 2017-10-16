@@ -4394,12 +4394,7 @@ struct __GlyphKey {
 	uint16 C;
 };
 
-IMPL_CMPFUNC(__GlyphKey, i1, i2)
-{
-	int    s;
-	CMPCASCADE2(s, (const __GlyphKey *)i1, (const __GlyphKey *)i2, I, C);
-	return s;
-}
+IMPL_CMPFUNC(__GlyphKey, i1, i2) { RET_CMPCASCADE2((const __GlyphKey *)i1, (const __GlyphKey *)i2, I, C); }
 
 SPaintObj::Font * SPaintToolBox::GetFont(SDrawContext & rCtx, int fontIdent)
 {

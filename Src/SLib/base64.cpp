@@ -18,7 +18,7 @@ static const char index_64[128] = {
 	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1
 };
 
-static void makebasis64(char * pBuf)
+static void FASTCALL makebasis64(char * pBuf)
 {
 /*
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/

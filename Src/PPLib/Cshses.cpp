@@ -1135,7 +1135,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				if(!oneof2(pSubDir[0], '\\', '/'))
 					sp.Dir.SetLastSlash();
 				sp.Dir.Cat(pSubDir);
-				sp.Merge(path.Z());
+				sp.Merge(path);
 			}
 			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
 				SString ftp_path, file_name;

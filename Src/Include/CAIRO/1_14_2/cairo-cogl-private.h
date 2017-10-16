@@ -50,19 +50,12 @@ typedef enum _cairo_cogl_template_type {
 
 typedef struct _cairo_cogl_device {
     cairo_device_t base;
-
     cairo_bool_t backend_vtable_initialized;
     cairo_backend_t backend;
-
-    /* We save a copy of all the original backend methods that we override so
-     * we can chain up...
-     */
+    // We save a copy of all the original backend methods that we override so we can chain up...
     cairo_backend_t backend_parent;
-
     CoglContext *cogl_context;
-
     CoglTexture *dummy_texture;
-
     /* This is a sparsely filled set of templates because we don't support
      * the full range of operators that cairo has. All entries corresponding
      * to unsupported operators are NULL.
@@ -76,10 +69,8 @@ typedef struct _cairo_cogl_device {
     CoglPipeline *template_pipelines[CAIRO_OPERATOR_ADD + 1][CAIRO_COGL_TEMPLATE_TYPE_COUNT];
 
     CoglMatrix identity;
-
     /* Caches 1d linear gradient textures */
     cairo_cache_t linear_cache;
-
     cairo_cache_t path_fill_staging_cache;
     cairo_cache_t path_fill_prim_cache;
     cairo_cache_t path_stroke_staging_cache;
@@ -93,10 +84,8 @@ typedef struct _cairo_cogl_clip_primitives {
 
 typedef struct _cairo_cogl_surface {
     cairo_surface_t base;
-
     CoglPixelFormat cogl_format;
     cairo_bool_t ignore_alpha;
-
     /* We currently have 3 basic kinds of Cogl surfaces:
      * 1) A light surface simply wrapping a CoglTexture
      * 2) A CoglOffscreen framebuffer that implicitly also wraps a CoglTexture
@@ -104,28 +93,20 @@ typedef struct _cairo_cogl_surface {
      *    a CoglTexture (e.g. via tfp on X11) but we don't currently do
      *    that.
      */
-
     CoglTexture *texture;
     CoglFramebuffer *framebuffer;
-
     int width;
     int height;
-
     GQueue *journal;
-
     CoglAttributeBuffer *buffer_stack;
     size_t buffer_stack_size;
     size_t buffer_stack_offset;
     guint8 *buffer_stack_pointer;
-
     cairo_clip_t *last_clip;
-
     /* A small fifo of recently used cairo_clip_ts paired with CoglPrimitives
      * that can be used to mask the stencil buffer. */
     GList *clips_fifo;
-
     int n_clip_updates_per_frame;
-
     /* Since the surface backend drawing operator functions don't get
      * passed the current cairo_t context we don't have a good way
      * to get our user-coordinates path into our surface_fill function.

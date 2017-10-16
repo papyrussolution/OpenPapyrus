@@ -998,16 +998,13 @@ err1:
  */
 int __ham_contract_table(DBC*dbc, DB_COMPACT * c_data)
 {
-	DB * dbp;
-	DB_MPOOLFILE * mpf;
 	HASH_CURSOR * hcp;
 	HMETA * hdr;
-	PAGE * h;
 	db_pgno_t maxpgno, stoppgno;
 	int drop_segment, ret;
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	h = NULL;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	PAGE * h = NULL;
 	if((ret = __ham_dirty_meta(dbc, 0)) != 0)
 		return ret;
 	hcp = (HASH_CURSOR *)dbc->internal;

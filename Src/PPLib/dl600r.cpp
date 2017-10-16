@@ -37,7 +37,7 @@ struct UnpFormItem {
 	CtmExpr * P_Expr;
 };
 
-SLAPI DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), 8, O_ARRAY|aryEachItem)
+SLAPI DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), /*8,*/ O_ARRAY|aryEachItem)
 {
 }
 

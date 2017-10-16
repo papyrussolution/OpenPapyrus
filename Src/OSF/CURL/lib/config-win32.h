@@ -262,18 +262,14 @@
 	#define HAVE_VARIADIC_MACROS_C99 1 /* Define if the compiler supports C99 variadic macro style. */
 #endif
 /* Define if the compiler supports the 'long long' data type. */
-#if defined(__MINGW32__) || defined(__WATCOMC__)      || \
-    (defined(_MSC_VER)     && (_MSC_VER     >= 1310)) || \
-    (defined(__BORLANDC__) && (__BORLANDC__ >= 0x561))
-#define HAVE_LONGLONG 1
+#if defined(__MINGW32__) || defined(__WATCOMC__) || (defined(_MSC_VER) && (_MSC_VER >= 1310)) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x561))
+	#define HAVE_LONGLONG 1
 #endif
-
 /* Define to avoid VS2005 complaining about portable C functions. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#define _CRT_SECURE_NO_DEPRECATE 1
-#define _CRT_NONSTDC_NO_DEPRECATE 1
+	#define _CRT_SECURE_NO_DEPRECATE 1
+	#define _CRT_NONSTDC_NO_DEPRECATE 1
 #endif
-
 /* VS2005 and later default size for time_t is 64-bit, unless
    _USE_32BIT_TIME_T has been defined to get a 32-bit time_t. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)

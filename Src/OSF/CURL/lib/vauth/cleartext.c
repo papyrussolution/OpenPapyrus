@@ -25,19 +25,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
 #include "vauth/vauth.h"
-//#include "curl_base64.h"
-//#include "curl_md5.h"
-//#include "warnless.h"
-//#include "strtok.h"
-//#include "sendf.h"
 #include "curl_printf.h"
-// The last #include files should be
-//#include "curl_memory.h"
 #include "memdebug.h"
-
 /*
  * Curl_auth_create_plain_message()
  *

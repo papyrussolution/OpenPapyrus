@@ -124,7 +124,7 @@ int LogsDialog::SendByEmail()
 			PPGetFilePath(PPPATH_LOG, r_e.FileName, path);
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			acct_id = alb_cfg.Hdr.MailAccID;
-			if(ListBoxSelDialog(PPOBJ_INTERNETACCOUNT, &acct_id, INETACCT_ONLYMAIL) > 0) {
+			if(ListBoxSelDialog(PPOBJ_INTERNETACCOUNT, &acct_id, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) > 0) {
 				GetMainOrgName(temp_buf);
 				PPLoadText(PPTXT_LOGFILEMAILSUBJ, fmt_buf);
 				subj.Printf(fmt_buf, r_e.FileName, (const char*)temp_buf).Transf(CTRANSF_INNER_TO_OUTER);

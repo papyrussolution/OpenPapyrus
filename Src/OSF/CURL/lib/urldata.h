@@ -495,12 +495,11 @@ struct negotiatedata {
 };
 
 #endif
-
 /*
  * Boolean values that concerns this connection.
  */
 struct ConnectBits {
-	/* always modify bits.close with the connclose() and connkeep() macros! */
+	// always modify bits.close with the connclose() and connkeep() macros! 
 	bool close; /* if set, we close the connection after this request */
 	bool reuse; /* if set, this is a re-used connection */
 	bool conn_to_host; /* if set, this connection has a "connect to host"
@@ -512,58 +511,41 @@ struct ConnectBits {
 	bool socksproxy; /* if set, this transfer is done through a socks proxy */
 	bool user_passwd; /* do we use user+password for this connection? */
 	bool proxy_user_passwd; /* user+password for the proxy? */
-	bool ipv6_ip; /* we communicate with a remote site specified with pure IPv6
-	                 IP address */
+	bool ipv6_ip; /* we communicate with a remote site specified with pure IPv6 IP address */
 	bool ipv6; /* we communicate with a site using an IPv6 address */
-
-	bool do_more; /* this is set TRUE if the ->curl_do_more() function is
-	                 supposed to be called, after ->curl_do() */
-	bool tcpconnect[2]; /* the TCP layer (or similar) is connected, this is set
-	                       the first time on the first connect function call */
-	bool protoconnstart; /* the protocol layer has STARTED its operation after
-	                        the TCP layer connect */
-
-	bool retry;   /* this connection is about to get closed and then
-	                 re-attempted at another connection. */
+	bool do_more; /* this is set TRUE if the ->curl_do_more() function is supposed to be called, after ->curl_do() */
+	bool tcpconnect[2]; /* the TCP layer (or similar) is connected, this is set the first time on the first connect function call */
+	bool protoconnstart; /* the protocol layer has STARTED its operation after the TCP layer connect */
+	bool retry;   /* this connection is about to get closed and then re-attempted at another connection. */
 	bool tunnel_proxy; /* if CONNECT is used to "tunnel" through the proxy.
 	                      This is implicit when SSL-protocols are used through
-	                      proxies, but can also be enabled explicitly by
-	                      apps */
+	                      proxies, but can also be enabled explicitly by apps */
 	bool authneg; /* TRUE when the auth phase has started, which means
 	                 that we are creating a request with an auth header,
-	                 but it is not the final request in the auth
-	                 negotiation. */
+	                 but it is not the final request in the auth negotiation. */
 	bool rewindaftersend; /* TRUE when the sending couldn't be stopped even
 	                         though it will be discarded. When the whole send
-	                         operation is done, we must call the data rewind
-	                         callback. */
+	                         operation is done, we must call the data rewind callback. */
 	bool ftp_use_epsv; /* As set with CURLOPT_FTP_USE_EPSV, but if we find out
-	                      EPSV doesn't work we disable it for the forthcoming
-	                      requests */
-
+	                      EPSV doesn't work we disable it for the forthcoming requests */
 	bool ftp_use_eprt; /* As set with CURLOPT_FTP_USE_EPRT, but if we find out
-	                      EPRT doesn't work we disable it for the forthcoming
-	                      requests */
+	                      EPRT doesn't work we disable it for the forthcoming requests */
 	bool ftp_use_data_ssl; /* Enabled SSL for the data connection */
 	bool netrc;   /* name+password provided by netrc */
 	bool userpwd_in_url; /* name+password found in url */
 	bool stream_was_rewound; /* Indicates that the stream was rewound after a
-	                            request read past the end of its response byte
-	                            boundary */
+	                            request read past the end of its response byte boundary */
 	bool proxy_connect_closed; /* set true if a proxy disconnected the
 	                              connection in a CONNECT request with auth, so
 	                              that libcurl should reconnect and continue. */
-	bool bound; /* set true if bind() has already been done on this socket/
-	               connection */
+	bool bound; // set true if bind() has already been done on this socket/connection 
 	bool type_set; /* type= was used in the URL */
 	bool multiplex; /* connection is multiplexed */
-
 	bool tcp_fastopen; /* use TCP Fast Open */
 	bool tls_enable_npn; /* TLS NPN extension? */
 	bool tls_enable_alpn; /* TLS ALPN extension? */
-	bool proxy_ssl_connected[2]; /* TRUE when SSL initialization for HTTPS proxy
-	                                is complete */
-	bool socksproxy_connecting; /* connecting through a socks proxy */
+	bool proxy_ssl_connected[2]; // TRUE when SSL initialization for HTTPS proxy is complete 
+	bool socksproxy_connecting; // connecting through a socks proxy 
 };
 
 struct hostname {
@@ -605,7 +587,6 @@ struct Curl_async {
 	char * hostname;
 	int port;
 	struct Curl_dns_entry * dns;
-
 	bool done; /* set TRUE when the lookup is complete */
 	int status; /* if done is TRUE, this is the status from the callback */
 	void * os_specific; /* 'struct thread_data' for Windows */
@@ -620,7 +601,6 @@ struct Curl_async {
    within the source when we need to cast between data pointers (such as NULL)
    and function pointers. */
 typedef CURLcode (*Curl_do_more_func)(struct connectdata *, int *);
-
 typedef CURLcode (*Curl_done_func)(struct connectdata *, CURLcode, bool);
 
 enum expect100 {
@@ -830,20 +810,16 @@ struct connectdata {
 	   caution that this might very well vary between different times this
 	   connection is used! */
 	struct Curl_easy * data;
-
 	/* chunk is for HTTP chunked encoding, but is in the general connectdata
 	   struct only because we can do just about any protocol through a HTTP proxy
 	   and a HTTP proxy may in fact respond using chunked encoding */
 	struct Curl_chunker chunk;
-
 	curl_closesocket_callback fclosesocket; /* function closing the socket(s) */
 	void * closesocket_client;
-
 	bool inuse; /* This is a marker for the connection cache logic. If this is
 	               TRUE this handle is being used by an easy handle and cannot
 	               be used by any other easy handle without careful
 	               consideration (== only for pipelining). */
-
 	/**** Fields set when inited and not modified again */
 	long connection_id; /* Contains a unique number to make it easier to
 	                       track the connections in the log output */
@@ -872,21 +848,16 @@ struct connectdata {
 	struct proxy_info http_proxy;
 	long port; /* which port to use locally */
 	int remote_port; /* the remote port, not the proxy port! */
-	int conn_to_port; /* the remote port to connect to. valid only if
-	                     bits.conn_to_port is set */
-	ushort secondary_port; /* secondary socket remote port to connect to
-	                                  (ftp) */
-
+	int conn_to_port; // the remote port to connect to. valid only if bits.conn_to_port is set 
+	ushort secondary_port; // secondary socket remote port to connect to (ftp) 
 	/* 'primary_ip' and 'primary_port' get filled with peer's numerical
 	   ip address and port number whenever an outgoing connection is
 	   *attempted* from the primary socket to a remote address. When more
 	   than one address is tried for a connection these will hold data
 	   for the last attempt. When the connection is actually established
 	   these are updated with data which comes directly from the socket. */
-
 	char primary_ip[MAX_IPADR_LEN];
 	long primary_port;
-
 	/* 'local_ip' and 'local_port' get filled with local's numerical
 	   ip address and port number whenever an outgoing connection is
 	 **established** from the primary socket to a remote address. */
@@ -1049,7 +1020,6 @@ struct PureInfo {
 	long numconnects; /* how many new connection did libcurl created */
 	char * contenttype; /* the content type of the object */
 	char * wouldredirect; /* URL this would've been redirected to if asked to */
-
 	/* PureInfo members 'conn_primary_ip', 'conn_primary_port', 'conn_local_ip'
 	   and, 'conn_local_port' are copied over from the connectdata struct in
 	   order to allow curl_easy_getinfo() to return this information even when
@@ -1057,69 +1027,47 @@ struct PureInfo {
 	   allow curl_easy_reset() to clear this information from the session handle
 	   without disturbing information which is still alive, and that might be
 	   reused, in the connection cache. */
-
 	char conn_primary_ip[MAX_IPADR_LEN];
 	long conn_primary_port;
-
 	char conn_local_ip[MAX_IPADR_LEN];
 	long conn_local_port;
-
 	const char * conn_scheme;
 	uint conn_protocol;
-
 	struct curl_certinfo certs; /* info about the certs, only populated in
 	                               OpenSSL builds. Asked for with
 	                               CURLOPT_CERTINFO / CURLINFO_CERTINFO */
 };
 
 struct Progress {
-	time_t lastshow; /* time() of the last displayed progress meter or NULL to
-	                    force redraw at next call */
+	time_t lastshow; /* time() of the last displayed progress meter or NULL to force redraw at next call */
 	curl_off_t size_dl; /* total expected size */
 	curl_off_t size_ul; /* total expected size */
 	curl_off_t downloaded; /* transferred so far */
 	curl_off_t uploaded; /* transferred so far */
-
 	curl_off_t current_speed; /* uses the currently fastest transfer */
-
 	bool callback; /* set when progress callback is used */
 	int width; /* screen width at download start */
 	int flags; /* see progress.h */
-
 	double timespent;
-
 	curl_off_t dlspeed;
 	curl_off_t ulspeed;
-
 	double t_nslookup;
 	double t_connect;
 	double t_appconnect;
 	double t_pretransfer;
 	double t_starttransfer;
 	double t_redirect;
-
 	struct timeval start;
-
 	struct timeval t_startsingle;
-
 	struct timeval t_startop;
-
 	struct timeval t_acceptdata;
-
-	/* upload speed limit */
-	struct timeval ul_limit_start;
-
+	struct timeval ul_limit_start; // upload speed limit 
 	curl_off_t ul_limit_size;
-	/* download speed limit */
-	struct timeval dl_limit_start;
-
+	struct timeval dl_limit_start; // download speed limit 
 	curl_off_t dl_limit_size;
-
 #define CURR_TIME (5+1) /* 6 entries for 5 seconds */
-
 	curl_off_t speeder[ CURR_TIME ];
 	struct timeval speeder_time[ CURR_TIME ];
-
 	int speeder_c;
 };
 
@@ -1162,25 +1110,18 @@ typedef enum {
 #define MAX_CURL_PASSWORD_LENGTH 256
 
 struct auth {
-	ulong want; /* Bitmask set to the authentication methods wanted by
-	                       app (with CURLOPT_HTTPAUTH or CURLOPT_PROXYAUTH). */
+	ulong want; /* Bitmask set to the authentication methods wanted by app (with CURLOPT_HTTPAUTH or CURLOPT_PROXYAUTH). */
 	ulong picked;
-	ulong avail; /* Bitmask for what the server reports to support for
-	                        this resource */
-	bool done; /* TRUE when the auth phase is done and ready to do the *actual*
-	              request */
-	bool multipass; /* TRUE if this is not yet authenticated but within the
-	                   auth multipass negotiation */
-	bool iestyle; /* TRUE if digest should be done IE-style or FALSE if it should
-	                 be RFC compliant */
+	ulong avail; /* Bitmask for what the server reports to support for this resource */
+	bool done; /* TRUE when the auth phase is done and ready to do the *actual* request */
+	bool multipass; /* TRUE if this is not yet authenticated but within the auth multipass negotiation */
+	bool iestyle; /* TRUE if digest should be done IE-style or FALSE if it should be RFC compliant */
 };
 
 struct Curl_http2_dep {
 	struct Curl_http2_dep * next;
-
 	struct Curl_easy * data;
 };
-
 /*
  * This struct is for holding data that was attemped to get sent to the user's
  * callback but is held due to pausing. One instance per type (BOTH, HEADER,
@@ -1597,14 +1538,13 @@ struct Names {
  * 'struct UrlState' instead.
  */
 struct Curl_easy {
-	/* first, two fields for the linked list of these */
+	// first, two fields for the linked list of these 
 	struct Curl_easy * next;
 	struct Curl_easy * prev;
 	struct connectdata * easy_conn; /* the "unit's" connection */
 	CURLMstate mstate; /* the handle's state */
 	CURLcode result; /* previous result */
 	struct Curl_message msg; /* A single posted message. */
-
 	/* Array with the plain socket numbers this handle takes care of, in no
 	   particular order. Note that all sockets are added to the sockhash, where
 	   the state etc are also kept. This array is mostly used to detect when a

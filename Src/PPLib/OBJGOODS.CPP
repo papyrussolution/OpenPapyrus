@@ -1505,12 +1505,7 @@ GoodsSubstItem::GoodsSubstItem()
 	THISZERO();
 }
 
-IMPL_CMPFUNC(GoodsSubstList_AssocItem, p1, p2)
-{
-	int    si = 0;
-	CMPCASCADE4(si, (const GoodsSubstList::AssocItem *)p1, (const GoodsSubstList::AssocItem *)p2, SrcGoodsID, LocID, LotID, Dt);
-	return si;
-}
+IMPL_CMPFUNC(GoodsSubstList_AssocItem, p1, p2) { RET_CMPCASCADE4((const GoodsSubstList::AssocItem *)p1, (const GoodsSubstList::AssocItem *)p2, SrcGoodsID, LocID, LotID, Dt); }
 
 SLAPI GoodsSubstList::InnerAssocItem::InnerAssocItem(PPID substID)
 {

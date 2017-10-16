@@ -2474,8 +2474,7 @@ int __rep_reset_init(ENV * env)
 			goto out;
 		fvers = REP_INITVERSION_46;
 	}
-	else if((ret = __os_read(env,
-			 fhp, &fvers, sizeof(fvers), &cnt)) != 0)
+	else if((ret = __os_read(env, fhp, &fvers, sizeof(fvers), &cnt)) != 0)
 		goto out;
 	else if(cnt != sizeof(fvers))
 		goto rm;
@@ -2551,19 +2550,18 @@ static int __rep_get_file_list(ENV * env, DB_FH * fhp, uint32 fvers, uint32 * db
 		if(fvers >= REP_INITVERSION_47) {
 			if((ret = __os_read(env, fhp, &mvers, sizeof(mvers), &cnt)) != 0)
 				goto err;
-			if(cnt == 0 && dbt->data != NULL)
+			if(cnt == 0 && dbt->data)
 				break;
 			if(cnt != sizeof(mvers))
 				goto err;
 		}
-		if((ret = __os_read(env,
-			    fhp, &length, sizeof(length), &cnt)) != 0)
+		if((ret = __os_read(env, fhp, &length, sizeof(length), &cnt)) != 0)
 			goto err;
 		/*
 		 * Reaching the end here is fine, if we've been through at least
 		 * once already.
 		 */
-		if(cnt == 0 && dbt->data != NULL)
+		if(cnt == 0 && dbt->data)
 			break;
 		if(cnt != sizeof(length))
 			goto err;

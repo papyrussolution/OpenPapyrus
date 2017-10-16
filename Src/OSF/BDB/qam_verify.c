@@ -142,11 +142,9 @@ int __qam_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, u
 err:
 	if((t_ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0 && ret == 0)
 		ret = t_ret;
-	if(names != NULL)
-		__os_dirfree(env, names, count);
-	if(buf != NULL)
-		__os_free(env, buf);
-	if(ret != 0 && extents != NULL)
+	__os_dirfree(env, names, count);
+	__os_free(env, buf);
+	if(ret != 0)
 		__os_free(env, extents);
 	if(LF_ISSET(DB_SALVAGE) && (t_ret = __db_salvage_markdone(vdp, pgno)) != 0 && ret == 0)
 		ret = t_ret;

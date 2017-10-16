@@ -951,10 +951,22 @@ int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 				// @fallthrough
 			default: // Literal character 
 literal:
-				if(c == d) {
-					if(d == '\0')
-						return 1;
-					break;
+				{
+					if(c == d) {
+						if(d == '\0')
+							return 1;
+						break;
+					}
+					else if(c > d && (c - d) == ('a' - 'A') && (c >= 'a' && c <= 'z')) {
+						if(d == '\0')
+							return 1;
+						break;
+					}
+					else if(d > c && (d - c) == ('a' - 'A') && (d >= 'a' && d <= 'z')) {
+						if(d == '\0')
+							return 1;
+						break;
+					}
 				}
 backtrack:
 				if(c == '\0' || !back_pat)

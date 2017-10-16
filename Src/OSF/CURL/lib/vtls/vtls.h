@@ -54,7 +54,7 @@
 
 bool Curl_ssl_config_matches(struct ssl_primary_config* data, struct ssl_primary_config* needle);
 bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source, struct ssl_primary_config * dest);
-void Curl_free_primary_ssl_config(struct ssl_primary_config* sslc);
+void FASTCALL Curl_free_primary_ssl_config(struct ssl_primary_config* sslc);
 int Curl_ssl_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
 int Curl_ssl_backend(void);
 

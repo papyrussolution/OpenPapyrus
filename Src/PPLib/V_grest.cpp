@@ -859,7 +859,7 @@ PPViewGoodsRest::CacheItem::CacheItem()
 
 SLAPI PPViewGoodsRest::Cache::Cache()
 {
-	setDelta(128);
+	//setDelta(128);
 }
 
 PPViewGoodsRest::Cache & SLAPI PPViewGoodsRest::Cache::Clear()
@@ -889,12 +889,7 @@ int SLAPI PPViewGoodsRest::Cache::GetCacheItemLotTag(const PPViewGoodsRest::Cach
 	return GetS(rItem.LotTagP, rBuf);
 }
 
-IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2)
-{
-	int    si = 0;
-	CMPCASCADE5(si, (PPViewGoodsRest::CacheItem *)_i1, (PPViewGoodsRest::CacheItem *)_i2, GoodsID, LocID, Cost, Price, UnitPerPack);
-	return si;
-}
+IMPL_CMPFUNC(GoodsRestCacheItem, _i1, _i2) { RET_CMPCASCADE5((const PPViewGoodsRest::CacheItem *)_i1, (const PPViewGoodsRest::CacheItem *)_i2, GoodsID, LocID, Cost, Price, UnitPerPack); }
 
 void SLAPI PPViewGoodsRest::InitCache()
 {
@@ -912,8 +907,8 @@ struct _lru_item_tag {
 
 IMPL_CMPFUNC(_lru_item_tag, _i1, _i2)
 {
-	_lru_item_tag * i1 = (_lru_item_tag*)_i1;
-	_lru_item_tag * i2 = (_lru_item_tag*)_i2;
+	const _lru_item_tag * i1 = (const _lru_item_tag*)_i1;
+	const _lru_item_tag * i2 = (const _lru_item_tag*)_i2;
 	return CMPFUNC(int16, &i2->pos, &i1->pos); // descending order
 }
 
@@ -2115,12 +2110,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 	return ok;
 }
 
-IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (ReceiptTbl::Rec *)i1, (ReceiptTbl::Rec *)i2, Dt, OprNo);
-	return si;
-}
+IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo); }
 
 PPViewGoodsRest::LotQueryBlock::LotQueryBlock()
 {
@@ -2303,7 +2293,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 	SString msg_buf;
 	if(CConfig.LcrUsage == 2 && (r = P_BObj->trfr->GetLcrList(Filt.Date, &lcr_lot_list, &lcr_rest_list)) > 0) {
 		IterCounter cntr;
-		SArray lot_list(sizeof(ReceiptTbl::Rec), 128, O_ARRAY); // @v8.1.0 def-->(,128)
+		SArray lot_list(sizeof(ReceiptTbl::Rec), /*128,*/O_ARRAY); // @v8.1.0 def-->(,128)
 		THROW(r);
 		{
 			const long max_hole = 5;

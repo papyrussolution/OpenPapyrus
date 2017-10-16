@@ -83,20 +83,15 @@ int FASTCALL RegisterCore::IsEqualRec(const RegisterTbl::Rec & rRec1, const Regi
 //
 // RegisterArray
 //
-SLAPI RegisterArray::RegisterArray() : SArray(sizeof(RegisterTbl::Rec))
+SLAPI RegisterArray::RegisterArray() : SVector(sizeof(RegisterTbl::Rec)) // @v9.8.4 SArray-->SVector
 {
 }
 
-SLAPI RegisterArray::RegisterArray(const RegisterArray & s) : SArray(s)
+SLAPI RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s) // @v9.8.4 SArray-->SVector
 {
 }
 
-IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE3(si, (const RegisterTbl::Rec *)i1, (const RegisterTbl::Rec *)i2, RegTypeID, Dt, Expiry);
-	return si;
-}
+IMPL_CMPFUNC(RegisterTbl_Rec_TDE, i1, i2) { RET_CMPCASCADE3((const RegisterTbl::Rec *)i1, (const RegisterTbl::Rec *)i2, RegTypeID, Dt, Expiry); }
 
 void SLAPI RegisterArray::Sort()
 {
@@ -135,7 +130,7 @@ int FASTCALL RegisterArray::HasEqual(const RegisterTbl::Rec & rRec) const
 
 RegisterTbl::Rec & FASTCALL RegisterArray::at(uint pos) const
 {
-	return *(RegisterTbl::Rec*)SArray::at(pos);
+	return *(RegisterTbl::Rec*)SVector::at(pos); // @v9.8.4 SArray-->SVector
 }
 
 int SLAPI RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec * pRec) const
@@ -143,7 +138,7 @@ int SLAPI RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec 
 	return GetRegister(regTyp, ZERODATE, pPos, pRec);
 }
 
-struct _RegCandidItem {
+struct _RegCandidItem { // @flat
 	uint   P;
     long   StartDist;
     long   ExpiryDist;
@@ -153,7 +148,7 @@ int SLAPI RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, Regi
 {
 	int    ok = srrNothing;
 	int    optimal_pos = -1;
-	TSArray <_RegCandidItem> candid_list;
+	TSVector <_RegCandidItem> candid_list; // @v9.8.4 TSArray-->TSVector
 	for(uint i = 0; ok == srrNothing && i < getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = at(i);
 		if(r_reg.RegTypeID == regTyp) {

@@ -1112,12 +1112,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			case SSH_SFTP_REALPATH:
 		    {
 			    char tempHome[PATH_MAX];
-
 			    /*
 			     * Get the "home" directory
 			     */
-			    rc = sftp_libssh2_realpath(sshc->sftp_session, ".",
-				    tempHome, PATH_MAX-1);
+			    rc = sftp_libssh2_realpath(sshc->sftp_session, ".", tempHome, PATH_MAX-1);
 			    if(rc == LIBSSH2_ERROR_EAGAIN) {
 				    break;
 			    }
@@ -1138,12 +1136,10 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    if(err)
 					    result = sftp_libssh2_error_to_CURLE(err);
 				    else
-					    /* in this case, the error wasn't in the SFTP level but for example
-					       a time-out or similar */
+					    // in this case, the error wasn't in the SFTP level but for example a time-out or similar 
 					    result = CURLE_SSH;
 				    sshc->actualcode = result;
-				    DEBUGF(infof(data, "error = %d makes libcurl = %d\n",
-						    err, (int)result));
+				    DEBUGF(infof(data, "error = %d makes libcurl = %d\n", err, (int)result));
 				    state(conn, SSH_STOP);
 				    break;
 			    }
@@ -1155,16 +1151,13 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    DEBUGF(infof(data, "SSH CONNECT phase done\n"));
 			    state(conn, SSH_STOP);
 			    break;
-
 			case SSH_SFTP_QUOTE_INIT:
-
 			    result = ssh_getworkingpath(conn, sshc->homedir, &sftp_scp->path);
 			    if(result) {
 				    sshc->actualcode = result;
 				    state(conn, SSH_STOP);
 				    break;
 			    }
-
 			    if(data->set.quote) {
 				    infof(data, "Sending quote commands\n");
 				    sshc->quote_item = data->set.quote;
@@ -1174,7 +1167,6 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    state(conn, SSH_SFTP_GETINFO);
 			    }
 			    break;
-
 			case SSH_SFTP_POSTQUOTE_INIT:
 			    if(data->set.postquote) {
 				    infof(data, "Sending quote commands\n");
@@ -1185,32 +1177,26 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    state(conn, SSH_STOP);
 			    }
 			    break;
-
 			case SSH_SFTP_QUOTE:
 			    /* Send any quote commands */
 		    {
 			    const char * cp;
-
 			    /*
 			     * Support some of the "FTP" commands
 			     */
 			    char * cmd = sshc->quote_item->data;
 			    sshc->acceptfail = FALSE;
-
 			    /* if a command starts with an asterisk, which a legal SFTP command never
 			       can, the command will be allowed to fail without it causing any
 			       aborts or cancels etc. It will cause libcurl to act as if the command
 			       is successful, whatever the server reponds. */
-
 			    if(cmd[0] == '*') {
 				    cmd++;
 				    sshc->acceptfail = TRUE;
 			    }
-
 			    if(strcasecompare("pwd", cmd)) {
 				    /* output debug output if that is requested */
-				    char * tmp = aprintf("257 \"%s\" is current directory.\n",
-					    sftp_scp->path);
+				    char * tmp = aprintf("257 \"%s\" is current directory.\n", sftp_scp->path);
 				    if(!tmp) {
 					    result = CURLE_OUT_OF_MEMORY;
 					    state(conn, SSH_SFTP_CLOSE);

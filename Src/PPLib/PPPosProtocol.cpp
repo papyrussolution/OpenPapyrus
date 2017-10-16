@@ -988,12 +988,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 	return p_ret;
 }
 
-IMPL_CMPCFUNC(ObjBlockRef_, p1, p2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (const PPPosProtocol::ObjBlockRef *)p1, (const PPPosProtocol::ObjBlockRef *)p2, Type, P);
-	return si;
-}
+IMPL_CMPCFUNC(ObjBlockRef_, p1, p2) { RET_CMPCASCADE2((const PPPosProtocol::ObjBlockRef *)p1, (const PPPosProtocol::ObjBlockRef *)p2, Type, P); }
 
 /*void SLAPI PPPosProtocol::ReadBlock::SortRefList()
 {

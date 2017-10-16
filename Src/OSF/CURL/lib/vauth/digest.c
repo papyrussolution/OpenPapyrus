@@ -25,24 +25,10 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_CRYPTO_AUTH)
-
-//#include <curl/curl.h>
 #include "vauth/vauth.h"
 #include "vauth/digest.h"
-//#include "urldata.h"
-//#include "curl_base64.h"
-//#include "curl_hmac.h"
-//#include "curl_md5.h"
-//#include "vtls/vtls.h"
-//#include "warnless.h"
-//#include "strtok.h"
-//#include "strcase.h"
-//#include "non-ascii.h" /* included for Curl_convert_... prototypes */
 #include "curl_printf.h"
 #include "rand.h"
-
-/* The last #include files should be: */
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 #if !defined(USE_WINDOWS_SSPI)
@@ -189,33 +175,26 @@ static CURLcode auth_digest_get_qop_values(const char * options, int * value)
 	char * tmp;
 	char * token;
 	char * tok_buf;
-
 	/* Initialise the output */
 	*value = 0;
-
 	/* Tokenise the list of qop values. Use a temporary clone of the buffer since
 	   strtok_r() ruins it. */
 	tmp = _strdup(options);
 	if(!tmp)
 		return CURLE_OUT_OF_MEMORY;
-
 	token = strtok_r(tmp, ",", &tok_buf);
-	while(token != NULL) {
-		if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH))
+	while(token) {
+		if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH))
 			*value |= DIGEST_QOP_VALUE_AUTH;
-		else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_INT))
+		else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_INT))
 			*value |= DIGEST_QOP_VALUE_AUTH_INT;
-		else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
+		else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
 			*value |= DIGEST_QOP_VALUE_AUTH_CONF;
-
 		token = strtok_r(NULL, ",", &tok_buf);
 	}
-
 	SAlloc::F(tmp);
-
 	return CURLE_OK;
 }
-
 /*
  * auth_decode_digest_md5_message()
  *
@@ -482,38 +461,36 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 	for(;; ) {
 		char value[DIGEST_MAX_VALUE_LENGTH];
 		char content[DIGEST_MAX_CONTENT_LENGTH];
-
 		/* Pass all additional spaces here */
 		while(*chlg && ISSPACE(*chlg))
 			chlg++;
-
 		/* Extract a value=content pair */
 		if(Curl_auth_digest_get_pair(chlg, value, content, &chlg)) {
-			if(strcasecompare(value, "nonce")) {
+			if(sstreqi_ascii(value, "nonce")) {
 				SAlloc::F(digest->nonce);
 				digest->nonce = _strdup(content);
 				if(!digest->nonce)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "stale")) {
-				if(strcasecompare(content, "true")) {
+			else if(sstreqi_ascii(value, "stale")) {
+				if(sstreqi_ascii(content, "true")) {
 					digest->stale = TRUE;
 					digest->nc = 1; /* we make a new nonce now */
 				}
 			}
-			else if(strcasecompare(value, "realm")) {
+			else if(sstreqi_ascii(value, "realm")) {
 				SAlloc::F(digest->realm);
 				digest->realm = _strdup(content);
 				if(!digest->realm)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "opaque")) {
+			else if(sstreqi_ascii(value, "opaque")) {
 				SAlloc::F(digest->opaque);
 				digest->opaque = _strdup(content);
 				if(!digest->opaque)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "qop")) {
+			else if(sstreqi_ascii(value, "qop")) {
 				char * tok_buf;
 				/* Tokenize the list and choose auth if possible, use a temporary
 				   clone of the buffer since strtok_r() ruins it */
@@ -523,18 +500,16 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 
 				token = strtok_r(tmp, ",", &tok_buf);
 				while(token != NULL) {
-					if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH)) {
+					if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH)) {
 						foundAuth = TRUE;
 					}
-					else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_INT)) {
+					else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_INT)) {
 						foundAuthInt = TRUE;
 					}
 					token = strtok_r(NULL, ",", &tok_buf);
 				}
-
 				SAlloc::F(tmp);
-
-				/* Select only auth or auth-int. Otherwise, ignore */
+				// Select only auth or auth-int. Otherwise, ignore 
 				if(foundAuth) {
 					SAlloc::F(digest->qop);
 					digest->qop = _strdup(DIGEST_QOP_VALUE_STRING_AUTH);
@@ -548,15 +523,14 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 						return CURLE_OUT_OF_MEMORY;
 				}
 			}
-			else if(strcasecompare(value, "algorithm")) {
+			else if(sstreqi_ascii(value, "algorithm")) {
 				SAlloc::F(digest->algorithm);
 				digest->algorithm = _strdup(content);
 				if(!digest->algorithm)
 					return CURLE_OUT_OF_MEMORY;
-
-				if(strcasecompare(content, "MD5-sess"))
+				if(sstreqi_ascii(content, "MD5-sess"))
 					digest->algo = CURLDIGESTALGO_MD5SESS;
-				else if(strcasecompare(content, "MD5"))
+				else if(sstreqi_ascii(content, "MD5"))
 					digest->algo = CURLDIGESTALGO_MD5;
 				else
 					return CURLE_BAD_CONTENT_ENCODING;
@@ -695,7 +669,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	   5.1.1 of RFC 2616)
 	 */
 	md5this = (uchar*)aprintf("%s:%s", request, uripath);
-	if(digest->qop && strcasecompare(digest->qop, "auth-int")) {
+	if(digest->qop && sstreqi_ascii(digest->qop, "auth-int")) {
 		/* We don't support auth-int for PUT or POST at the moment.
 		   TODO: replace md5 of empty string with entity-body for PUT/POST */
 		uchar * md5this2 = (uchar*)aprintf("%s:%s", md5this, "d41d8cd98f00b204e9800998ecf8427e");
@@ -769,28 +743,17 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		    digest->nc,
 		    digest->qop,
 		    request_digest);
-
-		if(strcasecompare(digest->qop, "auth"))
-			digest->nc++;  /* The nc (from RFC) has to be a 8 hex digit number 0
-		                          padded which tells to the server how many times you are
-		                          using the same nonce in the qop=auth mode */
+		if(sstreqi_ascii(digest->qop, "auth"))
+			digest->nc++; // The nc (from RFC) has to be a 8 hex digit number 0
+				// padded which tells to the server how many times you are using the same nonce in the qop=auth mode
 	}
 	else {
-		response = aprintf("username=\"%s\", "
-		    "realm=\"%s\", "
-		    "nonce=\"%s\", "
-		    "uri=\"%s\", "
-		    "response=\"%s\"",
-		    userp_quoted,
-		    digest->realm,
-		    digest->nonce,
-		    uripath,
-		    request_digest);
+		response = aprintf("username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"",
+		    userp_quoted, digest->realm, digest->nonce, uripath, request_digest);
 	}
 	SAlloc::F(userp_quoted);
 	if(!response)
 		return CURLE_OUT_OF_MEMORY;
-
 	/* Add the optional fields */
 	if(digest->opaque) {
 		/* Append the opaque */
@@ -798,10 +761,8 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		SAlloc::F(response);
 		if(!tmp)
 			return CURLE_OUT_OF_MEMORY;
-
 		response = tmp;
 	}
-
 	if(digest->algorithm) {
 		/* Append the algorithm */
 		tmp = aprintf("%s, algorithm=\"%s\"", response, digest->algorithm);

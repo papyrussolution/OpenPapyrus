@@ -1421,7 +1421,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 			SArray goods(sizeof(_E));
 			PPIDArray cash_list;
 			CCheckLineArray check_line_list;
-			check_line_list.setDelta(64);
+			//check_line_list.setDelta(64);
 			CSessionTbl::Rec csess_rec;
 			CCheckLineTbl::Rec * p_crec = 0;
 			PPBillPacket b_pack;

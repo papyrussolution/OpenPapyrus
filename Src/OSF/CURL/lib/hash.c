@@ -22,10 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
 #include "hash.h"
-//#include "llist.h"
-//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 
 static void hash_element_dtor(void * user, void * element)
@@ -36,9 +33,7 @@ static void hash_element_dtor(void * user, void * element)
 		h->dtor(e->ptr);
 		e->ptr = NULL;
 	}
-
 	e->key_len = 0;
-
 	SAlloc::F(e);
 }
 
@@ -94,11 +89,8 @@ static struct curl_hash_element * mk_hash_element(const void * key, size_t key_l
 void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p)
 {
 	struct curl_hash_element  * he;
-
 	struct curl_llist_element * le;
-
 	struct curl_llist * l = FETCH_LIST(h, key, key_len);
-
 	for(le = l->head; le; le = le->next) {
 		he = (struct curl_hash_element*)le->ptr;
 		if(h->comp_func(he->key, he->key_len, key, key_len)) {
@@ -107,7 +99,6 @@ void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p)
 			break;
 		}
 	}
-
 	he = mk_hash_element(key, key_len, p);
 	if(he) {
 		if(Curl_llist_insert_next(l, l->tail, he)) {
@@ -122,7 +113,6 @@ void * Curl_hash_add(struct curl_hash * h, void * key, size_t key_len, void * p)
 		 */
 		SAlloc::F(he);
 	}
-
 	return NULL; /* failure */
 }
 
@@ -190,10 +180,9 @@ void Curl_hash_apply(curl_hash * h, void * user, void (* cb)(void * user, void *
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_destroy(struct curl_hash * h)
+void FASTCALL Curl_hash_destroy(struct curl_hash * h)
 {
-	int i;
-	for(i = 0; i < h->slots; ++i) {
+	for(int i = 0; i < h->slots; ++i) {
 		Curl_llist_destroy(&h->table[i], (void*)h);
 	}
 	ZFREE(h->table);
@@ -254,23 +243,22 @@ size_t Curl_str_key_compare(void * k1, size_t key1_len, void * k2, size_t key2_l
 	return 0;
 }
 
-void Curl_hash_start_iterate(struct curl_hash * hash, struct curl_hash_iterator * iter)
+void FASTCALL Curl_hash_start_iterate(struct curl_hash * hash, struct curl_hash_iterator * iter)
 {
 	iter->hash = hash;
 	iter->slot_index = 0;
 	iter->current_element = NULL;
 }
 
-struct curl_hash_element * Curl_hash_next_element(struct curl_hash_iterator * iter)
+struct curl_hash_element * FASTCALL Curl_hash_next_element(struct curl_hash_iterator * iter)
 {
-	int i;
 	struct curl_hash * h = iter->hash;
-	/* Get the next element in the current list, if any */
+	// Get the next element in the current list, if any 
 	if(iter->current_element)
 		iter->current_element = iter->current_element->next;
-	/* If we have reached the end of the list, find the next one */
+	// If we have reached the end of the list, find the next one 
 	if(!iter->current_element) {
-		for(i = iter->slot_index; i < h->slots; i++) {
+		for(int i = iter->slot_index; i < h->slots; i++) {
 			if(h->table[i].head) {
 				iter->current_element = h->table[i].head;
 				iter->slot_index = i+1;

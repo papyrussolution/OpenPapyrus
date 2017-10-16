@@ -79,7 +79,6 @@
 
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 struct ResolverResults {
@@ -452,33 +451,24 @@ Curl_addrinfo * Curl_resolver_getaddrinfo(struct connectdata * conn, const char 
 	char * bufp;
 	struct Curl_easy * data = conn->data;
 	struct in_addr in;
-
 	int family = PF_INET;
 #ifdef ENABLE_IPV6 /* CURLRES_IPV6 */
 	struct in6_addr in6;
-
 #endif /* CURLRES_IPV6 */
-
 	*waitp = 0; /* default to synchronous response */
-
-	/* First check if this is an IPv4 address string */
-	if(Curl_inet_pton(AF_INET, hostname, &in) > 0) {
-		/* This is a dotted IP address 123.123.123.123-style */
+	// First check if this is an IPv4 address string 
+	if(Curl_inet_pton(AF_INET, hostname, &in) > 0) { // This is a dotted IP address 123.123.123.123-style 
 		return Curl_ip2addr(AF_INET, &in, hostname, port);
 	}
-
 #ifdef ENABLE_IPV6 /* CURLRES_IPV6 */
-	/* Otherwise, check if this is an IPv6 address string */
-	if(Curl_inet_pton(AF_INET6, hostname, &in6) > 0)
-		/* This must be an IPv6 address literal.  */
+	// Otherwise, check if this is an IPv6 address string 
+	if(Curl_inet_pton(AF_INET6, hostname, &in6) > 0) // This must be an IPv6 address literal
 		return Curl_ip2addr(AF_INET6, &in6, hostname, port);
-
 	switch(conn->ip_version) {
 		default:
 #if ARES_VERSION >= 0x010601
-		    family = PF_UNSPEC; /* supported by c-ares since 1.6.1, so for older
-		                           c-ares versions this just falls through and defaults
-		                           to PF_INET */
+		    family = PF_UNSPEC; // supported by c-ares since 1.6.1, so for older
+				// c-ares versions this just falls through and defaults to PF_INET 
 		    break;
 #endif
 		case CURL_IPRESOLVE_V4:

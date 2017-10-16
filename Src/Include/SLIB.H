@@ -333,6 +333,13 @@ typedef int (FASTCALL *CompFunc)(const void *, const void *, void * pExtraData);
 #define CMPCASCADE7(si, s1, s2, m1, m2, m3, m4, m5, m6, m7)  \
 	if(!(si=CMPSIGN((s1)->m1,(s2)->m1)) && !(si=CMPSIGN((s1)->m2,(s2)->m2)) && !(si=CMPSIGN((s1)->m3,(s2)->m3)) && \
 		!(si=CMPSIGN((s1)->m4,(s2)->m4)) && !(si=CMPSIGN((s1)->m5,(s2)->m5)) && !(si=CMPSIGN((s1)->m6,(s2)->m6))) si=CMPSIGN((s1)->m7,(s2)->m7);
+
+#define RET_CMPCASCADE2(s1, s2, m1, m2) { int si = 0; CMPCASCADE2(si, s1, s2, m1, m2); return si; }
+#define RET_CMPCASCADE3(s1, s2, m1, m2, m3) { int si = 0; CMPCASCADE3(si, s1, s2, m1, m2, m3); return si; }
+#define RET_CMPCASCADE4(s1, s2, m1, m2, m3, m4) { int si = 0; CMPCASCADE4(si, s1, s2, m1, m2, m3, m4); return si; }
+#define RET_CMPCASCADE5(s1, s2, m1, m2, m3, m4, m5) { int si = 0; CMPCASCADE5(si, s1, s2, m1, m2, m3, m4, m5); return si; }
+#define RET_CMPCASCADE6(s1, s2, m1, m2, m3, m4, m5, m6) { int si = 0; CMPCASCADE6(si, s1, s2, m1, m2, m3, m4, m5, m6); return si; }
+#define RET_CMPCASCADE7(s1, s2, m1, m2, m3, m4, m5, m6, m7) { int si = 0; CMPCASCADE7(si, s1, s2, m1, m2, m3, m4, m5, m6, m7); return si; }
 //
 // Прототип функций вывода значения в строковый буфер
 //
@@ -3601,6 +3608,8 @@ public:
 
 	SString & SLAPI Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepageIdent cp, int rfc2207enc);
 	size_t SLAPI Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
+	SString & SLAPI EncodeUrl(const char * pSrc, int mode);
+	int    SLAPI DecodeUrl(SString & rBuf) const;
 
 	int    SLAPI DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	//
@@ -3856,7 +3865,15 @@ struct SPathStruc {
 	SPathStruc & Copy(const SPathStruc * pS, long flags);
 	SPathStruc & Clear();
 	void   FASTCALL Split(const char * pPath);
+	//
+	// Descr: Комбинирует компоненты экземпляра в текстовое представление пути.
+	// Note: 
+	//   -- Функция предварительно очищает rBuf.
+	//   -- Для разделения подкаталогов используется обратный слэш ('\\')
+	//   -- Инвариант по отношению к лидирующей точке компонента Ext
+	//
 	int    FASTCALL Merge(SString & rBuf) const;
+	int    FASTCALL Merge(long mergeFlags, SString & rBuf) const;
 	int    Merge(const SPathStruc * pPattern, long patternFlags, SString & rBuf);
 
 	enum {
@@ -4510,23 +4527,41 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 //
 long   SLAPI SearchStrInFile(FILE *, long startOffset, const char * pStr, int ignoreCase);
 
-#define SPRGRS_CONTINUE  0 /* for WIN32 eq PROGRESS_CONTINUE */
-#define SPRGRS_CANCEL    1 /* for WIN32 eq PROGRESS_CANCEL   */
-#define SPRGRS_STOP      2 /* for WIN32 eq PROGRESS_STOP     */
-#define SPRGRS_QUITE     3 /* for WIN32 eq PROGRESS_QUITE    */
+#define SPRGRS_CONTINUE  0 // for WIN32 eq PROGRESS_CONTINUE 
+#define SPRGRS_CANCEL    1 // for WIN32 eq PROGRESS_CANCEL   
+#define SPRGRS_STOP      2 // for WIN32 eq PROGRESS_STOP     
+#define SPRGRS_QUITE     3 // for WIN32 eq PROGRESS_QUITE    
 
-struct SCopyFileData {
-	const  char * SrcFileName;
-	const  char * DestFileName;
-	int64  TotalFileSize;
-	int64  TransferredBytes;
-	void * ExtraParam;
+struct SDataMoveProgressInfo;
+
+typedef int (* SDataMoveProgressProc)(const SDataMoveProgressInfo *);
+//
+// Descr: Структура данных, информирующая о ходе выполнения процесса передачи данных.
+//   Структура предполагает возможность передачи нескольких элементов данных. При этом
+//   предполагается вероятность незнания относительно общего размера данных для передачи.
+//
+struct SDataMoveProgressInfo {
+	SLAPI  SDataMoveProgressInfo();
+
+	int64  SizeDone;  // Количество данных текущего элемента, переданных на момент вызова callback
+	int64  SizeTotal; // Общий размер передаваемых данных в текущем элементе
+	uint32 OverallItemsDone;  // Количество элементов, передача которых завершена к моменту вызова callback
+	uint32 OverallItemsCount; // Общее количество элементов для передачи
+	int64  OverallSizeDone;   // Количество данных всех элементов, переданное на момент вызова callback
+	int64  OverallSizeTotal;  // Общий размер передаваемых данных всех элементов 
+	const  char * P_Src;  // Указатель на текст, информирующий об источнике данных
+	const  char * P_Dest; // Указатель на текст, информирующий о получателе данных
+	void * ExtraPtr;      // Указатель на прикладную структуру данных, поставляемую вызывающей функцией
+	//
+	SDataMoveProgressProc Proc; // На случай, если необходимо связать прогресс-функцию с внешним компонентом
+		// этот указатель упрощает жизнь - внешнему компоненту передается указатель на SDataMoveProgressInfo
+		// и вспомогательная функция (соответствующая спецификации внешнего компонента) сделает так:
+		// { SDataMoveProgressInfo * p_info = (SDataMoveProgressInfo *)extraPtr; p_info->Proc(p_info); }
 };
 
-typedef int (*SCopyFileProgressProc)(const SCopyFileData *);
-typedef int (*PercentFunc)(long, long, const char *, int);
+typedef int (* PercentFunc)(long, long, const char *, int);
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopyFileProgressProc, long shareMode, void * pExtra);
+int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc, long shareMode, void * pExtra);
 int compress(char *, char *, int, PercentFunc, ulong*);
 // @v9.4.8 int SLAPI PKUnzip(const char * pSrc, const char * pDest, const char * pZipFile);
 int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir);
@@ -5403,7 +5438,7 @@ public:
 	uint   SLAPI getFlags() const;
 	void   SLAPI setFlag(uint val, int set);
 	void   SLAPI setLimit(uint);
-	void   SLAPI setDelta(uint);
+	//void   SLAPI setDelta(uint);
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
@@ -5522,7 +5557,7 @@ public:
 	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
 	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
 protected:
-	SLAPI  SVectorBase(uint itemSize, uint aDelta, int o);
+	SLAPI  SVectorBase(uint itemSize, /*uint aDelta,*/ uint o);
 	SLAPI ~SVectorBase();
 	//
 	// Descr: Базовая функция копирования массива.
@@ -5543,8 +5578,9 @@ protected:
 	uint   pointer; // Указатель на текущий элемент массива (используется в стеках и очередях)
 	uint   isize;   // Размер одного элемента (bytes)
 	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
-	uint16 flags;   //
-	uint16 delta;   //
+	uint   flags;
+	//uint16 flags;   //
+	//uint16 delta;   //
 	uint8 * data;   //
 };
 #if 1 // @construction {
@@ -5554,9 +5590,9 @@ protected:
 //
 class SVector : public SVectorBase { // @novtbl
 public:
-	SLAPI  SVector(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
+	SLAPI  SVector(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/);
 	SLAPI  SVector(uint itemSize);
-	SLAPI  SVector(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
+	SLAPI  SVector(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
 	SLAPI  SVector(const SVector & rS);
 	SLAPI ~SVector();
 	SVector & FASTCALL operator = (const SVector &);
@@ -5642,13 +5678,13 @@ public:
 //
 class SArray : public SVectorBase {
 public:
-	SLAPI  SArray(uint itemSize, uint aDelta, int o /*= O_ARRAY*/);
+	SLAPI  SArray(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/);
 	//
 	// Descr: Создает простой массив (O_ARRAY) со значением delta по умолчанию (8)
 	//   и размером элемента - itemSize.
 	//
 	SLAPI  SArray(uint itemSize);
-	SLAPI  SArray(void * pData, uint itemSize, uint aCount, int o = O_N_O_ARRAY);
+	SLAPI  SArray(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
 	SLAPI  SArray(const SArray & rS);
 	SLAPI  SArray(const SVector & rS);
 	virtual SLAPI ~SArray();
@@ -5755,7 +5791,8 @@ protected:
 //
 class SCollection : public SArray {
 public:
-	SLAPI  SCollection(uint aDelta = DEFCOLLECTDELTA, int o = O_COLLECTION);
+	SLAPI  SCollection();
+	SLAPI  SCollection(/*uint aDelta = DEFCOLLECTDELTA,*/ uint o /*= O_COLLECTION*/);
 	SLAPI  SCollection(const SCollection & src) : SArray(src) {}
 };
 //
@@ -5763,7 +5800,7 @@ public:
 //
 class SStack : public SArray {
 public:
-	SLAPI  SStack(uint itemSize, uint aDelta = 8, int o = O_ARRAY); // @v8.9.12 aDelta 1-->8
+	SLAPI  SStack(uint itemSize, /*uint aDelta = 8,*/ uint o = O_ARRAY); // @v8.9.12 aDelta 1-->8
 	int    FASTCALL push(const void *);
 	int    FASTCALL pop(void *);
 	void * SLAPI pop();
@@ -5773,7 +5810,7 @@ public:
 
 class SQueue : public SArray {
 public:
-	SLAPI  SQueue(uint itemSize, uint queueSize, int o = O_ARRAY);
+	SLAPI  SQueue(uint itemSize, uint queueSize, uint o = O_ARRAY);
 	SLAPI  SQueue(const SQueue &);
 	void   SLAPI clear();
 	int    FASTCALL copy(const SQueue & src);
@@ -5791,7 +5828,7 @@ private:
 
 class STypArray : public SArray {
 public:
-	SLAPI  STypArray(TYPEID, uint aDelta = 8, int o = O_ARRAY);
+	SLAPI  STypArray(TYPEID, /*uint aDelta = 8,*/ uint o /*= O_ARRAY*/);
 	// @v9.0.5 virtual int FASTCALL insert(const void *);
 	virtual	void FASTCALL freeItem(void *);
 	TYPEID SLAPI getType() const { return type; }
@@ -5804,14 +5841,14 @@ protected:
 
 template <class T> class TSArray : public SArray {
 public:
-	TSArray(int o = O_ARRAY) : SArray(sizeof(T), 8, o) {}
+	TSArray(uint o = O_ARRAY) : SArray(sizeof(T), /*8,*/ o) {}
 	TSArray(const TSArray & src) : SArray(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SArray::at(pos); }
 };
 
 template <class T> class TSCollection : public SCollection {
 public:
-	TSCollection() : SCollection(DEFCOLLECTDELTA, O_COLLECTION)
+	TSCollection() : SCollection(/*DEFCOLLECTDELTA, O_COLLECTION*/)
 	{
 	}
 	~TSCollection()
@@ -5896,7 +5933,7 @@ template <class T> int TSDupPtr(T ** ppDest, T * pSrc)
 
 template <class T> class TSStack : public SStack {
 public:
-	TSStack(uint aDelta = 8) : SStack(sizeof(T), aDelta, O_ARRAY) {}
+	TSStack(/*uint aDelta = 8*/) : SStack(sizeof(T), /*aDelta,*/O_ARRAY) {}
 	void   FASTCALL push(const T & t) { SStack::push(&t); }
 	int    FASTCALL pop(T & t) { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
@@ -5904,7 +5941,11 @@ public:
 
 template <class T> class TSRingStack : public SStack {
 public:
-	TSRingStack(uint aDelta) : SStack(sizeof(T), aDelta, O_ARRAY|aryRing) {}
+	TSRingStack(uint cycle) : SStack(sizeof(T), /*aDelta,*/O_ARRAY|aryRing) 
+	{
+		assert(cycle > 1);
+		expand(cycle);
+	}
 	void   FASTCALL push(const T & t) { SStack::push(&t); }
 	int    FASTCALL pop(T & t)  { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
@@ -7195,7 +7236,7 @@ public:
 		long   Flags;
 		void * P_Data;
 	};
-	STree(uint itemSize, int o = O_ARRAY);
+	STree(uint itemSize, uint o = O_ARRAY);
 	~STree();
 	STree & Clear();
 	int    Insert(const void * pData, uint32 parentP, uint32 * pSvcPos);
@@ -10306,7 +10347,6 @@ public:
 	//   структур.
 	//
 	int    SLAPI SerializeState(int dir, SBuffer & rBuf);
-
 	int    SLAPI Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf);
 	//
 	// Descr: Считывает из буфера rBuf запись таблицы БД в соответствии с внутренним описанием (в потоке)
@@ -10340,7 +10380,6 @@ public:
 	int    SLAPI SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, TPoint & rV, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, FPoint & rV, SBuffer & rBuf);
-
 	int    SLAPI Serialize(int dir, SArray * pArray, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SVector * pArray, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf);
@@ -10349,7 +10388,7 @@ public:
 	//
 	// Descr: Возвращает опорную дату.
 	//   Опорная дата используется для сжатого хранения типа LDATE.
-	//   В поток заностися разница в днях между сохраняемой датой и опорной датой.
+	//   В поток заносится разница в днях между сохраняемой датой и опорной датой.
 	//
 	LDATE  SLAPI GetSupportingDate() const;
 private:

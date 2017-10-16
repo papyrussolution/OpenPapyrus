@@ -4190,9 +4190,9 @@ int SLAPI FiasImporter::ProcessState::Restore()
 {
 	int    ok = 1;
 	SBuffer buffer;
-	SSerializeContext sctx;
 	THROW(ok = PPRef->GetPropSBuffer(PPOBJ_FIAS, 1, FIASPRP_IMPORTSTATE2, buffer));
 	if(ok > 0) {
+		SSerializeContext sctx;
 		THROW(Serialize(-1, buffer, &sctx));
 	}
 	else

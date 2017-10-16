@@ -122,7 +122,7 @@ int SLAPI PPViewPalm::EditBaseFilt(PPBaseFilt * pFilt)
 	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_GROUP, PPOBJ_STYLOPALM, filt.GroupID, OLW_CANSELUPLEVEL, (void *)PLMF_GENERIC);
 	SetupArCombo(p_dlg, CTLSEL_PALMFLT_AGENT, filt.AgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_GOODSGRP, PPOBJ_GOODSGROUP, filt.GoodsGrpID, OLW_CANSELUPLEVEL);
-	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_FTPACC, PPOBJ_INTERNETACCOUNT, filt.FTPAcctID, 0, (void *)INETACCT_ONLYFTP);
+	SetupPPObjCombo(p_dlg, CTLSEL_PALMFLT_FTPACC, PPOBJ_INTERNETACCOUNT, filt.FTPAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
 	{
 		PPIDArray op_type_list;
 		LocationCtrlGroup::Rec loc_rec(&filt.LocList);

@@ -913,7 +913,7 @@ SLAPI STokenizer::STokenizer() : T(1000000, 0)
 	SO = 0;
 	P_ResourceIndex = 0;
 	SetParam(0);
-	TokenBuf.setDelta(128);
+	//TokenBuf.setDelta(128);
 }
 
 SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0)
@@ -923,7 +923,7 @@ SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0)
 	SO = 0;
 	P_ResourceIndex = 0;
 	SetParam(&rParam);
-	TokenBuf.setDelta(128);
+	//TokenBuf.setDelta(128);
 }
 
 SLAPI STokenizer::~STokenizer()
@@ -3806,6 +3806,60 @@ size_t SLAPI SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent *
 	return result;
 }
 
+SString & SLAPI SString::EncodeUrl(const char * pSrc, int mode)
+{
+	Z();
+	const  size_t slen = sstrlen(pSrc);
+	for(size_t spos = 0; spos < slen; spos++) {
+		char c = pSrc[spos];
+		if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || oneof4(c, '-', '_', '.', '~'))
+			CatChar(c);
+		else if(mode == 0 && oneof7(c, '#', '&', ',', ':', ';', '=', '?'))
+			CatChar(c);
+		else
+			CatChar('%').CatHexUpper((uchar)c);
+	}
+	return *this;
+}
+
+int SLAPI SString::DecodeUrl(SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	const size_t src_len = Len();
+	const char * p_src_buf = P_Buf;
+	for(size_t p = 0; p < src_len;) {
+		char c = p_src_buf[p];
+		if(c == '%') {
+			if(p < (src_len-2)) {
+				const char c1 = p_src_buf[p+1];
+				const char c2 = p_src_buf[p+2];
+				if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z')) && 
+					((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z'))) {
+					c = (hex(c1) << 4) | hex(c2);
+					rBuf.CatChar(c);
+				}
+				else {
+					ok = 0;
+					rBuf.CatChar(c1);
+					rBuf.CatChar(c2);
+				}
+				p += 3;
+			}
+			else {
+				ok = 0;
+				rBuf.CatChar(c);
+				p++;
+			}
+		}
+		else {
+			rBuf.CatChar(c);
+			p++;
+		}
+	}
+	return ok;
+}
+
 SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int decode)
 {
 	SString buf, pattern, replacer;
@@ -4734,6 +4788,38 @@ int FASTCALL SPathStruc::Merge(SString & rBuf) const
 	}
 	rBuf.Cat(Nam);
 	if(Ext.NotEmpty()) {
+		if(Ext.C(0) != '.')
+			rBuf.Dot();
+		rBuf.Cat(Ext);
+	}
+	return 1;
+}
+
+int FASTCALL SPathStruc::Merge(long mergeFlags, SString & rBuf) const
+{
+	rBuf.Z();
+	int    last = 0;
+	if(!mergeFlags || mergeFlags & fDrv) {
+		if(Flags & fUNC)
+			rBuf.CatCharN('\\', 2);
+		last = Drv.Last();
+		if(last) {
+			rBuf.Cat(Drv);
+			if(!(Flags & fUNC) && last != ':')
+				rBuf.CatChar(':');
+		}
+	}
+	if(!mergeFlags || mergeFlags & fDir) {
+		last = Dir.Last();
+		if(last) {
+			rBuf.Cat(Dir);
+			if(last != '\\' && last != '/')
+				rBuf.CatChar('\\');
+		}
+	}
+	if(!mergeFlags || mergeFlags & fNam)
+		rBuf.Cat(Nam);
+	if((!mergeFlags || mergeFlags & fExt) && Ext.NotEmpty()) {
 		if(Ext.C(0) != '.')
 			rBuf.Dot();
 		rBuf.Cat(Ext);

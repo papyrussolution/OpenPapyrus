@@ -68,9 +68,6 @@
 
    Overall, I concluded that the gains in some cases did not outweigh the losses in others, so I abandoned this code. 
 */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

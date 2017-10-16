@@ -533,7 +533,7 @@ int SLAPI PPViewReport::SendMail(long id)
 				Data.Dtm.SetZero();
 			}
 			SString buf;
-			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, INETACCT_ONLYMAIL);
+			SetupPPObjCombo(this, CTLSEL_RPTMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.AccountID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);
 			setCtrlString(CTL_RPTMAIL_SUPPMAIL,  Data.SupportMail);
 			setCtrlString(CTL_RPTMAIL_ORG,       Data.MainOrg);
 			setCtrlString(CTL_RPTMAIL_LIC,       Data.Licence);

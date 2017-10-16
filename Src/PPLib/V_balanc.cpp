@@ -31,12 +31,7 @@ struct Balance_AccItem {
 	int16  Kind;
 };
 
-IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2)
-{
-	int   si = 0;
-	CMPCASCADE2(si, (Balance_AccItem *)p1, (Balance_AccItem *)p2, Ac, Sb);
-	return si;
-}
+IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2((const Balance_AccItem *)p1, (const Balance_AccItem *)p2, Ac, Sb); }
 
 int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 {

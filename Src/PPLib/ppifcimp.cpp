@@ -40,7 +40,7 @@ DateRange FASTCALL OleDateRangeToDateRange(const SDateRange & rRng)
 	return period;
 }
 
-SIterCounter GetPPViewIterCounter(const void * ppviewPtr, int * pAppError)
+SIterCounter FASTCALL GetPPViewIterCounter(const void * ppviewPtr, int * pAppError)
 {
 	const PPView * p_v = (const PPView *)ppviewPtr;
 	SIterCounter cntr;
@@ -5773,7 +5773,7 @@ void FillLotRec(const SPpyO_Lot * pInner, ReceiptTbl::Rec * pOuter)
 }
 
 DL6_IC_CONSTRUCTOR(PPLotList, DL6ICLS_PPLotList_VTab)
-	{ ExtraPtr = new SArray(sizeof(ReceiptTbl::Rec), 128, O_ARRAY); }
+	{ ExtraPtr = new SArray(sizeof(ReceiptTbl::Rec), /*128,*/O_ARRAY); }
 DL6_IC_DESTRUCTOR(PPLotList)
 	{ delete (SArray*)ExtraPtr; }
 //

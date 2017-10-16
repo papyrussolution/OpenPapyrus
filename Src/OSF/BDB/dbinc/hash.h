@@ -103,9 +103,8 @@ typedef struct cursor_t {
  * From this page number we subtract the number of buckets already allocated
  * so that we can do a simple addition to calculate the page number here.
  */
-#define	BS_TO_PAGE(bucket, spares)		\
-	((bucket) + (spares)[__db_log2((bucket) + 1)])
-#define	BUCKET_TO_PAGE(I, B)	(BS_TO_PAGE((B), (I)->hdr->spares))
+#define	BS_TO_PAGE(bucket, spares) ((bucket) + (spares)[__db_log2((bucket) + 1)])
+#define	BUCKET_TO_PAGE(I, B)	   (BS_TO_PAGE((B), (I)->hdr->spares))
 
 /* Constraints about much data goes on a page. */
 

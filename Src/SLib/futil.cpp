@@ -8,6 +8,11 @@
 
 // #define MAX_PATH MAXPATH // still defined at windef.h (sobolev 2/06/99)
 
+SLAPI SDataMoveProgressInfo::SDataMoveProgressInfo()
+{
+	THISZERO();
+}
+
 int FASTCALL fileExists(const char * pFileName)
 {
 	return (!isempty(pFileName) && ::access(pFileName, 0) == 0) ? 1 : SLS.SetError(SLERR_FILENOTFOUND, pFileName);
@@ -434,7 +439,7 @@ int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 
 #ifdef __WIN32__
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopyFileProgressProc pp, long shareMode, void * pExtra)
+int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, long shareMode, void * pExtra)
 {
 	const size_t KB = 1024;
 
@@ -447,7 +452,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	uint32 flen;
 	uint32 buflen = 4*1024*KB; // @v7.2.2 (32*KB)-->(4*1024*KB)
 	uint32 len, bytes_read_write;
-	SCopyFileData scfd;
+	SDataMoveProgressInfo scfd;
 	SString added_msg;
 	FILETIME creation_time, last_access_time, last_modif_time;
 
@@ -477,11 +482,11 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	//THROW_V(desthdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	flen = GetFileSize(srchdl, 0);
 
-	scfd.SrcFileName   = pSrcFileName;
-	scfd.DestFileName  = pDestFileName;
-	scfd.TotalFileSize = flen;
-	scfd.TransferredBytes = 0UL;
-	scfd.ExtraParam = pExtra;
+	scfd.P_Src   = pSrcFileName;
+	scfd.P_Dest  = pDestFileName;
+	scfd.SizeTotal = flen;
+	scfd.SizeDone  = 0UL;
+	scfd.ExtraPtr = pExtra;
 	if(pp && !quite) {
 		reply = pp(&scfd);
 		if(oneof2(reply, SPRGRS_CANCEL, SPRGRS_STOP))
@@ -511,7 +516,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 			THROW_V(bytes_read_write == len, SLERR_WRITEFAULT);
 			flen -= len;
 			if(pp && !quite) {
-				scfd.TransferredBytes += len;
+				scfd.SizeDone += len;
 				reply = pp(&scfd);
 				if(oneof2(reply, SPRGRS_CANCEL, SPRGRS_STOP))
 					cancel = 1;
@@ -538,7 +543,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 
 #else /* __WIN32__ */
 
-int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopyFileProgressProc pp, void * pExtra)
+int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, void * pExtra)
 {
 	const size_t KB = 1024;
 
@@ -551,7 +556,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SCopy
 	ulong flen;
 	uint  buflen = 32 * KB;
 	uint  len;
-	SCopyFileData scfd;
+	SDataMoveProgressInfo scfd;
 	LDATETIME creation_time, last_access_time, last_modif_time;
 	srchdl = open(pSrcFileName, O_RDONLY | O_BINARY, S_IWRITE | S_IREAD);
 	THROW_V(srchdl >= 0, SLERR_OPENFAULT);

@@ -107,14 +107,12 @@ struct timeval curlx_tvnow(void)
 	** time() returns the value of time in seconds since the Epoch.
 	*/
 	struct timeval now;
-
 	now.tv_sec = (long)time(NULL);
 	now.tv_usec = 0;
 	return now;
 }
 
 #endif
-
 /*
  * Make sure that the first argument is the more recent time, as otherwise
  * we'll get a weird negative time-diff back...
@@ -122,11 +120,10 @@ struct timeval curlx_tvnow(void)
  * Returns: the time difference in number of milliseconds. For large diffs it
  * returns 0x7fffffff on 32bit time_t systems.
  */
-time_t curlx_tvdiff(struct timeval newer, struct timeval older)
+time_t FASTCALL curlx_tvdiff(struct timeval newer, struct timeval older)
 {
 #if SIZEOF_TIME_T < 8
-	/* for 32bit time_t systems, add a precaution to avoid overflow for really
-	   big time differences */
+	// for 32bit time_t systems, add a precaution to avoid overflow for really big time differences 
 	time_t diff = newer.tv_sec-older.tv_sec;
 	if(diff >= (0x7fffffff/1000))
 		return 0x7fffffff;

@@ -173,21 +173,10 @@ int FASTCALL GCTIterator::GCT_BillCache::Get(PPID id, BillTbl::Rec * pRec)
 //
 //
 //
-IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry, p1, p2)
-{
-	int    si = 0;
-    CMPCASCADE3(si, (const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt);
-	return si;
-}
+IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry, p1, p2) { RET_CMPCASCADE3((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID, Dt); }
+IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2) { RET_CMPCASCADE2((const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID); }
 
-IMPL_CMPCFUNC(GCTIterator_GoodsRestEntry_ByGoodsLoc, p1, p2)
-{
-	int    si = 0;
-    CMPCASCADE2(si, (const GCTIterator::GoodsRestEntry *)p1, (const GCTIterator::GoodsRestEntry *)p2, GoodsID, LocID);
-	return si;
-}
-
-SLAPI GCTIterator::GoodsRestArray::GoodsRestArray() : TSArray <GoodsRestEntry> ()
+SLAPI GCTIterator::GoodsRestArray::GoodsRestArray() : TSVector <GoodsRestEntry> () 
 {
 	Init();
 }
@@ -197,7 +186,7 @@ void SLAPI GCTIterator::GoodsRestArray::Init()
 	State = stAccumulation;
 	AccumPeriod.Set(MAXDATE, encodedate(1, 1, 1900));
 	LocList.clear();
-	SArray::clear();
+	SVector::clear();
 }
 
 int SLAPI GCTIterator::GoodsRestArray::SetAccumItem(PPID goodsID, PPID locID, LDATE dt, double qtty)

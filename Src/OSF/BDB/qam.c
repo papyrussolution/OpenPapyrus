@@ -507,8 +507,7 @@ static int __qamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	/*
 	 * Get the meta page first
 	 */
-	if((ret = __memp_fget(mpf, &metapno,
-		    dbc->thread_info, dbc->txn, meta_mode, &meta)) != 0)
+	if((ret = __memp_fget(mpf, &metapno, dbc->thread_info, dbc->txn, meta_mode, &meta)) != 0)
 		return ret;
 	/* Release any previous lock if not in a transaction. */
 	if((ret = __TLPUT(dbc, cp->lock)) != 0)
@@ -801,12 +800,12 @@ release_retry:  /* Release locks and retry, if possible. */
 		}
 	}
 	/* Return the key if the user didn't give us one. */
-	if(key != NULL && !F_ISSET(key, DB_DBT_ISSET)) {
+	if(key && !F_ISSET(key, DB_DBT_ISSET)) {
 		if((ret = __db_retcopy(dbp->env, key, &cp->recno, sizeof(cp->recno), &dbc->rkey->data, &dbc->rkey->ulen)) != 0)
 			goto err1;
 		F_SET(key, DB_DBT_ISSET);
 	}
-	if(data != NULL && !F_ISSET(dbc, DBC_MULTIPLE|DBC_MULTIPLE_KEY) && !F_ISSET(data, DB_DBT_ISSET)) {
+	if(data && !F_ISSET(dbc, DBC_MULTIPLE|DBC_MULTIPLE_KEY) && !F_ISSET(data, DB_DBT_ISSET)) {
 		if((ret = __db_retcopy(dbp->env, data, qp->data, t->re_len, &dbc->rdata->data, &dbc->rdata->ulen)) != 0)
 			goto err1;
 		F_SET(data, DB_DBT_ISSET);
@@ -868,7 +867,6 @@ release_retry:  /* Release locks and retry, if possible. */
 		if((ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			goto err;
 		cp->page = NULL;
-
 		/*
 		 * Clean up the first pointer, need to check two things:
 		 * Are we leaving an page or an extent?
@@ -878,9 +876,7 @@ release_retry:  /* Release locks and retry, if possible. */
 		 */
 		if(first == cp->recno && (skip = (first%t->rec_page)) != 0)
 			goto done;
-		if(meta == NULL &&
-		   (ret = __memp_fget(mpf, &metapno,
-			    dbc->thread_info, dbc->txn, 0, &meta)) != 0)
+		if(!meta && (ret = __memp_fget(mpf, &metapno, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 			goto err;
 		if(skip && !QAM_BEFORE_FIRST(meta, first))
 			goto done;
@@ -914,21 +910,16 @@ err:    if(meta) {
  */
 static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 {
-	DB * dbp;
 	DB_LOCK lock, save_lock;
-	DB_MPOOLFILE * mpf;
-	QUEUE_CURSOR * cp;
 	db_indx_t save_indx;
 	db_pgno_t save_page;
 	db_recno_t current, save_first, save_recno;
 	uint32 rec_extent;
-	int exact, ret, t_ret, wrapped;
-
-	dbp = dbc->dbp;
-	mpf = dbp->mpf;
-	cp = (QUEUE_CURSOR *)dbc->internal;
-	ret = 0;
-
+	int exact, t_ret, wrapped;
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	int ret = 0;
 	save_page = cp->pgno;
 	save_indx = cp->indx;
 	save_recno = cp->recno;
@@ -960,7 +951,7 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 		}
 		if(ret != 0)
 			goto err;
-		if(cp->page != NULL && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
+		if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			goto err;
 		cp->page = NULL;
 		if((ret = __qam_position(dbc, &first, 0, &exact)) != 0) {
@@ -991,14 +982,14 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 			if(DBC_LOGGING(dbc))
 				__log_printf(dbp->env, dbc->txn, "Queue R: %x %d %d %d", dbc->locker ? dbc->locker->id : 0, cp->pgno, first, meta->first_recno);
 #endif
-			if(cp->page != NULL && (ret = __qam_fput(dbc, cp->pgno, cp->page, DB_PRIORITY_VERY_LOW)) != 0)
+			if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, DB_PRIORITY_VERY_LOW)) != 0)
 				break;
 			cp->page = NULL;
 			if(exact == 1 &&
 			   (ret = __qam_fremove(dbp, cp->pgno)) != 0)
 				break;
 		}
-		else if(cp->page != NULL && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
+		else if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			break;
 		cp->page = NULL;
 		first++;
@@ -1012,9 +1003,8 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 		 */
 		if(!wrapped && first >= current)
 			break;
-		ret = __db_lget(dbc, 0, first, DB_LOCK_READ,
-			DB_LOCK_NOWAIT|DB_LOCK_RECORD, &lock);
-		if(ret == DB_LOCK_NOTGRANTED || ret == DB_LOCK_DEADLOCK) {
+		ret = __db_lget(dbc, 0, first, DB_LOCK_READ, DB_LOCK_NOWAIT|DB_LOCK_RECORD, &lock);
+		if(oneof2(ret, DB_LOCK_NOTGRANTED, DB_LOCK_DEADLOCK)) {
 			ret = 0;
 			break;
 		}

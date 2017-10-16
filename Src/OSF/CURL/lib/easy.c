@@ -313,12 +313,9 @@ struct Curl_easy * curl_easy_init(void)
 	}
 	return data;
 }
-
-/*
- * curl_easy_setopt() is the external interface for setting options on an
- * easy handle.
- */
-
+//
+// curl_easy_setopt() is the external interface for setting options on an easy handle.
+//
 #undef curl_easy_setopt
 CURLcode curl_easy_setopt(struct Curl_easy * data, CURLoption tag, ...)
 {

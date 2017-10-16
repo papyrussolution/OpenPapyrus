@@ -5891,7 +5891,6 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 	else if(oneof3(pPack->OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
         SBuffer sbuf;
         if(pPack->LTagL.GetCount()) {
-        	SSerializeContext sctx;
 			SPathStruc sp;
 			for(uint i = 0; i < pPack->GetTCount(); i++) {
 				ObjTagList * p_tag_list = pPack->LTagL.Get(i);
@@ -5918,7 +5917,10 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 					}
 				}
 			}
-        	THROW(pPack->LTagL.Serialize(+1, sbuf, &sctx));
+			{
+        		SSerializeContext sctx;
+        		THROW(pPack->LTagL.Serialize(+1, sbuf, &sctx));
+			}
         }
         THROW(p_ref->PutPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_DRAFTTAGLIST, sbuf, 0));
 	}
@@ -8113,7 +8115,12 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 		PPSymbTranslator st;
 		for(const char * p = pTemplate; *p;) {
 			size_t next = 1;
-			if(*p == '@') {
+			if(*p != '@') {
+				THROW(*p_text == *p);
+				result_file_template.CatChar(*p);
+				p_text++;
+			}
+			else { // *p == '@'
 				long   modif = 0;
 				long   sym  = st.Translate(p, &next);
 				field_value = 0;
@@ -8121,6 +8128,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 					assert(next == 1); // Если подстановка не удалась, то PPSymbTranslator::Translate не должен сдвигать позицию
 					next = 1;
 					THROW(*p_text == *p);
+					result_file_template.CatChar(*p); // @v9.8.4 В случае, если '@' является назависимым символом - втыкаем ее в шаблон
 					p_text++;
 				}
 				else {
@@ -8173,11 +8181,6 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 						result_file_template.CatChar('*');
 					}
 				}
-			}
-			else {
-				THROW(*p_text == *p);
-				result_file_template.CatChar(*p);
-				p_text++;
 			}
 			p += next;
 		}

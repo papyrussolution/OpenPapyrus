@@ -562,11 +562,11 @@ int SLAPI ClbNumberList::ReplacePosition(int rowIdx, int newRowIdx)
 //
 //
 //
-SLAPI PPLotTagContainer::PPLotTagContainer() : SArray(sizeof(PPLotTagContainer::Item), 4, aryDataOwner|aryEachItem)
+SLAPI PPLotTagContainer::PPLotTagContainer() : SArray(sizeof(PPLotTagContainer::Item), /*4,*/ aryDataOwner|aryEachItem)
 {
 }
 
-SLAPI PPLotTagContainer::PPLotTagContainer(const PPLotTagContainer & rS) : SArray(sizeof(PPLotTagContainer::Item), 4, aryDataOwner|aryEachItem)
+SLAPI PPLotTagContainer::PPLotTagContainer(const PPLotTagContainer & rS) : SArray(sizeof(PPLotTagContainer::Item), /*4,*/ aryDataOwner|aryEachItem)
 {
 	Copy(rS);
 }
@@ -1530,7 +1530,7 @@ void SLAPI PPBillPacket::Helper_Init()
 	SyncStatus = -2;
 	Reserve = 0;
 	LoadMoment = ZERODATETIME; // @v8.9.8
-	Lots.setDelta(16); // @v9.5.1
+	//Lots.setDelta(16); // @v9.5.1
 }
 
 SLAPI PPBillPacket::PPBillPacket() : PPBill()

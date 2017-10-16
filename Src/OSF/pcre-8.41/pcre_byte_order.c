@@ -39,9 +39,6 @@
 /* This module contains an internal function that tests a compiled pattern to
    see if it was compiled with the opposite endianness. If so, it uses an
    auxiliary local function to flip the appropriate bytes. */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

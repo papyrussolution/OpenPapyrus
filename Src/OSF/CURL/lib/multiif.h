@@ -25,9 +25,9 @@
 /*
  * Prototypes for library-wide functions provided by multi.c
  */
-void Curl_expire(struct Curl_easy * data, time_t milli);
+void FASTCALL Curl_expire(struct Curl_easy * data, time_t milli);
 void Curl_expire_clear(struct Curl_easy * data);
-void Curl_expire_latest(struct Curl_easy * data, time_t milli);
+void FASTCALL Curl_expire_latest(struct Curl_easy * data, time_t milli);
 bool FASTCALL Curl_pipeline_wanted(const struct Curl_multi* multi, int bits);
 void Curl_multi_handlePipeBreak(struct Curl_easy * data);
 
@@ -51,7 +51,7 @@ struct Curl_multi * Curl_multi_handle(int hashsize, int chashsize);
 void Curl_multi_dump(struct Curl_multi * multi);
 #endif
 
-void Curl_multi_process_pending_handles(struct Curl_multi * multi);
+void FASTCALL Curl_multi_process_pending_handles(struct Curl_multi * multi);
 // Return the value of the CURLMOPT_MAX_HOST_CONNECTIONS option 
 size_t Curl_multi_max_host_connections(struct Curl_multi * multi);
 // Return the value of the CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE option 

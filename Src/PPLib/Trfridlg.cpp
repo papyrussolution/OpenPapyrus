@@ -2630,12 +2630,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 //
 //
 //
-IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
-{
-	int    si;
-	CMPCASCADE2(si, (const SelLotBrowser::Entry *)i1, (const SelLotBrowser::Entry *)i2, Dt, OprNo);
-	return si;
-}
+IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2) { RET_CMPCASCADE2((const SelLotBrowser::Entry *)i1, (const SelLotBrowser::Entry *)i2, Dt, OprNo); }
 
 //static
 SArray * SLAPI SelLotBrowser::CreateArray()

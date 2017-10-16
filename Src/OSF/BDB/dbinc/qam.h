@@ -177,15 +177,9 @@ typedef enum {
 	QAM_NAME_REMOVE
 } qam_name_op;
 
-#define	__qam_fget(dbc, pgnoaddr, flags, addrp)		\
-	__qam_fprobe(dbc, *pgnoaddr,					\
-	    addrp, QAM_PROBE_GET, DB_PRIORITY_UNCHANGED, flags)
-
-#define	__qam_fput(dbc, pgno, addrp, priority)			\
-	__qam_fprobe(dbc, pgno, addrp, QAM_PROBE_PUT, priority, 0)
-
-#define	__qam_dirty(dbc, pgno, pagep, priority)		\
-	__qam_fprobe(dbc, pgno, pagep, QAM_PROBE_DIRTY, priority, 0)
+#define	__qam_fget(dbc, pgnoaddr, flags, addrp) __qam_fprobe(dbc, *pgnoaddr, addrp, QAM_PROBE_GET, DB_PRIORITY_UNCHANGED, flags)
+#define	__qam_fput(dbc, pgno, addrp, priority)  __qam_fprobe(dbc, pgno, addrp, QAM_PROBE_PUT, priority, 0)
+#define	__qam_dirty(dbc, pgno, pagep, priority) __qam_fprobe(dbc, pgno, pagep, QAM_PROBE_DIRTY, priority, 0)
 
 #if defined(__cplusplus)
 }

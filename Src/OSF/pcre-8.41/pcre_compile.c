@@ -38,9 +38,6 @@
  */
 /* This module contains the external function pcre_compile(), along with
    supporting internal functions that are not used by other modules. */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 
@@ -827,7 +824,6 @@ static const pcre_uint8 opcode_possessify[] = {
    Argument:   the error number
    Returns:    pointer to the error string
  */
-
 static const char * find_error_text(int n)
 {
 	const char * s = error_texts;

@@ -8,7 +8,7 @@
 //
 //
 //
-SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), 8, aryPtrContainer)
+SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), /*8,*/ aryPtrContainer)
 {
 }
 
@@ -632,7 +632,7 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	}
 	// } @v9.5.5
 	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN); // @v8.4.6 OLW_LOADDEFONOPEN
-	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, (void *)INETACCT_ONLYFTP);
+	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, (void *)PPObjInternetAccount::filtfFtp);
 	PPIDArray op_type_list;
 	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 	SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);

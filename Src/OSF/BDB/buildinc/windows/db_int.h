@@ -97,13 +97,20 @@ extern "C" {
 /*******************************************************
  * Forward structure declarations.
  *******************************************************/
-struct __db_commit_info; typedef struct __db_commit_info DB_COMMIT_INFO;
-struct __db_reginfo_t;	typedef struct __db_reginfo_t REGINFO;
-struct __db_txnhead;	typedef struct __db_txnhead DB_TXNHEAD;
-struct __db_txnlist;	typedef struct __db_txnlist DB_TXNLIST;
-struct __vrfy_childinfo;typedef struct __vrfy_childinfo VRFY_CHILDINFO;
-struct __vrfy_dbinfo;   typedef struct __vrfy_dbinfo VRFY_DBINFO;
-struct __vrfy_pageinfo; typedef struct __vrfy_pageinfo VRFY_PAGEINFO;
+struct __db_commit_info; 
+struct __db_reginfo_t;	
+struct __db_txnhead;	
+struct __db_txnlist;	
+struct __vrfy_childinfo;
+struct __vrfy_dbinfo;   
+struct __vrfy_pageinfo; 
+typedef struct __db_commit_info DB_COMMIT_INFO;
+typedef struct __db_reginfo_t REGINFO;
+typedef struct __db_txnhead DB_TXNHEAD;
+typedef struct __db_txnlist DB_TXNLIST;
+typedef struct __vrfy_childinfo VRFY_CHILDINFO;
+typedef struct __vrfy_dbinfo VRFY_DBINFO;
+typedef struct __vrfy_pageinfo VRFY_PAGEINFO;
 
 struct __db_log_verify_info;
 struct __txn_verify_info;
@@ -121,7 +128,7 @@ typedef struct __lv_timestamp_info VRFY_TIMESTAMP_INFO;
  * TXNINFO_HANDLER --
  *	Callback function pointer type for __iterate_txninfo.
  */
-typedef int (*TXNINFO_HANDLER) __P((DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *));
+typedef int (*TXNINFO_HANDLER)(DB_LOG_VRFY_INFO *, VRFY_TXN_INFO *, void *);
 typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 
 /*******************************************************
@@ -222,7 +229,6 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
  */
 #undef	SSZ
 #define	SSZ(name, field)  P_TO_UINT16(&(((name *)0)->field))
-
 #undef	SSZA
 #define	SSZA(name, field) P_TO_UINT16(&(((name *)0)->field[0]))
 
@@ -609,11 +615,7 @@ typedef struct __env_thread_info {
 	roff_t thr_hashoff;
 } THREAD_INFO;
 
-#define	DB_EVENT(env, e, einfo) do {					\
-	DB_ENV *__dbenv = (env)->dbenv;					\
-	if(__dbenv->db_event_func != NULL)				\
-		__dbenv->db_event_func(__dbenv, e, einfo);		\
-} while (0)
+#define	DB_EVENT(env, e, einfo) do { DB_ENV *__dbenv = (env)->dbenv; if(__dbenv->db_event_func) __dbenv->db_event_func(__dbenv, e, einfo); } while (0)
 
 typedef struct __flag_map {
 	uint32 inflag;
@@ -633,12 +635,11 @@ typedef struct __flag_map {
 TAILQ_HEAD(__dblist, __db);
 
 struct __env {
-	DB_ENV *dbenv;			/* Linked DB_ENV structure */
-	/*
-	 * The ENV structure can be used concurrently, so field access is
-	 * protected.
-	 */
-	db_mutex_t mtx_env;		/* ENV structure mutex */
+	DB_ENV * dbenv; // Linked DB_ENV structure 
+	// 
+	// The ENV structure can be used concurrently, so field access is protected.
+	// 
+	db_mutex_t mtx_env; // ENV structure mutex 
 	/*
 	 * Some fields are included in the ENV structure rather than in the
 	 * DB_ENV structure because they are only set as arguments to the

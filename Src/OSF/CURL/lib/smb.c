@@ -36,19 +36,8 @@
 		#define getpid _getpid
 	#endif
 #endif
-//#include "smb.h"
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "multiif.h"
-//#include "connect.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "vtls/vtls.h"
 #include "curl_ntlm_core.h"
-//#include "escape.h"
 #include "curl_endian.h"
-// The last #include files should be:
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Local API functions */
@@ -56,11 +45,9 @@ static CURLcode smb_setup_connection(struct connectdata * conn);
 static CURLcode smb_connect(struct connectdata * conn, bool * done);
 static CURLcode smb_connection_state(struct connectdata * conn, bool * done);
 static CURLcode smb_request_state(struct connectdata * conn, bool * done);
-static CURLcode smb_done(struct connectdata * conn, CURLcode status,
-    bool premature);
+static CURLcode smb_done(struct connectdata * conn, CURLcode status, bool premature);
 static CURLcode smb_disconnect(struct connectdata * conn, bool dead);
-static int smb_getsock(struct connectdata * conn, curl_socket_t * socks,
-    int numsocks);
+static int smb_getsock(struct connectdata * conn, curl_socket_t * socks, int numsocks);
 static CURLcode smb_parse_url_path(struct connectdata * conn);
 
 /*

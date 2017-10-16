@@ -42,7 +42,7 @@ private:
 	LDATE  StartDate;
 };
 
-SLAPI LocValList::LocValList() : SArray(sizeof(LocValEntry), 32, O_ARRAY)
+SLAPI LocValList::LocValList() : SArray(sizeof(LocValEntry), /*32,*/O_ARRAY)
 {
 }
 
@@ -1489,18 +1489,13 @@ struct __HI { // @flat
 	LDATE  Dt;
 };
 
-static IMPL_CMPFUNC(__HI, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE2(si, (__HI*)i1, (__HI*)i2, LocIdx, Dt);
-	return si;
-}
+static IMPL_CMPFUNC(__HI, i1, i2) { RET_CMPCASCADE2((const __HI*)i1, (const __HI*)i2, LocIdx, Dt); }
 
 class __HolidayArray : public TSVector <__HI> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT)
 	{
-		setDelta(32);
+		//setDelta(32);
 		Period = rPeriod;
 	}
 	int    SLAPI Is(int16 locIdx, LDATE dt);
@@ -1551,7 +1546,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	rGoodsList.sortAndUndup();
 	PROFILE_START
 	const ObjIdListFilt empty_loc_list;
-	THROW_MEM(p_vect = new SArray(sizeof(PredictSalesTbl::Rec), 1024, O_ARRAY));
+	THROW_MEM(p_vect = new SArray(sizeof(PredictSalesTbl::Rec), /*1024,*/O_ARRAY));
 	//
 	// Формируем список lvl_list, содержащий структуры, необходимые для заполнения таблицы
 	//

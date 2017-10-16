@@ -423,7 +423,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAction:               ShowObjects(PPOBJ_ACTION, 0);            break;
 		case cmViewQCert:            ShowObjects(PPOBJ_QCERT, 0);             break;
 		case cmBarCodeStruc:         ShowObjects(PPOBJ_BCODESTRUC, 0);        break;
-		case cmMailAccount:          ShowObjects(PPOBJ_INTERNETACCOUNT, INETACCT_ONLYMAIL); break;
+		case cmMailAccount:          ShowObjects(PPOBJ_INTERNETACCOUNT, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/); break;
 		case cmSmsAccount:           ShowObjects(PPOBJ_SMSPRVACCOUNT, 0);	  break;
 		case cmVATBook:              ShowObjects(PPOBJ_VATBOOK, 0);           break;
 		case cmFormula:              ShowObjects(PPOBJ_FORMULA, 0);           break;
@@ -461,8 +461,8 @@ int PPApp::processCommand(uint cmd)
 		case cmLocPrinter:           ShowObjects(PPOBJ_LOCPRINTER, 0);        break;
 		case cmSalCharge:            ShowObjects(PPOBJ_SALCHARGE, 0);         break;
 		case cmStaffCalendar:        ShowObjects(PPOBJ_STAFFCAL, 0);          break;
-		case cmFTPAcct:              ShowObjects(PPOBJ_INTERNETACCOUNT, (void *)INETACCT_ONLYFTP); break;
-		case cmMailAcct:             ShowObjects(PPOBJ_INTERNETACCOUNT, (void *)INETACCT_ONLYMAIL); break;
+		case cmFTPAcct:              ShowObjects(PPOBJ_INTERNETACCOUNT, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/); break;
+		case cmMailAcct:             ShowObjects(PPOBJ_INTERNETACCOUNT, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/); break;
 		case cmProcessor:            ShowObjects(PPOBJ_PROCESSOR, 0);         break;
 		case cmNamedObjAssoc:        ShowObjects(PPOBJ_NAMEDOBJASSOC, 0);     break;
 		case cmBizScore:             ShowObjects(PPOBJ_BIZSCORE, 0);          break;
@@ -2034,7 +2034,8 @@ int PPApp::RegisterComServer()
 		THROW(hr == S_OK);
 		PPMessage(mfInfo|mfOK, (param.Action == RegComSvrDialog::aDeregister) ? PPINF_COMSRVUNREGISTERED : PPINF_COMSRVREGISTERED, path);
 		if(param.DL200Install == 1) {
-			const char * p_dl200_name = "dl200.xla", * p_open_name = "OPEN";
+			const char * p_dl200_name = "dl200.xla";
+			const char * p_open_name = "OPEN";
 			SString   src_path, subkey, opt_param;
 			LongArray delreg_list;
 			WinRegKey reg_key;

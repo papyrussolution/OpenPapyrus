@@ -2507,7 +2507,7 @@ private:
 	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, long initParam);
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);
-	static int   CopyProgressProc(const SCopyFileData *);
+	static int   CopyProgressProc(const SDataMoveProgressInfo *);
 	int    SLAPI CheckCopy(BCopyData * pData, CopyParams * pCP, BackupLogFunc fnLog, long initParam);
 	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, long initParam);
 

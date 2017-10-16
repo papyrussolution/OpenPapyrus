@@ -258,7 +258,7 @@ IMPL_CMPFUNC(SfxTreeChr, p1, p2)
     return result;
 }
 
-SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, 128, O_ARRAY) // @v9.8.4 SArray-->SVector
+SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, /*128,*/O_ARRAY) // @v9.8.4 SArray-->SVector
 {
 	ID = id;
 	PhasePosition = 0;

@@ -190,7 +190,7 @@ PPTex2HtmlPrcssr::TextBlock::~TextBlock()
 		// Чтобы не попасть на переполнение стека избегаем рекурсии переносом
 		// всей цепочки элементов в линейный массив с последующим удалением.
 		//
-		SArray ptr_list(sizeof(void *), 128, aryDataOwner | aryPtrContainer);
+		SArray ptr_list(sizeof(void *), /*128,*/aryDataOwner|aryPtrContainer);
 		{
 			for(TextBlock * p = P_Next; p; p = p->P_Next) {
 				ptr_list.insert(p);

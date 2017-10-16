@@ -474,12 +474,7 @@ double SLAPI PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint s
 	return 0.0;
 }
 
-IMPL_CMPFUNC(OpGroupingViewItem, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE3(si, (OpGroupingViewItem *)i1, (OpGroupingViewItem *)i2, Dt, OpID, Sign);
-	return si;
-}
+IMPL_CMPFUNC(OpGroupingViewItem, i1, i2) { RET_CMPCASCADE3((const OpGroupingViewItem *)i1, (const OpGroupingViewItem *)i2, Dt, OpID, Sign); }
 
 int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
 {

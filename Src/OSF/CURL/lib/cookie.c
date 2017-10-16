@@ -86,19 +86,7 @@
 #ifdef USE_LIBPSL
 	#include <libpsl.h>
 #endif
-//#include "urldata.h"
-//#include "cookie.h"
-//#include "strtok.h"
-//#include "sendf.h"
-//#include "slist.h"
-//#include "share.h"
-//#include "strtoofft.h"
-//#include "strcase.h"
-//#include "curl_memrchr.h"
-//#include "inet_pton.h"
-// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 static void FASTCALL freecookie(struct Cookie * co)

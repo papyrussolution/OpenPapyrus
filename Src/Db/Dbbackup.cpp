@@ -768,12 +768,10 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 }
 
 //static
-int DBBackup::CopyProgressProc(const SCopyFileData * scfd)
+int DBBackup::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 {
-	DBBackup * dbb = (DBBackup*)scfd->ExtraParam;
-	return dbb->CBP_CopyProcess(scfd->SrcFileName, scfd->DestFileName,
-		dbb->TotalCopySize, scfd->TotalFileSize,
-		dbb->TotalCopyReady + scfd->TransferredBytes, scfd->TransferredBytes);
+	DBBackup * dbb = (DBBackup *)scfd->ExtraPtr;
+	return dbb->CBP_CopyProcess(scfd->P_Src, scfd->P_Dest, dbb->TotalCopySize, scfd->SizeTotal, dbb->TotalCopyReady + scfd->SizeDone, scfd->SizeDone);
 }
 
 int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogFunc fnLog, long initParam)

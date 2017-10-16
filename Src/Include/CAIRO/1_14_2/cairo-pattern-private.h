@@ -218,36 +218,15 @@ cairo_private cairo_filter_t _cairo_pattern_analyze_filter (const cairo_pattern_
 
 /* cairo-mesh-pattern-rasterizer.c */
 
-cairo_private void
-_cairo_mesh_pattern_rasterize (const cairo_mesh_pattern_t *mesh,
-			       void                       *data,
-			       int                         width,
-			       int                         height,
-			       int                         stride,
-			       double                      x_offset,
-			       double                      y_offset);
-
-cairo_private cairo_surface_t *
-_cairo_raster_source_pattern_acquire (const cairo_pattern_t *abstract_pattern,
-				      cairo_surface_t *target,
-				      const CairoIRect *extents);
-
-cairo_private void
-_cairo_raster_source_pattern_release (const cairo_pattern_t *abstract_pattern,
-				      cairo_surface_t *surface);
-
-cairo_private cairo_status_t
-_cairo_raster_source_pattern_snapshot (cairo_pattern_t *abstract_pattern);
-
-cairo_private cairo_status_t
-_cairo_raster_source_pattern_init_copy (cairo_pattern_t *pattern,
-					const cairo_pattern_t *other);
-
-cairo_private void
-_cairo_raster_source_pattern_finish (cairo_pattern_t *abstract_pattern);
-
-cairo_private void
-_cairo_debug_print_pattern (FILE *file, const cairo_pattern_t *pattern);
+cairo_private void _cairo_mesh_pattern_rasterize (const cairo_mesh_pattern_t *mesh,
+	void * data, int width, int height, int stride, double x_offset, double y_offset);
+cairo_private cairo_surface_t * _cairo_raster_source_pattern_acquire (const cairo_pattern_t *abstract_pattern,
+	cairo_surface_t *target, const CairoIRect *extents);
+cairo_private void _cairo_raster_source_pattern_release (const cairo_pattern_t *abstract_pattern, cairo_surface_t *surface);
+cairo_private cairo_status_t _cairo_raster_source_pattern_snapshot (cairo_pattern_t *abstract_pattern);
+cairo_private cairo_status_t _cairo_raster_source_pattern_init_copy (cairo_pattern_t *pattern, const cairo_pattern_t *other);
+cairo_private void _cairo_raster_source_pattern_finish (cairo_pattern_t *abstract_pattern);
+cairo_private void _cairo_debug_print_pattern (FILE *file, const cairo_pattern_t *pattern);
 
 CAIRO_END_DECLS
 

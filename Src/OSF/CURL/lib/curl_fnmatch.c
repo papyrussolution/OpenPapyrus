@@ -22,9 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
 #include "curl_fnmatch.h"
-//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 
 #define CURLFNM_CHARSET_LEN (sizeof(char) * 256)

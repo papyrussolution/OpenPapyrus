@@ -865,6 +865,17 @@ static DLSYMBID AdjRetType_PlusSS(DlContext * pCtx, const CtmExpr * pExpr)
 	return AdjRetType_ZSTRING(pCtx, s);
 }
 
+static DLSYMBID AdjRetType_replace(DlContext * pCtx, const CtmExpr * pExpr)
+{
+	//
+	// string replace(string src, string pattern, string replacer) - длина результата равна длине первого аргумента
+	//
+	const CtmExpr * arg0 = pExpr->GetArg(0);
+	DlContext::TypeEntry te0;
+	pCtx->SearchTypeID(arg0->GetTypeID(), 0, &te0);
+	return AdjRetType_ZSTRING(pCtx, GETSSIZE(te0.T.Typ));
+}
+
 static DLSYMBID AdjRetType_MulSS(DlContext * pCtx, const CtmExpr * pExpr)
 {
 	const CtmExpr * arg0 = pExpr->GetArg(0);
@@ -1432,6 +1443,7 @@ _skip_switch:
 			if(!pF) {
 				#ifdef DL600C
 				AddBFunc("replace", impl_id = 108, "string", "string", "string", "string", 0);
+				AdjRetTypeProcList.Add(impl_id, (long)AdjRetType_replace, 0, 0);
 				#endif
 			}
 			else {

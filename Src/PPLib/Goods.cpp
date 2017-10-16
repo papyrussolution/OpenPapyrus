@@ -1539,8 +1539,7 @@ int SLAPI GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeA
 	return ok;
 }
 
-int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode,
-	ArGoodsCodeTbl::Rec * pArCodeRec, Goods2Tbl::Rec * pGoodsRec)
+int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::Rec * pArCodeRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
 	SString msg_buf;

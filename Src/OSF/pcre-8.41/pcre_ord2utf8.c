@@ -40,9 +40,6 @@
 // This file contains a private PCRE function that converts an ordinal
 // character value into a UTF8 string. 
 //
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 // @sobolev (у нас и так режим COMPILE_PCRE8, а эта директива ломает precompiled header) 
 #define COMPILE_PCRE8
 #include "pcre_internal.h"

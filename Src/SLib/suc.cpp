@@ -1209,12 +1209,7 @@ void SCodepageMapPool::CMapTranslIndexTest::Reset()
 	FallbackCount = 0;
 }
 
-IMPL_CMPCFUNC(CMapTranslEntry, p1, p2)
-{
-	int    si = 0;
-	CMPCASCADE4(si, (const SCodepageMapPool::CMapTranslEntry *)p1, (const SCodepageMapPool::CMapTranslEntry *)p2, S[0], S[1], S[2], S[3]);
-	return si;
-}
+IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) { RET_CMPCASCADE4((const SCodepageMapPool::CMapTranslEntry *)p1, (const SCodepageMapPool::CMapTranslEntry *)p2, S[0], S[1], S[2], S[3]); }
 
 void SCodepageMapPool::CMapTranslIndexTest::Sort()
 {

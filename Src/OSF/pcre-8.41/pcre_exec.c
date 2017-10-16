@@ -40,9 +40,6 @@
 /* This module contains pcre_exec(), the externally visible function that does
    pattern matching using an NFA algorithm, trying to mimic Perl as closely as
    possible. There are also some static supporting functions. */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

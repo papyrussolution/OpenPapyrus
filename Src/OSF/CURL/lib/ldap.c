@@ -644,7 +644,6 @@ static void _ldap_trace(const char * fmt, ...)
 {
 	static int do_trace = -1;
 	va_list args;
-
 	if(do_trace == -1) {
 		const char * env = getenv("CURL_TRACE");
 		do_trace = (env && strtol(env, NULL, 10) > 0);
@@ -666,17 +665,18 @@ static void _ldap_trace(const char * fmt, ...)
  */
 static int str2scope(const char * p)
 {
-	if(strcasecompare(p, "one"))
+	if(sstreqi_ascii(p, "one"))
 		return LDAP_SCOPE_ONELEVEL;
-	if(strcasecompare(p, "onetree"))
+	else if(sstreqi_ascii(p, "onetree"))
 		return LDAP_SCOPE_ONELEVEL;
-	if(strcasecompare(p, "base"))
+	else if(sstreqi_ascii(p, "base"))
 		return LDAP_SCOPE_BASE;
-	if(strcasecompare(p, "sub"))
+	else if(sstreqi_ascii(p, "sub"))
 		return LDAP_SCOPE_SUBTREE;
-	if(strcasecompare(p, "subtree"))
+	else if(sstreqi_ascii(p, "subtree"))
 		return LDAP_SCOPE_SUBTREE;
-	return (-1);
+	else
+		return -1;
 }
 
 /*
@@ -910,17 +910,16 @@ static int _ldap_url_parse(const struct connectdata * conn, LDAPURLDesc ** ludpp
 
 static void _ldap_free_urldesc(LDAPURLDesc * ludp)
 {
-	size_t i;
-	if(!ludp)
-		return;
-	SAlloc::F(ludp->lud_dn);
-	SAlloc::F(ludp->lud_filter);
-	if(ludp->lud_attrs) {
-		for(i = 0; i < ludp->lud_attrs_dups; i++)
-			SAlloc::F(ludp->lud_attrs[i]);
-		SAlloc::F(ludp->lud_attrs);
+	if(ludp) {
+		SAlloc::F(ludp->lud_dn);
+		SAlloc::F(ludp->lud_filter);
+		if(ludp->lud_attrs) {
+			for(size_t i = 0; i < ludp->lud_attrs_dups; i++)
+				SAlloc::F(ludp->lud_attrs[i]);
+			SAlloc::F(ludp->lud_attrs);
+		}
+		SAlloc::F(ludp);
 	}
-	SAlloc::F(ludp);
 }
 
 #endif  /* !HAVE_LDAP_URL_PARSE */

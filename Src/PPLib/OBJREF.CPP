@@ -3218,7 +3218,6 @@ int SLAPI PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
-		SSerializeContext sctx;
 		SBuffer sd_buf;
 		pPack->TagL.Destroy();
 		pPack->Sd.Destroy();
@@ -3228,6 +3227,7 @@ int SLAPI PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 			size_t sd_size = sd_buf.GetAvailableSize();
 			if(sd_size) {
 				STempBuffer temp_buf(sd_size);
+				SSerializeContext sctx;
 				THROW_SL(temp_buf.IsValid());
 				//THROW(pPack->Sd.Serialize(-1, sd_buf, &sctx));
 				pPack->Sd.Serialize(-1, sd_buf, &sctx);

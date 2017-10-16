@@ -132,7 +132,8 @@ typedef enum {
 	REGION_TYPE_LOG,
 	REGION_TYPE_MPOOL,
 	REGION_TYPE_MUTEX,
-	REGION_TYPE_TXN } reg_type_t;
+	REGION_TYPE_TXN 
+} reg_type_t;
 
 #define	INVALID_REGION_SEGID	-1	/* Segment IDs are either shmget(2) or
 					 * Win16 segment identifiers.  They are
@@ -186,8 +187,6 @@ typedef struct __db_reg_env { /* SHARED */
 #define	DB_INITENV_MPOOL	0x0010	/* DB_INIT_MPOOL */
 #define	DB_INITENV_REP		0x0020	/* DB_INIT_REP */
 #define	DB_INITENV_TXN		0x0040	/* DB_INIT_TXN */
-
-
 	/*
 	 * The mtx_regenv mutex protects the environment reference count and
 	 * memory allocation from the primary shared region (the crypto, thread
@@ -201,37 +200,33 @@ typedef struct __db_reg_env { /* SHARED */
 	 * is used in recovery as that is already single threaded.
 	 */
 	db_mutex_t mtx_regenv;		/* Refcnt, region allocation mutex. */
-	uint32  refcnt;		/* References to the environment. */
+	uint32 refcnt;		/* References to the environment. */
 	uint32 region_cnt;		/* Number of REGIONs. */
-	roff_t	  region_off;		/* Offset of region array */
-	roff_t    lt_primary;		/* Lock primary. */
-	roff_t    lg_primary;		/* Log primary. */
-	roff_t    tx_primary;		/* Txn primary. */
-	roff_t	  cipher_off;		/* Offset of cipher area */
-	roff_t	  thread_off;		/* Offset of the thread area. */
-	roff_t	  rep_off;		/* Offset of the replication area. */
+	roff_t region_off;		/* Offset of region array */
+	roff_t lt_primary;		/* Lock primary. */
+	roff_t lg_primary;		/* Log primary. */
+	roff_t tx_primary;		/* Txn primary. */
+	roff_t cipher_off;		/* Offset of cipher area */
+	roff_t thread_off;		/* Offset of the thread area. */
+	roff_t rep_off;		/* Offset of the replication area. */
 #define	DB_REGENV_REPLOCKED	0x0001	/* Env locked for rep backup. */
 	uint32 flags;		/* Shared environment flags. */
 #define	DB_REGENV_TIMEOUT	30	/* Backup timeout. */
 	__time64_t	  op_timestamp;		/* Timestamp for operations. */
 	__time64_t	  rep_timestamp;	/* Timestamp for rep db handles. */
-	uint32 reg_panic;		/* DB_REGISTER triggered panic */
-	uintmax_t unused;		/* The ALLOC_LAYOUT structure follows
-					 * the REGENV structure in memory and
-					 * contains uintmax_t fields.  Force
-					 * proper alignment of that structure.
-					 */
+	uint32 reg_panic; // DB_REGISTER triggered panic
+	uintmax_t unused; // The ALLOC_LAYOUT structure follows the REGENV structure in memory and
+		// contains uintmax_t fields.  Force proper alignment of that structure.
 } REGENV;
-
-/* Per-region shared region information. */
+//
+// Per-region shared region information
+//
 typedef struct __db_region { /* SHARED */
 	roff_t	size;			/* Region size in bytes. */
 	roff_t  max;			/* Region max in bytes. */
 	long	segid;			/* UNIX shmget(2), Win16 segment ID. */
-
 	uint32	id;		/* Region id. */
 	reg_type_t	type;		/* Region type. */
-
 	roff_t	primary;		/* Primary data structure offset. */
 	roff_t  alloc;			/* Region allocation size in bytes. */
 } REGION;
@@ -249,31 +244,30 @@ struct __db_region_mem_t {
 };
 
 struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
-	ENV	   *env;		/* Enclosing environment. */
-	reg_type_t  type;		/* Region type. */
-	uint32   id;			/* Region id. */
-				/* env_region_attach OUT parameters. */
-	REGION	   *rp;			/* Shared region. */
-	char	   *name;		/* Region file name. */
-	DB_FH	   *fhp;		/* Region file handle */
-	void	   *addr;		/* Region address. */
-	void	   *head;		/* Head of the allocation struct. */
-	void	   *primary;		/* Primary data structure address. */
-					/* Private Memory Tracking. */
-	size_t	    max_alloc;		/* Maximum bytes allocated. */
-	size_t	    allocated;		/* Bytes allocated. */
-	REGION_MEM  *mem;		/* List of memory to free */
-	db_mutex_t  mtx_alloc;		/* number of mutex for allocation. */
+	ENV  * env;      // Enclosing environment
+	reg_type_t type; // Region type
+	uint32 id;       // Region id
+	// env_region_attach OUT parameters
+	REGION * rp;     // Shared region
+	char * name;     // Region file name
+	DB_FH * fhp;     // Region file handle
+	void * addr;     // Region address
+	void * head;     // Head of the allocation struct
+	void * primary;  // Primary data structure address
+	// Private Memory Tracking
+	size_t max_alloc; // Maximum bytes allocated
+	size_t allocated; // Bytes allocated
+	REGION_MEM * mem; // List of memory to free
+	db_mutex_t mtx_alloc; // number of mutex for allocation
 #ifdef DB_WIN32
-	HANDLE	wnt_handle;		/* Win/NT HANDLE. */
+	HANDLE wnt_handle; // Win/NT HANDLE
 #endif
-
 #define	REGION_CREATE		0x01	/* Caller created region. */
 #define	REGION_CREATE_OK	0x02	/* Caller willing to create region. */
 #define	REGION_JOIN_OK		0x04	/* Caller is looking for a match. */
 #define	REGION_SHARED		0x08	/* Region is shared. */
 #define	REGION_TRACKED		0x10	/* Region private memory is tracked. */
-	uint32   flags;
+	uint32 flags;
 };
 
 /*

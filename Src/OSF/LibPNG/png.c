@@ -3207,29 +3207,20 @@ static png_int_32 png_log8bit(unsigned int x)
 static png_int_32 png_log16bit(uint32 x)
 {
 	unsigned int lg2 = 0;
-
-	/* As above, but now the input has 16 bits. */
+	// As above, but now the input has 16 bits. 
 	if((x &= 0xffff) == 0)
 		return -1;
-
 	if((x & 0xff00) == 0)
 		lg2  = 8, x <<= 8;
-
 	if((x & 0xf000) == 0)
 		lg2 += 4, x <<= 4;
-
 	if((x & 0xc000) == 0)
 		lg2 += 2, x <<= 2;
-
 	if((x & 0x8000) == 0)
 		lg2 += 1, x <<= 1;
-
-	/* Calculate the base logarithm from the top 8 bits as a 28-bit fractional
-	 * value.
-	 */
+	// Calculate the base logarithm from the top 8 bits as a 28-bit fractional value.
 	lg2 <<= 28;
 	lg2 += (png_8bit_l2[(x>>8)-128]+8) >> 4;
-
 	/* Now we need to interpolate the factor, this requires a division by the top
 	 * 8 bits.  Do this with maximum precision.
 	 */
@@ -3270,8 +3261,7 @@ static png_int_32 png_log16bit(uint32 x)
  * frational part of the logarithm by using an accurate 32-bit value from the
  * top four fractional bits then multiplying in the remaining bits.
  */
-static const uint32
-    png_32bit_exp[16] =
+static const uint32 png_32bit_exp[16] =
 {
 	/* NOTE: the first entry is deliberately set to the maximum 32-bit value. */
 	4294967295U, 4112874773U, 3938502376U, 3771522796U, 3611622603U, 3458501653U,

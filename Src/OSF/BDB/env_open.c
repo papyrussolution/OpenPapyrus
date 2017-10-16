@@ -453,7 +453,6 @@ int __env_close(DB_ENV * dbenv, uint32 flags)
 	if((t_ret = __rep_env_close(env)) != 0 && ret == 0)
 		ret = t_ret;
 #endif
-
 	/*
 	 * Close all databases opened in this environment after the rep region
 	 * is closed. Rep region's internal database is already closed now.
@@ -478,8 +477,7 @@ int __env_close(DB_ENV * dbenv, uint32 flags)
 		ret = t_ret;
 #ifdef HAVE_CRYPTO
 	/*
-	 * Crypto comes last, because higher level close functions need
-	 * cryptography.
+	 * Crypto comes last, because higher level close functions need cryptography.
 	 */
 	if((t_ret = __crypto_env_close(env)) != 0 && ret == 0)
 		ret = t_ret;
@@ -509,7 +507,7 @@ int __env_close(DB_ENV * dbenv, uint32 flags)
 		__os_free(env, env->db_home);
 		env->db_home = NULL;
 	}
-	/* Discard the structure. */
+	// Discard the structure
 	__db_env_destroy(dbenv);
 	return ret;
 }

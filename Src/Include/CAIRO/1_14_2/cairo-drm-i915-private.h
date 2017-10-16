@@ -646,25 +646,19 @@ enum {
 
 struct i915_device {
 	intel_device_t intel;
-
 	cairo_bool_t debug;
-
 	i915_shader_t * shader; /* note: only valid during geometry emission */
-
 	struct i915_batch {
 		intel_bo_t * target_bo[I915_MAX_RELOCS];
 		size_t gtt_avail_size;
 		size_t est_gtt_size;
 		size_t total_gtt_size;
-
 		uint16_t fences;
 		uint16_t fences_avail;
 		uint16_t reloc_count;
 		uint16_t exec_count;
 		uint16_t used;
-
 		struct drm_i915_gem_exec_object2 exec[I915_MAX_RELOCS];
-
 		struct drm_i915_gem_relocation_entry reloc[I915_MAX_RELOCS];
 	} batch;
 
@@ -679,7 +673,6 @@ struct i915_device {
 	intel_bo_t * last_vbo;
 	uint32_t last_vbo_offset;
 	uint32_t last_vbo_space;
-
 	i915_surface_t * current_target;
 	uint32_t current_size;
 	uint32_t current_diffuse;
@@ -698,9 +691,7 @@ struct i915_device {
 	uint32_t current_n_maps;
 	uint32_t last_source_fragment;
 	uint32_t clear_alpha;
-
 	cairo_list_t image_caches[2];
-
 	uint32_t batch_header[13];
 	uint32_t batch_base[I915_BATCH_SIZE / sizeof(uint32_t)];
 	uint8_t vbo_base[I915_VBO_SIZE];
@@ -745,16 +736,12 @@ typedef enum {
 
 struct i915_surface {
 	intel_surface_t intel;
-
 	uint32_t map0, map1;
 	uint32_t colorbuf;
-
 	cairo_bool_t deferred_clear;
 	uint32_t offset;
 	uint32_t is_current_texture;
-
 	i915_image_private_t * cache;
-
 	intel_bo_t * stencil;
 	uint32_t stencil_stride;
 	uint32_t stencil_offset;
@@ -790,17 +777,13 @@ typedef struct i915_packed_pixel_surface {
 struct i915_shader {
 	i915_device_t * device;
 	i915_surface_t * target;
-
 	cairo_operator_t op;
 	uint32_t blend;
 	float opacity;
 	cairo_content_t content;
-
 	cairo_bool_t committed;
 	cairo_bool_t need_combine;
-
 	i915_add_rectangle_func_t add_rectangle;
-
 	union i915_shader_channel {
 		struct {
 			i915_vertex_shader_t vertex;

@@ -1469,49 +1469,39 @@ void __ham_onpage_replace(DB * dbp, PAGE * pagep, uint32 ndx, int32 off, uint32 
  */
 int __ham_merge_pages(DBC * dbc, uint32 tobucket, uint32 frombucket, DB_COMPACT * c_data)
 {
-	DB * dbp;
-	DBC ** carray;
 	DB_LOCK tlock, firstlock;
 	DB_LSN from_lsn;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
-	HASH_CURSOR * hcp, * cp;
+	HASH_CURSOR * cp;
 	PAGE * to_pagep, * first_pagep,
 	* from_pagep, * last_pagep, * next_pagep, * prev_pagep;
 	db_pgno_t to_pgno, first_pgno, from_pgno;
 	uint32 len;
 	db_indx_t dest_indx, n, num_ent;
 	int check_trunc, found, i, ret;
-
-	dbp = dbc->dbp;
-	carray = NULL;
-	env = dbp->env;
-	mpf = dbp->mpf;
-	hcp = (HASH_CURSOR *)dbc->internal;
+	DB * dbp = dbc->dbp;
+	DBC ** carray = NULL;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
 	hcp->pgno = PGNO_INVALID;
 	to_pagep = first_pagep = NULL;
 	from_pagep = last_pagep = next_pagep = prev_pagep = NULL;
 	from_pgno = PGNO_INVALID;
 	LOCK_INIT(tlock);
 	LOCK_INIT(firstlock);
-
-	check_trunc =
-	        c_data == NULL ? 0 : c_data->compact_truncate != PGNO_INVALID;
+	check_trunc = c_data == NULL ? 0 : c_data->compact_truncate != PGNO_INVALID;
 	to_pgno = BUCKET_TO_PAGE(hcp, tobucket);
-	if((ret = __db_lget(dbc,
-		    0, to_pgno, DB_LOCK_WRITE, 0, &tlock)) != 0)
+	if((ret = __db_lget(dbc, 0, to_pgno, DB_LOCK_WRITE, 0, &tlock)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &to_pgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &to_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &to_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &to_pagep)) != 0)
 		goto err;
-	/* Sort any unsorted pages before adding to the page. */
+	// Sort any unsorted pages before adding to the page. 
 	if(to_pagep->type == P_HASH_UNSORTED)
 		if((ret = __ham_sort_page_cursor(dbc, to_pagep)) != 0)
 			return ret;
-	/* Fetch the first page of the bucket we are getting rid of. */
+	// Fetch the first page of the bucket we are getting rid of. 
 	from_pgno = BUCKET_TO_PAGE(hcp, frombucket);
-	if((ret = __db_lget(dbc,
-		    0, from_pgno, DB_LOCK_WRITE, 0, &firstlock)) != 0)
+	if((ret = __db_lget(dbc, 0, from_pgno, DB_LOCK_WRITE, 0, &firstlock)) != 0)
 		goto err;
 next_page:
 	/*
@@ -1787,11 +1777,9 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 	LOCK_INIT(block);
 
 	bucket_pgno = BUCKET_TO_PAGE(hcp, obucket);
-	if((ret = __db_lget(dbc,
-		    0, bucket_pgno, DB_LOCK_WRITE, 0, &block)) != 0)
+	if((ret = __db_lget(dbc, 0, bucket_pgno, DB_LOCK_WRITE, 0, &block)) != 0)
 		goto err;
-	if((ret = __memp_fget(mpf, &bucket_pgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &old_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &bucket_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &old_pagep)) != 0)
 		goto err;
 	/* Sort any unsorted pages before doing a hash split. */
 	if(old_pagep->type == P_HASH_UNSORTED)
@@ -1799,20 +1787,15 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 			return ret;
 	/* Properly initialize the new bucket page. */
 	npgno = BUCKET_TO_PAGE(hcp, nbucket);
-	if((ret = __memp_fget(mpf, &npgno, dbc->thread_info, dbc->txn,
-		    DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &new_pagep)) != 0)
+	if((ret = __memp_fget(mpf, &npgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &new_pagep)) != 0)
 		goto err;
-	P_INIT(new_pagep,
-		dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
-
+	P_INIT(new_pagep, dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 	temp_pagep = hcp->split_buf;
 	memcpy(temp_pagep, old_pagep, dbp->pgsize);
 	if(DBC_LOGGING(dbc)) {
 		page_dbt.size = dbp->pgsize;
 		page_dbt.data = old_pagep;
-		if((ret = __ham_splitdata_log(dbp,
-			    dbc->txn, &new_lsn, 0, SPLITOLD,
-			    PGNO(old_pagep), &page_dbt, &LSN(old_pagep))) != 0)
+		if((ret = __ham_splitdata_log(dbp, dbc->txn, &new_lsn, 0, SPLITOLD, PGNO(old_pagep), &page_dbt, &LSN(old_pagep))) != 0)
 			goto err;
 	}
 	else
@@ -1925,18 +1908,13 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 		}
 		if(next_pgno == PGNO_INVALID)
 			temp_pagep = NULL;
-		else if((ret = __memp_fget(mpf,
-				 &next_pgno, dbc->thread_info, dbc->txn,
-				 DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &temp_pagep)) != 0)
+		else if((ret = __memp_fget(mpf, &next_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &temp_pagep)) != 0)
 			goto err;
 		if(temp_pagep != NULL) {
 			if(DBC_LOGGING(dbc)) {
 				page_dbt.size = dbp->pgsize;
 				page_dbt.data = temp_pagep;
-				if((ret = __ham_splitdata_log(dbp,
-					    dbc->txn, &new_lsn, 0,
-					    SPLITOLD, PGNO(temp_pagep),
-					    &page_dbt, &LSN(temp_pagep))) != 0)
+				if((ret = __ham_splitdata_log(dbp, dbc->txn, &new_lsn, 0, SPLITOLD, PGNO(temp_pagep), &page_dbt, &LSN(temp_pagep))) != 0)
 					goto err;
 			}
 			else

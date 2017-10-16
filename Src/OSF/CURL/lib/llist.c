@@ -29,14 +29,13 @@
 /*
  * @unittest: 1300
  */
-void Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
+void FASTCALL Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
 {
 	l->size = 0;
 	l->dtor = dtor;
 	l->head = NULL;
 	l->tail = NULL;
 }
-
 /*
  * Curl_llist_insert_next()
  *
@@ -48,7 +47,7 @@ void Curl_llist_init(struct curl_llist * l, curl_llist_dtor dtor)
  *
  * @unittest: 1300
  */
-int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e, const void * p)
+int FASTCALL Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element * e, const void * p)
 {
 	struct curl_llist_element * ne = (struct curl_llist_element *)SAlloc::M(sizeof(struct curl_llist_element));
 	if(!ne)
@@ -61,7 +60,7 @@ int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element *
 		list->tail = ne;
 	}
 	else {
-		/* if 'e' is NULL here, we insert the new element first in the list */
+		// if 'e' is NULL here, we insert the new element first in the list 
 		ne->next = e ? e->next : list->head;
 		ne->prev = e;
 		if(!e) {
@@ -83,34 +82,34 @@ int Curl_llist_insert_next(struct curl_llist * list, struct curl_llist_element *
 /*
  * @unittest: 1300
  */
-int Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e, void * user)
+int FASTCALL Curl_llist_remove(struct curl_llist * list, struct curl_llist_element * e, void * user)
 {
-	if(e == NULL || list->size == 0)
-		return 1;
-	if(e == list->head) {
-		list->head = e->next;
-		if(list->head == NULL)
-			list->tail = NULL;
-		else
-			e->next->prev = NULL;
+	if(e && list->size) {
+		if(e == list->head) {
+			list->head = e->next;
+			if(list->head == NULL)
+				list->tail = NULL;
+			else
+				e->next->prev = NULL;
+		}
+		else {
+			e->prev->next = e->next;
+			if(!e->next)
+				list->tail = e->prev;
+			else
+				e->next->prev = e->prev;
+		}
+		list->dtor(user, e->ptr);
+		e->ptr  = NULL;
+		e->prev = NULL;
+		e->next = NULL;
+		SAlloc::F(e);
+		--list->size;
 	}
-	else {
-		e->prev->next = e->next;
-		if(!e->next)
-			list->tail = e->prev;
-		else
-			e->next->prev = e->prev;
-	}
-	list->dtor(user, e->ptr);
-	e->ptr  = NULL;
-	e->prev = NULL;
-	e->next = NULL;
-	SAlloc::F(e);
-	--list->size;
 	return 1;
 }
 
-void Curl_llist_destroy(struct curl_llist * list, void * user)
+void FASTCALL Curl_llist_destroy(struct curl_llist * list, void * user)
 {
 	if(list) {
 		while(list->size > 0)
@@ -118,7 +117,7 @@ void Curl_llist_destroy(struct curl_llist * list, void * user)
 	}
 }
 
-size_t Curl_llist_count(struct curl_llist * list)
+size_t FASTCALL Curl_llist_count(struct curl_llist * list)
 {
 	return list->size;
 }

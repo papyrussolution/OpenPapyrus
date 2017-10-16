@@ -229,9 +229,7 @@ struct __mpool { /* SHARED */
  *	 will be ignored, and pages from different files end up in the same
  *	 hash bucket.  Use a nearby prime instead.
  */
-#define	MP_HASH(mf_offset, pgno)					\
-	((((pgno) << 8) ^ (pgno)) ^ (((uint32) mf_offset) * 509))
-
+#define	MP_HASH(mf_offset, pgno) ((((pgno) << 8) ^ (pgno)) ^ (((uint32) mf_offset) * 509))
 /*
  * Inline the calculation of the mask, since we can't reliably store the mask
  * with the number of buckets in the region.
@@ -239,10 +237,7 @@ struct __mpool { /* SHARED */
  * This is equivalent to:
  *     mask = (1 << __db_log2(nbuckets)) - 1;
  */
-#define	MP_MASK(nbuckets, mask) do {					\
-	for(mask = 1; mask < (nbuckets); mask = (mask << 1) | 1)	\
-		;							\
-} while (0)
+#define	MP_MASK(nbuckets, mask) do { for(mask = 1; mask < (nbuckets); mask = (mask << 1) | 1) ; } while (0)
 
 #define	MP_HASH_BUCKET(hash, nbuckets, mask, bucket) do {		\
 	(bucket) = (hash) & (mask);					\
@@ -532,22 +527,12 @@ struct __bh_frozen_a {
 	SH_TAILQ_ENTRY links;
 };
 
-#define	MULTIVERSION(dbp)	atomic_read(&(dbp)->mpf->mfp->multiversion)
-
-#define	PAGE_TO_BH(p)	(BH *)((uint8 *)(p) - SSZA(BH, buf))
-#define	IS_DIRTY(p)							\
-    (F_ISSET(PAGE_TO_BH(p), BH_DIRTY|BH_EXCLUSIVE) == (BH_DIRTY|BH_EXCLUSIVE))
-
-#define	BH_OWNER(env, bhp)						\
-    ((TXN_DETAIL *)R_ADDR(&env->tx_handle->reginfo, bhp->td_off))
-
-#define	BH_OWNED_BY(env, bhp, txn)	((txn) != NULL &&		\
-    (bhp)->td_off != INVALID_ROFF &&					\
-    (txn)->td == BH_OWNER(env, bhp))
-
-#define	VISIBLE_LSN(env, bhp)						\
-    (&BH_OWNER(env, bhp)->visible_lsn)
-
+#define	MULTIVERSION(dbp)           atomic_read(&(dbp)->mpf->mfp->multiversion)
+#define	PAGE_TO_BH(p)               (BH *)((uint8 *)(p) - SSZA(BH, buf))
+#define	IS_DIRTY(p)                 (F_ISSET(PAGE_TO_BH(p), BH_DIRTY|BH_EXCLUSIVE) == (BH_DIRTY|BH_EXCLUSIVE))
+#define	BH_OWNER(env, bhp)          ((TXN_DETAIL *)R_ADDR(&env->tx_handle->reginfo, bhp->td_off))
+#define	BH_OWNED_BY(env, bhp, txn)	((txn) != NULL && (bhp)->td_off != INVALID_ROFF && (txn)->td == BH_OWNER(env, bhp))
+#define	VISIBLE_LSN(env, bhp)       (&BH_OWNER(env, bhp)->visible_lsn)
 /*
  * Make a copy of the buffer's visible LSN, one field at a time.  We rely on the
  * 32-bit operations being atomic.  The visible_lsn starts at MAX_LSN and is

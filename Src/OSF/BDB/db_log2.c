@@ -38,22 +38,14 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-
 /*
  * PUBLIC: uint32 __db_log2 __P((uint32));
  */
-uint32 __db_log2(uint32 num)
+uint32 FASTCALL __db_log2(uint32 num)
 {
-	uint32 i;
-	uint32 limit = 1;
-	for(i = 0; limit < num; limit = limit<<1)
+	uint32 i = 0;
+	for(uint32 limit = 1; limit < num; limit = limit<<1)
 		++i;
 	return i;
 }

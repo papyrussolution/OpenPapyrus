@@ -33,7 +33,7 @@ CURLcode Curl_dupset(struct Curl_easy * dst, struct Curl_easy * src);
 void Curl_freeset(struct Curl_easy * data);
 CURLcode Curl_close(struct Curl_easy *data); /* opposite of curl_open() */
 CURLcode Curl_connect(struct Curl_easy *, struct connectdata **, bool *async, bool *protocol_connect);
-CURLcode Curl_disconnect(struct connectdata *, bool dead_connection);
+CURLcode FASTCALL Curl_disconnect(struct connectdata *, bool dead_connection);
 CURLcode Curl_protocol_connect(struct connectdata *conn, bool *done);
 CURLcode Curl_protocol_connecting(struct connectdata *conn, bool *done);
 CURLcode Curl_protocol_doing(struct connectdata *conn, bool *done);

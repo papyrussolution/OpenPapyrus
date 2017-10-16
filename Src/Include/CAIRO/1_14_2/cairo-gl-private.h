@@ -162,29 +162,22 @@ typedef struct cairo_gl_source {
 struct _cairo_gl_surface {
 	cairo_surface_t base;
 	cairo_gl_operand_t operand;
-
 	int width, height;
-
 	GLuint tex; /* GL texture object containing our data. */
 	GLuint fb; /* GL framebuffer object wrapping our data. */
 	GLuint depth_stencil; /* GL renderbuffer object for holding stencil buffer clip. */
-
 #if CAIRO_HAS_GL_SURFACE
 	GLuint msaa_rb; /* The ARB MSAA path uses a renderbuffer. */
 	GLuint msaa_fb;
 #endif
 	GLuint msaa_depth_stencil;
-
 	cairo_bool_t stencil_and_msaa_caps_initialized;
 	cairo_bool_t supports_stencil; /* Stencil support for for non-texture surfaces. */
 	cairo_bool_t supports_msaa;
-	cairo_bool_t msaa_active; /* Whether the multisampling
-	                             framebuffer is active or not. */
+	cairo_bool_t msaa_active; // Whether the multisampling framebuffer is active or not
 	cairo_clip_t * clip_on_stencil_buffer;
-
 	int owns_tex;
 	cairo_bool_t needs_update;
-
 	cairo_region_t * clip_region;
 };
 

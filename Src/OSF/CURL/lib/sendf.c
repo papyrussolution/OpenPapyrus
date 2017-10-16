@@ -420,7 +420,7 @@ static CURLcode pausewrite(struct Curl_easy * data, int type/* what type of data
 	if(s->tempcount) {
 		for(i = 0; i< s->tempcount; i++) {
 			if(s->tempwrite[i].type == type) {
-				/* data for this type exists */
+				// data for this type exists 
 				newtype = FALSE;
 				break;
 			}
@@ -546,7 +546,6 @@ CURLcode Curl_client_write(struct connectdata * conn, int type, char * ptr, size
 		/* Curl_convert_from_network calls failf if unsuccessful */
 		if(result)
 			return result;
-
 #ifdef CURL_DO_LINEEND_CONV
 		/* convert end-of-line markers */
 		len = convert_lineends(data, ptr, len);

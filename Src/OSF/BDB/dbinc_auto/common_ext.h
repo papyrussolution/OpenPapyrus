@@ -53,7 +53,7 @@ int __db_failed(const ENV *, const char *, pid_t, db_threadid_t);
 int __db_getlong(DB_ENV *, const char *, char *, long, long, long *);
 int __db_getulong(DB_ENV *, const char *, char *, ulong, ulong, ulong *);
 void __db_idspace(uint32 *, int, uint32 *, uint32 *);
-uint32 __db_log2(uint32);
+uint32 FASTCALL __db_log2(uint32);
 uint32 __db_tablesize(uint32);
 void __db_hashinit(void *, uint32);
 int FASTCALL __dbt_usercopy(ENV *, DBT *);

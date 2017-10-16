@@ -2101,7 +2101,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule2(PPID seriesID, int prevTrnovrPrd, PPLo
 	PPObjSCardSeries obj_scs;
 	if(obj_scs.GetPacket(seriesID, &pack) > 0) {
 		TSArray <_SCardTrnovrItem> sct_list;
-		sct_list.setDelta(512);
+		//sct_list.setDelta(512);
 		enum {
 			_cfBonusRule    = 0x0001,
 			_cfDiscountRule = 0x0002

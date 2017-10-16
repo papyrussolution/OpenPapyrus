@@ -1342,7 +1342,7 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf)
 	return rBuf;
 }
 
-PPID SLAPI GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
+PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 {
 	return DS.GetObjectTypeBySymb(pSymb, pExtraParam);
 }
@@ -1532,7 +1532,7 @@ int SLAPI EditPPObj(PPID objType, PPID objID)
 	return ok;
 }
 
-int SLAPI ShowObjects(PPID obj, void * extraPtr)
+int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 {
 	int    ok = 0;
 	PPObject * ppobj = GetPPObject(obj, extraPtr);

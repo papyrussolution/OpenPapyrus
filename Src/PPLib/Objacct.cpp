@@ -1270,12 +1270,7 @@ public:
 	};
 };
 
-IMPL_CMPFUNC(AccCacheNum, i1, i2)
-{
-	int    si = 0;
-	CMPCASCADE3(si, (AccountCache::Data *)i1, (AccountCache::Data *)i2, Ac, Sb, CurID);
-	return si;
-}
+IMPL_CMPFUNC(AccCacheNum, i1, i2) { RET_CMPCASCADE3((const AccountCache::Data *)i1, (const AccountCache::Data *)i2, Ac, Sb, CurID); }
 
 int SLAPI AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 {

@@ -8,9 +8,6 @@ table names from _pcre_xxx to xxxx, thereby avoiding name clashes
 with the library. At present, just one of these tables is actually
 needed. */
 
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 /* @sobolev

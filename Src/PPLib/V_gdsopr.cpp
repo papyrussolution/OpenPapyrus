@@ -90,12 +90,7 @@ struct GoaUniqItem {       // size=36
 	double Price;
 };
 
-IMPL_CMPFUNC(GoaCacheItem, i1, i2)
-{
-	int    si;
-	CMPCASCADE4(si, (const GoaCacheItem *)i1, (const GoaCacheItem *)i2, Sign, GoodsID, ArID, LocID);
-	return si;
-}
+IMPL_CMPFUNC(GoaCacheItem, i1, i2) { RET_CMPCASCADE4((const GoaCacheItem *)i1, (const GoaCacheItem *)i2, Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaCacheItem_P, i1, i2)
 {
@@ -136,12 +131,7 @@ IMPL_CMPFUNC(GoaCacheItem_CP, i1, i2)
 	return si;
 }
 
-IMPL_CMPFUNC(GoaUniqItem, i1, i2)
-{
-	int    si;
-	CMPCASCADE4(si, (GoaUniqItem *)i1, (GoaUniqItem *)i2, Sign, GoodsID, ArID, LocID);
-	return si;
-}
+IMPL_CMPFUNC(GoaUniqItem, i1, i2) { RET_CMPCASCADE4((const GoaUniqItem *)i1, (const GoaUniqItem *)i2, Sign, GoodsID, ArID, LocID); }
 
 IMPL_CMPFUNC(GoaUniqItem_P, i1, i2)
 {
@@ -1268,11 +1258,11 @@ int SLAPI PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	if(P_Cache == 0) {
-		THROW_MEM(P_Cache = new SArray(sizeof(GoaCacheItem), 1024, O_ARRAY)); // @v8.1.12 delta 16-->1024
+		THROW_MEM(P_Cache = new SArray(sizeof(GoaCacheItem), /*1024,*/O_ARRAY)); // @v8.1.12 delta 16-->1024
 	}
 	else
 		P_Cache->freeAll();
-	if(Filt.Flags & (GoodsOpAnalyzeFilt::fIntrReval | GoodsOpAnalyzeFilt::fDiffByPrice)) {
+	if(Filt.Flags & (GoodsOpAnalyzeFilt::fIntrReval|GoodsOpAnalyzeFilt::fDiffByPrice)) {
 		Cf = PTR_CMPFUNC(GoaCacheItem_CP);
 		Cf_UniqItem = PTR_CMPFUNC(GoaUniqItem_CP);
 	}

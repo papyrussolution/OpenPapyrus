@@ -1003,7 +1003,7 @@ int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert 
 	return ok;
 }
 
-struct CCheckGrpItem { // @size=72
+struct CCheckGrpItem { // @flat @size=72
 	LDATE  Dt;
 	LTIME  Tm;
 	long   CashID;
@@ -1019,16 +1019,11 @@ struct CCheckGrpItem { // @size=72
 	double Qtty;
 };
 
-IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
-{
-	int    si;
-	CMPCASCADE5(si, (CCheckGrpItem *)p1, (CCheckGrpItem *)p2, Dt, Tm, CashID, SCardID, GoodsID);
-	return si;
-}
+IMPL_CMPFUNC(CCheckGrpItem, p1, p2) { RET_CMPCASCADE5((const CCheckGrpItem *)p1, (const CCheckGrpItem *)p2, Dt, Tm, CashID, SCardID, GoodsID); }
 
-class CCheckGrpCache : SArray {
+class CCheckGrpCache : SVector { // @v9.8.4 SArray-->SVector
 public:
-	SLAPI  CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SArray(sizeof(CCheckGrpItem))
+	SLAPI  CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)) // @v9.8.4 SArray-->SVector
 	{
 		P_Tbl = pTbl;
 		MaxItems = (maxItems > 0) ? maxItems : 1024;

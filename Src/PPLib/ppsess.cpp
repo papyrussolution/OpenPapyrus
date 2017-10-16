@@ -3347,7 +3347,7 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 				PPID   ObjID;
 				long   Extra;
 			};
-			SVector list(sizeof(SjEntry), 64, O_ARRAY); // @v9.8.4 SArray-->SVector
+			SVector list(sizeof(SjEntry), /*64,*/O_ARRAY); // @v9.8.4 SArray-->SVector
 
 			TSVector <PPAdviseEvent> evq_list; // @v9.8.4 TSArray-->TSVector
 			PPAdviseEventQueue * p_queue = (pCli && __UseAdvEvQueue && !CheckExtFlag(ECF_DISABLEASYNCADVQUEUE)) ? CMng.GetAdviseEventQueue(dbPathID) : 0;
@@ -4048,7 +4048,7 @@ SLAPI PPAdviseBlock::PPAdviseBlock()
 	THISZERO();
 }
 
-SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), 16, O_ARRAY)
+SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), /*16,*/O_ARRAY)
 {
 	LastCookie = 0;
 }
@@ -4530,7 +4530,7 @@ PPAdviseEventQueue::Stat::Stat()
 	MaxLength = 0;
 }
 
-SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSVector <PPAdviseEvent> (), CliList(DEFCOLLECTDELTA, (aryDataOwner|aryPtrContainer))
+SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSVector <PPAdviseEvent> (), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer))
 {
 	LastIdent = 0;
 	//

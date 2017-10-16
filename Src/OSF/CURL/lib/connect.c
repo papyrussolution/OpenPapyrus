@@ -48,26 +48,8 @@
 	#include <in.h>
 	#include <inet.h>
 #endif
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "if2ip.h"
-//#include "strerror.h"
-//#include "connect.h"
-//#include "select.h"
-//#include "url.h" /* for ZFREE() */
-//#include "multiif.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-//#include "inet_ntop.h"
-//#include "inet_pton.h"
-//#include "vtls/vtls.h" /* for Curl_ssl_check_cxn() */
-//#include "progress.h"
-//#include "warnless.h"
-//#include "conncache.h"
-//#include "multihandle.h"
 #include "system_win32.h"
-// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifdef __SYMBIAN32__
@@ -1142,27 +1124,24 @@ bool Curl_connalive(struct connectdata * conn)
 	else {
 		/* use the socket */
 		char buf;
-		if(recv((RECV_TYPE_ARG1)conn->sock[FIRSTSOCKET], (RECV_TYPE_ARG2)&buf,
-			    (RECV_TYPE_ARG3)1, (RECV_TYPE_ARG4)MSG_PEEK) == 0) {
+		if(recv((RECV_TYPE_ARG1)conn->sock[FIRSTSOCKET], (RECV_TYPE_ARG2)&buf, (RECV_TYPE_ARG3)1, (RECV_TYPE_ARG4)MSG_PEEK) == 0) {
 			return false; /* FIN received */
 		}
 	}
 #endif
 	return true;
 }
-
 /*
  * Close a socket.
  *
  * 'conn' can be NULL, beware!
  */
-int Curl_closesocket(struct connectdata * conn, curl_socket_t sock)
+int FASTCALL Curl_closesocket(struct connectdata * conn, curl_socket_t sock)
 {
 	if(conn && conn->fclosesocket) {
 		if((sock == conn->sock[SECONDARYSOCKET]) && conn->sock_accepted[SECONDARYSOCKET])
-			/* if this socket matches the second socket, and that was created with
-			   accept, then we MUST NOT call the callback but clear the accepted
-			   status */
+			// if this socket matches the second socket, and that was created with
+			// accept, then we MUST NOT call the callback but clear the accepted status 
 			conn->sock_accepted[SECONDARYSOCKET] = FALSE;
 		else {
 			Curl_multi_closed(conn, sock);

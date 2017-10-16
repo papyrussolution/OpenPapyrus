@@ -106,7 +106,7 @@ SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags)
 	ObjType   = objType;
 	EntrySize = entrySize;
 	UnusedNameSpace = 0;
-	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, 128, O_ARRAY); // @v8.1.6 1-->128
+	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, /*128,*/ O_ARRAY); // @v8.1.6 1-->128
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
 	MEMSZERO(StatData);
 	Flags = flags;

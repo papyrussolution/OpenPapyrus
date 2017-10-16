@@ -87,7 +87,7 @@ public:
 	//
 	Param::ConfigEntry * SLAPI SetupParamByEntryIdx(Param * pParam);
 private:
-	static int CopyProgressProc(const SCopyFileData * scfd); // SCopyFileProgressProc
+	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
 	int	   SLAPI UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
 	int	   SLAPI InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
 
@@ -416,11 +416,11 @@ int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SSt
 }
 
 //static
-int PrcssrBuild::CopyProgressProc(const SCopyFileData * scfd)
+int PrcssrBuild::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 {
 	SString msg_buf;
-	(msg_buf = scfd->SrcFileName).Space().Cat("-->").Space().Cat(scfd->DestFileName);
-	long   pct = (long)(100L * scfd->TransferredBytes / scfd->TotalFileSize);
+	(msg_buf = scfd->P_Src).Space().Cat("-->").Space().Cat(scfd->P_Dest);
+	long   pct = (long)(100L * scfd->SizeDone / scfd->SizeTotal);
 	PPWaitPercent(pct, msg_buf);
 	return SPRGRS_CONTINUE;
 }

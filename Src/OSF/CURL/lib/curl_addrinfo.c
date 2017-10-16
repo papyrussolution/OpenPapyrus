@@ -22,7 +22,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
@@ -43,12 +42,7 @@
 	#undef  in_addr_t
 	#define in_addr_t ulong
 #endif
-//#include "curl_addrinfo.h"
-//#include "inet_pton.h"
-//#include "warnless.h"
-// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /*

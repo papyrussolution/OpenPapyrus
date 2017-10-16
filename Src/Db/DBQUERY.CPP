@@ -1268,7 +1268,7 @@ int deleteFrom(DBTable * pTbl, int useTa, DBQ & query)
 //
 //
 //
-DBUpdateSet::DBUpdateSet() : SArray(sizeof(DBUpdateSetItem), 8, O_ARRAY|aryEachItem)
+DBUpdateSet::DBUpdateSet() : SArray(sizeof(DBUpdateSetItem), /*8,*/ O_ARRAY|aryEachItem)
 {
 }
 

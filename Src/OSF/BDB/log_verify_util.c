@@ -155,29 +155,29 @@ int __destroy_log_vrfy_info(DB_LOG_VRFY_INFO * lvinfop)
 	int ret = 0;
 	if(lvinfop == NULL)
 		return 0;
-	if(lvinfop->txnaborts != NULL && (ret = __db_close(lvinfop->txnaborts, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->txnaborts, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->txninfo != NULL && (ret = __db_close(lvinfop->txninfo, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->txninfo, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->dbregids != NULL && (ret = __db_close(lvinfop->dbregids, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->dbregids, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->fileregs != NULL && (ret = __db_close(lvinfop->fileregs, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->fileregs, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->pgtxn != NULL && (ret = __db_close(lvinfop->pgtxn, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->pgtxn, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->lsntime != NULL && (ret = __db_close(lvinfop->lsntime, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->lsntime, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->ckps != NULL && (ret = __db_close(lvinfop->ckps, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->ckps, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->txnrngs != NULL && (ret = __db_close(lvinfop->txnrngs, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->txnrngs, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->fnameuid != NULL && (ret = __db_close(lvinfop->fnameuid, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->fnameuid, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->timelsn != NULL && (ret = __db_close(lvinfop->timelsn, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->timelsn, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->txnpg != NULL && (ret = __db_close(lvinfop->txnpg, NULL, 0)) != 0)
+	if((ret = __db_close(lvinfop->txnpg, NULL, 0)) != 0)
 		goto err;
-	if(lvinfop->dbenv != NULL && (ret = __env_close(lvinfop->dbenv, 0)) != 0)
+	if(lvinfop->dbenv && (ret = __env_close(lvinfop->dbenv, 0)) != 0)
 		goto err;
 err:
 	__os_free(NULL, lvinfop);

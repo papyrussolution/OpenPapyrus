@@ -39,9 +39,6 @@
 
 /* This module contains internal functions for comparing and finding the length
    of strings for different data item sizes. */
-#ifdef HAVE_CONFIG_H
-	#include "config.h"
-#endif
 #include "pcre_internal.h"
 #pragma hdrstop
 

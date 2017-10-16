@@ -2048,10 +2048,10 @@ public:
 	//   0 - ошибка
 	//
 	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
-	virtual int PreprocessImportFileSpec(const SString & rFileSpec, PPFileNameArray & rList);
+	virtual int PreprocessImportFileSpec(StringSet & rList);
 	virtual int PreprocessImportFileName(const SString & rFileName, StrAssocArray & rResultList);
 
-	int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
+	int    GetFilesFromSource(const char * pUrl, StringSet & rList, PPLogger * pLogger);
 	int    DistributeFile(PPLogger * pLogger);
 
 	enum {
@@ -2071,7 +2071,7 @@ public:
 	// @v8.4.6 long   ImpExpByDll;		// 0 - по-старому, 1 - через dll // @vmiller
 	long   EDIDocType;      // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
 	long   BaseFlags;       // @v8.4.6 PPImpExpParam::bfXXX
-	PPID   FtpAccID;        // @v8.6.1 Учетная запись FTP-сервера
+	PPID   InetAccID;      // @v8.6.1 Учетная запись интернет-соединения
 	TextDbFile::Param  TdfParam;
 	XmlDbFile::Param   XdfParam;
 	SoapDbFile::Param  SdfParam;
@@ -2127,7 +2127,7 @@ public:
 	int    OpenFileForReading(const char * pFileName);
 	int    OpenFileForWriting(const char * pFileName, int truncOnWriting, StringSet * pResultFileList = 0);
 	int    CloseFile();
-	int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
+	//int    GetFilesFromSource(const char * pWildcard, PPLogger * pLogger);
 	int    DistributeFile(PPLogger * pLogger);
 	int    AppendHdrRecord(void * pDataBuf, size_t dataBufLen);
 	int    AppendRecord(void * pDataBuf, size_t dataBufLen);
@@ -5588,7 +5588,7 @@ public:
 	int    SLAPI WithdrawSCardAmount(const char * pNumber, const double amount);
 	int    SLAPI GetSCardRest(const char * pNumber, const char * pDate, double & rRest);
 	int    SLAPI FileVersionAdd(const char * pFileName, const char * pKey,
-		const char * pVersionLabel, const char * pVersionMemo, SCopyFileProgressProc pp, void * pExtra);
+		const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra);
 	int    SLAPI GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer);
 	int    SLAPI SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult);
 
@@ -8065,7 +8065,7 @@ struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec)
 	long   AccType;      //
 };
 
-class RegisterArray : public SArray {
+class RegisterArray : public SVector { // @v9.8.4 SArray-->SVector
 public:
 	SLAPI  RegisterArray();
 	SLAPI  RegisterArray(const RegisterArray & s);
@@ -13622,7 +13622,7 @@ private:
 	// Вспомогательный флаг, используемый для быстрого определения (не обращаясь к доп записи) есть ли у чека сумма доплаты.
 #define CCHKF_HASGIFT      0x80000000L // По чеку был предоставлен подарок  (не уточняется какой именно)
 //
-struct CCheckGoodsEntry {  // size=32
+struct CCheckGoodsEntry { // @flat @size=32
 	enum {
 		fAdj = 0x0001 // Элемент использован для выравнивания суммы агрегации с суммой по чекам
 	};
@@ -13635,7 +13635,7 @@ struct CCheckGoodsEntry {  // size=32
 	double Sum;
 };
 
-class CCheckGoodsArray : public TSArray <CCheckGoodsEntry> {
+class CCheckGoodsArray : public TSVector <CCheckGoodsEntry> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  CCheckGoodsArray();
 	int    SLAPI Add(LDATE dt, const CCheckLineTbl::Rec *, PPID serialID = 0);
@@ -13903,7 +13903,7 @@ private:
 // Descr: Вспомогательная структура, используемая для быстрого извлечения и
 //   анализа дефицита по кассовым сессиям
 //
-struct CSessDfctItem {
+struct CSessDfctItem { // @flat
 	PPID   GoodsID;      // Товар, по которому возник дефицит
 	PPID   SessID;       // Кассовая сессия, в которой возник дефицит
 	LDATE  Dt;           // Дата возникновения дефицита
@@ -13914,7 +13914,7 @@ struct CSessDfctItem {
 	double AltGoodsQtty; // Количество списанное по альтернативному товару
 };
 
-class CSessDfctList : public TSArray <CSessDfctItem> {
+class CSessDfctList : public TSVector <CSessDfctItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	enum {
 		uniteNone = 0,
@@ -19532,11 +19532,19 @@ DECL_REF_REC(PPInternetAccount);
 
 typedef TSCollection <PPInternetAccount> PPInetAccntArray;
 
-#define INETACCT_ONLYMAIL 0L
-#define INETACCT_ONLYFTP  1L
+// @v9.8.4 #define INETACCT_ONLYMAIL 0L
+// @v9.8.4 #define INETACCT_ONLYFTP  1L
 
 class PPObjInternetAccount : public PPObjReference {
 public:
+	//
+	// Descr: Фильтрующие флаги для списков (передаются как *extraPtr)
+	//
+	enum {
+		filtfMail = 0x0001,
+		filtfFtp  = 0x0002,
+		filtfHttp = 0x0004
+	};
 	SLAPI  PPObjInternetAccount(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -29166,7 +29174,7 @@ public:
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
-	virtual int PreprocessImportFileSpec(const SString & rFileSpec, PPFileNameArray & rList);
+	virtual int PreprocessImportFileSpec(StringSet & rList);
 	virtual int PreprocessImportFileName(const SString & rFileName, StrAssocArray & rResultList);
 
 	long   Flags;             // @persistent
@@ -34164,14 +34172,14 @@ private:
 //
 class GCTIterator {
 public:
-	struct GoodsRestEntry {
+	struct GoodsRestEntry { // @flat
         PPID   GoodsID;
         PPID   LocID;
         LDATE  Dt;
         double Rest;
 	};
 
-	class GoodsRestArray : public TSArray <GoodsRestEntry> {
+	class GoodsRestArray : public TSVector <GoodsRestEntry> { // @v9.8.4 TSArray-->TSVector
 	public:
 		SLAPI  GoodsRestArray();
 		void   SLAPI Init();
@@ -40797,13 +40805,13 @@ public:
 	int    SLAPI SetFlag(PPID tabID, PPID destID, PPID srcID, long flag, int set);
 };
 
-struct MrpTabLeaf {
+struct MrpTabLeaf { // @flat
 	PPID   TabID;
 	PPID   LocID;
 	LDATE  Dt;
 };
 
-class MrpTabPacket : public TSArray <MrpTabLeaf> {
+class MrpTabPacket : public TSVector <MrpTabLeaf> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  MrpTabPacket();
 	MrpTabPacket & FASTCALL operator = (const MrpTabPacket &);
@@ -47820,11 +47828,11 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf);
 //   Например, для символа "CITY" функция возвращает PPOBJ_WORLD и
 //   по указателю pExtra присваивает WORLDOBJ_CITY.
 //
-PPID   SLAPI GetObjectTypeBySymb(const char * pSymb, long * pExtra);
+PPID   FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtra);
 int    FASTCALL GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
 int    FASTCALL GetObjectName(PPID objType, PPID objID, SString &, int cat = 0);
 SString & SLAPI GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf);
-int    SLAPI ShowObjects(PPID objType, void * extraPtr);
+int    FASTCALL ShowObjects(PPID objType, void * extraPtr);
 	// @>>GetPPObject(objType, extra)->Browse(extra)
 //
 // Supplement procedure. Call simple list viewer with buttons.
@@ -47888,7 +47896,7 @@ int    SLAPI GetReportIDByName(const char * pRptName, uint * pRptID);
 int    SLAPI StatusWinChange(int onLogon = 0, long timer = -1);
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period);
 DateRange  FASTCALL OleDateRangeToDateRange(const SDateRange & rRnd);
-SIterCounter GetPPViewIterCounter(const void * ppviewPtr, int * pAppError);
+SIterCounter FASTCALL GetPPViewIterCounter(const void * ppviewPtr, int * pAppError);
 IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam);
 //
 // Descr: Опции функций PPOpenFile

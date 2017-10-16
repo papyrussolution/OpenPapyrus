@@ -25,21 +25,13 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "warnless.h"
-//#include "non-ascii.h"
-//#include "escape.h"
-//#include "strdup.h"
-// The last 3 #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
-
-/* Portable character check (remember EBCDIC). Do not use isalnum() because
-   its behavior is altered by the current locale.
-   See https://tools.ietf.org/html/rfc3986#section-2.3
- */
+// 
+// Portable character check (remember EBCDIC). Do not use isalnum() because
+// its behavior is altered by the current locale.
+// See https://tools.ietf.org/html/rfc3986#section-2.3
+// 
 static bool Curl_isunreserved(uchar in)
 {
 	switch(in) {
@@ -62,21 +54,22 @@ static bool Curl_isunreserved(uchar in)
 	}
 	return FALSE;
 }
-
-/* for ABI-compatibility with previous versions */
+//
+// for ABI-compatibility with previous versions 
+//
 char * curl_escape(const char * string, int inlength)
 {
 	return curl_easy_escape(NULL, string, inlength);
 }
-
-/* for ABI-compatibility with previous versions */
+//
+// for ABI-compatibility with previous versions 
+//
 char * curl_unescape(const char * string, int length)
 {
 	return curl_easy_unescape(NULL, string, length, 0);
 }
 
-char * curl_easy_escape(struct Curl_easy * data, const char * string,
-    int inlength)
+char * curl_easy_escape(struct Curl_easy * data, const char * string, int inlength)
 {
 	size_t alloc;
 	char * ns;
@@ -96,13 +89,11 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 	length = alloc-1;
 	while(length--) {
 		in = *string;
-
 		if(Curl_isunreserved(in))
-			/* just copy this */
-			ns[strindex++] = in;
+			ns[strindex++] = in; // just copy this 
 		else {
-			/* encode it */
-			newlen += 2; /* the size grows with two, since this'll become a %XX */
+			// encode it 
+			newlen += 2; // the size grows with two, since this'll become a %XX 
 			if(newlen > alloc) {
 				alloc *= 2;
 				testing_ptr = (char *)Curl_saferealloc(ns, alloc);
@@ -110,16 +101,12 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 					return NULL;
 				ns = testing_ptr;
 			}
-
 			result = Curl_convert_to_network(data, &in, 1);
-			if(result) {
-				/* Curl_convert_to_network calls failf if unsuccessful */
+			if(result) { // Curl_convert_to_network calls failf if unsuccessful 
 				SAlloc::F(ns);
 				return NULL;
 			}
-
 			snprintf(&ns[strindex], 4, "%%%02X", in);
-
 			strindex += 3;
 		}
 		string++;
@@ -127,7 +114,6 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string,
 	ns[strindex] = 0; /* terminate it */
 	return ns;
 }
-
 /*
  * Curl_urldecode() URL decodes the given string.
  *
@@ -151,48 +137,35 @@ CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t len
 	while(--alloc > 0) {
 		in = *string;
 		if(('%' == in) && (alloc > 2) && ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
-			/* this is two hexadecimal digits following a '%' */
+			// this is two hexadecimal digits following a '%' 
 			char hexstr[3];
 			char * ptr;
 			hexstr[0] = string[1];
 			hexstr[1] = string[2];
 			hexstr[2] = 0;
-
 			hex = strtoul(hexstr, &ptr, 16);
-
-			in = curlx_ultouc(hex); /* this long is never bigger than 255 anyway */
-
+			in = curlx_ultouc(hex); // this long is never bigger than 255 anyway 
 			result = Curl_convert_from_network(data, &in, 1);
 			if(result) {
-				/* Curl_convert_from_network calls failf if unsuccessful */
+				// Curl_convert_from_network calls failf if unsuccessful 
 				SAlloc::F(ns);
 				return result;
 			}
-
 			string += 2;
 			alloc -= 2;
 		}
-
 		if(reject_ctrl && (in < 0x20)) {
 			SAlloc::F(ns);
 			return CURLE_URL_MALFORMAT;
 		}
-
 		ns[strindex++] = in;
 		string++;
 	}
-	ns[strindex] = 0; /* terminate it */
-
-	if(olen)
-		/* store output size */
-		*olen = strindex;
-
-	/* store output string */
-	*ostring = ns;
-
+	ns[strindex] = 0; // terminate it 
+	ASSIGN_PTR(olen, strindex); // store output size 
+	*ostring = ns; // store output string 
 	return CURLE_OK;
 }
-
 /*
  * Unescapes the given URL escaped string of given length. Returns a
  * pointer to a malloced string with length given in *olen.
@@ -217,12 +190,11 @@ char * curl_easy_unescape(struct Curl_easy * data, const char * string, int leng
 	}
 	return str;
 }
-
-/* For operating systems/environments that use different malloc/free
-   systems for the app and for this library, we provide a free that uses
-   the library's memory system */
+// 
+// For operating systems/environments that use different malloc/free
+// systems for the app and for this library, we provide a free that uses the library's memory system 
+// 
 void curl_free(void * p)
 {
 	SAlloc::F(p);
 }
-

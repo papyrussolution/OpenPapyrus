@@ -23,12 +23,6 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_LIBZ
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "sendf.h"
-//#include "content_encoding.h"
-//#include "strdup.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Comment this out if zlib is always going to be at least ver. 1.2.0.4

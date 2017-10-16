@@ -780,7 +780,7 @@ int SLAPI ObjTagItem::Read__(SBuffer & rBuf)
 //
 //
 //
-SLAPI ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), 8, aryDataOwner|aryEachItem)
+SLAPI ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
 	ObjType = 0;
 	ObjID   = 0;
@@ -789,7 +789,7 @@ SLAPI ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), 8, aryDataOwner|aryE
 // Не используем унаследованный copy-constructor так как ObjTagList::Copy сама
 // все сделает правильно.
 //
-SLAPI ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), 8, aryDataOwner|aryEachItem)
+SLAPI ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
 	Copy(s);
 }

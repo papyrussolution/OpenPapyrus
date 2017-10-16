@@ -169,11 +169,11 @@ public:
 	int    Valid() const;
 	int    IsEmpty() const;
 	int    Parse(const char * pUrl);
-	int    GetComponent(int c, SString & rBuf) const;
+	int    GetComponent(int c, int urlDecode, SString & rBuf) const;
 	int    SetComponent(int c, const char * pBuf);
 	int    GetProtocol() const;
 	int    SetProtocol(int protocol);
-	int    GetQueryParam(const char * pParam, SString & rBuf) const;
+	int    GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
 	//
 	// Descr: Формирует url-строку из компонентов, установленных данном экземпляре.
 	// ARG(flags IN): Набор битовых флагов, соответствующих компонентам, которые должны быть внесены в строку.
@@ -886,8 +886,8 @@ public:
 	int    HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream);
 	//
 	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
-	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr);
-	int    FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SCopyFileProgressProc pf, void * extraPtr);
+	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDataMoveProgressInfo * pProgress);
+	int    FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SString * pResultFileName, SDataMoveProgressInfo * pProgress);
 	int    FtpDelete(const InetUrl & rUrl, int mflags);
 	int    FtpChangeDir(const InetUrl & rUrl, int mflags);
 	int    FtpCreateDir(const InetUrl & rUrl, int mflags);
@@ -895,18 +895,20 @@ public:
 	//
 	int    Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList); // LIST
 	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg); // TOP
-	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg);  // RETR
+	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg, SDataMoveProgressInfo * pProgress);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 
 	int    SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg);
 private:
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
+	static int    CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow);
 	static int _GlobalInitDone;
 
 	int    FASTCALL SetError(int errCode);
 	int    SetupCbRead(SFile * pF);
 	int    SetupCbWrite(SFile * pF);
+	int    SetupCbProgress(SDataMoveProgressInfo * pProgress);
 	void   CleanCbRW();
 	int    SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent);
 	int    Execute();
@@ -938,10 +940,10 @@ private:
 //
 // Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.
 //
-class SUniformFileTransmParam {
+class SUniformFileTransmParam : public SStrGroup {
 public:
 	SLAPI  SUniformFileTransmParam();
-	int    SLAPI Run(SCopyFileProgressProc pf, void * extraPtr);
+	int    SLAPI Run(SDataMoveProgressProc pf, void * extraPtr);
 
 	long   Flags;
 	int    Format; // SFileFormat::XXX
@@ -951,6 +953,25 @@ public:
 	SString AccsPassword;
 	//
 	SString Reply;
+	//
+	// @construction
+	// Descr: Стрктура результата копирования одного файла.
+	//   Поля с суффиксом 'P' представляют позицию строки во внутреннме пуле экземпляра.
+	//
+	struct ResultItem {
+		ResultItem()
+		{
+			THISZERO();
+		}
+		uint   SrcPathP;  // Путь исходного файла
+		uint   DestPathP; // Путь результирующего файла
+		uint   SrcMimeP;  // MIME исходного файла
+		uint   DestMimeP; // MIME результирующего файла
+		uint   RmvSrcCookieP;  // Специальная строка, которая может быть использована как ключ для последующего удаления исходного файла 
+		uint   RmvDestCookieP; // Специальная строка, которая может быть использована как ключ для последующего удаления результирующего файла 
+		uint64 Size; // Размер скопированного файла
+	}; 
+	TSVector <ResultItem> ResultList;
 };
 //
 //
