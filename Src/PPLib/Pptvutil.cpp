@@ -120,9 +120,7 @@ void PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarI
 		else {
 			SPathStruc ps;
 			ps.Split(pFileName);
-			ps.Drv.Z();
-			ps.Dir.Z();
-			ps.Merge(title_buf);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, title_buf);
 		}
 		p_brw->setTitle(title_buf);
 	}
@@ -2043,9 +2041,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	if((ok = ::GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
 		SPathStruc ps;
 		ps.Split(file_name);
-		ps.Nam.Z();
-		ps.Ext.Z();
-		ps.Merge(InitDir);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 0);
 			reg_key.PutString(reg_key_buf, InitDir);

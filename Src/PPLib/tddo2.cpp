@@ -59,9 +59,7 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 		if(pInputFileName) {
 			SPathStruc ps;
 			ps.Split(pInputFileName);
-			ps.Nam.Z();
-			ps.Ext.Z();
-			ps.Merge(path);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
 		}
 		if(path.NotEmptyS()) {
 			SPathStruc::ReplacePath(rResult, path, 0);
@@ -477,9 +475,7 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 		if(InputFileName.NotEmpty()) {
 			SPathStruc ps;
 			ps.Split(InputFileName);
-			ps.Nam.Z();
-			ps.Ext.Z();
-			ps.Merge(rR.S);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rR.S);
 			rR.S.SetLastSlash();
 		}
 	}

@@ -1146,7 +1146,13 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 		}
 		if(pParam->LocID)
 			pack.Rec.LocID = pParam->LocID;
-		pack.Rec.Object = sample_pack.Rec.Object;
+		{
+			// @v9.8.5 pack.Rec.Object = sample_pack.Rec.Object;
+			// @v9.8.5 {
+			PPBillPacket::SetupObjectBlock sob;
+			THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+			// } @v9.8.5
+		}
 		pack.SampleBillID = sampleBillID;
 		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
@@ -1205,7 +1211,13 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 		}
 		if(pParam->LocID)
 			pack.Rec.LocID = pParam->LocID;
-		pack.Rec.Object = sample_pack.Rec.Object;
+		{
+			// @v9.8.5 pack.Rec.Object = sample_pack.Rec.Object;
+			// @v9.8.5 {
+			PPBillPacket::SetupObjectBlock sob;
+			THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+			// } @v9.8.5
+		}
 		pack.SampleBillID = sampleBillID;
 		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
@@ -1257,7 +1269,7 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 	THROW(CheckRights(PPR_INS));
 	THROW(pack.CreateBlankByFilt(opID, pFilt, 1));
 	op_type = GetOpType(pack.Rec.OpID, &op_rec);
-	while(r > 0 && !pack.Rec.LocID)
+	while(r > 0 && !pack.Rec.LocID) {
 		if(op_type == PPOPT_ACCTURN && op_rec.DefLocID)
 			pack.Rec.LocID = op_rec.DefLocID;
 		else {
@@ -1265,6 +1277,7 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 			if(r > 0)
 				pack.Rec.LocID = op_rec.DefLocID;
 		}
+	}
 	if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
 		//
 		// Так как чаще всего при модификации товаров в
@@ -1280,7 +1293,7 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 		PPObjSCard sc_obj;
 		SCardTbl::Rec sc_rec;
 		if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
-			CCheckCore         cc_core;
+			CCheckCore cc_core;
 			CCheckLineTbl::Rec cc_line;
 			MEMSZERO(cc_line);
 			pack.Rec.Dt = pChkRec->Dt;
@@ -1588,7 +1601,7 @@ int SLAPI PPObjBill::ViewAccturns(PPID billID)
 	return ok;
 }
 
-static void SLAPI _processFlags(TDialog * dlg, long flags)
+static void FASTCALL _processFlags(TDialog * dlg, long flags)
 {
 	static const struct { uint f, c; } _tab[] = {
 		{(uint)ATDF_DSBLDOC,    CTL_ATURN_DOC},

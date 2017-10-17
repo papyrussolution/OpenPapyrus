@@ -27,13 +27,13 @@ const SSzChunk * FASTCALL PPTextAnalyzer::Replacer::SrcItem::GetTermGroup(uint t
 	return 0;
 }
 
-PPTextAnalyzer::Replacer::Chain::Chain() : TSArray <PPTextAnalyzer::Replacer::Term> ()
+PPTextAnalyzer::Replacer::Chain::Chain() : TSVector <PPTextAnalyzer::Replacer::Term> () // @v9.8.4 TSArray-->TSVector
 {
 }
 
 PPTextAnalyzer::Replacer::Chain & FASTCALL PPTextAnalyzer::Replacer::Chain::operator = (const PPTextAnalyzer::Replacer::Chain & rS)
 {
-	SArray::copy(rS);
+	SVector::copy(rS); // @v9.8.4 SArray-->SVector
 	return *this;
 }
 
@@ -91,13 +91,12 @@ PPTextAnalyzer::Replacer::~Replacer()
 	delete P_Cluster;
 }
 
-int PPTextAnalyzer::Replacer::InitParsing(const char * pFileName)
+void PPTextAnalyzer::Replacer::InitParsing(const char * pFileName)
 {
 	FileName = pFileName;
 	LineNo = 0;
 	State = 0;
 	ZDELETE(P_Cluster);
-	return 1;
 }
 
 void PPTextAnalyzer::Replacer::IncLineNo()
@@ -119,7 +118,7 @@ long PPTextAnalyzer::Replacer::GetState() const
 
 PPTextAnalyzer::Replacer::SrcItem * PPTextAnalyzer::Replacer::MakeSrcItem(
 	PPTextAnalyzer::Replacer::SrcItem * pOuterSrcItem,
-	int op, uint targetIdx, const PPTextAnalyzer::Replacer::Chain & rList, const TSArray <SSzChunk> & rGl) const
+	int op, uint targetIdx, const PPTextAnalyzer::Replacer::Chain & rList, const TSVector <SSzChunk> & rGl) const // @v9.8.4 TSArray-->TSVector
 {
 	SETIFZ(pOuterSrcItem, new Replacer::SrcItem);
 	if(pOuterSrcItem) {
@@ -2830,12 +2829,12 @@ int SLAPI PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList,
 //
 class PPKeywordListGenerator : SStrGroup {
 public:
-	struct RunStatEntry {
+	struct RunStatEntry { // @flat
 		uint   WordP;
 		uint   Count;     // Количество элементов, встретившихся в тексте
 		uint   WordCount; // Количество слов в элементе
 	};
-	struct RunStat : public SStrGroup, public TSArray <PPKeywordListGenerator::RunStatEntry> {
+	struct RunStat : public SStrGroup, public TSVector <PPKeywordListGenerator::RunStatEntry> { // @v9.8.4 TSArray-->TSVector
 		RunStat();
 		int    GetText(uint p, SString & rText) const;
 		int    AddItem(const SString & rItem);
@@ -2860,11 +2859,11 @@ private:
 	int    SLAPI GetRandomWord(SString & rBuf);
 	int    SLAPI GenerateByGroup(uint grpPos, const SString * pGrpText, const SString * pLoc, StringSet & rSs, LongArray & rSsPosList, RunStat * pStat);
 
-	struct Item_ {
+	struct Item_ { // @flat
 		uint   TextP;
 		double Prob;
 	};
-	class Group : public TSArray <PPKeywordListGenerator::Item_> {
+	class Group : public TSVector <PPKeywordListGenerator::Item_> { // @v9.8.4 TSArray-->TSVector
 	public:
 		Group()
 		{

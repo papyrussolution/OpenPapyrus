@@ -2211,9 +2211,7 @@ int SLAPI PPBillImporter::ReadData()
 				{
 					SString fn_for_hash;
 					ps.Split(filename);
-					ps.Drv.Z();
-					ps.Dir.Z();
-					ps.Merge(fn_for_hash);
+					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fn_for_hash);
 					fn_for_hash.Strip().ToLower();
 					LDATE last_date = ZERODATE;
 					SString last_code, bill_code;

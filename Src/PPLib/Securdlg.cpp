@@ -217,16 +217,16 @@ static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, void * pData)
 int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 {
 	int    ok = 1, valid_data = 0, r;
+	Reference * p_ref = PPRef;
 	int    dlg_id = 0;
 	PPID   _id = pID ? *pID : 0;
 	SecurDialog * dlg = 0;
 	PPSecurPacket spack;
+	PPSecurPacket sample_spack;
 	PPObjSecur::ExtraParam param;
 	if(extraPtr) {
 		if(((PPObjSecur::ExtraParam *)extraPtr)->IsConsistent())
 			param = *(PPObjSecur::ExtraParam *)extraPtr;
-		/*else
-			param.ParentID = (PPID)extraPtr;*/
 	}
 	PPID   obj = objType;
 	if(_id) {
@@ -237,42 +237,65 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		else if(_id & PPObjSecur::maskUER)
 			obj = PPOBJ_USREXCLRIGHTS;
 		_id &= ~PPObjSecur::mask;
-		THROW(PPRef->LoadSecur(obj, _id, &spack));
+		THROW(p_ref->LoadSecur(obj, _id, &spack));
 	}
 	else {
 		PPID   parent_obj = 0;
-		if(param.Flags & PPObjSecur::ExtraParam::fSelectNewType) {
-			uint   v = 0;
-			if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
-                if(v == 0) {
-					obj = PPOBJ_USR;
-                }
-                else if(v == 1) {
-                	obj = PPOBJ_USRGRP;
-                }
-                else if(v == 2) {
-                	obj = PPOBJ_USREXCLRIGHTS;
-                }
+		if(param.SampleID) {
+			SString temp_buf;
+			obj = param.Type;
+			THROW(p_ref->LoadSecur(obj, param.SampleID, &sample_spack) > 0);
+			spack = sample_spack;
+			spack.Secur.ID = 0;
+			spack.Secur.Symb[0] = 0;
+			memzero(spack.Secur.Password, sizeof(spack.Secur.Password));
+			temp_buf = spack.Secur.Name;
+			long   _n = 1;
+			PPID   temp_id = 0;
+			PPSecur temp_rec;
+			do {
+				(temp_buf = spack.Secur.Name).Strip().Space().CatChar('#').Cat(++_n);
+			} while(p_ref->SearchName(obj, &temp_id, temp_buf, &temp_rec) > 0);
+			if(temp_buf.Len() < sizeof(spack.Secur.Name))
+				STRNSCPY(spack.Secur.Name, temp_buf);
+			else {
+				spack.Secur.Name[0] = 0;
 			}
 		}
-		spack.Secur.Tag = obj;
-		if(obj == PPOBJ_USRGRP) {
-			parent_obj = PPOBJ_CONFIG;
-			spack.Secur.ParentID = PPCFG_MAIN;
-		}
-		else if(obj == PPOBJ_USREXCLRIGHTS) {
-			parent_obj = PPOBJ_CONFIG;
-			spack.Secur.ParentID = PPCFG_MAIN;
-		}
-		else if(obj == PPOBJ_USR && param.ParentID) {
-			parent_obj = PPOBJ_USRGRP;
-			spack.Secur.ParentID = param.ParentID;
-		}
-		if(parent_obj && spack.Secur.ParentID) {
-			THROW(DS.FetchConfig(parent_obj, spack.Secur.ParentID, &spack.Config));
-			THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID));
-			spack.Config.Tag = obj;
-			spack.Config.ObjID = 0;
+		else {
+			if(param.Flags & PPObjSecur::ExtraParam::fSelectNewType) {
+				uint   v = 0;
+				if(SelectorDialog(DLG_SELNEWSEC, CTL_SELNEWSEC_SEL, &v) > 0) {
+					if(v == 0) {
+						obj = PPOBJ_USR;
+					}
+					else if(v == 1) {
+                		obj = PPOBJ_USRGRP;
+					}
+					else if(v == 2) {
+                		obj = PPOBJ_USREXCLRIGHTS;
+					}
+				}
+			}
+			spack.Secur.Tag = obj;
+			if(obj == PPOBJ_USRGRP) {
+				parent_obj = PPOBJ_CONFIG;
+				spack.Secur.ParentID = PPCFG_MAIN;
+			}
+			else if(obj == PPOBJ_USREXCLRIGHTS) {
+				parent_obj = PPOBJ_CONFIG;
+				spack.Secur.ParentID = PPCFG_MAIN;
+			}
+			else if(obj == PPOBJ_USR && param.ParentID) {
+				parent_obj = PPOBJ_USRGRP;
+				spack.Secur.ParentID = param.ParentID;
+			}
+			if(parent_obj && spack.Secur.ParentID) {
+				THROW(DS.FetchConfig(parent_obj, spack.Secur.ParentID, &spack.Config));
+				THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID));
+				spack.Config.Tag = obj;
+				spack.Config.ObjID = 0;
+			}
 		}
 	}
 	if(obj == PPOBJ_CONFIG)
@@ -289,8 +312,9 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			dlg->getDTS(&spack);
 			if(ValidateSecurData(dlg, obj, &spack.Secur)) {
-				THROW(PPRef->EditSecur(obj, dlg->ObjID, &spack, *pID == 0));
-				*pID = dlg->ObjID;
+				THROW(p_ref->EditSecur(obj, dlg->ObjID, &spack, *pID == 0));
+				// @v9.8.4 *pID = dlg->ObjID;
+				ASSIGN_PTR(pID, spack.Secur.ID); // @v9.8.4
 				valid_data = 1;
 			}
 		}

@@ -16489,6 +16489,7 @@ public:
 		const  uint32 Signature; // @anchor Специальный признак, идентифицирующий то, что по указателю находится именно этот объект
         PPID   Type;
         PPID   ParentID;
+		PPID   SampleID; // @v9.8.4 Идентификатор объекта-образца для создания нового экземпляра
         long   Flags;
 	};
 	class Exclusion {
@@ -20670,7 +20671,7 @@ public:
 		// Необходим для обсчета компонентов по формулам.
 
 	PPGoodsStrucHeader Rec;
-	TSArray <PPGoodsStrucItem> Items;
+	TSVector <PPGoodsStrucItem> Items;   // @v9.8.4 TSArray-->TSVector
 	TSCollection <PPGoodsStruc> Childs; // Используется только если (Flags & GSF_FOLDER)
 private:
 	int    SLAPI SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const;
@@ -28679,7 +28680,7 @@ private:
 //
 // Структуры для агрегированного расчета НДС
 //
-struct BVATAccm {
+struct BVATAccm { // @flat
 	SLAPI  BVATAccm();
 	int    IsVatFree; // ставка по освобожденным от уплаты НДС поставщиков
 	double CRate;
@@ -28698,7 +28699,7 @@ struct BVATAccm {
 #define BVATF_SUMZEROVAT  0x0002 // Суммировать строки с освобожденными значениями
 #define BVATF_DIFFBYCRATE 0x0004 // @v3.5.0 Различать элементы по ставке входящего НДС
 
-class BVATAccmArray : public TSArray <BVATAccm> {
+class BVATAccmArray : public TSVector <BVATAccm> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  BVATAccmArray(uint aFlags = 0);
 	int    SLAPI CalcBill(PPID);
@@ -29281,8 +29282,8 @@ private:
 	PPObjPersonKind PsnKObj;
 };
 
-typedef TSArray <Sdr_BRow> SdrBillRowArray;
-typedef TSArray <Sdr_Bill> SdrBillArray;
+typedef TSVector <Sdr_BRow> SdrBillRowArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <Sdr_Bill> SdrBillArray;    // @v9.8.4 TSArray-->TSVector
 
 class PPBillImporter : public PPBillImpExpBaseProcessBlock {
 public:
@@ -31002,7 +31003,7 @@ public:
 	int    SLAPI CheckList(PPID * pAccSheetID = 0);
 	int    SLAPI Setup();
 
-	struct Item { // @persistent
+	struct Item { // @persistent @flat
 		PPID   OpID;
 		long   Flags;
 		PPID   MainAmtTypeID;
@@ -31015,7 +31016,7 @@ public:
 	int16  AcctgBasis; // Форма учета доходности (INCM_XXX (PP.H))
 	int16  AcctgBasisAtPeriod; // Форма учета доходности на определенный период
 	DateRange Period;
-	TSArray <Item> List;
+	TSVector <Item> List; // @v9.8.4 TSArray-->TSVector
 };
 //
 // Флаги записи книги продаж/покупок
@@ -32023,7 +32024,7 @@ private:
 	//
     // ^.*\%[0-9]+\[.+\.\..+\]
 	//
-    struct Seq {
+    struct Seq { // @flat
     	char   Prefix[8];
     	uint8  Type; // 0 - none, 1 - digit range, 2 - alpha range
     	uint8  Len;  // Длина результата
@@ -32031,7 +32032,7 @@ private:
     	uint32 Start;
     	uint32 End;
     };
-    TSArray <Seq> SeqList;
+    TSVector <Seq> SeqList; // @v9.8.4 TSArray-->TSVector
 };
 //
 // @done(@v8.2.3) @dbd_exchange Сделать передачу полного пакета PPProcessorPacket
@@ -34936,14 +34937,14 @@ private:
 	//   Кроме того, структура хранит StorageLocID, ассоциированный с BillID (пока в таблицу Inventory
 	//   не будет введено это поле).
 	//
-	struct ExtraEntry {
+	struct ExtraEntry { // @flat
 		PPID   SurrID;
 		PPID   BillID;
         long   OprNo;
         PPID   GoodsID;
         PPID   StorageLocID;
 	};
-	TSArray <ExtraEntry> ExtraList;
+	TSVector <ExtraEntry> ExtraList; // @v9.8.4 TSArray-->TSVector
 	PPID   CommonLocID; // Если для всех документов из фильтра склад одинаков, то его значение присваивается CommonLocID.
 		// В противном случае CommonLocID = 0.
 	LDATE  CommonDate; // Если для всех документов из фильтра дата одинакова, то она присваивается CommonDate.
@@ -41603,6 +41604,7 @@ private:
 	ObjIdListFilt CreatorList;
 	ObjIdListFilt EmployerList;
 	ObjIdListFilt ClientList;
+	SStrGroup StrPool; // @v9.8.5 Пул строковых полей, на который ссылаются поля в TempPrjTask
 };
 //
 // @ModuleDecl(PPViewPriceAnlz)
@@ -44840,12 +44842,12 @@ public:
 	public:
 		friend class PPTextAnalyzer;
 
-		struct Term {
+		struct Term { // @flat
 			int16  Type;
 			int16  Tok;
 			uint32 Id;
 		};
-		class Chain : public TSArray <Term> {
+		class Chain : public TSVector <Term> { // @v9.8.4 TSArray-->TSVector
 		public:
 			Chain();
 			Chain & FASTCALL operator = (const Chain & rS);
@@ -44864,7 +44866,7 @@ public:
 
 		Replacer();
 		~Replacer();
-		int    InitParsing(const char * pFileName);
+		void   InitParsing(const char * pFileName);
 		void   IncLineNo();
 		long   SetState(long st, int set);
 		long   GetState() const;
@@ -44929,7 +44931,7 @@ public:
 			uint   TargetIdx; // Если Op == stOpCortege, то TargetIdx равен индексу токена имени кортежа
 			long   Flags;
 			Chain  List;
-			TSArray <SSzChunk> GL; // Список групп
+			TSVector <SSzChunk> GL; // Список групп // @v9.8.4 TSArray-->TSVector
 		};
 		struct TargetItem {
 			Chain  List;
@@ -44948,7 +44950,7 @@ public:
 		TSCollection <CortegeItem> CrtgList;
 		//
 	private:
-		Replacer::SrcItem * MakeSrcItem(Replacer::SrcItem * pOuterSrcItem, int op, uint targetIdx, const Chain & rList, const TSArray <SSzChunk> & rGl) const;
+		Replacer::SrcItem * MakeSrcItem(Replacer::SrcItem * pOuterSrcItem, int op, uint targetIdx, const Chain & rList, const TSVector <SSzChunk> & rGl) const; // @v9.8.4 TSArray-->TSVector
 		int    AddClusterItem(Replacer::SrcItem * pItem);
 		int    BuildSrcIndex();
 

@@ -467,7 +467,7 @@ struct CalcCapacity {
 	int    SLAPI SetNorma(double val);
 	SString & SLAPI ToText(SString & rBuf) const
 	{
-		return rBuf.Z().Cat((long)Unit).CatDiv(';', 0).Cat((long)Flags);
+		return rBuf.Z().Cat((long)Unit).Semicol().Cat((long)Flags);
 	}
 	int    SLAPI FromText(const char *);
 

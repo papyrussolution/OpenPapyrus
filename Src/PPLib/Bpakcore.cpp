@@ -1087,7 +1087,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			{
 				int    ignore_stop = 0;
-				if(!(rRet.Flags & SetupObjectBlock::fEnableStop)) 
+				if(rRet.Flags & SetupObjectBlock::fEnableStop) 
 					ignore_stop = 1;
 				else {
 					PPOprKind op_rec;

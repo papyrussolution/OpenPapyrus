@@ -2178,9 +2178,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 				SString set_path, line_buf;
 				SPathStruc ps;
 				ps.Split(Param.FileName);
-				ps.Nam.Z();
-				ps.Ext.Z();
-				ps.Merge(file_name);
+				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, file_name);
 				THROW_SL(isDir(file_name.RmvLastSlash()));
 				(set_path = file_name).SetLastSlash().Cat("__SET__");
 				if(!fileExists(set_path)) {

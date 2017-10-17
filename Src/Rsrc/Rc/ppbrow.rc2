@@ -334,7 +334,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "Объединение документов\tCtrl-U"
-	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "Списание драфт-документов\tCtrl-W"
+	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	//TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
 	separator
@@ -390,7 +390,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "Объединение документов\tCtrl-U"
-	WROFFDRAFT       :  kbCtrlW,    TBBM_WROFFDRAFT,      "Списание драфт-документов\tCtrl-W"
+	WROFFDRAFT       :  kbCtrlW,    TBBM_WROFFDRAFT,      "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
 	ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
@@ -448,7 +448,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "Объединение документов\tCtrl-U"
-	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "Списание драфт-документов\tCtrl-W"
+	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
 	separator
@@ -539,7 +539,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    TBBM_OPLIST,          "@{oprkind}\tCtrl-Q"
 	//CREATEMRPTAB     :  kbCtrlN,    TBBM_MRPTAB,          "Создать MRP-таблицу\tCtrl-N"
 	UNITEBILLS       :  kbCtrlU,    TBBM_UNITE,           "Объединение документов\tCtrl-U"
-	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "Списание драфт-документов\tCtrl-W"
+	//WROFFDRAFT       :  kbCtrlW,    TBBM_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    TBBM_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	ATTACHBILLTOORD  :  kbCtrlY,    TBBM_LINK,            "Привязать документ к заказу\tCtrl-Y"
 	ATTACHBILLTODRAFT:  kbNoKey,    TBBM_NOICON,          "Привязать документ к драфт-документу"
@@ -958,9 +958,10 @@ toolbar export LIST_GOODSBASKET TB_FIRST_TOOLBAR {
 }
 
 toolbar export LIST_GRPNUSR TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",     TBBM_EDIT
-	cmaInsert,         "@{add}\tInsert",         TBBM_INSERT
-	cmaDelete,         "@{delete}\tDelete",          TBBM_DELETE
+	cmaEdit,           "@{edit}\tEnter",           TBBM_EDIT
+	cmaInsert,         "@{add}\tInsert",           TBBM_INSERT
+	cmaDelete,         "@{delete}\tDelete",        TBBM_DELETE
+	cmaAltInsert,      "@{doaddbysample}\tAlt-F2", TBBM_COPYBYSAMPLE
 	separator
 	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", TBBM_SYSJ
 }

@@ -1135,7 +1135,7 @@ void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstC
 }
 
 int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam,
-	TSArray <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim)
+	TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1, is_found;
 	uint   p;
@@ -1310,7 +1310,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 	uint  i, p;
 	//TSArray <long> x_calced, y_calced;
 	LongArray x_calced, y_calced;
-	TSArray <ResizeParamEntry> new_coord_ary;
+	TSVector <ResizeParamEntry> new_coord_ary; // @v9.8.4 TSArray-->TSVector
 	ResizeParamEntry  rpe, new_coord;
 	for(int pass = 0; ok > 0 && pass < 3; pass++) {
 		for(i = 0; ok > 0 && i < ResizeParamAry.getCount(); i++) {

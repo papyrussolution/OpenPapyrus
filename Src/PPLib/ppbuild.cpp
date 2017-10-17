@@ -738,9 +738,7 @@ int SLAPI PrcssrBuild::BuildLocalDl600(const char * pPath)
 		THROW(fileExists(src_file_name));
 		{
 			ps.Split(src_file_name);
-			ps.Nam.Z();
-			ps.Ext.Z();
-			ps.Merge(cur_dir);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, cur_dir);
 		}
 		cmd_line.Space().Cat("/ob").Space().CatQStr(src_file_name);
 		PPLoadText(PPTXT_BUILD_LOCALDL600, fmt_buf);

@@ -2679,9 +2679,7 @@ struct IntRange { // @persistent @size=8
 //
 //
 //
-struct SSzChunk {
-	// @noconstructor
-	// @novtbl
+struct SSzChunk { // @flat @noconstructor @novtbl
 	SSzChunk & Clear();
 	SSzChunk & Set(int begin, int len);
 	SSzChunk & SetRange(int begin, int end);
@@ -3845,9 +3843,10 @@ struct SPathStruc {
 	// Descr: Флаги функции SPathStruc::NormalizePath
 	//
 	enum {
-		npfUpper = 0x0001, // Все символы приводятся к верхнему регистру (иначе - к нижнему)
-		npfSlash = 0x0002, // Все обратные слэши заменяются на прямые (иначе - все обратные)
-		npfOEM   = 0x0004  // Входящая строка pPath - в OEM-кодировке
+		npfUpper    = 0x0001, // Все символы приводятся к верхнему регистру (иначе - к нижнему)
+		npfSlash    = 0x0002, // Все обратные слэши заменяются на прямые (иначе - все обратные)
+		npfOEM      = 0x0004, // Входящая строка pPath - в OEM-кодировке
+		npfKeepCase = 0x0008  // Не меняет регистр символов
 	};
 	//
 	// Descr: Унифицирует текстовое представление пути pPath. Результат переносится в rNormalizedPath
@@ -3994,7 +3993,7 @@ int    FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2);
 //
 size_t FASTCALL sisascii(const char * pS, size_t len);
 char * FASTCALL strip(char * pStr);
-char * SLAPI chomp(char * pStr);
+char * FASTCALL chomp(char * pStr);
 const  char * SLAPI skipws(const char * pStr, size_t * pPos);
 //
 // Descr: Функция заменяет символ 'c' на строку из одиночного того же символа "c".
@@ -4298,7 +4297,7 @@ char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf);
 char * SLAPI datefmt(const void *, long fmt, char *);
 char * SLAPI timefmt(LTIME, long fmt, char *);
 char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
-char * SLAPI periodfmt(const DateRange *, char *);
+char * FASTCALL periodfmt(const DateRange *, char *);
 int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
 
 char * SLAPI strfmt(const char * str, long fmt, char * buf);
@@ -4306,9 +4305,9 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf);
 // @v9.6.0 int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
 int   SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp);
 int   FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
-int   SLAPI strtodoub(const char * pBuf, double *);
-int   SLAPI strtolong(const char * pBuf, long *);
-int   SLAPI strtoulong(const char * pBuf, ulong *);
+int   FASTCALL strtodoub(const char * pBuf, double *);
+int   FASTCALL strtolong(const char * pBuf, long *);
+int   FASTCALL strtoulong(const char * pBuf, ulong *);
 //
 enum {
 	strtodatefZero     = 0x0001, // Пустая дата

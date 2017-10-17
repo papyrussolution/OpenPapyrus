@@ -2436,14 +2436,14 @@ public:
 private:
 	int    Helper_GetEntry(long andF, long notF, Entry & rEntry) const;
 
-	struct _InnerEntry {
+	struct _InnerEntry { // @flat
 		long   Id;
 		long   Flags;
 		uint   P;
 	};
 	uint   InitPathP; // Позиция в Pool пути, заданного при инициализации.
 	uint   InitNameP; // Позиция в Pool имени файла без расширения //
-	TSArray <_InnerEntry> List;
+	TSVector <_InnerEntry> List; // @v9.8.4 TSArray-->TSVector
 	StringSet Pool;
 };
 //
@@ -4423,7 +4423,7 @@ private:
 		DB_SEQUENCE * H;
 		uint   NamePos;
 	};
-	TSArray <Seq> SeqList;
+	TSVector <Seq> SeqList; // @v9.8.4 TSArray-->TSVector
 	StringSet StrPool;
 	SSerializeContext * P_SCtx;
 	SFile  ErrF;

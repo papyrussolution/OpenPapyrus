@@ -914,6 +914,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	CreatorList.Set(0);
 	EmployerList.Set(0);
 	ClientList.Set(0);
+	StrPool.ClearS(); // @v9.8.4
 	if(Filt.ClientID || Filt.CreatorID || Filt.EmployerID) {
 		PPObjPersonRelType prt_obj;
 		PPIDArray grp_prt_list;

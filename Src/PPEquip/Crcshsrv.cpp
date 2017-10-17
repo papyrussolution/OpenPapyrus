@@ -4353,12 +4353,8 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
 				SPathStruc sp;
 				SDirEntry sd_entry;
 				SDirec sd;
-
 				sp.Split(PathRpt[filTypZRepXml]);
-				sp.Nam.Z();
-				sp.Ext.Z();
-				sp.Merge(data_dir);
-				sp.Split(PathRpt[filTypZRepXml]);
+				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				sd.Init(data_path);
@@ -4470,9 +4466,7 @@ int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 
 	sp.Split(pPath);
 	ext = sp.Ext;
-	sp.Nam.Z();
-	sp.Ext.Z();
-	sp.Merge(backup_dir);
+	sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
 	createDir(backup_dir);
 	dest_path = MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
@@ -4542,10 +4536,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				SPathStruc sp;
 				SDirEntry sd_entry;
 				sp.Split(PathRpt[filTypChkXml]);
-				sp.Nam.Z();
-				sp.Ext.Z();
-				sp.Merge(data_dir);
-				sp.Split(PathRpt[filTypChkXml]);
+				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {

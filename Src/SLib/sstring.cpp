@@ -4985,9 +4985,7 @@ int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
 	ps.Split(rPath);
 	if(force || (ps.Drv.Empty() && ps.Dir.Empty())) {
 		if(isempty(pNewPath)) {
-			ps.Drv.Z();
-			ps.Dir.Z();
-			ps.Merge(rPath);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
 		else {
 			SPathStruc ps2;
@@ -5095,11 +5093,13 @@ SString & SPathStruc::NormalizePath(const char * pPath, long flags, SString & rN
 	(rNormalizedPath = pPath).Strip();
 	if(flags & npfOEM)
 		rNormalizedPath.Transf(CTRANSF_INNER_TO_OUTER);
-	if(flags & npfUpper) {
-		rNormalizedPath.ToUpper1251();
-	}
-	else {
-		rNormalizedPath.ToLower1251();
+	if(!(flags & npfKeepCase)) {
+		if(flags & npfUpper) {
+			rNormalizedPath.ToUpper1251();
+		}
+		else {
+			rNormalizedPath.ToLower1251();
+		}
 	}
 	if(flags & npfSlash) {
 		rNormalizedPath.ReplaceChar('\\', '/');
@@ -6746,6 +6746,15 @@ SLTEST_R(SString)
 	for(uint i = 0; i < 1000; i++) {
 		(str = 0).NumberToLat(i);
 		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
+	}
+	{
+		SLTEST_CHECK_NZ(sstreqi_ascii("u", "u"));
+		SLTEST_CHECK_NZ(sstreqi_ascii("u", "U"));
+		SLTEST_CHECK_NZ(sstreqi_ascii("U", "u"));
+		SLTEST_CHECK_Z(sstreqi_ascii("U", "u1"));
+		SLTEST_CHECK_NZ(sstreqi_ascii("string", "sTrInG"));
+		SLTEST_CHECK_NZ(sstreqi_ascii("string", "string"));
+		SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
 	}
 	//
 	// Тестирование функции CopyTo

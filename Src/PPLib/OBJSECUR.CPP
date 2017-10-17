@@ -50,6 +50,7 @@ PPObjSecur::ExtraParam::ExtraParam() : Signature(SECUREXTRAPARAMSIGN)
 {
 	Type = 0;
 	ParentID = 0;
+	SampleID = 0; // @v9.8.4
 	Flags = 0;
 }
 
@@ -57,6 +58,7 @@ PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::E
 {
     Type = rS.Type;
     ParentID = rS.ParentID;
+	SampleID = rS.SampleID; // @v9.8.4
     Flags = rS.Flags;
     return *this;
 }
@@ -461,53 +463,90 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 			int    update = 0;
 			PPID   cur_id = 0;
 			PPID   preserve_focus_id = 0;
-			if(event.isCmd(cmaInsert) && P_Obj) {
-				getResult(&cur_id);
-				PPID   id = 0;
-				PPObjSecur::ExtraParam param;
-				param.Flags |= param.fSelectNewType;
-				if(cur_id & PPObjSecur::maskUserGroup) {
-					param.ParentID = (cur_id & ~PPObjSecur::mask);
-				}
-				else if(!(cur_id & PPObjSecur::mask)) {
-					PPObjSecur usr_obj(PPOBJ_USR, 0);
-					PPSecur sec_rec;
-					if(usr_obj.Fetch(cur_id, &sec_rec) > 0 && sec_rec.Tag == PPOBJ_USR) {
-						param.ParentID = sec_rec.ParentID;
-					}
-				}
-				if(Flags & OLW_CANINSERT && P_Obj->Edit(&id, &param) == cmOK) {
-					cur_id = id;
-					update = 2;
-				}
-				else
-					::SetFocus(H());
-			}
-			else if(event.isCmd(cmaDelete) && P_Obj) {
-				if(Flags & OLW_CANDELETE) {
+			if(P_Obj) {
+				if(event.isCmd(cmaInsert)) {
 					getResult(&cur_id);
-					preserve_focus_id = cur_id;
 					PPID   id = 0;
+					PPObjSecur::ExtraParam param;
+					param.Flags |= param.fSelectNewType;
 					if(cur_id & PPObjSecur::maskUserGroup) {
-						//param.ParentID = (cur_id & ~PPObjSecur::mask);
-						PPObjSecur ug_obj(PPOBJ_USRGRP, 0);
-						if(ug_obj.RemoveObjV((cur_id & ~PPObjSecur::mask), 0, PPObject::rmv_default, ExtraPtr) > 0) {
-							update = 2;
-						}
+						param.ParentID = (cur_id & ~PPObjSecur::mask);
 					}
 					else if(!(cur_id & PPObjSecur::mask)) {
 						PPObjSecur usr_obj(PPOBJ_USR, 0);
-						if(usr_obj.RemoveObjV(cur_id, 0, PPObject::rmv_default, ExtraPtr) > 0) {
-							update = 2;
+						PPSecur sec_rec;
+						if(usr_obj.Fetch(cur_id, &sec_rec) > 0 && sec_rec.Tag == PPOBJ_USR) {
+							param.ParentID = sec_rec.ParentID;
 						}
+					}
+					if(Flags & OLW_CANINSERT && P_Obj->Edit(&id, &param) == cmOK) {
+						cur_id = id;
+						update = 2;
 					}
 					else
 						::SetFocus(H());
 				}
+				if(event.isKeyDown(kbAltF2) || event.isCmd(cmaAltInsert)) {
+					if(Flags & OLW_CANINSERT) {
+						PPID   id = 0;
+						getResult(&cur_id);
+						PPSecur sec_rec;
+						PPObjSecur::ExtraParam param;
+						if(cur_id & PPObjSecur::maskUserGroup) {
+							param.SampleID = (cur_id & ~PPObjSecur::mask);
+							param.Type = PPOBJ_USRGRP;
+						}
+						else if(cur_id & PPObjSecur::maskUER) {
+							param.SampleID = (cur_id & ~PPObjSecur::mask);
+							param.Type = PPOBJ_USREXCLRIGHTS;
+						}
+						else if(!(cur_id & PPObjSecur::mask)) {
+							param.SampleID = (cur_id & ~PPObjSecur::mask);
+							param.Type = PPOBJ_USR;
+						}
+						if(param.SampleID && param.Type) {
+							if(P_Obj->Edit(&id, &param) == cmOK) {
+								if(param.Type == PPOBJ_USRGRP)
+									cur_id = (id | PPObjSecur::maskUserGroup);
+								if(param.Type == PPOBJ_USREXCLRIGHTS)
+									cur_id = (id | PPObjSecur::maskUER);
+								else if(param.Type == PPOBJ_USR)
+									cur_id = id;
+								update = 2;
+							}
+							else
+								::SetFocus(H());
+						}
+					}
+					clearEvent(event);
+				}
+				else if(event.isCmd(cmaDelete)) {
+					if(Flags & OLW_CANDELETE) {
+						getResult(&cur_id);
+						preserve_focus_id = cur_id;
+						PPID   id = 0;
+						if(cur_id & PPObjSecur::maskUserGroup) {
+							//param.ParentID = (cur_id & ~PPObjSecur::mask);
+							PPObjSecur ug_obj(PPOBJ_USRGRP, 0);
+							if(ug_obj.RemoveObjV((cur_id & ~PPObjSecur::mask), 0, PPObject::rmv_default, ExtraPtr) > 0) {
+								update = 2;
+							}
+						}
+						else if(!(cur_id & PPObjSecur::mask)) {
+							PPObjSecur usr_obj(PPOBJ_USR, 0);
+							if(usr_obj.RemoveObjV(cur_id, 0, PPObject::rmv_default, ExtraPtr) > 0) {
+								update = 2;
+							}
+						}
+						else
+							::SetFocus(H());
+					}
+				}
+				else
+					PPObjListWindow::handleEvent(event);
 			}
-			else {
+			else
 				PPObjListWindow::handleEvent(event);
-			}
 			if(update) {
 				P_Obj->UpdateSelector(P_Lb->def, &Param);
 				P_Lb->Draw_();

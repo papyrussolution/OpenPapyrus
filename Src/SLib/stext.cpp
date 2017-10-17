@@ -1977,9 +1977,9 @@ int FASTCALL sstreqi_ascii(const char * pS1, const char * pS2)
 				/*char*/int c2 = pS2[i];
 				if(c1 != c2) {
 					if(c1 >= 'A' && c1 <= 'Z')
-						c1 -= ('A' - 'a');
+						c1 += ('a' - 'A');
 					if(c2 >= 'A' && c2 <= 'Z')
-						c2 -= ('A' - 'a');
+						c2 += ('a' - 'A');
 					if(c1 != c2)
 						return 0;
 				}
@@ -2001,9 +2001,9 @@ int FASTCALL sstreqi_ascii(const uchar * pS1, const uchar * pS2)
 				/*char*/uint c2 = pS2[i];
 				if(c1 != c2) {
 					if(c1 >= 'A' && c1 <= 'Z')
-						c1 -= ('A' - 'a');
+						c1 += ('a' - 'A');
 					if(c2 >= 'A' && c2 <= 'Z')
-						c2 -= ('A' - 'a');
+						c2 += ('a' - 'A');
 					if(c1 != c2)
 						return 0;
 				}
@@ -2122,9 +2122,9 @@ char * FASTCALL trimleft(char * pStr)
 {
 	char * p = pStr;
 	if(*p == ' ') {
-		do
+		do {
 			p++;
-		while(*p == ' ');
+		} while(*p == ' ');
 		memmove(pStr, p, strlen(p)+1);
 	}
 	return pStr;
@@ -2163,7 +2163,7 @@ char * FASTCALL strip(char * pStr)
 	return pStr;
 }
 
-char * SLAPI chomp(char * s)
+char * FASTCALL chomp(char * s)
 {
 	if(s) {
 		size_t n = strlen(s);

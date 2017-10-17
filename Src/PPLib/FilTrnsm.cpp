@@ -442,10 +442,7 @@ int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const 
 		SString dest_path, file_name;
 		SPathStruc sp;
 		sp.Split(file_path);
-		sp.Drv.Z();
-		sp.Dir.Z();
-		sp.Flags = SPathStruc::fNam|SPathStruc::fExt;
-		sp.Merge(file_name);
+		sp.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
 		(dest_path = dest_dir).Cat(file_name);
 		THROW(ftp.SafePut(file_path, dest_path, 0, CallbackFTPTransfer, 0));
 	}

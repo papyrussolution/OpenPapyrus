@@ -6305,9 +6305,7 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 			SString file_name;
 			SPathStruc ps;
 			ps.Split(pInfo->P_SrcFileName);
-			ps.Drv.Z();
-			ps.Dir.Z();
-			ps.Merge(file_name);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
 			if(pInfo->Phase == 1) {
 				msg_buf.Printf(p_prcr->FmtMsg_SortSplit, file_name.cptr());
 				msg_buf.Space().CatParStr(pInfo->SplitThreadCount);

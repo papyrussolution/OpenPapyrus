@@ -305,7 +305,7 @@ char * SLAPI datefmt(const void * binDate, long fmt, char * txtDate)
 	return _commfmt(fmt, _datefmt(d, m, y, flag, txtDate));
 }
 
-char * SLAPI periodfmt(const DateRange * pPeriod, char * pBuf)
+char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 {
 	char * p = pBuf;
 	LDATE  beg, end;
@@ -684,7 +684,7 @@ static char * FASTCALL clearDelimiters(char * b)
 
 // @v9.4.3 #pragma warn +pia
 
-int SLAPI strtodoub(const char * pBuf, double * pVal)
+int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
 	char   temp[128]; // @v9.2.1 [64]-->[128]
 	char * p = strchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
@@ -695,14 +695,14 @@ int SLAPI strtodoub(const char * pBuf, double * pVal)
 	return 1;
 }
 
-int SLAPI strtolong(const char * pBuf, long * pVal)
+int FASTCALL strtolong(const char * pBuf, long * pVal)
 {
 	char   temp[64];
 	ASSIGN_PTR(pVal, atol(clearDelimiters(STRNSCPY(temp, pBuf))));
 	return 1;
 }
 
-int SLAPI strtoulong(const char * pBuf, ulong * pVal)
+int FASTCALL strtoulong(const char * pBuf, ulong * pVal)
 {
 	char   temp[64];
 	ASSIGN_PTR(pVal, strtoul(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));

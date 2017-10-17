@@ -2168,9 +2168,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 			SFileUtil::Stat fs;
 			SFileFormat ff;
 			ps.Split(pParam);
-			ps.Drv.Z();
-			ps.Dir.Z();
-			ps.Merge(temp_buf);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 			THROW(SFileUtil::GetStat(pParam, &fs));
 			blk.CrtTime = fs.CrtTime;
@@ -2931,9 +2929,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					if(dev_uuid.Empty()) {
 						SPathStruc sp;
 						sp.Split(temp_path);
-						sp.Nam.Z();
-						sp.Ext.Z();
-						sp.Merge(log_path);
+						sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, log_path);
 					}
 					else {
 						PPGetPath(PPPATH_SPII, log_path);
@@ -2946,9 +2942,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					SString dir, path;
 					SPathStruc sp;
 					sp.Split(temp_path);
-					sp.Nam.Z();
-					sp.Ext.Z();
-					sp.Merge(dir);
+					sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, dir);
 					path = MakeTempFileName(dir, "out", "xml", &start, path);
 					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
 					{

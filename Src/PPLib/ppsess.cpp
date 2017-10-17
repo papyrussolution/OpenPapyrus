@@ -3798,10 +3798,8 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
                 SPathStruc ps;
 				GetPath(PPPATH_BIN, temp_buf); // @recursion
                 ps.Split(temp_buf);
-                ps.Nam.Z();
-                ps.Ext.Z();
                 ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
-				ps.Merge(rBuf);
+				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rBuf);
 			}
 			break;
 		case PPPATH_SYSROOT:

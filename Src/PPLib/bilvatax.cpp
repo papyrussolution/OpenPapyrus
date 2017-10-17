@@ -23,7 +23,7 @@ SLAPI BVATAccm::BVATAccm()
 	THISZERO();
 }
 
-SLAPI BVATAccmArray::BVATAccmArray(uint aFlags) : TSArray <BVATAccm> (), Flags(aFlags)
+SLAPI BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags) // @v9.8.4 TSArray-->TSVector
 {
 }
 

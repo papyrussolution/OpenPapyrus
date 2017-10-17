@@ -4,7 +4,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-
 #include <..\osf\libzip\lib\zip.h>
 
 SLAPI SArchive::SArchive()
@@ -150,9 +149,7 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 			if(isempty(pName)) {
 				SPathStruc ps;
 				ps.Split(temp_buf);
-				ps.Drv.Z();
-				ps.Dir.Z();
-				ps.Merge(temp_buf);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			}
 			else {
                 SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
@@ -236,17 +233,9 @@ int SLAPI SArchive::AddEntries(const char * pMask, int flags)
 	SString sub;
 	SString mask;
 	SPathStruc ps;
-	//
 	ps.Split(pMask);
-    ps.Nam.Z();
-    ps.Ext.Z();
-    ps.Merge(root);
-    //
-    ps.Split(pMask);
-    ps.Drv.Z();
-    ps.Dir.Z();
-    ps.Merge(mask);
-    //
+    ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, root);
+    ps.Merge(SPathStruc::fNam|SPathStruc::fExt, mask);
 	return Helper_AddEntries(root, sub, mask, flags);
 }
 

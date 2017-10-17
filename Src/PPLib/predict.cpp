@@ -1120,21 +1120,21 @@ int SLAPI PrcssrPrediction::Run()
 				Stat.AvgTimeGL = fdivnz(Stat.Time, Stat.GoodsCount * Stat.LocCount);
 				Stat.AvgTimeGDL = fdivnz(Stat.Time, Stat.GoodsCount * Stat.DayCount * Stat.LocCount);
 				msg_buf.Z().Cat("Stat").CatDiv(':', 2).
-					CatEq("Time", Stat.Time).CatDiv(';', 0).
-					CatEq("DayCount", Stat.DayCount).CatDiv(';', 0).
-					CatEq("LocCount", Stat.LocCount).CatDiv(';', 0).
-					CatEq("GoodsCount", Stat.GoodsCount).CatDiv(';', 0).
-					CatEq("GoodsQuant", Stat.GoodsQuant).CatDiv(';', 0).
-					CatEq("AvgTimeG", Stat.AvgTimeG, MKSFMTD(0, 8, NMBF_NOTRAILZ)).CatDiv(';', 0).
-					CatEq("AvgTimeGD", Stat.AvgTimeGD, MKSFMTD(0, 8, NMBF_NOTRAILZ)).CatDiv(';', 0).
-					CatEq("AvgTimeGL", Stat.AvgTimeGL, MKSFMTD(0, 8, NMBF_NOTRAILZ)).CatDiv(';', 0).
+					CatEq("Time", Stat.Time).Semicol().
+					CatEq("DayCount", Stat.DayCount).Semicol().
+					CatEq("LocCount", Stat.LocCount).Semicol().
+					CatEq("GoodsCount", Stat.GoodsCount).Semicol().
+					CatEq("GoodsQuant", Stat.GoodsQuant).Semicol().
+					CatEq("AvgTimeG", Stat.AvgTimeG, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Semicol().
+					CatEq("AvgTimeGD", Stat.AvgTimeGD, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Semicol().
+					CatEq("AvgTimeGL", Stat.AvgTimeGL, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Semicol().
 					CatEq("AvgTimeGDL", Stat.AvgTimeGDL, MKSFMTD(0, 8, NMBF_NOTRAILZ));
 				PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				msg_buf.Z().Cat("StoreErr").CatDiv(':', 2).
-					CatEq("Count", Stat.Sse.Count).CatDiv(';', 0).
-					CatEq("QttySum", Stat.Sse.QttySum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(';', 0).
-					CatEq("QttySqSum", Stat.Sse.QttySqSum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(';', 0).
-					CatEq("AmtSum", Stat.Sse.AmtSum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(';', 0).
+					CatEq("Count", Stat.Sse.Count).Semicol().
+					CatEq("QttySum", Stat.Sse.QttySum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol().
+					CatEq("QttySqSum", Stat.Sse.QttySqSum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol().
+					CatEq("AmtSum", Stat.Sse.AmtSum, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol().
 					CatEq("AmtSqSum", Stat.Sse.AmtSqSum, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 				PPLogMessage(PPFILNAM_PSALES_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}

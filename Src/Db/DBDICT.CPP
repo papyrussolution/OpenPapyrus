@@ -534,8 +534,8 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			for(tpe.Init(path); tpe.Next(spart, &first) > 0;) {
 				tpe.ReplaceExt(first, spart, temp_buf);
 				if(fileExists(spart)) {
-					if(::remove(spart) == -1) {
-						::remove(temp_buf);
+					if(!SFile::Remove(spart)) {
+						SFile::Remove(temp_buf);
 						renm = 0;
 					}
 				}
@@ -548,8 +548,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				else {
 					SPathStruc sp;
 					sp.Split(buf);
-					sp.Ext.Z();
-					sp.Merge(temp_buf);
+					sp.Merge(~SPathStruc::fExt, temp_buf);
 					sp.Split(spart);
 					temp_buf.Dot().Cat(sp.Ext);
 				}
@@ -659,10 +658,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 			name = sp_p.Nam;
 		if(name.NotEmpty()) {
 			Entry test_entry;
-
-			sp_p.Nam.Z();
-			sp_p.Ext.Z();
-			sp_p.Merge(path);
+			sp_p.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
 			Pool.add(path, &InitPathP);
 			Pool.add(name, &InitNameP);
 

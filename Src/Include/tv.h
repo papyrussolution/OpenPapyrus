@@ -2797,7 +2797,7 @@ private:
 	//   3 - разместить в той же пропорции от краев диапазона, 4 - растянуть на весь диапазон
 	//
 	void   RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstCtrlCoord, long * pSecondCtrlCoord, long ctrlSize, int recalcParam);
-	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam, TSArray <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim);
+	int    Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry * pCtrlParam, TSVector <ResizeParamEntry> * pCoordAry, LongArray * pCalcedCtrlAry, int isXDim); // @v9.8.4 TSArray-->TSVector
 	int    Helper_ToResizeDlg(const RECT * pNewDlgRect);
 	//
 	// Descr: Вспомогательная функция, испольуемая при формировании диалога из ресурсов

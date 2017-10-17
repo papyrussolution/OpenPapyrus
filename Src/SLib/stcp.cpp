@@ -1410,9 +1410,7 @@ int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & r
 		GetS(AttachPosL.at(pos), rFullPath);
 		SPathStruc ps;
 		ps.Split(rFullPath);
-		ps.Drv.Z();
-		ps.Dir.Z();
-		ps.Merge(rFileName);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFileName);
 		pos++;
 		ASSIGN_PTR(pPos, pos);
 		ok = 1;
@@ -1962,9 +1960,7 @@ int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SS
 				result_file_name = pDestPath;
 			}
 			else {
-				ps.Nam.Z();
-				ps.Ext.Z();
-				ps.Merge(path);
+				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
 				if(file_name.Empty()) {
 					MakeTempFileName(path, "eml", mime_ext, 0, result_file_name);
 				}
@@ -3406,9 +3402,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDa
 	{
 		SPathStruc ps;
 		ps.Split(pLocalFile);
-		ps.Drv.Z();
-		ps.Dir.Z();
-		ps.Merge(temp_buf);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
 		{
@@ -3775,9 +3769,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				{
 					SFileFormat::GetMime(Format, temp_buf);
 					ps.Split(local_path_src);
-					ps.Drv.Z();
-					ps.Dir.Z();
-					ps.Merge(temp_fname);
+					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_fname);
 					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
 				}
 				THROW(curl.HttpPost(url_dest, ScURL::mfDontVerifySslPeer, hf, &wr_stream));

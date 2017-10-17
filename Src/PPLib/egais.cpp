@@ -5773,9 +5773,7 @@ int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SStri
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
 	ps.Split(rFileName);
 	(temp_buf = ps.Nam).CatChar('.').Cat("xml");
-	ps.Nam.Z();
-	ps.Ext.Z();
-	ps.Merge(rFileName);
+	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rFileName);
 	THROW_SL(::createDir(rFileName));
 	rFileName.SetLastSlash().Cat(temp_buf);
 	CATCHZOK

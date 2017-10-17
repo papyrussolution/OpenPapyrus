@@ -721,24 +721,52 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 	int    ok = -1;
 	if(Direction /*import*/ /*&& InetAccID*/) {
 		SString temp_buf;
-		SString path, wildcard;
+		SString wildcard;
 		SString uni_url_buf;
 		InetUrl url;
+		PPObjInternetAccount ia_obj;
+		PPInternetAccount ia_pack;
 		const int urlpr = url.Parse(pUrl);
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
 		if(url_prot <= 0 || url_prot == InetUrl::protFile) {
-			if(url_prot == InetUrl::protFile) {
-				url.GetComponent(InetUrl::cPath, 0, temp_buf);
-			}
-			else 
-				temp_buf = pUrl;
+			SString path;
+			SString file_name;
 			SPathStruc ps;
-			ps.Split(temp_buf);
-			(wildcard = ps.Nam).Dot().Cat(ps.Ext);
-			ps.Nam.Z();
-			ps.Ext.Z();
-			ps.Merge(path);
-			{
+			if(url_prot == InetUrl::protFile) {
+				url.GetComponent(InetUrl::cPath, 0, file_name);
+			}
+			else if(pUrl) 
+				file_name = pUrl;
+			else {
+				ps.Split(FileName);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+			}
+			ps.Split(file_name);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, wildcard);
+			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
+			// @todo obsolete block. must be refactored {
+			if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+				StrAssocArray file_list;
+				SString ftp_path;
+				ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
+				ftp_path.SetLastSlash();
+				//
+				WinInetFTP ftp;
+				THROW(ftp.Init());
+				THROW(ftp.Connect(&ia_pack));
+				THROW(ftp.GetFileList(ftp_path, &file_list, /*file_name*/wildcard));
+				for(uint i = 0; i < file_list.getCount(); i++) {
+					StrAssocArray::Item item = file_list.at(i);
+					//SPathStruc::NormalizePath((temp_buf = ftp_path).Cat(item.Txt), SPathStruc::npfSlash|SPathStruc::npfKeepCase, file_name);
+					(file_name = ftp_path).Cat(item.Txt);
+					PPGetFilePath(PPPATH_IN, item.Txt, temp_buf);
+					THROW(ftp.SafeGet(temp_buf, file_name, 1, 0, pLogger));
+					rList.add(temp_buf);
+					ok = 1;
+				}
+			}
+			// } @todo obsolete block. must be refactored
+			if(ok < 0) {
 				PPFileNameArray fna;
 				fna.Scan(path, wildcard);
 				for(uint i = 0; fna.Enum(&i, 0, &temp_buf.Z());) {
@@ -747,8 +775,6 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 			}
 		}
 		else {
-			PPObjInternetAccount ia_obj;
-			PPInternetAccount ia_pack;
 			SString pw_buf;
 			SUniformFileTransmParam uftp;
 			if(oneof2(url_prot, InetUrl::protFtp, InetUrl::protFtps)) {
@@ -832,37 +858,10 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 					const SUniformFileTransmParam::ResultItem & r_ri = uftp.ResultList.at(i);
 					uftp.GetS(r_ri.DestPathP, temp_buf);
 					rList.add(temp_buf);
+					ok = 1;
 				}
 			}
 		}
-		/*if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-			StrAssocArray file_list;
-			SString ftp_path, file_name;
-			SPathStruc ps;
-			ps.Split(FileName);
-			if(pUrl)
-				file_name = pUrl;
-			else {
-                (file_name = ps.Nam).Dot().Cat(ps.Ext);
-			}
-			ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
-			ftp_path.SetLastSlash();
-			//
-			WinInetFTP ftp;
-			THROW(ftp.Init());
-			THROW(ftp.Connect(&ia_pack));
-			THROW(ftp.GetFileList(ftp_path, &file_list, file_name));
-			{
-				SString dest_file_name;
-				for(uint i = 0; i < file_list.getCount(); i++) {
-					StrAssocArray::Item item = file_list.at(i);
-                    (file_name = ftp_path).Cat(item.Txt);
-					PPGetFilePath(PPPATH_IN, item.Txt, dest_file_name);
-                    THROW(ftp.SafeGet(dest_file_name, file_name, 1, 0, pLogger));
-                    ok = 1;
-				}
-			}
-		}*/
 	}
 	CATCH
 		CALLPTRMEMB(pLogger, LogLastError());
@@ -883,9 +882,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				{
 					SPathStruc ps;
 					ps.Split(FileName);
-					ps.Drv.Z();
-					ps.Dir.Z();
-					ps.Merge(naked_file_name);
+					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, naked_file_name);
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 					ftp_path.SetLastSlash().Cat(naked_file_name);
 				}

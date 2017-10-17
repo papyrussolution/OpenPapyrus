@@ -944,7 +944,7 @@ int SLAPI Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
 	return ok;
 }
 
-int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * sp, int isNew)
+int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isNew)
 {
 	int   ok = 1;
 	int   is_user = (obj == PPOBJ_USR);
@@ -953,29 +953,30 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * sp, int isNew)
 		THROW(tra);
 		if(is_user) {
 			if(isNew)
-				sp->Secur.PwUpdate = getcurdate_();
+				pPack->Secur.PwUpdate = getcurdate_();
 			else {
 				THROW_DB(GetItem(obj, id) > 0);
-				if(memcmp(sp->Secur.Password, ((PPSecur*)&data)->Password, sizeof(sp->Secur.Password)))
-					sp->Secur.PwUpdate = getcurdate_();
+				if(memcmp(pPack->Secur.Password, ((PPSecur*)&data)->Password, sizeof(pPack->Secur.Password)))
+					pPack->Secur.PwUpdate = getcurdate_();
 			}
 		}
-		THROW(Reference::VerifySecur(&sp->Secur, 1));
-		THROW(isNew ? AddItem(obj, &id, &sp->Secur, 0) : UpdateItem(obj, id, &sp->Secur, 1, 0));
-		THROW(sp->Paths.Put(obj, id));
-		if(is_user && sp->Secur.Flags & USRF_INHCFG) {
+		THROW(Reference::VerifySecur(&pPack->Secur, 1));
+		THROW(isNew ? AddItem(obj, &id, &pPack->Secur, 0) : UpdateItem(obj, id, &pPack->Secur, 1, 0));
+		THROW(pPack->Paths.Put(obj, id));
+		if(is_user && pPack->Secur.Flags & USRF_INHCFG) {
 			THROW(RemoveProp(obj, id, PPPRP_CFG, 0));
 		}
 		else {
-			THROW(SetConfig(obj, id, PPPRP_CFG, &sp->Config, sizeof(sp->Config)));
+			THROW(SetConfig(obj, id, PPPRP_CFG, &pPack->Config, sizeof(pPack->Config)));
 		}
-		if(is_user && sp->Secur.Flags & USRF_INHRIGHTS) {
-			THROW(sp->Rights.Remove(obj, id));
+		if(is_user && pPack->Secur.Flags & USRF_INHRIGHTS) {
+			THROW(pPack->Rights.Remove(obj, id));
 		}
 		else {
-			THROW(sp->Rights.Put(obj, id));
+			THROW(pPack->Rights.Put(obj, id));
 		}
 		THROW(tra.Commit());
+		SETIFZ(pPack->Secur.ID, id); // @v9.8.4
 	}
 	CATCHZOK
 	return ok;

@@ -3701,9 +3701,7 @@ int SLAPI PPUhttClient::FileVersionAdd(const char * pFileName, const char * pKey
 				STempBuffer buffer(chunk_size);
 				THROW_SL(buffer.IsValid());
 				ps.Split(pFileName);
-				ps.Drv.Z();
-				ps.Dir.Z();
-				ps.Merge(temp_buf);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 				temp_buf.ToUtf8();
 				THROW(StartTransferData(temp_buf, file_size, chunk_count + BIN(tail_size), &transfer_id));
 				assert(tail_size < chunk_size);

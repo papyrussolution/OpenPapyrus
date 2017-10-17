@@ -1743,8 +1743,7 @@ int SLAPI PPViewVatBook::DeleteItem(PPID id)
 //
 //
 //
-int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray * pVatA,
-	double scale, int selling, int slUseCostVatAddendum)
+int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray * pVatA, double scale, int selling, int slUseCostVatAddendum)
 {
 	int    result = 1;
 	double amount = 0.0;
@@ -1814,7 +1813,7 @@ int SLAPI PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArr
 			//
 			// Для получения дополнительной записи по НДС поставщика в расходах функция будет
 			// вызвана повторно с параметром (slUseCostVatAddendum = 2). Но перед этим
-			// вызвающая функция должна получить сигнал в виде (return = 100) для повторного вызова.
+			// вызывающая функция должна получить сигнал в виде (return = 100) для повторного вызова.
 			//
 			if(slUseCostVatAddendum == 1) {
 				amount -= cvat;
@@ -2114,6 +2113,7 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 	if(Filt.Kind == PPVTB_SIMPLELEDGER) {
 		int    set_vat_params_result = 0;
 		if(mrbbf & mrbbfIsNeg) {
+			double local_scale = scale;
 			if(pEbfBlk && pPaymRec && pEbfBlk->CheckPaymOp(pPaymRec->OpID) && pEbfBlk->Period.low) {
 				double amount = MONEYTOLDBL(rec.VAT0);
 				double cost_amt = 0.0;
@@ -2131,20 +2131,21 @@ int SLAPI PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmo
 				}
 				if(cost_amt != 0.0 && exp_paym_amt != 0.0) {
 					double before_exp_part = exp_paym_amt / cost_amt;
-					set_vat_params_result = _SetVATParams(&rec, &vata, scale * exp_paym_amt / cost_amt, 0, sl_use_cost_vat_addendum);
+					local_scale = scale * exp_paym_amt / cost_amt;
+					set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, 0, sl_use_cost_vat_addendum);
 				}
 				else
 					skip = 1;
 			}
 			else {
-				set_vat_params_result = _SetVATParams(&rec, &vata, scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), sl_use_cost_vat_addendum);
+				set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), sl_use_cost_vat_addendum);
 			}
 			LDBLTOMONEY(0.0, rec.Amount);   // Доход
 			LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
 			if(!skip && set_vat_params_result == 100) {
 				sl_cost_vat_addenum_rec = rec;
 				sl_cost_vat_addenum_rec.LineSubType = 1;
-				_SetVATParams(&sl_cost_vat_addenum_rec, &vata, scale, 0, 2);
+				_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2); // @v9.8.4 scale-->local_scale
 				LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
 				LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
 				is_cost_vat_addendum_rec = 1;
