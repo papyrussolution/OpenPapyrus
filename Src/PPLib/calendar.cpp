@@ -1441,7 +1441,7 @@ const char * GetCalCtrlSignature(int type)
 //
 // SetupCalCtrl
 //
-void SLAPI SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
+void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 {
 	struct CalButtonWndEx {
 		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc)

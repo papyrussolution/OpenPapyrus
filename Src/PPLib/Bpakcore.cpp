@@ -3694,6 +3694,13 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 //
 //
 //
+TiIter::IndexItem::IndexItem(long tiPos, long ext, long disposePos)
+{
+	TiPos = tiPos;
+	Ext = ext;
+	DisposePos = disposePos;
+}
+
 SLAPI TiIter::TiIter(PPBillPacket * pPack, long flags, long filtGrpID, Order o)
 {
 	AccsCost = BillObj->CheckRights(BILLRT_ACCSCOST);
@@ -3877,10 +3884,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 				int    r = ext_list.lsearch(&oi.Id, &elp, CMPF_LONG);
 				assert(r);
 				Ext * p_ext = (Ext *)ext_list.at(elp);
-				IndexItem ii;
-				ii.TiPos = p_ext->Pos;
-				ii.Ext   = p_ext->Extra;
-				ii.DisposePos = p_ext->DispPos;
+				IndexItem ii(p_ext->Pos, p_ext->Extra, p_ext->DispPos);
 				THROW_SL(Index.insert(&ii));
 			}
 			{

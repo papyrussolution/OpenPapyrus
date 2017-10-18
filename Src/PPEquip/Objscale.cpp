@@ -215,11 +215,11 @@ public:
 		if(H_Port != INVALID_HANDLE_VALUE)
 			CloseHandle(H_Port);
 	}
-	virtual int SLAPI SetConnection() = 0;
-	virtual int SLAPI CloseConnection() { return -1; }
-	virtual int SLAPI SendPLU(const ScalePLU *) = 0;
-	virtual int SLAPI GetDefaultSysParams(PPScale *) = 0;
-	virtual int SLAPI GetData(int * pGdsNo, double * pWeight)
+	virtual int  SLAPI SetConnection() = 0;
+	virtual int  SLAPI CloseConnection() { return -1; }
+	virtual int  SLAPI SendPLU(const ScalePLU *) = 0;
+	virtual void SLAPI GetDefaultSysParams(PPScale *) = 0;
+	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight)
 	{
 		ASSIGN_PTR(pGdsNo, 0);
 		ASSIGN_PTR(pWeight, 0);
@@ -586,13 +586,12 @@ public:
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetData(int * pGdsNo, double * pWeight);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData)
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
-		int    ok = -1;
 		if(pData) {
 			if(Data.Flags & SCALF_TCPIP) {
 				pData->Put_Delay = pData->Get_Delay = 1000;
@@ -604,9 +603,7 @@ public:
 				pData->Put_NumTries = 400;
 				pData->Put_Delay = 5;
 			}
-			ok = 1;
 		}
-		return ok;
 	}
 private:
 	int    SLAPI Is_v16() const
@@ -1230,13 +1227,12 @@ public:
 			(WghtPrefix1 = WghtPrefix2).ShiftLeft();
 		}
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetData(int * pGdsNo, double * pWeight);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData)
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
-		int   ok = -1;
 		if(pData) {
 			if(Data.Flags & SCALF_TCPIP) {
 				pData->Put_Delay = pData->Get_Delay = 1000;
@@ -1248,9 +1244,7 @@ public:
 				pData->Put_NumTries = 400;
 				pData->Put_Delay = 5;
 			}
-			ok = 1;
 		}
-		return ok;
 	}
 private:
 	int    SLAPI SendBarcodeFormat(const char * pBarcode);
@@ -1664,15 +1658,14 @@ public:
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData)
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
 		pData->Get_NumTries = 400;
 		pData->Get_Delay = 5;
 		pData->Put_NumTries = 400;
 		pData->Put_Delay = 5;
-		return 1;
 	}
 private:
 	int    SLAPI CheckAck(uchar ackCode = 0x01);
@@ -1786,10 +1779,12 @@ public:
 	{
 		delete P_DrvMassaK;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData) 
+	{
+	}
 private:
 	enum {
 		Result,
@@ -1945,10 +1940,12 @@ public:
 		delete P_DbfTbl;
 		delete P_Csv;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	int SLAPI CheckAckForPLU(); // @vmiller
 
@@ -2110,10 +2107,12 @@ public:
 	{
 		delete P_DrvMassaK;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *) { return 1; };
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
-	virtual int SLAPI GetData(int * pGdsNo, double * pWeight);
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *) { return 1; };
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
+	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
 	int SLAPI CloseConnection_();
 private:
 	enum {
@@ -2300,16 +2299,15 @@ public:
 		delete P_DrvMT;
 		delete P_AddStrAry;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData)
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
 		pData->Get_NumTries = 0;
 		pData->Get_Delay = 1000;
 		pData->Put_NumTries = 0;
 		pData->Put_Delay = 1000;
-		return 1;
 	}
 private:
 	struct _AddStrEntry {
@@ -2393,7 +2391,7 @@ int SLAPI TCPIPMToledo::SetConnection()
 		fprintf(p_stream, "[CONFIG]\nMEDIA=1\n");
 		fprintf(p_stream, "COMPORT=2\n");
 		fprintf(p_stream, "THREADNUM=1\n");
-		fprintf(p_stream, "[%i]\nNAME=%s\n", Data.LogNum, Data.Name);
+		fprintf(p_stream, "[%i]\nNAME=%s\n", (int)Data.LogNum, Data.Name);
 		fprintf(p_stream, "IP=%s\n", ip);
 		fprintf(p_stream, "PORT=3001");
 		SFile::ZClose(&p_stream);
@@ -2435,7 +2433,7 @@ int SLAPI TCPIPMToledo::CloseConnection()
 			PPSetAddedMsgString(out_path);
 			THROW_PP(p_stream = fopen(out_path, "w"), PPERR_CANTOPENFILE);
 			PPGetFileName(PPFILNAM_MTSCALE_DATA, path);
-			fprintf(p_stream, "%s\n%i", path.cptr(), Data.LogNum);
+			fprintf(p_stream, "%s\n%i", path.cptr(), (int)Data.LogNum);
 			SFile::ZClose(&p_stream);
 			{
 				char   temp_path[512];
@@ -2838,10 +2836,12 @@ public:
 		delete P_OutTblScale;
 		delete P_AddStrAry;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	struct _AddStrEntry {
 		long  AddStrCode;
@@ -2972,10 +2972,10 @@ public:
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *) { return -1; }
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData);
-	virtual int SLAPI GetData(int * pGdsNo, double * pWeight);
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *) { return -1; }
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData);
+	virtual int  SLAPI GetData(int * pGdsNo, double * pWeight);
 };
 
 int SLAPI WeightTerm::SetConnection()
@@ -2984,13 +2984,12 @@ int SLAPI WeightTerm::SetConnection()
 	return 1;
 }
 
-int SLAPI WeightTerm::GetDefaultSysParams(PPScale * pData)
+void SLAPI WeightTerm::GetDefaultSysParams(PPScale * pData)
 {
 	pData->Get_NumTries = 100;
 	pData->Get_Delay = 500;
 	pData->Put_NumTries = 100;
 	pData->Put_Delay = 50;
-	return 1;
 }
 
 int SLAPI WeightTerm::GetData(int * pGdsNo, double * pWeight)
@@ -3037,16 +3036,15 @@ public:
 	{
 		SFile::ZClose(&P_ScaleData);
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData)
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
 		if(pData && Data.Flags & SCALF_TCPIP) {
 			pData->Put_Delay = pData->Get_Delay = 15000;
 			pData->Get_NumTries = pData->Put_NumTries = 0;
 		}
-		return 1;
 	}
 private:
 	long   IntGrpCode;
@@ -3406,16 +3404,18 @@ public:
 		SocketHandle   = 0;
 		AddInfoFieldId = 1;
 		ResCode = bzErrOK;
-		UseNewAlg = (Data.ProtocolVer >= 100) ? 1 : 0;
+		UseNewAlg = BIN(Data.ProtocolVer >= 100);
 	}
 	SLAPI ~Bizerba()
 	{
 		delete P_DrvBizerba;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	enum {
 		ErrorCode,
@@ -3777,10 +3777,12 @@ public:
 	{
 		delete P_DrvShtrih;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	enum {
 		ResultCode,
@@ -4048,10 +4050,12 @@ public:
 	{
 		delete P_FOut;
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	long   FixedMsgResID; // Фиксированный идентификатор ресурса текстовых сообщений
 	StrAssocArray MsgResLines;
@@ -4200,10 +4204,12 @@ public:
 	SLAPI ~ExportToFile()
 	{
 	}
-	virtual int SLAPI SetConnection();
-	virtual int SLAPI CloseConnection();
-	virtual int SLAPI SendPLU(const ScalePLU *);
-	virtual int SLAPI GetDefaultSysParams(PPScale * pData) { return 1; }
+	virtual int  SLAPI SetConnection();
+	virtual int  SLAPI CloseConnection();
+	virtual int  SLAPI SendPLU(const ScalePLU *);
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
+	{
+	}
 private:
 	PPGoodsExporter * P_GoodsExp;
 	PPObjGoods GObj;

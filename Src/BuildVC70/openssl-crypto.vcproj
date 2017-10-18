@@ -2319,10 +2319,10 @@
 				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL-CMake\include\internal\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-CMake\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\bn.h">
@@ -2356,6 +2356,9 @@
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\engine.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-CMake\include\openssl\err.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-CMake\crypto\include\internal\err_int.h">

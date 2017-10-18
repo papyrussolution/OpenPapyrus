@@ -49,7 +49,6 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			{
-				int    button_count;
 				SString title_buf;
 				if(p_param && p_param->P_Msg) {
 					// @v9.1.5 char   buf[1024];
@@ -63,20 +62,23 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				SLS.LoadString(P_Titles[msg_idx], title_buf);
 				// @v9.1.5 ::SendMessage(hwndDlg, WM_SETTEXT, 0, (LPARAM)(const char *)title_buf.Transf(CTRANSF_INNER_TO_OUTER));
 				TView::SSetWindowText(hwndDlg, title_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @v9.1.5
-				for(i = 0, button_count = 0; i < SIZEOFARRAY(button_list); i++)
+				uint   button_count = 0;
+				for(i = 0; i < SIZEOFARRAY(button_list); i++)
 					if(p_param->Options & (0x0100 << i))
 						button_count++;
-				for(i = 0, j = 0; i < SIZEOFARRAY(button_list); i++)
-					if(p_param->Options & (0x0100 << i)) {
-						int    id = CTL_WMSGBOX_FIRSTBUTTON + button_n[button_count-1][j++] - 1;
-						HWND   w_ctl = GetDlgItem(hwndDlg, id);
-						if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
-							// @v9.1.5 ::SendMessage(w_ctl, WM_SETTEXT, 0, (LPARAM)(const char *)title_buf.Transf(CTRANSF_INNER_TO_OUTER));
-							TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @v9.1.5
-							long   wl = TView::GetWindowStyle(w_ctl);
-							TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
+				if(button_count > 0) {
+					for(i = 0, j = 0; i < SIZEOFARRAY(button_list); i++)
+						if(p_param->Options & (0x0100 << i)) {
+							int    id = CTL_WMSGBOX_FIRSTBUTTON + button_n[button_count-1][j++] - 1;
+							HWND   w_ctl = GetDlgItem(hwndDlg, id);
+							if(SLS.LoadString(button_list[i].P_Symb, title_buf) > 0) {
+								// @v9.1.5 ::SendMessage(w_ctl, WM_SETTEXT, 0, (LPARAM)(const char *)title_buf.Transf(CTRANSF_INNER_TO_OUTER));
+								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER)); // @v9.1.5
+								long   wl = TView::GetWindowStyle(w_ctl);
+								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
+							}
 						}
-					}
+				}
 				if((p_param->Options & mfConf)  == mfConf)
 					TDialog::centerDlg(hwndDlg);
 			}

@@ -595,8 +595,7 @@ int SLAPI SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 {
 	SString buf, id_buf, txt_buf;
 	StrAssocArray ary;
-	PPLoadText(PPTXT_PAYMDATEBASE, buf);
-	StringSet ss(';', buf);
+	StringSet ss(';', PPLoadTextS(PPTXT_PAYMDATEBASE, buf));
 	for(uint i = 0; ss.get(&i, buf) > 0;)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
@@ -1804,8 +1803,7 @@ int SupplAgtDialog::EditExchangeCfg()
 				SString tech_symb;
                 long    _tech_id = 0;
 				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_symb);
-                PPLoadText(PPTXT_SUPPLIXTECH, temp_buf);
-                StringSet ss_tech_symb_list(';', temp_buf);
+                StringSet ss_tech_symb_list(';', PPLoadTextS(PPTXT_SUPPLIXTECH, temp_buf));
                 StrAssocArray tech_list;
                 long    _ss_id = 0;
                 for(uint ssp = 0; ss_tech_symb_list.get(&ssp, temp_buf);) {
@@ -1863,8 +1861,7 @@ int SupplAgtDialog::EditExchangeCfg()
 				SString tech_symb;
                 long    _tech_id = getCtrlLong(CTLSEL_SUPLEXCHCFG_TECH);
                 if(_tech_id) {
-					PPLoadText(PPTXT_SUPPLIXTECH, temp_buf);
-					StringSet ss_tech_symb_list(';', temp_buf);
+					StringSet ss_tech_symb_list(';', PPLoadTextS(PPTXT_SUPPLIXTECH, temp_buf));
 					long    _ss_id = 0;
 					for(uint ssp = 0; tech_symb.Empty() && ss_tech_symb_list.get(&ssp, temp_buf);) {
 						++_ss_id;

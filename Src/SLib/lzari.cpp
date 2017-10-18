@@ -176,6 +176,8 @@ LZAriTree::LZAriTree()
 	P_LSon    = 0;
 	P_RSon    = 0;
 	P_Dad     = 0;
+	MatchPosition = 0; // @v9.8.4 @fix init
+	MatchLength = 0;   // @v9.8.4 @fix init
 }
 
 LZAriTree::~LZAriTree()

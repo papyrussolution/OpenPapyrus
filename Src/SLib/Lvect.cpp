@@ -185,6 +185,7 @@ SLAPI LVect::LVect()
 {
 	Dim = 0;
 	P_Vals = 0;
+	P_Name = 0; // @v9.8.4 @fix
 }
 
 SLAPI LVect::~LVect()
@@ -642,7 +643,7 @@ int inverse(LMatrix & a)
 		a = ai;
 		ret = 1;
 	}
-	delete p_indx;
+	delete [] p_indx; // @v9.8.4 @fix [] 
 	return ret;
 };
 //

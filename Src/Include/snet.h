@@ -160,7 +160,7 @@ public:
 	{
 		return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
 	}
-	InetUrl(const char * pUrl = 0);
+	explicit InetUrl(const char * pUrl = 0);
 	InetUrl(const InetUrl & rS);
 	InetUrl & FASTCALL operator = (const InetUrl & rS);
 	void   FASTCALL Copy(const InetUrl & rS);
@@ -358,7 +358,7 @@ private:
 //
 class TcpServer : private TcpSocket {
 public:
-	SLAPI  TcpServer(const InetAddr & rAddr);
+	explicit SLAPI TcpServer(const InetAddr & rAddr);
 	virtual SLAPI ~TcpServer();
 	int    SLAPI Run();
 	virtual int SLAPI ExecSession(TcpSocket & rSock, InetAddr & rAddr);

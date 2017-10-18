@@ -1987,7 +1987,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0; c++) {
 		if(!c) {
 			pCtx->OutReceivingMsg(PPLoadTextS(PPTXT_BTP_TOTAL, fmt_buf));
-			PPLoadText(PPTXT_BDR_LINE, fmt_buf.Z()); // загруженное значение fmt_buf далее будет использоваться в итерациях
+			PPLoadText(PPTXT_BDR_LINE, fmt_buf); // загруженное значение fmt_buf далее будет использоваться в итерациях
 		}
 		double deficit = Tbl->data.Req - Tbl->data.Rest;
 		if(deficit > 0.0 && fmt_buf.NotEmpty()) {

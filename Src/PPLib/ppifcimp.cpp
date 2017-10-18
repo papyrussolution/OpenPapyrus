@@ -1008,14 +1008,14 @@ int32 DL6ICLS_PPDbfTable::Create3(ISDbfCreateFlds * pFldsDescr, ISCodepage cp, l
 	DbfTable * p_tbl = (DbfTable*)ExtraPtr;
 	InnerExtraDbfCreateFlds * p_flds = (InnerExtraDbfCreateFlds*)SCoClass::GetExtraPtrByInterface(pFldsDescr);
 	if(p_tbl && p_flds && (num_flds = p_flds->GetCount()) > 0) {
+		SString temp_buf;
 		SDbfCreateFld outer_fld_inf;
 		THROW_MEM(p_flds_info = new DBFCreateFld[num_flds]);
 		outer_fld_inf.Name = 0;
 		p_flds->InitIteration();
 		for(int i = 0; p_flds->NextIteration(&outer_fld_inf) > 0; i++) {
-			SString temp_buf;
 			DBFCreateFld inner_fld_inf;
-			temp_buf.CopyFromOleStr(outer_fld_inf.Name);
+			temp_buf.Z().CopyFromOleStr(outer_fld_inf.Name);
 			temp_buf.CopyTo(inner_fld_inf.Name, sizeof(inner_fld_inf.Name));
 			if(outer_fld_inf.Type == dbftString)
 				inner_fld_inf.Type = (uint8)'C';
@@ -1035,7 +1035,7 @@ int32 DL6ICLS_PPDbfTable::Create3(ISDbfCreateFlds * pFldsDescr, ISCodepage cp, l
 		ok = p_tbl->create(num_flds, p_flds_info, (SCodepage)cp, infoByte);
 	}
 	CATCHZOK
-	ZDELETE(p_flds_info);
+	ZDELETEARRAY(p_flds_info);
 	return ok;
 }
 

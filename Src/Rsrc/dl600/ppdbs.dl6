@@ -4213,10 +4213,12 @@ table TempFreight {
 	string Code[24];      // = Bill.ID.Code @v4.4.14 [10]->[24]
 	string Shipped[2];    // Признак отгруженного документа ('X' | '\0')
 	int16  Reserve;       // @alignment
-	string ShipName[48];  // Наименование транспортного средства
+	// @v9.8.4 string ShipName[48];  // Наименование транспортного средства
+	uint   ShipNameP;     // @v9.8.4 Ссылка на наименование транспортного средства
 	string PortName[48];  // Наименование порта назначения // @v6.9.2 [30]-->[48]
 	string DlvrAddr[64];  // Наименование адреса доставки
-	note   Memo[512];     // @v6.9.7 Примечание к документу
+	// @v9.8.4 note   Memo[512];     // @v6.9.7 Примечание к документу
+	uint   MemoP;         // @v9.8.4 Ссылка на примечание к документу
 index:
 	BillID (unique mod);
 	BillDate, Code (dup mod);
@@ -4225,7 +4227,7 @@ index:
 	DlvrAddr, ArrvlDate (dup mod);
 file:
 	"tmp_frgh.btr";
-	vlr;
+	// @v9.8.4 vlr;
 	temporary;
 }
 //

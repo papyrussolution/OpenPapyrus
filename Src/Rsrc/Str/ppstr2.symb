@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489326
+LastSignatureCode=2147489329
 LastAutoCodeList=1,11025;102,10162;103,10071;110,10000;111,11646;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10252;1002,10000;1003,10000;1004,10000;1005,10000;124,10062
 
 [SignatureList]
@@ -565,6 +565,7 @@ printcheck=2147488851
 printer=2147483887
 barcodeprinter=2147487911
 posnode=2147483888
+posnode_s=2147489327
 posnode_sync=2147488777
 posnode_async=2147488778
 posnodeno=2147487885
@@ -2119,6 +2120,7 @@ ccheck_memo=2147488663
 ccheck_creationdtm=2147488664
 ccheck_startorddtm=2147488665
 ccheck_endorddtm=2147488666
+ccheck_ordertime=2147489328
 ccheck_dlvraddr=2147488667
 ccheck_doattachphonetocard=2147488668
 cfgalbatros_desadvop=2147484795
@@ -2444,6 +2446,7 @@ cfgequip_scale=2147486621
 cfgequip_suspccprefix=2147485043
 cfgequip_tag=2147485044
 cfgequip_wroffaccopid=2147485045
+cfgequip_lookbackpriceperiod=2147489329
 cfgglobaluseracc_flags=2147485046
 cfgglobaluseracc_id=2147485047
 cfgglobaluseracc_personkind=2147485048

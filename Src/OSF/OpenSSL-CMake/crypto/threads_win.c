@@ -28,25 +28,25 @@ CRYPTO_RWLOCK * CRYPTO_THREAD_lock_new(void)
 	return lock;
 }
 
-int CRYPTO_THREAD_read_lock(CRYPTO_RWLOCK * lock)
+int FASTCALL CRYPTO_THREAD_read_lock(CRYPTO_RWLOCK * lock)
 {
 	EnterCriticalSection((LPCRITICAL_SECTION)lock);
 	return 1;
 }
 
-int CRYPTO_THREAD_write_lock(CRYPTO_RWLOCK * lock)
+int FASTCALL CRYPTO_THREAD_write_lock(CRYPTO_RWLOCK * lock)
 {
 	EnterCriticalSection((LPCRITICAL_SECTION)lock);
 	return 1;
 }
 
-int CRYPTO_THREAD_unlock(CRYPTO_RWLOCK * lock)
+int FASTCALL CRYPTO_THREAD_unlock(CRYPTO_RWLOCK * lock)
 {
 	LeaveCriticalSection((LPCRITICAL_SECTION)lock);
 	return 1;
 }
 
-void CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK * lock)
+void FASTCALL CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK * lock)
 {
 	if(lock) {
 		DeleteCriticalSection((LPCRITICAL_SECTION)lock);
@@ -54,15 +54,14 @@ void CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK * lock)
 	}
 }
 
-#  define ONCE_UNINITED     0
-#  define ONCE_ININIT       1
-#  define ONCE_DONE         2
-
+#define ONCE_UNINITED     0
+#define ONCE_ININIT       1
+#define ONCE_DONE         2
 /*
  * We don't use InitOnceExecuteOnce because that isn't available in WinXP which
  * we still have to support.
  */
-int CRYPTO_THREAD_run_once(CRYPTO_ONCE * once, void (* init)(void))
+int FASTCALL CRYPTO_THREAD_run_once(CRYPTO_ONCE * once, void (* init)(void))
 {
 	LONG volatile * lock = (LONG*)once;
 	LONG result;

@@ -9925,6 +9925,7 @@ public:
 	int    SLAPI IsAccsCost() const { return AccsCost; }
 private:
 	struct IndexItem {
+		IndexItem(long tiPos, long ext, long disposePos);
 		long   TiPos;
 		long   Ext;
 		long   DisposePos;
@@ -13069,7 +13070,12 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 	PPID   WrOffAccOpID;      // Вид операции для бухгалтерского документа списания кассовых сессий.
     long   BHTRngLimWgtGoods; // Предел изменения для весового товара
 	long   BHTRngLimPrice;    // Предел изменения цены для терминала BHT (от цены в документе образца)
-	uint32 Reserve;
+	// @v9.8.4 uint32 Reserve;
+	long   LookBackPricePeriod; // @v9.8.4 Количество дней для обзора назад для поиска фиксированных цен на товар
+		// Используется для товаров, относящихся к типу, имеющему флаг GTF_LOOKBACKPRICES.
+		// До v9.8.4 аналогичный параметр определялся в pp.ini ([config] AcgiPriceLookBackPeriod) и
+		// применялся только для асинхронных кассовых узлов.
+		// Начиная с v9.8.4, если указан PPEquipConfig::LookBackPricePeriod > 0, то AcgiPriceLookBackPeriod игнорируется.
 	char   SuspCcPrefix[8];   // @v8.1.9 Префикс номера отложенного чека для быстрого восстановления чека по номеру в кассовой панели
 };
 
@@ -18731,7 +18737,7 @@ private:
 	//int    SLAPI GroupingSessList(const PPIDArray * pSessList, PPIDArray * pOutList, PPIDArray * pOutTempList, int use_ta);
 	int    SLAPI ConvertTempSession(int forwardSess, PPIDArray * pSessList);
 	//int    SLAPI ConvertSessListToBills(PPIDArray * pSessList, PPID locID, int use_ta);
-	int    SLAPI FlashTempCcLines(SArray *, LAssocArray * pHasExLineList);
+	int    SLAPI FlashTempCcLines(const SVector *, LAssocArray * pHasExLineList);
 
 	LDATE  Beg, End;
 	long   CnFlags;     // Флаги узла PPCashNode(NodeID) если ~0, то не инициализированы
@@ -35535,6 +35541,7 @@ private:
 	PPObjTransport TrObj;
 	PPObjWorld WObj;
 	PPObjLocation LocObj;
+	SStrGroup StrPool; // @v9.8.4 Пул строковых полей, на который ссылаются поля в TempFreightTbl
 };
 //
 // Predict
@@ -48057,13 +48064,13 @@ int     SLAPI ViewPredictSales(PredictSalesFilt *);
 // @v9.5.9 int     SLAPI ViewPrognosis();
 void    FASTCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
 int     FASTCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
-int     SLAPI GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
+int     FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
 int     SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
 int     SLAPI SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pLow, const LTIME * pUpp);
 int     SLAPI GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
 int     SLAPI GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
-SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf);
-SString & SLAPI PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf);
+SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf);
+SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf);
 int     SLAPI SetRealRangeInput(TDialog *, uint ctl, double lo, double up, int prc = 0);
 int     SLAPI SetRealRangeInput(TDialog *, uint ctl, const RealRange *, int prc = 0);
 int     SLAPI GetRealRangeInput(TDialog *, uint ctl, double * pLow, double * pUpp);
@@ -48096,8 +48103,8 @@ int     SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry = 0, int prin
 //   случае - приходный.
 //
 int     SLAPI PrintCashOrder(PPBillPacket *, int pay_rcv, int prnflags = 0);
-int     SLAPI ViewGoodsBills(BillFilt *, int modeless);
-int     SLAPI BrowseBills(BrowseBillsType);
+int     FASTCALL ViewGoodsBills(BillFilt *, int modeless);
+int     FASTCALL BrowseBills(BrowseBillsType);
 int     SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID);
 int     SLAPI ViewOpersByLot(PPID id, int withZeroLotID);
 int     SLAPI ViewCashBills(PPID cashNode);
@@ -48220,16 +48227,16 @@ int     SLAPI ObjTransmDialogExt(uint dlgID, int viewId, ObjTransmitParam * pPar
 int     FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg = 0*/);
 int     FASTCALL CheckDialogPtrErr(void * ppDlg);
 //
-// Descr: Вызывает функцию сообщения об ошибке PPError(err, 0) и делает активным
-//   элемент диалога ctlID.
+// Descr: Вызывает функцию сообщения об ошибке PPError(err, 0) и делает активным элемент диалога ctlID.
 // Returns:
-//   0 - всегда. Для того, чтобы можно было быстро инициализировать переменную ok
-//     или значение, возвращаемое вызывающей функцией.
+//   0 - всегда. Для того, чтобы можно было быстро инициализировать значение, возвращаемое вызывающей функцией.
 //
 int     FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err);
 //
 // Descr: То же, что и PPErrorByDialog(TDialog * dlg, uint ctlID, int err), но
 //   аргумент err = -1. Отдельная функция сделана ради уменьшения размера кода (чаще вызывается именно так).
+// Return: 
+//   0 - всегда. Для того, чтобы можно было быстро инициализировать значение, возвращаемое вызывающей функцией.
 //
 int     FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID);
 uint    SLAPI GetComboBoxLinkID(TDialog *, uint comboBoxCtlID);
@@ -48263,7 +48270,7 @@ struct PPInputStringDialogParam {
 //   <0 - пользователь отказался от ввода
 //   0  - ошибка
 //
-int     SLAPI InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf);
+int     FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf);
 int     SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate);
 int     SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange *);
 int     SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double *);
@@ -48272,7 +48279,7 @@ int     SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText);
 //
 // Descr: Устанавливает в строке комбо-бокса текст 'Список'
 //
-int     SLAPI SetComboBoxListText(TDialog *, uint comboBoxCtlID);
+int     FASTCALL SetComboBoxListText(TDialog *, uint comboBoxCtlID);
 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
 int     SLAPI SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
 int     SLAPI SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
@@ -48399,7 +48406,7 @@ int     SLAPI DatabaseCutting();
 //   GetCalCtrlSignature, то кнопка относится к искомому типу.
 //
 const   char * GetCalCtrlSignature(int type);
-void    SLAPI SetupCalCtrl(int, TDialog *, uint, uint);
+void    FASTCALL SetupCalCtrl(int, TDialog *, uint, uint);
 void    SLAPI ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show);
 int     SLAPI Import(PPID objType, long extraParam = 0);
 int     SLAPI ImportBanks();

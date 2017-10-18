@@ -531,7 +531,7 @@ private:
 	const  DlScope * P_Base;   // @transient Область, наследуемая данной областью
 	DlScopeList ChildList;
 	DlFuncPool FuncPool;
-	SArray * P_IfaceBaseList;    // Список интерфейсов, поддерживаемых объектом (только для kIClass)
+	SVector * P_IfaceBaseList;    // Список интерфейсов, поддерживаемых объектом (только для kIClass) // @v9.8.4 SArray-->SVector
 	//
 	// Descr: Константа, хранящая опцию
 	//

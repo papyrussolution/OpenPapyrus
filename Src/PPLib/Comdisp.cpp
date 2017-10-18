@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -97,7 +97,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 		}
 		// } @v9.1.7
 	ENDCATCH
-	delete p_wname;
+	delete [] p_wname;
 	return ok;
 }
 
@@ -115,7 +115,7 @@ int SLAPI ComDispInterface::GetNameByID(long id, SString & rName) const
 	if(p_die)
 		rName = p_die->Name;
 	else {
-		rName = 0;
+		rName.Z();
 		ok = 0;
 	}
 	return ok;
@@ -138,13 +138,13 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT,
-		DISPATCH_PROPERTYGET, sendParams ? &params : &null_params, &var_arg, NULL, NULL)));
+		DISPATCH_PROPERTYGET,	 sendParams ? &params : &null_params, &var_arg, NULL, NULL)));
 	vt = pVarArg->vt;
 	if(var_arg.vt == VT_BOOL && var_arg.boolVal) {
 		var_arg.vt     = VT_INT;
 		var_arg.intVal = TRUE;
 	}
-	if(pVarArg && vt == var_arg.vt && vt == VT_DISPATCH)
+	if(pVarArg && (vt == var_arg.vt && vt == VT_DISPATCH))
 		pVarArg->pdispVal = var_arg.pdispVal;
 	else {
 		THROW(SUCCEEDED(HRes = VariantChangeTypeEx(pVarArg, &var_arg, LOCALE_USER_DEFAULT, 0, vt)));

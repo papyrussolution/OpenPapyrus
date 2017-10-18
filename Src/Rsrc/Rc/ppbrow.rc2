@@ -3229,7 +3229,7 @@ browser SYSJ_SUBST north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 {
 	"@date",                   3, notype, 0, 30
 	"@appellation",            4, notype, 0, 30
-	"Кол-во операций",         5, notype, NMBF_NOZERO, 10.0
+	"Количество операций",     5, notype, NMBF_NOZERO, 10.0
 	"Среднее время м/у оп-ми", 6, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter, TBBM_EDIT,      "@{viewobject}\tEnter"
@@ -3567,7 +3567,7 @@ browser CCHECK north(100), 1, 1, "Кассовые чеки", OWNER|GRID, 0
 {
 	"@date",          1, notype, DATF_DMY, 8
 	"@time",          2, notype, TIMF_HMS | TIMF_MSEC, 8
-	"Касса",          3, notype, 0,  5
+	"@posnode_s",     3, notype, 0,  5
 	"@checkno",       5, notype, 0, 10
 	"@amount",        6, notype, 0, 12.2
 	"@discount",      8, notype, NMBF_NOZERO, 12.2
@@ -3647,7 +3647,7 @@ browser CCHECKGRP_DOWNTIME north(100), 1, 1, "Кассовые чеки по дням недели и час
 
 browser CCHECKGRP_CASH north(100), 1, 1, "Кассовые чеки по кассам", OWNER|GRID, 0
 {
-	"Касса",          3, notype, 0, 30
+	"@posnode_s",     3, notype, 0, 30
 	"@check_count_s", 4, notype, 0, 6
 	"@amount",        5, notype, 0, 12.2
 	"@discount",      6, notype, NMBF_NOZERO, 12.2
@@ -3810,11 +3810,11 @@ browser CCHECKGRP_DIV north(100), 1, 1, "Кассовые чеки с группировкой по отделам
 
 browser CCHECK_GOODSCORR north(100), 1, 1, "Корреляция товаров по кассовым чекам", OWNER|GRID, 0
 {
-	"@{ware} 1",      3, notype, 0, 30
-	"@{ware} 2",      4, notype, 0, 30
-	"Пересечений",    5, notype, 0, 6
-	"Кол-во чеков",   6, notype, 0, 6
-	"Кол-во чеков(%)",7, notype, 0, 6.2
+	"@{ware} 1",           3, notype, 0, 30
+	"@{ware} 2",           4, notype, 0, 30
+	"Пересечений",         5, notype, 0, 6
+	"Количество чеков",    6, notype, 0, 6
+	"Количество чеков(%)", 7, notype, 0, 6.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter, TBBM_LINS,         "@{detail}\tEnter"
 		ADDITEM     : kbF2,    TBBM_EDIT,         "Редактировать товар 1\tF2"
@@ -3894,7 +3894,7 @@ browser PSNEVSUBST north(100), 1, 2, "Персональные операции с подстановкой {%s}"
 {
 	"@appellation",            3, notype, 0, 30
 	"Наименование 2",          4, notype, 0, 30
-	"Кол-во операций",         5, notype, NMBF_NOZERO, 10.0
+	"Количество операций",     5, notype, NMBF_NOZERO, 10.0
 	"Среднее время м/у оп-ми", 6, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL     : kbEnter,  TBBM_LINS,   "@{detail}\tEnter"
@@ -4134,7 +4134,7 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 	"@posnode",           16, notype, 0, 8
 	"@posnodeno",          3, notype, 0, 6
 	"Завершенность",       4, notype, 0, 9
-	"Кол-во\nчеков",      12, notype, 0, 6
+	"Количество\nчеков",  12, notype, 0, 6
 	group "Суммы чеков" {
 		"Продажи",    13, notype, NMBF_NOZERO, 10.2
 		"Возвраты",   14, notype, NMBF_NOZERO, 10.2
@@ -5077,8 +5077,8 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 	"@ware",                     3, notype, 0, 30
 	"@structure",                4, notype, 0, 10
 	"Знак",                      5, notype, 0,  6
-	"Производи-\nтельность",     6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	"Колич по\nумолчанию",       9, notype, NMBF_NOZERO, 8.1
+	"Производительность",        6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+	"Количество по\nумолчанию",  9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter, TBBM_EDIT,   "@{edit}\tEnter"
 		ADDITEM    : kbIns,   TBBM_INSERT, "@{add}\tInsert"
@@ -7367,7 +7367,7 @@ record Goods2 {
 	Code           zstring(32)         "@{barcode}";
 	CodeCD         zstring(32)         "Штрихкод с форсированной контрольной цифрой";
 	AddedCode      zstring(32)         "Дополнительный штрихкод";
-	AddedCodeQtty  double format(10.4) "Кол-во для доп. штрихкода";
+	AddedCodeQtty  double format(10.4) "Количество для доп штрихкода";
 	GrpID          long                "Идентификатор группы"; // @v7.9.1
 	GrpCode        zstring(32)         "Код группы";
 	GrpName        zstring(128)        "Наименование группы";
@@ -7772,7 +7772,7 @@ record CPosHeader {
 record CPosTable {
 	_id        long                "@{ctableno}";
 	Name       zstring(32)         "Наименование столика";
-	GuestCount long                "Количество гостей";
+	GuestCount long                "@{guestcount}";
 	Flags      long                "@{flags}";
 	Amount     double format(10.2) "Сумма заказа";
 }
@@ -7794,7 +7794,7 @@ record CPosGoodsGroup {
 record CPosCheck {
 	_id        long                "@{id}";
 	TableId    long                "@{ctableno}";
-	GuestCount long                "Количество гостей";
+	GuestCount long                "@{guestcount}";
 	Number     long                "@{checkno}";
 	SCardId    long                "Ид дискотной карты";
 	Amount     double format(10.2) "Сумма по чеку";

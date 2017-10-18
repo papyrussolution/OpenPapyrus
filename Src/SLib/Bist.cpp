@@ -17,7 +17,7 @@ public:
 
 class SInt : public DataType {
 public:
-	SLAPI  SInt(size_t sz = 2);
+	explicit SLAPI SInt(size_t sz = 2);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -33,7 +33,7 @@ typedef SInt SAutoinc;
 
 class SBool : public DataType {
 public:
-	SLAPI  SBool(size_t sz = 4);
+	explicit SLAPI SBool(size_t sz = 4);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -47,7 +47,7 @@ public:
 
 class SUInt : public DataType {
 public:
- 	SLAPI  SUInt(size_t sz = 2);
+ 	explicit SLAPI SUInt(size_t sz = 2);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -61,7 +61,7 @@ public:
 
 class SFloat : public DataType {
 public:
-	SLAPI  SFloat(size_t sz = 8);
+	explicit SLAPI SFloat(size_t sz = 8);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -89,7 +89,7 @@ public:
 
 class SMoney : public SDecimal {
 public:
-	SLAPI SMoney(size_t sz = 8) : SDecimal(sz, 2) {}
+	explicit SLAPI SMoney(size_t sz = 8) : SDecimal(sz, 2) {}
 };
 
 class SDate : public DataType {
@@ -136,7 +136,7 @@ public:
 
 class SChar : public DataType {
 public:
-	SLAPI  SChar(size_t sz = 0);
+	explicit SLAPI SChar(size_t sz = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -149,7 +149,7 @@ public:
 
 class SZString : public DataType {
 public:
-	SLAPI  SZString(size_t = 0);
+	explicit SLAPI SZString(size_t = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -168,7 +168,7 @@ public:
 	//
 	// Размер указывается в байтах (не символах)
 	//
-	SLAPI  SWcString(size_t = sizeof(wchar_t));
+	explicit SLAPI SWcString(size_t = sizeof(wchar_t));
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -181,7 +181,7 @@ public:
 
 class SLString : public DataType {
 public:
-	SLAPI  SLString(size_t = 0);
+	explicit SLAPI SLString(size_t = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -199,7 +199,7 @@ public:
 
 class SRaw : public DataType {
 public:
-	SLAPI  SRaw(size_t sz = 0);
+	explicit SLAPI SRaw(size_t sz = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -212,7 +212,7 @@ public:
 
 class SIPoint2 : public DataType {
 public:
-	SLAPI  SIPoint2(size_t sz = 4);
+	explicit SLAPI SIPoint2(size_t sz = 4);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -226,7 +226,7 @@ public:
 
 class SFPoint2 : public DataType {
 public:
-	SLAPI  SFPoint2(size_t sz = 8);
+	explicit SLAPI SFPoint2(size_t sz = 8);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -1192,7 +1192,7 @@ char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, _D, 0);
 	else
 		f = fmt;
-	return realfmt(dectobin((char *)d, _L, (int16)_D), fmt, buf);
+	return realfmt(dectobin((char *)d, _L, (int16)_D), f, buf); // @v9.8.4 @fix fmt-->f
 }
 
 int SLAPI SDecimal::fromstr(void * d, long, const char * buf) const

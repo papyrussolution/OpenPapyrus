@@ -163,14 +163,14 @@ int SLAPI SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pT
 		return 0;
 }
 
-int SLAPI SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
+int FASTCALL SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
 {
 	SString temp_buf;
 	PPLoadString("list", temp_buf);
 	return SetComboBoxLinkText(dlg, comboBoxCtlID, temp_buf);
 }
 
-SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
+SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 {
 	rBuf.Z();
 	if(pPeriod) {
@@ -190,7 +190,7 @@ SString & SLAPI PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-SString & SLAPI PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf)
+SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, LDATETIME & rEnd, SString & rBuf)
 {
 	rBuf.Z();
 	if(rBeg.d) {
@@ -262,7 +262,7 @@ int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod)
 	return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0);
 }
 
-int SLAPI GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
+int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
 {
 	return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags);
 }
@@ -4806,7 +4806,7 @@ void BrandCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-int SLAPI InputStringDialog(const char * pTitle, const char * pInpTitle, int disableSelection, int inputMemo, SString & rBuf)
+static int InputStringDialog(const char * pTitle, const char * pInpTitle, int disableSelection, int inputMemo, SString & rBuf)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog((inputMemo) ? DLG_MEMO : DLG_INPUT);
@@ -4843,7 +4843,7 @@ SLAPI PPInputStringDialogParam::~PPInputStringDialogParam()
 	delete P_Wse;
 }
 
-int SLAPI InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf)
+int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog((pParam && pParam->Flags & pParam->fInputMemo) ? DLG_MEMO : DLG_INPUT);
@@ -5331,8 +5331,7 @@ public:
 	EditMemosDialog() : PPListDialog(DLG_MEMOLIST, CTL_LBXSEL_LIST)
 	{
 		SString title;
-		PPLoadText(PPTXT_EDITMEMOS, title);
-		setTitle(title);
+		setTitle(PPLoadTextS(PPTXT_EDITMEMOS, title));
 	}
 	int    setDTS(const char * pMemos);
 	int    getDTS(SString & rMemos);

@@ -79,9 +79,8 @@ int PPBnkTerminal::Connect(int port)
 	Arr_In.Clear();
 	BnkTermArrAdd(Arr_In, DVCPARAM_PORT, port);
 	Arr_Out.Clear();
-	PPLoadText(PPTXT_BNKTRM_TESTCONN, msg);
 	PPWait(1);
-	PPWaitMsg(msg);
+	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_TESTCONN, msg));
 	ok = ExecOper(DVCCMD_CONNECT, Arr_In, Arr_Out);
 	PPWait(0);
 	if(ok)
@@ -113,9 +112,8 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	Arr_Out.Clear();
 	amount *= 100; // Переведем в копейки
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
-	PPLoadText(PPTXT_BNKTRM_PAYMENT, msg);
 	PPWait(1);
-	PPWaitMsg(msg);
+	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_PAYMENT, msg));
 	ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
 	if(ok) {
 		Arr_Out.Get(0, rSlip);
@@ -133,9 +131,8 @@ int PPBnkTerminal::Refund(double amount, SString & rSlip)
 	Arr_Out.Clear();
 	amount *= 100; // Переведем в копейки
 	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, (int)amount);
-	PPLoadText(PPTXT_BNKTRM_RETURN, msg);
 	PPWait(1);
-	PPWaitMsg(msg);
+	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_RETURN, msg));
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);
 	if(ok) {
 		Arr_Out.Get(0, rSlip);
@@ -150,7 +147,7 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 	SString msg;
 	Arr_In.Clear();
 	Arr_Out.Clear();
-	PPLoadText(PPTXT_BNKTRM_CLOSESESS, msg);
+	PPLoadTextS(PPTXT_BNKTRM_CLOSESESS, msg);
 	PPWait(1);
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	if(ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out))

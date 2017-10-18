@@ -47,8 +47,7 @@ typedef TSCollection<PrnLineStruc> PrnLinesArray;
 static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;
-	PPLoadText(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt);
-	msg.Printf(msg_fmt, pFormatName);
+	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
 	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 }
 
@@ -808,9 +807,8 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				else if(running_total > amt) {
 					SString fmt_buf, msg_buf, added_buf;
-					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 					added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
-					msg_buf.Printf(fmt_buf, added_buf.cptr());
+					msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
 					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
 				debug_log_buf.CatChar('}');

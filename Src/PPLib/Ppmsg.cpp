@@ -106,7 +106,7 @@ int SLAPI PPLoadString(int group, int code, SString & s)
 	// Эта функция @threadsafe поскольку StrStore2::GetString является const-функцией
 	//
 	int    ok = 1;
-	s = 0;
+	s.Z();
 	if(group && code) {
 		PROFILE_START
 		ok = _PPStrStore ? _PPStrStore->GetString(group, code, s) : 0;
@@ -447,7 +447,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 				const size_t tmp_buf_size = 1024;
 				if(pAddInfo && (p_tmp_buf2 = new char[tmp_buf_size]) != 0) {
 					_snprintf(p_tmp_buf2, tmp_buf_size-1, p_tmp_buf, pAddInfo);
-					delete p_tmp_buf;
+					delete [] p_tmp_buf;
 					p_tmp_buf = p_tmp_buf2;
 				}
 			}
@@ -455,7 +455,7 @@ int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmv
 		rBuf = msgcode ? p_tmp_buf : pAddInfo;
 		if(rmvSpcChrs)
 			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ');
-		delete p_tmp_buf;
+		delete [] p_tmp_buf;
 	}
 	return 1;
 }

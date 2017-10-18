@@ -138,7 +138,6 @@ int MIME64::Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen
 {
 	int    ok = 1;
 	uchar * out = (uchar *)pOut;
-	uchar  oval;
 	const  uchar * in = (const uchar *)pIn;
 	size_t olen = (inLen + 2) / 3 * 4;
 	ASSIGN_PTR(pOutDataLen, olen);
@@ -155,7 +154,7 @@ int MIME64::Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen
 		if(inLen > 0) {
 			// user provided max buffer size; make sure we don't go over it
 			*out++ = Basis64[in[0] >> 2];
-			oval = (in[0] << 4) & 0x30;
+			uchar  oval = (in[0] << 4) & 0x30;
 			if(inLen > 1)
 				oval |= in[1] >> 4;
 			*out++ = Basis64[oval];

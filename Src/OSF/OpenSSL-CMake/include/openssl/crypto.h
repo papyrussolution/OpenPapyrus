@@ -64,13 +64,12 @@ typedef struct {
 
 typedef void CRYPTO_RWLOCK;
 
-CRYPTO_RWLOCK *CRYPTO_THREAD_lock_new(void);
-int CRYPTO_THREAD_read_lock(CRYPTO_RWLOCK *lock);
-int CRYPTO_THREAD_write_lock(CRYPTO_RWLOCK *lock);
-int CRYPTO_THREAD_unlock(CRYPTO_RWLOCK *lock);
-void CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK *lock);
-int CRYPTO_atomic_add(int *val, int amount, int *ret, CRYPTO_RWLOCK *lock);
-
+CRYPTO_RWLOCK * CRYPTO_THREAD_lock_new(void);
+int    FASTCALL CRYPTO_THREAD_read_lock(CRYPTO_RWLOCK *lock);
+int    FASTCALL CRYPTO_THREAD_write_lock(CRYPTO_RWLOCK *lock);
+int    FASTCALL CRYPTO_THREAD_unlock(CRYPTO_RWLOCK *lock);
+void   FASTCALL CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK *lock);
+int    CRYPTO_atomic_add(int *val, int amount, int *ret, CRYPTO_RWLOCK *lock);
 /*
  * The following can be used to detect memory leaks in the library. If
  * used, it turns on malloc checking
@@ -364,8 +363,7 @@ typedef uint CRYPTO_THREAD_ID;
 #  define CRYPTO_ONCE_STATIC_INIT 0
 # endif
 
-int CRYPTO_THREAD_run_once(CRYPTO_ONCE *once, void (*init)(void));
-
+int FASTCALL CRYPTO_THREAD_run_once(CRYPTO_ONCE *once, void (*init)(void));
 int CRYPTO_THREAD_init_local(CRYPTO_THREAD_LOCAL *key, void (*cleanup)(void *));
 void *CRYPTO_THREAD_get_local(CRYPTO_THREAD_LOCAL *key);
 int CRYPTO_THREAD_set_local(CRYPTO_THREAD_LOCAL *key, void *val);

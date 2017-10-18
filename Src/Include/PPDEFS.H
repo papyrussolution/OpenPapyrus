@@ -7198,6 +7198,7 @@
 	#define CTL_EQCFG_FLAGS2             (26 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_RNGLIMPRICEBHT     (27 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_SUSPCPFX           (28 + WINDOWS_ID_BIAS)
+	#define CTL_EQCFG_LOOKBKPRCPRD       (29 + WINDOWS_ID_BIAS)
 #define DLG_CBFLDS                822 //PLUS Fields copied from LST2LST
 	#define CTL_CBFLDS_TYPE             (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CBFLDS_TYPE          (8 + WINDOWS_ID_BIAS)

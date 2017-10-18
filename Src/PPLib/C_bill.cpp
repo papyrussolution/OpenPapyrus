@@ -124,8 +124,7 @@ int SLAPI PPObjBill::GatherPayments()
 					THROW(tra);
 					if(paym != real_paym) {
 						//"Неверная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
-						PPLoadText(PPTXT_LOG_INVBILLPAYMAMOUNT, fmt_buf);
-						msg_buf.Printf(fmt_buf, bill_name.cptr(), paym, real_paym);
+						msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLPAYMAMOUNT, fmt_buf), bill_name.cptr(), paym, real_paym);
 						logger.Log(msg_buf);
 						AmtEntry ae(PPAMT_PAYMENT, cur_id, real_paym);
 						THROW(P_Tbl->UpdateAmount(bill_id, &ae, 1));
@@ -133,14 +132,12 @@ int SLAPI PPObjBill::GatherPayments()
 					if(f != f1 || real_paym != omt_paymamt) {
 						if(f != f1) {
 							//"Неверно установлен признак 'оплачено' по документу '%s' (факт=%d, правильно=%d)"
-							PPLoadText(PPTXT_LOG_INVBILLPAYMFLAG, fmt_buf);
-							msg_buf.Printf(fmt_buf, bill_name.cptr(), BIN(f1 & BILLF_PAYOUT), BIN(f & BILLF_PAYOUT));
+							msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLPAYMFLAG, fmt_buf), bill_name.cptr(), BIN(f1 & BILLF_PAYOUT), BIN(f & BILLF_PAYOUT));
 							logger.Log(msg_buf);
 						}
 						if(real_paym != omt_paymamt) {
 							//"Неверная включенная сумма оплаты по документу '%s' (факт=%.2lf, правильно=%.2lf)"
-							PPLoadText(PPTXT_LOG_INVBILLOMTPAYMAMT, fmt_buf);
-							msg_buf.Printf(fmt_buf, bill_name.cptr(), omt_paymamt, real_paym);
+							msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVBILLOMTPAYMAMT, fmt_buf), bill_name.cptr(), omt_paymamt, real_paym);
 							logger.Log(msg_buf);
 						}
 						THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == bill_id), set(P_Tbl->Flags, dbconst(f)).set(P_Tbl->PaymAmount, dbconst(real_paym))));
@@ -717,9 +714,8 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 		delete dlg;
 	}
 	if(repare >= 0) {
-		PPLoadText(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf);
 		PPWait(1);
-		PPWaitMsg(wait_msg_buf);
+		PPWaitMsg(PPLoadTextS(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf));
 		PPTransaction tra(repare > 0);
 		THROW(tra);
 		for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &opk) > 0;) {

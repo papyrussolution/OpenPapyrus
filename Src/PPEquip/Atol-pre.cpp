@@ -1028,8 +1028,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 	}
 	if(UseAltImport && new_goods.getCount()) {
 		PPWait(0);
-		PPLoadText(PPTXT_IMPGOODS, wait_msg);
-		PPWaitMsg(wait_msg);
+		PPWaitMsg(PPLoadTextS(PPTXT_IMPGOODS, wait_msg));
 		SString path_goodsflag = PathGoodsFlag;
 		SString path_goods = PathGoods;
 		SPathStruc::ReplacePath(path_goodsflag, pExpPath, 1);

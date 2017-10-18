@@ -22,6 +22,7 @@ ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDial
 
 ListWindow::ListWindow() : TDialog(_DefLwRect, 0)
 {
+	def = 0; // @v9.8.4 @fix
 	PrepareSearchLetter = 0;
 	//@v9.8.0 IsLargeListBox      = 0;
 	P_Lb = 0;
@@ -437,7 +438,6 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 // virtual
 StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 {
-	int    ok = -1;
 	StrAssocArray * p_list = 0;
 	SString text;
 	uint text_len = sstrlen(pText);
@@ -688,28 +688,30 @@ void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
 
 void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 {
-	if(pDrawItem && pDrawItem->P_View) {
-		TCanvas2 canv(Ptb, pDrawItem->H_DC);
-		TRect _rc(pDrawItem->ItemRect);
-		if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-			canv.Rect(_rc, 0, clrBkgnd);
-			pDrawItem->ItemAction = 0; // Мы перерисовали фон
-		}
-		else if(pDrawItem->ItemID != 0xffffffff) {
-			int   _clr_id = (pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) ? clrFocus : clrBkgnd;
-			canv.SetBkColor(Ptb.GetColor(_clr_id));
-			canv.Rect(_rc, 0, _clr_id);
-			{
-				SString temp_buf;
-				SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
-				p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-				canv._DrawText(_rc, temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+	if(pDrawItem) {
+		if(pDrawItem->P_View) {
+			TCanvas2 canv(Ptb, pDrawItem->H_DC);
+			TRect _rc(pDrawItem->ItemRect);
+			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
+				canv.Rect(_rc, 0, clrBkgnd);
+				pDrawItem->ItemAction = 0; // Мы перерисовали фон
+			}
+			else if(pDrawItem->ItemID != 0xffffffff) {
+				int   _clr_id = (pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) ? clrFocus : clrBkgnd;
+				canv.SetBkColor(Ptb.GetColor(_clr_id));
+				canv.Rect(_rc, 0, _clr_id);
+				{
+					SString temp_buf;
+					SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
+					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					canv._DrawText(_rc, temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+				}
 			}
 		}
+		else
+			pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
 	}
-	else
-		pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
 }
 
 int FASTCALL WordSelector::setDef(ListBoxDef * pDef)

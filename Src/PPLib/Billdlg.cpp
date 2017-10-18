@@ -857,13 +857,12 @@ PPLinkFilesArray & FASTCALL PPLinkFilesArray::operator = (const PPLinkFilesArray
 int SLAPI PPLinkFilesArray::Init(const char * pStoreDir)
 {
 	SString temp_buf;
-	StoreDir = 0;
+	StoreDir.Z();
 	if(pStoreDir && pStoreDir[0])
 		StoreDir = pStoreDir;
 	else {
 		DBS.GetDbPath(DBS.GetDbPathID(), StoreDir);
-		PPLoadText(PPTXT_LNKFILESDIR, temp_buf);
-		StoreDir.SetLastSlash().Cat(temp_buf).SetLastSlash();
+		StoreDir.SetLastSlash().Cat(PPLoadTextS(PPTXT_LNKFILESDIR, temp_buf)).SetLastSlash();
 	}
 	if(StoreDir.NotEmpty()) {
 		pathToUNC(temp_buf = StoreDir, StoreDir);
@@ -1044,8 +1043,7 @@ int SLAPI PPLinkFilesArray::EditDescr(uint pos)
 		SPathStruc ps;
 		ps.Split(p_flink->Path);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
-		PPLoadText(PPTXT_INPUTDESCR, title);
-		PPInputStringDialogParam isd_param(title, fname);
+		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname);
 		if(InputStringDialog(&isd_param, descr) > 0 && descr.Len()) {
 			p_flink->Description = descr;
 			ok = 1;
@@ -1256,8 +1254,7 @@ int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 		ps.Split(pPath);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
 		flink.Init(pPath);
-		PPLoadText(PPTXT_INPUTDESCR, title);
-		PPInputStringDialogParam isd_param(title, fname.ToOem());
+		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname.ToOem());
 		if(InputStringDialog(&isd_param, flink.Description) > 0)
 			if(flink.Description.Len() && LinksAry.Add(&flink, pPos))
 				ok = 1;
@@ -1289,8 +1286,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 	SString exts, pattern, descr, name, ext;
 	StringSet ss_ext;
 	StrAssocArray items_list, ext_list;
-	PPLoadText(PPTXT_LNKFILESEXTS, exts);
-	StringSet ss(',', exts);
+	StringSet ss(',', PPLoadTextS(PPTXT_LNKFILESEXTS, exts));
 	for(uint i = 0, k = 0; ss.get(&i, pattern) > 0; k++) {
 		if(k > 0) {
 			uint   ext_start = 0, ext_len = 0;

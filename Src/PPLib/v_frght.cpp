@@ -195,6 +195,7 @@ int SLAPI PPViewFreight::Init_(const PPBaseFilt * pFilt)
 	Filt.BillPeriod.Actualize(ZERODATE);
 	Filt.ShipmPeriod.Actualize(ZERODATE);
 	Filt.ArrvlPeriod.Actualize(ZERODATE);
+	StrPool.ClearS(); // @v9.8.4
 	{
 		ZDELETE(P_TmpTbl);
 		THROW(P_TmpTbl = CreateTempFile());
@@ -296,7 +297,8 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 			pRec->BillID     = pBillRec->ID;
 			pRec->BillDate   = pBillRec->Dt;
 			STRNSCPY(pRec->Code, pBillRec->Code);
-			STRNSCPY(pRec->Memo, pBillRec->Memo); // @v6.9.7
+			// @v9.8.4 STRNSCPY(pRec->Memo, pBillRec->Memo);
+			StrPool.AddS(pBillRec->Memo, &pRec->MemoP); // @v9.8.4 
 			pRec->LocID      = pBillRec->LocID;
 			pRec->ObjectID   = pBillRec->Object;
 			pRec->Amount     = BR2(pBillRec->Amount);
@@ -307,8 +309,10 @@ int SLAPI PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFre
 			pRec->ShipID     = freight.ShipID;
 			pRec->PortID     = freight.PortOfDischarge;
 			pRec->DlvrAddrID = freight.DlvrAddrID;
-			if(pRec->ShipID && TrObj.Search(pRec->ShipID, &tr_rec) > 0)
-				STRNSCPY(pRec->ShipName, tr_rec.Name);
+			if(pRec->ShipID && TrObj.Search(pRec->ShipID, &tr_rec) > 0) {
+				// @v9.8.4 STRNSCPY(pRec->ShipName, tr_rec.Name);
+				StrPool.AddS(tr_rec.Name, &pRec->ShipNameP); // @v9.8.4 
+			}
 			if(pRec->PortID && WObj.Fetch(pRec->PortID, &city_rec) > 0)
 				STRNSCPY(pRec->PortName, city_rec.Name);
 			if(pRec->DlvrAddrID) {
@@ -394,6 +398,7 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 
 int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 {
+	SString temp_buf;
 	while(P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		if(pItem) {
@@ -410,7 +415,9 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 			pItem->ShipmDate = P_TmpTbl->data.ShipmDate;
 			pItem->ArrvlDate = P_TmpTbl->data.ArrvlDate;
 			pItem->ShipID    = P_TmpTbl->data.ShipID;
-			STRNSCPY(pItem->ShipName, P_TmpTbl->data.ShipName);
+			// @v9.8.4 STRNSCPY(pItem->ShipName, P_TmpTbl->data.ShipName);
+			StrPool.GetS(P_TmpTbl->data.ShipNameP, temp_buf); // @v9.8.4 
+			STRNSCPY(pItem->ShipName, temp_buf); // @v9.8.4 
 			pItem->PortID    = P_TmpTbl->data.PortID;
 			STRNSCPY(pItem->PortName, P_TmpTbl->data.PortName);
 			pItem->DlvrAddrID = P_TmpTbl->data.DlvrAddrID;
@@ -458,18 +465,23 @@ DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_loc;
 	DBE    dbe_ar;
 	DBE    dbe_agent;
+	DBE    dbe_ship; // @v9.8.4 
+	DBE    dbe_memo; // @v9.8.4 
 	DBQuery * q = 0;
 	THROW(CheckTblPtr(tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,  tbl->ObjectID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_agent, PPDbqFuncPool::IdObjNameAr,  tbl->AgentID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
+	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool); // @v9.8.4 
+	PPDbqFuncPool::InitStrPoolRefFunc(dbe_memo, tbl->MemoP, &StrPool); // @v9.8.4 
 	q = & select(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1
 		tbl->Code,      //  #2
 		dbe_ar,         //  #3
 		tbl->ArrvlDate, //  #4
-		tbl->ShipName,  //  #5
+		// @v9.8.4 tbl->ShipName,  //  #5 @v9.8.4
+		dbe_ship,       //  #5 
 		tbl->PortName,  //  #6
 		tbl->DlvrAddr,  //  #7
 		tbl->Amount,    //  #8
@@ -479,7 +491,8 @@ DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		tbl->Shipped,   // #12
 		dbe_loc,        // #13
 		dbe_agent,      // #14
-		tbl->Memo,      // #15
+		// @v9.8.4 tbl->Memo,      // #15
+		dbe_memo,       // #15 @v9.8.4
 		0L).from(tbl, 0L);
 	if(Filt.Order == OrdByBillID)
 		q->orderBy(tbl->BillID, 0L);

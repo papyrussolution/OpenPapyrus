@@ -434,7 +434,6 @@ void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
 {
 	Sctr = sctr;
 	P_Cfg = 0;
-	//TLP_OPEN(tbl);
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
 	Kind = PPGDSK_GOODS;
@@ -458,6 +457,7 @@ void PPObjGoods::InitConfig()
 SLAPI PPObjGoods::PPObjGoods(PPID objType, void * extraPtr) : PPObject(objType)
 {
 	InitInstance(SConstructorDef, extraPtr);
+	InitConfig();
 }
 
 SLAPI PPObjGoods::PPObjGoods(void * extraPtr) : PPObject(PPOBJ_GOODS)

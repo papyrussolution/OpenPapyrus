@@ -601,10 +601,10 @@ struct CclAssocItem {
 	long   Flags;
 };
 
-int SLAPI PPAsyncCashSession::FlashTempCcLines(SArray * pList, LAssocArray * pHasExLineList)
+int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pHasExLineList)
 {
 	int    ok = 1;
-	if(pList->getCount()) {
+	if(pList && pList->getCount()) {
 		const  int use_ext = BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT);
 		SString wait_msg;
 		IterCounter cntr;
@@ -614,7 +614,6 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(SArray * pList, LAssocArray * pHa
 		BExtInsert bei(&CC.Lines);
 		TempCCheckLineTbl * t = P_TmpCclTbl;
 		BExtQuery q(t, 2, 64);
-		pList->sort(CMPF_LONG);
 		TempCCheckLineTbl::Key2 k2;
 		TSArray <CCheckLineExtTbl::Rec> ccext_items;
 
@@ -689,7 +688,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 			IterCounter cntr;
 			PPInitIterCounter(cntr, P_TmpCcTbl);
 			PPLoadText(PPTXT_FLASHTEMPCCHECKS, wait_msg);
-			SArray ccl_assoc(sizeof(CclAssocItem));
+			SVector ccl_assoc(sizeof(CclAssocItem)); // @v9.8.4 SArray-->SVector
 			BExtQuery ccq(P_TmpCcTbl, 0, 64);
 			ccq.selectAll();
 			for(ccq.initIteration(1, &kid, spLast); ccq.nextIteration() > 0;) {
@@ -817,6 +816,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray * pS
 				PPWaitPercent(cntr.Increment(), wait_msg);
 			}
 			LAssocArray extlines_list;
+			ccl_assoc.sort(CMPF_LONG); // @v9.8.4 Перенесено из тела FlashTempCcLines ради const-аргумента
 			THROW(FlashTempCcLines(&ccl_assoc, &extlines_list));
 			{ // Для чеков, у которых есть строки с расширениями нужно установить соотвествующий флаг
 				uint count = extlines_list.getCount();

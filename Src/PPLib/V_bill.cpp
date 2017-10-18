@@ -5943,7 +5943,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 //
 //
 //
-int SLAPI ViewGoodsBills(BillFilt * pFilt, int asModeless)
+int FASTCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 {
 	int    ok = -1, r = 0, view_in_use = 0;
 	int    modeless = GetModelessStatus(asModeless);
@@ -6022,7 +6022,7 @@ int SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 	return ok;
 }
 
-int SLAPI BrowseBills(BrowseBillsType bbt)
+int FASTCALL BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
 	if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))

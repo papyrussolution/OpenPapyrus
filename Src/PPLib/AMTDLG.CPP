@@ -93,9 +93,8 @@ int SLAPI AmountListDialog(AmtList * pData, PPIDArray * pRestrictList, LDATE cra
 // AmtListDialog implementation
 //
 AmtListDialog::AmtListDialog(uint resID, uint listCtlID, int useCurCol, AmtList * pList,
-	PPIDArray * pRestrictList, const char * pTitle, uint o) : PPListDialog(resID, listCtlID)
+	PPIDArray * pRestrictList, const char * pTitle, uint o) : PPListDialog(resID, listCtlID), CRateDate(ZERODATE)
 {
-	CRateDate = ZERODATE;
 	Options   = o;
 	UseCurColumn = useCurCol;
 	setTitle(pTitle);

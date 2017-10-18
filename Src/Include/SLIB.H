@@ -1890,6 +1890,7 @@ private:
 #define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
 #define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
 #define ZDELETEFAST(p)              {if(p) ((delete (p)), (p) = 0);}
+#define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
 #define ZFREE(p)                    FREEANDASSIGN(p, 0)
 //

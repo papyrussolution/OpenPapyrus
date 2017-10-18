@@ -2715,6 +2715,7 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 		rng_lim = ((double)Data.BHTRngLimPrice) / 100;
 		setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
 	}
+	setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod); // @v9.8.4
 	SetupCtrls();
 	return 1;
 }
@@ -2741,8 +2742,8 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 		PPObjGoodsGroup ggobj;
 		MEMSZERO(ggrec);
 		ggobj.Search(Data.SalesGoodsGrp, &ggrec);
-		if(!(ggrec.Flags & GF_EXCLALTFOLD))
-			ok = PPErrorByDialog(this, CTLSEL_EQCFG_SALESGRP, PPERR_INVSALESGRP);
+		sel = CTL_EQCFG_SALESGRP;
+		THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
 	}
 	{
 		RealRange subst_range;
@@ -2768,18 +2769,17 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 		THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
 		Data.BHTRngLimPrice = (long)(rng_lim * 100);
 	}
+	{
+		Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD); // @v9.8.4
+		THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT); // @v9.8.4
+	}
 	const int prefix_len = strlen(Data.AgentPrefix);
-	if(Data.AgentCodeLen < 0 || (prefix_len && prefix_len > (Data.AgentCodeLen-1))) {
-		ok = PPErrorByDialog(this, sel, PPERR_USERINPUT);
-	}
-	else {
-		GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
-		GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
-		ASSIGN_PTR(pData, Data);
-	}
+	THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
+	GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
+	GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
+	ASSIGN_PTR(pData, Data);
 	CATCH
-		selectCtrl(sel);
-		ok = 0;
+		ok = PPErrorByDialog(this, sel);
 	ENDCATCH
 	return ok;
 }
@@ -2832,8 +2832,6 @@ int SLAPI EditEquipConfig()
 			}
 			ok = 1;
 		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete dlg;

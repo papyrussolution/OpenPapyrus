@@ -1108,7 +1108,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPSCardSeries ser_rec;
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
-		PPLoadText(PPTXT_EXPSCARD, iter_msg.Z());
+		PPLoadText(PPTXT_EXPSCARD, iter_msg);
 		PPGetWord(PPWORD_SERIES, 0, series_word);
 
 		scard_quot_ary.freeAll();

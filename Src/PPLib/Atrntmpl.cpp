@@ -1355,8 +1355,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 	}
 	if(Options & selSymbSalPeriod) {
 		SString temp_buf;
-		PPLoadText(PPTXT_SALFRM_PERIOD, temp_buf);
-		StringSet f(';', temp_buf);
+		StringSet f(';', PPLoadTextS(PPTXT_SALFRM_PERIOD, temp_buf));
 		id = 1;
 		for(uint pos = 0; f.get(&pos, temp_buf); id++) {
 			temp_buf.Divide(',', frm_name, frm_expr);

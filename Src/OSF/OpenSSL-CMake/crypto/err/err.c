@@ -9,13 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <internal/cryptlib_int.h>
-//#include <internal/err.h>
-//#include <internal/err_int.h>
-//#include <openssl/lhash.h>
-//#include <openssl/crypto.h>
-//#include <openssl/buffer.h>
-//#include <openssl/bio.h>
-//#include <openssl/opensslconf.h>
 #include <internal/thread_once.h>
 
 static void err_load_strings(int lib, ERR_STRING_DATA * str);
@@ -307,6 +300,43 @@ void err_free_strings_int(void)
 }
 
 /********************************************************/
+#ifdef OSSL_LIB_ERR_AS_FUNC
+	void FASTCALL SYSerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_SYS, f, r); }
+	void FASTCALL BNerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_BN, f, r); }
+	void FASTCALL RSAerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_RSA, f, r); }
+	void FASTCALL DHerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_DH, f, r); }
+	void FASTCALL EVPerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_EVP, f, r); }
+	void FASTCALL BUFerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_BUF, f, r); }
+	void FASTCALL OBJerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_OBJ, f, r); }
+	void FASTCALL PEMerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_PEM, f, r); }
+	void FASTCALL DSAerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_DSA, f, r); }
+	void FASTCALL X509err(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_X509, f, r); }
+	void FASTCALL ASN1err(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_ASN1, f, r); }
+	void FASTCALL CONFerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_CONF, f, r); }
+	void FASTCALL CRYPTOerr(int f, int r) { return ERR_put_error_NFL(ERR_LIB_CRYPTO, f, r); }
+	void FASTCALL ECerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_EC, f, r); }
+	void FASTCALL SSLerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_SSL, f, r); }
+	void FASTCALL BIOerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_BIO, f, r); }
+	void FASTCALL PKCS7err(int f, int r)  { return ERR_put_error_NFL(ERR_LIB_PKCS7, f, r); }
+	void FASTCALL X509V3err(int f, int r) { return ERR_put_error_NFL(ERR_LIB_X509V3, f, r); }
+	void FASTCALL PKCS12err(int f, int r) { return ERR_put_error_NFL(ERR_LIB_PKCS12, f, r); }
+	void FASTCALL RANDerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_RAND, f, r); }
+	void FASTCALL DSOerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_DSO, f, r); }
+	void FASTCALL ENGINEerr(int f, int r) { return ERR_put_error_NFL(ERR_LIB_ENGINE, f, r); }
+	void FASTCALL OCSPerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_OCSP, f, r); }
+	void FASTCALL UIerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_UI, f, r); }
+	void FASTCALL COMPerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_COMP, f, r); }
+	void FASTCALL ECDSAerr(int f, int r)  { return ERR_put_error_NFL(ERR_LIB_ECDSA, f, r); }
+	void FASTCALL ECDHerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_ECDH, f, r); }
+	void FASTCALL STOREerr(int f, int r)  { return ERR_put_error_NFL(ERR_LIB_STORE, f, r); }
+	void FASTCALL FIPSerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_FIPS, f, r); }
+	void FASTCALL CMSerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_CMS, f, r); }
+	void FASTCALL TSerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_TS, f, r); }
+	void FASTCALL HMACerr(int f, int r)   { return ERR_put_error_NFL(ERR_LIB_HMAC, f, r); }
+	void FASTCALL CTerr(int f, int r)     { return ERR_put_error_NFL(ERR_LIB_CT, f, r); }
+	void FASTCALL ASYNCerr(int f, int r)  { return ERR_put_error_NFL(ERR_LIB_ASYNC, f, r); }
+	void FASTCALL KDFerr(int f, int r)    { return ERR_put_error_NFL(ERR_LIB_KDF, f, r); }
+#endif
 
 void ERR_put_error_NFL(int lib, int func, int reason)
 {
@@ -536,11 +566,9 @@ const char * ERR_func_error_string(ulong e)
 {
 	ERR_STRING_DATA d, * p;
 	ulong l, f;
-
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return NULL;
 	}
-
 	l = ERR_GET_LIB(e);
 	f = ERR_GET_FUNC(e);
 	d.error = ERR_PACK(l, f, 0);
@@ -552,11 +580,9 @@ const char * ERR_reason_error_string(ulong e)
 {
 	ERR_STRING_DATA d, * p = NULL;
 	ulong l, r;
-
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return NULL;
 	}
-
 	l = ERR_GET_LIB(e);
 	r = ERR_GET_REASON(e);
 	d.error = ERR_PACK(l, 0, r);
@@ -571,11 +597,10 @@ const char * ERR_reason_error_string(ulong e)
 void err_delete_thread_state(void)
 {
 	ERR_STATE * state = ERR_get_state();
-	if(state == NULL)
-		return;
-
-	CRYPTO_THREAD_set_local(&err_thread_local, 0);
-	ERR_STATE_free(state);
+	if(state) {
+		CRYPTO_THREAD_set_local(&err_thread_local, 0);
+		ERR_STATE_free(state);
+	}
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L
@@ -600,38 +625,30 @@ DEFINE_RUN_ONCE_STATIC(err_do_init)
 ERR_STATE * ERR_get_state(void)
 {
 	ERR_STATE * state = NULL;
-
 	if(!RUN_ONCE(&err_init, err_do_init))
 		return NULL;
-
 	state = (ERR_STATE*)CRYPTO_THREAD_get_local(&err_thread_local);
-
 	if(state == NULL) {
 		state = (ERR_STATE*)OPENSSL_zalloc(sizeof(*state));
 		if(state == NULL)
 			return NULL;
-
 		if(!CRYPTO_THREAD_set_local(&err_thread_local, state)) {
 			ERR_STATE_free(state);
 			return NULL;
 		}
-
 		/* Ignore failures from these */
 		OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, 0);
 		ossl_init_thread_start(OPENSSL_INIT_THREAD_ERR_STATE);
 	}
-
 	return state;
 }
 
 int ERR_get_next_error_library(void)
 {
 	int ret;
-
 	if(!RUN_ONCE(&err_string_init, do_err_strings_init)) {
 		return 0;
 	}
-
 	CRYPTO_THREAD_write_lock(err_string_lock);
 	ret = int_err_library_number++;
 	CRYPTO_THREAD_unlock(err_string_lock);
@@ -640,15 +657,10 @@ int ERR_get_next_error_library(void)
 
 void ERR_set_error_data(char * data, int flags)
 {
-	ERR_STATE * es;
-	int i;
-
-	es = ERR_get_state();
-
-	i = es->top;
+	ERR_STATE * es = ERR_get_state();
+	int i = es->top;
 	if(i == 0)
 		i = ERR_NUM_ERRORS - 1;
-
 	err_clear_data(es, i);
 	es->err_data[i] = data;
 	es->err_data_flags[i] = flags;
@@ -664,32 +676,32 @@ void ERR_add_error_data(int num, ...)
 
 void ERR_add_error_vdata(int num, va_list args)
 {
-	int i, n, s;
-	char * str, * p, * a;
-	s = 80;
-	str = (char*)OPENSSL_malloc(s + 1);
-	if(!str)
-		return;
-	str[0] = '\0';
-	n = 0;
-	for(i = 0; i < num; i++) {
-		a = va_arg(args, char *);
-		/* ignore NULLs, thanks to Bob Beck <beck@obtuse.com> */
-		if(a != NULL) {
-			n += strlen(a);
-			if(n > s) {
-				s = n + 20;
-				p = (char*)OPENSSL_realloc(str, s + 1);
-				if(!p) {
-					OPENSSL_free(str);
-					return;
+	int i, n;
+	char * p, * a;
+	int s = 80;
+	char * str = (char*)OPENSSL_malloc(s + 1);
+	if(str) {
+		str[0] = '\0';
+		n = 0;
+		for(i = 0; i < num; i++) {
+			a = va_arg(args, char *);
+			/* ignore NULLs, thanks to Bob Beck <beck@obtuse.com> */
+			if(a != NULL) {
+				n += strlen(a);
+				if(n > s) {
+					s = n + 20;
+					p = (char*)OPENSSL_realloc(str, s + 1);
+					if(!p) {
+						OPENSSL_free(str);
+						return;
+					}
+					str = p;
 				}
-				str = p;
+				OPENSSL_strlcat(str, a, (size_t)s + 1);
 			}
-			OPENSSL_strlcat(str, a, (size_t)s + 1);
 		}
+		ERR_set_error_data(str, ERR_TXT_MALLOCED | ERR_TXT_STRING);
 	}
-	ERR_set_error_data(str, ERR_TXT_MALLOCED | ERR_TXT_STRING);
 }
 
 int ERR_set_mark(void)
@@ -704,8 +716,7 @@ int ERR_set_mark(void)
 int ERR_pop_to_mark(void)
 {
 	ERR_STATE * es = ERR_get_state();
-	while(es->bottom != es->top
-	    && (es->err_flags[es->top] & ERR_FLAG_MARK) == 0) {
+	while(es->bottom != es->top && (es->err_flags[es->top] & ERR_FLAG_MARK) == 0) {
 		err_clear(es, es->top);
 		es->top -= 1;
 		if(es->top == -1)

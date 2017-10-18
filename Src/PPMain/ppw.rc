@@ -2748,9 +2748,9 @@ FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     CONTROL         "",CTL_AUSERSLST_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,5,535,135
     CONTROL         "Показывать названия компьютеров",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,5,145,140,13
-    LTEXT           "Кол-во пользователей",4001,155,145,80,8
+    LTEXT           "Количество пользователей",4001,155,145,80,8
     EDITTEXT        CTL_AUSERSLST_USERSCOUNT,240,145,35,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Кол-во уникальных mac адресов",4002,285,145,115,8
+    LTEXT           "Количество уникальных mac адресов",4002,285,145,115,8
     EDITTEXT        CTL_AUSERSLST_UNIQMACS,405,145,35,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "@but_sysj",4003,370,165,50,13
     PUSHBUTTON      "@refresh",4004,430,165,50,13
@@ -5723,9 +5723,9 @@ BEGIN
     LTEXT           "Путь копирования",4003,10,55,68,8
     EDITTEXT        CTL_BUCFG_PATH,85,55,150,13,ES_AUTOHSCROLL
     PUSHBUTTON      "",CTLBRW_BUCFG_PATH,235,55,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Кол-во дней",4004,10,75,48,8
+    LTEXT           "Количество дней",4004,10,75,48,8
     EDITTEXT        CTL_BUCFG_PERIOD,85,75,32,13,ES_AUTOHSCROLL
-    LTEXT           "Кол-во копий",4005,10,95,52,8
+    LTEXT           "Количество копий",4005,10,95,52,8
     EDITTEXT        CTL_BUCFG_COPIES,85,95,32,13,ES_AUTOHSCROLL
     CONTROL         "Сжимать копию",5302,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,150,75,84,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,145,95,50,13
@@ -7441,7 +7441,7 @@ BEGIN
     LTEXT           "",CTL_CHKPAN_CHKDTTM,55,190,65,10,0,WS_EX_STATICEDGE
     LTEXT           "@checkno",IDC_STATIC,125,180,35,8
     LTEXT           "",CTL_CHKPAN_CHKNUM,125,190,35,10,0,WS_EX_STATICEDGE
-    LTEXT           "Касса",IDC_STATIC,261,180,30,8
+    LTEXT           "@posnode_s",IDC_STATIC,261,180,30,8
     LTEXT           "",CTL_CHKPAN_CASHNUM,271,190,30,10,0,WS_EX_STATICEDGE
     LTEXT           "",CTL_CHKPAN_FLAGS,306,190,45,10,0,WS_EX_STATICEDGE
     RTEXT           "@{total}:",IDC_STATIC,346,180,115,8
@@ -7471,7 +7471,7 @@ BEGIN
     LTEXT           "",CTL_CHKPAN_CHKDTTM,55,190,65,10,0,WS_EX_STATICEDGE
     LTEXT           "@checkno",IDC_STATIC,125,180,35,8
     LTEXT           "",CTL_CHKPAN_CHKNUM,125,190,35,10,0,WS_EX_STATICEDGE
-    LTEXT           "Касса",IDC_STATIC,165,180,30,8
+    LTEXT           "@posnode_s",IDC_STATIC,165,180,30,8
     LTEXT           "",CTL_CHKPAN_CASHNUM,165,190,30,10,0,WS_EX_STATICEDGE
     LTEXT           "",CTL_CHKPAN_FLAGS,200,190,45,10,0,WS_EX_STATICEDGE
     RTEXT           "@{total}:",IDC_STATIC,250,180,115,8
@@ -13945,65 +13945,64 @@ BEGIN
     LTEXT           "@cfgequip_defcashnode",4002,235,40,165,8
     EDITTEXT        CTL_EQCFG_DEFCASHNODE,235,50,170,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_DEFCASHNODE,405,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_scale",4003,235,65,160,8
-    EDITTEXT        CTL_EQCFG_SCALE,235,75,170,13,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "",CTLSEL_EQCFG_SCALE,405,75,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,5,5,225,140
-    LTEXT           "@cfgequip_wroffaccopid",4004,10,15,195,8
+    LTEXT           "@cfgequip_wroffaccopid",4003,10,15,195,8
     EDITTEXT        CTL_EQCFG_WROFFACCOP,10,25,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_WROFFACCOP,210,25,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_opondfctthisloc",4005,10,40,180,8
+    LTEXT           "@cfgequip_opondfctthisloc",4004,10,40,180,8
     EDITTEXT        CTL_EQCFG_OPDTHISLOC,10,50,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_OPDTHISLOC,210,50,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_opondfctothrloc",4006,10,65,180,8
+    LTEXT           "@cfgequip_opondfctothrloc",4005,10,65,180,8
     EDITTEXT        CTL_EQCFG_OPDOTHRLOC,10,75,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_OPDOTHRLOC,210,75,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_opontempsess",4007,10,90,190,8
+    LTEXT           "@cfgequip_opontempsess",4006,10,90,190,8
     EDITTEXT        CTL_EQCFG_TEMPSESSOP,10,100,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_TEMPSESSOP,210,100,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_quotkind",4008,10,115,145,8
+    LTEXT           "@cfgequip_quotkind",4007,10,115,145,8
     EDITTEXT        CTL_EQCFG_QUOT,10,125,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_QUOT,210,125,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@ftpaccount",4009,10,150,190,8
+    LTEXT           "@ftpaccount",4008,10,150,190,8
     EDITTEXT        CTL_EQCFG_FTPACCT,10,160,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_FTPACCT,210,160,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "@cfgequip_salesgoodsgrp",4010,10,175,195,8
+    LTEXT           "@cfgequip_salesgoodsgrp",4009,10,175,195,8
     EDITTEXT        CTL_EQCFG_SALESGRP,10,185,200,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_EQCFG_SALESGRP,210,185,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Предельное отличие  цены при подстановке дефицита по кассовой сессии (%)",4014,10,265,125,25
+    LTEXT           "@cfgequip_deficitsubstpricedevrange",4013,10,265,125,25
     EDITTEXT        CTL_EQCFG_DFCTCOSTRNG,10,295,75,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgequip_bhtrnglimwgtgoods",4015,145,265,110,30
+    LTEXT           "@cfgequip_bhtrnglimwgtgoods",4014,145,265,110,30
     EDITTEXT        CTL_EQCFG_RNGLIMGOODSBHT,145,295,75,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgequip_bhtrnglimprice",4016,10,310,130,8
+    LTEXT           "@cfgequip_bhtrnglimprice",4015,10,310,130,8
     EDITTEXT        CTL_EQCFG_RNGLIMPRICEBHT,145,310,75,13,ES_AUTOHSCROLL
     GROUPBOX        "",IDC_STATIC,10,205,220,55
-    LTEXT           "@cfgequip_agentcodelen",4011,15,220,90,8
+    LTEXT           "@cfgequip_agentcodelen",4010,15,220,90,8
     EDITTEXT        CTL_EQCFG_AGENTCODELEN,110,220,35,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgequip_agentprefix",4012,15,235,90,8
+    LTEXT           "@cfgequip_agentprefix",4011,15,235,90,8
     EDITTEXT        CTL_EQCFG_AGENTPREFIX,110,235,35,13,ES_AUTOHSCROLL
-    LTEXT           "@cfgequip_suspccprefix",4013,150,215,65,15
-    EDITTEXT        CTL_EQCFG_SUSPCPFX,175,235,35,13,ES_AUTOHSCROLL
-    GROUPBOX        "",CTL_EQCFG_FLAGS,235,90,260,170,WS_GROUP
-    CONTROL         "@cfgequip_fcheckscaleinput",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,100,245,10
-    CONTROL         "@cfgequip_fcompldeficit",9399,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,110,245,10
-    CONTROL         "@cfgequip_fclosesessto10level",13495,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,120,250,10
-    CONTROL         "@cfgequip_fignacsreadytags",17591,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,130,250,10
-    CONTROL         "@cfgequip_figngengoodsondeficit",21687,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,140,250,10
-    CONTROL         "@cfgequip_fintrpricebyretailrules",25783,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,150,250,10
-    CONTROL         "@cfgequip_fvalidatechecksonsessclose",29879,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,160,250,10
-    CONTROL         "@cfgequip_fwritetochkopjrnl",33975,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,170,250,10
-    CONTROL         "@cfgequip_frecognizecode",38071,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,180,250,10
-    CONTROL         "@cfgequip_funifiedpayment",42167,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,190,250,10
-    CONTROL         "@cfgequip_funifiedpaymentcfmbank",46263,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,200,250,10
-    CONTROL         "@cfgequip_fignorenodisgoodstag",50359,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,210,250,10
-    CONTROL         "@cfgequip_frestrictqttybyunitrnd",54455,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,220,250,10
-    CONTROL         "@cfgequip_fdisablemanualscardinput",58551,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,230,250,10
-    CONTROL         "@cfgequip_fdisableadjwroffamount",62647,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,240,250,10
-    GROUPBOX        "",CTL_EQCFG_FLAGS2,265,260,230,45,WS_GROUP
-    CONTROL         "@cfgequip_fusequotasprice",5322,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,271,220,10
-    CONTROL         "@cfgequip_funcondasyncbaseprice",9418,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,281,220,10
-    CONTROL         "@cfgequip_fautosavesyncchecks",13514,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,290,187,10
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,375,310,55,13
+    LTEXT           "@cfgequip_suspccprefix",4012,150,215,70,20
+    EDITTEXT        CTL_EQCFG_SUSPCPFX,185,235,35,13,ES_AUTOHSCROLL
+    LTEXT           "@cfgequip_lookbackpriceperiod",4016,270,285,185,10
+    EDITTEXT        CTL_EQCFG_LOOKBKPRCPRD,460,285,35,13,ES_AUTOHSCROLL
+    GROUPBOX        "",CTL_EQCFG_FLAGS,235,65,260,170,WS_GROUP
+    CONTROL         "@cfgequip_fcheckscaleinput",5303,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,76,245,10
+    CONTROL         "@cfgequip_fcompldeficit",9399,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,86,245,10
+    CONTROL         "@cfgequip_fclosesessto10level",13495,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,95,250,10
+    CONTROL         "@cfgequip_fignacsreadytags",17591,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,105,250,10
+    CONTROL         "@cfgequip_figngengoodsondeficit",21687,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,116,250,10
+    CONTROL         "@cfgequip_fintrpricebyretailrules",25783,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,126,250,10
+    CONTROL         "@cfgequip_fvalidatechecksonsessclose",29879,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,135,250,10
+    CONTROL         "@cfgequip_fwritetochkopjrnl",33975,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,145,250,10
+    CONTROL         "@cfgequip_frecognizecode",38071,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,156,250,10
+    CONTROL         "@cfgequip_funifiedpayment",42167,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,166,250,10
+    CONTROL         "@cfgequip_funifiedpaymentcfmbank",46263,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,175,250,10
+    CONTROL         "@cfgequip_fignorenodisgoodstag",50359,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,185,250,10
+    CONTROL         "@cfgequip_frestrictqttybyunitrnd",54455,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,196,250,10
+    CONTROL         "@cfgequip_fdisablemanualscardinput",58551,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,206,250,10
+    CONTROL         "@cfgequip_fdisableadjwroffamount",62647,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,240,215,250,10
+    GROUPBOX        "",CTL_EQCFG_FLAGS2,265,235,230,45,WS_GROUP
+    CONTROL         "@cfgequip_fusequotasprice",5322,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,246,220,10
+    CONTROL         "@cfgequip_funcondasyncbaseprice",9418,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,256,220,10
+    CONTROL         "@cfgequip_fautosavesyncchecks",13514,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,270,265,187,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,365,310,55,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,440,310,55,13
 END
 
@@ -26507,9 +26506,9 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Итоги товарных структур"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "Кол-во строк",4001,5,5,45,8
+    LTEXT           "Количество строк",4001,5,5,45,8
     EDITTEXT        CTL_TGSTRUC_LINES,65,5,80,13,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Кол-во товаров",4002,5,20,55,8
+    LTEXT           "Количество товаров",4002,5,20,55,8
     EDITTEXT        CTL_TGSTRUC_GOODS,65,20,80,13,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
     DEFPUSHBUTTON   "@but_close",STDCTL_OKBUTTON,95,45,50,13
 END
@@ -33019,6 +33018,11 @@ BEGIN
 END
 
 DLG_DWOFILT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_EQUIPCFG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

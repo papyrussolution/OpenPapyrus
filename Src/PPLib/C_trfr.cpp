@@ -78,8 +78,7 @@ int SLAPI Transfer::CorrectIntrUnite()
 											THROW_DB(Rcpt.updateRecBuf(&lot_rec)); // @sfu
 											//
 											// PPTXT_CORINTRUN_CORRECTED       "Ошибка исправлена"
-											PPLoadText(PPTXT_CORINTRUN_CORRECTED, fmt_buf);
-											logger.Log(fmt_buf);
+											logger.Log(PPLoadTextS(PPTXT_CORINTRUN_CORRECTED, fmt_buf));
 											//
 											corrected = 1;
 										}
@@ -100,13 +99,11 @@ int SLAPI Transfer::CorrectIntrUnite()
 					}
 					else {
 						// PPTXT_CORINTRUN_ERRTRFRNFOUND   "Не найдена запись Transfer, сгегерировшая лот"
-						PPLoadText(PPTXT_CORINTRUN_ERRTRFRNFOUND, fmt_buf);
-						logger.Log(fmt_buf);
+						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_ERRTRFRNFOUND, fmt_buf));
 					}
 					if(!corrected) {
 						// PPTXT_CORINTRUN_NOTCORRECTED    "Ошибка НЕ исправлена"
-						PPLoadText(PPTXT_CORINTRUN_NOTCORRECTED, fmt_buf);
-						logger.Log(fmt_buf);
+						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_NOTCORRECTED, fmt_buf));
 						//
 					}
 				}

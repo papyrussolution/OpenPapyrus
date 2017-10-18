@@ -194,6 +194,7 @@ class BillGoodsBrwItemArray : public SArray {
 public:
 	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem))
 	{
+		P_Item = 0;
 		CodeList.add("$"); // zero pos is invalid
 		HasUpp = 0;
 	}
@@ -807,8 +808,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 				if(pt_obj.Get(P_Pckg->PckgTypeID, &pt_rec) > 0)
 					NewGoodsGrpID = pt_rec.GoodsGrpID;
 			}
-			PPLoadText(PPTXT_PCKGLINESTITLE, temp_buf);
-			setTitle(temp_buf);
+			setTitle(PPLoadTextS(PPTXT_PCKGLINESTITLE, temp_buf));
 			setSubTitle(P_Pckg->Code);
 		}
 	}
@@ -2958,9 +2958,7 @@ void BillItemBrowser::addItemExt(int mode)
 		}
 		else if(mode == 2) {
 			SString title, label;
-			PPLoadText(PPTXT_SELGOODSBYPRICE, title);
-			PPLoadText(PPTXT_INPUTPRICE, label);
-			if(InputNumberDialog(title, label, sel_price) > 0 && sel_price > 0.0) {
+			if(InputNumberDialog(PPLoadTextS(PPTXT_SELGOODSBYPRICE, title), PPLoadTextS(PPTXT_INPUTPRICE, label), sel_price) > 0 && sel_price > 0.0) {
 			}
 			else {
 				mode = 0;

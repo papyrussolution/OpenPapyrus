@@ -2549,7 +2549,7 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 			if(r > 0)
 				ufp_factor += 1.0;
 		}
-		assert(org_plc == pPack->AL().getCount());
+		assert(org_plc == pPack->AL_Const().getCount());
 		{
 			long   tscpf = 0;
 			if(pPack->UpdFlags & CCheckPacket::ufSkipUhtt)
@@ -2668,7 +2668,7 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 			if(r > 0)
 				ufp_factor += 1.0;
 		}
-		assert(org_plc == pPack->AL().getCount());
+		assert(org_plc == pPack->AL_Const().getCount());
 		{
 			long   tscpf = 0;
 			if(pPack->UpdFlags & CCheckPacket::ufSkipUhtt)

@@ -232,18 +232,15 @@ int ec_GF2m_simple_group_get_degree(const EC_GROUP * group)
  * Checks the discriminant of the curve. y^2 + x*y = x^3 + a*x^2 + b is an
  * elliptic curve <=> b != 0 (mod p)
  */
-int ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
-    BN_CTX * ctx)
+int ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group, BN_CTX * ctx)
 {
 	int ret = 0;
 	BIGNUM * b;
 	BN_CTX * new_ctx = NULL;
-
 	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
 		if(!ctx) {
-			ECerr(EC_F_EC_GF2M_SIMPLE_GROUP_CHECK_DISCRIMINANT,
-			    ERR_R_MALLOC_FAILURE);
+			ECerr(EC_F_EC_GF2M_SIMPLE_GROUP_CHECK_DISCRIMINANT, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 	}
@@ -327,23 +324,17 @@ int ec_GF2m_simple_point_set_to_infinity(const EC_GROUP * group,
 	BN_zero(point->Z);
 	return 1;
 }
-
 /*
  * Set the coordinates of an EC_POINT using affine coordinates. Note that
  * the simple implementation only uses affine coordinates.
  */
-int ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group,
-    EC_POINT * point,
-    const BIGNUM * x,
-    const BIGNUM * y, BN_CTX * ctx)
+int ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group, EC_POINT * point, const BIGNUM * x, const BIGNUM * y, BN_CTX * ctx)
 {
 	int ret = 0;
 	if(x == NULL || y == NULL) {
-		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_SET_AFFINE_COORDINATES,
-		    ERR_R_PASSED_NULL_PARAMETER);
+		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_SET_AFFINE_COORDINATES, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
-
 	if(!BN_copy(point->X, x))
 		goto err;
 	BN_set_negative(point->X, 0);
@@ -355,7 +346,6 @@ int ec_GF2m_simple_point_set_affine_coordinates(const EC_GROUP * group,
 	BN_set_negative(point->Z, 0);
 	point->Z_is_one = 1;
 	ret = 1;
-
 err:
 	return ret;
 }
@@ -364,22 +354,15 @@ err:
  * Gets the affine coordinates of an EC_POINT. Note that the simple
  * implementation only uses affine coordinates.
  */
-int ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group,
-    const EC_POINT * point,
-    BIGNUM * x, BIGNUM * y,
-    BN_CTX * ctx)
+int ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group, const EC_POINT * point, BIGNUM * x, BIGNUM * y, BN_CTX * ctx)
 {
 	int ret = 0;
-
 	if(EC_POINT_is_at_infinity(group, point)) {
-		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_GET_AFFINE_COORDINATES,
-		    EC_R_POINT_AT_INFINITY);
+		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_GET_AFFINE_COORDINATES, EC_R_POINT_AT_INFINITY);
 		return 0;
 	}
-
 	if(BN_cmp(point->Z, BN_value_one())) {
-		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_GET_AFFINE_COORDINATES,
-		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+		ECerr(EC_F_EC_GF2M_SIMPLE_POINT_GET_AFFINE_COORDINATES, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
 	if(x) {
@@ -393,7 +376,6 @@ int ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group,
 		BN_set_negative(y, 0);
 	}
 	ret = 1;
-
 err:
 	return ret;
 }

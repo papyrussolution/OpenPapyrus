@@ -50,6 +50,8 @@ public:
 	{
 		int    ok = -1;
 		int    is_forward = 0;
+		ASSIGN_PTR(pSessCount, 0);
+		CALLPTRMEMB(pPrd, SetZero());
 		ZDELETE(P_Pib);
 		THROW_MEM(P_Pib = new PPPosProtocol::ProcessInputBlock(this));
 		P_Pib->PosNodeID = NodeID;
@@ -58,6 +60,8 @@ public:
 		THROW(pir);
 		if(P_Pib->SessionCount) {
 			THROW(CreateTables());
+			ASSIGN_PTR(pSessCount, P_Pib->SessionCount);
+			ASSIGN_PTR(pPrd, P_Pib->SessionPeriod);
 			ok = 1;
 		}
 		CATCH
@@ -65,14 +69,6 @@ public:
 			ok = 0;
 		ENDCATCH
 		ASSIGN_PTR(pIsForwardSess, is_forward);
-		if(P_Pib) {
-			ASSIGN_PTR(pSessCount, P_Pib->SessionCount);
-			ASSIGN_PTR(pPrd, P_Pib->SessionPeriod);
-		}
-		else {
-			ASSIGN_PTR(pSessCount, 0);
-			CALLPTRMEMB(pPrd, SetZero());
-		}
 		return ok;
 	}
 	virtual int SLAPI ImportSession(int sessN)

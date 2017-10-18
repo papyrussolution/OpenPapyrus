@@ -87,7 +87,7 @@ struct json_t {
 		tFALSE,
 		tNULL
 	};
-	json_t(int aType);
+	explicit json_t(int aType);
 	~json_t();
 	void   FASTCALL AssignAllocatedText(RcString * pRcs)
 	{

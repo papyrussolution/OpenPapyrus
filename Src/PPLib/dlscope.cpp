@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -74,7 +74,7 @@ int SLAPI DlScope::Copy(const DlScope & s, int withoutChilds)
 	//
 	ZDELETE(P_IfaceBaseList);
 	if(s.P_IfaceBaseList)
-		P_IfaceBaseList = new SArray(*s.P_IfaceBaseList);
+		P_IfaceBaseList = new SVector(*s.P_IfaceBaseList); // @v9.8.4 SArray-->SVector
 	//
 	CList = s.CList;
 	//
@@ -173,11 +173,11 @@ int SLAPI DlScope::Read(SBuffer & rBuf)
 	THROW(rBuf.Read(&ParentId, sizeof(ParentId)));
 	THROW(rBuf.Read(&Version, sizeof(Version)));
 	{
-		SArray temp_list(sizeof(IfaceBase));
+		SVector temp_list(sizeof(IfaceBase)); // @v9.8.4 SArray-->SVector
 		THROW(rBuf.Read(&temp_list, 0));
 		ZDELETE(P_IfaceBaseList);
 		if(temp_list.getCount())
-			P_IfaceBaseList = new SArray(temp_list);
+			P_IfaceBaseList = new SVector(temp_list); // @v9.8.4 SArray-->SVector
 	}
 	THROW(rBuf.Read(&CList, 0));
 	THROW(rBuf.Read(&CfList, 0));
@@ -669,7 +669,7 @@ int SLAPI DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
 int SLAPI DlScope::AddIfaceBase(const IfaceBase * pEntry)
 {
 	if(!P_IfaceBaseList)
-		P_IfaceBaseList = new SArray(sizeof(IfaceBase));
+		P_IfaceBaseList = new SVector(sizeof(IfaceBase)); // @v9.8.4 SArray-->SVector
 #ifdef DL600C
 	return BIN(P_IfaceBaseList && P_IfaceBaseList->insert(pEntry));
 #else

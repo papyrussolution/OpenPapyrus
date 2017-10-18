@@ -576,7 +576,7 @@ char * CRegExp::reg(int paren, int * pFlag)
 {
 	char * p_ret = 0;
 	char * p_ender;
-	int    parno;
+	int    parno = 0;
 	int    flags;
 	if(ErrCode == 0) {
 		*pFlag = HASWIDTH; // Tentatively.

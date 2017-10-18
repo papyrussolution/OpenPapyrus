@@ -1209,7 +1209,8 @@ int SLAPI AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID pe
 	PPID   cur_id = 0;
 	DateRange period = *pRange;
 	PPIDArray acc_list;
-	double inrest, outrest;
+	double inrest = 0.0;
+	double outrest = 0.0;
 	double * p_inrest  = pInRest  ? &inrest  : 0;
 	double * p_outrest = pOutRest ? &outrest : 0;
 	aco = abs(aco);
@@ -1225,7 +1226,7 @@ int SLAPI AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID pe
 		CALLPTRMEMB(pInRest, Add(0, cur_id, inrest * mult));
 		CALLPTRMEMB(pOutRest, Add(0, cur_id, outrest * mult));
 	}
-	else
+	else {
 		for(i = 0; i < acc_list.getCount(); i++) {
 			const PPID acc_id = acc_list.at(i);
 			if(curID < 0) {
@@ -1237,6 +1238,7 @@ int SLAPI AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID pe
 			CALLPTRMEMB(pInRest, Add(0, cur_id, inrest * mult));
 			CALLPTRMEMB(pOutRest, Add(0, cur_id, outrest * mult));
 		}
+	}
 	CATCHZOK
 	return ok;
 }

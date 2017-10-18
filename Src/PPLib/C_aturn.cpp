@@ -37,9 +37,8 @@ int SLAPI CorrectAccTurnRest()
 	TDialog * dlg = new TDialog(DLG_CORCREST);
 	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORCREST_LOG, CTL_CORCREST_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
-	PPLoadText(PPTXT_CORRECTACCREST, log_file_name);
-	dlg->setTitle(log_file_name);
-	log_file_name = 0;
+	dlg->setTitle(PPLoadTextS(PPTXT_CORRECTACCREST, log_file_name));
+	log_file_name.Z();
 	dlg->setCtrlString(CTL_CORCREST_LOG, log_file_name);
 	dlg->setCtrlUInt16(CTL_CORCREST_FLAGS, BIN(param.Correct > 0));
 	if(ExecView(dlg) == cmOK) {

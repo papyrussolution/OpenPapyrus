@@ -1061,7 +1061,7 @@ int FASTCALL UintHashTable::Remove(ulong val)
 
 int FASTCALL UintHashTable::Has(ulong val) const
 {
-	void * p = 0;
+	//void * p = 0;
 	ulong  start = val / 32;
 	uint   pos = 0;
 	if(List.bsearch(&start, &pos, CMPF_LONG)) {
@@ -1091,7 +1091,7 @@ uint UintHashTable::GetCount() const
 
 int FASTCALL UintHashTable::Enum(ulong * pVal) const
 {
-	void * p = 0;
+	//void * p = 0;
 	ulong  val = (*pVal) + 1;
 	ulong  start = val / 32;
 	uint   pos = 0;
@@ -1111,7 +1111,7 @@ int FASTCALL UintHashTable::Enum(ulong * pVal) const
 		if(p_blk->Start >= (val / 32)) {
 			const uint32 busy = p_blk->Busy;
 			for(uint i = 0; i < 32; i++)
-				if(busy & (1 << i)) {
+				if(busy & (1U << i)) {
 					*pVal = (p_blk->Start * 32) + i;
 					return 1;
 				}

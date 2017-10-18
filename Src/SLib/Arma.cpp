@@ -1,5 +1,5 @@
 // ARMA.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -208,7 +208,7 @@ int SLAPI ARIMA::Init(int p, int q, const double * pInitSeries, const DblQueue *
 		for(i = 0; i < p; i++)
 			p_init_series[i] = pInitSeries[i];
 	ARMA::Init(p, q, p_init_series);
-	delete p_init_series;
+	delete [] p_init_series;
 	return 1;
 }
 

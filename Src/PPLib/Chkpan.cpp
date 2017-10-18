@@ -5538,7 +5538,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 				if(is_mod)
 					PPLoadText(PPTXT_DLVRADDRMODIFIED, now_buf);
 				else
-					now_buf = 0;
+					now_buf.Z();
 				setStaticText(CTL_CCHKDLVR_ST_ADDRMOD, now_buf);
 			}
 			return is_mod;
@@ -9288,9 +9288,7 @@ int SCardInfoDialog::SetupMode(long mode, int force)
 					columns_buf = "@lbt_selscardbyowner";
 				}
 				else if(Mode == modeMovCrd) {
-					// @v8.5.10 (temp_buf = "Перенос остатков с карт...").Transf(CTRANSF_OUTER_TO_INNER);
-					PPLoadText(PPTXT_MOVSCARDREST, temp_buf); // @v8.5.10
-					setLabelText(CTL_SCARDVIEW_LIST, temp_buf);
+					setLabelText(CTL_SCARDVIEW_LIST, PPLoadTextS(PPTXT_MOVSCARDREST, temp_buf));
 					columns_buf = "@lbt_scardmovlist";
 				}
 				enableCommand(cmCheckOpSwitch, !oneof2(Mode, modeSelectByOwner, modeSelectByMultCode));
@@ -9872,8 +9870,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 							}
 							if(cr == 2) {
 								SString msg_buf;
-								PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf.Z());
-								msg_buf.Printf(temp_buf, sc_rec.Code);
+								msg_buf.Printf(PPLoadTextS(PPTXT_SCARDISAUTOACTIVATED, temp_buf), sc_rec.Code);
 								PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange),
 									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 							}
@@ -11983,9 +11980,8 @@ int InfoKioskDialog::SelectSCard()
 		THROW_PP(ok > 0, PPERR_SCARDNOTFOUND);
 		THROW(SCSerObj.GetPacket(rec.SeriesID, &ser_pack));
 		pct_dis = fdiv100i((rec.Flags & SCRDF_INHERITED) ? ser_pack.Rec.PDis : rec.PDis);
-		PPLoadText(PPTXT_SCARDINFO, buf);
 		GetPersonName(rec.PersonID, person);
-		info.Printf(buf, rec.Code, (const char*)person, pct_dis);
+		info.Printf(PPLoadTextS(PPTXT_SCARDINFO, buf), rec.Code, person.cptr(), pct_dis);
 		setStaticText(CTL_INFKIOSK_INFO, info);
 		if(St.GoodsID)
 			if(GObj.CheckFlag(St.GoodsID, GF_NODISCOUNT))
@@ -12001,8 +11997,7 @@ int InfoKioskDialog::SelectSCard()
 			}
 	}
 	else {
-		PPLoadText(PPTXT_INPSCARDNUMBER, buf);
-		setStaticText(CTL_INFKIOSK_INFO, buf);
+		setStaticText(CTL_INFKIOSK_INFO, PPLoadTextS(PPTXT_INPSCARDNUMBER, buf));
 		Flags |= fWaitOnSCard;
 	}
 	CATCH
