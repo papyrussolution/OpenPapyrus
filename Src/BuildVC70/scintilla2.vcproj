@@ -885,12 +885,6 @@
 				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\ContractionState.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Decoration.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\Document.h">
 			</File>
 			<File
@@ -906,12 +900,6 @@
 				RelativePath="..\Osf\scintilla\include\Platform.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\PositionCache.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\RunStyles.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\include\SciLexer.h">
 			</File>
 			<File
@@ -922,9 +910,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\ScintillaWidget.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Selection.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\SplitVector.h">

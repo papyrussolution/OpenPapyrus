@@ -249,7 +249,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 }
 
 //static
-void SLAPI PPObject::SetLastErrObj(PPID objType, PPID objID)
+void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
 {
 	DS.GetTLA().LastErrObj.Set(objType, objID);
 }

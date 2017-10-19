@@ -11,8 +11,9 @@
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
-
-// Interface to per-line data that wants to see each line insertion and deletion
+//
+// Descr: Interface to per-line data that wants to see each line insertion and deletion
+//
 class PerLine {
 public:
 	virtual ~PerLine() {}
@@ -119,7 +120,6 @@ public:
 	const Action &GetRedoStep() const;
 	void CompletedRedoStep();
 };
-
 /**
  * Holder for an expandable array of characters that supports undo and line markers.
  * Based on article "Data Structures in a Bit-Mapped Text Editor"
@@ -127,11 +127,12 @@ public:
  */
 class CellBuffer {
 private:
-	SplitVector<char> substance;
-	SplitVector<char> style;
-	bool readOnly;
-	int utf8LineEnds;
-	bool collectingUndo;
+	SplitVector <char> substance;
+	SplitVector <char> style;
+	bool   readOnly;
+	bool   collectingUndo;
+	uint8  Reserve[2]; // @alignment
+	int    utf8LineEnds;
 	UndoHistory uh;
 	LineVector lv;
 

@@ -31,7 +31,7 @@ double FASTCALL round(double n, int prec)
 	return sign ? _chgsign(n) : n;
 }
 
-double SLAPI round(double v, double prec, int dir)
+double FASTCALL round(double v, double prec, int dir)
 {
 	SETIFZ(prec, 0.01);
 	double r = (v / prec);

@@ -16,7 +16,7 @@ namespace Scintilla {
 /// in a range.
 /// Used by the Partitioning class.
 
-class SplitVectorWithRangeAdd : public SplitVector<int> {
+class SplitVectorWithRangeAdd : public SplitVector <int> {
 public:
 	explicit SplitVectorWithRangeAdd(int growSize_)
 	{

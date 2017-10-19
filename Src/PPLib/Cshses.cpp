@@ -145,7 +145,7 @@ int SLAPI PPAsyncCashSession::SetGoodsRestLoadFlag(int updOnly)
 	return -1;
 }
 
-//virtual 
+//virtual
 int SLAPI PPAsyncCashSession::InteractiveQuery()
 {
 	return -1;
@@ -597,7 +597,7 @@ struct CclAssocItem {
 	PPID   TempChkID;
 	PPID   ChkID;
 	uint16 RByCheck;
-	uint16 Reserve;  // @v9.8.2 @alignment 
+	uint16 Reserve;  // @v9.8.2 @alignment
 	long   Flags;
 };
 
@@ -1357,6 +1357,8 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	SString temp_buf;
 	PPIniFile ini_file;
 	LDATETIME last_exp_moment;
+	PPEquipConfig eq_cfg;
+	ReadEquipConfig(&eq_cfg);
 	last_exp_moment.SetZero();
 	P_Dls = pDls;
 	Flags    = (flags & ~ACGIF_EXCLALTFOLD); // ACGIF_EXCLALTFOLD - internal flag
@@ -1400,9 +1402,14 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf.Z());
 		GcObj.SearchBySymb(temp_buf, &GiftCardGoodsClsID);
 		//
-		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACGIPRICELOOKBACKPERIOD, &PricesLookBackPeriod);
-		if(PricesLookBackPeriod < 0 || PricesLookBackPeriod > 365*2)
-			PricesLookBackPeriod = 0;
+		if(eq_cfg.LookBackPricePeriod > 0 && eq_cfg.LookBackPricePeriod < 365*2) { // @v9.8.5
+			PricesLookBackPeriod = eq_cfg.LookBackPricePeriod;
+		}
+		else {
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACGIPRICELOOKBACKPERIOD, &PricesLookBackPeriod);
+			if(PricesLookBackPeriod < 0 || PricesLookBackPeriod > 365*2)
+				PricesLookBackPeriod = 0;
+		}
 	}
 	// } @v8.5.4
 	PPLoadText(PPTXT_LOG_ACGIMISS, VerMissMsg);
@@ -1415,8 +1422,6 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	LocID = AcnPack.LocID;
 	{
 		Flags &= ~ACGIF_UNCONDBASEPRICE;
-		PPEquipConfig eq_cfg;
-		ReadEquipConfig(&eq_cfg);
 		SETFLAG(Flags, ACGIF_UNCONDBASEPRICE, eq_cfg.Flags & PPEquipConfig::fUncondAsyncBasePrice);
 	}
 	if(AcnPack.ExtFlags & CASHFX_RESTRUSERGGRP && (Flags & ACGIF_UPDATEDONLY)) {

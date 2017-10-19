@@ -5,16 +5,16 @@
 
 #include "SplitVector.h"
 #include "Partitioning.h"
-#include "RunStyles.h"
-#include "ContractionState.h"
+//#include "RunStyles.h"
 #include "CellBuffer.h"
 #include "PerLine.h"
 #include "CallTip.h"
 #include "ViewStyle.h"
-#include "Decoration.h"
+//#include "Decoration.h"
 #include "Document.h"
-#include "Selection.h"
-#include "PositionCache.h"
+//#include "Selection.h"
+//#include "PositionCache.h"
+//#include "ContractionState.h"
 //#include "CaseConvert.h"
 //#include "UnicodeFromUTF8.h"
 //#include "KeyMap.h"
@@ -87,19 +87,7 @@ std::string CaseConvertString(const std::string &s, enum CaseConversion conversi
 //
 //
 //
-inline int UnicodeFromUTF8(const uchar * us)
-{
-	if(us[0] < 0xC2)
-		return us[0];
-	else if(us[0] < 0xE0)
-		return ((us[0] & 0x1F) << 6) + (us[1] & 0x3F);
-	else if(us[0] < 0xF0) 
-		return ((us[0] & 0xF) << 12) + ((us[1] & 0x3F) << 6) + (us[2] & 0x3F);
-	else if(us[0] < 0xF5)
-		return ((us[0] & 0x7) << 18) + ((us[1] & 0x3F) << 12) + ((us[2] & 0x3F) << 6) + (us[3] & 0x3F);
-	else
-		return us[0];
-}
+int FASTCALL UnicodeFromUTF8(const uchar * us);
 //
 // KeyMap.h
 //
@@ -148,6 +136,449 @@ public:
 	void Clear();
 	void AssignCmdKey(int key, int modifiers, uint msg);
 	uint Find(int key, int modifiers) const;	// 0 returned on failure
+};
+//
+//
+//
+static inline bool IsEOLChar(char ch)
+{
+	return oneof2(ch, '\r', '\n');
+}
+/**
+ * A point in document space.
+ * Uses double for sufficient resolution in large (>20,000,000 line) documents.
+ */
+class PointDocument {
+public:
+	double x;
+	double y;
+	explicit PointDocument(double x_ = 0, double y_ = 0) : x(x_), y(y_)
+	{
+	}
+	// Conversion from Point.
+	explicit PointDocument(Point pt) : x(pt.x), y(pt.y)
+	{
+	}
+};
+//
+// There are two points for some positions and this enumeration
+// can choose between the end of the first line or subline and the start of the next line or subline.
+//
+enum PointEnd {
+	peDefault = 0x0,
+	peLineEnd = 0x1,
+	peSubLineEnd = 0x2
+};
+//
+//
+//
+class LineLayout {
+private:
+	friend class LineLayoutCache;
+	int * lineStarts;
+	int lenLineStarts;
+	/// Drawing is only performed for @a maxLineLength characters on each line.
+	int lineNumber;
+	bool inCache;
+public:
+	enum { wrapWidthInfinite = 0x7ffffff };
+
+	int maxLineLength;
+	int numCharsInLine;
+	int numCharsBeforeEOL;
+	enum validLevel { llInvalid, llCheckTextAndStyle, llPositions, llLines } validity;
+
+	int xHighlightGuide;
+	bool highlightColumn;
+	bool containsCaret;
+	int edgeColumn;
+	char * chars;
+	uchar * styles;
+	XYPOSITION * positions;
+	char bracePreviousStyles[2];
+	Range hotspot; // Hotspot support
+	// Wrapped line support
+	int widthLine;
+	int lines;
+	XYPOSITION wrapIndent; // In pixels
+
+	explicit LineLayout(int maxLineLength_);
+	virtual ~LineLayout();
+	void   FASTCALL Resize(int maxLineLength_);
+	void   Free();
+	void   FASTCALL Invalidate(validLevel validity_);
+	int    FASTCALL LineStart(int line) const;
+	int    FASTCALL LineLastVisible(int line) const;
+	Range  FASTCALL SubLineRange(int line) const;
+	bool   InLine(int offset, int line) const;
+	void   SetLineStart(int line, int start);
+	void   SetBracesHighlight(Range rangeLine, const Position braces[], char bracesMatchStyle, int xHighlight, bool ignoreStyle);
+	void   RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle);
+	int    FindBefore(XYPOSITION x, int lower, int upper) const;
+	int    FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
+	Point  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
+	int    EndLineStyle() const;
+};
+//
+// Selection.h
+//
+class SelectionPosition {
+public:
+	explicit SelectionPosition(int position_ = INVALID_POSITION, int virtualSpace_ = 0);
+	void Reset();
+	void MoveForInsertDelete(bool insertion, int startChange, int length);
+	bool FASTCALL operator == (const SelectionPosition &other) const
+	{
+		return position == other.position && virtualSpace == other.virtualSpace;
+	}
+	bool FASTCALL operator < (const SelectionPosition &other) const;
+	bool FASTCALL operator > (const SelectionPosition &other) const;
+	bool FASTCALL operator <= (const SelectionPosition &other) const;
+	bool FASTCALL operator >= (const SelectionPosition &other) const;
+	int Position() const
+	{
+		return position;
+	}
+	int VirtualSpace() const
+	{
+		return virtualSpace;
+	}
+	bool IsValid() const
+	{
+		return position >= 0;
+	}
+	void FASTCALL SetPosition(int position_);
+	void FASTCALL SetVirtualSpace(int virtualSpace_);
+	void FASTCALL Add(int increment);
+private:
+	int    position;
+	int    virtualSpace;
+};
+//
+// Ordered range to make drawing simpler
+//
+struct SelectionSegment {
+	SelectionPosition start;
+	SelectionPosition end;
+	SelectionSegment() : start(), end()
+	{
+	}
+	SelectionSegment(SelectionPosition a, SelectionPosition b)
+	{
+		if(a < b) {
+			start = a;
+			end = b;
+		}
+		else {
+			start = b;
+			end = a;
+		}
+	}
+	bool Empty() const
+	{
+		return start == end;
+	}
+	void Extend(SelectionPosition p)
+	{
+		SETMIN(start, p);
+		SETMAX(end, p);
+	}
+};
+
+struct SelectionRange {
+	SelectionRange();
+	explicit SelectionRange(SelectionPosition single);
+	explicit SelectionRange(int single);
+	SelectionRange(SelectionPosition caret_, SelectionPosition anchor_);
+	SelectionRange(int caret_, int anchor_);
+	bool Empty() const
+	{
+		return anchor == caret;
+	}
+	int Length() const;
+	// int Width() const;	// Like Length but takes virtual space into account
+	bool FASTCALL operator == (const SelectionRange &other) const
+	{
+		return caret == other.caret && anchor == other.anchor;
+	}
+	bool FASTCALL operator < (const SelectionRange &other) const
+	{
+		return caret < other.caret || ((caret == other.caret) && (anchor < other.anchor));
+	}
+	void Reset();
+	void ClearVirtualSpace();
+	void MoveForInsertDelete(bool insertion, int startChange, int length);
+	bool FASTCALL Contains(int pos) const;
+	bool Contains(SelectionPosition sp) const;
+	bool FASTCALL ContainsCharacter(int posCharacter) const;
+	SelectionSegment Intersect(SelectionSegment check) const;
+	SelectionPosition Start() const;
+	SelectionPosition End() const;
+	void Swap();
+	bool Trim(SelectionRange range);
+	// If range is all virtual collapse to start of virtual space
+	void MinimizeVirtualSpace();
+
+	SelectionPosition caret;
+	SelectionPosition anchor;
+};
+
+class Selection {
+public:
+	enum selTypes { 
+		noSel, 
+		selStream, 
+		selRectangle, 
+		selLines, 
+		selThin 
+	};
+	selTypes selType;
+
+	Selection();
+	~Selection();
+	bool IsRectangular() const;
+	int MainCaret() const;
+	int MainAnchor() const;
+	SelectionRange &Rectangular();
+	SelectionSegment Limits() const;
+	// This is for when you want to move the caret in response to a
+	// user direction command - for rectangular selections, use the range
+	// that covers all selected text otherwise return the main selection.
+	SelectionSegment LimitsForRectangularElseMain() const;
+	size_t Count() const;
+	size_t Main() const;
+	void SetMain(size_t r);
+	SelectionRange &Range(size_t r);
+	const SelectionRange &Range(size_t r) const;
+	SelectionRange &RangeMain();
+	const SelectionRange &RangeMain() const;
+	SelectionPosition Start() const;
+	bool MoveExtends() const;
+	void SetMoveExtends(bool moveExtends_);
+	bool Empty() const;
+	SelectionPosition Last() const;
+	int Length() const;
+	void MovePositions(bool insertion, int startChange, int length);
+	void TrimSelection(SelectionRange range);
+	void TrimOtherSelections(size_t r, SelectionRange range);
+	void SetSelection(SelectionRange range);
+	void AddSelection(SelectionRange range);
+	void AddSelectionWithoutTrim(SelectionRange range);
+	void DropSelection(size_t r);
+	void DropAdditionalRanges();
+	void TentativeSelection(SelectionRange range);
+	void CommitTentative();
+	int CharacterInSelection(int posCharacter) const;
+	int InSelectionForEOL(int pos) const;
+	int VirtualSpaceFor(int pos) const;
+	void Clear();
+	void RemoveDuplicates();
+	void RotateMain();
+	bool Tentative() const
+	{
+		return tentativeMain;
+	}
+	std::vector <SelectionRange> RangesCopy() const
+	{
+		return Ranges;
+	}
+private:
+	std::vector <SelectionRange> Ranges;
+	std::vector <SelectionRange> RangesSaved;
+	SelectionRange rangeRectangular;
+	size_t mainRange;
+	bool   moveExtends;
+	bool   tentativeMain;
+};
+//
+// PositionCache.h
+//
+class LineLayoutCache {
+private:
+	int level;
+	std::vector <LineLayout *>cache;
+	bool allInvalidated;
+	int styleClock;
+	int useCount;
+	void FASTCALL Allocate(size_t length_);
+	void AllocateForLevel(int linesOnScreen, int linesInDoc);
+public:
+	LineLayoutCache();
+	virtual ~LineLayoutCache();
+	void Deallocate();
+	enum {
+		llcNone = SC_CACHE_NONE,
+		llcCaret = SC_CACHE_CARET,
+		llcPage = SC_CACHE_PAGE,
+		llcDocument = SC_CACHE_DOCUMENT
+	};
+
+	void Invalidate(LineLayout::validLevel validity_);
+	void SetLevel(int level_);
+	int GetLevel() const
+	{
+		return level;
+	}
+
+	LineLayout * Retrieve(int lineNumber, int lineCaret, int maxChars, int styleClock_, int linesOnScreen, int linesInDoc);
+	void FASTCALL Dispose(LineLayout * ll);
+};
+
+class PositionCacheEntry {
+public:
+	PositionCacheEntry();
+	~PositionCacheEntry();
+	void Set(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_, uint clock_);
+	void Clear();
+	bool Retrieve(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_) const;
+	static uint Hash(uint styleNumber_, const char * s, uint len);
+	bool NewerThan(const PositionCacheEntry &other) const;
+	void ResetClock();
+private:
+	uint styleNumber : 8;
+	uint len : 8;
+	uint clock : 16;
+	XYPOSITION * positions;
+};
+
+class Representation {
+public:
+	std::string stringRep;
+	explicit Representation(const char * value = "") : stringRep(value)
+	{
+	}
+};
+
+typedef std::map<int, Representation> MapRepresentation;
+
+class SpecialRepresentations {
+	MapRepresentation mapReprs;
+	short startByteHasReprs[0x100];
+public:
+	SpecialRepresentations();
+	void SetRepresentation(const char * charBytes, const char * value);
+	void ClearRepresentation(const char * charBytes);
+	const Representation * RepresentationFromCharacter(const char * charBytes, size_t len) const;
+	bool Contains(const char * charBytes, size_t len) const;
+	void Clear();
+};
+//
+// Class to break a line of text into shorter runs at sensible places.
+//
+class BreakFinder {
+public:
+	struct TextSegment {
+		TextSegment(int start_ = 0, int length_ = 0, const Representation * representation_ = 0);
+		int    end() const;
+
+		int    start;
+		int    length;
+		const  Representation * representation;
+	};
+	// If a whole run is longer than lengthStartSubdivision then subdivide
+	// into smaller runs at spaces or punctuation.
+	enum { 
+		lengthStartSubdivision = 300 
+	};
+	// Try to make each subdivided run lengthEachSubdivision or shorter.
+	enum { 
+		lengthEachSubdivision = 100 
+	};
+
+	BreakFinder(const LineLayout * ll_, const Selection * psel, Range rangeLine_, int posLineStart_,
+	    int xStart, bool breakForSelection, const Document * pdoc_, const SpecialRepresentations * preprs_, const ViewStyle * pvsDraw);
+	~BreakFinder();
+	TextSegment Next();
+	bool More() const;
+private:
+	const LineLayout * ll;
+	Range lineRange;
+	int posLineStart;
+	int nextBreak;
+	std::vector<int> selAndEdge;
+	uint saeCurrentPos;
+	int saeNext;
+	int subBreak;
+	const Document * pdoc;
+	EncodingFamily encodingFamily;
+	const SpecialRepresentations * preprs;
+	void Insert(int val);
+	// Private so BreakFinder objects can not be copied
+	BreakFinder(const BreakFinder &);
+};
+
+class PositionCache {
+private:
+	std::vector<PositionCacheEntry> pces;
+	uint clock;
+	bool allClear;
+	// Private so PositionCache objects can not be copied
+	PositionCache(const PositionCache &);
+public:
+	PositionCache();
+	~PositionCache();
+	void Clear();
+	void SetSize(size_t size_);
+	size_t GetSize() const
+	{
+		return pces.size();
+	}
+	void MeasureWidths(Surface * surface, const ViewStyle &vstyle, uint styleNumber,
+	    const char * s, uint len, XYPOSITION * positions, Document * pdoc);
+};
+
+// inline bool IsSpaceOrTab_Removed(int ch) { return oneof2(ch, ' ', '\t'); }
+
+//
+// ContractionState.h
+//
+template <class T> class SparseVector;
+//
+//
+//
+class ContractionState {
+private:
+	// These contain 1 element for every document line.
+	RunStyles * visible;
+	RunStyles * expanded;
+	RunStyles * heights;
+	SparseVector <const char *> *foldDisplayTexts;
+	Partitioning *displayLines;
+	int linesInDocument;
+
+	void EnsureData();
+	bool OneToOne() const 
+	{
+		// True when each document line is exactly one display line so need for
+		// complex data structures.
+		return visible == 0;
+	}
+public:
+	ContractionState();
+	virtual ~ContractionState();
+	void Clear();
+	int LinesInDoc() const;
+	int LinesDisplayed() const;
+	int DisplayFromDoc(int lineDoc) const;
+	int DisplayLastFromDoc(int lineDoc) const;
+	int DocFromDisplay(int lineDisplay) const;
+	void InsertLine(int lineDoc);
+	void InsertLines(int lineDoc, int lineCount);
+	void DeleteLine(int lineDoc);
+	void DeleteLines(int lineDoc, int lineCount);
+	bool GetVisible(int lineDoc) const;
+	bool SetVisible(int lineDocStart, int lineDocEnd, bool isVisible);
+	bool HiddenLines() const;
+	const char *GetFoldDisplayText(int lineDoc) const;
+	bool SetFoldDisplayText(int lineDoc, const char *text);
+	bool GetExpanded(int lineDoc) const;
+	bool SetExpanded(int lineDoc, bool isExpanded);
+	bool GetFoldDisplayTextShown(int lineDoc) const;
+	int ContractedNext(int lineDocStart) const;
+	int GetHeight(int lineDoc) const;
+	bool SetHeight(int lineDoc, int height);
+	void ShowAll();
+	void Check() const;
 };
 //
 // XPM.H
@@ -285,10 +716,7 @@ public:
 	virtual Point GetVisibleOriginInMain() const = 0;
 	virtual int LinesOnScreen() const = 0;
 	virtual Range GetHotSpotRange() const = 0;
-	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const
-	{
-		return main ? ((EditModelFlags & fPrimarySelection) ? vsDraw.selColours.back : vsDraw.selBackground2) : vsDraw.selAdditionalBackground;
-	}
+	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const;
 };
 //
 //
@@ -429,7 +857,7 @@ public:
 		LineLayout *ll, int width = LineLayout::wrapWidthInfinite);
 	Point LocationFromPosition(Surface *surface, const EditModel &model, SelectionPosition pos, int topLine, const ViewStyle &vs, PointEnd pe);
 	Range RangeDisplayLine(Surface *surface, const EditModel &model, int lineVisible, const ViewStyle &vs);
-	SelectionPosition SPositionFromLocation(Surface *surface, const EditModel &model, PointDocument pt, bool canReturnInvalid,
+	SelectionPosition SPositionFromLocation(Surface *surface, const EditModel &model, const PointDocument & rPt, bool canReturnInvalid,
 		bool charPosition, bool virtualSpace, const ViewStyle &vs);
 	SelectionPosition SPositionFromLineX(Surface *surface, const EditModel &model, int lineDoc, int x, const ViewStyle &vs);
 	int DisplayFromPosition(Surface *surface, const EditModel &model, int pos, const ViewStyle &vs);
@@ -459,9 +887,6 @@ public:
 * Convenience class to ensure LineLayout objects are always disposed.
 */
 class AutoLineLayout {
-	LineLayoutCache &llc;
-	LineLayout *ll;
-	AutoLineLayout & operator = (const AutoLineLayout &);
 public:
 	AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) {}
 	~AutoLineLayout() 
@@ -482,46 +907,49 @@ public:
 		llc.Dispose(ll);
 		ll = ll_;
 	}
+private:
+	LineLayoutCache &llc;
+	LineLayout *ll;
+	AutoLineLayout & operator = (const AutoLineLayout &);
 };
 //
 //
 //
 class AutoComplete {
-private:
-	bool active;
-	char separator;
-	char typesep; // Type seperator
-	char reserve; // @alignment
-	std::string stopChars;
-	std::string fillUpChars;
-	enum { 
-		maxItemLen = 1000 
-	};
-	std::vector<int> sortMatrix;
 public:
-	ListBox *lb;
-	int posStart;
-	int startLen;
-	/// Should autocompletion be canceled if editor's currentPos <= startPos?
-	bool cancelAtStartPos;
-	bool autoHide;
-	bool dropRestOfWord;
-	bool ignoreCase;
-	bool chooseSingle;
-	uint ignoreCaseBehaviour;
-	int widthLBDefault;
-	int heightLBDefault;
+	enum {
+		fActive           = 0x0001,
+		fCancelAtStartPos = 0x0002, /// Should autocompletion be canceled if editor's currentPos <= startPos?
+		fAutoHide         = 0x0004,
+		fDropRestOfWord   = 0x0008,
+		fIgnoreCase       = 0x0010,
+		fChooseSingle     = 0x0020
+	};
+	ListBox * lb;
+	int    posStart;
+	int    startLen;
+	uint   ignoreCaseBehaviour;
+	int    widthLBDefault;
+	int    heightLBDefault;
 	/** SC_ORDER_PRESORTED:   Assume the list is presorted; selection will fail if it is not alphabetical<br />
 	 *  SC_ORDER_PERFORMSORT: Sort the list alphabetically; start up performance cost for sorting<br />
 	 *  SC_ORDER_CUSTOM:      Handle non-alphabetical entries; start up performance cost for generating a sorted lookup table
 	 */
-	int autoSort;
+	int    autoSort;
 
 	AutoComplete();
 	~AutoComplete();
 
 	/// Is the auto completion list displayed?
-	bool Active() const;
+	bool   Active() const;
+	long   GetFlags() const
+	{
+		return Flags;
+	}
+	void   SetFlag(long f, int doSet)
+	{
+		SETFLAG(Flags, f, doSet);
+	}
 
 	/// Display the auto completion list positioned to be near a character position
 	void Start(Window &parent, int ctrlID, int position, Point location, int startLen_, int lineHeight, bool unicodeMode, int technology);
@@ -557,177 +985,23 @@ public:
 	void Move(int delta);
 	/// Select a list element that starts with word as the current element
 	void Select(const char *word);
-};
-//
-//
-//
-class Timer {
-public:
-	bool ticking;
-	int ticksToWait;
-	enum {
-		tickSize = 100
-	};
-	TickerID tickerID;
-	Timer();
-};
-//
-//
-//
-class Idler {
-public:
-	bool state;
-	IdlerID idlerID;
-	Idler();
-};
-/**
- * When platform has a way to generate an event before painting,
- * accumulate needed styling range and other work items in
- * WorkNeeded to avoid unnecessary work inside paint handler
- */
-class WorkNeeded {
-public:
-	enum workItems {
-		workNone = 0,
-		workStyle = 1,
-		workUpdateUI = 2
-	};
-	enum workItems items;
-	Position upTo;
-
-	WorkNeeded() : items(workNone), upTo(0)
-	{
-	}
-	void Reset()
-	{
-		items = workNone;
-		upTo = 0;
-	}
-	void Need(workItems items_, Position pos)
-	{
-		if((items_ & workStyle) && (upTo < pos))
-			upTo = pos;
-		items = static_cast<workItems>(items | items_);
-	}
-};
-/**
- * Hold a piece of text selected for copying or dragging, along with encoding and selection format information.
- */
-class SelectionText {
-public:
-	SelectionText() : rectangular(false), lineCopy(false), codePage(0), characterSet(0)
-	{
-	}
-	~SelectionText()
-	{
-	}
-	void Clear()
-	{
-		s.clear();
-		rectangular = false;
-		lineCopy = false;
-		codePage = 0;
-		characterSet = 0;
-	}
-	void Copy(const std::string &s_, int codePage_, int characterSet_, bool rectangular_, bool lineCopy_)
-	{
-		s = s_;
-		codePage = codePage_;
-		characterSet = characterSet_;
-		rectangular = rectangular_;
-		lineCopy = lineCopy_;
-		FixSelectionForClipboard();
-	}
-	void Copy(const SelectionText &other)
-	{
-		Copy(other.s, other.codePage, other.characterSet, other.rectangular, other.lineCopy);
-	}
-	const char * Data() const
-	{
-		return s.c_str();
-	}
-	size_t Length() const
-	{
-		return s.length();
-	}
-	size_t LengthWithTerminator() const
-	{
-		return s.length() + 1;
-	}
-	bool Empty() const
-	{
-		return s.empty();
-	}
-	bool IsRectangular() const
-	{
-		return rectangular;
-	}
-	bool IsLineCopy() const
-	{
-		return lineCopy;
-	}
-	int  GetCp() const
-	{
-		return codePage;
-	}
-	int  GetCharSet() const
-	{
-		return characterSet;
-	}
 private:
-	void FixSelectionForClipboard()
-	{
-		// To avoid truncating the contents of the clipboard when pasted where the
-		// clipboard contains NUL characters, replace NUL characters by spaces.
-		std::replace(s.begin(), s.end(), '\0', ' ');
-	}
-	bool   rectangular;
-	bool   lineCopy;
-	int    codePage;
-	int    characterSet;
-	std::string s;
-};
-
-struct WrapPending {
-	// The range of lines that need to be wrapped
+	//bool active;
+	//bool cancelAtStartPos; /// Should autocompletion be canceled if editor's currentPos <= startPos?
+	//bool autoHide;
+	//bool dropRestOfWord;
+	//bool ignoreCase;
+	//bool chooseSingle;
+	long   Flags;
+	char   separator;
+	char   typesep; // Type seperator
+	char   reserve[2]; // @alignment
+	std::string stopChars;
+	std::string fillUpChars;
 	enum { 
-		lineLarge = 0x7ffffff 
+		maxItemLen = 1000 
 	};
-	int start;      // When there are wraps pending, will be in document range
-	int end;        // May be lineLarge to indicate all of document after start
-	WrapPending()
-	{
-		start = lineLarge;
-		end = lineLarge;
-	}
-	void Reset()
-	{
-		start = lineLarge;
-		end = lineLarge;
-	}
-	void Wrapped(int line)
-	{
-		if(start == line)
-			start++;
-	}
-	bool NeedsWrap() const
-	{
-		return start < end;
-	}
-	bool AddRange(int lineStart, int lineEnd)
-	{
-		const bool neededWrap = NeedsWrap();
-		bool changed = false;
-		if(start > lineStart) {
-			start = lineStart;
-			changed = true;
-		}
-		if((end < lineEnd) || !neededWrap) {
-			end = lineEnd;
-			changed = true;
-		}
-		return changed;
-	}
+	std::vector <int> sortMatrix;
 };
 //
 //
@@ -736,7 +1010,116 @@ class Editor : public EditModel, public DocWatcher {
 	// Private so Editor objects can not be copied
 	explicit Editor(const Editor &);
 	Editor & operator = (const Editor &);
-protected:      // ScintillaBase subclass needs access to much of Editor
+protected: // ScintillaBase subclass needs access to much of Editor
+	// 
+	// Descr: Hold a piece of text selected for copying or dragging, along with 
+	//   encoding and selection format information.
+	// 
+	class SelectionText {
+	public:
+		SelectionText();
+		~SelectionText();
+		void Clear();
+		void Copy(const std::string &s_, int codePage_, int characterSet_, bool rectangular_, bool lineCopy_);
+		void FASTCALL Copy(const SelectionText &other);
+		const char * Data() const
+		{
+			return s.c_str();
+		}
+		size_t Length() const
+		{
+			return s.length();
+		}
+		size_t LengthWithTerminator() const
+		{
+			return s.length() + 1;
+		}
+		bool Empty() const
+		{
+			return s.empty();
+		}
+		bool IsRectangular() const
+		{
+			return rectangular;
+		}
+		bool IsLineCopy() const
+		{
+			return lineCopy;
+		}
+		int  GetCp() const
+		{
+			return codePage;
+		}
+		int  GetCharSet() const
+		{
+			return characterSet;
+		}
+	private:
+		void   FixSelectionForClipboard();
+
+		bool   rectangular;
+		bool   lineCopy;
+		uint8  reserve[2]; // @alignment
+		int    codePage;
+		int    characterSet;
+		std::string s;
+	};
+
+	struct WrapPending {
+		// The range of lines that need to be wrapped
+		enum { 
+			lineLarge = 0x7ffffff 
+		};
+		int    start;      // When there are wraps pending, will be in document range
+		int    end;        // May be lineLarge to indicate all of document after start
+		WrapPending();
+		void   Reset();
+		void   FASTCALL Wrapped(int line);
+		bool   NeedsWrap() const;
+		bool   AddRange(int lineStart, int lineEnd);
+	};
+	// 
+	// Descr: When platform has a way to generate an event before painting,
+	//   accumulate needed styling range and other work items in
+	//   WorkNeeded to avoid unnecessary work inside paint handler
+	// 
+	class WorkNeeded {
+	public:
+		enum workItems {
+			workNone = 0,
+			workStyle = 1,
+			workUpdateUI = 2
+		};
+		enum workItems items;
+		Position upTo;
+
+		WorkNeeded();
+		void Reset();
+		void Need(workItems items_, Position pos);
+	};
+	//
+	//
+	//
+	class Timer {
+	public:
+		Timer();
+
+		TickerID tickerID;
+		int    ticksToWait;
+		enum {
+			tickSize = 100
+		};
+		bool   ticking;
+	};
+	//
+	//
+	//
+	class Idler {
+	public:
+		Idler();
+		IdlerID idlerID;
+		bool   state;
+	};
 	// On GTK+, Scintilla is a container widget holding two scroll bars
 	// whereas on Windows there is just one window with both scroll bars turned on.
 	Window wMain;   ///< The Scintilla parent window

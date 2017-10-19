@@ -6885,7 +6885,7 @@ extern PPSession DS;
 void   SLAPI PPSaveErrContext();
 void   SLAPI PPRestoreErrContext();
 
-int    SLAPI dbl_cmp(double, double);
+int    FASTCALL dbl_cmp(double, double);
 
 DECL_CMPFUNC(PPLBItem);
 DECL_CMPFUNC(PPTLBItem);
@@ -6958,16 +6958,16 @@ int    FASTCALL PPLoadError(int code, SString & s, const char * pAddInfo);
 //
 int    FASTCALL PPLoadTextWin(int code, SString & s);
 // @v9.5.0 int    SLAPI PPLoadString(int grp, int code, char * pBuf, size_t buflen); // @cs
-int    SLAPI PPGetSubStr(const char * pStr, int idx, SString &);
-int    SLAPI PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
+int    FASTCALL PPGetSubStr(const char * pStr, int idx, SString &);
+int    FASTCALL PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, size_t bufLen);
 	// @>>PPGetSubStr(const char *, int, SString &)
-int    SLAPI PPGetSubStr(uint strID, int idx, SString &);
-int    SLAPI PPGetSubStr(uint strID, int idx /* 0.. */, char * buf, size_t buflen);
-int    SLAPI PPCmpSubStr(const char * pStr, int idx /* 0.. */, const char * pTestStr, int ignoreCase);
+int    FASTCALL PPGetSubStr(uint strID, int idx, SString &);
+int    FASTCALL PPGetSubStr(uint strID, int idx /* 0.. */, char * buf, size_t buflen);
+int    FASTCALL PPCmpSubStr(const char * pStr, int idx /* 0.. */, const char * pTestStr, int ignoreCase);
 int    SLAPI PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
 char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
-char * SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen); // @obsolete
-SString & SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf);
+char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen); // @obsolete
+SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf);
 //
 // Descr: Извлекает подстроку из строки вида "1,str1;2,str2;3,str3;.." по номеру
 //   предшествующему собственно подстроке (subId)
@@ -6975,7 +6975,7 @@ SString & SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString 
 //   1 - подстрока обнаружена и присвоена буферу rBuf
 //   0 - подстрока не обнаружена либо не удалось загрузить всю строку по идентификатору strId.
 //
-int    SLAPI PPGetSubStrById(int strId, int subId, SString & rBuf);
+int    FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf);
 //
 // Функция ideqvalstr прописывает в буфер pBuf текст "ID=id"
 //
@@ -6988,8 +6988,8 @@ SString & SLAPIV PPFormat(const SString & rFmt, SString * pBuf, ...);
 SString & SLAPIV PPFormatT(int textCode, SString * pBuf, ...);
 SString & SLAPIV PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
 void   FASTCALL PPSetAddedMsgString(const char * pStr);
-void   SLAPI PPSetAddedMsgObjName(PPID objType, PPID objID);
-int    SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
+void   FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID);
+int    FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
 //
 // Descr: Сокращенный аналог PPGetLastErrorMessage(rmvSpcChrs, rBuf)
 //
@@ -7035,7 +7035,7 @@ int    PPSetErrorSLib();
 //
 int    PPSetErrorDB();
 int    SLAPI PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
-int    SLAPI PPSetObjError(int errCode, PPID objType, PPID objID);
+int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
 //
 // Выдает сообщение "Функция в DOS-версии не поддерживается" и возвращает -1.
 //
@@ -7396,8 +7396,8 @@ private:
 	CRegExp Re;
 };
 
-int    SLAPI PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf);
-int    SLAPI PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
+int    FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf);
+int    FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
 //
 // Descr: Утилитный класс, используемый как базовый для классов, имеющих
 //   строки расширения, идентифицируемые целочисленными значениями.
@@ -7425,16 +7425,16 @@ protected:
 //  <0 - строка из rLine1 лексикографически меньше, чем из rLine2
 //  >0 - строка из rLine1 лексикографически больше, чем из rLine2
 //
-int    SLAPI PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options);
-int    SLAPI PPPutExtStrData(int fldID, SString & rLine, const char * pBuf);
+int    FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options);
+int    FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf);
 //
 // Descr: преобразует период *pPeriod в пересечение с периодом документов, определенным в правах
 //   пользователя. Если результат является пустым, то возвращает 0 и устанавливает код ошибки (PPERR_NORTPERIOD).
 //
 int    FASTCALL AdjustPeriodToRights(DateRange & rPeriod, int checkOnly);
 int    FASTCALL CalcBarcodeCheckDigit(const char * pBarcode);
-char * SLAPI AddBarcodeCheckDigit(char * pBarcode);
-SString & SLAPI AddBarcodeCheckDigit(SString & rBarcode);
+char * FASTCALL AddBarcodeCheckDigit(char * pBarcode);
+SString & FASTCALL AddBarcodeCheckDigit(SString & rBarcode);
 //
 // Descr: Формирует строку штрихкода, пригодную для печати на обычном принтере
 //   с использованием специализированных шрифтов.
@@ -7459,8 +7459,8 @@ public:
 		int    BcStd;
 		SString Code;
 	};
-	static int SLAPI GetStdName(int bcstd, SString & rBuf);
-	static int SLAPI RecognizeStdName(const char * pText);
+	static int FASTCALL GetStdName(int bcstd, SString & rBuf);
+	static int FASTCALL RecognizeStdName(const char * pText);
 
 	struct BarcodeImageParam {
 		SLAPI BarcodeImageParam();
@@ -7484,8 +7484,8 @@ public:
 		SImageBuffer Buffer;     // Если OutputFormat == 0, то изображение формируется в этом буфере
 	};
 
-	static int SLAPI CreateImage(/*const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName*/BarcodeImageParam & rParam);
-	static int SLAPI RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
+	static int FASTCALL CreateImage(/*const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName*/BarcodeImageParam & rParam);
+	static int FASTCALL RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
 	//
 	// Descr: Конвертирует штрихкод в формате UPC-E в формат UPC-A
 	// Note: Не проверяет входящий параметр pUpce на корректное представление UPC-E
@@ -7718,7 +7718,7 @@ public:
 	//
 	static int SLAPI Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent);
 
-	static void SLAPI SetLastErrObj(PPID objType, PPID objID);
+	static void FASTCALL SetLastErrObj(PPID objType, PPID objID);
 	static int  SLAPI IndexPhones();
 	//
 	// Если aObj != 0, то конструктор считывает поля Flags и OprFlags
@@ -48756,7 +48756,7 @@ public:
 	void   CalcTotal(double * pTotal, double * pDiscount) const;
 	double GetUsableBonus() const;
 	int    GetState() const;
-	int    IsState(int s) const;
+	int    FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;
 	long   GetTableCode() const;
 	int    GetGuestCount() const;

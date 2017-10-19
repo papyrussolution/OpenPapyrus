@@ -6205,7 +6205,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_MAILTO_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
 			setCtrlString(CTL_MAILTO_SUBJ, Data.Subj);
 			{
 				EmailCtrlGroup::Rec grp_rec(&Data.AddrList);
@@ -6327,7 +6327,7 @@ int SendMailDialog::delItem(long pos, long id)
 int SendMailDialog::setDTS(const Rec * pData)
 {
 	RVALUEPTR(Data, pData);
-	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, 0);
+	SetupPPObjCombo(this, CTLSEL_SENDMAIL_ACCNT, PPOBJ_INTERNETACCOUNT, Data.MailAccID, OLW_CANEDIT|OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
 	setCtrlString(CTL_SENDMAIL_SUBJ, Data.Subj);
 	setCtrlString(CTL_SENDMAIL_TEXT, Data.Text);
 	{

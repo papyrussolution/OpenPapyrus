@@ -12,7 +12,7 @@ int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 	return SCalcBarcodeCheckDigitL(pBarcode, len);
 }
 
-char * SLAPI AddBarcodeCheckDigit(char * pBarcode)
+char * FASTCALL AddBarcodeCheckDigit(char * pBarcode)
 {
 	size_t len = sstrlen(pBarcode);
 	if(len) {
@@ -23,7 +23,7 @@ char * SLAPI AddBarcodeCheckDigit(char * pBarcode)
 	return pBarcode;
 }
 
-SString & SLAPI AddBarcodeCheckDigit(SString & rBarcode)
+SString & FASTCALL AddBarcodeCheckDigit(SString & rBarcode)
 {
 	if(rBarcode.Len()) {
 		int    cdig = SCalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
@@ -32,7 +32,7 @@ SString & SLAPI AddBarcodeCheckDigit(SString & rBarcode)
 	return rBarcode;
 }
 
-static char * SLAPI EncodeEAN8(const char * pCode, char * pBuf)
+static char * FASTCALL EncodeEAN8(const char * pCode, char * pBuf)
 {
 	size_t p = 0;
 	pBuf[p++] = 'x';
@@ -50,7 +50,7 @@ static char * SLAPI EncodeEAN8(const char * pCode, char * pBuf)
 	return pBuf;
 }
 
-static char * SLAPI EncodeUPCE(const char * pCode, char * pBuf)
+static char * FASTCALL EncodeUPCE(const char * pCode, char * pBuf)
 {
 	static const char tab[10][5] = {
 		{1, 1, 0, 0, 0}, // 0 0x18
@@ -105,7 +105,7 @@ static char * SLAPI EncodeUPCE(const char * pCode, char * pBuf)
 	}
 }
 
-static char * SLAPI EncodeEAN13(int upca, const char * pCode, char * pBuf)
+static char * FASTCALL EncodeEAN13(int upca, const char * pCode, char * pBuf)
 {
 	// 0 - A, 1 - B
 	static const char tab[9][5] = {
@@ -2982,7 +2982,7 @@ SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rU
 }
 
 //static
-int SLAPI PPBarcode::GetStdName(int bcstd, SString & rBuf)
+int FASTCALL PPBarcode::GetStdName(int bcstd, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -3015,7 +3015,7 @@ int SLAPI PPBarcode::GetStdName(int bcstd, SString & rBuf)
 }
 
 //static
-int SLAPI PPBarcode::RecognizeStdName(const char * pText)
+int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 {
 	int    bcstd = 0;
     SString text = pText;
@@ -3078,7 +3078,7 @@ SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam()
 }
 
 //static
-int SLAPI PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
+int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
 {
     int    ok = -1;
     int    zint_barc_std = 0;
@@ -3197,9 +3197,9 @@ static int FASTCALL ZBarStdToPp(zbar_symbol_type_t zbarstd)
 //
 //
 //static
-int SLAPI PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
+int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
 {
-	rList.freeAll();
+	rList.clear();
 
 	int    ok = -1;
 	SString debug_file_name;

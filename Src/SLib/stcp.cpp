@@ -1420,7 +1420,7 @@ int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & r
 
 int SLAPI SMailMessage::SetField(int fldId, const char * pVal)
 {
-	SString temp_buf;
+	SString temp_buf = pVal;
 	switch(fldId) {
 		case fldFrom:
 			//(From = pVal).Strip();

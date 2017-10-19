@@ -236,7 +236,7 @@ int FASTCALL PPSetError(int errCode, long val)
 	return 0; // @v8.7.0 1-->0
 }
 
-int SLAPI PPSetObjError(int errCode, PPID objType, PPID objID)
+int FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 {
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
@@ -252,7 +252,7 @@ void FASTCALL PPSetAddedMsgString(const char * pStr)
 	DS.GetTLA().AddedMsgString = pStr;
 }
 
-void SLAPI PPSetAddedMsgObjName(PPID objType, PPID objID)
+void FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID)
 {
 	SString obj_name;
 	GetObjectName(objType, objID, obj_name);
@@ -264,7 +264,7 @@ int FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf)
 	return PPGetMessage(mfError, /**/PPErrCode, 0, rmvSpcChrs, rBuf);
 }
 
-int SLAPI PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
+int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
 {
 	SString temp_buf;
 	char   btr_err_code[16], fname[MAXPATH];

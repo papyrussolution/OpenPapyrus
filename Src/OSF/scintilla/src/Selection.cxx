@@ -14,6 +14,36 @@
 using namespace Scintilla;
 #endif
 
+SelectionPosition::SelectionPosition(int position_ /*= INVALID_POSITION*/, int virtualSpace_ /*= 0*/) : position(position_), virtualSpace(virtualSpace_)
+{
+	PLATFORM_ASSERT(virtualSpace < 800000);
+	SETMAX(virtualSpace, 0);
+}
+
+void SelectionPosition::Reset()
+{
+	position = 0;
+	virtualSpace = 0;
+}
+
+void FASTCALL SelectionPosition::SetPosition(int position_)
+{
+	position = position_;
+	virtualSpace = 0;
+}
+
+void FASTCALL SelectionPosition::SetVirtualSpace(int virtualSpace_)
+{
+	PLATFORM_ASSERT(virtualSpace_ < 800000);
+	if(virtualSpace_ >= 0)
+		virtualSpace = virtualSpace_;
+}
+
+void FASTCALL SelectionPosition::Add(int increment)
+{
+	position = position + increment;
+}
+
 void SelectionPosition::MoveForInsertDelete(bool insertion, int startChange, int length)
 {
 	if(insertion) {
@@ -62,10 +92,54 @@ bool FASTCALL SelectionPosition::operator >= (const SelectionPosition &other) co
 {
 	return (position == other.position && virtualSpace == other.virtualSpace) ? true : (*this > other);
 }
+//
+//
+//
+SelectionRange::SelectionRange() : caret(), anchor()
+{
+}
+
+SelectionRange::SelectionRange(SelectionPosition single) : caret(single), anchor(single)
+{
+}
+
+SelectionRange::SelectionRange(int single) : caret(single), anchor(single)
+{
+}
+
+SelectionRange::SelectionRange(SelectionPosition caret_, SelectionPosition anchor_) : caret(caret_), anchor(anchor_)
+{
+}
+
+SelectionRange::SelectionRange(int caret_, int anchor_) : caret(caret_), anchor(anchor_)
+{
+}
 
 int SelectionRange::Length() const
 {
 	return (anchor > caret) ? (anchor.Position() - caret.Position()) : (caret.Position() - anchor.Position());
+}
+
+void SelectionRange::Reset()
+{
+	anchor.Reset();
+	caret.Reset();
+}
+
+SelectionPosition SelectionRange::Start() const
+{
+	return (anchor < caret) ? anchor : caret;
+}
+
+SelectionPosition SelectionRange::End() const
+{
+	return (anchor < caret) ? caret : anchor;
+}
+
+void SelectionRange::ClearVirtualSpace()
+{
+	anchor.SetVirtualSpace(0);
+	caret.SetVirtualSpace(0);
 }
 
 void SelectionRange::MoveForInsertDelete(bool insertion, int startChange, int length)

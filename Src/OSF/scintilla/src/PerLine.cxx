@@ -14,12 +14,12 @@
 using namespace Scintilla;
 #endif
 
-MarkerHandleSet::MarkerHandleSet()
+LineMarkers::MarkerHandleSet::MarkerHandleSet()
 {
 	root = 0;
 }
 
-MarkerHandleSet::~MarkerHandleSet()
+LineMarkers::MarkerHandleSet::~MarkerHandleSet()
 {
 	for(MarkerHandleNumber * mhn = root; mhn;) {
 		MarkerHandleNumber * mhnToFree = mhn;
@@ -29,7 +29,7 @@ MarkerHandleSet::~MarkerHandleSet()
 	root = 0;
 }
 
-int MarkerHandleSet::Length() const
+int LineMarkers::MarkerHandleSet::Length() const
 {
 	int c = 0;
 	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
@@ -38,7 +38,7 @@ int MarkerHandleSet::Length() const
 	return c;
 }
 
-int MarkerHandleSet::MarkValue() const
+int LineMarkers::MarkerHandleSet::MarkValue() const
 {
 	uint m = 0;
 	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
@@ -47,7 +47,7 @@ int MarkerHandleSet::MarkValue() const
 	return m;
 }
 
-bool FASTCALL MarkerHandleSet::Contains(int handle) const
+bool FASTCALL LineMarkers::MarkerHandleSet::Contains(int handle) const
 {
 	for(MarkerHandleNumber * mhn = root; mhn; mhn = mhn->next) {
 		if(mhn->handle == handle)
@@ -56,7 +56,7 @@ bool FASTCALL MarkerHandleSet::Contains(int handle) const
 	return false;
 }
 
-bool MarkerHandleSet::InsertHandle(int handle, int markerNum)
+bool LineMarkers::MarkerHandleSet::InsertHandle(int handle, int markerNum)
 {
 	MarkerHandleNumber * mhn = new MarkerHandleNumber;
 	mhn->handle = handle;
@@ -66,7 +66,7 @@ bool MarkerHandleSet::InsertHandle(int handle, int markerNum)
 	return true;
 }
 
-void MarkerHandleSet::RemoveHandle(int handle)
+void LineMarkers::MarkerHandleSet::RemoveHandle(int handle)
 {
 	MarkerHandleNumber ** pmhn = &root;
 	while(*pmhn) {
@@ -80,7 +80,7 @@ void MarkerHandleSet::RemoveHandle(int handle)
 	}
 }
 
-bool MarkerHandleSet::RemoveNumber(int markerNum, bool all)
+bool LineMarkers::MarkerHandleSet::RemoveNumber(int markerNum, bool all)
 {
 	bool performedDeletion = false;
 	MarkerHandleNumber ** pmhn = &root;
@@ -100,7 +100,7 @@ bool MarkerHandleSet::RemoveNumber(int markerNum, bool all)
 	return performedDeletion;
 }
 
-void MarkerHandleSet::CombineWith(MarkerHandleSet * other)
+void LineMarkers::MarkerHandleSet::CombineWith(MarkerHandleSet * other)
 {
 	MarkerHandleNumber ** pmhn = &other->root;
 	while(*pmhn) {
@@ -109,6 +109,10 @@ void MarkerHandleSet::CombineWith(MarkerHandleSet * other)
 	*pmhn = root;
 	root = other->root;
 	other->root = 0;
+}
+
+LineMarkers::LineMarkers() : handleCurrent(0) 
+{
 }
 
 LineMarkers::~LineMarkers()
@@ -292,6 +296,10 @@ int LineLevels::GetLevel(int line) const
 	return (levels.Length() && (line >= 0) && (line < levels.Length())) ? levels[line] : SC_FOLDLEVELBASE;
 }
 
+LineState::LineState() 
+{
+}
+
 LineState::~LineState()
 {
 }
@@ -363,6 +371,10 @@ struct AnnotationHeader {
 	short lines;
 	int length;
 };
+
+LineAnnotation::LineAnnotation() 
+{
+}
 
 LineAnnotation::~LineAnnotation()
 {
@@ -507,6 +519,10 @@ int LineAnnotation::Lines(int line) const
 		return reinterpret_cast<AnnotationHeader *>(annotations[line])->lines;
 	else
 		return 0;
+}
+
+LineTabstops::LineTabstops() 
+{
 }
 
 LineTabstops::~LineTabstops()

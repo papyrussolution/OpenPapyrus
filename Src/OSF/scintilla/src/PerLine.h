@@ -12,41 +12,9 @@
 namespace Scintilla {
 #endif
 
-/**
- * This holds the marker identifier and the marker type to display.
- * MarkerHandleNumbers are members of lists.
- */
-struct MarkerHandleNumber {
-	int handle;
-	int number;
-	MarkerHandleNumber *next;
-};
-
-/**
- * A marker handle set contains any number of MarkerHandleNumbers.
- */
-class MarkerHandleSet {
-	MarkerHandleNumber *root;
-public:
-	MarkerHandleSet();
-	~MarkerHandleSet();
-	int    Length() const;
-	int    MarkValue() const;	///< Bit set of marker numbers.
-	bool   FASTCALL Contains(int handle) const;
-	bool   InsertHandle(int handle, int markerNum);
-	void   RemoveHandle(int handle);
-	bool   RemoveNumber(int markerNum, bool all);
-	void   CombineWith(MarkerHandleSet *other);
-};
-
 class LineMarkers : public PerLine {
-	SplitVector <MarkerHandleSet *> markers;
-	/// Handles are allocated sequentially and should never have to be reused as 32 bit ints are very big.
-	int handleCurrent;
 public:
-	LineMarkers() : handleCurrent(0) 
-	{
-	}
+	LineMarkers();
 	virtual ~LineMarkers();
 	virtual void Init();
 	virtual void InsertLine(int line);
@@ -59,10 +27,39 @@ public:
 	bool   DeleteMark(int line, int markerNum, bool all);
 	void   DeleteMarkFromHandle(int markerHandle);
 	int    FASTCALL LineFromHandle(int markerHandle);
+private:
+	// 
+	// Descr: A marker handle set contains any number of MarkerHandleNumbers.
+	//
+	class MarkerHandleSet {
+	public:
+		MarkerHandleSet();
+		~MarkerHandleSet();
+		int    Length() const;
+		int    MarkValue() const;	///< Bit set of marker numbers.
+		bool   FASTCALL Contains(int handle) const;
+		bool   InsertHandle(int handle, int markerNum);
+		void   RemoveHandle(int handle);
+		bool   RemoveNumber(int markerNum, bool all);
+		void   CombineWith(MarkerHandleSet *other);
+	private:
+		// 
+		// Descr: This holds the marker identifier and the marker type to display.
+		// MarkerHandleNumbers are members of lists.
+		// 
+		struct MarkerHandleNumber {
+			int    handle;
+			int    number;
+			MarkerHandleNumber * next;
+		};
+		MarkerHandleNumber * root;
+	};
+	SplitVector <MarkerHandleSet *> markers;
+	/// Handles are allocated sequentially and should never have to be reused as 32 bit ints are very big.
+	int handleCurrent;
 };
 
 class LineLevels : public PerLine {
-	SplitVector<int> levels;
 public:
 	virtual ~LineLevels();
 	virtual void Init();
@@ -73,14 +70,13 @@ public:
 	void ClearLevels();
 	int SetLevel(int line, int level, int lines);
 	int GetLevel(int line) const;
+private:
+	SplitVector<int> levels;
 };
 
 class LineState : public PerLine {
-	SplitVector<int> lineStates;
 public:
-	LineState() 
-	{
-	}
+	LineState();
 	virtual ~LineState();
 	virtual void Init();
 	virtual void InsertLine(int line);
@@ -88,14 +84,13 @@ public:
 	int    SetLineState(int line, int state);
 	int    FASTCALL GetLineState(int line);
 	int    GetMaxLineState() const;
+private:
+	SplitVector <int> lineStates;
 };
 
 class LineAnnotation : public PerLine {
-	SplitVector <char *> annotations;
 public:
-	LineAnnotation() 
-	{
-	}
+	LineAnnotation(); 
 	virtual ~LineAnnotation();
 	virtual void Init();
 	virtual void InsertLine(int line);
@@ -111,15 +106,15 @@ public:
 	void SetStyles(int line, const uchar *styles);
 	int Length(int line) const;
 	int Lines(int line) const;
+private:
+	SplitVector <char *> annotations;
 };
 
-typedef std::vector<int> TabstopList;
+typedef std::vector <int> TabstopList;
 
 class LineTabstops : public PerLine {
-	SplitVector<TabstopList *> tabstops;
 public:
-	LineTabstops() {
-	}
+	LineTabstops(); 
 	virtual ~LineTabstops();
 	virtual void Init();
 	virtual void InsertLine(int line);
@@ -128,6 +123,8 @@ public:
 	bool ClearTabstops(int line);
 	bool AddTabstop(int line, int x);
 	int GetNextTabstop(int line, int x) const;
+private:
+	SplitVector <TabstopList *> tabstops;
 };
 
 #ifdef SCI_NAMESPACE

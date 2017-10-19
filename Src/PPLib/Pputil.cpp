@@ -9,7 +9,7 @@
 // Prototype
 DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
 
-int SLAPI dbl_cmp(double v1, double v2)
+int FASTCALL dbl_cmp(double v1, double v2)
 {
 	const double diff = round(v1 - v2, 6);
 	if(diff < 0)
@@ -107,12 +107,12 @@ SString & SLAPI VatRateStr(double rate, SString & rBuf)
 	return rBuf.Space().Cat(R0i(rate)).CatChar('%');
 }
 
-int SLAPI PPGetSubStr(const char * pStr, int idx, SString & rDest)
+int FASTCALL PPGetSubStr(const char * pStr, int idx, SString & rDest)
 {
 	return rDest.GetSubFrom(pStr, ';', idx);
 }
 
-int SLAPI PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
+int FASTCALL PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 {
 	SString temp;
 	int    ok = temp.GetSubFrom(pStr, ';', idx);
@@ -120,7 +120,7 @@ int SLAPI PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 	return ok;
 }
 
-int SLAPI PPGetSubStrById(int strId, int subId, SString & rBuf)
+int FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -175,7 +175,7 @@ int SLAPI PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, i
 	return (idx < 0) ? 0 : 1;
 }
 
-int SLAPI PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ignoreCase)
+int FASTCALL PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ignoreCase)
 {
 	SString temp;
 	if(PPGetSubStr(pStr, idx, temp))
@@ -184,7 +184,7 @@ int SLAPI PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int ign
 	return 0;
 }
 
-int SLAPI PPGetSubStr(uint strID, int idx, SString & dest)
+int FASTCALL PPGetSubStr(uint strID, int idx, SString & dest)
 {
 	SString temp;
 	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, dest) : 0;
@@ -193,7 +193,7 @@ int SLAPI PPGetSubStr(uint strID, int idx, SString & dest)
 	return ok;
 }
 
-int SLAPI PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
+int FASTCALL PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 {
 	SString temp;
 	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, pBuf, bufLen) : 0;
@@ -202,7 +202,7 @@ int SLAPI PPGetSubStr(uint strID, int idx, char * pBuf, size_t bufLen)
 	return ok;
 }
 
-char * SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen)
+char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	PPLoadText(wordId, temp_buf);
@@ -212,7 +212,7 @@ char * SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf
 	return pBuf;
 }
 
-SString & SLAPI PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf)
+SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf)
 {
 	PPLoadText(wordId, rBuf);
 	if(ansiCoding)
@@ -1486,7 +1486,7 @@ int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, S
     return ok;
 }
 
-int SLAPI PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf)
+int FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf)
 {
 	int    ok = -1;
 	PPExtStringStorage ess;
@@ -1500,13 +1500,13 @@ int SLAPI PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SStrin
 	return ok;
 }
 
-int SLAPI PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
+int FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
 {
 	PPExtStringStorage ess;
 	return (ess.Get(rLine, fldID, rBuf) > 0) ? 1 : -1;
 }
 
-int SLAPI PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
+int FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
 {
     SString buf1, buf2;
     PPExtStringStorage ess;
@@ -1515,7 +1515,7 @@ int SLAPI PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLi
 	return buf1.Cmp(buf2, BIN(options & srchNoCase));
 }
 
-int SLAPI PPPutExtStrData(int fldID, SString & rLine, const char * pBuf)
+int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf)
 {
 	PPExtStringStorage ess;
 	return ess.Put(rLine, fldID, pBuf);

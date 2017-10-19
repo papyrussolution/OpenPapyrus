@@ -11,7 +11,88 @@
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
+//
+//
+//
+class RunStyles {
+public:
+	RunStyles();
+	~RunStyles();
+	int Length() const;
+	int ValueAt(int position) const;
+	int FindNextChange(int position, int end) const;
+	int StartRun(int position) const;
+	int EndRun(int position) const;
+	// Returns true if some values may have changed
+	bool FillRange(int &position, int value, int &fillLength);
+	void SetValueAt(int position, int value);
+	void InsertSpace(int position, int insertLength);
+	void DeleteAll();
+	void DeleteRange(int position, int deleteLength);
+	int Runs() const;
+	bool AllSame() const;
+	bool AllSameAs(int value) const;
+	int Find(int value, int start) const;
+	void Check() const;
+private:
+	Partitioning * starts;
+	SplitVector <int> *styles;
+	int RunFromPosition(int position) const;
+	int SplitRun(int position);
+	void RemoveRun(int run);
+	void RemoveRunIfEmpty(int run);
+	void RemoveRunIfSameAsPrevious(int run);
+	// Private so RunStyles objects can not be copied
+	RunStyles(const RunStyles &);
+};
+//
+// Decoration.h
+//
+class Decoration {
+public:
+	Decoration * next;
+	RunStyles rs;
+	int indicator;
 
+	explicit Decoration(int indicator_);
+	~Decoration();
+
+	bool Empty() const;
+};
+
+class DecorationList {
+	int currentIndicator;
+	int currentValue;
+	Decoration *current;
+	int lengthDocument;
+	Decoration *DecorationFromIndicator(int indicator);
+	Decoration *Create(int indicator, int length);
+	void Delete(int indicator);
+	void DeleteAnyEmpty();
+public:
+	Decoration *root;
+	bool clickNotified;
+
+	DecorationList();
+	~DecorationList();
+
+	void SetCurrentIndicator(int indicator);
+	int GetCurrentIndicator() const { return currentIndicator; }
+
+	void SetCurrentValue(int value);
+	int GetCurrentValue() const { return currentValue; }
+
+	// Returns true if some values may have changed
+	bool FillRange(int &position, int value, int &fillLength);
+
+	void InsertSpace(int position, int insertLength);
+	void DeleteRange(int position, int deleteLength);
+
+	int AllOnFor(int position) const;
+	int ValueAt(int indicator, int position);
+	int Start(int indicator, int position);
+	int End(int indicator, int position);
+};
 /**
  * A Position is a position within a document between two characters or at the beginning or end.
  * Sometimes used as a character index where it identifies the character after the position.
@@ -81,7 +162,6 @@ public:
 class DocWatcher;
 class DocModification;
 class Document;
-
 /**
  * Interface class for regular expression searching
  */

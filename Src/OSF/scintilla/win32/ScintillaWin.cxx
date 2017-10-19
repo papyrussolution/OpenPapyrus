@@ -177,8 +177,7 @@ public:
 
 /**
  */
-class ScintillaWin :
-	public ScintillaBase {
+class ScintillaWin : public ScintillaBase {
 	bool lastKeyDownConsumed;
 	wchar_t lastHighSurrogateChar;
 	bool capturedMouse;

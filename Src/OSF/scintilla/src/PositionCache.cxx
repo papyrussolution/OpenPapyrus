@@ -426,6 +426,16 @@ void SpecialRepresentations::Clear()
 	std::fill(startByteHasReprs, startByteHasReprs+0x100, 0);
 }
 
+BreakFinder::TextSegment::TextSegment(int start_ /*= 0*/, int length_ /*= 0*/, const Representation * representation_ /*= 0*/) :
+	start(start_), length(length_), representation(representation_)
+{
+}
+
+int BreakFinder::TextSegment::end() const
+{
+	return start + length;
+}
+
 void BreakFinder::Insert(int val)
 {
 	if(val > nextBreak) {
@@ -495,7 +505,7 @@ BreakFinder::~BreakFinder()
 {
 }
 
-TextSegment BreakFinder::Next()
+BreakFinder::TextSegment BreakFinder::Next()
 {
 	if(subBreak == -1) {
 		int prev = nextBreak;

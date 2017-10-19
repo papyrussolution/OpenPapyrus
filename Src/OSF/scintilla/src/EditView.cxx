@@ -434,11 +434,9 @@ void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, c
 		// with an extra element at the end for the end of the line.
 		ll->positions[0] = 0;
 		bool lastSegItalics = false;
-
 		BreakFinder bfLayout(ll, NULL, Range(0, numCharsInLine), posLineStart, 0, false, model.pdoc, &model.reprs, 0);
 		while(bfLayout.More()) {
-			const TextSegment ts = bfLayout.Next();
-
+			const BreakFinder::TextSegment ts = bfLayout.Next();
 			std::fill(&ll->positions[ts.start + 1], &ll->positions[ts.end() + 1], 0.0f);
 			if(vstyle.styles[ll->styles[ts.start]].Flags & Style::fVisible) {
 				if(ts.representation) {
@@ -451,16 +449,10 @@ void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, c
 					else {
 						if(representationWidth <= 0.0) {
 							XYPOSITION positionsRepr[256];  // Should expand when needed
-							posCache.MeasureWidths(surface,
-							    vstyle,
-							    STYLE_CONTROLCHAR,
-							    ts.representation->stringRep.c_str(),
-							    static_cast<uint>(ts.representation->stringRep.length()),
-							    positionsRepr,
-							    model.pdoc);
-							representationWidth =
-							    positionsRepr[ts.representation->stringRep.length() -
-							    1] + vstyle.ctrlCharPadding;
+							posCache.MeasureWidths(surface, vstyle, STYLE_CONTROLCHAR,
+							    ts.representation->stringRep.c_str(), static_cast<uint>(ts.representation->stringRep.length()),
+							    positionsRepr, model.pdoc);
+							representationWidth = positionsRepr[ts.representation->stringRep.length() - 1] + vstyle.ctrlCharPadding;
 						}
 					}
 					for(int ii = 0; ii < ts.length; ii++)
@@ -477,8 +469,7 @@ void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, c
 						    ts.length, ll->positions + ts.start + 1, model.pdoc);
 					}
 				}
-				lastSegItalics = (!ts.representation) &&
-				    ((ll->chars[ts.end() - 1] != ' ') && vstyle.styles[ll->styles[ts.start]].italic);
+				lastSegItalics = (!ts.representation) && ((ll->chars[ts.end() - 1] != ' ') && vstyle.styles[ll->styles[ts.start]].italic);
 			}
 
 			for(int posToIncrease = ts.start + 1; posToIncrease <= ts.end(); posToIncrease++) {
@@ -585,66 +576,59 @@ void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, c
 	}
 }
 
-Point EditView::LocationFromPosition(Surface * surface, const EditModel &model, SelectionPosition pos, int topLine,
-    const ViewStyle &vs, PointEnd pe)
+Point EditView::LocationFromPosition(Surface * surface, const EditModel &model, SelectionPosition pos, int topLine, const ViewStyle &vs, PointEnd pe)
 {
 	Point pt;
-	if(pos.Position() == INVALID_POSITION)
-		return pt;
-	int lineDoc = model.pdoc->LineFromPosition(pos.Position());
-	int posLineStart = model.pdoc->LineStart(lineDoc);
-	if((pe & peLineEnd) && (lineDoc > 0) && (pos.Position() == posLineStart)) {
-		// Want point at end of first line
-		lineDoc--;
-		posLineStart = model.pdoc->LineStart(lineDoc);
+	if(pos.Position() != INVALID_POSITION) {
+		int lineDoc = model.pdoc->LineFromPosition(pos.Position());
+		int posLineStart = model.pdoc->LineStart(lineDoc);
+		if((pe & peLineEnd) && (lineDoc > 0) && (pos.Position() == posLineStart)) {
+			// Want point at end of first line
+			lineDoc--;
+			posLineStart = model.pdoc->LineStart(lineDoc);
+		}
+		const int lineVisible = model.cs.DisplayFromDoc(lineDoc);
+		AutoLineLayout ll(llc, RetrieveLineLayout(lineDoc, model));
+		if(surface && ll) {
+			LayoutLine(model, lineDoc, surface, vs, ll, model.wrapWidth);
+			const int posInLine = pos.Position() - posLineStart;
+			pt = ll->PointFromPosition(posInLine, vs.lineHeight, pe);
+			pt.y += (lineVisible - topLine) * vs.lineHeight;
+			pt.x += vs.textStart - model.xOffset;
+		}
+		pt.x += pos.VirtualSpace() * vs.styles[ll->EndLineStyle()].spaceWidth;
 	}
-	const int lineVisible = model.cs.DisplayFromDoc(lineDoc);
-	AutoLineLayout ll(llc, RetrieveLineLayout(lineDoc, model));
-	if(surface && ll) {
-		LayoutLine(model, lineDoc, surface, vs, ll, model.wrapWidth);
-		const int posInLine = pos.Position() - posLineStart;
-		pt = ll->PointFromPosition(posInLine, vs.lineHeight, pe);
-		pt.y += (lineVisible - topLine) * vs.lineHeight;
-		pt.x += vs.textStart - model.xOffset;
-	}
-	pt.x += pos.VirtualSpace() * vs.styles[ll->EndLineStyle()].spaceWidth;
 	return pt;
 }
 
 Range EditView::RangeDisplayLine(Surface * surface, const EditModel &model, int lineVisible, const ViewStyle &vs)
 {
 	Range rangeSubLine = Range(0, 0);
-	if(lineVisible < 0) {
-		return rangeSubLine;
-	}
-	const int lineDoc = model.cs.DocFromDisplay(lineVisible);
-	const int positionLineStart = model.pdoc->LineStart(lineDoc);
-	AutoLineLayout ll(llc, RetrieveLineLayout(lineDoc, model));
-	if(surface && ll) {
-		LayoutLine(model, lineDoc, surface, vs, ll, model.wrapWidth);
-		const int lineStartSet = model.cs.DisplayFromDoc(lineDoc);
-		const int subLine = lineVisible - lineStartSet;
-		if(subLine < ll->lines) {
-			rangeSubLine = ll->SubLineRange(subLine);
-			if(subLine == ll->lines-1) {
-				rangeSubLine.end = model.pdoc->LineStart(lineDoc + 1) -
-				    positionLineStart;
+	if(lineVisible >= 0) {
+		const int lineDoc = model.cs.DocFromDisplay(lineVisible);
+		const int positionLineStart = model.pdoc->LineStart(lineDoc);
+		AutoLineLayout ll(llc, RetrieveLineLayout(lineDoc, model));
+		if(surface && ll) {
+			LayoutLine(model, lineDoc, surface, vs, ll, model.wrapWidth);
+			const int lineStartSet = model.cs.DisplayFromDoc(lineDoc);
+			const int subLine = lineVisible - lineStartSet;
+			if(subLine < ll->lines) {
+				rangeSubLine = ll->SubLineRange(subLine);
+				if(subLine == ll->lines-1) {
+					rangeSubLine.end = model.pdoc->LineStart(lineDoc + 1) - positionLineStart;
+				}
 			}
 		}
+		rangeSubLine.start += positionLineStart;
+		rangeSubLine.end += positionLineStart;
 	}
-	rangeSubLine.start += positionLineStart;
-	rangeSubLine.end += positionLineStart;
 	return rangeSubLine;
 }
 
-SelectionPosition EditView::SPositionFromLocation(Surface * surface,
-    const EditModel &model,
-    PointDocument pt,
-    bool canReturnInvalid,
-    bool charPosition,
-    bool virtualSpace,
-    const ViewStyle &vs)
+SelectionPosition EditView::SPositionFromLocation(Surface * surface, const EditModel & model, const PointDocument & rPt,
+    bool canReturnInvalid, bool charPosition, bool virtualSpace, const ViewStyle & vs)
 {
+	PointDocument pt = rPt;
 	pt.x = pt.x - vs.textStart;
 	int visibleLine = static_cast<int>(floor(pt.y / vs.lineHeight));
 	if(!canReturnInvalid && (visibleLine < 0))
@@ -1438,7 +1422,7 @@ void EditView::DrawBackground(Surface * surface, const EditModel &model, const V
 
 	// Background drawing loop
 	while(bfBack.More()) {
-		const TextSegment ts = bfBack.Next();
+		const BreakFinder::TextSegment ts = bfBack.Next();
 		const int i = ts.end() - 1;
 		const int iDoc = i + posLineStart;
 
@@ -1630,7 +1614,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 	    (((phasesDraw == phasesOne) && selBackDrawn) || vsDraw.selColours.fore.isSet), model.pdoc, &model.reprs, &vsDraw);
 
 	while(bfFore.More()) {
-		const TextSegment ts = bfFore.Next();
+		const BreakFinder::TextSegment ts = bfFore.Next();
 		const int i = ts.end() - 1;
 		const int iDoc = i + posLineStart;
 
@@ -1731,8 +1715,7 @@ void EditView::DrawForeground(Surface * surface, const EditModel &model, const V
 						    cc, 1, textBack, textFore);
 					}
 					else {
-						DrawTextBlob(surface, vsDraw, rcSegment, ts.representation->stringRep.c_str(),
-						    textBack, textFore, phasesDraw == phasesOne);
+						DrawTextBlob(surface, vsDraw, rcSegment, ts.representation->stringRep.c_str(), textBack, textFore, phasesDraw == phasesOne);
 					}
 				}
 			}

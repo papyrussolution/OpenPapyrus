@@ -50,3 +50,8 @@ EditModel::~EditModel()
 	pdoc = 0;
 }
 
+ColourDesired EditModel::SelectionBackground(const ViewStyle & vsDraw, bool main) const
+{
+	return main ? ((EditModelFlags & fPrimarySelection) ? vsDraw.selColours.back : vsDraw.selBackground2) : vsDraw.selAdditionalBackground;
+}
+

@@ -203,12 +203,12 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 	//Platform::DebugPrintf("AutoComplete %s\n", list);
 	ct.CallTipCancel();
 
-	if(ac.chooseSingle && (listType == 0)) {
+	if(ac.GetFlags() & ac.fChooseSingle && (listType == 0)) {
 		if(list && !strchr(list, ac.GetSeparator())) {
 			const char * typeSep = strchr(list, ac.GetTypesep());
 			int lenInsert = typeSep ?
 			    static_cast<int>(typeSep-list) : static_cast<int>(strlen(list));
-			if(ac.ignoreCase) {
+			if(ac.GetFlags() & ac.fIgnoreCase) {
 				// May need to convert the case before invocation, so remove lenEntered characters
 				AutoCompleteInsert(sel.MainCaret() - lenEntered, lenEntered, list, lenInsert);
 			}
@@ -327,7 +327,7 @@ void ScintillaBase::AutoCompleteCharacterDeleted()
 	if(sel.MainCaret() < ac.posStart - ac.startLen) {
 		AutoCompleteCancel();
 	}
-	else if(ac.cancelAtStartPos && (sel.MainCaret() <= ac.posStart)) {
+	else if(ac.GetFlags() & ac.fCancelAtStartPos && (sel.MainCaret() <= ac.posStart)) {
 		AutoCompleteCancel();
 	}
 	else {
@@ -343,44 +343,38 @@ void ScintillaBase::AutoCompleteCharacterDeleted()
 void ScintillaBase::AutoCompleteCompleted(char ch, uint completionMethod)
 {
 	int item = ac.GetSelection();
-	if(item == -1) {
+	if(item == -1)
 		AutoCompleteCancel();
-		return;
+	else {
+		const std::string selected = ac.GetValue(item);
+		ac.Show(false);
+		SCNotification scn = {};
+		scn.nmhdr.code = listType > 0 ? SCN_USERLISTSELECTION : SCN_AUTOCSELECTION;
+		scn.message = 0;
+		scn.ch = ch;
+		scn.listCompletionMethod = completionMethod;
+		scn.wParam = listType;
+		scn.listType = listType;
+		Position firstPos = ac.posStart - ac.startLen;
+		scn.position = firstPos;
+		scn.lParam = firstPos;
+		scn.text = selected.c_str();
+		NotifyParent(scn);
+		if(ac.Active()) {
+			ac.Cancel();
+			if(listType > 0)
+				return;
+			Position endPos = sel.MainCaret();
+			if(ac.GetFlags() & ac.fDropRestOfWord)
+				endPos = pdoc->ExtendWordSelect(endPos, 1, true);
+			if(endPos < firstPos)
+				return;
+			AutoCompleteInsert(firstPos, endPos - firstPos, selected.c_str(), static_cast<int>(selected.length()));
+			SetLastXChosen();
+			scn.nmhdr.code = SCN_AUTOCCOMPLETED;
+			NotifyParent(scn);
+		}
 	}
-	const std::string selected = ac.GetValue(item);
-
-	ac.Show(false);
-
-	SCNotification scn = {};
-	scn.nmhdr.code = listType > 0 ? SCN_USERLISTSELECTION : SCN_AUTOCSELECTION;
-	scn.message = 0;
-	scn.ch = ch;
-	scn.listCompletionMethod = completionMethod;
-	scn.wParam = listType;
-	scn.listType = listType;
-	Position firstPos = ac.posStart - ac.startLen;
-	scn.position = firstPos;
-	scn.lParam = firstPos;
-	scn.text = selected.c_str();
-	NotifyParent(scn);
-
-	if(!ac.Active())
-		return;
-	ac.Cancel();
-
-	if(listType > 0)
-		return;
-
-	Position endPos = sel.MainCaret();
-	if(ac.dropRestOfWord)
-		endPos = pdoc->ExtendWordSelect(endPos, 1, true);
-	if(endPos < firstPos)
-		return;
-	AutoCompleteInsert(firstPos, endPos - firstPos, selected.c_str(), static_cast<int>(selected.length()));
-	SetLastXChosen();
-
-	scn.nmhdr.code = SCN_AUTOCCOMPLETED;
-	NotifyParent(scn);
 }
 
 int ScintillaBase::AutoCompleteGetCurrent() const
@@ -794,55 +788,25 @@ sptr_t ScintillaBase::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    listType = 0;
 		    AutoCompleteStart(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-		case SCI_AUTOCCANCEL:
-		    ac.Cancel();
-		    break;
-		case SCI_AUTOCCOMPLETE:
-		    AutoCompleteCompleted(0, SC_AC_COMMAND);
-		    break;
-		case SCI_AUTOCSETSEPARATOR:
-		    ac.SetSeparator(static_cast<char>(wParam));
-		    break;
-		case SCI_AUTOCSTOPS:
-		    ac.SetStopChars(reinterpret_cast<char *>(lParam));
-		    break;
-		case SCI_AUTOCSELECT:
-		    ac.Select(reinterpret_cast<char *>(lParam));
-		    break;
-		case SCI_AUTOCSETCANCELATSTART:
-		    ac.cancelAtStartPos = wParam != 0;
-		    break;
-		case SCI_AUTOCSETFILLUPS:
-		    ac.SetFillUpChars(reinterpret_cast<char *>(lParam));
-		    break;
-		case SCI_AUTOCSETCHOOSESINGLE:
-		    ac.chooseSingle = wParam != 0;
-		    break;
-		case SCI_AUTOCSETIGNORECASE:
-		    ac.ignoreCase = wParam != 0;
-		    break;
-		case SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR:
-		    ac.ignoreCaseBehaviour = static_cast<uint>(wParam);
-		    break;
-		case SCI_AUTOCSETMULTI:
-		    multiAutoCMode = static_cast<int>(wParam);
-		    break;
-		case SCI_AUTOCSETORDER:
-		    ac.autoSort = static_cast<int>(wParam);
-		    break;
+		case SCI_AUTOCCANCEL: ac.Cancel(); break;
+		case SCI_AUTOCCOMPLETE: AutoCompleteCompleted(0, SC_AC_COMMAND); break;
+		case SCI_AUTOCSETSEPARATOR: ac.SetSeparator(static_cast<char>(wParam)); break;
+		case SCI_AUTOCSTOPS: ac.SetStopChars(reinterpret_cast<char *>(lParam)); break;
+		case SCI_AUTOCSELECT: ac.Select(reinterpret_cast<char *>(lParam)); break;
+		case SCI_AUTOCSETCANCELATSTART: ac.SetFlag(ac.fCancelAtStartPos, wParam); break;
+		case SCI_AUTOCSETFILLUPS: ac.SetFillUpChars(reinterpret_cast<char *>(lParam)); break;
+		case SCI_AUTOCSETCHOOSESINGLE: ac.SetFlag(ac.fChooseSingle, wParam); break;
+		case SCI_AUTOCSETIGNORECASE: ac.SetFlag(ac.fIgnoreCase, wParam); break;
+		case SCI_AUTOCSETCASEINSENSITIVEBEHAVIOUR: ac.ignoreCaseBehaviour = static_cast<uint>(wParam); break;
+		case SCI_AUTOCSETMULTI: multiAutoCMode = static_cast<int>(wParam); break;
+		case SCI_AUTOCSETORDER: ac.autoSort = static_cast<int>(wParam); break;
 		case SCI_USERLISTSHOW:
 		    listType = static_cast<int>(wParam);
 		    AutoCompleteStart(0, reinterpret_cast<const char *>(lParam));
 		    break;
-		case SCI_AUTOCSETAUTOHIDE:
-		    ac.autoHide = wParam != 0;
-		    break;
-		case SCI_AUTOCSETDROPRESTOFWORD:
-		    ac.dropRestOfWord = wParam != 0;
-		    break;
-		case SCI_AUTOCSETMAXHEIGHT:
-		    ac.lb->SetVisibleRows(static_cast<int>(wParam));
-		    break;
+		case SCI_AUTOCSETAUTOHIDE: ac.SetFlag(ac.fAutoHide, wParam); break;
+		case SCI_AUTOCSETDROPRESTOFWORD: ac.SetFlag(ac.fDropRestOfWord, wParam); break;
+		case SCI_AUTOCSETMAXHEIGHT: ac.lb->SetVisibleRows(static_cast<int>(wParam)); break;
 		case SCI_AUTOCSETMAXWIDTH:
 		    maxListWidth = static_cast<int>(wParam);
 		    break;
@@ -925,19 +889,19 @@ sptr_t ScintillaBase::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SETIDENTIFIERS:
 		    DocumentLexState()->SetIdentifiers(static_cast<int>(wParam), reinterpret_cast<const char *>(lParam));
 		    break;
-		case SCI_AUTOCGETCHOOSESINGLE: return ac.chooseSingle;
+		case SCI_AUTOCGETCHOOSESINGLE: return BIN(ac.GetFlags() & ac.fChooseSingle);
 		case SCI_AUTOCACTIVE: return ac.Active();
 		case SCI_AUTOCPOSSTART: return ac.posStart;
 		case SCI_AUTOCGETSEPARATOR: return ac.GetSeparator();
 		case SCI_AUTOCGETCURRENT: return AutoCompleteGetCurrent();
 		case SCI_AUTOCGETCURRENTTEXT: return AutoCompleteGetCurrentText(reinterpret_cast<char *>(lParam));
-		case SCI_AUTOCGETCANCELATSTART: return ac.cancelAtStartPos;
-		case SCI_AUTOCGETIGNORECASE: return ac.ignoreCase;
+		case SCI_AUTOCGETCANCELATSTART: return BIN(ac.GetFlags() & ac.fCancelAtStartPos);
+		case SCI_AUTOCGETIGNORECASE: return BIN(ac.GetFlags() & ac.fIgnoreCase);
 		case SCI_AUTOCGETCASEINSENSITIVEBEHAVIOUR: return ac.ignoreCaseBehaviour;
 		case SCI_AUTOCGETMULTI: return multiAutoCMode;
 		case SCI_AUTOCGETORDER: return ac.autoSort;
-		case SCI_AUTOCGETAUTOHIDE: return ac.autoHide;
-		case SCI_AUTOCGETDROPRESTOFWORD: return ac.dropRestOfWord;
+		case SCI_AUTOCGETAUTOHIDE: return BIN(ac.GetFlags() & ac.fAutoHide);
+		case SCI_AUTOCGETDROPRESTOFWORD: return BIN(ac.GetFlags() & ac.fDropRestOfWord);
 		case SCI_AUTOCGETMAXHEIGHT: return ac.lb->GetVisibleRows();
 		case SCI_AUTOCGETMAXWIDTH: return maxListWidth;
 		case SCI_AUTOCGETTYPESEPARATOR: return ac.GetTypesep();

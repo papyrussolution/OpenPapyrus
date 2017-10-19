@@ -3867,7 +3867,7 @@ struct SPathStruc {
 	void   FASTCALL Split(const char * pPath);
 	//
 	// Descr: Комбинирует компоненты экземпляра в текстовое представление пути.
-	// Note: 
+	// Note:
 	//   -- Функция предварительно очищает rBuf.
 	//   -- Для разделения подкаталогов используется обратный слэш ('\\')
 	//   -- Инвариант по отношению к лидирующей точке компонента Ext
@@ -4348,7 +4348,7 @@ int   SLAPI strtodate(const char * pBuf, long fmt, void *);
 LDATE FASTCALL strtodate_(const char * pBuf, long fmt);
 //
 // Descr: Заимствованная у CURL функция преобразования строки в дату/время.
-// Note: поскольку встроенная библиотеку libcurl зависит от SLIB, то оригинальный код 
+// Note: поскольку встроенная библиотеку libcurl зависит от SLIB, то оригинальный код
 //   также использует эту функцию.
 //
 time_t FASTCALL Sl_Curl_GetDate(const char * p);
@@ -4497,7 +4497,7 @@ int    SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileNam
 //   1 - удалось создать файл с заданным именем
 //   0 - pFileName == 0 || не удалось создать файл с заданным именем.
 //
-int    SLAPI createEmptyFile(const char * pFileName);
+int    FASTCALL createEmptyFile(const char * pFileName);
 //
 // Descr: создает уникальное имя для временного файла
 //   по шаблону {pDir [+ \\] + pPrefix + counter [+ .] + pExt}.
@@ -4527,10 +4527,10 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 //
 long   SLAPI SearchStrInFile(FILE *, long startOffset, const char * pStr, int ignoreCase);
 
-#define SPRGRS_CONTINUE  0 // for WIN32 eq PROGRESS_CONTINUE 
-#define SPRGRS_CANCEL    1 // for WIN32 eq PROGRESS_CANCEL   
-#define SPRGRS_STOP      2 // for WIN32 eq PROGRESS_STOP     
-#define SPRGRS_QUITE     3 // for WIN32 eq PROGRESS_QUITE    
+#define SPRGRS_CONTINUE  0 // for WIN32 eq PROGRESS_CONTINUE
+#define SPRGRS_CANCEL    1 // for WIN32 eq PROGRESS_CANCEL
+#define SPRGRS_STOP      2 // for WIN32 eq PROGRESS_STOP
+#define SPRGRS_QUITE     3 // for WIN32 eq PROGRESS_QUITE
 
 struct SDataMoveProgressInfo;
 
@@ -4548,7 +4548,7 @@ struct SDataMoveProgressInfo {
 	uint32 OverallItemsDone;  // Количество элементов, передача которых завершена к моменту вызова callback
 	uint32 OverallItemsCount; // Общее количество элементов для передачи
 	int64  OverallSizeDone;   // Количество данных всех элементов, переданное на момент вызова callback
-	int64  OverallSizeTotal;  // Общий размер передаваемых данных всех элементов 
+	int64  OverallSizeTotal;  // Общий размер передаваемых данных всех элементов
 	const  char * P_Src;  // Указатель на текст, информирующий об источнике данных
 	const  char * P_Dest; // Указатель на текст, информирующий о получателе данных
 	void * ExtraPtr;      // Указатель на прикладную структуру данных, поставляемую вызывающей функцией
@@ -4570,10 +4570,7 @@ int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int com
 //
 //
 struct ExecVDosParam {
-	ExecVDosParam()
-	{
-		Flags = 0;
-	}
+	SLAPI  ExecVDosParam();
 	enum {
 		fExitAfter = 0x0001,
 		fWait      = 0x0002
@@ -5176,7 +5173,7 @@ double FASTCALL round(double n, int prec);
 //   >0 до большей величины
 //   0  до ближайшей величины по финансовому правилу (0.5 -> 1.0).
 //
-double SLAPI    round(double n, double prec, int dir);
+double FASTCALL round(double n, double prec, int dir);
 double FASTCALL R0(double);
 //
 // Descr: Округляет входящий параметр до ближайшего целого числа
@@ -5941,7 +5938,7 @@ public:
 
 template <class T> class TSRingStack : public SStack {
 public:
-	TSRingStack(uint cycle) : SStack(sizeof(T), /*aDelta,*/O_ARRAY|aryRing) 
+	TSRingStack(uint cycle) : SStack(sizeof(T), /*aDelta,*/O_ARRAY|aryRing)
 	{
 		assert(cycle > 1);
 		expand(cycle);

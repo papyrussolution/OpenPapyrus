@@ -316,7 +316,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	SString temp_path, log_path, pack_path, spii_path, sartredb_path;
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
-	GetPath(PPPATH_PACK, 0, pack_path); // @v7.8.2
+	GetPath(PPPATH_PACK, 0, pack_path);
 	GetPath(PPPATH_SPII, 0, spii_path); // @v9.7.8
 	GetPath(PPPATH_SARTREDB, 0, sartredb_path); // @v9.7.8
 	PathItem * p = 0;

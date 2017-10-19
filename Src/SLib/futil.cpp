@@ -359,7 +359,7 @@ SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SStr
 	return rPath;
 }
 
-int SLAPI createEmptyFile(const char * pFileName)
+int FASTCALL createEmptyFile(const char * pFileName)
 {
 	int    ok = 0;
 	if(pFileName) {

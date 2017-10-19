@@ -15,17 +15,18 @@ using namespace Scintilla;
 #endif
 
 AutoComplete::AutoComplete() :
-	active(false),
+	Flags(fCancelAtStartPos|fAutoHide),
+	//active(false),
 	separator(' '),
 	typesep('?'),
-	ignoreCase(false),
-	chooseSingle(false),
+	//ignoreCase(false),
+	//chooseSingle(false),
 	lb(0),
 	posStart(0),
 	startLen(0),
-	cancelAtStartPos(true),
-	autoHide(true),
-	dropRestOfWord(false),
+	//cancelAtStartPos(true),
+	//autoHide(true),
+	//dropRestOfWord(false),
 	ignoreCaseBehaviour(SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE),
 	widthLBDefault(100),
 	heightLBDefault(100),
@@ -44,17 +45,19 @@ AutoComplete::~AutoComplete()
 
 bool AutoComplete::Active() const
 {
-	return active;
+	//return active;
+	return BIN(Flags & fActive);
 }
 
 void AutoComplete::Start(Window &parent, int ctrlID, int position, Point location, int startLen_, int lineHeight, bool unicodeMode, int technology)
 {
-	if(active) {
+	if(/*active*/Flags & fActive) {
 		Cancel();
 	}
 	lb->Create(parent, ctrlID, location, lineHeight, unicodeMode, technology);
 	lb->Clear();
-	active = true;
+	//active = true;
+	Flags |= fActive;
 	startLen = startLen_;
 	posStart = position;
 }
@@ -132,7 +135,7 @@ struct Sorter {
 		int lenB = indices[b * 2 + 1] - indices[b * 2];
 		int len  = smin(lenA, lenB);
 		int cmp;
-		if(ac->ignoreCase)
+		if(/*ac->ignoreCase*/ac->GetFlags() & AutoComplete::fIgnoreCase)
 			cmp = CompareNCaseInsensitive(list + indices[a * 2], list + indices[b * 2], len);
 		else
 			cmp = strncmp(list + indices[a * 2], list + indices[b * 2], len);
@@ -166,7 +169,7 @@ void AutoComplete::SetList(const char * list)
 			for(size_t i = 0; i < sortMatrix.size(); ++i) {
 				int wordLen = IndexSort.indices[sortMatrix[i] * 2 + 2] - IndexSort.indices[sortMatrix[i] * 2];
 				if(wordLen > maxItemLen-2)
-					wordLen = maxItemLen - 2;
+					wordLen = maxItemLen-2;
 				memcpy(item, list + IndexSort.indices[sortMatrix[i] * 2], wordLen);
 				if((i+1) == sortMatrix.size()) {
 					// Last item so remove separator if present
@@ -214,7 +217,8 @@ void AutoComplete::Cancel()
 	if(lb->Created()) {
 		lb->Clear();
 		lb->Destroy();
-		active = false;
+		//active = false;
+		Flags &= fActive;
 	}
 }
 
@@ -239,18 +243,18 @@ void AutoComplete::Select(const char * word)
 		int pivot = (start + end) / 2;
 		char item[maxItemLen];
 		lb->GetValue(sortMatrix[pivot], item, maxItemLen);
-		int cond = ignoreCase ? CompareNCaseInsensitive(word, item, lenWord) : strncmp(word, item, lenWord);
+		int cond = /*ignoreCase*/(Flags & fIgnoreCase) ? CompareNCaseInsensitive(word, item, lenWord) : strncmp(word, item, lenWord);
 		if(!cond) {
 			// Find first match
 			while(pivot > start) {
 				lb->GetValue(sortMatrix[pivot-1], item, maxItemLen);
-				cond = ignoreCase ? CompareNCaseInsensitive(word, item, lenWord) : strncmp(word, item, lenWord);
+				cond = /*ignoreCase*/(Flags & fIgnoreCase) ? CompareNCaseInsensitive(word, item, lenWord) : strncmp(word, item, lenWord);
 				if(0 != cond)
 					break;
 				--pivot;
 			}
 			location = pivot;
-			if(ignoreCase && ignoreCaseBehaviour == SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE) {
+			if(/*ignoreCase*/(Flags & fIgnoreCase) && ignoreCaseBehaviour == SC_CASEINSENSITIVEBEHAVIOUR_RESPECTCASE) {
 				// Check for exact-case match
 				for(; pivot <= end; pivot++) {
 					lb->GetValue(sortMatrix[pivot], item, maxItemLen);
@@ -271,7 +275,7 @@ void AutoComplete::Select(const char * word)
 		}
 	}
 	if(location == -1) {
-		if(autoHide)
+		if(/*autoHide*/Flags & fAutoHide)
 			Cancel();
 		else
 			lb->Select(-1);

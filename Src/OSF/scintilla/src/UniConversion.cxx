@@ -19,6 +19,20 @@ using namespace Scintilla;
 namespace Scintilla {
 #endif
 
+int FASTCALL UnicodeFromUTF8(const uchar * us)
+{
+	if(us[0] < 0xC2)
+		return us[0];
+	else if(us[0] < 0xE0)
+		return ((us[0] & 0x1F) << 6) + (us[1] & 0x3F);
+	else if(us[0] < 0xF0) 
+		return ((us[0] & 0xF) << 12) + ((us[1] & 0x3F) << 6) + (us[2] & 0x3F);
+	else if(us[0] < 0xF5)
+		return ((us[0] & 0x7) << 18) + ((us[1] & 0x3F) << 12) + ((us[2] & 0x3F) << 6) + (us[3] & 0x3F);
+	else
+		return us[0];
+}
+
 bool FASTCALL UTF8IsTrailByte(int ch) 
 {
 	return (ch >= 0x80) && (ch < 0xc0);

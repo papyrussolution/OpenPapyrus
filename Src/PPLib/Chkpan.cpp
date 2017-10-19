@@ -518,7 +518,7 @@ void CPosProcessor::ExtCcData::Clear()
 	DlvrDtm.SetZero();
 	InitDtm.SetZero();
 	MEMSZERO(Addr_);
-	Memo = 0;
+	Memo.Z();
 }
 //
 //
@@ -1073,10 +1073,36 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	PPObjLocPrinter lp_obj;
 	SETFLAG(Flags, fLocPrinters, lp_obj.IsPrinter());
 	{
-		int    esc_chk = CsObj.CheckRights(CSESSRT_ESCCHECK);
+		// @v9.8.4 {
+		struct RtTabEntry { long Orf; long CsR; int IsOprRt; };
+		RtTabEntry rt_tab[] = {
+			{ orfReturns,                 CSESSOPRT_RETCHECK,       1 },
+			{ orfEscCheck,                CSESSRT_ESCCHECK,         0 },
+			{ orfEscChkLine,              CSESSOPRT_ESCCLINE,       1 },
+			{ orfBanking,                 CSESSOPRT_BANKING,        1 },
+			{ orfZReport,                 CSESSRT_CLOSE,            0 },
+			{ orfPreCheck,                CSESSOPRT_PREPRT,         1 },
+			{ orfSuspCheck,               CSESSOPRT_SUSPCHECK,      1 },
+			{ orfCopyCheck,               CSESSOPRT_COPYCHECK,      1 },
+			{ orfCopyZReport,             CSESSOPRT_COPYZREPT,      1 },
+			{ orfPrintCheck,              CSESSRT_ADDCHECK,         0 },
+			{ orfRowDiscount,             CSESSOPRT_ROWDISCOUNT,    1 },
+			{ orfXReport,                 CSESSOPRT_XREP,           1 },
+			{ orfSplitCheck,              CSESSOPRT_SPLITCHK,       1 },
+			{ orfMergeChecks,             CSESSOPRT_MERGECHK,       1 },
+			{ orfChgPrintedCheck,         CSESSOPRT_CHGPRINTEDCHK,  1 },
+			{ orfRestoreSuspWithoutAgent, CSESSOPRT_RESTORESUSPWOA, 1 },
+			{ orfChgAgentInCheck,         CSESSOPRT_CHGCCAGENT,     1 },
+			{ orfEscChkLineBeforeOrder,   CSESSOPRT_ESCCLINEBORD,   1 }
+		};
+		for(uint i = 0; i < SIZEOFARRAY(rt_tab); i++) {
+			SETFLAG(OperRightsFlags, rt_tab[i].Orf, CsObj.CheckRights(rt_tab[i].CsR, rt_tab[i].IsOprRt));
+		}
+		// } @v9.8.4
+		/* @v9.8.4 
 		SETFLAG(OperRightsFlags, orfReturns,     CsObj.CheckRights(CSESSOPRT_RETCHECK, 1));
-		SETFLAG(OperRightsFlags, orfEscCheck,    esc_chk);
-		SETFLAG(OperRightsFlags, orfEscChkLine, /*esc_chk && @?*/CsObj.CheckRights(CSESSOPRT_ESCCLINE, 1));
+		SETFLAG(OperRightsFlags, orfEscCheck,    CsObj.CheckRights(CSESSRT_ESCCHECK));
+		SETFLAG(OperRightsFlags, orfEscChkLine,  CsObj.CheckRights(CSESSOPRT_ESCCLINE, 1));
 		SETFLAG(OperRightsFlags, orfBanking,     CsObj.CheckRights(CSESSOPRT_BANKING, 1));
 		SETFLAG(OperRightsFlags, orfZReport,     CsObj.CheckRights(CSESSRT_CLOSE));
 		SETFLAG(OperRightsFlags, orfPreCheck,    CsObj.CheckRights(CSESSOPRT_PREPRT,    1));
@@ -1092,6 +1118,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		SETFLAG(OperRightsFlags, orfRestoreSuspWithoutAgent, CsObj.CheckRights(CSESSOPRT_RESTORESUSPWOA, 1));
 		SETFLAG(OperRightsFlags, orfChgAgentInCheck, CsObj.CheckRights(CSESSOPRT_CHGCCAGENT, 1)); // @v8.2.1
 		SETFLAG(OperRightsFlags, orfEscChkLineBeforeOrder, CsObj.CheckRights(CSESSOPRT_ESCCLINEBORD, 1)); // @v8.7.3
+		*/
 		OrgOperRights = OperRightsFlags;
 	}
 }
@@ -1234,7 +1261,7 @@ int CPosProcessor::GetState() const
 	return State_p;
 }
 
-int CPosProcessor::IsState(int s) const
+int FASTCALL CPosProcessor::IsState(int s) const
 {
 	return BIN(State_p == s);
 }
@@ -3827,6 +3854,29 @@ int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 	return ok;
 }
 
+static void FASTCALL InformCashNoteAndDelivery(HWND hParentWnd, const PosPaymentBlock & rBlk)
+{
+	SMessageWindow * p_win = new SMessageWindow;
+	if(p_win) {
+		double cash_amount = rBlk.CcPl.Get(CCAMTTYP_CASH);
+		if(cash_amount == 0.0)
+			cash_amount = rBlk.CashAmt;
+		if(cash_amount == 0.0)
+			cash_amount = rBlk.AmtToPaym;
+		SString temp_buf;
+		SString msg_buf, words;
+		PPLoadText(PPTXT_CUSTDISP_WORDS, words);
+		PPGetSubStr(words, PPCDY_TOTAL, temp_buf);
+		msg_buf.Cat(temp_buf).Space().Cat(cash_amount, SFMT_MONEY).CR();
+		PPGetSubStr(words, PPCDY_CASH, temp_buf);
+		msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(rBlk.NoteAmt, SFMT_MONEY).CR();
+		PPGetSubStr(words, PPCDY_CHANGE, temp_buf);
+		msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(rBlk.DeliveryAmt, SFMT_MONEY).CR();
+		p_win->Open(msg_buf, 0, hParentWnd, 0, 10000, GetColorRef(SClrCyan),
+			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0);
+	}
+}
+
 void CheckPaneDialog::ProcessEnter(int selectInput)
 {
 	const int  prev_state = GetState();
@@ -4019,8 +4069,6 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					}
 					if(r > 0 && r != 1000) {
 						PgsBlock pgsb(qtty);
-						//SETIFZ(qtty, 1.0);
-						//SString serial = is_serial ? code : 0;
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
 						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
@@ -4077,7 +4125,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			else if(!(OperRightsFlags & orfPrintCheck))
 				MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 			else {
-				double diff = 0.0;
+				// @v9.8.4 Standalone variable (double diff = 0.0) replaced with paym_blk2.DeliveryAmt
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
 				if(CalculatePaymentList(paym_blk2, 1) > 0) {
 					CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
@@ -4086,24 +4134,11 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						CDispCommand(cdispcmdTotalDiscount, 0, paym_blk2.GetPctDiscount(), paym_blk2.GetDiscount());
 					switch(paym_blk2.Kind) {
 						case cpmCash:
-							if(CalcDiff(paym_blk2.AmtToPaym, &diff) > 0) {
-								// @paul {
-								SMessageWindow * p_win = new SMessageWindow;
-								if(p_win) {
-									SString msg_buf, words;
-									PPLoadText(PPTXT_CUSTDISP_WORDS, words);
-									PPGetSubStr(words, PPCDY_TOTAL, temp_buf);
-									msg_buf.Cat(temp_buf).Space().Cat(paym_blk2.AmtToPaym, SFMT_MONEY).CR();
-									PPGetSubStr(words, PPCDY_CASH, temp_buf);
-									msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(paym_blk2.AmtToPaym+diff, SFMT_MONEY).CR();
-									PPGetSubStr(words, PPCDY_CHANGE, temp_buf);
-									msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(diff, SFMT_MONEY).CR();
-									p_win->Open(msg_buf, 0, H(), 0, 10000, GetColorRef(SClrCyan),
-										SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0);
-								}
-								// } @paul
-								CDispCommand(cdispcmdChange, 0, paym_blk2.AmtToPaym + diff, diff);
-								AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
+							if(CalcDiff(paym_blk2.AmtToPaym, &paym_blk2.DeliveryAmt) > 0) {
+								paym_blk2.NoteAmt = paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt;
+								InformCashNoteAndDelivery(H(), paym_blk2);
+								CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
+								AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.NoteAmt, accmRegular);
 							}
 							break;
 						case cpmBank:
@@ -4112,7 +4147,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									SString slip_rep;
 									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, slip_rep) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, slip_rep);
 									if(r) {
-										AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
+										AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 										if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
 											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 											CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
@@ -4122,11 +4157,11 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										PPError();
 								}
 								else
-									AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
+									AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 							}
 							break;
 						case cpmIncorpCrd:
-							AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + diff, accmRegular);
+							AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
 							break;
 						case cpmUndef:
 							{
@@ -4148,15 +4183,16 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										_again = 0;
 										// @vmiller {
 										if(P_BNKTERM) { // Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
+											SString slip_rep;
 											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
-													SString slip_rep;
+													slip_rep.Z();
 													if(bank_amt > 0) {
 														r = P_BNKTERM->Pay(bank_amt, slip_rep);
 													}
 													else {
-														r = P_BNKTERM->Refund(bank_amt, slip_rep);
+														r = P_BNKTERM->Refund(-bank_amt, slip_rep); // @v9.8.4 (+)-->(-)
 													}
 													if(r) {
 														if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
@@ -4171,8 +4207,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 											}
 										}
 										// } @vmiller
-										if(paym_blk2.NoteAmt > 0.0 && paym_blk2.DeliveryAmt > 0.0)
+										if(paym_blk2.NoteAmt > 0.0 && paym_blk2.DeliveryAmt > 0.0) {
 											CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
+											InformCashNoteAndDelivery(H(), paym_blk2); // @v9.8.4
+										}
 										else
 											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
 										if(!P_BNKTERM || r) {
@@ -8091,7 +8129,7 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 	return 1;
 }
 
-static void CatCharByFlag(long val, long flag, int chr, SString & rBuf, int inverse)
+static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf, int inverse)
 {
 	if((!inverse && val & flag) || (inverse && !(val & flag)))
 		rBuf.CatChar(chr);
@@ -8340,37 +8378,47 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 					int    r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
 					ok = (r > 0 || r == -2) ? 1 : -1;
 				}
-				if(ok > 0) {
-                    if(oneof2(EgaisMode, 1, 2)) {
-						if(P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
-							PrcssrAlcReport::GoodsItem agi;
-							if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
-								SString egais_mark;
-								rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
-								if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
-									int    dup_mark = 0;
-									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-										const CCheckItem & r_item = P.at(i);
-										if(r_item.EgaisMark == egais_mark)
-											dup_mark = 1;
-									}
-									if(!dup_mark) {
-										const CCheckItem & r_item = P.GetCur();
-										if(r_item.EgaisMark == egais_mark)
-											dup_mark = 1;
-									}
-									if(!dup_mark)
-										rBlk.EgaisMark = egais_mark;
-									else {
-										PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
-										ok = -1;
-									}
-								}
-								else
-									ok = -1;
-							}
+				else {
+					// @v9.8.4 @construction
+					const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
+					Goods2Tbl::Rec goods_rec;
+					if(lbpp > 0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+						PPObjGoodsType gt_obj;
+						PPGoodsType gt_rec;
+						if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_LOOKBACKPRICES) {
+
 						}
-                    }
+					}
+				}
+				if(ok > 0) {
+                    if(oneof2(EgaisMode, 1, 2) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
+						PrcssrAlcReport::GoodsItem agi;
+						if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
+							SString egais_mark;
+							rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+							if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
+								int    dup_mark = 0;
+								for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
+									const CCheckItem & r_item = P.at(i);
+									if(r_item.EgaisMark == egais_mark)
+										dup_mark = 1;
+								}
+								if(!dup_mark) {
+									const CCheckItem & r_item = P.GetCur();
+									if(r_item.EgaisMark == egais_mark)
+										dup_mark = 1;
+								}
+								if(!dup_mark)
+									rBlk.EgaisMark = egais_mark;
+								else {
+									PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
+									ok = -1;
+								}
+							}
+							else
+								ok = -1;
+						}
+					}
 				}
 			}
 		}
@@ -10325,7 +10373,7 @@ int CPosProcessor::ProcessGift()
 										if(single_pos >= 0) {
 											CCheckItem & r_item = P.at(single_pos);
 											double gift_price = 0.0;
-											QuotIdent qi(QIDATE(getcurdate_()), CnLocID, PPQUOTK_GIFT);
+											const QuotIdent qi(QIDATE(getcurdate_()), CnLocID, PPQUOTK_GIFT);
 											if(GObj.GetQuotExt(r_item.GoodsID, qi, 0.0, r_item.Price, &gift_price, 1) > 0)
 												is_there_gift_quot = r_item.SetupGiftQuot(gift_price, 1);
 											for(i = 0; i < pcnt; i++) {

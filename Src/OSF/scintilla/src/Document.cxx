@@ -277,9 +277,8 @@ int Document::AddMark(int line, int markerNum)
 		NotifyModified(mh);
 		return prev;
 	}
-	else {
+	else
 		return 0;
-	}
 }
 
 void Document::AddMarkSet(int line, int valueSet)

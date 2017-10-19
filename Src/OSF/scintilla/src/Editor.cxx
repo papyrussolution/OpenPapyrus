@@ -13,11 +13,10 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
-
 /*
-        return whether this modification represents an operation that
-        may reasonably be deferred (not done now OR [possibly] at all)
- */
+	return whether this modification represents an operation that
+	may reasonably be deferred (not done now OR [possibly] at all)
+*/
 static bool FASTCALL CanDeferToLastStep(const DocModification &mh)
 {
 	if(mh.modificationType & (SC_MOD_BEFOREINSERT | SC_MOD_BEFOREDELETE))
@@ -44,11 +43,11 @@ static bool FASTCALL IsLastStep(const DocModification &mh)
 		&& (mh.modificationType & SC_MULTILINEUNDOREDO) != 0;
 }
 
-Timer::Timer() : ticking(false), ticksToWait(0), tickerID(0)
+Editor::Timer::Timer() : ticking(false), ticksToWait(0), tickerID(0)
 {
 }
 
-Idler::Idler() : state(false), idlerID(0)
+Editor::Idler::Idler() : state(false), idlerID(0)
 {
 }
 
@@ -62,6 +61,106 @@ static bool FASTCALL IsAllSpacesOrTabs(const char * s, uint len)
 	return true;
 }
 
+Editor::SelectionText::SelectionText() : rectangular(false), lineCopy(false), codePage(0), characterSet(0)
+{
+}
+
+Editor::SelectionText::~SelectionText()
+{
+}
+
+void Editor::SelectionText::Clear()
+{
+	s.clear();
+	rectangular = false;
+	lineCopy = false;
+	codePage = 0;
+	characterSet = 0;
+}
+
+void Editor::SelectionText::Copy(const std::string &s_, int codePage_, int characterSet_, bool rectangular_, bool lineCopy_)
+{
+	s = s_;
+	codePage = codePage_;
+	characterSet = characterSet_;
+	rectangular = rectangular_;
+	lineCopy = lineCopy_;
+	FixSelectionForClipboard();
+}
+
+void FASTCALL Editor::SelectionText::Copy(const SelectionText &other)
+{
+	Copy(other.s, other.codePage, other.characterSet, other.rectangular, other.lineCopy);
+}
+
+void Editor::SelectionText::FixSelectionForClipboard()
+{
+	// To avoid truncating the contents of the clipboard when pasted where the
+	// clipboard contains NUL characters, replace NUL characters by spaces.
+	std::replace(s.begin(), s.end(), '\0', ' ');
+}
+//
+//
+//
+Editor::WrapPending::WrapPending()
+{
+	start = lineLarge;
+	end = lineLarge;
+}
+
+void Editor::WrapPending::Reset()
+{
+	start = lineLarge;
+	end = lineLarge;
+}
+
+void FASTCALL Editor::WrapPending::Wrapped(int line)
+{
+	if(start == line)
+		start++;
+}
+
+bool Editor::WrapPending::NeedsWrap() const
+{
+	return start < end;
+}
+
+bool Editor::WrapPending::AddRange(int lineStart, int lineEnd)
+{
+	const bool neededWrap = NeedsWrap();
+	bool changed = false;
+	if(start > lineStart) {
+		start = lineStart;
+		changed = true;
+	}
+	if((end < lineEnd) || !neededWrap) {
+		end = lineEnd;
+		changed = true;
+	}
+	return changed;
+}
+//
+//
+//
+Editor::WorkNeeded::WorkNeeded() : items(workNone), upTo(0)
+{
+}
+
+void Editor::WorkNeeded::Reset()
+{
+	items = workNone;
+	upTo = 0;
+}
+
+void Editor::WorkNeeded::Need(workItems items_, Position pos)
+{
+	if((items_ & workStyle) && (upTo < pos))
+		upTo = pos;
+	items = static_cast<workItems>(items | items_);
+}
+//
+//
+//
 Editor::Editor()
 {
 	Flags = (fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes);
@@ -1028,17 +1127,13 @@ void Editor::MoveCaretInsideView(bool ensureVisible)
 	PRectangle rcClient = GetTextRectangle();
 	Point pt = PointMainCaret();
 	if(pt.y < rcClient.top) {
-		MovePositionTo(SPositionFromLocation(
-			    Point::FromInts(lastXChosen - xOffset, static_cast<int>(rcClient.top)),
-			    false, false, UserVirtualSpace()),
-		    Selection::noSel, ensureVisible);
+		MovePositionTo(SPositionFromLocation(Point::FromInts(lastXChosen - xOffset, static_cast<int>(rcClient.top)),
+		    false, false, UserVirtualSpace()), Selection::noSel, ensureVisible);
 	}
 	else if((pt.y + vs.lineHeight - 1) > rcClient.bottom) {
 		int yOfLastLineFullyDisplayed = static_cast<int>(rcClient.top) + (LinesOnScreen() - 1) * vs.lineHeight;
-		MovePositionTo(SPositionFromLocation(
-			    Point::FromInts(lastXChosen - xOffset, static_cast<int>(rcClient.top) + yOfLastLineFullyDisplayed),
-			    false, false, UserVirtualSpace()),
-		    Selection::noSel, ensureVisible);
+		MovePositionTo(SPositionFromLocation(Point::FromInts(lastXChosen - xOffset, static_cast<int>(rcClient.top) + yOfLastLineFullyDisplayed), 
+			false, false, UserVirtualSpace()), Selection::noSel, ensureVisible);
 	}
 }
 
@@ -3102,12 +3197,10 @@ SelectionPosition Editor::PositionUpOrDown(SelectionPosition spStart, int direct
 {
 	const Point pt = LocationFromPosition(spStart);
 	int skipLines = 0;
-
 	if(vs.annotationVisible) {
 		const int lineDoc = pdoc->LineFromPosition(spStart.Position());
 		const Point ptStartLine = LocationFromPosition(pdoc->LineStart(lineDoc));
 		const int subLine = static_cast<int>(pt.y - ptStartLine.y) / vs.lineHeight;
-
 		if(direction < 0 && subLine == 0) {
 			const int lineDisplay = cs.DisplayFromDoc(lineDoc);
 			if(lineDisplay > 0) {
@@ -3118,14 +3211,11 @@ SelectionPosition Editor::PositionUpOrDown(SelectionPosition spStart, int direct
 			skipLines = pdoc->AnnotationLines(lineDoc);
 		}
 	}
-
 	const int newY = static_cast<int>(pt.y) + (1 + skipLines) * direction * vs.lineHeight;
 	if(lastX < 0) {
 		lastX = static_cast<int>(pt.x) + xOffset;
 	}
-	SelectionPosition posNew = SPositionFromLocation(
-	    Point::FromInts(lastX - xOffset, newY), false, false, UserVirtualSpace());
-
+	SelectionPosition posNew = SPositionFromLocation(Point::FromInts(lastX - xOffset, newY), false, false, UserVirtualSpace());
 	if(direction < 0) {
 		// Line wrapping may lead to a location on the same line, so
 		// seek back if that is the case.
@@ -3137,8 +3227,7 @@ SelectionPosition Editor::PositionUpOrDown(SelectionPosition spStart, int direct
 		}
 	}
 	else if(direction > 0 && posNew.Position() != pdoc->Length()) {
-		// There is an equivalent case when moving down which skips
-		// over a line.
+		// There is an equivalent case when moving down which skips over a line.
 		Point ptNew = LocationFromPosition(posNew.Position());
 		while((posNew.Position() > spStart.Position()) && (ptNew.y > newY)) {
 			posNew.Add(-1);
@@ -6837,8 +6926,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    if(wParam <= CARETSTYLE_BLOCK)
 			    vs.caretStyle = static_cast<int>(wParam);
 		    else
-			    /* Default to the line caret */
-			    vs.caretStyle = CARETSTYLE_LINE;
+			    vs.caretStyle = CARETSTYLE_LINE; // Default to the line caret 
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_GETCARETSTYLE: return vs.caretStyle;
@@ -6870,8 +6958,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETSTYLE:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacNormal.style : 0;
+		case SCI_INDICGETSTYLE: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacNormal.style : 0;
 		case SCI_INDICSETFORE:
 		    if(wParam <= INDIC_MAX) {
 			    vs.indicators[wParam].sacNormal.fore = ColourDesired(static_cast<long>(lParam));
@@ -6879,40 +6966,35 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETFORE:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacNormal.fore.AsLong() : 0;
+		case SCI_INDICGETFORE: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacNormal.fore.AsLong() : 0;
 		case SCI_INDICSETHOVERSTYLE:
 		    if(wParam <= INDIC_MAX) {
 			    vs.indicators[wParam].sacHover.style = static_cast<int>(lParam);
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETHOVERSTYLE:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacHover.style : 0;
+		case SCI_INDICGETHOVERSTYLE: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacHover.style : 0;
 		case SCI_INDICSETHOVERFORE:
 		    if(wParam <= INDIC_MAX) {
 			    vs.indicators[wParam].sacHover.fore = ColourDesired(static_cast<long>(lParam));
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETHOVERFORE:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacHover.fore.AsLong() : 0;
+		case SCI_INDICGETHOVERFORE: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].sacHover.fore.AsLong() : 0;
 		case SCI_INDICSETFLAGS:
 		    if(wParam <= INDIC_MAX) {
 			    vs.indicators[wParam].SetFlags(static_cast<int>(lParam));
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETFLAGS:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].Flags() : 0;
+		case SCI_INDICGETFLAGS: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].Flags() : 0;
 		case SCI_INDICSETUNDER:
 		    if(wParam <= INDIC_MAX) {
 			    vs.indicators[wParam].under = lParam != 0;
 			    InvalidateStyleRedraw();
 		    }
 		    break;
-		case SCI_INDICGETUNDER:
-		    return (wParam <= INDIC_MAX) ? vs.indicators[wParam].under : 0;
+		case SCI_INDICGETUNDER: return (wParam <= INDIC_MAX) ? vs.indicators[wParam].under : 0;
 		case SCI_INDICSETALPHA:
 		    if(wParam <= INDIC_MAX && lParam >=0 && lParam <= 255) {
 			    vs.indicators[wParam].fillAlpha = static_cast<int>(lParam);
@@ -7038,8 +7120,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_LINEENDRECTEXTEND:
 		case SCI_PAGEUPRECTEXTEND:
 		case SCI_PAGEDOWNRECTEXTEND:
-		case SCI_SELECTIONDUPLICATE:
-		    return KeyCommand(iMessage);
+		case SCI_SELECTIONDUPLICATE: return KeyCommand(iMessage);
 		case SCI_BRACEHIGHLIGHT:
 		    SetBraceHighlight(static_cast<int>(wParam), static_cast<int>(lParam), STYLE_BRACELIGHT);
 		    break;
@@ -7062,8 +7143,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    // wParam is position of char to find brace for,
 		    // lParam is maximum amount of text to restyle to find it
 		    return pdoc->BraceMatch(static_cast<int>(wParam), static_cast<int>(lParam));
-		case SCI_GETVIEWEOL:
-		    return vs.viewEOL;
+		case SCI_GETVIEWEOL: return vs.viewEOL;
 		case SCI_SETVIEWEOL:
 		    vs.viewEOL = wParam != 0;
 		    InvalidateStyleRedraw();
@@ -7073,22 +7153,18 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    NotifyZoom();
 		    break;
-		case SCI_GETZOOM:
-		    return vs.zoomLevel;
-		case SCI_GETEDGECOLUMN:
-		    return vs.theEdge.column;
+		case SCI_GETZOOM: return vs.zoomLevel;
+		case SCI_GETEDGECOLUMN: return vs.theEdge.column;
 		case SCI_SETEDGECOLUMN:
 		    vs.theEdge.column = static_cast<int>(wParam);
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_GETEDGEMODE:
-		    return vs.edgeState;
+		case SCI_GETEDGEMODE: return vs.edgeState;
 		case SCI_SETEDGEMODE:
 		    vs.edgeState = static_cast<int>(wParam);
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_GETEDGECOLOUR:
-		    return vs.theEdge.colour.AsLong();
+		case SCI_GETEDGECOLOUR: return vs.theEdge.colour.AsLong();
 		case SCI_SETEDGECOLOUR:
 		    vs.theEdge.colour = ColourDesired(static_cast<long>(wParam));
 		    InvalidateStyleRedraw();
@@ -7101,8 +7177,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    std::vector<EdgeProperties>().swap(vs.theMultiEdge); // Free vector and memory, C++03 compatible
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_GETDOCPOINTER:
-		    return reinterpret_cast<sptr_t>(pdoc);
+		case SCI_GETDOCPOINTER: return reinterpret_cast<sptr_t>(pdoc);
 		case SCI_SETDOCPOINTER:
 		    CancelModes();
 		    SetDocPointer(reinterpret_cast<Document *>(lParam));

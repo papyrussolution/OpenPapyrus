@@ -229,7 +229,7 @@ extern PPDrvSession DRVS;
 
 struct AuthAnswerSt {
 	int    TType;        // IN: Тип транзакции
-	ulong  Amount;       // IN: Сумма в копейках
+	ulong  Amount_;      // IN: Сумма в копейках
 	char   Rcode[3];     // OUT: Код результата авторизации
 	char   AMessage[16]; // OUT: Словесное пояснение результата
 	int    CType;        // OUT: Тип карты 
@@ -583,7 +583,7 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 	AuthAnswerSt auth_answr;
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_PAY;
-	auth_answr.Amount = (ulong)(amount); // Сумма передается в копейках
+	auth_answr.Amount_ = (ulong)(amount); // Сумма передается в копейках
 	//auth_answr.CType = SBRBNK_CRDTYPE_MAESTRO;
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_PAY); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
@@ -611,13 +611,13 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 
 int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 {
-	rSlip = 0;
+	rSlip.Z();
 	int    ok = 1;
 	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;
 	MEMSZERO(auth_answr);
 	auth_answr.TType = SBRBNK_FUNC_REFUND;
-	auth_answr.Amount = (ulong)(amount); // Сумма передается в копейках
+	auth_answr.Amount_ = (ulong)(amount); // Сумма передается в копейках
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_REFUND); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
 		rSlip = auth_answr.P_Check;
