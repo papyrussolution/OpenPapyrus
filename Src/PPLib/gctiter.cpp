@@ -325,7 +325,7 @@ double SLAPI GCTIterator::GoodsRestArray::GetAverageRest(PPID goodsID, PPID locI
 int SLAPI GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(pSCtx->Serialize(dir, (SArray *)this, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, (SVector *)this, rBuf)); // @v9.8.5 SArray-->SVector
 	THROW_SL(pSCtx->Serialize(dir, State, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, AccumPeriod, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &LocList, rBuf));

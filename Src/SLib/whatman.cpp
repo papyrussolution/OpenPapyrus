@@ -7,7 +7,7 @@
 //
 //
 //
-class WhatmanObjectRegTable : private SArray {
+class WhatmanObjectRegTable : private SVector { // @v9.8.5 SArray-->SVector
 public:
 	struct Item {
 		long   Id;
@@ -15,7 +15,7 @@ public:
 		const char * P_Symb;
 		const char * P_Name;
 	};
-	WhatmanObjectRegTable::WhatmanObjectRegTable() : SArray(sizeof(Entry))
+	WhatmanObjectRegTable() : SVector(sizeof(Entry))
 	{
 		LastIndex = 0;
 		Pool.add("$"); // zero index - is empty string
@@ -754,15 +754,11 @@ int TWhatman::AddMultSelObject(int idx)
 	TWhatmanObject * p_obj = GetObject(idx);
 	if(p_obj) {
 		if(p_obj->HasOption(TWhatmanObject::oMultSelectable)) {
-			if(!P_MultObjPosList)
-				P_MultObjPosList = new LongArray;
-			if(P_MultObjPosList) {
+			if(SETIFZ(P_MultObjPosList, new LongArray)) {
 				ok = (P_MultObjPosList->addUnique(idx) > 0) ? 1 : -2;
 				if(ok > 0)
 					p_obj->State |= TWhatmanObject::stSelected;
 			}
-			else
-				SLS.SetError(SLERR_NOMEM);
 		}
 		else
 			ok = -1;
@@ -937,11 +933,10 @@ int TWhatman::SetSelArea(TPoint p, int mode)
 	return ok;
 }
 
-int TWhatman::GetScrollRange(IntRange * pX, IntRange * pY) const
+void TWhatman::GetScrollRange(IntRange * pX, IntRange * pY) const
 {
 	CALLPTRMEMB(pX, Set(ScrollRange.a.x, ScrollRange.b.x));
 	CALLPTRMEMB(pY, Set(ScrollRange.a.y, ScrollRange.b.y));
-	return 1;
 }
 
 TPoint TWhatman::GetScrollDelta() const
@@ -950,16 +945,15 @@ TPoint TWhatman::GetScrollDelta() const
 	return delta.Set(RuleX.ScrollDelta, RuleY.ScrollDelta);
 }
 
-int TWhatman::SetScrollPos(TPoint p)
+void TWhatman::SetScrollPos(TPoint p)
 {
 	ScrollPos = p;
-	return 1;
 }
 
 static const float frame_sq = 7.0f;
 static const float frame_semisq = frame_sq / 2.0f;
 
-int TWhatman::GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const
+void TWhatman::GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const
 {
 	pList[0].R.a.X = (pObj->Bounds.a.x - frame_semisq);
 	pList[0].R.b.X = (pObj->Bounds.a.x + frame_semisq);
@@ -984,11 +978,9 @@ int TWhatman::GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) con
 	pList[3].R.a.Y = (pObj->Bounds.b.y - frame_semisq);
 	pList[3].R.b.Y = (pObj->Bounds.b.y + frame_semisq);
 	pList[3].I = SOW_SOUTH;
-
-	return 1;
 }
 
-int TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const
+void TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const
 {
 	FPoint sq_size(frame_sq);
 	FPoint dot;
@@ -1024,8 +1016,6 @@ int TWhatman::GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) co
 	dot.Y = pObj->Bounds.CenterY();
 	pList[7].R.Around(dot, sq_size);
 	pList[7].I = SOW_WEST;
-
-	return 1;
 }
 
 int TWhatman::EditObject(int objIdx)
@@ -1651,7 +1641,7 @@ TWhatmanToolArray::Item::Item(const TWhatmanToolArray * pOwner)
 	memzero(ExtData, sizeof(ExtData));
 }
 
-TWhatmanToolArray::TWhatmanToolArray() : SArray(sizeof(TWhatmanToolArray::Entry))
+TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)) // @v9.8.5 SArray-->SVector
 {
 	SrcFileVer = 0; // @v9.1.9 В метод Init эту инициализацию вставлять нельзя - он вызывается после чтения файла
 	Init();
@@ -1722,7 +1712,7 @@ int TWhatmanToolArray::GetParam(Param & rP) const
 
 uint TWhatmanToolArray::GetCount() const
 {
-	return SArray::getCount();
+	return SVector::getCount(); // @v9.8.5 SArray-->SVector
 }
 
 SString & TWhatmanToolArray::MakeUniqueSymb(SString & rBuf) const
@@ -2011,7 +2001,7 @@ const SDrawFigure * TWhatmanToolArray::GetFigById(int figOrPic, uint id, TWhatma
 int TWhatmanToolArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW(pCtx->Serialize(dir, (SArray *)this, rBuf));
+	THROW(pCtx->Serialize(dir, (SVector *)this, rBuf)); // @v9.8.5 SArray-->SVector
 	THROW(pCtx->Serialize(dir, SymbP, rBuf));
 	THROW(pCtx->Serialize(dir, TextP, rBuf));
 	THROW(pCtx->Serialize(dir, Flags, rBuf));

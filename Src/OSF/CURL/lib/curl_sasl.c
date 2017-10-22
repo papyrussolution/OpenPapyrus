@@ -31,21 +31,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "curl_base64.h"
-//#include "curl_md5.h"
 #include "vauth/vauth.h"
-//#include "vtls/vtls.h"
-//#include "curl_hmac.h"
-//#include "curl_sasl.h"
-//#include "warnless.h"
-//#include "strtok.h"
-//#include "sendf.h"
-//#include "non-ascii.h" /* included for Curl_convert_... prototypes */
-/* The last 3 #include files should be in this order */
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Supported mechanisms */

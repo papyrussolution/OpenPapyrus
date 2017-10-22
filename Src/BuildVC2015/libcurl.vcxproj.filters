@@ -162,9 +162,6 @@
     <ClInclude Include="..\osf\curl\lib\curl_addrinfo.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\curl_base64.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\curl_des.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -180,22 +177,10 @@
     <ClInclude Include="..\osf\curl\lib\curl_gssapi.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\curl_hmac.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\curl_ldap.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\curl_md4.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\curl_md5.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\curl_memory.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\curl_memrchr.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\curl_multibyte.h">
@@ -375,9 +360,6 @@
     <ClInclude Include="..\osf\curl\lib\vtls\openssl.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\parsedate.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\pingpong.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -433,9 +415,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\socks.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\speedcheck.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\splay.h">

@@ -8789,6 +8789,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @loctyp_whaisle                           "Складской проход"
 @loctyp_whcellautogen                     "Автоматическая генерация складских ячеек"
 
+@selectnewrectype                         "Выберите тип новой записи" // generic Используется в нескольких диалогах
 @selectnewwhtyp                           "Выберите тип новой записи склада"
 @selectnewwhzonetyp                       "Выберите тип новой записи складской зоны"
 

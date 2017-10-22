@@ -36,7 +36,7 @@ int __db_zero_fill(ENV * env, DB_FH * fhp)
 	/* Stat the file. */
 	if((ret = __os_ioinfo(env, NULL, fhp, &mbytes, &bytes, NULL)) != 0)
 		return ret;
-	stat_offset = (off_t)mbytes*MEGABYTE+bytes;
+	stat_offset = (off_t)SMEGABYTE(mbytes)+bytes;
 	/* Check if the file is large enough. */
 	if(stat_offset >= write_offset)
 		return 0;

@@ -60,12 +60,9 @@ const BIO_METHOD * BIO_f_cipher(void)
 
 static int enc_new(BIO * bi)
 {
-	BIO_ENC_CTX * ctx;
-
-	ctx = (BIO_ENC_CTX*)OPENSSL_zalloc(sizeof(*ctx));
+	BIO_ENC_CTX * ctx = (BIO_ENC_CTX*)OPENSSL_zalloc(sizeof(*ctx));
 	if(!ctx)
 		return 0;
-
 	ctx->cipher = EVP_CIPHER_CTX_new();
 	if(ctx->cipher == NULL) {
 		OPENSSL_free(ctx);
@@ -76,26 +73,21 @@ static int enc_new(BIO * bi)
 	ctx->read_end = ctx->read_start = &(ctx->buf[BUF_OFFSET]);
 	BIO_set_data(bi, ctx);
 	BIO_set_init(bi, 1);
-
 	return 1;
 }
 
 static int enc_free(BIO * a)
 {
 	BIO_ENC_CTX * b;
-
 	if(!a)
 		return 0;
-
 	b = (BIO_ENC_CTX*)BIO_get_data(a);
 	if(!b)
 		return 0;
-
 	EVP_CIPHER_CTX_free(b->cipher);
 	OPENSSL_clear_free(b, sizeof(BIO_ENC_CTX));
 	BIO_set_data(a, 0);
 	BIO_set_init(a, 0);
-
 	return 1;
 }
 
@@ -104,15 +96,12 @@ static int enc_read(BIO * b, char * out, int outl)
 	int ret = 0, i, blocksize;
 	BIO_ENC_CTX * ctx;
 	BIO * next;
-
 	if(!out)
 		return 0;
 	ctx = (BIO_ENC_CTX*)BIO_get_data(b);
-
 	next = BIO_next(b);
 	if(!ctx || (next == NULL))
 		return 0;
-
 	/* First check if there are bytes decoded/encoded */
 	if(ctx->buf_len > 0) {
 		i = ctx->buf_len - ctx->buf_off;

@@ -416,8 +416,9 @@ int FASTCALL ObjIdListFilt::Get(PPIDArray & rResult) const
 	int    ok = 1;
 	rResult.clear();
 	if(P_List && P_List->getCount()) {
-		for(uint i = 0; i < P_List->getCount(); i++)
-			rResult.add(P_List->get(i));
+		/* @v9.8.5 for(uint i = 0; i < P_List->getCount(); i++)
+			rResult.add(P_List->get(i));*/
+		rResult = *P_List; // @v9.8.5
 		rResult.sortAndUndup();
 	}
 	else
@@ -456,12 +457,11 @@ int FASTCALL ObjIdListFilt::CopyTo(PPIDArray * pList) const
 	return 1;
 }
 
-ObjIdListFilt & FASTCALL ObjIdListFilt::Set(const PPIDArray * pList)
+void FASTCALL ObjIdListFilt::Set(const PPIDArray * pList)
 {
 	ZDELETE(P_List);
 	if(pList)
 		P_List = new PPIDArray(*pList);
-	return *this;
 }
 
 #if 0 // {

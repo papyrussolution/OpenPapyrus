@@ -45,12 +45,10 @@ long BIO_debug_callback(BIO * bio, int cmd, const char * argp, int argi, long ar
 		    BIO_snprintf(p, p_maxlen, "puts() - %s\n", bio->method->name);
 		    break;
 		case BIO_CB_GETS:
-		    BIO_snprintf(p, p_maxlen, "gets(%lu) - %s\n", (ulong)argi,
-		    bio->method->name);
+		    BIO_snprintf(p, p_maxlen, "gets(%lu) - %s\n", (ulong)argi, bio->method->name);
 		    break;
 		case BIO_CB_CTRL:
-		    BIO_snprintf(p, p_maxlen, "ctrl(%lu) - %s\n", (ulong)argi,
-		    bio->method->name);
+		    BIO_snprintf(p, p_maxlen, "ctrl(%lu) - %s\n", (ulong)argi, bio->method->name);
 		    break;
 		case BIO_CB_RETURN | BIO_CB_READ:
 		    BIO_snprintf(p, p_maxlen, "read return %ld\n", ret);
@@ -71,9 +69,8 @@ long BIO_debug_callback(BIO * bio, int cmd, const char * argp, int argi, long ar
 		    BIO_snprintf(p, p_maxlen, "bio callback - unknown type (%d)\n", cmd);
 		    break;
 	}
-
 	b = (BIO*)bio->cb_arg;
-	if(b != NULL)
+	if(b)
 		BIO_write(b, buf, strlen(buf));
 #if !defined(OPENSSL_NO_STDIO)
 	else

@@ -886,14 +886,12 @@
     <ClInclude Include="..\OSF\scintilla\lexlib\SubStyles.h" />
     <ClInclude Include="..\Osf\scintilla\src\CallTip.h" />
     <ClInclude Include="..\Osf\scintilla\src\CellBuffer.h" />
-    <ClInclude Include="..\Osf\scintilla\src\Document.h" />
     <ClInclude Include="..\Osf\scintilla\src\Partitioning.h" />
     <ClInclude Include="..\Osf\scintilla\src\PerLine.h" />
     <ClInclude Include="..\Osf\scintilla\src\Position.h" />
     <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h" />
     <ClInclude Include="..\Osf\scintilla\src\SplitVector.h" />
     <ClInclude Include="..\Osf\scintilla\src\Style.h" />
-    <ClInclude Include="..\Osf\scintilla\src\ViewStyle.h" />
     <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h" />
     <ClInclude Include="..\OSF\scintilla\win32\PlatWin.h" />
   </ItemGroup>

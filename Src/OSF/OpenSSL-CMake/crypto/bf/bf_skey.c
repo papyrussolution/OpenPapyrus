@@ -17,13 +17,10 @@ void BF_set_key(BF_KEY *key, int len, const uchar *data)
     int i;
     BF_LONG *p, ri, in[2];
     const uchar *d, *end;
-
     memcpy(key, &bf_init, sizeof(BF_KEY));
     p = key->P;
-
     if (len > ((BF_ROUNDS + 2) * 4))
         len = (BF_ROUNDS + 2) * 4;
-
     d = data;
     end = &(data[len]);
     for (i = 0; i < (BF_ROUNDS + 2); i++) {

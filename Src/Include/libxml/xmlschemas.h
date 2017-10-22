@@ -130,7 +130,7 @@ XMLPUBFUN int XMLCALL xmlSchemaGetParserErrors(xmlSchemaParserCtxtPtr ctxt, xmlS
 XMLPUBFUN int XMLCALL xmlSchemaIsValid(xmlSchemaValidCtxtPtr ctxt);
 
 XMLPUBFUN xmlSchemaPtr XMLCALL xmlSchemaParse(xmlSchemaParserCtxtPtr ctxt);
-XMLPUBFUN void XMLCALL xmlSchemaFree(xmlSchemaPtr schema);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlSchemaFree(xmlSchema * schema);
 #ifdef LIBXML_OUTPUT_ENABLED
 	XMLPUBFUN void XMLCALL xmlSchemaDump(FILE * output, xmlSchemaPtr schema);
 #endif /* LIBXML_OUTPUT_ENABLED */

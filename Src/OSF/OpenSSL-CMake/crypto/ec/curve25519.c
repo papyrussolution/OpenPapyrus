@@ -15,11 +15,11 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "ec_lcl.h"
-
-/* fe means field element. Here the field is \Z/(2^255-19). An element t,
- * entries t[0]...t[9], represents the integer t[0]+2^26 t[1]+2^51 t[2]+2^77
- * t[3]+2^102 t[4]+...+2^230 t[9]. Bounds on each t[i] vary depending on
- * context.  */
+//
+// fe means field element. Here the field is \Z/(2^255-19). An element t,
+// entries t[0]...t[9], represents the integer t[0]+2^26 t[1]+2^51 t[2]+2^77
+// t[3]+2^102 t[4]+...+2^230 t[9]. Bounds on each t[i] vary depending on context.
+//
 typedef int32_t fe[10];
 
 static const int64_t kBottom25Bits = 0x1ffffffLL;
@@ -27,7 +27,7 @@ static const int64_t kBottom26Bits = 0x3ffffffLL;
 static const int64_t kTop39Bits = 0xfffffffffe000000LL;
 static const int64_t kTop38Bits = 0xfffffffffc000000LL;
 
-static uint64_t load_3(const uint8_t * in)
+static uint64_t FASTCALL load_3(const uint8_t * in)
 {
 	uint64_t result;
 	result = (uint64_t)in[0];
@@ -36,7 +36,7 @@ static uint64_t load_3(const uint8_t * in)
 	return result;
 }
 
-static uint64_t load_4(const uint8_t * in)
+static uint64_t FASTCALL load_4(const uint8_t * in)
 {
 	uint64_t result;
 	result = (uint64_t)in[0];
@@ -198,19 +198,19 @@ static void fe_tobytes(uint8_t * s, const fe h)
 }
 
 /* h = f */
-static void fe_copy(fe h, const fe f)
+static void FASTCALL fe_copy(fe h, const fe f)
 {
 	memmove(h, f, sizeof(int32_t) * 10);
 }
 
 /* h = 0 */
-static void fe_0(fe h)
+static void FASTCALL fe_0(fe h)
 {
 	memzero(h, sizeof(int32_t) * 10);
 }
 
 /* h = 1 */
-static void fe_1(fe h)
+static void FASTCALL fe_1(fe h)
 {
 	memzero(h, sizeof(int32_t) * 10);
 	h[0] = 1;
@@ -225,7 +225,7 @@ static void fe_1(fe h)
  *
  * Postconditions:
  *    |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
-static void fe_add(fe h, const fe f, const fe g)
+static void FASTCALL fe_add(fe h, const fe f, const fe g)
 {
 	for(unsigned i = 0; i < 10; i++) {
 		h[i] = f[i] + g[i];
@@ -241,7 +241,7 @@ static void fe_add(fe h, const fe f, const fe g)
  *
  * Postconditions:
  *    |h| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
-static void fe_sub(fe h, const fe f, const fe g)
+static void FASTCALL fe_sub(fe h, const fe f, const fe g)
 {
 	for(unsigned i = 0; i < 10; i++) {
 		h[i] = f[i] - g[i];
@@ -275,7 +275,7 @@ static void fe_sub(fe h, const fe f, const fe g)
  * Can get away with 11 carries, but then data flow is much deeper.
  *
  * With tighter constraints on inputs can squeeze carries into int32. */
-static void fe_mul(fe h, const fe f, const fe g)
+static void FASTCALL fe_mul(fe h, const fe f, const fe g)
 {
 	int32_t f0 = f[0];
 	int32_t f1 = f[1];
@@ -502,7 +502,7 @@ static void fe_mul(fe h, const fe f, const fe g)
  *    |h| bounded by 1.01*2^25,1.01*2^24,1.01*2^25,1.01*2^24,etc.
  *
  * See fe_mul.c for discussion of implementation strategy. */
-static void fe_sq(fe h, const fe f)
+static void FASTCALL fe_sq(fe h, const fe f)
 {
 	int32_t f0 = f[0];
 	int32_t f1 = f[1];
@@ -628,7 +628,7 @@ static void fe_sq(fe h, const fe f)
 	h[9] = (int32_t)h9;
 }
 
-static void fe_invert(fe out, const fe z)
+static void FASTCALL fe_invert(fe out, const fe z)
 {
 	fe t0;
 	fe t1;
@@ -731,10 +731,9 @@ static void fe_invert(fe out, const fe z)
  *
  * Postconditions:
  *    |h| bounded by 1.1*2^25,1.1*2^24,1.1*2^25,1.1*2^24,etc. */
-static void fe_neg(fe h, const fe f)
+static void FASTCALL fe_neg(fe h, const fe f)
 {
-	unsigned i;
-	for(i = 0; i < 10; i++) {
+	for(unsigned i = 0; i < 10; i++) {
 		h[i] = -f[i];
 	}
 }
@@ -743,7 +742,7 @@ static void fe_neg(fe h, const fe f)
  * replace (f,g) with (f,g) if b == 0.
  *
  * Preconditions: b in {0,1}. */
-static void fe_cmov(fe f, const fe g, unsigned b)
+static void FASTCALL fe_cmov(fe f, const fe g, unsigned b)
 {
 	size_t i;
 	b = 0-b;
@@ -946,7 +945,7 @@ typedef struct {
 	fe T2d;
 } ge_cached;
 
-static void ge_p3_0(ge_p3 * h)
+static void FASTCALL ge_p3_0(ge_p3 * h)
 {
 	fe_0(h->X);
 	fe_1(h->Y);
@@ -954,7 +953,7 @@ static void ge_p3_0(ge_p3 * h)
 	fe_0(h->T);
 }
 
-static void ge_precomp_0(ge_precomp * h)
+static void FASTCALL ge_precomp_0(ge_precomp * h)
 {
 	fe_1(h->yplusx);
 	fe_1(h->yminusx);
@@ -962,7 +961,7 @@ static void ge_precomp_0(ge_precomp * h)
 }
 
 /* r = p */
-static void ge_p3_to_p2(ge_p2 * r, const ge_p3 * p)
+static void FASTCALL ge_p3_to_p2(ge_p2 * r, const ge_p3 * p)
 {
 	fe_copy(r->X, p->X);
 	fe_copy(r->Y, p->Y);
@@ -970,7 +969,7 @@ static void ge_p3_to_p2(ge_p2 * r, const ge_p3 * p)
 }
 
 /* r = p */
-static void ge_p1p1_to_p2(ge_p2 * r, const ge_p1p1 * p)
+static void FASTCALL ge_p1p1_to_p2(ge_p2 * r, const ge_p1p1 * p)
 {
 	fe_mul(r->X, p->X, p->T);
 	fe_mul(r->Y, p->Y, p->Z);
@@ -978,7 +977,7 @@ static void ge_p1p1_to_p2(ge_p2 * r, const ge_p1p1 * p)
 }
 
 /* r = p */
-static void ge_p1p1_to_p3(ge_p3 * r, const ge_p1p1 * p)
+static void FASTCALL ge_p1p1_to_p3(ge_p3 * r, const ge_p1p1 * p)
 {
 	fe_mul(r->X, p->X, p->T);
 	fe_mul(r->Y, p->Y, p->Z);
@@ -987,7 +986,7 @@ static void ge_p1p1_to_p3(ge_p3 * r, const ge_p1p1 * p)
 }
 
 /* r = 2 * p */
-static void ge_p2_dbl(ge_p1p1 * r, const ge_p2 * p)
+static void FASTCALL ge_p2_dbl(ge_p1p1 * r, const ge_p2 * p)
 {
 	fe t0;
 
@@ -1003,7 +1002,7 @@ static void ge_p2_dbl(ge_p1p1 * r, const ge_p2 * p)
 }
 
 /* r = 2 * p */
-static void ge_p3_dbl(ge_p1p1 * r, const ge_p3 * p)
+static void FASTCALL ge_p3_dbl(ge_p1p1 * r, const ge_p3 * p)
 {
 	ge_p2 q;
 	ge_p3_to_p2(&q, p);
@@ -1011,10 +1010,9 @@ static void ge_p3_dbl(ge_p1p1 * r, const ge_p3 * p)
 }
 
 /* r = p + q */
-static void ge_madd(ge_p1p1 * r, const ge_p3 * p, const ge_precomp * q)
+static void FASTCALL ge_madd(ge_p1p1 * r, const ge_p3 * p, const ge_precomp * q)
 {
 	fe t0;
-
 	fe_add(r->X, p->Y, p->X);
 	fe_sub(r->Y, p->Y, p->X);
 	fe_mul(r->Z, r->X, q->yplusx);
@@ -1027,7 +1025,7 @@ static void ge_madd(ge_p1p1 * r, const ge_p3 * p, const ge_precomp * q)
 	fe_sub(r->T, t0, r->T);
 }
 
-static uint8_t equal(signed char b, signed char c)
+static uint8_t FASTCALL equal(signed char b, signed char c)
 {
 	uint8_t ub = b;
 	uint8_t uc = c;
@@ -1038,7 +1036,7 @@ static uint8_t equal(signed char b, signed char c)
 	return y;
 }
 
-static void cmov(ge_precomp * t, const ge_precomp * u, uint8_t b)
+static void FASTCALL cmov(ge_precomp * t, const ge_precomp * u, uint8_t b)
 {
 	fe_cmov(t->yplusx, u->yplusx, b);
 	fe_cmov(t->yminusx, u->yminusx, b);
@@ -3161,7 +3159,7 @@ static const ge_precomp k25519Precomp[32][8] = {
 	},
 };
 
-static uint8_t negative(signed char b)
+static uint8_t FASTCALL negative(signed char b)
 {
 	uint32_t x = b;
 	x >>= 31; /* 1: yes; 0: no */
@@ -3195,7 +3193,7 @@ static void table_select(ge_precomp * t, int pos, signed char b)
  *
  * Preconditions:
  *   a[31] <= 127 */
-static void ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
+static void FASTCALL ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
 {
 	signed char e[64];
 	signed char carry;
@@ -3248,7 +3246,7 @@ static void ge_scalarmult_base(ge_p3 * h, const uint8_t * a)
  * replace (f,g) with (f,g) if b == 0.
  *
  * Preconditions: b in {0,1}. */
-static void fe_cswap(fe f, fe g, uint b)
+static void FASTCALL fe_cswap(fe f, fe g, uint b)
 {
 	size_t i;
 	b = 0-b;
@@ -3375,8 +3373,7 @@ static void x25519_scalar_mult_generic(uint8_t out[32], const uint8_t scalar[32]
 	fe_tobytes(out, x2);
 }
 
-static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32],
-    const uint8_t point[32])
+static void x25519_scalar_mult(uint8_t out[32], const uint8_t scalar[32], const uint8_t point[32])
 {
 	x25519_scalar_mult_generic(out, scalar, point);
 }

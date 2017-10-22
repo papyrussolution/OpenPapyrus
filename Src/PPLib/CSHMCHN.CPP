@@ -594,7 +594,7 @@ int SLAPI PPCashMachine::SyncViewSessionStat(long options)
 {
 	int    ok = cmCancel;
 	CashStat stat;
-	double sum;
+	double sum = 0.0;
 	const  PPConfig & r_cfg = LConfig;
 	PPID   save_cash_id = r_cfg.Cash;
 	PPID   save_loc_id  = r_cfg.Location;
@@ -893,14 +893,14 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 			double fiscal = 0.0, nonfiscal = 0.0;
 			out_buf.Z().Cat("CCHECK").Space().CatChar('{').CR();
 			{
+				const long _mfmt = MKSFMTD(0, 12, NMBF_NOTRAILZ);				
 				{
-
 					CCheckLineTbl::Rec line_rec;
 					out_buf.Tab().CatEq("ID", pPack->Rec.ID).CatDiv(';', 2).CatEq("Code", pPack->Rec.Code).CatDiv(';', 2).
 						CatEq("Date", pPack->Rec.Dt).CatDiv(';', 2).CatEq("Time", pPack->Rec.Tm).CatDiv(';', 2).
 						Cat("Flags").Eq().Cat("0x").CatHex(pPack->Rec.Flags).CatDiv(';', 2).
 						CatEq("Amount", MONEYTOLDBL(pPack->Rec.Amount)).CatDiv(';', 2).
-						CatEq("Discount", MONEYTOLDBL(pPack->Rec.Discount), MKSFMTD(0, 20, NMBF_NOTRAILZ)).CR();
+						CatEq("Discount", MONEYTOLDBL(pPack->Rec.Discount), _mfmt).CR();
 					out_buf.Tab().Cat("Lines").Space().CatChar('{').CR();
 					for(uint i = 0; pPack->EnumLines(&i, &line_rec, &serial) > 0;) {
 						double amt = pPack->GetItemAmount(line_rec);
@@ -911,12 +911,12 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							cc_amount = R2(cc_amount + s - ds);
 						}
 						out_buf.Tab(2).CatLongZ(line_rec.GoodsID, 5).Tab().
-							Cat(line_rec.Quantity, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-							Cat(intmnytodbl(line_rec.Price), MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-							Cat(line_rec.Dscnt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-							Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-							Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-							Cat(cc_amount, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CR();
+							Cat(line_rec.Quantity, _mfmt).Tab().
+							Cat(intmnytodbl(line_rec.Price), _mfmt).Tab().
+							Cat(line_rec.Dscnt, _mfmt).Tab().
+							Cat(amt, _mfmt).Tab().
+							Cat(running_total, _mfmt).Tab().
+							Cat(cc_amount, _mfmt).CR();
 					}
 					out_buf.Tab().CatChar('}').CR();
 				}
@@ -934,9 +934,9 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double _p = sl_param.Price;
 							running_total += (_q * _p);
 							prn_total_sale = 0;
-							out_buf.Tab(2).CatEq("Quantity", _q, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-								CatEq("Price", _p, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
-								CatEq("RunningTotal", running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).Tab().
+							out_buf.Tab(2).CatEq("Quantity", _q, _mfmt).Tab().
+								CatEq("Price", _p, _mfmt).Tab().
+								CatEq("RunningTotal", running_total, _mfmt).Tab().
 								CatEq("Line", line_buf).CR();
 						}
 						else {
@@ -960,7 +960,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					else if(running_total > amt) {
 						SString fmt_buf, msg_buf, added_buf;
 						PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
-						added_buf.Z().Cat(running_total, MKSFMTD(0, 20, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 20, NMBF_NOTRAILZ));
+						added_buf.Z().Cat(running_total, _mfmt).CatChar('>').Cat(amt, _mfmt);
 						msg_buf.Printf(fmt_buf, added_buf.cptr());
 						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}

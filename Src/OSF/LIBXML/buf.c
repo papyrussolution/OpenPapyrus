@@ -1034,7 +1034,7 @@ int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
  *
  * Returns a new xmlBufPtr unless the call failed and NULL is returned
  */
-xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer)
+xmlBuf * FASTCALL xmlBufFromBuffer(xmlBuffer * buffer)
 {
 	xmlBuf * ret = 0;
 	if(buffer) {
@@ -1069,7 +1069,7 @@ xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer)
  *
  * Returns the old xmlBufferPtr unless the call failed and NULL is returned
  */
-xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf)
+xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf)
 {
 	xmlBufferPtr ret;
 	if(!buf || buf->error)
@@ -1119,7 +1119,7 @@ xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf)
  *
  * Returns -1 in case of error, 0 otherwise, in any case @buffer is freed
  */
-int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer)
+int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer)
 {
 	int ret = 0;
 	if(!buf || buf->error) {
@@ -1142,7 +1142,7 @@ int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer)
  *
  * Returns -1 in case of error, 0 otherwise
  */
-int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input)
+int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input)
 {
 	if((input == NULL) || (buf == NULL) || (buf->error))
 		return -1;
@@ -1151,7 +1151,6 @@ int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input)
 	input->end = &buf->content[buf->use];
 	return 0;
 }
-
 /**
  * xmlBufGetInputBase:
  * @buf: an xmlBufPtr
@@ -1161,7 +1160,7 @@ int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input)
  *
  * Returns the size_t corresponding to the displacement
  */
-size_t xmlBufGetInputBase(xmlBufPtr buf, xmlParserInputPtr input)
+size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input)
 {
 	size_t base;
 	if((input == NULL) || (buf == NULL) || (buf->error))

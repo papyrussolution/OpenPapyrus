@@ -3393,7 +3393,7 @@ static void xmlSchemaComponentListFree(xmlSchemaItemListPtr list)
  *
  * Deallocate a Schema structure.
  */
-void xmlSchemaFree(xmlSchemaPtr schema)
+void FASTCALL xmlSchemaFree(xmlSchema * schema)
 {
 	if(schema) {
 		/* @volatiles is not used anymore :-/ */
@@ -3520,18 +3520,15 @@ static void xmlSchemaElementDump(xmlSchemaElementPtr elem, FILE * output, const 
  */
 static void xmlSchemaAnnotDump(FILE * output, xmlSchemaAnnotPtr annot)
 {
-	xmlChar * content;
-
-	if(annot == NULL)
-		return;
-
-	content = xmlNodeGetContent(annot->content);
-	if(content) {
-		fprintf(output, "  Annot: %s\n", content);
-		SAlloc::F(content);
+	if(annot) {
+		xmlChar * content = xmlNodeGetContent(annot->content);
+		if(content) {
+			fprintf(output, "  Annot: %s\n", content);
+			SAlloc::F(content);
+		}
+		else
+			fprintf(output, "  Annot: empty\n");
 	}
-	else
-		fprintf(output, "  Annot: empty\n");
 }
 
 /**
@@ -3909,7 +3906,7 @@ static const xmlChar * xmlSchemaGetNodeContent(xmlSchemaParserCtxtPtr ctxt, xmlN
 
 static const xmlChar * xmlSchemaGetNodeContentNoDict(xmlNode * P_Node)
 {
-	return((const xmlChar*)xmlNodeGetContent(P_Node));
+	return (const xmlChar*)xmlNodeGetContent(P_Node);
 }
 
 /**

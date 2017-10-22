@@ -1736,7 +1736,12 @@ int SLAPI GoodsSubstList::GetGoodsBySubstID(PPID substID, ObjIdListFilt * pGoods
 	int    ok = -1;
 	if(pGoodsList) {
 		PPIDArray temp_list;
-		ok = GetGoodsBySubstID(substID, &temp_list) ? !!pGoodsList->Set(&temp_list) : 0;
+		if(GetGoodsBySubstID(substID, &temp_list)) {
+			pGoodsList->Set(&temp_list);
+			ok = 1;
+		}
+		else
+			ok = 0;
 	}
 	return ok;
 }

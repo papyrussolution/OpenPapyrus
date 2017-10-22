@@ -1089,8 +1089,7 @@ next_pg:
 				size = key_size = bo->tlen;
 				if(key_size > space)
 					goto get_key_space;
-				if((ret = __bam_bulk_overflow(dbc,
-					    bo->tlen, bo->pgno, np)) != 0)
+				if((ret = __bam_bulk_overflow(dbc, bo->tlen, bo->pgno, np)) != 0)
 					return ret;
 				space -= key_size;
 				key_off = (int32)(np-dbuf);
@@ -1104,11 +1103,8 @@ next_pg:
 get_key_space:
 						/* Nothing added, then error. */
 						if(offp == endp) {
-							data->size = (uint32)
-							             DB_ALIGN(size+
-								pagesize, 1024);
-							return
-							        DB_BUFFER_SMALL;
+							data->size = (uint32)DB_ALIGN(size+pagesize, 1024);
+							return DB_BUFFER_SMALL;
 						}
 						/*
 						 * We need to back up to the
@@ -1859,20 +1855,20 @@ split:
 			if(ret != 0)
 				goto err;
 		}
-		// 
+		//
 		// If duplicates aren't supported, replace the current item.
-		// 
+		//
 		if(!F_ISSET(dbp, DB_AM_DUP)) {
 			iiop = DB_CURRENT;
 			break;
 		}
-		// 
+		//
 		// If we find a matching entry, it may be an off-page duplicate
 		// tree.  Return the page number to our caller, we need a new cursor.
-		// 
+		//
 		if(pgnop && __bam_isopd(dbc, pgnop))
 			goto done;
-		// If the duplicates aren't sorted, move to the right slot. 
+		// If the duplicates aren't sorted, move to the right slot.
 		if(dbp->dup_compare == NULL) {
 			if(flags == DB_KEYFIRST)
 				iiop = DB_BEFORE;
@@ -1977,7 +1973,7 @@ done:
 	 * is why we subtract P_INDX below.
 	 */
 	t = (BTREE *)dbp->bt_internal;
-	if(!ret && TYPE(cp->page) == P_LBTREE && oneof2(flags, DB_KEYFIRST, DB_KEYLAST) && !F_ISSET(cp, C_RECNUM) && 
+	if(!ret && TYPE(cp->page) == P_LBTREE && oneof2(flags, DB_KEYFIRST, DB_KEYLAST) && !F_ISSET(cp, C_RECNUM) &&
 		(!F_ISSET(dbp, DB_AM_SUBDB) || (LOGGING_ON(dbp->env) && !F_ISSET(dbp, DB_AM_NOT_DURABLE))) &&
 		((NEXT_PGNO(cp->page) == PGNO_INVALID && cp->indx >= NUM_ENT(cp->page)-P_INDX) || (PREV_PGNO(cp->page) == PGNO_INVALID && cp->indx == 0))) {
 		t->bt_lpgno = cp->pgno;

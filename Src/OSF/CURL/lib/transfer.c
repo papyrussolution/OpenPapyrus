@@ -44,29 +44,10 @@
 #ifndef HAVE_SOCKET
 	#error "We can't compile without socket() support!"
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "netrc.h"
-//#include "content_encoding.h"
-//#include "hostip.h"
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "speedcheck.h"
-//#include "progress.h"
-//#include "http.h"
-//#include "url.h"
-//#include "getinfo.h"
-//#include "vtls/vtls.h"
-//#include "select.h"
-//#include "multiif.h"
-//#include "connect.h"
-//#include "non-ascii.h"
 #include "http2.h"
-// The last 3 #include files should be in this order 
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
-
 /*
  * This function will call the read callback to fill our buffer with data
  * to upload.

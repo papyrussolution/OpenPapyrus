@@ -1273,14 +1273,15 @@ const IterCounter & SLAPI AsyncCashGoodsIterator::GetIterCounter() const
 	return (Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) ? InnerCounter : Iter.GetIterCounter();
 }
 
-int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
+//static
+int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
 {
 	int    ok = -1;
 	rList.clear();
-    if(PricesLookBackPeriod > 0) {
+    if(lookBackPeriod > 0) {
 		const double base_price = R3(basePrice);
 		const LDATE cd = getcurdate_();
-		const LDATE stop_date = plusdate(cd, -PricesLookBackPeriod);
+		const LDATE stop_date = plusdate(cd, -lookBackPeriod);
 		ReceiptCore & r_rc = BillObj->trfr->Rcpt;
 		ReceiptTbl::Rec lot_rec;
 #if 0 // Этот блок получает список цен только по открытым лотам {
@@ -1297,7 +1298,7 @@ int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goods
 #else // }{ А этот блок получает список цен и по открытым и по закрытым лотам
 		LDATE   enm_dt = MAXDATE;
 		long    enm_opn = MAXLONG;
-		while(r_rc.EnumLastLots(goodsID, LocID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
+		while(r_rc.EnumLastLots(goodsID, locID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
 			double price = R3(lot_rec.Price);
 			uint   p = 0;
 			if(price > 0.0 && price != basePrice && !rList.lsearch(&price, &p, PTR_CMPFUNC(double))) {
@@ -1308,6 +1309,12 @@ int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goods
 #endif // }
     }
     return ok;
+}
+
+
+int SLAPI AsyncCashGoodsIterator::GetDifferentPricesForLookBackPeriod(PPID goodsID, double basePrice, RealArray & rList)
+{
+	return AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(goodsID, LocID, basePrice, PricesLookBackPeriod, rList);
 }
 
 PPID SLAPI AsyncCashGoodsIterator::GetAlcoGoodsCls(SString * pProofExpr, SString * pVolumeExpr) const

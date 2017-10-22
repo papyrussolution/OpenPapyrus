@@ -25,7 +25,7 @@
  */
 #define MAX_URI_LENGTH 1024 * 1024
 
-static void xmlURIErrMemory(const char * extra)
+static void FASTCALL xmlURIErrMemory(const char * extra)
 {
 	if(extra)
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);

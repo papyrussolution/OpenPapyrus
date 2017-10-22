@@ -763,9 +763,6 @@
 				RelativePath="..\osf\curl\lib\curl_addrinfo.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\curl_base64.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\curl_des.h">
 			</File>
 			<File
@@ -781,22 +778,10 @@
 				RelativePath="..\osf\curl\lib\curl_gssapi.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\curl_hmac.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\curl_ldap.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\curl_md4.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_md5.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_memory.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\curl_memrchr.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\curl_multibyte.h">
@@ -952,9 +937,6 @@
 				RelativePath="..\osf\curl\lib\nonblock.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\parsedate.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\pingpong.h">
 			</File>
 			<File
@@ -1001,9 +983,6 @@
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\socks.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\speedcheck.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\splay.h">

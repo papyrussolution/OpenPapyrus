@@ -605,14 +605,16 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 
 int SdRecord::SearchName(const char * pName, uint * pPos, uint excludePos) const
 {
-	F * p_item;
-	SString temp_buf;
-	for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
-		if((i-1) != excludePos) {
-			StringPool.get(p_item->NamePos, temp_buf);
-			if(temp_buf.CmpNC(pName) == 0) {
-				ASSIGN_PTR(pPos, i-1);
-				return 1;
+	if(!isempty(pName)) {
+		F * p_item;
+		SString temp_buf;
+		for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
+			if((i-1) != excludePos) {
+				StringPool.get(p_item->NamePos, temp_buf);
+				if(temp_buf.CmpNC(pName) == 0) {
+					ASSIGN_PTR(pPos, i-1);
+					return 1;
+				}
 			}
 		}
 	}
@@ -928,7 +930,7 @@ int SLAPI SdRecordBuffer::Reset()
 int SLAPI SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 {
 	int    ok = 0;
-	if(P_Buf && recSize < 32*1024) {
+	if(P_Buf && recSize < SKILOBYTE(32)) {
 		if((Pos+recSize+sizeof(uint16)) < MaxSize) { // @v6.2.2 +sizeof(uint16)
 			*PTR16(P_Buf+Pos) = (uint16)recSize;
 			Pos += sizeof(uint16);

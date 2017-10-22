@@ -27,10 +27,6 @@
 //#include "urldata.h"
 //#include "strcase.h"
 #include "hostcheck.h"
-//#include "vtls/vtls.h"
-//#include "sendf.h"
-//#include "inet_pton.h"
-//#include "curl_base64.h"
 #include "x509asn1.h"
 
 /* The last 3 #include files should be in this order */

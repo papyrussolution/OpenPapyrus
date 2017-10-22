@@ -97,8 +97,7 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 					aes_block_t * outp = (aes_block_t*)out;
 					for(n = 0; n < N_WORDS; ++n)
 						tmp.data[n] = inp->data[n] ^ iv2p->data[n];
-					AES_decrypt((uchar*)tmp.data,
-						(uchar*)outp->data, key);
+					AES_decrypt((uchar*)tmp.data, (uchar*)outp->data, key);
 					for(n = 0; n < N_WORDS; ++n)
 						outp->data[n] ^= ivp->data[n];
 					ivp = inp;
@@ -145,10 +144,8 @@ void AES_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY
 
 /* N.B. The IV for this mode is _four times_ the block size */
 
-void AES_bi_ige_encrypt(const uchar * in, uchar * out,
-    size_t length, const AES_KEY * key,
-    const AES_KEY * key2, const uchar * ivec,
-    const int enc)
+void AES_bi_ige_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key,
+    const AES_KEY * key2, const uchar * ivec, const int enc)
 {
 	size_t n;
 	size_t len = length;
@@ -158,18 +155,14 @@ void AES_bi_ige_encrypt(const uchar * in, uchar * out,
 	uchar prev[AES_BLOCK_SIZE];
 	const uchar * iv;
 	const uchar * iv2;
-
 	OPENSSL_assert(in && out && key && ivec);
 	OPENSSL_assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
 	OPENSSL_assert((length % AES_BLOCK_SIZE) == 0);
-
 	if(AES_ENCRYPT == enc) {
-		/*
-		 * XXX: Do a separate case for when in != out (strictly should check
-		 * for overlap, too)
-		 */
-
-		/* First the forward pass */
+		// 
+		// XXX: Do a separate case for when in != out (strictly should check for overlap, too)
+		// 
+		// First the forward pass 
 		iv = ivec;
 		iv2 = ivec + AES_BLOCK_SIZE;
 		while(len >= AES_BLOCK_SIZE) {

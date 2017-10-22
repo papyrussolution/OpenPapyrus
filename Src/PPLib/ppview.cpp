@@ -40,7 +40,7 @@ int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 }
 
 //static
-int SLAPI PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
+int FASTCALL PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
 {
 	ASSIGN_PTR(ppF, 0);
 	Rc     rc;
@@ -48,7 +48,7 @@ int SLAPI PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
 }
 
 // static
-int SLAPI PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF)
+int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF)
 {
 	int    ok = 0;
 	PPBaseFilt * p_filt = 0;
@@ -71,13 +71,13 @@ int SLAPI PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** ppF
 }
 
 //static
-int SLAPI PPView::CreateInstance(int viewID, PPView ** ppV)
+int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV)
 {
 	return CreateInstance(viewID, 0, ppV);
 }
 
 //static
-int SLAPI PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
+int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
 {
 	int    ok = 1;
 	PPView * p_v = 0;
@@ -200,7 +200,7 @@ int SLAPI PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
 }
 
 //static
-int SLAPI PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
+int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
 {
 	int    ok = 1, view_in_use = 0;
 	const  int modeless = GetModelessStatus(BIN(flags & exefModeless));
@@ -758,7 +758,7 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 static const char * P_FiltTag = "PPFILT";
 
 //static
-int SLAPI PPView::WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt)
+int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -777,7 +777,7 @@ int SLAPI PPView::WriteFiltPtr(SBuffer & rBuf, PPBaseFilt * pFilt)
 }
 
 //static
-int SLAPI PPView::ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt)
+int FASTCALL PPView::ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt)
 {
 	int    ok = -1;
 	int    tag_kind = 0;
@@ -1540,7 +1540,7 @@ int SLAPI PPView::Print(const void *)
 	return DefReportId ? Helper_Print(DefReportId, 0) : -1;
 }
 
-int SLAPI PPView::Helper_Print(uint rptId, int ord)
+int FASTCALL PPView::Helper_Print(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
@@ -2034,7 +2034,7 @@ int PPViewBrowser::Export()
 		THROW(p_wkbook = p_app->AddWkbook());
 		THROW(p_sheets = p_wkbook->Get());
 		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
-		name.ReplaceChar('*', '#'); // Замена запрещенного симыола в названии, если таковой имеется
+		name.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
 		sheets_count = p_sheets->GetCount();
 		for(i = sheets_count; i > 1; i--)
 			THROW(p_sheets->Delete(i) > 0);

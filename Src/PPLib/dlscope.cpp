@@ -136,7 +136,7 @@ int FASTCALL DlScope::IsEqual(const DlScope & rPat) const
 	return ok;
 }
 
-int SLAPI DlScope::Write(SBuffer & rBuf) const
+int FASTCALL DlScope::Write(SBuffer & rBuf) const
 {
 	int    ok = 1;
 	uint32 c = 0;
@@ -161,7 +161,7 @@ int SLAPI DlScope::Write(SBuffer & rBuf) const
 	return ok;
 }
 
-int SLAPI DlScope::Read(SBuffer & rBuf)
+int FASTCALL DlScope::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint32 c;
@@ -311,7 +311,7 @@ int SLAPI DlScope::GetChildList(int kind, int recursive, IntArray * pList) const
 	return 1;
 }
 
-int SLAPI DlScope::IsChildOf(const DlScope * pOwner) const
+int FASTCALL DlScope::IsChildOf(const DlScope * pOwner) const
 {
 	if(pOwner) {
 		uint   i = pOwner->ChildList.getCount();
@@ -407,7 +407,7 @@ int SLAPI DlScope::ResetPrototypeFlag()
 	return 1;
 }
 
-int SLAPI DlScope::SetRecord(const DlScope * pRec)
+int FASTCALL DlScope::SetRecord(const DlScope * pRec)
 {
 	int    ok = 1, found = 0;
 	if(pRec) {
@@ -433,7 +433,7 @@ int SLAPI DlScope::SetRecord(const DlScope * pRec)
 	return ok;
 }
 
-int SLAPI DlScope::SetRecList(const DlScopeList * pList)
+int FASTCALL DlScope::SetRecList(const DlScopeList * pList)
 {
 	int    ok = 1;
 	if(pList) {
@@ -630,7 +630,7 @@ int SLAPI DlScope::SetInheritance(const DlScope * pBase, DlContext * pCtx)
 
 #endif // } DL600C
 
-int SLAPI DlScope::AddFunc(const DlFunc * pF)
+int FASTCALL DlScope::AddFunc(const DlFunc * pF)
 {
 	return FuncPool.Add(pF);
 }
@@ -832,7 +832,7 @@ static DlScopePropIdAssoc DlScopePropIdAssocList[] = {
 };
 
 //static
-int SLAPI DlScope::GetPropSymb(int propId, SString & rSymb)
+int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 {
 	int    ok = 0;
 	rSymb = 0;
@@ -845,7 +845,7 @@ int SLAPI DlScope::GetPropSymb(int propId, SString & rSymb)
 }
 
 //static
-int SLAPI DlScope::ResolvePropName(const char * pName)
+int FASTCALL DlScope::ResolvePropName(const char * pName)
 {
 	int    id = 0;
 	for(uint i = 0; !id && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)

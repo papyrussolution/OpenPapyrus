@@ -768,8 +768,7 @@ static int SLAPI LogDeclineMsg(const PPQuot * pQuot, int quotCat)
 	}
 	PPObjQuotKind qk_obj;
 	qk_obj.MakeCodeString(pQuot, quot_buf);
-	PPLoadText(msg_id, fmt_buf);
-	msg_buf.Printf(fmt_buf, quot_buf.cptr());
+	msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), quot_buf.cptr());
 	PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_USER|LOGMSGF_TIME);
 	return -2;
 }

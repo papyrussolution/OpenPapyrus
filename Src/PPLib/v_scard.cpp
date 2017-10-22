@@ -366,7 +366,7 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 				THROW_SL(owner_list.add(temp_item.PersonID));
         }
         owner_list.sortAndUndup();
-        THROW(ExcludeOwnerList.Set(&owner_list));
+        ExcludeOwnerList.Set(&owner_list);
 	}
 	if(IsTempTblNeeded() || Filt.Flags & SCardFilt::fNoTempTable) {
 		//
@@ -1900,7 +1900,7 @@ int SLAPI PPViewSCard::ChangeFlags()
 	return ok;
 }
 
-SCardSelPrcssrDlg::SCardSelPrcssrDlg(PPViewSCard * pView, int editSCardFilt) : TDialog(DLG_FLTSCARDCHNG)
+SCardSelPrcssrDialog::SCardSelPrcssrDialog(PPViewSCard * pView, int editSCardFilt) : TDialog(DLG_FLTSCARDCHNG)
 {
 	P_View = pView;
 	EditSCardFilt = editSCardFilt;
@@ -1908,7 +1908,7 @@ SCardSelPrcssrDlg::SCardSelPrcssrDlg(PPViewSCard * pView, int editSCardFilt) : T
 	SetupCalCtrl(CTLCAL_FLTSCARDCHNG_DTEND, this, CTL_FLTSCARDCHNG_DTEND, 0);
 }
 
-int SCardSelPrcssrDlg::setDTS(const SCardSelPrcssrParam * pData)
+int SCardSelPrcssrDialog::setDTS(const SCardSelPrcssrParam * pData)
 {
 	if(!RVALUEPTR(Data, pData))
 		Data.Init();
@@ -1950,7 +1950,7 @@ int SCardSelPrcssrDlg::setDTS(const SCardSelPrcssrParam * pData)
 	return 1;
 }
 
-int SCardSelPrcssrDlg::getDTS(SCardSelPrcssrParam * pData)
+int SCardSelPrcssrDialog::getDTS(SCardSelPrcssrParam * pData)
 {
  	ushort sel = 0;
  	int    ok = -1;
@@ -1985,7 +1985,7 @@ int SCardSelPrcssrDlg::getDTS(SCardSelPrcssrParam * pData)
  	return ok;
  }
 
-IMPL_HANDLE_EVENT(SCardSelPrcssrDlg)
+IMPL_HANDLE_EVENT(SCardSelPrcssrDialog)
 {
  	TDialog::handleEvent(event);
  	if(event.isCmd(cmSCardFilt) && P_View)
@@ -2006,7 +2006,7 @@ IMPL_HANDLE_EVENT(SCardSelPrcssrDlg)
 int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger * pLog)
 {
 	int    ok = -1, valid_data = 0;
-	SCardSelPrcssrDlg * dlg = 0;
+	SCardSelPrcssrDialog * dlg = 0;
 	SCardSelPrcssrParam param;
 	PPObjSCardSeries scs_obj;
 	PPObjGoods goods_obj;
@@ -2019,7 +2019,7 @@ int SLAPI PPViewSCard::ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *
 			THROW(Init_(&param.SelFilt));
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new SCardSelPrcssrDlg(this, 0))));
+		THROW(CheckDialogPtr(&(dlg = new SCardSelPrcssrDialog(this, 0))));
 		dlg->setDTS(&param);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&param) > 0)

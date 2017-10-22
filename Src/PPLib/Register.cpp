@@ -627,9 +627,8 @@ int SLAPI RegisterCore::_Get(PPID objType, PPID id, RegisterArray * pAry)
 				}
 			}
 			else if(eq_count == 1000) {
-				PPLoadText(PPTXT_TOOMANYEQREG_DB, fmt_buf);
 				RegisterCore::GetText(data, reg_text);
-				msg_buf.Printf(fmt_buf, reg_text.cptr());
+				msg_buf.Printf(PPLoadTextS(PPTXT_TOOMANYEQREG_DB, fmt_buf), reg_text.cptr());
 				alarm = 1;
 			}
 			if(alarm) {

@@ -1786,8 +1786,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 	THROW(p_bu = PPBackup::CreateInstance(&dbes));
 	if(use_copy_continouos) {
 		SString fmt_buf, msg_buf;
-		PPLoadText(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf);
-		msg_buf.Printf(fmt_buf, rDBSymb.cptr());
+		msg_buf.Printf(PPLoadTextS(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf), rDBSymb.cptr());
 		PPLogMessage(PPFILNAM_BACKUP_LOG, msg_buf, LOGMSGF_TIME);
 	}
 	else

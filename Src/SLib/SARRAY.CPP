@@ -1263,6 +1263,21 @@ SLAPI SCollection::SCollection() : SArray(sizeof(void *), /*aDelta,*/ O_COLLECTI
 SLAPI SCollection::SCollection(/*uint aDelta,*/ uint o) : SArray(sizeof(void *), /*aDelta,*/ o)
 {
 }
+
+int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem, uint * pPos)
+{
+	if(pNewItem && insert(pNewItem)) {
+		ASSIGN_PTR(pPos, count-1);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int FASTCALL SCollection::Helper_CreateNewItem(void * pNewItem)
+{
+	return BIN(pNewItem && insert(pNewItem));
+}
 //
 //
 //
@@ -1335,6 +1350,11 @@ int SLAPI LAssocArray::GetListByVal(long val, LongArray & rList) const
 		}
 	}
 	return ok;
+}
+
+int SLAPI LAssocArray::Add(long key, long val)
+{
+	return Add(key, val, 0);
 }
 
 int SLAPI LAssocArray::Add(long key, long val, uint * pPos, int inOrder)

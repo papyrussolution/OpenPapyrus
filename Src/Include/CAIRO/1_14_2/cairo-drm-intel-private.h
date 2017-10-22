@@ -71,9 +71,9 @@ typedef struct _intel_bo {
 	void * P_Virtual; // @sobolev virtual-->P_Virtual
 } intel_bo_t;
 
-#define INTEL_BATCH_SIZE (64*1024)
+#define INTEL_BATCH_SIZE         (64*1024)
 #define INTEL_VERTEX_BUFFER_SIZE (512*1024)
-#define INTEL_MAX_RELOCS 2048
+#define INTEL_MAX_RELOCS         2048
 
 static inline void intel_bo_mark_purgeable(intel_bo_t * bo)
 {

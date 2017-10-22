@@ -994,14 +994,14 @@ SLAPI FPoint::FPoint(float x, float y)
 	Y = y;
 }
 
-FPoint & FPoint::operator = (const TPoint & p)
+FPoint & FASTCALL FPoint::operator = (const TPoint & p)
 {
 	X = (float)p.x;
 	Y = (float)p.y;
 	return *this;
 }
 
-FPoint & FPoint::operator = (float f)
+FPoint & FASTCALL FPoint::operator = (float f)
 {
 	X = Y = f;
 	return *this;
@@ -1059,22 +1059,22 @@ float  SLAPI FPoint::Hypotf() const { return (float)_hypot(X, Y); }
 FPoint SLAPI FPoint::Swap() const { return FPoint(Y, X); }
 FPoint SLAPI FPoint::Combine(FPoint a, FPoint b) const { return FPoint(a.X*X + a.Y*Y, b.X*X + b.Y*Y); }
 
-FPoint SLAPI operator + (FPoint p,  float addendum) { return FPoint(p.X + addendum, p.Y + addendum); }
-FPoint SLAPI operator + (FPoint p1, FPoint p2)      { return FPoint(p1.X + p2.X, p1.Y + p2.Y); }
-FPoint SLAPI operator - (FPoint p1, FPoint p2)      { return FPoint(p1.X - p2.X, p1.Y - p2.Y); }
-FPoint SLAPI operator * (FPoint p, double mul)      { return FPoint((float)(p.X * mul), (float)(p.Y * mul)); }
-FPoint SLAPI operator * (FPoint p,  float mul)      { return FPoint(p.X * mul, p.Y * mul); }
-FPoint SLAPI operator * (FPoint p1, FPoint p2)      { return FPoint(p1.X * p2.X, p1.Y * p2.Y); }
-FPoint SLAPI operator / (FPoint p,  float divider)  { return FPoint(p.X / divider, p.Y / divider); }
-FPoint SLAPI operator / (FPoint p1, FPoint p2)      { return FPoint(p1.X / p2.X, p1.Y / p2.Y); }
+FPoint FASTCALL operator + (FPoint p,  float addendum) { return FPoint(p.X + addendum, p.Y + addendum); }
+FPoint FASTCALL operator + (FPoint p1, FPoint p2)      { return FPoint(p1.X + p2.X, p1.Y + p2.Y); }
+FPoint FASTCALL operator - (FPoint p1, FPoint p2)      { return FPoint(p1.X - p2.X, p1.Y - p2.Y); }
+FPoint FASTCALL operator * (FPoint p, double mul)      { return FPoint((float)(p.X * mul), (float)(p.Y * mul)); }
+FPoint FASTCALL operator * (FPoint p,  float mul)      { return FPoint(p.X * mul, p.Y * mul); }
+FPoint FASTCALL operator * (FPoint p1, FPoint p2)      { return FPoint(p1.X * p2.X, p1.Y * p2.Y); }
+FPoint FASTCALL operator / (FPoint p,  float divider)  { return FPoint(p.X / divider, p.Y / divider); }
+FPoint FASTCALL operator / (FPoint p1, FPoint p2)      { return FPoint(p1.X / p2.X, p1.Y / p2.Y); }
 
-int SLAPI operator == (FPoint p1, FPoint p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
-int SLAPI operator < (FPoint p1, FPoint p2)  { return (p1.X < p2.X && p1.Y < p2.Y) ? 1 : 0; }
-int SLAPI operator > (FPoint p1, FPoint p2)  { return (p1.X > p2.X && p1.Y > p2.Y) ? 1 : 0; }
-FPoint SLAPI fmin(FPoint p1, FPoint p2)      { return FPoint(MIN(p1.X, p2.X), MIN(p1.Y, p2.Y)); }
-FPoint SLAPI fmax(FPoint p1, FPoint p2)      { return FPoint(MAX(p1.X, p2.X), MAX(p1.Y, p2.Y)); }
-float  SLAPI atan2(FPoint p1, FPoint p2)     { return atan2f(p1.Y-p2.Y, p1.X-p2.X); }
-FPoint SLAPI trans01(FPoint p, FPoint radius, float angle) { return FPoint(p.X + radius.X * sinf(angle), p.Y - radius.Y * cosf(angle)); }
+int FASTCALL operator == (FPoint p1, FPoint p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
+int FASTCALL operator < (FPoint p1, FPoint p2)  { return (p1.X < p2.X && p1.Y < p2.Y) ? 1 : 0; }
+int FASTCALL operator > (FPoint p1, FPoint p2)  { return (p1.X > p2.X && p1.Y > p2.Y) ? 1 : 0; }
+FPoint FASTCALL fmin(FPoint p1, FPoint p2)      { return FPoint(MIN(p1.X, p2.X), MIN(p1.Y, p2.Y)); }
+FPoint FASTCALL fmax(FPoint p1, FPoint p2)      { return FPoint(MAX(p1.X, p2.X), MAX(p1.Y, p2.Y)); }
+float  FASTCALL atan2(FPoint p1, FPoint p2)     { return atan2f(p1.Y-p2.Y, p1.X-p2.X); }
+FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle) { return FPoint(p.X + radius.X * sinf(angle), p.Y - radius.Y * cosf(angle)); }
 //
 //
 //
@@ -1628,11 +1628,10 @@ COLORREF DarkenColor(COLORREF col, double factor)
 //
 //
 //
-int UiCoord::Set(int v, int f)
+void UiCoord::Set(int v, int f)
 {
 	Val = (int16)v;
 	Flags = (int16)f;
-	return 1;
 }
 
 void UiCoord::Reset()

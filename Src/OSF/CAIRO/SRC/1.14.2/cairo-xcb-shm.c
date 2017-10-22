@@ -47,7 +47,7 @@
 #include <sys/shm.h>
 #include <errno.h>
 
-#define CAIRO_MAX_SHM_MEMORY (16*1024*1024)
+#define CAIRO_MAX_SHM_MEMORY SMEGABYTE(16)
 
 /* a simple buddy allocator for memory pools
  * XXX fragmentation? use Doug Lea's SAlloc::M?
@@ -216,7 +216,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		if(pool->shmid != -1)
 			break;
 		// If the allocation failed because we asked for too much memory, we try
-		// again with a smaller request, as long as our allocation still fits. 
+		// again with a smaller request, as long as our allocation still fits.
 		bytes >>= 1;
 		if(errno != EINVAL || bytes < size)
 			break;

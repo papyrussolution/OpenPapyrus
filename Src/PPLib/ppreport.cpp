@@ -2249,7 +2249,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 	return ok;
 }
 
-static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPReportEnv * pEnv)
+static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPReportEnv * pEnv)
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
@@ -2457,9 +2457,9 @@ static int SLAPI __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRepor
 	return ok;
 }
 
-int SLAPI PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
+int FASTCALL PPAlddPrint(int rptId, PPFilt * pf, const PPReportEnv * pEnv)
 	{ return __PPAlddPrint(rptId, pf, 0, pEnv); }
-int SLAPI PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
+int FASTCALL PPAlddPrint(int rptId, PView * pview, const PPReportEnv * pEnv)
 	{ return __PPAlddPrint(rptId, (PPFilt*)pview, 1, pEnv); }
 
 static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long id, void * pPtr, SCodepageIdent cp, SString & rBuf)
@@ -2486,17 +2486,17 @@ static int SLAPI Implement_ExportDL600DataToBuffer(const char * pDataName, long 
 	return ok;
 }
 
-int SLAPI PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf)
+int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf)
 {
 	return Implement_ExportDL600DataToBuffer(pDataName, id, 0, cp, rBuf);
 }
 
-int SLAPI PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf)
+int FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf)
 {
 	return Implement_ExportDL600DataToBuffer(pDataName, 0, ptr, cp, rBuf);
 }
 
-int SLAPI PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pStrAssocAry, void * ptr, SString & rBuf)
+int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pStrAssocAry, void * ptr, SString & rBuf)
 {
 	int         ok = 1;
 	DlContext * p_ctx = 0;

@@ -501,38 +501,32 @@
 /*
  * When using WINSOCK, TELNET protocol requires WINSOCK2 API.
  */
-
 #if defined(USE_WINSOCK) && (USE_WINSOCK != 2)
-#  define CURL_DISABLE_TELNET 1
+	#define CURL_DISABLE_TELNET 1
 #endif
-
 /*
  * msvc 6.0 does not have struct sockaddr_storage and
  * does not define IPPROTO_ESP in winsock2.h. But both
  * are available if PSDK is properly installed.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__)
-#  if !defined(HAVE_WINSOCK2_H) || ((_MSC_VER < 1300) && !defined(IPPROTO_ESP))
-#    undef HAVE_STRUCT_SOCKADDR_STORAGE
-#  endif
+	#if !defined(HAVE_WINSOCK2_H) || ((_MSC_VER < 1300) && !defined(IPPROTO_ESP))
+		#undef HAVE_STRUCT_SOCKADDR_STORAGE
+	#endif
 #endif
-
 /*
  * Intentionally fail to build when using msvc 6.0 without PSDK installed.
  * The brave of heart can circumvent this, defining ALLOW_MSVC6_WITHOUT_PSDK
  * in lib/config-win32.h although absolutely discouraged and unsupported.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__)
-#  if !defined(HAVE_WINDOWS_H) || ((_MSC_VER < 1300) && !defined(_FILETIME_))
-#    if !defined(ALLOW_MSVC6_WITHOUT_PSDK)
-#      error MSVC 6.0 requires "February 2003 Platform SDK" a.k.a. \
-             "Windows Server 2003 PSDK"
-#    else
-#      define CURL_DISABLE_LDAP 1
-#    endif
-#  endif
+	#if !defined(HAVE_WINDOWS_H) || ((_MSC_VER < 1300) && !defined(_FILETIME_))
+		#if !defined(ALLOW_MSVC6_WITHOUT_PSDK)
+			#error MSVC 6.0 requires "February 2003 Platform SDK" a.k.a. "Windows Server 2003 PSDK"
+		#else
+			#define CURL_DISABLE_LDAP 1
+		#endif
+	#endif
 #endif
 #ifdef NETWARE
 	int netware_init(void);
@@ -740,13 +734,220 @@
 #include "dotdot.h"
 #include "inet_pton.h"
 #include "inet_ntop.h"
-#include "parsedate.h"
-#include "speedcheck.h"
-#include "curl_hmac.h"
-#include "curl_base64.h"
-#include "curl_md5.h"
-#include "curl_memrchr.h"
-#include "curl_memory.h"
+//
+//#include "parsedate.h"
+//
+CURLcode Curl_gmtime(time_t intime, struct tm *store);
+//
+//#include "speedcheck.h"
+//
+void Curl_speedinit(struct Curl_easy *data);
+CURLcode Curl_speedcheck(struct Curl_easy *data, struct timeval now);
+//
+//#include "curl_base64.h"
+//
+CURLcode Curl_base64_encode(struct Curl_easy * data, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen);
+CURLcode Curl_base64url_encode(struct Curl_easy * data, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen);
+CURLcode Curl_base64_decode(const char * src, uchar ** outptr, size_t * outlen);
+//
+#ifndef CURL_DISABLE_CRYPTO_AUTH
+	//
+	//#include "curl_hmac.h"
+	//
+	typedef void (*HMAC_hinit_func)(void * context);
+	typedef void (*HMAC_hupdate_func)(void * context, const uchar * data, uint len);
+	typedef void (*HMAC_hfinal_func)(uchar * result, void * context);
+	//
+	// Per-hash function HMAC parameters
+	//
+	typedef struct {
+		HMAC_hinit_func hmac_hinit;     /* Initialize context procedure. */
+		HMAC_hupdate_func hmac_hupdate; /* Update context with data. */
+		HMAC_hfinal_func hmac_hfinal;   /* Get final result procedure. */
+		uint hmac_ctxtsize;     /* Context structure size. */
+		uint hmac_maxkeylen;    /* Maximum key length (bytes). */
+		uint hmac_resultlen;    /* Result length (bytes). */
+	} HMAC_params;
+	//
+	// HMAC computation context
+	//
+	typedef struct {
+		const HMAC_params * hmac_hash; /* Hash function definition. */
+		void * hmac_hashctxt1;  /* Hash function context 1. */
+		void * hmac_hashctxt2;  /* Hash function context 2. */
+	} HMAC_context;
+	//
+	// Prototypes
+	//
+	HMAC_context * Curl_HMAC_init(const HMAC_params * hashparams, const uchar * key, uint keylen);
+	int Curl_HMAC_update(HMAC_context * context, const uchar * data, uint len);
+	int Curl_HMAC_final(HMAC_context * context, uchar * result);
+	//
+	// #include "curl_md5.h"
+	//
+	#define MD5_DIGEST_LEN  16
+
+	typedef void (*Curl_MD5_init_func)(void * context);
+	typedef void (*Curl_MD5_update_func)(void * context, const uchar * data, uint len);
+	typedef void (*Curl_MD5_final_func)(uchar * result, void * context);
+
+	typedef struct {
+		Curl_MD5_init_func md5_init_func; /* Initialize context procedure */
+		Curl_MD5_update_func md5_update_func; /* Update context with data */
+		Curl_MD5_final_func md5_final_func; /* Get final result procedure */
+		uint md5_ctxtsize;      /* Context structure size */
+		uint md5_resultlen;     /* Result length (bytes) */
+	} MD5_params;
+
+	typedef struct {
+		const MD5_params * md5_hash; /* Hash function definition */
+		void * md5_hashctx; /* Hash function context */
+	} MD5_context;
+
+	extern const MD5_params Curl_DIGEST_MD5[1];
+	extern const HMAC_params Curl_HMAC_MD5[1];
+
+	void Curl_md5it(uchar * output, const uchar * input);
+	MD5_context * Curl_MD5_init(const MD5_params * md5params);
+	int Curl_MD5_update(MD5_context * context, const uchar * data, uint len);
+	int Curl_MD5_final(MD5_context * context, uchar * result);
+#endif
+//
+// #include "curl_memrchr.h"
+//
+#ifdef HAVE_MEMRCHR
+	#ifdef HAVE_STRING_H
+		#include <string.h>
+	#endif
+	#ifdef HAVE_STRINGS_H
+		#include <strings.h>
+	#endif
+#else
+	void * Curl_memrchr(const void *s, int c, size_t n);
+	#define memrchr(x,y,z) Curl_memrchr((x),(y),(z))
+#endif
+//
+// #include "curl_memory.h"
+//
+//
+// Nasty internal details ahead...
+//
+// File curl_memory.h must be included by _all_ *.c source files
+// that use memory related functions strdup, malloc, calloc, realloc
+// or free, and given source file is used to build libcurl library.
+// It should be included immediately before memdebug.h as the last files
+// included to avoid undesired interaction with other memory function
+// headers in dependent libraries.
+//
+// There is nearly no exception to above rule. All libcurl source
+// files in 'lib' subdirectory as well as those living deep inside
+// 'packages' subdirectories and linked together in order to build
+// libcurl library shall follow it.
+//
+// File lib/strdup.c is an exception, given that it provides a strdup
+// clone implementation while using malloc. Extra care needed inside
+// this one. TODO: revisit this paragraph and related code.
+//
+// The need for curl_memory.h inclusion is due to libcurl's feature
+// of allowing library user to provide memory replacement functions,
+// memory callbacks, at runtime with curl_global_init_mem()
+//
+// Any *.c source file used to build libcurl library that does not
+// include curl_memory.h and uses any memory function of the five
+// mentioned above will compile without any indication, but it will
+// trigger weird memory related issues at runtime.
+//
+// OTOH some source files from 'lib' subdirectory may additionally be
+// used directly as source code when using some curlx_ functions by
+// third party programs that don't even use libcurl at all. When using
+// these source files in this way it is necessary these are compiled
+// with CURLX_NO_MEMORY_CALLBACKS defined, in order to ensure that no
+// attempt of calling libcurl's memory callbacks is done from code
+// which can not use this machinery.
+//
+// Notice that libcurl's 'memory tracking' system works chaining into
+// the memory callback machinery. This implies that when compiling
+// 'lib' source files with CURLX_NO_MEMORY_CALLBACKS defined this file
+// disengages usage of libcurl's 'memory tracking' system, defining
+// MEMDEBUG_NODEFINES and overriding CURLDEBUG purpose.
+//
+// CURLX_NO_MEMORY_CALLBACKS takes precedence over CURLDEBUG. This is
+// done in order to allow building a 'memory tracking' enabled libcurl
+// and at the same time allow building programs which do not use it.
+//
+// Programs and libraries in 'tests' subdirectories have specific
+// purposes and needs, and as such each one will use whatever fits
+// best, depending additionally whether it links with libcurl or not.
+//
+// Caveat emptor. Proper curlx_* separation is a work in progress
+// the same as CURLX_NO_MEMORY_CALLBACKS usage, some adjustments may
+// still be required. IOW don't use them yet, there are sharp edges.
+//
+#ifdef HEADER_CURL_MEMDEBUG_H
+	#error "Header memdebug.h shall not be included before curl_memory.h"
+#endif
+#ifndef CURLX_NO_MEMORY_CALLBACKS
+	#ifndef CURL_DID_MEMORY_FUNC_TYPEDEFS /* only if not already done */
+		// 
+		// The following memory function replacement typedef's are COPIED from
+		// curl/curl.h and MUST match the originals. We copy them to avoid having to
+		// include curl/curl.h here. We avoid that include since it includes stdio.h
+		// and other headers that may get messed up with defines done here.
+		// 
+		typedef void *(*curl_malloc_callback)(size_t size);
+		typedef void (*curl_free_callback)(void *ptr);
+		typedef void *(*curl_realloc_callback)(void *ptr, size_t size);
+		typedef char *(*curl_strdup_callback)(const char *str);
+		typedef void *(*curl_calloc_callback)(size_t nmemb, size_t size);
+		#define CURL_DID_MEMORY_FUNC_TYPEDEFS
+	#endif
+	extern curl_malloc_callback Curl_cmalloc;
+	extern curl_free_callback Curl_cfree;
+	extern curl_realloc_callback Curl_crealloc;
+	extern curl_strdup_callback Curl_cstrdup;
+	extern curl_calloc_callback Curl_ccalloc;
+	#if defined(WIN32) && defined(UNICODE)
+		extern curl_wcsdup_callback Curl_cwcsdup;
+	#endif
+	#ifndef CURLDEBUG
+		// 
+		// libcurl's 'memory tracking' system defines strdup, malloc, calloc,
+		// realloc and free, along with others, in memdebug.h in a different
+		// way although still using memory callbacks forward declared above.
+		// When using the 'memory tracking' system (CURLDEBUG defined) we do
+		// not define here the five memory functions given that definitions
+		// from memdebug.h are the ones that shall be used.
+		// 
+		// @sobolev #undef strdup
+		// @sobolev #define _strdup(ptr) Curl_cstrdup(ptr)
+		// @sobolev #undef malloc
+		// @sobolev #define malloc Curl_cmalloc(size)
+		// @sobolev #undef calloc
+		// @sobolev #define calloc(nbelem,size) Curl_ccalloc(nbelem, size)
+		// @sobolev #undef realloc
+		// @sobolev #define realloc(ptr,size) Curl_crealloc(ptr, size)
+		// @sobolev #undef free
+		// @sobolev #define free Curl_cfree(ptr)
+		#ifdef WIN32
+			#ifdef UNICODE
+				#undef wcsdup
+				#define wcsdup(ptr) Curl_cwcsdup(ptr)
+				#undef _wcsdup
+				#define _wcsdup(ptr) Curl_cwcsdup(ptr)
+				#undef _tcsdup
+				#define _tcsdup(ptr) Curl_cwcsdup(ptr)
+			#else
+				#undef _tcsdup
+				#define _tcsdup(ptr) Curl_cstrdup(ptr)
+			#endif
+		#endif
+	#endif
+#else
+	#ifndef MEMDEBUG_NODEFINES
+		#define MEMDEBUG_NODEFINES
+	#endif
+#endif
+//
 // } @sobolev 
 
 #endif /* HEADER_CURL_SETUP_H */

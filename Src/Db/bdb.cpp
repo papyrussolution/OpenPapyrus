@@ -89,7 +89,7 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 			uint32 gb = 0, b = 0;
 			int    n = 0;
 			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n), 0, 0));
-			rCfg.CacheSize = ((int64)gb * 1024i64 * 1024i64 * 1024i64) + b;
+			rCfg.CacheSize = SGIGABYTE((int64)gb) + b;
 			rCfg.CacheCount = (uint)n;
 		}
 		{
@@ -162,8 +162,8 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			uint32 b_ = 0, b = 0;
 			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_), 0, 0));
 			if(rCfg.CacheSize != 0) {
-				gb = (uint32)(rCfg.CacheSize / (1024i64 * 1024i64 * 1024i64));
-				b = (uint32)(rCfg.CacheSize % (1024i64 * 1024i64 * 1024i64));
+				gb = (uint32)(rCfg.CacheSize / SGIGABYTE(1));
+				b = (uint32)(rCfg.CacheSize % SGIGABYTE(1));
 			}
 			else {
 				gb = gb_;
@@ -561,9 +561,9 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, BDbTable:
 	}
 	if(dbtype == DB_HASH) {
 		if(pCfg->HashFFactor) {
-			THROW(ProcessError(p_db->set_h_ffactor(p_db, pCfg->HashFFactor), p_db, 0)); 
+			THROW(ProcessError(p_db->set_h_ffactor(p_db, pCfg->HashFFactor), p_db, 0));
 			if(pCfg->HashNElem) {
-				THROW(ProcessError(p_db->set_h_nelem(p_db, pCfg->HashNElem), p_db, 0)); 
+				THROW(ProcessError(p_db->set_h_nelem(p_db, pCfg->HashNElem), p_db, 0));
 			}
 		}
 	}
@@ -1096,7 +1096,7 @@ BDbTable::Statistics::ISz::ISz()
 	Min = UINT_MAX;
 	Max = 0;
 }
-			
+
 void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
 {
     Count++;
@@ -1207,7 +1207,7 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 	return c;
 }
 
-//static 
+//static
 uint32 BDbTable::PartitionCallback(DB * pDb, DBT * pDbt)
 {
 	uint32 partition = 0;
@@ -1336,7 +1336,7 @@ int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buff
 	return P_IdxHandle ? P_IdxHandle->Implement_Cmp(this, pKey1, pKey2) : 0;
 }
 
-//virtual 
+//virtual
 uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey)
 {
 	return 0;
@@ -1402,7 +1402,7 @@ int BDbTable::Helper_GetConfig(BDbTable * pT, Config & rCfg)
 		}
 		if(rCfg.IdxType == BDbTable::idxtypHash) {
 			THROW(BDbDatabase::ProcessError(p_db->get_h_ffactor(p_db, &rCfg.HashFFactor), p_db, 0));
-			THROW(BDbDatabase::ProcessError(p_db->get_h_nelem(p_db, &rCfg.HashNElem), p_db, 0));  
+			THROW(BDbDatabase::ProcessError(p_db->get_h_nelem(p_db, &rCfg.HashNElem), p_db, 0));
 		}
 	}
 	CATCHZOK

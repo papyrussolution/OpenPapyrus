@@ -1733,7 +1733,7 @@ static void FASTCALL xmlGROW(xmlParserCtxt * ctxt)
  *
  * Returns the number of space chars skipped
  */
-int xmlSkipBlankChars(xmlParserCtxt * ctxt) 
+int FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt) 
 {
 	int res = 0;
 	// It's Okay to use CUR/NEXT here since all the blanks are on the ASCII range.
@@ -2490,7 +2490,6 @@ static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int bla
 {
 	int i, ret;
 	xmlNode * lastChild;
-
 	/*
 	 * Don't spend time trying to differentiate them, the same callback is
 	 * used !
@@ -2501,10 +2500,8 @@ static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int bla
 	/*
 	 * Check for xml:space value.
 	 */
-	if((ctxt->space == NULL) || (*(ctxt->space) == 1) ||
-	    (*(ctxt->space) == -2))
+	if((ctxt->space == NULL) || (*(ctxt->space) == 1) || (*(ctxt->space) == -2))
 		return 0;
-
 	/*
 	 * Check that the string is made of blanks
 	 */
@@ -2567,8 +2564,8 @@ static int areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len, int bla
  * Returns the local part, and prefix is updated
  *   to get the Prefix if any.
  */
-
-xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** prefix) {
+xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** prefix) 
+{
 	xmlChar buf[XML_MAX_NAMELEN + 5];
 	xmlChar * buffer = NULL;
 	int len = 0;
@@ -2736,7 +2733,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
  * We still keep compatibility to pre-revision5 parsing semantic if the
  * new XML_PARSE_OLD10 option is given to the parser.
  */
-static int xmlIsNameStartChar(xmlParserCtxt * ctxt, int c)
+static int FASTCALL xmlIsNameStartChar(xmlParserCtxt * ctxt, int c)
 {
 	if((ctxt->options & XML_PARSE_OLD10) == 0) {
 		//
@@ -2911,7 +2908,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
  *
  * Returns the Name parsed or NULL
  */
-const xmlChar * xmlParseName(xmlParserCtxt * ctxt)
+const xmlChar * FASTCALL xmlParseName(xmlParserCtxt * ctxt)
 {
 	const xmlChar * ret = 0;
 	GROW;
@@ -12098,12 +12095,10 @@ xmlParserErrors xmlParseInNodeContext(xmlNode * P_Node, const char * data, int d
 		SAlloc::F((xmlChar*)ctxt->encoding);
 		ctxt->encoding = sstrdup((const xmlChar*)doc->encoding);
 		hdlr = xmlFindCharEncodingHandler((const char*)doc->encoding);
-		if(hdlr != NULL) {
+		if(hdlr)
 			xmlSwitchToEncoding(ctxt, hdlr);
-		}
-		else {
-			return(XML_ERR_UNSUPPORTED_ENCODING);
-		}
+		else
+			return XML_ERR_UNSUPPORTED_ENCODING;
 	}
 	xmlCtxtUseOptionsInternal(ctxt, options, 0);
 	xmlDetectSAX2(ctxt);
@@ -12761,32 +12756,32 @@ int xmlSAXUserParseFile(xmlSAXHandlerPtr sax, void * user_data, const char * fil
  */
 xmlParserCtxtPtr xmlCreateMemoryParserCtxt(const char * buffer, int size)
 {
-	xmlParserCtxt * ctxt;
-	xmlParserInputPtr input;
-	xmlParserInputBufferPtr buf;
-	if(!buffer)
-		return 0;
-	if(size <= 0)
-		return 0;
-	ctxt = xmlNewParserCtxt();
-	if(!ctxt)
-		return 0;
-	/* @todo xmlParserInputBufferCreateStatic, requires some serious changes */
-	buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(!buf) {
-		xmlFreeParserCtxt(ctxt);
-		return 0;
+	xmlParserCtxt * ctxt = 0;
+	if(buffer && size > 0) {
+		ctxt = xmlNewParserCtxt();
+		if(ctxt) {
+			// @todo xmlParserInputBufferCreateStatic, requires some serious changes 
+			xmlParserInputBuffer * buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
+			if(!buf) {
+				xmlFreeParserCtxt(ctxt);
+				ctxt = 0;
+			}
+			else {
+				xmlParserInput * input = xmlNewInputStream(ctxt);
+				if(input == NULL) {
+					xmlFreeParserInputBuffer(buf);
+					xmlFreeParserCtxt(ctxt);
+					ctxt = 0;
+				}
+				else {
+					input->filename = NULL;
+					input->buf = buf;
+					xmlBufResetInput(input->buf->buffer, input);
+					inputPush(ctxt, input);
+				}
+			}
+		}
 	}
-	input = xmlNewInputStream(ctxt);
-	if(input == NULL) {
-		xmlFreeParserInputBuffer(buf);
-		xmlFreeParserCtxt(ctxt);
-		return 0;
-	}
-	input->filename = NULL;
-	input->buf = buf;
-	xmlBufResetInput(input->buf->buffer, input);
-	inputPush(ctxt, input);
 	return ctxt;
 }
 
@@ -12996,7 +12991,7 @@ xmlDocPtr xmlSAXParseDoc(xmlSAXHandlerPtr sax, const xmlChar * cur, int recovery
  */
 xmlDocPtr xmlParseDoc(const xmlChar * cur)
 {
-	return(xmlSAXParseDoc(NULL, cur, 0));
+	return xmlSAXParseDoc(NULL, cur, 0);
 }
 
 #endif /* LIBXML_SAX1_ENABLED */

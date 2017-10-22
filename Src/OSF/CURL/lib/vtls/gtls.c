@@ -46,7 +46,6 @@
 //#include "inet_pton.h"
 #include "gtls.h"
 #include "vtls.h"
-//#include "parsedate.h"
 //#include "connect.h" /* for the connect timeout */
 //#include "select.h"
 //#include "strcase.h"

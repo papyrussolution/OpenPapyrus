@@ -88,10 +88,9 @@ struct __log_persist;	typedef struct __log_persist LOGP;
 #define	LFNAME		"log.%010d"	/* Log file name template. */
 #define	LFNAME_V1	"log.%05d"	/* Log file name template, rev 1. */
 
-#define	LG_MAX_DEFAULT		(10 * MEGABYTE)	/* 10 MB. */
-#define	LG_MAX_INMEM		(256 * 1024)	/* 256 KB. */
-#define	LG_BSIZE_INMEM		(1 * MEGABYTE)	/* 1 MB. */
-
+#define	LG_MAX_DEFAULT		SMEGABYTE(10)
+#define	LG_MAX_INMEM		SKILOBYTE(256)
+#define	LG_BSIZE_INMEM		SMEGABYTE(1)
 /*
  * Allocate a few bytes under a power-of-two value.  BDB doesn't care if it's
  * a power-of-two or not, and requesting slightly under a power-of-two allows

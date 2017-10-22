@@ -137,7 +137,7 @@ loop:
 	 * A size_t is OK -- regions get mapped into memory, and so can't
 	 * be larger than a size_t.
 	 */
-	size = mbytes*MEGABYTE+bytes;
+	size = SMEGABYTE(mbytes)+bytes;
 	/*
 	 * If the size is less than the size of a REGENV_REF structure, the
 	 * region (or, possibly, the REGENV_REF structure) has not yet been

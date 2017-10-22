@@ -23,10 +23,6 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_CRYPTO_AUTH
-//#include <curl/curl.h>
-//#include "curl_md5.h"
-//#include "curl_hmac.h"
-//#include "warnless.h"
 
 #if defined(USE_GNUTLS_NETTLE)
 
@@ -42,9 +38,7 @@ static void MD5_Init(MD5_CTX * ctx)
 	md5_init(ctx);
 }
 
-static void MD5_Update(MD5_CTX * ctx,
-    const uchar * input,
-    uint inputLen)
+static void MD5_Update(MD5_CTX * ctx, const uchar * input, uint inputLen)
 {
 	md5_update(ctx, inputLen, input);
 }

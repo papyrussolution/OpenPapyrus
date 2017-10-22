@@ -1146,7 +1146,7 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 		name = alias;
 	for(i = 0; i < 499; i++) {
 		upper[i] = toupper(name[i]);
-		if(upper[i] == 0) 
+		if(upper[i] == 0)
 			break;
 	}
 	upper[i] = 0;
@@ -1526,9 +1526,9 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, x
 	int ret = -2;
 	int written;
 	int toconv;
-	if(!handler || !out || !in) 
+	if(!handler || !out || !in)
 		return -1;
-	// calculate space available 
+	// calculate space available
 	written = out->size - out->use - 1; /* count '\0' */
 	toconv = in->use;
 	/*
@@ -1744,8 +1744,8 @@ int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
 	toconv = xmlBufUse(in);
 	if(toconv == 0)
 		return 0;
-	if((toconv > 64 * 1024) && (flush == 0))
-		toconv = 64 * 1024;
+	if((toconv > SKILOBYTE(64)) && (flush == 0))
+		toconv = SKILOBYTE(64);
 	written = xmlBufAvail(out);
 	if(written > 0)
 		written--;  /* count '\0' */
@@ -2376,7 +2376,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
 #endif
 			}
 			else
-				return -1; // could not find a converter 
+				return -1; // could not find a converter
 		}
 		return (in->buf->rawconsumed < unused) ? -1 : (in->buf->rawconsumed - unused);
 	}
@@ -2402,7 +2402,7 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
  *     as the return value is positive, else unpredictable.
  * The value of @outlen after return is the number of ocetes consumed.
  */
-static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen, uchar const * xlattable) 
+static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen, uchar const * xlattable)
 {
 	const uchar* outstart = out;
 	const uchar* inend;
@@ -2425,7 +2425,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 			*out++ = d;
 		}
 		else if(d < 0xC0) {
-			// trailing byte in leading position 
+			// trailing byte in leading position
 			*outlen = out - outstart;
 			*inlen = processed - instart;
 			return -2;
@@ -2433,14 +2433,14 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 		else if(d < 0xE0) {
 			uchar c;
 			if(!(in < inend)) {
-				// trailing byte not in input buffer 
+				// trailing byte not in input buffer
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return(-3);
 			}
 			c = *in++;
 			if((c & 0xC0) != 0x80) {
-				// not a trailing byte 
+				// not a trailing byte
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -2;
@@ -2449,7 +2449,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 			d = d & 0x1F;
 			d = xlattable[48 + c + xlattable[d] * 64];
 			if(d == 0) {
-				// not in character set 
+				// not in character set
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -2;
@@ -2460,21 +2460,21 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 			uchar c1;
 			uchar c2;
 			if(!(in < inend - 1)) {
-				// trailing bytes not in input buffer 
+				// trailing bytes not in input buffer
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -3;
 			}
 			c1 = *in++;
 			if((c1 & 0xC0) != 0x80) {
-				// not a trailing byte (c1) 
+				// not a trailing byte (c1)
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -2;
 			}
 			c2 = *in++;
 			if((c2 & 0xC0) != 0x80) {
-				// not a trailing byte (c2) 
+				// not a trailing byte (c2)
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -2;
@@ -2484,7 +2484,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 			d = d & 0x0F;
 			d = xlattable[48 + c2 + xlattable[48 + c1 + xlattable[32 + d] * 64] * 64];
 			if(d == 0) {
-				// not in character set 
+				// not in character set
 				*outlen = out - outstart;
 				*inlen = processed - instart;
 				return -2;
@@ -2492,7 +2492,7 @@ static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen
 			*out++ = d;
 		}
 		else {
-			// cannot transcode >= U+010000 
+			// cannot transcode >= U+010000
 			*outlen = out - outstart;
 			*inlen = processed - instart;
 			return -2;
@@ -2530,7 +2530,7 @@ static int ISO8859xToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen
 			if(*in >= 0x80) {
 				uint c = unicodetable [*in - 0x80];
 				if(c == 0) {
-					// undefined code point 
+					// undefined code point
 					*outlen = out - outstart;
 					*inlen = in - instart;
 					return -1;
@@ -2546,7 +2546,7 @@ static int ISO8859xToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen
 				}
 				++in;
 			}
-			if((instop - in) > (outend - out)) 
+			if((instop - in) > (outend - out))
 				instop = in + (outend - out);
 			while((*in < 0x80) && (in < instop)) {
 				*out++ = *in++;
@@ -3901,7 +3901,7 @@ public:
 	}
 };*/
 
-static void xmlRegisterCharEncodingHandlersISO8859x() 
+static void xmlRegisterCharEncodingHandlersISO8859x()
 {
 	xmlNewCharEncodingHandler("ISO-8859-2", ISO8859_2ToUTF8, UTF8ToISO8859_2);
 	xmlNewCharEncodingHandler("ISO-8859-3", ISO8859_3ToUTF8, UTF8ToISO8859_3);

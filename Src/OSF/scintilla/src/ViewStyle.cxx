@@ -14,7 +14,7 @@
 using namespace Scintilla;
 #endif
 
-MarginStyle::MarginStyle() :
+ViewStyle::MarginStyle::MarginStyle() :
 	style(SC_MARGIN_SYMBOL), width(0), mask(0), sensitive(false), cursor(SC_CURSORREVERSEARROW)
 {
 }
@@ -75,6 +75,16 @@ void FontRealised::Realise(Surface &surface, int zoomLevel, int technology, cons
 	descent = static_cast<uint>(surface.Descent(font));
 	aveCharWidth = surface.AverageCharWidth(font);
 	spaceWidth = surface.WidthChar(font, ' ');
+}
+
+ViewStyle::EdgeProperties::EdgeProperties(int column_ /*= 0*/, ColourDesired colour_ /*= ColourDesired(0)*/) : 
+	column(column_), colour(colour_) 
+{
+}
+
+ViewStyle::EdgeProperties::EdgeProperties(uptr_t wParam, sptr_t lParam) : 
+	column(static_cast<int>(wParam)), colour(static_cast<long>(lParam)) 
+{
 }
 
 ViewStyle::ViewStyle()

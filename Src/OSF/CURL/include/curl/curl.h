@@ -211,12 +211,10 @@ typedef int (*curl_xferinfo_callback)(void * clientp,
    (unrelated to network send operations). */
 #define CURL_MAX_WRITE_SIZE 16384
 #endif
-
 #ifndef CURL_MAX_HTTP_HEADER
-/* The only reason to have a max limit for this is to avoid the risk of a bad
-   server feeding libcurl with a never-ending header that will cause reallocs
-   infinitely */
-#define CURL_MAX_HTTP_HEADER (100*1024)
+	// The only reason to have a max limit for this is to avoid the risk of a bad
+	// server feeding libcurl with a never-ending header that will cause reallocs infinitely
+	#define CURL_MAX_HTTP_HEADER SKILOBYTE(100)
 #endif
 
 /* This is a magic return code for the write callback that, when returned,
@@ -888,12 +886,12 @@ typedef enum {
 
 typedef enum {
 	CINIT(WRITEDATA, OBJECTPOINT, 1), // This is the FILE * or void * the regular output should be written to
-	CINIT(URL, STRINGPOINT, 2), // The full URL to get/put 
-	CINIT(PORT, LONG, 3), // Port number to connect to, if other than default. 
-	CINIT(PROXY, STRINGPOINT, 4), // Name of proxy to use. 
-	CINIT(USERPWD, STRINGPOINT, 5), // "user:password;options" to use when fetching. 
-	CINIT(PROXYUSERPWD, STRINGPOINT, 6), // "user:password" to use with proxy. 
-	CINIT(RANGE, STRINGPOINT, 7), // Range to get, specified as an ASCII string. 
+	CINIT(URL, STRINGPOINT, 2), // The full URL to get/put
+	CINIT(PORT, LONG, 3), // Port number to connect to, if other than default.
+	CINIT(PROXY, STRINGPOINT, 4), // Name of proxy to use.
+	CINIT(USERPWD, STRINGPOINT, 5), // "user:password;options" to use when fetching.
+	CINIT(PROXYUSERPWD, STRINGPOINT, 6), // "user:password" to use with proxy.
+	CINIT(RANGE, STRINGPOINT, 7), // Range to get, specified as an ASCII string.
 	/* not used */
 	/* Specified file stream to upload from (use as input): */
 	CINIT(READDATA, OBJECTPOINT, 9),
@@ -906,7 +904,7 @@ typedef enum {
 	/* Function that will be called to read the input (instead of fread). The
 	 * parameters will use fread() syntax, make sure to follow them. */
 	CINIT(READFUNCTION, FUNCTIONPOINT, 12),
-	CINIT(TIMEOUT, LONG, 13), // Time-out the read operation after this amount of seconds 
+	CINIT(TIMEOUT, LONG, 13), // Time-out the read operation after this amount of seconds
 
 	/* If the CURLOPT_INFILE is used, this can be used to inform libcurl about
 	 * how large the file being sent really is. That allows better error
@@ -939,20 +937,20 @@ typedef enum {
 	 */
 	CINIT(RESUME_FROM, LONG, 21),
 	CINIT(COOKIE, STRINGPOINT, 22), /* Set cookie in request: */
-	// This points to a linked list of headers, struct curl_slist kind. This list is also used for RTSP (in spite of its name) 
+	// This points to a linked list of headers, struct curl_slist kind. This list is also used for RTSP (in spite of its name)
 	CINIT(HTTPHEADER, OBJECTPOINT, 23),
 	CINIT(HTTPPOST, OBJECTPOINT, 24), /* This points to a linked list of post entries, struct curl_httppost */
 	CINIT(SSLCERT, STRINGPOINT, 25), /* name of the file keeping your private SSL-certificate */
 	CINIT(KEYPASSWD, STRINGPOINT, 26), /* password for the SSL or SSH private key */
 	CINIT(CRLF, LONG, 27), /* send TYPE parameter? */
 	CINIT(QUOTE, OBJECTPOINT, 28), /* send linked-list of QUOTE commands */
-	// send FILE * or void * to store headers to, if you use a callback it is simply passed to the callback unmodified 
+	// send FILE * or void * to store headers to, if you use a callback it is simply passed to the callback unmodified
 	CINIT(HEADERDATA, OBJECTPOINT, 29),
-	CINIT(COOKIEFILE, STRINGPOINT, 31), // point to a file to read the initial cookies from, also enables "cookie awareness" 
-	// What version to specifically try to use. See CURL_SSLVERSION defines below. 
+	CINIT(COOKIEFILE, STRINGPOINT, 31), // point to a file to read the initial cookies from, also enables "cookie awareness"
+	// What version to specifically try to use. See CURL_SSLVERSION defines below.
 	CINIT(SSLVERSION, LONG, 32),
-	CINIT(TIMECONDITION, LONG, 33), // What kind of HTTP time condition to use, see defines 
-	CINIT(TIMEVALUE, LONG, 34), // Time to use with the above condition. Specified in number of seconds since 1 Jan 1970 
+	CINIT(TIMECONDITION, LONG, 33), // What kind of HTTP time condition to use, see defines
+	CINIT(TIMEVALUE, LONG, 34), // Time to use with the above condition. Specified in number of seconds since 1 Jan 1970
 
 	/* 35 = OBSOLETE */
 
@@ -993,10 +991,10 @@ typedef enum {
 	 * function. This function should be defined as the curl_progress_callback
 	 * prototype defines. */
 	CINIT(PROGRESSFUNCTION, FUNCTIONPOINT, 56),
-	CINIT(PROGRESSDATA, OBJECTPOINT, 57), // Data passed to the CURLOPT_PROGRESSFUNCTION and CURLOPT_XFERINFOFUNCTION callbacks 
+	CINIT(PROGRESSDATA, OBJECTPOINT, 57), // Data passed to the CURLOPT_PROGRESSFUNCTION and CURLOPT_XFERINFOFUNCTION callbacks
 #define CURLOPT_XFERINFODATA CURLOPT_PROGRESSDATA
-	CINIT(AUTOREFERER, LONG, 58), // We want the referrer field set automatically when following locations 
-	CINIT(PROXYPORT, LONG, 59), // Port of the proxy, can be set in the proxy string as well with: "[host]:[port]" 
+	CINIT(AUTOREFERER, LONG, 58), // We want the referrer field set automatically when following locations
+	CINIT(PROXYPORT, LONG, 59), // Port of the proxy, can be set in the proxy string as well with: "[host]:[port]"
 	/* size of the POST input data, if strlen() is not good to use */
 	CINIT(POSTFIELDSIZE, LONG, 60),
 	/* tunnel non-http operations through a HTTP proxy */
@@ -1009,12 +1007,12 @@ typedef enum {
 	CINIT(KRBLEVEL, STRINGPOINT, 63),
 	/* Set if we should verify the peer in ssl handshake, set 1 to verify. */
 	CINIT(SSL_VERIFYPEER, LONG, 64),
-	// The CApath or CAfile used to validate the peer certificate this option is used only if SSL_VERIFYPEER is true 
+	// The CApath or CAfile used to validate the peer certificate this option is used only if SSL_VERIFYPEER is true
 	CINIT(CAINFO, STRINGPOINT, 65),
 	/* 66 = OBSOLETE */
 	/* 67 = OBSOLETE */
-	CINIT(MAXREDIRS, LONG, 68), // Maximum number of http redirects to follow 
-	CINIT(FILETIME, LONG, 69), // Pass a long set to 1 to get the date of the requested document (if possible)! Pass a zero to shut it off. 
+	CINIT(MAXREDIRS, LONG, 68), // Maximum number of http redirects to follow
+	CINIT(FILETIME, LONG, 69), // Pass a long set to 1 to get the date of the requested document (if possible)! Pass a zero to shut it off.
 	CINIT(TELNETOPTIONS, OBJECTPOINT, 70), /* This points to a linked list of telnet options */
 	CINIT(MAXCONNECTS, LONG, 71), /* Max amount of cached alive connections */
 	CINIT(OBSOLETE72, LONG, 72), /* OBSOLETE, do not use! */
@@ -1082,13 +1080,13 @@ typedef enum {
 	CINIT(DEBUGFUNCTION, FUNCTIONPOINT, 94), /* set the debug function */
 	CINIT(DEBUGDATA, OBJECTPOINT, 95), /* set the data for the debug function */
 	CINIT(COOKIESESSION, LONG, 96), /* mark this as start of a cookie session */
-	CINIT(CAPATH, STRINGPOINT, 97), // The CApath directory used to validate the peer certificate this option is used only if SSL_VERIFYPEER is true 
-	CINIT(BUFFERSIZE, LONG, 98), // Instruct libcurl to use a smaller receive buffer 
+	CINIT(CAPATH, STRINGPOINT, 97), // The CApath directory used to validate the peer certificate this option is used only if SSL_VERIFYPEER is true
+	CINIT(BUFFERSIZE, LONG, 98), // Instruct libcurl to use a smaller receive buffer
 	/* Instruct libcurl to not use any signal/alarm handlers, even when using
 	   timeouts. This option is useful for multi-threaded applications.
 	   See libcurl-the-guide for more background information. */
 	CINIT(NOSIGNAL, LONG, 99),
-	CINIT(SHARE, OBJECTPOINT, 100), // Provide a CURLShare for mutexing non-ts data 
+	CINIT(SHARE, OBJECTPOINT, 100), // Provide a CURLShare for mutexing non-ts data
 	/* indicates type of proxy. accepted values are CURLPROXY_HTTP (default),
 	   CURLPROXY_HTTPS, CURLPROXY_SOCKS4, CURLPROXY_SOCKS4A and
 	   CURLPROXY_SOCKS5. */
@@ -1097,8 +1095,8 @@ typedef enum {
 	   the response to be compressed. Before 7.21.6, this was known as
 	   CURLOPT_ENCODING */
 	CINIT(ACCEPT_ENCODING, STRINGPOINT, 102),
-	CINIT(PRIVATE, OBJECTPOINT, 103), // Set pointer to private data 
-	CINIT(HTTP200ALIASES, OBJECTPOINT, 104), // Set aliases for HTTP 200 in the HTTP Response header 
+	CINIT(PRIVATE, OBJECTPOINT, 103), // Set pointer to private data
+	CINIT(HTTP200ALIASES, OBJECTPOINT, 104), // Set aliases for HTTP 200 in the HTTP Response header
 	/* Continue to send authentication (user+password) when following locations,
 	   even when hostname changed. This can potentially send off the name
 	   and password to whatever host the server decides. */
@@ -1117,7 +1115,7 @@ typedef enum {
 	   in second argument. The function must be matching the
 	   curl_ssl_ctx_callback proto. */
 	CINIT(SSL_CTX_FUNCTION, FUNCTIONPOINT, 108),
-	CINIT(SSL_CTX_DATA, OBJECTPOINT, 109), // Set the userdata for the ssl context callback function's third argument 
+	CINIT(SSL_CTX_DATA, OBJECTPOINT, 109), // Set the userdata for the ssl context callback function's third argument
 	/* FTP Option that causes missing dirs to be created on the remote server.
 	   In 7.19.4 we introduced the convenience enums for this option using the
 	   CURLFTP_CREATE_DIR prefix.
@@ -1200,17 +1198,17 @@ typedef enum {
 	CINIT(IOCTLDATA, OBJECTPOINT, 131),
 	/* 132 OBSOLETE. Gone in 7.16.0 */
 	/* 133 OBSOLETE. Gone in 7.16.0 */
-	// zero terminated string for pass on to the FTP server when asked for "account" info 
+	// zero terminated string for pass on to the FTP server when asked for "account" info
 	CINIT(FTP_ACCOUNT, STRINGPOINT, 134),
-	CINIT(COOKIELIST, STRINGPOINT, 135), // feed cookie into cookie engine 
-	CINIT(IGNORE_CONTENT_LENGTH, LONG, 136), // ignore Content-Length 
+	CINIT(COOKIELIST, STRINGPOINT, 135), // feed cookie into cookie engine
+	CINIT(IGNORE_CONTENT_LENGTH, LONG, 136), // ignore Content-Length
 	/* Set to non-zero to skip the IP address received in a 227 PASV FTP server
 	   response. Typically used for FTP-SSL purposes but is not restricted to
 	   that. libcurl will then instead use the same IP address it used for the
 	   control connection. */
 	CINIT(FTP_SKIP_PASV_IP, LONG, 137),
 	CINIT(FTP_FILEMETHOD, LONG, 138), // Select "file method" to use when doing FTP, see the curl_ftpmethod above
-	CINIT(LOCALPORT, LONG, 139), // Local port number to bind the socket to 
+	CINIT(LOCALPORT, LONG, 139), // Local port number to bind the socket to
 	/* Number of ports to try, including the first one set with LOCALPORT.
 	   Thus, setting it to 1 will make no additional attempts but the first.
 	 */
@@ -1239,7 +1237,7 @@ typedef enum {
 	/* callback function for setting socket options */
 	CINIT(SOCKOPTFUNCTION, FUNCTIONPOINT, 148),
 	CINIT(SOCKOPTDATA, OBJECTPOINT, 149),
-	// set to 0 to disable session ID re-use for this transfer, default is enabled (== 1) 
+	// set to 0 to disable session ID re-use for this transfer, default is enabled (== 1)
 	CINIT(SSL_SESSIONID_CACHE, LONG, 150),
 	/* allowed SSH authentication methods */
 	CINIT(SSH_AUTH_TYPES, LONG, 151),
@@ -1300,10 +1298,10 @@ typedef enum {
 	   local.com. A single * is the only valid wildcard, and effectively
 	   disables the use of proxy. */
 	CINIT(NOPROXY, STRINGPOINT, 177),
-	CINIT(TFTP_BLKSIZE, LONG, 178), // block size for TFTP transfers 
+	CINIT(TFTP_BLKSIZE, LONG, 178), // block size for TFTP transfers
 	/* Socks Service */
 	CINIT(SOCKS5_GSSAPI_SERVICE, STRINGPOINT, 179), /* DEPRECATED, do not use! */
-	CINIT(SOCKS5_GSSAPI_NEC, LONG, 180), // Socks Service 
+	CINIT(SOCKS5_GSSAPI_NEC, LONG, 180), // Socks Service
 	/* set the bitmask for the protocols that are allowed to be used for the
 	   transfer, which thus helps the app which takes URLs from users or other
 	   external inputs and want to restrict what protocol(s) to deal
@@ -1314,17 +1312,17 @@ typedef enum {
 	   to be set in both bitmasks to be allowed to get redirected to. Defaults
 	   to all protocols except FILE and SCP. */
 	CINIT(REDIR_PROTOCOLS, LONG, 182),
-	CINIT(SSH_KNOWNHOSTS, STRINGPOINT, 183), // set the SSH knownhost file name to use 
-	CINIT(SSH_KEYFUNCTION, FUNCTIONPOINT, 184), // set the SSH host key callback, must point to a curl_sshkeycallback function 
-	CINIT(SSH_KEYDATA, OBJECTPOINT, 185), // set the SSH host key callback custom pointer 
-	CINIT(MAIL_FROM, STRINGPOINT, 186), // set the SMTP mail originator 
-	CINIT(MAIL_RCPT, OBJECTPOINT, 187), // set the list of SMTP mail receiver(s) 
-	CINIT(FTP_USE_PRET, LONG, 188), // FTP: send PRET before PASV 
-	CINIT(RTSP_REQUEST, LONG, 189), // RTSP request method (OPTIONS, SETUP, PLAY, etc...) 
+	CINIT(SSH_KNOWNHOSTS, STRINGPOINT, 183), // set the SSH knownhost file name to use
+	CINIT(SSH_KEYFUNCTION, FUNCTIONPOINT, 184), // set the SSH host key callback, must point to a curl_sshkeycallback function
+	CINIT(SSH_KEYDATA, OBJECTPOINT, 185), // set the SSH host key callback custom pointer
+	CINIT(MAIL_FROM, STRINGPOINT, 186), // set the SMTP mail originator
+	CINIT(MAIL_RCPT, OBJECTPOINT, 187), // set the list of SMTP mail receiver(s)
+	CINIT(FTP_USE_PRET, LONG, 188), // FTP: send PRET before PASV
+	CINIT(RTSP_REQUEST, LONG, 189), // RTSP request method (OPTIONS, SETUP, PLAY, etc...)
 	CINIT(RTSP_SESSION_ID, STRINGPOINT, 190), // The RTSP session identifier
-	CINIT(RTSP_STREAM_URI, STRINGPOINT, 191), // The RTSP stream URI 
-	CINIT(RTSP_TRANSPORT, STRINGPOINT, 192), // The Transport: header to use in RTSP requests 
-	CINIT(RTSP_CLIENT_CSEQ, LONG, 193), // Manually initialize the client RTSP CSeq for this handle 
+	CINIT(RTSP_STREAM_URI, STRINGPOINT, 191), // The RTSP stream URI
+	CINIT(RTSP_TRANSPORT, STRINGPOINT, 192), // The Transport: header to use in RTSP requests
+	CINIT(RTSP_CLIENT_CSEQ, LONG, 193), // Manually initialize the client RTSP CSeq for this handle
 	/* Manually initialize the server RTSP CSeq for this handle */
 	CINIT(RTSP_SERVER_CSEQ, LONG, 194),
 	/* The stream to pass to INTERLEAVEFUNCTION. */
@@ -1368,8 +1366,8 @@ typedef enum {
 	   should have type curl_closesocket_callback */
 	CINIT(CLOSESOCKETFUNCTION, FUNCTIONPOINT, 208),
 	CINIT(CLOSESOCKETDATA, OBJECTPOINT, 209),
-	CINIT(GSSAPI_DELEGATION, LONG, 210), // allow GSSAPI credential delegation 
-	CINIT(DNS_SERVERS, STRINGPOINT, 211), // Set the name servers to use for DNS resolution 
+	CINIT(GSSAPI_DELEGATION, LONG, 210), // allow GSSAPI credential delegation
+	CINIT(DNS_SERVERS, STRINGPOINT, 211), // Set the name servers to use for DNS resolution
 	/* Time-out accept operations (currently for FTP only) after this amount
 	   of milliseconds. */
 	CINIT(ACCEPTTIMEOUT_MS, LONG, 212),
@@ -1444,7 +1442,7 @@ typedef enum {
 	/* Linked-list of host:port:connect-to-host:connect-to-port,
 	   overrides the URL's host:port (only for the network layer) */
 	CINIT(CONNECT_TO, OBJECTPOINT, 243),
-	CINIT(TCP_FASTOPEN, LONG, 244), // Set TCP Fast Open 
+	CINIT(TCP_FASTOPEN, LONG, 244), // Set TCP Fast Open
 	/* Continue to send data if the server responds early with an
 	 * HTTP status code >= 300 */
 	CINIT(KEEP_SENDING_ON_ERROR, LONG, 245),
@@ -1454,28 +1452,28 @@ typedef enum {
 	/* The CApath directory used to validate the proxy certificate
 	   this option is used only if PROXY_SSL_VERIFYPEER is true */
 	CINIT(PROXY_CAPATH, STRINGPOINT, 247),
-	CINIT(PROXY_SSL_VERIFYPEER, LONG, 248), // Set if we should verify the proxy in ssl handshake, set 1 to verify. 
+	CINIT(PROXY_SSL_VERIFYPEER, LONG, 248), // Set if we should verify the proxy in ssl handshake, set 1 to verify.
 	/* Set if we should verify the Common name from the proxy certificate in ssl
 	 * handshake, set 1 to check existence, 2 to ensure that it matches
 	 * the provided hostname. */
 	CINIT(PROXY_SSL_VERIFYHOST, LONG, 249),
-	CINIT(PROXY_SSLVERSION, LONG, 250), // What version to specifically try to use for proxy. See CURL_SSLVERSION defines below. 
-	CINIT(PROXY_TLSAUTH_USERNAME, STRINGPOINT, 251), // Set a username for authenticated TLS for proxy 
-	CINIT(PROXY_TLSAUTH_PASSWORD, STRINGPOINT, 252), // Set a password for authenticated TLS for proxy 
-	CINIT(PROXY_TLSAUTH_TYPE, STRINGPOINT, 253), // Set authentication type for authenticated TLS for proxy 
-	CINIT(PROXY_SSLCERT, STRINGPOINT, 254), // name of the file keeping your private SSL-certificate for proxy 
-	CINIT(PROXY_SSLCERTTYPE, STRINGPOINT, 255), // type of the file keeping your SSL-certificate ("DER", "PEM", "ENG") for proxy 
-	CINIT(PROXY_SSLKEY, STRINGPOINT, 256), // name of the file keeping your private SSL-key for proxy 
-	CINIT(PROXY_SSLKEYTYPE, STRINGPOINT, 257), // type of the file keeping your private SSL-key ("DER", "PEM", "ENG") for proxy 
-	CINIT(PROXY_KEYPASSWD, STRINGPOINT, 258), // password for the SSL private key for proxy 
-	CINIT(PROXY_SSL_CIPHER_LIST, STRINGPOINT, 259), // Specify which SSL ciphers to use for proxy 
-	CINIT(PROXY_CRLFILE, STRINGPOINT, 260), // CRL file for proxy 
-	CINIT(PROXY_SSL_OPTIONS, LONG, 261), // Enable/disable specific SSL features with a bitmask for proxy, see CURLSSLOPT_* 
+	CINIT(PROXY_SSLVERSION, LONG, 250), // What version to specifically try to use for proxy. See CURL_SSLVERSION defines below.
+	CINIT(PROXY_TLSAUTH_USERNAME, STRINGPOINT, 251), // Set a username for authenticated TLS for proxy
+	CINIT(PROXY_TLSAUTH_PASSWORD, STRINGPOINT, 252), // Set a password for authenticated TLS for proxy
+	CINIT(PROXY_TLSAUTH_TYPE, STRINGPOINT, 253), // Set authentication type for authenticated TLS for proxy
+	CINIT(PROXY_SSLCERT, STRINGPOINT, 254), // name of the file keeping your private SSL-certificate for proxy
+	CINIT(PROXY_SSLCERTTYPE, STRINGPOINT, 255), // type of the file keeping your SSL-certificate ("DER", "PEM", "ENG") for proxy
+	CINIT(PROXY_SSLKEY, STRINGPOINT, 256), // name of the file keeping your private SSL-key for proxy
+	CINIT(PROXY_SSLKEYTYPE, STRINGPOINT, 257), // type of the file keeping your private SSL-key ("DER", "PEM", "ENG") for proxy
+	CINIT(PROXY_KEYPASSWD, STRINGPOINT, 258), // password for the SSL private key for proxy
+	CINIT(PROXY_SSL_CIPHER_LIST, STRINGPOINT, 259), // Specify which SSL ciphers to use for proxy
+	CINIT(PROXY_CRLFILE, STRINGPOINT, 260), // CRL file for proxy
+	CINIT(PROXY_SSL_OPTIONS, LONG, 261), // Enable/disable specific SSL features with a bitmask for proxy, see CURLSSLOPT_*
 	CINIT(PRE_PROXY, STRINGPOINT, 262), // Name of pre proxy to use
 	/* The public key in DER form used to validate the proxy public key this option is used only if PROXY_SSL_VERIFYPEER is true */
 	CINIT(PROXY_PINNEDPUBLICKEY, STRINGPOINT, 263),
-	CINIT(ABSTRACT_UNIX_SOCKET, STRINGPOINT, 264), // Path to an abstract Unix domain socket 
-	CINIT(SUPPRESS_CONNECT_HEADERS, LONG, 265), // Suppress proxy CONNECT response headers from user callbacks 
+	CINIT(ABSTRACT_UNIX_SOCKET, STRINGPOINT, 264), // Path to an abstract Unix domain socket
+	CINIT(SUPPRESS_CONNECT_HEADERS, LONG, 265), // Suppress proxy CONNECT response headers from user callbacks
 	CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
 
@@ -1900,7 +1898,7 @@ struct curl_tlssessioninfo {
 #define CURLINFO_LONG     0x200000
 #define CURLINFO_DOUBLE   0x300000
 #define CURLINFO_SLIST    0x400000
-#define CURLINFO_PTR      0x400000 // @curl-7.5.4.1 same as SLIST 
+#define CURLINFO_PTR      0x400000 // @curl-7.5.4.1 same as SLIST
 #define CURLINFO_SOCKET   0x500000
 #define CURLINFO_MASK     0x0fffff
 #define CURLINFO_TYPEMASK 0xf00000

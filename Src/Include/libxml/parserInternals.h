@@ -306,7 +306,7 @@ XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
 XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlFreeInputStream(xmlParserInputPtr input);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeInputStream(xmlParserInput * input);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputStream(xmlParserCtxt * ctxt);
 
@@ -318,7 +318,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * 
 /**
  * Generic production rules.
  */
-XMLPUBFUN const xmlChar * XMLCALL xmlParseName(xmlParserCtxt * ctxt);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlParseName(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseNmtoken(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig);
 XMLPUBFUN xmlChar * XMLCALL xmlParseAttValue(xmlParserCtxt * ctxt);
@@ -404,7 +404,7 @@ XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);
 /*
  * other commodities shared between parser.c and parserInternals.
  */
-XMLPUBFUN int XMLCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
@@ -412,7 +412,7 @@ XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
 /*
  * Really core function shared with HTML parser.
  */
-XMLPUBFUN int XMLCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
 XMLPUBFUN int XMLCALL xmlCopyCharMultiByte(xmlChar * out, int val);
 XMLPUBFUN int XMLCALL xmlCopyChar(int len, xmlChar * out, int val);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNextChar(xmlParserCtxt * ctxt);

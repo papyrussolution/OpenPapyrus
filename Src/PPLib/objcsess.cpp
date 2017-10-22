@@ -1872,7 +1872,7 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 	SETIFZ(P_Grid, new CTableTimeChunkGrid(posNodeID, this));
 	THROW_MEM(P_Grid);
 	{
-		TSArray <CTableStatus> status_list;
+		TSVector <CTableStatus> status_list; // @v9.8.5 TSArray-->TSVector
 		CCheckCore::FetchCTableOrderList(status_list);
 		LongArray table_list;
 		uint i, j;

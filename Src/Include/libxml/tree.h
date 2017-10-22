@@ -693,10 +693,10 @@ XMLPUBFUN long XMLCALL xmlGetLineNo(const xmlNode * P_Node);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED)
 XMLPUBFUN xmlChar * XMLCALL xmlGetNodePath(const xmlNode * P_Node);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED) */
-XMLPUBFUN xmlNode * XMLCALL xmlDocGetRootElement(const xmlDoc * doc);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlDocGetRootElement(const xmlDoc * doc);
 XMLPUBFUN xmlNode * XMLCALL xmlGetLastChild(const xmlNode * parent);
 XMLPUBFUN int XMLCALL xmlNodeIsText(const xmlNode * P_Node);
-XMLPUBFUN int XMLCALL xmlIsBlankNode(const xmlNode * P_Node);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsBlankNode(const xmlNode * P_Node);
 
 /*
  * Changing the structure.
@@ -761,9 +761,9 @@ XMLPUBFUN void XMLCALL xmlNodeSetContentLen(xmlNode * cur, const xmlChar * conte
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
-XMLPUBFUN xmlChar * XMLCALL xmlNodeGetContent(const xmlNode * cur);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlNodeGetContent(const xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlNodeBufGetContent(xmlBufferPtr buffer, const xmlNode * cur);
-XMLPUBFUN int XMLCALL xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur);
 XMLPUBFUN xmlChar * XMLCALL xmlNodeGetLang(const xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlNodeGetSpacePreserve(const xmlNode * cur);
 #ifdef LIBXML_TREE_ENABLED

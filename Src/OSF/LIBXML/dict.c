@@ -549,7 +549,7 @@ xmlDict * xmlDictCreateSub(xmlDict * sub)
  *
  * Returns 0 in case of success and -1 in case of error
  */
-int xmlDictReference(xmlDict * dict)
+int FASTCALL xmlDictReference(xmlDict * dict)
 {
 	if(!xmlDictInitialized)
 		if(!__xmlInitializeDict())
@@ -673,7 +673,6 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
 
 	return ret;
 }
-
 /**
  * xmlDictFree:
  * @dict: the dictionnary
@@ -681,7 +680,7 @@ static int xmlDictGrow(xmlDict * dict, size_t size)
  * Free the hash @dict and its contents. The userdata is
  * deallocated with @f if provided.
  */
-void xmlDictFree(xmlDict * dict)
+void FASTCALL xmlDictFree(xmlDict * dict)
 {
 	size_t i;
 	xmlDictEntryPtr iter;

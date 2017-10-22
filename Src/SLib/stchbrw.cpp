@@ -2304,7 +2304,291 @@ void STimeChunkBrowser::DrawMoveSpot(TCanvas & rCanv, TPoint p)
 	}
 }
 
-// @construction
+#if 0 // @example {
+int PPViewBrowser::Export()
+{
+	int    ok = 1;
+	SString name, path;
+	BrowserDef * p_def = getDef();
+	ComExcelApp * p_app = 0;
+	ComExcelWorksheet  * p_sheet  = 0;
+	ComExcelWorksheets * p_sheets = 0;
+	ComExcelWorkbook   * p_wkbook = 0;
+	PPWait(1);
+	if(p_def) {
+		long   sheets_count = 0, beg_row = 1, cn_count = p_def->getCount();
+		long   i = 0;
+		SString dec;
+		SString fmt, fmt_rus;
+		SString temp_buf;
+		PPIDArray width_ary;
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
+		THROW_MEM(p_app = new ComExcelApp);
+		THROW(p_app->Init() > 0);
+		THROW(p_wkbook = p_app->AddWkbook());
+		THROW(p_sheets = p_wkbook->Get());
+		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
+		name.ReplaceChar('*', '#'); // Замена запрещенного симыола в названии, если таковой имеется
+		sheets_count = p_sheets->GetCount();
+		for(i = sheets_count; i > 1; i--)
+			THROW(p_sheets->Delete(i) > 0);
+		THROW(p_sheet = p_sheets->Get(1L));
+		THROW(p_sheet->SetName(name));
+		// Выводим название групп столбцов
+		for(i = 0; i < (long)p_def->GetGroupCount(); i++) {
+			const BroGroup * p_grp = p_def->GetGroup(i);
+			(temp_buf = p_grp->text).Transf(CTRANSF_INNER_TO_OUTER);
+			THROW(p_sheet->SetValue(beg_row, p_grp->first + 1, temp_buf) > 0);
+			THROW(p_sheet->SetBold(beg_row, p_grp->first + 1, 1) > 0);
+			/*
+			if(beg_row == 1)
+				beg_row++;
+			*/
+		}
+		if(p_def->GetGroupCount())
+			beg_row++;
+		// Выводим название столбцов
+		for(i = 0; i < cn_count; i++) {
+			const BroColumn & r_c = p_def->at(i);
+			const long type = GETSTYPE(r_c.T);
+			(temp_buf = r_c.text).Transf(CTRANSF_INNER_TO_OUTER);
+			width_ary.add((PPID)temp_buf.Len());
+			fmt.Z();
+			fmt_rus.Z();
+			if(type == S_DATE) {
+				fmt.Cat("DD/MM/YY;@");
+				fmt_rus.Cat("ДД/ММ/ГГ;@");
+			}
+			else if(oneof3(type, S_INT, S_UINT, S_AUTOINC))
+				fmt.Cat("0");
+			else if(type == S_FLOAT) {
+				size_t prec = SFMTPRC(r_c.format);
+				fmt_rus = fmt.Cat("0").CatChar(dec.C(0)).CatCharN('0', prec);
+			}
+			else
+				fmt_rus = fmt.CatChar('@');
+			if(p_sheet->SetColumnFormat(i + 1, fmt) <= 0)
+				THROW(p_sheet->SetColumnFormat(i + 1, fmt_rus) > 0);
+			THROW(p_sheet->SetCellFormat(beg_row, i + 1, "@") > 0);
+			THROW(p_sheet->SetValue(beg_row, i + 1, temp_buf) > 0);
+			THROW(p_sheet->SetBold(beg_row, i + 1, 1) > 0);
+		}
+		beg_row++;
+		if(p_def->top() > 0) {
+			long row = 0;
+			SString val_buf;
+			do {
+				PROFILE_START
+				for(long cn = 0; cn < cn_count; cn++) {
+					COLORREF color;
+					p_def->getFullText(p_def->_curItem(), cn, val_buf);
+					val_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);
+					if(GETSTYPE(p_def->at(cn).T) == S_FLOAT) {
+						val_buf.ReplaceChar('.', dec.C(0));
+					}
+					THROW(p_sheet->SetValue(row + beg_row + 1, cn + 1, val_buf) > 0);
+					if(GetCellColor(p_def->_curItem(), cn, &color) > 0)
+						THROW(p_sheet->SetColor(row + beg_row + 1, cn + 1, color) > 0);
+					if(width_ary.at(cn) < (long)val_buf.Len())
+						width_ary.at(cn) = (PPID)val_buf.Len();
+				}
+				row++;
+				PROFILE_END
+			} while(p_def->step(1) > 0 && row < (USHRT_MAX-beg_row));
+			for(i = 0; i < (long)width_ary.getCount(); i++)
+				THROW(p_sheet->SetColumnWidth(i + 1, width_ary.at(i) + 2) > 0);
+		}
+		WMHScroll(SB_VERT, SB_BOTTOM, 0);
+	}
+	CATCHZOKPPERR
+	if(p_wkbook) {
+		PPGetPath(PPPATH_LOCAL, path);
+		path.SetLastSlash();
+		createDir(path);
+		path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
+		SFile::Remove(path);
+		p_wkbook->_SaveAs(path);
+		p_wkbook->_Close();
+		ZDELETE(p_wkbook);
+	}
+	PPWait(0);
+	ZDELETE(p_sheets);
+	ZDELETE(p_sheet);
+	ZDELETE(p_app);
+	if(ok > 0)
+		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+	return ok;
+}
+#endif // } @example
+
+int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
+{
+	int    ok = -1;
+	ComExcelApp * p_app = 0;
+	ComExcelWorksheet  * p_sheet  = 0;
+	ComExcelWorksheets * p_sheets = 0;
+	ComExcelWorkbook   * p_wkbook = 0;
+	SString name; // Name of the excel workbook 
+	SString path; // Path to the created excel workbook
+	if(P.ViewType == P.vHourDay) {
+		long   sheets_count = 0;
+		long   beg_row = 1;
+		long   cn_count = 0; // p_def->getCount();
+		long   i = 0;
+		//
+		const char * p_fontface_tnr = "Times New Roman";
+		long   column = 0;
+		long   row = 0;
+		SString temp_buf;
+		SString fmt;
+		SString out_buf;
+		SString dow_buf;
+		SString dec;
+		//SylkWriter sw(0);
+		//
+		THROW(p_app = new ComExcelApp);
+		THROW(p_app->Init() > 0);
+		THROW(p_wkbook = p_app->AddWkbook());
+		THROW(p_sheets = p_wkbook->Get());
+		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
+		name.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
+		sheets_count = p_sheets->GetCount();
+		for(i = sheets_count; i > 1; i--)
+			THROW(p_sheets->Delete(i) > 0);
+		THROW(p_sheet = p_sheets->Get(1L));
+		THROW(p_sheet->SetName(name));
+
+		//sw.PutRec("ID", "PPapyrus");
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
+		//OpenClipboard(APPL->H_MainWnd);
+		//EmptyClipboard();
+		//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+		//sw.PutFont('F', p_fontface_tnr, 8,  0);
+		//sw.PutRec('F', "G");
+		{
+			row = 1;
+			column = 2;
+			for(long quant = 0; ; quant++) {
+				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				if(dt <= St.Bounds.Finish.d) {
+					if(IsQuantVisible(quant)) {
+						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+
+						//sw.PutFormat("FC0L", 1, column, row);
+						//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+						//sw.PutVal(temp_buf, 0);
+
+						/*if(p_sheet->SetColumnFormat(column, fmt) <= 0)
+							THROW(p_sheet->SetColumnFormat(column, fmt_rus) > 0);*/
+						THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+						THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
+						THROW(p_sheet->SetBold(row, column, 1) > 0);
+
+						column++;
+					}
+				}
+				else
+					break;
+			}
+		}
+		{
+			uint   time_quant = 15 * 60; // 15 minuts
+			STimeChunkAssocArray chunk_list(0);
+			SString cell_buf;
+			row = 2;
+			for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
+				LTIME   tm_start;
+				LTIME   tm_end;
+				tm_start.settotalsec(time_band);
+				tm_end.settotalsec(time_band+time_quant-1);
+
+				column = 1;
+
+				temp_buf.Z().Cat(tm_start, TIMF_HM);
+				//sw.PutFormat("FC0L", row, 1, row);
+				//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+				//sw.PutVal(temp_buf, 1);
+				THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+				THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
+				THROW(p_sheet->SetBold(row, column, 1) > 0);
+
+				for(long quant = 0; ; quant++) {
+					const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+					column++;
+					if(dt <= St.Bounds.Finish.d) {
+						STimeChunk range;
+						range.Start.Set(dt, tm_start);
+						range.Finish.Set(dt, tm_end);
+						chunk_list.clear();
+						if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
+							cell_buf.Z();
+							for(uint i = 0; i < chunk_list.getCount(); i++) {
+								const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+								GetChunkText(p_chunk->Id, temp_buf.Z());
+								if(cell_buf.NotEmpty())
+									cell_buf.CR();
+								cell_buf.Cat(temp_buf);
+							}
+							if(cell_buf.NotEmpty()) {
+								//sw.PutFormat("FC0L", row, column, row);
+								//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
+								//sw.PutVal(cell_buf, 0);
+								THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+								THROW(p_sheet->SetValue(row, column, cell_buf) > 0);
+								//THROW(p_sheet->SetBold(row, column, 1) > 0);
+							}
+						}
+					}
+					else
+						break;
+				}
+			}
+		}
+		//sw.PutLine("E");
+		//sw.GetBuf(&out_buf);
+		/*
+		{
+			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
+			char * p_buf = (char *)GlobalLock(h_glb);
+			out_buf.CopyTo(p_buf, out_buf.Len());
+			p_buf[out_buf.Len()] = '\0';
+			GlobalUnlock(h_glb);
+			SetClipboardData(CF_SYLK, h_glb);
+		}
+		CloseClipboard();
+		*/
+		if(p_wkbook) {
+			//PPGetPath(PPPATH_LOCAL, path);
+			path = pDestPath;
+			path.SetLastSlash();
+			createDir(path);
+			path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
+			SFile::Remove(path);
+			p_wkbook->_SaveAs(path);
+			p_wkbook->_Close();
+			ZDELETE(p_wkbook);
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	ZDELETE(p_sheets);
+	ZDELETE(p_sheet);
+	ZDELETE(p_app);
+	if(ok > 0 && fileExists(path))
+		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+	return ok;
+}
+
 int STimeChunkBrowser::CopyToClipboard()
 {
 	int    ok = 1;

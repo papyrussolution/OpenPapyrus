@@ -1086,8 +1086,7 @@ void FASTCALL PPEgaisProcessor::Log(const SString & rMsg)
 void SLAPI PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rAddendum)
 {
 	SString fmt_buf, msg_buf;
-	PPLoadText(msgCode, fmt_buf);
-	Log(msg_buf.Printf(fmt_buf, rAddendum.cptr()));
+	Log(msg_buf.Printf(PPLoadTextS(msgCode, fmt_buf), rAddendum.cptr()));
 }
 
 void SLAPI PPEgaisProcessor::LogLastError()
@@ -4650,8 +4649,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 			if(last_analog_pos) {
 				do_skip = 1;
 				PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-				PPLoadText(PPTXT_EGAIS_BILLFORWARDFOUND, fmt_buf);
-				Log(msg_buf.Printf(fmt_buf, bill_text.cptr()));
+				Log(msg_buf.Printf(PPLoadTextS(PPTXT_EGAIS_BILLFORWARDFOUND, fmt_buf), bill_text.cptr()));
 			}
 			else {
 				PPIDArray ex_bill_id_list;

@@ -3023,7 +3023,7 @@ public:
 		size_t sav_offs = 0;
 		SCardSelPrcssrParam param;
 		PPViewSCard view;
-		SCardSelPrcssrDlg * p_dlg = new SCardSelPrcssrDlg(&view, 1);
+		SCardSelPrcssrDialog * p_dlg = new SCardSelPrcssrDialog(&view, 1);
 		THROW_INVARG(pParam);
 		THROW(CheckDialogPtr(&p_dlg));
 		sav_offs = pParam->GetRdOffs();

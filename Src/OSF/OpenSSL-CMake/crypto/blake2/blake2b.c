@@ -98,15 +98,12 @@ int BLAKE2b_Init(BLAKE2B_CTX * c)
 }
 
 /* Permute the state while xoring in the block of data. */
-static void blake2b_compress(BLAKE2B_CTX * S,
-    const uint8_t * blocks,
-    size_t len)
+static void blake2b_compress(BLAKE2B_CTX * S, const uint8_t * blocks, size_t len)
 {
 	uint64_t m[16];
 	uint64_t v[16];
 	int i;
 	size_t increment;
-
 	/*
 	 * There are two distinct usage vectors for this function:
 	 *

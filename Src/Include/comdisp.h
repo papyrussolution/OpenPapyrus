@@ -72,9 +72,9 @@ private:
 	SString ProgIdent; // Для сообщений об ошибках
 	IDispatch   * P_Disp;
 	TSArray <DispIDEntry> DispIDAry;
-	//SArray      * P_DispIDAry;
-	SArray      * P_ParamsAry;
-	HRESULT       HRes;
+	//SArray * P_DispIDAry;
+	SArray * P_ParamsAry;
+	HRESULT HRes;
 };
 
 #define ASSIGN_ID_BY_NAME(p_interface, name) (p_interface ? p_interface->AssignIDByName(#name, name) : 0)

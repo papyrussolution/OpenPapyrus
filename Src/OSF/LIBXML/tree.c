@@ -4277,7 +4277,7 @@ xmlChar * xmlGetNodePath(const xmlNode * P_Node)
  *
  * Returns the #xmlNodePtr for the root or NULL
  */
-xmlNode * xmlDocGetRootElement(const xmlDoc * doc)
+xmlNode * FASTCALL xmlDocGetRootElement(const xmlDoc * doc)
 {
 	xmlNode * ret = 0;
 	if(doc) {
@@ -4742,62 +4742,63 @@ int xmlNodeBufGetContent(xmlBufferPtr buffer, const xmlNode * cur)
  *
  * Returns 0 in case of success and -1 in case of error.
  */
-int xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur)
+int FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur)
 {
-	if(!cur || (buf == NULL)) return -1;
+	if(!cur || (buf == NULL)) 
+		return -1;
 	switch(cur->type) {
 		case XML_CDATA_SECTION_NODE:
 		case XML_TEXT_NODE:
 		    xmlBufCat(buf, cur->content);
 		    break;
 		case XML_DOCUMENT_FRAG_NODE:
-		case XML_ELEMENT_NODE: {
-		    const xmlNode * tmp = cur;
-
-		    while(tmp) {
-			    switch(tmp->type) {
-				    case XML_CDATA_SECTION_NODE:
-				    case XML_TEXT_NODE:
-					if(tmp->content)
-						xmlBufCat(buf, tmp->content);
-					break;
-				    case XML_ENTITY_REF_NODE:
-					xmlBufGetNodeContent(buf, tmp);
-					break;
-				    default:
-					break;
-			    }
-			    /*
-			     * Skip to next node
-			     */
-			    if(tmp->children) {
-				    if(tmp->children->type != XML_ENTITY_DECL) {
-					    tmp = tmp->children;
-					    continue;
-				    }
-			    }
-			    if(tmp == cur)
-				    break;
-			    if(tmp->next) {
-				    tmp = tmp->next;
-				    continue;
-			    }
-			    do {
-				    tmp = tmp->parent;
-				    if(!tmp)
-					    break;
-				    if(tmp == cur) {
-					    tmp = NULL;
-					    break;
-				    }
-				    if(tmp->next) {
-					    tmp = tmp->next;
-					    break;
-				    }
-			    } while(tmp);
-		    }
-		    break;
-	    }
+		case XML_ELEMENT_NODE: 
+			{
+				const xmlNode * tmp = cur;
+				while(tmp) {
+					switch(tmp->type) {
+						case XML_CDATA_SECTION_NODE:
+						case XML_TEXT_NODE:
+						if(tmp->content)
+							xmlBufCat(buf, tmp->content);
+						break;
+						case XML_ENTITY_REF_NODE:
+						xmlBufGetNodeContent(buf, tmp);
+						break;
+						default:
+						break;
+					}
+					/*
+					 * Skip to next node
+					 */
+					if(tmp->children) {
+						if(tmp->children->type != XML_ENTITY_DECL) {
+							tmp = tmp->children;
+							continue;
+						}
+					}
+					if(tmp == cur)
+						break;
+					if(tmp->next) {
+						tmp = tmp->next;
+						continue;
+					}
+					do {
+						tmp = tmp->parent;
+						if(!tmp)
+							break;
+						if(tmp == cur) {
+							tmp = NULL;
+							break;
+						}
+						if(tmp->next) {
+							tmp = tmp->next;
+							break;
+						}
+					} while(tmp);
+				}
+				break;
+			}
 		case XML_ATTRIBUTE_NODE: {
 		    xmlAttrPtr attr = (xmlAttrPtr)cur;
 		    for(xmlNode * tmp = attr->children; tmp; tmp = tmp->next) {
@@ -4865,79 +4866,74 @@ int xmlBufGetNodeContent(xmlBufPtr buf, const xmlNode * cur)
  * Returns a new #xmlChar * or NULL if no content is available.
  *     It's up to the caller to free the memory with SAlloc::F().
  */
-xmlChar * xmlNodeGetContent(const xmlNode * cur)
+xmlChar * FASTCALL xmlNodeGetContent(const xmlNode * cur)
 {
-	if(!cur)
-		return 0;
-	switch(cur->type) {
-		case XML_DOCUMENT_FRAG_NODE:
-		case XML_ELEMENT_NODE: 
-			{
-				xmlChar * ret = 0;
-				xmlBuf * buf = xmlBufCreateSize(64);
-				if(buf) {
-					xmlBufGetNodeContent(buf, cur);
-					ret = xmlBufDetach(buf);
-					xmlBufFree(buf);
-				}
-				return ret;
-			}
-		case XML_ATTRIBUTE_NODE:
-		    return xmlGetPropNodeValueInternal((xmlAttrPtr)cur);
-		case XML_COMMENT_NODE:
-		case XML_PI_NODE:
-			return sstrdup(cur->content);
-		case XML_ENTITY_REF_NODE: 
-			{
-				xmlChar * ret = 0;
-				// lookup entity declaration 
-				xmlEntity * ent = xmlGetDocEntity(cur->doc, cur->name);
-				if(ent) {
-					xmlBuf * buf = xmlBufCreate();
+	if(cur) {
+		switch(cur->type) {
+			case XML_DOCUMENT_FRAG_NODE:
+			case XML_ELEMENT_NODE: 
+				{
+					xmlChar * ret = 0;
+					xmlBuf * buf = xmlBufCreateSize(64);
 					if(buf) {
 						xmlBufGetNodeContent(buf, cur);
 						ret = xmlBufDetach(buf);
 						xmlBufFree(buf);
 					}
+					return ret;
 				}
-				return ret;
-			}
-		case XML_ENTITY_NODE:
-		case XML_DOCUMENT_TYPE_NODE:
-		case XML_NOTATION_NODE:
-		case XML_DTD_NODE:
-		case XML_XINCLUDE_START:
-		case XML_XINCLUDE_END:
-		    return 0;
-		case XML_DOCUMENT_NODE:
+			case XML_ATTRIBUTE_NODE: return xmlGetPropNodeValueInternal((xmlAttrPtr)cur);
+			case XML_COMMENT_NODE:
+			case XML_PI_NODE: return sstrdup(cur->content);
+			case XML_ENTITY_REF_NODE: 
+				{
+					xmlChar * ret = 0;
+					// lookup entity declaration 
+					xmlEntity * ent = xmlGetDocEntity(cur->doc, cur->name);
+					if(ent) {
+						xmlBuf * buf = xmlBufCreate();
+						if(buf) {
+							xmlBufGetNodeContent(buf, cur);
+							ret = xmlBufDetach(buf);
+							xmlBufFree(buf);
+						}
+					}
+					return ret;
+				}
+			case XML_ENTITY_NODE:
+			case XML_DOCUMENT_TYPE_NODE:
+			case XML_NOTATION_NODE:
+			case XML_DTD_NODE:
+			case XML_XINCLUDE_START:
+			case XML_XINCLUDE_END: return 0;
+			case XML_DOCUMENT_NODE:
 #ifdef LIBXML_DOCB_ENABLED
-		case XML_DOCB_DOCUMENT_NODE:
+			case XML_DOCB_DOCUMENT_NODE:
 #endif
-		case XML_HTML_DOCUMENT_NODE: 
-			{
-				xmlChar * ret = 0;
-				xmlBuf * buf = xmlBufCreate();
-				if(buf) {
-					xmlBufGetNodeContent(buf, (xmlNode *)cur);
-					ret = xmlBufDetach(buf);
-					xmlBufFree(buf);
+			case XML_HTML_DOCUMENT_NODE: 
+				{
+					xmlChar * ret = 0;
+					xmlBuf * buf = xmlBufCreate();
+					if(buf) {
+						xmlBufGetNodeContent(buf, (xmlNode *)cur);
+						ret = xmlBufDetach(buf);
+						xmlBufFree(buf);
+					}
+					return ret;
 				}
-				return ret;
-			}
-		case XML_NAMESPACE_DECL: 
-		    return sstrdup(((xmlNs *)cur)->href);
-		case XML_ELEMENT_DECL:
-		    /* @todo !!! */
-		    return 0;
-		case XML_ATTRIBUTE_DECL:
-		    /* @todo !!! */
-		    return 0;
-		case XML_ENTITY_DECL:
-		    /* @todo !!! */
-		    return 0;
-		case XML_CDATA_SECTION_NODE:
-		case XML_TEXT_NODE:
-			return sstrdup(cur->content);
+			case XML_NAMESPACE_DECL: return sstrdup(((xmlNs *)cur)->href);
+			case XML_ELEMENT_DECL:
+				/* @todo !!! */
+				return 0;
+			case XML_ATTRIBUTE_DECL:
+				/* @todo !!! */
+				return 0;
+			case XML_ENTITY_DECL:
+				/* @todo !!! */
+				return 0;
+			case XML_CDATA_SECTION_NODE:
+			case XML_TEXT_NODE: return sstrdup(cur->content);
+		}
 	}
 	return 0;
 }
@@ -6135,7 +6131,7 @@ int xmlNodeIsText(const xmlNode * P_Node)
  *
  * Returns 1 yes, 0 no
  */
-int xmlIsBlankNode(const xmlNode * P_Node) 
+int FASTCALL xmlIsBlankNode(const xmlNode * P_Node) 
 {
 	const xmlChar * cur;
 	if(!P_Node) 

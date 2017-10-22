@@ -233,7 +233,7 @@ double SLAPI Round(double v, double prec, int dir)
 
 double SLAPI RoundUpPrice(double v)
 {
-	int    dir;
+	int    dir = 0;
 	long   rd = (LConfig.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
 	if(rd == 0 || rd == (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN))
 		dir = 0;

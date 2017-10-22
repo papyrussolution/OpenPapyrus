@@ -161,10 +161,10 @@ private:
 class DlFuncPool {
 public:
 	DlFuncPool();
-	int    Write(SBuffer & rBuf) const;
-	int    Read(SBuffer & rBuf);
-	int    IsEqual(const DlFuncPool & rPat) const;
-	int    Add(const DlFunc * pF);
+	int    FASTCALL Write(SBuffer & rBuf) const;
+	int    FASTCALL Read(SBuffer & rBuf);
+	int    FASTCALL IsEqual(const DlFuncPool & rPat) const;
+	int    FASTCALL Add(const DlFunc * pF);
 	uint   GetCount() const { return Items.getCount(); }
 	int    GetByPos(uint pos, DlFunc * pF) const;
 	int    EnumByName(const char * pName, uint * pPos, DlFunc * pFunc) const;
@@ -215,8 +215,8 @@ public:
 	int    Add(CtmExprConst * pC, const void * pBuf, size_t len);
 	const  void * GetPtr(const CtmExprConst * pC, size_t len) const;
 	int    Get(const CtmExprConst * pC, void * pBuf, size_t len) const;
-	int    Write(SBuffer * pBuf) const;
-	int    Read(SBuffer * pBuf);
+	int    FASTCALL Write(SBuffer * pBuf) const;
+	int    FASTCALL Read(SBuffer * pBuf);
 	int    Test_Cmp(const CtmConstList &) const;
 private:
 	int    SearchAnalog(const void * pBuf, size_t len, size_t * pPos) const;
@@ -394,8 +394,8 @@ public:
 		ckLabel = UiItemKind::kLabel
 	};
 
-	static int SLAPI ResolvePropName(const char * pName);
-	static int SLAPI GetPropSymb(int propId, SString & rSymb);
+	static int FASTCALL ResolvePropName(const char * pName);
+	static int FASTCALL GetPropSymb(int propId, SString & rSymb);
 	static SString & PropListToLine(const StrAssocArray & rPropList, uint tabCount, SString & rBuf);
 
 	SLAPI  DlScope(DLSYMBID id, uint kind, const char * pName, int prototype);
@@ -428,7 +428,7 @@ public:
 	const  DlScopeList & SLAPI GetChildList() const; // GetRecList
 	const  DlScope * SLAPI GetFirstChildByKind(int kind, int recursive) const;
 	int    SLAPI GetChildList(int kind, int recursive, IntArray * pList) const;
-	int    SLAPI IsChildOf(const DlScope * pOwner) const;
+	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
 	int    SLAPI EnumChilds(uint * pIdx, DlScope ** ppScope) const;
 	int    SLAPI EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
 	int    SLAPI SetupTitle(uint kind, const char * pName);
@@ -453,16 +453,16 @@ public:
 	DLSYMBID SLAPI EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName);
 	int    SLAPI LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
 
-	int    SLAPI SetRecord(const DlScope * pRec);
-	int    SLAPI SetRecList(const DlScopeList * pList);
+	int    FASTCALL SetRecord(const DlScope * pRec);
+	int    FASTCALL SetRecList(const DlScopeList * pList);
 
-	int    SLAPI AddFunc(const DlFunc *);
+	int    FASTCALL AddFunc(const DlFunc *);
 	int    SLAPI GetFuncListByName(const char * pName, IntArray * pList) const;
 	uint   SLAPI GetFuncCount() const;
 	int    SLAPI GetFuncByPos(uint pos, DlFunc * pFunc) const;
 	int    SLAPI EnumFunctions(uint * pI, DlFunc * pFunc) const;
-	int    SLAPI Write(SBuffer & rBuf) const;
-	int    SLAPI Read(SBuffer & rBuf);
+	int    FASTCALL Write(SBuffer & rBuf) const;
+	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL IsEqual(const DlScope & rPat) const;
 
 	void   SLAPI SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
@@ -742,12 +742,12 @@ public:
 	};
 	SLAPI  DlContext(int toCompile = 0);
 	SLAPI ~DlContext();
-	int    SLAPI Init(const char * pInFileName);
+	int    FASTCALL Init(const char * pInFileName);
 	enum {
 		ispcExpData = 1,
 		ispcInterface
 	};
-	int    SLAPI InitSpecial(int); // Run-time
+	int    FASTCALL InitSpecial(int); // Run-time
 	const  char * SLAPI GetInputFileName() const;
 	int    SLAPI GetSymb(DLSYMBID id, SString & rBuf, int prefix) const;
 	int    SLAPI SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const;
@@ -818,7 +818,7 @@ public:
 	int    SLAPI TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void * pSrcData, void * pDestData, int * pLoss = 0);
 	int    SLAPI AddStructType(DLSYMBID symbId);
 	int    SLAPI SearchTypeID(DLSYMBID id, uint * pPos, TypeEntry * pEntry) const;
-	size_t SLAPI GetTypeBinSize(DLSYMBID typID) const;
+	size_t FASTCALL GetTypeBinSize(DLSYMBID typID) const;
 	DLSYMBID SLAPI SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const;
 	DLSYMBID SLAPI SetDeclType(DLSYMBID typeID);
 	TYPEID SLAPI TypeToSType(DLSYMBID) const;
@@ -1385,17 +1385,16 @@ struct PPReportEnv {
 		// [Ccheckdetailview:CN001]
 };
 
-int  SLAPI PPAlddPrint(int RptId, PPFilt * pf, const PPReportEnv * pEnv = 0);
-int  SLAPI PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0);
+int  FASTCALL PPAlddPrint(int RptId, PPFilt * pf, const PPReportEnv * pEnv = 0);
+int  FASTCALL PPAlddPrint(int RptId, PView * pview, const PPReportEnv * pEnv = 0);
 
 //int  SLAPI PPAlddPrint(int RptId, PPFilt * pf, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
 //int  SLAPI PPAlddPrint(int RptId, PView * pview, int sort = 0, int prnflag = 0, const char * pDefPrnForm = 0);
-int  SLAPI PPAlddPrint(int RptId, DlRtm * );
-int  SLAPI PPAlddExport(DlRtm *, PPFilt *, int sort, int isView, char * pPath, const char * pDestPath = 0, int inheritedTblNames = 0);
-int  SLAPI PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
-int  SLAPI PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
-//
-int  SLAPI PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pAry, void * ptr, SString & rBuf);
+// @v9.8.5 int  SLAPI PPAlddPrint(int RptId, DlRtm * );
+// @v9.8.5 int  SLAPI PPAlddExport(DlRtm *, PPFilt *, int sort, int isView, char * pPath, const char * pDestPath = 0, int inheritedTblNames = 0);
+int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, long id, SCodepageIdent cp, SString & rBuf);
+int  FASTCALL PPExportDL600DataToBuffer(const char * pDataName, void * ptr, SCodepageIdent cp, SString & rBuf);
+int  FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pAry, void * ptr, SString & rBuf);
 //
 //
 //

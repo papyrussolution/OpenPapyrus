@@ -13,6 +13,35 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+
+AutoSurface::AutoSurface(Editor * ed, int technology /*= -1*/) : surf(0)
+{
+	if(ed->wMain.GetID()) {
+		surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
+		if(surf) {
+			surf->Init(ed->wMain.GetID());
+			surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
+			surf->SetDBCSMode(ed->CodePage());
+		}
+	}
+}
+
+AutoSurface::AutoSurface(SurfaceID sid, Editor * ed, int technology /*= -1*/) : surf(0)
+{
+	if(ed->wMain.GetID()) {
+		surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
+		if(surf) {
+			surf->Init(sid, ed->wMain.GetID());
+			surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
+			surf->SetDBCSMode(ed->CodePage());
+		}
+	}
+}
+
+AutoSurface::~AutoSurface()
+{
+	delete surf;
+}
 /*
 	return whether this modification represents an operation that
 	may reasonably be deferred (not done now OR [possibly] at all)
@@ -165,7 +194,7 @@ Editor::Editor()
 {
 	Flags = (fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes);
 	ctrlID = 0;
-	stylesValid = false;
+	//stylesValid = false;
 	technology = SC_TECHNOLOGY_DEFAULT;
 	scaleRGBAImage = 100.0f;
 	cursorMode = SC_CURSORNORMAL;
@@ -310,7 +339,8 @@ void Editor::AllocateGraphics()
 
 void Editor::InvalidateStyleData()
 {
-	stylesValid = false;
+	//stylesValid = false;
+	Flags &= ~fStylesValid;
 	vs.technology = technology;
 	DropGraphics(false);
 	AllocateGraphics();
@@ -327,12 +357,11 @@ void Editor::InvalidateStyleRedraw()
 
 void Editor::RefreshStyleData()
 {
-	if(!stylesValid) {
-		stylesValid = true;
+	if(!(Flags & fStylesValid)) {
+		Flags |= fStylesValid;
 		AutoSurface surface(this);
-		if(surface) {
+		if(surface)
 			vs.Refresh(*surface, pdoc->tabInChars);
-		}
 		SetScrollBars();
 		SetRectangularRange();
 	}
@@ -7170,11 +7199,11 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_MULTIEDGEADDLINE:
-		    vs.theMultiEdge.push_back(EdgeProperties(wParam, lParam));
+		    vs.theMultiEdge.push_back(ViewStyle::EdgeProperties(wParam, lParam));
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_MULTIEDGECLEARALL:
-		    std::vector<EdgeProperties>().swap(vs.theMultiEdge); // Free vector and memory, C++03 compatible
+		    std::vector <ViewStyle::EdgeProperties>().swap(vs.theMultiEdge); // Free vector and memory, C++03 compatible
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_GETDOCPOINTER: return reinterpret_cast<sptr_t>(pdoc);

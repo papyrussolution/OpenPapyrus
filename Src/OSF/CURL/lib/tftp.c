@@ -38,28 +38,12 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
 #include "tftp.h"
-//#include "progress.h"
-//#include "connect.h"
-//#include "strerror.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-//#include "multiif.h"
-//#include "url.h"
-//#include "strcase.h"
-//#include "speedcheck.h"
-//#include "select.h"
-//#include "escape.h"
-
-/* The last 3 #include files should be in this order */
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
-/* RFC2348 allows the block size to be negotiated */
+// RFC2348 allows the block size to be negotiated 
 #define TFTP_BLKSIZE_DEFAULT 512
 #define TFTP_BLKSIZE_MIN 8
 #define TFTP_BLKSIZE_MAX 65464

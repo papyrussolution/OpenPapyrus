@@ -51,7 +51,7 @@
 #define _END_                 0 //
 #define _AND_                 1 //
 #define _OR_                  2 //
-#define _NOT_                 3 //
+#define _NOT_                 3 // !
 #define _ALL_                 0 //
 #define _EQ_                  1 // ==
 #define _OUTER_EQ_          101 // outer join
@@ -358,6 +358,14 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define SIZEOFARRAY(array) (sizeof(array)/sizeof((array)[0]))
 #define IS_ODD(n)          ((n) & 1)
 #define IS_EVEN(n)         (!(IS_ODD(n)))
+
+#define SKILOBYTE(v)       (1024 * (v))
+#define SKILOBYTELL(v)     (1024i64 * (v))
+#define SMEGABYTE(v)       (1024 * 1024 * (v))
+#define SMEGABYTELL(v)     (1024i64 * 1024i64 * (v))
+#define SGIGABYTE(v)       (1024i64 * 1024i64 * 1024i64 * (v))
+#define	MEGABYTE	       SMEGABYTE(1)
+#define	GIGABYTE	       SMEGABYTE(1024)
 //
 //
 //
@@ -2393,7 +2401,7 @@ public:
 	virtual int    SLAPI base() const;
 	virtual int    SLAPI tobase(const void * data, void * baseData) const;
 	virtual int    SLAPI baseto(void * data, const void * baseData) const;
-	virtual void   FASTCALL destroy(void *);
+	virtual void   FASTCALL destroy(void *) const; // @v9.8.5 const
 	// DataType::minval and DataType::maxval sets to parameter
 	// min and max values correspondly.
 	// Returns !0 if function is supported, otherwise 0.
@@ -2423,20 +2431,19 @@ inline TYPEID SLAPI GetSTypeID(LDATETIME)  { return MKSTYPE(S_DATETIME, 8); }
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 
-inline int SLAPI btnumber(int bt)
-	{ return oneof2(bt, BTS_INT, BTS_REAL); }
+int    FASTCALL btnumber(int bt);
 size_t FASTCALL stsize(TYPEID t);
-int    SLAPI stcomp(TYPEID t, const void * i1, const void * i2);
-char * SLAPI sttostr(TYPEID t, const void * d, long f, char * b);
-int    SLAPI stfromstr(TYPEID t, void * d, long f, const char * b);
+int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
+char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
+int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b);
 int    FASTCALL stbase(TYPEID t);
-int    SLAPI sttobase(TYPEID t, const void * data, void * baseData);
-int    SLAPI stbaseto(TYPEID t, void * data, const void * baseData);
+int    FASTCALL sttobase(TYPEID t, const void * data, void * baseData);
+int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData);
 void   FASTCALL stdestroy(TYPEID t, void * d);
 int    FASTCALL stisnumber(TYPEID t);
 void   FASTCALL stminval(TYPEID t, void * d);
 void   FASTCALL stmaxval(TYPEID t, void * d);
-int    SLAPI stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
+int    FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
 //
 // Descr: Register all BUILT-INS SLIB TYPES (BIST)
 //
@@ -2946,8 +2953,8 @@ public:
 	//
 	SLAPI  FPoint(float xy);
 	SLAPI  FPoint(float x, float y);
-	FPoint & operator = (const TPoint & p);
-	FPoint & operator = (float f);
+	FPoint & FASTCALL operator = (const TPoint & p);
+	FPoint & FASTCALL operator = (float f);
 	int    SLAPI IsZero() const;
 	int    SLAPI IsPositive() const;
 	FPoint SLAPI Set(float xy);
@@ -2981,27 +2988,27 @@ public:
 
 extern const FPoint ZEROFPOINT; // @global
 
-int    SLAPI operator == (FPoint p1, FPoint p2);
-int    SLAPI operator <  (FPoint p1, FPoint p2);
-int    SLAPI operator >  (FPoint p1, FPoint p2);
-FPoint SLAPI operator +  (FPoint p, float);
-FPoint SLAPI operator +  (FPoint p1, FPoint p2);
-FPoint SLAPI operator -  (FPoint p1, FPoint p2);
-FPoint SLAPI operator *  (FPoint p, float);
-FPoint SLAPI operator *  (FPoint p, double);
-FPoint SLAPI operator *  (FPoint p1, FPoint p2);
-FPoint SLAPI operator /  (FPoint p, float);
-FPoint SLAPI operator /  (FPoint p1, FPoint p2);
-FPoint SLAPI fmin(FPoint p1, FPoint p2);
-FPoint SLAPI fmax(FPoint p1, FPoint p2);
+int    FASTCALL operator == (FPoint p1, FPoint p2);
+int    FASTCALL operator <  (FPoint p1, FPoint p2);
+int    FASTCALL operator >  (FPoint p1, FPoint p2);
+FPoint FASTCALL operator +  (FPoint p, float);
+FPoint FASTCALL operator +  (FPoint p1, FPoint p2);
+FPoint FASTCALL operator -  (FPoint p1, FPoint p2);
+FPoint FASTCALL operator *  (FPoint p, float);
+FPoint FASTCALL operator *  (FPoint p, double);
+FPoint FASTCALL operator *  (FPoint p1, FPoint p2);
+FPoint FASTCALL operator /  (FPoint p, float);
+FPoint FASTCALL operator /  (FPoint p1, FPoint p2);
+FPoint FASTCALL fmin(FPoint p1, FPoint p2);
+FPoint FASTCALL fmax(FPoint p1, FPoint p2);
 //
 // Descr: Возвращает atan2f(p1.Y-p2.Y, p1.X-p2.X)
 //
-float  SLAPI atan2(FPoint p1, FPoint p2);
+float  FASTCALL atan2(FPoint p1, FPoint p2);
 //
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
-FPoint SLAPI trans01(FPoint p, FPoint radius, float angle);
+FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle);
 //
 // Complex compare struct and parse functions
 //
@@ -3488,18 +3495,9 @@ public:
 	//   *this
 	//
 	SString & FASTCALL CatLongZ(long val, uint numDigits);
-	SString & FASTCALL CatLongZ(int val, uint numDigits)
-	{
-		return CatLongZ((long)val, numDigits);
-	}
-	SString & FASTCALL CatLongZ(uint val, uint numDigits)
-	{
-		return CatLongZ((long)val, numDigits);
-	}
-	SString & FASTCALL CatLongZ(uint32 val, uint numDigits)
-	{
-		return CatLongZ((long)val, numDigits);
-	}
+	SString & FASTCALL CatLongZ(int val, uint numDigits);
+	SString & FASTCALL CatLongZ(uint val, uint numDigits);
+	SString & FASTCALL CatLongZ(uint32 val, uint numDigits);
 	SString & FASTCALL CatLongZ(int64 val, uint numDigits);
 	SString & FASTCALL CatHex(long val);
 	SString & FASTCALL CatHex(ulong val);
@@ -3901,7 +3899,7 @@ public:
 struct SVerT { // @persistent Size=4
 	SLAPI  SVerT(int = 0, int = 0, int = 0);
 	int    SLAPI Get(int *, int *, int *) const;
-	int    SLAPI Set(int, int, int);
+	void   SLAPI Set(int, int, int);
 	void   SLAPI Set(uint32);
 	int    SLAPI IsLt(int, int, int) const;
 	int    SLAPI IsGt(int, int, int) const;
@@ -4153,7 +4151,7 @@ int    FASTCALL checktime(LTIME tm);
 #define MONF_OEM       0x0080 // OEM-coding
 
 // @v9.4.8 char * SLAPI getMonthText(int mon, long fmt, char * pBuf);
-SString & SLAPI SGetMonthText(int mon, long fmt, SString & rBuf); // @v9.4.8
+SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf); // @v9.4.8
 //
 // Descr: Флаги функции strtoperiod
 //
@@ -4250,8 +4248,8 @@ enum {
 	dowtRuFull,
 	dowtRuShrt
 };
-int   SLAPI GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
-int   SLAPI GetDayOfWeekByText(const char * pText);
+int   FASTCALL GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
+int   FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
@@ -4291,7 +4289,7 @@ char * SLAPI int64fmt(int64 val, long fmt, char * pBuf);
 // Returns:
 //   pBuf
 //
-char * SLAPI longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
+char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen);
 char * SLAPI uintfmt(ulong val, long fmt, char * pBuf);
 char * SLAPI uint64fmt(uint64 val, long fmt, char * pBuf);
 char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf);
@@ -4767,11 +4765,11 @@ int    FASTCALL cmp_double(double a, double b);
 //
 // Decimal format (COBOL) functions
 //
-double SLAPI dectobin(const char * dec, int16 len, int16 prec);
-char * SLAPI dectostr(const char * dec, int16 len, int16 prec, char * buf);
-void   SLAPI dectodec(double v, char * dec, int16 len, int16 prec);
-void   SLAPI dectobcd(char * dec, char * bcd, int16 len);
-int    SLAPI deccmp(const char * dc1, const char * dc2, int16 len);
+double FASTCALL dectobin(const char * dec, int16 len, int16 prec);
+char * FASTCALL dectostr(const char * dec, int16 len, int16 prec, char * buf);
+void   FASTCALL dectodec(double v, char * dec, int16 len, int16 prec);
+void   FASTCALL dectobcd(char * dec, char * bcd, int16 len);
+int    FASTCALL deccmp(const char * dc1, const char * dc2, int16 len);
 //
 //
 //
@@ -5193,7 +5191,7 @@ double FASTCALL R6(double);
 //
 // Округляет n с точностью prec по правилу "до ближайшего четного"
 //
-double SLAPI roundnev(double n, int prec);
+double FASTCALL roundnev(double n, int prec);
 double SLAPI trunc(double n, int prec);
 int    GetRandom(int min, int max);
 //
@@ -5791,6 +5789,9 @@ public:
 	SLAPI  SCollection();
 	SLAPI  SCollection(/*uint aDelta = DEFCOLLECTDELTA,*/ uint o /*= O_COLLECTION*/);
 	SLAPI  SCollection(const SCollection & src) : SArray(src) {}
+protected:
+	int    FASTCALL Helper_CreateNewItem(void * pNewItem, uint * pPos);
+	int    FASTCALL Helper_CreateNewItem(void * pNewItem);
 };
 //
 // SStack
@@ -5869,6 +5870,7 @@ public:
 	//   !0 - Указатель на вновь созданных элемент
 	//   0  - Ошибка
 	//
+	/*
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
@@ -5889,6 +5891,27 @@ public:
 				ZDELETE(p_new_item);
 		}
 		return p_new_item;
+	}
+	*/
+	T * FASTCALL CreateNewItem(uint * pPosition)
+	{
+		T * p_new_item = new T;
+		if(Helper_CreateNewItem(p_new_item, pPosition)) 
+			return p_new_item;
+		else {
+			delete p_new_item;
+			return 0;
+		}
+	}
+	T * FASTCALL CreateNewItem()
+	{
+		T * p_new_item = new T;
+		if(Helper_CreateNewItem(p_new_item))
+			return p_new_item;
+		else {
+			delete p_new_item;
+			return 0;
+		}
 	}
 };
 //
@@ -6143,6 +6166,7 @@ public:
 	long   FASTCALL Count(long key) const;
 	int    SLAPI GetListByKey(long key, LongArray & rList) const;
 	int    SLAPI GetListByVal(long val, LongArray & rList) const;
+	int    SLAPI Add(long key, long val);
 	int    SLAPI Add(long key, long val, uint * pPos, int inOrder = 0);
 	int    SLAPI AddUnique(long key, long val, uint * pPos, int inOrder = 0);
 	int    SLAPI Update(long key, long val, int binary = 0);
@@ -8679,7 +8703,7 @@ struct SStrScan : public SRegExpSet {
 
 	SStrScan(const char * pBuf = 0, size_t offs = 0);
 	~SStrScan();
-	int    FASTCALL Set(const char * pBuf, size_t offs);
+	void   FASTCALL Set(const char * pBuf, size_t offs);
 	operator const char * () const { return P_Buf ? (P_Buf+Offs) : 0; }
 	const char * GetBuf() const
 	{
@@ -10045,7 +10069,7 @@ struct UiCoord {
 		dfOpp     = 0x0008, // Координата отсчитывается от противоположной стороны контейнера.
 		dfSize    = 0x0010  // Структура представляет линейный размер (не координату)
 	};
-	int    Set(int v, int f);
+	void   Set(int v, int f);
 	void   Reset();
 	int    IsEmpty() const;
 
@@ -11620,6 +11644,22 @@ typedef int (*CallCalendarFunc)(uint32 hParentWnd, LDATE * pDate);
 typedef int (*GetGlobalSecureConfigFunc)(SGlobalSecureConfig * pCfg);
 typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 //
+// Descr: Функция, если определена, должна возвращать каталоги в соответствии с заданной
+//   сигнатурой pSignature.
+// ARG(pSignature IN): символьное обозначение запрашиваемого каталога.
+//   Возможны следущие значения:
+//   "bin"
+//   "local"
+//   "temp"
+//   "in"
+//   "out"
+//   "log"
+//   "testroot"
+//   "workspace"
+// ARG(rBuf      OUT): буфер, в который функция должна записать запрашиваемый путь.
+//
+typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
+//
 // Descr: Класс, содержащий функции, определенные вне модуля SLIB
 //
 class SlExtraProcBlock {
@@ -11635,6 +11675,7 @@ public:
 	CallCalendarFunc F_CallCalendar;
 	GetGlobalSecureConfigFunc F_GetGlobalSecureConfig;
 	GetDefaultEncrKeyFunc F_GetDefaultEncrKey;
+	QueryPathFunc F_QueryPath;
 };
 //
 // Descr: Флаги пользовательского интерфейса (SlThreadLocalArea::UiFlags)
@@ -11879,7 +11920,7 @@ private:
 	HINSTANCE H_Inst;
 	ULONG_PTR GdiplusToken;
 
-	class GlobalObjectArray : public SArray {
+	class GlobalObjectArray : public SVector { // @v9.8.5 SArray-->SVector
 	public:
 		GlobalObjectArray();
 		~GlobalObjectArray();

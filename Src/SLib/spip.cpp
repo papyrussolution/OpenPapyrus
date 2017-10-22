@@ -188,11 +188,10 @@ int SLAPI SVerT::Get(int * pJ, int * pN, int * pR) const
 	return 1;
 }
 
-int SLAPI SVerT::Set(int j, int n, int r)
+void SLAPI SVerT::Set(int j, int n, int r)
 {
 	V = (((uint16)j) << 8) | ((uint16)n);
 	R = (uint16)r;
-	return 1;
 }
 
 int SLAPI SVerT::IsLt(int j, int n, int r) const

@@ -985,8 +985,8 @@ int __log_zero(ENV * env, DB_LSN * from_lsn)
 	if((ret = __os_ioinfo(env,
 		    NULL, dblp->lfhp, &mbytes, &bytes, NULL)) != 0)
 		goto err;
-	DB_ASSERT(env, (mbytes*MEGABYTE+bytes) >= from_lsn->offset);
-	len = (mbytes*MEGABYTE+bytes)-from_lsn->Offset_;
+	DB_ASSERT(env, (SMEGABYTE(mbytes)+bytes) >= from_lsn->offset);
+	len = (SMEGABYTE(mbytes)+bytes)-from_lsn->Offset_;
 
 	memzero(buf, sizeof(buf));
 	/* Initialize the write position. */

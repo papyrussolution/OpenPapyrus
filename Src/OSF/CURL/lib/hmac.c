@@ -25,10 +25,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_CRYPTO_AUTH
-//#include <curl/curl.h>
-//#include "curl_hmac.h"
-//#include "curl_memory.h"
-#include "memdebug.h" /* The last #include file should be: */
+#include "memdebug.h" // The last #include file should be
 /*
  * Generic HMAC algorithm.
  *
@@ -36,7 +33,6 @@
  * and computing procedures are set-up dynamically at HMAC computation
  * context initialisation.
  */
-
 static const uchar hmac_ipad = 0x36;
 static const uchar hmac_opad = 0x5C;
 

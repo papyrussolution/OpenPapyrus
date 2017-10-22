@@ -3649,9 +3649,8 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 		}
 		for(i = 0; i < list.getCount(); i++) {
 			PPDebtorStat * p_item = list.at(i);
-			PPLoadText(PPTXT_CALCDEBTORSTAT, op_name);
 			GetArticleName(p_item->ArID, ar_name);
-			line_buf.Printf(op_name, ar_name.cptr());
+			line_buf.Printf(PPLoadTextS(PPTXT_CALCDEBTORSTAT, op_name), ar_name.cptr());
 			PPWaitMsg(line_buf);
 			p_item->Finish();
 			if(stat_file.IsValid()) {

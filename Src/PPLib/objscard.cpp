@@ -3647,8 +3647,8 @@ private:
 	// относится чек, кроме того в записи чека устанавливаетс
 	// флаг CCHKF_TRANSMIT
 	//
-	TSArray <CCheckTbl::Rec> CheckList;
-	TSArray <SCardOpTbl::Rec> ScOpList;
+	TSVector <CCheckTbl::Rec> CheckList; // @v9.8.5 TSArray-->TSVector
+	TSVector <SCardOpTbl::Rec> ScOpList; // @v9.8.5 TSArray-->TSVector
 };
 
 SLAPI SCardTransmitPacket::SCardTransmitPacket()

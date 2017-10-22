@@ -49,7 +49,6 @@
 //#include "getinfo.h"
 //#include "transfer.h"
 //#include "url.h"
-//#include "parsedate.h" /* for the week day and month names */
 //#include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"

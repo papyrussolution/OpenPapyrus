@@ -144,10 +144,8 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	// mailfrom:coke@gmail.com?subj=orders
 
 	int    ok = -1;
-
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
-
 	//SString path;
 	{
 		InetUrl url;
@@ -157,7 +155,7 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 			SString temp_buf;
 			SPathStruc ps;
 			if(url_prot > 0) {
-				url.GetComponent(InetUrl::cPath, 0, temp_buf); 
+				url.GetComponent(InetUrl::cPath, 0, temp_buf);
 				ps.Split(temp_buf);
 			}
 			else
@@ -193,7 +191,7 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 
 			}
 			if(urlpr > 0 && url_prot != InetUrl::protFile) {
-			
+
 			}
 		}
 		//THROW(GetFilesFromSource(wildcard, 0));
@@ -1255,9 +1253,6 @@ int SLAPI PPBillImporter::RunUhttImport()
 		TSCollection <UhttBillPacket> result_list;
 		UhttBillFilter uhtt_filt;
 		PPIDArray psn_list, ar_list, kind_list;
-		//DateRange period;
-		//period.Set(plusdate(getcurdate_(), -1), ZERODATE);
-		//uhtt_filt.Period = period;
 		uhtt_filt.Since = plusdate(getcurdate_(), -1);
 		uhtt_filt.OpSymb = "DRAFTORDER";
 		uhtt_filt.LocID = uhtt_loc_id;
@@ -1267,7 +1262,6 @@ int SLAPI PPBillImporter::RunUhttImport()
 			if(p_uhtt_pack) {
 				BillTbl::Rec same_bill_rec;
 				if(!p_uhtt_pack->Uuid.IsZero() && P_BObj->SearchByGuid(p_uhtt_pack->Uuid, &same_bill_rec) > 0) {
-					// PPTXT_LOG_IMPBILLFOUND "Документ '@bill' уже принят в базу данных (идентифицирован по UUID)"
 					PPFormatT(PPTXT_LOG_IMPBILLFOUND, &msg_buf, same_bill_rec.ID);
 					Logger.Log(msg_buf);
 				}
@@ -1638,7 +1632,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				ar_id_by_code2 = ar_list.get(0);
 		}
 	}
-	// } @v9.8.4 
+	// } @v9.8.4
 	for(long i = 0; i < count; i++) {
 		uint   p = 0;
 		PPID   id = 0;
@@ -1661,6 +1655,9 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 			if(brow_.BillID[0] == 0)
 				STRNSCPY(brow_.BillID, brow_.BillCode);
 			// } @v8.7.1
+			SETIFZ(brow_.BillDate, brow_.InvcDate); // @v9.8.5
+			SETIFZ(brow_.BillDate, brow_.DueDate); // @v9.8.5
+			SETIFZ(brow_.BillDate, brow_.PaymDate); // @v9.8.5
 			SETIFZ(brow_.BillDate, cdate);
 			if(!Period.CheckDate(brow_.BillDate))
 				continue;
@@ -1722,7 +1719,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 					}
 				}
 				if(!goods_id) {
-					if(brow_.Barcode[0] && gobj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1) > 0) // @v7.1.5 adoptSearching=1
+					if(brow_.Barcode[0] && gobj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
 						goods_id = bcrec.GoodsID;
 					else if(gobj.SearchByName(brow_.GoodsName, &id) > 0)
 						goods_id = id;
@@ -1732,7 +1729,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 					if(gobj.P_Tbl->SearchByArCode(ar_id_by_code2, brow_.ArCode, &code_rec) > 0)
 						goods_id = code_rec.GoodsID;
 				}
-				// } @v9.8.4 
+				// } @v9.8.4
 				brow_.GoodsID = goods_id;
 				if(dyn_rec.GetCount()) {
 					const PPImpExpParam & r_iep = pImpExp->GetParam();
@@ -1832,26 +1829,95 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 										}
 									}
 								}
-								else if(temp_buf.CmpNC("formula") == 0) {
-									if(scan.Skip()[0] == '[') {
+								else {
+									enum {
+										dfkFormula = 1,
+										dfkToken
+									};
+									int   dfk = 0;
+									if(temp_buf.CmpNC("formula") == 0) {
+										dfk = dfkFormula;
+									}
+									else if(temp_buf.CmpNC("token") == 0) {
+										dfk = dfkToken;
+									}
+									if(dfk && scan.Skip()[0] == '[') {
 										scan.Incr(1);
-										if(scan.Skip().GetIdent(temp_buf) && scan.Skip()[0] == ']' && scan.Skip()[0] == '.') {
+										if(scan.Skip().GetIdent(temp_buf) && scan.Skip()[0] == ']' && scan.Skip()[1] == '.') {
+											uint   fld_pos = 0;
+											uint   outer_fld_pos = 0;
 											SString in_fld_name = temp_buf.Strip();
 											scan.Incr(2);
-											(temp_buf = scan).Strip();
-											if(temp_buf.NotEmpty()) {
-												uint   fld_pos = 0;
-												if(r_iep.InrRec.SearchName(in_fld_name, &fld_pos)) {
-													r_iep.InrRec.GetFieldByPos(fld_pos, &inner_fld);
+											SString form_buf;
+											(form_buf = scan).Strip();
+											if(form_buf.NotEmpty() && r_iep.InrRec.SearchName(in_fld_name, &fld_pos)) {
+												r_iep.InrRec.GetFieldByPos(fld_pos, &inner_fld);
+												if(dfk == dfkFormula) {
 													if(btnumber(stbase(inner_fld.T.Typ))) {
 														ImpExpExprEvalContext expr_ctx(r_iep.InrRec);
 														double val = 0.0;
-														if(PPExprParser::CalcExpression(temp_buf, &val, 0, &expr_ctx) > 0) {
+														if(PPExprParser::CalcExpression(form_buf, &val, 0, &expr_ctx) > 0) {
 															stcast(T_DOUBLE, inner_fld.T.Typ, &val, r_iep.InrRec.GetData(fld_pos), 0);
 														}
 														else
-															Logger.LogString(PPTXT_BROWFORMINVRES, temp_buf);
+															Logger.LogString(PPTXT_BROWFORMINVRES, form_buf);
 													}
+												}
+												else if(dfk == dfkToken) {
+													// fld divider token_number[1..]
+													SString tok_result_buf;
+													tok_result_buf.Z();
+													SStrScan arg_scan(form_buf);
+													arg_scan.Skip();
+													if(arg_scan.GetIdent(temp_buf) && r_iep.OtrRec.SearchName(temp_buf.Strip(), &outer_fld_pos)) {
+														SString foreign_fld = temp_buf;
+														SString dividers;
+														do {
+															arg_scan.Skip();
+															if(arg_scan.Is("space")) {
+																dividers.Space();
+																arg_scan.Incr(strlen("space"));
+															}
+															else if(arg_scan.Is("tab")) {
+																dividers.Tab();
+																arg_scan.Incr(strlen("tab"));
+															}
+															else if(arg_scan.Is("\\t")) {
+																dividers.Tab();
+																arg_scan.Incr(strlen("\\t"));
+															}
+															else if(oneof11(arg_scan[0], '_', ',', ';', '.', '-', ':', '%', '^', '$', '@', '#')) {
+																dividers.CatChar(arg_scan[0]);
+																arg_scan.Incr();
+															}
+															else
+																break;
+														} while(1);
+														if(dividers.NotEmpty() && arg_scan.GetNumber(temp_buf)) {
+															const long tok_n = temp_buf.ToLong();
+															if(tok_n > 0) {
+																SdbField outer_fld;
+																if(r_iep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
+																	char temp_str_[1024];
+																	const void * p_outer_fld_data = r_iep.OtrRec.GetDataC(outer_fld_pos);
+																	temp_str_[0] = 0;
+																	sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
+                                                                    temp_buf = temp_str_;
+                                                                    StringSet ss_tok;
+                                                                    temp_buf.Tokenize(dividers, ss_tok);
+                                                                    long   t_ = 0;
+                                                                    for(uint ssp = 0; ss_tok.get(&ssp, temp_buf);) {
+																		t_++;
+																		if(t_ == tok_n) {
+																			tok_result_buf = temp_buf;
+																			break;
+																		}
+                                                                    }
+																}
+															}
+														}
+													}
+													stcast(MKSTYPE(S_ZSTRING, tok_result_buf.Len()+1), inner_fld.T.Typ, (void *)tok_result_buf.cptr(), r_iep.InrRec.GetData(fld_pos), 0);
 												}
 											}
 										}
@@ -2693,28 +2759,22 @@ int SLAPI PPBillImporter::Import(int useTa)
 									if(p_tag_list && p_tag_list->GetCount())
 										pack.LTagL.Set(new_item_pos, p_tag_list);
 								}
-								// @v7.6.8 {
 								if(need_price_restrict) {
 									RealRange price_range;
 									if(P_BObj->GetPriceRestrictions(pack, ti, new_item_pos, &price_range) > 0) {
 										PPTransferItem & r_ti = pack.TI(new_item_pos);
 										if(price_range.low > 0.0 && r_ti.Price < price_range.low) {
-											// PPTXT_LOG_IMPBILLPRICEBOUNDLO "Цена на товар @goods ограничена нижним пределом @real --> @real"
 											PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDLO, &msg_buf, ti.GoodsID, r_ti.Price, price_range.low);
 											Logger.Log(msg_buf);
-											//
 											r_ti.Price = price_range.low;
 										}
 										else if(price_range.upp > 0.0 && r_ti.Price > price_range.upp) {
-											// PPTXT_LOG_IMPBILLPRICEBOUNDUP "Цена на товар @goods ограничена верхним пределом @real --> @real"
 											PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDUP, &msg_buf, ti.GoodsID, r_ti.Price, price_range.upp);
 											Logger.Log(msg_buf);
-											//
 											r_ti.Price = price_range.upp;
 										}
 									}
 								}
-								// } @v7.6.8
 								TTN = r_row.TTN;
 								// Запоминамем в теге строки имя производителя/импортера
 								if(pack.OpTypeID == PPOPT_GOODSRECEIPT && mnf_lot_tag_id) {
@@ -3227,6 +3287,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 	return ok;
 }
 
+#if 0 // @v9.8.5 (unused) {
 int SLAPI PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket * pPack)
 {
 	int    ok = 0;
@@ -3296,6 +3357,7 @@ int SLAPI PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket *
 	CATCHZOK
 	return ok;
 }
+#endif // } @v9.8.5 (unused)
 
 int SLAPI PPBillImporter::Run()
 {
@@ -3489,10 +3551,8 @@ int SignBillDialog::DrawList()
 	return ok;
 }
 
-SLAPI PPBillExporter::PPBillExporter()
+SLAPI PPBillExporter::PPBillExporter() :  P_IEBill(0), P_IEBRow(0)
 {
-	P_IEBill = 0;
-	P_IEBRow = 0;
 }
 
 SLAPI PPBillExporter::~PPBillExporter()
@@ -3569,8 +3629,7 @@ int SLAPI PPBillExporter::SignBill()
 	int    ok = 1;
 	TDialog * p_sign_dlg = 0;
 	if(Flags & fSignExport) {
-		SString file_name = BillParam.FileName;
-		THROW(CheckDialogPtr(&(p_sign_dlg = new SignBillDialog(file_name))));
+		THROW(CheckDialogPtr(&(p_sign_dlg = new SignBillDialog(BillParam.FileName))));
 		ExecView(p_sign_dlg);
 	}
 	CATCHZOK
@@ -5073,17 +5132,17 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 									{
 										SXml::WNode n_481(g.P_X, "ТекстИнф"); // [0..20]
 										n_481.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Договор");
-										n_481.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));	
+										n_481.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 									}
 									if(checkdate(agt_date, 0)) {
 										SXml::WNode n_482(g.P_X, "ТекстИнф"); // [0..20]
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ДатаДоговора");
-										n_482.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));	
+										n_482.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 									}
 									if(checkdate(agt_expiry, 0)) {
 										SXml::WNode n_483(g.P_X, "ТекстИнф"); // [0..20]
 										n_483.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Период");
-										n_483.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));	
+										n_483.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 									}
 								}
 								else {
@@ -5336,17 +5395,17 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 						{
 							SXml::WNode n_1(g.P_X, "ТекстИнф"); // [0..20]
 							n_1.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Договор");
-							n_1.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));	
+							n_1.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 						}
 						if(checkdate(agt_date, 0)) {
 							SXml::WNode n_2(g.P_X, "ТекстИнф"); // [0..20]
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ДатаДоговора");
-							n_2.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));	
+							n_2.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 						}
 						if(checkdate(agt_expiry, 0)) {
 							SXml::WNode n_3(g.P_X, "ТекстИнф"); // [0..20]
 							n_3.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Период");
-							n_3.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));	
+							n_3.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 						}
 					}
 					else {

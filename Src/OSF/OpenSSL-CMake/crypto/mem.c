@@ -47,8 +47,7 @@ int CRYPTO_set_mem_debug(int flag)
 	}
 }
 
-void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int),
-    void *(**r)(void *, size_t, const char *, int), void(**f) (void *, const char *, int))
+void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int), void *(**r)(void *, size_t, const char *, int), void(**f) (void *, const char *, int))
 {
 	ASSIGN_PTR(m, malloc_impl);
 	ASSIGN_PTR(r, realloc_impl);
@@ -80,9 +79,41 @@ void * CRYPTO_malloc(size_t num, const char * file, int line)
 	return ret;
 }
 
+void * FASTCALL CRYPTO_malloc_lite(size_t num)
+{
+	void * ret = NULL;
+	if(malloc_impl && malloc_impl != CRYPTO_malloc)
+		ret = malloc_impl(num, 0, 0);
+	else if(num > 0) {
+		allow_customize = 0;
+#ifndef OPENSSL_NO_CRYPTO_MDEBUG
+		if(call_malloc_debug) {
+			CRYPTO_mem_debug_malloc(NULL, num, 0, 0, 0);
+			ret = malloc(num);
+			CRYPTO_mem_debug_malloc(ret, num, 1, 0, 0);
+		}
+		else {
+			ret = malloc(num);
+		}
+#else
+		//osslargused(file); 
+		//osslargused(line);
+		ret = malloc(num);
+#endif
+	}
+	return ret;
+}
+
 void * CRYPTO_zalloc(size_t num, const char * file, int line)
 {
 	void * ret = CRYPTO_malloc(num, file, line);
+	memzero(ret, num);
+	return ret;
+}
+
+void * FASTCALL CRYPTO_zalloc_lite(size_t num)
+{
+	void * ret = CRYPTO_malloc_lite(num);
 	memzero(ret, num);
 	return ret;
 }
@@ -155,6 +186,27 @@ void CRYPTO_free(void * str, const char * file, int line)
 	}
 }
 
+void FASTCALL CRYPTO_free_lite(void * str)
+{
+	if(free_impl && free_impl != &CRYPTO_free) {
+		free_impl(str, 0, 0);
+	}
+	else {
+#ifndef OPENSSL_NO_CRYPTO_MDEBUG
+		if(call_malloc_debug) {
+			CRYPTO_mem_debug_free(str, 0, 0, 0);
+			free(str);
+			CRYPTO_mem_debug_free(str, 1, 0, 0);
+		}
+		else {
+			free(str);
+		}
+#else
+		free(str);
+#endif
+	}
+}
+
 void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 {
 	if(str) {
@@ -163,4 +215,3 @@ void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 		CRYPTO_free(str, file, line);
 	}
 }
-

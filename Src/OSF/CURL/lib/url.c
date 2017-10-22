@@ -69,9 +69,8 @@
 #include "curl_rtmp.h"
 #include "gopher.h"
 #include "http_proxy.h"
-// The last 3 #include files should be in this order 
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 /* Local static prototypes */

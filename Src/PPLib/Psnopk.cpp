@@ -120,7 +120,7 @@ int SLAPI PoClauseArray_::Set(uint pos, const PoClause_ * pItem)
 	int    ok = 1;
 	if(pos < L.getCount()) {
 		if(pItem) {
-			Item   item;
+			PoClauseArray_::Item item;
 			item.Num = pItem->Num;
 			item.VerbID = pItem->VerbID;
 			item.Subj = pItem->Subj;

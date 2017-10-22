@@ -31,7 +31,6 @@
 //#include "warnless.h"
 //#include <curl/curl.h>
 #include <librtmp/rtmp.h>
-//#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 
 #ifdef _WIN32

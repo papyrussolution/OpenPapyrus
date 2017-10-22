@@ -320,7 +320,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 		mdbp->mpf->mfp->revision++;
 	}
 err:
-done:   
+done:
 	//
 	// If we allocated a page: if we're successful, mark the page dirty
 	// and return it to the cache, otherwise, discard/free it.
@@ -932,26 +932,26 @@ never_opened:
 		return ret;
 	}
 	dbp->type = DB_UNKNOWN;
-	// 
+	//
 	// The thread mutex may have been invalidated in __dbreg_close_id if the
 	// fname refcount did not go to 0. If not, discard the thread mutex.
-	// 
+	//
 	if((t_ret = __mutex_free(env, &dbp->mutex)) != 0 && ret == 0)
 		ret = t_ret;
-	// Discard any memory allocated for the file and database names. 
+	// Discard any memory allocated for the file and database names.
 	__os_free(dbp->env, dbp->fname);
 	dbp->fname = NULL;
 	__os_free(dbp->env, dbp->dname);
 	dbp->dname = NULL;
-	// Discard any memory used to store returned data. 
+	// Discard any memory used to store returned data.
 	__os_free(dbp->env, dbp->my_rskey.data);
 	__os_free(dbp->env, dbp->my_rkey.data);
 	__os_free(dbp->env, dbp->my_rdata.data);
-	// For safety's sake;  we may refresh twice. 
+	// For safety's sake;  we may refresh twice.
 	memzero(&dbp->my_rskey, sizeof(DBT));
 	memzero(&dbp->my_rkey, sizeof(DBT));
 	memzero(&dbp->my_rdata, sizeof(DBT));
-	// Clear out fields that normally get set during open. 
+	// Clear out fields that normally get set during open.
 	memzero(dbp->fileid, sizeof(dbp->fileid));
 	dbp->adj_fileid = 0;
 	dbp->meta_pgno = 0;
@@ -959,15 +959,15 @@ never_opened:
 	dbp->cur_txn = NULL;
 	dbp->associate_locker = NULL;
 	dbp->open_flags = 0;
-	// 
+	//
 	// If we are being refreshed with a txn specified, then we need
 	// to make sure that we clear out the lock handle field, because
 	// releasing all the locks for this transaction will release this
 	// lock and we don't want close to stumble upon this handle and try to close it.
-	// 
+	//
 	if(txn)
 		LOCK_INIT(dbp->handle_lock);
-	// Reset flags to whatever the user configured. 
+	// Reset flags to whatever the user configured.
 	dbp->flags = dbp->orig_flags;
 	return ret;
 }
@@ -1069,9 +1069,9 @@ loop:
 		TAILQ_FOREACH(dbc, &ldbp->active_queue, links)
 		if((ret = (func)(dbc, my_dbc, countp, pgno, indx, args)) != 0)
 			break;
-		// 
+		//
 		// We use the error to communicate that function dropped the mutex.
-		// 
+		//
 		if(ret == DB_LOCK_NOTGRANTED)
 			goto loop;
 		MUTEX_UNLOCK(env, ldbp->mutex);
@@ -1294,7 +1294,7 @@ static int __db_makecopy(ENV * env, const char * src, const char * dest)
 	size_t rcnt, wcnt;
 	int ret;
 	char * buf;
-	if((ret = __os_malloc(env, 64*1024, &buf)) != 0)
+	if((ret = __os_malloc(env, SKILOBYTE(64), &buf)) != 0)
 		goto err;
 	if((ret = __os_open(env, src, 0, DB_OSO_RDONLY, DB_MODE_600, &rfhp)) != 0)
 		goto err;

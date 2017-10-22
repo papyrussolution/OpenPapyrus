@@ -920,7 +920,7 @@ static inline uint32_t cairo_const i915_tiling_size(uint32_t tiling, uint32_t si
 	if(tiling == I915_TILING_NONE)
 		return (size + 4095) & -4096;
 	else {
-		uint32_t fence = 1024 * 1024; /* 1 MiB */
+		uint32_t fence = SMEGABYTE(1);
 		while(fence < size)
 			fence <<= 1;
 		return fence;

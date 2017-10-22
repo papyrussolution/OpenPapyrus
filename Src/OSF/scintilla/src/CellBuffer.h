@@ -25,8 +25,6 @@ public:
  * The line vector contains information about each of the lines in a cell buffer.
  */
 class LineVector {
-	Partitioning starts;
-	PerLine *perLine;
 public:
 	LineVector();
 	~LineVector();
@@ -40,11 +38,11 @@ public:
 	{
 		return starts.Partitions();
 	}
-	int LineFromPosition(int pos) const;
-	int LineStart(int line) const 
-	{
-		return starts.PositionFromPartition(line);
-	}
+	int FASTCALL LineFromPosition(int pos) const;
+	int FASTCALL LineStart(int line) const;
+private:
+	Partitioning starts;
+	PerLine * perLine;
 };
 
 enum actionType { 
@@ -58,35 +56,22 @@ enum actionType {
  */
 class Action {
 public:
-	actionType at;
-	int position;
-	char *data;
-	int lenData;
-	bool mayCoalesce;
-
 	Action();
 	~Action();
 	void Create(actionType at_, int position_=0, const char *data_=0, int lenData_=0, bool mayCoalesce_=true);
 	void Destroy();
 	void Grab(Action *source);
+
+	actionType at;
+	int    position;
+	char * data;
+	int    lenData;
+	bool   mayCoalesce;
 };
 /**
  *
  */
 class UndoHistory {
-	Action *actions;
-	int lenActions;
-	int maxAction;
-	int currentAction;
-	int undoSequenceDepth;
-	int savePoint;
-	int tentativePoint;
-
-	void EnsureUndoRoom();
-
-	// Private so UndoHistory objects can not be copied
-	UndoHistory(const UndoHistory &);
-
 public:
 	UndoHistory();
 	~UndoHistory();
@@ -119,6 +104,18 @@ public:
 	int StartRedo();
 	const Action &GetRedoStep() const;
 	void CompletedRedoStep();
+private:
+	void EnsureUndoRoom();
+	// Private so UndoHistory objects can not be copied
+	UndoHistory(const UndoHistory &);
+
+	Action * actions;
+	int lenActions;
+	int maxAction;
+	int currentAction;
+	int undoSequenceDepth;
+	int savePoint;
+	int tentativePoint;
 };
 /**
  * Holder for an expandable array of characters that supports undo and line markers.

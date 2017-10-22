@@ -2002,7 +2002,6 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 	int    unchg = 0, items_unchg = 0;
 	int    action = 0;
 	int    cleared = 0;
-	PPGoodsStrucHeader gs;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2014,9 +2013,9 @@ int SLAPI PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 			}
 		}
 		else {
-			gs.Flags &= ~GSF_DYNGEN;
+			pData->Rec.Flags &= ~GSF_DYNGEN;
 			if(*strip(pData->Rec.Name) != 0 && !(pData->Rec.Flags & GSF_CHILD))
-				gs.Flags |= GSF_NAMED;
+				pData->Rec.Flags |= GSF_NAMED;
 			if(*pID) {
 				THROW(r = ref->UpdateItem(Obj, *pID, &pData->Rec, 1, 0));
 				if(r < 0)

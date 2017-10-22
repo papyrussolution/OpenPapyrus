@@ -1086,11 +1086,11 @@ static int __logc_set_maxrec(DB_LOGC * logc, char * np)
 	 * of the file but that's hard -- we may have to decrypt it, checksum
 	 * it and so on.  Stat the file instead.
 	 */
-	if(logc->fhp != NULL) {
+	if(logc->fhp) {
 		if((ret = __os_ioinfo(env, np, logc->fhp, &mbytes, &bytes, NULL)) != 0)
 			return ret;
-		if(logc->bp_maxrec < (mbytes*MEGABYTE+bytes))
-			logc->bp_maxrec = mbytes*MEGABYTE+bytes;
+		if(logc->bp_maxrec < (SMEGABYTE(mbytes)+bytes))
+			logc->bp_maxrec = SMEGABYTE(mbytes)+bytes;
 	}
 	/*
 	 * If reading from the log file currently being written, we could get

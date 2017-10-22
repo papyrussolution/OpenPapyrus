@@ -12,7 +12,7 @@
 //#include <openssl/aes.h>
 #include "aes_locl.h"
 
-const char *AES_options(void)
+const char * AES_options(void)
 {
 #ifdef FULL_UNROLL
     return "aes(full)";

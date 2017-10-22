@@ -9,9 +9,9 @@
 #include "CellBuffer.h"
 #include "PerLine.h"
 #include "CallTip.h"
-#include "ViewStyle.h"
+//#include "ViewStyle.h"
 //#include "Decoration.h"
-#include "Document.h"
+//#include "Document.h"
 //#include "Selection.h"
 //#include "PositionCache.h"
 //#include "ContractionState.h"
@@ -138,6 +138,663 @@ public:
 	uint Find(int key, int modifiers) const;	// 0 returned on failure
 };
 //
+// Document.h
+//
+class DocWatcher;
+class DocModification;
+class Document;
+//
+//
+//
+class RunStyles {
+public:
+	RunStyles();
+	~RunStyles();
+	int Length() const;
+	int ValueAt(int position) const;
+	int FindNextChange(int position, int end) const;
+	int StartRun(int position) const;
+	int EndRun(int position) const;
+	// Returns true if some values may have changed
+	bool FillRange(int &position, int value, int &fillLength);
+	void SetValueAt(int position, int value);
+	void InsertSpace(int position, int insertLength);
+	void DeleteAll();
+	void DeleteRange(int position, int deleteLength);
+	int Runs() const;
+	bool AllSame() const;
+	bool AllSameAs(int value) const;
+	int Find(int value, int start) const;
+	void Check() const;
+private:
+	Partitioning * starts;
+	SplitVector <int> *styles;
+	int RunFromPosition(int position) const;
+	int SplitRun(int position);
+	void RemoveRun(int run);
+	void RemoveRunIfEmpty(int run);
+	void RemoveRunIfSameAsPrevious(int run);
+	// Private so RunStyles objects can not be copied
+	RunStyles(const RunStyles &);
+};
+//
+// Decoration.h
+//
+class Decoration {
+public:
+	Decoration * next;
+	RunStyles rs;
+	int indicator;
+
+	explicit Decoration(int indicator_);
+	~Decoration();
+
+	bool Empty() const;
+};
+
+class DecorationList {
+	int currentIndicator;
+	int currentValue;
+	Decoration *current;
+	int lengthDocument;
+	Decoration *DecorationFromIndicator(int indicator);
+	Decoration *Create(int indicator, int length);
+	void Delete(int indicator);
+	void DeleteAnyEmpty();
+public:
+	Decoration *root;
+	bool clickNotified;
+
+	DecorationList();
+	~DecorationList();
+
+	void SetCurrentIndicator(int indicator);
+	int GetCurrentIndicator() const { return currentIndicator; }
+
+	void SetCurrentValue(int value);
+	int GetCurrentValue() const { return currentValue; }
+
+	// Returns true if some values may have changed
+	bool FillRange(int &position, int value, int &fillLength);
+
+	void InsertSpace(int position, int insertLength);
+	void DeleteRange(int position, int deleteLength);
+
+	int AllOnFor(int position) const;
+	int ValueAt(int indicator, int position);
+	int Start(int indicator, int position);
+	int End(int indicator, int position);
+};
+/**
+ * A Position is a position within a document between two characters or at the beginning or end.
+ * Sometimes used as a character index where it identifies the character after the position.
+ */
+typedef int Position;
+const Position invalidPosition = -1;
+
+enum EncodingFamily { efEightBit, efUnicode, efDBCS };
+
+/**
+ * The range class represents a range of text in a document.
+ * The two values are not sorted as one end may be more significant than the other
+ * as is the case for the selection where the end position is the position of the caret.
+ * If either position is invalidPosition then the range is invalid and most operations will fail.
+ */
+class Range {
+public:
+	Position start;
+	Position end;
+
+	explicit Range(Position pos = 0) : start(pos), end(pos)
+	{
+	}
+	Range(Position start_, Position end_) : start(start_), end(end_)
+	{
+	}
+	bool FASTCALL operator == (const Range &other) const
+	{
+		return (start == other.start) && (end == other.end);
+	}
+	bool Valid() const
+	{
+		return (start != invalidPosition) && (end != invalidPosition);
+	}
+	Position First() const
+	{
+		return (start <= end) ? start : end;
+	}
+	Position Last() const
+	{
+		return (start > end) ? start : end;
+	}
+	//
+	// Is the position within the range?
+	//
+	bool FASTCALL Contains(Position pos) const
+	{
+		return (start < end) ? (pos >= start && pos <= end) : (pos <= start && pos >= end);
+	}
+	//
+	// Is the character after pos within the range?
+	//
+	bool FASTCALL ContainsCharacter(Position pos) const
+	{
+		return (start < end) ? (pos >= start && pos < end) : (pos < start && pos >= end);
+	}
+	bool FASTCALL Contains(Range other) const
+	{
+		return Contains(other.start) && Contains(other.end);
+	}
+	bool Overlaps(Range other) const
+	{
+		return Contains(other.start) || Contains(other.end) || other.Contains(start) || other.Contains(end);
+	}
+};
+/**
+ * Interface class for regular expression searching
+ */
+class RegexSearchBase {
+public:
+	virtual ~RegexSearchBase()
+	{
+	}
+	virtual long FindText(Document * doc, int minPos, int maxPos, const char * s,
+	    bool caseSensitive, bool word, bool wordStart, int flags, int * length) = 0;
+	///@return String with the substitutions, must remain valid until the next call or destruction
+	virtual const char * SubstituteByPosition(Document * doc, const char * text, int * length) = 0;
+};
+
+/// Factory function for RegexSearchBase
+extern RegexSearchBase * CreateRegexSearch(CharClassify * charClassTable);
+
+struct StyledText {
+	size_t length;
+	const char * text;
+	bool multipleStyles;
+	size_t style;
+	const uchar * styles;
+	StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_) :
+		length(length_), text(text_), multipleStyles(multipleStyles_), style(style_), styles(styles_)
+	{
+	}
+	// Return number of bytes from start to before '\n' or end of text.
+	// Return 1 when start is outside text
+	size_t LineLength(size_t start) const
+	{
+		size_t cur = start;
+		while((cur < length) && (text[cur] != '\n'))
+			cur++;
+		return cur-start;
+	}
+	size_t StyleAt(size_t i) const
+	{
+		return multipleStyles ? styles[i] : style;
+	}
+};
+
+class HighlightDelimiter {
+public:
+	HighlightDelimiter() : isEnabled(false)
+	{
+		Clear();
+	}
+	void Clear()
+	{
+		beginFoldBlock = -1;
+		endFoldBlock = -1;
+		firstChangeableLineBefore = -1;
+		firstChangeableLineAfter = -1;
+	}
+	bool NeedsDrawing(int line) const
+	{
+		return isEnabled && (line <= firstChangeableLineBefore || line >= firstChangeableLineAfter);
+	}
+	bool IsFoldBlockHighlighted(int line) const
+	{
+		return isEnabled && beginFoldBlock != -1 && beginFoldBlock <= line && line <= endFoldBlock;
+	}
+	bool IsHeadOfFoldBlock(int line) const
+	{
+		return beginFoldBlock == line && line < endFoldBlock;
+	}
+	bool IsBodyOfFoldBlock(int line) const
+	{
+		return beginFoldBlock != -1 && beginFoldBlock < line && line < endFoldBlock;
+	}
+	bool IsTailOfFoldBlock(int line) const
+	{
+		return beginFoldBlock != -1 && beginFoldBlock < line && line == endFoldBlock;
+	}
+	int beginFoldBlock;     // Begin of current fold block
+	int endFoldBlock;       // End of current fold block
+	int firstChangeableLineBefore;  // First line that triggers repaint before starting line that determined current fold block
+	int firstChangeableLineAfter;   // First line that triggers repaint after starting line that determined current fold block
+	bool isEnabled;
+};
+
+inline int LevelNumber(int level)
+{
+	return level & SC_FOLDLEVELNUMBERMASK;
+}
+
+class LexInterface {
+protected:
+	Document * pdoc;
+	ILexer * instance;
+	bool performingStyle;   ///< Prevent reentrance
+public:
+	explicit LexInterface(Document * pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false)
+	{
+	}
+	virtual ~LexInterface()
+	{
+	}
+	void Colourise(int start, int end);
+	int LineEndTypesSupported();
+	bool UseContainerLexing() const
+	{
+		return instance == 0;
+	}
+};
+
+struct RegexError : public std::runtime_error {
+	RegexError() : std::runtime_error("regex failure")
+	{
+	}
+};
+//
+//
+//
+class Document : PerLine, public IDocumentWithLineEnd, public ILoader {
+public:
+	/** Used to pair watcher pointer with user data. */
+	struct WatcherWithUserData {
+		DocWatcher * watcher;
+		void * userData;
+		WatcherWithUserData(DocWatcher * watcher_ = 0, void * userData_ = 0) : watcher(watcher_), userData(userData_)
+		{
+		}
+		bool FASTCALL operator == (const WatcherWithUserData &other) const
+		{
+			return (watcher == other.watcher) && (userData == other.userData);
+		}
+	};
+private:
+	int refCount;
+	CellBuffer cb;
+	CharClassify charClass;
+	CaseFolder * pcf;
+	int endStyled;
+	int styleClock;
+	int enteredModification;
+	int enteredStyling;
+	int enteredReadOnlyCount;
+
+	bool insertionSet;
+	std::string insertion;
+	std::vector<WatcherWithUserData> watchers;
+
+	// ldSize is not real data - it is for dimensions and loops
+	enum lineData { ldMarkers, ldLevels, ldState, ldMargin, ldAnnotation, ldSize };
+
+	PerLine * perLineData[ldSize];
+	bool matchesValid;
+	RegexSearchBase * regex;
+public:
+	struct CharacterExtracted {
+		uint character;
+		uint widthBytes;
+		CharacterExtracted(uint character_, uint widthBytes_) : character(character_), widthBytes(widthBytes_)
+		{
+		}
+		// For DBCS characters turn 2 bytes into an int
+		static CharacterExtracted FASTCALL DBCS(uchar lead, uchar trail)
+		{
+			return CharacterExtracted((lead << 8) | trail, 2);
+		}
+	};
+
+	LexInterface * pli;
+	int eolMode;
+	/// Can also be SC_CP_UTF8 to enable UTF-8 mode
+	int dbcsCodePage;
+	int lineEndBitSet;
+	int tabInChars;
+	int indentInChars;
+	int actualIndentInChars;
+	bool useTabs;
+	bool tabIndents;
+	bool backspaceUnindents;
+	double durationStyleOneLine;
+
+	DecorationList decorations;
+
+	Document();
+	virtual ~Document();
+
+	int AddRef();
+	int SCI_METHOD Release();
+
+	virtual void Init();
+	int LineEndTypesSupported() const;
+	bool SetDBCSCodePage(int dbcsCodePage_);
+	int GetLineEndTypesAllowed() const
+	{
+		return cb.GetLineEndTypes();
+	}
+
+	bool SetLineEndTypesAllowed(int lineEndBitSet_);
+	int GetLineEndTypesActive() const
+	{
+		return cb.GetLineEndTypes();
+	}
+
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
+	int SCI_METHOD Version() const
+	{
+		return dvLineEnd;
+	}
+
+	void SCI_METHOD SetErrorStatus(int status);
+
+	Sci_Position SCI_METHOD LineFromPosition(Sci_Position pos) const;
+	int  FASTCALL ClampPositionIntoDocument(int pos) const;
+	bool ContainsLineEnd(const char * s, int length) const
+	{
+		return cb.ContainsLineEnd(s, length);
+	}
+
+	bool FASTCALL IsCrLf(int pos) const;
+	int  FASTCALL LenChar(int pos);
+	bool InGoodUTF8(int pos, int &start, int &end) const;
+	int  MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd = true) const;
+	int  NextPosition(int pos, int moveDir) const;
+	bool NextCharacter(int &pos, int moveDir) const;        // Returns true if pos changed
+	Document::CharacterExtracted FASTCALL CharacterAfter(int position) const;
+	Document::CharacterExtracted FASTCALL CharacterBefore(int position) const;
+	Sci_Position SCI_METHOD GetRelativePosition(Sci_Position positionStart, Sci_Position characterOffset) const;
+	int  GetRelativePositionUTF16(int positionStart, int characterOffset) const;
+	int  SCI_METHOD GetCharacterAndWidth(Sci_Position position, Sci_Position * pWidth) const;
+	int  SCI_METHOD CodePage() const;
+	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
+	int  SafeSegment(const char * text, int length, int lengthSegment) const;
+	EncodingFamily CodePageFamily() const;
+
+	// Gateways to modifying document
+	void FASTCALL ModifiedAt(int pos);
+	void CheckReadOnly();
+	bool DeleteChars(int pos, int len);
+	int  InsertString(int position, const char * s, int insertLength);
+	void ChangeInsertion(const char * s, int length);
+	int  SCI_METHOD AddData(char * data, Sci_Position length);
+	void * SCI_METHOD ConvertToDocument();
+	int  Undo();
+	int  Redo();
+	bool CanUndo() const
+	{
+		return cb.CanUndo();
+	}
+	bool CanRedo() const
+	{
+		return cb.CanRedo();
+	}
+	void DeleteUndoHistory()
+	{
+		cb.DeleteUndoHistory();
+	}
+	bool SetUndoCollection(bool collectUndo)
+	{
+		return cb.SetUndoCollection(collectUndo);
+	}
+	bool IsCollectingUndo() const
+	{
+		return cb.IsCollectingUndo();
+	}
+	void BeginUndoAction()
+	{
+		cb.BeginUndoAction();
+	}
+	void EndUndoAction()
+	{
+		cb.EndUndoAction();
+	}
+	void AddUndoAction(int token, bool mayCoalesce)
+	{
+		cb.AddUndoAction(token, mayCoalesce);
+	}
+	void SetSavePoint();
+	bool IsSavePoint() const
+	{
+		return cb.IsSavePoint();
+	}
+	void TentativeStart()
+	{
+		cb.TentativeStart();
+	}
+	void TentativeCommit()
+	{
+		cb.TentativeCommit();
+	}
+	void TentativeUndo();
+	bool TentativeActive() const
+	{
+		return cb.TentativeActive();
+	}
+	const char * SCI_METHOD BufferPointer()
+	{
+		return cb.BufferPointer();
+	}
+	const char * RangePointer(int position, int rangeLength)
+	{
+		return cb.RangePointer(position, rangeLength);
+	}
+	int GapPosition() const
+	{
+		return cb.GapPosition();
+	}
+	int SCI_METHOD GetLineIndentation(Sci_Position line);
+	int SetLineIndentation(int line, int indent);
+	int GetLineIndentPosition(int line) const;
+	int FASTCALL GetColumn(int position);
+	int CountCharacters(int startPos, int endPos) const;
+	int CountUTF16(int startPos, int endPos) const;
+	int FindColumn(int line, int column);
+	void Indent(bool forwards, int lineBottom, int lineTop);
+	static std::string TransformLineEnds(const char * s, size_t len, int eolModeWanted);
+	void ConvertLineEnds(int eolModeSet);
+	void SetReadOnly(bool set)
+	{
+		cb.SetReadOnly(set);
+	}
+	bool IsReadOnly() const
+	{
+		return cb.IsReadOnly();
+	}
+	void DelChar(int pos);
+	void DelCharBack(int pos);
+	char FASTCALL CharAt(int position) const
+	{
+		return cb.CharAt(position);
+	}
+	void SCI_METHOD GetCharRange(char * buffer, Sci_Position position, Sci_Position lengthRetrieve) const
+	{
+		cb.GetCharRange(buffer, position, lengthRetrieve);
+	}
+	char SCI_METHOD StyleAt(Sci_Position position) const
+	{
+		return cb.StyleAt(position);
+	}
+	int StyleIndexAt(Sci_Position position) const
+	{
+		return static_cast<uchar>(cb.StyleAt(position));
+	}
+	void GetStyleRange(uchar * buffer, int position, int lengthRetrieve) const
+	{
+		cb.GetStyleRange(buffer, position, lengthRetrieve);
+	}
+	int GetMark(int line);
+	int MarkerNext(int lineStart, int mask) const;
+	int AddMark(int line, int markerNum);
+	void AddMarkSet(int line, int valueSet);
+	void DeleteMark(int line, int markerNum);
+	void DeleteMarkFromHandle(int markerHandle);
+	void DeleteAllMarks(int markerNum);
+	int LineFromHandle(int markerHandle);
+	Sci_Position SCI_METHOD LineStart(Sci_Position line) const;
+	bool IsLineStartPosition(int position) const;
+	Sci_Position SCI_METHOD LineEnd(Sci_Position line) const;
+	int LineEndPosition(int position) const;
+	bool FASTCALL IsLineEndPosition(int position) const;
+	bool FASTCALL IsPositionInLineEnd(int position) const;
+	int VCHomePosition(int position) const;
+	int SCI_METHOD SetLevel(Sci_Position line, int level);
+	int SCI_METHOD GetLevel(Sci_Position line) const;
+	void ClearLevels();
+	int GetLastChild(int lineParent, int level = -1, int lastLine = -1);
+	int GetFoldParent(int line) const;
+	void GetHighlightDelimiters(HighlightDelimiter &hDelimiter, int line, int lastLine);
+	void Indent(bool forwards);
+	int ExtendWordSelect(int pos, int delta, bool onlyWordCharacters = false) const;
+	int NextWordStart(int pos, int delta) const;
+	int NextWordEnd(int pos, int delta) const;
+	Sci_Position SCI_METHOD Length() const
+	{
+		return cb.Length();
+	}
+	void FASTCALL Allocate(int newSize)
+	{
+		cb.Allocate(newSize);
+	}
+	CharacterExtracted ExtractCharacter(int position) const;
+	bool IsWordStartAt(int pos) const;
+	bool IsWordEndAt(int pos) const;
+	bool IsWordAt(int start, int end) const;
+	bool MatchesWordOptions(bool word, bool wordStart, int pos, int length) const;
+	bool HasCaseFolder() const;
+	void SetCaseFolder(CaseFolder * pcf_);
+	long FindText(int minPos, int maxPos, const char * search, int flags, int * length);
+	const char * SubstituteByPosition(const char * text, int * length);
+	int LinesTotal() const;
+	void SetDefaultCharClasses(bool includeWordClass);
+	void SetCharClasses(const uchar * chars, CharClassify::cc newCharClass);
+	int GetCharsOfClass(CharClassify::cc characterClass, uchar * buffer) const;
+	void SCI_METHOD StartStyling(Sci_Position position, char mask);
+	bool SCI_METHOD SetStyleFor(Sci_Position length, char style);
+	bool SCI_METHOD SetStyles(Sci_Position length, const char * styles);
+	int GetEndStyled() const
+	{
+		return endStyled;
+	}
+	void EnsureStyledTo(int pos);
+	void StyleToAdjustingLineDuration(int pos);
+	void LexerChanged();
+	int GetStyleClock() const
+	{
+		return styleClock;
+	}
+	void IncrementStyleClock();
+	void SCI_METHOD DecorationSetCurrentIndicator(int indicator)
+	{
+		decorations.SetCurrentIndicator(indicator);
+	}
+	void SCI_METHOD DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength);
+	int SCI_METHOD SetLineState(Sci_Position line, int state);
+	int SCI_METHOD GetLineState(Sci_Position line) const;
+	int GetMaxLineState();
+	void SCI_METHOD ChangeLexerState(Sci_Position start, Sci_Position end);
+	StyledText MarginStyledText(int line) const;
+	void MarginSetStyle(int line, int style);
+	void MarginSetStyles(int line, const uchar * styles);
+	void MarginSetText(int line, const char * text);
+	void MarginClearAll();
+	StyledText AnnotationStyledText(int line) const;
+	void AnnotationSetText(int line, const char * text);
+	void AnnotationSetStyle(int line, int style);
+	void AnnotationSetStyles(int line, const uchar * styles);
+	int  FASTCALL AnnotationLines(int line) const;
+	void AnnotationClearAll();
+	bool AddWatcher(DocWatcher * watcher, void * userData);
+	bool RemoveWatcher(DocWatcher * watcher, void * userData);
+	bool FASTCALL IsASCIIWordByte(uchar ch) const;
+	CharClassify::cc WordCharacterClass(uint ch) const;
+	bool IsWordPartSeparator(uint ch) const;
+	int  WordPartLeft(int pos) const;
+	int  WordPartRight(int pos) const;
+	int  ExtendStyleRange(int pos, int delta, bool singleLine = false);
+	bool FASTCALL IsWhiteLine(int line) const;
+	int  FASTCALL ParaUp(int pos) const;
+	int  FASTCALL ParaDown(int pos) const;
+	int  IndentSize() const
+	{
+		return actualIndentInChars;
+	}
+	int BraceMatch(int position, int maxReStyle);
+private:
+	void NotifyModifyAttempt();
+	void NotifySavePoint(bool atSavePoint);
+	void FASTCALL NotifyModified(const DocModification & mh);
+};
+
+class UndoGroup {
+	Document * pdoc;
+	bool groupNeeded;
+public:
+	UndoGroup(Document * pdoc_, bool groupNeeded_ = true) : pdoc(pdoc_), groupNeeded(groupNeeded_)
+	{
+		if(groupNeeded)
+			pdoc->BeginUndoAction();
+	}
+	~UndoGroup()
+	{
+		if(groupNeeded)
+			pdoc->EndUndoAction();
+	}
+	bool Needed() const
+	{
+		return groupNeeded;
+	}
+};
+// 
+// To optimise processing of document modifications by DocWatchers, a hint is passed indicating the
+// scope of the change.
+// If the DocWatcher is a document view then this can be used to optimise screen updating.
+// 
+class DocModification {
+public:
+	DocModification(int modificationType_, int position_ = 0, int length_ = 0, int linesAdded_ = 0, const char * text_ = 0, int line_ = 0);
+	DocModification(int modificationType_, const Action &act, int linesAdded_ = 0);
+
+	int modificationType;
+	int position;
+	int length;
+	int linesAdded; /**< Negative if lines deleted. */
+	const char * text;       /**< Only valid for changes to text, not for changes to style. */
+	int line;
+	int foldLevelNow;
+	int foldLevelPrev;
+	int annotationLinesAdded;
+	int token;
+};
+// 
+// A class that wants to receive notifications from a Document must be derived from DocWatcher
+// and implement the notification methods. It can then be added to the watcher list with AddWatcher.
+// 
+class DocWatcher {
+public:
+	virtual ~DocWatcher()
+	{
+	}
+	virtual void NotifyModifyAttempt(Document * doc, void * userData) = 0;
+	virtual void NotifySavePoint(Document * doc, void * userData, bool atSavePoint) = 0;
+	virtual void NotifyModified(Document * doc, DocModification mh, void * userData) = 0;
+	virtual void NotifyDeleted(Document * doc, void * userData) = 0;
+	virtual void NotifyStyleNeeded(Document * doc, void * userData, int endPos) = 0;
+	virtual void NotifyLexerChanged(Document * doc, void * userData) = 0;
+	virtual void NotifyErrorOccurred(Document * doc, void * userData, int status) = 0;
+};
+//
 //
 //
 static inline bool IsEOLChar(char ch)
@@ -218,6 +875,221 @@ public:
 	int    FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
 	Point  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
 	int    EndLineStyle() const;
+};
+//
+// ViewStyle.h
+//
+class FontNames {
+public:
+	FontNames();
+	~FontNames();
+	void Clear();
+	const char * Save(const char *name);
+private:
+	std::vector <char *> names;
+
+	// Private so FontNames objects can not be copied
+	FontNames(const FontNames &);
+};
+
+class FontRealised : public FontMeasurements {
+	// Private so FontRealised objects can not be copied
+	FontRealised(const FontRealised &);
+	FontRealised & operator=(const FontRealised &);
+public:
+	Font font;
+	FontRealised();
+	virtual ~FontRealised();
+	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
+};
+
+enum IndentView {
+	ivNone, 
+	ivReal, 
+	ivLookForward, 
+	ivLookBoth
+};
+
+enum WhiteSpaceVisibility {
+	wsInvisible=0, 
+	wsVisibleAlways=1, 
+	wsVisibleAfterIndent=2, 
+	wsVisibleOnlyInIndent=3
+};
+
+enum TabDrawMode {
+	tdLongArrow=0, 
+	tdStrikeOut=1
+};
+
+typedef std::map <FontSpecification, FontRealised *> FontMap;
+
+enum WrapMode { 
+	eWrapNone, 
+	eWrapWord, 
+	eWrapChar, 
+	eWrapWhitespace 
+};
+
+class ColourOptional : public ColourDesired {
+public:
+	ColourOptional(ColourDesired colour_=ColourDesired(0,0,0), bool isSet_=false) : ColourDesired(colour_), isSet(isSet_) 
+	{
+	}
+	ColourOptional(uptr_t wParam, sptr_t lParam) : ColourDesired(static_cast<long>(lParam)), isSet(wParam != 0) 
+	{
+	}
+	bool isSet;
+};
+//
+//
+//
+class ViewStyle {
+public:
+	ViewStyle();
+	ViewStyle(const ViewStyle &source);
+	~ViewStyle();
+	void   CalculateMarginWidthAndMask();
+	void   Init(size_t stylesSize_=256);
+	void   Refresh(Surface &surface, int tabInChars);
+	void   ReleaseAllExtendedStyles();
+	int    FASTCALL AllocateExtendedStyles(int numberStyles);
+	void   EnsureStyle(size_t index);
+	void   ResetDefaultStyle();
+	void   ClearStyles();
+	void   SetStyleFontName(int styleIndex, const char *name);
+	bool   ProtectionActive() const;
+	int    ExternalMarginWidth() const;
+	int    MarginFromLocation(Point pt) const;
+	bool   ValidStyle(size_t styleIndex) const;
+	void   CalcLargestMarkerHeight();
+	ColourOptional Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const;
+	bool   SelectionBackgroundDrawn() const;
+	bool   WhitespaceBackgroundDrawn() const;
+	ColourDesired WrapColour() const;
+
+	bool   SetWrapState(int wrapState_);
+	bool   SetWrapVisualFlags(int wrapVisualFlags_);
+	bool   SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation_);
+	bool   SetWrapVisualStartIndent(int wrapVisualStartIndent_);
+	bool   SetWrapIndentMode(int wrapIndentMode_);
+	bool   WhiteSpaceVisible(bool inIndent) const;
+
+	struct EdgeProperties {
+		EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0));
+		EdgeProperties(uptr_t wParam, sptr_t lParam);
+
+		int    column;
+		ColourDesired colour;
+	};
+	class MarginStyle {
+	public:
+		MarginStyle();
+
+		int    style;
+		ColourDesired back;
+		int    width;
+		int    mask;
+		bool   sensitive;
+		int    cursor;
+	};
+	struct ForeBackColours {
+		ColourOptional fore;
+		ColourOptional back;
+	};
+	size_t nextExtendedStyle;
+	LineMarker markers[MARKER_MAX + 1];
+	int    largestMarkerHeight;
+	Indicator indicators[INDIC_MAX + 1];
+	uint   indicatorsDynamic;
+	uint   indicatorsSetFore;
+	int    technology;
+	int    lineHeight;
+	int    lineOverlap;
+	uint   maxAscent;
+	uint   maxDescent;
+	XYPOSITION aveCharWidth;
+	XYPOSITION spaceWidth;
+	XYPOSITION tabWidth;
+	ForeBackColours selColours;
+	ColourDesired selAdditionalForeground;
+	ColourDesired selAdditionalBackground;
+	ColourDesired selBackground2;
+	int    selAlpha;
+	int    selAdditionalAlpha;
+	ForeBackColours whitespaceColours;
+	int    controlCharSymbol;
+	XYPOSITION controlCharWidth;
+	ColourDesired selbar;
+	ColourDesired selbarlight;
+	ColourOptional foldmarginColour;
+	ColourOptional foldmarginHighlightColour;
+	ForeBackColours hotspotColours;
+	/// Margins are ordered: Line Numbers, Selection Margin, Spacing Margin
+	int    leftMarginWidth;	///< Spacing margin on left of text
+	int    rightMarginWidth;	///< Spacing margin on right of text
+	int    maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
+	int    maskDrawInText;	///< Mask for markers that always draw in text
+	int    fixedColumnWidth;	///< Total width of margins
+	int    textStart;	///< Starting x position of text within the view
+	int    zoomLevel;
+	WhiteSpaceVisibility viewWhitespace;
+	TabDrawMode tabDrawMode;
+	int    whitespaceSize;
+	IndentView viewIndentationGuides;
+	ColourDesired caretcolour;
+	ColourDesired additionalCaretColour;
+	ColourDesired caretLineBackground;
+	int    caretLineAlpha;
+	int    caretStyle;
+	int    caretWidth;
+	int    extraFontFlag;
+	int    extraAscent;
+	int    extraDescent;
+	int    marginStyleOffset;
+	int    annotationVisible;
+	int    annotationStyleOffset;
+	int    braceHighlightIndicator;
+	int    braceBadLightIndicator;
+	int    edgeState;
+	EdgeProperties theEdge;
+	int    marginNumberPadding; // the right-side padding of the number margin
+	int    ctrlCharPadding; // the padding around control character text blobs
+	int    lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
+
+	// Wrapping support
+	WrapMode wrapState;
+	int    wrapVisualFlags;
+	int    wrapVisualFlagsLocation;
+	int    wrapVisualStartIndent;
+	int    wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
+
+	bool   selEOLFilled;
+	bool   hotspotUnderline;
+	bool   hotspotSingleLine;
+	bool   marginInside;	///< true: margin included in text view, false: separate views
+	bool   viewEOL;
+	bool   showCaretLineBackground;
+	bool   alwaysShowCaretLineBackground;
+	bool   someStylesProtected;
+	bool   someStylesForceCase;
+	bool   braceHighlightIndicatorSet;
+	bool   braceBadLightIndicatorSet;
+	uint8  Reserve; // @alignment
+
+	std::vector <Style> styles;
+	std::vector <MarginStyle> ms;
+	std::vector <EdgeProperties> theMultiEdge;
+private:
+	void   AllocStyles(size_t sizeNew);
+	void   CreateAndAddFont(const FontSpecification &fs);
+	FontRealised *Find(const FontSpecification &fs);
+	void   FindMaxAscentDescent();
+	// Private so can only be copied through copy constructor which ensures font names initialised correctly
+	ViewStyle & operator = (const ViewStyle &);
+
+	FontNames fontNames;
+	FontMap fonts;
 };
 //
 // Selection.h
@@ -581,6 +1453,10 @@ public:
 	void Check() const;
 };
 //
+//
+//
+
+//
 // XPM.H
 // 
 // Hold a pixmap in XPM format.
@@ -633,7 +1509,7 @@ private:
 	int    height;
 	int    width;
 	float  scale;
-	std::vector<uchar> pixelBytes;
+	std::vector <uchar> pixelBytes;
 };
 // 
 // A collection of RGBAImage pixmaps indexed by integer id.
@@ -1124,9 +2000,6 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	// whereas on Windows there is just one window with both scroll bars turned on.
 	Window wMain;   ///< The Scintilla parent window
 	Window wMargin; ///< May be separate when using a scroll view for wMain
-	// Style resources may be expensive to allocate so are cached between uses.
-	// When a style attribute is changed, this cache is flushed. 
-	bool   stylesValid;
 	ViewStyle vs;
 	int    technology;
 	Point  sizeRGBAImage;
@@ -1202,6 +2075,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	int    searchAnchor;
 	int    foldAutomatic;
 	WrapPending wrapPending; // Wrapping support
+	//bool   stylesValid;
 	//bool   hasFocus;
 	//bool   mouseDownCaptures;
 	//bool   mouseWheelCaptures;
@@ -1237,7 +2111,9 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		fWillRedrawAll                   = 0x00002000,
 		fNeedIdleStyling                 = 0x00004000,
 		fRecordingMacro                  = 0x00008000,
-		fConvertPastes                   = 0x00010000
+		fConvertPastes                   = 0x00010000,
+		fStylesValid                     = 0x00020000 // @internal Style resources may be expensive to allocate 
+			// so are cached between uses. When a style attribute is changed, this cache is flushed. 
 	};
 	uint32 Flags;
 
@@ -1617,32 +2493,9 @@ class AutoSurface {
 private:
 	Surface * surf;
 public:
-	AutoSurface(Editor * ed, int technology = -1) : surf(0)
-	{
-		if(ed->wMain.GetID()) {
-			surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
-			if(surf) {
-				surf->Init(ed->wMain.GetID());
-				surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
-				surf->SetDBCSMode(ed->CodePage());
-			}
-		}
-	}
-	AutoSurface(SurfaceID sid, Editor * ed, int technology = -1) : surf(0)
-	{
-		if(ed->wMain.GetID()) {
-			surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
-			if(surf) {
-				surf->Init(sid, ed->wMain.GetID());
-				surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
-				surf->SetDBCSMode(ed->CodePage());
-			}
-		}
-	}
-	~AutoSurface()
-	{
-		delete surf;
-	}
+	AutoSurface(Editor * ed, int technology = -1);
+	AutoSurface(SurfaceID sid, Editor * ed, int technology = -1);
+	~AutoSurface();
 	Surface * operator->() const
 	{
 		return surf;

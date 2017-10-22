@@ -266,7 +266,7 @@ public:
 		AddClusterAssoc(CTL_RCVRTRFR_WHAT, 3, 4);
 		SetClusterData(CTL_RCVRTRFR_WHAT, 1);
 		SString temp_buf;
-		temp_buf.Printf("%lx", Data.Flags);
+		temp_buf.CatHex(Data.Flags);
 		setCtrlString(CTL_RCVRTRFR_VAL, temp_buf);
 		return 1;
 	}
@@ -301,7 +301,7 @@ private:
 			GetClusterData(CTL_RCVRTRFR_WHAT, &v);
 			SString temp_buf;
 			if(v == 1)
-				temp_buf.Printf("%lx", Data.Flags);
+				temp_buf.CatHex(Data.Flags);
 			else if(v == 2)
 				temp_buf.Cat(Data.Quantity, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 			else if(v == 3)

@@ -43,7 +43,6 @@
    "SSL/TLS Strong Encryption: An Introduction"
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
-
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_SYS_TYPES_H
@@ -52,23 +51,9 @@
 #ifdef HAVE_SYS_STAT_H
 	#include <sys/stat.h>
 #endif
-//#include "urldata.h"
 #include "vtls.h" /* generic SSL protos etc */
-//#include "slist.h"
-//#include "sendf.h"
-//#include "strcase.h"
-//#include "url.h"
-//#include "progress.h"
-//#include "share.h"
-//#include "multiif.h"
-//#include "timeval.h"
-//#include "curl_md5.h"
-//#include "warnless.h"
-//#include "curl_base64.h"
 #include "curl_printf.h"
-
-/* The last #include files should be: */
-//#include "curl_memory.h"
+// The last #include files should be: 
 #include "memdebug.h"
 
 /* convenience macro to check if this handle is using a shared SSL session */

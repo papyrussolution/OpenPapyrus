@@ -136,9 +136,9 @@ file:
 	#define DEBUG_LOG(msg)
 #endif
 
-SOraDbProvider::OH::operator uint32 () const 
-{ 
-	return (uint32)H; 
+SOraDbProvider::OH::operator uint32 () const
+{
+	return (uint32)H;
 }
 
 //static
@@ -330,7 +330,7 @@ int SSqlStmt::InitBinding()
 	BL.freeAll();
 	BL.Dim = 1;
 	BS.Destroy();
-	BS.Alloc(1024*16);   // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
+	BS.Alloc(SKILOBYTE(16)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
 		// придумать более умную схему распределения памяти под binding
 	TopBindSubst = 4; // Нулевое смещение резервируется как неиспользование буфера
 	IndSubstPlus = 0;
@@ -763,7 +763,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 					*(char *)pBind->P_Data = 0;
 				}
 				else {
-					CharToOem((char *)pStmt->GetBindOuterPtr(pBind, count), (char *)pBind->P_Data); // @unicodeproblem 
+					CharToOem((char *)pStmt->GetBindOuterPtr(pBind, count), (char *)pBind->P_Data); // @unicodeproblem
 					trimright((char *)pBind->P_Data);
 				}
 			}

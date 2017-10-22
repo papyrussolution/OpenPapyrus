@@ -61,9 +61,14 @@ void LineVector::RemoveLine(int line)
 	CALLPTRMEMB(perLine, RemoveLine(line));
 }
 
-int LineVector::LineFromPosition(int pos) const
+int FASTCALL LineVector::LineFromPosition(int pos) const
 {
 	return starts.PartitionFromPosition(pos);
+}
+
+int FASTCALL LineVector::LineStart(int line) const 
+{
+	return starts.PositionFromPartition(line);
 }
 
 Action::Action()

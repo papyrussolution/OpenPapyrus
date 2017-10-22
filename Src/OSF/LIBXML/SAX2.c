@@ -8,10 +8,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/parserInternals.h>
-//#include <libxml/entities.h>
-//#include <libxml/debugXML.h>
-//#include <libxml/SAX.h>
 #include <libxml/HTMLtree.h>
 
 /* Define SIZE_T_MAX unless defined through <limits.h>. */

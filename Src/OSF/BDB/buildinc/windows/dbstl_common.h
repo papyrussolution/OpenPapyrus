@@ -132,7 +132,7 @@
 //
 // Helper macros definitions.
 //
-// Use BDBOP and BDBOP2 to wrap Berkeley DB calls. The macros validate the 
+// Use BDBOP and BDBOP2 to wrap Berkeley DB calls. The macros validate the
 // return value. On failure, the wrappers clean up, and generate the
 // expected exception.
 //
@@ -149,19 +149,17 @@
 		(cleanup); throw_bdb_exception(#bdb_call, ret);}	\
 	} while (0)
 
-#define THROW(exception_type, arg_list) do {		\
-	exception_type ex arg_list; throw ex; } while (0)
+#define THROW(exception_type, arg_list) do { exception_type ex arg_list; throw ex; } while (0)
 
-#define THROW0(exception_type)	do {			\
-	exception_type ex; throw ex; } while (0)
+#define THROW0(exception_type)	do { exception_type ex; throw ex; } while (0)
 
 #define INVALID_INDEX ((index_type)-1)
-#define INVALID_DLEN ((uint32)-1)
+#define INVALID_DLEN  ((uint32)-1)
 
-#define DBSTL_MAX_DATA_BUF_LEN 1024 * 4096
-#define DBSTL_MAX_KEY_BUF_LEN 1024 * 4096
-#define DBSTL_MAX_MTX_ENV_MUTEX 4096 * 4
-#define DBSTL_BULK_BUF_SIZE 256 * 1024
+#define DBSTL_MAX_DATA_BUF_LEN  SMEGABYTE(4)
+#define DBSTL_MAX_KEY_BUF_LEN   SMEGABYTE(4)
+#define DBSTL_MAX_MTX_ENV_MUTEX SKILOBYTE(16)
+#define DBSTL_BULK_BUF_SIZE     SKILOBYTE(256)
 
 #define COMPARE_CHECK(obj) if(this == &obj) return true;
 #define ASSIGNMENT_PREDCOND(obj) if(this == &obj) return obj;
@@ -185,31 +183,31 @@ START_NS(dbstl)
 //@{
 
 /// \name Functions to close database/environments.
-/// Normally you don't have to close any database 
+/// Normally you don't have to close any database
 /// or environment handles, they will be closed automatically.
 /// Though you still have the following API to close them.
-//@{ 
+//@{
 /// Close pdb regardless of reference count. You must make sure pdb
 /// is not used by others before calling this method.
-/// You can close the underlying database of a container and assign 
+/// You can close the underlying database of a container and assign
 /// another database with right configurations to it, if the configuration
-/// is not suitable for the container, there will be an 
+/// is not suitable for the container, there will be an
 /// InvalidArgumentException type of exception thrown.
-/// You can't use the container after you called close_db and before setting 
-/// another valid database handle to the container via 
+/// You can't use the container after you called close_db and before setting
+/// another valid database handle to the container via
 /// db_container::set_db_handle() function.
 /// \param pdb The database handle to close.
 _exported void close_db(Db *pdb);
 
 /// Close all open database handles regardless of reference count.
-/// You can't use any container after you called close_all_dbs and 
-/// before setting another valid database handle to the 
+/// You can't use any container after you called close_all_dbs and
+/// before setting another valid database handle to the
 /// container via db_container::set_db_handle() function.
 /// \sa close_db(Db *);
 _exported void close_all_dbs();
 
-/// \brief Close specified database environment handle regardless of reference 
-/// count. 
+/// \brief Close specified database environment handle regardless of reference
+/// count.
 ///
 /// Make sure the environment is not used by any other databases.
 /// \param pdbenv The database environment handle to close.
@@ -219,7 +217,7 @@ _exported void close_db_env(DbEnv *pdbenv);
 /// reference count.
 ///
 /// You can't use the container after you called close_db and before setting
-/// another valid database handle to the container via 
+/// another valid database handle to the container via
 /// db_container::set_db_handle() function. \sa close_db_env(DbEnv *);
 _exported void close_all_db_envs();
 //@}
@@ -227,11 +225,11 @@ _exported void close_all_db_envs();
 /// \name Transaction control global functions.
 /// dbstl transaction API. You should call these API rather than DB C/C++
 /// API to use Berkeley DB transaction features.
-//@{ 
-/// Begin a new transaction from the specified environment "env". 
+//@{
+/// Begin a new transaction from the specified environment "env".
 /// This function is called by dbstl user to begin an external transaction.
-/// The "flags" parameter is passed to DbEnv::txn_begin(). 
-/// If a transaction created from 
+/// The "flags" parameter is passed to DbEnv::txn_begin().
+/// If a transaction created from
 /// the same database environment already exists and is unresolved,
 /// the new transaction is started as a child transaction of that transaction,
 /// and thus you can't specify the parent transaction.
@@ -251,9 +249,9 @@ _exported void commit_txn(DbEnv *env, uint32 flags = 0);
 
 /// Commit a specified transaction and all its child transactions.
 /// \param env The environment where txn is started from.
-/// \param txn The transaction to commit, can be a parent transaction of a 
-/// nested transaction group, all un-aborted child transactions of 
-/// it will be committed. 
+/// \param txn The transaction to commit, can be a parent transaction of a
+/// nested transaction group, all un-aborted child transactions of
+/// it will be committed.
 /// \param flags It is passed to each DbTxn::commit() call.
 /// \sa commit_txn(DbEnv *, uint32);
 _exported void commit_txn(DbEnv *env, DbTxn *txn, uint32 flags = 0);
@@ -264,10 +262,10 @@ _exported void commit_txn(DbEnv *env, DbTxn *txn, uint32 flags = 0);
 /// \sa abort_txn(DbEnv *, DbTxn *);
 _exported void abort_txn(DbEnv *env);
 
-/// Abort specified transaction "txn" and all its child transactions. 
+/// Abort specified transaction "txn" and all its child transactions.
 /// That is, "txn" can be a parent transaction of a nested transaction group.
 /// \param env The environment where txn is started from.
-/// \param txn The transaction to abort, can be a parent transaction of a 
+/// \param txn The transaction to abort, can be a parent transaction of a
 /// nested transaction group, all child transactions of it will be aborted.
 /// \sa abort_txn(DbEnv *);
 ///
@@ -285,17 +283,17 @@ _exported DbTxn* current_txn(DbEnv *env);
 /// \param newtxn The new transaction to be as the current transaction of env.
 /// \return The old current transaction of env. It is not resolved.
 _exported DbTxn* set_current_txn_handle(DbEnv *env, DbTxn *newtxn);
-//@} 
+//@}
 
 /// \name Functions to open and register database/environment handles.
-//@{ 
+//@{
 /// Register a Db handle "pdb1". This handle and handles opened in it will be
 /// closed by ResourceManager, so application code must not try to close or
 /// delete it. Users can do enough configuration before opening the Db then
 /// register it via this function.
-/// All database handles should be registered via this function in each 
+/// All database handles should be registered via this function in each
 /// thread using the handle. The only exception is the database handle opened
-/// by dbstl::open_db should not be registered in the thread of the 
+/// by dbstl::open_db should not be registered in the thread of the
 /// dbstl::open_db call.
 /// \param pdb1 The database handle to register into dbstl for current thread.
 ///
@@ -305,22 +303,22 @@ _exported void register_db(Db *pdb1);
 /// closed by ResourceManager. Application code must not try to close or delete
 /// it. Users can do enough config before opening the DbEnv and then register
 /// it via this function.
-/// All environment handles should be registered via this function in each 
-/// thread using the handle. The only exception is the environment handle 
-/// opened by dbstl::open_db_env should not be registered in the thread of 
+/// All environment handles should be registered via this function in each
+/// thread using the handle. The only exception is the environment handle
+/// opened by dbstl::open_db_env should not be registered in the thread of
 /// the dbstl::open_db_env call.
 /// \param env1 The environment to register into dbstl for current thread.
 ///
 _exported void register_db_env(DbEnv *env1);
 
-/// Helper function to open a database and register it into dbstl for the 
+/// Helper function to open a database and register it into dbstl for the
 /// calling thread.
 /// Users still need to register it in any other thread using it if it
 /// is shared by multiple threads, via register_db() function.
-/// Users don't need to delete or free the memory of the returned object, 
+/// Users don't need to delete or free the memory of the returned object,
 /// dbstl will take care of that.
 /// When you don't use dbstl::open_db() but explicitly call DB C++ API to
-/// open a database, you must new the Db object, rather than create it 
+/// open a database, you must new the Db object, rather than create it
 /// on stack, and you must delete the Db object by yourself.
 /// \param penv The environment to open the database from.
 /// \param cflags The create flags passed to Db class constructor.
@@ -342,13 +340,13 @@ _exported Db* open_db (DbEnv *penv, const char *filename, DBTYPE dbtype,
 /// Helper function to open an environment and register it into dbstl for the
 /// calling thread. Users still need to register it in any other thread if it
 /// is shared by multiple threads, via register_db_env() function above.
-/// Users don't need to delete or free the memory of the returned object, 
+/// Users don't need to delete or free the memory of the returned object,
 /// dbstl will take care of that.
-/// 
+///
 /// When you don't use dbstl::open_env() but explicitly call DB C++ API to
 /// open an environment, you must new the DbEnv object, rather than create it
 /// on stack, and you must delete the DbEnv object by yourself.
-/// \param env_home Environment home directory, it must exist. Passed to 
+/// \param env_home Environment home directory, it must exist. Passed to
 /// DbEnv::open.
 /// \param cflags DbEnv constructor creation flags, passed to DbEnv::DbEnv.
 /// \param set_flags Flags to set to the created environment before opening it.
@@ -356,19 +354,19 @@ _exported Db* open_db (DbEnv *penv, const char *filename, DBTYPE dbtype,
 /// \param mode Environment region files mode, passed to DbEnv::open.
 /// \param cachesize Environment cache size, by default 4M bytes.
 /// \return The opened database environment handle.
-/// \sa register_db_env(DbEnv *); 
+/// \sa register_db_env(DbEnv *);
 /// \sa open_db;
 ///
 _exported DbEnv* open_env(const char *env_home, uint32 set_flags,
     uint32 oflags = DB_CREATE | DB_INIT_MPOOL,
-    uint32 cachesize = 4 * 1024 * 1024,
+    uint32 cachesize = SMEGABYTE(4),
     int mode = 0644,
     uint32 cflags = 0/* Flags for DbEnv constructor. */);
 //@}
 
 /// @name Mutex API based on Berkeley DB mutex.
-/// These functions are in-process mutex support which uses Berkeley DB 
-/// mutex mechanisms. You can call these functions to do portable 
+/// These functions are in-process mutex support which uses Berkeley DB
+/// mutex mechanisms. You can call these functions to do portable
 /// synchronization for your code.
 //@{
 /// Allocate a Berkeley DB mutex.
@@ -401,7 +399,7 @@ _exported size_t close_db_cursors(Db* dbp1);
 /// are allowed to call it anyway.
 _exported void dbstl_startup();
 
-/// This function releases any memory allocated in the heap by code of dbstl, 
+/// This function releases any memory allocated in the heap by code of dbstl,
 /// and close all DB handles in the right order.
 /// So you can only call dbstl_exit() right before the entire process exits.
 /// It will release any memory allocated by dbstl that have to live during
@@ -409,7 +407,7 @@ _exported void dbstl_startup();
 _exported void dbstl_exit();
 
 /// This function release all DB handles in the right order. The environment
-/// and database handles are only closed when they are not used by other 
+/// and database handles are only closed when they are not used by other
 /// threads, otherwise the reference cout is decremented.
 _exported void dbstl_thread_exit();
 

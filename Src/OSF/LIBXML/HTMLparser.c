@@ -338,8 +338,7 @@ static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
  *
  * Returns the current char value and its length
  */
-
-static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
+static int FASTCALL htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 {
 	if(ctxt->instate == XML_PARSER_EOF)
 		return 0;
@@ -360,10 +359,8 @@ static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 		 * Check for the 0x110000 limit too
 		 */
 		const uchar * cur = ctxt->input->cur;
-		uchar c;
 		uint val;
-
-		c = *cur;
+		uchar c = *cur;
 		if(c & 0x80) {
 			if(cur[1] == 0) {
 				xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
@@ -413,8 +410,7 @@ static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 			return val;
 		}
 		else {
-			if((*ctxt->input->cur == 0) &&
-			    (ctxt->input->cur < ctxt->input->end)) {
+			if((*ctxt->input->cur == 0) && (ctxt->input->cur < ctxt->input->end)) {
 				htmlParseErrInt(ctxt, XML_ERR_INVALID_CHAR, "Char 0x%X out of allowed range\n", 0);
 				*len = 1;
 				return(' ');
@@ -455,7 +451,7 @@ static int htmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 		}
 		ctxt->charset = XML_CHAR_ENCODING_UTF8;
 	}
-	return(xmlCurrentChar(ctxt, len));
+	return xmlCurrentChar(ctxt, len);
 encoding_error:
 	/*
 	 * If we detect an UTF8 error that probably mean that the

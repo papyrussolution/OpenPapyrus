@@ -1,5 +1,5 @@
 // DEC.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016
+// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -33,14 +33,14 @@ static const IEEE80 expo[10] =
 
 #endif // } 0
 
-double SLAPI dectobin(const char * dc, int16 len, int16 prec)
+double FASTCALL dectobin(const char * dc, int16 len, int16 prec)
 {
 	char   buf[64];
 	double result = atof(dectostr(dc, len, prec, buf));
 	return result;
 }
 
-void SLAPI dectobcd(char * dc, char * bcd, int16 len)
+void FASTCALL dectobcd(char * dc, char * bcd, int16 len)
 {
 	uchar * d = (uchar *)dc;
 	uchar * b = (uchar *)bcd;
@@ -53,7 +53,7 @@ void SLAPI dectobcd(char * dc, char * bcd, int16 len)
 	}
 }
 
-char * SLAPI dectostr(const char * dc, int16 len, int16 prec, char * b)
+char * FASTCALL dectostr(const char * dc, int16 len, int16 prec, char * b)
 {
 	uchar _dl = 0, _al, *buf = (uchar *)b;
 	if((dc[len-1] & 0x0f) == 0x0d)
@@ -82,7 +82,7 @@ char * SLAPI dectostr(const char * dc, int16 len, int16 prec, char * b)
 	return b;
 }
 
-int SLAPI deccmp(const char * dec1, const char * dec2, int16 len)
+int FASTCALL deccmp(const char * dec1, const char * dec2, int16 len)
 {
 	int    r1 = BIN((dec1[len] & 0xf) == 0xd);
 	int    r2 = BIN((dec2[len] & 0xf) == 0xd);
@@ -95,7 +95,7 @@ int SLAPI deccmp(const char * dec1, const char * dec2, int16 len)
 	return r;
 }
 
-void SLAPI dectodec(double val, char * dc, int16 len, int16 prec)
+void FASTCALL dectodec(double val, char * dc, int16 len, int16 prec)
 {
 	int    sign, dec;
 	uchar  al;

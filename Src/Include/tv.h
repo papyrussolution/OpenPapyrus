@@ -1886,7 +1886,7 @@ public:
 		inoHStack
 	};
 	struct Dim {
-		int    Set(int v, int f);
+		void   Set(int v, int f);
 		int16  Val;
 		int16  Flags; // SRectLayout::dfXXX
 	};
@@ -2063,7 +2063,7 @@ struct TArrangeParam { // @persistent
 //   Инструменты идентифицируются символом. Если при создании инструмента символ его не
 //   определен, то класс автоматически присваивает ему уникальный 8-значный символ.
 //
-class TWhatmanToolArray : private SArray {
+class TWhatmanToolArray : private SVector { // @v9.8.5 SArray-->SVector
 public:
 	//
 	// Descr: Пользовательское представление инструмента.
@@ -2130,7 +2130,7 @@ private:
 	int    CreateFigure(Item & rItem, const char * pPath, int pic);
 	int    UpdateFigures(Item & rItem);
 
-	struct Entry { // @persistent
+	struct Entry { // @persistent @flat
 		uint32 TextP;          // Позиция текста в буфере Pool
 		uint32 SymbP;          // Позиция символа в буфере Pool
 		uint32 WtmObjSymbP;    // Позиция символа класса объекта в буфере Pool
@@ -2477,8 +2477,8 @@ public:
 	//
 	int    SetSelArea(TPoint p, int mode);
 	const  TRect & GetSelArea() const;
-	int    SetScrollPos(TPoint p);
-	int    GetScrollRange(IntRange * pX, IntRange * pY) const;
+	void   SetScrollPos(TPoint p);
+	void   GetScrollRange(IntRange * pX, IntRange * pY) const;
 	TPoint GetScrollDelta() const;
 	int    SetTool(int toolId, int paintObjIdent);
 	int    ArrangeObjects(const LongArray * pObjPosList, TArrangeParam & rParam);
@@ -2516,8 +2516,8 @@ private:
 	};
 
 	int    DrawObject(TCanvas2 & rCanv, TWhatmanObject * pObj);
-	int    GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
-	int    GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
+	void   GetResizeRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
+	void   GetFrameRectList(const TWhatmanObject * pObj, ObjZone * pList) const;
 	int    CalcRule(double ptPerInch, Rule & rResult) const;
 	int    GetNotchList(const Rule & rRule, float size, float offs, int kind, TSVector <RuleNotch> & rList) const;
 	int    SnapX(float p, float * pDest) const;
@@ -4930,6 +4930,7 @@ private:
 	int    SetupDate(LDATE dt);
 	const  STimeChunkArray * GetCollapseList_() const;
 	int    CopyToClipboard();
+	int    ExportToExcel(const char * pDestPath);
 	enum {
 		dummyFirst = 1,
 		colorHeader,            // Цвет отрисовки заголовка таблицы

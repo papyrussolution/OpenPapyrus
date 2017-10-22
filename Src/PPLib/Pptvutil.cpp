@@ -1007,7 +1007,7 @@ int Lst2LstAryDialog::removeAll()
 	return setupRightList() ? 1 : PPErrorZ();
 }
 
-int SLAPI ListToListAryDialog(ListToListAryData * pData)
+int FASTCALL ListToListAryDialog(ListToListAryData * pData)
 {
 	if(pData) {
 		pData->Flags &= ~ListToListData::fIsTreeList;
@@ -1306,7 +1306,7 @@ int Lst2LstObjDialog::removeAll()
 	return setupRightList() ? 1 : PPErrorZ();
 }
 
-int SLAPI ListToListDialog(ListToListData * pData)
+int FASTCALL ListToListDialog(ListToListData * pData)
 {
 	int    r;
 	Lst2LstObjDialog * dlg = new Lst2LstObjDialog((pData && (pData->Flags & ListToListData::fIsTreeList)) ? DLG_TLST2TLST : DLG_LST2LST, pData);
@@ -1486,19 +1486,19 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 	return ok;
 }
 
-int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
+int FASTCALL SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
 {
 	SString line_buf;
 	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
-int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
+int FASTCALL SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
 {
 	SString line_buf;
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
 }
 
-int SLAPI SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
+int FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
 {
 	SString line_buf;
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
@@ -1526,7 +1526,7 @@ int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long init
 	return ok;
 } @v9.5.0 */
 
-int SLAPI SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
+int FASTCALL SetupStrAssocCombo(TDialog * dlg, uint ctlID, const StrAssocArray * pList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;

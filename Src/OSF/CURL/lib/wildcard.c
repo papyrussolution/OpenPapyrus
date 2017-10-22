@@ -22,12 +22,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "wildcard.h"
-//#include "llist.h"
-//#include "fileinfo.h"
-/* The last 3 #include files should be in this order */
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 CURLcode Curl_wildcard_init(struct WildcardData * wc)

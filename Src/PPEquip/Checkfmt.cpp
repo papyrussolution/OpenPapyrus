@@ -281,18 +281,18 @@ private:
 		PPObjSCard    ScObj;
 		PPObjCSession CsObj;
 	};
-	struct FontBlock {
+	struct FontBlock { // @flat
 		int    Id;
 		int    Size;
 		int    PageWidth;
 		char   Face[64];
 	};
-	struct PictBlock {
+	struct PictBlock { // @flat
 		int    Id;
 		char   Path[256];
 		RECT   Coord;
 	};
-	struct BarcodeBlock {
+	struct BarcodeBlock { // @flat
 		enum {
 			fTextAbove = 0x0001,
 			fTextBelow = 0x0002
@@ -304,9 +304,9 @@ private:
         int    Height;
         char   Code[256];
 	};
-	TSArray <FontBlock> FontList;
-	TSArray <PictBlock> PictList;
-	TSArray <BarcodeBlock> BcList;
+	TSVector <FontBlock> FontList; // @v9.8.5 TSArray-->TSVector
+	TSVector <PictBlock> PictList; // @v9.8.5 TSArray-->TSVector
+	TSVector <BarcodeBlock> BcList; // @v9.8.5 TSArray-->TSVector
 	OnLoginData * P_Od;
 	uint    CurZone;
 	Iter    CurIter;

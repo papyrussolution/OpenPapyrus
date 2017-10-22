@@ -156,8 +156,8 @@ XMLPUBFUN xmlDict * XMLCALL xmlDictCreate();
 XMLPUBFUN size_t XMLCALL xmlDictSetLimit(xmlDict * dict, size_t limit);
 XMLPUBFUN size_t XMLCALL xmlDictGetUsage(xmlDict * dict);
 XMLPUBFUN xmlDict * XMLCALL xmlDictCreateSub(xmlDict * sub);
-XMLPUBFUN int XMLCALL xmlDictReference(xmlDict * dict);
-XMLPUBFUN void XMLCALL xmlDictFree(xmlDict * dict);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictReference(xmlDict * dict);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlDictFree(xmlDict * dict);
 // 
 // Lookup of entry in the dictionnary.
 // 
@@ -192,11 +192,11 @@ struct xmlURI {
 	char * authority; /* the authority part */
 	char * server;  /* the server part */
 	char * user;    /* the user part */
-	int port;       /* the port number */
+	int    port;   // the port number 
 	char * path;    /* the path string */
 	char * query;   /* the query string (deprecated - use with caution) */
 	char * fragment; /* the fragment identifier */
-	int cleanup;    /* parsing potentially unclean URI */
+	int    cleanup;    /* parsing potentially unclean URI */
 	char * query_raw; /* the query string (as it appears in the URI) */
 };
 
@@ -251,11 +251,11 @@ int FASTCALL xmlBufErase(xmlBuf * buf, size_t len);
 // const xmlChar * xmlBufEnd(xmlBufPtr buf); 
 xmlChar * FASTCALL xmlBufDetach(xmlBuf * pBuf);
 size_t xmlBufDump(FILE * file, xmlBufPtr buf);
-xmlBuf * xmlBufFromBuffer(xmlBuffer * buffer);
-xmlBuffer * xmlBufBackToBuffer(xmlBuf * buf);
-int xmlBufMergeBuffer(xmlBufPtr buf, xmlBufferPtr buffer);
-int xmlBufResetInput(xmlBufPtr buf, xmlParserInputPtr input);
-size_t xmlBufGetInputBase(xmlBufPtr buf, xmlParserInputPtr input);
+xmlBuf * FASTCALL xmlBufFromBuffer(xmlBuffer * buffer);
+xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf);
+int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer);
+int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input);
+size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input);
 int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, size_t cur);
 //
 //#include "enc.h"

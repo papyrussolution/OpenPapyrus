@@ -1806,12 +1806,12 @@ int FASTCALL _koi8_to_866(int c)
 		"\x8F\x9F\x90\x91\x92\x93\x86\x82\x9C\x9B\x87\x98\x9D\x99\x97\x9A";
 	int    i = 0;
 	if(c < 128)
-		i = c;
+		return koi8tab[(uchar)c];
 	else
 		for(i = 0; i < 256; i++)
 			if((int)koi8tab[i] == c)
-				break;
-	return koi8tab[(uchar)i];
+				return koi8tab[(uchar)i];
+	return c;
 }
 //
 // OEM <-> CHAR

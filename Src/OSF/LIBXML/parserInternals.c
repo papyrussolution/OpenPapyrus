@@ -474,7 +474,7 @@ encoding_error:
  * Returns the current char value and its length
  */
 
-int xmlCurrentChar(xmlParserCtxt * ctxt, int * len) 
+int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len) 
 {
 	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) 
 		return 0;
@@ -1154,7 +1154,7 @@ int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler)
  *
  * Free up an input stream.
  */
-void xmlFreeInputStream(xmlParserInputPtr input)
+void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 {
 	if(input) {
 		SAlloc::F((char*)input->filename);

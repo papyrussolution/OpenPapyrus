@@ -153,7 +153,7 @@ static char * getWordForm(const char * pattern, long fmt, char * buf)
 	return strcpy(buf, temp);
 }
 
-char * SLAPI getMonthText(int mon, long fmt, char * pBuf)
+static char * FASTCALL getMonthText(int mon, long fmt, char * pBuf)
 {
 	if(pBuf)
 		if(mon >= 1 && mon <= 12) {
@@ -232,7 +232,7 @@ static SString & _getWordForm(const char * pPattern, long fmt, SString & rBuf)
 	return rBuf;
 }
 
-SString & SLAPI SGetMonthText(int mon, long fmt, SString & rBuf)
+SString & FASTCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 {
 	rBuf.Z();
 	if(mon >= 1 && mon <= 12) {
@@ -252,7 +252,7 @@ static const char * P_WeekDays = {
 	"Friday,Fr,Пятница,Птн;Saturday,Sa,Суббота,Сбт;Sunday,Su,Воскресенье,Вскр"
 };
 
-int SLAPI GetDayOfWeekByText(const char * pText)
+int FASTCALL GetDayOfWeekByText(const char * pText)
 {
 	SString temp_buf;
 	StringSet ss(';', P_WeekDays);
@@ -267,7 +267,7 @@ int SLAPI GetDayOfWeekByText(const char * pText)
 	return 0;
 }
 
-int SLAPI GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rBuf)
+int FASTCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rBuf)
 {
 	rBuf.Z();
 	if(dayOfWeek >= 1 && dayOfWeek <= 7 && options >= 1 && options <= 4) {

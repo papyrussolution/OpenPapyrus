@@ -1,5 +1,5 @@
 // ROUND.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016, 2017
 // @threadsafe
 //
 #include <slib.h>
@@ -54,7 +54,7 @@ double FASTCALL R4(double v)  { return round(v, 4); }
 double FASTCALL R5(double v)  { return round(v, 5); }
 double FASTCALL R6(double v)  { return round(v, 6); }
 
-double SLAPI roundnev(double n, int prec)
+double FASTCALL roundnev(double n, int prec)
 {
 	double p;
 	if(prec == 0) {

@@ -66,7 +66,6 @@
 //#include "connect.h"
 //#include "strerror.h"
 //#include "inet_ntop.h"
-//#include "parsedate.h" /* for the week day and month names */
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 //#include "strtoofft.h"
 //#include "multiif.h"

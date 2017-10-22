@@ -2608,7 +2608,7 @@ void ScintillaWin::ImeStartComposition()
 		::ImmSetCompositionWindow(imc.hIMC, &CompForm);
 
 		// Set font of IME window to same as surrounded text.
-		if(stylesValid) {
+		if(Flags & fStylesValid) {
 			// Since the style creation code has been made platform independent,
 			// The logfont for the IME is recreated here.
 			const int styleHere = pdoc->StyleIndexAt(sel.MainCaret());

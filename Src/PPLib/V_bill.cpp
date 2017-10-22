@@ -4991,9 +4991,8 @@ int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rL
 				period.AdjustToDate(item.Dt);
 			}
 			else {
-				PPLoadText(PPTXT_BILLNOTBANKING, str_fmt);
 				str_dt.Z().Cat(item.Dt);
-				msg.Printf(str_fmt, item.Code, str_dt.cptr());
+				msg.Printf(PPLoadTextS(PPTXT_BILLNOTBANKING, str_fmt), item.Code, str_dt.cptr());
 				rLogger.Log(msg);
 			}
 		}

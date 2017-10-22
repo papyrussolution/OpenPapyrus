@@ -3334,8 +3334,7 @@ public:
 		}
 		else {
 			SString fmt_buf, msg_buf;
-			PPLoadText(PPTXT_LOG_INVCONVERTEDREC, fmt_buf);
-			Logger.Log(msg_buf.Printf(fmt_buf, "DBID=0"));
+			Logger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_LOG_INVCONVERTEDREC, fmt_buf), "DBID=0"));
 			return -1;
 		}
 	}

@@ -146,7 +146,7 @@ extern "C" {
  * state changes, elections, etc.
  */
 #define	REP_DIAGNAME	"__db.rep.diag%02d"
-#define	REP_DIAGSIZE	MEGABYTE
+#define	REP_DIAGSIZE	SMEGABYTE(1)
 #define	RPRINT(env, x) do {						\
 	if((env)->dbenv->verbose != 0)					\
 		__rep_print_system x;				\
@@ -281,7 +281,7 @@ typedef struct __rep { /* SHARED */
 
 	db_timeout_t	chkpt_delay;	/* Master checkpoint delay. */
 
-#define	REP_DEFAULT_THROTTLE	(10 * MEGABYTE) /* Default value is < 1Gig. */
+#define	REP_DEFAULT_THROTTLE	SMEGABYTE(10) /* Default value is < 1Gig. */
 	uint32	gbytes;		/* Limit on data sent in single... */
 	uint32	bytes;		/* __rep_process_message call. */
 #define	DB_REP_REQUEST_GAP	40000	/* 40 msecs */

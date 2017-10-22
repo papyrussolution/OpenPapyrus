@@ -126,8 +126,7 @@ static int init_added(void)
 static void cleanup1_doall(ADDED_OBJ * a)
 {
 	a->obj->nid = 0;
-	a->obj->flags |= ASN1_OBJECT_FLAG_DYNAMIC |
-	    ASN1_OBJECT_FLAG_DYNAMIC_STRINGS | ASN1_OBJECT_FLAG_DYNAMIC_DATA;
+	a->obj->flags |= ASN1_OBJECT_FLAG_DYNAMIC | ASN1_OBJECT_FLAG_DYNAMIC_STRINGS | ASN1_OBJECT_FLAG_DYNAMIC_DATA;
 }
 
 static void cleanup2_doall(ADDED_OBJ * a)
@@ -156,9 +155,7 @@ void obj_cleanup_int(void)
 
 int OBJ_new_nid(int num)
 {
-	int i;
-
-	i = new_nid;
+	int i = new_nid;
 	new_nid += num;
 	return (i);
 }
@@ -168,7 +165,6 @@ int OBJ_add_object(const ASN1_OBJECT * obj)
 	ASN1_OBJECT * o;
 	ADDED_OBJ * ao[4] = { NULL, NULL, NULL, NULL }, * aop;
 	int i;
-
 	if(added == NULL)
 		if(!init_added())
 			return 0;
@@ -631,7 +627,6 @@ int OBJ_create_objects(BIO * in)
 	char buf[512];
 	int i, num = 0;
 	char * o, * s, * l = NULL;
-
 	for(;; ) {
 		s = o = NULL;
 		i = BIO_gets(in, buf, 512);

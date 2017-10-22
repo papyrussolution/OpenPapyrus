@@ -351,7 +351,7 @@ sig_proc:
 		/* FIGURE out how big the file is. */
 		if((ret = __os_ioinfo(env, NULL, dbenv->registry, &mbytes, &bytes, NULL)) != 0)
 			return ret;
-		end = (off_t)mbytes*MEGABYTE+bytes;
+		end = (off_t)SMEGABYTE(mbytes)+bytes;
 		/*
 		 * Seek to the beginning of the file and overwrite slots to
 		 * the end of the file.

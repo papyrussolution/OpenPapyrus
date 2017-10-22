@@ -1984,10 +1984,11 @@ int SLAPI CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 		copyBufTo(pRec);
 		return 1;
 	}
-	return PPDbSearchError();
+	else
+		return PPDbSearchError();
 }
 
-int SLAPI CCheckCore::GetListByCode(long cashN, long code, TSArray <CCheckTbl::Rec> * pRecList)
+int SLAPI CCheckCore::GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList) // @v9.8.5 TSArray-->TSVector
 {
 	int    ok = -1;
 	CCheckTbl::Key2 k;
@@ -5281,7 +5282,7 @@ int SLAPI CSessGrouping::CompleteSession(PPID sessID)
 //
 //
 //
-CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
+SLAPI CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
 {
 	THISZERO();
 	if(pCcItem) {
@@ -5300,7 +5301,7 @@ CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
 	}
 }
 
-int CTableStatus::Displace(const CTableStatus & rNewItem)
+int FASTCALL CTableStatus::Displace(const CTableStatus & rNewItem)
 {
 	int    ok = -1;
 	LDATETIME cdtm = getcurdatetime_();
@@ -5342,7 +5343,7 @@ class CCheckCache : public ObjCache {
 public:
 	CCheckCache();
 	int    GetCTableStatus(long tableNo, CTableStatus * pStatus);
-	int    GetCTableOrderList(TSArray <CTableStatus> & rList);
+	int    GetCTableOrderList(TSVector <CTableStatus> & rList); // @v9.8.5 TSArray-->TSVector
 private:
 	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 	{
@@ -5353,7 +5354,7 @@ private:
 	}
 	int    RefreshCTableStatusList(int force);
 	LDATETIME CTableStatusTime; // Время последнего извлечения чеков для определения статусов столов
-	TSArray <CTableStatus> CTStList;
+	TSVector <CTableStatus> CTStList; // @v9.8.5 TSArray-->TSVector
 	long   CTableStatusRefreshTimeout;
 	LDATE  FirstActualDate; // Дата первого чека заказа, имеющего дату большую или равную текущей.
 		// Это поле необходимо для сужения области просмотра чеков так как они не индексированы
@@ -5368,7 +5369,7 @@ CCheckCache::CCheckCache() : ObjCache(PPOBJ_CCHECK, sizeof(ObjCacheEntry))
 	FirstActualDate = ZERODATE;
 }
 
-int CCheckCache::GetCTableOrderList(TSArray <CTableStatus> & rList)
+int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
 {
 	int    ok = -1;
 	RefreshCTableStatusList(0);
@@ -5456,14 +5457,14 @@ int CCheckCache::RefreshCTableStatusList(int force)
 }
 
 //static
-int SLAPI CCheckCore::FetchCTableStatus(long tableNo, CTableStatus * pStatus)
+int FASTCALL CCheckCore::FetchCTableStatus(long tableNo, CTableStatus * pStatus)
 {
 	CCheckCache * p_cache = GetDbLocalCachePtr <CCheckCache> (PPOBJ_CCHECK);
 	return p_cache ? p_cache->GetCTableStatus(tableNo, pStatus) : 0;
 }
 
 //static
-int SLAPI CCheckCore::FetchCTableOrderList(TSArray <CTableStatus> & rList)
+int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
 {
 	CCheckCache * p_cache = GetDbLocalCachePtr <CCheckCache> (PPOBJ_CCHECK);
 	return p_cache ? p_cache->GetCTableOrderList(rList) : 0;

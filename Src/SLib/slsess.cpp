@@ -485,7 +485,7 @@ struct GlobalObjectEntry {
 	void * Ptr;
 };
 
-SlSession::GlobalObjectArray::GlobalObjectArray() : SArray(sizeof(GlobalObjectEntry))
+SlSession::GlobalObjectArray::GlobalObjectArray() : SVector(sizeof(GlobalObjectEntry)) // @v9.8.5 SArray-->SVector
 {
 	//
 	// Дабы не использовать нулевой индекс вставляем фиктивный первый элемент.
@@ -502,8 +502,7 @@ SlSession::GlobalObjectArray::~GlobalObjectArray()
 	Cs.Enter();
 	for(uint i = 1; i < count; i++) {
 		GlobalObjectEntry * p_entry = (GlobalObjectEntry *)at(i);
-		if(p_entry)
-			p_entry->Destroy();
+		CALLPTRMEMB(p_entry, Destroy());
 	}
 	Cs.Leave();
 }

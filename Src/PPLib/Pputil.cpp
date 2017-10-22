@@ -637,9 +637,8 @@ int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, in
 	CATCHZOK
 	if(ok == 2 && CConfig.Flags & CCFLG_DEBUG) {
 		SString msg_buf, fmt_buf, obj_title;
-		PPLoadText(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf);
 		GetObjectTitle(objType, obj_title);
-		msg_buf.Printf(fmt_buf, obj_title.cptr());
+		msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf), obj_title.cptr());
 		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 	}
 	ASSIGN_PTR(pID, tmp_id);

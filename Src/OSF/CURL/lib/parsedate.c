@@ -74,10 +74,6 @@
  */
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "strcase.h"
-//#include "warnless.h"
-//#include "parsedate.h"
 
 #if 0 // { see comment for Sl_Curl_GetDate (slib.h)
 

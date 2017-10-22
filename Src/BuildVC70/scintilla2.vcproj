@@ -885,9 +885,6 @@
 				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\Document.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\include\ILexer.h">
 			</File>
 			<File
@@ -916,9 +913,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\src\Style.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\ViewStyle.h">
 			</File>
 		</Filter>
 		<Filter

@@ -57,7 +57,6 @@
 //#include "hostip.h"
 //#include "http.h"
 //#include "select.h"
-//#include "parsedate.h" /* for the week day and month names */
 //#include "strtoofft.h"
 //#include "multiif.h"
 //#include "strcase.h"

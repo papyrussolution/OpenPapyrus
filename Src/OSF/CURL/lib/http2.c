@@ -36,9 +36,8 @@
 //#include "connect.h"
 //#include "strtoofft.h"
 //#include "strdup.h"
-// The last 3 #include files should be in this order 
+// The last #include files should be in this order 
 #include "curl_printf.h"
-//#include "curl_memory.h"
 #include "memdebug.h"
 
 #define MIN(x, y) ((x)<(y) ? (x) : (y))

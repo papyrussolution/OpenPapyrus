@@ -149,7 +149,7 @@ DlFuncPool::DlFuncPool() : Items(sizeof(F)), ArgList(sizeof(Arg))
 	NamePool.add("$");
 }
 
-int DlFuncPool::Write(SBuffer & rBuf) const
+int FASTCALL DlFuncPool::Write(SBuffer & rBuf) const
 {
 	rBuf.Write(&Items, 0);
 	rBuf.Write(&ArgList, 0);
@@ -157,7 +157,7 @@ int DlFuncPool::Write(SBuffer & rBuf) const
 	return 1;
 }
 
-int DlFuncPool::Read(SBuffer & rBuf)
+int FASTCALL DlFuncPool::Read(SBuffer & rBuf)
 {
 	rBuf.Read(&Items, 0);
 	rBuf.Read(&ArgList, 0);
@@ -165,7 +165,7 @@ int DlFuncPool::Read(SBuffer & rBuf)
 	return 1;
 }
 
-int DlFuncPool::IsEqual(const DlFuncPool & rPat) const
+int FASTCALL DlFuncPool::IsEqual(const DlFuncPool & rPat) const
 {
 	int    ok = 1;
 	uint   c = Items.getCount();
@@ -194,7 +194,7 @@ int DlFuncPool::SearchNamePos(uint namePos, uint * pPos) const
 		return 0;
 }
 
-int DlFuncPool::Add(const DlFunc * pF)
+int FASTCALL DlFuncPool::Add(const DlFunc * pF)
 {
 	F  f;
 	MEMSZERO(f);
@@ -313,14 +313,14 @@ int CtmConstList::Test_Cmp(const CtmConstList & rPat) const
 	return 1;
 }
 
-int CtmConstList::Write(SBuffer * pBuf) const
+int FASTCALL CtmConstList::Write(SBuffer * pBuf) const
 {
 	pBuf->Write(&DataLen, sizeof(DataLen));
 	pBuf->Write(P_Buf, DataLen);
 	return 1;
 }
 
-int CtmConstList::Read(SBuffer * pBuf)
+int FASTCALL CtmConstList::Read(SBuffer * pBuf)
 {
 	int    ok = 1;
 	pBuf->Read(&DataLen, sizeof(DataLen));
@@ -1673,7 +1673,7 @@ int DlContext::ResolveVar(DLSYMBID scopeID, int exactScope, const char * pSymb, 
 
 #ifndef DL600C // {
 
-int SLAPI DlContext::InitSpecial(int ispc)
+int FASTCALL DlContext::InitSpecial(int ispc)
 {
 	int    ok = 1;
 	SString file_name;
@@ -1688,7 +1688,7 @@ int SLAPI DlContext::InitSpecial(int ispc)
 
 #endif // }
 
-int SLAPI DlContext::Init(const char * pInFileName)
+int FASTCALL DlContext::Init(const char * pInFileName)
 {
 	int    ok = 1;
 	if(Flags & fCompile) {
@@ -1962,7 +1962,7 @@ int SLAPI DlContext::RegisterTypeLib(const DlScope * pCls, int unreg)
 	return ok;
 }
 
-size_t SLAPI DlContext::GetTypeBinSize(DLSYMBID typID) const
+size_t FASTCALL DlContext::GetTypeBinSize(DLSYMBID typID) const
 {
 	TypeEntry te;
 	return SearchTypeID(typID, 0, &te) ? te.T.GetBinSize() : 0;

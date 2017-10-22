@@ -372,9 +372,6 @@
     <ClInclude Include="..\Osf\scintilla\src\CellBuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\Document.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -421,9 +418,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\scintilla\lexlib\SubStyles.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\ViewStyle.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h">

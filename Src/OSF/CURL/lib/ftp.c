@@ -65,7 +65,6 @@
 //#include "inet_ntop.h"
 //#include "inet_pton.h"
 //#include "select.h"
-//#include "parsedate.h" /* for the week day and month names */
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 //#include "multiif.h"
 //#include "url.h"

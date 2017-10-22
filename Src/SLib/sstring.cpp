@@ -189,12 +189,11 @@ int FASTCALL SStrScan::IsTagBrace() const
 	return BIN(P_Buf[Offs] == '<');
 }
 
-int FASTCALL SStrScan::Set(const char * pBuf, size_t offs)
+void FASTCALL SStrScan::Set(const char * pBuf, size_t offs)
 {
 	P_Buf = pBuf;
 	Offs = offs;
 	Len = 0;
-	return 1;
 }
 
 SString & FASTCALL SStrScan::Get(SString & rBuf) const
@@ -426,7 +425,7 @@ uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
 			return (c == '\xD') ? 1 : 0;
 		else if(eolf == eolWindows)
 			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 0;
-		else if(eolf == eolUndef) 
+		else if(eolf == eolUndef)
 			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 1;
 	}
 	return 0;
@@ -781,9 +780,9 @@ size_t SLAPI SString::Len() const
 }
 */
 
-size_t SLAPI SString::Len() const 
-{ 
-	return L ? (L-1) : 0; 
+size_t SLAPI SString::Len() const
+{
+	return L ? (L-1) : 0;
 }
 
 size_t SLAPI SString::BufSize() const
@@ -2693,14 +2692,14 @@ SString & SLAPI SString::Chomp()
 	return *this;
 }
 
-int SLAPI SString::Empty() const 
-{ 
-	return BIN(Len() == 0); 
+int SLAPI SString::Empty() const
+{
+	return BIN(Len() == 0);
 }
 
-int SLAPI SString::NotEmpty() const 
-{ 
-	return BIN(Len()); 
+int SLAPI SString::NotEmpty() const
+{
+	return BIN(Len());
 }
 
 int SLAPI SString::NotEmptyS()
@@ -2999,7 +2998,7 @@ SString & FASTCALL SString::Cat(uint i)
 	return Cat(ultoa(i, temp_buf, 10));
 }
 
-char * SLAPI longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
+char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 {
 	SString temp_buf;
 	temp_buf.CatLongZ(val, numDigits);
@@ -3031,6 +3030,21 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 		Cat(val);
 	return *this;
 	//return Cat(__longfmtz(val, numDigits, temp_buf, sizeof(temp_buf)));
+}
+
+SString & FASTCALL SString::CatLongZ(int val, uint numDigits)
+{
+	return CatLongZ((long)val, numDigits);
+}
+
+SString & FASTCALL SString::CatLongZ(uint val, uint numDigits)
+{
+	return CatLongZ((long)val, numDigits);
+}
+
+SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits)
+{
+	return CatLongZ((long)val, numDigits);
 }
 
 SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
@@ -3602,13 +3616,13 @@ SString & SLAPI SString::EncodeMime64(const void * pBuf, size_t dataLen)
 	return *this;
 }
 
-size_t FASTCALL SString::CharToQp(char c) 
+size_t FASTCALL SString::CharToQp(char c)
 {
 	size_t n = 0;
 	if((c >= 33 && c <= 126 && c != '=') || c == ' ') {
 		CatChar(c); // If the character does not need to be converted, insert it as-is.
 		n = 1;
-	} 
+	}
 	else {
 		CatChar('=').CatHexUpper((uchar)c);
 		n = 3;
@@ -3834,7 +3848,7 @@ int SLAPI SString::DecodeUrl(SString & rBuf) const
 			if(p < (src_len-2)) {
 				const char c1 = p_src_buf[p+1];
 				const char c2 = p_src_buf[p+2];
-				if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z')) && 
+				if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z')) &&
 					((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z'))) {
 					c = (hex(c1) << 4) | hex(c2);
 					rBuf.CatChar(c);
@@ -3929,9 +3943,9 @@ SLAPI SStringU::~SStringU()
 		ZFREE(P_Buf);
 }
 
-size_t SLAPI SStringU::Len() const 
-{ 
-	return L ? (L-1) : 0; 
+size_t SLAPI SStringU::Len() const
+{
+	return L ? (L-1) : 0;
 }
 
 wchar_t FASTCALL SStringU::C(size_t n) const
@@ -6733,363 +6747,450 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 #if SLTEST_RUNNING // {
 
-SLTEST_R(SString)
+class SRevolver_SString : public TSRingStack <SString> {
+public:
+	SLAPI  SRevolver_SString(size_t s) : TSRingStack <SString> (s)
+	{
+		SString empty_str;
+		empty_str.Z();
+		for(uint i = 0; i < s; i++) {
+			uint8 temp_buf[sizeof(SString)];
+			memzero(temp_buf, sizeof(temp_buf));
+
+		}
+	}
+};
+
+struct SlTestFixtureSString {
+public:
+	SlTestFixtureSString()
+	{
+		P_StrList = 0;
+	}
+	~SlTestFixtureSString()
+	{
+		delete P_StrList;
+	}
+	int    FASTCALL InitStrList(const char * pFileName)
+	{
+		// phrases.en
+		int    ok = 1;
+        if(!P_StrList) {
+			THROW(P_StrList = new SStrCollection);
+			{
+				SString temp_buf;
+				SFile f_in(pFileName, SFile::mRead);
+				THROW(f_in.IsValid());
+				while(f_in.ReadLine(temp_buf)) {
+					char * p_new_str = newStr(temp_buf);
+					THROW(p_new_str);
+					THROW(P_StrList->insert(p_new_str));
+				}
+			}
+		}
+		else
+			ok = -1;
+        CATCHZOK
+        return ok;
+	}
+    SStrCollection * P_StrList;
+};
+
+SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
+	// benchmark: benchmark=stack;sstring;revolver
 	int    ok = 1;
+	int    bm = -1;
+	const  uint max_bm_phase = 1000;
 	uint32 line_no = 0;
 	SBaseBuffer temp_buf;
 	SBaseBuffer test_buf;
 	temp_buf.Init();
 	test_buf.Init();
 	SString str, out_buf, in_buf;
-	SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
-	for(uint i = 0; i < 1000; i++) {
-		(str = 0).NumberToLat(i);
-		out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
-	}
-	{
-		SLTEST_CHECK_NZ(sstreqi_ascii("u", "u"));
-		SLTEST_CHECK_NZ(sstreqi_ascii("u", "U"));
-		SLTEST_CHECK_NZ(sstreqi_ascii("U", "u"));
-		SLTEST_CHECK_Z(sstreqi_ascii("U", "u1"));
-		SLTEST_CHECK_NZ(sstreqi_ascii("string", "sTrInG"));
-		SLTEST_CHECK_NZ(sstreqi_ascii("string", "string"));
-		SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
-	}
-	//
-	// Тестирование функции CopyTo
-	//
-	{
-		char   buffer[1024];
-		char   preserve_buffer[sizeof(buffer)];
-		SLS.GetTLA().Rg.ObfuscateBuffer(buffer, sizeof(buffer));
-		memcpy(preserve_buffer, buffer, sizeof(preserve_buffer));
+    THROW(SLTEST_CHECK_NZ(F.InitStrList(MakeInputFilePath("phrases.en"))));
+	if(pBenchmark == 0)
+		bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "stack"))
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "sstring"))
+		bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "revolver"))
+		bm = 3;
+	else
+		SetInfo("invalid benchmark");
+	if(bm == 0) {
+		SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
+		for(uint i = 0; i < 1000; i++) {
+			(str = 0).NumberToLat(i);
+			out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
+		}
+		{
+			SLTEST_CHECK_NZ(sstreqi_ascii("u", "u"));
+			SLTEST_CHECK_NZ(sstreqi_ascii("u", "U"));
+			SLTEST_CHECK_NZ(sstreqi_ascii("U", "u"));
+			SLTEST_CHECK_Z(sstreqi_ascii("U", "u1"));
+			SLTEST_CHECK_NZ(sstreqi_ascii("string", "sTrInG"));
+			SLTEST_CHECK_NZ(sstreqi_ascii("string", "string"));
+			SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
+		}
+		//
+		// Тестирование функции CopyTo
 		//
 		{
-			const size_t _src_len = 503;
-			str = 0;
-			for(uint si = 0; si < _src_len; si++) {
-				uint _v = SLS.GetTLA().Rg.GetUniformInt(100000);
-				char _c = (_v % 26) + ((si & 1) ? 'a' : 'A');
-				str.CatChar(_c);
+			char   buffer[1024];
+			char   preserve_buffer[sizeof(buffer)];
+			SLS.GetTLA().Rg.ObfuscateBuffer(buffer, sizeof(buffer));
+			memcpy(preserve_buffer, buffer, sizeof(preserve_buffer));
+			//
+			{
+				const size_t _src_len = 503;
+				str = 0;
+				for(uint si = 0; si < _src_len; si++) {
+					uint _v = SLS.GetTLA().Rg.GetUniformInt(100000);
+					char _c = (_v % 26) + ((si & 1) ? 'a' : 'A');
+					str.CatChar(_c);
+				}
+				SLTEST_CHECK_EQ(str.Len(), _src_len);
 			}
-			SLTEST_CHECK_EQ(str.Len(), _src_len);
-		}
-		for(uint tl = 1; tl <= sizeof(buffer); tl++) {
-			str.CopyTo(buffer, tl);
-			if(tl > 1)
+			for(uint tl = 1; tl <= sizeof(buffer); tl++) {
+				str.CopyTo(buffer, tl);
+				if(tl > 1)
+					SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+				{
+					const size_t real_data_len = MIN(tl, str.Len()+1);
+					SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, real_data_len-1));
+					SLTEST_CHECK_EQ((uint8)buffer[real_data_len-1], (uint8)0);
+					SLTEST_CHECK_Z(memcmp(buffer+real_data_len, preserve_buffer+real_data_len, sizeof(buffer)-real_data_len));
+				}
+			}
+			{
+				str.CopyTo(buffer, 0);
 				SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+				SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, str.Len()));
+				SLTEST_CHECK_EQ(strlen(buffer), str.Len());
+				SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
+				SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
+			}
+		}
+		//
+		// Тестирование функций EncodeMime64 и DecodeMime64
+		//
+		{
+			SString org_bin_file_name;
+			SString test_bin_file_name;
+			size_t actual_size = 0;
+			THROW(SLTEST_CHECK_NZ(temp_buf.Alloc(4096)));
+			THROW(SLTEST_CHECK_NZ(test_buf.Alloc(8192)));
 			{
-				const size_t real_data_len = MIN(tl, str.Len()+1);
-				SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, real_data_len-1));
-				SLTEST_CHECK_EQ((uint8)buffer[real_data_len-1], (uint8)0);
-				SLTEST_CHECK_Z(memcmp(buffer+real_data_len, preserve_buffer+real_data_len, sizeof(buffer)-real_data_len));
+				int r;
+				org_bin_file_name = MakeInputFilePath("binfile.");
+				SFile inf(org_bin_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd);
+				SFile outf(MakeOutputFilePath("txtfile.temp"), SFile::mWrite);
+				THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+				THROW(SLTEST_CHECK_NZ(outf.IsValid()));
+				while((r = inf.Read(temp_buf.P_Buf, temp_buf.Size, &actual_size)) != 0) {
+					size_t as = 0;
+					str.EncodeMime64(temp_buf.P_Buf, actual_size).CR();
+					str.DecodeMime64(test_buf.P_Buf, test_buf.Size, &as);
+					THROW(SLTEST_CHECK_EQ(actual_size, as));
+					THROW(SLTEST_CHECK_Z(memcmp(temp_buf.P_Buf, test_buf.P_Buf, as)));
+					THROW(SLTEST_CHECK_NZ(outf.WriteLine(str)));
+					if(r < 0)
+						break;
+				}
 			}
-		}
-		{
-			str.CopyTo(buffer, 0);
-			SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
-			SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, str.Len()));
-			SLTEST_CHECK_EQ(strlen(buffer), str.Len());
-			SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
-			SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
-		}
-	}
-	//
-	// Тестирование функций EncodeMime64 и DecodeMime64
-	//
-	{
-		SString org_bin_file_name;
-		SString test_bin_file_name;
-		size_t actual_size = 0;
-		THROW(SLTEST_CHECK_NZ(temp_buf.Alloc(4096)));
-		THROW(SLTEST_CHECK_NZ(test_buf.Alloc(8192)));
-		{
-			int r;
-			org_bin_file_name = MakeInputFilePath("binfile.");
-			SFile inf(org_bin_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd);
-			SFile outf(MakeOutputFilePath("txtfile.temp"), SFile::mWrite);
-			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
-			THROW(SLTEST_CHECK_NZ(outf.IsValid()));
-			while((r = inf.Read(temp_buf.P_Buf, temp_buf.Size, &actual_size)) != 0) {
-				size_t as = 0;
-				str.EncodeMime64(temp_buf.P_Buf, actual_size).CR();
-				str.DecodeMime64(test_buf.P_Buf, test_buf.Size, &as);
-				THROW(SLTEST_CHECK_EQ(actual_size, as));
-				THROW(SLTEST_CHECK_Z(memcmp(temp_buf.P_Buf, test_buf.P_Buf, as)));
-				THROW(SLTEST_CHECK_NZ(outf.WriteLine(str)));
-				if(r < 0)
-					break;
-			}
-		}
-		//
-		{
-			(in_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("txtfile.temp");
-			(test_bin_file_name = GetSuiteEntry()->OutPath).SetLastSlash().Cat("binfile.temp");
-			SFile inf(in_buf, SFile::mRead);
-			SFile outf(test_bin_file_name, SFile::mWrite|SFile::mBinary);
-			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
-			THROW(SLTEST_CHECK_NZ(outf.IsValid()));
-			THROW(SLTEST_CHECK_NZ(temp_buf.Alloc(8192)));
-			while(inf.ReadLine(str)) {
-				str.Chomp();
-				THROW(SLTEST_CHECK_NZ(str.DecodeMime64(temp_buf.P_Buf, temp_buf.Size, &actual_size)));
-				THROW(SLTEST_CHECK_NZ(outf.Write(temp_buf.P_Buf, actual_size)));
-			}
-		}
-		SLTEST_CHECK_LT(0L, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
-		//
-		// Тестирование функций конвертации между различными кодировкам
-		// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
-		// текст в кодировке windows-1251
-		//
-		{
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("rustext.txt");
-			SFile inf(in_buf, SFile::mRead);
-			(in_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("rustext.out");
-			SFile outf(in_buf, SFile::mWrite);
-			in_buf = 0;
-			while(inf.ReadLine(str)) {
-				in_buf.Cat(str);
-			}
-			out_buf = in_buf;
-			out_buf.ToUtf8();
-			out_buf.Utf8ToOem();
-			out_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			SLTEST_CHECK_Z(in_buf.Cmp(out_buf, 0));
-
-			out_buf = in_buf;
-			out_buf.ToUtf8();
-			out_buf.Utf8ToChar();
-			out_buf.ToOem();
-			out_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			SLTEST_CHECK_Z(in_buf.Cmp(out_buf, 0));
-
+			//
 			{
-				SStringU s16;
+				(in_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("txtfile.temp");
+				(test_bin_file_name = GetSuiteEntry()->OutPath).SetLastSlash().Cat("binfile.temp");
+				SFile inf(in_buf, SFile::mRead);
+				SFile outf(test_bin_file_name, SFile::mWrite|SFile::mBinary);
+				THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+				THROW(SLTEST_CHECK_NZ(outf.IsValid()));
+				THROW(SLTEST_CHECK_NZ(temp_buf.Alloc(8192)));
+				while(inf.ReadLine(str)) {
+					str.Chomp();
+					THROW(SLTEST_CHECK_NZ(str.DecodeMime64(temp_buf.P_Buf, temp_buf.Size, &actual_size)));
+					THROW(SLTEST_CHECK_NZ(outf.Write(temp_buf.P_Buf, actual_size)));
+				}
+			}
+			SLTEST_CHECK_LT(0L, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
+			//
+			// Тестирование функций конвертации между различными кодировкам
+			// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
+			// текст в кодировке windows-1251
+			//
+			{
+				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("rustext.txt");
+				SFile inf(in_buf, SFile::mRead);
+				(in_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("rustext.out");
+				SFile outf(in_buf, SFile::mWrite);
+				in_buf = 0;
+				while(inf.ReadLine(str)) {
+					in_buf.Cat(str);
+				}
 				out_buf = in_buf;
 				out_buf.ToUtf8();
-				s16.CopyFromUtf8Strict(out_buf, out_buf.Len());
-				s16.CopyToUtf8(out_buf, 1);
+				out_buf.Utf8ToOem();
+				out_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				SLTEST_CHECK_Z(in_buf.Cmp(out_buf, 0));
+
+				out_buf = in_buf;
+				out_buf.ToUtf8();
 				out_buf.Utf8ToChar();
 				out_buf.ToOem();
 				out_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SLTEST_CHECK_Z(in_buf.Cmp(out_buf, 0));
-			}
 
-			outf.WriteLine(out_buf);
-		}
-		//
-		// Тестирование функции Tokenize
-		//
-		{
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("tokenize.txt");
-			SFile inf(in_buf, SFile::mRead);
-			StringSet ss_line(";"), ss_result(",");
-			SString delim, src_buf, result_str;
-			while(inf.ReadLine(str)) {
-				str.Chomp();
-				if(str.NotEmptyS()) {
-					ss_line.setBuf(str);
-					uint p = 0;
-					if(ss_line.get(&p, src_buf)) {
-						if(ss_line.get(&p, delim)) {
-							if(ss_line.get(&p, result_str)) {
-								ss_result.clear();
-								src_buf.Tokenize(delim.NotEmpty() ? (const char *)delim : 0, ss_result);
-								SLTEST_CHECK_NZ(result_str == ss_result.getBuf());
+				{
+					SStringU s16;
+					out_buf = in_buf;
+					out_buf.ToUtf8();
+					s16.CopyFromUtf8Strict(out_buf, out_buf.Len());
+					s16.CopyToUtf8(out_buf, 1);
+					out_buf.Utf8ToChar();
+					out_buf.ToOem();
+					out_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					SLTEST_CHECK_Z(in_buf.Cmp(out_buf, 0));
+				}
+
+				outf.WriteLine(out_buf);
+			}
+			//
+			// Тестирование функции Tokenize
+			//
+			{
+				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("tokenize.txt");
+				SFile inf(in_buf, SFile::mRead);
+				StringSet ss_line(";"), ss_result(",");
+				SString delim, src_buf, result_str;
+				while(inf.ReadLine(str)) {
+					str.Chomp();
+					if(str.NotEmptyS()) {
+						ss_line.setBuf(str);
+						uint p = 0;
+						if(ss_line.get(&p, src_buf)) {
+							if(ss_line.get(&p, delim)) {
+								if(ss_line.get(&p, result_str)) {
+									ss_result.clear();
+									src_buf.Tokenize(delim.NotEmpty() ? (const char *)delim : 0, ss_result);
+									SLTEST_CHECK_NZ(result_str == ss_result.getBuf());
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-		//
-		// Тестирование распознавания и валидации email адресов и одновременное тестирование функций
-		// sstreq и sstreqi_ascii (воспользуемся теми фактами, что все адреса написаны латиницей и
-		// имеют разбросанную длину).
-		//
-		{
-			SStrScan scan;
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
-			SFile inf(in_buf, SFile::mRead);
-			line_no = 0;
-			SLTEST_CHECK_NZ(sstreq((const char *)0, (const char *)0));
-			SLTEST_CHECK_NZ(sstreqi_ascii((const char *)0, (const char *)0));
-			SLTEST_CHECK_NZ(sstreqi_ascii((const uchar *)0, (const uchar *)0));
-			while(inf.ReadLine(str)) {
-				line_no++;
-				str.Chomp();
-				if(str.NotEmptyS()) {
-					scan.Set(str, 0);
-					int   emsr = scan.GetEMail(out_buf = 0);
-					SLTEST_CHECK_NZ(emsr);
+			//
+			// Тестирование распознавания и валидации email адресов и одновременное тестирование функций
+			// sstreq и sstreqi_ascii (воспользуемся теми фактами, что все адреса написаны латиницей и
+			// имеют разбросанную длину).
+			//
+			{
+				SStrScan scan;
+				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
+				SFile inf(in_buf, SFile::mRead);
+				line_no = 0;
+				SLTEST_CHECK_NZ(sstreq((const char *)0, (const char *)0));
+				SLTEST_CHECK_NZ(sstreqi_ascii((const char *)0, (const char *)0));
+				SLTEST_CHECK_NZ(sstreqi_ascii((const uchar *)0, (const uchar *)0));
+				while(inf.ReadLine(str)) {
+					line_no++;
+					str.Chomp();
+					if(str.NotEmptyS()) {
+						scan.Set(str, 0);
+						int   emsr = scan.GetEMail(out_buf = 0);
+						SLTEST_CHECK_NZ(emsr);
+					}
+					{
+						out_buf = str;
+						SLTEST_CHECK_NZ(sstreq(out_buf, str));
+						SLTEST_CHECK_NZ(sstreq(str, str));
+						out_buf.ToUpper();
+						str.ToLower();
+						SLTEST_CHECK_Z(sstreq(out_buf, str));
+						SLTEST_CHECK_NZ(sstreqi_ascii(str, out_buf));
+						out_buf.CatChar('x');
+						SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
+						str.CatChar('y');
+						SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
+					}
+				}
+			}
+			{
+				//
+				// Тест функции IsLegalUtf8
+				//
+				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
+				SFile inf(in_buf, SFile::mRead);
+				while(inf.ReadLine(str)) {
+					//const char * p_test_string_1251 = "Захавай еще этих тупых французских булок";
+					//str = p_test_string_1251;
+					if(str.Chomp().NotEmptyS()) {
+						SLTEST_CHECK_Z(str.IsLegalUtf8());
+						str.Transf(CTRANSF_OUTER_TO_UTF8);
+						SLTEST_CHECK_NZ(str.IsLegalUtf8());
+					}
+				}
+			}
+			{
+				SLTEST_CHECK_EQ((str = "0").ToLong(), 0);
+				SLTEST_CHECK_EQ((str = "abc").ToLong(), 0);
+				SLTEST_CHECK_EQ((str = "\t+100 ").ToLong(), 100);
+				SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197);
+				SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeef);
+				SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92);
+				SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // Между знаком - и числом не должно быть пробелов
+				SLTEST_CHECK_EQ((str = "0").ToInt64(), 0);
+				SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0);
+				SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
+				SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
+				SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
+			}
+			{
+				SLTEST_CHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
+				SLTEST_CHECK_EQ(str.Z().Cat(17.1997, MKSFMTD(0, 3, NMBF_DECCOMMA)), "17,200");
+				SLTEST_CHECK_EQ(str.Z().Cat(135.1997, MKSFMTD(0, 0, 0)), "135");
+				SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 8, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+				SLTEST_CHECK_EQ(str.Z().Cat(3308.039999999999512506, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+				SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
+				SLTEST_CHECK_EQ(str.Z().Cat(2572.92*1.00000000001, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "2572.92");
+				SLTEST_CHECK_EQ(str.Z().Cat(369.900000000000102333,  MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "369.9");
+			}
+			{
+				LDATETIME dtm;
+				dtm.d.encode(29, 2, 2016);
+				dtm.t.encode(21, 17, 2, 250);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY), "29/02/16");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_GERMAN), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY), "2016.02.29");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_ANSI), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN|DATF_CENTURY), "29-02-2016");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN), "29-02-16");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_JAPAN), "16/02/29");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_JAPAN), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601), "16-02-29");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), "02292016");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_NODIV), "290216");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NODIV), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_SQL), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
+				// (Такой формат не распознается) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
+				SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY), "");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), ZERODATE);
+				SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
+				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NOZERO), ZERODATE);
+
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS), "21:17:02");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_NODIV), "211702");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM), "21:17");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM|TIMF_NODIV), "2117");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS), "17:02");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
+
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
+			}
+			{
+				IntRange ir;
+				int    r;
+				{
+					r = (str = 0).ToIntRange(ir, SString::torfDoubleDot);
+					SLTEST_CHECK_Z(r);
 				}
 				{
-					out_buf = str;
-					SLTEST_CHECK_NZ(sstreq(out_buf, str));
-					SLTEST_CHECK_NZ(sstreq(str, str));
-					out_buf.ToUpper();
-					str.ToLower();
-					SLTEST_CHECK_Z(sstreq(out_buf, str));
-					SLTEST_CHECK_NZ(sstreqi_ascii(str, out_buf));
-					out_buf.CatChar('x');
-					SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
-					str.CatChar('y');
-					SLTEST_CHECK_Z(sstreqi_ascii(str, out_buf));
+					r = (str = "12..987").ToIntRange(ir, SString::torfDoubleDot);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)str.Len());
+					SLTEST_CHECK_EQ(ir.low, 12);
+					SLTEST_CHECK_EQ(ir.upp, 987);
+				}
+				{
+					// Здесь .. не будет распознано как разделитель границ (SString::torfHyphen)
+					r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)2);
+					SLTEST_CHECK_EQ(ir.low, 12);
+					SLTEST_CHECK_EQ(ir.upp, 12);
+				}
+				{
+					r = (str = " -12 : 987q").ToIntRange(ir, SString::torfAny);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, -12);
+					SLTEST_CHECK_EQ(ir.upp, 987);
+				}
+				{
+					r = (str = " -12,,-987 z").ToIntRange(ir, SString::torfAny);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
+					SLTEST_CHECK_EQ(ir.low, -12);
+					SLTEST_CHECK_EQ(ir.upp, -987);
+				}
+				{
+					r = (str = " -12000 --987 z").ToIntRange(ir, SString::torfAny);
+					SLTEST_CHECK_NZ((long)r);
+					SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
+					SLTEST_CHECK_EQ(ir.low, -12000);
+					SLTEST_CHECK_EQ(ir.upp, -987);
+				}
+				{
+					SLTEST_CHECK_Z((str = " &12").ToIntRange(ir, SString::torfAny));
+				}
+				{
+					r = (str = " +19 ").ToIntRange(ir, SString::torfAny);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, 19);
+					SLTEST_CHECK_EQ(ir.upp, 19);
+				}
+				{
+					r = (str = " -1234567890 ").ToIntRange(ir, SString::torfAny);
+					SLTEST_CHECK_NZ(r);
+					SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
+					SLTEST_CHECK_EQ(ir.low, -1234567890);
+					SLTEST_CHECK_EQ(ir.upp, -1234567890);
 				}
 			}
 		}
-		{
-			//
-			// Тест функции IsLegalUtf8
-			//
-			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
-			SFile inf(in_buf, SFile::mRead);
-			while(inf.ReadLine(str)) {
-				//const char * p_test_string_1251 = "Захавай еще этих тупых французских булок";
-				//str = p_test_string_1251;
-				if(str.Chomp().NotEmptyS()) {
-					SLTEST_CHECK_Z(str.IsLegalUtf8());
-					str.Transf(CTRANSF_OUTER_TO_UTF8);
-					SLTEST_CHECK_NZ(str.IsLegalUtf8());
-				}
+	}
+	else if(bm == 1) {
+		uint64 total_len = 0;
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				char buffer[2048];
+				STRNSCPY(buffer, F.P_StrList->at(i));
+				total_len += strlen(buffer);
 			}
 		}
-		{
-			SLTEST_CHECK_EQ((str = "0").ToLong(), 0);
-			SLTEST_CHECK_EQ((str = "abc").ToLong(), 0);
-			SLTEST_CHECK_EQ((str = "\t+100 ").ToLong(), 100);
-			SLTEST_CHECK_EQ((str = " -197 ").ToLong(), -197);
-			SLTEST_CHECK_EQ((str = "0xbeefZ").ToLong(), 0xbeef);
-			SLTEST_CHECK_EQ((str = " -0x2BcD7a92 ").ToLong(), -0x2BCD7A92);
-			SLTEST_CHECK_EQ((str = " - 17 ").ToLong(), 0); // Между знаком - и числом не должно быть пробелов
-			SLTEST_CHECK_EQ((str = "0").ToInt64(), 0);
-			SLTEST_CHECK_EQ((str = "abc").ToInt64(), 0);
-			SLTEST_CHECK_EQ((str = "\t 0x1ABCDEF234567890").ToInt64(), 0x1ABCDEF234567890LL);
-			SLTEST_CHECK_EQ((str = "\t\t123000012878963").ToInt64(), 123000012878963LL);
-			SLTEST_CHECK_EQ((str = "-123000012878963").ToInt64(), -123000012878963LL);
-		}
-		{
-			SLTEST_CHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
-			SLTEST_CHECK_EQ(str.Z().Cat(17.1997, MKSFMTD(0, 3, NMBF_DECCOMMA)), "17,200");
-			SLTEST_CHECK_EQ(str.Z().Cat(135.1997, MKSFMTD(0, 0, 0)), "135");
-			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 8, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
-			SLTEST_CHECK_EQ(str.Z().Cat(3308.039999999999512506, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
-			SLTEST_CHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");
-			SLTEST_CHECK_EQ(str.Z().Cat(2572.92*1.00000000001, MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "2572.92");
-			SLTEST_CHECK_EQ(str.Z().Cat(369.900000000000102333,  MKSFMTD(0, 13, NMBF_OMITEPS|NMBF_NOTRAILZ)), "369.9");
-		}
-		{
-			LDATETIME dtm;
-			dtm.d.encode(29, 2, 2016);
-			dtm.t.encode(21, 17, 2, 250);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY), "29/02/16");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_GERMAN), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY), "2016.02.29");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_ANSI), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN|DATF_CENTURY), "29-02-2016");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ITALIAN), "29-02-16");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_JAPAN), "16/02/29");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_JAPAN), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601), "16-02-29");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), "02292016");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN|DATF_CENTURY|DATF_NODIV), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_NODIV), "290216");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NODIV), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_SQL), "DATE '2016-02-29'");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_SQL), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_INTERNET), "Mon, 29 Feb 2016");
-			// (Такой формат не распознается) SLTEST_CHECK_EQ(strtodate_(str, DATF_INTERNET), dtm.d);
-			SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY), "");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), ZERODATE);
-			SLTEST_CHECK_EQ(str.Z().Cat(ZERODATE, DATF_DMY|DATF_NOZERO), "");
-			SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY|DATF_NOZERO), ZERODATE);
-
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS), "21:17:02");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_NODIV), "211702");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM), "21:17");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HM|TIMF_NODIV), "2117");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS), "17:02");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
-
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
-			SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
-		}
-		{
-			IntRange ir;
-			int    r;
-			{
-				r = (str = 0).ToIntRange(ir, SString::torfDoubleDot);
-				SLTEST_CHECK_Z(r);
-			}
-			{
-				r = (str = "12..987").ToIntRange(ir, SString::torfDoubleDot);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)str.Len());
-				SLTEST_CHECK_EQ(ir.low, 12);
-				SLTEST_CHECK_EQ(ir.upp, 987);
-			}
-			{
-				// Здесь .. не будет распознано как разделитель границ (SString::torfHyphen)
-				r = (str = "12..987").ToIntRange(ir, SString::torfHyphen);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)2);
-				SLTEST_CHECK_EQ(ir.low, 12);
-				SLTEST_CHECK_EQ(ir.upp, 12);
-			}
-			{
-				r = (str = " -12 : 987q").ToIntRange(ir, SString::torfAny);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-				SLTEST_CHECK_EQ(ir.low, -12);
-				SLTEST_CHECK_EQ(ir.upp, 987);
-			}
-			{
-				r = (str = " -12,,-987 z").ToIntRange(ir, SString::torfAny);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
-				SLTEST_CHECK_EQ(ir.low, -12);
-				SLTEST_CHECK_EQ(ir.upp, -987);
-			}
-			{
-				r = (str = " -12000 --987 z").ToIntRange(ir, SString::torfAny);
-				SLTEST_CHECK_NZ((long)r);
-				SLTEST_CHECK_EQ(r, (long)(str.Len()-2));
-				SLTEST_CHECK_EQ(ir.low, -12000);
-				SLTEST_CHECK_EQ(ir.upp, -987);
-			}
-			{
-				SLTEST_CHECK_Z((str = " &12").ToIntRange(ir, SString::torfAny));
-			}
-			{
-				r = (str = " +19 ").ToIntRange(ir, SString::torfAny);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-				SLTEST_CHECK_EQ(ir.low, 19);
-				SLTEST_CHECK_EQ(ir.upp, 19);
-			}
-			{
-				r = (str = " -1234567890 ").ToIntRange(ir, SString::torfAny);
-				SLTEST_CHECK_NZ(r);
-				SLTEST_CHECK_EQ(r, (long)(str.Len()-1));
-				SLTEST_CHECK_EQ(ir.low, -1234567890);
-				SLTEST_CHECK_EQ(ir.upp, -1234567890);
+	}
+	else if(bm == 2) {
+		uint64 total_len = 0;
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				SString buffer;
+				buffer = F.P_StrList->at(i);
+				total_len += strlen(buffer.cptr());
 			}
 		}
+	}
+	else if(bm == 3) {
 	}
 	CATCH
 		CurrentStatus = ok = 0;

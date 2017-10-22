@@ -140,10 +140,6 @@ typedef SH_TAILQ_HEAD(__hash_head) DB_HASHTAB;
 #undef	TRUE
 #define	TRUE		(!FALSE)
 */
-
-#define	MEGABYTE	1048576
-#define	GIGABYTE	1073741824
-
 #define	NS_PER_MS	1000000		/* Nanoseconds in a millisecond */
 #define	NS_PER_US	1000		/* Nanoseconds in a microsecond */
 #define	NS_PER_SEC	1000000000	/* Nanoseconds in a second */

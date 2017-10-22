@@ -33,8 +33,7 @@
 	//#endif
 #endif
 #include "curl_threads.h"
-//#include "curl_memory.h"
-#include "memdebug.h" /* The last #include file should be: */
+#include "memdebug.h" // The last #include file should be: 
 
 #if defined(USE_THREADS_POSIX)
 

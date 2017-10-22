@@ -159,10 +159,9 @@ int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	if(toDt) {
 		{
 			SPathStruc ps;
-			PPLoadText(PPTXT_DBMAINTAIN, buf);
 			ps.Split(DBTable::GetName());
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
-			msg.Printf(buf, fname.cptr());
+			msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), fname.cptr());
 		}
 		PPTransaction tra(1);
 		THROW(tra);

@@ -274,8 +274,8 @@
 #define PPPATH_LOCAL         14 // Каталог локальных по отношению к пользователю компьютера данных
 	// Используется системный каталог "Application Data\Papyrus"
 #define PPPATH_WTM           15 // Каталог хранения ватманов и графических панелей инструментов (.wtm, .wta)
-#define PPPATH_PACK          16 // @v7.8.2 Каталог хранения некоторых файлов, распространяемых с дистрибутивом
-#define PPPATH_DOC           17 // @v7.8.6 Каталог хранения документации на систему
+#define PPPATH_PACK          16 // Каталог хранения некоторых файлов, распространяемых с дистрибутивом
+#define PPPATH_DOC           17 // Каталог хранения документации на систему
 #define PPPATH_SPII          18 // @v8.5.10 Каталог обмена между мобильными устройствами и JobServer'ом
 #define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
 #define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
@@ -10218,6 +10218,9 @@
 	#define CTLBRW_XMLVLD_XMLFILE     (4 + WINDOWS_ID_BIAS)
 #define DLG_SELIACC               1327
 	#define CTL_SELIACC_WHAT          (1 + WINDOWS_ID_BIAS)
+#define DLG_SELLKBKPRICE          1328
+	#define CTL_SELLKBKPRICE_LIST     (1 + WINDOWS_ID_BIAS)
+	#define CTL_SELLKBKPRICE_INFO     (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

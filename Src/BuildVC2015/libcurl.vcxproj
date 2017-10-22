@@ -944,18 +944,13 @@
     <ClInclude Include="..\osf\curl\lib\cookie.h" />
     <ClInclude Include="..\osf\curl\lib\curlx.h" />
     <ClInclude Include="..\osf\curl\lib\curl_addrinfo.h" />
-    <ClInclude Include="..\osf\curl\lib\curl_base64.h" />
     <ClInclude Include="..\osf\curl\lib\curl_des.h" />
     <ClInclude Include="..\osf\curl\lib\curl_endian.h" />
     <ClInclude Include="..\osf\curl\lib\curl_fnmatch.h" />
     <ClInclude Include="..\osf\curl\lib\curl_gethostname.h" />
     <ClInclude Include="..\osf\curl\lib\curl_gssapi.h" />
-    <ClInclude Include="..\osf\curl\lib\curl_hmac.h" />
     <ClInclude Include="..\osf\curl\lib\curl_ldap.h" />
     <ClInclude Include="..\osf\curl\lib\curl_md4.h" />
-    <ClInclude Include="..\osf\curl\lib\curl_md5.h" />
-    <ClInclude Include="..\osf\curl\lib\curl_memory.h" />
-    <ClInclude Include="..\osf\curl\lib\curl_memrchr.h" />
     <ClInclude Include="..\osf\curl\lib\curl_multibyte.h" />
     <ClInclude Include="..\osf\curl\lib\curl_ntlm.h" />
     <ClInclude Include="..\osf\curl\lib\curl_ntlm_core.h" />
@@ -1000,7 +995,6 @@
     <ClInclude Include="..\osf\curl\lib\netrc.h" />
     <ClInclude Include="..\osf\curl\lib\non-ascii.h" />
     <ClInclude Include="..\osf\curl\lib\nonblock.h" />
-    <ClInclude Include="..\osf\curl\lib\parsedate.h" />
     <ClInclude Include="..\osf\curl\lib\pingpong.h" />
     <ClInclude Include="..\osf\curl\lib\pipeline.h" />
     <ClInclude Include="..\osf\curl\lib\pop3.h" />
@@ -1017,7 +1011,6 @@
     <ClInclude Include="..\osf\curl\lib\smtp.h" />
     <ClInclude Include="..\osf\curl\lib\sockaddr.h" />
     <ClInclude Include="..\osf\curl\lib\socks.h" />
-    <ClInclude Include="..\osf\curl\lib\speedcheck.h" />
     <ClInclude Include="..\osf\curl\lib\splay.h" />
     <ClInclude Include="..\osf\curl\lib\ssh.h" />
     <ClInclude Include="..\osf\curl\lib\strdup.h" />

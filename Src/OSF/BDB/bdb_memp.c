@@ -45,7 +45,7 @@ static int __memp_get_files(ENV*, MPOOLFILE*, void *, uint32*, uint32);
 static int __memp_print_files(ENV*, MPOOLFILE*, void *, uint32*, uint32);
 #endif // } HAVE_STATISTICS
 
-#define MPOOL_DEFAULT_PAGESIZE  (4*1024)
+#define MPOOL_DEFAULT_PAGESIZE  SKILOBYTE(4)
 /*
  * This configuration parameter limits the number of hash buckets which
  * __memp_alloc() searches through while excluding buffers with a 'high' priority.
@@ -575,7 +575,7 @@ this_buffer:
 		freed_space += sizeof(*bhp)+bh_mfp->pagesize;
 		if((ret = __memp_bhfree(dbmp, infop, bh_mfp, hp, bhp, BH_FREE_FREEMEM)) != 0)
 			return ret;
-		// Reset "aggressive" and "write_error" if we free any space. 
+		// Reset "aggressive" and "write_error" if we free any space.
 		SETMIN(aggressive, 1);
 		write_error = 0;
 		/*
@@ -1237,7 +1237,7 @@ int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip,
 			return ret;
 	}
 	switch(flags) {
-	    case DB_MPOOL_LAST: // Get the last page number in the file. 
+	    case DB_MPOOL_LAST: // Get the last page number in the file.
 			MUTEX_LOCK(env, mfp->mutex);
 			*pgnoaddr = mfp->last_pgno;
 			MUTEX_UNLOCK(env, mfp->mutex);
@@ -1300,11 +1300,11 @@ retry:
 		if(read_lsnp) {
 			while(bhp && !BH_OWNED_BY(env, bhp, txn) && !BH_VISIBLE(env, bhp, read_lsnp, vlsn))
 				bhp = SH_CHAIN_PREV(bhp, vc, __bh);
-			// 
+			//
 			// We can get a null bhp if we are looking for a
 			// page that was created after the transaction was
 			// started so its not visible  (i.e. page added to the BTREE in a subsequent txn).
-			// 
+			//
 			if(!bhp) {
 				ret = DB_PAGE_NOTFOUND;
 				goto err;
@@ -1404,7 +1404,7 @@ thawed:
 			ret = DB_PAGE_NOTFOUND;
 			goto err;
 		}
-		// Is it worthwhile to publish oh-so-frequent cache hits? 
+		// Is it worthwhile to publish oh-so-frequent cache hits?
 		STAT_INC_VERB(env, mpool, hit, mfp->stat.st_cache_hit, __memp_fn(dbmfp), *pgnoaddr);
 		break;
 	}
@@ -1502,13 +1502,13 @@ revive:
 			}
 		}
 		if(mvcc) {
-			// 
+			//
 			// With multiversion databases, we might need to allocate a new buffer into which we can copy the one
 			// that we found.  In that case, check the last buffer in the chain to see whether we can reuse an obsolete buffer.
-			// 
+			//
 			// To provide snapshot isolation, we need to make sure that we've seen a buffer older than the oldest
 			// snapshot read LSN.
-			// 
+			//
 reuse:
 			if((makecopy || F_ISSET(bhp, BH_FROZEN)) && !h_locked) {
 				MUTEX_LOCK(env, hp->mtx_hash);
@@ -1541,10 +1541,10 @@ reuse:
 				DB_ASSERT(env, alloc_bhp == NULL || !F_ISSET(alloc_bhp, BH_FROZEN));
 			}
 		}
-		// We found the buffer or we're ready to copy -- we're done. 
+		// We found the buffer or we're ready to copy -- we're done.
 		if(!(makecopy || F_ISSET(bhp, BH_FROZEN)) || alloc_bhp)
 			break;
-	    // @fallthrough 
+	    // @fallthrough
 	    case FIRST_MISS:
 		/*
 		 * We didn't find the buffer in our first check.  Figure out
@@ -1606,7 +1606,7 @@ newpg:          /*
 			c_mp = (MPOOL *)infop->primary;
 		}
 alloc:
-		// Allocate a new buffer header and data space. 
+		// Allocate a new buffer header and data space.
 		if(alloc_bhp == NULL && (ret = __memp_alloc(dbmp, infop, mfp, 0, NULL, &alloc_bhp)) != 0)
 			goto err;
 		/* Initialize enough so we can call __memp_bhfree. */
@@ -2085,7 +2085,7 @@ err:
 	}
 	if(h_locked)
 		MUTEX_UNLOCK(env, hp->mtx_hash);
-	// If alloc_bhp is set, free the memory. 
+	// If alloc_bhp is set, free the memory.
 	if(alloc_bhp)
 		__memp_bhfree(dbmp, infop, NULL, NULL, alloc_bhp, BH_FREE_FREEMEM|BH_FREE_UNLOCKED);
 	return ret;
@@ -2845,7 +2845,7 @@ have_mfp:
 	 * compiler will perpetrate, doing the comparison in a portable way is
 	 * flatly impossible.  Hope that mmap fails if the file is too large.
 	 */
-#define DB_MAXMMAPSIZE  (10*1024*1024)          /* 10 MB. */
+#define DB_MAXMMAPSIZE  SMEGABYTE(10)
 	if(F_ISSET(mfp, MP_CAN_MMAP) && dbmfp->addr == NULL) {
 		maxmap = dbenv->mp_mmapsize == 0 ? DB_MAXMMAPSIZE : dbenv->mp_mmapsize;
 		if(path == NULL || FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE))
@@ -2881,7 +2881,7 @@ have_mfp:
 	TAILQ_INSERT_TAIL(&dbmp->dbmfq, dbmfp, q);
 	MUTEX_UNLOCK(env, dbmp->mutex);
 	if(0) {
-err:            
+err:
 		if(refinc) {
 			/*
 			 * If mpf_cnt goes to zero here and unlink_on_close is
@@ -3405,14 +3405,14 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 		// If we're mapping the file, there's nothing to do.  Because we can
 		// stop mapping the file at any time, we have to check on each buffer
 		// to see if the address we gave the application was part of the map region.
-		// 
+		//
 		if(dbmfp->addr && pgaddr >= dbmfp->addr && (uint8 *)pgaddr <= (uint8 *)dbmfp->addr+dbmfp->len)
 			return 0;
 		DB_ASSERT(env, IS_RECOVERING(env) || bhp->pgno <= mfp->last_pgno || F_ISSET(bhp, BH_FREED) || !SH_CHAIN_SINGLETON(bhp, vc));
 	#ifdef DIAGNOSTIC
-		// 
+		//
 		// Decrement the per-file pinned buffer count (mapped pages aren't counted).
-		// 
+		//
 		MPOOL_SYSTEM_LOCK(env);
 		if(dbmfp->pinref == 0) {
 			MPOOL_SYSTEM_UNLOCK(env);
@@ -3427,9 +3427,9 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 		c_mp = (MPOOL *)infop->primary;
 		hp = (DB_MPOOL_HASH *)R_ADDR(infop, c_mp->htab);
 		hp = &hp[bhp->bucket];
-		// 
+		//
 		// Check for a reference count going to zero.  This can happen if the application returns a page twice.
-		// 
+		//
 		if(atomic_read(&bhp->ref) == 0) {
 			__db_errx(env, DB_STR_A("3012", "%s: page %lu: unpinned page returned", "%s %lu"), __memp_fn(dbmfp), (ulong)bhp->pgno);
 			DB_ASSERT(env, atomic_read(&bhp->ref) != 0);
@@ -3452,24 +3452,24 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 			lp->b_ref = INVALID_ROFF;
 			ip->dbth_pincount--;
 		}
-		// 
+		//
 		// Mark the file dirty.
-		// 
+		//
 		if(F_ISSET(bhp, BH_EXCLUSIVE) && F_ISSET(bhp, BH_DIRTY)) {
 			DB_ASSERT(env, atomic_read(&hp->hash_page_dirty) > 0);
 			mfp->file_written = 1;
 		}
-		// 
+		//
 		// If more than one reference to the page we're done.  Ignore the discard flags (for now) and leave the buffer's priority alone.
 		// We are doing this a little early as the remaining ref may or may not be a write behind.  If it is we set the priority
 		// here, if not it will get set again later.  We might race and miss setting the priority which would leave it wrong for a while.
-		// 
+		//
 		DB_ASSERT(env, atomic_read(&bhp->ref) != 0);
 		if(atomic_dec(env, &bhp->ref) > 1 || (atomic_read(&bhp->ref) == 1 && !F_ISSET(bhp, BH_DIRTY))) {
-			// 
+			//
 			// __memp_pgwrite only has a shared lock while it clears
 			// the BH_DIRTY bit. If we only have a shared latch then we can't touch the flags bits.
-			// 
+			//
 			if(F_ISSET(bhp, BH_EXCLUSIVE))
 				F_CLR(bhp, BH_EXCLUSIVE);
 			MUTEX_UNLOCK(env, bhp->mtx_buf);
@@ -3486,11 +3486,11 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 		if(priority == DB_PRIORITY_VERY_LOW || mfp->priority == MPOOL_PRI_VERY_LOW)
 			bhp->priority = 0;
 		else {
-			// 
+			//
 			// We don't lock the LRU priority or the pages field, if
 			// we get garbage (which won't happen on a 32-bit machine), it
 			// only means a buffer has the wrong priority.
-			// 
+			//
 			bhp->priority = c_mp->lru_priority;
 			switch(priority) {
 				default:
@@ -3521,11 +3521,11 @@ int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CAC
 		if(F_ISSET(bhp, BH_EXCLUSIVE))
 			F_CLR(bhp, BH_EXCLUSIVE);
 		MUTEX_UNLOCK(env, bhp->mtx_buf);
-		// 
+		//
 		// On every buffer put we update the cache lru priority and check
 		// for wraparound. The increment doesn't need to be atomic: occasional
 		// lost increments are okay; __memp_reset_lru handles race conditions.
-		// 
+		//
 		if(++c_mp->lru_priority >= MPOOL_LRU_REDZONE && (t_ret = __memp_reset_lru(env, infop)) != 0 && ret == 0)
 			ret = t_ret;
 	}
@@ -3575,11 +3575,11 @@ int __memp_dirty(DB_MPOOLFILE * dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN
 	ENV * env = dbmfp->env;
 	DB_MPOOL * dbmp = env->mp_handle;
 	int mvcc = atomic_read(&dbmfp->mfp->multiversion);
-	// Convert the page address to a buffer header. 
+	// Convert the page address to a buffer header.
 	void * pgaddr = *(void **)addrp;
 	BH * bhp = (BH *)((uint8 *)pgaddr-SSZA(BH, buf));
 	db_pgno_t pgno = bhp->pgno;
-	// If we have it exclusively then its already dirty. 
+	// If we have it exclusively then its already dirty.
 	if(F_ISSET(bhp, BH_EXCLUSIVE)) {
 		DB_ASSERT(env, F_ISSET(bhp, BH_DIRTY));
 		return 0;
@@ -3890,7 +3890,7 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	++mfp->block_cnt;
 	MUTEX_UNLOCK(env, mfp->mutex);
 	if(0) {
-err:            
+err:
 		if(fhp && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 			ret = t_ret;
 		if(created) {
@@ -4106,7 +4106,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 		STAT_INC_VERB(env, mpool, free_frozen, hp->hash_frozen_freed, __memp_fns(dbmp, mfp), frozen_bhp->pgno);
 #endif
 	if(0) {
-err:            
+err:
 		if(h_locked)
 			MUTEX_UNLOCK(env, hp->mtx_hash);
 		SETIFZ(ret, EIO);
@@ -4515,7 +4515,7 @@ int __memp_env_refresh(ENV * env)
 	// If a private region, return the memory to the heap.  Not needed for
 	// filesystem-backed or system shared memory regions, that memory isn't
 	// owned by any particular process.
-	// 
+	//
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		// Discard buffers
 		for(i = 0; i < nreg; ++i) {
@@ -4952,7 +4952,7 @@ static int FASTCALL __memp_remove_bucket(DB_MPOOL * dbmp)
 	ENV * env = dbmp->env;
 	MPOOL * mp = (MPOOL *)dbmp->reginfo[0].primary;
 	uint32 old_bucket = mp->nbuckets-1;
-	// We should always be removing buckets from the last region. 
+	// We should always be removing buckets from the last region.
 	DB_ASSERT(env, NREGION(mp, old_bucket) == mp->nreg-1);
 	MP_MASK(mp->nbuckets-1, high_mask);
 	new_bucket = old_bucket&(high_mask>>1);
@@ -5902,17 +5902,17 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 				// If we're flushing a specific file, see if this page is from that file.
 				if(dbmfp && mfp != dbmfp->mfp)
 					continue;
-				// Track the buffer, we want it. 
+				// Track the buffer, we want it.
 				bharray[ar_cnt].track_hp = hp;
 				bharray[ar_cnt].track_pgno = bhp->pgno;
 				bharray[ar_cnt].track_off = bhp->mf_offset;
 				ar_cnt++;
-				// 
+				//
 				// If we run out of space, double and continue.
 				// Don't stop at trickle_max, we want to sort
 				// as large a sample set as possible in order
 				// to minimize disk seeks.
-				// 
+				//
 				if(ar_cnt >= ar_max) {
 					if((ret = __os_realloc(env, (ar_max*2)*sizeof(BH_TRACK), &bharray)) != 0)
 						break;
@@ -5946,9 +5946,9 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 	 */
 	if(ar_cnt > 1)
 		qsort(bharray, ar_cnt, sizeof(BH_TRACK), __bhcmp);
-	// 
+	//
 	// If we're trickling buffers, only write enough to reach the correct percentage.
-	// 
+	//
 	if(LF_ISSET(DB_SYNC_TRICKLE) && ar_cnt > trickle_max)
 		ar_cnt = trickle_max;
 	/*
@@ -6036,9 +6036,9 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			}
 			last_mf_offset = bhp->mf_offset;
 		}
-		// 
+		//
 		// If the buffer is dirty, we write it.  We only try to write the buffer once.
-		// 
+		//
 		if(F_ISSET(bhp, BH_DIRTY)) {
 			mfp = (MPOOLFILE *)R_ADDR(dbmp->reginfo, bhp->mf_offset);
 			if((t_ret = __memp_bhwrite(dbmp, hp, mfp, bhp, 1)) == 0) {
@@ -6061,17 +6061,17 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 			ASSIGN_PTR(interruptedp, 1);
 			goto err;
 		}
-		// 
+		//
 		// Sleep after some number of writes to avoid disk saturation.
 		// Don't cache the max writes value, an application shutting
 		// down might reset the value in order to do a fast flush or checkpoint.
-		// 
+		//
 		if(!LF_ISSET(DB_SYNC_SUPPRESS_WRITE) && !FLD_ISSET(mp->config_flags, DB_MEMP_SUPPRESS_WRITE) && mp->mp_maxwrite != 0 && wrote_cnt >= mp->mp_maxwrite) {
 			wrote_cnt = 0;
 			__os_yield(env, 0, (ulong)mp->mp_maxwrite_sleep);
 		}
 	}
-done:   
+done:
 	/*
 	 * If a write is required, we have to force the pages to disk.  We
 	 * don't do this as we go along because we want to give the OS as
@@ -6082,7 +6082,7 @@ done:
 	if(ret == 0 && required_write) {
 		ret = (dbmfp == NULL) ? __memp_sync_files(env) : __os_fsync(env, dbmfp->fhp);
 	}
-	// If we've opened files to flush pages, close them. 
+	// If we've opened files to flush pages, close them.
 	if((t_ret = __memp_close_flush_files(env, 0)) != 0 && ret == 0)
 		ret = t_ret;
 err:
@@ -6256,10 +6256,10 @@ int __memp_mf_sync(DB_MPOOL * dbmp, MPOOLFILE * mfp, int locked)
 	char * rpath;
 	COMPQUIET(hp, 0);
 	env = dbmp->env;
-	// 
+	//
 	// We need to be holding the hash lock: we're using the path name
 	// and __memp_nameop might try and rename the file.
-	// 
+	//
 	if(!locked) {
 		mp = (MPOOL *)dbmp->reginfo[0].primary;
 		hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
@@ -6526,7 +6526,7 @@ int __memp_set_cachesize(DB_ENV * dbenv, uint32 gbytes, uint32 bytes, int arg_nc
 	 * There is a minimum cache size, regardless.
 	 */
 	if(gbytes == 0) {
-		if(bytes < 500*MEGABYTE)
+		if(bytes < SMEGABYTE(500))
 			bytes += (bytes/4)+37*sizeof(DB_MPOOL_HASH);
 		if(bytes/ncache < DB_CACHESIZE_MIN)
 			bytes = ncache*DB_CACHESIZE_MIN;
@@ -6925,7 +6925,7 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 		// In-memory dbs have an artificially incremented ref count so
 		// they do not get reclaimed as long as they exist.  Since we
 		// are now deleting the database, we need to dec that count.
-		// 
+		//
 		if(mfp->no_backing_file)
 			mfp->mpf_cnt--;
 		mfp->deadfile = 1;

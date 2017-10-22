@@ -433,11 +433,10 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					}
 					if(!r) {
 						PPSetError(PPERR_DBENGINE);
-						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
 						PPGetLastErrorMessage(1, msg_buf);
 						added_buf.Z().Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
+						msg_buf.Z().Printf(PPLoadTextS(PPTXT_ERR_SYSJRECOVERING, fmt_buf), added_buf.cptr());
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else
@@ -449,11 +448,10 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					}
 					else {
 						PPSetError(PPERR_DBENGINE);
-						PPLoadText(PPTXT_ERR_SYSJRECOVERING, fmt_buf);
 						PPGetLastErrorMessage(1, msg_buf);
 						added_buf.Z().Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
 							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						msg_buf.Z().Printf(fmt_buf, added_buf.cptr());
+						msg_buf.Z().Printf(PPLoadTextS(PPTXT_ERR_SYSJRECOVERING, fmt_buf), added_buf.cptr());
 						if(pLogger)
 							pLogger->Log(msg_buf);
 						else
@@ -468,11 +466,10 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 			THROW_DB(BTROKORNFOUND);
 		}
 		if(toDt) {
-			PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
 			SPathStruc ps;
 			ps.Split(DBTable::GetName());
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-			msg_buf.Printf(fmt_buf, temp_buf.cptr());
+			msg_buf.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, fmt_buf), temp_buf.cptr());
 			{
 				MEMSZERO(k);
 				BExtQuery q(this, 0);

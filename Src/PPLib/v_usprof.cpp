@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -43,9 +43,7 @@ int UserProfileFiltDialog::setDTS(UserProfileFilt * pFilt)
 	uint   i;
 	SString func_name;
 	StrAssocArray db_list, func_list;
-	if(pFilt)
-		Filt = *pFilt;
-	else
+	if(!RVALUEPTR(Filt, pFilt))
 		Filt.Init(1, 0);
 	for(i = 0; i < R_UfpDbList.getCount(); i++) {
 		const PPUserProfileCore::UfpDbEntry & r_entry = R_UfpDbList.at(i);

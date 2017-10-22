@@ -842,7 +842,7 @@ int SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
 //
 //
 //
-int SLAPI ViewSysJournal(PPID objType, PPID objID, int _modeless)
+int FASTCALL ViewSysJournal(PPID objType, PPID objID, int _modeless)
 {
 	SysJournalFilt flt;
 	flt.ObjType = objType;
@@ -850,7 +850,7 @@ int SLAPI ViewSysJournal(PPID objType, PPID objID, int _modeless)
 	return ViewSysJournal(&flt, _modeless);
 }
 
-int SLAPI ViewSysJournal(const SysJournalFilt * pFilt, int asModeless)
+int FASTCALL ViewSysJournal(const SysJournalFilt * pFilt, int asModeless)
 {
 	return PPView::Execute(PPVIEW_SYSJOURNAL, pFilt, 1, 0);
 }

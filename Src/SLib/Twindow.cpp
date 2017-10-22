@@ -869,11 +869,10 @@ int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
 //
 //
 //
-int SRectLayout::Dim::Set(int v, int f)
+void SRectLayout::Dim::Set(int v, int f)
 {
 	Val = (int16)v;
 	Flags = (int16)f;
-	return 1;
 }
 
 SRectLayout::Item::Item()
