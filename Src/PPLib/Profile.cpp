@@ -959,7 +959,7 @@ struct UfpFileSet {
 	StrAssocArray Set;
 };
 
-struct UserProfileLoadCacheFinishEntry {
+struct UserProfileLoadCacheFinishEntry { // @flat
 	long   SessID;
 	int64  SeqID;
 	long   FuncID;
@@ -1119,7 +1119,7 @@ int SLAPI PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine
 	return ok;
 }
 
-struct UserProfileLoadCacheStartEntry {
+struct UserProfileLoadCacheStartEntry { // @flat
 	long   SessID;
 	int64  SeqID;
 	long   FuncID;
@@ -1204,9 +1204,9 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 	UfpLine ufp_line;
 	SString path, dbsymb, temp_buf, file_name, line_buf, msg_buf;
 	TSCollection <UfpFileSet> file_set_list;
-	TSArray <UserProfileLoadCacheStartEntry> start_list;
-	TSArray <UserProfileLoadCacheFinishEntry> finish_list;
-	TSArray <UserProfileLoadCacheFinishEntry> average_list;
+	TSVector <UserProfileLoadCacheStartEntry> start_list; // @v9.8.6 TSArray-->TSVector
+	TSVector <UserProfileLoadCacheFinishEntry> finish_list; // @v9.8.6 TSArray-->TSVector
+	TSVector <UserProfileLoadCacheFinishEntry> average_list; // @v9.8.6 TSArray-->TSVector
 	if(!isempty(pPath)) {
 		path = pPath;
 	}

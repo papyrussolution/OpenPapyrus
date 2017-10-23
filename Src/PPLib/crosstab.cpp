@@ -868,10 +868,10 @@ int SLAPI Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDa
 {
 	int    ok = -1;
 	if(pDataBuf && aggrFldN < GetAggrCount()) {
-		uint idx_flds_count  = IdxFldList.GetCount();
-		uint inh_flds_count  = InhFldList.GetCount();
-		uint fix_flds_count  = FixFldList.getCount();
-		uint aggr_flds_count = AggrFldList.GetCount();
+		uint   idx_flds_count  = IdxFldList.GetCount();
+		uint   inh_flds_count  = InhFldList.GetCount();
+		uint   fix_flds_count  = FixFldList.getCount();
+		uint   aggr_flds_count = AggrFldList.GetCount();
 		long   type_id = AggrFldList.Get(aggrFldN).stype();
 		uint   i;
 		size_t sz = sizeof(double); // Так как на данный момент все аггрегированные поля имеют тип double GETSSIZE(type_id);
@@ -882,7 +882,7 @@ int SLAPI Crosstab::GetAggrFieldVal(uint tabIdx, uint aggrFldN, const void * pDa
 			offs += GETSSIZE(InhFldList.Get(i).stype());
 		for(i = 0; i < fix_flds_count; i++)
 			offs += GETSSIZE(FixFldList[i].T);
-		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // Так как на данный момент все аггрегированные поля имеют тип double
+		offs += (tabIdx * aggr_flds_count + aggrFldN) * sizeof(double); // Так как на данный момент все агрегированные поля имеют тип double
 		if(pBuf)
 			memcpy(pBuf, PTR8(pDataBuf)+offs, MIN(sz, bufSize));
 		ok = 1;

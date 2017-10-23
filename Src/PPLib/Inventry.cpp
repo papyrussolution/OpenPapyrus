@@ -1090,7 +1090,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 			PPObjBill::InvBlock blk;
 			PPObjBill::InvItem inv_item;
 			InventoryArray inv_list;
-			IntArray rows;
+			LongArray rows;
 			SString clb;
 			StringSet excl_serial(';', 0);
 			THROW(P_BObj->InitInventoryBlock(invID, blk));

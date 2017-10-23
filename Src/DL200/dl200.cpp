@@ -1392,7 +1392,7 @@ int SLAPI DL2_Score::PutToStr(SString & rBuf) const
 	{
 		SString list_buf;
 		if(LocListID) {
-			list_buf = 0;
+			list_buf.Z();
 			if(P_Ctx) {
 				if(!P_Ctx->Oc.ToString(LocListID, list_buf))
 					(list_buf = "@loclist").CatParStr("ERROR");
@@ -1402,7 +1402,7 @@ int SLAPI DL2_Score::PutToStr(SString & rBuf) const
 			rBuf.CatDiv(',', 2).Cat(list_buf);
 		}
 		if(GoodsGrpListID) {
-			list_buf = 0;
+			list_buf.Z();
 			if(P_Ctx) {
 				if(!P_Ctx->Oc.ToString(GoodsGrpListID, list_buf))
 					(list_buf = "@goodsgroup").CatParStr("ERROR");

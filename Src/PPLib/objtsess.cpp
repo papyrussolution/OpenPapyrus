@@ -3514,7 +3514,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 					const PPID sess_id = sess_id_list.get(sc);
 					THROW(P_Tbl->InitLineEnum(sess_id, &hdl_ln_enum));
 					for(oprno = 0; P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0;) {
-						IntArray rows;
+						LongArray rows;
 						ILTI   ilti;
 						int    is_last_lot = 0;
 						goods_id_list.addUnique(line_rec.GoodsID);
@@ -3636,7 +3636,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				}
 			}
 			if(recompl_item && recompl_item.Count) {
-				IntArray rows;
+				LongArray rows;
 				PPTransferItem ti(&bill_pack.Rec, TISIGN_PLUS);
 				PPIDArray lot_list;
 				THROW(ti.SetupGoods(tec_goods_id));
@@ -3667,7 +3667,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				while((r = gs.EnumItemsExt(&gs_pos, &gs_item, tec_goods_id, tec_goods_qtty, &qtty)) > 0)
 					if(gs_item.Flags & GSIF_AUTOTSWROFF && !goods_id_list.lsearch(gs_item.GoodsID)) {
 						qtty = -qtty;
-						IntArray rows;
+						LongArray rows;
 						ILTI   ilti;
 						ilti.GoodsID = gs_item.GoodsID;
 						ilti.SetQtty(qtty, 0, (qtty > 0) ? (PPTFR_PLUS | PPTFR_RECEIPT) : PPTFR_MINUS);

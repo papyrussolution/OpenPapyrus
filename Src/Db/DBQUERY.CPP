@@ -712,7 +712,7 @@ __get_next_tbl:
 	return 0;
 }
 
-int SLAPI DBQuery::fillRecord(Pchar buf, RECORDNUMBER * pPos)
+void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 {
 	uint   i;
 	RECORDSIZE p = 0;
@@ -735,7 +735,6 @@ int SLAPI DBQuery::fillRecord(Pchar buf, RECORDNUMBER * pPos)
 	if(pPos && options & save_positions)
 		for(i = 0; i < tblCount; i++)
 			pPos[i] = tbls[i].Pos;
-	return 1;
 }
 
 #define INVALID_DIRECTION_CODE 0
@@ -890,7 +889,7 @@ void SLAPI DBQuery::moveBuf(uint dest, uint src, uint recs)
 			moveRec(addr(dest+j), addr(src+j));
 }
 
-void _fastcall DBQuery::frameOnBottom(int undefSDelta)
+void FASTCALL DBQuery::frameOnBottom(int undefSDelta)
 {
 	uint c  = P_Frame->count;
 	if(c) {

@@ -4428,7 +4428,7 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 							ilti.GoodsID  = founded_goods_id;
 							ilti.Price    = TR5(fabs(cg_rec.Sum / cg_rec.Qtty));
 							ilti.SetQtty(-qtty);
-							serial_buf = 0;
+							serial_buf.Z();
 							if(cg_rec.SerialID && stage != stgSubst) { // Для альтернативной подстановки серию не учитываем
 								if(PPRef->TrT.SearchSelfRef(cg_rec.SerialID, temp_buf_u) > 0) {
 									temp_buf_u.CopyToMb(CP_UTF8, serial_buf);
@@ -4915,7 +4915,7 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 				if(cg_list.getCount()) {
 					PPBillPacket pack;
 					LDATE  dt = ZERODATE;
-					IntArray rows;
+					LongArray rows;
 					SStringU temp_buf_u;
 					SString serial_buf;
 					cg_list.GetMaxDate(&dt);

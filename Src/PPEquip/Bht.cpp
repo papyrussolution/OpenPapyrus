@@ -27,17 +27,17 @@ SLAPI StyloBhtIIOnHostCfg::~StyloBhtIIOnHostCfg()
 
 void SLAPI StyloBhtIIOnHostCfg::Init()
 {
-	DeviceName       = 0;
-	WeightPrefix     = 0;
-	QttyWeightPrefix = 0;
-	UserName         = 0;
-	Password         = 0;
-	ServerAddr       = 0;
-	ServerPort       = 0;
-	ServerMask       = 0;
-	Flags            = 0;
-	BcdPrinterID     = 0;
-	DefQtty          = 0;
+	DeviceName.Z();
+	WeightPrefix.Z();
+	QttyWeightPrefix.Z();
+	UserName.Z();
+	Password.Z();
+	ServerAddr   = 0;
+	ServerPort   = 0;
+	ServerMask   = 0;
+	Flags        = 0;
+	BcdPrinterID = 0;
+	DefQtty      = 0;
 	ExportBillsPeriod.SetZero();
 	ZDELETE(P_OpList);
 }
@@ -475,7 +475,7 @@ int StyloBhtIICfgDialog::setupList()
 	if(Data.P_OpList) {
 		SString buf;
 		for(uint i = 0; i < Data.P_OpList->getCount(); i++) {
-			buf = 0;
+			buf.Z();
 			PPID   op_id = Data.P_OpList->at(i).OpID;
 			if(op_id < 0) {
 				if(op_id == -1)

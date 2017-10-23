@@ -296,14 +296,9 @@ static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
 	return ok;
 }
 
-struct RptSel {
-	RptSel(PPID selID, uint rptID)
+struct RptSel { // @flat
+	RptSel(PPID selID, uint rptID) : SelID(selID), RptID(rptID), NumCopies(1), OrBppFlags(0), NotBppFlags(0)
 	{
-		SelID = selID;
-		RptID = rptID;
-		NumCopies = 1;
-		OrBppFlags = 0;
-		NotBppFlags = 0;
 	}
 	PPID   SelID;
 	uint   RptID;
@@ -312,7 +307,7 @@ struct RptSel {
 	long   NotBppFlags;
 };
 
-int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAsk)
+int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printingNoAsk) // @v9.8.6 SArray-->SVector
 {
 	int    ok = 1, div_copies_flag = 0, num_div_copies = 1, num_copies = 1, i, j;
 	int    prn_no_ask = BIN(ppAry && *ppAry && printingNoAsk);
@@ -403,8 +398,8 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 		}
 	}
 	else {
-		TSArray <RptSel> rpt_ids;
-		TSArray <RptSel> copy_rpt_ids;
+		TSVector <RptSel> rpt_ids; // @v9.8.6 TSArray-->TSVector
+		TSVector <RptSel> copy_rpt_ids; // @v9.8.6 TSArray-->TSVector
 		if(prn_no_ask)
 			rpt_ids.copy(**ppAry);
 		if(pPack->Rec.CurID && !prn_no_ask) {
@@ -466,13 +461,11 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 								break;
 							case 8:
 								temp_rs.RptID = REPORT_PLABEL;
-								// @v7.1.7 {
 								temp_rs.OrBppFlags |= PPBillPacket::pfPrintPLabel;
 								if(only_price_changed_flag)
 									temp_rs.OrBppFlags |= PPBillPacket::pfPrintChangedPriceOnly;
 								else
 									temp_rs.NotBppFlags |= PPBillPacket::pfPrintChangedPriceOnly;
-								// } @v7.1.7
 								pPack->ProcessFlags |= PPBillPacket::pfPrintPLabel;
 								SETFLAG(pPack->ProcessFlags, PPBillPacket::pfPrintChangedPriceOnly, BIN(only_price_changed_flag));
 								break;
@@ -556,7 +549,7 @@ int SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry, int printingNoAs
 				THROW(ok);
 			}
 			if(ppAry && !*ppAry && printingNoAsk) {
-				THROW_MEM(*ppAry = new SArray(sizeof(RptSel)));
+				THROW_MEM(*ppAry = new SVector(sizeof(RptSel))); // @v9.8.6 SArray-->SVector
 				(*ppAry)->copy(rpt_ids);
 			}
 		}

@@ -1491,6 +1491,56 @@ void OprKindDialog::delTempl()
 		}
 }
 
+static void SLAPI MakeOpTypeListForGeneric(PPIDArray & rList)
+{
+	rList.clear();
+	rList.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
+		PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_PAYMENT,
+		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L);
+}
+
+static int SLAPI AddGenOpItems(ObjRestrictArray & rList)
+{
+	int    ok = -1;
+	PPIDArray dd_list;
+	PPIDArray optype_list;
+	MakeOpTypeListForGeneric(optype_list);
+	StrAssocArray * p_src_list = PPObjOprKind::MakeOprKindList(0, &optype_list, 0);
+	THROW(p_src_list);
+	{
+		uint   i;
+		for(i = 0; i < rList.getCount(); i++) {
+			dd_list.add(rList.at(i).ObjID);
+		}
+		ListToListData  ll_data(p_src_list, PPOBJ_OPRKIND, &dd_list);
+		ll_data.TitleStrID = PPTXT_SELECTOPRKIND;
+		THROW(ListToListDialog(&ll_data));
+		dd_list.sortAndUndup();
+		{
+			i = rList.getCount();
+			if(i) do {
+				const PPID id_to_remove = rList.at(--i).ObjID;
+				if(!dd_list.bsearch(id_to_remove)) {
+					rList.atFree(i);
+					ok = 1;
+				}
+			} while(i);
+		}
+		for(i = 0; i < dd_list.getCount(); i++) {
+			ObjRestrictItem new_item;
+			new_item.Flags = 0;
+			new_item.ObjID = dd_list.get(i);
+			if(rList.CheckUniqueID(new_item.ObjID)) {
+				rList.insert(&new_item);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	delete p_src_list;
+	return ok;
+}
+
 static int SLAPI EditGenOpItem(ObjRestrictItem * pItem)
 {
 	int    ok = -1;
@@ -1498,9 +1548,7 @@ static int SLAPI EditGenOpItem(ObjRestrictItem * pItem)
 	if(CheckDialogPtrErr(&dlg)) {
 		uint   fl = 0;
 		PPIDArray optype_list;
-		optype_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
-			PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_PAYMENT,
-			PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L);
+		MakeOpTypeListForGeneric(optype_list);
 		if(pItem->ObjID)
 			fl |= OPKLF_SHOWPASSIVE;
 		SetupOprKindCombo(dlg, CTLSEL_GENOPITEM_OP, pItem->ObjID, 0, &optype_list, fl);
@@ -1528,6 +1576,7 @@ static int SLAPI EditGenOpItem(ObjRestrictItem * pItem)
 void OprKindDialog::addGenOp()
 {
 	if(IsGeneric && P_ListBox) {
+		/* @v9.8.6 
 		ObjRestrictItem item;
 		MEMSZERO(item);
 		while(EditGenOpItem(&item) > 0)
@@ -1538,6 +1587,11 @@ void OprKindDialog::addGenOp()
 			}
 			else
 				PPError(PPERR_DUPGENOPITEM, 0);
+		*/
+		// @v9.8.6 {
+		if(AddGenOpItems(*P_Data->P_GenList) > 0)
+			updateList();
+		// } @v9.8.6 
 	}
 }
 

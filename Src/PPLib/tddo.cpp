@@ -685,7 +685,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 	SString func_name, arg_buf;
 	func_name.CatChar('?').Cat(pFuncName);
 	{
-		IntArray fpl[3]; // func pos list
+		LongArray fpl[3]; // func pos list
 		const DlScope * p_org_scope = pScope;
 		const DlScope * p_scope = p_org_scope;
 		while(ok < 0 && p_scope) {
@@ -696,8 +696,8 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 			int    s_[3];
 			memzero(ambig, sizeof(ambig));
 			s_[0] = s_[1] = s_[2] = -1;
-			IntArray func_pos_list;
-			IntArray cvt_arg_list, cvt_al[3];
+			LongArray func_pos_list;
+			LongArray cvt_arg_list, cvt_al[3];
 			p_scope->GetFuncListByName(func_name, &func_pos_list);
 			for(i = 0; i < func_pos_list.getCount(); i++) {
 				int    s = tcrUnable;

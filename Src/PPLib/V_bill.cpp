@@ -4262,7 +4262,7 @@ int SLAPI PPViewBill::PrintAllBills()
 {
 	int    ok = -1, is_packet = 0;
 	PPID   op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
-	SArray * p_rpt_ary = 0;
+	SVector * p_rpt_ary = 0; // @v9.8.6 SArray-->SVector
 	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
 		int    out_amt_type = 0, r = 1;
 		uint   count = 0;

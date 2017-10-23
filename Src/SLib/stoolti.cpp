@@ -334,7 +334,7 @@ int SMessageWindow::Move()
 					if(w > max_w) {
 						SplitBuf(hdc, buf, max_w, 10); // максимум 10 строчек для 1-ой подстроки
 						StringSet ss2('\n', buf);
-						buf = 0;
+						buf.Z();
 						uint j = 0, k = 0;
 						while(ss2.get(&j, buf2) > 0 && buf2.Len() > 0) {
 							buf.Cat(buf2).CR();

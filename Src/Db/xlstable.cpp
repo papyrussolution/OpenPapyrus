@@ -286,7 +286,7 @@ int ExcelDbFile::Scan()
 			for(row; row < MAX_ROW; row++) {
 				int found_data = 0;
 				for(col = (is_vert) ? 1 + P.HdrLinesCount : 1; !found_data && col < max_col; col++)
-					if(P_Sheet->GetValue((is_vert) ? col : row, (is_vert) ? row : col, temp_buf = 0) > 0 && temp_buf.Strip().Len() > 0 && (end_str.Len() == 0 || temp_buf.Cmp(end_str, 0) != 0)) {
+					if(P_Sheet->GetValue((is_vert) ? col : row, (is_vert) ? row : col, temp_buf.Z()) > 0 && temp_buf.Strip().Len() > 0 && (end_str.Len() == 0 || temp_buf.Cmp(end_str, 0) != 0)) {
 						max_row = row;
 						found_data = 1;
 					}
@@ -455,7 +455,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				THROW(P_Sheet->SetValue(row, col, real_val) > 0);
 			}
 			else {
-				THROW(GetFieldDataFromBuf(fld, field_buf = 0, pDataBuf));
+				THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
 				THROW(P_Sheet->SetValue(row, col, (const char*)field_buf.Strip()) > 0);
 			}
 		}

@@ -2103,7 +2103,7 @@ int SLAPI PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpP
 						name_buf.Trim(trim_len);
 					}
 					else
-						name_buf = 0;
+						name_buf.Z();
 				}
 				if(name_buf.NotEmptyS()) {
 					name_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -2165,7 +2165,7 @@ int SLAPI PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpP
 							name_buf.Trim(trim_len);
 						}
 						else
-							name_buf = 0;
+							name_buf.Z();
 					}
 					if(name_buf.NotEmptyS()) {
 						name_buf.Space().CatChar('(').Cat("folder").CatChar(')');

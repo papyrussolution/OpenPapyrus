@@ -6066,7 +6066,7 @@ public:
 	long   SLAPI getLast() const;
 	int    FASTCALL setSingleNZ(long id);
 	int    SLAPI freeByKey(long, int binarySearch); //
-	int    SLAPI removeByID(long);                  // @warning dup function (see above)
+	int    FASTCALL removeByID(long);                  // @warning dup function (see above)
 	void   SLAPI sort();
 	void   SLAPI sortAndUndup();
 	int    SLAPI isSorted() const;
@@ -6106,8 +6106,8 @@ public:
 	int    SLAPI addExclusive(const LongArray * pS, const LongArray * pExcl);
 };
 
-// @v8.6.0 typedef TSArray      <int>  IntArray;
-typedef LongArray IntArray;
+// @v8.6.0 typedef TSArray      <int>  LongArray;
+// @v9.8.6 typedef LongArray IntArray;
 //
 //
 //

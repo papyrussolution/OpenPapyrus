@@ -410,7 +410,7 @@ static int _LogMsg(const char * pLogFileName, const char * pMsg)
 
 struct CheckDlgCtrlParam {
 	const char * pLogFileName;
-	IntArray * pCtlList;
+	LongArray * pCtlList;
 };
 
 static void CheckDlgCtrl(TView * pV, void * ptr)
@@ -435,7 +435,7 @@ int SLAPI TVRez::CheckDialogs(const char * pLogFileName)
 {
 	double debug_val = 0; // @debug
 	char   msg_buf[512];
-	IntArray id_list;
+	LongArray id_list;
 	uint   res_id = 0;
 	ulong  res_pos = 0;
 	TDialog * dlg = 0;
@@ -454,7 +454,7 @@ int SLAPI TVRez::CheckDialogs(const char * pLogFileName)
 		if(TDialog::LoadDialog(this, res_id, dlg, 0)) {
 			if(!_CrtCheckMemory())
 				debug_val = 1;
-			IntArray ctl_list;
+			LongArray ctl_list;
 			CheckDlgCtrlParam param;
 			param.pLogFileName = pLogFileName;
 			param.pCtlList = &ctl_list;

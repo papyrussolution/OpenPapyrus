@@ -1262,10 +1262,10 @@ void GoodsDialog::SetupAddedInfo()
                 }
 			}
 			else
-				title_buf = 0;
+				title_buf.Z();
 		}
 		else
-			title_buf = 0;
+			title_buf.Z();
 	}
 	setStaticText(CTL_GOODS_ST_INFO, title_buf);
 }
@@ -1681,7 +1681,7 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 			if(adinf == adinfLastSellDate)
 				buf = "lastselldate";
 			else
-				buf = 0;
+				buf.Z();
 			PPPutExtStrData(GDSEXSTR_INFOSYMB, rGoodsExTitles, buf);
 			ok = 1;
 		}

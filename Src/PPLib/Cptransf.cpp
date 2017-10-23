@@ -346,7 +346,7 @@ static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int
 {
 	int    ok = 1, incomplete = 0;
 	PPObjGoods goods_obj;
-	IntArray positions;
+	LongArray positions;
 	SString src_serial;
 	PUGL   deficit_list;
 	PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
@@ -493,7 +493,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpModif(WrOffDraftBlock & rBlk, int use_t
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
 	PPComplBlock compl_list;
-	IntArray rows;
+	LongArray rows;
 	THROW_MEM(p_pack = new PPBillPacket);
 	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
 	for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
@@ -544,7 +544,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 	PUGL   temp_pugl;
 	PPID   compl_bill_id = 0;
 	PPBillPacket * p_pack = 0;
-	IntArray rows;
+	LongArray rows;
 	SString serial_buf;
 	{
 		PPTransaction tra(use_ta);
@@ -660,7 +660,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use
 	const  PPID src_bill_id = rBlk.SrcDraftPack.Rec.ID;
 	PUGL   temp_pugl;
 	PPID   compl_bill_id = 0;
-	IntArray rows;
+	LongArray rows;
 	SString serial_buf;
 	PPObjMrpTab mrp_obj;
 	MrpTabPacket mrp_pack;
@@ -779,7 +779,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 	int    ok = 1;
 	int    incomplete = 0, processed = 0, j, r;
 	PPGoodsStruc gs;
-	IntArray rows;
+	LongArray rows;
 	PPTransferItem ti;
 	SString serial_buf/*, clb_buf*/;
 	SString src_serial;
@@ -926,7 +926,7 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
 	// @v9.4.0 PPComplBlock compl_list;
-	IntArray rows;
+	LongArray rows;
 	WrOffDraftBlock blk(pWrOffParam, pDfctList);
 	{
 		PPTransaction tra(use_ta);
@@ -1267,7 +1267,7 @@ int SLAPI PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * p
 		PPBillPacket pack;
 		PPID   comp_ar_id = compArID;
 		PPIDArray loc_list;
-		TSArray <PUGL::SupplSubstItem> suppl_subst_list;
+		TSVector <PUGL::SupplSubstItem> suppl_subst_list; // @v9.8.6 TSArray-->TSVector
 		pPugl->GetItemsLocList(loc_list);
 		if(loc_list.getCount() == 0)
 			loc_list.addUnique(0L);

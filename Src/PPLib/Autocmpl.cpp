@@ -31,7 +31,7 @@ SString & FASTCALL PUGL::SupplSubstItem::QttyToStr(SString & rBuf) const
 }
 
 //static
-int PUGL::BalanceSupplSubstList(TSArray <SupplSubstItem> & rList, double neededeQtty)
+int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(neededeQtty > 0.0 && rList.getCount()) {
@@ -199,7 +199,7 @@ void FASTCALL PUGL::GetItemsLocList(PPIDArray & rList) const
 			rList.addUnique(p_item->LocID);
 }
 
-int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const
+int SLAPI PUGL::GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	rList.clear();
@@ -725,7 +725,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 		// В этом случае функция возвращает -1
 	uint   i;
 	PPObjGoods goods_obj;
-	IntArray positions;
+	LongArray positions;
 	const  PPTransferItem * p_ti = & ConstTI(pos);
 	int    sign = (p_ti->Flags & PPTFR_PLUS) ? -1 : 1;
 	const  int out_price_by_quot = BIN(P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT);
@@ -1011,7 +1011,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 			}
 		}
 		{
-			IntArray pos_list;
+			LongArray pos_list;
 			const uint psr_count = psr_array.getCount();
 			for(i = 0; i < psr_count + sum_array.getCount(); i++) {
 				const  int is_sum_val = (i < psr_count) ? 0 : 1;

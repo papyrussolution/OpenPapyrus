@@ -427,7 +427,7 @@ public:
 	const  DlScope * SLAPI GetOwner() const;
 	const  DlScopeList & SLAPI GetChildList() const; // GetRecList
 	const  DlScope * SLAPI GetFirstChildByKind(int kind, int recursive) const;
-	int    SLAPI GetChildList(int kind, int recursive, IntArray * pList) const;
+	int    SLAPI GetChildList(int kind, int recursive, LongArray * pList) const;
 	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
 	int    SLAPI EnumChilds(uint * pIdx, DlScope ** ppScope) const;
 	int    SLAPI EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
@@ -457,7 +457,7 @@ public:
 	int    FASTCALL SetRecList(const DlScopeList * pList);
 
 	int    FASTCALL AddFunc(const DlFunc *);
-	int    SLAPI GetFuncListByName(const char * pName, IntArray * pList) const;
+	int    SLAPI GetFuncListByName(const char * pName, LongArray * pList) const;
 	uint   SLAPI GetFuncCount() const;
 	int    SLAPI GetFuncByPos(uint pos, DlFunc * pFunc) const;
 	int    SLAPI EnumFunctions(uint * pI, DlFunc * pFunc) const;
@@ -989,15 +989,15 @@ private:
 	int    FASTCALL BuiltinOp(const DlFunc * pF, SV_Uint32 *);
 	int    SLAPI GetFuncName(int, const CtmExpr * pExpr, SString & rBuf);
 	int    SLAPI SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar);
-	int    SLAPI ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const IntArray & rCvtPosList);
+	int    SLAPI ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList);
 	int    SLAPI InitFileNames(const char * pInFileName);
 	int    SLAPI Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
 	//
 	// Compile-time {
 	//
-	int    SLAPI AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const IntArray & rCvtPosList) const;
+	int    SLAPI AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const;
 		// @<<DlContext::ResolveFunc
-	int    SLAPI IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, IntArray * pCvtArgList);
+	int    SLAPI IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList);
 	int    SLAPI MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const;
 	int    SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
 	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion

@@ -728,8 +728,8 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 
 int DBTablePartitionList::GetInitPath(SString & rBuf) const
 {
-	Pool.getnz(InitPathP, rBuf = 0);
-	return rBuf.NotEmpty() ? 1 : 0;
+	Pool.getnz(InitPathP, rBuf.Z());
+	return BIN(rBuf.NotEmpty());
 }
 
 uint DBTablePartitionList::GetCount() const

@@ -158,7 +158,7 @@ int SLAPI DbDict_DL600::GetListOfTables(long options, StrAssocArray * pList)
 //
 //
 //
-int SLAPI StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
+int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 {
 	int    ok = 1;
 	DWORD  gr_gdiobj  = 0;

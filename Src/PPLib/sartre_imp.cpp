@@ -1106,7 +1106,7 @@ public:
 	int OpenInput(const char * pFileName)
 	{
 		CloseInput();
-		LineBuf = 0;
+		LineBuf.Z();
 		LineNo = 0;
 		if(F.Open(pFileName, SFile::mRead)) {
 			return 1;
@@ -1117,7 +1117,7 @@ public:
 	void CloseInput()
 	{
 		F.Close();
-		//LineBuf = 0;
+		//LineBuf.Z();
 		//LineNo = 0;
 	}
 
@@ -2100,7 +2100,7 @@ public:
 		L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this);
 	}
 private:
-	struct InnerEntry {
+	struct InnerEntry { // @flat
 		uint   NameP;
 		int    Gender;
 	};
@@ -2127,7 +2127,7 @@ private:
 		}
 		return ok;
 	}
-	TSArray <InnerEntry> L;
+	TSVector <InnerEntry> L; // @v9.8.6 TSArray-->TSVector
 };
 
 int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
@@ -3600,7 +3600,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 			op_item.K = kOp;
 			op_item.Op = opOneof;
 			op_item.ArgCount = 0;
-			TSArray <ExprItem> arg_list;
+			TSVector <ExprItem> arg_list; // @v9.8.6 TSArray-->TSVector
 			//
 			// Чтобы аргументы в стеке были в том же порядке, в каком их перечислили, сначала
 			// вставим их во временный массив arg_list а потом из этого массива задом-на-перед

@@ -298,7 +298,7 @@ const DlScope * SLAPI DlScope::GetFirstChildByKind(int kind, int recursive) cons
 	return 0;
 }
 
-int SLAPI DlScope::GetChildList(int kind, int recursive, IntArray * pList) const
+int SLAPI DlScope::GetChildList(int kind, int recursive, LongArray * pList) const
 {
 	const DlScopeList & r_list = GetChildList();
 	for(uint i = 0; i < r_list.getCount(); i++) {
@@ -635,7 +635,7 @@ int FASTCALL DlScope::AddFunc(const DlFunc * pF)
 	return FuncPool.Add(pF);
 }
 
-int SLAPI DlScope::GetFuncListByName(const char * pSymb, IntArray * pList) const
+int SLAPI DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
 {
 	int    ok = -1;
 	for(uint pos = 0; FuncPool.EnumByName(pSymb, &pos, 0) > 0; pos++) {

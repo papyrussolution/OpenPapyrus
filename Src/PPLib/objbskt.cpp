@@ -2102,7 +2102,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 	SString msg_buf;
 	SString temp_buf;
 	BillTbl::Rec link_rec;
-	IntArray all_rows, one_goods_rows;
+	LongArray all_rows, one_goods_rows;
 	Basket2BillParam param;
 	MEMSZERO(param);
 	param.Flags |= Basket2BillParam::fSilentOnDeficit;

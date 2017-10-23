@@ -59,12 +59,12 @@ int SLAPI PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 			item.Id = t.Id;
 			STRNSCPY(item.Symb, t.Txt);
 			{
-				text_buf = 0;
+				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = (const char *)c_buf;
 				text_buf.ToOem().CopyTo(item.Text, sizeof(item.Text));
 				//
-				text_buf = 0;
+				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifSymbSeries), c_buf, sizeof(c_buf)))
 					text_buf = (const char *)c_buf;
 				text_buf.CopyTo(item.Serial, sizeof(item.Serial));

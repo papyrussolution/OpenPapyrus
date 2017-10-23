@@ -490,7 +490,7 @@ private:
 	};
 	long   State;
 	//int    ReadOnly;
-	IntArray RecPosList; // Список позиций прочитанных записей
+	LongArray RecPosList; // Список позиций прочитанных записей
 	StringSet FldNames;    // Если (P.Flags & fFldNameRec), то в это поле в порядке следования //
 		// записываются наименования полей файла данных
 	long   EndPos;
@@ -3408,7 +3408,7 @@ struct DBQ {
 	uint   count;
 	struct T {
 		uchar  cmp;
-		char   tblIdx; // Индекс таблицы в списке DBQuery::tbls для \
+		char   tblIdx; // Индекс таблицы в списке DBQuery::tbls для //
 		// которой этот терм является связывающим. -1 означает то,
 		// что терм не связывает ни одну из этих таблиц. Это поле
 		// используется при разноске общего дерева ограничений по
@@ -3631,10 +3631,10 @@ public:
 	int    SLAPI makeNode(int tblN, int * pNode, int option, int * pPos);
 	int    FASTCALL analyzeOrder(int * pKeyArray);
 	int    FASTCALL chooseKey(int tblN);
-	int    SLAPI optimizeTree(int tblN);
+	// @v9.8.6 int    SLAPI optimizeTree(int tblN);
 	int    SLAPI calcRecSize();
 	int    SLAPI allocFrame(uint);
-	int    SLAPI fillRecord(char *, RECORDNUMBER *);
+	void   FASTCALL fillRecord(char *, RECORDNUMBER *);
 	int    FASTCALL _search(uint n, int dir);
 	int    SLAPI _fetch_next(uint count, uint p, int dir);
 	int    SLAPI _fetch_prev(uint count, uint p);
@@ -3645,7 +3645,7 @@ public:
 	void   SLAPI moveRec(uint rd, uint rs);
 	void   SLAPI moveBuf(uint dest, uint src, uint recs);
 	void   FASTCALL setCount(uint);
-	void   _fastcall frameOnBottom(int undefSDelta);
+	void   FASTCALL frameOnBottom(int undefSDelta);
 	int    FASTCALL normalizeFrame(int dir);
 	enum {
 		t_select   = 0x0001,

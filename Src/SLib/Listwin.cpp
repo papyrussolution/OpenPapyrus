@@ -255,7 +255,7 @@ int ListWindow::getResult(long * pVal)
 
 int ListWindow::getString(SString & rBuf)
 {
-	return def ? def->getCurString(rBuf) : ((rBuf = 0), 0);
+	return def ? def->getCurString(rBuf) : (rBuf.Z(), 0);
 }
 
 int ListWindow::getListData(void * pData)

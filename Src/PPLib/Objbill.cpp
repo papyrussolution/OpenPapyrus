@@ -1098,7 +1098,7 @@ int SLAPI PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const
 				ti.LotID = 0;
 			pack.BoundsByLot(p_ti->LotID, &ti, -1, &down, 0);
 			if(down > 0) {
-				IntArray rows;
+				LongArray rows;
 				ti.Quantity_ = down;
 				THROW(pack.InsertRow(&ti, &rows, 0));
 				if(ti.Flags & PPTFR_RECEIPT || IsIntrExpndOp(pack.Rec.OpID)) {
@@ -2939,6 +2939,7 @@ int SLAPI PPObjBill::EditConfig()
 				EditBillCfgValuationParam(P_Cfg);
 			}
 			else if(event.isCmd(cmTagIndFilt)) {
+				P_Cfg->TagIndFilt.Flags |= TagFilt::fColors; // @v9.8.6
 				EditTagFilt(PPOBJ_BILL, &P_Cfg->TagIndFilt);
 			}
 			else if(event.isCmd(cmaMore)) {

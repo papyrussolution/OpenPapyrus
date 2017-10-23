@@ -1098,7 +1098,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 									if(p_srdb) {
 										const char * p_wb = " \t.,;:()[]{}/\\!@#$%^&*+=<>\n\r\"\'?";
 										const Sci_Position _start_pos = p_scn->position;
-										IntArray left, right;
+										LongArray left, right;
 										Sci_Position _pos = _start_pos;
 										int    c;
 										while((c = p_view->CallFunc(SCI_GETCHARAT, _pos++, 0)) != 0) {

@@ -53,7 +53,7 @@ int FASTCALL StaffAmtEntry::IsEqual(const StaffAmtEntry & rS) const
 //
 //
 //
-SLAPI StaffAmtList::StaffAmtList() : TSArray <StaffAmtEntry>()
+SLAPI StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>() // @v9.8.6 TSArray-->TSVector
 {
 }
 

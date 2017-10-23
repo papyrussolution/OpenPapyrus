@@ -1408,8 +1408,8 @@ int SLAPI PPBillImporter::RunUhttImport()
 						const UhttBillPacket::BillItem & r_item = p_uhtt_pack->Items.at(j);
 						UhttGoodsPacket uhtt_goods_pack;
 						PPTransferItem ti(&pack.Rec, TISIGN_UNDEF);
-						clb_buf = 0;
-						serial_buf = 0;
+						clb_buf.Z();
+						serial_buf.Z();
 						if(uhtt_cli.ResolveGoodsByUhttID(r_item.GoodsID, &uhtt_goods_pack, &ti.GoodsID, 0) > 0) {
 							ti.Quantity_ = fabs(r_item.Quantity);
 							ti.Price = fabs(r_item.Price);

@@ -207,7 +207,7 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 			}
 			else if(c == '(') {
 				par_open = 1;
-				cat_buf = 0;
+				cat_buf.Z();
 			}
 			else if(c == ')') {
 				par_open = 0;

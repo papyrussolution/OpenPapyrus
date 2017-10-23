@@ -6822,7 +6822,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	if(bm == 0) {
 		SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
 		for(uint i = 0; i < 1000; i++) {
-			(str = 0).NumberToLat(i);
+			str.Z().NumberToLat(i);
 			out.WriteLine(out_buf.Printf("%u\t\t%s\n", i, str.cptr()));
 		}
 		{
@@ -7000,7 +7000,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					str.Chomp();
 					if(str.NotEmptyS()) {
 						scan.Set(str, 0);
-						int   emsr = scan.GetEMail(out_buf = 0);
+						int   emsr = scan.GetEMail(out_buf.Z());
 						SLTEST_CHECK_NZ(emsr);
 					}
 					{
@@ -7111,7 +7111,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				IntRange ir;
 				int    r;
 				{
-					r = (str = 0).ToIntRange(ir, SString::torfDoubleDot);
+					r = str.Z().ToIntRange(ir, SString::torfDoubleDot);
 					SLTEST_CHECK_Z(r);
 				}
 				{

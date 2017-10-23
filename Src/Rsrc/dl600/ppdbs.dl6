@@ -4407,6 +4407,40 @@ table TempQuot { // Size=284 (10*32+128+12)=460
 	long   ArticleID;       // ->Article.ID
 	int32  PeriodIdx;       //
 	string GoodsName[128];  // =Goods2(GoodsID).Name @v4.4.5 [48]->[64] @v6.3.9 [64]-->[128]
+
+	uint   QuotP1;
+	uint   QuotP2;
+	uint   QuotP3;
+	uint   QuotP4;
+	uint   QuotP5;
+	uint   QuotP6;
+	uint   QuotP7;
+	uint   QuotP8;
+	uint   QuotP9;
+	uint   QuotP10;
+	uint   QuotP11;
+	uint   QuotP12;
+	uint   QuotP13;
+	uint   QuotP14;
+	uint   QuotP15;
+	uint   QuotP16;
+	uint   QuotP17;
+	uint   QuotP18;
+	uint   QuotP19;
+	uint   QuotP20;
+	uint   QuotP21;
+	uint   QuotP22;
+	uint   QuotP23;
+	uint   QuotP24;
+	uint   QuotP25;
+	uint   QuotP26;
+	uint   QuotP27;
+	uint   QuotP28;
+	uint   QuotP29;
+	uint   QuotP30;
+	uint   QuotP31;
+	uint   QuotP32;
+	/*
 	string Quot1[10];
 	string Quot2[10];
 	string Quot3[10];
@@ -4439,6 +4473,7 @@ table TempQuot { // Size=284 (10*32+128+12)=460
 	string Quot30[10];
 	string Quot31[10];
 	string Quot32[10];
+	*/
 index:
 	ID__ (unique);
 	GoodsID, ArticleID, LocID, PeriodIdx (unique mod);

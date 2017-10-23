@@ -167,7 +167,7 @@ static int SLAPI SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID 
 	return ok;
 }
 
-int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, IntArray * pRows,
+int SLAPI PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	double * pQtty, long flags, const GoodsReplacementArray * pGra, char * pSerial)
 {
 	int    ok = 1, r;
@@ -322,7 +322,7 @@ static SString & _MakeNAvlLotMsg(const ILTI * pIlti, SString & rMsgBuf)
 	return rMsgBuf;
 }
 
-static int _RowNSyncDiag(const ILTI * pIlti, const IntArray & rRows, long flags)
+static int _RowNSyncDiag(const ILTI * pIlti, const LongArray & rRows, long flags)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -343,7 +343,7 @@ static int _RowNSyncDiag(const ILTI * pIlti, const IntArray & rRows, long flags)
 
 class AmtAjustment {
 public:
-	AmtAjustment(const BillTotalData & rTotal, double vatRate, const PPBillPacket & rBp, const IntArray & rRows) :
+	AmtAjustment(const BillTotalData & rTotal, double vatRate, const PPBillPacket & rBp, const LongArray & rRows) :
 		SrcPriceAmount(rTotal.Amounts.Get(PPAMT_SELLING, 0) - rTotal.Amounts.Get(PPAMT_DISCOUNT, 0)),
 		SrcPriceVat(rTotal.Amounts.Get(PPAMT_VATAX, 0)),
 		VatRate(vatRate),
@@ -578,7 +578,7 @@ public:
 	const double VatRate;
 	//const ulong  MinVatDiv;
 	const PPBillPacket & R_Bp;
-	const IntArray & R_Rows;
+	const LongArray & R_Rows;
 	//
 	BillTotalBlock * P_Btb;
 	BillTotalData TotalRunning;
@@ -615,13 +615,13 @@ private:
 	double RunningPriceVat;
 };
 
-int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * pRows, uint flags,
+int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags,
 	const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
 	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
 	uint   i = 0;
-	IntArray rows;
+	LongArray rows;
 	StringSet * p_excl_serial = 0;
 	PPTransferItem ti;
 	double q, rest;
@@ -694,7 +694,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 					ti.Flags |= PPTFR_QUOT;
 			}
 			{
-				IntArray temp_rows;
+				LongArray temp_rows;
 				THROW(pPack->InsertRow(&ti, &temp_rows));
 				pPack->SnL.AddNumber(&temp_rows, serial);
 				if(flags & CILTIF_SYNC && rows.getCount() == 1) {
@@ -944,7 +944,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, IntArray * p
 				ti.LotTaxGrpID = ilti->InTaxGrpID;
 				{
 					uint i;
-					IntArray temp_rows;
+					LongArray temp_rows;
 					ObjTagList tag_list;
 					THROW(pPack->InsertRow(&ti, &temp_rows));
 					pPack->SnL.AddNumber(&temp_rows, serial);
@@ -1555,7 +1555,7 @@ int SLAPI ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLev
 	else {
 		const int ccflg_synclot = BIN(CConfig.Flags2 & CCFLG2_SYNCLOT);
 		ObjTagList lot_tag_list;
-		IntArray rows;
+		LongArray rows;
 		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		const long ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
 		if(trace_sync_lot) {
@@ -2177,7 +2177,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			PctAddition = 0.0;
 			SetupCalDate(CTLCAL_TDEFICIT_DATE, CTL_TDEFICIT_DATE);
 		}
-		int setDTS(TSArray <LocPeriod> & rList, double pctAddition)
+		int setDTS(TSVector <LocPeriod> & rList, double pctAddition) // @v9.8.6 TSArray-->TSVector
 		{
 			OrgLocPeriodList = rList;
 			LocPeriodList = rList;
@@ -2186,7 +2186,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			updateList(-1);
 			return 1;
 		}
-		int getDTS(TSArray <LocPeriod> & rList, double * pPctAddition)
+		int getDTS(TSVector <LocPeriod> & rList, double * pPctAddition) // @v9.8.6 TSArray-->TSVector
 		{
 			rList = LocPeriodList;
 			PctAddition = getCtrlReal(CTL_TDEFICIT_PCTADD);
@@ -2247,7 +2247,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			return ok;
 		}
 
-		TSArray <LocPeriod> LocPeriodList, OrgLocPeriodList;
+		TSVector <LocPeriod> LocPeriodList, OrgLocPeriodList; // @v9.8.6 TSArray-->TSVector
 		double PctAddition;
 	};
 	int    ok = -1;

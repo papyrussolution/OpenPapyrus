@@ -493,14 +493,14 @@ public:
 	int    FASTCALL IsEqual(const SrCPropDeclList & rS) const;
 	int    FASTCALL Merge(const SrCPropDeclList & rS);
 private:
-	struct Item {
+	struct Item { // @flat
 		Item();
 		CONCEPTID PropID;
 		LEXID  SymbID;
 		uint32 TailS;  // Размер хвостовой части
 		uint32 TailP;  // Позиция хвостовой части дескриптора свойства в буфере Pool
 	};
-	TSArray <Item> D;
+	TSVector <Item> D; // @v9.8.6 TSArray-->TSVector
 	uint32 PoolP; // Позиция, с которой следует добавлять следующий элемент в Pool
 	SBaseBuffer Pool;
 };
@@ -575,14 +575,14 @@ public:
 	int    GetByPos(uint pos, SrCProp & rProp) const;
 	int    Get(CONCEPTID cID, CONCEPTID propID, SrCProp & rProp) const;
 private:
-	struct Item {
+	struct Item { // @flat
 		CONCEPTID CID;
 		CONCEPTID PropID;
 		uint32 P;         // Позиция данных в буфере SrCPropList::D
 		uint32 S;         // Длина данных в буфере SrCPropList::D
 	};
 	int    SetData(uint pos, const void * pData, size_t dataLen);
-	TSArray <Item> L;
+	TSVector <Item> L;
 	SBuffer D;
 };
 //
@@ -629,7 +629,7 @@ public:
 	int    SLAPI Update(PPOsm::NodeCluster & rNc, uint64 outerID);
 	int    SLAPI Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID);
 	int    SLAPI Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID);
-	int    SLAPI GetWayNodes(const PPOsm::Way & rWay, TSArray <PPOsm::Node> & rNodeList);
+	int    SLAPI GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList); // @v9.8.6 TSArray-->TSVector
 private:
 	virtual uint FASTCALL Implement_PartitionFunc(DBT * pKey);
 	int    SLAPI Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int update);
@@ -899,7 +899,7 @@ public:
 		kRule
 	};
 
-	struct ExprItem {
+	struct ExprItem { // @flat
 		SLAPI  ExprItem();
 
 		uint16 K;

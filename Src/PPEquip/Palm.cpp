@@ -1824,7 +1824,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 			}
 			else if(GetOpType(opID) == PPOPT_GOODSEXPEND) {
 				ILTI   ilti;
-				IntArray rows;
+				LongArray rows;
 				uint   fl = 0;
 				ilti.Setup(item.GoodsID, -1, item.Qtty, 0, item.Price);
 				r = p_bobj->ConvertILTI(&ilti, &pack, &rows, fl, 0);

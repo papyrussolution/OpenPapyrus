@@ -1641,7 +1641,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		}
 	}
 	if(erase_text) {
-		TView::SSetWindowText(pDi->hwndItem, text_buf = 0);
+		TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 	}
 	else if(draw_text) {
 		HFONT old_font = (HFONT)SelectObject(pDi->hDC, (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0));
@@ -1775,7 +1775,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			}
 		}
 		if(erase_text) {
-			TView::SSetWindowText(pDi->hwndItem, text_buf = 0);
+			TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
 			HFONT hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
@@ -2160,7 +2160,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		}
 		*/
 		if(erase_text) {
-			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf = 0);
+			// @v9.2.4 TView::SSetWindowText(pDi->hwndItem, text_buf.Z());
 		}
 		else if(draw_text) {
 			HFONT hf = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);

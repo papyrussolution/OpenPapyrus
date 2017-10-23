@@ -2546,7 +2546,7 @@ int FASTCALL SaGiftItem::Copy(const SaGiftItem * pS)
 	return ok;
 }
 
-int SLAPI SaGiftItem::IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const
+int SLAPI SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = 1;
 	LongArray main_pos_list;
@@ -2638,8 +2638,7 @@ int SLAPI SaGiftItem::IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList,
 	return ok;
 }
 
-int SLAPI SaGiftItem::CalcPotential(const TSArray <SaSaleItem> & rSaleList,
-	PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const
+int SLAPI SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	if(Flags & fCalcPotential) {
@@ -2808,7 +2807,7 @@ int SaGiftArray::CreateIndex()
 	return ok;
 }
 
-int SaGiftArray::SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const
+int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const // @v9.8.6 TSArray-->TSVector
 {
 	rGift.Init();
 

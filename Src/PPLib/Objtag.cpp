@@ -97,25 +97,23 @@ int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pCo
 }
 
 //static
-int FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
+void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
 {
 	SString rbuf, cbuf;
 	ParseString(rItemBuf, rbuf, cbuf);
 	MergeString(pRestrictionString, cbuf, rItemBuf);
-	return 1;
 }
 
 //static
-int FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
+void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
 {
 	SString rbuf, cbuf;
 	ParseString(rItemBuf, rbuf, cbuf);
 	if(pClr)
 		pClr->ToStr(cbuf, SColorBase::fmtHEX);
 	else
-		cbuf = 0;
+		cbuf.Z();
 	MergeString(rbuf, cbuf, rItemBuf);
-	return 1;
 }
 
 //static
@@ -320,11 +318,11 @@ SLAPI PPObjTagPacket::PPObjTagPacket()
 	Init();
 }
 
-int SLAPI PPObjTagPacket::Init()
+void SLAPI PPObjTagPacket::Init()
 {
 	MEMSZERO(Rec);
+	Rule.Z();
 	// @v8.2.5 EnumList.Clear();
-	return 1;
 }
 
 PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (PPObjTagPacket & src)
@@ -1895,7 +1893,8 @@ private:
 			Data.TagsRestrict.Swap(pos, pos+1);
 			return 1;
 		}
-		return -1;
+		else
+			return -1;
 	}
 	virtual int setupList();
 	int    EditItem(long * pPos);
@@ -1928,13 +1927,11 @@ public:
 		EnumID = 0;
 		CheckRestrict = checkRestrict;
 		ObjType = objType;
-		// @v8.6.11 {
 		{
 			SString temp_buf;
 			GetObjectTitle(ObjType, temp_buf);
 			setCtrlString(CTL_SELTAG_INFO, temp_buf);
 		}
-		// } @v8.6.11
 		addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_SELTAG_COLOR, CTLSEL_SELTAG_COLOR, cmSelColor, CTL_SELTAG_SELCOLOR));
 	}
 	int    setDTS(const SelTagDialogData * pData)
@@ -2154,7 +2151,8 @@ private:
 
 int TagFiltDialog::EditItem(long * pPos)
 {
-	int    ok = -1, is_new = (*pPos >= 0) ? 0 : 1;
+	int    ok = -1;
+	const  int  is_new = (*pPos >= 0) ? 0 : 1;
 	uint   pos = is_new ? -1 : (uint)(*pPos);
 	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.at(pos));
 	SelTagDialog * p_dlg = 0;
@@ -2163,9 +2161,16 @@ int TagFiltDialog::EditItem(long * pPos)
 	p_dlg->setDTS(&item);
 	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0) {
-			if(!is_new || Data.TagsRestrict.Search(item.Id, &pos) > 0)
-				THROW_SL(Data.TagsRestrict.atFree(pos));
-			THROW_SL(Data.TagsRestrict.Add(item.Id, item.Txt));
+			int    replace_dup_factor = 1;
+			if(Data.Flags & Data.fColors) { // @v9.8.6 
+				replace_dup_factor = -1;
+			}
+			else {
+				uint   fp = 0;
+				if(!is_new || Data.TagsRestrict.Search(item.Id, &fp) > 0)
+					THROW_SL(Data.TagsRestrict.atFree(fp));
+			}
+			THROW_SL(Data.TagsRestrict.Add(item.Id, item.Txt, replace_dup_factor));
 			Data.TagsRestrict.Search(item.Id, &pos);
 			Data.TagsRestrict.SortByID();
 			ok = 1;

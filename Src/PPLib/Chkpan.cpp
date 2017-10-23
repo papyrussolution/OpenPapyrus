@@ -88,14 +88,8 @@ int SLAPI showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
 //
 //
 struct SaComplexEntry {
-	SaComplexEntry()
+	SaComplexEntry() : GoodsID(0), FinalGoodsID(0), Qtty(1.0), OrgPrice(0.0), FinalPrice(0.0), Flags(0)
 	{
-		GoodsID = 0;
-		FinalGoodsID = 0;
-		Qtty = 1.0;
-		OrgPrice = 0.0;
-		FinalPrice = 0.0;
-		Flags = 0;
 	}
 	int    SaComplexEntry::IsComplete() const
 	{
@@ -4893,7 +4887,7 @@ int SelCheckListDialog::SetupItemList()
 				CCheckPacket pack;
 				p_list->freeAll();
 				if(chk_id && P_Srv->GetCc().LoadPacket(chk_id, 0, &pack) > 0) {
-					memo_buf = 0;
+					memo_buf.Z();
 					if(pack.Ext.AddrID) {
 						PPObjLocation loc_obj;
 						LocationTbl::Rec loc_rec;
@@ -5384,7 +5378,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 	return ok;
 }
 
-struct AddrByPhoneItem {
+struct AddrByPhoneItem { // @flat
 	PPID   ObjType;
 	PPID   ObjID;
 	long   ObjFlags;
@@ -5660,7 +5654,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 		{
 			class SelAddrByPhoneDialog : public PPListDialog {
 			public:
-				SelAddrByPhoneDialog(const TSArray <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST)
+				SelAddrByPhoneDialog(const TSVector <AddrByPhoneItem> * pData) : PPListDialog(DLG_SELADDRBYPH, CTL_SELADDRBYPH_LIST) // @v9.8.6 TSArray-->TSVector
 				{
 					RVALUEPTR(Data, pData);
 					updateList(-1);
@@ -5720,7 +5714,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 					}
 					return ok;
 				}
-				TSArray <AddrByPhoneItem> Data;
+				TSVector <AddrByPhoneItem> Data; // @v9.8.6 TSArray-->TSVector
 				PPObjSCard ScObj;
 			};
 			{
@@ -5931,7 +5925,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 		int    LockAddrModChecking;
 		SString DlvrPhone;
 		const SString Channel;
-		TSArray <AddrByPhoneItem> AddrByPhoneList;
+		TSVector <AddrByPhoneItem> AddrByPhoneList; // @v9.8.6 TSArray-->TSVector
 		PPObjPerson PsnObj;
 		PPObjSCard ScObj;
 	};
@@ -8134,7 +8128,7 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 			if(discount != 0.0)
 				PPGetWord(PPWORD_DISCOUNT, 0, buf).CatChar(':').Cat(discount, SFMT_MONEY);
 			else
-				buf = 0;
+				buf.Z();
 			setStaticText(CTL_CHKPAN_DISCOUNT, buf);
 		}
 		unlock();
@@ -9143,7 +9137,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		card = sc_rec.Code;
 		{
 			LDATETIME cur_dtm = getcurdatetime_();
-			info_buf = 0;
+			info_buf.Z();
 			if(sc_rec.Expiry) {
 				PPLoadString("validuntil-fem", temp_buf);
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Expiry, DATF_DMY);
@@ -9204,7 +9198,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			}
 			setStaticText(CTL_SCARDVIEW_SCINFO, info_buf);
 		}
-		info_buf = 0;
+		info_buf.Z();
 		PPPersonPacket pack;
 		if(PsnObj.GetPacket(sc_rec.PersonID, &pack, 0) > 0) {
 			OwnerID = sc_rec.PersonID;
@@ -9243,7 +9237,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			}
 		}
 		else
-			info_buf = 0;
+			info_buf.Z();
 		setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
 		setGroupData(GRP_IBG, &ibg_rec);
 		{
@@ -10228,7 +10222,7 @@ int CheckPaneDialog::NotifyGift(PPID giftID, SaGiftArray::Gift * pGift)
 	return 1;
 }
 
-int CPosProcessor::AddGiftSaleItem(TSArray <SaSaleItem> & rList, const CCheckItem & rItem) const
+int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = 1;
 	SaSaleItem sa_item;
@@ -10264,7 +10258,7 @@ int CPosProcessor::ProcessGift()
 			SaGiftArray::Gift gift;
 
 			SString buf, goods_name;
-			TSArray <SaSaleItem> sale_list, full_sale_list;
+			TSVector <SaSaleItem> sale_list, full_sale_list; // @v9.8.6 TSArray-->TSVector
 			LAssocArray ex_gift_list;    // Список подарочных товаров, уже находящихся в чеке
 			RAssocArray ex_gift_id_list; // Список подарков, уже находящихся в чеке
 			LAssocArray preserve_gift_assoc = P.GiftAssoc;

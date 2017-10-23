@@ -2192,7 +2192,7 @@ int FASTCALL DlContext::GetDotFunc(CtmFunc * pF)
 	int    ok = 1;
 	if(!F_Dot.ScopeID || !F_Dot.Pos) {
 		SString func_name;
-		IntArray func_pos_list;
+		LongArray func_pos_list;
 		const DlScope * p_scope = Sc.SearchByName(DlScope::kGlobal, "global", 0);
 		THROW(p_scope);
 		THROW(p_scope->GetFuncListByName(func_name.CatCharN('?', 2).CatChar(dlopDot), &func_pos_list));
@@ -2209,7 +2209,7 @@ int FASTCALL DlContext::GetRefFunc(CtmFunc * pF)
 	int    ok = 1;
 	if(!F_Ref.ScopeID || !F_Ref.Pos) {
 		SString func_name;
-		IntArray func_pos_list;
+		LongArray func_pos_list;
 		const DlScope * p_scope = Sc.SearchByName(DlScope::kGlobal, "global", 0);
 		THROW(p_scope);
 		THROW(p_scope->GetFuncListByName(func_name.CatCharN('?', 2).CatChar(dlopObjRef), &func_pos_list));
@@ -2758,7 +2758,7 @@ int SLAPI DlContext::Helper_GetScopeList(int kind, int recursive, StrAssocArray 
 {
 	int    ok = 1;
 	if(pList) {
-		IntArray id_list;
+		LongArray id_list;
 		Sc.GetChildList(kind, recursive, &id_list);
 		const uint c = id_list.getCount();
 		for(uint i = 0; i < c; i++) {

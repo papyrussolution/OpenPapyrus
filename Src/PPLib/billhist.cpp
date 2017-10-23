@@ -320,7 +320,7 @@ int SLAPI PPHistBillPacket::RemoveRow(uint rowIdx)
 	return Items.atFree(rowIdx) ? 1 : -1;
 }
 
-int SLAPI PPHistBillPacket::RemoveRows(IntArray * pPositions)
+int SLAPI PPHistBillPacket::RemoveRows(LongArray * pPositions)
 {
 	if(pPositions) {
 		for(int p = pPositions->getCount() - 1; p >= 0; p--) {

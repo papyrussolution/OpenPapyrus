@@ -606,14 +606,14 @@ int Generator_GnuPlot::DeclareLineStyle(long idx, const PPGpStyle * pStyle)
 int Generator_GnuPlot::StartData(int putLegend)
 {
 	int    ok = 1;
-	LineBuf = 0;
+	LineBuf.Z();
 	THROW_SL(DataFile.Open(DataFileName, SFile::mWrite));
 	/*
 	if(Param.Legend.getCount() && !(Param.Flags & PlotParam::fNoTitle)) {
 		long   max_id = 0;
 		Param.Legend.GetMaxID(&max_id);
 		SString text_buf;
-		LineBuf = 0;
+		LineBuf.Z();
 		for(long i = 1; i < max_id; i++) {
 			LineBuf.CatDiv(' ', 0, 1);
 			if(Param.Legend.Get(i, text_buf) > 0) {
@@ -668,7 +668,7 @@ int Generator_GnuPlot::PutEOR()
 {
 	LineBuf.CR();
 	int    ok = PutDataLine();
-	LineBuf = 0;
+	LineBuf.Z();
 	return ok;
 }
 
@@ -685,7 +685,7 @@ int Generator_GnuPlot::PutEndOfData()
 int Generator_GnuPlot::Plot(const PlotParam * pParam)
 {
 	// plot '-' using 1:2 title "Фигня всякая" w lines
-	LineBuf = 0;
+	LineBuf.Z();
 	SString data_file_name, temp_buf;
 	if(Items.getCount()) {
 		if(pParam)
@@ -717,7 +717,7 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 				PutLine();
 			}
 		}
-		LineBuf = 0;
+		LineBuf.Z();
 		if(Param.Flags & PlotParam::fStereo)
 			LineBuf.CatChar('s');
 		LineBuf.Cat("plot").Space();

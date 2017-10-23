@@ -736,7 +736,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 			}
 			else {
 				div_text_buf[0] = 0;
-				SLS.SubstString("@menudivider", 1, str_buf = 0);
+				SLS.SubstString("@menudivider", 1, str_buf.Z());
 				str_buf.Quot(' ', ' ');
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');

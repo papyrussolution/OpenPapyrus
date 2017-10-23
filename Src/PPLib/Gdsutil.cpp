@@ -953,6 +953,7 @@ private:
 			EditGoodsExTitles(GoodsExTitles);
 		}
 		else if(event.isCmd(cmTagIndFilt)) {
+			Data.TagIndFilt.Flags |= TagFilt::fColors; // @v9.8.6
 			EditTagFilt(PPOBJ_GOODS, &Data.TagIndFilt);
 		}
 		else
@@ -1824,7 +1825,7 @@ int QuotationDialog::SetupMatrixLocEntry(const StrAssocArray::Item & rItem, Smar
 	PPQuot quot;
 	const QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
 	Data.GetQuot(qi, &quot);
-	buf = 0;
+	buf.Z();
 	const double _q = round(quot.Quot, 0);
 	if(_q != 0.0) {
 		if(Cls == PPQuot::clsMtx) {

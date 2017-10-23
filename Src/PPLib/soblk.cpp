@@ -2596,7 +2596,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_SL(rResult.Write(&mtx_list, 0));
 				}
 				else if(OutFormat == fmtTddo) {
-					THROW(Helper_ProcessTddo(0, (void *)&mtx_list, "IntArray", OutTemplate, rResult));
+					THROW(Helper_ProcessTddo(0, (void *)&mtx_list, "LongArray", OutTemplate, rResult));
 				}
 				else if(OutFormat == fmtJson) {
 					PPExportDL600DataToJson(DL600StrucName, 0, (void *)&mtx_list, ResultText);
@@ -2604,7 +2604,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}
 				else {
-					THROW(PPExportDL600DataToBuffer("IntArray", (void *)&mtx_list, _xmlcp, ResultText)); // @badcast
+					THROW(PPExportDL600DataToBuffer("LongArray", (void *)&mtx_list, _xmlcp, ResultText)); // @badcast
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
 				}

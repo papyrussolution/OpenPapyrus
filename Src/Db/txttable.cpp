@@ -443,7 +443,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	if(P.Flags & fVerticalRec) {
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf = 0, pDataBuf));
+			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
 			if(P.Flags & fFldEqVal) {
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;
@@ -460,7 +460,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		line = 0;
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf = 0, pDataBuf));
+			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
 			line.Cat(field_buf);
 			if(!(P.Flags & fFixedFields) && i < rRec.GetCount()-1)
 				line.Cat(P.FldDiv);
@@ -519,7 +519,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 	if(P.Flags & fVerticalRec) {
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf = 0, pDataBuf));
+			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
 			if(P.Flags & fFldEqVal) {
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;

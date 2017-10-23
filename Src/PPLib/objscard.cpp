@@ -329,7 +329,7 @@ int SLAPI TrnovrRngDis::GetResult(double currentValue, double * pResult) const
 	return ok;
 }
 //
-PPSCardSerRule::PPSCardSerRule() : TSArray <TrnovrRngDis>()
+PPSCardSerRule::PPSCardSerRule() : TSVector <TrnovrRngDis>() // @v9.8.6 TSArray-->TSVector
 {
 	Init();
 }

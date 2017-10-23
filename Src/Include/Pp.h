@@ -315,6 +315,9 @@ class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
 class  PersonCache;
 class  BhtTSess;
+//class  VQuotCache;
+class  ExtGoodsSelDialog;
+struct StyloBhtIIConfig;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1022,7 +1025,7 @@ private:
 	DBFieldList InhFldList;    // @viewstate Список полей, унаследованных из исходой таблицы
 	DBFieldList CrssFldList;   // @viewstate Список результирующих кросс-таб полей
 	DBFieldList AggrFldList;   // @viewstate Список агрегируемых полей
-	IntArray    AggrFuncList;  // @viewstate Список агрегатных функций, ассоциированный со списком AggrFldList
+	LongArray    AggrFuncList;  // @viewstate Список агрегатных функций, ассоциированный со списком AggrFldList
 	SStrCollection AggrFldColNames; // @viewstate Наименования столбцов агрегируемых полей
 	LAssocArray   AggrFldFormats; // @viewstate Формат и опции колонки
 
@@ -2628,8 +2631,8 @@ public:
 		fColors        = 0x0002  // Фильтр используется для определения цветового выделения объектов, удовлетворяющих ограничениям
 	};
 
-	static int FASTCALL SetRestriction(const char * pRestrictionString, SString & rItemBuf);
-	static int FASTCALL SetColor(const SColor * pClr, SString & rItemBuf);
+	static void FASTCALL SetRestriction(const char * pRestrictionString, SString & rItemBuf);
+	static void FASTCALL SetColor(const SColor * pClr, SString & rItemBuf);
 	static int FASTCALL GetRestriction(const char * pItemString, SString & rRestrictionBuf);
 	static int FASTCALL GetColor(const char * pItemString, SColor & rClr);
 	static int FASTCALL SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList);
@@ -3244,7 +3247,7 @@ private:
 class PPObjTagPacket {
 public:
 	SLAPI  PPObjTagPacket();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	PPObjTagPacket & FASTCALL operator = (PPObjTagPacket &);
 
 	PPObjectTag   Rec;
@@ -8817,7 +8820,7 @@ public:
 // Descr: Сумма, связанная со штатной должностью либо штатным назначением.
 //   Отличается от AmtEntry наличием периода действия.
 //
-struct StaffAmtEntry {
+struct StaffAmtEntry { // @flat
 	DECL_INVARIANT_C();
 	SLAPI  StaffAmtEntry(PPID amtTypeID = 0, PPID curID = 0, double amt = 0.0);
 	int    FASTCALL IsEqual(const StaffAmtEntry & rS) const;
@@ -8830,7 +8833,7 @@ struct StaffAmtEntry {
 //
 // Descr: Список штатных сумм
 //
-class StaffAmtList : public TSArray <StaffAmtEntry> {
+class StaffAmtList : public TSVector <StaffAmtEntry> { // @v9.8.6 TSArray-->TSVector
 public:
 	SLAPI  StaffAmtList();
 	int    FASTCALL IsEqual(const StaffAmtList & rS) const;
@@ -9700,7 +9703,7 @@ class ClbNumberList : private StrAssocArray { // @persistent(DBX)
 public:
 	SLAPI  ClbNumberList();
 	int    SLAPI AddNumber(int rowIdx, const char * pClbNumber);
-	int    SLAPI AddNumber(const IntArray * pRows, const char * pClbNumber);
+	int    SLAPI AddNumber(const LongArray * pRows, const char * pClbNumber);
 	int    SLAPI GetNumber(int rowIdx, SString * pBuf) const;
 	int    SLAPI SearchNumber(const char *, uint * pPos) const;
 	int    SLAPI ReplacePosition(int rowIdx, int newRowIdx);
@@ -9969,7 +9972,7 @@ public:
 	//
 	// Descr: Дескриптор подстановки поставщика при списании дефицита
 	//
-	struct SupplSubstItem {
+	struct SupplSubstItem { // @flat
 		SupplSubstItem(uint pos);
 		SString & FASTCALL QttyToStr(SString & rBuf) const;
 
@@ -9991,7 +9994,7 @@ public:
 	int    SLAPI Add__(const PUGL *);
 	int    FASTCALL Log(PPLogger * pLogger) const;
 	void   FASTCALL GetItemsLocList(PPIDArray & rList) const;
-	int    SLAPI GetSupplSubstList(uint pos /*[1..]*/, TSArray <PUGL::SupplSubstItem> & rList) const;
+	int    SLAPI GetSupplSubstList(uint pos /*[1..]*/, TSVector <PUGL::SupplSubstItem> & rList) const; // @v9.8.6 TSArray-->TSVector
 	//
 	// Descr: возвращает !0 если все элементы имеют признак PUGI::fTerminal
 	//
@@ -10010,10 +10013,10 @@ public:
 	int16  Actions[9];   //
 	int    CostByCalc;
 	double CalcCostPct;
-	TSArray <SupplSubstItem> SupplSubstList; // Список определителей подстановки поставщиков,
-		// применяемый для оприходования дефицита с привязкой к конкретным поставщикам
-
-	static int BalanceSupplSubstList(TSArray <SupplSubstItem> & rList, double neededeQtty);
+	TSVector <SupplSubstItem> SupplSubstList; // Список определителей подстановки поставщиков,
+		// применяемый для оприходования дефицита с привязкой к конкретным поставщикам.
+		// @v9.8.6 TSArray-->TSVector
+	static int BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty); // @v9.8.6 TSArray-->TSVector
 };
 //
 //
@@ -10412,10 +10415,10 @@ public:
 	//
 	int    SLAPI GoodsRest(PPID goodsID, const PPTransferItem *, int pos, double * pRest, double * pReserve = 0);
 	int    SLAPI CalcShadowQuantity(PPID lot, double * pQtty) const;
-	int    SLAPI InsertRow(const PPTransferItem *, IntArray *, int pcug = PCUG_CANCEL);
+	int    SLAPI InsertRow(const PPTransferItem *, LongArray *, int pcug = PCUG_CANCEL);
 	int    SLAPI RemoveRow(uint *);
 	int    SLAPI RemoveRow(uint);
-	int    SLAPI RemoveRows(IntArray * pPositions, int lowStop = 0);
+	int    SLAPI RemoveRows(LongArray * pPositions, int lowStop = 0);
 	int    SLAPI ShrinkTRows(long fl = (ETIEF_DIFFBYLOT | ETIEF_UNITEBYGOODS));
 	int    SLAPI InsertComplete(PPGoodsStruc * pGs, uint pos, PUGL *, int pcug, const GoodsReplacementArray * pGra = 0);
 	int    SLAPI InsertPartitialStruc();
@@ -11008,7 +11011,7 @@ public:
 	int    SLAPI EnumItems(uint *, HistTrfrTbl::Rec **) const;
 	int    SLAPI InsertRow(HistTrfrTbl::Rec *);
 	int    SLAPI RemoveRow(uint);
-	int    SLAPI RemoveRows(IntArray * pPositions);
+	int    SLAPI RemoveRows(LongArray * pPositions);
 
 	HistBillTbl::Rec Head;
 private:
@@ -20688,7 +20691,7 @@ private:
 	int    SLAPI Helper_Select(const Ident * pIdent, TSCollection <PPGoodsStruc> & rList) const;
 };
 
-struct GStrucRecurItem {
+struct GStrucRecurItem { // @flat
 	PPGoodsStrucItem Item; //
 	PPID   LastLotID;      //
 	double Qtty;           //
@@ -20711,12 +20714,12 @@ private:
 	int    LoadRecurItems;
 	uint   Idx;
 	PPGoodsStruc GStruc;
-	TSArray <GStrucRecurItem> Items;
+	TSVector <GStrucRecurItem> Items; // @v9.8.6 TSArray-->TSVector
 };
 //
 //
 //
-struct SaSaleItem {
+struct SaSaleItem { // @flat
 	PPID   GoodsID;
 	double Qtty;
 	double Price;
@@ -20749,9 +20752,8 @@ public:
 	// Descr: Копирует экземпляр класса pS в this. Если pS == 0, то очищает this.
 	//
 	int    FASTCALL Copy(const SaGiftItem * pS);
-	int    SLAPI IsSaleListSuitable(const TSArray <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const;
-	int    SLAPI CalcPotential(const TSArray <SaSaleItem> & rSaleList,
-		PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const;
+	int    SLAPI IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const; // @v9.8.6 TSArray-->TSVector
+	int    SLAPI CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const; // @v9.8.6 TSArray-->TSVector
 
 	PPID   StrucID;        // Ид товарной структуры (подарочной)
 	PPID   OrgStrucID;     // Структура, родительская к StrucID самого верхнего уровня.
@@ -20799,7 +20801,7 @@ public:
 	SaGiftArray & FASTCALL operator = (const SaGiftArray &);
 	int    FASTCALL Copy(const SaGiftArray * pS);
 	int    CreateIndex();
-	int    SelectGift(const TSArray <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const;
+	int    SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const; // @v9.8.6 TSArray-->TSVector
 private:
 	LAssocArray Index; // Key - StrucID, Val - GoodsID
 };
@@ -28167,9 +28169,6 @@ struct QuotViewItem {
 	char   Quots[MAX_QUOTS_PER_TERM_REC][10];
 };
 
-class  VQuotCache;
-class  ExtGoodsSelDialog;
-
 class PPViewQuot : public PPView {
 public:
 	enum IterOrder {
@@ -28232,6 +28231,8 @@ private:
 	int    SLAPI CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl);
 	int    SLAPI MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSrcRec, TempOrderTbl::Rec & rDestRec);
 	int    FASTCALL CheckGoodsKindDiffRestriction(PPID goodsID);
+	SString & SLAPI GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf);
+	void   SLAPI SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SString & rVal);
 
 	QuotFilt Filt;
 	QuotationCore * P_Qc;
@@ -28248,6 +28249,7 @@ private:
 	PPIDArray QkList;
 	ExtGoodsSelDialog * P_GoodsSelDlg;
 	PPQuotItemArray QList_;
+	SStrGroup StrPool; // @v9.8.6 Пул строковых полей, на который ссылаются поля в TempQuotTbl
 	//
 	// Это поле инициализируется функцией Browse()
 	// и используется для вычисления вида котировки, соответствующего
@@ -28416,7 +28418,7 @@ struct PPBhtTerminal2 {    // @persistent @store(Reference2Tbl+)
 
 DECL_REF_REC(PPBhtTerminal);
 
-struct SBIIOpInfo { // @persistent @size=24
+struct SBIIOpInfo { // @persistent @size=24 @flat
 	long   OpID;
 	long   ToBhtOpID;
 	long   ToHostOpID;
@@ -28425,7 +28427,7 @@ struct SBIIOpInfo { // @persistent @size=24
 	long   Flags;
 };
 
-typedef TSArray <SBIIOpInfo> SBIIOpInfoArray;
+typedef TSVector <SBIIOpInfo> SBIIOpInfoArray; // @v9.8.6 TSArray-->TSVector
 
 struct StyloBhtIIOnHostCfg {
 	SLAPI  StyloBhtIIOnHostCfg();
@@ -28452,8 +28454,6 @@ struct StyloBhtIIOnHostCfg {
 	SBIIOpInfoArray * P_OpList;
 };
 
-struct StyloBhtIIConfig;
-
 struct PPBhtTerminalPacket {
 	SLAPI  PPBhtTerminalPacket();
 	SLAPI ~PPBhtTerminalPacket();
@@ -28479,7 +28479,6 @@ struct PPBhtTerminalPacket {
 	PPBhtTerminal Rec;
 	GoodsFilt * P_Filt;
 	StyloBhtIIOnHostCfg * P_SBIICfg;
-	//char   ImpExpPath_[256];
 	SString ImpExpPath_;
 };
 
@@ -29849,7 +29848,7 @@ public:
 	//   значение не равно 0, значит функции не удалось полностью вставить
 	//   строку в документ (например, из-за недостатка товара pItem->GoodsID).
 	//
-	int    SLAPI ConvertILTI(ILTI *, PPBillPacket *, IntArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
+	int    SLAPI ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
 	int    SLAPI AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    SLAPI CmpSnrWithLotSnr(PPID lotID, const char * pSerial);
 	int    SLAPI ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket * pPack);
@@ -30293,7 +30292,7 @@ private:
 	int    SLAPI SetTagNumberByLot(PPID lotID, PPID tagID, const char * pNumber, int use_ta);
 	int    SLAPI Helper_GetPoolMembership(PPID id, PPBillPacket *, long flag, PPID poolType, PPID * pPoolID);
 		// @<<PPObjBill::GetPoolsMembership
-	int    SLAPI Helper_ConvertILTI_Subst(ILTI *, PPBillPacket *, IntArray * pRows,
+	int    SLAPI Helper_ConvertILTI_Subst(ILTI *, PPBillPacket *, LongArray * pRows,
 		double * pQtty, long flags, const GoodsReplacementArray *, char * pSerial);
 		// @<<PPObjBill::ConvertILTI
 	int    SLAPI CheckPoolStatus(PPID billID, int poolType);
@@ -30349,11 +30348,11 @@ private:
 
 	int    SLAPI GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc);
 
-	struct LockSet {
+	struct LockSet { // @flat
 		PPID   id;
 		PPID   link;
 	};
-	TSArray <LockSet> locks;
+	TSVector <LockSet> locks; // @v9.8.6 TSArray-->TSVector
 	GtaBlock GtaB;
 	const  long CcFlags;     // Копия CConfig.Flags ради небольшого увеличения эффективности кода по размеру и скорости работы
  	int    DemoRestrict;
@@ -31260,7 +31259,7 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 
 DECL_REF_REC(PPSCardSeries);
 
-struct TrnovrRngDis {      // @persistent
+struct TrnovrRngDis {      // @persistent @flat
 	SLAPI  TrnovrRngDis();
 	int    SLAPI GetResult(double currentValue, double * pResult) const;
 	enum {
@@ -31279,7 +31278,7 @@ struct TrnovrRngDis {      // @persistent
 #define SCARDSER_AUTODIS_PREVPRD 1L
 #define SCARDSER_AUTODIS_THISPRD 2L
 
-class PPSCardSerRule : public TSArray <TrnovrRngDis> { // @persistent @store(PropertyTbl)
+class PPSCardSerRule : public TSVector <TrnovrRngDis> { // @persistent @store(PropertyTbl) // @v9.8.6 TSArray-->TSVector
 public:
 	PPSCardSerRule();
 	PPSCardSerRule & FASTCALL operator = (const PPSCardSerRule & s);
@@ -32003,12 +32002,12 @@ public:
 			long   CipLockTimeout;   // @v8.8.1 @#{>=0} Таймаут блокировки резерва за заданное количество секунд до начала сессии
 			uint8  FbReserve[20];    // @reserve
 		} Fb;                    // @anchor
-		struct InnerPlaceDescription {
+		struct InnerPlaceDescription { // @flat
 			PPID   GoodsID;  // Товар, ассоциированный с диапазоном мест
 			uint   RangeP;   // Идент строки расширения, определяющий диапазон посадочных мест
 			uint   DescrP;   // Идент строки расширения, определяющий описание диапазона мест
 		};
-		TSArray <InnerPlaceDescription> Places; // @v8.7.0
+		TSVector <InnerPlaceDescription> Places; // @v8.7.0 // @v9.8.6 TSArray-->TSVector
 	};
 	ProcessorTbl::Rec Rec;
 	ExtBlock Ext;
@@ -32541,7 +32540,7 @@ public:
 	long   Flags;
 	TSessionTbl::Rec Rec;
 	PPCheckInPersonArray CiList;
-	TSArray <TSessLineTbl::Rec> Lines;
+	TSVector <TSessLineTbl::Rec> Lines; // @v9.8.6 TSArray-->TSVector
 	ObjTagList TagL;        // @v8.7.4  Список тегов
 	ObjLinkFiles LinkFiles; // @v8.7.6
 	PPProcessorPacket::ExtBlock Ext; // @v8.8.0 Некоторые параметры процессора могут быть переопределены в этом блоке.
@@ -33681,7 +33680,7 @@ struct BillTransmitParam : public PPBaseFilt {
 
 class BillTransmDeficit {
 public:
-	struct LocPeriod {
+	struct LocPeriod { // @flat
 		PPID   LocID;
 		DateRange P;
 	};
@@ -33706,7 +33705,7 @@ private:
 	LocPeriod * GetLocPeriod(PPID locID);
 
 	int    DiffGoodsBySuppl;
-	TSArray <LocPeriod> LocPeriodList_;
+	TSVector <LocPeriod> LocPeriodList_; // @v9.8.6 TSArray-->TSVector
 	TempDeficitTbl * Tbl;
 	PPObjBill  * BObj;
 	PPObjGoods   GObj;
@@ -33956,7 +33955,7 @@ private:
 	int    SLAPI SetupSyncCmpRec(const ObjSyncQueueTbl::Rec * pQueueRec, TempSyncCmpTbl::Rec * pRec);
 	int    SLAPI RestoreFromStream(const char * pInFileName, FILE * stream, TempSyncCmpTbl * pTbl);
 	int    SLAPI PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const char * pInFileName, FILE * pInStream, int use_ta);
-	int    SLAPI Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSArray <ObjSyncQueueTbl::Rec> & rList, int use_ta);
+	int    SLAPI Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta); // @v9.8.6 TSArray-->TSVector
 	//
 	// Descr:
 	// Returns:
@@ -48172,7 +48171,7 @@ protected:
 	void   Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount);
 	void   SetupDiscount(int distributeGiftDiscount = 0);
 	int    ProcessGift();
-	int    AddGiftSaleItem(TSArray <SaSaleItem> & rList, const CCheckItem & rItem) const;
+	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const; // @v9.8.6 TSArray-->TSVector
 	double CalcCurrentRest(PPID goodsID, int checkInputBuffer);
 	int    LoadComplex(PPID goodsID, SaComplex & rComplex);
 	int    SetupSCard(PPID scID, const SCardTbl::Rec * pScRec);
@@ -49136,25 +49135,25 @@ int    SLAPI GenerateCliBnkImpData();
 // Descr: Функция, создающая и открывающая DBF-таблицу по образцу,
 //   заданному в ресурсе rezID (PP_RCDATA).
 //
-DbfTable * SLAPI CreateDbfTable(uint rezID, const char * fName, int forceReplace);
-DbfTable * SLAPI PPOpenDbfTable(const char * pPath);
+DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceReplace);
+DbfTable * FASTCALL PPOpenDbfTable(const char * pPath);
 //
 // Descr: Функция форматирования количества товара. Кроме общих флагов
 //   форматирования параметр fmt может включать флаги QTTYF_XXX (ppdefs.h)
 //   Параметр upp (UnitsPerPack) передает емкость упаковки.
 //   Если noabs != 0, то у значения qtty не будет отбрасываться знак минус.
 //
-char    * SLAPI QttyToStr(double qtty, double pack, long fmt, char * buf, int noabs = 0);
+char    * FASTCALL QttyToStr(double qtty, double pack, long fmt, char * buf, int noabs = 0);
 SString & SLAPI MoneyToStr(double nmb, long fmt, SString &);
 SString & SLAPI DateToStr(LDATE dt, SString & rBuf);
 SString & SLAPI GetCurSymbText(PPID curID, SString & rBuf);
 SString & SLAPI VatRateStr(double rate, SString & rBuf);
 int    SLAPI GetReportIDByName(const char * pRptName, uint * pRptID);
-int    SLAPI StatusWinChange(int onLogon = 0, long timer = -1);
+int    FASTCALL StatusWinChange(int onLogon = 0, long timer = -1);
 SDateRange FASTCALL DateRangeToOleDateRange(DateRange period);
 DateRange  FASTCALL OleDateRangeToDateRange(const SDateRange & rRnd);
 SIterCounter FASTCALL GetPPViewIterCounter(const void * ppviewPtr, int * pAppError);
-IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam);
+IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam);
 //
 // Descr: Опции функций PPOpenFile
 //
@@ -49343,7 +49342,7 @@ enum {
 int     SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf);
 //
 int     SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags = 0);
-int     SLAPI PrintGoodsBill(PPBillPacket * pPack, SArray ** ppAry = 0, int printingNoAsk = 0);
+int     FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry = 0, int printingNoAsk = 0); // @v9.8.6 SArray-->SVector
 //
 // Descr: печатает расходный или приходный кассовый ордер.
 //   Если pay_rcv != 0, то печатается расходный ордер (pay), в противном

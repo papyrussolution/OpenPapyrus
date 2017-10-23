@@ -5672,7 +5672,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			if(_count && (force || _count >= pt_accum_limit)) {
 				if(P_LatOutF) {
 					LatAccum.sort();
-					Pb.LineBuf = 0;
+					Pb.LineBuf.Z();
 					for(uint i = 0; i < _count; i++) {
 						Pb.LineBuf.Cat(LatAccum.get(i)).CR();
 					}
@@ -5689,7 +5689,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			if(_count && (force || _count >= pt_accum_limit)) {
 				if(P_LonOutF) {
 					LonAccum.sort();
-					Pb.LineBuf = 0;
+					Pb.LineBuf.Z();
 					for(uint i = 0; i < _count; i++) {
 						Pb.LineBuf.Cat(LonAccum.get(i)).CR();
 					}
@@ -5706,7 +5706,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 			if(_count && (force || _count >= nodewayref_accum_limit)) {
 				if(P_NodeToWayAssocOutF) {
 					NodeWayAssocAccum.Sort();
-					Pb.LineBuf = 0;
+					Pb.LineBuf.Z();
 					for(uint i = 0; i < _count; i++) {
 						const LLAssoc & r_assoc = NodeWayAssocAccum.at(i);
 						Pb.LineBuf.Cat(r_assoc.Key).Tab().Cat(r_assoc.Val).CR();
@@ -5864,7 +5864,7 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 		SString line_buf;
 		PPOsm::Way way;
 		PPOsm::WayBuffer way_buf;
-		TSArray <PPOsm::Node> way_node_list;
+		TSVector <PPOsm::Node> way_node_list; // @v9.8.6 TSArray-->TSVector
 		BDbCursor curs(*p_db->P_GwT, 0);
 		BDbTable::Buffer key_buf, data_buf;
 		key_buf.Alloc(32);
@@ -6585,7 +6585,7 @@ int SLAPI PrcssrOsm::Run()
 							}
 							if(out_buf.Len() >= max_out_len) {
 								f_out.WriteLine(out_buf);
-								out_buf = 0;
+								out_buf.Z();
 							}
 						}
 						key_count++;
@@ -6598,7 +6598,7 @@ int SLAPI PrcssrOsm::Run()
 						out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
 						out_buf.Cat(prev_tag_key).Tab(2).Cat(key_count).CRB();
 						f_out.WriteLine(out_buf);
-						out_buf = 0;
+						out_buf.Z();
 					}
 				}
 			}

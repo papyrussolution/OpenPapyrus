@@ -1585,7 +1585,7 @@ int SLAPI TestSuffixTree()
 						st.DebugOutput(0, outp_buf);
 						f_out.WriteLine(outp_buf);
 						*/
-						st.DebugOutputStat((outp_buf = 0).CR());
+						st.DebugOutputStat(outp_buf.Z().CR());
 						f_out.WriteLine(outp_buf);
 					}
 				}
@@ -1614,7 +1614,7 @@ int SLAPI TestSuffixTree()
 						SString outp_buf;
 						st.DebugOutput(0, outp_buf);
 						f_out.WriteLine(outp_buf);
-						st.DebugOutputStat((outp_buf = 0).CR());
+						st.DebugOutputStat(outp_buf.Z().CR());
 						f_out.WriteLine(outp_buf);
 					}
 				}

@@ -494,7 +494,7 @@ uint SLAPI ClbNumberList::GetCount() const
 	return StrAssocArray::getCount();
 }
 
-int SLAPI ClbNumberList::AddNumber(const IntArray * pRows, const char * pClbNumber)
+int SLAPI ClbNumberList::AddNumber(const LongArray * pRows, const char * pClbNumber)
 {
 	if(pRows && !isempty(pClbNumber))
 		for(uint i = 0; i < pRows->getCount(); i++)
@@ -1286,7 +1286,7 @@ int SLAPI PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTra
 		pItem->Flags &= ~PPTFR_ONORDER;
 	if(R6(extraQtty) > 0.0 && pItem->Flags & PPTFR_MINUS) {
 		ILTI   ilti;
-		IntArray row_pos_list;
+		LongArray row_pos_list;
 		uint   fl = CILTIF_ABSQTTY;
 		ilti.GoodsID  = pItem->GoodsID;
 	   	ilti.Price    = pItem->NetPrice();
@@ -1323,7 +1323,7 @@ int SLAPI PPBillPacket::RemoveRow(uint rowIdx)
 int SLAPI PPBillPacket::RemoveRow(uint * pRowIdx)
 {
 	const uint r = *pRowIdx;
-	IntArray positions;
+	LongArray positions;
 	if(ConstTI(r).IsRecomplete()) {
 		//
 		// ¬месте со строкой рекомплектации удал€ютс€ все вход€щие строки,
@@ -1373,7 +1373,7 @@ int SLAPI PPBillPacket::RemoveRow(uint * pRowIdx)
 	return 1;
 }
 
-int SLAPI PPBillPacket::RemoveRows(IntArray * pPositions, int lowStop)
+int SLAPI PPBillPacket::RemoveRows(LongArray * pPositions, int lowStop)
 {
 	if(pPositions) {
 		for(int p = pPositions->getCount() - 1; p >= lowStop; p--) {
@@ -2627,7 +2627,7 @@ int SLAPI PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int 
 	return ok;
 }
 
-int SLAPI PPBillPacket::InsertRow(const PPTransferItem * pTI, IntArray * pRows, int pcug)
+int SLAPI PPBillPacket::InsertRow(const PPTransferItem * pTI, LongArray * pRows, int pcug)
 {
 	int    ok = 1;
 	uint   pos = Lots.getCount();

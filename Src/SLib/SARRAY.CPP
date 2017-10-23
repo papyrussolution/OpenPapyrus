@@ -3097,7 +3097,7 @@ int FASTCALL LongArray::addUnique(const LongArray * pS)
 	return addUniqueExclusive(pS, 0);
 }
 
-int SLAPI LongArray::removeByID(long id)
+int FASTCALL LongArray::removeByID(long id)
 {
 	uint   pos = 0;
 	return lsearch(id, &pos) ? atFree(pos) : -1;
@@ -4103,7 +4103,7 @@ int SLAPI TestSTree()
 			void * p_parent = tree.GetData(iter.GetParentPos());
 			if(p_parent)
 				parent_id_tree = *(long *)p_parent;
-			sa_list.Get(id, text_buf = 0);
+			sa_list.Get(id, text_buf.Z());
 			sa_list.GetParent(id, &parent_id_sa);
 
 			f_tree.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());

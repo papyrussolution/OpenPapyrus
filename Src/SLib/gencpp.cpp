@@ -59,7 +59,7 @@ int Generator_CPP::Wr_EndIf(const char * pSymb)
 
 int Generator_CPP::Wr_Indent()
 {
-	return WriteLine(CatIndent(TempBuf = 0));
+	return WriteLine(CatIndent(TempBuf.Z()));
 }
 
 SString & Generator_CPP::CatIndent(SString & rBuf)

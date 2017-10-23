@@ -56,7 +56,7 @@ SIterCounter FASTCALL GetPPViewIterCounter(const void * ppviewPtr, int * pAppErr
 	return cntr;
 }
 
-IUnknown * GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam)
+IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long extraParam)
 {
 	IUnknown * p = 0;
 	if(pObj) {
@@ -1562,8 +1562,9 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	if(tag_obj.Fetch(tagID, &tag_rec) > 0 && tag_rec.ObjTypeID == objType && tag_rec.TagDataType == OTTYP_GUID) {
+		Reference * p_ref = PPRef;
 		ObjTagItem tag_item;
-        if(PPRef->Ot.GetTag(objType, objID, tagID, &tag_item) > 0) {
+        if(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0) {
             ok = tag_item.GetStr(tagv);
         }
         else {
@@ -1571,8 +1572,8 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
             THROW(SearchObject(objType, objID, 0) > 0);
 			THROW_SL(uuid.Generate());
 			THROW(tag_item.SetGuid(tagID, &uuid))
-			THROW(PPRef->Ot.PutTag(objType, objID, &tag_item, -1));
-			THROW(PPRef->Ot.GetTag(objType, objID, tagID, &tag_item) > 0);
+			THROW(p_ref->Ot.PutTag(objType, objID, &tag_item, -1));
+			THROW(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0);
 			ok = tag_item.GetStr(tagv);
         }
 	}
@@ -4056,28 +4057,22 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 		gse.ExpiryPeriod = (int16)pGRec->ExpiryPeriod;
 		//
 		(temp_u_buf = pGRec->Storage).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_STORAGE, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_STORAGE, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		(temp_u_buf = pGRec->Standard).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_STANDARD, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_STANDARD, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		(temp_u_buf = pGRec->Ingred).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_INGRED, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_INGRED, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		(temp_u_buf = pGRec->Energy).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_ENERGY, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_ENERGY, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		(temp_u_buf = pGRec->Usage).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_USAGE, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_USAGE, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		(temp_u_buf = pGRec->LabelName).CopyToUtf8(temp_buf, 1);
-		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		PPPutExtStrData(GDSEXSTR_LABELNAME, ext_string, temp_buf);
+		PPPutExtStrData(GDSEXSTR_LABELNAME, ext_string, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		//
 		THROW(p_obj->P_Tbl->PutStockExt(goodsID, &gse, 0));
 		THROW(PPRef->PutPropVlrString(PPOBJ_GOODS, goodsID, GDSPRP_EXTSTRDATA, ext_string));

@@ -285,7 +285,7 @@ int SmartListBox::RemoveColumn(int pos)
 
 int SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
 {
-	return StrPool.getnz(ColumnsSpcPos, rBuf = 0);
+	return StrPool.getnz(ColumnsSpcPos, rBuf.Z());
 }
 
 int SmartListBox::SetupColumns(const char * pColsBuf)
@@ -303,7 +303,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 			StringSet ss(',', cstr);
 			uint   width = 0;
 			uint   format = 0;
-			title_buf = 0;
+			title_buf.Z();
 			if(ss.get(&pos, citem)) {
 				if(citem.Divide('w', left, right) > 0)
 					width = (uint16)right.ToLong();
@@ -325,12 +325,11 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 	return 1;
 }
 
-int SmartListBox::RemoveColumns()
+void SmartListBox::RemoveColumns()
 {
 	State &= ~stInited;
 	for(long i = (long)Columns.getCount(); i >= 0; i--)
 		RemoveColumn(i);
-	return 1;
 }
 
 int FASTCALL SmartListBox::getCurID(long * pId)
@@ -338,7 +337,7 @@ int FASTCALL SmartListBox::getCurID(long * pId)
 int FASTCALL SmartListBox::getCurData(void * pData)
 	{ return def ? def->getCurData(pData) : 0; }
 int FASTCALL SmartListBox::getCurString(SString & rBuf)
-	{ return def ? def->getCurString(rBuf) : ((rBuf = 0), 0); }
+	{ return def ? def->getCurString(rBuf) : (rBuf.Z(), 0); }
 int SmartListBox::isTreeList() const
 	{ return BIN(def && def->_isTreeList()); }
 void SmartListBox::setHorzRange(int)
@@ -1519,7 +1518,7 @@ void SmartListBox::Implement_Draw()
 					buf.Transf(CTRANSF_INNER_TO_OUTER);
 				}
 				else
-					buf = 0;
+					buf.Z();
 				if(cc) {
 					LVITEM    lvi;
 					ss.setBuf(buf);

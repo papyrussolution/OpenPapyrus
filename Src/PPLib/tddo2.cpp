@@ -545,7 +545,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 	SString func_name, arg_buf;
 	func_name.CatChar('?').Cat(pFuncName);
 	{
-		IntArray fpl[3]; // func pos list
+		LongArray fpl[3]; // func pos list
 		const DlScope * p_org_scope = pScope;
 		const DlScope * p_scope = p_org_scope;
 		while(ok < 0 && p_scope) {
@@ -556,8 +556,8 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 			int    s_[3];
 			memzero(ambig, sizeof(ambig));
 			s_[0] = s_[1] = s_[2] = -1;
-			IntArray func_pos_list;
-			IntArray cvt_arg_list, cvt_al[3];
+			LongArray func_pos_list;
+			LongArray cvt_arg_list, cvt_al[3];
 			p_scope->GetFuncListByName(func_name, &func_pos_list);
 			for(i = 0; i < func_pos_list.getCount(); i++) {
 				int    s = tcrUnable;
@@ -1269,6 +1269,33 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 	return ok;
 }
 
+struct Tddo2_OpInfo {
+	uint8  Op;
+	uint8  Prior;
+	uint8  ArgCount;
+	uint8  Reserve; // @alignment
+	const char * P_Sym;
+};
+
+static const Tddo2_OpInfo Tddo2_OpInfoList[] = {
+	{ _DOT_,    1, 2, 0, "."  },
+	{ _NOT_,    2, 1, 0, "!"  },
+	{ _MULT_,   3, 2, 0, "*"  },
+	{ _DIVIDE_, 3, 2, 0, "/"  },
+	{ _MODULO_, 3, 2, 0, "%"  },
+	{ _PLUS_,   4, 2, 0, "+"  },
+	{ _MINUS_,  4, 2, 0, "-"  },
+	{ _LT_,     5, 2, 0, "<"  },
+	{ _LE_,     5, 2, 0, "<=" },
+	{ _GT_,     5, 2, 0, ">"  },
+	{ _GE_,     5, 2, 0, ">=" },
+	{ _EQ_,     6, 2, 0, "==" },
+	{ _NE_,     6, 2, 0, "!=" }, { _NE_,     6, 2, 0, "<>" },
+	{ _AND_,    7, 2, 0, "&&" }, { _AND_,    7, 2, 0, "and" },
+	{ _OR_,     8, 2, 0, "||" }, { _OR_,     8, 2, 0, "or" },
+	{ _ASSIGN_, 9, 2, 0, "="  }
+};
+
 class TddoContentGraph : public SStrGroup {
 public:
 	enum {
@@ -1350,15 +1377,88 @@ public:
 		};
 		class Expression {
 		public:
-			SLAPI  Expression()
+			SLAPI  Expression() : Next(0), Flags(0)
 			{
-				Next = 0;
-				Flags = 0;
 			}
 			uint   Next;  // Позиция следующего выражения списка (например, для цепочки аргументов функции или макроса)
 			long   Flags;
 			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
 		};
+
+		void   SLAPI DebugOutput(uint exprPos, SString & rBuf) const
+		{
+			if(exprPos < EL.getCount()) {
+				const Expression * p_expr = EL.at(exprPos);
+				if(p_expr) {
+					SString temp_buf;
+					rBuf.Cat("expression").CatChar('[').Cat(exprPos).CatChar(']');
+					if(p_expr->Next) {
+						rBuf.Space().CatEq("Next", p_expr->Next);
+					}
+					if(p_expr->Flags) {
+						rBuf.Space().CatEq("Flags", p_expr->Flags);
+					}
+					rBuf.CatChar(':');
+					for(uint i = 0; i < p_expr->ES.getPointer(); i++) {
+						const Item * p_item = (const Item *)p_expr->ES.at(i);
+						rBuf.Space();
+						switch(p_item->K) {
+							case kOp: 
+								rBuf.Cat("op");
+								{
+									int    _f = 0;
+									for(uint j = 0; !_f && j < SIZEOFARRAY(Tddo2_OpInfoList); j++) {
+										if(Tddo2_OpInfoList[j].Op == p_item->Op) {
+											rBuf.CatChar('[').Cat(Tddo2_OpInfoList[j].P_Sym).CatChar(']');
+											_f = 1;
+										}
+									}
+									if(!_f)
+										rBuf.CatChar('[').Cat("UNKN").CatChar(']');
+								}
+								rBuf.CatParStr(p_item->ArgCount); 
+								break;
+							case kFunc: 
+								rBuf.Cat("func");
+								R_G.GetS(p_item->SymbP, temp_buf);
+								rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
+								rBuf.CatParStr(p_item->ArgCount);
+								break;
+							case kString: 
+								rBuf.Cat("string"); 
+								R_G.GetS(p_item->SymbP, temp_buf);
+								rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
+								break;
+							case kNumber: 
+								rBuf.Cat("number"); 
+								rBuf.CatChar('[').Cat(p_item->R, MKSFMTD(0, 9, NMBF_NOTRAILZ)).CatChar(']');
+								break;
+							case kVar: 
+								rBuf.Cat("var"); 
+								R_G.GetS(p_item->SymbP, temp_buf);
+								rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
+								break;
+							case kFormalArg: 
+								rBuf.Cat("formalarg"); 
+								R_G.GetS(p_item->SymbP, temp_buf);
+								rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
+								break;
+							default: 
+								rBuf.Cat("UNKN"); 
+								break;
+						}
+					}
+					if(p_expr->Next) {
+						rBuf.CatDiv(',', 2);
+						DebugOutput(p_expr->Next, rBuf); // @recursion
+					}
+				}
+				else
+					rBuf.Cat("zero-expression").CatChar('[').Cat(exprPos).CatChar(']');
+			}
+			else
+				rBuf.Cat("invalid-expression-pos").CatChar('[').Cat(exprPos).CatChar(']');
+		}
 
 		SLAPI  ExprSet(TddoContentGraph & rG) : R_G(rG)
 		{
@@ -1445,6 +1545,7 @@ public:
 					done = 1;
 				}
 				else {
+					Stack * p_local_stk = 0; // temporary pointer in order to save code lines. Don't destroy it!
 					R_G.Skip();
 					if(untilToken & untiltokRBrace && r_scan[0] == '}')
 						done = 1;
@@ -1453,84 +1554,96 @@ public:
 					else if(untilToken & untiltokComma && r_scan[0] == ',')
 						done = 1;
 					else if(r_scan[0] == '(') {
-						Stack * p_local_stk = local_expr_list.CreateNewItem();
-						THROW(p_local_stk);
+						r_scan.Incr();
+						THROW(p_local_stk = local_expr_list.CreateNewItem());
 						int local_ok = Helper_Parse(untiltokRPar, *p_local_stk); // @recursion
 					}
 					else {
 						int r = R_G.Helper_RecognizeExprToken(0, temp_buf);
-						if(r == Tddo::tLiteral) {
-							Item ei(kString);
-							R_G.AddS(temp_buf, &ei.SymbP);
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							p_local_stk->push(ei);
-						}
-						else if(r == Tddo::tNumber) {
-							Item ei(kNumber);
-							ei.R = temp_buf.ToReal();
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							p_local_stk->push(ei);
-						}
-						else if(r == Tddo::tVar) {
-							Item ei(kVar);
-							R_G.AddS(temp_buf, &ei.SymbP);
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							p_local_stk->push(ei);
-						}
-						else if(r == Tddo::tVarArgN) {
-							Item ei(kVar);
-							R_G.AddS(temp_buf, &ei.SymbP);
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							p_local_stk->push(ei);
-						}
-						else if(r == Tddo::tDollarBrace) {
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							Helper_Parse(untiltokRBrace, *p_local_stk); // @recursion
-						}
-						else if(r == Tddo::tFunc) {
-							int    local_ok = 1;
-							Item ei(kFunc);
-							R_G.AddS(temp_buf, &ei.SymbP);
-							TSCollection <Stack> local_arg_list;
-							do {
-								uint   local_stk_pos = 0;
-								Stack * p_local_stk = local_arg_list.CreateNewItem(&local_stk_pos);
-								THROW_SL(p_local_stk);
-								local_ok = Helper_Parse(untiltokComma|untiltokRPar, *p_local_stk); // @recursion
-								if(p_local_stk->getPointer() == 0) {
-									local_arg_list.atFree(local_stk_pos);
-									if(r_scan[0] != ')' && local_ok)
-										local_ok = 0; // @error Empty expression
+						switch(r) {
+							case Tddo::tLiteral:
+								{
+									Item ei(kString);
+									R_G.AddS(temp_buf, &ei.SymbP);
+									THROW(p_local_stk = local_expr_list.CreateNewItem());
+									p_local_stk->push(ei);
 								}
-							} while(local_ok && r_scan[0] != ')');
-							if(r_scan[0] == ')') {
-								r_scan.Incr();
-							}
-							if(local_ok) {
-								Stack * p_local_stk = local_expr_list.CreateNewItem();
-								THROW(p_local_stk);
-								ei.ArgCount = local_arg_list.getCount();
-								p_local_stk->push(ei);
-								for(uint i = 0; i < local_arg_list.getCount(); i++) {
-									p_local_stk->Push(*local_arg_list.at(i));
+								break;
+							case Tddo::tNumber:
+								{
+									Item ei(kNumber);
+									ei.R = temp_buf.ToReal();
+									THROW(p_local_stk = local_expr_list.CreateNewItem());
+									p_local_stk->push(ei);
 								}
-							}
-						}
-						else if(r > Tddo::tOperator) {
-							Item ei(kOp);
-							ei.Op = (r - Tddo::tOperator);
-							if(ei.Op == _NOT_)
-								ei.ArgCount = 1;
-							else
-								ei.ArgCount = 2;
-							Stack * p_local_stk = local_expr_list.CreateNewItem();
-							THROW(p_local_stk);
-							p_local_stk->push(ei);
+								break;
+							case Tddo::tVar:
+								{
+									Item ei(kVar);
+									R_G.AddS(temp_buf, &ei.SymbP);
+									THROW(p_local_stk = local_expr_list.CreateNewItem());
+									p_local_stk->push(ei);
+								}
+								break;
+							case Tddo::tVarArgN:
+								{
+									Item ei(kVar);
+									R_G.AddS(temp_buf, &ei.SymbP);
+									THROW(p_local_stk = local_expr_list.CreateNewItem());
+									p_local_stk->push(ei);
+								}
+								break;
+							case Tddo::tDollarBrace:
+								{
+									THROW(p_local_stk = local_expr_list.CreateNewItem());
+									Helper_Parse(untiltokRBrace, *p_local_stk); // @recursion
+								}
+								break;
+							case Tddo::tFunc:
+								{
+									int    local_ok = 1;
+									Item ei(kFunc);
+									R_G.AddS(temp_buf, &ei.SymbP);
+									TSCollection <Stack> local_arg_list;
+									do {
+										uint   local_stk_pos = 0;
+										THROW_SL(p_local_stk = local_arg_list.CreateNewItem(&local_stk_pos));
+										local_ok = Helper_Parse(untiltokComma|untiltokRPar, *p_local_stk); // @recursion
+										if(p_local_stk->getPointer() == 0) {
+											local_arg_list.atFree(local_stk_pos);
+											if(r_scan[0] != ')' && local_ok)
+												local_ok = 0; // @error Empty expression
+										}
+									} while(local_ok && r_scan[0] != ')');
+									if(r_scan[0] == ')') {
+										r_scan.Incr();
+									}
+									if(local_ok) {
+										THROW(p_local_stk = local_expr_list.CreateNewItem());
+										ei.ArgCount = local_arg_list.getCount();
+										p_local_stk->push(ei);
+										for(uint i = 0; i < local_arg_list.getCount(); i++) {
+											p_local_stk->Push(*local_arg_list.at(i));
+										}
+									}
+								}
+								break;
+							default:
+								if(r > Tddo::tOperator) {
+									Item ei(kOp);
+									ei.Op = (r - Tddo::tOperator);
+									if(ei.Op == _NOT_)
+										ei.ArgCount = 1;
+									else
+										ei.ArgCount = 2;
+									Stack * p_local_stk = local_expr_list.CreateNewItem();
+									THROW(p_local_stk);
+									p_local_stk->push(ei);
+								}
+								else {
+									assert(0); // @error
+								}
+								break;
 						}
 					}
 				}
@@ -1541,39 +1654,17 @@ public:
 		}
 		static int FASTCALL CmpOpPrior(int op1, int op2)
 		{
-			struct OpPrior {
-				uint8  Op;
-				uint8  Prior;
-			};
-			static const OpPrior prior_list[] = {
-				{ _DOT_,    1 },
-				{ _NOT_,    2 },
-				{ _MULT_,   3 },
-				{ _DIVIDE_, 3 },
-				{ _MODULO_, 3 },
-				{ _PLUS_,   4 },
-				{ _MINUS_,  4 },
-				{ _LT_,     5 },
-				{ _LE_,     5 },
-				{ _GT_,     5 },
-				{ _GE_,     5 },
-				{ _EQ_,     6 },
-				{ _NE_,     6 },
-				{ _AND_,    7 },
-				{ _OR_,     8 },
-				{ _ASSIGN_, 9 }
-			};
 			if(op1 == op2)
 				return 0;
 			else {
 				int prior1 = 0;
 				int prior2 = 0;
-				for(uint i = 0; (!prior1 || !prior2) && i < SIZEOFARRAY(prior_list); i++) {
-					const int _o = (int)prior_list[i].Op;
+				for(uint i = 0; (!prior1 || !prior2) && i < SIZEOFARRAY(Tddo2_OpInfoList); i++) {
+					const int _o = (int)Tddo2_OpInfoList[i].Op;
 					if(_o == op1)
-						prior1 = (int)prior_list[i].Prior;
+						prior1 = (int)Tddo2_OpInfoList[i].Prior;
 					if(_o == op2)
-						prior1 = (int)prior_list[i].Prior;
+						prior2 = (int)Tddo2_OpInfoList[i].Prior;
 				}
 				return CMPSIGN(prior1, prior2);
 			}
@@ -1596,8 +1687,8 @@ public:
 					}
 					const uint _oc = op_list.getCount();
 					if(_oc == 1) {
-						int op = op_list.at(i).Val;
-						uint op_pos = op_list.at(i).Key;
+						const int  op = op_list.at(0).Val;
+						const uint op_pos = op_list.at(0).Key;
 						if(op == _NOT_) {
 							if(op_pos == 0 && _c == 2) {
 								rStack.Push(*rExprList.at(op_pos));
@@ -1620,58 +1711,56 @@ public:
 					}
 					else {
 						for(i = 0; i < _oc; i++) {
-							if(i < (_oc-1)) {
-								int local_ok = 1;
-								int op = op_list.at(i).Val;
-								uint op_pos = op_list.at(i).Key;
-								int cr = CmpOpPrior(op, op_list.at(i+1).Val);
-								if(cr <= 0) {
-									TSCollection <Stack> inner_expr_list;
-									uint   ii;
-									if(op == _NOT_) {
-										if(op_pos < (_c-1)) {
-											for(ii = 0; ii < op_pos; ii++) {
-												Stack * p_new_stk = inner_expr_list.CreateNewItem();
-												*p_new_stk = *rExprList.at(ii);
-											}
-											{
-												Stack * p_merge_stk = inner_expr_list.CreateNewItem();
-												p_merge_stk->Push(*rExprList.at(op_pos));
-												p_merge_stk->Push(*rExprList.at(op_pos+1));
-											}
-											for(ii = op_pos+2; ii < _c; ii++) {
-												Stack * p_new_stk = inner_expr_list.CreateNewItem();
-												*p_new_stk = *rExprList.at(ii);
-											}
+							int local_ok = 1;
+							const int  op = op_list.at(i).Val;
+							const uint op_pos = op_list.at(i).Key;
+							const int  cr = (i < (_oc-1)) ? CmpOpPrior(op, op_list.at(i+1).Val) : -1;
+							if(cr <= 0) {
+								TSCollection <Stack> inner_expr_list;
+								uint   ii;
+								if(op == _NOT_) {
+									if(op_pos < (_c-1)) {
+										for(ii = 0; ii < op_pos; ii++) {
+											Stack * p_new_stk = inner_expr_list.CreateNewItem();
+											*p_new_stk = *rExprList.at(ii);
 										}
-										else {
-											local_ok = 0; // @error
+										{
+											Stack * p_merge_stk = inner_expr_list.CreateNewItem();
+											p_merge_stk->Push(*rExprList.at(op_pos));
+											p_merge_stk->Push(*rExprList.at(op_pos+1));
+										}
+										for(ii = op_pos+2; ii < _c; ii++) {
+											Stack * p_new_stk = inner_expr_list.CreateNewItem();
+											*p_new_stk = *rExprList.at(ii);
 										}
 									}
 									else {
-										if(op_pos > 0 && op_pos < (_c-1)) {
-											for(ii = 0; ii < op_pos-1; ii++) {
-												Stack * p_new_stk = inner_expr_list.CreateNewItem();
-												*p_new_stk = *rExprList.at(ii);
-											}
-											{
-												Stack * p_merge_stk = inner_expr_list.CreateNewItem();
-												p_merge_stk->Push(*rExprList.at(op_pos));
-												p_merge_stk->Push(*rExprList.at(op_pos-1));
-												p_merge_stk->Push(*rExprList.at(op_pos+1));
-											}
-											for(ii = op_pos+2; ii < _c; ii++) {
-												Stack * p_new_stk = inner_expr_list.CreateNewItem();
-												*p_new_stk = *rExprList.at(ii);
-											}
+										local_ok = 0; // @error
+									}
+								}
+								else {
+									if(op_pos > 0 && op_pos < (_c-1)) {
+										for(ii = 0; ii < op_pos-1; ii++) {
+											Stack * p_new_stk = inner_expr_list.CreateNewItem();
+											*p_new_stk = *rExprList.at(ii);
 										}
-										else {
-											local_ok = 0; // @error
+										{
+											Stack * p_merge_stk = inner_expr_list.CreateNewItem();
+											p_merge_stk->Push(*rExprList.at(op_pos));
+											p_merge_stk->Push(*rExprList.at(op_pos-1));
+											p_merge_stk->Push(*rExprList.at(op_pos+1));
+										}
+										for(ii = op_pos+2; ii < _c; ii++) {
+											Stack * p_new_stk = inner_expr_list.CreateNewItem();
+											*p_new_stk = *rExprList.at(ii);
 										}
 									}
-									ok = local_ok ? ArrangeLocalExprList(inner_expr_list, rStack) : 0;
-									break;
+									else {
+										local_ok = 0; // @error
+									}
 								}
+								ok = local_ok ? ArrangeLocalExprList(inner_expr_list, rStack) : 0; // @recursion
+								break;
 							}
 						}
 					}
@@ -1685,6 +1774,7 @@ public:
 	};
 	SLAPI  TddoContentGraph(Tddo & rT) : R_T(rT), ES(*this)
 	{
+		P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 	}
 	SLAPI ~TddoContentGraph()
 	{
@@ -1718,12 +1808,8 @@ public:
 		Tddo::Meta   meta;
 
 		struct CurrentBlock {
-			CurrentBlock(uint parentChunkP, int isBrach)
+			CurrentBlock(uint parentChunkP, int isBrach) : Kind(0), P(parentChunkP), ExprP(0), IsBranch(isBrach)
 			{
-				Kind = 0;
-				P = parentChunkP;
-				ExprP = 0;
-				IsBranch = isBrach;
 			}
 			int    AppendToList(TddoContentGraph * pG)
 			{
@@ -1807,7 +1893,7 @@ public:
 											uint   expr_p = (uint)macro_arg_list.get(i);
 											uint   prev_expr_p = (uint)macro_arg_list.get(i-1);
 											assert(expr_p);
-											assert(i > 1 || expr_p == _cb.ExprP);
+											assert(i > 1 || prev_expr_p == _cb.ExprP);
 											assert(prev_expr_p);
 											ES.SetNextPos(prev_expr_p, expr_p);
 										}
@@ -1859,7 +1945,7 @@ public:
 												uint   expr_p = (uint)macro_arg_list.get(i);
 												uint   prev_expr_p = (uint)macro_arg_list.get(i-1);
 												assert(expr_p);
-												assert(i > 1 || expr_p == _cb.ExprP);
+												assert(i > 1 || prev_expr_p == _cb.ExprP);
 												assert(prev_expr_p);
 												ES.SetNextPos(prev_expr_p, expr_p);
 											}
@@ -2037,6 +2123,14 @@ public:
 		CATCHZOK
 		return ok;
 	}
+	static int FASTCALL IsFirstCharOfIdent(char c)
+	{
+		return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+	}
+	static int FASTCALL IsCharOfIdent(char c)
+	{
+		return (c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c));
+	}
 	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText)
 	{
 		int    t = 0;
@@ -2063,14 +2157,14 @@ public:
 						t = Tddo::tVarArgN;
 					}
 				}
-				else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+				else if(IsFirstCharOfIdent(c)) {
 					//
 					// ? Простая переменная вида ${var}
 					//
 					do {
 						text[tp++] = c;
 						c = Scan[++sp];
-					} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+					} while(IsCharOfIdent(c));
 					text[tp] = 0;
 					if(c == '}') {
 						Scan.Incr(tp+3); // ${}
@@ -2088,11 +2182,11 @@ public:
 					t = Tddo::tDollarBrace;
 				}
 			}
-			else if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+			else if(IsFirstCharOfIdent(c)) {
 				do {
 					text[tp++] = c;
 					c = Scan[++sp];
-				} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+				} while(IsCharOfIdent(c));
 				text[tp] = 0;
 				Scan.Incr(tp+1); // $
 				if(Scan[0] == '(') {
@@ -2106,11 +2200,11 @@ public:
 		}
 		else if(c == '@' && Scan[1] == '{') {
 			c = Scan[++sp];
-			if(c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+			if(IsFirstCharOfIdent(c)) {
 				do {
 					text[tp++] = c;
 					c = Scan[++sp];
-				} while(c == '_' || isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+				} while(IsCharOfIdent(c));
 				text[tp] = 0;
 				if(c == '}') {
 					Scan.Incr(tp+3); // # + { + }
@@ -2123,22 +2217,12 @@ public:
 			}
 		}
 		else if(!(flags & Tddo::rexptfMetaOnly)) {
-			struct _OpS {
-				const char * P_Op;
-				int   Op;
-			};
-			static const _OpS ops_list[] = {
-				{ "!", _NOT_ } /* 1 argument */, { "&&", _AND_ }, { "and", _AND_ }, { "||", _OR_ },
-				{ "or", _OR_ }, { "==", _EQ_ }, { "!=", _NE_ }, { "<>", _NE_ }, { ">=", _GE_ },
-				{ "<=", _LE_ }, { "in", _IN_ }, { "+", _PLUS_ }, { "-", _MINUS_ }, { "*", _MULT_ },
-				{ "/", _DIVIDE_ }, { "%", _MODULO_ }, { "<", _LT_ }, { ">", _GT_ }, { "=", _ASSIGN_ }, { ".", _DOT_ }
-			};
-			for(uint opi = 0; !t && opi < SIZEOFARRAY(ops_list); opi++) {
-				const char * p_s = ops_list[opi].P_Op;
+			for(uint opi = 0; !t && opi < SIZEOFARRAY(Tddo2_OpInfoList); opi++) {
+				const char * p_s = Tddo2_OpInfoList[opi].P_Sym;
 				if(Scan.Is(p_s)) {
 					Scan.Incr(strlen(p_s));
 					rText = p_s;
-					t = Tddo::tOperator+ops_list[opi].Op;
+					t = Tddo::tOperator+Tddo2_OpInfoList[opi].Op;
 					assert(t > Tddo::tOperator);
 					break;
 				}
@@ -2165,6 +2249,21 @@ public:
 				else if(Scan.IsNumber()) {
 					Scan.GetNumber(rText);
 					t = Tddo::tNumber;
+				}
+				else if(IsFirstCharOfIdent(c)) {
+					do {
+						text[tp++] = c;
+						c = Scan[++sp];
+					} while(IsCharOfIdent(c));
+					text[tp] = 0;
+					Scan.Incr(tp);
+					if(Scan[0] == '(') {
+						Scan.Incr();
+						t = Tddo::tFunc;
+					}
+					else
+						t = Tddo::tVar;
+					rText = text;
 				}
 			}
 		}
@@ -2228,45 +2327,34 @@ public:
 					recogn_result = 100;
 				}
 				if(recogn_result > 0) {
-					if(sstreq(text, "macro"))
-						m = Tddo::tMacro;
-					else if(sstreq(text, "set"))
-						m = Tddo::tSet;
-					else if(sstreq(text, "break"))
-						m = Tddo::tBreak;
-					else if(sstreq(text, "stop"))
-						m = Tddo::tStop;
-					else if(sstreq(text, "if"))
-						m = Tddo::tIf;
-					else if(sstreq(text, "else"))
-						m = Tddo::tElse;
-					else if(sstreq(text, "elseif") || sstreq(text, "elif"))
-						m = Tddo::tElif;
-					else if(sstreq(text, "foreach"))
-						m = Tddo::tForEach;
-					else if(sstreq(text, "endif"))
-						m = Tddo::tEndif;
-					else if(sstreq(text, "end"))
-						m = Tddo::tEnd;
-					else if(sstreq(text, "codepage"))
-						m = Tddo::tCodepage;
-					else if(sstreq(text, "pragma"))
-						m = Tddo::tPragma;
-					else if(sstreq(text, "start"))
-						m = Tddo::tStart;
-					else if(sstreq(text, "rem"))
-						m = Tddo::tRem;
-					else if(sstreq(text, "iter"))
-						m = Tddo::tIter;
-					else if(sstreq(text, "itercount"))
-						m = Tddo::tIterCount;
-					else if(sstreq(text, "text"))
-						m = Tddo::tText;
-					else if(sstreq(text, "include"))
-						m = Tddo::tInclude;
-					else if(text[0]) {
-						m = Tddo::tMacroCall;
-						rAddendum = text;
+					uint _ut = 0;
+					P_ShT->Search(text, &_ut, 0);
+					switch(_ut) {
+						case PPHS_MACRO:     m = Tddo::tMacro; break;
+						case PPHS_SET:       m = Tddo::tSet; break;
+						case PPHS_BREAK:     m = Tddo::tBreak; break;
+						case PPHS_STOP:      m = Tddo::tStop; break;
+						case PPHS_IF:        m = Tddo::tIf; break;
+						case PPHS_ELSE:      m = Tddo::tElse; break;
+						case PPHS_ELSEIF:  
+						case PPHS_ELIF:      m = Tddo::tElif; break;
+						case PPHS_FOREACH:   m = Tddo::tForEach; break;
+						case PPHS_ENDIF:     m = Tddo::tEndif; break;
+						case PPHS_END:       m = Tddo::tEnd; break;
+						case PPHS_CODEPAGE:  m = Tddo::tCodepage; break;
+						case PPHS_PRAGMA:    m = Tddo::tPragma; break;
+						case PPHS_START:     m = Tddo::tStart; break;
+						case PPHS_REM:       m = Tddo::tRem; break;
+						case PPHS_ITER:      m = Tddo::tIter; break;
+						case PPHS_ITERCOUNT: m = Tddo::tIterCount; break;
+						case PPHS_TEXT:      m = Tddo::tText; break;
+						case PPHS_INCLUDE:   m = Tddo::tInclude; break;
+						default:
+							if(text[0]) {
+								m = Tddo::tMacroCall;
+								rAddendum = text;
+							}
+							break;
 					}
 					if(m) {
 						if(recogn_result == 200)
@@ -2319,12 +2407,14 @@ private:
 			default: temp_buf = "kUNKNOWN"; break;
 		}
 		rBuf.Space().CatEq("Kind", temp_buf);
-		if(r_chunk.ExprP) {
-			rBuf.Space().CatEq("ExprP", r_chunk.ExprP);
-		}
 		if(r_chunk.TextP) {
 			GetS(r_chunk.TextP, temp_buf);
 			rBuf.Space().CatEq("Text", temp_buf);
+		}
+		if(r_chunk.ExprP) {
+			rBuf.Space().CatEq("ExprP", r_chunk.ExprP);
+			ES.DebugOutput(r_chunk.ExprP, temp_buf.Z());
+			rBuf.CR().Tab(tabLevel+1).Cat(temp_buf);
 		}
 		if(r_chunk.BranchP) {
 			rBuf.CR();
@@ -2356,6 +2446,7 @@ private:
 	Tddo & R_T;
 	SStrScan Scan;
 	uint   LineNo;
+	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
 };
 //
 // Implementation of PPALDD_HttpPreprocessBase

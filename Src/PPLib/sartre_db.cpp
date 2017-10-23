@@ -1044,7 +1044,7 @@ IMPL_CMPCFUNC(PPOsm_Node_ByWay, p1, p2)
     return CMPSIGN(pos1, pos2);
 }
 
-int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSArray <PPOsm::Node> & rNodeList)
+int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::Node> & rNodeList) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = -1;
 	const  uint _c = rWay.NodeRefs.getCount();

@@ -30,12 +30,12 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 				Init(1, 0);
 			}
 			char   ReserveStart[4];  // @anchor
-			int32  QkCls;            // @v6.5.12 Класс вида котировки
-			DateRange Period;        // @v6.2.7 (quot2) Период значений
-			PPID   QTaID;            // @v6.2.7 (quot2) ИД транзакции изменения котировки
-			PPID   SellerID;         // @v6.2.6 ->Article.ID Продавец
-			PPID   SellerLocWorldID; // @v6.2.6 ->World.ID Ид элемента World, которому должна принадлежать локация LocID
-			PPID   BrandID;          // @v6.2.6
+			int32  QkCls;            // Класс вида котировки
+			DateRange Period;        // (quot2) Период значений
+			PPID   QTaID;            // (quot2) ИД транзакции изменения котировки
+			PPID   SellerID;         // ->Article.ID Продавец
+			PPID   SellerLocWorldID; // ->World.ID Ид элемента World, которому должна принадлежать локация LocID
+			PPID   BrandID;          // 
 			PPID   LocID;            //
 			PPID   QuotKindID;       //
 			PPID   CurID;            //
@@ -46,7 +46,7 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			RealRange Val;           // Диапазон значений котировки (0..0 - игнорируется)
 			long   Flags;
 			long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
-			ObjIdListFilt LocList;   // @v6.4.2 Список складов
+			ObjIdListFilt LocList;   // Список складов
 		};
 		QuotFilt_v2 fv2;
 		THROW(fv2.Read(rBuf, 0));
@@ -279,7 +279,7 @@ int QuotFiltDialog::setDTS(const QuotFilt * pData)
 	setGroupData(GRP_GOODSFILT, &rec);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 	setGroupData(GRP_LOC, &loc_rec);
-	setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate); // @v7.3.5
+	setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
 	SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period); // @v8.4.8
 	SetupCtrls();
 	return 1;
@@ -309,7 +309,7 @@ int QuotFiltDialog::getDTS(QuotFilt * pData)
 	getGroupData(GRP_GOODSFILT, &rec);
 	Data.GoodsGrpID = rec.GoodsGrpID;
 	Data.GoodsID = rec.GoodsID;
-	Data.EffDate = getCtrlDate(CTL_QUOTFLT_EFFDATE); // @v7.3.5
+	Data.EffDate = getCtrlDate(CTL_QUOTFLT_EFFDATE);
 	GetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period); // @v8.4.8
 	getGroupData(GRP_LOC, &loc_rec);
 	Data.LocList = loc_rec.LocList;
@@ -328,14 +328,26 @@ int SLAPI PPViewQuot::EditBaseFilt(PPBaseFilt * pFilt)
 	return PPDialogProcBody <QuotFiltDialog, QuotFilt> ((QuotFilt *)pFilt);
 }
 
-static char * FASTCALL GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos)
+//char * FASTCALL PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos)
+SString & SLAPI PPViewQuot::GetQuotTblBuf(const TempQuotTbl::Rec * pRec, uint pos, SString & rBuf)
+{
+	rBuf.Z();
+	if(pos < MAX_QUOTS_PER_TERM_REC) {
+		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
+		uint   p = *(uint *)(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
+		StrPool.GetS(p, rBuf);
+		//return ((char*)pRec) + offs + pos * QUOT_BUF_SIZE;
+	}
+	return rBuf;
+}
+
+void SLAPI PPViewQuot::SetQuotTblBuf(TempQuotTbl::Rec * pRec, uint pos, const SString & rVal)
 {
 	if(pos < MAX_QUOTS_PER_TERM_REC) {
-		size_t offs = offsetof(TempQuotTbl::Rec, Quot1);
-		return ((char*)pRec) + offs + pos * QUOT_BUF_SIZE;
+		size_t offs = offsetof(TempQuotTbl::Rec, QuotP1);
+		uint   * p_p = (uint *)(PTR8(pRec) + offs + pos * sizeof(pRec->QuotP1));
+		StrPool.AddS(rVal, p_p);
 	}
-	else
-		return 0;
 }
 
 int SLAPI PPViewQuot::CreateCrosstab(int useTa)
@@ -425,6 +437,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	HasPeriodVal = 0;
 	QList_.freeAll();
+	StrPool.ClearS(); // @v9.8.6
 	//QList_.setDelta(1024);
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
@@ -544,7 +557,6 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 				if(!exists || !(Filt.Flags & QuotFilt::fOnlyAbsence)) {
-					// @v7.4.0 {
 					if(exists) {
 						QuotFilt temp_filt = Filt;
 						temp_filt.GoodsID = goods_rec.ID;
@@ -552,11 +564,10 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 						THROW(Helper_CreateTmpTblEntries(&temp_filt, (Filt.Flags & QuotFilt::fListOnly) ? &QList_ : &temp_list, 0));
 					}
 					else {
-						// } @v7.4.0
 						PPQuotItem_ item_;
 						item_.GoodsID = goods_rec.ID;
 						THROW_SL(QList_.insert(&item_));
-					} // @v7.4.0
+					}
 				}
 			}
 			if(!(Filt.Flags & QuotFilt::fListOnly)) {
@@ -673,9 +684,9 @@ int SLAPI PPViewQuot::InitIteration()
 	Counter.Init();
 	THROW_MEM(P_IterQuery = new BExtQuery(t, idx));
 	P_IterQuery->select(t->GoodsID, t->LocID, t->ArticleID, t->PeriodIdx,
-		t->Quot1, t->Quot2, t->Quot3, t->Quot4, t->Quot5, t->Quot6, t->Quot7,
-		t->Quot8, t->Quot9, t->Quot10, t->Quot11, t->Quot12, t->Quot13,
-		t->Quot14, t->Quot15, t->Quot16, 0L);
+		t->QuotP1, t->QuotP2, t->QuotP3, t->QuotP4, t->QuotP5, t->QuotP6, t->QuotP7,
+		t->QuotP8, t->QuotP9, t->QuotP10, t->QuotP11, t->QuotP12, t->QuotP13,
+		t->QuotP14, t->QuotP15, t->QuotP16, 0L);
 	MEMSZERO(k1);
 	PPInitIterCounter(Counter, t);
 	P_IterQuery->initIteration(0, &k1, spFirst);
@@ -689,11 +700,14 @@ int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 	memzero(pItem, sizeof(*pItem));
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
+			SString temp_buf;
 			pItem->GoodsID   = P_TempTbl->data.GoodsID;
 			pItem->LocID     = P_TempTbl->data.LocID;
 			pItem->ArticleID = P_TempTbl->data.ArticleID;
-			for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC; i++)
-				STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&P_TempTbl->data, i));
+			for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC; i++) {
+				//STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&P_TempTbl->data, i));
+				STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&P_TempTbl->data, i, temp_buf));
+			}
 		}
 		Counter.Increment();
 		ok = 1;
@@ -701,6 +715,7 @@ int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 	return ok;
 }
 
+#if 0 // @v9.8.6 @unused {
 struct VQuotEntry {
 	PPID   GoodsID;
 	PPID   LocID;
@@ -751,27 +766,6 @@ int SLAPI VQuotCache::Add(const TempQuotTbl::Rec * pRec, uint quotPos)
 	return ok;
 }
 
-/* @v8.1.1 @unused
-int SLAPI VQuotCache::PrepareForWriting()
-{
-	int    ok = 1;
-	PPIDArray goods_id_list, ar_id_list;
-	VQuotEntry * p_entry;
-	for(uint i = 0; enumItems(&i, (void **)&p_entry);) {
-		const PPID ar_id = p_entry->ArID;
-		if(p_entry->GoodsID)
-			THROW(goods_id_list.addUnique(labs(p_entry->GoodsID)));
-	}
-	//
-	// Подготовка массива имен товаров
-	//
-	THROW(GObj.P_Tbl->LoadNameList(&goods_id_list, 0, &GoodsNameList));
-	GoodsNameList.SortByID();
-	CATCHZOK
-	return ok;
-}
-*/
-
 void SLAPI VQuotCache::Clear()
 {
 	GoodsNameList.Clear();
@@ -802,6 +796,7 @@ int SLAPI VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
 		ok = 0;
 	return ok;
 }
+#endif // } 0 @v9.8.6 @unused
 //
 //
 //
@@ -1201,7 +1196,9 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 						rec.ArticleID = r_item.ArID;
 						rec.PeriodIdx = _pidx;
 					}
-					PPQuot::PutValToStr(r_item.Val, r_item.Flags, temp_buf).CopyTo(GetQuotTblBuf(&rec, pos), QUOT_BUF_SIZE);
+					PPQuot::PutValToStr(r_item.Val, r_item.Flags, temp_buf);
+					//temp_buf.CopyTo(GetQuotTblBuf(&rec, pos), QUOT_BUF_SIZE);
+					SetQuotTblBuf(&rec, pos, temp_buf);
 					if(pFilt->QkCls == PPQuot::clsMtxRestr) {
 						uint   rest_pos = 0;
 						double count = 0.0;
@@ -1212,7 +1209,9 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 						GoodsIterator::GetListByFilt(&gf, &temp_goods_list);
 						count = r_item.Val - temp_goods_list.getCount();
 						QuotKindList.Search(0, &rest_pos);
-						temp_buf.Z().Cat(count, SFMT_MONEY).CopyTo(GetQuotTblBuf(&rec, rest_pos), QUOT_BUF_SIZE);
+						temp_buf.Z().Cat(count, SFMT_MONEY);
+						//temp_buf.CopyTo(GetQuotTblBuf(&rec, rest_pos), QUOT_BUF_SIZE);
+						SetQuotTblBuf(&rec, rest_pos, temp_buf);
 					}
 				}
 				if((i & 0xff) == 0)
@@ -1334,6 +1333,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			DBE    dbe_loc;
 			DBE    dbe_ar;
 			DBE    dbe_period;
+			DBE    dbe_qv[32];
 			PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  tbl->ArticleID);
 			PPDbqFuncPool::InitLongFunc(dbe_period, PPViewQuot::DynFuncPeriod,   tbl->PeriodIdx);
@@ -1341,11 +1341,12 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				tbl->GoodsID,       // #0
 				tbl->LocID,         // #1
 				tbl->ArticleID,     // #2
-				tbl->PeriodIdx,     // #3 // @v7.3.8
-				tbl->GoodsName,     // #4 // @v7.3.8 3-->4
-				dbe_loc,            // #5 // @v7.3.8 4-->5
-				dbe_ar,             // #6 // @v7.3.8 5-->6
-				dbe_period,         // #7 // @v7.3.8
+				tbl->PeriodIdx,     // #3 
+				tbl->GoodsName,     // #4 
+				dbe_loc,            // #5 
+				dbe_ar,             // #6 
+				dbe_period,         // #7 
+				/*
 				tbl->Quot1,
 				tbl->Quot2,
 				tbl->Quot3,
@@ -1379,8 +1380,12 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				tbl->Quot30,
 				tbl->Quot31,
 				tbl->Quot32,
-
+				*/
 				0);
+			for(uint i = 0; i < SIZEOFARRAY(dbe_qv); i++) {
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_qv[i], (&tbl->QuotP1)[i], &StrPool);
+				q->addField(dbe_qv[i]);
+			}
 			if(p_ot)
 				q->from(p_ot, tbl, 0L).where(p_ot->ID == tbl->ID__).orderBy(p_ot->Name, 0L);
 			else
@@ -1469,14 +1474,12 @@ int SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 		}
 		else if(P_Ct == 0) {
 			FirstQuotBrwColumn = pBrw->view->getDef()->getCount();
-			// @v7.3.8 {
 			if(HasPeriodVal) {
 				SString temp_buf;
 				PPLoadString("daterange", temp_buf);
 				pBrw->insertColumn(-1, temp_buf, 7, 0L, 0, 0);
 				HasPeriodVal = 2; // Признак того, что создана колонка, соответствующая периоду
 			}
-			// } @v7.3.8
 			for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC && i < QuotKindList.getCount(); i++) {
 				const StrAssocArray::Item entry = QuotKindList.at(i);
 				pBrw->insertColumn(-1, entry.Txt, 7+1+i, 0L, MKSFMTD(8, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
@@ -1802,7 +1805,7 @@ int SLAPI PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 	PPID   acc_sheet_id = 0;
 	if(Filt.QuotKindID) {
 		PPQuotKind qk_rec;
-		if(QkObj.Fetch(Filt.QuotKindID, &qk_rec) > 0) // @v7.1.2 Search-->Fetch
+		if(QkObj.Fetch(Filt.QuotKindID, &qk_rec) > 0)
 			acc_sheet_id = qk_rec.AccSheetID;
 	}
 	if(pHdr->GoodsID) {

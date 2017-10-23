@@ -643,25 +643,25 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 						temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
 					}
 					if(Las.Get(PPLocAddrStruc::tLocalArea, temp_buf)) {
-						result_buf = 0;
+						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
 					}
 					if(Las.Get(PPLocAddrStruc::tCity, temp_buf)) {
-						result_buf = 0;
+						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tCityKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->City, sizeof(pDestRec->City));
 					}
 					if(Las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
-						result_buf = 0;
+						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tStreetKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
 					}
 					if(Las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
-						result_buf = 0;
+						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tHouseKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf);
@@ -674,7 +674,7 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 						result_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->House, sizeof(pDestRec->House));
 					}
 					if(Las.Get(PPLocAddrStruc::tApart, temp_buf)) {
-						result_buf = 0;
+						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tApartKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));

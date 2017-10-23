@@ -1101,7 +1101,7 @@ SString & SLAPI PPObjectTransmit::GetQueueFilePath(SString & rBuf)
 	return rBuf.SetLastSlash().Cat("SYNCQUE").SetLastSlash();
 }
 
-int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSArray <ObjSyncQueueTbl::Rec> & rList, int use_ta)
+int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta) // @v9.8.6 TSArray-->TSVector
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -1249,7 +1249,7 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 			}
 		}
 		{
-			TSArray <ObjSyncQueueTbl::Rec> idx_rec_list;
+			TSVector <ObjSyncQueueTbl::Rec> idx_rec_list; // @v9.8.6 TSArray-->TSVector
 			for(objid.Set(0, 0); EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				THROW_SL(idx_rec_list.insert(&idx_rec));
 				if(idx_rec_list.getCount() >= max_idx_recs_per_ta) {

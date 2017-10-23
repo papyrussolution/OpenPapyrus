@@ -839,7 +839,7 @@ int SLAPI PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 				int    skip = 0;
 				for(uint i = 0; Data.EnumTItems(&i, &p_ti) > 0;) {
 					if(pack.CheckGoodsForRestrictions((int)(i-1), p_ti->GoodsID, p_ti->GetSign(pack.Rec.OpID), p_ti->Qtty(), PPBillPacket::cgrfAll, 0)) {
-						IntArray poslist;
+						LongArray poslist;
 						ReceiptTbl::Rec lot_rec;
 						PPTransferItem ti = *p_ti;
 						ti.Init(&pack.Rec);
@@ -927,7 +927,7 @@ int SLAPI PPDS_CrrBill::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTrans
 		}
 		else if(fldID == DSF_CRRBILL_ITEMS) {
 			char   clb[32];
-			IntArray poslist;
+			LongArray poslist;
 			PPTransferItem item = ((PPDS_CrrBillItem *)pData)->Data;
 			STRNSCPY(clb, ((PPDS_CrrBillItem *)pData)->CLB);
 			THROW(Data.InsertRow(&item, &poslist));

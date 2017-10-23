@@ -442,10 +442,10 @@ int SLAPI SMailClient::Auth(int authtype, const char * pName, const char * pPass
 				{
 					THROW(WriteLine(cmd_buf = "AUTH LOGIN", &reply_buf));
 					THROW(CheckReply(reply_buf));
-					(cmd_buf = 0).EncodeMime64(pName, strlen(pName));
+					cmd_buf.Z().EncodeMime64(pName, strlen(pName));
 					THROW(WriteLine(cmd_buf, &reply_buf));
 					THROW(CheckReply(reply_buf));
-					(cmd_buf = 0).EncodeMime64(pPassword, strlen(pPassword));
+					cmd_buf.Z().EncodeMime64(pPassword, strlen(pPassword));
 					THROW(WriteLine(cmd_buf, &reply_buf));
 					THROW(CheckReply(reply_buf, 235));
 				}

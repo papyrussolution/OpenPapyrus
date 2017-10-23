@@ -996,7 +996,7 @@ int FASTCALL GetExtLocationName(PPID locID, SString & rBuf)
 	return ok;
 }
 
-DbfTable * SLAPI PPOpenDbfTable(const char * pPath)
+DbfTable * FASTCALL PPOpenDbfTable(const char * pPath)
 {
 	DbfTable * p_tbl = new DbfTable(pPath);
 	if(!p_tbl)
@@ -1009,7 +1009,7 @@ DbfTable * SLAPI PPOpenDbfTable(const char * pPath)
 	return p_tbl;
 }
 
-DbfTable * SLAPI CreateDbfTable(uint rezID, const char * fName, int forceReplace)
+DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceReplace)
 {
 	uint   num_flds = 0;
 	int    exists = 0;
@@ -1057,7 +1057,7 @@ int SLAPI BarCodeCheckDigit(char * bc)
 }
 */
 
-char * SLAPI QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
+char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
 {
 	uint   f = SFMTFLAG(fmt);
 	double ipart, fract;
@@ -1130,9 +1130,8 @@ SString & SLAPI GetCurSymbText(PPID curID, SString & rBuf)
 // PPSymbTranslator
 // @todo Перевести реализацию на SString и SStrScan
 //
-SLAPI PPSymbTranslator::PPSymbTranslator(uint strID /*=PPSSYM_SYMB*/)
+SLAPI PPSymbTranslator::PPSymbTranslator(uint strID /*=PPSSYM_SYMB*/) : ErrorCode(0)
 {
-	ErrorCode = 0;
 	if(!PPLoadString(PPSTR_SYMB, strID, Coll))
 		ErrorCode = PPErrCode;
 }

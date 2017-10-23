@@ -928,7 +928,7 @@ SLTEST_R(HashFunction)
 		    BobJencHash_Little(p, sizeof(q)-7, 13), BobJencHash_Little(p, sizeof(q)-8, 13),
 		    BobJencHash_Little(p, sizeof(q)-9, 13), BobJencHash_Little(p, sizeof(q)-10, 13),
 		    BobJencHash_Little(p, sizeof(q)-11, 13), BobJencHash_Little(p, sizeof(q)-12, 13)));
-		SetInfo((out_buf = 0).CR());
+		SetInfo(out_buf.Z().CR());
 		//
 		// check that BobJencHash_Little2 and BobJencHash_Little produce the same results
 		//

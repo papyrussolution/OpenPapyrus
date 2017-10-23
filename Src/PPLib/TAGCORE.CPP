@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // @Kernel
 //
@@ -18,44 +18,27 @@
 SString & FASTCALL ObjTagItem::GetTypeString(int tagType, PPID enumId, SString & rBuf)
 {
 	rBuf.Z();
+	const char * p_str_signature = 0;
 	switch(tagType) {
-		case OTTYP_GROUP:
-			PPLoadString("group", rBuf);
-			break;
-		case OTTYP_BOOL:
-			PPLoadString("typboolean", rBuf);
-			break;
-		case OTTYP_STRING:
-			PPLoadString("typstring", rBuf);
-			break;
-		case OTTYP_NUMBER:
-			PPLoadString("typnumeric", rBuf);
-			break;
-		case OTTYP_ENUM:
-			PPLoadString("typenumeration", rBuf);
-			break;
-		case OTTYP_INT:
-			PPLoadString("typinteger", rBuf);
-			break;
+		case OTTYP_GROUP: p_str_signature = "group"; break;
+		case OTTYP_BOOL: p_str_signature = "typboolean"; break;
+		case OTTYP_STRING: p_str_signature = "typstring"; break;
+		case OTTYP_NUMBER: p_str_signature = "typnumeric"; break;
+		case OTTYP_ENUM: p_str_signature = "typenumeration"; break;
+		case OTTYP_INT: p_str_signature = "typinteger"; break;
+		case OTTYP_DATE: p_str_signature = "date"; break;
+		case OTTYP_IMAGE: p_str_signature = "typimage"; break;
+		case OTTYP_TIMESTAMP: p_str_signature = "typtimestamp"; break;
+		case OTTYP_GUID: rBuf = "GUID"; break;
 		case OTTYP_OBJLINK:
 			if(enumId)
 				GetObjectTitle(enumId, rBuf);
 			else
-				PPLoadString("object", rBuf);
-			break;
-		case OTTYP_DATE:
-			PPLoadString("date", rBuf);
-			break;
-		case OTTYP_GUID:
-			rBuf = "GUID";
-			break;
-		case OTTYP_IMAGE:
-			PPLoadString("typimage", rBuf);
-			break;
-		case OTTYP_TIMESTAMP:
-			PPLoadString("typtimestamp", rBuf);
+				p_str_signature = "object";
 			break;
 	}
+	if(p_str_signature)
+		PPLoadString(p_str_signature, rBuf);
 	return rBuf;
 }
 
@@ -105,7 +88,7 @@ int FASTCALL ObjTagItem::GetInt(long * pVal) const
 		case OTTYP_INT:  val = Val.IntVal; break;
 		case OTTYP_OBJLINK: val = Val.IntVal; break;
 		case OTTYP_DATE: val = (long)Val.DtVal.v; break;
-		case OTTYP_TIMESTAMP: val = (long)Val.DtmVal.d.v; break; // @v7.5.0
+		case OTTYP_TIMESTAMP: val = (long)Val.DtmVal.d.v; break;
 		default:
 			ok = -1;
 			break;
@@ -126,7 +109,7 @@ int FASTCALL ObjTagItem::GetReal(double * pVal) const
 		case OTTYP_INT:  val = Val.IntVal; break;
 		case OTTYP_OBJLINK: val = Val.IntVal; break;
 		case OTTYP_DATE: val = (double)Val.DtVal.v; break;
-		case OTTYP_TIMESTAMP: val = (OleDate)Val.DtmVal; break; // @v7.5.0
+		case OTTYP_TIMESTAMP: val = (OleDate)Val.DtmVal; break;
 		default:
 			ok = -1;
 			break;
@@ -142,7 +125,7 @@ int FASTCALL ObjTagItem::GetDate(LDATE * pVal) const
 	switch(TagDataType) {
 		case OTTYP_STRING: strtodate(Val.PStr, DATF_DMY, &val); break;
 		case OTTYP_DATE: val = Val.DtVal; break;
-		case OTTYP_TIMESTAMP: val = Val.DtmVal.d; break; // @v7.5.0
+		case OTTYP_TIMESTAMP: val = Val.DtmVal.d; break;
 		default:
 			ok = -1;
 			break;
@@ -228,7 +211,7 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 			}
 			break;
 		case OTTYP_DATE: rBuf.Cat(Val.DtVal, DATF_DMY|DATF_CENTURY); break; // @v8.7.0 (DATF_DMY|DATF_CENTURY)
-		case OTTYP_TIMESTAMP: rBuf.Cat(Val.DtmVal, DATF_DMY|DATF_CENTURY); break; // @v7.5.0 // @v8.7.0 (DATF_DMY|DATF_CENTURY)
+		case OTTYP_TIMESTAMP: rBuf.Cat(Val.DtmVal, DATF_DMY|DATF_CENTURY); break; // @v8.7.0 (DATF_DMY|DATF_CENTURY)
 		default:
 			ok = -1;
 			break;
@@ -287,7 +270,7 @@ int SLAPI ObjTagItem::SetInt(PPID tagID, long lVal)
 			Val.IntVal = lVal;
 		else if(TagDataType == OTTYP_DATE)
 			Val.DtVal.v = lVal;
-		else if(TagDataType == OTTYP_TIMESTAMP) { // @v7.5.0
+		else if(TagDataType == OTTYP_TIMESTAMP) {
 			Val.DtmVal.d.v = lVal;
 			Val.DtmVal.t.v = 0;
 		}
@@ -311,7 +294,7 @@ int SLAPI ObjTagItem::SetReal(PPID tagID, double rVal)
 			Val.IntVal = (long)rVal;
 		else if(TagDataType == OTTYP_DATE)
 			Val.DtVal.v = (long)rVal;
-		else if(TagDataType == OTTYP_TIMESTAMP) { // @v7.5.0
+		else if(TagDataType == OTTYP_TIMESTAMP) {
 			OleDate od;
 			od.v = rVal;
 			Val.DtmVal = od;
@@ -336,7 +319,7 @@ int SLAPI ObjTagItem::SetDate(PPID tagID, LDATE dt)
 			Val.IntVal = 0;
 		else if(TagDataType == OTTYP_DATE)
 			Val.DtVal = dt;
-		else if(TagDataType == OTTYP_TIMESTAMP) { // @v7.5.0
+		else if(TagDataType == OTTYP_TIMESTAMP) {
 			Val.DtmVal.d = dt;
 			Val.DtmVal.t = ZEROTIME;
 		}
@@ -380,7 +363,7 @@ int SLAPI ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 		Val.IntVal = pStrVal ? atol(pStrVal) : 0;
 	else if(TagDataType == OTTYP_DATE)
 		strtodate(pStrVal, DATF_DMY, &Val.DtVal);
-	else if(TagDataType == OTTYP_TIMESTAMP) // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP)
 		strtodatetime(pStrVal, &Val.DtmVal, DATF_DMY, TIMF_HMS);
 	CATCHZOK
     return ok;
@@ -479,18 +462,16 @@ int SLAPI ObjTagItem::AddReal(double rVal)
 		case OTTYP_NUMBER:
 			Val.RealVal += rVal;
 			break;
-		// @v7.7.0 {
 		case OTTYP_INT:
 			Val.IntVal += (long)rVal;
 			break;
-		// } @v7.7.0
 		case OTTYP_DATE:
 			if(!Val.DtVal)
 				Val.DtVal = getcurdate_();
 			else
 				Val.DtVal = plusdate(Val.DtVal, (long)R0(rVal));
 			break;
-		case OTTYP_TIMESTAMP: // @v7.5.0
+		case OTTYP_TIMESTAMP:
 			if(!Val.DtmVal.d) {
 				Val.DtmVal = getcurdatetime_();
 			}
@@ -573,7 +554,7 @@ int SLAPI ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Re
 	}
 	else if(TagDataType == OTTYP_DATE)
 		pRec->IntVal = Val.DtVal.v;
-	else if(TagDataType == OTTYP_TIMESTAMP) { // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP) {
 		OleDate od;
 		od = Val.DtmVal;
 		pRec->RealVal = od.v;
@@ -608,7 +589,7 @@ int FASTCALL ObjTagItem::Cmp(const ObjTagItem & a) const
 			case OTTYP_DATE:
 				r = CMPFUNC(LDATE, &Val.DtVal, &a.Val.DtVal);
 				break;
-			case OTTYP_TIMESTAMP: // @v7.5.0
+			case OTTYP_TIMESTAMP:
 				r = CMPFUNC(LDATETIME, &Val.DtmVal, &a.Val.DtmVal);
 				break;
 			default:
@@ -622,18 +603,13 @@ int FASTCALL ObjTagItem::Cmp(const ObjTagItem & a) const
 int SLAPI ObjTagItem::IsZeroVal() const
 {
 	switch(TagDataType) {
-		case OTTYP_NUMBER:
-			return (Val.RealVal == 0.0);
+		case OTTYP_NUMBER: return (Val.RealVal == 0.0);
 		case OTTYP_STRING:
 		case OTTYP_GUID:
-		case OTTYP_IMAGE:
-			return isempty(Val.PStr);
-		case OTTYP_DATE:
-			return (Val.DtVal == ZERODATE);
-		case OTTYP_TIMESTAMP: // @v7.5.0
-			return !Val.DtmVal;
-		default:
-			return (Val.IntVal == 0);
+		case OTTYP_IMAGE: return isempty(Val.PStr);
+		case OTTYP_DATE: return (Val.DtVal == ZERODATE);
+		case OTTYP_TIMESTAMP: return !Val.DtmVal;
+		default: return (Val.IntVal == 0);
 	}
 }
 
@@ -687,7 +663,7 @@ int SLAPI ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSC
 				Val.PStr = newStr(temp_buf);
 		}
 	}
-	else if(TagDataType == OTTYP_TIMESTAMP) { // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP) {
 		THROW_SL(pSCtx->Serialize(dir, Val.DtmVal, rBuf));
 	}
 	else {
@@ -709,7 +685,7 @@ int SLAPI ObjTagItem::IsWarnVal() const
 	}
 	else if(TagDataType == OTTYP_DATE)
 		return (Val.DtVal == ZERODATE);
-	else if(TagDataType == OTTYP_TIMESTAMP) // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP)
 		return !Val.DtmVal;
 	else if(TagDataType == OTTYP_BOOL)
 		return (Val.IntVal == 0);
@@ -742,7 +718,7 @@ int SLAPI ObjTagItem::Write__(SBuffer & rBuf) const
 	}
 	else if(TagDataType == OTTYP_DATE)
 		rBuf.Write(Val.DtVal);
-	else if(TagDataType == OTTYP_TIMESTAMP) // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP)
 		rBuf.Write(Val.DtmVal);
 	else
 		rBuf.Write(Val.IntVal);
@@ -770,7 +746,7 @@ int SLAPI ObjTagItem::Read__(SBuffer & rBuf)
 	}
 	else if(TagDataType == OTTYP_DATE)
 		rBuf.Read(Val.DtVal);
-	else if(TagDataType == OTTYP_TIMESTAMP) // @v7.5.0
+	else if(TagDataType == OTTYP_TIMESTAMP)
 		rBuf.Read(Val.DtmVal);
 	else
 		rBuf.Read(Val.IntVal);
@@ -1243,20 +1219,20 @@ int SLAPI ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem,
 						THROW_DB(rereadForUpdate(0, 0)); // @v8.2.0
 						THROW(PutTagToRec(objType, objID, tbo, pItem));
 						THROW_DB(updateRec()); // @sfu
-						DS.LogAction(PPACN_OBJTAGUPD, objType, objID, pItem->TagID, 0); // @v7.7.0
+						DS.LogAction(PPACN_OBJTAGUPD, objType, objID, pItem->TagID, 0);
 					}
 				}
 				else {
 					THROW_DB(rereadForUpdate(0, 0)); // @v8.2.0
 					THROW_DB(deleteRec()); // @sfu
-					DS.LogAction(PPACN_OBJTAGRMV, objType, objID, pItem->TagID, 0); // @v7.7.0
+					DS.LogAction(PPACN_OBJTAGRMV, objType, objID, pItem->TagID, 0);
 				}
 			}
 			THROW(r);
 			if(c == 0 && !zero) {
 				THROW(PutTagToRec(objType, objID, 0, pItem));
 				THROW_DB(insertRec());
-				DS.LogAction(PPACN_OBJTAGADD, objType, objID, pItem->TagID, 0); // @v7.7.0 // @v8.0.1 PPACN_OBJTAGUPD-->PPACN_OBJTAGADD
+				DS.LogAction(PPACN_OBJTAGADD, objType, objID, pItem->TagID, 0); // @v8.0.1 PPACN_OBJTAGUPD-->PPACN_OBJTAGADD
 			}
 		}
 		THROW(tra.Commit());
@@ -1525,7 +1501,7 @@ int SLAPI ObjTagCore::CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, c
 					THROW(GetNewTagByObjCounter(objType, obj_id, tagID, &rec.TagByObj));
 					STRNSCPY(rec.StrVal, pStr);
 					THROW_DB(insertRecBuf(&rec));
-					DS.LogAction(PPACN_OBJTAGUPD, objType, obj_id, tagID, 0); // @v7.7.0
+					DS.LogAction(PPACN_OBJTAGUPD, objType, obj_id, tagID, 0);
 					ok = 2;
 				}
 			}

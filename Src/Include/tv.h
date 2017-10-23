@@ -3408,7 +3408,7 @@ public:
 	int    AddColumn(int pos, const char * pTitle, uint width, uint format, long ident);
 	int    SearchColumnByIdent(long ident, uint * pPos) const;
 	int    RemoveColumn(int pos);
-	int    RemoveColumns();
+	void   RemoveColumns();
 	int    SetupColumns(const char * pColsBuf);
 	int    GetOrgColumnsDescr(SString & rBuf) const;
 
