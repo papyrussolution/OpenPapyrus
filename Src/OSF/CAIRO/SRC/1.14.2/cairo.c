@@ -1132,7 +1132,7 @@ void cairo_rotate(cairo_t * cr, double angle)
  *
  * Since: 1.0
  **/
-void cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix)
+void FASTCALL cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1195,7 +1195,7 @@ void cairo_identity_matrix(cairo_t * cr)
  *
  * Since: 1.0
  **/
-void cairo_user_to_device(cairo_t * cr, double * x, double * y)
+void FASTCALL cairo_user_to_device(cairo_t * cr, double * x, double * y)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1276,7 +1276,7 @@ void cairo_device_to_user_distance(cairo_t * cr, double * dx, double * dy)
  *
  * Since: 1.0
  **/
-void cairo_new_path(cairo_t * cr)
+void FASTCALL cairo_new_path(cairo_t * cr)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1305,7 +1305,7 @@ slim_hidden_def(cairo_new_path);
  *
  * Since: 1.2
  **/
-void cairo_new_sub_path(cairo_t * cr)
+void FASTCALL cairo_new_sub_path(cairo_t * cr)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1324,7 +1324,7 @@ void cairo_new_sub_path(cairo_t * cr)
  *
  * Since: 1.0
  **/
-void cairo_move_to(cairo_t * cr, double x, double y)
+void FASTCALL cairo_move_to(cairo_t * cr, double x, double y)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1350,7 +1350,7 @@ slim_hidden_def(cairo_move_to);
  *
  * Since: 1.0
  **/
-void cairo_line_to(cairo_t * cr, double x, double y)
+void FASTCALL cairo_line_to(cairo_t * cr, double x, double y)
 {
 	if(unlikely(cr->status))
 		return;
@@ -1697,7 +1697,7 @@ void cairo_stroke_to_path(cairo_t * cr)
  *
  * Since: 1.0
  **/
-void cairo_close_path(cairo_t * cr)
+void FASTCALL cairo_close_path(cairo_t * cr)
 {
 	if(unlikely(cr->status))
 		return;

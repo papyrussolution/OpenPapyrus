@@ -296,9 +296,9 @@ typedef struct {
 	cairo_destroy_func_t destroy;
 } cairo_user_data_slot_t;
 
-cairo_private void _cairo_user_data_array_init(cairo_user_data_array_t * array);
+cairo_private void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array);
 cairo_private void _cairo_user_data_array_fini(cairo_user_data_array_t * array);
-cairo_private void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key);
+cairo_private void * FASTCALL _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key);
 cairo_private cairo_status_t _cairo_user_data_array_set_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key,
     void * user_data, cairo_destroy_func_t destroy);
 cairo_private cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const cairo_user_data_array_t * src);
@@ -646,10 +646,10 @@ cairo_private const char * cairo_get_locale_decimal_point(void);
 
 /* cairo-path-fixed.c */
 cairo_private cairo_path_fixed_t * _cairo_path_fixed_create(void);
-cairo_private void _cairo_path_fixed_init(cairo_path_fixed_t * path);
-cairo_private cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other);
-cairo_private void _cairo_path_fixed_fini(cairo_path_fixed_t * path);
-cairo_private void _cairo_path_fixed_destroy(cairo_path_fixed_t * path);
+cairo_private void FASTCALL _cairo_path_fixed_init(cairo_path_fixed_t * path);
+cairo_private cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other);
+cairo_private void FASTCALL _cairo_path_fixed_fini(cairo_path_fixed_t * path);
+cairo_private void FASTCALL _cairo_path_fixed_destroy(cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_path_fixed_move_to(cairo_path_fixed_t  * path, cairo_fixed_t x, cairo_fixed_t y);
 cairo_private void _cairo_path_fixed_new_sub_path(cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_path_fixed_rel_move_to(cairo_path_fixed_t * path, cairo_fixed_t dx, cairo_fixed_t dy);
@@ -691,8 +691,8 @@ cairo_private cairo_status_t _cairo_path_fixed_stroke_extents(const cairo_path_f
     double tolerance,
     CairoIRect * extents);
 
-cairo_private void _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix);
-cairo_private cairo_bool_t _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box);
+cairo_private void FASTCALL _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix);
+cairo_private cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box);
 cairo_private cairo_bool_t _cairo_path_fixed_is_rectangle(const cairo_path_fixed_t * path, cairo_box_t * box);
 
 /* cairo-path-in-fill.c */
@@ -754,17 +754,17 @@ cairo_private cairo_status_t _cairo_path_fixed_stroke_to_shaper(cairo_path_fixed
 
 /* cairo-scaled-font.c */
 
-cairo_private void _cairo_scaled_font_freeze_cache(cairo_scaled_font_t * scaled_font);
-cairo_private void _cairo_scaled_font_thaw_cache(cairo_scaled_font_t * scaled_font);
-cairo_private void _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
-cairo_private cairo_status_t _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, cairo_status_t status);
+cairo_private void FASTCALL _cairo_scaled_font_freeze_cache(cairo_scaled_font_t * scaled_font);
+cairo_private void FASTCALL _cairo_scaled_font_thaw_cache(cairo_scaled_font_t * scaled_font);
+cairo_private void FASTCALL _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
+cairo_private cairo_status_t FASTCALL _cairo_scaled_font_set_error(cairo_scaled_font_t * scaled_font, cairo_status_t status);
 cairo_private cairo_scaled_font_t * _cairo_scaled_font_create_in_error(cairo_status_t status);
 cairo_private void _cairo_scaled_font_reset_static_data(void);
 cairo_private cairo_status_t _cairo_scaled_font_register_placeholder_and_unlock_font_map(cairo_scaled_font_t * scaled_font);
 cairo_private void _cairo_scaled_font_unregister_placeholder_and_lock_font_map(cairo_scaled_font_t * scaled_font);
 cairo_private cairo_status_t _cairo_scaled_font_init(cairo_scaled_font_t * scaled_font, cairo_font_face_t * font_face,
     const cairo_matrix_t * font_matrix, const cairo_matrix_t * ctm, const cairo_font_options_t * options, const cairo_scaled_font_backend_t * backend);
-cairo_private cairo_status_t _cairo_scaled_font_set_metrics(cairo_scaled_font_t * scaled_font, cairo_font_extents_t * fs_metrics);
+cairo_private cairo_status_t FASTCALL _cairo_scaled_font_set_metrics(cairo_scaled_font_t * scaled_font, cairo_font_extents_t * fs_metrics);
 /* This should only be called on an error path by a scaled_font constructor */
 cairo_private void _cairo_scaled_font_fini(cairo_scaled_font_t * scaled_font);
 cairo_private cairo_status_t _cairo_scaled_font_font_extents(cairo_scaled_font_t  * scaled_font, cairo_font_extents_t * extents);
@@ -839,7 +839,6 @@ cairo_private cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * s
     cairo_operator_t op, const cairo_pattern_t * source, const char * utf8, int utf8_len,
     cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters,
     cairo_text_cluster_flags_t cluster_flags, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip);
-
 cairo_private cairo_status_t _cairo_surface_acquire_source_image(cairo_surface_t * surface, cairo_image_surface_t  ** image_out, void ** image_extra);
 cairo_private void _cairo_surface_release_source_image(cairo_surface_t * surface, cairo_image_surface_t  * image, void * image_extra);
 cairo_private cairo_surface_t * _cairo_surface_snapshot(cairo_surface_t * surface);
@@ -890,10 +889,10 @@ cairo_private void _cairo_surface_release_device_reference(cairo_surface_t * sur
 #define CAIRO_STRIDE_FOR_WIDTH_BPP(w, bpp) ((((bpp)*(w)+7)/8 + CAIRO_STRIDE_ALIGNMENT-1) & -CAIRO_STRIDE_ALIGNMENT)
 #define CAIRO_CONTENT_VALID(content) ((content) && (((content) & ~(CAIRO_CONTENT_COLOR|CAIRO_CONTENT_ALPHA|CAIRO_CONTENT_COLOR_ALPHA)) == 0))
 
-cairo_private int _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
-cairo_private cairo_format_t _cairo_format_from_content(cairo_content_t content) cairo_const;
+cairo_private int FASTCALL _cairo_format_bits_per_pixel(cairo_format_t format) cairo_const;
+cairo_private cairo_format_t FASTCALL _cairo_format_from_content(cairo_content_t content) cairo_const;
 cairo_private cairo_format_t _cairo_format_from_pixman_format(pixman_format_code_t pixman_format);
-cairo_private cairo_content_t _cairo_content_from_format(cairo_format_t format) cairo_const;
+cairo_private cairo_content_t FASTCALL _cairo_content_from_format(cairo_format_t format) cairo_const;
 cairo_private cairo_content_t _cairo_content_from_pixman_format(pixman_format_code_t pixman_format);
 cairo_private cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * pixman_image, pixman_format_code_t pixman_format);
 cairo_private pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format);
@@ -985,20 +984,15 @@ cairo_bool_t FASTCALL _cairo_matrix_is_identity(const cairo_matrix_t * matrix);
 cairo_bool_t FASTCALL _cairo_matrix_is_translation(const cairo_matrix_t * matrix);
 cairo_bool_t FASTCALL _cairo_matrix_is_scale(const cairo_matrix_t * matrix);
 
-cairo_private cairo_bool_t _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity);
+cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity);
 cairo_private cairo_bool_t FASTCALL _cairo_matrix_has_unity_scale(const cairo_matrix_t * matrix);
 cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_pixel_exact(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private double FASTCALL _cairo_matrix_transformed_circle_major_axis(const cairo_matrix_t * matrix, double radius) cairo_pure;
-cairo_private cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix,
-    cairo_filter_t filter, int * out_x_offset, int * out_y_offset);
+cairo_private cairo_bool_t _cairo_matrix_is_pixman_translation(const cairo_matrix_t * matrix, cairo_filter_t filter, int * out_x_offset, int * out_y_offset);
 cairo_private cairo_status_t _cairo_matrix_to_pixman_matrix_offset(const cairo_matrix_t * matrix,
-    cairo_filter_t filter, double xc, double yc, pixman_transform_t * out_transform,
-    int * out_x_offset, int * out_y_offset);
-
-cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon(cairo_traps_t     * traps,
-    const cairo_polygon_t * polygon, CairoFillRule fill_rule);
-cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t         * traps,
-    const cairo_polygon_t * polygon, CairoFillRule fill_rule);
+    cairo_filter_t filter, double xc, double yc, pixman_transform_t * out_transform, int * out_x_offset, int * out_y_offset);
+cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polygon(cairo_traps_t * traps, const cairo_polygon_t * polygon, CairoFillRule fill_rule);
+cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_polygon(cairo_traps_t * traps, const cairo_polygon_t * polygon, CairoFillRule fill_rule);
 cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_traps(cairo_traps_t * traps, CairoFillRule fill_rule);
 cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t * traps, CairoFillRule fill_rule);
 cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in, CairoFillRule fill_rule, cairo_boxes_t * out);
@@ -1019,25 +1013,21 @@ cairo_private void _cairo_pattern_reset_static_data(void);
 
 /* cairo-unicode.c */
 
-cairo_private int _cairo_utf8_get_char_validated(const char * p, uint32_t   * unicode);
-cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t  ** result, int        * items_written);
-cairo_private int _cairo_ucs4_to_utf8(uint32_t unicode, char       * utf8);
+cairo_private int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t   * unicode);
+cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t  ** result, int * items_written);
+cairo_private int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8);
 
 #if CAIRO_HAS_WIN32_FONT || CAIRO_HAS_QUARTZ_FONT || CAIRO_HAS_PDF_OPERATORS
-# define CAIRO_HAS_UTF8_TO_UTF16 1
+	#define CAIRO_HAS_UTF8_TO_UTF16 1
 #endif
 #if CAIRO_HAS_UTF8_TO_UTF16
-cairo_private cairo_status_t _cairo_utf8_to_utf16(const char * str,
-    int len,
-    uint16_t  ** result,
-    int        * items_written);
+	cairo_private cairo_status_t _cairo_utf8_to_utf16(const char * str, int len, uint16_t  ** result, int * items_written);
 #endif
-
 cairo_private void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const cairo_matrix_t * b);
 
 /* cairo-observer.c */
 
-cairo_private void _cairo_observers_notify(cairo_list_t * observers, void * arg);
+cairo_private void FASTCALL _cairo_observers_notify(cairo_list_t * observers, void * arg);
 
 /* Avoid unnecessary PLT entries.  */
 slim_hidden_proto(cairo_clip_preserve);

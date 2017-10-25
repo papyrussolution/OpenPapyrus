@@ -1265,7 +1265,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
-										THROW(unit_obj.AddSimple(&pack.Rec.PhUnitID, val_buf, PPUnit::Trade | PPUnit::Phisical, 0));
+										THROW(unit_obj.AddSimple(&pack.Rec.PhUnitID, val_buf, PPUnit::Trade|PPUnit::Physical, 0));
 									}
 									else
 										pack.Rec.PhUnitID = igp.PhUnitID;
@@ -3927,7 +3927,7 @@ int SLAPI ImportSR25()
 								temp_buf.ReplaceStr(micro_prefix, "mk", 1);
 							temp_buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
 							temp_buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
-							unit_rec.Flags = unit_rec.Phisical;
+							unit_rec.Flags = unit_rec.Physical;
 							//
 							// —начала посмотрим, есть ли така€ единица измерени€
 							//
@@ -4077,7 +4077,7 @@ int SLAPI ImportCompGS()
 						buf.ReplaceStr(micro_prefix, "mk", 1);
 					buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
 					buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
-					unit_rec.Flags = unit_rec.Phisical;
+					unit_rec.Flags = unit_rec.Physical;
 					//
 					// —начала посмотрим, есть ли така€ единица измерени€
 					//

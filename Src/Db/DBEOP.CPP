@@ -338,9 +338,9 @@ DBQ & __stdcall operator  > (DBItem & i, const char * s) { return _newdbq(i, _GT
 DBQ & __stdcall operator >= (DBItem & i, const char * s) { return _newdbq(i, _GE_, s); }
 
 DBQ &  __stdcall operator && (DBQ & left, DBQ & right)
-	{ return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND_, left, right)); }
+	{ return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND___, left, right)); }
 DBQ &  __stdcall operator || (DBQ & l, DBQ & r)
-	{ return (&l && &r) ? *new DBQ(_OR_,  l, r) : *(DBQ *)0; }
+	{ return (&l && &r) ? *new DBQ(_OR___,  l, r) : *(DBQ *)0; }
 DBQ & __stdcall daterange(DBItem & i, const DateRange * pDR)
 	{ return pDR ? daterange(i, pDR->low, pDR->upp) : *(DBQ *)0; }
 

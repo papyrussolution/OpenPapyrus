@@ -937,7 +937,7 @@ int SLAPI MrpTabPacket::Flash(MrpTabCore * pTbl, int use_ta)
 //
 //
 //static
-int SLAPI PPObjMrpTab::ReadConfig(PPMrpTabConfig * pCfg)
+int FASTCALL PPObjMrpTab::ReadConfig(PPMrpTabConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_MRPTABCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)

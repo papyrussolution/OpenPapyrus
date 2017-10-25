@@ -751,18 +751,18 @@ cairo_public void cairo_set_miter_limit(cairo_t * cr, double limit);
 cairo_public void cairo_translate(cairo_t * cr, double tx, double ty);
 cairo_public void cairo_scale(cairo_t * cr, double sx, double sy);
 cairo_public void cairo_rotate(cairo_t * cr, double angle);
-cairo_public void cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix);
+cairo_public void FASTCALL cairo_transform(cairo_t * cr, const cairo_matrix_t * matrix);
 cairo_public void cairo_set_matrix(cairo_t * cr, const cairo_matrix_t * matrix);
 cairo_public void cairo_identity_matrix(cairo_t * cr);
-cairo_public void cairo_user_to_device(cairo_t * cr, double * x, double * y);
+cairo_public void FASTCALL cairo_user_to_device(cairo_t * cr, double * x, double * y);
 cairo_public void cairo_user_to_device_distance(cairo_t * cr, double * dx, double * dy);
 cairo_public void cairo_device_to_user(cairo_t * cr, double * x, double * y);
 cairo_public void cairo_device_to_user_distance(cairo_t * cr, double * dx, double * dy);
 /* Path creation functions */
-cairo_public void cairo_new_path(cairo_t * cr);
-cairo_public void cairo_move_to(cairo_t * cr, double x, double y);
-cairo_public void cairo_new_sub_path(cairo_t * cr);
-cairo_public void cairo_line_to(cairo_t * cr, double x, double y);
+cairo_public void FASTCALL cairo_new_path(cairo_t * cr);
+cairo_public void FASTCALL cairo_move_to(cairo_t * cr, double x, double y);
+cairo_public void FASTCALL cairo_new_sub_path(cairo_t * cr);
+cairo_public void FASTCALL cairo_line_to(cairo_t * cr, double x, double y);
 cairo_public void cairo_curve_to(cairo_t * cr, double x1, double y1, double x2, double y2, double x3, double y3);
 cairo_public void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
 cairo_public void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2);
@@ -784,7 +784,7 @@ cairo_public void cairo_rectangle(cairo_t * cr, double x, double y, double width
    cairo_stroke_to_path (cairo_t *cr);
  */
 
-cairo_public void cairo_close_path(cairo_t * cr);
+cairo_public void FASTCALL cairo_close_path(cairo_t * cr);
 cairo_public void cairo_path_extents(cairo_t * cr, double * x1, double * y1, double * x2, double * y2);
 
 /* Painting functions */
@@ -822,7 +822,10 @@ cairo_public void cairo_clip_extents(cairo_t * cr, double * x1, double * y1, dou
  * Since: 1.4
  **/
 typedef struct _cairo_rectangle {
-	double x, y, width, height;
+	double x;
+	double y;
+	double width;
+	double height;
 } cairo_rectangle_t;
 
 /**
@@ -1232,8 +1235,8 @@ cairo_public void cairo_font_extents(cairo_t * cr, cairo_font_extents_t * extent
 
 /* Generic identifier for a font style */
 
-cairo_public cairo_font_face_t * cairo_font_face_reference(cairo_font_face_t * font_face);
-cairo_public void cairo_font_face_destroy(cairo_font_face_t * font_face);
+cairo_public cairo_font_face_t * FASTCALL cairo_font_face_reference(cairo_font_face_t * font_face);
+cairo_public void FASTCALL cairo_font_face_destroy(cairo_font_face_t * font_face);
 cairo_public uint cairo_font_face_get_reference_count(cairo_font_face_t * font_face);
 cairo_public cairo_status_t cairo_font_face_status(cairo_font_face_t * font_face);
 
@@ -1977,9 +1980,9 @@ cairo_public int cairo_format_stride_for_width(cairo_format_t format, int width)
 cairo_public cairo_surface_t * cairo_image_surface_create_for_data(uchar * data, cairo_format_t format, int width, int height, int stride);
 cairo_public uchar * cairo_image_surface_get_data(cairo_surface_t * surface);
 cairo_public cairo_format_t cairo_image_surface_get_format(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_width(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_height(cairo_surface_t * surface);
-cairo_public int cairo_image_surface_get_stride(cairo_surface_t * surface);
+cairo_public int FASTCALL cairo_image_surface_get_width(cairo_surface_t * surface);
+cairo_public int FASTCALL cairo_image_surface_get_height(cairo_surface_t * surface);
+cairo_public int FASTCALL cairo_image_surface_get_stride(cairo_surface_t * surface);
 
 #if CAIRO_HAS_PNG_FUNCTIONS
 

@@ -633,7 +633,7 @@ cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_bool_t _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity)
+cairo_bool_t FASTCALL _cairo_matrix_is_integer_translation(const cairo_matrix_t * matrix, int * itx, int * ity)
 {
 	if(_cairo_matrix_is_translation(matrix)) {
 		cairo_fixed_t x0_fixed = _cairo_fixed_from_double(matrix->x0);

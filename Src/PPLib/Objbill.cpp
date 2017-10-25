@@ -2611,7 +2611,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 const char * BillAddFilesFolder = "BillAddFilesFolder";
 
 // static
-int SLAPI PPObjBill::ReadConfig(PPBillConfig * pCfg)
+int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -4661,7 +4661,7 @@ int SLAPI BillCache::GetPrjConfig(PPProjectConfig * pCfg, int enforce)
 }
 
 //static
-int SLAPI PPObjProject::FetchConfig(PPProjectConfig * pCfg)
+int FASTCALL PPObjProject::FetchConfig(PPProjectConfig * pCfg)
 {
 	BillCache * p_cache = GetDbLocalCachePtr <BillCache> (PPOBJ_BILL);
 	if(p_cache) {

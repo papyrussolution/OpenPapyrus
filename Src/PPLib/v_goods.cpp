@@ -508,24 +508,24 @@ struct __GoodsFilt {
 	PPID   ManufCountryID; // v-12
 	PPID   LocID;
 	DateRange   LotPeriod; // v-13
-	long   VatRate;        // v-15 // @v4.3.9  Ставка НДС (0.01), которой облагается товар
-	LDATE  VatDate;        // v-15 // @v4.3.9  Дата, на которую рассчитывается VatRate
-	PPID   BrandID;        // v-15 // @v4.4.5  Брэнд. (Просранство - за счет Reserve)
-	PPID   CodeArID;       // v-18 // @v5.6.11 Пространство за счет Reserve
-	PPID   BrandOwnerID;   // v-20 // @v6.0.7  Пространство за счет Reserve
-	int32  MtxLocID;       // @v7.3.4 Пространство за счет Reserve
-	int32  InitOrder;      // @v7.3.4 Пространство за счет Reserve
-	char   Reserve[12];    // v-15 // @v4.3.9 @v6.0.7 [24]-->[20]
+	long   VatRate;        // v-15 // Ставка НДС (0.01), которой облагается товар
+	LDATE  VatDate;        // v-15 // Дата, на которую рассчитывается VatRate
+	PPID   BrandID;        // v-15 // Брэнд. (Просранство - за счет Reserve)
+	PPID   CodeArID;       // v-18 
+	PPID   BrandOwnerID;   // v-20 
+	int32  MtxLocID;       // 
+	int32  InitOrder;      // 
+	char   Reserve[12];    // v-15 
 	//SrchStr[]
 	//uint32 GrpIDListCount;
 	//GrpIDList[]
 	//BarcodeLenStr[]      // v-14
 	//GoodsFilt::ExtParams // v-16, v-17
-	//LocList              // v-19 // @v6.0.2
-	//BrandList            // v-19 // @v6.0.2
-	//SysJournalFilt       // v-21 // @v6.4.2
-	//TagFilt              // v-22 // @v7.2.0
-	//BrandOwnerList       // v-23 // @v7.7.9
+	//LocList              // v-19 
+	//BrandList            // v-19 
+	//SysJournalFilt       // v-21 
+	//TagFilt              // v-22
+	//BrandOwnerList       // v-23
 };
 
 char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList) const
@@ -574,7 +574,7 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		PutPropSBuffer
 
 		char * p = 0;
-		size_t rec_size = sizeof(__GoodsFilt) + 2 + sizeof(uint32) * 4; // @v6.0.2 (*3) // @v7.7.9 (*4)
+		size_t rec_size = sizeof(__GoodsFilt) + 2 + sizeof(uint32) * 4;
 		rec_size += SrchStr_.Len();
 		rec_size += sizeof(PPID) * GrpIDList.GetCount();
 		rec_size += BarcodeLen.Len();
@@ -630,11 +630,11 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		p_buf->VatRate = VatRate;
 		p_buf->VatDate = VatDate;
 		// }
-		p_buf->BrandID  = BrandID_; // @v4.4.5
-		p_buf->CodeArID = CodeArID; // @v5.6.11
-		p_buf->BrandOwnerID = BrandOwnerID; // @v6.0.7
-		p_buf->MtxLocID = MtxLocID;   // @v7.3.8
-		p_buf->InitOrder = InitOrder; // @v7.3.8
+		p_buf->BrandID  = BrandID_;
+		p_buf->CodeArID = CodeArID;
+		p_buf->BrandOwnerID = BrandOwnerID;
+		p_buf->MtxLocID = MtxLocID;
+		p_buf->InitOrder = InitOrder;
 		p = (char*)(p_buf + 1);
 		strnzcpy(p, SrchStr_, 0);
 		p += strlen(p) + 1;
@@ -783,8 +783,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 					}
 					else {
 						p = (char*)(p_buf+1) - sizeof(p_buf->VatRate) - sizeof(p_buf->VatDate)  - sizeof(p_buf->BrandID) -
-							sizeof(p_buf->CodeArID) - sizeof(p_buf->BrandOwnerID) - 20; // @v7.4.3 @fix sizeof(p_buf->Reserve)-->20
-								// Размер блока Reserve был изменен, но здесь поправку внести забыли.
+							sizeof(p_buf->CodeArID) - sizeof(p_buf->BrandOwnerID) - 20;
 					}
 				}
 				else
@@ -4801,7 +4800,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 					SETIFZ(r_blk.Pack.Rec.UnitID, parent_rec.UnitID);
 					SETIFZ(r_blk.Pack.Rec.UnitID, r_blk.GObj.GetConfig().DefUnitID);
 					if(H.PhUnitID) {
-						if(u_obj.Fetch(H.PhUnitID, &u_rec) && u_rec.Flags & u_rec.Phisical)
+						if(u_obj.Fetch(H.PhUnitID, &u_rec) && u_rec.Flags & u_rec.Physical)
 							r_blk.Pack.Rec.PhUnitID = H.PhUnitID;
 						r_blk.Pack.Rec.PhUPerU = H.PhPerUnit;
 					}

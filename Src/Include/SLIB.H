@@ -48,11 +48,6 @@
 //
 #define _UNDEF_              -1 //
 #define _NONE_                0 //
-#define _END_                 0 //
-#define _AND_                 1 //
-#define _OR_                  2 //
-#define _NOT_                 3 // !
-#define _ALL_                 0 //
 #define _EQ_                  1 // ==
 #define _OUTER_EQ_          101 // outer join
 #define _GT_                  2 // >
@@ -81,6 +76,11 @@
 #define _SHIFTRIHT_          29 // >>
 #define _ASSIGN_             30 // присваивание (что-то вроде a := b)
 #define _DOT_                31 // Оператор . Чаще всего используется как ссылка на компонент сложного типа. Например data.member
+#define _END___              32 // 0 //
+#define _AND___              33 // 1 //
+#define _OR___               34 // 2 //
+#define _NOT___              35 // 3 // !
+#define _ALL___              36 // 0 //
 //
 // Стороны света
 //
@@ -3009,6 +3009,7 @@ float  FASTCALL atan2(FPoint p1, FPoint p2);
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
 FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle);
+/* @v9.8.6 (unused) 
 //
 // Complex compare struct and parse functions
 //
@@ -3017,10 +3018,10 @@ struct CompareTerm {
 	int    cmp;
 	char   data[10];
 	int    link;
-};
+};*/
 
-typedef int (SLAPI * is_data_func)(char *);
-typedef int (SLAPI * get_data_func)(char * buf, int * idx, char * data);
+// @v9.8.6 (unused) typedef int (SLAPI * is_data_func)(char *);
+// @v9.8.6 (unused) typedef int (SLAPI * get_data_func)(char * buf, int * idx, char * data);
 //
 // Compare sign sets
 //
@@ -3035,18 +3036,16 @@ typedef int (SLAPI * get_data_func)(char * buf, int * idx, char * data);
 //
 // Function prototypes
 //
-int SLAPI  is_number(char *);
-int SLAPI  is_date(char *);
-int SLAPI  get_number(char *, int *, char *);
-int SLAPI  get_date(char *, int *, char *);
-
-int SLAPI  set_data_func(is_data_func, get_data_func);
-int SLAPI  check_cmp_expression(char * pStr, IntRange * pErrLoc);
-int SLAPI  parse_cmp_expression(char *, int *, CompareTerm *);
-int SLAPI  get_cmp_parse_error();
-
-const char * SLAPI getcmpsign(int cmp, int set);
-const char * SLAPI getboolsign(int link, int set);
+// @v9.8.6 (unused) int SLAPI  is_number(char *);
+// @v9.8.6 (unused) int SLAPI  is_date(char *);
+// @v9.8.6 (unused) int SLAPI  get_number(char *, int *, char *);
+// @v9.8.6 (unused) int SLAPI  get_date(char *, int *, char *);
+// @v9.8.6 (unused) int SLAPI  set_data_func(is_data_func, get_data_func);
+// @v9.8.6 (unused) int SLAPI  check_cmp_expression(char * pStr, IntRange * pErrLoc);
+// @v9.8.6 (unused) int SLAPI  parse_cmp_expression(char *, int *, CompareTerm *);
+// @v9.8.6 (unused) int SLAPI  get_cmp_parse_error();
+// @v9.8.6 (unused) const char * SLAPI getcmpsign(int cmp, int set);
+// @v9.8.6 (unused) const char * SLAPI getboolsign(int link, int set);
 //
 // String functions
 //

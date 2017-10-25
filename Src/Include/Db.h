@@ -3849,6 +3849,42 @@ private:
 //
 class BExtQuery {
 public:
+	enum {
+		opEq = 1,
+		opGt = 2,
+		opLt = 3,
+		opNe = 4,
+		opGe = 5,
+		opLe = 6
+	};
+	enum {
+		linkEnd = 0,
+		linkAnd = 1,
+		linkOr  = 2
+	};
+	static int FASTCALL SlToBeqOp(int s)
+	{
+		switch(s) {
+			case _EQ_: return opEq;
+			case _GT_: return opGt;
+			case _LT_: return opLt;
+			case _NE_: return opNe;
+			case _GE_: return opGe;
+			case _LE_: return opLe;
+		}
+		assert(0);
+		return 0;
+	}
+	static int FASTCALL SlToBeqLink(int s)
+	{
+		switch(s) {
+			case _AND___: return linkAnd;
+			case _OR___:  return linkOr;
+			case _END___: return linkEnd;
+		}
+		assert(0);
+		return 0;
+	}
 	//
 	// Descr: Удаляет экземпляр *ppQ с обнулением.
 	// Note: Реализована для замещения частых вызовов ZDELETE(q)
@@ -3860,7 +3896,7 @@ public:
 	SLAPI  BExtQuery(DBTable * pTbl, int idx, uint aBufSize /*= 32*/);
 	SLAPI  BExtQuery(DBTable * pTbl, int idx);
 	SLAPI ~BExtQuery();
-	int    SLAPI setMaxReject(uint);
+	void   SLAPI setMaxReject(uint);
 	//
 	// Descr: Снимает внутренний признак окончания чтения. Необходим для случаев,
 	//   когда необходимо продолжить чтение с текущей позиции в предположении, что
@@ -3871,7 +3907,7 @@ public:
 	BExtQuery & SLAPI  selectAll();
 	BExtQuery & SLAPIV select(DBField,...);
 	int    SLAPI addField(const DBField &);
-	int    FASTCALL where(DBQ &);
+	void   FASTCALL where(DBQ &);
 	//
 	// Вызов функции fetchFirst должен обязательно предшествовать вызовам fetchNext.
 	// fetchFirst инициализирует итерации поиска. Особое внимание - параметрам initKey и initSpMode.
@@ -3896,9 +3932,9 @@ private:
 	void   SLAPI Init(DBTable * pTbl, int idx, uint aBufSize);
 	int    SLAPI search_first(const char * pInitKey, int initSpMode, int spMode);
 	int    FASTCALL _search(int spMode, uint16 signature);
-	int    SLAPI add_term(int link, int n);
-	int    SLAPI add_tree(int link, int n);
-	BExtTerm * SLAPI get_term(int);
+	int    FASTCALL add_term(int link, int n);
+	int    FASTCALL add_tree(int link, int n);
+	// @v9.8.6 (inlined) BExtTerm * SLAPI get_term(int);
 	//
 	// Descr: Перекидывает данные записи с текущим индексом cur
 	//   из буфера BExtQuery::Buf в буфер записи таблицы данных DBTable::buf.

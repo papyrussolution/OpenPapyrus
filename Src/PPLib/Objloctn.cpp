@@ -283,7 +283,7 @@ int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 }
 
 // static
-int SLAPI PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
+int FASTCALL PPObjLocation::WriteConfig(const PPLocationConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_LOCATIONCFG;
 	const  long cfg_obj_type = PPCFGOBJ_LOCATION;
@@ -2823,8 +2823,8 @@ public:
 	PPID   SLAPI GetSingleWarehouse();
 	uint   SLAPI GetWarehouseList(PPIDArray * pList);
 	int    SLAPI CheckWarehouseFlags(PPID locID, long f);
-	PPID   SLAPI ObjToWarehouse(PPID arID);
-	PPID   SLAPI WarehouseToObj(PPID locID);
+	PPID   FASTCALL ObjToWarehouse(PPID arID);
+	PPID   FASTCALL WarehouseToObj(PPID locID);
 	int    SLAPI GetConfig(PPLocationConfig * pCfg, int enforce);
 	int    SLAPI GetCellList(PPID locID, PPIDArray * pList); // @sync_w
 	int    SLAPI DirtyCellList(PPID locID); // @sync_w
@@ -3182,7 +3182,7 @@ int SLAPI LocationCache::CheckWarehouseFlags(PPID locID, long f)
 	return ok;
 }
 
-PPID SLAPI LocationCache::ObjToWarehouse(PPID arID)
+PPID FASTCALL LocationCache::ObjToWarehouse(PPID arID)
 {
 	PPID   id = 0;
 	if(arID) {
@@ -3208,7 +3208,7 @@ PPID SLAPI LocationCache::ObjToWarehouse(PPID arID)
 	return id;
 }
 
-PPID SLAPI LocationCache::WarehouseToObj(PPID locID)
+PPID FASTCALL LocationCache::WarehouseToObj(PPID locID)
 {
 	PPID   id = 0;
 	if(locID) {
@@ -3434,7 +3434,7 @@ int SLAPI PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDAr
 }
 
 // static
-int SLAPI PPObjLocation::FetchConfig(PPLocationConfig * pCfg)
+int FASTCALL PPObjLocation::FetchConfig(PPLocationConfig * pCfg)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION, 1);
 	if(p_cache) {
@@ -3466,21 +3466,21 @@ uint SLAPI PPObjLocation::GetWarehouseList(PPIDArray * pList)
 }
 
 // static
-int SLAPI PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
+int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	return p_cache ? p_cache->CheckWarehouseFlags(locID, f) : 0;
 }
 
 // static
-PPID SLAPI PPObjLocation::ObjToWarehouse(PPID arID)
+PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	return p_cache ? p_cache->ObjToWarehouse(arID) : 0;
 }
 
 // static
-PPID SLAPI PPObjLocation::WarehouseToObj(PPID locID)
+PPID FASTCALL PPObjLocation::WarehouseToObj(PPID locID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	return p_cache ? p_cache->WarehouseToObj(locID) : 0;

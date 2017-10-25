@@ -441,7 +441,7 @@ static cairo_hash_entry_t ** _cairo_hash_table_lookup_exact_key(cairo_hash_table
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if out of memory.
  **/
-void _cairo_hash_table_remove(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
+void FASTCALL _cairo_hash_table_remove(cairo_hash_table_t * hash_table, cairo_hash_entry_t * key)
 {
 	*_cairo_hash_table_lookup_exact_key(hash_table, key) = DEAD_ENTRY;
 	hash_table->live_entries--;

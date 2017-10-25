@@ -769,10 +769,10 @@ int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extra
 	return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK;
 }
 
-void SLAPI PPObject::Destroy(PPObjPack * p)
+void FASTCALL PPObject::Destroy(PPObjPack * pPack)
 {
-	if(p)
-		ZDELETE(p->Data);
+	if(pPack)
+		ZDELETE(pPack->Data);
 }
 
 int SLAPI PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx)
@@ -858,7 +858,7 @@ int FASTCALL PPObject::CheckRights(long rt)
 	return ((Rt_ & rt) == rt) ? 1 : PPSetError(PPERR_NORIGHTS);
 }
 
-int SLAPI PPObject::CheckRightsModByID(const PPID * pID)
+int FASTCALL PPObject::CheckRightsModByID(const PPID * pID)
 {
 	return pID ? CheckRights(*pID ? PPR_MOD : PPR_INS) : PPSetErrorInvParam();
 }
@@ -1170,7 +1170,7 @@ void FASTCALL ObjCollection::freeItem(void * pItem)
 	SArray::freeItem(pItem);
 }
 
-int SLAPI ObjCollection::CreateFullList(long flags)
+int FASTCALL ObjCollection::CreateFullList(long flags)
 {
 	int    ok = 1;
 	PPIDArray obj_type_list;
@@ -1181,7 +1181,7 @@ int SLAPI ObjCollection::CreateFullList(long flags)
 	return ok;
 }
 
-PPObject * SLAPI ObjCollection::GetObjectPtr(PPID objType)
+PPObject * FASTCALL ObjCollection::GetObjectPtr(PPID objType)
 {
 	uint   p = 0;
 	PPObject * p_obj = 0;
@@ -1593,7 +1593,7 @@ int SLAPI PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extra
 	return ok;
 }
 
-int SLAPI CheckCfgRights(PPID id, ushort rt, int oprRights)
+int FASTCALL CheckCfgRights(PPID id, ushort rt, int oprRights)
 {
 	int    ok = 1;
 	if(!PPMaster) {

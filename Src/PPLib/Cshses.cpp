@@ -1376,7 +1376,10 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	Algorithm = algDefault;
 	SinceDlsID = sinceDlsID;
 	CurDate  = getcurdate_();
-
+	GroupList.clear(); // @v9.8.6
+	UnitList.clear(); // @v9.8.6
+	GdsClsList.clear(); // @v9.8.6
+	GdsTypeList.clear(); // @v9.8.6
 	// @v8.5.4 {
 	{
 		AlcoGoodsClsID = 0;
@@ -1591,20 +1594,28 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		}
 	}
 	{
-		PPIDArray group_list, * p_group_list = 0;
+		const PPIDArray * p_group_list = 0;
 		ZDELETE(P_AcggIter);
-		if(AcnPack.GoodsGrpID && !(Flags & ACGIF_EXCLALTFOLD)) {
+		/* @v9.8.6 if(AcnPack.GoodsGrpID && !(Flags & ACGIF_EXCLALTFOLD))*/ {
 			Goods2Tbl::Rec goods_rec;
 			if(Flags & ACGIF_UPDATEDONLY && Algorithm == algUpdBills) {
 				for(uint i = 0; i < IterGoodsList.getCount(); i++) {
 					if(GObj.Fetch(IterGoodsList.at(i), &goods_rec) > 0) {
-						group_list.add(goods_rec.ParentID); // @v8.0.10 addUnique-->add
+						GroupList.add(goods_rec.ParentID); // @v8.0.10 addUnique-->add
+						UnitList.addnz(goods_rec.UnitID); // @v9.8.6
+						UnitList.addnz(goods_rec.PhUnitID); // @v9.8.6
+						GdsClsList.addnz(goods_rec.GdsClsID); // @v9.8.6
+						GdsTypeList.addnz(goods_rec.GoodsTypeID); // @v9.8.6
 					}
 				}
 			}
 			else {
 				while(Iter.Next(&goods_rec) > 0) {
-					group_list.add(goods_rec.ParentID); // @v8.0.10 addUnique-->add
+					GroupList.add(goods_rec.ParentID); // @v8.0.10 addUnique-->add
+					UnitList.addnz(goods_rec.UnitID); // @v9.8.6
+					UnitList.addnz(goods_rec.PhUnitID); // @v9.8.6
+					GdsClsList.addnz(goods_rec.GdsClsID); // @v9.8.6
+					GdsTypeList.addnz(goods_rec.GoodsTypeID); // @v9.8.6
 				}
 				//
 				// Снова иницализируем итератор
@@ -1616,9 +1627,13 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 					THROW(Iter.Init(GoodsIterator::ordByName));
 				}
 			}
-			group_list.sortAndUndup(); // @v8.0.10
-			p_group_list = &group_list;
+			GroupList.sortAndUndup(); // @v8.0.10
+			UnitList.sortAndUndup(); // @v9.8.6
+			GdsClsList.sortAndUndup(); // @v9.8.6
+			GdsTypeList.sortAndUndup(); // @v9.8.6
 		}
+		if(AcnPack.GoodsGrpID && !(Flags & ACGIF_EXCLALTFOLD)) // @v9.8.6
+			p_group_list = &GroupList;
 		THROW_MEM(P_AcggIter = new AsyncCashGoodsGroupIterator(CashNodeID, 0, P_Dls, p_group_list));
 	}
 	GObj.P_Tbl->ClearQuotCache(); // @v8.8.11
@@ -1627,6 +1642,17 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		ZDELETE(P_AcggIter);
 	ENDCATCH
 	return ok;
+}
+
+const PPIDArray * FASTCALL AsyncCashGoodsIterator::GetRefList(int refType) const
+{
+	switch(refType) {
+		case PPOBJ_GOODSGROUP: return &GroupList;
+		case PPOBJ_UNIT: return &UnitList;
+		case PPOBJ_GOODSCLASS: return &GdsClsList;
+		case PPOBJ_GOODSTYPE: return &GdsTypeList;
+		default: return 0;
+	}
 }
 
 int SLAPI AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
@@ -1759,6 +1785,8 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					else
 						Rec.ParentID = grec.ParentID;
 					Rec.UnitID   = grec.UnitID;
+					Rec.PhUnitID = grec.PhUnitID; // @v9.8.6
+					Rec.PhUPerU  = grec.PhUPerU;  // @v9.8.6
 					Rec.ManufID  = grec.ManufID;
 					Rec.GdsClsID = grec.GdsClsID;
 					Rec.Cost     = rtl_ext_item.Cost;
@@ -1918,6 +1946,8 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	memzero(BarCode, sizeof(BarCode));
 	memzero(PrefBarCode, sizeof(PrefBarCode));
 	UnitID = 0;
+	PhUnitID = 0; // @v9.8.6
+	PhUPerU = 0.0; // @v9.8.6
 	ManufID = 0;
 	GdsClsID = 0;
 	UnitPerPack = 0.0;

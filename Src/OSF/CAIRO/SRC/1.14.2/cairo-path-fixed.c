@@ -45,11 +45,11 @@
 static cairo_status_t _cairo_path_fixed_add(cairo_path_fixed_t  * path, cairo_path_op_t op, const cairo_point_t * points, int num_points);
 static void _cairo_path_fixed_add_buf(cairo_path_fixed_t * path, cairo_path_buf_t   * buf);
 static cairo_path_buf_t * _cairo_path_buf_create(int size_ops, int size_points);
-static void _cairo_path_buf_destroy(cairo_path_buf_t * buf);
+static void FASTCALL _cairo_path_buf_destroy(cairo_path_buf_t * buf);
 static void _cairo_path_buf_add_op(cairo_path_buf_t * buf, cairo_path_op_t op);
 static void _cairo_path_buf_add_points(cairo_path_buf_t * buf, const cairo_point_t    * points, int num_points);
 
-void _cairo_path_fixed_init(cairo_path_fixed_t * path)
+void FASTCALL _cairo_path_fixed_init(cairo_path_fixed_t * path)
 {
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(path, sizeof(cairo_path_fixed_t)));
 	cairo_list_init(&path->buf.base.link);
@@ -75,24 +75,18 @@ void _cairo_path_fixed_init(cairo_path_fixed_t * path)
 	path->extents.p2.x = path->extents.p2.y = 0;
 }
 
-cairo_status_t _cairo_path_fixed_init_copy(cairo_path_fixed_t * path,
-    const cairo_path_fixed_t * other)
+cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, const cairo_path_fixed_t * other)
 {
 	cairo_path_buf_t * buf, * other_buf;
 	uint num_points, num_ops;
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(path, sizeof(cairo_path_fixed_t)));
-
 	cairo_list_init(&path->buf.base.link);
-
 	path->buf.base.op = path->buf.op;
 	path->buf.base.points = path->buf.points;
 	path->buf.base.size_ops = SIZEOFARRAY(path->buf.op);
 	path->buf.base.size_points = SIZEOFARRAY(path->buf.points);
-
 	path->current_point = other->current_point;
 	path->last_move_point = other->last_move_point;
-
 	path->has_current_point = other->has_current_point;
 	path->needs_move_to = other->needs_move_to;
 	path->has_extents = other->has_extents;
@@ -255,7 +249,7 @@ cairo_path_fixed_t * _cairo_path_fixed_create(void)
 	return path;
 }
 
-void _cairo_path_fixed_fini(cairo_path_fixed_t * path)
+void FASTCALL _cairo_path_fixed_fini(cairo_path_fixed_t * path)
 {
 	cairo_path_buf_t * buf = cairo_path_buf_next(cairo_path_head(path));
 	while(buf != cairo_path_head(path)) {
@@ -266,13 +260,13 @@ void _cairo_path_fixed_fini(cairo_path_fixed_t * path)
 	VG(VALGRIND_MAKE_MEM_NOACCESS(path, sizeof(cairo_path_fixed_t)));
 }
 
-void _cairo_path_fixed_destroy(cairo_path_fixed_t * path)
+void FASTCALL _cairo_path_fixed_destroy(cairo_path_fixed_t * path)
 {
 	_cairo_path_fixed_fini(path);
 	SAlloc::F(path);
 }
 
-static cairo_path_op_t _cairo_path_fixed_last_op(cairo_path_fixed_t * path)
+static cairo_path_op_t FASTCALL _cairo_path_fixed_last_op(cairo_path_fixed_t * path)
 {
 	cairo_path_buf_t * buf = cairo_path_tail(path);
 	assert(buf->num_ops != 0);
@@ -584,7 +578,7 @@ static cairo_path_buf_t * _cairo_path_buf_create(int size_ops, int size_points)
 	return buf;
 }
 
-static void _cairo_path_buf_destroy(cairo_path_buf_t * buf)
+static void FASTCALL _cairo_path_buf_destroy(cairo_path_buf_t * buf)
 {
 	SAlloc::F(buf);
 }
@@ -679,28 +673,19 @@ static cairo_status_t _append_close_path(void * abstract_closure)
 	return _cairo_path_fixed_close_path(closure->path);
 }
 
-cairo_status_t _cairo_path_fixed_append(cairo_path_fixed_t                * path,
-    const cairo_path_fixed_t          * other,
-    cairo_fixed_t tx,
-    cairo_fixed_t ty)
+cairo_status_t _cairo_path_fixed_append(cairo_path_fixed_t * path, const cairo_path_fixed_t * other,
+    cairo_fixed_t tx, cairo_fixed_t ty)
 {
 	cairo_path_fixed_append_closure_t closure;
 	closure.path = path;
 	closure.offset.x = tx;
 	closure.offset.y = ty;
-	return _cairo_path_fixed_interpret(other,
-	    _append_move_to,
-	    _append_line_to,
-	    _append_curve_to,
-	    _append_close_path,
-	    &closure);
+	return _cairo_path_fixed_interpret(other, _append_move_to, _append_line_to, _append_curve_to,
+	    _append_close_path, &closure);
 }
 
-static void _cairo_path_fixed_offset_and_scale(cairo_path_fixed_t * path,
-    cairo_fixed_t offx,
-    cairo_fixed_t offy,
-    cairo_fixed_t scalex,
-    cairo_fixed_t scaley)
+static void _cairo_path_fixed_offset_and_scale(cairo_path_fixed_t * path, cairo_fixed_t offx,
+    cairo_fixed_t offy, cairo_fixed_t scalex, cairo_fixed_t scaley)
 {
 	cairo_path_buf_t * buf;
 	uint i;
@@ -749,23 +734,17 @@ static void _cairo_path_fixed_offset_and_scale(cairo_path_fixed_t * path,
 	}
 }
 
-void _cairo_path_fixed_translate(cairo_path_fixed_t * path,
-    cairo_fixed_t offx,
-    cairo_fixed_t offy)
+void _cairo_path_fixed_translate(cairo_path_fixed_t * path, cairo_fixed_t offx, cairo_fixed_t offy)
 {
 	cairo_path_buf_t * buf;
 	uint i;
-
 	if(offx == 0 && offy == 0)
 		return;
-
 	path->last_move_point.x += offx;
 	path->last_move_point.y += offy;
 	path->current_point.x += offx;
 	path->current_point.y += offy;
-
 	path->fill_maybe_region = TRUE;
-
 	cairo_path_foreach_buf_start(buf, path) {
 		for(i = 0; i < buf->num_points; i++) {
 			buf->points[i].x += offx;
@@ -786,7 +765,7 @@ void _cairo_path_fixed_translate(cairo_path_fixed_t * path,
 	path->extents.p2.y += offy;
 }
 
-static /*inline*/ void _cairo_path_fixed_transform_point(cairo_point_t * p, const cairo_matrix_t * matrix)
+static /*inline*/ void FASTCALL _cairo_path_fixed_transform_point(cairo_point_t * p, const cairo_matrix_t * matrix)
 {
 	double dx = _cairo_fixed_to_double(p->x);
 	double dy = _cairo_fixed_to_double(p->y);
@@ -794,7 +773,6 @@ static /*inline*/ void _cairo_path_fixed_transform_point(cairo_point_t * p, cons
 	p->x = _cairo_fixed_from_double(dx);
 	p->y = _cairo_fixed_from_double(dy);
 }
-
 /**
  * _cairo_path_fixed_transform:
  * @path: a #cairo_path_fixed_t to be transformed
@@ -804,7 +782,7 @@ static /*inline*/ void _cairo_path_fixed_transform_point(cairo_point_t * p, cons
  * There is a fast path for the case where @matrix has no rotation
  * or shear.
  **/
-void _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix)
+void FASTCALL _cairo_path_fixed_transform(cairo_path_fixed_t * path, const cairo_matrix_t * matrix)
 {
 	cairo_box_t extents;
 	cairo_point_t point;
@@ -976,7 +954,7 @@ static inline cairo_bool_t _points_form_rect(const cairo_point_t * points)
 // 
 // Check whether the given path contains a single rectangle.
 // 
-cairo_bool_t _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box)
+cairo_bool_t FASTCALL _cairo_path_fixed_is_box(const cairo_path_fixed_t * path, cairo_box_t * box)
 {
 	if(!path->fill_is_rectilinear)
 		return FALSE;

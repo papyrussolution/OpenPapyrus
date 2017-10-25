@@ -212,7 +212,7 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
  *
  * Returns: the number of bytes forming the character returned.
  **/
-int _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
+int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
 {
 	int i, mask = 0, len;
 	uint32_t result;
@@ -305,7 +305,7 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str,
  * Return value: Number of bytes in the utf8 string or 0 if an invalid
  * unicode character
  **/
-int _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
+int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
 {
 	int bytes;
 	char * p;

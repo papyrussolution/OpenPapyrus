@@ -853,7 +853,7 @@ int SLAPI PPObjUnit::UniteMaxLike()
 int SLAPI PPObjUnit::IsPhisical(PPID id)
 {
 	PPUnit rec;
-	return BIN(Fetch(id, &rec) > 0 && rec.Flags & PPUnit::Phisical);
+	return BIN(Fetch(id, &rec) > 0 && rec.Flags & PPUnit::Physical);
 }
 
 int SLAPI PPObjUnit::IsInteger(PPID id)
@@ -1037,7 +1037,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	dlg->setCtrlData(CTL_UNIT_ID,   &unit.ID);
 	dlg->disableCtrl(CTL_UNIT_ID, (!PPMaster || unit.ID));
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 0, PPUnit::Trade);
-	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 1, PPUnit::Phisical);
+	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 1, PPUnit::Physical);
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 2, PPUnit::SI);
 	dlg->AddClusterAssoc(CTL_UNIT_FLAGS, 3, PPUnit::IntVal);
 	dlg->SetClusterData(CTL_UNIT_FLAGS, unit.Flags);
@@ -1055,7 +1055,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTL_UNIT_ID,    &unit.ID);
 			dlg->GetClusterData(CTL_UNIT_FLAGS, &unit.Flags);
 			if(unit.Flags & PPUnit::SI)
-				unit.Flags |= PPUnit::Phisical;
+				unit.Flags |= PPUnit::Physical;
 			dlg->getCtrlData(CTLSEL_UNIT_BASE, &unit.BaseUnitID);
 			if(unit.BaseUnitID && unit.BaseUnitID == *pID)
 				PPErrorByDialog(dlg, CTL_UNIT_BASE, PPERR_BASEUNITEQTHIS);
@@ -1095,7 +1095,7 @@ int SLAPI PPObjUnit::ProcessReservedItem(TVRez & rez)
 		for(size_t i = 0; i < flags.Len(); i++) {
 			switch(toupper(flags.C(i))) {
 				case 'S': rec.Flags |= PPUnit::SI;       break;
-				case 'P': rec.Flags |= PPUnit::Phisical; break;
+				case 'P': rec.Flags |= PPUnit::Physical; break;
 				case 'T': rec.Flags |= PPUnit::Trade;    break;
 				case 'H': rec.Flags |= PPUnit::Hide;     break;
 				case 'I': rec.Flags |= PPUnit::IntVal;   break;
@@ -2564,7 +2564,7 @@ int SLAPI PPObjGlobalUserAcc::Fetch(PPID id, PPGlobalUserAcc * pRec)
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI PPObjGlobalUserAcc::FetchConfig(PPGlobalUserAccConfig * pCfg)
+int FASTCALL PPObjGlobalUserAcc::FetchConfig(PPGlobalUserAccConfig * pCfg)
 {
 	GlobalUserAccCache * p_cache = GetDbLocalCachePtr <GlobalUserAccCache> (Obj);
 	if(p_cache) {

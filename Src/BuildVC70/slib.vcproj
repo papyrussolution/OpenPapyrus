@@ -642,9 +642,6 @@
 				RelativePath="..\SLib\Msgbox.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\parscmp.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\prime.cpp">
 			</File>
 			<File

@@ -80,6 +80,7 @@ PPEgaisProcessor::Ticket::Result::Result()
 void PPEgaisProcessor::Ticket::Result::Clear()
 {
     Conclusion = -1;
+    Special = spcNone; // @v9.8.6
     Time.SetZero();
     OpName.Z();
     Comment.Z();
@@ -1377,6 +1378,12 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 					w_a.PutInner("oref:Country", EncText(temp_buf.Z().CatLongZ(epr_item.CountryCode, 3)));
 					if(epr_item.RegionCode)
 						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf.Z().CatLongZ(epr_item.RegionCode, 2)));
+					// @v9.8.6 {
+					else if(inn.Len() > 2) {
+						inn.Sub(0, 2, temp_buf);
+						w_a.PutInnerSkipEmpty("oref:RegionCode", EncText(temp_buf));
+					}
+					// } @v9.8.6
 					else if(oneof2(j_status, 1, 2)) {
 						LogTextWithAddendum(PPTXT_EGAIS_PERSONHASNTREGCODE, temp_buf = epr_item.Name);
 					}
@@ -3829,6 +3836,16 @@ int SLAPI PPEgaisProcessor::Read_TicketResult(xmlNode * pFirstNode, int ticketTy
 				rResult.Comment = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
 	}
+	if(rResult.Conclusion == 0) {
+		//<tc:Comments>Зафиксирована попытка подачи недостоверных данных. Накладная с номером "29622оа" от 25.10.2017 00:00:00 уже зарегистрирована в системе. Регистрационный номер TTN-0154151096, дата регистрации 25.10.2017 08:31:04. Владелец ["010060693450"], накладная "5978692".
+		PPLoadText(PPTXT_EGAIS_TKT_UNREL_ATTEMPT, temp_buf); // Зафиксирована попытка подачи недостоверных данных
+		if(rResult.Comment.Search(temp_buf, 0, 1, 0)) {
+			PPLoadText(PPTXT_EGAIS_TKT_ALRREGISTERED, temp_buf); // уже зарегистрирована в системе
+			if(rResult.Comment.Search(temp_buf, 0, 1, 0)) {
+				rResult.Special = rResult.spcDup;
+			}
+		}
+	}
 	return ok;
 }
 
@@ -5885,31 +5902,39 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 		}
 		else if(conclusion == 0) {
 			int    msg_id = (ticketType == 2) ? PPTXT_EGAIS_BILLFUNPROCESSED_S : PPTXT_EGAIS_BILLFUNPROCESSED_U;
-			THROW(P_BObj->P_Tbl->SetRecFlag2(bill_id, BILLF2_ACKPENDING, 0, 0));
-			if(!(State & stDontRemoveTags)) {
-				if(!pT->TranspUUID.IsZero()) {
-					const PPID uuid_tag_id = selfreject_ticket ? PPTAG_BILL_EDIREJECTACK : PPTAG_BILL_EDIACK;
-					ObjTagItem uuid_tag;
-					if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, uuid_tag_id, &uuid_tag) > 0) {
-						S_GUID ex_uuid;
-						uuid_tag.GetGuid(&ex_uuid);
-						if(ex_uuid == pT->TranspUUID) {
-							THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, bill_id, uuid_tag_id, 0));
+			//
+			// @v9.8.6 Обнаружилась не понятная ситуация с ЕГАИС - возникают сообщения о попытке отправить
+			// дублированную накладную иногда без видимых оснований. Как попытка обойти проблему
+			// мы идентифицируем текст сообщения и если, он соответствующий, то не будем удалять теги
+			// и менять флаги.
+			//
+			if(pT->R.Special != Ticket::Result::spcDup && pT->OpR.Special != Ticket::Result::spcDup) {
+				THROW(P_BObj->P_Tbl->SetRecFlag2(bill_id, BILLF2_ACKPENDING, 0, 0));
+				if(!(State & stDontRemoveTags)) {
+					if(!pT->TranspUUID.IsZero()) {
+						const PPID uuid_tag_id = selfreject_ticket ? PPTAG_BILL_EDIREJECTACK : PPTAG_BILL_EDIACK;
+						ObjTagItem uuid_tag;
+						if(p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, uuid_tag_id, &uuid_tag) > 0) {
+							S_GUID ex_uuid;
+							uuid_tag.GetGuid(&ex_uuid);
+							if(ex_uuid == pT->TranspUUID) {
+								THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, bill_id, uuid_tag_id, 0));
+							}
 						}
 					}
-				}
-				// @v8.9.5 {
-				if((!oneof2(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !selfreject_ticket) &&
-					(rRec.EdiOp || oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2))) {
-					if(pT->RegIdent.NotEmpty()) {
-						SString ex_edi_ident;
-                        if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, ex_edi_ident) > 0) {
-							if(ex_edi_ident.CmpNC(pT->RegIdent) == 0)
-								THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, 0));
-                        }
+					// @v8.9.5 {
+					if((!oneof2(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !selfreject_ticket) &&
+						(rRec.EdiOp || oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2))) {
+						if(pT->RegIdent.NotEmpty()) {
+							SString ex_edi_ident;
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, ex_edi_ident) > 0) {
+								if(ex_edi_ident.CmpNC(pT->RegIdent) == 0)
+									THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, 0));
+							}
+						}
 					}
+					// } @v8.9.5
 				}
-				// } @v8.9.5
 			}
 			LogTextWithAddendum(msg_id, rBillText);
 			ok = 1;

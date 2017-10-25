@@ -15,9 +15,9 @@ int SLAPI PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		CityName = 0;
-		CountryName = 0;
-		Address = 0;
+		CityName.Z();
+		CountryName.Z();
+		Address.Z();
 		MEMSZERO(Data);
 	}
 	else if(op == idoExtract) {
@@ -403,7 +403,7 @@ int SLAPI PPDS_CrrGoods::AcceptOuterData(int use_ta)
 				else {
 					MEMSZERO(u_rec);
 					STRNSCPY(u_rec.Name, PhUnitName);
-					u_rec.Flags |= PPUnit::Phisical;
+					u_rec.Flags |= PPUnit::Physical;
 					THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
 					Data.Rec.PhUnitID = id;
 				}
@@ -846,7 +846,7 @@ int SLAPI PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 						ti.Quantity_ = fabs(ti.Quantity_);
 						ti.Cost = ti.Price;
 						if(!(DbxCfg.Flags & DBDXF_CHARRY_PRICEQCOST))
-							if(p_bobj->trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(pack.Rec.LocID), pack.Rec.Dt, &lot_rec) > 0) // @v7.9.11 0-->-pack.Rec.LocID
+							if(p_bobj->trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(pack.Rec.LocID), pack.Rec.Dt, &lot_rec) > 0)
 								ti.Price = R5(lot_rec.Price);
 							else {
 								double price = 0.0;

@@ -823,19 +823,15 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 			pBuf->Read(&pPack->ExtRec, sizeof(pPack->ExtRec));
 			pBuf->Read(&pPack->Stock, offsetof(GoodsStockExt, MinStockList));
 			pBuf->Read(&pPack->Stock.MinStockList, 0);
-			// @v7.2.0 {
 			if(pack_ver >= 2) {
 				pBuf->Read(&pPack->Stock.PltList, 0);
 				pPack->TagL.Read__(*pBuf);
 			}
-			// } @v7.2.0
 			pBuf->Read(pPack->ExtString);
 			pBuf->Read(pPack->ExTitles);
-			// @v7.7.12 {
 			if(pack_ver >= 3) {
 				THROW(pPack->GenericList.Read(*pBuf));
 			}
-			// } @v7.7.12
 			pBuf->Read(crc2);
 			THROW_PP(crc2 == crc, PPERR_HISTGOODSBUFCORRUPTED);
 		}
@@ -852,7 +848,7 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	ZDELETE(pPack->P_Filt);
 	ZDELETE(pPack->P_Quots);
 	pPack->ExTitles = 0;
-	pPack->TagL.Destroy(); // @v7.0.x AHTOXA
+	pPack->TagL.Destroy();
 	*/
 	pPack->destroy(); // @v8.3.7
 	if((ok = Search(id, &pPack->Rec)) > 0) {
@@ -889,7 +885,7 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 		THROW(GetValueAddedData(id, pPack));
 		if(pPack->Rec.Kind == PPGDSK_GROUP)
 			THROW(PPRef->GetPropVlrString(PPOBJ_GOODSGROUP, id, GGPRP_EXSTRTITLES, pPack->ExTitles));
-		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL)); // @v7.0.x AHTOXA
+		THROW(GetTagList(pPack->Rec.ID, &pPack->TagL));
 	}
 	else
 		ok = -1;
@@ -1041,15 +1037,15 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 		if(*pID) {
 			// @v8.0.3 THROW(Search(*pID, &rec) > 0);
 			// @v8.0.3 org_rec = rec;
-			THROW(GetPacket(*pID, &old_pack, 0) > 0); // @v7.9.6 (!0)-->(>0)
+			THROW(GetPacket(*pID, &old_pack, 0) > 0);
 			rec = old_pack.Rec;     // @v8.0.3
 			org_rec = old_pack.Rec; // @v8.0.3
 			if(pPack) {
-				// @v7.8.2 {
+				// 
 				// Подготовка пакета к корректному сравнению с оригинальным пакетом:
 				// если pPack пришел из другого раздела, то идентификаторы товара в структурах, хранящихся в
 				// других таблицах могут отличаться от *pID.
-				//
+				// {
 				uint   i;
 				if(!pPack->IsExtRecEmpty())
 					pPack->ExtRec.GoodsID = *pID;
@@ -1059,7 +1055,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				for(i = 0; i < pPack->ArCodes.getCount(); i++) {
 					pPack->ArCodes.at(i).GoodsID = *pID;
 				}
-				// } @v7.8.2
+				// } 
 				// @v8.1.3 {
 				// Если не надо менять изображение, то не следует и сравнивать флаг GF_HASIMAGES
 				if(pPack->UpdFlags & PPGoodsPacket::ufDontChgImgFlag) {
@@ -1588,7 +1584,7 @@ int SLAPI GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 	THROW_SL(pCtx->Serialize(dir, SaveAssoc, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &List, rBuf));
 	THROW(AsscList.Serialize(dir, rBuf, pCtx));
-	THROW(StrPool.Serialize(dir, rBuf, pCtx)); // @v7.5.4
+	THROW(StrPool.Serialize(dir, rBuf, pCtx));
 	CATCHZOK
 	return ok;
 }
@@ -2633,22 +2629,6 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 				CFF_RET;
 		}
 	}
-#if 0 // @v7.7.9 { Функционал блока теперь реализуется проверкой по pFilt->GetResultBrandList() выше
-	if(pFilt->BrandOwnerID) {
-		if(rec.BrandID) {
-			PPObjBrand brand_obj;
-			PPBrand brand_rec;
-			if(brand_obj.Fetch(rec.BrandID, &brand_rec) > 0) {
-				if(brand_rec.OwnerID != pFilt->BrandOwnerID)
-					CFF_RET;
-			}
-			else
-				CFF_RET;
-		}
-		else
-			CFF_RET;
-	}
-#endif // } 0 // @v7.7.9
 	if(pFilt->ManufCountryID) {
 		if(rec.ManufID) {
 			SETIFZ(P_PsnObj, new PPObjPerson);
@@ -2913,7 +2893,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 		SETIFZ(p_array, new StrAssocArray);
 		THROW_MEM(p_array);
 		for(q.initIteration(0, &k_, spGe); q.nextIteration() > 0;)
-			THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name)); // @v7.9.0 Add-->AddFast
+			THROW_SL(p_array->AddFast(P_Tbl->data.ID, P_Tbl->data.Name));
 	}
 	else if(mtx_qk_id || grp || brand || exist_only || code_prefix) { // @v8.4.11 code_prefix
 		int    r = -1;
@@ -3107,37 +3087,6 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 	return ok;
 }
 
-#if 0 // @v7.7.5 Модифицированный вариант функии определен ниже {
-
-int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
-{
-	int    r = 1, check_digit_removed = 0;
-	const  int bcchkdig = BIN(GetConfig().Flags & GCF_BCCHKDIG);
-	char   bc[32];
-	size_t init_len = strlen(pCode);
-	STRNSCPY(bc, pCode);
-	while((r = tbl->SearchByBarcode(bc, pBcRec, b)) < 0)
-		if(adoptSearching) {
-			size_t len = strlen(bc);
-			if(adoptSearching != 1001 && (!check_digit_removed && (!bcchkdig || (bc[0] != '0' && len > 3 && len < 7)))) {
-				if(oneof3(init_len, 13, 12, 8))
-					bc[len-1] = 0;
-				check_digit_removed = 1;
-			}
-			else if(bc[0] == '0')
-				STRNSCPY(bc, bc+1);
-			else if(adoptSearching != 1001)
-				return SearchByBarcode(pCode, pBcRec, b, 1001); // @recursion
-			else
-				return r;
-		}
-		else
-			return r;
-	return r;
-}
-
-#else // }{
-
 int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
 {
 	int    r = 1;
@@ -3201,8 +3150,6 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 	}
 	return r;
 }
-
-#endif // }
 
 int SLAPI PPObjGoods::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
 {
@@ -3699,13 +3646,11 @@ int SLAPI PPObjGoods::Read(PPObjPack * p, PPID id, void * stream, ObjTransmConte
 		THROW(GetPacket(id, gp, 0) > 0);
 		CALLPTRMEMB(gp->P_Quots, RemoveHangedLocations());
 		const long _gf = gp->Rec.Flags;
-		// @v7.7.12 {
 		if(GetConfig().Flags & GCF_XCHG_SENDGENGOODSCONTENT && gp->Rec.Kind == PPGDSK_GOODS && _gf & GF_GENERIC) {
 			PPIDArray generic_list;
 			GetGenericList(id, &generic_list);
 			gp->GenericList.Set(&generic_list);
 		}
-		// } @v7.7.12
 		// @v8.1.12 {
 		else if(gp->Rec.Kind == PPGDSK_GROUP && (_gf & GF_ALTGROUP) && !(_gf & GF_DYNAMIC)) {
 			if(P_Tbl->FetchConfig(&cfg) > 0 && cfg.Flags & GCF_XCHG_SENDALTGROUP) {
@@ -3812,7 +3757,6 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 			pPack->UpdFlags |= PPGoodsPacket::ufDontChgTaxGrp;
 		if(pPack->LinkFiles.GetState() & ObjLinkFiles::stTransmissionNotSupported) // @v8.2.3
 			pPack->UpdFlags |= PPGoodsPacket::ufDontChgImgFlag;
-		// @v7.2.0 pPack->UpdFlags |= PPGoodsPacket::ufDontChgPltList;
 		r = PutPacket(pID, pPack, 1);
 		if(!r) {
 			pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODS, pPack->Rec.ID, pPack->Rec.Name);
@@ -3824,7 +3768,6 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 			ok = AcceptQuot(pID, pPack, pCtx);
 			if(ok > 0) {
 				const long _gf = pPack->Rec.Flags;
-				// @v7.7.12 {
 				if(pPack->Rec.Kind == PPGDSK_GOODS && _gf & GF_GENERIC && pPack->GenericList.IsExists()) {
 					ok = P_Tbl->SetGenericList(*pID, pPack->GenericList.Get(), 1);
 					if(!ok) {
@@ -3842,7 +3785,6 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 				}
 				// } @v8.1.12
 				if(ok > 0) {
-				// } @v7.7.12
 					ok = unchanged ? 1 : (is_new ? 101 : 102); // @ObjectCreated : @ObjectUpdated
 				}
 			}
@@ -3954,19 +3896,12 @@ int SLAPI GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	THROW_SL(pCtx->Serialize(dir, Package, rBuf));
 	THROW_SL(pCtx->Serialize(dir, ExpiryPeriod, rBuf));
 	// @todo RtlDim, MinShippmQtty
-	// @v7.2.7 {
 	if(dir < 0) {
 		RtlDim.Reset();
 		MinShippmQtty = 0.0;
 	}
-	// } @v7.2.7
 	THROW_SL(pCtx->Serialize(dir, &MinStockList, rBuf));
-	// @todo PltList @done @v7.0.0
-	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf)); // @v7.0.0
-	/* @v7.2.0
-	if(dir < 0)
-		PltList.freeAll();
-	*/
+	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf));
 	CATCHZOK
 	return ok;
 }
@@ -4852,7 +4787,7 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 					PPUnit2 unit_rec;
 					THROW(u_obj.SearchBySymb(temp_buf.Strip(), &unit_id, 0) > 0);
 					THROW(u_obj.Fetch(unit_id, &unit_rec) > 0);
-					THROW_PP(unit_rec.Flags & PPUnit::Phisical, PPERR_PHISICALUNITNEEDED);
+					THROW_PP(unit_rec.Flags & PPUnit::Physical, PPERR_PHISICALUNITNEEDED);
 					if(pack.Rec.PhUnitID != unit_id) {
 						pack.Rec.PhUnitID = unit_id;
 						updated = 1;
@@ -4984,4 +4919,3 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 	CATCHZOK
 	return ok;
 }
-

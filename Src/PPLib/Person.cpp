@@ -803,7 +803,7 @@ int SLAPI PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 	return ok;
 }
 
-int SLAPI PPPersonPacket::GetExtName(SString & rBuf) const
+int FASTCALL PPPersonPacket::GetExtName(SString & rBuf) const
 {
 	rBuf = ExtString;
 	return rBuf.NotEmptyS() ? 1 : -1;

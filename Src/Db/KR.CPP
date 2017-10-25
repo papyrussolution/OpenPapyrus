@@ -333,7 +333,7 @@ int SLAPI KR::disjunction(void * d)
 //
 int SLAPI KR::link(int logic, KR kr)
 {
-	if(logic == _AND_) {
+	if(logic == _AND___) {
 		if(kr.first()) {
 			int    eq, empty = 1;
 			KR     temp; 

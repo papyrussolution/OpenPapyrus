@@ -275,22 +275,17 @@ static void cairo_gl_shader_def_coverage(cairo_output_stream_t * stream)
 	_cairo_output_stream_printf(stream, "    coverage = Color.a;\n");
 }
 
-static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
-    cairo_gl_var_type_t mask,
-    cairo_bool_t use_coverage,
-    cairo_gl_var_type_t dest,
-    char ** out)
+static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src, cairo_gl_var_type_t mask,
+    cairo_bool_t use_coverage, cairo_gl_var_type_t dest, char ** out)
 {
 	cairo_output_stream_t * stream = _cairo_memory_stream_create();
 	uchar * source;
 	ulong length;
 	cairo_status_t status;
-
 	cairo_gl_shader_emit_variable(stream, src, CAIRO_GL_TEX_SOURCE);
 	cairo_gl_shader_emit_variable(stream, mask, CAIRO_GL_TEX_MASK);
 	if(use_coverage)
 		cairo_gl_shader_dcl_coverage(stream);
-
 	_cairo_output_stream_printf(stream,
 	    "attribute vec4 Vertex;\n"
 	    "attribute vec4 Color;\n"
@@ -298,23 +293,17 @@ static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
 	    "void main()\n"
 	    "{\n"
 	    "    gl_Position = ModelViewProjectionMatrix * Vertex;\n");
-
 	cairo_gl_shader_emit_vertex(stream, src, CAIRO_GL_TEX_SOURCE);
 	cairo_gl_shader_emit_vertex(stream, mask, CAIRO_GL_TEX_MASK);
 	if(use_coverage)
 		cairo_gl_shader_def_coverage(stream);
-
-	_cairo_output_stream_write(stream,
-	    "}\n\0", 3);
-
+	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-
 	*out = (char*)source;
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /*
  * Returns whether an operand needs a special border fade fragment shader
  * to simulate the GL_CLAMP_TO_BORDER wrapping method that is missing in GLES2.
@@ -579,56 +568,34 @@ static void _cairo_gl_shader_emit_border_fade(cairo_output_stream_t * stream,
  * If GL_OES_texture_npot is not supported, we need to implement the wrapping
  * functionality in the shader.
  */
-static void _cairo_gl_shader_emit_wrap(cairo_gl_context_t * ctx,
-    cairo_output_stream_t * stream,
-    cairo_gl_operand_t * operand,
-    cairo_gl_tex_t name)
+static void _cairo_gl_shader_emit_wrap(cairo_gl_context_t * ctx, cairo_output_stream_t * stream, cairo_gl_operand_t * operand, cairo_gl_tex_t name)
 {
 	const char * namestr = operand_names[name];
 	cairo_extend_t extend = _cairo_gl_operand_get_extend(operand);
-
-	_cairo_output_stream_printf(stream,
-	    "vec2 %s_wrap(vec2 coords)\n"
-	    "{\n",
-	    namestr);
-
-	if(!ctx->has_npot_repeat &&
-	    (extend == CAIRO_EXTEND_REPEAT || extend == CAIRO_EXTEND_REFLECT)) {
+	_cairo_output_stream_printf(stream, "vec2 %s_wrap(vec2 coords)\n{\n", namestr);
+	if(!ctx->has_npot_repeat && (extend == CAIRO_EXTEND_REPEAT || extend == CAIRO_EXTEND_REFLECT)) {
 		if(extend == CAIRO_EXTEND_REPEAT) {
-			_cairo_output_stream_printf(stream,
-			    "    return fract(coords);\n");
+			_cairo_output_stream_printf(stream, "    return fract(coords);\n");
 		}
 		else { /* CAIRO_EXTEND_REFLECT */
-			_cairo_output_stream_printf(stream,
-			    "    return mix(fract(coords), 1.0 - fract(coords), floor(mod(coords, 2.0)));\n");
+			_cairo_output_stream_printf(stream, "    return mix(fract(coords), 1.0 - fract(coords), floor(mod(coords, 2.0)));\n");
 		}
 	}
 	else {
 		_cairo_output_stream_printf(stream, "    return coords;\n");
 	}
-
 	_cairo_output_stream_printf(stream, "}\n");
 }
 
-static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * ctx,
-    cairo_gl_shader_in_t in,
-    cairo_gl_operand_t * src,
-    cairo_gl_operand_t * mask,
-    cairo_bool_t use_coverage,
-    cairo_gl_operand_type_t dest_type,
-    char ** out)
+static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * ctx, cairo_gl_shader_in_t in,
+    cairo_gl_operand_t * src, cairo_gl_operand_t * mask, cairo_bool_t use_coverage, cairo_gl_operand_type_t dest_type, char ** out)
 {
 	cairo_output_stream_t * stream = _cairo_memory_stream_create();
 	uchar * source;
 	ulong length;
 	cairo_status_t status;
 	const char * coverage_str;
-
-	_cairo_output_stream_printf(stream,
-	    "#ifdef GL_ES\n"
-	    "precision mediump float;\n"
-	    "#endif\n");
-
+	_cairo_output_stream_printf(stream, "#ifdef GL_ES\nprecision mediump float;\n#endif\n");
 	_cairo_gl_shader_emit_wrap(ctx, stream, src, CAIRO_GL_TEX_SOURCE);
 	_cairo_gl_shader_emit_wrap(ctx, stream, mask, CAIRO_GL_TEX_MASK);
 
@@ -638,47 +605,32 @@ static cairo_status_t cairo_gl_shader_get_fragment_source(cairo_gl_context_t * c
 		if(_cairo_gl_shader_needs_border_fade(mask))
 			_cairo_gl_shader_emit_border_fade(stream, mask, CAIRO_GL_TEX_MASK);
 	}
-
 	cairo_gl_shader_emit_color(stream, ctx, src, CAIRO_GL_TEX_SOURCE);
 	cairo_gl_shader_emit_color(stream, ctx, mask, CAIRO_GL_TEX_MASK);
-
 	coverage_str = "";
 	if(use_coverage) {
 		_cairo_output_stream_printf(stream, "varying float coverage;\n");
 		coverage_str = " * coverage";
 	}
-
-	_cairo_output_stream_printf(stream,
-	    "void main()\n"
-	    "{\n");
+	_cairo_output_stream_printf(stream, "void main()\n{\n");
 	switch(in) {
 		case CAIRO_GL_SHADER_IN_COUNT:
 		default:
 		    ASSERT_NOT_REACHED;
 		case CAIRO_GL_SHADER_IN_NORMAL:
-		    _cairo_output_stream_printf(stream,
-		    "    gl_FragColor = get_source() * get_mask().a%s;\n",
-		    coverage_str);
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source() * get_mask().a%s;\n", coverage_str);
 		    break;
 		case CAIRO_GL_SHADER_IN_CA_SOURCE:
-		    _cairo_output_stream_printf(stream,
-		    "    gl_FragColor = get_source() * get_mask()%s;\n",
-		    coverage_str);
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source() * get_mask()%s;\n", coverage_str);
 		    break;
 		case CAIRO_GL_SHADER_IN_CA_SOURCE_ALPHA:
-		    _cairo_output_stream_printf(stream,
-		    "    gl_FragColor = get_source().a * get_mask()%s;\n",
-		    coverage_str);
+		    _cairo_output_stream_printf(stream, "    gl_FragColor = get_source().a * get_mask()%s;\n", coverage_str);
 		    break;
 	}
-
-	_cairo_output_stream_write(stream,
-	    "}\n\0", 3);
-
+	_cairo_output_stream_write(stream, "}\n\0", 3);
 	status = _cairo_memory_stream_destroy(stream, &source, &length);
 	if(unlikely(status))
 		return status;
-
 	*out = (char*)source;
 	return CAIRO_STATUS_SUCCESS;
 }

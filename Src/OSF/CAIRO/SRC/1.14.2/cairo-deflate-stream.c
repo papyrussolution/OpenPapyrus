@@ -54,17 +54,13 @@ static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, cairo_
 {
 	int ret;
 	cairo_bool_t finished;
-
 	do {
 		ret = deflate(&stream->zlib_stream, flush ? Z_FINISH : Z_NO_FLUSH);
 		if(flush || stream->zlib_stream.avail_out == 0) {
-			_cairo_output_stream_write(stream->output,
-			    stream->output_buf,
-			    BUFFER_SIZE - stream->zlib_stream.avail_out);
+			_cairo_output_stream_write(stream->output, stream->output_buf, BUFFER_SIZE - stream->zlib_stream.avail_out);
 			stream->zlib_stream.next_out = stream->output_buf;
 			stream->zlib_stream.avail_out = BUFFER_SIZE;
 		}
-
 		finished = TRUE;
 		if(stream->zlib_stream.avail_in != 0)
 			finished = FALSE;
@@ -105,7 +101,6 @@ static cairo_status_t _cairo_deflate_stream_close(cairo_output_stream_t * base)
 
 	cairo_deflate_stream_deflate(stream, TRUE);
 	deflateEnd(&stream->zlib_stream);
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 
@@ -119,27 +114,19 @@ cairo_output_stream_t * _cairo_deflate_stream_create(cairo_output_stream_t * out
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
-
-	_cairo_output_stream_init(&stream->base,
-	    _cairo_deflate_stream_write,
-	    NULL,
-	    _cairo_deflate_stream_close);
+	_cairo_output_stream_init(&stream->base, _cairo_deflate_stream_write, NULL, _cairo_deflate_stream_close);
 	stream->output = output;
-
 	stream->zlib_stream.zalloc = Z_NULL;
 	stream->zlib_stream.zfree  = Z_NULL;
 	stream->zlib_stream.opaque  = Z_NULL;
-
 	if(deflateInit(&stream->zlib_stream, Z_DEFAULT_COMPRESSION) != Z_OK) {
 		SAlloc::F(stream);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
 	}
-
 	stream->zlib_stream.next_in = stream->input_buf;
 	stream->zlib_stream.avail_in = 0;
 	stream->zlib_stream.next_out = stream->output_buf;
 	stream->zlib_stream.avail_out = BUFFER_SIZE;
-
 	return &stream->base;
 }
 

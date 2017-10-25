@@ -136,7 +136,7 @@ int SLAPI DBQuery::makeNode(int tblN, int * pNode, int option, int * pPos)
 		else {
 			left_child  = t.left;
 			right_child = t.right;
-			if(t.link == _AND_) {
+			if(t.link == _AND___) {
 				lv = makeNode(tblN, &left_child,  option, &lp);
 				rv = makeNode(tblN, &right_child, option, &rp);
 				if(lv && rv)
@@ -159,7 +159,7 @@ int SLAPI DBQuery::makeNode(int tblN, int * pNode, int option, int * pPos)
 						result = BIND;
 					}
 			}
-			else if(t.link == _OR_) {
+			else if(t.link == _OR___) {
 				lv = makeNode(tblN, &left_child,  TEST_ONLY, &lp);
 				rv = makeNode(tblN, &right_child, TEST_ONLY, &rp);
 				if(lv && rv)

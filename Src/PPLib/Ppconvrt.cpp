@@ -6117,7 +6117,7 @@ public:
 	int    SLAPI GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack);
 	int    SLAPI RemovePacket(PPID id, int use_ta);
 private:
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	int    SLAPI CheckParent(PPID itemID, PPID parentID);
 	int    SLAPI GetItemPath(PPID itemID, SString & rPath);
 };

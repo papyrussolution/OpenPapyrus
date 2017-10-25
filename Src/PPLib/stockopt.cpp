@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -145,7 +145,7 @@ private:
 };
 
 //static
-int PPStockOpt::EditConfig()
+int SLAPI PPStockOpt::EditConfig()
 {
 	int    ok = -1;
 	Config cfg;
@@ -172,7 +172,7 @@ struct __StockOptConfig {   // @persistent
 };
 
 // static
-int PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
+int FASTCALL PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 {
 	int    ok = 1;
 	if(pCfg) {
@@ -210,7 +210,7 @@ int PPStockOpt::WriteConfig(const PPStockOpt::Config * pCfg)
 }
 
 // static
-int PPStockOpt::ReadConfig(PPStockOpt::Config * pCfg)
+int FASTCALL PPStockOpt::ReadConfig(PPStockOpt::Config * pCfg)
 {
 	int    ok = -1;
 	__StockOptConfig rec;

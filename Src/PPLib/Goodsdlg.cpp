@@ -1298,7 +1298,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		SetupPPObjCombo(this, CTLSEL_GOODS_MANUF,  PPOBJ_PERSON, Data.Rec.ManufID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)PPPRK_MANUF);
 		SetupPPObjCombo(this, CTLSEL_GOODS_BRAND,  PPOBJ_BRAND,  Data.Rec.BrandID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_GOODS_UNIT,   PPOBJ_UNIT,   Data.Rec.UnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)PPUnit::Trade);
-		SetupPPObjCombo(this, CTLSEL_GOODS_PHUNIT, PPOBJ_UNIT,   Data.Rec.PhUnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)(PPUnit::Trade|PPUnit::Phisical));
+		SetupPPObjCombo(this, CTLSEL_GOODS_PHUNIT, PPOBJ_UNIT,   Data.Rec.PhUnitID, OLW_CANINSERT|OLW_LOADDEFONOPEN, (void *)(PPUnit::Trade|PPUnit::Physical));
 		SetupPPObjCombo(this, CTLSEL_GOODS_TYPE, PPOBJ_GOODSTYPE, Data.Rec.GoodsTypeID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_GOODS_TAX, PPOBJ_GOODSTAX, Data.Rec.TaxGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 		//
@@ -1317,7 +1317,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		else { // gpk == gpkndOrdinaryGroup
 			SetupPPObjCombo(this, CTLSEL_GOODS_BCODESTRUC, PPOBJ_BCODESTRUC, Data.Rec.DefBCodeStrucID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_GOODS_DEFPRC, PPOBJ_PROCESSOR, Data.Rec.DefPrcID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
-			SetupPPObjCombo(this, CTLSEL_GOODS_DEFGSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.StrucID, 0); // @v7.8.1
+			SetupPPObjCombo(this, CTLSEL_GOODS_DEFGSTRUC, PPOBJ_GOODSSTRUC, Data.Rec.StrucID, 0);
 			selgrp_bias = GGRTYP_SEL_FOLDER;
 			setCtrlLong(CTL_GOODSGROUP_LIMIT, Data.Rec.Limit); // @v8.6.7
 			//
@@ -1332,7 +1332,6 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 	}
 	SetupPPObjCombo(this, CTLSEL_GOODS_GROUP, PPOBJ_GOODSGROUP, Data.Rec.ParentID, f, (void *)(prev_grp_level + selgrp_bias));
 	if(Data.Rec.ID) {
-		// @v7.2.11 disableCtrl(CTLSEL_GOODS_TYPE, !PPMaster);
 		disableCtrl(CTL_GOODS_GENERIC, !PPMaster);
 		//disableCtrl(CTLSEL_GOODS_CLS, Data.Rec.GdsClsID && !PPMaster);
 	}
@@ -1398,7 +1397,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	else if(gpk == gpkndOrdinaryGroup) {
 		getCtrlData(CTLSEL_GOODS_BCODESTRUC, &Data.Rec.DefBCodeStrucID);
 		getCtrlData(CTLSEL_GOODS_DEFPRC, &Data.Rec.DefPrcID);
-		getCtrlData(CTLSEL_GOODS_DEFGSTRUC, &Data.Rec.StrucID); // @v7.8.1
+		getCtrlData(CTLSEL_GOODS_DEFGSTRUC, &Data.Rec.StrucID);
 		Data.Rec.Limit = getCtrlLong(CTL_GOODSGROUP_LIMIT); // @v8.6.7
 		GetClusterData(CTL_GOODS_GRPFLAGS, &Data.Rec.Flags); // @v9.2.8
 	}
@@ -1441,7 +1440,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 			THROW_SL(Data.Codes.insert(&bc_rec));
 		}
 	} */
-	if(gpk == gpkndGoods) { // @v7.8.1
+	if(gpk == gpkndGoods) {
 		Data.Rec.StrucID = Data.GS.Rec.ID;
 	}
 	{
@@ -1960,8 +1959,8 @@ int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
 	else
 		disableCtrl(CTL_GOODSVAD_VOLUME, 1);
 	setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
-	setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty); // @v7.2.7
-	setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm)); // @v7.4.5
+	setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
+	setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
 	SetPalletData(-1);
 	updateList(-1);
 	return 1;
@@ -1987,8 +1986,8 @@ int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 		Data.Stock.SetVolume(getCtrlReal(CTL_GOODSVAD_VOLUME));
 	SETFLAG(Data.Rec.Flags, GF_VOLUMEVAL, v);
 	getCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
-	getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty); // @v7.2.7
-	SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH)); // @v7.4.5
+	getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
+	SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
 	GetPalletData(-1);
 	ASSIGN_PTR(pData, Data);
 	return 1;
@@ -2352,7 +2351,7 @@ int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, v
 		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_OPRKIND, p_list, lbtDisposeData|lbtDblClkNotify, 0);
 		if(p_lw) {
 			p_combo->setListWindow(p_lw, id);
-			dlg->SetupWordSelector(ctl, 0, id, 2, 0); // @v7.5.1
+			dlg->SetupWordSelector(ctl, 0, id, 2, 0);
 			ok = 1;
 		}
 		*/

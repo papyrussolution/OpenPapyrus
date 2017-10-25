@@ -3863,7 +3863,7 @@ int SLAPI PrcssrAlcReport::Init()
 }
 
 // static
-int SLAPI PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
+int FASTCALL PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
 {
 	int    ok = -1;
 	SBuffer buffer;
@@ -3881,7 +3881,7 @@ int SLAPI PrcssrAlcReport::ReadConfig(PrcssrAlcReport::Config * pCfg)
 }
 
 // static
-int SLAPI PrcssrAlcReport::WriteConfig(PrcssrAlcReport::Config * pCfg, int use_ta)
+int FASTCALL PrcssrAlcReport::WriteConfig(PrcssrAlcReport::Config * pCfg, int use_ta)
 {
 	int    ok = 1;
 	SBuffer buffer;

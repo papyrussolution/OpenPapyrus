@@ -437,41 +437,29 @@ static cairo_status_t _cairo_pdf_path_rectangle(pdf_path_info_t * info, cairo_bo
  * the stroke workaround will not modify the path being emitted.
  */
 static cairo_status_t _cairo_pdf_operators_emit_path(cairo_pdf_operators_t   * pdf_operators,
-    const cairo_path_fixed_t* path,
-    cairo_matrix_t          * path_transform,
-    cairo_line_cap_t line_cap)
+    const cairo_path_fixed_t * path, cairo_matrix_t * path_transform, cairo_line_cap_t line_cap)
 {
-	cairo_output_stream_t * word_wrap;
-	cairo_status_t status, status2;
+	cairo_status_t status2;
 	pdf_path_info_t info;
 	cairo_box_t box;
-
-	word_wrap = _word_wrap_stream_create(pdf_operators->stream, pdf_operators->ps_output, 72);
-	status = _cairo_output_stream_get_status(word_wrap);
+	cairo_output_stream_t * word_wrap = _word_wrap_stream_create(pdf_operators->stream, pdf_operators->ps_output, 72);
+	cairo_status_t status = _cairo_output_stream_get_status(word_wrap);
 	if(unlikely(status))
 		return _cairo_output_stream_destroy(word_wrap);
-
 	info.output = word_wrap;
 	info.path_transform = path_transform;
 	info.line_cap = line_cap;
-	if(_cairo_path_fixed_is_rectangle(path, &box) &&
-	    ((path_transform->xx == 0 && path_transform->yy == 0) ||
-		    (path_transform->xy == 0 && path_transform->yx == 0))) {
+	if(_cairo_path_fixed_is_rectangle(path, &box) && ((path_transform->xx == 0 && path_transform->yy == 0) ||
+		(path_transform->xy == 0 && path_transform->yx == 0))) {
 		status = _cairo_pdf_path_rectangle(&info, &box);
 	}
 	else {
-		status = _cairo_path_fixed_interpret(path,
-		    _cairo_pdf_path_move_to,
-		    _cairo_pdf_path_line_to,
-		    _cairo_pdf_path_curve_to,
-		    _cairo_pdf_path_close_path,
-		    &info);
+		status = _cairo_path_fixed_interpret(path, _cairo_pdf_path_move_to,
+		    _cairo_pdf_path_line_to, _cairo_pdf_path_curve_to, _cairo_pdf_path_close_path, &info);
 	}
-
 	status2 = _cairo_output_stream_destroy(word_wrap);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	return status;
 }
 

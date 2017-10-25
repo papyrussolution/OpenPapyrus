@@ -308,11 +308,10 @@ uint _cairo_array_size(const cairo_array_t * array)
  * _cairo_user_data_array_fini() to free any allocated memory
  * when done using the array.
  **/
-void _cairo_user_data_array_init(cairo_user_data_array_t * array)
+void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array)
 {
 	_cairo_array_init(array, sizeof(cairo_user_data_slot_t));
 }
-
 /**
  * _cairo_user_data_array_fini:
  * @array: a #cairo_user_data_array_t
@@ -346,7 +345,7 @@ void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
  *
  * Return value: the user data previously attached or %NULL.
  **/
-void * _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key)
+void * FASTCALL _cairo_user_data_array_get_data(cairo_user_data_array_t * array, const cairo_user_data_key_t * key)
 {
 	// We allow this to support degenerate objects such as cairo_surface_nil
 	if(array) {

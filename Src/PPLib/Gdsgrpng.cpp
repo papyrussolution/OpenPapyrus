@@ -1089,7 +1089,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 			if(filt.GoodsID && GObj.Fetch(filt.GoodsID, &goods_rec) > 0) {
 				PPUnit urec;
 				GoodsExtTbl::Rec gext_rec;
-				phuperu = (GObj.FetchUnit(goods_rec.UnitID, &urec) > 0 && urec.Flags & PPUnit::Phisical) ? 1.0 : goods_rec.PhUPerU;
+				phuperu = (GObj.FetchUnit(goods_rec.UnitID, &urec) > 0 && urec.Flags & PPUnit::Physical) ? 1.0 : goods_rec.PhUPerU;
 				if(goods_rec.Flags & GF_TAXFACTOR && GObj.P_Tbl->GetExt(filt.GoodsID, &gext_rec) > 0 && gext_rec.TaxFactor > 0)
 					tax_factor = gext_rec.TaxFactor;
 				if(filt.Flags & (OPG_SETTAXES | OPG_NOZEROEXCISE) && GObj.FetchTax(filt.GoodsID, ZERODATE, 0L, &gtx) > 0)

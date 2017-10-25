@@ -562,7 +562,7 @@ int GoodsClassDialog::setDTS(const PPGdsClsPacket * pData)
 	setCtrlString(CTL_GDSCLS_TAXFACTOR, Data.TaxMult_Formula);
 	setCtrlString(CTL_GDSCLS_PACKAGE,   Data.Package_Formula);
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_UNIT, PPOBJ_UNIT, Data.Rec.DefUnitID, OLW_CANINSERT, (void *)PPUnit::Trade);
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, (void *)(PPUnit::Trade|PPUnit::Phisical));
+	SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, (void *)(PPUnit::Trade|PPUnit::Physical));
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_GDSTYPE, PPOBJ_GOODSTYPE, Data.Rec.DefGoodsTypeID, OLW_CANINSERT);
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_TAXGRP, PPOBJ_GOODSTAX, Data.Rec.DefTaxGrpID, OLW_CANINSERT);
 	SetupPPObjCombo(this, CTLSEL_GDSCLS_GRP, PPOBJ_GOODSGROUP, Data.Rec.DefGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN); // @v8.4.4 OLW_LOADDEFONOPEN
@@ -662,7 +662,7 @@ int GoodsClassDialog::EditLotDimParam()
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GDSCLSLD);
 	THROW(CheckDialogPtr(&dlg));
-    SetupPPObjCombo(dlg, CTLSEL_GDSCLSLD_UNIT, PPOBJ_UNIT, Data.Rec.LotDimUnitID, 0, (void *)PPUnit::Phisical);
+    SetupPPObjCombo(dlg, CTLSEL_GDSCLSLD_UNIT, PPOBJ_UNIT, Data.Rec.LotDimUnitID, 0, (void *)PPUnit::Physical);
     dlg->setCtrlData(CTL_GDSCLSLD_NUMDIM, &Data.Rec.LotDimCount);
 	dlg->setCtrlString(CTL_GDSCLSLD_QTTYFORM, Data.LotDimQtty_Formula); // @v8.9.10
     while(ok < 0 && ExecView(dlg) == cmOK) {

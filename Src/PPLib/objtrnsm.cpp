@@ -171,7 +171,7 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 };
 
 // static
-int SLAPI PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
+int FASTCALL PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -198,7 +198,7 @@ int SLAPI PPObjectTransmit::WriteConfig(PPDBXchgConfig * pCfg, int use_ta)
 }
 
 // static
-int SLAPI PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
+int FASTCALL PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
 {
 	__PPDBXchgConfig p;
 	int    r = PPRef->GetPropMainConfig(PPPRP_DBXCHGCFG, &p, sizeof(p));
@@ -600,7 +600,7 @@ int SLAPI PPObjectTransmit::UpdateInHeader(FILE * stream, const PPObjectTransmit
 }
 
 // static
-int SLAPI PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer)
+int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer)
 {
 	int    ok = 1;
 	THROW_PP(pHdr->Magic == OT_MAGIC, PPERR_PPOSNOTPACKET);
@@ -3177,7 +3177,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 //
 //
 // static
-int SLAPI PPObjectTransmit::LockReceiving(int unlock)
+int FASTCALL PPObjectTransmit::LockReceiving(int unlock)
 {
 	int    ok = 1;
 	if(!unlock) {

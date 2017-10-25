@@ -1211,7 +1211,7 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 };
 
 //static
-int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
+int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	int    ok = -1, r;
@@ -1249,7 +1249,7 @@ int SLAPI PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 }
 
 //static
-int SLAPI PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta)
+int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TRANSP;

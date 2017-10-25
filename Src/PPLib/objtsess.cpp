@@ -168,7 +168,7 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 
 // @vmiller
 //static
-int SLAPI PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
+int FASTCALL PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TECHSESS;
@@ -224,21 +224,22 @@ int SLAPI PPObjTSession::WriteConfig(PPTSessConfig * pCfg, int use_ta)
 
 // @vmiller
 //static
-int SLAPI PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
+int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	int    ok = -1, r;
+	Reference * p_ref = PPRef;
 	size_t sz = 0;
 	Storage_PPTSessionConfig * p_cfg = 0;
-	if(PPRef->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
+	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
 		p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz);
 		THROW_MEM(p_cfg);
-		THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
+		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		if(r > 0 && p_cfg->GetSize() > sz) {
 			sz = p_cfg->GetSize();
 			p_cfg = (Storage_PPTSessionConfig *)SAlloc::R(p_cfg, sz);
 			THROW_MEM(p_cfg);
-			THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
+			THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		}
 		if(r > 0) {
 			pCfg->Flags = p_cfg->Flags;

@@ -995,12 +995,12 @@ int FASTCALL DBTree::checkRestriction(int node)
 		ok = 1;
 	else {
 		T & t = P_Items[(node == -1) ? Root : node];
-		assert(oneof3(t.link, 0, _OR_, _AND_)); // @v7.0.0
+		assert(oneof3(t.link, 0, _OR___, _AND___));
 		switch(t.link) {
-			case _OR_:
+			case _OR___:
 				ok = (checkRestriction(t.left) || checkRestriction(t.right)); // @recursion
 				break;
-			case _AND_:
+			case _AND___:
 				ok = (checkRestriction(t.left) && checkRestriction(t.right)); // @recursion
 				break;
 			case 0:
@@ -1017,14 +1017,14 @@ int SLAPI DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
 	if(Root != -1) {
 		T & t = P_Items[(node == -1) ? Root : node];
 		switch(t.link) {
-			case _OR_:
+			case _OR___:
 				pGen->LPar();
 				CreateSqlExpr(pGen, t.left); // @recursion
 				pGen->Sp().Tok(Generator_SQL::tokOr).Sp();
 				CreateSqlExpr(pGen, t.right); // @recursion
 				pGen->RPar();
 				break;
-			case _AND_:
+			case _AND___:
 				pGen->LPar();
 				CreateSqlExpr(pGen, t.left); // @recursion
 				pGen->Sp().Tok(Generator_SQL::tokAnd).Sp();

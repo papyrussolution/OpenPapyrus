@@ -34,7 +34,6 @@
     <ClCompile Include="..\SLib\Minilzo.cpp" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
-    <ClCompile Include="..\SLib\parscmp.cpp" />
     <ClCompile Include="..\SLib\prime.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />
     <ClCompile Include="..\SLib\Range.cpp" />

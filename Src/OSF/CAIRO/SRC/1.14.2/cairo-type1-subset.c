@@ -456,64 +456,44 @@ static cairo_status_t cairo_type1_font_subset_write_header(cairo_type1_font_subs
 	start = find_token(end, segment_end, "/FontName");
 	if(start == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	_cairo_output_stream_write(font->output, end,
-	    start - end);
-
+	_cairo_output_stream_write(font->output, end, start - end);
 	_cairo_output_stream_printf(font->output, "/FontName /%s def", name);
-
 	end = find_token(start, segment_end, "def");
 	if(end == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	end += 3;
-
 	start = find_token(end, segment_end, "/Encoding");
 	if(start == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	_cairo_output_stream_write(font->output, end, start - end);
-
-	_cairo_output_stream_printf(font->output,
-	    "/Encoding 256 array\n"
-	    "0 1 255 {1 index exch /.notdef put} for\n");
+	_cairo_output_stream_printf(font->output, "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
 	if(font->scaled_font_subset->is_latin) {
 		for(i = 1; i < 256; i++) {
 			int subset_glyph = font->scaled_font_subset->latin_to_subset_glyph_index[i];
-
 			if(subset_glyph > 0) {
-				_cairo_output_stream_printf(font->output,
-				    "dup %d /%s put\n",
-				    i,
-				    _cairo_winansi_to_glyphname(i));
+				_cairo_output_stream_printf(font->output, "dup %d /%s put\n", i, _cairo_winansi_to_glyphname(i));
 			}
 		}
 	}
 	else {
 		for(i = 0; i < font->base.num_glyphs; i++) {
-			if(font->glyphs[i].subset_index <= 0)
-				continue;
-			_cairo_output_stream_printf(font->output,
-			    "dup %d /%s put\n",
-			    font->glyphs[i].subset_index,
-			    font->glyph_names[i]);
+			if(font->glyphs[i].subset_index > 0)
+				_cairo_output_stream_printf(font->output, "dup %d /%s put\n", font->glyphs[i].subset_index, font->glyph_names[i]);
 		}
 	}
 	_cairo_output_stream_printf(font->output, "readonly def");
-
 	end = find_token(start, segment_end, "def");
 	if(end == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	end += 3;
-
 	/* There are some buggy fonts that contain more than one /Encoding */
 	if(find_token(end, segment_end, "/Encoding"))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	_cairo_output_stream_write(font->output, end, segment_end - end);
-
 	return font->output->status;
 }
 
-static int hex_to_int(int ch)
+/*static int hex_to_int(int ch)
 {
 	if(ch <= '9')
 		return ch - '0';
@@ -521,29 +501,24 @@ static int hex_to_int(int ch)
 		return ch - 'A' + 10;
 	else
 		return ch - 'a' + 10;
-}
+}*/
 
-static cairo_status_t cairo_type1_font_subset_write_encrypted(cairo_type1_font_subset_t * font,
-    const char * data, uint length)
+static cairo_status_t cairo_type1_font_subset_write_encrypted(cairo_type1_font_subset_t * font, const char * data, uint length)
 {
-	const uchar * in, * end;
 	int c, p;
 	static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
-
-	in = (const uchar*)data;
-	end = (const uchar*)data + length;
+	const uchar * in = (const uchar*)data;
+	const uchar * end = (const uchar*)data + length;
 	while(in < end) {
 		p = *in++;
 		c = p ^ (font->eexec_key >> 8);
 		font->eexec_key = (c + font->eexec_key) * CAIRO_TYPE1_ENCRYPT_C1 + CAIRO_TYPE1_ENCRYPT_C2;
-
 		if(font->hex_encode) {
 			digits[0] = hex_digits[c >> 4];
 			digits[1] = hex_digits[c & 0x0f];
 			digits[2] = '\n';
 			font->hex_column += 2;
-
 			if(font->hex_column == 78) {
 				_cairo_output_stream_write(font->output, digits, 3);
 				font->hex_column = 0;
@@ -557,19 +532,17 @@ static cairo_status_t cairo_type1_font_subset_write_encrypted(cairo_type1_font_s
 			_cairo_output_stream_write(font->output, digits, 1);
 		}
 	}
-
 	return font->output->status;
 }
 
 static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_font_subset_t * font)
 {
 	ushort r = CAIRO_TYPE1_PRIVATE_DICT_KEY;
-	uchar * in, * end;
 	char * out;
 	int c, p;
 	int i;
-	in = (uchar*)font->eexec_segment;
-	end = (uchar*)in + font->eexec_segment_size;
+	uchar * in = (uchar*)font->eexec_segment;
+	uchar * end = (uchar*)in + font->eexec_segment_size;
 	font->cleartext = (char *)SAlloc::M(font->eexec_segment_size + 1);
 	if(unlikely(font->cleartext == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -579,7 +552,7 @@ static cairo_status_t cairo_type1_font_subset_decrypt_eexec_segment(cairo_type1_
 			c = *in++;
 			if(_cairo_isspace(c))
 				continue;
-			c = (hex_to_int(c) << 4) | hex_to_int(*in++);
+			c = (hex(c) << 4) | hex(*in++);
 		}
 		else {
 			c = *in++;
@@ -1681,22 +1654,17 @@ cairo_bool_t _cairo_type1_scaled_font_is_type1(cairo_scaled_font_t * scaled_font
 	cairo_status_t status;
 	ulong length;
 	uchar buf[64];
-
 	if(!scaled_font->backend->load_type1_data)
 		return FALSE;
-
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, NULL, &length);
 	if(status)
 		return FALSE;
-
 	/* We only need a few bytes to test for Type 1 */
 	if(length > sizeof(buf))
 		length = sizeof(buf);
-
 	status = scaled_font->backend->load_type1_data(scaled_font, 0, buf, &length);
 	if(status)
 		return FALSE;
-
 	return check_fontdata_is_type1(buf, length);
 }
 

@@ -2063,7 +2063,7 @@ SPaintObj::Font::~Font()
 {
 }
 
-extern "C" void _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
+extern "C" void FASTCALL _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
 
 struct InnerFontDescr {
 	InnerFontDescr()

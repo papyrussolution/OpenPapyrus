@@ -4486,6 +4486,9 @@ PPTXT_EGAIS_WBRPLREQNODOCS     "Запрос на отмену проведен�
 PPTXT_EGAIS_PRODRCVDBEFORE2016 /!/ "Продукция, полученная до 01.01.2016"
 PPTXT_EGAIS_AP                 /!/ "АП"
 
+PPTXT_EGAIS_TKT_UNREL_ATTEMPT  /!/ "Зафиксирована попытка подачи недостоверных данных"
+PPTXT_EGAIS_TKT_ALRREGISTERED  /!/ "уже зарегистрирована в системе"
+
 PPTXT_LOG_TSESCIPCANCEL_CTO    "Отменяется персональная регистрация тех сессии по тайм-ауту"
 PPTXT_LOG_TSESCIPCANCEL_LTO    "Отменяется персональная регистрация тех сессии по наступлению блокировки"
 
@@ -11459,6 +11462,7 @@ PPHS_UHTTSCARDOP               "uhttscardop"
 PPHS_UHTTSTORE                 "uhttstore"
 PPHS_UID                       "uid"
 PPHS_UNIT                      "unit"
+PPHS_PHUNIT                    "phunit"
 PPHS_UPP                       "upp"
 PPHS_USER                      "user"
 PPHS_UUID                      "uuid"
@@ -11493,6 +11497,11 @@ PPHS_ITER                      "iter"
 PPHS_ITERCOUNT                 "itercount"
 PPHS_TEXT                      "text"
 PPHS_INCLUDE                   "include"
+PPHS_PHYSICAL                  "physical"
+PPHS_ROUNDING                  "rounding"
+PPHS_BASE                      "base"
+PPHS_BASERATIO                 "baseratio"
+PPHS_RATIO                     "ratio"
 
 #!}
 

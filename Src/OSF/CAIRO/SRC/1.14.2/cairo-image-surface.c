@@ -529,7 +529,7 @@ slim_hidden_def(cairo_image_surface_get_format);
  *
  * Since: 1.0
  **/
-int cairo_image_surface_get_width(cairo_surface_t * surface)
+int FASTCALL cairo_image_surface_get_width(cairo_surface_t * surface)
 {
 	cairo_image_surface_t * image_surface = (cairo_image_surface_t*)surface;
 	if(!_cairo_surface_is_image(surface)) {
@@ -552,7 +552,7 @@ slim_hidden_def(cairo_image_surface_get_width);
  *
  * Since: 1.0
  **/
-int cairo_image_surface_get_height(cairo_surface_t * surface)
+int FASTCALL cairo_image_surface_get_height(cairo_surface_t * surface)
 {
 	cairo_image_surface_t * image_surface = (cairo_image_surface_t*)surface;
 	if(!_cairo_surface_is_image(surface)) {
@@ -578,7 +578,7 @@ slim_hidden_def(cairo_image_surface_get_height);
  *
  * Since: 1.2
  **/
-int cairo_image_surface_get_stride(cairo_surface_t * surface)
+int FASTCALL cairo_image_surface_get_stride(cairo_surface_t * surface)
 {
 	cairo_image_surface_t * image_surface = (cairo_image_surface_t*)surface;
 	if(!_cairo_surface_is_image(surface)) {
@@ -591,7 +591,7 @@ int cairo_image_surface_get_stride(cairo_surface_t * surface)
 
 slim_hidden_def(cairo_image_surface_get_stride);
 
-cairo_format_t _cairo_format_from_content(cairo_content_t content)
+cairo_format_t FASTCALL _cairo_format_from_content(cairo_content_t content)
 {
 	switch(content) {
 		case CAIRO_CONTENT_COLOR: return CAIRO_FORMAT_RGB24;
@@ -602,7 +602,7 @@ cairo_format_t _cairo_format_from_content(cairo_content_t content)
 	return CAIRO_FORMAT_INVALID;
 }
 
-cairo_content_t _cairo_content_from_format(cairo_format_t format)
+cairo_content_t FASTCALL _cairo_content_from_format(cairo_format_t format)
 {
 	switch(format) {
 		case CAIRO_FORMAT_ARGB32: return CAIRO_CONTENT_COLOR_ALPHA;
@@ -617,7 +617,7 @@ cairo_content_t _cairo_content_from_format(cairo_format_t format)
 	return CAIRO_CONTENT_COLOR_ALPHA;
 }
 
-int _cairo_format_bits_per_pixel(cairo_format_t format)
+int FASTCALL _cairo_format_bits_per_pixel(cairo_format_t format)
 {
 	switch(format) {
 		case CAIRO_FORMAT_ARGB32:
@@ -651,23 +651,17 @@ cairo_surface_t * _cairo_image_surface_snapshot(void * abstract_surface)
 	cairo_image_surface_t * clone;
 	/* If we own the image, we can simply steal the memory for the snapshot */
 	if(image->owns_data && image->base._finishing) {
-		clone = (cairo_image_surface_t*)
-		    _cairo_image_surface_create_for_pixman_image(image->pixman_image,
-		    image->pixman_format);
+		clone = (cairo_image_surface_t*)_cairo_image_surface_create_for_pixman_image(image->pixman_image, image->pixman_format);
 		if(unlikely(clone->base.status))
 			return &clone->base;
-
 		image->pixman_image = NULL;
 		image->owns_data = FALSE;
-
 		clone->transparency = image->transparency;
 		clone->color = image->color;
-
 		clone->owns_data = TRUE;
 		return &clone->base;
 	}
-	clone = (cairo_image_surface_t*)_cairo_image_surface_create_with_pixman_format(NULL,
-	    image->pixman_format, image->width, image->height, 0);
+	clone = (cairo_image_surface_t*)_cairo_image_surface_create_with_pixman_format(NULL, image->pixman_format, image->width, image->height, 0);
 	if(unlikely(clone->base.status))
 		return &clone->base;
 	if(clone->stride == image->stride) {

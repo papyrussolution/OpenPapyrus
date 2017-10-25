@@ -3017,7 +3017,7 @@ int SLAPI GoodsCore::SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pT
 	return p_cache ? p_cache->SearchGoodsAnalogs(id, rList, pTransitComponentBuf) : 0;
 }
 
-int SLAPI GoodsCore::FetchConfig(PPGoodsConfig * pCfg)
+int FASTCALL GoodsCore::FetchConfig(PPGoodsConfig * pCfg)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	if(p_cache) {

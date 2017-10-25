@@ -4523,7 +4523,7 @@ public:
 
 	int    SLAPI Fetch(PPID id, Goods2Tbl::Rec * pRec);
 	int    SLAPI Dirty(PPID id);
-	int    SLAPI FetchConfig(PPGoodsConfig * pCfg);
+	int    FASTCALL FetchConfig(PPGoodsConfig * pCfg);
 	int    SLAPI DirtyConfig();
 	//
 	// Descr: Функция возвращает указатель на полный список товаров. Список представлен
@@ -7672,11 +7672,12 @@ struct PPObjPack {
 		fNoObj         = 0x0080, // Запись синхронизации виртуального объекта (например, лота)
 		fRecover       = 0x0100  // @v8.2.3 Восстанавливающая передача объектов
 	};
-	SVerT SrcVer;               // Версия системы, сформировавшей пакет
+	void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
+	SVerT  SrcVer;               // Версия системы, сформировавшей пакет
 	LDATETIME Mod;               // Дата/время модификации объекта в разделе-отправителе
 	long   Priority;             // Приоритет обработки объекта при приеме данных
 	long   Flags;                // Флаги (PPObjPack::fXXX)
-	void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
+	// @v9.8.6 (movedup) void * Data;                 // Данные пакета. Если (Flags & fSyncCmpObj) то данных нет
 };
 //
 // Классы семейства PPObject организованы так, что если в некоторый
@@ -7751,7 +7752,7 @@ public:
 	//   очень часто встречается.
 	//   Кроме того, эта функция защищает вызывающую функцию от нулевого указателя pID.
 	//
-	int    SLAPI CheckRightsModByID(const PPID * pID);
+	int    FASTCALL CheckRightsModByID(const PPID * pID);
 	int    SLAPI GetLastModifEvent(PPID objID, LDATETIME *, int * pCr, SysJournalTbl::Rec * = 0);
 	//
 	// Descr: используя виртуальные функции Search и GetNamePtr находит и возвращает
@@ -7893,7 +7894,7 @@ public:
 	//
 	virtual int    SLAPI MakeReserved(long flags);
 	virtual int    SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual void   SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	//
 	// Descr: Функция должна извлечь из потока (stream) или из базы данных (stream == 0)
 	//   пакет объекта с идентификатором id.
@@ -7984,7 +7985,7 @@ protected:
 };
 
 #define IMPL_DESTROY_OBJ_PACK(obj, typ) \
-	void SLAPI obj::Destroy(PPObjPack * p) { if(p && p->Data) { delete ((typ *)p->Data); p->Data = 0; } }
+	void FASTCALL obj::Destroy(PPObjPack * p) { if(p && p->Data) { delete ((typ *)p->Data); p->Data = 0; } }
 #define IMPL_OBJ_FETCH(obj_cls, obj_rec, cache_cls) \
 	int SLAPI obj_cls::Fetch(PPID id, obj_rec * pRec) \
 	{ cache_cls * p_cache = GetDbLocalCachePtr <cache_cls> (Obj); return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec); }
@@ -7994,7 +7995,7 @@ protected:
 //
 // Descr: Проверяет наличие прав для конфигурации cfgID.
 //
-int SLAPI CheckCfgRights(PPID cfgID, ushort rt, int oprRights);
+int FASTCALL CheckCfgRights(PPID cfgID, ushort rt, int oprRights);
 //
 //
 //
@@ -11839,7 +11840,7 @@ struct GoodsByTransferFilt {
 //
 //
 //
-/* @v9.8.5 
+/* @v9.8.5
 struct UnlimOrderParam {
 	PPID   GoodsID;       // ИД товара
 	PPID   ArID;          // ИД контрагента
@@ -15138,7 +15139,7 @@ private:
 struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	enum {
 		SI       = 0x0001, // (S) Единица системы СИ
-		Phisical = 0x0002, // (P) Физическая единица
+		Physical = 0x0002, // (P) Физическая единица
 		Trade    = 0x0004, // (T) Торговая единица (может не иметь однозначного физ. эквивалента)
 		Hide     = 0x0008, // (H) Единицу не следует показывать
 		IntVal   = 0x0010, // (I) Единица может быть только целочисленной
@@ -15554,7 +15555,7 @@ private:
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual int  SLAPI Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI ProcessReservedItem(TVRez &);
 	virtual int  SLAPI Dirty(PPID);
 	int    SLAPI SerializePacket(int dir, PPAmountTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -15830,7 +15831,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 
 	int    SLAPI PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
 	int    SLAPI GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
@@ -16255,7 +16256,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI MakeReserved(long flags);
 	int    SLAPI SetReckonExData(PPID, PPReckonOpEx *, int use_ta);
 	int    SLAPI SetPoolExData(PPID, PPBillPoolOpEx *, int use_ta);
@@ -16818,10 +16819,10 @@ public:
 	int    SLAPI Register(PPID & ID, const char * pName, const char * pPassword, const S_GUID & rDbUuid, PPID localUserID, PPID personID);
 	int    SLAPI Unregister(const char * pName, const char * pPassword);
 	int    SLAPI ChangePassword(const char * pName, const char * pOldPassword, const char * pNewPassword);
-	int    SLAPI FetchConfig(PPGlobalUserAccConfig * pCfg);
+	int    FASTCALL FetchConfig(PPGlobalUserAccConfig * pCfg);
 	int    SLAPI DirtyConfig();
 protected:
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -16993,7 +16994,7 @@ public:
 	int    SLAPI GetPacket(PPID id, PPEdiProviderPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use_ta);
 private:
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -18134,7 +18135,7 @@ public:
 	int    SLAPI LockFRR(PPID accID, LDATE dt, int doUnlock);
 private:
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -19959,7 +19960,7 @@ public:
 	int    SLAPI GetPacket(PPID id, PPUhttStorePacket * pPack);
 private:
 	int    SLAPI SerializePacket(int dir, PPUhttStorePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -20156,7 +20157,7 @@ public:
 private:
 	virtual const char * SLAPI GetNamePtr();
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 
 	virtual int    SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
@@ -20832,7 +20833,7 @@ public:
 private:
 	static  int  SLAPI EditExtDialog(PPGoodsStruc *);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr /*goodsID*/);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -20931,7 +20932,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack * pPack);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SLAPI SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
@@ -21301,7 +21302,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
 	virtual int  SLAPI MakeReserved(long flags);
@@ -21545,7 +21546,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack*);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 
 	PsnOpKindFilt CurrFilt;
 };
@@ -21714,14 +21715,14 @@ public:
 	// Возвращает PPObjListWindow
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
 private:
-	virtual int    SLAPI DeleteObj(PPID id);
-	virtual int    SLAPI ValidateSelection(PPID id, uint olwFlags, void * extraPtr);
-	virtual void   SLAPI Destroy(PPObjPack *);
-	virtual int    SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
-	virtual int    SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
-	virtual int    SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  SLAPI DeleteObj(PPID id);
+	virtual int  SLAPI ValidateSelection(PPID id, uint olwFlags, void * extraPtr);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
+	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
+	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual const char * SLAPI GetNamePtr();
-	virtual int    SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SLAPI Unite(PPID destID, PPID srcID);
 	struct AislBlock {
 		StrAssocArray * P_List;
@@ -22094,15 +22095,15 @@ public:
 class PPObjLocation : public PPObject {
 public:
 	static int FASTCALL ReadConfig(PPLocationConfig * pCfg);
-	static int SLAPI WriteConfig(const PPLocationConfig * pCfg, int use_ta);
+	static int FASTCALL WriteConfig(const PPLocationConfig * pCfg, int use_ta);
 	static int SLAPI EditConfig();
-	static int SLAPI FetchConfig(PPLocationConfig * pCfg);
+	static int FASTCALL FetchConfig(PPLocationConfig * pCfg);
 	static int SLAPI DirtyConfig();
 
 	static int  SLAPI SelectWarehouse(PPID owner = 0, PPID level = 0);
-	static PPID SLAPI ObjToWarehouse(PPID);
-	static PPID SLAPI WarehouseToObj(PPID);
-	static int  SLAPI CheckWarehouseFlags(PPID locID, long);
+	static PPID FASTCALL ObjToWarehouse(PPID);
+	static PPID FASTCALL WarehouseToObj(PPID);
+	static int  FASTCALL CheckWarehouseFlags(PPID locID, long);
 	static int  SLAPI ViewWarehouse();
 	static int  SLAPI ViewDivision();
 
@@ -22254,7 +22255,7 @@ private:
 	virtual int SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int SLAPI MakeReserved(long flags);
 	virtual const char * SLAPI GetNamePtr();
 	int    AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace);
@@ -22580,7 +22581,7 @@ private:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
-	virtual void SLAPI Destroy(PPObjPack * pPack);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI ProcessReservedItem(TVRez &);
 	int    SLAPI SerializePacket(int dir, PPPersonRelTypePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
@@ -22672,7 +22673,7 @@ public:
 	int    SLAPI GetCurrBnkAcct(PPBankAccount *) const;
 
 	void   FASTCALL SetExtName(const char * pName);
-	int    SLAPI GetExtName(SString & rBuf) const;
+	int    FASTCALL GetExtName(SString & rBuf) const;
 	int    SLAPI AddRegister(PPID regTypeID, const char * pNumber, int checkUnique = 1);
 	//
 	// Descr: Возвращает информацию об адересе доставки из внутреннего списка по индексу *pPos
@@ -22778,7 +22779,7 @@ public:
 		long   Flags;             // Флаги (PPObjPerson::sapfXXX)
 	};
 	static int FASTCALL ReadConfig(PPPersonConfig *);
-	static int SLAPI WriteConfig(const PPPersonConfig *, int use_ta);
+	static int FASTCALL WriteConfig(const PPPersonConfig *, int use_ta);
 	static int SLAPI EditConfig();
 	static int SLAPI ReplacePerson(PPID srcID = 0, PPID srcKindID = 0);
 	static int SLAPI ReplaceDlvrAddr(PPID srcID);
@@ -22817,7 +22818,7 @@ public:
 	//   0  - Ошибка. Содержимое по указателю pRec имеет непредсказуемые значения.
 	//
 	int    SLAPI Fetch(PPID id, PersonTbl::Rec * pRec); // @macrow
-	int    SLAPI FetchConfig(PPPersonConfig * pCfg);
+	int    FASTCALL FetchConfig(PPPersonConfig * pCfg);
 	int    SLAPI DirtyConfig();
 	const PPPersonConfig & SLAPI GetConfig();
 	int    SLAPI ExtEdit(PPID * pID, void * extraPtr);
@@ -23060,16 +23061,16 @@ public:
 	int    SLAPI IndexPhones(int use_ta);
 private:
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
-	virtual int    SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
-	virtual int    SLAPI DeleteObj(PPID id);
-	virtual int    SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual int    SLAPI EditRights(uint, ObjRights *, EmbedDialog * = 0);
-	virtual void   SLAPI Destroy(PPObjPack*);
-	virtual int    SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int    SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int    SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual int  SLAPI DeleteObj(PPID id);
+	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * = 0);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual const char * SLAPI GetNamePtr();
-	virtual int    SLAPI MakeReserved(long flags);
+	virtual int  SLAPI MakeReserved(long flags);
 	int    SLAPI ReplyPersonELinkDel(PPID);
 	int    SLAPI ReplyPersonTagDel(PPID);
 	int    SLAPI ReplyLocationReplace(PPID dest, PPID src);
@@ -23525,7 +23526,7 @@ public:
 private:
 	virtual int SLAPI Browse(void * extraPtr);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -23861,7 +23862,7 @@ public:
 		long * pDays, double * pHours, STimeChunkArray * pList = 0);
 private:
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -24213,7 +24214,7 @@ public:
 	int    SLAPI Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk);
 private:
 	virtual int SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -26344,7 +26345,7 @@ protected:
 	SLAPI  PPObjGoods(PPID objType, void * extraPtr);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -26844,8 +26845,8 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 
 class PPObjTransport : public PPObjGoods {
 public:
-	static int SLAPI ReadConfig(PPTransportConfig *);
-	static int SLAPI WriteConfig(const PPTransportConfig *, int use_ta);
+	static int FASTCALL ReadConfig(PPTransportConfig *);
+	static int FASTCALL WriteConfig(const PPTransportConfig *, int use_ta);
 	static int SLAPI EditConfig();
 
 	SLAPI  PPObjTransport(void * extraPtr = 0);
@@ -26860,7 +26861,7 @@ public:
 private:
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -26928,7 +26929,7 @@ private:
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack *);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -27294,8 +27295,8 @@ public:
 		SString EgaisCode; // Код продукции по ЕГАИС
 	};
 
-    static int SLAPI ReadConfig(Config * pCfg);
-    static int SLAPI WriteConfig(Config * pCfg, int use_ta);
+    static int FASTCALL ReadConfig(Config * pCfg);
+    static int FASTCALL WriteConfig(Config * pCfg, int use_ta);
 	static int SLAPI EditConfig();
 	//
 	// Descr: Функция определяет является ли строка pMark валидным номером алкогольной акцизной марки.
@@ -28026,8 +28027,10 @@ struct AsyncCashGoodsInfo { // @transient
 	char   Abbr[128];      //
 	PPID   ParentID;       // ->Goods2.ID Родительская товарная группа
 	PPID   UnitID;         // ->Unit.ID Единица измерения //
-	PPID   ManufID;        // @v7.0.0 ->Person.ID ИД производителя товара
-	PPID   GdsClsID;       // @v7.0.0 ->Ref(PPOBJ_GOODSCLASS) ИД класса товара
+	PPID   PhUnitID;       // @v9.8.6 ->Unit.ID Физическая единица измерения
+	double PhUPerU;        // @v9.8.6 ->Unit.ID Соотношение физических единиц к торговым
+	PPID   ManufID;        // ->Person.ID ИД производителя товара
+	PPID   GdsClsID;       // ->Ref(PPOBJ_GOODSCLASS) ИД класса товара
 	char   BarCode[24];    // Штрихкод @v8.8.0 [16]-->[24]
 	char   PrefBarCode[24]; // Предпочтительный штрихкод @v8.8.0 [16]-->[24]
 	double UnitPerPack;    // Емкость упаковки
@@ -28102,6 +28105,15 @@ public:
 	PPID   SLAPI GetTobaccoGoodsCls() const;
 	PPID   SLAPI GetGiftCardGoodsCls() const;
 	int    SLAPI GetAlcoGoodsExtension(PPID goodsID, PPID lotID, PrcssrAlcReport::GoodsItem & rExt);
+	//
+	// Descr: Возвращает список идентификаторов объектов типа refType,
+	//   на которые ссылаются товары из выборки.
+	//   Допустимые значения refType: PPOBJ_GOODSGROUP, PPOBJ_UNIT, PPOBJ_GOODSCLASS, PPOBJ_GOODSTYPE
+	// Returns:
+	//   !0 - список объектов
+	//    0 - ошибка (например, refType задает не допустимый тип объекта)
+	//
+	const PPIDArray * FASTCALL GetRefList(int refType) const;
 private:
 	int    SLAPI SearchCPrice(PPID goodsID, double * price);
 	int    LotThreshold;   // Количество дней от последнего прихода,
@@ -28126,10 +28138,18 @@ private:
 	PPObjGoods GObj;              //
 	PPObjGoodsClass GcObj;        // @v8.5.4
 	PPObjLocPrinter LpObj;        //
-	PPObjCashNode CnObj;          // @v7.9.7
+	PPObjCashNode CnObj;          //
 	GoodsIterator Iter;           // Итератор по товарам
 	BarcodeArray  Codes;          // Список кодов для текущего товара
-
+	//
+	// @v9.8.6 {
+	// Списки идентификаторов объектов, на которые ссылаются товары, попадающие в выборку
+	//
+	PPIDArray GroupList;          // Родительские группы
+	PPIDArray UnitList;           // Единицы измерения (и торговые и физические)
+	PPIDArray GdsClsList;         // Классы товаров
+	PPIDArray GdsTypeList;        // Типы товаров
+	// } @v9.8.6
 	PPID   AlcoGoodsClsID;        // @v8.5.4
 	PPID   TobaccoGoodsClsID;     // @v8.5.4
 	PPID   GiftCardGoodsClsID;    // @v8.5.4
@@ -28145,7 +28165,7 @@ private:
 	PPIDArray   IterGoodsList;    //
 	PPIDArray   NoDisToggleGoodsList; // @v8.1.0 Список товаров, по которым был снят признак "без скидки" (за заданный период)
 	PPQuotArray QuotByQttyList;   // Список котировок, применяемых для скидки на кол-во товара
-	RetailPriceExtractor  RetailExtr;
+	RetailPriceExtractor RetailExtr;
 	DeviceLoadingStat * P_Dls;    // @notowned
 	GoodsToObjAssoc * P_G2OAssoc; //
 	GoodsToObjAssoc * P_G2DAssoc; // Ассоцииации {товар-кассовый узел} для загрузки номеров кассовый аппаратов, ассоциированных с товарами
@@ -29413,7 +29433,7 @@ struct SelAddBySampleParam {
 //
 class PPObjBill : public PPObject {
 public:
-	static int SLAPI ReadConfig(PPBillConfig *);
+	static int FASTCALL ReadConfig(PPBillConfig *);
 	static int SLAPI EditConfig();
 	//
 	// Descr: Опции формирования строки наименования документа
@@ -30077,7 +30097,7 @@ public:
 	//
 	// Streaming functions
 	//
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -31163,7 +31183,7 @@ private:
 	virtual const char * SLAPI GetNamePtr();
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint bufSize, ObjRights *, EmbedDialog * pDlg = 0);
-	virtual void SLAPI Destroy(PPObjPack * p); // @macrow
+	virtual void FASTCALL Destroy(PPObjPack * pPack); // @macrow
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -31386,7 +31406,7 @@ class PPObjSCardSeries : public PPObjReference {
 public:
 	static int SLAPI SetSCardsByRule(SCardChargeRule * pSelRule);
 	static int SLAPI SelectRule(SCardChargeRule * pSelRule);
-	static int SLAPI FetchConfig(PPSCardConfig * pCfg);
+	static int FASTCALL FetchConfig(PPSCardConfig * pCfg);
 
 	SLAPI  PPObjSCardSeries(void * extraPtr = 0);
 	SLAPI ~PPObjSCardSeries();
@@ -31400,7 +31420,7 @@ public:
 	int    SLAPI GetCodeRange(PPID serID, SString & rLow, SString & rUpp);
 		// @>>SCardCore::GetCodeRange
 private:
-	virtual void SLAPI Destroy(PPObjPack * p); // @macrow
+	virtual void FASTCALL Destroy(PPObjPack * pPack); // @macrow
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -31473,9 +31493,9 @@ public:
 		PPID   OwnerID;
 	};
 
-	static int SLAPI WriteConfig(const PPSCardConfig * pCfg, int use_ta);
-	static int SLAPI ReadConfig(PPSCardConfig * pCfg);
-	static int SLAPI FetchConfig(PPSCardConfig * pCfg);
+	static int FASTCALL WriteConfig(const PPSCardConfig * pCfg, int use_ta);
+	static int FASTCALL ReadConfig(PPSCardConfig * pCfg);
+	static int FASTCALL FetchConfig(PPSCardConfig * pCfg);
 	static int SLAPI EditConfig();
 	static int SLAPI PreprocessSCardCode(SString & rCode);
 	static SString & SLAPI CalcSCardHash(const char * pNumber, SString & rHash);
@@ -31672,7 +31692,7 @@ protected:
 	virtual int    SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int    SLAPI EditRights(uint bufSize, ObjRights *, EmbedDialog * pDlg = 0);
 private:
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -32049,7 +32069,7 @@ private:
 //
 class PPObjProcessor : public PPObject {
 public:
-	static int SLAPI ReadConfig(PPProcessorConfig *);
+	static int FASTCALL ReadConfig(PPProcessorConfig *);
 	static int SLAPI EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem);
 
 	SLAPI  PPObjProcessor(void * extraPtr = 0);
@@ -32144,7 +32164,7 @@ private:
 	virtual int SLAPI DeleteObj(PPID);
 	virtual int SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr /*parentID*/);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -32289,7 +32309,7 @@ private:
 	virtual int SLAPI DeleteObj(PPID);
 	virtual int SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -32556,8 +32576,8 @@ public:
 		PPID   PrcID;
 		int    Kind; // TSESK_XXX (0 - any sessions, 1 - super sessions only, 2 - plans, 3 - idle)
 	};
-	static int  SLAPI ReadConfig(PPTSessConfig *);
-	static int  SLAPI WriteConfig(PPTSessConfig *, int use_ta); // @vmiller
+	static int  FASTCALL ReadConfig(PPTSessConfig *);
+	static int  FASTCALL WriteConfig(PPTSessConfig *, int use_ta); // @vmiller
 	static int  SLAPI EditConfig();
 	static int  FASTCALL ValidateStatus(int status);
 	static int  FASTCALL ResolveStatusSymbol(const char *);
@@ -32966,7 +32986,7 @@ private:
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	virtual const char * SLAPI GetNamePtr();
 	virtual int SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual void SLAPI Destroy(PPObjPack * p);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -33838,7 +33858,7 @@ public:
 
 	static long DefaultPriority;
 	static long DependedPriority;
-	static int SLAPI ReadConfig(PPDBXchgConfig *);
+	static int FASTCALL ReadConfig(PPDBXchgConfig *);
 	static int SLAPI EditConfig();
 	static int SLAPI IncrementCharryOutCounter();
 	static int SLAPI TransmitModifications(PPID destDBDiv, const ObjTransmitParam *);
@@ -33914,9 +33934,9 @@ public:
 		PPObjectTransmit * P_Ot; // @notowned
 	};
 private:
-	static int SLAPI WriteConfig(PPDBXchgConfig *, int use_ta);
-	static int SLAPI LockReceiving(int unlock); // @<<PPObjectTransmit::ReceivePackets
-	static int SLAPI CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer);
+	static int FASTCALL WriteConfig(PPDBXchgConfig *, int use_ta);
+	static int FASTCALL LockReceiving(int unlock); // @<<PPObjectTransmit::ReceivePackets
+	static int FASTCALL CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer);
 
 	PPObject * FASTCALL _GetObjectPtr(PPID objType);
 	int    SLAPI OpenInPacket(const char * pFileName, PPObjectTransmit::Header * = 0);
@@ -34172,9 +34192,8 @@ class ObjCollection : private TSArray <ObjCollectionEntry> {
 public:
 	SLAPI  ObjCollection();
 	SLAPI ~ObjCollection();
-	PPObject * SLAPI GetObjectPtr(PPID objType);
-
-	int    SLAPI CreateFullList(long flags /* gotlfXXX */);
+	PPObject * FASTCALL GetObjectPtr(PPID objType);
+	int    FASTCALL CreateFullList(long flags /* gotlfXXX */);
 private:
 	virtual void FASTCALL freeItem(void * pItem);
 };
@@ -36547,9 +36566,9 @@ public:
 		double SalesPerDay;
 	};
 
-	static int WriteConfig(const PPStockOpt::Config * pCfg);
-	static int ReadConfig(PPStockOpt::Config * pCfg);
-	static int EditConfig();
+	static int FASTCALL WriteConfig(const PPStockOpt::Config * pCfg);
+	static int FASTCALL ReadConfig(PPStockOpt::Config * pCfg);
+	static int SLAPI EditConfig();
 
 	PPStockOpt();
 	~PPStockOpt();
@@ -40262,12 +40281,12 @@ public:
 	int    SLAPI SelectBasket(PPBasketCombine & rBasket);
 	int    SLAPI Transfer(PPID);
 private:
-	static int    SLAPI SetAddLockErrInfo(PPID mutexID);
+	static int   SLAPI SetAddLockErrInfo(PPID mutexID);
 
-	virtual void  SLAPI Destroy(PPObjPack*);
-	virtual int   SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int   SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int   SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
 	int    SLAPI SerializePacket(int dir, PPBasketPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
@@ -40905,7 +40924,7 @@ public:
 		cfIgnoreRest = 0x0001 // Не рассчитывать остатки (считать, что доступный остаток нулевой)
 	};
 
-	static int  SLAPI ReadConfig(PPMrpTabConfig *);
+	static int  FASTCALL ReadConfig(PPMrpTabConfig *);
 	static int  SLAPI GetCounter(long * pCounter, int use_ta);
 	static void SLAPI GenerateName(PPID linkObjType, PPID linkObjID, SString *, int use_ta);
 	static int  SLAPI GetAvailGoodsRest(PPID goodsID, const MrpTabLeaf * pLeaf, LDATE afterDate, double * pRest);
@@ -41327,9 +41346,9 @@ struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
 
 class PPObjProject : public PPObject {
 public:
-	static int SLAPI ReadConfig(PPProjectConfig *);
+	static int FASTCALL ReadConfig(PPProjectConfig *);
 	static int SLAPI EditConfig();
-	static int SLAPI FetchConfig(PPProjectConfig * pCfg); // @v8.0.2
+	static int FASTCALL FetchConfig(PPProjectConfig * pCfg); // @v8.0.2
 	static int SLAPI DirtyConfig();                       // @v8.0.2
 
 	static SString & SLAPI MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf);
@@ -43119,7 +43138,8 @@ private:
 		obPosNode,
 		obQuery,
 		obLot,
-		obPayment
+		obPayment,
+		obUnit
 	};
 
 	struct ObjectBlock { // @flat
@@ -43129,7 +43149,7 @@ private:
 			fRefItem = 0x0002  // Блок создан как внутренняя ссылка. По такому блоку объект следует создавать
 				// только после того, как были перебраны блоки не имеющие такого флага.
 		};
-		long   Flags;
+		long   Flags_;
 		long   ID;       // Идентификатор объекта в источнике данных
 		long   NativeID; // Идентификатор объекта в нашей базе данных
 		uint   NameP;
@@ -43161,7 +43181,7 @@ private:
 		long   MinQtty;
 		DateRange Period;
 		double Value;
-		long   Flags;
+		long   QuotFlags;
 	};
 	struct PosNodeBlock : public ObjectBlock { // @flat
 		SLAPI  PosNodeBlock();
@@ -43178,10 +43198,23 @@ private:
 		DateRange Period;
 		RealRange AmountRestriction;
 	};
+	struct UnitBlock : public ObjectBlock { // @flat
+		SLAPI  UnitBlock();
+		uint   CodeP;
+		uint   SymbP;
+		uint   PhUnitBlkP; // Ссылка на вложенную физическую единицу (для PHUNIT в блоке товара)
+		long   UnitFlags;
+		PPID   BaseId; // Идентификатор базовой единицы
+		double BaseRatio;
+		double PhRatio;   // Соотношение вложенной физической единицей (для PHUNIT в блоке товара)
+	};
 	struct GoodsBlock : public ObjectBlock { // @flat
 		SLAPI  GoodsBlock();
 		PPID   ParentBlkP;
 		long   InnerId;
+		uint   UnitBlkP;   // @v9.8.6
+		uint   PhUnitBlkP; // @v9.8.6
+		double PhUPerU;    // @v9.8.6
 		double Price;
 		double Rest;
 	};
@@ -43339,6 +43372,7 @@ private:
 		TSVector <LotBlock> LotBlkList;
 		TSVector <GoodsCode> GoodsCodeList;
 		TSVector <QuotKindBlock> QkBlkList;
+		TSVector <UnitBlock> UnitBlkList; // @v9.8.6
 		TSVector <QuotBlock> QuotBlkList;
 		TSVector <PersonBlock> PersonBlkList;
 		TSVector <SCardBlock> SCardBlkList;
@@ -43491,8 +43525,14 @@ public:
 		struct Result {
 			Result();
 			void   Clear();
+			enum {
+				spcNone = 0,
+				spcDup  = 1  // Тикет с ошибкой о том, что накладная уже загеристрирована в ЕГАИС
+			};
 			int    Type; // 0 - undef, 1 - ticket result, 2 - operation result
 			int    Conclusion; // 0 - rejected, 1 - accepted
+			int    Special;    // @v9.8.6 Специальная собственная пометка, идентифицирующая
+				// некоторый особенности тикета (определяется Papyrus'ом; это - не от ЕГАИС).
 			LDATETIME Time;
 			SString OpName; // OperationName
 			SString Comment;

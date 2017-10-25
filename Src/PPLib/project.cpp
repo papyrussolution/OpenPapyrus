@@ -18,7 +18,7 @@ PPProjectConfig & PPProjectConfig::Clear()
 }
 
 //static
-int SLAPI PPObjProject::ReadConfig(PPProjectConfig * pCfg)
+int FASTCALL PPObjProject::ReadConfig(PPProjectConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)

@@ -72,7 +72,7 @@ int SLAPI PPObjSCard::PreprocessSCardCode(SString & rCode)
 //
 //
 // static
-int SLAPI PPObjSCard::ReadConfig(PPSCardConfig * pCfg)
+int FASTCALL PPObjSCard::ReadConfig(PPSCardConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_SCARDCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
@@ -81,7 +81,7 @@ int SLAPI PPObjSCard::ReadConfig(PPSCardConfig * pCfg)
 }
 
 // static
-int SLAPI PPObjSCard::WriteConfig(const PPSCardConfig * pCfg, int use_ta)
+int FASTCALL PPObjSCard::WriteConfig(const PPSCardConfig * pCfg, int use_ta)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
@@ -102,7 +102,7 @@ int SLAPI PPObjSCard::WriteConfig(const PPSCardConfig * pCfg, int use_ta)
 }
 
 //static
-int SLAPI PPObjSCard::FetchConfig(PPSCardConfig * pCfg)
+int FASTCALL PPObjSCard::FetchConfig(PPSCardConfig * pCfg)
 {
 	return PPObjSCardSeries::FetchConfig(pCfg);
 }
@@ -4104,7 +4104,7 @@ int SLAPI SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
 IMPL_OBJ_FETCH(PPObjSCardSeries, PPSCardSeries, SCardSeriesCache);
 
 // static
-int SLAPI PPObjSCardSeries::FetchConfig(PPSCardConfig * pCfg)
+int FASTCALL PPObjSCardSeries::FetchConfig(PPSCardConfig * pCfg)
 {
 	SCardSeriesCache * p_cache = GetDbLocalCachePtr <SCardSeriesCache> (PPOBJ_SCARDSERIES, 1);
 	if(p_cache) {

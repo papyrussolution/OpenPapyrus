@@ -89,15 +89,15 @@ cairo_private cairo_status_t _cairo_output_stream_close(cairo_output_stream_t * 
 /* Returns the final status value associated with this object, just
  * before its last gasp. This final status value will capture any
  * status failure returned by the stream's close_func as well. */
-cairo_private cairo_status_t _cairo_output_stream_destroy(cairo_output_stream_t * stream);
+cairo_private cairo_status_t FASTCALL _cairo_output_stream_destroy(cairo_output_stream_t * stream);
 cairo_private void _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length);
 cairo_private void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const uchar * data, size_t length);
 cairo_private void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * fmt, va_list ap) CAIRO_PRINTF_FORMAT(2, 0);
 cairo_private void _cairo_output_stream_printf(cairo_output_stream_t * stream, const char * fmt, ...) CAIRO_PRINTF_FORMAT(2, 3);
 /* Print matrix element values with rounding of insignificant digits. */
-cairo_private void _cairo_output_stream_print_matrix(cairo_output_stream_t * stream, const cairo_matrix_t  * matrix);
-cairo_private long _cairo_output_stream_get_position(cairo_output_stream_t * stream);
-cairo_private cairo_status_t _cairo_output_stream_get_status(cairo_output_stream_t * stream);
+cairo_private void FASTCALL _cairo_output_stream_print_matrix(cairo_output_stream_t * stream, const cairo_matrix_t  * matrix);
+cairo_private long FASTCALL _cairo_output_stream_get_position(cairo_output_stream_t * stream);
+cairo_private cairo_status_t FASTCALL _cairo_output_stream_get_status(cairo_output_stream_t * stream);
 
 /* This function never returns %NULL. If an error occurs (NO_MEMORY or
  * WRITE_ERROR) while trying to create the output stream this function
@@ -107,7 +107,7 @@ cairo_private cairo_status_t _cairo_output_stream_get_status(cairo_output_stream
  * call _cairo_output_stream_destroy (or _cairo_output_stream_close at
  * least) in order to ensure that everything is properly cleaned up.
  */
-cairo_private cairo_output_stream_t * _cairo_output_stream_create_for_filename(const char * filename);
+cairo_private cairo_output_stream_t * FASTCALL _cairo_output_stream_create_for_filename(const char * filename);
 
 /* This function never returns %NULL. If an error occurs (NO_MEMORY or
  * WRITE_ERROR) while trying to create the output stream this function
@@ -118,8 +118,8 @@ cairo_private cairo_output_stream_t * _cairo_output_stream_create_for_filename(c
  */
 cairo_private cairo_output_stream_t * _cairo_output_stream_create_for_file(FILE * file);
 cairo_private cairo_output_stream_t * _cairo_memory_stream_create(void);
-cairo_private void _cairo_memory_stream_copy(cairo_output_stream_t * base, cairo_output_stream_t * dest);
-cairo_private int _cairo_memory_stream_length(cairo_output_stream_t * stream);
+cairo_private void FASTCALL _cairo_memory_stream_copy(cairo_output_stream_t * base, cairo_output_stream_t * dest);
+cairo_private int FASTCALL _cairo_memory_stream_length(cairo_output_stream_t * stream);
 cairo_private cairo_status_t _cairo_memory_stream_destroy(cairo_output_stream_t * abstract_stream, uchar ** data_out, ulong * length_out);
 cairo_private cairo_output_stream_t * _cairo_null_stream_create(void);
 /* cairo-base85-stream.c */

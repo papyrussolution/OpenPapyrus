@@ -419,6 +419,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 {
 	int    ok = 1;
 	PPIDArray qk_list; // Список идентификаторов видов котировок, которые должны выгружаться
+	PPIDArray unit_list; // Список единиц измерения, которые необходимо выгрузить
 	PPIDArray used_qk_list; // Список идентификаторов видов котировок, которые выгружались
 	SString out_file_name;
 	SString fmt_buf, msg_buf;
@@ -450,16 +451,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			PPPosProtocol::RouteBlock rb_src;
 			InitSrcRootInfo(nodeID, rb_src);
 			THROW(WriteRouteInfo(wb, "source", rb_src));
-			//THROW(WriteSourceRoute(wb));
 		}
 		{
-			/*
-			{
-				PPPosProtocol::RouteBlock rb;
-				rb.System = "Papyrus";
-				THROW(WriteRouteInfo(wb, "destination", rb));
-			}
-			*/
 			PPPosProtocol::RouteBlock rb;
 			int    dest_list_written = 0;
 			{
@@ -487,7 +480,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
                     }
                 }
 			}
-			THROW_PP_S(dest_list_written, PPERR_PPPP_CORRPOSLISTNEEDED, cn_data.Name); 
+			THROW_PP_S(dest_list_written, PPERR_PPPP_CORRPOSLISTNEEDED, cn_data.Name);
 		}
 		/*
 		{
@@ -502,6 +495,47 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 				if(updOnly)
 					acgi_flags |= ACGIF_UPDATEDONLY;
 				AsyncCashGoodsIterator acgi(nodeID, acgi_flags, sinceDlsID, &dls);
+				{
+					//
+					// Единицы измерения
+					//
+					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
+                    if(p_unit_list && p_unit_list->getCount()) {
+						PPIDArray unit_list(*p_unit_list);
+						uint i;
+						PPUnit unit_rec;
+						i = unit_list.getCount();
+						do {
+							const PPID unit_id = unit_list.get(--i);
+                            if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
+								PPUnit base_unit_rec;
+                            	if(unit_rec.BaseUnitID && goods_obj.FetchUnit(unit_rec.BaseUnitID, &base_unit_rec) > 0)
+                                    unit_list.add(unit_rec.BaseUnitID);
+                            }
+						} while(i);
+						unit_list.sortAndUndup();
+						for(i = 0; i < unit_list.getCount(); i++) {
+							const PPID unit_id = unit_list.get(i);
+                            if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
+								SXml::WNode w_s(wb.P_Xw, "unit");
+								w_s.PutInner("id", temp_buf.Z().Cat(unit_rec.ID));
+								w_s.PutInner("name", EncText(unit_rec.Name));
+								w_s.PutInnerSkipEmpty("symb", EncText(unit_rec.Abbr));
+								w_s.PutInnerSkipEmpty("code", EncText(unit_rec.Code));
+								if(unit_rec.Flags & PPUnit::Physical)
+									w_s.PutInner("physical", "true");
+								if(unit_rec.Rounding > 0.0) {
+									temp_buf.Z().Cat(unit_rec.Rounding, MKSFMTD(0, 8, NMBF_NOTRAILZ|NMBF_OMITEPS));
+									w_s.PutInner("rounding", temp_buf);
+								}
+								if(unit_rec.BaseUnitID && unit_rec.BaseRatio > 0.0 && unit_list.lsearch(unit_rec.BaseUnitID)) {
+									w_s.PutInner("base", temp_buf.Z().Cat(unit_rec.BaseUnitID));
+									w_s.PutInner("baseratio", temp_buf.Z().Cat(unit_rec.BaseRatio, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+								}
+                            }
+						}
+                    }
+				}
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 					AsyncCashGoodsGroupInfo acggi_info;
 					AsyncCashGoodsGroupIterator * p_group_iter = acgi.GetGroupIterator();
@@ -672,7 +706,7 @@ int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
 //
 SLAPI PPPosProtocol::ObjectBlock::ObjectBlock()
 {
-	Flags = 0;
+	Flags_ = 0;
 	ID = 0;
 	NativeID = 0;
 	NameP = 0;
@@ -695,10 +729,24 @@ SLAPI PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock()
 	AmountRestriction.Clear();
 }
 
+SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock()
+{
+	CodeP = 0;
+	SymbP = 0;
+	PhUnitBlkP = 0;
+	UnitFlags = 0;
+	BaseId = 0;
+	BaseRatio = 0.0;
+	PhRatio = 0.0;
+}
+
 SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
 {
 	ParentBlkP = 0;
 	InnerId = 0;
+	UnitBlkP = 0;   // @v9.8.6
+	PhUnitBlkP = 0; // @v9.8.6
+	PhUPerU = 0.0;    // @v9.8.6
 	Price = 0.0;
 	Rest = 0.0;
 }
@@ -866,7 +914,7 @@ SLAPI PPPosProtocol::ObjBlockRef::ObjBlockRef(int t, uint pos)
 	P = pos;
 }
 
-int SLAPI PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos) 
+int SLAPI PPPosProtocol::ReadBlock::Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos)
 {
 	int    ok = 1;
 	ObjBlockRef ref(type, rList.getCount());
@@ -888,6 +936,7 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 		case obLot:         THROW(Helper_CreateItem(LotBlkList, type, pRefPos)); break;
 		case obSCard:       THROW(Helper_CreateItem(SCardBlkList, type, pRefPos)); break;
 		case obParent:      THROW(Helper_CreateItem(ParentBlkList, type, pRefPos)); break;
+		case obUnit:        THROW(Helper_CreateItem(UnitBlkList, type, pRefPos)); break; // @v9.8.6
 		case obQuotKind:    THROW(Helper_CreateItem(QkBlkList, type, pRefPos)); break;
 		case obQuot:        THROW(Helper_CreateItem(QuotBlkList, type, pRefPos)); break;
 		case obSource:      THROW(Helper_CreateItem(SrcBlkList, type, pRefPos)); break;
@@ -920,6 +969,7 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	CPY_FLD(GoodsCodeList);
 	CPY_FLD(LotBlkList);
 	CPY_FLD(QkBlkList);
+	CPY_FLD(UnitBlkList); // @v9.8.6
 	CPY_FLD(QuotBlkList);
 	CPY_FLD(PersonBlkList);
 	CPY_FLD(SCardBlkList);
@@ -961,6 +1011,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obSCard:       p_ret = &SCardBlkList.at(r_ref.P); break;
 			case obParent:      p_ret = &ParentBlkList.at(r_ref.P); break;
 			case obQuotKind:    p_ret = &QkBlkList.at(r_ref.P); break;
+			case obUnit:        p_ret = &UnitBlkList.at(r_ref.P); break; // @v9.8.6
 			case obQuot:        p_ret = &QuotBlkList.at(r_ref.P); break;
 			case obSource:      p_ret = &SrcBlkList.at(r_ref.P); break;
 			case obDestination: p_ret = &DestBlkList.at(r_ref.P); break;
@@ -1148,28 +1199,6 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 	LDATETIME dtm;
 	SString temp_buf;
 	{
-		/*
-	struct Rec {
-		int32  ID;
-		int32  SuperSessID;
-		int32  CashNodeID;
-		int32  CashNumber;
-		int32  SessNumber;
-		LDATE  Dt;
-		LTIME  Tm;
-		int16  Incomplete;
-		int16  Temporary;
-		double Amount;
-		double Discount;
-		double AggrAmount;
-		double AggrRest;
-		double WrOffAmount;
-		double WrOffCost;
-		double Income;
-		double BnkAmount;
-		double CSCardAmount;
-	} data;
-		*/
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		w_s.PutInner("code", temp_buf.Z().Cat(rInfo.SessNumber));
@@ -1377,6 +1406,17 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 		if(rInfo.ParentID) {
 			SXml::WNode w_p(rB.P_Xw, "parent");
 			w_p.PutInner("id", temp_buf.Z().Cat(rInfo.ParentID));
+		}
+		if(rInfo.UnitID) {
+			SXml::WNode w_u(rB.P_Xw, "unit");
+			w_u.PutInner("id", temp_buf.Z().Cat(rInfo.UnitID));
+			if(rInfo.PhUnitID) {
+				SXml::WNode w_pu(rB.P_Xw, "phunit");
+				w_pu.PutInner("id", temp_buf.Z().Cat(rInfo.PhUnitID));
+				if(rInfo.PhUPerU > 0.0) {
+					w_pu.PutInner("ratio", temp_buf.Z().Cat(rInfo.PhUPerU, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+				}
+			}
 		}
 		if(rInfo.Price > 0.0)
 			w_s.PutInner("price", temp_buf.Z().Cat(rInfo.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
@@ -1699,21 +1739,49 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						uint   link_ref_pos = PeekRefPos();
 						int    link_type = 0;
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
-
 						THROW(RdB.CreateItem(obGoods, &ref_pos));
 						RdB.RefPosStack.push(ref_pos);
-
 						if(link_type == obCcLine) {
 							int    test_type = 0;
 							GoodsBlock * p_item = (GoodsBlock *)RdB.GetItem(ref_pos, &test_type);
 							assert(test_type == obGoods);
-							p_item->Flags |= ObjectBlock::fRefItem;
+							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
 					break;
 				case PPHS_GOODSGROUP:
 					THROW(RdB.CreateItem(obGoodsGroup, &ref_pos));
 					RdB.RefPosStack.push(ref_pos);
+					break;
+				case PPHS_UNIT:
+					{
+						uint   link_ref_pos = PeekRefPos();
+						int    link_type = 0;
+						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+						THROW(RdB.CreateItem(obUnit, &ref_pos));
+						RdB.RefPosStack.push(ref_pos);
+						if(link_type == obGoods) {
+							int    test_type = 0;
+							UnitBlock * p_item = (UnitBlock *)RdB.GetItem(ref_pos, &test_type);
+							assert(test_type == obUnit);
+							p_item->Flags_ |= ObjectBlock::fRefItem;
+						}
+					}
+					break;
+				case PPHS_PHUNIT:
+					{
+						uint   link_ref_pos = PeekRefPos();
+						int    link_type = 0;
+						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+						THROW(RdB.CreateItem(obUnit, &ref_pos));
+						RdB.RefPosStack.push(ref_pos);
+						if(link_type == obUnit || link_type == obGoods) {
+							int    test_type = 0;
+							UnitBlock * p_item = (UnitBlock *)RdB.GetItem(ref_pos, &test_type);
+							assert(test_type == obUnit);
+							p_item->Flags_ |= ObjectBlock::fRefItem;
+						}
+					}
 					break;
 				case PPHS_LOT:
 					{
@@ -1743,7 +1811,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							int    test_type = 0;
 							SCardBlock * p_item = (SCardBlock *)RdB.GetItem(ref_pos, &test_type);
 							assert(test_type == obSCard);
-							p_item->Flags |= ObjectBlock::fRefItem;
+							p_item->Flags_ |= ObjectBlock::fRefItem;
 						}
 					}
 					break;
@@ -1779,7 +1847,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 								int    test_type = 0;
 								QuotKindBlock * p_qk_blk = (QuotKindBlock *)RdB.GetItem(qk_ref_pos, &test_type);
 								assert(test_type == obQuotKind);
-								p_qk_blk->Flags |= ObjectBlock::fRefItem;
+								p_qk_blk->Flags_ |= ObjectBlock::fRefItem;
 							}
 							RdB.RefPosStack.push(qk_ref_pos);
 						}
@@ -1900,6 +1968,11 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_COST: // lot
 				case PPHS_SERIAL: // lot
 				case PPHS_TYPE:
+				case PPHS_PHYSICAL: // unit
+				case PPHS_BASE: // unit
+				case PPHS_BASERATIO: // unit
+				case PPHS_ROUNDING: // unit
+				case PPHS_RATIO: // unit
 					break;
 			}
 		}
@@ -2060,6 +2133,27 @@ int PPPosProtocol::EndElement(const char * pName)
 					((CcLineBlock *)p_item)->GoodsBlkP = ref_pos;
 				}
 				break;
+			case PPHS_UNIT:
+				RdB.RefPosStack.pop(ref_pos);
+				//
+				parent_ref_pos = PeekRefPos();
+				p_item = RdB.GetItem(parent_ref_pos, &type);
+				if(type == obGoods) {
+					((GoodsBlock *)p_item)->UnitBlkP = ref_pos;
+				}
+				break;
+			case PPHS_PHUNIT:
+				RdB.RefPosStack.pop(ref_pos);
+				//
+				parent_ref_pos = PeekRefPos();
+				p_item = RdB.GetItem(parent_ref_pos, &type);
+				if(type == obUnit) {
+					((UnitBlock *)p_item)->PhUnitBlkP = ref_pos;
+				}
+				else if(type == obGoods) {
+					((GoodsBlock *)p_item)->PhUnitBlkP = ref_pos;
+				}
+				break;
 			case PPHS_QUOTE:
 				RdB.RefPosStack.pop(ref_pos);
 				//
@@ -2095,7 +2189,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						// и используем найденный аналог
 						//
 						if(ref_pos == (RdB.RefList.getCount()-1)) {
-							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // not для obr нельзя применять ссылку - элемент может быть удален ниже
+							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // note для obr нельзя применять ссылку - элемент может быть удален ниже
 							assert(obr.Type == obQuotKind);
 							if(obr.P == (RdB.QkBlkList.getCount()-1)) {
 								uint   other_ref_pos = 0;
@@ -2222,6 +2316,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						case obSCard: ((SCardBlock *)p_item)->ID = _val_id; break;
 						case obParent: ((ParentBlock *)p_item)->ID = _val_id; break;
 						case obQuotKind: ((QuotKindBlock *)p_item)->ID = _val_id; break;
+						case obUnit: ((UnitBlock *)p_item)->ID = _val_id; break; // @v9.8.6
 						case obCSession: ((CSessionBlock *)p_item)->ID = _val_id; break;
 						case obCCheck: ((CCheckBlock *)p_item)->ID = _val_id; break;
 						case obCcLine: ((CcLineBlock *)p_item)->RByCheck = _val_id; break;
@@ -2282,12 +2377,19 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obPerson: Helper_AddStringToPool(&((PersonBlock *)p_item)->NameP); break;
 					case obSCard: break;
 					case obQuotKind: Helper_AddStringToPool(&((QuotKindBlock *)p_item)->NameP); break;
+					case obUnit: Helper_AddStringToPool(&((UnitBlock *)p_item)->NameP); break; // @v9.8.6
 				}
 				break;
 			case PPHS_SERIAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
 					Helper_AddStringToPool(&((LotBlock *)p_item)->SerailP);
+				break;
+			case PPHS_SYMB:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					Helper_AddStringToPool(&((UnitBlock *)p_item)->SymbP);
+				}
 				break;
 			case PPHS_CODE:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -2298,6 +2400,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obSCard:       Helper_AddStringToPool(&((SCardBlock *)p_item)->CodeP); break;
 					case obParent:      Helper_AddStringToPool(&((ParentBlock *)p_item)->CodeP); break;
 					case obQuotKind:    Helper_AddStringToPool(&((QuotKindBlock *)p_item)->CodeP); break;
+					case obUnit:        Helper_AddStringToPool(&((UnitBlock *)p_item)->CodeP); break; // @v9.8.6
 					case obSource:
 					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
 					case obGoods:
@@ -2333,6 +2436,37 @@ int PPPosProtocol::EndElement(const char * pName)
 							}
 						}
 						break;
+				}
+				break;
+			case PPHS_BASE:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					((UnitBlock *)p_item)->BaseId = RdB.TagValue.ToLong();
+				}
+				break;
+			case PPHS_BASERATIO:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					const double _value = RdB.TagValue.ToReal();
+					if(_value >= 0.0)
+						((UnitBlock *)p_item)->BaseRatio = _value;
+				}
+				break;
+			case PPHS_RATIO:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					const double _value = RdB.TagValue.ToReal();
+					if(_value >= 0.0)
+						((UnitBlock *)p_item)->PhRatio = _value;
+				}
+				break;
+			case PPHS_PHYSICAL:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					if(RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
+					else
+						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
 				}
 				break;
 			case PPHS_REST:
@@ -2458,17 +2592,11 @@ int PPPosProtocol::EndElement(const char * pName)
 					p_item = PeekRefItem(&ref_pos, &type);
 					const double _value = RdB.TagValue.ToReal();
 					switch(type) {
-						case obCCheck:
-							((CCheckBlock *)p_item)->Amount = _value;
-							break;
-						case obCcLine:
-							((CcLineBlock *)p_item)->Amount = _value;
-							break;
-						case obPayment:
-							((CcPaymentBlock *)p_item)->Amount = _value;
-							break;
+						case obCCheck: ((CCheckBlock *)p_item)->Amount = _value; break;
+						case obCcLine: ((CcLineBlock *)p_item)->Amount = _value; break;
+						case obPayment: ((CcPaymentBlock *)p_item)->Amount = _value; break;
 					}
-				}	
+				}
 				break;
 			case PPHS_SOURCE:
 			case PPHS_DESTINATION:
@@ -2561,6 +2689,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	GoodsCodeList.freeAll();
 	LotBlkList.freeAll();
 	QkBlkList.freeAll();
+	UnitBlkList.freeAll(); // @v9.8.6
 	QuotBlkList.freeAll();
 	PersonBlkList.freeAll();
 	SCardBlkList.freeAll();
@@ -2691,7 +2820,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	Goods2Tbl::Rec parent_rec;
 	BarcodeTbl::Rec ex_bc_rec;
 	PPIDArray pretend_obj_list;
-	if(rBlk.Flags & ObjectBlock::fRefItem) {
+	if(rBlk.Flags_ & ObjectBlock::fRefItem) {
 		//
 		// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
 		//
@@ -2916,7 +3045,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 							assert(type_qk == obQuotKind);
 							if(p_qk_item->NativeID) {
 								const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
-								quot_list.SetQuot(qi, r_qb.Value, r_qb.Flags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
+								quot_list.SetQuot(qi, r_qb.Value, r_qb.QuotFlags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
 							}
 						}
 					}
@@ -3043,12 +3172,18 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	SString temp_buf;
 	SString code_buf;
 	SString name_buf;
+	SString symb_buf;
 	SString wait_msg_buf;
 	PPIDArray temp_id_list;
 	PPIDArray pretend_obj_list; // Список ид объектов, которые соответствуют импортируемому
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
+	
+	PPID   def_unit_id = GObj.GetConfig().DefUnitID;
+	PPID   def_parent_id = GObj.GetConfig().DefGroupID;
+	SString def_unit_name;
+
 	if(!silent)
 		PPWait(1);
 	if(posNodeID) {
@@ -3095,7 +3230,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		for(uint phase = 0; phase < 2; phase++) {
 			for(uint i = 0; i < __count; i++) {
 				QuotKindBlock & r_blk = RdB.QkBlkList.at(i);
-				if(((phase > 0) || !(r_blk.Flags & r_blk.fRefItem)) && !r_blk.NativeID) {
+				if(((phase > 0) || !(r_blk.Flags_ & r_blk.fRefItem)) && !r_blk.NativeID) {
 					PPID   native_id = 0;
 					PPQuotKind qk_rec;
 					//uint   ref_pos = 0;
@@ -3144,6 +3279,79 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				}
 				PPWaitPercent((phase * __count) + i+1, __count * 2, wait_msg_buf);
 			}
+		}
+	}
+	{
+		PPUnit u_rec;
+		if(def_unit_id && u_obj.Search(def_unit_id, &u_rec) > 0) {
+			; // @ok
+		}
+		else {
+			long   def_counter = 0;
+			def_unit_id = 0;
+			def_unit_name = "default";
+			while(!def_parent_id && u_obj.SearchByName(def_unit_name, 0, &u_rec) > 0) {
+				if(u_rec.Flags & PPUnit::Trade) {
+					def_unit_id = u_rec.ID;
+				}
+				else
+					(def_unit_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
+			}
+		}
+		//
+		// Акцепт единиц измерения
+		//
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			const uint __count = RdB.UnitBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
+				UnitBlock & r_blk = RdB.UnitBlkList.at(i);
+				if(!(r_blk.Flags_ & r_blk.fRefItem)) {
+					PPUnit unit_rec;
+					MEMSZERO(unit_rec);
+					RdB.GetS(r_blk.NameP, name_buf);
+					name_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(name_buf.NotEmptyS()) {
+						PPID   native_id = 0;
+						RdB.GetS(r_blk.SymbP, symb_buf);
+						symb_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						RdB.GetS(r_blk.CodeP, code_buf);
+						code_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						STRNSCPY(unit_rec.Name, name_buf);
+						STRNSCPY(unit_rec.Abbr, symb_buf);
+						STRNSCPY(unit_rec.Code, code_buf);
+						SETFLAGBYSAMPLE(unit_rec.Flags, r_blk.UnitFlags, PPUnit::Physical);
+						if(r_blk.ID > 0 && r_blk.ID < 1000) {
+							unit_rec.ID = r_blk.ID;
+							native_id = r_blk.ID;
+							if(u_obj.Search(native_id, &u_rec) > 0) {
+								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
+								THROW(r);
+							}
+							else {
+								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec.ID, 0));
+							}
+						}
+						else {
+							PPID   temp_id = 0;
+							if(u_obj.SearchByName(unit_rec.Name, &native_id, &u_rec) > 0) {
+								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, native_id, &unit_rec, 1, 0);
+								THROW(r);
+							}
+							else {
+								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec.ID, 0));
+							}
+							if(unit_rec.Abbr[0] && u_obj.SearchBySymb(unit_rec.Abbr, &temp_id, &u_rec) > 0 && temp_id != native_id) {
+								u_rec.Abbr[0] = 0;
+								int r = u_obj.ref->UpdateItem(PPOBJ_UNIT, temp_id, &u_rec, 1, 0);
+							}
+						}
+						r_blk.NativeID = native_id;
+					}
+				}
+			}
+			THROW(tra.Commit());
 		}
 	}
 	{
@@ -3197,26 +3405,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		PPGoodsPacket goods_pack;
 		PPQuotArray quot_list;
 		Goods2Tbl::Rec parent_rec;
-		PPUnit u_rec;
 		SString def_parent_name;
-		SString def_unit_name;
-		PPID   def_parent_id = GObj.GetConfig().DefGroupID;
-		PPID   def_unit_id = GObj.GetConfig().DefUnitID;
-		if(def_unit_id && u_obj.Search(def_unit_id, &u_rec) > 0) {
-			; // @ok
-		}
-		else {
-			long   def_counter = 0;
-			def_unit_id = 0;
-			def_unit_name = "default";
-			while(!def_parent_id && u_obj.SearchByName(def_unit_name, 0, &u_rec) > 0) {
-				if(u_rec.Flags & PPUnit::Trade) {
-					def_unit_id = u_rec.ID;
-				}
-				else
-					(def_unit_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
-			}
-		}
 		if(def_parent_id && GgObj.Search(def_parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 			; // @ok
 		}
@@ -3336,7 +3525,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				SCardBlock & r_blk = RdB.SCardBlkList.at(i);
 				//uint   ref_pos = 0;
 				// (very slow) THROW_PP(RdB.SearchRef(obSCard, i, &ref_pos), PPERR_PPPP_INNERREFNF_SC);
-				if(r_blk.Flags & ObjectBlock::fRefItem) {
+				if(r_blk.Flags_ & ObjectBlock::fRefItem) {
 					//
 					// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
 					//

@@ -438,10 +438,9 @@ __again:
 	return r;
 }
 
-int SLAPI BExtQuery::setMaxReject(uint maxRej)
+void SLAPI BExtQuery::setMaxReject(uint maxRej)
 {
 	MaxReject = (uint16)maxRej;
-	return 1;
 }
 
 BExtQuery & SLAPI BExtQuery::selectAll()
@@ -473,13 +472,12 @@ int SLAPI BExtQuery::addField(const DBField & rFld)
 	return Fields.Add(rFld);
 }
 
-int FASTCALL BExtQuery::where(DBQ & q)
+void FASTCALL BExtQuery::where(DBQ & q)
 {
 	if(&q) {
 		P_Restrict = &q;
 		P_Tree = P_Restrict->tree;
 	}
-	return 1;
 }
 
 inline uint FASTCALL sizeofterm(BExtTerm * term)
@@ -487,6 +485,7 @@ inline uint FASTCALL sizeofterm(BExtTerm * term)
 	return (sizeof(BExtTerm) + term->fldLen);
 }
 
+/* @v9.8.6 (inlined)
 BExtTerm * SLAPI BExtQuery::get_term(int n)
 {
 	int    i;
@@ -497,10 +496,11 @@ BExtTerm * SLAPI BExtQuery::get_term(int n)
 			p_term = (BExtTerm *)(((char *)p_term) + sizeofterm(p_term));
 	return p_term;
 }
+*/
 
 int FASTCALL _invertComp(int cmp);
 
-int SLAPI BExtQuery::add_term(int link, int n)
+int FASTCALL BExtQuery::add_term(int link, int n)
 {
 	uint16 sz = 0;
 	int    cmp;
@@ -519,16 +519,32 @@ int SLAPI BExtQuery::add_term(int link, int n)
 		t.left.getValue(fld->T, val);
 	}
 	sz = (uint16)fld->size();
-	if((P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz)) != 0) {
+	P_QBuf = (char *)SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz);
+	if(P_QBuf) {
 		BExtTerm * p_term = (BExtTerm *)(P_QBuf + P_QHead->bufLen);
 		p_term->fldType = SLib2BtrType(GETSTYPE(fld->T));
 		p_term->fldLen  = sz;
 		p_term->fldOfs  = (uint16)fld->Offs;
-		p_term->cmp     = cmp;
+		p_term->cmp     = SlToBeqOp(cmp);
 		p_term->link    = 0;
 		memcpy(p_term+1, val, sz);
-		if((p_term = get_term(P_QHead->numTerms-1)) != 0)
+		/*
+		p_term = get_term(P_QHead->numTerms-1);
+		if(p_term)
 			p_term->link = link;
+		*/
+		//BExtTerm * SLAPI BExtQuery::get_term(int n)
+		if(P_QHead->numTerms > 0) {
+			const  uint _n = (P_QHead->numTerms-1);
+			BExtHeader * p_h = (BExtHeader *)P_QBuf;
+			if(p_h && _n < p_h->numTerms) {
+				p_term = (BExtTerm *)(p_h+1);
+				for(uint i = 0; i < _n; i++) {
+					p_term = (BExtTerm *)(PTR8(p_term) + sizeofterm(p_term));
+				}
+				p_term->link = SlToBeqLink(link);
+			}
+		}
 		P_QHead->numTerms++;
 		P_QHead->bufLen += (sizeof(BExtTerm) + sz);
 		return 1;
@@ -537,15 +553,21 @@ int SLAPI BExtQuery::add_term(int link, int n)
 		return (BtrError = BE_NOMEM, 0);
 }
 
-int SLAPI BExtQuery::add_tree(int link, int n)
+int FASTCALL BExtQuery::add_tree(int link, int n)
 {
-	DBTree::T * t;
-	if(P_Restrict && P_Tree)
-		if((t = & P_Tree->P_Items[n])->link == 0)
-			return add_term(link, t->term);
-		else
-			return (add_tree(link, t->left) && add_tree(t->link, t->right));
-	return 1;
+	int    ok = 1;
+	if(P_Restrict && P_Tree) {
+		const DBTree::T * t = &P_Tree->P_Items[n];
+		if(t->link == 0) {
+			ok = add_term(link, t->term);
+		}
+		else {
+			ok = add_tree(link, t->left); // @recursion
+			if(ok)
+				ok = add_tree(t->link, t->right); // @recursion
+		}
+	}
+	return ok;
 }
 
 char * SLAPI BExtQuery::getRecImage()

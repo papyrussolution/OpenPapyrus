@@ -393,79 +393,50 @@ static cairo_status_t _cairo_ps_surface_emit_type1_font_subset(cairo_ps_surface_
 		return status;
 
 	/* FIXME: Figure out document structure convention for fonts */
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%% _cairo_ps_surface_emit_type1_font_subset\n");
+	_cairo_output_stream_printf(surface->final_stream, "%% _cairo_ps_surface_emit_type1_font_subset\n");
 #endif
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginResource: font %s\n",
-	    subset.base_font);
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginResource: font %s\n", subset.base_font);
 	length = subset.header_length + subset.data_length + subset.trailer_length;
 	_cairo_output_stream_write(surface->final_stream, subset.data, length);
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndResource\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndResource\n");
 	_cairo_type1_subset_fini(&subset);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_type1_font_fallback(cairo_ps_surface_t          * surface,
-    cairo_scaled_font_subset_t  * font_subset)
+static cairo_status_t _cairo_ps_surface_emit_type1_font_fallback(cairo_ps_surface_t * surface, cairo_scaled_font_subset_t  * font_subset)
 {
 	cairo_type1_subset_t subset;
 	cairo_status_t status;
 	int length;
 	char name[64];
-
-	snprintf(name, sizeof name, "f-%d-%d",
-	    font_subset->font_id, font_subset->subset_id);
+	snprintf(name, sizeof name, "f-%d-%d", font_subset->font_id, font_subset->subset_id);
 	status = _cairo_type1_fallback_init_hex(&subset, name, font_subset);
 	if(unlikely(status))
 		return status;
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%% _cairo_ps_surface_emit_type1_font_fallback\n");
+	_cairo_output_stream_printf(surface->final_stream, "%% _cairo_ps_surface_emit_type1_font_fallback\n");
 #endif
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginResource: font %s\n",
-	    subset.base_font);
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginResource: font %s\n", subset.base_font);
 	length = subset.header_length + subset.data_length + subset.trailer_length;
 	_cairo_output_stream_write(surface->final_stream, subset.data, length);
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndResource\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndResource\n");
 	_cairo_type1_fallback_fini(&subset);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surface_t         * surface,
-    cairo_scaled_font_subset_t * font_subset)
-
+static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surface_t * surface, cairo_scaled_font_subset_t * font_subset)
 {
 	cairo_truetype_subset_t subset;
-	cairo_status_t status;
 	uint i, begin, end;
-
-	status = _cairo_truetype_subset_init_ps(&subset, font_subset);
+	cairo_status_t status = _cairo_truetype_subset_init_ps(&subset, font_subset);
 	if(unlikely(status))
 		return status;
-
 	/* FIXME: Figure out document structure convention for fonts */
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%% _cairo_ps_surface_emit_truetype_font_subset\n");
+	_cairo_output_stream_printf(surface->final_stream, "%% _cairo_ps_surface_emit_truetype_font_subset\n");
 #endif
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginResource: font %s\n",
-	    subset.ps_name);
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginResource: font %s\n", subset.ps_name);
 	_cairo_output_stream_printf(surface->final_stream,
 	    "11 dict begin\n"
 	    "/FontType 42 def\n"
@@ -582,9 +553,7 @@ static cairo_int_status_t _cairo_ps_emit_imagemask(cairo_image_surface_t * image
 	    image->width,
 	    -image->height,
 	    image->height);
-
-	_cairo_output_stream_printf(stream,
-	    "   /DataSource {<\n   ");
+	_cairo_output_stream_printf(stream, "   /DataSource {<\n   ");
 	for(row = image->data, rows = image->height; rows; row += image->stride, rows--) {
 		for(byte = row, cols = (image->width + 7) / 8; cols; byte++, cols--) {
 			uint8_t output_byte = (uint8_t)CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte);
@@ -593,42 +562,28 @@ static cairo_int_status_t _cairo_ps_emit_imagemask(cairo_image_surface_t * image
 		_cairo_output_stream_printf(stream, "\n   ");
 	}
 	_cairo_output_stream_printf(stream, ">}\n>>\n");
-
-	_cairo_output_stream_printf(stream,
-	    "imagemask\n");
-
+	_cairo_output_stream_printf(stream, "imagemask\n");
 	return _cairo_output_stream_get_status(stream);
 }
 
-static cairo_int_status_t _cairo_ps_surface_analyze_user_font_subset(cairo_scaled_font_subset_t * font_subset,
-    void * closure)
+static cairo_int_status_t _cairo_ps_surface_analyze_user_font_subset(cairo_scaled_font_subset_t * font_subset, void * closure)
 {
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)closure;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	uint i;
-	cairo_surface_t * type3_surface;
-
-	type3_surface = _cairo_type3_glyph_surface_create(font_subset->scaled_font,
-	    NULL,
-	    _cairo_ps_emit_imagemask,
-	    surface->font_subsets,
-	    TRUE);
-
+	cairo_surface_t * type3_surface = _cairo_type3_glyph_surface_create(font_subset->scaled_font, NULL,
+	    _cairo_ps_emit_imagemask, surface->font_subsets, TRUE);
 	for(i = 0; i < font_subset->num_glyphs; i++) {
-		status = _cairo_type3_glyph_surface_analyze_glyph(type3_surface,
-		    font_subset->glyphs[i]);
+		status = _cairo_type3_glyph_surface_analyze_glyph(type3_surface, font_subset->glyphs[i]);
 		if(unlikely(status))
 			break;
 	}
 	cairo_surface_finish(type3_surface);
 	cairo_surface_destroy(type3_surface);
-
 	return status;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_t            * surface,
-    cairo_scaled_font_subset_t    * font_subset)
-
+static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_t * surface, cairo_scaled_font_subset_t    * font_subset)
 {
 	cairo_status_t status;
 	uint i;
@@ -636,17 +591,12 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 	cairo_box_t bbox = {{0, 0}, {0, 0}};
 	cairo_surface_t * type3_surface;
 	double width;
-
 	if(font_subset->num_glyphs == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%% _cairo_ps_surface_emit_type3_font_subset\n");
+	_cairo_output_stream_printf(surface->final_stream, "%% _cairo_ps_surface_emit_type3_font_subset\n");
 #endif
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginResource: font\n");
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginResource: font\n");
 	_cairo_output_stream_printf(surface->final_stream,
 	    "8 dict begin\n"
 	    "/FontType 3 def\n"
@@ -1024,21 +974,13 @@ CLEANUP:
  *
  * Since: 1.2
  **/
-cairo_surface_t * cairo_ps_surface_create(const char             * filename,
-    double width_in_points,
-    double height_in_points)
+cairo_surface_t * cairo_ps_surface_create(const char * filename, double width_in_points, double height_in_points)
 {
-	cairo_output_stream_t * stream;
-
-	stream = _cairo_output_stream_create_for_filename(filename);
+	cairo_output_stream_t * stream = _cairo_output_stream_create_for_filename(filename);
 	if(_cairo_output_stream_get_status(stream))
 		return _cairo_surface_create_in_error(_cairo_output_stream_destroy(stream));
-
-	return _cairo_ps_surface_create_for_stream_internal(stream,
-	    width_in_points,
-	    height_in_points);
+	return _cairo_ps_surface_create_for_stream_internal(stream, width_in_points, height_in_points);
 }
-
 /**
  * cairo_ps_surface_create_for_stream:
  * @write_func: a #cairo_write_func_t to accept the output data, may be %NULL
@@ -1068,19 +1010,12 @@ cairo_surface_t * cairo_ps_surface_create(const char             * filename,
  * Since: 1.2
  **/
 cairo_surface_t * cairo_ps_surface_create_for_stream(cairo_write_func_t write_func,
-    void * closure,
-    double width_in_points,
-    double height_in_points)
+    void * closure, double width_in_points, double height_in_points)
 {
-	cairo_output_stream_t * stream;
-
-	stream = _cairo_output_stream_create(write_func, NULL, closure);
+	cairo_output_stream_t * stream = _cairo_output_stream_create(write_func, NULL, closure);
 	if(_cairo_output_stream_get_status(stream))
 		return _cairo_surface_create_in_error(_cairo_output_stream_destroy(stream));
-
-	return _cairo_ps_surface_create_for_stream_internal(stream,
-	    width_in_points,
-	    height_in_points);
+	return _cairo_ps_surface_create_for_stream_internal(stream, width_in_points, height_in_points);
 }
 
 static cairo_bool_t _cairo_surface_is_ps(cairo_surface_t * surface)
@@ -1092,28 +1027,21 @@ static cairo_bool_t _cairo_surface_is_ps(cairo_surface_t * surface)
  * surface's target is a ps_surface, then set ps_surface to that
  * target. Otherwise return FALSE.
  */
-static cairo_bool_t _extract_ps_surface(cairo_surface_t     * surface,
-    cairo_bool_t set_error_on_failure,
-    cairo_ps_surface_t ** ps_surface)
+static cairo_bool_t _extract_ps_surface(cairo_surface_t * surface, cairo_bool_t set_error_on_failure, cairo_ps_surface_t ** ps_surface)
 {
 	cairo_surface_t * target;
-
 	if(surface->status)
 		return FALSE;
 	if(surface->finished) {
 		if(set_error_on_failure)
-			_cairo_surface_set_error(surface,
-			    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+			_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return FALSE;
 	}
-
 	if(!_cairo_surface_is_paginated(surface)) {
 		if(set_error_on_failure)
-			_cairo_surface_set_error(surface,
-			    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+			_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return FALSE;
 	}
-
 	target = _cairo_paginated_surface_get_target(surface);
 	if(target->status) {
 		if(set_error_on_failure)
@@ -1122,18 +1050,14 @@ static cairo_bool_t _extract_ps_surface(cairo_surface_t     * surface,
 	}
 	if(target->finished) {
 		if(set_error_on_failure)
-			_cairo_surface_set_error(surface,
-			    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+			_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return FALSE;
 	}
-
 	if(!_cairo_surface_is_ps(target)) {
 		if(set_error_on_failure)
-			_cairo_surface_set_error(surface,
-			    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+			_cairo_surface_set_error(surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return FALSE;
 	}
-
 	*ps_surface = (cairo_ps_surface_t*)target;
 	return TRUE;
 }
@@ -1154,18 +1078,14 @@ static cairo_bool_t _extract_ps_surface(cairo_surface_t     * surface,
  *
  * Since: 1.6
  **/
-void cairo_ps_surface_restrict_to_level(cairo_surface_t  * surface,
-    cairo_ps_level_t level)
+void cairo_ps_surface_restrict_to_level(cairo_surface_t  * surface, cairo_ps_level_t level)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
-
 	if(!_extract_ps_surface(surface, TRUE, &ps_surface))
 		return;
-
 	if(level < CAIRO_PS_LEVEL_LAST)
 		ps_surface->ps_level = level;
 }
-
 /**
  * cairo_ps_get_levels:
  * @levels: supported level list
@@ -1176,16 +1096,13 @@ void cairo_ps_surface_restrict_to_level(cairo_surface_t  * surface,
  *
  * Since: 1.6
  **/
-void cairo_ps_get_levels(cairo_ps_level_t const     ** levels,
-    int                         * num_levels)
+void cairo_ps_get_levels(cairo_ps_level_t const ** levels, int * num_levels)
 {
 	if(levels != NULL)
 		*levels = _cairo_ps_levels;
-
 	if(num_levels != NULL)
 		*num_levels = CAIRO_PS_LEVEL_LAST;
 }
-
 /**
  * cairo_ps_level_to_string:
  * @level: a level id
@@ -1222,14 +1139,11 @@ const char * cairo_ps_level_to_string(cairo_ps_level_t level)
  *
  * Since: 1.6
  **/
-void cairo_ps_surface_set_eps(cairo_surface_t       * surface,
-    cairo_bool_t eps)
+void cairo_ps_surface_set_eps(cairo_surface_t * surface, cairo_bool_t eps)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
-
 	if(!_extract_ps_surface(surface, TRUE, &ps_surface))
 		return;
-
 	ps_surface->eps = eps;
 }
 
@@ -1243,13 +1157,11 @@ void cairo_ps_surface_set_eps(cairo_surface_t       * surface,
  *
  * Since: 1.6
  **/
-cairo_public cairo_bool_t cairo_ps_surface_get_eps(cairo_surface_t       * surface)
+cairo_public cairo_bool_t cairo_ps_surface_get_eps(cairo_surface_t * surface)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
-
 	if(!_extract_ps_surface(surface, FALSE, &ps_surface))
 		return FALSE;
-
 	return ps_surface->eps;
 }
 
@@ -1422,10 +1334,8 @@ void cairo_ps_surface_dsc_comment(cairo_surface_t   * surface, const char * comm
 void cairo_ps_surface_dsc_begin_setup(cairo_surface_t * surface)
 {
 	cairo_ps_surface_t * ps_surface = NULL;
-
 	if(!_extract_ps_surface(surface, TRUE, &ps_surface))
 		return;
-
 	if(ps_surface->dsc_comment_target == &ps_surface->dsc_header_comments)
 		ps_surface->dsc_comment_target = &ps_surface->dsc_setup_comments;
 }

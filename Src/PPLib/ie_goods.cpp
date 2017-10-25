@@ -1727,7 +1727,7 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 						PPLoadString("munit_liter", val_buf);
 						phperu /= 1000L;
 					}
-					THROW(UnitObj.AddSimple(&pPack->Rec.PhUnitID, val_buf, PPUnit::Trade | PPUnit::Phisical, 0));
+					THROW(UnitObj.AddSimple(&pPack->Rec.PhUnitID, val_buf, PPUnit::Trade|PPUnit::Physical, 0));
 				}
 				else
 					pPack->Rec.PhUnitID = defPhUnitID;
