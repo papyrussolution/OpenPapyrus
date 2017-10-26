@@ -38,7 +38,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-surface-snapshot-inline.h"
 
 static cairo_status_t _cairo_surface_snapshot_finish(void * abstract_surface)
@@ -232,30 +232,19 @@ cairo_surface_t * _cairo_surface_snapshot(cairo_surface_t * surface)
 	snapshot = (cairo_surface_snapshot_t *)SAlloc::M(sizeof(cairo_surface_snapshot_t));
 	if(unlikely(snapshot == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
-
-	_cairo_surface_init(&snapshot->base,
-	    &_cairo_surface_snapshot_backend,
-	    NULL,              /* device */
-	    surface->content);
+	_cairo_surface_init(&snapshot->base, &_cairo_surface_snapshot_backend, NULL/* device */, surface->content);
 	snapshot->base.type = surface->type;
-
 	CAIRO_MUTEX_INIT(snapshot->mutex);
 	snapshot->target = surface;
 	snapshot->clone = NULL;
-
 	status = _cairo_surface_copy_mime_data(&snapshot->base, surface);
 	if(unlikely(status)) {
 		cairo_surface_destroy(&snapshot->base);
 		return _cairo_surface_create_in_error(status);
 	}
-
 	snapshot->base.device_transform = surface->device_transform;
 	snapshot->base.device_transform_inverse = surface->device_transform_inverse;
-
-	_cairo_surface_attach_snapshot(surface,
-	    &snapshot->base,
-	    _cairo_surface_snapshot_copy_on_write);
-
+	_cairo_surface_attach_snapshot(surface, &snapshot->base, _cairo_surface_snapshot_copy_on_write);
 	return &snapshot->base;
 }
 

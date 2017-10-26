@@ -36,8 +36,8 @@
 #ifndef CAIRO_BACKEND_PRIVATE_H
 #define CAIRO_BACKEND_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-private.h"
 
 typedef enum _cairo_backend_type {
 	CAIRO_TYPE_DEFAULT,

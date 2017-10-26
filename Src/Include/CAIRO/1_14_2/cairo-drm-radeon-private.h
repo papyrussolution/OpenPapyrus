@@ -30,8 +30,8 @@
 #ifndef CAIRO_DRM_RADEON_PRIVATE_H
 #define CAIRO_DRM_RADEON_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
 #include "cairo-drm-private.h"
 //#include "cairo-freelist-private.h"
 

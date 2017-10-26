@@ -36,7 +36,7 @@
 #ifndef CAIRO_ARC_PRIVATE_H
 #define CAIRO_ARC_PRIVATE_H
 
-#include "cairoint.h"
+//#include "cairoint.h"
 
 CAIRO_BEGIN_DECLS
 

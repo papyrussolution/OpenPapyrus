@@ -39,9 +39,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
 //#include "cairo-surface-backend-private.h"
 

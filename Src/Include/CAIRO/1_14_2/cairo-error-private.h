@@ -38,11 +38,10 @@
 #ifndef _CAIRO_ERROR_PRIVATE_H_
 #define _CAIRO_ERROR_PRIVATE_H_
 
-#include "cairo.h"
-#include "cairo-compiler-private.h"
-#include "cairo-types-private.h"
-
-#include <assert.h>
+//#include "cairo.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
+//#include <assert.h>
 
 CAIRO_BEGIN_DECLS
 

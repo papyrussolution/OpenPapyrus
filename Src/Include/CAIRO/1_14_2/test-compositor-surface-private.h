@@ -38,16 +38,12 @@
 
 #include "cairo.h"
 #include "test-compositor-surface.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
 #include "cairo-compositor-private.h"
 
 CAIRO_BEGIN_DECLS
 
-cairo_private cairo_surface_t *
-test_compositor_surface_create (const cairo_compositor_t *compositor,
-				cairo_content_t	content,
-				int		width,
-				int		height);
+cairo_private cairo_surface_t * test_compositor_surface_create(const cairo_compositor_t * compositor, cairo_content_t content, int width, int height);
 
 CAIRO_END_DECLS
 

@@ -61,7 +61,7 @@ cairo_private void FASTCALL _cairo_boxes_init(cairo_boxes_t * boxes);
 cairo_private void FASTCALL _cairo_boxes_init_with_clip(cairo_boxes_t * boxes, cairo_clip_t * clip);
 cairo_private void _cairo_boxes_init_for_array(cairo_boxes_t * boxes, cairo_box_t * array, int num_boxes);
 cairo_private void _cairo_boxes_init_from_rectangle(cairo_boxes_t * boxes, int x, int y, int w, int h);
-cairo_private void _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t   * limits, int num_limits);
+cairo_private void FASTCALL _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t   * limits, int num_limits);
 cairo_private cairo_status_t _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antialias, const cairo_box_t * box);
 cairo_private void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box);
 cairo_private cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes, cairo_bool_t force_allocation);

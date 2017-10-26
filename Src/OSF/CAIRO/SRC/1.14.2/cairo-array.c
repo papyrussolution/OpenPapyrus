@@ -319,7 +319,7 @@ void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array)
  * Destroys all current keys in the user data array and deallocates
  * any memory allocated for the array itself.
  **/
-void _cairo_user_data_array_fini(cairo_user_data_array_t * array)
+void FASTCALL _cairo_user_data_array_fini(cairo_user_data_array_t * array)
 {
 	uint num_slots = array->num_elements;
 	if(num_slots) {

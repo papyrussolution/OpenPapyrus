@@ -67,7 +67,7 @@
  * coordinates to device-space coordinates. See cairo_get_matrix() and
  * cairo_set_matrix().
  **/
-static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar);
+static void FASTCALL _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar);
 static void FASTCALL _cairo_matrix_compute_adjoint(cairo_matrix_t * matrix);
 /**
  * cairo_matrix_init_identity:
@@ -478,7 +478,7 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 	}
 }
 
-cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
+cairo_private void FASTCALL _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix_t * matrix, cairo_box_t * bbox, cairo_bool_t * is_tight)
 {
 	double x1, y1, x2, y2;
 	_cairo_box_to_doubles(bbox, &x1, &y1, &x2, &y2);
@@ -486,7 +486,7 @@ cairo_private void _cairo_matrix_transform_bounding_box_fixed(const cairo_matrix
 	_cairo_box_from_doubles(bbox, &x1, &y1, &x2, &y2);
 }
 
-static void _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar)
+static void FASTCALL _cairo_matrix_scalar_multiply(cairo_matrix_t * matrix, double scalar)
 {
 	matrix->xx *= scalar;
 	matrix->yx *= scalar;

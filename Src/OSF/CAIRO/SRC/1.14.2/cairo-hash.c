@@ -152,7 +152,7 @@ static cairo_bool_t _cairo_hash_table_uid_keys_equal(const void * key_a, const v
  *
  * Return value: the new hash table or %NULL if out of memory.
  **/
-cairo_hash_table_t * _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
+cairo_hash_table_t * FASTCALL _cairo_hash_table_create(cairo_hash_keys_equal_func_t keys_equal)
 {
 	cairo_hash_table_t * hash_table = (cairo_hash_table_t *)SAlloc::M(sizeof(cairo_hash_table_t));
 	if(unlikely(hash_table == NULL)) {
@@ -238,7 +238,7 @@ static cairo_hash_entry_t ** FASTCALL _cairo_hash_table_lookup_unique_key(cairo_
  * Return value: %CAIRO_STATUS_SUCCESS if successful or
  * %CAIRO_STATUS_NO_MEMORY if out of memory.
  **/
-static cairo_status_t _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
+static cairo_status_t FASTCALL _cairo_hash_table_manage(cairo_hash_table_t * hash_table)
 {
 	ulong i;
 	// Keep between 12.5% and 50% entries in the hash table alive and at least 25% free. 
@@ -347,7 +347,7 @@ insert_cache:
  * that match the given predicate. In particular, if predicate is
  * %NULL, a %NULL return value indicates that the table is empty.
  **/
-void * _cairo_hash_table_random_entry(cairo_hash_table_t * hash_table, cairo_hash_predicate_func_t predicate)
+void * FASTCALL _cairo_hash_table_random_entry(cairo_hash_table_t * hash_table, cairo_hash_predicate_func_t predicate)
 {
 	cairo_hash_entry_t * entry;
 	ulong hash;

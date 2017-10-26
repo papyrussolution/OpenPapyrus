@@ -28,7 +28,7 @@
 #ifndef CAIRO_DRM_INTEL_COMMAND_PRIVATE_H
 #define CAIRO_DRM_INTEL_COMMAND_PRIVATE_H
 
-#include "cairo-types-private.h"
+//#include "cairo-types-private.h"
 
 #define CMD_MI				(0x0 << 29)
 #define CMD_misc			(0x1 << 29)

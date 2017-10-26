@@ -38,10 +38,9 @@
 
 #include "cairo.h"
 #include "cairo-script.h"
-
-#include "cairo-compiler-private.h"
-#include "cairo-output-stream-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-output-stream-private.h"
+//#include "cairo-types-private.h"
 
 CAIRO_BEGIN_DECLS
 

@@ -38,7 +38,7 @@
 #ifndef CAIRO_COMPILER_PRIVATE_H
 #define CAIRO_COMPILER_PRIVATE_H
 
-#include "cairo.h"
+//#include "cairo.h"
 
 #if HAVE_CONFIG_H
 	#include "config.h"
@@ -113,19 +113,16 @@
 
 /* slim_internal.h */
 #define CAIRO_HAS_HIDDEN_SYMBOLS 1
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && \
-    (defined(__ELF__) || defined(__APPLE__)) &&			\
-    !defined(__sun)
-#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
+#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && (defined(__ELF__) || defined(__APPLE__)) && !defined(__sun)
+	#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
 #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
-#define cairo_private_no_warn	__hidden
+	#define cairo_private_no_warn	__hidden
 #else /* not gcc >= 3.3 and not Sun Studio >= 8 */
-#define cairo_private_no_warn
-#undef CAIRO_HAS_HIDDEN_SYMBOLS
+	#define cairo_private_no_warn
+	#undef CAIRO_HAS_HIDDEN_SYMBOLS
 #endif
-
 #ifndef WARN_UNUSED_RESULT
-#define WARN_UNUSED_RESULT
+	#define WARN_UNUSED_RESULT
 #endif
 /* Add attribute(warn_unused_result) if supported */
 #define cairo_warn	    WARN_UNUSED_RESULT
@@ -143,14 +140,10 @@
    function.
 */
 #if __GNUC__ >= 2 && defined(__ELF__)
-# define CAIRO_FUNCTION_ALIAS(old, new)		\
-	extern __typeof (new) old		\
-	__asm__ ("" #old)			\
-	__attribute__((__alias__("" #new)))
+	#define CAIRO_FUNCTION_ALIAS(old, new) extern __typeof (new) old __asm__ ("" #old) __attribute__((__alias__("" #new)))
 #else
-# define CAIRO_FUNCTION_ALIAS(old, new)
+	#define CAIRO_FUNCTION_ALIAS(old, new)
 #endif
-
 /*
  * Cairo uses the following function attributes in order to improve the
  * generated code (effectively by manual inter-procedural analysis).

@@ -35,7 +35,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-clip-inline.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 
 /* A collection of routines to facilitate vector surface clipping */
 
@@ -93,7 +93,7 @@ static cairo_status_t _cairo_surface_clipper_intersect_clip_path_recursive(cairo
 	    clip_path->tolerance, clip_path->antialias);
 }
 
-cairo_status_t _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip)
+cairo_status_t FASTCALL _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
 	cairo_bool_t incremental = FALSE;

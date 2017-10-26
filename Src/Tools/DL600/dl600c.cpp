@@ -997,7 +997,7 @@ int SLAPI DlContext::Write_DialogReverse()
 	char   c_buf[1024]; // Буфер для извлечения констант
 	SFile f_out(out_file_name, SFile::mWrite);
 	SString line_buf, temp_buf, text_buf, cmd_buf, type_buf;
-	IntArray scope_id_list;
+	LongArray scope_id_list;
 	StrAssocArray prop_list;
 	SdbField ctrl, ctrl_item;
 	THROW_SL(f_out.IsValid());
@@ -1846,7 +1846,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 	return ok;
 }
 
-int SLAPI DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const IntArray & rCvtPosList) const
+int SLAPI DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const
 {
 	int    ok = 1;
 	for(uint i = 0; ok && i < rCvtPosList.getCount(); i++) {
@@ -1861,7 +1861,7 @@ int SLAPI DlContext::AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, 
 	return ok;
 }
 
-int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const IntArray & rCvtPosList)
+int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -1915,7 +1915,7 @@ int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, 
 		//
 		// Преобразуем (если необходимо) тип первого аргумента.
 		//
-		IntArray temp_cvt_pos_list;
+		LongArray temp_cvt_pos_list;
 		uint i = rCvtPosList.getCount();
 		do {
 			int pos = rCvtPosList.at(--i);
@@ -1930,11 +1930,11 @@ int SLAPI DlContext::ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, 
 	return ok;
 }
 
-int SLAPI DlContext::IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, IntArray * pCvtArgList)
+int SLAPI DlContext::IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList)
 {
 	EXCEPTVAR(LastError);
 	int    s = 1;
-	IntArray cvt_arg_list;
+	LongArray cvt_arg_list;
 	const  uint arg_count = rFunc.GetArgCount();
 	if(arg_count == pExpr->GetArgCount()) {
 		for(uint j = 0; j < arg_count; j++) {
@@ -1990,7 +1990,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 		GetFuncName(0, pExpr, AddedMsgString);
 	}
 	{
-		IntArray fpl[3]; // func pos list
+		LongArray fpl[3]; // func pos list
 		const DlScope * p_org_scope = GetScope(scopeID);
 		const DlScope * p_scope = p_org_scope;
 		while(ok < 0 && p_scope) {
@@ -2001,8 +2001,8 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 			int    s_[3];
 			memzero(ambig, sizeof(ambig));
 			s_[0] = s_[1] = s_[2] = -1;
-			IntArray func_pos_list;
-			IntArray cvt_arg_list, cvt_al[3];
+			LongArray func_pos_list;
+			LongArray cvt_arg_list, cvt_al[3];
 			p_scope->GetFuncListByName(func_name, &func_pos_list);
 			for(i = 0; i < func_pos_list.getCount(); i++) {
 				THROW_V(p_scope->GetFuncByPos(func_pos_list.at(i), &func), PPERR_DL6_NOFUNCBYPOS);
@@ -3782,7 +3782,7 @@ int SLAPI DlContext::FindImportFile(const char * pFileName, SString & rPath)
 int SLAPI DlContext::Test()
 {
 	SString symb;
-	IntArray scope_id_list;
+	LongArray scope_id_list;
 	Sc.GetChildList(DlScope::kIClass, 1, &scope_id_list);
 	Sc.GetChildList(DlScope::kInterface, 1, &scope_id_list);
 	for(uint i = 0; i < scope_id_list.getCount(); i++) {
@@ -3806,7 +3806,7 @@ int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDa
 	int    ok = 1;
 	char   acs[512];
 	SString msg_buf;
-	IntArray scope_id_list;
+	LongArray scope_id_list;
 	Sc.GetChildList(DlScope::kDbTable, 1, &scope_id_list);
 
 	SString sql_file_name;
@@ -3910,7 +3910,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 #endif
 	if(yyin) {
 		uint   i;
-		IntArray scope_id_list;
+		LongArray scope_id_list;
 		DLSYMBID scope_id = EnterScope(DlScope::kFile, InFileName, 0, 0);
 #ifdef DL600C_RELEASE_DEBUG
 		f_debug.WriteLine((temp_buf = "yyparse before").CR()); // @debug

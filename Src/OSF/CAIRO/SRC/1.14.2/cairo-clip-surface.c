@@ -41,12 +41,12 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-clip-private.h"
-#include "cairo-freed-pool-private.h"
-#include "cairo-gstate-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-freed-pool-private.h"
+//#include "cairo-gstate-private.h"
+//#include "cairo-path-fixed-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-region-private.h"
 
 cairo_status_t _cairo_clip_combine_with_surface(const cairo_clip_t * clip, cairo_surface_t * dst, int dst_x, int dst_y)
 {

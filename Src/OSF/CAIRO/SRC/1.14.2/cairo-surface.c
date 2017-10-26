@@ -45,7 +45,7 @@
 //#include "cairo-list-inline.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-surface-inline.h"
 #include "cairo-tee-surface-private.h"
 
@@ -243,7 +243,7 @@ cairo_content_t cairo_surface_get_content(cairo_surface_t * surface)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_surface_status(cairo_surface_t * surface)
+cairo_status_t FASTCALL cairo_surface_status(cairo_surface_t * surface)
 {
 	return surface->status;
 }
@@ -259,14 +259,12 @@ static uint _cairo_surface_allocate_unique_id(void)
 	return unique_id;
 #else
 	cairo_atomic_int_t old, id;
-
 	do {
 		old = _cairo_atomic_uint_get(&unique_id);
 		id = old + 1;
 		if(id == 0)
 			id = 1;
 	} while(!_cairo_atomic_uint_cmpxchg(&unique_id, old, id));
-
 	return id;
 #endif
 }
@@ -315,7 +313,7 @@ static void FASTCALL _cairo_surface_detach_snapshots(cairo_surface_t * surface)
 	}
 }
 
-void _cairo_surface_detach_snapshot(cairo_surface_t * snapshot)
+void FASTCALL _cairo_surface_detach_snapshot(cairo_surface_t * snapshot)
 {
 	assert(snapshot->snapshot_of);
 	snapshot->snapshot_of = NULL;
@@ -325,8 +323,7 @@ void _cairo_surface_detach_snapshot(cairo_surface_t * snapshot)
 	cairo_surface_destroy(snapshot);
 }
 
-void _cairo_surface_attach_snapshot(cairo_surface_t * surface,
-    cairo_surface_t * snapshot, cairo_surface_func_t detach_func)
+void FASTCALL _cairo_surface_attach_snapshot(cairo_surface_t * surface, cairo_surface_t * snapshot, cairo_surface_func_t detach_func)
 {
 	assert(surface != snapshot);
 	assert(snapshot->snapshot_of != surface);
@@ -776,7 +773,7 @@ cairo_surface_t * _cairo_surface_create_scratch(cairo_surface_t * other, cairo_c
  *
  * Since: 1.0
  **/
-cairo_surface_t * cairo_surface_reference(cairo_surface_t * surface)
+cairo_surface_t * FASTCALL cairo_surface_reference(cairo_surface_t * surface)
 {
 	if(surface == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
 		return surface;
@@ -888,7 +885,7 @@ static void _cairo_surface_finish(cairo_surface_t * surface)
  *
  * Since: 1.0
  **/
-void cairo_surface_finish(cairo_surface_t * surface)
+void FASTCALL cairo_surface_finish(cairo_surface_t * surface)
 {
 	if(surface && !CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count) && !surface->finished) {
 		// We have to be careful when decoupling potential reference cycles 

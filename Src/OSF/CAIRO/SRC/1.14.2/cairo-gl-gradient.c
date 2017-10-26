@@ -186,25 +186,17 @@ static cairo_status_t _cairo_gl_gradient_render(const cairo_gl_context_t    * ct
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static ulong _cairo_gl_gradient_hash(uint n_stops,
-    const cairo_gradient_stop_t  * stops)
+static ulong _cairo_gl_gradient_hash(uint n_stops, const cairo_gradient_stop_t  * stops)
 {
-	return _cairo_hash_bytes(n_stops,
-	    stops,
-	    sizeof(cairo_gradient_stop_t) * n_stops);
+	return _cairo_hash_bytes(n_stops, stops, sizeof(cairo_gradient_stop_t) * n_stops);
 }
 
-static cairo_gl_gradient_t * _cairo_gl_gradient_lookup(cairo_gl_context_t           * ctx,
-    ulong hash,
-    uint n_stops,
-    const cairo_gradient_stop_t  * stops)
+static cairo_gl_gradient_t * _cairo_gl_gradient_lookup(cairo_gl_context_t * ctx, ulong hash, uint n_stops, const cairo_gradient_stop_t  * stops)
 {
 	cairo_gl_gradient_t lookup;
-
 	lookup.cache_entry.hash = hash,
 	lookup.n_stops = n_stops;
 	lookup.stops = stops;
-
 	return _cairo_cache_lookup(&ctx->gradients, &lookup.cache_entry);
 }
 

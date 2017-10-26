@@ -26,10 +26,10 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 //#include "cairo-clip-private.h"
-#include "cairo-fixed-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-fixed-private.h"
+//#include "cairo-types-private.h"
 
 static void _cairo_nil_destroy(void * abstract)
 {

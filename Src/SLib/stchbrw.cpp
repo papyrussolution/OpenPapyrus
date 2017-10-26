@@ -2428,6 +2428,7 @@ int PPViewBrowser::Export()
 int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
 {
 	int    ok = -1;
+#if 0 // @construction {
 	ComExcelApp * p_app = 0;
 	ComExcelWorksheet  * p_sheet  = 0;
 	ComExcelWorksheets * p_sheets = 0;
@@ -2586,6 +2587,7 @@ int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
 	ZDELETE(p_app);
 	if(ok > 0 && fileExists(path))
 		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+#endif // } 0 @construction
 	return ok;
 }
 

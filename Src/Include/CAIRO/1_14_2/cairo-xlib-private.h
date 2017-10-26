@@ -39,12 +39,12 @@
 
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-xlib.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
 //#include "cairo-device-private.h"
-#include "cairo-freelist-type-private.h"
+//#include "cairo-freelist-type-private.h"
 //#include "cairo-list-private.h"
-#include "cairo-reference-count-private.h"
-#include "cairo-types-private.h"
+//#include "cairo-reference-count-private.h"
+//#include "cairo-types-private.h"
 //#include "cairo-scaled-font-private.h"
 //#include "cairo-surface-private.h"
 //#include <pixman.h>

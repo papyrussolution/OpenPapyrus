@@ -42,7 +42,7 @@
 
 #if CAIRO_HAS_TEE_SURFACE // {
 #include "cairo-tee.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-tee-surface-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-surface-wrapper-private.h"

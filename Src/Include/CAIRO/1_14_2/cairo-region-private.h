@@ -39,9 +39,9 @@
 #ifndef CAIRO_REGION_PRIVATE_H
 #define CAIRO_REGION_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-reference-count-private.h"
-#include <pixman.h>
+//#include "cairo-types-private.h"
+//#include "cairo-reference-count-private.h"
+//#include <pixman.h>
 
 CAIRO_BEGIN_DECLS
 

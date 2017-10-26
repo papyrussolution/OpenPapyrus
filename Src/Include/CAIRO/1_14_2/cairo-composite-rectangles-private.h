@@ -37,21 +37,20 @@
 #ifndef CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 #define CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 
-#include "cairo-types-private.h"
-#include "cairo-error-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-error-private.h"
 //#include "cairo-pattern-private.h"
 
 CAIRO_BEGIN_DECLS
-
-/* Rectangles that take part in a composite operation.
- *
- * The source and mask track the extents of the respective patterns in device
- * space. The unbounded rectangle is essentially the clip rectangle. And the
- * intersection of all is the bounded rectangle, which is the minimum extents
- * the operation may require. Whether or not the operation is actually bounded
- * is tracked in the is_bounded boolean.
- *
- */
+// 
+// Rectangles that take part in a composite operation.
+// 
+// The source and mask track the extents of the respective patterns in device
+// space. The unbounded rectangle is essentially the clip rectangle. And the
+// intersection of all is the bounded rectangle, which is the minimum extents
+// the operation may require. Whether or not the operation is actually bounded
+// is tracked in the is_bounded boolean.
+// 
 struct _cairo_composite_rectangles {
 	cairo_surface_t * surface;
 	cairo_operator_t op;

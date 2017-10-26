@@ -35,7 +35,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _BSD_SOURCE /* for snprintf() */
-#include "cairo-output-stream-private.h"
+//#include "cairo-output-stream-private.h"
 //#include "cairo-array-private.h"
 //#include "cairo-compiler-private.h"
 //#include <stdio.h>
@@ -202,14 +202,12 @@ cairo_status_t FASTCALL _cairo_output_stream_destroy(cairo_output_stream_t * str
 	}
 }
 
-void _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length)
+void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length)
 {
-	if(length == 0)
-		return;
-	if(stream->status)
-		return;
-	stream->status = stream->write_func(stream, (const uchar *)data, length);
-	stream->position += length;
+	if(length && stream->status == 0) {
+		stream->status = stream->write_func(stream, (const uchar *)data, length);
+		stream->position += length;
+	}
 }
 
 void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const uchar * data, size_t length)

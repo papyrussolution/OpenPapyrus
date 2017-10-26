@@ -41,15 +41,13 @@
 #ifndef CAIRO_MUTEX_IMPL_PRIVATE_H
 #define CAIRO_MUTEX_IMPL_PRIVATE_H
 
-#include "cairo.h"
-
+//#include "cairo.h"
 #if HAVE_CONFIG_H
 	#include "config.h"
 #endif
 #if HAVE_LOCKDEP
 	#include <lockdep.h>
 #endif
-
 // A fully qualified no-operation statement
 #define CAIRO_MUTEX_IMPL_NOOP	do {/*no-op*/} while (0)
 // And one that evaluates its argument once

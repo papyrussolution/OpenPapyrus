@@ -47,9 +47,9 @@
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 #include "cairo-compositor-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-surface-inline.h"
 #include "cairo-surface-offset-private.h"
 
@@ -328,14 +328,14 @@ static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst,
 	return status;
 }
 
-static cairo_bool_t can_alpha_blend(cairo_win32_display_surface_t * dst)
+static cairo_bool_t FASTCALL can_alpha_blend(cairo_win32_display_surface_t * dst)
 {
 	if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_ALPHABLEND) == 0)
 		return FALSE;
 	return to_win32_device(dst->win32.base.device)->alpha_blend != NULL;
 }
 
-static cairo_status_t draw_boxes(cairo_composite_rectangles_t * composite, cairo_boxes_t * boxes)
+static cairo_status_t FASTCALL draw_boxes(cairo_composite_rectangles_t * composite, cairo_boxes_t * boxes)
 {
 	cairo_win32_display_surface_t * dst = to_win32_display_surface(composite->surface);
 	cairo_operator_t op = composite->op;
@@ -364,9 +364,7 @@ static cairo_status_t draw_boxes(cairo_composite_rectangles_t * composite, cairo
 		}
 		return status;
 	}
-	if(op == CAIRO_OPERATOR_OVER && can_alpha_blend(dst))
-		return alpha_blend_boxes(dst, src, boxes, 255);
-	return CAIRO_INT_STATUS_UNSUPPORTED;
+	return (op == CAIRO_OPERATOR_OVER && can_alpha_blend(dst)) ? alpha_blend_boxes(dst, src, boxes, 255) : CAIRO_INT_STATUS_UNSUPPORTED;
 }
 
 static cairo_status_t opacity_boxes(cairo_composite_rectangles_t * composite, cairo_boxes_t * boxes)

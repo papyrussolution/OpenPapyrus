@@ -47,7 +47,7 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 #include "cairo-scaled-font-subsets-private.h"
-#include "cairo-user-font-private.h"
+//#include "cairo-user-font-private.h"
 
 #define MAX_GLYPHS_PER_SIMPLE_FONT 256
 #define MAX_GLYPHS_PER_COMPOSITE_FONT 65536

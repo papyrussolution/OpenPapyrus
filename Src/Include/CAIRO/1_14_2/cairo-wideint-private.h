@@ -37,10 +37,8 @@
 #ifndef CAIRO_WIDEINT_H
 #define CAIRO_WIDEINT_H
 
-#include "cairo-wideint-type-private.h"
-
-#include "cairo-compiler-private.h"
-
+//#include "cairo-wideint-type-private.h"
+//#include "cairo-compiler-private.h"
 /*
  * 64-bit datatypes.  Two separate implementations, one using
  * built-in 64-bit signed/unsigned types another implemented
@@ -100,7 +98,6 @@ int I        _cairo_int64_cmp(cairo_int64_t a, cairo_int64_t b);
 static inline cairo_uquorem64_t _cairo_uint64_divrem(cairo_uint64_t num, cairo_uint64_t den)
 {
 	cairo_uquorem64_t qr;
-
 	qr.quo = num / den;
 	qr.rem = num % den;
 	return qr;
@@ -113,19 +110,23 @@ static inline cairo_uquorem64_t _cairo_uint64_divrem(cairo_uint64_t num, cairo_u
  * warning: cast from function call of type ‘#cairo_uint64_t’ to
  * non-matching type ‘double’
  */
-static cairo_always_inline cairo_const cairo_uint64_t _cairo_double_to_uint64(double i) {
+static cairo_always_inline cairo_const cairo_uint64_t _cairo_double_to_uint64(double i) 
+{
 	return (cairo_uint64_t)i;
 }
 
-static cairo_always_inline cairo_const double _cairo_uint64_to_double(cairo_uint64_t i) {
+static cairo_always_inline cairo_const double _cairo_uint64_to_double(cairo_uint64_t i) 
+{
 	return (double)i;
 }
 
-static cairo_always_inline cairo_int64_t I _cairo_double_to_int64(double i) {
+static cairo_always_inline cairo_int64_t I _cairo_double_to_int64(double i) 
+{
 	return (cairo_uint64_t)i;
 }
 
-static cairo_always_inline double I _cairo_int64_to_double(cairo_int64_t i) {
+static cairo_always_inline double I _cairo_int64_to_double(cairo_int64_t i) 
+{
 	return (double)i;
 }
 
@@ -192,7 +193,6 @@ static inline cairo_quorem64_t _cairo_int64_divrem(cairo_int64_t num, cairo_int6
 	int den_neg = _cairo_int64_negative(den);
 	cairo_uquorem64_t uqr;
 	cairo_quorem64_t qr;
-
 	if(num_neg)
 		num = _cairo_int64_negate(num);
 	if(den_neg)
@@ -212,8 +212,7 @@ static inline cairo_quorem64_t _cairo_int64_divrem(cairo_int64_t num, cairo_int6
 static inline int32_t _cairo_int64_32_div(cairo_int64_t num, int32_t den)
 {
 #if !HAVE_UINT64_T
-	return _cairo_int64_to_int32
-		       (_cairo_int64_divrem(num, _cairo_int32_to_int64(den)).quo);
+	return _cairo_int64_to_int32(_cairo_int64_divrem(num, _cairo_int32_to_int64(den)).quo);
 #else
 	return (int32_t)(num / den);
 #endif
@@ -316,14 +315,9 @@ int I       _cairo_int128_cmp(cairo_int128_t a, cairo_int128_t b);
 #endif  /* HAVE_UINT128_T */
 
 cairo_uquorem128_t I _cairo_uint128_divrem(cairo_uint128_t num, cairo_uint128_t den);
-
 cairo_quorem128_t I _cairo_int128_divrem(cairo_int128_t num, cairo_int128_t den);
-
-cairo_uquorem64_t I _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num,
-    cairo_uint64_t den);
-
-cairo_quorem64_t I _cairo_int_96by64_32x64_divrem(cairo_int128_t num,
-    cairo_int64_t den);
+cairo_uquorem64_t I _cairo_uint_96by64_32x64_divrem(cairo_uint128_t num, cairo_uint64_t den);
+cairo_quorem64_t I _cairo_int_96by64_32x64_divrem(cairo_int128_t num, cairo_int64_t den);
 
 #define                 _cairo_uint128_le(a, b)      (!_cairo_uint128_gt(a, b))
 #define                 _cairo_uint128_ne(a, b)      (!_cairo_uint128_eq(a, b))

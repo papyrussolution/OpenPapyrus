@@ -524,7 +524,7 @@ static cairo_status_t _cairo_boxes_intersect_with_box(const cairo_boxes_t * boxe
 		const _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 		_cairo_boxes_clear(out);
 		_cairo_boxes_limit(out, box, 1);
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
 				status = _cairo_boxes_add(out, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
 				if(unlikely(status))

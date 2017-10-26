@@ -33,10 +33,10 @@
 #ifndef CAIRO_LINE_INLINE_H
 #define CAIRO_LINE_INLINE_H
 
-#include "cairo-types-private.h"
-#include "cairo-compiler-private.h"
-#include "cairo-fixed-private.h"
-#include "cairo-line-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-compiler-private.h"
+//#include "cairo-fixed-private.h"
+//#include "cairo-line-private.h"
 
 static inline int cairo_lines_equal(const cairo_line_t *a, const cairo_line_t *b)
 {

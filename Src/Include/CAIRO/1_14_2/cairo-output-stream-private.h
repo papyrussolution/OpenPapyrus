@@ -36,9 +36,8 @@
 #ifndef CAIRO_OUTPUT_STREAM_PRIVATE_H
 #define CAIRO_OUTPUT_STREAM_PRIVATE_H
 
-#include "cairo-compiler-private.h"
-#include "cairo-types-private.h"
-
+//#include "cairo-compiler-private.h"
+//#include "cairo-types-private.h"
 //#include <stdlib.h>
 //#include <stdio.h>
 //#include <stdarg.h>
@@ -64,9 +63,7 @@ cairo_private cairo_status_t _cairo_output_stream_fini(cairo_output_stream_t * s
 
 /* We already have the following declared in cairo.h:
 
-   typedef cairo_status_t (*cairo_write_func_t) (void		  *closure,
-                                              const uchar *data,
-                                              uint	   length);
+   typedef cairo_status_t (*cairo_write_func_t) (void *closure, const uchar *data, uint length);
  */
 typedef cairo_status_t (*cairo_close_func_t)(void * closure);
 
@@ -90,7 +87,7 @@ cairo_private cairo_status_t _cairo_output_stream_close(cairo_output_stream_t * 
  * before its last gasp. This final status value will capture any
  * status failure returned by the stream's close_func as well. */
 cairo_private cairo_status_t FASTCALL _cairo_output_stream_destroy(cairo_output_stream_t * stream);
-cairo_private void _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length);
+cairo_private void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length);
 cairo_private void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const uchar * data, size_t length);
 cairo_private void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * fmt, va_list ap) CAIRO_PRINTF_FORMAT(2, 0);
 cairo_private void _cairo_output_stream_printf(cairo_output_stream_t * stream, const char * fmt, ...) CAIRO_PRINTF_FORMAT(2, 3);

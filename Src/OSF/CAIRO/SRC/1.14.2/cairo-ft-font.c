@@ -44,10 +44,10 @@
 
 #define _BSD_SOURCE /* for sstrdup() */
 
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-pixman-private.h"
+//#include "cairo-pixman-private.h"
 #include <float.h>
 #include "cairo-fontconfig-private.h"
 #include <ft2build.h>
@@ -333,8 +333,7 @@ static void _cairo_ft_unscaled_font_map_unlock(void)
 	CAIRO_MUTEX_UNLOCK(_cairo_ft_unscaled_font_map_mutex);
 }
 
-static void _cairo_ft_unscaled_font_init_key(cairo_ft_unscaled_font_t * key,
-    cairo_bool_t from_face, char * filename, int id, FT_Face face)
+static void _cairo_ft_unscaled_font_init_key(cairo_ft_unscaled_font_t * key, cairo_bool_t from_face, char * filename, int id, FT_Face face)
 {
 	ulong hash;
 	key->from_face = from_face;

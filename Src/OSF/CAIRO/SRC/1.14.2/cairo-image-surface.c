@@ -40,15 +40,15 @@
 #pragma hdrstop
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-pixman-private.h"
+//#include "cairo-pixman-private.h"
 #include "cairo-recording-surface-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 //#include "cairo-scaled-font-private.h"
 #include "cairo-surface-snapshot-private.h"
 #include "cairo-surface-subsurface-private.h"
@@ -84,21 +84,15 @@ static cairo_bool_t FASTCALL _cairo_image_surface_is_size_valid(int width, int h
 	return (0 <= width  &&  width <= MAX_IMAGE_SIZE && 0 <= height && height <= MAX_IMAGE_SIZE);
 }
 
-cairo_format_t _cairo_format_from_pixman_format(pixman_format_code_t pixman_format)
+cairo_format_t FASTCALL _cairo_format_from_pixman_format(pixman_format_code_t pixman_format)
 {
 	switch(pixman_format) {
-		case PIXMAN_a8r8g8b8:
-		    return CAIRO_FORMAT_ARGB32;
-		case PIXMAN_x2r10g10b10:
-		    return CAIRO_FORMAT_RGB30;
-		case PIXMAN_x8r8g8b8:
-		    return CAIRO_FORMAT_RGB24;
-		case PIXMAN_a8:
-		    return CAIRO_FORMAT_A8;
-		case PIXMAN_a1:
-		    return CAIRO_FORMAT_A1;
-		case PIXMAN_r5g6b5:
-		    return CAIRO_FORMAT_RGB16_565;
+		case PIXMAN_a8r8g8b8: return CAIRO_FORMAT_ARGB32;
+		case PIXMAN_x2r10g10b10: return CAIRO_FORMAT_RGB30;
+		case PIXMAN_x8r8g8b8: return CAIRO_FORMAT_RGB24;
+		case PIXMAN_a8: return CAIRO_FORMAT_A8;
+		case PIXMAN_a1: return CAIRO_FORMAT_A1;
+		case PIXMAN_r5g6b5: return CAIRO_FORMAT_RGB16_565;
 #if PIXMAN_VERSION >= PIXMAN_VERSION_ENCODE(0, 22, 0)
 		case PIXMAN_r8g8b8a8: case PIXMAN_r8g8b8x8:
 #endif
@@ -127,7 +121,6 @@ cairo_format_t _cairo_format_from_pixman_format(pixman_format_code_t pixman_form
 		default:
 		    return CAIRO_FORMAT_INVALID;
 	}
-
 	return CAIRO_FORMAT_INVALID;
 }
 
@@ -169,7 +162,7 @@ cairo_surface_t * _cairo_image_surface_create_for_pixman_image(pixman_image_t * 
 	return &surface->base;
 }
 
-cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_format_code_t * format_ret)
+cairo_bool_t FASTCALL _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_format_code_t * format_ret)
 {
 	pixman_format_code_t format;
 	int format_type;
@@ -193,16 +186,13 @@ cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_form
 	format = (pixman_format_code_t)PIXMAN_FORMAT(masks->bpp, format_type, a, r, g, b);
 	if(!pixman_format_supported_destination(format))
 		return FALSE;
-
 	/* Sanity check that we got out of PIXMAN_FORMAT exactly what we
 	 * expected. This avoid any problems from something bizarre like
 	 * alpha in the least-significant bits, or insane channel order,
 	 * or whatever. */
 	if(!_pixman_format_to_masks(format, &format_masks) ||
-	    masks->bpp        != format_masks.bpp            ||
-	    masks->red_mask   != format_masks.red_mask       ||
-	    masks->green_mask != format_masks.green_mask     ||
-	    masks->blue_mask  != format_masks.blue_mask) {
+	    masks->bpp != format_masks.bpp || masks->red_mask != format_masks.red_mask ||
+	    masks->green_mask != format_masks.green_mask || masks->blue_mask  != format_masks.blue_mask) {
 		return FALSE;
 	}
 	*format_ret = format;
@@ -212,7 +202,7 @@ cairo_bool_t _pixman_format_from_masks(cairo_format_masks_t * masks, pixman_form
 /* A mask consisting of N bits set to 1. */
 #define MASK(N) ((1UL << (N))-1)
 
-cairo_bool_t _pixman_format_to_masks(pixman_format_code_t format, cairo_format_masks_t   * masks)
+cairo_bool_t FASTCALL _pixman_format_to_masks(pixman_format_code_t format, cairo_format_masks_t * masks)
 {
 	int a, r, g, b;
 	masks->bpp = PIXMAN_FORMAT_BPP(format);
@@ -262,30 +252,18 @@ cairo_bool_t _pixman_format_to_masks(pixman_format_code_t format, cairo_format_m
 	}
 }
 
-pixman_format_code_t _cairo_format_to_pixman_format_code(cairo_format_t format)
+pixman_format_code_t FASTCALL _cairo_format_to_pixman_format_code(cairo_format_t format)
 {
 	pixman_format_code_t ret;
 	switch(format) {
-		case CAIRO_FORMAT_A1:
-		    ret = PIXMAN_a1;
-		    break;
-		case CAIRO_FORMAT_A8:
-		    ret = PIXMAN_a8;
-		    break;
-		case CAIRO_FORMAT_RGB24:
-		    ret = PIXMAN_x8r8g8b8;
-		    break;
-		case CAIRO_FORMAT_RGB30:
-		    ret = PIXMAN_x2r10g10b10;
-		    break;
-		case CAIRO_FORMAT_RGB16_565:
-		    ret = PIXMAN_r5g6b5;
-		    break;
+		case CAIRO_FORMAT_A1: ret = PIXMAN_a1; break;
+		case CAIRO_FORMAT_A8: ret = PIXMAN_a8; break;
+		case CAIRO_FORMAT_RGB24: ret = PIXMAN_x8r8g8b8; break;
+		case CAIRO_FORMAT_RGB30: ret = PIXMAN_x2r10g10b10; break;
+		case CAIRO_FORMAT_RGB16_565: ret = PIXMAN_r5g6b5; break;
 		case CAIRO_FORMAT_ARGB32:
 		case CAIRO_FORMAT_INVALID:
-		default:
-		    ret = PIXMAN_a8r8g8b8;
-		    break;
+		default: ret = PIXMAN_a8r8g8b8; break;
 	}
 	return ret;
 }
@@ -858,8 +836,7 @@ const cairo_surface_backend_t _cairo_image_surface_backend = {
  * surface to an alternate format. */
 cairo_image_surface_t * _cairo_image_surface_coerce(cairo_image_surface_t * surface)
 {
-	return _cairo_image_surface_coerce_to_format(surface,
-	    _cairo_format_from_content(surface->base.content));
+	return _cairo_image_surface_coerce_to_format(surface, _cairo_format_from_content(surface->base.content));
 }
 
 /* A convenience function for when one needs to coerce an image

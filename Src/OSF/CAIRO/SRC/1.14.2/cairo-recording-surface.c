@@ -81,9 +81,9 @@
 //#include "cairo-analysis-surface-private.h"
 //#include "cairo-clip-private.h"
 //#include "cairo-combsort-inline.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-recording-surface-inline.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-wrapper-private.h"
@@ -147,29 +147,26 @@ static int bbtree_left_or_right(_cairo_recording_surface::BbTree * bbt, const ca
 
 #define INVALID_CHAIN ((cairo_command_header_t*)-1)
 
-static _cairo_recording_surface::BbTree * bbtree_new(const cairo_box_t * box, cairo_command_header_t * chain)                        
+static _cairo_recording_surface::BbTree * FASTCALL bbtree_new(const cairo_box_t * box, cairo_command_header_t * chain)                        
 {
 	_cairo_recording_surface::BbTree * bbt = (_cairo_recording_surface::BbTree *)SAlloc::M(sizeof(*bbt));
-	if(bbt == NULL)
-		return NULL;
-	bbt->extents = *box;
-	bbt->left = bbt->right = NULL;
-	bbt->chain = chain;
+	if(bbt) {
+		bbt->extents = *box;
+		bbt->left = bbt->right = NULL;
+		bbt->chain = chain;
+	}
 	return bbt;
 }
 
-static void bbtree_init(_cairo_recording_surface::BbTree * bbt, cairo_command_header_t * header)
+static void FASTCALL bbtree_init(_cairo_recording_surface::BbTree * bbt, cairo_command_header_t * header)
 {
 	_cairo_box_from_rectangle(&bbt->extents, &header->extents);
 	bbt->chain = header;
 }
 
-static cairo_status_t bbtree_add(_cairo_recording_surface::BbTree * bbt,
-    cairo_command_header_t * header,
-    const cairo_box_t * box)
+static cairo_status_t bbtree_add(_cairo_recording_surface::BbTree * bbt, cairo_command_header_t * header, const cairo_box_t * box)
 {
-	if(box->p1.x < bbt->extents.p1.x || box->p1.y < bbt->extents.p1.y ||
-	    box->p2.x > bbt->extents.p2.x || box->p2.y > bbt->extents.p2.y) {
+	if(box->p1.x < bbt->extents.p1.x || box->p1.y < bbt->extents.p1.y || box->p2.x > bbt->extents.p2.x || box->p2.y > bbt->extents.p2.y) {
 		if(bbt->chain) {
 			if(bbtree_left_or_right(bbt, &bbt->extents)) {
 				if(bbt->left == NULL) {
@@ -199,8 +196,7 @@ static cairo_status_t bbtree_add(_cairo_recording_surface::BbTree * bbt,
 		bbt->extents.p2.y = MAX(bbt->extents.p2.y, box->p2.y);
 	}
 
-	if(box->p1.x == bbt->extents.p1.x && box->p1.y == bbt->extents.p1.y &&
-	    box->p2.x == bbt->extents.p2.x && box->p2.y == bbt->extents.p2.y) {
+	if(box->p1.x == bbt->extents.p1.x && box->p1.y == bbt->extents.p1.y && box->p2.x == bbt->extents.p2.x && box->p2.y == bbt->extents.p2.y) {
 		cairo_command_header_t * last = header;
 		while(last->chain) /* expected to be infrequent */
 			last = last->chain;
@@ -208,7 +204,6 @@ static cairo_status_t bbtree_add(_cairo_recording_surface::BbTree * bbt,
 		bbt->chain = header;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	if(bbtree_left_or_right(bbt, box)) {
 		if(bbt->left == NULL) {
 			bbt->left = bbtree_new(box, header);
@@ -227,36 +222,28 @@ static cairo_status_t bbtree_add(_cairo_recording_surface::BbTree * bbt,
 		else
 			return bbtree_add(bbt->right, header, box);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void bbtree_del(_cairo_recording_surface::BbTree * bbt)
+static void FASTCALL bbtree_del(_cairo_recording_surface::BbTree * bbt)
 {
 	if(bbt->left)
 		bbtree_del(bbt->left);
 	if(bbt->right)
 		bbtree_del(bbt->right);
-
 	SAlloc::F(bbt);
 }
 
 static cairo_bool_t box_outside(const cairo_box_t * a, const cairo_box_t * b)
 {
-	return
-		a->p1.x >= b->p2.x || a->p1.y >= b->p2.y ||
-		a->p2.x <= b->p1.x || a->p2.y <= b->p1.y;
+	return a->p1.x >= b->p2.x || a->p1.y >= b->p2.y || a->p2.x <= b->p1.x || a->p2.y <= b->p1.y;
 }
 
-static void bbtree_foreach_mark_visible(_cairo_recording_surface::BbTree * bbt,
-    const cairo_box_t * box,
-    uint ** indices)
+static void bbtree_foreach_mark_visible(_cairo_recording_surface::BbTree * bbt, const cairo_box_t * box, uint ** indices)
 {
 	cairo_command_header_t * chain;
-
 	for(chain = bbt->chain; chain; chain = chain->chain)
 		*(*indices)++ = chain->index;
-
 	if(bbt->left && !box_outside(box, &bbt->left->extents))
 		bbtree_foreach_mark_visible(bbt->left, box, indices);
 	if(bbt->right && !box_outside(box, &bbt->right->extents))
@@ -330,9 +317,7 @@ static cairo_status_t _cairo_recording_surface_create_bbtree(cairo_recording_sur
 		if(unlikely(status))
 			goto cleanup;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
-
 cleanup:
 	bbtree_del(&surface->bbtree);
 	return status;
@@ -364,14 +349,8 @@ cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const 
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)SAlloc::M(sizeof(cairo_recording_surface_t));
 	if(unlikely(surface == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
-	_cairo_surface_init(&surface->base,
-	    &cairo_recording_surface_backend,
-	    NULL,              /* device */
-	    content);
-
+	_cairo_surface_init(&surface->base, &cairo_recording_surface_backend, NULL/* device */, content);
 	surface->unbounded = TRUE;
-
 	/* unbounded -> 'infinite' extents */
 	if(extents != NULL) {
 		surface->extents_pixels = *extents;
@@ -382,29 +361,22 @@ cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const 
 		surface->extents.height = (int)ceil(extents->y + extents->height) - surface->extents.y;
 		surface->unbounded = FALSE;
 	}
-
 	_cairo_array_init(&surface->commands, sizeof(cairo_command_t *));
-
 	surface->base.is_clear = TRUE;
-
 	surface->bbtree.left = surface->bbtree.right = NULL;
 	surface->bbtree.chain = INVALID_CHAIN;
-
 	surface->indices = NULL;
 	surface->num_indices = 0;
 	surface->optimize_clears = TRUE;
 	surface->has_bilevel_alpha = FALSE;
 	surface->has_only_op_over = FALSE;
-
 	return &surface->base;
 }
 
 slim_hidden_def(cairo_recording_surface_create);
 
-static cairo_surface_t * _cairo_recording_surface_create_similar(void * abstract_surface,
-    cairo_content_t content,
-    int width,
-    int height)
+static cairo_surface_t * _cairo_recording_surface_create_similar(void * abstract_surface, cairo_content_t content,
+    int width, int height)
 {
 	cairo_rectangle_t extents;
 	extents.x = extents.y = 0;
@@ -455,16 +427,12 @@ static cairo_status_t _cairo_recording_surface_finish(void * abstract_surface)
 		_cairo_clip_destroy(command->header.clip);
 		SAlloc::F(command);
 	}
-
 	_cairo_array_fini(&surface->commands);
-
 	if(surface->bbtree.left)
 		bbtree_del(surface->bbtree.left);
 	if(surface->bbtree.right)
 		bbtree_del(surface->bbtree.right);
-
 	SAlloc::F(surface->indices);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

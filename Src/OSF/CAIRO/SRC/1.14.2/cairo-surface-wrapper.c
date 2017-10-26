@@ -88,12 +88,9 @@ static void _cairo_surface_wrapper_get_inverse_transform(cairo_surface_wrapper_t
 		cairo_matrix_translate(m, wrapper->extents.x, wrapper->extents.y);
 }
 
-static cairo_clip_t * _cairo_surface_wrapper_get_clip(cairo_surface_wrapper_t * wrapper,
-    const cairo_clip_t * clip)
+static cairo_clip_t * _cairo_surface_wrapper_get_clip(cairo_surface_wrapper_t * wrapper, const cairo_clip_t * clip)
 {
-	cairo_clip_t * copy;
-
-	copy = _cairo_clip_copy(clip);
+	cairo_clip_t * copy = _cairo_clip_copy(clip);
 	if(wrapper->has_extents) {
 		copy = _cairo_clip_intersect_rectangle(copy, &wrapper->extents);
 	}
@@ -102,40 +99,28 @@ static cairo_clip_t * _cairo_surface_wrapper_get_clip(cairo_surface_wrapper_t * 
 		copy = _cairo_clip_transform(copy, &wrapper->target->device_transform);
 	if(wrapper->clip)
 		copy = _cairo_clip_intersect_clip(copy, wrapper->clip);
-
 	return copy;
 }
 
-cairo_status_t _cairo_surface_wrapper_paint(cairo_surface_wrapper_t * wrapper,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const cairo_clip_t    * clip)
+cairo_status_t _cairo_surface_wrapper_paint(cairo_surface_wrapper_t * wrapper, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_status_t status;
 	cairo_clip_t * dev_clip;
 	cairo_pattern_union_t source_copy;
-
 	if(unlikely(wrapper->target->status))
 		return wrapper->target->status;
-
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
 	if(_cairo_clip_is_all_clipped(dev_clip))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	if(wrapper->needs_transform) {
 		cairo_matrix_t m;
-
 		_cairo_surface_wrapper_get_transform(wrapper, &m);
-
 		status = cairo_matrix_invert(&m);
 		assert(status == CAIRO_STATUS_SUCCESS);
-
 		_copy_transformed_pattern(&source_copy.base, source, &m);
 		source = &source_copy.base;
 	}
-
 	status = _cairo_surface_paint(wrapper->target, op, source, dev_clip);
-
 	_cairo_clip_destroy(dev_clip);
 	return status;
 }

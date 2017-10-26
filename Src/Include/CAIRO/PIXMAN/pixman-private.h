@@ -3,7 +3,6 @@
 
 #include <slib.h>
 #include <float.h>
-
 /*
  * The defines which are shared between C and assembly code
  */
@@ -244,8 +243,8 @@ pixman_bool_t _pixman_bits_image_init(pixman_image_t * image, pixman_format_code
 pixman_bool_t _pixman_image_fini(pixman_image_t * image);
 pixman_image_t * _pixman_image_allocate(void);
 pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops);
-void _pixman_image_reset_clip_region(pixman_image_t * image);
-void _pixman_image_validate(pixman_image_t * image);
+void FASTCALL _pixman_image_reset_clip_region(pixman_image_t * image);
+void FASTCALL _pixman_image_validate(pixman_image_t * image);
 
 #define PIXMAN_IMAGE_GET_LINE(image, x, y, type, out_stride, line, mul)	\
 	do { \
@@ -295,9 +294,7 @@ uint32_t _pixman_gradient_walker_pixel(pixman_gradient_walker_t * walker, pixman
 #define X_FRAC_FIRST(n) (STEP_X_BIG(n) / 2)
 #define X_FRAC_LAST(n)  (X_FRAC_FIRST(n) + (N_X_FRAC(n) - 1) * STEP_X_SMALL(n))
 
-#define RENDER_SAMPLES_X(x, n)						\
-	((n) == 1 ? 0 : (pixman_fixed_frac(x) +				    \
-		    X_FRAC_FIRST(n)) / STEP_X_SMALL(n))
+#define RENDER_SAMPLES_X(x, n) ((n) == 1 ? 0 : (pixman_fixed_frac(x) + X_FRAC_FIRST(n)) / STEP_X_SMALL(n))
 
 void pixman_rasterize_edges_accessors(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b);
 
@@ -490,36 +487,12 @@ void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_
 #define FAST_PATH_BITS_IMAGE                    (1 << 25)
 #define FAST_PATH_SEPARABLE_CONVOLUTION_FILTER  (1 << 26)
 
-#define FAST_PATH_PAD_REPEAT						\
-	(FAST_PATH_NO_NONE_REPEAT           |				    \
-	    FAST_PATH_NO_NORMAL_REPEAT         |			       \
-	    FAST_PATH_NO_REFLECT_REPEAT)
-
-#define FAST_PATH_NORMAL_REPEAT						\
-	(FAST_PATH_NO_NONE_REPEAT           |				    \
-	    FAST_PATH_NO_PAD_REPEAT            |			       \
-	    FAST_PATH_NO_REFLECT_REPEAT)
-
-#define FAST_PATH_NONE_REPEAT						\
-	(FAST_PATH_NO_NORMAL_REPEAT         |				    \
-	    FAST_PATH_NO_PAD_REPEAT            |			       \
-	    FAST_PATH_NO_REFLECT_REPEAT)
-
-#define FAST_PATH_REFLECT_REPEAT					\
-	(FAST_PATH_NO_NONE_REPEAT           |				    \
-	    FAST_PATH_NO_NORMAL_REPEAT         |			       \
-	    FAST_PATH_NO_PAD_REPEAT)
-
-#define FAST_PATH_STANDARD_FLAGS					\
-	(FAST_PATH_NO_CONVOLUTION_FILTER    |				    \
-	    FAST_PATH_NO_ACCESSORS             |			       \
-	    FAST_PATH_NO_ALPHA_MAP             |			       \
-	    FAST_PATH_NARROW_FORMAT)
-
-#define FAST_PATH_STD_DEST_FLAGS					\
-	(FAST_PATH_NO_ACCESSORS             |				    \
-	    FAST_PATH_NO_ALPHA_MAP             |			       \
-	    FAST_PATH_NARROW_FORMAT)
+#define FAST_PATH_PAD_REPEAT     (FAST_PATH_NO_NONE_REPEAT|FAST_PATH_NO_NORMAL_REPEAT|FAST_PATH_NO_REFLECT_REPEAT)
+#define FAST_PATH_NORMAL_REPEAT  (FAST_PATH_NO_NONE_REPEAT|FAST_PATH_NO_PAD_REPEAT|FAST_PATH_NO_REFLECT_REPEAT)
+#define FAST_PATH_NONE_REPEAT    (FAST_PATH_NO_NORMAL_REPEAT|FAST_PATH_NO_PAD_REPEAT|FAST_PATH_NO_REFLECT_REPEAT)
+#define FAST_PATH_REFLECT_REPEAT (FAST_PATH_NO_NONE_REPEAT|FAST_PATH_NO_NORMAL_REPEAT|FAST_PATH_NO_PAD_REPEAT)
+#define FAST_PATH_STANDARD_FLAGS (FAST_PATH_NO_CONVOLUTION_FILTER|FAST_PATH_NO_ACCESSORS|FAST_PATH_NO_ALPHA_MAP|FAST_PATH_NARROW_FORMAT)
+#define FAST_PATH_STD_DEST_FLAGS (FAST_PATH_NO_ACCESSORS|FAST_PATH_NO_ALPHA_MAP|FAST_PATH_NARROW_FORMAT)
 
 #define SOURCE_FLAGS(format) (FAST_PATH_STANDARD_FLAGS | \
 	    ((PIXMAN_ ## format == PIXMAN_solid) ? 0 : (FAST_PATH_SAMPLES_COVER_CLIP_NEAREST | FAST_PATH_NEAREST_FILTER | \
@@ -659,9 +632,7 @@ static force_inline uint16_t convert_8888_to_0565(uint32_t s)
 
 static force_inline uint32_t convert_0565_to_0888(uint16_t s)
 {
-	return (((((s) << 3) & 0xf8) | (((s) >> 2) & 0x7)) |
-	    ((((s) << 5) & 0xfc00) | (((s) >> 1) & 0x300)) |
-	    ((((s) << 8) & 0xf80000) | (((s) << 3) & 0x70000)));
+	return (((((s) << 3) & 0xf8) | (((s) >> 2) & 0x7)) | ((((s) << 5) & 0xfc00) | (((s) >> 1) & 0x300)) | ((((s) << 8) & 0xf80000) | (((s) << 3) & 0x70000)));
 }
 
 static force_inline uint32_t convert_0565_to_8888(uint16_t s)
@@ -686,19 +657,14 @@ static force_inline uint16_t convert_0565_to_0565(uint16_t s)
 	return s;
 }
 
-#define PIXMAN_FORMAT_IS_WIDE(f)					\
-	(PIXMAN_FORMAT_A(f) > 8 ||					   \
-	    PIXMAN_FORMAT_R(f) > 8 ||					      \
-	    PIXMAN_FORMAT_G(f) > 8 ||					      \
-	    PIXMAN_FORMAT_B(f) > 8 ||					      \
-	    PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_ARGB_SRGB)
+#define PIXMAN_FORMAT_IS_WIDE(f) (PIXMAN_FORMAT_A(f) > 8 || PIXMAN_FORMAT_R(f) > 8 || PIXMAN_FORMAT_G(f) > 8 || PIXMAN_FORMAT_B(f) > 8 || PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_ARGB_SRGB)
 
 #ifdef WORDS_BIGENDIAN
-#   define SCREEN_SHIFT_LEFT(x, n)       ((x) << (n))
-#   define SCREEN_SHIFT_RIGHT(x, n)      ((x) >> (n))
+	#define SCREEN_SHIFT_LEFT(x, n)       ((x) << (n))
+	#define SCREEN_SHIFT_RIGHT(x, n)      ((x) >> (n))
 #else
-#   define SCREEN_SHIFT_LEFT(x, n)       ((x) >> (n))
-#   define SCREEN_SHIFT_RIGHT(x, n)      ((x) << (n))
+	#define SCREEN_SHIFT_LEFT(x, n)       ((x) >> (n))
+	#define SCREEN_SHIFT_RIGHT(x, n)      ((x) << (n))
 #endif
 
 static force_inline uint32_t unorm_to_unorm(uint32_t val, int from_bits, int to_bits)
@@ -735,7 +701,7 @@ static force_inline uint32_t unorm_to_unorm(uint32_t val, int from_bits, int to_
 }
 
 uint16_t pixman_float_to_unorm(float f, int n_bits);
-float pixman_unorm_to_float(uint16_t u, int n_bits);
+float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits);
 
 /*
  * Various debugging code
@@ -796,11 +762,9 @@ typedef struct {
 pixman_bool_t pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
 void pixman_transform_point_31_16_3d(const pixman_transform_t    * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
 void pixman_transform_point_31_16_affine(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);
-
 /*
  * Timers
  */
-
 #ifdef PIXMAN_TIMERS
 
 static inline uint64_t oil_profile_stamp_rdtsc(void)
@@ -848,7 +812,5 @@ void pixman_timer_register(pixman_timer_t * timer);
 #define TIMER_END(tname)
 
 #endif /* PIXMAN_TIMERS */
-
 #endif /* __ASSEMBLER__ */
-
 #endif /* PIXMAN_PRIVATE_H */

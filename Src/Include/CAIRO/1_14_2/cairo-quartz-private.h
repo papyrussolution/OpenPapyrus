@@ -42,7 +42,7 @@
 
 #if CAIRO_HAS_QUARTZ_SURFACE
 #include "cairo-quartz.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 
 #ifdef CGFLOAT_DEFINED
 typedef CGFloat cairo_quartz_float_t;

@@ -38,9 +38,9 @@
 #define CAIRO_LIST_PRIVATE_H
 
 //#include "cairo-compiler-private.h"
-
-/* Basic circular, doubly linked list implementation */
-
+//
+// Basic circular, doubly linked list implementation 
+//
 typedef struct _cairo_list {
     struct _cairo_list *next, *prev;
 } cairo_list_t;

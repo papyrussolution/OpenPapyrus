@@ -49,10 +49,10 @@
 #endif
 
 //#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
 //#include "cairo-damage-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-image-surface-inline.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"

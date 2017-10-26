@@ -161,7 +161,7 @@ uint16_t pixman_float_to_unorm(float f, int n_bits)
 	return float_to_unorm(f, n_bits);
 }
 
-float pixman_unorm_to_float(uint16_t u, int n_bits)
+float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits)
 {
 	return unorm_to_float(u, n_bits);
 }

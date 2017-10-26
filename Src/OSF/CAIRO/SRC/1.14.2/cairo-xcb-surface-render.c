@@ -37,11 +37,11 @@
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
 //#include "cairo-clip-private.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-image-surface-inline.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 #include "cairo-surface-offset-private.h"
 #include "cairo-surface-snapshot-inline.h"
 #include "cairo-surface-subsurface-private.h"
@@ -2331,7 +2331,6 @@ static cairo_status_t _clip_and_composite(cairo_xcb_surface_t        * dst,
 	status = _cairo_xcb_connection_acquire(dst->connection);
 	if(unlikely(status))
 		return status;
-
 	if(dst->deferred_clear) {
 		status = _cairo_xcb_surface_clear(dst);
 		if(unlikely(status)) {
@@ -2339,14 +2338,10 @@ static cairo_status_t _clip_and_composite(cairo_xcb_surface_t        * dst,
 			return status;
 		}
 	}
-
 	_cairo_xcb_surface_ensure_picture(dst);
-
 	if(need_clip & NEED_CLIP_REGION) {
 		clip_region = _cairo_clip_get_region(extents->clip);
-		if((need_clip & FORCE_CLIP_REGION) == 0 && clip_region != NULL &&
-		    cairo_region_contains_rectangle(clip_region,
-			    &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
+		if((need_clip & FORCE_CLIP_REGION) == 0 && clip_region && cairo_region_contains_rectangle(clip_region, &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
 		if(clip_region) {
 			status = _cairo_xcb_surface_set_clip_region(dst, clip_region);

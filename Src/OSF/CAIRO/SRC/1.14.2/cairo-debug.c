@@ -34,7 +34,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 
 /**
  * cairo_debug_reset_static_data:

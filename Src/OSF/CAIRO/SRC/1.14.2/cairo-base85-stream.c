@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-output-stream-private.h"
+//#include "cairo-output-stream-private.h"
 
 typedef struct _cairo_base85_stream {
 	cairo_output_stream_t base;

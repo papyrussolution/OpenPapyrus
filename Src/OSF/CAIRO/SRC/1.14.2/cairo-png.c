@@ -37,8 +37,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
-#include "cairo-output-stream-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-output-stream-private.h"
 //#include <stdio.h>
 #include <errno.h>
 #include <png.h>
@@ -74,7 +74,7 @@
 struct png_read_closure_t {
 	cairo_read_func_t read_func;
 	void * closure;
-	cairo_output_stream_t       * png_data;
+	cairo_output_stream_t * png_data;
 };
 
 /* Unpremultiplies data and converts native endian ARGB => RGBA bytes */
@@ -97,8 +97,9 @@ static void unpremultiply_data(png_structp png, png_row_infop row_info, png_byte
 		}
 	}
 }
-
-/* Converts native endian xRGB => RGBx bytes */
+//
+// Converts native endian xRGB => RGBx bytes 
+//
 static void convert_data_to_bytes(png_structp png, png_row_infop row_info, png_bytep data)
 {
 	for(uint i = 0; i < row_info->rowbytes; i += 4) {

@@ -36,7 +36,7 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-slope-private.h"
+//#include "cairo-slope-private.h"
 
 typedef struct cairo_hull {
 	cairo_point_t point;

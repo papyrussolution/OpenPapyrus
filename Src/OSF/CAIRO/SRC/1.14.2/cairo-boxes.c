@@ -32,7 +32,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
+//#include "cairo-box-inline.h"
 //#include "cairo-boxes-private.h"
 
 void FASTCALL _cairo_boxes_init(cairo_boxes_t * boxes)
@@ -82,21 +82,18 @@ void _cairo_boxes_init_for_array(cairo_boxes_t * boxes, cairo_box_t * array, int
 	boxes->is_pixel_aligned = n == num_boxes;
 }
 
-void _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t * limits, int num_limits)
+void FASTCALL _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t * limits, int num_limits)
 {
 	boxes->limits = limits;
 	boxes->num_limits = num_limits;
 	if(boxes->num_limits) {
 		boxes->limit = limits[0];
 		for(int n = 1; n < num_limits; n++) {
-			if(limits[n].p1.x < boxes->limit.p1.x)
-				boxes->limit.p1.x = limits[n].p1.x;
-			if(limits[n].p1.y < boxes->limit.p1.y)
-				boxes->limit.p1.y = limits[n].p1.y;
-			if(limits[n].p2.x > boxes->limit.p2.x)
-				boxes->limit.p2.x = limits[n].p2.x;
-			if(limits[n].p2.y > boxes->limit.p2.y)
-				boxes->limit.p2.y = limits[n].p2.y;
+			const cairo_box_t & r_lim = limits[n];
+			SETMIN(boxes->limit.p1.x, r_lim.p1.x);
+			SETMIN(boxes->limit.p1.y, r_lim.p1.y);
+			SETMAX(boxes->limit.p2.x, r_lim.p2.x);
+			SETMAX(boxes->limit.p2.y, r_lim.p2.y);
 		}
 	}
 }

@@ -1843,12 +1843,12 @@ cairo_public double cairo_device_observer_mask_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_fill_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_stroke_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_glyphs_elapsed(cairo_device_t * device);
-cairo_public cairo_surface_t * cairo_surface_reference(cairo_surface_t * surface);
-cairo_public void cairo_surface_finish(cairo_surface_t * surface);
+cairo_public cairo_surface_t * FASTCALL cairo_surface_reference(cairo_surface_t * surface);
+cairo_public void FASTCALL cairo_surface_finish(cairo_surface_t * surface);
 cairo_public void FASTCALL cairo_surface_destroy(cairo_surface_t * surface);
 cairo_public cairo_device_t * cairo_surface_get_device(cairo_surface_t * surface);
 cairo_public uint cairo_surface_get_reference_count(cairo_surface_t * surface);
-cairo_public cairo_status_t cairo_surface_status(cairo_surface_t * surface);
+cairo_public cairo_status_t FASTCALL cairo_surface_status(cairo_surface_t * surface);
 /**
  * cairo_surface_type_t:
  * @CAIRO_SURFACE_TYPE_IMAGE: The surface is of type image, since 1.2
@@ -2313,11 +2313,11 @@ cairo_public cairo_region_t * cairo_region_reference(cairo_region_t * region);
 cairo_public void cairo_region_destroy(cairo_region_t * region);
 cairo_public cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);
-cairo_public void cairo_region_get_extents(const cairo_region_t        * region, CairoIRect * extents);
-cairo_public int cairo_region_num_rectangles(const cairo_region_t * region);
+cairo_public void FASTCALL cairo_region_get_extents(const cairo_region_t * region, CairoIRect * extents);
+cairo_public int  cairo_region_num_rectangles(const cairo_region_t * region);
 cairo_public void cairo_region_get_rectangle(const cairo_region_t  * region, int nth, CairoIRect * rectangle);
 cairo_public cairo_bool_t cairo_region_is_empty(const cairo_region_t * region);
-cairo_public cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region, const CairoIRect * rectangle);
+cairo_public cairo_region_overlap_t FASTCALL cairo_region_contains_rectangle(const cairo_region_t * region, const CairoIRect * rectangle);
 cairo_public cairo_bool_t cairo_region_contains_point(const cairo_region_t * region, int x, int y);
 cairo_public void cairo_region_translate(cairo_region_t * region, int dx, int dy);
 cairo_public cairo_status_t cairo_region_subtract(cairo_region_t * dst, const cairo_region_t * other);

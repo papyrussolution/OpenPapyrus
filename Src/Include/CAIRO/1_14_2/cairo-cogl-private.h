@@ -33,9 +33,9 @@
 #define CAIRO_COGL_PRIVATE_H
 
 //#include "cairo-device-private.h"
-#include "cairo-cache-private.h"
-#include "cairo-backend-private.h"
-#include "cairo-default-context-private.h"
+//#include "cairo-cache-private.h"
+//#include "cairo-backend-private.h"
+//#include "cairo-default-context-private.h"
 #include "cairo-surface-private.h"
 
 #include <cogl/cogl2-experimental.h>

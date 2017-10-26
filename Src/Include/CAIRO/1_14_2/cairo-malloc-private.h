@@ -37,7 +37,7 @@
 #ifndef CAIRO_MALLOC_PRIVATE_H
 #define CAIRO_MALLOC_PRIVATE_H
 
-#include "cairo-wideint-private.h"
+//#include "cairo-wideint-private.h"
 //#include <stdlib.h>
 
 #if HAVE_MEMFAULT
@@ -58,10 +58,7 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of SAlloc::M() failure or size is 0.
  **/
-
-#define _cairo_malloc(size) \
-   ((size) ? SAlloc::M((uint)(size)) : NULL)
-
+#define _cairo_malloc(size) ((size) ? SAlloc::M((uint)(size)) : NULL)
 /**
  * _cairo_malloc_ab:
  * @a: number of elements to allocate
@@ -78,11 +75,7 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of SAlloc::M() failure or overflow.
  **/
-
-#define _cairo_malloc_ab(a, size) \
-  ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : \
-   _cairo_malloc((uint)(a) * (uint)(size)))
-
+#define _cairo_malloc_ab(a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size)))
 /**
  * _cairo_realloc_ab:
  * @ptr: original pointer to block of memory to be resized
@@ -100,11 +93,7 @@
  * case of realloc() failure or overflow (whereupon the original block
  * of memory * is left untouched).
  **/
-
-#define _cairo_realloc_ab(ptr, a, size) \
-  ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : \
-   realloc(ptr, (uint)(a) * (uint)(size)))
-
+#define _cairo_realloc_ab(ptr, a, size) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : realloc(ptr, (uint)(a) * (uint)(size)))
 /**
  * _cairo_malloc_abc:
  * @a: first factor of number of elements to allocate
@@ -121,12 +110,7 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of SAlloc::M() failure or overflow.
  **/
-
-#define _cairo_malloc_abc(a, b, size) \
-  ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : \
-   (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : \
-   _cairo_malloc((uint)(a) * (uint)(b) * (uint)(size)))
-
+#define _cairo_malloc_abc(a, b, size) ((b) && (uint)(a) >= INT32_MAX / (uint)(b) ? NULL : (size) && (uint)((a)*(b)) >= INT32_MAX / (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(b) * (uint)(size)))
 /**
  * _cairo_malloc_ab_plus_c:
  * @a: number of elements to allocate
@@ -140,10 +124,6 @@
  * Return value: A pointer to the newly allocated memory, or %NULL in
  * case of SAlloc::M() failure or overflow.
  **/
-
-#define _cairo_malloc_ab_plus_c(a, size, c) \
-  ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : \
-   (uint)(c) >= INT32_MAX - (uint)(a) * (uint)(size) ? NULL : \
-   _cairo_malloc((uint)(a) * (uint)(size) + (uint)(c)))
+#define _cairo_malloc_ab_plus_c(a, size, c) ((size) && (uint)(a) >= INT32_MAX / (uint)(size) ? NULL : (uint)(c) >= INT32_MAX - (uint)(a) * (uint)(size) ? NULL : _cairo_malloc((uint)(a) * (uint)(size) + (uint)(c)))
 
 #endif /* CAIRO_MALLOC_PRIVATE_H */

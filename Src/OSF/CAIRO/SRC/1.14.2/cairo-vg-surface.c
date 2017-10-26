@@ -39,12 +39,12 @@
 #if CAIRO_HAS_VG_SURFACE // {
 
 #include "cairo-vg.h"
-#include "cairo-cache-private.h"
-#include "cairo-default-context-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-cache-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-path-fixed-private.h"
 #include "cairo-recording-surface-inline.h"
-#include "cairo-surface-clipper-private.h"
+//#include "cairo-surface-clipper-private.h"
 
 #include <pixman.h>
 #include <VG/openvg.h>
@@ -923,25 +923,18 @@ static cairo_status_t _vg_setup_surface_source(cairo_vg_context_t * context,
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(unlikely(clone->base.status))
 		return clone->base.status;
-
 	clone->snapshot_cache_entry.hash = clone->base.unique_id;
-	status = _cairo_cache_insert(&context->snapshot_cache,
-	    &clone->snapshot_cache_entry);
+	status = _cairo_cache_insert(&context->snapshot_cache, &clone->snapshot_cache_entry);
 	if(unlikely(status)) {
 		clone->snapshot_cache_entry.hash = 0;
 		cairo_surface_destroy(&clone->base);
 		return status;
 	}
-
-	_cairo_surface_attach_snapshot(spat->surface, &clone->base,
-	    _vg_surface_remove_from_cache);
-
+	_cairo_surface_attach_snapshot(spat->surface, &clone->base, _vg_surface_remove_from_cache);
 DONE:
 	cairo_surface_destroy(&context->source->base);
 	context->source = clone;
-
 	vgSetParameteri(context->paint, VG_PAINT_TYPE, VG_PAINT_TYPE_PATTERN);
-
 	switch(spat->base.extend) {
 		case CAIRO_EXTEND_PAD:
 		    vgSetParameteri(context->paint,

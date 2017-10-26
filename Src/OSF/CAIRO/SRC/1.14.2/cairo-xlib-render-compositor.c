@@ -49,10 +49,10 @@
 #include "cairo-xlib-private.h"
 #include "cairo-compositor-private.h"
 //#include "cairo-damage-private.h"
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 //#include "cairo-list-inline.h"
 //#include "cairo-pattern-private.h"
-#include "cairo-pixman-private.h"
+//#include "cairo-pixman-private.h"
 //#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
 
@@ -1675,11 +1675,8 @@ static cairo_int_status_t composite_glyphs(void * surface,
 const cairo_compositor_t * _cairo_xlib_mask_compositor_get(void)
 {
 	static cairo_mask_compositor_t compositor;
-
 	if(compositor.base.delegate == NULL) {
-		_cairo_mask_compositor_init(&compositor,
-		    _cairo_xlib_fallback_compositor_get());
-
+		_cairo_mask_compositor_init(&compositor, _cairo_xlib_fallback_compositor_get());
 		compositor.acquire = acquire;
 		compositor.release = release;
 		compositor.set_clip_region = set_clip_region;

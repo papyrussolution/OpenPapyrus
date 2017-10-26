@@ -38,9 +38,9 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-compositor-private.h"
-#include "cairo-composite-rectangles-private.h"
-#include "cairo-image-surface-private.h"
-#include "cairo-rtree-private.h"
+//#include "cairo-composite-rectangles-private.h"
+//#include "cairo-image-surface-private.h"
+//#include "cairo-rtree-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 

@@ -42,9 +42,9 @@
 //#include "cairo-types-private.h"
 
 CAIRO_BEGIN_DECLS
-
-/* cairo-array.c structures and functions */
-
+//
+// cairo-array.c structures and functions 
+//
 cairo_private void FASTCALL _cairo_array_init(cairo_array_t * array, uint element_size);
 cairo_private void FASTCALL _cairo_array_fini(cairo_array_t * array);
 cairo_private cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additional);

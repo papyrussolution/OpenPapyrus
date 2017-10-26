@@ -40,13 +40,13 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-private.h"
-#include "cairo-arc-private.h"
-#include "cairo-backend-private.h"
+//#include "cairo-private.h"
+//#include "cairo-arc-private.h"
+//#include "cairo-backend-private.h"
 //#include "cairo-clip-inline.h"
-#include "cairo-default-context-private.h"
-#include "cairo-freed-pool-private.h"
-#include "cairo-path-private.h"
+//#include "cairo-default-context-private.h"
+//#include "cairo-freed-pool-private.h"
+//#include "cairo-path-private.h"
 //#include "cairo-pattern-private.h"
 
 #define CAIRO_TOLERANCE_MINIMUM _cairo_fixed_to_double(1)

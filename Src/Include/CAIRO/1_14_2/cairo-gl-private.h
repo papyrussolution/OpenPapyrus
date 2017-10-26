@@ -46,15 +46,15 @@
 
 #define GL_GLEXT_PROTOTYPES
 
-#include "cairoint.h"
+//#include "cairoint.h"
 #include "cairo-gl.h"
 #include "cairo-gl-gradient-private.h"
 //#include "cairo-device-private.h"
-#include "cairo-error-private.h"
-#include "cairo-rtree-private.h"
-#include "cairo-scaled-font-private.h"
+//#include "cairo-error-private.h"
+//#include "cairo-rtree-private.h"
+//#include "cairo-scaled-font-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-array-private.h"
+//#include "cairo-array-private.h"
 //#include <assert.h>
 
 #if CAIRO_HAS_GL_SURFACE

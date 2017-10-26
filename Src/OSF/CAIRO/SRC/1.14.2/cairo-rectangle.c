@@ -38,7 +38,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
+//#include "cairo-box-inline.h"
 
 const CairoIRect _cairo_empty_rectangle = { 0, 0, 0, 0 };
 const CairoIRect _cairo_unbounded_rectangle = {
@@ -63,7 +63,7 @@ cairo_private void _cairo_box_to_doubles(const cairo_box_t * box, double * x1, d
 	*y2 = _cairo_fixed_to_double(box->p2.y);
 }
 
-void _cairo_box_from_rectangle(cairo_box_t * box, const CairoIRect * rect)
+void FASTCALL _cairo_box_from_rectangle(cairo_box_t * box, const CairoIRect * rect)
 {
 	box->p1.x = _cairo_fixed_from_int(rect->x);
 	box->p1.y = _cairo_fixed_from_int(rect->y);

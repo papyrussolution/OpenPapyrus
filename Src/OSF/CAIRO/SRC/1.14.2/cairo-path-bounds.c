@@ -36,8 +36,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-box-inline.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-box-inline.h"
+//#include "cairo-path-fixed-private.h"
 
 typedef struct _cairo_path_bounder {
 	cairo_point_t current_point;

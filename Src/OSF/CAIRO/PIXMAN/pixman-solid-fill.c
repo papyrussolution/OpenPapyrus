@@ -38,7 +38,7 @@ static argb_t FASTCALL color_to_float(const pixman_color_t * color)
 	return result;
 }
 
-PIXMAN_EXPORT pixman_image_t * pixman_image_create_solid_fill(const pixman_color_t * color)
+PIXMAN_EXPORT pixman_image_t * FASTCALL pixman_image_create_solid_fill(const pixman_color_t * color)
 {
 	pixman_image_t * img = _pixman_image_allocate();
 	if(img) {

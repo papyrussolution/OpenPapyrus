@@ -41,9 +41,9 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-clip-inline.h"
-#include "cairo-composite-rectangles-private.h"
+//#include "cairo-composite-rectangles-private.h"
 #include "cairo-compositor-private.h"
-#include "cairo-path-private.h"
+//#include "cairo-path-private.h"
 //#include "cairo-traps-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {

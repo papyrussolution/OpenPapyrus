@@ -42,7 +42,7 @@
 //#include "cairo-error-private.h"
 //#include "cairo-compiler-private.h"
 //#include "cairo-error-private.h"
-#include "cairo-path-fixed-private.h"
+//#include "cairo-path-fixed-private.h"
 //#include "cairo-reference-count-private.h"
 
 extern const cairo_private cairo_rectangle_list_t _cairo_rectangles_nil;
@@ -75,11 +75,11 @@ cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy(const cairo_clip_t * clip
 cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy_region(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy_path(const cairo_clip_t * clip);
 cairo_private cairo_clip_t * _cairo_clip_translate(cairo_clip_t * clip, int tx, int ty);
-cairo_private cairo_clip_t * _cairo_clip_transform(cairo_clip_t * clip, const cairo_matrix_t * m);
-cairo_private cairo_clip_t * _cairo_clip_copy_with_translation(const cairo_clip_t * clip, int tx, int ty);
-cairo_private cairo_bool_t _cairo_clip_equal(const cairo_clip_t * clip_a, const cairo_clip_t * clip_b);
+cairo_private cairo_clip_t * FASTCALL _cairo_clip_transform(cairo_clip_t * clip, const cairo_matrix_t * m);
+cairo_private cairo_clip_t * FASTCALL _cairo_clip_copy_with_translation(const cairo_clip_t * clip, int tx, int ty);
+cairo_private cairo_bool_t FASTCALL _cairo_clip_equal(const cairo_clip_t * clip_a, const cairo_clip_t * clip_b);
 cairo_private cairo_clip_t * _cairo_clip_intersect_rectangle(cairo_clip_t * clip, const CairoIRect * rectangle);
-cairo_private cairo_clip_t * _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_t * other);
+cairo_private cairo_clip_t * FASTCALL _cairo_clip_intersect_clip(cairo_clip_t * clip, const cairo_clip_t * other);
 cairo_private cairo_clip_t * _cairo_clip_intersect_box(cairo_clip_t * clip, const cairo_box_t * box);
 cairo_private cairo_clip_t * _cairo_clip_intersect_boxes(cairo_clip_t * clip, const cairo_boxes_t * boxes);
 cairo_private cairo_clip_t * _cairo_clip_intersect_rectilinear_path(cairo_clip_t * clip,
@@ -101,9 +101,6 @@ cairo_private cairo_bool_t _cairo_clip_contains_extents(const cairo_clip_t * cli
 cairo_private cairo_rectangle_list_t * _cairo_clip_copy_rectangle_list(cairo_clip_t * clip, cairo_gstate_t * gstate);
 cairo_private cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t status);
 cairo_private cairo_bool_t _cairo_clip_is_polygon(const cairo_clip_t * clip);
-cairo_private cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip,
-    cairo_polygon_t * polygon,
-    CairoFillRule * fill_rule,
-    cairo_antialias_t * antialias);
+cairo_private cairo_int_status_t _cairo_clip_get_polygon(const cairo_clip_t * clip, cairo_polygon_t * polygon, CairoFillRule * fill_rule, cairo_antialias_t * antialias);
 
 #endif /* CAIRO_CLIP_PRIVATE_H */

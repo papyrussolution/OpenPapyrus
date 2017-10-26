@@ -34,7 +34,7 @@
 #define CAIRO_XLIB_XRENDER_PRIVATE_H
 
 #include "cairo-features.h"
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
 
 #include <X11/Xlib.h>
 

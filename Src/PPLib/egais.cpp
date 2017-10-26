@@ -5908,7 +5908,8 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			// мы идентифицируем текст сообщения и если, он соответствующий, то не будем удалять теги
 			// и менять флаги.
 			//
-			if(pT->R.Special != Ticket::Result::spcDup && pT->OpR.Special != Ticket::Result::spcDup) {
+			// (!Отменяем - оказалось, стало хуже) if(pT->R.Special != Ticket::Result::spcDup && pT->OpR.Special != Ticket::Result::spcDup)
+			{
 				THROW(P_BObj->P_Tbl->SetRecFlag2(bill_id, BILLF2_ACKPENDING, 0, 0));
 				if(!(State & stDontRemoveTags)) {
 					if(!pT->TranspUUID.IsZero()) {
@@ -5946,13 +5947,25 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			const char * p_utm_rej_pfx = "UTM Rej";
 			const char * p_egais_rej_pfx = "EGAIS Rej";
 			SString memo_msg;
+			SString prefix_buf;
+			StringSet ss_prefix;
 			if(conclusion == 0) {
-				if(pT->R.Type == 1 && pT->R.Comment.NotEmpty()) {
-					memo_msg.Space().Cat(p_utm_rej_pfx).CatDiv(':', 2).Cat(pT->R.Comment);
+				ss_prefix.add((temp_buf = p_utm_rej_pfx).CatChar(':'));
+				ss_prefix.add((temp_buf = p_egais_rej_pfx).CatChar(':'));
+				if(ticketType == 1 && pT->R.Comment.NotEmpty()) {
+					temp_buf.Z().Cat(p_utm_rej_pfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					ss_prefix.add(temp_buf);
+					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->R.Comment);
 				}
-				if(pT->OpR.Type == 2 && pT->OpR.Comment.NotEmpty()) {
-					memo_msg.Space().Cat(p_egais_rej_pfx).CatDiv(':', 2).Cat(pT->OpR.Comment);
+				else if(ticketType == 2 && pT->OpR.Comment.NotEmpty()) {
+					temp_buf.Z().Cat(p_egais_rej_pfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					ss_prefix.add(temp_buf);
+					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->OpR.Comment);
 				}
+			}
+			else {
+				ss_prefix.add(p_utm_rej_pfx);
+				ss_prefix.add(p_egais_rej_pfx);
 			}
 			{
 				int   do_update_memos = 0;
@@ -5962,12 +5975,19 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 				p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
 				ss_memo.setBuf(memos);
 				for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
-					// @v9.6.8 if(temp_buf.CmpPrefix(p_utm_rej_pfx, 1) == 0 || temp_buf.CmpPrefix(p_egais_rej_pfx, 1) == 0) {
-					if(temp_buf.Search(p_utm_rej_pfx, 0, 1, 0) || temp_buf.Search(p_egais_rej_pfx, 0, 1, 0)) { // @v9.6.9
+					if(!temp_buf.NotEmptyS()) {
 						do_update_memos = 1;
 					}
 					else {
-						ss_memo_new.add(temp_buf);
+						for(uint pssp = 0; ss_prefix.get(&pssp, prefix_buf);) {
+							if(temp_buf.Search(prefix_buf, 0, 1, 0)) {
+								temp_buf.Z();
+								do_update_memos = 1;
+								break;
+							}
+						}
+						if(temp_buf.NotEmptyS()) 
+							ss_memo_new.add(temp_buf);
 					}
 				}
 				if(memo_msg.NotEmpty()) {

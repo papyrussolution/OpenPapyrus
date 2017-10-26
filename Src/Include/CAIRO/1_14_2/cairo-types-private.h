@@ -40,9 +40,9 @@
 #define CAIRO_TYPES_PRIVATE_H
 
 //#include "cairo.h"
-#include "cairo-fixed-type-private.h"
+//#include "cairo-fixed-type-private.h"
 //#include "cairo-list-private.h"
-#include "cairo-reference-count-private.h"
+//#include "cairo-reference-count-private.h"
 
 CAIRO_BEGIN_DECLS
 
@@ -401,7 +401,6 @@ typedef enum _cairo_image_color {
     CAIRO_IMAGE_UNKNOWN_COLOR
 } cairo_image_color_t;
 
-
 struct _cairo_mime_data {
     cairo_reference_count_t ref_count;
     uchar *data;
@@ -409,10 +408,9 @@ struct _cairo_mime_data {
     cairo_destroy_func_t destroy;
     void *closure;
 };
-/*
- * A #cairo_unscaled_font_t is just an opaque handle we use in the
- * glyph cache.
- */
+// 
+// A #cairo_unscaled_font_t is just an opaque handle we use in the glyph cache.
+// 
 typedef struct _cairo_unscaled_font {
     cairo_hash_entry_t			 hash_entry;
     cairo_reference_count_t		 ref_count;

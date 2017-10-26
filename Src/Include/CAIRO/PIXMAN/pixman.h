@@ -595,11 +595,11 @@ pixman_bool_t pixman_format_supported_destination(pixman_format_code_t format);
 pixman_bool_t pixman_format_supported_source(pixman_format_code_t format);
 
 /* Constructors */
-pixman_image_t * pixman_image_create_solid_fill(const pixman_color_t         * color);
-pixman_image_t * pixman_image_create_linear_gradient(const pixman_point_fixed_t   * p1,
-    const pixman_point_fixed_t   * p2, const pixman_gradient_stop_t * stops, int n_stops);
+pixman_image_t * FASTCALL pixman_image_create_solid_fill(const pixman_color_t * color);
+pixman_image_t * pixman_image_create_linear_gradient(const pixman_point_fixed_t * p1,
+    const pixman_point_fixed_t * p2, const pixman_gradient_stop_t * stops, int n_stops);
 pixman_image_t * pixman_image_create_radial_gradient(const pixman_point_fixed_t   * inner,
-    const pixman_point_fixed_t   * outer, pixman_fixed_t inner_radius, pixman_fixed_t outer_radius, const pixman_gradient_stop_t * stops,
+    const pixman_point_fixed_t * outer, pixman_fixed_t inner_radius, pixman_fixed_t outer_radius, const pixman_gradient_stop_t * stops,
     int n_stops);
 pixman_image_t * pixman_image_create_conical_gradient(const pixman_point_fixed_t   * center,
     pixman_fixed_t angle, const pixman_gradient_stop_t * stops, int n_stops);
@@ -607,29 +607,29 @@ pixman_image_t * pixman_image_create_bits(pixman_format_code_t format, int width
 pixman_image_t * pixman_image_create_bits_no_clear(pixman_format_code_t format, int width, int height, uint32_t * bits, int rowstride_bytes);
 
 /* Destructor */
-pixman_image_t * pixman_image_ref(pixman_image_t * image);
-pixman_bool_t   pixman_image_unref(pixman_image_t * image);
-void            pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t function, void * data);
-void *          pixman_image_get_destroy_data(pixman_image_t * image);
+pixman_image_t * FASTCALL pixman_image_ref(pixman_image_t * image);
+pixman_bool_t FASTCALL pixman_image_unref(pixman_image_t * image);
+void   pixman_image_set_destroy_function(pixman_image_t * image, pixman_image_destroy_func_t function, void * data);
+void * pixman_image_get_destroy_data(pixman_image_t * image);
 
 /* Set properties */
-pixman_bool_t   pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
-pixman_bool_t   pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region);
-void            pixman_image_set_has_client_clip(pixman_image_t * image, pixman_bool_t clien_clip);
-pixman_bool_t   pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform);
-void            pixman_image_set_repeat(pixman_image_t * image, pixman_repeat_t repeat);
-pixman_bool_t   pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * filter_params, int n_filter_params);
-void            pixman_image_set_source_clipping(pixman_image_t * image, pixman_bool_t source_clipping);
-void            pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y);
-void            pixman_image_set_component_alpha(pixman_image_t * image, pixman_bool_t component_alpha);
-pixman_bool_t   pixman_image_get_component_alpha(pixman_image_t * image);
-void            pixman_image_set_accessors(pixman_image_t * image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func);
-void            pixman_image_set_indexed(pixman_image_t * image, const pixman_indexed_t * indexed);
-uint32_t       * pixman_image_get_data(pixman_image_t * image);
-int             pixman_image_get_width(pixman_image_t * image);
-int             pixman_image_get_height(pixman_image_t * image);
-int             pixman_image_get_stride(pixman_image_t * image);              /* in bytes */
-int             pixman_image_get_depth(pixman_image_t * image);
+pixman_bool_t pixman_image_set_clip_region(pixman_image_t * image, pixman_region16_t * region);
+pixman_bool_t FASTCALL pixman_image_set_clip_region32(pixman_image_t * image, pixman_region32_t * region);
+void   pixman_image_set_has_client_clip(pixman_image_t * image, pixman_bool_t clien_clip);
+pixman_bool_t pixman_image_set_transform(pixman_image_t * image, const pixman_transform_t * transform);
+void   pixman_image_set_repeat(pixman_image_t * image, pixman_repeat_t repeat);
+pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * filter_params, int n_filter_params);
+void   pixman_image_set_source_clipping(pixman_image_t * image, pixman_bool_t source_clipping);
+void   pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y);
+void   pixman_image_set_component_alpha(pixman_image_t * image, pixman_bool_t component_alpha);
+pixman_bool_t pixman_image_get_component_alpha(pixman_image_t * image);
+void   pixman_image_set_accessors(pixman_image_t * image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func);
+void   pixman_image_set_indexed(pixman_image_t * image, const pixman_indexed_t * indexed);
+uint32_t * pixman_image_get_data(pixman_image_t * image);
+int    pixman_image_get_width(pixman_image_t * image);
+int    pixman_image_get_height(pixman_image_t * image);
+int    pixman_image_get_stride(pixman_image_t * image);              /* in bytes */
+int    pixman_image_get_depth(pixman_image_t * image);
 pixman_format_code_t pixman_image_get_format(pixman_image_t * image);
 
 typedef enum {

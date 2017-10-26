@@ -47,7 +47,7 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600) // @sobolev 0x0500-->0x0600
 	#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
-#include "cairo-default-context-private.h"
+//#include "cairo-default-context-private.h"
 //#include "cairo-image-surface-private.h"
 #include "cairo-paginated-private.h"
 //#include "cairo-pattern-private.h"

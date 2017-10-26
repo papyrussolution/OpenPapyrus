@@ -117,8 +117,8 @@ typedef struct _cairo_path_fixed_iter {
 } cairo_path_fixed_iter_t;
 
 cairo_private void _cairo_path_fixed_iter_init(cairo_path_fixed_iter_t * iter, const cairo_path_fixed_t * path);
-cairo_private cairo_bool_t _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter, cairo_box_t * box);
-cairo_private cairo_bool_t _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter);
+cairo_private cairo_bool_t FASTCALL _cairo_path_fixed_iter_is_fill_box(cairo_path_fixed_iter_t * _iter, cairo_box_t * box);
+cairo_private cairo_bool_t FASTCALL _cairo_path_fixed_iter_at_end(const cairo_path_fixed_iter_t * iter);
 
 static inline cairo_bool_t _cairo_path_fixed_fill_is_empty(const cairo_path_fixed_t * path)
 {

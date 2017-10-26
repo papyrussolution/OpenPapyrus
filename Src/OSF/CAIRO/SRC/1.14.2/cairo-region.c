@@ -37,7 +37,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 
 /* XXX need to update pixman headers to be const as appropriate */
 #define CONST_CAST (pixman_region32_t*)
@@ -450,23 +450,19 @@ slim_hidden_def(cairo_region_get_rectangle);
  *
  * Since: 1.10
  **/
-void cairo_region_get_extents(const cairo_region_t * region,
-    CairoIRect * extents)
+void FASTCALL cairo_region_get_extents(const cairo_region_t * region, CairoIRect * extents)
 {
-	pixman_box32_t * pextents;
-
 	if(region->status) {
 		extents->x = extents->y = 0;
 		extents->width = extents->height = 0;
-		return;
 	}
-
-	pextents = pixman_region32_extents(CONST_CAST &region->rgn);
-
-	extents->x = pextents->x1;
-	extents->y = pextents->y1;
-	extents->width = pextents->x2 - pextents->x1;
-	extents->height = pextents->y2 - pextents->y1;
+	else {
+		pixman_box32_t * pextents = pixman_region32_extents(CONST_CAST &region->rgn);
+		extents->x = pextents->x1;
+		extents->y = pextents->y1;
+		extents->width = pextents->x2 - pextents->x1;
+		extents->height = pextents->y2 - pextents->y1;
+	}
 }
 
 slim_hidden_def(cairo_region_get_extents);
@@ -813,22 +809,17 @@ slim_hidden_def(cairo_region_translate);
  *
  * Since: 1.10
  **/
-cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region,
-    const CairoIRect * rectangle)
+cairo_region_overlap_t FASTCALL cairo_region_contains_rectangle(const cairo_region_t * region, const CairoIRect * rectangle)
 {
 	pixman_box32_t pbox;
 	pixman_region_overlap_t poverlap;
-
 	if(region->status)
 		return CAIRO_REGION_OVERLAP_OUT;
-
 	pbox.x1 = rectangle->x;
 	pbox.y1 = rectangle->y;
 	pbox.x2 = rectangle->x + rectangle->width;
 	pbox.y2 = rectangle->y + rectangle->height;
-
-	poverlap = pixman_region32_contains_rectangle(CONST_CAST &region->rgn,
-	    &pbox);
+	poverlap = pixman_region32_contains_rectangle(CONST_CAST &region->rgn, &pbox);
 	switch(poverlap) {
 		default:
 		case PIXMAN_REGION_OUT:  return CAIRO_REGION_OVERLAP_OUT;

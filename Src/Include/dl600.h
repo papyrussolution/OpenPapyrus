@@ -154,7 +154,7 @@ struct DlFunc {
 		DlFuncImpl Impl;
 	};
 private:
-	SArray ArgList;
+	SVector ArgList; // @v9.8.6 SArray-->SVector
 	StringSet ArgNamList;
 };
 
@@ -187,8 +187,8 @@ private:
 		uint16 Flags;
 	};
 	int    SearchNamePos(uint namePos, uint * pPos) const;
-	SArray Items;
-	SArray ArgList;
+	SVector Items;   // @v9.8.6 SArray-->SVector
+	SVector ArgList; // @v9.8.6 SArray-->SVector
 	StringSet NamePool;
 };
 //

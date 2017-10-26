@@ -42,13 +42,13 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-image-surface-private.h"
+//#include "cairo-image-surface-private.h"
 #include "cairo-compositor-private.h"
 #include "cairo-spans-compositor-private.h"
-#include "cairo-region-private.h"
+//#include "cairo-region-private.h"
 //#include "cairo-traps-private.h"
 #include "cairo-tristrip-private.h"
-#include "cairo-pixman-private.h"
+//#include "cairo-pixman-private.h"
 
 static pixman_image_t * FASTCALL to_pixman_image(cairo_surface_t * s)
 {
@@ -852,11 +852,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 	 * depth of the target surface, we should reconsider the appropriate
 	 * mask formats.
 	 */
-
-	status = _cairo_scaled_glyph_lookup(info->font,
-	    info->glyphs[0].index,
-	    CAIRO_SCALED_GLYPH_INFO_SURFACE,
-	    &scaled_glyph);
+	status = _cairo_scaled_glyph_lookup(info->font, info->glyphs[0].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
 	if(unlikely(status)) {
 		pixman_image_unref(white);
 		return status;
@@ -869,7 +865,6 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 		format = PIXMAN_a8r8g8b8;
 		i = info->extents.width * 4;
 	}
-
 	if(i * info->extents.height > (int)sizeof(buf)) {
 		mask = pixman_image_create_bits(format, info->extents.width, info->extents.height, NULL, 0);
 	}
@@ -908,8 +903,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 					pixman_image_unref(white);
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 				}
-				pixman_image_composite32(PIXMAN_OP_SRC, white, mask, ca_mask,
-				    0, 0, 0, 0, 0, 0, info->extents.width, info->extents.height);
+				pixman_image_composite32(PIXMAN_OP_SRC, white, mask, ca_mask, 0, 0, 0, 0, 0, 0, info->extents.width, info->extents.height);
 				pixman_image_unref(mask);
 				mask = ca_mask;
 			}
@@ -938,20 +932,13 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t composite_glyphs(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t               * _src,
-    int src_x,
-    int src_y,
-    int dst_x,
-    int dst_y,
-    cairo_composite_glyphs_info_t * info)
+static cairo_int_status_t composite_glyphs(void * _dst, cairo_operator_t op, cairo_surface_t * _src,
+    int src_x, int src_y, int dst_x, int dst_y, cairo_composite_glyphs_info_t * info)
 {
 	cairo_scaled_glyph_t * glyph_cache[64];
 	pixman_image_t * dst, * src;
 	cairo_status_t status;
 	int i;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(info->num_glyphs == 1)
 		return composite_one_glyph(_dst, op, _src, src_x, src_y, dst_x, dst_y, info);

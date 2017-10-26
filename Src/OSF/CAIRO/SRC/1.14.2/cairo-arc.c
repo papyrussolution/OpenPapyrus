@@ -35,7 +35,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-arc-private.h"
+//#include "cairo-arc-private.h"
 
 #define MAX_FULL_CIRCLES 65536
 
