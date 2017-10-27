@@ -11502,6 +11502,8 @@ PPHS_ROUNDING                  "rounding"
 PPHS_BASE                      "base"
 PPHS_BASERATIO                 "baseratio"
 PPHS_RATIO                     "ratio"
+PPHS_DEFAULT                   "default"
+PPHS_NODISCOUNT                "nodiscount"
 
 #!}
 

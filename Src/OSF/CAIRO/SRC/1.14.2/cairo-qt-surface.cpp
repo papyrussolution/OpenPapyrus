@@ -41,21 +41,9 @@
 /* Get INT16_MIN etc. as per C99 */
 #define __STDC_LIMIT_MACROS
 
-//#include "cairo-clip-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-surface-backend-private.h"
-#include "cairo-surface-fallback-private.h"
-
 #include "cairo-ft.h"
 #include "cairo-qt.h"
-
 #include <memory>
-
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEngine>
 #include <QtGui/QPaintDevice>
@@ -1429,9 +1417,7 @@ static cairo_int_status_t _cairo_qt_surface_show_glyphs(void * abstract_surface,
 	_cairo_scaled_font_thaw_cache(scaled_font);
 	return CAIRO_INT_STATUS_SUCCESS;
 #else
-	return _cairo_surface_fallback_glyphs(abstract_surface, op,
-	    source, glyphs, num_glyphs,
-	    scaled_font, clip);
+	return _cairo_surface_fallback_glyphs(abstract_surface, op, source, glyphs, num_glyphs, scaled_font, clip);
 #endif
 }
 

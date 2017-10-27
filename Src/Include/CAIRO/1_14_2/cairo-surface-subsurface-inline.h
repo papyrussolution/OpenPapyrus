@@ -36,37 +36,29 @@
 #ifndef CAIRO_SURFACE_SUBSURFACE_INLINE_H
 #define CAIRO_SURFACE_SUBSURFACE_INLINE_H
 
-#include "cairo-surface-subsurface-private.h"
-
-static inline cairo_surface_t *
-_cairo_surface_subsurface_get_target (cairo_surface_t *surface)
+static inline cairo_surface_t * _cairo_surface_subsurface_get_target(cairo_surface_t * surface)
 {
-    return ((cairo_surface_subsurface_t *) surface)->target;
+	return ((cairo_surface_subsurface_t*)surface)->target;
 }
 
-static inline void
-_cairo_surface_subsurface_offset (cairo_surface_t *surface,
-				  int *x, int *y)
+static inline void _cairo_surface_subsurface_offset(cairo_surface_t * surface, int * x, int * y)
 {
-    cairo_surface_subsurface_t *ss = (cairo_surface_subsurface_t *) surface;
-    *x += ss->extents.x;
-    *y += ss->extents.y;
+	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	*x += ss->extents.x;
+	*y += ss->extents.y;
 }
 
-static inline cairo_surface_t *
-_cairo_surface_subsurface_get_target_with_offset (cairo_surface_t *surface,
-						  int *x, int *y)
+static inline cairo_surface_t * _cairo_surface_subsurface_get_target_with_offset(cairo_surface_t * surface, int * x, int * y)
 {
-    cairo_surface_subsurface_t *ss = (cairo_surface_subsurface_t *) surface;
-    *x += ss->extents.x;
-    *y += ss->extents.y;
-    return ss->target;
+	cairo_surface_subsurface_t * ss = (cairo_surface_subsurface_t*)surface;
+	*x += ss->extents.x;
+	*y += ss->extents.y;
+	return ss->target;
 }
 
-static inline cairo_bool_t
-_cairo_surface_is_subsurface (cairo_surface_t *surface)
+static inline cairo_bool_t _cairo_surface_is_subsurface(cairo_surface_t * surface)
 {
-    return surface->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE;
+	return surface->backend->type == CAIRO_SURFACE_TYPE_SUBSURFACE;
 }
 
 #endif /* CAIRO_SURFACE_SUBSURFACE_INLINE_H */

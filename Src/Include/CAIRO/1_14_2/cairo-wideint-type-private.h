@@ -90,16 +90,12 @@
 #endif
 
 #if !HAVE_UINT64_T
-
-typedef struct _cairo_uint64 {
-    uint32_t	lo, hi;
-} cairo_uint64_t, cairo_int64_t;
-
+	typedef struct _cairo_uint64 {
+		uint32_t	lo, hi;
+	} cairo_uint64_t, cairo_int64_t;
 #else
-
-typedef uint64_t    cairo_uint64_t;
-typedef int64_t	    cairo_int64_t;
-
+	typedef uint64_t    cairo_uint64_t;
+	typedef int64_t	    cairo_int64_t;
 #endif
 
 typedef struct _cairo_uquorem64 {
@@ -121,16 +117,12 @@ typedef struct _cairo_quorem64 {
 #endif
 
 #if !HAVE_UINT128_T
-
-typedef struct cairo_uint128 {
-    cairo_uint64_t	lo, hi;
-} cairo_uint128_t, cairo_int128_t;
-
+	typedef struct cairo_uint128 {
+		cairo_uint64_t	lo, hi;
+	} cairo_uint128_t, cairo_int128_t;
 #else
-
-typedef uint128_t	cairo_uint128_t;
-typedef int128_t	cairo_int128_t;
-
+	typedef uint128_t	cairo_uint128_t;
+	typedef int128_t	cairo_int128_t;
 #endif
 
 typedef struct _cairo_uquorem128 {

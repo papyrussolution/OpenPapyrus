@@ -34,18 +34,10 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-surface-observer-private.h"
-#include "cairo-surface-observer-inline.h"
-//#include "cairo-array-private.h"
-//#include "cairo-combsort-inline.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-output-stream-private.h"
-#include "cairo-recording-surface-private.h"
-#include "cairo-surface-subsurface-inline.h"
-//#include "cairo-reference-count-private.h"
+//#include "cairo-surface-observer-private.h"
+//#include "cairo-surface-observer-inline.h"
+//#include "cairo-recording-surface-private.h"
+//#include "cairo-surface-subsurface-inline.h"
 #if CAIRO_HAS_SCRIPT_SURFACE
 	#include "cairo-script-private.h"
 #endif
@@ -54,37 +46,37 @@ extern const cairo_surface_backend_t _cairo_surface_observer_backend;
 
 /* observation/stats */
 
-static void init_stats(struct SurfaceObserverStat * s)
+static void FASTCALL init_stats(struct SurfaceObserverStat * s)
 {
 	s->min = HUGE_VAL;
 	s->max = -HUGE_VAL;
 }
 
-static void init_extents(struct extents * e)
+static void FASTCALL init_extents(struct extents * e)
 {
 	init_stats(&e->area);
 }
 
-static void init_pattern(struct pattern * p)
+static void FASTCALL init_pattern(struct pattern * p)
 {
 }
 
-static void init_path(struct path * p)
+static void FASTCALL init_path(struct path * p)
 {
 }
 
-static void init_clip(struct clip * c)
+static void FASTCALL init_clip(struct clip * c)
 {
 }
 
-static void init_paint(_cairo_observation::Paint * p)
+static void FASTCALL init_paint(_cairo_observation::Paint * p)
 {
 	init_extents(&p->extents);
 	init_pattern(&p->source);
 	init_clip(&p->clip);
 }
 
-static void init_mask(_cairo_observation::Mask * m)
+static void FASTCALL init_mask(_cairo_observation::Mask * m)
 {
 	init_extents(&m->extents);
 	init_pattern(&m->source);
@@ -92,7 +84,7 @@ static void init_mask(_cairo_observation::Mask * m)
 	init_clip(&m->clip);
 }
 
-static void init_fill(_cairo_observation::Fill * f)
+static void FASTCALL init_fill(_cairo_observation::Fill * f)
 {
 	init_extents(&f->extents);
 	init_pattern(&f->source);
@@ -100,7 +92,7 @@ static void init_fill(_cairo_observation::Fill * f)
 	init_clip(&f->clip);
 }
 
-static void init_stroke(_cairo_observation::Stroke * s)
+static void FASTCALL init_stroke(_cairo_observation::Stroke * s)
 {
 	init_extents(&s->extents);
 	init_pattern(&s->source);
@@ -108,14 +100,14 @@ static void init_stroke(_cairo_observation::Stroke * s)
 	init_clip(&s->clip);
 }
 
-static void init_glyphs(_cairo_observation::Glyphs * g)
+static void FASTCALL init_glyphs(_cairo_observation::Glyphs * g)
 {
 	init_extents(&g->extents);
 	init_pattern(&g->source);
 	init_clip(&g->clip);
 }
 
-static cairo_status_t log_init(cairo_observation_t * log, cairo_bool_t record)
+static cairo_status_t FASTCALL log_init(cairo_observation_t * log, cairo_bool_t record)
 {
 	memzero(log, sizeof(*log));
 	init_paint(&log->paint);
@@ -133,21 +125,20 @@ static cairo_status_t log_init(cairo_observation_t * log, cairo_bool_t record)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void log_fini(cairo_observation_t * log)
+static void FASTCALL log_fini(cairo_observation_t * log)
 {
 	_cairo_array_fini(&log->timings);
 	cairo_surface_destroy(&log->record->base);
 }
 
-static cairo_surface_t* get_pattern_surface(const cairo_pattern_t * pattern)
+static cairo_surface_t * FASTCALL get_pattern_surface(const cairo_pattern_t * pattern)
 {
 	return ((cairo_surface_pattern_t*)pattern)->surface;
 }
 
-static int classify_pattern(const cairo_pattern_t * pattern, const cairo_surface_t * target)
+static int FASTCALL classify_pattern(const cairo_pattern_t * pattern, const cairo_surface_t * target)
 {
 	int classify;
-
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE:
 		    if(get_pattern_surface(pattern)->type == target->type)
@@ -177,12 +168,12 @@ static int classify_pattern(const cairo_pattern_t * pattern, const cairo_surface
 	return classify;
 }
 
-static void add_pattern(struct pattern * stats, const cairo_pattern_t * pattern, const cairo_surface_t * target)
+static void FASTCALL add_pattern(struct pattern * stats, const cairo_pattern_t * pattern, const cairo_surface_t * target)
 {
 	stats->type[classify_pattern(pattern, target)]++;
 }
 
-static int classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
+static int FASTCALL classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
 {
 	/* XXX improve for stroke */
 	int classify = -1;
@@ -201,12 +192,12 @@ static int classify_path(const cairo_path_fixed_t * path, cairo_bool_t is_fill)
 	return classify;
 }
 
-static void add_path(struct path * stats, const cairo_path_fixed_t * path, cairo_bool_t is_fill)
+static void FASTCALL add_path(struct path * stats, const cairo_path_fixed_t * path, cairo_bool_t is_fill)
 {
 	stats->type[classify_path(path, is_fill)]++;
 }
 
-static int classify_clip(const cairo_clip_t * clip)
+static int FASTCALL classify_clip(const cairo_clip_t * clip)
 {
 	int classify;
 	if(clip == NULL)
@@ -224,12 +215,12 @@ static int classify_clip(const cairo_clip_t * clip)
 	return classify;
 }
 
-static void add_clip(struct clip * stats, const cairo_clip_t * clip)
+static void FASTCALL add_clip(struct clip * stats, const cairo_clip_t * clip)
 {
 	stats->type[classify_clip(clip)]++;
 }
 
-static void stats_add(struct SurfaceObserverStat * s, double v)
+static void FASTCALL stats_add(struct SurfaceObserverStat * s, double v)
 {
 	if(v < s->min)
 		s->min = v;
@@ -240,16 +231,16 @@ static void stats_add(struct SurfaceObserverStat * s, double v)
 	s->count++;
 }
 
-static void add_extents(struct extents * stats, const cairo_composite_rectangles_t * extents)
+static void FASTCALL add_extents(struct extents * stats, const cairo_composite_rectangles_t * extents)
 {
 	const CairoIRect * r = extents->is_bounded ? &extents->bounded : &extents->unbounded;
 	stats_add(&stats->area, r->width * r->height);
 	stats->bounded += extents->is_bounded != 0;
 	stats->unbounded += extents->is_bounded == 0;
 }
-
-/* device interface */
-
+//
+// device interface 
+//
 static void _cairo_device_observer_lock(void * _device)
 {
 	cairo_device_observer_t * device = (cairo_device_observer_t*)_device;
@@ -289,10 +280,8 @@ static void _cairo_device_observer_destroy(void * _device)
 
 static const cairo_device_backend_t _cairo_device_observer_backend = {
 	(cairo_device_type_t)CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER,
-
 	_cairo_device_observer_lock,
 	_cairo_device_observer_unlock,
-
 	_cairo_device_observer_flush,
 	_cairo_device_observer_finish,
 	_cairo_device_observer_destroy,
@@ -1447,9 +1436,7 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 			_cairo_output_stream_printf(stream, "\n\n");
 	}
 	_cairo_output_stream_printf(stream, "stroke: count %d [no-op %d], elapsed %f [%f%%]\n",
-	    log->stroke.count, log->stroke.noop,
-	    _cairo_time_to_ns(log->stroke.elapsed),
-	    percent(log->stroke.elapsed, total));
+	    log->stroke.count, log->stroke.noop, _cairo_time_to_ns(log->stroke.elapsed), percent(log->stroke.elapsed, total));
 	if(log->stroke.count) {
 		print_extents(stream, &log->stroke.extents);
 		print_operators(stream, log->stroke.operators);
@@ -1478,7 +1465,6 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		if(replay_record(log, &log->glyphs.slowest, script))
 			_cairo_output_stream_printf(stream, "\n\n");
 	}
-
 	cairo_device_destroy(script);
 }
 
@@ -1525,13 +1511,10 @@ cairo_status_t cairo_device_observer_print(cairo_device_t * abstract_device, cai
 double cairo_device_observer_elapsed(cairo_device_t * abstract_device)
 {
 	cairo_device_observer_t * device;
-
 	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
-
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
-
 	device = (cairo_device_observer_t*)abstract_device;
 	return _cairo_time_to_ns(_cairo_observation_total_elapsed(&device->log));
 }
@@ -1539,13 +1522,10 @@ double cairo_device_observer_elapsed(cairo_device_t * abstract_device)
 double cairo_device_observer_paint_elapsed(cairo_device_t * abstract_device)
 {
 	cairo_device_observer_t * device;
-
 	if(unlikely(CAIRO_REFERENCE_COUNT_IS_INVALID(&abstract_device->ref_count)))
 		return -1;
-
 	if(!_cairo_device_is_observer(abstract_device))
 		return -1;
-
 	device = (cairo_device_observer_t*)abstract_device;
 	return _cairo_time_to_ns(device->log.paint.elapsed);
 }

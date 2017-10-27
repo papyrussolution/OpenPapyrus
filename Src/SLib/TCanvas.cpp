@@ -2184,8 +2184,7 @@ int SPaintObj::Font::GetGlyph(SDrawContext & rCtx, uint16 chr, SGlyph * pGlyph)
 						cairo_set_matrix(p_cr, (cairo_matrix_t *)&mtx);
 						cairo_glyph_t glyph;
 						glyph.index = pGlyph->Idx;
-						glyph.x = 0.0;
-						glyph.y = 0.0;
+						glyph.P.Set(0.0);
 						cairo_text_extents_t ext;
 						cairo_glyph_extents(p_cr, &glyph, 1, &ext);
 						pGlyph->Sz.Set((float)ext.width, (float)ext.height);
@@ -2777,7 +2776,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					cairo_glyph_t glyph;
 					const STextLayout::Item & r_item = re.Items.at(j);
 					glyph.index = (ulong)r_item.GlyphIdx;
-					glyph.x = r_item.P.X;
+					glyph.P.x = r_item.P.X;
 					//
 					// Не понятно почему, но cairo выводит символы по Y-координате
 					// с перевернутым знаком отступа от Y-координаты предыдущего символа.
@@ -2785,7 +2784,7 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 					/* (В версии cairo 1.14.2 проблемы уже нет) if(r_item.P.Y != prev_y)
 						glyph.y = prev_y - (r_item.P.Y - prev_y);
 					else*/
-						glyph.y = r_item.P.Y;
+						glyph.P.y = r_item.P.Y;
 					glyph_list.insert(&glyph);
 					if(r_item.Flags & STextLayout::Item::fUnderscore)
 						special_positions.add(glyph_list.getCount()-1);
@@ -2814,8 +2813,8 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 						const uint gli = (uint)special_positions.get(spi);
 						cairo_glyph_t * p_cgl = (cairo_glyph_t *)glyph_list.at(gli);
 						cairo_glyph_extents(P_Cr, p_cgl, 1, &te);
-						MoveTo(FPoint((float)p_cgl->x+1.0f, (float)p_cgl->y+2.0f));
-						LineH((float)(p_cgl->x+te.width-2.0f));
+						MoveTo(FPoint((float)p_cgl->P.x+1.0f, (float)p_cgl->P.y+2.0f));
+						LineH((float)(p_cgl->P.x+te.width-2.0f));
 						Implement_Stroke(1);
 					}
 				}

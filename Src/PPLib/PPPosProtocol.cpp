@@ -501,6 +501,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					//
 					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
                     if(p_unit_list && p_unit_list->getCount()) {
+						const PPID def_unit_id = GObj.GetConfig().DefUnitID;
 						PPIDArray unit_list(*p_unit_list);
 						uint i;
 						PPUnit unit_rec;
@@ -522,6 +523,9 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 								w_s.PutInner("name", EncText(unit_rec.Name));
 								w_s.PutInnerSkipEmpty("symb", EncText(unit_rec.Abbr));
 								w_s.PutInnerSkipEmpty("code", EncText(unit_rec.Code));
+								if(unit_id == def_unit_id) {
+									w_s.PutInner("default", "true");
+								}
 								if(unit_rec.Flags & PPUnit::Physical)
 									w_s.PutInner("physical", "true");
 								if(unit_rec.Rounding > 0.0) {
@@ -744,6 +748,7 @@ SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
 {
 	ParentBlkP = 0;
 	InnerId = 0;
+	GoodsFlags = 0; // @v9.8.6
 	UnitBlkP = 0;   // @v9.8.6
 	PhUnitBlkP = 0; // @v9.8.6
 	PhUPerU = 0.0;    // @v9.8.6
@@ -1418,6 +1423,9 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 				}
 			}
 		}
+		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
+			w_s.PutInner("nodiscount", "yes");
+		}
 		if(rInfo.Price > 0.0)
 			w_s.PutInner("price", temp_buf.Z().Cat(rInfo.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 		if(rInfo.Rest > 0.0)
@@ -1973,6 +1981,8 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_BASERATIO: // unit
 				case PPHS_ROUNDING: // unit
 				case PPHS_RATIO: // unit
+				case PPHS_DEFAULT: // unit
+				case PPHS_NODISCOUNT: // goods
 					break;
 			}
 		}
@@ -2380,6 +2390,13 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obUnit: Helper_AddStringToPool(&((UnitBlock *)p_item)->NameP); break; // @v9.8.6
 				}
 				break;
+			case PPHS_NODISCOUNT:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+						((GoodsBlock *)p_item)->GoodsFlags |= GF_NODISCOUNT;
+				}
+				break;
 			case PPHS_SERIAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
@@ -2463,10 +2480,19 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_PHYSICAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					if(RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
+				}
+				break;
+			case PPHS_DEFAULT:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obUnit) {
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Default;
+					else
+						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Default;
 				}
 				break;
 			case PPHS_REST:
@@ -2914,7 +2940,9 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				assert(p_inner_blk);
 				if(p_inner_blk) {
 					assert(inner_type == obParent);
-					THROW(CreateParentGoodsGroup(*p_inner_blk, 0, &parent_id));
+					if(inner_type == obParent) {
+						THROW(CreateParentGoodsGroup(*p_inner_blk, 0, &parent_id));
+					}
 				}
 			}
 			{
@@ -2922,6 +2950,29 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					goods_pack.Rec.ParentID = parent_id;
 				else
 					goods_pack.Rec.ParentID = defParentID;
+			}
+		}
+		if(rBlk.UnitBlkP) {
+			int   inner_type = 0;
+			UnitBlock * p_inner_blk = (UnitBlock *)RdB.GetItem(rBlk.UnitBlkP, &inner_type);
+			assert(p_inner_blk);
+			if(p_inner_blk) {
+				assert(inner_type == obUnit);
+				if(inner_type == obUnit && p_inner_blk->NativeID) {
+					goods_pack.Rec.UnitID = p_inner_blk->NativeID;
+					if(p_inner_blk->PhUnitBlkP) {
+						int   phinner_type = 0;
+						UnitBlock * p_phinner_blk = (UnitBlock *)RdB.GetItem(p_inner_blk->PhUnitBlkP, &phinner_type);
+						assert(p_phinner_blk);
+						if(p_phinner_blk) {
+							assert(phinner_type == obUnit);
+							if(phinner_type == obUnit && p_phinner_blk->NativeID) {
+								goods_pack.Rec.PhUnitID = p_phinner_blk->NativeID;
+								goods_pack.Rec.PhUPerU = p_phinner_blk->PhRatio;
+							}
+						}
+					}
+				}
 			}
 		}
 		for(uint j = 0; j < RdB.GoodsCodeList.getCount(); j++) {
@@ -2942,6 +2993,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				}
 			}
 		}
+		SETFLAGBYSAMPLE(goods_pack.Rec.Flags, GF_NODISCOUNT, rBlk.GoodsFlags);
 		pretend_obj_list.sortAndUndup();
 		if(use_ar_code) {
 			if(goods_by_ar_id) {
@@ -2964,6 +3016,10 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 					ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
 				}
+				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
+				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
+				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
+				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -2998,6 +3054,10 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 					ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
 				}
+				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
+				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
+				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
+				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3022,6 +3082,10 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 					ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
 				}
+				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
+				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
+				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
+				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3179,7 +3243,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
-	
+
 	PPID   def_unit_id = GObj.GetConfig().DefUnitID;
 	PPID   def_parent_id = GObj.GetConfig().DefGroupID;
 	SString def_unit_name;
@@ -3283,6 +3347,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		PPUnit u_rec;
+		LAssocArray unit_foreign_to_native_assoc;
 		if(def_unit_id && u_obj.Search(def_unit_id, &u_rec) > 0) {
 			; // @ok
 		}
@@ -3313,6 +3378,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					RdB.GetS(r_blk.NameP, name_buf);
 					name_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					if(name_buf.NotEmptyS()) {
+						const  int is_default = BIN(r_blk.UnitFlags & PPUnit::Default);
 						PPID   native_id = 0;
 						RdB.GetS(r_blk.SymbP, symb_buf);
 						symb_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -3321,7 +3387,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						STRNSCPY(unit_rec.Name, name_buf);
 						STRNSCPY(unit_rec.Abbr, symb_buf);
 						STRNSCPY(unit_rec.Code, code_buf);
-						SETFLAGBYSAMPLE(unit_rec.Flags, r_blk.UnitFlags, PPUnit::Physical);
+						SETFLAGBYSAMPLE(unit_rec.Flags, PPUnit::Physical, r_blk.UnitFlags);
 						if(r_blk.ID > 0 && r_blk.ID < 1000) {
 							unit_rec.ID = r_blk.ID;
 							native_id = r_blk.ID;
@@ -3348,10 +3414,45 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							}
 						}
 						r_blk.NativeID = native_id;
+						if(is_default)
+							def_unit_id = native_id;
+						if(r_blk.NativeID && r_blk.ID) {
+							unit_foreign_to_native_assoc.Add(r_blk.ID, r_blk.NativeID);
+						}
 					}
 				}
 			}
 			THROW(tra.Commit());
+		}
+		//
+		// Теперь, после акцепта всех единиц измерения, идентифицируем ссылки на единицы измерения
+		//
+		{
+			const uint __count = RdB.UnitBlkList.getCount();
+			for(uint i = 0; i < __count; i++) {
+				UnitBlock & r_blk = RdB.UnitBlkList.at(i);
+				if(r_blk.Flags_ & r_blk.fRefItem) {
+					long   native_id = 0;
+					if(r_blk.ID && unit_foreign_to_native_assoc.Search(r_blk.ID, &native_id, 0) && native_id) {
+						r_blk.NativeID = native_id;
+					}
+					else {
+						PPID   temp_id = 0;
+						RdB.GetS(r_blk.NameP, name_buf);
+						name_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						if(name_buf.NotEmptyS() && u_obj.SearchByName(name_buf, &temp_id, 0) > 0) {
+							r_blk.NativeID = temp_id;
+						}
+						else {
+							RdB.GetS(r_blk.SymbP, symb_buf);
+							symb_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							if(symb_buf.NotEmptyS() && u_obj.SearchBySymb(symb_buf, &(temp_id = 0), 0) > 0) {
+								r_blk.NativeID = temp_id;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	{
@@ -3832,7 +3933,6 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
 		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
 		StringSet ss_paths;
-
 		(done_plus_xml_suffix = p_done_suffix).Dot().Cat("xml");
 		{
 			PPCashNode cn_rec;

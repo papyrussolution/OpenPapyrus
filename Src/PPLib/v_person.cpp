@@ -1163,7 +1163,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 			else if(Filt.AttribType == PPPSNATTR_BNKACCT) {
 				//BnkAcctArray bac_ary;
 				//PsnObj.BaObj.FetchList(id, &bac_ary);
-				TSArray <PPBankAccount> bac_ary;
+				TSVector <PPBankAccount> bac_ary; // @v9.8.6 TSArray-->TSVector
 				PsnObj.RegObj.GetBankAccountList(id, &bac_ary);
 				if(bac_ary.getCount() == 0) {
 					if(Filt.EmptyAttrib != EA_NOEMPTY) {

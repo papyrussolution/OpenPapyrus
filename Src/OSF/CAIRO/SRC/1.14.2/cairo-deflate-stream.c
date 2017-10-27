@@ -37,7 +37,6 @@
 #pragma hdrstop
 
 #if CAIRO_HAS_DEFLATE_STREAM
-//#include "cairo-output-stream-private.h"
 #include <zlib.h>
 
 #define BUFFER_SIZE 16384
@@ -71,14 +70,11 @@ static void cairo_deflate_stream_deflate(cairo_deflate_stream_t * stream, cairo_
 	stream->zlib_stream.next_in = stream->input_buf;
 }
 
-static cairo_status_t _cairo_deflate_stream_write(cairo_output_stream_t * base,
-    const uchar   * data,
-    uint length)
+static cairo_status_t _cairo_deflate_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	cairo_deflate_stream_t * stream = (cairo_deflate_stream_t*)base;
 	uint count;
 	const uchar * p = data;
-
 	while(length) {
 		count = length;
 		if(count > BUFFER_SIZE - stream->zlib_stream.avail_in)
@@ -87,11 +83,9 @@ static cairo_status_t _cairo_deflate_stream_write(cairo_output_stream_t * base,
 		p += count;
 		stream->zlib_stream.avail_in += count;
 		length -= count;
-
 		if(stream->zlib_stream.avail_in == BUFFER_SIZE)
 			cairo_deflate_stream_deflate(stream, FALSE);
 	}
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 

@@ -45,17 +45,7 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600) // @sobolev 0x0500-->0x0600
 	#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
-//#include "cairo-default-context-private.h"
-#include "cairo-paginated-private.h"
-//#include "cairo-clip-private.h"
 #include "cairo-win32-private.h"
-#include "cairo-recording-surface-inline.h"
-#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-image-info-private.h"
-////#include "cairo-image-surface-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-clipper-private.h"
-
 #include <windows.h>
 
 #if !defined(POSTSCRIPT_IDENTIFY)
@@ -738,19 +728,12 @@ static cairo_int_status_t _cairo_win32_printing_surface_paint_linear_pattern(cai
 	d = sqrt(xd*xd + yd*yd);
 	sn = yd/d;
 	cs = xd/d;
-	cairo_matrix_init(&rot,
-	    cs, sn,
-	    -sn, cs,
-	    0, 0);
+	cairo_matrix_init(&rot, cs, sn, -sn, cs, 0, 0);
 	cairo_matrix_multiply(&mat, &rot, &mat);
-
 	_cairo_matrix_to_win32_xform(&mat, &xform);
-
 	if(!SetWorldTransform(surface->win32.dc, &xform))
 		return _cairo_win32_print_gdi_error("_win32_printing_surface_paint_linear_pattern:SetWorldTransform2");
-
 	GetClipBox(surface->win32.dc, &clip);
-
 	if(extend == CAIRO_EXTEND_REPEAT || extend == CAIRO_EXTEND_REFLECT) {
 		range_start = (int)floor(clip.left / d);
 		range_stop = (int)ceil(clip.right / d);
@@ -1282,7 +1265,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_emit_win32_glyphs(cairo_
 
 	if(surface->has_ctm) {
 		for(i = 0; i < num_glyphs; i++)
-			cairo_matrix_transform_point(&surface->ctm, &glyphs[i].x, &glyphs[i].y);
+			cairo_matrix_transform_rpoint(&surface->ctm, glyphs[i].P);
 		cairo_matrix_multiply(&ctm, &scaled_font->ctm, &surface->ctm);
 		scaled_font = cairo_scaled_font_create(scaled_font->font_face, &scaled_font->font_matrix, &ctm, &scaled_font->options);
 	}
@@ -1402,7 +1385,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_show_glyphs(void * abstr
 		if(status)
 			break;
 		surface->ctm = old_ctm;
-		cairo_matrix_translate(&surface->ctm, glyphs[i].x, glyphs[i].y);
+		cairo_matrix_translate_r(&surface->ctm, glyphs[i].P);
 		status = _cairo_win32_printing_surface_emit_path(surface, scaled_glyph->path);
 	}
 	EndPath(surface->win32.dc);

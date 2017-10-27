@@ -53,7 +53,7 @@
 //#include "cairo-error-private.h"
 //#include "cairo-rtree-private.h"
 //#include "cairo-scaled-font-private.h"
-#include "cairo-spans-compositor-private.h"
+//#include "cairo-spans-compositor-private.h"
 //#include "cairo-array-private.h"
 //#include <assert.h>
 
@@ -270,100 +270,72 @@ typedef struct _cairo_gl_dispatch {
 	void (* LinkProgram)(GLuint program);
 	void (* UseProgram)(GLuint program);
 	void (* GetProgramiv)(GLuint program, GLenum pname, GLint * params);
-	void (* GetProgramInfoLog)(GLuint program, GLsizei bufSize,
-	    GLsizei * length, GLchar * infoLog);
+	void (* GetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
 
 	/* Uniforms */
 	GLint (* GetUniformLocation)(GLuint program, const GLchar* name);
 	void (* Uniform1f)(GLint location, GLfloat x);
 	void (* Uniform2f)(GLint location, GLfloat x, GLfloat y);
 	void (* Uniform3f)(GLint location, GLfloat x, GLfloat y, GLfloat z);
-	void (* Uniform4f)(GLint location, GLfloat x, GLfloat y, GLfloat z,
-	    GLfloat w);
-	void (* UniformMatrix3fv)(GLint location, GLsizei count,
-	    GLboolean transpose, const GLfloat * value);
-	void (* UniformMatrix4fv)(GLint location, GLsizei count,
-	    GLboolean transpose, const GLfloat * value);
+	void (* Uniform4f)(GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void (* UniformMatrix3fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
+	void (* UniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
 	void (* Uniform1i)(GLint location, GLint x);
 
 	/* Attributes */
-	void (* BindAttribLocation)(GLuint program, GLuint index,
-	    const GLchar * name);
-	void (* VertexAttribPointer)(GLuint index, GLint size, GLenum type,
-	    GLboolean normalized, GLsizei stride,
-	    const GLvoid * pointer);
+	void (* BindAttribLocation)(GLuint program, GLuint index, const GLchar * name);
+	void (* VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
 	void (* EnableVertexAttribArray)(GLuint index);
 	void (* DisableVertexAttribArray)(GLuint index);
 
 	/* Framebuffer objects */
 	void (* GenFramebuffers)(GLsizei n, GLuint* framebuffers);
 	void (* BindFramebuffer)(GLenum target, GLuint framebuffer);
-	void (* FramebufferTexture2D)(GLenum target, GLenum attachment,
-	    GLenum textarget, GLuint texture,
-	    GLint level);
+	void (* FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 	GLenum (* CheckFramebufferStatus)(GLenum target);
 	void (* DeleteFramebuffers)(GLsizei n, const GLuint* framebuffers);
 	void (* GenRenderbuffers)(GLsizei n, GLuint * renderbuffers);
 	void (* BindRenderbuffer)(GLenum target, GLuint renderbuffer);
-	void (* RenderbufferStorage)(GLenum target, GLenum internal_format,
-	    GLsizei width, GLsizei height);
-	void (* FramebufferRenderbuffer)(GLenum target, GLenum attachment,
-	    GLenum renderbuffer_ttarget, GLuint renderbuffer);
+	void (* RenderbufferStorage)(GLenum target, GLenum internal_format, GLsizei width, GLsizei height);
+	void (* FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffer_ttarget, GLuint renderbuffer);
 	void (* DeleteRenderbuffers)(GLsizei n, GLuint * renderbuffers);
-	void (* BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
-	    GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+	void (* BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
 	    GLbitfield mask, GLenum filter);
-	void (* RenderbufferStorageMultisample)(GLenum target, GLsizei samples,
-	    GLenum internalformat,
-	    GLsizei width, GLsizei height);
-	void (* FramebufferTexture2DMultisample)(GLenum target, GLenum attachment,
-	    GLenum textarget, GLuint texture,
-	    GLint level, GLsizei samples);
+	void (* RenderbufferStorageMultisample)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+	void (* FramebufferTexture2DMultisample)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples);
 } cairo_gl_dispatch_t;
 
 struct _cairo_gl_context {
 	cairo_device_t base;
-
 	const cairo_compositor_t * compositor;
-
 	GLuint texture_load_pbo;
 	GLint max_framebuffer_size;
 	GLint max_texture_size;
 	GLint max_textures;
 	GLenum tex_target;
-
 	GLint num_samples;
 	cairo_bool_t supports_msaa;
 	char * vb;
-
 	cairo_bool_t has_shader_support;
-
 	GLuint vertex_shaders[CAIRO_GL_VAR_TYPE_MAX];
 	cairo_gl_shader_t fill_rectangles_shader;
 	cairo_cache_t shaders;
-
 	cairo_cache_t gradients;
-
 	cairo_gl_glyph_cache_t glyph_cache[2];
 	cairo_list_t fonts;
-
 	cairo_gl_surface_t * current_target;
 	cairo_operator_t current_operator;
 	cairo_gl_shader_t * pre_shader; /* for component alpha */
 	cairo_gl_shader_t * current_shader;
-
 	cairo_gl_operand_t operands[2];
 	cairo_bool_t spans;
-
 	uint vbo_size;
 	uint vb_offset;
 	uint vertex_size;
 	cairo_region_t * clip_region;
 	cairo_clip_t * clip;
-
 	cairo_gl_primitive_type_t primitive_type;
 	cairo_array_t tristrip_indices;
-
 	cairo_bool_t has_mesa_pack_invert;
 	cairo_gl_dispatch_t dispatch;
 	GLfloat modelviewprojection_matrix[16];
@@ -372,7 +344,6 @@ struct _cairo_gl_context {
 	cairo_bool_t has_packed_depth_stencil;
 	cairo_bool_t has_npot_repeat;
 	cairo_bool_t can_read_bgra;
-
 	cairo_bool_t thread_aware;
 
 	void (* acquire)(void * ctx);
@@ -481,9 +452,14 @@ cairo_private cairo_gl_emit_glyph_t _cairo_gl_context_choose_emit_glyph(cairo_gl
 cairo_private void _cairo_gl_context_activate(cairo_gl_context_t * ctx, cairo_gl_tex_t tex_unit);
 cairo_private cairo_bool_t _cairo_gl_operator_is_supported(cairo_operator_t op);
 cairo_private cairo_bool_t _cairo_gl_ensure_stencil(cairo_gl_context_t * ctx, cairo_gl_surface_t * surface);
-cairo_private cairo_status_t _cairo_gl_composite_init(cairo_gl_composite_t * setup, cairo_operator_t op, cairo_gl_surface_t * dst, cairo_bool_t has_component_alpha);
+cairo_private cairo_status_t _cairo_gl_composite_init(cairo_gl_composite_t * setup,
+    cairo_operator_t op,
+    cairo_gl_surface_t * dst,
+    cairo_bool_t has_component_alpha);
 cairo_private void _cairo_gl_composite_fini(cairo_gl_composite_t * setup);
-cairo_private cairo_status_t _cairo_gl_composite_set_operator(cairo_gl_composite_t * setup, cairo_operator_t op, cairo_bool_t assume_component_alpha);
+cairo_private cairo_status_t _cairo_gl_composite_set_operator(cairo_gl_composite_t * setup,
+    cairo_operator_t op,
+    cairo_bool_t assume_component_alpha);
 cairo_private void _cairo_gl_composite_set_clip_region(cairo_gl_composite_t * setup, cairo_region_t * clip_region);
 cairo_private void _cairo_gl_composite_set_clip(cairo_gl_composite_t * setup, cairo_clip_t * clip);
 cairo_private cairo_int_status_t _cairo_gl_composite_set_source(cairo_gl_composite_t * setup,

@@ -44,10 +44,7 @@
 
 #define _BSD_SOURCE /* for sstrdup() */
 
-//#include "cairo-image-surface-private.h"
 #include "cairo-ft-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-pixman-private.h"
 #include <float.h>
 #include "cairo-fontconfig-private.h"
 #include <ft2build.h>
@@ -2923,7 +2920,6 @@ static cairo_font_face_t * _cairo_ft_resolve_pattern(FcPattern                  
     const cairo_font_options_t * font_options)
 {
 	cairo_status_t status;
-
 	cairo_matrix_t scale;
 	FcPattern * resolved;
 	cairo_ft_font_transform_t sf;
@@ -2931,26 +2927,19 @@ static cairo_font_face_t * _cairo_ft_resolve_pattern(FcPattern                  
 	cairo_ft_unscaled_font_t * unscaled;
 	cairo_ft_options_t ft_options;
 	cairo_font_face_t * font_face;
-
 	scale = *ctm;
 	scale.x0 = scale.y0 = 0;
-	cairo_matrix_multiply(&scale,
-	    font_matrix,
-	    &scale);
-
+	cairo_matrix_multiply(&scale, font_matrix, &scale);
 	status = _compute_transform(&sf, &scale, 0);
 	if(unlikely(status))
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
-
 	pattern = FcPatternDuplicate(pattern);
 	if(pattern == NULL)
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
-
 	if(!FcPatternAddDouble(pattern, FC_PIXEL_SIZE, sf.y_scale)) {
 		font_face = (cairo_font_face_t*)&_cairo_font_face_nil;
 		goto FREE_PATTERN;
 	}
-
 	if(!FcConfigSubstitute(NULL, pattern, FcMatchPattern)) {
 		font_face = (cairo_font_face_t*)&_cairo_font_face_nil;
 		goto FREE_PATTERN;

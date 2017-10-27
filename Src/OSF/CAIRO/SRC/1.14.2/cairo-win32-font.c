@@ -44,10 +44,6 @@
 	#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
 #include "cairo-win32-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-private.h"
-#include "cairo-scaled-font-subsets-private.h"
 #include <wchar.h>
 
 #ifndef SPI_GETFONTSMOOTHINGTYPE
@@ -483,7 +479,8 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 	int i;
 	WORD * glyph_indices = NULL;
 	cairo_status_t status;
-	double x_pos, y_pos;
+	//double x_pos, y_pos;
+	RPoint _p_pos;
 	HDC hdc = NULL;
 	cairo_matrix_t mat;
 	status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &n16);
@@ -509,8 +506,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL3;
 	}
-	x_pos = x;
-	y_pos = y;
+	_p_pos.Set(x, y);
 	mat = scaled_font->base.ctm;
 	status = cairo_matrix_invert(&mat);
 	assert(status == CAIRO_STATUS_SUCCESS);
@@ -518,8 +514,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 	for(i = 0; i < n16; i++) {
 		cairo_scaled_glyph_t * scaled_glyph;
 		(*glyphs)[i].index = glyph_indices[i];
-		(*glyphs)[i].x = x_pos;
-		(*glyphs)[i].y = y_pos;
+		(*glyphs)[i].P = _p_pos;
 		status = _cairo_scaled_glyph_lookup(&scaled_font->base, glyph_indices[i], CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 		if(status) {
 			SAlloc::F(*glyphs);
@@ -529,8 +524,8 @@ static cairo_int_status_t _cairo_win32_scaled_font_type1_text_to_glyphs(cairo_wi
 		x = scaled_glyph->x_advance;
 		y = scaled_glyph->y_advance;
 		cairo_matrix_transform_distance(&mat, &x, &y);
-		x_pos += x;
-		y_pos += y;
+		_p_pos.x += x;
+		_p_pos.y += y;
 	}
 	_cairo_scaled_font_thaw_cache(&scaled_font->base);
 FAIL3:
@@ -553,7 +548,8 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 	WCHAR * glyph_indices = NULL;
 	int * dx = NULL;
 	cairo_status_t status;
-	double x_pos, y_pos;
+	//double x_pos, y_pos;
+	RPoint _p_pos;
 	double x_incr, y_incr;
 	HDC hdc = NULL;
 	/* GetCharacterPlacement() returns utf16 instead of glyph indices
@@ -617,14 +613,12 @@ static cairo_int_status_t _cairo_win32_scaled_font_text_to_glyphs(void * abstrac
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL2;
 	}
-	x_pos = x;
-	y_pos = y;
+	_p_pos.Set(x, y);
 	for(i = 0; i < gcp_results.nGlyphs; i++) {
 		(*glyphs)[i].index = glyph_indices[i];
-		(*glyphs)[i].x = x_pos;
-		(*glyphs)[i].y = y_pos;
-		x_pos += x_incr * dx[i];
-		y_pos += y_incr * dx[i];
+		(*glyphs)[i].P = _p_pos;
+		_p_pos.x += x_incr * dx[i];
+		_p_pos.y += y_incr * dx[i];
 	}
 FAIL2:
 	SAlloc::F(glyph_indices);
@@ -955,7 +949,7 @@ static cairo_status_t _draw_glyphs_on_surface(cairo_win32_surface_t * surface, c
 	SetBkMode(surface->dc, TRANSPARENT);
 	_start_glyphs(&state, scaled_font, surface->dc);
 	for(i = 0; i < num_glyphs; i++) {
-		status = _add_glyph(&state, glyphs[i].index, glyphs[i].x - x_offset, glyphs[i].y - y_offset);
+		status = _add_glyph(&state, glyphs[i].index, glyphs[i].P.x - x_offset, glyphs[i].P.y - y_offset);
 		if(status)
 			goto FAIL2;
 	}
@@ -1205,8 +1199,7 @@ static cairo_status_t _cairo_win32_scaled_font_init_glyph_surface(cairo_win32_sc
 	if(status)
 		goto FAIL;
 	glyph.index = _cairo_scaled_glyph_index(scaled_glyph);
-	glyph.x = -x1;
-	glyph.y = -y1;
+	glyph.P.Set(-x1, -y1);
 	status = _draw_glyphs_on_surface(to_win32_surface(surface), scaled_font, RGB(0, 0, 0), 0, 0, &glyph, 1);
 	if(status)
 		goto FAIL;

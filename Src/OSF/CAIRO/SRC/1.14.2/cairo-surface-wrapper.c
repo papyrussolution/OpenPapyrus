@@ -36,9 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-pattern-private.h"
-#include "cairo-surface-wrapper-private.h"
 
 /* A collection of routines to facilitate surface wrapping */
 
@@ -378,27 +375,17 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 	dev_clip = _cairo_surface_wrapper_get_clip(wrapper, clip);
 	if(_cairo_clip_is_all_clipped(dev_clip))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	cairo_surface_get_font_options(wrapper->target, &options);
 	cairo_font_options_merge(&options, &scaled_font->options);
-
 	if(wrapper->needs_transform) {
 		cairo_matrix_t m;
 		int i;
-
 		_cairo_surface_wrapper_get_transform(wrapper, &m);
-
 		if(!_cairo_matrix_is_translation(&m)) {
 			cairo_matrix_t ctm;
-
-			_cairo_matrix_multiply(&ctm,
-			    &m,
-			    &scaled_font->ctm);
-			dev_scaled_font = cairo_scaled_font_create(scaled_font->font_face,
-			    &scaled_font->font_matrix,
-			    &ctm, &options);
+			_cairo_matrix_multiply(&ctm, &m, &scaled_font->ctm);
+			dev_scaled_font = cairo_scaled_font_create(scaled_font->font_face, &scaled_font->font_matrix, &ctm, &options);
 		}
-
 		if(num_glyphs > SIZEOFARRAY(stack_glyphs)) {
 			dev_glyphs = (cairo_glyph_t *)_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t));
 			if(unlikely(dev_glyphs == NULL)) {
@@ -406,17 +393,12 @@ cairo_status_t _cairo_surface_wrapper_show_text_glyphs(cairo_surface_wrapper_t *
 				goto FINISH;
 			}
 		}
-
 		for(i = 0; i < num_glyphs; i++) {
 			dev_glyphs[i] = glyphs[i];
-			cairo_matrix_transform_point(&m,
-			    &dev_glyphs[i].x,
-			    &dev_glyphs[i].y);
+			cairo_matrix_transform_rpoint(&m, dev_glyphs[i].P);
 		}
-
 		status = cairo_matrix_invert(&m);
 		assert(status == CAIRO_STATUS_SUCCESS);
-
 		_copy_transformed_pattern(&source_copy.base, source, &m);
 		source = &source_copy.base;
 	}

@@ -32,8 +32,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
 
 void FASTCALL _cairo_boxes_init(cairo_boxes_t * boxes)
 {

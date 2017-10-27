@@ -39,8 +39,6 @@
 #ifndef CAIRO_SURFACE_OFFSET_PRIVATE_H
 #define CAIRO_SURFACE_OFFSET_PRIVATE_H
 
-#include "cairo-types-private.h"
-
 CAIRO_BEGIN_DECLS
 
 cairo_private cairo_status_t _cairo_surface_offset_paint(cairo_surface_t * target,
@@ -52,11 +50,9 @@ cairo_private cairo_status_t _cairo_surface_offset_stroke(cairo_surface_t * surf
 	const cairo_stroke_style_t * stroke_style, const cairo_matrix_t * ctm,
 	const cairo_matrix_t * ctm_inverse, double tolerance, cairo_antialias_t antialias,
 	const cairo_clip_t * clip);
-
 cairo_private cairo_status_t _cairo_surface_offset_fill(cairo_surface_t * surface,
 	int x, int y, cairo_operator_t op, const cairo_pattern_t* source, const cairo_path_fixed_t * path,
 	CairoFillRule fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip);
-
 cairo_private cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface,
 	int x, int y, cairo_operator_t op, const cairo_pattern_t * source, cairo_scaled_font_t * scaled_font,
 	cairo_glyph_t * glyphs, int num_glyphs, const cairo_clip_t * clip);

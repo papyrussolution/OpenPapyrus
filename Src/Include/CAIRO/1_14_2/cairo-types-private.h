@@ -39,13 +39,7 @@
 #ifndef CAIRO_TYPES_PRIVATE_H
 #define CAIRO_TYPES_PRIVATE_H
 
-//#include "cairo.h"
-//#include "cairo-fixed-type-private.h"
-//#include "cairo-list-private.h"
-//#include "cairo-reference-count-private.h"
-
 CAIRO_BEGIN_DECLS
-
 /**
  * SECTION:cairo-types
  * @Title: Types
@@ -53,7 +47,6 @@ CAIRO_BEGIN_DECLS
  *
  * This section lists generic data types used in the cairo API.
  **/
-
 typedef struct _cairo_array cairo_array_t;
 typedef struct _cairo_backend cairo_backend_t;
 typedef struct _cairo_boxes_t cairo_boxes_t;

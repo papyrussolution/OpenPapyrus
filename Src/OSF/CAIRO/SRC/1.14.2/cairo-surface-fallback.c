@@ -40,8 +40,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-compositor-private.h"
-#include "cairo-surface-fallback-private.h"
 
 cairo_int_status_t _cairo_surface_fallback_paint(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {

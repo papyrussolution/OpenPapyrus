@@ -83,7 +83,7 @@ enum {
 	mbRightButton = 0x02
 };
 
-struct KeyDownCommand { // @size=4
+struct KeyDownCommand { // @flat @size=4
 	enum {
 		stateAlt   = 0x0001,
 		stateCtrl  = 0x0002,

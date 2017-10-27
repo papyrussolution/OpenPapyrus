@@ -48,9 +48,9 @@
 
 #include "cairo-xlib-private.h"
 
-#include "cairo-compositor-private.h"
+//#include "cairo-compositor-private.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 
 static const cairo_compositor_t * _get_compositor(cairo_surface_t * surface)
 {

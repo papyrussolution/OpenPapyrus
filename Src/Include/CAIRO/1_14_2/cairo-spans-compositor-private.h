@@ -38,73 +38,65 @@
 #ifndef CAIRO_SPANS_COMPOSITOR_PRIVATE_H
 #define CAIRO_SPANS_COMPOSITOR_PRIVATE_H
 
-#include "cairo-compositor-private.h"
-#include "cairo-types-private.h"
-#include "cairo-spans-private.h"
+//#include "cairo-compositor-private.h"
+//#include "cairo-types-private.h"
+//#include "cairo-spans-private.h"
 
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_abstract_span_renderer {
-    cairo_span_renderer_t base;
-    char data[4096];
+	cairo_span_renderer_t base;
+	char data[4096];
 } cairo_abstract_span_renderer_t;
 
 struct cairo_spans_compositor {
-    cairo_compositor_t base;
+	cairo_compositor_t base;
 
-    uint flags;
+	uint flags;
 #define CAIRO_SPANS_COMPOSITOR_HAS_LERP 0x1
 
-    /* pixel-aligned fast paths */
-    cairo_int_status_t (*fill_boxes)	(void			*surface,
-					 cairo_operator_t op,
-					 const cairo_color_t	*color,
-					 cairo_boxes_t		*boxes);
+	/* pixel-aligned fast paths */
+	cairo_int_status_t (* fill_boxes)(void                   * surface,
+	    cairo_operator_t op,
+	    const cairo_color_t    * color,
+	    cairo_boxes_t          * boxes);
+	cairo_int_status_t (* draw_image_boxes)(void * surface,
+	    cairo_image_surface_t * image,
+	    cairo_boxes_t * boxes,
+	    int dx, int dy);
+	cairo_int_status_t (* copy_boxes)(void * surface,
+	    cairo_surface_t * src,
+	    cairo_boxes_t * boxes,
+	    const CairoIRect * extents,
+	    int dx, int dy);
+	cairo_surface_t * (*pattern_to_surface)(cairo_surface_t *dst,
+	    const cairo_pattern_t *pattern,
+	    cairo_bool_t is_mask,
+	    const CairoIRect *extents,
+	    const CairoIRect *sample,
+	    int * src_x, int * src_y);
 
-    cairo_int_status_t (*draw_image_boxes) (void *surface,
-					    cairo_image_surface_t *image,
-					    cairo_boxes_t *boxes,
-					    int dx, int dy);
-
-    cairo_int_status_t (*copy_boxes) (void *surface,
-				      cairo_surface_t *src,
-				      cairo_boxes_t *boxes,
-				      const CairoIRect *extents,
-				      int dx, int dy);
-
-    cairo_surface_t * (*pattern_to_surface) (cairo_surface_t *dst,
-					     const cairo_pattern_t *pattern,
-					     cairo_bool_t is_mask,
-					     const CairoIRect *extents,
-					     const CairoIRect *sample,
-					     int *src_x, int *src_y);
-
-    cairo_int_status_t (*composite_boxes) (void			*surface,
-					   cairo_operator_t op,
-					   cairo_surface_t	*source,
-					   cairo_surface_t	*mask,
-					   int			 src_x,
-					   int			 src_y,
-					   int			 mask_x,
-					   int			 mask_y,
-					   int			 dst_x,
-					   int			 dst_y,
-					   cairo_boxes_t		*boxes,
-					   const CairoIRect  *extents);
-
-    /* general shape masks using a span renderer */
-    cairo_int_status_t (*renderer_init) (cairo_abstract_span_renderer_t *renderer,
-					 const cairo_composite_rectangles_t *extents,
-					 cairo_antialias_t antialias,
-					 cairo_bool_t	 needs_clip);
-
-    void (*renderer_fini) (cairo_abstract_span_renderer_t *renderer,
-			   cairo_int_status_t status);
+	cairo_int_status_t (* composite_boxes)(void                 * surface,
+	    cairo_operator_t op,
+	    cairo_surface_t      * source,
+	    cairo_surface_t      * mask,
+	    int src_x,
+	    int src_y,
+	    int mask_x,
+	    int mask_y,
+	    int dst_x,
+	    int dst_y,
+	    cairo_boxes_t                * boxes,
+	    const CairoIRect  * extents);
+	/* general shape masks using a span renderer */
+	cairo_int_status_t (* renderer_init)(cairo_abstract_span_renderer_t * renderer,
+	    const cairo_composite_rectangles_t * extents,
+	    cairo_antialias_t antialias,
+	    cairo_bool_t needs_clip);
+	void (* renderer_fini)(cairo_abstract_span_renderer_t * renderer, cairo_int_status_t status);
 };
 
-cairo_private void
-_cairo_spans_compositor_init (cairo_spans_compositor_t *compositor,
-			      const cairo_compositor_t  *delegate);
+cairo_private void _cairo_spans_compositor_init(cairo_spans_compositor_t * compositor, const cairo_compositor_t  * delegate);
 
 CAIRO_END_DECLS
 

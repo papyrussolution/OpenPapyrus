@@ -1534,7 +1534,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 	}
 	if(!drop)
 		*num_transformed_glyphs = num_glyphs;
-#define KEEP_GLYPH(glyph) (x1 <= glyph.x && glyph.x <= x2 && y1 <= glyph.y && glyph.y <= y2)
+#define KEEP_GLYPH(glyph) (x1 <= glyph.P.x && glyph.P.x <= x2 && y1 <= glyph.P.y && glyph.P.y <= y2)
 	j = 0;
 	if(_cairo_matrix_is_identity(ctm) && _cairo_matrix_is_identity(device_transform) && font_matrix->x0 == 0 && font_matrix->y0 == 0) {
 		if(!drop) {
@@ -1545,8 +1545,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 		else if(num_clusters == 0) {
 			for(i = 0; i < num_glyphs; i++) {
 				transformed_glyphs[j].index = glyphs[i].index;
-				transformed_glyphs[j].x = glyphs[i].x;
-				transformed_glyphs[j].y = glyphs[i].y;
+				transformed_glyphs[j].P = glyphs[i].P;
 				if(KEEP_GLYPH(transformed_glyphs[j]))
 					j++;
 			}
@@ -1557,8 +1556,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 				cairo_bool_t cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k].index = cur_glyph->index;
-					transformed_glyphs[j+k].x = cur_glyph->x;
-					transformed_glyphs[j+k].y = cur_glyph->y;
+					transformed_glyphs[j+k].P = cur_glyph->P;
 					if(KEEP_GLYPH(transformed_glyphs[j+k]))
 						cluster_visible = TRUE;
 					if(cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
@@ -1580,8 +1578,8 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 		if(!drop || num_clusters == 0) {
 			for(i = 0; i < num_glyphs; i++) {
 				transformed_glyphs[j].index = glyphs[i].index;
-				transformed_glyphs[j].x = glyphs[i].x + tx;
-				transformed_glyphs[j].y = glyphs[i].y + ty;
+				transformed_glyphs[j].P.x = glyphs[i].P.x + tx;
+				transformed_glyphs[j].P.y = glyphs[i].P.y + ty;
 				if(!drop || KEEP_GLYPH(transformed_glyphs[j]))
 					j++;
 			}
@@ -1593,8 +1591,8 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 				cairo_bool_t cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k].index = cur_glyph->index;
-					transformed_glyphs[j+k].x = cur_glyph->x + tx;
-					transformed_glyphs[j+k].y = cur_glyph->y + ty;
+					transformed_glyphs[j+k].P.x = cur_glyph->P.x + tx;
+					transformed_glyphs[j+k].P.y = cur_glyph->P.y + ty;
 					if(KEEP_GLYPH(transformed_glyphs[j+k]))
 						cluster_visible = TRUE;
 					if(cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
@@ -1618,7 +1616,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 		if(!drop || num_clusters == 0) {
 			for(i = 0; i < num_glyphs; i++) {
 				transformed_glyphs[j] = glyphs[i];
-				cairo_matrix_transform_point(&aggregate_transform, &transformed_glyphs[j].x, &transformed_glyphs[j].y);
+				cairo_matrix_transform_rpoint(&aggregate_transform, transformed_glyphs[j].P);
 				if(!drop || KEEP_GLYPH(transformed_glyphs[j]))
 					j++;
 			}
@@ -1630,7 +1628,7 @@ static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
 				cairo_bool_t cluster_visible = FALSE;
 				for(k = 0; k < clusters[i].num_glyphs; k++) {
 					transformed_glyphs[j+k] = *cur_glyph;
-					cairo_matrix_transform_point(&aggregate_transform, &transformed_glyphs[j+k].x, &transformed_glyphs[j+k].y);
+					cairo_matrix_transform_rpoint(&aggregate_transform, transformed_glyphs[j+k].P);
 					if(KEEP_GLYPH(transformed_glyphs[j+k]))
 						cluster_visible = TRUE;
 					if(cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)

@@ -54,11 +54,11 @@
 #include "cairo-xlib-surface-private.h"
 //#include "cairo-boxes-private.h"
 //#include "cairo-clip-inline.h"
-#include "cairo-compositor-private.h"
+//#include "cairo-compositor-private.h"
 //#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-region-private.h"
-#include "cairo-surface-offset-private.h"
+//#include "cairo-surface-offset-private.h"
 
 /* the low-level interface */
 

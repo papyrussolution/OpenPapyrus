@@ -37,34 +37,16 @@
 #ifndef CAIRO_XCB_PRIVATE_H
 #define CAIRO_XCB_PRIVATE_H
 
-//#include "cairoint.h"
 #include "cairo-xcb.h"
-//#include "cairo-cache-private.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-device-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-list-private.h"
-//#include "cairo-mutex-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-reference-count-private.h"
-//#include "cairo-scaled-font-private.h"
 #include "cairo-spans-private.h"
-//#include "cairo-surface-private.h"
-
 #include <xcb/xcb.h>
 #include <xcb/render.h>
 #include <xcb/xcbext.h>
 #include <pixman.h>
 
 #define XLIB_COORD_MAX 32767
-
-/* maximum number of cached GC's */
-#define GC_CACHE_SIZE 4
-
-#define CAIRO_XCB_RENDER_AT_LEAST(major, minor)	\
-	((XCB_RENDER_MAJOR_VERSION > major) ||	\
-	((XCB_RENDER_MAJOR_VERSION == major) && (XCB_RENDER_MINOR_VERSION >= minor)))
+#define GC_CACHE_SIZE 4 // maximum number of cached GC's 
+#define CAIRO_XCB_RENDER_AT_LEAST(major, minor)	((XCB_RENDER_MAJOR_VERSION > major) || ((XCB_RENDER_MAJOR_VERSION == major) && (XCB_RENDER_MINOR_VERSION >= minor)))
 
 typedef struct _cairo_xcb_connection cairo_xcb_connection_t;
 typedef struct _cairo_xcb_font cairo_xcb_font_t;

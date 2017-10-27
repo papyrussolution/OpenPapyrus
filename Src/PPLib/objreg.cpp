@@ -900,7 +900,7 @@ int SLAPI PPObjRegister::EditBankAccountList(PPPersonPacket * pPsnPack)
 	return ok;
 }
 
-int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSArray <PPBankAccount> * pList)
+int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList) // @v9.8.6 TSArray-->TSVector
 {
 	CALLPTRMEMB(pList, clear());
 	int   ok = -1;

@@ -40,7 +40,7 @@
 //#include "cairoint.h"
 //#include "cairo-device-private.h"
 //#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-private.h"
+////#include "cairo-surface-private.h"
 
 #ifndef SHADEBLENDCAPS
 #define SHADEBLENDCAPS 120

@@ -35,7 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-output-stream-private.h"
 
 typedef struct _cairo_base85_stream {
 	cairo_output_stream_t base;
@@ -44,14 +43,10 @@ typedef struct _cairo_base85_stream {
 	int pending;
 } cairo_base85_stream_t;
 
-static void _expand_four_tuple_to_five(uchar four_tuple[4],
-    uchar five_tuple[5],
-    cairo_bool_t * all_zero)
+static void _expand_four_tuple_to_five(uchar four_tuple[4], uchar five_tuple[5], cairo_bool_t * all_zero)
 {
-	uint32_t value;
 	int digit, i;
-
-	value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
+	uint32_t value = four_tuple[0] << 24 | four_tuple[1] << 16 | four_tuple[2] << 8 | four_tuple[3];
 	if(all_zero)
 		*all_zero = TRUE;
 	for(i = 0; i < 5; i++) {
@@ -63,15 +58,12 @@ static void _expand_four_tuple_to_five(uchar four_tuple[4],
 	}
 }
 
-static cairo_status_t _cairo_base85_stream_write(cairo_output_stream_t * base,
-    const uchar   * data,
-    uint length)
+static cairo_status_t _cairo_base85_stream_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	cairo_base85_stream_t * stream = (cairo_base85_stream_t*)base;
 	const uchar * ptr = data;
 	uchar five_tuple[5];
 	cairo_bool_t is_zero;
-
 	while(length) {
 		stream->four_tuple[stream->pending++] = *ptr++;
 		length--;
@@ -84,7 +76,6 @@ static cairo_status_t _cairo_base85_stream_write(cairo_output_stream_t * base,
 			stream->pending = 0;
 		}
 	}
-
 	return _cairo_output_stream_get_status(stream->output);
 }
 

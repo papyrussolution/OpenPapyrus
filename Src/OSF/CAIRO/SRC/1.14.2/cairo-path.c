@@ -35,11 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-private.h"
-//#include "cairo-backend-private.h"
-//#include "cairo-path-private.h"
-//#include "cairo-path-fixed-private.h"
-
 /**
  * SECTION:cairo-paths
  * @Title: Paths

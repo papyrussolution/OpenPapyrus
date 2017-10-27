@@ -5986,7 +5986,7 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 								break;
 							}
 						}
-						if(temp_buf.NotEmptyS()) 
+						if(temp_buf.NotEmptyS())
 							ss_memo_new.add(temp_buf);
 					}
 				}
@@ -6077,11 +6077,27 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 					selfreject_ticket = 1000;
 			}
 			if(!selfreject_ticket) {
-				if(pT->RegIdent.NotEmpty()) {
-					p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pT->RegIdent, &bill_id_list);
+				if(oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+					//
+					// @v9.8.6 Для тикетов на документы отгрузки порядок идентификации документа меняем:
+					// сначала ищем по PPTAG_BILL_EDIACK потом по PPTAG_BILL_EDIIDENT. Это связано с тем,
+					// что в противном случае при отправке документов в пределах одной базы между родственными организациями
+					// драфт-документ прихода может перехватить тикет, предназначенный отправленному документу.
+					//
+					if(guid.NotEmpty()) {
+						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIACK, guid, &bill_id_list);
+					}
+					if(!bill_id_list.getCount() && pT->RegIdent.NotEmpty()) {
+						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pT->RegIdent, &bill_id_list);
+					}
 				}
-				if(!bill_id_list.getCount() && guid.NotEmpty()) {
-					p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIACK, guid, &bill_id_list);
+				else {
+					if(pT->RegIdent.NotEmpty()) {
+						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pT->RegIdent, &bill_id_list);
+					}
+					if(!bill_id_list.getCount() && guid.NotEmpty()) {
+						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIACK, guid, &bill_id_list);
+					}
 				}
 			}
 			bill_id_list.sortAndUndup();

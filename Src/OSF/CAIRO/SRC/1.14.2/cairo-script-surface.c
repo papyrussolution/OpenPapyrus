@@ -66,19 +66,6 @@
 #pragma hdrstop
 #include "cairo-script.h"
 #include "cairo-script-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-device-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-output-stream-private.h"
-//#include "cairo-pattern-private.h"
-#include "cairo-recording-surface-inline.h"
-//#include "cairo-scaled-font-private.h"
-//#include "cairo-surface-clipper-private.h"
-#include "cairo-surface-snapshot-inline.h"
-#include "cairo-surface-subsurface-private.h"
-#include "cairo-surface-wrapper-private.h"
 
 #if CAIRO_HAS_FT_FONT
 #include "cairo-ft-private.h"
@@ -2727,19 +2714,15 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 	status = cairo_matrix_invert(&matrix);
 	assert(status == CAIRO_STATUS_SUCCESS);
 
-	ix = x = glyphs[0].x;
-	iy = y = glyphs[0].y;
+	ix = x = glyphs[0].P.x;
+	iy = y = glyphs[0].P.y;
 	cairo_matrix_transform_point(&matrix, &ix, &iy);
 	ix -= scaled_font->font_matrix.x0;
 	iy -= scaled_font->font_matrix.y0;
 
 	_cairo_scaled_font_freeze_cache(scaled_font);
 	font_private = _cairo_script_font_get(ctx, scaled_font);
-
-	_cairo_output_stream_printf(ctx->stream,
-	    "[%f %f ",
-	    ix, iy);
-
+	_cairo_output_stream_printf(ctx->stream, "[%f %f ", ix, iy);
 	for(n = 0; n < num_glyphs; n++) {
 		if(font_private->has_sfnt) {
 			if(glyphs[n].index > 256)
@@ -2766,40 +2749,32 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 	}
 	else
 		_cairo_output_stream_puts(ctx->stream, "[");
-
 	for(n = 0; n < num_glyphs; n++) {
 		double dx, dy;
-
-		status = _cairo_scaled_glyph_lookup(scaled_font,
-		    glyphs[n].index,
-		    CAIRO_SCALED_GLYPH_INFO_METRICS,
-		    &scaled_glyph);
+		status = _cairo_scaled_glyph_lookup(scaled_font, glyphs[n].index, CAIRO_SCALED_GLYPH_INFO_METRICS, &scaled_glyph);
 		if(unlikely(status)) {
 			_cairo_scaled_font_thaw_cache(scaled_font);
 			goto BAIL;
 		}
-
-		if(fabs(glyphs[n].x - x) > 1e-5 || fabs(glyphs[n].y - y) > 1e-5) {
-			if(fabs(glyphs[n].y - y) < 1e-5) {
+		if(fabs(glyphs[n].P.x - x) > 1e-5 || fabs(glyphs[n].P.y - y) > 1e-5) {
+			if(fabs(glyphs[n].P.y - y) < 1e-5) {
 				if(base85_stream != NULL) {
 					status = _cairo_output_stream_destroy(base85_stream);
 					if(unlikely(status)) {
 						base85_stream = NULL;
 						break;
 					}
-
-					_cairo_output_stream_printf(ctx->stream,
-					    "~> %f <~", glyphs[n].x - x);
+					_cairo_output_stream_printf(ctx->stream, "~> %f <~", glyphs[n].P.x - x);
 					base85_stream = _cairo_base85_stream_create(ctx->stream);
 				}
 				else {
-					_cairo_output_stream_printf(ctx->stream, " ] %f [ ", glyphs[n].x - x);
+					_cairo_output_stream_printf(ctx->stream, " ] %f [ ", glyphs[n].P.x - x);
 				}
-				x = glyphs[n].x;
+				x = glyphs[n].P.x;
 			}
 			else {
-				ix = x = glyphs[n].x;
-				iy = y = glyphs[n].y;
+				ix = x = glyphs[n].P.x;
+				iy = y = glyphs[n].P.y;
 				cairo_matrix_transform_point(&matrix, &ix, &iy);
 				ix -= scaled_font->font_matrix.x0;
 				iy -= scaled_font->font_matrix.y0;

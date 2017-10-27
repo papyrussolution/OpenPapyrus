@@ -36,7 +36,7 @@
 #include "cairoint.h"
 #pragma hdrstop
 //#include "cairo-user-font-private.h"
-#include "cairo-recording-surface-private.h"
+//#include "cairo-recording-surface-private.h"
 //#include "cairo-analysis-surface-private.h"
 
 /**
@@ -262,17 +262,17 @@ static cairo_int_status_t _cairo_user_text_to_glyphs(void * abstract_font,
 			*num_glyphs = orig_num_glyphs;
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 		}
-
-		/* Convert from font space to user space and add x,y */
+		// Convert from font space to user space and add x,y 
 		for(i = 0; i < *num_glyphs; i++) {
-			double gx = (*glyphs)[i].x;
-			double gy = (*glyphs)[i].y;
-			cairo_matrix_transform_point(&scaled_font->base.font_matrix, &gx, &gy);
-			(*glyphs)[i].x = gx + x;
-			(*glyphs)[i].y = gy + y;
+			//double gx = (*glyphs)[i].x;
+			//double gy = (*glyphs)[i].y;
+			RPoint _g = (*glyphs)[i].P;
+			cairo_matrix_transform_rpoint(&scaled_font->base.font_matrix, _g);
+			_g.x += x;
+			_g.y += y;
+			(*glyphs)[i].P = _g;
 		}
 	}
-
 	return status;
 }
 

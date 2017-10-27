@@ -42,8 +42,6 @@
 #ifndef CAIRO_SURFACE_FALLBACK_PRIVATE_H
 #define CAIRO_SURFACE_FALLBACK_PRIVATE_H
 
-#include "cairoint.h"
-
 CAIRO_BEGIN_DECLS
 
 cairo_private cairo_int_status_t

@@ -2701,7 +2701,7 @@ int SLAPI PPObjPerson::GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkA
 	//BankAccountTbl::Rec pref_rec;
 	PPID   single_bacc_id = 0;
 	//MEMSZERO(pref_rec);
-	TSArray <PPBankAccount> bacc_list;
+	TSVector <PPBankAccount> bacc_list; // @v9.8.6 TSArray-->TSVector
 	PPBankAccount pref_ba_rec;
 	//BaObj.FetchList(personID, &bacc_list);
 	RegObj.GetBankAccountList(personID, &bacc_list);

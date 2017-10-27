@@ -36,12 +36,6 @@
 #ifndef CAIRO_SURFACE_OBSERVER_PRIVATE_H
 #define CAIRO_SURFACE_OBSERVER_PRIVATE_H
 
-//#include "cairoint.h"
-//#include "cairo-device-private.h"
-//#include "cairo-list-private.h"
-#include "cairo-recording-surface-private.h"
-//#include "cairo-surface-private.h"
-//#include "cairo-surface-backend-private.h"
 #include "cairo-time-private.h"
 
 struct SurfaceObserverStat { // @sobolev stat-->SurfaceObserverStat

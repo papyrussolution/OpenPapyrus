@@ -39,14 +39,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-private.h"
-//#include "cairo-backend-private.h"
-//#include "cairo-path-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-surface-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include <assert.h>
-
 /**
  * SECTION:cairo
  * @Title: cairo_t
@@ -2827,8 +2819,8 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 	status = cr->backend->glyph_extents(cr, last_glyph, 1, &extents);
 	if(unlikely(status))
 		goto BAIL;
-	x = last_glyph->x + extents.x_advance;
-	y = last_glyph->y + extents.y_advance;
+	x = last_glyph->P.x + extents.x_advance;
+	y = last_glyph->P.y + extents.y_advance;
 	cr->backend->move_to(cr, x, y);
 BAIL:
 	if(glyphs != stack_glyphs)
@@ -3000,8 +2992,7 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 		return;
 	}
 	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y,
-	    utf8, -1, &glyphs, &num_glyphs, 0, 0, 0);
+	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, 0, 0, 0);
 	if(num_glyphs == 0)
 		return;
 	status = cr->backend->glyph_path(cr, glyphs, num_glyphs);
@@ -3011,8 +3002,8 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 	status = cr->backend->glyph_extents(cr, last_glyph, 1, &extents);
 	if(unlikely(status))
 		goto BAIL;
-	x = last_glyph->x + extents.x_advance;
-	y = last_glyph->y + extents.y_advance;
+	x = last_glyph->P.x + extents.x_advance;
+	y = last_glyph->P.y + extents.y_advance;
 	cr->backend->move_to(cr, x, y);
 BAIL:
 	if(glyphs != stack_glyphs)

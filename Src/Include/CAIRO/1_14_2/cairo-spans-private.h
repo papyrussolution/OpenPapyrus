@@ -26,10 +26,8 @@
  */
 #ifndef CAIRO_SPANS_PRIVATE_H
 #define CAIRO_SPANS_PRIVATE_H
-//#include "cairo-types-private.h"
-//#include "cairo-compiler-private.h"
 
-/* Number of bits of precision used for alpha. */
+// Number of bits of precision used for alpha
 #define CAIRO_SPANS_UNIT_COVERAGE_BITS 8
 #define CAIRO_SPANS_UNIT_COVERAGE ((1 << CAIRO_SPANS_UNIT_COVERAGE_BITS)-1)
 

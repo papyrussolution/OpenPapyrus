@@ -469,11 +469,8 @@ cairo_private cairo_status_t _cairo_truetype_subset_init_pdf(cairo_truetype_subs
  * subsequent call to _cairo_truetype_subset_init() again first.
  **/
 cairo_private void _cairo_truetype_subset_fini(cairo_truetype_subset_t * truetype_subset);
-
 cairo_private const char * _cairo_ps_standard_encoding_to_glyphname(int glyph);
-
 cairo_private int _cairo_unicode_to_winansi(ulong unicode);
-
 cairo_private const char * _cairo_winansi_to_glyphname(int glyph);
 
 typedef struct _cairo_type1_subset {

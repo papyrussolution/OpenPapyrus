@@ -1081,9 +1081,6 @@
 				RelativePath="..\Include\Cairo\1_14_2\cairo-atomic-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-backend-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-beos.h">
 			</File>
 			<File
@@ -1091,9 +1088,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-boxes-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cache-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-clip-inline.h">
@@ -1198,9 +1192,6 @@
 				RelativePath="..\Include\Cairo\1_14_2\cairo-fixed-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-fixed-type-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-fontconfig-private.h">
 			</File>
 			<File
@@ -1297,9 +1288,6 @@
 				RelativePath="..\Include\Cairo\1_14_2\cairo-path-fixed-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-path-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-pattern-inline.h">
 			</File>
 			<File
@@ -1316,12 +1304,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-pdf.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pixman-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-ps-surface-private.h">
@@ -1346,9 +1328,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-recording-surface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-reference-count-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\1_14_2\cairo-region-private.h">

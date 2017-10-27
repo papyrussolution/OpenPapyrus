@@ -46,15 +46,15 @@
 //#include "cairo-array-private.h"
 //#include "cairo-analysis-surface-private.h"
 //#include "cairo-default-context-private.h"
-#include "cairo-image-info-private.h"
+//#include "cairo-image-info-private.h"
 //#include "cairo-image-surface-private.h"
-#include "cairo-recording-surface-inline.h"
+//#include "cairo-recording-surface-inline.h"
 //#include "cairo-output-stream-private.h"
 //#include "cairo-path-fixed-private.h"
-#include "cairo-paginated-private.h"
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-paginated-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
 //#include "cairo-surface-clipper-private.h"
-#include "cairo-surface-snapshot-inline.h"
+//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-svg-surface-private.h"
 
 /**
@@ -1818,9 +1818,7 @@ static cairo_int_status_t _cairo_svg_surface_show_glyphs(void * abstract_surface
 		if(unlikely(status))
 			return status;
 		_cairo_output_stream_printf(surface->xml_node, "  <use xlink:href=\"#glyph%d-%d\" x=\"%f\" y=\"%f\"/>\n",
-		    subset_glyph.font_id,
-		    subset_glyph.subset_glyph_index,
-		    glyphs[i].x, glyphs[i].y);
+		    subset_glyph.font_id, subset_glyph.subset_glyph_index, glyphs[i].P.x, glyphs[i].P.y);
 	}
 	_cairo_output_stream_printf(surface->xml_node, "</g>\n");
 	return CAIRO_STATUS_SUCCESS;

@@ -296,7 +296,7 @@ IMPL_INVARIANT_C(PPCheckInPersonArray)
 }
 
 
-SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSArray <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim)
+SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim) // @v9.8.6 TSArray-->TSVector
 {
 	Ver = DS.GetVersion();
 	Kind = 0;
@@ -311,7 +311,7 @@ PPCheckInPersonArray & FASTCALL PPCheckInPersonArray::Copy(const PPCheckInPerson
 	Kind = rS.Kind;
 	PrmrID = rS.PrmrID;
 	LastAnonymN = rS.LastAnonymN;
-	SArray::copy(rS);
+	SVector::copy(rS); // @v9.8.6 SArray-->SVector
 	MemoPool.copy(rS.MemoPool);
 	return *this;
 }
@@ -341,7 +341,7 @@ void FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
 PPCheckInPersonArray & SLAPI PPCheckInPersonArray::Clear()
 {
 	LastAnonymN = 0;
-	SArray::clear();
+	SVector::clear(); // @v9.8.6 SArray-->SVector
 	MemoPool.clear();
 	MemoPool.add("$"); // zero index - is empty string
 	return *this;
@@ -409,8 +409,8 @@ int SLAPI PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const
 			item.PersonID = (LastAnonymN << 22);
 		}
 	}
-	THROW_SL(SArray::insert(&item));
-	ASSIGN_PTR(pPos, SArray::getCount()-1);
+	THROW_SL(SVector::insert(&item)); // @v9.8.6 SArray-->SVector
+	ASSIGN_PTR(pPos, SVector::getCount()-1); // @v9.8.6 SArray-->SVector
 	CATCHZOK
 	return ok;
 }
@@ -434,8 +434,8 @@ int SLAPI PPCheckInPersonArray::UpdateItem(uint pos, const PPCheckInPersonItem &
 int FASTCALL PPCheckInPersonArray::RemoveItem(uint pos)
 {
 	int    ok = 1;
-	if(pos < SArray::getCount()) {
-		SArray::atFree(pos);
+	if(pos < SVector::getCount()) { // @v9.8.6 SArray-->SVector
+		SVector::atFree(pos); // @v9.8.6 SArray-->SVector
 	}
 	else
 		ok = 0;
@@ -478,24 +478,24 @@ int SLAPI PPCheckInPersonArray::ProcessObjRefs(PPObjIDArray * ary, int replace, 
 
 uint SLAPI PPCheckInPersonArray::GetCount() const
 {
-	return SArray::getCount();
+	return SVector::getCount(); // @v9.8.6 SArray-->SVector
 }
 
-const  PPCheckInPersonItem & PPCheckInPersonArray::Get(uint pos) const
+const  PPCheckInPersonItem & FASTCALL PPCheckInPersonArray::Get(uint pos) const
 {
 	return at(pos);
 }
 
 void SLAPI PPCheckInPersonArray::InitIteration()
 {
-	SArray::setPointer(0);
+	SVector::setPointer(0); // @v9.8.6 SArray-->SVector
 }
 
 int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 {
 	int    ok = 1;
-	if(SArray::getPointer() < SArray::getCount()) {
-		rItem = at(SArray::incPointer());
+	if(SVector::getPointer() < SVector::getCount()) { // @v9.8.6 SArray-->SVector
+		rItem = at(SVector::incPointer()); // @v9.8.6 SArray-->SVector
 	}
 	else {
 		rItem.Clear();

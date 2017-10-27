@@ -40,19 +40,12 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-composite-rectangles-private.h"
-#include "cairo-compositor-private.h"
-//#include "cairo-path-private.h"
-//#include "cairo-traps-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 
 #include "cairo-gl-private.h"
 
-static cairo_bool_t can_use_msaa_compositor(cairo_gl_surface_t * surface,
-    cairo_antialias_t antialias);
-
+static cairo_bool_t can_use_msaa_compositor(cairo_gl_surface_t * surface, cairo_antialias_t antialias);
 static void query_surface_capabilities(cairo_gl_surface_t * surface);
 
 struct _tristrip_composite_info {

@@ -183,7 +183,7 @@ uint PPTextAnalyzer::Replacer::SearchTarget(const Replacer::Chain & rChain) cons
 	return idx;
 }
 
-PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSArray <PPTextAnalyzer::FindItem> (), R(rR)
+PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSVector <PPTextAnalyzer::FindItem> (), R(rR) // @v9.8.6 TSArray-->TSVector
 {
 	P_Item = 0;
 	IdxFirst = 0;
@@ -243,7 +243,7 @@ const PPTextAnalyzer::FindItem * FASTCALL PPTextAnalyzer::FindBlock::GetGroupIte
 
 void PPTextAnalyzer::FindBlock::Sort()
 {
-	SArray::sort(CMPF_LONG);
+	SVector::sort(CMPF_LONG); // @v9.8.6 SArray-->SVector
 }
 
 struct TrT {

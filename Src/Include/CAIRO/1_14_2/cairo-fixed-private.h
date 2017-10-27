@@ -36,13 +36,9 @@
 
 #ifndef CAIRO_FIXED_PRIVATE_H
 #define CAIRO_FIXED_PRIVATE_H
-
-//#include "cairo-fixed-type-private.h"
-//#include "cairo-wideint-private.h"
-//#include "cairoint.h"
-
-/* Implementation */
-
+//
+// Implementation 
+//
 #if (CAIRO_FIXED_BITS != 32)
 	#error CAIRO_FIXED_BITS must be 32, and the type must be a 32-bit type.
 	#error To remove this limitation, you will have to fix the tessellator.

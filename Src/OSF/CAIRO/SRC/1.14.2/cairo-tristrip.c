@@ -34,7 +34,7 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-tristrip-private.h"
+//#include "cairo-tristrip-private.h"
 
 void _cairo_tristrip_init(cairo_tristrip_t * strip)
 {

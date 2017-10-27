@@ -47,17 +47,9 @@
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600) // @sobolev 0x0500-->0x0600
 	#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
-//#include "cairo-default-context-private.h"
-//#include "cairo-image-surface-private.h"
-#include "cairo-paginated-private.h"
-//#include "cairo-pattern-private.h"
 #include "cairo-win32-private.h"
-#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-surface-fallback-private.h"
-//#include "cairo-surface-backend-private.h"
-
-#include <wchar.h>
-#include <windows.h>
+//#include <wchar.h>
+//#include <windows.h>
 
 #if defined(__MINGW32__) && !defined(ETO_PDY)
 # define ETO_PDY 0x2000
@@ -215,36 +207,26 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(cairo_win32_surface_t * dst,
 	WORD * glyph_buf = glyph_buf_stack;
 	int dxy_buf_stack[2 * STACK_GLYPH_SIZE];
 	int * dxy_buf = dxy_buf_stack;
-
 	BOOL win_result = 0;
 	int i, j;
-
 	cairo_solid_pattern_t * solid_pattern;
 	COLORREF color;
-
 	cairo_matrix_t device_to_logical;
-
 	int start_x, start_y;
-	double user_x, user_y;
+	//double user_x, user_y;
+	RPoint _p_user;
 	int logical_x, logical_y;
 	uint glyph_index_option;
-
 	/* We can only handle win32 fonts */
 	assert(cairo_scaled_font_get_type(scaled_font) == CAIRO_FONT_TYPE_WIN32);
 
 	/* We can only handle opaque solid color sources and destinations */
 	assert(_cairo_pattern_is_opaque_solid(source));
 	assert(dst->format == CAIRO_FORMAT_RGB24);
-
 	solid_pattern = (cairo_solid_pattern_t*)source;
-	color = RGB(((int)solid_pattern->color.red_short) >> 8,
-	    ((int)solid_pattern->color.green_short) >> 8,
-	    ((int)solid_pattern->color.blue_short) >> 8);
-
+	color = RGB(((int)solid_pattern->color.red_short) >> 8, ((int)solid_pattern->color.green_short) >> 8, ((int)solid_pattern->color.blue_short) >> 8);
 	cairo_win32_scaled_font_get_device_to_logical(scaled_font, &device_to_logical);
-
 	SaveDC(dst->dc);
-
 	cairo_win32_scaled_font_select_font(scaled_font, dst->dc);
 	SetTextColor(dst->dc, color);
 	SetTextAlign(dst->dc, TA_BASELINE | TA_LEFT);
@@ -260,19 +242,12 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(cairo_win32_surface_t * dst,
 	 * previous dx values may start to diverge from the current glyph's x
 	 * coordinate due to accumulated rounding error. As a result strings could
 	 * be painted shorter or longer than expected. */
-
-	user_x = glyphs[0].x;
-	user_y = glyphs[0].y;
-
-	cairo_matrix_transform_point(&device_to_logical,
-	    &user_x, &user_y);
-
-	logical_x = _cairo_lround(user_x);
-	logical_y = _cairo_lround(user_y);
-
+	_p_user = glyphs[0].P;
+	cairo_matrix_transform_rpoint(&device_to_logical, _p_user);
+	logical_x = _cairo_lround(_p_user.x);
+	logical_y = _cairo_lround(_p_user.y);
 	start_x = logical_x;
 	start_y = logical_y;
-
 	for(i = 0, j = 0; i < num_glyphs; ++i, j = 2 * i) {
 		glyph_buf[i] = (WORD)glyphs[i].index;
 		if(i == num_glyphs - 1) {
@@ -280,22 +255,18 @@ cairo_int_status_t _cairo_win32_surface_emit_glyphs(cairo_win32_surface_t * dst,
 			dxy_buf[j+1] = 0;
 		}
 		else {
-			double next_user_x = glyphs[i+1].x;
-			double next_user_y = glyphs[i+1].y;
+			RPoint _p_next_user = glyphs[i+1].P;
 			int next_logical_x, next_logical_y;
-			cairo_matrix_transform_point(&device_to_logical, &next_user_x, &next_user_y);
-			next_logical_x = _cairo_lround(next_user_x);
-			next_logical_y = _cairo_lround(next_user_y);
+			cairo_matrix_transform_rpoint(&device_to_logical, _p_next_user);
+			next_logical_x = _cairo_lround(_p_next_user.x);
+			next_logical_y = _cairo_lround(_p_next_user.y);
 			dxy_buf[j] = _cairo_lround(next_logical_x - logical_x);
 			dxy_buf[j+1] = _cairo_lround(next_logical_y - logical_y);
 			logical_x = next_logical_x;
 			logical_y = next_logical_y;
 		}
 	}
-	if(glyph_indexing)
-		glyph_index_option = ETO_GLYPH_INDEX;
-	else
-		glyph_index_option = 0;
+	glyph_index_option = glyph_indexing ? ETO_GLYPH_INDEX : 0;
 	win_result = ExtTextOutW(dst->dc, start_x, start_y, glyph_index_option | ETO_PDY, NULL, (LPCWSTR)glyph_buf, num_glyphs, dxy_buf);
 	if(!win_result) {
 		_cairo_win32_print_gdi_error("_cairo_win32_surface_show_glyphs(ExtTextOutW failed)");

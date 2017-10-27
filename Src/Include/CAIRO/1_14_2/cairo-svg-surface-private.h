@@ -42,7 +42,7 @@
 #define CAIRO_SVG_SURFACE_PRIVATE_H
 
 #include "cairo-svg.h"
-//#include "cairo-surface-private.h"
+////#include "cairo-surface-private.h"
 //#include "cairo-surface-clipper-private.h"
 
 typedef struct cairo_svg_document cairo_svg_document_t;

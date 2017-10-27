@@ -39,13 +39,7 @@
 #if CAIRO_HAS_VG_SURFACE // {
 
 #include "cairo-vg.h"
-//#include "cairo-cache-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-path-fixed-private.h"
-#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-clipper-private.h"
-
+//#include "cairo-recording-surface-inline.h"
 #include <pixman.h>
 #include <VG/openvg.h>
 

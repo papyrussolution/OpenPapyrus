@@ -36,16 +36,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-freed-pool-private.h"
-//#include "cairo-gstate-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-region-private.h"
 
-static cairo_bool_t can_convert_to_polygon(const cairo_clip_t * clip)
+static cairo_bool_t FASTCALL can_convert_to_polygon(const cairo_clip_t * clip)
 {
 	cairo_clip_path_t * clip_path = clip->path;
 	cairo_antialias_t antialias = clip_path->antialias;

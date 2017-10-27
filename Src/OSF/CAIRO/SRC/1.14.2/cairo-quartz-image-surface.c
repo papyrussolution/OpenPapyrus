@@ -38,7 +38,7 @@
 
 #if CAIRO_HAS_QUARTZ_SURFACE // {
 
-#include "cairo-image-surface-inline.h"
+//#include "cairo-image-surface-inline.h"
 #include "cairo-quartz-image.h"
 #include "cairo-quartz-private.h"
 //#include "cairo-surface-backend-private.h"
@@ -165,8 +165,8 @@ static cairo_status_t _cairo_quartz_image_surface_flush(void * asurface,
 
 static cairo_int_status_t _cairo_quartz_image_surface_paint(void * abstract_surface,
     cairo_operator_t op,
-    const cairo_pattern_t        * source,
-    const cairo_clip_t           * clip)
+    const cairo_pattern_t * source,
+    const cairo_clip_t  * clip)
 {
 	cairo_quartz_image_surface_t * surface = abstract_surface;
 	return _cairo_surface_paint(&surface->imageSurface->base,
@@ -175,9 +175,9 @@ static cairo_int_status_t _cairo_quartz_image_surface_paint(void * abstract_surf
 
 static cairo_int_status_t _cairo_quartz_image_surface_mask(void * abstract_surface,
     cairo_operator_t op,
-    const cairo_pattern_t         * source,
-    const cairo_pattern_t         * mask,
-    const cairo_clip_t            * clip)
+    const cairo_pattern_t * source,
+    const cairo_pattern_t * mask,
+    const cairo_clip_t   * clip)
 {
 	cairo_quartz_image_surface_t * surface = abstract_surface;
 	return _cairo_surface_mask(&surface->imageSurface->base,
@@ -186,14 +186,14 @@ static cairo_int_status_t _cairo_quartz_image_surface_mask(void * abstract_surfa
 
 static cairo_int_status_t _cairo_quartz_image_surface_stroke(void * abstract_surface,
     cairo_operator_t op,
-    const cairo_pattern_t       * source,
-    const cairo_path_fixed_t    * path,
-    const cairo_stroke_style_t  * style,
-    const cairo_matrix_t        * ctm,
-    const cairo_matrix_t        * ctm_inverse,
+    const cairo_pattern_t * source,
+    const cairo_path_fixed_t * path,
+    const cairo_stroke_style_t * style,
+    const cairo_matrix_t * ctm,
+    const cairo_matrix_t * ctm_inverse,
     double tolerance,
     cairo_antialias_t antialias,
-    const cairo_clip_t          * clip)
+    const cairo_clip_t * clip)
 {
 	cairo_quartz_image_surface_t * surface = abstract_surface;
 	return _cairo_surface_stroke(&surface->imageSurface->base,
@@ -204,12 +204,12 @@ static cairo_int_status_t _cairo_quartz_image_surface_stroke(void * abstract_sur
 
 static cairo_int_status_t _cairo_quartz_image_surface_fill(void * abstract_surface,
     cairo_operator_t op,
-    const cairo_pattern_t        * source,
-    const cairo_path_fixed_t     * path,
+    const cairo_pattern_t * source,
+    const cairo_path_fixed_t  * path,
     CairoFillRule fill_rule,
     double tolerance,
     cairo_antialias_t antialias,
-    const cairo_clip_t           * clip)
+    const cairo_clip_t  * clip)
 {
 	cairo_quartz_image_surface_t * surface = abstract_surface;
 	return _cairo_surface_fill(&surface->imageSurface->base,
@@ -220,11 +220,11 @@ static cairo_int_status_t _cairo_quartz_image_surface_fill(void * abstract_surfa
 
 static cairo_int_status_t _cairo_quartz_image_surface_glyphs(void * abstract_surface,
     cairo_operator_t op,
-    const cairo_pattern_t       * source,
-    cairo_glyph_t               * glyphs,
+    const cairo_pattern_t * source,
+    cairo_glyph_t * glyphs,
     int num_glyphs,
-    cairo_scaled_font_t         * scaled_font,
-    const cairo_clip_t          * clip)
+    cairo_scaled_font_t * scaled_font,
+    const cairo_clip_t * clip)
 {
 	cairo_quartz_image_surface_t * surface = abstract_surface;
 	return _cairo_surface_show_text_glyphs(&surface->imageSurface->base,

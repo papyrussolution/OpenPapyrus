@@ -197,6 +197,13 @@ void FASTCALL cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double 
 	cairo_matrix_multiply(matrix, &tmp, matrix);
 }
 
+void FASTCALL cairo_matrix_translate_r(cairo_matrix_t * matrix, const RPoint & rP)
+{
+	cairo_matrix_t tmp;
+	cairo_matrix_init_translate(&tmp, rP.x, rP.y);
+	cairo_matrix_multiply(matrix, &tmp, matrix);
+}
+
 slim_hidden_def(cairo_matrix_translate);
 
 /**
@@ -311,7 +318,7 @@ void cairo_matrix_rotate(cairo_matrix_t * matrix, double radians)
  *      then we need to switch the two arguments and fix up all
  *      uses.
  */
-void cairo_matrix_multiply(cairo_matrix_t * result, const cairo_matrix_t * a, const cairo_matrix_t * b)
+void FASTCALL cairo_matrix_multiply(cairo_matrix_t * result, const cairo_matrix_t * a, const cairo_matrix_t * b)
 {
 	cairo_matrix_t r;
 	r.xx = a->xx * b->xx + a->yx * b->xy;
@@ -366,6 +373,11 @@ void FASTCALL cairo_matrix_transform_distance(const cairo_matrix_t * matrix, dou
 	*dy = new_y;
 }
 
+void FASTCALL cairo_matrix_transform_rdistance(const cairo_matrix_t * matrix, RPoint & rP)
+{
+	rP.Set((matrix->xx * rP.x + matrix->xy * rP.y), (matrix->yx * rP.x + matrix->yy * rP.y));
+}
+
 slim_hidden_def(cairo_matrix_transform_distance);
 
 /**
@@ -383,6 +395,13 @@ void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double
 	cairo_matrix_transform_distance(matrix, x, y);
 	*x += matrix->x0;
 	*y += matrix->y0;
+}
+
+void FASTCALL cairo_matrix_transform_rpoint(const cairo_matrix_t * matrix, RPoint & rP)
+{
+	cairo_matrix_transform_rdistance(matrix, rP);
+	rP.x += matrix->x0;
+	rP.y += matrix->y0;
 }
 
 slim_hidden_def(cairo_matrix_transform_point);
@@ -450,16 +469,11 @@ void _cairo_matrix_transform_bounding_box(const cairo_matrix_t * matrix,
 
 	min_x = max_x = quad_x[0];
 	min_y = max_y = quad_y[0];
-
 	for(i = 1; i < 4; i++) {
-		if(quad_x[i] < min_x)
-			min_x = quad_x[i];
-		if(quad_x[i] > max_x)
-			max_x = quad_x[i];
-		if(quad_y[i] < min_y)
-			min_y = quad_y[i];
-		if(quad_y[i] > max_y)
-			max_y = quad_y[i];
+		SETMIN(min_x, quad_x[i]);
+		SETMAX(max_x, quad_x[i]);
+		SETMIN(min_y, quad_y[i]);
+		SETMAX(max_y, quad_y[i]);
 	}
 	*x1 = min_x;
 	*y1 = min_y;

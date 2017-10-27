@@ -227,9 +227,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-atomic-private.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-backend-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-beos.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -237,9 +234,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-box-inline.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-cache-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-clip-inline.h">
@@ -344,9 +338,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fixed-private.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fixed-type-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-fontconfig-private.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -446,9 +437,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-path-fixed-private.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-path-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pattern-inline.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -465,9 +453,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf-surface-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pixman-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-private.h">
@@ -495,9 +480,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-recording-surface-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-reference-count-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-region-private.h">

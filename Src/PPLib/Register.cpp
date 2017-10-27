@@ -258,7 +258,7 @@ int SLAPI RegisterArray::GetListByType(PPID regTyp, LDATE dt, RegisterArray * pL
 	return ok;
 }
 
-int SLAPI RegisterArray::GetBankAccountList(TSArray <PPBankAccount> * pList) const
+int SLAPI RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) const // @v9.8.6 TSArray-->TSVector
 {
 	const  LDATE dt = ZERODATE;
 	int    ok = -1;

@@ -7,15 +7,11 @@
 //
 // @ModuleDef(MrpTabCore)
 //
-SLAPI MrpReqItem::MrpReqItem(PPID goodsID, long flags, double req, double price)
+SLAPI MrpReqItem::MrpReqItem(PPID goodsID, long flags, double req, double price) : GoodsID(goodsID), Flags(flags), Req(req), Price(price)
 {
-	GoodsID = goodsID;
-	Flags = flags;
-	Req = req;
-	Price = price;
 }
 
-SLAPI MrpReqArray::MrpReqArray() : TSArray <MrpReqItem>()
+SLAPI MrpReqArray::MrpReqArray() : TSVector <MrpReqItem>() // @v9.8.6 TSArray-->TSVector
 {
 }
 

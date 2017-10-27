@@ -38,7 +38,7 @@
 #ifndef CAIRO_IMAGE_SURFACE_PRIVATE_H
 #define CAIRO_IMAGE_SURFACE_PRIVATE_H
 
-//#include "cairo-surface-private.h"
+////#include "cairo-surface-private.h"
 //#include <pixman.h>
 
 CAIRO_BEGIN_DECLS

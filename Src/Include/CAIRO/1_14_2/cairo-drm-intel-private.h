@@ -31,14 +31,8 @@
 #define CAIRO_DRM_INTEL_PRIVATE_H
 
 #include "cairoint.h"
-//#include "cairo-cache-private.h"
 #include "cairo-compiler-private.h"
 #include "cairo-drm-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-list-private.h"
-//#include "cairo-mutex-private.h"
-//#include "cairo-rtree-private.h"
-//#include "cairo-types-private.h"
 #include "cairo-drm-intel-ioctl-private.h"
 
 #define INTEL_TILING_DEFAULT I915_TILING_Y

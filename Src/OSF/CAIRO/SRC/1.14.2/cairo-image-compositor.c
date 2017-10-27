@@ -42,13 +42,9 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-image-surface-private.h"
-#include "cairo-compositor-private.h"
-#include "cairo-spans-compositor-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-traps-private.h"
-#include "cairo-tristrip-private.h"
-//#include "cairo-pixman-private.h"
+//#include "cairo-compositor-private.h"
+//#include "cairo-spans-compositor-private.h"
+//#include "cairo-tristrip-private.h"
 
 static pixman_image_t * FASTCALL to_pixman_image(cairo_surface_t * s)
 {
@@ -796,42 +792,24 @@ static cairo_int_status_t composite_one_glyph(void * _dst,
 
 	TRACE((stderr, "%s\n", __FUNCTION__));
 
-	status = _cairo_scaled_glyph_lookup(info->font,
-	    info->glyphs[0].index,
-	    CAIRO_SCALED_GLYPH_INFO_SURFACE,
-	    &scaled_glyph);
-
+	status = _cairo_scaled_glyph_lookup(info->font, info->glyphs[0].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
 	if(unlikely(status))
 		return status;
-
 	glyph_surface = scaled_glyph->surface;
 	if(glyph_surface->width == 0 || glyph_surface->height == 0)
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	/* round glyph locations to the nearest pixel */
 	/* XXX: FRAGILE: We're ignoring device_transform scaling here. A bug? */
-	x = _cairo_lround(info->glyphs[0].x -
-	    glyph_surface->base.device_transform.x0);
-	y = _cairo_lround(info->glyphs[0].y -
-	    glyph_surface->base.device_transform.y0);
-
-	pixman_image_composite32(_pixman_operator(op),
-	    ((cairo_image_source_t*)_src)->pixman_image,
-	    glyph_surface->pixman_image,
-	    to_pixman_image((cairo_surface_t *)_dst),
-	    x + src_x,  y + src_y,
-	    0, 0,
-	    x - dst_x, y - dst_y,
-	    glyph_surface->width,
-	    glyph_surface->height);
-
+	x = _cairo_lround(info->glyphs[0].P.x - glyph_surface->base.device_transform.x0);
+	y = _cairo_lround(info->glyphs[0].P.y - glyph_surface->base.device_transform.y0);
+	pixman_image_composite32(_pixman_operator(op), ((cairo_image_source_t*)_src)->pixman_image,
+	    glyph_surface->pixman_image, to_pixman_image((cairo_surface_t *)_dst),
+	    x + src_x,  y + src_y, 0, 0, x - dst_x, y - dst_y, glyph_surface->width, glyph_surface->height);
 	return CAIRO_INT_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
-    cairo_operator_t op, cairo_surface_t * _src,
-    int src_x, int src_y, int dst_x, int dst_y,
-    cairo_composite_glyphs_info_t * info)
+static cairo_int_status_t composite_glyphs_via_mask(void * _dst, cairo_operator_t op, cairo_surface_t * _src,
+    int src_x, int src_y, int dst_x, int dst_y, cairo_composite_glyphs_info_t * info)
 {
 	cairo_scaled_glyph_t * glyph_cache[64];
 	pixman_image_t * white = _pixman_image_for_color(CAIRO_COLOR_WHITE);
@@ -910,8 +888,8 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst,
 
 			/* round glyph locations to the nearest pixel */
 			/* XXX: FRAGILE: We're ignoring device_transform scaling here. A bug? */
-			x = _cairo_lround(info->glyphs[i].x - glyph_surface->base.device_transform.x0);
-			y = _cairo_lround(info->glyphs[i].y - glyph_surface->base.device_transform.y0);
+			x = _cairo_lround(info->glyphs[i].P.x - glyph_surface->base.device_transform.x0);
+			y = _cairo_lround(info->glyphs[i].P.y - glyph_surface->base.device_transform.y0);
 			if(glyph_surface->pixman_format == format) {
 				pixman_image_composite32(PIXMAN_OP_ADD, glyph_surface->pixman_image, NULL, mask,
 				    0, 0, 0, 0, x - info->extents.x, y - info->extents.y, glyph_surface->width, glyph_surface->height);
@@ -966,8 +944,8 @@ static cairo_int_status_t composite_glyphs(void * _dst, cairo_operator_t op, cai
 		if(glyph_surface->width && glyph_surface->height) {
 			/* round glyph locations to the nearest pixel */
 			/* XXX: FRAGILE: We're ignoring device_transform scaling here. A bug? */
-			x = _cairo_lround(info->glyphs[i].x - glyph_surface->base.device_transform.x0);
-			y = _cairo_lround(info->glyphs[i].y - glyph_surface->base.device_transform.y0);
+			x = _cairo_lround(info->glyphs[i].P.x - glyph_surface->base.device_transform.x0);
+			y = _cairo_lround(info->glyphs[i].P.y - glyph_surface->base.device_transform.y0);
 			pixman_image_composite32((pixman_op_t)op, src, glyph_surface->pixman_image, dst,
 			    x + src_x,  y + src_y, 0, 0, x - dst_x, y - dst_y, glyph_surface->width, glyph_surface->height);
 		}

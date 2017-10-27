@@ -46,13 +46,13 @@
 #include "cairo-pdf-operators-private.h"
 //#include "cairo-path-fixed-private.h"
 //#include "cairo-output-stream-private.h"
-#include "cairo-scaled-font-subsets-private.h"
+//#include "cairo-scaled-font-subsets-private.h"
 
 static cairo_status_t _cairo_pdf_operators_end_text(cairo_pdf_operators_t    * pdf_operators);
 
 void _cairo_pdf_operators_init(cairo_pdf_operators_t        * pdf_operators,
     cairo_output_stream_t        * stream,
-    cairo_matrix_t               * cairo_to_pdf,
+    cairo_matrix_t   * cairo_to_pdf,
     cairo_scaled_font_subsets_t  * font_subsets,
     cairo_bool_t ps)
 {
@@ -73,7 +73,7 @@ cairo_status_t _cairo_pdf_operators_fini(cairo_pdf_operators_t        * pdf_oper
 	return _cairo_pdf_operators_flush(pdf_operators);
 }
 
-void _cairo_pdf_operators_set_font_subsets_callback(cairo_pdf_operators_t                * pdf_operators,
+void _cairo_pdf_operators_set_font_subsets_callback(cairo_pdf_operators_t    * pdf_operators,
     cairo_pdf_operators_use_font_subset_t use_font_subset,
     void * closure)
 {
@@ -669,7 +669,7 @@ static cairo_int_status_t _cairo_pdf_operators_emit_stroke(cairo_pdf_operators_t
     const cairo_stroke_style_t    * style,
     const cairo_matrix_t          * ctm,
     const cairo_matrix_t          * ctm_inverse,
-    const char                    * pdf_operator)
+    const char        * pdf_operator)
 {
 	cairo_int_status_t status;
 	cairo_matrix_t m, path_transform;
@@ -743,11 +743,11 @@ static cairo_int_status_t _cairo_pdf_operators_emit_stroke(cairo_pdf_operators_t
 	return _cairo_output_stream_get_status(pdf_operators->stream);
 }
 
-cairo_int_status_t _cairo_pdf_operators_stroke(cairo_pdf_operators_t              * pdf_operators,
+cairo_int_status_t _cairo_pdf_operators_stroke(cairo_pdf_operators_t  * pdf_operators,
     const cairo_path_fixed_t           * path,
     const cairo_stroke_style_t         * style,
-    const cairo_matrix_t               * ctm,
-    const cairo_matrix_t               * ctm_inverse)
+    const cairo_matrix_t   * ctm,
+    const cairo_matrix_t   * ctm_inverse)
 {
 	return _cairo_pdf_operators_emit_stroke(pdf_operators, path, style, ctm, ctm_inverse, "S");
 }
@@ -818,15 +818,12 @@ static void _cairo_pdf_operators_emit_glyph_index(cairo_pdf_operators_t * pdf_op
 
 /* Emit the string of glyphs using the 'Tj' operator. This requires
  * that the glyphs are positioned at their natural glyph advances. */
-static cairo_status_t _cairo_pdf_operators_emit_glyph_string(cairo_pdf_operators_t   * pdf_operators,
-    cairo_output_stream_t   * stream)
+static cairo_status_t _cairo_pdf_operators_emit_glyph_string(cairo_pdf_operators_t * pdf_operators, cairo_output_stream_t * stream)
 {
 	int i;
 	_cairo_output_stream_printf(stream, "%s", pdf_operators->is_latin ? "(" : "<");
 	for(i = 0; i < pdf_operators->num_glyphs; i++) {
-		_cairo_pdf_operators_emit_glyph_index(pdf_operators,
-		    stream,
-		    pdf_operators->glyphs[i].glyph_index);
+		_cairo_pdf_operators_emit_glyph_index(pdf_operators, stream, pdf_operators->glyphs[i].glyph_index);
 		pdf_operators->cur_x += pdf_operators->glyphs[i].x_advance;
 	}
 	_cairo_output_stream_printf(stream, "%sTj\n", pdf_operators->is_latin ? ")" : ">");
@@ -841,17 +838,14 @@ static cairo_status_t _cairo_pdf_operators_emit_glyph_string(cairo_pdf_operators
  * be specified by including the adjustment between two strings. The
  * adjustment is in units of text space * -1000.
  */
-static cairo_status_t _cairo_pdf_operators_emit_glyph_string_with_positioning(cairo_pdf_operators_t   * pdf_operators,
-    cairo_output_stream_t   * stream)
+static cairo_status_t _cairo_pdf_operators_emit_glyph_string_with_positioning(cairo_pdf_operators_t * pdf_operators, cairo_output_stream_t * stream)
 {
 	int i;
-
 	_cairo_output_stream_printf(stream, "[%s", pdf_operators->is_latin ? "(" : "<");
 	for(i = 0; i < pdf_operators->num_glyphs; i++) {
 		if(pdf_operators->glyphs[i].x_position != pdf_operators->cur_x) {
 			double delta = pdf_operators->glyphs[i].x_position - pdf_operators->cur_x;
 			int rounded_delta;
-
 			delta = -1000.0*delta;
 			/* As the delta is in 1/1000 of a unit of text space,
 			 * rounding to an integer should still provide sufficient
@@ -922,7 +916,7 @@ static cairo_status_t _cairo_pdf_operators_flush_glyphs(cairo_pdf_operators_t   
 	return status;
 }
 
-static cairo_status_t _cairo_pdf_operators_add_glyph(cairo_pdf_operators_t             * pdf_operators,
+static cairo_status_t _cairo_pdf_operators_add_glyph(cairo_pdf_operators_t * pdf_operators,
     cairo_scaled_font_subsets_glyph_t * glyph,
     double x_position)
 {
@@ -1083,30 +1077,25 @@ static cairo_status_t _cairo_pdf_operators_end_actualtext(cairo_pdf_operators_t 
 	return _cairo_output_stream_get_status(pdf_operators->stream);
 }
 
-static cairo_status_t _cairo_pdf_operators_emit_glyph(cairo_pdf_operators_t             * pdf_operators,
-    cairo_glyph_t                     * glyph,
-    cairo_scaled_font_subsets_glyph_t * subset_glyph)
+static cairo_status_t _cairo_pdf_operators_emit_glyph(cairo_pdf_operators_t * pdf_operators,
+    cairo_glyph_t * glyph, cairo_scaled_font_subsets_glyph_t * subset_glyph)
 {
-	double x, y;
+	//double x, y;
+	RPoint _p;
 	cairo_status_t status;
-
-	if(pdf_operators->is_new_text_object ||
-	    pdf_operators->font_id != subset_glyph->font_id ||
-	    pdf_operators->subset_id != subset_glyph->subset_id) {
+	if(pdf_operators->is_new_text_object || pdf_operators->font_id != subset_glyph->font_id || pdf_operators->subset_id != subset_glyph->subset_id) {
 		status = _cairo_pdf_operators_flush_glyphs(pdf_operators);
 		if(unlikely(status))
 			return status;
-
 		status = _cairo_pdf_operators_set_font_subset(pdf_operators, subset_glyph);
 		if(unlikely(status))
 			return status;
-
 		pdf_operators->is_new_text_object = FALSE;
 	}
-
-	x = glyph->x;
-	y = glyph->y;
-	cairo_matrix_transform_point(&pdf_operators->cairo_to_pdftext, &x, &y);
+	//x = glyph->x;
+	//y = glyph->y;
+	_p = glyph->P;
+	cairo_matrix_transform_rpoint(&pdf_operators->cairo_to_pdftext, _p);
 
 	/* The TJ operator for displaying text strings can only set
 	 * the horizontal position of the glyphs. If the y position
@@ -1119,26 +1108,18 @@ static cairo_status_t _cairo_pdf_operators_emit_glyph(cairo_pdf_operators_t     
 	 * PDF consumers that do not handle very large position
 	 * adjustments in TJ.
 	 */
-	if(fabs(x - pdf_operators->glyph_buf_x_pos) > 10 ||
-	    fabs(y - pdf_operators->cur_y) > GLYPH_POSITION_TOLERANCE) {
+	if(fabs(_p.x - pdf_operators->glyph_buf_x_pos) > 10 || fabs(_p.y - pdf_operators->cur_y) > GLYPH_POSITION_TOLERANCE) {
 		status = _cairo_pdf_operators_flush_glyphs(pdf_operators);
 		if(unlikely(status))
 			return status;
-
-		x = glyph->x;
-		y = glyph->y;
-		cairo_matrix_transform_point(&pdf_operators->cairo_to_pdf, &x, &y);
-		status = _cairo_pdf_operators_set_text_position(pdf_operators, x, y);
+		_p = glyph->P;
+		cairo_matrix_transform_rpoint(&pdf_operators->cairo_to_pdf, _p);
+		status = _cairo_pdf_operators_set_text_position(pdf_operators, _p.x, _p.y);
 		if(unlikely(status))
 			return status;
-
-		x = 0.0;
-		y = 0.0;
+		_p.Set(0.0);
 	}
-
-	status = _cairo_pdf_operators_add_glyph(pdf_operators,
-	    subset_glyph,
-	    x);
+	status = _cairo_pdf_operators_add_glyph(pdf_operators, subset_glyph, _p.x);
 	return status;
 }
 
@@ -1146,9 +1127,9 @@ static cairo_status_t _cairo_pdf_operators_emit_glyph(cairo_pdf_operators_t     
  * empty string.
  */
 static cairo_int_status_t _cairo_pdf_operators_emit_cluster(cairo_pdf_operators_t      * pdf_operators,
-    const char                 * utf8,
+    const char     * utf8,
     int utf8_len,
-    cairo_glyph_t              * glyphs,
+    cairo_glyph_t  * glyphs,
     int num_glyphs,
     cairo_text_cluster_flags_t cluster_flags,
     cairo_scaled_font_t        * scaled_font)
@@ -1242,9 +1223,9 @@ static cairo_int_status_t _cairo_pdf_operators_emit_cluster(cairo_pdf_operators_
 }
 
 cairo_int_status_t _cairo_pdf_operators_show_text_glyphs(cairo_pdf_operators_t      * pdf_operators,
-    const char                 * utf8,
+    const char     * utf8,
     int utf8_len,
-    cairo_glyph_t              * glyphs,
+    cairo_glyph_t  * glyphs,
     int num_glyphs,
     const cairo_text_cluster_t * clusters,
     int num_clusters,
@@ -1254,54 +1235,43 @@ cairo_int_status_t _cairo_pdf_operators_show_text_glyphs(cairo_pdf_operators_t  
 	cairo_status_t status;
 	int i;
 	cairo_matrix_t text_matrix, invert_y_axis;
-	double x, y;
+	//double x, y;
+	RPoint _p;
 	const char * cur_text;
 	cairo_glyph_t * cur_glyph;
-
 	pdf_operators->font_matrix_inverse = scaled_font->font_matrix;
 	status = cairo_matrix_invert(&pdf_operators->font_matrix_inverse);
 	if(status == CAIRO_STATUS_INVALID_MATRIX)
 		return CAIRO_STATUS_SUCCESS;
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	pdf_operators->is_new_text_object = FALSE;
 	if(pdf_operators->in_text_object == FALSE) {
 		status = _cairo_pdf_operators_begin_text(pdf_operators);
 		if(unlikely(status))
 			return status;
-
-		/* Force Tm and Tf to be emitted when starting a new text
-		 * object.*/
+		// Force Tm and Tf to be emitted when starting a new text object.
 		pdf_operators->is_new_text_object = TRUE;
 	}
-
 	cairo_matrix_init_scale(&invert_y_axis, 1, -1);
 	text_matrix = scaled_font->scale;
-
-	/* Invert y axis in font space  */
+	// Invert y axis in font space  
 	cairo_matrix_multiply(&text_matrix, &text_matrix, &invert_y_axis);
-
-	/* Invert y axis in device space  */
+	// Invert y axis in device space 
 	cairo_matrix_multiply(&text_matrix, &invert_y_axis, &text_matrix);
-
-	if(pdf_operators->is_new_text_object ||
-	    !_cairo_matrix_scale_equal(&pdf_operators->text_matrix, &text_matrix)) {
+	if(pdf_operators->is_new_text_object || !_cairo_matrix_scale_equal(&pdf_operators->text_matrix, &text_matrix)) {
 		status = _cairo_pdf_operators_flush_glyphs(pdf_operators);
 		if(unlikely(status))
 			return status;
-
-		x = glyphs[0].x;
-		y = glyphs[0].y;
-		cairo_matrix_transform_point(&pdf_operators->cairo_to_pdf, &x, &y);
-		text_matrix.x0 = x;
-		text_matrix.y0 = y;
+		_p = glyphs[0].P;
+		cairo_matrix_transform_rpoint(&pdf_operators->cairo_to_pdf, _p);
+		text_matrix.x0 = _p.x;
+		text_matrix.y0 = _p.y;
 		status = _cairo_pdf_operators_set_text_matrix(pdf_operators, &text_matrix);
 		if(status == CAIRO_STATUS_INVALID_MATRIX)
 			return CAIRO_STATUS_SUCCESS;
 		if(unlikely(status))
 			return status;
 	}
-
 	if(num_clusters > 0) {
 		cur_text = utf8;
 		if((cluster_flags & CAIRO_TEXT_CLUSTER_FLAG_BACKWARD))

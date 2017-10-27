@@ -939,7 +939,7 @@ int FASTCALL PPBillPacket::CipBlock::Copy(const PPBillPacket::CipBlock & rS)
 {
 	int    ok = 1;
 	if(rS.P_CipList) {
-		THROW_MEM(SETIFZ(P_CipList, new TSArray <PPCheckInPersonItem>));
+		THROW_MEM(SETIFZ(P_CipList, new TSVector <PPCheckInPersonItem>)); // @v9.8.6 TSArray-->TSVector
 		*P_CipList = *rS.P_CipList;
 	}
 	else
@@ -960,7 +960,7 @@ int SLAPI PPBillPacket::AddTSessCip(PPID tsessID, const char * pPlaceCode, PPID 
 		TSessionTbl::Rec tses_rec;
         THROW_MEM(SETIFZ(CipB.P_TSesObj, new PPObjTSession));
         THROW(CipB.P_TSesObj->Search(tsessID, &tses_rec) > 0);
-		THROW_MEM(SETIFZ(CipB.P_CipList, new TSArray <PPCheckInPersonItem>));
+		THROW_MEM(SETIFZ(CipB.P_CipList, new TSVector <PPCheckInPersonItem>)); // @v9.8.6 TSArray-->TSVector
         {
         	PPCheckInPersonItem cip_item;
         	cip_item.PrmrID = tsessID;

@@ -34,12 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-image-surface-private.h"
-#include "cairo-recording-surface-private.h"
-#include "cairo-surface-offset-private.h"
-#include "cairo-surface-snapshot-private.h"
-#include "cairo-surface-subsurface-private.h"
 
 extern const cairo_surface_backend_t _cairo_surface_subsurface_backend;
 

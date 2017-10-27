@@ -42,7 +42,6 @@
  * functionality, or there's a way to do what you need using the
  * existing published interfaces. cworth@cworth.org
  */
-
 #ifndef _CAIROINT_H_
 #define _CAIROINT_H_
 
@@ -82,7 +81,25 @@ typedef struct _cairo_list {
 } cairo_list_t;
 //
 #include "cairo-atomic-private.h"
-#include "cairo-reference-count-private.h"
+//
+//#include "cairo-reference-count-private.h"
+//
+// Encapsulate operations on the object's reference count 
+//
+typedef struct {
+	cairo_atomic_int_t ref_count;
+} cairo_reference_count_t;
+
+#define _cairo_reference_count_inc(RC) _cairo_atomic_int_inc(&(RC)->ref_count)
+#define _cairo_reference_count_dec(RC) _cairo_atomic_int_dec(&(RC)->ref_count)
+#define _cairo_reference_count_dec_and_test(RC) _cairo_atomic_int_dec_and_test(&(RC)->ref_count)
+#define CAIRO_REFERENCE_COUNT_INIT(RC, VALUE) ((RC)->ref_count = (VALUE))
+#define CAIRO_REFERENCE_COUNT_GET_VALUE(RC) _cairo_atomic_int_get(&(RC)->ref_count)
+#define CAIRO_REFERENCE_COUNT_INVALID_VALUE ((cairo_atomic_int_t)-1)
+#define CAIRO_REFERENCE_COUNT_INVALID {CAIRO_REFERENCE_COUNT_INVALID_VALUE}
+#define CAIRO_REFERENCE_COUNT_IS_INVALID(RC) (CAIRO_REFERENCE_COUNT_GET_VALUE(RC) == CAIRO_REFERENCE_COUNT_INVALID_VALUE)
+#define CAIRO_REFERENCE_COUNT_HAS_REFERENCE(RC) (CAIRO_REFERENCE_COUNT_GET_VALUE(RC) > 0)
+//
 #include "cairo-wideint-type-private.h"
 //
 //#include "cairo-fixed-type-private.h"
@@ -120,8 +137,6 @@ typedef uint32_t cairo_fixed_unsigned_t; // An unsigned type of the same size as
 //#include "cairo-pixman-private.h" // @sobolev
 //
 #include "pixman-private.h"
-//#include "cairo-pixman-private.h" /* keep make check happy */
-//#include <pixman.h>
 
 #if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
 	#define pixman_image_composite32 pixman_image_composite
@@ -355,6 +370,8 @@ cairo_private cairo_path_t * _cairo_path_create_in_error(cairo_status_t status);
 cairo_private cairo_status_t _cairo_path_append_to_context(const cairo_path_t * path, cairo_t * cr);
 //
 #include "cairo-image-surface-private.h"
+#include "cairo-image-surface-inline.h"
+#include "cairo-surface-offset-private.h"
 #include "cairo-damage-private.h"
 
 #if CAIRO_HAS_PDF_SURFACE || CAIRO_HAS_PS_SURFACE || CAIRO_HAS_SCRIPT_SURFACE || CAIRO_HAS_XML_SURFACE
@@ -1571,6 +1588,23 @@ cairo_private void _cairo_debug_print_boxes(FILE * stream, const cairo_boxes_t *
 #include "cairo-traps-private.h"
 #include "cairo-device-private.h"
 #include "cairo-output-stream-private.h"
+#include "cairo-compositor-private.h"
+#include "cairo-spans-compositor-private.h"
+#include "cairo-tristrip-private.h"
+#include "cairo-paginated-private.h"
+#include "cairo-paginated-surface-private.h"
+#include "cairo-recording-surface-private.h"
+#include "cairo-recording-surface-inline.h"
+#include "cairo-surface-observer-private.h"
+#include "cairo-surface-observer-inline.h"
+#include "cairo-surface-snapshot-private.h"
+#include "cairo-surface-snapshot-inline.h"
+#include "cairo-surface-subsurface-private.h"
+#include "cairo-surface-subsurface-inline.h"
+#include "cairo-surface-wrapper-private.h"
+#include "cairo-surface-fallback-private.h"
+#include "cairo-image-info-private.h"
+#include "cairo-scaled-font-subsets-private.h"
 //
 //#include "cairo-array-private.h"
 //

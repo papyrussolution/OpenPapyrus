@@ -918,8 +918,9 @@ typedef struct _cairo_font_face cairo_font_face_t;
  **/
 typedef struct {
 	ulong  index;
-	double x;
-	double y;
+	RPoint P;
+	//double x;
+	//double y;
 } cairo_glyph_t;
 
 cairo_public cairo_glyph_t * cairo_glyph_allocate(int num_glyphs);
@@ -2264,12 +2265,15 @@ cairo_public void cairo_matrix_init_translate(cairo_matrix_t * matrix, double tx
 cairo_public void cairo_matrix_init_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void cairo_matrix_init_rotate(cairo_matrix_t * matrix, double radians);
 cairo_public void FASTCALL cairo_matrix_translate(cairo_matrix_t * matrix, double tx, double ty);
+cairo_public void FASTCALL cairo_matrix_translate_r(cairo_matrix_t * matrix, const RPoint & rP);
 cairo_public void cairo_matrix_scale(cairo_matrix_t * matrix, double sx, double sy);
 cairo_public void cairo_matrix_rotate(cairo_matrix_t * matrix, double radians);
 cairo_public cairo_status_t FASTCALL cairo_matrix_invert(cairo_matrix_t * matrix);
-cairo_public void cairo_matrix_multiply(cairo_matrix_t * result, const cairo_matrix_t * a, const cairo_matrix_t * b);
+cairo_public void FASTCALL cairo_matrix_multiply(cairo_matrix_t * result, const cairo_matrix_t * a, const cairo_matrix_t * b);
 cairo_public void FASTCALL cairo_matrix_transform_distance(const cairo_matrix_t * matrix, double * dx, double * dy);
+cairo_public void FASTCALL cairo_matrix_transform_rdistance(const cairo_matrix_t * matrix, RPoint & rP);
 cairo_public void FASTCALL cairo_matrix_transform_point(const cairo_matrix_t * matrix, double * x, double * y);
+cairo_public void FASTCALL cairo_matrix_transform_rpoint(const cairo_matrix_t * matrix, RPoint & rP);
 
 /* Region functions */
 

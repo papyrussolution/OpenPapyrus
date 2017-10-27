@@ -3109,7 +3109,7 @@ public:
 //
 // Descr: Список членства персоналий в агрегации "Регистрация персоналий"
 //
-class PPCheckInPersonArray : private TSArray <PPCheckInPersonItem> { // @persistent(DBX)
+class PPCheckInPersonArray : private TSVector <PPCheckInPersonItem> { // @persistent(DBX) // @v9.8.6 TSArray-->TSVector
 public:
 	friend class PPCheckInPersonMngr;
 
@@ -3140,7 +3140,7 @@ public:
 	int    FASTCALL NextIteration(PPCheckInPersonItem & rItem);
 
 	int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
-	const  PPCheckInPersonItem & Get(uint pos) const;
+	const  PPCheckInPersonItem & FASTCALL Get(uint pos) const;
 	int    SLAPI CalcAmount(const PPCheckInPersonConfig * pCfg, double * pAmount) const;
 	int    SLAPI SetMemo(uint rowPos, const char * pMemo);
 	int    SLAPI GetMemo(uint rowPos, SString & rMemo) const;
@@ -8049,7 +8049,7 @@ public:
 //
 int FASTCALL operator != (const RegisterTbl::Rec &, const RegisterTbl::Rec &);
 
-struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec)
+struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec) @flat
 	SLAPI  PPBankAccount();
 	SLAPI  PPBankAccount(const RegisterTbl::Rec & rS);
 	PPBankAccount & FASTCALL operator = (const RegisterTbl::Rec & rS);
@@ -8090,7 +8090,7 @@ public:
 	int    SLAPI GetRegister(PPID regTypeID, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const;
 	int    SLAPI GetListByType(PPID regTypeID, LDATE dt, RegisterArray * pList) const;
 	int    SLAPI GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const;
-	int    SLAPI GetBankAccountList(TSArray <PPBankAccount> * pList) const;
+	int    SLAPI GetBankAccountList(TSVector <PPBankAccount> * pList) const; // @v9.8.6 TSArray-->TSVector
 	int    SLAPI CheckDuplicateBankAccount(const PPBankAccount * pRec, long pos) const;
 	//
 	// Descr: Вносит в массив банковский счет pRec. Если pos >= getCount(),
@@ -10620,7 +10620,7 @@ public:
 		int    FASTCALL Copy(const CipBlock & rS);
 		void   SLAPI destroy();
 
-		TSArray <PPCheckInPersonItem> * P_CipList;
+		TSVector <PPCheckInPersonItem> * P_CipList; // @v9.8.6 TSArray-->TSVector
 		PPObjTSession * P_TSesObj;
 	};
 	CipBlock CipB;
@@ -15143,7 +15143,9 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 		Trade    = 0x0004, // (T) Торговая единица (может не иметь однозначного физ. эквивалента)
 		Hide     = 0x0008, // (H) Единицу не следует показывать
 		IntVal   = 0x0010, // (I) Единица может быть только целочисленной
-		Common   = 0x0020  // Унифицированная единица измерения (имеет конкретные габариты и, возможно, массу и емкость) //
+		Common   = 0x0020, // Унифицированная единица измерения (имеет конкретные габариты и, возможно, массу и емкость) //
+		Default  = 0x0040  // @v9.8.6 @transient Флаг только для передачи данных, информирующий о том, что единица измерения
+			// применяется "по умолчанию" для товаров, у которых единица измерения не определена.
 	};
 	long   Tag;            // Const=PPOBJ_UNIT
 	long   ID;             // @id
@@ -21997,7 +21999,7 @@ public:
 	int    SLAPI EditList(PPPersonPacket * pPsnPack, PPID psnEventID);
 	int    SLAPI EditList(PPLocationPacket * pLocPack);
 	int    SLAPI EditBankAccountList(PPPersonPacket * pPsnPack);
-	int    SLAPI GetBankAccountList(PPID personID, TSArray <PPBankAccount> * pList);
+	int    SLAPI GetBankAccountList(PPID personID, TSVector <PPBankAccount> * pList); // @v9.8.6 TSArray-->TSVector
 	//
 	// Descr: Проверяет массив регистров pRegs на отсутствие дублирования типа regTypeID
 	//   если этот тип имеет признак REGTF_UNIQUE.
@@ -30357,13 +30359,13 @@ private:
 		//
 		LAssocArray OpGoodsAssoc;
 
-		struct GuaAssocItem {
+		struct GuaAssocItem { // @flat
 			PPID   GuaID;    // #key
 			PPID   SCardID;
 			PPID   PersonID;
 			PPID   ArID;
 		};
-		TSArray <GuaAssocItem> GuaAssoc;
+		TSVector <GuaAssocItem> GuaAssoc; // @v9.8.6 TSArray-->TSVector
 	};
 
 	int    SLAPI GetGtaGuaAssoc(const PPGta & rGta, PPObjBill::GtaBlock::GuaAssocItem & rAssoc);
@@ -40743,7 +40745,7 @@ private:
 #define MRPLF_UNLIM         0x0010L // Товар, с которым связана строка, является нелимитируемым
 #define MRPLF_IGNOREREST    0x0020L // @v9.1.7 По строке не следует учитывать доступный остаток (строка комплектуется независимо от остатка)
 
-struct MrpReqItem {
+struct MrpReqItem { // @flat
 	SLAPI  MrpReqItem(PPID goodsID, long flags, double req, double price);
 	PPID   GoodsID;
 	long   Flags;   // @v9.1.7 MRPLF_XXX
@@ -40751,7 +40753,7 @@ struct MrpReqItem {
 	double Price;
 };
 
-class MrpReqArray : public TSArray <MrpReqItem> {
+class MrpReqArray : public TSVector <MrpReqItem> { // @v9.8.6 TSArray-->TSVector
 public:
 	SLAPI  MrpReqArray();
 	int    SLAPI Add(PPID goodsID, long flags, double req, double price);
@@ -43212,6 +43214,7 @@ private:
 		SLAPI  GoodsBlock();
 		PPID   ParentBlkP;
 		long   InnerId;
+		long   GoodsFlags; // @v9.8.6
 		uint   UnitBlkP;   // @v9.8.6
 		uint   PhUnitBlkP; // @v9.8.6
 		double PhUPerU;    // @v9.8.6
@@ -43576,7 +43579,7 @@ public:
 	//
 	//
 	//
-	struct InformBItem {
+	struct InformBItem { // @flat
 		InformBItem();
 		void   Clear();
 
@@ -43598,14 +43601,14 @@ public:
         PPID   ShipperPsnID;
         PPID   ConsigneePsnID;
         PPID   SupplPsnID;
-        TSArray <PPEgaisProcessor::InformBItem> Items;
+        TSVector <PPEgaisProcessor::InformBItem> Items; // @v9.8.6 TSArray-->TSVector
 	};
 
 	struct ActInformItem {
 		ActInformItem();
 		long   P;
 		char   AIdent[24];
-		TSArray <PPEgaisProcessor::InformBItem> BItems;
+		TSVector <PPEgaisProcessor::InformBItem> BItems; // @v9.8.6 TSArray-->TSVector
 	};
 
     struct ActInform {
@@ -45036,7 +45039,7 @@ public:
 	//
 	// Descr: Элемент списка результатов поиска образца Replacer::SrcItem в тексте this
 	//
-	struct FindItem {
+	struct FindItem { // @flat
 		uint   GrpIdx;    // Позиция группы в Replacer::SrcItem. 0 - общий результат
 		uint   IdxFirst;  // Индекс первого найденного в this элемента
 		uint   IdxLast;   // Индекс последнего найденного в this элемента
@@ -45067,7 +45070,7 @@ public:
 		};
 		TSCollection <Item> L;
 	};
-	class FindBlock : public TSArray <FindItem> {
+	class FindBlock : public TSVector <FindItem> { // @v9.8.6 TSArray-->TSVector
 	public:
 		FindBlock(const Replacer & rR);
 		~FindBlock();
@@ -45424,7 +45427,7 @@ public:
 		Tile   T;
 		Int64Array NodeRefs;
     };
-	struct RelMember {
+	struct RelMember { // @flat
 		SLAPI  RelMember();
 		uint64 RefID;
 		uint   TypeSymbID;
@@ -45434,7 +45437,7 @@ public:
     	SLAPI  Relation();
 		uint64 ID;
 		Tile   T;
-		TSArray <RelMember> MembList;
+		TSVector <RelMember> MembList; // @v9.8.6 TSArray-->TSVector
     };
     struct Tag { // @flat
     	SLAPI  Tag();
@@ -47939,7 +47942,7 @@ private:
 	double UsableBonus;    // Сумма бонуса, которая может быть использована для оплаты чека
 };
 
-struct SaModifEntry {
+struct SaModifEntry { // @flat
 	enum {
 		fChecked = 0x0001 // Позиция выбрана (используется для организации UI где модификаторы отображаются списком)
 	};
@@ -47949,7 +47952,7 @@ struct SaModifEntry {
 	double Qtty;
 };
 
-typedef TSArray <SaModifEntry> SaModif;
+typedef TSVector <SaModifEntry> SaModif; // @v9.8.6 TSArray-->TSVector
 
 class CPosProcessor {
 public:
@@ -48762,7 +48765,7 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 private:
-	class InputArray : public TSArray <KeyDownCommand> {
+	class InputArray : public TSVector <KeyDownCommand> { // @v9.8.6 TSArray-->TSVector
 	public:
 		void   Clear();
 

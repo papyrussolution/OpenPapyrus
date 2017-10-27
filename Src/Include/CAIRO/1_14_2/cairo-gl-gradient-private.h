@@ -43,19 +43,14 @@
 
 #define GL_GLEXT_PROTOTYPES
 
-//#include "cairo-cache-private.h"
-//#include "cairo-device-private.h"
-//#include "cairo-reference-count-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-types-private.h"
 #include "cairo-gl.h"
 
 #if CAIRO_HAS_GL_SURFACE
-#include <GL/gl.h>
-#include <GL/glext.h>
+	#include <GL/gl.h>
+	#include <GL/glext.h>
 #elif CAIRO_HAS_GLESV2_SURFACE
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
 #endif
 
 #define CAIRO_GL_GRADIENT_CACHE_SIZE 4096
@@ -64,29 +59,18 @@
 typedef struct _cairo_gl_context cairo_gl_context_t;
 
 typedef struct _cairo_gl_gradient {
-    cairo_cache_entry_t           cache_entry;
-    cairo_reference_count_t       ref_count;
-    cairo_device_t               *device; /* NB: we don't hold a reference */
-    GLuint                        tex;
-    uint	          n_stops;
-    const cairo_gradient_stop_t  *stops;
-    cairo_gradient_stop_t         stops_embedded[1];
+	cairo_cache_entry_t cache_entry;
+	cairo_reference_count_t ref_count;
+	cairo_device_t * device; /* NB: we don't hold a reference */
+	GLuint tex;
+	uint n_stops;
+	const cairo_gradient_stop_t  * stops;
+	cairo_gradient_stop_t stops_embedded[1];
 } cairo_gl_gradient_t;
 
-cairo_private cairo_int_status_t
-_cairo_gl_gradient_create (cairo_gl_context_t           *ctx,
-                           uint                  n_stops,
-                           const cairo_gradient_stop_t  *stops,
-                           cairo_gl_gradient_t         **gradient_out);
-
-cairo_private_no_warn cairo_gl_gradient_t *
-_cairo_gl_gradient_reference (cairo_gl_gradient_t *gradient);
-
-cairo_private void
-_cairo_gl_gradient_destroy (cairo_gl_gradient_t *gradient);
-
-cairo_private cairo_bool_t
-_cairo_gl_gradient_equal (const void *key_a, const void *key_b);
-
+cairo_private cairo_int_status_t _cairo_gl_gradient_create(cairo_gl_context_t * ctx, uint n_stops, const cairo_gradient_stop_t  * stops, cairo_gl_gradient_t ** gradient_out);
+cairo_private_no_warn cairo_gl_gradient_t * _cairo_gl_gradient_reference(cairo_gl_gradient_t * gradient);
+cairo_private void _cairo_gl_gradient_destroy(cairo_gl_gradient_t * gradient);
+cairo_private cairo_bool_t _cairo_gl_gradient_equal(const void * key_a, const void * key_b);
 
 #endif /* CAIRO_GL_GRADIENT_PRIVATE_H */

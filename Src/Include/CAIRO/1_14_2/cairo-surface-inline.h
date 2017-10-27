@@ -38,7 +38,7 @@
 #ifndef CAIRO_SURFACE_INLINE_H
 #define CAIRO_SURFACE_INLINE_H
 
-//#include "cairo-surface-private.h"
+////#include "cairo-surface-private.h"
 
 static inline cairo_status_t __cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 {

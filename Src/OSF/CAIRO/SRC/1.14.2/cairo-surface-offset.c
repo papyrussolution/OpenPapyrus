@@ -36,9 +36,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-pattern-private.h"
-#include "cairo-surface-offset-private.h"
 
 /* A collection of routines to facilitate drawing to an alternate surface. */
 
@@ -210,8 +207,8 @@ cairo_status_t _cairo_surface_offset_glyphs(cairo_surface_t * surface,
 		_copy_transformed_pattern(&source_copy.base, source, &m);
 		source = &source_copy.base;
 		for(i = 0; i < num_glyphs; i++) {
-			dev_glyphs[i].x -= x;
-			dev_glyphs[i].y -= y;
+			dev_glyphs[i].P.x -= x;
+			dev_glyphs[i].P.y -= y;
 		}
 	}
 	status = _cairo_surface_show_text_glyphs(surface, op, source,
