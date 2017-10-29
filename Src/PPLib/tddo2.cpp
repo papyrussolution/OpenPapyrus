@@ -1323,19 +1323,34 @@ public:
 		kBreak,     // break loop
 		kInclude    //  
 	};
-	struct Chunk {
-		int    Kind;
-		uint   NextP;
-		uint   BranchP;
-		uint   TextP;
-		uint   ExprP;
-	};
+	static int FASTCALL IsFirstCharOfIdent(char c);
+	static int FASTCALL IsCharOfIdent(char c);
+
+	SLAPI  TddoContentGraph(Tddo & rT);
+	SLAPI ~TddoContentGraph();
+	int    SLAPI SetSourceName(const char * pSrcName);
+	int    SLAPI Parse(const char * pSrc);
+	int    SLAPI Execute(uint chunkP, SString & rBuf);
+
+	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
+	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
+	int    FASTCALL Helper_RecognizeMetaKeyword(SString & rAddendum);
+	void   SLAPI Skip();
+	int    SLAPI Output(SString & rBuf) const;
+private:
 	enum {
 		untiltokEot    = 0x0001,
 		untiltokRBrace = 0x0002,
 		untiltokRPar   = 0x0004,
 		untiltokComma  = 0x0008,
 		untiltokSpace  = 0x0010  // space || tab || newline
+	};
+	enum {
+		stopEot    = 0x0001,
+		stopEnd    = 0x0002,
+		stopEndIf  = 0x0004,
+		stopElse   = 0x0008,
+		stopElseIf = 0x0010
 	};
 	class ExprSet {
 	public:
@@ -1368,47 +1383,41 @@ public:
 		class Expression {
 		public:
 			SLAPI  Expression();
+			SLAPI  Expression(const Expression & rS) : ES(rS.ES)
+			{
+				Next = rS.Next;
+				Flags = rS.Flags;
+			}
 
 			uint   Next;  // Позиция следующего выражения списка (например, для цепочки аргументов функции или макроса)
 			long   Flags;
 			TddoContentGraph::ExprSet::Stack ES; // Стэк выражения //
 		};
 
-		static int FASTCALL CmpOpPrior(int op1, int op2);
-
 		SLAPI  ExprSet(TddoContentGraph & rG);
 		SLAPI ~ExprSet();
-		int    SLAPI SetNextPos(uint itemToUpdatePos, uint nextPos);
+		const  Expression * FASTCALL Get(uint p) const
+		{
+			return (p > 0 && p < EL.getCount()) ? EL.at(p) : 0;
+		}
 		int    SLAPI CreateFormalArgExpr(const char * pArg, uint * pPos);
+		int    SLAPI SetNextPos(uint itemToUpdatePos, uint nextPos);
 		// untilToken: } | ) | , | EOF
 		int    SLAPI Parse(uint untilToken, uint * pPos);
-		int    SLAPI Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
-		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack);
 		void   SLAPI DebugOutput(uint exprPos, SString & rBuf) const;
 	private:
+		static int FASTCALL CmpOpPrior(int op1, int op2);
+		int    SLAPI Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
+		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack);
+
 		TddoContentGraph & R_G;
 		TSCollection <Expression> EL;
 	};
-	enum {
-		stopEot    = 0x0001,
-		stopEnd    = 0x0002,
-		stopEndIf  = 0x0004,
-		stopElse   = 0x0008,
-		stopElseIf = 0x0010
+	struct Var {
+		uint   IdentP;
+		STypEx T;
+		uint   ValueP; // Позиция значения переменной в буфере VvBuf
 	};
-	static int FASTCALL IsFirstCharOfIdent(char c);
-	static int FASTCALL IsCharOfIdent(char c);
-
-	SLAPI  TddoContentGraph(Tddo & rT);
-	SLAPI ~TddoContentGraph();
-	int    SLAPI SetSourceName(const char * pSrcName);
-	int    SLAPI Parse(const char * pSrc);
-	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
-	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
-	int    FASTCALL Helper_RecognizeMetaKeyword(SString & rAddendum);
-	void   SLAPI Skip();
-	int    SLAPI Output(SString & rBuf) const;
-private:
 	struct ChunkInner {
 		int    Kind;    // Вид блока (TddoContentGraph::kXXX)
 		uint   NextP;   // Следующий блок
@@ -1457,6 +1466,8 @@ private:
 		return ok;
 	}
 
+	int    SLAPI ResolveExpression(ExprSet::Expression & rExpr);
+
 	TSVector <ChunkInner> L; 
 	// Блок по индексу 0 всегда стартовый (фиктивный блок)
 	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока 
@@ -1465,9 +1476,104 @@ private:
 	SStrScan Scan;
 	Current C;
 	TSStack <Current> ScStk;
-	TSVector <Error> ErrL;
+	TSVector <Error>  ErrL;
+	TSVector <Var>    VarL;
 	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
+	
+	class ValueBuffer : public SBaseBuffer {
+	public:
+		SLAPI  ValueBuffer()
+		{
+			SBaseBuffer::Init();
+		}
+		SLAPI ~ValueBuffer()
+		{
+			SBaseBuffer::Destroy();
+		}
+	};
+	ValueBuffer VvBuf; // Буфер, хранящий значения переменных.
 };
+
+int SLAPI TddoContentGraph::Execute(uint chunkP, SString & rBuf)
+{
+	int    ok = 1;
+	int    done = 0;
+	uint   _cc = 0; // Счетчик блоков
+	SString temp_buf;
+	for(uint cp = chunkP; !done;) {
+		THROW(cp < L.getCount());
+		THROW(!_cc || cp > 0);
+		const ChunkInner & r_chunk = L.at(cp);
+		_cc++;
+		switch(r_chunk.Kind) {
+			case kStart:
+				cp = r_chunk.NextP;
+				break;
+			case kFinish:
+				done = 1;
+				break;
+			case kText:
+				GetS(r_chunk.TextP, temp_buf);
+				rBuf.Cat(temp_buf);
+				cp = r_chunk.NextP;
+				break;
+			case kExpr:
+				break;
+			case kForEach:
+				break;
+			case kIf:
+				break;
+			case kElse:
+				break;
+			case kElseIf:
+				break;
+			case kIter:
+				break;
+			case kMacro:
+				break;
+			case kMacroCall:
+				break;
+			case kSet:
+				{
+					const ExprSet::Expression * p_expr = ES.Get(r_chunk.ExprP);
+					if(p_expr) {
+						ExprSet::Expression expr(*p_expr);
+						ResolveExpression(expr);
+					}
+					else {
+						; // @error
+					}
+				}
+				break;
+			case kStop:
+				break;
+			case kBreak:
+				break;
+			case kInclude:
+				break;
+			default:
+				CALLEXCEPT(); // @error
+				break;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr)
+{
+	int    ok = 1;
+	ExprSet::Item item(0);
+	rExpr.ES.pop(item);
+	if(item.K == ExprSet::kOp) {
+		if(item.Op == _ASSIGN_) {
+
+		}
+	}
+	else if(item.K == ExprSet::kFunc) {
+	}
+	return ok;
+}
 
 SLAPI TddoContentGraph::ExprSet::Item::Item(uint16 k) : K(k), ArgCount(0), Stub(0)
 {
@@ -1934,7 +2040,8 @@ int SLAPI TddoContentGraph::Parse(const char * pSrc)
 	C.LineNo = 0;
 	C.P_Src = pSrc;
 	C.SourceNameP = 0;
-	Helper_Parse(0, 0, stopEot);
+	THROW(Helper_Parse(0, 0, stopEot));
+	CATCHZOK
 	return ok;
 }
 
@@ -1949,9 +2056,8 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 		SLAPI  CurrentBlock(uint parentChunkP, int isBrach) : Kind(0), P(parentChunkP), ExprP(0), IsBranch(isBrach)
 		{
 		}
-		int    FASTCALL AppendToList(TddoContentGraph * pG)
+		void   FASTCALL AppendToList(TddoContentGraph * pG)
 		{
-			int    ok = 1;
 			if(Kind) {
 				uint   _p = pG->AddBlock(Kind, ExprP, Text);
 				if(IsBranch) {
@@ -1966,9 +2072,6 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 				ExprP = 0;
 				Text.Z();
 			}
-			else
-				ok = -1;
-			return ok;
 		}
 		void   SLAPI Set(int kind, uint exprP, int isBranch)
 		{
@@ -2052,7 +2155,8 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 							_cb.Text = temp_buf;
 							_cb.Kind = kMacro;
 							_cb.AppendToList(this);
-							Helper_Parse(_cb.P, 1, stopEot|stopEnd); // @recursion
+							if(!Helper_Parse(_cb.P, 1, stopEot|stopEnd)) // @recursion
+								local_ok = 0; // @error
 						}
 						else {
 							local_ok = 0; // @error
@@ -2148,7 +2252,9 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 							Scan.Incr();
 							_cb.Set(kIf, expr_p, 0);
 							_cb.AppendToList(this);
-							Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf|stopElse|stopElseIf); // @recursion
+							if(!Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf|stopElse|stopElseIf)) { // @recursion
+								; // @error
+							}
 						}
 						else {
 							; // @error
@@ -2166,7 +2272,9 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 						}
 						_cb.Set(kElse, 0, 1);
 						_cb.AppendToList(this);
-						Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf); // @recursion
+						if(!Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf)) { // @recursion
+							; // @error
+						}
 						if(stopEvent & stopElse) {
 							exit_loop = 1;
 						}
@@ -2187,7 +2295,9 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 								Scan.Incr();
 								_cb.Set(kElseIf, expr_p, 1);
 								_cb.AppendToList(this);
-								Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf|stopElse|stopElseIf); // @recursion
+								if(!Helper_Parse(_cb.P, 1, stopEot|stopEnd|stopEndIf|stopElse|stopElseIf)) { // @recursion
+									; // @error
+								}
 							}
 							else {
 								; // @error
@@ -2211,7 +2321,9 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 							Scan.Incr();
 							_cb.Set(kForEach, expr_p, 0);
 							_cb.AppendToList(this);
-							Helper_Parse(_cb.P, 1, stopEot|stopEnd); // @recursion
+							if(!Helper_Parse(_cb.P, 1, stopEot|stopEnd)) { // @recursion
+								; // @error
+							}
 						}
 						else {
 							; // @error
@@ -2585,6 +2697,8 @@ uint SLAPI TddoContentGraph::AddBlock(int kind, uint exprP, const SString & rTex
 	chunk.ExprP = exprP;
 	AddS(rText, &chunk.TextP);
 	result_pos = L.getCount();
+	if(EndChunkP)
+		chunk.NextP = EndChunkP;
 	L.insert(&chunk);
 	return result_pos;
 }
@@ -2610,6 +2724,8 @@ int SLAPI TestTddo2()
 {
 	int    ok = 1;
 	SString inp_file_name;
+	SString out_file_name;
+	SString debug_file_name;
 	SString temp_buf, in_buf;
 	SBuffer out_buf;
 	LongArray id_list;
@@ -2617,12 +2733,20 @@ int SLAPI TestTddo2()
 	id_list.addUnique(55);
 	id_list.addUnique(3);
 	PPGetPath(PPPATH_TESTROOT, inp_file_name);
-	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("tddo2-test-01.tddo");
+	const char * p_file_name = "tddo2-test-02";
+	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat((temp_buf = p_file_name).Dot().Cat("tddo"));
 	SFile in_file(inp_file_name, SFile::mRead);
-	PPGetPath(PPPATH_TESTROOT, temp_buf);
-	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("tddo2-test-01-out.tddo");
-	SFile out_file(temp_buf, SFile::mWrite);
+	//
+	PPGetPath(PPPATH_TESTROOT, debug_file_name);
+	debug_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("debug").Dot().Cat("tddo"));
+	SFile debug_file(debug_file_name, SFile::mWrite);
+	//
+	PPGetPath(PPPATH_TESTROOT, out_file_name);
+	out_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat((temp_buf = p_file_name).CatChar('-').Cat("out").Dot().Cat("tddo"));
+	SFile out_file(out_file_name, SFile::mWrite);
+
 	THROW_SL(in_file.IsValid());
+	THROW_SL(debug_file.IsValid());
 	THROW_SL(out_file.IsValid());
 	{
 		Tddo tddo;
@@ -2632,6 +2756,9 @@ int SLAPI TestTddo2()
 			in_buf.Cat(temp_buf);
 		tcg.Parse(in_buf);
 		tcg.Output(temp_buf);
+		debug_file.WriteLine(temp_buf);
+		//
+		tcg.Execute(0, temp_buf.Z());
 		out_file.WriteLine(temp_buf);
 	}
 #if 0 // {

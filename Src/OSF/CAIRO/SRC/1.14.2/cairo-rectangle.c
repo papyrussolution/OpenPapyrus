@@ -38,7 +38,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
 
 const CairoIRect _cairo_empty_rectangle = { 0, 0, 0, 0 };
 const CairoIRect _cairo_unbounded_rectangle = {

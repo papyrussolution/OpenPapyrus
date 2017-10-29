@@ -634,7 +634,12 @@ int PPApp::processCommand(uint cmd)
 		case cmTransmitModifications: PPObjectTransmit::TransmitModificationsByDBDivList(0); break;
 		case cmReceivePackets:       PPObjectTransmit::ReceivePackets(0);  break;
 		case cmReplacePerson:        PPObjPerson::ReplacePerson();      break;
-		case cmReplaceGoods:         PPObjGoods::ReplaceGoods(0, 0);    break;
+		case cmReplaceGoods:         
+			{
+				PPObjGoods::ExtUniteBlock eub;
+				PPObjGoods::ReplaceGoods(eub);    
+			}
+			break;
 		case cmReplaceGoodsTaxGrp:   PPObjGoodsTax::ReplaceGoodsTaxGrp(); break;
 		case cmReplaceUnit:          PPObject::ReplaceObjInteractive(PPOBJ_UNIT, 0);  break;
 		case cmReplaceWorld:         PPObject::ReplaceObjInteractive(PPOBJ_WORLD, 0); break;

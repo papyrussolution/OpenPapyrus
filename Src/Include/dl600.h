@@ -208,7 +208,7 @@ struct CtmExprConst {
 //
 // Descr: Пул констант. хранится в экземпляре класса DlContext.
 //
-class CtmConstList : private SBaseBuffer {
+class CtmConstList : private SBaseBuffer { // @persistent
 public:
 	CtmConstList();
 	~CtmConstList();
@@ -220,7 +220,7 @@ public:
 	int    Test_Cmp(const CtmConstList &) const;
 private:
 	int    SearchAnalog(const void * pBuf, size_t len, size_t * pPos) const;
-	size_t DataLen;
+	uint32 DataLen; // @v9.8.6 size_t-->uint32
 };
 
 typedef TSCollection <DlScope> DlScopeList;

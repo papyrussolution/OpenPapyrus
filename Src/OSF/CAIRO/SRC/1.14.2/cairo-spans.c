@@ -26,10 +26,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-fixed-private.h"
-//#include "cairo-types-private.h"
 
 static void _cairo_nil_destroy(void * abstract)
 {
@@ -62,7 +58,7 @@ cairo_status_t _cairo_scan_converter_set_error(void * abstract_converter, cairo_
 	return converter->status;
 }
 
-static void _cairo_nil_scan_converter_init(cairo_scan_converter_t * converter, cairo_status_t status)
+static void FASTCALL _cairo_nil_scan_converter_init(cairo_scan_converter_t * converter, cairo_status_t status)
 {
 	converter->destroy = _cairo_nil_destroy;
 	converter->status = CAIRO_STATUS_SUCCESS;
@@ -127,11 +123,7 @@ cairo_scan_converter_t * _cairo_scan_converter_create_in_error(cairo_status_t st
 #undef RETURN_NIL
 }
 
-static cairo_status_t _cairo_nil_span_renderer_render_rows(void * abstract_renderer,
-    int y,
-    int height,
-    const cairo_half_open_span_t        * coverages,
-    unsigned num_coverages)
+static cairo_status_t _cairo_nil_span_renderer_render_rows(void * abstract_renderer, int y, int height, const cairo_half_open_span_t * coverages, unsigned num_coverages)
 {
 	(void)y;
 	(void)height;
@@ -165,8 +157,7 @@ cairo_status_t _cairo_span_renderer_set_error(void * abstract_renderer, cairo_st
 	return renderer->status;
 }
 
-static void _cairo_nil_span_renderer_init(cairo_span_renderer_t * renderer,
-    cairo_status_t status)
+static void FASTCALL _cairo_nil_span_renderer_init(cairo_span_renderer_t * renderer, cairo_status_t status)
 {
 	renderer->destroy = _cairo_nil_destroy;
 	renderer->status = CAIRO_STATUS_SUCCESS;

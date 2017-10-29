@@ -37,7 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#include "cairo-stroke-dash-private.h"
 
 void _cairo_stroker_dash_start(cairo_stroker_dash_t * dash)
 {

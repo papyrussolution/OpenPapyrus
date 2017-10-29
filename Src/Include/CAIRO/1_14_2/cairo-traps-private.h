@@ -38,10 +38,6 @@
 #ifndef CAIRO_TRAPS_PRIVATE_H
 #define CAIRO_TRAPS_PRIVATE_H
 
-//#include "cairo-compiler-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-types-private.h"
-
 CAIRO_BEGIN_DECLS
 
 struct _cairo_traps {

@@ -57,21 +57,16 @@ static cairo_color_t const cairo_color_magenta = {
 	0xffff, 0x0, 0xffff, 0xffff
 };
 
-const cairo_color_t * _cairo_stock_color(cairo_stock_t stock)
+const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock)
 {
 	switch(stock) {
-		case CAIRO_STOCK_WHITE:
-		    return &cairo_color_white;
-		case CAIRO_STOCK_BLACK:
-		    return &cairo_color_black;
-		case CAIRO_STOCK_TRANSPARENT:
-		    return &cairo_color_transparent;
-
+		case CAIRO_STOCK_WHITE: return &cairo_color_white;
+		case CAIRO_STOCK_BLACK: return &cairo_color_black;
+		case CAIRO_STOCK_TRANSPARENT: return &cairo_color_transparent;
 		case CAIRO_STOCK_NUM_COLORS:
 		default:
 		    ASSERT_NOT_REACHED;
-		    /* If the user can get here somehow, give a color that indicates a
-		     * problem. */
+		    // If the user can get here somehow, give a color that indicates a problem.
 		    return &cairo_color_magenta;
 	}
 }

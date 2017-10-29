@@ -37,8 +37,6 @@
 #ifndef CAIRO_MEMPOOL_PRIVATE_H
 #define CAIRO_MEMPOOL_PRIVATE_H
 
-//#include "cairo-compiler-private.h"
-//#include "cairo-error-private.h"
 #include <stddef.h> /* for size_t */
 
 CAIRO_BEGIN_DECLS
@@ -61,16 +59,9 @@ struct _cairo_mempool {
 	size_t max_bytes;
 };
 
-cairo_private cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool,
-    void * base,
-    size_t bytes,
-    int min_bits,
-    int num_sizes);
-
+cairo_private cairo_status_t _cairo_mempool_init(cairo_mempool_t * pool, void * base, size_t bytes, int min_bits, int num_sizes);
 cairo_private void * _cairo_mempool_alloc(cairo_mempool_t * pi, size_t bytes);
-
 cairo_private void _cairo_mempool_free(cairo_mempool_t * pi, void * storage);
-
 cairo_private void _cairo_mempool_fini(cairo_mempool_t * pool);
 
 CAIRO_END_DECLS

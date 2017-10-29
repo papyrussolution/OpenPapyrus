@@ -34,10 +34,6 @@
 #if CAIRO_HAS_XCB_SURFACE // {
 
 #include "cairo-xcb-private.h"
-//#include "cairo-hash-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-list-inline.h"
-
 #include <xcb/xcbext.h>
 #include <xcb/bigreq.h>
 #include <errno.h>

@@ -38,11 +38,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _BSD_SOURCE /* for hypot() */
-//#include "cairo-box-inline.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-slope-private.h"
-#include "cairo-stroke-dash-private.h"
 
 typedef struct _segment_t {
 	cairo_point_t p1, p2;

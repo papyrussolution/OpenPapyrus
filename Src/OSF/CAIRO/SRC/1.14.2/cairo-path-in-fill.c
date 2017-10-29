@@ -34,7 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-path-fixed-private.h"
 
 typedef struct cairo_in_fill {
 	double tolerance;

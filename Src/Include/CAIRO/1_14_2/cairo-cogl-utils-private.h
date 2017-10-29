@@ -35,20 +35,14 @@
 //#include "cairo-path-fixed-private.h"
 #include <cogl/cogl2-experimental.h>
 
-CoglPath *
-_cairo_cogl_util_path_from_cairo (const cairo_path_fixed_t *path,
-				  CairoFillRule fill_rule,
-				  float tolerance);
-
-int
-_cairo_cogl_util_next_p2 (int a);
+CoglPath * _cairo_cogl_util_path_from_cairo(const cairo_path_fixed_t * path, CairoFillRule fill_rule, float tolerance);
+int _cairo_cogl_util_next_p2(int a);
 
 #define CAIRO_FIXED_ONE_FLOAT ((float)(1 << CAIRO_FIXED_FRAC_BITS))
 
-static inline float
-_cairo_cogl_util_fixed_to_float (cairo_fixed_t f)
+static inline float _cairo_cogl_util_fixed_to_float(cairo_fixed_t f)
 {
-    return ((float) f) / CAIRO_FIXED_ONE_FLOAT;
+	return ((float)f) / CAIRO_FIXED_ONE_FLOAT;
 }
 
 #endif /* CAIRO_COGL_UTILS_PRIVATE_H */

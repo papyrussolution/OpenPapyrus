@@ -828,16 +828,21 @@ int SLAPI PPObjUnit::UniteMaxLike()
 			SString msg;
 			p_list->SortByID();
 			PPLoadText(PPTXT_UNITELIKEUNITS, msg);
-			for(uint i = 0; i < p_list->getCount(); i++) {
-				PPID id = p_list->at(i).Id, like_id = 0;
-				PPUnit rec;
-				if(Search(id, &rec) > 0) {
-					while(SearchMaxLike(&rec, &like_id) > 0) {
-						THROW(PPObject::ReplaceObj(Obj, like_id, id, 0));
-						THROW_SL(p_list->Remove(like_id));
+			{
+				PPTransaction tra(1); // @v9.8.6
+				THROW(tra); // @v9.8.6
+				for(uint i = 0; i < p_list->getCount(); i++) {
+					PPID id = p_list->at(i).Id, like_id = 0;
+					PPUnit rec;
+					if(Search(id, &rec) > 0) {
+						while(SearchMaxLike(&rec, &like_id) > 0) {
+							THROW(PPObject::ReplaceObj(Obj, like_id, id, 0));
+							THROW_SL(p_list->Remove(like_id));
+						}
 					}
+					PPWaitPercent(i, p_list->getCount() - 1, msg);
 				}
-				PPWaitPercent(i, p_list->getCount() - 1, msg);
+				THROW(tra.Commit()); // @v9.8.6
 			}
 		}
 	}

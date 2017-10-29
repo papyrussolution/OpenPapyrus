@@ -1594,7 +1594,6 @@ void InitTest()
 	assert(sizeof(DateRepeating) == 8);
 	assert(sizeof(DateTimeRepeating) == 12);
 	assert(sizeof(KeyDownCommand) == 4); // @v8.1.6
-
 	assert(sizeof(DBFH) == 32);
 	assert(sizeof(DBFF) == 32);
 	{
@@ -1622,6 +1621,7 @@ void InitTest()
 		assert(p_zero_view->GetId() == 0);
 		assert(p_zero_view->TestId(1) == 0);
 	}
+	assert(sizeof(TYPEID) == 4); // @v9.8.6
 	assert(sizeof(STypEx) == 16);
 	assert(DBRPL_ERROR == 0); // @v8.8.2
 	assert(sizeof(CommPortParams) == 6);

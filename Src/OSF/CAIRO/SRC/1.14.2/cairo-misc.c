@@ -344,7 +344,7 @@ BAD:
  *
  * Return value: %TRUE if the operator is bounded by the mask operand
  **/
-cairo_bool_t _cairo_operator_bounded_by_mask(cairo_operator_t op)
+cairo_bool_t FASTCALL _cairo_operator_bounded_by_mask(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_CLEAR:
@@ -398,7 +398,7 @@ cairo_bool_t _cairo_operator_bounded_by_mask(cairo_operator_t op)
  *
  * Return value: %TRUE if the operator is bounded by the source operand
  **/
-cairo_bool_t _cairo_operator_bounded_by_source(cairo_operator_t op)
+cairo_bool_t FASTCALL _cairo_operator_bounded_by_source(cairo_operator_t op)
 {
 	switch(op) {
 		case CAIRO_OPERATOR_OVER:

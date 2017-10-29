@@ -1186,21 +1186,30 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 		BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
-			if(col == 0) {
+			if(col == 0) { // id
 				if(((Goods_ *)pData)->Flags & GF_HASIMAGES) {
 					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 					pCellStyle->Color = GetColorRef(SClrGreen);
 					ok = 1;
 				}
 			}
-			else if(col == 1) {
-				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
-				if(!r_tag_filt.IsEmpty()) {
-					SColor clr;
-					if(r_tag_filt.SelectIndicator(((Goods_ *)pData)->ID, clr) > 0) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-						pCellStyle->Color2 = (COLORREF)clr;
+			else if(col == 1) { // name
+				{
+					if(((Goods_ *)pData)->Flags & GF_GENERIC) {
+						pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
+						pCellStyle->RightFigColor = GetColorRef(SClrOrange);
 						ok = 1;
+					}
+				}
+				{
+					const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
+					if(!r_tag_filt.IsEmpty()) {
+						SColor clr;
+						if(r_tag_filt.SelectIndicator(((Goods_ *)pData)->ID, clr) > 0) {
+							pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+							pCellStyle->Color2 = (COLORREF)clr;
+							ok = 1;
+						}
 					}
 				}
 			}
@@ -2220,29 +2229,23 @@ int SLAPI PPViewGoods::RemoveAll()
 		}
 		else if(GmParam.Action == GoodsMoveParam::aActionByFlags) {
 			if(_flags & (GoodsMoveParam::fRemoveExtTextA|GoodsMoveParam::fRemoveExtTextB|GoodsMoveParam::fRemoveExtTextC|GoodsMoveParam::fRemoveExtTextD|GoodsMoveParam::fRemoveExtTextE)) {
+				static const struct { int16 RmvF; int8 ExtF; } _rmv_f_ext_f_assoc_list[] = {
+					{ GoodsMoveParam::fRemoveExtTextA, GDSEXSTR_A },
+					{ GoodsMoveParam::fRemoveExtTextB, GDSEXSTR_B },
+					{ GoodsMoveParam::fRemoveExtTextC, GDSEXSTR_C },
+					{ GoodsMoveParam::fRemoveExtTextD, GDSEXSTR_D },
+					{ GoodsMoveParam::fRemoveExtTextE, GDSEXSTR_E },
+				};
 				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 					PPGoodsPacket pack;
 					if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 						int do_update = 0;
-						if(_flags & GoodsMoveParam::fRemoveExtTextA && pack.GetExtStrData(GDSEXSTR_A, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_A, temp_buf.Z());
-							do_update = 1;
-						}
-						if(_flags & GoodsMoveParam::fRemoveExtTextB && pack.GetExtStrData(GDSEXSTR_B, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_B, temp_buf.Z());
-							do_update = 1;
-						}
-						if(_flags & GoodsMoveParam::fRemoveExtTextC && pack.GetExtStrData(GDSEXSTR_C, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_C, temp_buf.Z());
-							do_update = 1;
-						}
-						if(_flags & GoodsMoveParam::fRemoveExtTextD && pack.GetExtStrData(GDSEXSTR_D, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_D, temp_buf.Z());
-							do_update = 1;
-						}
-						if(_flags & GoodsMoveParam::fRemoveExtTextE && pack.GetExtStrData(GDSEXSTR_E, temp_buf) && temp_buf.NotEmpty()) {
-							pack.PutExtStrData(GDSEXSTR_E, temp_buf.Z());
-							do_update = 1;
+						for(uint i = 0; i < SIZEOFARRAY(_rmv_f_ext_f_assoc_list); i++) {
+							const int ext_f = _rmv_f_ext_f_assoc_list[i].ExtF;
+							if(_flags & _rmv_f_ext_f_assoc_list[i].RmvF && pack.GetExtStrData(ext_f, temp_buf) && temp_buf.NotEmpty()) {
+								pack.PutExtStrData(ext_f, temp_buf.Z());
+								do_update = 1;
+							}
 						}
 						if(do_update) {
 							if(GObj.PutPacket(&item.ID, &pack, 1))
@@ -3599,9 +3602,26 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					UpdateTempTable(0, pBrw);
 				break;
 			case PPVCMD_UNITEOBJ:
-				ok = GObj.ReplaceGoods(id, 0);
-				if(ok > 0)
-					UpdateTempTable(0, pBrw);
+				{	
+					PPObjGoods::ExtUniteBlock eub;
+					eub.ResultID = id;
+					// @v9.8.6 {
+					if(Filt.Flags & GoodsFilt::fGenGoods && Filt.GrpID) {
+						Goods2Tbl::Rec gen_rec;
+						if(GObj.Fetch(Filt.GrpID, &gen_rec) > 0 && gen_rec.Flags & GF_GENERIC && gen_rec.Kind == PPGDSK_GOODS) {
+							PPIDArray gen_list;
+							GObj.GetGenericList(gen_rec.ID, &gen_list);
+							if(gen_list.getCount() > 2 && gen_list.lsearch(id)) {
+								gen_list.freeByKey(id, 0);
+								eub.DestList = gen_list;
+							}
+						}
+					}
+					// } @v9.8.6 
+					ok = GObj.ReplaceGoods(eub);
+					if(ok > 0)
+						UpdateTempTable(0, pBrw);
+				}
 				break;
 			case PPVCMD_TAGS:
 				ok = id ? EditObjTagValList(PPOBJ_GOODS, id, 0) : -1;

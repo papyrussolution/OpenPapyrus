@@ -95,11 +95,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-spans-private.h"
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
-//#include <setjmp.h>
 
 /*-------------------------------------------------------------------------
  * cairo specific config

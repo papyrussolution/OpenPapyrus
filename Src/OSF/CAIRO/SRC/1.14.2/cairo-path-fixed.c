@@ -37,10 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-slope-private.h"
 
 static cairo_status_t _cairo_path_fixed_add(cairo_path_fixed_t  * path, cairo_path_op_t op, const cairo_point_t * points, int num_points);
 static void _cairo_path_fixed_add_buf(cairo_path_fixed_t * path, cairo_path_buf_t   * buf);

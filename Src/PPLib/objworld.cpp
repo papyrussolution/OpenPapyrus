@@ -427,18 +427,23 @@ int SLAPI PPObjWorld::UniteMaxLike()
 			SString msg;
 			p_list->SortByID();
 			PPLoadText(PPTXT_UNITELIKEWORLDS, msg);
-			for(uint i = 0; i < p_list->getCount(); i++) {
-				long   like_flags = PPObjWorld::smlCode|PPObjWorld::smlName|smlCheckCountryOrParent;
-				PPID   id = p_list->at(i).Id, like_id = 0;
-				PPWorldPacket pack;
-				THROW(PPCheckUserBreak());
-				if(obj_world.GetPacket(id, &pack) > 0) {
-					while(obj_world.SearchMaxLike(&pack, like_flags, &like_id) > 0) {
-						THROW(PPObject::ReplaceObj(PPOBJ_WORLD, like_id, id, 0));
-						THROW_SL(p_list->Remove(like_id));
+			{
+				PPTransaction tra(1);
+				THROW(tra);
+				for(uint i = 0; i < p_list->getCount(); i++) {
+					long   like_flags = PPObjWorld::smlCode|PPObjWorld::smlName|smlCheckCountryOrParent;
+					PPID   id = p_list->at(i).Id, like_id = 0;
+					PPWorldPacket pack;
+					THROW(PPCheckUserBreak());
+					if(obj_world.GetPacket(id, &pack) > 0) {
+						while(obj_world.SearchMaxLike(&pack, like_flags, &like_id) > 0) {
+							THROW(PPObject::ReplaceObj(PPOBJ_WORLD, like_id, id, 0));
+							THROW_SL(p_list->Remove(like_id));
+						}
 					}
+					PPWaitPercent(i, p_list->getCount() - 1, msg);
 				}
-				PPWaitPercent(i, p_list->getCount() - 1, msg);
+				THROW(tra.Commit());
 			}
 		}
 		PPWait(0);

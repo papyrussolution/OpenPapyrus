@@ -37,8 +37,6 @@
 #ifndef CAIRO_TRUETYPE_SUBSET_PRIVATE_H
 #define CAIRO_TRUETYPE_SUBSET_PRIVATE_H
 
-#include "cairoint.h"
-
 #if CAIRO_HAS_FONT_SUBSET
 
 /* The structs defined here should strictly follow the TrueType

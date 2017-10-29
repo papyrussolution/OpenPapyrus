@@ -43,18 +43,6 @@
 
 #define _BSD_SOURCE /* for snprintf() */
 #include "cairo-svg.h"
-//#include "cairo-array-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-image-info-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-output-stream-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-snapshot-inline.h"
 #include "cairo-svg-surface-private.h"
 
 /**

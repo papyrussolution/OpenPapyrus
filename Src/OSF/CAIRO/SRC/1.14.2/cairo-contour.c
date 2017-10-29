@@ -37,10 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-freelist-private.h"
-//#include "cairo-combsort-inline.h"
-#include "cairo-contour-inline.h"
-#include "cairo-contour-private.h"
 
 void _cairo_contour_init(cairo_contour_t * contour, int direction)
 {

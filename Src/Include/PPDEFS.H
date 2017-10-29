@@ -3269,6 +3269,8 @@
 	#define CTL_REPLGOODS_PANE2         (10 + WINDOWS_ID_BIAS)
 	#define CTL_REPLGOODS_FLTF          (11 + WINDOWS_ID_BIAS)
 	#define CTL_REPLGOODS_FLTINFO       (12 + WINDOWS_ID_BIAS)
+	#define CTL_REPLGOODS_ST_INFO       (13 + WINDOWS_ID_BIAS)
+	#define CTL_REPLGOODS_ALLDEST       (14 + WINDOWS_ID_BIAS)
 #define DLG_REPLPRSN              240 // Объединение персоналий
 #define DLG_REPLADDR              241 // Объединение адресов доставки
 	#define CTL_REPLPRSN_KIND1           (1 + WINDOWS_ID_BIAS)

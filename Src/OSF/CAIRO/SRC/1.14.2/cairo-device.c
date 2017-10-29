@@ -109,13 +109,9 @@ static const cairo_device_t _invalid_device = {
 cairo_device_t * _cairo_device_create_in_error(cairo_status_t status)
 {
 	switch(status) {
-		case CAIRO_STATUS_NO_MEMORY:
-		    return (cairo_device_t*)&_nil_device;
-		case CAIRO_STATUS_DEVICE_ERROR:
-		    return (cairo_device_t*)&_invalid_device;
-		case CAIRO_STATUS_DEVICE_TYPE_MISMATCH:
-		    return (cairo_device_t*)&_mismatch_device;
-
+		case CAIRO_STATUS_NO_MEMORY: return (cairo_device_t*)&_nil_device;
+		case CAIRO_STATUS_DEVICE_ERROR: return (cairo_device_t*)&_invalid_device;
+		case CAIRO_STATUS_DEVICE_TYPE_MISMATCH: return (cairo_device_t*)&_mismatch_device;
 		case CAIRO_STATUS_SUCCESS:
 		case CAIRO_STATUS_LAST_STATUS:
 		    ASSERT_NOT_REACHED;
@@ -189,11 +185,10 @@ void _cairo_device_init(cairo_device_t * device, const cairo_device_backend_t * 
  **/
 cairo_device_t * cairo_device_reference(cairo_device_t * device)
 {
-	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
-		return device;
+	if(device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
+		_cairo_reference_count_inc(&device->ref_count);
 	}
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
-	_cairo_reference_count_inc(&device->ref_count);
 	return device;
 }
 
@@ -268,19 +263,16 @@ slim_hidden_def(cairo_device_flush);
  **/
 void cairo_device_finish(cairo_device_t * device)
 {
-	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
-		return;
+	if(device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
+		if(!device->finished) {
+			cairo_device_flush(device);
+			if(device->backend->finish != NULL)
+				device->backend->finish(device);
+			// We only finish the device after the backend's callback returns because
+			// the device might still be needed during the callback (e.g. for cairo_device_acquire ()).
+			device->finished = TRUE;
+		}
 	}
-	if(device->finished)
-		return;
-	cairo_device_flush(device);
-	if(device->backend->finish != NULL)
-		device->backend->finish(device);
-	/* We only finish the device after the backend's callback returns because
-	 * the device might still be needed during the callback
-	 * (e.g. for cairo_device_acquire ()).
-	 */
-	device->finished = TRUE;
 }
 
 slim_hidden_def(cairo_device_finish);
@@ -300,18 +292,17 @@ slim_hidden_def(cairo_device_finish);
 void cairo_device_destroy(cairo_device_t * device)
 {
 	cairo_user_data_array_t user_data;
-	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
-		return;
+	if(device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
+		if(_cairo_reference_count_dec_and_test(&device->ref_count)) {
+			cairo_device_finish(device);
+			assert(device->mutex_depth == 0);
+			CAIRO_MUTEX_FINI(device->mutex);
+			user_data = device->user_data;
+			device->backend->destroy(device);
+			_cairo_user_data_array_fini(&user_data);
+		}
 	}
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
-	if(!_cairo_reference_count_dec_and_test(&device->ref_count))
-		return;
-	cairo_device_finish(device);
-	assert(device->mutex_depth == 0);
-	CAIRO_MUTEX_FINI(device->mutex);
-	user_data = device->user_data;
-	device->backend->destroy(device);
-	_cairo_user_data_array_fini(&user_data);
 }
 
 slim_hidden_def(cairo_device_destroy);
@@ -329,12 +320,8 @@ slim_hidden_def(cairo_device_destroy);
  **/
 cairo_device_type_t cairo_device_get_type(cairo_device_t * device)
 {
-	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
-		return CAIRO_DEVICE_TYPE_INVALID;
-	}
-	return device->backend->type;
+	return (device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) ? device->backend->type : CAIRO_DEVICE_TYPE_INVALID;
 }
-
 /**
  * cairo_device_acquire:
  * @device: a #cairo_device_t
@@ -427,9 +414,7 @@ cairo_status_t _cairo_device_set_error(cairo_device_t * device, cairo_status_t s
  **/
 uint cairo_device_get_reference_count(cairo_device_t * device)
 {
-	if(device == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count))
-		return 0;
-	return CAIRO_REFERENCE_COUNT_GET_VALUE(&device->ref_count);
+	return (device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) ? CAIRO_REFERENCE_COUNT_GET_VALUE(&device->ref_count) : 0;
 }
 
 /**

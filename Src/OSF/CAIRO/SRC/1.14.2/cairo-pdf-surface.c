@@ -41,25 +41,6 @@
 #include "cairoint.h"
 #pragma hdrstop
 #define _BSD_SOURCE /* for snprintf() */
-#include "cairo-pdf.h"
-#include "cairo-pdf-surface-private.h"
-#include "cairo-pdf-operators-private.h"
-#include "cairo-pdf-shading-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-analysis-surface-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-image-info-private.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-output-stream-private.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-surface-snapshot-inline.h"
-//#include "cairo-surface-subsurface-private.h"
-#include "cairo-type3-glyph-surface-private.h"
-//#include <time.h>
 #include <zlib.h>
 
 /* Issues:
@@ -145,8 +126,7 @@
  * %CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID.
  **/
 
-static cairo_bool_t _cairo_pdf_surface_get_extents(void * abstract_surface,
-    CairoIRect   * rectangle);
+static cairo_bool_t _cairo_pdf_surface_get_extents(void * abstract_surface, CairoIRect * rectangle);
 
 /**
  * CAIRO_HAS_PDF_SURFACE:
@@ -205,22 +185,12 @@ typedef struct _cairo_pdf_alpha_linear_function {
 } cairo_pdf_alpha_linear_function_t;
 
 static cairo_pdf_resource_t _cairo_pdf_surface_new_object(cairo_pdf_surface_t * surface);
-
 static void _cairo_pdf_surface_clear(cairo_pdf_surface_t * surface);
-
 static void _cairo_pdf_smask_group_destroy(cairo_pdf_smask_group_t * group);
-
-static cairo_int_status_t _cairo_pdf_surface_add_font(uint font_id,
-    uint subset_id,
-    void * closure);
-
+static cairo_int_status_t _cairo_pdf_surface_add_font(uint font_id, uint subset_id, void * closure);
 static void _cairo_pdf_group_resources_init(cairo_pdf_group_resources_t * res);
-
 static cairo_int_status_t _cairo_pdf_surface_open_stream(cairo_pdf_surface_t * surface,
-    cairo_pdf_resource_t * resource,
-    cairo_bool_t compressed,
-    const char * fmt,
-    ...) CAIRO_PRINTF_FORMAT(4, 5);
+    cairo_pdf_resource_t * resource, cairo_bool_t compressed, const char * fmt, ...) CAIRO_PRINTF_FORMAT(4, 5);
 static cairo_int_status_t _cairo_pdf_surface_close_stream(cairo_pdf_surface_t * surface);
 static cairo_int_status_t _cairo_pdf_surface_write_page(cairo_pdf_surface_t * surface);
 static void _cairo_pdf_surface_write_pages(cairo_pdf_surface_t * surface);
@@ -239,23 +209,18 @@ static cairo_pdf_resource_t _cairo_pdf_surface_new_object(cairo_pdf_surface_t * 
 	cairo_pdf_resource_t resource;
 	cairo_int_status_t status;
 	cairo_pdf_object_t object;
-
 	object.offset = _cairo_output_stream_get_position(surface->output);
-
 	status = _cairo_array_append(&surface->objects, &object);
 	if(unlikely(status)) {
 		resource.id = 0;
 		return resource;
 	}
-
 	resource = surface->next_available_resource;
 	surface->next_available_resource.id++;
-
 	return resource;
 }
 
-static void _cairo_pdf_surface_update_object(cairo_pdf_surface_t   * surface,
-    cairo_pdf_resource_t resource)
+static void _cairo_pdf_surface_update_object(cairo_pdf_surface_t * surface, cairo_pdf_resource_t resource)
 {
 	cairo_pdf_object_t * object = (cairo_pdf_object_t *)_cairo_array_index(&surface->objects, resource.id - 1);
 	object->offset = _cairo_output_stream_get_position(surface->output);
@@ -462,19 +427,12 @@ cairo_surface_t * cairo_pdf_surface_create_for_stream(cairo_write_func_t write_f
  *
  * Since: 1.2
  **/
-cairo_surface_t * cairo_pdf_surface_create(const char     * filename,
-    double width_in_points,
-    double height_in_points)
+cairo_surface_t * cairo_pdf_surface_create(const char * filename, double width_in_points, double height_in_points)
 {
-	cairo_output_stream_t * output;
-
-	output = _cairo_output_stream_create_for_filename(filename);
+	cairo_output_stream_t * output = _cairo_output_stream_create_for_filename(filename);
 	if(_cairo_output_stream_get_status(output))
 		return _cairo_surface_create_in_error(_cairo_output_stream_destroy(output));
-
-	return _cairo_pdf_surface_create_for_stream_internal(output,
-	    width_in_points,
-	    height_in_points);
+	return _cairo_pdf_surface_create_for_stream_internal(output, width_in_points, height_in_points);
 }
 
 static cairo_bool_t _cairo_surface_is_pdf(cairo_surface_t * surface)

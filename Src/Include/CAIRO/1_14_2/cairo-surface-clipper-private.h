@@ -37,9 +37,6 @@
 #ifndef CAIRO_SURFACE_CLIPPER_PRIVATE_H
 #define CAIRO_SURFACE_CLIPPER_PRIVATE_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-clip-private.h"
-
 CAIRO_BEGIN_DECLS
 
 //typedef struct _cairo_surface_clipper cairo_surface_clipper_t;

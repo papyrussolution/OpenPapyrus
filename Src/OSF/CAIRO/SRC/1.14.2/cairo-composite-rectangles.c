@@ -34,9 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-inline.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-pattern-private.h"
 
 /* A collection of routines to facilitate writing compositors. */
 

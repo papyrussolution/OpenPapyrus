@@ -36,9 +36,6 @@
 #ifndef CAIRO_PAGINATED_SURFACE_H
 #define CAIRO_PAGINATED_SURFACE_H
 
-//#include "cairo.h"
-////#include "cairo-surface-private.h"
-
 typedef struct _cairo_paginated_surface {
 	cairo_surface_t base;
 	/* The target surface to hold the final result. */

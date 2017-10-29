@@ -2242,7 +2242,7 @@ private:
 // Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами
 // достаточно сложное).
 //
-#define STYPE_SIZE_4 // @v8.9.12 Удалены все ссылки на этот макрос. Теперь безусловно sizeof(TYPEID)==4
+// @v9.8.6 #define STYPE_SIZE_4 // @v8.9.12 Удалены все ссылки на этот макрос. Теперь безусловно sizeof(TYPEID)==4
 #define INVALID_DATA_SIZE 0
 typedef int32 TYPEID;
 //
@@ -2345,7 +2345,7 @@ typedef int32 TYPEID;
 
 #if /* @v8.7.2 defined(__cplusplus) &&*/ !defined(RC_INVOKED) /* { */
 
-struct STypEx { // @persistent @size=STYPE_SIZE_4 ? 16 : 12
+struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
 	void   Init();
 	int    IsPure() const;
@@ -3009,7 +3009,7 @@ float  FASTCALL atan2(FPoint p1, FPoint p2);
 // Descr: X = p.X + radius.X * sinf(angle), Y = p.Y - radius.Y * cosf(angle)
 //
 FPoint FASTCALL trans01(FPoint p, FPoint radius, float angle);
-/* @v9.8.6 (unused) 
+/* @v9.8.6 (unused)
 //
 // Complex compare struct and parse functions
 //
@@ -5895,7 +5895,7 @@ public:
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
-		if(Helper_CreateNewItem(p_new_item, pPosition)) 
+		if(Helper_CreateNewItem(p_new_item, pPosition))
 			return p_new_item;
 		else {
 			delete p_new_item;

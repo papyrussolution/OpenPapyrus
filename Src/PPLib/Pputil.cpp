@@ -469,15 +469,30 @@ int PPTransaction::Start(PPDbDependTransaction dbDepend, int use_ta)
 
 int PPTransaction::Commit()
 {
+	int    ok = 1;
 	if(Ta) {
 		if(DBS.GetTLA().CommitWork())
 			Ta = 0;
 		else {
 			Err = 1;
-			return PPSetErrorDB();
+			ok = PPSetErrorDB();
 		}
 	}
-	return 1;
+	return ok;
+}
+
+int PPTransaction::Rollback()
+{
+	int    ok = 1;
+	if(Ta) {
+		if(DBS.GetTLA().RollbackWork())
+			Ta = 0;
+		else {
+			Err = 1;
+			ok = PPSetErrorDB();
+		}
+	}
+	return ok;
 }
 //
 // Helper database functions

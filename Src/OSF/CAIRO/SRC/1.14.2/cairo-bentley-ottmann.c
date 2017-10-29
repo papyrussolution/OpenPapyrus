@@ -34,14 +34,9 @@
  *	Carl D. Worth <cworth@cworth.org>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
-/* Provide definitions for standalone compilation */
+// Provide definitions for standalone compilation 
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-combsort-inline.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-line-inline.h"
-//#include "cairo-traps-private.h"
 
 #define DEBUG_PRINT_STATE 0
 #define DEBUG_EVENTS 0

@@ -490,7 +490,6 @@ void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 					if(Flags & OLW_CANINSERT) {
 						PPID   id = 0;
 						getResult(&cur_id);
-						PPSecur sec_rec;
 						PPObjSecur::ExtraParam param;
 						if(cur_id & PPObjSecur::maskUserGroup) {
 							param.SampleID = (cur_id & ~PPObjSecur::mask);

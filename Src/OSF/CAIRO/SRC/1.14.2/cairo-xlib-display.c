@@ -41,8 +41,6 @@
 
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-xrender-private.h"
-//#include "cairo-freelist-private.h"
-//#include "cairo-list-inline.h"
 
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 

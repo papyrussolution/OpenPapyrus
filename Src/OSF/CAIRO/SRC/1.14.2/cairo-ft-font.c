@@ -1858,26 +1858,19 @@ cairo_bool_t _cairo_scaled_font_is_ft(cairo_scaled_font_t * scaled_font)
 static void _cairo_ft_scaled_font_fini(void * abstract_font)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
-
-	if(scaled_font == NULL)
-		return;
-
-	_cairo_unscaled_font_destroy(&scaled_font->unscaled->base);
+	if(scaled_font)
+		_cairo_unscaled_font_destroy(&scaled_font->unscaled->base);
 }
 
 static int _move_to(FT_Vector * to, void * closure)
 {
 	cairo_path_fixed_t * path = closure;
-	cairo_fixed_t x, y;
-
-	x = _cairo_fixed_from_26_6(to->x);
-	y = _cairo_fixed_from_26_6(to->y);
-
+	cairo_fixed_t x = _cairo_fixed_from_26_6(to->x);
+	cairo_fixed_t y = _cairo_fixed_from_26_6(to->y);
 	if(_cairo_path_fixed_close_path(path) != CAIRO_STATUS_SUCCESS)
 		return 1;
 	if(_cairo_path_fixed_move_to(path, x, y) != CAIRO_STATUS_SUCCESS)
 		return 1;
-
 	return 0;
 }
 

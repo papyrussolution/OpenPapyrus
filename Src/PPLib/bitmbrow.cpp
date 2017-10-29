@@ -2730,12 +2730,13 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 											eub.Flags |= eub.fUseSpcFormEgais;
 										}
 									}
-									eub.Flags |= (eub.fReverseOnStart|eub.fOnce);
-									if(GObj.ReplaceGoods(labs(r_ti.GoodsID), &eub) > 0) {
+									//eub.Flags |= (eub.fReverseOnStart|eub.fOnce);
+									eub.DestList.add(labs(r_ti.GoodsID));
+									if(GObj.ReplaceGoods(/*labs(r_ti.GoodsID), &eub*/eub) > 0) {
 										for(uint i = 0; i < P_Pack->GetTCount(); i++) {
 											PPTransferItem & r_item = P_Pack->TI(i);
 											const int gsign = (r_item.GoodsID < 0) ? -1 : 1;
-											if(labs(r_item.GoodsID) == eub.DestID) {
+											if(eub.DestList.lsearch(labs(r_item.GoodsID))) {
                                                 r_item.SetupGoods(eub.ResultID * gsign);
 											}
 										}

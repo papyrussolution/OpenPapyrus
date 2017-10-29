@@ -38,11 +38,7 @@
 
 #if CAIRO_HAS_PDF_OPERATORS
 
-#include "cairo-pdf-shading-private.h"
-//#include "cairo-array-private.h"
-//#include <float.h>
-
-static uchar * encode_coordinate(uchar * p, double c)
+static uchar * FASTCALL encode_coordinate(uchar * p, double c)
 {
 	uint32_t f = (uint32_t)c;
 	*p++ = f >> 24;
@@ -52,44 +48,36 @@ static uchar * encode_coordinate(uchar * p, double c)
 	return p;
 }
 
-static uchar * encode_point(uchar * p, const RPoint * point)
+static uchar * FASTCALL encode_point(uchar * p, const RPoint * point)
 {
 	p = encode_coordinate(p, point->x);
 	p = encode_coordinate(p, point->y);
-
 	return p;
 }
 
-static uchar * encode_color_component(uchar * p, double color)
+static uchar * FASTCALL encode_color_component(uchar * p, double color)
 {
-	uint16_t c;
-
-	c = _cairo_color_double_to_short(color);
+	uint16_t c = _cairo_color_double_to_short(color);
 	*p++ = c >> 8;
 	*p++ = c & 0xff;
-
 	return p;
 }
 
-static uchar * encode_color(uchar * p, const cairo_color_t * color)
+static uchar * FASTCALL encode_color(uchar * p, const cairo_color_t * color)
 {
 	p = encode_color_component(p, color->red);
 	p = encode_color_component(p, color->green);
 	p = encode_color_component(p, color->blue);
-
 	return p;
 }
 
-static uchar * encode_alpha(uchar * p, const cairo_color_t * color)
+static uchar * FASTCALL encode_alpha(uchar * p, const cairo_color_t * color)
 {
 	p = encode_color_component(p, color->alpha);
-
 	return p;
 }
 
-static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading_t        * shading,
-    const cairo_mesh_pattern_t * mesh,
-    cairo_bool_t is_alpha)
+static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, cairo_bool_t is_alpha)
 {
 	uint num_color_components, i;
 	cairo_bool_t is_valid;
@@ -101,33 +89,21 @@ static cairo_status_t _cairo_pdf_shading_generate_decode_array(cairo_pdf_shading
 	shading->decode_array = (double *)_cairo_malloc_ab(shading->decode_array_length, sizeof(double));
 	if(unlikely(shading->decode_array == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
-	is_valid = _cairo_mesh_pattern_coord_box(mesh,
-	    &shading->decode_array[0],
-	    &shading->decode_array[2],
-	    &shading->decode_array[1],
-	    &shading->decode_array[3]);
-
+	is_valid = _cairo_mesh_pattern_coord_box(mesh, &shading->decode_array[0], &shading->decode_array[2], &shading->decode_array[1], &shading->decode_array[3]);
 	assert(is_valid);
 	assert(shading->decode_array[1] - shading->decode_array[0] >= DBL_EPSILON);
 	assert(shading->decode_array[3] - shading->decode_array[2] >= DBL_EPSILON);
-
 	for(i = 0; i < num_color_components; i++) {
 		shading->decode_array[4 + 2*i] = 0;
 		shading->decode_array[5 + 2*i] = 1;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 /* The ISO32000 specification mandates this order for the points which
  * define the patch. */
-static const int pdf_points_order_i[16] = {
-	0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 2, 1, 1, 1, 2, 2
-};
-static const int pdf_points_order_j[16] = {
-	0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 0, 0, 1, 2, 2, 1
-};
+static const int pdf_points_order_i[16] = { 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 2, 1, 1, 1, 2, 2 };
+static const int pdf_points_order_j[16] = { 0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 0, 0, 1, 2, 2, 1 };
 
 static cairo_status_t _cairo_pdf_shading_generate_data(cairo_pdf_shading_t * shading, const cairo_mesh_pattern_t * mesh, cairo_bool_t is_alpha)
 {

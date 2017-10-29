@@ -37,7 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-slope-private.h"
 
 static void _cairo_pen_compute_slopes(cairo_pen_t * pen);
 

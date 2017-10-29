@@ -61,7 +61,6 @@
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-xrender-private.h"
 #include "cairo-xlib-surface-private.h"
-//#include "cairo-list-inline.h"
 #include "cairo-fontconfig-private.h"
 
 static int parse_boolean(const char * v)

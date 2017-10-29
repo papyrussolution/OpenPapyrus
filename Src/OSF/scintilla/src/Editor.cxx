@@ -2364,9 +2364,8 @@ void Editor::DelCharBack(bool allowLineStartDeletion)
 				else {
 					int lineCurrentPos = pdoc->LineFromPosition(sel.Range(r).caret.Position());
 					if(allowLineStartDeletion || (pdoc->LineStart(lineCurrentPos) != sel.Range(r).caret.Position())) {
-						if(pdoc->GetColumn(sel.Range(r).caret.Position()) <=
-						    pdoc->GetLineIndentation(lineCurrentPos) &&
-						    pdoc->GetColumn(sel.Range(r).caret.Position()) > 0 && pdoc->backspaceUnindents) {
+						if(pdoc->GetColumn(sel.Range(r).caret.Position()) <= pdoc->GetLineIndentation(lineCurrentPos) &&
+						    pdoc->GetColumn(sel.Range(r).caret.Position()) > 0 && pdoc->IsDocFlag(pdoc->dfBackspaceUnindents)) {
 							UndoGroup ugInner(pdoc, !ug.Needed());
 							int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 							int indentationStep = pdoc->IndentSize();
@@ -3981,8 +3980,7 @@ void Editor::Indent(bool forwards)
 			if(forwards) {
 				pdoc->DeleteChars(sel.Range(r).Start().Position(), sel.Range(r).Length());
 				caretPosition = sel.Range(r).caret.Position();
-				if(pdoc->GetColumn(caretPosition) <= pdoc->GetColumn(pdoc->GetLineIndentPosition(lineCurrentPos)) &&
-				    pdoc->tabIndents) {
+				if(pdoc->GetColumn(caretPosition) <= pdoc->GetColumn(pdoc->GetLineIndentPosition(lineCurrentPos)) && pdoc->IsDocFlag(pdoc->dfTabIndents)) {
 					int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 					int indentationStep = pdoc->IndentSize();
 					const int posSelect = pdoc->SetLineIndentation(
@@ -3990,13 +3988,12 @@ void Editor::Indent(bool forwards)
 					sel.Range(r) = SelectionRange(posSelect);
 				}
 				else {
-					if(pdoc->useTabs) {
+					if(pdoc->IsDocFlag(pdoc->dfUseTabs)) {
 						const int lengthInserted = pdoc->InsertString(caretPosition, "\t", 1);
 						sel.Range(r) = SelectionRange(caretPosition + lengthInserted);
 					}
 					else {
-						int numSpaces = (pdoc->tabInChars) -
-						    (pdoc->GetColumn(caretPosition) % (pdoc->tabInChars));
+						int numSpaces = (pdoc->tabInChars) - (pdoc->GetColumn(caretPosition) % (pdoc->tabInChars));
 						if(numSpaces < 1)
 							numSpaces = pdoc->tabInChars;
 						const std::string spaceText(numSpaces, ' ');
@@ -4007,8 +4004,7 @@ void Editor::Indent(bool forwards)
 				}
 			}
 			else {
-				if(pdoc->GetColumn(caretPosition) <= pdoc->GetLineIndentation(lineCurrentPos) &&
-				    pdoc->tabIndents) {
+				if(pdoc->GetColumn(caretPosition) <= pdoc->GetLineIndentation(lineCurrentPos) && pdoc->IsDocFlag(pdoc->dfTabIndents)) {
 					int indentation = pdoc->GetLineIndentation(lineCurrentPos);
 					int indentationStep = pdoc->IndentSize();
 					const int posSelect = pdoc->SetLineIndentation(lineCurrentPos, indentation - indentationStep);
@@ -5921,59 +5917,41 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		NotifyMacroRecord(iMessage, wParam, lParam);
 	switch(iMessage) {
 		case SCI_GETTEXT: 
-			{
-				if(lParam == 0)
-					return pdoc->Length() + 1;
-				else if(wParam == 0)
-					return 0;
-				else {
-					char * ptr = CharPtrFromSPtr(lParam);
-					uint iChar = 0;
-					for(; iChar < wParam - 1; iChar++)
-						ptr[iChar] = pdoc->CharAt(iChar);
-					ptr[iChar] = '\0';
-					return iChar;
-				}
+			if(lParam == 0)
+				return pdoc->Length() + 1;
+			else if(wParam == 0)
+				return 0;
+			else {
+				char * ptr = CharPtrFromSPtr(lParam);
+				uint iChar = 0;
+				for(; iChar < wParam - 1; iChar++)
+					ptr[iChar] = pdoc->CharAt(iChar);
+				ptr[iChar] = '\0';
+				return iChar;
 			}
 		case SCI_SETTEXT: 
-			{
-				if(lParam == 0)
-					return 0;
-				else {
-					UndoGroup ug(pdoc);
-					pdoc->DeleteChars(0, pdoc->Length());
-					SetEmptySelection(0);
-					const char * text = CharPtrFromSPtr(lParam);
-					pdoc->InsertString(0, text, istrlen(text));
-					return 1;
-				}
+			if(lParam == 0)
+				return 0;
+			else {
+				UndoGroup ug(pdoc);
+				pdoc->DeleteChars(0, pdoc->Length());
+				SetEmptySelection(0);
+				const char * text = CharPtrFromSPtr(lParam);
+				pdoc->InsertString(0, text, istrlen(text));
+				return 1;
 			}
 		case SCI_GETTEXTLENGTH: return pdoc->Length();
 		case SCI_CUT:
 		    Cut();
 		    SetLastXChosen();
 		    break;
-		case SCI_COPY:
-		    Copy();
-		    break;
-		case SCI_COPYALLOWLINE:
-		    CopyAllowLine();
-		    break;
-		case SCI_VERTICALCENTRECARET:
-		    VerticalCentreCaret();
-		    break;
-		case SCI_MOVESELECTEDLINESUP:
-		    MoveSelectedLinesUp();
-		    break;
-		case SCI_MOVESELECTEDLINESDOWN:
-		    MoveSelectedLinesDown();
-		    break;
-		case SCI_COPYRANGE:
-		    CopyRangeToClipboard(static_cast<int>(wParam), static_cast<int>(lParam));
-		    break;
-		case SCI_COPYTEXT:
-		    CopyText(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
-		    break;
+		case SCI_COPY: Copy(); break;
+		case SCI_COPYALLOWLINE: CopyAllowLine(); break;
+		case SCI_VERTICALCENTRECARET: VerticalCentreCaret(); break;
+		case SCI_MOVESELECTEDLINESUP: MoveSelectedLinesUp(); break;
+		case SCI_MOVESELECTEDLINESDOWN: MoveSelectedLinesDown(); break;
+		case SCI_COPYRANGE: CopyRangeToClipboard(static_cast<int>(wParam), static_cast<int>(lParam)); break;
+		case SCI_COPYTEXT: CopyText(static_cast<int>(wParam), CharPtrFromSPtr(lParam)); break;
 		case SCI_PASTE:
 		    Paste();
 		    if((caretSticky == SC_CARETSTICKY_OFF) || (caretSticky == SC_CARETSTICKY_WHITESPACE))
@@ -6076,13 +6054,9 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				EnsureCaretVisible();
 			}
 			break;
-		case SCI_SETTARGETSTART:
-		    targetStart = static_cast<int>(wParam);
-		    break;
+		case SCI_SETTARGETSTART: targetStart = static_cast<int>(wParam); break;
+		case SCI_SETTARGETEND: targetEnd = static_cast<int>(wParam); break;
 		case SCI_GETTARGETSTART: return targetStart;
-		case SCI_SETTARGETEND:
-		    targetEnd = static_cast<int>(wParam);
-		    break;
 		case SCI_GETTARGETEND: return targetEnd;
 		case SCI_SETTARGETRANGE:
 		    targetStart = static_cast<int>(wParam);
@@ -6116,9 +6090,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SEARCHINTARGET:
 		    PLATFORM_ASSERT(lParam);
 		    return SearchInTarget(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
-		case SCI_SETSEARCHFLAGS:
-		    searchFlags = static_cast<int>(wParam);
-		    break;
+		case SCI_SETSEARCHFLAGS: searchFlags = static_cast<int>(wParam); break;
 		case SCI_GETSEARCHFLAGS: return searchFlags;
 		case SCI_GETTAG: return GetTag(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
 		case SCI_POSITIONBEFORE: return pdoc->MovePositionOutsideChar(static_cast<int>(wParam) - 1, -1, true);
@@ -6135,14 +6107,10 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    Redraw();
 		    break;
 		case SCI_GETXOFFSET: return xOffset;
-		case SCI_CHOOSECARETX:
-		    SetLastXChosen();
-		    break;
-		case SCI_SCROLLCARET:
-		    EnsureCaretVisible();
-		    break;
-		case SCI_SETREADONLY:
-		    pdoc->SetReadOnly(wParam != 0);
+		case SCI_CHOOSECARETX: SetLastXChosen(); break;
+		case SCI_SCROLLCARET:  EnsureCaretVisible(); break;
+		case SCI_SETREADONLY: 
+			pdoc->SetReadOnly(wParam != 0);
 		    return 1;
 		case SCI_GETREADONLY: return pdoc->IsReadOnly();
 		case SCI_CANPASTE: return CanPaste();
@@ -6197,31 +6165,29 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		// Control specific mesages
-		case SCI_ADDTEXT: {
-		    if(lParam == 0)
-			    return 0;
-		    const int lengthInserted = pdoc->InsertString(CurrentPosition(), CharPtrFromSPtr(lParam), static_cast<int>(wParam));
-		    SetEmptySelection(sel.MainCaret() + lengthInserted);
+		case SCI_ADDTEXT:
+		    if(lParam) {
+			    const int lengthInserted = pdoc->InsertString(CurrentPosition(), CharPtrFromSPtr(lParam), static_cast<int>(wParam));
+			    SetEmptySelection(sel.MainCaret() + lengthInserted);
+			}
 		    return 0;
-	    }
 		case SCI_ADDSTYLEDTEXT:
 		    if(lParam)
 			    AddStyledText(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
 		    return 0;
-		case SCI_INSERTTEXT: {
-		    if(lParam == 0)
-			    return 0;
-		    int insertPos = static_cast<int>(wParam);
-		    if(static_cast<int>(wParam) == -1)
-			    insertPos = CurrentPosition();
-		    int newCurrent = CurrentPosition();
-		    char * sz = CharPtrFromSPtr(lParam);
-		    const int lengthInserted = pdoc->InsertString(insertPos, sz, istrlen(sz));
-		    if(newCurrent > insertPos)
-			    newCurrent += lengthInserted;
-		    SetEmptySelection(newCurrent);
+		case SCI_INSERTTEXT:
+		    if(lParam) {
+				int insertPos = static_cast<int>(wParam);
+				if(static_cast<int>(wParam) == -1)
+					insertPos = CurrentPosition();
+				int newCurrent = CurrentPosition();
+				char * sz = CharPtrFromSPtr(lParam);
+				const int lengthInserted = pdoc->InsertString(insertPos, sz, istrlen(sz));
+				if(newCurrent > insertPos)
+					newCurrent += lengthInserted;
+				SetEmptySelection(newCurrent);
+			}
 		    return 0;
-	    }
 		case SCI_CHANGEINSERTION:
 		    PLATFORM_ASSERT(lParam);
 		    pdoc->ChangeInsertion(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
@@ -6273,12 +6239,12 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 	    break;
 		case SCI_GETPUNCTUATIONCHARS:
 		    return pdoc->GetCharsOfClass(CharClassify::ccPunctuation, reinterpret_cast<uchar *>(lParam));
-		case SCI_SETPUNCTUATIONCHARS: {
+		case SCI_SETPUNCTUATIONCHARS:
 		    if(lParam == 0)
 			    return 0;
-		    pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccPunctuation);
-	    }
-	    break;
+			else
+				pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccPunctuation);
+		    break;
 		case SCI_SETCHARSDEFAULT: pdoc->SetDefaultCharClasses(true); break;
 		case SCI_GETLENGTH: return pdoc->Length();
 		case SCI_ALLOCATE: pdoc->Allocate(static_cast<int>(wParam)); break;
@@ -6377,16 +6343,18 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				int lineStart = pdoc->LineStart(lineCurrentPos);
 				uint lineEnd = pdoc->LineStart(lineCurrentPos + 1);
 				if(lParam == 0) {
-					return 1 + lineEnd - lineStart;
+					return (1 + lineEnd - lineStart);
 				}
-				PLATFORM_ASSERT(wParam > 0);
-				char * ptr = CharPtrFromSPtr(lParam);
-				uint iPlace = 0;
-				for(uint iChar = lineStart; iChar < lineEnd && iPlace < wParam - 1; iChar++) {
-					ptr[iPlace++] = pdoc->CharAt(iChar);
+				else {
+					PLATFORM_ASSERT(wParam > 0);
+					char * ptr = CharPtrFromSPtr(lParam);
+					uint iPlace = 0;
+					for(uint iChar = lineStart; iChar < lineEnd && iPlace < wParam - 1; iChar++) {
+						ptr[iPlace++] = pdoc->CharAt(iChar);
+					}
+					ptr[iPlace] = '\0';
+					return sel.MainCaret() - lineStart;
 				}
-				ptr[iPlace] = '\0';
-				return sel.MainCaret() - lineStart;
 			}
 		case SCI_GETENDSTYLED: return pdoc->GetEndStyled();
 		case SCI_GETEOLMODE: return pdoc->eolMode;
@@ -6411,7 +6379,8 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SETSTYLINGEX:     // Specify a complete styling buffer
 		    if(lParam == 0)
 			    return 0;
-		    pdoc->SetStyles(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
+			else
+				pdoc->SetStyles(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
 		    break;
 		case SCI_SETBUFFEREDDRAW: 
 			//view.bufferedDraw = wParam != 0; break;
@@ -6466,24 +6435,24 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_SETUSETABS:
-		    pdoc->useTabs = wParam != 0;
+		    pdoc->SetDocFlag(pdoc->dfUseTabs, wParam);
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_SETLINEINDENTATION:
 		    pdoc->SetLineIndentation(static_cast<int>(wParam), static_cast<int>(lParam));
 		    break;
 		case SCI_SETTABINDENTS:
-		    pdoc->tabIndents = wParam != 0;
+		    pdoc->SetDocFlag(pdoc->dfTabIndents, wParam);
 		    break;
 		case SCI_SETBACKSPACEUNINDENTS:
-		    pdoc->backspaceUnindents = wParam != 0;
+		    pdoc->SetDocFlag(pdoc->dfBackspaceUnindents, wParam);
 		    break;
 		case SCI_GETINDENT: return pdoc->indentInChars;
-		case SCI_GETUSETABS: return pdoc->useTabs;
+		case SCI_GETUSETABS: return pdoc->IsDocFlag(pdoc->dfUseTabs);
 		case SCI_GETLINEINDENTATION: return pdoc->GetLineIndentation(static_cast<int>(wParam));
 		case SCI_GETLINEINDENTPOSITION: return pdoc->GetLineIndentPosition(static_cast<int>(wParam));
-		case SCI_GETTABINDENTS: return pdoc->tabIndents;
-		case SCI_GETBACKSPACEUNINDENTS: return pdoc->backspaceUnindents;
+		case SCI_GETTABINDENTS: return pdoc->IsDocFlag(pdoc->dfTabIndents);
+		case SCI_GETBACKSPACEUNINDENTS: return pdoc->IsDocFlag(pdoc->dfBackspaceUnindents);
 		case SCI_SETMOUSEDWELLTIME:
 		    dwellDelay = static_cast<int>(wParam);
 		    ticksToDwell = dwellDelay;

@@ -30,10 +30,7 @@
 #ifndef CAIRO_TIME_PRIVATE_H
 #define CAIRO_TIME_PRIVATE_H
 
-//#include "cairo-compiler-private.h"
-//#include "cairo-wideint-private.h"
-
-/* Make the base type signed for easier arithmetic */
+// Make the base type signed for easier arithmetic
 typedef cairo_int64_t cairo_time_t;
 
 #define _cairo_time_add _cairo_int64_add
@@ -44,51 +41,27 @@ typedef cairo_int64_t cairo_time_t;
 #define _cairo_time_to_double   _cairo_int64_to_double
 #define _cairo_time_from_double _cairo_double_to_int64
 
-cairo_private int
-_cairo_time_cmp (const void *a,
-		 const void *b);
+cairo_private int _cairo_time_cmp(const void * a, const void * b);
+cairo_private double _cairo_time_to_s(cairo_time_t t);
+cairo_private cairo_time_t _cairo_time_from_s(double t);
+cairo_private cairo_time_t _cairo_time_get(void);
 
-cairo_private double
-_cairo_time_to_s (cairo_time_t t);
-
-cairo_private cairo_time_t
-_cairo_time_from_s (double t);
-
-cairo_private cairo_time_t
-_cairo_time_get (void);
-
-static cairo_always_inline cairo_time_t
-_cairo_time_get_delta (cairo_time_t t)
+static cairo_always_inline cairo_time_t _cairo_time_get_delta(cairo_time_t t)
 {
-    cairo_time_t now;
-
-    now = _cairo_time_get ();
-
-    return _cairo_time_sub (now, t);
+	cairo_time_t now = _cairo_time_get();
+	return _cairo_time_sub(now, t);
 }
-
-static cairo_always_inline double
-_cairo_time_to_ns (cairo_time_t t)
+static cairo_always_inline double _cairo_time_to_ns(cairo_time_t t)
 {
-    return 1.e9 * _cairo_time_to_s (t);
+	return 1.e9 * _cairo_time_to_s(t);
 }
-
-static cairo_always_inline cairo_time_t
-_cairo_time_max (cairo_time_t a, cairo_time_t b)
+static cairo_always_inline cairo_time_t _cairo_time_max(cairo_time_t a, cairo_time_t b)
 {
-    if (_cairo_int64_gt (a, b))
-	return a;
-    else
-	return b;
+	return _cairo_int64_gt(a, b) ? a : b;
 }
-
-static cairo_always_inline cairo_time_t
-_cairo_time_min (cairo_time_t a, cairo_time_t b)
+static cairo_always_inline cairo_time_t _cairo_time_min(cairo_time_t a, cairo_time_t b)
 {
-    if (_cairo_int64_lt (a, b))
-	return a;
-    else
-	return b;
+	return _cairo_int64_lt(a, b) ? a : b;
 }
 
 #endif

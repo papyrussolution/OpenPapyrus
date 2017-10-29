@@ -2525,13 +2525,13 @@ int SLAPI PPObjPerson::ReplaceDlvrAddr(PPID srcID)
 	THROW(psn_obj.CheckRights(PSNRT_UNITEADDR, 0));
 	THROW(CheckDialogPtrErr(&(dlg = new ReplPrsnDialog(1))));
 	dlg->setDTS(src_id, 0);
-	while(ExecView(dlg) == cmOK)
-		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_LOCATION, dest_id, src_id,
-			PPObject::not_repl_remove|PPObject::user_request))
+	while(ExecView(dlg) == cmOK) {
+		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_LOCATION, dest_id, src_id, PPObject::not_repl_remove|PPObject::user_request))
 			PPError();
 		else {
 			ok = 1;
 		}
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;
@@ -4102,8 +4102,15 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 					}
 				}
 			}
-			if(goods_grp_id)
-				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, SCardID ? sc_rec.AutoGoodsID : 0, 0, (void *)goods_grp_id);
+			if(goods_grp_id) {
+				// @v9.8.6 {
+				PPID   auto_goods_id = 0;
+				if(SCardID)
+					auto_goods_id = sc_rec.AutoGoodsID;
+				// @construction SETIFZ(auto_goods_id, scs_pack.Rec.ChargeGoodsID);
+				// } @v9.8.6	
+				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, (void *)goods_grp_id);
+			}
 			else
 				setCtrlLong(CTLSEL_PERSON_SCAG, 0);
 			if(!SCardID) {

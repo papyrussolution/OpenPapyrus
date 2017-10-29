@@ -38,10 +38,6 @@
 #ifndef CAIRO_SPANS_COMPOSITOR_PRIVATE_H
 #define CAIRO_SPANS_COMPOSITOR_PRIVATE_H
 
-//#include "cairo-compositor-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-spans-private.h"
-
 CAIRO_BEGIN_DECLS
 
 typedef struct _cairo_abstract_span_renderer {
@@ -51,7 +47,6 @@ typedef struct _cairo_abstract_span_renderer {
 
 struct cairo_spans_compositor {
 	cairo_compositor_t base;
-
 	uint flags;
 #define CAIRO_SPANS_COMPOSITOR_HAS_LERP 0x1
 

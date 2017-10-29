@@ -2614,8 +2614,9 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 class ReplGoodsDialog : public TDialog {
 public:
 	enum {
-		sfGeneric = 0,
-		sfEgais
+		sfCommon = 0,
+		sfEgais,
+		//sfAllToOne // @v9.8.6 Объединение всех товаров из выборки в один
 	};
 	enum {
 		selfByClass   = 0x0001,
@@ -2636,15 +2637,16 @@ public:
 		addGroup(GRP_GOODS1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
 		addGroup(GRP_GOODS2, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP2, CTLSEL_REPLGOODS_GOODS2));
 	}
-	int    setDTS(PPID destID, PPID srcID)
+	int     setDTS(const PPObjGoods::ExtUniteBlock * pData)
 	{
-		GoodsCtrlGroup::Rec src_rec(0, srcID);
+		RVALUEPTR(Data, pData);
+		GoodsCtrlGroup::Rec src_rec(0, Data.ResultID);
 		setGroupData(GRP_GOODS1, &src_rec);
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = 0;
-		if(GObj.Fetch(srcID, &goods_rec) > 0)
+		if(GObj.Fetch(Data.ResultID, &goods_rec) > 0)
 			grp_id = goods_rec.ParentID;
-		GoodsCtrlGroup::Rec dest_rec(grp_id, destID);
+		GoodsCtrlGroup::Rec dest_rec(grp_id, Data.DestList.getSingle());
 		setGroupData(GRP_GOODS2, &dest_rec);
 		if(SpecialForm == sfEgais) {
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 0, selfByClass);
@@ -2653,24 +2655,46 @@ public:
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 3, selfByManuf);
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 4, selfBySuppl);
 			SetClusterData(CTL_REPLGOODS_FLTF, SelectionFlags);
+			showCtrl(CTL_REPLGOODS_ALLDEST, 0);
+		}
+		else {
+			if(Data.DestList.getCount() > 1) {
+				showCtrl(CTL_REPLGOODS_ALLDEST, 1);
+				/* не следует по-умолчанию ставить эту галку - она опасная
+				setCtrlUInt16(CTL_REPLGOODS_ALLDEST, 1);
+				disableCtrl(CTLSEL_REPLGOODS_GRP2, 1);
+				disableCtrl(CTLSEL_REPLGOODS_GOODS2, 1);
+				enableCommand(cmExchange, 0);
+				*/
+			}
+			else
+				showCtrl(CTL_REPLGOODS_ALLDEST, 0);
 		}
 		return 1;
 	}
-	int    getDTS(PPID * pDestID, PPID * pSrcID)
+	int    getDTS(PPObjGoods::ExtUniteBlock * pData)
 	{
 		int    ok = 1;
-		PPID   src_id, dest_id;
+		PPID   dest_id;
 		GoodsCtrlGroup::Rec rec;
 		THROW(getGroupData(GRP_GOODS1, &rec));
-		src_id = rec.GoodsID;
-		THROW(getGroupData(GRP_GOODS2, &rec));
-		dest_id = rec.GoodsID;
-		THROW_PP(dest_id != 0 && src_id != 0, PPERR_REPLZEROOBJ);
-		THROW_PP(dest_id != src_id, PPERR_REPLSAMEOBJ);
-		ASSIGN_PTR(pSrcID, src_id);
-		ASSIGN_PTR(pDestID, dest_id);
+		Data.ResultID = rec.GoodsID;
+		{
+			uint16 v = getCtrlUInt16(CTL_REPLGOODS_ALLDEST);
+			SETFLAG(Data.Flags, Data.fAllToOne, (v & 1));
+			THROW_PP(Data.ResultID != 0, PPERR_REPLZEROOBJ);
+		}
+		if(!(Data.Flags & Data.fAllToOne)) {
+			THROW(getGroupData(GRP_GOODS2, &rec));
+			dest_id = rec.GoodsID;
+			THROW_PP(dest_id != 0 && Data.ResultID != 0, PPERR_REPLZEROOBJ);
+			THROW_PP(dest_id != Data.ResultID, PPERR_REPLSAMEOBJ);
+			Data.DestList.clear();
+			Data.DestList.add(dest_id);
+		}
+		ASSIGN_PTR(pData, Data);
 		CATCH
-			selectCtrl(src_id == 0 ? CTL_REPLGOODS_GOODS1 : CTL_REPLGOODS_GOODS2);
+			selectCtrl(Data.ResultID == 0 ? CTL_REPLGOODS_GOODS1 : CTL_REPLGOODS_GOODS2);
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -2684,6 +2708,21 @@ private:
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(goods_id, &goods_rec) > 0 && !getCtrlLong(CTLSEL_REPLGOODS_GRP2))
 				setCtrlData(CTLSEL_REPLGOODS_GRP2, &goods_rec.ParentID);
+		}
+		else if(event.isClusterClk(CTL_REPLGOODS_ALLDEST)) {
+			if(Data.DestList.getCount() > 1) {
+				uint16 v = getCtrlUInt16(CTL_REPLGOODS_ALLDEST);
+				disableCtrl(CTLSEL_REPLGOODS_GRP2, (v & 1));
+				disableCtrl(CTLSEL_REPLGOODS_GOODS2, (v & 1));
+				enableCommand(cmExchange, !(v & 1));
+				{
+					SString info_buf;
+					if(v & 1) {
+						info_buf.CatEq("count", Data.DestList.getCount());
+					}
+					setStaticText(CTL_REPLGOODS_ST_INFO, info_buf);
+				}
+			}
 		}
 		else if(event.isClusterClk(CTL_REPLGOODS_FLTF)) {
             long   f = GetClusterData(CTL_REPLGOODS_FLTF);
@@ -2764,55 +2803,72 @@ private:
 		CATCHZOKPPERR
 		return ok;
 	}
+	PPObjGoods::ExtUniteBlock Data;
 	long   SelectionFlags;
 	int    SpecialForm;
 	PrcssrAlcReport::Config AlcrCfg;
 	PPObjGoods GObj;
 };
 
-SLAPI PPObjGoods::ExtUniteBlock::ExtUniteBlock()
+SLAPI PPObjGoods::ExtUniteBlock::ExtUniteBlock() : Flags(0), ResultID(0), DestList()
 {
-	Flags = 0;
-	DestID;
-	ResultID = 0;
 }
 
 // static
-int SLAPI PPObjGoods::ReplaceGoods(PPID srcID, PPObjGoods::ExtUniteBlock * pEub)
+int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEub*/ExtUniteBlock & rEub)
 {
 	int    ok = -1;
-	PPID   dest_id = 0;
-	PPID   src_id = srcID;
+	PPIDArray total_dest_list;
+	const  PPIDArray org_dest_list = rEub.DestList; // Диалог параметров объединения может затереть оригинальный список
 	PPObjGoods goods_obj;
 	ReplGoodsDialog * dlg = 0;
-	int    special_form = ReplGoodsDialog::sfGeneric;
-	if(pEub) {
-		if(pEub->Flags & ExtUniteBlock::fUseSpcFormEgais)
-			special_form = ReplGoodsDialog::sfEgais;
-		if(pEub->Flags & ExtUniteBlock::fReverseOnStart) {
-			dest_id = srcID;
-			src_id = 0;
-		}
-	}
+	int    special_form = ReplGoodsDialog::sfCommon;
+	if(rEub.Flags & ExtUniteBlock::fUseSpcFormEgais)
+		special_form = ReplGoodsDialog::sfEgais;
 	THROW(goods_obj.CheckRights(GOODSRT_UNITE));
 	THROW(CheckDialogPtr(&(dlg = new ReplGoodsDialog(special_form))));
-	dlg->setDTS(dest_id, src_id);
+	dlg->setDTS(/*dest_id, src_id*/&rEub);
 	while(ExecView(dlg) == cmOK) {
-		if(!dlg->getDTS(&dest_id, &src_id) || !PPObject::ReplaceObj(PPOBJ_GOODS, dest_id, src_id, PPObject::use_transaction|PPObject::user_request))
-			PPError();
-		else {
-			dlg->setCtrlLong(CTLSEL_REPLGOODS_GOODS2, 0L);
-			ok = 1;
-            if(pEub) {
-				pEub->DestID = dest_id;
-				pEub->ResultID = src_id;
-				if(pEub->Flags & PPObjGoods::ExtUniteBlock::fOnce)
+		if(dlg->getDTS(&rEub)) {
+			int    local_ok = 1;
+			const  PPID src_id = rEub.ResultID;
+			const  int is_single = BIN(rEub.DestList.getCount() == 1);
+			PPTransaction tra(1);
+			THROW(tra);
+			for(uint i = 0; local_ok && i < rEub.DestList.getCount(); i++) {
+				PPID   dest_id = rEub.DestList.get(i);
+				long   rof = 0;
+				if(is_single)
+					rof |= PPObject::user_request;
+				if(dest_id != src_id) {
+					if(PPObject::ReplaceObj(PPOBJ_GOODS, dest_id, src_id, rof/*PPObject::use_transaction|PPObject::user_request*/)) {
+						total_dest_list.add(dest_id);
+					}
+					else {
+						local_ok = 0;
+					}
+				}
+			}
+			if(local_ok) {
+				THROW(tra.Commit());
+				//
+				dlg->setCtrlLong(CTLSEL_REPLGOODS_GOODS2, 0L);
+				ok = 1;
+
+				rEub.DestList.clear();
+				rEub.ResultID = src_id;
+				if(rEub.Flags & PPObjGoods::ExtUniteBlock::fOnce || rEub.DestList.getCount() > 1) {
 					break;
-            }
-			dest_id = 0;
+				}
+			}
+			else {
+				tra.Rollback();
+				PPError();
+			}
 		}
 	}
 	CATCHZOKPPERR
+	rEub.DestList = total_dest_list;
 	delete dlg;
 	return ok;
 }

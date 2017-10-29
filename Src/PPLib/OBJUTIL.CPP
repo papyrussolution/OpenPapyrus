@@ -352,7 +352,7 @@ int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 		dest_comm_id = obj_sync.data;
 	THROW(o = GetPPObject(objType, 0)); // @v8.0.0 перенесено из #1 для того, чтобы не создавать объект внутри транзакции
 	{
-		PPTransaction tra(1);
+		PPTransaction tra(BIN(options & use_transaction)); // @v9.8.6 1-->BIN(options & use_transaction)
 		THROW(tra);
 		THROW(SendObjMessage(DBMSG_OBJREPLACE, objType, objType, dest, (void *)src, 0) == DBRPL_OK);
 		PPWait(0);

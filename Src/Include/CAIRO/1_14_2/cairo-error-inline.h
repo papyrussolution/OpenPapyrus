@@ -42,11 +42,10 @@
 
 CAIRO_BEGIN_DECLS
 
-static inline cairo_status_t
-_cairo_public_status (cairo_int_status_t status)
+static inline cairo_status_t _cairo_public_status(cairo_int_status_t status)
 {
-    assert (status <= CAIRO_INT_STATUS_LAST_STATUS);
-    return (cairo_status_t) status;
+	assert(status <= CAIRO_INT_STATUS_LAST_STATUS);
+	return (cairo_status_t)status;
 }
 
 #endif /* _CAIRO_ERROR_INLINE_H_ */

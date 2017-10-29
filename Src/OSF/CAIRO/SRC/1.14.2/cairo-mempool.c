@@ -37,12 +37,9 @@
 #include "cairoint.h"
 #pragma hdrstop
 #include "cairo-mempool-private.h"
-//#include "cairo-list-inline.h"
-
-/* a simple buddy allocator for memory pools
- * XXX fragmentation? use Doug Lea's SAlloc::M?
- */
-
+//
+// a simple buddy allocator for memory pools XXX fragmentation? use Doug Lea's SAlloc::M?
+//
 #define BITTEST(p, n)  ((p)->map[(n) >> 3] &   (128 >> ((n) & 7)))
 #define BITSET(p, n)   ((p)->map[(n) >> 3] |=  (128 >> ((n) & 7)))
 #define BITCLEAR(p, n) ((p)->map[(n) >> 3] &= ~(128 >> ((n) & 7)))

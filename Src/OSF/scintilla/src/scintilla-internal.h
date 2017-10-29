@@ -308,11 +308,6 @@ public:
 extern RegexSearchBase * CreateRegexSearch(CharClassify * charClassTable);
 
 struct StyledText {
-	size_t length;
-	const char * text;
-	bool multipleStyles;
-	size_t style;
-	const uchar * styles;
 	StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_) :
 		length(length_), text(text_), multipleStyles(multipleStyles_), style(style_), styles(styles_)
 	{
@@ -324,12 +319,17 @@ struct StyledText {
 		size_t cur = start;
 		while((cur < length) && (text[cur] != '\n'))
 			cur++;
-		return cur-start;
+		return (cur-start);
 	}
 	size_t StyleAt(size_t i) const
 	{
 		return multipleStyles ? styles[i] : style;
 	}
+	size_t length;
+	const  char * text;
+	size_t style;
+	const  uchar * styles;
+	bool   multipleStyles;
 };
 
 class HighlightDelimiter {
@@ -378,10 +378,6 @@ inline int LevelNumber(int level)
 }
 
 class LexInterface {
-protected:
-	Document * pdoc;
-	ILexer * instance;
-	bool performingStyle;   ///< Prevent reentrance
 public:
 	explicit LexInterface(Document * pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false)
 	{
@@ -395,6 +391,10 @@ public:
 	{
 		return instance == 0;
 	}
+protected:
+	Document * pdoc;
+	ILexer * instance;
+	bool performingStyle;   ///< Prevent reentrance
 };
 
 struct RegexError : public std::runtime_error {
@@ -407,7 +407,9 @@ struct RegexError : public std::runtime_error {
 //
 class Document : PerLine, public IDocumentWithLineEnd, public ILoader {
 public:
-	/** Used to pair watcher pointer with user data. */
+	//
+	// Descr: Used to pair watcher pointer with user data.
+	//
 	struct WatcherWithUserData {
 		DocWatcher * watcher;
 		void * userData;
@@ -419,26 +421,52 @@ public:
 			return (watcher == other.watcher) && (userData == other.userData);
 		}
 	};
+	enum {
+		dfInsertionSet       = 0x0001,
+		dfMatchesValid       = 0x0002,
+		dfUseTabs            = 0x0004,
+		dfTabIndents         = 0x0008,
+		dfBackspaceUnindents = 0x0010
+	};
+	bool   IsDocFlag(uint f) const
+	{
+		return (DocFlags & f) ? true : false;
+	}
+	void   SetDocFlag(uint f, int set)
+	{
+		SETFLAG(DocFlags, f, set);
+	}
 private:
-	int refCount;
+	int    refCount;
 	CellBuffer cb;
 	CharClassify charClass;
 	CaseFolder * pcf;
-	int endStyled;
-	int styleClock;
-	int enteredModification;
-	int enteredStyling;
-	int enteredReadOnlyCount;
-
-	bool insertionSet;
+	int    endStyled;
+	int    styleClock;
+	int    enteredModification;
+	int    enteredStyling;
+	int    enteredReadOnlyCount;
+	uint   DocFlags;
+	/*
+	bool   insertionSet;
+	bool   matchesValid;
+	bool   useTabs;
+	bool   tabIndents;
+	bool   backspaceUnindents;
+	*/
 	std::string insertion;
 	std::vector<WatcherWithUserData> watchers;
 
 	// ldSize is not real data - it is for dimensions and loops
-	enum lineData { ldMarkers, ldLevels, ldState, ldMargin, ldAnnotation, ldSize };
-
+	enum lineData { 
+		ldMarkers, 
+		ldLevels, 
+		ldState, 
+		ldMargin, 
+		ldAnnotation, 
+		ldSize 
+	};
 	PerLine * perLineData[ldSize];
-	bool matchesValid;
 	RegexSearchBase * regex;
 public:
 	struct CharacterExtracted {
@@ -455,18 +483,14 @@ public:
 	};
 
 	LexInterface * pli;
-	int eolMode;
+	int    eolMode;
 	/// Can also be SC_CP_UTF8 to enable UTF-8 mode
-	int dbcsCodePage;
-	int lineEndBitSet;
-	int tabInChars;
-	int indentInChars;
-	int actualIndentInChars;
-	bool useTabs;
-	bool tabIndents;
-	bool backspaceUnindents;
+	int    dbcsCodePage;
+	int    lineEndBitSet;
+	int    tabInChars;
+	int    indentInChars;
+	int    actualIndentInChars;
 	double durationStyleOneLine;
-
 	DecorationList decorations;
 
 	Document();
@@ -476,36 +500,31 @@ public:
 	int SCI_METHOD Release();
 
 	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
 	int LineEndTypesSupported() const;
 	bool SetDBCSCodePage(int dbcsCodePage_);
 	int GetLineEndTypesAllowed() const
 	{
 		return cb.GetLineEndTypes();
 	}
-
 	bool SetLineEndTypesAllowed(int lineEndBitSet_);
 	int GetLineEndTypesActive() const
 	{
 		return cb.GetLineEndTypes();
 	}
-
-	virtual void InsertLine(int line);
-	virtual void RemoveLine(int line);
-
 	int SCI_METHOD Version() const
 	{
 		return dvLineEnd;
 	}
-
 	void SCI_METHOD SetErrorStatus(int status);
-
 	Sci_Position SCI_METHOD LineFromPosition(Sci_Position pos) const;
 	int  FASTCALL ClampPositionIntoDocument(int pos) const;
 	bool ContainsLineEnd(const char * s, int length) const
 	{
 		return cb.ContainsLineEnd(s, length);
 	}
-
 	bool FASTCALL IsCrLf(int pos) const;
 	int  FASTCALL LenChar(int pos);
 	bool InGoodUTF8(int pos, int &start, int &end) const;
@@ -738,23 +757,13 @@ private:
 };
 
 class UndoGroup {
+public:
+	UndoGroup(Document * pdoc_, bool groupNeeded_ = true);
+	~UndoGroup();
+	bool Needed() const;
+private:
 	Document * pdoc;
 	bool groupNeeded;
-public:
-	UndoGroup(Document * pdoc_, bool groupNeeded_ = true) : pdoc(pdoc_), groupNeeded(groupNeeded_)
-	{
-		if(groupNeeded)
-			pdoc->BeginUndoAction();
-	}
-	~UndoGroup()
-	{
-		if(groupNeeded)
-			pdoc->EndUndoAction();
-	}
-	bool Needed() const
-	{
-		return groupNeeded;
-	}
 };
 // 
 // To optimise processing of document modifications by DocWatchers, a hint is passed indicating the
@@ -801,14 +810,12 @@ static inline bool IsEOLChar(char ch)
 {
 	return oneof2(ch, '\r', '\n');
 }
-/**
- * A point in document space.
- * Uses double for sufficient resolution in large (>20,000,000 line) documents.
- */
+// 
+// Descr: A point in document space.
+//   Uses double for sufficient resolution in large (>20,000,000 line) documents.
+// 
 class PointDocument {
 public:
-	double x;
-	double y;
 	explicit PointDocument(double x_ = 0, double y_ = 0) : x(x_), y(y_)
 	{
 	}
@@ -816,6 +823,8 @@ public:
 	explicit PointDocument(Point pt) : x(pt.x), y(pt.y)
 	{
 	}
+	double x;
+	double y;
 };
 //
 // There are two points for some positions and this enumeration

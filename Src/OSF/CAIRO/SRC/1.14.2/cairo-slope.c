@@ -35,7 +35,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-slope-private.h"
 
 /* Compare two slopes. Slope angles begin at 0 in the direction of the
    positive X axis and increase in the direction of the positive Y

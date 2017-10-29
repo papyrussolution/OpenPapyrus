@@ -38,11 +38,6 @@
 #ifndef _CAIRO_ERROR_PRIVATE_H_
 #define _CAIRO_ERROR_PRIVATE_H_
 
-//#include "cairo.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-types-private.h"
-//#include <assert.h>
-
 CAIRO_BEGIN_DECLS
 
 /* _cairo_int_status: internal status
@@ -56,7 +51,6 @@ CAIRO_BEGIN_DECLS
 
 enum _cairo_int_status {
 	CAIRO_INT_STATUS_SUCCESS = 0,
-
 	CAIRO_INT_STATUS_NO_MEMORY,
 	CAIRO_INT_STATUS_INVALID_RESTORE,
 	CAIRO_INT_STATUS_INVALID_POP_GROUP,

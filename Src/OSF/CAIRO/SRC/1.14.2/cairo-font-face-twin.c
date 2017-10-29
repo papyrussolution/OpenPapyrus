@@ -207,16 +207,12 @@ static cairo_bool_t find_field(const char * what, const FieldMap * map, int n_el
 	return FALSE;
 }
 
-static void parse_field(twin_face_properties_t * props,
-    const char * str,
-    int len)
+static void parse_field(twin_face_properties_t * props, const char * str, int len)
 {
 	if(field_matches("Normal", str, len))
 		return;
-
 #define FIELD(NAME) \
-	if(find_field(STRINGIFY(NAME), NAME ## _map, SIZEOFARRAY(NAME ## _map), str, len, \
-		    (int*)(void*)&props->NAME))	\
+	if(find_field(STRINGIFY(NAME), NAME ## _map, SIZEOFARRAY(NAME ## _map), str, len, (int*)(void*)&props->NAME))	\
 		return;	\
 
 	FIELD(weight);
@@ -269,11 +265,9 @@ static cairo_status_t twin_font_face_set_properties_from_toy(cairo_font_face_t *
 	face_props_parse(props, toy_face->family);
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /*
  * Scaled properties
  */
-
 typedef struct _twin_scaled_properties {
 	twin_face_properties_t * face_props;
 	cairo_bool_t snap; /* hint outlines */
@@ -556,11 +550,9 @@ static cairo_status_t twin_scaled_font_unicode_to_glyph(cairo_scaled_font_t * sc
 		*glyph = 0;
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /*
  * Face constructor
  */
-
 static cairo_font_face_t * _cairo_font_face_twin_create_internal(void)
 {
 	cairo_font_face_t * twin_font_face = cairo_user_font_face_create();
@@ -592,4 +584,3 @@ cairo_status_t _cairo_font_face_twin_create_for_toy(cairo_toy_font_face_t * toy_
 	*font_face = twin_font_face;
 	return CAIRO_STATUS_SUCCESS;
 }
-

@@ -61,6 +61,23 @@ int LexInterface::LineEndTypesSupported()
 	return 0;
 }
 
+UndoGroup::UndoGroup(Document * pdoc_, bool groupNeeded_/*= true*/) : pdoc(pdoc_), groupNeeded(groupNeeded_)
+{
+	if(groupNeeded)
+		pdoc->BeginUndoAction();
+}
+
+UndoGroup::~UndoGroup()
+{
+	if(groupNeeded)
+		pdoc->EndUndoAction();
+}
+
+bool UndoGroup::Needed() const
+{
+	return groupNeeded;
+}
+
 DocModification::DocModification(int modificationType_, int position_ /*= 0*/, int length_ /*= 0*/, int linesAdded_ /*= 0*/, const char * text_ /*= 0*/, int line_ /*= 0*/) :
 	modificationType(modificationType_),
 	position(position_),
@@ -105,18 +122,17 @@ Document::Document()
 	enteredModification = 0;
 	enteredStyling = 0;
 	enteredReadOnlyCount = 0;
-	insertionSet = false;
+	//insertionSet = false;
+	//useTabs = true;
+	//tabIndents = true;
+	//backspaceUnindents = false;
+	//matchesValid = false;
+	DocFlags = (dfUseTabs | dfTabIndents);
 	tabInChars = 8;
 	indentInChars = 0;
 	actualIndentInChars = 8;
-	useTabs = true;
-	tabIndents = true;
-	backspaceUnindents = false;
 	durationStyleOneLine = 0.00001;
-
-	matchesValid = false;
 	regex = 0;
-
 	UTF8BytesOfLeadInitialise();
 
 	perLineData[ldMarkers] = new LineMarkers();
@@ -1113,10 +1129,11 @@ int Document::InsertString(int position, const char * s, int insertLength)
 		return 0;
 	}
 	enteredModification++;
-	insertionSet = false;
+	//insertionSet = false;
+	DocFlags &= ~dfInsertionSet;
 	insertion.clear();
 	NotifyModified(DocModification(SC_MOD_INSERTCHECK, position, insertLength, 0, s));
-	if(insertionSet) {
+	if(DocFlags & dfInsertionSet) {
 		s = insertion.c_str();
 		insertLength = static_cast<int>(insertion.length());
 	}
@@ -1129,7 +1146,7 @@ int Document::InsertString(int position, const char * s, int insertLength)
 		NotifySavePoint(!startSavePoint);
 	ModifiedAt(position);
 	NotifyModified(DocModification(SC_MOD_INSERTTEXT|SC_PERFORMED_USER | (startSequence ? SC_STARTACTION : 0), position, insertLength, LinesTotal() - prevLinesTotal, text));
-	if(insertionSet) {      // Free memory as could be large
+	if(DocFlags & dfInsertionSet) { // Free memory as could be large
 		std::string().swap(insertion);
 	}
 	enteredModification--;
@@ -1138,7 +1155,7 @@ int Document::InsertString(int position, const char * s, int insertLength)
 
 void Document::ChangeInsertion(const char * s, int length)
 {
-	insertionSet = true;
+	DocFlags |= dfInsertionSet;
 	insertion.assign(s, length);
 }
 
@@ -1374,7 +1391,7 @@ int Document::SetLineIndentation(int line, int indent)
 	int indentOfLine = GetLineIndentation(line);
 	SETMAX(indent, 0);
 	if(indent != indentOfLine) {
-		std::string linebuf = CreateIndentation(indent, tabInChars, !useTabs);
+		std::string linebuf = CreateIndentation(indent, tabInChars, !(DocFlags & dfUseTabs));
 		int thisLineStart = LineStart(line);
 		int indentPos = GetLineIndentPosition(line);
 		UndoGroup ug(this);

@@ -33,19 +33,14 @@
 
 #if CAIRO_HAS_XCB_SURFACE // {
 
-//#include "cairo-boxes-private.h"
 #include "cairo-xcb-private.h"
-////#include "cairo-image-surface-private.h"
-//#include "cairo-surface-backend-private.h"
 
 /* XXX dithering */
 
 typedef struct _cairo_xcb_pixmap {
 	cairo_surface_t base;
-
 	cairo_xcb_connection_t * connection;
 	cairo_xcb_screen_t * screen;
-
 	cairo_surface_t * owner;
 	xcb_pixmap_t pixmap;
 	int width;

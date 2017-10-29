@@ -36,9 +36,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_FONT_SUBSET
 
-#include "cairo-type1-private.h"
-//#include "cairo-scaled-font-subsets-private.h"
-
 #if 0
 /*
  * The three tables that follow are generated using this perl code:

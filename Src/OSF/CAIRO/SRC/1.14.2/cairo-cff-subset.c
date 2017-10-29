@@ -49,12 +49,12 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 //#include "cairo-scaled-font-subsets-private.h"
-#include "cairo-truetype-subset-private.h"
-#include <string.h>
-#include <locale.h>
-
-/* CFF Dict Operators. If the high byte is 0 the command is encoded
- * with a single byte. */
+//#include "cairo-truetype-subset-private.h"
+//#include <string.h>
+//#include <locale.h>
+//
+// CFF Dict Operators. If the high byte is 0 the command is encoded with a single byte.
+//
 #define BASEFONTNAME_OP  0x0c16
 #define CIDCOUNT_OP      0x0c22
 #define CHARSET_OP       0x000f
@@ -1960,21 +1960,18 @@ static cairo_status_t cairo_cff_font_write_encoding(cairo_cff_font_t  * font)
 	uchar buf[2];
 	cairo_status_t status;
 	uint i;
-
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, ENCODING_OP);
 	buf[0] = 0; /* Format 0 */
 	buf[1] = font->scaled_font_subset->num_glyphs - 1;
 	status = _cairo_array_append_multiple(&font->output, buf, 2);
 	if(unlikely(status))
 		return status;
-
 	for(i = 1; i < font->scaled_font_subset->num_glyphs; i++) {
 		uchar ch = font->scaled_font_subset->to_latin_char[i];
 		status = _cairo_array_append(&font->output, &ch);
 		if(unlikely(status))
 			return status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1983,15 +1980,12 @@ static cairo_status_t cairo_cff_font_write_fdselect(cairo_cff_font_t  * font)
 	uchar data;
 	uint i;
 	cairo_int_status_t status;
-
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, FDSELECT_OP);
-
 	if(font->is_cid) {
 		data = 0;
 		status = _cairo_array_append(&font->output, &data);
 		if(unlikely(status))
 			return status;
-
 		for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 			data = font->fdselect_subset[i];
 			status = _cairo_array_append(&font->output, &data);
@@ -2002,32 +1996,25 @@ static cairo_status_t cairo_cff_font_write_fdselect(cairo_cff_font_t  * font)
 	else {
 		uchar byte;
 		uint16_t word;
-
 		status = _cairo_array_grow_by(&font->output, 9);
 		if(unlikely(status))
 			return status;
-
 		byte = 3;
 		status = _cairo_array_append(&font->output, &byte);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		word = cpu_to_be16(1);
 		status = _cairo_array_append_multiple(&font->output, &word, 2);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		word = cpu_to_be16(0);
 		status = _cairo_array_append_multiple(&font->output, &word, 2);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		byte = 0;
 		status = _cairo_array_append(&font->output, &byte);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
-
 		word = cpu_to_be16(font->scaled_font_subset->num_glyphs);
 		status = _cairo_array_append_multiple(&font->output, &word, 2);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

@@ -37,18 +37,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-array-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-damage-private.h"
-//#include "cairo-device-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-recording-surface-private.h"
-//#include "cairo-region-private.h"
-#include "cairo-surface-inline.h"
-#include "cairo-tee-surface-private.h"
-
 /**
  * SECTION:cairo-surface
  * @Title: cairo_surface_t
@@ -1705,7 +1693,7 @@ cairo_surface_t * _cairo_surface_default_source(void * surface, CairoIRect * ext
 	return (cairo_surface_t *)surface;
 }
 
-static cairo_status_t _pattern_has_error(const cairo_pattern_t * pattern)
+static cairo_status_t FASTCALL _pattern_has_error(const cairo_pattern_t * pattern)
 {
 	const cairo_surface_pattern_t * spattern;
 	if(unlikely(pattern->status))
@@ -1735,8 +1723,7 @@ static cairo_bool_t nothing_to_do(cairo_surface_t * surface, cairo_operator_t op
 	return FALSE;
 }
 
-cairo_status_t _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, 
-	const cairo_pattern_t * source, const cairo_clip_t * clip)
+cairo_status_t _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
 	TRACE((stderr, "%s\n", __FUNCTION__));

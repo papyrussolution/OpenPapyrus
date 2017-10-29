@@ -36,8 +36,6 @@
 
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-box-inline.h"
-//#include "cairo-slope-private.h"
 
 cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a,
     const cairo_point_t * b,

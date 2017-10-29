@@ -40,30 +40,22 @@
 #if !CAIRO_HAS_XLIB_XCB_FUNCTIONS
 
 #include "cairo-xlib-private.h"
-//#include "cairo-list-inline.h"
-
-/* A perceptual distance metric between two colors. No sqrt needed
- * since the square of the distance is still a valid metric. */
-
+//
+// A perceptual distance metric between two colors. No sqrt needed
+// since the square of the distance is still a valid metric. 
+//
 /* XXX: This is currently using linear distance in RGB space which is
  * decidedly not perceptually linear. If someone cared a lot about the
  * quality, they might choose something else here. Then again, they
  * might also choose not to use a PseudoColor visual... */
-static inline int _color_distance(ushort r1, ushort g1, ushort b1,
-    ushort r2, ushort g2, ushort b2)
+static inline int _color_distance(ushort r1, ushort g1, ushort b1, ushort r2, ushort g2, ushort b2)
 {
 	r1 >>= 8; g1 >>= 8; b1 >>= 8;
 	r2 >>= 8; g2 >>= 8; b2 >>= 8;
-
-	return ((r2 - r1) * (r2 - r1) +
-	    (g2 - g1) * (g2 - g1) +
-	    (b2 - b1) * (b2 - b1));
+	return ((r2 - r1) * (r2 - r1) + (g2 - g1) * (g2 - g1) + (b2 - b1) * (b2 - b1));
 }
 
-cairo_status_t _cairo_xlib_visual_info_create(Display * dpy,
-    int screen,
-    VisualID visualid,
-    cairo_xlib_visual_info_t ** out)
+cairo_status_t _cairo_xlib_visual_info_create(Display * dpy, int screen, VisualID visualid, cairo_xlib_visual_info_t ** out)
 {
 	cairo_xlib_visual_info_t * info;
 	Colormap colormap = DefaultColormap(dpy, screen);

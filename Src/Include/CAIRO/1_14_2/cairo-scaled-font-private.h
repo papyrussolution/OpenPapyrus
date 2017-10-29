@@ -138,9 +138,8 @@ cairo_private cairo_scaled_font_private_t * _cairo_scaled_font_find_private(cair
 cairo_private void _cairo_scaled_font_attach_private(cairo_scaled_font_t * scaled_font,
     cairo_scaled_font_private_t * priv, const void * key, void (* destroy)(cairo_scaled_font_private_t *, cairo_scaled_font_t *));
 cairo_private cairo_scaled_glyph_private_t * _cairo_scaled_glyph_find_private(cairo_scaled_glyph_t * scaled_glyph, const void * key);
-cairo_private void _cairo_scaled_glyph_attach_private(cairo_scaled_glyph_t * scaled_glyph,
-    cairo_scaled_glyph_private_t * priv, const void * key, void (* destroy)(cairo_scaled_glyph_private_t *,
-	    cairo_scaled_glyph_t *, cairo_scaled_font_t *));
+cairo_private void _cairo_scaled_glyph_attach_private(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_private_t * priv, 
+	const void * key, void (* destroy)(cairo_scaled_glyph_private_t *, cairo_scaled_glyph_t *, cairo_scaled_font_t *));
 
 CAIRO_END_DECLS
 

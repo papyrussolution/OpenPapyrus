@@ -182,9 +182,7 @@ slim_hidden_def(cairo_font_face_destroy);
  **/
 cairo_font_type_t cairo_font_face_get_type(cairo_font_face_t * font_face)
 {
-	if(CAIRO_REFERENCE_COUNT_IS_INVALID(&font_face->ref_count))
-		return CAIRO_FONT_TYPE_TOY;
-	return font_face->backend->type;
+	return CAIRO_REFERENCE_COUNT_IS_INVALID(&font_face->ref_count) ? CAIRO_FONT_TYPE_TOY : font_face->backend->type;
 }
 /**
  * cairo_font_face_get_reference_count:
@@ -199,11 +197,8 @@ cairo_font_type_t cairo_font_face_get_type(cairo_font_face_t * font_face)
  **/
 uint cairo_font_face_get_reference_count(cairo_font_face_t * font_face)
 {
-	if(font_face == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&font_face->ref_count))
-		return 0;
-	return CAIRO_REFERENCE_COUNT_GET_VALUE(&font_face->ref_count);
+	return (font_face && !CAIRO_REFERENCE_COUNT_IS_INVALID(&font_face->ref_count)) ? CAIRO_REFERENCE_COUNT_GET_VALUE(&font_face->ref_count) : 0;
 }
-
 /**
  * cairo_font_face_status:
  * @font_face: a #cairo_font_face_t
@@ -278,22 +273,22 @@ void _cairo_unscaled_font_init(cairo_unscaled_font_t * unscaled_font, const cair
 
 cairo_unscaled_font_t * _cairo_unscaled_font_reference(cairo_unscaled_font_t * unscaled_font)
 {
-	if(unscaled_font == NULL)
-		return NULL;
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
-	_cairo_reference_count_inc(&unscaled_font->ref_count);
+	if(unscaled_font) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
+		_cairo_reference_count_inc(&unscaled_font->ref_count);
+	}
 	return unscaled_font;
 }
 
 void _cairo_unscaled_font_destroy(cairo_unscaled_font_t * unscaled_font)
 {
-	if(unscaled_font == NULL)
-		return;
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
-	if(__put(&unscaled_font->ref_count))
-		return;
-	if(!unscaled_font->backend->destroy(unscaled_font))
-		return;
-	SAlloc::F(unscaled_font);
+	if(unscaled_font) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&unscaled_font->ref_count));
+		if(__put(&unscaled_font->ref_count))
+			return;
+		if(!unscaled_font->backend->destroy(unscaled_font))
+			return;
+		SAlloc::F(unscaled_font);
+	}
 }
 

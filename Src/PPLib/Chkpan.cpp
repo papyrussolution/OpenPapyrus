@@ -1093,7 +1093,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			SETFLAG(OperRightsFlags, rt_tab[i].Orf, CsObj.CheckRights(rt_tab[i].CsR, rt_tab[i].IsOprRt));
 		}
 		// } @v9.8.4
-		/* @v9.8.4 
+		/* @v9.8.4
 		SETFLAG(OperRightsFlags, orfReturns,     CsObj.CheckRights(CSESSOPRT_RETCHECK, 1));
 		SETFLAG(OperRightsFlags, orfEscCheck,    CsObj.CheckRights(CSESSRT_ESCCHECK));
 		SETFLAG(OperRightsFlags, orfEscChkLine,  CsObj.CheckRights(CSESSOPRT_ESCCLINE, 1));
@@ -8406,12 +8406,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 
 									class LbpListDialog : public PPListDialog {
 									public:
-										LbpListDialog(const RealArray & rList, const SString * pInfoText) : 
+										LbpListDialog(const RealArray & rList, const SString * pInfoText) :
 											PPListDialog(DLG_SELLKBKPRICE, CTL_SELLKBKPRICE_LIST, fOnDblClkOk), R_List(rList)
 										{
 											Id = 0;
 											if(pInfoText) {
-												setCtrlString(DLG_SELLKBKPRICE, *pInfoText);
+												setCtrlString(CTL_SELLKBKPRICE_INFO, *pInfoText);
 											}
 											updateList(0);
 										}
@@ -8442,7 +8442,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 							}
 						}
 					}
-					// } @v9.8.5 
+					// } @v9.8.5
 				}
 				if(ok > 0) {
                     if(oneof2(EgaisMode, 1, 2) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {

@@ -34,7 +34,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-surface-backend-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 

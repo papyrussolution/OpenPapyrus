@@ -38,7 +38,6 @@
 #define CAIRO_XCB_PRIVATE_H
 
 #include "cairo-xcb.h"
-#include "cairo-spans-private.h"
 #include <xcb/xcb.h>
 #include <xcb/render.h>
 #include <xcb/xcbext.h>

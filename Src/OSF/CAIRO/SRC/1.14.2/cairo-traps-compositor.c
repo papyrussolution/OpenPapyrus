@@ -337,45 +337,30 @@ error:
 }
 
 static cairo_surface_t * traps_get_clip_surface(const cairo_traps_compositor_t * compositor,
-    const cairo_composite_rectangles_t * composite,
-    const CairoIRect * extents)
+    const cairo_composite_rectangles_t * composite, const CairoIRect * extents)
 {
 	cairo_surface_t * surface = NULL;
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	status = __clip_to_surface(compositor, composite, extents, &surface);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 		surface = _cairo_surface_create_scratch(composite->surface,
-		    CAIRO_CONTENT_ALPHA,
-		    extents->width,
-		    extents->height,
-		    CAIRO_COLOR_WHITE);
+		    CAIRO_CONTENT_ALPHA, extents->width, extents->height, CAIRO_COLOR_WHITE);
 		if(unlikely(surface->status))
 			return surface;
-
-		status = _cairo_clip_combine_with_surface(composite->clip, surface,
-		    extents->x, extents->y);
+		status = _cairo_clip_combine_with_surface(composite->clip, surface, extents->x, extents->y);
 	}
 	if(unlikely(status)) {
 		cairo_surface_destroy(surface);
 		surface = _cairo_surface_create_in_error(status);
 	}
-
 	return surface;
 }
 
-static void blt_unaligned_boxes(const cairo_traps_compositor_t * compositor,
-    cairo_surface_t * surface,
-    int dx, int dy,
-    cairo_box_t * boxes,
-    int num_boxes)
+static void blt_unaligned_boxes(const cairo_traps_compositor_t * compositor, cairo_surface_t * surface, int dx, int dy, cairo_box_t * boxes, int num_boxes)
 {
 	struct blt_in info;
-
 	int i;
-
 	info.compositor = compositor;
 	info.dst = surface;
 	_cairo_boxes_init(&info.boxes);

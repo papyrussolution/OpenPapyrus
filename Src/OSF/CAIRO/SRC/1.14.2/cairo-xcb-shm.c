@@ -39,9 +39,7 @@
 #if CAIRO_HAS_XCB_SHM_FUNCTIONS
 
 #include "cairo-xcb-private.h"
-//#include "cairo-list-inline.h"
 #include "cairo-mempool-private.h"
-
 #include <xcb/shm.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>

@@ -148,7 +148,7 @@ public:
 		long   OuterFormat; // Формат представления поля во внешнем источнике данных
 		uint   EnumVal;     // Значение элемента перечисления //
 	};
-	size_t InnerOffs;   // Смещение данных от начала буфера
+	uint32 InnerOffs;   // Смещение данных от начала буфера // @v9.8.6 size_t-->InnerOffs
 	SString Name;       // Наименование поля       //
 	SString Descr;      // Текстовое описание поля //
 	SString Formula;    // Если поле представлено не значением, а формулой, то последняя хранится здесь.
@@ -168,7 +168,7 @@ public:
 			long   OuterFormat;
 			uint   EnumVal;
 		};
-		size_t InnerOffs;
+		uint32 InnerOffs; // @v9.8.6 size_t-->uint32 (чтобы не нарушать @persistent)
 		uint   NamePos;
 		uint   DescrPos;
 		uint   FormulaPos;

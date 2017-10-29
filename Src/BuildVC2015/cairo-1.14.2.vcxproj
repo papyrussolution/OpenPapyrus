@@ -1006,11 +1006,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-analysis-surface-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-arc-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-array-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-atomic-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-beos.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-box-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-boxes-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-clip-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-clip-private.h" />
@@ -1023,9 +1021,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-compiler-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-composite-rectangles-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-compositor-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-contour-inline.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-contour-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-damage-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-default-context-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-deprecated.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-device-private.h" />
@@ -1062,11 +1057,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-info-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-surface-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-image-surface-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-line-inline.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-line-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-list-inline.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-list-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-malloc-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mempool-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-impl-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-mutex-list-private.h" />
@@ -1077,7 +1067,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-output-stream-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-paginated-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-paginated-surface-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-path-fixed-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pattern-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pattern-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-pdf-operators-private.h" />
@@ -1101,18 +1090,12 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-script.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-skia-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-skia.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-slope-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-spans-compositor-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-spans-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-stroke-dash-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-backend-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-clipper-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-fallback-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-observer-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-observer-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-offset-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-snapshot-inline.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-snapshot-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-subsurface-inline.h" />
@@ -1120,7 +1103,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-surface-wrapper-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-svg-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-svg.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-tee-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-tee.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-time-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-traps-private.h" />
@@ -1132,8 +1114,6 @@
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-user-font-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-version.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-vg.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-wideint-private.h" />
-    <ClInclude Include="..\Include\Cairo\1_14_2\cairo-wideint-type-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-win32-private.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-win32.h" />
     <ClInclude Include="..\Include\Cairo\1_14_2\cairo-xcb-private.h" />

@@ -7200,6 +7200,7 @@ public:
 	int    Start(int use_ta);
 	int    Start(PPDbDependTransaction dbDepend, int use_ta);
 	int    Commit();
+	int    Rollback();
 private:
 	int    Ta;
 	int    Err;
@@ -25801,20 +25802,23 @@ public:
 		SLAPI  ExtUniteBlock();
 
 		enum {
-			fReverseOnStart  = 0x0001, // Идентификатор srcID переданный в функцию ReplaceGoods следует трактовать
+			// @v9.8.6 fReverseOnStart  = 0x0001, // Идентификатор srcID переданный в функцию ReplaceGoods следует трактовать
 				// как DestID (то есть, товар, который должен исчезнуть, будучи замененным на выбранный).
 			fUseSpcFormEgais = 0x0002, // В качестве диалога объединения применять специальную форму,
 				// позволяющую фильтровать товары по критериям ЕГАИС.
-			fOnce            = 0x0004  // После завершения объединения одной пары товаров возвращать
+			fOnce            = 0x0004, // После завершения объединения одной пары товаров возвращать
 				// управление вызывающей функции (в противном случае будет предложено повторить процедуру
 				// для иной пары товаров).
+			fAllToOne        = 0x0008  // @v9.8.6 Все товары списка DestList объединяются на ResultID
 		};
 		long   Flags;
-		PPID   DestID;   // Товар, все ссылки на который перенесены на ResultID (и, возможно, удаленный)
+		// @v9.8.6 PPID   DestID;   // Товар, все ссылки на который перенесены на ResultID (и, возможно, удаленный)
 		PPID   ResultID; // Товар, который заместил собой все ссылки на DestID
+		PPIDArray DestList; // @v9.8.6 Список товаров, все ссылки на которые перенесены на ResultID (и, возможно, удаленные)
 	};
 
-	static int SLAPI ReplaceGoods(PPID srcID, ExtUniteBlock * pEub);
+	//static int SLAPI ReplaceGoods(PPID srcID, ExtUniteBlock * pEub);
+	static int SLAPI ReplaceGoods(ExtUniteBlock & rEub);
 	static int SLAPI GenerateOwnArCode(SString & rCode, int use_ta);
 	static int SLAPI DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode);
 	static int SLAPI GetBarcodeDiagText(int diag, SString & rBuf);
@@ -44760,7 +44764,7 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:
