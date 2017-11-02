@@ -10,10 +10,10 @@
 void SLAPI ExprEvalContext::FC::Init()
 {
 	ArgList.clear();
-	StrArg = 0;
+	StrArg.Z();
 	RetType = MKSTYPE(S_FLOAT, 8);
 	RetReal = 0.0;
-	RetStr = 0;
+	RetStr.Z();
 }
 
 SLAPI ExprEvalContext::ExprEvalContext()
@@ -86,14 +86,15 @@ SLAPI BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data))
 
 int SLAPI DirtyBillSymbCache(const char * pSymb)
 {
+	int    ok = -1;
 	if(pSymb) {
 		BillSymbCache * p_cache = GetDbLocalCachePtr <BillSymbCache> (PPOBJ_BILLSYMB);
 		if(p_cache) {
 			p_cache->DirtySymb(pSymb);
-			return 1;
+			ok = 1;
 		}
 	}
-	return -1;
+	return ok;
 }
 
 int SLAPI BillSymbCache::Add(int F, PPID id, const char * symb, const char * form)
@@ -1132,15 +1133,15 @@ int SLAPI GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
 	SString temp_buf;
 	SStrScan scan(pSymb);
 	if(scan.Skip().GetIdent(temp_buf)) {
-		if(temp_buf.CmpNC("vat") == 0)
+		if(temp_buf.IsEqNC("vat"))
 			func_id = funcVat;
-		else if(temp_buf.CmpNC("vatplus") == 0)
+		else if(temp_buf.IsEqNC("vatplus"))
 			func_id = funcVatPlus;
-		else if(temp_buf.CmpNC("vatminus") == 0)
+		else if(temp_buf.IsEqNC("vatminus"))
 			func_id = funcVatMinus;
-		else if(temp_buf.CmpNC("getquot") == 0)
+		else if(temp_buf.IsEqNC("getquot"))
 			func_id = funcGetQuot;
-		else if(temp_buf.CmpNC("getquotcp") == 0)
+		else if(temp_buf.IsEqNC("getquotcp"))
 			func_id = funcGetQuotCP;
 		else {
 			PPSetError(PPERR_UNDEFGOODSFUNC, pSymb);
@@ -1295,26 +1296,26 @@ int SLAPI GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, do
 	int    ref_dim = 0;
 	Goods2Tbl::Rec goods_rec;
 	double v = 0.0;
-	if(rSymb.CmpNC("X") == 0) ref_dim = PPGdsCls::eX;
-	else if(rSymb.CmpNC("Y") == 0) ref_dim = PPGdsCls::eY;
-	else if(rSymb.CmpNC("Z") == 0) ref_dim = PPGdsCls::eZ;
-	else if(rSymb.CmpNC("W") == 0) ref_dim = PPGdsCls::eW;
-	else if(rSymb.CmpNC("KIND") == 0) ref_dim = PPGdsCls::eKind;
-	else if(rSymb.CmpNC("GRADE") == 0) ref_dim = PPGdsCls::eGrade;
-	else if(rSymb.CmpNC("ADDPROP2") == 0) ref_dim = PPGdsCls::eAdd;
-	else if(rSymb.CmpNC("ADDPROP") == 0) ref_dim = PPGdsCls::eAdd2;
-	else if(rSymb.CmpNC("PHUPERU") == 0) {
+	if(rSymb.IsEqNC("X")) ref_dim = PPGdsCls::eX;
+	else if(rSymb.IsEqNC("Y")) ref_dim = PPGdsCls::eY;
+	else if(rSymb.IsEqNC("Z")) ref_dim = PPGdsCls::eZ;
+	else if(rSymb.IsEqNC("W")) ref_dim = PPGdsCls::eW;
+	else if(rSymb.IsEqNC("KIND")) ref_dim = PPGdsCls::eKind;
+	else if(rSymb.IsEqNC("GRADE")) ref_dim = PPGdsCls::eGrade;
+	else if(rSymb.IsEqNC("ADDPROP2")) ref_dim = PPGdsCls::eAdd;
+	else if(rSymb.IsEqNC("ADDPROP")) ref_dim = PPGdsCls::eAdd2;
+	else if(rSymb.IsEqNC("PHUPERU")) {
 		if(GObj.Fetch(goodsID, &goods_rec) > 0)
 			v = goods_rec.PhUPerU;
 		else if(P_Pack)
 			v = P_Pack->Rec.PhUPerU;
 	}
-	else if(rSymb.CmpNC("TYPE") == 0) {
+	else if(rSymb.IsEqNC("TYPE")) {
 		PPID   goods_type = (GObj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.GoodsTypeID : 0;
 		PPObjID oid;
 		v = (double)oid.Set(PPOBJ_GOODSTYPE, goods_type);
 	}
-	else if(rSymb.CmpNC("ID") == 0)
+	else if(rSymb.IsEqNC("ID"))
 		v = goodsID;
 	else
 		ok = 0;
@@ -1371,14 +1372,14 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 			int    ref_dim = 0;
 			PPID   ref_goods_id = 0;
 			int    ref_gscb_item = -1;
-			if(ref.CmpNC("MAIN") == 0) {
+			if(ref.IsEqNC("MAIN")) {
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				ref_goods_id = P_Gs->GoodsID;
 				if(P_Gs->P_Cb)
 					ref_gscb_item = 0;
 			}
-			else if(ref.CmpNC("MAINCOM") == 0) {
+			else if(ref.IsEqNC("MAINCOM")) {
 				const PPGoodsStrucItem * p_gsi = 0;
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
@@ -1392,18 +1393,14 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					}
 				}
 			}
-			else if(ref.CmpNC("PREV") == 0) {
+			else if(ref.IsEqNC("PREV"))
 				ref_goods_id = P.PrevGoodsID;
-			}
-			else if(ref.CmpNC("QUOT") == 0) {
+			else if(ref.IsEqNC("QUOT"))
 				spcref = spcrefQuot;
-			}
-			else if(ref.CmpNC("LOTTAG") == 0) {
+			else if(ref.IsEqNC("LOTTAG"))
 				spcref = spcrefLotTag;
-			}
-			else if(ref.CmpNC("TAG") == 0) {
+			else if(ref.IsEqNC("TAG"))
 				spcref = spcrefGoodsTag;
-			}
 			else {
 				THROW(AllocGoodsStruc());
 				if(P_Gs) {
@@ -1497,13 +1494,13 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						tag_item.GetReal(&v);
 				}
 			}
-			else if(ref.CmpNC("QTTY") == 0 || ref.CmpNC("QTY") == 0) {
+			else if(ref.IsEqNC("QTTY") || ref.IsEqNC("QTY")) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 0, &v));
 			}
-			else if(ref.CmpNC("PHQTTY") == 0 || ref.CmpNC("PHQTY") == 0) {
+			else if(ref.IsEqNC("PHQTTY") || ref.IsEqNC("PHQTY")) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 1, &v));
 			}
-			else if(ref.CmpNC("QTTYCOM") == 0) {
+			else if(ref.IsEqNC("QTTYCOM")) {
 				THROW(AllocGoodsStruc());
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
 				THROW(P_Gs->GetItemQtty(ref_goods_id, 1, &v));
@@ -1514,37 +1511,37 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 		}
 		else {
 			ref = pSymb;
-			if(ref.CmpNC("pi") == 0)
+			if(ref.IsEqNC("pi"))
 				v = SMathConst::Pi;
-			else if(ref.CmpNC("a1") == 0)
+			else if(ref.IsEqNC("a1"))
 				v = P.Par1;
-			else if(ref.CmpNC("a2") == 0)
+			else if(ref.IsEqNC("a2"))
 				v = P.Par2;
-			else if(ref.CmpNC("a3") == 0)
+			else if(ref.IsEqNC("a3"))
 				v = P.Par3;
 			else {
 				int    r = 1;
-				if(ref.CmpNC("cost") == 0) {
+				if(ref.IsEqNC("cost")) {
 					if(P_Ti)
 						v = P_Ti->Cost;
 					else
 						r = 0; // cost может быть суммой документа
 				}
-				else if(ref.CmpNC("price") == 0) {
+				else if(ref.IsEqNC("price")) {
 					if(P_Ti)
 						v = P_Ti->Price;
 					else
 						r = 0; // price может быть суммой документа
 				}
-				else if(ref.CmpNC("discount") == 0) {
+				else if(ref.IsEqNC("discount")) {
 					if(P_Ti)
 						v = P_Ti->Discount;
 					else
 						r = 0; // discount может быть суммой документа
 				}
-				else if(ref.CmpNC("QTTY") == 0 || ref.CmpNC("QTY") == 0)
+				else if(ref.IsEqNC("QTTY") || ref.IsEqNC("QTY"))
 					v = P_Ti ? P_Ti->Quantity_ : P.Qtty; // @v8.8.6 0.0-->P.Qtty
-				else if(ref.CmpNC("PHQTTY") == 0 || ref.CmpNC("PHQTY") == 0) {
+				else if(ref.IsEqNC("PHQTTY") || ref.IsEqNC("PHQTY")) {
 					if(P_Ti) {
 						if(P_Ti->Flags & PPTFR_INDEPPHQTTY)
 							v = P_Ti->WtQtty;
@@ -1559,15 +1556,12 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 						v = 0.0;
 				}
 				// @v8.9.12 {
-				else if(ref.CmpNC("LOTDIMX") == 0) {
+				else if(ref.IsEqNC("LOTDIMX"))
                     v = P.LotDim.X;
-				}
-				else if(ref.CmpNC("LOTDIMY") == 0) {
+				else if(ref.IsEqNC("LOTDIMY"))
 					v = P.LotDim.Y;
-				}
-				else if(ref.CmpNC("LOTDIMZ") == 0) {
+				else if(ref.IsEqNC("LOTDIMZ"))
 					v = P.LotDim.Z;
-				}
 				// } @v8.9.12
 				else
 					r = 0;

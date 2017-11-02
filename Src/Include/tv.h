@@ -106,8 +106,9 @@ struct KeyDownCommand { // @flat @size=4
 	}
 	int    SLAPI GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
 	int    SLAPI SetKeyName(const char * pStr, uint * pLen);
-	int    FASTCALL SetWinMsgCode(uint32 wParam);
+	void   FASTCALL SetWinMsgCode(uint32 wParam);
 	int    FASTCALL SetTvKeyCode(uint16 tvKeyCode);
+	uint16 SLAPI GetTvKeyCode() const;
 	//
 	// Descr: Транслирует символ chr во внутреннее состояние данного экземпляра класса в
 	//   соответствии с текущей раскладкой клавиатуры.
@@ -4926,11 +4927,12 @@ private:
 	void   FASTCALL GetStartPageDate(LDATE * pDt);
 	const  RowState & FASTCALL GetRowState(long id) const;
 	int    SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH * pBrush);
+	int    GetChunkColor(const STimeChunkAssoc * pChunk, STimeChunkGrid::Color * pClr) const;
 	int    SaveParameters();
 	int    SetupDate(LDATE dt);
 	const  STimeChunkArray * GetCollapseList_() const;
 	int    CopyToClipboard();
-	int    ExportToExcel(const char * pDestPath);
+	int    ExportToExcel();
 	enum {
 		dummyFirst = 1,
 		colorHeader,            // Цвет отрисовки заголовка таблицы

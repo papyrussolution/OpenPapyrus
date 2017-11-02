@@ -366,37 +366,16 @@
     <ClCompile Include="..\OSF\scintilla\src\ContractionState.cxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Osf\scintilla\src\CallTip.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\CellBuffer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\scintilla\include\ILexer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\OptionSet.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\Partitioning.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\PerLine.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\scintilla\include\Platform.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\scintilla\win32\PlatWin.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\Position.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\PropSetSimple.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\scintilla\include\SciLexer.h">
@@ -406,18 +385,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\scintilla\include\ScintillaWidget.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\SparseState.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\SplitVector.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\scintilla\src\Style.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\scintilla\lexlib\SubStyles.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h">

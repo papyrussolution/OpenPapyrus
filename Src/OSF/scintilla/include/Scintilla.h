@@ -2243,10 +2243,10 @@ struct Sci_Rectangle {
 	int    right;
 	int    bottom;
 };
-
-/* This structure is used in printing and requires some of the graphics types
- * from Platform.h.  Not needed by most client code. */
-
+// 
+// Descr: This structure is used in printing and requires some of the graphics types
+//   from Platform.h.  Not needed by most client code. 
+// 
 struct Sci_RangeToFormat {
 	Sci_SurfaceID hdc;
 	Sci_SurfaceID hdcTarget;

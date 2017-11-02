@@ -7,8 +7,8 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #undef WINVER

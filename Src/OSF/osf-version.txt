@@ -1,5 +1,5 @@
-libsvg       0.1.4 
-libsvg-cairo 0.1.6 (included in dir LIBSVG)
+// @v9.8.7 libsvg       0.1.4 
+// @v9.8.7 libsvg-cairo 0.1.6 (included in dir LIBSVG)
 zlib         1.2.11 // @v9.5.6 1.2.8-->1.2.11
 cairo        1.14.2 // 1.10.2
 	// @v9.1.7 Частично коды cairo приведены к версии 1.14.6 (за исключением drm)

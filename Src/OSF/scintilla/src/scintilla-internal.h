@@ -3,32 +3,6 @@
 #ifndef __SCINTILLA_INTERNAL_H
 #define __SCINTILLA_INTERNAL_H
 
-#include "SplitVector.h"
-#include "Partitioning.h"
-//#include "RunStyles.h"
-#include "CellBuffer.h"
-#include "PerLine.h"
-#include "CallTip.h"
-//#include "ViewStyle.h"
-//#include "Decoration.h"
-//#include "Document.h"
-//#include "Selection.h"
-//#include "PositionCache.h"
-//#include "ContractionState.h"
-//#include "CaseConvert.h"
-//#include "UnicodeFromUTF8.h"
-//#include "KeyMap.h"
-//#include "XPM.h"
-//#include "EditModel.h"
-//#include "MarginView.h"
-//#include "EditView.h"
-//#include "AutoComplete.h"
-//#include "Editor.h"
-//#include "ScintillaBase.h"
-//#include "SparseVector.h"
-//#include "RESearch.h"
-//#include "ExternalLexer.h"
-
 #if PLAT_WIN
 	#define EXT_LEXER_DECL __stdcall
 #else
@@ -53,6 +27,820 @@
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
+
+class DocWatcher;
+class DocModification;
+class Document;
+#ifdef SCI_LEXER
+	class LexState;
+#endif
+//
+// SplitVector.h
+//
+template <typename T> class SplitVector {
+public:
+	/// Construct a split buffer.
+	SplitVector()
+	{
+		Init();
+	}
+	~SplitVector()
+	{
+		delete []body;
+		body = 0;
+	}
+	int GetGrowSize() const
+	{
+		return growSize;
+	}
+	void FASTCALL SetGrowSize(int growSize_)
+	{
+		growSize = growSize_;
+	}
+	/// Reallocate the storage for the buffer to be newSize and
+	/// copy exisiting contents to the new buffer.
+	/// Must not be used to decrease the size of the buffer.
+	void FASTCALL ReAllocate(int newSize)
+	{
+		if(newSize < 0)
+			throw std::runtime_error("SplitVector::ReAllocate: negative size.");
+		if(newSize > size) {
+			// Move the gap to the end
+			GapTo(lengthBody);
+			T * newBody = new T[newSize];
+			if(size && body) {
+				std::copy(body, body + lengthBody, newBody);
+				delete []body;
+			}
+			body = newBody;
+			gapLength += newSize - size;
+			size = newSize;
+		}
+	}
+	/// Retrieve the character at a particular position.
+	/// Retrieving positions outside the range of the buffer returns 0.
+	/// The assertions here are disabled since calling code can be
+	/// simpler if out of range access works and returns 0.
+	T FASTCALL ValueAt(int position) const
+	{
+		if(position < part1Length) {
+			//PLATFORM_ASSERT(position >= 0);
+			return (position < 0) ? 0 : body[position];
+		}
+		else {
+			//PLATFORM_ASSERT(position < lengthBody);
+			return (position >= lengthBody) ? 0 : body[gapLength + position];
+		}
+	}
+	void SetValueAt(int position, T v)
+	{
+		if(position < part1Length) {
+			PLATFORM_ASSERT(position >= 0);
+			if(position < 0) {
+				;
+			}
+			else
+				body[position] = v;
+		}
+		else {
+			PLATFORM_ASSERT(position < lengthBody);
+			if(position >= lengthBody) {
+				;
+			}
+			else
+				body[gapLength + position] = v;
+		}
+	}
+	T & FASTCALL operator[] (int position) const
+	{
+		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
+		return (position < part1Length) ? body[position] : body[gapLength + position];
+	}
+	/// Retrieve the length of the buffer.
+	int Length() const
+	{
+		return lengthBody;
+	}
+	/// Insert a single value into the buffer.
+	/// Inserting at positions outside the current range fails.
+	void Insert(int position, T v)
+	{
+		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
+		if((position >= 0) && (position <= lengthBody)) {
+			RoomFor(1);
+			GapTo(position);
+			body[part1Length] = v;
+			lengthBody++;
+			part1Length++;
+			gapLength--;
+		}
+	}
+	/// Insert a number of elements into the buffer setting their value.
+	/// Inserting at positions outside the current range fails.
+	void InsertValue(int position, int insertLength, T v)
+	{
+		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
+		if(insertLength > 0) {
+			if((position >= 0) && (position <= lengthBody)) {
+				RoomFor(insertLength);
+				GapTo(position);
+				std::fill(&body[part1Length], &body[part1Length + insertLength], v);
+				lengthBody += insertLength;
+				part1Length += insertLength;
+				gapLength -= insertLength;
+			}
+		}
+	}
+	/// Ensure at least length elements allocated,
+	/// appending zero valued elements if needed.
+	void FASTCALL EnsureLength(int wantedLength)
+	{
+		if(Length() < wantedLength) {
+			InsertValue(Length(), wantedLength - Length(), 0);
+		}
+	}
+	/// Insert text into the buffer from an array.
+	void InsertFromArray(int positionToInsert, const T s[], int positionFrom, int insertLength)
+	{
+		PLATFORM_ASSERT((positionToInsert >= 0) && (positionToInsert <= lengthBody));
+		if(insertLength > 0) {
+			if((positionToInsert >= 0) && (positionToInsert <= lengthBody)) {
+				RoomFor(insertLength);
+				GapTo(positionToInsert);
+				std::copy(s + positionFrom, s + positionFrom + insertLength, body + part1Length);
+				lengthBody += insertLength;
+				part1Length += insertLength;
+				gapLength -= insertLength;
+			}
+		}
+	}
+	/// Delete one element from the buffer.
+	void FASTCALL Delete(int position)
+	{
+		PLATFORM_ASSERT((position >= 0) && (position < lengthBody));
+		if(position >= 0 && position < lengthBody)
+			DeleteRange(position, 1);
+	}
+	/// Delete a range from the buffer.
+	/// Deleting positions outside the current range fails.
+	void DeleteRange(int position, int deleteLength)
+	{
+		PLATFORM_ASSERT((position >= 0) && (position + deleteLength <= lengthBody));
+		if((position >= 0) && ((position + deleteLength) <= lengthBody)) {
+			if((position == 0) && (deleteLength == lengthBody)) {
+				// Full deallocation returns storage and is faster
+				delete []body;
+				Init();
+			}
+			else if(deleteLength > 0) {
+				GapTo(position);
+				lengthBody -= deleteLength;
+				gapLength += deleteLength;
+			}
+		}
+	}
+	/// Delete all the buffer contents.
+	void DeleteAll()
+	{
+		DeleteRange(0, lengthBody);
+	}
+	// Retrieve a range of elements into an array
+	void GetRange(T * buffer, int position, int retrieveLength) const
+	{
+		// Split into up to 2 ranges, before and after the split then use memcpy on each.
+		int range1Length = 0;
+		if(position < part1Length) {
+			int part1AfterPosition = part1Length - position;
+			range1Length = retrieveLength;
+			if(range1Length > part1AfterPosition)
+				range1Length = part1AfterPosition;
+		}
+		std::copy(body + position, body + position + range1Length, buffer);
+		buffer += range1Length;
+		position = position + range1Length + gapLength;
+		int range2Length = retrieveLength - range1Length;
+		std::copy(body + position, body + position + range2Length, buffer);
+	}
+	T * BufferPointer()
+	{
+		RoomFor(1);
+		GapTo(lengthBody);
+		body[lengthBody] = 0;
+		return body;
+	}
+	T * RangePointer(int position, int rangeLength)
+	{
+		if(position < part1Length) {
+			if((position + rangeLength) > part1Length) {
+				// Range overlaps gap, so move gap to start of range.
+				GapTo(position);
+				return (body + position + gapLength);
+			}
+			else
+				return (body + position);
+		}
+		else
+			return (body + position + gapLength);
+	}
+	int GapPosition() const
+	{
+		return part1Length;
+	}
+protected:
+	/// Move the gap to a particular position so that insertion and
+	/// deletion at that point will not require much copying and
+	/// hence be fast.
+	void FASTCALL GapTo(int position)
+	{
+		if(position != part1Length) {
+			if(position < part1Length) // Moving the gap towards start so moving elements towards end
+				std::copy_backward(body + position, body + part1Length, body + gapLength + part1Length);
+			else // Moving the gap towards end so moving elements towards start
+				std::copy(body + part1Length + gapLength, body + gapLength + position, body + part1Length);
+			part1Length = position;
+		}
+	}
+	/// Check that there is room in the buffer for an insertion,
+	/// reallocating if more space needed.
+	void FASTCALL RoomFor(int insertionLength)
+	{
+		if(gapLength <= insertionLength) {
+			while(growSize < size / 6)
+				growSize *= 2;
+			ReAllocate(size + insertionLength + growSize);
+		}
+	}
+	void Init()
+	{
+		body = NULL;
+		growSize = 8;
+		size = 0;
+		lengthBody = 0;
+		part1Length = 0;
+		gapLength = 0;
+	}
+	int    lengthBody; // @firstmember
+	T    * body;
+	int    size;
+	int    part1Length;
+	int    gapLength;  /// invariant: gapLength == size - lengthBody
+	int    growSize;
+};
+//
+// Partitioning.h
+//
+//
+// A split vector of integers with a method for adding a value to all elements
+// in a range.
+// Used by the Partitioning class.
+//
+class SplitVectorWithRangeAdd : public SplitVector <int> {
+public:
+	explicit SplitVectorWithRangeAdd(int growSize_)
+	{
+		SetGrowSize(growSize_);
+		ReAllocate(growSize_);
+	}
+	~SplitVectorWithRangeAdd()
+	{
+	}
+	void RangeAddDelta(int start, int end, int delta)
+	{
+		// end is 1 past end, so end-start is number of elements to change
+		int i = 0;
+		int rangeLength = end - start;
+		int range1Length = rangeLength;
+		int part1Left = part1Length - start;
+		if(range1Length > part1Left)
+			range1Length = part1Left;
+		while(i < range1Length) {
+			body[start++] += delta;
+			i++;
+		}
+		start += gapLength;
+		while(i < rangeLength) {
+			body[start++] += delta;
+			i++;
+		}
+	}
+};
+//
+// Descr: Divide an interval into multiple partitions.
+//   Useful for breaking a document down into sections such as lines.
+//   A 0 length interval has a single 0 length partition, numbered 0
+//   If interval not 0 length then each partition non-zero length
+//   When needed, positions after the interval are considered part of the last partition
+//   but the end of the last partition can be found with PositionFromPartition(last+1).
+//
+class Partitioning {
+private:
+	// To avoid calculating all the partition positions whenever any text is inserted
+	// there may be a step somewhere in the list.
+	int stepPartition;
+	int stepLength;
+	SplitVectorWithRangeAdd * body;
+	//
+	// Move step forward
+	//
+	void FASTCALL ApplyStep(int partitionUpTo)
+	{
+		if(stepLength != 0) {
+			body->RangeAddDelta(stepPartition+1, partitionUpTo + 1, stepLength);
+		}
+		stepPartition = partitionUpTo;
+		if(stepPartition >= body->Length()-1) {
+			stepPartition = body->Length()-1;
+			stepLength = 0;
+		}
+	}
+	// Move step backward
+	void FASTCALL BackStep(int partitionDownTo)
+	{
+		if(stepLength != 0) {
+			body->RangeAddDelta(partitionDownTo+1, stepPartition+1, -stepLength);
+		}
+		stepPartition = partitionDownTo;
+	}
+	void FASTCALL Allocate(int growSize)
+	{
+		body = new SplitVectorWithRangeAdd(growSize);
+		stepPartition = 0;
+		stepLength = 0;
+		body->Insert(0, 0);     // This value stays 0 for ever
+		body->Insert(1, 0);     // This is the end of the first partition and will be the start of the second
+	}
+public:
+	explicit Partitioning(int growSize)
+	{
+		Allocate(growSize);
+	}
+	~Partitioning()
+	{
+		ZDELETE(body);
+	}
+	int Partitions() const
+	{
+		return body->Length()-1;
+	}
+	void InsertPartition(int partition, int pos)
+	{
+		if(stepPartition < partition)
+			ApplyStep(partition);
+		body->Insert(partition, pos);
+		stepPartition++;
+	}
+	void SetPartitionStartPosition(int partition, int pos)
+	{
+		ApplyStep(partition+1);
+		if((partition >= 0) && (partition <= body->Length()))
+			body->SetValueAt(partition, pos);
+	}
+	void InsertText(int partitionInsert, int delta)
+	{
+		// Point all the partitions after the insertion point further along in the buffer
+		if(stepLength != 0) {
+			if(partitionInsert >= stepPartition) {
+				// Fill in up to the new insertion point
+				ApplyStep(partitionInsert);
+				stepLength += delta;
+			}
+			else if(partitionInsert >= (stepPartition - body->Length() / 10)) {
+				// Close to step but before so move step back
+				BackStep(partitionInsert);
+				stepLength += delta;
+			}
+			else {
+				ApplyStep(body->Length()-1);
+				stepPartition = partitionInsert;
+				stepLength = delta;
+			}
+		}
+		else {
+			stepPartition = partitionInsert;
+			stepLength = delta;
+		}
+	}
+	void FASTCALL RemovePartition(int partition)
+	{
+		if(partition > stepPartition) {
+			ApplyStep(partition);
+			stepPartition--;
+		}
+		else {
+			stepPartition--;
+		}
+		body->Delete(partition);
+	}
+	int FASTCALL PositionFromPartition(int partition) const
+	{
+		PLATFORM_ASSERT(partition >= 0);
+		PLATFORM_ASSERT(partition < body->Length());
+		if((partition < 0) || (partition >= body->Length())) {
+			return 0;
+		}
+		else {
+			int pos = body->ValueAt(partition);
+			if(partition > stepPartition)
+				pos += stepLength;
+			return pos;
+		}
+	}
+	/// Return value in range [0 .. Partitions() - 1] even for arguments outside interval
+	int FASTCALL PartitionFromPosition(int pos) const
+	{
+		if(body->Length() <= 1)
+			return 0;
+		else if(pos >= (PositionFromPartition(body->Length()-1)))
+			return (body->Length() - 1 - 1);
+		else {
+			int lower = 0;
+			int upper = body->Length()-1;
+			do {
+				const int middle = (upper + lower + 1) / 2;   // Round high
+				int posMiddle = body->ValueAt(middle);
+				if(middle > stepPartition)
+					posMiddle += stepLength;
+				if(pos < posMiddle)
+					upper = (middle - 1);
+				else
+					lower = middle;
+			} while(lower < upper);
+			return lower;
+		}
+	}
+	void DeleteAll()
+	{
+		int growSize = body->GetGrowSize();
+		delete body;
+		Allocate(growSize);
+	}
+};
+//
+// CellBuffer.h
+//
+// Descr: Interface to per-line data that wants to see each line insertion and deletion
+//
+class PerLine {
+public:
+	virtual ~PerLine() {}
+	virtual void Init()=0;
+	virtual void InsertLine(int line)=0;
+	virtual void RemoveLine(int line)=0;
+};
+/**
+ * The line vector contains information about each of the lines in a cell buffer.
+ */
+class LineVector {
+public:
+	LineVector();
+	~LineVector();
+	void Init();
+	void SetPerLine(PerLine *pl);
+	void InsertText(int line, int delta);
+	void InsertLine(int line, int position, bool lineStart);
+	void SetLineStart(int line, int position);
+	void RemoveLine(int line);
+	int Lines() const 
+	{
+		return starts.Partitions();
+	}
+	int FASTCALL LineFromPosition(int pos) const;
+	int FASTCALL LineStart(int line) const;
+private:
+	Partitioning starts;
+	PerLine * perLine;
+};
+//
+//
+//
+class UndoHistory {
+	public:
+	// 
+	// Descr: Actions are used to store all the information required to perform one undo/redo step.
+	// 
+	class Action {
+	public:
+		enum actionType { 
+			tInsert, 
+			tRemove, 
+			tStart, 
+			tContainer 
+		};
+		Action();
+		~Action();
+		void Create(actionType at_, int position_=0, const char *data_=0, int lenData_=0, bool mayCoalesce_=true);
+		void Destroy();
+		void Grab(Action *source);
+
+		actionType at;
+		int    position;
+		char * data;
+		int    lenData;
+		bool   mayCoalesce;
+	};
+	UndoHistory();
+	~UndoHistory();
+
+	const char * AppendAction(Action::actionType at, int position, const char *data, int length, bool &startSequence, bool mayCoalesce=true);
+
+	void BeginUndoAction();
+	void EndUndoAction();
+	void DropUndoSequence();
+	void DeleteUndoHistory();
+
+	/// The save point is a marker in the undo stack where the container has stated that
+	/// the buffer was saved. Undo and redo can move over the save point.
+	void SetSavePoint();
+	bool IsSavePoint() const;
+
+	// Tentative actions are used for input composition so that it can be undone cleanly
+	void TentativeStart();
+	void TentativeCommit();
+	bool TentativeActive() const { return tentativePoint >= 0; }
+	int TentativeSteps();
+
+	/// To perform an undo, StartUndo is called to retrieve the number of steps, then UndoStep is
+	/// called that many times. Similarly for redo.
+	bool CanUndo() const;
+	int StartUndo();
+	const Action &GetUndoStep() const;
+	void CompletedUndoStep();
+	bool CanRedo() const;
+	int StartRedo();
+	const Action &GetRedoStep() const;
+	void CompletedRedoStep();
+private:
+	void EnsureUndoRoom();
+	// Private so UndoHistory objects can not be copied
+	UndoHistory(const UndoHistory &);
+
+	Action * actions;
+	int lenActions;
+	int maxAction;
+	int currentAction;
+	int undoSequenceDepth;
+	int savePoint;
+	int tentativePoint;
+};
+/**
+ * Holder for an expandable array of characters that supports undo and line markers.
+ * Based on article "Data Structures in a Bit-Mapped Text Editor"
+ * by Wilfred J. Hansen, Byte January 1987, page 183.
+ */
+class CellBuffer {
+public:
+	CellBuffer();
+	~CellBuffer();
+	/// Retrieving positions outside the range of the buffer works and returns 0
+	char   FASTCALL CharAt(int position) const;
+	void   GetCharRange(char *buffer, int position, int lengthRetrieve) const;
+	char   FASTCALL StyleAt(int position) const;
+	void   GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const;
+	const char * BufferPointer();
+	const char * RangePointer(int position, int rangeLength);
+	int    GapPosition() const;
+	int    Length() const;
+	void   FASTCALL Allocate(int newSize);
+	int    GetLineEndTypes() const { return utf8LineEnds; }
+	void   SetLineEndTypes(int utf8LineEnds_);
+	bool   ContainsLineEnd(const char *s, int length) const;
+	void   SetPerLine(PerLine *pl);
+	int    Lines() const;
+	int    LineStart(int line) const;
+	int    LineFromPosition(int pos) const { return lv.LineFromPosition(pos); }
+	void   InsertLine(int line, int position, bool lineStart);
+	void   RemoveLine(int line);
+	const char * InsertString(int position, const char *s, int insertLength, bool &startSequence);
+	/// Setting styles for positions outside the range of the buffer is safe and has no effect.
+	/// @return true if the style of a character is changed.
+	bool   SetStyleAt(int position, char styleValue);
+	bool   SetStyleFor(int position, int length, char styleValue);
+	const char *DeleteChars(int position, int deleteLength, bool &startSequence);
+	bool   IsReadOnly() const;
+	void   SetReadOnly(bool set);
+	/// The save point is a marker in the undo stack where the container has stated that
+	/// the buffer was saved. Undo and redo can move over the save point.
+	void   SetSavePoint();
+	bool   IsSavePoint() const;
+	void   TentativeStart();
+	void   TentativeCommit();
+	bool   TentativeActive() const;
+	int    TentativeSteps();
+	bool   SetUndoCollection(bool collectUndo);
+	bool   IsCollectingUndo() const;
+	void   BeginUndoAction();
+	void   EndUndoAction();
+	void   AddUndoAction(int token, bool mayCoalesce);
+	void   DeleteUndoHistory();
+	/// To perform an undo, StartUndo is called to retrieve the number of steps, then UndoStep is
+	/// called that many times. Similarly for redo.
+	bool   CanUndo() const;
+	int StartUndo();
+	const  UndoHistory::Action &GetUndoStep() const;
+	void   PerformUndoStep();
+	bool   CanRedo() const;
+	int    StartRedo();
+	const  UndoHistory::Action & GetRedoStep() const;
+	void   PerformRedoStep();
+private:
+	SplitVector <char> substance;
+	SplitVector <char> style;
+	bool   readOnly;
+	bool   collectingUndo;
+	uint8  Reserve[2]; // @alignment
+	int    utf8LineEnds;
+	UndoHistory uh;
+	LineVector lv;
+
+	bool UTF8LineEndOverlaps(int position) const;
+	void ResetLineEnds();
+	/// Actions without undo
+	void BasicInsertString(int position, const char *s, int insertLength);
+	void BasicDeleteChars(int position, int deleteLength);
+};
+//
+// PerLine.h
+//
+class LineMarkers : public PerLine {
+public:
+	LineMarkers();
+	virtual ~LineMarkers();
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
+	int    MarkValue(int line);
+	int    MarkerNext(int lineStart, int mask) const;
+	int    AddMark(int line, int marker, int lines);
+	void   MergeMarkers(int pos);
+	bool   DeleteMark(int line, int markerNum, bool all);
+	void   DeleteMarkFromHandle(int markerHandle);
+	int    FASTCALL LineFromHandle(int markerHandle);
+private:
+	// 
+	// Descr: A marker handle set contains any number of MarkerHandleNumbers.
+	//
+	class MarkerHandleSet {
+	public:
+		MarkerHandleSet();
+		~MarkerHandleSet();
+		int    Length() const;
+		int    MarkValue() const;	///< Bit set of marker numbers.
+		bool   FASTCALL Contains(int handle) const;
+		bool   InsertHandle(int handle, int markerNum);
+		void   RemoveHandle(int handle);
+		bool   RemoveNumber(int markerNum, bool all);
+		void   CombineWith(MarkerHandleSet *other);
+	private:
+		// 
+		// Descr: This holds the marker identifier and the marker type to display.
+		// MarkerHandleNumbers are members of lists.
+		// 
+		struct MarkerHandleNumber {
+			int    handle;
+			int    number;
+			MarkerHandleNumber * next;
+		};
+		MarkerHandleNumber * root;
+	};
+	SplitVector <MarkerHandleSet *> markers;
+	/// Handles are allocated sequentially and should never have to be reused as 32 bit ints are very big.
+	int handleCurrent;
+};
+
+class LineLevels : public PerLine {
+public:
+	virtual ~LineLevels();
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
+	void ExpandLevels(int sizeNew=-1);
+	void ClearLevels();
+	int SetLevel(int line, int level, int lines);
+	int GetLevel(int line) const;
+private:
+	SplitVector <int> levels;
+};
+
+class LineState : public PerLine {
+public:
+	LineState();
+	virtual ~LineState();
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+	int    SetLineState(int line, int state);
+	int    FASTCALL GetLineState(int line);
+	int    GetMaxLineState() const;
+private:
+	SplitVector <int> lineStates;
+};
+
+class LineAnnotation : public PerLine {
+public:
+	LineAnnotation(); 
+	virtual ~LineAnnotation();
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
+	bool MultipleStyles(int line) const;
+	int Style(int line) const;
+	const char *Text(int line) const;
+	const uchar *Styles(int line) const;
+	void SetText(int line, const char *text);
+	void ClearAll();
+	void SetStyle(int line, int style);
+	void SetStyles(int line, const uchar *styles);
+	int Length(int line) const;
+	int Lines(int line) const;
+private:
+	SplitVector <char *> annotations;
+};
+
+typedef std::vector <int> TabstopList;
+
+class LineTabstops : public PerLine {
+public:
+	LineTabstops(); 
+	virtual ~LineTabstops();
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
+
+	bool ClearTabstops(int line);
+	bool AddTabstop(int line, int x);
+	int GetNextTabstop(int line, int x) const;
+private:
+	SplitVector <TabstopList *> tabstops;
+};
+//
+// CallTip.h
+//
+class CallTip {
+public:
+	CallTip();
+	~CallTip();
+	void PaintCT(Surface *surfaceWindow);
+	void MouseClick(Point pt);
+	/// Setup the calltip and return a rectangle of the area required.
+	PRectangle CallTipStart(int pos, Point pt, int textHeight, const char *defn,
+		const char *faceName, int size, int codePage_, int characterSet, int technology, Window &wParent);
+	void CallTipCancel();
+	/// Set a range of characters to be displayed in a highlight style.
+	/// Commonly used to highlight the current parameter.
+	void SetHighlight(int start, int end);
+	/// Set the tab size in pixels for the call tip. 0 or -ve means no tab expand.
+	void SetTabSize(int tabSz);
+	/// Set calltip position.
+	void SetPosition(bool aboveText);
+	/// Used to determine which STYLE_xxxx to use for call tip information
+	bool UseStyleCallTip() const { return useStyleCallTip;}
+	// Modify foreground and background colours
+	void SetForeBack(const ColourDesired &fore, const ColourDesired &back);
+	bool IsInCollTipMode() const
+	{
+		return inCallTipMode;
+	}
+
+	Window wCallTip;
+	Window wDraw;
+	int posStartCallTip;
+	ColourDesired colourBG;
+	ColourDesired colourUnSel;
+	ColourDesired colourSel;
+	ColourDesired colourShade;
+	ColourDesired colourLight;
+	int codePage;
+	int clickPlace;
+	int insetX; // text inset in x from calltip border
+	int widthArrow;
+	int borderHeight;
+	int verticalOffset; // pixel offset up or down of the calltip with respect to the line
+private:
+	// Private so CallTip objects can not be copied
+	CallTip(const CallTip &);
+	CallTip & FASTCALL operator = (const CallTip &);
+	void   DrawChunk(Surface *surface, int &x, const char *s, int posStart, int posEnd, int ytext, PRectangle rcClient, bool highlight, bool draw);
+	int    PaintContents(Surface *surfaceWindow, bool draw);
+	bool   IsTabCharacter(char c) const;
+	int    NextTabPos(int x) const;
+
+	int startHighlight;    // character offset to start and...
+	int endHighlight;      // ...end of highlighted text
+	//std::string val;
+	SString Text;
+	Font font;
+	PRectangle rectUp;      // rectangle of last up angle in the tip
+	PRectangle rectDown;    // rectangle of last down arrow in the tip
+	int lineHeight;         // vertical line spacing
+	int offsetMain;         // The alignment point of the call tip
+	int tabSize;            // Tab size in pixels, <=0 no TAB expand
+	bool inCallTipMode;
+	bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
+	bool above;		// if true, display calltip above text
+};
 //
 // CaseConvert.h
 //
@@ -128,23 +916,18 @@ public:
 //
 //
 class KeyMap {
-	std::map <KeyModifiers, uint> kmap;
-	static const KeyToCommand MapDefault[];
 public:
 	KeyMap();
 	~KeyMap();
-	void Clear();
-	void AssignCmdKey(int key, int modifiers, uint msg);
-	uint Find(int key, int modifiers) const;	// 0 returned on failure
+	void   Clear();
+	void   AssignCmdKey(int key, int modifiers, uint msg);
+	uint   Find(int key, int modifiers) const;	// 0 returned on failure
+private:
+	std::map <KeyModifiers, uint> kmap;
+	static const KeyToCommand MapDefault[];
 };
 //
 // Document.h
-//
-class DocWatcher;
-class DocModification;
-class Document;
-//
-//
 //
 class RunStyles {
 public:
@@ -773,7 +1556,7 @@ private:
 class DocModification {
 public:
 	DocModification(int modificationType_, int position_ = 0, int length_ = 0, int linesAdded_ = 0, const char * text_ = 0, int line_ = 0);
-	DocModification(int modificationType_, const Action &act, int linesAdded_ = 0);
+	DocModification(int modificationType_, const UndoHistory::Action & act, int linesAdded_ = 0);
 
 	int modificationType;
 	int position;
@@ -1275,34 +2058,34 @@ private:
 // PositionCache.h
 //
 class LineLayoutCache {
-private:
-	int level;
-	std::vector <LineLayout *>cache;
-	bool allInvalidated;
-	int styleClock;
-	int useCount;
-	void FASTCALL Allocate(size_t length_);
-	void AllocateForLevel(int linesOnScreen, int linesInDoc);
 public:
 	LineLayoutCache();
 	virtual ~LineLayoutCache();
-	void Deallocate();
+	void   Deallocate();
 	enum {
 		llcNone = SC_CACHE_NONE,
 		llcCaret = SC_CACHE_CARET,
 		llcPage = SC_CACHE_PAGE,
 		llcDocument = SC_CACHE_DOCUMENT
 	};
-
-	void Invalidate(LineLayout::validLevel validity_);
-	void SetLevel(int level_);
-	int GetLevel() const
+	void   Invalidate(LineLayout::validLevel validity_);
+	void   SetLevel(int level_);
+	int    GetLevel() const
 	{
 		return level;
 	}
-
 	LineLayout * Retrieve(int lineNumber, int lineCaret, int maxChars, int styleClock_, int linesOnScreen, int linesInDoc);
-	void FASTCALL Dispose(LineLayout * ll);
+	void   FASTCALL Dispose(LineLayout * ll);
+private:
+	void   FASTCALL Allocate(size_t length_);
+	void   AllocateForLevel(int linesOnScreen, int linesInDoc);
+
+	int    level;
+	std::vector <LineLayout *> cache;
+	int    styleClock;
+	int    useCount;
+	bool   allInvalidated;
+	uint8  Reserve[3]; // @alignment
 };
 
 class PositionCacheEntry {
@@ -1330,7 +2113,7 @@ public:
 	}
 };
 
-typedef std::map<int, Representation> MapRepresentation;
+typedef std::map <int, Representation> MapRepresentation;
 
 class SpecialRepresentations {
 	MapRepresentation mapReprs;
@@ -1390,7 +2173,7 @@ private:
 
 class PositionCache {
 private:
-	std::vector<PositionCacheEntry> pces;
+	std::vector <PositionCacheEntry> pces;
 	uint clock;
 	bool allClear;
 	// Private so PositionCache objects can not be copied
@@ -1462,10 +2245,6 @@ public:
 	void Check() const;
 };
 //
-//
-//
-
-//
 // XPM.H
 // 
 // Hold a pixmap in XPM format.
@@ -1483,7 +2262,7 @@ public:
 	int GetWidth() const { return width; }
 	void PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const;
 private:
-	std::vector<uchar> pixels; // @firstmember
+	std::vector <uchar> pixels; // @firstmember
 	int    height;
 	int    width;
 	int    nColours;
@@ -1545,25 +2324,29 @@ public:
 //
 //
 //
-class Caret {
-public:
-	//bool   active;
-	//bool   on;
-	enum {
-		fActive = 0x0001,
-		fOn     = 0x0002
-	};
-	int    Flags;
-	int    period;
-
-	Caret();
-};
-
 class EditModel {
-	// Private so EditModel objects can not be copied
-	explicit EditModel(const EditModel &);
-	EditModel & FASTCALL operator = (const EditModel &);
 public:
+	EditModel();
+	virtual ~EditModel();
+	virtual int TopLineOfMain() const = 0;
+	virtual Point GetVisibleOriginInMain() const = 0;
+	virtual int LinesOnScreen() const = 0;
+	virtual Range GetHotSpotRange() const = 0;
+	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const;
+
+	class Caret {
+	public:
+		Caret();
+
+		//bool   active;
+		//bool   on;
+		enum {
+			fActive = 0x0001,
+			fOn     = 0x0002
+		};
+		int    Flags;
+		int    period;
+	};
 	uint   EditModelFlags; // @firstmember
 	int    xOffset; ///< Horizontal scrolled amount in pixels
 	SpecialRepresentations reprs;
@@ -1594,14 +2377,10 @@ public:
 		fTrackLineWidth   = 0x0002,
 		fPrimarySelection = 0x0004
 	};
-
-	EditModel();
-	virtual ~EditModel();
-	virtual int TopLineOfMain() const = 0;
-	virtual Point GetVisibleOriginInMain() const = 0;
-	virtual int LinesOnScreen() const = 0;
-	virtual Range GetHotSpotRange() const = 0;
-	ColourDesired SelectionBackground(const ViewStyle & vsDraw, bool main) const;
+private:
+	// Private so EditModel objects can not be copied
+	explicit EditModel(const EditModel &);
+	EditModel & FASTCALL operator = (const EditModel &);
 };
 //
 //
@@ -1609,40 +2388,6 @@ public:
 void DrawWrapMarker(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
 
 typedef void (*DrawWrapMarkerFn)(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
-//
-// MarginView draws the margins.
-//
-class MarginView {
-public:
-	Surface *pixmapSelMargin;
-	Surface *pixmapSelPattern;
-	Surface *pixmapSelPatternOffset1;
-	// Highlight current folding block
-	HighlightDelimiter highlightDelimiter;
-
-	int wrapMarkerPaddingRight; // right-most pixel padding of wrap markers
-	/** Some platforms, notably PLAT_CURSES, do not support Scintilla's native
-	 * DrawWrapMarker function for drawing wrap markers. Allow those platforms to
-	 * override it instead of creating a new method in the Surface class that
-	 * existing platforms must implement as empty. */
-	DrawWrapMarkerFn customDrawWrapMarker;
-
-	MarginView();
-
-	void DropGraphics(bool freeObjects);
-	void AllocateGraphics(const ViewStyle &vsDraw);
-	void RefreshPixMaps(Surface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
-	void PaintMargin(Surface *surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs);
-};
-//
-//
-//
-struct PrintParameters {
-	int magnification;
-	int colourMode;
-	WrapMode wrapState;
-	PrintParameters();
-};
 /**
 * The view may be drawn in separate phases.
 */
@@ -1659,25 +2404,33 @@ enum DrawPhase {
 	drawAll = 0x1FF
 };
 
-bool ValidStyledText(const ViewStyle &vs, size_t styleOffset, const StyledText &st);
-int WidestLineWidth(Surface *surface, const ViewStyle &vs, int styleOffset, const StyledText &st);
-void DrawTextNoClipPhase(Surface *surface, PRectangle rc, const Style &style, XYPOSITION ybase, const char *s, int len, DrawPhase phase);
-void DrawStyledText(Surface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const StyledText &st, size_t start, size_t length, DrawPhase phase);
+bool   ValidStyledText(const ViewStyle &vs, size_t styleOffset, const StyledText &st);
+int    WidestLineWidth(Surface *surface, const ViewStyle &vs, int styleOffset, const StyledText &st);
+void   DrawTextNoClipPhase(Surface *surface, PRectangle rc, const Style &style, XYPOSITION ybase, const char *s, int len, DrawPhase phase);
+void   DrawStyledText(Surface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const StyledText &st, size_t start, size_t length, DrawPhase phase);
 
 typedef void (*DrawTabArrowFn)(Surface *surface, PRectangle rcTab, int ymid);
-/**
-* EditView draws the main text area.
-*/
+// 
+// Descr: EditView draws the main text area.
+// 
 class EditView {
 public:
+	struct PrintParameters {
+		PrintParameters();
+		int    magnification;
+		int    colourMode;
+		WrapMode wrapState;
+	};
 	PrintParameters printParameters;
-	PerLine *ldTabstops;
+	PerLine * ldTabstops;
 	int tabWidthMinimumPixels;
-	/** In phasesTwo mode, drawing is performed in two phases, first the background
-	* and then the foreground. This avoids chopping off characters that overlap the next run.
-	* In multiPhaseDraw mode, drawing is performed in multiple phases with each phase drawing
-	* one feature over the whole drawing area, instead of within one line. This allows text to
-	* overlap from one line to the next. */
+	// 
+	// Descr: In phasesTwo mode, drawing is performed in two phases, first the background
+	//   and then the foreground. This avoids chopping off characters that overlap the next run.
+	//   In multiPhaseDraw mode, drawing is performed in multiple phases with each phase drawing
+	//   one feature over the whole drawing area, instead of within one line. This allows text to
+	//   overlap from one line to the next. 
+	// 
 	enum PhasesDraw { 
 		phasesOne, 
 		phasesTwo, 
@@ -1768,9 +2521,9 @@ public:
 	void FillLineRemainder(Surface *surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout *ll, int line, PRectangle rcArea, int subLine) const;
 	long FormatRange(bool draw, Sci_RangeToFormat *pfr, Surface *surface, Surface *surfaceMeasure, const EditModel &model, const ViewStyle &vs);
 };
-/**
-* Convenience class to ensure LineLayout objects are always disposed.
-*/
+// 
+// Descr: Convenience class to ensure LineLayout objects are always disposed.
+// 
 class AutoLineLayout {
 public:
 	AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) {}
@@ -1779,7 +2532,7 @@ public:
 		llc.Dispose(ll);
 		ll = 0;
 	}
-	LineLayout *operator->() const 
+	LineLayout * operator->() const 
 	{
 		return ll;
 	}
@@ -1793,8 +2546,8 @@ public:
 		ll = ll_;
 	}
 private:
-	LineLayoutCache &llc;
-	LineLayout *ll;
+	LineLayoutCache & llc;
+	LineLayout * ll;
 	AutoLineLayout & operator = (const AutoLineLayout &);
 };
 //
@@ -2005,6 +2758,31 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		IdlerID idlerID;
 		bool   state;
 	};
+	//
+	// Descr: MarginView draws the margins.
+	//
+	class MarginView {
+	public:
+		Surface * pixmapSelMargin;
+		Surface * pixmapSelPattern;
+		Surface * pixmapSelPatternOffset1;
+		HighlightDelimiter highlightDelimiter; // Highlight current folding block
+		int    wrapMarkerPaddingRight; // right-most pixel padding of wrap markers
+		// 
+		// Descr: Some platforms, notably PLAT_CURSES, do not support Scintilla's native
+		//   DrawWrapMarker function for drawing wrap markers. Allow those platforms to
+		//   override it instead of creating a new method in the Surface class that
+		//   existing platforms must implement as empty. 
+		// 
+		DrawWrapMarkerFn customDrawWrapMarker;
+
+		MarginView();
+
+		void DropGraphics(bool freeObjects);
+		void AllocateGraphics(const ViewStyle &vsDraw);
+		void RefreshPixMaps(Surface *surfaceWindow, WindowID wid, const ViewStyle &vsDraw);
+		void PaintMargin(Surface *surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs);
+	};
 	// On GTK+, Scintilla is a container widget holding two scroll bars
 	// whereas on Windows there is just one window with both scroll bars turned on.
 	Window wMain;   ///< The Scintilla parent window
@@ -2125,29 +2903,102 @@ protected: // ScintillaBase subclass needs access to much of Editor
 			// so are cached between uses. When a style attribute is changed, this cache is flushed. 
 	};
 	uint32 Flags;
+	enum TickReason { 
+		tickCaret, 
+		tickScroll, 
+		tickWiden, 
+		tickDwell, 
+		tickPlatform 
+	};
+
+	static int     ModifierFlags(bool shift, bool ctrl, bool alt, bool meta = false, bool super = false);
+	static const   char * StringFromEOLMode(int eolMode);
+	static sptr_t  StringResult(sptr_t lParam, const char * val);
+	static sptr_t  BytesResult(sptr_t lParam, const uchar * val, size_t len);
 
 	Editor();
 	virtual ~Editor();
 	virtual void Initialise() = 0;
 	virtual void Finalise();
-
-	void InvalidateStyleData();
-	void InvalidateStyleRedraw();
-	void RefreshStyleData();
-	void SetRepresentations();
-	void DropGraphics(bool freeObjects);
-	void AllocateGraphics();
-
+	//
 	// The top left visible point in main window coordinates. Will be 0,0 except for
 	// scroll views where it will be equivalent to the current scroll position.
+	//
 	virtual Point GetVisibleOriginInMain() const;
-	PointDocument FASTCALL DocumentPointFromView(const Point & rPtView) const;  // Convert a point from view space to document
-	int TopLineOfMain() const;   // Return the line at Main's y coordinate 0
 	virtual PRectangle GetClientRectangle() const;
 	virtual PRectangle GetClientDrawingRectangle();
-	PRectangle GetTextRectangle() const;
-
 	virtual int LinesOnScreen() const;
+	virtual bool AbandonPaint();
+	virtual void RedrawRect(PRectangle rc);
+	virtual void DiscardOverdraw();
+	virtual void Redraw();
+	virtual void ScrollText(int linesToMove);
+	virtual void NotifyCaretMove();
+	virtual void UpdateSystemCaret();
+	virtual void SetVerticalScrollPos() = 0;
+	virtual void SetHorizontalScrollPos() = 0;
+	virtual bool ModifyScrollBars(int nMax, int nPage) = 0;
+	virtual void ReconfigureScrollBars();
+	virtual void AddCharUTF(const char * s, uint len, bool treatAsDBCS = false);
+	virtual void Copy() = 0;
+	virtual void CopyAllowLine();
+	virtual bool CanPaste();
+	virtual void Paste() = 0;
+	virtual void ClaimSelection() = 0;
+	virtual void NotifyChange() = 0;
+	virtual void NotifyFocus(bool focus);
+	virtual void SetCtrlID(int identifier);
+	virtual int GetCtrlID()
+	{
+		return ctrlID;
+	}
+	virtual void NotifyParent(SCNotification scn) = 0;
+	virtual void NotifyStyleToNeeded(int endStyleNeeded);
+	virtual void NotifyDoubleClick(Point pt, int modifiers);
+	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
+	virtual std::string CaseMapString(const std::string &s, int caseMapping);
+	virtual void CancelModes();
+	virtual int KeyCommand(uint iMessage);
+	virtual int KeyDefault(int /* key */, int /*modifiers*/);
+	virtual CaseFolder * CaseFolderForEncoding();
+	virtual void CopyToClipboard(const SelectionText &selectedText) = 0;
+	virtual void DisplayCursor(Window::Cursor c);
+	virtual bool DragThreshold(Point ptStart, Point ptNow);
+	virtual void StartDrag();
+	virtual void ButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
+	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
+	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
+	virtual void SetTicking(bool on);
+	virtual void TickFor(TickReason reason);
+	virtual bool FineTickerAvailable();
+	virtual bool FineTickerRunning(TickReason reason);
+	virtual void FineTickerStart(TickReason reason, int millis, int tolerance);
+	virtual void FineTickerCancel(TickReason reason);
+	virtual bool SetIdle(bool)
+	{
+		return false;
+	}
+	virtual void SetMouseCapture(bool on) = 0;
+	virtual bool HaveMouseCapture() = 0;
+	virtual void IdleWork();
+	virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo = 0);
+	virtual bool PaintContains(PRectangle rc);
+	virtual void SetDocPointer(Document * document);
+	virtual bool ValidCodePage(int /* codePage */) const
+	{
+		return true;
+	}
+	virtual sptr_t DefWndProc(uint iMessage, uptr_t wParam, sptr_t lParam) = 0;
+
+	void   InvalidateStyleData();
+	void   InvalidateStyleRedraw();
+	void   RefreshStyleData();
+	void   SetRepresentations();
+	void   DropGraphics(bool freeObjects);
+	void   AllocateGraphics();
+	PointDocument FASTCALL DocumentPointFromView(const Point & rPtView) const;  // Convert a point from view space to document
+	int    TopLineOfMain() const;   // Return the line at Main's y coordinate 0
+	PRectangle GetTextRectangle() const;
 	int    LinesToScroll() const;
 	int    MaxScrollPos() const;
 	SelectionPosition ClampPositionIntoDocument(SelectionPosition sp) const;
@@ -2161,11 +3012,6 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	int    PositionFromLineX(int line, int x);
 	int    LineFromLocation(Point pt) const;
 	void   SetTopLine(int topLineNew);
-
-	virtual bool AbandonPaint();
-	virtual void RedrawRect(PRectangle rc);
-	virtual void DiscardOverdraw();
-	virtual void Redraw();
 	void   RedrawSelMargin(int line = -1, bool allAfter = false);
 	PRectangle RectangleFromRange(Range r, int overlap);
 	void   InvalidateRange(int start, int end);
@@ -2193,28 +3039,26 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		addEach 
 	};
 
-	void MultipleSelectAdd(AddNumber addNumber);
+	void   MultipleSelectAdd(AddNumber addNumber);
 	bool RangeContainsProtected(int start, int end) const;
 	bool SelectionContainsProtected();
 	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd = true) const;
 	SelectionPosition MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd = true) const;
-	void MovedCaret(SelectionPosition newPos, SelectionPosition previousPos, bool ensureVisible);
-	void MovePositionTo(SelectionPosition newPos, Selection::selTypes selt = Selection::noSel, bool ensureVisible = true);
-	void MovePositionTo(int newPos, Selection::selTypes selt = Selection::noSel, bool ensureVisible = true);
+	void   MovedCaret(SelectionPosition newPos, SelectionPosition previousPos, bool ensureVisible);
+	void   MovePositionTo(SelectionPosition newPos, Selection::selTypes selt = Selection::noSel, bool ensureVisible = true);
+	void   MovePositionTo(int newPos, Selection::selTypes selt = Selection::noSel, bool ensureVisible = true);
 	SelectionPosition MovePositionSoVisible(SelectionPosition pos, int moveDir);
 	SelectionPosition MovePositionSoVisible(int pos, int moveDir);
 	Point PointMainCaret();
-	void SetLastXChosen();
-
-	void ScrollTo(int line, bool moveThumb = true);
-	virtual void ScrollText(int linesToMove);
-	void HorizontalScrollTo(int xPos);
-	void VerticalCentreCaret();
-	void MoveSelectedLines(int lineDelta);
-	void MoveSelectedLinesUp();
-	void MoveSelectedLinesDown();
-	void MoveCaretInsideView(bool ensureVisible = true);
-	int DisplayFromPosition(int pos);
+	void   SetLastXChosen();
+	void   ScrollTo(int line, bool moveThumb = true);
+	void   HorizontalScrollTo(int xPos);
+	void   VerticalCentreCaret();
+	void   MoveSelectedLines(int lineDelta);
+	void   MoveSelectedLinesUp();
+	void   MoveSelectedLinesDown();
+	void   MoveCaretInsideView(bool ensureVisible = true);
+	int    DisplayFromPosition(int pos);
 
 	struct XYScrollPosition {
 		int xOffset;
@@ -2236,45 +3080,37 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	};
 
 	XYScrollPosition XYScrollToMakeVisible(const SelectionRange &range, const XYScrollOptions options);
-	void SetXYScroll(XYScrollPosition newXY);
-	void EnsureCaretVisible(bool useMargin = true, bool vert = true, bool horiz = true);
-	void ScrollRange(SelectionRange range);
-	void ShowCaretAtCurrentPosition();
-	void DropCaret();
-	void CaretSetPeriod(int period);
-	void InvalidateCaret();
-	virtual void NotifyCaretMove();
-	virtual void UpdateSystemCaret();
-
-	bool Wrapping() const;
-	void NeedWrapping(int docLineStart = 0, int docLineEnd = WrapPending::lineLarge);
-	bool WrapOneLine(Surface * surface, int lineToWrap);
-	enum wrapScope {wsAll, wsVisible, wsIdle};
-
+	void   SetXYScroll(XYScrollPosition newXY);
+	void   EnsureCaretVisible(bool useMargin = true, bool vert = true, bool horiz = true);
+	void   ScrollRange(SelectionRange range);
+	void   ShowCaretAtCurrentPosition();
+	void   DropCaret();
+	void   CaretSetPeriod(int period);
+	void   InvalidateCaret();
+	bool   Wrapping() const;
+	void   NeedWrapping(int docLineStart = 0, int docLineEnd = WrapPending::lineLarge);
+	bool   WrapOneLine(Surface * surface, int lineToWrap);
+	enum wrapScope {
+		wsAll, 
+		wsVisible, 
+		wsIdle
+	};
 	bool WrapLines(enum wrapScope ws);
-	void LinesJoin();
-	void LinesSplit(int pixelWidth);
-
-	void PaintSelMargin(Surface * surface, PRectangle &rc);
-	void RefreshPixMaps(Surface * surfaceWindow);
-	void Paint(Surface * surfaceWindow, PRectangle rcArea);
-	long FormatRange(bool draw, Sci_RangeToFormat * pfr);
-	int TextWidth(int style, const char * text);
-
-	virtual void SetVerticalScrollPos() = 0;
-	virtual void SetHorizontalScrollPos() = 0;
-	virtual bool ModifyScrollBars(int nMax, int nPage) = 0;
-	virtual void ReconfigureScrollBars();
-	void SetScrollBars();
-	void ChangeSize();
-
-	void FilterSelections();
-	int RealizeVirtualSpace(int position, uint virtualSpace);
+	void   LinesJoin();
+	void   LinesSplit(int pixelWidth);
+	void   PaintSelMargin(Surface * surface, PRectangle &rc);
+	void   RefreshPixMaps(Surface * surfaceWindow);
+	void   Paint(Surface * surfaceWindow, PRectangle rcArea);
+	long   FormatRange(bool draw, Sci_RangeToFormat * pfr);
+	int    TextWidth(int style, const char * text);
+	void   SetScrollBars();
+	void   ChangeSize();
+	void   FilterSelections();
+	int    RealizeVirtualSpace(int position, uint virtualSpace);
 	SelectionPosition RealizeVirtualSpace(const SelectionPosition &position);
-	void AddChar(char ch);
-	virtual void AddCharUTF(const char * s, uint len, bool treatAsDBCS = false);
-	void ClearBeforeTentativeStart();
-	void InsertPaste(const char * text, int len);
+	void   AddChar(char ch);
+	void   ClearBeforeTentativeStart();
+	void   InsertPaste(const char * text, int len);
 	
 	enum PasteShape { 
 		pasteStream = 0, 
@@ -2282,112 +3118,79 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		pasteLine = 2 
 	};
 
-	void InsertPasteShape(const char * text, int len, PasteShape shape);
-	void FASTCALL ClearSelection(bool retainMultipleSelections = false);
-	void ClearAll();
-	void ClearDocumentStyle();
-	void Cut();
-	void PasteRectangular(SelectionPosition pos, const char * ptr, int len);
-	virtual void Copy() = 0;
-	virtual void CopyAllowLine();
-	virtual bool CanPaste();
-	virtual void Paste() = 0;
-	void Clear();
-	void SelectAll();
-	void Undo();
-	void Redo();
-	void DelCharBack(bool allowLineStartDeletion);
-	virtual void ClaimSelection() = 0;
-
-	static int ModifierFlags(bool shift, bool ctrl, bool alt, bool meta = false, bool super = false);
-	virtual void NotifyChange() = 0;
-	virtual void NotifyFocus(bool focus);
-	virtual void SetCtrlID(int identifier);
-	virtual int GetCtrlID()
-	{
-		return ctrlID;
-	}
-
-	virtual void NotifyParent(SCNotification scn) = 0;
-	virtual void NotifyStyleToNeeded(int endStyleNeeded);
-	void NotifyChar(int ch);
-	void NotifySavePoint(bool isSavePoint);
-	void NotifyModifyAttempt();
-	virtual void NotifyDoubleClick(Point pt, int modifiers);
-	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
-	void NotifyHotSpotClicked(int position, int modifiers);
-	void NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt);
-	void NotifyHotSpotDoubleClicked(int position, int modifiers);
-	void NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, bool alt);
-	void NotifyHotSpotReleaseClick(int position, int modifiers);
-	void NotifyHotSpotReleaseClick(int position, bool shift, bool ctrl, bool alt);
-	bool NotifyUpdateUI();
-	void NotifyPainted();
-	void NotifyIndicatorClick(bool click, int position, int modifiers);
-	void NotifyIndicatorClick(bool click, int position, bool shift, bool ctrl, bool alt);
-	bool NotifyMarginClick(Point pt, int modifiers);
-	bool NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt);
-	bool NotifyMarginRightClick(Point pt, int modifiers);
-	void NotifyNeedShown(int pos, int len);
-	void NotifyDwelling(Point pt, bool state);
-	void NotifyZoom();
-
-	void NotifyModifyAttempt(Document * document, void * userData);
-	void NotifySavePoint(Document * document, void * userData, bool atSavePoint);
-	void CheckModificationForWrap(DocModification mh);
-	void NotifyModified(Document * document, DocModification mh, void * userData);
-	void NotifyDeleted(Document * document, void * userData);
-	void NotifyStyleNeeded(Document * doc, void * userData, int endPos);
-	void NotifyLexerChanged(Document * doc, void * userData);
-	void NotifyErrorOccurred(Document * doc, void * userData, int status);
-	void NotifyMacroRecord(uint iMessage, uptr_t wParam, sptr_t lParam);
-
-	void FASTCALL ContainerNeedsUpdate(int flags);
-	void PageMove(int direction, Selection::selTypes selt = Selection::noSel, bool stuttered = false);
+	void   InsertPasteShape(const char * text, int len, PasteShape shape);
+	void   FASTCALL ClearSelection(bool retainMultipleSelections = false);
+	void   ClearAll();
+	void   ClearDocumentStyle();
+	void   Cut();
+	void   PasteRectangular(SelectionPosition pos, const char * ptr, int len);
+	void   Clear();
+	void   SelectAll();
+	void   Undo();
+	void   Redo();
+	void   DelCharBack(bool allowLineStartDeletion);
+	void   NotifyChar(int ch);
+	void   NotifySavePoint(bool isSavePoint);
+	void   NotifyModifyAttempt();
+	void   NotifyHotSpotClicked(int position, int modifiers);
+	void   NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt);
+	void   NotifyHotSpotDoubleClicked(int position, int modifiers);
+	void   NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, bool alt);
+	void   NotifyHotSpotReleaseClick(int position, int modifiers);
+	void   NotifyHotSpotReleaseClick(int position, bool shift, bool ctrl, bool alt);
+	bool   NotifyUpdateUI();
+	void   NotifyPainted();
+	void   NotifyIndicatorClick(bool click, int position, int modifiers);
+	void   NotifyIndicatorClick(bool click, int position, bool shift, bool ctrl, bool alt);
+	bool   NotifyMarginClick(Point pt, int modifiers);
+	bool   NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt);
+	bool   NotifyMarginRightClick(Point pt, int modifiers);
+	void   NotifyNeedShown(int pos, int len);
+	void   NotifyDwelling(Point pt, bool state);
+	void   NotifyZoom();
+	void   NotifyModifyAttempt(Document * document, void * userData);
+	void   NotifySavePoint(Document * document, void * userData, bool atSavePoint);
+	void   CheckModificationForWrap(DocModification mh);
+	void   NotifyModified(Document * document, DocModification mh, void * userData);
+	void   NotifyDeleted(Document * document, void * userData);
+	void   NotifyStyleNeeded(Document * doc, void * userData, int endPos);
+	void   NotifyLexerChanged(Document * doc, void * userData);
+	void   NotifyErrorOccurred(Document * doc, void * userData, int status);
+	void   NotifyMacroRecord(uint iMessage, uptr_t wParam, sptr_t lParam);
+	void   FASTCALL ContainerNeedsUpdate(int flags);
+	void   PageMove(int direction, Selection::selTypes selt = Selection::noSel, bool stuttered = false);
 	enum { 
 		cmSame, 
 		cmUpper, 
 		cmLower 
 	};
-	virtual std::string CaseMapString(const std::string &s, int caseMapping);
-	void ChangeCaseOfSelection(int caseMapping);
-	void LineTranspose();
-	void Duplicate(bool forLine);
-	virtual void CancelModes();
-	void NewLine();
+	void   ChangeCaseOfSelection(int caseMapping);
+	void   LineTranspose();
+	void   Duplicate(bool forLine);
+	void   NewLine();
 	SelectionPosition PositionUpOrDown(SelectionPosition spStart, int direction, int lastX);
-	void CursorUpOrDown(int direction, Selection::selTypes selt);
-	void ParaUpOrDown(int direction, Selection::selTypes selt);
-	Range RangeDisplayLine(int lineVisible);
-	int StartEndDisplayLine(int pos, bool start);
-	int VCHomeDisplayPosition(int position);
-	int VCHomeWrapPosition(int position);
-	int LineEndWrapPosition(int position);
-	int HorizontalMove(uint iMessage);
-	int DelWordOrLine(uint iMessage);
-	virtual int KeyCommand(uint iMessage);
-	virtual int KeyDefault(int /* key */, int /*modifiers*/);
-	int KeyDownWithModifiers(int key, int modifiers, bool * consumed);
-	int KeyDown(int key, bool shift, bool ctrl, bool alt, bool * consumed = 0);
-
-	void Indent(bool forwards);
-
-	virtual CaseFolder * CaseFolderForEncoding();
-	long FindText(uptr_t wParam, sptr_t lParam);
-	void SearchAnchor();
+	void   CursorUpOrDown(int direction, Selection::selTypes selt);
+	void   ParaUpOrDown(int direction, Selection::selTypes selt);
+	Range  RangeDisplayLine(int lineVisible);
+	int    StartEndDisplayLine(int pos, bool start);
+	int    VCHomeDisplayPosition(int position);
+	int    VCHomeWrapPosition(int position);
+	int    LineEndWrapPosition(int position);
+	int    HorizontalMove(uint iMessage);
+	int    DelWordOrLine(uint iMessage);
+	int    KeyDownWithModifiers(int key, int modifiers, bool * consumed);
+	int    KeyDown(int key, bool shift, bool ctrl, bool alt, bool * consumed = 0);
+	void   Indent(bool forwards);
+	long   FindText(uptr_t wParam, sptr_t lParam);
+	void   SearchAnchor();
 	long SearchText(uint iMessage, uptr_t wParam, sptr_t lParam);
 	long SearchInTarget(const char * text, int length);
 	void GoToLine(int lineNo);
-
-	virtual void CopyToClipboard(const SelectionText &selectedText) = 0;
 	std::string RangeText(int start, int end) const;
 	void CopySelectionRange(SelectionText * ss, bool allowLineCopy = false);
 	void CopyRangeToClipboard(int start, int end);
 	void CopyText(int length, const char * text);
 	void SetDragPosition(SelectionPosition newPos);
-	virtual void DisplayCursor(Window::Cursor c);
-	virtual bool DragThreshold(Point ptStart, Point ptNow);
-	virtual void StartDrag();
 	void DropAt(SelectionPosition position, const char * value, size_t lengthValue, bool moving, bool rectangular);
 	void DropAt(SelectionPosition position, const char * value, bool moving, bool rectangular);
 	/** PositionInSelection returns true if position in selection. */
@@ -2400,51 +3203,23 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void WordSelection(int pos);
 	void DwellEnd(bool mouseMoved);
 	void MouseLeave();
-	virtual void ButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
-	virtual void RightButtonDownWithModifiers(Point pt, uint curTime, int modifiers);
-	virtual void ButtonDown(Point pt, uint curTime, bool shift, bool ctrl, bool alt);
 	void ButtonMoveWithModifiers(Point pt, int modifiers);
 	void ButtonMove(Point pt);
 	void ButtonUp(Point pt, uint curTime, bool ctrl);
-
 	void Tick();
 	bool Idle();
-	virtual void SetTicking(bool on);
-	enum TickReason { tickCaret, tickScroll, tickWiden, tickDwell, tickPlatform };
-
-	virtual void TickFor(TickReason reason);
-	virtual bool FineTickerAvailable();
-	virtual bool FineTickerRunning(TickReason reason);
-	virtual void FineTickerStart(TickReason reason, int millis, int tolerance);
-	virtual void FineTickerCancel(TickReason reason);
-	virtual bool SetIdle(bool)
-	{
-		return false;
-	}
-
-	virtual void SetMouseCapture(bool on) = 0;
-	virtual bool HaveMouseCapture() = 0;
 	void SetFocusState(bool focusState);
-
 	int PositionAfterArea(PRectangle rcArea) const;
 	void StyleToPositionInView(Position pos);
 	int PositionAfterMaxStyling(int posMax, bool scrolling) const;
 	void StartIdleStyling(bool truncatedLastStyling);
 	void StyleAreaBounded(PRectangle rcArea, bool scrolling);
 	void IdleStyling();
-	virtual void IdleWork();
-	virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo = 0);
-
-	virtual bool PaintContains(PRectangle rc);
 	bool PaintContainsMargin();
 	void CheckForChangeOutsidePaint(Range r);
 	void SetBraceHighlight(Position pos0, Position pos1, int matchStyle);
-
 	void SetAnnotationHeights(int start, int end);
-	virtual void SetDocPointer(Document * document);
-
 	void SetAnnotationVisible(int visible);
-
 	int ExpandLine(int line);
 	void SetFoldExpanded(int lineDoc, bool expanded);
 	void FoldLine(int line, int action);
@@ -2454,37 +3229,21 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void FoldChanged(int line, int levelNow, int levelPrev);
 	void NeedShown(int pos, int len);
 	void FoldAll(int action);
-
 	int GetTag(char * tagValue, int tagNumber);
 	int ReplaceTarget(bool replacePatterns, const char * text, int length = -1);
-
 	bool PositionIsHotspot(int position) const;
 	bool PointIsHotspot(Point pt);
 	void SetHotSpotRange(Point * pt);
 	Range GetHotSpotRange() const;
 	void SetHoverIndicatorPosition(int position);
 	void SetHoverIndicatorPoint(Point pt);
-
 	int CodePage() const;
-	virtual bool ValidCodePage(int /* codePage */) const
-	{
-		return true;
-	}
-
 	int WrapCount(int line);
 	void AddStyledText(char * buffer, int appendLength);
-
-	virtual sptr_t DefWndProc(uint iMessage, uptr_t wParam, sptr_t lParam) = 0;
 	bool ValidMargin(uptr_t wParam) const;
 	void StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
 	sptr_t StyleGetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
 	void SetSelectionNMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
-
-	static const char * StringFromEOLMode(int eolMode);
-
-	static sptr_t StringResult(sptr_t lParam, const char * val);
-	static sptr_t BytesResult(sptr_t lParam, const uchar * val, size_t len);
-
 public:
 	// Public so the COM thunks can access it.
 	bool   IsUnicodeMode() const;
@@ -2514,12 +3273,6 @@ public:
 		return surf;
 	}
 };
-//
-//
-//
-#ifdef SCI_LEXER
-	class LexState;
-#endif
 //
 //
 //
@@ -2901,8 +3654,276 @@ class LMMinder {
 public:
 	~LMMinder();
 };
+//
+//#include "OptionSet.h"
+//
+template <typename T> class OptionSet {
+	typedef T Target;
+	typedef bool T::* plcob;
+	typedef int T::* plcoi;
+	typedef std::string T::* plcos;
+	struct Option {
+		int opType;
+		union {
+			plcob pb;
+			plcoi pi;
+			plcos ps;
+		};
+
+		std::string description;
+		Option() : opType(SC_TYPE_BOOLEAN), pb(0), description("")
+		{
+		}
+		Option(plcob pb_, std::string description_ = "") : opType(SC_TYPE_BOOLEAN), pb(pb_), description(description_)
+		{
+		}
+		Option(plcoi pi_, std::string description_) : opType(SC_TYPE_INTEGER), pi(pi_), description(description_)
+		{
+		}
+		Option(plcos ps_, std::string description_) : opType(SC_TYPE_STRING), ps(ps_), description(description_)
+		{
+		}
+		bool Set(T * base, const char * val) const
+		{
+			switch(opType) {
+				case SC_TYPE_BOOLEAN: {
+				    bool option = atoi(val) != 0;
+				    if((*base).*pb != option) {
+					    (*base).*pb = option;
+					    return true;
+				    }
+				    break;
+			    }
+				case SC_TYPE_INTEGER: {
+				    int option = atoi(val);
+				    if((*base).*pi != option) {
+					    (*base).*pi = option;
+					    return true;
+				    }
+				    break;
+			    }
+				case SC_TYPE_STRING: {
+				    if((*base).*ps != val) {
+					    (*base).*ps = val;
+					    return true;
+				    }
+				    break;
+			    }
+			}
+			return false;
+		}
+	};
+
+	typedef std::map<std::string, Option> OptionMap;
+	OptionMap nameToDef;
+	std::string names;
+	std::string wordLists;
+
+	void AppendName(const char * name)
+	{
+		if(!names.empty())
+			names += "\n";
+		names += name;
+	}
+public:
+	virtual ~OptionSet()
+	{
+	}
+	void DefineProperty(const char * name, plcob pb, std::string description = "")
+	{
+		nameToDef[name] = Option(pb, description);
+		AppendName(name);
+	}
+	void DefineProperty(const char * name, plcoi pi, std::string description = "")
+	{
+		nameToDef[name] = Option(pi, description);
+		AppendName(name);
+	}
+	void DefineProperty(const char * name, plcos ps, std::string description = "")
+	{
+		nameToDef[name] = Option(ps, description);
+		AppendName(name);
+	}
+	const char * PropertyNames() const
+	{
+		return names.c_str();
+	}
+	int PropertyType(const char * name)
+	{
+		typename OptionMap::iterator it = nameToDef.find(name);
+		return (it != nameToDef.end()) ? it->second.opType : SC_TYPE_BOOLEAN;
+	}
+	const char * DescribeProperty(const char * name)
+	{
+		typename OptionMap::iterator it = nameToDef.find(name);
+		return (it != nameToDef.end()) ? it->second.description.c_str() : "";
+	}
+	bool PropertySet(T * base, const char * name, const char * val)
+	{
+		typename OptionMap::iterator it = nameToDef.find(name);
+		return (it != nameToDef.end()) ? it->second.Set(base, val) : false;
+	}
+	void DefineWordListSets(const char * const wordListDescriptions[])
+	{
+		if(wordListDescriptions) {
+			for(size_t wl = 0; wordListDescriptions[wl]; wl++) {
+				if(!wordLists.empty())
+					wordLists += "\n";
+				wordLists += wordListDescriptions[wl];
+			}
+		}
+	}
+	const char * DescribeWordListSets() const
+	{
+		return wordLists.c_str();
+	}
+};
+//
+//#include "SparseState.h"
+//
+template <typename T> class SparseState {
+	struct State {
+		int position;
+		T value;
+		State(int position_, T value_) : position(position_), value(value_) 
+		{
+		}
+		inline bool operator<(const State &other) const 
+		{
+			return position < other.position;
+		}
+		inline bool operator==(const State &other) const 
+		{
+			return (position == other.position) && (value == other.value);
+		}
+	};
+	int positionFirst;
+	typedef std::vector<State> stateVector;
+	stateVector states;
+
+	typename stateVector::iterator Find(int position)
+	{
+		State searchValue(position, T());
+		return std::lower_bound(states.begin(), states.end(), searchValue);
+	}
+public:
+	explicit SparseState(int positionFirst_ = -1)
+	{
+		positionFirst = positionFirst_;
+	}
+	void Set(int position, T value)
+	{
+		Delete(position);
+		if(states.empty() || (value != states[states.size()-1].value)) {
+			states.push_back(State(position, value));
+		}
+	}
+	T ValueAt(int position)
+	{
+		if(states.empty())
+			return T();
+		if(position < states[0].position)
+			return T();
+		typename stateVector::iterator low = Find(position);
+		if(low == states.end()) {
+			return states[states.size()-1].value;
+		}
+		else {
+			if(low->position > position) {
+				--low;
+			}
+			return low->value;
+		}
+	}
+	bool Delete(int position) 
+	{
+		typename stateVector::iterator low = Find(position);
+		if(low != states.end()) {
+			states.erase(low, states.end());
+			return true;
+		}
+		else
+			return false;
+	}
+	size_t size() const 
+	{
+		return states.size();
+	}
+	// Returns true if Merge caused a significant change
+	bool Merge(const SparseState<T> &other, int ignoreAfter) 
+	{
+		// Changes caused beyond ignoreAfter are not significant
+		Delete(ignoreAfter+1);
+		bool different = true;
+		bool changed = false;
+		typename stateVector::iterator low = Find(other.positionFirst);
+		if(static_cast<size_t>(states.end() - low) == other.states.size()) {
+			// Same number in other as after positionFirst in this
+			different = !std::equal(low, states.end(), other.states.begin());
+		}
+		if(different) {
+			if(low != states.end()) {
+				states.erase(low, states.end());
+				changed = true;
+			}
+			typename stateVector::const_iterator startOther = other.states.begin();
+			if(!states.empty() && !other.states.empty() && states.back().value == startOther->value)
+				++startOther;
+			if(startOther != other.states.end()) {
+				states.insert(states.end(), startOther, other.states.end());
+				changed = true;
+			}
+		}
+		return changed;
+	}
+};
+//
+//#include "SubStyles.h"
+//
+class WordClassifier {
+private:
+	int baseStyle;
+	int firstStyle;
+	int lenStyles;
+	std::map <std::string, int> wordToStyle;
+public:
+	explicit WordClassifier(int baseStyle_);
+	void Allocate(int firstStyle_, int lenStyles_);
+	int Base() const;
+	int Start() const;
+	int Length() const;
+	void Clear();
+	int ValueFor(const std::string &s) const;
+	bool IncludesStyle(int style) const;
+	void SetIdentifiers(int style, const char * identifiers);
+};
+
+class SubStyles {
+private:
+	int classifications;
+	const char * baseStyles;
+	int styleFirst;
+	int stylesAvailable;
+	int secondaryDistance;
+	int allocated;
+	std::vector <WordClassifier> classifiers;
+
+	int BlockFromBaseStyle(int baseStyle) const;
+	int BlockFromStyle(int style) const;
+public:
+	SubStyles(const char * baseStyles_, int styleFirst_, int stylesAvailable_, int secondaryDistance_);
+	int Allocate(int styleBase, int numberStyles);
+	int Start(int styleBase);
+	int Length(int styleBase);
+	int BaseStyle(int subStyle) const;
+	int DistanceToSecondaryStyles() const;
+	void SetIdentifiers(int style, const char * identifiers);
+	void Free();
+	const WordClassifier &Classifier(int baseStyle) const;
+};
 
 #ifdef SCI_NAMESPACE
 }
 #endif
+//
 #endif // __SCINTILLA_INTERNAL_H

@@ -55,14 +55,14 @@
 #ifdef NEED_BSD_STRINGS
 
 #include <strings.h>
-#define MEMZERO(target,size)	bzero((void *)(target), (size_t)(size))
-#define MEMCOPY(dest,src,size)	bcopy((const void *)(src), (void *)(dest), (size_t)(size))
+#define MEMZERO_Removed(target,size) bzero((void *)(target), (size_t)(size))
+#define MEMCOPY(dest,src,size)       bcopy((const void *)(src), (void *)(dest), (size_t)(size))
 
 #else /* not BSD, assume ANSI/SysV string lib */
 
 #include <string.h>
-// @sobolev #define MEMZERO(target,size)	memset((void *)(target), 0, (size_t)(size))
-#define MEMZERO(target,size)	memzero((void *)(target), (size_t)(size)) // @sobolev
+// @sobolev #define memzero(target,size)	memset((void *)(target), 0, (size_t)(size))
+#define MEMZERO_Removed(target,size) memzero((void *)(target), (size_t)(size)) // @sobolev
 #define MEMCOPY(dest,src,size)	memcpy((void *)(dest), (const void *)(src), (size_t)(size))
 
 #endif

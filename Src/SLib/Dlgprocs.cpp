@@ -45,8 +45,8 @@ static const __KeyAssoc _KeyAssocTab[] = {
 	{ VK_F8,       kbF8,        kbShiftF8,  kbCtrlF8,    kbAltF8 },
 	{ VK_F9,       kbF9,        kbShiftF9,  kbCtrlF9,    kbAltF9  },
 	{ VK_F10,      kbF10,       kbShiftF10, kbCtrlF10,   kbAltF10 },
-	{ VK_F11,      kbF11,       0,          0,           0 },
-	{ VK_F12,      kbF12,       0,          0,           0 },
+	{ VK_F11,      kbF11,       kbShiftF11, kbCtrlF11,   kbAltF11 },
+	{ VK_F12,      kbF12,       kbShiftF12, kbCtrlF12,   kbAltF12 },
 	{ VK_UP,       kbUp,        0,          0,           0 },
 	{ VK_DOWN,     kbDown,      0,          0,           0 },
 	{ VK_LEFT,     kbLeft,      0,          0,           0 }, 
@@ -71,101 +71,23 @@ static uint16 FASTCALL __MapVk(uint32 vk, uint stateP)
 
 int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 {
-#if 0 // {
-	//static const int normal_keys[21][2] = {
-	static const __ITabEntry normal_keys[] = {
-		{ VK_RETURN,   kbEnter     },
-		{ VK_ADD,      kbGrayPlus  },
-		{ VK_SUBTRACT, kbGrayMinus },
-		{ VK_INSERT ,  kbIns       },
-		{ VK_DELETE,   kbDel       },
-		{ VK_F1,    kbF1 },
-		{ VK_F2,    kbF2 },
-		{ VK_F3,    kbF3 },
-		{ VK_F4,    kbF4 },
-		{ VK_F5,    kbF5 },
-		{ VK_F6,    kbF6 },
-		{ VK_F7,    kbF7 },
-		{ VK_F8,    kbF8 },
-		{ VK_F9,    kbF9 },
-		{ VK_F10,   kbF10 },
-		{ VK_F11,   kbF11 },
-		{ VK_F12,   kbF12 },
-		{ VK_UP,    kbUp   },
-		{ VK_DOWN,  kbDown },
-		{ VK_LEFT,  kbLeft },
-		{ VK_RIGHT, kbRight }
-	};
-	//static const int shift_keys[12][2] = {
-	static const __ITabEntry shift_keys[] = {
-		{ VK_INSERT, kbShiftIns },
-		{ VK_DELETE, kbShiftDel },
-		{ VK_F1,     kbShiftF1  },
-		{ VK_F2,     kbShiftF2  },
-		{ VK_F3,     kbShiftF3  },
-		{ VK_F4,     kbShiftF4  },
-		{ VK_F5,     kbShiftF5  },
-		{ VK_F6,     kbShiftF6  },
-		{ VK_F7,     kbShiftF7  },
-		{ VK_F8,     kbShiftF8  },
-		{ VK_F9,     kbShiftF9  },
-		{ VK_F10,    kbShiftF10 }
-	};
-	//static const int control_keys[14][2] = {
-	static const __ITabEntry control_keys[] = {
-		{VK_RETURN,   kbCtrlEnter},
-		{VK_INSERT,   kbCtrlIns},
-		{VK_DELETE,   kbCtrlDel},
-		{VK_F1,       kbCtrlF1 },
-		{VK_F2,       kbCtrlF2 },
-		{VK_F3,       kbCtrlF3 },
-		{VK_F4,       kbCtrlF4 },
-		{VK_F5,       kbCtrlF5 },
-		{VK_F6,       kbCtrlF6 },
-		{VK_F7,       kbCtrlF7 },
-		{VK_F8,       kbCtrlF8 },
-		{VK_F9,       kbCtrlF9 },
-		{VK_F10,      kbCtrlF10},
-		{VK_SUBTRACT, 0x4a00}
-	};
-	//static const int alt_keys[12][2]={
-	static const __ITabEntry alt_keys[] = {
-		{VK_SUBTRACT, kbAltMinus},
-		{VK_INSERT,   kbAltIns},
-		{VK_F1,  kbAltF1 },
-		{VK_F2,  kbAltF2 },
-		{VK_F3,  kbAltF3 },
-		{VK_F4,  kbAltF4 },
-		{VK_F5,  kbAltF5 },
-		{VK_F6,  kbAltF6 },
-		{VK_F7,  kbAltF7 },
-		{VK_F8,  kbAltF8 },
-		{VK_F9,  kbAltF9 },
-		{VK_F10, kbAltF10}
-	};
-#define GETKEYCODE(tab) i_tab_limited(tab, wParam, SIZEOFARRAY(tab))
-#endif // } 0
 	TEvent event;
 	event.what = TEvent::evKeyDown;
 	if(isPpyCodeType)
 		event.keyDown.keyCode = (uchar)wParam;
 	else {
 		if(GetKeyState(VK_SHIFT) & 0x8000) {
-			//event.keyDown.keyCode = GETKEYCODE(shift_keys);
 			event.keyDown.keyCode = __MapVk(wParam, 1);
 		}
 		else if(GetKeyState(VK_CONTROL) & 0x8000) {
 			if(wParam == VK_F11)
 				wParam = VK_RETURN;
-			//event.keyDown.keyCode = GETKEYCODE(control_keys);
 			event.keyDown.keyCode = __MapVk(wParam, 2);
 		}
 		else if(GetKeyState(VK_MENU) & 0x8000) {
-			//event.keyDown.keyCode = GETKEYCODE(alt_keys);
 			event.keyDown.keyCode = __MapVk(wParam, 3);
 		}
 		else {
-			//event.keyDown.keyCode = GETKEYCODE(normal_keys);
 			event.keyDown.keyCode = __MapVk(wParam, 0);
 		}
 	}

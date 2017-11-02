@@ -4709,7 +4709,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				// Запомним начальное значение конфигурации
 				{
 					const PPImpExp * p_iebill = b_e.GetIEBill();
-					doc_type = p_iebill ? p_iebill->GetParam().Name.cptr() : 0; // Тип документа (перечисление в PPTXT_EDIEXPCMD)
+					doc_type = p_iebill ? p_iebill->GetParamConst().Name.cptr() : 0; // Тип документа (перечисление в PPTXT_EDIEXPCMD)
 				}
 				if(b_e.BillParam.BaseFlags & PPImpExpParam::bfDLL) {
 					SString prev_bill_code;

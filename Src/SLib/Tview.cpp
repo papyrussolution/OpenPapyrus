@@ -944,7 +944,7 @@ int SLAPI KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 	return ok;
 }
 
-int FASTCALL KeyDownCommand::SetWinMsgCode(uint32 wParam)
+void FASTCALL KeyDownCommand::SetWinMsgCode(uint32 wParam)
 {
 	Code = (uint16)wParam;
 	State = 0;
@@ -954,7 +954,6 @@ int FASTCALL KeyDownCommand::SetWinMsgCode(uint32 wParam)
 		State |= stateAlt;
 	if(GetKeyState(VK_SHIFT) & 0x8000)
 		State |= stateShift;
-	return 1;
 }
 
 struct _TvKeyCodeVK {
@@ -1001,6 +1000,7 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbCtrlBack,  KeyDownCommand::stateCtrl,  VK_BACK },
 	{ kbShiftTab,  KeyDownCommand::stateShift, VK_TAB },
 	{ kbTab,       0,                          VK_TAB },
+	{ kbCtrlTab,   KeyDownCommand::stateCtrl,  VK_TAB }, // @v9.8.7
 	{ kbCtrlEnter, KeyDownCommand::stateCtrl,  VK_RETURN },
 	{ kbEnter,     0,                          VK_RETURN },
 	{ kbAltA,      KeyDownCommand::stateAlt, 'A' },
@@ -1051,6 +1051,8 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbShiftF8,   KeyDownCommand::stateShift, VK_F8 },
 	{ kbShiftF9,   KeyDownCommand::stateShift, VK_F9 },
 	{ kbShiftF10,  KeyDownCommand::stateShift, VK_F10 },
+	{ kbShiftF11,  KeyDownCommand::stateShift, VK_F11 }, // @v9.8.7
+	{ kbShiftF12,  KeyDownCommand::stateShift, VK_F12 }, // @v9.8.7
 	{ kbCtrlF1,    KeyDownCommand::stateCtrl,  VK_F1 },
 	{ kbCtrlF2,    KeyDownCommand::stateCtrl,  VK_F2 },
 	{ kbCtrlF3,    KeyDownCommand::stateCtrl,  VK_F3 },
@@ -1061,6 +1063,8 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbCtrlF8,    KeyDownCommand::stateCtrl,  VK_F8 },
 	{ kbCtrlF9,    KeyDownCommand::stateCtrl,  VK_F9 },
 	{ kbCtrlF10,   KeyDownCommand::stateCtrl,  VK_F10 },
+	{ kbCtrlF11,   KeyDownCommand::stateCtrl,  VK_F11 }, // @v9.8.7
+	{ kbCtrlF12,   KeyDownCommand::stateCtrl,  VK_F12 }, // @v9.8.7
 	{ kbAltF1,     KeyDownCommand::stateAlt,   VK_F1 },
 	{ kbAltF2,     KeyDownCommand::stateAlt,   VK_F2 },
 	{ kbAltF3,     KeyDownCommand::stateAlt,   VK_F3 },
@@ -1071,6 +1075,8 @@ static _TvKeyCodeVK TvKeyCodeVKList[] = {
 	{ kbAltF8,     KeyDownCommand::stateAlt,   VK_F8 },
 	{ kbAltF9,     KeyDownCommand::stateAlt,   VK_F9 },
 	{ kbAltF10,    KeyDownCommand::stateAlt,   VK_F10 },
+	{ kbAltF11,    KeyDownCommand::stateAlt,   VK_F11 }, // @v9.8.7
+	{ kbAltF12,    KeyDownCommand::stateAlt,   VK_F12 }, // @v9.8.7
 	{ kbHome,      0, VK_HOME  },
 	{ kbUp,        0, VK_UP    },
 	{ kbPgUp,      0, VK_PRIOR },
@@ -1115,6 +1121,16 @@ int FASTCALL KeyDownCommand::SetTvKeyCode(uint16 tvKeyCode)
 		}
 	}
 	return ok;
+}
+
+uint16 SLAPI KeyDownCommand::GetTvKeyCode() const
+{
+	for(uint i = 0; i < SIZEOFARRAY(TvKeyCodeVKList); i++) {
+		const _TvKeyCodeVK & r_entry = TvKeyCodeVKList[i];
+		if(r_entry.KState == State && r_entry.KCode == Code)
+			return r_entry.TvKeyCode;
+	}
+	return 0;
 }
 
 struct _KeySymb {

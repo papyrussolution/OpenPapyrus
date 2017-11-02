@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="cairo-1.14.2"
+	Name="cairo"
 	ProjectGUID="{1022FF32-79E9-44DF-B5E3-9130F0C4252D}"
 	RootNamespace="cairo"
 	Keyword="Win32Proj">
@@ -23,7 +23,7 @@
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -84,7 +84,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -199,7 +199,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -254,7 +254,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -314,7 +314,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -368,7 +368,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO\1_14_2;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"/>
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -401,265 +401,265 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-analysis-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-analysis-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-arc.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-arc.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-array.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-array.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-atomic.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-atomic.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-base64-stream.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-base64-stream.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-base85-stream.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-base85-stream.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann-rectangular.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-bentley-ottmann-rectangular.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann-rectilinear.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-bentley-ottmann-rectilinear.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-bentley-ottmann.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-bentley-ottmann.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-botor-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-botor-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-boxes-intersect.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-boxes-intersect.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-boxes.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-boxes.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-cache.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-cache.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-cff-subset.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-cff-subset.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip-boxes.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip-boxes.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip-polygon.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip-polygon.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip-region.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip-region.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip-tor-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip-tor-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-clip.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-clip.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-color.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-color.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-composite-rectangles.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-composite-rectangles.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-contour.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-contour.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-damage.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-damage.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-debug.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-debug.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-default-context.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-default-context.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-deflate-stream.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-deflate-stream.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-device.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-device.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-directfb-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-directfb-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-egl-context.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-egl-context.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-error.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-error.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-fallback-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-fallback-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-fixed.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-fixed.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-font-face-twin-data.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-font-face-twin-data.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-font-face-twin.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-font-face-twin.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-font-face.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-font-face.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-font-options.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-font-options.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-freed-pool.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-freed-pool.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-freelist.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-freelist.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-ft-font.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-ft-font.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-composite.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-composite.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-device.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-device.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-dispatch.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-dispatch.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-glyphs.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-glyphs.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-gradient.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-gradient.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-info.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-info.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-msaa-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-msaa-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-operand.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-operand.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-shaders.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-shaders.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-source.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-source.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-spans-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-spans-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gl-traps-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gl-traps-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-glx-context.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-glx-context.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-gstate.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-gstate.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-hash.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-hash.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-hull.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-hull.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-image-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-image-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-image-info.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-image-info.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-image-source.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-image-source.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-image-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-image-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-line.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-line.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-lzw.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-lzw.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-mask-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-mask-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-matrix.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-matrix.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-mempool.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-mempool.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-mesh-pattern-rasterizer.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-mesh-pattern-rasterizer.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-misc.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-misc.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-mono-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-mono-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-mutex.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-mutex.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-no-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-no-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-observer.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-observer.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-output-stream.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-output-stream.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-paginated-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-paginated-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-bounds.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-bounds.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-fill.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-fill.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-fixed.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-fixed.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-in-fill.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-in-fill.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-boxes.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-stroke-boxes.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-polygon.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-stroke-polygon.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-traps.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-stroke-traps.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke-tristrip.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-stroke-tristrip.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path-stroke.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path-stroke.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-path.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-path.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pattern.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-pattern.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pch.cpp">
+				RelativePath="..\Osf\Cairo\Src\cairo-pch.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -698,262 +698,262 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pdf-operators.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-pdf-operators.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pdf-shading.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-pdf-shading.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pdf-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-pdf-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-pen.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-pen.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-png.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-png.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-polygon-intersect.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-polygon-intersect.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-polygon-reduce.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-polygon-reduce.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-polygon.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-polygon.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-ps-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-ps-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-qt-surface.cpp">
+				RelativePath="..\Osf\Cairo\Src\cairo-qt-surface.cpp">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-quartz-font.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-quartz-font.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-quartz-image-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-quartz-image-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-quartz-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-quartz-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-raster-source-pattern.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-raster-source-pattern.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-recording-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-recording-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-rectangle.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-rectangle.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-rectangular-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-rectangular-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-region.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-region.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-rtree.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-rtree.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-scaled-font-subsets.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-scaled-font-subsets.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-scaled-font.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-scaled-font.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-script-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-script-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-shape-mask-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-shape-mask-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-slope.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-slope.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-spans-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-spans-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-spans.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-spans.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-spline.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-spline.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-stroke-dash.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-stroke-dash.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-stroke-style.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-stroke-style.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-clipper.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-clipper.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-fallback.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-fallback.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-observer.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-observer.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-offset.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-offset.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-snapshot.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-snapshot.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-subsurface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-subsurface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface-wrapper.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface-wrapper.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-svg-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-svg-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-tee-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-tee-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-time.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-time.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-tor-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-tor-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-tor22-scan-converter.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-tor22-scan-converter.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-toy-font-face.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-toy-font-face.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-traps-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-traps-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-traps.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-traps.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-tristrip.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-tristrip.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-truetype-subset.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-truetype-subset.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-type1-fallback.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-type1-fallback.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-type1-glyph-names.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-type1-glyph-names.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-type1-subset.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-type1-subset.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-type3-glyph-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-type3-glyph-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-unicode.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-unicode.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-user-font.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-user-font.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-vg-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-vg-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-wgl-context.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-wgl-context.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-wideint.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-wideint.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-debug.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-debug.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-device.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-device.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-display-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-display-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-font.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-font.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-gdi-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-gdi-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-printing-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-printing-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-win32-system.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-win32-system.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-core.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-connection-core.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-render.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-connection-render.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection-shm.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-connection-shm.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-connection.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-connection.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-resources.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-resources.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-screen.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-screen.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-shm.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-shm.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface-core.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-surface-core.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface-render.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-surface-render.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xcb-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xcb-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-core-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-core-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-display.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-display.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-fallback-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-fallback-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-render-compositor.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-render-compositor.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-screen.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-screen.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-source.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-source.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-surface-shm.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-surface-shm.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-visual.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-visual.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xlib-xcb-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xlib-xcb-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo-xml-surface.c">
+				RelativePath="..\Osf\Cairo\Src\cairo-xml-surface.c">
 			</File>
 			<File
-				RelativePath="..\Osf\Cairo\Src\1.14.2\cairo.c">
+				RelativePath="..\Osf\Cairo\Src\cairo.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Cairo\Pixman\pixman-access-accessors.c">
@@ -1069,364 +1069,223 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-analysis-surface-private.h">
+				RelativePath="..\Include\Cairo\cairo-atomic-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-array-private.h">
+				RelativePath="..\Include\Cairo\cairo-beos.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-atomic-private.h">
+				RelativePath="..\Include\Cairo\cairo-cogl-context-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-beos.h">
+				RelativePath="..\Include\Cairo\cairo-cogl-gradient-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-boxes-private.h">
+				RelativePath="..\Include\Cairo\cairo-cogl-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-clip-inline.h">
+				RelativePath="..\Include\Cairo\cairo-cogl-utils-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-clip-private.h">
+				RelativePath="..\Include\Cairo\cairo-cogl.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cogl-context-private.h">
+				RelativePath="..\Include\Cairo\cairo-combsort-inline.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cogl-gradient-private.h">
+				RelativePath="..\Include\Cairo\cairo-compiler-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cogl-private.h">
+				RelativePath="..\Include\Cairo\cairo-deprecated.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cogl-utils-private.h">
+				RelativePath="..\Include\Cairo\cairo-directfb.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-cogl.h">
+				RelativePath="..\Include\Cairo\cairo-drm-i915-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-combsort-inline.h">
+				RelativePath="..\Include\Cairo\cairo-drm-i965-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-compiler-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-brw-defines.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-composite-rectangles-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-brw-eu.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-compositor-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-brw-structs.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-default-context-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-command-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-deprecated.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-ioctl-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-device-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-intel-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-directfb.h">
+				RelativePath="..\Include\Cairo\cairo-drm-ioctl-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-i915-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-i965-private.h">
+				RelativePath="..\Include\Cairo\cairo-drm-radeon-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-defines.h">
+				RelativePath="..\Include\Cairo\cairo-drm.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-eu.h">
+				RelativePath="..\Include\Cairo\cairo-error-inline.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-brw-structs.h">
+				RelativePath="..\Include\Cairo\cairo-error-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-command-private.h">
+				RelativePath="..\Include\Cairo\cairo-features.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-ioctl-private.h">
+				RelativePath="..\Include\Cairo\cairo-fixed-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-intel-private.h">
+				RelativePath="..\Include\Cairo\cairo-fontconfig-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-ioctl-private.h">
+				RelativePath="..\Include\Cairo\cairo-ft-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-private.h">
+				RelativePath="..\Include\Cairo\cairo-ft.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm-radeon-private.h">
+				RelativePath="..\Include\Cairo\cairo-gl-dispatch-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-drm.h">
+				RelativePath="..\Include\Cairo\cairo-gl-ext-def-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-error-inline.h">
+				RelativePath="..\Include\Cairo\cairo-gl-gradient-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-error-private.h">
+				RelativePath="..\Include\Cairo\cairo-gl-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-features.h">
+				RelativePath="..\Include\Cairo\cairo-gl.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-fixed-private.h">
+				RelativePath="..\Include\Cairo\cairo-mempool-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-fontconfig-private.h">
+				RelativePath="..\Include\Cairo\cairo-mutex-impl-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-freed-pool-private.h">
+				RelativePath="..\Include\Cairo\cairo-mutex-list-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-freelist-private.h">
+				RelativePath="..\Include\Cairo\cairo-mutex-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-freelist-type-private.h">
+				RelativePath="..\Include\Cairo\cairo-mutex-type-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-ft-private.h">
+				RelativePath="..\Include\Cairo\cairo-os2-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-ft.h">
+				RelativePath="..\Include\Cairo\cairo-os2.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gl-dispatch-private.h">
+				RelativePath="..\Include\Cairo\cairo-output-stream-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gl-ext-def-private.h">
+				RelativePath="..\Include\Cairo\cairo-paginated-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gl-gradient-private.h">
+				RelativePath="..\Include\Cairo\cairo-ps-surface-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gl-private.h">
+				RelativePath="..\Include\Cairo\cairo-ps.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gl.h">
+				RelativePath="..\Include\Cairo\cairo-qt.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-gstate-private.h">
+				RelativePath="..\Include\Cairo\cairo-quartz-image.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-hash-private.h">
+				RelativePath="..\Include\Cairo\cairo-quartz-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-image-info-private.h">
+				RelativePath="..\Include\Cairo\cairo-quartz.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-image-surface-inline.h">
+				RelativePath="..\Include\Cairo\cairo-script-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-image-surface-private.h">
+				RelativePath="..\Include\Cairo\cairo-script.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-mempool-private.h">
+				RelativePath="..\Include\Cairo\cairo-skia-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-mutex-impl-private.h">
+				RelativePath="..\Include\Cairo\cairo-skia.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-mutex-list-private.h">
+				RelativePath="..\Include\Cairo\cairo-spans-compositor-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-mutex-private.h">
+				RelativePath="..\Include\Cairo\cairo-svg-surface-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-mutex-type-private.h">
+				RelativePath="..\Include\Cairo\cairo-svg.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-os2-private.h">
+				RelativePath="..\Include\Cairo\cairo-tee.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-os2.h">
+				RelativePath="..\Include\Cairo\cairo-types-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-output-stream-private.h">
+				RelativePath="..\Include\Cairo\cairo-version.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-paginated-private.h">
+				RelativePath="..\Include\Cairo\cairo-vg.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-paginated-surface-private.h">
+				RelativePath="..\Include\Cairo\cairo-win32-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pattern-inline.h">
+				RelativePath="..\Include\Cairo\cairo-win32.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pattern-private.h">
+				RelativePath="..\Include\Cairo\cairo-xcb-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pdf-operators-private.h">
+				RelativePath="..\Include\Cairo\cairo-xcb.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pdf-shading-private.h">
+				RelativePath="..\Include\Cairo\cairo-xlib-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pdf-surface-private.h">
+				RelativePath="..\Include\Cairo\cairo-xlib-surface-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-pdf.h">
+				RelativePath="..\Include\Cairo\cairo-xlib-xrender-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-ps-surface-private.h">
+				RelativePath="..\Include\Cairo\cairo-xlib-xrender.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-ps.h">
+				RelativePath="..\Include\Cairo\cairo-xlib.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-qt.h">
+				RelativePath="..\Include\Cairo\cairo-xml.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-quartz-image.h">
+				RelativePath="..\Include\Cairo\cairo.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-quartz-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-quartz.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-recording-surface-inline.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-recording-surface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-region-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-rtree-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-scaled-font-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-scaled-font-subsets-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-script-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-script.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-skia-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-skia.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-spans-compositor-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-clipper-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-fallback-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-observer-inline.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-observer-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-offset-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-snapshot-inline.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-snapshot-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-subsurface-inline.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-subsurface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-surface-wrapper-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-svg-surface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-svg.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-tee.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-time-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-traps-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-tristrip-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-truetype-subset-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-type1-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-type3-glyph-surface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-types-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-user-font-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-version.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-vg.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-win32-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-win32.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xcb-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xcb.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xlib-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xlib-surface-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xlib-xrender-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xlib-xrender.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xlib.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo-xml.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairo.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\1_14_2\cairoint.h">
+				RelativePath="..\Include\Cairo\cairoint.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\Pixman\loongson-mmintrin.h">
@@ -1471,16 +1330,16 @@
 				RelativePath="..\Include\Cairo\Pixman\pixman.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\test-compositor-surface-private.h">
+				RelativePath="..\Include\Cairo\test-compositor-surface-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\test-compositor-surface.h">
+				RelativePath="..\Include\Cairo\test-compositor-surface.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\test-null-compositor-surface.h">
+				RelativePath="..\Include\Cairo\test-null-compositor-surface.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\1_14_2\test-paginated-surface.h">
+				RelativePath="..\Include\Cairo\test-paginated-surface.h">
 			</File>
 		</Filter>
 		<Filter

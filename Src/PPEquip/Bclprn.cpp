@@ -6,7 +6,12 @@
 //
 // @ModuleDef(PPObjBarcodePrinter)
 //
-void SLAPI PPBarcodePrinter::Normalyze()
+SLAPI PPBarcodePrinter2::PPBarcodePrinter2()
+{
+	THISZERO();
+}
+
+void SLAPI PPBarcodePrinter2::Normalyze()
 {
 	PortEx.CopyTo(Port, sizeof(Port));
 	SETFLAG(Flags, fPortEx, (PortEx.Len() >= sizeof(Port)));

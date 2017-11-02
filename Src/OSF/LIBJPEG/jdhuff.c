@@ -135,15 +135,9 @@ typedef struct {                /* Bitreading working state within an MCU */
 		  { action; }  \
 		  get_buffer = (state).get_buffer; bits_left = (state).bits_left; } }
 
-#define GET_BITS(nbits)	\
-	(((int)(get_buffer >> (bits_left -= (nbits)))) & BIT_MASK(nbits))
-
-#define PEEK_BITS(nbits) \
-	(((int)(get_buffer >> (bits_left -  (nbits)))) & BIT_MASK(nbits))
-
-#define DROP_BITS(nbits) \
-	(bits_left -= (nbits))
-
+#define GET_BITS(nbits)	(((int)(get_buffer >> (bits_left -= (nbits)))) & BIT_MASK(nbits))
+#define PEEK_BITS(nbits) (((int)(get_buffer >> (bits_left -  (nbits)))) & BIT_MASK(nbits))
+#define DROP_BITS(nbits) (bits_left -= (nbits))
 /*
  * Code for extracting next Huffman-coded symbol from input bit stream.
  * Again, this is time-critical and we make the main paths be macros.
@@ -230,7 +224,6 @@ typedef struct {
 
 	/* Pointers to derived tables (these workspaces have image lifespan) */
 	d_derived_tbl * derived_tbls[NUM_HUFF_TBLS];
-
 	d_derived_tbl * ac_derived_tbl; /* active table during an AC scan */
 
 	/* Following fields used only in sequential mode */
@@ -327,21 +320,15 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 	/* Find the input Huffman table */
 	if(tblno < 0 || tblno >= NUM_HUFF_TBLS)
 		ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tblno);
-	htbl =
-	    isDC ? cinfo->dc_huff_tbl_ptrs[tblno] : cinfo->ac_huff_tbl_ptrs[tblno];
+	htbl = isDC ? cinfo->dc_huff_tbl_ptrs[tblno] : cinfo->ac_huff_tbl_ptrs[tblno];
 	if(htbl == NULL)
 		ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tblno);
-
 	/* Allocate a workspace if we haven't already done so. */
 	if(*pdtbl == NULL)
-		*pdtbl = (d_derived_tbl*)
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    SIZEOF(d_derived_tbl));
+		*pdtbl = (d_derived_tbl*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(d_derived_tbl));
 	dtbl = *pdtbl;
 	dtbl->pub = htbl;       /* fill in back link */
-
 	/* Figure C.1: make table of Huffman code length for each symbol */
-
 	p = 0;
 	for(l = 1; l <= 16; l++) {
 		i = (int)htbl->bits[l];
@@ -352,10 +339,8 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 	}
 	huffsize[p] = 0;
 	numsymbols = p;
-
 	/* Figure C.2: generate the codes themselves */
 	/* We also validate that the counts represent a legal Huffman code tree. */
-
 	code = 0;
 	si = huffsize[0];
 	p = 0;
@@ -372,9 +357,7 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 		code <<= 1;
 		si++;
 	}
-
 	/* Figure F.15: generate decoding tables for bit-sequential decoding */
-
 	p = 0;
 	for(l = 1; l <= 16; l++) {
 		if(htbl->bits[l]) {
@@ -397,9 +380,7 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
 	 * fill in all the entries that correspond to bit sequences starting
 	 * with that code.
 	 */
-
-	MEMZERO(dtbl->look_nbits, SIZEOF(dtbl->look_nbits));
-
+	memzero(dtbl->look_nbits, SIZEOF(dtbl->look_nbits));
 	p = 0;
 	for(l = 1; l <= HUFF_LOOKAHEAD; l++) {
 		for(i = 1; i <= (int)htbl->bits[l]; i++, p++) {

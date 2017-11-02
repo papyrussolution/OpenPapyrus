@@ -7,8 +7,8 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -20,7 +20,7 @@ static bool FASTCALL IsControlCharacter(int ch)
 	return ch >= 0 && ch < ' ';
 }
 
-PrintParameters::PrintParameters()
+EditView::PrintParameters::PrintParameters()
 {
 	magnification = 0;
 	colourMode = SC_PRINT_NORMAL;
@@ -1092,7 +1092,7 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 	rcSegment.left = xStart + static_cast<XYPOSITION>(ll->positions[ll->numCharsInLine] - subLineStart) + spaceWidth + virtualSpace;
 	rcSegment.right = rcSegment.left + static_cast<XYPOSITION>(widthFoldDisplayText);
 
-	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
+	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & EditModel::Caret::fActive), ll->containsCaret);
 	FontAlias textFont = vsDraw.styles[STYLE_FOLDDISPLAYTEXT].font;
 	ColourDesired textFore = vsDraw.styles[STYLE_FOLDDISPLAYTEXT].fore;
 	if(eolInSelection && (vsDraw.selColours.fore.isSet)) {
@@ -1306,7 +1306,7 @@ void EditView::DrawCarets(Surface * surface, const EditModel &model, const ViewS
 				if(lineStart != 0)      // Wrapped
 					xposCaret += ll->wrapIndent;
 			}
-			bool caretBlinkState = ((model.caret.Flags & Caret::fActive) && (model.caret.Flags & Caret::fOn)) || 
+			bool caretBlinkState = ((model.caret.Flags & EditModel::Caret::fActive) && (model.caret.Flags & EditModel::Caret::fOn)) || 
 				(/*!additionalCaretsBlink*/!(EditViewFlags & fAdditionalCaretsBlink) && !mainCaret);
 			bool caretVisibleState = (/*additionalCaretsVisible*/BIN(EditViewFlags & fAdditionalCaretsVisible) || mainCaret);
 			if((xposCaret >= 0) && (vsDraw.caretWidth > 0) && (vsDraw.caretStyle != CARETSTYLE_INVISIBLE) &&
@@ -1568,7 +1568,7 @@ static void DrawTranslucentSelection(Surface * surface, const EditModel &model, 
 static void DrawTranslucentLineState(Surface * surface, const EditModel &model, const ViewStyle &vsDraw, const LineLayout * ll,
     int line, PRectangle rcLine)
 {
-	if(((model.caret.Flags & Caret::fActive) || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && ll->containsCaret) {
+	if(((model.caret.Flags & EditModel::Caret::fActive) || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && ll->containsCaret) {
 		SimpleAlphaRectangle(surface, rcLine, vsDraw.caretLineBackground, vsDraw.caretLineAlpha);
 	}
 	const int marksOfLine = model.pdoc->GetMark(line);
@@ -1881,7 +1881,7 @@ void EditView::DrawLine(Surface * surface, const EditModel &model, const ViewSty
 		return; // No further drawing
 	}
 	// See if something overrides the line background color.
-	const ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
+	const ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & EditModel::Caret::fActive), ll->containsCaret);
 	const int posLineStart = model.pdoc->LineStart(line);
 	const Range lineRange = ll->SubLineRange(subLine);
 	const XYACCUMULATOR subLineStart = ll->positions[lineRange.start];
@@ -2127,7 +2127,7 @@ void EditView::FillLineRemainder(Surface * surface, const EditModel &model, cons
 		eolInSelection = (subLine == (ll->lines - 1)) ? model.sel.InSelectionForEOL(posAfterLineEnd) : 0;
 		alpha = (eolInSelection == 1) ? vsDraw.selAlpha : vsDraw.selAdditionalAlpha;
 	}
-	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & Caret::fActive), ll->containsCaret);
+	ColourOptional background = vsDraw.Background(model.pdoc->GetMark(line), BIN(model.caret.Flags & EditModel::Caret::fActive), ll->containsCaret);
 	if(eolInSelection && vsDraw.selEOLFilled && vsDraw.selColours.back.isSet && (line < model.pdoc->LinesTotal() - 1) && (alpha == SC_ALPHA_NOALPHA)) {
 		surface->FillRectangle(rcArea, model.SelectionBackground(vsDraw, eolInSelection == 1));
 	}

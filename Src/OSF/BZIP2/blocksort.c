@@ -283,14 +283,11 @@ static void fallbackSort(uint32* fmap, uint32* eclass, uint32* bhtab, int32 nblo
 				}
 			}
 		}
-
 		if(verb >= 4)
 			VPrintf1("%6d unresolved strings\n", nNotDone);
-
 		H *= 2;
 		if(H > nblock || nNotDone == 0) break;
 	}
-
 	/*--
 	   Reconstruct the original block in
 	   eclass8 [0 .. nblock-1], since the

@@ -37,7 +37,7 @@ struct UnpFormItem {
 	CtmExpr * P_Expr;
 };
 
-SLAPI DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), /*8,*/ O_ARRAY|aryEachItem)
+SLAPI DlContext::UnpFormArray::UnpFormArray() : SArray(sizeof(UnpFormItem), O_ARRAY|aryEachItem)
 {
 }
 
@@ -298,8 +298,7 @@ const DlScope * SLAPI DlContext::GetEvaluatedVarScope(const DlScope * pScope, DL
 // Remark: Пространство на стеке для возвращаемого значения выделяет вызывающая функция.
 //   Пространство для аргументов - эта функция.
 //
-int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope,
-	DlRtm * pCallerRtm, const DlScope * pCallerScope, CtmExpr * pExpr, size_t sp)
+int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, const DlScope * pCallerScope, CtmExpr * pExpr, size_t sp)
 {
 	int    ok = 1;
 	size_t slen = 0;

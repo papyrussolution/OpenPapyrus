@@ -1224,6 +1224,12 @@
 	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
 	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
 	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
+
+// @construction(VETIS) {
+#define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
+
+// } @construction(VETIS)
+
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -1709,6 +1715,7 @@
 	#define CTL_LOGIN_PROTECT            (6 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_NEWPASSWORD        (7 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_LOGO               (8 + WINDOWS_ID_BIAS)
+	#define CTL_LOGIN_ST_INFO            (9 + WINDOWS_ID_BIAS)
 #define DLG_CFGOPTIONS              2
 #define DLG_MAINCFG                 4
 	#define CTL_CFGOPTIONS_ACCESS        (1 + WINDOWS_ID_BIAS)

@@ -11,10 +11,8 @@ SLAPI PPBizScore::PPBizScore()
 	THISZERO();
 }
 
-SLAPI PPObjBizScore::PPObjBizScore(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE, extraPtr)
+SLAPI PPObjBizScore::PPObjBizScore(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE, extraPtr), P_Resolver(0), P_ValTbl(0)
 {
-	P_Resolver = 0;
-	P_ValTbl = 0;
 }
 
 SLAPI PPObjBizScore::~PPObjBizScore()
@@ -135,7 +133,7 @@ int SLAPI PPObjBizScore::GetPacket(PPID id, PPBizScorePacket * pPack)
 int SLAPI PPObjBizScore::ReverseFormula(PPBizScorePacket * pPack, SString & rResult)
 {
 	int    ok = -1;
-	rResult = 0;
+	rResult.Z();
 	if(pPack->Formula.NotEmptyS()) {
 		SETIFZ(P_Resolver, new DL2_Resolver());
 		ok = P_Resolver->ReverseFormula(pPack->Formula, rResult);
@@ -146,7 +144,7 @@ int SLAPI PPObjBizScore::ReverseFormula(PPBizScorePacket * pPack, SString & rRes
 int SLAPI PPObjBizScore::TestPacket(PPBizScorePacket * pPack, SString & rResult)
 {
 	int    ok = -1;
-	rResult = 0;
+	rResult.Z();
 	if(pPack->Formula.NotEmptyS()) {
 		SETIFZ(P_Resolver, new DL2_Resolver());
 		double val = P_Resolver->Resolve(pPack->Formula);
@@ -206,39 +204,17 @@ public:
 		// Выбор модификатора
 		ushort v = 0;
 		switch(Data.Sub) {
-			case DL2_Score::subAmount:
-				v = 1;
-				break;
-			case DL2_Score::subCost:
-				v = 2;
-				break;
-			case DL2_Score::subPrice:
-				v = 3;
-				break;
-			case DL2_Score::subDiscount:
-				v = 4;
-				break;
-			case DL2_Score::subNetPrice:
-				v = 5;
-				break;
-			case DL2_Score::subMargin:
-				v = 6;
-				break;
-			case DL2_Score::subPctIncome:
-				v = 7;
-				break;
-			case DL2_Score::subPctMargin:
-				v = 8;
-				break;
-			case DL2_Score::subCount:
-				v = 9;
-				break;
-			case DL2_Score::subAverage:
-				v = 10;
-				break;
-			default:
-				v = 0;
-				break;
+			case DL2_Score::subAmount: v = 1; break;
+			case DL2_Score::subCost: v = 2; break;
+			case DL2_Score::subPrice: v = 3; break;
+			case DL2_Score::subDiscount: v = 4; break;
+			case DL2_Score::subNetPrice: v = 5; break;
+			case DL2_Score::subMargin: v = 6; break;
+			case DL2_Score::subPctIncome: v = 7; break;
+			case DL2_Score::subPctMargin: v = 8; break;
+			case DL2_Score::subCount: v = 9; break;
+			case DL2_Score::subAverage: v = 10; break;
+			default: v = 0; break;
 		}
 		setCtrlData(CTL_BIZPRCRT_MODIF, &v);
 		//
@@ -253,24 +229,12 @@ public:
 
 		// Сравнение с периодом
 		switch(Data.Cmp) {
-			case DL2_Score::cmpDD:
-				v = 1;
-				break;
-			case DL2_Score::cmpMM:
-				v = 2;
-				break;
-			case DL2_Score::cmpQQ:
-				v = 3;
-				break;
-			case DL2_Score::cmpYY:
-				v = 4;
-				break;
-			case DL2_Score::cmpPrev:
-				v = 5;
-				break;
-			default:
-				v = 0;
-				break;
+			case DL2_Score::cmpDD: v = 1; break;
+			case DL2_Score::cmpMM: v = 2; break;
+			case DL2_Score::cmpQQ: v = 3; break;
+			case DL2_Score::cmpYY: v = 4; break;
+			case DL2_Score::cmpPrev: v = 5; break;
+			default: v = 0; break;
 		}
 		setCtrlData(CTL_BIZPRCRT_PRDCMP, &v);
 		return 1;
@@ -298,39 +262,17 @@ private:
 			ushort v = 0;
 			getCtrlData(CTL_BIZPRCRT_MODIF, &(v = 0));
 			switch(v) {
-				case 1:
-					Buf_Data.Sub = DL2_Score::subAmount;
-					break;
-				case 2:
-					Buf_Data.Sub = DL2_Score::subCost;
-					break;
-				case 3:
-					Buf_Data.Sub = DL2_Score::subPrice;
-					break;
-				case 4:
-					Buf_Data.Sub = DL2_Score::subDiscount;
-					break;
-				case 5:
-					Buf_Data.Sub = DL2_Score::subNetPrice;
-					break;
-				case 6:
-					Buf_Data.Sub = DL2_Score::subMargin;
-					break;
-				case 7:
-					Buf_Data.Sub = DL2_Score::subPctIncome;
-					break;
-				case 8:
-					Buf_Data.Sub = DL2_Score::subPctMargin;
-					break;
-				case 9:
-					Buf_Data.Sub = DL2_Score::subCount;
-					break;
-				case 10:
-					Buf_Data.Sub = DL2_Score::subAverage;
-					break;
-				default:
-					Buf_Data.Sub = DL2_Score::subNone;
-					break;
+				case 1: Buf_Data.Sub = DL2_Score::subAmount; break;
+				case 2: Buf_Data.Sub = DL2_Score::subCost; break;
+				case 3: Buf_Data.Sub = DL2_Score::subPrice; break;
+				case 4: Buf_Data.Sub = DL2_Score::subDiscount; break;
+				case 5: Buf_Data.Sub = DL2_Score::subNetPrice; break;
+				case 6: Buf_Data.Sub = DL2_Score::subMargin; break;
+				case 7: Buf_Data.Sub = DL2_Score::subPctIncome; break;
+				case 8: Buf_Data.Sub = DL2_Score::subPctMargin; break;
+				case 9: Buf_Data.Sub = DL2_Score::subCount; break;
+				case 10: Buf_Data.Sub = DL2_Score::subAverage; break;
+				default: Buf_Data.Sub = DL2_Score::subNone; break;
 			}
 			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
@@ -340,24 +282,12 @@ private:
 			ushort v = 0;
 			getCtrlData(CTL_BIZPRCRT_PRDCMP, &(v = 0));
 			switch(v) {
-				case 1:
-					Buf_Data.Cmp = DL2_Score::cmpDD;
-					break;
-				case 2:
-					Buf_Data.Cmp = DL2_Score::cmpMM;
-					break;
-				case 3:
-					Buf_Data.Cmp = DL2_Score::cmpQQ;
-					break;
-				case 4:
-					Buf_Data.Cmp = DL2_Score::cmpYY;
-					break;
-				case 5:
-					Buf_Data.Cmp = DL2_Score::cmpPrev;
-					break;
-				default:
-					Buf_Data.Cmp = DL2_Score::cmpNone;
-					break;
+				case 1: Buf_Data.Cmp = DL2_Score::cmpDD; break;
+				case 2: Buf_Data.Cmp = DL2_Score::cmpMM; break;
+				case 3: Buf_Data.Cmp = DL2_Score::cmpQQ; break;
+				case 4: Buf_Data.Cmp = DL2_Score::cmpYY; break;
+				case 5: Buf_Data.Cmp = DL2_Score::cmpPrev; break;
+				default: Buf_Data.Cmp = DL2_Score::cmpNone; break;
 			}
 			Buf_Data.PutToStr(Str_Buf.Z());
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);

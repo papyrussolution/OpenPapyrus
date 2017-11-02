@@ -7,8 +7,8 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 
 #define NOEXCEPT
 
@@ -92,7 +92,7 @@ DocModification::DocModification(int modificationType_, int position_ /*= 0*/, i
 {
 }
 
-DocModification::DocModification(int modificationType_, const Action & act, int linesAdded_ /*= 0*/) :
+DocModification::DocModification(int modificationType_, const UndoHistory::Action & act, int linesAdded_ /*= 0*/) :
 	modificationType(modificationType_),
 	position(act.position),
 	length(act.lenData),
@@ -134,15 +134,12 @@ Document::Document()
 	durationStyleOneLine = 0.00001;
 	regex = 0;
 	UTF8BytesOfLeadInitialise();
-
 	perLineData[ldMarkers] = new LineMarkers();
 	perLineData[ldLevels] = new LineLevels();
 	perLineData[ldState] = new LineState();
 	perLineData[ldMargin] = new LineAnnotation();
 	perLineData[ldAnnotation] = new LineAnnotation();
-
 	cb.SetPerLine(this);
-
 	pli = 0;
 }
 
@@ -256,11 +253,11 @@ void Document::TentativeUndo()
 				//Platform::DebugPrintf("Steps=%d\n", steps);
 				for(int step = 0; step < steps; step++) {
 					const int prevLinesTotal = LinesTotal();
-					const Action &action = cb.GetUndoStep();
-					if(action.at == removeAction) {
+					const UndoHistory::Action & action = cb.GetUndoStep();
+					if(action.at == UndoHistory::Action::tRemove) {
 						NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_UNDO, action));
 					}
-					else if(action.at == containerAction) {
+					else if(action.at == UndoHistory::Action::tContainer) {
 						DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_UNDO);
 						dm.token = action.position;
 						NotifyModified(dm);
@@ -269,15 +266,15 @@ void Document::TentativeUndo()
 						NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_UNDO, action));
 					}
 					cb.PerformUndoStep();
-					if(action.at != containerAction) {
+					if(action.at != UndoHistory::Action::tContainer) {
 						ModifiedAt(action.position);
 					}
 					int modFlags = SC_PERFORMED_UNDO;
 					// With undo, an insertion action becomes a deletion notification
-					if(action.at == removeAction) {
+					if(action.at == UndoHistory::Action::tRemove) {
 						modFlags |= SC_MOD_INSERTTEXT;
 					}
-					else if(action.at == insertAction) {
+					else if(action.at == UndoHistory::Action::tInsert) {
 						modFlags |= SC_MOD_DELETETEXT;
 					}
 					if(steps > 1)
@@ -1194,11 +1191,11 @@ int Document::Undo()
 			int prevRemoveActionLen = 0;
 			for(int step = 0; step < steps; step++) {
 				const int prevLinesTotal = LinesTotal();
-				const Action &action = cb.GetUndoStep();
-				if(action.at == removeAction) {
+				const UndoHistory::Action & action = cb.GetUndoStep();
+				if(action.at == UndoHistory::Action::tRemove) {
 					NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_UNDO, action));
 				}
-				else if(action.at == containerAction) {
+				else if(action.at == UndoHistory::Action::tContainer) {
 					DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_UNDO);
 					dm.token = action.position;
 					NotifyModified(dm);
@@ -1213,19 +1210,17 @@ int Document::Undo()
 					NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_UNDO, action));
 				}
 				cb.PerformUndoStep();
-				if(action.at != containerAction) {
+				if(action.at != UndoHistory::Action::tContainer) {
 					ModifiedAt(action.position);
 					newPos = action.position;
 				}
 
 				int modFlags = SC_PERFORMED_UNDO;
 				// With undo, an insertion action becomes a deletion notification
-				if(action.at == removeAction) {
+				if(action.at == UndoHistory::Action::tRemove) {
 					newPos += action.lenData;
 					modFlags |= SC_MOD_INSERTTEXT;
-					if((coalescedRemoveLen > 0) &&
-					    (action.position == prevRemoveActionPos || action.position ==
-						    (prevRemoveActionPos + prevRemoveActionLen))) {
+					if((coalescedRemoveLen > 0) && (action.position == prevRemoveActionPos || action.position == (prevRemoveActionPos + prevRemoveActionLen))) {
 						coalescedRemoveLen += action.lenData;
 						newPos = coalescedRemovePos + coalescedRemoveLen;
 					}
@@ -1236,7 +1231,7 @@ int Document::Undo()
 					prevRemoveActionPos = action.position;
 					prevRemoveActionLen = action.lenData;
 				}
-				else if(action.at == insertAction) {
+				else if(action.at == UndoHistory::Action::tInsert) {
 					modFlags |= SC_MOD_DELETETEXT;
 					coalescedRemovePos = -1;
 					coalescedRemoveLen = 0;
@@ -1277,11 +1272,11 @@ int Document::Redo()
 			int steps = cb.StartRedo();
 			for(int step = 0; step < steps; step++) {
 				const int prevLinesTotal = LinesTotal();
-				const Action &action = cb.GetRedoStep();
-				if(action.at == insertAction) {
+				const UndoHistory::Action & action = cb.GetRedoStep();
+				if(action.at == UndoHistory::Action::tInsert) {
 					NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_REDO, action));
 				}
-				else if(action.at == containerAction) {
+				else if(action.at == UndoHistory::Action::tContainer) {
 					DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_REDO);
 					dm.token = action.position;
 					NotifyModified(dm);
@@ -1290,17 +1285,17 @@ int Document::Redo()
 					NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_REDO, action));
 				}
 				cb.PerformRedoStep();
-				if(action.at != containerAction) {
+				if(action.at != UndoHistory::Action::tContainer) {
 					ModifiedAt(action.position);
 					newPos = action.position;
 				}
 
 				int modFlags = SC_PERFORMED_REDO;
-				if(action.at == insertAction) {
+				if(action.at == UndoHistory::Action::tInsert) {
 					newPos += action.lenData;
 					modFlags |= SC_MOD_INSERTTEXT;
 				}
-				else if(action.at == removeAction) {
+				else if(action.at == UndoHistory::Action::tRemove) {
 					modFlags |= SC_MOD_DELETETEXT;
 				}
 				if(steps > 1)

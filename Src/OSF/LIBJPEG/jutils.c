@@ -131,7 +131,7 @@ GLOBAL(long) jround_up(long a, long b)
 	return a - (a % b);
 }
 
-/* On normal machines we can apply MEMCOPY() and MEMZERO() to sample arrays
+/* On normal machines we can apply MEMCOPY() and memzero() to sample arrays
  * and coefficient-block arrays.  This won't work on 80x86 because the arrays
  * are FAR and we're assuming a small-pointer memory model.  However, some
  * DOS compilers provide far-pointer versions of memcpy() and memset() even

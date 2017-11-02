@@ -28,6 +28,7 @@ void SlExtraProcBlock::Reset()
 	F_CallCalendar = 0;
 	F_GetGlobalSecureConfig = 0;
 	F_GetDefaultEncrKey = 0;
+	F_QueryPath = 0; // @v9.8.7
 }
 
 void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
@@ -40,6 +41,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 		F_CallCalendar = pS->F_CallCalendar;
 		F_GetGlobalSecureConfig = pS->F_GetGlobalSecureConfig;
 		F_GetDefaultEncrKey = pS->F_GetDefaultEncrKey;
+		F_QueryPath = pS->F_QueryPath; // @v9.8.7
 	}
 	else
 		Reset();
@@ -670,6 +672,16 @@ int SLAPI SlSession::IsThereDragndropObj(void ** ppObj)
 	return type;
 }
 
+SLAPI SGlobalSecureConfig::SGlobalSecureConfig()
+{
+	Flags = 0;
+}
+
+int SLAPI SGlobalSecureConfig::IsEmpty() const
+{
+	return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty());
+}
+
 const SGlobalSecureConfig & SLAPI SlSession::GetGlobalSecureConfig()
 {
 	SlThreadLocalArea & r_tla = GetTLA();
@@ -774,6 +786,12 @@ int SLAPI SlSession::ExpandString(SString & rBuf, int ctransf) const
 {
 	ExpandStringFunc f_es = ExtraProcBlk.F_ExpandString;
 	return f_es ? f_es(rBuf, ctransf) : 0;
+}
+
+int SLAPI SlSession::QueryPath(const char * pSignature, SString & rBuf) const
+{
+    QueryPathFunc f_qp = ExtraProcBlk.F_QueryPath;
+    return f_qp ? f_qp(pSignature, rBuf) : (rBuf.Z(), 0);
 }
 
 void SLAPI SlSession::GetExtraProcBlock(SlExtraProcBlock * pBlk) const

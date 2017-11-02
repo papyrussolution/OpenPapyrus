@@ -752,7 +752,7 @@ int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char *
 //static
 SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
 		const uchar c = *p;
 		if(isdec(c))

@@ -206,6 +206,11 @@ SLAPI PPQuot::PPQuot(const QuotationTbl::Rec & src)
 	GetFromRec(src);
 }
 
+void SLAPI PPQuot::Clear()
+{
+	THISZERO();
+}
+
 PPQuot & FASTCALL PPQuot::operator = (const QuotationTbl::Rec & src)
 {
 	GetFromRec(src);

@@ -166,8 +166,8 @@ static void write_bmp_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 	bfSize = headersize + (INT32)dest->row_width * (INT32)cinfo->output_height;
 
 	/* Set unused fields of header to 0 */
-	MEMZERO(bmpfileheader, SIZEOF(bmpfileheader));
-	MEMZERO(bmpinfoheader, SIZEOF(bmpinfoheader));
+	memzero(bmpfileheader, SIZEOF(bmpfileheader));
+	memzero(bmpinfoheader, SIZEOF(bmpinfoheader));
 
 	/* Fill the file header */
 	bmpfileheader[0] = 0x42; /* first 2 bytes are ASCII 'B', 'M' */
@@ -231,8 +231,8 @@ static void write_os2_header(j_decompress_ptr cinfo, bmp_dest_ptr dest)
 	bfSize = headersize + (INT32)dest->row_width * (INT32)cinfo->output_height;
 
 	/* Set unused fields of header to 0 */
-	MEMZERO(bmpfileheader, SIZEOF(bmpfileheader));
-	MEMZERO(bmpcoreheader, SIZEOF(bmpcoreheader));
+	memzero(bmpfileheader, SIZEOF(bmpfileheader));
+	memzero(bmpcoreheader, SIZEOF(bmpcoreheader));
 
 	/* Fill the file header */
 	bmpfileheader[0] = 0x42; /* first 2 bytes are ASCII 'B', 'M' */

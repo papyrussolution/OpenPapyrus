@@ -492,10 +492,10 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 {
 	STRNSCPY(Serial, rS.Serial);
 	Queue = rS.Queue;
-	SETFLAG(Flags, cifGrouped,       rS.Flags & CCheckPacket::LineExt::fGroup);         // @v7.1.5
-	SETFLAG(Flags, cifModifier,      rS.Flags & CCheckPacket::LineExt::fModifier);      // @v7.2.0
-	SETFLAG(Flags, cifPartOfComplex, rS.Flags & CCheckPacket::LineExt::fPartOfComplex); // @v7.4.5
-	SETFLAG(Flags, cifQuotedByGift,  rS.Flags & CCheckPacket::LineExt::fQuotedByGift);  // @v7.4.10
+	SETFLAG(Flags, cifGrouped,       rS.Flags & CCheckPacket::LineExt::fGroup);
+	SETFLAG(Flags, cifModifier,      rS.Flags & CCheckPacket::LineExt::fModifier);
+	SETFLAG(Flags, cifPartOfComplex, rS.Flags & CCheckPacket::LineExt::fPartOfComplex);
+	SETFLAG(Flags, cifQuotedByGift,  rS.Flags & CCheckPacket::LineExt::fQuotedByGift);
 	SETFLAG(Flags, cifFixedPrice,    rS.Flags & CCheckPacket::LineExt::fFixedPrice);    // @v8.6.12
 	return *this;
 }
@@ -513,14 +513,12 @@ int CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 		rRec.Dscnt = (BeforeGiftPrice - Price);
 	}
 	else {
-		const double amount = R5(Price - Discount); // @v7.9.6
+		const double amount = R5(Price - Discount);
 		rRec.Price = dbltointmny(Price);
 		rRec.Dscnt = Discount;
-		// @v7.9.6 {
 		const double tamt = R5(intmnytodbl(rRec.Price) - rRec.Dscnt);
 		if(tamt != amount /* @v8.2.3 && (CConfig.Flags2 & CCFLG2_ADJCPANCCLINETRANS)*/)
 			rRec.Dscnt += (tamt - amount);
-		// } @v7.9.6
 	}
 	return 1;
 }
@@ -581,7 +579,6 @@ int CCheckItem::ResetGiftQuot()
 
 int CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const
 {
-	// @v7.5.0 (&& rItem.Discount == Discount)
 	return BIN(rItem.Price == Price && rItem.Discount == Discount && !(rItem.Flags & cifGiftDiscount) &&
 		!(rItem.Flags & cifModifier) && !(Flags & cifModifier) &&
 		(!(pPack->Rec.Flags & CCHKF_SUSPENDED) || (rItem.Flags & cifIsPrinted) == (Flags & cifIsPrinted)) &&
@@ -823,10 +820,10 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
-				SETFLAG(pItem->Flags, cifGrouped,  r_le.Flags & r_le.fGroup);    // @v7.1.5
-				SETFLAG(pItem->Flags, cifModifier, r_le.Flags & r_le.fModifier); // @v7.2.0
-				SETFLAG(pItem->Flags, cifPartOfComplex, r_le.Flags & r_le.fPartOfComplex); // @v7.4.10
-				SETFLAG(pItem->Flags, cifQuotedByGift,  r_le.Flags & r_le.fQuotedByGift);  // @v7.4.10
+				SETFLAG(pItem->Flags, cifGrouped,  r_le.Flags & r_le.fGroup);
+				SETFLAG(pItem->Flags, cifModifier, r_le.Flags & r_le.fModifier);
+				SETFLAG(pItem->Flags, cifPartOfComplex, r_le.Flags & r_le.fPartOfComplex);
+				SETFLAG(pItem->Flags, cifQuotedByGift,  r_le.Flags & r_le.fQuotedByGift);
 			}
 		}
 		return 1;
@@ -870,7 +867,7 @@ int SLAPI CCheckPacket::CopyLines(const CCheckPacket & rS)
 	int    ok = 1;
 	THROW_SL(Items_.copy(rS.Items_));
 	THROW_SL(LnTextList.Copy(rS.LnTextList));
-	THROW_SL(ExtList.copy(rS.ExtList)); // @v7.1.4
+	THROW_SL(ExtList.copy(rS.ExtList));
 	CATCHZOK
 	return ok;
 }
@@ -883,7 +880,7 @@ int SLAPI CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 
 int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = -1;
 	SString line_buf;
 	SString temp_buf;
@@ -996,8 +993,8 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			r_le.Queue = rExt.Queue;
 			SETFLAG(r_le.Flags, r_le.fGroup,         rExt.Flags & rExt.fGroup);
 			SETFLAG(r_le.Flags, r_le.fModifier,      rExt.Flags & rExt.fModifier);
-			SETFLAG(r_le.Flags, r_le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex); // @v7.4.10
-			SETFLAG(r_le.Flags, r_le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);  // @v7.4.10
+			SETFLAG(r_le.Flags, r_le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
+			SETFLAG(r_le.Flags, r_le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
 			ok = 1;
 		}
 		else {
@@ -1006,8 +1003,8 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			le.Queue = rExt.Queue;
 			SETFLAG(le.Flags, le.fGroup,         rExt.Flags & rExt.fGroup);
 			SETFLAG(le.Flags, le.fModifier,      rExt.Flags & rExt.fModifier);
-			SETFLAG(le.Flags, le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex); // @v7.4.10
-			SETFLAG(le.Flags, le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);  // @v7.4.10
+			SETFLAG(le.Flags, le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
+			SETFLAG(le.Flags, le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
 			THROW_SL(ExtList.insert(&le));
 			ok = 2;
 		}
@@ -1093,10 +1090,10 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;
-			SETFLAG(le.Flags, le.fGroup,    rItem.Flags & cifGrouped);  // @v7.1.5
-			SETFLAG(le.Flags, le.fModifier, rItem.Flags & cifModifier); // @v7.2.0
-			SETFLAG(le.Flags, le.fPartOfComplex, rItem.Flags & cifPartOfComplex); // @v7.4.10
-			SETFLAG(le.Flags, le.fQuotedByGift,  rItem.Flags & cifQuotedByGift);  // @v7.4.10
+			SETFLAG(le.Flags, le.fGroup,    rItem.Flags & cifGrouped);
+			SETFLAG(le.Flags, le.fModifier, rItem.Flags & cifModifier);
+			SETFLAG(le.Flags, le.fPartOfComplex, rItem.Flags & cifPartOfComplex);
+			SETFLAG(le.Flags, le.fQuotedByGift,  rItem.Flags & cifQuotedByGift);
 			THROW(SetLineExt(idx, le));
 		}
 	}
@@ -1252,7 +1249,7 @@ double FASTCALL CCheckPacket::GetItemDiscount(const CCheckLineTbl::Rec & rItem) 
 	return (rItem.Dscnt * rItem.Quantity);
 }
 
-int SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
+void SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 {
 	double amount = 0.0, discount = 0.0;
 	CCheckLineTbl::Rec item;
@@ -1273,22 +1270,16 @@ int SLAPI CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 	*/
 	ASSIGN_PTR(pAmt, amount);
 	ASSIGN_PTR(pDscnt, discount);
-	return 1;
 }
 
-int SLAPI CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
+void SLAPI CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
 {
-	int    ok = 1;
 	double amt = 0.0, dscnt = 0.0;
-	if(CalcAmount(&amt, &dscnt)) {
-		LDBLTOMONEY(amt, Rec.Amount);
-		LDBLTOMONEY(dscnt, Rec.Discount);
-	}
-	else
-		ok = 0;
+	CalcAmount(&amt, &dscnt);
+	LDBLTOMONEY(amt, Rec.Amount);
+	LDBLTOMONEY(dscnt, Rec.Discount);
 	ASSIGN_PTR(pAmt, amt);
 	ASSIGN_PTR(pDscnt, dscnt);
-	return ok;
 }
 
 int SLAPI CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const
@@ -1312,8 +1303,7 @@ int SLAPI CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal
 				nonfiscal = amt;
 			//
 			PPObjSCard sc_obj;
-			// @v7.6.7 const PPID charge_goods_id = sc_obj.GetConfig().ChargeGoodsID;
-			const PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID); // @v7.6.7
+			const PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
 			if(charge_goods_id) {
 				CCheckLineTbl::Rec item;
 				for(uint i = 0; EnumLines(&i, &item);) {

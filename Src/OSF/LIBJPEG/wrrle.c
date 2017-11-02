@@ -100,7 +100,7 @@ METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 		/* Allocate storage for RLE-style cmap, zero any extra entries */
 		cmapsize = cinfo->out_color_components * CMAPLENGTH * SIZEOF(rle_map);
 		dest->colormap = (rle_map*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, cmapsize);
-		MEMZERO(dest->colormap, cmapsize);
+		memzero(dest->colormap, cmapsize);
 		/* Save away data in RLE format --- note 8-bit left shift! */
 		/* Shifting would need adjustment for JSAMPLEs wider than 8 bits. */
 		for(ci = 0; ci < cinfo->out_color_components; ci++) {

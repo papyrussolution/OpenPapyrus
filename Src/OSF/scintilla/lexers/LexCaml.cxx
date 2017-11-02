@@ -19,8 +19,8 @@
  */
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 
 //	Since the Microsoft __iscsym[f] funcs are not ANSI...
 /*inline*/ int FASTCALL iscaml(int c) 

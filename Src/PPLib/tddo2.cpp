@@ -1326,11 +1326,11 @@ public:
 	static int FASTCALL IsFirstCharOfIdent(char c);
 	static int FASTCALL IsCharOfIdent(char c);
 
-	SLAPI  TddoContentGraph(Tddo & rT);
+	SLAPI  TddoContentGraph(/*Tddo & rT*/);
 	SLAPI ~TddoContentGraph();
 	int    SLAPI SetSourceName(const char * pSrcName);
 	int    SLAPI Parse(const char * pSrc);
-	int    SLAPI Execute(uint chunkP, SString & rBuf);
+	int    SLAPI Execute(SString & rBuf);
 
 	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
 	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
@@ -1436,7 +1436,7 @@ private:
 		const char * P_Src;
 	};
 	struct Error {
-		Error()
+		SLAPI  Error()
 		{
 			THISZERO();
 		}
@@ -1445,6 +1445,20 @@ private:
 		uint   ColNo;
 		int    ErrCode;
 		uint   AddedMsgP;
+	};
+	class LocalScope : public DlScope {
+	public:
+		SLAPI  LocalScope();
+		SLAPI ~LocalScope();
+		uint   SLAPI SetVar(const char * pName, const STypEx & rT, const void * pData, size_t dataSize);
+	private:
+		class DataPool : public SArray {
+		public:
+			SLAPI  DataPool();
+		private:
+			virtual void FASTCALL freeItem(void * p);
+		};
+		DataPool DP;
 	};
 	int    SLAPI ChunkToStr(uint cp, uint tabLevel, SString & rBuf) const;
 	uint   SLAPI AddBlock(int kind, uint exprP, const SString & rText);
@@ -1467,34 +1481,23 @@ private:
 	}
 
 	int    SLAPI ResolveExpression(ExprSet::Expression & rExpr);
+	int    SLAPI Helper_Execute(uint chunkP, SString & rBuf);
 
 	TSVector <ChunkInner> L; 
 	// Блок по индексу 0 всегда стартовый (фиктивный блок)
 	uint   EndChunkP;   // Позиция завершающего (фиктивного) блока 
 	ExprSet ES; // Коллекция выражений. На них ссылаются ChunkInner::ExprP
-	Tddo & R_T;
+	//Tddo & R_T;
 	SStrScan Scan;
 	Current C;
 	TSStack <Current> ScStk;
 	TSVector <Error>  ErrL;
 	TSVector <Var>    VarL;
 	const  SymbHashTable * P_ShT; // Таблица символов, полученная вызовом PPGetStringHash(int)
-	
-	class ValueBuffer : public SBaseBuffer {
-	public:
-		SLAPI  ValueBuffer()
-		{
-			SBaseBuffer::Init();
-		}
-		SLAPI ~ValueBuffer()
-		{
-			SBaseBuffer::Destroy();
-		}
-	};
-	ValueBuffer VvBuf; // Буфер, хранящий значения переменных.
+	DlContext * P_Ctx;
 };
 
-int SLAPI TddoContentGraph::Execute(uint chunkP, SString & rBuf)
+int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, SString & rBuf)
 {
 	int    ok = 1;
 	int    done = 0;
@@ -1558,6 +1561,67 @@ int SLAPI TddoContentGraph::Execute(uint chunkP, SString & rBuf)
 	}
 	CATCHZOK
 	return ok;
+}
+
+SLAPI TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *), aryPtrContainer|aryEachItem)
+{
+}
+
+//virtual 
+void FASTCALL TddoContentGraph::LocalScope::DataPool::freeItem(void * p)
+{
+	SAlloc::F(p);
+}
+
+SLAPI TddoContentGraph::LocalScope::LocalScope() : DlScope(0, DlScope::kLocal, "", 0)
+{
+}
+
+SLAPI TddoContentGraph::LocalScope::~LocalScope()
+{
+}
+	
+uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData, size_t dataSize)
+{
+	int    ok = 1;
+	uint   vp = 0;
+	uint   vid = 0;
+	int    is_new = 0;
+	THROW(!isempty(pName));
+	if(!SearchName(pName, &vp)) {
+		SdbField new_fld;
+		new_fld.Name = pName;
+		new_fld.T = rT;
+		THROW_SL(AddField(&vid, &new_fld));
+		THROW_SL(SearchName(pName, &vp));
+		{
+			assert(DP.getCount() == SdRecord::GetCount()-1);
+			void * p_new_data = 0;
+			THROW_SL(DP.insert(p_new_data));
+		}
+		is_new = 1;
+	}
+	{
+		SdbField fld;
+		THROW_SL(GetFieldByPos(vp, &fld));
+		if(pData) {
+			size_t fts = fld.T.GetBinSize();
+			assert(dataSize == fts);
+			void * p_new_data = SAlloc::M(fts);
+			THROW_SL(p_new_data);
+			memcpy(p_new_data, pData, fts);
+			SAlloc::F(DP.at(vp));
+			DP.atPut(vp, p_new_data);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI TddoContentGraph::Execute(SString & rBuf)
+{
+	LocalScope local_scope;
+	return Helper_Execute(0, rBuf);
 }
 
 int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr)
@@ -2005,9 +2069,10 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 		rBuf.Cat("invalid-expression-pos").CatChar('[').Cat(exprPos).CatChar(']');
 }
 
-SLAPI TddoContentGraph::TddoContentGraph(Tddo & rT) : R_T(rT), ES(*this)
+SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this)
 {
 	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
+	P_Ctx = DS.GetInterfaceContext(PPSession::ctxtExportData);
 }
 
 SLAPI TddoContentGraph::~TddoContentGraph()
@@ -2749,16 +2814,17 @@ int SLAPI TestTddo2()
 	THROW_SL(debug_file.IsValid());
 	THROW_SL(out_file.IsValid());
 	{
-		Tddo tddo;
-		TddoContentGraph tcg(tddo);
-		tddo.SetInputFileName(inp_file_name);
+		//Tddo tddo;
+		//TddoContentGraph tcg(/*tddo*/);
+		//tddo.SetInputFileName(inp_file_name);
+		TddoContentGraph tcg;
 		while(in_file.ReadLine(temp_buf))
 			in_buf.Cat(temp_buf);
 		tcg.Parse(in_buf);
 		tcg.Output(temp_buf);
 		debug_file.WriteLine(temp_buf);
 		//
-		tcg.Execute(0, temp_buf.Z());
+		tcg.Execute(temp_buf.Z());
 		out_file.WriteLine(temp_buf);
 	}
 #if 0 // {

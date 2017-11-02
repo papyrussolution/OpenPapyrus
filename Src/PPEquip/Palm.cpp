@@ -3226,7 +3226,7 @@ int SLAPI PPObjStyloPalm::ImportToDo(SQueue * pQueue, PPLogger * pLogger, int us
 	return ok;
 }
 
-PPObjStyloPalm::ExportBlock::ExportBlock()
+SLAPI PPObjStyloPalm::ExportBlock::ExportBlock()
 {
 	P_GObj = new PPObjGoods;
 	P_BrObj = new PPObjBrand;
@@ -3240,7 +3240,7 @@ PPObjStyloPalm::ExportBlock::ExportBlock()
 	P_GgList = 0;
 }
 
-PPObjStyloPalm::ExportBlock::~ExportBlock()
+SLAPI PPObjStyloPalm::ExportBlock::~ExportBlock()
 {
 	delete P_GObj;
 	delete P_BrObj;
@@ -3261,7 +3261,7 @@ int SLAPI PPObjStyloPalm::CreateWhList(ExportBlock & rBlk)
 		SString temp_buf;
 		PPIDArray loc_list;
 		PPObjLocation loc_obj;
-		THROW_MEM(rBlk.P_WhList = new TSArray <ExportBlock::WhEntry>);
+		THROW_MEM(rBlk.P_WhList = new TSVector <ExportBlock::WhEntry>); // @v9.8.7 TSArray-->TSVector
 		loc_obj.GetWarehouseList(&loc_list);
 		for(uint i = 0; i < loc_list.getCount(); i++) {
 			ExportBlock::WhEntry entry;
@@ -3281,7 +3281,7 @@ int SLAPI PPObjStyloPalm::CreateBrandList(ExportBlock & rBlk)
 {
 	int    ok = -1;
     if(!rBlk.P_BrandList) {
-    	THROW_MEM(rBlk.P_BrandList = new TSArray <ExportBlock::BrandEntry>);
+    	THROW_MEM(rBlk.P_BrandList = new TSVector <ExportBlock::BrandEntry>); // @v9.8.7 TSArray-->TSVector
 		{
 			SString temp_buf;
 			Goods2Tbl::Key2 k2;
@@ -3317,7 +3317,7 @@ int SLAPI PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
 		SString temp_buf;
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
-    	THROW_MEM(rBlk.P_GgList = new TSArray <ExportBlock::GoodsGrpEntry>);
+    	THROW_MEM(rBlk.P_GgList = new TSVector <ExportBlock::GoodsGrpEntry>); // @v9.8.7 TSArray-->TSVector
 		for(GoodsGroupIterator ggiter(0); ggiter.Next(&id, temp_buf) > 0;) {
 			if(rBlk.P_GObj->Fetch(id, &goods_rec) > 0) {
 				ExportBlock::GoodsGrpEntry entry;
@@ -4389,16 +4389,15 @@ SLAPI PalmDisplayBlock::PalmDisplayBlock()
 	Clear();
 }
 
-PalmDisplayBlock & SLAPI PalmDisplayBlock::Clear()
+void SLAPI PalmDisplayBlock::Clear()
 {
 	Ver = DS.GetVersion();
 	DvcID = 0;
 	Flags = 0;
 	Ctx = 0;
 	CtxData.Clear();
-	DirectMsg = 0;
+	DirectMsg.Z();
 	QueuePos = 0;
-	return *this;
 }
 
 class StyloDisplayQueue {

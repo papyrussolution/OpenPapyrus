@@ -572,7 +572,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	PersonTbl::Rec psn_rec;
 	PPTransferItem ti;
 	StringSet ss(';', MetavarList);
-	rResult = 0;
+	rResult.Z();
 	SString temp_buf;
 	SStrScan scan(pExpr);
 	const long cc_flags = p_ccp ? p_ccp->Rec.Flags : 0;
@@ -1291,7 +1291,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						if(p_ccp) {
 							p_ccp->GetExtStrData(CCheckPacket::extssSign, temp_buf);
 							if(temp_buf.Len() > 32) {
-								rResult = 0;
+								rResult.Z();
 								for(uint p = 0; p < temp_buf.Len();) {
 									if(p)
 										rResult.Space();
@@ -1691,7 +1691,7 @@ void PPSlipFormat::AddZone(PPSlipFormatZone * pZone)
 
 int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	int    token = 0;
 	if(!Scan.GetBuf()) {
 		THROW_SL(rFile.ReadLine(LineBuf));

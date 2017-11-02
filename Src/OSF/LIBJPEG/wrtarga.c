@@ -52,7 +52,7 @@ static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_c
 {
 	char targaheader[18];
 	/* Set unused fields of header to 0 */
-	MEMZERO(targaheader, SIZEOF(targaheader));
+	memzero(targaheader, SIZEOF(targaheader));
 	if(num_colors > 0) {
 		targaheader[1] = 1; /* color map type 1 */
 		targaheader[5] = (char)(num_colors & 0xFF);

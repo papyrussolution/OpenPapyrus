@@ -6730,168 +6730,170 @@ record SpecSeries {
 }
 
 record Bill {
-	ID           zstring(32)  "Ид документа";
-	Code         zstring(24)  "@{billno}";
-	Date         date         "@{date}";
-	OpID         long         "Ид вида операции";
-	OpSymb       zstring(20)  "Символ вида операции";
-	EdiOp        long         "Тип операции EDI";                          // @v8.5.6
-	EdiOpSymb    zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
-	InvoiceCode  zstring(24)  "Номер счет-фактуры";
-	InvoiceDate  date         "Дата счет-фактуры";
-	MainGLN      zstring(16)  "GLN главной организации";                   // @v7.1.12
-	INN          zstring(32)  "ИНН контрагента";
-	GLN          zstring(16)  "GLN контрагента";                           // @v7.1.12
-	CntragID     long         "ИД статьи контрагента";
-	CntragName   zstring(128) "Имя контрагента";
-	CntragNo     long         "Номер статьи контрагента";
-	RegistryCode zstring(32)  "Код контрагента";
-	Obj2ID       long         "ИД статьи дополнительного объекта по документу";    // @v8.1.3
-	Obj2Name     zstring(48)  "Наименование дополнительного объекта по документу";
-	Obj2INN      zstring(32)  "ИНН дополнительного объекта по документу";
-	Obj2GLN      zstring(16)  "GLN дополнительного объекта по документу";          // @v7.1.12
-	Obj2No       long         "Номер статьи дополнительного объекта по документу";
-	DueDate      date         "Дата исполнения документа";
-	PaymDate     date         "Последняя дата из плана платежей по документу";
-	Amount       double       format(8.2) "@{amount}";
-	CRate        double       format(8.2) "@{currate}";
-	CurID        long         format(10)  "@{currency}";
-	BaseAmount   double       format(8.2) "@{baseamount}";
-	VatSum       double       format(8.2) "Сумма НДС в номинальных ценах";
-	Memo         zstring(160) "Примечание";
-	LocID        zstring(32)  "Ид склада";
-	LocName      zstring(48)  "Наименование склада";
-	LocCode      zstring(16)  "Код склада";
-	City         zstring(48)  "Город склада";
-	Addr         zstring(255) "Адрес склада";
-	OrderBillID  zstring(32)  "Ид связанного документа заказа";
-	OrderBillNo  zstring(24)  "Номер связанного документа заказа";
-	DesadvBillID zstring(32)  "Ид связанного документа DESADV"; // @v8.6.12
-	DesadvBillNo zstring(24)  "Номер связанного документа DESADV"; // @v8.6.12
-	DesadvBillDt date         "Дата связанного документа DESADV"; // @v8.6.12
-	DlvrAddrID   long         "Ид адреса доставки";
-	DlvrAddrCode zstring(16)  "Код адреса доставки";
-	DlvrAddr     zstring(255) "@{daddress}";
-	AgentName    zstring(128) "Имя агента";
-	AgentINN     zstring(32)  "ИНН агента";
-	AgentGLN     zstring(16)  "GLN агента";          // @v7.1.12
+	ID            zstring(32)  "Ид документа";
+	Code          zstring(24)  "@{billno}";
+	Date          date         "@{date}";
+	OpID          long         "Ид вида операции";
+	OpSymb        zstring(20)  "Символ вида операции";
+	EdiOp         long         "Тип операции EDI";                          // @v8.5.6
+	EdiOpSymb     zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
+	InvoiceCode   zstring(24)  "Номер счет-фактуры";
+	InvoiceDate   date         "Дата счет-фактуры";
+	MainGLN       zstring(16)  "GLN главной организации";                   // @v7.1.12
+	INN           zstring(32)  "ИНН контрагента";
+	GLN           zstring(16)  "GLN контрагента";                           // @v7.1.12
+	CntragID      long         "ИД статьи контрагента";
+	CntragName    zstring(128) "Имя контрагента";
+	CntragNo      long         "Номер статьи контрагента";
+	RegistryCode  zstring(32)  "Код контрагента";
+	Obj2ID        long         "ИД статьи дополнительного объекта по документу";    // @v8.1.3
+	Obj2Name      zstring(48)  "Наименование дополнительного объекта по документу";
+	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
+	Obj2GLN       zstring(16)  "GLN дополнительного объекта по документу";          // @v7.1.12
+	Obj2No        long         "Номер статьи дополнительного объекта по документу";
+	DueDate       date         "Дата исполнения документа";
+	PaymDate      date         "Последняя дата из плана платежей по документу";
+	Amount        double       format(8.2) "@{amount}";
+	CRate         double       format(8.2) "@{currate}";
+	CurID         long         format(10)  "@{currency}";
+	BaseAmount    double       format(8.2) "@{baseamount}";
+	VatSum        double       format(8.2) "Сумма НДС в номинальных ценах";
+	Memo          zstring(160) "Примечание";
+	LocID         zstring(32)  "Ид склада";
+	LocName       zstring(48)  "Наименование склада";
+	LocCode       zstring(16)  "Код склада";
+	City          zstring(48)  "Город склада";
+	Addr          zstring(255) "Адрес склада";
+	OrderBillID   zstring(32)  "Ид связанного документа заказа";
+	OrderBillNo   zstring(24)  "Номер связанного документа заказа";
+	DesadvBillID  zstring(32)  "Ид связанного документа DESADV"; // @v8.6.12
+	DesadvBillNo  zstring(24)  "Номер связанного документа DESADV"; // @v8.6.12
+	DesadvBillDt  date         "Дата связанного документа DESADV"; // @v8.6.12
+	DlvrAddrID    long         "Ид адреса доставки";
+	DlvrAddrCode  zstring(16)  "Код адреса доставки";
+	DlvrAddr      zstring(255) "@{daddress}";
+	AgentName     zstring(128) "Имя агента";
+	AgentINN      zstring(32)  "ИНН агента";
+	AgentGLN      zstring(16)  "GLN агента";          // @v7.1.12
+	AgentPersonID long         "ИД персоналии агента"; // @v9.8.7
 
-	CostWithSTax int16        format(4)   "Цены включают налог с продаж";
-	XmlPrefix    zstring(16)  "Префикс XML-документа (dll)";
-	GUID         zstring(64)  "GUID документа (dll)";
-	MainINN      zstring(32)  "ИНН главной организации (dll)";
-	BeerGrpID    long         "ИД товарной группы Пиво (dll)";
-	OrderDate    date         "Дата связанного документа заказа (dll)";
-	CntractCode  zstring(32)  "Номер договора с контрагентом (из регистра, указанного в конфигурации)";
-	CntractDt    date         "Дата договора с контрагентом";
-	CntractExpry date         "Дата окончания договора с контрагентом";
+	CostWithSTax  int16        format(4)   "Цены включают налог с продаж";
+	XmlPrefix     zstring(16)  "Префикс XML-документа (dll)";
+	GUID          zstring(64)  "GUID документа (dll)";
+	MainINN       zstring(32)  "ИНН главной организации (dll)";
+	BeerGrpID     long         "ИД товарной группы Пиво (dll)";
+	OrderDate     date         "Дата связанного документа заказа (dll)";
+	CntractCode   zstring(32)  "Номер договора с контрагентом (из регистра, указанного в конфигурации)";
+	CntractDt     date         "Дата договора с контрагентом";
+	CntractExpry  date         "Дата окончания договора с контрагентом";
 
-	CntragPhone  zstring(128) "Телефон контрагента"; // @v9.7.6
-	CntragEMail  zstring(128) "Email контрагента";   // @v9.7.6
+	CntragPhone   zstring(128) "Телефон контрагента"; // @v9.7.6
+	CntragEMail   zstring(128) "Email контрагента";   // @v9.7.6
 }
 
 record BRow {
-	BillID       zstring(32)  "Ид документа";
-	LineId       long         "Уникальный ид строки (для внутреннего использования)"; // @v8.5.1
-	LineNo       long         "Номер строки";                 // @v8.1.2
-	GoodsID      long         "@{goodsid}";
-	LotID        long         "Ид лота";                      // @v7.4.11
-	GoodsName    zstring(128) "@{goodsname}";
-	UnitName     zstring(48)  "@{munit}";
-	PhUnitName   zstring(48)  "Физическая единица измерения";
-	UnitCode     zstring(20)  "Код единицы измерения";        // @v8.1.1
-	Barcode      zstring(24)  "@{barcode}";                   // @v8.9.12 (16)-->(24)
-	ArCode       zstring(24)  "@{goodsarcode}";               // @v8.9.12 (16)-->(24)
-	ArCodeOwn    zstring(24)  "Собственный артикул товара";     // @v9.1.11
-	AlcoCatCode  zstring(24)  "Код вида алкогольной продукции"; // @v8.5.6 // @v8.9.12 (16)-->(24)
-	Quantity     double       format(10.3) "@{qtty}";
-	PhQtty       double       format(10.3) "Физическое количество";
-	UnitPerPack  double       format(10.3) "@{unitperpack}";
-	PckgQtty     double       format(10.3) "@{packqtty}";
-	Cost         double       format(8.2) "@{termcost}";
-	Price        double       format(8.2) "@{termprice}";
-	Discount     double       format(8.2) "Сумма скидки по строке";
-	CVatRate     double       format(3.1) "Ставка входящего НДС по строке, %";
-	CVatSum      double       format(8.2) "Сумма входящего НДС по строке";
-	VatRate      double       format(3.1) "Ставка НДС по строке, %";
-	VatSum       double       format(8.2) "Сумма НДС по строке";
-	Expiry       date         "Срок годности лота";
-	Serial       zstring(32)  "@{serial}";
-	CLB          zstring(32)  "ГТД";
-	QcCode       zstring(32)  "Код сертификата качества";
-	QcBc         zstring(16)  "Код бланка сертификата качества";
-	QcManuf      zstring(48)  "Наименование производителя, указанное в сертификате качества";
-	QcPrDate     zstring(16)  "Дата производства, указанная в сертификате качества";
-	QcInitDate   date         "Дата выдачи сертификата качества";
-	QcExpiry     date         "Дата окончания срока действия сертификата качества";
-	QcRegOrg     zstring(48)  "Наименоание органа, выдавшего сертификат качества";
-	QcEtc        zstring(48)  "Дополнительная информация по сертификату качества";
+	BillID        zstring(32)  "Ид документа";
+	LineId        long         "Уникальный ид строки (для внутреннего использования)"; // @v8.5.1
+	LineNo        long         "Номер строки";                 // @v8.1.2
+	GoodsID       long         "@{goodsid}";
+	LotID         long         "Ид лота";                      // @v7.4.11
+	GoodsName     zstring(128) "@{goodsname}";
+	UnitName      zstring(48)  "@{munit}";
+	PhUnitName    zstring(48)  "Физическая единица измерения";
+	UnitCode      zstring(20)  "Код единицы измерения";        // @v8.1.1
+	Barcode       zstring(24)  "@{barcode}";                   // @v8.9.12 (16)-->(24)
+	ArCode        zstring(24)  "@{goodsarcode}";               // @v8.9.12 (16)-->(24)
+	ArCodeOwn     zstring(24)  "Собственный артикул товара";     // @v9.1.11
+	AlcoCatCode   zstring(24)  "Код вида алкогольной продукции"; // @v8.5.6 // @v8.9.12 (16)-->(24)
+	Quantity      double       format(10.3) "@{qtty}";
+	PhQtty        double       format(10.3) "Физическое количество";
+	UnitPerPack   double       format(10.3) "@{unitperpack}";
+	PckgQtty      double       format(10.3) "@{packqtty}";
+	Cost          double       format(8.2) "@{termcost}";
+	Price         double       format(8.2) "@{termprice}";
+	Discount      double       format(8.2) "Сумма скидки по строке";
+	CVatRate      double       format(3.1) "Ставка входящего НДС по строке, %";
+	CVatSum       double       format(8.2) "Сумма входящего НДС по строке";
+	VatRate       double       format(3.1) "Ставка НДС по строке, %";
+	VatSum        double       format(8.2) "Сумма НДС по строке";
+	Expiry        date         "Срок годности лота";
+	Serial        zstring(32)  "@{serial}";
+	CLB           zstring(32)  "ГТД";
+	QcCode        zstring(32)  "Код сертификата качества";
+	QcBc          zstring(16)  "Код бланка сертификата качества";
+	QcManuf       zstring(48)  "Наименование производителя, указанное в сертификате качества";
+	QcPrDate      zstring(16)  "Дата производства, указанная в сертификате качества";
+	QcInitDate    date         "Дата выдачи сертификата качества";
+	QcExpiry      date         "Дата окончания срока действия сертификата качества";
+	QcRegOrg      zstring(48)  "Наименоание органа, выдавшего сертификат качества";
+	QcEtc         zstring(48)  "Дополнительная информация по сертификату качества";
 	//
-	BillCode     zstring(24)  "@{billno}";
-	BillDate     date         "@{date}";
-	OpID         long         "Ид вида операции";
-	OpSymb       zstring(20)  "Символ вида операции";
-	InvcCode     zstring(24)  "Номер счет-фактуры";
-	InvcDate     date         "Дата счет-фактуры";
-	INN          zstring(32)  "ИНН контрагента";
-	CntragID     long         "ИД статьи контрагента";
-	CntragName   zstring(128) "Имя контрагента";
-	CntragNo     long         "Номер статьи контрагента";
-	RegistryCode zstring(32)  "Код контрагента";
-	Obj2ID       long         "ИД статьи дополнительного объекта по документу";    // @v8.1.3
-	Obj2Name     zstring(128) "Наименование дополнительного объекта по документу"; // @v8.9.12 (48)-->(128)
-	Obj2INN      zstring(32)  "ИНН дополнительного объекта по документу";
-	Obj2No       long         "Номер статьи дополнительного объекта по документу";
-	DueDate      date         "Дата исполнения документа";
-	PaymDate     date         "Последняя дата из плана платежей по документу";
-	BillAmt      double       format(8.2) "Номинальная сумма документа";
-	CRate        double       format(8.2) "@{currate}";
-	CurID        long         format(10)  "Валюта документа";
-	BaseAmount   double       format(8.2) "Базовая сумма документа";
-	BillVatSum   double       format(8.2) "Сумма НДС документа в номинальных ценах";
-	BillMemo     zstring(160)    "Примечание к документу";
-	LocID        zstring(32)     "Ид склада";
-	LocName      zstring(48)     "Наименование склада";
-	LocCode      zstring(16)     "Код склада";
-	City         zstring(48)     "Город склада";
-	Addr         zstring(255)    "Адрес склада";
-	OrderBillID  zstring(32)     "Ид документа заказа, к которому привязан данный документ";
-	OrderBillNo  zstring(24)     "Номер документа заказа, к которому привязан данных документ";
-	DlvrAddrID   long            "Ид адреса доставки";
-	DlvrAddrCode zstring(16)     "Код адреса доставки";
-	DlvrAddr     zstring(255)    "@{daddress}";
-	AgentName    zstring(128)    "Имя агента";
-	AgentINN     zstring(32)     "ИНН агента";
-	CostWithSTax int16        format(4)   "Цены документа включают налог с продаж";
-	GoodKindCode long	         "Код вида товара (dll)";
-	GoodGrpID    long	         "Ид группы товара (dll)";
-	TTN	          zstring(32)    "Номер товарно-транспортной накладной (dll)";
-	GTD	          zstring(32)    "Номер грузовой таможенной декларации";
-	LicenseID     long	         "ИД лицензии (dll)";
-	LicenseNum    zstring(32)    "Номер лицензии контрагента (dll)";
-	LicenseDate   date           "Дата начала лицензии (dll)";
-	LicenseExpiry date           "Дата окончания лицензии (dll)";
-	LicenseSerial zstring(32)    "Серия лицензии (dll)";
-	RegAuthority zstring(128)    "Регистрирующий орган (dll)";
-	LotManuf     zstring(128)    "Производитель-импортер из лота (dll)";
-	ManufINN     zstring(32)     "ИНН производителя-импортера из лота (dll)";
-	ManufKPP     zstring(32)     "КПП производителя-импортера из лота (dll)";
+	BillCode      zstring(24)  "@{billno}";
+	BillDate      date         "@{date}";
+	OpID          long         "Ид вида операции";
+	OpSymb        zstring(20)  "Символ вида операции";
+	InvcCode      zstring(24)  "Номер счет-фактуры";
+	InvcDate      date         "Дата счет-фактуры";
+	INN           zstring(32)  "ИНН контрагента";
+	CntragID      long         "ИД статьи контрагента";
+	CntragName    zstring(128) "Имя контрагента";
+	CntragNo      long         "Номер статьи контрагента";
+	RegistryCode  zstring(32)  "Код контрагента";
+	Obj2ID        long         "ИД статьи дополнительного объекта по документу";    // @v8.1.3
+	Obj2Name      zstring(128) "Наименование дополнительного объекта по документу"; // @v8.9.12 (48)-->(128)
+	Obj2INN       zstring(32)  "ИНН дополнительного объекта по документу";
+	Obj2No        long         "Номер статьи дополнительного объекта по документу";
+	DueDate       date         "Дата исполнения документа";
+	PaymDate      date         "Последняя дата из плана платежей по документу";
+	BillAmt       double       format(8.2) "Номинальная сумма документа";
+	CRate         double       format(8.2) "@{currate}";
+	CurID         long         format(10)  "Валюта документа";
+	BaseAmount    double       format(8.2) "Базовая сумма документа";
+	BillVatSum    double       format(8.2) "Сумма НДС документа в номинальных ценах";
+	BillMemo      zstring(160)    "Примечание к документу";
+	LocID         zstring(32)     "Ид склада";
+	LocName       zstring(48)     "Наименование склада";
+	LocCode       zstring(16)     "Код склада";
+	City          zstring(48)     "Город склада";
+	Addr          zstring(255)    "Адрес склада";
+	OrderBillID   zstring(32)     "Ид документа заказа, к которому привязан данный документ";
+	OrderBillNo   zstring(24)     "Номер документа заказа, к которому привязан данных документ";
+	DlvrAddrID    long            "Ид адреса доставки";
+	DlvrAddrCode  zstring(16)     "Код адреса доставки";
+	DlvrAddr      zstring(255)    "@{daddress}";
+	AgentName     zstring(128)    "Имя агента";
+	AgentINN      zstring(32)     "ИНН агента";
+	AgentPersonID long            "ИД персоналии агента"; // @v9.8.7
+	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
+	GoodKindCode  long	          "Код вида товара (dll)";
+	GoodGrpID     long	          "Ид группы товара (dll)";
+	TTN	          zstring(32)     "Номер товарно-транспортной накладной (dll)";
+	GTD	          zstring(32)     "Номер грузовой таможенной декларации";
+	LicenseID     long	          "ИД лицензии (dll)";
+	LicenseNum    zstring(32)     "Номер лицензии контрагента (dll)";
+	LicenseDate   date            "Дата начала лицензии (dll)";
+	LicenseExpiry date            "Дата окончания лицензии (dll)";
+	LicenseSerial zstring(32)     "Серия лицензии (dll)";
+	RegAuthority  zstring(128)    "Регистрирующий орган (dll)";
+	LotManuf      zstring(128)    "Производитель-импортер из лота (dll)";
+	ManufINN      zstring(32)     "ИНН производителя-импортера из лота (dll)";
+	ManufKPP      zstring(32)     "КПП производителя-импортера из лота (dll)";
 	ManufCityName zstring(48)    "Название города из адреса производителя-импортера (dll)";
 	ManufRegionName zstring(48)  "Название региона из адреса производителя-импортера (dll)";
-	ManufIndex   zstring(16)     "Индекс из адреса производителя-импортера (dll)";
+	ManufIndex    zstring(16)     "Индекс из адреса производителя-импортера (dll)";
 	ManufRegionCode long	     "Код региона из адреса производителя-импортера (dll)";
 	ManufDistrict zstring(48)    "Название района из адреса производителя-импортера (dll)";
-	ManufStreet  zstring(48)     "Улица из адреса производителя-импортера (dll)";
-	ManufHouse   long	         "Номер дома из адреса производителя-импортера (dll)";
-	ManufHousing long	         "Номер корпуса из адреса производителя-импортера (dll)";
+	ManufStreet   zstring(48)     "Улица из адреса производителя-импортера (dll)";
+	ManufHouse    long	         "Номер дома из адреса производителя-импортера (dll)";
+	ManufHousing  long	         "Номер корпуса из адреса производителя-импортера (dll)";
 
 	ManufCountryName zstring(48) "Наименование страны-производителя товара";
 	ManufCountryOKSM zstring(8)  "Код страны-производителя товара (ОКСМ)";
 
-	IsManuf      long      "Персоналия является производителем (dll)";
-	LotDocDate   date	   "Дата приходного документа из лота";
-	IsBeer	     long      "Товар относится к группе Пиво (dll)";
-	IsAlco	     long	   "Товар относится к группе Алкоголь (dll)";
+	IsManuf       long      "Персоналия является производителем (dll)";
+	LotDocDate    date	   "Дата приходного документа из лота";
+	IsBeer	      long      "Товар относится к группе Пиво (dll)";
+	IsAlco	      long	   "Товар относится к группе Алкоголь (dll)";
 	//
 }
 

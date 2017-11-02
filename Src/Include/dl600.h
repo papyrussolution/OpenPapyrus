@@ -765,21 +765,15 @@ public:
 		crsymfCatCurScope = 0x0001,
 		crsymfErrorOnDup  = 0x0002
 	};
-	int    SLAPI AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * pExpr);
 	int    SLAPI ResolveVar(DLSYMBID scopeID, int exactScope, const char * pSymb, CtmVar * pVar);
 	int    SLAPI ResolveVar(const DlScope * pScope, int exactScope, const char * pSymb, CtmVar * pVar);
-	int    SLAPI ResolveVar(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
-	int    SLAPI ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
 	//
 	// Descr: Специальный вариант реализации вызова функции в TDDO-файлах.
 	//
 	int    SLAPI ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope, const char * pFuncName, StrAssocArray & rArgList, SString & rResult, STypEx & rT);
-	int    SLAPI ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactScope, CtmExpr * pExpr, int dontResolveNext = 0);
 	int    SLAPI GetFunc(const CtmFunc & rF, DlFunc * pFunc);
 	int    SLAPI GetField(const CtmVar & rV, SdbField * pFld);
 	int    SLAPI GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const;
-	int    SLAPI AddType(const char * pName, TYPEID stypId, char mangleC = 0);
-	DLSYMBID SLAPI MakeSizedString(DLSYMBID typeID, size_t s);
 	//
 	// Descr: Форматы вывода наименований классов
 	//
@@ -822,7 +816,6 @@ public:
 	DLSYMBID SLAPI SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const;
 	DLSYMBID SLAPI SetDeclType(DLSYMBID typeID);
 	TYPEID SLAPI TypeToSType(DLSYMBID) const;
-	int    SLAPI MangleType(DLSYMBID id, const STypEx &, SString & rBuf) const;
 	int    SLAPI DemangleType(const char * pTypeStr, STypEx * pTyp, DLSYMBID * pID);
 	long   SLAPI ParseFormat(const char * pStr, TYPEID typ) const; // *
 	//
@@ -848,6 +841,13 @@ public:
 	int    SLAPI Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
 	int    SLAPI FindImportFile(const char * pFileName, SString & rPath);
 	int    SLAPI SetInheritance(DLSYMBID scopeID, DLSYMBID baseID);
+	int    SLAPI MangleType(DLSYMBID id, const STypEx &, SString & rBuf) const;
+	int    SLAPI AddType(const char * pName, TYPEID stypId, char mangleC = 0);
+	DLSYMBID SLAPI MakeSizedString(DLSYMBID typeID, size_t s);
+	int    SLAPI AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * pExpr);
+	int    SLAPI ResolveVar(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
+	int    SLAPI ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr);
+	int    SLAPI ResolveExpr(DLSYMBID scopeID, DLSYMBID callerScopeID, int exactScope, CtmExpr * pExpr, int dontResolveNext = 0);
 	DLSYMBID SLAPI CreateSymb(const char * pSymb, int prefix, long flags);
 	DLSYMBID SLAPI CreateSymbWithId(const char * pSymb, DLSYMBID id, int prefix, long flags);
 	//
@@ -927,8 +927,7 @@ public:
 	//   <0 - по индексу *pI и более интерфейсов нет
 	//    0 - ошибка извлечения интерфейса (*pI меньше, чем количество интерфейсов)
 	//
-	int    SLAPI EnumInterfacesByICls(const DlScope * pCls, uint * pI,
-		DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const;
+	int    SLAPI EnumInterfacesByICls(const DlScope * pCls, uint * pI, DlScope::IfaceBase * pIfb, const DlScope ** ppIfaceScope) const;
 	//
 	// Descr: Регистрирует (дерегистрирует) в реестре класс pCls
 	// ARG(pCls  IN): @#{pCls->IsKind(DlScope::kIClass)!=0}
@@ -1121,7 +1120,7 @@ typedef long PPIterID;
 
 struct PPFilt {
 	PPFilt();
-	
+
 	long   ID;
 	void * Ptr;
 };

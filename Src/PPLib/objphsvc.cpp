@@ -234,45 +234,12 @@ int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 	SString temp_buf;
 	GetExField(PHNSVCEXSTR_PASSWORD, temp_buf);
 	Reference::Helper_DecodeOtherPw(0, temp_buf, PHNSVC_PW_SIZE, rBuf);
-	/*
-	rBuf.Z();
-	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
-	temp_buf.CopyTo(temp_str, sizeof(temp_str));
-	if(strlen(temp_str) == (PHNSVC_PW_SIZE*3)) {
-		for(size_t i = 0, p = 0; i < PHNSVC_PW_SIZE; i++) {
-			char   nmb[16];
-			nmb[0] = temp_str[p];
-			nmb[1] = temp_str[p+1];
-			nmb[2] = temp_str[p+2];
-			nmb[3] = 0;
-			temp_pw[i] = atoi(nmb);
-			p += 3;
-		}
-		IdeaDecrypt(0, temp_pw, sizeof(temp_pw));
-	}
-	else
-		temp_pw[0] = 0;
-	rBuf = temp_pw;
-	IdeaRandMem(temp_pw, sizeof(temp_pw));
-	*/
 	return ok;
 }
 
 int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 {
 	int    ok = 1;
-	/*
-	char   temp_pw[PHNSVC_PW_SIZE], temp_str[PHNSVC_PW_SIZE*3+8];
-	STRNSCPY(temp_pw, pPassword);
-	IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
-	size_t i = 0, p = 0;
-	for(; i < PHNSVC_PW_SIZE; i++) {
-		sprintf(temp_str+p, "%03u", (uint8)temp_pw[i]);
-		p += 3;
-	}
-	temp_str[p] = 0;
-	SString temp_buf = temp_str;
-	*/
 	SString temp_buf;
 	Reference::Helper_EncodeOtherPw(0, pPassword, PHNSVC_PW_SIZE, temp_buf);
 	SetExField(PHNSVCEXSTR_PASSWORD, temp_buf);

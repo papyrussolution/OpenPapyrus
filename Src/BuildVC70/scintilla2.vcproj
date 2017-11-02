@@ -879,19 +879,7 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Osf\scintilla\src\CallTip.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\CellBuffer.h">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\include\ILexer.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Partitioning.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\PerLine.h">
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\Platform.h">
@@ -907,12 +895,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\scintilla\include\ScintillaWidget.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\SplitVector.h">
-			</File>
-			<File
-				RelativePath="..\Osf\scintilla\src\Style.h">
 			</File>
 		</Filter>
 		<Filter

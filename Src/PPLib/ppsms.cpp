@@ -2639,7 +2639,7 @@ int SLAPI PPSmsSender::GetSubstVar(long p, SString & rBuf)
 //static
 int SLAPI PPSmsSender::FormatMessage(const char * pTemplate, SString & rResult, PPSmsSender::FormatMessageBlock * pFmBlk)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = 1;
 	SString sub_str;
 	SString var_buf, temp_buf;

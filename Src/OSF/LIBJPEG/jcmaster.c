@@ -781,11 +781,9 @@ METHODDEF(void) finish_pass_master(j_compress_ptr cinfo)
 
 	master->pass_number++;
 }
-
 /*
  * Initialize master compression control.
  */
-
 GLOBAL(void) jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only)
 {
 	my_master_ptr master = (my_master_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_comp_master));
@@ -812,9 +810,7 @@ GLOBAL(void) jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only
 
 	if(cinfo->optimize_coding)
 		cinfo->arith_code = FALSE;  /* disable arithmetic coding */
-	else if(!cinfo->arith_code &&
-	    (cinfo->progressive_mode ||
-		    (cinfo->block_size > 1 && cinfo->block_size < DCTSIZE)))
+	else if(!cinfo->arith_code && (cinfo->progressive_mode || (cinfo->block_size > 1 && cinfo->block_size < DCTSIZE)))
 		/* TEMPORARY HACK ??? */
 		/* assume default tables no good for progressive or reduced AC mode */
 		cinfo->optimize_coding = TRUE;  /* force Huffman optimization */

@@ -948,7 +948,7 @@ static int SLAPI GetStartUpOption(int o, SString & rArgBuf)
 			PPLoadString(PPSTR_SYMB, PPSSYM_CMDLINEOP, *p_cmdl_symbols);
 		}
 	}
-	rArgBuf = 0;
+	rArgBuf.Z();
 	SString sym;
 	if(p_cmdl_symbols) {
 		StringSet ss(',', *p_cmdl_symbols);
@@ -986,7 +986,7 @@ static int SLAPI GetStartUpPath(PPID pi, SString & rArgBuf)
 	else if(pi == PPPATH_OUT)
 		ok = GetStartUpOption(cmdlOut, rArgBuf);
 	else
-		rArgBuf = 0;
+		rArgBuf.Z();
 	return ok;
 }
 //
@@ -1005,6 +1005,15 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 			HelpCtx = HELP_DLG_LOGIN;
 			SystemAccountLogin = sysAccLogin;
 			P_Dbes = pDbes;
+			{
+				SString temp_buf;
+				uint   mj, mn, rv;
+				PPVersionInfo vi = DS.GetVersionInfo();
+				vi.GetVersion(&mj, &mn, &rv);
+				PPLoadString("version", temp_buf);
+				temp_buf.Space().CatDotTriplet(mj, mn, rv).Space().CatChar('(').Cat(vi.GetAssemblyN()).CatChar(')');
+				setStaticText(CTL_LOGIN_ST_INFO, temp_buf);
+			}
 		}
 		int    CheckSystemAccount(int getDBEntryFromDlg)
 		{
@@ -1947,10 +1956,10 @@ public:
 		{
 			Action = aRegister;
 			DL200Install = 0;
-			ExcelRegKeyDir = 0;
+			ExcelRegKeyDir.Z();
 		}
-		int16   Action;
-		int16   DL200Install;
+		int16  Action;
+		int16  DL200Install;
 		SString ExcelRegKeyDir;
 	};
 	RegComSvrDialog() : TDialog(DLG_REGCOMSVR)
@@ -2052,7 +2061,7 @@ int PPApp::RegisterComServer()
 				char buf[MAXPATH];
 				SString subkey2;
 				WinRegValue reg_val;
-				for(uint idx = 0; reg_key.EnumValues(&idx, &(subkey2 = 0), &reg_val) > 0;) {
+				for(uint idx = 0; reg_key.EnumValues(&idx, &subkey2.Z(), &reg_val) > 0;) {
 					if(subkey2.CmpPrefix(p_open_name, 1) == 0) {
 						long open_idx = 0;
 						SString open_idx_str;

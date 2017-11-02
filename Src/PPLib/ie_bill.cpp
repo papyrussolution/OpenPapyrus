@@ -58,7 +58,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 	int    ok = 1;
 	int    use_ps = 0;
 	int    _is_subst = 0;
-	if(FileName.CmpNC(":buffer:") == 0) {
+	if(FileName.IsEqNC(":buffer:")) {
 		rResult = FileName;
 	}
 	else {
@@ -1600,6 +1600,236 @@ int SLAPI PPBillImporter::AddBRow(Sdr_BRow & rRow, uint * pRowId)
 	return BillsRows.insert(&rRow) ? 1 : PPSetErrorSLib();
 }
 
+static int ResolveFormula(const char * pFormula, const SdRecord & rInrRec, double * pResult)
+{
+	int    ok = 0;
+	double result = 0.0;
+	if(isempty(pFormula))
+		ok = -1;
+	else {
+		ImpExpExprEvalContext expr_ctx(rInrRec);
+		if(PPExprParser::CalcExpression(pFormula, &result, 0, &expr_ctx) > 0)
+			ok = 1;
+	}
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+
+int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
+{
+	int    ok = -1;
+	SdbField dyn_fld;
+	if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld) && dyn_fld.Formula.NotEmptyS()) {
+		char   temp_str_[1024];
+		SString temp_buf;
+		SdbField inner_fld;
+		SdbField outer_fld;
+		uint   inner_fld_pos = 0;
+		uint   outer_fld_pos = 0;
+		SStrScan scan;
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		double rval = 0.0;
+		PPID   tag_id = 0;
+		scan.Set(dyn_fld.Formula, 0);
+		if(scan.GetIdent(temp_buf.Z())) {
+			if(temp_buf.IsEqNC("lottag")) {
+				scan.Skip();
+				if(scan[0] == '.') {
+					scan.Incr(1);
+					(temp_buf = scan).Strip();
+					if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
+						int   r = 0;
+						const TYPEID typ = dyn_fld.T.Typ;
+						const int    base_typ = stbase(typ);
+						ObjTagItem tag_item;
+						if(base_typ == BTS_INT) {
+							long ival = 0;
+							sttobase(typ, rDynRec.GetDataC(dynFldN), &ival);
+							if(ival) {
+								tag_item.SetInt(tag_id, ival);
+								r = 1;
+							}
+						}
+						else if(base_typ == BTS_REAL) {
+							sttobase(typ, rDynRec.GetDataC(dynFldN), &rval);
+							if(rval != 0.0) {
+								tag_item.SetReal(tag_id, rval);
+								r = 1;
+							}
+						}
+						else if(base_typ == BTS_STRING) {
+							sttobase(typ, rDynRec.GetDataC(dynFldN), temp_str_);
+							if(temp_str_[0]) {
+								(temp_buf = temp_str_).Strip().Transf(CTRANSF_OUTER_TO_INNER);
+								tag_item.SetStr(tag_id, temp_buf);
+								r = 1;
+							}
+						}
+						else if(base_typ == BTS_DATE) {
+							LDATE dval = ZERODATE;
+							sttobase(typ, rDynRec.GetDataC(dynFldN), &dval);
+							if(checkdate(dval, 0)) {
+								tag_item.SetDate(tag_id, dval);
+								r = 1;
+							}
+						}
+						if(r) {
+							rTagList.PutItem(tag_id, &tag_item);
+						}
+					}
+				}
+			}
+			else if(temp_buf.IsEqNC("costformula")) {
+				scan.Skip();
+				if(scan[0] == '.') {
+					scan.Incr(1);
+					const int fr = ResolveFormula((temp_buf = scan).Strip(), rIep.InrRec, &rval);
+					if(fr > 0) {
+						if(rval > 0.0) {
+							//brow_.Cost = rval;
+							if(rIep.InrRec.SearchName("Cost", &inner_fld_pos)) {
+								rIep.InrRec.GetFieldByPos(inner_fld_pos, &inner_fld);
+								void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+								stcast(MKSTYPE(S_FLOAT, 8), inner_fld.T.Typ, &rval, p_inner_fld_data, 0);
+							}
+						}
+						else
+							Logger.LogString(PPTXT_BROWCOSTFORMINVRES, temp_buf);
+					}
+					else if(fr == 0)
+						Logger.LogString(PPTXT_BROWCOSTFORMINV, temp_buf);
+				}
+			}
+			else if(temp_buf.IsEqNC("priceformula")) {
+				scan.Skip();
+				if(scan[0] == '.') {
+					scan.Incr(1);
+					const int fr = ResolveFormula((temp_buf = scan).Strip(), rIep.InrRec, &rval);
+					if(fr > 0) {
+						if(rval > 0.0) {
+							//brow_.Price = rval;
+							if(rIep.InrRec.SearchName("Price", &inner_fld_pos)) {
+								rIep.InrRec.GetFieldByPos(inner_fld_pos, &inner_fld);
+								void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+								stcast(MKSTYPE(S_FLOAT, 8), inner_fld.T.Typ, &rval, p_inner_fld_data, 0);
+							}
+						}
+						else
+							Logger.LogString(PPTXT_BROWPRICEFORMINVRES, temp_buf);
+					}
+					else if(fr == 0)
+						Logger.LogString(PPTXT_BROWPRICEFORMINV, temp_buf);
+				}
+			}
+			else {
+				enum {
+					dfkFormula = 1, // formula[inner_field].formula
+					dfkToken,       // token[inner_field].outer_field divisor number (token[CntragID].CLIENTID_DISTRIB _ 1) 
+					dfkIdentByTag   // identbytag[inner_field].outer_field tag_symbol 
+				};
+				const int dfk = (temp_buf.IsEqNC("formula") ? dfkFormula : 
+					(temp_buf.IsEqNC("token") ? dfkToken : (temp_buf.IsEqNC("identbytag") ? dfkIdentByTag : 0)));
+				if(dfk && scan.Skip()[0] == '[') {
+					scan.Incr(1);
+					if(scan.Skip().GetIdent(temp_buf) && scan.Skip()[0] == ']' && scan.Skip()[1] == '.') {
+						uint   fld_pos = 0;
+						SString in_fld_name = temp_buf.Strip();
+						scan.Incr(2);
+						SString form_buf;
+						if((form_buf = scan).NotEmptyS() && rIep.InrRec.SearchName(in_fld_name, &fld_pos)) {
+							rIep.InrRec.GetFieldByPos(fld_pos, &inner_fld);
+							if(dfk == dfkFormula) {
+								if(btnumber(stbase(inner_fld.T.Typ))) {
+									ImpExpExprEvalContext expr_ctx(rIep.InrRec);
+									if(PPExprParser::CalcExpression(form_buf, &rval, 0, &expr_ctx) > 0)
+										stcast(T_DOUBLE, inner_fld.T.Typ, &rval, rIep.InrRec.GetData(fld_pos), 0);
+									else
+										Logger.LogString(PPTXT_BROWFORMINVRES, form_buf);
+								}
+							}
+							else if(dfk == dfkIdentByTag) {
+								SStrScan arg_scan(form_buf);
+								arg_scan.Skip();
+								if(arg_scan.GetIdent(temp_buf) && rIep.OtrRec.SearchName(temp_buf.Strip(), &outer_fld_pos)) {
+									arg_scan.Skip();
+									(temp_buf = arg_scan).Strip();
+									if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
+										PPIDArray obj_id_list;
+										const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
+										temp_str_[0] = 0;
+										sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
+										temp_buf = temp_str_;
+										PPRef->Ot.SearchObjectsByStrExactly(tag_rec.ObjTypeID, tag_rec.ID, temp_buf, &obj_id_list);
+										if(obj_id_list.getCount()) {
+											const long obj_id = obj_id_list.get(0);
+											void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+											stcast(MKSTYPE(S_INT, 4), inner_fld.T.Typ, &obj_id, p_inner_fld_data, 0);
+										}
+									}
+								}
+							}
+							else if(dfk == dfkToken) {
+								// fld divider token_number[1..]
+								SString tok_result_buf;
+								tok_result_buf.Z();
+								SStrScan arg_scan(form_buf);
+								arg_scan.Skip();
+								if(arg_scan.GetIdent(temp_buf) && rIep.OtrRec.SearchName(temp_buf.Strip(), &outer_fld_pos)) {
+									SString foreign_fld = temp_buf;
+									SString dividers;
+									do {
+										arg_scan.Skip();
+										if(arg_scan.Is("space")) {
+											dividers.Space();
+											arg_scan.Incr(strlen("space"));
+										}
+										else if(arg_scan.Is("tab")) {
+											dividers.Tab();
+											arg_scan.Incr(strlen("tab"));
+										}
+										else if(arg_scan.Is("\\t")) {
+											dividers.Tab();
+											arg_scan.Incr(strlen("\\t"));
+										}
+										else if(oneof11(arg_scan[0], '_', ',', ';', '.', '-', ':', '%', '^', '$', '@', '#')) {
+											dividers.CatChar(arg_scan[0]);
+											arg_scan.Incr();
+										}
+										else
+											break;
+									} while(1);
+									if(dividers.NotEmpty() && arg_scan.GetNumber(temp_buf)) {
+										const long tok_n = temp_buf.ToLong();
+										if(tok_n > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
+											const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
+											temp_str_[0] = 0;
+											sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
+											temp_buf = temp_str_;
+											StringSet ss_tok;
+											temp_buf.Tokenize(dividers, ss_tok);
+											long   t_ = 0;
+											for(uint ssp = 0; ss_tok.get(&ssp, temp_buf);) {
+												t_++;
+												if(t_ == tok_n) {
+													tok_result_buf = temp_buf;
+													break;
+												}
+											}
+										}
+									}
+								}
+								stcast(MKSTYPE(S_ZSTRING, tok_result_buf.Len()+1), inner_fld.T.Typ, (void *)tok_result_buf.cptr(), rIep.InrRec.GetData(fld_pos), 0);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const StrAssocArray * pFnFldList)
 {
 	int    ok = 1;
@@ -1686,7 +1916,6 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 			if(mode == 2 || p_bill) {
 				uint   pos = 0;
 				PPID   goods_id = 0;
-				ObjTagList tag_list;
 				Goods2Tbl::Rec goods_rec;
 				ArGoodsCodeTbl::Rec code_rec;
 				if(brow_.GoodsID && gobj.Fetch(brow_.GoodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
@@ -1732,208 +1961,19 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				// } @v9.8.4
 				brow_.GoodsID = goods_id;
 				if(dyn_rec.GetCount()) {
-					const PPImpExpParam & r_iep = pImpExp->GetParam();
-					SStrScan scan;
-					PPID   tag_id = 0;
-					PPObjectTag tag_rec;
+					ObjTagList tag_list;
 					tag_list.ObjType = PPOBJ_LOT;
 					for(uint j = 0; j < dyn_rec.GetCount(); j++) {
-						dyn_rec.GetFieldByPos(j, &dyn_fld);
-						if(dyn_fld.Formula.NotEmptyS()) {
-							scan.Set(dyn_fld.Formula, 0);
-							if(scan.GetIdent(temp_buf.Z())) {
-								if(temp_buf.CmpNC("lottag") == 0) {
-									scan.Skip();
-									if(scan[0] == '.') {
-										scan.Incr(1);
-										(temp_buf = scan).Strip();
-										if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
-											int   r = 0;
-											const TYPEID typ = dyn_fld.T.Typ;
-											const int    base_typ = stbase(typ);
-											ObjTagItem tag_item;
-											if(base_typ == BTS_INT) {
-												long ival = 0;
-												sttobase(typ, dyn_rec.GetDataC(j), &ival);
-												if(ival) {
-													tag_item.SetInt(tag_id, ival);
-													r = 1;
-												}
-											}
-											else if(base_typ == BTS_REAL) {
-												double rval = 0.0;
-												sttobase(typ, dyn_rec.GetDataC(j), &rval);
-												if(rval != 0.0) {
-													tag_item.SetReal(tag_id, rval);
-													r = 1;
-												}
-											}
-											else if(base_typ == BTS_STRING) {
-												char strval[1024];
-												sttobase(typ, dyn_rec.GetDataC(j), strval);
-												if(strval[0]) {
-													(temp_buf = strval).Strip().Transf(CTRANSF_OUTER_TO_INNER);
-													tag_item.SetStr(tag_id, temp_buf);
-													r = 1;
-												}
-											}
-											else if(base_typ == BTS_DATE) {
-												LDATE dval = ZERODATE;
-												sttobase(typ, dyn_rec.GetDataC(j), &dval);
-												if(checkdate(dval, 0)) {
-													tag_item.SetDate(tag_id, dval);
-													r = 1;
-												}
-											}
-											if(r) {
-												tag_list.PutItem(tag_id, &tag_item);
-											}
-										}
-									}
-								}
-								else if(temp_buf.CmpNC("costformula") == 0) {
-									scan.Skip();
-									if(scan[0] == '.') {
-										scan.Incr(1);
-										(temp_buf = scan).Strip();
-										if(temp_buf.NotEmpty()) {
-											ImpExpExprEvalContext expr_ctx(r_iep.InrRec);
-											double val = 0.0;
-											if(PPExprParser::CalcExpression(temp_buf, &val, 0, &expr_ctx) > 0) {
-												if(val > 0.0)
-													brow_.Cost = val;
-												else
-													Logger.LogString(PPTXT_BROWCOSTFORMINVRES, temp_buf);
-											}
-											else
-												Logger.LogString(PPTXT_BROWCOSTFORMINV, temp_buf);
-										}
-									}
-								}
-								else if(temp_buf.CmpNC("priceformula") == 0) {
-									scan.Skip();
-									if(scan[0] == '.') {
-										scan.Incr(1);
-										(temp_buf = scan).Strip();
-										if(temp_buf.NotEmpty()) {
-											ImpExpExprEvalContext expr_ctx(r_iep.InrRec);
-											double val = 0.0;
-											if(PPExprParser::CalcExpression(temp_buf, &val, 0, &expr_ctx) > 0) {
-												if(val > 0.0)
-													brow_.Price = val;
-												else
-													Logger.LogString(PPTXT_BROWPRICEFORMINVRES, temp_buf);
-											}
-											else
-												Logger.LogString(PPTXT_BROWPRICEFORMINV, temp_buf);
-										}
-									}
-								}
-								else {
-									enum {
-										dfkFormula = 1,
-										dfkToken
-									};
-									int   dfk = 0;
-									if(temp_buf.CmpNC("formula") == 0) {
-										dfk = dfkFormula;
-									}
-									else if(temp_buf.CmpNC("token") == 0) {
-										dfk = dfkToken;
-									}
-									if(dfk && scan.Skip()[0] == '[') {
-										scan.Incr(1);
-										if(scan.Skip().GetIdent(temp_buf) && scan.Skip()[0] == ']' && scan.Skip()[1] == '.') {
-											uint   fld_pos = 0;
-											uint   outer_fld_pos = 0;
-											SString in_fld_name = temp_buf.Strip();
-											scan.Incr(2);
-											SString form_buf;
-											(form_buf = scan).Strip();
-											if(form_buf.NotEmpty() && r_iep.InrRec.SearchName(in_fld_name, &fld_pos)) {
-												r_iep.InrRec.GetFieldByPos(fld_pos, &inner_fld);
-												if(dfk == dfkFormula) {
-													if(btnumber(stbase(inner_fld.T.Typ))) {
-														ImpExpExprEvalContext expr_ctx(r_iep.InrRec);
-														double val = 0.0;
-														if(PPExprParser::CalcExpression(form_buf, &val, 0, &expr_ctx) > 0) {
-															stcast(T_DOUBLE, inner_fld.T.Typ, &val, r_iep.InrRec.GetData(fld_pos), 0);
-														}
-														else
-															Logger.LogString(PPTXT_BROWFORMINVRES, form_buf);
-													}
-												}
-												else if(dfk == dfkToken) {
-													// fld divider token_number[1..]
-													SString tok_result_buf;
-													tok_result_buf.Z();
-													SStrScan arg_scan(form_buf);
-													arg_scan.Skip();
-													if(arg_scan.GetIdent(temp_buf) && r_iep.OtrRec.SearchName(temp_buf.Strip(), &outer_fld_pos)) {
-														SString foreign_fld = temp_buf;
-														SString dividers;
-														do {
-															arg_scan.Skip();
-															if(arg_scan.Is("space")) {
-																dividers.Space();
-																arg_scan.Incr(strlen("space"));
-															}
-															else if(arg_scan.Is("tab")) {
-																dividers.Tab();
-																arg_scan.Incr(strlen("tab"));
-															}
-															else if(arg_scan.Is("\\t")) {
-																dividers.Tab();
-																arg_scan.Incr(strlen("\\t"));
-															}
-															else if(oneof11(arg_scan[0], '_', ',', ';', '.', '-', ':', '%', '^', '$', '@', '#')) {
-																dividers.CatChar(arg_scan[0]);
-																arg_scan.Incr();
-															}
-															else
-																break;
-														} while(1);
-														if(dividers.NotEmpty() && arg_scan.GetNumber(temp_buf)) {
-															const long tok_n = temp_buf.ToLong();
-															if(tok_n > 0) {
-																SdbField outer_fld;
-																if(r_iep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
-																	char temp_str_[1024];
-																	const void * p_outer_fld_data = r_iep.OtrRec.GetDataC(outer_fld_pos);
-																	temp_str_[0] = 0;
-																	sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
-                                                                    temp_buf = temp_str_;
-                                                                    StringSet ss_tok;
-                                                                    temp_buf.Tokenize(dividers, ss_tok);
-                                                                    long   t_ = 0;
-                                                                    for(uint ssp = 0; ss_tok.get(&ssp, temp_buf);) {
-																		t_++;
-																		if(t_ == tok_n) {
-																			tok_result_buf = temp_buf;
-																			break;
-																		}
-                                                                    }
-																}
-															}
-														}
-													}
-													stcast(MKSTYPE(S_ZSTRING, tok_result_buf.Len()+1), inner_fld.T.Typ, (void *)tok_result_buf.cptr(), r_iep.InrRec.GetData(fld_pos), 0);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
+						ProcessDynField(dyn_rec, j, pImpExp->GetParam(), tag_list);
 					}
-				}
-				{
-					uint    row_id = 0;
-					THROW(AddBRow(brow_, &row_id));
-					// @v9.2.0 if(mode != 2) {
-						if(tag_list.GetCount())
-							TagC.Set(row_id, &tag_list);
-					// @v9.2.0 }
+					{
+						uint    row_id = 0;
+						THROW(AddBRow(brow_, &row_id));
+						// @v9.2.0 if(mode != 2) {
+							if(tag_list.GetCount())
+								TagC.Set(row_id, &tag_list);
+						// @v9.2.0 }
+					}
 				}
 			}
 		}
@@ -2147,11 +2187,11 @@ int SLAPI PPBillImporter::ReadData()
 				SString ordresp_cmd, desadv_cmd;
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_ORDRSP, ordresp_cmd));
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_DESADV, desadv_cmd));
-				if(BillParam.ImpExpParamDll.OperType.CmpNC("ALCODESADV") == 0)
+				if(BillParam.ImpExpParamDll.OperType.IsEqNC("ALCODESADV"))
 					edi_op = PPEDIOP_ALCODESADV;
-				else if(ordresp_cmd.CmpNC(BillParam.ImpExpParamDll.OperType) == 0)
+				else if(ordresp_cmd.IsEqNC(BillParam.ImpExpParamDll.OperType))
 					edi_op = PPEDIOP_ORDERRSP;
-				else if(desadv_cmd.CmpNC(BillParam.ImpExpParamDll.OperType) == 0)
+				else if(desadv_cmd.IsEqNC(BillParam.ImpExpParamDll.OperType))
 					edi_op = PPEDIOP_DESADV;
 				if(edi_op == PPEDIOP_ALCODESADV) {
 					THROW(AddBillToList(&bill, obj_id));
@@ -2215,7 +2255,7 @@ int SLAPI PPBillImporter::ReadData()
 		THROW(r);
 		THROW(imp_dll.FinishImpExp());
 	}
-	else if(h_r_eq_f == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0 && !imp_rows_only) {
+	else if(h_r_eq_f == PPImpExpParam::dfXml && BillParam.FileName.IsEqNC(BRowParam.FileName) && !imp_rows_only) {
 		// @v8.6.4 const  int imp_rows_only = BIN(BillParam.Flags & PPBillImpExpParam::fImpRowsOnly);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		for(uint ssp = 0; ss_files.get(&ssp, filename);) {
@@ -2323,6 +2363,7 @@ int SLAPI PPBillImporter::ReadData()
                             STRNSCPY(bill.Obj2Name, r_row.Obj2Name);
                             bill.Obj2No = r_row.Obj2No;
                             STRNSCPY(bill.AgentINN, r_row.AgentINN);
+							bill.AgentPersonID = r_row.AgentPersonID; // @v9.8.7
 							bill.DlvrAddrID = r_row.DlvrAddrID; // @v8.7.1
 							STRNSCPY(bill.DlvrAddrCode, r_row.DlvrAddrCode); // @v8.7.1
                             STRNSCPY(bill.Memo, r_row.BillMemo); // @v8.6.0
@@ -2558,7 +2599,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 												if(r_row.ManufKPP[0]) {
 													for(uint k = 0; !manuf_id && k < psn_list.getCount(); k++) {
 														const PPID psn_id = psn_list.get(k);
-														if(PsnObj.GetRegNumber(psn_id, PPREGT_KPP, ZERODATE, temp_buf.Z()) > 0 && temp_buf.CmpNC(r_row.ManufKPP) == 0)
+														if(PsnObj.GetRegNumber(psn_id, PPREGT_KPP, ZERODATE, temp_buf.Z()) > 0 && temp_buf.IsEqNC(r_row.ManufKPP))
 															manuf_id = psn_id;
 													}
 												}
@@ -2723,16 +2764,12 @@ int SLAPI PPBillImporter::Import(int useTa)
 								QualityCertTbl::Rec qc_rec;
 								MEMSZERO(qc_rec);
 								qc_code.CopyTo(qc_rec.Code, sizeof(qc_rec.Code));
-								(temp_buf = r_row.QcBc).Transf(CTRANSF_OUTER_TO_INNER);
-								STRNSCPY(qc_rec.BlankCode, temp_buf);
-								(temp_buf = r_row.QcPrDate).Transf(CTRANSF_OUTER_TO_INNER);
-								STRNSCPY(qc_rec.SPrDate, temp_buf);
-								(temp_buf = r_row.QcManuf).Transf(CTRANSF_OUTER_TO_INNER);
-								STRNSCPY(qc_rec.Manuf, temp_buf);
+								STRNSCPY(qc_rec.BlankCode, (temp_buf = r_row.QcBc).Transf(CTRANSF_OUTER_TO_INNER));
+								STRNSCPY(qc_rec.SPrDate, (temp_buf = r_row.QcPrDate).Transf(CTRANSF_OUTER_TO_INNER));
+								STRNSCPY(qc_rec.Manuf, (temp_buf = r_row.QcManuf).Transf(CTRANSF_OUTER_TO_INNER));
+								STRNSCPY(qc_rec.Etc, (temp_buf = r_row.QcEtc).Transf(CTRANSF_OUTER_TO_INNER));
 								qc_rec.InitDate = r_row.QcInitDate;
 								qc_rec.Expiry = r_row.QcExpiry;
-								(temp_buf = r_row.QcEtc).Transf(CTRANSF_OUTER_TO_INNER);
-								STRNSCPY(qc_rec.Etc, temp_buf);
 								if(r_row.QcRegOrg[0]) {
 									(temp_buf = r_row.QcRegOrg).Transf(CTRANSF_OUTER_TO_INNER);
 									THROW(PsnObj.AddSimple(&qc_rec.RegOrgan, temp_buf, PPPRK_BUSADMIN, PPPRS_LEGAL, 0));
@@ -3012,15 +3049,15 @@ int SLAPI PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk,
 			k1.Dt = period.low;
 			for(q.initIteration(0, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
 				t->copyBufTo(&bill_rec);
-				if(order_bill_code.CmpNC(bill_rec.Code) == 0) {
+				if(order_bill_code.IsEqNC(bill_rec.Code)) {
 					PPFreight freight;
 					LocationTbl::Rec loc_rec;
 					// Смотрим адрес доставки. Он может быть в DlvrAddrCode и в LocCode
-					if(t->GetFreight(bill_rec.ID, &freight) && LocObj.Fetch(freight.DlvrAddrID, &loc_rec) > 0 && dlvr_loc_code.CmpNC(loc_rec.Code) == 0) {
+					if(t->GetFreight(bill_rec.ID, &freight) && LocObj.Fetch(freight.DlvrAddrID, &loc_rec) > 0 && dlvr_loc_code.IsEqNC(loc_rec.Code)) {
 						order_bill_id = bill_rec.ID;
 						ok = 1;
 					}
-					else if(LocObj.Fetch(bill_rec.LocID, &loc_rec) > 0 && dlvr_loc_code.CmpNC(loc_rec.Code) == 0) {
+					else if(LocObj.Fetch(bill_rec.LocID, &loc_rec) > 0 && dlvr_loc_code.IsEqNC(loc_rec.Code)) {
 						order_bill_id = bill_rec.ID;
 						ok = 1;
 					}
@@ -3115,6 +3152,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 		SString temp_buf;
 		PPID   ar_id = 0;
 		ArticleTbl::Rec ar_rec;
+		PersonTbl::Rec psn_rec;
 		PPOprKind op_rec;
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
@@ -3168,7 +3206,6 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 					if(psn_by_em_list.getCount()) {
 						for(uint i = 0; !ar_id && i < psn_by_em_list.getCount(); i++) {
 							const PPID psn_by_em_id = psn_by_em_list.get(i);
-							PersonTbl::Rec psn_rec;
 							if(PsnObj.Fetch(psn_by_em_id, &psn_rec) > 0) {
 								PPID temp_ar_id = 0;
 								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_id, &temp_ar_id) > 0)
@@ -3188,21 +3225,13 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			const PPID psn_id = ObjectToPerson(ar_id, 0); // @v8.6.11
 			if(op_rec.AccSheet2ID) {
 				ArticleTbl::Rec ar_rec;
-				if(pBill->Obj2No && ArObj.P_Tbl->SearchNum(op_rec.AccSheet2ID, pBill->Obj2No, &ar_rec) > 0) {
+				PPID   obj2id = 0;
+				if(pBill->Obj2No && ArObj.P_Tbl->SearchNum(op_rec.AccSheet2ID, pBill->Obj2No, &ar_rec) > 0)
 					pPack->Rec.Object2 = ar_rec.ID;
-				}
-				else if(pBill->Obj2INN[0]) {
-					PPID   obj2id = 0;
-					if(ResolveINN(pBill->Obj2INN, 0, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
-						pPack->Rec.Object2 = obj2id;
-				}
-				// @vmiller {
-				else if(pBill->Obj2GLN[0]) {
-					PPID   obj2id = 0;
-					if(ResolveGLN(pBill->Obj2GLN, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
-						pPack->Rec.Object2 = obj2id;
-				}
-				// } @vmiller
+				else if(pBill->Obj2INN[0] && ResolveINN(pBill->Obj2INN, 0, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
+					pPack->Rec.Object2 = obj2id;
+				else if(pBill->Obj2GLN[0] && ResolveGLN(pBill->Obj2GLN, 0, pBill->ID, op_rec.AccSheet2ID, &obj2id, 0) > 0)
+					pPack->Rec.Object2 = obj2id;
 			}
 			SETIFZ(pPack->Rec.Dt, pBill->Date);
 			SETIFZ(pPack->Rec.OpID, OpID);
@@ -3225,7 +3254,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			if(pBill->InvoiceCode[0]) {
 				STRNSCPY(pPack->Ext.InvoiceCode, pBill->InvoiceCode);
 			}
-			if(pBill->InvoiceDate)
+			if(checkdate(pBill->InvoiceDate, 0))
 				pPack->Ext.InvoiceDate = pBill->InvoiceDate;
 			pPack->Rec.Amount  = pBill->Amount;
 			pPack->Rec.CurID   = pBill->CurID;
@@ -3237,15 +3266,13 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			STRNSCPY(pPack->Rec.Code, temp_buf);
 			(temp_buf = pPack->Ext.InvoiceCode).Transf(CTRANSF_OUTER_TO_INNER);
 			STRNSCPY(pPack->Ext.InvoiceCode, temp_buf);
-			if(pBill->AgentINN[0]) {
-				PPID   agent_id = 0;
-				if(ResolveINN(pBill->AgentINN, 0, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
-					pPack->Ext.AgentID = agent_id;
-			}
-			// @vmiller {
-			else if(pBill->AgentGLN[0]) {
+			{
 				PPID	agent_id = 0;
-				if(ResolveGLN(pBill->AgentGLN, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
+				if(pBill->AgentPersonID && ArObj.P_Tbl->PersonToArticle(pBill->AgentPersonID, GetAgentAccSheet(), &agent_id) > 0) 
+					pPack->Ext.AgentID = agent_id;
+				else if(pBill->AgentINN[0] && ResolveINN(pBill->AgentINN, 0, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
+					pPack->Ext.AgentID = agent_id;
+				else if(pBill->AgentGLN[0] && ResolveGLN(pBill->AgentGLN, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
 					pPack->Ext.AgentID = agent_id;
 			}
 			// @v8.6.11 {
@@ -3431,8 +3458,7 @@ int SLAPI ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowP
 //
 class BillExpExprEvalContext : public BillContext {
 public:
-	SLAPI  BillExpExprEvalContext(const PPBillPacket * pPack, const SdRecord & rRec) :
-		BillContext(pPack, pPack->Rec.CurID, 0), R_Rec(rRec)
+	SLAPI  BillExpExprEvalContext(const PPBillPacket * pPack, const SdRecord & rRec) : BillContext(pPack, pPack->Rec.CurID, 0), R_Rec(rRec)
 	{
 	}
 	virtual int SLAPI Resolve(const char * pSymb, double * pVal)
@@ -3453,12 +3479,8 @@ private:
 // @vmiller
 class SignBillDialog : public TDialog {
 public:
-	SignBillDialog(const char * pFileName) : TDialog(DLG_SIGNBILL)
+	SignBillDialog(const char * pFileName) : TDialog(DLG_SIGNBILL), CurPosInList(0), FileName(pFileName)
 	{
-		CurPosInList = 0;
-		FileName = pFileName;
-		SignFileName = 0;
-		SignerName = 0;
 		SetupStrListBox(this, CTL_SIGNBILL_SIGNER);
 		SetupStrListBox(this, CTL_SIGNBILL_SIGNFILE);
 		DrawList();
@@ -3601,7 +3623,7 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 			THROW(!P_IEBill->IsCtrError());
 			if(!(BillParam.BaseFlags & PPImpExpParam::bfDLL) && !(Flags & fEgaisImpExp)) {
 				if(!BillParam.PredefFormat) {
-					if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.CmpNC(BRowParam.FileName) == 0) {
+					if(BillParam.DataFormat == PPImpExpParam::dfXml && BRowParam.DataFormat == PPImpExpParam::dfXml && BillParam.FileName.IsEqNC(BRowParam.FileName)) {
 						P_IEBRow = P_IEBill;
 					}
 					else {
@@ -3611,9 +3633,9 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 					}
 				}
 				// Если имя файла задано шаблоном, то оно могло измениться { //
-				BillParam.FileName = P_IEBill->GetParam().FileName;
+				BillParam.FileName = P_IEBill->GetParamConst().FileName;
 				if(P_IEBRow) // @v9.7.8
-					BRowParam.FileName = P_IEBRow->GetParam().FileName;
+					BRowParam.FileName = P_IEBRow->GetParamConst().FileName;
 				// }
 				if(!BillParam.PredefFormat) // @v9.8.0
 					THROW(P_IEBill->OpenFileForWriting(0, 1, pResultFileList));
@@ -3658,9 +3680,9 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 		}
 		if(sessId && pImpExpDll) {
             int    edi_op = 0;
-            if(edi_op_symb.CmpNC("RECADV") == 0)
+            if(edi_op_symb.IsEqNC("RECADV"))
 				edi_op = PPEDIOP_RECADV;
-			else if(edi_op_symb.CmpNC("ORDER") == 0)
+			else if(edi_op_symb.IsEqNC("ORDER"))
 				edi_op = PPEDIOP_ORDER;
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
             pPack->Rec.EdiOp = edi_op; // @v8.6.12
@@ -3678,7 +3700,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			THROW(pImpExpDll->InitExportIter(sessId, obj_id));
 		}
 		else {
-			BillExpExprEvalContext expr_ctx(pPack, P_IEBill->GetParam().InrRec);
+			BillExpExprEvalContext expr_ctx(pPack, P_IEBill->GetParamConst().InrRec);
 			P_IEBill->SetExprContext(&expr_ctx);
 			THROW(BillRecToBill(pPack, &bill));
 			THROW(P_IEBill->AppendRecord(&bill, sizeof(bill)));
@@ -3857,13 +3879,13 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 						if(goods_kind_symb.NotEmpty()) {
 							GoodsExtTbl::Rec goods_ext_rec;
 							if(GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
-								if(goods_kind_symb.CmpNC("X") == 0)
+								if(goods_kind_symb.IsEqNC("X"))
 									brow.GoodKindCode = goods_ext_rec.X;
-								else if(goods_kind_symb.CmpNC("Y") == 0)
+								else if(goods_kind_symb.IsEqNC("Y"))
 									brow.GoodKindCode = goods_ext_rec.Y;
-								else if(goods_kind_symb.CmpNC("Z") == 0)
+								else if(goods_kind_symb.IsEqNC("Z"))
 									brow.GoodKindCode = goods_ext_rec.Z;
-								else if(goods_kind_symb.CmpNC("W") == 0)
+								else if(goods_kind_symb.IsEqNC("W"))
 									brow.GoodKindCode = goods_ext_rec.W;
 							}
 						}
@@ -3945,13 +3967,13 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							GObj.FetchCls(goods_rec.ID, 0, &gds_cls_pack);
 							if(GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
 								int    dim = 0;
-								if(goods_vol_symb.CmpNC("X") == 0)
+								if(goods_vol_symb.IsEqNC("X"))
 									dim = PPGdsCls::eX;
-								else if(goods_vol_symb.CmpNC("Y") == 0)
+								else if(goods_vol_symb.IsEqNC("Y"))
 									dim = PPGdsCls::eY;
-								else if(goods_vol_symb.CmpNC("Z") == 0)
+								else if(goods_vol_symb.IsEqNC("Z"))
 									dim = PPGdsCls::eZ;
-								else if(goods_vol_symb.CmpNC("W") == 0)
+								else if(goods_vol_symb.IsEqNC("W"))
 									dim = PPGdsCls::eW;
 								if(dim)
 									gds_cls_pack.GetExtDim(&goods_ext_rec, dim, &phuperu);
@@ -4039,6 +4061,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				STRNSCPY(brow.DlvrAddr, bill.DlvrAddr);
 				STRNSCPY(brow.AgentName, bill.AgentName);
 				STRNSCPY(brow.AgentINN, bill.AgentINN);
+				brow.AgentPersonID = bill.AgentPersonID; // @v9.8.7
 			}
 			{
 				if(sessId && pImpExpDll) {
@@ -4231,6 +4254,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 			temp_buf.CopyTo(pBill->AgentINN, sizeof(pBill->AgentINN));
 			GetReg(pPack->Ext.AgentID, PPREGT_GLN, temp_buf);
 			temp_buf.CopyTo(pBill->AgentGLN, sizeof(pBill->AgentGLN));
+			pBill->AgentPersonID = ObjectToPerson(pPack->Ext.AgentID, 0); // @v9.8.7
 		}
 		{
 			PPID   main_org_id = 0;

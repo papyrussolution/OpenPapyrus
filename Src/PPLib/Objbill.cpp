@@ -8262,7 +8262,7 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 			PPSupplAgreement * P_SupplAgt;
 		};
 	};
-	rResult = 0;
+	rResult.Z();
 
 	int    ok = 1;
 	SString subst_buf;

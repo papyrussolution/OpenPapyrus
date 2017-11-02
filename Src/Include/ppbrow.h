@@ -1985,17 +1985,18 @@ struct Sdr_SpecSeries {
 	#define PPFLD_BILL_AGENTNAME                     43
 	#define PPFLD_BILL_AGENTINN                      44
 	#define PPFLD_BILL_AGENTGLN                      45
-	#define PPFLD_BILL_COSTWITHSTAX                  46
-	#define PPFLD_BILL_XMLPREFIX                     47
-	#define PPFLD_BILL_GUID                          48
-	#define PPFLD_BILL_MAININN                       49
-	#define PPFLD_BILL_BEERGRPID                     50
-	#define PPFLD_BILL_ORDERDATE                     51
-	#define PPFLD_BILL_CNTRACTCODE                   52
-	#define PPFLD_BILL_CNTRACTDT                     53
-	#define PPFLD_BILL_CNTRACTEXPRY                  54
-	#define PPFLD_BILL_CNTRAGPHONE                   55
-	#define PPFLD_BILL_CNTRAGEMAIL                   56
+	#define PPFLD_BILL_AGENTPERSONID                 46
+	#define PPFLD_BILL_COSTWITHSTAX                  47
+	#define PPFLD_BILL_XMLPREFIX                     48
+	#define PPFLD_BILL_GUID                          49
+	#define PPFLD_BILL_MAININN                       50
+	#define PPFLD_BILL_BEERGRPID                     51
+	#define PPFLD_BILL_ORDERDATE                     52
+	#define PPFLD_BILL_CNTRACTCODE                   53
+	#define PPFLD_BILL_CNTRACTDT                     54
+	#define PPFLD_BILL_CNTRACTEXPRY                  55
+	#define PPFLD_BILL_CNTRAGPHONE                   56
+	#define PPFLD_BILL_CNTRAGEMAIL                   57
 
 struct Sdr_Bill {
 	char   ID[32];
@@ -2043,6 +2044,7 @@ struct Sdr_Bill {
 	char   AgentName[128];
 	char   AgentINN[32];
 	char   AgentGLN[16];
+	int32  AgentPersonID;
 	int16  CostWithSTax;
 	char   XmlPrefix[16];
 	char   GUID[64];
@@ -2127,34 +2129,35 @@ struct Sdr_Bill {
 	#define PPFLD_BROW_DLVRADDR                      68
 	#define PPFLD_BROW_AGENTNAME                     69
 	#define PPFLD_BROW_AGENTINN                      70
-	#define PPFLD_BROW_COSTWITHSTAX                  71
-	#define PPFLD_BROW_GOODKINDCODE                  72
-	#define PPFLD_BROW_GOODGRPID                     73
-	#define PPFLD_BROW_TTN                           74
-	#define PPFLD_BROW_GTD                           75
-	#define PPFLD_BROW_LICENSEID                     76
-	#define PPFLD_BROW_LICENSENUM                    77
-	#define PPFLD_BROW_LICENSEDATE                   78
-	#define PPFLD_BROW_LICENSEEXPIRY                 79
-	#define PPFLD_BROW_LICENSESERIAL                 80
-	#define PPFLD_BROW_REGAUTHORITY                  81
-	#define PPFLD_BROW_LOTMANUF                      82
-	#define PPFLD_BROW_MANUFINN                      83
-	#define PPFLD_BROW_MANUFKPP                      84
-	#define PPFLD_BROW_MANUFCITYNAME                 85
-	#define PPFLD_BROW_MANUFREGIONNAME               86
-	#define PPFLD_BROW_MANUFINDEX                    87
-	#define PPFLD_BROW_MANUFREGIONCODE               88
-	#define PPFLD_BROW_MANUFDISTRICT                 89
-	#define PPFLD_BROW_MANUFSTREET                   90
-	#define PPFLD_BROW_MANUFHOUSE                    91
-	#define PPFLD_BROW_MANUFHOUSING                  92
-	#define PPFLD_BROW_MANUFCOUNTRYNAME              93
-	#define PPFLD_BROW_MANUFCOUNTRYOKSM              94
-	#define PPFLD_BROW_ISMANUF                       95
-	#define PPFLD_BROW_LOTDOCDATE                    96
-	#define PPFLD_BROW_ISBEER                        97
-	#define PPFLD_BROW_ISALCO                        98
+	#define PPFLD_BROW_AGENTPERSONID                 71
+	#define PPFLD_BROW_COSTWITHSTAX                  72
+	#define PPFLD_BROW_GOODKINDCODE                  73
+	#define PPFLD_BROW_GOODGRPID                     74
+	#define PPFLD_BROW_TTN                           75
+	#define PPFLD_BROW_GTD                           76
+	#define PPFLD_BROW_LICENSEID                     77
+	#define PPFLD_BROW_LICENSENUM                    78
+	#define PPFLD_BROW_LICENSEDATE                   79
+	#define PPFLD_BROW_LICENSEEXPIRY                 80
+	#define PPFLD_BROW_LICENSESERIAL                 81
+	#define PPFLD_BROW_REGAUTHORITY                  82
+	#define PPFLD_BROW_LOTMANUF                      83
+	#define PPFLD_BROW_MANUFINN                      84
+	#define PPFLD_BROW_MANUFKPP                      85
+	#define PPFLD_BROW_MANUFCITYNAME                 86
+	#define PPFLD_BROW_MANUFREGIONNAME               87
+	#define PPFLD_BROW_MANUFINDEX                    88
+	#define PPFLD_BROW_MANUFREGIONCODE               89
+	#define PPFLD_BROW_MANUFDISTRICT                 90
+	#define PPFLD_BROW_MANUFSTREET                   91
+	#define PPFLD_BROW_MANUFHOUSE                    92
+	#define PPFLD_BROW_MANUFHOUSING                  93
+	#define PPFLD_BROW_MANUFCOUNTRYNAME              94
+	#define PPFLD_BROW_MANUFCOUNTRYOKSM              95
+	#define PPFLD_BROW_ISMANUF                       96
+	#define PPFLD_BROW_LOTDOCDATE                    97
+	#define PPFLD_BROW_ISBEER                        98
+	#define PPFLD_BROW_ISALCO                        99
 
 struct Sdr_BRow {
 	char   BillID[32];
@@ -2227,6 +2230,7 @@ struct Sdr_BRow {
 	char   DlvrAddr[255];
 	char   AgentName[128];
 	char   AgentINN[32];
+	int32  AgentPersonID;
 	int16  CostWithSTax;
 	int32  GoodKindCode;
 	int32  GoodGrpID;

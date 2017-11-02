@@ -2067,8 +2067,10 @@ int SLAPI PPTextAnalyzer::Test()
 
 		Replacer rpl;
 		SString line_buf, result_buf, file_name;
+		SString input_file_name;
 		{
-			SString input_file_name = "\\papyrus\\src\\pptest\\data\\replacer-rule.txt";
+			PPGetPath(PPPATH_TESTROOT, input_file_name);
+			input_file_name.SetLastSlash().Cat("data\\replacer-rule.txt");
 			THROW(ParseReplacerFile(input_file_name, rpl));
 			{
 				SPathStruc::ReplaceExt(file_name = input_file_name, "out", 1);
@@ -2084,11 +2086,12 @@ int SLAPI PPTextAnalyzer::Test()
 			}
 		}
 		{
-			SFile inf("\\papyrus\\src\\pptest\\data\\replacer-input.txt", SFile::mRead);
+			PPGetPath(PPPATH_TESTROOT, input_file_name);
+			input_file_name.SetLastSlash().Cat("data\\replacer-input.txt");
+			SFile inf(input_file_name, SFile::mRead);
 			if(inf.IsValid()) {
 				FindBlock fb(rpl);
 				SPathStruc::ReplaceExt(file_name = inf.GetName(), "out", 1);
-				//SFile outf(file_name, SFile::mWrite);
 				SPathStruc::ReplaceExt(file_name = inf.GetName(), "csv", 1);
 				SFile csvf(file_name, SFile::mWrite);
 				{
@@ -2165,7 +2168,7 @@ int SLAPI PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
 
 int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = -1;
 	if(Flags & fInited) {
 		(TempBuf = pText).Strip();

@@ -2094,20 +2094,20 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 			int    crit = 0;
 			int    subcrit = 0;
 			int    no_param = 0;
-			if(temp_buf.CmpNC("OP") == 0)
+			if(temp_buf.IsEqNC("OP"))
 				crit = cOp;
-			else if(temp_buf.CmpNC("PRMRSCARD") == 0 || temp_buf.CmpNC("SCARD") == 0)
+			else if(temp_buf.IsEqNC("PRMRSCARD") || temp_buf.IsEqNC("SCARD"))
 				crit = cPrmrSCard;
-			else if(temp_buf.CmpNC("SCNDSCARD") == 0)
+			else if(temp_buf.IsEqNC("SCNDSCARD"))
 				crit = cScndSCard;
-			else if(temp_buf.CmpNC("PRMRPERSON") == 0 || temp_buf.CmpNC("PERSON") == 0)
+			else if(temp_buf.IsEqNC("PRMRPERSON") || temp_buf.IsEqNC("PERSON"))
 				crit = cPrmrPerson;
-			else if(temp_buf.CmpNC("SCNDPERSON") == 0)
+			else if(temp_buf.IsEqNC("SCNDPERSON"))
 				crit = cScndPerson;
-			else if(temp_buf.CmpNC("INTERACTIVELEVEL") == 0 || temp_buf.CmpNC("INTERACTLEVEL") == 0) {
+			else if(temp_buf.IsEqNC("INTERACTIVELEVEL") || temp_buf.IsEqNC("INTERACTLEVEL")) {
 				crit = cInteractLevel;
 			}
-			else if(temp_buf.CmpNC("NONINTERACTIVE") == 0 || temp_buf.CmpNC("NONINTERACT") == 0) {
+			else if(temp_buf.IsEqNC("NONINTERACTIVE") || temp_buf.IsEqNC("NONINTERACT")) {
 				crit = cNonInteractive;
 				no_param = 1;
 			}
@@ -2117,9 +2117,9 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 			if(scan[0] == '.') {
 				scan.Incr();
 				THROW(scan.Skip().GetIdent(temp_buf)); // @error
-				if(temp_buf.CmpNC("ID") == 0)
+				if(temp_buf.IsEqNC("ID"))
 					subcrit = scID;
-				else if(temp_buf.CmpNC("CODE") == 0)
+				else if(temp_buf.IsEqNC("CODE"))
 					subcrit = scCode;
 				else {
 					CALLEXCEPT(); // @error InvalidSubcriterion

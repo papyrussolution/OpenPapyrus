@@ -1798,6 +1798,11 @@ int SLAPI GoodsSubstList::GetLocAssocText(PPID substID, SString & rBuf) const
 	return ok;
 }
 
+SLAPI PPObjGoods::SubstBlock::SubstBlock()
+{
+	THISZERO();
+}
+
 int SLAPI PPObjGoods::SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, SubstBlock * pBlk, GoodsSubstList * pGsl)
 {
 	int    ok = 1;

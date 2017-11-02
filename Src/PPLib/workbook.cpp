@@ -2859,7 +2859,7 @@ int SLAPI PrcssrWorkbookImport::Run()
 			cntr.Init(numrecs);
 			MEMSZERO(sdr_rec);
 			while((r = ie.ReadRecord(&sdr_rec, sizeof(sdr_rec))) > 0) {
-				ie.GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
+				ie.GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 				PPID   id = 0, same_id = 0;
 				PPWorkbookPacket pack;
 				WorkbookTbl::Rec same_rec;
@@ -2952,7 +2952,7 @@ int SLAPI PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 		THROW(P_IEWorkbook->OpenFileForWriting(0, 1));
 		{
 			SPathStruc ps;
-			ps.Split(P_IEWorkbook->GetParam().FileName);
+			ps.Split(P_IEWorkbook->GetParamConst().FileName);
 			ps.Ext = "files";
 			ps.Merge(DestFilesPath);
 		}
@@ -3016,7 +3016,7 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 			dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
 		}
 	}
-	P_IEWorkbook->GetParam().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
+	P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
 	THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
 	CATCHZOK
 	return ok;

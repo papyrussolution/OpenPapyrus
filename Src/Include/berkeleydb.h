@@ -518,7 +518,6 @@ struct __db_lsn { // SHARED
 	uint32 file;   // File ID
 	uint32 Offset_; // File offset
 };
-
 /*
  * Application-specified log record types start at DB_user_BEGIN, and must not
  * equal or exceed DB_debug_FLAG.
@@ -602,7 +601,6 @@ struct __db_log_stat { /* SHARED */
  * place to put that info.
  */
 #define DB_SET_TXN_LSNP(txn, blsnp, llsnp) ((txn)->set_txn_lsnp(txn, blsnp, llsnp))
-
 /*
  * Definition of the structure which specifies marshalling of log records.
  */

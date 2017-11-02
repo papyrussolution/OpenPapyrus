@@ -496,6 +496,7 @@ public:
 	int    SLAPI GetDevYears(uint * pStart, uint * pLast);
 	int    SLAPI GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo = 0, int minVersion = 0);
 	SVerT  SLAPI GetVersion(int minVersion = 0);
+	int    SLAPI GetAssemblyN();
 	int    SLAPI GetSecret(char * pBuf, size_t bufSize);
 	int    SLAPI GetVersionText(char *, size_t);
 	int    SLAPI GetCopyrightText(SString & rBuf);
@@ -2149,7 +2150,8 @@ public:
 	//
 	void   SetExprContext(ExprEvalContext * pCtx);
 	int    SetHeaderData(const Sdr_ImpExpHeader * pData);
-	const  PPImpExpParam & GetParam() const;
+	const  PPImpExpParam & SLAPI GetParamConst() const;
+	PPImpExpParam & SLAPI GetParam();
 	//
 	// Descr: Сохраняет текущее состояние, позволяет считывать в буфер данные о подчиненном элементе.
 	//
@@ -3813,14 +3815,11 @@ struct PPQuot { // @persistent(DBX see Note above)
 	SLAPI  PPQuot(const QuotationTbl::Rec &);
 	PPQuot & FASTCALL operator = (const QuotationTbl::Rec &);
 	QuotIdent & FASTCALL MakeIdent(QuotIdent & rQi) const;
-	void   Clear()
-	{
-		THISZERO();
-	}
+	void   SLAPI Clear();
 	enum {
 		cmpFull  = 0x0000,
 		cmpNoID  = 0x0001, // Не брать в рассмотрение ИД котировки
-		cmpNoVal = 0x0002  // @v7.0.6 Не брать в рассмотрение значение котировки
+		cmpNoVal = 0x0002  // Не брать в рассмотрение значение котировки
 	};
 	int    SLAPI IsEqual(const PPQuot & rS, long cmpFlags = 0) const;
 	int    SLAPI IsRelative() const;
@@ -13519,14 +13518,14 @@ public:
 		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
 	};
 	int    SLAPI SetTotalDiscount__(double dis, long flags);
-	int    SLAPI CalcAmount(double * pAmt, double * pDscnt) const;
+	void   SLAPI CalcAmount(double * pAmt, double * pDscnt) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount
 	//   и Rec.Discount.
 	//   Если вызывающая функция нуждается в значениях рассчитанных сумм, то она
 	//   может передать указатели pAmt и (или) pDscnt.
 	//
-	int    SLAPI SetupAmount(double * pAmt, double * pDscnt);
+	void   SLAPI SetupAmount(double * pAmt, double * pDscnt);
 	double SLAPI GetFiscalAmount() const;
 	int    SLAPI HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const;
 
@@ -16922,10 +16921,8 @@ private:
 #define GTAOP_LAST              11
 
 struct PPGta {
-	PPGta()
-	{
-		THISZERO();
-	}
+	SLAPI  PPGta();
+
 	int    Op;
 	PPID   GlobalUserID;
 	PPObjID ObjId;
@@ -18802,10 +18799,7 @@ Registrar_##nm::Registrar_##nm() { _Register_##nm(); }
 // Принтеры штрихкодов
 //
 struct PPBarcodePrinter2 { // @persistent @store(Reference2Tbl+)
-	SLAPI  PPBarcodePrinter2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPBarcodePrinter2();
 	void   SLAPI Normalyze();
 
 	enum {
@@ -19093,7 +19087,7 @@ public:
 	friend class StyloDisplayQueue;
 
 	SLAPI  PalmDisplayBlock();
-	PalmDisplayBlock & Clear();
+	void   SLAPI Clear();
 
 	enum {
 		ctxNone = 0,
@@ -19198,23 +19192,23 @@ public:
 private:
 	class ExportBlock {
 	public:
-		struct GoodsGrpEntry {
+		struct GoodsGrpEntry { // @flat
 			PPID   ID;
 			PPID   ParentID;
 			char   Name[64];
 		};
-		struct BrandEntry {
+		struct BrandEntry { // @flat
 			PPID   BrandID;
 			PPID   OwnerID;
 			char   BrandName[64];
 			char   OwnerName[128];
 		};
-		struct WhEntry {
+		struct WhEntry { // @flat
 			PPID   WhID;
 			char   WhName[48];
 		};
-		ExportBlock();
-		~ExportBlock();
+		SLAPI  ExportBlock();
+		SLAPI ~ExportBlock();
 
         PPObjGoods * P_GObj;
         PPObjBrand * P_BrObj;
@@ -19223,9 +19217,9 @@ private:
         PPObjArticle * P_ArObj;
         PPViewDebtTrnovr * P_DebtView;
         PPViewGoodsRest * P_GrView;
-        TSArray <BrandEntry> * P_BrandList;
-        TSArray <WhEntry> * P_WhList;
-        TSArray <GoodsGrpEntry> * P_GgList;
+        TSVector <BrandEntry> * P_BrandList; // @v9.8.7 TSArray-->TSVector
+        TSVector <WhEntry> * P_WhList; // @v9.8.7 TSArray-->TSVector
+        TSVector <GoodsGrpEntry> * P_GgList; // @v9.8.7 TSArray-->TSVector
         StrAssocArray QkList;
 	};
 	virtual int  SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
@@ -26286,10 +26280,7 @@ public:
 	// Функции подстановки
 	//
 	struct SubstBlock {
-		SubstBlock()
-		{
-			THISZERO();
-		}
+		SLAPI  SubstBlock();
         PPID   ExclParentID;
         PPID   LocID;
         LDATE  Dt;           // @v8.3.3 Дата актуальности. Требуется в некоторых ситуациях
@@ -29370,6 +29361,7 @@ private:
 	int    SLAPI RunEDIImport2();
 	int	   SLAPI GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus); // @vmiller
 	int    SLAPI AssignFnFieldToRecord(const StrAssocArray & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
+	int    SLAPI ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
 
 	PPID   AccSheetID;
 	long   LineIdSeq;
@@ -37404,14 +37396,10 @@ private:
 	int    LogRating; // Для расчета рейтингов используется логарифмическая шкала
 };
 
-struct PPDebtorStatConfig { // @persistent @store(PropertyTbl)
+struct PPDebtorStatConfig { // @persistent @store(PropertyTbl) @flat
 	static int SLAPI Read(PPDebtorStatConfig *);
 	static int SLAPI Edit();
-
-	SLAPI PPDebtorStatConfig()
-	{
-		THISZERO();
-	}
+	SLAPI  PPDebtorStatConfig();
 
 	enum {
 		fLimitTermFromAgreement = 0x0001, // Если у контрагента есть соглашение, то
@@ -39006,11 +38994,11 @@ private:
 //
 struct ObjSyncFilt : public PPBaseFilt {
 	SLAPI  ObjSyncFilt();
-	virtual int Init(int fullyDestroy, long extraData);
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
-	virtual int Copy(const PPBaseFilt *, int);
-	virtual int IsEqual(const PPBaseFilt *, int) const;
+	virtual int SLAPI Init(int fullyDestroy, long extraData);
+	virtual int SLAPI Write(SBuffer &, long) const;
+	virtual int SLAPI Read(SBuffer &, long);
+	virtual int SLAPI Copy(const PPBaseFilt *, int);
+	virtual int SLAPI IsEqual(const PPBaseFilt *, int) const;
 
 	char   ReserveStart[32]; // @anchor
 	PPID   ObjType;
@@ -44764,7 +44752,7 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:

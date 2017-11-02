@@ -8,6 +8,7 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
 
 #ifdef SCI_NAMESPACE
@@ -18,7 +19,8 @@ using namespace Scintilla;
 #define SCE_LISP_MACRO 30
 #define SCE_LISP_MACRO_DISPATCH 31
 
-static bool FASTCALL isLispoperator(char ch) {
+static bool FASTCALL isLispoperator(char ch) 
+{
 	if(IsASCII(ch) && isalnum(ch))
 		return false;
 	if(ch == '\'' || ch == '`' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}')
@@ -26,7 +28,8 @@ static bool FASTCALL isLispoperator(char ch) {
 	return false;
 }
 
-static bool FASTCALL isLispwordstart(char ch) {
+static bool FASTCALL isLispwordstart(char ch) 
+{
 	return IsASCII(ch) && ch != ';'  && !isspacechar(ch) && !isLispoperator(ch) &&
 	       ch != '\n' && ch != '\r' &&  ch != '\"';
 }

@@ -477,7 +477,7 @@ LOCAL(boolean) get_dht(j_decompress_ptr cinfo)
 		if(count > 256 || ((INT32)count) > length)
 			ERREXIT(cinfo, JERR_BAD_HUFF_TABLE);
 
-		MEMZERO(huffval, SIZEOF(huffval)); /* pre-zero array for later copy */
+		memzero(huffval, SIZEOF(huffval)); /* pre-zero array for later copy */
 
 		for(i = 0; i < count; i++)
 			INPUT_BYTE(cinfo, huffval[i], return FALSE);

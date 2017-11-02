@@ -9,7 +9,7 @@
 //
 SdbField::SdbField()
 {
-	THISZERO();
+	Init();
 }
 
 void SdbField::Init()
@@ -18,21 +18,21 @@ void SdbField::Init()
 	T.Init();
 	OuterFormat = 0;
 	InnerOffs = 0;
-	Name = 0;
-	Descr = 0;
-	Formula = 0;
+	Name.Z();
+	Descr.Z();
+	Formula.Z();
 }
 
-int SdbField::IsEqual(const SdbField & rPat) const
+int FASTCALL SdbField::IsEqual(const SdbField & rPat) const
 {
 	int    ok = 1;
 	THROW(ID == rPat.ID);
 	THROW(OuterFormat == rPat.OuterFormat);
 	THROW(InnerOffs == rPat.InnerOffs);
 	THROW(memcmp(&T, &rPat.T, sizeof(T)) == 0);
-	THROW(Name.Cmp(rPat.Name, 0) == 0);
-	THROW(Descr.Cmp(rPat.Descr, 0) == 0);
-	THROW(Formula.Cmp(rPat.Formula, 0) == 0);
+	THROW(Name == rPat.Name);
+	THROW(Descr == rPat.Descr);
+	THROW(Formula == rPat.Formula);
 	CATCHZOK
 	return ok;
 }
@@ -591,7 +591,7 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 	SString temp_buf;
 	SString scan_buf = rScan;
 	rScan.Len = 0;
-	for(uint i = 0; Items.enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 		if((i-1) != excludePos) {
 			StringPool.get(p_item->NamePos, temp_buf);
 			if(scan_buf.CmpPrefix(temp_buf, 1) == 0) {
@@ -600,6 +600,8 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 				return 1;
 			}
 		}
+	}
+	ASSIGN_PTR(pPos, 0); // @v9.8.7
 	return 0;
 }
 
@@ -618,6 +620,7 @@ int SdRecord::SearchName(const char * pName, uint * pPos, uint excludePos) const
 			}
 		}
 	}
+	ASSIGN_PTR(pPos, 0); // @v9.8.7
 	return 0;
 }
 

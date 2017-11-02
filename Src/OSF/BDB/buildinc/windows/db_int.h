@@ -829,9 +829,9 @@ typedef enum { MU_REMOVE, MU_RENAME, MU_OPEN, MU_MOVE } mu_action;
 // Structure used as the DB pgin/pgout pgcookie.
 //
 typedef struct __dbpginfo {
-	uint32 db_pagesize;		/* Underlying page size. */
-	uint32 flags;		/* Some DB_AM flags needed. */
-	DBTYPE  type;			/* DB type */
+	uint32 db_pagesize; // Underlying page size
+	uint32 flags; // Some DB_AM flags needed
+	DBTYPE type;  // DB type 
 } DB_PGINFO;
 //
 // Log.

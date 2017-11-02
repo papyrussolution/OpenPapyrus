@@ -2740,6 +2740,11 @@ int SLAPI PPDebtorStatConfig::Edit()
 	delete dlg;
 	return ok;
 }
+
+SLAPI PPDebtorStatConfig::PPDebtorStatConfig()
+{
+	THISZERO();
+}
 //
 //
 //

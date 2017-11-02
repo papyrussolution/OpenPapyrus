@@ -673,6 +673,30 @@ int SLAPI ComExcelShapes::PutPicture(const char * pPath, RECT * pRect)
 	return ok;
 }
 //
+// ComExcelInterior
+//
+SLAPI ComExcelInterior::ComExcelInterior() : ComDispInterface()
+{
+}
+
+SLAPI ComExcelInterior::~ComExcelInterior()
+{
+}
+
+int SLAPI ComExcelInterior::Init(IDispatch * pIDisp)
+{
+	int    ok = 1;
+	THROW(ComDispInterface::Init(pIDisp) > 0);
+	THROW(ASSIGN_ID_BY_NAME(this, Color) > 0);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ComExcelInterior::SetColor(long color)
+{
+	return SetProperty(Color, color);
+}
+//
 // ComExcelRange
 //
 SLAPI ComExcelRange::ComExcelRange() : ComDispInterface()
@@ -695,6 +719,8 @@ int SLAPI ComExcelRange::Init(IDispatch * pIDisp)
 	THROW(ASSIGN_ID_BY_NAME(this, RowHeight) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Clear) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Columns) > 0);
+	THROW(ASSIGN_ID_BY_NAME(this, Interior) > 0);
+	THROW(ASSIGN_ID_BY_NAME(this, Merge) > 0);
 	CATCHZOK
 	return ok;
 }
@@ -742,6 +768,14 @@ ComExcelFont * SLAPI ComExcelRange::GetFont()
 	return p_font;
 }
 
+ComExcelInterior * SLAPI ComExcelRange::GetInterior()
+{
+	ComExcelInterior * p_intr = new ComExcelInterior;
+	if(GetProperty(Interior, p_intr) <= 0)
+		ZDELETE(p_intr);
+	return p_intr;
+}
+
 int SLAPI ComExcelRange::SetBold(int bold)
 {
 	ComExcelFont * p_font = GetFont();
@@ -758,6 +792,14 @@ int SLAPI ComExcelRange::SetColor(long color)
 	return ok;
 }
 
+int SLAPI ComExcelRange::SetBgColor(long color)
+{
+	ComExcelInterior * p_intr = GetInterior();
+	int    ok = p_intr ? p_intr->SetColor(color) : 0;
+	ZDELETE(p_intr);
+	return ok;
+}
+
 int SLAPI ComExcelRange::SetWidth(long width)
 {
 	return BIN(SetParam(width) > 0 && SetProperty(ColumnWidth, width) > 0);
@@ -768,9 +810,14 @@ int SLAPI ComExcelRange::SetHeight(long height)
 	return BIN(SetParam(height) > 0 && SetProperty(RowHeight, height) > 0);
 }
 
-int SLAPI ComExcelRange::_Clear()
+int SLAPI ComExcelRange::DoClear()
 {
 	return CallMethod(Clear);
+}
+
+int SLAPI ComExcelRange::DoMerge()
+{
+	return CallMethod(Merge);
 }
 
 ComExcelRange * SLAPI ComExcelRange::_Columns()
@@ -801,6 +848,7 @@ int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
 	THROW(ASSIGN_ID_BY_NAME(this, Delete) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Columns) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Rows) > 0);
+	THROW(ASSIGN_ID_BY_NAME(this, Range) > 0); // @v9.8.7
 	THROW(ASSIGN_ID_BY_NAME(this, Shapes) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, PrintOut) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, PrintPreview) > 0);
@@ -852,7 +900,42 @@ ComExcelRange * ComExcelWorksheet::Cell(long row, long col)
 	ComExcelRange * p_range = new ComExcelRange;
 	THROW(SetParam(row) > 0);
 	THROW(SetParam(col) > 0);
-	THROW(GetProperty(Cells, (ComDispInterface*)p_range) > 0);
+	THROW(GetProperty(Cells, (ComDispInterface *)p_range) > 0);
+	CATCH
+		ZDELETE(p_range);
+	ENDCATCH
+	return p_range;
+}
+
+int SLAPI GetExcelCellCoordA1(long row, long col, SString & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	if(col > 0 && row > 0) {
+		if(col <= 26)
+			rBuf.CatChar('A' + (char)(col-1));
+		else {
+			if((col / 26) < 26)
+				rBuf.CatChar('A' + (char)(col / 26)).CatChar('A' + (char)(col % 26));
+			else
+				ok = 0;
+		}
+		rBuf.Cat(row);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+ComExcelRange * SLAPI ComExcelWorksheet::GetRange(long luRow, long luCol, long rbRow, long rbCol)
+{
+	ComExcelRange * p_range = new ComExcelRange;
+	SString c1, c2;
+	THROW(GetExcelCellCoordA1(luRow, luCol, c1));
+	THROW(GetExcelCellCoordA1(rbRow, rbCol, c2));
+	THROW(SetParam(c1) > 0);
+	THROW(SetParam(c2) > 0);
+	THROW(GetProperty(Range, (ComDispInterface *)p_range) > 0);
 	CATCH
 		ZDELETE(p_range);
 	ENDCATCH
@@ -899,7 +982,7 @@ int ComExcelWorksheet::_Clear(long col1, long colN)
 	for(long i = col1; i < colN; i++) {
 		ComExcelRange * p_range = GetColumn(i);
 		if(p_range)
-			p_range->_Clear();
+			p_range->DoClear();
 		ZDELETE(p_range);
 	}
 	return 1;
@@ -962,6 +1045,14 @@ int SLAPI ComExcelWorksheet::SetColor(long row, long col, COLORREF color)
 {
 	ComExcelRange * p_range = Cell(row, col);
 	int    ok = p_range ? p_range->SetColor((long)color) : 0;
+	ZDELETE(p_range);
+	return ok;
+}
+
+int SLAPI ComExcelWorksheet::SetBgColor(long row, long col, COLORREF color)
+{
+	ComExcelRange * p_range = Cell(row, col);
+	int    ok = p_range ? p_range->SetBgColor((long)color) : 0;
 	ZDELETE(p_range);
 	return ok;
 }

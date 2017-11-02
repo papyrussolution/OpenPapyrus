@@ -606,7 +606,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 //virtual
 int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
 {
-	rResult = 0;
+	rResult.Z();
 
 	int    ok = 1;
 	int    use_ps = 0;
@@ -735,7 +735,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 			if(url_prot == InetUrl::protFile) {
 				url.GetComponent(InetUrl::cPath, 0, file_name);
 			}
-			else if(pUrl) 
+			else if(pUrl)
 				file_name = pUrl;
 			else {
 				ps.Split(FileName);
@@ -1563,7 +1563,7 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 	setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 	// @v8.6.1 {
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
-		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.InetAccID, OLW_CANINSERT, 
+		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.InetAccID, OLW_CANINSERT,
 			(void *)(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail)/*INETACCT_ONLYFTP*/);
 	}
 	// } @v8.6.1
@@ -1717,7 +1717,12 @@ int PPImpExp::SetHeaderData(const Sdr_ImpExpHeader * pData)
 	return ok;
 }
 
-const PPImpExpParam & PPImpExp::GetParam() const
+const PPImpExpParam & SLAPI PPImpExp::GetParamConst() const
+{
+	return P;
+}
+
+PPImpExpParam & SLAPI PPImpExp::GetParam()
 {
 	return P;
 }
@@ -1996,19 +2001,20 @@ const SString & SLAPI PPImpExp::GetPreservedOrgFileName() const
 }
 
 enum {
-	iefrmEmpty=1,      // empty       Пустая строка
-	iefrmRecNo,        // recno       Номер текущей записи
-	iefrmCurDate,      // curdate     Текущая дата
-	iefrmCurTime,      // curtime     Текущее время //
-	iefrmCurYear,      // curyear     Текущий год
-	iefrmCurMonth,     // curmonth    Текущий месяц
-	iefrmCurDay,       // curday      Текущий день
-	iefrmPsnRegNum,    // personregnum(regtypesymb, person_id) Номер регистра по ид персоналии
-	iefrmArRegNum,     // arregnum(regtypesymb, article_id)    Номер регистра по ид аналитической статьи
-	iefrmObjTag,       // objtag(tagsymb, objtype, obj_id)     Текстовое значение тега объекта
-	iefrmArRegDate,    // @v8.1.1 arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
-	iefrmCat,          // @v9.3.10 cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
-	iefrmCats,         // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
+	iefrmEmpty=1,        // empty       Пустая строка
+	iefrmRecNo,          // recno       Номер текущей записи
+	iefrmCurDate_German, // curdate     Текущая дата в формате dd.mm.yyyy
+	iefrmCurDate,        // curdate     Текущая дата в формате dd/mm/yyyy
+	iefrmCurTime,        // curtime     Текущее время //
+	iefrmCurYear,        // curyear     Текущий год
+	iefrmCurMonth,       // curmonth    Текущий месяц
+	iefrmCurDay,         // curday      Текущий день
+	iefrmPsnRegNum,      // personregnum(regtypesymb, person_id) Номер регистра по ид персоналии
+	iefrmArRegNum,       // arregnum(regtypesymb, article_id)    Номер регистра по ид аналитической статьи
+	iefrmObjTag,         // objtag(tagsymb, objtype, obj_id)     Текстовое значение тега объекта
+	iefrmArRegDate,      // @v8.1.1 arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
+	iefrmCat,            // @v9.3.10 cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
+	iefrmCats,           // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
 };
 
 // static
@@ -2096,7 +2102,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		inner_expr_ctx = 1;
 	}
 	*/
-	rResult = 0;
+	rResult.Z();
 	if(PPExprParser::CalcExpression(pFormula, &dbl_val, 0, p_expr_ctx) > 0) // Разрешение выражений у которых аргументы - числа
 		rResult.Cat(dbl_val);
 	else {
@@ -2115,6 +2121,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 					switch(sym) {
 						case iefrmEmpty: break;
 						case iefrmRecNo: rResult.Cat(W_RecNo); break;
+						case iefrmCurDate_German: rResult.Cat(getcurdate_(), DATF_GERMAN|DATF_CENTURY); break; // @v9.8.7
 						case iefrmCurDate: rResult.Cat(getcurdate_(), DATF_DMY|DATF_CENTURY); break;
 						case iefrmCurYear: rResult.Cat(getcurdate_().year()); break;
 						case iefrmCurMonth: rResult.Cat(getcurdate_().month()); break;

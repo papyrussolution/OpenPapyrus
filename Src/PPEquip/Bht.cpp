@@ -2812,13 +2812,11 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 	FILE * stream = 0, * stream2 = 0;
 	BhtRecord * p_bht_rec = 0;
 	PPIDArray goods_id_list;
-
 	PPObjGoods goods_obj;
 	PPGoodsConfig goods_cfg;
 	BarcodeArray barcode_list;
 	PPObjGoods::ReadConfig(&goods_cfg);
 	const  size_t check_dig = BIN(goods_cfg.Flags & GCF_BCCHKDIG);
-
 	StringSet ss;
 	TempOrderTbl::Key1 tmp_k1;
 	Goods2Tbl::Rec goods_rec;
@@ -2844,10 +2842,8 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 			int    num_flds = 0;
 			SString temp_path;
 			DBFCreateFld fld_list[32];
-
 			PPGetPath(PPPATH_OUT, temp_path);
 			SPathStruc::ReplacePath((out_path = pPath), temp_path, 1);
-
 			THROW(p_dbf_tbl = new DbfTable(out_path));
 			fld_list[num_flds++].Init("ID",   'N', 10, 0);
 			fld_list[num_flds++].Init("CODE", 'C', 16, 0);
@@ -2887,7 +2883,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 				if(p_barcode->Code[0]) {
 					PPID   goods_id = _goods_id;
 					temp_buf = p_barcode->Code;
-					if(temp_buf.Len() < 7) {
+					if(temp_buf.Len() > 3 && temp_buf.Len() < 7) { // @v9.8.7 (temp_buf.Len() > 3 &&)
 						temp_buf.PadLeft(12-temp_buf.Len(), '0');
 						if(check_dig)
 							AddBarcodeCheckDigit(temp_buf);
@@ -5121,11 +5117,10 @@ int SLAPI PPObjBHT::TransmitData()
 			dlg->getCtrlData(CTL_BHTSEND_WHAT, &v);
 			what = v;
 			dlg->getCtrlData(CTL_BHTSEND_FLAGS, &v);
-			force_update = v ? 1 : 0;
+			force_update = BIN(v);
 		}
 	}
-	delete dlg;
-	dlg = 0;
+	ZDELETE(dlg);
 	if(what >= 0 && bht_obj.Search(bht_id, &rec) > 0) {
 		if(rec.BhtTypeID == PPObjBHT::btDenso) {
 			BhtProtocol bp;

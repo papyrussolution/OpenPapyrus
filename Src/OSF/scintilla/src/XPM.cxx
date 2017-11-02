@@ -7,14 +7,14 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static const char * NextField(const char * s)
+static const char * FASTCALL NextField(const char * s)
 {
 	// In case there are leading spaces in the string
 	while(*s == ' ') {
@@ -30,7 +30,7 @@ static const char * NextField(const char * s)
 }
 
 // Data lines in XPM can be terminated either with NUL or "
-static size_t MeasureLength(const char * s)
+static size_t FASTCALL MeasureLength(const char * s)
 {
 	size_t i = 0;
 	while(s[i] && (s[i] != '\"'))

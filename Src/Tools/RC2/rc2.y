@@ -456,7 +456,7 @@ column_options_list : T_IDENT
 
 reqnum_def : T_TINT
 	{
-		itoa($1, column.ReqNumber, 10);
+		_itoa($1, column.ReqNumber, 10);
 	} | T_IDENT
 	{
 		STRNSCPY(column.ReqNumber, $1);
@@ -635,7 +635,7 @@ cmd_filt :
 {
 	$$.DeclView = 0;
 	STRNSCPY($$.FiltSymb, $3);
-	ltoa($5, $$.FiltExtraSymb, 10);
+	_ltoa($5, $$.FiltExtraSymb, 10);
 } | T_VIEW '=' T_IDENT
 {
 	$$.DeclView = 1;
@@ -650,7 +650,7 @@ cmd_filt :
 {
 	$$.DeclView = 1;
 	STRNSCPY($$.FiltSymb, $3);
-	ltoa($5, $$.FiltExtraSymb, 10);
+	_ltoa($5, $$.FiltExtraSymb, 10);
 }
 
 /*-----------------------------
@@ -681,9 +681,9 @@ job_option_list :
 
 job_option : T_IDENT
 {
-	if(stricmp($1, "noparam") == 0)
+	if(_stricmp($1, "noparam") == 0)
 		$$ = PPJobDescr::fNoParam;
-	else if(stricmp($1, "nologin") == 0)
+	else if(_stricmp($1, "nologin") == 0)
 		$$ = PPJobDescr::fNoLogin;
 	else {
 		SString msg_buf;

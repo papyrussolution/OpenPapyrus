@@ -299,6 +299,7 @@ class  SoapPacket;
 class  SoapPacketStruc;
 class  SoapPacketArray;
 class  DBTable;
+struct _finddatai64_t;
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -1260,7 +1261,6 @@ enum SCodepage {
 };
 
 struct SCodepageIdent {
-
 	static uint GetRegisteredCodepageCount();
 	static int  GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName);
 
@@ -1390,9 +1390,6 @@ struct S_GUID {    // @persistent @size=16
 
 	uint32 Data[4];
 };
-//
-//
-//
 //
 // Descr: Дата/время в формате Microsoft OLE (DATE)
 //   The DATE type is implemented using an 8-byte floating-point number.
@@ -3192,6 +3189,8 @@ public:
 	int    SLAPI NotEmptyS();
 	int    FASTCALL IsEqual(const SString & rS) const;
 	int    FASTCALL IsEqual(const char * pS) const;
+	int    FASTCALL IsEqNC(const SString & rS) const;
+	int    FASTCALL IsEqNC(const char * pS) const;
 	operator const char * () const { return P_Buf; }
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
@@ -4582,8 +4581,6 @@ int SLAPI ExecVDos(ExecVDosParam & rParam);
 //
 //
 //
-struct _finddatai64_t;
-
 struct SDirEntry {
 	SDirEntry & FASTCALL operator = (const _finddatai64_t & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATA & rS);
@@ -11610,14 +11607,9 @@ private:
 #ifndef _WIN32_WCE
 
 struct SGlobalSecureConfig {
-	SGlobalSecureConfig()
-	{
-		Flags = 0;
-	}
-	int    IsEmpty() const
-	{
-		return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty());
-	}
+	SLAPI  SGlobalSecureConfig();
+	int    SLAPI IsEmpty() const;
+
 	long   Flags;
 	SString CaFile;
 	SString CaPath;
@@ -11646,15 +11638,16 @@ typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 // Descr: Функция, если определена, должна возвращать каталоги в соответствии с заданной
 //   сигнатурой pSignature.
 // ARG(pSignature IN): символьное обозначение запрашиваемого каталога.
+//   Сигнатура не чувствительна к регистру символов.
 //   Возможны следущие значения:
-//   "bin"
-//   "local"
-//   "temp"
-//   "in"
-//   "out"
-//   "log"
-//   "testroot"
-//   "workspace"
+//   "bin" - бинарный каталог (тот, где находится исполняемый файл)
+//   "local" - каталог локальный данных (зависит от операционной системы)
+//   "temp" - каталог временных файлов
+//   "in"   - каталог входящих данных
+//   "out"  - каталог исходящих данных
+//   "log"  - каталог файлов журналов
+//   "testroot"  - головной каталог тестовых данных
+//   "workspace" - головной каталог рабочего пространства пользователя
 // ARG(rBuf      OUT): буфер, в который функция должна записать запрашиваемый путь.
 //
 typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
@@ -11814,6 +11807,19 @@ public:
 	int    SLAPI LoadString(const char * pSignature, SString & rBuf) const;
 	int    SLAPI ExpandString(SString & rBuf, int ctransf) const;
 	int    SLAPI SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf); // @>>this->LoadString
+	//
+	// Descr: Обращается к функции запроса каталога, предоставляемой модулем верхнего уровня.
+	// ARG(pSignature IN): текстовая сигатура запрашиваемого каталога.
+	//   Список допустимых значений см. в описании callback-функции int (*QueryPathFunc)(const char *, SString &)
+	//   Сигнатура не чувствительная к регистру символов.
+	// ARG(rBuf OUT): Буфер, в который заносится значение каталога в случае успешного
+	//   выполнения функции. При ошибке этот буфер усекается до нулевой длины.
+	// Returns:
+	//   !0 - запрос каталога успешно выполнен
+	//   0  - ошибка (в т.ч. возможно, из-за того, что модуль верхнего уровня не предоставил
+	//      соответствующей функции.
+	//
+	int    SLAPI QueryPath(const char * pSignature, SString & rBuf) const;
 	int    FASTCALL SetCodepage(SCodepage cp);
 	SCodepage SLAPI GetCodepage() const;
 	int    SLAPI CallHelp(uint32 wnd, uint cmd, uint ctx);

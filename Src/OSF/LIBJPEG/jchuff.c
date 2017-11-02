@@ -202,7 +202,7 @@ static void jpeg_make_c_derived_tbl(j_compress_ptr cinfo, boolean isDC, int tbln
 	 * this lets us detect duplicate VAL entries here, and later
 	 * allows emit_bits to detect any attempt to emit such symbols.
 	 */
-	MEMZERO(dtbl->ehufsi, SIZEOF(dtbl->ehufsi));
+	memzero(dtbl->ehufsi, SIZEOF(dtbl->ehufsi));
 
 	/* This is also a convenient place to check for out-of-range
 	 * and duplicated VAL entries.  We allow 0..255 for AC symbols
@@ -1130,8 +1130,8 @@ static void jpeg_gen_optimal_table(j_compress_ptr cinfo, JHUFF_TBL * htbl, long 
 	int p, i, j;
 	long v;
 	/* This algorithm is explained in section K.2 of the JPEG standard */
-	MEMZERO(bits, SIZEOF(bits));
-	MEMZERO(codesize, SIZEOF(codesize));
+	memzero(bits, SIZEOF(bits));
+	memzero(codesize, SIZEOF(codesize));
 	for(i = 0; i < 257; i++)
 		others[i] = -1;  /* init links to empty */
 	freq[256] = 1;          /* make sure 256 has a nonzero count */
@@ -1256,8 +1256,8 @@ METHODDEF(void) finish_pass_gather(j_compress_ptr cinfo)
 	 */
 	if(cinfo->progressive_mode)
 		emit_eobrun(entropy); // Flush out buffered data (all we care about is counting the EOB symbol) 
-	MEMZERO(did_dc, SIZEOF(did_dc));
-	MEMZERO(did_ac, SIZEOF(did_ac));
+	memzero(did_dc, SIZEOF(did_dc));
+	memzero(did_ac, SIZEOF(did_ac));
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 		compptr = cinfo->cur_comp_info[ci];
 		/* DC needs no table for refinement scan */
@@ -1345,7 +1345,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 				/* Note that jpeg_gen_optimal_table expects 257 entries in each table! */
 				if(entropy->dc_count_ptrs[tbl] == NULL)
 					entropy->dc_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 257 * SIZEOF(long));
-				MEMZERO(entropy->dc_count_ptrs[tbl], 257 * SIZEOF(long));
+				memzero(entropy->dc_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {
 				/* Compute derived values for Huffman tables */
@@ -1363,7 +1363,7 @@ METHODDEF(void) start_pass_huff(j_compress_ptr cinfo, boolean gather_statistics)
 					ERREXIT1(cinfo, JERR_NO_HUFF_TABLE, tbl);
 				if(entropy->ac_count_ptrs[tbl] == NULL)
 					entropy->ac_count_ptrs[tbl] = (long*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 257 * SIZEOF(long));
-				MEMZERO(entropy->ac_count_ptrs[tbl], 257 * SIZEOF(long));
+				memzero(entropy->ac_count_ptrs[tbl], 257 * SIZEOF(long));
 			}
 			else {
 				jpeg_make_c_derived_tbl(cinfo, FALSE, tbl, &entropy->ac_derived_tbls[tbl]);

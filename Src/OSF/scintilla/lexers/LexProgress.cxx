@@ -16,9 +16,8 @@
  **/
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
-#include "OptionSet.h"
-#include "SparseState.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

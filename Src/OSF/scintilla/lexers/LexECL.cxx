@@ -7,6 +7,7 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -15,7 +16,6 @@
 // Borland C++ displays warnings in vector header without this
 #pragma option -w-ccc -w-rch
 #endif
-#include "OptionSet.h"
 
 #define SET_LOWER "abcdefghijklmnopqrstuvwxyz"
 #define SET_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

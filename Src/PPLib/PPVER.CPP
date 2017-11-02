@@ -254,6 +254,19 @@ SVerT SLAPI PPVersionInfo::GetVersion(int minVersion /* = 0 */)
 	return v;
 }
 
+int SLAPI PPVersionInfo::GetAssemblyN()
+{
+	int    result = 0;
+	if(Decrypt()) {
+		if(P_Info_Pre9303) {
+		}
+		else if(P_Info_) {
+			result = P_Info_->AssemblyN;
+		}
+	}
+	return result;
+}
+
 int SLAPI PPVersionInfo::GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo, int minVersion /* = 0 */)
 {
 	if(Decrypt()) {

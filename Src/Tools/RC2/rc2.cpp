@@ -556,7 +556,7 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 									SdbField fld;
 									if(p_rec->GetFieldByPos(k, &fld) > 0)
 										fprintf(pHdr, "\t%s%s%s_%-26s%6u\n", P_DefinePrefix, P_FldPrefix,
-											strupr(r_symb.Symb), (const char *)fld.Name.ToUpper(), fld.ID);
+											_strupr(r_symb.Symb), (const char *)fld.Name.ToUpper(), fld.ID);
 								}
 								fprintf(pHdr, "\n");
 								GenerateRecordStruct(p_rec);
@@ -577,8 +577,8 @@ int SLAPI Rc2Data::GenerateSymbDefinitions()
 int SLAPI Rc2Data::GenerateBrowserDefine(char * pName, char * comment)
 {
 	BrwCounter++;
-	fprintf(pHdr, "%s%s%-26s%6d // %s\n", P_DefinePrefix, P_BrwPrefix, strupr(pName), BrwCounter, comment);
-	fprintf(pHdr, "\t%sHELP_%s%-26s%6d\n", P_DefinePrefix, P_BrwPrefix, strupr(pName), BrwCounter);
+	fprintf(pHdr, "%s%s%-26s%6d // %s\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter, comment);
+	fprintf(pHdr, "\t%sHELP_%s%-26s%6d\n", P_DefinePrefix, P_BrwPrefix, _strupr(pName), BrwCounter);
 	return 1;
 }
 
@@ -624,7 +624,7 @@ int SLAPI Rc2Data::GenerateBrowserDefinition(BrowserDefinition * pB)
 	char  flags[256];
 	LayoutToRect(&pB->Layout, &r);
 	GetFlagsAsString(pB->Flags, tv_browser_flags, flags, sizeof(flags));
-	fprintf(pRc, "\n%s%s TV_BROWSER {\n", P_BrwPrefix, strupr(pB->Name));
+	fprintf(pRc, "\n%s%s TV_BROWSER {\n", P_BrwPrefix, _strupr(pB->Name));
 	fprintf(pRc, "\t%d, %d, %d, %d, %d, %d, \"%s\\0\", %s, %s\n",
 		r.a.x, r.a.y, r.b.x, r.b.y, pB->Height, pB->Freeze, pB->Header, flags, pB->HelpID);
 

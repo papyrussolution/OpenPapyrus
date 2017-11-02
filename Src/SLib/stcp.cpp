@@ -3708,6 +3708,11 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 //
 //
 //
+SLAPI SUniformFileTransmParam::ResultItem::ResultItem()
+{
+	THISZERO();
+}
+
 SLAPI SUniformFileTransmParam::SUniformFileTransmParam()
 {
 	Flags = 0;

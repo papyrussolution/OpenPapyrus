@@ -2557,7 +2557,7 @@ int SLAPI PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		if(P_Ct) {
 			const  uint tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 			PPID   tab_id = 0;
-			DBFieldList fld_list; // realy const, do not modify
+			// @v9.8.7 DBFieldList fld_list; // realy const, do not modify
 			int    r = 0;
 			//
 			// Расчет смещения осуществляется в соответствии с установкой полей

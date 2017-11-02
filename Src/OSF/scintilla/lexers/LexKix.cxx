@@ -8,6 +8,7 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
 
 #ifdef SCI_NAMESPACE
@@ -15,11 +16,13 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch) {
+static bool FASTCALL IsAWordChar(int ch) 
+{
 	return ch >= 0x80 || isalnum(ch) || ch == '_';
 }
 
-static bool FASTCALL IsOperator(const int ch) {
+static bool FASTCALL IsOperator(const int ch) 
+{
 	return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '&' || ch == '|' || ch == '<' || ch == '>' || ch == '=');
 }
 

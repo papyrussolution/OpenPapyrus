@@ -7,8 +7,8 @@
 #include <WinUser.h>
 //
 #define CAIRO_WIN32_STATIC_BUILD 1
-#include <cairo\1_14_2\cairo.h>
-#include <cairo\1_14_2\cairo-win32.h>
+#include <cairo\cairo.h>
+#include <cairo\cairo-win32.h>
 //
 //
 //

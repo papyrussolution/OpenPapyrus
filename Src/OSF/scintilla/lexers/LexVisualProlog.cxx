@@ -13,11 +13,11 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
 #ifdef _MSC_VER
 	#pragma warning(disable: 4786)
 #endif
-#include "OptionSet.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

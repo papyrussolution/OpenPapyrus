@@ -99,7 +99,7 @@ private:
 		uint32 Signature[4];
 		uint32 H;
 		uint32 RdPos;
-		long   Flags;     // SLob::hfXXX
+		int32  Flags;     // SLob::hfXXX
 		uint32 PtrSize;   // Если Flags & hfPtr, то PtrSize - размер области памяти,
 			// распределнной под указатель (void *)H
 	};
@@ -119,7 +119,7 @@ class SdbField { // @transient
 public:
 	SdbField();
 	void   Init();
-	int    IsEqual(const SdbField & rPat) const;
+	int    FASTCALL IsEqual(const SdbField & rPat) const;
 	//
 	// Descr: транслирует строку rScan.P_Buf+Offs в базовый тип и, возможно, формат вывода
 	//   поля. Допускаются следующие варианты синтаксиса:

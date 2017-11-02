@@ -8,17 +8,20 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
+#include <scintilla-internal.h>
 #pragma hdrstop
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch) {
+static bool FASTCALL IsAWordChar(const int ch) 
+{
 	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 }
 
-static bool FASTCALL IsAWordStart(int ch) {
+static bool FASTCALL IsAWordStart(int ch) 
+{
 	return isalpha(ch) || (ch != ' ' && ch != '\n' && ch != '(' && ch != '.' && ch != ',');
 }
 

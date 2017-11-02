@@ -260,7 +260,7 @@ int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
 int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
 {
 	int    ok = 0;
-	rResult = 0;
+	rResult.Z();
 	if(pNode) {
 		if(pNode->content) {
 			rResult.Set(pNode->content);
@@ -291,7 +291,7 @@ int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SStr
 int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
 {
 	int    ok = 0;
-	rResult = 0;
+	rResult.Z();
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
 			if(sstreqi_ascii((const char *)p_attr->name, pAttr)) {

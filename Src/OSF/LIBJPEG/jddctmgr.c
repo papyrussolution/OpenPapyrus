@@ -371,7 +371,7 @@ GLOBAL(void) jinit_inverse_dct(j_decompress_ptr cinfo)
 		compptr->dct_table =
 		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
 		    SIZEOF(multiplier_table));
-		MEMZERO(compptr->dct_table, SIZEOF(multiplier_table));
+		memzero(compptr->dct_table, SIZEOF(multiplier_table));
 		/* Mark multiplier table not yet set up for any method */
 		idct->cur_method[ci] = -1;
 	}

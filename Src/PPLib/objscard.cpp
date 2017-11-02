@@ -4818,7 +4818,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					MEMSZERO(sdr_rec);
 					sc_pack.Clear();
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
-					P_IE->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
+					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 					if(sdr_rec.SeriesSymb[0] && ScsObj.SearchBySymb(sdr_rec.SeriesSymb, &temp_id, 0) > 0) {
 						scs_id = temp_id;
 					}

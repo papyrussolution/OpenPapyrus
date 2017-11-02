@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017
 //
 #ifndef __COMDISP_H // {
 #define __COMDISP_H
@@ -72,12 +72,13 @@ private:
 	SString ProgIdent; // Для сообщений об ошибках
 	IDispatch   * P_Disp;
 	TSArray <DispIDEntry> DispIDAry;
-	//SArray * P_DispIDAry;
 	SArray * P_ParamsAry;
 	HRESULT HRes;
 };
 
 #define ASSIGN_ID_BY_NAME(p_interface, name) (p_interface ? p_interface->AssignIDByName(#name, name) : 0)
+
+int SLAPI GetExcelCellCoordA1(long row, long col, SString & rBuf);
 //
 // ComExcelFont
 //
@@ -92,6 +93,18 @@ private:
 	enum {
 		Bold = 1L,
 		Color
+	};
+};
+
+class ComExcelInterior : public ComDispInterface {
+public:
+	SLAPI  ComExcelInterior();
+	SLAPI ~ComExcelInterior();
+	virtual int SLAPI Init(IDispatch * pIDisp);
+	int    SLAPI SetColor(long color);
+private:
+	enum {
+		Color = 1L
 	};
 };
 //
@@ -123,16 +136,19 @@ public:
 	SLAPI ~ComExcelRange();
 	virtual int SLAPI Init(IDispatch * pIDisp);
 	ComExcelFont * SLAPI GetFont();
-	int SLAPI SetValue(const char * pValue);
-	int SLAPI SetValue(double value);
-	int SLAPI GetValue(SString & rValue);
-	int SLAPI SetBold(int bold);
-	int SLAPI SetColor(long color);
-	int SLAPI SetWidth(long width);
-	int SLAPI SetHeight(long height);
-	int SLAPI SetFormat(const char * pFormat);
-	int SLAPI GetFormat(SString & rFormat);
-	int SLAPI _Clear();
+	ComExcelInterior * SLAPI GetInterior();
+	int    SLAPI SetValue(const char * pValue);
+	int    SLAPI SetValue(double value);
+	int    SLAPI GetValue(SString & rValue);
+	int    SLAPI SetBold(int bold);
+	int    SLAPI SetColor(long color);
+	int    SLAPI SetBgColor(long color);
+	int    SLAPI SetWidth(long width);
+	int    SLAPI SetHeight(long height);
+	int    SLAPI SetFormat(const char * pFormat);
+	int    SLAPI GetFormat(SString & rFormat);
+	int    SLAPI DoClear();
+	int    SLAPI DoMerge();
 	ComExcelRange * _Columns();
 private:
 	enum {
@@ -144,7 +160,9 @@ private:
 		ColumnWidth,
 		RowHeight,
 		Columns,
-		Clear
+		Clear,
+		Interior, // @v9.8.7
+		Merge     // @v9.8.7
 	};
 };
 
@@ -160,8 +178,10 @@ public:
 	int SLAPI SetName(const char * pName);
 	int SLAPI GetName(SString & rName);
 	ComExcelRange * SLAPI Cell(long row, long col);
+	ComExcelRange * SLAPI GetRange(long luRow, long luCol, long rbRow, long rbCol);
 	int SLAPI SetBold(long row, long col, int bold);
-	int SLAPI SetColor(long row, long col, COLORREF color); // @6.1.11 AHTOXA
+	int SLAPI SetColor(long row, long col, COLORREF color);
+	int SLAPI SetBgColor(long row, long col, COLORREF color);
 	int SLAPI AddColumn(long before, long after, const char * pColumnName);
 	int SLAPI DelColumn(long pos);
 	int SLAPI PutPicture(const char * pPath, RECT * pRect);
@@ -186,6 +206,7 @@ private:
 		Cells,
 		Columns,
 		Rows,
+		Range, // @v9.8.7
 		Delete,
 		Shapes,
 		PrintOut,

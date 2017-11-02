@@ -3724,7 +3724,7 @@ int SLAPI PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			if(GetBrwHdr(pHdr, &hdr)) {
 				uint   tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 				PPID   tab_id = 0;
-				DBFieldList fld_list; // realy const, do not modify
+				// @v9.8.7 DBFieldList fld_list; // realy const, do not modify
 				int    r = 0;
 				if(Filt.Grp == CCheckFilt::gGoodsDate)
 					r = (tab_idx > 0) ? P_Ct->GetTab((tab_idx-1) / P_Ct->GetAggrCount(), &tab_id) : 1;

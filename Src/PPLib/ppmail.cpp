@@ -1071,7 +1071,7 @@ int SLAPI PPMail::GetFieldTitle(uint id, SString & rBuf) const
 
 static void PreprocessEncodedField(const char * pLine, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	SString temp_buf;
 	const char * p_org = pLine;
 	while(*p_org) {

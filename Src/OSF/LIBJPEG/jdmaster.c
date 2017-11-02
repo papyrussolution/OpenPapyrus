@@ -223,7 +223,7 @@ static void prepare_range_limit_table(j_decompress_ptr cinfo)
 	int i;
 	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	/* First segment of range limit table: limit[x] = 0 for x < 0 */
-	MEMZERO(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
+	memzero(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
 	table += 2 * (MAXJSAMPLE+1); /* allow negative subscripts of table */
 	cinfo->sample_range_limit = table;
 	/* Main part of range limit table: limit[x] = x */

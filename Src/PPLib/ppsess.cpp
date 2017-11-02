@@ -1780,6 +1780,30 @@ static int PPExpandStringFunc(SString & rBuf, int ctransf)
 	return PPExpandString(rBuf, ctransf);
 }
 
+static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
+{
+    rBuf.Z();
+	int    ok = 0;
+	int    path_id = 0;
+    if(sstreqi_ascii(pSignature, "bin"))
+		path_id = PPPATH_BIN;
+    else if(sstreqi_ascii(pSignature, "local"))
+    	path_id = PPPATH_LOCAL;
+    else if(sstreqi_ascii(pSignature, "temp"))
+    	path_id = PPPATH_TEMP;
+    else if(sstreqi_ascii(pSignature, "in"))
+		path_id = PPPATH_IN;
+    else if(sstreqi_ascii(pSignature, "out"))
+		path_id = PPPATH_OUT;
+    else if(sstreqi_ascii(pSignature, "log"))
+    	path_id = PPPATH_LOG;
+    else if(sstreqi_ascii(pSignature, "testroot"))
+    	path_id = PPPATH_TESTROOT;
+    else if(sstreqi_ascii(pSignature, "workspace"))
+    	path_id = PPPATH_WORKSPACE;
+	return path_id ? PPGetPath(path_id, rBuf) : 0;
+}
+
 static int PPGetGlobalSecureConfig(SGlobalSecureConfig * pCfg)
 {
 	if(pCfg) {
@@ -1848,6 +1872,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
             epb.F_CallCalc = PPCalculator;
             epb.F_CallCalendar = ExecDateCalendar;
             epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey; // @v9.4.6
+            epb.F_QueryPath = PPQueryPathFunc; // @v9.8.7
             SLS.SetExtraProcBlock(&epb);
 			//SLS.SetLoadStringFunc(PPLoadStringFunc);
 			//SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11

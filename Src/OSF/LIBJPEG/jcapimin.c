@@ -44,7 +44,7 @@ GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t struc
 	{
 		struct jpeg_error_mgr * err = cinfo->err;
 		void * client_data = cinfo->client_data; /* ignore Purify complaint here */
-		MEMZERO(cinfo, SIZEOF(struct jpeg_compress_struct));
+		memzero(cinfo, SIZEOF(struct jpeg_compress_struct));
 		cinfo->err = err;
 		cinfo->client_data = client_data;
 	}

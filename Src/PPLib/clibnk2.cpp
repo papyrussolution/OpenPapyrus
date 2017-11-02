@@ -244,7 +244,7 @@ public:
 		pItem->AddedAssocTag = -1;
 		int    ok = P_ImEx ? P_ImEx->ReadRecord(pItem, sizeof(*pItem)) : 0;
 		if(ok > 0) {
-			P_ImEx->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, pItem); // @v9.3.10
+			P_ImEx->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, pItem); // @v9.3.10
 			// @v9.3.10 SCharToOem(pItem->Code);
 			// @v9.3.10 SCharToOem(pItem->Purpose);
 			// @v9.3.10 SCharToOem(pItem->PurposePlusVat);
@@ -739,7 +739,6 @@ int SLAPI ClientBankImportDef::ImportAll()
 							}
 						}
 					}
-					// @v7.3.8 {
 					if(!obj2_ar_id && p_assoc->ArticleID) {
 						PPClientAgreement cli_agt;
 						if(ar_obj.GetClientAgreement(p_assoc->ArticleID, &cli_agt, 0) > 0) {
@@ -748,7 +747,6 @@ int SLAPI ClientBankImportDef::ImportAll()
 								obj2_ar_id = cli_agt.ExtObjectID;
 						}
 					}
-					// } @v7.3.8
 				}
 				if(item.AgentINN[0]) {
 					PPID   agent_acs_id = GetAgentAccSheet();

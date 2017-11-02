@@ -2545,6 +2545,16 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 		return ignoreCase ? stricmp866(P_Buf, pS) : strcmp(P_Buf, pS);
 }
 
+int FASTCALL SString::IsEqNC(const SString & rS) const
+{
+	return (CmpNC(rS) == 0);
+}
+
+int FASTCALL SString::IsEqNC(const char * pS) const
+{
+	return (CmpNC(pS) == 0);
+}
+
 int FASTCALL SString::CmpNC(const char * pS) const
 {
 	const int this_empty = Empty();

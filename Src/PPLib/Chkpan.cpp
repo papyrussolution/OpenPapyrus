@@ -2285,7 +2285,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 			THROW(p_pack->InsertItem(*p_item));
 		}
 		SETFLAG(pPack->Rec.Flags, CCHKF_HASGIFT, has_gift);
-		THROW(pPack->CalcAmount(&amt, &dscnt));
+		pPack->CalcAmount(&amt, &dscnt);
 	}
 	LDBLTOMONEY(amt, pPack->Rec.Amount);
 	LDBLTOMONEY(dscnt, pPack->Rec.Discount);
@@ -2420,7 +2420,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 					epb.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID(); // @!
 					epb.ExtPack.Rec.CashID = ExtCashNodeID;
 					epb.ExtPack.Rec.Flags  = epb.Pack.Rec.Flags;
-					THROW(epb.ExtPack.SetupAmount(&amt, &dscnt));
+					epb.ExtPack.SetupAmount(&amt, &dscnt);
 					epb.ExtPack.Rec.SCardID = CSt.GetID();
 					P.SetupCCheckPacket(&epb.ExtPack);
 					epb.ExtPack._Cash = amt;
@@ -5235,7 +5235,7 @@ int SelCheckListDialog::UniteChecks()
 					}
 					// @v8.9.8 THROW(r_cc.RemovePacket(chk1_id, 0));
 					THROW(r_cc.RemovePacket(check2.CheckID, 0));
-					THROW(pack1.SetupAmount(0, 0));
+					pack1.SetupAmount(0, 0);
 					// @v8.9.8 THROW(r_cc.TurnCheck(&pack1, 0));
 					pack1.Rec.ID = chk1_id; // @v8.9.8
 					THROW(r_cc.UpdateCheck(&pack1, 0)); // @v8.9.8
@@ -10819,7 +10819,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 				ext_pack.Rec.SessID = P_CM_EXT->GetCurSessID();
 				ext_pack.Rec.CashID = ExtCashNodeID;
 				ext_pack.Rec.Flags  = pack.Rec.Flags;
-				THROW(ext_pack.SetupAmount(&amt, &dscnt));
+				ext_pack.SetupAmount(&amt, &dscnt);
 				ext_pack.Rec.SCardID = CSt.GetID();
 				P.SetupCCheckPacket(&ext_pack);
 				ext_pack._Cash = amt;

@@ -959,10 +959,7 @@ public:
 	//   Поля с суффиксом 'P' представляют позицию строки во внутреннме пуле экземпляра.
 	//
 	struct ResultItem {
-		ResultItem()
-		{
-			THISZERO();
-		}
+		SLAPI  ResultItem();
 		uint   SrcPathP;  // Путь исходного файла
 		uint   DestPathP; // Путь результирующего файла
 		uint   SrcMimeP;  // MIME исходного файла

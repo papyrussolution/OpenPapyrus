@@ -1,6 +1,6 @@
 // TVDEFS.H
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #ifndef __TVDEFS_H
 #define __TVDEFS_H
@@ -159,6 +159,13 @@
 #define kbAltMinus       0x8200
 #define kbAltEqual       0x8300
 #define kbCtrlPgUp       0x8400
+#define kbShiftF11       0x8500 // @v9.8.7
+#define kbShiftF12       0x8600 // @v9.8.7
+#define kbCtrlF11        0x8700 // @v9.8.7
+#define kbCtrlF12        0x8800 // @v9.8.7
+#define kbAltF11         0x8900 // @v9.8.7
+#define kbAltF12         0x8a00 // @v9.8.7
+#define kbCtrlTab        0x8b00 // @v9.8.7
 #define kbAlt            0xf000
 #define kbAltIns         0xf100
 #define kbNoKey          0x0000
@@ -221,8 +228,8 @@
 #define cmaDelete            30
 #define cmaEdit              31
 #define cmaSearch            32
-// #define cmaAltSearch         33 // Используется в pplistdialog, как передать элемент списка по email
-#define cmaSendByMail        33 // Используется в pplistdialog, как передать элемент списка по email
+// #define cmaAltSearch         33 // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ pplistdialog, РєР°Рє РїРµСЂРµРґР°С‚СЊ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР° РїРѕ email
+#define cmaSendByMail        33 // РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ pplistdialog, РєР°Рє РїРµСЂРµРґР°С‚СЊ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР° РїРѕ email
 #define cmaSort              34
 #define cmaTransfer          35
 #define cmaCalculate         36
@@ -240,14 +247,13 @@
 //
 // Standard messages
 //
-#define cmIdle               48 // (evBroadcast) посылается функцией TProgram::idle
+#define cmIdle               48 // (evBroadcast) РїРѕСЃС‹Р»Р°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ TProgram::idle
 //
-// Message: cmChangedFocus
-// Descr: посылается функцией TGroup::setCurrent в последнюю очередь
-//   после завершения всех обработок, а также объектом TDialog в ответ на
-//   сообщение WINDOWS WM_KILLFOCUS (function DialogProc).
+// Descr: РїРѕСЃС‹Р»Р°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ TGroup::setCurrent РІ РїРѕСЃР»РµРґРЅСЋСЋ РѕС‡РµСЂРµРґСЊ
+//   РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ РІСЃРµС… РѕР±СЂР°Р±РѕС‚РѕРє, Р° С‚Р°РєР¶Рµ РѕР±СЉРµРєС‚РѕРј TDialog РІ РѕС‚РІРµС‚ РЅР°
+//   СЃРѕРѕР±С‰РµРЅРёРµ WINDOWS WM_KILLFOCUS (function DialogProc).
 // Parameters:
-//   Указатель на TView, потерявший фокус
+//   РЈРєР°Р·Р°С‚РµР»СЊ РЅР° TView, РїРѕС‚РµСЂСЏРІС€РёР№ С„РѕРєСѓСЃ
 //
 #define cmChangedFocus       49
 #define cmReceivedFocus      50
@@ -268,42 +274,42 @@
 #define cmRequestID          56
 #define cmSearchLabel        57
 #define cmSearchVirtButton   58 // evBroadcast
-#define cmInputUpdatedByBtn  59 // Изменился текст в строке ввода, посредством нажатия какой-либо клавиши
-#define cmInputDblClk        60 // На поле ввода пользователь дважды щелкнул левой кнопкой мыши
+#define cmInputUpdatedByBtn  59 // РР·РјРµРЅРёР»СЃСЏ С‚РµРєСЃС‚ РІ СЃС‚СЂРѕРєРµ РІРІРѕРґР°, РїРѕСЃСЂРµРґСЃС‚РІРѕРј РЅР°Р¶Р°С‚РёСЏ РєР°РєРѕР№-Р»РёР±Рѕ РєР»Р°РІРёС€Рё
+#define cmInputDblClk        60 // РќР° РїРѕР»Рµ РІРІРѕРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґРІР°Р¶РґС‹ С‰РµР»РєРЅСѓР» Р»РµРІРѕР№ РєРЅРѕРїРєРѕР№ РјС‹С€Рё
 //
 //
 //
-#define cmDrawItem           61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
-	// сообщение WM_DRAWITEM. С дополнительным параметром посылается указатель на структуру TDrawItemData
-#define cmWinKeyDown         62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
-#define cmCtlColor           63 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
-	// сообщение WM_CTLCOLORSTATIC, WM_CTLCOLOREDIT, WM_CTLCOLORSCROLLBAR. С дополнительным параметром посылается указатель на
-	// структуру TDrawCtrlData
-#define cmSearchButton       64 // evBroadcast Сообщение посылается диалогу для поиска кнопки, генерирующей команду
-	// event.message.infoWord. Кнопка, которая генерирует такую команду должна вызвать clearEvent в ответ на сообщение.
-#define cmLocalMenu          65 // evCommand Показать прикладное локальное меню управляющего элемента
-#define cmSetupTooltip       66 // evCommand Посылается окну, для того, чтобы оно смогло инициализировать
-	// подсказки (tooltip) //
-#define cmSetupResizeParams  67 // evCommand Посылается окну, для того, чтобы оно установило параметры
-	// изменения размеров для управляющих элементов
-#define cmMouseHover         68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
-	// В infoPtr содержатся координаты курсора мыши (TPoint).
-#define cmTimeChange         69 // evCommand Посылается классу TProgram,
-	// когда какое-либо приложение изменило системное время //
+#define cmDrawItem           61 // evCommand РЎРѕРѕР±С‰РµРЅРёРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TDialog РІ РѕС‚РІРµС‚ РЅР° СЃРёСЃС‚РµРјРЅРѕРµ
+	// СЃРѕРѕР±С‰РµРЅРёРµ WM_DRAWITEM. РЎ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ TDrawItemData
+#define cmWinKeyDown         62 // РїРµСЂРµРґР°РµС‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ, Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅРѕРµ TVKEYDOWN, РЅРѕ СЃ WIN РєРѕРґР°РјРё РєРЅРѕРїРѕРє
+#define cmCtlColor           63 // evCommand РЎРѕРѕР±С‰РµРЅРёРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TDialog РІ РѕС‚РІРµС‚ РЅР° СЃРёСЃС‚РµРјРЅРѕРµ
+	// СЃРѕРѕР±С‰РµРЅРёРµ WM_CTLCOLORSTATIC, WM_CTLCOLOREDIT, WM_CTLCOLORSCROLLBAR. РЎ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР°
+	// СЃС‚СЂСѓРєС‚СѓСЂСѓ TDrawCtrlData
+#define cmSearchButton       64 // evBroadcast РЎРѕРѕР±С‰РµРЅРёРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РґРёР°Р»РѕРіСѓ РґР»СЏ РїРѕРёСЃРєР° РєРЅРѕРїРєРё, РіРµРЅРµСЂРёСЂСѓСЋС‰РµР№ РєРѕРјР°РЅРґСѓ
+	// event.message.infoWord. РљРЅРѕРїРєР°, РєРѕС‚РѕСЂР°СЏ РіРµРЅРµСЂРёСЂСѓРµС‚ С‚Р°РєСѓСЋ РєРѕРјР°РЅРґСѓ РґРѕР»Р¶РЅР° РІС‹Р·РІР°С‚СЊ clearEvent РІ РѕС‚РІРµС‚ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ.
+#define cmLocalMenu          65 // evCommand РџРѕРєР°Р·Р°С‚СЊ РїСЂРёРєР»Р°РґРЅРѕРµ Р»РѕРєР°Р»СЊРЅРѕРµ РјРµРЅСЋ СѓРїСЂР°РІР»СЏСЋС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р°
+#define cmSetupTooltip       66 // evCommand РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РѕРєРЅСѓ, РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРЅРѕ СЃРјРѕРіР»Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ
+	// РїРѕРґСЃРєР°Р·РєРё (tooltip) //
+#define cmSetupResizeParams  67 // evCommand РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РѕРєРЅСѓ, РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРЅРѕ СѓСЃС‚Р°РЅРѕРІРёР»Рѕ РїР°СЂР°РјРµС‚СЂС‹
+	// РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂРѕРІ РґР»СЏ СѓРїСЂР°РІР»СЏСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ
+#define cmMouseHover         68 // evBroadcast РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РѕРєРЅСѓ, РєРѕРіРґР° РєСѓСЂСЃРѕСЂ РјС‹С€Рё Р·Р°РґРµСЂР¶РёРІР°РµС‚СЃСЏ РЅР° РѕРїСЂРµРґРµР»РµРЅРЅРѕРµ РІСЂРµРјСЏ.
+	// Р’ infoPtr СЃРѕРґРµСЂР¶Р°С‚СЃСЏ РєРѕРѕСЂРґРёРЅР°С‚С‹ РєСѓСЂСЃРѕСЂР° РјС‹С€Рё (TPoint).
+#define cmTimeChange         69 // evCommand РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РєР»Р°СЃСЃСѓ TProgram,
+	// РєРѕРіРґР° РєР°РєРѕРµ-Р»РёР±Рѕ РїСЂРёР»РѕР¶РµРЅРёРµ РёР·РјРµРЅРёР»Рѕ СЃРёСЃС‚РµРјРЅРѕРµ РІСЂРµРјСЏ //
 //
 // ComboBox messages
 //
 #define cmCBSelected         70
-#define cmWSSelected         71 // evCommand Вызывается при установке данных после выбора пользователем строки в WordSelector.
-	// Дополнительный аргумент - указатель на TView в котором произошло событие (обычно TInputLine).
+#define cmWSSelected         71 // evCommand Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ РґР°РЅРЅС‹С… РїРѕСЃР»Рµ РІС‹Р±РѕСЂР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј СЃС‚СЂРѕРєРё РІ WordSelector.
+	// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р°СЂРіСѓРјРµРЅС‚ - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° TView РІ РєРѕС‚РѕСЂРѕРј РїСЂРѕРёР·РѕС€Р»Рѕ СЃРѕР±С‹С‚РёРµ (РѕР±С‹С‡РЅРѕ TInputLine).
 #define cmCBActivate        300
 //
-// Сообщения, посылаемые фокусу ввода для получения текущего числа или
-// текста. Может быть использовано в сервисных функциях вроде калькулятора.
+// РЎРѕРѕР±С‰РµРЅРёСЏ, РїРѕСЃС‹Р»Р°РµРјС‹Рµ С„РѕРєСѓСЃСѓ РІРІРѕРґР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С‚РµРєСѓС‰РµРіРѕ С‡РёСЃР»Р° РёР»Рё
+// С‚РµРєСЃС‚Р°. РњРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РІ СЃРµСЂРІРёСЃРЅС‹С… С„СѓРЅРєС†РёСЏС… РІСЂРѕРґРµ РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР°.
 //
 #define cmGetFocusedNumber  301 // double * infoPtr;
 #define cmGetFocusedText    302 // char * infoPtr;
-#define cmGroupInserted     303 // evCommand Сообщение посылается диалогом группе CtrlGroup после вставки ее в этот диалог
+#define cmGroupInserted     303 // evCommand РЎРѕРѕР±С‰РµРЅРёРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РґРёР°Р»РѕРіРѕРј РіСЂСѓРїРїРµ CtrlGroup РїРѕСЃР»Рµ РІСЃС‚Р°РІРєРё РµРµ РІ СЌС‚РѕС‚ РґРёР°Р»РѕРі
 //
 #define cmPrint             141 // evCommand
 #define cmDraw              142 // @v9.6.2 replacement for virtual TView::draw()
@@ -319,29 +325,29 @@
 #define cmLBLoadDef          77 //
 #define cmGetHelpContext     78 //
 #define cmBrwsSrchPreprocess 81 // evCommand Browser message
-#define cmSetFont            82 // Посылается экземпляру TWindowBase при установке шрифта.
-	// В infoPtr передается указатель на структуру SetFontEvent
-#define cmSize               83 // Посылается экземпляру TWindowBase после изменения размера
-	// окна. В infoPtr передается указатель на структуру SizeEvent
-#define cmPaint              84 // Посылается экземпляру TWindowBase в ответ на одно из
-	// следующих сообщений Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
-#define cmMouse              85 // Посылается экземпляру TWindowBase в ответ на одно из
-	// следующих сообщений Windows:
+#define cmSetFont            82 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ С€СЂРёС„С‚Р°.
+	// Р’ infoPtr РїРµСЂРµРґР°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ SetFontEvent
+#define cmSize               83 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РїРѕСЃР»Рµ РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР°
+	// РѕРєРЅР°. Р’ infoPtr РїРµСЂРµРґР°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ SizeEvent
+#define cmPaint              84 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РІ РѕС‚РІРµС‚ РЅР° РѕРґРЅРѕ РёР·
+	// СЃР»РµРґСѓСЋС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№ Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
+#define cmMouse              85 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РІ РѕС‚РІРµС‚ РЅР° РѕРґРЅРѕ РёР·
+	// СЃР»РµРґСѓСЋС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№ Windows:
 	// WM_LBUTTONDOWN, WM_LBUTTONUP, WM_LBUTTONDBLCLK, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK,
 	// WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK, WM_MOUSEMOVE, WM_MOUSEWHEEL, WM_MOUSEHOVER
-#define cmScroll             86 // Посылается экземпляру TWindowBase в ответ на одно из
-	// следующих сообщений Windows: WM_HSCROLL, WM_VSCROLL
-#define cmMove               87 // Посылается экземпляру TWindowBase в ответ сообщение WM_MOVE
-#define cmSetBounds          88 // Императивное сообщение. Посылается экземпляру TView для того, чтобы он
-	// изменил свои координаты и (или) размер. TEvent.message.infoPtr указывает на TRect.
-#define cmDragndropObj       89 // Посылается окном, получившим в распоряжение курсор
-	// с перетаскиваемым объектом. Вместе с сообщение посылается структура DragndropEvent
-#define cmEndModal           90 // @construction @v6.9.9 evCommand Посылается для остановки режима модальности окна.
-	// Используется для замещения виртуальной функции TView::endModal.
-	// TEvent::message::infoWord содержит команду, по которой осуществляется завершение режима.
-#define cmExecute            91 // @v9.0.4 evCommand Команда, замещающая вызов виртуальной функции PPView::execute
-	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
-#define cmImageDblClk        92 // @v9.6.6 На StaticText пользователь дважды щелкнул левой кнопкой мыши
+#define cmScroll             86 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РІ РѕС‚РІРµС‚ РЅР° РѕРґРЅРѕ РёР·
+	// СЃР»РµРґСѓСЋС‰РёС… СЃРѕРѕР±С‰РµРЅРёР№ Windows: WM_HSCROLL, WM_VSCROLL
+#define cmMove               87 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TWindowBase РІ РѕС‚РІРµС‚ СЃРѕРѕР±С‰РµРЅРёРµ WM_MOVE
+#define cmSetBounds          88 // РРјРїРµСЂР°С‚РёРІРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ. РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂСѓ TView РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РѕРЅ
+	// РёР·РјРµРЅРёР» СЃРІРѕРё РєРѕРѕСЂРґРёРЅР°С‚С‹ Рё (РёР»Рё) СЂР°Р·РјРµСЂ. TEvent.message.infoPtr СѓРєР°Р·С‹РІР°РµС‚ РЅР° TRect.
+#define cmDragndropObj       89 // РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РѕРєРЅРѕРј, РїРѕР»СѓС‡РёРІС€РёРј РІ СЂР°СЃРїРѕСЂСЏР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂ
+	// СЃ РїРµСЂРµС‚Р°СЃРєРёРІР°РµРјС‹Рј РѕР±СЉРµРєС‚РѕРј. Р’РјРµСЃС‚Рµ СЃ СЃРѕРѕР±С‰РµРЅРёРµ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СЃС‚СЂСѓРєС‚СѓСЂР° DragndropEvent
+#define cmEndModal           90 // @construction @v6.9.9 evCommand РџРѕСЃС‹Р»Р°РµС‚СЃСЏ РґР»СЏ РѕСЃС‚Р°РЅРѕРІРєРё СЂРµР¶РёРјР° РјРѕРґР°Р»СЊРЅРѕСЃС‚Рё РѕРєРЅР°.
+	// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ Р·Р°РјРµС‰РµРЅРёСЏ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ С„СѓРЅРєС†РёРё TView::endModal.
+	// TEvent::message::infoWord СЃРѕРґРµСЂР¶РёС‚ РєРѕРјР°РЅРґСѓ, РїРѕ РєРѕС‚РѕСЂРѕР№ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ Р·Р°РІРµСЂС€РµРЅРёРµ СЂРµР¶РёРјР°.
+#define cmExecute            91 // @v9.0.4 evCommand РљРѕРјР°РЅРґР°, Р·Р°РјРµС‰Р°СЋС‰Р°СЏ РІС‹Р·РѕРІ РІРёСЂС‚СѓР°Р»СЊРЅРѕР№ С„СѓРЅРєС†РёРё PPView::execute
+	// TEvent::message::infoLong РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРґ РєРѕРјР°РЅРґС‹, РєРѕС‚РѕСЂРѕР№ Р·Р°РІРµСЂС€РёР»СЃСЏ РјРѕРґСѓР»СЊРЅС‹Р№ С†РёРєР»
+#define cmImageDblClk        92 // @v9.6.6 РќР° StaticText РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґРІР°Р¶РґС‹ С‰РµР»РєРЅСѓР» Р»РµРІРѕР№ РєРЅРѕРїРєРѕР№ РјС‹С€Рё
 //
 // StdDlg commands & messages
 //
@@ -353,9 +359,9 @@
 #define cmRevert           1006   // Used by TChDirDialog internally
 #define cmFileSave         1007   //
 #define cmFileSaveAs       1008   //
-#define cmBringToFront     1009   // Переместить объект на передний план
-#define cmSendToBack       1010   // Переместить объект на задний план
-#define cmProperties       1011   // Свойства
+#define cmBringToFront     1009   // РџРµСЂРµРјРµСЃС‚РёС‚СЊ РѕР±СЉРµРєС‚ РЅР° РїРµСЂРµРґРЅРёР№ РїР»Р°РЅ
+#define cmSendToBack       1010   // РџРµСЂРµРјРµСЃС‚РёС‚СЊ РѕР±СЉРµРєС‚ РЅР° Р·Р°РґРЅРёР№ РїР»Р°РЅ
+#define cmProperties       1011   // РЎРІРѕР№СЃС‚РІР°
 #define cmUp               1012   //
 #define cmDown             1013   //
 #define cmGrouping         1014   //
@@ -366,17 +372,17 @@
 //
 //
 //
-#define WM_USER_COMBO_ACTIVATEBYCHAR WM_USER+10 // Команда активизации списка
-	// комбо-бокса по нажатию символьной клавиши
-#define WM_USER_COMBO_CLEAR          WM_USER+11 // Команда очистки комбо-бокса (клавиша Delete)
-#define WM_USER_MAINWND_MOVE_SIZE    WM_USER+12 // Команда изменения размеров или положения главного окна, посылается дочерним окнам
-#define WM_USER_CLOSE_TOOLTIPMSGWIN  WM_USER+13 // Команда действительна только для диалога DLG_TOOLTIP, закрывает данный диалог.
-#define WM_USER_GETLIST              WM_USER+14 // Извлекает список StrAssocArray из ListWindow, SmartListBox по подстроке
-#define WM_USER_SHOWTREEWNDITEM       WM_USER+15 // Выбирает и отображает один из списков бокового онка
-#define WM_USER_CLOSETREEWNDITEM     WM_USER+16 // Закрывает один из списков бокового окна
-#define WM_USER_NOTIFYBRWFRAME       WM_USER+0  // Извещение фрэйма об изменении стека окон
-#define WM_USER_CLOSEBROWSER         WM_USER+1  // Команда закрытия немодального броузера.
-	// Генерируется служебным окном CloseWndProc (TProgram.cpp)
+#define WM_USER_COMBO_ACTIVATEBYCHAR WM_USER+10 // РљРѕРјР°РЅРґР° Р°РєС‚РёРІРёР·Р°С†РёРё СЃРїРёСЃРєР°
+	// РєРѕРјР±Рѕ-Р±РѕРєСЃР° РїРѕ РЅР°Р¶Р°С‚РёСЋ СЃРёРјРІРѕР»СЊРЅРѕР№ РєР»Р°РІРёС€Рё
+#define WM_USER_COMBO_CLEAR          WM_USER+11 // РљРѕРјР°РЅРґР° РѕС‡РёСЃС‚РєРё РєРѕРјР±Рѕ-Р±РѕРєСЃР° (РєР»Р°РІРёС€Р° Delete)
+#define WM_USER_MAINWND_MOVE_SIZE    WM_USER+12 // РљРѕРјР°РЅРґР° РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂРѕРІ РёР»Рё РїРѕР»РѕР¶РµРЅРёСЏ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°, РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РґРѕС‡РµСЂРЅРёРј РѕРєРЅР°Рј
+#define WM_USER_CLOSE_TOOLTIPMSGWIN  WM_USER+13 // РљРѕРјР°РЅРґР° РґРµР№СЃС‚РІРёС‚РµР»СЊРЅР° С‚РѕР»СЊРєРѕ РґР»СЏ РґРёР°Р»РѕРіР° DLG_TOOLTIP, Р·Р°РєСЂС‹РІР°РµС‚ РґР°РЅРЅС‹Р№ РґРёР°Р»РѕРі.
+#define WM_USER_GETLIST              WM_USER+14 // РР·РІР»РµРєР°РµС‚ СЃРїРёСЃРѕРє StrAssocArray РёР· ListWindow, SmartListBox РїРѕ РїРѕРґСЃС‚СЂРѕРєРµ
+#define WM_USER_SHOWTREEWNDITEM       WM_USER+15 // Р’С‹Р±РёСЂР°РµС‚ Рё РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РѕРґРёРЅ РёР· СЃРїРёСЃРєРѕРІ Р±РѕРєРѕРІРѕРіРѕ РѕРЅРєР°
+#define WM_USER_CLOSETREEWNDITEM     WM_USER+16 // Р—Р°РєСЂС‹РІР°РµС‚ РѕРґРёРЅ РёР· СЃРїРёСЃРєРѕРІ Р±РѕРєРѕРІРѕРіРѕ РѕРєРЅР°
+#define WM_USER_NOTIFYBRWFRAME       WM_USER+0  // РР·РІРµС‰РµРЅРёРµ С„СЂСЌР№РјР° РѕР± РёР·РјРµРЅРµРЅРёРё СЃС‚РµРєР° РѕРєРѕРЅ
+#define WM_USER_CLOSEBROWSER         WM_USER+1  // РљРѕРјР°РЅРґР° Р·Р°РєСЂС‹С‚РёСЏ РЅРµРјРѕРґР°Р»СЊРЅРѕРіРѕ Р±СЂРѕСѓР·РµСЂР°.
+	// Р“РµРЅРµСЂРёСЂСѓРµС‚СЃСЏ СЃР»СѓР¶РµР±РЅС‹Рј РѕРєРЅРѕРј CloseWndProc (TProgram.cpp)
 
 //
 // Button types
@@ -396,12 +402,12 @@
 #define sfModal           0x00000200
 #define sfReadOnly        0x00001000 // Work for TInputLine only
 #define sfCmdSetChanged   0x00002000 //
-#define sfMsgToParent     0x00004000 // Если установлен, то Win-сообщение отправляется хозяину, иначе - в handleWindowsMessage
-#define sfEventBarrier    0x00008000 // Объект TView находится в состянии блокировки функции handleEvent.
-	// Такая блокировка необходима для исключения реентера handleEvent в пределах одного 'кземпляра объекта.
-#define sfOnDestroy       0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
-	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
-	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
+#define sfMsgToParent     0x00004000 // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ Win-СЃРѕРѕР±С‰РµРЅРёРµ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ С…РѕР·СЏРёРЅСѓ, РёРЅР°С‡Рµ - РІ handleWindowsMessage
+#define sfEventBarrier    0x00008000 // РћР±СЉРµРєС‚ TView РЅР°С…РѕРґРёС‚СЃСЏ РІ СЃРѕСЃС‚СЏРЅРёРё Р±Р»РѕРєРёСЂРѕРІРєРё С„СѓРЅРєС†РёРё handleEvent.
+	// РўР°РєР°СЏ Р±Р»РѕРєРёСЂРѕРІРєР° РЅРµРѕР±С…РѕРґРёРјР° РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёСЏ СЂРµРµРЅС‚РµСЂР° handleEvent РІ РїСЂРµРґРµР»Р°С… РѕРґРЅРѕРіРѕ 'РєР·РµРјРїР»СЏСЂР° РѕР±СЉРµРєС‚Р°.
+#define sfOnDestroy       0x00010000 // РћР±СЉРµРєС‚ РЅР°С…РѕРґРёС‚СЃСЏ РІ СЃРѕСЃС‚РѕСЏРЅРёРё СЂР°Р·СЂСѓС€РµРЅРёСЏ. Р¤Р»Р°Рі СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂРѕР№
+	// РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЃРѕРѕР±С‰РµРЅРёСЏ WM_DESTROY Рё РЅРµРѕР±С…РѕРґРёРј РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ РїСЂРё РїРѕРїС‹С‚РєРµ РѕРєРѕРЅРЅРѕР№ РїСЂРѕС†РµРґСѓСЂС‹ СЂР°Р·СЂСѓС€РёС‚СЊ
+	// РѕР±СЉРµРєС‚ TView С‡С‚РѕР±С‹ РґРµСЃС‚СЂСѓРєС‚РѕСЂ TView РЅРµ РїС‹С‚Р°Р»СЃСЏ РІ СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ СЂР°Р·СЂСѓС€РёС‚СЊ РѕРєРЅРѕ.
 //
 // TView Option masks
 //
@@ -518,7 +524,7 @@
 #define lbtHSizeAlreadyDef 0x0800 // For combobox listwindow
 #define lbtTransferData  0x2000 // Else transfer ID (Don't use with cbxNoData)
 #define lbtOwnerDraw     0x4000 //
-#define lbtExtMenu       0x8000 // Расширенное меню редактирование. Содержит пункт отправить по email
+#define lbtExtMenu       0x8000 // Р Р°СЃС€РёСЂРµРЅРЅРѕРµ РјРµРЅСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ. РЎРѕРґРµСЂР¶РёС‚ РїСѓРЅРєС‚ РѕС‚РїСЂР°РІРёС‚СЊ РїРѕ email
 //
 // ComboBox flags
 //
@@ -557,11 +563,8 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define fdReplaceButton  0x0004       // Put a Replace button in the dialog
 #define fdClearButton    0x0008       // Put a Clear button in the dialog
 #define fdHelpButton     0x0010       // Put a Help button in the dialog
-#define fdNoLoadDir      0x0100       // Do not load the current directory
-//                                       contents into the dialog at Init.
-//                                       This means you intend to change the
-//                                       WildCard by using SetData or store
-//                                       the dialog on a stream.
+#define fdNoLoadDir      0x0100       // Do not load the current directory contents into the dialog at Init.
+	// This means you intend to change the WildCard by using SetData or store the dialog on a stream.
 //
 // Change Dir Dialog flags
 //
@@ -591,7 +594,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)
 #define BCO_DONTSHOWDUPL 0x00004000
 #define BCO_RESIZEABLE   0x00008000
-#define BCO_SIZESET      0x00010000 // @v6.2.10 Размер колонки скорректирован функцией SutupColumnWidth
+#define BCO_SIZESET      0x00010000 // @v6.2.10 Р Р°Р·РјРµСЂ РєРѕР»РѕРЅРєРё СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅ С„СѓРЅРєС†РёРµР№ SutupColumnWidth
 //
 // Browse options
 //
@@ -652,7 +655,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define IDC_SIZE_NS               309
 #define IDC_SIZE_NESW             310
 #define IDC_SIZE_NWSE             311
-#define IDC_ODIOUS                312 // Заметная картинка для целей отладки
+#define IDC_ODIOUS                312 // Р—Р°РјРµС‚РЅР°СЏ РєР°СЂС‚РёРЅРєР° РґР»СЏ С†РµР»РµР№ РѕС‚Р»Р°РґРєРё
 //
 //
 //
@@ -770,7 +773,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 	#define TB_ICON_CHARGE           62+TB_ICON_USER
 	#define TB_ICON_ADDTISFROMBASKET 63+TB_ICON_USER
 	#define TB_ICON_POSTALBATROS     64+TB_ICON_USER
-	#define TB_ICON_TEST             65+TB_ICON_USER // Переключатель
+	#define TB_ICON_TEST             65+TB_ICON_USER // РџРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ
 	#define TB_ICON_FILTER           66+TB_ICON_USER
 	#define TB_ICON_EXPORT           67+TB_ICON_USER
 	#define TB_ICON_DIVISION         68+TB_ICON_USER
@@ -778,60 +781,60 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 	#define TB_ICON_ADDTISTOBASKET   70+TB_ICON_USER
 	#define TB_ICON_TOGGLESHIPMTAG   71+TB_ICON_USER
 	#define TB_ICON_EXTRAVIEW        72+TB_ICON_USER
-	#define TB_ICON_MEMBERSHIP       73+TB_ICON_USER // Членство
+	#define TB_ICON_MEMBERSHIP       73+TB_ICON_USER // Р§Р»РµРЅСЃС‚РІРѕ
 	#define TB_ICON_NEWFOLDER        74+TB_ICON_USER //
-	#define TB_ICON_COMPARE          75+TB_ICON_USER // Сравнение
-	#define TB_ICON_REGISTER         76+TB_ICON_USER // Регистры персоналии
-	#define TB_ICON_SELLTAB          77+TB_ICON_USER // Таблица продаж
-	#define TB_ICON_PERSONRELLIST    78+TB_ICON_USER // Список отношений персоналии
-	#define TB_ICON_ADDPERSONREL     79+TB_ICON_USER // Добавить отношение персоналии
-	#define TB_ICON_TRFRANLZ         80+TB_ICON_USER // Анализ товарных операций
-	#define TB_ICON_MRPTAB           81+TB_ICON_USER // MRP-таблица
-	#define TB_ICON_PRJTASK          82+TB_ICON_USER // Задания //
-	#define TB_ICON_BARLABEL         83+TB_ICON_USER // Задания //
-	#define TB_ICON_SUPPLQUOTS       84+TB_ICON_USER // Контрактные цены поставщиков
-	#define TB_ICON_TECH             85+TB_ICON_USER // Технологии
-	#define TB_ICON_PRC              86+TB_ICON_USER // Процессор
-	#define TB_ICON_TSESS            87+TB_ICON_USER // Технологические сессии
-	#define TB_ICON_DFCTBILLS        88+TB_ICON_USER // Документы покрытия дефицита
-	#define TB_ICON_TSESSANLZ        89+TB_ICON_USER // Анализ технологические сессии
+	#define TB_ICON_COMPARE          75+TB_ICON_USER // РЎСЂР°РІРЅРµРЅРёРµ
+	#define TB_ICON_REGISTER         76+TB_ICON_USER // Р РµРіРёСЃС‚СЂС‹ РїРµСЂСЃРѕРЅР°Р»РёРё
+	#define TB_ICON_SELLTAB          77+TB_ICON_USER // РўР°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶
+	#define TB_ICON_PERSONRELLIST    78+TB_ICON_USER // РЎРїРёСЃРѕРє РѕС‚РЅРѕС€РµРЅРёР№ РїРµСЂСЃРѕРЅР°Р»РёРё
+	#define TB_ICON_ADDPERSONREL     79+TB_ICON_USER // Р”РѕР±Р°РІРёС‚СЊ РѕС‚РЅРѕС€РµРЅРёРµ РїРµСЂСЃРѕРЅР°Р»РёРё
+	#define TB_ICON_TRFRANLZ         80+TB_ICON_USER // РђРЅР°Р»РёР· С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+	#define TB_ICON_MRPTAB           81+TB_ICON_USER // MRP-С‚Р°Р±Р»РёС†Р°
+	#define TB_ICON_PRJTASK          82+TB_ICON_USER // Р—Р°РґР°РЅРёСЏ //
+	#define TB_ICON_BARLABEL         83+TB_ICON_USER // Р—Р°РґР°РЅРёСЏ //
+	#define TB_ICON_SUPPLQUOTS       84+TB_ICON_USER // РљРѕРЅС‚СЂР°РєС‚РЅС‹Рµ С†РµРЅС‹ РїРѕСЃС‚Р°РІС‰РёРєРѕРІ
+	#define TB_ICON_TECH             85+TB_ICON_USER // РўРµС…РЅРѕР»РѕРіРёРё
+	#define TB_ICON_PRC              86+TB_ICON_USER // РџСЂРѕС†РµСЃСЃРѕСЂ
+	#define TB_ICON_TSESS            87+TB_ICON_USER // РўРµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРµ СЃРµСЃСЃРёРё
+	#define TB_ICON_DFCTBILLS        88+TB_ICON_USER // Р”РѕРєСѓРјРµРЅС‚С‹ РїРѕРєСЂС‹С‚РёСЏ РґРµС„РёС†РёС‚Р°
+	#define TB_ICON_TSESSANLZ        89+TB_ICON_USER // РђРЅР°Р»РёР· С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёРµ СЃРµСЃСЃРёРё
 	#define TB_ICON_FOLDER   	     90+TB_ICON_USER //
 	#define TB_ICON_MAIL		     91+TB_ICON_USER //
-	#define TB_ICON_ABC              92+TB_ICON_USER // Поиск по наименованию
-	#define TB_ICON_STAFFCAL         93+TB_ICON_USER // Штатные календари
-	#define TB_ICON_POSPRINT         94+TB_ICON_USER // Печать на POS-принтер
-	#define TB_ICON_REPLACE          95+TB_ICON_USER // Символ замены
-	#define TB_ICON_LINK             96+TB_ICON_USER // Связь
-	#define TB_ICON_HANDSHAKE        97+TB_ICON_USER // Рукопожатие
-	#define TB_ICON_PSNOPKIND        98+TB_ICON_USER // Вид персональной операции
-	#define TB_ICON_PSNEVENTS        99+TB_ICON_USER // Персональные операции
-	#define TB_ICON_MARK            100+TB_ICON_USER // Пометка
-	#define TB_ICON_UNITE           101+TB_ICON_USER // Объединение объектов
-	#define TB_ICON_ADDBILLBYSCARD  102+TB_ICON_USER // Создать документ по карте
-	#define TB_ICON_SWITCH          103+TB_ICON_USER // Переключатель
-	#define TB_ICON_OPLIST          104+TB_ICON_USER // Виды операций
-	#define TB_ICON_TIMEGRAPH       105+TB_ICON_USER // Временная диаграмма
-	#define TB_ICON_MATRIX          106+TB_ICON_USER // Матрица (в частности, товарная)
-	#define TB_ICON_ARCODE          107+TB_ICON_USER // Коды товара по статьям
-	#define TB_ICON_AMOUNTS         108+TB_ICON_USER // Суммы
-	#define TB_ICON_SALARY          109+TB_ICON_USER // Просмотр начислений зарплаты
-	#define TB_ICON_PERSONRELLIST_R 110+TB_ICON_USER // Список обратных отношений персоналии
-	#define TB_ICON_PLOT            111+TB_ICON_USER // График
-	#define TB_ICON_BIZSCORE        112+TB_ICON_USER // Значения бизнес-показателей
-	#define TB_ICON_CONFIG          113+TB_ICON_USER // Конфигурация //
-	#define TB_ICON_TRANSPORT       114+TB_ICON_USER // Транспорт //
-	#define TB_ICON_CURPERSONATTR   115+TB_ICON_USER // Редактирование текущего атрибута персоналии //
-	#define TB_ICON_WROFFDRAFT      116+TB_ICON_USER // Списание драфт-документов
-	#define TB_ICON_WHCELL          117+TB_ICON_USER // Складская ячейка
-	#define TB_ICON_DEVICE          118+TB_ICON_USER // Устройство
-	#define TB_ICON_SERIALGEN       119+TB_ICON_USER // Генерирация серийных номеров
-	#define TB_ICON_TAGSALL         120+TB_ICON_USER // Изменить теги по всей выборке объектов
-	#define TB_ICON_EXPORTUHTT      121+TB_ICON_USER // Экспорт в Universe-HTT
+	#define TB_ICON_ABC              92+TB_ICON_USER // РџРѕРёСЃРє РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ
+	#define TB_ICON_STAFFCAL         93+TB_ICON_USER // РЁС‚Р°С‚РЅС‹Рµ РєР°Р»РµРЅРґР°СЂРё
+	#define TB_ICON_POSPRINT         94+TB_ICON_USER // РџРµС‡Р°С‚СЊ РЅР° POS-РїСЂРёРЅС‚РµСЂ
+	#define TB_ICON_REPLACE          95+TB_ICON_USER // РЎРёРјРІРѕР» Р·Р°РјРµРЅС‹
+	#define TB_ICON_LINK             96+TB_ICON_USER // РЎРІСЏР·СЊ
+	#define TB_ICON_HANDSHAKE        97+TB_ICON_USER // Р СѓРєРѕРїРѕР¶Р°С‚РёРµ
+	#define TB_ICON_PSNOPKIND        98+TB_ICON_USER // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РѕРїРµСЂР°С†РёРё
+	#define TB_ICON_PSNEVENTS        99+TB_ICON_USER // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РѕРїРµСЂР°С†РёРё
+	#define TB_ICON_MARK            100+TB_ICON_USER // РџРѕРјРµС‚РєР°
+	#define TB_ICON_UNITE           101+TB_ICON_USER // РћР±СЉРµРґРёРЅРµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ
+	#define TB_ICON_ADDBILLBYSCARD  102+TB_ICON_USER // РЎРѕР·РґР°С‚СЊ РґРѕРєСѓРјРµРЅС‚ РїРѕ РєР°СЂС‚Рµ
+	#define TB_ICON_SWITCH          103+TB_ICON_USER // РџРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ
+	#define TB_ICON_OPLIST          104+TB_ICON_USER // Р’РёРґС‹ РѕРїРµСЂР°С†РёР№
+	#define TB_ICON_TIMEGRAPH       105+TB_ICON_USER // Р’СЂРµРјРµРЅРЅР°СЏ РґРёР°РіСЂР°РјРјР°
+	#define TB_ICON_MATRIX          106+TB_ICON_USER // РњР°С‚СЂРёС†Р° (РІ С‡Р°СЃС‚РЅРѕСЃС‚Рё, С‚РѕРІР°СЂРЅР°СЏ)
+	#define TB_ICON_ARCODE          107+TB_ICON_USER // РљРѕРґС‹ С‚РѕРІР°СЂР° РїРѕ СЃС‚Р°С‚СЊСЏРј
+	#define TB_ICON_AMOUNTS         108+TB_ICON_USER // РЎСѓРјРјС‹
+	#define TB_ICON_SALARY          109+TB_ICON_USER // РџСЂРѕСЃРјРѕС‚СЂ РЅР°С‡РёСЃР»РµРЅРёР№ Р·Р°СЂРїР»Р°С‚С‹
+	#define TB_ICON_PERSONRELLIST_R 110+TB_ICON_USER // РЎРїРёСЃРѕРє РѕР±СЂР°С‚РЅС‹С… РѕС‚РЅРѕС€РµРЅРёР№ РїРµСЂСЃРѕРЅР°Р»РёРё
+	#define TB_ICON_PLOT            111+TB_ICON_USER // Р“СЂР°С„РёРє
+	#define TB_ICON_BIZSCORE        112+TB_ICON_USER // Р—РЅР°С‡РµРЅРёСЏ Р±РёР·РЅРµСЃ-РїРѕРєР°Р·Р°С‚РµР»РµР№
+	#define TB_ICON_CONFIG          113+TB_ICON_USER // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ //
+	#define TB_ICON_TRANSPORT       114+TB_ICON_USER // РўСЂР°РЅСЃРїРѕСЂС‚ //
+	#define TB_ICON_CURPERSONATTR   115+TB_ICON_USER // Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ С‚РµРєСѓС‰РµРіРѕ Р°С‚СЂРёР±СѓС‚Р° РїРµСЂСЃРѕРЅР°Р»РёРё //
+	#define TB_ICON_WROFFDRAFT      116+TB_ICON_USER // РЎРїРёСЃР°РЅРёРµ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
+	#define TB_ICON_WHCELL          117+TB_ICON_USER // РЎРєР»Р°РґСЃРєР°СЏ СЏС‡РµР№РєР°
+	#define TB_ICON_DEVICE          118+TB_ICON_USER // РЈСЃС‚СЂРѕР№СЃС‚РІРѕ
+	#define TB_ICON_SERIALGEN       119+TB_ICON_USER // Р“РµРЅРµСЂРёСЂР°С†РёСЏ СЃРµСЂРёР№РЅС‹С… РЅРѕРјРµСЂРѕРІ
+	#define TB_ICON_TAGSALL         120+TB_ICON_USER // РР·РјРµРЅРёС‚СЊ С‚РµРіРё РїРѕ РІСЃРµР№ РІС‹Р±РѕСЂРєРµ РѕР±СЉРµРєС‚РѕРІ
+	#define TB_ICON_EXPORTUHTT      121+TB_ICON_USER // Р­РєСЃРїРѕСЂС‚ РІ Universe-HTT
 	#define TB_ICON_ARROWUP         122+TB_ICON_USER
 	#define TB_ICON_ARROWDN         123+TB_ICON_USER
 	#define TB_ICON_STAT            124+TB_ICON_USER
 	#define TB_ICON_PANE            125+TB_ICON_USER
-	#define TB_ICON_TEST2           126+TB_ICON_USER // Галка
+	#define TB_ICON_TEST2           126+TB_ICON_USER // Р“Р°Р»РєР°
 	#define TB_ICON_MEMO            127+TB_ICON_USER
 
 #define TB_GLOBAL            302
@@ -861,12 +864,12 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 	#define TB_GLOBAL_CASHBOOK   23+TB_ICON_USER
 	#define TB_GLOBAL_VATBOOK    24+TB_ICON_USER
 	#define TB_GLOBAL_BASKET     25+TB_ICON_USER
-	#define TB_GLOBAL_SCARD      26+TB_ICON_USER // Пластиковые карты
-	#define TB_GLOBAL_DRAFTBILLS 27+TB_ICON_USER // Драфт-документы
-	#define TB_GLOBAL_OPLIST     28+TB_ICON_USER // Виды операций
-	#define TB_GLOBAL_TRFRANLZ   29+TB_ICON_USER // Анализ товарных операций
-	#define TB_GLOBAL_STAFFCAL   30+TB_ICON_USER // Штатные календари
-	#define TB_GLOBAL_PSNOPKIND  31+TB_ICON_USER // Виды персональных операций
-	#define TB_GLOBAL_PSNEVENTS  32+TB_ICON_USER // Персональные операции
+	#define TB_GLOBAL_SCARD      26+TB_ICON_USER // РџР»Р°СЃС‚РёРєРѕРІС‹Рµ РєР°СЂС‚С‹
+	#define TB_GLOBAL_DRAFTBILLS 27+TB_ICON_USER // Р”СЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚С‹
+	#define TB_GLOBAL_OPLIST     28+TB_ICON_USER // Р’РёРґС‹ РѕРїРµСЂР°С†РёР№
+	#define TB_GLOBAL_TRFRANLZ   29+TB_ICON_USER // РђРЅР°Р»РёР· С‚РѕРІР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№
+	#define TB_GLOBAL_STAFFCAL   30+TB_ICON_USER // РЁС‚Р°С‚РЅС‹Рµ РєР°Р»РµРЅРґР°СЂРё
+	#define TB_GLOBAL_PSNOPKIND  31+TB_ICON_USER // Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№
+	#define TB_GLOBAL_PSNEVENTS  32+TB_ICON_USER // РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РѕРїРµСЂР°С†РёРё
 
 #endif /* __TVDEFS_H */

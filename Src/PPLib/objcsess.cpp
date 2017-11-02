@@ -1544,7 +1544,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 		const PPID chg_goods_id = P_ScObj->GetConfig().ChargeGoodsID;
 		THROW_PP(chg_goods_id, PPERR_UNDEFSCCHGGOODS);
 		THROW(pCcPack->InsertItem(chg_goods_id, 1.0, pPack->PrepayAmount, 0.0));
-		THROW(pCcPack->SetupAmount(0, 0));
+		pCcPack->SetupAmount(0, 0);
 	}
 	CATCHZOK
 	return ok;

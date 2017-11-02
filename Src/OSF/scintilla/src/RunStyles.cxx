@@ -6,8 +6,8 @@
 
 #include <Platform.h>
 #include <Scintilla.h>
-#pragma hdrstop
 #include <scintilla-internal.h>
+#pragma hdrstop
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

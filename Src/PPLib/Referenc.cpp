@@ -10,7 +10,7 @@
 //static
 int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 	int    ok = 1;
 	const  size_t buf_quant = 256;
 	assert(buf_quant >= pwBufSize);
@@ -30,7 +30,7 @@ int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw,
 //static
 int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
-	rResult = 0;
+	rResult.Z();
 
 	int    ok = 1;
 	const  size_t buf_quant = 256;

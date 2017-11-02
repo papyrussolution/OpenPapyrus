@@ -1237,7 +1237,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		if(scan.Skip().GetIdent(temp_buf)) {
 			SString arg_buf;
 			if(Operator == oSelect) {
-				THROW_PP(temp_buf.CmpNC("BY") == 0, PPERR_CMDSEL_EXP_BY);
+				THROW_PP(temp_buf.IsEqNC("BY"), PPERR_CMDSEL_EXP_BY);
 				THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_CRITERION);
 			}
 			do {
@@ -1245,7 +1245,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 				int    sub_criterion = 0;
 				arg_buf.Z();
 				for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
-					if(temp_buf.CmpNC(crit_titles[i].P_Text) == 0) {
+					if(temp_buf.IsEqNC(crit_titles[i].P_Text)) {
 						crit = temp_buf;
 						criterion = crit_titles[i].ID;
 						(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
@@ -1274,7 +1274,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 						}
 						else {
 							for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
-								if(temp_buf.CmpNC(subcrit_titles[i].P_Text) == 0) {
+								if(temp_buf.IsEqNC(subcrit_titles[i].P_Text)) {
 									sub_crit = temp_buf;
 									sub_criterion = subcrit_titles[i].ID;
 									(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
@@ -2690,7 +2690,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									if((temp_buf = goods_rec.Name).Search(P_GgF->Name, 0, 1, 0))
 										THROW_SL(ResultList.Add(goods_rec.ID, goods_rec.ParentID, goods_rec.Name));
 								}
-								else if(P_GgF->Name.CmpNC(goods_rec.Name) == 0)
+								else if(P_GgF->Name.IsEqNC(goods_rec.Name))
 									THROW_SL(ResultList.Add(goods_rec.ID, goods_rec.ParentID, goods_rec.Name));
 							}
 							else
@@ -2746,7 +2746,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 									if((temp_buf = p_tbl->data.Name).Search(P_BrF->Name, 0, 1, 0))
 										THROW_SL(ResultList.Add(p_tbl->data.ID, 0, p_tbl->data.Name));
 								}
-								else if(P_BrF->Name.CmpNC(p_tbl->data.Name) == 0)
+								else if(P_BrF->Name.IsEqNC(p_tbl->data.Name))
 									THROW_SL(ResultList.Add(p_tbl->data.ID, 0, p_tbl->data.Name));
 							}
 							else
@@ -6113,29 +6113,29 @@ STYLOPALM
 							break;
 						case cGtaOp:
 							{
-								if(rArg.CmpNC("NOOP") == 0)
+								if(rArg.IsEqNC("NOOP"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
-								else if(rArg.CmpNC("OBJGET") == 0)
+								else if(rArg.IsEqNC("OBJGET"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJGET;
-								else if(rArg.CmpNC("OBJADD") == 0)
+								else if(rArg.IsEqNC("OBJADD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJADD;
-								else if(rArg.CmpNC("OBJMOD") == 0)
+								else if(rArg.IsEqNC("OBJMOD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJMOD;
-								else if(rArg.CmpNC("OBJRMV") == 0)
+								else if(rArg.IsEqNC("OBJRMV"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_OBJRMV;
-								else if(rArg.CmpNC("CCHECKCREATE") == 0)
+								else if(rArg.IsEqNC("CCHECKCREATE"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_CCHECKCREATE;
-								else if(rArg.CmpNC("SCARDWITHDRAW") == 0)
+								else if(rArg.IsEqNC("SCARDWITHDRAW"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDWITHDRAW;
-								else if(rArg.CmpNC("SCARDDEPOSIT") == 0)
+								else if(rArg.IsEqNC("SCARDDEPOSIT"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDDEPOSIT;
-								else if(rArg.CmpNC("FILEUPLOAD") == 0)
+								else if(rArg.IsEqNC("FILEUPLOAD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_FILEUPLOAD;
-								else if(rArg.CmpNC("FILEDOWNLOAD") == 0)
+								else if(rArg.IsEqNC("FILEDOWNLOAD"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_FILEDOWNLOAD;
-								else if(rArg.CmpNC("BILLCREATE") == 0)
+								else if(rArg.IsEqNC("BILLCREATE"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_BILLCREATE;
-								else if(rArg.CmpNC("SMSSEND") == 0)
+								else if(rArg.IsEqNC("SMSSEND"))
 									P_SetBlk->U.GT.GtaOp = GTAOP_SMSSEND;
 								else
 									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;

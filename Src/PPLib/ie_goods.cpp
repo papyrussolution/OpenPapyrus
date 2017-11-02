@@ -361,7 +361,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 					Sdr_QuotVal sdr_rec;
 					MEMSZERO(sdr_rec);
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
-					P_IE->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
+					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 					if(sdr_rec.QuotKindID && qk_obj.Search(sdr_rec.QuotKindID, &qk_rec) > 0) {
 						qk_id = qk_rec.ID;
 					}
@@ -1163,7 +1163,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			const LDATE cur_dt = getcurdate_();
 			sdr_goods.ExpiryFromCurDt = (sdr_goods.Expiry > cur_dt) ? diffdate(sdr_goods.Expiry, cur_dt) : 0;
 		}
-		P_IEGoods->GetParam().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
+		P_IEGoods->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
 		{
 			// @v9.7.8 {
 			GoodsContext::Param gcp;
@@ -2247,7 +2247,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						Sdr_Goods2 sdr_rec;
 						MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
-						P_IE->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
+						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 
 						(temp_buf2 = Param.FileName).CatChar('#').Cat(i+1);
 						(goods_name = sdr_rec.Name).Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
@@ -2345,7 +2345,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 
 						MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec), &dyn_rec));
-						P_IE->GetParam().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
+						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						if(dyn_rec.GetCount()) {
 							SStrScan scan;
 							PPObjectTag tag_rec;

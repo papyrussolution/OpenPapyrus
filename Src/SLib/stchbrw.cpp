@@ -358,24 +358,35 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 			CALLPTRMEMB(p_view, Scroll((message == WM_HSCROLL) ? SB_HORZ : SB_VERT, LoWord(wParam), HiWord(wParam)));
 			break;
 		case WM_KEYDOWN:
-			if(wParam == VK_ESCAPE) {
-				p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
-				if(p_view) {
-					p_view->endModal(cmCancel);
-					return 0;
+			{
+				KeyDownCommand kdc;
+				kdc.SetWinMsgCode(wParam);
+				const uint16 tvk = kdc.GetTvKeyCode();
+				if(/*wParam == VK_ESCAPE*/tvk == kbEsc) {
+					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					if(p_view) {
+						p_view->endModal(cmCancel);
+						return 0;
+					}
 				}
-			}
-			else if(wParam == VK_TAB) {
-				p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
-				if(GetKeyState(VK_CONTROL) & 0x8000 && p_view && !p_view->IsInState(sfModal)) {
-					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
-					return 0;
+				else if(/*wParam == VK_TAB*/tvk == kbCtrlTab) {
+					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					if(/*GetKeyState(VK_CONTROL) & 0x8000 &&*/ p_view && !p_view->IsInState(sfModal)) {
+						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
+						return 0;
+					}
 				}
-			}
-			else if(LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)) {
-				p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
-				if(p_view)
-					p_view->CopyToClipboard();
+				else if(/*LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlIns) {
+					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					if(p_view)
+					CALLPTRMEMB(p_view, CopyToClipboard());
+				}
+				// @v9.8.7 {
+				else if(/*LOWORD(wParam) == VK_F10 && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlF11) {
+					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
+					CALLPTRMEMB(p_view, ExportToExcel());
+				}
+				// } @v9.8.7 
 			}
 			return 0;
 		case WM_LBUTTONDBLCLK:
@@ -2254,6 +2265,20 @@ int STimeChunkBrowser::GetChunkText(long chunkId, SString & rBuf)
 	return ok;
 }
 
+int STimeChunkBrowser::GetChunkColor(const STimeChunkAssoc * pChunk, STimeChunkGrid::Color * pClr) const
+{
+	int    ok = 0;
+	STimeChunkGrid::Color clr;
+	clr.Status = -1;
+	clr.C = GetColorRef(SClrBlack);
+	if(P_Data->GetColor(pChunk->Id, &clr) > 0) {
+		ok = 1;
+	}
+	ASSIGN_PTR(pClr, clr);
+	return ok;
+}
+
+
 int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH * pBrush)
 {
 	int    ok = 1;
@@ -2264,19 +2289,15 @@ int STimeChunkBrowser::SelectChunkColor(const STimeChunkAssoc * pChunk, HBRUSH *
 	}
 	else {
 		STimeChunkGrid::Color clr;
-		clr.Status = -1;
-		clr.C = GetColorRef(SClrBlack);
-		if(P_Data->GetColor(pChunk->Id, &clr) > 0) {
-			if(ColorBrushList.Search((long)clr.C, &val, 0) > 0) {
+		if(GetChunkColor(pChunk, &clr)) {
+			if(ColorBrushList.Search((long)clr.C, &val, 0) > 0)
 				b = (HBRUSH)val;
-			}
 			else {
 				b = ::CreateSolidBrush(clr.C);
 				ColorBrushList.Add((long)clr.C, (long)b, 0);
 			}
-			if(clr.Status >= 0) {
+			if(clr.Status >= 0)
 				ChunkColorCache.Add(clr.Status, (long)b, 0);
-			}
 		}
 		else
 			ok = 0;
@@ -2425,10 +2446,10 @@ int PPViewBrowser::Export()
 }
 #endif // } @example
 
-int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
+int STimeChunkBrowser::ExportToExcel()
 {
 	int    ok = -1;
-#if 0 // @construction {
+#if 1 // @construction {
 	ComExcelApp * p_app = 0;
 	ComExcelWorksheet  * p_sheet  = 0;
 	ComExcelWorksheets * p_sheets = 0;
@@ -2449,31 +2470,21 @@ int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
 		SString out_buf;
 		SString dow_buf;
 		SString dec;
-		//SylkWriter sw(0);
-		//
 		THROW(p_app = new ComExcelApp);
 		THROW(p_app->Init() > 0);
 		THROW(p_wkbook = p_app->AddWkbook());
 		THROW(p_sheets = p_wkbook->Get());
-		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
-		name.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
+		name = "timetable";
 		sheets_count = p_sheets->GetCount();
 		for(i = sheets_count; i > 1; i--)
 			THROW(p_sheets->Delete(i) > 0);
 		THROW(p_sheet = p_sheets->Get(1L));
 		THROW(p_sheet->SetName(name));
-
-		//sw.PutRec("ID", "PPapyrus");
 		{
 			char   buf[64];
 			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
 			dec.Cat(buf);
 		}
-		//OpenClipboard(APPL->H_MainWnd);
-		//EmptyClipboard();
-		//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-		//sw.PutFont('F', p_fontface_tnr, 8,  0);
-		//sw.PutRec('F', "G");
 		{
 			row = 1;
 			column = 2;
@@ -2483,17 +2494,10 @@ int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
 					if(IsQuantVisible(quant)) {
 						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
-
-						//sw.PutFormat("FC0L", 1, column, row);
-						//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-						//sw.PutVal(temp_buf, 0);
-
-						/*if(p_sheet->SetColumnFormat(column, fmt) <= 0)
-							THROW(p_sheet->SetColumnFormat(column, fmt_rus) > 0);*/
+						p_sheet->SetBgColor(row, column, Ptb.GetColor(colorHeader));
 						THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
 						THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
 						THROW(p_sheet->SetBold(row, column, 1) > 0);
-
 						column++;
 					}
 				}
@@ -2505,82 +2509,88 @@ int STimeChunkBrowser::ExportToExcel(const char * pDestPath)
 			uint   time_quant = 15 * 60; // 15 minuts
 			STimeChunkAssocArray chunk_list(0);
 			SString cell_buf;
-			row = 2;
-			for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
-				LTIME   tm_start;
-				LTIME   tm_end;
-				tm_start.settotalsec(time_band);
-				tm_end.settotalsec(time_band+time_quant-1);
-
-				column = 1;
-
-				temp_buf.Z().Cat(tm_start, TIMF_HM);
-				//sw.PutFormat("FC0L", row, 1, row);
-				//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-				//sw.PutVal(temp_buf, 1);
-				THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
-				THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
-				THROW(p_sheet->SetBold(row, column, 1) > 0);
-
-				for(long quant = 0; ; quant++) {
-					const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
-					column++;
-					if(dt <= St.Bounds.Finish.d) {
-						STimeChunk range;
-						range.Start.Set(dt, tm_start);
-						range.Finish.Set(dt, tm_end);
-						chunk_list.clear();
-						if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
-							cell_buf.Z();
-							for(uint i = 0; i < chunk_list.getCount(); i++) {
-								const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
-								GetChunkText(p_chunk->Id, temp_buf.Z());
-								if(cell_buf.NotEmpty())
-									cell_buf.CR();
-								cell_buf.Cat(temp_buf);
-							}
-							if(cell_buf.NotEmpty()) {
-								//sw.PutFormat("FC0L", row, column, row);
-								//sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
-								//sw.PutVal(cell_buf, 0);
-								THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
-								THROW(p_sheet->SetValue(row, column, cell_buf) > 0);
-								//THROW(p_sheet->SetBold(row, column, 1) > 0);
+			column = 1;
+			for(long quant = 0; ; quant++, column++) {
+				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				if(dt <= St.Bounds.Finish.d) {
+					row = 2;
+					STimeChunkGrid::Color clr;
+					const STimeChunkAssoc * p_last_chunk = 0;
+					long   last_chunk_row = 0;
+					for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
+						LTIME   tm_start;
+						LTIME   tm_end;
+						tm_start.settotalsec(time_band);
+						tm_end.settotalsec(time_band+time_quant-1);
+						if(column == 1) {
+							temp_buf.Z().Cat(tm_start, TIMF_HM);
+							p_sheet->SetBgColor(row, column, Ptb.GetColor(colorHeader));
+							THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+							THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
+							THROW(p_sheet->SetBold(row, column, 1) > 0);
+						}
+						else {
+							STimeChunk range;
+							range.Start.Set(dt, tm_start);
+							range.Finish.Set(dt, tm_end);
+							chunk_list.clear();
+							if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
+								cell_buf.Z();
+								for(uint i = 0; i < chunk_list.getCount(); i++) {
+									const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+									if(p_chunk) {
+										if(i == 0 && p_last_chunk && p_last_chunk != p_chunk) {
+											GetChunkText(p_last_chunk->Id, temp_buf.Z());
+											ComExcelRange * p_range = 0;
+											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) { 
+												p_range->DoMerge();
+												p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												p_range->SetValue(temp_buf);
+											}
+											else {
+												p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+											}
+										}
+										if(p_last_chunk != p_chunk) {
+											p_last_chunk = p_chunk;
+											last_chunk_row = row;
+										}
+									}
+								}
 							}
 						}
 					}
-					else
-						break;
+					if(p_last_chunk) {
+						GetChunkText(p_last_chunk->Id, temp_buf.Z());
+						ComExcelRange * p_range = 0;
+						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) {
+							p_range->DoMerge();
+							p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							p_range->SetValue(temp_buf);
+						}
+						else {
+							p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+						}
+					}
 				}
+				else
+					break;
 			}
 		}
-		//sw.PutLine("E");
-		//sw.GetBuf(&out_buf);
-		/*
-		{
-			HGLOBAL h_glb = ::GlobalAlloc(GMEM_MOVEABLE, (out_buf.Len() + 1));
-			char * p_buf = (char *)GlobalLock(h_glb);
-			out_buf.CopyTo(p_buf, out_buf.Len());
-			p_buf[out_buf.Len()] = '\0';
-			GlobalUnlock(h_glb);
-			SetClipboardData(CF_SYLK, h_glb);
-		}
-		CloseClipboard();
-		*/
 		if(p_wkbook) {
-			//PPGetPath(PPPATH_LOCAL, path);
-			path = pDestPath;
+			SLS.QueryPath("local", path);
 			path.SetLastSlash();
 			createDir(path);
-			path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
+			path.Cat(name.ReplaceChar('/', ' '));//.Cat(".xls");
 			SFile::Remove(path);
 			p_wkbook->_SaveAs(path);
 			p_wkbook->_Close();
 			ZDELETE(p_wkbook);
+			ok = 1;
 		}
 	}
-	else
-		ok = -1;
 	CATCHZOK
 	ZDELETE(p_sheets);
 	ZDELETE(p_sheet);

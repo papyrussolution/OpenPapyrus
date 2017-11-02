@@ -308,14 +308,14 @@ static void FASTCALL emit_restart(j_compress_ptr cinfo, int restart_num)
 		compptr = cinfo->cur_comp_info[ci];
 		/* DC needs no table for refinement scan */
 		if(cinfo->Ss == 0 && cinfo->Ah == 0) {
-			MEMZERO(entropy->dc_stats[compptr->dc_tbl_no], DC_STAT_BINS);
+			memzero(entropy->dc_stats[compptr->dc_tbl_no], DC_STAT_BINS);
 			/* Reset DC predictions to 0 */
 			entropy->last_dc_val[ci] = 0;
 			entropy->dc_context[ci] = 0;
 		}
 		/* AC needs no table when not present */
 		if(cinfo->Se) {
-			MEMZERO(entropy->ac_stats[compptr->ac_tbl_no], AC_STAT_BINS);
+			memzero(entropy->ac_stats[compptr->ac_tbl_no], AC_STAT_BINS);
 		}
 	}
 
@@ -807,7 +807,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->dc_stats[tbl] == NULL)
 				entropy->dc_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, DC_STAT_BINS);
-			MEMZERO(entropy->dc_stats[tbl], DC_STAT_BINS);
+			memzero(entropy->dc_stats[tbl], DC_STAT_BINS);
 			// Initialize DC predictions to 0 
 			entropy->last_dc_val[ci] = 0;
 			entropy->dc_context[ci] = 0;
@@ -819,7 +819,7 @@ METHODDEF(void) start_pass(j_compress_ptr cinfo, boolean gather_statistics)
 				ERREXIT1(cinfo, JERR_NO_ARITH_TABLE, tbl);
 			if(entropy->ac_stats[tbl] == NULL)
 				entropy->ac_stats[tbl] = (uchar*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, AC_STAT_BINS);
-			MEMZERO(entropy->ac_stats[tbl], AC_STAT_BINS);
+			memzero(entropy->ac_stats[tbl], AC_STAT_BINS);
 #ifdef CALCULATE_SPECTRAL_CONDITIONING
 			if(cinfo->progressive_mode)
 				/* Section G.1.3.2: Set appropriate arithmetic conditioning value Kx */

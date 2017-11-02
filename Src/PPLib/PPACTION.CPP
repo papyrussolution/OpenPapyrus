@@ -519,6 +519,11 @@ void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBu
 //
 //
 //
+SLAPI PPGta::PPGta()
+{
+	THISZERO();
+}
+
 SLAPI GtaJournalCore::GtaJournalCore() : GtaJournalTbl()
 {
 }
