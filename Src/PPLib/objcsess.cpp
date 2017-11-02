@@ -1911,20 +1911,14 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 // static
 int CTableOrder::ShowTimeGraph(PPID posNodeID, int modeless)
 {
-	class CTableTimeChunkBrowser : public STimeChunkBrowser {
+	class CTableTimeChunkBrowser : public PPTimeChunkBrowser {
 	public:
-		CTableTimeChunkBrowser() : STimeChunkBrowser()
+		CTableTimeChunkBrowser() : PPTimeChunkBrowser()
 		{
-			//P_To = new CTableOrder;
 			SetBmpId(STimeChunkBrowser::bmpModeGantt, BM_TIMEGRAPH_GANTT);
 			SetBmpId(STimeChunkBrowser::bmpModeHourDay, BM_TIMEGRAPH_HOURDAY);
 			SetBmpId(STimeChunkBrowser::bmpBack, BM_BACK);
 		}
-		/*~CTableTimeChunkBrowser()
-		{
-			delete P_To;
-		}*/
-		//CTableOrder * P_To;
 		CTableOrder To;
 	};
 	int    ok = 1;

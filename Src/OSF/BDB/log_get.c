@@ -93,14 +93,14 @@ static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 
 int __logc_close(DB_LOGC * logc)
 {
-	ENV * env = logc->env;
-	if(logc->fhp != NULL) {
+	if(logc) {
+		ENV * env = logc->env;
 		__os_closehandle(env, logc->fhp);
 		logc->fhp = NULL;
+		__os_free(env, logc->dbt.data);
+		__os_free(env, logc->bp);
+		__os_free(env, logc);
 	}
-	__os_free(env, logc->dbt.data);
-	__os_free(env, logc->bp);
-	__os_free(env, logc);
 	return 0;
 }
 

@@ -1280,7 +1280,7 @@ int __db_testdocopy(ENV * env, const char * name)
 			goto err;
 	}
 err:
-	if(namesp != NULL)
+	if(namesp)
 		__os_dirfree(env, namesp, dircnt);
 	__os_free(env, copy);
 	__os_free(env, real_name);

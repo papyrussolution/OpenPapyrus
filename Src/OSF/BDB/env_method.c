@@ -1042,8 +1042,7 @@ void __env_set_errpfx(DB_ENV * dbenv, const char * errpfx)
 
 static int __env_get_feedback(DB_ENV * dbenv, void (**feedbackp)__P((DB_ENV*, int, int)))
 {
-	if(feedbackp != NULL)
-		*feedbackp = dbenv->db_feedback;
+	ASSIGN_PTR(feedbackp, dbenv->db_feedback);
 	return 0;
 }
 
@@ -1059,8 +1058,7 @@ static int __env_set_feedback(DB_ENV * dbenv, void (*feedback)__P((DB_ENV*, int,
  */
 static int __env_get_thread_id_fn(DB_ENV * dbenv, void (**idp)__P((DB_ENV*, pid_t*, db_threadid_t *)))
 {
-	if(idp != NULL)
-		*idp = dbenv->thread_id;
+	ASSIGN_PTR(idp, dbenv->thread_id);
 	return 0;
 }
 /*
@@ -1078,8 +1076,7 @@ static int __env_set_thread_id(DB_ENV * dbenv, void (*id)__P((DB_ENV*, pid_t*, d
  */
 static int __env_get_thread_id_string_fn(DB_ENV * dbenv, char *(**thread_id_stringp)__P((DB_ENV*, pid_t, db_threadid_t, char *)))
 {
-	if(thread_id_stringp != NULL)
-		*thread_id_stringp = dbenv->thread_id_string;
+	ASSIGN_PTR(thread_id_stringp, dbenv->thread_id_string);
 	return 0;
 }
 /*
@@ -1102,9 +1099,10 @@ static int __env_get_isalive(DB_ENV * dbenv, int (**is_alivep)__P((DB_ENV*, pid_
 		__db_errx(env, DB_STR("1562", "is_alive method specified but no thread region allocated"));
 		return EINVAL;
 	}
-	if(is_alivep != NULL)
-		*is_alivep = dbenv->is_alive;
-	return 0;
+	else {
+		ASSIGN_PTR(is_alivep, dbenv->is_alive);
+		return 0;
+	}
 }
 /*
  * __env_set_isalive --
@@ -1151,8 +1149,7 @@ int __env_set_thread_count(DB_ENV * dbenv, uint32 count)
  */
 void __env_get_msgcall(DB_ENV * dbenv, void (**msgcallp)__P((const DB_ENV*, const char *)))
 {
-	if(msgcallp != NULL)
-		*msgcallp = dbenv->db_msgcall;
+	ASSIGN_PTR(msgcallp, dbenv->db_msgcall);
 }
 /*
  * __env_set_msgcall --

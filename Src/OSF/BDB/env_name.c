@@ -100,7 +100,7 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 	 * Absolute path names are never modified.  If the file is an absolute
 	 * path, we're done.
 	 */
-	if(file != NULL && __os_abspath(file))
+	if(file && __os_abspath(file))
 		return __os_strdup(env, file, namep);
 	/*
 	 * DB_APP_NONE:
@@ -121,7 +121,7 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		 * First, step through the data_dir entries, if any, looking
 		 * for the file.
 		 */
-		if(dbenv && dbenv->db_data_dir != NULL)
+		if(dbenv && dbenv->db_data_dir)
 			for(ddp = dbenv->db_data_dir; *ddp != NULL; ddp++)
 				DB_CHECKFILE(file, *ddp, 1, 0, namep, dirp);
 		/* Second, look in the environment home directory. */
@@ -130,10 +130,10 @@ int __db_appname(ENV * env, APPNAME appname, const char * file, const char ** di
 		 * Otherwise, we're going to create.  Use the specified
 		 * directory unless we're in recovery and it doesn't exist.
 		 */
-		if(dirp != NULL && *dirp != NULL)
+		if(dirp && *dirp)
 			DB_CHECKFILE(file, *dirp, 0, appname == DB_APP_RECOVER, namep, dirp);
 		/* Finally, use the create directory, if set. */
-		if(dbenv && dbenv->db_create_dir != NULL)
+		if(dbenv && dbenv->db_create_dir)
 			dir = dbenv->db_create_dir;
 		break;
 	    case DB_APP_LOG:

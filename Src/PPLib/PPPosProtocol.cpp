@@ -583,27 +583,43 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 				}
 			}
 			{
-				//
-				// Карты
-				//
-				LAssocArray scard_quot_list;
 				PPObjSCardSeries scs_obj;
+				PPSCardSerPacket scs_pack;
 				PPSCardSeries scs_rec;
-				AsyncCashSCardsIterator acci(nodeID, updOnly, &dls, sinceDlsID);
-				for(PPID ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &scs_rec) > 0;) {
-					const int scs_type = scs_rec.GetType();
-					//if(scs_type == scstDiscount || (scs_type == scstCredit && CrdCardAsDsc)) {
-					{
+				PPIDArray scs_list; // Список идентификаторов серий карт, которые должны выгружаться
+				{
+					//
+					// Карты
+					//
+					LAssocArray scard_quot_list;
+					AsyncCashSCardsIterator acci(nodeID, updOnly, &dls, sinceDlsID);
+					for(PPID ser_id = 0, idx = 1; scs_obj.EnumItems(&ser_id, &scs_rec) > 0;) {
+						const int scs_type = scs_rec.GetType();
 						AsyncCashSCardInfo acci_item;
-						PPSCardSerPacket scs_pack;
 						if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
 							if(scs_rec.QuotKindID_s)
 								THROW_SL(scard_quot_list.Add(scs_rec.ID, scs_rec.QuotKindID_s, 0));
 							(msg_buf = fmt_buf).CatDiv(':', 2).Cat(scs_rec.Name);
 							for(acci.Init(&scs_pack); acci.Next(&acci_item) > 0;) {
 								THROW(WriteSCardInfo(wb, "card", acci_item));
+								scs_list.add(acci_item.Rec.SeriesID);
 								PPWaitPercent(acci.GetCounter(), msg_buf);
 							}
+						}
+					}
+				}
+				scs_list.sortAndUndup();
+				{
+					//
+					// Серии карт
+					//
+					for(uint i = 0; i < scs_list.getCount(); i++) {
+						const PPID ser_id = scs_list.get(i);
+						if(scs_obj.GetPacket(ser_id, &scs_pack) > 0) {
+							SXml::WNode w_s(wb.P_Xw, "scardseries");
+							w_s.PutInner("id", temp_buf.Z().Cat(scs_pack.Rec.ID));
+							w_s.PutInner("name", EncText(scs_pack.Rec.Name));
+							w_s.PutInnerSkipEmpty("code", EncText(scs_pack.Rec.Symb));
 						}
 					}
 				}
@@ -748,49 +764,36 @@ SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
 {
 	ParentBlkP = 0;
 	InnerId = 0;
-	GoodsFlags = 0; // @v9.8.6
-	UnitBlkP = 0;   // @v9.8.6
-	PhUnitBlkP = 0; // @v9.8.6
-	PhUPerU = 0.0;    // @v9.8.6
+	GoodsFlags = 0;
+	UnitBlkP = 0;
+	PhUnitBlkP = 0;
+	PhUPerU = 0.0;
 	Price = 0.0;
 	Rest = 0.0;
 }
 
-SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock()
+SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
 {
-	CodeP = 0;
-	ParentBlkP = 0;
 }
 
-SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock()
+SLAPI PPPosProtocol::LotBlock::LotBlock() : ObjectBlock(), GoodsBlkP(0), Dt(ZERODATE), Expiry(ZERODATE), Cost(0.0), Price(0.0), Rest(0.0), SerailP(0)
 {
-	GoodsBlkP = 0;
-	Dt = ZERODATE;
-	Expiry = ZERODATE;
-	Cost = 0.0;
-	Price = 0.0;
-	Rest = 0.0;
-	SerailP = 0;
 }
 
-SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock()
+SLAPI PPPosProtocol::PersonBlock::PersonBlock() : ObjectBlock(), CodeP(0)
 {
-	CodeP = 0;
 }
 
-SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock()
+SLAPI PPPosProtocol::SCardSeriesBlock::SCardSeriesBlock() : ObjectBlock(), CodeP(0), QuotKindBlkP(0)
 {
-	CodeP = 0;
-	OwnerBlkP = 0;
-	Discount = 0.0;
 }
 
-SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock()
+SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBlkP(0), Discount(0.0)
 {
-	ID = 0;
-	Code = 0;
-	PosBlkP = 0;
-	Dtm.SetZero();
+}
+
+SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), ID(0), Code(0), PosBlkP(0), Dtm(ZERODATETIME)
+{
 }
 
 SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock()
@@ -829,12 +832,8 @@ SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock()
 	EgaisMarkP = 0;
 }
 
-SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock()
+SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
 {
-	CcID = 0;
-	PaymType = 0;
-	Amount = 0.0;
-	SCardBlkP = 0;
 };
 
 SLAPI PPPosProtocol::QueryBlock::QueryBlock()
@@ -1567,6 +1566,10 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 		const int sc_type = 0; // @todo
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.Rec.ID));
 		w_s.PutInner("code", EncText(rInfo.Rec.Code));
+		if(rInfo.Rec.SeriesID) {
+			SXml::WNode w_r(rB.P_Xw, "scardseries");
+			w_r.PutInner("id", temp_buf.Z().Cat(rInfo.Rec.SeriesID));
+		}
 		if(rInfo.Rec.PersonID) {
 			PPPersonPacket psn_pack;
 			if(PsnObj.GetPacket(rInfo.Rec.PersonID, &psn_pack, 0) > 0) {
@@ -3388,6 +3391,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						STRNSCPY(unit_rec.Abbr, symb_buf);
 						STRNSCPY(unit_rec.Code, code_buf);
 						SETFLAGBYSAMPLE(unit_rec.Flags, PPUnit::Physical, r_blk.UnitFlags);
+						unit_rec.Flags |= PPUnit::Trade;
 						if(r_blk.ID > 0 && r_blk.ID < 1000) {
 							unit_rec.ID = r_blk.ID;
 							native_id = r_blk.ID;

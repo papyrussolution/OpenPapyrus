@@ -226,7 +226,7 @@ int __dbreg_register_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 		 * already undone the corresponding close.  In that case, the
 		 * id will be valid, but we do not want to discard buffers.
 		 */
-		if(do_rem && dbp != NULL) {
+		if(do_rem && dbp) {
 			if(argp->id != TXN_INVALID) {
 				if((ret = __db_txnlist_find(env, (DB_TXNHEAD *)info, argp->txnp->txnid, &status)) != DB_NOTFOUND && ret != 0)
 					goto out;
@@ -275,7 +275,7 @@ static int __dbreg_open_file(ENV * env, DB_TXN * txn, __dbreg_register_args * ar
 		dbe = &dblp->dbentry[argp->fileid];
 	else
 		dbe = NULL;
-	if(dbe != NULL) {
+	if(dbe) {
 		if(dbe->deleted) {
 			MUTEX_UNLOCK(env, dblp->mtx_dbreg);
 			return ENOENT;
@@ -312,7 +312,7 @@ static int __dbreg_open_file(ENV * env, DB_TXN * txn, __dbreg_register_args * ar
 			 * in the txnlist so that we know how to handle the
 			 * subtransaction that created the file system object.
 			 */
-			if(argp != NULL && argp->id != TXN_INVALID && (ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->id, TXN_EXPECTED, NULL, &status, 1)) != 0)
+			if(argp && argp->id != TXN_INVALID && (ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->id, TXN_EXPECTED, NULL, &status, 1)) != 0)
 				return ret;
 			return 0;
 		}
@@ -334,7 +334,7 @@ reopen:
 	 * We are about to pass a recovery txn pointer into the main library.
 	 * We need to make sure that any accessed fields are set appropriately.
 	 */
-	if(txn != NULL) {
+	if(txn) {
 		id = txn->txnid;
 		memzero(txn, sizeof(DB_TXN));
 		txn->txnid = id;

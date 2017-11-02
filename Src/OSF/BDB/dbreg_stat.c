@@ -80,7 +80,7 @@ static int __dbreg_print_all(ENV * env, uint32 flags)
 			(ulong)fnp->create_txnid, (ulong)fnp->flags,
 			(ulong)fnp->txn_ref,
 			dbp == NULL ? "No DBP" : "DBP");
-		if(dbp != NULL)
+		if(dbp)
 			__db_msg(env, " (%d %lx %lx)", del, P_TO_ULONG(dbp), (ulong)(dbp == NULL ? 0 : dbp->flags));
 	}
 	MUTEX_UNLOCK(env, lp->mtx_filelist);

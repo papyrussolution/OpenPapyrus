@@ -9,8 +9,8 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __db_vrfy_childinc __P((DBC*, VRFY_CHILDINFO *));
-static int __db_vrfy_pageinfo_create __P((ENV*, VRFY_PAGEINFO**));
+static int __db_vrfy_childinc(DBC*, VRFY_CHILDINFO *);
+static int __db_vrfy_pageinfo_create(ENV*, VRFY_PAGEINFO**);
 /*
  * __db_vrfy_dbinfo_create --
  *	Allocate and initialize a VRFY_DBINFO structure.
@@ -32,8 +32,7 @@ int __db_vrfy_dbinfo_create(ENV * env, DB_THREAD_INFO * ip, uint32 pgsize, VRFY_
 	if(TXN_ON(env) &&
 	   (ret = __db_set_flags(cdbp, DB_TXN_NOT_DURABLE)) != 0)
 		goto err;
-	if((ret = __db_open(cdbp, ip,
-		    NULL, NULL, NULL, DB_BTREE, DB_CREATE, 0600, PGNO_BASE_MD)) != 0)
+	if((ret = __db_open(cdbp, ip, NULL, NULL, NULL, DB_BTREE, DB_CREATE, 0600, PGNO_BASE_MD)) != 0)
 		goto err;
 	if((ret = __db_create_internal(&pgdbp, env, 0)) != 0)
 		goto err;
@@ -43,28 +42,24 @@ int __db_vrfy_dbinfo_create(ENV * env, DB_THREAD_INFO * ip, uint32 pgsize, VRFY_
 	if(TXN_ON(env) &&
 	   (ret = __db_set_flags(pgdbp, DB_TXN_NOT_DURABLE)) != 0)
 		goto err;
-	if((ret = __db_open(pgdbp, ip,
-		    NULL, NULL, NULL, DB_BTREE, DB_CREATE, 0600, PGNO_BASE_MD)) != 0)
+	if((ret = __db_open(pgdbp, ip, NULL, NULL, NULL, DB_BTREE, DB_CREATE, 0600, PGNO_BASE_MD)) != 0)
 		goto err;
 	if((ret = __db_vrfy_pgset(env, ip, pgsize, &pgset)) != 0)
 		goto err;
-	if(CDB_LOCKING(env) &&
-	   (ret = __cdsgroup_begin(env, &vdp->txn)) != 0)
+	if(CDB_LOCKING(env) && (ret = __cdsgroup_begin(env, &vdp->txn)) != 0)
 		goto err;
 	LIST_INIT(&vdp->subdbs);
 	LIST_INIT(&vdp->activepips);
-
 	vdp->cdbp = cdbp;
 	vdp->pgdbp = pgdbp;
 	vdp->pgset = pgset;
 	vdp->thread_info = ip;
 	*vdpp = vdp;
 	return 0;
-
 err:    
 	__db_close(cdbp, NULL, 0);
 	__db_close(pgdbp, NULL, 0);
-	if(vdp->txn != NULL)
+	if(vdp->txn)
 		vdp->txn->commit(vdp->txn, 0);
 	__os_free(env, vdp);
 	return ret;
@@ -87,8 +82,7 @@ int __db_vrfy_dbinfo_destroy(ENV * env, VRFY_DBINFO * vdp)
 	 */
 	while(LIST_FIRST(&vdp->activepips) != NULL)
 		if((t_ret = __db_vrfy_putpageinfo(env, vdp, LIST_FIRST(&vdp->activepips))) != 0) {
-			if(ret == 0)
-				ret = t_ret;
+			SETIFZ(ret, t_ret);
 			break;
 		}
 	/* Discard subdatabase list structures. */
@@ -102,7 +96,7 @@ int __db_vrfy_dbinfo_destroy(ENV * env, VRFY_DBINFO * vdp)
 		ret = t_ret;
 	if((t_ret = __db_close(vdp->pgset, NULL, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	if(vdp->txn != NULL && (t_ret = vdp->txn->commit(vdp->txn, 0)) != 0 && ret == 0)
+	if(vdp->txn && (t_ret = vdp->txn->commit(vdp->txn, 0)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, vdp->extents);
 	__os_free(env, vdp);
@@ -649,7 +643,7 @@ int __db_salvage_markneeded(VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype)
  */
 int __db_vrfy_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, int (*callback)__P((void *, const void *)), int is_recno, int is_heap, VRFY_DBINFO * vdp)
 {
-	if(vdp != NULL) {
+	if(vdp) {
 		/*
 		 * If vdp is non-NULL, we might be the first key in the
 		 * "fake" subdatabase used for key/data pairs we can't

@@ -81,10 +81,7 @@ int SLAPI ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	STRNSCPY(dispid_entry.Name, pName);
 	THROW_SL(DispIDAry.insert(&dispid_entry));
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 		// @v9.1.7 {
 		{
 			SString msg_buf, err_msg;
@@ -150,10 +147,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 		THROW(SUCCEEDED(HRes = VariantChangeTypeEx(pVarArg, &var_arg, LOCALE_USER_DEFAULT, 0, vt)));
 	}
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
 	if(ok <= 0 || vt != VT_DISPATCH)
 		VariantClear(&var_arg);
@@ -272,10 +266,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 	THROW(p_die = GetDispIDEntry(propertyID));
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var_arg, NULL, NULL)));
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
 	VariantClear(&var_arg);
 	ClearParams();
@@ -303,10 +294,7 @@ int SLAPI ComDispInterface::_SetProperty(long propertyID, VARIANTARG * pVarArg)
 	}
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispparams, NULL, NULL, NULL)));
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
 	VariantClear(&var_arg);
 	return ok;
@@ -332,10 +320,7 @@ int SLAPI ComDispInterface::_SetPropertyW(long propertyID, VARIANTARG * pVarArg)
 	}
 	THROW(SUCCEEDED(HRes = P_Disp->Invoke(p_die->DispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &dispparams, NULL, NULL, NULL)));
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
 	VariantClear(&var_arg);
 	return ok;
@@ -437,10 +422,7 @@ int SLAPI ComDispInterface::_SetParam(VARIANTARG * pVarArg)
 	THROW_SL(P_ParamsAry->atInsert(0, &var_arg));
 	THROW(SUCCEEDED(HRes = VariantCopy((VARIANTARG *)P_ParamsAry->at(0), pVarArg)));
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 	ENDCATCH
 	VariantClear(&var_arg);
 	return ok;
@@ -547,10 +529,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 		}
 	}
 	CATCH
-		if(SUCCEEDED(HRes))
-			ok = 0;
-		else
-			ok = (SetErrCode(), -1);
+		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
 		if(CConfig.Flags & CCFLG_DEBUG) {
 			//PPTXT_LOG_DISPINVOKEFAULT         "Îרטבךא גûחמגא Dispatch-לועמהא '@zstr': @zstr"
 			SString msg_buf;
@@ -583,7 +562,7 @@ void SLAPI ComDispInterface::SetErrCode()
 	SString  err_msg, sys_err_buf, temp_buf;
 	{
 		HRESULT hr = HRes;
-    	if(FACILITY_WINDOWS == HRESULT_FACILITY(hr))
+    	if(HRESULT_FACILITY(hr) == FACILITY_WINDOWS)
     	    hr = HRESULT_CODE(hr);
     	char * p_err_msg = 0;
     	if(FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr,

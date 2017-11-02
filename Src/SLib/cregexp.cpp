@@ -269,7 +269,7 @@ int CRegExp::Compile(const char * pPattern)
 		if(flags & SPSTART) {
 			longest = NULL;
 			size_t len = 0;
-			for(; scan != NULL; scan = regnext(scan))
+			for(; scan; scan = regnext(scan))
 				if(OP(scan) == EXACTLY) {
 					size_t len2 = strlen(OPERAND(scan));
 					if(len2 >= len) {
@@ -627,7 +627,7 @@ char * CRegExp::reg(int paren, int * pFlag)
 			//
 			// Hook the tails of the branches to the closing node.
 			//
-			for(p_br = p_ret; p_br != NULL; p_br = regnext(p_br))
+			for(p_br = p_ret; p_br; p_br = regnext(p_br))
 				regoptail(p_br, p_ender);
 			//
 			// Check for proper termination.
@@ -802,7 +802,7 @@ int FASTCALL CRegExp::regmatch(const char * prog)
 							P_RegInput = save;
 							scan = regnext(scan);
 						}
-					} while(scan != NULL && OP(scan) == BRANCH);
+					} while(scan && OP(scan) == BRANCH);
 					return 0;
 					/* NOTREACHED */
 				}

@@ -2383,4 +2383,163 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		return;
 	clearEvent(event);
 }
+//
+//
+//
+PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
+{
+}
 
+//virtual 
+int PPTimeChunkBrowser::ExportToExcel()
+{
+	int    ok = -1;
+	ComExcelApp * p_app = 0;
+	ComExcelWorksheet  * p_sheet  = 0;
+	ComExcelWorksheets * p_sheets = 0;
+	ComExcelWorkbook   * p_wkbook = 0;
+	SString name; // Name of the excel workbook 
+	SString path; // Path to the created excel workbook
+	if(P.ViewType == P.vHourDay) {
+		long   sheets_count = 0;
+		long   beg_row = 1;
+		long   cn_count = 0; // p_def->getCount();
+		long   i = 0;
+		//
+		const char * p_fontface_tnr = "Times New Roman";
+		long   column = 0;
+		long   row = 0;
+		SString temp_buf;
+		SString fmt;
+		SString out_buf;
+		SString dow_buf;
+		SString dec;
+		THROW(p_app = new ComExcelApp);
+		THROW(p_app->Init() > 0);
+		THROW(p_wkbook = p_app->AddWkbook());
+		THROW(p_sheets = p_wkbook->Get());
+		name = "timetable";
+		sheets_count = p_sheets->GetCount();
+		for(i = sheets_count; i > 1; i--)
+			THROW(p_sheets->Delete(i) > 0);
+		THROW(p_sheet = p_sheets->Get(1L));
+		THROW(p_sheet->SetName(name));
+		{
+			char   buf[64];
+			::GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, sizeof(buf));
+			dec.Cat(buf);
+		}
+		{
+			row = 1;
+			column = 2;
+			for(long quant = 0; ; quant++) {
+				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				if(dt <= St.Bounds.Finish.d) {
+					if(IsQuantVisible(quant)) {
+						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
+						p_sheet->SetBgColor(row, column, Ptb.GetColor(colorHeader));
+						THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+						THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
+						THROW(p_sheet->SetBold(row, column, 1) > 0);
+						column++;
+					}
+				}
+				else
+					break;
+			}
+		}
+		{
+			uint   time_quant = 15 * 60; // 15 minuts
+			STimeChunkAssocArray chunk_list(0);
+			SString cell_buf;
+			column = 1;
+			for(long quant = 0; ; quant++, column++) {
+				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				if(dt <= St.Bounds.Finish.d) {
+					row = 2;
+					STimeChunkGrid::Color clr;
+					const STimeChunkAssoc * p_last_chunk = 0;
+					long   last_chunk_row = 0;
+					for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
+						LTIME   tm_start;
+						LTIME   tm_end;
+						tm_start.settotalsec(time_band);
+						tm_end.settotalsec(time_band+time_quant-1);
+						if(column == 1) {
+							temp_buf.Z().Cat(tm_start, TIMF_HM);
+							p_sheet->SetBgColor(row, column, Ptb.GetColor(colorHeader));
+							THROW(p_sheet->SetCellFormat(row, column, "@") > 0);
+							THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
+							THROW(p_sheet->SetBold(row, column, 1) > 0);
+						}
+						else {
+							STimeChunk range;
+							range.Start.Set(dt, tm_start);
+							range.Finish.Set(dt, tm_end);
+							chunk_list.clear();
+							if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
+								cell_buf.Z();
+								for(uint i = 0; i < chunk_list.getCount(); i++) {
+									const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
+									if(p_chunk) {
+										if(i == 0 && p_last_chunk && p_last_chunk != p_chunk) {
+											GetChunkText(p_last_chunk->Id, temp_buf.Z());
+											ComExcelRange * p_range = 0;
+											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) { 
+												p_range->DoMerge();
+												p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												p_range->SetValue(temp_buf);
+											}
+											else {
+												p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+											}
+										}
+										if(p_last_chunk != p_chunk) {
+											p_last_chunk = p_chunk;
+											last_chunk_row = row;
+										}
+									}
+								}
+							}
+						}
+					}
+					if(p_last_chunk) {
+						GetChunkText(p_last_chunk->Id, temp_buf.Z());
+						ComExcelRange * p_range = 0;
+						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) {
+							p_range->DoMerge();
+							p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							p_range->SetValue(temp_buf);
+						}
+						else {
+							p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+						}
+					}
+				}
+				else
+					break;
+			}
+		}
+		if(p_wkbook) {
+			SLS.QueryPath("local", path);
+			path.SetLastSlash();
+			createDir(path);
+			path.Cat(name.ReplaceChar('/', ' '));//.Cat(".xls");
+			SFile::Remove(path);
+			p_wkbook->_SaveAs(path);
+			p_wkbook->_Close();
+			ZDELETE(p_wkbook);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	ZDELETE(p_sheets);
+	ZDELETE(p_sheet);
+	ZDELETE(p_app);
+	if(ok > 0 && fileExists(path))
+		::ShellExecute(0, _T("open"), path, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
+	return ok;
+}

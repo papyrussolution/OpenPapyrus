@@ -622,7 +622,7 @@ int __log_valid(DB_LOG * dblp, uint32 number, int set_persist, DB_FH ** fhpp, ui
 	ASSIGN_PTR(versionp, persist->version);
 err:
 	__os_free(env, fname);
-	if(ret == 0 && fhpp != NULL)
+	if(ret == 0 && fhpp)
 		*fhpp = fhp;
 	else
 		__os_closehandle(env, fhp); // Must close on error or if we only used it locally
@@ -656,8 +656,7 @@ int __log_env_refresh(ENV * env)
 	/*
 	 * After we close the files, check for any unlogged closes left in
 	 * the shared memory queue.  If we find any, try to log it, otherwise
-	 * return the error.  We cannot say the environment was closed
-	 * cleanly.
+	 * return the error.  We cannot say the environment was closed cleanly.
 	 */
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname)
@@ -671,15 +670,15 @@ int __log_env_refresh(ENV * env)
 	 */
 	if(F_ISSET(env, ENV_PRIVATE)) {
 		reginfo->mtx_alloc = MUTEX_INVALID;
-		/* Discard the flush mutex. */
+		// Discard the flush mutex
 		if((t_ret = __mutex_free(env, &lp->mtx_flush)) != 0 && ret == 0)
 			ret = t_ret;
-		/* Discard the buffer. */
+		// Discard the buffer
 		__env_alloc_free(reginfo, R_ADDR(reginfo, lp->buffer_off));
-		/* Discard stack of free file IDs. */
+		// Discard stack of free file IDs
 		if(lp->free_fid_stack != INVALID_ROFF)
 			__env_alloc_free(reginfo, R_ADDR(reginfo, lp->free_fid_stack));
-		/* Discard the list of in-memory log file markers. */
+		// Discard the list of in-memory log file markers
 		while((filestart = SH_TAILQ_FIRST(&lp->logfiles, __db_filestart)) != NULL) {
 			SH_TAILQ_REMOVE(&lp->logfiles, filestart, links, __db_filestart);
 			__env_alloc_free(reginfo, filestart);
@@ -688,25 +687,25 @@ int __log_env_refresh(ENV * env)
 			SH_TAILQ_REMOVE(&lp->free_logfiles, filestart, links, __db_filestart);
 			__env_alloc_free(reginfo, filestart);
 		}
-		/* Discard commit queue elements. */
+		// Discard commit queue elements
 		while((commit = SH_TAILQ_FIRST(&lp->free_commits, __db_commit)) != NULL) {
 			SH_TAILQ_REMOVE(&lp->free_commits, commit, links, __db_commit);
 			__env_alloc_free(reginfo, commit);
 		}
-		/* Discard replication bulk buffer. */
+		// Discard replication bulk buffer
 		if(lp->bulk_buf != INVALID_ROFF) {
 			__env_alloc_free(reginfo, R_ADDR(reginfo, lp->bulk_buf));
 			lp->bulk_buf = INVALID_ROFF;
 		}
 	}
-	/* Discard the per-thread DBREG mutex. */
+	// Discard the per-thread DBREG mutex
 	if((t_ret = __mutex_free(env, &dblp->mtx_dbreg)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Detach from the region. */
+	// Detach from the region
 	if((t_ret = __env_region_detach(env, reginfo, 0)) != 0 && ret == 0)
 		ret = t_ret;
-	/* Close open files, release allocated memory. */
-	if(dblp->lfhp != NULL) {
+	// Close open files, release allocated memory
+	if(dblp->lfhp) {
 		if((t_ret = __os_closehandle(env, dblp->lfhp)) != 0 && ret == 0)
 			ret = t_ret;
 		dblp->lfhp = NULL;
@@ -958,12 +957,10 @@ int __log_zero(ENV * env, DB_LSN * from_lsn)
 		}
 		return 0;
 	}
-	/* Close any open file handles so unlinks don't fail. */
-	if(dblp->lfhp != NULL) {
-		__os_closehandle(env, dblp->lfhp);
-		dblp->lfhp = NULL;
-	}
-	/* Throw away any extra log files that we have around. */
+	// Close any open file handles so unlinks don't fail
+	__os_closehandle(env, dblp->lfhp);
+	dblp->lfhp = NULL;
+	// Throw away any extra log files that we have around
 	for(fn = from_lsn->file+1;; fn++) {
 		if(__log_name(dblp, fn, &fname, &fhp, DB_OSO_RDONLY) != 0) {
 			__os_free(env, fname);

@@ -85,7 +85,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	 * or to a particular LSN, find the point to start recovery from.
 	 */
 	ZERO_LSN(lowlsn);
-	if(max_lsn != NULL) {
+	if(max_lsn) {
 		if((ret = __log_backup(env, logc, max_lsn, &lowlsn)) != 0)
 			goto err;
 	}
@@ -231,7 +231,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		 * is that we pick *some* checkpoint after the beginning of
 		 * the logs and before the timestamp.
 		 */
-		if((dbenv->tx_timestamp != 0 || max_lsn != NULL) && LOG_COMPARE(&lowlsn, &first_lsn) < 0) {
+		if((dbenv->tx_timestamp != 0 || max_lsn) && LOG_COMPARE(&lowlsn, &first_lsn) < 0) {
 			first_lsn = lowlsn;
 		}
 	}
@@ -271,7 +271,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		__db_errx(env, DB_STR_A("1513", "Checkpoint LSN record [%ld][%ld] not found", "%ld %ld"), (ulong)first_lsn.file, (ulong)first_lsn.Offset_);
 		goto err;
 	}
-	if(dbenv->db_feedback != NULL) {
+	if(dbenv->db_feedback) {
 		if(last_lsn.file == first_lsn.file)
 			nfiles = (double)(last_lsn.Offset_-first_lsn.Offset_)/log_size;
 		else
@@ -325,7 +325,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		__db_msg(env, DB_STR_A("1514", "Recovery starting from [%lu][%lu]", "%lu %lu"), (ulong)first_lsn.file, (ulong)first_lsn.Offset_);
 	pass = DB_STR_P("backward");
 	for(ret = __logc_get(logc, &lsn, &data, DB_LAST); ret == 0 && LOG_COMPARE(&lsn, &first_lsn) >= 0; ret = __logc_get(logc, &lsn, &data, DB_PREV)) {
-		if(dbenv->db_feedback != NULL) {
+		if(dbenv->db_feedback) {
 			progress = 34+(int)(33*(__lsn_diff(&first_lsn, &last_lsn, &lsn, log_size, 0)/nfiles));
 			dbenv->db_feedback(dbenv, DB_RECOVER, progress);
 		}
@@ -358,10 +358,10 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	 */
 	pass = DB_STR_P("forward");
 	stop_lsn = last_lsn;
-	if(max_lsn != NULL || dbenv->tx_timestamp != 0)
+	if(max_lsn || dbenv->tx_timestamp != 0)
 		stop_lsn = ((DB_TXNHEAD *)txninfo)->maxlsn;
 	for(ret = __logc_get(logc, &lsn, &data, DB_NEXT); ret == 0; ret = __logc_get(logc, &lsn, &data, DB_NEXT)) {
-		if(dbenv->db_feedback != NULL) {
+		if(dbenv->db_feedback) {
 			progress = 67+(int)(33*(__lsn_diff(&first_lsn, &last_lsn, &lsn, log_size, 1)/nfiles));
 			dbenv->db_feedback(dbenv, DB_RECOVER, progress);
 		}
@@ -388,8 +388,8 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	if(max_lsn == NULL)
 		region->last_txnid = ((DB_TXNHEAD *)txninfo)->maxid;
 done:
-	/* We are going to truncate, so we'd best close the cursor. */
-	if(logc != NULL) {
+	// We are going to truncate, so we'd best close the cursor. 
+	if(logc) {
 		if((ret = __logc_close(logc)) != 0)
 			goto err;
 		logc = NULL;
@@ -406,8 +406,8 @@ done:
 		vtrunc_lsn = &((DB_TXNHEAD *)txninfo)->maxlsn;
 		vtrunc_ckp = &((DB_TXNHEAD *)txninfo)->ckplsn;
 	}
-	else if(max_lsn != NULL) {
-		/* This is a HA client syncing to the master. */
+	else if(max_lsn) {
+		// This is a HA client syncing to the master
 		if(!IS_ZERO_LSN(((DB_TXNHEAD *)txninfo)->ckplsn))
 			region->last_ckp = ((DB_TXNHEAD *)txninfo)->ckplsn;
 		else if((ret = __txn_findlastckp(env, &region->last_ckp, max_lsn)) != 0)
@@ -465,7 +465,7 @@ done:
 			goto err;
 		F_SET(env->lg_handle, DBLOG_OPENFILES);
 	}
-	if(max_lsn != NULL) {
+	if(max_lsn) {
 		/*
 		 * Now we need to open files that should be open in order for
 		 * client processing to continue.  However, since we've
@@ -521,7 +521,7 @@ msgerr:
 		__db_errx(env, DB_STR_A("1520", "Recovery function for LSN %lu %lu failed on %s pass", "%lu %lu %s"), (ulong)lsn.file, (ulong)lsn.Offset_, pass);
 	}
 err:
-	if(logc != NULL && (t_ret = __logc_close(logc)) != 0 && ret == 0)
+	if(logc && (t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
 	__db_txnlist_end(env, txninfo);
 	dbenv->tx_timestamp = 0;
@@ -678,7 +678,7 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 	log_size = ((LOG *)env->lg_handle->reginfo.primary)->log_size;
 	lsn = *open_lsn;
 	for(;; ) {
-		if(in_recovery && dbenv->db_feedback != NULL) {
+		if(in_recovery && dbenv->db_feedback) {
 			DB_ASSERT(env, last_lsn != NULL);
 			progress = (int)(33*(__lsn_diff(open_lsn, last_lsn, &lsn, log_size, 1)/nfiles));
 			dbenv->db_feedback(dbenv, DB_RECOVER, progress);
@@ -691,7 +691,7 @@ int __env_openfiles(ENV * env, DB_LOGC * logc, void * txninfo, DBT * data, DB_LS
 		}
 		if((ret = __logc_get(logc, &lsn, data, DB_NEXT)) != 0) {
 			if(ret == DB_NOTFOUND) {
-				if(last_lsn != NULL && LOG_COMPARE(&lsn, last_lsn) != 0)
+				if(last_lsn && LOG_COMPARE(&lsn, last_lsn) != 0)
 					ret = __db_log_corrupt(env, &lsn);
 				else
 					ret = 0;

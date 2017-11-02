@@ -31,9 +31,8 @@ void VCalendar::Todo::Init()
 	Descr = 0;
 }
 
-SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/)
+SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) : P_Stream(0)
 {
-	P_Stream = 0;
 	PPLoadText(PPTXT_VCAL_PROPERTIES,     Properties);
 	PPLoadText(PPTXT_VCAL_STATUSLIST,     Status);
 	PPLoadText(PPTXT_VCAL_CLASSIFICATION, Classification);
@@ -48,7 +47,7 @@ SLAPI VCalendar::~VCalendar()
 
 int SLAPI VCalendar::Open(const char * pFileName, int forExport)
 {
-	int ok = -1;
+	int    ok = -1;
 	Close();
 	if(pFileName && strlen(pFileName)) {
 		Export = forExport;
@@ -126,8 +125,7 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 			case prpEndDtm:
 			case prpDueDtm:
 				{
-					LDATETIME dtm;
-					dtm = *(LDATETIME*)pVal;
+					LDATETIME dtm = *(LDATETIME*)pVal;
 					if(checkdate(dtm.d, 0)) {
 						if(dtm.t == ZEROTIME)
 							dtm.t = encodetime(23, 59, 59, 0);
@@ -1887,8 +1885,8 @@ int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 							PrjTaskTbl::Rec  pt_rec;
 							ok = -1;
 							if(id && TodoObj.Search(id, &pt_rec) > 0 && (strlen(pt_rec.Descr) > 0 || strlen(pt_rec.Memo) > 0)) {
-								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft
-									|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
+								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								SString buf;
 								(buf = pt_rec.Descr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 								if(strlen(pt_rec.Memo) > 0) {
@@ -1969,21 +1967,17 @@ int SLAPI ViewPrjTask_ByStatus()
 	return ViewPrjTask(&filt);
 }
 
-// @v6.4.15 AHTOXA {
 int SLAPI ViewPrjTask_ByReminder()
 {
 	int ok = -1;
 	PPProjectConfig cfg;
 	if(PPObjProject::ReadConfig(&cfg) > 0 && cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND) {
-		LDATE       cur_dt = ZERODATE;
 		PrjTaskFilt filt;
-
-		getcurdate(&cur_dt);
+		const LDATE cur_dt = getcurdate_();
 		filt.StartPeriod.low = filt.StartPeriod.upp = cur_dt;
 		plusdate(&filt.StartPeriod.upp, abs(cfg.RemindPrd.low), 0);
 		if(cfg.RemindPrd.low != cfg.RemindPrd.upp)
 			plusdate(&filt.StartPeriod.low, -abs(cfg.RemindPrd.upp), 0);
-
 		GetCurUserPerson(&filt.EmployerID, 0);
 		filt.Kind  = TODOKIND_TASK;
 		for(uint i = 0; i < 5; i++) {
@@ -1996,7 +1990,6 @@ int SLAPI ViewPrjTask_ByReminder()
 	}
 	return ok;
 }
-// }@v6.4.15 AHTOXA
 //
 //
 //
@@ -2118,7 +2111,7 @@ int SLAPI PPViewPrjTask::UpdateTimeBrowser(int destroy)
 int SLAPI PPViewPrjTask::TimeChunkBrowser()
 {
 	UpdateTimeBrowser(1);
-	STimeChunkBrowser * p_brw = new STimeChunkBrowser;
+	PPTimeChunkBrowser * p_brw = new PPTimeChunkBrowser;
 	STimeChunkBrowser::Param p;
 	InitSTimeChunkBrowserParam("PPViewPrjTask", &p);
 	p.Quant = 3600;

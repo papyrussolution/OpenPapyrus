@@ -169,7 +169,7 @@ err:
 		 * !!!
 		 * Closing the file handle must release all of our locks.
 		 */
-		if(dbenv->registry != NULL)
+		if(dbenv->registry)
 			__os_closehandle(env, dbenv->registry);
 		dbenv->registry = NULL;
 	}
@@ -215,7 +215,6 @@ kill_all:       /*
 			return ret;
 	}
 #endif
-
 	/*
 	 * Read the file.  Skip empty slots, and check that a lock is held
 	 * for any allocated slots.  An allocated slot which we can lock
@@ -298,32 +297,27 @@ kill_all:       /*
 			if(LF_ISSET(DB_FAILCHK_ISALIVE))
 				if((ret = __envreg_create_active_pid(env, pid_buf)) != 0)
 					goto sig_proc;
-			/* The environment will already exist, so we do not
-			 * want DB_CREATE set, nor do we want any recovery at
-			 * this point.  No need to put values back as flags is
-			 * passed in by value.  Save original dbenv flags in
-			 * case we need to recover/remove existing environment.
-			 * Set DB_ENV_FAILCHK before attach to help ensure we
-			 * dont block on a mutex held by the dead process.
-			 */
+			// The environment will already exist, so we do not want DB_CREATE set, nor do we want any recovery at
+			// this point.  No need to put values back as flags is passed in by value.  Save original dbenv flags in
+			// case we need to recover/remove existing environment. Set DB_ENV_FAILCHK before attach to help ensure we
+			// dont block on a mutex held by the dead process.
 			LF_CLR(DB_CREATE|DB_RECOVER|DB_RECOVER_FATAL);
 			orig_flags = dbenv->flags;
 			F_SET(dbenv, DB_ENV_FAILCHK);
 			/* Attach to environment and subsystems. */
 			if((ret = __env_attach_regions(dbenv, flags, orig_flags, 0)) != 0)
 				goto sig_proc;
-			if((t_ret = __env_set_state(env, &ip, THREAD_FAILCHK)) != 0 &&
-			   ret == 0)
+			if((t_ret = __env_set_state(env, &ip, THREAD_FAILCHK)) != 0 && ret == 0)
 				ret = t_ret;
 			if((t_ret = __env_failchk_int(dbenv)) != 0 && ret == 0)
 				ret = t_ret;
-			/* Free active pid array if used. */
+			// Free active pid array if used
 			if(LF_ISSET(DB_FAILCHK_ISALIVE)) {
 				DB_GLOBAL(num_active_pids) = 0;
 				DB_GLOBAL(size_active_pids) = 0;
 				__os_free( env, DB_GLOBAL(active_pids));
 			}
-			/* Detach from environment and deregister thread. */
+			// Detach from environment and deregister thread
 			if((t_ret = __env_refresh(dbenv, orig_flags, 0)) != 0 && ret == 0)
 				ret = t_ret;
 			if(ret == 0) {
@@ -333,15 +327,15 @@ kill_all:       /*
 				goto add;
 			}
 		}
-		/* If we can't attach, then we cannot set DB_REGISTER panic. */
+		// If we can't attach, then we cannot set DB_REGISTER panic
 sig_proc:
 		if(__env_attach(env, NULL, 0, 0) == 0) {
 			infop = env->reginfo;
 			renv = (REGENV *)infop->primary;
-			/* Indicate DB_REGSITER panic.  Also, set environment
-			 * panic as this is the panic trigger mechanism in
-			 * the code that everything looks for.
-			 */
+			// 
+			// Indicate DB_REGSITER panic.  Also, set environment
+			// panic as this is the panic trigger mechanism in the code that everything looks for.
+			// 
 			renv->reg_panic = 1;
 			renv->panic = 1;
 			__env_detach(env, 0);
@@ -430,21 +424,18 @@ int __envreg_unregister(ENV * env, int recovery_failed)
 	 * lock, and threads of control reviewing the register file ignore any
 	 * slots which they can't lock.
 	 */
-	if((ret = __os_seek(env, dbenv->registry, 0, 0, dbenv->registry_off)) != 0 ||
-	   (ret = __os_write(env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
+	if((ret = __os_seek(env, dbenv->registry, 0, 0, dbenv->registry_off)) != 0 || (ret = __os_write(env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
 		goto err;
 	/*
 	 * !!!
-	 * This code assumes that closing the file descriptor discards all
-	 * held locks.
+	 * This code assumes that closing the file descriptor discards all held locks.
 	 *
 	 * !!!
 	 * There is an ordering problem here -- in the case of a process that
 	 * failed in recovery, we're unlocking both the exclusive lock and our
 	 * slot lock.  If the OS unlocked the exclusive lock and then allowed
 	 * another thread of control to acquire the exclusive lock before also
-	 * also releasing our slot lock, we could race.  That can't happen, I
-	 * don't think.
+	 * also releasing our slot lock, we could race.  That can't happen, I don't think.
 	 */
 err:
 	if((t_ret = __os_closehandle(env, dbenv->registry)) != 0 && ret == 0)
@@ -565,14 +556,12 @@ static int __envreg_create_active_pid(ENV * env, char * my_pid)
 				 */
 				if(DB_GLOBAL(num_active_pids) == 0) {
 					pid = (pid_t)strtoul(my_pid, NULL, 10);
-					DB_GLOBAL(active_pids)
-					[DB_GLOBAL(num_active_pids)++] = pid;
+					DB_GLOBAL(active_pids)[DB_GLOBAL(num_active_pids)++] = pid;
 				}
 			}
 			/* insert into array */
 			pid = (pid_t)strtoul(buf, NULL, 10);
-			DB_GLOBAL(active_pids)
-			[DB_GLOBAL(num_active_pids)++] = pid;
+			DB_GLOBAL(active_pids)[DB_GLOBAL(num_active_pids)++] = pid;
 
 		}
 	}

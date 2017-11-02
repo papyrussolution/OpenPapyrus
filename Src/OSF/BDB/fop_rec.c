@@ -341,8 +341,7 @@ done:
 out:
 	__os_free(env, real_new);
 	__os_free(env, real_old);
-	if(fhp != NULL)
-		__os_closehandle(env, fhp);
+	__os_closehandle(env, fhp);
 	REC_NOOP_CLOSE;
 }
 /*
@@ -437,8 +436,7 @@ done:
 out:
 	__os_free(env, real_new);
 	__os_free(env, real_old);
-	if(fhp != NULL)
-		__os_closehandle(env, fhp);
+	__os_closehandle(env, fhp);
 	REC_NOOP_CLOSE;
 }
 /*
@@ -498,26 +496,21 @@ int __fop_file_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op
 		is_real = memcmp(argp->real_fid.data, meta->uid, DB_FILE_ID_LEN) == 0;
 		is_tmp = memcmp(argp->tmp_fid.data, meta->uid, DB_FILE_ID_LEN) == 0;
 		if(!is_real && !is_tmp)
-			/* File exists, but isn't what we were removing. */
-			cstat = TXN_IGNORE;
+			cstat = TXN_IGNORE; // File exists, but isn't what we were removing
 		else
-			/* File exists and is the one that we were removing. */
-			cstat = TXN_COMMIT;
+			cstat = TXN_COMMIT; // File exists and is the one that we were removing
 	}
-	if(fhp != NULL) {
-		__os_closehandle(env, fhp);
-		fhp = NULL;
-	}
+	__os_closehandle(env, fhp);
+	fhp = NULL;
 	if(DB_UNDO(op)) {
 		/* On the backward pass, we leave a note for the child txn. */
 		if((ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->child, cstat, NULL, &ret_stat, 1)) != 0)
 			goto out;
 	}
 	else if(DB_REDO(op)) {
-		/*
-		 * On the forward pass, check if someone recreated the
-		 * file while we weren't looking.
-		 */
+		// 
+		// On the forward pass, check if someone recreated the file while we weren't looking.
+		// 
 		if(cstat == TXN_COMMIT)
 			__memp_nameop(env, (uint8 *)(is_real ? argp->real_fid.data : argp->tmp_fid.data), NULL, real_name, NULL, 0);
 	}
@@ -526,7 +519,6 @@ done:
 	ret = 0;
 out:
 	__os_free(env, real_name);
-	if(fhp != NULL)
-		__os_closehandle(env, fhp);
+	__os_closehandle(env, fhp);
 	REC_NOOP_CLOSE;
 }

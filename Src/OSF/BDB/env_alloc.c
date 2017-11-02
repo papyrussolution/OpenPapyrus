@@ -270,7 +270,7 @@ retry:
 			if(elp_tmp->len-total_len <= SHALLOC_FRAGMENT)
 				break;
 		}
-		if(elp != NULL || ++i >= DB_SIZE_Q_COUNT)
+		if(elp || ++i >= DB_SIZE_Q_COUNT)
 			break;
 	}
 #ifdef HAVE_STATISTICS
@@ -437,7 +437,7 @@ again:
 			__env_size_insert(head, elp_tmp);
 		}
 	}
-	else if(elp_tmp != NULL) {
+	else if(elp_tmp) {
 		__db_errx(env, DB_STR("1583", "block not at end of region"));
 		return __env_panic(env, EINVAL);
 	}

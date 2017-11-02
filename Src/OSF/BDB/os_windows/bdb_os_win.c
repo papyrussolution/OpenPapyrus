@@ -2,12 +2,6 @@
 //
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #if 0 // excl file list {
@@ -1170,14 +1164,14 @@ int __os_openhandle(ENV * env, const char * name, int flags, int mode, DB_FH ** 
 #else
 	DB_FH * fhp;
 	int ret, nrepeat, retries;
-	/*
-	 * Allocate the file handle and copy the file name.  We generally only
-	 * use the name for verbose or error messages, but on systems where we
-	 * can't unlink temporary files immediately, we use the name to unlink
-	 * the temporary file when the file handle is closed.
-	 *
-	 * Lock the ENV handle and insert the new file handle on the list.
-	 */
+	// 
+	// Allocate the file handle and copy the file name.  We generally only
+	// use the name for verbose or error messages, but on systems where we
+	// can't unlink temporary files immediately, we use the name to unlink
+	// the temporary file when the file handle is closed.
+	// 
+	// Lock the ENV handle and insert the new file handle on the list.
+	// 
 	if((ret = __os_calloc(env, 1, sizeof(DB_FH), &fhp)) != 0)
 		return ret;
 	if((ret = __os_strdup(env, name, &fhp->name)) != 0)
@@ -1210,10 +1204,9 @@ int __os_openhandle(ENV * env, const char * name, int flags, int mode, DB_FH ** 
 		    case EAGAIN:
 		    case EBUSY:
 		    case EINTR:
-			/*
-			 * If an EAGAIN, EBUSY or EINTR, retry immediately for
-			 * DB_RETRY times.
-			 */
+			// 
+			// If an EAGAIN, EBUSY or EINTR, retry immediately for DB_RETRY times.
+			// 
 			if(++retries < DB_RETRY)
 				--nrepeat;
 			break;
@@ -1237,47 +1230,48 @@ err:
 //
 int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 {
-	DB_ENV * dbenv;
-	int t_ret;
-	int ret = 0;
-	if(env) {
-		dbenv = env->dbenv;
-		if(fhp->name && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
-			__db_msg(env, DB_STR_A("0031", "fileops: %s: close", "%s"), fhp->name);
-		if(F_ISSET(fhp, DB_FH_ENVLINK)) {
-			//
-			// Lock the ENV handle and remove this file handle from the list.
-			//
-			MUTEX_LOCK(env, env->mtx_env);
-			TAILQ_REMOVE(&env->fdlist, fhp, q);
-			MUTEX_UNLOCK(env, env->mtx_env);
+	int    ret = 0;
+	if(fhp) {
+		int t_ret;
+		if(env) {
+			DB_ENV * dbenv = env->dbenv;
+			if(fhp->name && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
+				__db_msg(env, DB_STR_A("0031", "fileops: %s: close", "%s"), fhp->name);
+			if(F_ISSET(fhp, DB_FH_ENVLINK)) {
+				//
+				// Lock the ENV handle and remove this file handle from the list.
+				//
+				MUTEX_LOCK(env, env->mtx_env);
+				TAILQ_REMOVE(&env->fdlist, fhp, q);
+				MUTEX_UNLOCK(env, env->mtx_env);
+			}
 		}
-	}
-	// Discard any underlying system file reference
-	if(F_ISSET(fhp, DB_FH_OPENED)) {
-		if(fhp->handle != INVALID_HANDLE_VALUE)
-			RETRY_CHK((!CloseHandle(fhp->handle)), ret);
-		else
+		// Discard any underlying system file reference
+		if(F_ISSET(fhp, DB_FH_OPENED)) {
+			if(fhp->handle != INVALID_HANDLE_VALUE)
+				RETRY_CHK((!CloseHandle(fhp->handle)), ret);
+			else
 #ifdef DB_WINCE
-			ret = EFAULT;
+				ret = EFAULT;
 #else
-			RETRY_CHK((_close(fhp->fd)), ret);
+				RETRY_CHK((_close(fhp->fd)), ret);
 #endif
-		if(fhp->trunc_handle != INVALID_HANDLE_VALUE) {
-			RETRY_CHK((!CloseHandle(fhp->trunc_handle)), t_ret);
-			if(t_ret != 0 && ret == 0)
-				ret = t_ret;
+			if(fhp->trunc_handle != INVALID_HANDLE_VALUE) {
+				RETRY_CHK((!CloseHandle(fhp->trunc_handle)), t_ret);
+				if(t_ret != 0 && ret == 0)
+					ret = t_ret;
+			}
+			if(ret != 0) {
+				__db_syserr(env, ret, DB_STR("0032", "CloseHandle"));
+				ret = __os_posix_err(ret);
+			}
 		}
-		if(ret != 0) {
-			__db_syserr(env, ret, DB_STR("0032", "CloseHandle"));
-			ret = __os_posix_err(ret);
-		}
+		// Unlink the file if we haven't already done so
+		if(F_ISSET(fhp, DB_FH_UNLINK))
+			__os_unlink(env, fhp->name, 0);
+		__os_free(env, fhp->name);
+		__os_free(env, fhp);
 	}
-	// Unlink the file if we haven't already done so
-	if(F_ISSET(fhp, DB_FH_UNLINK))
-		__os_unlink(env, fhp->name, 0);
-	__os_free(env, fhp->name);
-	__os_free(env, fhp);
 	return ret;
 }
 //

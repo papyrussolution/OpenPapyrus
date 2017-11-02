@@ -187,7 +187,7 @@ int __fop_write(ENV * env, DB_TXN * txn, const char * name, const char * dirname
 	// Seek to offset
 	if((ret = __os_seek(env, fhp, pageno, pgsize, off)) != 0)
 		goto err;
-	/* Now do the write. */
+	// Now do the write
 	if((ret = __os_write(env, fhp, buf, size, &nbytes)) != 0)
 		goto err;
 err:

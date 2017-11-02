@@ -60,7 +60,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * this, but we don't have that information.
 	 */
 	if(IS_REAL_TXN(txn) && !LF_ISSET(DBC_OPD|DBC_DUPLICATE) && !F_ISSET(dbp, DB_AM_RECOVER) &&
-	   dbp->log_filename != NULL && !IS_REP_CLIENT(env) && (ret = __txn_record_fname(env, txn, dbp->log_filename)) != 0) {
+	   dbp->log_filename && !IS_REP_CLIENT(env) && (ret = __txn_record_fname(env, txn, dbp->log_filename)) != 0) {
 		MUTEX_UNLOCK(env, dbp->mutex);
 		return ret;
 	}
@@ -73,7 +73,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 		break;
 	}
 	MUTEX_UNLOCK(env, dbp->mutex);
-	if(dbc == NULL) {
+	if(!dbc) {
 		if((ret = __os_calloc(env, 1, sizeof(DBC), &dbc)) != 0)
 			return ret;
 		allocated = 1;
@@ -227,7 +227,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 		 * ID into this function.  Use this locker ID instead of
 		 * the default as the locker ID for our new cursor.
 		 */
-		if(locker != NULL)
+		if(locker)
 			dbc->locker = locker;
 		else if(LF_ISSET(DB_RECOVER))
 			dbc->locker = NULL;
@@ -318,9 +318,9 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 	 * it to catch application errors where the cursor isn't closed when
 	 * the transaction is resolved.
 	 */
-	if(txn != NULL)
+	if(txn)
 		++txn->cursors;
-	if(ip != NULL) {
+	if(ip) {
 		dbc->thread_info = ip;
 #ifdef DIAGNOSTIC
 		ip->dbth_locker = dbc->locker ? R_OFFSET(&(env->lk_handle->reginfo), dbc->locker) : INVALID_ROFF;

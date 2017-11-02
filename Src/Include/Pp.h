@@ -43233,6 +43233,11 @@ private:
 		SLAPI  PersonBlock();
 		uint   CodeP;
 	};
+	struct SCardSeriesBlock : public ObjectBlock { // @flat "scardseries"
+		SLAPI  SCardSeriesBlock();
+		uint   CodeP; // code
+		uint   QuotKindBlkP;
+	};
 	struct SCardBlock : public ObjectBlock { // @flat
 		SLAPI  SCardBlock();
 		uint   CodeP;
@@ -43271,7 +43276,7 @@ private:
         long   CclFlags;
         long   DivN;
         long   Queue;
-        uint   GoodsBlkP;
+        uint   GoodsBlkP; // ware
         double Qtty;
         double Price;
         double Discount;
@@ -44752,7 +44757,7 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:
@@ -45920,6 +45925,16 @@ private:
 	ComboBox   * P_ComboBox;     //
 	HFONT        H_ComboFont;    //
 	PPIDArray Cookies;           //
+};
+//
+// Descr: Наследник STimeChunkBrowser, реализующий некоторые механизмы,
+//   для которых нет инструментария в слое SLIB.
+//
+class PPTimeChunkBrowser : public STimeChunkBrowser {
+public:
+	PPTimeChunkBrowser();
+protected:
+	virtual int ExportToExcel();
 };
 //
 //

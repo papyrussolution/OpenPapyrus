@@ -105,7 +105,7 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		return ret;
 	}
 	// Initialize the feedback
-	if(dbp->db_feedback != NULL)
+	if(dbp->db_feedback)
 		dbp->db_feedback(dbp, DB_UPGRADE, 0);
 	/*
 	 * Read the metadata page.  We read 256 bytes, which is larger than
@@ -302,17 +302,15 @@ int __db_upgrade(DB * dbp, const char * fname, uint32 flags)
 		goto err;
 	}
 	ret = __os_fsync(env, fhp);
-
-	/*
-	 * If mp_open was used, then rely on the database close to clean up
-	 * any file handles.
-	 */
+	//
+	// If mp_open was used, then rely on the database close to clean up any file handles.
+	//
 err:
-	if(use_mp_open == 0 && fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
+	if(use_mp_open == 0 && fhp && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, real_name);
-	/* We're done. */
-	if(dbp->db_feedback != NULL)
+	// We're done
+	if(dbp->db_feedback)
 		dbp->db_feedback(dbp, DB_UPGRADE, 100);
 	return ret;
 }
@@ -335,7 +333,7 @@ static int __db_page_pass(DB * dbp, char * real_name, uint32 flags, int (*const 
 		return ret;
 	/* Walk the file, calling the underlying conversion functions. */
 	for(i = 0; i < pgno_last; ++i) {
-		if(dbp->db_feedback != NULL)
+		if(dbp->db_feedback)
 			dbp->db_feedback(dbp, DB_UPGRADE, (int)((i*100)/pgno_last));
 		if((ret = __os_seek(env, fhp, i, dbp->pgsize, 0)) != 0)
 			break;
@@ -345,7 +343,7 @@ static int __db_page_pass(DB * dbp, char * real_name, uint32 flags, int (*const 
 		/* Always decrypt the page. */
 		if((ret = __db_decrypt_pg(env, dbp, page)) != 0)
 			break;
-		if(fl[TYPE(page)] != NULL && (ret = fl[TYPE(page)](dbp, real_name, flags, fhp, page, &dirty)) != 0)
+		if(fl[TYPE(page)] && (ret = fl[TYPE(page)](dbp, real_name, flags, fhp, page, &dirty)) != 0)
 			break;
 		if(dirty) {
 			if((ret = __db_encrypt_and_checksum_pg(env, dbp, page)) != 0)

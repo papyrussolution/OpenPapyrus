@@ -985,7 +985,7 @@ int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 {
 	UpdateTimeBrowser(1);
-	STimeChunkBrowser * p_brw = new STimeChunkBrowser;
+	PPTimeChunkBrowser * p_brw = new PPTimeChunkBrowser;
 	STimeChunkBrowser::Param p, saved_params;
 	InitSTimeChunkBrowserParam("PPViewPrcBusy", &p);
 	saved_params.RegSaveParam = p.RegSaveParam;
@@ -1010,8 +1010,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 			tcbquant = (15 * 60);
 		p.Quant = tcbquant;
 	}
-	SETFLAG(p.Flags, STimeChunkBrowser::Param::fSnapToQuant,
-		TSesObj.GetConfig().Flags & PPTSessConfig::fSnapInTimeChunkBrowser);
+	SETFLAG(p.Flags, STimeChunkBrowser::Param::fSnapToQuant, TSesObj.GetConfig().Flags & PPTSessConfig::fSnapInTimeChunkBrowser);
 	p.PixQuant = 20;
 	p.PixRow = 20;
 	p.PixRowMargin = 5;

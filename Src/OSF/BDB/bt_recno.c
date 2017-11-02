@@ -787,8 +787,7 @@ int __ram_ca(DBC * dbc_arg, ca_recno_arg op, int * foundp)
 		order = INVALID_ORDER;
 	if((ret = __db_walk_cursors(dbp, dbc_arg, __ram_ca_setorder, &found, 0, order, &op)) != 0)
 		return ret;
-	if(foundp != NULL)
-		*foundp = (int)found;
+	ASSIGN_PTR(foundp, (int)found);
 	return 0;
 }
 /*
@@ -811,8 +810,7 @@ int __ram_getno(DBC * dbc, const DBT * key, db_recno_t * rep, int can_create)
 		__db_errx(dbp->env, DB_STR("1002", "illegal record number of 0"));
 		return EINVAL;
 	}
-	if(rep != NULL)
-		*rep = recno;
+	ASSIGN_PTR(rep, recno);
 	/*
 	 * Btree can neither create records nor read them in.  Recno can
 	 * do both, see if we can find the record.
@@ -959,7 +957,7 @@ int __ram_writeback(DB * dbp)
 	/*
 	 * Close any existing file handle and re-open the file, truncating it.
 	 */
-	if(t->re_fp != NULL) {
+	if(t->re_fp) {
 		if(fclose(t->re_fp) != 0) {
 			ret = __os_get_errno();
 			__db_err(env, ret, "%s", t->re_source);
@@ -1010,7 +1008,7 @@ write_err:
 err:
 done:   
 	// Close the file descriptor
-	if(fp != NULL && fclose(fp) != 0) {
+	if(fp && fclose(fp) != 0) {
 		t_ret = __os_get_errno();
 		__db_err(env, t_ret, "%s", t->re_source);
 		SETIFZ(ret, t_ret);

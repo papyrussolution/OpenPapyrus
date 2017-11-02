@@ -255,11 +255,11 @@ int __db_sort_multiple(DB * db, DBT * key, DBT * data, uint32 flags)
 	uint32 * kstart = (uint32 *)((uint8 *)key->data+key->ulen)-1;
 	switch(flags) {
 	    case DB_MULTIPLE:
-		if(data != NULL)
+		if(data)
 			dstart = (uint32 *)((uint8 *)data->data+data->ulen)-1;
 		else
 			dstart = kstart;
-		/* Find the end */
+		// Find the end 
 		for(kend = kstart, dend = dstart; *kend != (uint32)-1 && *dend != (uint32)-1; kend -= 2, dend -= 2)
 			;
 		return __db_quicksort(db, key, data, kstart, kend, dstart, dend, 2);

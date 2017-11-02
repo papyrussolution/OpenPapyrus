@@ -256,40 +256,40 @@ int main(int argc, char * argv[])
 			goto fail;
 		}
 		++id;
-		/* Wait for all lockers to exit. */
+		// Wait for all lockers to exit
 		if((err = os_wait(pids, nprocs)) != 0) {
 			fprintf(stderr, "%s: locker wait failed with %d\n", progname, err);
 			goto fail;
 		}
-		/* Signal wakeup process to exit. */
+		// Signal wakeup process to exit
 		if((err = __os_open(env, MT_FILE_QUIT, 0, DB_OSO_CREATE, 0664, &fhp)) != 0) {
 			fprintf(stderr, "%s: open %s\n", progname, db_strerror(err));
 			goto fail;
 		}
 		__os_closehandle(env, fhp);
-		/* Wait for wakeup process/thread. */
+		// Wait for wakeup process/thread
 		if((err = os_wait(&wakeup_pid, 1)) != 0) {
 			fprintf(stderr, "%s: %lu: exited %d\n", progname, (ulong)wakeup_pid, err);
 			goto fail;
 		}
 	}
-	else {                          /* Run the single-process test. */
-		/* Spawn locker threads. */
+	else { // Run the single-process test
+		// Spawn locker threads
 		if(locker_start(0) != 0)
 			goto fail;
-		/* Spawn wakeup thread. */
+		// Spawn wakeup thread
 		if(wakeup_start(nthreads) != 0)
 			goto fail;
-		/* Wait for all lockers to exit. */
+		// Wait for all lockers to exit
 		if(locker_wait() != 0)
 			goto fail;
-		/* Signal wakeup process to exit. */
+		// Signal wakeup process to exit
 		if((err = __os_open(env, MT_FILE_QUIT, 0, DB_OSO_CREATE, 0664, &fhp)) != 0) {
 			fprintf(stderr, "%s: open %s\n", progname, db_strerror(err));
 			goto fail;
 		}
 		__os_closehandle(env, fhp);
-		/* Wait for wakeup thread. */
+		// Wait for wakeup thread
 		if(wakeup_wait() != 0)
 			goto fail;
 	}
@@ -331,11 +331,11 @@ int locker_start(ulong id)
 int locker_wait()
 {
 #if defined(MUTEX_THREAD_TEST)
-	void * retp;
 	// Wait for the threads to exit
 	for(uint i = 0; i < nthreads; i++) {
+		void * retp;
 		os_thread_join(kidsp[i], &retp);
-		if(retp != NULL) {
+		if(retp) {
 			fprintf(stderr, "%s: thread exited with error\n", progname);
 			return 1;
 		}
@@ -708,8 +708,7 @@ void data_on(uint8 ** gm_addrp, uint8 ** tm_addrp, uint8 ** lm_addrp, DB_FH ** f
 				fprintf(stderr, "%s: %s: open: %s\n", progname, MT_FILE, db_strerror(err));
 				exit(EXIT_FAILURE);
 			}
-			if((err = __os_seek(env, fhp, 0, 0, (uint32)len)) != 0 ||
-				(err = __os_write(env, fhp, &err, 1, &nwrite)) != 0 || nwrite != 1) {
+			if((err = __os_seek(env, fhp, 0, 0, (uint32)len)) != 0 || (err = __os_write(env, fhp, &err, 1, &nwrite)) != 0 || nwrite != 1) {
 				fprintf(stderr, "%s: %s: seek/write: %s\n", progname, MT_FILE, db_strerror(err));
 				exit(EXIT_FAILURE);
 			}

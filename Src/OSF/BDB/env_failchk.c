@@ -197,28 +197,23 @@ int __env_thread_init(ENV * env, int during_creation)
 void __env_thread_destroy(ENV * env)
 {
 	DB_HASHTAB * htab;
-	DB_THREAD_INFO * ip, * np;
-	REGENV * renv;
-	REGINFO * infop;
-	THREAD_INFO * thread;
-	uint32 i;
-	infop = env->reginfo;
-	renv = (REGENV *)infop->primary;
-	if(renv->thread_off == INVALID_ROFF)
-		return;
-	thread = (THREAD_INFO *)R_ADDR(infop, renv->thread_off);
-	if((htab = env->thr_hashtab) != NULL) {
-		for(i = 0; i < env->thr_nbucket; i++) {
-			ip = SH_TAILQ_FIRST(&htab[i], __db_thread_info);
-			for(; ip != NULL; ip = np) {
-				np = SH_TAILQ_NEXT(ip, dbth_links, __db_thread_info);
-				__env_alloc_free(infop, ip);
+	REGINFO * infop = env->reginfo;
+	REGENV * renv = (REGENV *)infop->primary;
+	if(renv->thread_off != INVALID_ROFF) {
+		THREAD_INFO * thread = (THREAD_INFO *)R_ADDR(infop, renv->thread_off);
+		if((htab = env->thr_hashtab) != NULL) {
+			for(uint32 i = 0; i < env->thr_nbucket; i++) {
+				DB_THREAD_INFO * ip = SH_TAILQ_FIRST(&htab[i], __db_thread_info);
+				DB_THREAD_INFO * np;
+				for(; ip; ip = np) {
+					np = SH_TAILQ_NEXT(ip, dbth_links, __db_thread_info);
+					__env_alloc_free(infop, ip);
+				}
 			}
+			__env_alloc_free(infop, htab);
 		}
-		__env_alloc_free(infop, htab);
+		__env_alloc_free(infop, thread);
 	}
-	__env_alloc_free(infop, thread);
-	return;
 }
 /*
  * __env_in_api --
@@ -340,7 +335,7 @@ int __env_set_state(ENV * env, DB_THREAD_INFO ** ipp, DB_THREAD_STATE state)
 	 */
 	if(state == THREAD_VERIFY) {
 		DB_ASSERT(env, ip != NULL && ip->dbth_state != THREAD_OUT);
-		if(ipp != NULL) {
+		if(ipp) {
 			if(ip == NULL)  /* The control block wasnt found */
 				return EINVAL;
 			*ipp = ip;
@@ -364,7 +359,7 @@ int __env_set_state(ENV * env, DB_THREAD_INFO ** ipp, DB_THREAD_STATE state)
 			SH_TAILQ_FOREACH(ip, &htab[indx], dbth_links, __db_thread_info)
 			if(ip->dbth_state == THREAD_SLOT_NOT_IN_USE || (ip->dbth_state == THREAD_OUT && ALIVE_ON(env) && !dbenv->is_alive(dbenv, ip->dbth_pid, ip->dbth_tid, 0)))
 				break;
-			if(ip != NULL) {
+			if(ip) {
 				DB_ASSERT(env, ip->dbth_pincount == 0);
 				goto init;
 			}

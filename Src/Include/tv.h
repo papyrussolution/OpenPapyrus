@@ -4792,7 +4792,7 @@ public:
 	void   UpdateData();
 	int    Locate(TPoint p, Loc * pLoc) const;
 	int    RestoreParameters(STimeChunkBrowser::Param & rParam);
-private:
+protected:
 	struct ResizeState {
 		void   Setup(int kind, TPoint p);
 		enum {
@@ -4882,6 +4882,12 @@ private:
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
+	//
+	// Descr: Функция экспорта в Excel вынесена в виде виртуального метода из-за того, что
+	//   слой SLIB не имеет собственного механизма экспорта данных в Excel. 
+	//   Модуль верхнего уровня должен самостоятельно реализовать этот метод.
+	//
+	virtual int ExportToExcel();
 	int    FASTCALL GetArea(Area & rArea) const;
 	STimeChunk FASTCALL GetBoundsTime(const Area & rArea) const;
 	void   CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod, uint & rMinHour, uint & rMaxHour) const;
@@ -4932,7 +4938,6 @@ private:
 	int    SetupDate(LDATE dt);
 	const  STimeChunkArray * GetCollapseList_() const;
 	int    CopyToClipboard();
-	int    ExportToExcel();
 	enum {
 		dummyFirst = 1,
 		colorHeader,            // Цвет отрисовки заголовка таблицы

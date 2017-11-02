@@ -1103,13 +1103,11 @@ static int __log_newfh(DB_LOG * dblp, int create)
 	logfile_validity status;
 	ENV * env = dblp->env;
 	LOG * lp = (LOG *)dblp->reginfo.primary;
-	/* Close any previous file descriptor. */
-	if(dblp->lfhp != NULL) {
-		__os_closehandle(env, dblp->lfhp);
-		dblp->lfhp = NULL;
-	}
+	// Close any previous file descriptor
+	__os_closehandle(env, dblp->lfhp);
+	dblp->lfhp = NULL;
 	flags = DB_OSO_SEQ|(create ? DB_OSO_CREATE : 0)|(F_ISSET(dblp, DBLOG_DIRECT) ? DB_OSO_DIRECT : 0)|(F_ISSET(dblp, DBLOG_DSYNC) ? DB_OSO_DSYNC : 0);
-	/* Get the path of the new file and open it. */
+	// Get the path of the new file and open it
 	dblp->lfname = lp->lsn.file;
 	if((ret = __log_valid(dblp, dblp->lfname, 0, &dblp->lfhp, flags, &status, NULL)) != 0)
 		__db_err(env, ret, "DB_ENV->log_newfh: %lu", (ulong)lp->lsn.file);

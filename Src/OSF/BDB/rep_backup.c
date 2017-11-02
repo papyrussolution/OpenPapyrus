@@ -1074,7 +1074,7 @@ out:
 #ifdef HAVE_REPLICATION_THREADS
 	__os_free(env, dbt.data);
 #endif
-	if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) && ret == 0)
+	if(fhp && (t_ret = __os_closehandle(env, fhp)) && ret == 0)
 		ret = t_ret;
 	__os_free(env, fname);
 	__os_free(env, context.buf);

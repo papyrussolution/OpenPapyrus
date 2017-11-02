@@ -864,7 +864,7 @@ retry:
 err:
 		__ENV_LPUT(env, elock);
 	}
-	if(fhp != NULL && !LF_ISSET(DB_FCNTL_LOCKING))
+	if(fhp && !LF_ISSET(DB_FCNTL_LOCKING))
 		__os_closehandle(env, fhp);
 	/*
 	 * If this is a real file and we are going to proceed with the removal,
@@ -1298,7 +1298,7 @@ retry:
 err:
 	__txn_abort(txn); // Ret must already be set, so void abort
 	__ENV_LPUT(env, elock);
-	if(fhp != NULL && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
+	if((t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, realnew);
 	__os_free(env, realold);

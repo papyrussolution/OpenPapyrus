@@ -1884,6 +1884,7 @@ private:
 #define MINMAX(v,i,x)               (((v)<(i)) ? (i) : (((v)>(x)) ? (x) : (v)))
 #define ICEIL(v,quant)              (((v)+((quant)-1))/(quant)*(quant))
 #define IFLOOR(v,quant)             ((v)/(quant)*(quant))
+
 #define SETFLAG(v,f,b)              {if(b) {(v)|=(f);} else {(v)&=~(f);}}
 #define SETFLAGBYSAMPLE(v,f,b)      {if((b)&(f)) {(v)|=(f);} else {(v)&=~(f);}}
 #define TESTFLAG(v1,v2,f)           (((v1)&(f))==((v2)&(f)))

@@ -29,7 +29,7 @@ int FASTCALL __dbt_usercopy(ENV * env, DBT * dbt)
 		dbt->data = buf;
 		return 0;
 err:
-		if(buf != NULL) {
+		if(buf) {
 			__os_ufree(env, buf);
 			dbt->data = NULL;
 		}

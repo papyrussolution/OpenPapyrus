@@ -53,10 +53,10 @@ retry:
 	 * If the database is encrypted we need to encript the pages
 	 * before outputting them since we will read decrypted pages.
 	 */
-	if(passwd != NULL && (ret = dbp->set_encrypt(dbp, passwd, DB_ENCRYPT_AES)) != 0)
+	if(passwd && (ret = dbp->set_encrypt(dbp, passwd, DB_ENCRYPT_AES)) != 0)
 		goto err;
 	if((ret = dbp->open(dbp, NULL, dbfile, NULL, DB_UNKNOWN, DB_AUTO_COMMIT|DB_RDONLY, 0)) != 0) {
-		if(ret == DB_LOCK_DEADLOCK || ret == DB_LOCK_NOTGRANTED) {
+		if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED)) {
 			dbenv->errx(dbenv, DB_STR_A("0702", "Deadlock while opening %s, retrying", "%s"), dbfile);
 			dbp->close(dbp, DB_NOSYNC);
 			goto retry;
@@ -78,7 +78,7 @@ retry:
 	for(pgno = 0; ret == 0; pgno++) {
 		if((ret = mpf->get(mpf, &pgno, NULL, 0, &pagep)) != 0)
 			break;
-		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd != NULL)
+		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd)
 			ret = __db_encrypt_and_checksum_pg(env, dbp, (PAGE *)pagep);
 		if(ret == 0 && ((ret = __os_write(env, fp, pagep, dbp->pgsize, &nw)) != 0 || nw != dbp->pgsize)) {
 			SETIFZ(ret, EIO);
@@ -152,7 +152,7 @@ again:
 		stop = QAM_RECNO_PAGE(dbp, UINT32_MAX);
 	for(pgno = QAM_RECNO_PAGE(dbp, first); pgno <= stop; pgno++) {
 		if(extid != QAM_PAGE_EXTENT(dbp, pgno)) {
-			if(fp != NULL && (ret = __os_closehandle(env, fp)) != 0)
+			if(fp && (ret = __os_closehandle(env, fp)) != 0)
 				goto err;
 			fp = NULL;
 			extid = QAM_PAGE_EXTENT(dbp, pgno);
@@ -180,7 +180,7 @@ again:
 		}
 		if(ret != 0)
 			goto err;
-		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd != NULL)
+		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd)
 			ret = __db_encrypt_and_checksum_pg(env, dbp, (PAGE *)pagep);
 		if(ret == 0 && ((ret = __os_write(env, fp, pagep, dbp->pgsize, &nw)) != 0 || nw != dbp->pgsize)) {
 			if(ret == 0)
@@ -197,9 +197,9 @@ again:
 		goto again;
 	}
 err:
-	if(fp != NULL && (t_ret = __os_closehandle(env, fp)) != 0 && ret == 0)
+	if(fp && (t_ret = __os_closehandle(env, fp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(dbc != NULL && (t_ret = dbc->close(dbc)) != 0 && ret == 0)
+	if(dbc && (t_ret = dbc->close(dbc)) != 0 && ret == 0)
 		ret = t_ret;
 	__os_free(env, path);
 	return ret;

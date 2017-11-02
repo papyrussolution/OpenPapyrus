@@ -761,7 +761,7 @@ int SLAPI PPViewStaffCal::TimeChunkBrowser()
 {
 	PPPersonConfig psn_cfg;
 	UpdateTimeBrowser(1);
-	STimeChunkBrowser * p_brw = new STimeChunkBrowser;
+	PPTimeChunkBrowser * p_brw = new PPTimeChunkBrowser;
 	STimeChunkBrowser::Param p, saved_params;
 	InitSTimeChunkBrowserParam("PPViewStaffCal", &p);
 	saved_params.RegSaveParam = p.RegSaveParam;

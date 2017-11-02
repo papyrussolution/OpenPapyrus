@@ -274,7 +274,7 @@ user_map_functions:
 	 * Return the total set of flags to the caller so they initialize the
 	 * correct set of subsystems.
 	 */
-	if(init_flagsp != NULL) {
+	if(init_flagsp) {
 		FLD_CLR(*init_flagsp, renv->init_flags);
 		if(*init_flagsp != 0) {
 			__db_errx(env, DB_STR("1540", "configured environment flags incompatible with existing environment"));
@@ -306,7 +306,7 @@ creation:
 	size += dbenv->passwd_len;
 	size += (dbenv->thr_max+dbenv->thr_max/4)* __env_alloc_size(sizeof(DB_THREAD_INFO));
 	/* Space for replication buffer. */
-	if(init_flagsp != NULL && FLD_ISSET(*init_flagsp, DB_INITENV_REP))
+	if(init_flagsp && FLD_ISSET(*init_flagsp, DB_INITENV_REP))
 		size += MEGABYTE;
 	size += __txn_region_size(env);
 	size += __log_region_size(env);
@@ -446,7 +446,7 @@ find_err:
 	 * no longer need it and the less contact between the buffer cache and
 	 * the VM, the better.
 	 */
-	if(env->lockfhp != NULL) {
+	if(env->lockfhp) {
 		__os_closehandle(env, env->lockfhp);
 		env->lockfhp = NULL;
 	}
@@ -456,7 +456,7 @@ find_err:
 	return 0;
 err:
 retry:  /* Close any open file handle. */
-	if(env->lockfhp != NULL) {
+	if(env->lockfhp) {
 		__os_closehandle(env, env->lockfhp);
 		env->lockfhp = NULL;
 	}
@@ -633,7 +633,7 @@ int __env_detach(ENV * env, int destroy)
 	REGENV * renv = (REGENV *)infop->primary;
 	int    ret = 0;
 	/* Close the locking file handle. */
-	if(env->lockfhp != NULL) {
+	if(env->lockfhp) {
 		if((t_ret = __os_closehandle(env, env->lockfhp)) != 0 && ret == 0)
 			ret = t_ret;
 		env->lockfhp = NULL;
@@ -891,7 +891,7 @@ int __env_region_attach(ENV * env, REGINFO * infop, size_t init, size_t max)
 	return 0;
 
 err:    /* Discard the underlying region. */
-	if(infop->addr != NULL)
+	if(infop->addr)
 		__env_sys_detach(env, infop, F_ISSET(infop, REGION_CREATE));
 	infop->rp = NULL;
 	infop->id = INVALID_REGION_ID;
@@ -946,8 +946,8 @@ int __env_region_detach(ENV * env, REGINFO * infop, int destroy)
 	 * we use them, and db_region_destroy is the last region-specific call
 	 * we make.
 	 */
-	if(F_ISSET(env, ENV_PRIVATE) && infop->primary != NULL) {
-		for(mem = infop->mem; mem != NULL; mem = next) {
+	if(F_ISSET(env, ENV_PRIVATE) && infop->primary) {
+		for(mem = infop->mem; mem; mem = next) {
 			next = mem->next;
 			__env_alloc_free(infop, mem);
 		}
@@ -1102,7 +1102,7 @@ static int __env_des_get(ENV * env, REGINFO * env_infop, REGINFO * infop, REGION
 	/* If we found a matching ID (or a matching type), return it. */
 	if(i >= renv->region_cnt)
 		rp = first_type;
-	if(rp != NULL) {
+	if(rp) {
 		*rpp = rp;
 		return 0;
 	}

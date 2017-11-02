@@ -249,11 +249,11 @@ static int __db_print_all(DB * dbp, uint32 flags)
 	__db_print_fileid(env, dbp->fileid, "\tFile ID");
 	STAT_ULONG("Cursor adjust ID", dbp->adj_fileid);
 	STAT_ULONG("Meta pgno", dbp->meta_pgno);
-	if(dbp->locker != NULL)
+	if(dbp->locker)
 		STAT_ULONG("Locker ID", dbp->locker->id);
-	if(dbp->cur_locker != NULL)
+	if(dbp->cur_locker)
 		STAT_ULONG("Handle lock", dbp->cur_locker->id);
-	if(dbp->associate_locker != NULL)
+	if(dbp->associate_locker)
 		STAT_ULONG("Associate lock", dbp->associate_locker->id);
 	__db_msg(env, "%.24s\tReplication handle timestamp", dbp->timestamp == 0 ? "0" : __os_ctime(&dbp->timestamp, time_buf));
 
