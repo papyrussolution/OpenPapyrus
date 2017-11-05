@@ -24,19 +24,19 @@
 /*
  * Inclusion of common header files.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <ctype.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <stdarg.h>
+//#include <ctype.h>
 #ifdef HAVE_ERRNO_H
-	#include <errno.h>
+	//#include <errno.h>
 #endif
 #ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
+	//#include <sys/types.h>
 #endif
 #ifdef NEED_MALLOC_H
-	#include <malloc.h>
+	//#include <malloc.h>
 #endif
 #ifdef NEED_MEMORY_H
 	#include <memory.h>
@@ -143,27 +143,23 @@ Error Missing_definition_of_macro_sread
 #endif
 #endif /* HAVE_RECV */
 #if defined(__minix)
-/* Minix doesn't support send on TCP sockets */
-#define swrite(x, y, z) (ssize_t)write((SEND_TYPE_ARG1)(x), (SEND_TYPE_ARG2)(y), (SEND_TYPE_ARG3)(z))
+	/* Minix doesn't support send on TCP sockets */
+	#define swrite(x, y, z) (ssize_t)write((SEND_TYPE_ARG1)(x), (SEND_TYPE_ARG2)(y), (SEND_TYPE_ARG3)(z))
 #elif defined(HAVE_SEND)
-#if !defined(SEND_TYPE_ARG1) ||	!defined(SEND_QUAL_ARG2) || !defined(SEND_TYPE_ARG2) || !defined(SEND_TYPE_ARG3) || !defined(SEND_TYPE_ARG4) || !defined(SEND_TYPE_RETV)
-/* */
-Error Missing_definition_of_return_and_arguments_types_of_send
-/* */
-#else
-#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
-	    (SEND_TYPE_ARG2)(y), \
-	    (SEND_TYPE_ARG3)(z), \
-	    (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#endif
+	#if !defined(SEND_TYPE_ARG1) ||	!defined(SEND_QUAL_ARG2) || !defined(SEND_TYPE_ARG2) || !defined(SEND_TYPE_ARG3) || !defined(SEND_TYPE_ARG4) || !defined(SEND_TYPE_RETV)
+		/* */
+		Error Missing_definition_of_return_and_arguments_types_of_send
+		/* */
+	#else
+		#define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), (SEND_TYPE_ARG2)(y), (SEND_TYPE_ARG3)(z), (SEND_TYPE_ARG4)(SEND_4TH_ARG))
+	#endif
 #else /* HAVE_SEND */
-#ifndef swrite
-/* */
-Error Missing_definition_of_macro_swrite
-/* */
-#endif
+	#ifndef swrite
+		/* */
+		Error Missing_definition_of_macro_swrite
+		/* */
+	#endif
 #endif /* HAVE_SEND */
-
 #if 0
 #if defined(HAVE_RECVFROM)
 /*
@@ -181,11 +177,7 @@ Error Missing_definition_of_return_and_arguments_types_of_recvfrom
 /* */
 #else
 #define sreadfrom(s, b, bl, f, fl) (ssize_t)recvfrom((RECVFROM_TYPE_ARG1)(s),  \
-	    (RECVFROM_TYPE_ARG2*)(b),  \
-	    (RECVFROM_TYPE_ARG3)(bl), \
-	    (RECVFROM_TYPE_ARG4)(0),  \
-	    (RECVFROM_TYPE_ARG5*)(f),  \
-	    (RECVFROM_TYPE_ARG6*)(fl))
+	(RECVFROM_TYPE_ARG2*)(b), (RECVFROM_TYPE_ARG3)(bl), (RECVFROM_TYPE_ARG4)(0), (RECVFROM_TYPE_ARG5*)(f), (RECVFROM_TYPE_ARG6*)(fl))
 #endif
 #else /* HAVE_RECVFROM */
 #ifndef sreadfrom
@@ -207,31 +199,28 @@ Error Missing_definition_of_macro_sreadfrom
  */
 
 #if defined(HAVE_CLOSESOCKET)
-#  define sclose(x)  closesocket((x))
+	#define sclose(x)  closesocket((x))
 #elif defined(HAVE_CLOSESOCKET_CAMEL)
-#  define sclose(x)  CloseSocket((x))
+	#define sclose(x)  CloseSocket((x))
 #elif defined(HAVE_CLOSE_S)
-#  define sclose(x)  close_s((x))
+	#define sclose(x)  close_s((x))
 #elif defined(USE_LWIPSOCK)
-#  define sclose(x)  lwip_close((x))
+	#define sclose(x)  lwip_close((x))
 #else
-#  define sclose(x)  close((x))
+	#define sclose(x)  close((x))
 #endif
-
 /*
  * Stack-independent version of fcntl() on sockets:
  */
 #if defined(USE_LWIPSOCK)
-#  define sfcntl  lwip_fcntl
+	#define sfcntl  lwip_fcntl
 #else
-#  define sfcntl  fcntl
+	#define sfcntl  fcntl
 #endif
-
 /*
  * Uppercase macro versions of ANSI/ISO is*() functions/macros which
  * avoid negative number inputs with argument byte codes > 127.
  */
-
 #define ISSPACE(x)  (isspace((int)((uchar)x)))
 #define ISDIGIT(x)  (isdigit((int)((uchar)x)))
 #define ISALNUM(x)  (isalnum((int)((uchar)x)))
@@ -242,30 +231,23 @@ Error Missing_definition_of_macro_sreadfrom
 #define ISUPPER(x)  (isupper((int)((uchar)x)))
 #define ISLOWER(x)  (islower((int)((uchar)x)))
 #define ISASCII(x)  (isascii((int)((uchar)x)))
-
-#define ISBLANK(x)  (int)((((uchar)x) == ' ') || \
-	    (((uchar)x) == '\t'))
-
+#define ISBLANK(x)  (int)((((uchar)x) == ' ') || (((uchar)x) == '\t'))
 #define TOLOWER(x)  (tolower((int)((uchar)x)))
-
 /*
  * 'bool' stuff compatible with HP-UX headers.
  */
-
 #if defined(__hpux) && !defined(HAVE_BOOL_T)
-typedef int bool;
-#  define false 0
-#  define true 1
-#  define HAVE_BOOL_T
+	typedef int bool;
+	#define false 0
+	#define true 1
+	#define HAVE_BOOL_T
 #endif
-
 /*
  * 'bool' exists on platforms with <stdbool.h>, i.e. C99 platforms.
  * On non-C99 platforms there's no bool, so define an enum for that.
  * On C99 platforms 'false' and 'true' also exist. Enum uses a
  * global namespace though, so use bool_false and bool_true.
  */
-
 #ifndef HAVE_BOOL_T
 typedef enum {
 	bool_false = 0,
@@ -289,19 +271,16 @@ typedef enum {
  * 'bool found = TRUE' will not. Change tested on IRIX/MIPSPro,
  * AIX 5.1/Xlc, Tru64 5.1/cc, w/make test too.
  */
-
 #ifndef TRUE
-#define TRUE true
+	#define TRUE true
 #endif
 #ifndef FALSE
-#define FALSE false
+	#define FALSE false
 #endif
-
 /*
  * Macro WHILE_FALSE may be used to build single-iteration do-while loops,
  * avoiding compiler warnings. Mostly intended for other macro definitions.
  */
-
 #define WHILE_FALSE  while(0)
 
 #if defined(_MSC_VER) && !defined(__POCC__)
@@ -322,168 +301,150 @@ typedef enum {
  */
 
 #ifndef HAVE_SIG_ATOMIC_T
-typedef int sig_atomic_t;
-#define HAVE_SIG_ATOMIC_T
+	typedef int sig_atomic_t;
+	#define HAVE_SIG_ATOMIC_T
 #endif
-
 /*
  * Convenience SIG_ATOMIC_T definition
  */
-
 #ifdef HAVE_SIG_ATOMIC_T_VOLATILE
-#define SIG_ATOMIC_T static sig_atomic_t
+	#define SIG_ATOMIC_T static sig_atomic_t
 #else
-#define SIG_ATOMIC_T static volatile sig_atomic_t
+	#define SIG_ATOMIC_T static volatile sig_atomic_t
 #endif
-
 /*
  * Default return type for signal handlers.
  */
-
 #ifndef RETSIGTYPE
-#define RETSIGTYPE void
+	#define RETSIGTYPE void
 #endif
-
 /*
  * Macro used to include code only in debug builds.
  */
-
 #ifdef DEBUGBUILD
-#define DEBUGF(x) x
+	#define DEBUGF(x) x
 #else
-#define DEBUGF(x) do { } WHILE_FALSE
+	#define DEBUGF(x) do { } WHILE_FALSE
 #endif
-
 /*
  * Macro used to include assertion code only in debug builds.
  */
-
 #if defined(DEBUGBUILD) && defined(HAVE_ASSERT_H)
-#define DEBUGASSERT(x) assert(x)
+	#define DEBUGASSERT(x) assert(x)
 #else
-#define DEBUGASSERT(x) do { } WHILE_FALSE
+	#define DEBUGASSERT(x) do { } WHILE_FALSE
 #endif
-
 /*
  * Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno
  * (or equivalent) on this platform to hide platform details to code using it.
  */
-
 #ifdef USE_WINSOCK
-#define SOCKERRNO         ((int)WSAGetLastError())
-#define SET_SOCKERRNO(x)  (WSASetLastError((int)(x)))
+	#define SOCKERRNO         ((int)WSAGetLastError())
+	#define SET_SOCKERRNO(x)  (WSASetLastError((int)(x)))
 #else
-#define SOCKERRNO         (errno)
-#define SET_SOCKERRNO(x)  (errno = (x))
+	#define SOCKERRNO         (errno)
+	#define SET_SOCKERRNO(x)  (errno = (x))
 #endif
-
 /*
  * Macro ERRNO / SET_ERRNO() returns / sets the NOT *socket-related* errno
  * (or equivalent) on this platform to hide platform details to code using it.
  */
-
 #if defined(WIN32) && !defined(USE_LWIPSOCK)
-#define ERRNO         ((int)GetLastError())
-#define SET_ERRNO(x)  (SetLastError((DWORD)(x)))
+	#define ERRNO         ((int)GetLastError())
+	#define SET_ERRNO(x)  (SetLastError((DWORD)(x)))
 #else
-#define ERRNO         (errno)
-#define SET_ERRNO(x)  (errno = (x))
+	#define ERRNO         (errno)
+	#define SET_ERRNO(x)  (errno = (x))
 #endif
-
 /*
  * Portable error number symbolic names defined to Winsock error codes.
  */
-
 #ifdef USE_WINSOCK
-#undef  EBADF            /* override definition in errno.h */
-#define EBADF            WSAEBADF
-#undef  EINTR            /* override definition in errno.h */
-#define EINTR            WSAEINTR
-#undef  EINVAL           /* override definition in errno.h */
-#define EINVAL           WSAEINVAL
-#undef  EWOULDBLOCK      /* override definition in errno.h */
-#define EWOULDBLOCK      WSAEWOULDBLOCK
-#undef  EINPROGRESS      /* override definition in errno.h */
-#define EINPROGRESS      WSAEINPROGRESS
-#undef  EALREADY         /* override definition in errno.h */
-#define EALREADY         WSAEALREADY
-#undef  ENOTSOCK         /* override definition in errno.h */
-#define ENOTSOCK         WSAENOTSOCK
-#undef  EDESTADDRREQ     /* override definition in errno.h */
-#define EDESTADDRREQ     WSAEDESTADDRREQ
-#undef  EMSGSIZE         /* override definition in errno.h */
-#define EMSGSIZE         WSAEMSGSIZE
-#undef  EPROTOTYPE       /* override definition in errno.h */
-#define EPROTOTYPE       WSAEPROTOTYPE
-#undef  ENOPROTOOPT      /* override definition in errno.h */
-#define ENOPROTOOPT      WSAENOPROTOOPT
-#undef  EPROTONOSUPPORT  /* override definition in errno.h */
-#define EPROTONOSUPPORT  WSAEPROTONOSUPPORT
-#define ESOCKTNOSUPPORT  WSAESOCKTNOSUPPORT
-#undef  EOPNOTSUPP       /* override definition in errno.h */
-#define EOPNOTSUPP       WSAEOPNOTSUPP
-#define EPFNOSUPPORT     WSAEPFNOSUPPORT
-#undef  EAFNOSUPPORT     /* override definition in errno.h */
-#define EAFNOSUPPORT     WSAEAFNOSUPPORT
-#undef  EADDRINUSE       /* override definition in errno.h */
-#define EADDRINUSE       WSAEADDRINUSE
-#undef  EADDRNOTAVAIL    /* override definition in errno.h */
-#define EADDRNOTAVAIL    WSAEADDRNOTAVAIL
-#undef  ENETDOWN         /* override definition in errno.h */
-#define ENETDOWN         WSAENETDOWN
-#undef  ENETUNREACH      /* override definition in errno.h */
-#define ENETUNREACH      WSAENETUNREACH
-#undef  ENETRESET        /* override definition in errno.h */
-#define ENETRESET        WSAENETRESET
-#undef  ECONNABORTED     /* override definition in errno.h */
-#define ECONNABORTED     WSAECONNABORTED
-#undef  ECONNRESET       /* override definition in errno.h */
-#define ECONNRESET       WSAECONNRESET
-#undef  ENOBUFS          /* override definition in errno.h */
-#define ENOBUFS          WSAENOBUFS
-#undef  EISCONN          /* override definition in errno.h */
-#define EISCONN          WSAEISCONN
-#undef  ENOTCONN         /* override definition in errno.h */
-#define ENOTCONN         WSAENOTCONN
-#define ESHUTDOWN        WSAESHUTDOWN
-#define ETOOMANYREFS     WSAETOOMANYREFS
-#undef  ETIMEDOUT        /* override definition in errno.h */
-#define ETIMEDOUT        WSAETIMEDOUT
-#undef  ECONNREFUSED     /* override definition in errno.h */
-#define ECONNREFUSED     WSAECONNREFUSED
-#undef  ELOOP            /* override definition in errno.h */
-#define ELOOP            WSAELOOP
-#ifndef ENAMETOOLONG     /* possible previous definition in errno.h */
-#define ENAMETOOLONG     WSAENAMETOOLONG
+	#undef  EBADF            /* override definition in errno.h */
+	#define EBADF            WSAEBADF
+	#undef  EINTR            /* override definition in errno.h */
+	#define EINTR            WSAEINTR
+	#undef  EINVAL           /* override definition in errno.h */
+	#define EINVAL           WSAEINVAL
+	#undef  EWOULDBLOCK      /* override definition in errno.h */
+	#define EWOULDBLOCK      WSAEWOULDBLOCK
+	#undef  EINPROGRESS      /* override definition in errno.h */
+	#define EINPROGRESS      WSAEINPROGRESS
+	#undef  EALREADY         /* override definition in errno.h */
+	#define EALREADY         WSAEALREADY
+	#undef  ENOTSOCK         /* override definition in errno.h */
+	#define ENOTSOCK         WSAENOTSOCK
+	#undef  EDESTADDRREQ     /* override definition in errno.h */
+	#define EDESTADDRREQ     WSAEDESTADDRREQ
+	#undef  EMSGSIZE         /* override definition in errno.h */
+	#define EMSGSIZE         WSAEMSGSIZE
+	#undef  EPROTOTYPE       /* override definition in errno.h */
+	#define EPROTOTYPE       WSAEPROTOTYPE
+	#undef  ENOPROTOOPT      /* override definition in errno.h */
+	#define ENOPROTOOPT      WSAENOPROTOOPT
+	#undef  EPROTONOSUPPORT  /* override definition in errno.h */
+	#define EPROTONOSUPPORT  WSAEPROTONOSUPPORT
+	#define ESOCKTNOSUPPORT  WSAESOCKTNOSUPPORT
+	#undef  EOPNOTSUPP       /* override definition in errno.h */
+	#define EOPNOTSUPP       WSAEOPNOTSUPP
+	#define EPFNOSUPPORT     WSAEPFNOSUPPORT
+	#undef  EAFNOSUPPORT     /* override definition in errno.h */
+	#define EAFNOSUPPORT     WSAEAFNOSUPPORT
+	#undef  EADDRINUSE       /* override definition in errno.h */
+	#define EADDRINUSE       WSAEADDRINUSE
+	#undef  EADDRNOTAVAIL    /* override definition in errno.h */
+	#define EADDRNOTAVAIL    WSAEADDRNOTAVAIL
+	#undef  ENETDOWN         /* override definition in errno.h */
+	#define ENETDOWN         WSAENETDOWN
+	#undef  ENETUNREACH      /* override definition in errno.h */
+	#define ENETUNREACH      WSAENETUNREACH
+	#undef  ENETRESET        /* override definition in errno.h */
+	#define ENETRESET        WSAENETRESET
+	#undef  ECONNABORTED     /* override definition in errno.h */
+	#define ECONNABORTED     WSAECONNABORTED
+	#undef  ECONNRESET       /* override definition in errno.h */
+	#define ECONNRESET       WSAECONNRESET
+	#undef  ENOBUFS          /* override definition in errno.h */
+	#define ENOBUFS          WSAENOBUFS
+	#undef  EISCONN          /* override definition in errno.h */
+	#define EISCONN          WSAEISCONN
+	#undef  ENOTCONN         /* override definition in errno.h */
+	#define ENOTCONN         WSAENOTCONN
+	#define ESHUTDOWN        WSAESHUTDOWN
+	#define ETOOMANYREFS     WSAETOOMANYREFS
+	#undef  ETIMEDOUT        /* override definition in errno.h */
+	#define ETIMEDOUT        WSAETIMEDOUT
+	#undef  ECONNREFUSED     /* override definition in errno.h */
+	#define ECONNREFUSED     WSAECONNREFUSED
+	#undef  ELOOP            /* override definition in errno.h */
+	#define ELOOP            WSAELOOP
+	#ifndef ENAMETOOLONG     /* possible previous definition in errno.h */
+		#define ENAMETOOLONG     WSAENAMETOOLONG
+	#endif
+	#define EHOSTDOWN        WSAEHOSTDOWN
+	#undef  EHOSTUNREACH     /* override definition in errno.h */
+	#define EHOSTUNREACH     WSAEHOSTUNREACH
+	#ifndef ENOTEMPTY        /* possible previous definition in errno.h */
+		#define ENOTEMPTY        WSAENOTEMPTY
+	#endif
+	#define EPROCLIM         WSAEPROCLIM
+	#define EUSERS           WSAEUSERS
+	#define EDQUOT           WSAEDQUOT
+	#define ESTALE           WSAESTALE
+	#define EREMOTE          WSAEREMOTE
 #endif
-#define EHOSTDOWN        WSAEHOSTDOWN
-#undef  EHOSTUNREACH     /* override definition in errno.h */
-#define EHOSTUNREACH     WSAEHOSTUNREACH
-#ifndef ENOTEMPTY        /* possible previous definition in errno.h */
-#define ENOTEMPTY        WSAENOTEMPTY
-#endif
-#define EPROCLIM         WSAEPROCLIM
-#define EUSERS           WSAEUSERS
-#define EDQUOT           WSAEDQUOT
-#define ESTALE           WSAESTALE
-#define EREMOTE          WSAEREMOTE
-#endif
-
 /*
  * Macro argv_item_t hides platform details to code using it.
  */
-
 #ifdef __VMS
-#define argv_item_t  __char_ptr32
+	#define argv_item_t  __char_ptr32
 #else
-#define argv_item_t  char *
+	#define argv_item_t  char *
 #endif
-
 /*
  * We use this ZERO_NULL to avoid picky compiler warnings,
  * when assigning a NULL pointer to a function pointer var.
  */
-
 #define ZERO_NULL 0
 
 #endif /* HEADER_CURL_SETUP_ONCE_H */

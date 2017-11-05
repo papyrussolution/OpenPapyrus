@@ -201,7 +201,6 @@ xmlChar * xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar 
 	}
 	return ret;
 }
-
 /**
  * xmlSplitQName2:
  * @name:  the full QName
@@ -218,40 +217,39 @@ xmlChar * xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar 
  * Returns NULL if not a QName, otherwise the local part, and prefix
  *   is updated to get the Prefix if any.
  */
-xmlChar * xmlSplitQName2(const xmlChar * name, xmlChar ** prefix)
+xmlChar * FASTCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix)
 {
-	int len = 0;
 	xmlChar * ret = NULL;
-	if(prefix == NULL) 
-		return 0;
-	*prefix = NULL;
-	if(!name) 
-		return 0;
+	if(prefix) {
+		*prefix = NULL;
+		if(name) {
 #ifndef XML_XML_NAMESPACE
-	/* xml: prefix is not really a namespace */
-	if((name[0] == 'x') && (name[1] == 'm') && (name[2] == 'l') && (name[3] == ':'))
-		return 0;
+			// xml: prefix is not really a namespace 
+			if((name[0] == 'x') && (name[1] == 'm') && (name[2] == 'l') && (name[3] == ':'))
+				return 0;
 #endif
-	/* nasty but valid */
-	if(name[0] == ':')
-		return 0;
-	/*
-	 * we are not trying to validate but just to cut, and yes it will
-	 * work even if this is as set of UTF-8 encoded chars
-	 */
-	while((name[len] != 0) && (name[len] != ':'))
-		len++;
-	if(name[len] == 0)
-		return 0;
-	*prefix = xmlStrndup(name, len);
-	if(*prefix == NULL) {
-		xmlTreeErrMemory("QName split");
-		return 0;
-	}
-	ret = sstrdup(&name[len + 1]);
-	if(!ret) {
-		xmlTreeErrMemory("QName split");
-		ZFREE(*prefix);
+			if(name[0] != ':') { // nasty but valid 
+				// 
+				// we are not trying to validate but just to cut, and yes it will
+				// work even if this is as set of UTF-8 encoded chars
+				// 
+				int len = 0;
+				while(name[len] && name[len] != ':')
+					len++;
+				if(name[len]) {
+					*prefix = xmlStrndup(name, len);
+					if(*prefix == NULL)
+						xmlTreeErrMemory("QName split");
+					else {
+						ret = sstrdup(&name[len + 1]);
+						if(!ret) {
+							xmlTreeErrMemory("QName split");
+							ZFREE(*prefix);
+						}
+					}
+				}
+			}
+		}
 	}
 	return ret;
 }

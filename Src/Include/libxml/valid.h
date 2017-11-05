@@ -217,8 +217,7 @@ XMLPUBFUN xmlRefPtr XMLCALL xmlAddRef(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeRefTable(xmlRefTable * table);
 XMLPUBFUN int XMLCALL xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr);
 XMLPUBFUN int XMLCALL xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr);
-XMLPUBFUN xmlListPtr XMLCALL xmlGetRefs(xmlDocPtr doc, const xmlChar * ID);
-
+XMLPUBFUN xmlList * XMLCALL xmlGetRefs(xmlDoc * pDoc, const xmlChar * pID);
 /**
  * The public function calls related to validity checking.
  */
@@ -251,12 +250,12 @@ XMLPUBFUN int XMLCALL xmlValidateNotationUse(xmlValidCtxtPtr ctxt,
     const xmlChar * notationName);
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
 
-XMLPUBFUN int XMLCALL xmlIsMixedElement(xmlDocPtr doc, const xmlChar * name);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name);
 XMLPUBFUN xmlAttributePtr XMLCALL xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name);
 XMLPUBFUN xmlAttributePtr XMLCALL xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix);
 XMLPUBFUN xmlNotationPtr XMLCALL xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlChar * name);
 XMLPUBFUN xmlElementPtr XMLCALL xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix);
-XMLPUBFUN xmlElementPtr XMLCALL xmlGetDtdElementDesc(xmlDtdPtr dtd, const xmlChar * name);
+XMLPUBFUN xmlElement * /*XMLCALL*/FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name);
 
 #ifdef LIBXML_VALID_ENABLED
 

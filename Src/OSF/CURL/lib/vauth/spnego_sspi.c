@@ -28,7 +28,7 @@
 #if defined(USE_WINDOWS_SSPI) && defined(USE_SPNEGO)
 
 //#include <curl/curl.h>
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 // The last #include files should be: 
 #include "memdebug.h"
 /*

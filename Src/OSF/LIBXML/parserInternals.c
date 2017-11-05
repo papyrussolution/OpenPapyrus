@@ -34,7 +34,7 @@
 #ifdef LIBXML_CATALOG_ENABLED
 	#include <libxml/catalog.h>
 #endif
-#include <libxml/chvalid.h>
+//#include <libxml/chvalid.h>
 /*
  * Various global defaults for parsing
  */

@@ -43,7 +43,7 @@
 //#include "fileinfo.h"
 //#include "llist.h"
 //#include "strtoofft.h"
-#include "ftp.h"
+//#include "ftp.h"
 #include "ftplistparser.h"
 #include "curl_fnmatch.h"
 //#include "curl_memory.h"

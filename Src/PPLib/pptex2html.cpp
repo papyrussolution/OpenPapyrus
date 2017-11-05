@@ -1590,8 +1590,8 @@ int PPTex2HtmlPrcssr::Run()
 				THROW(actual_size == _fsize);
 				tes.Add(St.InputBuffer.P_Buf, actual_size);
 				tes.Finish();
-				THROW(!(tes.Flags & tes.fMiscEolf));
-				St.Eolf = tes.Eolf;
+				THROW(!tes.CheckFlag(tes.fMiscEolf));
+				St.Eolf = tes.GetEolFormat();
 				St.InputSize = actual_size;
 				St.InputBuffer.P_Buf[actual_size] = 0;
 				St.Scan.Set(St.InputBuffer.P_Buf, 0);

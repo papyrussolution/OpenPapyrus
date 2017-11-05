@@ -133,6 +133,7 @@ int xmlNop(void);
 #include <libxml/xpointer.h>
 #include <libxml/xpathInternals.h>
 #include <libxml/debugXML.h>
+#include <libxml/chvalid.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,16 +269,15 @@ int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 #ifdef __cplusplus
 }
 #endif
-
 // } @sobolev
 #ifdef __GNUC__
-#ifdef PIC
-#ifdef linux
-#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
-#include "elfgcchack.h"
-#endif
-#endif
-#endif
+	#ifdef PIC
+		#ifdef linux
+			#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
+				#include "elfgcchack.h"
+			#endif
+		#endif
+	#endif
 #endif
 #endif
 /* @sobolev

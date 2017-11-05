@@ -796,7 +796,7 @@ time_t FASTCALL ngx_atotm(const u_char * line, size_t n)
 	if(n == 0) {
 		return NGX_ERROR;
 	}
-	cutoff = NGX_MAX_TIME_T_VALUE / 10;
+	cutoff = (time_t)(NGX_MAX_TIME_T_VALUE / 10);
 	cutlim = NGX_MAX_TIME_T_VALUE % 10;
 	for(value = 0; n--; line++) {
 		if(*line < '0' || *line > '9') {

@@ -15,7 +15,7 @@
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
-#include <libxml/chvalid.h>
+//#include <libxml/chvalid.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -324,7 +324,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar **
 XMLPUBFUN xmlChar * XMLCALL xmlParseAttValue(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseSystemLiteral(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParsePubidLiteral(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlParseCharData(xmlParserCtxt * ctxt, int cdata);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseCharData(xmlParserCtxt * ctxt, int cdata);
 XMLPUBFUN xmlChar * XMLCALL xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int strict);
 XMLPUBFUN void XMLCALL xmlParseComment(xmlParserCtxt * ctxt);
 XMLPUBFUN const xmlChar * XMLCALL xmlParsePITarget(xmlParserCtxt * ctxt);
@@ -354,7 +354,7 @@ XMLPUBFUN void XMLCALL xmlParseEndTag(xmlParserCtxt * ctxt);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN void XMLCALL xmlParseCDSect(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseContent(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlParseElement(xmlParserCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParseElement(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseVersionNum(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseVersionInfo(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlChar * XMLCALL xmlParseEncName(xmlParserCtxt * ctxt);

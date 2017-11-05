@@ -117,11 +117,7 @@ static void blt_in(void * closure, int16_t x, int16_t y, int16_t w, int16_t h, u
 }
 
 static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * compositor,
-    cairo_surface_t          * dst,
-    void * draw_closure,
-    draw_func_t draw_func,
-    draw_func_t mask_func,
-    const cairo_composite_rectangles_t * extents)
+    cairo_surface_t * dst, void * draw_closure, draw_func_t draw_func, draw_func_t mask_func, const cairo_composite_rectangles_t * extents)
 {
 	cairo_int_status_t status;
 	struct blt_in info;

@@ -130,8 +130,7 @@ typedef struct _cairo cairo_t;
  *
  * Since: 1.0
  **/
-typedef struct _cairo_surface cairo_surface_t;
-
+struct cairo_surface_t;
 /**
  * cairo_device_t:
  *
@@ -1198,7 +1197,7 @@ typedef struct _cairo_font_options cairo_font_options_t;
 cairo_public cairo_font_options_t * cairo_font_options_create(void);
 cairo_public cairo_font_options_t * cairo_font_options_copy(const cairo_font_options_t * original);
 cairo_public void cairo_font_options_destroy(cairo_font_options_t * options);
-cairo_public cairo_status_t cairo_font_options_status(cairo_font_options_t * options);
+cairo_public cairo_status_t FASTCALL cairo_font_options_status(cairo_font_options_t * options);
 cairo_public void cairo_font_options_merge(cairo_font_options_t       * options, const cairo_font_options_t * other);
 cairo_public cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other);
 cairo_public ulong cairo_font_options_hash(const cairo_font_options_t * options);
@@ -1816,28 +1815,18 @@ typedef enum {
 	CAIRO_SURFACE_OBSERVER_RECORD_OPERATIONS = 0x1
 } cairo_surface_observer_mode_t;
 
-cairo_public cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target,
-    cairo_surface_observer_mode_t mode);
+cairo_public cairo_surface_t * cairo_surface_create_observer(cairo_surface_t * target, cairo_surface_observer_mode_t mode);
 typedef void (*cairo_surface_observer_callback_t)(cairo_surface_t * observer, cairo_surface_t * target, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_paint_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_mask_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_fill_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_stroke_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_glyphs_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_flush_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_add_finish_callback(cairo_surface_t * abstract_surface,
-    cairo_surface_observer_callback_t func, void * data);
-cairo_public cairo_status_t cairo_surface_observer_print(cairo_surface_t * surface,
-    cairo_write_func_t write_func, void * closure);
+cairo_public cairo_status_t cairo_surface_observer_add_paint_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_mask_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_fill_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_stroke_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_glyphs_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_flush_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_add_finish_callback(cairo_surface_t * abstract_surface, cairo_surface_observer_callback_t func, void * data);
+cairo_public cairo_status_t cairo_surface_observer_print(cairo_surface_t * surface, cairo_write_func_t write_func, void * closure);
 cairo_public double cairo_surface_observer_elapsed(cairo_surface_t * surface);
-cairo_public cairo_status_t cairo_device_observer_print(cairo_device_t * device,
-    cairo_write_func_t write_func, void * closure);
+cairo_public cairo_status_t cairo_device_observer_print(cairo_device_t * device, cairo_write_func_t write_func, void * closure);
 cairo_public double cairo_device_observer_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_paint_elapsed(cairo_device_t * device);
 cairo_public double cairo_device_observer_mask_elapsed(cairo_device_t * device);
@@ -1960,7 +1949,7 @@ cairo_public void cairo_surface_get_mime_data(cairo_surface_t * surface, const c
 cairo_public cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
     const char * mime_type, const uchar * data, ulong length, cairo_destroy_func_t destroy, void * closure);
 cairo_public cairo_bool_t cairo_surface_supports_mime_type(cairo_surface_t * surface, const char * mime_type);
-cairo_public void cairo_surface_get_font_options(cairo_surface_t * surface, cairo_font_options_t * options);
+cairo_public void FASTCALL cairo_surface_get_font_options(cairo_surface_t * surface, cairo_font_options_t * options);
 cairo_public void cairo_surface_flush(cairo_surface_t * surface);
 cairo_public void cairo_surface_mark_dirty(cairo_surface_t * surface);
 cairo_public void cairo_surface_mark_dirty_rectangle(cairo_surface_t * surface, int x, int y, int width, int height);

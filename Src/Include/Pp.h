@@ -31256,15 +31256,13 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	long   ID;                 // @id
 	char   Name[48];           // @name @!refname
 	char   Symb[20];           // @symb
-	PPID   ChargeGoodsID;      // Товар, использующийся для начисления на карту
-		// (имеет приоритет перед PPSCardConfig::ChargeGoodsID)
+	PPID   ChargeGoodsID;      // Товар, использующийся для начисления на карту. Имеет приоритет перед PPSCardConfig::ChargeGoodsID.
 	PPID   BonusChrgGrpID;     // Товарная группа, ограничивающая начисления на бонусные карты
 	int16  BonusChrgExtRule;   // @v8.2.10 Дополнительная величина правила изменения начисления бонуса по карте
 	uint8  Reserve2;           // @reserve
 	int8   VerifTag;           // Если 1, то запись верифицирована версией 7.3.7 на предмет правильности установки флагов
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
-	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как
-		// списание по кредитной карте в количественном выражении.
+	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
 	char   CodeTempl[20];      // Шаблон номеров карт
 	LDATE  Issue;              // Дата выпуска
 	LDATE  Expiry;             // Дата окончания действия //
@@ -43120,6 +43118,7 @@ private:
 		obGoodsGroup,
 		obPerson,
 		obGoodsCode,
+		obSCardSeries,
 		obSCard,
 		obParent,
 		obQuotKind,
@@ -43235,6 +43234,7 @@ private:
 	};
 	struct SCardSeriesBlock : public ObjectBlock { // @flat "scardseries"
 		SLAPI  SCardSeriesBlock();
+		uint   RefP;     // Позиция указателя на блок в ReadBlock::RefList. Используется для быстрого поиска ссылки.
 		uint   CodeP; // code
 		uint   QuotKindBlkP;
 	};
@@ -43242,6 +43242,7 @@ private:
 		SLAPI  SCardBlock();
 		uint   CodeP;
 		uint   OwnerBlkP;
+		uint   SeriesBlkP; // @v9.8.7
 		double Discount;
 	};
 	struct CSessionBlock : public ObjectBlock { // @flat
@@ -43323,9 +43324,11 @@ private:
 		}
 		int    SLAPI CreateItem(int type, uint * pRefPos);
 		void * SLAPI GetItem(uint refPos, int * pType) const;
+		void * SLAPI GetItemWithTest(uint refPos, int type) const;
 		int    SLAPI SearchRef(int type, uint pos, uint * pRefPos) const;
 		//void   SLAPI SortRefList();
 		int    SLAPI SearchAnalogRef_QuotKind(const QuotKindBlock & rBlk, uint exclPos, uint * pRefPos) const;
+		int    SLAPI SearchAnalogRef_SCardSeries(const SCardSeriesBlock & rBlk, uint exclPos, uint * pRefPos) const;
 		const  QuotKindBlock * FASTCALL SearchAnalog_QuotKind(const QuotKindBlock & rBlk) const;
 		//
 		// Descr: Находит входящий аналог блока персоналии rBlk с идентифицированным
@@ -43375,6 +43378,7 @@ private:
 		TSVector <UnitBlock> UnitBlkList; // @v9.8.6
 		TSVector <QuotBlock> QuotBlkList;
 		TSVector <PersonBlock> PersonBlkList;
+		TSVector <SCardSeriesBlock> ScsBlkList; // @v9.8.7
 		TSVector <SCardBlock> SCardBlkList;
 		TSVector <ParentBlock> ParentBlkList; // Список абстрактных блоков, идентифицирующих родительских элементов объектов
 		TSVector <PosNodeBlock> PosBlkList;
@@ -44757,7 +44761,7 @@ private:
 //
 // Descr: Класс, управляющий шаблонизированным выводом данных DL600
 //
-//#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
+#define USE_TDDO_2 // Временный макрос на период модификации модуля TDDO. Для сборки релиза закомментировать!
 
 class Tddo {
 public:

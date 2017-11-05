@@ -30,11 +30,9 @@
  * Contributor(s):
  *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
  */
-
 #ifndef CAIRO_FEATURES_H
 	#define CAIRO_MUTEX_DECLARE(mutex) // This block is to just make this header file standalone
 #endif
-
 CAIRO_MUTEX_DECLARE(_cairo_pattern_solid_surface_cache_lock)
 CAIRO_MUTEX_DECLARE(_cairo_image_solid_cache_mutex)
 CAIRO_MUTEX_DECLARE(_cairo_toy_font_face_mutex)
@@ -64,5 +62,4 @@ CAIRO_MUTEX_DECLARE(_cairo_glyph_cache_mutex)
 #if CAIRO_HAS_DRM_SURFACE
 	CAIRO_MUTEX_DECLARE(_cairo_drm_device_mutex)
 #endif
-/* Undefine, to err on unintended inclusion */
-#undef   CAIRO_MUTEX_DECLARE
+#undef   CAIRO_MUTEX_DECLARE // Undefine, to err on unintended inclusion 

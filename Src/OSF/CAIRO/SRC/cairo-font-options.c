@@ -62,7 +62,7 @@ static const cairo_font_options_t _cairo_font_options_nil = {
  *
  * Initializes all fields of the font options object to default values.
  **/
-void _cairo_font_options_init_default(cairo_font_options_t * options)
+void FASTCALL _cairo_font_options_init_default(cairo_font_options_t * options)
 {
 	options->antialias = CAIRO_ANTIALIAS_DEFAULT;
 	options->subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
@@ -72,8 +72,7 @@ void _cairo_font_options_init_default(cairo_font_options_t * options)
 	options->round_glyph_positions = CAIRO_ROUND_GLYPH_POS_DEFAULT;
 }
 
-void _cairo_font_options_init_copy(cairo_font_options_t             * options,
-    const cairo_font_options_t       * other)
+void FASTCALL _cairo_font_options_init_copy(cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	options->antialias = other->antialias;
 	options->subpixel_order = other->subpixel_order;
@@ -82,7 +81,6 @@ void _cairo_font_options_init_copy(cairo_font_options_t             * options,
 	options->hint_metrics = other->hint_metrics;
 	options->round_glyph_positions = other->round_glyph_positions;
 }
-
 /**
  * cairo_font_options_create:
  *
@@ -104,8 +102,10 @@ cairo_font_options_t * cairo_font_options_create(void)
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_options_t*)&_cairo_font_options_nil;
 	}
-	_cairo_font_options_init_default(options);
-	return options;
+	else {
+		_cairo_font_options_init_default(options);
+		return options;
+	}
 }
 
 /**
@@ -148,12 +148,9 @@ cairo_font_options_t * cairo_font_options_copy(const cairo_font_options_t * orig
  **/
 void cairo_font_options_destroy(cairo_font_options_t * options)
 {
-	if(cairo_font_options_status(options))
-		return;
-
-	SAlloc::F(options);
+	if(cairo_font_options_status(options) == 0)
+		SAlloc::F(options);
 }
-
 /**
  * cairo_font_options_status:
  * @options: a #cairo_font_options_t
@@ -165,7 +162,7 @@ void cairo_font_options_destroy(cairo_font_options_t * options)
  *
  * Since: 1.0
  **/
-cairo_status_t cairo_font_options_status(cairo_font_options_t * options)
+cairo_status_t FASTCALL cairo_font_options_status(cairo_font_options_t * options)
 {
 	if(options == NULL)
 		return CAIRO_STATUS_NULL_POINTER;
@@ -189,27 +186,22 @@ slim_hidden_def(cairo_font_options_status);
  *
  * Since: 1.0
  **/
-void cairo_font_options_merge(cairo_font_options_t       * options,
-    const cairo_font_options_t * other)
+void cairo_font_options_merge(cairo_font_options_t * options, const cairo_font_options_t * other)
 {
-	if(cairo_font_options_status(options))
-		return;
-
-	if(cairo_font_options_status((cairo_font_options_t*)other))
-		return;
-
-	if(other->antialias != CAIRO_ANTIALIAS_DEFAULT)
-		options->antialias = other->antialias;
-	if(other->subpixel_order != CAIRO_SUBPIXEL_ORDER_DEFAULT)
-		options->subpixel_order = other->subpixel_order;
-	if(other->lcd_filter != CAIRO_LCD_FILTER_DEFAULT)
-		options->lcd_filter = other->lcd_filter;
-	if(other->hint_style != CAIRO_HINT_STYLE_DEFAULT)
-		options->hint_style = other->hint_style;
-	if(other->hint_metrics != CAIRO_HINT_METRICS_DEFAULT)
-		options->hint_metrics = other->hint_metrics;
-	if(other->round_glyph_positions != CAIRO_ROUND_GLYPH_POS_DEFAULT)
-		options->round_glyph_positions = other->round_glyph_positions;
+	if(cairo_font_options_status(options) == 0 && cairo_font_options_status((cairo_font_options_t*)other) == 0) {
+		if(other->antialias != CAIRO_ANTIALIAS_DEFAULT)
+			options->antialias = other->antialias;
+		if(other->subpixel_order != CAIRO_SUBPIXEL_ORDER_DEFAULT)
+			options->subpixel_order = other->subpixel_order;
+		if(other->lcd_filter != CAIRO_LCD_FILTER_DEFAULT)
+			options->lcd_filter = other->lcd_filter;
+		if(other->hint_style != CAIRO_HINT_STYLE_DEFAULT)
+			options->hint_style = other->hint_style;
+		if(other->hint_metrics != CAIRO_HINT_METRICS_DEFAULT)
+			options->hint_metrics = other->hint_metrics;
+		if(other->round_glyph_positions != CAIRO_ROUND_GLYPH_POS_DEFAULT)
+			options->round_glyph_positions = other->round_glyph_positions;
+	}
 }
 
 slim_hidden_def(cairo_font_options_merge);
@@ -227,23 +219,17 @@ slim_hidden_def(cairo_font_options_merge);
  *
  * Since: 1.0
  **/
-cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options,
-    const cairo_font_options_t * other)
+cairo_bool_t cairo_font_options_equal(const cairo_font_options_t * options, const cairo_font_options_t * other)
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		return FALSE;
 	if(cairo_font_options_status((cairo_font_options_t*)other))
 		return FALSE;
-
 	if(options == other)
 		return TRUE;
-
-	return (options->antialias == other->antialias &&
-	    options->subpixel_order == other->subpixel_order &&
-	    options->lcd_filter == other->lcd_filter &&
-	    options->hint_style == other->hint_style &&
-	    options->hint_metrics == other->hint_metrics &&
-	    options->round_glyph_positions == other->round_glyph_positions);
+	return (options->antialias == other->antialias && options->subpixel_order == other->subpixel_order &&
+	    options->lcd_filter == other->lcd_filter && options->hint_style == other->hint_style &&
+	    options->hint_metrics == other->hint_metrics && options->round_glyph_positions == other->round_glyph_positions);
 }
 
 slim_hidden_def(cairo_font_options_equal);
@@ -266,12 +252,7 @@ ulong cairo_font_options_hash(const cairo_font_options_t * options)
 {
 	if(cairo_font_options_status((cairo_font_options_t*)options))
 		options = &_cairo_font_options_nil;  /* force default values */
-
-	return ((options->antialias) |
-	    (options->subpixel_order << 4) |
-	    (options->lcd_filter << 8) |
-	    (options->hint_style << 12) |
-	    (options->hint_metrics << 16));
+	return ((options->antialias) | (options->subpixel_order << 4) | (options->lcd_filter << 8) | (options->hint_style << 12) | (options->hint_metrics << 16));
 }
 
 slim_hidden_def(cairo_font_options_hash);
@@ -286,13 +267,10 @@ slim_hidden_def(cairo_font_options_hash);
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_antialias(cairo_font_options_t * options,
-    cairo_antialias_t antialias)
+void cairo_font_options_set_antialias(cairo_font_options_t * options, cairo_antialias_t antialias)
 {
-	if(cairo_font_options_status(options))
-		return;
-
-	options->antialias = antialias;
+	if(cairo_font_options_status(options) == 0)
+		options->antialias = antialias;
 }
 
 slim_hidden_def(cairo_font_options_set_antialias);
@@ -309,10 +287,7 @@ slim_hidden_def(cairo_font_options_set_antialias);
  **/
 cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_ANTIALIAS_DEFAULT;
-
-	return options->antialias;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_ANTIALIAS_DEFAULT : options->antialias;
 }
 
 /**
@@ -328,13 +303,10 @@ cairo_antialias_t cairo_font_options_get_antialias(const cairo_font_options_t * 
  *
  * Since: 1.0
  **/
-void cairo_font_options_set_subpixel_order(cairo_font_options_t   * options,
-    cairo_subpixel_order_t subpixel_order)
+void cairo_font_options_set_subpixel_order(cairo_font_options_t * options, cairo_subpixel_order_t subpixel_order)
 {
-	if(cairo_font_options_status(options))
-		return;
-
-	options->subpixel_order = subpixel_order;
+	if(cairo_font_options_status(options) == 0)
+		options->subpixel_order = subpixel_order;
 }
 
 slim_hidden_def(cairo_font_options_set_subpixel_order);
@@ -352,12 +324,8 @@ slim_hidden_def(cairo_font_options_set_subpixel_order);
  **/
 cairo_subpixel_order_t cairo_font_options_get_subpixel_order(const cairo_font_options_t * options)
 {
-	if(cairo_font_options_status((cairo_font_options_t*)options))
-		return CAIRO_SUBPIXEL_ORDER_DEFAULT;
-
-	return options->subpixel_order;
+	return cairo_font_options_status((cairo_font_options_t*)options) ? CAIRO_SUBPIXEL_ORDER_DEFAULT : options->subpixel_order;
 }
-
 /**
  * _cairo_font_options_set_lcd_filter:
  * @options: a #cairo_font_options_t
@@ -368,15 +336,11 @@ cairo_subpixel_order_t cairo_font_options_get_subpixel_order(const cairo_font_op
  * mode of %CAIRO_ANTIALIAS_SUBPIXEL. See the documentation for
  * #cairo_lcd_filter_t for full details.
  **/
-void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options,
-    cairo_lcd_filter_t lcd_filter)
+void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options, cairo_lcd_filter_t lcd_filter)
 {
-	if(cairo_font_options_status(options))
-		return;
-
-	options->lcd_filter = lcd_filter;
+	if(cairo_font_options_status(options) == 0)
+		options->lcd_filter = lcd_filter;
 }
-
 /**
  * _cairo_font_options_get_lcd_filter:
  * @options: a #cairo_font_options_t

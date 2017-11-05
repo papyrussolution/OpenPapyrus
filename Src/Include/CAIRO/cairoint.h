@@ -68,17 +68,195 @@
 // @sobolev #include <stdio.h>
 
 #include "cairo.h"
+//
+//#include "cairo-pixman-private.h" // @sobolev
+//
+#include "pixman-private.h"
+
+#if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
+	#define pixman_image_composite32 pixman_image_composite
+	#define pixman_image_get_component_alpha(i) 0
+	#define pixman_image_set_component_alpha(i, x) do { } while (0)
+#endif
+//
 // @sobolev #include <pixman.h>
-#include "cairo-compiler-private.h"
+//#include "cairo-compiler-private.h"
+// 
+// Size in bytes of buffer to use off the stack per functions.
+// Mostly used by text functions.  For larger allocations, they'll SAlloc::M().
+// 
+#ifndef CAIRO_STACK_BUFFER_SIZE
+	#define CAIRO_STACK_BUFFER_SIZE (512 * sizeof (int))
+#endif
+#define CAIRO_STACK_ARRAY_LENGTH(T) (CAIRO_STACK_BUFFER_SIZE / sizeof(T))
+/*
+ * The goal of this block is to define the following macros for
+ * providing faster linkage to functions in the public API for calls from within cairo.
+ *
+ * slim_hidden_proto(f)
+ * slim_hidden_proto_no_warn(f)
+ *
+ *   Declares `f' as a library internal function and hides the
+ *   function from the global symbol table.  This macro must be
+ *   expanded after `f' has been declared with a prototype but before
+ *   any calls to the function are seen by the compiler.  The no_warn
+ *   variant inhibits warnings about the return value being unused at
+ *   call sites.  The macro works by renaming `f' to an internal name
+ *   in the symbol table and hiding that.  As far as cairo internal
+ *   calls are concerned they're calling a library internal function
+ *   and thus don't need to bounce via the PLT.
+ *
+ * slim_hidden_def(f)
+ *
+ *   Exports `f' back to the global symbol table.  This macro must be
+ *   expanded right after the function definition and only for symbols
+ *   hidden previously with slim_hidden_proto().  The macro works by
+ *   adding a global entry to the symbol table which points at the
+ *   internal name of `f' created by slim_hidden_proto().
+ *
+ * Functions in the public API which aren't called by the library
+ * don't need to be hidden and re-exported using the slim hidden macros.
+ */
+#if __GNUC__ >= 3 && defined(__ELF__) && !defined(__sun)
+	#define slim_hidden_proto(name)		slim_hidden_proto1(name, slim_hidden_int_name(name)) cairo_private
+	#define slim_hidden_proto_no_warn(name)	slim_hidden_proto1(name, slim_hidden_int_name(name)) cairo_private_no_warn
+	#define slim_hidden_def(name)			slim_hidden_def1(name, slim_hidden_int_name(name))
+	#define slim_hidden_int_name(name) INT_##name
+	#define slim_hidden_proto1(name, internal) extern __typeof (name) name __asm__ (slim_hidden_asmname (internal))
+	#define slim_hidden_def1(name, internal)   extern __typeof (name) EXT_##name __asm__(slim_hidden_asmname(name))	__attribute__((__alias__(slim_hidden_asmname(internal))))
+	#define slim_hidden_ulp		slim_hidden_ulp1(__USER_LABEL_PREFIX__)
+	#define slim_hidden_ulp1(x)		slim_hidden_ulp2(x)
+	#define slim_hidden_ulp2(x)		#x
+	#define slim_hidden_asmname(name)	slim_hidden_asmname1(name)
+	#define slim_hidden_asmname1(name)	slim_hidden_ulp #name
+#else
+	#define slim_hidden_proto(name)		int _cairo_dummy_prototype(void)
+	#define slim_hidden_proto_no_warn(name)	int _cairo_dummy_prototype(void)
+	#define slim_hidden_def(name)			int _cairo_dummy_prototype(void)
+#endif
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 4)
+	#define CAIRO_PRINTF_FORMAT(fmt_index, va_index) __attribute__((__format__(__printf__, fmt_index, va_index)))
+#else
+	#define CAIRO_PRINTF_FORMAT(fmt_index, va_index)
+#endif
+// slim_internal.h 
+#define CAIRO_HAS_HIDDEN_SYMBOLS 1
+#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) && (defined(__ELF__) || defined(__APPLE__)) && !defined(__sun)
+	#define cairo_private_no_warn	__attribute__((__visibility__("hidden")))
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
+	#define cairo_private_no_warn	__hidden
+#else
+	#define cairo_private_no_warn
+	#undef CAIRO_HAS_HIDDEN_SYMBOLS
+#endif
+#ifndef WARN_UNUSED_RESULT
+	#define WARN_UNUSED_RESULT
+#endif
+// Add attribute(warn_unused_result) if supported 
+#define cairo_warn    WARN_UNUSED_RESULT
+#define cairo_private cairo_private_no_warn cairo_warn
+// 
+// This macro allow us to deprecate a function by providing an alias
+// for the old function name to the new function name. With this
+// macro, binary compatibility is preserved. The macro only works on some platforms --- tough.
+// 
+// Meanwhile, new definitions in the public header file break the
+// source code so that it will no longer link against the old
+// symbols. Instead it will give a descriptive error message
+// indicating that the old function has been deprecated by the new function.
+// 
+#if __GNUC__ >= 2 && defined(__ELF__)
+	#define CAIRO_FUNCTION_ALIAS(old, new) extern __typeof (new) old __asm__ ("" #old) __attribute__((__alias__("" #new)))
+#else
+	#define CAIRO_FUNCTION_ALIAS(old, new)
+#endif
+// 
+// Cairo uses the following function attributes in order to improve the
+// generated code (effectively by manual inter-procedural analysis).
+// 
+//   'cairo_pure': The function is only allowed to read from its arguments
+//      and global memory (i.e. following a pointer argument or accessing a shared variable). The return value should
+//      only depend on its arguments, and for an identical set of arguments should return the same value.
+// 
+//   'cairo_const': The function is only allowed to read from its arguments.
+//      It is not allowed to access global memory. The return value should only depend its arguments, and for an
+//      identical set of arguments should return the same value. This is currently the most strict function attribute.
+// 
+// Both these function attributes allow gcc to perform CSE and
+// constant-folding, with 'cairo_const 'also guaranteeing that pointer contents
+// do not change across the function call.
+// 
+#if __GNUC__ >= 3
+	#define cairo_pure __attribute__((pure))
+	#define cairo_const __attribute__((const))
+	#define cairo_always_inline inline __attribute__((always_inline))
+#else
+	#define cairo_pure
+	#define cairo_const
+	#define cairo_always_inline inline
+#endif
+#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
+	#define likely(expr) (__builtin_expect (!!(expr), 1))
+	#define unlikely(expr) (__builtin_expect (!!(expr), 0))
+#else
+	#define likely(expr) (expr)
+	#define unlikely(expr) (expr)
+#endif
+#ifndef __GNUC__
+	#undef __attribute__
+	#define __attribute__(x)
+#endif
+#if (defined(__WIN32__) && !defined(__WINE__)) || defined(_MSC_VER)
+	#define access _access
+	#define fdopen _fdopen
+	#define hypot _hypot
+	#define pclose _pclose
+	#define popen _popen
+	#define snprintf _snprintf
+	//#define strdup _strdup
+	#define unlink _unlink
+	#define vsnprintf _vsnprintf
+#endif
+#ifdef _MSC_VER
+	#ifndef __cplusplus
+		#undef inline
+		#define inline __inline
+	#endif
+#endif
+#if defined(_MSC_VER) && defined(_M_IX86)
+	// When compiling with /Gy and /OPT:ICF identical functions will be folded in together.
+	// The CAIRO_ENSURE_UNIQUE macro ensures that a function is always unique and
+	// will never be folded into another one. Something like this might eventually
+	// be needed for GCC but it seems fine for now. */
+	#define CAIRO_ENSURE_UNIQUE                       \
+		do {                                          \
+		char file[] = __FILE__;                   \
+		__asm {                                   \
+			__asm jmp __internal_skip_line_no     \
+			__asm _emit (__COUNTER__ & 0xff)      \
+			__asm _emit ((__COUNTER__>>8) & 0xff) \
+			__asm _emit ((__COUNTER__>>16) & 0xff)\
+			__asm _emit ((__COUNTER__>>24) & 0xff)\
+			__asm lea eax, dword ptr file         \
+			__asm __internal_skip_line_no:        \
+		};                                        \
+		} while (0)
+#else
+	#define CAIRO_ENSURE_UNIQUE    do { } while (0)
+#endif
+#ifdef __STRICT_ANSI__
+	#undef inline
+	#define inline __inline__
+#endif
 //
 //#include "cairo-list-private.h"
 //
 // Basic circular, doubly linked list implementation 
 //
-typedef struct _cairo_list {
-    struct _cairo_list * next;
-	struct _cairo_list * prev;
-} cairo_list_t;
+struct cairo_list_t {
+    cairo_list_t * next;
+	cairo_list_t * prev;
+};
 //
 //#include "cairo-list-inline.h"
 //
@@ -211,15 +389,193 @@ static inline cairo_bool_t cairo_list_is_singular(const cairo_list_t * head)
 	return head->next == head || head->next == head->prev;
 }
 //
-#include "cairo-atomic-private.h"
+//#include "cairo-atomic-private.h"
+//
+// The autoconf on OpenBSD 4.5 produces the malformed constant name
+// SIZEOF_VOID__ rather than SIZEOF_VOID_P.  Work around that here. 
+#if !defined(SIZEOF_VOID_P) && defined(SIZEOF_VOID__)
+	#define SIZEOF_VOID_P SIZEOF_VOID__
+#endif
+
+CAIRO_BEGIN_DECLS
+
+#if HAVE_INTEL_ATOMIC_PRIMITIVES
+	#define HAS_ATOMIC_OPS 1
+
+	typedef int cairo_atomic_int_t;
+
+	#ifdef ATOMIC_OP_NEEDS_MEMORY_BARRIER
+		static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x)
+		{
+			__sync_synchronize();
+			return *x;
+		}
+		static cairo_always_inline void * _cairo_atomic_ptr_get(void ** x)
+		{
+			__sync_synchronize();
+			return *x;
+		}
+	#else
+		#define _cairo_atomic_int_get(x) (*x)
+		#define _cairo_atomic_ptr_get(x) (*x)
+	#endif
+	#define _cairo_atomic_int_inc(x) ((void)__sync_fetch_and_add(x, 1))
+	#define _cairo_atomic_int_dec(x) ((void)__sync_fetch_and_add(x, -1))
+	#define _cairo_atomic_int_dec_and_test(x) (__sync_fetch_and_add(x, -1) == 1)
+	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) __sync_bool_compare_and_swap(x, oldv, newv)
+	#define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) __sync_val_compare_and_swap(x, oldv, newv)
+	#if SIZEOF_VOID_P==SIZEOF_INT
+		typedef int cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG
+		typedef long cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG_LONG
+		typedef long long cairo_atomic_intptr_t;
+	#else
+		#error No matching integer pointer type
+	#endif
+	#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) __sync_bool_compare_and_swap((cairo_atomic_intptr_t*)x, (cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv)
+	#define _cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) \
+		_cairo_atomic_intptr_to_voidptr(__sync_val_compare_and_swap((cairo_atomic_intptr_t*)x, (cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv))
+#endif
+#if HAVE_LIB_ATOMIC_OPS
+	#include <atomic_ops.h>
+
+	#define HAS_ATOMIC_OPS 1
+
+	typedef  AO_t cairo_atomic_int_t;
+
+	#define _cairo_atomic_int_get(x) (AO_load_full(x))
+	#define _cairo_atomic_int_inc(x) ((void)AO_fetch_and_add1_full(x))
+	#define _cairo_atomic_int_dec(x) ((void)AO_fetch_and_sub1_full(x))
+	#define _cairo_atomic_int_dec_and_test(x) (AO_fetch_and_sub1_full(x) == 1)
+	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) AO_compare_and_swap_full(x, oldv, newv)
+	#if SIZEOF_VOID_P==SIZEOF_INT
+		typedef uint cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG
+		typedef ulong cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG_LONG
+		typedef ulong long cairo_atomic_intptr_t;
+	#else
+		#error No matching integer pointer type
+	#endif
+	#define _cairo_atomic_ptr_get(x) _cairo_atomic_intptr_to_voidptr(AO_load_full(x))
+	#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg((cairo_atomic_intptr_t*)(x), (cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv)
+#endif
+#if HAVE_OS_ATOMIC_OPS
+	#include <libkern/OSAtomic.h>
+
+	#define HAS_ATOMIC_OPS 1
+
+	typedef int32_t cairo_atomic_int_t;
+
+	#define _cairo_atomic_int_get(x) (OSMemoryBarrier(), *(x))
+	#define _cairo_atomic_int_inc(x) ((void)OSAtomicIncrement32Barrier(x))
+	#define _cairo_atomic_int_dec(x) ((void)OSAtomicDecrement32Barrier(x))
+	#define _cairo_atomic_int_dec_and_test(x) (OSAtomicDecrement32Barrier(x) == 0)
+	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) OSAtomicCompareAndSwap32Barrier(oldv, newv, x)
+	#if SIZEOF_VOID_P==4
+		typedef int32_t cairo_atomic_intptr_t;
+		#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
+			OSAtomicCompareAndSwap32Barrier((cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv, (cairo_atomic_intptr_t*)x)
+	#elif SIZEOF_VOID_P==8
+		typedef int64_t cairo_atomic_intptr_t;
+		#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) \
+			OSAtomicCompareAndSwap64Barrier((cairo_atomic_intptr_t)oldv, (cairo_atomic_intptr_t)newv, (cairo_atomic_intptr_t*)x)
+	#else
+		#error No matching integer pointer type
+	#endif
+	#define _cairo_atomic_ptr_get(x) (OSMemoryBarrier(), *(x))
+#endif
+#ifndef HAS_ATOMIC_OPS
+	#if SIZEOF_VOID_P==SIZEOF_INT
+		typedef uint cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG
+		typedef ulong cairo_atomic_intptr_t;
+	#elif SIZEOF_VOID_P==SIZEOF_LONG_LONG
+		typedef ulong long cairo_atomic_intptr_t;
+	#else
+		#error No matching integer pointer type
+	#endif
+
+	typedef cairo_atomic_intptr_t cairo_atomic_int_t;
+
+	cairo_private void FASTCALL _cairo_atomic_int_inc(cairo_atomic_int_t * x);
+
+	#define _cairo_atomic_int_dec(x) _cairo_atomic_int_dec_and_test(x)
+
+	cairo_private cairo_bool_t FASTCALL _cairo_atomic_int_dec_and_test(cairo_atomic_int_t * x);
+	cairo_private cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_impl(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv);
+	cairo_private void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void ** x, void * oldv, void * newv);
+
+	#define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_int_cmpxchg_return_old_impl(x, oldv, newv)
+	#define _cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_return_old_impl(x, oldv, newv)
+	#ifdef ATOMIC_OP_NEEDS_MEMORY_BARRIER
+		cairo_private cairo_atomic_int_t _cairo_atomic_int_get(cairo_atomic_int_t * x);
+		#define _cairo_atomic_ptr_get(x) (void*)_cairo_atomic_int_get((cairo_atomic_int_t*)x)
+	#else
+		#define _cairo_atomic_int_get(x) (* x)
+		#define _cairo_atomic_ptr_get(x) (* x)
+	#endif
+#else
+
+// Workaround GCC complaining about casts 
+static cairo_always_inline void * _cairo_atomic_intptr_to_voidptr(cairo_atomic_intptr_t x)
+{
+	return (void*)x;
+}
+
+static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_fallback(cairo_atomic_int_t * x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+{
+	cairo_atomic_int_t curr;
+	do {
+		curr = _cairo_atomic_int_get(x);
+	} while(curr == oldv && !_cairo_atomic_int_cmpxchg(x, oldv, newv));
+	return curr;
+}
+
+static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_fallback(void ** x, void * oldv, void * newv)
+{
+	void * curr;
+	do {
+		curr = _cairo_atomic_ptr_get(x);
+	} while(curr == oldv && !_cairo_atomic_ptr_cmpxchg(x, oldv, newv));
+	return curr;
+}
+
+#endif
+
+#ifndef _cairo_atomic_int_cmpxchg_return_old
+	#define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_int_cmpxchg_return_old_fallback(x, oldv, newv)
+#endif
+#ifndef _cairo_atomic_ptr_cmpxchg_return_old
+	#define _cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_return_old_fallback(x, oldv, newv)
+#endif
+#ifndef _cairo_atomic_int_cmpxchg
+	#define _cairo_atomic_int_cmpxchg(x, oldv, newv) (_cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) == oldv)
+#endif
+#ifndef _cairo_atomic_ptr_cmpxchg
+	#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) (_cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) == oldv)
+#endif
+#define _cairo_atomic_uint_get(x) _cairo_atomic_int_get(x)
+#define _cairo_atomic_uint_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg((cairo_atomic_int_t*)x, oldv, newv)
+#define _cairo_status_set_error(status, err) do { \
+		int ret__; \
+		assert(err < CAIRO_STATUS_LAST_STATUS);	\
+		/* hide compiler warnings about cairo_status_t != int (gcc treats its as \
+		 * an unsigned integer instead, and about ignoring the return value. */  \
+		ret__ = _cairo_atomic_int_cmpxchg((cairo_atomic_int_t*)status, CAIRO_STATUS_SUCCESS, err); \
+		(void)ret__; \
+} while(0)
+
+CAIRO_END_DECLS
 //
 //#include "cairo-reference-count-private.h"
 //
 // Encapsulate operations on the object's reference count 
 //
-typedef struct {
+struct cairo_reference_count_t {
 	cairo_atomic_int_t ref_count;
-} cairo_reference_count_t;
+};
 
 #define _cairo_reference_count_inc(RC) _cairo_atomic_int_inc(&(RC)->ref_count)
 #define _cairo_reference_count_dec(RC) _cairo_atomic_int_dec(&(RC)->ref_count)
@@ -614,29 +970,448 @@ typedef cairo_int128_t	cairo_fixed_96_32_t;
 typedef int32_t  cairo_fixed_t;          // A signed type %CAIRO_FIXED_BITS in size; the main fixed point type 
 typedef uint32_t cairo_fixed_unsigned_t; // An unsigned type of the same size as #cairo_fixed_t 
 
-/*typedef*/ struct /*_cairo_point*/ cairo_point_t {
+struct cairo_point_t {
     cairo_fixed_t x;
     cairo_fixed_t y;
-} /*cairo_point_t*/;
+};
 //
 #include "cairo-fixed-private.h"
-#include "cairo-types-private.h"
-#include "cairo-error-private.h"
 //
-//#include "cairo-pixman-private.h" // @sobolev
+//#include "cairo-types-private.h"
 //
-#include "pixman-private.h"
+CAIRO_BEGIN_DECLS
+// 
+// SECTION:cairo-types
+// @Title: Types
+// @Short_Description: Generic data types
+// This section lists generic data types used in the cairo API.
+// 
+typedef struct _cairo_array cairo_array_t;
+typedef struct _cairo_backend cairo_backend_t;
+typedef struct _cairo_boxes_t cairo_boxes_t;
+typedef struct _cairo_cache cairo_cache_t;
+typedef struct _cairo_composite_rectangles cairo_composite_rectangles_t;
+typedef struct _cairo_clip cairo_clip_t;
+typedef struct _cairo_clip_path cairo_clip_path_t;
+typedef struct _cairo_color cairo_color_t;
+typedef struct _cairo_color_stop cairo_color_stop_t;
+typedef struct _cairo_contour cairo_contour_t;
+typedef struct _cairo_contour_chain cairo_contour_chain_t;
+typedef struct _cairo_contour_iter cairo_contour_iter_t;
+typedef struct _cairo_damage cairo_damage_t;
+typedef struct _cairo_device_backend cairo_device_backend_t;
+typedef struct _cairo_font_face_backend     cairo_font_face_backend_t;
+typedef struct _cairo_gstate cairo_gstate_t;
+typedef struct _cairo_gstate_backend cairo_gstate_backend_t;
+typedef struct _cairo_glyph_text_info cairo_glyph_text_info_t;
+typedef struct _cairo_hash_entry cairo_hash_entry_t;
+typedef struct _cairo_hash_table cairo_hash_table_t;
+typedef struct _cairo_image_surface cairo_image_surface_t;
+typedef struct _cairo_mime_data cairo_mime_data_t;
+typedef struct _cairo_observer cairo_observer_t;
+typedef struct _cairo_output_stream cairo_output_stream_t;
+typedef struct _cairo_paginated_surface_backend cairo_paginated_surface_backend_t;
+typedef struct _cairo_path_fixed cairo_path_fixed_t;
+typedef struct _cairo_rectangle_int16 cairo_glyph_size_t;
+typedef struct _cairo_scaled_font_subsets cairo_scaled_font_subsets_t;
+typedef struct _cairo_solid_pattern cairo_solid_pattern_t;
+typedef struct _cairo_surface_attributes cairo_surface_attributes_t;
+typedef struct _cairo_surface_backend cairo_surface_backend_t;
+typedef struct _cairo_surface_observer cairo_surface_observer_t;
+typedef struct _cairo_surface_snapshot cairo_surface_snapshot_t;
+typedef struct _cairo_surface_subsurface cairo_surface_subsurface_t;
+typedef struct _cairo_surface_wrapper cairo_surface_wrapper_t;
+typedef struct _cairo_traps cairo_traps_t;
+typedef struct _cairo_tristrip cairo_tristrip_t;
+typedef struct _cairo_unscaled_font_backend cairo_unscaled_font_backend_t;
+typedef struct _cairo_xlib_screen_info cairo_xlib_screen_info_t;
+typedef cairo_array_t cairo_user_data_array_t;
+typedef struct _cairo_scaled_font_private cairo_scaled_font_private_t;
+typedef struct _cairo_scaled_font_backend   cairo_scaled_font_backend_t;
+typedef struct _cairo_scaled_glyph cairo_scaled_glyph_t;
+typedef struct _cairo_scaled_glyph_private cairo_scaled_glyph_private_t;
+typedef struct cairo_compositor cairo_compositor_t;
+typedef struct cairo_fallback_compositor cairo_fallback_compositor_t;
+typedef struct cairo_mask_compositor cairo_mask_compositor_t;
+typedef struct cairo_traps_compositor cairo_traps_compositor_t;
+typedef struct cairo_spans_compositor cairo_spans_compositor_t;
 
-#if PIXMAN_VERSION < PIXMAN_VERSION_ENCODE(0,22,0)
-	#define pixman_image_composite32 pixman_image_composite
-	#define pixman_image_get_component_alpha(i) 0
-	#define pixman_image_set_component_alpha(i, x) do { } while (0)
-#endif
+struct _cairo_observer {
+    cairo_list_t link;
+    void (*callback) (cairo_observer_t *self, void *arg);
+};
+/**
+ * _cairo_hash_entry:
+ *
+ * A #cairo_hash_entry_t contains both a key and a value for
+ * #cairo_hash_table_t. User-derived types for #cairo_hash_entry_t must
+ * be type-compatible with this structure (eg. they must have an
+ * ulong as the first parameter. The easiest way to get this
+ * is to use:
+ *
+ * 	typedef _my_entry {
+ *	    cairo_hash_entry_t base;
+ *	    ... Remainder of key and value fields here ..
+ *	} my_entry_t;
+ *
+ * which then allows a pointer to my_entry_t to be passed to any of
+ * the #cairo_hash_table_t functions as follows without requiring a cast:
+ *
+ *	_cairo_hash_table_insert (hash_table, &my_entry->base);
+ *
+ * IMPORTANT: The caller is responsible for initializing
+ * my_entry->base.hash with a hash code derived from the key. The
+ * essential property of the hash code is that keys_equal must never
+ * return %TRUE for two keys that have different hashes. The best hash
+ * code will reduce the frequency of two keys with the same code for
+ * which keys_equal returns %FALSE.
+ *
+ * Which parts of the entry make up the "key" and which part make up
+ * the value are entirely up to the caller, (as determined by the
+ * computation going into base.hash as well as the keys_equal
+ * function). A few of the #cairo_hash_table_t functions accept an entry
+ * which will be used exclusively as a "key", (indicated by a
+ * parameter name of key). In these cases, the value-related fields of
+ * the entry need not be initialized if so desired.
+ **/
+struct _cairo_hash_entry {
+    ulong hash;
+};
+
+struct _cairo_array {
+    uint size;
+    uint num_elements;
+    uint element_size;
+    char *elements;
+};
+/**
+ * _cairo_lcd_filter:
+ * @CAIRO_LCD_FILTER_DEFAULT: Use the default LCD filter for
+ *   font backend and target device
+ * @CAIRO_LCD_FILTER_NONE: Do not perform LCD filtering
+ * @CAIRO_LCD_FILTER_INTRA_PIXEL: Intra-pixel filter
+ * @CAIRO_LCD_FILTER_FIR3: FIR filter with a 3x3 kernel
+ * @CAIRO_LCD_FILTER_FIR5: FIR filter with a 5x5 kernel
+ *
+ * The LCD filter specifies the low-pass filter applied to LCD-optimized
+ * bitmaps generated with an antialiasing mode of %CAIRO_ANTIALIAS_SUBPIXEL.
+ *
+ * Note: This API was temporarily made available in the public
+ * interface during the 1.7.x development series, but was made private
+ * before 1.8.
+ **/
+typedef enum _cairo_lcd_filter {
+    CAIRO_LCD_FILTER_DEFAULT,
+    CAIRO_LCD_FILTER_NONE,
+    CAIRO_LCD_FILTER_INTRA_PIXEL,
+    CAIRO_LCD_FILTER_FIR3,
+    CAIRO_LCD_FILTER_FIR5
+} cairo_lcd_filter_t;
+
+typedef enum _cairo_round_glyph_positions {
+    CAIRO_ROUND_GLYPH_POS_DEFAULT,
+    CAIRO_ROUND_GLYPH_POS_ON,
+    CAIRO_ROUND_GLYPH_POS_OFF
+} cairo_round_glyph_positions_t;
+
+struct _cairo_font_options {
+    cairo_antialias_t antialias;
+    cairo_subpixel_order_t subpixel_order;
+    cairo_lcd_filter_t lcd_filter;
+    cairo_hint_style_t hint_style;
+    cairo_hint_metrics_t hint_metrics;
+    cairo_round_glyph_positions_t round_glyph_positions;
+};
+
+struct _cairo_glyph_text_info {
+    const char *utf8;
+    int utf8_len;
+    const cairo_text_cluster_t *clusters;
+    int num_clusters;
+    cairo_text_cluster_flags_t cluster_flags;
+};
+// 
+// XXX: Right now, the _cairo_color structure puts unpremultiplied
+// color in the doubles and premultiplied color in the shorts. Yes,
+// this is crazy insane, (but at least we don't export this
+// madness). I'm still working on a cleaner API, but in the meantime,
+// at least this does prevent precision loss in color when changing alpha.
+//
+struct _cairo_color {
+    double red;
+    double green;
+    double blue;
+    double alpha;
+    ushort red_short;
+    ushort green_short;
+    ushort blue_short;
+    ushort alpha_short;
+};
+
+struct _cairo_color_stop {
+    // unpremultiplied 
+    double red;
+    double green;
+    double blue;
+    double alpha;
+    // unpremultipled, for convenience 
+    uint16_t red_short;
+    uint16_t green_short;
+    uint16_t blue_short;
+    uint16_t alpha_short;
+};
+
+typedef enum _cairo_paginated_mode {
+    CAIRO_PAGINATED_MODE_ANALYZE,	/* analyze page regions */
+    CAIRO_PAGINATED_MODE_RENDER,	/* render page contents */
+    CAIRO_PAGINATED_MODE_FALLBACK	/* paint fallback images */
+} cairo_paginated_mode_t;
+
+#ifndef __SLCAIRO_H // @sobolev {
+typedef enum _cairo_internal_surface_type {
+    CAIRO_INTERNAL_SURFACE_TYPE_SNAPSHOT = 0x1000,
+    CAIRO_INTERNAL_SURFACE_TYPE_PAGINATED,
+    CAIRO_INTERNAL_SURFACE_TYPE_ANALYSIS,
+    CAIRO_INTERNAL_SURFACE_TYPE_OBSERVER,
+    CAIRO_INTERNAL_SURFACE_TYPE_TEST_FALLBACK,
+    CAIRO_INTERNAL_SURFACE_TYPE_TEST_PAGINATED,
+    CAIRO_INTERNAL_SURFACE_TYPE_TEST_WRAPPING,
+    CAIRO_INTERNAL_SURFACE_TYPE_NULL,
+    CAIRO_INTERNAL_SURFACE_TYPE_TYPE3_GLYPH
+} cairo_internal_surface_type_t;
+#endif // } @sobolev __SLCAIRO_H
+
+typedef enum _cairo_internal_device_type {
+    CAIRO_INTERNAL_DEVICE_TYPE_OBSERVER = 0x1000,
+} cairo_device_surface_type_t;
+
+#define CAIRO_HAS_TEST_PAGINATED_SURFACE 1
+
+typedef struct _cairo_slope {
+    cairo_fixed_t dx;
+    cairo_fixed_t dy;
+} cairo_slope_t, cairo_distance_t;
+
+/*typedef struct _cairo_point_double {
+    double x;
+    double y;
+} cairo_point_double_t_ReplacedWith_RPoint;
+*/
+
+typedef struct _cairo_circle_double {
+    RPoint center;
+    double radius;
+} cairo_circle_double_t;
+
+typedef struct _cairo_distance_double {
+    double dx;
+    double dy;
+} cairo_distance_double_t;
+
+typedef struct _cairo_box_double {
+    RPoint p1;
+    RPoint p2;
+} cairo_box_double_t;
+
+typedef struct _cairo_line {
+    cairo_point_t p1;
+    cairo_point_t p2;
+} cairo_line_t, cairo_box_t;
+
+typedef struct _cairo_trapezoid {
+    cairo_fixed_t top;
+	cairo_fixed_t bottom;
+    cairo_line_t left;
+	cairo_line_t right;
+} cairo_trapezoid_t;
+
+/* @sobolev (unused) typedef struct _cairo_point_int {
+    int    x;
+	int    y;
+} cairo_point_int_t;*/
+
+#define CAIRO_RECT_INT_MIN (INT_MIN >> CAIRO_FIXED_FRAC_BITS)
+#define CAIRO_RECT_INT_MAX (INT_MAX >> CAIRO_FIXED_FRAC_BITS)
+
+/* (used only for _cairo_arc_in_direction: replaced with arg reverse[0,1]) typedef enum _cairo_direction { CAIRO_DIRECTION_FORWARD, CAIRO_DIRECTION_REVERSE } cairo_direction_t;*/
+
+typedef struct _cairo_edge {
+    cairo_line_t line;
+    int top;
+	int bottom;
+    int dir;
+} cairo_edge_t;
+
+typedef struct _cairo_polygon {
+    cairo_status_t status;
+    cairo_box_t extents;
+    cairo_box_t limit;
+    const cairo_box_t *limits;
+    int num_limits;
+    int num_edges;
+    int edges_size;
+    cairo_edge_t *edges;
+    cairo_edge_t  edges_embedded[32];
+} cairo_polygon_t;
+
+typedef cairo_warn cairo_status_t (*cairo_spline_add_point_func_t) (void *closure, const cairo_point_t *point, const cairo_slope_t *tangent);
+
+typedef struct _cairo_spline_knots {
+    cairo_point_t a, b, c, d;
+} cairo_spline_knots_t;
+
+typedef struct _cairo_spline {
+    cairo_spline_add_point_func_t add_point_func;
+    void *closure;
+    cairo_spline_knots_t knots;
+    cairo_slope_t initial_slope;
+    cairo_slope_t final_slope;
+    cairo_bool_t has_point;
+    cairo_point_t last_point;
+} cairo_spline_t;
+
+typedef struct _cairo_pen_vertex {
+    cairo_point_t point;
+    cairo_slope_t slope_ccw;
+    cairo_slope_t slope_cw;
+} cairo_pen_vertex_t;
+
+typedef struct _cairo_pen {
+    double radius;
+    double tolerance;
+    int num_vertices;
+    cairo_pen_vertex_t *vertices;
+    cairo_pen_vertex_t  vertices_embedded[32];
+} cairo_pen_t;
+
+typedef struct _cairo_stroke_style {
+    double		 line_width;
+    cairo_line_cap_t	 line_cap;
+    cairo_line_join_t	 line_join;
+    double		 miter_limit;
+    double		*dash;
+    uint	 num_dashes;
+    double		 dash_offset;
+} cairo_stroke_style_t;
+
+typedef struct _cairo_format_masks {
+    int bpp;
+    ulong alpha_mask;
+    ulong red_mask;
+    ulong green_mask;
+    ulong blue_mask;
+} cairo_format_masks_t;
+
+typedef enum {
+    CAIRO_STOCK_WHITE,
+    CAIRO_STOCK_BLACK,
+    CAIRO_STOCK_TRANSPARENT,
+    CAIRO_STOCK_NUM_COLORS,
+} cairo_stock_t;
+
+typedef enum _cairo_image_transparency {
+    CAIRO_IMAGE_IS_OPAQUE,
+    CAIRO_IMAGE_HAS_BILEVEL_ALPHA,
+    CAIRO_IMAGE_HAS_ALPHA,
+    CAIRO_IMAGE_UNKNOWN
+} cairo_image_transparency_t;
+
+typedef enum _cairo_image_color {
+    CAIRO_IMAGE_IS_COLOR,
+    CAIRO_IMAGE_IS_GRAYSCALE,
+    CAIRO_IMAGE_IS_MONOCHROME,
+    CAIRO_IMAGE_UNKNOWN_COLOR
+} cairo_image_color_t;
+
+struct _cairo_mime_data {
+    cairo_reference_count_t ref_count;
+    uchar *data;
+    ulong length;
+    cairo_destroy_func_t destroy;
+    void *closure;
+};
+// 
+// A #cairo_unscaled_font_t is just an opaque handle we use in the glyph cache.
+// 
+struct cairo_unscaled_font_t {
+    cairo_hash_entry_t hash_entry;
+    cairo_reference_count_t ref_count;
+    const cairo_unscaled_font_backend_t	* backend;
+};
+//
+//#include "cairo-error-private.h"
+//
+// _cairo_int_status: internal status
+// 
+// Sure wish C had a real enum type so that this would be distinct
+// from #cairo_status_t. Oh well, without that, I'll use this bogus 100
+// offset.  We want to keep it fit in int8_t as the compiler may choose that for #cairo_status_t
+// 
+#ifndef __SLCAIRO_H // @sobolev {
+enum _cairo_int_status {
+	CAIRO_INT_STATUS_SUCCESS = 0,
+	CAIRO_INT_STATUS_NO_MEMORY,
+	CAIRO_INT_STATUS_INVALID_RESTORE,
+	CAIRO_INT_STATUS_INVALID_POP_GROUP,
+	CAIRO_INT_STATUS_NO_CURRENT_POINT,
+	CAIRO_INT_STATUS_INVALID_MATRIX,
+	CAIRO_INT_STATUS_INVALID_STATUS,
+	CAIRO_INT_STATUS_NULL_POINTER,
+	CAIRO_INT_STATUS_INVALID_STRING,
+	CAIRO_INT_STATUS_INVALID_PATH_DATA,
+	CAIRO_INT_STATUS_READ_ERROR,
+	CAIRO_INT_STATUS_WRITE_ERROR,
+	CAIRO_INT_STATUS_SURFACE_FINISHED,
+	CAIRO_INT_STATUS_SURFACE_TYPE_MISMATCH,
+	CAIRO_INT_STATUS_PATTERN_TYPE_MISMATCH,
+	CAIRO_INT_STATUS_INVALID_CONTENT,
+	CAIRO_INT_STATUS_INVALID_FORMAT,
+	CAIRO_INT_STATUS_INVALID_VISUAL,
+	CAIRO_INT_STATUS_FILE_NOT_FOUND,
+	CAIRO_INT_STATUS_INVALID_DASH,
+	CAIRO_INT_STATUS_INVALID_DSC_COMMENT,
+	CAIRO_INT_STATUS_INVALID_INDEX,
+	CAIRO_INT_STATUS_CLIP_NOT_REPRESENTABLE,
+	CAIRO_INT_STATUS_TEMP_FILE_ERROR,
+	CAIRO_INT_STATUS_INVALID_STRIDE,
+	CAIRO_INT_STATUS_FONT_TYPE_MISMATCH,
+	CAIRO_INT_STATUS_USER_FONT_IMMUTABLE,
+	CAIRO_INT_STATUS_USER_FONT_ERROR,
+	CAIRO_INT_STATUS_NEGATIVE_COUNT,
+	CAIRO_INT_STATUS_INVALID_CLUSTERS,
+	CAIRO_INT_STATUS_INVALID_SLANT,
+	CAIRO_INT_STATUS_INVALID_WEIGHT,
+	CAIRO_INT_STATUS_INVALID_SIZE,
+	CAIRO_INT_STATUS_USER_FONT_NOT_IMPLEMENTED,
+	CAIRO_INT_STATUS_DEVICE_TYPE_MISMATCH,
+	CAIRO_INT_STATUS_DEVICE_ERROR,
+	CAIRO_INT_STATUS_INVALID_MESH_CONSTRUCTION,
+	CAIRO_INT_STATUS_DEVICE_FINISHED,
+	CAIRO_INT_STATUS_JBIG2_GLOBAL_MISSING,
+
+	CAIRO_INT_STATUS_LAST_STATUS,
+
+	CAIRO_INT_STATUS_UNSUPPORTED = 100,
+	CAIRO_INT_STATUS_DEGENERATE,
+	CAIRO_INT_STATUS_NOTHING_TO_DO,
+	CAIRO_INT_STATUS_FLATTEN_TRANSPARENCY,
+	CAIRO_INT_STATUS_IMAGE_FALLBACK,
+	CAIRO_INT_STATUS_ANALYZE_RECORDING_SURFACE_PATTERN,
+};
+
+typedef enum _cairo_int_status cairo_int_status_t;
+#endif // } @sobolev __SLCAIRO_H
+
+#define _cairo_status_is_error(status) (status != CAIRO_STATUS_SUCCESS && status < CAIRO_STATUS_LAST_STATUS)
+#define _cairo_int_status_is_error(status) (status != CAIRO_INT_STATUS_SUCCESS && status < CAIRO_INT_STATUS_LAST_STATUS)
+
+cairo_private cairo_status_t FASTCALL _cairo_error(cairo_status_t status);
+
+// hide compiler warnings when discarding the return value 
+#define _cairo_error_throw(status) do {	cairo_status_t status__ = _cairo_error(status);	(void)status__;	} while(0)
 //
 //#include "cairo-private.h"
 //
-CAIRO_BEGIN_DECLS
-
 struct _cairo {
     cairo_reference_count_t ref_count;
     cairo_status_t status;
@@ -953,7 +1728,7 @@ cairo_private cairo_status_t _cairo_surface_composite_polygon(cairo_surface_t * 
 //
 typedef void (*cairo_surface_func_t)(cairo_surface_t *);
 
-struct _cairo_surface {
+struct cairo_surface_t {
 	const cairo_surface_backend_t * backend;
 	cairo_device_t * device;
 	// We allow surfaces to override the backend->type by shoving something
@@ -986,10 +1761,8 @@ struct _cairo_surface {
 	// A "snapshot" surface is immutable. See _cairo_surface_snapshot
 	cairo_surface_t * snapshot_of;
 	cairo_surface_func_t snapshot_detach;
-	// current snapshots of this surface
-	cairo_list_t snapshots;
-	// place upon snapshot list 
-	cairo_list_t snapshot;
+	cairo_list_t snapshots; // current snapshots of this surface
+	cairo_list_t snapshot; // place upon snapshot list 
 	// 
 	// Surface font options, falling back to backend's default options,
 	// and set using _cairo_surface_set_font_options(), and propagated by
@@ -1056,17 +1829,12 @@ struct _cairo_surface_backend {
 cairo_private cairo_status_t _cairo_surface_default_acquire_source_image(void * surface, cairo_image_surface_t  ** image_out, void ** image_extra);
 cairo_private void _cairo_surface_default_release_source_image(void * surface, cairo_image_surface_t  * image, void * image_extra);
 cairo_private cairo_surface_t * _cairo_surface_default_source(void * surface, CairoIRect * extents);
-
-CAIRO_END_DECLS
 //
 //#include "cairo-surface-inline.h"
 //
 static inline cairo_status_t __cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 {
-	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-	if(surface->backend->flush)
-		status = surface->backend->flush(surface, flags);
-	return status;
+	return (surface->backend->flush) ? surface->backend->flush(surface, flags) : CAIRO_STATUS_SUCCESS;
 }
 
 static inline cairo_surface_t * _cairo_surface_reference(cairo_surface_t * surface)
@@ -1084,8 +1852,6 @@ cairo_private cairo_path_t * _cairo_path_create_in_error(cairo_status_t status);
 cairo_private cairo_status_t _cairo_path_append_to_context(const cairo_path_t * path, cairo_t * cr);
 //
 //#include "cairo-image-surface-private.h"
-//
-CAIRO_BEGIN_DECLS
 //
 // The canonical image backend 
 //
@@ -1445,11 +2211,11 @@ cairo_private void _cairo_rectangle_union(CairoIRect * dst, const CairoIRect * s
 cairo_private cairo_bool_t _cairo_box_intersects_line_segment(const cairo_box_t * box, cairo_line_t * line) cairo_pure;
 cairo_private cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box) cairo_pure;
 
-typedef struct {
+struct cairo_user_data_slot_t {
 	const cairo_user_data_key_t * key;
 	void * user_data;
 	cairo_destroy_func_t destroy;
-} cairo_user_data_slot_t;
+};
 
 cairo_private void FASTCALL _cairo_user_data_array_init(cairo_user_data_array_t * array);
 cairo_private void FASTCALL _cairo_user_data_array_fini(cairo_user_data_array_t * array);
@@ -1491,29 +2257,25 @@ cairo_private void _cairo_win32_font_reset_static_data(void);
 struct _cairo_unscaled_font_backend {
 	cairo_bool_t (* destroy)(void * unscaled_font);
 };
-
-/* #cairo_toy_font_face_t - simple family/slant/weight font faces used for
- * the built-in font API
- */
-
-typedef struct _cairo_toy_font_face {
+//
+// #cairo_toy_font_face_t - simple family/slant/weight font faces used for the built-in font API
+//
+struct cairo_toy_font_face_t {
 	cairo_font_face_t base;
 	const char * family;
 	cairo_bool_t owns_family;
 	cairo_font_slant_t slant;
 	cairo_font_weight_t weight;
 	cairo_font_face_t * impl_face; /* The non-toy font face this actually uses */
-} cairo_toy_font_face_t;
+};
 
 #ifndef __SLCAIRO_H // @sobolev {
-
 typedef enum _cairo_scaled_glyph_info {
 	CAIRO_SCALED_GLYPH_INFO_METRICS      = (1 << 0),
 	CAIRO_SCALED_GLYPH_INFO_SURFACE      = (1 << 1),
 	CAIRO_SCALED_GLYPH_INFO_PATH         = (1 << 2),
 	CAIRO_SCALED_GLYPH_INFO_RECORDING_SURFACE = (1 << 3)
 } cairo_scaled_glyph_info_t;
-
 #endif // } @sobolev __SLCAIRO_H
 
 typedef struct _cairo_scaled_font_subset {
@@ -1537,11 +2299,11 @@ struct _cairo_scaled_font_backend {
 	cairo_font_type_t type;
 	void (* fini)(void * scaled_font);
 	cairo_warn cairo_int_status_t (* scaled_glyph_init)(void * scaled_font, cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_info_t info);
-
-	/* A backend only needs to implement this or ucs4_to_index(), not
-	 * both. This allows the backend to do something more sophisticated
-	 * then just converting characters one by one.
-	 */
+	// 
+	// A backend only needs to implement this or ucs4_to_index(), not
+	// both. This allows the backend to do something more sophisticated
+	// then just converting characters one by one.
+	// 
 	cairo_warn cairo_int_status_t (* text_to_glyphs)(void * scaled_font,
 	    double x, double y, const char * utf8, int utf8_len, cairo_glyph_t ** glyphs, int * num_glyphs,
 	    cairo_text_cluster_t ** clusters, int * num_clusters, cairo_text_cluster_flags_t * cluster_flags);
@@ -1583,7 +2345,6 @@ struct _cairo_scaled_font_backend {
 	 * @glyph_array_index: (index into glyph_names) the glyph name corresponding
 	 *  to the glyph_index
 	 */
-
 	cairo_warn cairo_int_status_t (* index_to_glyph_name)(void * scaled_font, char ** glyph_names, int num_glyph_names, ulong glyph_index, ulong * glyph_array_index);
 
 	/* Read data from a PostScript font.
@@ -1617,8 +2378,9 @@ struct _cairo_font_face_backend {
 };
 
 extern const cairo_private struct _cairo_font_face_backend _cairo_user_font_face_backend;
-
-/* concrete font backends */
+//
+// concrete font backends 
+//
 #if CAIRO_HAS_FT_FONT
 	extern const cairo_private struct _cairo_font_face_backend _cairo_ft_font_face_backend;
 #endif
@@ -1655,7 +2417,7 @@ struct _cairo_surface_attributes {
 #define CAIRO_FT_FONT_FAMILY_DEFAULT     ""
 #define CAIRO_USER_FONT_FAMILY_DEFAULT     "@cairo:"
 
-#if   CAIRO_HAS_WIN32_FONT
+#if CAIRO_HAS_WIN32_FONT
 	#define CAIRO_FONT_FAMILY_DEFAULT CAIRO_WIN32_FONT_FAMILY_DEFAULT
 	#define CAIRO_FONT_FACE_BACKEND_DEFAULT &_cairo_win32_font_face_backend
 #elif CAIRO_HAS_QUARTZ_FONT
@@ -1767,9 +2529,9 @@ cairo_private cairo_status_t _cairo_font_face_twin_create_for_toy(cairo_toy_font
 extern const cairo_private int8_t _cairo_twin_outlines[];
 extern const cairo_private uint16_t _cairo_twin_charmap[128];
 // cairo-font-options.c 
-cairo_private void _cairo_font_options_init_default(cairo_font_options_t * options);
-cairo_private void _cairo_font_options_init_copy(cairo_font_options_t * options, const cairo_font_options_t       * other);
-cairo_private void _cairo_font_options_set_lcd_filter(cairo_font_options_t   * options, cairo_lcd_filter_t lcd_filter);
+cairo_private void FASTCALL _cairo_font_options_init_default(cairo_font_options_t * options);
+cairo_private void FASTCALL _cairo_font_options_init_copy(cairo_font_options_t * options, const cairo_font_options_t * other);
+cairo_private void _cairo_font_options_set_lcd_filter(cairo_font_options_t * options, cairo_lcd_filter_t lcd_filter);
 cairo_private cairo_lcd_filter_t _cairo_font_options_get_lcd_filter(const cairo_font_options_t * options);
 cairo_private void _cairo_font_options_set_round_glyph_positions(cairo_font_options_t   * options, cairo_round_glyph_positions_t round);
 cairo_private cairo_round_glyph_positions_t _cairo_font_options_get_round_glyph_positions(const cairo_font_options_t * options);
@@ -2060,7 +2822,6 @@ cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_invertible(const cairo_matr
 cairo_private cairo_bool_t FASTCALL _cairo_matrix_is_scale_0(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private double FASTCALL _cairo_matrix_compute_determinant(const cairo_matrix_t * matrix) cairo_pure;
 cairo_private cairo_status_t _cairo_matrix_compute_basis_scale_factors(const cairo_matrix_t * matrix, double * sx, double * sy, int x_major);
-
 /*
 static inline cairo_bool_t _cairo_matrix_is_identity(const cairo_matrix_t * matrix)
 {
@@ -2077,7 +2838,6 @@ static inline cairo_bool_t _cairo_matrix_is_scale(const cairo_matrix_t * matrix)
 	return matrix->yx == 0.0 && matrix->xy == 0.0;
 }
 */
-
 cairo_bool_t FASTCALL _cairo_matrix_is_identity(const cairo_matrix_t * matrix);
 cairo_bool_t FASTCALL _cairo_matrix_is_translation(const cairo_matrix_t * matrix);
 cairo_bool_t FASTCALL _cairo_matrix_is_scale(const cairo_matrix_t * matrix);
@@ -2099,22 +2859,16 @@ cairo_private cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_polyg
     CairoFillRule fill_rule, cairo_boxes_t * boxes);
 cairo_private void _cairo_trapezoid_array_translate_and_scale(cairo_trapezoid_t * offset_traps,
     cairo_trapezoid_t * src_traps, int num_traps, double tx, double ty, double sx, double sy);
-
 #if CAIRO_HAS_DRM_SURFACE
-
-cairo_private void _cairo_drm_device_reset_static_data(void);
-
+	cairo_private void _cairo_drm_device_reset_static_data(void);
 #endif
-
 cairo_private void _cairo_clip_reset_static_data(void);
 cairo_private void _cairo_pattern_reset_static_data(void);
 
-/* cairo-unicode.c */
-
+// cairo-unicode.c 
 cairo_private int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t   * unicode);
 cairo_private cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t  ** result, int * items_written);
 cairo_private int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8);
-
 #if CAIRO_HAS_WIN32_FONT || CAIRO_HAS_QUARTZ_FONT || CAIRO_HAS_PDF_OPERATORS
 	#define CAIRO_HAS_UTF8_TO_UTF16 1
 #endif
@@ -2123,11 +2877,10 @@ cairo_private int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8);
 #endif
 cairo_private void _cairo_matrix_multiply(cairo_matrix_t * r, const cairo_matrix_t * a, const cairo_matrix_t * b);
 
-/* cairo-observer.c */
-
+// cairo-observer.c 
 cairo_private void FASTCALL _cairo_observers_notify(cairo_list_t * observers, void * arg);
 
-/* Avoid unnecessary PLT entries.  */
+// Avoid unnecessary PLT entries
 slim_hidden_proto(cairo_clip_preserve);
 slim_hidden_proto(cairo_close_path);
 slim_hidden_proto(cairo_create);
@@ -2297,12 +3050,28 @@ CAIRO_END_DECLS
 
 #include "cairo-mutex-impl-private.h"
 #include "cairo-mutex-type-private.h"
-#include "cairo-mutex-private.h"
 //
-//#include "cairo-scaled-font-private.h"
+//#include "cairo-mutex-private.h"
 //
 CAIRO_BEGIN_DECLS
 
+#if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER
+	cairo_private void _cairo_mutex_initialize(void);
+#endif
+#if _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
+	cairo_private void _cairo_mutex_finalize(void);
+#endif
+// only if using static initializer and/or finalizer define the boolean 
+#if _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER || _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
+	cairo_private extern cairo_bool_t _cairo_mutex_initialized;
+#endif
+// Finally, extern the static mutexes and undef 
+#define CAIRO_MUTEX_DECLARE(mutex) cairo_private extern cairo_mutex_t mutex;
+#include "cairo-mutex-list-private.h"
+#undef CAIRO_MUTEX_DECLARE
+//
+//#include "cairo-scaled-font-private.h"
+//
 typedef struct _cairo_scaled_glyph_page cairo_scaled_glyph_page_t;
 
 struct _cairo_scaled_font {
@@ -2403,13 +3172,10 @@ cairo_private void _cairo_scaled_font_attach_private(cairo_scaled_font_t * scale
 cairo_private cairo_scaled_glyph_private_t * _cairo_scaled_glyph_find_private(cairo_scaled_glyph_t * scaled_glyph, const void * key);
 cairo_private void _cairo_scaled_glyph_attach_private(cairo_scaled_glyph_t * scaled_glyph, cairo_scaled_glyph_private_t * priv, 
 	const void * key, void (* destroy)(cairo_scaled_glyph_private_t *, cairo_scaled_glyph_t *, cairo_scaled_font_t *));
-
-CAIRO_END_DECLS
 //
 //#include "cairo-line-inline.h"
 //#include "cairo-line-private.h"
 //
-CAIRO_BEGIN_DECLS
 cairo_private int cairo_lines_compare_at_y(const cairo_line_t *a, const cairo_line_t *b, int y);
 CAIRO_END_DECLS
 //
@@ -2610,10 +3376,8 @@ static inline cairo_bool_t _cairo_box_contains_point(const cairo_box_t * box, co
 static inline cairo_bool_t _cairo_box_is_pixel_aligned(const cairo_box_t * box)
 {
 #if CAIRO_FIXED_FRAC_BITS <= 8 && 0
-	return ((box->p1.x & CAIRO_FIXED_FRAC_MASK) << 24 |
-	    (box->p1.y & CAIRO_FIXED_FRAC_MASK) << 16 |
-	    (box->p2.x & CAIRO_FIXED_FRAC_MASK) << 8 |
-	    (box->p2.y & CAIRO_FIXED_FRAC_MASK) << 0) == 0;
+	return ((box->p1.x & CAIRO_FIXED_FRAC_MASK) << 24 | (box->p1.y & CAIRO_FIXED_FRAC_MASK) << 16 |
+	    (box->p2.x & CAIRO_FIXED_FRAC_MASK) << 8 | (box->p2.y & CAIRO_FIXED_FRAC_MASK) << 0) == 0;
 #else /* GCC on i7 prefers this variant (bizarrely according to the profiler) */
 	cairo_fixed_t f = 0;
 	f |= box->p1.x & CAIRO_FIXED_FRAC_MASK;
@@ -2950,82 +3714,69 @@ struct /*_cairo_surface_clipper*/cairo_surface_clipper_t {
 cairo_private cairo_status_t FASTCALL _cairo_surface_clipper_set_clip(cairo_surface_clipper_t * clipper, const cairo_clip_t * clip);
 cairo_private void FASTCALL _cairo_surface_clipper_init(cairo_surface_clipper_t * clipper, cairo_surface_clipper_intersect_clip_path_func_t intersect);
 cairo_private void FASTCALL _cairo_surface_clipper_reset(cairo_surface_clipper_t * clipper);
-
-CAIRO_END_DECLS
 //
 //#include "cairo-freed-pool-private.h"
 //
-CAIRO_BEGIN_DECLS
-
 #define DISABLE_FREED_POOLS 0
 
 #if HAS_ATOMIC_OPS && !DISABLE_FREED_POOLS
+	#define MAX_FREED_POOL_SIZE 16 // Keep a stash of recently freed clip_paths, since we need to reallocate them frequently.
+	typedef struct {
+		void * pool[MAX_FREED_POOL_SIZE];
+		int top;
+	} freed_pool_t;
 
-#define MAX_FREED_POOL_SIZE 16 // Keep a stash of recently freed clip_paths, since we need to reallocate them frequently.
-typedef struct {
-	void * pool[MAX_FREED_POOL_SIZE];
-	int top;
-} freed_pool_t;
-
-static cairo_always_inline void * _atomic_fetch(void ** slot)
-{
-	void * ptr;
-	do {
-		ptr = _cairo_atomic_ptr_get(slot);
-	} while(!_cairo_atomic_ptr_cmpxchg(slot, ptr, NULL));
-	return ptr;
-}
-
-static cairo_always_inline cairo_bool_t _atomic_store(void ** slot, void * ptr)
-{
-	return _cairo_atomic_ptr_cmpxchg(slot, NULL, ptr);
-}
-
-cairo_private void * _freed_pool_get_search(freed_pool_t * pool);
-
-static inline void * _freed_pool_get(freed_pool_t * pool)
-{
-	void * ptr;
-	int i = pool->top - 1;
-	if(i < 0)
-		i = 0;
-	ptr = _atomic_fetch(&pool->pool[i]);
-	if(likely(ptr != NULL)) {
-		pool->top = i;
+	static cairo_always_inline void * _atomic_fetch(void ** slot)
+	{
+		void * ptr;
+		do {
+			ptr = _cairo_atomic_ptr_get(slot);
+		} while(!_cairo_atomic_ptr_cmpxchg(slot, ptr, NULL));
 		return ptr;
 	}
-	// either empty or contended 
-	return _freed_pool_get_search(pool);
-}
-
-cairo_private void _freed_pool_put_search(freed_pool_t * pool, void * ptr);
-
-static inline void _freed_pool_put(freed_pool_t * pool, void * ptr)
-{
-	int i = pool->top;
-	if(likely(i < SIZEOFARRAY(pool->pool) && _atomic_store(&pool->pool[i], ptr))) {
-		pool->top = i + 1;
-		return;
+	static cairo_always_inline cairo_bool_t _atomic_store(void ** slot, void * ptr)
+	{
+		return _cairo_atomic_ptr_cmpxchg(slot, NULL, ptr);
 	}
-	// either full or contended 
-	_freed_pool_put_search(pool, ptr);
-}
+	cairo_private void * _freed_pool_get_search(freed_pool_t * pool);
+	static inline void * _freed_pool_get(freed_pool_t * pool)
+	{
+		void * ptr;
+		int i = pool->top - 1;
+		if(i < 0)
+			i = 0;
+		ptr = _atomic_fetch(&pool->pool[i]);
+		if(likely(ptr != NULL)) {
+			pool->top = i;
+			return ptr;
+		}
+		// either empty or contended 
+		return _freed_pool_get_search(pool);
+	}
+	cairo_private void _freed_pool_put_search(freed_pool_t * pool, void * ptr);
+	static inline void _freed_pool_put(freed_pool_t * pool, void * ptr)
+	{
+		int i = pool->top;
+		if(likely(i < SIZEOFARRAY(pool->pool) && _atomic_store(&pool->pool[i], ptr))) {
+			pool->top = i + 1;
+			return;
+		}
+		// either full or contended 
+		_freed_pool_put_search(pool, ptr);
+	}
+	cairo_private void _freed_pool_reset(freed_pool_t * pool);
 
-cairo_private void _freed_pool_reset(freed_pool_t * pool);
-
-#define HAS_FREED_POOL 1
-
+	#define HAS_FREED_POOL 1
 #else
-// 
-// A warning about an unused freed-pool in a build without atomics
-// enabled usually indicates a missing _freed_pool_reset() in the static reset function 
-// 
-typedef int freed_pool_t;
+	// 
+	// A warning about an unused freed-pool in a build without atomics
+	// enabled usually indicates a missing _freed_pool_reset() in the static reset function 
+	// 
+	typedef int freed_pool_t;
 
-#define _freed_pool_get(pool) NULL
-#define _freed_pool_put(pool, ptr) SAlloc::F(ptr)
-#define _freed_pool_reset(ptr)
-
+	#define _freed_pool_get(pool) NULL
+	#define _freed_pool_put(pool, ptr) SAlloc::F(ptr)
+	#define _freed_pool_reset(ptr)
 #endif
 
 CAIRO_END_DECLS
@@ -3235,7 +3986,6 @@ typedef union {
     cairo_linear_pattern_t linear;
     cairo_radial_pattern_t radial;
 } cairo_gradient_pattern_union_t;
-
 /*
  * A mesh patch is a tensor-product patch (bicubic Bezier surface
  * patch). It has 16 control points. Each set of 4 points along the
@@ -3265,7 +4015,6 @@ typedef union {
  *  points[3][3]    colors[2]
  *  points[3][0]    colors[3]
  */
-
 typedef struct _cairo_mesh_patch {
     RPoint points[4][4];
     cairo_color_t colors[4];
@@ -3923,8 +4672,10 @@ static inline cairo_bool_t _cairo_recording_surface_get_bounds(cairo_surface_t *
 	cairo_recording_surface_t * recording = (cairo_recording_surface_t*)surface;
 	if(recording->unbounded)
 		return FALSE;
-	*extents = recording->extents_pixels;
-	return TRUE;
+	else {
+		*extents = recording->extents_pixels;
+		return TRUE;
+	}
 }
 /**
  * _cairo_surface_is_recording:

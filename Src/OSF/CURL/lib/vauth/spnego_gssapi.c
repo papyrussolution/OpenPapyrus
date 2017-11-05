@@ -25,7 +25,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if defined(HAVE_GSSAPI) && defined(USE_SPNEGO)
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 #include "curl_gssapi.h"
 //#include "warnless.h"
 //#include "curl_multibyte.h"

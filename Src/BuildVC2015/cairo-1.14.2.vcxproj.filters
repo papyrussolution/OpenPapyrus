@@ -215,9 +215,6 @@
     <ClInclude Include="..\Include\Cairo\cairo.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-atomic-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-beos.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -237,9 +234,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-combsort-inline.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-compiler-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-deprecated.h">
@@ -287,9 +281,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-error-inline.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-error-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-features.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -330,9 +321,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-mutex-list-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-mutex-type-private.h">
@@ -393,9 +381,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-tee.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-types-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-version.h">

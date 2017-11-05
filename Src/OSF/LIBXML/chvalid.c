@@ -13,7 +13,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/chvalid.h>
+//#include <libxml/chvalid.h>
 /*
  * The initial tables ({func_name}_tab) are used to validate whether a
  * single-byte character is within the specified group.  Each table

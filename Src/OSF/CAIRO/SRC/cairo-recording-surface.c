@@ -486,69 +486,56 @@ static cairo_surface_t * get_proxy(cairo_surface_t * proxy)
 	return ((struct proxy*)proxy)->image;
 }
 
-static cairo_status_t _cairo_recording_surface_acquire_source_image(void * abstract_surface,
-    cairo_image_surface_t    ** image_out,
-    void                     ** image_extra)
+static cairo_status_t _cairo_recording_surface_acquire_source_image(void * abstract_surface, cairo_image_surface_t ** image_out, void ** image_extra)
 {
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)abstract_surface;
-	cairo_surface_t * image, * proxy;
+	cairo_surface_t * image;
 	cairo_status_t status;
-	proxy = _cairo_surface_has_snapshot((cairo_surface_t *)abstract_surface, &proxy_backend);
-	if(proxy != NULL) {
-		*image_out = (cairo_image_surface_t*)
-		    cairo_surface_reference(get_proxy(proxy));
+	cairo_surface_t * proxy = _cairo_surface_has_snapshot((cairo_surface_t *)abstract_surface, &proxy_backend);
+	if(proxy) {
+		*image_out = (cairo_image_surface_t*)cairo_surface_reference(get_proxy(proxy));
 		*image_extra = NULL;
-		return CAIRO_STATUS_SUCCESS;
 	}
-	assert(!surface->unbounded);
-	image = _cairo_image_surface_create_with_content(surface->base.content, surface->extents.width, surface->extents.height);
-	if(unlikely(image->status))
-		return image->status;
-	/* Handle recursion by returning future reads from the current image */
-	proxy = attach_proxy((cairo_surface_t *)abstract_surface, image);
-	status = _cairo_recording_surface_replay(&surface->base, image);
-	detach_proxy((cairo_surface_t *)abstract_surface, proxy);
-	if(unlikely(status)) {
-		cairo_surface_destroy(image);
-		return status;
+	else {
+		assert(!surface->unbounded);
+		image = _cairo_image_surface_create_with_content(surface->base.content, surface->extents.width, surface->extents.height);
+		if(unlikely(image->status))
+			return image->status;
+		// Handle recursion by returning future reads from the current image 
+		proxy = attach_proxy((cairo_surface_t *)abstract_surface, image);
+		status = _cairo_recording_surface_replay(&surface->base, image);
+		detach_proxy((cairo_surface_t *)abstract_surface, proxy);
+		if(unlikely(status)) {
+			cairo_surface_destroy(image);
+			return status;
+		}
+		*image_out = (cairo_image_surface_t*)image;
+		*image_extra = NULL;
 	}
-
-	*image_out = (cairo_image_surface_t*)image;
-	*image_extra = NULL;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_recording_surface_release_source_image(void * abstract_surface,
-    cairo_image_surface_t    * image,
-    void * image_extra)
+static void _cairo_recording_surface_release_source_image(void * abstract_surface, cairo_image_surface_t * image, void * image_extra)
 {
 	cairo_surface_destroy(&image->base);
 }
 
-static cairo_status_t _command_init(cairo_recording_surface_t * surface,
-    cairo_command_header_t * command,
-    cairo_command_type_t type,
-    cairo_operator_t op,
-    cairo_composite_rectangles_t * composite)
+static cairo_status_t FASTCALL _command_init(cairo_recording_surface_t * surface, cairo_command_header_t * command,
+    cairo_command_type_t type, cairo_operator_t op, cairo_composite_rectangles_t * composite)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-
 	command->type = type;
 	command->op = op;
 	command->region = CAIRO_RECORDING_REGION_ALL;
-
 	command->extents = composite->unbounded;
 	command->chain = NULL;
 	command->index = surface->commands.num_elements;
-
-	/* steal the clip */
+	// steal the clip 
 	command->clip = NULL;
-	if(!_cairo_composite_rectangles_can_reduce_clip(composite,
-		    composite->clip)) {
+	if(!_cairo_composite_rectangles_can_reduce_clip(composite, composite->clip)) {
 		command->clip = composite->clip;
 		composite->clip = NULL;
 	}
-
 	return status;
 }
 
@@ -557,37 +544,30 @@ static void _cairo_recording_surface_break_self_copy_loop(cairo_recording_surfac
 	cairo_surface_flush(&surface->base);
 }
 
-static cairo_status_t _cairo_recording_surface_commit(cairo_recording_surface_t * surface,
-    cairo_command_header_t * command)
+static cairo_status_t _cairo_recording_surface_commit(cairo_recording_surface_t * surface, cairo_command_header_t * command)
 {
 	_cairo_recording_surface_break_self_copy_loop(surface);
 	return _cairo_array_append(&surface->commands, &command);
 }
 
-static void _cairo_recording_surface_reset(cairo_recording_surface_t * surface)
+static void FASTCALL _cairo_recording_surface_reset(cairo_recording_surface_t * surface)
 {
-	/* Reset the commands and temporaries */
+	// Reset the commands and temporaries 
 	_cairo_recording_surface_finish(surface);
-
 	surface->bbtree.left = surface->bbtree.right = NULL;
 	surface->bbtree.chain = INVALID_CHAIN;
-
 	surface->indices = NULL;
 	surface->num_indices = 0;
-
 	_cairo_array_init(&surface->commands, sizeof(cairo_command_t *));
 }
 
 static cairo_bool_t is_identity_recording_pattern(const cairo_pattern_t * pattern)
 {
 	cairo_surface_t * surface;
-
 	if(pattern->type != CAIRO_PATTERN_TYPE_SURFACE)
 		return FALSE;
-
 	if(!_cairo_matrix_is_identity(&pattern->matrix))
 		return FALSE;
-
 	surface = ((cairo_surface_pattern_t*)pattern)->surface;
 	return surface->backend->type == CAIRO_SURFACE_TYPE_RECORDING;
 }
@@ -608,50 +588,33 @@ static cairo_int_status_t _cairo_recording_surface_paint(void * abstract_surface
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
-	if(clip == NULL && surface->optimize_clears &&
-	    (op == CAIRO_OPERATOR_SOURCE ||
-		    (op == CAIRO_OPERATOR_OVER &&
-			    (surface->base.is_clear || _cairo_pattern_is_opaque_solid(source))))) {
+	if(!clip && surface->optimize_clears && (op == CAIRO_OPERATOR_SOURCE || (op == CAIRO_OPERATOR_OVER && (surface->base.is_clear || _cairo_pattern_is_opaque_solid(source))))) {
 		_cairo_recording_surface_reset(surface);
 		if(is_identity_recording_pattern(source)) {
 			cairo_surface_t * src = ((cairo_surface_pattern_t*)source)->surface;
 			return _cairo_recording_surface_replay(src, &surface->base);
 		}
 	}
-
-	status = _cairo_composite_rectangles_init_for_paint(&composite,
-	    &surface->base,
-	    op, source,
-	    clip);
+	status = _cairo_composite_rectangles_init_for_paint(&composite, &surface->base, op, source, clip);
 	if(unlikely(status))
 		return status;
-
 	command = (cairo_command_paint_t *)SAlloc::M(sizeof(cairo_command_paint_t));
 	if(unlikely(command == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP_COMPOSITE;
 	}
-
-	status = _command_init(surface,
-	    &command->header, CAIRO_COMMAND_PAINT, op,
-	    &composite);
+	status = _command_init(surface, &command->header, CAIRO_COMMAND_PAINT, op, &composite);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_pattern_init_snapshot(&command->source.base, source);
 	if(unlikely(status))
 		goto CLEANUP_COMMAND;
-
 	status = _cairo_recording_surface_commit(surface, &command->header);
 	if(unlikely(status))
 		goto CLEANUP_SOURCE;
-
 	_cairo_recording_surface_destroy_bbtree(surface);
-
 	_cairo_composite_rectangles_fini(&composite);
 	return CAIRO_STATUS_SUCCESS;
-
 CLEANUP_SOURCE:
 	_cairo_pattern_fini(&command->source.base);
 CLEANUP_COMMAND:

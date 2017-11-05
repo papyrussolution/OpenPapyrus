@@ -332,7 +332,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				else {
 					tes.Init();
 					tes.Add(line, line.Len());
-					if(tes.Flags & tes.fLegalUtf8Only)
+					if(tes.CheckFlag(tes.fLegalUtf8Only))
 						line.Utf8ToChar();
 				}
 				// } @v8.6.6
@@ -358,7 +358,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			{
 				tes.Init();
 				tes.Add(line, line.Len());
-				if(tes.Flags & tes.fLegalUtf8Only) {
+				if(tes.CheckFlag(tes.fLegalUtf8Only)) {
 					line.Utf8ToChar();
 				}
 			}

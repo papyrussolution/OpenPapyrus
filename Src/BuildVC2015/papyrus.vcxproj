@@ -2017,14 +2017,8 @@
     <ProjectReference Include="nginx.vcxproj">
       <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>
     </ProjectReference>
-    <ProjectReference Include="openssl-crypto.vcxproj">
-      <Project>{519272d1-6ac2-4b29-badf-9f9a7af3383c}</Project>
-    </ProjectReference>
     <ProjectReference Include="openssl.vcxproj">
       <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="pcre.vcxproj">
-      <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
     </ProjectReference>
     <ProjectReference Include="ppres.vcxproj">
       <Project>{696dfcc9-ea0f-4232-83b5-21d0657a61c7}</Project>

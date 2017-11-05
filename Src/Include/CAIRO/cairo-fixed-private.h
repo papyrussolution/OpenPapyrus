@@ -43,13 +43,10 @@
 	#error CAIRO_FIXED_BITS must be 32, and the type must be a 32-bit type.
 	#error To remove this limitation, you will have to fix the tessellator.
 #endif
-
 #define CAIRO_FIXED_ONE        ((cairo_fixed_t)(1 << CAIRO_FIXED_FRAC_BITS))
 #define CAIRO_FIXED_ONE_DOUBLE ((double)(1 << CAIRO_FIXED_FRAC_BITS))
 #define CAIRO_FIXED_EPSILON    ((cairo_fixed_t)(1))
-
 #define CAIRO_FIXED_ERROR_DOUBLE (1. / (2 * CAIRO_FIXED_ONE_DOUBLE))
-
 #define CAIRO_FIXED_FRAC_MASK  ((cairo_fixed_t)(((cairo_fixed_unsigned_t)(-1)) >> (CAIRO_FIXED_BITS - CAIRO_FIXED_FRAC_BITS)))
 #define CAIRO_FIXED_WHOLE_MASK (~CAIRO_FIXED_FRAC_MASK)
 
@@ -93,28 +90,26 @@ static inline cairo_fixed_t _cairo_fixed_from_int(int i)
  * 2) It doesn't function properly if the FPU is in single-precision
  *    mode.
  */
-
-/* The 16.16 number must always be available */
+// The 16.16 number must always be available 
 #define CAIRO_MAGIC_NUMBER_FIXED_16_16 (103079215104.0)
 
 #if CAIRO_FIXED_BITS <= 32
-#define CAIRO_MAGIC_NUMBER_FIXED ((1LL << (52 - CAIRO_FIXED_FRAC_BITS)) * 1.5)
+	#define CAIRO_MAGIC_NUMBER_FIXED ((1LL << (52 - CAIRO_FIXED_FRAC_BITS)) * 1.5)
 
-// For 32-bit fixed point numbers 
-static inline cairo_fixed_t _cairo_fixed_from_double(double d)
-{
-	union {
-		double d;
-		int32_t i[2];
-	} u;
-	u.d = d + CAIRO_MAGIC_NUMBER_FIXED;
-#ifdef FLOAT_WORDS_BIGENDIAN
-	return u.i[1];
-#else
-	return u.i[0];
-#endif
-}
-
+	// For 32-bit fixed point numbers 
+	static inline cairo_fixed_t _cairo_fixed_from_double(double d)
+	{
+		union {
+			double d;
+			int32_t i[2];
+		} u;
+		u.d = d + CAIRO_MAGIC_NUMBER_FIXED;
+	#ifdef FLOAT_WORDS_BIGENDIAN
+		return u.i[1];
+	#else
+		return u.i[0];
+	#endif
+	}
 #else
 	#error Please define a magic number for your fixed point type!
 	#error See cairo-fixed-private.h for details.
@@ -197,11 +192,10 @@ static inline int _cairo_fixed_integer_ceil(cairo_fixed_t f)
 {
 	return (f > 0) ? (((f - 1)>>CAIRO_FIXED_FRAC_BITS) + 1) : (-(-f >> CAIRO_FIXED_FRAC_BITS));
 }
-
-/* A bunch of explicit 16.16 operators; we need these
- * to interface with pixman and other backends that require
- * 16.16 fixed point types.
- */
+// 
+// A bunch of explicit 16.16 operators; we need these
+// to interface with pixman and other backends that require 16.16 fixed point types.
+// 
 static inline cairo_fixed_16_16_t _cairo_fixed_to_16_16(cairo_fixed_t f)
 {
 #if (CAIRO_FIXED_FRAC_BITS == 16) && (CAIRO_FIXED_BITS == 32)
@@ -211,9 +205,7 @@ static inline cairo_fixed_16_16_t _cairo_fixed_to_16_16(cairo_fixed_t f)
 	return f >> (CAIRO_FIXED_FRAC_BITS - 16);
 #else
 	cairo_fixed_16_16_t x;
-	/* Handle overflow/underflow by clamping to the lowest/highest
-	 * value representable as 16.16
-	 */
+	// Handle overflow/underflow by clamping to the lowest/highest value representable as 16.16
 	if((f >> CAIRO_FIXED_FRAC_BITS) < INT16_MIN) {
 		x = INT32_MIN;
 	}

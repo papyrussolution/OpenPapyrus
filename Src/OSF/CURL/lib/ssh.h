@@ -22,11 +22,10 @@
 *
 ***************************************************************************/
 
-#include "curl_setup.h"
-
+//#include "curl_setup.h"
 #ifdef HAVE_LIBSSH2_H
-#include <libssh2.h>
-#include <libssh2_sftp.h>
+	#include <libssh2.h>
+	#include <libssh2_sftp.h>
 #endif /* HAVE_LIBSSH2_H */
 
 /****************************************************************************

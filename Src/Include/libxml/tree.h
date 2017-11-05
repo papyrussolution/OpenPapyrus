@@ -600,7 +600,7 @@ XMLPUBFUN int XMLCALL xmlValidateNCName(const xmlChar * value, int space);
 	XMLPUBFUN int XMLCALL xmlValidateNMToken(const xmlChar * value, int space);
 #endif
 XMLPUBFUN xmlChar * XMLCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len);
-XMLPUBFUN xmlChar * XMLCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix);
 XMLPUBFUN const xmlChar * XMLCALL xmlSplitQName3(const xmlChar * name, int * len);
 /*
  * Handling Buffers, the old ones see @xmlBuf for the new ones.

@@ -40,7 +40,7 @@
 #endif
 //#include "urldata.h"
 //#include "curl_base64.h"
-#include "ftp.h"
+//#include "ftp.h"
 #include "curl_gssapi.h"
 //#include "sendf.h"
 #include "curl_sec.h"

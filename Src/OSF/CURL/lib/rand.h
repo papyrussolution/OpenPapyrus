@@ -37,7 +37,6 @@
  * easy handle!
  *
  */
-CURLcode Curl_rand(struct Curl_easy *data, unsigned int *rnd,
-                   unsigned int num);
+CURLcode Curl_rand(struct Curl_easy *data, unsigned int *rnd, unsigned int num);
 
 #endif /* HEADER_CURL_RAND_H */

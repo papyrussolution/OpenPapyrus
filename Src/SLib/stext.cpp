@@ -7,6 +7,7 @@
 #include <tv.h>
 #pragma hdrstop
 #include <wchar.h>
+#include <..\OSF\uchardet\src\uchardet.h>
 
 static const char * p_dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 static const char * p_mon_en_sh[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -2983,15 +2984,40 @@ SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
 //
 //
 //
-STextEncodingStat::STextEncodingStat()
+SLAPI STextEncodingStat::STextEncodingStat(long options) : P_UcdHandle(0)
 {
-	Init();
+	Init(options);
 }
 
-STextEncodingStat & STextEncodingStat::Init()
+SLAPI STextEncodingStat::~STextEncodingStat()
+{
+	if(P_UcdHandle) {
+		uchardet_delete((uchardet_t)P_UcdHandle);
+		P_UcdHandle = 0;
+	}
+}
+
+STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
 {
 	Flags = fEmpty;
+	if(options & fUseUCharDet)
+		Flags |= fUseUCharDet;
+	if(Flags & fUseUCharDet) {
+		if(P_UcdHandle) {
+			uchardet_reset((uchardet_t)P_UcdHandle);
+		}
+		else {
+			P_UcdHandle = uchardet_new();
+		}
+	}
+	else {
+		if(P_UcdHandle) {
+			uchardet_delete((uchardet_t)P_UcdHandle);
+			P_UcdHandle = 0;
+		}
+	}
 	Cp = cpUndef;
+	CpName[0] = 0;
 	Eolf = eolUndef;
 	MEMSZERO(ChrFreq);
 	memzero(Utf8Prefix, sizeof(Utf8Prefix));
@@ -2999,13 +3025,16 @@ STextEncodingStat & STextEncodingStat::Init()
 	return *this;
 }
 
-int STextEncodingStat::Add(const void * pData, size_t size)
+int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
 {
 	int    ok = 1;
 	if(size && pData) {
 		if(Flags & fEmpty) {
 			Flags &= ~fEmpty;
 			Flags |= (fAsciiOnly|fLegalUtf8Only);
+		}
+		if(P_UcdHandle) {
+			uchardet_handle_data((uchardet_t)P_UcdHandle, (const char *)pData, size);
 		}
 		size_t skip_eolf_pos = 0;
 		size_t next_utf8_pos = 0;
@@ -3074,8 +3103,16 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 	return ok;
 }
 
-int STextEncodingStat::Finish()
+int SLAPI STextEncodingStat::Finish()
 {
+	if(P_UcdHandle) {
+		uchardet_data_end((uchardet_t)P_UcdHandle);
+		const char * p_cp_symb = uchardet_get_charset((uchardet_t)P_UcdHandle);
+		if(p_cp_symb) {
+			STRNSCPY(CpName, p_cp_symb);
+			Flags |= fUCarDetWorked;
+		}
+	}
 	return 1;
 }
 //
@@ -3124,3 +3161,64 @@ int main(int argc, char **argv )
 //
 //
 //
+#if SLTEST_RUNNING // {
+
+static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool & rFep)
+{
+	int    ok = 1;
+	SDirEntry de;
+	SString temp_buf;
+	(temp_buf = rPath).SetLastSlash().Cat("*.*");
+	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+		if(!de.IsSelf() && !de.IsUpFolder()) {
+			if(de.IsFile()) {
+				THROW(rFep.Add(rPath, de));
+			}
+			else if(de.IsFolder()) {
+				(temp_buf = rPath).SetLastSlash().Cat(de.FileName);
+				THROW(Make_STextEncodingStat_FilePool(temp_buf, rFep)); // @recursion
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+SLTEST_R(STextEncodingStat)
+{
+	SString test_data_path = MakeInputFilePath("uchardet");
+	SString out_file_name = MakeOutputFilePath("uchardet-out.txt");
+	SString in_file_name;
+	SString temp_buf;
+	SFileEntryPool fep;
+	SFileEntryPool::Entry fep_entry;
+	SPathStruc ps;
+	STextEncodingStat tes(STextEncodingStat::fUseUCharDet);
+	THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
+	{
+		SFile f_out(out_file_name, SFile::mWrite);
+		for(uint i = 0; i < fep.GetCount(); i++) {
+			if(fep.Get(i, fep_entry)) {
+				(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+				SFile f_in(in_file_name, SFile::mRead);
+				tes.Init(STextEncodingStat::fUseUCharDet);
+				while(f_in.ReadLine(temp_buf)) {
+					tes.Add(temp_buf, temp_buf.Len());
+				}
+				tes.Finish();
+				ps.Split(in_file_name);
+				SLTEST_CHECK_NZ(tes.CheckFlag(tes.fUCarDetWorked));
+				SLTEST_CHECK_Z(ps.Nam.CmpNC(tes.GetCpName()));
+				temp_buf.Z().Cat(in_file_name).Tab().Cat(tes.GetCpName()).CR();
+				f_out.WriteLine(temp_buf);
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
+
+#endif // } SLTEST_RUNNING
+

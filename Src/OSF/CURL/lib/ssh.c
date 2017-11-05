@@ -56,7 +56,7 @@
 //#include "transfer.h"
 //#include "escape.h"
 //#include "http.h" /* for HTTP proxy tunnel stuff */
-#include "ssh.h"
+//#include "ssh.h"
 //#include "url.h"
 //#include "speedcheck.h"
 //#include "getinfo.h"

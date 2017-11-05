@@ -49,19 +49,14 @@
 
 #include "cairo.h"
 
-#if  CAIRO_HAS_DIRECTFB_SURFACE
+#if CAIRO_HAS_DIRECTFB_SURFACE
+	#include <directfb.h>
 
-#include <directfb.h>
-
-CAIRO_BEGIN_DECLS
-
-cairo_public cairo_surface_t *
-cairo_directfb_surface_create (IDirectFB *dfb, IDirectFBSurface *surface);
-
-CAIRO_END_DECLS
-
-#else  /*CAIRO_HAS_DIRECTFB_SURFACE*/
+	CAIRO_BEGIN_DECLS
+	cairo_public cairo_surface_t * cairo_directfb_surface_create (IDirectFB *dfb, IDirectFBSurface *surface);
+	CAIRO_END_DECLS
+#else
 	#error Cairo was not compiled with support for the directfb backend
-#endif /*CAIRO_HAS_DIRECTFB_SURFACE*/
+#endif
 
 #endif /*CAIRO_DIRECTFB_H*/

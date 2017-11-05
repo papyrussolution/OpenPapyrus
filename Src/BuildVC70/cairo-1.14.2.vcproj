@@ -1069,9 +1069,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Include\Cairo\cairo-atomic-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\cairo-beos.h">
 			</File>
 			<File
@@ -1091,9 +1088,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-combsort-inline.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-compiler-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-deprecated.h">
@@ -1141,9 +1135,6 @@
 				RelativePath="..\Include\Cairo\cairo-error-inline.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\cairo-error-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\cairo-features.h">
 			</File>
 			<File
@@ -1181,9 +1172,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-mutex-list-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-mutex-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-mutex-type-private.h">
@@ -1241,9 +1229,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-tee.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-types-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-version.h">

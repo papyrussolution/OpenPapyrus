@@ -27,7 +27,7 @@
 //#include "urldata.h"
 //#include "sendf.h"
 #include "http_negotiate.h"
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

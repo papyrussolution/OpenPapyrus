@@ -44,19 +44,19 @@ void _cairo_composite_rectangles_fini(cairo_composite_rectangles_t * extents)
 
 static void FASTCALL _cairo_composite_reduce_pattern(const cairo_pattern_t * src, cairo_pattern_union_t * dst)
 {
-	int tx, ty;
 	_cairo_pattern_init_static_copy(&dst->base, src);
-	if(dst->base.type == CAIRO_PATTERN_TYPE_SOLID)
-		return;
-	dst->base.filter = _cairo_pattern_analyze_filter(&dst->base);
-	tx = ty = 0;
-	if(_cairo_matrix_is_pixman_translation(&dst->base.matrix, dst->base.filter, &tx, &ty)) {
-		dst->base.matrix.x0 = tx;
-		dst->base.matrix.y0 = ty;
+	if(dst->base.type != CAIRO_PATTERN_TYPE_SOLID) {
+		int tx = 0;
+		int ty = 0;
+		dst->base.filter = _cairo_pattern_analyze_filter(&dst->base);
+		if(_cairo_matrix_is_pixman_translation(&dst->base.matrix, dst->base.filter, &tx, &ty)) {
+			dst->base.matrix.x0 = tx;
+			dst->base.matrix.y0 = ty;
+		}
 	}
 }
 
-static inline cairo_bool_t _cairo_composite_rectangles_init(cairo_composite_rectangles_t * extents,
+static cairo_bool_t FASTCALL _cairo_composite_rectangles_init(cairo_composite_rectangles_t * extents,
     cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	if(_cairo_clip_is_all_clipped(clip))

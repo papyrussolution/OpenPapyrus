@@ -25,7 +25,7 @@
 #if defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
 
 //#include <curl/curl.h>
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 //#include "urldata.h"
 //#include "curl_base64.h"
 //#include "warnless.h"

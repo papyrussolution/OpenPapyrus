@@ -10,14 +10,13 @@
  * Sources: Blocks-4.0.1.txt UnicodeData-4.0.1.txt
  * Daniel Veillard <veillard@redhat.com>
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_UNICODE_ENABLED
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 #include <libxml/xmlunicode.h>
-#include <libxml/chvalid.h>
+//#include <libxml/chvalid.h>
 
 typedef int (xmlIntFunc)(int);  /* just to keep one's mind untwisted */
 

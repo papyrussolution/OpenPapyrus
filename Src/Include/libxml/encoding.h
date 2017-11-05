@@ -22,7 +22,7 @@
 #ifndef __XML_CHAR_ENCODING_H__
 #define __XML_CHAR_ENCODING_H__
 
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 #ifdef LIBXML_ICONV_ENABLED
 	#include <iconv.h>
 #endif

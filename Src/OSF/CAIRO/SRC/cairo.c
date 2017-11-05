@@ -2563,16 +2563,14 @@ slim_hidden_def(cairo_set_font_options);
  **/
 void cairo_get_font_options(cairo_t * cr, cairo_font_options_t * options)
 {
-	/* check that we aren't trying to overwrite the nil object */
-	if(cairo_font_options_status(options))
-		return;
-	if(unlikely(cr->status)) {
-		_cairo_font_options_init_default(options);
-		return;
+	// check that we aren't trying to overwrite the nil object 
+	if(cairo_font_options_status(options) == 0) {
+		if(unlikely(cr->status))
+			_cairo_font_options_init_default(options);
+		else
+			cr->backend->get_font_options(cr, options);
 	}
-	cr->backend->get_font_options(cr, options);
 }
-
 /**
  * cairo_set_scaled_font:
  * @cr: a #cairo_t

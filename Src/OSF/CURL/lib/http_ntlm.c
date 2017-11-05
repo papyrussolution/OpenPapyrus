@@ -39,7 +39,7 @@
 //#include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 //#include "url.h"
 
 #if defined(USE_NSS)

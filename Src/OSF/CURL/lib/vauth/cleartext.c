@@ -25,7 +25,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "vauth/vauth.h"
+//#include "vauth/vauth.h"
 #include "curl_printf.h"
 #include "memdebug.h"
 /*

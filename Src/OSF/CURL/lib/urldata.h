@@ -153,35 +153,32 @@
 //#include "http_chunks.h" /* for the structs and enum stuff */
 //#include "hostip.h"
 //#include "hash.h"
-#include "splay.h"
-#include "imap.h"
-#include "pop3.h"
-#include "smtp.h"
-#include "ftp.h"
-#include "file.h"
-#include "ssh.h"
+//#include "splay.h"
+//#include "imap.h"
+//#include "pop3.h"
+//#include "smtp.h"
+//#include "ftp.h"
+//#include "file.h"
+//#include "ssh.h"
 //#include "http.h"
 //#include "rtsp.h"
 //#include "smb.h"
 //#include "wildcard.h"
 //#include "multihandle.h"
-
 #ifdef HAVE_GSSAPI
-# ifdef HAVE_GSSGNU
-#include <gss.h>
-# elif defined HAVE_GSSMIT
-#include <gssapi/gssapi.h>
-#include <gssapi/gssapi_generic.h>
-# else
-#include <gssapi.h>
-# endif
+	#ifdef HAVE_GSSGNU
+		#include <gss.h>
+	#elif defined HAVE_GSSMIT
+		#include <gssapi/gssapi.h>
+		#include <gssapi/gssapi_generic.h>
+	#else
+		#include <gssapi.h>
+	#endif
 #endif
-
 #ifdef HAVE_LIBSSH2_H
-#include <libssh2.h>
-#include <libssh2_sftp.h>
+	#include <libssh2.h>
+	#include <libssh2_sftp.h>
 #endif /* HAVE_LIBSSH2_H */
-
 /* Download buffer size, keep it fairly big for speed reasons */
 #undef BUFSIZE
 #define BUFSIZE CURL_MAX_WRITE_SIZE

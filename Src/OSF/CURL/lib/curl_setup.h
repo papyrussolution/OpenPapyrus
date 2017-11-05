@@ -113,14 +113,12 @@
  */
 
 #ifdef SIZEOF_CURL_OFF_T
-#  error "SIZEOF_CURL_OFF_T shall not be defined!"
+#error "SIZEOF_CURL_OFF_T shall not be defined!"
    Error Compilation_aborted_SIZEOF_CURL_OFF_T_shall_not_be_defined
 #endif
-
 /*
  * Disable other protocols when http is the only one desired.
  */
-
 #ifdef HTTP_ONLY
 #  ifndef CURL_DISABLE_TFTP
 #    define CURL_DISABLE_TFTP
@@ -206,7 +204,6 @@
  * care of this, not defining HAVE_WINDOWS_H, HAVE_WINSOCK_H, HAVE_WINSOCK2_H,
  * neither HAVE_WS2TCPIP_H when __CYGWIN__ is defined.
  */
-
 #ifdef HAVE_WINDOWS_H
 #  if defined(UNICODE) && !defined(_UNICODE)
 #    define _UNICODE
@@ -310,23 +307,21 @@
  * Large file (>2Gb) support using WIN32 functions.
  */
 #ifdef USE_WIN32_LARGE_FILES
-#include <io.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#  undef  lseek
-#  define lseek(fdes,offset,whence)  _lseeki64(fdes, offset, whence)
-#  undef  fstat
-#  define fstat(fdes,stp)            _fstati64(fdes, stp)
-#  undef  stat
-#  define stat(fname,stp)            _stati64(fname, stp)
-#  define struct_stat                struct _stati64
-#  define LSEEK_ERROR                (__int64)-1
+	#include <io.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#undef  lseek
+	#define lseek(fdes,offset,whence)  _lseeki64(fdes, offset, whence)
+	#undef  fstat
+	#define fstat(fdes,stp)            _fstati64(fdes, stp)
+	#undef  stat
+	#define stat(fname,stp)            _stati64(fname, stp)
+	#define struct_stat                struct _stati64
+	#define LSEEK_ERROR                (__int64)-1
 #endif
-
 /*
  * Small file (<2Gb) support using WIN32 functions.
  */
-
 #ifdef USE_WIN32_SMALL_FILES
 #include <io.h>
 #include <sys/types.h>
@@ -340,19 +335,15 @@
 #  endif
 #  define LSEEK_ERROR                (long)-1
 #endif
-
 #ifndef struct_stat
-#  define struct_stat struct stat
+	#define struct_stat struct stat
 #endif
-
 #ifndef LSEEK_ERROR
-#  define LSEEK_ERROR (off_t)-1
+	#define LSEEK_ERROR (off_t)-1
 #endif
-
 /*
  * Default sizeof(off_t) in case it hasn't been defined in config file.
  */
-
 #ifndef SIZEOF_OFF_T
 #  if defined(__VMS) && !defined(__VAX)
 #    if defined(_LARGEFILE)
@@ -375,75 +366,59 @@
 #    define SIZEOF_OFF_T 4
 #  endif
 #endif
-
 /*
  * Arg 2 type for gethostname in case it hasn't been defined in config file.
  */
-
 #ifndef GETHOSTNAME_TYPE_ARG2
-#  ifdef USE_WINSOCK
-#    define GETHOSTNAME_TYPE_ARG2 int
-#  else
-#    define GETHOSTNAME_TYPE_ARG2 size_t
-#  endif
+	#ifdef USE_WINSOCK
+		#define GETHOSTNAME_TYPE_ARG2 int
+	#else
+		#define GETHOSTNAME_TYPE_ARG2 size_t
+	#endif
 #endif
-
 /* Below we define some functions. They should
 
    4. set the SIGALRM signal timeout
    5. set dir/file naming defines
    */
-
 #ifdef WIN32
-
-#  define DIR_CHAR      "\\"
-#  define DOT_CHAR      "_"
-
+	#define DIR_CHAR      "\\"
+	#define DOT_CHAR      "_"
 #else /* WIN32 */
-
-#  ifdef MSDOS  /* Watt-32 */
-
-#    include <sys/ioctl.h>
-#    define select(n,r,w,x,t) select_s(n,r,w,x,t)
-#    define ioctl(x,y,z) ioctlsocket(x,y,(char *)(z))
-#    include <tcp.h>
-#    ifdef word
-#      undef word
-#    endif
-#    ifdef byte
-#      undef byte
-#    endif
-
-#  endif /* MSDOS */
-
-#  ifdef __minix
-     /* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
-     extern char *strtok_r(char *s, const char *delim, char **last);
-     extern struct tm *gmtime_r(const time_t * const timep, struct tm *tmp);
-#  endif
-
-#  define DIR_CHAR      "/"
-#  ifndef DOT_CHAR
-#    define DOT_CHAR      "."
-#  endif
-
-#  ifdef MSDOS
-#    undef DOT_CHAR
-#    define DOT_CHAR      "_"
-#  endif
-
-#  ifndef fileno /* sunos 4 have this as a macro! */
-     int fileno(FILE *stream);
-#  endif
-
+	#ifdef MSDOS  /* Watt-32 */
+		#include <sys/ioctl.h>
+		#define select(n,r,w,x,t) select_s(n,r,w,x,t)
+		#define ioctl(x,y,z) ioctlsocket(x,y,(char *)(z))
+		#include <tcp.h>
+		#ifdef word
+			#undef word
+		#endif
+		#ifdef byte
+			#undef byte
+		#endif
+	#endif /* MSDOS */
+	#ifdef __minix
+		 /* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
+		 extern char *strtok_r(char *s, const char *delim, char **last);
+		 extern struct tm *gmtime_r(const time_t * const timep, struct tm *tmp);
+	#endif
+	#define DIR_CHAR      "/"
+	#ifndef DOT_CHAR
+		#define DOT_CHAR      "."
+	#endif
+	#ifdef MSDOS
+		#undef DOT_CHAR
+		#define DOT_CHAR      "_"
+	#endif
+	#ifndef fileno /* sunos 4 have this as a macro! */
+		 int fileno(FILE *stream);
+	#endif
 #endif /* WIN32 */
-
 /*
  * msvc 6.0 requires PSDK in order to have INET6_ADDRSTRLEN
  * defined in ws2tcpip.h as well as to provide IPv6 support.
  * Does not apply if lwIP is used.
  */
-
 #if defined(_MSC_VER) && !defined(__POCC__) && !defined(USE_LWIPSOCK)
 #  if !defined(HAVE_WS2TCPIP_H) || ((_MSC_VER < 1300) && !defined(INET6_ADDRSTRLEN))
 #    undef HAVE_GETADDRINFO_THREADSAFE
@@ -726,7 +701,14 @@
 #include "formdata.h"
 #include "http_chunks.h"
 #include "http.h"
+#include "http_proxy.h"
+#include "ftp.h"
 #include "rtsp.h"
+#include "splay.h"
+#include "imap.h"
+#include "pop3.h"
+#include "smtp.h"
+#include "ssh.h"
 #include "urldata.h"
 #include "cookie.h"
 #include "netrc.h"
@@ -734,6 +716,8 @@
 #include "dotdot.h"
 #include "inet_pton.h"
 #include "inet_ntop.h"
+#include "rand.h"
+#include "vauth/vauth.h"
 //
 //#include "parsedate.h"
 //

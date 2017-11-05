@@ -474,16 +474,15 @@ int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t
 //
 //
 //
-SSearchReplaceParam::SSearchReplaceParam()
+SSearchReplaceParam::SSearchReplaceParam() : Flags(0)
 {
-	Flags = 0;
 }
 
 SSearchReplaceParam & SSearchReplaceParam::Reset()
 {
 	Flags = 0;
-	Pattern = 0;
-	Replacer = 0;
+	Pattern.Z();
+	Replacer.Z();
 	return *this;
 }
 //

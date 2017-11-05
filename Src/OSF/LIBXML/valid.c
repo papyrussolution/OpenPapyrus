@@ -1233,14 +1233,8 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	xmlElementTablePtr table;
 	xmlAttributePtr oldAttributes = NULL;
 	xmlChar * ns, * uqname;
-
-	if(dtd == NULL) {
+	if(!dtd || !name)
 		return 0;
-	}
-	if(!name) {
-		return 0;
-	}
-
 	switch(type) {
 		case XML_ELEMENT_TYPE_EMPTY:
 		    if(content) {
@@ -1270,15 +1264,15 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 		    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT decl corrupted invalid type\n", 0);
 		    return 0;
 	}
-	/*
-	 * check if name is a QName
-	 */
+	// 
+	// check if name is a QName
+	// 
 	uqname = xmlSplitQName2(name, &ns);
 	if(uqname)
 		name = uqname;
-	/*
-	 * Create the Element table if needed.
-	 */
+	// 
+	// Create the Element table if needed.
+	// 
 	table = (xmlElementTablePtr)dtd->elements;
 	if(table == NULL) {
 		xmlDict * dict = dtd->doc ? dtd->doc->dict : 0;
@@ -1291,10 +1285,9 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 		SAlloc::F(ns);
 		return 0;
 	}
-	/*
-	 * lookup old attributes inserted on an undefined element in the
-	 * internal subset.
-	 */
+	// 
+	// lookup old attributes inserted on an undefined element in the internal subset.
+	// 
 	if(dtd->doc && dtd->doc->intSubset) {
 		ret = (xmlElementPtr)xmlHashLookup2((xmlHashTablePtr)dtd->doc->intSubset->elements, name, ns);
 		if(ret && (ret->etype == XML_ELEMENT_TYPE_UNDEFINED)) {
@@ -1304,19 +1297,16 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 			xmlFreeElement(ret);
 		}
 	}
-	/*
-	 * The element may already be present if one of its attribute
-	 * was registered first
-	 */
+	// 
+	// The element may already be present if one of its attribute was registered first
+	// 
 	ret = (xmlElementPtr)xmlHashLookup2(table, name, ns);
 	if(ret) {
 		if(ret->etype != XML_ELEMENT_TYPE_UNDEFINED) {
 #ifdef LIBXML_VALID_ENABLED
-			/*
-			 * The element is already defined in this DTD.
-			 */
+			// The element is already defined in this DTD.
 			xmlErrValidNode(ctxt, (xmlNode *)dtd, XML_DTD_ELEM_REDEFINED, "Redefinition of element %s\n", name, 0, 0);
-#endif /* LIBXML_VALID_ENABLED */
+#endif
 			SAlloc::F(uqname);
 			SAlloc::F(ns);
 			return 0;
@@ -1333,9 +1323,9 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 		}
 		memzero(ret, sizeof(xmlElement));
 		ret->type = XML_ELEMENT_DECL;
-		/*
-		 * fill the structure.
-		 */
+		// 
+		// fill the structure.
+		// 
 		ret->name = sstrdup(name);
 		if(ret->name == NULL) {
 			xmlVErrMemory(ctxt, "malloc failed");
@@ -1345,53 +1335,45 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 			return 0;
 		}
 		ret->prefix = ns;
-		/*
-		 * Validity Check:
-		 * Insertion must not fail
-		 */
+		// 
+		// Validity Check: Insertion must not fail
+		// 
 		if(xmlHashAddEntry2(table, name, ns, ret)) {
 #ifdef LIBXML_VALID_ENABLED
-			/*
-			 * The element is already defined in this DTD.
-			 */
+			// The element is already defined in this DTD.
 			xmlErrValidNode(ctxt, (xmlNode *)dtd, XML_DTD_ELEM_REDEFINED, "Redefinition of element %s\n", name, 0, 0);
-#endif /* LIBXML_VALID_ENABLED */
+#endif
 			xmlFreeElement(ret);
 			SAlloc::F(uqname);
 			return 0;
 		}
-		/*
-		 * For new element, may have attributes from earlier
-		 * definition in internal subset
-		 */
+		// 
+		// For new element, may have attributes from earlier definition in internal subset
+		// 
 		ret->attributes = oldAttributes;
 	}
-
-	/*
-	 * Finish to fill the structure.
-	 */
+	// 
+	// Finish to fill the structure.
+	// 
 	ret->etype = type;
-	/*
-	 * Avoid a stupid copy when called by the parser
-	 * and flag it by setting a special parent value
-	 * so the parser doesn't unallocate it.
-	 */
-	if(ctxt && ((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1))) {
+	// 
+	// Avoid a stupid copy when called by the parser
+	// and flag it by setting a special parent value so the parser doesn't unallocate it.
+	// 
+	if(ctxt && oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
 		ret->content = content;
 		if(content)
 			content->parent = (xmlElementContentPtr)1;
 	}
-	else {
+	else
 		ret->content = xmlCopyDocElementContent(dtd->doc, content);
-	}
-	/*
-	 * Link it to the DTD
-	 */
+	// 
+	// Link it to the DTD
+	// 
 	ret->parent = dtd;
 	ret->doc = dtd->doc;
-	if(dtd->last == NULL) {
+	if(!dtd->last)
 		dtd->children = dtd->last = (xmlNode *)ret;
-	}
 	else {
 		dtd->last->next = (xmlNode *)ret;
 		ret->prev = dtd->last;
@@ -1400,7 +1382,6 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	SAlloc::F(uqname);
 	return ret;
 }
-
 /**
  * xmlFreeElementTable:
  * @table:  An element table
@@ -2642,34 +2623,34 @@ void FASTCALL xmlFreeRefTable(xmlRefTable * table)
  *
  * Returns 0 or 1 depending on the lookup result
  */
-int xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr) {
-	if(attr == NULL)
-		return 0;
-	if(!doc) {
-		doc = attr->doc;
-		if(!doc) 
+int xmlIsRef(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr) 
+{
+	if(attr) {
+		if(!doc) {
+			doc = attr->doc;
+			if(!doc) 
+				return 0;
+		}
+		if(!doc->intSubset && !doc->extSubset) {
 			return 0;
-	}
-	if((doc->intSubset == NULL) && (doc->extSubset == NULL)) {
-		return 0;
-	}
-	else if(doc->type == XML_HTML_DOCUMENT_NODE) {
-		/* @todo @@@ */
-		return 0;
-	}
-	else {
-		xmlAttribute * attrDecl;
-		if(elem == NULL) 
+		}
+		else if(doc->type == XML_HTML_DOCUMENT_NODE) {
+			// @todo @@@ 
 			return 0;
-		attrDecl = xmlGetDtdAttrDesc(doc->intSubset, elem->name, attr->name);
-		if((attrDecl == NULL) && doc->extSubset)
-			attrDecl = xmlGetDtdAttrDesc(doc->extSubset, elem->name, attr->name);
-		if(attrDecl && (attrDecl->atype == XML_ATTRIBUTE_IDREF || attrDecl->atype == XML_ATTRIBUTE_IDREFS))
-			return 1;
+		}
+		else {
+			xmlAttribute * attrDecl;
+			if(elem == NULL) 
+				return 0;
+			attrDecl = xmlGetDtdAttrDesc(doc->intSubset, elem->name, attr->name);
+			if(!attrDecl && doc->extSubset)
+				attrDecl = xmlGetDtdAttrDesc(doc->extSubset, elem->name, attr->name);
+			if(attrDecl && oneof2(attrDecl->atype, XML_ATTRIBUTE_IDREF, XML_ATTRIBUTE_IDREFS))
+				return 1;
+		}
 	}
 	return 0;
 }
-
 /**
  * xmlRemoveRef:
  * @doc:  the document
@@ -2685,8 +2666,10 @@ int xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr)
 	xmlRefTablePtr table;
 	xmlChar * ID;
 	xmlRemoveMemo target;
-	if(!doc) return -1;
-	if(attr == NULL) return -1;
+	if(!doc) 
+		return -1;
+	if(attr == NULL) 
+		return -1;
 	table = (xmlRefTablePtr)doc->refs;
 	if(table == NULL)
 		return -1;
@@ -2710,18 +2693,14 @@ int xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr)
 	 */
 	target.l = ref_list;
 	target.ap = attr;
-
-	/* Remove the supplied attr from our list */
+	// Remove the supplied attr from our list 
 	xmlListWalk(ref_list, xmlWalkRemoveRef, &target);
-
-	/*If the list is empty then remove the list entry in the hash */
+	// If the list is empty then remove the list entry in the hash 
 	if(xmlListEmpty(ref_list))
-		xmlHashUpdateEntry(table, ID, NULL, (xmlHashDeallocator)
-		    xmlFreeRefList);
+		xmlHashUpdateEntry(table, ID, NULL, (xmlHashDeallocator)xmlFreeRefList);
 	SAlloc::F(ID);
 	return 0;
 }
-
 /**
  * xmlGetRefs:
  * @doc:  pointer to the document
@@ -2731,19 +2710,10 @@ int xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr)
  *
  * Returns NULL if not found, otherwise node set for the ID.
  */
-xmlListPtr xmlGetRefs(xmlDocPtr doc, const xmlChar * ID)
+xmlList * xmlGetRefs(xmlDoc * doc, const xmlChar * pID)
 {
-	xmlRefTablePtr table;
-	if(!doc) {
-		return 0;
-	}
-	if(ID == NULL) {
-		return 0;
-	}
-	table = (xmlRefTablePtr)doc->refs;
-	if(table == NULL)
-		return 0;
-	return (xmlListPtr)xmlHashLookup(table, ID);
+	xmlRefTable * table = doc ? (xmlRefTable *)doc->refs : 0;
+	return (table && pID) ? (xmlList *)xmlHashLookup(table, pID) : 0;
 }
 
 /************************************************************************
@@ -2751,7 +2721,6 @@ xmlListPtr xmlGetRefs(xmlDocPtr doc, const xmlChar * ID)
 *		Routines for validity checking				*
 *									*
 ************************************************************************/
-
 /**
  * xmlGetDtdElementDesc:
  * @dtd:  a pointer to the DtD to search
@@ -2761,8 +2730,7 @@ xmlListPtr xmlGetRefs(xmlDocPtr doc, const xmlChar * ID)
  *
  * returns the xmlElementPtr if found or NULL
  */
-
-xmlElementPtr xmlGetDtdElementDesc(xmlDtdPtr dtd, const xmlChar * name)
+xmlElement * FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name)
 {
 	xmlElement * cur = 0;
 	if(dtd && name && dtd->elements) {
@@ -2771,13 +2739,12 @@ xmlElementPtr xmlGetDtdElementDesc(xmlDtdPtr dtd, const xmlChar * name)
 		xmlChar * uqname = xmlSplitQName2(name, &prefix);
 		if(uqname)
 			name = uqname;
-		cur = (xmlElementPtr)xmlHashLookup2(table, name, prefix);
+		cur = (xmlElement *)xmlHashLookup2(table, name, prefix);
 		SAlloc::F(prefix);
 		SAlloc::F(uqname);
 	}
 	return cur;
 }
-
 /**
  * xmlGetDtdElementDesc2:
  * @dtd:  a pointer to the DtD to search
@@ -2964,7 +2931,6 @@ int xmlValidateNotationUse(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * 
 }
 
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
-
 /**
  * xmlIsMixedElement:
  * @doc:  the document
@@ -2975,31 +2941,30 @@ int xmlValidateNotationUse(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const xmlChar * 
  *
  * returns 0 if no, 1 if yes, and -1 if no element description is available
  */
-
-int xmlIsMixedElement(xmlDocPtr doc, const xmlChar * name) 
+int FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name) 
 {
-	xmlElement * elemDecl;
-	if(!doc || (doc->intSubset == NULL)) 
+	if(!doc || !doc->intSubset) 
 		return -1;
-	elemDecl = xmlGetDtdElementDesc(doc->intSubset, name);
-	if((elemDecl == NULL) && doc->extSubset)
-		elemDecl = xmlGetDtdElementDesc(doc->extSubset, name);
-	if(elemDecl == NULL) return -1;
-	switch(elemDecl->etype) {
-		case XML_ELEMENT_TYPE_UNDEFINED:
-		    return -1;
-		case XML_ELEMENT_TYPE_ELEMENT:
-		    return 0;
-		case XML_ELEMENT_TYPE_EMPTY:
-		/*
-		 * return 1 for EMPTY since we want VC error to pop up
-		 * on <empty>     </empty> for example
-		 */
-		case XML_ELEMENT_TYPE_ANY:
-		case XML_ELEMENT_TYPE_MIXED:
-		    return 1;
+	else {
+		xmlElement * elemDecl = xmlGetDtdElementDesc(doc->intSubset, name);
+		if(!elemDecl && doc->extSubset)
+			elemDecl = xmlGetDtdElementDesc(doc->extSubset, name);
+		if(!elemDecl) 
+			return -1;
+		else {
+			switch(elemDecl->etype) {
+				case XML_ELEMENT_TYPE_UNDEFINED: return -1;
+				case XML_ELEMENT_TYPE_ELEMENT: return 0;
+				case XML_ELEMENT_TYPE_EMPTY:
+				// 
+				// return 1 for EMPTY since we want VC error to pop up on <empty>     </empty> for example
+				// 
+				case XML_ELEMENT_TYPE_ANY:
+				case XML_ELEMENT_TYPE_MIXED: return 1;
+			}
+			return 1;
+		}
 	}
-	return 1;
 }
 
 #ifdef LIBXML_VALID_ENABLED

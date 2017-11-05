@@ -22,7 +22,7 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-#include "splay.h"
+//#include "splay.h"
 /*
  * This macro compares two node keys i and j and returns:
  *

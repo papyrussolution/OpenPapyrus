@@ -1960,7 +1960,6 @@ static htmlParserInputPtr htmlNewInputStream(htmlParserCtxtPtr ctxt)
  *
  * Returns 1 if ignorable 0 otherwise.
  */
-
 static int areBlanks(htmlParserCtxtPtr ctxt, const xmlChar * str, int len)
 {
 	for(int j = 0; j < len; j++)
@@ -2616,13 +2615,11 @@ static void htmlParseScript(htmlParserCtxtPtr ctxt) {
 		}
 		COPY_BUF(l, buf, nbchar, cur);
 		if(nbchar >= HTML_PARSER_BIG_BUFFER_SIZE) {
-			if(ctxt->sax->cdataBlock!= NULL) {
-				/*
-				 * Insert as CDATA, which is the same as HTML_PRESERVE_NODE
-				 */
+			if(ctxt->sax->cdataBlock) {
+				// Insert as CDATA, which is the same as HTML_PRESERVE_NODE
 				ctxt->sax->cdataBlock(ctxt->userData, buf, nbchar);
 			}
-			else if(ctxt->sax->characters != NULL) {
+			else if(ctxt->sax->characters) {
 				ctxt->sax->characters(ctxt->userData, buf, nbchar);
 			}
 			nbchar = 0;
@@ -2638,20 +2635,15 @@ static void htmlParseScript(htmlParserCtxtPtr ctxt) {
 			NEXT;
 		}
 	}
-
-	if((nbchar != 0) && (ctxt->sax != NULL) && (!ctxt->disableSAX)) {
-		if(ctxt->sax->cdataBlock!= NULL) {
-			/*
-			 * Insert as CDATA, which is the same as HTML_PRESERVE_NODE
-			 */
+	if(nbchar && ctxt->sax && !ctxt->disableSAX) {
+		if(ctxt->sax->cdataBlock) {
+			// Insert as CDATA, which is the same as HTML_PRESERVE_NODE
 			ctxt->sax->cdataBlock(ctxt->userData, buf, nbchar);
 		}
-		else if(ctxt->sax->characters != NULL) {
+		else if(ctxt->sax->characters)
 			ctxt->sax->characters(ctxt->userData, buf, nbchar);
-		}
 	}
 }
-
 /**
  * htmlParseCharData:
  * @ctxt:  an HTML parser context
@@ -2694,7 +2686,7 @@ static void htmlParseCharData(htmlParserCtxtPtr ctxt)
 				}
 				else {
 					htmlCheckParagraph(ctxt);
-					if(ctxt->sax->characters != NULL)
+					if(ctxt->sax->characters)
 						ctxt->sax->characters(ctxt->userData, buf, nbchar);
 				}
 			}
@@ -2716,25 +2708,23 @@ static void htmlParseCharData(htmlParserCtxtPtr ctxt)
 	}
 	if(nbchar != 0) {
 		buf[nbchar] = 0;
-
 		/*
 		 * Ok the segment is to be consumed as chars.
 		 */
 		if(ctxt->sax && (!ctxt->disableSAX)) {
 			if(areBlanks(ctxt, buf, nbchar)) {
 				if(ctxt->keepBlanks) {
-					if(ctxt->sax->characters != NULL)
+					if(ctxt->sax->characters)
 						ctxt->sax->characters(ctxt->userData, buf, nbchar);
 				}
 				else {
-					if(ctxt->sax->ignorableWhitespace != NULL)
-						ctxt->sax->ignorableWhitespace(ctxt->userData,
-						    buf, nbchar);
+					if(ctxt->sax->ignorableWhitespace)
+						ctxt->sax->ignorableWhitespace(ctxt->userData, buf, nbchar);
 				}
 			}
 			else {
 				htmlCheckParagraph(ctxt);
-				if(ctxt->sax->characters != NULL)
+				if(ctxt->sax->characters)
 					ctxt->sax->characters(ctxt->userData, buf, nbchar);
 			}
 		}
@@ -3574,20 +3564,18 @@ static int htmlParseEndTag(htmlParserCtxtPtr ctxt)
  * this will end-up in a call to character() since this is either a
  * CharRef, or a predefined entity.
  */
-static void htmlParseReference(htmlParserCtxtPtr ctxt) {
+static void htmlParseReference(htmlParserCtxtPtr ctxt) 
+{
 	const htmlEntityDesc * ent;
 	xmlChar out[6];
 	const xmlChar * name;
-	if(CUR != '&') return;
-
+	if(CUR != '&') 
+		return;
 	if(NXT(1) == '#') {
-		uint c;
 		int bits, i = 0;
-
-		c = htmlParseCharRef(ctxt);
+		uint c = htmlParseCharRef(ctxt);
 		if(c == 0)
 			return;
-
 		if(c <    0x80) {
 			out[i++] = c;                bits = -6;
 		}
@@ -3597,8 +3585,9 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt) {
 		else if(c < 0x10000) {
 			out[i++] = ((c >> 12) & 0x0F) | 0xE0;  bits =  6;
 		}
-		else {                  out[i++] = ((c >> 18) & 0x07) | 0xF0;  bits = 12; }
-
+		else {                  
+			out[i++] = ((c >> 18) & 0x07) | 0xF0;  bits = 12; 
+		}
 		for(; bits >= 0; bits -= 6) {
 			out[i++] = ((c >> bits) & 0x3F) | 0x80;
 		}
@@ -3621,7 +3610,7 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt) {
 			if(ctxt->sax && ctxt->sax->characters) {
 				ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
 				ctxt->sax->characters(ctxt->userData, name, sstrlen(name));
-				/* ctxt->sax->characters(ctxt->userData, BAD_CAST ";", 1); */
+				// ctxt->sax->characters(ctxt->userData, BAD_CAST ";", 1); 
 			}
 		}
 		else {
@@ -3650,7 +3639,6 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt) {
 		}
 	}
 }
-
 /**
  * htmlParseContent:
  * @ctxt:  an HTML parser context
@@ -4987,7 +4975,6 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 #endif
 				    break;
 			    }
-
 			    if(CUR == '>') {
 				    NEXT;
 			    }
@@ -5011,7 +4998,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			    /*
 			     * Check for an Empty Element from DTD definition
 			     */
-			    if((info != NULL) && (info->empty)) {
+			    if(info && info->empty) {
 				    if(ctxt->sax && ctxt->sax->endElement)
 					    ctxt->sax->endElement(ctxt->userData, name);
 				    htmlnamePop(ctxt);
@@ -5026,10 +5013,10 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 		    }
 			case XML_PARSER_CONTENT: {
 			    long cons;
-			    /*
-			     * Handle preparsed entities and charRef
-			     */
-			    if(ctxt->token != 0) {
+			    // 
+			    // Handle preparsed entities and charRef
+			    // 
+			    if(ctxt->token) {
 				    xmlChar chr[2] = { 0, 0 };
 				    chr[0] = (xmlChar)ctxt->token;
 				    htmlCheckParagraph(ctxt);
@@ -5044,7 +5031,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 					    if(ctxt->sax != NULL) {
 						    if(IS_BLANK_CH(cur)) {
 							    if(ctxt->keepBlanks) {
-								    if(ctxt->sax->characters != NULL)
+								    if(ctxt->sax->characters)
 									    ctxt->sax->characters(ctxt->userData, &cur, 1);
 							    }
 							    else {
@@ -5054,7 +5041,7 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 						    }
 						    else {
 							    htmlCheckParagraph(ctxt);
-							    if(ctxt->sax->characters != NULL)
+							    if(ctxt->sax->characters)
 								    ctxt->sax->characters(ctxt->userData, &cur, 1);
 						    }
 					    }

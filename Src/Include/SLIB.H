@@ -3620,8 +3620,8 @@ private:
 	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
 	size_t FASTCALL CharToQp(char c);
-	// @v9.0.4 L поставлен перед Size ради ускорения
-	size_t L;     // Длина строки вместе с завершающим нулем
+
+	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
 	size_t Size;  // Размер распределенного буфера
 	char * P_Buf; // Буфер, в котором хранится строка. @# if(P_Buf) then P_Buf[Len] == 0
 };
@@ -3694,8 +3694,8 @@ private:
 	int    FASTCALL Alloc(size_t sz);
 	int    FASTCALL Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
 
+	size_t L; // @firstmember 
 	size_t Size;
-	size_t L;
 	wchar_t * P_Buf;
 };
 //
@@ -3801,7 +3801,7 @@ protected:
 	int    FASTCALL Alloc(size_t sz);
 
 	size_t DataLen; // @#{DataLen<=BufLen} Length of data with delimiters and trailings
-	size_t Size; //BufLen;  // @#{BufLen>=DataLen} Length of buffer
+	size_t Size;    // @#{BufLen>=DataLen} Length of buffer
 	char * P_Buf;
 	char   Delim[32];
 };
@@ -6651,20 +6651,9 @@ class SFileEntryPool : public SStrGroup {
 public:
 	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
 	struct Entry {
-		Entry()
-		{
-			Clear();
-		}
-		void   Clear()
-		{
-			Attr = 0;
-			CreateTime.SetZero();
-			AccessTime.SetZero();
-			WriteTime.SetZero();
-			Size = 0;
-			Name = 0;
-			Path = 0;
-		}
+		SLAPI  Entry();
+		void   SLAPI Clear();
+
 		uint32 Attr; // SDirEntry::attrXXX
 		LDATETIME CreateTime;
 		LDATETIME AccessTime;
@@ -8133,24 +8122,60 @@ SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen);
 
 class STextEncodingStat {
 public:
-	STextEncodingStat();
-	STextEncodingStat & Init();
-	int    Add(const void * pData, size_t size);
-	int    Finish();
-
+	//
+	// Descr: Флаги состояния объекта
+	//
 	enum {
 		fEmpty         = 0x0001,
 		fAsciiOnly     = 0x0002,
 		fLegalUtf8Only = 0x0004,
-		fMiscEolf      = 0x0008
+		fMiscEolf      = 0x0008,
+		fUseUCharDet   = 0x0010, // Декларативный флаг: предписывает использовать библиотеку uchardet для идентификации кодировки
+		fUCarDetWorked = 0x0020  // Признак того, что модуль uchardet смог идентифицировать кодовую страницу текста
 	};
+	//
+	// Descr: @ctr
+	// ARG(options IN): декларативные флаги. На текущий момент возможные значения: 0 или STextEncodingStat::fUseUCharDet
+	//
+	explicit SLAPI STextEncodingStat(long options = 0);
+	SLAPI ~STextEncodingStat();
+	//
+	// Descr: Инициализирует экземпляр объекта.
+	// ARG(options IN): декларативные флаги. На текущий момент возможные значения: 0 или STextEncodingStat::fUseUCharDet
+	// Returns: *this
+	//
+	STextEncodingStat & SLAPI Init(long options = 0);
+	int    SLAPI Add(const void * pData, size_t size);
+	int    SLAPI Finish();
+
+	SEOLFormat SLAPI GetEolFormat() const
+	{
+		return Eolf;
+	}
+	SCodepageIdent SLAPI GetCp() const
+	{
+		return Cp;
+	}
+	const char * SLAPI GetCpName() const
+	{
+		return CpName;
+	}
+	int    FASTCALL CheckFlag(long f) const
+	{
+		return BIN(Flags & f);
+	}
+private:
 	long   Flags;
 	SCodepageIdent Cp;
 	SEOLFormat Eolf;
 	uint64 ChrFreq[256];
-private:
-	uint8 Utf8Prefix[8];
+	char   CpName[32]; // Наименование кодировки, идентифицированное модулем uchardet.
+		// Поле временное - будет существовать до тех пор, пока не адаптируем преобразование
+		// этих наименований в SCodepageIdent
+
+	uint8  Utf8Prefix[8];
 	size_t Utf8PrefixLen;
+	void * P_UcdHandle; // uchardet handler
 };
 //
 //
@@ -11985,11 +12010,10 @@ int    CopyPaste(HWND hWnd, int copy, const char * pPath);
 //
 //
 struct _cairo;
-struct _cairo_surface;
 //struct _cairo_pattern;
 struct cairo_pattern_t;
 typedef struct _cairo cairo_t;
-typedef struct _cairo_surface cairo_surface_t;
+struct cairo_surface_t;
 //typedef struct _cairo_pattern cairo_pattern_t;
 typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;

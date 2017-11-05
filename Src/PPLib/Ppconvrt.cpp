@@ -3741,8 +3741,7 @@ IMPL_REF2CVT_FUNC(PPBhtTerminal) // {
 
 IMPL_REF2CVT_FUNC(PPSCardSeries) // {
 	STRNSCPY(rRec2.CodeTempl, rRec.CodeTempl);
-	// @v7.4.0 REF2CVT_ASSIGN(QuotKindID);
-	rRec2.QuotKindID_s = rRec.QuotKindID; // @v7.4.0
+	rRec2.QuotKindID_s = rRec.QuotKindID;
 	REF2CVT_ASSIGN(PersonKindID);
 	REF2CVT_ASSIGN(PDis);
 	REF2CVT_ASSIGN(MaxCredit);

@@ -27,11 +27,9 @@
 
 #ifndef CAIRO_DRM_INTEL_BRW_STRUCTS_H
 #define CAIRO_DRM_INTEL_BRW_STRUCTS_H
-
-//#include "cairo-types-private.h"
-
-/* Command packets:
-*/
+// 
+// Command packets:
+// 
 struct header {
     uint length:16;
     uint opcode:16;

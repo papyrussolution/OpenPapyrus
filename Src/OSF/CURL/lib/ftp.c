@@ -53,7 +53,7 @@
 //#include "escape.h"
 //#include "http.h" /* for HTTP proxy tunnel stuff */
 //#include "socks.h"
-#include "ftp.h"
+//#include "ftp.h"
 //#include "fileinfo.h"
 #include "ftplistparser.h"
 #include "curl_sec.h"
@@ -71,7 +71,7 @@
 //#include "strcase.h"
 //#include "speedcheck.h"
 //#include "warnless.h"
-#include "http_proxy.h"
+//#include "http_proxy.h"
 //#include "non-ascii.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"

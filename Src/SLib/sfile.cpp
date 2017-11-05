@@ -2321,15 +2321,15 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 				if(tbuf.IsValid() && file.Read(tbuf, tbuf.GetSize(), &actual_size)) {
 					tes.Add(tbuf, actual_size);
 					tes.Finish();
-					if(tes.Flags & tes.fAsciiOnly) {
+					if(tes.CheckFlag(tes.fAsciiOnly)) {
 						fmt_id = SFileFormat::TxtAscii;
 						ok = 4;
 					}
-					else if(tes.Flags & tes.fLegalUtf8Only) {
+					else if(tes.CheckFlag(tes.fLegalUtf8Only)) {
 						fmt_id = SFileFormat::TxtUtf8;
 						ok = 4;
 					}
-					else if(tes.Eolf != eolUndef && !(tes.Flags & tes.fMiscEolf)) {
+					else if(tes.GetEolFormat() != eolUndef && !tes.CheckFlag(tes.fMiscEolf)) {
 						fmt_id = SFileFormat::Txt;
 						ok = 4;
 					}

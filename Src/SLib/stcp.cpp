@@ -1980,7 +1980,7 @@ int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SS
 	return ok;
 }
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) || SLTEST_RUNNING
 int SLAPI SMailMessage::DebugOutput(SString & rBuf) const
 {
 	SString temp_buf;

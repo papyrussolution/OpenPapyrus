@@ -60,9 +60,11 @@ int TStatusWin::GetRect(RECT * pRcStatus)
 
 int TStatusWin::Update()
 {
-	int    ok = 1, i;
-	int    n_parts = Items.getCount();
-	int    l_parts[255];
+	int    ok = 1;
+	ENTER_CRITICAL_SECTION // @v9.8.7
+	int    i;
+	int    l_parts[64]; // @v9.8.7 [255]-->[64]
+	const  int n_parts = MIN(Items.getCount(), SIZEOFARRAY(l_parts));
 	int    n_width = 4; // @v9.2.1 10-->4
 	SString temp_buf;
 	HWND   hw = H();
@@ -104,6 +106,7 @@ int TStatusWin::Update()
 	}
 	::ReleaseDC(hw, hdc);
 	invalidateAll(1);
+	LEAVE_CRITICAL_SECTION
 	return ok;
 }
 

@@ -185,6 +185,22 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 //
 //
 //
+SLAPI SFileEntryPool::Entry::Entry()
+{
+	Clear();
+}
+
+void SLAPI SFileEntryPool::Entry::Clear()
+{
+	Attr = 0;
+	CreateTime.SetZero();
+	AccessTime.SetZero();
+	WriteTime.SetZero();
+	Size = 0;
+	Name.Z();
+	Path.Z();
+}
+
 SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup()
 {
 	State = 0;

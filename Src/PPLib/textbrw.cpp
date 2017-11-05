@@ -1614,7 +1614,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						actual_size += incomplete_multibyte_char;
 						if(first_block) {
 							tes.Add(buffer, actual_size);
-							if(tes.Flags & tes.fLegalUtf8Only) {
+							if(tes.CheckFlag(tes.fLegalUtf8Only)) {
 								if(_fsize_rest > 0) {
 									//
 									// Если все символы первого блока utf8, но проанализирован не весь
@@ -1637,7 +1637,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 								Doc.OrgCp = (orgCp == cpUndef) ? cpANSI : orgCp;
 								Doc.Cp = cpUTF8;
 							}
-							Doc.Eolf = tes.Eolf;
+							Doc.Eolf = tes.GetEolFormat();
 							CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 							{
 								int    sci_eol = SC_EOL_CRLF;

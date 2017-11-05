@@ -1006,7 +1006,6 @@
     <ClCompile Include="..\Osf\Cairo\Src\cairo.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\Cairo\cairo-atomic-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-beos.h" />
     <ClInclude Include="..\Include\Cairo\cairo-cogl-context-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-cogl-gradient-private.h" />
@@ -1014,7 +1013,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-cogl-utils-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-cogl.h" />
     <ClInclude Include="..\Include\Cairo\cairo-combsort-inline.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-compiler-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-deprecated.h" />
     <ClInclude Include="..\Include\Cairo\cairo-directfb.h" />
     <ClInclude Include="..\Include\Cairo\cairo-drm-i915-private.h" />
@@ -1030,7 +1028,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-drm-radeon-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-drm.h" />
     <ClInclude Include="..\Include\Cairo\cairo-error-inline.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-error-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-features.h" />
     <ClInclude Include="..\Include\Cairo\cairo-fixed-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-fontconfig-private.h" />
@@ -1044,7 +1041,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-mempool-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-mutex-impl-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-mutex-list-private.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-mutex-type-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-os2-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-os2.h" />
@@ -1065,7 +1061,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-svg-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-svg.h" />
     <ClInclude Include="..\Include\Cairo\cairo-tee.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-types-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-version.h" />
     <ClInclude Include="..\Include\Cairo\cairo-vg.h" />
     <ClInclude Include="..\Include\Cairo\cairo-win32-private.h" />

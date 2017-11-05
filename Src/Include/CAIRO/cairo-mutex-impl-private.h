@@ -152,7 +152,6 @@
  *   stop and write to the cairo mailing list about it.  DO NOT
  *   poke around cairo-mutex-private.h for possible solutions.
  */
-
 #if CAIRO_NO_MUTEX
 	//
 	// No mutexes

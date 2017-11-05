@@ -956,18 +956,15 @@ static struct _charsetInfo {
 
 uint TY_(GetEncodingIdFromName) (ctmbstr name)
 {
-	uint   i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(TY_(tmbstrcasecmp) (name, charsetInfo[i].charset) == 0)
 			return charsetInfo[i].id;
-
 	return 0;
 }
 
 uint TY_(GetEncodingIdFromCodePage) (uint cp)
 {
-	uint   i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(cp == charsetInfo[i].codepage)
 			return charsetInfo[i].id;
 	return 0;
@@ -975,8 +972,7 @@ uint TY_(GetEncodingIdFromCodePage) (uint cp)
 
 uint TY_(GetEncodingCodePageFromName) (ctmbstr name)
 {
-	uint   i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(TY_(tmbstrcasecmp) (name, charsetInfo[i].charset) == 0)
 			return charsetInfo[i].codepage;
 	return 0;
@@ -984,8 +980,7 @@ uint TY_(GetEncodingCodePageFromName) (ctmbstr name)
 
 uint TY_(GetEncodingCodePageFromId) (uint id)
 {
-	uint   i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(id == charsetInfo[i].id)
 			return charsetInfo[i].codepage;
 	return 0;
@@ -993,8 +988,7 @@ uint TY_(GetEncodingCodePageFromId) (uint id)
 
 ctmbstr TY_(GetEncodingNameFromId) (uint id)
 {
-	uint i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(id == charsetInfo[i].id)
 			return charsetInfo[i].charset;
 	return NULL;
@@ -1002,8 +996,7 @@ ctmbstr TY_(GetEncodingNameFromId) (uint id)
 
 ctmbstr TY_(GetEncodingNameFromCodePage) (uint cp)
 {
-	uint i;
-	for(i = 0; charsetInfo[i].id; ++i)
+	for(uint i = 0; charsetInfo[i].id; ++i)
 		if(cp == charsetInfo[i].codepage)
 			return charsetInfo[i].charset;
 	return NULL;

@@ -1446,11 +1446,23 @@ private:
 		int    ErrCode;
 		uint   AddedMsgP;
 	};
+	struct ExprResult : public SBaseBuffer {
+		ExprResult()
+		{
+			SBaseBuffer::Init();
+		}
+		~ExprResult()
+		{
+			SBaseBuffer::Destroy();
+		}
+		STypEx T;
+	};
 	class LocalScope : public DlScope {
 	public:
 		SLAPI  LocalScope();
 		SLAPI ~LocalScope();
-		uint   SLAPI SetVar(const char * pName, const STypEx & rT, const void * pData, size_t dataSize);
+		uint   SLAPI SetVar(const char * pName, const STypEx & rT, const void * pData);
+		int    SLAPI GetVar(const char * pName, ExprResult & rResult) const;
 	private:
 		class DataPool : public SArray {
 		public:
@@ -1480,8 +1492,8 @@ private:
 		return ok;
 	}
 
-	int    SLAPI ResolveExpression(ExprSet::Expression & rExpr);
-	int    SLAPI Helper_Execute(uint chunkP, SString & rBuf);
+	int    SLAPI ResolveExpression(ExprSet::Expression & rExpr, LocalScope & rLs, ExprResult & rResult);
+	int    SLAPI Helper_Execute(uint chunkP, LocalScope & rLs, SString & rBuf);
 
 	TSVector <ChunkInner> L; 
 	// Ѕлок по индексу 0 всегда стартовый (фиктивный блок)
@@ -1497,7 +1509,7 @@ private:
 	DlContext * P_Ctx;
 };
 
-int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, SString & rBuf)
+int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, LocalScope & rLs, SString & rBuf)
 {
 	int    ok = 1;
 	int    done = 0;
@@ -1540,8 +1552,9 @@ int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, SString & rBuf)
 				{
 					const ExprSet::Expression * p_expr = ES.Get(r_chunk.ExprP);
 					if(p_expr) {
+						ExprResult result;
 						ExprSet::Expression expr(*p_expr);
-						ResolveExpression(expr);
+						ResolveExpression(expr, rLs, result);
 					}
 					else {
 						; // @error
@@ -1580,8 +1593,34 @@ SLAPI TddoContentGraph::LocalScope::LocalScope() : DlScope(0, DlScope::kLocal, "
 SLAPI TddoContentGraph::LocalScope::~LocalScope()
 {
 }
+
+int SLAPI TddoContentGraph::LocalScope::GetVar(const char * pName, ExprResult & rResult) const
+{
+	int    ok = 0;
+	uint   vp = 0;
+	if(SearchName(pName, &vp)) {
+		SdbField fld;
+		if(GetFieldByPos(vp, &fld)) {
+			rResult.T.Init();
+			rResult.T = fld.T;
+			const size_t s = rResult.T.GetBinSize();
+			const void * p_data = DP.at(vp);
+			if(p_data) {
+				rResult.Alloc(s);
+				memcpy(rResult.P_Buf, p_data, s);
+				ok = 1;
+			}
+			else {
+				rResult.Alloc(s);
+				memzero(rResult.P_Buf, s);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
 	
-uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData, size_t dataSize)
+uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx & rT, const void * pData)
 {
 	int    ok = 1;
 	uint   vp = 0;
@@ -1606,7 +1645,6 @@ uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx
 		THROW_SL(GetFieldByPos(vp, &fld));
 		if(pData) {
 			size_t fts = fld.T.GetBinSize();
-			assert(dataSize == fts);
 			void * p_new_data = SAlloc::M(fts);
 			THROW_SL(p_new_data);
 			memcpy(p_new_data, pData, fts);
@@ -1621,21 +1659,91 @@ uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx
 int SLAPI TddoContentGraph::Execute(SString & rBuf)
 {
 	LocalScope local_scope;
-	return Helper_Execute(0, rBuf);
+	return Helper_Execute(0, local_scope, rBuf);
 }
 
-int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr)
+int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, LocalScope & rLs, ExprResult & rResult)
 {
 	int    ok = 1;
+	SString temp_buf;
 	ExprSet::Item item(0);
 	rExpr.ES.pop(item);
-	if(item.K == ExprSet::kOp) {
-		if(item.Op == _ASSIGN_) {
-
-		}
+	switch(item.K) {
+		case ExprSet::kOp:
+			if(item.Op == _ASSIGN_) {
+				assert(item.ArgCount == 2);
+				ExprSet::Item arg1(0);
+				rExpr.ES.pop(arg1);
+				if(arg1.K == ExprSet::kVar) {
+					GetS(item.SymbP, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						ExprSet::Item & r_arg2 = rExpr.ES.peek();
+						ExprResult local_result;
+						THROW(ResolveExpression(rExpr, rLs, local_result));
+						THROW(rLs.SetVar(temp_buf, local_result.T, local_result.P_Buf));
+					}
+					else {
+						; // @error
+					}
+				}
+				else {
+					; // @error
+				}
+			}
+			break;
+		case ExprSet::kFunc:
+			break;
+		case ExprSet::kNumber:
+			if(((double)(long)item.R) == item.R) {
+				int32 v = (long)item.R;
+				rResult.T.Init();
+				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
+				assert(rResult.T.GetBinSize() == sizeof(v));
+				rResult.Alloc(sizeof(v));
+				memcpy(rResult.P_Buf, &v, sizeof(v));
+			}
+			else if(((double)(int64)item.R) == item.R) {
+				int64 v = (int64)item.R;
+				rResult.T.Init();
+				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
+				assert(rResult.T.GetBinSize() == sizeof(v));
+				rResult.Alloc(sizeof(v));
+				memcpy(rResult.P_Buf, &v, sizeof(v));
+			}
+			else {
+				double v = item.R;
+				rResult.T.Init();
+				rResult.T.Typ = MKSTYPE(S_FLOAT, sizeof(v));
+				assert(rResult.T.GetBinSize() == sizeof(v));
+				rResult.Alloc(sizeof(v));
+				memcpy(rResult.P_Buf, &v, sizeof(v));
+			}
+			break;
+		case ExprSet::kString:
+			{
+				GetS(item.SymbP, temp_buf);
+				const size_t s = temp_buf.Len() + 1;
+				rResult.T.Init();
+				rResult.T.Typ = MKSTYPE(S_ZSTRING, s);
+				assert(rResult.T.GetBinSize() == s);
+				rResult.Alloc(s);
+				memcpy(rResult.P_Buf, temp_buf.cptr(), s);
+			}
+			break;
+		case ExprSet::kVar:
+			{
+				GetS(item.SymbP, temp_buf);
+				if(rLs.GetVar(temp_buf, rResult)) {
+				}
+				else {
+					; // «десь надо попытатьс€ вз€ть переменную из контекста DL600
+				}
+			}
+			break;
+		case ExprSet::kFormalArg:
+			break;
 	}
-	else if(item.K == ExprSet::kFunc) {
-	}
+	CATCHZOK
 	return ok;
 }
 

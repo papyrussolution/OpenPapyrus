@@ -41,13 +41,11 @@
 //#include "curl_gethostname.h"
 //#include "curl_multibyte.h"
 //#include "warnless.h"
-#include "rand.h"
+//#include "rand.h"
 //#include "vtls/vtls.h"
-
 #ifdef USE_NSS
-#include "vtls/nssg.h" /* for Curl_nss_force_init() */
+	#include "vtls/nssg.h" /* for Curl_nss_force_init() */
 #endif
-
 #define BUILDING_CURL_NTLM_MSGS_C
 #include "vauth/vauth.h"
 #include "vauth/ntlm.h"

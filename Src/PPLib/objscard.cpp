@@ -751,8 +751,8 @@ SLAPI PPObjSCardSeries::~PPObjSCardSeries()
 int SLAPI PPObjSCardSeries::GetCodeRange(PPID serID, SString & rLow, SString & rUpp)
 {
 	PPSCardSeries rec;
-	rLow = 0;
-	rUpp = 0;
+	rLow.Z();
+	rUpp.Z();
 	return (Fetch(serID, &rec) > 0) ? SCardCore::GetCodeRange(rec.CodeTempl, rLow, rUpp) : -1;
 }
 

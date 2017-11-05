@@ -728,31 +728,23 @@ IMPL_INVARIANT_C(SString)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI SString::SString()
+SLAPI SString::SString() : L(0), Size(0), P_Buf(0)
 {
-	L = Size = 0;
-	P_Buf = 0;
 }
 
-SLAPI SString::SString(size_t initSize)
+SLAPI SString::SString(size_t initSize) : L(0), Size(0), P_Buf(0)
 {
-	L = Size = 0;
-	P_Buf = 0;
 	if(initSize)
 		Alloc(initSize);
 }
 
-SLAPI SString::SString(const char * pS)
+SLAPI SString::SString(const char * pS) : L(0), Size(0), P_Buf(0)
 {
-	L = Size = 0;
-	P_Buf = 0;
 	CopyFrom(pS);
 }
 
-SLAPI SString::SString(const SString & s)
+SLAPI SString::SString(const SString & s) : L(0), Size(0), P_Buf(0)
 {
-	L = Size = 0;
-	P_Buf = 0;
 	CopyFrom(s);
 }
 
@@ -2761,19 +2753,16 @@ SString & FASTCALL SString::CatChar(int chr)
 {
 	const size_t new_len = (L ? L : 1) + 1;
 	if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+		L = new_len;
 		P_Buf[new_len-2] = chr;
 		P_Buf[new_len-1] = 0;
-		L = new_len;
 	}
 	return *this;
 }
 
 SString & FASTCALL SString::Tab(uint c)
 {
-    if(oneof2(c, 1, 0) || c > 1000)
-		return Tab();
-	else
-		return CatCharN('\t', c);
+    return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c);
 }
 
 SString & SLAPI SString::Tab()     { return CatChar('\t'); }
@@ -2806,8 +2795,8 @@ SString & FASTCALL SString::ShiftLeft(size_t n)
 			L -= n;
 		}
 		else if(L > 1) {
-			P_Buf[0] = 0;
 			L = 1;
+			P_Buf[0] = 0;
 		}
 	return *this;
 }
@@ -3013,18 +3002,6 @@ char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 	SString temp_buf;
 	temp_buf.CatLongZ(val, numDigits);
 	return strnzcpy(pBuf, temp_buf, bufLen);
-	/*
-	SString fmt_buf;
-	fmt_buf.CatChar('%');
-	if(numDigits > 0) {
-		fmt_buf.CatChar('0');
-		fmt_buf.Cat(numDigits);
-	}
-	char temp_buf[64];
-	fmt_buf.CatChar('l').CatChar('d');
-	sprintf(temp_buf, fmt_buf, val);
-	return strnzcpy(pBuf, temp_buf, bufLen);
-	*/
 }
 
 SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
@@ -3039,7 +3016,6 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 	else
 		Cat(val);
 	return *this;
-	//return Cat(__longfmtz(val, numDigits, temp_buf, sizeof(temp_buf)));
 }
 
 SString & FASTCALL SString::CatLongZ(int val, uint numDigits)
@@ -3922,33 +3898,24 @@ SString & SString::FormatFileParsingMessage(const char * pFileName, int lineNo, 
 //
 //
 //
-SLAPI SStringU::SStringU()
+SLAPI SStringU::SStringU() : L(0), Size(0), P_Buf(0)
 {
-	Size = 0;
-	L = 0;
-	P_Buf = 0;
 }
 
-SLAPI SStringU::SStringU(const SStringU & rS)
+SLAPI SStringU::SStringU(const SStringU & rS) : L(0), Size(0), P_Buf(0)
 {
-	Size = 0;
-	L = 0;
-	P_Buf = 0;
 	CopyFrom(rS);
 }
 
-SLAPI SStringU::SStringU(const wchar_t * pS)
+SLAPI SStringU::SStringU(const wchar_t * pS) : L(0), Size(0), P_Buf(0)
 {
-	Size = 0;
-	L = 0;
-	P_Buf = 0;
 	CopyFrom(pS);
 }
 
 SLAPI SStringU::~SStringU()
 {
-	Size = 0;
 	L = 0;
+	Size = 0;
 	if(P_Buf) // @v9.6.4 @speedcritical
 		ZFREE(P_Buf);
 }
@@ -4742,9 +4709,8 @@ int SPathStruc::Invariant(SInvariantParam * pInvP)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SPathStruc::SPathStruc()
+SPathStruc::SPathStruc() : Flags(0)
 {
-	Flags = 0;
 }
 
 SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
@@ -4780,11 +4746,11 @@ SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 
 SPathStruc & SPathStruc::Clear()
 {
+	Flags = 0;
 	Drv.Z();
 	Dir.Z();
 	Nam.Z();
 	Ext.Z();
-	Flags = 0;
 	return *this;
 }
 

@@ -196,7 +196,7 @@ static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl
 	BIO_free(bio);
 	staple->staple.data = buf;
 	staple->staple.len = len;
-	staple->valid = NGX_MAX_TIME_T_VALUE;
+	staple->valid = (time_t)NGX_MAX_TIME_T_VALUE;
 	return NGX_OK;
 failed:
 	OCSP_RESPONSE_free(response);
@@ -412,7 +412,7 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 #if OPENSSL_VERSION_NUMBER >= 0x0090707fL
 	const
 #endif
-	u_char                *p;
+	u_char * p;
 	int n;
 	size_t len;
 	time_t valid;
@@ -446,32 +446,25 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_response_get1_basic() failed");
 		goto error;
 	}
-
 	store = SSL_CTX_get_cert_store(staple->ssl_ctx);
 	if(store == NULL) {
 		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "SSL_CTX_get_cert_store() failed");
 		goto error;
 	}
-
 #ifdef SSL_CTRL_SELECT_CURRENT_CERT
-	/* OpenSSL 1.0.2+ */
+	// OpenSSL 1.0.2+ 
 	SSL_CTX_select_current_cert(staple->ssl_ctx, ctx->cert);
 #endif
-
 #ifdef SSL_CTRL_GET_EXTRA_CHAIN_CERTS
-	/* OpenSSL 1.0.1+ */
+	// OpenSSL 1.0.1+ 
 	SSL_CTX_get_extra_chain_certs(staple->ssl_ctx, &chain);
 #else
 	chain = staple->ssl_ctx->extra_certs;
 #endif
-
-	if(OCSP_basic_verify(basic, chain, store,
-		    staple->verify ? OCSP_TRUSTOTHER : OCSP_NOVERIFY)
-	    != 1) {
+	if(OCSP_basic_verify(basic, chain, store, staple->verify ? OCSP_TRUSTOTHER : OCSP_NOVERIFY) != 1) {
 		ngx_ssl_error(NGX_LOG_ERR, ctx->log, 0, "OCSP_basic_verify() failed");
 		goto error;
 	}
-
 	id = OCSP_cert_to_id(NULL, ctx->cert, ctx->issuer);
 	if(id == NULL) {
 		ngx_ssl_error(NGX_LOG_CRIT, ctx->log, 0, "OCSP_cert_to_id() failed");
@@ -497,7 +490,7 @@ static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx)
 		}
 	}
 	else {
-		valid = NGX_MAX_TIME_T_VALUE;
+		valid = (time_t)NGX_MAX_TIME_T_VALUE;
 	}
 	OCSP_CERTID_free(id);
 	OCSP_BASICRESP_free(basic);

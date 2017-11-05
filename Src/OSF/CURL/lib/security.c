@@ -53,7 +53,7 @@
 //#include "curl_base64.h"
 //#include "curl_memory.h"
 #include "curl_sec.h"
-#include "ftp.h"
+//#include "ftp.h"
 //#include "sendf.h"
 //#include "strcase.h"
 //#include "warnless.h"
