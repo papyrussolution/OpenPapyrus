@@ -477,11 +477,8 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty)
+SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
 {
-	Qtty = (qtty != 0.0) ? qtty : 1.0;
-	PriceBySerial = 0.0;
-	AbstractPrice = 0.0;
 }
 //
 //
@@ -987,30 +984,15 @@ int CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & r
 //
 //
 //
-CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) : CashNodeID(cashNodeID)
+CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) : CashNodeID(cashNodeID),
+	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
+	Flags(0), EgaisMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0), 
+	AbstractGoodsID(0)
 {
-	P_CcView = 0; // @v8.6.12
-	P_TSesObj = 0;
-	P_EgPrc = 0; // @v9.0.9
-	EgaisMode = 0; // @v9.0.9
 	OuterOi.Set(0, 0);
-	Flags = 0;
-	BonusMaxPart = 1.0;
-	OperRightsFlags = 0;
-	OrgOperRights = 0;
 	MEMSZERO(R);
-	SuspCheckID = 0;
-	CheckID     = checkID;
-	AuthAgentID = 0; // @v8.6.10
-	AbstractGoodsID = 0; // @v9.5.10
-	P_CM     = 0;
-	P_CM_EXT = 0;
-	P_CM_ALT = 0; // @v9.6.11
-	P_GTOA   = 0;
-	P_ChkPack  = pOuterPack;
-	SessUUID.SetZero(); // @v8.7.7
+	SessUUID.SetZero();
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !CashNodeID));
-
 	PPCashNode    cn_rec;
 	CnObj.Search(CashNodeID, &cn_rec);
 	if(cn_rec.Flags & CASHF_SYNC) {
@@ -1046,7 +1028,6 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	ExtCnLocID     = 0;
 	ExtCashNodeID  = 0;
 	AltRegisterID  = 0; // @v9.6.9
-	P_DivGrpList   = 0;
 	{
 		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
 		if(PPRef->GetPropArray(PPOBJ_CASHNODE, CashNodeID, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())

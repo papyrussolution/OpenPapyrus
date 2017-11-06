@@ -1,20 +1,11 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2001, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
 
 #ifdef HAVE_STATISTICS
 static int __rep_print_all(ENV*, uint32);
@@ -22,7 +13,6 @@ static int __rep_print_stats(ENV*, uint32);
 static int __rep_stat(ENV*, DB_REP_STAT**, uint32);
 static int __rep_stat_summary_print(ENV *);
 static const char * __rep_syncstate_to_string(repsync_t);
-
 /*
  * Print the individual statistic for items that appear both in the full and
  * the summary replication statistics output.

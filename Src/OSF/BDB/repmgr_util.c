@@ -1,28 +1,18 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2005, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
 #define INITIAL_SITES_ALLOCATION        3            /* Arbitrary guess. */
 #define RETRY_TIME_ADJUST               200000       /* Arbitrary estimate. */
 
-static int get_eid __P((ENV*, const char *, uint, int *));
-static int __repmgr_addrcmp __P((repmgr_netaddr_t*, repmgr_netaddr_t *));
-static int read_gmdb __P((ENV*, DB_THREAD_INFO*, uint8**, size_t *));
-
+static int get_eid(ENV*, const char *, uint, int *);
+static int __repmgr_addrcmp(repmgr_netaddr_t*, repmgr_netaddr_t *);
+static int read_gmdb(ENV*, DB_THREAD_INFO*, uint8**, size_t *);
 /*
  * Schedules a future attempt to re-establish a connection with the given site.
  * Usually, we wait the configured retry_wait period.  But if the "immediate"

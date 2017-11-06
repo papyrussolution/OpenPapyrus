@@ -1,6 +1,5 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
  */
 /*
@@ -40,31 +39,22 @@
  *
  * $Id$
  */
-
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/partition.h"
 
-static int __ham_bulk __P((DBC*, DBT*, uint32));
-static int __hamc_close __P((DBC*, db_pgno_t, int *));
+static int __ham_bulk(DBC*, DBT*, uint32);
+static int __hamc_close(DBC*, db_pgno_t, int *);
 static int __hamc_del (DBC*, uint32);
 static int __hamc_destroy(DBC *);
-static int __hamc_get __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
-static int __hamc_put __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
+static int __hamc_get(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
+static int __hamc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
 static int __hamc_writelock(DBC *);
-static int __ham_dup_return __P((DBC*, DBT*, uint32));
+static int __ham_dup_return(DBC*, DBT*, uint32);
 static int __ham_expand_table(DBC *);
-static int __hamc_update_getorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __hamc_update_setorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __ham_get_clist_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-
+static int __hamc_update_getorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __hamc_update_setorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __ham_get_clist_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 /*
  * __ham_quick_delete --
  *	This function is called by __db_del when the appropriate conditions

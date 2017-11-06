@@ -1104,6 +1104,8 @@ enum SCodepage {
 	cp1254    = 1254,  // 1254 Turkish Windows
 	cp1255    = 1255,  // 1255 Hebrew Windows
 	cp1256    = 1256,  // 1256 Arabic Windows
+	cp1257    = 1257,  // 1257 Windows Baltic
+	cp1258    = 1258,  // 1258 ANSI/OEM Vietnamese Windows
 
 	cpUTF7    = 65000, // == CP_UTF7
 	cpUTF8    = 65001, // == CP_UTF8
@@ -1153,15 +1155,7 @@ enum SCodepage {
 	cp1147  = 1147, // IBM01147	IBM EBCDIC France (20297 + Euro symbol); IBM EBCDIC (France-Euro)
 	cp1148  = 1148, // IBM01148	IBM EBCDIC International (500 + Euro symbol); IBM EBCDIC (International-Euro)
 	cp1149  = 1149, // IBM01149	IBM EBCDIC Icelandic (20871 + Euro symbol); IBM EBCDIC (Icelandic-Euro)
-	//cp1250  = 1250, // windows-1250	ANSI Central European; Central European (Windows)
-	//cp1251  = 1251, // windows-1251	ANSI Cyrillic; Cyrillic (Windows)
-	//cp1252  = 1252, // windows-1252	ANSI Latin 1; Western European (Windows)
-	//cp1253  = 1253, // windows-1253	ANSI Greek; Greek (Windows)
-	//cp1254  = 1254, // windows-1254	ANSI Turkish; Turkish (Windows)
-	//cp1255  = 1255, // windows-1255	ANSI Hebrew; Hebrew (Windows)
-	//cp1256  = 1256, // windows-1256	ANSI Arabic; Arabic (Windows)
-	cp1257  =  1257, // windows-1257	ANSI Baltic; Baltic (Windows)
-	cp1258  =  1258, // windows-1258	ANSI/OEM Vietnamese; Vietnamese (Windows)
+
 	cp1361  =  1361, // Johab	Korean (Johab)
 	cp10000 = 10000, // macintosh	MAC Roman; Western European (Mac)
 	cp10001 = 10001, // x-mac-japanese	Japanese (Mac)
@@ -1206,6 +1200,7 @@ enum SCodepage {
 	cp20833 = 20833, // x-EBCDIC-KoreanExtended	IBM EBCDIC Korean Extended
 	cp20838 = 20838, // IBM-Thai	IBM EBCDIC Thai
 	cp20866 = 20866, // koi8-r	Russian (KOI8-R); Cyrillic (KOI8-R)
+	cpKOI8R = 20866, // synonim
 	cp20871 = 20871, // IBM871	IBM EBCDIC Icelandic
 	cp20880 = 20880, // IBM880	IBM EBCDIC Cyrillic Russian
 	cp20905 = 20905, // IBM905	IBM EBCDIC Turkish
@@ -1227,6 +1222,24 @@ enum SCodepage {
 	cp28599 = 28599, // iso-8859-9	ISO 8859-9 Turkish
 	cp28603 = 28603, // iso-8859-13	ISO 8859-13 Estonian
 	cp28605 = 28605, // iso-8859-15	ISO 8859-15 Latin 9
+
+	cpISO_8859_01 = cp28591, // synonim
+	cpISO_8859_02 = cp28592, // synonim
+	cpISO_8859_03 = cp28593, // synonim
+	cpISO_8859_04 = cp28594, // synonim
+	cpISO_8859_05 = cp28595, // synonim
+	cpISO_8859_06 = cp28596, // synonim
+	cpISO_8859_07 = cp28597, // synonim
+	cpISO_8859_08 = cp28598, // synonim
+	cpISO_8859_09 = cp28599, // synonim
+	cpISO_8859_10 = 885910,
+	cpISO_8859_11 = 885911,
+	cpISO_8859_12 = 885912,
+	cpISO_8859_13 = cp28603, // synonim
+	cpISO_8859_14 = 885914,
+	cpISO_8859_15 = cp28605, // synonim
+	cpISO_8859_16 = 885916,
+
 	cp29001 = 29001, // x-Europa	Europa 3
 	cp38598 = 38598, // iso-8859-8-i	ISO 8859-8 Hebrew; Hebrew (ISO-Logical)
 	cp50220 = 50220, // iso-2022-jp	ISO 2022 Japanese with no halfwidth Katakana; Japanese (JIS)
@@ -1245,7 +1258,7 @@ enum SCodepage {
 	cp51932 = 51932, // euc-jp	EUC Japanese
 	cp51936 = 51936, // EUC-CN	EUC Simplified Chinese; Chinese Simplified (EUC)
 	cp51949 = 51949, // euc-kr	EUC Korean
-	cp51950 = 51950, // 	EUC Traditional Chinese
+	cp51950 = 51950, // EUC Traditional Chinese
 	cp52936 = 52936, // hz-gb-2312	HZ-GB2312 Simplified Chinese; Chinese Simplified (HZ)
 	cp54936 = 54936, // GB18030	Windows XP and later: GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
 	cp57002 = 57002, // x-iscii-de	ISCII Devanagari
@@ -1257,7 +1270,10 @@ enum SCodepage {
 	cp57008 = 57008, // x-iscii-ka	ISCII Kannada
 	cp57009 = 57009, // x-iscii-ma	ISCII Malayalam
 	cp57010 = 57010, // x-iscii-gu	ISCII Gujarati
-	cp57011 = 57011  // x-iscii-pa	ISCII Punjabi
+	cp57011 = 57011, // x-iscii-pa	ISCII Punjabi
+	cpVISCII   = 60001, // Vietnamese Standard Code for Information Interchange (@sobolev: number 60001 is my own)
+	cpShiftJIS = 60002, // shift_jis	ANSI/OEM Japanese; Japanese (Shift-JIS) (@sobolev: number 60002 is my own)
+	cpTIS620   = 60620, // Thai Industrial Standard 620-2533 (@sobolev: number 60620 is my own)
 };
 
 struct SCodepageIdent {
@@ -8343,6 +8359,7 @@ public:
 	};
 	struct CpMap {
 		SLAPI  CpMap();
+		SLAPI ~CpMap();
 		void   SLAPI Clear();
 		//
 		// Descr: Ищет мультибайтовый символ b[] в таблице.
@@ -8355,6 +8372,7 @@ public:
 		const  MapEntry * FASTCALL SearchFallback(uint32 u) const;
 		int    SLAPI TranslateToU(const uint8 * pSrc, size_t srcLen, SStringU & rBuf) const;
 		int    SLAPI TranslateToB(const wchar_t * pSrc, size_t srcLen, SString & rBuf) const;
+		int    SLAPI TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf);
 		//
 		// Descr: Testing function
 		//
@@ -8380,7 +8398,20 @@ public:
 		SString Code;
 		SString Version;
 	private:
+		class CpUToBHash {
+		public:
+			SLAPI  CpUToBHash(const SCodepageMapPool::CpMap & rMap);
+			int    SLAPI Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const;
+		private:
+			int    SLAPI Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const;
+			int    SLAPI FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash);
+
+			void * P_Buf;
+			uint   Count;
+			const  uint EntrySize;
+		};
 		int   FASTCALL Helper_BSearchB(uint32 b4, wchar_t * pU) const;
+		CpUToBHash * P_U2B_Hash;
 	};
 	//
 	// Descr: Временная структура для построения таблицы преобразования символьных таблиц
@@ -8477,7 +8508,7 @@ private:
 	};
 	int    SLAPI ParseCpName(const SString & rName, int * pSis, SString & rCode, SString & rVersion) const;
 	int    SLAPI ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const;
-	int    SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
+	void   SLAPI TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const;
 	int    SLAPI SearchMapSeq(const TSVector <MapEntry> & rSeq, uint * pPos) const;
 	int    SLAPI Helper_MakeTranslIndex(const CpMap & rFrom, const CpMap & rTo, CMapTranslIndexTest & rIdx, TranslIndex & rFinalIdx);
 
@@ -12907,28 +12938,18 @@ private:
 		double Azi1; // the starting azimuth
 		double A;    // the equatorial radius
 		double F;    // the flattening
-		//double SAlp1; // sine of \e azi1
-		//double CAlp1; // cosine of \e azi1
-		SinCosPair Alp1;
+		SinCosPair Alp1; // sine and cosine of \e azi1
 		double A13;   // arc length to reference point
 		double S13;   // distance to reference point
 		// @cond SKIP
 		double B;
 		double C2;
 		double F1;
-		//double SAlp0;
-		//double CAlp0;
 		SinCosPair Alp0;
 		double K2;
-		//double SSig1;
-		//double CSig1;
 		SinCosPair Sig1;
 		double Dn1;
-		//double STau1;
-		//double CTau1;
 		SinCosPair Tau1;
-		//double SOmg1;
-		//double COmg1;
 		SinCosPair Omg1;
 		double A1m1;
 		double A2m1;
@@ -13011,7 +13032,7 @@ private:
 //
 //
 //
-class SRawInputInitArray : private SArray {
+class SRawInputInitArray : private SVector { // @v9.8.7 SArray-->SVector
 public:
 	friend class SRawInputData;
 
@@ -13054,10 +13075,10 @@ struct UsbDevDescrSt {
 	UsbDevDescrSt(const UsbDevDescrSt & rSrc);
 	UsbDevDescrSt & Clear();
 
+	S_GUID ClassGUID;
 	SString Path;
 	SString Type;
 	SString Class;
-	S_GUID ClassGUID;
 	SString Description;
 	SString SerialNumber;
 	SString Driver;

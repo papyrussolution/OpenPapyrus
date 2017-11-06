@@ -7,17 +7,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_secondary_get(DB*, DB_TXN*, DBT*, DBT*, uint32);
 static int __dbc_set_priority(DBC*, DB_CACHE_PRIORITY);

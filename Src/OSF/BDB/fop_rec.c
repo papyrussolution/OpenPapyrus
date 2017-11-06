@@ -1,26 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2001, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __fop_rename_recover_int __P((ENV*, DBT*, DB_LSN*, db_recops, void *, int));
-static int __fop_rename_42_recover_int __P((ENV*, DBT*, DB_LSN*, db_recops, void *, int));
-
+static int __fop_rename_recover_int(ENV*, DBT*, DB_LSN*, db_recops, void *, int);
+static int __fop_rename_42_recover_int(ENV*, DBT*, DB_LSN*, db_recops, void *, int);
 /*
  * The transactional guarantees Berkeley DB provides for file
  * system level operations (database physical file create, delete,

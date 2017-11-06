@@ -1,24 +1,12 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2010, 2011 Oracle and/or its affiliates.  All rights reserved.
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/heap.h"
-// @v9.5.5 #include "dbinc/log.h"
 
 static void __heap_init_meta(DB*, HEAPMETA*, db_pgno_t, DB_LSN *);
-
 /*
  * __heap_open --
  *	Open a heap.

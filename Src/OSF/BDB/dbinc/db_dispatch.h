@@ -33,14 +33,12 @@
  *
  * $Id$
  */
-
 #ifndef _DB_DISPATCH_H_
 #define	_DB_DISPATCH_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * Declarations and typedefs for the list of transaction IDs used during
  * recovery.  This is a generic list used to pass along whatever information

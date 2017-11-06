@@ -1,24 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2001, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
 
-static int __rep_egen_init  __P((ENV*, REP *));
-static int __rep_gen_init  __P((ENV*, REP *));
-
+static int __rep_egen_init(ENV*, REP *);
+static int __rep_gen_init(ENV*, REP *);
 /*
  * __rep_open --
  *	Initialize the shared memory state for the replication system.

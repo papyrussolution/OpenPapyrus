@@ -50,7 +50,7 @@ int GetDevProperty(HDEVINFO handle, SP_DEVINFO_DATA * pDevInfo, int property, SS
 
 UsbDevDescrSt::UsbDevDescrSt()
 {
-	Clear();
+	ClassGUID.SetZero();
 }
 
 UsbDevDescrSt::UsbDevDescrSt(const UsbDevDescrSt & rSrc)
@@ -70,29 +70,26 @@ UsbDevDescrSt::UsbDevDescrSt(const UsbDevDescrSt & rSrc)
 
 UsbDevDescrSt & UsbDevDescrSt::Clear()
 {
-	Path = 0;
-	Type = 0;
-	Class = 0;
-	memzero(&ClassGUID, sizeof(S_GUID));
-	Description = 0;
-	SerialNumber = 0;
-	Driver = 0;
-	HardwareID = 0;
-	Manufacturer = 0;
-	PDOName = 0;
-	ServiceName = 0;
+	ClassGUID.SetZero();
+	Path.Z();
+	Type.Z();
+	Class.Z();
+	Description.Z();
+	SerialNumber.Z();
+	Driver.Z();
+	HardwareID.Z();
+	Manufacturer.Z();
+	PDOName.Z();
+	ServiceName.Z();
 	return *this;
 }
 
-UsbBasicDescrSt::UsbBasicDescrSt()
+UsbBasicDescrSt::UsbBasicDescrSt() : P_Parent(0)
 {
-	P_Parent = 0;
-	Clear();
 }
 
-UsbBasicDescrSt::UsbBasicDescrSt(const UsbBasicDescrSt & rSrc)
+UsbBasicDescrSt::UsbBasicDescrSt(const UsbBasicDescrSt & rSrc)  : P_Parent(0)
 {
-	P_Parent = 0;
 	Pid = rSrc.Pid;
 	Vid = rSrc.Vid;
 	SerialNumber = rSrc.SerialNumber;
@@ -101,9 +98,9 @@ UsbBasicDescrSt::UsbBasicDescrSt(const UsbBasicDescrSt & rSrc)
 UsbBasicDescrSt & UsbBasicDescrSt::Clear()
 {
 	P_Parent = 0;
-	Pid = 0;
-	Vid = 0;
-	SerialNumber = 0;
+	Pid.Z();
+	Vid.Z();
+	SerialNumber.Z();
 	return *this;
 }
 
@@ -783,7 +780,7 @@ int SRawInputData::InitRawInputProc(int unreg)
 }
 
 
-SRawInputInitArray::SRawInputInitArray() : SArray(sizeof(RAWINPUTDEVICE))
+SRawInputInitArray::SRawInputInitArray() : SVector(sizeof(RAWINPUTDEVICE)) // @v9.8.7 SArray-->SVector
 {
 }
 

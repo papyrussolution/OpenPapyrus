@@ -1,18 +1,10 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __lock_env_create --
@@ -421,30 +413,18 @@ int __lock_set_env_timeout(DB_ENV * dbenv, db_timeout_t timeout, uint32 flags)
 		ENV_ENTER(env, ip);
 		LOCK_REGION_LOCK(env);
 		switch(flags) {
-		    case DB_SET_LOCK_TIMEOUT:
-			region->lk_timeout = timeout;
-			break;
-		    case DB_SET_TXN_TIMEOUT:
-			region->tx_timeout = timeout;
-			break;
-		    default:
-			ret = 1;
-			break;
+		    case DB_SET_LOCK_TIMEOUT: region->lk_timeout = timeout; break;
+		    case DB_SET_TXN_TIMEOUT: region->tx_timeout = timeout; break;
+		    default: ret = 1; break;
 		}
 		LOCK_REGION_UNLOCK(env);
 		ENV_LEAVE(env, ip);
 	}
 	else
 		switch(flags) {
-		    case DB_SET_LOCK_TIMEOUT:
-			dbenv->lk_timeout = timeout;
-			break;
-		    case DB_SET_TXN_TIMEOUT:
-			dbenv->tx_timeout = timeout;
-			break;
-		    default:
-			ret = 1;
-			break;
+		    case DB_SET_LOCK_TIMEOUT: dbenv->lk_timeout = timeout; break;
+		    case DB_SET_TXN_TIMEOUT: dbenv->tx_timeout = timeout; break;
+		    default: ret = 1; break;
 		}
 	if(ret)
 		ret = __db_ferr(env, "DB_ENV->set_timeout", 0);

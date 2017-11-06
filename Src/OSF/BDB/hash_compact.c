@@ -1,23 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
  * $Id$
  */
-
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __ham_copy_data __P((DBC*, PAGE*, DB_COMPACT*, int *));
-static int __ham_truncate_overflow __P((DBC*, PAGE*, uint32, DB_COMPACT*, int *));
+static int __ham_copy_data(DBC*, PAGE*, DB_COMPACT*, int *);
+static int __ham_truncate_overflow(DBC*, PAGE*, uint32, DB_COMPACT*, int *);
 /*
  * __ham_compact_int -- internal HASH compaction routine.
  *

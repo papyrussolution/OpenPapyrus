@@ -1,25 +1,13 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
-static int __qam_adjust_first __P((DB*, DBC*, QMETA*, db_recno_t));
-
+static int __qam_adjust_first(DB*, DBC*, QMETA*, db_recno_t);
 /*
  * LSNs in queue data pages are advisory.  They do not have to be accurate
  * as all operations are idempotent on records.  They should not be rolled

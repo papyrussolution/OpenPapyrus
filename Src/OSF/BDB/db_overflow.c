@@ -42,14 +42,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
 /*
  * Big key/data code.
  *
@@ -58,7 +51,6 @@
  * number where it begins.  Each entry in the linked list contains a pointer
  * to the next page of data, and so on.
  */
-
 /*
  * __db_goff --
  *	Get an offpage item.

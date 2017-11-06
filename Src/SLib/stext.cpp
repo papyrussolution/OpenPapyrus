@@ -1202,52 +1202,133 @@ static const struct stringpool_t stringpool_contents =
 
 #endif // } 0
 
-struct _CodepageName {
-	SCodepage Cp;
+/*
+//"KOI8-R"
+//"MAC-CYRILLIC"
+//"IBM855"
+//"IBM866"
+//"TIS-620"
+//"VISCII"
+//"WINDOWS-1250"
+//"WINDOWS-1251"
+//"WINDOWS-1252"
+//"WINDOWS-1253"
+//"WINDOWS-1255"
+//"WINDOWS-1256"
+//"WINDOWS-1258"
+//"ISO-8859-1"
+//"ISO-8859-2"
+//"ISO-8859-3"
+//"ISO-8859-5"
+//"ISO-8859-6"
+//"ISO-8859-7"
+//"ISO-8859-9"
+//"ISO-8859-11"
+//"ISO-8859-15"
+
+//"HZ-GB-2312"
+//"ISO-2022-CN"
+//"ISO-2022-JP"
+//"ISO-2022-KR"
+//"EUC-JP"
+//"EUC-KR"
+//"EUC-TW"
+//"GB18030"
+//"SHIFT_JIS"
+
+*/
+
+struct SCpEntry {
+	int    Cp;
+	const char * P_CLibLocale;
+	const char * P_Canonical;
+	const char * P_Xml;
 	const char * P_Name;
 };
 
-static _CodepageName CodepageNames[] = {
-	{ cpANSI, "ANSI" },
-	{ cpOEM,  "OEM" },
+static const SCpEntry __SCpL[] = {
+	{ cpUndef, "", "", "" },
+	{ cpANSI,  "ACP", "ANSI", "", "ANSI" },
+	{ cpOEM,   "OCP", "OEM", "", "OEM" },
 
-	{ cpUTF7, "CP_UTF7" },
-	{ cpUTF8, "UTF8" },
+	{ cp437,   "437", "437", "CP437", "437 US MSDOS" },
+	{ cp737,   "737", "737", "CP737", "737 Greek MSDOS" },
+	{ cp850,   "850", "850", "CP850", "850 International MSDOS" },
+	{ cp852,   "852", "852", "CP852", "852 EasernEuropean MSDOS" },
+	{ cp855,   "855", "855",	"CP855", "855 OEM Cyrillic" },
+	{ cp857,   "857", "857", "CP857", "857 Turkish MSDOS" },
+	{ cp861,   "861", "861", "CP861", "861 Icelandic MSDOS" },
+	{ cp865,   "865", "865", "CP865", "865 Nordic MSDOS" },
+	{ cp866,   "866", "866", "CP866", "866 Russian MSDOS" },
+	{ cp932,   "932", "932", "CP932", "932 Japanese Windows" },
+	{ cp936,   "936", "936", "CP936", "936 Chinese Windows" },
+	{ cp950,   "950", "950", "CP950", "950 Chinese Windows" },
+	{ cp10007, "10007", "10007", "x-mac-cyrillic" },
+	{ cp1250,  "1250", "1250", "windows-1250", "1250 Eastern European Windows" },
+	{ cp1251,  "1251", "1251", "windows-1251", "1251 Russian Windows" },
+	{ cp1252,  "1252", "1252", "windows-1252", "1252 Windows ANSI" },
+	{ cp1253,  "1253", "1253", "windows-1253", "1253 Greek Windows" },
+	{ cp1254,  "1254", "1254", "windows-1254", "1254 Turkish Windows" },
+	{ cp1255,  "1255", "1255", "windows-1255", "1255 Hebrew Windows" },
+	{ cp1256,  "1256", "1256", "windows-1256", "1256 Arabic Windows" },
+	{ cp1257,  "1257", "1257", "windows-1257", "1257 Windows Baltic" },
+	{ cp1258,  "1258", "1258", "windows-1258", "1258 Vietnamese Windows" },
 
-	{ cp866,  "866 Russian MSDOS" },
-	{ cp1251, "1251 Russian Windows" },
+	{ cp20866, "20866", "koi8-r", "koi8-r", "Cyrillic (KOI8-R)" },
+	{ cpVISCII, "VISCII", "VISCII", "VISCII", "Vietnamese Standard Code for Information Interchange" },
+	{ cpTIS620, "TIS-620", "TIS-620", "TIS-620", "Thai Industrial Standard 620-2533" },
 
-	{ cp437,  "437 US MSDOS" },
-	{ cp737,  "737 Greek MSDOS" },
-	{ cp850,  "850 International MSDOS" },
-	{ cp852,  "852 EasernEuropean MSDOS" },
-	{ cp857,  "857 Turkish MSDOS" },
-	{ cp861,  "861 Icelandic MSDOS" },
-	{ cp865,  "865 Nordic MSDOS" },
-	{ cp932,  "932 Japanese Windows" },
-	{ cp936,  "936 Chinese Windows" },
-	{ cp950,  "950 Chinese Windows" },
-	{ cp1250, "1250 Eastern European Windows" },
-	{ cp1252, "1252 Windows ANSI" },
-	{ cp1253, "1253 Greek Windows" },
-	{ cp1254, "1254 Turkish Windows" },
-	{ cp1255, "1255 Hebrew Windows" },
-	{ cp1256, "1256 Arabic Windows" },
+	{ cpUTF7,  "UTF7", "UTF7", "UTF-7", "CP_UTF7" },
+	{ cpUTF8,  "UTF8", "UTF8", "UTF-8", "UTF8" },
+
+	{ cp28591, "ISO-8859-1",  "ISO-8859-1",  "ISO-8859-1",  "ISO 8859-1 Latin 1; Western European" },
+	{ cp28592, "ISO-8859-2",  "ISO-8859-2",  "ISO-8859-2",  "ISO 8859-2 Central European" },
+	{ cp28593, "ISO-8859-3",  "ISO-8859-3",  "ISO-8859-3",  "ISO 8859-3 Latin 3" },
+	{ cp28594, "ISO-8859-4",  "ISO-8859-4",  "ISO-8859-4",  "ISO 8859-4 Baltic" },
+	{ cp28595, "ISO-8859-5",  "ISO-8859-5",  "ISO-8859-5",  "ISO 8859-5 Cyrillic" },
+	{ cp28596, "ISO-8859-6",  "ISO-8859-6",  "ISO-8859-6",  "ISO 8859-6 Arabic" },
+	{ cp28597, "ISO-8859-7",  "ISO-8859-7",  "ISO-8859-7",  "ISO 8859-7 Greek" },
+	{ cp28598, "ISO-8859-8",  "ISO-8859-8",  "ISO-8859-8",  "ISO 8859-8 Hebrew" },
+	{ cp28599, "ISO-8859-9",  "ISO-8859-9",  "ISO-8859-9",  "ISO 8859-9 Turkish" },
+	{ cpISO_8859_10, "ISO-8859-10", "ISO-8859-10", "ISO-8859-10", "LATIN-6" },
+	{ cpISO_8859_11, "ISO-8859-11", "ISO-8859-11", "ISO-8859-11", "Latin/Thai" },
+	// { cpISO_8859_12, "ISO-8859-12", "ISO-8859-12", "ISO-8859-12", "Latin/Devanagari" },
+	{ cp28603, "ISO-8859-13", "ISO-8859-13", "ISO-8859-13", "ISO 8859-13 Estonian" },
+	{ cpISO_8859_14, "ISO-8859-14", "ISO-8859-14", "ISO-8859-14", "LATIN-8" },
+	{ cp28605, "ISO-8859-15", "ISO-8859-15", "ISO-8859-15", "ISO 8859-15 Latin 9" },
+	{ cpISO_8859_16, "ISO-8859-16", "ISO-8859-16", "ISO-8859-16", "LATIN-10" },
+
+	{ cp52936, "HZ-GB-2312", "HZ-GB-2312", "HZ-GB-2312", "HZ-GB2312 Simplified Chinese" },
+	{ cp50220, "iso-2022-jp", "iso-2022-jp", "iso-2022-jp", "ISO 2022 Japanese with no halfwidth Katakana" },
+	{ cp50221, "iso-2022-jp", "iso-2022-jp", "iso-2022-jp", "ISO 2022 Japanese with halfwidth Katakana" },
+	{ cp50222, "iso-2022-jp", "iso-2022-jp", "iso-2022-jp", "ISO 2022 Japanese JIS X 0201-1989" },
+	{ cp50225, "iso-2022-kr", "iso-2022-kr", "iso-2022-kr", "ISO 2022 Korean" },
+	{ cp50229, "iso-2022-cn", "iso-2022-cn", "iso-2022-cn", "ISO 2022 Traditional Chinese" },
+
+	{ cp51932, "euc-jp", "euc-jp", "euc-jp", "EUC Japanese" },
+	{ cp51936, "euc-cn", "euc-cn", "euc-cn", "EUC Simplified Chinese" },
+	{ cp51949, "euc-kr", "euc-kr", "euc-kr", "EUC Korean" },
+	{ cp51950, "euc-tw", "euc-tw", "euc-tw", "EUC Traditional Chinese" },
+	{ cp54936, "GB18030", "GB18030", "GB18030", "GB18030 Simplified Chinese" },
+	{ cpShiftJIS, "shift_jis", "shift_jis", "shift_jis", "Japanese (Shift-JIS)" },
 };
 
 //static
 uint SCodepageIdent::GetRegisteredCodepageCount()
 {
-	return SIZEOFARRAY(CodepageNames);
+	return SIZEOFARRAY(/*CodepageNames*/__SCpL);
 }
 
 //static
 int SCodepageIdent::GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName)
 {
 	int    ok = 1;
-	if(idx < SIZEOFARRAY(CodepageNames)) {
-		rCp = CodepageNames[idx].Cp;
-		rName = CodepageNames[idx].P_Name;
+	if(idx < SIZEOFARRAY(/*CodepageNames*/__SCpL)) {
+		rCp = /*CodepageNames*/(SCodepage)__SCpL[idx].Cp;
+		if(isempty(__SCpL[idx].P_Name))
+			rName = __SCpL[idx].P_Canonical;
+		else
+			rName = /*CodepageNames*/__SCpL[idx].P_Name;
 	}
 	else
 		ok = 0;
@@ -1289,41 +1370,6 @@ SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 	Cp = (SCodepage)cp;
 	return *this;
 }
-
-struct SCpEntry {
-	int    Cp;
-	const char * P_CLibLocale;
-	const char * P_Canonical;
-	const char * P_Xml;
-};
-
-static const SCpEntry __SCpL[] = {
-	{ cpUndef, "", "" },
-	{ cpANSI, "ACP", "ANSI", "" },
-	{ cpOEM,  "OCP", "OEM", "" },
-
-	{ cp437,  "437", "437", "CP437" },
-	{ cp737,  "737", "737", "CP737" },
-	{ cp850,  "850", "850", "CP850" },
-	{ cp852,  "852", "852", "CP852" },
-	{ cp857,  "857", "857", "CP857" },
-	{ cp861,  "861", "861", "CP861" },
-	{ cp865,  "865", "865", "CP865" },
-	{ cp866,  "866", "866", "CP866" },
-	{ cp932,  "932", "932", "CP932" },
-	{ cp936,  "936", "936", "CP936" },
-	{ cp950,  "950", "950", "CP950" },
-	{ cp1250, "1250", "1250", "windows-1250" },
-	{ cp1251, "1251", "1251", "windows-1251" },
-	{ cp1252, "1252", "1252", "windows-1252" },
-	{ cp1253, "1253", "1253", "windows-1253" },
-	{ cp1254, "1254", "1254", "windows-1254" },
-	{ cp1255, "1255", "1255", "windows-1255" },
-	{ cp1256, "1256", "1256", "windows-1256" },
-
-	{ cpUTF7, "UTF7", "UTF7", "UTF-7" },
-	{ cpUTF8, "UTF8", "UTF8", "UTF-8" },
-};
 
 int SCodepageIdent::FromStr(const char * pStr)
 {
@@ -2926,26 +2972,6 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
 		ok = 0;
 	return ok;
 }
-
-/*
-int main(void)
-{
-	ApproxStrSrchParam sp;
-	sp.umin=0.4;
-	int ok = 1;
-	char* pat="bisines";
-	char* buf="business";
-	int srch=ApproxStrSrch(pat,buf,&sp);
-
-	if(srch == 1) {
-		printf("Score > %f\n", sp.maxscore);
-		printf("Position > %d\n", sp.maxpos);
-	}
-	else
-		printf("not found!");
-	return ok;
-}
-*/
 
 static const uint8 Utf_k_Boms[][3] = {
 	{0x00, 0x00, 0x00},  // Unknown

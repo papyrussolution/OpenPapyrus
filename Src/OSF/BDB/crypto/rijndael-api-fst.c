@@ -36,15 +36,7 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "crypto/rijndael/rijndael-alg-fst.h"
-// @v9.5.5 #include "crypto/rijndael/rijndael-api-fst.h"
 #include "crypto/rijndael-alg-fst.h" // @v9.5.5 
 #include "crypto/rijndael-api-fst.h" // @v9.5.5 
 /*

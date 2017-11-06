@@ -1,14 +1,10 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #ifndef	_DB_SHQUEUE_H_
 #define	_DB_SHQUEUE_H_
-
 /*
  * This file defines three types of data structures: chains, lists and
  * tail queues similarly to the include file <sys/queue.h>.
@@ -34,13 +30,8 @@
 extern "C" {
 #endif
 
-#define	SH_PTR_TO_OFF(src, dest)					\
-	((db_ssize_t)(((uint8 *)(dest)) - ((uint8 *)(src))))
-
-#define SH_OFF_TO_PTR(base, off, type)           \
-       ((type *) (((uint8 *)(base)) + (db_ssize_t) (off)))
-
-
+#define	SH_PTR_TO_OFF(src, dest)                 ((db_ssize_t)(((uint8 *)(dest)) - ((uint8 *)(src))))
+#define SH_OFF_TO_PTR(base, off, type) ((type *) (((uint8 *)(base)) + (db_ssize_t) (off)))
 /*
  * Shared memory chain definitions.
  */
@@ -106,18 +97,14 @@ struct {								\
 	db_ssize_t sle_next;	/* relative offset to next element */	\
 	db_ssize_t sle_prev;	/* relative offset of prev element */	\
 }
-
 /*
  * Shared memory list functions.
  */
-#define	SH_LIST_EMPTY(head)						\
-	((head)->slh_first == -1)
-
+#define	SH_LIST_EMPTY(head)             ((head)->slh_first == -1)
 #define	SH_LIST_FIRSTP(head, type)      ((struct type *)(((uint8 *)(head)) + (head)->slh_first))
 #define	SH_LIST_FIRST(head, type)       (SH_LIST_EMPTY(head) ? NULL : ((struct type *)(((uint8 *)(head)) + (head)->slh_first)))
 #define	SH_LIST_NEXTP(elm, field, type) ((struct type *)(((uint8 *)(elm)) + (elm)->field.sle_next))
 #define	SH_LIST_NEXT(elm, field, type)  ((elm)->field.sle_next == -1 ? NULL : ((struct type *)(((uint8 *)(elm)) + (elm)->field.sle_next)))
-
   /*
    *__SH_LIST_PREV_OFF is private API.  It calculates the address of
    * the elm->field.sle_next member of a SH_LIST structure.  All offsets
@@ -126,7 +113,6 @@ struct {								\
 #define	__SH_LIST_PREV_OFF(elm, field)  ((db_ssize_t *)(((uint8 *)(elm)) + (elm)->field.sle_prev))
 #define	SH_LIST_PREV(elm, field, type)  (struct type *)((db_ssize_t)(elm) - (*__SH_LIST_PREV_OFF(elm, field)))
 #define	SH_LIST_FOREACH(var, head, field, type) for((var) = SH_LIST_FIRST((head), type); (var); (var) = SH_LIST_NEXT((var), field, type))
-
 /*
  * Given correct A.next: B.prev = SH_LIST_NEXT_TO_PREV(A)
  * in a list [A, B]
@@ -212,61 +198,32 @@ struct {								\
 	db_ssize_t stqe_next;	/* relative offset of next element */	\
 	db_ssize_t stqe_prev;	/* relative offset of prev's next */	\
 }
-
 /*
  * Shared memory tail queue functions.
  */
-
-#define	SH_TAILQ_EMPTY(head)						\
-	((head)->stqh_first == -1)
-
-#define	SH_TAILQ_FIRSTP(head, type)					\
-	((struct type *)((uint8 *)(head) + (head)->stqh_first))
-
-#define	SH_TAILQ_FIRST(head, type)					\
-	(SH_TAILQ_EMPTY(head) ? NULL : SH_TAILQ_FIRSTP(head, type))
-
-#define	SH_TAILQ_NEXTP(elm, field, type)				\
-	((struct type *)((uint8 *)(elm) + (elm)->field.stqe_next))
-
-#define	SH_TAILQ_NEXT(elm, field, type)					\
-	((elm)->field.stqe_next == -1 ? NULL :				\
-	((struct type *)((uint8 *)(elm) + (elm)->field.stqe_next)))
-
+#define	SH_TAILQ_EMPTY(head) ((head)->stqh_first == -1)
+#define	SH_TAILQ_FIRSTP(head, type) ((struct type *)((uint8 *)(head) + (head)->stqh_first))
+#define	SH_TAILQ_FIRST(head, type)  (SH_TAILQ_EMPTY(head) ? NULL : SH_TAILQ_FIRSTP(head, type))
+#define	SH_TAILQ_NEXTP(elm, field, type) ((struct type *)((uint8 *)(elm) + (elm)->field.stqe_next))
+#define	SH_TAILQ_NEXT(elm, field, type) ((elm)->field.stqe_next == -1 ? NULL : ((struct type *)((uint8 *)(elm) + (elm)->field.stqe_next)))
   /*
    * __SH_TAILQ_PREV_OFF is private API.  It calculates the address of
    * the elm->field.stqe_next member of a SH_TAILQ structure.  All
    * offsets between elements are relative to that point in SH_TAILQ
    * structures.
    */
-#define	__SH_TAILQ_PREV_OFF(elm, field)					\
-	((db_ssize_t *)(((uint8 *)(elm)) + (elm)->field.stqe_prev))
-
-#define	SH_TAILQ_PREVP(elm, field, type)				\
-	(struct type *)((db_ssize_t)elm - (*__SH_TAILQ_PREV_OFF(elm, field)))
-
-#define	SH_TAILQ_PREV(head, elm, field, type)				\
-	(((elm) == SH_TAILQ_FIRST(head, type)) ? NULL :		\
-	  (struct type *)((db_ssize_t)elm - (*__SH_TAILQ_PREV_OFF(elm, field))))
-
+#define	__SH_TAILQ_PREV_OFF(elm, field)  ((db_ssize_t *)(((uint8 *)(elm)) + (elm)->field.stqe_prev))
+#define	SH_TAILQ_PREVP(elm, field, type) (struct type *)((db_ssize_t)elm - (*__SH_TAILQ_PREV_OFF(elm, field)))
+#define	SH_TAILQ_PREV(head, elm, field, type) (((elm) == SH_TAILQ_FIRST(head, type)) ? NULL : (struct type *)((db_ssize_t)elm - (*__SH_TAILQ_PREV_OFF(elm, field))))
   /*
    * __SH_TAILQ_LAST_OFF is private API.  It calculates the address of
    * the stqe_next member of a SH_TAILQ structure in the last element
    * of this list.  All offsets between elements are relative to that
    * point in SH_TAILQ structures.
    */
-#define	__SH_TAILQ_LAST_OFF(head)					\
-	((db_ssize_t *)(((uint8 *)(head)) + (head)->stqh_last))
-
-#define	SH_TAILQ_LASTP(head, field, type)				\
-	((struct type *)((db_ssize_t)(head) +				\
-	 ((db_ssize_t)((head)->stqh_last) -				\
-	 ((db_ssize_t)SH_PTR_TO_OFF(SH_TAILQ_FIRST(head, type),		\
-		&(SH_TAILQ_FIRSTP(head, type)->field.stqe_next))))))
-
-#define	SH_TAILQ_LAST(head, field, type)				\
-	(SH_TAILQ_EMPTY(head) ? NULL : SH_TAILQ_LASTP(head, field, type))
-
+#define	__SH_TAILQ_LAST_OFF(head) ((db_ssize_t *)(((uint8 *)(head)) + (head)->stqh_last))
+#define	SH_TAILQ_LASTP(head, field, type)  ((struct type *)((db_ssize_t)(head) + ((db_ssize_t)((head)->stqh_last) - ((db_ssize_t)SH_PTR_TO_OFF(SH_TAILQ_FIRST(head, type), &(SH_TAILQ_FIRSTP(head, type)->field.stqe_next))))))
+#define	SH_TAILQ_LAST(head, field, type)   (SH_TAILQ_EMPTY(head) ? NULL : SH_TAILQ_LASTP(head, field, type))
 /*
  * Given correct A.next: B.prev = SH_TAILQ_NEXT_TO_PREV(A)
  * in a list [A, B]

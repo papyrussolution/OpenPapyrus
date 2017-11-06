@@ -167,7 +167,7 @@ void Document::Init()
 
 int Document::LineEndTypesSupported() const
 {
-	return ((SC_CP_UTF8 == dbcsCodePage) && pli) ? pli->LineEndTypesSupported() : 0;
+	return ((dbcsCodePage == SC_CP_UTF8) && pli) ? pli->LineEndTypesSupported() : 0;
 }
 
 bool Document::SetDBCSCodePage(int dbcsCodePage_)
@@ -1053,7 +1053,7 @@ int Document::SafeSegment(const char * text, int length, int lengthSegment) cons
 
 EncodingFamily Document::CodePageFamily() const
 {
-	if(SC_CP_UTF8 == dbcsCodePage)
+	if(dbcsCodePage == SC_CP_UTF8)
 		return efUnicode;
 	else if(dbcsCodePage)
 		return efDBCS;

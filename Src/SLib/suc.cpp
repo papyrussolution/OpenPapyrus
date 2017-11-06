@@ -375,9 +375,379 @@ int SLAPI SUnicodeTable::ParseSource(const char * /*pFileName*/pPath)
 //
 //
 //
-SLAPI SCodepageMapPool::CpMap::CpMap()
+SLAPI SCodepageMapPool::CpMap::CpUToBHash::CpUToBHash(const SCodepageMapPool::CpMap & rMap) : P_Buf(0), Count(0), EntrySize(rMap.MbMl)
+{
+	int    ok = -1;
+	const uint mc = rMap.MapCount;
+	const uint es = rMap.MbMl;
+	void * p_temp_hash = 0;
+	SCodepageMapPool::MapEntry * p_fallback = 0;
+	uint  real_fbc = 0;
+	int   is_there_fallback_dup = 0;
+	if(rMap.FallbackCount) {
+		//
+		// Во избежании риска зациклить идентификацию размера хэша, мы должны
+		// убедиться, что fallback не содержит элементов, которые уже есть в rMap.P_Map
+		// Для этого создадим временный fallback без таких дубликатов
+		//
+		THROW(p_fallback = new SCodepageMapPool::MapEntry[rMap.FallbackCount]);
+		for(uint i = 0; i < rMap.FallbackCount; i++) {
+			if(!rMap.SearchU(rMap.P_Fallback[i].U2)) {
+				p_fallback[real_fbc++] = rMap.P_Fallback[i];
+			}
+			else {
+				is_there_fallback_dup = 1;
+			}
+		}
+	}
+	const uint fbc = real_fbc;
+	uint hs = mc+fbc+1;
+	do {
+		while(!IsPrime(hs))
+			hs++;
+		p_temp_hash = SAlloc::R(p_temp_hash, hs * es);
+		memzero(p_temp_hash, hs * es);
+		int    is_dup = 0; // Если !0, то в хэше есть дубликат - надо увеличивать размер
+		int    fuhr = FillUpHash(mc, rMap.P_Map, es, hs, p_temp_hash);
+		if(fuhr > 0) {
+			fuhr = FillUpHash(fbc, p_fallback, es, hs, p_temp_hash);
+		}
+		if(fuhr < 0) {
+			is_dup = 1;
+			hs += (mc+fbc); // Увеличиваем приблизительный размер хэша на один шаг, равный сумме элементов основной таблицы и fallback'а
+		}
+		else if(fuhr > 0)
+			ok = 1;
+		else  // fuhr == 0
+			ok = 0;
+	} while(ok < 0);
+	if(ok > 0) {
+		Count = hs;
+		P_Buf = p_temp_hash;
+	}
+	CATCHZOK
+	delete [] p_fallback;
+}
+
+int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Translate(const wchar_t * pSrc, size_t srcLen, SString & rResult) const
+{
+	int    ok = 1;
+	const uint hs = Count;
+	const uint es = EntrySize;
+	size_t p = 0;
+	switch(es) {
+		case 1:
+			{
+				uint8 result_buf[16];
+				while((srcLen-p) >= 16) {
+					const wchar_t * p_s = pSrc+p;
+					result_buf[0]  = PTR8(P_Buf)[(p_s[0] % hs)];
+					result_buf[1]  = PTR8(P_Buf)[(p_s[1] % hs)];
+					result_buf[2]  = PTR8(P_Buf)[(p_s[2] % hs)];
+					result_buf[3]  = PTR8(P_Buf)[(p_s[3] % hs)];
+					result_buf[4]  = PTR8(P_Buf)[(p_s[4] % hs)];
+					result_buf[5]  = PTR8(P_Buf)[(p_s[5] % hs)];
+					result_buf[6]  = PTR8(P_Buf)[(p_s[6] % hs)];
+					result_buf[7]  = PTR8(P_Buf)[(p_s[7] % hs)];
+					result_buf[8]  = PTR8(P_Buf)[(p_s[8] % hs)];
+					result_buf[9]  = PTR8(P_Buf)[(p_s[9] % hs)];
+					result_buf[10] = PTR8(P_Buf)[(p_s[10] % hs)];
+					result_buf[11] = PTR8(P_Buf)[(p_s[11] % hs)];
+					result_buf[12] = PTR8(P_Buf)[(p_s[12] % hs)];
+					result_buf[13] = PTR8(P_Buf)[(p_s[13] % hs)];
+					result_buf[14] = PTR8(P_Buf)[(p_s[14] % hs)];
+					result_buf[15] = PTR8(P_Buf)[(p_s[15] % hs)];
+					p += 16;
+					Helper_TranslateResultToBuf(result_buf, 16, rResult);
+				}
+				uint i = 0;
+				while(p < srcLen) {
+					result_buf[i++] = PTR8(P_Buf)[(pSrc[p++] % hs)];
+				}
+				Helper_TranslateResultToBuf(result_buf, i, rResult);
+			}
+			break;
+		case 2:
+			{
+				uint16 result_buf[16];
+				while((srcLen-p) >= 16) {
+					const wchar_t * p_s = pSrc+p;
+					result_buf[0]  = PTR16(P_Buf)[(p_s[0] % hs)];
+					result_buf[1]  = PTR16(P_Buf)[(p_s[1] % hs)];
+					result_buf[2]  = PTR16(P_Buf)[(p_s[2] % hs)];
+					result_buf[3]  = PTR16(P_Buf)[(p_s[3] % hs)];
+					result_buf[4]  = PTR16(P_Buf)[(p_s[4] % hs)];
+					result_buf[5]  = PTR16(P_Buf)[(p_s[5] % hs)];
+					result_buf[6]  = PTR16(P_Buf)[(p_s[6] % hs)];
+					result_buf[7]  = PTR16(P_Buf)[(p_s[7] % hs)];
+					result_buf[8]  = PTR16(P_Buf)[(p_s[8] % hs)];
+					result_buf[9]  = PTR16(P_Buf)[(p_s[9] % hs)];
+					result_buf[10] = PTR16(P_Buf)[(p_s[10] % hs)];
+					result_buf[11] = PTR16(P_Buf)[(p_s[11] % hs)];
+					result_buf[12] = PTR16(P_Buf)[(p_s[12] % hs)];
+					result_buf[13] = PTR16(P_Buf)[(p_s[13] % hs)];
+					result_buf[14] = PTR16(P_Buf)[(p_s[14] % hs)];
+					result_buf[15] = PTR16(P_Buf)[(p_s[15] % hs)];
+					p += 16;
+					Helper_TranslateResultToBuf(result_buf, 16, rResult);
+				}
+				uint i = 0;
+				while(p < srcLen) {
+					result_buf[i++] = PTR16(P_Buf)[(pSrc[p++] % hs)];
+				}
+				Helper_TranslateResultToBuf(result_buf, i, rResult);
+			}
+			break;
+		case 3:
+			{
+				uint8 result_buf[16*3];
+				while((srcLen-p) >= 16) {
+					const wchar_t * p_s = pSrc+p;
+					uint h;
+					h = (p_s[0] % hs) * 3;
+					result_buf[0]  = PTR8(P_Buf)[h];
+					result_buf[1]  = PTR8(P_Buf)[h+1];
+					result_buf[2]  = PTR8(P_Buf)[h+2];
+					h = (p_s[1] % hs) * 3;
+					result_buf[3]  = PTR8(P_Buf)[h];
+					result_buf[4]  = PTR8(P_Buf)[h+1];
+					result_buf[5]  = PTR8(P_Buf)[h+2];
+					h = (p_s[2] % hs) * 3;
+					result_buf[6]  = PTR8(P_Buf)[h];
+					result_buf[7]  = PTR8(P_Buf)[h+1];
+					result_buf[8]  = PTR8(P_Buf)[h+2];
+					h = (p_s[3] % hs) * 3;
+					result_buf[9]  = PTR8(P_Buf)[h];
+					result_buf[10]  = PTR8(P_Buf)[h+1];
+					result_buf[11]  = PTR8(P_Buf)[h+2];
+					h = (p_s[4] % hs) * 3;
+					result_buf[12]  = PTR8(P_Buf)[h];
+					result_buf[13]  = PTR8(P_Buf)[h+1];
+					result_buf[14]  = PTR8(P_Buf)[h+2];
+					h = (p_s[5] % hs) * 3;
+					result_buf[15]  = PTR8(P_Buf)[h];
+					result_buf[16]  = PTR8(P_Buf)[h+1];
+					result_buf[17]  = PTR8(P_Buf)[h+2];
+					h = (p_s[6] % hs) * 3;
+					result_buf[18]  = PTR8(P_Buf)[h];
+					result_buf[19]  = PTR8(P_Buf)[h+1];
+					result_buf[20]  = PTR8(P_Buf)[h+2];
+					h = (p_s[7] % hs) * 3;
+					result_buf[21]  = PTR8(P_Buf)[h];
+					result_buf[22]  = PTR8(P_Buf)[h+1];
+					result_buf[23]  = PTR8(P_Buf)[h+2];
+					h = (p_s[8] % hs) * 3;
+					result_buf[24]  = PTR8(P_Buf)[h];
+					result_buf[25]  = PTR8(P_Buf)[h+1];
+					result_buf[26]  = PTR8(P_Buf)[h+2];
+					h = (p_s[9] % hs) * 3;
+					result_buf[27]  = PTR8(P_Buf)[h];
+					result_buf[28]  = PTR8(P_Buf)[h+1];
+					result_buf[29]  = PTR8(P_Buf)[h+2];
+					h = (p_s[10] % hs) * 3;
+					result_buf[30]  = PTR8(P_Buf)[h];
+					result_buf[31]  = PTR8(P_Buf)[h+1];
+					result_buf[32]  = PTR8(P_Buf)[h+2];
+					h = (p_s[11] % hs) * 3;
+					result_buf[33]  = PTR8(P_Buf)[h];
+					result_buf[34]  = PTR8(P_Buf)[h+1];
+					result_buf[35]  = PTR8(P_Buf)[h+2];
+					h = (p_s[12] % hs) * 3;
+					result_buf[36]  = PTR8(P_Buf)[h];
+					result_buf[37]  = PTR8(P_Buf)[h+1];
+					result_buf[38]  = PTR8(P_Buf)[h+2];
+					h = (p_s[13] % hs) * 3;
+					result_buf[39]  = PTR8(P_Buf)[h];
+					result_buf[40]  = PTR8(P_Buf)[h+1];
+					result_buf[41]  = PTR8(P_Buf)[h+2];
+					h = (p_s[14] % hs) * 3;
+					result_buf[42]  = PTR8(P_Buf)[h];
+					result_buf[43]  = PTR8(P_Buf)[h+1];
+					result_buf[44]  = PTR8(P_Buf)[h+2];
+					h = (p_s[15] % hs) * 3;
+					result_buf[45]  = PTR8(P_Buf)[h];
+					result_buf[46]  = PTR8(P_Buf)[h+1];
+					result_buf[47]  = PTR8(P_Buf)[h+2];
+					p += 16;
+					Helper_TranslateResultToBuf(result_buf, 16, rResult);
+				}
+				uint i = 0;
+				while(p < srcLen) {
+					const uint h = (pSrc[p++] % hs) * 3;
+					result_buf[i]   = PTR8(P_Buf)[h];
+					result_buf[i+1] = PTR8(P_Buf)[h+1];
+					result_buf[i+2] = PTR8(P_Buf)[h+2];
+					i += 3;
+				}
+				Helper_TranslateResultToBuf(result_buf, i / 3, rResult);
+			}
+			break;
+		case 4:
+			{
+				uint32 result_buf[16];
+				while((srcLen-p) >= 16) {
+					const wchar_t * p_s = pSrc+p;
+					result_buf[0]  = PTR32(P_Buf)[(p_s[0] % hs)];
+					result_buf[1]  = PTR32(P_Buf)[(p_s[1] % hs)];
+					result_buf[2]  = PTR32(P_Buf)[(p_s[2] % hs)];
+					result_buf[3]  = PTR32(P_Buf)[(p_s[3] % hs)];
+					result_buf[4]  = PTR32(P_Buf)[(p_s[4] % hs)];
+					result_buf[5]  = PTR32(P_Buf)[(p_s[5] % hs)];
+					result_buf[6]  = PTR32(P_Buf)[(p_s[6] % hs)];
+					result_buf[7]  = PTR32(P_Buf)[(p_s[7] % hs)];
+					result_buf[8]  = PTR32(P_Buf)[(p_s[8] % hs)];
+					result_buf[9]  = PTR32(P_Buf)[(p_s[9] % hs)];
+					result_buf[10] = PTR32(P_Buf)[(p_s[10] % hs)];
+					result_buf[11] = PTR32(P_Buf)[(p_s[11] % hs)];
+					result_buf[12] = PTR32(P_Buf)[(p_s[12] % hs)];
+					result_buf[13] = PTR32(P_Buf)[(p_s[13] % hs)];
+					result_buf[14] = PTR32(P_Buf)[(p_s[14] % hs)];
+					result_buf[15] = PTR32(P_Buf)[(p_s[15] % hs)];
+					p += 16;
+					Helper_TranslateResultToBuf(result_buf, 16, rResult);
+				}
+				uint i = 0;
+				while(p < srcLen) {
+					result_buf[i++] = PTR32(P_Buf)[(pSrc[p++] % hs)];
+				}
+				Helper_TranslateResultToBuf(result_buf, i, rResult);
+			}
+			break;
+		default: assert(0);
+	}
+	return ok;
+}
+
+int SLAPI SCodepageMapPool::CpMap::CpUToBHash::Helper_TranslateResultToBuf(const void * pResultBuf, uint resultBufSize, SString & rBuf) const
+{
+	int    ok = 1;
+	switch(EntrySize) {
+		case 1:
+			{
+				for(uint i = 0; i < resultBufSize; i++) {
+					uchar c = PTR8(pResultBuf)[i];
+					if(c)
+						rBuf.CatChar(c);
+					else
+						rBuf.CatChar('?');
+				}
+			}
+			break;
+		case 2:
+			{
+				for(uint i = 0; i < resultBufSize; i++) {
+					uint8 c0 = PTR8(pResultBuf)[i*2];
+					if(c0) {
+						rBuf.CatChar(c0);
+						uint8 c1 = PTR8(pResultBuf)[i*2+1];
+						if(c1)
+							rBuf.CatChar(c1);
+					}
+					else
+						rBuf.CatChar('?');
+				}
+			}
+			break;
+		case 3:
+			{
+				for(uint i = 0; i < resultBufSize; i++) {
+					uint8 c0 = PTR8(pResultBuf)[i*3];
+					if(c0) {
+						rBuf.CatChar(c0);
+						uint8 c1 = PTR8(pResultBuf)[i*3+1];
+						if(c1) {
+							rBuf.CatChar(c1);
+							uint8 c2 = PTR8(pResultBuf)[i*3+2];
+							if(c2)
+								rBuf.CatChar(c2);
+						}
+					}
+					else
+						rBuf.CatChar('?');
+				}
+			}
+			break;
+		case 4:
+			{
+				for(uint i = 0; i < resultBufSize; i++) {
+					uint8 c0 = PTR8(pResultBuf)[i*4];
+					if(c0) {
+						rBuf.CatChar(c0);
+						uint8 c1 = PTR8(pResultBuf)[i*4+1];
+						if(c1) {
+							rBuf.CatChar(c1);
+							uint8 c2 = PTR8(pResultBuf)[i*4+2];
+							if(c2) {
+								rBuf.CatChar(c2);
+								uint8 c3 = PTR8(pResultBuf)[i*4+3];
+								if(c3)
+									rBuf.CatChar(c3);
+							}
+						}
+					}
+					else
+						rBuf.CatChar('?');
+				}
+			}
+			break;
+		default: assert(0);
+	}
+	return ok;
+}
+
+int SLAPI SCodepageMapPool::CpMap::CpUToBHash::FillUpHash(const uint mapCount, const SCodepageMapPool::MapEntry * pMap, const uint entrySize, const uint hashSize, void * pHash)
+{
+	int    is_dup = 0;
+	for(uint i = 0; !is_dup && i < mapCount; i++) {
+		uint16 u2 = pMap[i].U2;
+		const uint h = u2 % hashSize;
+		const uint8 * p_b = pMap[i].B;
+		switch(entrySize) {
+			case 1:
+				if(PTR8(pHash)[h] == 0)
+					PTR8(pHash)[h] = p_b[0];
+				else
+					is_dup = 1;
+				break;
+			case 2:
+				if(PTR16(pHash)[h] == 0)
+					PTR16(pHash)[h] = PTR16(p_b)[0];
+				else
+					is_dup = 1;
+				break;
+			case 3:
+				{
+					uint8 * p_entry = PTR8(pHash) + h * 3;
+					if(!p_entry[0] && !p_entry[1] && !p_entry[2]) {
+						p_entry[0] = p_b[0];
+						p_entry[1] = p_b[1];
+						p_entry[2] = p_b[2];
+					}
+					else
+						is_dup = 1;
+				}
+				break;
+			case 4:
+				if(PTR32(pHash)[h] == 0)
+					PTR32(pHash)[h] = PTR32(p_b)[0];
+				else
+					is_dup = 1;
+				break;
+			default:
+				assert(0);
+		}
+	}
+	return is_dup ? -1 : 1;
+}
+
+SLAPI SCodepageMapPool::CpMap::CpMap() : P_U2B_Hash(0)
 {
 	Clear();
+}
+
+SLAPI SCodepageMapPool::CpMap::~CpMap()
+{
+	delete P_U2B_Hash;
 }
 
 void SLAPI SCodepageMapPool::CpMap::Clear()
@@ -397,6 +767,7 @@ void SLAPI SCodepageMapPool::CpMap::Clear()
 	Name.Z();
 	Code.Z();
 	Version = 0;
+	ZDELETE(P_U2B_Hash);
 }
 
 const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchC(const uint8 b[]) const
@@ -492,7 +863,7 @@ uint SLAPI SCodepageMapPool::GetCount() const
 	return CpL.getCount();
 }
 
-int SLAPI SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const
+void SLAPI SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest) const
 {
 	rDest.Clear();
 	rDest.Id = rSrc.Id;
@@ -510,7 +881,6 @@ int SLAPI SCodepageMapPool::TranslateEntry(const CpEntry & rSrc, CpMap & rDest) 
 	GetS(rSrc.NameP, rDest.Name);
 	GetS(rSrc.CodeP, rDest.Code);
 	GetS(rSrc.VersionP, rDest.Version);
-	return 1;
 }
 
 int SLAPI SCodepageMapPool::GetByPos(uint pos, CpMap * pM) const
@@ -923,6 +1293,16 @@ const SCodepageMapPool::MapEntry * SCodepageMapPool::CpMap::Test_ToCapital(const
 			return SearchU(u);
 	}
 	return 0;
+}
+
+int SLAPI SCodepageMapPool::CpMap::TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf)
+{
+	int    ok = 1;
+	if(SETIFZ(P_U2B_Hash, new CpUToBHash(*this)))
+		P_U2B_Hash->Translate(pSrc, srcLen, rBuf);
+	else
+		ok = 0;
+	return ok;
 }
 
 int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
@@ -2025,7 +2405,12 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 					assert(test_ustr.IsEqual(org_ustr));
 					THROW(test_ustr.IsEqual(org_ustr));
 					//
-					map.TranslateToB(test_ustr, test_ustr.Len(), test_cstr);
+					map.TranslateToB(test_ustr, test_ustr.Len(), test_cstr.Z());
+					assert(test_cstr.Len() == org_cstr.Len());
+					assert(test_cstr.IsEqual(org_cstr));
+					THROW(test_cstr.IsEqual(org_cstr));
+					//
+					map.TranslateToB2(test_ustr, test_ustr.Len(), test_cstr.Z());
 					assert(test_cstr.Len() == org_cstr.Len());
 					assert(test_cstr.IsEqual(org_cstr));
 					THROW(test_cstr.IsEqual(org_cstr));
@@ -2071,6 +2456,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 		{
 			const SString test_src_1251_file_name = "D:/Papyrus/Src/PPTEST/DATA/rustext.txt";
 			SString test_dest_file_name;
+			SPathStruc ps;
 			{
 				for(uint i = 0; i < test_tidx_list.getCount(); i++) {
 					_TestTranslIndexEntry * p_tti = test_tidx_list.at(i);
@@ -2080,7 +2466,6 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 					assert(GetByPos(p_tti->DestCpIdx, &dest_map));
 					if(src_map.Id == 1251) {
 						test_dest_file_name.Z();
-						SPathStruc ps;
 						ps.Split(test_src_1251_file_name);
 						ps.Nam.CatChar('-').Cat(dest_map.Name);
 						ps.Merge(test_dest_file_name);
@@ -2101,7 +2486,6 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 							const _TestTranslIndexEntry * p_tti2 = test_tidx_list.at(j);
 							if(p_tti2->DestCpIdx == p_tti->SrcCpIdx && p_tti2->ResultFileName.NotEmpty()) {
 								test_dest_file_name.Z();
-								SPathStruc ps;
 								ps.Split(p_tti2->ResultFileName);
 								ps.Nam.CatChar('-').Cat(dest_map.Name);
 								ps.Merge(test_dest_file_name);

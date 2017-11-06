@@ -1,24 +1,16 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2005, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static db_timeout_t __repmgr_compute_response_time(ENV *);
-static int __repmgr_elect __P((ENV*, uint32, db_timespec *));
-static int __repmgr_elect_main __P((ENV*, REPMGR_RUNNABLE *));
-static void * __repmgr_elect_thread __P((void *));
+static int __repmgr_elect(ENV*, uint32, db_timespec *);
+static int __repmgr_elect_main(ENV*, REPMGR_RUNNABLE *);
+static void * __repmgr_elect_thread(void *);
 static int send_membership(ENV *);
 /*
  * Starts an election thread.

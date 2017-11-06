@@ -1,41 +1,34 @@
 /*
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #ifndef _DB_MUTEX_H_
 #define	_DB_MUTEX_H_
 
 #ifdef HAVE_MUTEX_SUPPORT
-/* The inlined trylock calls need access to the details of mutexes. */
-#define	LOAD_ACTUAL_MUTEX_CODE
-#include "dbinc/mutex_int.h"
-
-#ifndef HAVE_SHARED_LATCHES
- #error "Shared latches are required in DB 4.8 and above"
-#endif
+	// The inlined trylock calls need access to the details of mutexes. 
+	#define	LOAD_ACTUAL_MUTEX_CODE
+	#include "dbinc/mutex_int.h"
+	#ifndef HAVE_SHARED_LATCHES
+		#error "Shared latches are required in DB 4.8 and above"
+	#endif
 #endif
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * By default, spin 50 times per processor if fail to acquire a test-and-set
  * mutex, we have anecdotal evidence it's a reasonable value.
  */
 #define	MUTEX_SPINS_PER_PROCESSOR	50
-
 /*
  * Mutexes are represented by unsigned, 32-bit integral values.  As the
  * OOB value is 0, mutexes can be initialized by zero-ing out the memory
  * in which they reside.
  */
 #define	MUTEX_INVALID	0
-
 /*
  * We track mutex allocations by ID.
  */
@@ -149,7 +142,7 @@ extern "C" {
 	#endif
 #elif defined(HAVE_MUTEX_WIN32) || defined(HAVE_MUTEX_WIN32_GCC)
 	#define	__mutex_init(a, b, c)		__db_win32_mutex_init(a, b, c)
-	#define	__mutex_lock(a, b)		__db_win32_mutex_lock(a, b, 0)
+	#define	__mutex_lock(a, b)		    __db_win32_mutex_lock(a, b, 0)
 	#define	__mutex_timedlock(a, b, c)	__db_win32_mutex_lock(a, b, c)
 	#define	__mutex_trylock(a, b)		__db_win32_mutex_trylock(a, b)
 	#define	__mutex_unlock(a, b)		__db_win32_mutex_unlock(a, b)
@@ -189,7 +182,6 @@ extern "C" {
 #ifndef __mutex_tryrdlock
 	#define	__mutex_tryrdlock(a, b)		__mutex_trylock(a, b)
 #endif
-
 /*
  * Lock/unlock a mutex.  If the mutex was never required, the thread of
  * control can proceed without it.
@@ -209,21 +201,13 @@ extern "C" {
 /*
  * Acquire a DB_MUTEX_SHARED "mutex" in shared mode.
  */
-#define	MUTEX_READLOCK(env, mutex) do {					\
-	if((mutex) != MUTEX_INVALID && __mutex_rdlock(env, mutex) != 0) \
-		return (DB_RUNRECOVERY);				\
-} while (0)
+#define	MUTEX_READLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_rdlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while (0)
 #define	MUTEX_TRY_READLOCK(env, mutex) ((mutex) != MUTEX_INVALID ? __mutex_tryrdlock(env, mutex) : 0)
-#define	MUTEX_UNLOCK(env, mutex) do {					\
-	if((mutex) != MUTEX_INVALID && __mutex_unlock(env, mutex) != 0) \
-		return (DB_RUNRECOVERY);				\
-} while (0)
+#define	MUTEX_UNLOCK(env, mutex) do { if((mutex) != MUTEX_INVALID && __mutex_unlock(env, mutex) != 0) return (DB_RUNRECOVERY); } while (0)
 
 #define	MUTEX_WAIT(env, mutex, duration) do {			      \
 	int __ret;						      \
-	if((mutex) != MUTEX_INVALID &&				      \
-	    (__ret = __mutex_timedlock(env, mutex, duration)) != 0 && \
-	    __ret != DB_TIMEOUT)				      \
+	if((mutex) != MUTEX_INVALID && (__ret = __mutex_timedlock(env, mutex, duration)) != 0 && __ret != DB_TIMEOUT) \
 		return (DB_RUNRECOVERY);			      \
 } while (0)
 #else
@@ -241,7 +225,6 @@ extern "C" {
 #define	MUTEX_REQUIRED_READ(env, mutex)	(mutex) = (mutex)
 #define	MUTEX_WAIT(env, mutex, duration) (mutex) = (mutex)
 #endif
-
 /*
  * Berkeley DB ports may require single-threading at places in the code.
  */
@@ -258,12 +241,10 @@ extern "C" {
 		taskLock();						\
 		if(DB_GLOBAL(db_global_init)) {			\
 			taskUnlock();					\
-			semTake(DB_GLOBAL(db_global_lock),	\
-			    WAIT_FOREVER);				\
+			semTake(DB_GLOBAL(db_global_lock), WAIT_FOREVER); \
 			continue;					\
 		}							\
-		DB_GLOBAL(db_global_lock) =				\
-		    semBCreate(SEM_Q_FIFO, SEM_EMPTY);			\
+		DB_GLOBAL(db_global_lock) = semBCreate(SEM_Q_FIFO, SEM_EMPTY); \
 		if(DB_GLOBAL(db_global_lock) != NULL)			\
 			DB_GLOBAL(db_global_init) = 1;			\
 		taskUnlock();						\
@@ -271,7 +252,6 @@ extern "C" {
 } while (DB_GLOBAL(db_global_init) == 0)
 #define	DB_END_SINGLE_THREAD	semGive(DB_GLOBAL(db_global_lock))
 #endif
-
 /*
  * Single-threading defaults to a no-op.
  */

@@ -1,27 +1,11 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2001, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/txn.h"
-#ifdef REP_DIAGNOSTIC
-	// @v9.5.5 #include "dbinc/db_page.h"
-	// @v9.5.5 #include "dbinc/fop.h"
-	// @v9.5.5 #include "dbinc/qam.h"
-#endif
-
 /*
  * rep_util.c:
  *	Miscellaneous replication-related utility functions, including
@@ -36,14 +20,13 @@
 		}                                                               \
 } while(0)
 
-static int __rep_lockout_int __P((ENV*, REP*, uint32*, uint32, const char *, uint32));
-static int __rep_newmaster_empty __P((ENV*, int));
-static int __rep_print_int __P((ENV*, uint32, const char *, va_list));
+static int __rep_lockout_int(ENV*, REP*, uint32*, uint32, const char *, uint32);
+static int __rep_newmaster_empty(ENV*, int);
+static int __rep_print_int(ENV*, uint32, const char *, va_list);
 #ifdef REP_DIAGNOSTIC
-static void __rep_print_logmsg __P((ENV*, const DBT*, DB_LSN *));
+	static void __rep_print_logmsg(ENV*, const DBT*, DB_LSN *);
 #endif
-static int __rep_show_progress __P((ENV*, const char *, int mins));
-
+static int __rep_show_progress(ENV*, const char *, int mins);
 /*
  * __rep_bulk_message --
  *	This is a wrapper for putting a record into a bulk buffer.  Since

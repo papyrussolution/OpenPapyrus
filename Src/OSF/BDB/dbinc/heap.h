@@ -1,9 +1,7 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2010, 2011 Oracle and/or its affiliates.  All rights reserved.
  */
-
 #ifndef _DB_HEAP_H_
 #define _DB_HEAP_H_
 
@@ -11,19 +9,16 @@
 extern "C" {
 #endif
 
-/* Forward structure declarations. */
+// Forward structure declarations. 
 struct __heap;		typedef struct __heap HEAP;
 struct __heap_cursor;	typedef struct __heap_cursor HEAP_CURSOR;
-
 /*
  * The in-memory, per-heap data structure.
  */
 struct __heap {		/* Heap access method. */
-	
 	uint32 gbytes;	/* Initial heap size. */
 	uint32 bytes;	/* Initial heap size. */
 	uint32 region_size;	/* Size of each region. */
-
 	db_pgno_t curregion;	/* The region of the next insert. */
 	db_pgno_t maxpgno;	/* Maximum page number of a fixed size heap. */
 	int curpgindx;	/* The last used offset in the region's space bitmap. */
@@ -32,9 +27,7 @@ struct __heap {		/* Heap access method. */
 struct __heap_cursor {
 	/* struct __dbc_internal */
 	__DBC_INTERNAL
-
 	/* Heap private part */
-
 	uint32	flags;
 };
 

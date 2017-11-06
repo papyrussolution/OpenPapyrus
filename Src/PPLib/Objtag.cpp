@@ -315,7 +315,7 @@ int FASTCALL TagFilt::Check(const ObjTagList * pList) const
 //
 SLAPI PPObjTagPacket::PPObjTagPacket()
 {
-	Init();
+	MEMSZERO(Rec);
 }
 
 void SLAPI PPObjTagPacket::Init()
@@ -335,10 +335,8 @@ PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (PPObjTagPacket & src)
 //
 // PPTagEnumList
 //
-SLAPI PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray()
+SLAPI PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray(), EnumID(enumID), Flags(0)
 {
-	EnumID = enumID;
-	Flags = 0;
 }
 
 PPTagEnumList & FASTCALL PPTagEnumList::operator = (const PPTagEnumList & s)

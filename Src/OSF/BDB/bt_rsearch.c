@@ -39,12 +39,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 /*
  * __bam_rsearch --
@@ -76,15 +70,12 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 	cp = (BTREE_CURSOR *)dbc->internal;
 	h = NULL;
 	ret = 0;
-
 	BT_STK_CLR(cp);
-
 	/*
 	 * There are several ways we search a btree tree.  The flags argument
 	 * specifies if we're acquiring read or write locks and if we are
 	 * locking pairs of pages.  In addition, if we're adding or deleting
-	 * an item, we have to lock the entire tree, regardless.  See btree.h
-	 * for more details.
+	 * an item, we have to lock the entire tree, regardless.  See btree.h for more details.
 	 *
 	 * If write-locking pages, we need to know whether or not to acquire a
 	 * write lock on a page before getting it.  This depends on how deep it

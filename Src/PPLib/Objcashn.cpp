@@ -5,9 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry()
+SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N(0)
 {
-	N = 0;
 	Uuid.SetZero();
 }
 
@@ -21,25 +20,11 @@ int SLAPI PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSeri
     return ok;
 }
 
-SLAPI PPGenCashNode::PPGenCashNode()
+SLAPI PPGenCashNode::PPGenCashNode() : ID(0), CurRestBillID(0), CashType(0), DrvVerMajor(0), DrvVerMinor(0), DisRoundPrec(0), AmtRoundPrec(0),
+	P_DivGrpList(0), LocID(0), ExtQuotID(0), Flags(0), ExtFlags(0), GoodsLocAssocID(0), ParentID(0), GoodsGrpID(0)
 {
-	ID = 0;
 	memzero(Name, sizeof(Name));
 	memzero(Symb, sizeof(Symb));
-	CurRestBillID = 0;
-	CashType = 0;
-	DrvVerMajor = 0;
-	DrvVerMinor = 0;
-	DisRoundPrec = 0;
-	AmtRoundPrec = 0;
-	LocID = 0;
-	ExtQuotID = 0;
-	Flags = 0;
-	ExtFlags = 0;
-	GoodsLocAssocID = 0;
-	ParentID = 0;
-	GoodsGrpID = 0;
-	P_DivGrpList = 0;
 }
 
 SLAPI PPGenCashNode::~PPGenCashNode()

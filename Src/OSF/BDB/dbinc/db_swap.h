@@ -33,14 +33,12 @@
  *
  * $Id$
  */
-
 #ifndef _DB_SWAP_H_
 #define	_DB_SWAP_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * Little endian <==> big endian 64-bit swap macros.
  *	M_64_SWAP	swap a memory location

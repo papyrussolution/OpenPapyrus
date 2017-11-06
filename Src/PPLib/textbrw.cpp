@@ -1345,12 +1345,12 @@ int STextBrowser::WMHCreate()
 SCodepage STextBrowser::SelectEncoding(SCodepage initCp) const
 {
 	SCodepage result_cp = initCp;
-	ListWindow * p_lw = CreateListWindow(16, lbtDisposeData | lbtDblClkNotify);
+	ListWindow * p_lw = CreateListWindow(128, lbtDisposeData | lbtDblClkNotify);
 	if(p_lw) {
 		SCodepage cp;
 		SString cp_name;
 		for(uint i = 0; i < SCodepageIdent::GetRegisteredCodepageCount(); i++) {
-			if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name.Z())) {
+			if(SCodepageIdent::GetRegisteredCodepage(i, cp, cp_name.Z()) && cp_name.NotEmpty()) {
 				p_lw->listBox()->addItem(cp, cp_name);
 			}
 		}
@@ -1599,7 +1599,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 				THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 				{
 					int    first_block = 1;
-					STextEncodingStat tes;
+					STextEncodingStat tes(STextEncodingStat::fUseUCharDet);
 					SStringU ubuf;
 					SString utfbuf;
 					size_t incomplete_multibyte_char = 0;
@@ -1614,6 +1614,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						actual_size += incomplete_multibyte_char;
 						if(first_block) {
 							tes.Add(buffer, actual_size);
+							tes.Finish();
 							if(tes.CheckFlag(tes.fLegalUtf8Only)) {
 								if(_fsize_rest > 0) {
 									//
@@ -1634,7 +1635,22 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 								Doc.Cp = cpUTF8;
 							}
 							else {
-								Doc.OrgCp = (orgCp == cpUndef) ? cpANSI : orgCp;
+								//
+								// Ёкспериментальный блок с автоматической идентификацией кодировки.
+								// “ребуютс€ уточнени€.
+								//
+								const char * p_cp_name = tes.GetCpName();
+								if(sstreqi_ascii(p_cp_name, "IBM866")) {
+									Doc.OrgCp = cp866;
+								}
+								else if(p_cp_name && strnicmp(p_cp_name, "windows", 7) == 0) {
+									Doc.OrgCp.FromStr(p_cp_name);
+								}
+								else if(p_cp_name && strnicmp(p_cp_name, "iso", 3) == 0) {
+									Doc.OrgCp.FromStr(p_cp_name);
+								}
+								else 
+									Doc.OrgCp = (orgCp == cpUndef) ? cpANSI : orgCp;
 								Doc.Cp = cpUTF8;
 							}
 							Doc.Eolf = tes.GetEolFormat();

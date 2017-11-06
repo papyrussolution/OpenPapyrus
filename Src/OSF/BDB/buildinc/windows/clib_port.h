@@ -3,34 +3,30 @@
  * Minimum/maximum values for various types.
  */
 #ifndef	UINT16_MAX			/* Maximum 16-bit unsigned. */
-#define	UINT16_MAX	65535
+	#define	UINT16_MAX	65535
 #endif
 #ifndef	UINT32_MAX			/* Maximum 32-bit unsigned. */
-#define	UINT32_MAX	4294967295U
+	#define	UINT32_MAX	4294967295U
 #endif
-
 #ifndef	INT_MAX
-#if SIZEOF_INT == 4
-#define	INT_MAX		2147483647
+	#if SIZEOF_INT == 4
+		#define	INT_MAX		2147483647
+	#endif
+	#if SIZEOF_INT == 8
+		#define	INT_MAX		9223372036854775807
+	#endif
 #endif
-#if SIZEOF_INT == 8
-#define	INT_MAX		9223372036854775807
-#endif
-#endif
-
 #ifndef	INT_MIN				/* minimum (signed) int value */
-#define	INT_MIN		(-INT_MAX-1)
+	#define	INT_MIN		(-INT_MAX-1)
 #endif
-
 #ifndef	UINT_MAX			/* maximum (signed) int value */
-#if SIZEOF_INT == 4
-#define	UINT_MAX	4294967295U
+	#if SIZEOF_INT == 4
+		#define	UINT_MAX	4294967295U
+	#endif
+	#if SIZEOF_INT == 8
+		#define	UINT_MAX	18446744073709551615U
+	#endif
 #endif
-#if SIZEOF_INT == 8
-#define	UINT_MAX	18446744073709551615U
-#endif
-#endif
-
 #ifndef	LONG_MAX			/* maximum (signed) long value */
 #if SIZEOF_LONG == 4
 #define	LONG_MAX	2147483647
@@ -39,171 +35,163 @@
 #define	LONG_MAX	9223372036854775807L
 #endif
 #endif
-
 #ifndef	LONG_MIN			/* minimum (signed) long value */
-#define	LONG_MIN	(-LONG_MAX-1)
+	#define	LONG_MIN	(-LONG_MAX-1)
 #endif
-
 #ifndef	ULONG_MAX			/* maximum (unsigned) long value */
-#if SIZEOF_LONG == 4
-#define	ULONG_MAX	4294967295U
+	#if SIZEOF_LONG == 4
+	#define	ULONG_MAX	4294967295U
+	#endif
+	#if SIZEOF_LONG == 8
+	#define	ULONG_MAX	18446744073709551615UL
+	#endif
 #endif
-#if SIZEOF_LONG == 8
-#define	ULONG_MAX	18446744073709551615UL
-#endif
-#endif
-
 #if defined(HAVE_64BIT_TYPES)
-/*
- * Override the system's 64-bit min/max constants.  AIX's 32-bit compiler can
- * handle 64-bit values, but the system's constants don't include the LL/ULL
- * suffix, and so can't be compiled using the 32-bit compiler.
- */
-#undef	INT64_MAX
-#undef	INT64_MIN
-#undef	UINT64_MAX
-
-#ifdef	DB_WIN32
-#define	INT64_MAX	_I64_MAX
-#define	INT64_MIN	_I64_MIN
-#define	UINT64_MAX	_UI64_MAX
-#else
-#define	INT64_MAX	9223372036854775807LL
-#define	INT64_MIN	(-INT64_MAX-1)
-#define	UINT64_MAX	18446744073709551615ULL
-#endif	/* DB_WIN32 */
-
-#define	INT64_FMT	"%I64d"
-#define	UINT64_FMT	"%I64u"
+	/*
+	 * Override the system's 64-bit min/max constants.  AIX's 32-bit compiler can
+	 * handle 64-bit values, but the system's constants don't include the LL/ULL
+	 * suffix, and so can't be compiled using the 32-bit compiler.
+	 */
+	#undef	INT64_MAX
+	#undef	INT64_MIN
+	#undef	UINT64_MAX
+	#ifdef	DB_WIN32
+		#define	INT64_MAX	_I64_MAX
+		#define	INT64_MIN	_I64_MIN
+		#define	UINT64_MAX	_UI64_MAX
+	#else
+		#define	INT64_MAX	9223372036854775807LL
+		#define	INT64_MIN	(-INT64_MAX-1)
+		#define	UINT64_MAX	18446744073709551615ULL
+	#endif	/* DB_WIN32 */
+	#define	INT64_FMT	"%I64d"
+	#define	UINT64_FMT	"%I64u"
 #endif	/* HAVE_64BIT_TYPES */
-
 /*
  * Exit success/failure macros.
  */
 #ifndef	HAVE_EXIT_SUCCESS
-#define	EXIT_FAILURE	1
-#define	EXIT_SUCCESS	0
+	#define	EXIT_FAILURE	1
+	#define	EXIT_SUCCESS	0
 #endif
-
 /*
  * File modes.
  */
 #ifdef DB_WIN32
-#ifndef S_IREAD				/* WinCE doesn't have S_IREAD. */
-#define	S_IREAD		0
-#endif
-#ifndef S_IWRITE			/* WinCE doesn't have S_IWRITE. */
-#define	S_IWRITE	0
-#endif
-#ifndef	S_IRUSR
-#define	S_IRUSR		S_IREAD		/* R for owner */
-#endif
-#ifndef	S_IWUSR
-#define	S_IWUSR		S_IWRITE	/* W for owner */
-#endif
-#ifndef	S_IXUSR
-#define	S_IXUSR		0		/* X for owner */
-#endif
-#ifndef	S_IRGRP
-#define	S_IRGRP		0		/* R for group */
-#endif
-#ifndef	S_IWGRP
-#define	S_IWGRP		0		/* W for group */
-#endif
-#ifndef	S_IXGRP
-#define	S_IXGRP		0		/* X for group */
-#endif
-#ifndef	S_IROTH
-#define	S_IROTH		0		/* R for other */
-#endif
-#ifndef	S_IWOTH
-#define	S_IWOTH		0		/* W for other */
-#endif
-#ifndef	S_IXOTH
-#define	S_IXOTH		0		/* X for other */
-#endif
+	#ifndef S_IREAD				/* WinCE doesn't have S_IREAD. */
+		#define	S_IREAD		0
+	#endif
+	#ifndef S_IWRITE			/* WinCE doesn't have S_IWRITE. */
+		#define	S_IWRITE	0
+	#endif
+	#ifndef	S_IRUSR
+		#define	S_IRUSR		S_IREAD		/* R for owner */
+	#endif
+	#ifndef	S_IWUSR
+		#define	S_IWUSR		S_IWRITE	/* W for owner */
+	#endif
+	#ifndef	S_IXUSR
+		#define	S_IXUSR		0		/* X for owner */
+	#endif
+	#ifndef	S_IRGRP
+		#define	S_IRGRP		0		/* R for group */
+	#endif
+	#ifndef	S_IWGRP
+		#define	S_IWGRP		0		/* W for group */
+	#endif
+	#ifndef	S_IXGRP
+		#define	S_IXGRP		0		/* X for group */
+	#endif
+	#ifndef	S_IROTH
+		#define	S_IROTH		0		/* R for other */
+	#endif
+	#ifndef	S_IWOTH
+		#define	S_IWOTH		0		/* W for other */
+	#endif
+	#ifndef	S_IXOTH
+		#define	S_IXOTH		0		/* X for other */
+	#endif
 #else /* !DB_WIN32 */
-#ifndef	S_IRUSR
-#define	S_IRUSR		0000400		/* R for owner */
-#endif
-#ifndef	S_IWUSR
-#define	S_IWUSR		0000200		/* W for owner */
-#endif
-#ifndef	S_IXUSR
-#define	S_IXUSR		0000100		/* X for owner */
-#endif
-#ifndef	S_IRGRP
-#define	S_IRGRP		0000040		/* R for group */
-#endif
-#ifndef	S_IWGRP
-#define	S_IWGRP		0000020		/* W for group */
-#endif
-#ifndef	S_IXGRP
-#define	S_IXGRP		0000010		/* X for group */
-#endif
-#ifndef	S_IROTH
-#define	S_IROTH		0000004		/* R for other */
-#endif
-#ifndef	S_IWOTH
-#define	S_IWOTH		0000002		/* W for other */
-#endif
-#ifndef	S_IXOTH
-#define	S_IXOTH		0000001		/* X for other */
-#endif
+	#ifndef	S_IRUSR
+		#define	S_IRUSR		0000400		/* R for owner */
+	#endif
+	#ifndef	S_IWUSR
+		#define	S_IWUSR		0000200		/* W for owner */
+	#endif
+	#ifndef	S_IXUSR
+		#define	S_IXUSR		0000100		/* X for owner */
+	#endif
+	#ifndef	S_IRGRP
+		#define	S_IRGRP		0000040		/* R for group */
+	#endif
+	#ifndef	S_IWGRP
+		#define	S_IWGRP		0000020		/* W for group */
+	#endif
+	#ifndef	S_IXGRP
+		#define	S_IXGRP		0000010		/* X for group */
+	#endif
+	#ifndef	S_IROTH
+		#define	S_IROTH		0000004		/* R for other */
+	#endif
+	#ifndef	S_IWOTH
+		#define	S_IWOTH		0000002		/* W for other */
+	#endif
+	#ifndef	S_IXOTH
+		#define	S_IXOTH		0000001		/* X for other */
+	#endif
 #endif /* !DB_WIN32 */
-
 /*
  * Don't step on the namespace.  Other libraries may have their own
  * implementations of these functions, we don't want to use their
  * implementations or force them to use ours based on the load order.
  */
 #ifndef	HAVE_ATOI
-#define	atoi		__db_Catoi
+	#define	atoi		__db_Catoi
 #endif
 #ifndef	HAVE_ATOL
-#define	atol		__db_Catol
+	#define	atol		__db_Catol
 #endif
 #ifndef	HAVE_BSEARCH
-#define	bsearch		__db_Cbsearch
+	#define	bsearch		__db_Cbsearch
 #endif
 #ifndef	HAVE_FCLOSE
-#define	fclose		__db_Cfclose
+	#define	fclose		__db_Cfclose
 #endif
 #ifndef	HAVE_FGETC
-#define	fgetc		__db_Cfgetc
+	#define	fgetc		__db_Cfgetc
 #endif
 #ifndef	HAVE_FGETS
-#define	fgets		__db_Cfgets
+	#define	fgets		__db_Cfgets
 #endif
 #ifndef	HAVE_FOPEN
-#define	fopen		__db_Cfopen
+	#define	fopen		__db_Cfopen
 #endif
 #ifndef	HAVE_FWRITE
-#define	fwrite		__db_Cfwrite
+	#define	fwrite		__db_Cfwrite
 #endif
 #ifndef	HAVE_GETADDRINFO
-#define	freeaddrinfo(a)		__db_Cfreeaddrinfo(a)
-#define	getaddrinfo(a, b, c, d)	__db_Cgetaddrinfo(a, b, c, d)
+	#define	freeaddrinfo(a)		__db_Cfreeaddrinfo(a)
+	#define	getaddrinfo(a, b, c, d)	__db_Cgetaddrinfo(a, b, c, d)
 #endif
 #ifndef	HAVE_GETCWD
-#define	getcwd		__db_Cgetcwd
+	#define	getcwd		__db_Cgetcwd
 #endif
 #ifndef	HAVE_GETOPT
-#define	getopt		__db_Cgetopt
-#define	optarg		__db_Coptarg
-#define	opterr		__db_Copterr
-#define	optind		__db_Coptind
-#define	optopt		__db_Coptopt
-#define	optreset	__db_Coptreset
+	#define	getopt		__db_Cgetopt
+	#define	optarg		__db_Coptarg
+	#define	opterr		__db_Copterr
+	#define	optind		__db_Coptind
+	#define	optopt		__db_Coptopt
+	#define	optreset	__db_Coptreset
 #endif
 #ifndef	HAVE_ISALPHA
-#define	isalpha		__db_Cisalpha
+	#define	isalpha		__db_Cisalpha
 #endif
 #ifndef	HAVE_ISDIGIT
-#define	isdigit		__db_Cisdigit
+	#define	isdigit		__db_Cisdigit
 #endif
 #ifndef	HAVE_ISPRINT
-#define	isprint		__db_Cisprint
+	#define	isprint		__db_Cisprint
 #endif
 #ifndef	HAVE_ISSPACE
 	#define	isspace		__db_Cisspace

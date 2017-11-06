@@ -38,14 +38,12 @@
  *	@(#)queue.h	8.5 (Berkeley) 8/20/94
  * $FreeBSD: src/sys/sys/queue.h,v 1.54 2002/08/05 05:18:43 alfred Exp $
  */
-
 #ifndef	_DB_QUEUE_H_
 #define	_DB_QUEUE_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * This file defines four types of data structures: singly-linked lists,
  * singly-linked tail queues, lists and tail queues.
@@ -109,7 +107,6 @@ extern "C" {
  * _REMOVE		+	+	+	+
  *
  */
-
 /*
  * XXX
  * We #undef all of the macros because there are incompatible versions of this

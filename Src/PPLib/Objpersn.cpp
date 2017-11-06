@@ -1224,8 +1224,6 @@ ListBoxDef * SLAPI PPObjPerson::_Selector2(ListBoxDef * pDef, void * extraPtr)
 	return p_def;
 }
 
-#if 1 // @v7.8.12 { Операция вставки записи в StrAssocArray неприемлемо долгая - необходима оптимизация //
-
 ListBoxDef * SLAPI PPObjPerson::Selector(void * extraPtr)
 {
 	return _Selector2(0, extraPtr);
@@ -1235,43 +1233,6 @@ int SLAPI PPObjPerson::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	return BIN(_Selector2(pDef, extraPtr));
 }
-
-#endif // } 0
-
-#if 0 // @v7.8.10 {
-ListBoxDef * SLAPI PPObjPerson::Selector(long extraParam)
-{
-	PersonTbl     * p   = 0;
-	PersonKindTbl * k   = 0;
-	ListBoxDef    * def = 0;
-	DBQuery       * q   = 0;
-	if(extraParam) {
-		THROW(CheckTblPtr(k = new PersonKindTbl));
-		q = &select(k->PersonID, k->Name, 0L).
-			from(k, 0L).where(k->KindID == extraParam).orderBy(k->KindID, k->Name, 0L);
-	}
-	else {
-		THROW(CheckTblPtr(p = new PersonTbl));
-		q = &select(p->ID, p->Name, 0L).from(p, 0L).orderBy(p->Name, 0L);
-	}
-	THROW(CheckQueryPtr(q));
-	def = new DBQListBoxDef(*q, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
-	THROW_MEM(def);
-	CATCH
-		PPError();
-		if(def)
-			delete def;
-		else if(q)
-			delete q;
-		else {
-			delete p;
-			delete k;
-		}
-		def = 0;
-	ENDCATCH
-	return def;
-}
-#endif // } 0 @v7.8.10
 
 const PPPersonConfig & SLAPI PPObjPerson::GetConfig()
 {
@@ -4202,14 +4163,8 @@ private:
 	int    PrefPos;
 };
 
-PPObjPerson::EditBlock::EditBlock()
+SLAPI PPObjPerson::EditBlock::EditBlock() : InitKindID(0), InitStatusID(0), ShortDialog(0), SCardSeriesID(0), RetSCardID(0), UpdFlags(0)
 {
-	InitKindID = 0;
-	InitStatusID = 0;
-	ShortDialog = 0;
-	SCardSeriesID = 0;
-	RetSCardID = 0;
-	UpdFlags = 0;
 }
 
 int SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
@@ -4683,11 +4638,8 @@ IMPL_HANDLE_EVENT(PersonDialog)
 	clearEvent(event);
 }
 
-MainOrg2Dialog::MainOrg2Dialog(int dlgID, PPPersonPacket * pData, PPObjPerson * pObj) : TDialog(dlgID)
+MainOrg2Dialog::MainOrg2Dialog(int dlgID, PPPersonPacket * pData, PPObjPerson * pObj) : TDialog(dlgID), P_Obj(pObj), P_Pack(pData), PrefPos(-1)
 {
-	P_Obj = pObj;
-	P_Pack = pData;
-	PrefPos = -1;
 	setDTS();
 }
 
@@ -5001,7 +4953,7 @@ int MainOrg2Dialog::getDTS()
 	memzero(buf, sizeof(buf));
 	getCtrlData(CTL_MAINORG2_PHONE, buf);
 	for(i = P_Pack->ELA.getCount(); i > 0; i--) {
-		PPID   kind_id = P_Pack->ELA.at(i-1).KindID;
+		const PPID kind_id = P_Pack->ELA.at(i-1).KindID;
 		if(oneof2(kind_id, PPELK_HOMEPHONE, PPELK_ALTPHONE))
 			tel_pos = i-1;
 		if(kind_id == PPELK_WORKPHONE) {
@@ -5116,10 +5068,11 @@ int SLAPI PPObjPerson::ExtEdit(PPID * pID, void * extraPtr)
 	else
 		THROW(GetPacket(*pID, &info, 0) > 0);
 	THROW(CheckDialogPtr(&(mainorg2_dlg = new MainOrg2Dialog(DLG_MAINORG2, &info, this))));
-	while(!valid_data && (r = ExecView(mainorg2_dlg)) == cmOK)
+	while(!valid_data && (r = ExecView(mainorg2_dlg)) == cmOK) {
 		if((valid_data = mainorg2_dlg->getDTS()) != 0)
 			if(!PutPacket(pID, &info, 1))
 				valid_data = PPErrorZ();
+	}
 	CATCH
 		PPError();
 	ENDCATCH
@@ -5132,7 +5085,7 @@ int SLAPI PPObjPerson::EditDlvrLocList(PPID personID)
 	int    ok = -1;
 	PPPersonPacket pack;
 	AddrListDialog * dlg = 0;
-	THROW(CheckRights(PPR_MOD)); // @v6.8.1
+	THROW(CheckRights(PPR_MOD));
 	THROW(GetPacket(personID, &pack, 0) > 0);
 	THROW(CheckDialogPtr(&(dlg = new AddrListDialog())));
 	THROW(dlg->setDTS(&pack));
@@ -5910,7 +5863,6 @@ int SLAPI PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 	dlg->disableCtrl(CTL_PSNKIND_ID, 1);
 	if(ExecView(dlg) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
-		// @v6.3.4 dlg->getCtrlData(CTL_PSNKIND_ID, &psnk.ID);
 		dlg->getCtrlData(CTL_PSNKIND_NAME, psnk.Name);
 		dlg->getCtrlData(CTL_PSNKIND_SYMB, psnk.Symb);
 		if(!CheckName(*pID, strip(psnk.Name), 0))
@@ -6922,10 +6874,8 @@ int PPALDD_UhttPerson::Set(long iterId, int commit)
 				}
 				else if(I_AddrList.LocKind == 3) {
 					PPLocationPacket loc_pack;
-					// @Muxa @v7.6.2 {
 					if(I_AddrList.LocID > 0)
 						r_blk.LObj.GetPacket(I_AddrList.LocID, &loc_pack);
-					// } @v7.6.2  get original Counter
 					loc_pack.ID = I_AddrList.LocID;
 					loc_pack.Type = LOCTYP_ADDRESS;
 					loc_pack.CityID = I_AddrList.CityID;

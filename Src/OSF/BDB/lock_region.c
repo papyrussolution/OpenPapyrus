@@ -1,23 +1,13 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __lock_region_init __P((ENV*, DB_LOCKTAB *));
-
+static int __lock_region_init(ENV*, DB_LOCKTAB *);
 /*
  * The conflict arrays are set up such that the row is the lock you are
  * holding and the column is the lock that is desired.

@@ -1,18 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #ifndef	_DB_QAM_H_
 #define	_DB_QAM_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * QAM data elements: a status field and the data.
  */
@@ -59,7 +55,9 @@ struct __queue {
 	uint32 rec_page;		/* records per page */
 	uint32 page_ext;		/* Pages per extent */
 	MPFARRAY array1, array2;	/* File arrays. */
-					/* Extent file configuration: */
+	//
+	// Extent file configuration: 
+	//
 	DBT pgcookie;			/* Initialized pgcookie. */
 	DB_PGINFO pginfo;		/* Initialized pginfo struct. */
 	char *path;			/* Space allocated to file pathname. */
@@ -67,8 +65,9 @@ struct __queue {
 	char *dir;			/* The dir of the file. */
 	int mode;			/* Mode to open extents. */
 };
-
-/* Format for queue extent names. */
+//
+// Format for queue extent names. 
+//
 #define	QUEUE_EXTENT		"%s%c__dbq.%s.%d"
 #define	QUEUE_EXTENT_HEAD	"__dbq.%s."
 #define	QUEUE_EXTENT_PREFIX	"__dbq."
@@ -77,7 +76,6 @@ typedef struct __qam_filelist {
 	DB_MPOOLFILE *mpf;
 	uint32 id;
 } QUEUE_FILELIST;
-
 /*
  * Calculate the page number of a recno.
  *
@@ -93,26 +91,12 @@ typedef struct __qam_filelist {
  * Index of record on page =
  *	physical record number, less the logical pno times records/page
  */
-#define	CALC_QAM_RECNO_PER_PAGE(dbp)					\
-    (((dbp)->pgsize - QPAGE_SZ(dbp)) /					\
-    (uint32)DB_ALIGN((uintmax_t)SSZA(QAMDATA, data) +		\
-    ((QUEUE *)(dbp)->q_internal)->re_len, sizeof(uint32)))
-
-#define	QAM_RECNO_PER_PAGE(dbp)	(((QUEUE*)(dbp)->q_internal)->rec_page)
-
-#define	QAM_RECNO_PAGE(dbp, recno)					\
-    (((QUEUE *)(dbp)->q_internal)->q_root				\
-    + (((recno) - 1) / QAM_RECNO_PER_PAGE(dbp)))
-
-#define	QAM_PAGE_EXTENT(dbp, pgno)					\
-    (((pgno) - 1) / ((QUEUE *)(dbp)->q_internal)->page_ext)
-
-#define	QAM_RECNO_EXTENT(dbp, recno)					\
-    QAM_PAGE_EXTENT(dbp, QAM_RECNO_PAGE(dbp, recno))
-
-#define	QAM_RECNO_INDEX(dbp, pgno, recno)				\
-    (uint32)(((recno) - 1) - (QAM_RECNO_PER_PAGE(dbp)		\
-    * (pgno - ((QUEUE *)(dbp)->q_internal)->q_root)))
+#define	CALC_QAM_RECNO_PER_PAGE(dbp) (((dbp)->pgsize - QPAGE_SZ(dbp)) / (uint32)DB_ALIGN((uintmax_t)SSZA(QAMDATA, data) + ((QUEUE *)(dbp)->q_internal)->re_len, sizeof(uint32)))
+#define	QAM_RECNO_PER_PAGE(dbp)	     (((QUEUE*)(dbp)->q_internal)->rec_page)
+#define	QAM_RECNO_PAGE(dbp, recno)   (((QUEUE *)(dbp)->q_internal)->q_root + (((recno) - 1) / QAM_RECNO_PER_PAGE(dbp)))
+#define	QAM_PAGE_EXTENT(dbp, pgno)   (((pgno) - 1) / ((QUEUE *)(dbp)->q_internal)->page_ext)
+#define	QAM_RECNO_EXTENT(dbp, recno) QAM_PAGE_EXTENT(dbp, QAM_RECNO_PAGE(dbp, recno))
+#define	QAM_RECNO_INDEX(dbp, pgno, recno) (uint32)(((recno) - 1) - (QAM_RECNO_PER_PAGE(dbp) * (pgno - ((QUEUE *)(dbp)->q_internal)->q_root)))
 
 #define	QAM_GET_RECORD(dbp, page, index)				\
     ((QAMDATA *)((uint8 *)(page) + (QPAGE_SZ(dbp) +			\
@@ -131,9 +115,7 @@ typedef struct __qam_filelist {
     ((recno) > (meta)->cur_recno &&					\
     (recno) - (meta)->cur_recno > (meta)->first_recno - (recno))))
 
-#define	QAM_NOT_VALID(meta, recno)					\
-    (recno == RECNO_OOB ||						\
-	QAM_BEFORE_FIRST(meta, recno) || QAM_AFTER_CURRENT(meta, recno))
+#define	QAM_NOT_VALID(meta, recno) (recno == RECNO_OOB || QAM_BEFORE_FIRST(meta, recno) || QAM_AFTER_CURRENT(meta, recno))
 
 #define QAM_WAKEUP(dbc, ret) do {					\
 	if(STD_LOCKING(dbc)) {						\
@@ -145,15 +127,8 @@ typedef struct __qam_filelist {
 } while (0)
 
 /* Handle wrap around. */
-#define QAM_INC_RECNO(recno) do {					\
-	recno++;							\
-} while (recno == RECNO_OOB)
-
-#define QAM_DEC_RECNO(recno) do {					\
-	recno--;							\
-} while (recno == RECNO_OOB)
-
-
+#define QAM_INC_RECNO(recno) do { recno++; } while (recno == RECNO_OOB)
+#define QAM_DEC_RECNO(recno) do { recno--; } while (recno == RECNO_OOB)
 /*
  * Log opcodes for the mvptr routine.
  */

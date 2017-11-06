@@ -7,26 +7,16 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
-// @v9.5.5 #include "dbinc/fop.h"
 #ifdef HAVE_FTRUNCATE
-static int __db_free_freelist __P((DB*, DB_THREAD_INFO*, DB_TXN *));
-static int __db_setup_freelist __P((DB*, db_pglist_t*, uint32));
+static int __db_free_freelist(DB*, DB_THREAD_INFO*, DB_TXN *);
+static int __db_setup_freelist(DB*, db_pglist_t*, uint32);
 #endif
 
 #define SAVE_START                                                      \
         do {                                                            \
 		save_data = *c_data;                                    \
-		ret = __db_retcopy(env,                         \
-			&save_start, current.data, current.size,           \
-			&save_start.data, &save_start.ulen);               \
+		ret = __db_retcopy(env, &save_start, current.data, current.size, &save_start.data, &save_start.ulen); \
 	} while(0)
 
 /*

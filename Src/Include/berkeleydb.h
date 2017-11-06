@@ -151,7 +151,6 @@ typedef uint16 db_indx_t;       /* Page offset type. */
 typedef uint32 db_recno_t;      /* Record number type. */
 #define DB_MAX_RECORDS 0xffffffff  /* >= # of records in a tree */
 typedef uint32 db_timeout_t;    /* Type of a timeout. */
-
 /*
  * Region offsets are the difference between a pointer in a region and the
  * region's base address.  With private environments, both addresses are the

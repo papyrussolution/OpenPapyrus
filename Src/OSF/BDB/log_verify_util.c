@@ -564,14 +564,13 @@ int __iterate_txninfo(DB_LOG_VRFY_INFO * lvinfo, uint32 min, uint32 max, TXNINFO
 	data.data = btbuf;
 	data.ulen = bufsz;
 	data.flags |= DB_DBT_USERMEM;
-
 	for(ret = __dbc_get(csr, &key, &data, DB_FIRST|DB_MULTIPLE_KEY);; ret = __dbc_get(csr, &key, &data, DB_NEXT|DB_MULTIPLE_KEY)) {
 		switch(ret) {
 		    case 0:
 			break;
 		    case DB_NOTFOUND:
 			goto out;
-		    /* No break statement allowed by lint here. */
+		    // No break statement allowed by lint here. 
 		    case DB_BUFFER_SMALL:
 			if((ret = __os_realloc(lvinfo->dbenv->env, bufsz *= 2, &btbuf)) != 0)
 				goto out;

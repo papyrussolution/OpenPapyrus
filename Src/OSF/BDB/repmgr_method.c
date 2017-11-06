@@ -1,20 +1,11 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2005, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/txn.h"
 
 /* Context for an API thread waiting for response to a synchronous request. */
 struct response_wait {
@@ -49,7 +40,6 @@ static int response_complete __P((ENV*, void *));
 static int send_msg_conn __P((ENV*, REPMGR_CONNECTION*, DBT*, uint32));
 static int send_msg_self __P((ENV*, REPMGR_IOVECS*, uint32));
 static int site_by_addr __P((ENV*, const char *, uint, DB_SITE**));
-
 /*
  * PUBLIC: int __repmgr_start __P((DB_ENV *, int, uint32));
  */

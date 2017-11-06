@@ -1097,15 +1097,12 @@ SGeo::Geodesic::Geodesic()
 	Init(SGeo::A_WGS84, SGeo::Flattening_WGS84);
 }
 
-SGeo::SinCosPair::SinCosPair()
+SGeo::SinCosPair::SinCosPair() : S(0.0), C(0.0)
 {
-	S = C = 0.0;
 }
 
-SGeo::SinCosPair::SinCosPair(const SGeo::SinCosPair & rS)
+SGeo::SinCosPair::SinCosPair(const SGeo::SinCosPair & rS) : S(rS.S), C(rS.C)
 {
-	S = rS.S;
-	C = rS.C;
 }
 
 SGeo::SinCosPair::SinCosPair(double angle)
@@ -1113,10 +1110,8 @@ SGeo::SinCosPair::SinCosPair(double angle)
 	SetRad(angle);
 }
 
-SGeo::SinCosPair::SinCosPair(double _sin, double _cos)
+SGeo::SinCosPair::SinCosPair(double _sin, double _cos) : S(_sin), C(_cos)
 {
-	S = _sin;
-	C = _cos;
 }
 
 SGeo::SinCosPair & FASTCALL SGeo::SinCosPair::operator = (const SGeo::SinCosPair & rS)

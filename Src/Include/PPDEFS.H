@@ -12279,7 +12279,6 @@
 	#define CTL_INSTPATH_ROOT            (2 + WINDOWS_ID_BIAS)
 	#define CTL_INSTPATH_NETFLAG         (3 + WINDOWS_ID_BIAS)
 
-
 // force svn line
 
 #endif /* __PPDEFS_H */

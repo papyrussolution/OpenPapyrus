@@ -9,12 +9,6 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 #ifdef DB_WIN32
@@ -25,10 +19,8 @@ extern int getopt(int, char * const *, const char *);
 typedef HANDLE os_pid_t;
 typedef HANDLE os_thread_t;
 
- #define os_thread_create(thrp, attr, func, arg) (((*(thrp) = CreateThread(NULL, 0, \
-	(LPTHREAD_START_ROUTINE)(func), (arg), 0, NULL)) == NULL) ? -1 : 0)
- #define os_thread_join(thr, statusp) ((WaitForSingleObject((thr), INFINITE) == WAIT_OBJECT_0) && \
-	GetExitCodeThread((thr), (LPDWORD)(statusp)) ? 0 : -1)
+ #define os_thread_create(thrp, attr, func, arg) (((*(thrp) = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)(func), (arg), 0, NULL)) == NULL) ? -1 : 0)
+ #define os_thread_join(thr, statusp) ((WaitForSingleObject((thr), INFINITE) == WAIT_OBJECT_0) && GetExitCodeThread((thr), (LPDWORD)(statusp)) ? 0 : -1)
  #define os_thread_self() GetCurrentThreadId()
 
 #else /* !DB_WIN32 */

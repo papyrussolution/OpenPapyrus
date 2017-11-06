@@ -2530,12 +2530,13 @@ int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
 void SLAPI Test_MailMsg_ReadFromFile();
+int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
 
 int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	Test_MailMsg_ReadFromFile();
+	//Test_MailMsg_ReadFromFile();
 #endif
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
@@ -2550,17 +2551,20 @@ int SLAPI DoConstructionTest()
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
 	}
 	{
+		/*
 		SString map_pool_file_name;
 		SString map_transl_file_name;
 		PPGetFilePath(PPPATH_OUT, "SCodepageMapPool.txt", map_pool_file_name);
 		PPGetFilePath(PPPATH_OUT, "SCodepageMapTransl.txt", map_transl_file_name);
-		//SUnicodeTable ut;
-		//ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
-		//ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
-		/*
+		//
+		SUnicodeTable ut;
+		ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
+		ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
+
 		SUnicodeBlock ub;
-		ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
-		//ub.Cpmp.Test(&ub.Ut, map_pool_file_name, map_transl_file_name);
+		//ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
+		PPReadUnicodeBlockRawData("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp", ub);
+		ub.Cpmp.Test(&ub.Ut, map_pool_file_name, map_transl_file_name);
 		ub.Write("d:/papyrus/__temp__/ub.bin");
 		{
 			SUnicodeBlock ub2;

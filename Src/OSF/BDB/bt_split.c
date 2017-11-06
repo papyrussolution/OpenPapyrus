@@ -39,18 +39,11 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __bam_page(DBC*, EPG*, EPG *);
 static int __bam_psplit(DBC*, EPG*, PAGE*, PAGE*, db_indx_t *);
 static int __bam_root(DBC*, EPG *);
-
 /*
  * __bam_split --
  *	Split a page.

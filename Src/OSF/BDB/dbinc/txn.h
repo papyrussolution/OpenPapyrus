@@ -1,11 +1,8 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #ifndef	_DB_TXN_H_
 #define	_DB_TXN_H_
 
@@ -14,8 +11,9 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/* Operation parameters to the delayed commit processing code. */
+//
+// Operation parameters to the delayed commit processing code. 
+//
 typedef enum {
 	TXN_CLOSE,		/* Close a DB handle whose close had failed. */
 	TXN_REMOVE,		/* Remove a file. */
@@ -27,7 +25,6 @@ struct __db_txnregion;	typedef struct __db_txnregion DB_TXNREGION;
 struct __db_txn_stat_int;
 typedef struct __db_txn_stat_int DB_TXN_STAT_INT;
 struct __txn_logrec;	typedef struct __txn_logrec DB_TXNLOGREC;
-
 /*
  * !!!
  * TXN_MINIMUM = (DB_LOCK_MAXID + 1) but this makes compilers complain.

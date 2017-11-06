@@ -7,18 +7,10 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 #ifndef HAVE_QUEUE
 	// @v9.5.5 #include "dbinc/qam.h"                 /* For __db_no_queue_am(). */
 #endif
-// @v9.5.5 #include "dbinc/partition.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __db_associate_arg(DB*, DB*, int (*)(DB *, const DBT *, const DBT *, DBT *), uint32);
 static int __dbc_del_arg(DBC*, uint32);
@@ -35,7 +27,6 @@ static int __db_put_arg(DB*, DBT*, DBT*, uint32);
 static int __dbt_ferr(const DB*, const char *, const DBT*, int);
 static int __db_compact_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 static int __db_associate_foreign_arg(DB*, DB*, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32);
-
 /*
  * These functions implement the Berkeley DB API.  They are organized in a
  * layered fashion.  The interface functions (XXX_pp) perform all generic

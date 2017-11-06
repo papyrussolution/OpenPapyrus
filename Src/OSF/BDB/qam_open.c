@@ -1,25 +1,13 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_swap.h"
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/qam.h"
-// @v9.5.5 #include "dbinc/fop.h"
 
-static int __qam_init_meta __P((DB*, QMETA *));
+static int __qam_init_meta(DB*, QMETA *);
 /*
  * __qam_open
  *

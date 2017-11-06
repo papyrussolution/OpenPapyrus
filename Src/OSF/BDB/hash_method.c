@@ -1,18 +1,10 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
 static int __ham_set_h_ffactor(DB*, uint32);
@@ -20,7 +12,6 @@ static int __ham_get_h_hash(DB*, uint32 (* *)(DB*, const void *, uint32));
 static int __ham_set_h_hash(DB*, uint32 (*)(DB *, const void *, uint32));
 static int __ham_set_h_nelem(DB*, uint32);
 static int __ham_get_h_compare(DB*, int (* *)(DB*, const DBT*, const DBT *));
-
 /*
  * __ham_db_create --
  *	Hash specific initialization of the DB structure.

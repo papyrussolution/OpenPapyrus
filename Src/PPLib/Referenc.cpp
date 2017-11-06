@@ -1897,12 +1897,10 @@ int SLAPI SetCommConfig(PPCommConfig * pCfg, int use_ta)
 //
 // PPSecurPacket
 //
-SLAPI PPSecurPacket::PPSecurPacket(PPID obj, PPID id)
+SLAPI PPSecurPacket::PPSecurPacket()
 {
 	MEMSZERO(Secur);
 	// @v9.4.9 (constructor) MEMSZERO(Config);
-	Secur.Tag = obj;
-	Secur.ID  = id;
 }
 
 PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & src)

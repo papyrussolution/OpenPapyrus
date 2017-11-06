@@ -2147,7 +2147,7 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		/* Child might exist -- look for it. */
 		ret = __db_txnlist_find(env, (DB_TXNHEAD *)info, argp->child, &c_stat);
 		t_ret = __db_txnlist_find(env, (DB_TXNHEAD *)info, argp->txnp->txnid, &p_stat);
-		if(ret != 0 && ret != DB_NOTFOUND)
+		if(!oneof2(ret, 0, DB_NOTFOUND))
 			goto out;
 		if(t_ret != 0 && t_ret != DB_NOTFOUND) {
 			ret = t_ret;
@@ -2157,7 +2157,7 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		 * If the parent is in state COMMIT or IGNORE, then we apply
 		 * that to the child, else we need to abort the child.
 		 */
-		if(ret == DB_NOTFOUND  || c_stat == TXN_OK || c_stat == TXN_COMMIT) {
+		if(ret == DB_NOTFOUND  || oneof2(c_stat, TXN_OK, TXN_COMMIT)) {
 			if(t_ret == DB_NOTFOUND || (p_stat != TXN_COMMIT  && p_stat != TXN_IGNORE))
 				c_stat = TXN_ABORT;
 			else
@@ -2175,11 +2175,8 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 			 */
 			switch(p_stat) {
 			    case TXN_COMMIT:
-			    case TXN_IGNORE:
-				c_stat = TXN_IGNORE;
-				break;
-			    default:
-				c_stat = TXN_ABORT;
+			    case TXN_IGNORE: c_stat = TXN_IGNORE; break;
+			    default: c_stat = TXN_ABORT;
 			}
 			ret = __db_txnlist_update(env, (DB_TXNHEAD *)info, argp->child, c_stat, NULL, &tmpstat, 0);
 		}
@@ -3379,7 +3376,7 @@ void __txn_remlock(ENV*env, DB_TXN * txn, DB_LOCK * lock, DB_LOCKER * locker)
 				if(opcode != TXN_PREPARE)                      \
 					e->u.t.dbp->cur_txn = NULL;             \
 			}                                                       \
-		} else if(t_ret == DB_NOTFOUND)                                \
+		} else if(t_ret == DB_NOTFOUND) \
 			t_ret = 0;                                              \
 		if(t_ret != 0 && ret == 0)                                     \
 			ret = t_ret;                                            \

@@ -1,22 +1,11 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2001, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_am.h"
-// @v9.5.5 #include "dbinc/fop.h"
-// @v9.5.5 #include "dbinc/txn.h"
 
 static int __fop_set_pgsize(DB*, DB_FH*, const char *);
 static int __fop_inmem_create(DB*, const char *, DB_TXN*, uint32);
@@ -25,7 +14,6 @@ static int __fop_inmem_read_meta(DB*, DB_TXN*, const char *, uint32);
 static int __fop_inmem_swap(DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *);
 static int __fop_ondisk_dummy(DB*, DB_TXN*, const char *, uint8 *);
 static int __fop_ondisk_swap(DB*, DB*, DB_TXN*, const char *, const char *, const char *, DB_LOCKER *);
-
 /*
  * Acquire the environment meta-data lock.  The parameters are the
  * environment (ENV), the locker id to use in acquiring the lock (ID)

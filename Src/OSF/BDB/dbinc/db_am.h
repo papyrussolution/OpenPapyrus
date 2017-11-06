@@ -1,8 +1,6 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #ifndef _DB_AM_H_
@@ -14,7 +12,6 @@ extern "C" {
 
 struct __db_foreign_info;
 typedef struct __db_foreign_info DB_FOREIGN_INFO;
-
 /*
  * Keep track of information for foreign keys.  Used to maintain a linked list
  * of 'primary' DBs which reference this 'foreign' DB.
@@ -23,7 +20,6 @@ struct __db_foreign_info {
 	DB *dbp;
 	uint32 flags;
 	int (*callback)(DB *, const DBT *, DBT *, const DBT *, int *);
-
 	/*
 	 * List entries for foreign key.
 	 *
@@ -269,7 +265,6 @@ struct __db_foreign_info {
 }
 #endif
 
-// @v9.5.5 #include "dbinc/db_dispatch.h"
 #include "dbinc_auto/db_auto.h"
 #include "dbinc_auto/crdel_auto.h"
 #include "dbinc_auto/db_ext.h"

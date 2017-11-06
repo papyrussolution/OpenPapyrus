@@ -7,20 +7,14 @@
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __ram_add __P((DBC*, db_recno_t*, DBT*, uint32, uint32));
-static int __ram_source __P((DB *));
-static int __ram_sread __P((DBC*, db_recno_t));
-static int __ram_update __P((DBC*, db_recno_t, int));
-static int __ram_ca_getorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __ram_ca_setorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
+static int __ram_add(DBC*, db_recno_t*, DBT*, uint32, uint32);
+static int __ram_source(DB *);
+static int __ram_sread(DBC*, db_recno_t);
+static int __ram_update(DBC*, db_recno_t, int);
+static int __ram_ca_getorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __ram_ca_setorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 /*
  * In recno, there are two meanings to the on-page "deleted" flag.  If we're
  * re-numbering records, it means the record was implicitly created.  We skip
@@ -83,7 +77,6 @@ static int __ram_ca_setorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *
 		(cp)->lock_mode = (cp)->csp->lock_mode;                         \
 }
 /*
- * __ram_open --
  *	Recno open function.
  *
  * PUBLIC: int __ram_open __P((DB *, DB_THREAD_INFO *,
@@ -104,27 +97,25 @@ int __ram_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
 	 *
 	 * !!!
 	 * We don't complain if the user specified transactions or threads.
-	 * It's possible to make it work, but you'd better know what you're
-	 * doing!
+	 * It's possible to make it work, but you'd better know what you're doing!
 	 */
-	if(t->re_source != NULL && (ret = __ram_source(dbp)) != 0)
+	if(t->re_source && (ret = __ram_source(dbp)) != 0)
 		return ret;
-	/* If we're snapshotting an underlying source file, do it now. */
+	// If we're snapshotting an underlying source file, do it now. 
 	if(F_ISSET(dbp, DB_AM_SNAPSHOT)) {
-		/* Allocate a cursor. */
+		// Allocate a cursor. 
 		if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
 			return ret;
-		/* Do the snapshot. */
+		// Do the snapshot. 
 		if((ret = __ram_update(dbc, DB_MAX_RECORDS, 0)) != 0 && ret == DB_NOTFOUND)
 			ret = 0;
-		/* Discard the cursor. */
+		// Discard the cursor.
 		if((t_ret = __dbc_close(dbc)) != 0 && ret == 0)
 			ret = t_ret;
 	}
 	return ret;
 }
 /*
- * __ram_append --
  *	Recno append function.
  *
  * PUBLIC: int __ram_append __P((DBC *, DBT *, DBT *));
@@ -134,21 +125,19 @@ int __ram_append(DBC * dbc, DBT * key, DBT * data)
 	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
 	/*
 	 * Make sure we've read in all of the backing source file.  If
-	 * we found the record or it simply didn't exist, add the
-	 * user's record.
+	 * we found the record or it simply didn't exist, add the user's record.
 	 */
 	int ret = __ram_update(dbc, DB_MAX_RECORDS, 0);
-	if(ret == 0 || ret == DB_NOTFOUND)
+	if(oneof2(ret, 0, DB_NOTFOUND))
 		ret = __ram_add(dbc, &cp->recno, data, DB_APPEND, 0);
-	/* Return the record number. */
-	if(ret == 0 && key != NULL)
+	// Return the record number
+	if(ret == 0 && key)
 		ret = __db_retcopy(dbc->env, key, &cp->recno, sizeof(cp->recno), &dbc->rkey->data, &dbc->rkey->ulen);
 	if(!DB_RETOK_DBCPUT(ret))
 		F_SET(dbc, DBC_ERROR);
 	return ret;
 }
 /*
- * __ramc_del --
  *	Recno DBC->del function.
  *
  * PUBLIC: int __ramc_del __P((DBC *, uint32));
@@ -561,7 +550,7 @@ int __ramc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	 */
 	if(flags == DB_KEYFIRST || flags == DB_KEYLAST || flags == DB_NOOVERWRITE || flags == DB_OVERWRITE_DUP) {
 		ret = __ram_getno(dbc, key, &cp->recno, 1);
-		if(ret == 0 || ret == DB_NOTFOUND)
+		if(oneof2(ret, 0, DB_NOTFOUND))
 			ret = __ram_add(dbc, &cp->recno, data, flags, 0);
 		return ret;
 	}
@@ -573,10 +562,7 @@ int __ramc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	 * DB_BEFORE, and let the __ram_ca work out the gory details of what
 	 * should wind up pointing where.
 	 */
-	if(CD_ISSET(cp))
-		iiflags = DB_BEFORE;
-	else
-		iiflags = flags;
+	iiflags = CD_ISSET(cp) ? DB_BEFORE : flags;
 split:
 	if((ret = __bam_rsearch(dbc, &cp->recno, SR_INSERT, 1, &exact)) != 0)
 		goto err;

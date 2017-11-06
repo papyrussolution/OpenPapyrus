@@ -1,18 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
-
 #ifndef	_DB_HMAC_H_
 #define	_DB_HMAC_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * Algorithm specific information.
  */
@@ -24,7 +20,6 @@ typedef struct {
 	uint32	count[2];
 	unsigned char	buffer[64];
 } SHA1_CTX;
-
 /*
  * AES assumes the SHA1 checksumming (also called MAC)
  */

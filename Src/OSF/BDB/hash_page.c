@@ -47,23 +47,15 @@
  * DESCRIPTION:
  *	Page manipulation for hashing package.
  */
-
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
 
-static int __hamc_delpg __P((DBC*, db_pgno_t, db_pgno_t, uint32, db_ham_mode, uint32 *));
-static int __ham_getindex_sorted __P((DBC*, PAGE*, const DBT*, uint32, int *, db_indx_t *));
-static int __ham_getindex_unsorted __P((DBC*, PAGE*, const DBT*, int *, db_indx_t *));
-static int __hamc_delpg_getorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-static int __hamc_delpg_setorder __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
-
+static int __hamc_delpg(DBC*, db_pgno_t, db_pgno_t, uint32, db_ham_mode, uint32 *);
+static int __ham_getindex_sorted(DBC*, PAGE*, const DBT*, uint32, int *, db_indx_t *);
+static int __ham_getindex_unsorted(DBC*, PAGE*, const DBT*, int *, db_indx_t *);
+static int __hamc_delpg_getorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __hamc_delpg_setorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
 /*
  * PUBLIC: int __ham_item __P((DBC *, db_lockmode_t, db_pgno_t *));
  */

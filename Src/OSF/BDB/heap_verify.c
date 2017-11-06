@@ -1,25 +1,14 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 2010, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
-// @v9.5.5 #include "dbinc/db_page.h"
-// @v9.5.5 #include "dbinc/lock.h"
-// @v9.5.5 #include "dbinc/mp.h"
-// @v9.5.5 #include "dbinc/crypto.h"
-// @v9.5.5 #include "dbinc/btree.h"
-// @v9.5.5 #include "dbinc/hash.h"
 #pragma hdrstop
-// @v9.5.5 #include "dbinc/db_verify.h"
-// @v9.5.5 #include "dbinc/heap.h"
 
-static int __heap_safe_gsplit __P((DB*, VRFY_DBINFO*, PAGE*, db_indx_t, DBT *));
-static int __heap_verify_offset_cmp __P((const void *, const void *));
-
+static int __heap_safe_gsplit(DB*, VRFY_DBINFO*, PAGE*, db_indx_t, DBT *);
+static int __heap_verify_offset_cmp(const void *, const void *);
 /*
  * __heap_vrfy_meta --
  *	Verify the heap-specific part of a metadata page.

@@ -41,15 +41,15 @@ int __mutex_alloc(ENV * env, int alloc_id, uint32 flags, db_mutex_t * indxp)
 	 * or the environment isn't multi-process by definition, there's no
 	 * need to mutex at all.
 	 */
-	if(alloc_id != MTX_APPLICATION && alloc_id != MTX_MUTEX_TEST && (F_ISSET(env->dbenv, DB_ENV_NOLOCKING) ||
+	if(!oneof2(alloc_id, MTX_APPLICATION, MTX_MUTEX_TEST) && (F_ISSET(env->dbenv, DB_ENV_NOLOCKING) ||
 	    (!F_ISSET(env, ENV_THREAD) && (LF_ISSET(DB_MUTEX_PROCESS_ONLY) || F_ISSET(env, ENV_PRIVATE)))))
 		return 0;
-	/* Private environments never share mutexes. */
+	// Private environments never share mutexes. 
 	if(F_ISSET(env, ENV_PRIVATE))
 		LF_SET(DB_MUTEX_PROCESS_ONLY);
-	/*
-	 * If we have a region in which to allocate the mutexes, lock it and do the allocation.
-	 */
+	// 
+	// If we have a region in which to allocate the mutexes, lock it and do the allocation.
+	// 
 	if(!MUTEX_ON(env)) {
 		__db_errx(env, DB_STR("2033", "Mutex allocated before mutex region."));
 		return __env_panic(env, EINVAL);
@@ -213,10 +213,10 @@ int __mutex_free_int(ENV * env, int locksys, db_mutex_t * indxp)
  */
 int __mutex_refresh(ENV * env, db_mutex_t mutex)
 {
-	int ret;
 	DB_MUTEX * mutexp = MUTEXP_SET(env, mutex);
 	uint32 flags = mutexp->flags;
-	if((ret = __mutex_destroy(env, mutex)) == 0) {
+	int ret = __mutex_destroy(env, mutex);
+	if(ret == 0) {
 		memzero(mutexp, sizeof(*mutexp));
 		F_SET(mutexp, DB_MUTEX_ALLOCATED|LF_ISSET(DB_MUTEX_LOGICAL_LOCK|DB_MUTEX_PROCESS_ONLY|DB_MUTEX_SHARED));
 		LF_CLR(DB_MUTEX_LOCKED);
@@ -247,10 +247,10 @@ int __mut_failchk(ENV * env)
 			//
 			if(!F_ISSET(mutexp, DB_MUTEX_ALLOCATED) || !F_ISSET(mutexp, DB_MUTEX_PROCESS_ONLY))
 				continue;
-			/*
-			 * The thread that allocated the mutex may have exited, but
-			 * we cannot reclaim the mutex if the process is still alive.
-			 */
+			// 
+			// The thread that allocated the mutex may have exited, but
+			// we cannot reclaim the mutex if the process is still alive.
+			// 
 			if(dbenv->is_alive(dbenv, mutexp->pid, 0, DB_MUTEX_PROCESS_ONLY))
 				continue;
 			__db_msg(env, DB_STR_A("2017", "Freeing mutex for process: %s", "%s"), dbenv->thread_id_string(dbenv, mutexp->pid, 0, buf));
@@ -420,35 +420,26 @@ static int __mutex_region_init(ENV * env, DB_MUTEXMGR * mtxmgr)
 	if((ret = __mutex_alloc(env, MTX_MUTEX_REGION, 0, &mutex)) != 0)
 		return ret;
 	mtxmgr->reginfo.mtx_alloc = mtxregion->mtx_region = mutex;
-
 	/*
 	 * This is the first place we can test mutexes and we need to
 	 * know if they're working.  (They CAN fail, for example on
 	 * SunOS, when using fcntl(2) for locking and using an
 	 * in-memory filesystem as the database environment directory.
-	 * But you knew that, I'm sure -- it probably wasn't worth
-	 * mentioning.)
+	 * But you knew that, I'm sure -- it probably wasn't worth mentioning.)
 	 */
 	mutex = MUTEX_INVALID;
 	if((ret = __mutex_alloc(env, MTX_MUTEX_TEST, 0, &mutex) != 0) ||
-	   (ret = __mutex_lock(env, mutex)) != 0 ||
-	   (ret = __mutex_unlock(env, mutex)) != 0 ||
-	   (ret = __mutex_trylock(env, mutex)) != 0 ||
-	   (ret = __mutex_unlock(env, mutex)) != 0 ||
-	   (ret = __mutex_free(env, &mutex)) != 0) {
+	   (ret = __mutex_lock(env, mutex)) != 0 || (ret = __mutex_unlock(env, mutex)) != 0 ||
+	   (ret = __mutex_trylock(env, mutex)) != 0 || (ret = __mutex_unlock(env, mutex)) != 0 || (ret = __mutex_free(env, &mutex)) != 0) {
 		__db_errx(env, DB_STR("2015", "Unable to acquire/release a mutex; check configuration"));
 		return ret;
 	}
 #ifdef HAVE_SHARED_LATCHES
 	if((ret = __mutex_alloc(env, MTX_MUTEX_TEST, DB_MUTEX_SHARED, &mutex) != 0) ||
-	   (ret = __mutex_lock(env, mutex)) != 0 ||
-	   (ret = __mutex_tryrdlock(env, mutex)) != DB_LOCK_NOTGRANTED ||
-	   (ret = __mutex_unlock(env, mutex)) != 0 ||
-	   (ret = __mutex_rdlock(env, mutex)) != 0 ||
-	   (ret = __mutex_rdlock(env, mutex)) != 0 ||
-	   (ret = __mutex_unlock(env, mutex)) != 0 ||
-	   (ret = __mutex_unlock(env, mutex)) != 0 ||
-	   (ret = __mutex_free(env, &mutex)) != 0) {
+	   (ret = __mutex_lock(env, mutex)) != 0 || (ret = __mutex_tryrdlock(env, mutex)) != DB_LOCK_NOTGRANTED ||
+	   (ret = __mutex_unlock(env, mutex)) != 0 || (ret = __mutex_rdlock(env, mutex)) != 0 ||
+	   (ret = __mutex_rdlock(env, mutex)) != 0 || (ret = __mutex_unlock(env, mutex)) != 0 ||
+	   (ret = __mutex_unlock(env, mutex)) != 0 || (ret = __mutex_free(env, &mutex)) != 0) {
 		__db_errx(env, DB_STR("2016", "Unable to acquire/release a shared latch; check configuration"));
 		return ret;
 	}

@@ -3252,7 +3252,7 @@ public:
 	void   SLAPI Init();
 	PPObjTagPacket & FASTCALL operator = (PPObjTagPacket &);
 
-	PPObjectTag   Rec;
+	PPObjectTag Rec;
 	//PPTagEnumList EnumList;
 	SString Rule;
 };
@@ -3502,7 +3502,7 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 DECL_REF_REC(PPSecur);
 
 struct PPSecurPacket {
-	SLAPI  PPSecurPacket(PPID = 0, PPID = 0);
+	SLAPI  PPSecurPacket();
 	PPSecurPacket & FASTCALL operator = (const PPSecurPacket &);
 	PPSecur  Secur;
 	PPConfig Config;
@@ -22616,15 +22616,15 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	TSVector <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12 // @v9.8.4 TSArray-->TSVector
 };
 
-struct PersonReq {
+struct PersonReq { // @flat
 	SLAPI  PersonReq();
-	long   Flags;
-	PPID   AddrID;       // @v7.6.2
-	PPID   RAddrID;      // @v7.6.2
-	char   Name[128];    //
-	char   ExtName[128];
-	char   Addr[128];    //
-	char   RAddr[128];   //
+	long   Flags;        // @flags
+	PPID   AddrID;       // Ид юридического адреса
+	PPID   RAddrID;      // Ид фактического адреса
+	char   Name[128];    // @name
+	char   ExtName[128]; // Расширенное наименование
+	char   Addr[128];    // Текст юридического адреса
+	char   RAddr[128];   // Текст фактического адреса
 	char   Phone1[64];   // Список телефонов через ';'
 	char   TPID[32];     // @russia код ИНН
 	char   KPP[12];      // @russia код КПП
@@ -22637,7 +22637,7 @@ struct PersonReq {
 		// Если персоналия относится к нескольким видам, то тип поискового регистра берется из первого
 		// встреченного вида, которому принадлежит персоналия и для которого определен тип поискового регистра.
 	BnkAcctData BnkAcct;
-	char   Memo[128];
+	char   Memo[128];     // @memo
 };
 //
 //
@@ -22731,9 +22731,7 @@ public:
 	long   SelectedLocPos;          // @transient
 private:
 	SString ExtString;
-	//SArray * P_DlvrLocList;         // Список адресов доставки
-	TSCollection <PPLocationPacket> DlvrLocList;
-	// @v9.4.0 SCardTbl::Rec  * P_SCard;       // @transient @v6.8.8 Используется при одновременном редактировании персоналии и карты
+	TSCollection <PPLocationPacket> DlvrLocList; // Список адресов доставки
 	PPSCardPacket * P_SCardPack; // @transient Используется при одновременном редактировании персоналии и карты
 };
 //
@@ -22741,8 +22739,8 @@ private:
 //
 #define PSNRT_UNITE             0x0100 // Право на объединение персоналий
 #define PSNRT_UPDIMAGE          0x0200 // Право на изменение присоединенной картинки
-#define PSNRT_UNITEADDR         0x0400 // @v6.5.12 Право на объединение адресов доставки
-#define PSNRT_MULTUPD           0x0800 // @v7.4.3  Право на массовое изменение или удаление
+#define PSNRT_UNITEADDR         0x0400 // Право на объединение адресов доставки
+#define PSNRT_MULTUPD           0x0800 // Право на массовое изменение или удаление
 //
 // Флаги функции PPObjPerson::GetPacket
 //
@@ -22790,7 +22788,7 @@ public:
 	int    SLAPI IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & rS2, long flags);
 
 	struct EditBlock {
-		EditBlock();
+		SLAPI  EditBlock();
 
 		PPID   InitKindID;
 		PPID   InitStatusID;
