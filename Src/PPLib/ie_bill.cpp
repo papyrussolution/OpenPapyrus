@@ -1960,20 +1960,20 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				}
 				// } @v9.8.4
 				brow_.GoodsID = goods_id;
+				ObjTagList tag_list;
+				tag_list.ObjType = PPOBJ_LOT;
 				if(dyn_rec.GetCount()) {
-					ObjTagList tag_list;
-					tag_list.ObjType = PPOBJ_LOT;
 					for(uint j = 0; j < dyn_rec.GetCount(); j++) {
 						ProcessDynField(dyn_rec, j, pImpExp->GetParam(), tag_list);
 					}
-					{
-						uint    row_id = 0;
-						THROW(AddBRow(brow_, &row_id));
-						// @v9.2.0 if(mode != 2) {
-							if(tag_list.GetCount())
-								TagC.Set(row_id, &tag_list);
-						// @v9.2.0 }
-					}
+				}
+				{
+					uint    row_id = 0;
+					THROW(AddBRow(brow_, &row_id));
+					// @v9.2.0 if(mode != 2) {
+						if(tag_list.GetCount())
+							TagC.Set(row_id, &tag_list);
+					// @v9.2.0 }
 				}
 			}
 		}
