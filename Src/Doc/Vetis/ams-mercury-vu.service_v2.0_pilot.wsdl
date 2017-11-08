@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ApplicationManagementService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/application/service"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:ams="http://api.vetrf.ru/schema/cdm/application/service"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+   <!-- IMPORTS -->
+
+   <wsdl:import namespace="http://api.vetrf.ru/schema/cdm/application/service"
+                location="ApplicationManagementService_v1.1.wsdl"/>
+   <wsdl:import namespace="http://api.vetrf.ru/schema/cdm/mercury/vu/service/v2"
+                location="mercury-vu.service_v2.0.wsdl"/>
+
+   <wsdl:service name="ApplicationManagementServiceBindingQSService">
+      <wsdl:port binding="ams:ApplicationManagementServiceBinding" name="ApplicationManagementServiceBindingQSPort">
+         <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/ApplicationManagementService"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>

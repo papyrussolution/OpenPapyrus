@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyHistoryShop"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyHistoryShop"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+
+  <xs:complexType name="ReplyHistoryTransferShop">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о пермещении между регистрами 1 и 2</xs:documentation>
+    </xs:annotation>
+
+    <xs:all>
+      <xs:element name="ReplyDate" type="c:DateWTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата составления отчета</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="monthReport" type="c:MonthType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Отчетный месяц</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="yearReport" type="c:YearType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Отчетный год</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AlcCode" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код продукции согласно ЕГАИС</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="c:NoEmptyString">
+            <xs:maxLength value="64"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:element name="History" minOccurs="1">
+        <xs:annotation>
+          <xs:documentation>История двидения по справке</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="DocData" type="ns:DocDataType" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="DocDataType">
+    <xs:annotation>
+      <xs:documentation>Движение товара</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DocType" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Тип документа движения</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DocId" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер документа движения</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperDate" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата выполнения операции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RegForm2" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер формы 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    
+  </xs:complexType>
+                  
+</xs:schema>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://api.vetrf.ru/schema/institutions/ws-definitions"
+	xmlns:tns="http://api.vetrf.ru/schema/institutions/ws-definitions"
+	xmlns:base="http://api.vetrf.ru/schema/base" xmlns:ent="http://api.vetrf.ru/schema/institutions"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	version="1.1.0">
+
+	<xsd:import namespace="http://api.vetrf.ru/schema/institutions"
+		schemaLocation="http://api.vetrf.ru/schema/institutions/institutions-entities-1.1.0.xsd" />
+
+	<xsd:import namespace="http://api.vetrf.ru/schema/base"
+		schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.10.xsd" />
+
+	<xsd:element name="internalServiceFault" type="base:FaultInfo" />
+	<xsd:element name="incorrectRequestFault" type="base:ValidationFaultInfo" />
+	<xsd:element name="entityNotFoundFault" type="base:FaultInfo" />
+	<xsd:element name="offsetOutOfRangeFault" type="base:FaultInfo" />
+
+	<xsd:element name="GetFederalLabListRequest">
+		<xsd:complexType>
+			<xsd:sequence />
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetFederalLabListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByGuidRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:guid" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByGuidResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organization" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetFederalLabChangesListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+				<xsd:element ref="base:updateDateInterval" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetFederalLabChangesListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetBorderInspectionPostListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetBorderInspectionPostListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetBorderInspectionPostChangesListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+				<xsd:element ref="base:updateDateInterval" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetBorderInspectionPostChangesListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByUuidRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:uuid" maxOccurs="1" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByUuidResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organization" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByCodeRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationCode"  maxOccurs="1" minOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationByCodeResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organization" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationTypeListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationTypeListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationTypeList" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationListByTypeRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+				<xsd:element ref="ent:organizationTypeUuid" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationListByTypeResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetVetLaboratoryListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetVetLaboratoryListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetTerritorialDepartmentListRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetTerritorialDepartmentListResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationListByUuidRequest">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:uuidList" minOccurs="1" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="GetOrganizationListByUuidResponse">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:organizationList" minOccurs="1"
+					maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="GetOrganizationListByGuidRequest">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="base:guidList" minOccurs="1" maxOccurs="1" />
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="GetOrganizationListByGuidResponse">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="ent:organizationList" minOccurs="1"
+               maxOccurs="1" />
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+</schema>

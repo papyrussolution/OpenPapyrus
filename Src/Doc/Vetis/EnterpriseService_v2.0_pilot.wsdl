@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="EnterpriseService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:bdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:rdef="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+            <import namespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+                    schemaLocation="registry_ws_definitions_v2.0.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <!--
+   *****************************************************
+   * Получение записей реестра хозяйствующих субъектов
+   *****************************************************
+   -->
+    <wsdl:message name="GetBusinessEntityByGuid">
+        <wsdl:part name="request" element="rdef:getBusinessEntityByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityByGuidResponse">
+        <wsdl:part name="response" element="rdef:getBusinessEntityByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityByUuid">
+        <wsdl:part name="request" element="rdef:getBusinessEntityByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityByUuidResponse">
+        <wsdl:part name="response" element="rdef:getBusinessEntityByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityList">
+        <wsdl:part name="request" element="rdef:getBusinessEntityListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityListResponse">
+        <wsdl:part name="response" element="rdef:getBusinessEntityListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityChangesList">
+        <wsdl:part name="request" element="rdef:getBusinessEntityChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessEntityChangesListResponse">
+        <wsdl:part name="response" element="rdef:getBusinessEntityChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+    *****************************************
+    * Получение записей реестра предприятий
+    *****************************************
+    -->
+    <wsdl:message name="GetEnterpriseByGuid">
+        <wsdl:part name="request" element="rdef:getEnterpriseByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetEnterpriseByGuidResponse">
+        <wsdl:part name="response" element="rdef:getEnterpriseByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetEnterpriseByUuid">
+        <wsdl:part name="request" element="rdef:getEnterpriseByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetEnterpriseByUuidResponse">
+        <wsdl:part name="response" element="rdef:getEnterpriseByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetForeignEnterpriseList">
+        <wsdl:part name="request" element="rdef:getForeignEnterpriseListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetForeignEnterpriseListResponse">
+        <wsdl:part name="response" element="rdef:getForeignEnterpriseListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetRussianEnterpriseList">
+        <wsdl:part name="request" element="rdef:getRussianEnterpriseListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetRussianEnterpriseListResponse">
+        <wsdl:part name="response" element="rdef:getRussianEnterpriseListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetForeignEnterpriseChangesList">
+        <wsdl:part name="request" element="rdef:getForeignEnterpriseChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetForeignEnterpriseChangesListResponse">
+        <wsdl:part name="response" element="rdef:getForeignEnterpriseChangesListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetRussianEnterpriseChangesList">
+        <wsdl:part name="request" element="rdef:getRussianEnterpriseChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetRussianEnterpriseChangesListResponse">
+        <wsdl:part name="response" element="rdef:getRussianEnterpriseChangesListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessMemberByGLN">
+        <wsdl:part name="request" element="rdef:getBusinessMemberByGLNRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetBusinessMemberByGLNResponse">
+        <wsdl:part name="response" element="rdef:getBusinessMemberByGLNResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetActivityLocationList">
+        <wsdl:part name="request" element="rdef:getActivityLocationListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetActivityLocationListResponse">
+        <wsdl:part name="response" element="rdef:getActivityLocationListResponse"/>
+    </wsdl:message>
+    
+    <!--
+    **************************************
+    * Сообщение об ошибках
+    **************************************
+    -->
+    <wsdl:message name="EntityNotFoundFault">
+        <wsdl:documentation>
+            Запись с указанным идентификатором не найдена.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:entityNotFoundFault"/>
+    </wsdl:message>
+    <wsdl:message name="IncorrectRequestFault">
+        <wsdl:documentation>
+            Реакция системы на некорректный запрос.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:incorrectRequestFault"/>
+    </wsdl:message>
+    <wsdl:message name="InternalServiceFault">
+        <wsdl:documentation>
+            Внутренняя ошибка выполнения операции на сервере.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:internalServiceFault"/>
+    </wsdl:message>
+    <wsdl:message name="OffsetOutOfRangeFault">
+        <wsdl:documentation>
+
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:offsetOutOfRangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="EnterpriseServicePortType">
+        <!--
+    *****************************************************
+    * Получение записей реестра хозяйствующих субъектов
+    *****************************************************
+    -->
+        <wsdl:operation name="GetBusinessEntityByGuid">
+            <wsdl:documentation>Получение ХС по его глобальному идентификатору.
+                Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+                истории).
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="businessEntityByGuid" message="tns:GetBusinessEntityByGuid">
+                <wsdl:documentation>Запрос, содержащий глобальный идентификатор ХС.</wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="businessEntityByResponse" message="tns:GetBusinessEntityByGuidResponse">
+                <wsdl:documentation>Искомая запись ХС (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityByUuid">
+            <wsdl:documentation>Получение записи ХС по его идентификатору.
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="businessEntityByUuid" message="tns:GetBusinessEntityByUuid">
+                <wsdl:documentation>Запрос, содержащий идентификатор записи ХС. Остальные элементы необязательны для
+                    заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="businessEntityByUuidResponse" message="tns:GetBusinessEntityByUuidResponse">
+                <wsdl:documentation>Искомая запись ХС (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityList">
+            <wsdl:input name="businessEntityList" message="tns:GetBusinessEntityList"/>
+            <wsdl:output name="businessEntityListResponse" message="tns:GetBusinessEntityListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityChangesList">
+            <wsdl:input name="businessEntityChangesList" message="tns:GetBusinessEntityChangesList"/>
+            <wsdl:output name="businessEntityChangesListResponse" message="tns:GetBusinessEntityChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+        <!--
+     *****************************************
+     * Получение записей реестра предприятий
+     *****************************************
+     -->
+        <wsdl:operation name="GetEnterpriseByGuid">
+            <wsdl:documentation>Получение ХС по его глобальному идентификатору.
+                Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+                истории).
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="enterpriseByGuid" message="tns:GetEnterpriseByGuid">
+                <wsdl:documentation>Запрос, содержащий глобальный идентификатор ХС.</wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="enterpriseByResponse" message="tns:GetEnterpriseByGuidResponse">
+                <wsdl:documentation>Искомая запись ХС (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetEnterpriseByUuid">
+            <wsdl:documentation>Получение записи ХС по его идентификатору.
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="enterpriseByUuid" message="tns:GetEnterpriseByUuid">
+                <wsdl:documentation>Запрос, содержащий идентификатор записи ХС. Остальные элементы необязательны для
+                    заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="enterpriseByUuidResponse" message="tns:GetEnterpriseByUuidResponse">
+                <wsdl:documentation>Искомая запись ХС (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetForeignEnterpriseList">
+            <wsdl:input name="foreignEnterpriseList" message="tns:GetForeignEnterpriseList"/>
+            <wsdl:output name="foreignEnterpriseListResponse" message="tns:GetForeignEnterpriseListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetRussianEnterpriseList">
+            <wsdl:input name="russianEnterpriseList" message="tns:GetRussianEnterpriseList"/>
+            <wsdl:output name="russianEnterpriseListResponse" message="tns:GetRussianEnterpriseListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetForeignEnterpriseChangesList">
+            <wsdl:input name="foreignEnterpriseChangesList" message="tns:GetForeignEnterpriseChangesList"/>
+            <wsdl:output name="foreignEnterpriseChangesListResponse"
+                         message="tns:GetForeignEnterpriseChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetRussianEnterpriseChangesList">
+            <wsdl:input name="russianEnterpriseChangesList" message="tns:GetRussianEnterpriseChangesList"/>
+            <wsdl:output name="russianEnterpriseChangesListResponse"
+                         message="tns:GetRussianEnterpriseChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessMemberByGLN">
+            <wsdl:documentation>Получение пары ХС-площадка по её глобальному идентификатору GLN.
+                Выполнение операции заканчивается либо возвратом искомой пары,
+                либо ошибкой, в случае если запись с указанным GLN не найдена или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="businessMemberByGLN" message="tns:GetBusinessMemberByGLN">
+                <wsdl:documentation>Запрос, содержащий глобальный идентификатор GLN.</wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="businessMemberByGLNResponse" message="tns:GetBusinessMemberByGLNResponse">
+                <wsdl:documentation>Искомая запись ХС-площадка (с указанным GLN).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что пара ХС-площадка с указанным идентификатором не
+                    найдена.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetActivityLocationList">
+            <wsdl:input name="activityLocationList" message="tns:GetActivityLocationList"/>
+            <wsdl:output name="activityLocationListResponse" message="tns:GetActivityLocationListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="EnterpriseServiceBinding" type="tns:EnterpriseServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <!--
+    *****************************************************
+    * Получение записей реестра хозяйствующих субъектов
+    *****************************************************
+    -->
+        <wsdl:operation name="GetBusinessEntityByGuid">
+            <soap:operation soapAction="GetBusinessEntityByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityByUuid">
+            <soap:operation soapAction="GetBusinessEntityByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityList">
+            <soap:operation soapAction="GetBusinessEntityList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessEntityChangesList">
+            <soap:operation soapAction="GetBusinessEntityChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+    *****************************************
+    * Получение записей реестра предприятий
+    *****************************************
+    -->
+        <wsdl:operation name="GetEnterpriseByGuid">
+            <soap:operation soapAction="GetEnterpriseByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetEnterpriseByUuid">
+            <soap:operation soapAction="GetEnterpriseByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetForeignEnterpriseList">
+            <soap:operation soapAction="GetForeignEnterpriseList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRussianEnterpriseList">
+            <soap:operation soapAction="GetRussianEnterpriseList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetForeignEnterpriseChangesList">
+            <soap:operation soapAction="GetForeignEnterpriseChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRussianEnterpriseChangesList">
+            <soap:operation soapAction="GetRussianEnterpriseChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetBusinessMemberByGLN">
+            <soap:operation soapAction="GetBusinessMemberByGLN"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetActivityLocationList">
+            <soap:operation soapAction="GetActivityLocationList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="EnterpriseServiceBindingQSService">
+        <wsdl:port binding="tns:EnterpriseServiceBinding" name="EnterpriseServiceBindingQSPort">
+            <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

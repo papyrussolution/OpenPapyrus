@@ -818,12 +818,10 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 //
 //
 //
-SLAPI DL200_Context::DL200_Context(DL2_Resolver * pResolver, BillContext * pBillCtx) : ExprEvalContext()
+SLAPI DL200_Context::DL200_Context(DL2_Resolver * pResolver, BillContext * pBillCtx) : ExprEvalContext(),
+	P_Resolver(pResolver), P_BillCtx(pBillCtx), LastFuncId(EXRP_EVAL_FIRST_FUNC)
 {
-	P_Resolver = pResolver;
-	P_BillCtx = pBillCtx;
 	ImplementFlags |= fSelfScanArgList;
-	LastFuncId = EXRP_EVAL_FIRST_FUNC;
 }
 
 int SLAPI DL200_Context::IsFunc(const char * pSymb, int * pFuncId)

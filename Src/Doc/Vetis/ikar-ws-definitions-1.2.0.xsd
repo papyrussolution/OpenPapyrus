@@ -1,0 +1,719 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://api.vetrf.ru/schema/ikar/ws-definitions"
+	xmlns:base="http://api.vetrf.ru/schema/base"
+	xmlns:ent="http://api.vetrf.ru/schema/ikar" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" version="1.2.0">
+
+ 	<xsd:import namespace="http://api.vetrf.ru/schema/ikar"
+                schemaLocation="http://api.vetrf.ru/schema/ikar/ikar-entities-1.2.0.xsd"/>
+	<xsd:import namespace="http://api.vetrf.ru/schema/base"
+		schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.11.xsd" />
+		
+   <xsd:element name="entityNotFoundFault" type="base:FaultInfo" />
+   <xsd:element name="incorrectRequestFault" type="base:ValidationFaultInfo" />
+   <xsd:element name="internalServiceFault" type="base:FaultInfo" />
+   <xsd:element name="offsetOutOfRangeFault" type="base:FaultInfo" />
+
+	<xsd:element name="getAllCountryListRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получения списка активных записей
+				стран.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getAllCountryListResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения актуального списка
+				стран.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:countryList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список актуальных записей стран.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getCountryByGuidRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получения объекта страны по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:guid" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Глобальный идентификатор, по которому
+							проводится поиск записи.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getCountryByGuidResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос на получения объекта страны по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:country" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Найденный по guid-у объект страны.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="getCountryByUuidRequest">
+      <xsd:annotation>
+         <xsd:documentation>Запрос на получения объекта страны по
+            идентификатору.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="base:uuid" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>идентификатор, по которому
+                     проводится поиск записи.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+   <xsd:element name="getCountryByUuidResponse">
+      <xsd:annotation>
+         <xsd:documentation>Ответ на запрос на получения объекта страны по
+            идентификатору.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="ent:country" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>Найденный по uuid-у объект страны.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+
+	<xsd:element name="getCountryChangesListRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение изменений в списке стран,
+				начиная с указанной даты.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="base:updateDateInterval" minOccurs="1" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Интервал времени обновления. В список попадают
+							все записи, дата обновлений которых попадает в указанный интервал.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getCountryChangesListResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения изменений в списке
+				стран.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:countryList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список стран, в не зависимости от статуса.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getRegionListByCountryRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение списка регионов по стране.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="ent:countryGuid" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Глобальный идентификатор страны, для которой
+							запрашивается список регионов.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getRegionListByCountryResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения списка регионов по
+				стране.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:regionList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список регионов указанной страны в заданном
+							формате.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getRegionByGuidRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получения объекта региона по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:guid" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Глобальный идентификатор, по которому
+							проводится поиск записи.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getRegionByGuidResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос на получения объекта региона по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:region" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Найденный по guid-у объект региона.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="getRegionByUuidRequest">
+      <xsd:annotation>
+         <xsd:documentation>Запрос на получения объекта региона по
+            идентификатору.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="base:uuid" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>Идентификатор, по которому
+                     проводится поиск записи.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+   <xsd:element name="getRegionByUuidResponse">
+      <xsd:annotation>
+         <xsd:documentation>Ответ на запрос на получения объекта региона по
+            идентификатору.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element ref="ent:region" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>Найденный по uuid-у объект региона.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:sequence>
+      </xsd:complexType>
+   </xsd:element>
+
+	<xsd:element name="getRegionChangesListRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение изменений в списке регионов,
+				начиная с указанной даты.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="base:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getRegionChangesListResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения изменений в списке
+				регионов.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:regionList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список регионов, в не зависимости от статуса.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getRussianRegionListRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение списка регионов РФ.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getRussianRegionListResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения списка регионов РФ.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:regionList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список регионов РФ в заданном формате.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:element name="getDistrictListByRegionRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение списка районов указанного
+				региона.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="ent:regionGuid" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Глобальный идентификатор региона, для которой
+							запрашивается список регионов.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getDistrictListByRegionResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения списка районов
+				региона.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:districtList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список районов указанного региона в заданном
+							формате.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getDistrictByGuidRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получения объекта района по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:guid" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Глобальный идентификатор, по которому
+							проводится поиск записи.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getDistrictByGuidResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос на получения объекта района по
+				глобальному идентификатору.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:district" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Найденный по guid-у объект района.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="getDistrictChangesListRequest">
+		<xsd:annotation>
+			<xsd:documentation>Запрос на получение изменений в списке районов,
+				начиная с указанной даты.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>Параметры запрашиваемого списка.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element ref="base:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="getDistrictChangesListResponse">
+		<xsd:annotation>
+			<xsd:documentation>Ответ на запрос получения изменений в списке
+				районов.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="ent:districtList" maxOccurs="1" minOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>Список районов, в не зависимости от статуса
+							объекта.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+    <xsd:element name="getLocalityListByRegionRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получение списка населенных пунктов по региону.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>Параметры запрашиваемого списка.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element ref="ent:regionGuid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор региона, для которой
+                            запрашивается список населенных пунктов.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getLocalityListByRegionResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос получения списка населенных пунктов по
+                региону.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:localityList" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Список населенных пунктов указанного региона.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getLocalityListByDistrictRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получение списка населенных пунктов по району.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>Параметры запрашиваемого списка.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element ref="ent:districtGuid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор районы, для которой
+                            запрашивается список населенных пунктов.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getLocalityListByDistrictResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос получения списка населенных пунктов по
+                району.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:localityList" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Список населенных пунктов указанного района.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getLocalityListByLocalityRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получение списка зависимых населенных пунктов по
+                населенному пункту.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>Параметры запрашиваемого списка.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element ref="ent:localityGuid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор населенного пункта, для которой
+                            запрашивается список зависимых населенных пунктов.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getLocalityListByLocalityResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос получения списка зависимых населенных пунктов по
+                населенному пункту.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:localityList" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Список завимиых населенных пунктов указанного населенного пункта.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getStreetListByLocalityRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получение списка улиц по
+                населенному пункту.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:listOptions" maxOccurs="1" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>Параметры запрашиваемого списка.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element ref="ent:localityGuid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор населенного пункта, для которой
+                            запрашивается список улиц.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getStreetListByLocalityResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос получения списка улиц по
+                населенному пункту.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:streetList" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Список улиц указанного населенного пункта.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+
+    <xsd:element name="getLocalityByGuidRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получения объекта населенного пункта по
+                глобальному идентификатору.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:guid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор, по которому
+                            проводится поиск записи.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getLocalityByGuidResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос на получения объекта населенного пункта по
+                глобальному идентификатору.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:locality" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Найденный по guid-у объект населенного пункта.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="getStreetByGuidRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на получения объекта улицы по
+                глобальному идентификатору.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="base:guid" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Глобальный идентификатор, по которому
+                            проводится поиск записи.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="getStreetByGuidResponse">
+        <xsd:annotation>
+            <xsd:documentation>Ответ на запрос на получения объекта улицы по
+                глобальному идентификатору.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="ent:street" maxOccurs="1" minOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>Найденный по guid-у объект улицы.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

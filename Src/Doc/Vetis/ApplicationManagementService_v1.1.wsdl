@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ApplicationManagementService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/application/service"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/application/service"
+                  xmlns:def="http://api.vetrf.ru/schema/cdm/application/ws-definitions"
+                  xmlns:bsdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+   <!-- IMPORTS -->
+
+   <wsdl:types>
+      <xs:schema>
+         <xs:import namespace="http://api.vetrf.ru/schema/cdm/application/ws-definitions"
+                    schemaLocation="application_ws_definitions_v1.1.xsd"/>
+         <xs:import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+      </xs:schema>
+   </wsdl:types>
+
+   <!-- MESSAGES -->
+
+   <wsdl:message name="SubmitApplicationRequest">
+      <wsdl:part name="request" element="def:submitApplicationRequest"/>
+   </wsdl:message>
+   <wsdl:message name="SubmitApplicationResponse">
+      <wsdl:part name="response" element="def:submitApplicationResponse"/>
+   </wsdl:message>
+   <wsdl:message name="ReceiveApplicationResultRequest">
+      <wsdl:part name="request" element="def:receiveApplicationResultRequest"/>
+   </wsdl:message>
+   <wsdl:message name="ReceiveApplicationResultResponse">
+      <wsdl:part name="response" element="def:receiveApplicationResultResponse"/>
+   </wsdl:message>
+
+   <wsdl:message name="ApplicationNotFoundFault">
+      <wsdl:part name="fault" element="bsdef:entityNotFoundFault"/>
+   </wsdl:message>
+   <wsdl:message name="InternalServiceFault">
+      <wsdl:part name="fault" element="bsdef:internalServiceFault"/>
+   </wsdl:message>
+   <wsdl:message name="IncorrectRequestFault">
+      <wsdl:part name="fault" element="bsdef:incorrectRequestFault"/>
+   </wsdl:message>
+   <wsdl:message name="AccessDeniedFault">
+      <wsdl:part name="fault" element="bsdef:accessDeniedFault"/>
+   </wsdl:message>
+   <wsdl:message name="UnsupportedApplicationDataTypeFault">
+      <wsdl:part name="fault" element="def:unsupportedApplicationDataTypeFault"/>
+   </wsdl:message>
+   <wsdl:message name="UnknownServiceIdFault">
+      <wsdl:part name="fault" element="def:unknownServiceIdFault"/>
+   </wsdl:message>
+
+   <!-- PORT -->
+
+   <wsdl:portType name="ApplicationManagementServicePortType">
+      <wsdl:operation name="submitApplicationRequest">
+         <wsdl:input message="tns:SubmitApplicationRequest"/>
+         <wsdl:output message="tns:SubmitApplicationResponse"/>
+         <wsdl:fault message="tns:UnsupportedApplicationDataTypeFault" name="unsupportedApplicationDataTypeFault"/>
+         <wsdl:fault message="tns:UnknownServiceIdFault" name="unknownServiceIdFault"/>
+         <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault"/>
+         <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault"/>
+         <wsdl:fault message="tns:AccessDeniedFault" name="accessDeniedFault"/>
+      </wsdl:operation>
+      <wsdl:operation name="receiveApplicationResult">
+         <wsdl:input message="tns:ReceiveApplicationResultRequest"/>
+         <wsdl:output message="tns:ReceiveApplicationResultResponse"/>
+         <wsdl:fault message="tns:ApplicationNotFoundFault" name="applicationNotFoundFault"/>
+         <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault"/>
+         <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault"/>
+         <wsdl:fault message="tns:AccessDeniedFault" name="accessDeniedFault"/>
+      </wsdl:operation>
+   </wsdl:portType>
+
+   <!-- BINDING -->
+
+   <wsdl:binding name="ApplicationManagementServiceBinding"
+                 type="tns:ApplicationManagementServicePortType">
+      <soap:binding style="document"
+                    transport="http://schemas.xmlsoap.org/soap/http"/>
+      <wsdl:operation name="submitApplicationRequest">
+         <soap:operation soapAction="submitApplicationRequest"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="unsupportedApplicationDataTypeFault">
+            <soap:fault name="unsupportedApplicationDataTypeFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="unknownServiceIdFault">
+            <soap:fault name="unknownServiceIdFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="internalServiceFault">
+            <soap:fault name="internalServiceFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="incorrectRequestFault">
+            <soap:fault name="incorrectRequestFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="accessDeniedFault">
+            <soap:fault name="accessDeniedFault" use="literal"/>
+         </wsdl:fault>
+      </wsdl:operation>
+      <wsdl:operation name="receiveApplicationResult">
+         <soap:operation soapAction="receiveApplicationResult"/>
+         <wsdl:input>
+            <soap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="applicationNotFoundFault">
+            <soap:fault name="applicationNotFoundFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="internalServiceFault">
+            <soap:fault name="internalServiceFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="incorrectRequestFault">
+            <soap:fault name="incorrectRequestFault" use="literal"/>
+         </wsdl:fault>
+         <wsdl:fault name="accessDeniedFault">
+            <soap:fault name="accessDeniedFault" use="literal"/>
+         </wsdl:fault>
+      </wsdl:operation>
+   </wsdl:binding>
+</wsdl:definitions>

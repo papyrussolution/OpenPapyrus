@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://api.vetrf.ru/schema/argus/ws-definitions"
+   xmlns:tns="http://api.vetrf.ru/schema/argus/ws-definitions" xmlns:base="http://api.vetrf.ru/schema/base"
+   xmlns:arg="http://api.vetrf.ru/schema/argus" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   elementFormDefault="qualified" version="1.1.1">
+
+
+   <xsd:import namespace="http://api.vetrf.ru/schema/argus" schemaLocation="http://api.vetrf.ru/schema/argus/argus-entities-1.1.1.xsd" />
+
+   <xsd:import namespace="http://api.vetrf.ru/schema/base" schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.10.xsd" />
+
+   <xsd:element name="entityNotFoundFault" type="base:FaultInfo" />
+   <xsd:element name="incorrectRequestFault" type="base:ValidationFaultInfo" />
+   <xsd:element name="internalServiceFault" type="base:FaultInfo" />
+   <xsd:element name="offsetOutOfRangeFault" type="base:FaultInfo" />
+   <xsd:element name="requestRejectedFault" type="base:ValidationFaultInfo" />
+
+</xsd:schema>

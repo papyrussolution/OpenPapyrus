@@ -327,12 +327,9 @@ DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pA
 //
 //
 //
-SLAPI DL2_Entry::DL2_Entry(uint16 type)
+SLAPI DL2_Entry::DL2_Entry(uint16 type) : EntryType(type), Flags(0), P_Descript(0)
 {
-	EntryType = type;
 	Name[0] = 0;
-	Flags = 0;
-	P_Descript = 0;
 }
 
 int SLAPI DL2_Entry::Setup(const char * pName, const char * pDescript, int isRef)

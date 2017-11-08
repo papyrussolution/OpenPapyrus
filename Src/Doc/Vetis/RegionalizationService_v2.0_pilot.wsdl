@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="RegionalizationService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/registry/r13n/service/v2"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/r13n/service/v2"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:bdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:rdef="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+            <import namespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+                    schemaLocation="registry_ws_definitions_v2.0.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <!--
+   *******************************************************
+   * Регионализация
+   *******************************************************
+   -->
+
+    <wsdl:message name="GetR13nConditionList">
+        <wsdl:part element="rdef:getR13nConditionListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetR13nConditionListResponse">
+        <wsdl:part element="rdef:getR13nConditionListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetActualR13nRegionStatusList">
+        <wsdl:part element="rdef:getActualR13nRegionStatusListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetActualR13nRegionStatusListResponse">
+        <wsdl:part element="rdef:getActualR13nRegionStatusListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetActualR13nShippingRuleList">
+        <wsdl:part element="rdef:getActualR13nShippingRuleListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetActualR13nShippingRuleListResponse">
+        <wsdl:part element="rdef:getActualR13nShippingRuleListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+
+    <!--
+    **************************************
+    * Сообщение об ошибках
+    **************************************
+    -->
+    <wsdl:message name="EntityNotFoundFault">
+        <wsdl:documentation>
+            Запись с указанным идентификатором не найдена.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:entityNotFoundFault"/>
+    </wsdl:message>
+    <wsdl:message name="IncorrectRequestFault">
+        <wsdl:documentation>
+            Реакция системы на некорректный запрос.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:incorrectRequestFault"/>
+    </wsdl:message>
+    <wsdl:message name="InternalServiceFault">
+        <wsdl:documentation>
+            Внутренняя ошибка выполнения операции на сервере.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:internalServiceFault"/>
+    </wsdl:message>
+    <wsdl:message name="OffsetOutOfRangeFault">
+        <wsdl:documentation>
+
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:offsetOutOfRangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="RegionalizationServicePortType">
+        <wsdl:operation name="GetR13nConditionList">
+            <wsdl:input name="GetR13nConditionList" message="tns:GetR13nConditionList"/>
+            <wsdl:output name="GetR13nConditionListResponse" message="tns:GetR13nConditionListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetActualR13nRegionStatusList">
+            <wsdl:input name="GetActualR13nRegionStatusList" message="tns:GetActualR13nRegionStatusList"/>
+            <wsdl:output name="GetActualR13nRegionStatusListResponse" message="tns:GetActualR13nRegionStatusListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetActualR13nShippingRuleList">
+            <wsdl:input name="GetActualR13nShippingRuleList" message="tns:GetActualR13nShippingRuleList"/>
+            <wsdl:output name="GetActualR13nShippingRuleListResponse" message="tns:GetActualR13nShippingRuleListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="RegionalizationServiceBinding" type="tns:RegionalizationServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetR13nConditionList">
+            <soap:operation soapAction="GetProductByTypeList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetActualR13nRegionStatusList">
+            <soap:operation soapAction="GetProductByTypeList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetActualR13nShippingRuleList">
+            <soap:operation soapAction="GetProductByTypeList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="RegionalizationServiceBindingQSService">
+        <wsdl:port binding="tns:RegionalizationServiceBinding" name="RegionalizationServiceBindingQSPort">
+            <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/RegionalizationService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ProductService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/registry/product/service/v2"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/product/service/v2"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:bdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:rdef="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+            <import namespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+                    schemaLocation="registry_ws_definitions_v2.0.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <!--
+    ************************************************
+    * Получение справочника наименований продукции
+    ************************************************
+    -->
+    <wsdl:message name="GetProductItemByGuid">
+        <wsdl:part name="request" element="rdef:getProductItemByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemByGuidResponse">
+        <wsdl:part name="response" element="rdef:getProductItemByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemByUuid">
+        <wsdl:part name="request" element="rdef:getProductItemByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemByUuidResponse">
+        <wsdl:part name="response" element="rdef:getProductItemByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemList">
+        <wsdl:part name="request" element="rdef:getProductItemListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemListResponse">
+        <wsdl:part name="response" element="rdef:getProductItemListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemChangesList">
+        <wsdl:part name="request" element="rdef:getProductItemChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductItemChangesListResponse">
+        <wsdl:part name="response" element="rdef:getProductItemChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+   ************************************
+   * Получение справочника продукции
+   ************************************
+   -->
+    <wsdl:message name="GetProductByGuid">
+        <wsdl:part name="request" element="rdef:getProductByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductByGuidResponse">
+        <wsdl:part name="response" element="rdef:getProductByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductByUuid">
+        <wsdl:part name="request" element="rdef:getProductByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductByUuidResponse">
+        <wsdl:part name="response" element="rdef:getProductByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductByTypeList">
+        <wsdl:part name="request" element="rdef:getProductByTypeListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductByTypeListResponse">
+        <wsdl:part name="response" element="rdef:getProductByTypeListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductChangesList">
+        <wsdl:part name="request" element="rdef:getProductChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductChangesListResponse">
+        <wsdl:part name="response" element="rdef:getProductChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+    *****************************************
+    * Получение справочника видов продукции
+    *****************************************
+    -->
+    <wsdl:message name="GetSubProductByGuid">
+        <wsdl:part name="request" element="rdef:getSubProductByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductByGuidResponse">
+        <wsdl:part name="response" element="rdef:getSubProductByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductByUuid">
+        <wsdl:part name="request" element="rdef:getSubProductByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductByUuidResponse">
+        <wsdl:part name="response" element="rdef:getSubProductByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductByProductList">
+        <wsdl:part name="request" element="rdef:getSubProductByProductListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductByProductListResponse">
+        <wsdl:part name="response" element="rdef:getSubProductByProductListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductChangesList">
+        <wsdl:part name="request" element="rdef:getSubProductChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetSubProductChangesListResponse">
+        <wsdl:part name="response" element="rdef:getSubProductChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+    **************************************
+    * Сообщение об ошибках
+    **************************************
+    -->
+    <wsdl:message name="EntityNotFoundFault">
+        <wsdl:documentation>
+            Запись с указанным идентификатором не найдена.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:entityNotFoundFault"/>
+    </wsdl:message>
+    <wsdl:message name="IncorrectRequestFault">
+        <wsdl:documentation>
+            Реакция системы на некорректный запрос.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:incorrectRequestFault"/>
+    </wsdl:message>
+    <wsdl:message name="InternalServiceFault">
+        <wsdl:documentation>
+            Внутренняя ошибка выполнения операции на сервере.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:internalServiceFault"/>
+    </wsdl:message>
+    <wsdl:message name="OffsetOutOfRangeFault">
+        <wsdl:documentation>
+
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:offsetOutOfRangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="ProductServicePortType">
+        <!--
+   ************************************
+   * Получение справочника продукции
+   ************************************
+   -->
+        <wsdl:operation name="GetProductByGuid">
+            <wsdl:documentation>Получение типа продукции по его глобальному идентификатору.
+                Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+                истории).
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если тип продукции не найден или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="productByGuid" message="tns:GetProductByGuid">
+                <wsdl:documentation>Тип продукции с обязательным указанием идентификатора. Остальные элементы необязательны
+                    для заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="productByResponse" message="tns:GetProductByGuidResponse">
+                <wsdl:documentation>Искомый тип продукции (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductByUuid">
+            <wsdl:documentation>Получение записи типа продукции по его идентификатору.
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если тип продукции не найден или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="productByUuid" message="tns:GetProductByUuid">
+                <wsdl:documentation>Тип продукции с обязательным указанием идентификатора. Остальные элементы необязательны
+                    для заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="productByUuidResponse" message="tns:GetProductByUuidResponse">
+                <wsdl:documentation>Искомый тип продукции (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductByTypeList">
+            <wsdl:input name="productList" message="tns:GetProductByTypeList"/>
+            <wsdl:output name="productListResponse" message="tns:GetProductByTypeListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductChangesList">
+            <wsdl:input name="productChangesList" message="tns:GetProductChangesList"/>
+            <wsdl:output name="productChangesListResponse" message="tns:GetProductChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+        <!--
+        *****************************************
+        * Получение справочника видов продукции
+        *****************************************
+        -->
+        <wsdl:operation name="GetSubProductByGuid">
+            <wsdl:documentation>Получение типа продукции по его глобальному идентификатору.
+                Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+                истории).
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если тип продукции не найден или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="subProductByGuid" message="tns:GetSubProductByGuid">
+                <wsdl:documentation>Тип продукции с обязательным указанием идентификатора. Остальные элементы необязательны
+                    для заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="subProductByResponse" message="tns:GetSubProductByGuidResponse">
+                <wsdl:documentation>Искомый тип продукции (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductByUuid">
+            <wsdl:documentation>Получение записи типа продукции по его идентификатору.
+                Выполнение операции заканчивается либо возвратом искомого типа продукции,
+                либо ошибкой, в случае если тип продукции не найден или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input name="subProductByUuid" message="tns:GetSubProductByUuid">
+                <wsdl:documentation>Тип продукции с обязательным указанием идентификатора. Остальные элементы необязательны
+                    для заполнения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output name="subProductByUuidResponse" message="tns:GetSubProductByUuidResponse">
+                <wsdl:documentation>Искомый тип продукции (с указанным идентификатором).</wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+                    типа продукции.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+                    найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductByProductList">
+            <wsdl:input name="subProductList" message="tns:GetSubProductByProductList"/>
+            <wsdl:output name="subProductListResponse" message="tns:GetSubProductByProductListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductChangesList">
+            <wsdl:input name="subProductTypeChangesList" message="tns:GetSubProductChangesList"/>
+            <wsdl:output name="subProductChangesListResponse" message="tns:GetSubProductChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <!--
+     ************************************************
+     * Получение справочника наименований продукции
+     ************************************************
+     -->
+        <wsdl:operation name="GetProductItemByGuid">
+            <wsdl:input name="productItemByGuid" message="tns:GetProductItemByGuid"/>
+            <wsdl:output name="productItemByGuidResponse" message="tns:GetProductItemByGuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductItemByUuid">
+            <wsdl:input name="productItemByUuid" message="tns:GetProductItemByUuid"/>
+            <wsdl:output name="productItemByUuidResponse" message="tns:GetProductItemByUuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductItemList">
+            <wsdl:input name="productItemList" message="tns:GetProductItemList"/>
+            <wsdl:output name="productItemListResponse" message="tns:GetProductItemListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductItemChangesList">
+            <wsdl:input name="productItemChangesList" message="tns:GetProductItemChangesList"/>
+            <wsdl:output name="productItemChangesListResponse" message="tns:GetProductItemChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+    <wsdl:binding name="ProductServiceBinding" type="tns:ProductServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <!--
+    ************************************
+    * Получение справочника продукции
+    ************************************
+     -->
+        <wsdl:operation name="GetProductByGuid">
+            <soap:operation soapAction="GetProductByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductByUuid">
+            <soap:operation soapAction="GetProductByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductByTypeList">
+            <soap:operation soapAction="GetProductByTypeList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductChangesList">
+            <soap:operation soapAction="GetProductChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+        *****************************************
+        * Получение справочника видов продукции
+        *****************************************
+    -->
+        <wsdl:operation name="GetSubProductByGuid">
+            <soap:operation soapAction="GetSubProductByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductByUuid">
+            <soap:operation soapAction="GetSubProductByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductByProductList">
+            <soap:operation soapAction="GetSubProductByProductList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetSubProductChangesList">
+            <soap:operation soapAction="GetSubProductChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+     ************************************************
+     * Получение справочника наименований продукции
+     ************************************************
+    -->
+        <wsdl:operation name="GetProductItemByGuid">
+            <soap:operation soapAction="GetProductItemByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductItemByUuid">
+            <soap:operation soapAction="GetProductItemByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductItemList">
+            <soap:operation soapAction="GetProductItemList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetProductItemChangesList">
+            <soap:operation soapAction="GetProductItemChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="ProductServiceBindingQSService">
+        <wsdl:port binding="tns:ProductServiceBinding" name="ProductServiceBindingQSPort">
+            <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/ProductService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

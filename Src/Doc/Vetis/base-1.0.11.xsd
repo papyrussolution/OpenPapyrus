@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+	targetNamespace="http://api.vetrf.ru/schema/base" xmlns:tns="http://api.vetrf.ru/schema/base"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+	version="1.0.11">
+
+	<xsd:element name="guid" type="tns:UUID" />
+	<xsd:element name="uuid" type="tns:UUID" />
+	<xsd:element name="uuidList" type="tns:UidList" />
+   <xsd:element name="guidList" type="tns:UidList" />
+	<xsd:element name="listOptions" type="tns:ListOptions" />
+	<xsd:element name="updateDateInterval" type="tns:DateInterval" />
+
+	<xsd:complexType name="GenericEntity">
+		<xsd:annotation>
+			<xsd:documentation>Тип, базовый для любой сущности системы.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="uuid" type="tns:UUID" minOccurs="0"
+				maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>Идентификатор сущности.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="GenericVersioningEntity">
+		<xsd:annotation>
+			<xsd:documentation>Тип, базовый для сущностей, поддерживающих версии.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="tns:GenericEntity">
+				<xsd:sequence>
+					<xsd:element name="guid" type="tns:UUID" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Глобальный идентификатор в системах
+								Россельхознадзора.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="active" type="xsd:boolean" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Флаг, определяющий актуальность записи.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="last" type="xsd:boolean" minOccurs="0"
+                  maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Флаг, указывающий на то, что запись является последней в истории.
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+					<xsd:element name="status" type="tns:VersionStatus"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Статус объекта.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="createDate" type="xsd:dateTime"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Дата создания объекта.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="updateDate" type="xsd:dateTime"
+                  minOccurs="0" maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Дата последнего обновления объекта.
+                     </xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+					<xsd:element name="previous" type="tns:UUID" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Идентификатор предыдущей версии объекта.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="next" type="tns:UUID" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Идентификатор последующей версии объекта.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="ListOptions">
+		<xsd:annotation>
+			<xsd:documentation>Тип, определяющий параметры запрашиваемого у
+				сервиса списка объектов.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="count" type="xsd:nonNegativeInteger"
+				minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>Максимальное запрашиваемое количество объектов в
+						списке.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="offset" type="xsd:nonNegativeInteger"
+				minOccurs="0" maxOccurs="1">
+				<xsd:annotation>
+					<xsd:documentation>Номер элемента, по которому осуществляется
+						смещение первого элемента списка.
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="DateInterval">
+      <xsd:annotation>
+         <xsd:documentation>Тип, с помощью которого задается временной интервал.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="beginDate" type="xsd:dateTime"
+            minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>Начало временного интервала.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="endDate" type="xsd:dateTime"
+            minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>Конец временного интервала.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+
+	<xsd:complexType name="EntityList">
+		<xsd:annotation>
+			<xsd:documentation>Базовый тип для описания списков сущностей.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="count" type="xsd:int" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Размер списка, передаваемого в ответе на запрос.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="total" type="xsd:long" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Размер всего списка, удовлетворяющего запросу.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="offset" type="xsd:int" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Смещение первого элемента передаваемого списка во
+					всем списке результатов, удовлетворяющих запросу.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="FaultInfo">
+	  <xsd:annotation>
+         <xsd:documentation>Тип, описываюший ошибки.</xsd:documentation>
+      </xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="message" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ValidationFaultInfo">
+	<xsd:annotation>
+         <xsd:documentation>Тип, описывающий ошибки валидации.</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="tns:FaultInfo">
+            <xsd:sequence>
+               <xsd:element name="validationError" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   
+   <xsd:complexType name="UidList">
+   <xsd:annotation>
+         <xsd:documentation>Список uuid</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+      	<xsd:element name="uid" type="tns:UUID" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+	<xsd:simpleType name="UUID">
+		<xsd:annotation>
+			<xsd:documentation>Тип, описывающий уникальный идентификатор любой
+				сущности системы.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern
+				value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="String255">
+		<xsd:annotation>
+			<xsd:documentation>Строковый тип с ограничением максимальной длины.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="255" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+    <xsd:simpleType name="Decimal">
+        <xsd:annotation>
+            <xsd:documentation>Вещественный тип с ограничением числа знаков после запятой.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:decimal">
+            <xsd:fractionDigits value="6" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+	<xsd:simpleType name="VersionStatus">
+		<xsd:annotation>
+			<xsd:documentation>Тип, описывающий статусы версионных объектов.
+			100 - CREATED - Запись создана
+            110 CREATED_WHEN_MERGE - Запись создана в результате объединения двух или более других
+            120 - CREATED_WHEN_SPLIT - Запись создана в результате разделения другой
+         200 - UPDATED - В запись были внесены изменения
+            230 - UPDATED_WHEN_ATTACH - Запись была обновлена в результате присоединения другой
+            240 - UPDATED_WHEN_FORK - Запись была обновлена в результате отделения от неё другой
+         300 - MOVED - Запись была перемещена в другую группу (для иерархических справочников)
+         400 - DELETED - Запись была удалена
+            410 - DELETED_WHEN_MERGE - Запись была удалена в результате объединения
+            420 - DELETED_WHEN_SPLIT - Запись была удалена в результате разделения
+            430 - DELETED_WHEN_ATTACH - Запись была удалена в результате присоединения
+						</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:integer">
+		<xsd:pattern value="[1-4][0-9][0-9]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

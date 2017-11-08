@@ -353,9 +353,8 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	}
 	if(PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name)) {
 		excl.add(fld_name);
-		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
 			Flags = param_val.ToLong();
-		}
 	}
 	if(PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE1, fld_name)) {
 		excl.add(fld_name);
@@ -4591,19 +4590,17 @@ Generator_DocNalogRu::Document::Document(Generator_DocNalogRu & rG, const char *
 	}
 }
 
-Generator_DocNalogRu::Invoice::Invoice(Generator_DocNalogRu & rG, const PPBillPacket & rBp) : N(rG.P_X, "СвСчФакт")
+Generator_DocNalogRu::Invoice::Invoice(Generator_DocNalogRu & rG, const PPBillPacket & rBp) : N(rG.P_X, rG.GetToken(PPHSC_RU_INVOICEHEADER))
 {
 	SString temp_buf;
 	BillCore::GetCode(temp_buf = rBp.Rec.Code);
-	N.PutAttrib("НомерСчФ", rG.EncText(temp_buf));
-	N.PutAttrib("ДатаСчФ", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
-	N.PutAttrib("КодОКВ", "643");
+	N.PutAttrib(rG.GetToken(PPHSC_RU_INVOICENUMBER), rG.EncText(temp_buf));
+	N.PutAttrib(rG.GetToken(PPHSC_RU_INVOICEDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+	N.PutAttrib(rG.GetToken(PPHSC_RU_CODEOKV), "643");
 }
 
-SLAPI Generator_DocNalogRu::Generator_DocNalogRu()
+SLAPI Generator_DocNalogRu::Generator_DocNalogRu() : P_X(0), P_Doc(0)
 {
-	P_X = 0;
-	P_Doc = 0;
 }
 
 SLAPI Generator_DocNalogRu::~Generator_DocNalogRu()
@@ -4657,23 +4654,23 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 		const PPTransferItem & r_ti = rBp.ConstTI(item_idx);
 		const double qtty_local = fabs(r_ti.Qtty());
 
-		SXml::WNode n_item(P_X, "СведТов");
+		SXml::WNode n_item(P_X, GetToken(PPHSC_RU_WAREINFO));
 		temp_buf.Z().Cat(r_ti.RByBill);
-		n_item.PutAttrib("НомСтр", temp_buf);
+		n_item.PutAttrib(GetToken(PPHSC_RU_LINENUMBER), temp_buf);
 		temp_buf.Z().Cat(qtty_local, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-		n_item.PutAttrib("КолТов", temp_buf);
+		n_item.PutAttrib(GetToken(PPHSC_RU_WAREQTTY), temp_buf);
 		{
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
 				PPUnit u_rec;
 				temp_buf = goods_rec.Name;
-				n_item.PutAttrib("НаимТов", EncText(temp_buf));
+				n_item.PutAttrib(GetToken(PPHSC_RU_WARENAME), EncText(temp_buf));
 				if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Code[0]) {
 					temp_buf = u_rec.Code;
-					n_item.PutAttrib("ОКЕИ_Тов", temp_buf);
+					n_item.PutAttrib(GetToken(PPHSC_RU_WAREOKEI), temp_buf);
 				}
 				else {
-					n_item.PutAttrib("ОКЕИ_Тов", "0000");
+					n_item.PutAttrib(GetToken(PPHSC_RU_WAREOKEI), "0000");
 				}
 			}
 		}
@@ -4696,7 +4693,7 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 			{
 				temp_buf.Z();
 				if(rHi.Flags & HeaderInfo::fVatFree) {
-					temp_buf.Cat("без НДС");
+					temp_buf.Cat(GetToken(PPHSC_RU_NOVAT_VAL));
 				}
 				else {
 					double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
@@ -4711,12 +4708,12 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 			//
 			total_amt_wovat += amt_wo_tax;
 			temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-			n_item.PutAttrib("СтТовБезНДС", temp_buf);
+			n_item.PutAttrib(GetToken(PPHSC_RU_WAREAMTWOVAT), temp_buf);
 			//
 			double amt = vect.GetValue(GTAXVF_BEFORETAXES);
 			total_amt += amt;
 			temp_buf.Z().Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
-			n_item.PutAttrib("СтТовУчНал", temp_buf);
+			n_item.PutAttrib(GetToken(PPHSC_RU_WAREAMT), temp_buf);
 
 			vat_sum = vect.GetValue(GTAXVF_VAT);
 			excise_sum = vect.GetValue(GTAXVF_EXCISE);
@@ -4724,16 +4721,20 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 		{
 			SXml::WNode n_e(P_X, GetToken(PPHSC_RU_EXCISE));
 			if(excise_sum != 0.0)
-				n_e.PutInner("СумАкциз", temp_buf.Z().Cat(fabs(excise_sum), MKSFMTD(0, 2, 0)));
-			else
-				n_e.PutInner("БезАкциз", "без акциза");
+				n_e.PutInner(GetToken(PPHSC_RU_AMTEXCISE), temp_buf.Z().Cat(fabs(excise_sum), MKSFMTD(0, 2, 0)));
+			else {
+				temp_buf = GetToken(PPHSC_RU_NOEXCISE_VAL);
+				n_e.PutInner(GetToken(PPHSC_RU_NOEXCISE_TAG), temp_buf);
+			}
 		}
 		{
-			SXml::WNode n_e(P_X, "СумНал");
+			SXml::WNode n_e(P_X, GetToken(PPHSC_RU_AMTTAX));
 			if(vat_sum != 0.0)
 				n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(vat_sum), MKSFMTD(0, 2, 0)));
-			else
-				n_e.PutInner("БезНДС", "без НДС");
+			else {
+				temp_buf = GetToken(PPHSC_RU_NOVAT_VAL);
+				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), temp_buf);
+			}
 			total_vat += vat_sum;
 		}
 	}
@@ -4742,11 +4743,13 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 		n_t.PutAttrib("СтТовБезНДСВсего", temp_buf.Z().Cat(total_amt_wovat, MKSFMTD(0, 2, 0)));
 		n_t.PutAttrib("СтТовУчНалВсего", temp_buf.Z().Cat(total_amt, MKSFMTD(0, 2, 0)));
 		{
-			SXml::WNode n_e(P_X, "СумНалВсего");
+			SXml::WNode n_e(P_X, GetToken(PPHSC_RU_AMTTAXTOTAL));
 			if(total_vat != 0.0)
 				n_e.PutInner(GetToken(PPHSC_RU_AMTVAT), temp_buf.Z().Cat(fabs(total_vat), MKSFMTD(0, 2, 0)));
-			else
-				n_e.PutInner("БезНДС", "без НДС");
+			else {
+				temp_buf = GetToken(PPHSC_RU_NOVAT_VAL);
+				n_e.PutInner(GetToken(PPHSC_RU_NOVAT_TAG), temp_buf);
+			}
 		}
 	}
 	return ok;
@@ -4828,6 +4831,7 @@ int SLAPI Generator_DocNalogRu::Underwriter(PPID psnID)
 	int    ok = 1;
 	int    is_free = 0; // Индивидуальный предприниматель
 	SString inn;
+	SString temp_buf;
 	PersonTbl::Rec psn_rec;
 	PPID   main_org_id = 0;
 	GetMainOrgID(&main_org_id);
@@ -4844,8 +4848,9 @@ int SLAPI Generator_DocNalogRu::Underwriter(PPID psnID)
 		if(psnID && PsnObj.Search(psnID, &psn_rec) > 0) {
 			SXml::WNode n_uw(P_X, GetToken(PPHSC_RU_SIGNER));
 			n_uw.PutAttrib("ОблПолн", "0");
-			n_uw.PutAttrib("Статус", "1");
-			n_uw.PutAttrib("ОснПолн", "Должностные обязанности");
+			n_uw.PutAttrib(GetToken(PPHSC_RU_STATUS), "1");
+			temp_buf = GetToken(PPHSC_RU_OFFICIAL_DUTIES);
+			n_uw.PutAttrib("ОснПолн", temp_buf);
 			if(is_free) {
 				SXml::WNode n_p(P_X, "ИП");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNPHS), inn);
@@ -5154,23 +5159,24 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 								LDATE  agt_expiry;
 								if(g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry) > 0) {
 									{
-										SXml::WNode n_481(g.P_X, "ТекстИнф"); // [0..20]
-										n_481.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Договор");
+										SXml::WNode n_481(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+										temp_buf = g.GetToken(PPHSC_RU_CONTRACT);
+										n_481.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 										n_481.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 									}
 									if(checkdate(agt_date, 0)) {
-										SXml::WNode n_482(g.P_X, "ТекстИнф"); // [0..20]
+										SXml::WNode n_482(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ДатаДоговора");
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 									}
 									if(checkdate(agt_expiry, 0)) {
-										SXml::WNode n_483(g.P_X, "ТекстИнф"); // [0..20]
+										SXml::WNode n_483(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 										n_483.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Период");
 										n_483.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 									}
 								}
 								else {
-									SXml::WNode n_481(g.P_X, "ТекстИнф"); // [0..20]
+									SXml::WNode n_481(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 								}
 							}
 						}
@@ -5417,23 +5423,24 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 					SXml::WNode n(g.P_X, "ИнфПолФХЖ1");
 					if(agt_code.NotEmpty()) {
 						{
-							SXml::WNode n_1(g.P_X, "ТекстИнф"); // [0..20]
-							n_1.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Договор");
+							SXml::WNode n_1(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							temp_buf = g.GetToken(PPHSC_RU_CONTRACT);
+							n_1.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 							n_1.PutAttrib(g.GetToken(PPHSC_RU_VAL), g.EncText(agt_code));
 						}
 						if(checkdate(agt_date, 0)) {
-							SXml::WNode n_2(g.P_X, "ТекстИнф"); // [0..20]
+							SXml::WNode n_2(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ДатаДоговора");
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 						}
 						if(checkdate(agt_expiry, 0)) {
-							SXml::WNode n_3(g.P_X, "ТекстИнф"); // [0..20]
+							SXml::WNode n_3(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
 							n_3.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "Период");
 							n_3.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 						}
 					}
 					else {
-						SXml::WNode n_1(g.P_X, "ТекстИнф");
+						SXml::WNode n_1(g.P_X, g.GetToken(PPHSC_RU_TEXTINF));
 						n_1.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "none");
 						n_1.PutAttrib(g.GetToken(PPHSC_RU_VAL), "none");
 					}
@@ -5449,7 +5456,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 					{
 						SXml::WNode n_11(g.P_X, "ОснПер");
 						if(agt_code.NotEmpty()) {
-							n_11.PutAttrib("НаимОсн", "Договор");
+							temp_buf = g.GetToken(PPHSC_RU_CONTRACT);
+							n_11.PutAttrib("НаимОсн", temp_buf);
 							n_11.PutAttrib("НомОсн", g.EncText(agt_code));
 							temp_buf.Z().Cat(checkdate(agt_date, 0) ? agt_date : encodedate(1, 1, 2017), DATF_GERMAN|DATF_CENTURY);
 							n_11.PutAttrib("ДатаОсн", g.EncText(temp_buf));

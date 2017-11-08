@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified"
+           xmlns:ns="http://fsrar.ru/WEGAIS/QueryBarcode" targetNamespace="http://fsrar.ru/WEGAIS/QueryBarcode"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonEnum"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
+
+
+  <xs:complexType name="QueryBarcode">
+    <xs:annotation>
+      <xs:documentation>Запрос по типу/серии/номеру ФСМ/АМ штрихового кода PDF-417, нанесенного на эту ФСМ/АМ</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="QueryNumber" type="c:NoEmptyString" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер запроса</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Date" type="xs:dateTime" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата запроса</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Marks" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Список марок запроса</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Mark" type="ns:MarkType" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Отдельная марка списка марок</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="UniqueMark">
+          <xs:selector xpath="Mark"/>
+          <xs:field xpath="Identity"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+
+  </xs:complexType>
+
+  <xs:complexType name="MarkType">
+    <xs:annotation>
+      <xs:documentation>Отдельная марка списка марок</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Identity" type="ce:Digits9" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор марки внутри запроса</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Type" type="ce:TypeEnum" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Код типа ФСМ/АМ</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Rank" type="ce:Digits3" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Серия ФСМ/АМ</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Number" type="ce:Digits9" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер ФСМ/АМ</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyClientVersion"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyClientVersion"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2"
+         
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  
+  <xs:complexType name="ReplyClientVersion">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о клиентах</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="VersionDate" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата версии</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Client" type="oref:OrgInfo_v2" minOccurs="0" maxOccurs="1">
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+ </xs:schema>

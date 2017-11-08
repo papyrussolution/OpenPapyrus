@@ -23,9 +23,9 @@
 				AdditionalIncludeDirectories="..\include;..\OSF\gsoap\gsoap"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="TRUE"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -85,6 +85,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -141,7 +142,7 @@
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -200,6 +201,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -256,7 +258,7 @@
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -315,6 +317,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PPSOAPEFES_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="TRUE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -469,11 +472,6 @@ cd $(SolutionDir)
 			<File
 				RelativePath="..\Soap\Client\Efes\efesSoapWS_USCOREEFES_USCOREDDEBindingProxy.h">
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 	</Files>
 	<Globals>

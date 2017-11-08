@@ -1,0 +1,2316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bs="http://api.vetrf.ru/schema/cdm/base"
+           xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2"
+           elementFormDefault="qualified" version="2.0-beta">
+
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/base" schemaLocation="base_v1.1.xsd"/>
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/dictionary/v2" schemaLocation="dictionary_v2.0.xsd"/>
+
+   <xs:element name="getPurposeByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>
+            Запрос на получение назначения груза по глобальному
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getPurposeByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи назначения груза
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:purpose" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись назначения груза.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getPurposeByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи назначения груза по
+            идентфикатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск
+                     записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getPurposeByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи назначения груза
+            по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:purpose" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись назначения груза.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getPurposeListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка назначений.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getPurposeListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка целей.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:purposeList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список целей.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getPurposeChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей
+            целей ввоза/вывоза.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата
+                     обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getPurposeChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей
+            назначений.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:purposeList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей назначения груза.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getUnitByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение единицы измерения
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор,
+                     по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getUnitByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения единицы измерения
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:unit" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по глобальному идентификатору запись единицы измерения.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getUnitByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>
+            Запрос на получение записи единицы измерения по ее идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getUnitByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи единицы измерения
+            по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:unit" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по идентификатору запись единицы измерения.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getUnitListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос списка единиц измерения.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getUnitListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос сипка единиц измерения.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:unitList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список едениц измерений.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getUnitChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей единиц измерений.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getUnitChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка
+            изменившихся записей единиц измерений.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:unitList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей единиц измерений.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения продукции по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения продукции по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:product" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по глобальному идентификатору запись продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи продукции по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор записи, по которому проводится поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи продукции по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:product" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденая по идентификатору запись продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductByTypeListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения списка активных записей продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:productType" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор типа продукта, по которому будет осуществлен поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductByTypeListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка активных записей продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей продукции.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей типов продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getSubProductByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения вида продукции по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор,
+                     по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getSubProductByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения вида продукции по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:subProduct" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по глобальному идентификатору запись вида продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getSubProductByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи вида продукции по
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор записи, по которому проводится
+                     поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getSubProductByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи видов продукции
+            по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:subProduct" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденая по идентификатору запись вида продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getSubProductByProductListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения списка активных записей видов
+            продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:productGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор продукта, по которому будет осуществлен поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getSubProductByProductListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка активных записей
+            видов продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:subProductList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей видов продукции.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getSubProductChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей
+            видов продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getSubProductChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей видов продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:subProductList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей видов продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductItemByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения наименований продукции по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductItemByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения наименований продукции по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productItem" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по глобальному идентификатору запись наименований продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductItemByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи наименований продукции по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор записи, по которому проводится поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductItemByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи наименований продукции по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productItem" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденая по идентификатору запись наименований продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductItemListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения списка активных записей наименований продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:productType" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор вида продуктции, по которому будет осуществлен поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:product" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор вида продуктции, по которому будет осуществлен поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:subProduct" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор вида продуктции, по которому будет осуществлен поиск.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:businessEntity" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор хозяйствующего субъекта, справочник которого запрашивается.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:enterprise" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор предприятия-производителя продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductItemListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка активных записей наименований продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productItemList" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей наименований продукции.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getProductItemChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей наименований продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:businessEntity" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор хозяйствующего субъекта, справочник которого запрашивается.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:enterprise" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор предприятия-производителя продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getProductItemChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей наименований продукции.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:productItemList" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей типов наименований продукции.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getAllCountryListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения списка активных записей стран.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getAllCountryListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения актуального списка
+            стран.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:countryList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список актуальных записей стран.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getCountryByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта страны по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getCountryByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта страны по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:country" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по guid-у объект страны.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getCountryByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта страны по
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getCountryByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта страны по
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:country" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по uuid-у объект страны.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getCountryChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение изменений в списке стран,
+            начиная с указанной даты.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getCountryChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения изменений в списке
+            стран.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:countryList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список стран, в не зависимости от статуса.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRegionListByCountryRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка регионов по стране.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:countryGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор страны, для которой
+                     запрашивается список регионов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRegionListByCountryResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка регионов по
+            стране.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:regionList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список регионов указанной страны в заданном
+                     формате.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRegionByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта региона по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRegionByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта региона по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:region" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по guid-у объект региона.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRegionByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта региона по
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRegionByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта региона по
+            идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:region" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по uuid-у объект региона.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRegionChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение изменений в списке регионов,
+            начиная с указанной даты.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRegionChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения изменений в списке
+            регионов.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:regionList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список регионов, в не зависимости от статуса.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDistrictListByRegionRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка районов указанного
+            региона.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:regionGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор региона, для которой
+                     запрашивается список регионов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDistrictListByRegionResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка районов
+            региона.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:districtList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список районов указанного региона в заданном
+                     формате.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDistrictByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта района по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDistrictByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта района по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:district" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по guid-у объект района.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDistrictByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получения объекта района по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому
+                     проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDistrictByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос на получения объекта района по
+            глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:district" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденный по guid-у объект района.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDistrictChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение изменений в списке районов,
+            начиная с указанной даты.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDistrictChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения изменений в списке
+            районов.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:districtList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список районов, в не зависимости от статуса
+                     объекта.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getLocalityListByRegionRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка населенных пунктов по региону.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:regionGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор региона, для которой
+                     запрашивается список населенных пунктов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getLocalityListByRegionResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка населенных пунктов по
+            региону.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:localityList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список населенных пунктов указанного региона.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getLocalityListByDistrictRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка населенных пунктов по району.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:districtGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор районы, для которой
+                     запрашивается список населенных пунктов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getLocalityListByDistrictResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка населенных пунктов по
+            району.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:localityList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список населенных пунктов указанного района.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getLocalityListByLocalityRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка зависимых населенных пунктов по
+            населенному пункту.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:localityGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор населенного пункта, для которой
+                     запрашивается список зависимых населенных пунктов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getLocalityListByLocalityResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка зависимых населенных пунктов по
+            населенному пункту.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:localityList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список завимиых населенных пунктов указанного населенного пункта.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getStreetListByLocalityRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка улиц по
+            населенному пункту.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:localityGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор населенного пункта, для которой
+                     запрашивается список улиц.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getStreetListByLocalityResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка улиц по
+            населенному пункту.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:streetList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список улиц указанного населенного пункта.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="findLocalityListByNameRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка населенных пунктов по шаблону и родителю(региону).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:regionGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор региона, для которой
+                     запрашивается список населенных пунктов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element  name="pattern" type="xs:string" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Шаблон для поиска в именах населенных пунктов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="findLocalityListByNameResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка населенных пунктов по
+            региону.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:localityList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список населенных пунктов указанного региона.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="findStreetListByNameRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка улиц по шаблону и родителю(населенному пункту).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:localityGuid" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор населенного пункта, для которой
+                     запрашивается список улиц.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element  name="pattern" type="xs:string" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Шаблон для поиска в именах улиц.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="findStreetListByNameResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка улиц по населенному пункту.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:streetList" maxOccurs="1" minOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список улиц указанного населенного пункта.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getEnterpriseByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи предприятия по глобальномуидентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getEnterpriseByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи предприятия по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterprise" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getEnterpriseByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи предприятия по идентфикатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск записи.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getEnterpriseByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи предприятия по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterprise" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getForeignEnterpriseListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка зарубежныйх предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:enterpriseGroup" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметр запроса предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:enterprise" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметр запроса предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getForeignEnterpriseListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка зарубежных предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterpriseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRussianEnterpriseListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка российских предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:enterprise" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметр запроса предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRussianEnterpriseListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка российских предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterpriseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getForeignEnterpriseChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getForeignEnterpriseChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterpriseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getRussianEnterpriseChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getRussianEnterpriseChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:enterpriseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getBusinessEntityByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи ХС по глобальному идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор, по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getBusinessEntityByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи ХС по глобальному идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:businessEntity" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getBusinessEntityByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение записи ХС по идентфикатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск записи.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getBusinessEntityByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи ХС по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:businessEntity" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getBusinessEntityListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:businessEntity" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметр фильтрации ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getBusinessEntityListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:businessEntityList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getBusinessEntityChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getBusinessEntityChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка изменений записей ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:businessEntityList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getBusinessMemberByGLNRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение пары ХС-площадка по глобальному идентификатору GLN.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:globalID" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор (GLN), по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getBusinessMemberByGLNResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи ХС по глобальному идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:businessMember" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Запись ХС.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getActivityLocationListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка предприятий, связанных с указанным ХСом.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:businessEntity" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Хозяйствующий субъект, осуществляющий деятельность.
+                     Должны быть заполнено одно из полей: `uuid`, `guid`, `inn`.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getActivityLocationListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:activityLocationList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список предприятий.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getR13nConditionListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка условий перемещения груза (регионализация).</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:disease" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>(Опционально) Заболевание, к которому относятся запрашиваемые условия перемещения груза.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getR13nConditionListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка условий перемещения груза (регионализация).</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:r13nConditionList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список условий перемещения груза.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getActualR13nRegionStatusListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение статусов региона (регионализация).</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:disease" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Заболевание, по которому запрашиваются статусы регионов.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:r13nZone" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>(Опционально) Регион, по которому запрашиваются статусы.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getActualR13nRegionStatusListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения статусов региона (регионализация).</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:r13nRegionStatusList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список статусов региона (регионализация).</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getActualR13nShippingRuleListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение пары ХС-площадка по глобальному идентификатору GLN.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:disease" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Заболевание, по которому запрашиваются статусы регионов.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:productType" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>(Опционально) Ветеринарная категория груза (тип продукции), для которой запрашиваются правила перемещения.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:product" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>(Опционально) Ветеринарная категория груза (продукция), для которой запрашиваются правила перемещения.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="dt:subProduct" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>(Опционально) Ветеринарная категория груза (вид продукции), для которой запрашиваются правила перемещения.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getActualR13nShippingRuleListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи ХС по глобальному идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:r13nShippingRuleList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список правил перемещения груза (регионализация).</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDiseaseByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение заболевания
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор,
+                     по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDiseaseByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения заболевания
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:disease" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по глобальному идентификатору запись заболевания.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDiseaseByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>
+            Запрос на получение записи заболевания по ее идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDiseaseByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи заболевания
+            по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:disease" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по идентификатору запись заболевания.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDiseaseListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос списка заболеваний.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDiseaseListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос списка заболеваний.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:diseaseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список заболеваний.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getDiseaseChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей заболеваний.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getDiseaseChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка
+            изменившихся записей заболеваний.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:diseaseList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей заболеваний.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getResearchMethodByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение метода исследований
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Глобальный идентификатор,
+                     по которому проводится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getResearchMethodByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения метода исследований
+            по глобальному идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:researchMethod" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по глобальному идентификатору запись метода исследований.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getResearchMethodByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>
+            Запрос на получение записи метода исследований по ее идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Идентификатор, по которому производится поиск записи.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getResearchMethodByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения записи метода исследований
+            по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:researchMethod" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Найденная по идентификатору запись метода исследований.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getResearchMethodListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос списка методов исследований.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getResearchMethodListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос списка методов исследований.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:researchMethodList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список методов исследований.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="getResearchMethodChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка изменившихся записей методов исследований.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="bs:listOptions" maxOccurs="1" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>Параметры запрашиваемого списка.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Интервал времени обновления. В список попадают
+                     все записи, дата обновлений которых попадает в указанный интервал.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="getResearchMethodChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на запрос получения списка
+            изменившихся записей методов исследований.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="dt:researchMethodList" minOccurs="1" maxOccurs="1">
+               <xs:annotation>
+                  <xs:documentation>Список записей методов исследований.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+</xs:schema>

@@ -1,0 +1,16 @@
+<?xmlversion="1.0" encoding="UTF-8"?>
+<Cheque inn="1021156770" 
+kpp="102101001" 
+address="г. Москва, Пражское ш., д. 73" 
+name="Магазин-09" 
+kassa="101" 
+shift="202" 
+number="303" 
+datetime="1503271510">
+<Bottle price="270.00" 
+barcode="19N00000XOPN13MM66T12TS311080076535486539219152175585956302712947119" 
+ean="4602486000732" volume="" />
+<Bottle price="250.00" 
+barcode="19N00000XOPN13MM66T05ZJ309300140047776539219152175585956302712947120" 
+ean="4820004060680" volume="" />
+</Cheque>

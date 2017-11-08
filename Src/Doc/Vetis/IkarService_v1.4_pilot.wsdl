@@ -1,0 +1,1220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N0:definitions name="RegistryService" targetNamespace="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" xmlns:WL5G3N2="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" xmlns:WL5G3N3="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" xmlns:WL5G3N4="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" xmlns:WL5G3N5="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" xmlns:WL5G3N6="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:WL5G3N7="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:WL5G3N8="http://schemas.xmlsoap.org/wsdl/soap/">
+  <WL5G3N0:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bedef="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" xmlns:cdef="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" xmlns:def="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:edef="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" xmlns:idef="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" xmlns:prodef="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions" schemaLocation="base_ws_definitions_v1.4.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" schemaLocation="enterprise_ws_definitions_v1.4.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" schemaLocation="argus_common_ws_definitions_v1.4.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" schemaLocation="production_ws_definitions_v1.4.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" schemaLocation="ikar_ws_definitions_v1.4.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" schemaLocation="business_entity_ws_definitions_v1.4.xsd"/>
+    </schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="GetProductItemByGuid">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByUuid">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemList">
+    <WL5G3N0:part element="WL5G3N1:getProductItemListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemChangesList">
+    <WL5G3N0:part element="WL5G3N1:getProductItemChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByGuid">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByGuidResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByUuid">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByUuidResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityList">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityListResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityChangesList">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityChangesListResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByGuid">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByGuidResponse">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByUuid">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByUuidResponse">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseList">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseListResponse">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseList">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseListResponse">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseChangesList">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseChangesListResponse">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseChangesList">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseChangesListResponse">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByGuid">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByGuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByUuid">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByUuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeList">
+    <WL5G3N0:part element="WL5G3N4:getPurposeListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeListResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeChangesList">
+    <WL5G3N0:part element="WL5G3N4:getPurposeChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeChangesListResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByGuid">
+    <WL5G3N0:part element="WL5G3N4:getUnitByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByGuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByUuid">
+    <WL5G3N0:part element="WL5G3N4:getUnitByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByUuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitList">
+    <WL5G3N0:part element="WL5G3N4:getUnitListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitListResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitChangesList">
+    <WL5G3N0:part element="WL5G3N4:getUnitChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitChangesListResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByGuid">
+    <WL5G3N0:part element="WL5G3N1:getProductByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByUuid">
+    <WL5G3N0:part element="WL5G3N1:getProductByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByTypeList">
+    <WL5G3N0:part element="WL5G3N1:getProductByTypeListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByTypeListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByTypeListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductChangesList">
+    <WL5G3N0:part element="WL5G3N1:getProductChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByGuid">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByUuid">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByProductList">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByProductListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByProductListResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByProductListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductChangesList">
+    <WL5G3N0:part element="WL5G3N1:getSubProductChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetAllCountryList">
+    <WL5G3N0:part element="WL5G3N5:getAllCountryListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetAllCountryListResponse">
+    <WL5G3N0:part element="WL5G3N5:getAllCountryListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByGuid">
+    <WL5G3N0:part element="WL5G3N5:getCountryByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByUuid">
+    <WL5G3N0:part element="WL5G3N5:getCountryByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByUuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryChangesList">
+    <WL5G3N0:part element="WL5G3N5:getCountryChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionListByCountry">
+    <WL5G3N0:part element="WL5G3N5:getRegionListByCountryRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionListByCountryResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionListByCountryResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByGuid">
+    <WL5G3N0:part element="WL5G3N5:getRegionByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByUuid">
+    <WL5G3N0:part element="WL5G3N5:getRegionByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByUuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionChangesList">
+    <WL5G3N0:part element="WL5G3N5:getRegionChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictListByRegion">
+    <WL5G3N0:part element="WL5G3N5:getDistrictListByRegionRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictListByRegionResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictListByRegionResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictByGuid">
+    <WL5G3N0:part element="WL5G3N5:getDistrictByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictChangesList">
+    <WL5G3N0:part element="WL5G3N5:getDistrictChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByRegion">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByRegionRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByRegionResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByRegionResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByDistrict">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByDistrictRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByDistrictResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByDistrictResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByLocality">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByLocalityRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByLocalityResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByLocalityResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetStreetListByLocality">
+    <WL5G3N0:part element="WL5G3N5:getStreetListByLocalityRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetStreetListByLocalityResponse">
+    <WL5G3N0:part element="WL5G3N5:getStreetListByLocalityResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindLocalityListByName">
+    <WL5G3N0:part element="WL5G3N5:findLocalityListByNameRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindLocalityListByNameResponse">
+    <WL5G3N0:part element="WL5G3N5:findLocalityListByNameResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindStreetListByName">
+    <WL5G3N0:part element="WL5G3N5:findStreetListByNameRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindStreetListByNameResponse">
+    <WL5G3N0:part element="WL5G3N5:findStreetListByNameResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="EntityNotFoundFault">
+    <WL5G3N0:documentation>
+         Запись с указанным идентификатором не найдена.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:entityNotFoundFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IncorrectRequestFault">
+    <WL5G3N0:documentation>
+         Реакция системы на некорректный запрос.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:incorrectRequestFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="InternalServiceFault">
+    <WL5G3N0:documentation>
+         Внутренняя ошибка выполнения операции на сервере.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:internalServiceFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="OffsetOutOfRangeFault">
+    <WL5G3N0:documentation>
+
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:offsetOutOfRangeFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="IkarServicePortType">
+    <WL5G3N0:operation name="GetAllCountryList">
+      <WL5G3N0:documentation>Получение списка записей стран с активным
+            статусом.
+            Выполнение операции заканчивается либо возвратом списка стран,
+            либо ошибкой, в случае если параметры запроса не корректны или произошла
+            иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetAllCountryList" name="allCountryList">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+               (размер и отступ).
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetAllCountryListResponse" name="allCountryListResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список стран.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryByGuid">
+      <WL5G3N0:documentation>Получение последней записи страны по
+            глобальному идентификатору.
+            Выполнение операции заканчивается либо возвратом объекта страны,
+            либо ошибкой, в случае если параметры запроса не корректны, если запись
+            по запросу не найдена
+            или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetCountryByGuid" name="countryByGuid">
+        <WL5G3N0:documentation>Запрос содержащий глобальный идентификатор.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetCountryByGuidResponse" name="countryByGuidResponse">
+        <WL5G3N0:documentation>Ответ на запрос, содержащий объект страны.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее
+               всего отсутвует GUID или он указан в некорректном формате.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryByUuid">
+      <WL5G3N0:documentation>Получение записи страны по идентификатору.
+            Выполнение операции заканчивается либо возвратом объекта страны,
+            либо ошибкой, в случае если параметры запроса не корректны, если запись
+            по запросу не найдена
+            или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetCountryByUuid" name="countryByUuid">
+        <WL5G3N0:documentation>Запрос содержащий идентификатор.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetCountryByUuidResponse" name="countryByUuidResponse">
+        <WL5G3N0:documentation>Ответ на запрос, содержащий объект страны.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее
+               всего отсутвует GUID или он указан в некорректном формате.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryChangesList">
+      <WL5G3N0:documentation>Получение истории изменений в списке стран.
+            Выполнение операции заканчивается либо возвратом списка стран,
+            либо ошибкой, в случае если параметры запроса не корректны или произошла
+            иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetCountryChangesList" name="countryChangesList">
+        <WL5G3N0:documentation>Запрос на получение истории изменений, содержит
+               параметры запрашиваемого списка и дату с которой запрашиваются
+               изменения.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetCountryChangesListResponse" name="countryChangesListResponse">
+        <WL5G3N0:documentation>Ответ на запрос со списком записей стран
+               изменившихся с указанной даты.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionListByCountry">
+      <WL5G3N0:documentation>Получение списка записей регионов с активным
+            статусом по стране.
+            Выполнение операции заканчивается либо возвратом списка регионов,
+            либо ошибкой, в случае если параметры запроса не корректны или произошла
+            иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetRegionListByCountry" name="regionListByCountry">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+               (размер и отступ), содержащий глобальный идентификатор страны.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetRegionListByCountryResponse" name="regionListByCountryResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список регионов.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionByGuid">
+      <WL5G3N0:documentation>Получение последней записи региона по
+            глобальному идентификатору.
+            Выполнение операции заканчивается либо возвратом объекта региона,
+            либо ошибкой, в случае если параметры запроса не корректны, если запись
+            по запросу не найдена
+            или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetRegionByGuid" name="regionByGuid">
+        <WL5G3N0:documentation>Запрос содержащий глобальный идентификатор.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetRegionByGuidResponse" name="regionByGuidResponse">
+        <WL5G3N0:documentation>Ответ на запрос, содержащий объект региона.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее
+               всего отсутвует GUID или он указан в некорректном формате.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionByUuid">
+      <WL5G3N0:documentation>Получение записи региона по идентификатору.
+            Выполнение операции заканчивается либо возвратом объекта региона,
+            либо ошибкой, в случае если параметры запроса не корректны, если запись
+            по запросу не найдена
+            или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetRegionByUuid" name="regionByUuid">
+        <WL5G3N0:documentation>Запрос содержащий идентификатор.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetRegionByUuidResponse" name="regionByUuidResponse">
+        <WL5G3N0:documentation>Ответ на запрос, содержащий объект региона.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее
+               всего отсутвует GUID или он указан в некорректном формате.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionChangesList">
+      <WL5G3N0:documentation>Получение истории изменений в списке регионов.
+            Выполнение операции заканчивается либо возвратом списка регионов,
+            либо ошибкой, в случае если параметры запроса не корректны или
+            произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetRegionChangesList" name="regionChangesList">
+        <WL5G3N0:documentation>Запрос на получение истории изменений, содержит
+               параметры запрашиваемого списка и дату с которой запрашиваются
+               изменения.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetRegionChangesListResponse" name="regionChangesListResponse">
+        <WL5G3N0:documentation>Ответ на запрос со списком записей регионов,
+               изменившихся с указанной даты.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictListByRegion">
+      <WL5G3N0:documentation>Получение списка записей районов с активным
+            статусом по региону.
+            Выполнение операции заканчивается либо возвратом списка районов,
+            либо ошибкой, в случае если параметры запроса не корректны или произошла
+            иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetDistrictListByRegion" name="districtListByRegion">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+               (размер и отступ), содержащий глобальный идентификатор региона.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetDistrictListByRegionResponse" name="districtListByRegionResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список районов.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что региона с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictByGuid">
+      <WL5G3N0:documentation>Получение последней записи района по
+            глобальному идентификатору.
+            Выполнение операции заканчивается либо возвратом объекта района,
+            либо ошибкой, в случае если параметры запроса не корректны, если запись
+            по запросу не найдена
+            или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetDistrictByGuid" name="districtByGuid">
+        <WL5G3N0:documentation>Запрос содержащий глобальный идентификатор.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetDistrictByGuidResponse" name="districtByGuidResponse">
+        <WL5G3N0:documentation>Ответ на запрос, содержащий объект района.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее
+               всего отсутвует GUID или он указан в некорректном формате.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что страна с
+               указанным глобальным идентификатором не найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictChangesList">
+      <WL5G3N0:documentation>Получение истории изменений в списке районов.
+            Выполнение операции заканчивается либо возвратом списка районов,
+            либо ошибкой, в случае если параметры запроса не корректны или
+            произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetDistrictChangesList" name="districtChangesList">
+        <WL5G3N0:documentation>Запрос на получение истории изменений, содержит
+               параметры запрашиваемого списка и дату с которой запрашиваются
+               изменения.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetDistrictChangesListResponse" name="districtChangesListResponse">
+        <WL5G3N0:documentation>Ответ на запрос со списком записей районов,
+               изменившихся с указанной даты.
+            </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+               сервере.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+               записей удовлетворяющих условиям запроса.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByRegion">
+      <WL5G3N0:documentation>Получение списка записей населенных пунктов с активным
+               статусом по региону.
+               Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetLocalityListByRegion" name="localityListByRegion">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор региона.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetLocalityListByRegionResponse" name="localityListByRegionResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список населенных пунктов.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что регион с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByDistrict">
+      <WL5G3N0:documentation>Получение списка записей населенных пунктов с активным
+               статусом по району.
+               Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetLocalityListByDistrict" name="localityListByDistrict">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор района.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetLocalityListByDistrictResponse" name="localityListByDistrictResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список населенных пунктов.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что район с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByLocality">
+      <WL5G3N0:documentation>Получение списка зависимых записей населенных пунктов с активным
+               статусом по населенному пункту.
+               Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetLocalityListByLocality" name="localityListByLocality">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор населенного пункта.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetLocalityListByLocalityResponse" name="localityListByLocalityResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список населенных пунктов.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что населенный пункт с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetStreetListByLocality">
+      <WL5G3N0:documentation>Получение списка записей улиц с активным
+               статусом по региону.
+               Выполнение операции заканчивается либо возвратом списка улиц,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetStreetListByLocality" name="streetListByLocality">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор населенного пункта.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetStreetListByLocalityResponse" name="streetListByLocalityResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список улиц.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что населенный пункт с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="FindLocalityListByName">
+      <WL5G3N0:documentation>Получение списка записей населенных пунктов с активным
+               статусом по шаблону и региону.
+               Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:FindLocalityListByName" name="findLocalityListByName">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор региона.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:FindLocalityListByNameResponse" name="findLocalityListByNameResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список населенных пунктов.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что регион с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="FindStreetListByName">
+      <WL5G3N0:documentation>Получение списка записей улиц с активным
+               статусом по шаблону и населенному пункту.
+               Выполнение операции заканчивается либо возвратом списка улиц,
+               либо ошибкой, в случае если параметры запроса не корректны или произошла
+               иная ошибка выполнения запроса.
+           </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:FindStreetListByName" name="findStreetListByName">
+        <WL5G3N0:documentation>Запрос списка с возможно указанными параметрами
+                   (размер и отступ), содержащий глобальный идентификатор региона.
+               </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:FindStreetListByNameResponse" name="findStreetListByNameResponse">
+        <WL5G3N0:documentation>Ответ на запрос содержащий список населенных пунктов.
+               </WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на
+                   сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что регион с
+                   указанным глобальным идентификатором не найден.
+               </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+        <WL5G3N0:documentation>Отступ в параметрах запроса превышает число
+                   записей удовлетворяющих условиям запроса.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="IkarServiceBinding" type="WL5G3N7:IkarServicePortType">
+    <WL5G3N8:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <WL5G3N0:operation name="GetAllCountryList">
+      <WL5G3N8:operation soapAction="GetAllCountryList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryByGuid">
+      <WL5G3N8:operation soapAction="GetCountryByGuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryByUuid">
+      <WL5G3N8:operation soapAction="GetCountryByUuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetCountryChangesList">
+      <WL5G3N8:operation soapAction="GetCountryChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionListByCountry">
+      <WL5G3N8:operation soapAction="GetRegionListByCountry"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionByGuid">
+      <WL5G3N8:operation soapAction="GetRegionByGuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionByUuid">
+      <WL5G3N8:operation soapAction="GetRegionByUuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRegionChangesList">
+      <WL5G3N8:operation soapAction="GetRegionChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictListByRegion">
+      <WL5G3N8:operation soapAction="GetDistrictListByRegion"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictByGuid">
+      <WL5G3N8:operation soapAction="GetDistrictByGuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetDistrictChangesList">
+      <WL5G3N8:operation soapAction="GetDistrictChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByRegion">
+      <WL5G3N8:operation soapAction="GetLocalityListByRegion"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByDistrict">
+      <WL5G3N8:operation soapAction="GetLocalityListByDistrict"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetLocalityListByLocality">
+      <WL5G3N8:operation soapAction="GetLocalityListByLocality"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetStreetListByLocality">
+      <WL5G3N8:operation soapAction="GetStreetListByLocality"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="FindLocalityListByName">
+      <WL5G3N8:operation soapAction="FindLocalityListByName"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="FindStreetListByName">
+      <WL5G3N8:operation soapAction="FindStreetListByName"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="IkarServiceBindingQSService">
+    <WL5G3N0:port binding="WL5G3N7:IkarServiceBinding" name="IkarServiceBindingQSPort">
+      <WL5G3N8:address location="https://api2.vetrf.ru:8002/platform/ikar/services/IkarService"/>
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

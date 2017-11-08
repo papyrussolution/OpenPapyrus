@@ -280,27 +280,20 @@ static const Attribute attribute_defs [] =
 static uint AttributeVersions(Node* node, AttVal* attval)
 {
 	uint i;
-
 	if(!attval || !attval->dict)
 		return VERS_UNKNOWN;
-
 	if(!node || !node->tag || !node->tag->attrvers)
 		return attval->dict->versions;
-
 	for(i = 0; node->tag->attrvers[i].attribute; ++i)
 		if(node->tag->attrvers[i].attribute == attval->dict->id)
 			return node->tag->attrvers[i].versions;
-
-	return attval->dict->versions & VERS_ALL
-	       ? VERS_UNKNOWN
-	       : attval->dict->versions;
+	return attval->dict->versions & VERS_ALL ? VERS_UNKNOWN : attval->dict->versions;
 }
 
 /* return the version of the attribute "id" of element "node" */
 uint TY_(NodeAttributeVersions) (Node* node, TidyAttrId id)
 {
 	uint i;
-
 	if(!node || !node->tag || !node->tag->attrvers)
 		return VERS_UNKNOWN;
 

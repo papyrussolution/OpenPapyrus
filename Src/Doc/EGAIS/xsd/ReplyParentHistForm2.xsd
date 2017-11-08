@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyParentHistForm2"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyParentHistForm2"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+
+  <xs:complexType name="ReplyParentHistForm2">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о движении по форме Б</xs:documentation>
+    </xs:annotation>
+
+    <xs:all>
+      <xs:element name="InformF2RegId" type="c:NoEmptyString50" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер справки 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HistForm2Date" type="c:DateWTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата составления отчета</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="ParentHist" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>История двидения по справке</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="step" type="ns:stepBType" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="stepBType">
+    <xs:annotation>
+      <xs:documentation>Движение товара</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lev" type="xs:integer" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>уровень истории (от последней формы 2 к первой)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Form2" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер формы 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="parentForm2" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Предыдущий регистрационный номер формы 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Shipper" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>ФСРАРИД грузоотправителя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Consignee" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>ФСРАРИД грузополучателя</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WBRegId" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер накладной</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="amount" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество продукции по накладной</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    
+  </xs:complexType>
+                  
+</xs:schema>

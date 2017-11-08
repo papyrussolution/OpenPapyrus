@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://api.vetrf.ru/schema/ikar" xmlns:tns="http://api.vetrf.ru/schema/ikar"
+	xmlns:base="http://api.vetrf.ru/schema/base" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" version="1.2.0">
+
+ 	<xsd:import namespace="http://api.vetrf.ru/schema/base"
+		schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.11.xsd" /> 
+
+
+	<xsd:element name="country" type="tns:Country" />
+	<xsd:element name="region" type="tns:Region" />
+	<xsd:element name="district" type="tns:District" />
+    <xsd:element name="locality" type="tns:Locality" />
+    <xsd:element name="street" type="tns:Street" />
+	
+	<xsd:element name="countryList" type="tns:CountryList" />
+	<xsd:element name="regionList" type="tns:RegionList" />
+    <xsd:element name="localityList" type="tns:LocalityList" />
+    <xsd:element name="streetList" type="tns:StreetList" />
+	<xsd:element name="districtList" type="tns:DistrictList" />
+	
+	<xsd:element name="countryGuid" type="base:UUID" />
+	<xsd:element name="regionGuid" type="base:UUID" />
+    <xsd:element name="districtGuid" type="base:UUID" />
+    <xsd:element name="localityGuid" type="base:UUID" />
+
+	<xsd:complexType name="Country">
+		<xsd:annotation>
+			<xsd:documentation>Тип, описывающий страну.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="base:GenericVersioningEntity">
+				<xsd:sequence>
+					<xsd:element name="name" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Название страны.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="fullName" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Полное название страны, если имеется.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="englishName" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Английское название страны.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="code" type="tns:Code" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Двухбуквенный код страны, соответсвующий
+								стандарту ISO 3166-1.
+								В качестве кода используются буквы
+								латинского алфавита.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="code3" type="tns:Code3" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Трехбуквенный код страны, соответсвующий
+								стандарту ISO 3166-1.
+								В качестве кода используются буквы
+								латинского алфавита.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="isRussia" type="boolean" minOccurs="0"
+						maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Флаг, показывающий, что страна является РФ.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="isCustomsUnion" type="boolean"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Флаг, показывающий, что страна является членом
+								ТС.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="FederalDistrict">
+		<xsd:complexContent>
+			<xsd:extension base="base:GenericVersioningEntity">
+				<xsd:sequence>
+					<xsd:element name="fullName" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Полное название (содержить "федеральный
+								округ").</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="shortName" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Короткое название (без "федеральный округ").
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="abbreviation" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Аббревиатура.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="AddressObjectView">
+		<xsd:annotation>
+			<xsd:documentation>Обертка для адресных объектов различного уровня
+				(начиная с регионов страны, заканчивая улицами населенных пунктов)
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="base:GenericVersioningEntity">
+				<xsd:sequence>
+					<xsd:element name="name" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Название объекта (не содержит название типа
+								объекта).</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="englishName" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Английское название объекта.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="view" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Представление объекта (обычно это название +
+								название типа объекта).</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="type" type="base:String255"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Название типа адресного объекта (например,
+								область, район или город).</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="countryGuid" type="base:UUID"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Глобальный идентификатор страны, к которой
+								относится данный объект.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+                    <xsd:element name="hasStreets" type="xsd:boolean"
+                                 minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>Флаг, указывающий наличие улиц.</xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+
+
+	<xsd:complexType name="Region">
+		<xsd:annotation>
+			<xsd:documentation>Тип региона страны (обычно первый уровень в
+				адресной структуре).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="tns:AddressObjectView">
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="District">
+		<xsd:annotation>
+			<xsd:documentation>Тип района региона (обычно второй уровень в
+				адресной структуре).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="tns:AddressObjectView">
+				<xsd:sequence>
+					<xsd:element name="regionGuid" type="base:UUID"
+						minOccurs="0" maxOccurs="1">
+						<xsd:annotation>
+							<xsd:documentation>Глобальный идентификатор рениона, к которому
+								относится данный район.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+	<xsd:complexType name="Locality">
+      <xsd:annotation>
+         <xsd:documentation>Тип населенного пункта (город, поселок, деревня и прочие).</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="tns:AddressObjectView">
+            <xsd:sequence>
+               <xsd:element name="regionGuid" type="base:UUID"
+                  minOccurs="0" maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Глобальный идентификатор рениона, к которому
+                        относится данный населенный пункт.</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+               <xsd:element name="districtGuid" type="base:UUID"
+                  minOccurs="0" maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Глобальный идентификатор района, к которому
+                        относится данный населенный пункт.</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+               <xsd:element name="cityGuid" type="base:UUID"
+                  minOccurs="0" maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Глобальный идентификатор города, к которому
+                        относится данный населенный пункт.</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   
+   <xsd:complexType name="Street">
+      <xsd:annotation>
+         <xsd:documentation>Тип улицы.</xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexContent>
+         <xsd:extension base="tns:AddressObjectView">
+            <xsd:sequence>
+               <xsd:element name="localityGuid" type="base:UUID"
+                  minOccurs="0" maxOccurs="1">
+                  <xsd:annotation>
+                     <xsd:documentation>Глобальный идентификатор насленного пункта, к которому
+                        относится данная улица.</xsd:documentation>
+                  </xsd:annotation>
+               </xsd:element>
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+	
+	<xsd:complexType name="Address">
+      <xsd:sequence>
+         <xsd:element name="country" type="tns:Country" minOccurs="1" maxOccurs="1" />
+         <xsd:element name="federalDistrict" type="tns:FederalDistrict" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="region" type="tns:Region" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="district" type="tns:District" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="locality" type="tns:Locality" minOccurs="1" maxOccurs="1" />
+         <xsd:element name="subLocality" type="tns:Locality" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="street" type="tns:Street" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="house" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="building" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="room" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="postIndex" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="postBox" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="addressView" type="base:String255" minOccurs="0" maxOccurs="1" />
+         <xsd:element name="enAddressView" type="base:String255" minOccurs="0" maxOccurs="1" />
+      </xsd:sequence>
+   </xsd:complexType>
+
+	<xsd:complexType name="CountryList">
+		<xsd:annotation>
+			<xsd:documentation>Тип-обертка для списка стран.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="base:EntityList">
+				<xsd:sequence>
+					<xsd:element name="country" type="tns:Country"
+						minOccurs="0" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="RegionList">
+		<xsd:annotation>
+			<xsd:documentation>Тип-обертка для списка регионов.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="base:EntityList">
+				<xsd:sequence>
+					<xsd:element name="region" type="tns:Region" minOccurs="0"
+						maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+    <xsd:complexType name="LocalityList">
+        <xsd:annotation>
+            <xsd:documentation>Тип-обертка для списка населенных пунктов.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="base:EntityList">
+                <xsd:sequence>
+                    <xsd:element name="locality" type="tns:Locality" minOccurs="0"
+                                 maxOccurs="unbounded" />
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="StreetList">
+        <xsd:annotation>
+            <xsd:documentation>Тип-обертка для списка улиц.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="base:EntityList">
+                <xsd:sequence>
+                    <xsd:element name="street" type="tns:Street" minOccurs="0"
+                                 maxOccurs="unbounded" />
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+	<xsd:complexType name="DistrictList">
+		<xsd:annotation>
+			<xsd:documentation>Тип-обертка для списка районов.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="base:EntityList">
+				<xsd:sequence>
+					<xsd:element name="district" type="tns:District"
+						minOccurs="0" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:simpleType name="Code">
+		<xsd:annotation>
+			<xsd:documentation>Тип, описывающий двухсимвольный код страны.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="string">
+			<xsd:maxLength value="2" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Code3">
+		<xsd:annotation>
+			<xsd:documentation>Тип, описывающий трехсимвольный код страны.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="string">
+			<xsd:maxLength value="3" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

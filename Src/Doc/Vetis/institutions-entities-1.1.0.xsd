@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://api.vetrf.ru/schema/institutions"
+	xmlns:tns="http://api.vetrf.ru/schema/institutions"
+	xmlns:base="http://api.vetrf.ru/schema/base"
+	xmlns:ikar="http://api.vetrf.ru/schema/ikar"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified"
+	version="1.1.0">
+	
+	<xsd:import namespace="http://api.vetrf.ru/schema/base" schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.10.xsd" />
+	<xsd:import namespace="http://api.vetrf.ru/schema/ikar" schemaLocation="http://api.vetrf.ru/schema/ikar/ikar-entities-1.1.0.xsd"/>
+	
+   <xsd:element name="organization" type="tns:Organization" />
+   <xsd:element name="organizationList" type="tns:OrganizationList" />
+   <xsd:element name="organizationTypeList" type="tns:OrganizationTypeList" />
+   <xsd:element name="organizationCode" type="base:String255" />
+   <xsd:element name="organizationTypeUuid" type="base:UUID" />
+     
+   <xsd:complexType name="Organization">
+      <xsd:complexContent>
+         <xsd:extension base="base:GenericVersioningEntity">
+            <xsd:sequence>
+               <xsd:element name="fullName" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="shortName" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="enFullName" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="type" type="tns:OrganizationType" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="organizationCode" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="jurAddress" type="ikar:Address" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="postAddress" type="ikar:Address" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="siteAddress" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="phones" type="tns:PhoneList" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="faxes" type="tns:FaxList" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="emails" type="tns:EmailList" minOccurs="0" maxOccurs="1" />
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   
+   <xsd:complexType name="OrganizationType">
+      <xsd:complexContent>
+         <xsd:extension base="base:GenericEntity">
+            <xsd:sequence>
+               <xsd:element name="fullName" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="shortName" type="base:String255" minOccurs="0" maxOccurs="1" />
+               <xsd:element name="enFullName" type="base:String255" minOccurs="0" maxOccurs="1" />
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   
+   <xsd:complexType name="PhoneList">
+      <xsd:sequence>
+         <xsd:element name="phone" type="base:String255" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:sequence>
+   </xsd:complexType>
+   
+   <xsd:complexType name="FaxList">
+      <xsd:sequence>
+         <xsd:element name="fax" type="base:String255" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:sequence>
+   </xsd:complexType>
+   
+   <xsd:complexType name="EmailList">
+      <xsd:sequence>
+         <xsd:element name="email" type="base:String255" minOccurs="0" maxOccurs="unbounded" />
+      </xsd:sequence>
+   </xsd:complexType>
+   
+   <xsd:complexType name="OrganizationList">
+      <xsd:complexContent>
+         <xsd:extension base="base:EntityList">
+            <xsd:sequence>
+               <xsd:element name="organization" type="tns:Organization"
+						minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+   
+   <xsd:complexType name="OrganizationTypeList">
+      <xsd:complexContent>
+         <xsd:extension base="base:EntityList">
+            <xsd:sequence>
+               <xsd:element name="organizationType" type="tns:OrganizationType"
+						minOccurs="0" maxOccurs="unbounded" />
+            </xsd:sequence>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+</schema>

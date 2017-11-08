@@ -258,6 +258,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuchardet", "libuchardet.
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPSoapMercury_g2b", "PPSoapMercury_g2b.vcproj", "{DDF818E8-20D2-403B-8E53-BF6D98087CDC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{813784D9-8B70-4880-91E7-51BB4265D187} = {813784D9-8B70-4880-91E7-51BB4265D187}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPSoapMercury_AMS", "PPSoapMercury_AMS.vcproj", "{B5944992-A8BD-4FB4-ABE7-EE6684583339}"
+	ProjectSection(ProjectDependencies) = postProject
+		{813784D9-8B70-4880-91E7-51BB4265D187} = {813784D9-8B70-4880-91E7-51BB4265D187}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -449,7 +459,6 @@ Global
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Debug.ActiveCfg = Debug|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Debug.Build.0 = Debug|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{265B05E1-A149-4509-9A4E-594253F8D417}.MtDllDebug.Build.0 = MtDllDebug|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Release.ActiveCfg = Release|Win32
 		{265B05E1-A149-4509-9A4E-594253F8D417}.Release.Build.0 = Release|Win32
@@ -525,7 +534,6 @@ Global
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Debug.ActiveCfg = Debug|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Debug.Build.0 = Debug|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.MtDllDebug.Build.0 = MtDllDebug|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Release.ActiveCfg = Release|Win32
 		{2CB97EA8-574F-4C52-9DB4-B49ADF5021C7}.Release.Build.0 = Release|Win32
@@ -535,7 +543,6 @@ Global
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Debug.ActiveCfg = Debug|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Debug.Build.0 = Debug|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{B79D078C-53B3-4A33-A458-6483BE512611}.MtDllDebug.Build.0 = MtDllDebug|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Release.ActiveCfg = Release|Win32
 		{B79D078C-53B3-4A33-A458-6483BE512611}.Release.Build.0 = Release|Win32
@@ -785,6 +792,26 @@ Global
 		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.ServerRelease.Build.0 = Release|Win32
 		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Universe-HTT.ActiveCfg = Release|Win32
 		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Universe-HTT.Build.0 = Release|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Debug.ActiveCfg = Debug|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Debug.Build.0 = Debug|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Release.ActiveCfg = Release|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Release.Build.0 = Release|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.ServerDebug.ActiveCfg = ServerDebug|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.ServerRelease.ActiveCfg = ServerRelease|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Universe-HTT.ActiveCfg = Release|Win32
+		{DDF818E8-20D2-403B-8E53-BF6D98087CDC}.Universe-HTT.Build.0 = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug.ActiveCfg = Debug|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Debug.Build.0 = Debug|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.MtDllDebug.ActiveCfg = Debug|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.MtDllRelease.ActiveCfg = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release.ActiveCfg = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Release.Build.0 = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerDebug.ActiveCfg = Debug|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease.ActiveCfg = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT.ActiveCfg = Release|Win32
+		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

@@ -241,13 +241,10 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 #define ARTSYMB_QTTY   1
 #define ARTSYMB_PHQTTY 2
 
-SLAPI BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext()
+SLAPI BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext(), 
+	P_Pack(p), CurID(curID), LinkID(p ? p->Rec.LinkBillID : 0), ReckonID(p ? p->PaymBillID : 0), AdvLineIdx(advLineIdx)
 {
-	P_Pack = p;
-	CurID = curID;
-	LinkID = P_Pack ? P_Pack->Rec.LinkBillID : 0;
-	ReckonID = P_Pack ? P_Pack->PaymBillID : 0;
-	AdvLineIdx = advLineIdx;
+	
 }
 
 int SLAPI BillContext::IsFunc(const char * pSymb, int * pFuncId)

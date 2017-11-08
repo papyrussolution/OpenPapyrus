@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="DictionaryService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/registry/dictionary/service/v2"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/dictionary/service/v2"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:bdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:rdef="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+            <import namespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+                    schemaLocation="registry_ws_definitions_v2.0.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <!--
+    *****************************************
+    * Получение записей справочника целей
+    *****************************************
+    -->
+    <wsdl:message name="GetPurposeByGuid">
+        <wsdl:part name="request" element="rdef:getPurposeByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeByGuidResponse">
+        <wsdl:part name="response" element="rdef:getPurposeByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeByUuid">
+        <wsdl:part name="request" element="rdef:getPurposeByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeByUuidResponse">
+        <wsdl:part name="response" element="rdef:getPurposeByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeList">
+        <wsdl:part name="request" element="rdef:getPurposeListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeListResponse">
+        <wsdl:part name="response" element="rdef:getPurposeListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeChangesList">
+        <wsdl:part name="request" element="rdef:getPurposeChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetPurposeChangesListResponse">
+        <wsdl:part name="response" element="rdef:getPurposeChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+   *****************************************
+   * Получение справочника единиц измерения
+   *****************************************
+   -->
+    <wsdl:message name="GetUnitByGuid">
+        <wsdl:part name="request" element="rdef:getUnitByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitByGuidResponse">
+        <wsdl:part name="response" element="rdef:getUnitByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitByUuid">
+        <wsdl:part name="request" element="rdef:getUnitByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitByUuidResponse">
+        <wsdl:part name="response" element="rdef:getUnitByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitList">
+        <wsdl:part name="request" element="rdef:getUnitListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitListResponse">
+        <wsdl:part name="response" element="rdef:getUnitListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitChangesList">
+        <wsdl:part name="request" element="rdef:getUnitChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetUnitChangesListResponse">
+        <wsdl:part name="response" element="rdef:getUnitChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+   *****************************************
+   * Получение справочника заболеваний
+   *****************************************
+   -->
+    <wsdl:message name="GetDiseaseByGuid">
+        <wsdl:part name="request" element="rdef:getDiseaseByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseByGuidResponse">
+        <wsdl:part name="response" element="rdef:getDiseaseByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseByUuid">
+        <wsdl:part name="request" element="rdef:getDiseaseByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseByUuidResponse">
+        <wsdl:part name="response" element="rdef:getDiseaseByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseList">
+        <wsdl:part name="request" element="rdef:getDiseaseListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseListResponse">
+        <wsdl:part name="response" element="rdef:getDiseaseListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseChangesList">
+        <wsdl:part name="request" element="rdef:getDiseaseChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetDiseaseChangesListResponse">
+        <wsdl:part name="response" element="rdef:getDiseaseChangesListResponse"/>
+    </wsdl:message>
+
+    <!--
+   *****************************************
+   * Получение справочника методов исследований
+   *****************************************
+   -->
+    <wsdl:message name="GetResearchMethodByGuid">
+        <wsdl:part name="request" element="rdef:getResearchMethodByGuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodByGuidResponse">
+        <wsdl:part name="response" element="rdef:getResearchMethodByGuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodByUuid">
+        <wsdl:part name="request" element="rdef:getResearchMethodByUuidRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodByUuidResponse">
+        <wsdl:part name="response" element="rdef:getResearchMethodByUuidResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodList">
+        <wsdl:part name="request" element="rdef:getResearchMethodListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodListResponse">
+        <wsdl:part name="response" element="rdef:getResearchMethodListResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodChangesList">
+        <wsdl:part name="request" element="rdef:getResearchMethodChangesListRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetResearchMethodChangesListResponse">
+        <wsdl:part name="response" element="rdef:getResearchMethodChangesListResponse"/>
+    </wsdl:message>
+    
+    <!--
+    **************************************
+    * Сообщение об ошибках
+    **************************************
+    -->
+    <wsdl:message name="EntityNotFoundFault">
+        <wsdl:documentation>
+            Запись с указанным идентификатором не найдена.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:entityNotFoundFault"/>
+    </wsdl:message>
+    <wsdl:message name="IncorrectRequestFault">
+        <wsdl:documentation>
+            Реакция системы на некорректный запрос.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:incorrectRequestFault"/>
+    </wsdl:message>
+    <wsdl:message name="InternalServiceFault">
+        <wsdl:documentation>
+            Внутренняя ошибка выполнения операции на сервере.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:internalServiceFault"/>
+    </wsdl:message>
+    <wsdl:message name="OffsetOutOfRangeFault">
+        <wsdl:documentation>
+
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:offsetOutOfRangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="DictionaryServicePortType">
+
+        <!--
+     *****************************************
+     * Получение записей справочника целей
+     *****************************************
+     -->
+        <wsdl:operation name="GetPurposeByGuid">
+            <wsdl:input name="purposeByGuid" message="tns:GetPurposeByGuid"/>
+            <wsdl:output name="purposeByGuidResponse" message="tns:GetPurposeByGuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetPurposeByUuid">
+            <wsdl:input name="purposeByUuid" message="tns:GetPurposeByUuid"/>
+            <wsdl:output name="purposeByUuidResponse" message="tns:GetPurposeByUuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetPurposeList">
+            <wsdl:input name="purposeList" message="tns:GetPurposeList"/>
+            <wsdl:output name="purposeListResponse" message="tns:GetPurposeListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetPurposeChangesList">
+            <wsdl:input name="purposeChangesList" message="tns:GetPurposeChangesList"/>
+            <wsdl:output name="purposeChangesListResponse" message="tns:GetPurposeChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+        <!--
+     *****************************************
+     * Получение справочника единиц измерения
+     *****************************************
+     -->
+        <wsdl:operation name="GetUnitByGuid">
+            <wsdl:input name="unitByGuid" message="tns:GetUnitByGuid"/>
+            <wsdl:output name="unitByGuidResponse" message="tns:GetUnitByGuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitByUuid">
+            <wsdl:input name="unitByUuid" message="tns:GetUnitByUuid"/>
+            <wsdl:output name="unitByUuidResponse" message="tns:GetUnitByUuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitList">
+            <wsdl:input name="unitList" message="tns:GetUnitList"/>
+            <wsdl:output name="unitListResponse" message="tns:GetUnitListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitChangesList">
+            <wsdl:input name="unitChangesList" message="tns:GetUnitChangesList"/>
+            <wsdl:output name="unitChangesListResponse" message="tns:GetUnitChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+        <!--
+     *****************************************
+     * Получение справочника заболеваний
+     *****************************************
+     -->
+        <wsdl:operation name="GetDiseaseByGuid">
+            <wsdl:input name="diseaseByGuid" message="tns:GetDiseaseByGuid"/>
+            <wsdl:output name="diseaseByGuidResponse" message="tns:GetDiseaseByGuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseByUuid">
+            <wsdl:input name="diseaseByUuid" message="tns:GetDiseaseByUuid"/>
+            <wsdl:output name="diseaseByUuidResponse" message="tns:GetDiseaseByUuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseList">
+            <wsdl:input name="diseaseList" message="tns:GetDiseaseList"/>
+            <wsdl:output name="diseaseListResponse" message="tns:GetDiseaseListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseChangesList">
+            <wsdl:input name="diseaseChangesList" message="tns:GetDiseaseChangesList"/>
+            <wsdl:output name="diseaseChangesListResponse" message="tns:GetDiseaseChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+
+        <!--
+     *****************************************
+     * Получение справочника методов исследований
+     *****************************************
+     -->
+        <wsdl:operation name="GetResearchMethodByGuid">
+            <wsdl:input name="researchMethodByGuid" message="tns:GetResearchMethodByGuid"/>
+            <wsdl:output name="researchMethodByGuidResponse" message="tns:GetResearchMethodByGuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodByUuid">
+            <wsdl:input name="researchMethodByUuid" message="tns:GetResearchMethodByUuid"/>
+            <wsdl:output name="researchMethodByUuidResponse" message="tns:GetResearchMethodByUuidResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodList">
+            <wsdl:input name="researchMethodList" message="tns:GetResearchMethodList"/>
+            <wsdl:output name="researchMethodListResponse" message="tns:GetResearchMethodListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodChangesList">
+            <wsdl:input name="researchMethodChangesList" message="tns:GetResearchMethodChangesList"/>
+            <wsdl:output name="researchMethodChangesListResponse" message="tns:GetResearchMethodChangesListResponse"/>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault"/>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault"/>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="DictionaryServiceBinding" type="tns:DictionaryServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <!--
+     *****************************************
+     * Получение записей справочника целей
+     *****************************************
+    -->
+        <wsdl:operation name="GetPurposeByGuid">
+            <soap:operation soapAction="GetPurposeByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetPurposeByUuid">
+            <soap:operation soapAction="GetPurposeByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetPurposeList">
+            <soap:operation soapAction="GetPurposeList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetPurposeChangesList">
+            <soap:operation soapAction="GetPurposeChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+        *****************************************
+    * Получение справочника единиц измерения
+        *****************************************
+        -->
+        <wsdl:operation name="GetUnitByGuid">
+            <soap:operation soapAction="GetUnitByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitByUuid">
+            <soap:operation soapAction="GetUnitByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitList">
+            <soap:operation soapAction="GetUnitList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetUnitChangesList">
+            <soap:operation soapAction="GetUnitChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+*****************************************
+* Получение справочника заболеваний
+*****************************************
+-->
+        <wsdl:operation name="GetDiseaseByGuid">
+            <soap:operation soapAction="GetDiseaseByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseByUuid">
+            <soap:operation soapAction="GetDiseaseByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseList">
+            <soap:operation soapAction="GetDiseaseList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDiseaseChangesList">
+            <soap:operation soapAction="GetDiseaseChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+*****************************************
+* Получение справочника методов исследований
+*****************************************
+-->
+        <wsdl:operation name="GetResearchMethodByGuid">
+            <soap:operation soapAction="GetResearchMethodByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodByUuid">
+            <soap:operation soapAction="GetResearchMethodByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodList">
+            <soap:operation soapAction="GetResearchMethodList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetResearchMethodChangesList">
+            <soap:operation soapAction="GetResearchMethodChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="DictionaryServiceBindingQSService">
+        <wsdl:port binding="tns:DictionaryServiceBinding" name="DictionaryServiceBindingQSPort">
+            <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/DictionaryService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

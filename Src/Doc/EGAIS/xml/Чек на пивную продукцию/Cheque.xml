@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Cheque inn="5036032527" 
+kpp="525745007" 
+address="г. Москва, Пражское ш., д. 73" 
+name="Магазин-09" 
+kassa="3" 
+shift="735" 
+number="2188" 
+datetime="2003141459">
+<nopdf pinn="5020037784" pkpp="502001001" bname="Клинское светлое" volume="0.5" 
+alc="4.5" price="77.0" ean="4605406012976" count="5"/>
+</Cheque>

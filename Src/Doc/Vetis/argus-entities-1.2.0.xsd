@@ -1,0 +1,1958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://api.vetrf.ru/schema/argus"
+        xmlns:tns="http://api.vetrf.ru/schema/argus"
+        xmlns:base="http://api.vetrf.ru/schema/base"
+        xmlns:reg="http://api.vetrf.ru/schema/base/register"
+        xmlns:ikar="http://api.vetrf.ru/schema/ikar"
+        xmlns:inst="http://api.vetrf.ru/schema/institutions"
+        elementFormDefault="qualified" version="1.2.0">
+
+    <import namespace="http://api.vetrf.ru/schema/base" schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.10.xsd" />
+    <import namespace="http://api.vetrf.ru/schema/base/register" schemaLocation="http://api.vetrf.ru/schema/base/register/base-register-1.0.0.xsd" />
+    <import namespace="http://api.vetrf.ru/schema/ikar" schemaLocation="http://api.vetrf.ru/schema/ikar/ikar-entities-1.1.0.xsd" />
+    <import namespace="http://api.vetrf.ru/schema/institutions" schemaLocation="http://api.vetrf.ru/schema/institutions/institutions-entities-1.1.0.xsd" />
+
+    <element name="conversationInfo" type="tns:ConversationInfo"/>
+    <element name="productType" type="tns:ProductType"/>
+    <element name="productGuid" type="base:UUID"/>
+    <element name="product" type="tns:Product"/>
+    <element name="productList" type="tns:ProductList"/>
+    <element name="subProduct" type="tns:SubProduct"/>
+    <element name="subProductList" type="tns:SubProductList"/>
+    <element name="unit" type="tns:Unit"/>
+    <element name="unitList" type="tns:UnitList"/>
+    <element name="target" type="tns:Target"/>
+    <element name="targetList" type="tns:TargetList"/>
+    <element name="businessEntity" type="tns:BusinessEntity"/>
+    <element name="businessEntityList" type="tns:BusinessEntityList"/>
+    <element name="enterprise" type="tns:Enterprise"/>
+    <element name="enterpriseGuid" type="base:UUID"/>
+    <element name="enterpriseList" type="tns:EnterpriseList"/>
+    <element name="enterpriseGroup" type="tns:EnterpriseGroup"/>
+    <element name="customsDestinationPoint" type="tns:CustomsDestinationPoint"/>
+    <element name="customsDestinationPointList" type="tns:CustomsDestinationPointList"/>
+    <element name="inspectionInfo" type="tns:InspectionInfo"/>
+    <element name="inspectionResult" type="tns:InspectionResult"/>
+    <element name="inspectionRequestResult" type="tns:InspectionRequestResult"/>
+    <element name="enterpriseStatusList" type="tns:EnterpriseStatusList"/>
+    <element name="veterinaryPermit" type="tns:Permit"/>
+
+    <complexType name="Target">
+        <annotation>
+            <documentation>Тип, описывающий цель ввоза или вывоза.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Наименование цели.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Unit">
+        <annotation>
+            <documentation>Тип, описывающий единицу измерения.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Наименование единицы измерения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="fullName" type="base:String255" minOccurs="0"
+                             maxOccurs="1">
+                        <annotation>
+                            <documentation>Полное наименование единицы измерения, если оно отличается
+                                от name.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="commonUnitGuid" type="base:UUID" minOccurs="0"
+                             maxOccurs="1">
+                        <annotation>
+                            <documentation>Глобальный идентификатор базовой единицы измерения.
+                                Например, для центнера, тонны, тыс.тонн базовой единицей измерения является
+                                килограмм.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="factor" type="xsd:integer" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Коэффициент относительно базовой единицы измерения.
+                                Например, для тонны этот коэффициент равен 1000, т.к. в 1 тонне 1000 кг.
+                                Для килограмма этот коэффициент равен единице.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="ProductType">
+        <annotation>
+            <documentation>Тип, описывающий тип продукции.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Мясо и мясопродукты</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Корма и кормовые добавки</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Живые животные</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Лекарственные средства</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Пищевые продукты</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Непищевые продукты и другое</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="7">
+                <annotation>
+                    <documentation>Рыба и морепродукты</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="8">
+                <annotation>
+                    <documentation>Продукция, не требующая разрешения</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="Product">
+        <annotation>
+            <documentation>Тип, описывающий продукцию.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="code" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Код ТНВЭД.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="englishName" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Английское название.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="productType" type="tns:ProductType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип продукции, которому относится данная продукция.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="SubProduct">
+        <annotation>
+            <documentation>Тип, описывающий вид продукции.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="code" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Код ТНВЭД.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="englishName" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Английское название.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="productGuid" type="base:UUID" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Глобальный идентификатор продукции, которому относится
+                                данный вид продукции.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="BusinessEntity">
+        <annotation>
+            <documentation>Тип, описывающий ХС.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="firmName" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название хозяйствуюшего субъекта.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="fio" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>ФИО Хозяйствущего субъекта.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="passport" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Паспортные данные.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="inn" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Идентификационный номер ХС (ИНН, БИН или ИИН).
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="kpp" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>КПП ХС.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="country" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна регистрации ХС.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="region" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион регистрации ХС.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="actualRegion" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион фактического пребывания ХС.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="juridicalAddress" type="ikar:Address" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Юридический адрес или адрес регистрации ХС.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="actualAddress" type="ikar:Address" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Фактический адрес ХС.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="tns:BusinessEntityType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип ХС</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Enterprise">
+        <annotation>
+            <documentation>Тип, описывающий предприятия.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="englishName" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название предприятия на английском языке.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="activity" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Деятельность, осуществляемая предприятием.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="englishActivity" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Деятельность, осуществляемая предприятием, на английском
+                                языке.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="address" type="ikar:Address" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Адрес предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="country" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна расположения предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="region" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион расположения предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="district" type="ikar:District" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Район расположения предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="numberList" type="tns:EnterpriseNumberList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список номеров предприятия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="tns:EnterpriseType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип российского предприятия.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="EnterpriseStatus">
+        <annotation>
+            <documentation>Тип, описывающий статус предприятия.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericEntity">
+                <sequence>
+                    <element name="enterprise" type="tns:Enterprise" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Предприятие, к которому относится статус.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="isCurrent" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Является ли статус актуальным.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="tns:EnterpriseStatusType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип статуса.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="createDate" type="xsd:dateTime" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Дата создания статуса.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="effectiveDate" type="xsd:dateTime" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Дата вступления в силу, дата начала действия.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="directive" type="tns:Document" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Указание о введении статуса.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="appliedProduction" type="tns:Production" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Продукция, на которую распространяется действие статуса.
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="appliedActivityList" type="tns:EnterpriseActivityList" minOccurs="0"
+                             maxOccurs="1">
+                        <annotation>
+                            <documentation>Список видов деятельности предприятия, на которые распространяется
+                                статус.
+                            </documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="EnterpriseStatusList">
+        <annotation>
+            <documentation>Тип, описывающий список статусов предприятия.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="status" type="tns:EnterpriseStatus" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="EnterpriseStatusType">
+        <annotation>
+            <documentation>Тип статуса предприятия.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>PERMITTED_DELIVERY -- Поставки разрешены</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>REINFORCED_CONTROL -- Усиленный контроль</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>TEMPORARY_CONSTRAINT -- Временные ограничения</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>DENIED_DELIVERY -- Поставки запрещены</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="Production">
+        <annotation>
+            <documentation>Тип, описывающий продукцию.</documentation>
+        </annotation>
+        <sequence>
+            <element name="productType" type="tns:ProductType" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип продукции.</documentation>
+                </annotation>
+            </element>
+            <element name="product" type="tns:Product" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Продукция.</documentation>
+                </annotation>
+            </element>
+            <element name="subProduct" type="tns:SubProduct" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Вид продукции.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <simpleType name="EnterpriseActivityType">
+        <annotation>
+            <documentation>Тип вида деятельности предприятия.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Убой</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Хранение</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Переработка</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Реализация</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Выращивание</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Содержание</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="7">
+                <annotation>
+                    <documentation>Разделка</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="EnterpriseActivity">
+        <annotation>
+            <documentation>Вид деятельности предприятия.</documentation>
+        </annotation>
+        <sequence>
+            <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Название вида деятельности.</documentation>
+                </annotation>
+            </element>
+            <element name="type" type="tns:EnterpriseActivityType" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип вида деятельности предприятия.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="EnterpriseActivityList">
+        <annotation>
+            <documentation>Тип, описывающий список видов деятельности.</documentation>
+        </annotation>
+        <sequence>
+            <element name="activity" type="tns:EnterpriseActivity" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="TargetList">
+        <annotation>
+            <documentation>Тип, описывающий список целей.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="target" type="tns:Target" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UnitList">
+        <annotation>
+            <documentation>Тип, описывающий список единиц измерений.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="unit" type="tns:Unit" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ProductList">
+        <annotation>
+            <documentation>Тип, описывающий список продукции.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="product" type="tns:Product" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="SubProductList">
+        <annotation>
+            <documentation>Тип, описывающий список видов продукции.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="subProduct" type="tns:SubProduct" minOccurs="0"
+                             maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="BusinessEntityList">
+        <annotation>
+            <documentation>Тип, описывающий список ХС.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="businessEntity" type="tns:BusinessEntity" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="EnterpriseList">
+        <annotation>
+            <documentation>Тип, описывающий список предприятий.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="enterprise" type="tns:Enterprise" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="EnterpriseNumberList">
+        <annotation>
+            <documentation>Тип, описывающий список номеров предприятий.</documentation>
+        </annotation>
+        <sequence>
+            <element name="enterpriseNumber" type="base:String255" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <simpleType name="BusinessEntityType">
+        <annotation>
+            <documentation>Тип, описывающий тип ХС.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>JURIDICAL - юридическое лицо.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>PHYSICAL - физическое лицо.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="EnterpriseType">
+        <annotation>
+            <documentation>Тип, описывающий тип российских предприятий.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+        </restriction>
+    </simpleType>
+
+    <simpleType name="EnterpriseGroup">
+        <annotation>
+            <documentation>Тип, описывающий параметра запроса зарубежных пердприятий.
+            </documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="0">
+                <annotation>
+                    <documentation>ALL - все предприятия.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="1">
+                <annotation>
+                    <documentation>LICENSED - аттестованные предприятия.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>NOTLICENSED - неаттестованные предприятия.</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="CustomsDestinationPoint">
+        <annotation>
+            <documentation>Тип, описывающий склад временного хранения
+                или иное место назначения при транспортировке груза через границу РФ.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="shortName" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Сокращенное название</documentation>
+                        </annotation>
+                    </element>
+                    <element name="type" type="tns:CustomsDestinationPointType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип места назначения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="country" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="region" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="actualAddress" type="ikar:Address" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Адрес.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="chiefPost" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Должность руководителя</documentation>
+                        </annotation>
+                    </element>
+                    <element name="chiefFio" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>ФИО руководителя</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="CustomsDestinationPointType">
+        <annotation>
+            <documentation>Тип места назначения.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="0">
+                <annotation>
+                    <documentation>Неизвестный тип</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Склад временного хранения (СВХ)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Зона таможенного контроля (ЗТК)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Временная зона таможенного контроля (ВЗТК)</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="CustomsDestinationPointList">
+        <annotation>
+            <documentation>Тип, описывающий список складов временного хранения.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="customsDestinationPoint" type="tns:CustomsDestinationPoint" minOccurs="0"
+                             maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="InspectionDecision">
+        <annotation>
+            <documentation>Решение о досмотре</documentation>
+        </annotation>
+        <sequence>
+            <element name="type" type="tns:InspectionDecisionType" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип решения</documentation>
+                </annotation>
+            </element>
+            <element name="decision" type="xsd:string" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Текст решения</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <simpleType name="InspectionDecisionType">
+        <annotation>
+            <documentation>Тип решения о досмотре</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="0">
+                <annotation>
+                    <documentation>Решение не определено</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Ввоз разрешен (разрешение)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Вывоз разрешен (разрешение)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Транзит разрешен (разрешение)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Ввоз запрещен (запрет)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Вывоз запрещен (запрет)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Транзит запрещен (запрет)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="7">
+                <annotation>
+                    <documentation>Отправить на ветеринарный досмотр (запрет)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="8">
+                <annotation>
+                    <documentation>Досмотр невозможен по техническим причинам (разрешение)
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="9">
+                <annotation>
+                    <documentation>Груз задержан (запрет)</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="InspectionViolation">
+        <annotation>
+            <documentation>Нарушение, выявленное при досмотре</documentation>
+        </annotation>
+        <sequence>
+            <element name="type" type="tns:InspectionViolationType" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип нарушения</documentation>
+                </annotation>
+            </element>
+            <element name="description" type="xsd:string" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Текст нарушения</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="InspectionViolationList">
+        <annotation>
+            <documentation>Список нарушений, выявленных при досмотре груза</documentation>
+        </annotation>
+        <sequence>
+            <element name="violation" type="tns:InspectionViolation" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <simpleType name="InspectionViolationType">
+        <annotation>
+            <documentation>Тип нарушения при досмотре</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="0">
+                <annotation>
+                    <documentation>Неизвестный тип</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Предприятие не аттестовано для поставок в
+                        Таможенный союз
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Отсутствие гарантий ветслужб стран экспортеров о
+                        полном соответствии продукции ветсантребованиям Таможенного союза
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Отсутствие предварительной электронной
+                        информации о подтверждении факта отгрузки в адрес российского
+                        получателя
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Отсутствие ветсопроводительных документов
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Отсутствие разрешения Россельхознадзора на ввоз
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Ветсертификаты оформлены с нарушениями
+                        действующих правил и ошибками, а так же с опечатками и
+                        техническими ошибками
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="7">
+                <annotation>
+                    <documentation>Поступление продукции с предприятий, в отношении
+                        которых введены временные ограничения
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="8">
+                <annotation>
+                    <documentation>Истечение срока реализации продукции
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="9">
+                <annotation>
+                    <documentation>Несоответствие информации о продукции, указанной
+                        в ветсертификатах и фактически выявленой на маркировочных
+                        этикетках
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="10">
+                <annotation>
+                    <documentation>Отсутствие ветеринарных транзитных уведомлений
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="11">
+                <annotation>
+                    <documentation>Отказ от права собственности фирмой-импортером
+                        на продукцию в пользу другой организации
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="12">
+                <annotation>
+                    <documentation>Запрет на ввоз, транзит в РФ с территорий,
+                        неблагополучных по заразным болезням животных
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="13">
+                <annotation>
+                    <documentation>Иные нарушения, не требующие принципиального
+                        решения Службы, не выходящие за пределы компетенции
+                        территориальных управлений Россельхознадзора
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="InspectionResult">
+        <sequence>
+            <element name="inspectionDecision" type="tns:InspectionDecision" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Решение, принятое таможенным инспектором по результатам
+                        документарного контроля.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="violationList" type="tns:InspectionViolationList" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Список нарушений, выявленных при досмотре, если таковые имеются.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="Document">
+        <annotation>
+            <documentation>Документ.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Название документа.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="issueNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Номер документа.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="issueDate" type="xsd:date" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Дата документа.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+
+    <complexType name="Permit">
+        <annotation>
+            <documentation>Разрешение РСХН на транспортировку через границу РФ подконтрольной
+                продукции.
+            </documentation>
+        </annotation>
+        <complexContent>
+            <extension base="tns:Document">
+                <sequence>
+                    <element name="permitYear" type="tns:Year" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Год, на который выдано разрешение.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="permitDecision" type="tns:PermitDecision" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Решение (разрешение или запрет).</documentation>
+                        </annotation>
+                    </element>
+                    <element name="revokeReason" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Причина оформления запрета.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="responsiblePerson" type="reg:Person" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Должностное лицо, ответственное за выдачу разрешения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transferType" type="tns:TransferType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип операции (ввоз, вывоз, транзит).</documentation>
+                        </annotation>
+                    </element>
+                    <element name="productType" type="tns:ProductType" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип продукции.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transferPurpose" type="tns:Target" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Цель ввоза/вывоза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="businessEntity" type="tns:BusinessEntity" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Заявитель (хозяйствующий субъект).</documentation>
+                        </annotation>
+                    </element>
+                    <element name="businessEntityLicense" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Номер лицензии хозяйствующего субъекта на осуществление деятельности.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="originCountry" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна происхождения груза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="importCountry" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна-импортер, страна, в которую следует груз.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="exportCountry" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна-экспортер, страна, из которой следует груз.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="supplier" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Предприятие-поставщик (при ввозе животных).</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transferFor" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Груз следует ДЛЯ кого-то.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transferVia" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Груз следует ЧЕРЕЗ кого-то.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="customsClearanceRegion" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион полного таможенного оформления.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="storagePoint" type="tns:StoragePoint" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Место хранения груза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="shipmentPoint" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Место отгрузки.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="borderInspectionPointList" type="inst:OrganizationList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список допустимых пунктов пропуска.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transportTypeList" type="tns:TransportTypeList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список допустимых типов транспорта.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="cargoList" type="tns:CargoList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список грузов.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="transferConditionList" type="tns:TransferConditionList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список условий транспортировки груза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="additionalInfo" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Дополнительная информация.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="VetCertificate">
+        <annotation>
+            <documentation>Ветеринарный сопроводительный документ.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="tns:Document"/>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Waybill">
+        <annotation>
+            <documentation>Товарно-транспортная накладная.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="tns:Document">
+                <sequence>
+                    <element name="type" type="tns:WaybillType" minOccurs="1" maxOccurs="1">
+                        <annotation>
+                            <documentation>Тип товарно-транспортной накладной.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="WaybillType">
+        <annotation>
+            <documentation>Тип товарно-транспортной накладной.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Товарно-транспортная накладная</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Конасамент</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>CMR</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Авианакладная</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="PackingForm">
+        <annotation>
+            <documentation>Упаковка</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Наименование упаковки.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="TransferType">
+        <annotation>
+            <documentation>Тип места назначения.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Ввоз (импорт в ТС)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Вывоз (экспорт из ТС)</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Транзит через территорию ТС</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="TransportType">
+        <annotation>
+            <documentation>Тип транспорта.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Автомобильный</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Железнодорожный</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Авиатранспортный</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Морской</documentation>
+                </annotation>
+            </enumeration>
+
+        </restriction>
+    </simpleType>
+
+    <simpleType name="ShipmentType">
+        <annotation>
+            <documentation>Тип партии.</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Контейнерная партия</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Трюмная партия</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="TransportNumber">
+        <annotation>
+            <documentation>Номер транспортного средства.</documentation>
+        </annotation>
+        <sequence>
+            <element name="containerNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер контейнера.</documentation>
+                </annotation>
+            </element>
+            <element name="wagonNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер авиарейса.</documentation>
+                </annotation>
+            </element>
+            <element name="vehicleNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер автомобиля.</documentation>
+                </annotation>
+            </element>
+            <element name="trailerNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер прицепа (полуприцепа).</documentation>
+                </annotation>
+            </element>
+            <element name="shipName" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Название судна.</documentation>
+                </annotation>
+            </element>
+            <element name="flightNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер авиарейса.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="InspectionInfo">
+        <sequence>
+            <element name="transferType" type="tns:TransferType" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип операции (ввоз, транзит).</documentation>
+                </annotation>
+            </element>
+            <!-- Откуда -->
+            <element name="enterprise" type="tns:Enterprise" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Зарубежное предприятие-изготовитель. Поле uuid может быть не
+                        заполнено только,
+                        если предприятие отсутствует в реестре предприятий третьих стран.
+                    </documentation>
+                </annotation>
+            </element>
+            <!-- Кому -->
+            <element name="businessEntity" type="tns:BusinessEntity" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Хозяйствующий субъект-получатель продукции или заявитель. Поле
+                        uuid может быть не заполнено только,
+                        если ХС отсутствует в реестре предприятий третьих стран (для грузов, не требующих разрешения).
+                    </documentation>
+                </annotation>
+            </element>
+            <!-- Куда -->
+            <element name="destinationPoint" type="tns:CustomsDestinationPoint" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Место назначения (склад временного хранения и т.п.).
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="targetCountry" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Страна-импортер в случае транзита.</documentation>
+                </annotation>
+            </element>
+            <!-- Что -->
+            <element name="production" type="tns:SubProduct" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Продукция. Поле uuid обязательно для заполнения.
+                    </documentation>
+                </annotation>
+            </element>
+            <!-- Сколько -->
+            <element name="cargoAmount" type="xsd:integer" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Объём перевозимой продукции.</documentation>
+                </annotation>
+            </element>
+            <element name="cargoUnit" type="tns:Unit" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Единица измерения перевозимой продукции.</documentation>
+                </annotation>
+            </element>
+            <!-- В каком виде -->
+            <element name="packingForm" type="tns:PackingForm" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Упаковка, в которой перевозится груз. Поле uuid может быть не
+                        заполнено только,
+                        если упаковка отсутствует в справочнике.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="packingAmount" type="xsd:integer" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Количество единиц упаковки груза.</documentation>
+                </annotation>
+            </element>
+            <!-- Как -->
+            <element name="transportType" type="tns:TransportType" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип транспорта.</documentation>
+                </annotation>
+            </element>
+            <element name="shipmentType" type="tns:ShipmentType" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип партии для морского транспорта.</documentation>
+                </annotation>
+            </element>
+            <element name="transportNumber" type="tns:TransportNumber" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер транспортного средства.</documentation>
+                </annotation>
+            </element>
+            <!-- Документы -->
+            <choice minOccurs="1" maxOccurs="1">
+                <element name="importPermit" type="tns:Permit">
+                    <annotation>
+                        <documentation>Разрешение РСХН на транспортировку подконтрольной продукции.
+                        </documentation>
+                    </annotation>
+                </element>
+                <element name="permitNotPresent" type="xsd:boolean">
+                    <annotation>
+                        <documentation>Указывается, в случае если информация о ветеринарном разрешении
+                            отсутствует.
+                        </documentation>
+                    </annotation>
+                </element>
+            </choice>
+            <choice minOccurs="1" maxOccurs="1">
+                <element name="vetCertificate" type="tns:VetCertificate">
+                    <annotation>
+                        <documentation>Ветеринарный сопроводительный документ
+                        </documentation>
+                    </annotation>
+                </element>
+                <element name="certificateNotPresent" type="xsd:boolean">
+                    <annotation>
+                        <documentation>Указывается, в случае если информация о ветеринарном
+                            сопроводительном документе отсутствует.
+                        </documentation>
+                    </annotation>
+                </element>
+            </choice>
+            <choice minOccurs="1" maxOccurs="1">
+                <element name="waybill" type="tns:Waybill">
+                    <annotation>
+                        <documentation>Товарно-транспортная накладная (ТТН)
+                        </documentation>
+                    </annotation>
+                </element>
+                <element name="waybillNotPresent" type="xsd:boolean">
+                    <annotation>
+                        <documentation>Указывается, в случае если информация о ТТН отсутствует.
+                        </documentation>
+                    </annotation>
+                </element>
+            </choice>
+            <!-- Информация о досмотре -->
+            <!-- Где -->
+            <element name="borderInspectionPoint" type="inst:Organization" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Пограничный ветеринарный пункт пропуска.</documentation>
+                </annotation>
+            </element>
+            <!-- Когда -->
+            <element name="inspectionStartDate" type="xsd:dateTime" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Дата и время начала досмотра.</documentation>
+                </annotation>
+            </element>
+            <!-- Кто -->
+            <element name="inspector" type="base:String255" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>ФИО таможенного инспектора.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="CargoRequirement">
+        <annotation>
+            <documentation>Условие транспортировки груза через границу.</documentation>
+        </annotation>
+        <sequence>
+            <element name="type" type="tns:CargoRequirementType" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Тип условия</documentation>
+                </annotation>
+            </element>
+            <element name="description" type="xsd:string" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Условие</documentation>
+                </annotation>
+            </element>
+            <element name="document" type="tns:Document" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Некоторый документ. Например, регистрация лекарственных средств и
+                        кормовых добавок.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="CargoRequirementList">
+        <annotation>
+            <documentation>Список условий транспортировки груза через границу.</documentation>
+        </annotation>
+        <sequence>
+            <element name="requirement" type="tns:CargoRequirement" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <simpleType name="CargoRequirementType">
+        <annotation>
+            <documentation>Тип условия</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Необходимость разрешения.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Необходимость аттестации предприятия-изготовителя.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Дополнительное условие разрешения.</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Наличие регистрации лекарственных средств и кормовых добавок.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Наличие документа подтверждающего качество и безопасность
+                        лекарственных средств и кормовых добавок
+                        химического и микробиологического синтеза, ввозимых без ветеринарного сертификата.
+                    </documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Наличие документа, подтверждающего приобретение в розничной сети
+                        чучел всех видов животных
+                        и рыб или их фрагментов, прошедших полную таксидермическую обработку.
+                    </documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="InspectionRequestResult">
+        <sequence>
+            <element name="inspectionDecision" type="tns:InspectionDecision" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Решение, принятое таможенным инспектором по результатам
+                        документарного контроля.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="requirementList" type="tns:CargoRequirementList" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Список условий транспортировки груза через границу.
+                    </documentation>
+                </annotation>
+            </element>
+            <element name="violationList" type="tns:InspectionViolationList" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Список нарушений, выявленных при досмотре, если таковые имеются.
+                    </documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="ConversationInfo">
+        <annotation>
+            <documentation></documentation>
+        </annotation>
+        <sequence>
+            <element name="conversationId" type="base:UUID" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Идентификатор цепочки обмена сообщениями.</documentation>
+                </annotation>
+            </element>
+            <element name="conversationStatus" type="tns:ConversationStatus" minOccurs="1" maxOccurs="1">
+                <annotation>
+                    <documentation>Текущий статус цепочки обмена сообщениями.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <simpleType name="ConversationStatus">
+        <annotation>
+            <documentation>Статус цепочки обмена сообщениями.
+                100 - Первый запрос.
+                110 - Первый
+                запрос завершился с положительным решением: "ввоз разрешен".
+                120 - Первый запрос
+                завершился с положительным решением: "предъявить на ветдосмотр".
+                130 - Первый запрос
+                завершился с отрицательным решением решением: "ввоз запрещен"
+                по формальным причинам.
+                140 - Первый запрос завершился с отрицательным решением решением: "ввоз
+                запрещен"
+                из-за ограничений эпизоотической ситуации территории,
+                аттестации предприятий,
+                иных ограничений.
+                200 - Повторный первый запрос.
+                210 - Повторный первый запрос завершился с
+                положительным решением: "ввоз разрешен".
+                220 - Повторный первый запрос завершился с
+                положительным решением: "предъявить на ветдосмотр".
+                230 - Повторный первый запрос
+                завершился с отрицательным решением решением: "ввоз запрещен"
+                по формальным причинам.
+                240 - Первый запрос завершился с отрицательным решением решением: "ввоз
+                запрещен"
+                из-за ограничений эпизоотической ситуации территории,
+                аттестации предприятий,
+                иных ограничений.
+                300 - Второй запрос.
+                400 - Получен ожидаемый результат третьей операции.
+            </documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <pattern value="[1-4][0-9][0-9]"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="Year">
+        <annotation>
+            <documentation>Год</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <pattern value="[1-2][0-9][0-9][0-9]"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="PermitDecision">
+        <annotation>
+            <documentation>Тип решения (разрешение, запрет)</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Разрешение</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="0">
+                <annotation>
+                    <documentation>Запрет</documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+
+    <complexType name="StoragePoint">
+        <annotation>
+            <documentation>Место хранения</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericVersioningEntity">
+                <sequence>
+                    <element name="name" type="base:String255" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Наименование места хранения</documentation>
+                        </annotation>
+                    </element>
+                    <element name="storagePurpose" type="tns:StoragePurpose" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Наименование места хранения</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="StoragePurpose">
+        <annotation>
+            <documentation>Назначение местра хранения</documentation>
+        </annotation>
+        <restriction base="xsd:integer">
+            <enumeration value="1">
+                <annotation>
+                    <documentation>Временная передержка</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="2">
+                <annotation>
+                    <documentation>Выращивание</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="3">
+                <annotation>
+                    <documentation>Инкубирование</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="4">
+                <annotation>
+                    <documentation>Карантинирование</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="5">
+                <annotation>
+                    <documentation>Размещение</documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="6">
+                <annotation>
+                    <documentation>Убой</documentation>
+                </annotation>
+            </enumeration>
+
+        </restriction>
+    </simpleType>
+
+    <complexType name="TransportTypeList">
+        <annotation>
+            <documentation>Список типов транспорта.</documentation>
+        </annotation>
+        <sequence>
+            <element name="transportType" type="tns:TransportType" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="Cargo">
+        <annotation>
+            <documentation>Груз.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:GenericEntity">
+                <sequence>
+                    <element name="product" type="tns:Product" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Продукция.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="subProduct" type="tns:SubProduct" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Вид продукции.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="cargoAmount" type="xsd:integer" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Объём груза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="cargoUnit" type="tns:Unit" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Единица измерения объёма груза.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="originCountry" type="ikar:Country" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Страна происхождения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="originRegion" type="ikar:Region" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Регион страны происхождения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="originDistrict" type="ikar:District" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Район страны происхождения.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="enterpriseList" type="tns:EnterpriseList" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Список предприятий.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="cargoDetails" type="tns:CargoDetails" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>Дополнительная информация о груза.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="CargoDetails">
+        <annotation>
+            <documentation>Дополнительная информация о грузе.</documentation>
+        </annotation>
+        <sequence>
+            <element name="productName" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Наименование продукции.</documentation>
+                </annotation>
+            </element>
+            <element name="tnvedCode" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Код ТН ВЭД.</documentation>
+                </annotation>
+            </element>
+            <element name="productPurpose" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Назначение продукции.</documentation>
+                </annotation>
+            </element>
+            <element name="formOfIssue" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Форма выпуска.</documentation>
+                </annotation>
+            </element>
+            <element name="componentComposition" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Компонентный состав.</documentation>
+                </annotation>
+            </element>
+            <element name="gmoPresent" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Наличие ГМО.</documentation>
+                </annotation>
+            </element>
+            <element name="gmoName" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Наименование ГМО.</documentation>
+                </annotation>
+            </element>
+            <element name="plantComponentPresent" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Наличие компонентов растительного происхождения.</documentation>
+                </annotation>
+            </element>
+            <element name="animalComponentPresent" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Наличие компонентов животного происхождения.</documentation>
+                </annotation>
+            </element>
+            <element name="additionalInfo" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Дополнительная информация.</documentation>
+                </annotation>
+            </element>
+            <element name="fishCatchDistrict" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Район вылова водных биоресурсов.</documentation>
+                </annotation>
+            </element>
+            <element name="packing" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Упаковка, фасовка.</documentation>
+                </annotation>
+            </element>
+            <element name="registrationRequired" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Требуется наличие обязательной регистрации.</documentation>
+                </annotation>
+            </element>
+            <element name="registrationCertificate" type="tns:RegistrationCertificate" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Свидетельство о регистрации.</documentation>
+                </annotation>
+            </element>
+            <element name="coveredByCites" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Груз попадает под действие СИТЕС.</documentation>
+                </annotation>
+            </element>
+            <element name="citesDocument" type="tns:Document" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Документ СИТЕС.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="RegistrationCertificate">
+        <annotation>
+            <documentation>Свидетельство о регистрации продукции.</documentation>
+        </annotation>
+        <sequence>
+            <element name="accountingSeries" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Номер учетной серии.</documentation>
+                </annotation>
+            </element>
+            <element name="registrationNumber" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Регистрационный номер.</documentation>
+                </annotation>
+            </element>
+            <element name="beginDate" type="xsd:date" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Дата начала действия свидетельства.</documentation>
+                </annotation>
+            </element>
+            <element name="endDate" type="xsd:date" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Дата окончания действия свидетельства.</documentation>
+                </annotation>
+            </element>
+            <element name="unlimited" type="xsd:boolean" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Свидетельство выдано бессрочно.</documentation>
+                </annotation>
+            </element>
+            <element name="certificateOwner" type="base:String255" minOccurs="0" maxOccurs="1">
+                <annotation>
+                    <documentation>Кому выдано свидетельство.</documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="CargoList">
+        <annotation>
+            <documentation>Список грузов.</documentation>
+        </annotation>
+        <complexContent>
+            <extension base="base:EntityList">
+                <sequence>
+                    <element name="cargo" type="tns:Cargo" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="TransferCondition">
+        <annotation>
+            <documentation>Условие транспортировки груза.</documentation>
+        </annotation>
+        <restriction base="base:String255" />
+    </simpleType>
+
+    <complexType name="TransferConditionList">
+        <annotation>
+            <documentation>Список условий транспортировки груза.</documentation>
+        </annotation>
+        <sequence>
+            <element name="condition" type="tns:TransferCondition" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+</schema>

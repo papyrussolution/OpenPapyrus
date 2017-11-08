@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ns:Documents Version="1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:ns="http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
+xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
+xmlns:qp="http://fsrar.ru/WEGAIS/QueryParameters">
+<ns:Owner>
+<ns:FSRAR_ID>010044583119</ns:FSRAR_ID>
+</ns:Owner>
+<ns:Document>
+<ns:QueryClients>
+<qp:Parameters>
+<qp:Parameter>
+<qp:Name>ИНН</qp:Name>
+<qp:Value>7816519241</qp:Value>
+</qp:Parameter>
+</qp:Parameters>
+</ns:QueryClients>
+</ns:Document>
+</ns:Documents>

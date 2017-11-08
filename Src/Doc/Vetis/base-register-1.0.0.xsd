@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+        targetNamespace="http://api.vetrf.ru/schema/base/register" xmlns:tns="http://api.vetrf.ru/schema/base/register"
+        xmlns:base="http://api.vetrf.ru/schema/base"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://api.vetrf.ru/schema/base http://api.vetrf.ru/schema/base/base-1.0.10.xsd"
+        version="1.0.0">
+
+    <xsd:import namespace="http://api.vetrf.ru/schema/base"
+                schemaLocation="http://api.vetrf.ru/schema/base/base-1.0.10.xsd"/>
+
+    <xsd:complexType name="RegisterRegistrationRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на добавление записи в один из реестров РСХН.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="registerType" type="tns:RegisterType" minOccurs="1"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Тип реестра в который подается заявка на добавление.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="responsiblePerson" type="tns:Person" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Ответсвенное лицо, с которым можно связаться по вопросам добавления в реестр.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="entityList" type="base:EntityList" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Контейнер с данными сущности</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RegisterRegistrationResponse">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на добавление записи в один из реестров РСХН.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="requestId" type="base:UUID" minOccurs="1"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Идентификатор заявки.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="requestStatus" type="tns:RequestStatus" minOccurs="1"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Статус (состояние) запроса.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="rejectReason" type="tns:RejectReason" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Причина отклонения.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="responsiblePerson" type="tns:Person" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Ответсвенное лицо, с которым можно связаться по вопросам добавления в реестр.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="entityList" type="base:EntityList" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Контейнер с данными сущности</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RegisterRegistrationCheckRequest">
+        <xsd:annotation>
+            <xsd:documentation>Запрос на проверку состаяния регистрации записи в реестре.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="requestId" type="base:UUID" minOccurs="1"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Идентификатор заявки.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Person">
+        <xsd:annotation>
+            <xsd:documentation>Человек, сотрудник организации. Может выступать в качестве контактного лица.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="fio" type="xsd:string" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>ФИО.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="jobPosition" type="xsd:string" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Должность.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="organizationName" type="xsd:string" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Название огранизации.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="contactPhone" type="xsd:string" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Контактный телефон.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="email" type="xsd:string" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Адрес электронной почты.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RejectReason">
+        <xsd:annotation>
+            <xsd:documentation>Причина отклонения.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="description" type="xsd:string" minOccurs="1"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Описание.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="validationErrorList" type="tns:RegisterValidationErrorList" minOccurs="0"
+                         maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>Ошибки валидации.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RegisterValidationErrorList">
+        <xsd:annotation>
+            <xsd:documentation>Список несоответствий регистрируемой сущности.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="validationError" type="xsd:string" minOccurs="0"
+            maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="RegisterType">
+        <xsd:annotation>
+            <xsd:documentation>Тип реестра.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:integer" />
+    </xsd:simpleType>
+
+    <xsd:simpleType name="RequestStatus">
+        <xsd:annotation>
+            <xsd:documentation>Статус запроса.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:integer" >
+            <xsd:enumeration value="100">
+                <xsd:annotation>
+                    <xsd:documentation>Принята на рассмотрение.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="200">
+                <xsd:annotation>
+                    <xsd:documentation>Одобрена.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="210">
+                <xsd:annotation>
+                    <xsd:documentation>Одобрена автоматически.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="300">
+            <xsd:annotation>
+                <xsd:documentation>Отклонена.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:enumeration>
+            <xsd:enumeration value="310">
+                <xsd:annotation>
+                    <xsd:documentation>Отклонена автоматически.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

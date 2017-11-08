@@ -1082,9 +1082,15 @@ int    FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength);
 int    FASTCALL GetSNScriptCode(int ident, SString & rCode);
 
 enum SCodepage {
-	cpUndef    =  -1,
+	cpUndef   =   -1,
 	cpANSI    =    0,  // == CP_ACP
 	cpOEM     =    1,  // == CP_OEMCP
+	cpUTF7    = 65000, // == CP_UTF7
+	cpUTF8    = 65001, // == CP_UTF8
+	cpUTF16   =  1200, // utf-16      Unicode UTF-16, little endian byte order (BMP of ISO 10646); available only to managed applications
+	cpUTF16BE =  1201, // unicodeFFFE Unicode UTF-16, big endian byte order; available only to managed applications
+	cpUTF32   = 12000, // utf-32      Unicode UTF-32, little endian byte order; available only to managed applications
+	cpUTF32BE = 12001, // utf-32BE    Unicode UTF-32, big endian byte order; available only to managed applications
 
 	cp437     =  437,  // 437 US MSDOS
 	cp737     =  737,  // 737 Greek MSDOS
@@ -1106,13 +1112,6 @@ enum SCodepage {
 	cp1256    = 1256,  // 1256 Arabic Windows
 	cp1257    = 1257,  // 1257 Windows Baltic
 	cp1258    = 1258,  // 1258 ANSI/OEM Vietnamese Windows
-
-	cpUTF7    = 65000, // == CP_UTF7
-	cpUTF8    = 65001, // == CP_UTF8
-	cpUTF16   =  1200, // utf-16      Unicode UTF-16, little endian byte order (BMP of ISO 10646); available only to managed applications
-	cpUTF16BE =  1201, // unicodeFFFE Unicode UTF-16, big endian byte order; available only to managed applications
-	cpUTF32   = 12000, // utf-32      Unicode UTF-32, little endian byte order; available only to managed applications
-	cpUTF32BE = 12001, // utf-32BE    Unicode UTF-32, big endian byte order; available only to managed applications
 
 	// Identifier	.NET Name	Additional information
 	cp037   =   37, // IBM037 IBM EBCDIC US-Canada
@@ -1247,14 +1246,14 @@ enum SCodepage {
 	cp50222 = 50222, // iso-2022-jp	ISO 2022 Japanese JIS X 0201-1989; Japanese (JIS-Allow 1 byte Kana - SO/SI)
 	cp50225 = 50225, // iso-2022-kr	ISO 2022 Korean
 	cp50227 = 50227, // x-cp50227	ISO 2022 Simplified Chinese; Chinese Simplified (ISO 2022)
-	cp50229 = 50229, // 	ISO 2022 Traditional Chinese
-	cp50930 = 50930, // 	EBCDIC Japanese (Katakana) Extended
-	cp50931 = 50931, // 	EBCDIC US-Canada and Japanese
-	cp50933 = 50933, // 	EBCDIC Korean Extended and Korean
-	cp50935 = 50935, // 	EBCDIC Simplified Chinese Extended and Simplified Chinese
-	cp50936 = 50936, // 	EBCDIC Simplified Chinese
-	cp50937 = 50937, // 	EBCDIC US-Canada and Traditional Chinese
-	cp50939 = 50939, // 	EBCDIC Japanese (Latin) Extended and Japanese
+	cp50229 = 50229, // ISO 2022 Traditional Chinese
+	cp50930 = 50930, // EBCDIC Japanese (Katakana) Extended
+	cp50931 = 50931, // EBCDIC US-Canada and Japanese
+	cp50933 = 50933, // EBCDIC Korean Extended and Korean
+	cp50935 = 50935, // EBCDIC Simplified Chinese Extended and Simplified Chinese
+	cp50936 = 50936, // EBCDIC Simplified Chinese
+	cp50937 = 50937, // EBCDIC US-Canada and Traditional Chinese
+	cp50939 = 50939, // EBCDIC Japanese (Latin) Extended and Japanese
 	cp51932 = 51932, // euc-jp	EUC Japanese
 	cp51936 = 51936, // EUC-CN	EUC Simplified Chinese; Chinese Simplified (EUC)
 	cp51949 = 51949, // euc-kr	EUC Korean
@@ -1271,6 +1270,7 @@ enum SCodepage {
 	cp57009 = 57009, // x-iscii-ma	ISCII Malayalam
 	cp57010 = 57010, // x-iscii-gu	ISCII Gujarati
 	cp57011 = 57011, // x-iscii-pa	ISCII Punjabi
+
 	cpVISCII   = 60001, // Vietnamese Standard Code for Information Interchange (@sobolev: number 60001 is my own)
 	cpShiftJIS = 60002, // shift_jis	ANSI/OEM Japanese; Japanese (Shift-JIS) (@sobolev: number 60002 is my own)
 	cpTIS620   = 60620, // Thai Industrial Standard 620-2533 (@sobolev: number 60620 is my own)
@@ -3710,7 +3710,7 @@ private:
 	int    FASTCALL Alloc(size_t sz);
 	int    FASTCALL Helper_CopyFromUtf8(const char * pSrc, size_t srcSize, int strictConversion, size_t * pActualSrcSize);
 
-	size_t L; // @firstmember 
+	size_t L; // @firstmember
 	size_t Size;
 	wchar_t * P_Buf;
 };

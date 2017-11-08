@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyForm2"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyForm2"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+            xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef_v2"
+           >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+
+  <xs:complexType name="ReplyForm2">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о форме 2</xs:documentation>
+    </xs:annotation>
+
+    <xs:all>
+      <xs:element name="InformF2RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер справки 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TTNNumber" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер ТТН</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TTNDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата ТТН</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Shipper" type="oref:OrgInfoRusReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Грузоотправитель</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Consignee" type="oref:OrgInfoReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Грузополучатель</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingDate" type="c:DateNoTime" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата отгрузки продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Product" type="pref:ProductInfoReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExciseRate" type="c:NoNegativeDecimalType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Ставка акциза</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MarkInfo" type="pref:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о марках</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+
+    </xs:all>
+  </xs:complexType>
+</xs:schema>

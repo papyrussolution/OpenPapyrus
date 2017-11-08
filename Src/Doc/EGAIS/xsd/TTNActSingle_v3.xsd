@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ActTTNSingle_v3"
+           targetNamespace="http://fsrar.ru/WEGAIS/ActTTNSingle_v3"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:c=       "http://fsrar.ru/WEGAIS/Common" 
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonV3"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonV3" schemaLocation="EGCommonV3.xsd"/>
+  <xs:complexType name="WayBillActType_v3">
+    <xs:annotation>
+      <xs:documentation>Акт разногласий для Товарно-Транспортной Накладной</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>ИД Акта (клиентский)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="IsAccept" type="ns:AcceptType" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Принимаем/принимаем с расхождениями/отказываем</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ACTNUMBER" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Номер акта</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="ActDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Дата составления акта</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="WBRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД накладной в системе</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Note" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Примечание</xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="500"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:PositionType" minOccurs="0" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Заполняется только для IsAccept = Differences (если есть разногласия)</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="PosUn">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:Identity"/>
+        </xs:unique>
+        <xs:unique name="PosUnF2reg">
+          <xs:selector xpath="ns:Position"/>
+          <xs:field xpath="ns:InformF2RegId"/>
+        </xs:unique>
+        <xs:unique name="MarkUn">
+          <xs:selector xpath="ns:Position/ns:MarkInfo/ce:amc"/>
+          <xs:field xpath="."/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="PositionType">
+    <xs:annotation>
+      <xs:documentation>Позиция</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+       <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри накладной</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InformF2RegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер записи справки 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RealQuantity" type="c:NoNegativeDecimalType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество фактическое</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="alcPercent" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMin" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Минимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="alcPercentMax" type="c:AlcPercentType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Максимальное содержание этилового спирта, %</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MarkInfo" type="ce:AMCforDocType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Штрихкоды НЕПРИНЯТЫХ единиц товара</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="AcceptType">
+    <xs:annotation>
+      <xs:documentation>Принимаем, принимаем с разногласиями или отказываем накладную</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Accepted"/>
+      <xs:enumeration value="Rejected"/>
+      <xs:enumeration value="Differences"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+</xs:schema>

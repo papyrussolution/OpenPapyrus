@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns:Documents Version="1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:ns=  "http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
+xmlns:wt=  "http://fsrar.ru/WEGAIS/ConfirmTicket">
+<!--Кто подает документы-->
+<ns:Owner>
+<!--Идентификатор организации в ФС РАР-->
+<ns:FSRAR_ID>00040217</ns:FSRAR_ID>
+</ns:Owner>
+<!--подтверждение или отказ Акта приема продукции-->
+<ns:Document>
+<ns:ConfirmTicket>
+<wt:Header>
+<!--подтверждаем или отказываем-->
+<wt:IsConfirm>Accepted</wt:IsConfirm>
+<wt:TicketNumber>0005</wt:TicketNumber>
+<wt:TicketDate>2015-02-16</wt:TicketDate>
+<wt:WBRegId>0000002247</wt:WBRegId>
+<!--ИД накладной в системе-->
+<wt:Note>Принимаем изменения количества</wt:Note>
+</wt:Header>
+</ns:ConfirmTicket>
+</ns:Document>
+</ns:Documents>

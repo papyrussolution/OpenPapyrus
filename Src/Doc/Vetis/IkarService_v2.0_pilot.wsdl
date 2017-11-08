@@ -1,0 +1,1231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="IkarService"
+                  targetNamespace="http://api.vetrf.ru/schema/cdm/registry/ikar/service/v2"
+                  xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/ikar/service/v2"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:bdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                  xmlns:rdef="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+                    schemaLocation="base_ws_definitions_v1.1.xsd"/>
+            <import namespace="http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2"
+                    schemaLocation="registry_ws_definitions_v2.0.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <!--
+       **********************************
+       * Получение справочника стран
+       **********************************
+       -->
+    <wsdl:message name="GetAllCountryList">
+        <wsdl:part element="rdef:getAllCountryListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetAllCountryListResponse">
+        <wsdl:part element="rdef:getAllCountryListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryByGuid">
+        <wsdl:part element="rdef:getCountryByGuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryByGuidResponse">
+        <wsdl:part element="rdef:getCountryByGuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryByUuid">
+        <wsdl:part element="rdef:getCountryByUuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryByUuidResponse">
+        <wsdl:part element="rdef:getCountryByUuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryChangesList">
+        <wsdl:part element="rdef:getCountryChangesListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetCountryChangesListResponse">
+        <wsdl:part element="rdef:getCountryChangesListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+
+    <!--
+    **********************************
+    * Получение справочника регионов
+    **********************************
+    -->
+    <wsdl:message name="GetRegionListByCountry">
+        <wsdl:part element="rdef:getRegionListByCountryRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionListByCountryResponse">
+        <wsdl:part element="rdef:getRegionListByCountryResponse"
+                   name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionByGuid">
+        <wsdl:part element="rdef:getRegionByGuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionByGuidResponse">
+        <wsdl:part element="rdef:getRegionByGuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionByUuid">
+        <wsdl:part element="rdef:getRegionByUuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionByUuidResponse">
+        <wsdl:part element="rdef:getRegionByUuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionChangesList">
+        <wsdl:part element="rdef:getRegionChangesListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetRegionChangesListResponse">
+        <wsdl:part element="rdef:getRegionChangesListResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+
+    <!--
+    **********************************
+    * Получение справочника районов
+    **********************************
+    -->
+    <wsdl:message name="GetDistrictListByRegion">
+        <wsdl:part element="rdef:getDistrictListByRegionRequest"
+                   name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictListByRegionResponse">
+        <wsdl:part element="rdef:getDistrictListByRegionResponse"
+                   name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictByGuid">
+        <wsdl:part element="rdef:getDistrictByGuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictByGuidResponse">
+        <wsdl:part element="rdef:getDistrictByGuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictByUuid">
+        <wsdl:part element="rdef:getDistrictByUuidRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictByUuidResponse">
+        <wsdl:part element="rdef:getDistrictByUuidResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictChangesList">
+        <wsdl:part element="rdef:getDistrictChangesListRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDistrictChangesListResponse">
+        <wsdl:part element="rdef:getDistrictChangesListResponse"
+                   name="response">
+        </wsdl:part>
+    </wsdl:message>
+
+    <!--
+   *******************************************************
+   * Получение справочников населенных пунктов и их улиц
+   *******************************************************
+   -->
+
+    <wsdl:message name="GetLocalityListByRegion">
+        <wsdl:part element="rdef:getLocalityListByRegionRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetLocalityListByRegionResponse">
+        <wsdl:part element="rdef:getLocalityListByRegionResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetLocalityListByDistrict">
+        <wsdl:part element="rdef:getLocalityListByDistrictRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetLocalityListByDistrictResponse">
+        <wsdl:part element="rdef:getLocalityListByDistrictResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetLocalityListByLocality">
+        <wsdl:part element="rdef:getLocalityListByLocalityRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetLocalityListByLocalityResponse">
+        <wsdl:part element="rdef:getLocalityListByLocalityResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetStreetListByLocality">
+        <wsdl:part element="rdef:getStreetListByLocalityRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetStreetListByLocalityResponse">
+        <wsdl:part element="rdef:getStreetListByLocalityResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="FindLocalityListByName">
+        <wsdl:part element="rdef:findLocalityListByNameRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="FindLocalityListByNameResponse">
+        <wsdl:part element="rdef:findLocalityListByNameResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="FindStreetListByName">
+        <wsdl:part element="rdef:findStreetListByNameRequest" name="request">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="FindStreetListByNameResponse">
+        <wsdl:part element="rdef:findStreetListByNameResponse" name="response">
+        </wsdl:part>
+    </wsdl:message>
+
+    <!--
+    **************************************
+    * Сообщение об ошибках
+    **************************************
+    -->
+    <wsdl:message name="EntityNotFoundFault">
+        <wsdl:documentation>
+            Запись с указанным идентификатором не найдена.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:entityNotFoundFault"/>
+    </wsdl:message>
+    <wsdl:message name="IncorrectRequestFault">
+        <wsdl:documentation>
+            Реакция системы на некорректный запрос.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:incorrectRequestFault"/>
+    </wsdl:message>
+    <wsdl:message name="InternalServiceFault">
+        <wsdl:documentation>
+            Внутренняя ошибка выполнения операции на сервере.
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:internalServiceFault"/>
+    </wsdl:message>
+    <wsdl:message name="OffsetOutOfRangeFault">
+        <wsdl:documentation>
+
+        </wsdl:documentation>
+        <wsdl:part name="fault" element="bdef:offsetOutOfRangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="IkarServicePortType">
+        <!--
+        **********************************
+        * Получение справочника стран
+        **********************************
+        -->
+        <wsdl:operation name="GetAllCountryList">
+            <wsdl:documentation>Получение списка записей стран с активным
+                статусом.
+                Выполнение операции заканчивается либо возвратом списка стран,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetAllCountryList" name="allCountryList">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ).
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetAllCountryListResponse"
+                         name="allCountryListResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список стран.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryByGuid">
+            <wsdl:documentation>Получение последней записи страны по
+                глобальному идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта страны,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetCountryByGuid" name="countryByGuid">
+                <wsdl:documentation>Запрос содержащий глобальный идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetCountryByGuidResponse" name="countryByGuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект страны.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует GUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryByUuid">
+            <wsdl:documentation>Получение записи страны по идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта страны,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetCountryByUuid" name="countryByUuid">
+                <wsdl:documentation>Запрос содержащий идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetCountryByUuidResponse" name="countryByUuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект страны.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует GUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryChangesList">
+            <wsdl:documentation>Получение истории изменений в списке стран.
+                Выполнение операции заканчивается либо возвратом списка стран,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetCountryChangesList" name="countryChangesList">
+                <wsdl:documentation>Запрос на получение истории изменений, содержит
+                    параметры запрашиваемого списка и дату с которой запрашиваются
+                    изменения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetCountryChangesListResponse"
+                         name="countryChangesListResponse">
+                <wsdl:documentation>Ответ на запрос со списком записей стран
+                    изменившихся с указанной даты.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+        **********************************
+        * Получение справочника регионов
+        **********************************
+        -->
+        <wsdl:operation name="GetRegionListByCountry">
+            <wsdl:documentation>Получение списка записей регионов с активным
+                статусом по стране.
+                Выполнение операции заканчивается либо возвратом списка регионов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetRegionListByCountry" name="regionListByCountry">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор страны.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetRegionListByCountryResponse"
+                         name="regionListByCountryResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список регионов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionByGuid">
+            <wsdl:documentation>Получение последней записи региона по
+                глобальному идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта региона,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetRegionByGuid" name="regionByGuid">
+                <wsdl:documentation>Запрос содержащий глобальный идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetRegionByGuidResponse" name="regionByGuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект региона.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует GUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionByUuid">
+            <wsdl:documentation>Получение записи региона по идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта региона,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetRegionByUuid" name="regionByUuid">
+                <wsdl:documentation>Запрос содержащий идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetRegionByUuidResponse" name="regionByUuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект региона.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует GUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionChangesList">
+            <wsdl:documentation>Получение истории изменений в списке регионов.
+                Выполнение операции заканчивается либо возвратом списка регионов,
+                либо ошибкой, в случае если параметры запроса не корректны или
+                произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetRegionChangesList" name="regionChangesList">
+                <wsdl:documentation>Запрос на получение истории изменений, содержит
+                    параметры запрашиваемого списка и дату с которой запрашиваются
+                    изменения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetRegionChangesListResponse"
+                         name="regionChangesListResponse">
+                <wsdl:documentation>Ответ на запрос со списком записей регионов,
+                    изменившихся с указанной даты.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+        **********************************
+        * Получение справочника районов
+        **********************************
+        -->
+        <wsdl:operation name="GetDistrictListByRegion">
+            <wsdl:documentation>Получение списка записей районов с активным
+                статусом по региону.
+                Выполнение операции заканчивается либо возвратом списка районов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetDistrictListByRegion" name="districtListByRegion">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор региона.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetDistrictListByRegionResponse"
+                         name="districtListByRegionResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список районов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что региона с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictByGuid">
+            <wsdl:documentation>Получение последней записи района по
+                глобальному идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта района,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetDistrictByGuid" name="districtByGuid">
+                <wsdl:documentation>Запрос содержащий глобальный идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetDistrictByGuidResponse"
+                         name="districtByGuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект района.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует GUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictByUuid">
+            <wsdl:documentation>Получение последней записи района по
+                идентификатору.
+                Выполнение операции заканчивается либо возвратом объекта района,
+                либо ошибкой, в случае если параметры запроса не корректны, если запись
+                по запросу не найдена
+                или произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetDistrictByUuid" name="districtByUuid">
+                <wsdl:documentation>Запрос содержащий глобальный идентификатор.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetDistrictByUuidResponse"
+                         name="districtByUuidResponse">
+                <wsdl:documentation>Ответ на запрос, содержащий объект района.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос. Скорее
+                    всего отсутвует UUID или он указан в некорректном формате.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault" message="tns:EntityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что страна с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictChangesList">
+            <wsdl:documentation>Получение истории изменений в списке районов.
+                Выполнение операции заканчивается либо возвратом списка районов,
+                либо ошибкой, в случае если параметры запроса не корректны или
+                произошла иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetDistrictChangesList" name="districtChangesList">
+                <wsdl:documentation>Запрос на получение истории изменений, содержит
+                    параметры запрашиваемого списка и дату с которой запрашиваются
+                    изменения.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetDistrictChangesListResponse"
+                         name="districtChangesListResponse">
+                <wsdl:documentation>Ответ на запрос со списком записей районов,
+                    изменившихся с указанной даты.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault" message="tns:InternalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault" message="tns:IncorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault" message="tns:OffsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.
+                </wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+    *******************************************************
+    * Получение справочников населенных пунктов и их улиц
+    *******************************************************
+    -->
+        <wsdl:operation name="GetLocalityListByRegion">
+            <wsdl:documentation>Получение списка записей населенных пунктов с активным
+                статусом по региону.
+                Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetLocalityListByRegion" name="localityListByRegion">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор региона.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetLocalityListByRegionResponse" name="localityListByRegionResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список населенных пунктов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что регион с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetLocalityListByDistrict">
+            <wsdl:documentation>Получение списка записей населенных пунктов с активным
+                статусом по району.
+                Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetLocalityListByDistrict" name="localityListByDistrict">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор района.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetLocalityListByDistrictResponse" name="localityListByDistrictResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список населенных пунктов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что район с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetLocalityListByLocality">
+            <wsdl:documentation>Получение списка зависимых записей населенных пунктов с активным
+                статусом по населенному пункту.
+                Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetLocalityListByLocality" name="localityListByLocality">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор населенного пункта.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetLocalityListByLocalityResponse" name="localityListByLocalityResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список населенных пунктов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что населенный пункт с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetStreetListByLocality">
+            <wsdl:documentation>Получение списка записей улиц с активным
+                статусом по региону.
+                Выполнение операции заканчивается либо возвратом списка улиц,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:GetStreetListByLocality" name="streetListByLocality">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор населенного пункта.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:GetStreetListByLocalityResponse" name="streetListByLocalityResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список улиц.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что населенный пункт с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="FindLocalityListByName">
+            <wsdl:documentation>Получение списка записей населенных пунктов с активным
+                статусом по шаблону и региону.
+                Выполнение операции заканчивается либо возвратом списка населенных пунктов,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:FindLocalityListByName" name="findLocalityListByName">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор региона.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:FindLocalityListByNameResponse" name="findLocalityListByNameResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список населенных пунктов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что регион с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="FindStreetListByName">
+            <wsdl:documentation>Получение списка записей улиц с активным
+                статусом по шаблону и населенному пункту.
+                Выполнение операции заканчивается либо возвратом списка улиц,
+                либо ошибкой, в случае если параметры запроса не корректны или произошла
+                иная ошибка выполнения запроса.
+            </wsdl:documentation>
+            <wsdl:input message="tns:FindStreetListByName" name="findStreetListByName">
+                <wsdl:documentation>Запрос списка с возможно указанными параметрами
+                    (размер и отступ), содержащий глобальный идентификатор региона.
+                </wsdl:documentation>
+            </wsdl:input>
+            <wsdl:output message="tns:FindStreetListByNameResponse" name="findStreetListByNameResponse">
+                <wsdl:documentation>Ответ на запрос содержащий список населенных пунктов.
+                </wsdl:documentation>
+            </wsdl:output>
+            <wsdl:fault message="tns:InternalServiceFault" name="internalServiceFault">
+                <wsdl:documentation>Внутренняя ошибка выполнения операции на
+                    сервере.</wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:IncorrectRequestFault" name="incorrectRequestFault">
+                <wsdl:documentation>Реакция системы на некорректный запрос.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:EntityNotFoundFault" name="entityNotFoundFault">
+                <wsdl:documentation>Ошибка, свидетельствующая о том, что регион с
+                    указанным глобальным идентификатором не найден.
+                </wsdl:documentation>
+            </wsdl:fault>
+            <wsdl:fault message="tns:OffsetOutOfRangeFault" name="offsetOutOfRangeFault">
+                <wsdl:documentation>Отступ в параметрах запроса превышает число
+                    записей удовлетворяющих условиям запроса.</wsdl:documentation>
+            </wsdl:fault>
+        </wsdl:operation>
+
+
+    </wsdl:portType>
+
+    <wsdl:binding name="IkarServiceBinding" type="tns:IkarServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <!--
+        **********************************
+        * Получение справочника стран
+        **********************************
+        -->
+        <wsdl:operation name="GetAllCountryList">
+            <soap:operation soapAction="GetAllCountryList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryByGuid">
+            <soap:operation soapAction="GetCountryByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryByUuid">
+            <soap:operation soapAction="GetCountryByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCountryChangesList">
+            <soap:operation soapAction="GetCountryChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+       **********************************
+       * Получение справочника регионов
+       **********************************
+       -->
+        <wsdl:operation name="GetRegionListByCountry">
+            <soap:operation soapAction="GetRegionListByCountry"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionByGuid">
+            <soap:operation soapAction="GetRegionByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionByUuid">
+            <soap:operation soapAction="GetRegionByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetRegionChangesList">
+            <soap:operation soapAction="GetRegionChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <!--
+        **********************************
+        * Получение справочника районов
+        **********************************
+        -->
+        <wsdl:operation name="GetDistrictListByRegion">
+            <soap:operation soapAction="GetDistrictListByRegion"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictByGuid">
+            <soap:operation soapAction="GetDistrictByGuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictByUuid">
+            <soap:operation soapAction="GetDistrictByUuid"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetDistrictChangesList">
+            <soap:operation soapAction="GetDistrictChangesList"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="GetLocalityListByRegion">
+            <soap:operation soapAction="GetLocalityListByRegion"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetLocalityListByDistrict">
+            <soap:operation soapAction="GetLocalityListByDistrict"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetLocalityListByLocality">
+            <soap:operation soapAction="GetLocalityListByLocality"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetStreetListByLocality">
+            <soap:operation soapAction="GetStreetListByLocality"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="FindLocalityListByName">
+            <soap:operation soapAction="FindLocalityListByName"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="FindStreetListByName">
+            <soap:operation soapAction="FindStreetListByName"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="internalServiceFault">
+                <soap:fault name="internalServiceFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="incorrectRequestFault">
+                <soap:fault name="incorrectRequestFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="entityNotFoundFault">
+                <soap:fault name="entityNotFoundFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="offsetOutOfRangeFault">
+                <soap:fault name="offsetOutOfRangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="IkarServiceBindingQSService">
+        <wsdl:port binding="tns:IkarServiceBinding" name="IkarServiceBindingQSPort">
+            <soap:address location="https://api2.vetrf.ru:8002/platform/services/2.0/IkarService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

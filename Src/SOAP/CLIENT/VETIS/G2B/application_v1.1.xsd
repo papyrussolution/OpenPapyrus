@@ -1,0 +1,85 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<xs:schema targetNamespace="http://api.vetrf.ru/schema/cdm/application"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:apl="http://api.vetrf.ru/schema/cdm/application"
+           xmlns:bs="http://api.vetrf.ru/schema/cdm/base"
+           elementFormDefault="qualified" version="2.0">
+
+    <xs:import namespace="http://api.vetrf.ru/schema/cdm/base" schemaLocation="base_v1.1.xsd"/>
+
+    <xs:element name="application" type="apl:Application"/>
+    <xs:element name="applicationData" type="apl:ApplicationData" abstract="true"/>
+    <xs:element name="applicationResultData" type="apl:ApplicationResultData" abstract="true"/>
+    <xs:element name="businessError" type="apl:BusinessError"/>
+    <xs:element name="errorList" type="apl:BusinessErrorList"/>
+    <xs:element name="binary" type="apl:BinaryContent"/>
+
+    <xs:complexType name="Application">
+        <xs:sequence>
+            <xs:element name="applicationId" type="bs:UUID" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="status" type="apl:ApplicationStatus" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="serviceId" type="xs:Name" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="issuerId" type="bs:UUID" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="issueDate" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="rcvDate" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="prdcRsltDate" type="xs:dateTime" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="data" type="apl:ApplicationDataWrapper" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="result" type="apl:ApplicationResultWrapper" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="errors" type="apl:BusinessErrorList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="ApplicationStatus">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ACCEPTED"/>
+            <xs:enumeration value="IN_PROCESS"/>
+            <xs:enumeration value="COMPLETED"/>
+            <xs:enumeration value="REJECTED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ApplicationDataWrapper">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="1" processContents="strict"/>
+        </xs:sequence>
+        <xs:attribute name="encoding" type="apl:ContentEncoding" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="ApplicationResultWrapper">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="1" processContents="strict"/>
+        </xs:sequence>
+        <xs:attribute name="encoding" type="apl:ContentEncoding" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="ApplicationData" abstract="true"/>
+
+    <xs:complexType name="ApplicationResultData" abstract="true"/>
+
+    <xs:complexType name="BusinessErrorList">
+        <xs:sequence>
+            <xs:element name="error" type="apl:BusinessError" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="BusinessError">
+        <xs:simpleContent>
+            <xs:extension base="bs:Error"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="APIKey">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="ContentEncoding">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="plain"/>
+            <xs:enumeration value="gzip"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="BinaryContent">
+        <xs:restriction base="xs:base64Binary"/>
+    </xs:simpleType>
+</xs:schema>

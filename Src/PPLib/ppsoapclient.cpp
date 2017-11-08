@@ -56,8 +56,8 @@ void PPSoapClientSession::Setup(const char * pUrl)
 	STRNSCPY(Url, pUrl);
 	ErrCode = 0;
 	ErrMsg[0] = 0;
-	User = 0;
-	Password = 0;
+	User.Z();
+	Password.Z();
 }
 
 void PPSoapClientSession::Setup(const char * pUrl, const char * pUser, const char * pPassword)
@@ -180,7 +180,7 @@ UhttStatus::UhttStatus()
 //
 UhttDate & UhttDate::Clear()
 {
-	Date = 0;
+	Date.Z();
 	return *this;
 }
 
@@ -207,7 +207,7 @@ UhttDate::operator LDATE () const
 //
 UhttTimestamp & UhttTimestamp::Clear()
 {
-	T = 0;
+	T.Z();
 	return *this;
 }
 
@@ -264,8 +264,8 @@ UhttTimestamp::operator LDATETIME () const
 //
 UhttDateTime & UhttDateTime::Clear()
 {
-	Date = 0;
-	Time = 0;
+	Date.Z();
+	Time.Z();
 	return *this;
 }
 
@@ -316,8 +316,8 @@ UhttDateTime::operator LDATETIME () const
 //
 UhttDatePeriod & UhttDatePeriod::Clear()
 {
-	Low = 0;
-	Upp = 0;
+	Low.Z();
+	Upp.Z();
 	return *this;
 }
 
@@ -352,22 +352,15 @@ void FASTCALL UhttTagItem::SetValue(const char * pText)
 //
 //
 //
-UhttBrandPacket::UhttBrandPacket()
+UhttBrandPacket::UhttBrandPacket() : ID(0), OwnerID(0), Flags(0)
 {
-	ID = 0;
 	Name[0] = 0;
-	OwnerID = 0;
-	Flags = 0;
 }
 //
 //
 //
-UhttStyloDevicePacket::UhttStyloDevicePacket()
+UhttStyloDevicePacket::UhttStyloDevicePacket() : ID(0), ParentID(0), Flags(0), DeviceVer(0)
 {
-	ID = 0;
-	ParentID = 0;
-	Flags = 0;
-	DeviceVer = 0;
 }
 
 void FASTCALL UhttStyloDevicePacket::SetName(const char * pText)
@@ -382,14 +375,10 @@ void FASTCALL UhttStyloDevicePacket::SetSymb(const char * pText)
 //
 //
 //
-UhttGoodsPacket::UhttGoodsPacket()
+UhttGoodsPacket::UhttGoodsPacket() : ID(0), BrandID(0), ManufID(0), Package(0.0)
 {
-	ID = 0;
-	BrandID = 0;
-	ManufID = 0;
 	Name[0] = 0;
 	SingleBarcode[0] = 0;
-	Package = 0.0;
 }
 
 UhttGoodsPacket & FASTCALL UhttGoodsPacket::operator = (const UhttGoodsPacket & rS)
@@ -446,11 +435,8 @@ void FASTCALL UhttGoodsPacket::SetExt(int extFldId, const char * pText)
 // Descr: Представление 'лемента сопоставления приватного идентификатора объекта с идентификатором
 //   соответствующего объекта в Universe-HTT по коду.
 //
-UhttCodeRefItem::UhttCodeRefItem()
+UhttCodeRefItem::UhttCodeRefItem() : PrivateID(0), UhttID(0), InnerPos(0)
 {
-	PrivateID = 0;
-	UhttID = 0;
-	InnerPos = 0;
 	Code[0] = 0;
 }
 
@@ -465,18 +451,16 @@ UhttCodeRefItem & FASTCALL UhttCodeRefItem::Set(int privateID, const char * pCod
 //
 //
 //
-UhttDocumentPacket::UhttDocumentPacket()
+UhttDocumentPacket::UhttDocumentPacket() : UhttObjID(0), Size(0)
 {
-	UhttObjID = 0;
-	Size = 0;
 }
 
 int UhttDocumentPacket::SetFile(const char * pFileName)
 {
 	int    ok = 1;
-	Encoding = 0;
-	ContentType = 0;
-	ContentMime = 0;
+	Encoding.Z();
+	ContentType.Z();
+	ContentMime.Z();
 
 	SFile f(pFileName, SFile::mRead|SFile::mBinary);
 	THROW(f.IsValid());
@@ -511,15 +495,8 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 //
 //
 //
-UhttSpecSeriesPacket::UhttSpecSeriesPacket()
+UhttSpecSeriesPacket::UhttSpecSeriesPacket() : ID(0), GoodsID(0), ManufID(0), ManufCountryID(0), LabID(0), InfoKind(0), Flags(0)
 {
-	ID = 0;
-	GoodsID = 0;
-	ManufID = 0;
-	ManufCountryID = 0;
-	LabID = 0;
-	InfoKind = 0;
-	Flags = 0;
 }
 
 void FASTCALL UhttSpecSeriesPacket::SetSerial(const char * pText)
@@ -554,16 +531,8 @@ void FASTCALL UhttSpecSeriesPacket::SetLetterType(const char * pText)
 //
 //
 //
-UhttLocationPacket::UhttLocationPacket()
+UhttLocationPacket::UhttLocationPacket() : ID(0), ParentID(0), Type(0), CityID(0), OwnerPersonID(0), Latitude(0.0), Longitude(0.0), Flags(0)
 {
-	ID = 0;
-	ParentID = 0;
-	Type = 0;
-	CityID = 0;
-	OwnerPersonID = 0;
-	Latitude = 0.0;
-	Longitude = 0.0;
-	Flags = 0;
 }
 
 void FASTCALL UhttLocationPacket::SetName(const char * pName)
@@ -702,9 +671,8 @@ SString & UhttPersonPacket::GetUhttContragentCode(SString & rBuf) const
 	return rBuf;
 }
 
-UhttPersonPacket::AddressP::AddressP() : UhttLocationPacket()
+UhttPersonPacket::AddressP::AddressP() : UhttLocationPacket(), Kind(0)
 {
-	Kind = 0;
 }
 //
 //
@@ -724,14 +692,8 @@ UhttBillPacket::UhttBillPacket()
 //
 //
 //
-UhttBillFilter::UhttBillFilter()
+UhttBillFilter::UhttBillFilter() : LocID(0), ArID(0), CurrID(0), AgentID(0), Count(0), Last(0)
 {
-	LocID = 0;
-	ArID = 0;
-	CurrID = 0;
-	AgentID = 0;
-	Count = 0;
-	Last = 0;
 	Since = ZERODATETIME;
 }
 
@@ -748,24 +710,14 @@ void FASTCALL UhttBillFilter::SetOpSymb(const char * pOpSymb)
 //
 //
 //
-UhttGoodsRestListItem::UhttGoodsRestListItem()
+UhttGoodsRestListItem::UhttGoodsRestListItem() : GoodsID(0), LocID(0), Rest(0.0), Price(0.0)
 {
-	GoodsID = 0;
-	LocID = 0;
-	Rest = 0.0;
-	Price = 0.0;
 }
 //
 //
 //
-UhttDCFileVersionInfo::UhttDCFileVersionInfo()
+UhttDCFileVersionInfo::UhttDCFileVersionInfo() : ID(0), Revision(0), Ts(0), Size(0), Flags(0)
 {
-	ID       = 0;
-	Key      = 0;
-	Revision = 0;
-	Ts       = 0;
-	Size     = 0;
-	Flags    = 0;
 }
 //
 //
@@ -832,9 +784,8 @@ void   FASTCALL UhttWorkbookItemPacket::SetDescr(const char * pText)
 //
 //
 //
-UhttPrcPlaceDescription::UhttPrcPlaceDescription()
+UhttPrcPlaceDescription::UhttPrcPlaceDescription() : GoodsID(0)
 {
-	GoodsID = 0;
 }
 
 void FASTCALL UhttPrcPlaceDescription::SetRange(const char * pText)
@@ -938,15 +889,8 @@ void FASTCALL UhttCipPacket::SetPlaceCode(const char * pText)
 //
 //
 //
-UhttTSessionPacket::UhttTSessionPacket()
+UhttTSessionPacket::UhttTSessionPacket() : ID(0), Num(0), PrcID(0), TechID(0), ParentID(0), Status(0), Flags(0)
 {
-	ID = 0;
-	Num = 0;
-	PrcID = 0;
-	TechID = 0;
-	ParentID = 0;
-	Status = 0;
-	Flags = 0;
 }
 
 UhttTSessionPacket & FASTCALL UhttTSessionPacket::operator = (const UhttTSessionPacket & rS)
@@ -986,14 +930,8 @@ void FASTCALL UhttTSessionPacket::SetDetail(const char * pText)
 //
 //
 //
-iSalesUOM::iSalesUOM()
+iSalesUOM::iSalesUOM() : Code(0), Width(0.0), Height(0.0), Length(0.0), Netto(0.0), Brutto(0.0)
 {
-	Code = 0;
-	Width = 0.0;
-	Height = 0.0;
-	Length = 0.0;
-	Netto = 0.0;
-	Brutto = 0.0;
 }
 
 int iSalesUOM::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -1010,9 +948,8 @@ int iSalesUOM::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 
-iSalesUOMCvt::iSalesUOMCvt()
+iSalesUOMCvt::iSalesUOMCvt() : Rate(0.0)
 {
-	Rate = 0.0;
 }
 
 int iSalesUOMCvt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -1027,12 +964,8 @@ int iSalesUOMCvt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 //
 //
 //
-iSalesGoodsPacket::iSalesGoodsPacket()
+iSalesGoodsPacket::iSalesGoodsPacket() : TypeOfProduct(0), VatRate(0.0), UnitCode(0), Valid(0)
 {
-	TypeOfProduct = 0;
-	VatRate = 0.0;
-	UnitCode = 0;
-	Valid = 0;
 }
 
 iSalesGoodsPacket::iSalesGoodsPacket(const iSalesGoodsPacket & rS)
@@ -1106,10 +1039,8 @@ double iSalesGoodsPacket::RecalcUnits(long uomFrom, long uomTo, double qtty) con
 //
 //
 //
-iSalesRoutePacket::iSalesRoutePacket()
+iSalesRoutePacket::iSalesRoutePacket() : TypeOfRoute(0), Valid(0)
 {
-	TypeOfRoute = 0;
-	Valid = 0;
 }
 
 iSalesRoutePacket::iSalesRoutePacket(const iSalesRoutePacket & rS)
@@ -1134,11 +1065,8 @@ iSalesRoutePacket & FASTCALL iSalesRoutePacket::operator = (const iSalesRoutePac
 	return Copy(rS);
 }
 
-iSalesBillItem::iSalesBillItem()
+iSalesBillItem::iSalesBillItem() : LineN(0), UnitCode(0), Qtty(0.0)
 {
-	LineN = 0;
-	UnitCode = 0;
-	Qtty = 0.0;
 }
 
 iSalesBillAmountEntry::iSalesBillAmountEntry()
@@ -1162,43 +1090,22 @@ iSalesBillPacket::iSalesBillPacket()
 //
 //
 //
-SapEfesCallHeader::SapEfesCallHeader()
+SapEfesCallHeader::SapEfesCallHeader() : P_SalesOrg(0), P_Wareh(0), SessionID(0)
 {
-	P_SalesOrg = 0;
-	P_Wareh = 0;
-	SessionID = 0;
 }
 
-SapEfesOrder::SapEfesOrder()
+SapEfesOrder::SapEfesOrder() : Date(ZERODATETIME), DueDate(ZERODATE), Amount(0.0)
 {
-	Date = ZERODATETIME;
-	DueDate = ZERODATE;
-	Amount = 0.0;
 }
 
-SapEfesBillPacket::SapEfesBillPacket()
+SapEfesBillPacket::SapEfesBillPacket() : NativeID(0), Flags(0), DocType(0), Date(ZERODATE), DueDate(ZERODATE)
 {
-	NativeID = 0;
-	Flags = 0;
-	DocType = 0;
-	Date = ZERODATE;
-	DueDate = ZERODATE;
 }
 
-SapEfesDebtReportEntry::SapEfesDebtReportEntry()
+SapEfesDebtReportEntry::SapEfesDebtReportEntry() : NativeArID(0), Debt(0.0), CreditLimit(0.0), PayPeriod(0), DebtDelayDays(0)
 {
-	NativeArID = 0;
-	Debt = 0.0;
-	CreditLimit = 0.0;
-	PayPeriod = 0;
-	DebtDelayDays = 0;
 }
 
-SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry()
+SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry() : NativeArID(0), BillDate(ZERODATE), PaymDate(ZERODATE), Amount(0.0), Debt(0.0)
 {
-	NativeArID = 0;
-	BillDate = ZERODATE;
-	PaymDate = ZERODATE;
-	Amount = 0.0;
-	Debt = 0.0;
 }

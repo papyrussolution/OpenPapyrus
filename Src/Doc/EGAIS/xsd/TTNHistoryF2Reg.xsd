@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:ns="http://fsrar.ru/WEGAIS/TTNHistoryF2Reg"
+           targetNamespace="http://fsrar.ru/WEGAIS/TTNHistoryF2Reg"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:c=       "http://fsrar.ru/WEGAIS/Common" 
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>  
+
+  <xs:complexType name="TTNHistoryF2Reg">
+    <xs:annotation>
+      <xs:documentation>Квитанция о регистрации справок 2 для Товарно-Транспортной Накладной</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Header">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="WBRegId" type="c:NoEmptyString50" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>ИД накладной в системе (присвоенный)</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Content">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Position" type="ns:InformParentF2Type" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Содержимое должно содержать 1 и более позиций</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InformParentF2Type">
+    <xs:all>
+      <xs:element name="Identity" type="c:IdentityType" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Идентификатор позиции внутри накладной</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HistF2">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="step" type="ns:stepType" minOccurs="1" maxOccurs="unbounded"></xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="stepType">
+    <xs:all>
+      <xs:element name="lev" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Form2" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="parentForm2" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Shipper" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Consignee" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="WBRegId" type="xs:string" nillable="false" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="amount" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
+  </xs:complexType>
+</xs:schema>

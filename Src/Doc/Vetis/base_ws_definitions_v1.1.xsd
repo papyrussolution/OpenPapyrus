@@ -1,0 +1,17 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<xs:schema targetNamespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions"
+           xmlns="http://www.w3.org/2001/XMLSchema"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bs="http://api.vetrf.ru/schema/cdm/base"
+           elementFormDefault="qualified" version="2.0">
+
+    <xs:import namespace="http://api.vetrf.ru/schema/cdm/base" schemaLocation="base_v1.1.xsd"/>
+
+    <xs:element name="entityNotFoundFault" type="bs:FaultInfo"/>
+    <xs:element name="incorrectRequestFault" type="bs:FaultInfo"/>
+    <xs:element name="internalServiceFault" type="bs:FaultInfo"/>
+    <xs:element name="offsetOutOfRangeFault" type="bs:FaultInfo"/>
+    <xs:element name="requestRejectedFault" type="bs:FaultInfo"/>
+    <xs:element name="accessDeniedFault" type="bs:FaultInfo"/>
+
+</xs:schema>

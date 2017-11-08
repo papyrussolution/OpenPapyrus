@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N0:definitions name="RegistryService" targetNamespace="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" xmlns:WL5G3N2="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" xmlns:WL5G3N3="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" xmlns:WL5G3N4="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" xmlns:WL5G3N5="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" xmlns:WL5G3N6="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:WL5G3N7="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:WL5G3N8="http://schemas.xmlsoap.org/wsdl/soap/">
+  <WL5G3N0:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bedef="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" xmlns:cdef="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" xmlns:def="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:edef="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" xmlns:idef="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" xmlns:prodef="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://api.vetrf.ru/schema/cdm/registry/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions" schemaLocation="base_ws_definitions_v1.3.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/cerberus/enterprise/ws-definitions" schemaLocation="enterprise_ws_definitions_v1.3.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/argus/common/ws-definitions" schemaLocation="argus_common_ws_definitions_v1.3.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/argus/production/ws-definitions" schemaLocation="production_ws_definitions_v1.3.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/ikar/ws-definitions" schemaLocation="ikar_ws_definitions_v1.3.xsd"/>
+      <import namespace="http://api.vetrf.ru/schema/cdm/cerberus/business-entity/ws-definitions" schemaLocation="business_entity_ws_definitions_v1.3.xsd"/>
+    </schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="GetProductItemByGuid">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByUuid">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemList">
+    <WL5G3N0:part element="WL5G3N1:getProductItemListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemChangesList">
+    <WL5G3N0:part element="WL5G3N1:getProductItemChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductItemChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductItemChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByGuid">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByGuidResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByUuid">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityByUuidResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityList">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityListResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityChangesList">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetBusinessEntityChangesListResponse">
+    <WL5G3N0:part element="WL5G3N2:getBusinessEntityChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByGuid">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByGuidResponse">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByUuid">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetEnterpriseByUuidResponse">
+    <WL5G3N0:part element="WL5G3N3:getEnterpriseByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseList">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseListResponse">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseList">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseListResponse">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseChangesList">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetForeignEnterpriseChangesListResponse">
+    <WL5G3N0:part element="WL5G3N3:getForeignEnterpriseChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseChangesList">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRussianEnterpriseChangesListResponse">
+    <WL5G3N0:part element="WL5G3N3:getRussianEnterpriseChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByGuid">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByGuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByUuid">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeByUuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeList">
+    <WL5G3N0:part element="WL5G3N4:getPurposeListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeListResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeChangesList">
+    <WL5G3N0:part element="WL5G3N4:getPurposeChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetPurposeChangesListResponse">
+    <WL5G3N0:part element="WL5G3N4:getPurposeChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByGuid">
+    <WL5G3N0:part element="WL5G3N4:getUnitByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByGuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByUuid">
+    <WL5G3N0:part element="WL5G3N4:getUnitByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitByUuidResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitList">
+    <WL5G3N0:part element="WL5G3N4:getUnitListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitListResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitChangesList">
+    <WL5G3N0:part element="WL5G3N4:getUnitChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetUnitChangesListResponse">
+    <WL5G3N0:part element="WL5G3N4:getUnitChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByGuid">
+    <WL5G3N0:part element="WL5G3N1:getProductByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByUuid">
+    <WL5G3N0:part element="WL5G3N1:getProductByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByTypeList">
+    <WL5G3N0:part element="WL5G3N1:getProductByTypeListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductByTypeListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductByTypeListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductChangesList">
+    <WL5G3N0:part element="WL5G3N1:getProductChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetProductChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getProductChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByGuid">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByGuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByUuid">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByUuidResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByProductList">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByProductListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductByProductListResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductByProductListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductChangesList">
+    <WL5G3N0:part element="WL5G3N1:getSubProductChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetSubProductChangesListResponse">
+    <WL5G3N0:part element="WL5G3N1:getSubProductChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetAllCountryList">
+    <WL5G3N0:part element="WL5G3N5:getAllCountryListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetAllCountryListResponse">
+    <WL5G3N0:part element="WL5G3N5:getAllCountryListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByGuid">
+    <WL5G3N0:part element="WL5G3N5:getCountryByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByUuid">
+    <WL5G3N0:part element="WL5G3N5:getCountryByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryByUuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryChangesList">
+    <WL5G3N0:part element="WL5G3N5:getCountryChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetCountryChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getCountryChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionListByCountry">
+    <WL5G3N0:part element="WL5G3N5:getRegionListByCountryRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionListByCountryResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionListByCountryResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByGuid">
+    <WL5G3N0:part element="WL5G3N5:getRegionByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByUuid">
+    <WL5G3N0:part element="WL5G3N5:getRegionByUuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionByUuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionByUuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionChangesList">
+    <WL5G3N0:part element="WL5G3N5:getRegionChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetRegionChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getRegionChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictListByRegion">
+    <WL5G3N0:part element="WL5G3N5:getDistrictListByRegionRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictListByRegionResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictListByRegionResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictByGuid">
+    <WL5G3N0:part element="WL5G3N5:getDistrictByGuidRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictByGuidResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictByGuidResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictChangesList">
+    <WL5G3N0:part element="WL5G3N5:getDistrictChangesListRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetDistrictChangesListResponse">
+    <WL5G3N0:part element="WL5G3N5:getDistrictChangesListResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByRegion">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByRegionRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByRegionResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByRegionResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByDistrict">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByDistrictRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByDistrictResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByDistrictResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByLocality">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByLocalityRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetLocalityListByLocalityResponse">
+    <WL5G3N0:part element="WL5G3N5:getLocalityListByLocalityResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetStreetListByLocality">
+    <WL5G3N0:part element="WL5G3N5:getStreetListByLocalityRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="GetStreetListByLocalityResponse">
+    <WL5G3N0:part element="WL5G3N5:getStreetListByLocalityResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindLocalityListByName">
+    <WL5G3N0:part element="WL5G3N5:findLocalityListByNameRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindLocalityListByNameResponse">
+    <WL5G3N0:part element="WL5G3N5:findLocalityListByNameResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindStreetListByName">
+    <WL5G3N0:part element="WL5G3N5:findStreetListByNameRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="FindStreetListByNameResponse">
+    <WL5G3N0:part element="WL5G3N5:findStreetListByNameResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="EntityNotFoundFault">
+    <WL5G3N0:documentation>
+         Запись с указанным идентификатором не найдена.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:entityNotFoundFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IncorrectRequestFault">
+    <WL5G3N0:documentation>
+         Реакция системы на некорректный запрос.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:incorrectRequestFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="InternalServiceFault">
+    <WL5G3N0:documentation>
+         Внутренняя ошибка выполнения операции на сервере.
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:internalServiceFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="OffsetOutOfRangeFault">
+    <WL5G3N0:documentation>
+
+      </WL5G3N0:documentation>
+    <WL5G3N0:part element="WL5G3N6:offsetOutOfRangeFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="EnterpriseServicePortType">
+    <WL5G3N0:operation name="GetBusinessEntityByGuid">
+      <WL5G3N0:documentation>Получение ХС по его глобальному идентификатору.
+            Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+            истории).
+            Выполнение операции заканчивается либо возвратом искомого типа продукции,
+            либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetBusinessEntityByGuid" name="businessEntityByGuid">
+        <WL5G3N0:documentation>Запрос, содержащий глобальный идентификатор ХС.</WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetBusinessEntityByGuidResponse" name="businessEntityByResponse">
+        <WL5G3N0:documentation>Искомая запись ХС (с указанным идентификатором).</WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+               типа продукции.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+               найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityByUuid">
+      <WL5G3N0:documentation>Получение записи ХС по его идентификатору.
+            Выполнение операции заканчивается либо возвратом искомого типа продукции,
+            либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetBusinessEntityByUuid" name="businessEntityByUuid">
+        <WL5G3N0:documentation>Запрос, содержащий идентификатор записи ХС. Остальные элементы необязательны для
+               заполнения.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetBusinessEntityByUuidResponse" name="businessEntityByUuidResponse">
+        <WL5G3N0:documentation>Искомая запись ХС (с указанным идентификатором).</WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+               типа продукции.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+               найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityList">
+      <WL5G3N0:input message="WL5G3N7:GetBusinessEntityList" name="businessEntityList"/>
+      <WL5G3N0:output message="WL5G3N7:GetBusinessEntityListResponse" name="businessEntityListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityChangesList">
+      <WL5G3N0:input message="WL5G3N7:GetBusinessEntityChangesList" name="businessEntityChangesList"/>
+      <WL5G3N0:output message="WL5G3N7:GetBusinessEntityChangesListResponse" name="businessEntityChangesListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetEnterpriseByGuid">
+      <WL5G3N0:documentation>Получение ХС по его глобальному идентификатору.
+            Критериями поиска являются глобальный идентификатор и поле last (т.е. запись должна быть последний в
+            истории).
+            Выполнение операции заканчивается либо возвратом искомого типа продукции,
+            либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetEnterpriseByGuid" name="enterpriseByGuid">
+        <WL5G3N0:documentation>Запрос, содержащий глобальный идентификатор ХС.</WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetEnterpriseByGuidResponse" name="enterpriseByResponse">
+        <WL5G3N0:documentation>Искомая запись ХС (с указанным идентификатором).</WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+               типа продукции.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+               найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetEnterpriseByUuid">
+      <WL5G3N0:documentation>Получение записи ХС по его идентификатору.
+            Выполнение операции заканчивается либо возвратом искомого типа продукции,
+            либо ошибкой, в случае если запись ХС не найдена или произошла иная ошибка выполнения запроса.
+         </WL5G3N0:documentation>
+      <WL5G3N0:input message="WL5G3N7:GetEnterpriseByUuid" name="enterpriseByUuid">
+        <WL5G3N0:documentation>Запрос, содержащий идентификатор записи ХС. Остальные элементы необязательны для
+               заполнения.
+            </WL5G3N0:documentation>
+      </WL5G3N0:input>
+      <WL5G3N0:output message="WL5G3N7:GetEnterpriseByUuidResponse" name="enterpriseByUuidResponse">
+        <WL5G3N0:documentation>Искомая запись ХС (с указанным идентификатором).</WL5G3N0:documentation>
+      </WL5G3N0:output>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault">
+        <WL5G3N0:documentation>Внутренняя ошибка выполнения операции на сервере.</WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault">
+        <WL5G3N0:documentation>Реакция системы на некорректный запрос. Скорее всего в запросе не указан идентификатор
+               типа продукции.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault message="WL5G3N7:EntityNotFoundFault" name="entityNotFoundFault">
+        <WL5G3N0:documentation>Ошибка, свидетельствующая о том, что тип продукции с указанным идентификатором не
+               найден.
+            </WL5G3N0:documentation>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetForeignEnterpriseList">
+      <WL5G3N0:input message="WL5G3N7:GetForeignEnterpriseList" name="foreignEnterpriseList"/>
+      <WL5G3N0:output message="WL5G3N7:GetForeignEnterpriseListResponse" name="foreignEnterpriseListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRussianEnterpriseList">
+      <WL5G3N0:input message="WL5G3N7:GetRussianEnterpriseList" name="russianEnterpriseList"/>
+      <WL5G3N0:output message="WL5G3N7:GetRussianEnterpriseListResponse" name="russianEnterpriseListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetForeignEnterpriseChangesList">
+      <WL5G3N0:input message="WL5G3N7:GetForeignEnterpriseChangesList" name="foreignEnterpriseChangesList"/>
+      <WL5G3N0:output message="WL5G3N7:GetForeignEnterpriseChangesListResponse" name="foreignEnterpriseChangesListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRussianEnterpriseChangesList">
+      <WL5G3N0:input message="WL5G3N7:GetRussianEnterpriseChangesList" name="russianEnterpriseChangesList"/>
+      <WL5G3N0:output message="WL5G3N7:GetRussianEnterpriseChangesListResponse" name="russianEnterpriseChangesListResponse"/>
+      <WL5G3N0:fault message="WL5G3N7:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N7:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N7:OffsetOutOfRangeFault" name="offsetOutOfRangeFault"/>
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="EnterpriseServiceBinding" type="WL5G3N7:EnterpriseServicePortType">
+    <WL5G3N8:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <WL5G3N0:operation name="GetBusinessEntityByGuid">
+      <WL5G3N8:operation soapAction="GetBusinessEntityByGuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityByUuid">
+      <WL5G3N8:operation soapAction="GetBusinessEntityByUuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityList">
+      <WL5G3N8:operation soapAction="GetBusinessEntityList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetBusinessEntityChangesList">
+      <WL5G3N8:operation soapAction="GetBusinessEntityChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetEnterpriseByGuid">
+      <WL5G3N8:operation soapAction="GetEnterpriseByGuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetEnterpriseByUuid">
+      <WL5G3N8:operation soapAction="GetEnterpriseByUuid"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="entityNotFoundFault">
+        <WL5G3N8:fault name="entityNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetForeignEnterpriseList">
+      <WL5G3N8:operation soapAction="GetForeignEnterpriseList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRussianEnterpriseList">
+      <WL5G3N8:operation soapAction="GetRussianEnterpriseList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetForeignEnterpriseChangesList">
+      <WL5G3N8:operation soapAction="GetForeignEnterpriseChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="GetRussianEnterpriseChangesList">
+      <WL5G3N8:operation soapAction="GetRussianEnterpriseChangesList"/>
+      <WL5G3N0:input>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N8:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N8:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N8:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="offsetOutOfRangeFault">
+        <WL5G3N8:fault name="offsetOutOfRangeFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="EnterpriseServiceBindingQSService">
+    <WL5G3N0:port binding="WL5G3N7:EnterpriseServiceBinding" name="EnterpriseServiceBindingQSPort">
+      <WL5G3N8:address location="https://api.vetrf.ru/platform/cerberus/services/EnterpriseService"/>
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

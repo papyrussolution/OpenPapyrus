@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:as="http://fsrar.ru/WEGAIS/Asiiu" targetNamespace="http://fsrar.ru/WEGAIS/Asiiu"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonEnum"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2" 
+           xmlns:prod="http://fsrar.ru/WEGAIS/ProductRef_v2" >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+
+  <xs:complexType name="Asiiu">
+    <xs:annotation>
+      <xs:documentation>Сведения с автоматических средств измерения и учета (АСИиУ) концентрации объёма безводного спирта в готовой продукции</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Sensor" >
+        <xs:complexType>
+          <xs:all>
+	    <xs:element name="SensorNumber" type="c:NoEmptyString" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Серийный номер средства измерения с номером точки контроля</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+	    <xs:element name="PlaceId" type="ce:PlaceEnum" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Идетификатор места размещения средства измерения</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+	    <xs:element name="SensorModel" type="c:NoEmptyString" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>Модель средства измерения</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Producer" type="oref:OrgInfoRus_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Производитель продукции, подлежащей учету через средства измерений</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Data" >
+        <xs:annotation>
+          <xs:documentation>Перечень сведений от заданного средства измерений</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+	    <xs:element name="Position" type="as:DataType" nillable="false" minOccurs="1" maxOccurs="unbounded">	
+              <xs:annotation>
+                <xs:documentation>Сведения со средства измерения за один период времени его работы</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>	
+        </xs:complexType>
+      </xs:element>	
+     </xs:sequence>
+</xs:complexType>
+<xs:complexType name="DataType">
+    <xs:annotation>
+      <xs:documentation>Строка данных измерений</xs:documentation>
+    </xs:annotation>
+      <xs:all>
+       <xs:element name="Product" type="prod:ProductInfoAsiiu_v2" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Сведения из справочника продукции</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="StartDate" type="xs:dateTime" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Дата/время начала измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="EndDate" type="xs:dateTime" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Дата/время окончания измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="VbsStart" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Объем в декалитрах безводного спирта в готовой продукции на начало измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="VbsEnd" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Объем в декалитрах безводного спирта в готовой продукции на конец измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="AStart" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Объем в декалитрах готовой продукции на начало измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="AEnd" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Объем в декалитрах готовой продукции на конец измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="PercentAlc" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Усредненная концентрация безводного спирта в готовой продукции</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="BottleCountStart" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Количество розлитой в потребительскую тару готовой продукции на начало измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="BottleCountEnd" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Количество розлитой в потребительскую тару готовой продукции на конец измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="Temperature" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Температура учитываемой продукции, усредненная за период измерений</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+       <xs:element name="Mode" type="ce:ModeEnum" nillable="false" minOccurs="1" maxOccurs="1">
+         <xs:annotation>
+           <xs:documentation>Коде режима работы средства измерения</xs:documentation>
+         </xs:annotation>
+       </xs:element>
+      </xs:all>
+</xs:complexType>
+
+
+</xs:schema>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

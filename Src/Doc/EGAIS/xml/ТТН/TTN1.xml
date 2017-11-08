@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns:Documents Version="1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:ns=  "http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
+xmlns:c="http://fsrar.ru/WEGAIS/Common"
+xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef"
+xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef"
+xmlns:wb="http://fsrar.ru/WEGAIS/TTNSingle">
+<!--Кто подает документы-->
+<ns:Owner>
+<!--Идентификатор организации в ФС РАР-->
+<ns:FSRAR_ID>00040218</ns:FSRAR_ID>
+</ns:Owner>
+<!--Накладная на отгрузку-->
+<ns:Document>
+<ns:WayBill>
+<wb:Identity>1</wb:Identity>
+<wb:Header>
+<!--номер ТТН-->
+<wb:NUMBER>9997</wb:NUMBER>
+<!--Дата составления ТТН-->
+<wb:Date>2015-02-16</wb:Date>
+<!--Дата отгрузки продукции-->
+<wb:ShippingDate>2015-02-16</wb:ShippingDate>
+<!--тип ТТН-->
+<wb:Type>WBInvoiceFromMe</wb:Type>
+<!--тип продукции - фасованная(АП)/нефасованная(спирты, ССП...)-->
+<wb:UnitType>Packed</wb:UnitType>
+<!--отправитель (обязательно)-->
+<wb:Shipper>
+<oref:INN>0260009319</oref:INN>
+<oref:KPP>026001001</oref:KPP>
+<oref:ClientRegId>00040218</oref:ClientRegId>
+<oref:FullName>Общество с ограниченной ответственностью "Радуга" 
+(Магазин)</oref:FullName>
+<oref:ShortName>ООО "Радуга"</oref:ShortName>
+<oref:address>
+<oref:Country>643</oref:Country>
+<oref:Index>654041</oref:Index>
+<oref:RegionCode>42</oref:RegionCode>
+<oref:area></oref:area>
+<oref:city>Иванаево</oref:city>
+<oref:place></oref:place>
+<oref:street>Октябрьская ул</oref:street>
+<oref:house>31</oref:house>
+<oref:building>1</oref:building>
+<oref:liter></oref:liter>
+<oref:description>643,Башкортостан Респ,Дюртюлинский р-н,Иванаево с, Октябрьская ул,31/1,,,</oref:description>
+</oref:address>
+</wb:Shipper>
+<!--получатель (обязательно)-->
+<wb:Consignee>
+<oref:INN>5907027035</oref:INN>
+<oref:KPP>590701001</oref:KPP>
+<oref:ClientRegId>00040217</oref:ClientRegId>
+<oref:FullName>ООО"Купец Богатов-Персонал" (Магазин)</oref:FullName>
+<oref:ShortName>ООО"Купец Богатов-Персонал" (Магазин)</oref:ShortName>
+<oref:address>
+<oref:Country>643</oref:Country>
+<oref:Index></oref:Index>
+<oref:RegionCode>59</oref:RegionCode>
+<oref:area></oref:area>
+<oref:city>Пермь</oref:city>
+<oref:place>Репина</oref:place>
+<oref:street></oref:street>
+<oref:house>71</oref:house>
+<oref:building></oref:building>
+<oref:liter></oref:liter>
+<oref:description>643,Пермский край,Пермь г,Репина ул,71</oref:description>
+</oref:address>
+</wb:Consignee>
+<!--поставщик(необязательно)-->
+<wb:Supplier>
+<oref:INN>4221001176</oref:INN>
+<oref:KPP>420532005</oref:KPP>
+<oref:ClientRegId>00072789</oref:ClientRegId>
+<oref:FullName>ОПТОВЫЙ СКЛАД ООО "ИВА"</oref:FullName>
+<oref:ShortName>ИВА ООО</oref:ShortName>
+<oref:address>
+<oref:Country>643</oref:Country>
+<oref:Index>654041</oref:Index>
+<oref:RegionCode>42</oref:RegionCode>
+<oref:area></oref:area>
+<oref:city>НОВОКУЗНЕЦК Г</oref:city>
+<oref:place></oref:place>
+<oref:street>КУТУЗОВА УЛ</oref:street>
+<oref:house>28</oref:house>
+<oref:building></oref:building>
+<oref:liter>62</oref:liter>
+<oref:description>643,654041,КЕМЕРОВСКАЯ ОБЛ,,НОВОКУЗНЕЦК Г,,КУТУЗОВА УЛ,28,,62</oref:description>
+</oref:address>
+</wb:Supplier>
+<wb:Transport>
+<wb:TRAN_TYPE>413</wb:TRAN_TYPE>
+<wb:TRAN_COMPANY>ООО"Азурит"</wb:TRAN_COMPANY>
+<wb:TRAN_CAR>Рено</wb:TRAN_CAR>
+<wb:TRAN_TRAILER></wb:TRAN_TRAILER>
+<wb:TRAN_CUSTOMER>ЗАО "Союз-Виктан"</wb:TRAN_CUSTOMER>
+<wb:TRAN_DRIVER>Шайцанс А.В.</wb:TRAN_DRIVER>
+<wb:TRAN_LOADPOINT>П.Горбово</wb:TRAN_LOADPOINT>
+<wb:TRAN_UNLOADPOINT>Лыткарино</wb:TRAN_UNLOADPOINT>
+<wb:TRAN_REDIRECT></wb:TRAN_REDIRECT>
+<wb:TRAN_FORWARDER>Шайцанс А.В.</wb:TRAN_FORWARDER>
+</wb:Transport>
+<wb:Base>основание - текст</wb:Base>
+<wb:Note>схема получатель-отправитель</wb:Note>
+</wb:Header>
+<!--Содержимое ТТН-->
+<wb:Content>
+<wb:Position>
+<!--уникальная строка в пределах ТТН для точного указания ошибок в случае наличия таковых. Желательно указывать Noпп внутри накладной.
+Также на эти номера ссылаются записи из
+-->
+<wb:Identity>1</wb:Identity>
+<!--Информация о продукции-->
+<wb:Product>
+<pref:Type>АП</pref:Type>
+<pref:FullName>Вино виноградное натуральное контролируемого наименования по происхождению "Шато Монталиве" белое су 0.7500 л.</pref:FullName>
+<pref:ShortName>Вино"Шато Монталиве"б/с ух</pref:ShortName>
+<pref:AlcCode>АП-0150376000001294751</pref:AlcCode>
+<pref:Capacity>0.7500</pref:Capacity>
+<pref:AlcVolume>12.500</pref:AlcVolume>
+<pref:ProductVCode>400</pref:ProductVCode>
+<pref:Producer>
+<!--Отечественная-->
+<oref:INN>7705444495</oref:INN>
+<oref:KPP>772945001</oref:KPP>
+<oref:ClientRegId>00015081</oref:ClientRegId>
+<oref:FullName>Общество с ограниченной ответственностью "ЛУДИНГ-ТРЕЙД"</oref:FullName>
+<oref:ShortName>Общество с ограниченной ответственностью "ЛУДИНГ-ТРЕЙД"</oref:ShortName>
+<oref:address>
+<oref:Country>643</oref:Country>
+<oref:Index>121471</oref:Index>
+<oref:RegionCode>77</oref:RegionCode>
+<oref:area></oref:area>
+<oref:city></oref:city>
+<oref:place></oref:place>
+<oref:street>ул. Рябиновая</oref:street>
+<oref:house>63</oref:house>
+<oref:building></oref:building>
+<oref:liter></oref:liter>
+<oref:description></oref:description>
+</oref:address>
+</pref:Producer>
+</wb:Product>
+<!--Количество - шт для фасованной, Дал для нефасованной-->
+<wb:Quantity>2</wb:Quantity>
+<!--цена (обязательно?)-->
+<wb:Price>325.00</wb:Price>
+<!--Упаковка групповая (необязательно)-->
+<wb:Pack_ID>Паллета</wb:Pack_ID>
+<!--Номер партии-->
+<wb:Party>партия No 8</wb:Party>
+<wb:InformA>
+<!--Обязательный регистрационный номер справки А-->
+<pref:RegId>000000000000014</pref:RegId>
+</wb:InformA>
+<wb:InformB>
+<!--Раздел Б - ид записи предыдущей отгрузки (по которому продукция поступила на склад)-->
+<pref:InformBItem>
+<pref:BRegId>000000000000008</pref:BRegId>
+</pref:InformBItem>
+</wb:InformB>
+</wb:Position>
+</wb:Content>
+</ns:WayBill>
+</ns:Document>
+</ns:Documents>

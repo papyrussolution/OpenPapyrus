@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WL5G3N0:definitions name="ApplicationManagementService" targetNamespace="http://api.vetrf.ru/schema/cdm/application/service" xmlns:WL5G3N0="http://schemas.xmlsoap.org/wsdl/" xmlns:WL5G3N1="http://api.vetrf.ru/schema/cdm/application/ws-definitions" xmlns:WL5G3N2="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:WL5G3N3="http://api.vetrf.ru/schema/cdm/application/service" xmlns:WL5G3N4="http://schemas.xmlsoap.org/wsdl/soap/">
+  <WL5G3N0:types>
+    <xs:schema xmlns:bsdef="http://api.vetrf.ru/schema/cdm/base/ws-definitions" xmlns:def="http://api.vetrf.ru/schema/cdm/application/ws-definitions" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://api.vetrf.ru/schema/cdm/application/service" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://api.vetrf.ru/schema/cdm/application/ws-definitions" schemaLocation="application_ws_definitions_v1.3.xsd"/>
+      <xs:import namespace="http://api.vetrf.ru/schema/cdm/base/ws-definitions" schemaLocation="base_ws_definitions_v1.3.xsd"/>
+    </xs:schema>
+  </WL5G3N0:types>
+  <WL5G3N0:message name="SubmitApplicationRequest">
+    <WL5G3N0:part element="WL5G3N1:submitApplicationRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="SubmitApplicationResponse">
+    <WL5G3N0:part element="WL5G3N1:submitApplicationResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="ReceiveApplicationResultRequest">
+    <WL5G3N0:part element="WL5G3N1:receiveApplicationResultRequest" name="request"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="ReceiveApplicationResultResponse">
+    <WL5G3N0:part element="WL5G3N1:receiveApplicationResultResponse" name="response"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="ApplicationNotFoundFault">
+    <WL5G3N0:part element="WL5G3N2:entityNotFoundFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="InternalServiceFault">
+    <WL5G3N0:part element="WL5G3N2:internalServiceFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="IncorrectRequestFault">
+    <WL5G3N0:part element="WL5G3N2:incorrectRequestFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="AccessDeniedFault">
+    <WL5G3N0:part element="WL5G3N2:accessDeniedFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="UnsupportedApplicationDataTypeFault">
+    <WL5G3N0:part element="WL5G3N1:unsupportedApplicationDataTypeFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:message name="UnknownServiceIdFault">
+    <WL5G3N0:part element="WL5G3N1:unknownServiceIdFault" name="fault"/>
+  </WL5G3N0:message>
+  <WL5G3N0:portType name="ApplicationManagementServicePortType">
+    <WL5G3N0:operation name="submitApplicationRequest">
+      <WL5G3N0:input message="WL5G3N3:SubmitApplicationRequest"/>
+      <WL5G3N0:output message="WL5G3N3:SubmitApplicationResponse"/>
+      <WL5G3N0:fault message="WL5G3N3:UnsupportedApplicationDataTypeFault" name="unsupportedApplicationDataTypeFault"/>
+      <WL5G3N0:fault message="WL5G3N3:UnknownServiceIdFault" name="unknownServiceIdFault"/>
+      <WL5G3N0:fault message="WL5G3N3:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N3:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N3:AccessDeniedFault" name="accessDeniedFault"/>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="receiveApplicationResult">
+      <WL5G3N0:input message="WL5G3N3:ReceiveApplicationResultRequest"/>
+      <WL5G3N0:output message="WL5G3N3:ReceiveApplicationResultResponse"/>
+      <WL5G3N0:fault message="WL5G3N3:ApplicationNotFoundFault" name="applicationNotFoundFault"/>
+      <WL5G3N0:fault message="WL5G3N3:InternalServiceFault" name="internalServiceFault"/>
+      <WL5G3N0:fault message="WL5G3N3:IncorrectRequestFault" name="incorrectRequestFault"/>
+      <WL5G3N0:fault message="WL5G3N3:AccessDeniedFault" name="accessDeniedFault"/>
+    </WL5G3N0:operation>
+  </WL5G3N0:portType>
+  <WL5G3N0:binding name="ApplicationManagementServiceBinding" type="WL5G3N3:ApplicationManagementServicePortType">
+    <WL5G3N4:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <WL5G3N0:operation name="submitApplicationRequest">
+      <WL5G3N4:operation soapAction="submitApplicationRequest"/>
+      <WL5G3N0:input>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="unsupportedApplicationDataTypeFault">
+        <WL5G3N4:fault name="unsupportedApplicationDataTypeFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="unknownServiceIdFault">
+        <WL5G3N4:fault name="unknownServiceIdFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N4:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N4:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="accessDeniedFault">
+        <WL5G3N4:fault name="accessDeniedFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+    <WL5G3N0:operation name="receiveApplicationResult">
+      <WL5G3N4:operation soapAction="receiveApplicationResult"/>
+      <WL5G3N0:input>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:input>
+      <WL5G3N0:output>
+        <WL5G3N4:body use="literal"/>
+      </WL5G3N0:output>
+      <WL5G3N0:fault name="applicationNotFoundFault">
+        <WL5G3N4:fault name="applicationNotFoundFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="internalServiceFault">
+        <WL5G3N4:fault name="internalServiceFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="incorrectRequestFault">
+        <WL5G3N4:fault name="incorrectRequestFault" use="literal"/>
+      </WL5G3N0:fault>
+      <WL5G3N0:fault name="accessDeniedFault">
+        <WL5G3N4:fault name="accessDeniedFault" use="literal"/>
+      </WL5G3N0:fault>
+    </WL5G3N0:operation>
+  </WL5G3N0:binding>
+  <WL5G3N0:service name="ApplicationManagementServiceBindingQSService">
+    <WL5G3N0:port binding="WL5G3N3:ApplicationManagementServiceBinding" name="ApplicationManagementServiceBindingQSPort">
+      <WL5G3N4:address location="https://api.vetrf.ru/platform/services/ApplicationManagementService"/>
+    </WL5G3N0:port>
+  </WL5G3N0:service>
+</WL5G3N0:definitions>

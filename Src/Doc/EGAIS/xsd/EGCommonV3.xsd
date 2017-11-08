@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/CommonV3"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           targetNamespace="http://fsrar.ru/WEGAIS/CommonV3"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+
+
+  <!--новые схемы для помарочного учета-->
+  <xs:complexType name="AMCforDocType">
+    <xs:annotation>
+      <xs:documentation>Список считанных кодов марок</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="amc" type="c:PDF417String" nillable="false" minOccurs="1" maxOccurs="unbounded" >
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="boxtype">
+    <xs:sequence>
+      <xs:element name="boxnum" type="c:NoEmptyString" minOccurs="1" maxOccurs="1"/>
+      <xs:choice>
+        <xs:element name="bl" type="ns:boxtype" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="boxnum" type="c:NoEmptyString" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="bktype">
+    <xs:annotation>
+      <xs:documentation>Список считанных кодов марок</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="bk" type="c:PDF417String" nillable="false" minOccurs="1" maxOccurs="unbounded" >
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="boxamcType">
+    <xs:annotation>
+      <xs:documentation>информация об упаковке с марками</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="boxnumber" type="c:NoEmptyString" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер коробки(упаковки)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="amclist" type="ns:AMCforDocType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Перечень считанных кодов марок</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="MarkInfoTypeBC">
+    <xs:annotation>
+      <xs:documentation>Информация о марках</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="boxpos" type="ns:boxamcType" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Номер коробки(упаковки)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InformF2TypeItemBC">
+    <xs:annotation>
+      <xs:documentation>Запись в справке 2 к ТТН, Информация о предыдущих отгрузках</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="F2RegId" type="c:NoEmptyString50" default="FIRSTSHIPMENT" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер раздела справки 2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MarkInfo" type="ns:MarkInfoTypeBC" nillable="false"  minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о марках</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <!--новые схемы для помарочного учета-->
+
+</xs:schema>

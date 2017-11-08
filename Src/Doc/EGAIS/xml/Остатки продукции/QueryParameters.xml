@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns:Documents Version="1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:ns="http://fsrar.ru/WEGAIS/WB_DOC_SINGLE_01"
+xmlns:qp="http://fsrar.ru/WEGAIS/QueryParameters">
+<!--Кто запрашивает документы-->
+<ns:Owner>
+<!--Идентификатор организации в ФС РАР-->
+<ns:FSRAR_ID>00040218</ns:FSRAR_ID>
+</ns:Owner>
+<!--Запрос на остатки-->
+<ns:Document>
+<ns:QueryRests></ns:QueryRests>
+</ns:Document>
+</ns:Documents>

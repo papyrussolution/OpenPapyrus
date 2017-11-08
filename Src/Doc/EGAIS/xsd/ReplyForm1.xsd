@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ns="http://fsrar.ru/WEGAIS/ReplyForm1"
+           targetNamespace="http://fsrar.ru/WEGAIS/ReplyForm1"
+
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:oref="http://fsrar.ru/WEGAIS/ClientRef_v2"
+           xmlns:pref="http://fsrar.ru/WEGAIS/ProductRef_v2"
+           >
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ClientRef_v2" schemaLocation="ClientRef_v2.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/ProductRef_v2" schemaLocation="ProductRef_v2.xsd"/>
+
+  <xs:complexType name="ReplyForm1">
+    <xs:annotation>
+      <xs:documentation>Ответ на запрос о форме 1</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="InformF1RegId" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Регистрационный номер формы 1</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OriginalClient" type="oref:OrgInfoRusReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Производитель/импортер</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+     <xs:element name="OriginalDocNumber" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер документа о производстве/импорте продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OriginalDocDate" type="c:DateNoTime" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата документа о производстве/импорте продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Product" type="pref:ProductInfoReply_v2" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BottlingDate" type="c:DateNoTime" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата производства/импорта продукции</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="c:PositiveDecimalType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EGAISNumber" type="c:NoEmptyString50" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер подтверждения о фиксации в ЕГАИС</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EGAISDate" type="c:DateNoTime" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата подтверждения о фиксации в ЕГАИС</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GTDNUMBER" type="c:NoEmptyString50" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер ГТД</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GTDDate" type="c:DateNoTime" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Дата ГТД</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MarkInfo" type="pref:MarkInfoType" nillable="false" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Информация о марках</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+
+    </xs:all>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema version="1.0"
+           xmlns:as="http://fsrar.ru/WEGAIS/AscpNavigation" targetNamespace="http://fsrar.ru/WEGAIS/AscpNavigation"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified"
+           xmlns:c="http://fsrar.ru/WEGAIS/Common"
+           xmlns:ce="http://fsrar.ru/WEGAIS/CommonEnum"
+>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/Common" schemaLocation="EGCommon.xsd"/>
+  <xs:import namespace="http://fsrar.ru/WEGAIS/CommonEnum" schemaLocation="EGCommonEnum.xsd"/>
+
+  <xs:complexType name="AscpNav">
+    <xs:annotation>
+      <xs:documentation>Сведения с автоматических средств контроля положения</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Sensor" >
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="IMEI" type="c:NoEmptyString" nillable="false" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>IMEI конкретного прибора установленного на цистерне</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name ="TimeUTC" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Время UTC</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="Latitude" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Широта</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="Longitude" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Долгота</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="CountSatellite" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Количество спутников</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="Accuracy" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Точность определения местоположения</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="Course" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Курс</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name ="Speed" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Скорость</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DataLevelGauge" >
+        <xs:annotation>
+          <xs:documentation>Перечень сведений от уровнемеров</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="LevelGauge" type="as:DataType" nillable="false" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>Сведения со средства измерения за один период времени его работы</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="lgu">
+          <xs:selector xpath="as:LevelGauge"/>
+          <xs:field xpath="as:Number"/>
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="DataType">
+    <xs:annotation>
+      <xs:documentation>Строка данных измерений</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="Number" type="xs:integer" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Номер уровнемера по порядку</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Readings" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Данные уровнемера</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Temperature" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Температура по уровнемеру</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Density" type="xs:decimal" nillable="false" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>Плотность по уровнемеру</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+
+</xs:schema>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

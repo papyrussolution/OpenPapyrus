@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://api.vetrf.ru/schema/cdm/base"
+           xmlns:tns="http://api.vetrf.ru/schema/cdm/base"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified" version="1.4">
+
+   <xs:element name="guid" type="tns:UUID"/>
+   <xs:element name="uuid" type="tns:UUID"/>
+
+   <xs:element name="listOptions" type="tns:ListOptions"/>
+   <xs:element name="updateDateInterval" type="tns:DateInterval"/>
+
+   <xs:complexType name="GenericEntity">
+      <xs:annotation>
+         <xs:documentation>Тип, базовый для любой сущности системы.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="uuid" type="tns:UUID" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Идентификатор сущности.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="GenericVersioningEntity">
+      <xs:annotation>
+         <xs:documentation>Тип, базовый для сущностей, поддерживающих версии.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="tns:GenericEntity">
+            <xs:sequence>
+               <xs:element name="guid" type="tns:UUID" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Глобальный идентификатор в системах
+                        Россельхознадзора.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="active" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Флаг, определяющий актуальность записи.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="last" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Флаг, указывающий на то, что запись является последней в истории.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="status" type="tns:VersionStatus" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Статус объекта.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="createDate" type="xs:dateTime" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Дата создания объекта.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="updateDate" type="xs:dateTime" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Дата последнего обновления объекта.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="previous" type="tns:UUID" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предыдущей версии объекта.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="next" type="tns:UUID" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор последующей версии объекта.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ListOptions">
+      <xs:annotation>
+         <xs:documentation>Тип, определяющий параметры запрашиваемого у
+            сервиса списка объектов.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="count" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Максимальное запрашиваемое количество объектов в
+                  списке.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="offset" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Номер элемента, по которому осуществляется
+                  смещение первого элемента списка.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="DateInterval">
+      <xs:annotation>
+         <xs:documentation>Тип, с помощью которого задается временной интервал.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="beginDate" type="xs:dateTime" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Начало временного интервала.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="endDate" type="xs:dateTime" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Конец временного интервала.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="EntityList">
+      <xs:annotation>
+         <xs:documentation>Базовый тип для описания списков сущностей.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:attribute name="count" type="xs:int" use="required">
+         <xs:annotation>
+            <xs:documentation>Размер списка, передаваемого в ответе на запрос.
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="total" type="xs:long" use="required">
+         <xs:annotation>
+            <xs:documentation>Размер всего списка, удовлетворяющего запросу.
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="offset" type="xs:int" use="required">
+         <xs:annotation>
+            <xs:documentation>Смещение первого элемента передаваемого списка во
+               всем списке результатов, удовлетворяющих запросу.
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+
+   <xs:complexType name="FaultInfo">
+      <xs:annotation>
+         <xs:documentation>Тип, описываюший ошибки.</xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="message" type="xs:string" minOccurs="1" maxOccurs="1"/>
+         <xs:element name="error" type="tns:Error" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="Error">
+      <xs:simpleContent>
+         <xs:extension base="xs:string">
+            <xs:attribute name="code" type="xs:NCName" use="required"/>
+            <xs:attribute name="qualifier" type="tns:Identifier" use="optional"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+
+   <xs:simpleType name="Year">
+      <xs:annotation>
+         <xs:documentation>Год</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:pattern value="[1-2][0-9][0-9][0-9]"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Month">
+      <xs:annotation>
+         <xs:documentation>Месяц</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="1"/>
+         <xs:maxInclusive value="12"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Day">
+      <xs:annotation>
+         <xs:documentation>День месяца</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="1"/>
+         <xs:maxInclusive value="31"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Hour">
+      <xs:annotation>
+         <xs:documentation>Час</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="0"/>
+         <xs:maxInclusive value="23"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:complexType name="ComplexDate">
+      <xs:annotation>
+         <xs:documentation>Тип, описывающий дату.</xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="year" type="tns:Year" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Год</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="month" type="tns:Month" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Месяц</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="day" type="tns:Day" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>День</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="hour" type="tns:Hour" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>Час</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name="UUID">
+      <xs:annotation>
+         <xs:documentation>Тип, описывающий уникальный идентификатор любой
+            сущности системы.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern
+                 value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="String255">
+      <xs:annotation>
+         <xs:documentation>Строковый тип с ограничением максимальной длины.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="255"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="String32">
+      <xs:annotation>
+         <xs:documentation>Строковый тип с ограничением максимальной длины.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="32"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Decimal">
+      <xs:annotation>
+         <xs:documentation>Вещественный тип с ограничением числа знаков после запятой.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:decimal">
+         <xs:fractionDigits value="6"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="VersionStatus">
+      <xs:annotation>
+         <xs:documentation>Тип, описывающий статусы версионных объектов.
+            100 - CREATED - Запись создана
+            110 CREATED_WHEN_MERGE - Запись создана в результате объединения двух или более других
+            120 - CREATED_WHEN_SPLIT - Запись создана в результате разделения другой
+            200 - UPDATED - В запись были внесены изменения
+            230 - UPDATED_WHEN_ATTACH - Запись была обновлена в результате присоединения другой
+            240 - UPDATED_WHEN_FORK - Запись была обновлена в результате отделения от неё другой
+            300 - MOVED - Запись была перемещена в другую группу (для иерархических справочников)
+            400 - DELETED - Запись была удалена
+            410 - DELETED_WHEN_MERGE - Запись была удалена в результате объединения
+            420 - DELETED_WHEN_SPLIT - Запись была удалена в результате разделения
+            430 - DELETED_WHEN_ATTACH - Запись была удалена в результате присоединения
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:integer">
+         <xs:pattern value="[1-4][0-9][0-9]"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="RegisterModificationType">
+      <xs:annotation>
+         <xs:documentation>Тип операции на изменение реестра.</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="CREATE">
+            <xs:annotation>
+               <xs:documentation>Добавление новой записи.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="FIND_OR_CREATE">
+            <xs:annotation>
+               <xs:documentation>Поиск существующей или добавление новой записи. [CREATE IF NOT EXISTS]
+               </xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="UPDATE">
+            <xs:annotation>
+               <xs:documentation>Внесение изменений в существующую запись.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="DELETE">
+            <xs:annotation>
+               <xs:documentation>Удаление существующей записи.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="MERGE">
+            <xs:annotation>
+               <xs:documentation>Объединение двух или нескольких записей.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="ATTACH">
+            <xs:annotation>
+               <xs:documentation>Присоединение одной или нескольких записе к другой.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="SPLIT">
+            <xs:annotation>
+               <xs:documentation>Разделение записи на две и более.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="FORK">
+            <xs:annotation>
+               <xs:documentation>Отделение одной и более записей от существующей.</xs:documentation>
+            </xs:annotation>
+         </xs:enumeration>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="Identifier">
+      <xs:annotation>
+         <xs:documentation>Тип, описывающий идентификатор.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:token">
+         <xs:maxLength value="100"/>
+      </xs:restriction>
+   </xs:simpleType>
+</xs:schema>
