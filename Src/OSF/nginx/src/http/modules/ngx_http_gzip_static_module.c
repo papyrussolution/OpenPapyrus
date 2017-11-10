@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #define NGX_HTTP_GZIP_STATIC_OFF     0
 #define NGX_HTTP_GZIP_STATIC_ON      1

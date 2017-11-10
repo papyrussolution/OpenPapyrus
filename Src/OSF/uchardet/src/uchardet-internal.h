@@ -137,185 +137,6 @@ protected:
 	uint8  Reserve[3]; // @alignment
 };
 //
-//#include <CharDistribution.h>
-//
-#define ENOUGH_DATA_THRESHOLD 1024
-#define MINIMUM_DATA_THRESHOLD  4
-
-class CharDistributionAnalysis {
-public:
-	CharDistributionAnalysis() 
-	{
-		Reset(false);
-	}
-	//
-	// feed a block of data and do distribution analysis
-	//
-	void HandleData(const char* aBuf, uint32 aLen) 
-	{
-	}
-	//
-	// Feed a character with known length
-	//
-	void HandleOneChar(const char * aStr, uint32 aCharLen)
-	{
-		//we only care about 2-bytes character in our distribution analysis
-		const int32 order = (aCharLen == 2) ? GetOrder(aStr) : -1;
-		if(order >= 0) {
-			mTotalChars++;
-			//order is valid
-			if((uint32)order < mTableSize) {
-				if(512 > mCharToFreqOrder[order])
-					mFreqChars++;
-			}
-		}
-	}
-	//
-	// return confidence base on existing data
-	//
-	float  GetConfidence() const;
-	//
-	// Reset analyser, clear any state
-	//
-	void   Reset(bool aIsPreferredLanguage)
-	{
-		mDone = false;
-		mTotalChars = 0;
-		mFreqChars = 0;
-		mDataThreshold = aIsPreferredLanguage ? 0 : MINIMUM_DATA_THRESHOLD;
-	}
-	//
-	// It is not necessary to receive all data to draw conclusion. For charset detection,
-	// certain amount of data is enough
-	//
-	bool GotEnoughData() const 
-	{
-		return (mTotalChars > ENOUGH_DATA_THRESHOLD);
-	}
-protected:
-	//
-	// we do not handle character base on its original encoding string, but
-	// convert this encoding string to a number, here called order.
-	// This allow multiple encoding of a language to share one frequency table
-	//
-	virtual int32 GetOrder(const char * str) const
-	{
-		return -1;
-	}
-	uint32 mFreqChars; //The number of characters whose frequency order is less than 512
-	uint32 mTotalChars; //Total character encounted.
-	uint32 mDataThreshold; //Number of hi-byte characters needed to trigger detection
-	const  int16  * mCharToFreqOrder; //Mapping table to get frequency order from char order (get from GetOrder())
-	uint32 mTableSize; //Size of above table
-	// This is a constant value varies from language to language, it is used in
-	// calculating confidence. See my paper for further detail.
-	float  mTypicalDistributionRatio;
-	bool   mDone;      // If this flag is set to true, detection is done and conclusion has been made
-	uint8  Reserve[3]; // @alignment
-};
-
-class EUCTWDistributionAnalysis : public CharDistributionAnalysis {
-public:
-	EUCTWDistributionAnalysis();
-protected:
-	//for EUC-TW encoding, we are interested
-	//  first  byte range: 0xc4 -- 0xfe
-	//  second byte range: 0xa1 -- 0xfe
-	//no validation needed here. State machine has done that
-	int32 GetOrder(const char * str) const
-	{
-		return ((uchar)*str >= (uchar)0xc4) ? (94*((uchar)str[0]-(uchar)0xc4) + (uchar)str[1] - (uchar)0xa1) : -1;
-	}
-};
-
-class EUCKRDistributionAnalysis : public CharDistributionAnalysis {
-public:
-	EUCKRDistributionAnalysis();
-protected:
-	//
-	// for euc-KR encoding, we are interested
-	//   first  byte range: 0xb0 -- 0xfe
-	//   second byte range: 0xa1 -- 0xfe
-	// no validation needed here. State machine has done that
-	//
-	int32 GetOrder(const char * str) const
-	{
-		return ((uchar)*str >= (uchar)0xb0) ? (94*((uchar)str[0]-(uchar)0xb0) + (uchar)str[1] - (uchar)0xa1) : -1;
-	}
-};
-
-class GB2312DistributionAnalysis : public CharDistributionAnalysis {
-public:
-	GB2312DistributionAnalysis();
-protected:
-	//for GB2312 encoding, we are interested
-	//  first  byte range: 0xb0 -- 0xfe
-	//  second byte range: 0xa1 -- 0xfe
-	//no validation needed here. State machine has done that
-	int32 GetOrder(const char * str) const
-	{
-		return ((uchar)*str >= (uchar)0xb0 && (uchar)str[1] >= (uchar)0xa1) ? (94*((uchar)str[0]-(uchar)0xb0) + (uchar)str[1] - (uchar)0xa1) : -1;
-	}
-};
-
-class Big5DistributionAnalysis : public CharDistributionAnalysis {
-public:
-	Big5DistributionAnalysis();
-protected:
-	//for big5 encoding, we are interested
-	//  first  byte range: 0xa4 -- 0xfe
-	//  second byte range: 0x40 -- 0x7e , 0xa1 -- 0xfe
-	//no validation needed here. State machine has done that
-	int32 GetOrder(const char * str) const
-	{
-		if((uchar)*str >= (uchar)0xa4)
-			if((uchar)str[1] >= (uchar)0xa1)
-				return 157*((uchar)str[0]-(uchar)0xa4) + (uchar)str[1] - (uchar)0xa1 +63;
-			else
-				return 157*((uchar)str[0]-(uchar)0xa4) + (uchar)str[1] - (uchar)0x40;
-		else
-			return -1;
-	}
-};
-
-class SJISDistributionAnalysis : public CharDistributionAnalysis {
-public:
-	SJISDistributionAnalysis();
-protected:
-	//for sjis encoding, we are interested
-	//  first  byte range: 0x81 -- 0x9f , 0xe0 -- 0xfe
-	//  second byte range: 0x40 -- 0x7e,  0x81 -- oxfe
-	//no validation needed here. State machine has done that
-	int32 GetOrder(const char* str) const
-	{
-		int32 order;
-		if((uchar)*str >= (uchar)0x81 && (uchar)*str <= (uchar)0x9f)
-			order = 188 * ((uchar)str[0]-(uchar)0x81);
-		else if((uchar)*str >= (uchar)0xe0 && (uchar)*str <= (uchar)0xef)
-			order = 188 * ((uchar)str[0]-(uchar)0xe0 + 31);
-		else
-			return -1;
-		order += (uchar)*(str+1) - 0x40;
-		if((uchar)str[1] > (uchar)0x7f)
-			order--;
-		return order;
-	}
-};
-
-class EUCJPDistributionAnalysis : public CharDistributionAnalysis {
-public:
-	EUCJPDistributionAnalysis();
-protected:
-	//for euc-JP encoding, we are interested
-	//  first  byte range: 0xa0 -- 0xfe
-	//  second byte range: 0xa1 -- 0xfe
-	//no validation needed here. State machine has done that
-	int32 GetOrder(const char * str) const
-	{
-		return ((uchar)*str >= (uchar)0xa0) ? (94*((uchar)str[0]-(uchar)0xa1) + (uchar)str[1] - (uchar)0xa1) : -1;
-	}
-};
-//
 //#include <JpCntx.h>
 //
 #define NUM_OF_CATEGORY      6
@@ -332,7 +153,7 @@ public:
 	void   HandleOneChar(const char * aStr, uint32 aCharLen);
 	float  GetConfidence() const;
 	void   Reset(bool aIsPreferredLanguage);
-	bool   GotEnoughData() 
+	bool   GotEnoughData() const
 	{
 		return (mTotalRel > ENOUGH_REL_THRESHOLD);
 	}
@@ -385,12 +206,18 @@ enum nsProbingState {
 
 class nsCharSetProber {
 public:
+	nsCharSetProber() : mState(eDetecting)
+	{
+	}
 	virtual ~nsCharSetProber() 
 	{
 	}
 	virtual const char * GetCharSetName() = 0;
 	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen) = 0;
-	virtual nsProbingState GetState() const = 0;
+	virtual nsProbingState GetState() const
+	{
+		return mState;
+	}
 	virtual void  Reset()  = 0;
 	virtual float GetConfidence() const = 0;
 #ifdef DEBUG_chardet
@@ -404,6 +231,8 @@ public:
 	// Both functions return false in case of memory allocation failure.
 	static bool FilterWithoutEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen);
 	static bool FilterWithEnglishLetters(const char* aBuf, uint32 aLen, char** newBuf, uint32& newLen);
+protected:
+	nsProbingState mState;
 };
 //
 //#include <nsSBCharSetProber.h>
@@ -441,10 +270,6 @@ public:
 	nsSingleByteCharSetProber(const SequenceModel * model, bool reversed, nsCharSetProber* nameProber);
 	virtual const char * GetCharSetName();
 	virtual nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	virtual nsProbingState GetState() const
-	{
-		return mState;
-	}
 	virtual void  Reset();
 	virtual float GetConfidence() const;
 	// This feature is not implemented yet. any current language model
@@ -461,8 +286,7 @@ public:
 	virtual void  DumpStatus();
 #endif
 protected:
-	nsProbingState mState;
-	const SequenceModel* const mModel;
+	const SequenceModel * const mModel;
 	const bool mReversed; // true if we need to reverse every pair in the model lookup
 	//char order of last character
 	uchar  mLastOrder;
@@ -517,38 +341,6 @@ extern const SMModel ISO2022CNSMModel;
 extern const SMModel ISO2022JPSMModel;
 extern const SMModel ISO2022KRSMModel;
 //
-//#include <nsBig5Prober.h>
-//
-class nsBig5Prober : public nsCharSetProber {
-public:
-	nsBig5Prober(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&Big5SMModel);
-		Reset();
-	}
-	virtual ~nsBig5Prober()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "BIG5"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void      Reset();
-	float     GetConfidence() const;
-protected:
-	void      GetDistribution(uint32 aCharLen, const char* aStr);
-
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	//Big5ContextAnalysis mContextAnalyser;
-	Big5DistributionAnalysis mDistributionAnalyser;
-	char mLastChar[2];
-	bool mIsPreferredLanguage;
-};
-//
 //#include <nsEscCharsetProber.h>
 //
 #define NUM_OF_ESC_CHARSETS   4
@@ -558,10 +350,9 @@ public:
 	nsEscCharSetProber(uint32 aLanguageFilter);
 	virtual ~nsEscCharSetProber();
 	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return mDetectedCharset; }
-	nsProbingState GetState() const
-	{
-		return mState;
+	const char * GetCharSetName() 
+	{ 
+		return mDetectedCharset; 
 	}
 	void   Reset();
 	float  GetConfidence() const
@@ -573,136 +364,7 @@ protected:
 
 	nsCodingStateMachine* mCodingSM[NUM_OF_ESC_CHARSETS];
 	uint32 mActiveSM;
-	nsProbingState mState;
 	const char *  mDetectedCharset;
-};
-//
-//#include <nsEUCJPProber.h>
-//
-class nsEUCJPProber : public nsCharSetProber {
-public:
-	nsEUCJPProber(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&EUCJPSMModel);
-		Reset();
-	}
-	virtual ~nsEUCJPProber()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "EUC-JP"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	EUCJPContextAnalysis mContextAnalyser;
-	EUCJPDistributionAnalysis mDistributionAnalyser;
-	char mLastChar[2];
-	bool mIsPreferredLanguage;
-};
-//
-//#include <nsEUCKRProber.h>
-//
-class nsEUCKRProber : public nsCharSetProber {
-public:
-	nsEUCKRProber(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&EUCKRSMModel);
-		Reset();
-	}
-	virtual ~nsEUCKRProber()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "EUC-KR"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	void   GetDistribution(uint32 aCharLen, const char* aStr);
-
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	//EUCKRContextAnalysis mContextAnalyser;
-	EUCKRDistributionAnalysis mDistributionAnalyser;
-	char mLastChar[2];
-	bool mIsPreferredLanguage;
-};
-//
-//#include <nsEUCTWProber.h>
-//
-class nsEUCTWProber : public nsCharSetProber {
-public:
-	nsEUCTWProber(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&EUCTWSMModel);
-		Reset();
-	}
-	virtual ~nsEUCTWProber()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "EUC-TW"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	void   GetDistribution(uint32 aCharLen, const char* aStr);
-
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	//EUCTWContextAnalysis mContextAnalyser;
-	EUCTWDistributionAnalysis mDistributionAnalyser;
-	char mLastChar[2];
-	bool mIsPreferredLanguage;
-};
-//
-//#include <nsGB2312Prober.h>
-//
-// We use GB18030 to replace GB2312, because 18030 is a superset.
-
-class nsGB18030Prober : public nsCharSetProber {
-public:
-	nsGB18030Prober(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&GB18030SMModel);
-		Reset();
-	}
-	virtual ~nsGB18030Prober()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "GB18030"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	void      GetDistribution(uint32 aCharLen, const char* aStr);
-
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	//GB2312ContextAnalysis mContextAnalyser;
-	GB2312DistributionAnalysis mDistributionAnalyser;
-	char mLastChar[2];
-	bool mIsPreferredLanguage;
 };
 //
 //#include <nsHebrewProber.h>
@@ -736,9 +398,13 @@ public:
 protected:
 	static bool isFinal(char c);
 	static bool isNonFinal(char c);
-	int32 mFinalCharLogicalScore, mFinalCharVisualScore;
-	char mPrev, mBeforePrev; // The two last characters seen in the previous buffer.
-	nsCharSetProber * mLogicalProb, * mVisualProb; // These probers are owned by the group prober.
+	int32  mFinalCharLogicalScore, mFinalCharVisualScore;
+	// The two last characters seen in the previous buffer.
+	char   mPrev;
+	char   mBeforePrev; 
+	// These probers are owned by the group prober.
+	nsCharSetProber * mLogicalProb;
+	nsCharSetProber * mVisualProb; 
 };
 /**
  * ** General ideas of the Hebrew charset recognition **
@@ -852,81 +518,14 @@ public:
 	}
 	nsProbingState HandleData(const char* aBuf, uint32 aLen);
 	const char * GetCharSetName() { return "WINDOWS-1252"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
 	void   Reset();
 	float  GetConfidence() const;
 #ifdef DEBUG_chardet
 	virtual void  DumpStatus();
 #endif
 protected:
-	nsProbingState mState;
-	char mLastCharClass;
+	char   mLastCharClass;
 	uint32 mFreqCounter[FREQ_CAT_NUM];
-};
-//
-//#include <nsSJISProber.h>
-//
-class nsSJISProber : public nsCharSetProber {
-public:
-	nsSJISProber(bool aIsPreferredLanguage) : mIsPreferredLanguage(aIsPreferredLanguage)
-	{
-		mCodingSM = new nsCodingStateMachine(&SJISSMModel);
-		Reset();
-	}
-	virtual ~nsSJISProber()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() { return "SHIFT_JIS"; }
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	SJISContextAnalysis mContextAnalyser;
-	SJISDistributionAnalysis mDistributionAnalyser;
-	char   mLastChar[2];
-	bool   mIsPreferredLanguage;
-	uint8  Reserve; // @alignment
-};
-//
-//#include <nsUTF8Prober.h>
-//
-class nsUTF8Prober : public nsCharSetProber {
-public:
-	nsUTF8Prober()
-	{
-		mNumOfMBChar = 0;
-		mCodingSM = new nsCodingStateMachine(&UTF8SMModel);
-		Reset();
-	}
-	virtual ~nsUTF8Prober()
-	{
-		delete mCodingSM;
-	}
-	nsProbingState HandleData(const char* aBuf, uint32 aLen);
-	const char * GetCharSetName() 
-	{
-		return "UTF-8";
-	}
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
-	void   Reset();
-	float  GetConfidence() const;
-protected:
-	nsCodingStateMachine* mCodingSM;
-	nsProbingState mState;
-	uint32 mNumOfMBChar;
 };
 //
 //#include <nsMBCSGroupProber.h>
@@ -939,10 +538,6 @@ public:
 	virtual ~nsMBCSGroupProber();
 	nsProbingState HandleData(const char* aBuf, uint32 aLen);
 	const char * GetCharSetName();
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
 	void   Reset();
 	float  GetConfidence() const;
 #ifdef DEBUG_chardet
@@ -952,7 +547,6 @@ public:
 	void GetDetectorState(nsUniversalDetector::DetectorState(&states)[nsUniversalDetector::NumDetectors], uint32 &offset);
 #endif
 protected:
-	nsProbingState mState;
 	nsCharSetProber * mProbers[NUM_OF_PROBERS];
 	mutable int32 mBestGuess; // GetCofident modifies this member
 	uint32 mActiveNum;
@@ -970,17 +564,12 @@ public:
 	virtual ~nsSBCSGroupProber();
 	nsProbingState HandleData(const char* aBuf, uint32 aLen);
 	const char * GetCharSetName();
-	nsProbingState GetState() const
-	{
-		return mState;
-	}
 	void   Reset();
 	float  GetConfidence() const;
 #ifdef DEBUG_chardet
 	void  DumpStatus();
 #endif
 protected:
-	nsProbingState mState;
 	nsCharSetProber * mProbers[NUM_OF_SBCS_PROBERS];
 	mutable int32  mBestGuess; // GetConfident modifies this member
 	uint32 mActiveNum;

@@ -625,7 +625,6 @@
     <ClCompile Include="..\Osf\Libzip\lib\zip_utf-8.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Osf\Libzip\lib\compat.h" />
     <ClInclude Include="..\Osf\Libzip\lib\zip.h" />
     <ClInclude Include="..\Osf\Libzip\lib\zipint.h" />
     <ClInclude Include="..\Osf\Libzip\lib\zipwin32.h" />

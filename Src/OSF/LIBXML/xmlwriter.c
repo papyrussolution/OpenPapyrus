@@ -80,7 +80,7 @@ struct _xmlTextWriterNsStackEntry {
 	xmlLinkPtr elem;
 };
 
-struct _xmlTextWriter {
+struct xmlTextWriter {
 	xmlOutputBufferPtr out; /* output buffer */
 	xmlListPtr nodes;       /* element name stack */
 	xmlListPtr nsstack;     /* name spaces stack */
@@ -101,13 +101,11 @@ static void FASTCALL xmlFreeTextWriterNsStackEntry(xmlLink * pLk);
 static int xmlCmpTextWriterNsStackEntry(const void * data0, const void * data1);
 static int xmlTextWriterWriteDocCallback(void * context, const xmlChar * str, int len);
 static int xmlTextWriterCloseDocCallback(void * context);
-
 static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr);
 static int xmlOutputBufferWriteBase64(xmlOutputBufferPtr out, int len, const uchar * data);
 static void xmlTextWriterStartDocumentCallback(void * ctx);
 static int xmlTextWriterWriteIndent(xmlTextWriter * writer);
 static int xmlTextWriterHandleStateDependencies(xmlTextWriter * writer, xmlTextWriterStackEntry * p);
-
 /**
  * xmlWriterErrMsg:
  * @ctxt:  a writer context
@@ -116,14 +114,12 @@ static int xmlTextWriterHandleStateDependencies(xmlTextWriter * writer, xmlTextW
  *
  * Handle a writer error
  */
-static void xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg)
+static void FASTCALL xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg)
 {
-	if(ctxt) {
+	if(ctxt)
 		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
-	}
-	else {
+	else
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
-	}
 }
 /**
  * xmlWriterErrMsgInt:
@@ -136,12 +132,10 @@ static void xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const 
  */
 static void xmlWriterErrMsgInt(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg, int val)
 {
-	if(ctxt) {
+	if(ctxt)
 		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
-	}
-	else {
+	else
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
-	}
 }
 /**
  * xmlNewTextWriter:
@@ -267,13 +261,11 @@ xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compressio
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : invalid context!\n");
 		return NULL;
 	}
-	out = xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlTextWriterWriteDocCallback,
-	    (xmlOutputCloseCallback)xmlTextWriterCloseDocCallback, (void*)ctxt, 0);
+	out = xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlTextWriterWriteDocCallback, (xmlOutputCloseCallback)xmlTextWriterCloseDocCallback, (void*)ctxt, 0);
 	if(out == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : error at xmlOutputBufferCreateIO!\n");
 		return NULL;
 	}
-
 	ret = xmlNewTextWriter(out);
 	if(!ret) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : error at xmlNewTextWriter!\n");
@@ -283,7 +275,6 @@ xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compressio
 	ret->ctxt = ctxt;
 	return ret;
 }
-
 /**
  * xmlNewTextWriterDoc:
  * @doc: address of a xmlDocPtr to hold the new XML document tree
@@ -3151,8 +3142,7 @@ int xmlTextWriterWriteVFormatDTDInternalEntity(xmlTextWriter * writer, int pe, c
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-int xmlTextWriterWriteDTDEntity(xmlTextWriter * writer, int pe,
-    const xmlChar * name, const xmlChar * pubid, const xmlChar * sysid, const xmlChar * ndataid, const xmlChar * content)
+int xmlTextWriterWriteDTDEntity(xmlTextWriter * writer, int pe, const xmlChar * name, const xmlChar * pubid, const xmlChar * sysid, const xmlChar * ndataid, const xmlChar * content)
 {
 	if(!content && !pubid && !sysid)
 		return -1;

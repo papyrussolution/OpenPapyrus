@@ -707,9 +707,6 @@
 				RelativePath="..\include\libxml\c14n.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\catalog.h">
-			</File>
-			<File
 				RelativePath="..\include\libxml\chvalid.h">
 			</File>
 			<File

@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static const char * ngx_http_block(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_init_phases(ngx_conf_t * cf, ngx_http_core_main_conf_t * cmcf);

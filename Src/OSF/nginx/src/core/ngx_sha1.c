@@ -7,10 +7,9 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_sha1.h>
+//#include <ngx_sha1.h>
 
-static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data,
-    size_t size);
+static const u_char * ngx_sha1_body(ngx_sha1_t * ctx, const u_char * data, size_t size);
 
 void ngx_sha1_init(ngx_sha1_t * ctx)
 {
@@ -19,58 +18,45 @@ void ngx_sha1_init(ngx_sha1_t * ctx)
 	ctx->c = 0x98badcfe;
 	ctx->d = 0x10325476;
 	ctx->e = 0xc3d2e1f0;
-
 	ctx->bytes = 0;
 }
 
 void ngx_sha1_update(ngx_sha1_t * ctx, const void * data, size_t size)
 {
-	size_t used, free;
-
-	used = (size_t)(ctx->bytes & 0x3f);
+	size_t free;
+	size_t used = (size_t)(ctx->bytes & 0x3f);
 	ctx->bytes += size;
-
 	if(used) {
 		free = 64 - used;
-
 		if(size < free) {
 			memcpy(&ctx->buffer[used], data, size);
 			return;
 		}
-
 		memcpy(&ctx->buffer[used], data, free);
 		data = (u_char*)data + free;
 		size -= free;
 		(void)ngx_sha1_body(ctx, ctx->buffer, 64);
 	}
-
 	if(size >= 64) {
 		data = ngx_sha1_body(ctx, (const u_char *)data, size & ~(size_t)0x3f);
 		size &= 0x3f;
 	}
-
 	memcpy(ctx->buffer, data, size);
 }
 
 void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 {
-	size_t used, free;
-
-	used = (size_t)(ctx->bytes & 0x3f);
-
+	size_t free;
+	size_t used = (size_t)(ctx->bytes & 0x3f);
 	ctx->buffer[used++] = 0x80;
-
 	free = 64 - used;
-
 	if(free < 8) {
 		memzero(&ctx->buffer[used], free);
 		(void)ngx_sha1_body(ctx, ctx->buffer, 64);
 		used = 0;
 		free = 64;
 	}
-
 	memzero(&ctx->buffer[used], free - 8);
-
 	ctx->bytes <<= 3;
 	ctx->buffer[56] = (u_char)(ctx->bytes >> 56);
 	ctx->buffer[57] = (u_char)(ctx->bytes >> 48);
@@ -80,9 +66,7 @@ void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 	ctx->buffer[61] = (u_char)(ctx->bytes >> 16);
 	ctx->buffer[62] = (u_char)(ctx->bytes >> 8);
 	ctx->buffer[63] = (u_char)ctx->bytes;
-
 	(void)ngx_sha1_body(ctx, ctx->buffer, 64);
-
 	result[0] = (u_char)(ctx->a >> 24);
 	result[1] = (u_char)(ctx->a >> 16);
 	result[2] = (u_char)(ctx->a >> 8);
@@ -103,14 +87,11 @@ void ngx_sha1_final(u_char result[20], ngx_sha1_t * ctx)
 	result[17] = (u_char)(ctx->e >> 16);
 	result[18] = (u_char)(ctx->e >> 8);
 	result[19] = (u_char)ctx->e;
-
 	memzero(ctx, sizeof(*ctx));
 }
-
 /*
  * Helper functions.
  */
-
 #define ROTATE(bits, word)  (((word) << (bits)) | ((word) >> (32 - (bits))))
 
 #define F1(b, c, d)  (((b) & (c)) | ((~(b)) & (d)))

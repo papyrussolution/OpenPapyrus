@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_split_clients_part_t {
 	uint32_t percent;

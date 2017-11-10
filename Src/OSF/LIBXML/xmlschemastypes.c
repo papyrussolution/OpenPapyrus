@@ -12,8 +12,6 @@
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-//#include <libxml/parserInternals.h>
-//#include <libxml/xpath.h>
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>
@@ -113,8 +111,7 @@ struct _xmlSchemaVal {
 };
 
 static int xmlSchemaTypesInitialized = 0;
-static xmlHashTablePtr xmlSchemaTypesBank = NULL;
-
+static xmlHashTable * xmlSchemaTypesBank = NULL;
 /*
  * Basic types
  */
@@ -2581,7 +2578,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    }
 		    }
 		    if((ret == 0) && (P_Node != NULL) && (P_Node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+			    xmlAttrPtr attr = (xmlAttr *)P_Node;
 			    /*
 			     * NOTE: the IDness might have already be declared in the DTD
 			     */
@@ -2613,7 +2610,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    *val = v;
 		    }
 		    if((ret == 0) && (P_Node != NULL) && (P_Node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+			    xmlAttrPtr attr = (xmlAttr *)P_Node;
 			    xmlChar * strip = xmlSchemaStrip(value);
 			    if(strip != NULL) {
 				    xmlAddRef(NULL, P_Node->doc, strip, attr);
@@ -2633,7 +2630,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    ret = 0;
 		    if((ret == 0) && (P_Node != NULL) &&
 		    (P_Node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+			    xmlAttrPtr attr = (xmlAttr *)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_IDREFS;
 		    }
@@ -2665,7 +2662,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 		    }
 		    if((ret == 0) && (P_Node != NULL) &&
 			    (P_Node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+			    xmlAttrPtr attr = (xmlAttr *)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_ENTITY;
 		    }
@@ -2682,7 +2679,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value,
 			    ret = 0;
 		    if((ret == 0) && (P_Node != NULL) &&
 		    (P_Node->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+			    xmlAttrPtr attr = (xmlAttr *)P_Node;
 
 			    attr->atype = XML_ATTRIBUTE_ENTITIES;
 		    }

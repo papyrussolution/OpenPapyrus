@@ -450,9 +450,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 				m->socket.events = socketcb2poll(what);
 				m->socket.revents = 0;
 				ev->list = m;
-				infof(easy, "socket cb: socket %d ADDED as %s%s\n", s,
-				    what&CURL_POLL_IN ? "IN" : "",
-				    what&CURL_POLL_OUT ? "OUT" : "");
+				infof(easy, "socket cb: socket %d ADDED as %s%s\n", s, what&CURL_POLL_IN ? "IN" : "", what&CURL_POLL_OUT ? "OUT" : "");
 			}
 			else
 				return CURLE_OUT_OF_MEMORY;
@@ -517,8 +515,7 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 			/* timeout! */
 			ev->ms = 0;
 			/* fprintf(stderr, "call curl_multi_socket_action(TIMEOUT)\n"); */
-			mcode = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0,
-			    &ev->running_handles);
+			mcode = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, &ev->running_handles);
 		}
 		else if(pollrc > 0) {
 			/* loop over the monitored sockets to see which ones had activity */
@@ -526,13 +523,10 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 				if(fds[i].revents) {
 					/* socket activity, tell libcurl */
 					int act = poll2cselect(fds[i].revents); /* convert */
-					infof(multi->easyp, "call curl_multi_socket_action(socket %d)\n",
-					    fds[i].fd);
-					mcode = curl_multi_socket_action(multi, fds[i].fd, act,
-					    &ev->running_handles);
+					infof(multi->easyp, "call curl_multi_socket_action(socket %d)\n", fds[i].fd);
+					mcode = curl_multi_socket_action(multi, fds[i].fd, act, &ev->running_handles);
 				}
 			}
-
 			if(!ev->msbump)
 				/* If nothing updated the timeout, we decrease it by the spent time.
 				 * If it was updated, it has the new timeout time stored already.
@@ -552,7 +546,6 @@ static CURLcode wait_or_timeout(struct Curl_multi * multi, struct events * ev)
 			done = TRUE;
 		}
 	}
-
 	return result;
 }
 

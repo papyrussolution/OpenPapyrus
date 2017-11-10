@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static uint32_t usual[] = {
 	0xffffdbfe, /* 1111 1111 1111 1111  1101 1011 1111 1110 */

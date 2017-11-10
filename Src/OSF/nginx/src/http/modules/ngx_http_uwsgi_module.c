@@ -7,7 +7,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_uwsgi_main_conf_t {
 	ngx_array_t caches;             /* ngx_http_file_cache_t * */

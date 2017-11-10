@@ -24,7 +24,7 @@
  * with struct _xmlBuffer to limit risks on application which accessed
  * directly the input->buf->buffer structures.
  */
-struct _xmlBuf {
+struct xmlBuf {
 	xmlChar * content;      /* The buffer content UTF8 */
 	uint compat_use; /* for binary compatibility */
 	uint compat_size; /* for binary compatibility */

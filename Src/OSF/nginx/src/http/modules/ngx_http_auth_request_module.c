@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_auth_request_conf_t {
 	ngx_str_t uri;

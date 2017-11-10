@@ -35,7 +35,7 @@
 
 #ifdef USE_OPENSSL
 
-#  ifdef USE_OPENSSL
+#ifdef USE_OPENSSL
 #    include <openssl/des.h>
 #    ifndef OPENSSL_NO_MD4
 #      include <openssl/md4.h>
@@ -43,7 +43,7 @@
 #    include <openssl/md5.h>
 #    include <openssl/ssl.h>
 #    include <openssl/rand.h>
-#  else
+#else
 #    include <des.h>
 #    ifndef OPENSSL_NO_MD4
 #      include <md4.h>
@@ -51,8 +51,8 @@
 #    include <md5.h>
 #    include <ssl.h>
 #    include <rand.h>
-#  endif
-#  if (OPENSSL_VERSION_NUMBER < 0x00907001L)
+#endif
+#if (OPENSSL_VERSION_NUMBER < 0x00907001L)
 #    define DES_key_schedule des_key_schedule
 #    define DES_cblock des_cblock
 #    define DES_set_odd_parity des_set_odd_parity
@@ -60,11 +60,10 @@
 #    define DES_ecb_encrypt des_ecb_encrypt
 #    define DESKEY(x) x
 #    define DESKEYARG(x) x
-#  else
+#else
 #    define DESKEYARG(x) *x
 #    define DESKEY(x) &x
-#  endif
-
+#endif
 #elif defined(USE_GNUTLS_NETTLE)
 	#include <nettle/des.h>
 	#include <nettle/md4.h>

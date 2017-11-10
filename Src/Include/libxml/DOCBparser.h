@@ -13,16 +13,11 @@
 //#include <libxml/xmlversion.h>
 
 #ifdef LIBXML_DOCB_ENABLED
-
-//#include <libxml/parser.h>
-//#include <libxml/parserInternals.h>
-
 #ifndef IN_LIBXML
-#ifdef __GNUC__
-#warning "The DOCBparser module has been deprecated in libxml2-2.6.0"
+	#ifdef __GNUC__
+		#warning "The DOCBparser module has been deprecated in libxml2-2.6.0"
+	#endif
 #endif
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif

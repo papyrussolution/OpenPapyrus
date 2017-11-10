@@ -5,8 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-//#include <nginx.h>
 
 static ngx_int_t ngx_http_header_filter_init(ngx_conf_t * cf);
 static ngx_int_t ngx_http_header_filter(ngx_http_request_t * r);

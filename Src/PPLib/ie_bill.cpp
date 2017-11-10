@@ -1689,7 +1689,7 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 							//brow_.Cost = rval;
 							if(rIep.InrRec.SearchName("Cost", &inner_fld_pos)) {
 								rIep.InrRec.GetFieldByPos(inner_fld_pos, &inner_fld);
-								void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+								void * p_inner_fld_data = rIep.InrRec.GetData(inner_fld_pos);
 								stcast(MKSTYPE(S_FLOAT, 8), inner_fld.T.Typ, &rval, p_inner_fld_data, 0);
 							}
 						}
@@ -1710,7 +1710,7 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 							//brow_.Price = rval;
 							if(rIep.InrRec.SearchName("Price", &inner_fld_pos)) {
 								rIep.InrRec.GetFieldByPos(inner_fld_pos, &inner_fld);
-								void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+								void * p_inner_fld_data = rIep.InrRec.GetData(inner_fld_pos);
 								stcast(MKSTYPE(S_FLOAT, 8), inner_fld.T.Typ, &rval, p_inner_fld_data, 0);
 							}
 						}
@@ -1724,10 +1724,10 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 			else {
 				enum {
 					dfkFormula = 1, // formula[inner_field].formula
-					dfkToken,       // token[inner_field].outer_field divisor number (token[CntragID].CLIENTID_DISTRIB _ 1) 
-					dfkIdentByTag   // identbytag[inner_field].outer_field tag_symbol 
+					dfkToken,       // token[inner_field].outer_field divisor number (token[CntragID].CLIENTID_DISTRIB _ 1)
+					dfkIdentByTag   // identbytag[inner_field].outer_field tag_symbol
 				};
-				const int dfk = (temp_buf.IsEqNC("formula") ? dfkFormula : 
+				const int dfk = (temp_buf.IsEqNC("formula") ? dfkFormula :
 					(temp_buf.IsEqNC("token") ? dfkToken : (temp_buf.IsEqNC("identbytag") ? dfkIdentByTag : 0)));
 				if(dfk && scan.Skip()[0] == '[') {
 					scan.Incr(1);
@@ -1762,7 +1762,7 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 										PPRef->Ot.SearchObjectsByStrExactly(tag_rec.ObjTypeID, tag_rec.ID, temp_buf, &obj_id_list);
 										if(obj_id_list.getCount()) {
 											const long obj_id = obj_id_list.get(0);
-											void * p_inner_fld_data = rIep.InrRec.GetData(outer_fld_pos);
+											void * p_inner_fld_data = rIep.InrRec.GetData(fld_pos);
 											stcast(MKSTYPE(S_INT, 4), inner_fld.T.Typ, &obj_id, p_inner_fld_data, 0);
 										}
 									}
@@ -3267,7 +3267,7 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 			STRNSCPY(pPack->Ext.InvoiceCode, temp_buf);
 			{
 				PPID	agent_id = 0;
-				if(pBill->AgentPersonID && ArObj.P_Tbl->PersonToArticle(pBill->AgentPersonID, GetAgentAccSheet(), &agent_id) > 0) 
+				if(pBill->AgentPersonID && ArObj.P_Tbl->PersonToArticle(pBill->AgentPersonID, GetAgentAccSheet(), &agent_id) > 0)
 					pPack->Ext.AgentID = agent_id;
 				else if(pBill->AgentINN[0] && ResolveINN(pBill->AgentINN, 0, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
 					pPack->Ext.AgentID = agent_id;
@@ -5166,12 +5166,14 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 									}
 									if(checkdate(agt_date, 0)) {
 										SXml::WNode n_482(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-										n_482.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ƒатаƒоговора");
+										temp_buf = g.GetToken(PPHSC_RU_CONTRACTDATE);
+										n_482.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 										n_482.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 									}
 									if(checkdate(agt_expiry, 0)) {
 										SXml::WNode n_483(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-										n_483.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ѕериод");
+										temp_buf = g.GetToken(PPHSC_RU_PERIOD);
+										n_483.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 										n_483.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 									}
 								}
@@ -5187,7 +5189,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
 				// —одержание факта хоз€йственной жизни (2) - сведени€ о передаче результатов работ (о предъ€влении оказанных услуг)
 				SXml::WNode n_(g.P_X, "—од‘’∆2");
 				PPLoadText(PPTXT_NALOGRU_WORKSWERETRANSFERED, temp_buf); // "–езультаты работ переданы (услуги оказаны)";
-				n_.PutAttrib("—одќпер", g.EncText(temp_buf));
+				n_.PutAttrib(g.GetToken(PPHSC_RU_CONTOFOP), g.EncText(temp_buf));
 				// ƒата передачи результатов работ (предъ€влени€ оказанных услуг)
 				// ќб€зателен, если ƒатаѕер не совпадает с ƒатаƒокѕ–”
 				temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
@@ -5430,12 +5432,14 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 						}
 						if(checkdate(agt_date, 0)) {
 							SXml::WNode n_2(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-							n_2.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ƒатаƒоговора");
+							temp_buf = g.GetToken(PPHSC_RU_CONTRACTDATE);
+							n_2.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 							n_2.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
 						}
 						if(checkdate(agt_expiry, 0)) {
 							SXml::WNode n_3(g.P_X, g.GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-							n_3.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), "ѕериод");
+							temp_buf = g.GetToken(PPHSC_RU_PERIOD);
+							n_3.PutAttrib(g.GetToken(PPHSC_RU_IDENTIF), temp_buf);
 							n_3.PutAttrib(g.GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
 						}
 					}
@@ -5452,7 +5456,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 				{
 					SXml::WNode n_1(g.P_X, "—вѕер");
 					PPLoadText(PPTXT_NALOGRU_UPDOPCONTENT, temp_buf);
-					n_1.PutAttrib("—одќпер", g.EncText(temp_buf));
+					n_1.PutAttrib(g.GetToken(PPHSC_RU_CONTOFOP), g.EncText(temp_buf));
 					{
 						SXml::WNode n_11(g.P_X, "ќснѕер");
 						if(agt_code.NotEmpty()) {
@@ -5463,7 +5467,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 							n_11.PutAttrib("ƒатаќсн", g.EncText(temp_buf));
 						}
 						else {
-							n_11.PutAttrib("Ќаимќсн", "ќтсутствует");
+							temp_buf = g.GetToken(PPHSC_RU_ABSENCE);
+							n_11.PutAttrib("Ќаимќсн", temp_buf);
 						}
 					}
 					{

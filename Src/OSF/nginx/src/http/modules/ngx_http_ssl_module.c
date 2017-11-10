@@ -5,10 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
-typedef ngx_int_t (*ngx_ssl_variable_handler_pt)(ngx_connection_t * c,
-    ngx_pool_t * pool, ngx_str_t * s);
+typedef ngx_int_t (*ngx_ssl_variable_handler_pt)(ngx_connection_t * c, ngx_pool_t * pool, ngx_str_t * s);
 
 #define NGX_DEFAULT_CIPHERS     "HIGH:!aNULL:!MD5"
 #define NGX_DEFAULT_ECDH_CURVE  "auto"

@@ -933,7 +933,6 @@
     <ClInclude Include="..\OSF\LIBXML\config.h" />
     <ClInclude Include="..\OSF\LIBXML\elfgcchack.h" />
     <ClInclude Include="..\include\libxml\c14n.h" />
-    <ClInclude Include="..\include\libxml\catalog.h" />
     <ClInclude Include="..\include\libxml\chvalid.h" />
     <ClInclude Include="..\include\libxml\debugXML.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />

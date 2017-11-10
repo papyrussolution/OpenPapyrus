@@ -106,49 +106,41 @@ struct _xmlValidCtxt {
  * There is one table per DTD.
  */
 
-typedef struct _xmlHashTable xmlNotationTable;
+typedef xmlHashTable xmlNotationTable;
 typedef xmlNotationTable * xmlNotationTablePtr;
-
 /*
  * ALL element declarations are stored in a table.
  * There is one table per DTD.
  */
-
-typedef struct _xmlHashTable xmlElementTable;
+typedef xmlHashTable xmlElementTable;
 typedef xmlElementTable * xmlElementTablePtr;
-
 /*
  * ALL attribute declarations are stored in a table.
  * There is one table per DTD.
  */
-
-typedef struct _xmlHashTable xmlAttributeTable;
+typedef xmlHashTable xmlAttributeTable;
 typedef xmlAttributeTable * xmlAttributeTablePtr;
-
 /*
  * ALL IDs attributes are stored in a table.
  * There is one table per document.
  */
-
-typedef struct _xmlHashTable xmlIDTable;
+typedef xmlHashTable xmlIDTable;
 typedef xmlIDTable * xmlIDTablePtr;
-
 /*
  * ALL Refs attributes are stored in a table.
  * There is one table per document.
  */
-
-typedef struct _xmlHashTable xmlRefTable;
+typedef xmlHashTable xmlRefTable;
 typedef xmlRefTable * xmlRefTablePtr;
 
 /* Notation */
-XMLPUBFUN xmlNotationPtr XMLCALL xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID);
+XMLPUBFUN xmlNotation * XMLCALL xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID);
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN xmlNotationTablePtr XMLCALL xmlCopyNotationTable(xmlNotationTablePtr table);
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL xmlFreeNotationTable(xmlNotationTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL xmlDumpNotationDecl(xmlBufferPtr buf, xmlNotationPtr nota);
+XMLPUBFUN void XMLCALL xmlDumpNotationDecl(xmlBufferPtr buf, xmlNotation * nota);
 XMLPUBFUN void XMLCALL xmlDumpNotationTable(xmlBufferPtr buf, xmlNotationTablePtr table);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
@@ -180,29 +172,22 @@ XMLPUBFUN void XMLCALL xmlDumpElementDecl(xmlBufferPtr buf, xmlElementPtr elem);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* Enumeration */
-XMLPUBFUN xmlEnumerationPtr XMLCALL xmlCreateEnumeration(const xmlChar * name);
-XMLPUBFUN void XMLCALL xmlFreeEnumeration(xmlEnumerationPtr cur);
+XMLPUBFUN xmlEnumeration * XMLCALL xmlCreateEnumeration(const xmlChar * name);
+XMLPUBFUN void XMLCALL xmlFreeEnumeration(xmlEnumeration * cur);
 #ifdef LIBXML_TREE_ENABLED
-XMLPUBFUN xmlEnumerationPtr XMLCALL xmlCopyEnumeration(xmlEnumerationPtr cur);
+XMLPUBFUN xmlEnumeration * XMLCALL xmlCopyEnumeration(xmlEnumeration * cur);
 #endif /* LIBXML_TREE_ENABLED */
 
 /* Attribute */
-XMLPUBFUN xmlAttributePtr XMLCALL xmlAddAttributeDecl(xmlValidCtxtPtr ctxt,
-    xmlDtdPtr dtd,
-    const xmlChar * elem,
-    const xmlChar * name,
-    const xmlChar * ns,
-    xmlAttributeType type,
-    xmlAttributeDefault def,
-    const xmlChar * defaultValue,
-    xmlEnumerationPtr tree);
+XMLPUBFUN xmlAttribute * XMLCALL xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * elem,
+    const xmlChar * name, const xmlChar * ns, xmlAttributeType type, xmlAttributeDefault def, const xmlChar * defaultValue, xmlEnumeration * tree);
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN xmlAttributeTablePtr XMLCALL xmlCopyAttributeTable(xmlAttributeTablePtr table);
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL xmlFreeAttributeTable(xmlAttributeTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN void XMLCALL xmlDumpAttributeTable(xmlBufferPtr buf, xmlAttributeTablePtr table);
-XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttributePtr attr);
+XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttribute * attr);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* IDs */
@@ -231,9 +216,9 @@ XMLPUBFUN int XMLCALL xmlValidateRoot(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
 XMLPUBFUN int XMLCALL xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlElementPtr elem);
 XMLPUBFUN xmlChar * XMLCALL xmlValidNormalizeAttributeValue(xmlDocPtr doc, xmlNode * elem, const xmlChar * name, const xmlChar * value);
 XMLPUBFUN xmlChar * XMLCALL xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem, const xmlChar * name, const xmlChar * value);
-XMLPUBFUN int XMLCALL xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlAttributePtr attr);
+XMLPUBFUN int XMLCALL xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlAttribute * attr);
 XMLPUBFUN int XMLCALL xmlValidateAttributeValue(xmlAttributeType type, const xmlChar * value);
-XMLPUBFUN int XMLCALL xmlValidateNotationDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNotationPtr nota);
+XMLPUBFUN int XMLCALL xmlValidateNotationDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNotation * nota);
 XMLPUBFUN int XMLCALL xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlDtdPtr dtd);
 XMLPUBFUN int XMLCALL xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
 XMLPUBFUN int XMLCALL xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDocPtr doc);
@@ -251,9 +236,9 @@ XMLPUBFUN int XMLCALL xmlValidateNotationUse(xmlValidCtxtPtr ctxt,
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
 
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name);
-XMLPUBFUN xmlAttributePtr XMLCALL xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name);
-XMLPUBFUN xmlAttributePtr XMLCALL xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix);
-XMLPUBFUN xmlNotationPtr XMLCALL xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlChar * name);
+XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name);
+XMLPUBFUN xmlAttribute * XMLCALL xmlGetDtdQAttrDesc(xmlDtdPtr dtd, const xmlChar * elem, const xmlChar * name, const xmlChar * prefix);
+XMLPUBFUN xmlNotation * XMLCALL xmlGetDtdNotationDesc(xmlDtdPtr dtd, const xmlChar * name);
 XMLPUBFUN xmlElementPtr XMLCALL xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix);
 XMLPUBFUN xmlElement * /*XMLCALL*/FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name);
 

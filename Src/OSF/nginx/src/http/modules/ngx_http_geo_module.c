@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_geo_range_t {
 	ngx_http_variable_value_t * value;

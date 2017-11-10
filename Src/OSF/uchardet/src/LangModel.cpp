@@ -2328,39 +2328,36 @@ void nsSBCSGroupProber::Reset()
 
 nsProbingState nsSBCSGroupProber::HandleData(const char* aBuf, uint32 aLen)
 {
-	nsProbingState st;
-	uint32 i;
 	char * newBuf1 = 0;
 	uint32 newLen1 = 0;
+	//
 	//apply filter to original buffer, and we got new buffer back
 	//depend on what script it is, we will feed them the new buffer
 	//we got after applying proper filter
 	//this is done without any consideration to KeepEnglishLetters
 	//of each prober since as of now, there are no probers here which
 	//recognize languages with English characters.
-	if(!FilterWithoutEnglishLetters(aBuf, aLen, &newBuf1, newLen1))
-		goto done;
-	if(newLen1 == 0)
-		goto done;  // Nothing to see here, move on.
-	for(i = 0; i < NUM_OF_SBCS_PROBERS; i++) {
-		if(mIsActive[i]) {
-			st = mProbers[i]->HandleData(newBuf1, newLen1);
-			if(st == eFoundIt) {
-				mBestGuess = i;
-				mState = eFoundIt;
-				break;
-			}
-			else if(st == eNotMe) {
-				mIsActive[i] = false;
-				mActiveNum--;
-				if(mActiveNum <= 0) {
-					mState = eNotMe;
+	//
+	if(FilterWithoutEnglishLetters(aBuf, aLen, &newBuf1, newLen1) && newLen1) { // Nothing to see here, move on.
+		for(uint32 i = 0; i < NUM_OF_SBCS_PROBERS; i++) {
+			if(mIsActive[i]) {
+				const nsProbingState st = mProbers[i]->HandleData(newBuf1, newLen1);
+				if(st == eFoundIt) {
+					mBestGuess = i;
+					mState = eFoundIt;
 					break;
+				}
+				else if(st == eNotMe) {
+					mIsActive[i] = false;
+					mActiveNum--;
+					if(mActiveNum <= 0) {
+						mState = eNotMe;
+						break;
+					}
 				}
 			}
 		}
 	}
-done:
 	SAlloc::F(newBuf1);
 	return mState;
 }

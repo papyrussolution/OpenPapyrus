@@ -91,7 +91,7 @@ __attribute((weak));
 /*
  * xmlMutex are a simple mutual exception locks
  */
-struct _xmlMutex {
+struct xmlMutex {
 #ifdef HAVE_PTHREAD_H
 	pthread_mutex_t lock;
 #elif defined HAVE_WIN32_THREADS
@@ -103,11 +103,10 @@ struct _xmlMutex {
 	int empty;
 #endif
 };
-
 /*
  * xmlRMutex are reentrant mutual exception locks
  */
-struct _xmlRMutex {
+struct xmlRMutex {
 #ifdef HAVE_PTHREAD_H
 	pthread_mutex_t lock;
 	uint held;
@@ -125,46 +124,41 @@ struct _xmlRMutex {
 	int empty;
 #endif
 };
-
 /*
  * This module still has some internal static data.
  *   - xmlLibraryLock a global lock
  *   - globalkey used for per-thread data
  */
-
 #ifdef HAVE_PTHREAD_H
-static pthread_key_t globalkey;
-static pthread_t mainthread;
-static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-static pthread_once_t once_control_init = PTHREAD_ONCE_INIT;
-static pthread_mutex_t global_init_lock = PTHREAD_MUTEX_INITIALIZER;
+	static pthread_key_t globalkey;
+	static pthread_t mainthread;
+	static pthread_once_t once_control = PTHREAD_ONCE_INIT;
+	static pthread_once_t once_control_init = PTHREAD_ONCE_INIT;
+	static pthread_mutex_t global_init_lock = PTHREAD_MUTEX_INITIALIZER;
 #elif defined HAVE_WIN32_THREADS
-#if defined(HAVE_COMPILER_TLS)
-static __declspec(thread) xmlGlobalState tlstate;
-static __declspec(thread) int tlstate_inited = 0;
-#else /* HAVE_COMPILER_TLS */
-static DWORD globalkey = TLS_OUT_OF_INDEXES;
-#endif /* HAVE_COMPILER_TLS */
-static DWORD mainthread;
-static struct {
-	DWORD done;
-	DWORD control;
-} run_once = { 0, 0};
-static volatile LPCRITICAL_SECTION global_init_lock = NULL;
-
-/* endif HAVE_WIN32_THREADS */
+	#if defined(HAVE_COMPILER_TLS)
+		static __declspec(thread) xmlGlobalState tlstate;
+		static __declspec(thread) int tlstate_inited = 0;
+	#else /* HAVE_COMPILER_TLS */
+		static DWORD globalkey = TLS_OUT_OF_INDEXES;
+	#endif /* HAVE_COMPILER_TLS */
+	static DWORD mainthread;
+	static struct {
+		DWORD done;
+		DWORD control;
+	} run_once = { 0, 0};
+	static volatile LPCRITICAL_SECTION global_init_lock = NULL;
+	/* endif HAVE_WIN32_THREADS */
 #elif defined HAVE_BEOS_THREADS
-int32 globalkey = 0;
-thread_id mainthread = 0;
-int32 run_once_init = 0;
-static int32 global_init_lock = -1;
-static vint32 global_init_count = 0;
+	int32 globalkey = 0;
+	thread_id mainthread = 0;
+	int32 run_once_init = 0;
+	static int32 global_init_lock = -1;
+	static vint32 global_init_count = 0;
 #endif
-
-static xmlRMutexPtr xmlLibraryLock = NULL;
-
+static xmlRMutex * xmlLibraryLock = NULL;
 #ifdef LIBXML_THREAD_ENABLED
-static void xmlOnceInit();
+	static void xmlOnceInit();
 #endif
 
 /**
@@ -272,10 +266,10 @@ void FASTCALL xmlMutexUnlock(xmlMutex * tok)
  *
  * Returns the new reentrant mutex pointer or NULL in case of error
  */
-xmlRMutexPtr xmlNewRMutex()
+xmlRMutex * xmlNewRMutex()
 {
-	xmlRMutexPtr tok;
-	if((tok = (xmlRMutexPtr)malloc(sizeof(xmlRMutex))) == NULL)
+	xmlRMutex * tok;
+	if((tok = (xmlRMutex *)malloc(sizeof(xmlRMutex))) == NULL)
 		return 0;
 #ifdef HAVE_PTHREAD_H
 	if(libxml_is_threaded != 0) {
@@ -296,29 +290,27 @@ xmlRMutexPtr xmlNewRMutex()
 #endif
 	return (tok);
 }
-
 /**
- * xmlFreeRMutex:
  * @tok:  the reentrant mutex
  *
  * xmlRFreeMutex() is used to reclaim resources associated with a
  * reentrant mutex.
  */
-void xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
+void xmlFreeRMutex(xmlRMutex * tok ATTRIBUTE_UNUSED)
 {
-	if(tok == NULL)
-		return;
+	if(tok) {
 #ifdef HAVE_PTHREAD_H
-	if(libxml_is_threaded != 0) {
-		pthread_mutex_destroy(&tok->lock);
-		pthread_cond_destroy(&tok->cv);
-	}
+		if(libxml_is_threaded != 0) {
+			pthread_mutex_destroy(&tok->lock);
+			pthread_cond_destroy(&tok->cv);
+		}
 #elif defined HAVE_WIN32_THREADS
-	DeleteCriticalSection(&tok->cs);
+		DeleteCriticalSection(&tok->cs);
 #elif defined HAVE_BEOS_THREADS
-	xmlFreeMutex(tok->lock);
+		xmlFreeMutex(tok->lock);
 #endif
-	SAlloc::F(tok);
+		SAlloc::F(tok);
+	}
 }
 /**
  * xmlRMutexLock:

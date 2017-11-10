@@ -6,7 +6,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-#include <ngx_md5.h>
+//#include <ngx_md5.h>
 
 static const u_char * ngx_md5_body(ngx_md5_t * ctx, const u_char * data, size_t size);
 

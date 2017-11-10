@@ -318,7 +318,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    TBBM_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
@@ -374,7 +374,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	//ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    TBBM_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
@@ -432,7 +432,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 	BILLSBYORDER     :  kbAltF5,    TBBM_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
@@ -484,7 +484,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	BROWSE           :  kbF3,       TBBM_BROWSE,          "@{viewbillitems}\tF3"
 	BROWSESCOPE      :  kbCtrlT,    TBBM_NOICON,          "Анализ строк по выборке документов\tCtrl-T"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
@@ -523,7 +523,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
 	//BILLSBYORDER     :  kbAltF5,    TBBM_NOICON,          "Продажи по заказу\tAlt-F5"
 	separator
-	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+	CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 	SYSINFO          :  kbCtrlF3,   TBBM_SYSTEMINFO,      "Просмотр системной информации по документу\tCtrl-F3"
 	SYSJ             :  kbCtrlJ,    TBBM_SYSJ,            "Просмотр событий по документу\tCtrl-J"
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "Изменить флаги\tShift-F3"
@@ -2165,7 +2165,7 @@ browser PAYMENTS south(56), 1, 0, "Оплаты документа (%s)", OWNER|GRID, 0
 		ADDITEM          :  kbIns,      TBBM_INSERT,          "Добавить документ\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 		DELETEITEM       :  kbDel,      TBBM_DELETE,          "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
@@ -2192,7 +2192,7 @@ browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         :  kbEnter,    TBBM_EDIT,            "Редактировать документ\tEnter"
 		DELETEITEM       :  kbDel,      TBBM_DELETE,          "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
@@ -2220,7 +2220,7 @@ browser CHARGES south(73), 1, 0, "Начисления по документу (%s)", OWNER|GRID, 0
 		ADDITEM          :  kbIns,      TBBM_INSERT,          "Добавить документ\tInsert"
 		ADDBYSAMPLE      :  kbAltF2,    TBBM_COPYBYSAMPLE,    "@{doaddbysample}\tAlt-F2"
 		DELETEITEM       :  kbDel,      TBBM_DELETE,          "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    TBBM_TEST,            "Переключить отображение\tCtrl-T"
@@ -2247,7 +2247,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		EDITITEM         :  kbEnter,    TBBM_EDIT,            "Редактировать документ\tEnter"
 		ADDITEM          :  kbIns,      TBBM_INSERT,          "Добавить документ\tInsert"
 		DELETEITEM       :  kbDel,      TBBM_DELETE,          "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "Изменение статуса документа\tCtrl-F6"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "Пометить\tF8"
 		separator
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "Проводки по документу\tCtrl-A"
@@ -6979,7 +6979,7 @@ record CSessComplex {
 	//
 	CheckID      long         format(8)    "ИД чека";
 	CheckN       long         format(8)    "@{checkno}";
-	CheckDate    date         "Дата чека";
+	CheckDate    date         "@{checkdate}";
 	CheckTime    time         "Время чека";
 	CcAmt        double       format(13.2) "Полная сумма чека";
 	CcDscnt      double       format(13.2) "Скидка по чеку";
@@ -7024,7 +7024,7 @@ record CChecks {
 	CheckNumb    long         format(8)    "@{checkno}";
 	CashNumber   long         format(8)    "@{posnodeno}";
 	SessNumber   long         format(8)    "@{sessionno}";
-	CheckDate    date         "Дата чека";
+	CheckDate    date         "@{checkdate}";
 	CheckTime    zstring(10)  "Время чека";
 	TimeHSec     int16        "Сотые доли секунды во времени";
 	Amount       double       format(13.2) "Сумма чека без скидки";
@@ -7055,7 +7055,7 @@ record CCLines {
 	CheckNumb      long         format(8)    "@{checkno}";
 	CashNumber     long         format(8)    "@{posnodeno}";
 	SessNumber     long         format(8)    "@{sessionno}";
-	CheckDate      date         "Дата чека";
+	CheckDate      date         "@{checkdate}";
 	CheckTime      zstring(10)  "Время чека";
 	TimeHSec       int16        "Сотые доли секунды во времени";
 	CheckAmt       double       format(13.2) "Сумма чека без скидки";
@@ -7526,7 +7526,7 @@ record CSess_Front {
 record CCheck_Front {
 	CheckNumber  long         format(10)   "@{checkno}";
 	CashierNo    long         format(10)   "Номер кассира";
-	OperDate     date         "Дата чека";
+	OperDate     date         "@{checkdate}";
 	OperTime     zstring(10)  "Время чека";
 	Operation    zstring(1)   "Продажа/возврат";
 	CheckLineID  long         format(10)   "ИД строки чека";

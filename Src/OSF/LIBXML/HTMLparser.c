@@ -22,10 +22,8 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-//#include <libxml/parserInternals.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
-//#include <libxml/entities.h>
 
 #define HTML_MAX_NAMELEN 1000
 #define HTML_PARSER_BIG_BUFFER_SIZE 1000
@@ -52,7 +50,7 @@ static void htmlParseComment(htmlParserCtxtPtr ctxt);
  *
  * Handle a redefinition of attribute error
  */
-static void htmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
+static void FASTCALL htmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -95,7 +93,7 @@ static void htmlParseErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void htmlParseErrInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
+static void FASTCALL htmlParseErrInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -121,7 +119,7 @@ static void htmlParseErrInt(xmlParserCtxt * ctxt, xmlParserErrors error, const c
  *
  * Returns 0 in case of error, the index in the stack otherwise
  */
-static int htmlnamePush(htmlParserCtxtPtr ctxt, const xmlChar * value)
+static int FASTCALL htmlnamePush(htmlParserCtxtPtr ctxt, const xmlChar * value)
 {
 	if((ctxt->html < 3) && (sstreq(value, "head")))
 		ctxt->html = 3;
@@ -139,7 +137,6 @@ static int htmlnamePush(htmlParserCtxtPtr ctxt, const xmlChar * value)
 	ctxt->name = value;
 	return (ctxt->nameNr++);
 }
-
 /**
  * htmlnamePop:
  * @ctxt: an HTML parser context
@@ -148,7 +145,7 @@ static int htmlnamePush(htmlParserCtxtPtr ctxt, const xmlChar * value)
  *
  * Returns the name just removed
  */
-static const xmlChar * htmlnamePop(htmlParserCtxtPtr ctxt)
+static const xmlChar * FASTCALL htmlnamePop(htmlParserCtxtPtr ctxt)
 {
 	const xmlChar * ret;
 	if(ctxt->nameNr <= 0)
@@ -164,7 +161,6 @@ static const xmlChar * htmlnamePop(htmlParserCtxtPtr ctxt)
 	ctxt->nameTab[ctxt->nameNr] = NULL;
 	return ret;
 }
-
 /**
  * htmlNodeInfoPush:
  * @ctxt:  an HTML parser context
@@ -5719,13 +5715,12 @@ htmlStatus htmlNodeStatus(const htmlNodePtr P_Node, int legacy)
 *									*
 ************************************************************************/
 /**
- * DICT_FREE:
  * @str:  a string
  *
  * Free a string if it is not owned by the "dict" dictionnary in the
  * current scope
  */
-#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+// #define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
 /**
  * htmlCtxtReset:
  * @ctxt: an HTML parser context
@@ -5755,15 +5750,15 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 		ctxt->P_Node = NULL;
 		ctxt->nameNr = 0;
 		ctxt->name = NULL;
-		DICT_FREE(ctxt->version);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->version); // @badcast
 		ctxt->version = NULL;
-		DICT_FREE(ctxt->encoding);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->encoding); // @badcase
 		ctxt->encoding = NULL;
-		DICT_FREE(ctxt->directory);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->directory); // @badcase
 		ctxt->directory = NULL;
-		DICT_FREE(ctxt->extSubURI);
+		XmlDestroyStringWithDict(dict, ctxt->extSubURI);
 		ctxt->extSubURI = NULL;
-		DICT_FREE(ctxt->extSubSystem);
+		XmlDestroyStringWithDict(dict, ctxt->extSubSystem);
 		ctxt->extSubSystem = NULL;
 		if(ctxt->myDoc)
 			xmlFreeDoc(ctxt->myDoc);

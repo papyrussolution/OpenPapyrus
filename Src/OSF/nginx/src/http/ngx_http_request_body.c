@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static void ngx_http_read_client_request_body_handler(ngx_http_request_t * r);
 static ngx_int_t ngx_http_do_read_client_request_body(ngx_http_request_t * r);

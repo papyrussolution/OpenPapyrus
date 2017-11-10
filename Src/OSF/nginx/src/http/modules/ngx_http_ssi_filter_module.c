@@ -5,12 +5,9 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #define NGX_HTTP_SSI_ERROR          1
-
 #define NGX_HTTP_SSI_DATE_LEN       2048
-
 #define NGX_HTTP_SSI_ADD_PREFIX     1
 #define NGX_HTTP_SSI_ADD_ZERO       2
 

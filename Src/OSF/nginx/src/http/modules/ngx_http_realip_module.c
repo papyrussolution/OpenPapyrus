@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #define NGX_HTTP_REALIP_XREALIP  0
 #define NGX_HTTP_REALIP_XFWD     1

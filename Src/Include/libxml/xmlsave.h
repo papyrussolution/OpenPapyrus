@@ -12,7 +12,7 @@
 
 #include <libxml/xmlversion.h>
 #include <libxml/tree.h>
-#include <libxml/xmlIO.h>
+//#include <libxml/xmlIO.h>
 
 #ifdef LIBXML_OUTPUT_ENABLED
 #ifdef __cplusplus

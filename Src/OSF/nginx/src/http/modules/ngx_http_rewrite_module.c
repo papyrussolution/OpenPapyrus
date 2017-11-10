@@ -6,7 +6,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_rewrite_loc_conf_t {
 	ngx_array_t  * codes;   /* uintptr_t */

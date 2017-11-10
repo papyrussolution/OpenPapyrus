@@ -36,8 +36,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -83,8 +86,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -132,8 +138,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -179,8 +188,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -228,8 +240,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -275,8 +290,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
-				OutputFile="..\..\ppy\bin\$(InputName).dll"/>
+				AdditionalDependencies="wininet.lib wsock32.lib mpr.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib"
+				OutputFile="..\..\ppy\bin\$(InputName).dll"
+				LinkIncremental="1"
+				SubSystem="1"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

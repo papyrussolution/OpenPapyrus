@@ -35,7 +35,7 @@
  * @ctxt:  an XML validation parser context
  * @msg:   a string to accompany the error message
  */
-static void xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
+static void FASTCALL xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	const char * str1 = "out of memory\n";
@@ -64,7 +64,7 @@ static void xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
  *
  * Handle a validation error
  */
-static void xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
+static void FASTCALL xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
@@ -93,7 +93,7 @@ static void xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -107,7 +107,6 @@ static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const ch
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlWarnMsg:
  * @ctxt:  an XML parser context
@@ -136,7 +135,7 @@ static void xmlWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char *
  *
  * Handle a namespace__ error
  */
-static void xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -154,7 +153,7 @@ static void xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
  *
  * Handle a namespace__ warning
  */
-static void xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -162,7 +161,6 @@ static void xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char
 		ctxt->errNo = error;
 	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 }
-
 /**
  * xmlSAX2GetPublicId:
  * @ctx: the user data (XML parser context)
@@ -581,11 +579,10 @@ void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar
  *
  * An attribute definition has been parsed
  */
-void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname,
-    int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree)
+void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlAttributePtr attr;
+	xmlAttribute * attr;
 	xmlChar * name = NULL, * prefix = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
@@ -668,7 +665,7 @@ void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementCo
 void xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlNotationPtr nota = NULL;
+	xmlNotation * nota = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
 #ifdef DEBUG_SAX
@@ -1142,7 +1139,7 @@ static void xmlCheckDefaultedAttributes(xmlParserCtxt * ctxt, const xmlChar * na
 	}
 process_external_subset:
 	if(elemDecl) {
-		xmlAttributePtr attr = elemDecl->attributes;
+		xmlAttribute * attr = elemDecl->attributes;
 		/*
 		 * Check against defaulted attributes from the external subset if the document is stamped as standalone
 		 */
@@ -1207,7 +1204,7 @@ process_external_subset:
 				 *    in the internal subset overriding it.
 				 */
 				if((attr->prefix && (sstreq(attr->prefix, "xmlns"))) || (!attr->prefix && (sstreq(attr->name, "xmlns"))) || (ctxt->loadsubset & XML_COMPLETE_ATTRS)) {
-					xmlAttributePtr tst = xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset, attr->elem, attr->name, attr->prefix);
+					xmlAttribute * tst = xmlGetDtdQAttrDesc(ctxt->myDoc->intSubset, attr->elem, attr->name, attr->prefix);
 					if((tst == attr) || (tst == NULL)) {
 						xmlChar fn[50];
 						xmlChar * fulln = xmlBuildQName(attr->name, attr->prefix, fn, 50);

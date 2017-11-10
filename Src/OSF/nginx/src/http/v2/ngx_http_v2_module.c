@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 #include <ngx_http_v2_module.h>
 
 static ngx_int_t ngx_http_v2_add_variables(ngx_conf_t * cf);

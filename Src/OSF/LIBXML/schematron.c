@@ -185,13 +185,12 @@ struct _xmlSchematronParserCtxt {
  *
  * Handle an out of memory condition
  */
-static void xmlSchematronPErrMemory(xmlSchematronParserCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
+static void FASTCALL xmlSchematronPErrMemory(xmlSchematronParserCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
 {
 	if(ctxt)
 		ctxt->nberrors++;
 	__xmlSimpleError(XML_FROM_SCHEMASP, XML_ERR_NO_MEMORY, P_Node, NULL, extra);
 }
-
 /**
  * xmlSchematronPErr:
  * @ctxt: the parsing context
@@ -203,7 +202,7 @@ static void xmlSchematronPErrMemory(xmlSchematronParserCtxtPtr ctxt, const char 
  *
  * Handle a parser error
  */
-static void xmlSchematronPErr(xmlSchematronParserCtxtPtr ctxt, xmlNode * P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlSchematronPErr(xmlSchematronParserCtxtPtr ctxt, xmlNode * P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlGenericErrorFunc channel = NULL;
 	xmlStructuredErrorFunc schannel = NULL;
@@ -1136,8 +1135,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
  * called from the validation engine when an assert or report test have
  * been done.
  */
-static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt,
-    xmlSchematronTestPtr test, xmlNode * cur, xmlSchematronPatternPtr pattern, int success)
+static void xmlSchematronReportSuccess(xmlSchematronValidCtxtPtr ctxt, xmlSchematronTestPtr test, xmlNode * cur, xmlSchematronPatternPtr pattern, int success)
 {
 	if(!ctxt || (cur == NULL) || (test == NULL))
 		return;

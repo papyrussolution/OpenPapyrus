@@ -49,7 +49,7 @@ struct xmlHashEntry {
 /*
  * The entire hash table
  */
-struct _xmlHashTable {
+struct xmlHashTable {
 	xmlHashEntry * table;
 	int size;
 	int nbElems;
@@ -62,7 +62,7 @@ struct _xmlHashTable {
  * xmlHashComputeKey:
  * Calculate the hash key
  */
-static ulong xmlHashComputeKey(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
+static ulong xmlHashComputeKey(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
 {
 	ulong value = 0L;
 	char ch;
@@ -90,7 +90,7 @@ static ulong xmlHashComputeKey(xmlHashTablePtr table, const xmlChar * name, cons
 	return (value % table->size);
 }
 
-static ulong xmlHashComputeQKey(xmlHashTablePtr table,
+static ulong xmlHashComputeQKey(xmlHashTable * table,
     const xmlChar * prefix, const xmlChar * name,
     const xmlChar * prefix2, const xmlChar * name2,
     const xmlChar * prefix3, const xmlChar * name3)
@@ -136,25 +136,24 @@ static ulong xmlHashComputeQKey(xmlHashTablePtr table,
 		}
 		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
 	}
-	if(name3 != NULL) {
+	if(name3) {
 		while((ch = *name3++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);
 		}
 	}
 	return (value % table->size);
 }
-
 /**
  * xmlHashCreate:
  * @size: the size of the hash table
  *
- * Create a new xmlHashTablePtr.
+ * Create a new xmlHashTable *.
  *
  * Returns the newly created object, or NULL if an error occured.
  */
-xmlHashTablePtr xmlHashCreate(int size)
+xmlHashTable * FASTCALL xmlHashCreate(int size)
 {
-	xmlHashTablePtr table;
+	xmlHashTable * table;
 	if(size <= 0)
 		size = 256;
 	table = (xmlHashTable *)SAlloc::M(sizeof(xmlHashTable));
@@ -168,23 +167,22 @@ xmlHashTablePtr xmlHashCreate(int size)
 #ifdef HASH_RANDOMIZATION
 			table->random_seed = __xmlRandom();
 #endif
-			return(table);
+			return table;
 		}
 		SAlloc::F(table);
 	}
 	return 0;
 }
-
 /**
  * xmlHashCreateDict:
  * @size: the size of the hash table
  * @dict: a dictionary to use for the hash
  *
- * Create a new xmlHashTablePtr which will use @dict as the internal dictionary
+ * Create a new xmlHashTable * which will use @dict as the internal dictionary
  *
  * Returns the newly created object, or NULL if an error occured.
  */
-xmlHashTablePtr xmlHashCreateDict(int size, xmlDict * dict)
+xmlHashTable * FASTCALL xmlHashCreateDict(int size, xmlDict * dict)
 {
 	xmlHashTable * table = xmlHashCreate(size);
 	if(table) {
@@ -202,7 +200,7 @@ xmlHashTablePtr xmlHashCreateDict(int size, xmlDict * dict)
  *
  * Returns 0 in case of success, -1 in case of failure
  */
-static int xmlHashGrow(xmlHashTablePtr table, int size)
+static int xmlHashGrow(xmlHashTable * table, int size)
 {
 	ulong key;
 	int oldsize, i;
@@ -325,11 +323,10 @@ void FASTCALL xmlHashFree(xmlHashTable * pTable, xmlHashDeallocator f)
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashAddEntry(xmlHashTablePtr table, const xmlChar * name, void * userdata) 
+int FASTCALL xmlHashAddEntry(xmlHashTable * table, const xmlChar * name, void * userdata) 
 {
 	return xmlHashAddEntry3(table, name, NULL, NULL, userdata);
 }
-
 /**
  * xmlHashAddEntry2:
  * @table: the hash table
@@ -342,9 +339,9 @@ int xmlHashAddEntry(xmlHashTablePtr table, const xmlChar * name, void * userdata
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashAddEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, void * userdata) 
+int FASTCALL xmlHashAddEntry2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, void * userdata) 
 {
-	return(xmlHashAddEntry3(table, name, name2, NULL, userdata));
+	return xmlHashAddEntry3(table, name, name2, NULL, userdata);
 }
 /**
  * xmlHashUpdateEntry:
@@ -359,7 +356,7 @@ int xmlHashAddEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlChar 
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashUpdateEntry(xmlHashTablePtr table, const xmlChar * name, void * userdata, xmlHashDeallocator f) 
+int xmlHashUpdateEntry(xmlHashTable * table, const xmlChar * name, void * userdata, xmlHashDeallocator f) 
 {
 	return xmlHashUpdateEntry3(table, name, NULL, NULL, userdata, f);
 }
@@ -377,7 +374,7 @@ int xmlHashUpdateEntry(xmlHashTablePtr table, const xmlChar * name, void * userd
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashUpdateEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, void * userdata, xmlHashDeallocator f)
+int xmlHashUpdateEntry2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, void * userdata, xmlHashDeallocator f)
 {
 	return xmlHashUpdateEntry3(table, name, name2, NULL, userdata, f);
 }
@@ -404,7 +401,7 @@ void * FASTCALL xmlHashLookup(xmlHashTable * table, const xmlChar * name)
  *
  * Returns the pointer to the userdata
  */
-void * xmlHashLookup2(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2) 
+void * FASTCALL xmlHashLookup2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2) 
 {
 	return xmlHashLookup3(table, name, name2, NULL);
 }
@@ -418,7 +415,7 @@ void * xmlHashLookup2(xmlHashTablePtr table, const xmlChar * name, const xmlChar
  *
  * Returns the pointer to the userdata
  */
-void * xmlHashQLookup(xmlHashTablePtr table, const xmlChar * prefix, const xmlChar * name) 
+void * xmlHashQLookup(xmlHashTable * table, const xmlChar * prefix, const xmlChar * name) 
 {
 	return xmlHashQLookup3(table, prefix, name, NULL, NULL, NULL, NULL);
 }
@@ -434,7 +431,7 @@ void * xmlHashQLookup(xmlHashTablePtr table, const xmlChar * prefix, const xmlCh
  *
  * Returns the pointer to the userdata
  */
-void * xmlHashQLookup2(xmlHashTablePtr table, const xmlChar * prefix, const xmlChar * name, const xmlChar * prefix2, const xmlChar * name2) 
+void * xmlHashQLookup2(xmlHashTable * table, const xmlChar * prefix, const xmlChar * name, const xmlChar * prefix2, const xmlChar * name2) 
 {
 	return xmlHashQLookup3(table, prefix, name, prefix2, name2, NULL, NULL);
 }
@@ -452,7 +449,7 @@ void * xmlHashQLookup2(xmlHashTablePtr table, const xmlChar * prefix, const xmlC
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, void * userdata)
+int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, void * userdata)
 {
 	ulong key, len = 0;
 	xmlHashEntry * entry;
@@ -550,7 +547,7 @@ int xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar 
  *
  * Returns 0 the addition succeeded and -1 in case of error.
  */
-int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, void * userdata, xmlHashDeallocator f)
+int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, void * userdata, xmlHashDeallocator f)
 {
 	ulong key;
 	xmlHashEntry * entry;
@@ -656,7 +653,7 @@ int xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlCh
  *
  * Returns the a pointer to the userdata
  */
-void * xmlHashLookup3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
+void * FASTCALL xmlHashLookup3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
 {
 	if(table && name) {
 		ulong key = xmlHashComputeKey(table, name, name2, name3);
@@ -692,7 +689,7 @@ void * xmlHashLookup3(xmlHashTablePtr table, const xmlChar * name, const xmlChar
  *
  * Returns the a pointer to the userdata
  */
-void * xmlHashQLookup3(xmlHashTablePtr table,
+void * xmlHashQLookup3(xmlHashTable * table,
     const xmlChar * prefix, const xmlChar * name,
     const xmlChar * prefix2, const xmlChar * name2,
     const xmlChar * prefix3, const xmlChar * name3)
@@ -728,7 +725,7 @@ static void stubHashScannerFull(void * payload, void * data, const xmlChar * nam
  *
  * Scan the hash @table and applied @f to each value.
  */
-void xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void * data)
+void xmlHashScan(xmlHashTable * table, xmlHashScanner f, void * data)
 {
 	stubData stubdata;
 	stubdata.data = data;
@@ -743,7 +740,7 @@ void xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void * data)
  *
  * Scan the hash @table and applied @f to each value.
  */
-void xmlHashScanFull(xmlHashTablePtr table, xmlHashScannerFull f, void * data)
+void xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void * data)
 {
 	if(f && table && table->table) {
 		for(int i = 0; i < table->size; i++) {
@@ -785,7 +782,7 @@ void xmlHashScanFull(xmlHashTablePtr table, xmlHashScannerFull f, void * data)
  * (@name, @name2, @name3) tuple. If one of the names is null,
  * the comparison is considered to match.
  */
-void xmlHashScan3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashScanner f, void * data)
+void xmlHashScan3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashScanner f, void * data)
 {
 	xmlHashScanFull3(table, name, name2, name3, (xmlHashScannerFull)f, data);
 }
@@ -803,7 +800,7 @@ void xmlHashScan3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * n
  * (@name, @name2, @name3) tuple. If one of the names is null,
  * the comparison is considered to match.
  */
-void xmlHashScanFull3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashScannerFull f, void * data)
+void xmlHashScanFull3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashScannerFull f, void * data)
 {
 	if(f && table && table->table) {
 		for(int i = 0; i < table->size; i++) {
@@ -829,7 +826,7 @@ void xmlHashScanFull3(xmlHashTablePtr table, const xmlChar * name, const xmlChar
  *
  * Returns the new table or NULL in case of error.
  */
-xmlHashTablePtr xmlHashCopy(xmlHashTablePtr table, xmlHashCopier f)
+xmlHashTable * xmlHashCopy(xmlHashTable * table, xmlHashCopier f)
 {
 	xmlHashTable * ret = (table && f) ? xmlHashCreate(table->size) : 0;
 	if(ret) {
@@ -857,7 +854,7 @@ xmlHashTablePtr xmlHashCopy(xmlHashTablePtr table, xmlHashCopier f)
  * Returns the number of elements in the hash table or
  * -1 in case of error
  */
-int xmlHashSize(xmlHashTablePtr table)
+int xmlHashSize(xmlHashTable * table)
 {
 	return table ? table->nbElems : -1;
 }
@@ -873,7 +870,7 @@ int xmlHashSize(xmlHashTablePtr table)
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry(xmlHashTablePtr table, const xmlChar * name, xmlHashDeallocator f)
+int xmlHashRemoveEntry(xmlHashTable * table, const xmlChar * name, xmlHashDeallocator f)
 {
 	return xmlHashRemoveEntry3(table, name, NULL, NULL, f);
 }
@@ -890,7 +887,7 @@ int xmlHashRemoveEntry(xmlHashTablePtr table, const xmlChar * name, xmlHashDeall
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, xmlHashDeallocator f)
+int xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, xmlHashDeallocator f)
 {
 	return(xmlHashRemoveEntry3(table, name, name2, NULL, f));
 }
@@ -909,7 +906,7 @@ int xmlHashRemoveEntry2(xmlHashTablePtr table, const xmlChar * name, const xmlCh
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry3(xmlHashTablePtr table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashDeallocator f)
+int xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashDeallocator f)
 {
 	ulong key;
 	xmlHashEntry * entry;

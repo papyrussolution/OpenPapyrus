@@ -9,9 +9,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/entities.h>
-//#include <libxml/parserInternals.h>
-//#include <libxml/dict.h>
 #include "save.h"
 /*
  * The XML predefined entities.
@@ -42,11 +39,10 @@ static xmlEntity xmlEntityApos = {
  *
  * Handle an out of memory condition
  */
-static void xmlEntitiesErrMemory(const char * extra)
+static void FASTCALL xmlEntitiesErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_TREE, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
-
 /**
  * xmlEntitiesErr:
  * @code:  the error code
@@ -54,11 +50,10 @@ static void xmlEntitiesErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void xmlEntitiesErr(xmlParserErrors code, const char * msg)
+static void FASTCALL xmlEntitiesErr(xmlParserErrors code, const char * msg)
 {
 	__xmlSimpleError(XML_FROM_TREE, code, NULL, msg, 0);
 }
-
 /*
  * xmlFreeEntity : clean-up an entity record.
  */

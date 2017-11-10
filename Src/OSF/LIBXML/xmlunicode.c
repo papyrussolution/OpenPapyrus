@@ -940,13 +940,12 @@ static xmlUnicodeNameTable xmlUnicodeCatTbl = {xmlUnicodeCats, 36};
  *
  * Returns pointer to range function if found, otherwise NULL
  */
-static xmlIntFunc
-* xmlUnicodeLookup(xmlUnicodeNameTable * tptr, const char * tname) {
+static xmlIntFunc * xmlUnicodeLookup(xmlUnicodeNameTable * tptr, const char * tname) 
+{
 	int low, high, mid, cmp;
 	xmlUnicodeRange * sptr;
-
-	if((tptr == NULL) || (tname == NULL)) return 0;
-
+	if((tptr == NULL) || (tname == NULL)) 
+		return 0;
 	low = 0;
 	high = tptr->numentries - 1;
 	sptr = tptr->table;
@@ -1047,10 +1046,10 @@ int xmlUCSIsArmenian(int code)
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsArrows(int code) {
+int xmlUCSIsArrows(int code) 
+{
 	return(((code >= 0x2190) && (code <= 0x21FF)));
 }
-
 /**
  * xmlUCSIsBasicLatin:
  * @code: UCS code point
@@ -1059,10 +1058,10 @@ int xmlUCSIsArrows(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsBasicLatin(int code) {
+int xmlUCSIsBasicLatin(int code) 
+{
 	return(((code >= 0x0000) && (code <= 0x007F)));
 }
-
 /**
  * xmlUCSIsBengali:
  * @code: UCS code point
@@ -1071,10 +1070,10 @@ int xmlUCSIsBasicLatin(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsBengali(int code) {
+int xmlUCSIsBengali(int code) 
+{
 	return(((code >= 0x0980) && (code <= 0x09FF)));
 }
-
 /**
  * xmlUCSIsBlockElements:
  * @code: UCS code point
@@ -1083,10 +1082,10 @@ int xmlUCSIsBengali(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsBlockElements(int code) {
+int xmlUCSIsBlockElements(int code) 
+{
 	return(((code >= 0x2580) && (code <= 0x259F)));
 }
-
 /**
  * xmlUCSIsBopomofo:
  * @code: UCS code point
@@ -1575,10 +1574,10 @@ int xmlUCSIsGurmukhi(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHalfwidthandFullwidthForms(int code) {
+int xmlUCSIsHalfwidthandFullwidthForms(int code) 
+{
 	return(((code >= 0xFF00) && (code <= 0xFFEF)));
 }
-
 /**
  * xmlUCSIsHangulCompatibilityJamo:
  * @code: UCS code point
@@ -1587,10 +1586,10 @@ int xmlUCSIsHalfwidthandFullwidthForms(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHangulCompatibilityJamo(int code) {
+int xmlUCSIsHangulCompatibilityJamo(int code) 
+{
 	return(((code >= 0x3130) && (code <= 0x318F)));
 }
-
 /**
  * xmlUCSIsHangulJamo:
  * @code: UCS code point
@@ -1599,10 +1598,10 @@ int xmlUCSIsHangulCompatibilityJamo(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHangulJamo(int code) {
+int xmlUCSIsHangulJamo(int code) 
+{
 	return(((code >= 0x1100) && (code <= 0x11FF)));
 }
-
 /**
  * xmlUCSIsHangulSyllables:
  * @code: UCS code point
@@ -1611,10 +1610,10 @@ int xmlUCSIsHangulJamo(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHangulSyllables(int code) {
+int xmlUCSIsHangulSyllables(int code) 
+{
 	return(((code >= 0xAC00) && (code <= 0xD7AF)));
 }
-
 /**
  * xmlUCSIsHanunoo:
  * @code: UCS code point
@@ -1623,10 +1622,10 @@ int xmlUCSIsHangulSyllables(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHanunoo(int code) {
+int xmlUCSIsHanunoo(int code) 
+{
 	return(((code >= 0x1720) && (code <= 0x173F)));
 }
-
 /**
  * xmlUCSIsHebrew:
  * @code: UCS code point
@@ -1635,10 +1634,10 @@ int xmlUCSIsHanunoo(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsHebrew(int code) {
+int xmlUCSIsHebrew(int code) 
+{
 	return(((code >= 0x0590) && (code <= 0x05FF)));
 }
-
 /**
  * xmlUCSIsHighPrivateUseSurrogates:
  * @code: UCS code point
@@ -1911,10 +1910,10 @@ int xmlUCSIsLowSurrogates(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMalayalam(int code) {
+int xmlUCSIsMalayalam(int code) 
+{
 	return(((code >= 0x0D00) && (code <= 0x0D7F)));
 }
-
 /**
  * xmlUCSIsMathematicalAlphanumericSymbols:
  * @code: UCS code point
@@ -1923,10 +1922,10 @@ int xmlUCSIsMalayalam(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMathematicalAlphanumericSymbols(int code) {
+int xmlUCSIsMathematicalAlphanumericSymbols(int code) 
+{
 	return(((code >= 0x1D400) && (code <= 0x1D7FF)));
 }
-
 /**
  * xmlUCSIsMathematicalOperators:
  * @code: UCS code point
@@ -1935,10 +1934,10 @@ int xmlUCSIsMathematicalAlphanumericSymbols(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMathematicalOperators(int code) {
+int xmlUCSIsMathematicalOperators(int code) 
+{
 	return(((code >= 0x2200) && (code <= 0x22FF)));
 }
-
 /**
  * xmlUCSIsMiscellaneousMathematicalSymbolsA:
  * @code: UCS code point
@@ -1947,10 +1946,10 @@ int xmlUCSIsMathematicalOperators(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMiscellaneousMathematicalSymbolsA(int code) {
+int xmlUCSIsMiscellaneousMathematicalSymbolsA(int code) 
+{
 	return(((code >= 0x27C0) && (code <= 0x27EF)));
 }
-
 /**
  * xmlUCSIsMiscellaneousMathematicalSymbolsB:
  * @code: UCS code point
@@ -1959,10 +1958,10 @@ int xmlUCSIsMiscellaneousMathematicalSymbolsA(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMiscellaneousMathematicalSymbolsB(int code) {
+int xmlUCSIsMiscellaneousMathematicalSymbolsB(int code) 
+{
 	return(((code >= 0x2980) && (code <= 0x29FF)));
 }
-
 /**
  * xmlUCSIsMiscellaneousSymbols:
  * @code: UCS code point
@@ -1971,10 +1970,10 @@ int xmlUCSIsMiscellaneousMathematicalSymbolsB(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMiscellaneousSymbols(int code) {
+int xmlUCSIsMiscellaneousSymbols(int code) 
+{
 	return(((code >= 0x2600) && (code <= 0x26FF)));
 }
-
 /**
  * xmlUCSIsMiscellaneousSymbolsandArrows:
  * @code: UCS code point
@@ -1983,10 +1982,10 @@ int xmlUCSIsMiscellaneousSymbols(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMiscellaneousSymbolsandArrows(int code) {
+int xmlUCSIsMiscellaneousSymbolsandArrows(int code) 
+{
 	return(((code >= 0x2B00) && (code <= 0x2BFF)));
 }
-
 /**
  * xmlUCSIsMiscellaneousTechnical:
  * @code: UCS code point
@@ -1995,10 +1994,10 @@ int xmlUCSIsMiscellaneousSymbolsandArrows(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMiscellaneousTechnical(int code) {
+int xmlUCSIsMiscellaneousTechnical(int code) 
+{
 	return(((code >= 0x2300) && (code <= 0x23FF)));
 }
-
 /**
  * xmlUCSIsMongolian:
  * @code: UCS code point
@@ -2007,7 +2006,8 @@ int xmlUCSIsMiscellaneousTechnical(int code) {
  *
  * Returns 1 if true 0 otherwise
  */
-int xmlUCSIsMongolian(int code) {
+int xmlUCSIsMongolian(int code) 
+{
 	return(((code >= 0x1800) && (code <= 0x18AF)));
 }
 

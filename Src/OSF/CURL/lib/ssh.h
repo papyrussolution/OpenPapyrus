@@ -103,9 +103,9 @@ typedef enum {
 struct SSHPROTO {
 	char * path;           /* the path we operate on */
 };
-
-/* ssh_conn is used for struct connection-oriented data in the connectdata
-   struct */
+//
+// ssh_conn is used for struct connection-oriented data in the connectdata struct 
+//
 struct ssh_conn {
 	const char * authlist; /* List of auth. methods, managed by libssh2 */
 #ifdef USE_LIBSSH2

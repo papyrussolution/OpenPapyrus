@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static ngx_int_t ngx_http_stub_status_handler(ngx_http_request_t * r);
 static ngx_int_t ngx_http_stub_status_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);

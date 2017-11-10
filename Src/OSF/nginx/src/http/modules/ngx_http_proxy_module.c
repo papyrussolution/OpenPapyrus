@@ -5,14 +5,12 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_proxy_main_conf_t {
-	ngx_array_t caches;                 /* ngx_http_file_cache_t * */
+	ngx_array_t caches; /* ngx_http_file_cache_t * */
 };
 
 typedef struct ngx_http_proxy_rewrite_s ngx_http_proxy_rewrite_t;
-
 typedef ngx_int_t (*ngx_http_proxy_rewrite_pt)(ngx_http_request_t * r, ngx_table_elt_t * h, size_t prefix, size_t len, ngx_http_proxy_rewrite_t * pr);
 
 struct ngx_http_proxy_rewrite_s {

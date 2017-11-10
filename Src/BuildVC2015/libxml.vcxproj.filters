@@ -89,9 +89,6 @@
     <ClInclude Include="..\include\libxml\c14n.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\catalog.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\chvalid.h">
       <Filter>Header</Filter>
     </ClInclude>

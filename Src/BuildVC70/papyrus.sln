@@ -95,6 +95,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Universe-HTT", "Universe-HT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcurl", "libcurl.vcproj", "{DA6F56B4-06A4-441D-AD70-AC5A7D51FADB}"
 	ProjectSection(ProjectDependencies) = postProject
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94} = {15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzint", "libzint.vcproj", "{F0604A96-528F-40E6-8800-C696F03307A1}"
@@ -266,6 +267,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPSoapMercury_AMS", "PPSoapMercury_AMS.vcproj", "{B5944992-A8BD-4FB4-ABE7-EE6684583339}"
 	ProjectSection(ProjectDependencies) = postProject
 		{813784D9-8B70-4880-91E7-51BB4265D187} = {813784D9-8B70-4880-91E7-51BB4265D187}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "libssh2.vcproj", "{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}"
+	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Global
@@ -812,6 +817,20 @@ Global
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.ServerRelease.ActiveCfg = Release|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT.ActiveCfg = Release|Win32
 		{B5944992-A8BD-4FB4-ABE7-EE6684583339}.Universe-HTT.Build.0 = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Debug.ActiveCfg = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Debug.Build.0 = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.MtDllDebug.ActiveCfg = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.MtDllDebug.Build.0 = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.MtDllRelease.ActiveCfg = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.MtDllRelease.Build.0 = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Release.ActiveCfg = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Release.Build.0 = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.ServerDebug.ActiveCfg = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.ServerDebug.Build.0 = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.ServerRelease.ActiveCfg = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.ServerRelease.Build.0 = Release|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Universe-HTT.ActiveCfg = Debug|Win32
+		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Universe-HTT.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static ngx_uint_t ngx_http_test_if_unmodified(ngx_http_request_t * r);
 static ngx_uint_t ngx_http_test_if_modified(ngx_http_request_t * r);

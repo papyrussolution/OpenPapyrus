@@ -37,12 +37,12 @@ struct xmlEntity {
 	void * _private;      /* application data */
 	xmlElementType type;            /* XML_ENTITY_DECL, must be second ! */
 	const xmlChar * name;  /* Entity name */
-	struct _xmlNode * children;  /* First child link */
-	struct _xmlNode * last;  /* Last child link */
-	struct _xmlDtd  * parent;  /* -> DTD */
-	struct _xmlNode * next;  /* next sibling link  */
-	struct _xmlNode * prev;  /* previous sibling link  */
-	struct _xmlDoc  * doc;  /* the containing document */
+	xmlNode * children;  /* First child link */
+	xmlNode * last;  /* Last child link */
+	xmlDtd  * parent;  /* -> DTD */
+	xmlNode * next;  /* next sibling link  */
+	xmlNode * prev;  /* previous sibling link  */
+	xmlDoc  * doc;  /* the containing document */
 	xmlChar * orig;  /* content without ref substitution */
 	xmlChar * content;  /* content or ndata if unparsed */
 	int    length;                     /* the content length */
@@ -58,7 +58,7 @@ struct xmlEntity {
  * All entities are stored in an hash table.
  * There is 2 separate hash tables for global and parameter entities.
  */
-typedef struct _xmlHashTable xmlEntitiesTable;
+typedef xmlHashTable xmlEntitiesTable;
 typedef xmlEntitiesTable * xmlEntitiesTablePtr;
 /*
  * External functions:

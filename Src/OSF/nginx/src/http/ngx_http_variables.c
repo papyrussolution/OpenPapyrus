@@ -5,8 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-//#include <nginx.h>
 
 static ngx_http_variable_t * ngx_http_add_prefix_variable(ngx_conf_t * cf, ngx_str_t * name, ngx_uint_t flags);
 static ngx_int_t ngx_http_variable_request(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);

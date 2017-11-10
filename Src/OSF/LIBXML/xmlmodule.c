@@ -38,10 +38,7 @@ static int xmlModulePlatformSymbol(void * handle, const char * name, void ** res
  */
 static void xmlModuleErrMemory(xmlModulePtr module, const char * extra)
 {
-	const char * name = NULL;
-	if(module != NULL) {
-		name = (const char*)module->name;
-	}
+	const char * name = module ? (const char*)module->name : 0;
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, name, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
 }
 /**
@@ -153,37 +150,31 @@ int xmlModuleFree(xmlModulePtr module)
 
 #if defined(HAVE_DLOPEN) && !defined(_WIN32)
 #ifdef HAVE_DLFCN_H
-#include <dlfcn.h>
+	#include <dlfcn.h>
 #endif
-
 #ifndef RTLD_GLOBAL            /* For Tru64 UNIX 4.0 */
-#define RTLD_GLOBAL 0
+	#define RTLD_GLOBAL 0
 #endif
-
 /**
  * xmlModulePlatformOpen:
  * @name: path to the module
  *
  * returns a handle on success, and zero on error.
  */
-
 static void * xmlModulePlatformOpen(const char * name)
 {
 	return dlopen(name, RTLD_GLOBAL | RTLD_NOW);
 }
-
 /*
  * xmlModulePlatformClose:
  * @handle: handle to the module
  *
  * returns 0 on success, and non-zero on error.
  */
-
 static int xmlModulePlatformClose(void * handle)
 {
 	return dlclose(handle);
 }
-
 /*
  * xmlModulePlatformSymbol:
  * http://www.opengroup.org/onlinepubs/009695399/functions/dlsym.html

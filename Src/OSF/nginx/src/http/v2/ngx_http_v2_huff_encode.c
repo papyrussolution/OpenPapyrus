@@ -6,7 +6,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_v2_huff_encode_code_t {
 	uint32_t code;

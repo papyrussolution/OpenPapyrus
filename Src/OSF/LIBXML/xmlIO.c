@@ -74,13 +74,8 @@
 		#endif
 	#endif
 #endif
-//#include <libxml/parserInternals.h>
 #include <libxml/nanohttp.h>
 #include <libxml/nanoftp.h>
-#ifdef LIBXML_CATALOG_ENABLED
-	#include <libxml/catalog.h>
-#endif
-
 /* #define VERBOSE_FAILURE */
 /* #define DEBUG_EXTERNAL_ENTITIES */
 /* #define DEBUG_INPUT */
@@ -1027,9 +1022,7 @@ static int xmlFileFlush(void * context)
 static int xmlBufferWrite(void * context, const char * buffer, int len)
 {
 	int ret = xmlBufferAdd((xmlBufferPtr)context, (const xmlChar*)buffer, len);
-	if(ret != 0)
-		return -1;
-	return(len);
+	return (ret == 0) ? len : -1;
 }
 
 #endif
@@ -1052,7 +1045,6 @@ static int xmlGzfileMatch(const char * filename ATTRIBUTE_UNUSED)
 {
 	return 1;
 }
-
 /**
  * xmlGzfileOpen_real:
  * @filename:  the URI for matching
@@ -1072,10 +1064,8 @@ static void * xmlGzfileOpen_real(const char * filename)
 		if(fd == Z_NULL && duped_fd >= 0) {
 			close(duped_fd); /* gzdOpen() does not close on failure */
 		}
-
 		return (void*)fd;
 	}
-
 	if(!xmlStrncasecmp(BAD_CAST filename, BAD_CAST "file://localhost/", 17))
 #if defined (_WIN32) || defined (__DJGPP__) && !defined(__CYGWIN__)
 		path = &filename[17];
@@ -2457,7 +2447,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 		/*
 		 * try to limit the damages of the URI unescaping code.
 		 */
-		if((puri->scheme == NULL) || (sstreq(BAD_CAST puri->scheme, BAD_CAST "file")))
+		if(!puri->scheme || (sstreq(BAD_CAST puri->scheme, BAD_CAST "file")))
 			unescaped = xmlURIUnescapeString(URI, 0, 0);
 		xmlFreeURI(puri);
 	}
@@ -2497,10 +2487,8 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 		}
 		SAlloc::F(unescaped);
 	}
-
 	/*
-	 * If this failed try with a non-escaped URI this may be a strange
-	 * filename
+	 * If this failed try with a non-escaped URI this may be a strange filename
 	 */
 	if(!context) {
 #ifdef HAVE_ZLIB_H

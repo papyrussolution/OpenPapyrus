@@ -5,10 +5,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-
 #if (NGX_ZLIB)
-#include <zlib.h>
+	#include <zlib.h>
 #endif
 
 typedef struct ngx_http_log_op_s ngx_http_log_op_t;

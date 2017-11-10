@@ -15,7 +15,6 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 #define XML_GET_VAR_STR(msg, str) {				\
 		int    prev_size = -1;			      \
 		int    chars;					      \
-		char * larger;					     \
 		va_list ap;						  \
 		str = (char*)SAlloc::M(150); \
 		if(str) {					   \
@@ -30,15 +29,12 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 					else					    \
 						prev_size = chars;				\
 				}							\
-				if(chars > -1)					       \
-					size += chars + 1;				    \
-				else							\
-					size += 100;					    \
-				if((larger = (char*)SAlloc::R(str, size)) == NULL) { \
-					break;						    \
-				}							\
-				str = larger;						\
-			}}							    \
+				size += ((chars > -1) ? (chars + 1) : 100); \
+				char * larger = (char*)SAlloc::R(str, size); \
+				if(!larger) \
+					break;	\
+				str = larger; \
+			}} \
 }
 
 /************************************************************************
@@ -116,14 +112,13 @@ void xmlSetStructuredErrorFunc(void * ctx, xmlStructuredErrorFunc handler)
 *			Handling of parsing errors			*
 *									*
 ************************************************************************/
-
 /**
  * xmlParserPrintFileInfo:
  * @input:  an xmlParserInputPtr input
  *
  * Displays the associated file and line informations for the current input
  */
-void xmlParserPrintFileInfo(xmlParserInputPtr input)
+void xmlParserPrintFileInfo(xmlParserInput * input)
 {
 	if(input) {
 		if(input->filename)
@@ -138,7 +133,6 @@ void xmlParserPrintFileInfo(xmlParserInputPtr input)
  *
  * Displays current context within the input content for error tracking
  */
-
 static void xmlParserPrintFileContextInternal(xmlParserInputPtr input, xmlGenericErrorFunc channel, void * data)
 {
 	uint n, col;    /* GCC warns if signed, because compared with sizeof() */
@@ -155,7 +149,8 @@ static void xmlParserPrintFileContextInternal(xmlParserInputPtr input, xmlGeneri
 		/* search backwards for beginning-of-line (to max buff size) */
 		while((n++ < (sizeof(content)-1)) && (cur > base) && (*(cur) != '\n') && (*(cur) != '\r'))
 			cur--;
-		if((*(cur) == '\n') || (*(cur) == '\r')) cur++;
+		if((*(cur) == '\n') || (*(cur) == '\r')) 
+			cur++;
 		/* calculate the error position in terms of the current position */
 		col = input->cur - cur;
 		/* search forward for end-of-line (to max buff size) */
@@ -183,14 +178,12 @@ static void xmlParserPrintFileContextInternal(xmlParserInputPtr input, xmlGeneri
 		channel(data, "%s\n", content);
 	}
 }
-
 /**
- * xmlParserPrintFileContext:
  * @input:  an xmlParserInputPtr input
  *
  * Displays current context within the input content for error tracking
  */
-void xmlParserPrintFileContext(xmlParserInputPtr input)
+void xmlParserPrintFileContext(xmlParserInput * input)
 {
 	xmlParserPrintFileContextInternal(input, xmlGenericError, xmlGenericErrorContext);
 }
@@ -209,6 +202,7 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 	int line = 0;
 	int code = -1;
 	int domain;
+	SString temp_buf;
 	const xmlChar * name = NULL;
 	xmlNode * P_Node;
 	xmlErrorLevel level;
@@ -254,97 +248,49 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * 
 		if(name) {
 			channel(data, "element %s: ", name);
 		}
-		switch(domain) {
-			case XML_FROM_PARSER:
-				channel(data, "parser ");
-				break;
-			case XML_FROM_NAMESPACE:
-				channel(data, "namespace ");
-				break;
-			case XML_FROM_DTD:
-			case XML_FROM_VALID:
-				channel(data, "validity ");
-				break;
-			case XML_FROM_HTML:
-				channel(data, "HTML parser ");
-				break;
-			case XML_FROM_MEMORY:
-				channel(data, "memory ");
-				break;
-			case XML_FROM_OUTPUT:
-				channel(data, "output ");
-				break;
-			case XML_FROM_IO:
-				channel(data, "I/O ");
-				break;
-			case XML_FROM_XINCLUDE:
-				channel(data, "XInclude ");
-				break;
-			case XML_FROM_XPATH:
-				channel(data, "XPath ");
-				break;
-			case XML_FROM_XPOINTER:
-				channel(data, "parser ");
-				break;
-			case XML_FROM_REGEXP:
-				channel(data, "regexp ");
-				break;
-			case XML_FROM_MODULE:
-				channel(data, "module ");
-				break;
-			case XML_FROM_SCHEMASV:
-				channel(data, "Schemas validity ");
-				break;
-			case XML_FROM_SCHEMASP:
-				channel(data, "Schemas parser ");
-				break;
-			case XML_FROM_RELAXNGP:
-				channel(data, "Relax-NG parser ");
-				break;
-			case XML_FROM_RELAXNGV:
-				channel(data, "Relax-NG validity ");
-				break;
-			case XML_FROM_CATALOG:
-				channel(data, "Catalog ");
-				break;
-			case XML_FROM_C14N:
-				channel(data, "C14N ");
-				break;
-			case XML_FROM_XSLT:
-				channel(data, "XSLT ");
-				break;
-			case XML_FROM_I18N:
-				channel(data, "encoding ");
-				break;
-			case XML_FROM_SCHEMATRONV:
-				channel(data, "schematron ");
-				break;
-			case XML_FROM_BUFFER:
-				channel(data, "internal buffer ");
-				break;
-			case XML_FROM_URI:
-				channel(data, "URI ");
-				break;
-			default:
-				break;
+		{
+			const char * p_domain_text = 0;
+			switch(domain) {
+				case XML_FROM_PARSER: p_domain_text = "parser"; break;
+				case XML_FROM_NAMESPACE: p_domain_text = "namespace"; break;
+				case XML_FROM_DTD:
+				case XML_FROM_VALID: p_domain_text = "validity"; break;
+				case XML_FROM_HTML: p_domain_text = "HTML parser"; break;
+				case XML_FROM_MEMORY: p_domain_text = "memory"; break;
+				case XML_FROM_OUTPUT: p_domain_text = "output"; break;
+				case XML_FROM_IO: p_domain_text = "I/O"; break;
+				case XML_FROM_XINCLUDE: p_domain_text = "XInclude"; break;
+				case XML_FROM_XPATH: p_domain_text = "XPath"; break;
+				case XML_FROM_XPOINTER: p_domain_text = "parser"; break;
+				case XML_FROM_REGEXP: p_domain_text = "regexp"; break;
+				case XML_FROM_MODULE: p_domain_text = "module"; break;
+				case XML_FROM_SCHEMASV: p_domain_text = "Schemas validity"; break;
+				case XML_FROM_SCHEMASP: p_domain_text = "Schemas parser"; break;
+				case XML_FROM_RELAXNGP: p_domain_text = "Relax-NG parser"; break;
+				case XML_FROM_RELAXNGV: p_domain_text = "Relax-NG validity"; break;
+				case XML_FROM_CATALOG: p_domain_text = "Catalog"; break;
+				case XML_FROM_C14N: p_domain_text = "C14N"; break;
+				case XML_FROM_XSLT: p_domain_text = "XSLT"; break;
+				case XML_FROM_I18N: p_domain_text = "encoding"; break;
+				case XML_FROM_SCHEMATRONV: p_domain_text = "schematron"; break;
+				case XML_FROM_BUFFER: p_domain_text = "internal buffer"; break;
+				case XML_FROM_URI: p_domain_text = "URI"; break;
+				default: break;
+			}
+			if(p_domain_text) {
+				(temp_buf = p_domain_text).Space();
+				channel(data, temp_buf.cptr());
+			}
 		}
 		switch(level) {
-			case XML_ERR_NONE:
-				channel(data, ": ");
-				break;
-			case XML_ERR_WARNING:
-				channel(data, "warning : ");
-				break;
-			case XML_ERR_ERROR:
-				channel(data, "error : ");
-				break;
-			case XML_ERR_FATAL:
-				channel(data, "error : ");
-				break;
+			case XML_ERR_NONE: channel(data, ": "); break;
+			case XML_ERR_WARNING: channel(data, "warning : "); break;
+			case XML_ERR_ERROR: channel(data, "error : "); break;
+			case XML_ERR_FATAL: channel(data, "error : "); break;
 		}
-		if(str != NULL) {
-			int len = sstrlen((const xmlChar*)str);
-			if((len > 0) && (str[len - 1] != '\n'))
+		if(str) {
+			int len = sstrlen(str);
+			if((len > 0) && (str[len-1] != '\n'))
 				channel(data, "%s\n", str);
 			else
 				channel(data, "%s", str);
@@ -480,18 +426,18 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	to->code = code;
 	to->message = str;
 	to->level = level;
-	if(file != NULL)
+	if(file)
 		to->file = sstrdup(file);
 	else if(baseptr) {
 #ifdef LIBXML_XINCLUDE_ENABLED
-		/*
-		 * We check if the error is within an XInclude section and,
-		 * if so, attempt to print out the href of the XInclude instead
-		 * of the usual "base" (doc->URL) for the node (bug 152623).
-		 */
+		// 
+		// We check if the error is within an XInclude section and,
+		// if so, attempt to print out the href of the XInclude instead
+		// of the usual "base" (doc->URL) for the node (bug 152623).
+		// 
 		xmlNode * prev = baseptr;
 		int inclcount = 0;
-		while(prev != NULL) {
+		while(prev) {
 			if(prev->prev == NULL)
 				prev = prev->parent;
 			else {
@@ -504,7 +450,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 					inclcount++;
 			}
 		}
-		if(prev != NULL) {
+		if(prev) {
 			if(prev->type == XML_XINCLUDE_START) {
 				prev->type = XML_ELEMENT_NODE;
 				to->file = (char*)xmlGetProp(prev, BAD_CAST "href");
@@ -517,16 +463,13 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		else
 #endif
 		to->file = (char *)sstrdup(baseptr->doc->URL);
-		if((to->file == NULL) && P_Node && P_Node->doc)
+		if(!to->file && P_Node && P_Node->doc)
 			to->file = (char*)sstrdup(P_Node->doc->URL);
 	}
 	to->line = line;
-	if(str1)
-		to->str1 = sstrdup(str1);
-	if(str2)
-		to->str2 = sstrdup(str2);
-	if(str3)
-		to->str3 = sstrdup(str3);
+	to->str1 = sstrdup(str1);
+	to->str2 = sstrdup(str2);
+	to->str3 = sstrdup(str3);
 	to->int1 = int1;
 	to->int2 = col;
 	to->P_Node = P_Node;
@@ -544,9 +487,9 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 			channel = (level == XML_ERR_WARNING) ? ctxt->sax->warning : ctxt->sax->error;
 			data = ctxt->userData;
 		}
-		else if(channel == NULL) {
+		else if(!channel) {
 			channel = xmlGenericError;
-			data = ctxt ? ctxt : xmlGenericErrorContext;
+			data = NZOR(ctxt, xmlGenericErrorContext);
 		}
 		if(channel) {
 			if(oneof4(channel, xmlParserError, xmlParserWarning, xmlParserValidityError, xmlParserValidityWarning))
@@ -558,7 +501,6 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		}
 	}
 }
-
 /**
  * __xmlSimpleError:
  * @domain: where the error comes from
@@ -568,7 +510,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
  *
  * Handle an out of memory condition
  */
-void __xmlSimpleError(int domain, int code, xmlNode * P_Node, const char * msg, const char * extra)
+void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * P_Node, const char * msg, const char * extra)
 {
 	if(code == XML_ERR_NO_MEMORY) {
 		if(extra)

@@ -12,8 +12,6 @@
 #pragma hdrstop
 
 #ifdef LIBXML_DEBUG_ENABLED
-//#include <libxml/parserInternals.h>
-//#include <libxml/debugXML.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/xpathInternals.h>
@@ -129,19 +127,19 @@ static void xmlCtxtDumpSpaces(xmlDebugCtxt * ctxt)
  *
  * Handle a debug error.
  */
-static void xmlDebugErr(xmlDebugCtxt * ctxt, int error, const char * msg)
+static void FASTCALL xmlDebugErr(xmlDebugCtxt * ctxt, int error, const char * msg)
 {
 	ctxt->errors++;
 	__xmlRaiseError(0, 0, 0, 0, ctxt->P_Node, XML_FROM_CHECK, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
 }
 
-static void xmlDebugErr2(xmlDebugCtxt * ctxt, int error, const char * msg, int extra)
+static void FASTCALL xmlDebugErr2(xmlDebugCtxt * ctxt, int error, const char * msg, int extra)
 {
 	ctxt->errors++;
 	__xmlRaiseError(0, 0, 0, 0, ctxt->P_Node, XML_FROM_CHECK, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, msg, extra);
 }
 
-static void xmlDebugErr3(xmlDebugCtxt * ctxt, int error, const char * msg, const char * extra)
+static void FASTCALL xmlDebugErr3(xmlDebugCtxt * ctxt, int error, const char * msg, const char * extra)
 {
 	ctxt->errors++;
 	__xmlRaiseError(0, 0, 0, 0, ctxt->P_Node, XML_FROM_CHECK, error, XML_ERR_ERROR, 0, 0, 0, 0, 0, 0, 0, msg, extra);
@@ -375,7 +373,7 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
 	}
 }
 
-static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttributePtr attr)
+static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(attr == NULL) {
@@ -414,7 +412,7 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttributePtr attr)
 		}
 		if(attr->tree != NULL) {
 			int indx;
-			xmlEnumerationPtr cur = attr->tree;
+			xmlEnumeration * cur = attr->tree;
 			for(indx = 0; indx < 5; indx++) {
 				if(indx != 0)
 					fprintf(ctxt->output, "|%s", (char*)cur->name);
@@ -782,13 +780,13 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 				}
 				break;
 			case XML_DTD_NODE:
-				xmlCtxtDumpDtdNode(ctxt, (xmlDtdPtr)P_Node);
+				xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)P_Node);
 				return;
 			case XML_ELEMENT_DECL:
 				xmlCtxtDumpElemDecl(ctxt, (xmlElementPtr)P_Node);
 				return;
 			case XML_ATTRIBUTE_DECL:
-				xmlCtxtDumpAttrDecl(ctxt, (xmlAttributePtr)P_Node);
+				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)P_Node);
 				return;
 			case XML_ENTITY_DECL:
 				xmlCtxtDumpEntityDecl(ctxt, (xmlEntityPtr)P_Node);
@@ -1299,7 +1297,7 @@ int xmlLsCountNode(xmlNode * P_Node)
 		    list = ((xmlDocPtr)P_Node)->children;
 		    break;
 		case XML_ATTRIBUTE_NODE:
-		    list = ((xmlAttrPtr)P_Node)->children;
+		    list = ((xmlAttr *)P_Node)->children;
 		    break;
 		case XML_TEXT_NODE:
 		case XML_CDATA_SECTION_NODE:
@@ -1499,7 +1497,7 @@ static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * P_Node)
 		if(P_Node->type == XML_DOCUMENT_NODE)
 			xmlDocDump(fp, (xmlDocPtr)P_Node);
 		else if(P_Node->type == XML_ATTRIBUTE_NODE)
-			xmlDebugDumpAttrList(fp, (xmlAttrPtr)P_Node, 0);
+			xmlDebugDumpAttrList(fp, (xmlAttr *)P_Node, 0);
 		else
 			xmlElemDump(fp, P_Node->doc, P_Node);
 		fprintf(fp, "\n");
@@ -1836,7 +1834,7 @@ int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUS
 				xmlDebugDumpDocumentHead(ctxt->output, (xmlDocPtr)P_Node);
 			}
 			else if(P_Node->type == XML_ATTRIBUTE_NODE) {
-				xmlDebugDumpAttr(ctxt->output, (xmlAttrPtr)P_Node, 0);
+				xmlDebugDumpAttr(ctxt->output, (xmlAttr *)P_Node, 0);
 			}
 			else {
 				xmlDebugDumpOneNode(ctxt->output, P_Node, 0);

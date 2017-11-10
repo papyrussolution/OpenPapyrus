@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static const char * ngx_http_empty_gif(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 

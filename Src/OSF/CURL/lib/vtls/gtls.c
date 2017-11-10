@@ -518,7 +518,6 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		}
 	}
 #endif
-
 	if(SSL_CONN_CONFIG(CAfile)) {
 		/* set the trusted CA cert bundle file */
 		gnutls_certificate_set_verify_flags(conn->ssl[sockindex].cred, GNUTLS_VERIFY_ALLOW_X509_V1_CA_CRT);
@@ -529,10 +528,8 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 				return CURLE_SSL_CACERT_BADFILE;
 		}
 		else
-			infof(data, "found %d certificates in %s\n", rc,
-			    SSL_CONN_CONFIG(CAfile));
+			infof(data, "found %d certificates in %s\n", rc, SSL_CONN_CONFIG(CAfile));
 	}
-
 #ifdef HAS_CAPATH
 	if(SSL_CONN_CONFIG(CApath)) {
 		/* set the trusted CA cert directory */
@@ -540,47 +537,38 @@ static CURLcode gtls_connect_step1(struct connectdata * conn,
 		    SSL_CONN_CONFIG(CApath),
 		    GNUTLS_X509_FMT_PEM);
 		if(rc < 0) {
-			infof(data, "error reading ca cert file %s (%s)\n",
-			    SSL_CONN_CONFIG(CApath), gnutls_strerror(rc));
+			infof(data, "error reading ca cert file %s (%s)\n", SSL_CONN_CONFIG(CApath), gnutls_strerror(rc));
 			if(SSL_CONN_CONFIG(verifypeer))
 				return CURLE_SSL_CACERT_BADFILE;
 		}
 		else
-			infof(data, "found %d certificates in %s\n",
-			    rc, SSL_CONN_CONFIG(CApath));
+			infof(data, "found %d certificates in %s\n", rc, SSL_CONN_CONFIG(CApath));
 	}
 #endif
 
 #ifdef CURL_CA_FALLBACK
 	/* use system ca certificate store as fallback */
-	if(SSL_CONN_CONFIG(verifypeer) &&
-	    !(SSL_CONN_CONFIG(CAfile) || SSL_CONN_CONFIG(CApath))) {
+	if(SSL_CONN_CONFIG(verifypeer) && !(SSL_CONN_CONFIG(CAfile) || SSL_CONN_CONFIG(CApath))) {
 		gnutls_certificate_set_x509_system_trust(conn->ssl[sockindex].cred);
 	}
 #endif
 
 	if(SSL_SET_OPTION(CRLfile)) {
 		/* set the CRL list file */
-		rc = gnutls_certificate_set_x509_crl_file(conn->ssl[sockindex].cred,
-		    SSL_SET_OPTION(CRLfile),
-		    GNUTLS_X509_FMT_PEM);
+		rc = gnutls_certificate_set_x509_crl_file(conn->ssl[sockindex].cred, SSL_SET_OPTION(CRLfile), GNUTLS_X509_FMT_PEM);
 		if(rc < 0) {
 			failf(data, "error reading crl file %s (%s)", SSL_SET_OPTION(CRLfile), gnutls_strerror(rc));
 			return CURLE_SSL_CRL_BADFILE;
 		}
 		else
-			infof(data, "found %d CRL in %s\n",
-			    rc, SSL_SET_OPTION(CRLfile));
+			infof(data, "found %d CRL in %s\n", rc, SSL_SET_OPTION(CRLfile));
 	}
-
 	/* Initialize TLS session as a client */
 	init_flags = GNUTLS_CLIENT;
-
 #if defined(GNUTLS_NO_TICKETS)
 	/* Disable TLS session tickets */
 	init_flags |= GNUTLS_NO_TICKETS;
 #endif
-
 	rc = gnutls_init(&conn->ssl[sockindex].session, init_flags);
 	if(rc != GNUTLS_E_SUCCESS) {
 		failf(data, "gnutls_init() failed: %d", rc);
@@ -1132,24 +1120,17 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 		gnutls_x509_crt_deinit(x509_issuer);
 		unload_file(issuerp);
 		if(rc <= 0) {
-			failf(data, "server certificate issuer check failed (IssuerCert: %s)",
-			    SSL_SET_OPTION(issuercert) ? SSL_SET_OPTION(issuercert) : "none");
+			failf(data, "server certificate issuer check failed (IssuerCert: %s)", SSL_SET_OPTION(issuercert) ? SSL_SET_OPTION(issuercert) : "none");
 			gnutls_x509_crt_deinit(x509_cert);
 			return CURLE_SSL_ISSUER_ERROR;
 		}
-		infof(data, "\t server certificate issuer check OK (Issuer Cert: %s)\n",
-		    SSL_SET_OPTION(issuercert) ? SSL_SET_OPTION(issuercert) : "none");
+		infof(data, "\t server certificate issuer check OK (Issuer Cert: %s)\n", SSL_SET_OPTION(issuercert) ? SSL_SET_OPTION(issuercert) : "none");
 	}
 
 	size = sizeof(certbuf);
-	rc = gnutls_x509_crt_get_dn_by_oid(x509_cert, GNUTLS_OID_X520_COMMON_NAME,
-	    0,                          /* the first and only one */
-	    FALSE,
-	    certbuf,
-	    &size);
+	rc = gnutls_x509_crt_get_dn_by_oid(x509_cert, GNUTLS_OID_X520_COMMON_NAME, 0/* the first and only one */, FALSE, certbuf, &size);
 	if(rc) {
-		infof(data, "error fetching CN from cert:%s\n",
-		    gnutls_strerror(rc));
+		infof(data, "error fetching CN from cert:%s\n", gnutls_strerror(rc));
 	}
 
 	/* This function will check if the given certificate's subject matches the

@@ -25,7 +25,7 @@
 
 #include <libxml/xmlerror.h>
 #include <libxml/tree.h>
-#include <libxml/hash.h>
+//#include <libxml/hash.h>
 #endif /* LIBXML_XPATH_ENABLED */
 
 #if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
@@ -283,13 +283,13 @@ struct _xmlXPathContext {
     xmlNode * P_Node; // The current node 
     int nb_variables_unused;		/* unused (hash table) */
     int max_variables_unused;		/* unused (hash table) */
-    xmlHashTablePtr varHash;		/* Hash table of defined variables */
+    xmlHashTable * varHash;		/* Hash table of defined variables */
     int nb_types;			/* number of defined types */
     int max_types;			/* max number of types */
     xmlXPathTypePtr types;		/* Array of defined types */
     int nb_funcs_unused;		/* unused (hash table) */
     int max_funcs_unused;		/* unused (hash table) */
-    xmlHashTablePtr funcHash;		/* Hash table of defined funcs */
+    xmlHashTable * funcHash;		/* Hash table of defined funcs */
     int nb_axis;			/* number of defined axis */
     int max_axis;			/* max number of axis */
     xmlXPathAxisPtr axis;		/* Array of defined axis */
@@ -308,9 +308,8 @@ struct _xmlXPathContext {
     int xptr;				/* is this an XPointer context? */
     xmlNode * here;			/* for here() */
     xmlNode * origin;			/* for origin() */
-
     /* the set of namespace declarations in scope for the expression */
-    xmlHashTablePtr nsHash;		/* The namespaces hash table */
+    xmlHashTable * nsHash;		/* The namespaces hash table */
     xmlXPathVariableLookupFunc varLookupFunc;/* variable lookup func */
     void *varLookupData;		/* variable lookup data */
     /* Possibility to link in an extra item */
@@ -408,7 +407,7 @@ XMLPUBVAR double xmlXPathNINF;
  */
 #define xmlXPathNodeSetIsEmpty(ns) (((ns) == NULL) || ((ns)->nodeNr == 0) || ((ns)->PP_NodeTab == NULL))
 
-XMLPUBFUN void XMLCALL xmlXPathFreeObject(xmlXPathObjectPtr obj);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathFreeObject(xmlXPathObjectPtr obj);
 XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathNodeSetCreate(xmlNode * val);
 XMLPUBFUN void XMLCALL xmlXPathFreeNodeSetList(xmlXPathObjectPtr obj);
 XMLPUBFUN void XMLCALL xmlXPathFreeNodeSet(xmlNodeSetPtr obj);
@@ -462,7 +461,7 @@ XMLPUBFUN void XMLCALL xmlXPathFreeCompExpr(xmlXPathCompExprPtr comp);
 #if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 XMLPUBFUN void XMLCALL xmlXPathInit();
 XMLPUBFUN int XMLCALL xmlXPathIsNaN(double val);
-XMLPUBFUN int XMLCALL xmlXPathIsInf(double val);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathIsInf(double val);
 
 #ifdef __cplusplus
 }

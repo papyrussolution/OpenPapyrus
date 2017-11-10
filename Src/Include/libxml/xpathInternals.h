@@ -283,7 +283,7 @@ XMLPUBFUN void XMLCALL xmlXPathRegisterFuncLookup(xmlXPathContextPtr ctxt, xmlXP
  * Error reporting.
  */
 XMLPUBFUN void XMLCALL xmlXPatherror(xmlXPathParserContextPtr ctxt, const char * file, int line, int no);
-XMLPUBFUN void XMLCALL xmlXPathErr(xmlXPathParserContextPtr ctxt, int error);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathErr(xmlXPathParserContextPtr ctxt, int error);
 #ifdef LIBXML_DEBUG_ENABLED
 	XMLPUBFUN void XMLCALL xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth);
 	XMLPUBFUN void XMLCALL xmlXPathDebugDumpCompExpr(FILE * output, xmlXPathCompExprPtr comp, int depth);
@@ -312,7 +312,7 @@ XMLPUBFUN xmlNodeSetPtr XMLCALL xmlXPathTrailing(xmlNodeSetPtr nodes1, xmlNodeSe
 XMLPUBFUN int XMLCALL xmlXPathRegisterNs(xmlXPathContextPtr ctxt, const xmlChar * prefix, const xmlChar * ns_uri);
 XMLPUBFUN const xmlChar * XMLCALL xmlXPathNsLookup(xmlXPathContextPtr ctxt, const xmlChar * prefix);
 XMLPUBFUN void XMLCALL xmlXPathRegisteredNsCleanup(xmlXPathContextPtr ctxt);
-XMLPUBFUN int XMLCALL xmlXPathRegisterFunc(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathFunction f);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathRegisterFunc(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathFunction f);
 XMLPUBFUN int XMLCALL xmlXPathRegisterFuncNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathFunction f);
 XMLPUBFUN int XMLCALL xmlXPathRegisterVariable(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathObjectPtr value);
 XMLPUBFUN int XMLCALL xmlXPathRegisterVariableNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathObjectPtr value);

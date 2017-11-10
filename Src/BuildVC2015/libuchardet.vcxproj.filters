@@ -9,9 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\uchardet\src\CharDistribution.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\uchardet\src\JpCntx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -19,9 +16,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\uchardet\src\nsMBCSSM.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\uchardet\src\nsUniversalDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\OSF\uchardet\src\uchardet.cpp">

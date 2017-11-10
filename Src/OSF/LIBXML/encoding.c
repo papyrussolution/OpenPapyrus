@@ -51,7 +51,7 @@ static int xmlLittleEndian = 1;
 // @msg:  the error message
 // n encoding error
 //
-static void xmlEncodingErr(xmlParserErrors error, const char * msg, const char * val)
+static void FASTCALL xmlEncodingErr(xmlParserErrors error, const char * msg, const char * val)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_I18N, error, XML_ERR_FATAL, NULL, 0, val, NULL, NULL, 0, 0, msg, val);
 }
@@ -60,7 +60,7 @@ static void xmlEncodingErr(xmlParserErrors error, const char * msg, const char *
 // @extra:  extra informations
 // Handle an out of memory condition
 //
-static void xmlEncodingErrMemory(const char * extra)
+static void FASTCALL xmlEncodingErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_I18N, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }

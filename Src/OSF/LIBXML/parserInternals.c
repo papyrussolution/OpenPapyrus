@@ -6,20 +6,13 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
 #if defined(WIN32) && !defined (__CYGWIN__)
-#define XML_DIR_SEP '\\'
+	#define XML_DIR_SEP '\\'
 #else
-#define XML_DIR_SEP '/'
-#endif
-#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
+	#define XML_DIR_SEP '/'
 #endif
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
@@ -27,18 +20,9 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-//#include <libxml/parserInternals.h>
-//#include <libxml/entities.h>
-//#include <libxml/dict.h>
-//#include <libxml/SAX.h>
-#ifdef LIBXML_CATALOG_ENABLED
-	#include <libxml/catalog.h>
-#endif
-//#include <libxml/chvalid.h>
 /*
  * Various global defaults for parsing
  */
-
 /**
  * xmlCheckVersion:
  * @version: the include version number
@@ -96,7 +80,7 @@ void FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
  *
  * Handle an encoding error
  */
-void __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
+void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -117,7 +101,7 @@ void __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char *
  *
  * Handle an internal error
  */
-static void xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar * str)
+static void FASTCALL xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar * str)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -130,7 +114,6 @@ static void xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlErrEncodingInt:
  * @ctxt:  an XML parser context
@@ -140,7 +123,7 @@ static void xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar
  *
  * n encoding error
  */
-static void xmlErrEncodingInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
+static void FASTCALL xmlErrEncodingInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -610,17 +593,14 @@ encoding_error:
 	 */
 	{
 		char buffer[150];
-
 		snprintf(&buffer[0], 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
-		    ctxt->input->cur[0], ctxt->input->cur[1],
-		    ctxt->input->cur[2], ctxt->input->cur[3]);
+		    ctxt->input->cur[0], ctxt->input->cur[1], ctxt->input->cur[2], ctxt->input->cur[3]);
 		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, 0);
 	}
 	ctxt->charset = XML_CHAR_ENCODING_8859_1;
 	*len = 1;
 	return((int)*ctxt->input->cur);
 }
-
 /**
  * xmlStringCurrentChar:
  * @ctxt:  the XML parser context
@@ -632,10 +612,10 @@ encoding_error:
  *
  * Returns the current char value and its length
  */
-
-int xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
+int FASTCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
 {
-	if((len == NULL) || (cur == NULL)) return 0;
+	if(!len || !cur) 
+		return 0;
 	if(!ctxt || (ctxt->charset == XML_CHAR_ENCODING_UTF8)) {
 		/*
 		 * We are supposed to handle UTF8, check it's valid
@@ -648,10 +628,8 @@ int xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
 		 *
 		 * Check for the 0x110000 limit too
 		 */
-		uchar c;
 		uint val;
-
-		c = *cur;
+		uchar c = *cur;
 		if(c & 0x80) {
 			if((cur[1] & 0xc0) != 0x80)
 				goto encoding_error;
@@ -683,8 +661,7 @@ int xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
 				val |= cur[1] & 0x3f;
 			}
 			if(!IS_CHAR(val)) {
-				xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR,
-				    "Char 0x%X out of allowed range\n", val);
+				xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR, "Char 0x%X out of allowed range\n", val);
 			}
 			return (val);
 		}
@@ -702,13 +679,12 @@ int xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len)
 	*len = 1;
 	return ((int)*cur);
 encoding_error:
-
 	/*
 	 * An encoding problem may arise from a truncated input buffer
 	 * splitting a character in the middle. In that case do not raise
 	 * an error but return 0 to endicate an end of stream problem
 	 */
-	if(!ctxt || (ctxt->input == NULL) || (ctxt->input->end - ctxt->input->cur < 4)) {
+	if(!ctxt || !ctxt->input || (ctxt->input->end - ctxt->input->cur < 4)) {
 		*len = 0;
 		return 0;
 	}
@@ -729,7 +705,6 @@ encoding_error:
 	*len = 1;
 	return ((int)*cur);
 }
-
 /**
  * xmlCopyCharMultiByte:
  * @out:  pointer to an array of xmlChar
@@ -739,7 +714,7 @@ encoding_error:
  *
  * Returns the number of xmlChar written
  */
-int xmlCopyCharMultiByte(xmlChar * out, int val) 
+int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val) 
 {
 	if(out == NULL) 
 		return 0;
@@ -765,9 +740,7 @@ int xmlCopyCharMultiByte(xmlChar * out, int val)
 			*out++ = (val >> 18) | 0xF0;  bits =  12;
 		}
 		else {
-			xmlErrEncodingInt(NULL, XML_ERR_INVALID_CHAR,
-			    "Internal error, xmlCopyCharMultiByte 0x%X out of bound\n",
-			    val);
+			xmlErrEncodingInt(NULL, XML_ERR_INVALID_CHAR, "Internal error, xmlCopyCharMultiByte 0x%X out of bound\n", val);
 			return 0;
 		}
 		for(; bits >= 0; bits -= 6)
@@ -777,7 +750,6 @@ int xmlCopyCharMultiByte(xmlChar * out, int val)
 	*out = (xmlChar)val;
 	return 1;
 }
-
 /**
  * xmlCopyChar:
  * @len:  Ignored, compatibility
@@ -788,8 +760,7 @@ int xmlCopyCharMultiByte(xmlChar * out, int val)
  *
  * Returns the number of xmlChar written
  */
-
-int xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val) 
+int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val) 
 {
 	if(out == NULL) 
 		return 0;
@@ -807,10 +778,8 @@ int xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val)
 *									*
 ************************************************************************/
 
-static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt,
-    xmlCharEncodingHandlerPtr handler, int len);
-static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input,
-    xmlCharEncodingHandlerPtr handler, int len);
+static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler, int len);
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler, int len);
 /**
  * xmlSwitchEncoding:
  * @ctxt:  the parser context

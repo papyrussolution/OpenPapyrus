@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 #define NGX_HTTP_CACHE_MISS          1
 #define NGX_HTTP_CACHE_BYPASS        2

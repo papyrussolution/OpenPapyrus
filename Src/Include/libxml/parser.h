@@ -9,15 +9,14 @@
 #ifndef __XML_PARSER_H__
 #define __XML_PARSER_H__
 
-#include <stdarg.h>
+struct xmlHashTable;
+
+//#include <stdarg.h>
 #include <libxml/xmlversion.h>
 #include <libxml/tree.h>
-//#include <libxml/dict.h>
-#include <libxml/hash.h>
 #include <libxml/valid.h>
 #include <libxml/entities.h>
 #include <libxml/xmlerror.h>
-#include <libxml/xmlstring.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,7 +81,7 @@ typedef struct _xmlParserNodeInfo xmlParserNodeInfo;
 typedef xmlParserNodeInfo * xmlParserNodeInfoPtr;
 
 struct _xmlParserNodeInfo {
-	const struct _xmlNode* P_Node;
+	const xmlNode * P_Node;
 	// Position & line # that text that created the node begins & ends on 
 	ulong  begin_pos;
 	ulong  begin_line;
@@ -394,7 +393,7 @@ typedef void (*notationDeclSAXFunc)(void * ctx,
  *
  * An attribute definition has been parsed.
  */
-typedef void (*attributeDeclSAXFunc)(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
+typedef void (*attributeDeclSAXFunc)(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree);
 /**
  * elementDeclSAXFunc:
  * @ctx:  the user data (XML parser context)

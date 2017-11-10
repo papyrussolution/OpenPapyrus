@@ -93,7 +93,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
  *
  * Handle a redefinition of memory error
  */
-static void xmlC14NErrMemory(const char * extra)
+static void FASTCALL xmlC14NErrMemory(const char * extra)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_C14N, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 }
@@ -103,7 +103,7 @@ static void xmlC14NErrMemory(const char * extra)
  *
  * Handle a redefinition of param error
  */
-static void xmlC14NErrParam(const char * extra)
+static void FASTCALL xmlC14NErrParam(const char * extra)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_C14N, XML_ERR_INTERNAL_ERROR, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Invalid parameter : %s\n", extra);
 }
@@ -113,7 +113,7 @@ static void xmlC14NErrParam(const char * extra)
  *
  * Handle a redefinition of internal error
  */
-static void xmlC14NErrInternal(const char * extra)
+static void FASTCALL xmlC14NErrInternal(const char * extra)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_C14N, XML_ERR_INTERNAL_ERROR, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Internal error : %s\n", extra);
 }
@@ -123,7 +123,7 @@ static void xmlC14NErrInternal(const char * extra)
  *
  * Handle a redefinition of invalid node error
  */
-static void xmlC14NErrInvalidNode(const char * node_type, const char * extra)
+static void FASTCALL xmlC14NErrInvalidNode(const char * node_type, const char * extra)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_C14N, XML_C14N_INVALID_NODE, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Node %s is invalid here : %s\n", node_type, extra);
 }
@@ -158,7 +158,7 @@ static void xmlC14NErrRelativeNamespace(const char * ns_uri)
  *
  * Handle a redefinition of attribute error
  */
-static void xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr P_Node, int error, const char * msg)
+static void FASTCALL xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr P_Node, int error, const char * msg)
 {
 	if(ctxt)
 		ctxt->error = error;

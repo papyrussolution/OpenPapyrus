@@ -830,7 +830,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_auto_headers.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_config.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_core.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_http.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_cache.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_core_module.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_perl_module.h" />
@@ -838,9 +837,6 @@
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_upstream_round_robin.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2.h" />
     <ClInclude Include="..\OSF\nginx\src\include\ngx_http_v2_module.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_md5.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_sha1.h" />
-    <ClInclude Include="..\OSF\nginx\src\include\ngx_times.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_alloc.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_atomic.h" />
     <ClInclude Include="..\OSF\nginx\src\os\win32\ngx_dlopen.h" />

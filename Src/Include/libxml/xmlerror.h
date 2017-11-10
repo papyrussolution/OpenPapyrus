@@ -851,7 +851,6 @@ typedef void (XMLCDECL *xmlGenericErrorFunc)(void * ctx, const char *msg, ...) L
  * the module handles the new error reporting mechanism.
  */
 typedef void (XMLCALL *xmlStructuredErrorFunc)(void * userData, xmlErrorPtr error);
-
 /*
  * Use the following function to reset the two global variables
  * xmlGenericError and xmlGenericErrorContext.
@@ -867,9 +866,8 @@ XMLPUBFUN void XMLCDECL xmlParserError(void *ctx, const char *msg, ...) LIBXML_A
 XMLPUBFUN void XMLCDECL xmlParserWarning(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL xmlParserValidityError(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL xmlParserValidityWarning(void *ctx, const char *msg, ...) LIBXML_ATTR_FORMAT(2,3);
-XMLPUBFUN void XMLCALL xmlParserPrintFileInfo(xmlParserInputPtr input);
-XMLPUBFUN void XMLCALL xmlParserPrintFileContext(xmlParserInputPtr input);
-
+XMLPUBFUN void XMLCALL xmlParserPrintFileInfo(xmlParserInput * input);
+XMLPUBFUN void XMLCALL xmlParserPrintFileContext(xmlParserInput * input);
 /*
  * Extended error information routines
  */
@@ -887,7 +885,7 @@ XMLPUBFUN int XMLCALL xmlCopyError(xmlErrorPtr from, xmlErrorPtr to);
 XMLPUBFUN void XMLCALL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFunc channel, void * data, void *ctx,
 	void *node, int domain, int code, xmlErrorLevel level, const char *file, int line, const char *str1, const char *str2, const char *str3,
 	int int1, int col, const char *msg, ...) LIBXML_ATTR_FORMAT(16,17);
-XMLPUBFUN void XMLCALL __xmlSimpleError(int domain, int code, xmlNodePtr node, const char *msg, const char *extra);
+XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlSimpleError(int domain, int code, xmlNodePtr node, const char *msg, const char *extra);
 #endif
 #ifdef __cplusplus
 }

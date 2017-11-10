@@ -23,9 +23,6 @@
  *       need a start to be able to pop out of entities refs since
  *       parent is the endity declaration, not the ref.
  */
-//#include <libxml/parserInternals.h>
-//#include <libxml/xpointer.h>
-//#include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
 #ifdef LIBXML_XPTR_ENABLED

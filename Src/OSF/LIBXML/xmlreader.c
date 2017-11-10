@@ -20,7 +20,6 @@
 
 #ifdef LIBXML_READER_ENABLED
 #include <libxml/xmlreader.h>
-//#include <libxml/parserInternals.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 	#include <libxml/relaxng.h>
 	#include <libxml/xmlschemas.h>
@@ -187,16 +186,14 @@ static int xmlTextReaderNextTree(xmlTextReader * reader);
 *									*
 ************************************************************************/
 /**
- * DICT_FREE:
  * @str:  a string
  *
- * Free a string if it is not owned by the "dict" dictionnary in the
- * current scope
+ * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
 
 static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur);
-static void xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur);
+static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur);
 
 /**
  * xmlFreeID:
@@ -206,16 +203,12 @@ static void xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur);
  */
 static void xmlFreeID(xmlIDPtr id) 
 {
-	xmlDict * dict = NULL;
 	if(id) {
-		if(id->doc)
-			dict = id->doc->dict;
-		if(id->value)
-			DICT_FREE(id->value)
-			SAlloc::F(id);
+		xmlDict * dict = id->doc ? id->doc->dict : 0;
+		XmlDestroyStringWithDict(dict, (xmlChar *)id->value); // @badcast
+		SAlloc::F(id);
 	}
 }
-
 /**
  * xmlTextReaderRemoveID:
  * @doc:  the document
@@ -234,7 +227,7 @@ static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
 		return -1;
 	if(attr == NULL) 
 		return -1;
-	table = (xmlIDTablePtr)doc->ids;
+	table = (xmlIDTable *)doc->ids;
 	if(table == NULL)
 		return -1;
 	ID = xmlNodeListGetString(doc, attr->children, 1);
@@ -249,7 +242,6 @@ static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
 	id->attr = NULL;
 	return 0;
 }
-
 /**
  * xmlTextReaderFreeProp:
  * @reader:  the (xmlTextReader *) used
@@ -259,8 +251,8 @@ static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
  */
 static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttrPtr cur)
 {
-	xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
 	if(cur) {
+		xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
 		if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
 			xmlDeregisterNodeDefaultValue((xmlNode *)cur);
 		// Check for ID removal -> leading to invalid references ! 
@@ -268,20 +260,17 @@ static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttrPtr cur)
 			if(xmlIsID(cur->parent->doc, cur->parent, cur))
 				xmlTextReaderRemoveID(cur->parent->doc, cur);
 		}
-		if(cur->children)
-			xmlTextReaderFreeNodeList(reader, cur->children);
-		DICT_FREE(cur->name);
+		xmlTextReaderFreeNodeList(reader, cur->children);
+		XmlDestroyStringWithDict(dict, (xmlChar *)cur->name); // @badcast
 		if(reader && reader->ctxt && (reader->ctxt->freeAttrsNr < 100)) {
 			cur->next = reader->ctxt->freeAttrs;
 			reader->ctxt->freeAttrs = cur;
 			reader->ctxt->freeAttrsNr++;
 		}
-		else {
+		else
 			SAlloc::F(cur);
-		}
 	}
 }
-
 /**
  * xmlTextReaderFreePropList:
  * @reader:  the (xmlTextReader *) used
@@ -297,65 +286,59 @@ static void xmlTextReaderFreePropList(xmlTextReader * reader, xmlAttrPtr cur)
 		cur = next;
 	}
 }
-
 /**
- * xmlTextReaderFreeNodeList:
  * @reader:  the (xmlTextReader *) used
  * @cur:  the first node in the list
  *
  * Free a node and all its siblings, this is a recursive behaviour, all
  * the children are freed too.
  */
-static void xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur) 
+static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur) 
 {
-	xmlNode * next;
-	xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
-	if(!cur) 
-		return;
-	if(cur->type == XML_NAMESPACE_DECL) {
-		xmlFreeNsList((xmlNs *)cur);
-		return;
-	}
-	if((cur->type == XML_DOCUMENT_NODE) || (cur->type == XML_HTML_DOCUMENT_NODE)) {
-		xmlFreeDoc((xmlDocPtr)cur);
-		return;
-	}
-	while(cur) {
-		next = cur->next;
-		/* unroll to speed up freeing the document */
-		if(cur->type != XML_DTD_NODE) {
-			if(cur->children && (cur->type != XML_ENTITY_REF_NODE)) {
-				if(cur->children->parent == cur)
-					xmlTextReaderFreeNodeList(reader, cur->children);
-				cur->children = NULL;
-			}
-			if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
-				xmlDeregisterNodeDefaultValue(cur);
-			if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->properties)
-				xmlTextReaderFreePropList(reader, cur->properties);
-			if((cur->content != (xmlChar*)&(cur->properties)) && !oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE)) {
-				DICT_FREE(cur->content);
-			}
-			if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
-				xmlFreeNsList(cur->nsDef);
-			/*
-			 * we don't free element names here they are interned now
-			 */
-			if((cur->type != XML_TEXT_NODE) && (cur->type != XML_COMMENT_NODE))
-				DICT_FREE(cur->name);
-			if(((cur->type == XML_ELEMENT_NODE) || (cur->type == XML_TEXT_NODE)) && reader && reader->ctxt && (reader->ctxt->freeElemsNr < 100)) {
-				cur->next = reader->ctxt->freeElems;
-				reader->ctxt->freeElems = cur;
-				reader->ctxt->freeElemsNr++;
-			}
-			else {
-				SAlloc::F(cur);
+	if(cur) {
+		if(cur->type == XML_NAMESPACE_DECL)
+			xmlFreeNsList((xmlNs *)cur);
+		else if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
+			xmlFreeDoc((xmlDocPtr)cur);
+		else {
+			xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
+			while(cur) {
+				xmlNode * next = cur->next;
+				/* unroll to speed up freeing the document */
+				if(cur->type != XML_DTD_NODE) {
+					if(cur->children && (cur->type != XML_ENTITY_REF_NODE)) {
+						if(cur->children->parent == cur)
+							xmlTextReaderFreeNodeList(reader, cur->children); // @recursion
+						cur->children = NULL;
+					}
+					if((__xmlRegisterCallbacks) && (xmlDeregisterNodeDefaultValue))
+						xmlDeregisterNodeDefaultValue(cur);
+					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->properties)
+						xmlTextReaderFreePropList(reader, cur->properties);
+					if((cur->content != (xmlChar*)&(cur->properties)) && !oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE)) {
+						XmlDestroyStringWithDict(dict, cur->content);
+					}
+					if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
+						xmlFreeNsList(cur->nsDef);
+					/*
+					 * we don't free element names here they are interned now
+					 */
+					if(!oneof2(cur->type, XML_TEXT_NODE, XML_COMMENT_NODE))
+						XmlDestroyStringWithDict(dict, (xmlChar *)cur->name); // @badcast
+					if(oneof2(cur->type, XML_ELEMENT_NODE, XML_TEXT_NODE) && reader && reader->ctxt && (reader->ctxt->freeElemsNr < 100)) {
+						cur->next = reader->ctxt->freeElems;
+						reader->ctxt->freeElems = cur;
+						reader->ctxt->freeElemsNr++;
+					}
+					else {
+						SAlloc::F(cur);
+					}
+				}
+				cur = next;
 			}
 		}
-		cur = next;
 	}
 }
-
 /**
  * xmlTextReaderFreeNode:
  * @reader:  the (xmlTextReader *) used
@@ -368,7 +351,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 {
 	xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
 	if(cur->type == XML_DTD_NODE) {
-		xmlFreeDtd((xmlDtdPtr)cur);
+		xmlFreeDtd((xmlDtd *)cur);
 		return;
 	}
 	if(cur->type == XML_NAMESPACE_DECL) {
@@ -376,7 +359,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 		return;
 	}
 	if(cur->type == XML_ATTRIBUTE_NODE) {
-		xmlTextReaderFreeProp(reader, (xmlAttrPtr)cur);
+		xmlTextReaderFreeProp(reader, (xmlAttr *)cur);
 		return;
 	}
 	if(cur->children && (cur->type != XML_ENTITY_REF_NODE)) {
@@ -389,7 +372,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 	if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->properties)
 		xmlTextReaderFreePropList(reader, cur->properties);
 	if((cur->content != (xmlChar*)&(cur->properties)) && !oneof4(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END, XML_ENTITY_REF_NODE)) {
-		DICT_FREE(cur->content);
+		XmlDestroyStringWithDict(dict, cur->content);
 	}
 	if(oneof3(cur->type, XML_ELEMENT_NODE, XML_XINCLUDE_START, XML_XINCLUDE_END) && cur->nsDef)
 		xmlFreeNsList(cur->nsDef);
@@ -397,8 +380,8 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 	// we don't free names here they are interned now
 	//
 	if(!oneof2(cur->type, XML_TEXT_NODE, XML_COMMENT_NODE))
-		DICT_FREE(cur->name);
-	if(((cur->type == XML_ELEMENT_NODE) || (cur->type == XML_TEXT_NODE)) && reader && reader->ctxt && (reader->ctxt->freeElemsNr < 100)) {
+		XmlDestroyStringWithDict(dict, (xmlChar *)cur->name); // @badcast
+	if(oneof2(cur->type, XML_ELEMENT_NODE, XML_TEXT_NODE) && reader && reader->ctxt && (reader->ctxt->freeElemsNr < 100)) {
 		cur->next = reader->ctxt->freeElems;
 		reader->ctxt->freeElems = cur;
 		reader->ctxt->freeElemsNr++;
@@ -418,7 +401,6 @@ static void xmlTextReaderFreeIDTable(xmlIDTablePtr table)
 {
 	xmlHashFree(table, (xmlHashDeallocator)xmlFreeID);
 }
-
 /**
  * xmlTextReaderFreeDoc:
  * @reader:  the (xmlTextReader *) used
@@ -436,8 +418,7 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDocPtr cur)
 		/*
 		 * Do this before freeing the children list to avoid ID lookups
 		 */
-		if(cur->ids)
-			xmlTextReaderFreeIDTable((xmlIDTablePtr)cur->ids);
+		xmlTextReaderFreeIDTable((xmlIDTable *)cur->ids);
 		cur->ids = NULL;
 		xmlFreeRefTable((xmlRefTablePtr)cur->refs);
 		cur->refs = NULL;
@@ -450,13 +431,12 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDocPtr cur)
 			cur->extSubset = NULL;
 			xmlFreeDtd(extSubset);
 		}
-		if(intSubset != NULL) {
+		if(intSubset) {
 			xmlUnlinkNode((xmlNode *)cur->intSubset);
 			cur->intSubset = NULL;
 			xmlFreeDtd(intSubset);
 		}
-		if(cur->children)
-			xmlTextReaderFreeNodeList(reader, cur->children);
+		xmlTextReaderFreeNodeList(reader, cur->children);
 		SAlloc::F((char*)cur->version);
 		SAlloc::F((char*)cur->name);
 		SAlloc::F((char*)cur->encoding);
@@ -1506,7 +1486,7 @@ xmlChar * xmlTextReaderReadOuterXml(xmlTextReaderPtr reader ATTRIBUTE_UNUSED)
 	if(xmlTextReaderExpand(reader)) {
 		xmlDoc * doc = reader->doc;
 		xmlNode * p_node = reader->P_Node;
-		p_node = (p_node->type == XML_DTD_NODE) ? (xmlNode *)xmlCopyDtd((xmlDtdPtr)p_node) : xmlDocCopyNode(p_node, doc, 1);
+		p_node = (p_node->type == XML_DTD_NODE) ? (xmlNode *)xmlCopyDtd((xmlDtd *)p_node) : xmlDocCopyNode(p_node, doc, 1);
 		{
 			xmlBuffer * buff = xmlBufferCreate();
 			if(xmlNodeDump(buff, doc, p_node, 0, 0) == -1) {
@@ -3106,7 +3086,7 @@ xmlChar * xmlTextReaderValue(xmlTextReader * reader)
 				return sstrdup(((xmlNs *)P_Node)->href);
 			case XML_ATTRIBUTE_NODE: 
 				{
-					xmlAttr * attr = (xmlAttrPtr)P_Node;
+					xmlAttr * attr = (xmlAttr *)P_Node;
 					return xmlNodeListGetString(attr->parent ? attr->parent->doc : 0, attr->children, 1);
 				}
 				break;
@@ -3147,7 +3127,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 		case XML_NAMESPACE_DECL:
 		    return(((xmlNs *)P_Node)->href);
 		case XML_ATTRIBUTE_NODE: {
-		    xmlAttrPtr attr = (xmlAttrPtr)P_Node;
+		    xmlAttrPtr attr = (xmlAttr *)P_Node;
 		    if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL))
 			    return (attr->children->content);
 		    else {

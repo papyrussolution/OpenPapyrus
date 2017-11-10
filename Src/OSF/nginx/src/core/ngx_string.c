@@ -524,7 +524,7 @@ const u_char * FASTCALL ngx_strnstr(const u_char * s1, const char * s2, size_t l
  * substring with known length in null-terminated string. The argument n
  * must be length of the second substring - 1.
  */
-u_char * ngx_strstrn(u_char * s1, char * s2, size_t n)
+u_char * FASTCALL ngx_strstrn(u_char * s1, char * s2, size_t n)
 {
 	u_char c1, c2;
 	c2 = *(u_char*)s2++;
@@ -539,7 +539,7 @@ u_char * ngx_strstrn(u_char * s1, char * s2, size_t n)
 	return --s1;
 }
 
-const u_char * ngx_strcasestrn(const u_char * s1, const char * s2, size_t n)
+const u_char * FASTCALL ngx_strcasestrn(const u_char * s1, const char * s2, size_t n)
 {
 	ngx_uint_t c1;
 	ngx_uint_t c2 = (ngx_uint_t)*s2++;
@@ -560,7 +560,7 @@ const u_char * ngx_strcasestrn(const u_char * s1, const char * s2, size_t n)
  * with known length in string until the argument last. The argument n
  * must be length of the second substring - 1.
  */
-u_char * ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2, size_t n)
+u_char * FASTCALL ngx_strlcasestrn(u_char * s1, u_char * last, const u_char * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	c2 = (ngx_uint_t)*s2++;
@@ -661,7 +661,7 @@ ngx_int_t FASTCALL ngx_dns_strcmp(const u_char * s1, const u_char * s2)
 	}
 }
 
-ngx_int_t ngx_filename_cmp(const u_char * s1, const u_char * s2, size_t n)
+ngx_int_t FASTCALL ngx_filename_cmp(const u_char * s1, const u_char * s2, size_t n)
 {
 	ngx_uint_t c1, c2;
 	while(n) {
@@ -708,10 +708,10 @@ ngx_int_t FASTCALL ngx_atoi(const u_char * line, size_t n)
 	}
 	return value;
 }
-
-/* parse a fixed point number, e.g., ngx_atofp("10.5", 4, 2) returns 1050 */
-
-ngx_int_t ngx_atofp(const u_char * line, size_t n, size_t point)
+//
+// parse a fixed point number, e.g., ngx_atofp("10.5", 4, 2) returns 1050 
+//
+ngx_int_t FASTCALL ngx_atofp(const u_char * line, size_t n, size_t point)
 {
 	ngx_int_t value, cutoff, cutlim;
 	ngx_uint_t dot;
@@ -1072,7 +1072,7 @@ u_char * ngx_utf8_cpystrn(u_char * dst, const u_char * src, size_t n, size_t len
 	return dst;
 }
 
-uintptr_t ngx_escape_uri(u_char * dst, const u_char * src, size_t size, ngx_uint_t type)
+uintptr_t FASTCALL ngx_escape_uri(u_char * dst, const u_char * src, size_t size, ngx_uint_t type)
 {
 	ngx_uint_t n;
 	uint32_t  * escape;
@@ -1193,7 +1193,7 @@ uintptr_t ngx_escape_uri(u_char * dst, const u_char * src, size_t size, ngx_uint
 	return (uintptr_t)dst;
 }
 
-void ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_uint_t type)
+void FASTCALL ngx_unescape_uri(u_char ** dst, u_char ** src, size_t size, ngx_uint_t type)
 {
 	u_char c;
 	enum {
@@ -1285,7 +1285,7 @@ done:
 	*src = s;
 }
 
-uintptr_t ngx_escape_html(u_char * dst, u_char * src, size_t size)
+uintptr_t FASTCALL ngx_escape_html(u_char * dst, u_char * src, size_t size)
 {
 	if(dst == NULL) {
 		ngx_uint_t len = 0;
@@ -1317,7 +1317,7 @@ uintptr_t ngx_escape_html(u_char * dst, u_char * src, size_t size)
 	}
 }
 
-uintptr_t ngx_escape_json(u_char * dst, u_char * src, size_t size)
+uintptr_t FASTCALL ngx_escape_json(u_char * dst, u_char * src, size_t size)
 {
 	u_char ch;
 	if(dst == NULL) {

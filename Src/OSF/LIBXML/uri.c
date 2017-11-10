@@ -494,16 +494,18 @@ static int xmlParse3986Authority(xmlURIPtr uri, const char ** str)
  *
  * Returns 0 or the error code
  */
-static int xmlParse3986Segment(const char ** str, char forbid, int empty)
+static int FASTCALL xmlParse3986Segment(const char ** str, char forbid, int empty)
 {
 	const char * cur = *str;
 	if(!ISA_PCHAR(cur)) {
 		return empty ? 0 : 1;
 	}
-	while(ISA_PCHAR(cur) && (*cur != forbid))
-		NEXT(cur);
-	*str = cur;
-	return 0;
+	else {
+		while(ISA_PCHAR(cur) && (*cur != forbid))
+			NEXT(cur);
+		*str = cur;
+		return 0;
+	}
 }
 /**
  * xmlParse3986PathAbEmpty:
@@ -704,7 +706,6 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986RelativeRef:
  * @uri:  pointer to an URI structure
@@ -779,22 +780,26 @@ static int xmlParse3986RelativeRef(xmlURIPtr uri, const char * str)
 static int xmlParse3986URI(xmlURIPtr uri, const char * str)
 {
 	int ret = xmlParse3986Scheme(uri, &str);
-	if(ret != 0) return ret;
+	if(ret != 0) 
+		return ret;
 	if(*str != ':') {
 		return 1;
 	}
 	str++;
 	ret = xmlParse3986HierPart(uri, &str);
-	if(ret != 0) return ret;
+	if(ret != 0) 
+		return ret;
 	if(*str == '?') {
 		str++;
 		ret = xmlParse3986Query(uri, &str);
-		if(ret != 0) return ret;
+		if(ret != 0) 
+			return ret;
 	}
 	if(*str == '#') {
 		str++;
 		ret = xmlParse3986Fragment(uri, &str);
-		if(ret != 0) return ret;
+		if(ret != 0) 
+			return ret;
 	}
 	if(*str != 0) {
 		xmlCleanURI(uri);
@@ -836,7 +841,6 @@ static int xmlParse3986URIReference(xmlURIPtr uri, const char * str)
 	}
 	return 0;
 }
-
 /**
  * xmlParseURI:
  * @str:  the URI string to analyze
@@ -940,24 +944,22 @@ xmlURIPtr xmlCreateURI()
  * Function to handle properly a reallocation when saving an URI
  * Also imposes some limit on the length of an URI string output
  */
-static xmlChar * xmlSaveUriRealloc(xmlChar * ret, int * max)
+static xmlChar * FASTCALL xmlSaveUriRealloc(xmlChar * ret, int * max)
 {
-	xmlChar * temp;
-	int tmp;
 	if(*max > MAX_URI_LENGTH) {
 		xmlURIErrMemory("reaching arbitrary MAX_URI_LENGTH limit\n");
 		return 0;
 	}
-	tmp = *max * 2;
-	temp = (xmlChar*)SAlloc::R(ret, (tmp + 1));
-	if(temp == NULL) {
-		xmlURIErrMemory("saving URI\n");
-		return 0;
+	else {
+		int tmp = *max * 2;
+		xmlChar * temp = (xmlChar*)SAlloc::R(ret, (tmp + 1));
+		if(!temp)
+			xmlURIErrMemory("saving URI\n");
+		else
+			*max = tmp;
+		return temp;
 	}
-	*max = tmp;
-	return temp;
 }
-
 /**
  * xmlSaveUri:
  * @uri:  pointer to an xmlURI
@@ -997,7 +999,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 		}
 		ret[len++] = ':';
 	}
-	if(uri->opaque != NULL) {
+	if(uri->opaque) {
 		p = uri->opaque;
 		while(*p != 0) {
 			if(len + 3 >= max) {
@@ -1017,7 +1019,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 		}
 	}
 	else {
-		if((uri->server != NULL) || (uri->port == -1)) {
+		if(uri->server || (uri->port == -1)) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
 				if(temp == NULL) goto mem_error;
@@ -1025,19 +1027,17 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			}
 			ret[len++] = '/';
 			ret[len++] = '/';
-			if(uri->user != NULL) {
+			if(uri->user) {
 				p = uri->user;
 				while(*p != 0) {
 					if(len + 3 >= max) {
 						temp = xmlSaveUriRealloc(ret, &max);
-						if(temp == NULL) goto mem_error;
+						if(temp == NULL) 
+							goto mem_error;
 						ret = temp;
 					}
-					if((IS_UNRESERVED(*(p))) ||
-					    ((*(p) == ';')) || ((*(p) == ':')) ||
-					    ((*(p) == '&')) || ((*(p) == '=')) ||
-					    ((*(p) == '+')) || ((*(p) == '$')) ||
-					    ((*(p) == ',')))
+					if((IS_UNRESERVED(*(p))) || ((*(p) == ';')) || ((*(p) == ':')) ||
+					    ((*(p) == '&')) || ((*(p) == '=')) || ((*(p) == '+')) || ((*(p) == '$')) || ((*(p) == ',')))
 						ret[len++] = *p++;
 					else {
 						int val = *(uchar*)p++;
@@ -1049,17 +1049,19 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 				}
 				if(len + 3 >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
-					if(temp == NULL) goto mem_error;
+					if(temp == NULL) 
+						goto mem_error;
 					ret = temp;
 				}
 				ret[len++] = '@';
 			}
-			if(uri->server != NULL) {
+			if(uri->server) {
 				p = uri->server;
 				while(*p != 0) {
 					if(len >= max) {
 						temp = xmlSaveUriRealloc(ret, &max);
-						if(temp == NULL) goto mem_error;
+						if(temp == NULL) 
+							goto mem_error;
 						ret = temp;
 					}
 					ret[len++] = *p++;
@@ -1067,7 +1069,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 				if(uri->port > 0) {
 					if(len + 10 >= max) {
 						temp = xmlSaveUriRealloc(ret, &max);
-						if(temp == NULL) goto mem_error;
+						if(temp == NULL) 
+							goto mem_error;
 						ret = temp;
 					}
 					len += snprintf((char*)&ret[len], max - len, ":%d", uri->port);
@@ -1077,7 +1080,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 		else if(uri->authority != NULL) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
-				if(temp == NULL) goto mem_error;
+				if(temp == NULL) 
+					goto mem_error;
 				ret = temp;
 			}
 			ret[len++] = '/';
@@ -1086,7 +1090,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			while(*p != 0) {
 				if(len + 3 >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
-					if(temp == NULL) goto mem_error;
+					if(temp == NULL) 
+						goto mem_error;
 					ret = temp;
 				}
 				if((IS_UNRESERVED(*(p))) ||
@@ -1116,15 +1121,13 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			 * the colon in file:///d: should not be escaped or
 			 * Windows accesses fail later.
 			 */
-			if((uri->scheme != NULL) &&
-			    (p[0] == '/') &&
-			    (((p[1] >= 'a') && (p[1] <= 'z')) ||
-				    ((p[1] >= 'A') && (p[1] <= 'Z'))) &&
-			    (p[2] == ':') &&
+			if(uri->scheme && (p[0] == '/') &&
+			    (((p[1] >= 'a') && (p[1] <= 'z')) || ((p[1] >= 'A') && (p[1] <= 'Z'))) && (p[2] == ':') &&
 			    (sstreq(BAD_CAST uri->scheme, BAD_CAST "file"))) {
-				if(len + 3 >= max) {
+				if((len + 3) >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
-					if(temp == NULL) goto mem_error;
+					if(temp == NULL) 
+						goto mem_error;
 					ret = temp;
 				}
 				ret[len++] = *p++;
@@ -1134,7 +1137,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 			while(*p != 0) {
 				if(len + 3 >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
-					if(temp == NULL) goto mem_error;
+					if(temp == NULL) 
+						goto mem_error;
 					ret = temp;
 				}
 				if((IS_UNRESERVED(*(p))) || ((*(p) == '/')) ||
@@ -1199,7 +1203,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 	if(uri->fragment != NULL) {
 		if(len + 3 >= max) {
 			temp = xmlSaveUriRealloc(ret, &max);
-			if(temp == NULL) goto mem_error;
+			if(temp == NULL) 
+				goto mem_error;
 			ret = temp;
 		}
 		ret[len++] = '#';
@@ -1479,7 +1484,7 @@ done_cd:
  * Returns a copy of the string, but unescaped, will return NULL only in case
  * of error
  */
-char * xmlURIUnescapeString(const char * str, int len, char * target)
+char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 {
 	char * ret = 0;
 	char * out;
@@ -1539,7 +1544,7 @@ char * xmlURIUnescapeString(const char * str, int len, char * target)
  *
  * Returns a new escaped string or NULL in case of error.
  */
-xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
+xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 {
 	xmlChar * ret, ch;
 	xmlChar * temp;
@@ -1609,7 +1614,7 @@ xmlChar * xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
  * according to RFC2396.
  *   - Carl Douglas
  */
-xmlChar * xmlURIEscape(const xmlChar * str)
+xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 {
 	xmlChar * ret, * segment = NULL;
 	xmlURIPtr uri;

@@ -104,8 +104,9 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr P_Node)
 {
 	xmlChar * type = NULL, * role = NULL;
 	xlinkType ret = XLINK_TYPE_NONE;
-	if(!P_Node) return(XLINK_TYPE_NONE);
-	if(!doc) doc = P_Node->doc;
+	if(!P_Node) 
+		return XLINK_TYPE_NONE;
+	SETIFZ(doc, P_Node->doc);
 	if(doc && (doc->type == XML_HTML_DOCUMENT_NODE)) {
 		/*
 		 * This is an HTML document.
@@ -121,23 +122,21 @@ xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr P_Node)
 		 * and in that case if it holds the attributes.
 		 */
 	}
-
 	/*
-	 * We don't prevent a-priori having XML Linking constructs on
-	 * XHTML elements
+	 * We don't prevent a-priori having XML Linking constructs on XHTML elements
 	 */
 	type = xmlGetNsProp(P_Node, BAD_CAST "type", XLINK_NAMESPACE);
-	if(type != NULL) {
+	if(type) {
 		if(sstreq(type, BAD_CAST "simple")) {
 			ret = XLINK_TYPE_SIMPLE;
 		}
-		else if(sstreq(type, BAD_CAST "extended")) {
+		else if(sstreq(type, "extended")) {
 			role = xmlGetNsProp(P_Node, BAD_CAST "role", XLINK_NAMESPACE);
-			if(role != NULL) {
+			if(role) {
 				xmlNs * xlink = xmlSearchNs(doc, P_Node, XLINK_NAMESPACE);
 				if(xlink == NULL) {
 					/* Humm, fallback method */
-					if(sstreq(role, BAD_CAST "xlink:external-linkset"))
+					if(sstreq(role, "xlink:external-linkset"))
 						ret = XLINK_TYPE_EXTENDED_SET;
 				}
 				else {

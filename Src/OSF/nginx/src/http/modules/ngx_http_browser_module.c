@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 /*
  * The module can check browser versions conforming to the following formats:
  * X, X.X, X.X.X, and X.X.X.X.  The maximum values of each format may be

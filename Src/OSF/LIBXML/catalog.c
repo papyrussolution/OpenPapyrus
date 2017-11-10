@@ -28,9 +28,6 @@
 	#ifdef HAVE_FCNTL_H
 		//#include <fcntl.h>
 	#endif
-	//#include <libxml/parserInternals.h>
-	//#include <libxml/threads.h>
-	#include <libxml/catalog.h>
 	
 	#define MAX_DELEGATE    50
 	#define MAX_CATAL_DEPTH 50
@@ -113,12 +110,11 @@ typedef enum {
 	SGML_CATA_SGMLDECL
 } xmlCatalogEntryType;
 
-typedef struct _xmlCatalogEntry xmlCatalogEntry;
-typedef xmlCatalogEntry * xmlCatalogEntryPtr;
-struct _xmlCatalogEntry {
-	struct _xmlCatalogEntry * next;
-	struct _xmlCatalogEntry * parent;
-	struct _xmlCatalogEntry * children;
+//typedef struct _xmlCatalogEntry xmlCatalogEntry;
+struct xmlCatalogEntry {
+	xmlCatalogEntry * next;
+	xmlCatalogEntry * parent;
+	xmlCatalogEntry * children;
 	xmlCatalogEntryType type;
 	xmlChar * name;
 	xmlChar * value;
@@ -126,8 +122,10 @@ struct _xmlCatalogEntry {
 	xmlCatalogPrefer prefer;
 	int dealloc;
 	int depth;
-	struct _xmlCatalogEntry * group;
+	xmlCatalogEntry * group;
 };
+
+typedef xmlCatalogEntry * xmlCatalogEntryPtr;
 
 typedef enum {
 	XML_XML_CATALOG_TYPE = 1,
@@ -137,7 +135,6 @@ typedef enum {
 #define XML_MAX_SGML_CATA_DEPTH 10
 struct _xmlCatalog {
 	xmlCatalogType type;    /* either XML or SGML */
-
 	/*
 	 * SGML Catalogs are stored as a simple hash table of catalog entries
 	 * Catalog stack to check against overflows when building the
@@ -146,8 +143,7 @@ struct _xmlCatalog {
 	char * catalTab[XML_MAX_SGML_CATA_DEPTH]; /* stack of catals */
 	int catalNr;            /* Number of current catal streams */
 	int catalMax;           /* Max number of catal streams */
-	xmlHashTablePtr sgml;
-
+	xmlHashTable * sgml;
 	/*
 	 * XML Catalogs are stored as a tree of Catalog entries
 	 */
@@ -169,7 +165,7 @@ static xmlCatalogPrefer xmlCatalogDefaultPrefer = XML_CATA_PREFER_PUBLIC;
 /*
  * Hash table containing all the trees of XML catalogs parsed by the application.
  */
-static xmlHashTablePtr xmlCatalogXMLFiles = NULL; // @global
+static xmlHashTable * xmlCatalogXMLFiles = NULL; // @global
 /*
  * The default catalog in use by the application
  */
@@ -179,7 +175,7 @@ static xmlCatalogPtr xmlDefaultCatalog = NULL; // @global
  * It also protects xmlCatalogXMLFiles
  * The core of this readers/writer scheme is in xmlFetchXMLCatalogFile()
  */
-static xmlRMutexPtr xmlCatalogMutex = NULL; // @global
+static xmlRMutex * xmlCatalogMutex = NULL; // @global
 /*
  * Whether the catalog support was initialized.
  */
@@ -197,11 +193,10 @@ static int xmlCatalogInitialized = 0; // @global
  *
  * Handle an out of memory condition
  */
-static void xmlCatalogErrMemory(const char * extra)
+static void FASTCALL xmlCatalogErrMemory(const char * extra)
 {
 	__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_CATALOG, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 }
-
 /**
  * xmlCatalogErr:
  * @catal: the Catalog entry
@@ -211,7 +206,7 @@ static void xmlCatalogErrMemory(const char * extra)
  *
  * Handle a catalog error
  */
-static void xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void FASTCALL xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
 	__xmlRaiseError(0, 0, 0, catal, P_Node, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, (const char*)str3, 0, 0,
 	    msg, str1, str2, str3);
@@ -237,8 +232,7 @@ static void xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNodePtr P_Node, int error
  * Returns the xmlCatalogEntryPtr or NULL in case of error
  */
 static xmlCatalogEntryPtr xmlNewCatalogEntry(xmlCatalogEntryType type, const xmlChar * name,
-    const xmlChar * value, const xmlChar * URL, xmlCatalogPrefer prefer,
-    xmlCatalogEntryPtr group) 
+    const xmlChar * value, const xmlChar * URL, xmlCatalogPrefer prefer, xmlCatalogEntryPtr group) 
 {
 	xmlChar * normid = NULL;
 	xmlCatalogEntryPtr ret = (xmlCatalogEntryPtr)SAlloc::M(sizeof(xmlCatalogEntry));
@@ -2214,7 +2208,7 @@ static int xmlParseSGMLCatalog(xmlCatalogPtr catal, const xmlChar * value, const
  *
  * Returns the local resource if found or NULL otherwise.
  */
-static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTablePtr catal, const xmlChar * pubID) 
+static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlChar * pubID) 
 {
 	xmlCatalogEntryPtr entry;
 	xmlChar * normid;
@@ -2245,7 +2239,7 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTablePtr catal, const xmlC
  *
  * Returns the local resource if found or NULL otherwise.
  */
-static const xmlChar * xmlCatalogGetSGMLSystem(xmlHashTablePtr catal, const xmlChar * sysID) 
+static const xmlChar * xmlCatalogGetSGMLSystem(xmlHashTable * catal, const xmlChar * sysID) 
 {
 	xmlCatalogEntryPtr entry;
 	if(catal == NULL)
@@ -2880,7 +2874,6 @@ xmlChar * xmlCatalogResolveSystem(const xmlChar * sysID)
 		xmlInitializeCatalog();
 	return xmlACatalogResolveSystem(xmlDefaultCatalog, sysID);
 }
-
 /**
  * xmlCatalogResolvePublic:
  * @pubID:  the public ID string
@@ -2896,7 +2889,6 @@ xmlChar * xmlCatalogResolvePublic(const xmlChar * pubID)
 		xmlInitializeCatalog();
 	return xmlACatalogResolvePublic(xmlDefaultCatalog, pubID);
 }
-
 /**
  * xmlCatalogResolve:
  * @pubID:  the public ID string
@@ -3025,7 +3017,6 @@ int xmlCatalogConvert()
 *	Public interface manipulating the common preferences		*
 *									*
 ************************************************************************/
-
 /**
  * xmlCatalogGetDefaults:
  *
@@ -3038,7 +3029,6 @@ xmlCatalogAllow xmlCatalogGetDefaults()
 {
 	return xmlCatalogDefaultAllow;
 }
-
 /**
  * xmlCatalogSetDefaults:
  * @allow:  what catalogs should be accepted

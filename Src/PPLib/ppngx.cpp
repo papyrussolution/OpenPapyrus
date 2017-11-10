@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 int NgxStartUp(const NgxStartUpOptions & rO); // prototype
 ngx_thread_value_t __stdcall ngx_worker_thread(void * data);

@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 #define NGX_HTTP_SSI_MAX_PARAMS       16
 

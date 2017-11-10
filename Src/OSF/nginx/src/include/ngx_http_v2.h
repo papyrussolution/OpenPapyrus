@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 #define NGX_HTTP_V2_ALPN_ADVERTISE       "\x02h2"
 #define NGX_HTTP_V2_NPN_ADVERTISE        NGX_HTTP_V2_ALPN_ADVERTISE

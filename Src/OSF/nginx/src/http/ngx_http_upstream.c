@@ -5,19 +5,17 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #if (NGX_HTTP_CACHE)
-static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t * r, ngx_http_upstream_t * u);
-static ngx_int_t ngx_http_upstream_cache_get(ngx_http_request_t * r, ngx_http_upstream_t * u, ngx_http_file_cache_t ** cache);
-static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t * r, ngx_http_upstream_t * u);
-static ngx_int_t ngx_http_upstream_cache_background_update(ngx_http_request_t * r, ngx_http_upstream_t * u);
-static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t * r, ngx_http_upstream_t * u);
-static ngx_int_t ngx_http_upstream_cache_status(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_cache_last_modified(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_cache_etag(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+	static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t * r, ngx_http_upstream_t * u);
+	static ngx_int_t ngx_http_upstream_cache_get(ngx_http_request_t * r, ngx_http_upstream_t * u, ngx_http_file_cache_t ** cache);
+	static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t * r, ngx_http_upstream_t * u);
+	static ngx_int_t ngx_http_upstream_cache_background_update(ngx_http_request_t * r, ngx_http_upstream_t * u);
+	static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t * r, ngx_http_upstream_t * u);
+	static ngx_int_t ngx_http_upstream_cache_status(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+	static ngx_int_t ngx_http_upstream_cache_last_modified(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
+	static ngx_int_t ngx_http_upstream_cache_etag(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 #endif
-
 static void ngx_http_upstream_init_request(ngx_http_request_t * r);
 static void ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t * ctx);
 static void ngx_http_upstream_rd_check_broken_connection(ngx_http_request_t * r);

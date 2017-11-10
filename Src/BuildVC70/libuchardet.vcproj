@@ -157,9 +157,6 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="..\OSF\uchardet\src\CharDistribution.cpp">
-			</File>
-			<File
 				RelativePath="..\OSF\uchardet\src\JpCntx.cpp">
 			</File>
 			<File
@@ -170,9 +167,6 @@
 			</File>
 			<File
 				RelativePath="..\OSF\uchardet\src\nsMBCSSM.cpp">
-			</File>
-			<File
-				RelativePath="..\OSF\uchardet\src\nsUniversalDetector.cpp">
 			</File>
 			<File
 				RelativePath="..\Osf\uchardet\src\Prober.cpp">

@@ -12,8 +12,6 @@
 #ifdef LIBXML_HTML_ENABLED
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
-//#include <libxml/entities.h>
-//#include <libxml/parserInternals.h>
 
 /************************************************************************
 *									*
@@ -305,7 +303,7 @@ static void htmlSaveErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra)
+static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -694,7 +692,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 		else if(oneof2(cur->type, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE))
 			htmlDocContentDumpOutput(buf, (xmlDocPtr)cur, encoding);
 		else if(cur->type == XML_ATTRIBUTE_NODE)
-			htmlAttrDumpOutput(buf, doc, (xmlAttrPtr)cur, encoding);
+			htmlAttrDumpOutput(buf, doc, (xmlAttr *)cur, encoding);
 		else if(cur->type == HTML_TEXT_NODE) {
 			if(cur->content) {
 				if(((cur->name == (const xmlChar*)xmlStringText) || (cur->name != (const xmlChar*)xmlStringTextNoenc)) &&

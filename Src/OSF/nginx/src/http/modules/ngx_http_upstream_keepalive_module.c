@@ -5,24 +5,19 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 typedef struct {
 	ngx_uint_t max_cached;
-
 	ngx_queue_t cache;
 	ngx_queue_t free;
-
 	ngx_http_upstream_init_pt original_init_upstream;
 	ngx_http_upstream_init_peer_pt original_init_peer;
 } ngx_http_upstream_keepalive_srv_conf_t;
 
 typedef struct {
 	ngx_http_upstream_keepalive_srv_conf_t  * conf;
-
 	ngx_queue_t queue;
 	ngx_connection_t  * connection;
-
 	socklen_t socklen;
 	ngx_sockaddr_t sockaddr;
 } ngx_http_upstream_keepalive_cache_t;

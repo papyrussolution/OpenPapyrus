@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 //typedef struct ngx_http_upstream_rr_peer_s ngx_http_upstream_rr_peer_t;
 

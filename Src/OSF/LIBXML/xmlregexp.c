@@ -20,8 +20,6 @@
 #ifdef LIBXML_REGEXP_ENABLED
 
 /* #define DEBUG_ERR */
-
-//#include <libxml/parserInternals.h>
 #include <libxml/xmlregexp.h>
 #include <libxml/xmlautomata.h>
 #include <libxml/xmlunicode.h>
@@ -341,12 +339,11 @@ struct _xmlRegExecCtxt {
 #define REGEXP_ALL_LAX_COUNTER  0x123457
 
 static void xmlFAParseRegExp(xmlRegParserCtxtPtr ctxt, int top);
-static void xmlRegFreeState(xmlRegStatePtr state);
-static void xmlRegFreeAtom(xmlRegAtomPtr atom);
+static void FASTCALL xmlRegFreeState(xmlRegStatePtr state);
+static void FASTCALL xmlRegFreeAtom(xmlRegAtomPtr atom);
 static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr);
 static int xmlRegCheckCharacter(xmlRegAtomPtr atom, int codepoint);
-static int xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint,
-    int neg, int start, int end, const xmlChar * blockName);
+static int FASTCALL xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint, int neg, int start, int end, const xmlChar * blockName);
 
 void xmlAutomataSetFlags(xmlAutomataPtr am, int flags);
 
@@ -361,7 +358,7 @@ void xmlAutomataSetFlags(xmlAutomataPtr am, int flags);
  *
  * Handle an out of memory condition
  */
-static void xmlRegexpErrMemory(xmlRegParserCtxtPtr ctxt, const char * extra)
+static void FASTCALL xmlRegexpErrMemory(xmlRegParserCtxtPtr ctxt, const char * extra)
 {
 	const char * regexp = NULL;
 	if(ctxt) {
@@ -680,14 +677,13 @@ static xmlRegRangePtr xmlRegNewRange(xmlRegParserCtxtPtr ctxt, int neg, xmlRegAt
 	}
 	return ret;
 }
-
 /**
  * xmlRegFreeRange:
  * @range:  the regexp range
  *
  * Free a regexp range
  */
-static void xmlRegFreeRange(xmlRegRangePtr range)
+static void FASTCALL xmlRegFreeRange(xmlRegRangePtr range)
 {
 	if(range) {
 		SAlloc::F(range->blockName);
@@ -703,14 +699,12 @@ static void xmlRegFreeRange(xmlRegRangePtr range)
  *
  * Returns the new copy or NULL in case of error.
  */
-static xmlRegRangePtr xmlRegCopyRange(xmlRegParserCtxtPtr ctxt, xmlRegRangePtr range) {
+static xmlRegRangePtr xmlRegCopyRange(xmlRegParserCtxtPtr ctxt, xmlRegRangePtr range) 
+{
 	xmlRegRangePtr ret;
-
 	if(range == NULL)
 		return 0;
-
-	ret = xmlRegNewRange(ctxt, range->neg, range->type, range->start,
-	    range->end);
+	ret = xmlRegNewRange(ctxt, range->neg, range->type, range->start, range->end);
 	if(!ret)
 		return 0;
 	if(range->blockName != NULL) {
@@ -723,7 +717,6 @@ static xmlRegRangePtr xmlRegCopyRange(xmlRegParserCtxtPtr ctxt, xmlRegRangePtr r
 	}
 	return ret;
 }
-
 /**
  * xmlRegNewAtom:
  * @ctxt:  the regexp parser context
@@ -733,7 +726,7 @@ static xmlRegRangePtr xmlRegCopyRange(xmlRegParserCtxtPtr ctxt, xmlRegRangePtr r
  *
  * Returns the new atom or NULL in case of error
  */
-static xmlRegAtomPtr xmlRegNewAtom(xmlRegParserCtxtPtr ctxt, xmlRegAtomType type)
+static xmlRegAtomPtr FASTCALL xmlRegNewAtom(xmlRegParserCtxtPtr ctxt, xmlRegAtomType type)
 {
 	xmlRegAtomPtr ret = (xmlRegAtomPtr)SAlloc::M(sizeof(xmlRegAtom));
 	if(!ret) {
@@ -748,14 +741,13 @@ static xmlRegAtomPtr xmlRegNewAtom(xmlRegParserCtxtPtr ctxt, xmlRegAtomType type
 	}
 	return ret;
 }
-
 /**
  * xmlRegFreeAtom:
  * @atom:  the regexp atom
  *
  * Free a regexp atom
  */
-static void xmlRegFreeAtom(xmlRegAtomPtr atom)
+static void FASTCALL xmlRegFreeAtom(xmlRegAtomPtr atom)
 {
 	if(atom) {
 		for(int i = 0; i < atom->nbRanges; i++)
@@ -812,7 +804,7 @@ error:
 	return 0;
 }
 
-static xmlRegStatePtr xmlRegNewState(xmlRegParserCtxtPtr ctxt)
+static xmlRegStatePtr FASTCALL xmlRegNewState(xmlRegParserCtxtPtr ctxt)
 {
 	xmlRegStatePtr ret = (xmlRegStatePtr)SAlloc::M(sizeof(xmlRegState));
 	if(!ret) {
@@ -825,14 +817,13 @@ static xmlRegStatePtr xmlRegNewState(xmlRegParserCtxtPtr ctxt)
 	}
 	return ret;
 }
-
 /**
  * xmlRegFreeState:
  * @state:  the regexp state
  *
  * Free a regexp state
  */
-static void xmlRegFreeState(xmlRegStatePtr state)
+static void FASTCALL xmlRegFreeState(xmlRegStatePtr state)
 {
 	if(state) {
 		SAlloc::F(state->trans);
@@ -840,7 +831,6 @@ static void xmlRegFreeState(xmlRegStatePtr state)
 		SAlloc::F(state);
 	}
 }
-
 /**
  * xmlRegFreeParserCtxt:
  * @ctxt:  the regexp parser context
@@ -1153,7 +1143,7 @@ static int xmlRegGetCounter(xmlRegParserCtxtPtr ctxt)
 	return(ctxt->nbCounters++);
 }
 
-static int xmlRegAtomPush(xmlRegParserCtxtPtr ctxt, xmlRegAtomPtr atom)
+static int FASTCALL xmlRegAtomPush(xmlRegParserCtxtPtr ctxt, xmlRegAtomPtr atom)
 {
 	if(atom == NULL) {
 		ERROR("atom push: atom is NULL");
@@ -1209,8 +1199,7 @@ static void xmlRegStateAddTransTo(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr targe
 	target->nbTransTo++;
 }
 
-static void xmlRegStateAddTrans(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
-    xmlRegAtomPtr atom, xmlRegStatePtr target, int counter, int count)
+static void FASTCALL xmlRegStateAddTrans(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state, xmlRegAtomPtr atom, xmlRegStatePtr target, int counter, int count)
 {
 	int nrtrans;
 	if(state == NULL) {
@@ -1226,7 +1215,6 @@ static void xmlRegStateAddTrans(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
 	 * so we check here whether such a transition is already present and, if
 	 * so, silently ignore this request.
 	 */
-
 	for(nrtrans = state->nbTrans - 1; nrtrans >= 0; nrtrans--) {
 		xmlRegTransPtr trans = &(state->trans[nrtrans]);
 		if((trans->atom == atom) && (trans->to == target->no) && (trans->counter == counter) && (trans->count == count)) {
@@ -1277,7 +1265,7 @@ static void xmlRegStateAddTrans(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state,
 	xmlRegStateAddTransTo(ctxt, target, state->no);
 }
 
-static int xmlRegStatePush(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state)
+static int FASTCALL xmlRegStatePush(xmlRegParserCtxtPtr ctxt, xmlRegStatePtr state)
 {
 	if(state == NULL)
 		return -1;
@@ -1942,7 +1930,6 @@ static int xmlFACompareRanges(xmlRegRangePtr range1, xmlRegRangePtr range2)
 	else if(range1->type == XML_REGEXP_CHARVAL) {
 		int codepoint;
 		int neg = 0;
-
 		/*
 		 * just check all codepoints in the range for acceptance,
 		 * this is usually way cheaper since done only once at
@@ -1951,21 +1938,16 @@ static int xmlFACompareRanges(xmlRegRangePtr range1, xmlRegRangePtr range2)
 		 */
 		if(((range1->neg == 0) && (range2->neg != 0)) || ((range1->neg != 0) && (range2->neg == 0)))
 			neg = 1;
-
 		for(codepoint = range1->start; codepoint <= range1->end; codepoint++) {
-			ret = xmlRegCheckCharacterRange(range2->type, codepoint,
-			    0, range2->start, range2->end,
-			    range2->blockName);
+			ret = xmlRegCheckCharacterRange(range2->type, codepoint, 0, range2->start, range2->end, range2->blockName);
 			if(ret < 0)
 				return -1;
-			if(((neg == 1) && (ret == 0)) ||
-			    ((neg == 0) && (ret == 1)))
+			if(((neg == 1) && (ret == 0)) || ((neg == 0) && (ret == 1)))
 				return 1;
 		}
 		return 0;
 	}
-	else if((range1->type == XML_REGEXP_BLOCK_NAME) ||
-	    (range2->type == XML_REGEXP_BLOCK_NAME)) {
+	else if((range1->type == XML_REGEXP_BLOCK_NAME) || (range2->type == XML_REGEXP_BLOCK_NAME)) {
 		if(range1->type == range2->type) {
 			ret = sstreq(range1->blockName, range2->blockName);
 		}
@@ -2545,32 +2527,23 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxtPtr ctxt)
 *									*
 ************************************************************************/
 
-static int xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint, int neg,
-    int start, int end, const xmlChar * blockName) {
+static int FASTCALL xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint, int neg, int start, int end, const xmlChar * blockName) 
+{
 	int ret = 0;
-
 	switch(type) {
 		case XML_REGEXP_STRING:
 		case XML_REGEXP_SUBREG:
 		case XML_REGEXP_RANGES:
 		case XML_REGEXP_EPSILON:
 		    return -1;
-		case XML_REGEXP_ANYCHAR:
-		    ret = ((codepoint != '\n') && (codepoint != '\r'));
-		    break;
-		case XML_REGEXP_CHARVAL:
-		    ret = ((codepoint >= start) && (codepoint <= end));
-		    break;
+		case XML_REGEXP_ANYCHAR: ret = ((codepoint != '\n') && (codepoint != '\r')); break;
+		case XML_REGEXP_CHARVAL: ret = ((codepoint >= start) && (codepoint <= end)); break;
 		case XML_REGEXP_NOTSPACE:
 		    neg = !neg;
-		case XML_REGEXP_ANYSPACE:
-		    ret = ((codepoint == '\n') || (codepoint == '\r') || (codepoint == '\t') || (codepoint == ' '));
-		    break;
+		case XML_REGEXP_ANYSPACE: ret = oneof4(codepoint, '\n', '\r', '\t', ' '); break;
 		case XML_REGEXP_NOTINITNAME:
 		    neg = !neg;
-		case XML_REGEXP_INITNAME:
-		    ret = (IS_LETTER(codepoint) || (codepoint == '_') || (codepoint == ':'));
-		    break;
+		case XML_REGEXP_INITNAME: ret = (IS_LETTER(codepoint) || (codepoint == '_') || (codepoint == ':')); break;
 		case XML_REGEXP_NOTNAMECHAR:
 		    neg = !neg;
 		case XML_REGEXP_NAMECHAR:
@@ -2579,175 +2552,91 @@ static int xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint, int neg
 		    break;
 		case XML_REGEXP_NOTDECIMAL:
 		    neg = !neg;
-		case XML_REGEXP_DECIMAL:
-		    ret = xmlUCSIsCatNd(codepoint);
-		    break;
+		case XML_REGEXP_DECIMAL: ret = xmlUCSIsCatNd(codepoint); break;
 		case XML_REGEXP_REALCHAR:
 		    neg = !neg;
 		case XML_REGEXP_NOTREALCHAR:
 		    ret = xmlUCSIsCatP(codepoint);
-		    if(ret == 0)
-			    ret = xmlUCSIsCatZ(codepoint);
-		    if(ret == 0)
-			    ret = xmlUCSIsCatC(codepoint);
+			SETIFZ(ret, xmlUCSIsCatZ(codepoint));
+			SETIFZ(ret, xmlUCSIsCatC(codepoint));
 		    break;
-		case XML_REGEXP_LETTER:
-		    ret = xmlUCSIsCatL(codepoint);
-		    break;
-		case XML_REGEXP_LETTER_UPPERCASE:
-		    ret = xmlUCSIsCatLu(codepoint);
-		    break;
-		case XML_REGEXP_LETTER_LOWERCASE:
-		    ret = xmlUCSIsCatLl(codepoint);
-		    break;
-		case XML_REGEXP_LETTER_TITLECASE:
-		    ret = xmlUCSIsCatLt(codepoint);
-		    break;
-		case XML_REGEXP_LETTER_MODIFIER:
-		    ret = xmlUCSIsCatLm(codepoint);
-		    break;
-		case XML_REGEXP_LETTER_OTHERS:
-		    ret = xmlUCSIsCatLo(codepoint);
-		    break;
-		case XML_REGEXP_MARK:
-		    ret = xmlUCSIsCatM(codepoint);
-		    break;
-		case XML_REGEXP_MARK_NONSPACING:
-		    ret = xmlUCSIsCatMn(codepoint);
-		    break;
-		case XML_REGEXP_MARK_SPACECOMBINING:
-		    ret = xmlUCSIsCatMc(codepoint);
-		    break;
-		case XML_REGEXP_MARK_ENCLOSING:
-		    ret = xmlUCSIsCatMe(codepoint);
-		    break;
-		case XML_REGEXP_NUMBER:
-		    ret = xmlUCSIsCatN(codepoint);
-		    break;
-		case XML_REGEXP_NUMBER_DECIMAL:
-		    ret = xmlUCSIsCatNd(codepoint);
-		    break;
-		case XML_REGEXP_NUMBER_LETTER:
-		    ret = xmlUCSIsCatNl(codepoint);
-		    break;
-		case XML_REGEXP_NUMBER_OTHERS:
-		    ret = xmlUCSIsCatNo(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT:
-		    ret = xmlUCSIsCatP(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_CONNECTOR:
-		    ret = xmlUCSIsCatPc(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_DASH:
-		    ret = xmlUCSIsCatPd(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_OPEN:
-		    ret = xmlUCSIsCatPs(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_CLOSE:
-		    ret = xmlUCSIsCatPe(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_INITQUOTE:
-		    ret = xmlUCSIsCatPi(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_FINQUOTE:
-		    ret = xmlUCSIsCatPf(codepoint);
-		    break;
-		case XML_REGEXP_PUNCT_OTHERS:
-		    ret = xmlUCSIsCatPo(codepoint);
-		    break;
-		case XML_REGEXP_SEPAR:
-		    ret = xmlUCSIsCatZ(codepoint);
-		    break;
-		case XML_REGEXP_SEPAR_SPACE:
-		    ret = xmlUCSIsCatZs(codepoint);
-		    break;
-		case XML_REGEXP_SEPAR_LINE:
-		    ret = xmlUCSIsCatZl(codepoint);
-		    break;
-		case XML_REGEXP_SEPAR_PARA:
-		    ret = xmlUCSIsCatZp(codepoint);
-		    break;
-		case XML_REGEXP_SYMBOL:
-		    ret = xmlUCSIsCatS(codepoint);
-		    break;
-		case XML_REGEXP_SYMBOL_MATH:
-		    ret = xmlUCSIsCatSm(codepoint);
-		    break;
-		case XML_REGEXP_SYMBOL_CURRENCY:
-		    ret = xmlUCSIsCatSc(codepoint);
-		    break;
-		case XML_REGEXP_SYMBOL_MODIFIER:
-		    ret = xmlUCSIsCatSk(codepoint);
-		    break;
-		case XML_REGEXP_SYMBOL_OTHERS:
-		    ret = xmlUCSIsCatSo(codepoint);
-		    break;
-		case XML_REGEXP_OTHER:
-		    ret = xmlUCSIsCatC(codepoint);
-		    break;
-		case XML_REGEXP_OTHER_CONTROL:
-		    ret = xmlUCSIsCatCc(codepoint);
-		    break;
-		case XML_REGEXP_OTHER_FORMAT:
-		    ret = xmlUCSIsCatCf(codepoint);
-		    break;
-		case XML_REGEXP_OTHER_PRIVATE:
-		    ret = xmlUCSIsCatCo(codepoint);
-		    break;
+		case XML_REGEXP_LETTER: ret = xmlUCSIsCatL(codepoint); break;
+		case XML_REGEXP_LETTER_UPPERCASE: ret = xmlUCSIsCatLu(codepoint); break;
+		case XML_REGEXP_LETTER_LOWERCASE: ret = xmlUCSIsCatLl(codepoint); break;
+		case XML_REGEXP_LETTER_TITLECASE: ret = xmlUCSIsCatLt(codepoint); break;
+		case XML_REGEXP_LETTER_MODIFIER: ret = xmlUCSIsCatLm(codepoint); break;
+		case XML_REGEXP_LETTER_OTHERS: ret = xmlUCSIsCatLo(codepoint); break;
+		case XML_REGEXP_MARK: ret = xmlUCSIsCatM(codepoint); break;
+		case XML_REGEXP_MARK_NONSPACING: ret = xmlUCSIsCatMn(codepoint); break;
+		case XML_REGEXP_MARK_SPACECOMBINING: ret = xmlUCSIsCatMc(codepoint); break;
+		case XML_REGEXP_MARK_ENCLOSING: ret = xmlUCSIsCatMe(codepoint); break;
+		case XML_REGEXP_NUMBER: ret = xmlUCSIsCatN(codepoint); break;
+		case XML_REGEXP_NUMBER_DECIMAL: ret = xmlUCSIsCatNd(codepoint); break;
+		case XML_REGEXP_NUMBER_LETTER: ret = xmlUCSIsCatNl(codepoint); break;
+		case XML_REGEXP_NUMBER_OTHERS: ret = xmlUCSIsCatNo(codepoint); break;
+		case XML_REGEXP_PUNCT: ret = xmlUCSIsCatP(codepoint); break;
+		case XML_REGEXP_PUNCT_CONNECTOR: ret = xmlUCSIsCatPc(codepoint); break;
+		case XML_REGEXP_PUNCT_DASH: ret = xmlUCSIsCatPd(codepoint); break;
+		case XML_REGEXP_PUNCT_OPEN: ret = xmlUCSIsCatPs(codepoint); break;
+		case XML_REGEXP_PUNCT_CLOSE: ret = xmlUCSIsCatPe(codepoint); break;
+		case XML_REGEXP_PUNCT_INITQUOTE: ret = xmlUCSIsCatPi(codepoint); break;
+		case XML_REGEXP_PUNCT_FINQUOTE: ret = xmlUCSIsCatPf(codepoint); break;
+		case XML_REGEXP_PUNCT_OTHERS: ret = xmlUCSIsCatPo(codepoint); break;
+		case XML_REGEXP_SEPAR: ret = xmlUCSIsCatZ(codepoint); break;
+		case XML_REGEXP_SEPAR_SPACE: ret = xmlUCSIsCatZs(codepoint); break;
+		case XML_REGEXP_SEPAR_LINE: ret = xmlUCSIsCatZl(codepoint); break;
+		case XML_REGEXP_SEPAR_PARA: ret = xmlUCSIsCatZp(codepoint); break;
+		case XML_REGEXP_SYMBOL: ret = xmlUCSIsCatS(codepoint); break;
+		case XML_REGEXP_SYMBOL_MATH: ret = xmlUCSIsCatSm(codepoint); break;
+		case XML_REGEXP_SYMBOL_CURRENCY: ret = xmlUCSIsCatSc(codepoint); break;
+		case XML_REGEXP_SYMBOL_MODIFIER: ret = xmlUCSIsCatSk(codepoint); break;
+		case XML_REGEXP_SYMBOL_OTHERS: ret = xmlUCSIsCatSo(codepoint); break;
+		case XML_REGEXP_OTHER: ret = xmlUCSIsCatC(codepoint); break;
+		case XML_REGEXP_OTHER_CONTROL: ret = xmlUCSIsCatCc(codepoint); break;
+		case XML_REGEXP_OTHER_FORMAT: ret = xmlUCSIsCatCf(codepoint); break;
+		case XML_REGEXP_OTHER_PRIVATE: ret = xmlUCSIsCatCo(codepoint); break;
 		case XML_REGEXP_OTHER_NA:
 		    /* ret = xmlUCSIsCatCn(codepoint); */
 		    /* Seems it doesn't exist anymore in recent Unicode releases */
 		    ret = 0;
 		    break;
-		case XML_REGEXP_BLOCK_NAME:
-		    ret = xmlUCSIsBlock(codepoint, (const char*)blockName);
-		    break;
+		case XML_REGEXP_BLOCK_NAME: ret = xmlUCSIsBlock(codepoint, (const char*)blockName); break;
 	}
 	if(neg)
 		return(!ret);
 	return ret;
 }
 
-static int xmlRegCheckCharacter(xmlRegAtomPtr atom, int codepoint) {
+static int xmlRegCheckCharacter(xmlRegAtomPtr atom, int codepoint) 
+{
 	int i, ret = 0;
 	xmlRegRangePtr range;
-
 	if((atom == NULL) || (!IS_CHAR(codepoint)))
 		return -1;
-
 	switch(atom->type) {
 		case XML_REGEXP_SUBREG:
 		case XML_REGEXP_EPSILON:
 		    return -1;
 		case XML_REGEXP_CHARVAL:
-		    return(codepoint == atom->codepoint);
+		    return (codepoint == atom->codepoint);
 		case XML_REGEXP_RANGES: {
 		    int accept = 0;
-
 		    for(i = 0; i < atom->nbRanges; i++) {
 			    range = atom->ranges[i];
 			    if(range->neg == 2) {
-				    ret = xmlRegCheckCharacterRange(range->type, codepoint,
-					    0, range->start, range->end,
-					    range->blockName);
+				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
 				    if(ret != 0)
 					    return 0;  /* excluded char */
 			    }
 			    else if(range->neg) {
-				    ret = xmlRegCheckCharacterRange(range->type, codepoint,
-					    0, range->start, range->end,
-					    range->blockName);
+				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
 				    if(ret == 0)
 					    accept = 1;
 				    else
 					    return 0;
 			    }
 			    else {
-				    ret = xmlRegCheckCharacterRange(range->type, codepoint,
-					    0, range->start, range->end,
-					    range->blockName);
+				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
 				    if(ret != 0)
 					    accept = 1;  /* might still be excluded */
 			    }
@@ -2805,8 +2694,7 @@ static int xmlRegCheckCharacter(xmlRegAtomPtr atom, int codepoint) {
 		case XML_REGEXP_OTHER_PRIVATE:
 		case XML_REGEXP_OTHER_NA:
 		case XML_REGEXP_BLOCK_NAME:
-		    ret = xmlRegCheckCharacterRange(atom->type, codepoint, 0, 0, 0,
-		    (const xmlChar*)atom->valuep);
+		    ret = xmlRegCheckCharacterRange(atom->type, codepoint, 0, 0, 0, (const xmlChar*)atom->valuep);
 		    if(atom->neg)
 			    ret = !ret;
 		    break;
@@ -2821,24 +2709,24 @@ static int xmlRegCheckCharacter(xmlRegAtomPtr atom, int codepoint) {
 ************************************************************************/
 
 #ifdef DEBUG_REGEXP_EXEC
-static void xmlFARegDebugExec(xmlRegExecCtxtPtr exec) {
+static void xmlFARegDebugExec(xmlRegExecCtxtPtr exec) 
+{
 	printf("state: %d:%d:idx %d", exec->state->no, exec->transno, exec->index);
 	if(exec->inputStack != NULL) {
 		int i;
 		printf(": ");
 		for(i = 0; (i < 3) && (i < exec->inputStackNr); i++)
-			printf("%s ", (const char*)
-			    exec->inputStack[exec->inputStackNr - (i + 1)].value);
+			printf("%s ", (const char*)exec->inputStack[exec->inputStackNr - (i + 1)].value);
 	}
 	else {
 		printf(": %s", &(exec->inputString[exec->index]));
 	}
 	printf("\n");
 }
-
 #endif
 
-static void xmlFARegExecSave(xmlRegExecCtxtPtr exec) {
+static void xmlFARegExecSave(xmlRegExecCtxtPtr exec) 
+{
 #ifdef DEBUG_REGEXP_EXEC
 	printf("saving ");
 	exec->transno++;
@@ -2866,10 +2754,8 @@ static void xmlFARegExecSave(xmlRegExecCtxtPtr exec) {
 	else if(exec->nbRollbacks >= exec->maxRollbacks) {
 		xmlRegExecRollback * tmp;
 		int len = exec->maxRollbacks;
-
 		exec->maxRollbacks *= 2;
-		tmp = (xmlRegExecRollback*)SAlloc::R(exec->rollbacks,
-		    exec->maxRollbacks * sizeof(xmlRegExecRollback));
+		tmp = (xmlRegExecRollback*)SAlloc::R(exec->rollbacks, exec->maxRollbacks * sizeof(xmlRegExecRollback));
 		if(!tmp) {
 			xmlRegexpErrMemory(NULL, "saving regexp");
 			exec->maxRollbacks /= 2;
@@ -2884,21 +2770,20 @@ static void xmlFARegExecSave(xmlRegExecCtxtPtr exec) {
 	exec->rollbacks[exec->nbRollbacks].nextbranch = exec->transno + 1;
 	if(exec->comp->nbCounters > 0) {
 		if(exec->rollbacks[exec->nbRollbacks].counts == NULL) {
-			exec->rollbacks[exec->nbRollbacks].counts = (int*)
-			    SAlloc::M(exec->comp->nbCounters * sizeof(int));
+			exec->rollbacks[exec->nbRollbacks].counts = (int*)SAlloc::M(exec->comp->nbCounters * sizeof(int));
 			if(exec->rollbacks[exec->nbRollbacks].counts == NULL) {
 				xmlRegexpErrMemory(NULL, "saving regexp");
 				exec->status = -5;
 				return;
 			}
 		}
-		memcpy(exec->rollbacks[exec->nbRollbacks].counts, exec->counts,
-		    exec->comp->nbCounters * sizeof(int));
+		memcpy(exec->rollbacks[exec->nbRollbacks].counts, exec->counts, exec->comp->nbCounters * sizeof(int));
 	}
 	exec->nbRollbacks++;
 }
 
-static void xmlFARegExecRollBack(xmlRegExecCtxtPtr exec) {
+static void FASTCALL xmlFARegExecRollBack(xmlRegExecCtxtPtr exec) 
+{
 	if(exec->nbRollbacks <= 0) {
 		exec->status = -1;
 #ifdef DEBUG_REGEXP_EXEC
@@ -2917,11 +2802,9 @@ static void xmlFARegExecRollBack(xmlRegExecCtxtPtr exec) {
 			return;
 		}
 		if(exec->counts) {
-			memcpy(exec->counts, exec->rollbacks[exec->nbRollbacks].counts,
-			    exec->comp->nbCounters * sizeof(int));
+			memcpy(exec->counts, exec->rollbacks[exec->nbRollbacks].counts, exec->comp->nbCounters * sizeof(int));
 		}
 	}
-
 #ifdef DEBUG_REGEXP_EXEC
 	printf("restored ");
 	xmlFARegDebugExec(exec);
@@ -2934,11 +2817,11 @@ static void xmlFARegExecRollBack(xmlRegExecCtxtPtr exec) {
 *									*
 ************************************************************************/
 
-static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
+static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) 
+{
 	xmlRegExecCtxt execval;
 	xmlRegExecCtxtPtr exec = &execval;
 	int ret, codepoint = 0, len, deter;
-
 	exec->inputString = content;
 	exec->index = 0;
 	exec->nbPush = 0;
@@ -2990,7 +2873,6 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 			else
 				goto rollback;
 		}
-
 		exec->transcount = 0;
 		for(; exec->transno < exec->state->nbTrans; exec->transno++) {
 			trans = &exec->state->trans[exec->transno];
@@ -3002,7 +2884,6 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 			if(trans->count >= 0) {
 				int count;
 				xmlRegCounterPtr counter;
-
 				if(exec->counts == NULL) {
 					exec->status = -1;
 					goto error;
@@ -3010,12 +2891,10 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 				/*
 				 * A counted transition.
 				 */
-
 				count = exec->counts[trans->count];
 				counter = &exec->comp->counters[trans->count];
 #ifdef DEBUG_REGEXP_EXEC
-				printf("testing count %d: val %d, min %d, max %d\n",
-				    trans->count, count, counter->min,  counter->max);
+				printf("testing count %d: val %d, min %d, max %d\n", trans->count, count, counter->min,  counter->max);
 #endif
 				ret = ((count >= counter->min) && (count <= counter->max));
 				if((ret) && (counter->min != counter->max))
@@ -3031,7 +2910,6 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 				ret = xmlRegCheckCharacter(atom, codepoint);
 				if((ret == 1) && (atom->min >= 0) && (atom->max > 0)) {
 					xmlRegStatePtr to = comp->states[trans->to];
-
 					/*
 					 * this is a multiple input sequence
 					 * If there is a counter associated increment it now.
@@ -3041,10 +2919,7 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 					 */
 					if(trans->counter >= 0) {
 						xmlRegCounterPtr counter;
-
-						if((exec->counts == NULL) ||
-						    (exec->comp == NULL) ||
-						    (exec->comp->counters == NULL)) {
+						if((exec->counts == NULL) || (exec->comp == NULL) || (exec->comp->counters == NULL)) {
 							exec->status = -1;
 							goto error;
 						}
@@ -3079,7 +2954,6 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 						if(exec->transcount >= atom->min) {
 							int transno = exec->transno;
 							xmlRegStatePtr state = exec->state;
-
 							/*
 							 * The transition is acceptable save it
 							 */
@@ -3089,8 +2963,7 @@ static int xmlFARegExec(xmlRegexpPtr comp, const xmlChar * content) {
 							exec->transno = transno;
 							exec->state = state;
 						}
-						codepoint = CUR_SCHAR(&(exec->inputString[exec->index]),
-						    len);
+						codepoint = CUR_SCHAR(&(exec->inputString[exec->index]), len);
 						ret = xmlRegCheckCharacter(atom, codepoint);
 						exec->transcount++;
 					} while(ret == 1);
@@ -5702,7 +5575,6 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans(xmlAutomataPtr am, xmlAutomataState
 	xmlRegStateAddTrans(am, from, atom, to, counter, -1);
 	xmlRegAtomPush(am, atom);
 	am->state = to;
-
 	if(to == NULL)
 		to = am->state;
 	if(to == NULL)
@@ -7753,7 +7625,6 @@ void xmlExpDump(xmlBufferPtr buf, xmlExpNodePtr expr)
 	if(buf && expr)
 		xmlExpDumpInt(buf, expr, 0);
 }
-
 /**
  * xmlExpMaxToken:
  * @expr: a compiled expression

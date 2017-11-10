@@ -57,9 +57,9 @@
 #endif
 */
 #include <zipconf.h>
-#include <sys/types.h>
+//#include <sys/types.h>
 //#include <stdio.h>
-#include <time.h>
+//#include <time.h>
 
 struct zip_t;
 struct zip_file_t;

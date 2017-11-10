@@ -3,7 +3,6 @@
  *
  * daniel@veillard.com
  */
-
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -79,13 +78,12 @@ typedef struct memnod {
 }  MEMHDR;
 
 #ifdef SUN4
-#define ALIGN_SIZE  16
+	#define ALIGN_SIZE  16
 #else
-#define ALIGN_SIZE  sizeof(double)
+	#define ALIGN_SIZE  sizeof(double)
 #endif
 #define HDR_SIZE    sizeof(MEMHDR)
 #define RESERVE_SIZE (((HDR_SIZE + (ALIGN_SIZE-1)) / ALIGN_SIZE ) * ALIGN_SIZE)
-
 #define CLIENT_2_HDR(a) ((MEMHDR*)(((char*)(a)) - RESERVE_SIZE))
 #define HDR_2_CLIENT(a)    ((void*)(((char*)(a)) + RESERVE_SIZE))
 
@@ -171,7 +169,6 @@ void * xmlMallocLoc(size_t size, const char * file, int line)
 	TEST_POINT
 	return ret;
 }
-
 /**
  * xmlMallocAtomicLoc:
  * @size:  an int specifying the size in byte to allocate.
@@ -229,7 +226,6 @@ void * xmlMallocAtomicLoc(size_t size, const char * file, int line)
 		return ret;
 	}
 }
-
 /**
  * xmlMemMalloc:
  * @size:  an int specifying the size in byte to allocate.
@@ -238,12 +234,10 @@ void * xmlMallocAtomicLoc(size_t size, const char * file, int line)
  *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-
 void * xmlMemMalloc(size_t size)
 {
 	return xmlMallocLoc(size, "none", 0);
 }
-
 /**
  * xmlReallocLoc:
  * @ptr:  the initial memory block pointer
@@ -286,7 +280,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 	debugmem_list_delete(p);
 #endif
 	xmlMutexUnlock(xmlMemMutex);
-	tmp = (MEMHDR*)realloc(p, RESERVE_SIZE+size);
+	tmp = (MEMHDR *)SAlloc::R(p, RESERVE_SIZE+size);
 	if(!tmp) {
 		SAlloc::F(p);
 		goto error;
@@ -327,12 +321,10 @@ error:
  *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-
 void * xmlMemRealloc(void * ptr, size_t size)
 {
 	return xmlReallocLoc(ptr, size, "none", 0);
 }
-
 /**
  * xmlMemFree:
  * @ptr:  the memory block pointer
@@ -448,11 +440,10 @@ error:
  *
  * Returns a pointer to the new string or NULL if allocation error occurred.
  */
-
-char * xmlMemoryStrdup(const char * str) {
-	return(xmlMemStrdupLoc(str, "none", 0));
+char * xmlMemoryStrdup(const char * str) 
+{
+	return xmlMemStrdupLoc(str, "none", 0);
 }
-
 /**
  * xmlMemUsed:
  *
@@ -460,11 +451,10 @@ char * xmlMemoryStrdup(const char * str) {
  *
  * Returns an int representing the amount of memory allocated.
  */
-
-int xmlMemUsed() {
+int xmlMemUsed() 
+{
 	return(debugMemSize);
 }
-
 /**
  * xmlMemBlocks:
  *
@@ -472,11 +462,10 @@ int xmlMemUsed() {
  *
  * Returns an int representing the number of blocks
  */
-
-int xmlMemBlocks() {
-	return(debugMemBlocks);
+int xmlMemBlocks() 
+{
+	return debugMemBlocks;
 }
-
 #ifdef MEM_LIST
 /**
  * xmlMemContentShow:
@@ -497,16 +486,16 @@ static void xmlMemContentShow(FILE * fp, MEMHDR * p)
 	}
 	len = p->mh_size;
 	buf = (const char*)HDR_2_CLIENT(p);
-
 	for(i = 0; i < len; i++) {
-		if(buf[i] == 0) break;
-		if(!isprint((uchar)buf[i])) break;
+		if(buf[i] == 0) 
+			break;
+		if(!isprint((uchar)buf[i])) 
+			break;
 	}
 	if((i < 4) && ((buf[i] != 0) || (i == 0))) {
 		if(len >= 4) {
 			MEMHDR * q;
 			void * cur;
-
 			for(j = 0; (j < len -3) && (j < 40); j += 4) {
 				cur = *((void**)&buf[j]);
 				q = CLIENT_2_HDR(cur);
@@ -613,7 +602,6 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 	if(old_fp == NULL)
 		fclose(fp);
 }
-
 /**
  * xmlMemDisplay:
  * @fp:  a FILE descriptor used as the output file, if NULL, the result is
@@ -621,7 +609,6 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
  *
  * show in-extenso the memory blocks allocated
  */
-
 void xmlMemDisplay(FILE * fp)
 {
 #ifdef MEM_LIST
@@ -679,7 +666,6 @@ void xmlMemDisplay(FILE * fp)
 			xmlMemContentShow(fp, p);
 		else
 			fprintf(fp, " skip");
-
 		fprintf(fp, "\n");
 		p = p->mh_next;
 	}
@@ -711,7 +697,8 @@ static void debugmem_list_delete(MEMHDR * p)
 		p->mh_next->mh_prev = p->mh_prev;
 	if(p->mh_prev)
 		p->mh_prev->mh_next = p->mh_next;
-	else memlist = p->mh_next;
+	else 
+		memlist = p->mh_next;
 #ifdef MEM_LIST_DEBUG
 	if(stderr)
 		Mem_Display(stderr);

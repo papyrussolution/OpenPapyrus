@@ -136,28 +136,22 @@ static CURLcode file_range(struct connectdata * conn)
 		if((-1 == to) && (from>=0)) {
 			/* X - */
 			data->state.resume_from = from;
-			DEBUGF(infof(data, "RANGE %" CURL_FORMAT_CURL_OFF_T " to end of file\n",
-				    from));
+			DEBUGF(infof(data, "RANGE %" CURL_FORMAT_CURL_OFF_T " to end of file\n", from));
 		}
 		else if(from < 0) {
 			/* -Y */
 			data->req.maxdownload = -from;
 			data->state.resume_from = from;
-			DEBUGF(infof(data, "RANGE the last %" CURL_FORMAT_CURL_OFF_T " bytes\n",
-				    -from));
+			DEBUGF(infof(data, "RANGE the last %" CURL_FORMAT_CURL_OFF_T " bytes\n", -from));
 		}
 		else {
 			/* X-Y */
 			totalsize = to-from;
 			data->req.maxdownload = totalsize+1; /* include last byte */
 			data->state.resume_from = from;
-			DEBUGF(infof(data, "RANGE from %" CURL_FORMAT_CURL_OFF_T
-				    " getting %" CURL_FORMAT_CURL_OFF_T " bytes\n",
-				    from, data->req.maxdownload));
+			DEBUGF(infof(data, "RANGE from %" CURL_FORMAT_CURL_OFF_T " getting %" CURL_FORMAT_CURL_OFF_T " bytes\n", from, data->req.maxdownload));
 		}
-		DEBUGF(infof(data, "range-download from %" CURL_FORMAT_CURL_OFF_T
-			    " to %" CURL_FORMAT_CURL_OFF_T ", totally %"
-			    CURL_FORMAT_CURL_OFF_T " bytes\n",
+		DEBUGF(infof(data, "range-download from %" CURL_FORMAT_CURL_OFF_T " to %" CURL_FORMAT_CURL_OFF_T ", totally %" CURL_FORMAT_CURL_OFF_T " bytes\n",
 			    from, to, data->req.maxdownload));
 	}
 	else

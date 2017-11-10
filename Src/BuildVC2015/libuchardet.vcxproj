@@ -147,12 +147,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\uchardet\src\CharDistribution.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\JpCntx.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\LangModel.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\nsEscSM.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\nsMBCSSM.cpp" />
-    <ClCompile Include="..\OSF\uchardet\src\nsUniversalDetector.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\Prober.cpp" />
     <ClCompile Include="..\OSF\uchardet\src\uchardet-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

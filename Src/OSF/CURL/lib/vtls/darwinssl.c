@@ -1324,12 +1324,9 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		    return CURLE_SSL_CONNECT_ERROR;
 	}
 #endif /* CURL_BUILD_MAC_10_8 || CURL_BUILD_IOS */
-
 	if(SSL_SET_OPTION(key)) {
-		infof(data, "WARNING: SSL: CURLOPT_SSLKEY is ignored by Secure "
-		    "Transport. The private key must be in the Keychain.\n");
+		infof(data, "WARNING: SSL: CURLOPT_SSLKEY is ignored by Secure Transport. The private key must be in the Keychain.\n");
 	}
-
 	if(ssl_cert) {
 		SecIdentityRef cert_and_key = NULL;
 		bool is_cert_file = is_file(ssl_cert);
@@ -2040,40 +2037,33 @@ static CURLcode darwinssl_connect_step2(struct connectdata * conn, int sockindex
 		(void)SSLGetNegotiatedProtocolVersion(connssl->ssl_ctx, &protocol);
 		switch(protocol) {
 			case kSSLProtocol2:
-			    infof(data, "SSL 2.0 connection using %s\n",
-			    SSLCipherNameForNumber(cipher));
+			    infof(data, "SSL 2.0 connection using %s\n", SSLCipherNameForNumber(cipher));
 			    break;
 			case kSSLProtocol3:
-			    infof(data, "SSL 3.0 connection using %s\n",
-			    SSLCipherNameForNumber(cipher));
+			    infof(data, "SSL 3.0 connection using %s\n", SSLCipherNameForNumber(cipher));
 			    break;
 			case kTLSProtocol1:
-			    infof(data, "TLS 1.0 connection using %s\n",
-			    TLSCipherNameForNumber(cipher));
+			    infof(data, "TLS 1.0 connection using %s\n", TLSCipherNameForNumber(cipher));
 			    break;
 #if CURL_BUILD_MAC_10_8 || CURL_BUILD_IOS
 			case kTLSProtocol11:
-			    infof(data, "TLS 1.1 connection using %s\n",
-			    TLSCipherNameForNumber(cipher));
+			    infof(data, "TLS 1.1 connection using %s\n", TLSCipherNameForNumber(cipher));
 			    break;
 			case kTLSProtocol12:
-			    infof(data, "TLS 1.2 connection using %s\n",
-			    TLSCipherNameForNumber(cipher));
+			    infof(data, "TLS 1.2 connection using %s\n", TLSCipherNameForNumber(cipher));
 			    break;
 #endif
 			default:
 			    infof(data, "Unknown protocol connection\n");
 			    break;
 		}
-
 		return CURLE_OK;
 	}
 }
 
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 /* This should be called during step3 of the connection at the earliest */
-static void show_verbose_server_cert(struct connectdata * conn,
-    int sockindex)
+static void show_verbose_server_cert(struct connectdata * conn, int sockindex)
 {
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];

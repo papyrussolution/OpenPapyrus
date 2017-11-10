@@ -18,7 +18,6 @@
 #pragma hdrstop
 
 #ifdef LIBXML_SCHEMAS_ENABLED
-//#include <libxml/parserInternals.h>
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemastypes.h>
 #include <libxml/xmlautomata.h>
@@ -84,8 +83,8 @@ struct _xmlRelaxNGGrammar {
 	xmlRelaxNGDefinePtr start; /* <start> content */
 	xmlRelaxNGCombine combine; /* the default combine value */
 	xmlRelaxNGDefinePtr startList;  /* list of <start> definitions */
-	xmlHashTablePtr defs;   /* define* */
-	xmlHashTablePtr refs;   /* references */
+	xmlHashTable * defs;   /* define* */
+	xmlHashTable * refs;   /* references */
 };
 
 typedef enum {
@@ -140,7 +139,6 @@ struct _xmlRelaxNGDefine {
 	short dflags;           /* define related flags */
 	xmlRegexpPtr contModel; /* a compiled content model if available */
 };
-
 /**
  * _xmlRelaxNG:
  *
@@ -150,11 +148,9 @@ struct _xmlRelaxNG {
 	void * _private;        /* unused by the library for users or bindings */
 	xmlRelaxNGGrammarPtr topgrammar;
 	xmlDocPtr doc;
-
 	int idref;              /* requires idref checking */
-
-	xmlHashTablePtr defs;   /* define */
-	xmlHashTablePtr refs;   /* references */
+	xmlHashTable * defs;   /* define */
+	xmlHashTable * refs;   /* references */
 	xmlRelaxNGDocumentPtr documents; /* all the documents loaded */
 	xmlRelaxNGIncludePtr includes;  /* all the includes loaded */
 	int defNr;              /* number of defines used */
@@ -189,8 +185,7 @@ struct _xmlRelaxNGParserCtxt {
 	xmlRelaxNGDefinePtr def; /* the current define */
 
 	int nbInterleaves;
-	xmlHashTablePtr interleaves;    /* keep track of all the interleaves */
-
+	xmlHashTable * interleaves;    /* keep track of all the interleaves */
 	xmlRelaxNGDocumentPtr documents; /* all the documents loaded */
 	xmlRelaxNGIncludePtr includes;  /* all the includes loaded */
 	xmlChar * URL;
@@ -255,8 +250,7 @@ typedef struct _xmlRelaxNGPartition xmlRelaxNGPartition;
 typedef xmlRelaxNGPartition * xmlRelaxNGPartitionPtr;
 struct _xmlRelaxNGPartition {
 	int nbgroups;           /* number of groups in the partitions */
-	xmlHashTablePtr triage; /* hash table used to direct nodes to the
-	                         * right group when possible */
+	xmlHashTable * triage; // hash table used to direct nodes to the right group when possible 
 	int flags;              /* determinist ? */
 	xmlRelaxNGInterleaveGroupPtr * groups;
 };
@@ -460,7 +454,7 @@ static void FASTCALL xmlRngVErrMemory(xmlRelaxNGValidCtxt * ctxt, const char * e
  *
  * Handle a Relax NG Parsing error
  */
-static void xmlRngPErr(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlRngPErr(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node, int error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
@@ -475,7 +469,6 @@ static void xmlRngPErr(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * P_Node, int error
 	}
 	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGP, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 }
-
 /**
  * xmlRngVErr:
  * @ctxt:  a Relax-NG validation context
@@ -503,7 +496,6 @@ static void xmlRngVErr(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node, int error,
 	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGV, error, XML_ERR_ERROR, NULL, 0,
 	    (const char*)str1, (const char*)str2, NULL, 0, 0, msg, str1, str2);
 }
-
 /************************************************************************
 *									*
 *		Preliminary type checking interfaces			*
@@ -825,7 +817,7 @@ static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define)
 		if(define->data && define->type == XML_RELAXNG_INTERLEAVE)
 			xmlRelaxNGFreePartition((xmlRelaxNGPartitionPtr)define->data);
 		if(define->data && define->type == XML_RELAXNG_CHOICE)
-			xmlHashFree((xmlHashTablePtr)define->data, 0);
+			xmlHashFree((xmlHashTable *)define->data, 0);
 		SAlloc::F(define->name);
 		SAlloc::F(define->ns);
 		SAlloc::F(define->value);
@@ -1043,14 +1035,14 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 			else
 				ret->maxAttrs = nbAttrs;
 			ret->attrs = (xmlAttrPtr*)SAlloc::M(ret->maxAttrs *
-			    sizeof(xmlAttrPtr));
+			    sizeof(xmlAttr *));
 			if(ret->attrs == NULL) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				return ret;
 			}
 		}
 		else if(ret->maxAttrs < nbAttrs) {
-			xmlAttrPtr * tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, nbAttrs * sizeof(xmlAttrPtr));
+			xmlAttrPtr * tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, nbAttrs * sizeof(xmlAttr *));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				return ret;
@@ -1060,7 +1052,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 		}
 		ret->nbAttrs = nbAttrs;
 		if(nbAttrs < MAX_ATTR) {
-			memcpy(ret->attrs, attrs, sizeof(xmlAttrPtr) * nbAttrs);
+			memcpy(ret->attrs, attrs, sizeof(xmlAttr *) * nbAttrs);
 		}
 		else {
 			attr = P_Node->properties;
@@ -1112,7 +1104,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 		if(ret->attrs == NULL) {
 			ret->maxAttrs = state->maxAttrs;
 			ret->attrs = (xmlAttrPtr*)SAlloc::M(ret->maxAttrs *
-			    sizeof(xmlAttrPtr));
+			    sizeof(xmlAttr *));
 			if(ret->attrs == NULL) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				ret->nbAttrs = 0;
@@ -1123,7 +1115,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 			xmlAttrPtr * tmp;
 
 			tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, state->maxAttrs *
-			    sizeof(xmlAttrPtr));
+			    sizeof(xmlAttr *));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				ret->nbAttrs = 0;
@@ -1133,7 +1125,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 			ret->attrs = tmp;
 		}
 		memcpy(ret->attrs, state->attrs,
-		    state->nbAttrs * sizeof(xmlAttrPtr));
+		    state->nbAttrs * sizeof(xmlAttr *));
 	}
 	return ret;
 }
@@ -2228,8 +2220,7 @@ static int xmlRelaxNGDefaultTypeCompare(void * data ATTRIBUTE_UNUSED, const xmlC
 }
 
 static int xmlRelaxNGTypeInitialized = 0;
-static xmlHashTablePtr xmlRelaxNGRegisteredTypes = NULL;
-
+static xmlHashTable * xmlRelaxNGRegisteredTypes = NULL;
 /**
  * xmlRelaxNGFreeTypeLibrary:
  * @lib:  the type library structure
@@ -3359,7 +3350,7 @@ static void xmlRelaxNGCheckChoiceDeterminism(xmlRelaxNGParserCtxtPtr ctxt, xmlRe
 	xmlRelaxNGDefinePtr ** list;
 	int nbchild = 0, i, j, ret;
 	int is_indeterminist = 0;
-	xmlHashTablePtr triage = NULL;
+	xmlHashTable * triage = NULL;
 	int is_triable = 1;
 	if(!def || def->type != XML_RELAXNG_CHOICE || def->dflags & IS_PROCESSED)
 		return;
@@ -8711,7 +8702,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			     * doesn't account for choice which may lead to
 			     * only attributes.
 			     */
-			    xmlHashTablePtr triage = (xmlHashTablePtr)define->data;
+			    xmlHashTable * triage = (xmlHashTable *)define->data;
 			    /*
 			     * Something we can optimize cleanly there is only one
 			     * possble branch out !

@@ -6,7 +6,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #define NGX_HTTP_REFERER_NO_URI_PART  ((void*)4)
 

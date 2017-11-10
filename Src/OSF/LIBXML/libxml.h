@@ -111,19 +111,62 @@ int xmlNop(void);
 #if defined(_WIN32) && defined(_MSC_VER)
 	#include <windows.h>
 #endif
-#include <libxml/xmlstring.h>
+//
+//#include <libxml/xmlstring.h>
+//
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*
+ * xmlChar handling
+ */
+XMLPUBFUN xmlChar * XMLCALL xmlStrdup_Removed(const xmlChar * cur);
+XMLPUBFUN xmlChar * XMLCALL xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len);
+XMLPUBFUN xmlChar * XMLCALL xmlCharStrndup(const char * cur, int len);
+XMLPUBFUN xmlChar * XMLCALL xmlCharStrdup(const char * cur);
+XMLPUBFUN xmlChar * XMLCALL xmlStrsub(const xmlChar * str, int start, int len);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrchr(const xmlChar * str, xmlChar val);
+XMLPUBFUN const xmlChar * /*XMLCALL*/FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val);
+XMLPUBFUN const xmlChar * XMLCALL xmlStrcasestr(const xmlChar * str, const xmlChar * val);
+XMLPUBFUN int XMLCALL xmlStrcmp(const xmlChar * str1, const xmlChar * str2);
+XMLPUBFUN int XMLCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len);
+XMLPUBFUN int XMLCALL xmlStrcasecmp(const xmlChar * str1, const xmlChar * str2);
+XMLPUBFUN int XMLCALL xmlStrncasecmp(const xmlChar * str1, const xmlChar * str2, int len);
+//XMLPUBFUN int XMLCALL xmlStrEqual_Removed(const xmlChar * str1, const xmlChar * str2);
+XMLPUBFUN int XMLCALL xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str);
+//XMLPUBFUN int XMLCALL xmlStrlen_Removed(const xmlChar * str);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlStrcat(xmlChar * cur, const xmlChar * add);
+XMLPUBFUN xmlChar * XMLCALL xmlStrncat(xmlChar * cur, const xmlChar * add, int len);
+XMLPUBFUN xmlChar * XMLCALL xmlStrncatNew(const xmlChar * str1, const xmlChar * str2, int len);
+XMLPUBFUN int XMLCALL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg,...);
+XMLPUBFUN int XMLCALL xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap);
+XMLPUBFUN int XMLCALL xmlGetUTF8Char(const uchar * utf, int * len);
+XMLPUBFUN int XMLCALL xmlCheckUTF8(const uchar * utf);
+XMLPUBFUN int XMLCALL xmlUTF8Strsize(const xmlChar * utf, int len);
+XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strndup(const xmlChar * utf, int len);
+XMLPUBFUN const xmlChar * XMLCALL xmlUTF8Strpos(const xmlChar * utf, int pos);
+XMLPUBFUN int XMLCALL xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar);
+XMLPUBFUN xmlChar * XMLCALL xmlUTF8Strsub(const xmlChar * utf, int start, int len);
+XMLPUBFUN int /*XMLCALL*/FASTCALL  xmlUTF8Strlen(const xmlChar * utf);
+XMLPUBFUN int XMLCALL xmlUTF8Size(const xmlChar * utf);
+XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2);
+
+#ifdef __cplusplus
+}
+#endif
+//
 #include <libxml/globals.h>
 #include <libxml/xmlversion.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xmlerror.h>
+#include <libxml/hash.h>
 #include <libxml/tree.h>
 //#include <libxml/uri.h>
-#include <libxml/parser.h>
+#include <libxml/xmlIO.h>
 #include <libxml/list.h>
 #include <libxml/valid.h>
-#include <libxml/hash.h>
+#include <libxml/parser.h>
 #include <libxml/encoding.h>
-#include <libxml/xmlIO.h>
 #include <libxml/parserInternals.h>
 #include <libxml/entities.h>
 #include <libxml/threads.h>
@@ -168,10 +211,14 @@ XMLPUBFUN const xmlChar * XMLCALL xmlDictExists(xmlDict * dict, const xmlChar *n
 XMLPUBFUN const xmlChar * XMLCALL xmlDictQLookup(xmlDict * dict, const xmlChar *prefix, const xmlChar *name);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlDictOwns(xmlDict * pDict, const xmlChar * pStr);
 XMLPUBFUN int XMLCALL xmlDictSize(xmlDict * dict);
+//
+// Descr: Free a string if it is not owned by the "dict" dictionnary in the current scope
+//
+void FASTCALL XmlDestroyStringWithDict(xmlDict * pDict, xmlChar * pStr);
 // 
 // Cleanup function
 //
-XMLPUBFUN void XMLCALL xmlDictCleanup  ();
+XMLPUBFUN void XMLCALL xmlDictCleanup();
 //
 //#include <libxml/uri.h>
 //
@@ -214,10 +261,10 @@ XMLPUBFUN xmlURIPtr XMLCALL xmlParseURIRaw(const char * str, int raw);
 XMLPUBFUN int XMLCALL xmlParseURIReference(xmlURIPtr uri, const char * str);
 XMLPUBFUN xmlChar * XMLCALL xmlSaveUri(xmlURIPtr uri);
 XMLPUBFUN void XMLCALL xmlPrintURI(FILE * stream, xmlURIPtr uri);
-XMLPUBFUN xmlChar * XMLCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
-XMLPUBFUN char * XMLCALL xmlURIUnescapeString(const char * str, int len, char * target);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);
+XMLPUBFUN char * /*XMLCALL*/FASTCALL xmlURIUnescapeString(const char * str, int len, char * target);
 XMLPUBFUN int XMLCALL xmlNormalizeURIPath(char * path);
-XMLPUBFUN xmlChar * XMLCALL xmlURIEscape(const xmlChar * str);
+XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL  xmlURIEscape(const xmlChar * str);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeURI(xmlURI * pUri);
 XMLPUBFUN xmlChar* XMLCALL xmlCanonicPath(const xmlChar * path);
 XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
@@ -227,27 +274,27 @@ XMLPUBFUN xmlChar* XMLCALL xmlPathToURI(const xmlChar * path);
 xmlBuf * xmlBufCreate();
 xmlBuf * FASTCALL xmlBufCreateSize(size_t size);
 xmlBuf * FASTCALL xmlBufCreateStatic(void * mem, size_t size);
-int FASTCALL xmlBufSetAllocationScheme(xmlBuf * buf, xmlBufferAllocationScheme scheme);
-int FASTCALL xmlBufGetAllocationScheme(xmlBuf * buf);
-void FASTCALL xmlBufFree(xmlBuf * buf);
-void FASTCALL xmlBufEmpty(xmlBuf * buf);
+int    FASTCALL xmlBufSetAllocationScheme(xmlBuf * buf, xmlBufferAllocationScheme scheme);
+int    FASTCALL xmlBufGetAllocationScheme(xmlBuf * buf);
+void   FASTCALL xmlBufFree(xmlBuf * buf);
+void   FASTCALL xmlBufEmpty(xmlBuf * buf);
 // size_t xmlBufShrink(xmlBufPtr buf, size_t len); 
-int FASTCALL xmlBufGrow(xmlBuf * buf, int len);
-int FASTCALL xmlBufInflate(xmlBuf * buf, size_t len);
-int FASTCALL xmlBufResize(xmlBuf * buf, size_t len);
-int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len);
-int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len);
-int FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str);
-int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str);
-int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string);
-int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string);
-int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string);
+int    FASTCALL xmlBufGrow(xmlBuf * buf, int len);
+int    FASTCALL xmlBufInflate(xmlBuf * buf, size_t len);
+int    FASTCALL xmlBufResize(xmlBuf * buf, size_t len);
+int    FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len);
+int    xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len);
+int    FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str);
+int    FASTCALL xmlBufCCat(xmlBuf * buf, const char * str);
+int    FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string);
+int    FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string);
+int    FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string);
 size_t FASTCALL xmlBufAvail(xmlBuf * buf);
 size_t FASTCALL xmlBufLength(xmlBuf * buf);
 // size_t xmlBufUse(const xmlBufPtr buf); 
-int FASTCALL xmlBufIsEmpty(xmlBuf * buf);
-int FASTCALL xmlBufAddLen(xmlBuf * buf, size_t len);
-int FASTCALL xmlBufErase(xmlBuf * buf, size_t len);
+int    FASTCALL xmlBufIsEmpty(xmlBuf * buf);
+int    FASTCALL xmlBufAddLen(xmlBuf * buf, size_t len);
+int    FASTCALL xmlBufErase(xmlBuf * buf, size_t len);
 // const xmlChar * xmlBufContent(const xmlBuf *buf); 
 // const xmlChar * xmlBufEnd(xmlBufPtr buf); 
 xmlChar * FASTCALL xmlBufDetach(xmlBuf * pBuf);
@@ -266,6 +313,86 @@ int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len);
 int xmlCharEncInput(xmlParserInputBufferPtr input, int flush);
 int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 //
+#ifdef LIBXML_CATALOG_ENABLED
+	//
+	//#include <libxml/catalog.h>
+	//
+	#define XML_CATALOGS_NAMESPACE (const xmlChar*)"urn:oasis:names:tc:entity:xmlns:xml:catalog" // The namespace for the XML Catalogs elements
+	#define XML_CATALOG_PI         (const xmlChar*)"oasis-xml-catalog" // The specific XML Catalog Processing Instuction name.
+	// 
+	// The API is voluntarily limited to general cataloging.
+	// 
+	typedef enum {
+		XML_CATA_PREFER_NONE = 0,
+		XML_CATA_PREFER_PUBLIC = 1,
+		XML_CATA_PREFER_SYSTEM
+	} xmlCatalogPrefer;
+
+	typedef enum {
+		XML_CATA_ALLOW_NONE = 0,
+		XML_CATA_ALLOW_GLOBAL = 1,
+		XML_CATA_ALLOW_DOCUMENT = 2,
+		XML_CATA_ALLOW_ALL = 3
+	} xmlCatalogAllow;
+
+	typedef struct _xmlCatalog xmlCatalog;
+	typedef xmlCatalog * xmlCatalogPtr;
+	// 
+	// Operations on a given catalog.
+	// 
+	XMLPUBFUN xmlCatalogPtr XMLCALL xmlNewCatalog(int sgml);
+	XMLPUBFUN xmlCatalogPtr XMLCALL xmlLoadACatalog(const char * filename);
+	XMLPUBFUN xmlCatalogPtr XMLCALL xmlLoadSGMLSuperCatalog(const char * filename);
+	XMLPUBFUN int XMLCALL xmlConvertSGMLCatalog(xmlCatalogPtr catal);
+	XMLPUBFUN int XMLCALL xmlACatalogAdd(xmlCatalogPtr catal, const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
+	XMLPUBFUN int XMLCALL xmlACatalogRemove(xmlCatalogPtr catal, const xmlChar * value);
+	XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolve(xmlCatalogPtr catal, const xmlChar * pubID, const xmlChar * sysID);
+	XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolveSystem(xmlCatalogPtr catal, const xmlChar * sysID);
+	XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolvePublic(xmlCatalogPtr catal, const xmlChar * pubID);
+	XMLPUBFUN xmlChar * XMLCALL xmlACatalogResolveURI(xmlCatalogPtr catal, const xmlChar * URI);
+	#ifdef LIBXML_OUTPUT_ENABLED
+		XMLPUBFUN void XMLCALL xmlACatalogDump(xmlCatalogPtr catal, FILE * out);
+	#endif
+	XMLPUBFUN void XMLCALL xmlFreeCatalog(xmlCatalogPtr catal);
+	XMLPUBFUN int XMLCALL xmlCatalogIsEmpty(xmlCatalogPtr catal);
+	// 
+	// Global operations.
+	// 
+	XMLPUBFUN void XMLCALL xmlInitializeCatalog();
+	XMLPUBFUN int XMLCALL xmlLoadCatalog(const char * filename);
+	XMLPUBFUN void XMLCALL xmlLoadCatalogs(const char * paths);
+	XMLPUBFUN void XMLCALL xmlCatalogCleanup();
+	#ifdef LIBXML_OUTPUT_ENABLED
+		XMLPUBFUN void XMLCALL xmlCatalogDump(FILE * out);
+	#endif
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolve(const xmlChar * pubID, const xmlChar * sysID);
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolveSystem(const xmlChar * sysID);
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolvePublic(const xmlChar * pubID);
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolveURI(const xmlChar * URI);
+	XMLPUBFUN int XMLCALL xmlCatalogAdd(const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
+	XMLPUBFUN int XMLCALL xmlCatalogRemove(const xmlChar * value);
+	XMLPUBFUN xmlDocPtr XMLCALL xmlParseCatalogFile(const char * filename);
+	XMLPUBFUN int XMLCALL xmlCatalogConvert();
+	// 
+	// Strictly minimal interfaces for per-document catalogs used by the parser.
+	// 
+	XMLPUBFUN void XMLCALL xmlCatalogFreeLocal(void * catalogs);
+	XMLPUBFUN void * XMLCALL xmlCatalogAddLocal(void * catalogs, const xmlChar * URL);
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogLocalResolve(void * catalogs, const xmlChar * pubID, const xmlChar * sysID);
+	XMLPUBFUN xmlChar * XMLCALL xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI);
+	// 
+	// Preference settings.
+	// 
+	XMLPUBFUN int XMLCALL xmlCatalogSetDebug(int level);
+	XMLPUBFUN xmlCatalogPrefer XMLCALL xmlCatalogSetDefaultPrefer(xmlCatalogPrefer prefer);
+	XMLPUBFUN void XMLCALL xmlCatalogSetDefaults(xmlCatalogAllow allow);
+	XMLPUBFUN xmlCatalogAllow XMLCALL xmlCatalogGetDefaults();
+	// 
+	// DEPRECATED interfaces 
+	// 
+	XMLPUBFUN const xmlChar * XMLCALL xmlCatalogGetSystem(const xmlChar * sysID);
+	XMLPUBFUN const xmlChar * XMLCALL xmlCatalogGetPublic(const xmlChar * pubID);
+#endif
 #ifdef __cplusplus
 }
 #endif

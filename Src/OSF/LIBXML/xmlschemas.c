@@ -50,7 +50,6 @@
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-//#include <libxml/parserInternals.h>
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>
@@ -477,9 +476,8 @@ struct _xmlSchemaConstructionCtxt {
 	xmlSchemaItemListPtr buckets; /* List of schema buckets. */
 	/* xmlSchemaItemListPtr relations; */ /* List of schema relations. */
 	xmlSchemaBucketPtr bucket; /* The current schema bucket */
-	xmlSchemaItemListPtr pending; /* All Components of all schemas that
-	                                 need to be fixed. */
-	xmlHashTablePtr substGroups;
+	xmlSchemaItemListPtr pending; // All Components of all schemas that need to be fixed. 
+	xmlHashTable * substGroups;
 	xmlSchemaRedefPtr redefs;
 	xmlSchemaRedefPtr lastRedef;
 };
@@ -1587,7 +1585,7 @@ static void xmlSchemaPSimpleErr(const char * msg)
  *
  * Handle an out of memory condition
  */
-static void xmlSchemaPErrMemory(xmlSchemaParserCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
+static void FASTCALL xmlSchemaPErrMemory(xmlSchemaParserCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
 {
 	if(ctxt)
 		ctxt->nberrors++;
@@ -1685,7 +1683,7 @@ static void xmlSchemaPErrExt(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int 
  *
  * Handle an out of memory condition
  */
-static void xmlSchemaVErrMemory(xmlSchemaValidCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
+static void FASTCALL xmlSchemaVErrMemory(xmlSchemaValidCtxtPtr ctxt, const char * extra, xmlNode * P_Node)
 {
 	if(ctxt) {
 		ctxt->nberrors++;
@@ -10527,12 +10525,10 @@ static int xmlSchemaBuildContentModelForSubstGroup(xmlSchemaParserCtxtPtr pctxt,
 	 * Wrap the substitution group with a CHOICE.
 	 */
 	start = pctxt->state;
-	if(end == NULL)
-		end = xmlAutomataNewState(pctxt->am);
+	SETIFZ(end, xmlAutomataNewState(pctxt->am));
 	substGroup = xmlSchemaSubstGroupGet(pctxt, elemDecl);
 	if(substGroup == NULL) {
-		xmlSchemaPErr(pctxt, WXS_ITEM_NODE(particle),
-		    XML_SCHEMAP_INTERNAL,
+		xmlSchemaPErr(pctxt, WXS_ITEM_NODE(particle), XML_SCHEMAP_INTERNAL,
 		    "Internal error: xmlSchemaBuildContentModelForSubstGroup, "
 		    "declaration is marked having a subst. group but none "
 		    "available.\n", elemDecl->name, 0);
@@ -10546,25 +10542,20 @@ static int xmlSchemaBuildContentModelForSubstGroup(xmlSchemaParserCtxtPtr pctxt,
 		 * declaration.
 		 */
 		tmp = xmlAutomataNewCountedTrans(pctxt->am, start, NULL, counter);
-		xmlAutomataNewTransition2(pctxt->am, tmp, end,
-		    elemDecl->name, elemDecl->targetNamespace, elemDecl);
+		xmlAutomataNewTransition2(pctxt->am, tmp, end, elemDecl->name, elemDecl->targetNamespace, elemDecl);
 		/*
 		 * Add subst. group members.
 		 */
 		for(i = 0; i < substGroup->members->nbItems; i++) {
 			member = (xmlSchemaElementPtr)substGroup->members->items[i];
-			xmlAutomataNewTransition2(pctxt->am, tmp, end,
-			    member->name, member->targetNamespace, member);
+			xmlAutomataNewTransition2(pctxt->am, tmp, end, member->name, member->targetNamespace, member);
 		}
 	}
 	else if(particle->maxOccurs == 1) {
 		/*
 		 * NOTE that we put the declaration in, even if it's abstract,
 		 */
-		xmlAutomataNewEpsilon(pctxt->am,
-		    xmlAutomataNewTransition2(pctxt->am,
-			    start, NULL,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl), end);
+		xmlAutomataNewEpsilon(pctxt->am, xmlAutomataNewTransition2(pctxt->am, start, NULL, elemDecl->name, elemDecl->targetNamespace, elemDecl), end);
 		/*
 		 * Add subst. group members.
 		 */
@@ -10590,30 +10581,17 @@ static int xmlSchemaBuildContentModelForSubstGroup(xmlSchemaParserCtxtPtr pctxt,
 	}
 	else {
 		xmlAutomataStatePtr hop;
-		int maxOccurs = particle->maxOccurs == UNBOUNDED ?
-		    UNBOUNDED : particle->maxOccurs - 1;
+		int maxOccurs = particle->maxOccurs == UNBOUNDED ? UNBOUNDED : particle->maxOccurs - 1;
 		int minOccurs = particle->minOccurs < 1 ? 0 : particle->minOccurs - 1;
-
-		counter =
-		    xmlAutomataNewCounter(pctxt->am, minOccurs,
-		    maxOccurs);
+		counter = xmlAutomataNewCounter(pctxt->am, minOccurs, maxOccurs);
 		hop = xmlAutomataNewState(pctxt->am);
-
-		xmlAutomataNewEpsilon(pctxt->am,
-		    xmlAutomataNewTransition2(pctxt->am,
-			    start, NULL,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl),
-		    hop);
+		xmlAutomataNewEpsilon(pctxt->am, xmlAutomataNewTransition2(pctxt->am, start, NULL, elemDecl->name, elemDecl->targetNamespace, elemDecl), hop);
 		/*
 		 * Add subst. group members.
 		 */
 		for(i = 0; i < substGroup->members->nbItems; i++) {
 			member = (xmlSchemaElementPtr)substGroup->members->items[i];
-			xmlAutomataNewEpsilon(pctxt->am,
-			    xmlAutomataNewTransition2(pctxt->am,
-				    start, NULL,
-				    member->name, member->targetNamespace, member),
-			    hop);
+			xmlAutomataNewEpsilon(pctxt->am, xmlAutomataNewTransition2(pctxt->am, start, NULL, member->name, member->targetNamespace, member), hop);
 		}
 		xmlAutomataNewCountedTrans(pctxt->am, hop, start, counter);
 		xmlAutomataNewCounterTrans(pctxt->am, hop, end, counter);
@@ -10631,54 +10609,39 @@ static int xmlSchemaBuildContentModelForSubstGroup(xmlSchemaParserCtxtPtr pctxt,
  *
  * Returns 1 if nillable, 0 otherwise
  */
-static int xmlSchemaBuildContentModelForElement(xmlSchemaParserCtxtPtr ctxt,
-    xmlSchemaParticlePtr particle)
+static int xmlSchemaBuildContentModelForElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaParticlePtr particle)
 {
 	int ret = 0;
-
-	if(((xmlSchemaElementPtr)particle->children)->flags &
-	    XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD) {
+	if(((xmlSchemaElementPtr)particle->children)->flags & XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD) {
 		/*
 		 * Substitution groups.
 		 */
 		ret = xmlSchemaBuildContentModelForSubstGroup(ctxt, particle, -1, 0);
 	}
 	else {
-		xmlSchemaElementPtr elemDecl;
 		xmlAutomataStatePtr start;
-
-		elemDecl = (xmlSchemaElementPtr)particle->children;
-
+		xmlSchemaElementPtr elemDecl = (xmlSchemaElementPtr)particle->children;
 		if(elemDecl->flags & XML_SCHEMAS_ELEM_ABSTRACT)
 			return 0;
 		if(particle->maxOccurs == 1) {
 			start = ctxt->state;
-			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl);
+			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL, elemDecl->name, elemDecl->targetNamespace, elemDecl);
 		}
-		else if((particle->maxOccurs >= UNBOUNDED) &&
-		    (particle->minOccurs < 2)) {
+		else if((particle->maxOccurs >= UNBOUNDED) && (particle->minOccurs < 2)) {
 			/* Special case. */
 			start = ctxt->state;
-			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl);
-			ctxt->state = xmlAutomataNewTransition2(ctxt->am, ctxt->state, ctxt->state,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl);
+			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL, elemDecl->name, elemDecl->targetNamespace, elemDecl);
+			ctxt->state = xmlAutomataNewTransition2(ctxt->am, ctxt->state, ctxt->state, elemDecl->name, elemDecl->targetNamespace, elemDecl);
 		}
 		else {
 			int counter;
-			int maxOccurs = particle->maxOccurs == UNBOUNDED ?
-			    UNBOUNDED : particle->maxOccurs - 1;
-			int minOccurs = particle->minOccurs < 1 ?
-			    0 : particle->minOccurs - 1;
-
+			int maxOccurs = particle->maxOccurs == UNBOUNDED ? UNBOUNDED : particle->maxOccurs - 1;
+			int minOccurs = particle->minOccurs < 1 ? 0 : particle->minOccurs - 1;
 			start = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
 			counter = xmlAutomataNewCounter(ctxt->am, minOccurs, maxOccurs);
-			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL,
-			    elemDecl->name, elemDecl->targetNamespace, elemDecl);
+			ctxt->state = xmlAutomataNewTransition2(ctxt->am, start, NULL, elemDecl->name, elemDecl->targetNamespace, elemDecl);
 			xmlAutomataNewCountedTrans(ctxt->am, ctxt->state, start, counter);
-			ctxt->state = xmlAutomataNewCounterTrans(ctxt->am, ctxt->state,
-			    NULL, counter);
+			ctxt->state = xmlAutomataNewCounterTrans(ctxt->am, ctxt->state, NULL, counter);
 		}
 		if(particle->minOccurs == 0) {
 			xmlAutomataNewEpsilon(ctxt->am, start, ctxt->state);
@@ -17520,15 +17483,10 @@ static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketP
 {
 	xmlSchemaBasicItem * item;
 	int err;
-	xmlHashTablePtr * table;
+	xmlHashTable ** table;
 	const xmlChar * name;
 	int i;
-#define WXS_GET_GLOBAL_HASH(c, slot) { \
-		if(WXS_IS_BUCKET_IMPMAIN((c)->type)) \
-			table = &(WXS_IMPBUCKET((c))->schema->slot); \
-		else \
-			table = &(WXS_INCBUCKET((c))->ownerImport->schema->slot); }
-
+#define WXS_GET_GLOBAL_HASH(c, slot) { table = (WXS_IS_BUCKET_IMPMAIN((c)->type)) ? &(WXS_IMPBUCKET((c))->schema->slot) : &(WXS_INCBUCKET((c))->ownerImport->schema->slot); }
 	/*
 	 * Add global components to the schema's hash tables.
 	 * This is the place where duplicate components will be
@@ -24036,7 +23994,7 @@ static void entityDeclSplit(void * ctx, const xmlChar * name, int type, const xm
 		ctxt->user_sax->entityDecl(ctxt->user_data, name, type, publicId, systemId, content);
 }
 
-static void attributeDeclSplit(void * ctx, const xmlChar * elem, const xmlChar * name, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree)
+static void attributeDeclSplit(void * ctx, const xmlChar * elem, const xmlChar * name, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && ctxt->user_sax->attributeDecl)

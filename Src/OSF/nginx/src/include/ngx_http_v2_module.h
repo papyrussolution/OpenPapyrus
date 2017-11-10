@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 
 struct ngx_http_v2_main_conf_t {
 	size_t recv_buffer_size;

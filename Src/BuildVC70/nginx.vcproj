@@ -2736,9 +2736,6 @@
 				RelativePath="..\Osf\nginx\src\include\ngx_core.h">
 			</File>
 			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_http.h">
-			</File>
-			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_http_cache.h">
 			</File>
 			<File
@@ -2773,15 +2770,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\nginx\src\include\ngx_mail_ssl_module.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_md5.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_sha1.h">
-			</File>
-			<File
-				RelativePath="..\Osf\nginx\src\include\ngx_times.h">
 			</File>
 		</Filter>
 		<Filter

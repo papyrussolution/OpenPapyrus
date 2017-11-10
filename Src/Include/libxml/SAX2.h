@@ -34,7 +34,7 @@ XMLPUBFUN xmlEntityPtr XMLCALL xmlSAX2GetEntity(void * ctx, const xmlChar * name
 XMLPUBFUN xmlEntityPtr XMLCALL xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name);
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId);
 XMLPUBFUN void XMLCALL xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
-XMLPUBFUN void XMLCALL xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumerationPtr tree);
+XMLPUBFUN void XMLCALL xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree);
 XMLPUBFUN void XMLCALL xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content);
 XMLPUBFUN void XMLCALL xmlSAX2NotationDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId);
 XMLPUBFUN void XMLCALL xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId, const xmlChar * notationName);

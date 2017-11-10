@@ -33,6 +33,9 @@
  * Include configuration script results or hand-crafted
  * configuration file for platforms which lack config tool.
  */
+#define USE_LIBSSH2 // @sobolev
+#define HAVE_LIBSSH2_H
+#define LIBSSH2_VERSION_NUM 0x010801
 #ifdef HAVE_CONFIG_H
 	#include "curl_config.h"
 #else /* HAVE_CONFIG_H */

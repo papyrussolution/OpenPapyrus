@@ -237,53 +237,36 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 #ifndef NO_FILESYSTEM
 	/* load trusted cacert */
 	if(SSL_CONN_CONFIG(CAfile)) {
-		if(1 != SSL_CTX_load_verify_locations(conssl->ctx,
-			    SSL_CONN_CONFIG(CAfile),
-			    SSL_CONN_CONFIG(CApath))) {
+		if(1 != SSL_CTX_load_verify_locations(conssl->ctx, SSL_CONN_CONFIG(CAfile), SSL_CONN_CONFIG(CApath))) {
 			if(SSL_CONN_CONFIG(verifypeer)) {
 				/* Fail if we insist on successfully verifying the server. */
-				failf(data, "error setting certificate verify locations:\n"
-				    "  CAfile: %s\n  CApath: %s",
-				    SSL_CONN_CONFIG(CAfile) ?
-				    SSL_CONN_CONFIG(CAfile) : "none",
-				    SSL_CONN_CONFIG(CApath) ?
-				    SSL_CONN_CONFIG(CApath) : "none");
+				failf(data, "error setting certificate verify locations:\n  CAfile: %s\n  CApath: %s",
+				    SSL_CONN_CONFIG(CAfile) ? SSL_CONN_CONFIG(CAfile) : "none", SSL_CONN_CONFIG(CApath) ? SSL_CONN_CONFIG(CApath) : "none");
 				return CURLE_SSL_CACERT_BADFILE;
 			}
 			else {
 				/* Just continue with a warning if no strict certificate
 				   verification is required. */
-				infof(data, "error setting certificate verify locations,"
-				    " continuing anyway:\n");
+				infof(data, "error setting certificate verify locations, continuing anyway:\n");
 			}
 		}
 		else {
 			/* Everything is fine. */
 			infof(data, "successfully set certificate verify locations:\n");
 		}
-		infof(data,
-		    "  CAfile: %s\n"
-		    "  CApath: %s\n",
-		    SSL_CONN_CONFIG(CAfile) ? SSL_CONN_CONFIG(CAfile) :
-		    "none",
-		    SSL_CONN_CONFIG(CApath) ? SSL_CONN_CONFIG(CApath) :
-		    "none");
+		infof(data, "  CAfile: %s\n  CApath: %s\n", SSL_CONN_CONFIG(CAfile) ? SSL_CONN_CONFIG(CAfile) : "none",
+		    SSL_CONN_CONFIG(CApath) ? SSL_CONN_CONFIG(CApath) : "none");
 	}
 
 	/* Load the client certificate, and private key */
 	if(SSL_SET_OPTION(cert) && SSL_SET_OPTION(key)) {
 		int file_type = do_file_type(SSL_SET_OPTION(cert_type));
-
-		if(SSL_CTX_use_certificate_file(conssl->ctx, SSL_SET_OPTION(cert),
-			    file_type) != 1) {
-			failf(data, "unable to use client certificate (no key or wrong pass"
-			    " phrase?)");
+		if(SSL_CTX_use_certificate_file(conssl->ctx, SSL_SET_OPTION(cert), file_type) != 1) {
+			failf(data, "unable to use client certificate (no key or wrong pass phrase?)");
 			return CURLE_SSL_CONNECT_ERROR;
 		}
-
 		file_type = do_file_type(SSL_SET_OPTION(key_type));
-		if(SSL_CTX_use_PrivateKey_file(conssl->ctx, SSL_SET_OPTION(key),
-			    file_type) != 1) {
+		if(SSL_CTX_use_PrivateKey_file(conssl->ctx, SSL_SET_OPTION(key), file_type) != 1) {
 			failf(data, "unable to set private key");
 			return CURLE_SSL_CONNECT_ERROR;
 		}
@@ -294,18 +277,12 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 	 * fail to connect if the verification fails, or if it should continue
 	 * anyway. In the latter case the result of the verification is checked with
 	 * SSL_get_verify_result() below. */
-	SSL_CTX_set_verify(conssl->ctx,
-	    SSL_CONN_CONFIG(verifypeer) ? SSL_VERIFY_PEER :
-	    SSL_VERIFY_NONE,
-	    NULL);
-
+	SSL_CTX_set_verify(conssl->ctx, SSL_CONN_CONFIG(verifypeer) ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, NULL);
 #ifdef HAVE_SNI
 	if(sni) {
 		struct in_addr addr4;
-
 #ifdef ENABLE_IPV6
 		struct in6_addr addr6;
-
 #endif
 		const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 		size_t hostname_len = strlen(hostname);
@@ -349,7 +326,6 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 		return CURLE_SSL_CONNECT_ERROR;
 	}
 #endif
-
 	/* Let's make an SSL structure */
 	if(conssl->handle)
 		SSL_free(conssl->handle);
@@ -358,7 +334,6 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 		failf(data, "SSL: couldn't create a context (handle)!");
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 #ifdef HAVE_ALPN
 	if(conn->bits.tls_enable_alpn) {
 		char protocols[128];
@@ -554,25 +529,19 @@ static CURLcode cyassl_connect_step2(struct connectdata * conn, int sockindex)
 
 	conssl->connecting_state = ssl_connect_3;
 #if (LIBCYASSL_VERSION_HEX >= 0x03009010)
-	infof(data, "SSL connection using %s / %s\n",
-	    wolfSSL_get_version(conssl->handle),
-	    wolfSSL_get_cipher_name(conssl->handle));
+	infof(data, "SSL connection using %s / %s\n", wolfSSL_get_version(conssl->handle), wolfSSL_get_cipher_name(conssl->handle));
 #else
 	infof(data, "SSL connected\n");
 #endif
-
 	return CURLE_OK;
 }
 
-static CURLcode cyassl_connect_step3(struct connectdata * conn,
-    int sockindex)
+static CURLcode cyassl_connect_step3(struct connectdata * conn, int sockindex)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data * connssl = &conn->ssl[sockindex];
-
 	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-
 	if(SSL_SET_OPTION(primary.sessionid)) {
 		bool incache;
 		SSL_SESSION * our_ssl_sessionid;

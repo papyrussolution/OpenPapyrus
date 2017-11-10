@@ -38,27 +38,9 @@
 #else
 	#define XML_DIR_SEP '/'
 #endif
-//#include <libxml/threads.h>
-//#include <libxml/parserInternals.h>
-//#include <libxml/entities.h>
-#ifdef LIBXML_CATALOG_ENABLED
-	#include <libxml/catalog.h>
-#endif
 #ifdef LIBXML_SCHEMAS_ENABLED
 	#include <libxml/xmlschemastypes.h>
 	#include <libxml/relaxng.h>
-#endif
-#ifdef HAVE_CTYPE_H
-	//#include <ctype.h>
-#endif
-#ifdef HAVE_STDLIB_H
-	//#include <stdlib.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
 #endif
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
@@ -70,7 +52,7 @@
 	#include <lzma.h>
 #endif
 
-static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info);
+static void FASTCALL xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info);
 static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxtPtr pctx);
 
 /************************************************************************
@@ -241,7 +223,7 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity);
  *
  * Handle a redefinition of attribute error
  */
-static void xmlErrAttributeDup(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * localname)
+static void FASTCALL xmlErrAttributeDup(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * localname)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -267,7 +249,7 @@ static void xmlErrAttributeDup(xmlParserCtxt * ctxt, const xmlChar * prefix, con
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info)
+static void FASTCALL xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info)
 {
 	const char * errmsg;
 	char errstr[129] = "";
@@ -357,7 +339,7 @@ static void xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char 
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg)
+static void FASTCALL xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg)
 {
 	if(ctxt && ctxt->disableSAX && ctxt->instate == XML_PARSER_EOF)
 		return;
@@ -380,7 +362,7 @@ static void xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const ch
  *
  * Handle a warning.
  */
-static void xmlWarningMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlWarningMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
@@ -408,7 +390,7 @@ static void xmlWarningMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const cha
  *
  * Handle a validity error.
  */
-static void xmlValidityError(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void FASTCALL xmlValidityError(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
@@ -437,7 +419,7 @@ static void xmlValidityError(xmlParserCtxt * ctxt, xmlParserErrors error, const 
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsgInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
+static void FASTCALL xmlFatalErrMsgInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
 		if(ctxt)
@@ -461,7 +443,7 @@ static void xmlFatalErrMsgInt(xmlParserCtxt * ctxt, xmlParserErrors error, const
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsgStrIntStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, int val, const xmlChar * str2)
+static void FASTCALL xmlFatalErrMsgStrIntStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, int val, const xmlChar * str2)
 {
 	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
 		if(ctxt)
@@ -474,7 +456,6 @@ static void xmlFatalErrMsgStrIntStr(xmlParserCtxt * ctxt, xmlParserErrors error,
 		}
 	}
 }
-
 /**
  * xmlFatalErrMsgStr:
  * @ctxt:  an XML parser context
@@ -484,7 +465,7 @@ static void xmlFatalErrMsgStrIntStr(xmlParserCtxt * ctxt, xmlParserErrors error,
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlFatalErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * val)
+static void FASTCALL xmlFatalErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * val)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -497,7 +478,6 @@ static void xmlFatalErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const
 			ctxt->disableSAX = 1;
 	}
 }
-
 /**
  * xmlErrMsgStr:
  * @ctxt:  an XML parser context
@@ -507,7 +487,7 @@ static void xmlFatalErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const
  *
  * Handle a non fatal parser error
  */
-static void xmlErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * val)
+static void FASTCALL xmlErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * val)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -515,7 +495,6 @@ static void xmlErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char
 		ctxt->errNo = error;
 	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_ERROR, NULL, 0, (const char*)val, NULL, NULL, 0, 0, msg, val);
 }
-
 /**
  * xmlNsErr:
  * @ctxt:  an XML parser context
@@ -526,7 +505,7 @@ static void xmlErrMsgStr(xmlParserCtxt * ctxt, xmlParserErrors error, const char
  *
  * Handle a fatal parser error, i.e. violating Well-Formedness constraints
  */
-static void xmlNsErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * info1, const xmlChar * info2, const xmlChar * info3)
+static void FASTCALL xmlNsErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * info1, const xmlChar * info2, const xmlChar * info3)
 {
 	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
 		return;
@@ -536,7 +515,6 @@ static void xmlNsErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * m
 	if(ctxt)
 		ctxt->nsWellFormed = 0;
 }
-
 /**
  * xmlNsWarn
  * @ctxt:  an XML parser context
@@ -1719,10 +1697,7 @@ static void FASTCALL xmlGROW(xmlParserCtxt * ctxt)
 
 #define CUR_CHAR(l) xmlCurrentChar(ctxt, &l)
 #define CUR_SCHAR(s, l) xmlStringCurrentChar(ctxt, s, &l)
-
-#define COPY_BUF(l, b, i, v)						   \
-	if(l == 1) b[i++] = (xmlChar)v;					  \
-	else i += xmlCopyCharMultiByte(&b[i], v)
+#define COPY_BUF(l, b, i, v) if(l == 1) b[i++] = (xmlChar)v; else i += xmlCopyCharMultiByte(&b[i], v)
 
 /**
  * xmlSkipBlankChars:
@@ -5062,10 +5037,13 @@ int xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value)
  * Returns: the notation attribute tree built while parsing
  */
 
-xmlEnumerationPtr xmlParseNotationType(xmlParserCtxt * ctxt)
+xmlEnumeration * xmlParseNotationType(xmlParserCtxt * ctxt)
 {
 	const xmlChar * name;
-	xmlEnumerationPtr ret = NULL, last = NULL, cur, tmp;
+	xmlEnumeration * ret = NULL;
+	xmlEnumeration * last = NULL;
+	xmlEnumeration * cur;
+	xmlEnumeration * tmp;
 	if(RAW != '(') {
 		xmlFatalErr(ctxt, XML_ERR_NOTATION_NOT_STARTED, 0);
 		return 0;
@@ -5126,11 +5104,13 @@ xmlEnumerationPtr xmlParseNotationType(xmlParserCtxt * ctxt)
  *
  * Returns: the enumeration attribute tree built while parsing
  */
-
-xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxt * ctxt)
+xmlEnumeration * xmlParseEnumerationType(xmlParserCtxt * ctxt)
 {
 	xmlChar * name;
-	xmlEnumerationPtr ret = NULL, last = NULL, cur, tmp;
+	xmlEnumeration * ret = NULL;
+	xmlEnumeration * last = NULL;
+	xmlEnumeration * cur;
+	xmlEnumeration * tmp;
 	if(RAW != '(') {
 		xmlFatalErr(ctxt, XML_ERR_ATTLIST_NOT_STARTED, 0);
 		return 0;
@@ -5197,7 +5177,7 @@ xmlEnumerationPtr xmlParseEnumerationType(xmlParserCtxt * ctxt)
  * Returns: XML_ATTRIBUTE_ENUMERATION or XML_ATTRIBUTE_NOTATION
  */
 
-int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumerationPtr * tree)
+int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree)
 {
 	const xmlChar * p__cp = CUR_PTR;
 	if(CMP8(p__cp, 'N', 'O', 'T', 'A', 'T', 'I', 'O', 'N')) {
@@ -5263,7 +5243,7 @@ int xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumerationPtr * tree)
  *
  * Returns the attribute type
  */
-int xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumerationPtr * tree)
+int xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree)
 {
 	SHRINK;
 	const xmlChar * p__cp = CUR_PTR;
@@ -5318,7 +5298,7 @@ void xmlParseAttributeListDecl(xmlParserCtxt * ctxt)
 {
 	const xmlChar * elemName;
 	const xmlChar * attrName;
-	xmlEnumerationPtr tree;
+	xmlEnumeration * tree;
 	if(CMP9(CUR_PTR, '<', '!', 'A', 'T', 'T', 'L', 'I', 'S', 'T')) {
 		xmlParserInputPtr input = ctxt->input;
 		SKIP(9);
@@ -13094,13 +13074,11 @@ void xmlCleanupParser()
 ************************************************************************/
 
 /**
- * DICT_FREE:
  * @str:  a string
  *
  * Free a string if it is not owned by the "dict" dictionnary in the current scope
  */
-#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
-
+//#define DICT_FREE(str) if((str) && ((!dict) || (xmlDictOwns(dict, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
 /**
  * xmlCtxtReset:
  * @ctxt: an XML parser context
@@ -13129,15 +13107,15 @@ void xmlCtxtReset(xmlParserCtxt * ctxt)
 		ctxt->P_Node = NULL;
 		ctxt->nameNr = 0;
 		ctxt->name = NULL;
-		DICT_FREE(ctxt->version);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->version); // @badcast
 		ctxt->version = NULL;
-		DICT_FREE(ctxt->encoding);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->encoding); // @badcast
 		ctxt->encoding = NULL;
-		DICT_FREE(ctxt->directory);
+		XmlDestroyStringWithDict(dict, (xmlChar *)ctxt->directory); // @badcast
 		ctxt->directory = NULL;
-		DICT_FREE(ctxt->extSubURI);
+		XmlDestroyStringWithDict(dict, ctxt->extSubURI);
 		ctxt->extSubURI = NULL;
-		DICT_FREE(ctxt->extSubSystem);
+		XmlDestroyStringWithDict(dict, ctxt->extSubSystem);
 		ctxt->extSubSystem = NULL;
 		xmlFreeDoc(ctxt->myDoc);
 		ctxt->myDoc = NULL;

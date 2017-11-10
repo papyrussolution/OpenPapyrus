@@ -112,33 +112,33 @@ err:
 
 void RSA_free(RSA * r)
 {
-	int i;
-	if(r == NULL)
-		return;
-	CRYPTO_atomic_add(&r->references, -1, &i, r->lock);
-	REF_PRINT_COUNT("RSA", r);
-	if(i > 0)
-		return;
-	REF_ASSERT_ISNT(i < 0);
-	if(r->meth->finish)
-		r->meth->finish(r);
+	if(r) {
+		int i;
+		CRYPTO_atomic_add(&r->references, -1, &i, r->lock);
+		REF_PRINT_COUNT("RSA", r);
+		if(i > 0)
+			return;
+		REF_ASSERT_ISNT(i < 0);
+		if(r->meth->finish)
+			r->meth->finish(r);
 #ifndef OPENSSL_NO_ENGINE
-	ENGINE_finish(r->engine);
+		ENGINE_finish(r->engine);
 #endif
-	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_RSA, r, &r->ex_data);
-	CRYPTO_THREAD_lock_free(r->lock);
-	BN_clear_free(r->n);
-	BN_clear_free(r->e);
-	BN_clear_free(r->d);
-	BN_clear_free(r->p);
-	BN_clear_free(r->q);
-	BN_clear_free(r->dmp1);
-	BN_clear_free(r->dmq1);
-	BN_clear_free(r->iqmp);
-	BN_BLINDING_free(r->blinding);
-	BN_BLINDING_free(r->mt_blinding);
-	OPENSSL_free(r->bignum_data);
-	OPENSSL_free(r);
+		CRYPTO_free_ex_data(CRYPTO_EX_INDEX_RSA, r, &r->ex_data);
+		CRYPTO_THREAD_lock_free(r->lock);
+		BN_clear_free(r->n);
+		BN_clear_free(r->e);
+		BN_clear_free(r->d);
+		BN_clear_free(r->p);
+		BN_clear_free(r->q);
+		BN_clear_free(r->dmp1);
+		BN_clear_free(r->dmq1);
+		BN_clear_free(r->iqmp);
+		BN_BLINDING_free(r->blinding);
+		BN_BLINDING_free(r->mt_blinding);
+		OPENSSL_free(r->bignum_data);
+		OPENSSL_free(r);
+	}
 }
 
 int RSA_up_ref(RSA * r)

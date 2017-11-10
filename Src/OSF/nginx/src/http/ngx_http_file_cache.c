@@ -5,8 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-#include <ngx_md5.h>
 
 static ngx_int_t ngx_http_file_cache_lock(ngx_http_request_t * r, ngx_http_cache_t * c);
 static void ngx_http_file_cache_lock_wait_handler(ngx_event_t * ev);

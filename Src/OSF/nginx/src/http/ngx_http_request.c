@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static void ngx_http_wait_request_handler(ngx_event_t * ev);
 static void ngx_http_process_request_line(ngx_event_t * rev);

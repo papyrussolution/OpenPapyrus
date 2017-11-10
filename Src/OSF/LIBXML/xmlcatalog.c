@@ -14,7 +14,7 @@
 		#include <readline/history.h>
 	#endif
 #endif
-#include <libxml/catalog.h>
+//#include <libxml/catalog.h>
 
 #if defined(LIBXML_CATALOG_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 static int shell = 0;

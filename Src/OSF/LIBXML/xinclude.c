@@ -12,9 +12,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/xpath.h>
-//#include <libxml/xpointer.h>
-//#include <libxml/parserInternals.h>
 
 #ifdef LIBXML_XINCLUDE_ENABLED
 #include <libxml/xinclude.h>
@@ -1259,7 +1256,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlD
 	source = from->intSubset;
 	if(source && source->entities) {
 		xmlXIncludeMergeData data(ctxt, doc);
-		xmlHashScan((xmlHashTablePtr)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
+		xmlHashScan((xmlHashTable *)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
 	}
 	source = from->extSubset;
 	if(source && source->entities) {
@@ -1268,7 +1265,7 @@ static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlD
 		 * don't duplicate existing stuff when external subsets are the same
 		 */
 		if(!sstreq(target->ExternalID, source->ExternalID) && !sstreq(target->SystemID, source->SystemID)) {
-			xmlHashScan((xmlHashTablePtr)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
+			xmlHashScan((xmlHashTable *)source->entities, (xmlHashScanner)xmlXIncludeMergeEntity, &data);
 		}
 	}
 	return 0;

@@ -9,9 +9,6 @@
     <ClCompile Include="..\Osf\Libzip\lib\zip_utf-8.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Osf\Libzip\lib\compat.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Libzip\lib\zip.h">
       <Filter>Header</Filter>
     </ClInclude>

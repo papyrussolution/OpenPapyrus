@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 static const char * ngx_http_upstream_zone(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf); // F_SetHandler
 static ngx_int_t ngx_http_upstream_init_zone(ngx_shm_zone_t * shm_zone, void * data);

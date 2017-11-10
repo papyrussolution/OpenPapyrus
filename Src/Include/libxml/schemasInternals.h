@@ -19,7 +19,7 @@
 #ifdef LIBXML_SCHEMAS_ENABLED
 
 #include <libxml/xmlregexp.h>
-#include <libxml/hash.h>
+//#include <libxml/hash.h>
 //#include <libxml/dict.h>
 
 #ifdef __cplusplus
@@ -919,30 +919,30 @@ struct _xmlSchemaNotation {
  * A Schemas definition
  */
 struct _xmlSchema {
-    const xmlChar *name; /* schema name */
-    const xmlChar *targetNamespace; /* the target namespace */
-    const xmlChar *version;
-    const xmlChar *id; /* Obsolete */
-    xmlDocPtr doc;
-    xmlSchemaAnnotPtr annot;
-    int flags;
-    xmlHashTablePtr typeDecl;
-    xmlHashTablePtr attrDecl;
-    xmlHashTablePtr attrgrpDecl;
-    xmlHashTablePtr elemDecl;
-    xmlHashTablePtr notaDecl;
-    xmlHashTablePtr schemasImports;
-    void *_private;        /* unused by the library for users or bindings */
-    xmlHashTablePtr groupDecl;
+    const xmlChar * name; /* schema name */
+    const xmlChar * targetNamespace; /* the target namespace */
+    const xmlChar * version;
+    const xmlChar * id; /* Obsolete */
+    xmlDoc * doc;
+    xmlSchemaAnnot * annot;
+    int    flags;
+    xmlHashTable * typeDecl;
+    xmlHashTable * attrDecl;
+    xmlHashTable * attrgrpDecl;
+    xmlHashTable * elemDecl;
+    xmlHashTable * notaDecl;
+    xmlHashTable * schemasImports;
+    void * _private;        /* unused by the library for users or bindings */
+    xmlHashTable * groupDecl;
     xmlDict * dict;
-    void *includes;     /* the includes, this is opaque for now */
-    int preserve;        /* whether to free the document */
-    int counter; /* used to give ononymous components unique names */
-    xmlHashTablePtr idcDef; /* All identity-constraint defs. */
-    void *volatiles; /* Obsolete */
+    void * includes;     /* the includes, this is opaque for now */
+    int    preserve;        /* whether to free the document */
+    int    counter; /* used to give ononymous components unique names */
+    xmlHashTable * idcDef; /* All identity-constraint defs. */
+    void * volatiles; /* Obsolete */
 };
 
-XMLPUBFUN void XMLCALL xmlSchemaFreeType        (xmlSchemaTypePtr type);
+XMLPUBFUN void XMLCALL xmlSchemaFreeType(xmlSchemaTypePtr type);
 XMLPUBFUN void XMLCALL xmlSchemaFreeWildcard(xmlSchemaWildcardPtr wildcard);
 
 #ifdef __cplusplus

@@ -25,5 +25,6 @@ libjpeg-turbo 1.5.1
 openssl      1.1.0e
 nginx        1.13.4 (from original hg repo)
 pcre         8.41
+libssh2      1.8.1-dev (from original git repo) 
 
 @v9.6.12 giflib encapsulated in slib

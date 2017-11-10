@@ -18,35 +18,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * xmlModulePtr:
  *
  * A handle to a dynamically loaded module
  */
 typedef struct _xmlModule xmlModule;
-typedef xmlModule *xmlModulePtr;
-
+typedef xmlModule * xmlModulePtr;
 /**
  * xmlModuleOption:
  *
  * enumeration of options that can be passed down to xmlModuleOpen()
  */
 typedef enum {
-    XML_MODULE_LAZY = 1,	/* lazy binding */
-    XML_MODULE_LOCAL= 2		/* local binding */
+	XML_MODULE_LAZY = 1,    /* lazy binding */
+	XML_MODULE_LOCAL = 2    /* local binding */
 } xmlModuleOption;
 
-XMLPUBFUN xmlModulePtr XMLCALL xmlModuleOpen	(const char *filename,
-						 int options);
-
-XMLPUBFUN int XMLCALL xmlModuleSymbol		(xmlModulePtr module,
-						 const char* name,
-						 void **result);
-
-XMLPUBFUN int XMLCALL xmlModuleClose		(xmlModulePtr module);
-
-XMLPUBFUN int XMLCALL xmlModuleFree		(xmlModulePtr module);
+XMLPUBFUN xmlModulePtr XMLCALL xmlModuleOpen(const char * filename, int options);
+XMLPUBFUN int XMLCALL xmlModuleSymbol(xmlModulePtr module, const char* name, void ** result);
+XMLPUBFUN int XMLCALL xmlModuleClose(xmlModulePtr module);
+XMLPUBFUN int XMLCALL xmlModuleFree(xmlModulePtr module);
 
 #ifdef __cplusplus
 }

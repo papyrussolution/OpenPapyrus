@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 #define NGX_HTTP_CHARSET_OFF    -2
 #define NGX_HTTP_NO_CHARSET     -3

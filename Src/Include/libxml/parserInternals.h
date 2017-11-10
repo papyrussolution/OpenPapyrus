@@ -12,8 +12,8 @@
 #ifndef __XML_PARSER_INTERNALS_H__
 #define __XML_PARSER_INTERNALS_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/parser.h>
+//#include <libxml/xmlversion.h>
+//#include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
 //#include <libxml/chvalid.h>
 
@@ -297,7 +297,7 @@ XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInpu
 
 #ifdef IN_LIBXML
 /* internal error reporting */
-XMLPUBFUN void XMLCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2);
+XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2);
 #endif
 /**
  * Input Streams.
@@ -332,10 +332,10 @@ XMLPUBFUN void XMLCALL xmlParsePI(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseNotationDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseEntityDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlParseDefaultDecl(xmlParserCtxt * ctxt, xmlChar ** value);
-XMLPUBFUN xmlEnumerationPtr XMLCALL xmlParseNotationType(xmlParserCtxt * ctxt);
-XMLPUBFUN xmlEnumerationPtr XMLCALL xmlParseEnumerationType(xmlParserCtxt * ctxt);
-XMLPUBFUN int XMLCALL xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumerationPtr * tree);
-XMLPUBFUN int XMLCALL xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumerationPtr * tree);
+XMLPUBFUN xmlEnumeration * XMLCALL xmlParseNotationType(xmlParserCtxt * ctxt);
+XMLPUBFUN xmlEnumeration * XMLCALL xmlParseEnumerationType(xmlParserCtxt * ctxt);
+XMLPUBFUN int XMLCALL xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
+XMLPUBFUN int XMLCALL xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
 XMLPUBFUN void XMLCALL xmlParseAttributeListDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN xmlElementContentPtr XMLCALL xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int inputchk);
 XMLPUBFUN xmlElementContentPtr XMLCALL xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk);
@@ -405,7 +405,7 @@ XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);
  * other commodities shared between parser.c and parserInternals.
  */
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlSkipBlankChars(xmlParserCtxt * ctxt);
-XMLPUBFUN int XMLCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlStringCurrentChar(xmlParserCtxt * ctxt, const xmlChar * cur, int * len);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
 
@@ -413,8 +413,8 @@ XMLPUBFUN int XMLCALL xmlCheckLanguageID(const xmlChar * lang);
  * Really core function shared with HTML parser.
  */
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len);
-XMLPUBFUN int XMLCALL xmlCopyCharMultiByte(xmlChar * out, int val);
-XMLPUBFUN int XMLCALL xmlCopyChar(int len, xmlChar * out, int val);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlCopyChar(int len, xmlChar * out, int val);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNextChar(xmlParserCtxt * ctxt);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserInputShrink(xmlParserInput * in);
 
@@ -423,7 +423,7 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlParserInputShrink(xmlParserInput * in);
  * Actually comes from the HTML parser but launched from the init stuff.
  */
 XMLPUBFUN void XMLCALL htmlInitAutoClose();
-XMLPUBFUN htmlParserCtxtPtr XMLCALL htmlCreateFileParserCtxt(const char * filename, const char * encoding);
+XMLPUBFUN htmlParserCtxt * XMLCALL htmlCreateFileParserCtxt(const char * filename, const char * encoding);
 #endif
 
 /*

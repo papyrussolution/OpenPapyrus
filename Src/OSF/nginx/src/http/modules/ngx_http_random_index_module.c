@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 typedef struct {
 	ngx_flag_t enable;
@@ -13,12 +12,10 @@ typedef struct {
 
 #define NGX_HTTP_RANDOM_INDEX_PREALLOCATE  50
 
-static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r,
-    ngx_dir_t * dir, ngx_str_t * name);
+static ngx_int_t ngx_http_random_index_error(ngx_http_request_t * r, ngx_dir_t * dir, ngx_str_t * name);
 static ngx_int_t ngx_http_random_index_init(ngx_conf_t * cf);
 static void * ngx_http_random_index_create_loc_conf(ngx_conf_t * cf);
-static char * ngx_http_random_index_merge_loc_conf(ngx_conf_t * cf,
-    void * parent, void * child);
+static char * ngx_http_random_index_merge_loc_conf(ngx_conf_t * cf, void * parent, void * child);
 
 static ngx_command_t ngx_http_random_index_commands[] = {
 	{ ngx_string("random_index"),

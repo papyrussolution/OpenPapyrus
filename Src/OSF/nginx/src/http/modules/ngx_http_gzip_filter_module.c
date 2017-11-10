@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 #include <zlib.h>
 
 struct ngx_http_gzip_conf_t {

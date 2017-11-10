@@ -304,7 +304,6 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 	 * 3) displays a bunch of cert information.  axTLS doesn't support most of
 	 *    this, but a couple fields are available.
 	 */
-
 	/* There is no (DNS) Altnames count in the version 1.4.8 API. There is a
 	   risk of an inifite loop */
 	for(dns_altname_index = 0;; dns_altname_index++) {
@@ -313,15 +312,12 @@ static CURLcode connect_finish(struct connectdata * conn, int sockindex)
 			break;
 		}
 		found_subject_alt_names = 1;
-
-		infof(data, "\tComparing subject alt name DNS with hostname: %s <-> %s\n",
-		    dns_altname, hostname);
+		infof(data, "\tComparing subject alt name DNS with hostname: %s <-> %s\n", dns_altname, hostname);
 		if(Curl_cert_hostcheck(dns_altname, hostname)) {
 			found_subject_alt_name_matching_conn = 1;
 			break;
 		}
 	}
-
 	/* RFC2818 checks */
 	if(found_subject_alt_names && !found_subject_alt_name_matching_conn) {
 		if(SSL_CONN_CONFIG(verifyhost)) {

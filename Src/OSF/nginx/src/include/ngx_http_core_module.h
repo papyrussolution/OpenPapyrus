@@ -7,7 +7,6 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-//#include <ngx_http.h>
 #if (NGX_THREADS)
 	//
 	//#include <ngx_thread_pool.h>
@@ -415,37 +414,10 @@ extern ngx_module_t ngx_http_core_module;
 extern ngx_uint_t ngx_http_max_module;
 extern ngx_str_t ngx_http_core_get_method;
 
-#define ngx_http_clear_content_length(r)				      \
-	r->headers_out.content_length_n = -1;					  \
-	if(r->headers_out.content_length) {					 \
-		r->headers_out.content_length->hash = 0;			      \
-		r->headers_out.content_length = NULL;				      \
-	}
-
-#define ngx_http_clear_accept_ranges(r)					      \
-	r->allow_ranges = 0;							  \
-	if(r->headers_out.accept_ranges) {					 \
-		r->headers_out.accept_ranges->hash = 0;				      \
-		r->headers_out.accept_ranges = NULL;				      \
-	}
-
-#define ngx_http_clear_last_modified(r)					      \
-	r->headers_out.last_modified_time = -1;					  \
-	if(r->headers_out.last_modified) {					 \
-		r->headers_out.last_modified->hash = 0;				      \
-		r->headers_out.last_modified = NULL;				      \
-	}
-
-#define ngx_http_clear_location(r)					      \
-	if(r->headers_out.location) {						 \
-		r->headers_out.location->hash = 0;				      \
-		r->headers_out.location = NULL;					      \
-	}
-
-#define ngx_http_clear_etag(r)						      \
-	if(r->headers_out.etag) {						 \
-		r->headers_out.etag->hash = 0;					      \
-		r->headers_out.etag = NULL;					      \
-	}
+#define ngx_http_clear_content_length(r) r->headers_out.content_length_n = -1; if(r->headers_out.content_length) { r->headers_out.content_length->hash = 0; r->headers_out.content_length = NULL; }
+#define ngx_http_clear_accept_ranges(r)  r->allow_ranges = 0; if(r->headers_out.accept_ranges) { r->headers_out.accept_ranges->hash = 0; r->headers_out.accept_ranges = NULL; }
+#define ngx_http_clear_last_modified(r)  r->headers_out.last_modified_time = -1; if(r->headers_out.last_modified) { r->headers_out.last_modified->hash = 0; r->headers_out.last_modified = NULL; }
+#define ngx_http_clear_location(r)       if(r->headers_out.location) { r->headers_out.location->hash = 0; r->headers_out.location = NULL; }
+#define ngx_http_clear_etag(r)           if(r->headers_out.etag) { r->headers_out.etag->hash = 0; r->headers_out.etag = NULL; }
 
 #endif /* _NGX_HTTP_CORE_H_INCLUDED_ */

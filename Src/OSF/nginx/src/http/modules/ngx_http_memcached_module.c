@@ -5,7 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 struct ngx_http_memcached_loc_conf_t {
 	ngx_http_upstream_conf_t upstream;

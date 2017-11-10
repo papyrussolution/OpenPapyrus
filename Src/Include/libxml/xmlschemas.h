@@ -152,7 +152,6 @@ XMLPUBFUN int XMLCALL xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlPar
 XMLPUBFUN int XMLCALL xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int options);
 
 XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt);
-
 /*
  * Interface to insert Schemas SAX validation in a SAX stream
  */

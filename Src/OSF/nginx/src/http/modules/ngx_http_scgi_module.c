@@ -6,7 +6,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
 
 typedef struct {
 	ngx_array_t caches;             /* ngx_http_file_cache_t * */

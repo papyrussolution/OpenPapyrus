@@ -26,8 +26,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/dict.h>
-//#include <libxml/parserInternals.h>
 #include <libxml/pattern.h>
 
 #ifdef LIBXML_PATTERN_ENABLED

@@ -2473,19 +2473,16 @@ static void print_http_error(struct Curl_easy * data)
 				end_char = '\n';
 				end = strchr(beg, end_char);
 			}
-
 			if(end) {
 				/* temporarily replace CR or LF by NUL and print the error message */
 				*end = '\0';
 				failf(data, "The requested URL returned error: %s", beg);
-
 				/* restore the previously replaced CR or LF */
 				*end = end_char;
 				return;
 			}
 		}
 	}
-
 	/* fall-back to printing the HTTP status code only */
 	failf(data, "The requested URL returned error: %d", k->httpcode);
 }
@@ -2527,37 +2524,27 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 			}
 			break; /* read more and try again */
 		}
-
 		/* decrease the size of the remaining (supposed) header line */
 		rest_length = (k->end_ptr - k->str)+1;
 		*nread -= (ssize_t)rest_length;
-
 		k->str = k->end_ptr + 1; /* move past new line */
-
 		full_length = k->str - k->str_start;
-
 		result = header_append(data, k, full_length);
 		if(result)
 			return result;
-
 		k->end_ptr = k->hbufp;
 		k->p = data->state.headerbuff;
-
 		/****
 		 * We now have a FULL header line that p points to
 		 *****/
-
 		if(!k->headerline) {
 			/* the first read header */
-			if((k->hbuflen>5) &&
-			    !checkprotoprefix(data, conn, data->state.headerbuff)) {
+			if((k->hbuflen>5) && !checkprotoprefix(data, conn, data->state.headerbuff)) {
 				/* this is not the beginning of a protocol first header line */
 				k->header = FALSE;
-				if(*nread)
-					/* since there's more, this is a partial bad header */
-					k->badheader = HEADER_PARTHEADER;
-				else {
-					/* this was all we read so it's all a bad header */
+				if(*nread) /* since there's more, this is a partial bad header */
+					k->badheader = HEADER_PARTHEADER; 
+				else { /* this was all we read so it's all a bad header */
 					k->badheader = HEADER_ALLBAD;
 					*nread = (ssize_t)rest_length;
 				}
@@ -2600,7 +2587,6 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					     */
 					    k->header = TRUE;
 					    k->headerline = 0; /* restart the header line counter */
-
 					    /* if we did wait for this do enable write now! */
 					    if(k->exp100 > EXP100_SEND_DATA) {
 						    k->exp100 = EXP100_SEND_DATA;
@@ -2613,11 +2599,9 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 						    /* Switching to HTTP/2 */
 						    infof(data, "Received 101\n");
 						    k->upgr101 = UPGR101_RECEIVED;
-
 						    /* we'll get more headers (HTTP/2 response) */
 						    k->header = TRUE;
 						    k->headerline = 0; /* restart the header line counter */
-
 						    /* switch to http2 now. The bytes after response headers
 						       are also processed here, otherwise they are lost. */
 						    result = Curl_http2_switched(conn, k->str, *nread);
@@ -2640,76 +2624,53 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 			}
 			else {
 				k->header = FALSE; /* no more header to parse! */
-
-				if((k->size == -1) && !k->chunk && !conn->bits.close &&
-				    (conn->httpversion == 11) &&
-				    !(conn->handler->protocol & CURLPROTO_RTSP) &&
+				if((k->size == -1) && !k->chunk && !conn->bits.close && (conn->httpversion == 11) && !(conn->handler->protocol & CURLPROTO_RTSP) &&
 				    data->set.httpreq != HTTPREQ_HEAD) {
 					/* On HTTP 1.1, when connection is not to get closed, but no
 					   Content-Length nor Content-Encoding chunked have been
 					   received, according to RFC2616 section 4.4 point 5, we
 					   assume that the server will close the connection to
 					   signal the end of the document. */
-					infof(data, "no chunk, no close, no size. Assume close to "
-					    "signal end\n");
+					infof(data, "no chunk, no close, no size. Assume close to signal end\n");
 					streamclose(conn, "HTTP: No end-of-message indicator");
 				}
 			}
-
 			/* At this point we have some idea about the fate of the connection.
 			   If we are closing the connection it may result auth failure. */
 #if defined(USE_NTLM)
 			if(conn->bits.close &&
-			    (((data->req.httpcode == 401) &&
-					    (conn->ntlm.state == NTLMSTATE_TYPE2)) ||
-				    ((data->req.httpcode == 407) &&
-					    (conn->proxyntlm.state == NTLMSTATE_TYPE2)))) {
+			    (((data->req.httpcode == 401) && (conn->ntlm.state == NTLMSTATE_TYPE2)) ||
+				    ((data->req.httpcode == 407) && (conn->proxyntlm.state == NTLMSTATE_TYPE2)))) {
 				infof(data, "Connection closure while negotiating auth (HTTP 1.0?)\n");
 				data->state.authproblem = TRUE;
 			}
 #endif
-
-			/*
-			 * When all the headers have been parsed, see if we should give
-			 * up and return an error.
-			 */
+			// 
+			// When all the headers have been parsed, see if we should give up and return an error.
+			// 
 			if(http_should_fail(conn)) {
-				failf(data, "The requested URL returned error: %d",
-				    k->httpcode);
+				failf(data, "The requested URL returned error: %d", k->httpcode);
 				return CURLE_HTTP_RETURNED_ERROR;
 			}
-
-			/* now, only output this if the header AND body are requested:
-			 */
+			// now, only output this if the header AND body are requested:
 			writetype = CLIENTWRITE_HEADER;
 			if(data->set.include_header)
 				writetype |= CLIENTWRITE_BODY;
-
 			headerlen = k->p - data->state.headerbuff;
-
-			result = Curl_client_write(conn, writetype,
-			    data->state.headerbuff,
-			    headerlen);
+			result = Curl_client_write(conn, writetype, data->state.headerbuff, headerlen);
 			if(result)
 				return result;
-
 			data->info.header_size += (long)headerlen;
 			data->req.headerbytecount += (long)headerlen;
-
-			data->req.deductheadercount =
-			    (100 <= k->httpcode && 199 >= k->httpcode) ? data->req.headerbytecount : 0;
-
+			data->req.deductheadercount = (100 <= k->httpcode && 199 >= k->httpcode) ? data->req.headerbytecount : 0;
 			/* Curl_http_auth_act() checks what authentication methods
 			 * that are available and decides which one (if any) to
 			 * use. It will set 'newurl' if an auth method was picked. */
 			result = Curl_http_auth_act(conn);
-
 			if(result)
 				return result;
-
 			if(k->httpcode >= 300) {
-				if((!conn->bits.authneg) && !conn->bits.close &&
-				    !conn->bits.rewindaftersend) {
+				if((!conn->bits.authneg) && !conn->bits.close && !conn->bits.rewindaftersend) {
 					/*
 					 * General treatment of errors when about to send data. Including :
 					 * "417 Expectation Failed", while waiting for 100-continue.
@@ -2722,7 +2683,6 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					 * rewindaftersend indicates that something has told libcurl to
 					 * continue sending even if it gets discarded
 					 */
-
 					switch(data->set.httpreq) {
 						case HTTPREQ_PUT:
 						case HTTPREQ_POST:
@@ -2749,20 +2709,16 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 							    }
 						    }
 						    break;
-
 						default: /* default label present to avoid compiler warnings */
 						    break;
 					}
 				}
-
 				if(conn->bits.rewindaftersend) {
-					/* We rewind after a complete send, so thus we continue
-					   sending now */
+					/* We rewind after a complete send, so thus we continue sending now */
 					infof(data, "Keep sending data to get tossed away!\n");
 					k->keepon |= KEEP_SEND;
 				}
 			}
-
 			if(!k->header) {
 				/*
 				 * really end-of-headers.
@@ -2853,16 +2809,13 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 			 */
 			strncpy(&scratch[0], k->p, SCRATCHSIZE);
 			scratch[SCRATCHSIZE] = 0; /* null terminate */
-			res = Curl_convert_from_network(data,
-			    &scratch[0],
-			    SCRATCHSIZE);
+			res = Curl_convert_from_network(data, &scratch[0], SCRATCHSIZE);
 			if(res)
 				/* Curl_convert_from_network calls failf if unsuccessful */
 				return res;
 #else
 #define HEADER1 k->p /* no conversion needed, just use k->p */
 #endif /* CURL_DOES_CONVERSIONS */
-
 			if(conn->handler->protocol & PROTO_FAMILY_HTTP) {
 				/*
 				 * https://tools.ietf.org/html/rfc7230#section-3.1.2
@@ -2871,21 +2824,13 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 				 * says. We try to allow any number here, but we cannot make
 				 * guarantees on future behaviors since it isn't within the protocol.
 				 */
-				nc = sscanf(HEADER1,
-				    " HTTP/%d.%d %d",
-				    &httpversion_major,
-				    &conn->httpversion,
-				    &k->httpcode);
-
-				if(nc == 1 && httpversion_major == 2 &&
-				    1 == sscanf(HEADER1, " HTTP/2 %d", &k->httpcode)) {
+				nc = sscanf(HEADER1, " HTTP/%d.%d %d", &httpversion_major, &conn->httpversion, &k->httpcode);
+				if(nc == 1 && httpversion_major == 2 && 1 == sscanf(HEADER1, " HTTP/2 %d", &k->httpcode)) {
 					conn->httpversion = 0;
 					nc = 3;
 				}
-
 				if(nc==3) {
 					conn->httpversion += 10 * httpversion_major;
-
 					if(k->upgr101 == UPGR101_RECEIVED) {
 						/* supposedly upgraded to http2 now */
 						if(conn->httpversion != 20)
@@ -2898,7 +2843,6 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					 */
 					nc = sscanf(HEADER1, " HTTP %3d", &k->httpcode);
 					conn->httpversion = 10;
-
 					/* If user has set option HTTP200ALIASES,
 					   compare header line against list of aliases
 					 */
@@ -2912,11 +2856,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 				}
 			}
 			else if(conn->handler->protocol & CURLPROTO_RTSP) {
-				nc = sscanf(HEADER1,
-				    " RTSP/%d.%d %3d",
-				    &rtspversion_major,
-				    &conn->rtspversion,
-				    &k->httpcode);
+				nc = sscanf(HEADER1, " RTSP/%d.%d %3d", &rtspversion_major, &conn->rtspversion, &k->httpcode);
 				if(nc==3) {
 					conn->rtspversion += 10 * rtspversion_major;
 					conn->httpversion = 11; /* For us, RTSP acts like HTTP 1.1 */
@@ -2926,16 +2866,12 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					nc = 0;
 				}
 			}
-
 			if(nc) {
 				data->info.httpcode = k->httpcode;
-
 				data->info.httpversion = conn->httpversion;
-				if(!data->state.httpversion ||
-				    data->state.httpversion > conn->httpversion)
+				if(!data->state.httpversion || data->state.httpversion > conn->httpversion)
 					/* store the lowest server version we encounter */
 					data->state.httpversion = conn->httpversion;
-
 				/*
 				 * This code executes as part of processing the header.  As a
 				 * result, it's not totally clear how to interpret the
@@ -2959,7 +2895,6 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 						return CURLE_HTTP_RETURNED_ERROR;
 					}
 				}
-
 				if(conn->httpversion == 10) {
 					/* Default action for HTTP/1.0 must be to close, unless
 					   we get one of those fancy headers that tell us the
@@ -2967,21 +2902,16 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					infof(data, "HTTP 1.0, assume close after body\n");
 					connclose(conn, "HTTP/1.0 close after body");
 				}
-				else if(conn->httpversion == 20 ||
-				    (k->upgr101 == UPGR101_REQUESTED && k->httpcode == 101)) {
+				else if(conn->httpversion == 20 || (k->upgr101 == UPGR101_REQUESTED && k->httpcode == 101)) {
 					DEBUGF(infof(data, "HTTP/2 found, allow multiplexing\n"));
-
 					/* HTTP/2 cannot blacklist multiplexing since it is a core
 					   functionality of the protocol */
 					conn->bundle->multiuse = BUNDLE_MULTIPLEX;
 				}
-				else if(conn->httpversion >= 11 &&
-				    !conn->bits.close) {
+				else if(conn->httpversion >= 11 && !conn->bits.close) {
 					/* If HTTP version is >= 1.1 and connection is persistent
 					   server supports pipelining. */
-					DEBUGF(infof(data,
-						    "HTTP 1.1 or later with persistent connection, "
-						    "pipelining supported\n"));
+					DEBUGF(infof(data, "HTTP 1.1 or later with persistent connection, pipelining supported\n"));
 					/* Activate pipelining if needed */
 					if(conn->bundle) {
 						if(!Curl_pipeline_site_blacklisted(data, conn))

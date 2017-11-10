@@ -226,7 +226,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -279,7 +279,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -329,7 +329,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -377,7 +377,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -425,7 +425,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -473,7 +473,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -516,7 +516,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -563,7 +563,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -604,7 +604,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -652,7 +652,7 @@
       <AdditionalOptions>/EHsc  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;BUILDING_LIBCURL;DEBUGBUILD;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -700,7 +700,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -747,7 +747,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\OSF\CURL\include;..\OSF\CURL\src;..\OSF\CURL\lib;..\osf\OpenSSL\include;..\include;..\INCLUDE\ZLIB;..\osf\LibSSH2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;BUILDING_LIBCURL;CURL_STATICLIB;USE_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -1044,6 +1044,11 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\osf\curl\lib\libcurl.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libssh2.vcxproj">
+      <Project>{15bc6de1-d1c2-4f47-a7a5-43d1a73d9b94}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

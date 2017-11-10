@@ -5,8 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-//#include <nginx.h>
 #include <ngx_http_v2_module.h>
 /*
  * This returns precise number of octets for values in range 0..253

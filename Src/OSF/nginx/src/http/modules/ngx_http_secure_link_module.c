@@ -5,8 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_http.h>
-#include <ngx_md5.h>
 
 typedef struct {
 	ngx_http_complex_value_t  * variable;

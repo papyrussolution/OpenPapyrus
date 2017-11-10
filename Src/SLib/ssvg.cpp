@@ -224,7 +224,7 @@ int SSvg::GetAttrList(xmlNode * pNode, StrAssocArray & rList)
 					}
 				}
 				else if(p_prop->type == XML_ATTRIBUTE_DECL) {
-					rList.Add(token, (const char *)((xmlAttributePtr)p_prop)->defaultValue);
+					rList.Add(token, (const char *)((xmlAttribute *)p_prop)->defaultValue);
 				}
 			}
 		}

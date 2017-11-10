@@ -102,7 +102,7 @@ struct xmlDict {
  * A mutex for modifying the reference counter for shared
  * dictionaries.
  */
-static xmlRMutexPtr xmlDictMutex = NULL;
+static xmlRMutex * xmlDictMutex = NULL;
 /*
  * Whether the dictionary mutex was initialized.
  */
@@ -1039,6 +1039,13 @@ int FASTCALL xmlDictOwns(xmlDict * dict, const xmlChar * str)
 		}
 		return dict->subdict ? xmlDictOwns(dict->subdict, str) : 0;
 	}
+}
+
+void FASTCALL XmlDestroyStringWithDict(xmlDict * pDict, xmlChar * pStr)
+{
+	//#define DICT_FREE(p_dict__, str) if((str) && ((!p_dict__) || (xmlDictOwns(p_dict__, (const xmlChar*)(str)) == 0))) SAlloc::F((char*)(str));
+	if(pStr && (!pDict || !xmlDictOwns(pDict, pStr)))
+		SAlloc::F(pStr);
 }
 /**
  * xmlDictSize:
